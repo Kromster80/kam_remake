@@ -3,8 +3,8 @@ unit KM_MissionScript_Preview;
 interface
 uses
   Classes, KromUtils, SysUtils, Math,
-  KM_Utils, KM_CommonClasses, KM_Defaults, KM_Points, KM_MissionScript,
-  KM_Terrain;
+  KM_CommonClasses, KM_Defaults, KM_Points,
+  KM_MissionScript, KM_Terrain, KM_Utils;
 
 
 type
@@ -33,8 +33,9 @@ type
 
     function GetTileInfo(X, Y: Integer): TTilePreviewInfo;
     function GetPlayerInfo(aIndex: Byte): TPlayerPreviewInfo;
-    procedure LoadMapData(const aFileName: string);
-    procedure ProcessCommand(CommandType: TKMCommandType; const P: array of Integer);
+    function LoadMapData(const aFileName: string): Boolean;
+  protected
+    function ProcessCommand(CommandType: TKMCommandType; P: array of Integer; TextParam: AnsiString = ''): Boolean; override;
   public
     property MapPreview[X, Y: Integer]: TTilePreviewInfo read GetTileInfo;
     property PlayerPreview[aIndex: Byte]: TPlayerPreviewInfo read GetPlayerInfo;
@@ -63,12 +64,17 @@ end;
 
 
 //Load terrain data into liteweight structure, take only what we need for preview
-procedure TMissionParserPreview.LoadMapData(const aFileName: string);
+function TMissionParserPreview.LoadMapData(const aFileName: string): Boolean;
 var
   I: Integer;
   S: TKMemoryStream;
   NewX, NewY: Integer;
 begin
+  Result := False;
+
+  if not FileExists(aFileName) then
+    Exit;
+
   S := TKMemoryStream.Create;
   try
     S.LoadFromFile(aFileName);
@@ -87,10 +93,12 @@ begin
   finally
     S.Free;
   end;
+
+  Result := True;
 end;
 
 
-procedure TMissionParserPreview.ProcessCommand(CommandType: TKMCommandType; const P: array of integer);
+function TMissionParserPreview.ProcessCommand(CommandType: TKMCommandType; P: array of Integer; TextParam: AnsiString = ''): Boolean;
 
   procedure SetOwner(X,Y: Word);
   begin
@@ -159,93 +167,46 @@ begin
     ct_ClearUp:         if (fRevealFor <> 0) and (fRevealFor = fLastPlayer) then
                         begin
                           if P[0] = 255 then
-                            for i:=1 to MAX_MAP_SIZE*MAX_MAP_SIZE do
+                            for I := 1 to MAX_MAP_SIZE * MAX_MAP_SIZE do
                               fMapPreview[i].Revealed := True
                           else
-                            RevealCircle(P[0]+1,P[1]+1,P[2]);
+                            RevealCircle(P[0]+1, P[1]+1, P[2]);
                         end;
   end;
+
+  Result := True;
 end;
 
 
 //We use custom mission loader for speed (compare only used commands)
 function TMissionParserPreview.LoadMission(const aFileName: string; aRevealFor: TPlayerIndex): Boolean;
 const
-  MAX_CMD = 6;
+  Commands: array [0..14] of AnsiString = (
+    '!SET_MAP', '!SET_MAP_COLOR', '!SET_AI_PLAYER', '!CENTER_SCREEN',
+    '!SET_CURR_PLAYER', '!SET_HUMAN_PLAYER', '!SET_USER_PLAYER',
+    '!SET_STREET', '!SET_FIELD', '!SET_WINEFIELD', '!SET_STOCK',
+    '!SET_HOUSE', '!CLEAR_UP', '!SET_UNIT', '!SET_GROUP');
 var
-  FileText, CommandText, Param: AnsiString;
-  ParamList: array[1..MAX_CMD] of Integer;
-  k, l, IntParam: Integer;
-  CommandType: TKMCommandType;
+  FileText: AnsiString;
 begin
   inherited LoadMission(aFileName);
+
+  Result := False;
 
   fRevealFor := aRevealFor;
   FillChar(fMapPreview, SizeOf(fMapPreview), #0);
   FillChar(fPlayerPreview, SizeOf(fPlayerPreview), #0);
 
-  LoadMapData(ChangeFileExt(fMissionFileName, '.map'));
-  Result := false;
-
   FileText := ReadMissionFile(aFileName);
-  if FileText = '' then Exit;
+  if FileText = '' then
+    Exit;
 
-  //FileText should now be formatted nicely with 1 space between each parameter/command
-  k := 1;
-  repeat
-    if FileText[k]='!' then
-    begin
-      for l:=1 to MAX_CMD do
-        ParamList[l]:=-1;
-      CommandText:='';
-      //Extract command until a space
-      repeat
-        CommandText:=CommandText+FileText[k];
-        inc(k);
-      until((FileText[k]=#32)or(k>=length(FileText)));
+  //We need to load map dimensions first, so that SetGroup could access map bounds
+  if not LoadMapData(ChangeFileExt(fMissionFileName, '.map')) then
+    Exit;
 
-      //Try to make it faster by only processing commands used
-      if (CommandText='!SET_CURR_PLAYER')
-      or (CommandText='!SET_MAP_COLOR')
-      or (CommandText='!CENTER_SCREEN')
-      or (CommandText='!SET_USER_PLAYER')
-      or (CommandText='!SET_AI_PLAYER')
-      or (CommandText='!SET_STREET')
-      or (CommandText='!SET_FIELD')
-      or (CommandText='!SET_WINEFIELD')
-      or (CommandText='!SET_STOCK')
-      or (CommandText='!SET_HOUSE')
-      or (CommandText='!CLEAR_UP')
-      or (CommandText='!SET_UNIT')
-      or (CommandText='!SET_GROUP') then
-      begin
-        //Now convert command into type
-        CommandType := TextToCommandType(CommandText);
-        inc(k);
-        //Extract parameters
-        for l:=1 to MAX_CMD do
-          if (k<Length(FileText)) and (FileText[k]<>'!') then
-          begin
-            Param := '';
-            repeat
-              Param := Param + FileText[k];
-              inc(k);
-            until((k >= Length(FileText)) or (FileText[k]='!') or (FileText[k]=#32)); //Until we find another ! OR we run out of data
-
-            //Convert to an integer, if possible
-            if TryStrToInt(String(Param), IntParam) then
-              ParamList[l] := IntParam;
-
-            if FileText[k]=#32 then inc(k);
-          end;
-        //We now have command text and parameters, so process them
-        ProcessCommand(CommandType, ParamList);
-      end;
-    end
-    else
-      inc(k);
-  until (k>=length(FileText));
-  //Apparently it's faster to parse till file end than check if all details are filled
+  if not TokenizeScript(FileText, 6, Commands) then
+    Exit;
 
   Result := (fFatalErrors = '');
 end;

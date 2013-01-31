@@ -11,6 +11,9 @@ uses
   KM_InterfaceDefaults, KM_Minimap, KM_ServerQuery;
 
 
+const
+  MAX_UI_GOALS = 10;
+
 type
   TMenuScreen = (msError, msLoading, msMain, msOptions, msResults, msResultsMP);
 
@@ -32,7 +35,7 @@ type
 
     fLobbyBusy: Boolean;
     fGameResultMsg: TGameResultMsg; //So we know where to go after results screen
-    fWaresVisible:array[WARE_MIN..WARE_MAX] of Boolean; //For MP results page
+    fWaresVisible: array [WARE_MIN..WARE_MAX] of Boolean; //For MP results page
 
     fLastMapCRC: Cardinal; //CRC of selected map
     fLastSaveCRC: Cardinal; //CRC of selected save
@@ -270,19 +273,16 @@ type
         MinimapView_Single: TKMMinimapView;
         Drop_SingleLoc: TKMDropList;
         Drop_SingleColor: TKMDropColumns;
-        Label_SingleCondTyp,Label_SingleCondWin,Label_SingleCondDef: TKMLabel;
-        Label_SingleAllies,Label_SingleEnemies: TKMLabel;
+        Image_SingleAllies: array [0..MAX_PLAYERS-1] of TKMImage;
+        Image_SingleEnemies: array [0..MAX_PLAYERS-1] of TKMImage;
+        Image_SingleVictGoal: array [0..MAX_UI_GOALS-1] of TKMImage;
+        Label_SingleVictGoal: array [0..MAX_UI_GOALS-1] of TKMLabel;
+        Image_SingleVictGoalSt: array [0..MAX_UI_GOALS-1] of TKMImage;
+        Image_SingleSurvGoal: array [0..MAX_UI_GOALS-1] of TKMImage;
+        Label_SingleSurvGoal: array [0..MAX_UI_GOALS-1] of TKMLabel;
+        Image_SingleSurvGoalSt: array [0..MAX_UI_GOALS-1] of TKMImage;
       ColList_SingleMaps: TKMColumnListBox;
-      {Panel_SingleList: TKMPanel;
-        Button_SingleHeadMode,Button_SingleHeadTeams,Button_SingleHeadTitle,Button_SingleHeadSize:TKMButton;
-        Bevel_SingleBG: array of array[1..4]of TKMBevel;
-        Image_SingleMode: array of TKMImage;
-        Label_SinglePlayers,Label_SingleSize,
-        Label_SingleTitle1,Label_SingleTitle2: array of TKMLabel;
-        Shape_SingleOverlay: array of TKMShape;
-        ScrollBar_SingleMaps:TKMScrollBar;
-        Shape_SingleMap:TKMShape;}
-      Button_SingleBack,Button_SingleStart:TKMButton;
+      Button_SingleBack, Button_SingleStart: TKMButton;
     Panel_Load:TKMPanel;
       List_Load: TKMColumnListBox;
       Button_Load: TKMButton;
@@ -1322,7 +1322,9 @@ end;
 
 procedure TKMMainMenuInterface.Create_SingleMap;
 const
-  HW = 445; //Half width for panes
+  HW = 445;
+var
+  I: Integer; //Half width for panes
 begin
   Panel_Single := TKMPanel.Create(Panel_Main, 0, 0, Panel_Main.Width, Panel_Main.Height);
   Panel_Single.Stretch;
@@ -1367,17 +1369,32 @@ begin
       Drop_SingleColor.OnChange := SingleMap_OptionsChange;
 
 
+      TKMLabel.Create(Panel_SingleDesc, 0, 375, HW, 30, fTextLibrary[TX_MENU_WIN_CONDITION], fnt_Metal, taLeft);
+      TKMBevel.Create(Panel_SingleDesc, 200, 370, HW - 200, 30);
+      TKMLabel.Create(Panel_SingleDesc, 0, 405, HW, 30, fTextLibrary[TX_MENU_DEFEAT_CONDITION], fnt_Metal, taLeft);
+      TKMBevel.Create(Panel_SingleDesc, 200, 400, HW - 200, 30);
+      for I := 0 to MAX_UI_GOALS - 1 do
+      begin
+        Image_SingleVictGoal[I] := TKMImage.Create(Panel_SingleDesc, 200 + I*35, 370, 30, 30, 41);
+        Image_SingleVictGoal[I].ImageCenter;
+        Label_SingleVictGoal[I] := TKMLabel.Create(Panel_SingleDesc, 215 + I*35, 375, '', fnt_Grey, taCenter);
+        Image_SingleVictGoalSt[I] := TKMImage.Create(Panel_SingleDesc, 218 + I*35, 385, 20, 20, 32, rxGuiMain);
 
-      TKMBevel.Create(Panel_SingleDesc,0,368,HW,20);
-      Label_SingleCondTyp:=TKMLabel.Create(Panel_SingleDesc,8,371,HW - 16,20,fTextLibrary[TX_MENU_MISSION_TYPE],fnt_Metal, taLeft);
-      TKMBevel.Create(Panel_SingleDesc,0,390,HW,20);
-      Label_SingleCondWin:=TKMLabel.Create(Panel_SingleDesc,8,393,HW - 16,20,fTextLibrary[TX_MENU_WIN_CONDITION],fnt_Metal, taLeft);
-      TKMBevel.Create(Panel_SingleDesc,0,412,HW,20);
-      Label_SingleCondDef:=TKMLabel.Create(Panel_SingleDesc,8,415,HW - 16,20,fTextLibrary[TX_MENU_DEFEAT_CONDITION],fnt_Metal, taLeft);
-      TKMBevel.Create(Panel_SingleDesc,0,434,HW,20);
-      Label_SingleAllies:=TKMLabel.Create(Panel_SingleDesc,8,437,HW - 16,20,fTextLibrary[TX_MENU_ALLIES],fnt_Metal, taLeft);
-      TKMBevel.Create(Panel_SingleDesc,0,456,HW,20);
-      Label_SingleEnemies:=TKMLabel.Create(Panel_SingleDesc,8,459,HW - 16,20,fTextLibrary[TX_MENU_ENEMIES],fnt_Metal, taLeft);
+        Image_SingleSurvGoal[I] := TKMImage.Create(Panel_SingleDesc, 200 + I*35, 400, 30, 30, 41);
+        Image_SingleSurvGoal[I].ImageCenter;
+        Label_SingleSurvGoal[I] := TKMLabel.Create(Panel_SingleDesc, 215 + I*35, 405, '', fnt_Grey, taCenter);
+        Image_SingleSurvGoalSt[I] := TKMImage.Create(Panel_SingleDesc, 218 + I*35, 415, 20, 20, 32, rxGuiMain);
+      end;
+
+      TKMLabel.Create(Panel_SingleDesc, 0, 430, HW, 20, fTextLibrary[TX_MENU_ALLIES], fnt_Metal, taLeft);
+      TKMBevel.Create(Panel_SingleDesc, 200, 430, HW - 200, 20);
+      TKMLabel.Create(Panel_SingleDesc, 0, 450, HW, 20, fTextLibrary[TX_MENU_ENEMIES], fnt_Metal, taLeft);
+      TKMBevel.Create(Panel_SingleDesc, 200, 450, HW - 200, 20);
+      for I := 0 to MAX_PLAYERS - 1 do
+      begin
+        Image_SingleAllies[I] := TKMImage.Create(Panel_SingleDesc, 208 + I*35, 430, 50, 20, 30);
+        Image_SingleEnemies[I] := TKMImage.Create(Panel_SingleDesc, 208 + I*35, 450, 50, 20, 30);
+      end;
 
     Button_SingleBack := TKMButton.Create(Panel_Single, 45, 625, 220, 30, fTextLibrary[TX_MENU_BACK], bsMenu);
     Button_SingleBack.Anchors := [];
@@ -2304,9 +2321,9 @@ begin
 
       for I := 0 to fMaps.Count - 1 do
       begin
-        R := MakeListRow(['', IntToStr(fMaps[I].Info.PlayerCount), fMaps[I].FileName, fMaps[I].Info.MapSizeText]);
+        R := MakeListRow(['', IntToStr(fMaps[I].PlayerCount), fMaps[I].FileName, MapSizeText(fMaps[I].MapSizeX, fMaps[I].MapSizeY)]);
         R.Cells[2].Hint := fMaps[I].SmallDesc;
-        R.Cells[0].Pic := MakePic(rxGui, 28 + Byte(fMaps[I].Info.MissionMode <> mm_Tactic) * 14);
+        R.Cells[0].Pic := MakePic(rxGui, 28 + Byte(fMaps[I].MissionMode <> mm_Tactic) * 14);
         ColList_SingleMaps.AddItem(R);
       end;
   fMaps.Unlock;
@@ -2328,10 +2345,6 @@ begin
       Label_SingleTitle.Caption   := '';
       Memo_SingleDesc.Text        := '';
 
-      Label_SingleCondTyp.Caption := '';
-      Label_SingleCondWin.Caption := '';
-      Label_SingleCondDef.Caption := '';
-
       MinimapView_Single.Hide;
 
       Drop_SingleLoc.Clear;
@@ -2342,19 +2355,16 @@ begin
       fLastMapCRC := fMaps[ID].CRC;
       Label_SingleTitle.Caption   := fMaps[ID].FileName;
       Memo_SingleDesc.Text        := fMaps[ID].BigDesc;
-      Label_SingleCondTyp.Caption := Format(fTextLibrary[TX_MENU_MISSION_TYPE], [fMaps[ID].Info.MissionModeText]);
-      Label_SingleCondWin.Caption := Format(fTextLibrary[TX_MENU_WIN_CONDITION], [fMaps[ID].Info.VictoryCondition]);
-      Label_SingleCondDef.Caption := Format(fTextLibrary[TX_MENU_DEFEAT_CONDITION], [fMaps[ID].Info.DefeatCondition]);
 
       MinimapView_Single.Show;
 
       //Location
       K := 0;
       Drop_SingleLoc.Clear;
-      for I := 0 to fMaps[ID].Info.PlayerCount - 1 do
-      if fMaps[ID].Info.CanBeHuman[I] or ALLOW_TAKE_AI_PLAYERS then
+      for I := 0 to fMaps[ID].PlayerCount - 1 do
+      if fMaps[ID].CanBeHuman[I] or ALLOW_TAKE_AI_PLAYERS then
       begin
-        Drop_SingleLoc.Add(fMaps[ID].Info.LocationName[I]);
+        Drop_SingleLoc.Add(fMaps[ID].LocationName(I));
         fSingleLocations[K] := I;
         Inc(K);
       end;
@@ -2380,18 +2390,58 @@ end;
 
 
 procedure TKMMainMenuInterface.SingleMap_OptionsChange(Sender: TObject);
+const
+  GoalCondPic: array [TGoalCondition] of Word = (39, 592, 322, 62, 41, 53, 314, 312);
+  GoalStatPic: array [TGoalStatus] of Word = (33, 32);
 var
+  I: Integer;
   MapId: Integer;
 begin
+  MapId := ColList_SingleMaps.ItemIndex;
+
   fSingleLoc := fSingleLocations[Drop_SingleLoc.ItemIndex];
   fSingleColor := MP_TEAM_COLORS[Drop_SingleColor.ItemIndex + 1];
 
   //Refresh minimap with selected location and player color
-  MapId := ColList_SingleMaps.ItemIndex;
   fMinimap.LoadFromMission(fMaps[MapId].FullPath('.dat'), fSingleLoc + 1);
   fMinimap.PlayerColors[fSingleLoc+1] := fSingleColor;
   fMinimap.Update(False);
   MinimapView_Single.SetMinimap(fMinimap);
+
+  //Clear all so that later we fill only used
+  for I := 0 to MAX_UI_GOALS - 1 do
+  begin
+    Image_SingleVictGoal[I].TexID := 0;
+    Label_SingleVictGoal[I].Caption := '';
+    Image_SingleVictGoalSt[I].TexID := 0;
+    Image_SingleSurvGoal[I].TexID := 0;
+    Label_SingleSurvGoal[I].Caption := '';
+    Image_SingleSurvGoalSt[I].TexID := 0;
+  end;
+  for I := 0 to MAX_PLAYERS - 1 do
+  begin
+    Image_SingleAllies[I].TexID := 0;
+    Image_SingleEnemies[I].TexID := 0;
+  end;
+
+  for I := 0 to Min(MAX_UI_GOALS, fMaps[MapId].GoalsVictoryCount[fSingleLoc]) - 1 do
+  begin
+    Image_SingleVictGoal[I].TexID := GoalCondPic[fMaps[MapId].GoalsVictory[fSingleLoc,I].Cond];
+    Image_SingleVictGoalSt[I].TexID := GoalStatPic[fMaps[MapId].GoalsVictory[fSingleLoc,I].Stat];
+    Label_SingleVictGoal[I].Caption := IntToStr(fMaps[MapId].GoalsVictory[fSingleLoc,I].Play + 1);
+  end;
+  for I := 0 to Min(MAX_UI_GOALS, fMaps[MapId].GoalsSurviveCount[fSingleLoc]) - 1 do
+  begin
+    Image_SingleSurvGoal[I].TexID := GoalCondPic[fMaps[MapId].GoalsSurvive[fSingleLoc,I].Cond];
+    Image_SingleSurvGoalSt[I].TexID := GoalStatPic[fMaps[MapId].GoalsSurvive[fSingleLoc,I].Stat];
+    Label_SingleSurvGoal[I].Caption := IntToStr(fMaps[MapId].GoalsSurvive[fSingleLoc,I].Play + 1);
+  end;
+
+  for I := 0 to MAX_PLAYERS - 1 do
+  begin
+    Image_SingleAllies[I].TexID := 0;
+    Image_SingleEnemies[I].TexID := 0;
+  end;
 end;
 
 
@@ -3221,16 +3271,16 @@ begin
     begin
       //Different modes allow different maps
       case Radio_LobbyMapType.ItemIndex of
-        0:    AddMap := (fMapsMP[I].Info.MissionMode = mm_Normal) and not fMapsMP[I].IsCoop; //BuildMap
-        1:    AddMap := (fMapsMP[I].Info.MissionMode = mm_Tactic) and not fMapsMP[I].IsCoop; //FightMap
+        0:    AddMap := (fMapsMP[I].MissionMode = mm_Normal) and not fMapsMP[I].IsCoop; //BuildMap
+        1:    AddMap := (fMapsMP[I].MissionMode = mm_Tactic) and not fMapsMP[I].IsCoop; //FightMap
         2:    AddMap := fMapsMP[I].IsCoop; //CoopMap
         else  AddMap := False; //Other cases are already handled in Lobby_MapTypeSelect
       end;
 
       if AddMap then
-        DropCol_LobbyMaps.Add(MakeListRow([fMapsMP[I].Info.Title,
-                                           IntToStr(fMapsMP[I].Info.PlayerCount),
-                                           fMapsMP[I].Info.MapSizeText], I));
+        DropCol_LobbyMaps.Add(MakeListRow([fMapsMP[I].FileName,
+                                           IntToStr(fMapsMP[I].PlayerCount),
+                                           fMapsMP[I].SizeText], I));
     end;
 
     //Restore previously selected map
@@ -3352,7 +3402,7 @@ begin
   if Radio_LobbyMapType.ItemIndex < 3 then
   begin
     fMapsMP.Lock;
-      fGameApp.Networking.SelectMap(fMapsMP[DropCol_LobbyMaps.Item[DropCol_LobbyMaps.ItemIndex].Tag].Info.Title);
+      fGameApp.Networking.SelectMap(fMapsMP[DropCol_LobbyMaps.Item[DropCol_LobbyMaps.ItemIndex].Tag].FileName);
     fMapsMP.Unlock;
   end
   else
@@ -3369,6 +3419,7 @@ var
   I: Integer;
   DropText: string;
   M: TKMapInfo;
+  S: TKMSaveInfo;
 begin
   //Common settings
   MinimapView_Lobby.Visible := (fGameApp.Networking.SelectGameKind = ngk_Map) and fGameApp.Networking.MapInfo.IsValid;
@@ -3389,17 +3440,18 @@ begin
                 DropText := fTextLibrary[TX_LOBBY_RANDOM] + eol;
               end;
     ngk_Save: begin
+                S := fGameApp.Networking.SaveInfo;
                 if not fGameApp.Networking.IsHost then
                   Radio_LobbyMapType.ItemIndex := 3;
 
-                Label_LobbyMapName.Caption := fGameApp.Networking.SaveInfo.FileName;
-                Memo_LobbyMapDesc.Text := fGameApp.Networking.GameInfo.GetTitleWithTime;
+                Label_LobbyMapName.Caption := S.FileName;
+                Memo_LobbyMapDesc.Text := S.Info.GetTitleWithTime;
 
                 //Starting locations text
                 DropText := fTextLibrary[TX_LOBBY_SELECT] + eol;
-                for I := 0 to fGameApp.Networking.GameInfo.PlayerCount - 1 do
-                if fGameApp.Networking.GameInfo.CanBeHuman[I] then
-                  DropText := DropText + fGameApp.Networking.GameInfo.LocationName[I] + eol;
+                for I := 0 to S.Info.PlayerCount - 1 do
+                if S.Info.CanBeHuman[I] then
+                  DropText := DropText + S.Info.LocationName[I] + eol;
               end;
     ngk_Map:  begin
                 M := fGameApp.Networking.MapInfo;
@@ -3408,7 +3460,7 @@ begin
                   if M.IsCoop then
                     Radio_LobbyMapType.ItemIndex := 2
                   else
-                    if M.Info.MissionMode = mm_Tactic then
+                    if M.MissionMode = mm_Tactic then
                       Radio_LobbyMapType.ItemIndex := 1
                     else
                       Radio_LobbyMapType.ItemIndex := 0;
@@ -3421,14 +3473,14 @@ begin
                   fMinimap.Update(True);
                   MinimapView_Lobby.SetMinimap(fMinimap);
                 end;
-                Label_LobbyMapName.Caption := fGameApp.Networking.GameInfo.Title;
+                Label_LobbyMapName.Caption := M.FileName;
                 Memo_LobbyMapDesc.Text := M.BigDesc;
 
               //Starting locations text
               DropText := fTextLibrary[TX_LOBBY_RANDOM] + eol;
-              for I := 0 to fGameApp.Networking.GameInfo.PlayerCount - 1 do
-              if fGameApp.Networking.GameInfo.CanBeHuman[I] then
-                DropText := DropText + fGameApp.Networking.GameInfo.LocationName[I] + eol;
+              for I := 0 to M.PlayerCount - 1 do
+              if M.CanBeHuman[I] then
+                DropText := DropText + M.LocationName(I) + eol;
             end;
   end;
 
@@ -3463,7 +3515,7 @@ begin
       if fGameApp.Networking.MapInfo.IsCoop then
         Radio_LobbyMapType.ItemIndex := 2
       else
-        if fGameApp.Networking.MapInfo.Info.MissionMode = mm_Tactic then
+        if fGameApp.Networking.MapInfo.MissionMode = mm_Tactic then
           Radio_LobbyMapType.ItemIndex := 1
         else
           Radio_LobbyMapType.ItemIndex := 0;
@@ -3883,7 +3935,7 @@ begin
 
   Maps.Lock;
     for I := 0 to Maps.Count - 1 do
-      List_MapEd.AddItem(MakeListRow([Maps[I].Info.Title, IntToStr(Maps[I].Info.PlayerCount), Maps[I].Info.MapSizeText], I));
+      List_MapEd.AddItem(MakeListRow([Maps[I].FileName, IntToStr(Maps[I].PlayerCount), Maps[I].SizeText], I));
 
     for I := 0 to Maps.Count - 1 do
       if (Maps[I].CRC = fLastMapCRC) then

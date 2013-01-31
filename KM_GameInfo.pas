@@ -35,7 +35,7 @@ type
     property ParseError: string read fParseError;
     function IsValid(aCheckDATCRC: Boolean): Boolean;
     function AICount: Byte;
-    function MapSizeText: string;
+    function SizeText: string;
     function MissionModeText: string;
     function GetTimeText: string;
     function GetTitleWithTime: string;
@@ -131,17 +131,9 @@ begin
 end;
 
 
-function TKMGameInfo.MapSizeText: string;
+function TKMGameInfo.SizeText: string;
 begin
-  case MapSizeX * MapSizeY of
-            1.. 48* 48: Result := 'XS';
-     48* 48+1.. 80* 80: Result := 'S';
-     80* 80+1..128*128: Result := 'M';
-    128*128+1..176*176: Result := 'L';
-    176*176+1..224*224: Result := 'XL';
-    224*224+1..320*320: Result := 'XXL';
-    else                Result := '???';
-  end;
+  Result := MapSizeText(MapSizeX, MapSizeY);
 end;
 
 

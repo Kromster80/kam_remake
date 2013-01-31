@@ -61,6 +61,7 @@ uses
   KM_MissionScript in 'KM_MissionScript.pas',
   KM_MissionScript_Info in 'KM_MissionScript_Info.pas',
   KM_MissionScript_Preview in 'KM_MissionScript_Preview.pas',
+  KM_MissionScript_Standard in 'KM_MissionScript_Standard.pas',
   KM_Music in 'KM_Music.pas',
   KM_NavMesh in 'KM_NavMesh.pas',
   KM_NetClient in 'KM_NetClient.pas',

@@ -161,6 +161,7 @@
 			<DCCReference Include="KM_MissionScript.pas"/>
 			<DCCReference Include="KM_MissionScript_Info.pas"/>
 			<DCCReference Include="KM_MissionScript_Preview.pas"/>
+			<DCCReference Include="KM_MissionScript_Standard.pas"/>
 			<DCCReference Include="KM_Music.pas"/>
 			<DCCReference Include="KM_NavMesh.pas"/>
 			<DCCReference Include="KM_NetClient.pas"/>

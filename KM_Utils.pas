@@ -32,7 +32,9 @@ uses Classes, DateUtils, Math, SysUtils, KM_Defaults, KM_Points
   function KaMRandomS(Range_Both_Directions:single):single; overload;
 
   function TimeGet: Cardinal;
-  function GetTimeSince(aTime:Cardinal):Cardinal;
+  function GetTimeSince(aTime: Cardinal): Cardinal;
+
+  function MapSizeText(X,Y: Word): string;
 
   //Taken from KromUtils to reduce dependancies (required so the dedicated server compiles on Linux without using Controls)
   procedure KMSwapInt(var A,B:byte); overload;
@@ -112,6 +114,20 @@ function GetTimeSince(aTime: Cardinal): Cardinal;
 begin
   //TimeGet will loop back to zero after ~49 days since system start
   Result := (Int64(TimeGet) - Int64(aTime) + Int64(High(Cardinal))) mod Int64(High(Cardinal));
+end;
+
+
+function MapSizeText(X,Y: Word): string;
+begin
+  case X * Y of
+            1.. 48* 48: Result := 'XS';
+     48* 48+1.. 80* 80: Result := 'S';
+     80* 80+1..128*128: Result := 'M';
+    128*128+1..176*176: Result := 'L';
+    176*176+1..224*224: Result := 'XL';
+    224*224+1..320*320: Result := 'XXL';
+    else                Result := '???';
+  end;
 end;
 
 

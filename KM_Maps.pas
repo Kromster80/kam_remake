@@ -2,7 +2,7 @@ unit KM_Maps;
 {$I KaM_Remake.inc}
 interface
 uses
-  Classes, KromUtils, Math, SyncObjs, SysUtils, KM_GameInfo;
+  Classes, KromUtils, Math, SyncObjs, SysUtils, KM_Defaults;
 
 
 type
@@ -15,34 +15,49 @@ type
   TKMapInfo = class;
   TMapEvent = procedure (aMap: TKMapInfo) of object;
 
+  TKMMapGoalInfo = packed record
+    Cond: TGoalCondition;
+    Play: TPlayerIndex;
+    Stat: TGoalStatus;
+  end;
+
   TKMapInfo = class
   private
-    fInfo: TKMGameInfo;
     fPath: string;
     fFileName: string; //without extension
-    fDefaultHuman: ShortInt;
     fStrictParsing: Boolean; //Use strict map checking, important for MP
-    fDatSize: Integer;
     fCRC: Cardinal;
+    fDatSize: Integer;
+    fVersion: AnsiString; //Savegame version, yet unused in maps, they always have actual version
     procedure ScanMap;
     procedure LoadFromFile(const aPath: string);
     procedure SaveToFile(const aPath: string);
   public
+    MapSizeX, MapSizeY: Integer;
+    MissionMode: TKMissionMode;
+    PlayerCount: Byte;
+    CanBeHuman: array [0..MAX_PLAYERS-1] of Boolean;
+    CanBeAI: array [0..MAX_PLAYERS-1] of Boolean;
+    DefaultHuman: TPlayerIndex;
+    GoalsVictoryCount, GoalsSurviveCount: array [0..MAX_PLAYERS-1] of Byte;
+    GoalsVictory: array [0..MAX_PLAYERS-1] of array of TKMMapGoalInfo;
+    GoalsSurvive: array [0..MAX_PLAYERS-1] of array of TKMMapGoalInfo;
     Author, SmallDesc, BigDesc: string;
     IsCoop: Boolean; //Some multiplayer missions are defined as coop
 
     constructor Create;
     destructor Destroy; override;
 
+    procedure AddGoal(aType: TGoalType; aPlayer: TPlayerIndex; aCondition: TGoalCondition; aStatus: TGoalStatus; aPlayerIndex: TPlayerIndex);
     procedure Load(const aFolder: string; aStrictParsing, aIsMultiplayer: Boolean);
+    procedure Clear;
 
-    property Info: TKMGameInfo read fInfo;
     property Path: string read fPath;
     property FileName: string read fFileName;
     function FullPath(const aExt: string): string;
     property CRC: Cardinal read fCRC;
-    property DefaultHuman: ShortInt read fDefaultHuman;
-
+    function LocationName(aIndex: TPlayerIndex): string;
+    function SizeText: string;
     function IsValid: Boolean;
   end;
 
@@ -96,7 +111,7 @@ type
 
 
 implementation
-uses KM_CommonClasses, KM_Defaults, KM_MissionScript_Info, KM_Player, KM_TextLibrary;
+uses KM_CommonClasses, KM_MissionScript_Info, KM_Player, KM_TextLibrary, KM_Utils;
 
 
 const
@@ -108,20 +123,70 @@ const
 constructor TKMapInfo.Create;
 begin
   inherited;
-  fInfo := TKMGameInfo.Create;
+
 end;
 
 
 destructor TKMapInfo.Destroy;
 begin
-  fInfo.Free;
+
   inherited;
+end;
+
+
+procedure TKMapInfo.Clear;
+var
+  I: Integer;
+begin
+  for I := 0 to MAX_PLAYERS - 1 do
+  begin
+    GoalsVictoryCount[I] := 0;
+    GoalsSurviveCount[I] := 0;
+    SetLength(GoalsVictory[I], 0);
+    SetLength(GoalsSurvive[I], 0);
+  end;
+  //TODO: clear all fields
+end;
+
+
+procedure TKMapInfo.AddGoal(aType: TGoalType; aPlayer: TPlayerIndex; aCondition: TGoalCondition; aStatus: TGoalStatus; aPlayerIndex: TPlayerIndex);
+var G: TKMMapGoalInfo;
+begin
+  G.Cond := aCondition;
+  G.Play := aPlayerIndex;
+  G.Stat := aStatus;
+
+  case aType of
+    glt_Victory:  begin
+                    SetLength(GoalsVictory[aPlayer], GoalsVictoryCount[aPlayer] + 1);
+                    GoalsVictory[aPlayer, GoalsVictoryCount[aPlayer]] := G;
+                    Inc(GoalsVictoryCount[aPlayer]);
+                  end;
+    glt_Survive:  begin
+                    SetLength(GoalsSurvive[aPlayer], GoalsSurviveCount[aPlayer] + 1);
+                    GoalsSurvive[aPlayer, GoalsSurviveCount[aPlayer]] := G;
+                    Inc(GoalsSurviveCount[aPlayer]);
+                  end;
+    else          ;
+  end;
 end;
 
 
 function TKMapInfo.FullPath(const aExt: string): string;
 begin
   Result := fPath + fFileName + aExt;
+end;
+
+
+function TKMapInfo.LocationName(aIndex: TPlayerIndex): string;
+begin
+  Result := Format(fTextLibrary[TX_LOBBY_LOCATION_X], [aIndex + 1]);
+end;
+
+
+function TKMapInfo.SizeText: string;
+begin
+  Result := MapSizeText(MapSizeX, MapSizeY);
 end;
 
 
@@ -146,49 +211,31 @@ begin
   DatFile := fPath + fFileName + '.dat';
   MapFile := fPath + fFileName + '.map';
 
-  LoadFromFile(fPath + fFileName + '.mi'); //Data will be empty if failed
+  //Try loading info from cache, since map scanning is rather slow
+  //LoadFromFile(fPath + fFileName + '.mi'); //Data will be empty if failed
 
   //We will scan map once again if anything has changed
   //In SP mode we check DAT size and version, that is enough
   //In MP mode we also need exact CRCs to match maps between players
   if FileExists(DatFile) then
   if (fDatSize <> GetFileSize(DatFile)) or
-     (fInfo.Version <> GAME_REVISION) or
+     (fVersion <> GAME_REVISION) or
      (fStrictParsing and (fCRC <> Adler32CRC(DatFile) xor Adler32CRC(MapFile)))
   then
   begin
+    fCRC := Adler32CRC(DatFile) xor Adler32CRC(MapFile);
     fDatSize := GetFileSize(DatFile);
+    fVersion := GAME_REVISION;
 
-    fMissionParser := TMissionParserInfo.Create(false);
+    fMissionParser := TMissionParserInfo.Create(False);
     try
-      fMissionParser.LoadMission(DatFile);
+      //Fill Self properties with MissionParser
+      fMissionParser.LoadMission(DatFile, Self);
 
-      //Single maps Titles are the same as FileName for now.
+      //Single maps Titles are the same as FileName for now
       //Campaign maps are in different folder
-      fInfo.Title             := FileName;
-      fInfo.Version           := GAME_REVISION;
-      fInfo.TickCount         := 0;
-      fInfo.MissionMode       := fMissionParser.MissionInfo.MissionMode;
-      fInfo.MapSizeX          := fMissionParser.MissionInfo.MapSizeX;
-      fInfo.MapSizeY          := fMissionParser.MissionInfo.MapSizeY;
-      fInfo.VictoryCondition  := fMissionParser.MissionInfo.VictoryCond;
-      fInfo.DefeatCondition   := fMissionParser.MissionInfo.DefeatCond;
-      fDefaultHuman := fMissionParser.MissionInfo.DefaultHuman;
 
-      //This feature is only used for saves yet
-      fInfo.PlayerCount       := fMissionParser.MissionInfo.PlayerCount;
-      for I := Low(fInfo.LocationName) to High(fInfo.LocationName) do
-      begin
-        fInfo.CanBeHuman[I] := fMissionParser.MissionInfo.PlayerHuman[I];
-        fInfo.LocationName[I] := Format(fTextLibrary[TX_LOBBY_LOCATION_X], [I+1]);
-        fInfo.PlayerTypes[I] := TPlayerType(-1);
-        fInfo.ColorID[I] := 0;
-        fInfo.Team[I] := 0;
-      end;
-
-      fCRC := Adler32CRC(DatFile) xor Adler32CRC(MapFile);
-
-      SaveToFile(fPath + fFileName + '.mi'); //Save new TMP file
+      SaveToFile(fPath + fFileName + '.mi'); //Save new cache file
     finally
       fMissionParser.Free;
     end;
@@ -221,29 +268,67 @@ begin
 
   S := TKMemoryStream.Create;
   S.LoadFromFile(aPath);
-  fInfo.Load(S);
-  S.Read(fCRC);
-  S.Read(fDefaultHuman);
-  S.Read(fDatSize);
-  S.Free;
 
-  //We need to reset all of the location names since otherwise they could be
-  //in another language (when .mi files are zipped up with the map and sent
-  //to another person)
-  for I := Low(fInfo.LocationName) to High(fInfo.LocationName) do
-    fInfo.LocationName[I] := Format(fTextLibrary[TX_LOBBY_LOCATION_X], [I+1]);
+  //Internal properties
+  S.Read(fCRC);
+  S.Read(fDatSize);
+  S.Read(fVersion);
+
+  //Exposed properties
+  S.Read(MapSizeX);
+  S.Read(MapSizeY);
+  S.Read(MissionMode, SizeOf(TKMissionMode));
+  S.Read(PlayerCount);
+  S.Read(CanBeHuman[0], SizeOf(CanBeHuman));
+  S.Read(CanBeAI[0], SizeOf(CanBeAI));
+  S.Read(DefaultHuman);
+  for I := 0 to MAX_PLAYERS - 1 do
+  begin
+    S.Read(GoalsVictoryCount[I]);
+    SetLength(GoalsVictory[I], GoalsVictoryCount[I]);
+    if GoalsVictoryCount[I] > 0 then
+      S.Read(GoalsVictory[I,0], SizeOf(TKMMapGoalInfo) * GoalsVictoryCount[I]);
+    S.Read(GoalsSurviveCount[I]);
+    SetLength(GoalsSurvive[I], GoalsSurviveCount[I]);
+    if GoalsSurviveCount[I] > 0 then
+      S.Read(GoalsSurvive[I,0], SizeOf(TKMMapGoalInfo) * GoalsSurviveCount[I]);
+  end;
+
+  //Other properties from text file are not saved, they are fast to reload
+  S.Free;
 end;
 
 
 procedure TKMapInfo.SaveToFile(const aPath: string);
 var S: TKMemoryStream;
+  I: Integer;
 begin
   S := TKMemoryStream.Create;
   try
-    fInfo.Save(S);
+    //Internal properties
     S.Write(fCRC);
-    S.Write(fDefaultHuman);
     S.Write(fDatSize);
+    S.Write(fVersion);
+
+    //Exposed properties
+    S.Write(MapSizeX);
+    S.Write(MapSizeY);
+    S.Write(MissionMode, SizeOf(TKMissionMode));
+    S.Write(PlayerCount);
+    S.Write(CanBeHuman[0], SizeOf(CanBeHuman));
+    S.Write(CanBeAI[0], SizeOf(CanBeAI));
+    S.Write(DefaultHuman);
+    for I := 0 to MAX_PLAYERS - 1 do
+    begin
+      S.Write(GoalsVictoryCount[I]);
+      if GoalsVictoryCount[I] > 0 then
+        S.Write(GoalsVictory[I,0], SizeOf(TKMMapGoalInfo) * GoalsVictoryCount[I]);
+      S.Write(GoalsSurviveCount[I]);
+      if GoalsSurviveCount[I] > 0 then
+        S.Write(GoalsSurvive[I,0], SizeOf(TKMMapGoalInfo) * GoalsSurviveCount[I]);
+    end;
+
+    //Other properties from text file are not saved, they are fast to reload
     S.SaveToFile(aPath);
   finally
     S.Free;
@@ -253,7 +338,7 @@ end;
 
 function TKMapInfo.IsValid: Boolean;
 begin
-  Result := fInfo.IsValid(False) and
+  Result := (PlayerCount > 0) and
             FileExists(fPath + fFileName + '.dat') and
             FileExists(fPath + fFileName + '.map');
 end;
@@ -348,14 +433,14 @@ procedure TKMapsCollection.DoSort;
   begin
     Result := False; //By default everything remains in place
     case aMethod of
-      smByNameAsc:      Result := CompareText(A.Info.Title, B.Info.Title) < 0;
-      smByNameDesc:     Result := CompareText(A.Info.Title, B.Info.Title) > 0;
-      smBySizeAsc:      Result := (A.Info.MapSizeX * A.Info.MapSizeY) < (B.Info.MapSizeX * B.Info.MapSizeY);
-      smBySizeDesc:     Result := (A.Info.MapSizeX * A.Info.MapSizeY) > (B.Info.MapSizeX * B.Info.MapSizeY);
-      smByPlayersAsc:   Result := A.Info.PlayerCount < B.Info.PlayerCount;
-      smByPlayersDesc:  Result := A.Info.PlayerCount > B.Info.PlayerCount;
-      smByModeAsc:      Result := A.Info.MissionMode < B.Info.MissionMode;
-      smByModeDesc:     Result := A.Info.MissionMode > B.Info.MissionMode;
+      smByNameAsc:      Result := CompareText(A.FileName, B.FileName) < 0;
+      smByNameDesc:     Result := CompareText(A.FileName, B.FileName) > 0;
+      smBySizeAsc:      Result := (A.MapSizeX * A.MapSizeY) < (B.MapSizeX * B.MapSizeY);
+      smBySizeDesc:     Result := (A.MapSizeX * A.MapSizeY) > (B.MapSizeX * B.MapSizeY);
+      smByPlayersAsc:   Result := A.PlayerCount < B.PlayerCount;
+      smByPlayersDesc:  Result := A.PlayerCount > B.PlayerCount;
+      smByModeAsc:      Result := A.MissionMode < B.MissionMode;
+      smByModeDesc:     Result := A.MissionMode > B.MissionMode;
     end;
   end;
 var

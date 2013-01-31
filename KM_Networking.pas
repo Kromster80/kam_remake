@@ -98,7 +98,6 @@ type
     procedure PlayGame;
     procedure SetGameState(aState:TNetGameState);
     procedure SendMapOrSave;
-    function GetGameInfo:TKMGameInfo;
     procedure DoReconnection;
     function CalculateGameCRC:Cardinal;
 
@@ -151,7 +150,6 @@ type
     //Gameplay
     property MapInfo:TKMapInfo read fMapInfo;
     property SaveInfo:TKMSaveInfo read fSaveInfo;
-    property GameInfo:TKMGameInfo read GetGameInfo;
     property NetGameOptions:TKMGameOptions read fNetGameOptions;
     property SelectGameKind: TNetGameKind read fSelectGameKind;
     property NetPlayers:TKMNetPlayersList read fNetPlayers;
@@ -422,16 +420,6 @@ begin
 end;
 
 
-function TKMNetworking.GetGameInfo:TKMGameInfo;
-begin
-  case fSelectGameKind of
-    ngk_Save: Result := fSaveInfo.Info;
-    ngk_Map:  Result := fMapInfo.Info;
-    else      Result := nil;
-  end;
-end;
-
-
 procedure TKMNetworking.MatchPlayersToSave(aPlayerID: Integer = -1);
 var i,k: integer;
 begin
@@ -558,7 +546,7 @@ var LocAvailable:Boolean; NetPlayerIndex: Integer;
 begin
   //Check if position can be taken before sending
   LocAvailable := fNetPlayers.LocAvailable(aIndex);
-  if ((fSelectGameKind = ngk_Map) and ((not fMapInfo.IsValid) or (aIndex > fMapInfo.Info.PlayerCount))) or
+  if ((fSelectGameKind = ngk_Map) and ((not fMapInfo.IsValid) or (aIndex > fMapInfo.PlayerCount))) or
      ((fSelectGameKind = ngk_Save) and ((not fSaveInfo.IsValid) or (aIndex > fSaveInfo.Info.PlayerCount))) or
      (fSelectGameKind = ngk_None) or
      (not LocAvailable and (not IsHost or not fNetPlayers.HostDoesSetup)) then
@@ -677,7 +665,7 @@ begin
   //Define random parameters (start locations and flag colors)
   //This will also remove odd players from the List, they will lose Host in few seconds
   case fSelectGameKind of
-    ngk_Map:  PlayerCount := fMapInfo.Info.PlayerCount;
+    ngk_Map:  PlayerCount := fMapInfo.PlayerCount;
     ngk_Save: PlayerCount := fSaveInfo.Info.PlayerCount;
     else      PlayerCount := 0;
   end;
@@ -1268,11 +1256,14 @@ begin
               end;
 
     mk_StartingLocQuery:
-            if IsHost and not fNetPlayers.HostDoesSetup then begin
+            if IsHost and not fNetPlayers.HostDoesSetup then
+            begin
               LocID := Param;
-              if (GameInfo <> nil) and GameInfo.IsValid(False) and
-                 (LocID <= GameInfo.PlayerCount) and
-                 fNetPlayers.LocAvailable(LocID) then
+              if (
+                  ((fSelectGameKind = ngk_Map) and (fMapInfo <> nil) and fMapInfo.IsValid and (LocID <= fMapInfo.PlayerCount))
+               or ((fSelectGameKind = ngk_Save) and (fSaveInfo <> nil) and fSaveInfo.IsValid and (LocID <= fSaveInfo.Info.PlayerCount))
+                 )
+              and fNetPlayers.LocAvailable(LocID) then
               begin //Update Players setup
                 fNetPlayers[fNetPlayers.ServerToLocal(aSenderIndex)].StartLocation := LocID;
                 SendPlayerListAndRefreshPlayersSetup;
@@ -1436,10 +1427,11 @@ begin
   try
     if (fNetGameState in [lgs_Lobby, lgs_Loading]) then
     begin
-      if GameInfo <> nil then
-        aMap := GameInfo.Title
-      else
-        aMap := '';
+      case fSelectGameKind of
+        ngk_Save: aMap := fSaveInfo.Info.Title;
+        ngk_Map:  aMap := fMapInfo.FileName;
+        else      aMap := '';
+      end;
     end;
     if (fNetGameState in [lgs_Lobby,lgs_Loading]) then aGameTime := -1;
     MPGameInfo.Map := aMap;
