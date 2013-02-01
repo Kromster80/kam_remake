@@ -1,19 +1,19 @@
 Features:
 	MP game speed up slider (1.0, 1.5, 2.0?)
 	Host can set password for lobby
-	Lobby named by host (server name should be shown somewhere else?)
+	Lobby name/description by host (shown in room info and inside the room as 1st message)
 	Coop maps handled better in lobby (AI players hidden and automatic, AI map areas not revealed)
 
 
 Finishing up:
 	Finish AI stuff (defending and attacking prototype?)
-	Finish new MapEd features
-
+	Finish new MapEd features (add ADD_WARE_TO_LAST)
+  Ask RC testers to make map from scratch in MapEd
 
 Balance/exploits:
 	Increase market loss ratio?
 	Stop builders emptying towers (builders refuse to walk into range of a tower or player blocked from building there?)
-
+  trunks for horses (6 woodcutters and 1 market replace stables with farms equally)
 
 Undecided:
 	Pawel's flower
