@@ -77,7 +77,7 @@ var
 
 
 implementation
-uses KM_Game, KM_Log, KM_Resource, KM_AIFields;
+uses KM_Game, KM_Log, KM_Resource, KM_AIFields, KM_Units_Warrior;
 
 
 { TKMPlayersCollection }
@@ -357,6 +357,10 @@ var
   Obj: TObject;
 begin
   Obj := HitTest(X, Y, aOnlyMyPlayer);
+
+  //Don't select a warrior directly, only select his group.
+  //A warrior can be incorrectly selected while walking out of the barracks (before he has a group)
+  if Obj is TKMUnitWarrior then Exit;
 
   if Obj <> nil then
   begin
