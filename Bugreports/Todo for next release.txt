@@ -1,0 +1,28 @@
+Features:
+	MP game speed up slider (1.0, 1.5, 2.0?)
+	Host can set password for lobby
+	Lobby named by host (server name should be shown somewhere else?)
+	Coop maps handled better in lobby (AI players hidden and automatic, AI map areas not revealed)
+
+
+Finishing up:
+	Finish AI stuff (defending and attacking prototype?)
+	Finish new MapEd features
+
+
+Balance/exploits:
+	Increase market loss ratio?
+	Stop builders emptying towers (builders refuse to walk into range of a tower or player blocked from building there?)
+
+
+Undecided:
+	Pawel's flower
+	Snow wolf
+	Increase player limit to 10?
+	Swap players/resources in graphs? (so you compare "who made the most wood?" rather than "did Lewin make more stone than wood?")
+	File transfers
+
+
+Maps:
+	Iceline (thunder)
+	Final Frontier (To)
