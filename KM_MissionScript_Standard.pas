@@ -393,28 +393,36 @@ begin
                             end
                           else
                             AddError('ct_AttackPosition without prior declaration of Troop');
-    ct_AddGoal:         if fLastPlayer >= 0 then
-                          //If the condition is time then P[3] is the time, else it is player ID
-                          if TGoalCondition(P[0]) = gc_Time then
-                            fPlayers[fLastPlayer].Goals.AddGoal(glt_Victory,TGoalCondition(P[0]),TGoalStatus(P[1]),P[3],P[2],-1)
-                          else
-                            if InRange(P[3], 0, fPlayers.Count - 1) then
-                              if fPlayerEnabled[P[3]] then
-                                fPlayers[fLastPlayer].Goals.AddGoal(glt_Victory,TGoalCondition(P[0]),TGoalStatus(P[1]),0,P[2],P[3])
-                              else
-                            else
-                              AddError('Add_Goal for non existing player');
-    ct_AddLostGoal:     if fLastPlayer >= 0 then
-                          //If the condition is time then P[3] is the time, else it is player ID
-                          if TGoalCondition(P[0]) = gc_Time then
-                            fPlayers[fLastPlayer].Goals.AddGoal(glt_Survive,TGoalCondition(P[0]),TGoalStatus(P[1]),P[3],P[2],-1)
-                          else
-                            if InRange(P[3], 0, fPlayers.Count - 1) then
-                              if fPlayerEnabled[P[3]] then
-                                fPlayers[fLastPlayer].Goals.AddGoal(glt_Survive,TGoalCondition(P[0]),TGoalStatus(P[1]),0,P[2],P[3])
-                              else
-                            else
-                              AddError('Add_LostGoal for non existing player');
+    ct_AddGoal:         if fLastPlayer < 0 then
+                          AddError('Add_Goal for non existing player')
+                        else
+                        if not InRange(P[0], 0, Byte(High(TGoalCondition))) then
+                          AddError('Add_Goal with unknown condition index ' + IntToStr(P[0]))
+                        else
+                        if InRange(P[3], 0, fPlayers.Count - 1)
+                        and fPlayerEnabled[P[3]] then
+                        begin
+                          if not (TGoalCondition(P[0]) in GoalsSupported) then
+                            AddError('Goal type ' + GoalConditionStr[TGoalCondition(P[0])] + ' is deprecated');
+                          if (P[2] <> 0) then
+                            AddError('Goals messages are deprecated. Use .script instead');
+                          fPlayers[fLastPlayer].Goals.AddGoal(glt_Victory, TGoalCondition(P[0]), TGoalStatus(P[1]), 0, P[2], P[3]);
+                        end;
+    ct_AddLostGoal:     if fLastPlayer < 0 then
+                          AddError('Add_LostGoal for non existing player')
+                        else
+                        if not InRange(P[0], 0, Byte(High(TGoalCondition))) then
+                          AddError('Add_LostGoal with unknown condition index ' + IntToStr(P[0]))
+                        else
+                        if InRange(P[3], 0, fPlayers.Count - 1)
+                        and fPlayerEnabled[P[3]] then
+                        begin
+                          if not (TGoalCondition(P[0]) in GoalsSupported) then
+                            AddError('LostGoal type ' + GoalConditionStr[TGoalCondition(P[0])] + ' is deprecated');
+                          if (P[2] <> 0) then
+                            AddError('LostGoals messages are deprecated. Use .script instead');
+                          fPlayers[fLastPlayer].Goals.AddGoal(glt_Survive, TGoalCondition(P[0]), TGoalStatus(P[1]), 0, P[2], P[3]);
+                        end;
     ct_AIDefence:       if fLastPlayer >=0 then
                         if InRange(P[3], Integer(Low(TGroupType)), Integer(High(TGroupType))) then //TPR 3 tries to set TGroupType 240 due to a missing space
                           fPlayers[fLastPlayer].AI.General.DefencePositions.Add(KMPointDir(P[0]+1, P[1]+1, TKMDirection(P[2]+1)),TGroupType(P[3]),P[4],TAIDefencePosType(P[5]));

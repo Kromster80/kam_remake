@@ -451,6 +451,9 @@ begin
 
     if (Parser.MinorErrors <> '') and (fGameMode <> gmMapEd) then
       fGamePlayInterface.MessageIssue(mkQuill, 'Warnings in mission script:|' + Parser.MinorErrors);
+
+    if (Parser.MinorErrors <> '') and (fGameMode = gmMapEd) then
+      fMapEditorInterface.ShowMessage('Warnings in mission script:|' + Parser.MinorErrors);
   finally
     Parser.Free;
   end;

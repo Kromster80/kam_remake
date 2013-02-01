@@ -123,10 +123,10 @@ procedure TKMPlayerAI.CheckGoals;
       Stat := nil;
 
     case aGoal.GoalCondition of
-      gc_BuildTutorial:     Result := Stat.GetHouseQty([ht_Tannery]) = 0; //For some reason this goal is gs_False in KaM, that's why check is =0 not  > 0
+      gc_BuildTutorial:     Result := True; //Deprecated
       //gc_Time is disabled as we process messages in Event system now. Return true so players
       //do not have to wait for all messages to show before they are allowed to win (same in TPR)
-      gc_Time:              Result := True;
+      gc_Time:              Result := True; //Deprecated
       gc_Buildings:         Result := (Stat.GetHouseQty([ht_Store, ht_School, ht_Barracks]) > 0);
       gc_Troops:            Result := (Stat.GetArmyCount > 0);
       gc_MilitaryAssets:    Result := (Stat.GetArmyCount > 0) or
@@ -135,7 +135,7 @@ procedure TKMPlayerAI.CheckGoals;
                                                          ht_SiegeWorkshop]) > 0);
       gc_SerfsAndSchools:   Result := (Stat.GetHouseQty([ht_School]) > 0) or (Stat.GetUnitQty(ut_Serf) > 0);
       gc_EconomyBuildings:  Result := (Stat.GetHouseQty([ht_Store, ht_School, ht_Inn]) > 0);
-      else                  Assert(false, 'Unknown goal');
+      else                  Assert(False, 'Unknown goal');
     end;
     if aGoal.GoalStatus = gs_False then
       Result := not Result; //Reverse condition

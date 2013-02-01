@@ -31,4 +31,22 @@ object Form1: TForm1
     TabOrder = 1
     OnClick = Button1Click
   end
+  object Button2: TButton
+    Left = 24
+    Top = 120
+    Width = 185
+    Height = 25
+    Caption = 'Check goals count'
+    TabOrder = 2
+    OnClick = Button2Click
+  end
+  object Memo1: TMemo
+    Left = 224
+    Top = 24
+    Width = 185
+    Height = 257
+    Lines.Strings = (
+      'Memo1')
+    TabOrder = 3
+  end
 end

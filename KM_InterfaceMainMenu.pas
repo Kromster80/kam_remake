@@ -82,6 +82,7 @@ type
     procedure SingleMap_RefreshList(aJumpToSelected:Boolean);
     procedure SingleMap_ListClick(Sender: TObject);
     procedure SingleMap_OptionsChange(Sender: TObject);
+    procedure SingleMap_Update;
     procedure SingleMap_Start(Sender: TObject);
     procedure SingleMap_Sort(aColumn: Integer);
 
@@ -2031,6 +2032,7 @@ begin
     fMaps.TerminateScan;
     //Remove any old entries from UI
     SingleMap_Clear;
+    SingleMap_ListClick(nil);
     //Initiate refresh and process each new map added
     fMaps.Refresh(SingleMap_ScanUpdate);
     Panel_Single.Show;
@@ -2332,14 +2334,14 @@ end;
 
 procedure TKMMainMenuInterface.SingleMap_ListClick(Sender: TObject);
 var
-  ID: Integer;
+  MapId: Integer;
   I, K: Integer;
 begin
   fMaps.Lock;
-    ID := ColList_SingleMaps.ItemIndex;
+    MapId := ColList_SingleMaps.ItemIndex;
 
-    //User could have clicked on empty space in list and we get -1 or unused id
-    if not InRange(ID, 0, fMaps.Count - 1) then
+    //User could have clicked on empty space in list and we get -1 or unused MapId
+    if not InRange(MapId, 0, fMaps.Count - 1) then
     begin
       fLastMapCRC := 0;
       Label_SingleTitle.Caption   := '';
@@ -2352,23 +2354,23 @@ begin
     end
     else
     begin
-      fLastMapCRC := fMaps[ID].CRC;
-      Label_SingleTitle.Caption   := fMaps[ID].FileName;
-      Memo_SingleDesc.Text        := fMaps[ID].BigDesc;
+      fLastMapCRC := fMaps[MapId].CRC;
+      Label_SingleTitle.Caption   := fMaps[MapId].FileName;
+      Memo_SingleDesc.Text        := fMaps[MapId].BigDesc;
 
       MinimapView_Single.Show;
 
       //Location
       K := 0;
       Drop_SingleLoc.Clear;
-      for I := 0 to fMaps[ID].PlayerCount - 1 do
-      if fMaps[ID].CanBeHuman[I] or ALLOW_TAKE_AI_PLAYERS then
+      for I := 0 to fMaps[MapId].PlayerCount - 1 do
+      if fMaps[MapId].CanBeHuman[I] or ALLOW_TAKE_AI_PLAYERS then
       begin
-        Drop_SingleLoc.Add(fMaps[ID].LocationName(I));
+        Drop_SingleLoc.Add(fMaps[MapId].LocationName(I));
         fSingleLocations[K] := I;
         Inc(K);
       end;
-      Drop_SingleLoc.ItemIndex := fMaps[ID].DefaultHuman;
+      Drop_SingleLoc.ItemIndex := fMaps[MapId].DefaultHuman;
 
       //Color
       //Fill in colors for each map individually
@@ -2378,36 +2380,43 @@ begin
         Drop_SingleColor.Add(MakeListRow([''], [MP_TEAM_COLORS[I]], [MakePic(rxGuiMain, 30)]));
       Drop_SingleColor.ItemIndex := 0; //Select default
 
-      SingleMap_OptionsChange(nil);
     end;
 
     Drop_SingleLoc.Enabled := Drop_SingleLoc.Count > 1;
     Drop_SingleColor.Enabled := Drop_SingleColor.Count > 1;
 
-    Button_SingleStart.Enabled := ID <> -1;
+    SingleMap_OptionsChange(nil);
+
   fMaps.Unlock;
 end;
 
 
 procedure TKMMainMenuInterface.SingleMap_OptionsChange(Sender: TObject);
+begin
+  if InRange(Drop_SingleLoc.ItemIndex, Low(fSingleLocations), High(fSingleLocations)) then
+    fSingleLoc := fSingleLocations[Drop_SingleLoc.ItemIndex]
+  else
+    fSingleLoc := -1;
+
+  if InRange(Drop_SingleColor.ItemIndex + 1, Low(MP_TEAM_COLORS), High(MP_TEAM_COLORS)) then
+    fSingleColor := MP_TEAM_COLORS[Drop_SingleColor.ItemIndex + 1]
+  else
+    fSingleColor := MP_TEAM_COLORS[1];
+
+  SingleMap_Update;
+end;
+
+
+procedure TKMMainMenuInterface.SingleMap_Update;
 const
-  GoalCondPic: array [TGoalCondition] of Word = (39, 592, 322, 62, 41, 53, 314, 312);
+  GoalCondPic: array [TGoalCondition] of Word = (41, 39, 592, 322, 62, 41, 53, 314, 312);
   GoalStatPic: array [TGoalStatus] of Word = (33, 32);
 var
   I: Integer;
   MapId: Integer;
+  M: TKMapInfo;
+  G: TKMMapGoalInfo;
 begin
-  MapId := ColList_SingleMaps.ItemIndex;
-
-  fSingleLoc := fSingleLocations[Drop_SingleLoc.ItemIndex];
-  fSingleColor := MP_TEAM_COLORS[Drop_SingleColor.ItemIndex + 1];
-
-  //Refresh minimap with selected location and player color
-  fMinimap.LoadFromMission(fMaps[MapId].FullPath('.dat'), fSingleLoc + 1);
-  fMinimap.PlayerColors[fSingleLoc+1] := fSingleColor;
-  fMinimap.Update(False);
-  MinimapView_Single.SetMinimap(fMinimap);
-
   //Clear all so that later we fill only used
   for I := 0 to MAX_UI_GOALS - 1 do
   begin
@@ -2423,24 +2432,43 @@ begin
     Image_SingleAllies[I].TexID := 0;
     Image_SingleEnemies[I].TexID := 0;
   end;
+  Button_SingleStart.Disable;
 
-  for I := 0 to Min(MAX_UI_GOALS, fMaps[MapId].GoalsVictoryCount[fSingleLoc]) - 1 do
+  if (fSingleLoc <> -1) and (ColList_SingleMaps.ItemIndex <> -1) then
   begin
-    Image_SingleVictGoal[I].TexID := GoalCondPic[fMaps[MapId].GoalsVictory[fSingleLoc,I].Cond];
-    Image_SingleVictGoalSt[I].TexID := GoalStatPic[fMaps[MapId].GoalsVictory[fSingleLoc,I].Stat];
-    Label_SingleVictGoal[I].Caption := IntToStr(fMaps[MapId].GoalsVictory[fSingleLoc,I].Play + 1);
-  end;
-  for I := 0 to Min(MAX_UI_GOALS, fMaps[MapId].GoalsSurviveCount[fSingleLoc]) - 1 do
-  begin
-    Image_SingleSurvGoal[I].TexID := GoalCondPic[fMaps[MapId].GoalsSurvive[fSingleLoc,I].Cond];
-    Image_SingleSurvGoalSt[I].TexID := GoalStatPic[fMaps[MapId].GoalsSurvive[fSingleLoc,I].Stat];
-    Label_SingleSurvGoal[I].Caption := IntToStr(fMaps[MapId].GoalsSurvive[fSingleLoc,I].Play + 1);
-  end;
+    MapId := ColList_SingleMaps.ItemIndex;
+    M := fMaps[MapId];
 
-  for I := 0 to MAX_PLAYERS - 1 do
-  begin
-    Image_SingleAllies[I].TexID := 0;
-    Image_SingleEnemies[I].TexID := 0;
+    //Refresh minimap with selected location and player color
+    fMinimap.LoadFromMission(M.FullPath('.dat'), fSingleLoc + 1);
+    fMinimap.PlayerColors[fSingleLoc+1] := fSingleColor;
+    fMinimap.Update(False);
+    MinimapView_Single.SetMinimap(fMinimap);
+
+    //Populate goals section
+    for I := 0 to Min(MAX_UI_GOALS, M.GoalsVictoryCount[fSingleLoc]) - 1 do
+    begin
+      G := M.GoalsVictory[fSingleLoc,I];
+      Image_SingleVictGoal[I].TexID := GoalCondPic[G.Cond];
+      Image_SingleVictGoalSt[I].TexID := GoalStatPic[G.Stat];
+      Label_SingleVictGoal[I].Caption := IntToStr(G.Play + 1);
+    end;
+    for I := 0 to Min(MAX_UI_GOALS, M.GoalsSurviveCount[fSingleLoc]) - 1 do
+    begin
+      G := M.GoalsSurvive[fSingleLoc,I];
+      Image_SingleSurvGoal[I].TexID := GoalCondPic[G.Cond];
+      Image_SingleSurvGoalSt[I].TexID := GoalStatPic[G.Stat];
+      Label_SingleSurvGoal[I].Caption := IntToStr(G.Play + 1);
+    end;
+
+    //Populate alliances section
+    for I := 0 to MAX_PLAYERS - 1 do
+    begin
+      Image_SingleAllies[I].TexID := 0;
+      Image_SingleEnemies[I].TexID := 0;
+    end;
+
+    Button_SingleStart.Enable;
   end;
 end;
 

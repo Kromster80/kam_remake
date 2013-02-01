@@ -3,14 +3,14 @@ var
   NextTime: Integer;
   MsgShown: array [0..29] of Boolean;
 
-  procedure Show(aMsg, aMsg2: Byte);
+  procedure Show(aMsg, aNextMsg: Byte);
   begin
     if MsgShown[aMsg] then Exit; //Show messages only once
 
     Actions.ShowMsg(0, aMsg);
-    if aMsg2 <> 0 then
+    if aNextMsg <> 0 then
     begin
-      NextMsg := aMsg2;
+      NextMsg := aNextMsg;
       NextTime := States.GameTime + 100;
     end;
     MsgShown[aMsg] := True;

@@ -704,23 +704,27 @@ type
                glt_Victory, //Means: "The following condition must be true for you to win"
                glt_Survive);//Means: "The following condition must be true or else you lose"
   //Conditions are the same numbers as in KaM script
-  TGoalCondition = (//gc_Unknown0=0,      //Not used/unknown
-                    gc_BuildTutorial=1,   //Must build a tannery (and other buildings from tutorial?) for it to be true. In KaM tutorial messages will be dispalyed if this is a goal
-                    gc_Time=2,            //A certain time must pass
-                    gc_Buildings=3,       //Storehouse, school, barracks
-                    gc_Troops=4,          //All troops
-                    //gc_Unknown5=5,        //Not used/unknown
-                    gc_MilitaryAssets=6,  //All Troops, Coal mine, Weapons Workshop, Tannery, Armory workshop, Stables, Iron mine, Iron smithy, Weapons smithy, Armory smithy, Barracks, Town hall and Vehicles Workshop
-                    gc_SerfsAndSchools=7, //Serfs (possibly all citizens?) and schoolhouses
-                    gc_EconomyBuildings=8 //School, Inn and Storehouse
+  TGoalCondition = (gc_Unknown0,      //Not used/unknown
+                    gc_BuildTutorial,   //Must build a tannery (and other buildings from tutorial?) for it to be true. In KaM tutorial messages will be dispalyed if this is a goal
+                    gc_Time,            //A certain time must pass
+                    gc_Buildings,       //Storehouse, school, barracks
+                    gc_Troops,          //All troops
+                    gc_Unknown5,        //Not used/unknown
+                    gc_MilitaryAssets,  //All Troops, Coal mine, Weapons Workshop, Tannery, Armory workshop, Stables, Iron mine, Iron smithy, Weapons smithy, Armory smithy, Barracks, Town hall and Vehicles Workshop
+                    gc_SerfsAndSchools, //Serfs (possibly all citizens?) and schoolhouses
+                    gc_EconomyBuildings //School, Inn and Storehouse
                     //We can come up with our own
                     );
 
   TGoalStatus = (gs_True=0, gs_False=1); //Weird that it's inverted, but KaM uses it that way
 
 const
+  //We discontinue support of other goals in favor of PascalScript scripts
+  GoalsSupported: set of TGoalCondition =
+    [gc_Buildings, gc_Troops, gc_MilitaryAssets, gc_SerfsAndSchools, gc_EconomyBuildings];
+
   GoalConditionStr: array [TGoalCondition] of string =
-  ({'Unknown',} 'Build Tannery', 'Time', 'Store School Barracks', 'Troops', 'Unknown',
+  ('Unknown 0', 'Build Tannery', 'Time', 'Store School Barracks', 'Troops', 'Unknown 5',
    'Military assets', 'Serfs&Schools', 'School Inn Store');
 
   GoalStatusStr: array [TGoalStatus] of string =

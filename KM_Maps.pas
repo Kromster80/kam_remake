@@ -204,7 +204,6 @@ procedure TKMapInfo.ScanMap;
 var
   st,DatFile,MapFile:string;
   ft:textfile;
-  I: Integer;
   fMissionParser: TMissionParserInfo;
 begin
   //We scan only single-player maps which are in Maps\ folder, so DAT\MAP paths are straight

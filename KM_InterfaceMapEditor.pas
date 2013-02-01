@@ -37,6 +37,7 @@ type
     procedure Create_MenuLoad;
     procedure Create_MenuQuit;
     procedure Create_Extra;
+    procedure Create_Message;
     procedure Create_Unit;
     procedure Create_House;
     procedure Create_HouseStore;
@@ -144,6 +145,7 @@ type
       Button_Main: array [1..5] of TKMButton; //5 buttons
       Label_MissionName: TKMLabel;
       Image_Extra: TKMImage;
+      Image_Message: TKMImage;
 
     Panel_Terrain: TKMPanel;
       Button_Terrain: array [TKMTerrainTab] of TKMButton;
@@ -261,6 +263,10 @@ type
     Panel_Extra: TKMPanel;
       Image_ExtraClose: TKMImage;
 
+    Panel_Message: TKMPanel;
+      Label_Message: TKMLabel;
+      Image_MessageClose: TKMImage;
+
     Panel_Unit:TKMPanel;
       Label_UnitName:TKMLabel;
       Label_UnitCondition:TKMLabel;
@@ -352,6 +358,7 @@ type
     procedure RightClick_Cancel;
     function GetShownPage: TKMMapEdShownPage;
     procedure SetLoadMode(aMultiplayer:boolean);
+    procedure ShowMessage(aText: string);
 
     procedure KeyDown(Key:Word; Shift: TShiftState); override;
     procedure KeyUp(Key:Word; Shift: TShiftState); override;
@@ -499,6 +506,11 @@ begin
   else
   if Sender = Image_ExtraClose then
     Panel_Extra.Hide;
+  if Sender = Image_Message then
+    DisplayPage(Panel_Message)
+  else
+  if Sender = Image_MessageClose then
+    Panel_Message.Hide;
 end;
 
 
@@ -730,6 +742,7 @@ begin
     Create_MenuQuit;
 
   Create_Extra;
+  Create_Message;
 
   Create_Unit;
   Create_House;
@@ -742,6 +755,11 @@ begin
   Image_Extra.Anchors := [akLeft, akBottom];
   Image_Extra.HighlightOnMouseOver := True;
   Image_Extra.OnClick := SwitchPage;
+
+  Image_Message := TKMImage.Create(Panel_Main, TOOLBAR_WIDTH, Panel_Main.Height - 48*2, 30, 48, 496);
+  Image_Message.Anchors := [akLeft, akBottom];
+  Image_Message.HighlightOnMouseOver := True;
+  Image_Message.OnClick := SwitchPage;
 
   //Pages that need to be on top of everything
   Create_AttackPopUp;
@@ -1277,7 +1295,7 @@ begin
 
     with TKMImage.Create(Panel_Extra, 0, 0, 800, 190, 409) do
     begin
-      Anchors := [akLeft,akTop,akBottom];
+      Anchors := [akLeft, akTop, akBottom];
       ImageStretch;
     end;
 
@@ -1305,6 +1323,28 @@ begin
     CheckBox_ShowDeposits := TKMCheckBox.Create(Panel_Extra, 220, 110, 180, 20, 'Show deposits', fnt_Metal);
     CheckBox_ShowDeposits.Checked := True; //Enabled by default
     CheckBox_ShowDeposits.OnClick := Extra_Change;
+end;
+
+
+procedure TKMapEdInterface.Create_Message;
+begin
+  Panel_Message := TKMPanel.Create(Panel_Main, TOOLBAR_WIDTH, Panel_Main.Height - 190, Panel_Main.Width - TOOLBAR_WIDTH, 190);
+  Panel_Message.Anchors := [akLeft, akBottom];
+  Panel_Message.Hide;
+
+    with TKMImage.Create(Panel_Message, 0, 0, 800, 190, 409) do
+    begin
+      Anchors := [akLeft, akTop, akBottom];
+      ImageStretch;
+    end;
+
+    Image_MessageClose := TKMImage.Create(Panel_Message, 800-35, 20, 32, 32, 52);
+    Image_MessageClose.Anchors := [akTop, akRight];
+    Image_MessageClose.Hint := fTextLibrary[TX_MSG_CLOSE_HINT];
+    Image_MessageClose.OnClick := SwitchPage;
+    Image_MessageClose.HighlightOnMouseOver := True;
+
+    Label_Message := TKMLabel.Create(Panel_Message, 40, 50, 7000, 0, '', fnt_Grey, taLeft);
 end;
 
 
@@ -1470,9 +1510,8 @@ begin
     NumEdit_GoalTime.OnChange := Goal_Change;
 
     TKMLabel.Create(Panel_Goal, 530, 90, 'Message Id', fnt_Metal, taLeft);
-    NumEdit_GoalMessage := TKMNumericEdit.Create(Panel_Goal, 530, 110, 0, 1000);
-    NumEdit_GoalMessage.Disable; //We do not support this feature, use Script instead
-    NumEdit_GoalMessage.Hint := '0';
+    NumEdit_GoalMessage := TKMNumericEdit.Create(Panel_Goal, 530, 110, 0, 0);
+    NumEdit_GoalMessage.Hint := 'This setting is deprecated';
 
     Button_GoalOk := TKMButton.Create(Panel_Goal, SIZE_X-20-320-10, SIZE_Y - 50, 160, 30, 'Ok', bsMenu);
     Button_GoalOk.OnClick := Goal_Close;
@@ -2058,6 +2097,8 @@ begin
   I := List_Attacks.ItemIndex;
   if InRange(I, 0, MyPlayer.AI.General.Attacks.Count - 1) then
     MyPlayer.AI.General.Attacks.Delete(I);
+
+  Attacks_Refresh;
 end;
 
 
@@ -2182,6 +2223,7 @@ begin
   I := List_Goals.ItemIndex;
   if InRange(I, 0, MyPlayer.Goals.Count - 1) then
     MyPlayer.Goals.Delete(I);
+  Goals_Refresh;
 end;
 
 
@@ -2495,6 +2537,13 @@ begin
                     DisplayPage(Panel_MarkerReveal);
                   end;
   end;
+end;
+
+
+procedure TKMapEdInterface.ShowMessage(aText: string);
+begin
+  Label_Message.Caption := aText;
+  Panel_Message.Show;
 end;
 
 
