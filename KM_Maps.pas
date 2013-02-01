@@ -29,7 +29,6 @@ type
     fCRC: Cardinal;
     fDatSize: Integer;
     fVersion: AnsiString; //Savegame version, yet unused in maps, they always have actual version
-    procedure ScanMap;
     procedure LoadFromFile(const aPath: string);
     procedure SaveToFile(const aPath: string);
   public
@@ -42,7 +41,9 @@ type
     GoalsVictoryCount, GoalsSurviveCount: array [0..MAX_PLAYERS-1] of Byte;
     GoalsVictory: array [0..MAX_PLAYERS-1] of array of TKMMapGoalInfo;
     GoalsSurvive: array [0..MAX_PLAYERS-1] of array of TKMMapGoalInfo;
-    Author, SmallDesc, BigDesc: string;
+    Alliances: array [0..MAX_PLAYERS-1, 0..MAX_PLAYERS-1] of TAllianceType;
+    FlagColors: array [0..MAX_PLAYERS-1] of Cardinal;
+    Author, SmallDesc, BigDesc: AnsiString;
     IsCoop: Boolean; //Some multiplayer missions are defined as coop
 
     constructor Create;
@@ -50,6 +51,7 @@ type
 
     procedure AddGoal(aType: TGoalType; aPlayer: TPlayerIndex; aCondition: TGoalCondition; aStatus: TGoalStatus; aPlayerIndex: TPlayerIndex);
     procedure Load(const aFolder: string; aStrictParsing, aIsMultiplayer: Boolean);
+    procedure LoadExtra;
     procedure Clear;
 
     property Path: string read fPath;
@@ -190,28 +192,24 @@ begin
 end;
 
 
-procedure TKMapInfo.Load(const aFolder:string; aStrictParsing, aIsMultiplayer: Boolean);
+procedure TKMapInfo.Load(const aFolder: string; aStrictParsing, aIsMultiplayer: Boolean);
+var
+  st, DatFile, MapFile: string;
+  ft: TextFile;
+  fMissionParser: TMissionParserInfo;
 begin
+  Clear;
+
   fPath := ExeDir + MAP_FOLDER_MP[aIsMultiplayer] + '\' + aFolder + '\';
   fFileName := aFolder;
 
   fStrictParsing := aStrictParsing;
-  ScanMap;
-end;
 
-
-procedure TKMapInfo.ScanMap;
-var
-  st,DatFile,MapFile:string;
-  ft:textfile;
-  fMissionParser: TMissionParserInfo;
-begin
-  //We scan only single-player maps which are in Maps\ folder, so DAT\MAP paths are straight
   DatFile := fPath + fFileName + '.dat';
   MapFile := fPath + fFileName + '.map';
 
   //Try loading info from cache, since map scanning is rather slow
-  //LoadFromFile(fPath + fFileName + '.mi'); //Data will be empty if failed
+  LoadFromFile(fPath + fFileName + '.mi'); //Data will be empty if failed
 
   //We will scan map once again if anything has changed
   //In SP mode we check DAT size and version, that is enough
@@ -229,15 +227,45 @@ begin
     fMissionParser := TMissionParserInfo.Create(False);
     try
       //Fill Self properties with MissionParser
-      fMissionParser.LoadMission(DatFile, Self);
-
-      //Single maps Titles are the same as FileName for now
-      //Campaign maps are in different folder
-
-      SaveToFile(fPath + fFileName + '.mi'); //Save new cache file
+      fMissionParser.LoadMission(DatFile, Self, pmBase);
     finally
       fMissionParser.Free;
     end;
+
+    //Load additional text info
+    if FileExists(fPath + fFileName + '.txt') then
+    begin
+      AssignFile(ft, fPath + fFileName + '.txt');
+      FileMode := fmOpenRead;
+      Reset(ft);
+      repeat
+        ReadLn(ft, st);
+        if SameText(st, 'SmallDesc') then ReadLn(ft, SmallDesc);
+      until(eof(ft));
+      CloseFile(ft);
+    end;
+
+    SaveToFile(fPath + fFileName + '.mi'); //Save new cache file
+  end;
+end;
+
+
+//Load additional information for map that is not in main SP list
+procedure TKMapInfo.LoadExtra;
+var
+  st, DatFile, MapFile: string;
+  ft: TextFile;
+  fMissionParser: TMissionParserInfo;
+begin
+  DatFile := fPath + fFileName + '.dat';
+  MapFile := fPath + fFileName + '.map';
+
+  fMissionParser := TMissionParserInfo.Create(False);
+  try
+    //Fill Self properties with MissionParser
+    fMissionParser.LoadMission(DatFile, Self, pmExtra);
+  finally
+    fMissionParser.Free;
   end;
 
   //Load additional text info
@@ -247,9 +275,8 @@ begin
     FileMode := fmOpenRead;
     Reset(ft);
     repeat
-      ReadLn(ft,st);
+      ReadLn(ft, st);
       if SameText(st, 'Author')    then ReadLn(ft, Author);
-      if SameText(st, 'SmallDesc') then ReadLn(ft, SmallDesc);
       if SameText(st, 'BigDesc')   then ReadLn(ft, BigDesc);
       if SameText(st, 'SetCoop')   then IsCoop := True;
     until(eof(ft));
@@ -278,28 +305,16 @@ begin
   S.Read(MapSizeY);
   S.Read(MissionMode, SizeOf(TKMissionMode));
   S.Read(PlayerCount);
-  S.Read(CanBeHuman[0], SizeOf(CanBeHuman));
-  S.Read(CanBeAI[0], SizeOf(CanBeAI));
-  S.Read(DefaultHuman);
-  for I := 0 to MAX_PLAYERS - 1 do
-  begin
-    S.Read(GoalsVictoryCount[I]);
-    SetLength(GoalsVictory[I], GoalsVictoryCount[I]);
-    if GoalsVictoryCount[I] > 0 then
-      S.Read(GoalsVictory[I,0], SizeOf(TKMMapGoalInfo) * GoalsVictoryCount[I]);
-    S.Read(GoalsSurviveCount[I]);
-    SetLength(GoalsSurvive[I], GoalsSurviveCount[I]);
-    if GoalsSurviveCount[I] > 0 then
-      S.Read(GoalsSurvive[I,0], SizeOf(TKMMapGoalInfo) * GoalsSurviveCount[I]);
-  end;
+  S.Read(SmallDesc);
 
-  //Other properties from text file are not saved, they are fast to reload
+  //Other properties are not saved, they are fast to reload
   S.Free;
 end;
 
 
 procedure TKMapInfo.SaveToFile(const aPath: string);
-var S: TKMemoryStream;
+var
+  S: TKMemoryStream;
   I: Integer;
 begin
   S := TKMemoryStream.Create;
@@ -314,18 +329,7 @@ begin
     S.Write(MapSizeY);
     S.Write(MissionMode, SizeOf(TKMissionMode));
     S.Write(PlayerCount);
-    S.Write(CanBeHuman[0], SizeOf(CanBeHuman));
-    S.Write(CanBeAI[0], SizeOf(CanBeAI));
-    S.Write(DefaultHuman);
-    for I := 0 to MAX_PLAYERS - 1 do
-    begin
-      S.Write(GoalsVictoryCount[I]);
-      if GoalsVictoryCount[I] > 0 then
-        S.Write(GoalsVictory[I,0], SizeOf(TKMMapGoalInfo) * GoalsVictoryCount[I]);
-      S.Write(GoalsSurviveCount[I]);
-      if GoalsSurviveCount[I] > 0 then
-        S.Write(GoalsSurvive[I,0], SizeOf(TKMMapGoalInfo) * GoalsSurviveCount[I]);
-    end;
+    S.Write(SmallDesc);
 
     //Other properties from text file are not saved, they are fast to reload
     S.SaveToFile(aPath);

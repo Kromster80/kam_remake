@@ -4,10 +4,12 @@ interface
 uses
   Classes, KromUtils, SysUtils,
   KM_CommonClasses, KM_Defaults, KM_Points,
-  KM_Goals, KM_MissionScript, KM_Maps;
+  KM_Goals, KM_MissionScript, KM_Maps, KM_Resource;
 
 
 type
+  TKMMissionParsing = (pmBase, pmExtra);
+
   TKMMissionInfo = class
   public
     MissionMode: TKMissionMode;
@@ -28,14 +30,11 @@ type
     constructor Create(aStrictParsing: Boolean);
     destructor Destroy; override;
 
-    function LoadMission(const aFileName: string; aMapInfo: TKMapInfo): Boolean; reintroduce;
+    function LoadMission(const aFileName: string; aMapInfo: TKMapInfo; aParsing: TKMMissionParsing): Boolean; reintroduce;
   end;
 
 
 implementation
-
-
-{ TKMMissionInfo }
 
 
 { TMissionParserInfo }
@@ -53,17 +52,18 @@ begin
 end;
 
 
-function TMissionParserInfo.LoadMission(const aFileName: string; aMapInfo: TKMapInfo): Boolean;
+function TMissionParserInfo.LoadMission(const aFileName: string; aMapInfo: TKMapInfo; aParsing: TKMMissionParsing): Boolean;
 const
-  Commands: array [0..7] of AnsiString = (
+  CommandsBase: array [0..1] of AnsiString = (
+    '!SET_MAX_PLAYER', '!SET_TACTIC');
+  CommandsExtra: array [0..9] of AnsiString = (
     '!SET_MAX_PLAYER', '!SET_TACTIC',
     '!SET_CURR_PLAYER', '!SET_HUMAN_PLAYER', '!SET_USER_PLAYER',
-    '!SET_AI_PLAYER', '!ADD_GOAL', '!ADD_LOST_GOAL');
+    '!SET_AI_PLAYER', '!ADD_GOAL', '!ADD_LOST_GOAL', '!SET_ALLIANCE', '!SET_MAP_COLOR');
 var
   FileText: AnsiString;
 begin
   fMapInfo := aMapInfo;
-  fMapInfo.Clear;
 
   inherited LoadMission(aFileName);
 
@@ -75,8 +75,10 @@ begin
 
   //For info we need only few commands,
   //it makes sense to skip the rest
-  if not TokenizeScript(FileText, 4, Commands) then
-    Exit;
+  case aParsing of
+    pmBase:   if not TokenizeScript(FileText, 4, CommandsBase) then Exit;
+    pmExtra:  if not TokenizeScript(FileText, 4, CommandsExtra) then Exit;
+  end;
 
   if not LoadMapInfo(ChangeFileExt(fMissionFileName, '.map')) then
     Exit;
@@ -90,11 +92,11 @@ begin
   case CommandType of
     ct_SetMaxPlayer:    fMapInfo.PlayerCount      := P[0];
     ct_SetTactic:       fMapInfo.MissionMode      := mm_Tactic;
+    ct_SetCurrPlayer:   fLastPlayer      := P[0];
     ct_HumanPlayer:     begin
                           fMapInfo.DefaultHuman     := P[0];
                           fMapInfo.CanBeHuman[P[0]] := True;
                         end;
-    ct_SetCurrPlayer:   fLastPlayer      := P[0];
     ct_UserPlayer:      if P[0] = -1 then
                           fMapInfo.CanBeHuman[fLastPlayer] := True
                         else
@@ -115,6 +117,14 @@ begin
                             fMapInfo.AddGoal(glt_Survive, fLastPlayer, TGoalCondition(P[0]), TGoalStatus(P[1]), -1)
                           else
                             fMapInfo.AddGoal(glt_Survive, fLastPlayer, TGoalCondition(P[0]), TGoalStatus(P[1]), P[3]);
+    ct_SetAlliance:     if (fLastPlayer >= 0) then
+                          if P[1] = 1 then
+                            fMapInfo.Alliances[fLastPlayer, P[0]] := at_Ally
+                          else
+                            fMapInfo.Alliances[fLastPlayer, P[0]] := at_Enemy;
+    ct_SetMapColor:     if fLastPlayer >= 0 then
+                          //For now simply use the minimap color for all color, it is too hard to load all 8 shades from ct_SetNewRemap
+                          fMapInfo.FlagColors[fLastPlayer] := fResource.Palettes.DefDal.Color32(P[0]);
   end;
 
   Result := True;
