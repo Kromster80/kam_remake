@@ -27,7 +27,7 @@ type
     fFileName: string; //without extension
     fStrictParsing: Boolean; //Use strict map checking, important for MP
     fCRC: Cardinal;
-    fDatSize: Integer;
+    fDatCRC: Cardinal; //Used to speed up scanning
     fVersion: AnsiString; //Savegame version, yet unused in maps, they always have actual version
     procedure LoadFromFile(const aPath: string);
     procedure SaveToFile(const aPath: string);
@@ -194,7 +194,8 @@ end;
 
 procedure TKMapInfo.Load(const aFolder: string; aStrictParsing, aIsMultiplayer: Boolean);
 var
-  st, DatFile, MapFile: string;
+  st, DatFile, MapFile, ScriptFile: string;
+  DatCRC, OthersCRC: Cardinal;
   ft: TextFile;
   fMissionParser: TMissionParserInfo;
 begin
@@ -207,21 +208,35 @@ begin
 
   DatFile := fPath + fFileName + '.dat';
   MapFile := fPath + fFileName + '.map';
+  ScriptFile := fPath + fFileName + '.script'; //Needed for CRC
+
+  if not FileExists(DatFile) then Exit;
 
   //Try loading info from cache, since map scanning is rather slow
   LoadFromFile(fPath + fFileName + '.mi'); //Data will be empty if failed
 
   //We will scan map once again if anything has changed
-  //In SP mode we check DAT size and version, that is enough
-  //In MP mode we also need exact CRCs to match maps between players
-  if FileExists(DatFile) then
-  if (fDatSize <> GetFileSize(DatFile)) or
-     (fVersion <> GAME_REVISION) or
-     (fStrictParsing and (fCRC <> Adler32CRC(DatFile) xor Adler32CRC(MapFile)))
+  //In SP mode (non-strict) we check DAT CRC and version, that is enough
+  //In MP mode (strict) we also need exact CRCs to match maps between players
+
+  DatCRC := Adler32CRC(DatFile);
+  //.map file CRC is the slowest, so only calculate it if necessary
+  OthersCRC := 0; //Supresses incorrect warning by Delphi
+  if fStrictParsing then
+    OthersCRC := Adler32CRC(MapFile) xor Adler32CRC(ScriptFile);
+
+  //Does the map need to be fully rescanned? (.mi cache is outdated?)
+  if (fVersion <> GAME_REVISION) or
+     (fDatCRC <> DatCRC) or //In non-strict mode only DAT CRC matters (SP)
+     (fStrictParsing and (fCRC <> DatCRC xor OthersCRC)) //In strict mode we check all CRCs (MP)
   then
   begin
-    fCRC := Adler32CRC(DatFile) xor Adler32CRC(MapFile);
-    fDatSize := GetFileSize(DatFile);
+    //Calculate OthersCRC if it wasn't calculated before
+    if not fStrictParsing then
+      OthersCRC := Adler32CRC(MapFile) xor Adler32CRC(ScriptFile);
+
+    fCRC := DatCRC xor OthersCRC;
+    fDatCRC := DatCRC;
     fVersion := GAME_REVISION;
 
     fMissionParser := TMissionParserInfo.Create(False);
@@ -297,7 +312,7 @@ begin
 
   //Internal properties
   S.Read(fCRC);
-  S.Read(fDatSize);
+  S.Read(fDatCRC);
   S.Read(fVersion);
 
   //Exposed properties
@@ -321,7 +336,7 @@ begin
   try
     //Internal properties
     S.Write(fCRC);
-    S.Write(fDatSize);
+    S.Write(fDatCRC);
     S.Write(fVersion);
 
     //Exposed properties

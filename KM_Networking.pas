@@ -485,7 +485,7 @@ begin
   FreeAndNil(fSaveInfo);
   fMapInfo := TKMapInfo.Create;
 
-  fMapInfo.Load(aName, true, true);
+  fMapInfo.Load(aName, True, True); //Strict scanning to force CRC recalculation
 
   if not fMapInfo.IsValid then
   begin
