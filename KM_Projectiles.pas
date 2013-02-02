@@ -47,7 +47,7 @@ var
 
 
 implementation
-uses KM_Sound, KM_RenderPool, KM_RenderAux, KM_PlayersCollection, KM_Resource;
+uses KM_Sound, KM_RenderPool, KM_RenderAux, KM_PlayersCollection, KM_Resource, KM_Scripting;
 
 
 const
@@ -275,7 +275,10 @@ begin
                               if (FRIENDLY_FIRE or (fPlayers.CheckAlliance(fOwner, U.Owner)= at_Enemy))
                               and (Damage >= KaMRandom(101))
                               and U.HitPointsDecrease(1) then
+                              begin
                                 fPlayers[fOwner].Stats.UnitKilled(U.UnitType);
+                                fScripting.ProcUnitKilled(U.UnitType, U.Owner, fOwner);
+                              end;
                             end
                             else
                             begin
@@ -289,7 +292,10 @@ begin
                             and not (U is TKMUnitAnimal)
                             and (FRIENDLY_FIRE or (fPlayers.CheckAlliance(fOwner, U.Owner)= at_Enemy))
                             and U.HitPointsDecrease(U.HitPointsMax) then //Instant death
+                            begin
                               fPlayers[fOwner].Stats.UnitKilled(U.UnitType);
+                              fScripting.ProcUnitKilled(U.UnitType, U.Owner, fOwner);
+                            end;
             end;
           end;
           RemItem(i);

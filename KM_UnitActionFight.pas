@@ -34,7 +34,7 @@ type
 
 
 implementation
-uses KM_PlayersCollection, KM_Sound, KM_Units_Warrior, KM_Resource, KM_Projectiles;
+uses KM_PlayersCollection, KM_Sound, KM_Units_Warrior, KM_Resource, KM_Projectiles, KM_Scripting;
 
 const STRIKE_STEP = 5; //Melee units place hit on step 5
 
@@ -265,7 +265,10 @@ begin
     IsHit := (Damage >= KaMRandom(101)); //Damage is a % chance to hit
     if IsHit then
       if fOpponent.HitPointsDecrease(1) then
+      begin
         fPlayers[fUnit.Owner].Stats.UnitKilled(fOpponent.UnitType);
+        fScripting.ProcUnitKilled(fOpponent.UnitType, fOpponent.Owner, fUnit.Owner);
+      end;
 
     MakeSound(IsHit); //Different sounds for hit and for miss
   end;

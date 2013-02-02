@@ -278,7 +278,7 @@ type
 
 implementation
 uses
-  KM_CommonTypes, KM_Game, KM_RenderPool, KM_RenderAux, KM_TextLibrary,
+  KM_CommonTypes, KM_Game, KM_RenderPool, KM_RenderAux, KM_TextLibrary, KM_Scripting,
   KM_PlayersCollection,
   KM_Units_Warrior, KM_Resource, KM_Log,
 
@@ -1203,7 +1203,10 @@ begin
 
   //Update statistics
   if (fPlayers<>nil) and (fOwner <> PLAYER_NONE) and (fOwner <> PLAYER_ANIMAL) then
+  begin
     fPlayers[fOwner].Stats.UnitLost(fUnitType);
+    fScripting.ProcUnitLost(fUnitType, fOwner);
+  end;
 
   fThought := th_None; //Reset thought
   SetAction(nil); //Dispose of current action (TTaskDie will set it to LockedStay)
@@ -1641,7 +1644,10 @@ begin
       begin
         //There is no space for this unit so it must be destroyed
         if (fPlayers<>nil) and (fOwner <> PLAYER_NONE) and (fOwner <> PLAYER_ANIMAL) then
+        begin
           fPlayers[fOwner].Stats.UnitLost(fUnitType);
+          fScripting.ProcUnitLost(fUnitType, fOwner);
+        end;
         FreeAndNil(fCurrentAction);
         FreeAndNil(fUnitTask);
         CloseUnit(false); //Close the unit without removing tile usage (because this unit was in a house it has none)

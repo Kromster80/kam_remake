@@ -37,6 +37,8 @@ type
 
     procedure ProcHouseBuilt(aHouseType: THouseType; aOwner: TPlayerIndex);
     procedure ProcUnitTrained(aUnitType: TUnitType; aOwner: TPlayerIndex);
+    procedure ProcUnitLost(aUnitType: TUnitType; aOwner: TPlayerIndex);
+    procedure ProcUnitKilled(aUnitType: TUnitType; aOwner, aKillerOwner: TPlayerIndex);
     procedure ProcWarriorEquipped(aUnitType: TUnitType; aOwner: TPlayerIndex);
     procedure ProcPlayerDefeated(aPlayer: TPlayerIndex);
 
@@ -49,6 +51,7 @@ type
 
   TTestFunction = procedure (aIndex: Integer) of object;
   TTestFunction2 = procedure (aIndex, aParam: Integer) of object;
+  TTestFunction3 = procedure (aIndex, aParam, aParam2: Integer) of object;
 
 var
   fScripting: TKMScripting;
@@ -170,7 +173,16 @@ begin
   Result := True;
 
   //Check if the proc is the proc we want
-  if (Proc.Name = 'ONHOUSEBUILT') or (Proc.Name = 'ONUNITTRAINED') or (Proc.Name = 'ONWARRIOREQUIPPED') then
+  if (Proc.Name = 'ONUNITKILLED') then
+    //Check if the proc has the correct params
+    if not ExportCheck(Sender, Proc, [0, btS32, btS32, btS32], [pmIn, pmIn, pmIn]) then
+    begin
+      //Something is wrong, so cause an error
+      Sender.MakeError('', ecTypeMismatch, '');
+      Result := False;
+      Exit;
+    end;
+  if (Proc.Name = 'ONHOUSEBUILT') or (Proc.Name = 'ONUNITTRAINED') or (Proc.Name = 'ONWARRIOREQUIPPED') or (Proc.Name = 'ONUNITLOST') then
     //Check if the proc has the correct params
     if not ExportCheck(Sender, Proc, [0, btS32, btS32], [pmIn, pmIn]) then
     begin
@@ -308,6 +320,30 @@ begin
   TestFunc := TTestFunction2(fExec.GetProcAsMethodN('ONUNITTRAINED'));
   if @TestFunc <> nil then
     TestFunc(aOwner, UnitTypeToIndex[aUnitType]);
+end;
+
+
+procedure TKMScripting.ProcUnitLost(aUnitType: TUnitType; aOwner: TPlayerIndex);
+var
+  TestFunc: TTestFunction2;
+begin
+  //Check if event handler (procedure) exists and run it
+  //Store unit by its KaM index to keep it consistent with DAT scripts
+  TestFunc := TTestFunction2(fExec.GetProcAsMethodN('ONUNITLOST'));
+  if @TestFunc <> nil then
+    TestFunc(aOwner, UnitTypeToIndex[aUnitType]);
+end;
+
+
+procedure TKMScripting.ProcUnitKilled(aUnitType: TUnitType; aOwner, aKillerOwner: TPlayerIndex);
+var
+  TestFunc: TTestFunction3;
+begin
+  //Check if event handler (procedure) exists and run it
+  //Store unit by its KaM index to keep it consistent with DAT scripts
+  TestFunc := TTestFunction3(fExec.GetProcAsMethodN('ONUNITKILLED'));
+  if @TestFunc <> nil then
+    TestFunc(aOwner, aKillerOwner, UnitTypeToIndex[aUnitType]);
 end;
 
 
