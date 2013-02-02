@@ -36,6 +36,8 @@ type
     procedure ExportDataToText;
 
     procedure ProcHouseBuilt(aHouseType: THouseType; aOwner: TPlayerIndex);
+    procedure ProcUnitTrained(aUnitType: TUnitType; aOwner: TPlayerIndex);
+    procedure ProcWarriorEquipped(aUnitType: TUnitType; aOwner: TPlayerIndex);
     procedure ProcPlayerDefeated(aPlayer: TPlayerIndex);
 
     procedure Save(SaveStream: TKMemoryStream);
@@ -53,7 +55,7 @@ var
 
 
 implementation
-uses KM_Log, KM_ResourceHouse;
+uses KM_Log, KM_ResourceHouse, KM_ResourceUnit;
 
 
 { TKMScripting }
@@ -122,6 +124,7 @@ begin
       RegisterMethod('function PlayerDefeated(aPlayer: Byte): Boolean');
       RegisterMethod('function UnitCount(aPlayer: Byte): Integer');
       RegisterMethod('function UnitTypeCount(aPlayer, aUnitType: Byte): Integer');
+      RegisterMethod('function PlayerName(aPlayer: Byte): AnsiString');
     end;
 
     with Sender.AddClassN(nil, fActions.ClassName) do
@@ -167,7 +170,7 @@ begin
   Result := True;
 
   //Check if the proc is the proc we want
-  if Proc.Name = 'ONHOUSEBUILT' then
+  if (Proc.Name = 'ONHOUSEBUILT') or (Proc.Name = 'ONUNITTRAINED') or (Proc.Name = 'ONWARRIOREQUIPPED') then
     //Check if the proc has the correct params
     if not ExportCheck(Sender, Proc, [0, btS32, btS32], [pmIn, pmIn]) then
     begin
@@ -239,6 +242,7 @@ begin
     RegisterMethod(@TKMScriptStates.PlayerDefeated, 'PLAYERDEFEATED');
     RegisterMethod(@TKMScriptStates.UnitCount, 'UNITCOUNT');
     RegisterMethod(@TKMScriptStates.UnitTypeCount, 'UNITTYPECOUNT');
+    RegisterMethod(@TKMScriptStates.PlayerName, 'PLAYERNAME');
   end;
 
   with ClassImp.Add(TKMScriptActions) do
@@ -292,6 +296,30 @@ begin
   TestFunc := TTestFunction2(fExec.GetProcAsMethodN('ONHOUSEBUILT'));
   if @TestFunc <> nil then
     TestFunc(aOwner, HouseTypeToIndex[aHouseType] - 1);
+end;
+
+
+procedure TKMScripting.ProcUnitTrained(aUnitType: TUnitType; aOwner: TPlayerIndex);
+var
+  TestFunc: TTestFunction2;
+begin
+  //Check if event handler (procedure) exists and run it
+  //Store unit by its KaM index to keep it consistent with DAT scripts
+  TestFunc := TTestFunction2(fExec.GetProcAsMethodN('ONUNITTRAINED'));
+  if @TestFunc <> nil then
+    TestFunc(aOwner, UnitTypeToIndex[aUnitType]);
+end;
+
+
+procedure TKMScripting.ProcWarriorEquipped(aUnitType: TUnitType; aOwner: TPlayerIndex);
+var
+  TestFunc: TTestFunction2;
+begin
+  //Check if event handler (procedure) exists and run it
+  //Store unit by its KaM index to keep it consistent with DAT scripts
+  TestFunc := TTestFunction2(fExec.GetProcAsMethodN('ONWARRIOREQUIPPED'));
+  if @TestFunc <> nil then
+    TestFunc(aOwner, UnitTypeToIndex[aUnitType]);
 end;
 
 

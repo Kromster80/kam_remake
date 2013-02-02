@@ -30,6 +30,7 @@ type
     function PlayerDefeated(aPlayer: Byte): Boolean;
     function UnitCount(aPlayer: Byte): Integer;
     function UnitTypeCount(aPlayer, aUnitType: Byte): Integer;
+    function PlayerName(aPlayer: Byte): AnsiString;
   end;
 
   TKMScriptActions = class
@@ -155,6 +156,18 @@ begin
   begin
     Result := 0;
     LogError('States.UnitTypeCount', [aPlayer]);
+  end;
+end;
+
+
+function TKMScriptStates.PlayerName(aPlayer: Byte): AnsiString;
+begin
+  if InRange(aPlayer, 0, fPlayers.Count - 1) then
+    Result := fPlayers[aPlayer].PlayerName
+  else
+  begin
+    Result := '';
+    LogError('States.PlayerName', [aPlayer]);
   end;
 end;
 
