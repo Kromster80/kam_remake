@@ -138,7 +138,7 @@ type
 
 implementation
 uses KM_PlayersCollection, KM_Resource, KM_ResourceHouse, KM_Sound, KM_Game,
-   KM_TextLibrary, KM_AIFields;
+   KM_TextLibrary, KM_AIFields, KM_Scripting;
 
 
 { TKMPlayerCommon }
@@ -299,6 +299,7 @@ begin
   if aUnit.UnitType = ut_Serf then
     fDeliveries.AddSerf(TKMUnitSerf(aUnit));
 
+  fScripting.ProcUnitTrained(aUnit.UnitType, fPlayerIndex);
   fStats.UnitCreated(aUnit.UnitType, True);
 end;
 

@@ -167,7 +167,7 @@ type
 
 
 implementation
-uses KM_Game, KM_Player, KM_PlayersCollection, KM_Terrain, KM_Utils, KM_TextLibrary, KM_RenderPool, KM_Hungarian;
+uses KM_Game, KM_Player, KM_PlayersCollection, KM_Terrain, KM_Utils, KM_TextLibrary, KM_RenderPool, KM_Hungarian, KM_Scripting;
 
 
 const
@@ -1423,6 +1423,7 @@ var
   LinkUnit: TKMUnitWarrior;
   LinkGroup: TKMUnitGroup;
 begin
+  fScripting.ProcWarriorEquipped(aUnit.UnitType, aUnit.Owner);
   case fPlayers[aUnit.Owner].PlayerType of
     pt_Human:    begin
                    LinkUnit := aUnit.FindLinkUnit(aUnit.GetPosition);
