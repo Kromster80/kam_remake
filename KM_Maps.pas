@@ -303,7 +303,6 @@ end;
 procedure TKMapInfo.LoadFromFile(const aPath: string);
 var
   S: TKMemoryStream;
-  I: Integer;
 begin
   if not FileExists(aPath) then Exit;
 
@@ -330,7 +329,6 @@ end;
 procedure TKMapInfo.SaveToFile(const aPath: string);
 var
   S: TKMemoryStream;
-  I: Integer;
 begin
   S := TKMemoryStream.Create;
   try
