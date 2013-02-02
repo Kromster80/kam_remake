@@ -139,6 +139,9 @@ begin
                         end;
     ct_SetMaxPlayer:    begin
                           fPlayers.AddPlayers(P[0]);
+                          //Set players to enabled/disabled
+                          for i:=0 to fPlayers.Count-1 do
+                            fPlayers[i].Enabled := fPlayerEnabled[i];
                         end;
     ct_SetTactic:       begin
                           fGame.MissionMode := mm_Tactic;

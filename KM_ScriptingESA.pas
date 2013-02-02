@@ -25,12 +25,14 @@ type
     function ArmyCount(aPlayer: Byte): Integer;
     function CitizenCount(aPlayer: Byte): Integer;
     function GameTime: Cardinal;
+    function PeaceTime: Cardinal;
     function HouseTypeCount(aPlayer, aHouseType: Byte): Integer;
     function PlayerCount: Integer;
     function PlayerDefeated(aPlayer: Byte): Boolean;
     function UnitCount(aPlayer: Byte): Integer;
     function UnitTypeCount(aPlayer, aUnitType: Byte): Integer;
     function PlayerName(aPlayer: Byte): AnsiString;
+    function PlayerEnabled(aPlayer: Byte): Boolean;
     function HouseAt(aX, aY: Word): Integer;
     function HouseOwner(aHouseID: Integer): Integer;
     function HouseType(aHouseID: Integer): Integer;
@@ -108,6 +110,12 @@ begin
 end;
 
 
+function TKMScriptStates.PeaceTime: Cardinal;
+begin
+  Result := 600*fGame.GameOptions.Peacetime;
+end;
+
+
 function TKMScriptStates.HouseTypeCount(aPlayer, aHouseType: Byte): Integer;
 begin
   if InRange(aPlayer, 0, fPlayers.Count - 1)
@@ -173,6 +181,18 @@ begin
   else
   begin
     Result := '';
+    LogError('States.PlayerName', [aPlayer]);
+  end;
+end;
+
+
+function TKMScriptStates.PlayerEnabled(aPlayer: Byte): Boolean;
+begin
+  if InRange(aPlayer, 0, fPlayers.Count - 1) then
+    Result := fPlayers[aPlayer].Enabled
+  else
+  begin
+    Result := False;
     LogError('States.PlayerName', [aPlayer]);
   end;
 end;
