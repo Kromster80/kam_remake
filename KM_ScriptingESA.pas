@@ -50,6 +50,7 @@ type
     procedure ShowMsgFormatted(aPlayer, aIndex: Word; const Args: array of const);
     procedure UnlockHouse(aPlayer, aHouseType: Word);
     procedure AddHouseDamage(aHouseID: Integer; aDamage: Word);
+    procedure GiveWaresToHouse(aHouseID: Integer; aType, aCount: Word);
     procedure SetOverlayText(aPlayer, aIndex: Word);
     procedure SetOverlayTextFormatted(aPlayer, aIndex: Word; const Args: array of const);
   end;
@@ -344,6 +345,31 @@ begin
   if (H <> nil) and not H.IsDestroyed then
     H.AddDamage(aDamage);
   //Silently ignore if house doesn't exist
+end;
+
+
+procedure TKMScriptActions.GiveWaresToHouse(aHouseID: Integer; aType, aCount: Word);
+var H: TKMHouse; Res: TResourceType;
+begin
+  Res := ResourceIndexToType[aType];
+  if (aType in [Low(ResourceIndexToType)..High(ResourceIndexToType)]) then
+  begin
+    H := fPlayers.GetHouseByID(aHouseID);
+    if (H <> nil) and not H.IsDestroyed then
+    begin
+      if H is TKMHouseBarracks then
+      begin
+        if Res in [WARFARE_MIN..WARFARE_MAX] then
+          H.ResAddToIn(Res, aCount, True) //Barracks only accepts warfare
+        //else @Krom: Should we log the specific error here? Or silently ignore?
+      end
+      else
+        //Try to add it, it will be ignored if it's the wrong type and won't overfill due to aFromScript=True
+        H.ResAddToIn(Res, aCount, True);
+    end;
+  end
+  else
+    LogError('Actions.GiveWaresToHouse', [aHouseID, aType, aCount]);
 end;
 
 
