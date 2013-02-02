@@ -86,6 +86,20 @@ begin
 
   Result := False;
 
+  //Load the terrain since we know where it is beforehand
+  if FileExists(ChangeFileExt(fMissionFileName, '.map')) then
+  begin
+    fTerrain.LoadFromFile(ChangeFileExt(fMissionFileName, '.map'), fParsingMode = mpm_Editor);
+    if fParsingMode = mpm_Editor then
+      fTerrainPainter.LoadFromFile(ChangeFileExt(fMissionFileName, '.map'));
+  end
+  else
+  begin
+    //Else abort loading and fail
+    AddError('Map file couldn''t be found', True);
+    Exit;
+  end;
+
   //Read the mission file into FileText
   FileText := ReadMissionFile(aFileName);
   if FileText = '' then
@@ -104,7 +118,6 @@ end;
 
 function TMissionParserStandard.ProcessCommand(CommandType: TKMCommandType; P: array of Integer; TextParam: AnsiString = ''): Boolean;
 var
-  MapFileName: string;
   i: integer;
   Qty: integer;
   H: TKMHouse;
@@ -115,28 +128,14 @@ begin
 
   case CommandType of
     ct_SetMap:          begin
-                          MapFileName := RemoveQuotes(String(TextParam));
-                          //Check for same filename.map in same folder first - Remake format
-                          if FileExists(ChangeFileExt(fMissionFileName, '.map')) then
-                          begin
-                            fTerrain.LoadFromFile(ChangeFileExt(fMissionFileName, '.map'), fParsingMode = mpm_Editor);
-                            if fParsingMode = mpm_Editor then
-                              fTerrainPainter.LoadFromFile(ChangeFileExt(fMissionFileName, '.map'));
-                          end
-                          else
-                          {//Check for KaM format map path
+                          //Check for KaM format map path (disused, as Remake maps are always next to DAT script)
+                          {MapFileName := RemoveQuotes(String(TextParam));
                           if FileExists(ExeDir + MapFileName) then
                           begin
                             fTerrain.LoadFromFile(ExeDir+MapFileName, fParsingMode = mpm_Editor)
                             if fParsingMode = mpm_Editor then
                               fTerrainPainter.LoadFromFile(ExeDir+MapFileName);
-                          end
-                          else}
-                          begin
-                            //Else abort loading and fail
-                            AddError('Map file couldn''t be found', True);
-                            Exit;
-                          end;
+                          end}
                         end;
     ct_SetMaxPlayer:    begin
                           fPlayers.AddPlayers(P[0]);
@@ -524,7 +523,7 @@ var
     end
   end;
 
-  procedure AddCommand(aCommand: TKMCommandType; aComParam: TKMCommandParamType; aParams: array of integer); overload;
+  procedure AddCommand(aCommand: TKMCommandType; aComParam: TKMCommandParamType; aParams: array of Integer); overload;
   var OutData: AnsiString; I:integer;
   begin
     OutData := '!' + COMMANDVALUES[aCommand];
@@ -538,7 +537,7 @@ var
     AddData(OutData);
   end;
 
-  procedure AddCommand(aCommand: TKMCommandType; aComParam: TAIAttackParamType; aParams: array of integer); overload;
+  procedure AddCommand(aCommand: TKMCommandType; aComParam: TAIAttackParamType; aParams: array of Integer); overload;
   var OutData: AnsiString; I:integer;
   begin
     OutData := '!' + COMMANDVALUES[aCommand] + ' ' + AI_ATTACK_PARAMS[aComParam];
@@ -549,7 +548,7 @@ var
     AddData(OutData);
   end;
 
-  procedure AddCommand(aCommand:TKMCommandType; aParams: array of integer); overload;
+  procedure AddCommand(aCommand: TKMCommandType; aParams: array of Integer); overload;
   begin
     AddCommand(aCommand, cpt_Unknown, aParams);
   end;
@@ -561,7 +560,8 @@ begin
   CommandLayerCount := -1; //Some commands (road/fields) are layered so the file is easier to read (not so many lines)
 
   //Main header, use same filename for MAP
-  AddData('!'+COMMANDVALUES[ct_SetMap] + ' "data\mission\smaps\' + AnsiString(ExtractFileName(TruncateExt(aFileName))) + '.map"');
+  //Discontinue KAM format, if mapmaker wants to use MapEd for KaM he needs to update/change other things too, might as well add this line
+  //AddData('!'+COMMANDVALUES[ct_SetMap] + ' "data\mission\smaps\' + AnsiString(ExtractFileName(TruncateExt(aFileName))) + '.map"');
   if fGame.MissionMode = mm_Tactic then AddCommand(ct_SetTactic, []);
   AddCommand(ct_SetMaxPlayer, [fPlayers.Count]);
   AddCommand(ct_HumanPlayer, [fGame.MapEditor.DefaultHuman]);
@@ -579,7 +579,7 @@ begin
 
     AddCommand(ct_SetMapColor, [fPlayers[I].FlagColorIndex]);
     if not KMSamePoint(fPlayers[I].CenterScreen, KMPoint(0,0)) then
-      AddCommand(ct_CenterScreen, [fPlayers[I].CenterScreen.X-1,fPlayers[I].CenterScreen.Y-1]);
+      AddCommand(ct_CenterScreen, [fPlayers[I].CenterScreen.X-1, fPlayers[I].CenterScreen.Y-1]);
 
     with fGame.MapEditor.Revealers[I] do
     for K := 0 to Count - 1 do
