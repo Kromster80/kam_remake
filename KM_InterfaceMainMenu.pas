@@ -3566,7 +3566,7 @@ begin
               //Starting locations text
               DropText := fTextLibrary[TX_LOBBY_RANDOM] + eol;
               for I := 0 to M.PlayerCount - 1 do
-              if M.CanBeHuman[I] then
+              if M.CanBeHuman[I] or ALLOW_TAKE_AI_PLAYERS then
                 DropText := DropText + M.LocationName(I) + eol;
             end;
   end;

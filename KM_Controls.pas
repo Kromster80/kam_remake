@@ -2490,7 +2490,7 @@ begin
 
   ThumbHeight := fResource.Sprites[rxGui].RXData.Size[132].Y;
 
-  TKMRenderUI.WritePicture(Left + ThumbPos + 2, Top+fTrackTop, ThumbWidth, ThumbHeight, [], rxGui, 132);
+  TKMRenderUI.WritePicture(Left + ThumbPos + 2, Top+fTrackTop, ThumbWidth, ThumbHeight, [akLeft,akRight], rxGui, 132);
   TKMRenderUI.WriteText(Left + ThumbPos + ThumbWidth div 2 + 2, Top+fTrackTop+3, 0, IntToStr(Position), fnt_Metal, taCenter, TextColor[fEnabled]);
 end;
 
