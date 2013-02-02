@@ -365,6 +365,7 @@ begin
       end
       else
         //Try to add it, it will be ignored if it's the wrong type and won't overfill due to aFromScript=True
+        //todo: @Krom: We should show an error if adding trunks to tannery, House needs methods like CanTakeWare, etc. Overfilling should be silently ignored IMO, since you might want to ensure a house is completely full by adding 5
         H.ResAddToIn(Res, aCount, True);
     end;
   end

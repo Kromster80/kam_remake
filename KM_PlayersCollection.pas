@@ -391,6 +391,8 @@ begin
 end;
 
 
+//todo: @Krom: This idea is flawed as we discussed, we should use OnKilled for houses, units and groups
+//             to clear the selection and make sure you cannot select something after it is OnKilled
 procedure TKMPlayersCollection.UpdateSelection;
 begin
   //Update highlight after games tick (and nil it if necessary)
