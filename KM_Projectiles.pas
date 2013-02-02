@@ -285,8 +285,8 @@ begin
                               H := fPlayers.HousesHitTest(Round(fTarget.X), Round(fTarget.Y));
                               if (H <> nil)
                               and (FRIENDLY_FIRE or (fPlayers.CheckAlliance(fOwner, H.Owner)= at_Enemy))
-                              and H.AddDamage(1) then //House was destroyed
-                                fPlayers[fOwner].Stats.HouseDestroyed(H.HouseType);
+                              then
+                                H.AddDamage(fOwner, 1);
                             end;
               pt_TowerRock: if (U <> nil) and not U.IsDeadOrDying and U.Visible
                             and not (U is TKMUnitAnimal)

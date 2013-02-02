@@ -203,6 +203,7 @@ var
   DoesFit: Boolean;
   UnitLoc: TKMPoint;
   NewCondition: Word;
+  DesiredArea: Byte;
 begin
   inherited Create;
 
@@ -218,10 +219,12 @@ begin
   //Whole group should have the same condition
   NewCondition := Round(UNIT_MAX_CONDITION * (UNIT_CONDITION_BASE + KaMRandomS(UNIT_CONDITION_RANDOM)));
 
+  DesiredArea := fTerrain.GetWalkConnectID(KMPoint(PosX, PosY));
+
   if fGame.IsMapEditor then
   begin
     //In MapEd we create only flagholder, other members are virtual
-    Warrior := TKMUnitWarrior(fPlayers[aOwner].Units.Add(aOwner, aUnitType, PosX, PosY, True, fTerrain.GetWalkConnectID(KMPoint(PosX,PosY))));
+    Warrior := TKMUnitWarrior(fPlayers[aOwner].AddUnit(aUnitType, KMPoint(PosX, PosY), False));
     if Warrior <> nil then
     begin
       Warrior.Direction := aDir;
@@ -237,10 +240,9 @@ begin
     UnitLoc := GetPositionInGroup2(PosX, PosY, aDir, I, aUnitPerRow, fTerrain.MapX, fTerrain.MapY, DoesFit);
     if not DoesFit then Continue;
 
-    Warrior := TKMUnitWarrior(fPlayers[aOwner].Units.Add(aOwner, aUnitType, UnitLoc.X, UnitLoc.Y, True, fTerrain.GetWalkConnectID(KMPoint(PosX,PosY))));
+    Warrior := TKMUnitWarrior(fPlayers[aOwner].AddUnit(aUnitType, UnitLoc, True, DesiredArea, False));
     if Warrior = nil then Continue;
 
-    fPlayers[aOwner].Stats.UnitCreated(aUnitType, False);
     Warrior.Direction := aDir;
     Warrior.AnimStep  := UnitStillFrames[aDir];
     AddMember(Warrior);

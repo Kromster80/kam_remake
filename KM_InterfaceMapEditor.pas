@@ -2762,7 +2762,7 @@ begin
   if not (fPlayers.Selected is TKMHouse) then Exit;
   H := TKMHouse(fPlayers.Selected);
 
-  if Sender = Button_HouseHealthDec then H.AddDamage(ClickAmount[AButton] * 5, True);
+  if Sender = Button_HouseHealthDec then H.AddDamage(-1, ClickAmount[AButton] * 5, True);
   if Sender = Button_HouseHealthInc then H.AddRepair(ClickAmount[AButton] * 5);
 
   for I := 0 to 3 do
@@ -3124,6 +3124,8 @@ begin
   //       These are just ideas and I think they could be redesigned in a less confusing way for both the players and mission creators.
   //       Let me know what you think. Maybe we should discuss this.
   //@Lewin: Looks like we can't achieve it without changing(adding) mission scripts.. discussed in ICQ.
+  //@Lewin: See SET_USER_PLAYER command, it allows to set player as human selectable. SET_AI_PLAYER allows player to be AI. Both can be combined.
+  //        Do you think we need option #2 support? (disableable AIs)
 
   PlayerId := TKMCheckBox(Sender).Tag;
 

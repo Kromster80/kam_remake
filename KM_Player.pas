@@ -22,7 +22,7 @@ type
     property PlayerIndex: TPlayerIndex read fPlayerIndex;
     property Units: TKMUnitsCollection read fUnits;
 
-    function AddUnit(aUnitType: TUnitType; Position: TKMPoint; AutoPlace: Boolean=true): TKMUnit;
+    function AddUnit(aUnitType: TUnitType; Position: TKMPoint; AutoPlace: Boolean=true; aRequiredWalkConnect: Byte = 0): TKMUnit;
     procedure RemUnit(Position: TKMPoint);
     function UnitsHitTest(X, Y: Integer; const UT: TUnitType = ut_Any): TKMUnit;
 
@@ -58,6 +58,8 @@ type
 
     function  GetAlliances(aIndex: Integer): TAllianceType;
     procedure SetAlliances(aIndex: Integer; aValue: TAllianceType);
+    procedure UnitDied(aUnit: TKMUnit);
+    procedure HouseDestroyed(aHouse: TKMHouse; aFrom: TPlayerIndex);
   public
     Enabled: Boolean;
 
@@ -85,7 +87,7 @@ type
 
     procedure AfterMissionInit(aFlattenRoads: Boolean);
 
-    function AddUnit(aUnitType: TUnitType; Position: TKMPoint; AutoPlace: Boolean=true; WasTrained: Boolean = False): TKMUnit; reintroduce;
+    function AddUnit(aUnitType: TUnitType; Position: TKMPoint; AutoPlace: Boolean=true; aRequiredWalkConnect: Byte = 0; WasTrained: Boolean = False): TKMUnit; reintroduce;
     function AddUnitGroup(aUnitType: TUnitType; Position: TKMPoint; aDir: TKMDirection; aUnitPerRow, aCount: Word): TKMUnitGroup;
 
     function TrainUnit(aUnitType: TUnitType; Position: TKMPoint): TKMUnit;
@@ -96,14 +98,14 @@ type
     function CanAddHousePlan(aLoc: TKMPoint; aHouseType: THouseType): Boolean;
     function CanAddHousePlanAI(aX, aY: Word; aHouseType: THouseType; aIgnoreInfluence: Boolean): Boolean;
 
-    function AddHouse(aHouseType: THouseType; PosX, PosY:word; RelativeEntrace: Boolean): TKMHouse;
     procedure AddRoadToList(aLoc: TKMPoint);
     //procedure AddRoadConnect(LocA,LocB: TKMPoint);
     procedure AddField(aLoc: TKMPoint; aFieldType: TFieldType);
     procedure ToggleFieldPlan(aLoc: TKMPoint; aFieldType: TFieldType; aMakeSound:Boolean);
     procedure ToggleFakeFieldPlan(aLoc: TKMPoint; aFieldType: TFieldType);
+    function AddHouse(aHouseType: THouseType; PosX, PosY:word; RelativeEntrace: Boolean): TKMHouse;
     procedure AddHousePlan(aHouseType: THouseType; aLoc: TKMPoint);
-    procedure AddHouseWIP(aHouseType: THouseType; aLoc: TKMPoint; out House: TKMHouse);
+    function AddHouseWIP(aHouseType: THouseType; aLoc: TKMPoint): TKMHouse;
     procedure RemGroup(Position: TKMPoint);
     procedure RemHouse(Position: TKMPoint; DoSilent: Boolean; IsEditor: Boolean = False);
     procedure RemHousePlan(Position: TKMPoint);
@@ -157,7 +159,7 @@ begin
 end;
 
 
-function TKMPlayerCommon.AddUnit(aUnitType: TUnitType; Position: TKMPoint; AutoPlace: Boolean=true): TKMUnit;
+function TKMPlayerCommon.AddUnit(aUnitType: TUnitType; Position: TKMPoint; AutoPlace: Boolean=true; aRequiredWalkConnect: Byte = 0): TKMUnit;
 begin
   Result := fUnits.Add(fPlayerIndex, aUnitType, Position.X, Position.Y, AutoPlace);
 end;
@@ -265,9 +267,11 @@ end;
 //Add unit of aUnitType to Position
 //AutoPlace - add unit to nearest available spot if Position is already taken (or unwalkable)
 //WasTrained - the unit was trained by player and therefor will be counted by Stats
-function TKMPlayer.AddUnit(aUnitType: TUnitType; Position: TKMPoint; AutoPlace: Boolean=true; WasTrained: Boolean=false): TKMUnit;
+function TKMPlayer.AddUnit(aUnitType: TUnitType; Position: TKMPoint; AutoPlace: Boolean=true; aRequiredWalkConnect: Byte = 0; WasTrained: Boolean=false): TKMUnit;
 begin
   Result := inherited AddUnit(aUnitType, Position, AutoPlace);
+
+  Result.OnDied := UnitDied;
 
   if Result = nil then Exit;
 
@@ -319,12 +323,6 @@ begin
     Result := fUnitGroups.AddGroup(fPlayerIndex, aUnitType, Position.X, Position.Y, aDir, aUnitPerRow, aCount);
 
   //Units will be added to statistic inside the function for some units may not fit on map
-end;
-
-
-function TKMPlayer.AddHouse(aHouseType: THouseType; PosX, PosY:word; RelativeEntrace: Boolean): TKMHouse;
-begin
-  Result := fHouses.AddHouse(aHouseType, PosX, PosY, fPlayerIndex, RelativeEntrace);
 end;
 
 
@@ -567,6 +565,13 @@ begin
 end;}
 
 
+function TKMPlayer.AddHouse(aHouseType: THouseType; PosX, PosY:word; RelativeEntrace: Boolean): TKMHouse;
+begin
+  Result := fHouses.AddHouse(aHouseType, PosX, PosY, fPlayerIndex, RelativeEntrace);
+  Result.OnDestroyed := HouseDestroyed;
+end;
+
+
 procedure TKMPlayer.AddHousePlan(aHouseType: THouseType; aLoc: TKMPoint);
 var
   Loc: TKMPoint;
@@ -580,9 +585,10 @@ begin
 end;
 
 
-procedure TKMPlayer.AddHouseWIP(aHouseType: THouseType; aLoc: TKMPoint; out House: TKMHouse);
+function TKMPlayer.AddHouseWIP(aHouseType: THouseType; aLoc: TKMPoint): TKMHouse;
 begin
-  House := fHouses.AddHouseWIP(aHouseType, aLoc.X, aLoc.Y, fPlayerIndex);
+  Result := fHouses.AddHouseWIP(aHouseType, aLoc.X, aLoc.Y, fPlayerIndex);
+  Result.OnDestroyed := HouseDestroyed;
   fStats.HouseStarted(aHouseType);
 end;
 
@@ -595,11 +601,7 @@ begin
   H := fHouses.HitTest(Position.X, Position.Y);
   if H = nil then Exit; //Due to network delays the house might have already been destroyed by now
 
-  H.DemolishHouse(DoSilent, IsEditor);
-  if H.BuildingState = hbs_Done then //Only Done houses are treated as Self-Destruct
-    fStats.HouseSelfDestruct(H.HouseType)
-  else
-    fStats.HouseEnded(H.HouseType);
+  H.DemolishHouse(fPlayerIndex, IsEditor);
 end;
 
 
@@ -688,6 +690,38 @@ begin
     inc(I);
     H := TKMHouseInn(FindHouse(ht_Inn, I));
   until(H = nil);
+end;
+
+
+//Which house whas destroyed and by whom
+procedure TKMPlayer.HouseDestroyed(aHouse: TKMHouse; aFrom: TPlayerIndex);
+begin
+  //Dispose of delivery tasks performed in DeliverQueue unit
+  if aHouse.BuildingState in [hbs_Wood .. hbs_Done] then
+  begin
+    Deliveries.Queue.RemAllOffers(aHouse);
+    Deliveries.Queue.RemDemand(aHouse);
+  end;
+
+  //Distribute honors
+  if aFrom = fPlayerIndex then
+    if aHouse.BuildingState in [hbs_NoGlyph..hbs_Stone] then
+      fStats.HouseEnded(aHouse.HouseType)
+    else
+      //Only Done houses are treated as Self-Destruct
+      fStats.HouseSelfDestruct(aHouse.HouseType)
+  else
+  begin
+    Stats.HouseLost(aHouse.HouseType);
+
+    if aFrom <> -1 then
+      fPlayers[aFrom].Stats.HouseDestroyed(aHouse.HouseType);
+  end;
+
+  if fPlayers.Highlight = aHouse then
+    fPlayers.Highlight := nil;
+  if fPlayers.Selected = aHouse then
+    fPlayers.Selected := nil;
 end;
 
 
@@ -906,13 +940,23 @@ end;
 
 
 procedure TKMPlayer.SyncLoad;
+var I: Integer;
 begin
   if not Enabled then Exit;
 
   inherited;
 
+  //Assign event handler after load
+  for I := 0 to fUnits.Count - 1 do
+    fUnits[I].OnDied := UnitDied;
+
   fUnitGroups.SyncLoad;
   fHouses.SyncLoad;
+
+  //Assign event handler after load
+  for I := 0 to fHouses.Count - 1 do
+    fHouses[I].OnDestroyed := HouseDestroyed;
+
   fDeliveries.SyncLoad;
   fBuildList.SyncLoad;
   fAI.SyncLoad;
@@ -924,6 +968,19 @@ begin
   if not Enabled then Exit;
 
   fHouses.IncAnimStep;
+end;
+
+
+procedure TKMPlayer.UnitDied(aUnit: TKMUnit);
+begin
+  //Update statistics
+  Stats.UnitLost(aUnit.UnitType);
+  fScripting.ProcUnitLost(aUnit.UnitType, fPlayerIndex);
+
+  if fPlayers.Highlight = aUnit then
+    fPlayers.Highlight := nil;
+  if fPlayers.Selected = aUnit then
+    fPlayers.Selected := nil;
 end;
 
 

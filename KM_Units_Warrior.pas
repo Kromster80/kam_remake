@@ -64,6 +64,7 @@ type
     property RequestedFood: Boolean read fRequestedFood write fRequestedFood; //Cleared by Serf delivering food
     function IsRanged: Boolean;
     function InFight: Boolean;
+    function InAGroup: Boolean;
     function FindLinkUnit(aLoc: TKMPoint): TKMUnitWarrior;
     function CheckForEnemy: Boolean;
     function FindEnemy: TKMUnit;
@@ -262,6 +263,15 @@ begin
 end;
 
 
+//Is unit a part of the group
+//(units are independent when leaving barracks, till they find a group to link to)
+function TKMUnitWarrior.InAGroup: Boolean;
+begin
+  //Event is assigned when unit is added to a group
+  Result := Assigned(OnKilled);
+end;
+
+
 //We are actively fighting with an enemy
 function TKMUnitWarrior.InFight: Boolean;
 begin
@@ -300,7 +310,7 @@ begin
     if (U is TKMUnitWarrior)
     and (U <> Self)
     and (UnitGroups[U.UnitType] = UnitGroups[fUnitType]) //They must be the same group type
-    and Assigned(TKMUnitWarrior(U).OnKilled) then //This checks if warrior belongs to some Group
+    and TKMUnitWarrior(U).InAGroup then //Check if warrior belongs to some Group
     begin
       L := KMLength(aLoc, U.GetPosition);
       if (L < Best) then

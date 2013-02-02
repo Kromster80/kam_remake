@@ -396,13 +396,6 @@ end;
 procedure TKMPlayersCollection.UpdateSelection;
 begin
   //Update highlight after games tick (and nil it if necessary)
-  if (fHighlight is TKMHouse) and TKMHouse(fHighlight).IsDestroyed then
-    fHighlight := nil
-  else
-  if (fHighlight is TKMUnit)
-  and (TKMUnit(fHighlight).IsDeadOrDying or not TKMUnit(fHighlight).Visible) then
-    fHighlight := nil
-  else
   if (fHighlight is TKMUnitGroup) and TKMUnitGroup(fHighlight).IsDead then
     fHighlight := nil;
 
@@ -411,13 +404,6 @@ begin
     fHighlight := nil;
 
   //Update selection after games tick (and nil it if necessary)
-  if (fSelected is TKMHouse) and TKMHouse(fSelected).IsDestroyed then
-    fSelected := nil
-  else
-  if (fSelected is TKMUnit)
-  and (TKMUnit(fSelected).IsDeadOrDying or not TKMUnit(fSelected).Visible) then
-    fSelected := nil
-  else
   if (fSelected is TKMUnitGroup) and TKMUnitGroup(fSelected).IsDead then
     fSelected := nil;
 end;
@@ -533,6 +519,7 @@ end;
 //       possibly where you "discover" allies that you couldn't see at the start. (I made one such mission, you had to defend
 //       your allies village, but you couldn't see it at the start, you had to walk there)
 //       I think it would be bad to change it. Maybe it could be a script option eventually.
+//@Lewin: Do you have such missions at hand to show? Makes sense to share info between players ..
 procedure TKMPlayersCollection.RevealForTeam(aPlayer: TPlayerIndex; Pos: TKMPoint; Radius, Amount: Word);
 var I: Integer;
 begin

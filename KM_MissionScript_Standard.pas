@@ -118,8 +118,8 @@ end;
 
 function TMissionParserStandard.ProcessCommand(CommandType: TKMCommandType; P: array of Integer; TextParam: AnsiString = ''): Boolean;
 var
-  i: integer;
-  Qty: integer;
+  I: Integer;
+  Qty: Integer;
   H: TKMHouse;
   HT: THouseType;
   iPlayerAI: TKMPlayerAI;
@@ -140,10 +140,11 @@ begin
     ct_SetMaxPlayer:    begin
                           fPlayers.AddPlayers(P[0]);
                           //Set players to enabled/disabled
-                          for i:=0 to fPlayers.Count-1 do
+                          for I := 0 to fPlayers.Count - 1 do
                             fPlayers[i].Enabled := fPlayerEnabled[i];
                         end;
     ct_SetTactic:       begin
+                          //Default is mm_Normal
                           fGame.MissionMode := mm_Tactic;
                         end;
     ct_SetCurrPlayer:   if InRange(P[0], 0, MAX_PLAYERS - 1) then
@@ -203,7 +204,7 @@ begin
                               AddError('ct_SetHouse failed, can not place house at ' + TypeToString(KMPoint(P[1]+1, P[2]+1)));
     ct_SetHouseDamage:  if fLastPlayer >= 0 then //Skip false-positives for skipped players
                           if fLastHouse <> nil then
-                            fLastHouse.AddDamage(min(P[0],high(word)), fParsingMode = mpm_Editor)
+                            fLastHouse.AddDamage(-1, min(P[0],high(word)), fParsingMode = mpm_Editor)
                           else
                             AddError('ct_SetHouseDamage without prior declaration of House');
     ct_SetUnit:         begin

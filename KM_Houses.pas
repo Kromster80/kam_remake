@@ -10,6 +10,8 @@ type
   TWoodcutterMode = (wcm_Chop, wcm_ChopAndPlant);
 
   TKMHouse = class;
+  TKMHouseEvent = procedure(aHouse: TKMHouse) of object;
+  TKMHouseFromEvent = procedure(aHouse: TKMHouse; aFrom: TPlayerIndex) of object;
 
   THouseAction = class
   private
@@ -62,7 +64,6 @@ type
     fTimeSinceUnoccupiedReminder: Integer;
 
     procedure Activate(aWasBuilt: Boolean); virtual;
-    procedure CloseHouse(IsEditor: Boolean = False); virtual;
     procedure EnableRepair;
     procedure DisableRepair;
 
@@ -72,6 +73,7 @@ type
     fCurrentAction: THouseAction; //Current action, withing HouseTask or idle
     ResourceDepletedMsgIssued: boolean;
     DoorwayUse: byte; //number of units using our door way. Used for sliding.
+    OnDestroyed: TKMHouseFromEvent;
 
     constructor Create(aID: Cardinal; aHouseType: THouseType; PosX, PosY: Integer; aOwner: TPlayerIndex; aBuildState: THouseBuildState);
     constructor Load(LoadStream: TKMemoryStream); virtual;
@@ -81,7 +83,7 @@ type
     procedure ReleaseHousePointer; //Decreases the pointer counter
     property PointerCount: Cardinal read fPointerCount;
 
-    procedure DemolishHouse(DoSilent:boolean; NoRubble:boolean=false); virtual;
+    procedure DemolishHouse(aFrom: TPlayerIndex; IsEditor: Boolean = False); virtual;
     property ID: Integer read fID;
 
     property GetPosition: TKMPoint read fPosition;
@@ -106,7 +108,7 @@ type
     property BuildingState: THouseBuildState read fBuildState write fBuildState;
     procedure IncBuildingProgress;
     function MaxHealth:word;
-    function  AddDamage(aAmount:word; aIsEditor:boolean=false):boolean;
+    procedure AddDamage(aFrom: TPlayerIndex; aAmount: Word; aIsEditor: Boolean = False);
     procedure AddRepair(aAmount:word=5);
     procedure UpdateDamage;
     procedure RepairToggle;
@@ -190,7 +192,7 @@ type
     constructor Create(aID: Cardinal; aHouseType: THouseType; PosX, PosY: Integer; aOwner: TPlayerIndex; aBuildState: THouseBuildState);
     constructor Load(LoadStream:TKMemoryStream); override;
 
-    procedure DemolishHouse(DoSilent:boolean; NoRubble:boolean=false); override;
+    procedure DemolishHouse(aFrom: TPlayerIndex; IsEditor: Boolean = False); override;
     property ResFrom:TResourceType read fResFrom write SetResFrom;
     property ResTo:TResourceType read fResTo write SetResTo;
     function RatioFrom: Byte;
@@ -216,12 +218,12 @@ type
     UnitWIP: Pointer;  //can't replace with TKMUnit since it will lead to circular reference in KM_House-KM_Units
     fHideOneGold: Boolean; //Hide the gold incase Player cancels the training, then we won't need to tweak DeliverQueue order
     fTrainProgress: Byte; //Was it 150 steps in KaM?
-    procedure CloseHouse(IsEditor: Boolean = False); override;
   public
     Queue: array [0..5] of TUnitType; //Used in UI. First item is the unit currently being trained, 1..5 are the actual queue
     constructor Create(aID: Cardinal; aHouseType: THouseType; PosX, PosY: Integer; aOwner: TPlayerIndex; aBuildState: THouseBuildState);
     constructor Load(LoadStream: TKMemoryStream); override;
     procedure SyncLoad; override;
+    procedure DemolishHouse(aFrom: TPlayerIndex; IsEditor: Boolean = False); override;
     procedure ResAddToIn(aResource: TResourceType; aCount: Word = 1; aFromScript: Boolean = False); override;
     procedure AddUnitToQueue(aUnit: TUnitType; aCount: Byte); //Should add unit to queue if there's a place
     procedure RemUnitFromQueue(aID: Byte); //Should remove unit from queue and shift rest up
@@ -246,7 +248,7 @@ type
     destructor Destroy; override;
 
     procedure Activate(aWasBuilt: Boolean); override;
-    procedure DemolishHouse(DoSilent: Boolean; NoRubble: Boolean = False); override;
+    procedure DemolishHouse(aFrom: TPlayerIndex; IsEditor: Boolean = False); override;
     procedure ResAddToIn(aResource: TResourceType; aCount: Word = 1; aFromScript: Boolean = False); override;
     procedure ResTakeFromOut(aResource: TResourceType; const aCount: Word = 1); override;
     function CheckResIn(aResource: TResourceType): Word; override;
@@ -265,7 +267,7 @@ type
   public
     NotAcceptFlag: array [WARE_MIN .. WARE_MAX] of Boolean;
     constructor Load(LoadStream: TKMemoryStream); override;
-    procedure DemolishHouse(DoSilent: Boolean; NoRubble: Boolean = False); override;
+    procedure DemolishHouse(aFrom: TPlayerIndex; IsEditor: Boolean = False); override;
     procedure ToggleAcceptFlag(aRes: TResourceType);
     procedure ResAddToIn(aResource: TResourceType; aCount: Word = 1; aFromScript: Boolean = False); override;
     function CheckResIn(aResource: TResourceType): Word; override;
@@ -301,7 +303,6 @@ type
     constructor Create;
     function AddHouse(aHouseType: THouseType; PosX,PosY:integer; aOwner: TPlayerIndex; RelativeEntrance:boolean):TKMHouse;
     function AddHouseWIP(aHouseType: THouseType; PosX,PosY:integer; aOwner: TPlayerIndex):TKMHouse;
-    procedure RemoveHouse(aHouse:TKMHouse);
     procedure OwnerUpdate(aOwner:TPlayerIndex);
     property Houses[Index: Integer]: TKMHouse read GetHouse write SetHouse; default;
     function HitTest(X, Y: Integer): TKMHouse;
@@ -430,7 +431,7 @@ end;
 
 
 {Returns self and adds on to the pointer counter}
-function TKMHouse.GetHousePointer:TKMHouse;
+function TKMHouse.GetHousePointer: TKMHouse;
 begin
   inc(fPointerCount);
   Result := Self;
@@ -443,25 +444,6 @@ begin
   if fPointerCount < 1 then
     raise ELocError.Create('House remove pointer for '+fResource.HouseDat[fHouseType].HouseName, fPosition);
   dec(fPointerCount);
-end;
-
-
-//If anyone still has a pointer to the house he should check for IsDestroyed flag
-procedure TKMHouse.CloseHouse(IsEditor:boolean=false);
-begin
-  fIsDestroyed := True;
-  BuildingRepair := False; //Otherwise labourers will take task to repair when the house is destroyed
-  if (RemoveRoadWhenDemolish) and (not (BuildingState in [hbs_Stone, hbs_Done]) or IsEditor) then
-  begin
-    if fTerrain.Land[GetEntrance.Y,GetEntrance.X].TileOverlay = to_Road then
-    begin
-      fTerrain.RemRoad(GetEntrance);
-      if not IsEditor then
-        fTerrain.Land[GetEntrance.Y,GetEntrance.X].TileOverlay := to_Dig3; //Remove road and leave dug earth behind
-    end;
-  end;
-  FreeAndNil(fCurrentAction);
-  //Leave disposing of units inside the house to themselves
 end;
 
 
@@ -495,15 +477,19 @@ begin
 end;
 
 
-procedure TKMHouse.DemolishHouse(DoSilent:boolean; NoRubble:boolean=false);
+procedure TKMHouse.DemolishHouse(aFrom: TPlayerIndex; IsEditor: Boolean = False);
 var I: Integer; R: TResourceType;
 begin
-  if not DoSilent and not NoRubble then
-    fSoundLib.Play(sfx_HouseDestroy, fPosition);
+  if IsDestroyed then Exit;
 
-  //Dispose of delivery tasks performed in DeliverQueue unit
-  fPlayers[fOwner].Deliveries.Queue.RemAllOffers(Self);
-  fPlayers[fOwner].Deliveries.Queue.RemDemand(Self);
+  OnDestroyed(Self, aFrom);
+
+  //If anyone still has a pointer to the house he should check for IsDestroyed flag
+  fIsDestroyed := True;
+
+  //Play sound
+  if (fBuildState > hbs_NoGlyph) and not IsEditor then
+    fSoundLib.Play(sfx_HouseDestroy, fPosition);
 
   fPlayers[fOwner].Stats.GoodConsumed(rt_Wood, fBuildSupplyWood);
   fPlayers[fOwner].Stats.GoodConsumed(rt_Stone, fBuildSupplyStone);
@@ -518,14 +504,26 @@ begin
       fPlayers[fOwner].Stats.GoodConsumed(R, fResourceOut[I]);
   end;
 
-  fTerrain.SetHouse(fPosition,fHouseType,hsNone,-1);
+  fTerrain.SetHouse(fPosition, fHouseType, hsNone, -1);
 
   //Leave rubble
-  if not NoRubble then
+  if not IsEditor then
     fTerrain.AddHouseRemainder(fPosition, fHouseType, fBuildState);
 
-  //Road is removed in CloseHouse
-  CloseHouse(NoRubble);
+  BuildingRepair := False; //Otherwise labourers will take task to repair when the house is destroyed
+  if RemoveRoadWhenDemolish and (not (BuildingState in [hbs_Stone, hbs_Done]) or IsEditor) then
+  begin
+    if fTerrain.Land[GetEntrance.Y, GetEntrance.X].TileOverlay = to_Road then
+    begin
+      fTerrain.RemRoad(GetEntrance);
+      if not IsEditor then
+        fTerrain.Land[GetEntrance.Y, GetEntrance.X].TileOverlay := to_Dig3; //Remove road and leave dug earth behind
+    end;
+  end;
+
+  FreeAndNil(fCurrentAction);
+
+  //Leave disposing of units inside the house to themselves
 end;
 
 
@@ -736,44 +734,35 @@ begin
 end;
 
 
-function TKMHouse.MaxHealth:word;
+function TKMHouse.MaxHealth: Word;
 begin
-  Result := fResource.HouseDat[fHouseType].MaxHealth;
+  if fBuildState = hbs_NoGlyph then
+    Result := 0
+  else
+    Result := fResource.HouseDat[fHouseType].MaxHealth;
 end;
 
 
 {Add damage to the house, positive number}
-//Return TRUE if house was destroyed
-function TKMHouse.AddDamage(aAmount: Word; aIsEditor: Boolean = False): Boolean;
+procedure TKMHouse.AddDamage(aFrom: TPlayerIndex; aAmount: Word; aIsEditor: Boolean = False);
 begin
-  Result := false;
   if IsDestroyed then
     Exit;
 
-  if fBuildState < hbs_Wood then
-  begin
-    //Still make the "house destroyed" noise when an incomplete house is destroyed
-    fPlayers[fOwner].RemHouse(GetEntrance, False);
-    Exit;
-  end;
-
+  //(NoGlyph houses MaxHealth = 0 destroyed instantly)
   fDamage := Math.min(fDamage + aAmount, MaxHealth);
-  if (fBuildState = hbs_Done) and BuildingRepair then
-    fPlayers[fOwner].BuildList.RepairList.AddHouse(Self);
-
-  if fBuildState = hbs_Done then
-    UpdateDamage; //Only update fire if the house is complete
-
-  if (GetHealth = 0) and not aIsEditor then
+  if (fBuildState = hbs_Done) then
   begin
-    DemolishHouse(false); //Destroyed by Enemy
-    if Assigned(fPlayers) and Assigned(fPlayers[fOwner]) then
-      if (fBuildState = hbs_Done) then
-        fPlayers[fOwner].Stats.HouseLost(fHouseType)
-      else
-        fPlayers[fOwner].Stats.HouseEnded(fHouseType);
-    Result := true;
+    if BuildingRepair then
+      fPlayers[fOwner].BuildList.RepairList.AddHouse(Self);
+
+    //Update fire if the house is complete
+    UpdateDamage;
   end;
+
+  //Properly release house assets
+  if (GetHealth = 0) and not aIsEditor then
+    DemolishHouse(aFrom);
 end;
 
 
@@ -806,8 +795,8 @@ end;
 {if house is damaged then add repair to buildlist}
 procedure TKMHouse.EnableRepair;
 begin
-  BuildingRepair := true;
-  AddDamage(0); //Shortcut to refresh of damage
+  BuildingRepair := True;
+  AddDamage(-1, 0); //Shortcut to refresh of damage
 end;
 
 
@@ -1463,14 +1452,14 @@ begin
 end;
 
 
-procedure TKMHouseMarket.DemolishHouse(DoSilent, NoRubble: boolean);
+procedure TKMHouseMarket.DemolishHouse(aFrom: TPlayerIndex; IsEditor: Boolean = False);
 var
   R: TResourceType;
 begin
-  inherited;
-
   for R := WARE_MIN to WARE_MAX do
     fPlayers[fOwner].Stats.GoodConsumed(R, fMarketResIn[R] + fMarketResOut[R]);
+
+  inherited;
 end;
 
 
@@ -1752,13 +1741,14 @@ end;
 
 
 //Remove all queued units first, to avoid unnecessary shifts in queue
-procedure TKMHouseSchool.CloseHouse(IsEditor: Boolean = False);
+procedure TKMHouseSchool.DemolishHouse(aFrom: TPlayerIndex; IsEditor: Boolean = False);
 var
   I: Integer;
 begin
   for I := 1 to High(Queue) do
     Queue[I] := ut_None;
   RemUnitFromQueue(0); //Remove WIP unit
+
   inherited;
 end;
 
@@ -1946,14 +1936,14 @@ begin
 end;
 
 
-procedure TKMHouseStore.DemolishHouse(DoSilent, NoRubble: boolean);
+procedure TKMHouseStore.DemolishHouse(aFrom: TPlayerIndex; IsEditor: Boolean = False);
 var
   R: TResourceType;
 begin
-  inherited;
-
   for R := WARE_MIN to WARE_MAX do
     fPlayers[fOwner].Stats.GoodConsumed(R, ResourceCount[R]);
+
+  inherited;
 end;
 
 
@@ -2072,17 +2062,18 @@ begin
 end;
 
 
-procedure TKMHouseBarracks.DemolishHouse(DoSilent, NoRubble: Boolean);
+procedure TKMHouseBarracks.DemolishHouse(aFrom: TPlayerIndex; IsEditor: Boolean = False);
 var
   R: TResourceType;
 begin
-  inherited;
   //Recruits are no longer under our control so we forget about them (UpdateVisibility will sort it out)
   //Otherwise it can cause crashes while saving under the right conditions when a recruit is then killed.
   RecruitsList.Clear;
 
   for R := WARFARE_MIN to WARFARE_MAX do
     fPlayers[fOwner].Stats.GoodConsumed(R, ResourceCount[R]);
+
+  inherited;
 end;
 
 
@@ -2164,7 +2155,7 @@ begin
     RecruitsList.Delete(0); //Delete first recruit in the list
 
     //Make new unit
-    Soldier := TKMUnitWarrior(fPlayers[fOwner].AddUnit(aUnitType, GetEntrance, False, True));
+    Soldier := TKMUnitWarrior(fPlayers[fOwner].AddUnit(aUnitType, GetEntrance, False, 0, True));
     fTerrain.UnitRem(GetEntrance); //Adding a unit automatically sets IsUnit, but as the unit is inside for this case we don't want that
     Soldier.SetInHouse(Self); //Put him in the barracks, so when it is destroyed he is placed somewhere
     Soldier.Visible := False; //Make him invisible as he is inside the barracks
@@ -2337,27 +2328,19 @@ begin
 end;
 
 
-function TKMHousesCollection.AddHouse(aHouseType: THouseType; PosX,PosY:integer; aOwner: TPlayerIndex; RelativeEntrance:boolean):TKMHouse;
+function TKMHousesCollection.AddHouse(aHouseType: THouseType; PosX,PosY: Integer; aOwner: TPlayerIndex; RelativeEntrance: Boolean):TKMHouse;
 begin
   if RelativeEntrance then
-    Result := AddToCollection(aHouseType,PosX - fResource.HouseDat[aHouseType].EntranceOffsetX,PosY,aOwner,hbs_Done)
+    Result := AddToCollection(aHouseType, PosX - fResource.HouseDat[aHouseType].EntranceOffsetX, PosY, aOwner, hbs_Done)
   else
-    Result := AddToCollection(aHouseType,PosX,PosY,aOwner,hbs_Done);
+    Result := AddToCollection(aHouseType, PosX, PosY, aOwner, hbs_Done);
 end;
 
 
 {Add a plan for house}
-function TKMHousesCollection.AddHouseWIP(aHouseType: THouseType; PosX,PosY:integer; aOwner: TPlayerIndex):TKMHouse;
+function TKMHousesCollection.AddHouseWIP(aHouseType: THouseType; PosX, PosY: Integer; aOwner: TPlayerIndex): TKMHouse;
 begin
-  Result := AddToCollection(aHouseType,PosX,PosY,aOwner,hbs_NoGlyph);
-end;
-
-
-procedure TKMHousesCollection.RemoveHouse(aHouse:TKMHouse);
-begin
-  aHouse.CloseHouse(True); //Should free up the house properly (freeing terrain usage and memory)
-  aHouse.Free;
-  Remove(aHouse);
+  Result := AddToCollection(aHouseType, PosX, PosY, aOwner, hbs_NoGlyph);
 end;
 
 

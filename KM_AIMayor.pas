@@ -552,7 +552,7 @@ begin
   for I := 0 to Houses.Count - 1 do
   if not Houses[I].IsDestroyed
   and Houses[I].ResourceDepletedMsgIssued then
-    fPlayers[fOwner].RemHouse(Houses[I].GetEntrance, False); //todo: Rework house demolishing to be more sensible (Houses[I].Demolish and call events from it?)
+    Houses[I].DemolishHouse(fOwner);
 end;
 
 

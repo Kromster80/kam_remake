@@ -363,13 +363,15 @@ var H: TKMHouse;
 begin
   H := fPlayers.GetHouseByID(aHouseID);
   if (H <> nil) and not H.IsDestroyed then
-    H.AddDamage(aDamage);
+    H.AddDamage(-1, aDamage);
   //Silently ignore if house doesn't exist
 end;
 
 
 procedure TKMScriptActions.GiveWaresToHouse(aHouseID: Integer; aType, aCount: Word);
-var H: TKMHouse; Res: TResourceType;
+var
+  H: TKMHouse;
+  Res: TResourceType;
 begin
   Res := ResourceIndexToType[aType];
   if (aType in [Low(ResourceIndexToType)..High(ResourceIndexToType)]) then
@@ -382,6 +384,7 @@ begin
         if Res in [WARFARE_MIN..WARFARE_MAX] then
           H.ResAddToIn(Res, aCount, True) //Barracks only accepts warfare
         //else @Krom: Should we log the specific error here? Or silently ignore?
+        //@Lewin: I think we should raise an error. Generally the case should be handled by House.CanAcceptWare: Boolean kind of thing
       end
       else
         //Try to add it, it will be ignored if it's the wrong type and won't overfill due to aFromScript=True

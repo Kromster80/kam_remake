@@ -165,9 +165,9 @@ begin
          else
          begin
            SetActionLockedStay(6,ua_Work,false,0,6); //Pause for next attack
-           if fHouse.AddDamage(2) then //All melee units do 2 damage per strike
-             if (fPlayers <> nil) and (fPlayers[Owner] <> nil) then
-               fPlayers[Owner].Stats.HouseDestroyed(fHouse.HouseType);
+
+           //All melee units do 2 damage per strike
+           fHouse.AddDamage(fUnit.Owner, 2);
 
            //Play a sound. We should not use KaMRandom here because sound playback depends on FOW and is individual for each player
            if MyPlayer.FogOfWar.CheckTileRevelation(GetPosition.X, GetPosition.Y, true) >= 255 then

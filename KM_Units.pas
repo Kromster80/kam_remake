@@ -13,6 +13,7 @@ uses
 type
   TKMUnit = class;
   TKMUnitWorker = class;
+  TKMUnitEvent = procedure(aUnit: TKMUnit) of object;
 
   TActionResult = (ActContinues, ActDone, ActAborted); //
 
@@ -95,6 +96,7 @@ type
   public
     AnimStep: Integer;
     IsExchanging: Boolean; //Current walk is an exchange, used for sliding
+    OnDied: TKMUnitEvent;
 
     constructor Create(aID: Cardinal; aUnitType: TUnitType; PosX, PosY: Word; aOwner: TPlayerIndex);
     constructor Load(LoadStream: TKMemoryStream); dynamic;
@@ -259,7 +261,7 @@ type
   public
     constructor Create;
     destructor Destroy; override;
-    function Add(aOwner: TPlayerIndex; aUnitType: TUnitType; PosX, PosY: Integer; AutoPlace: boolean = true; RequiredWalkConnect: Byte = 0): TKMUnit;
+    function Add(aOwner: TPlayerIndex; aUnitType: TUnitType; PosX, PosY: Integer; aAutoPlace: boolean = true; aRequiredWalkConnect: Byte = 0): TKMUnit;
     property Units[aIndex: Integer]: TKMUnit read GetUnit write SetUnit; default; //Use instead of Items[.]
     procedure RemoveUnit(aUnit: TKMUnit);
     procedure OwnerUpdate(aOwner: TPlayerIndex);
@@ -953,7 +955,7 @@ begin
   if (not fTerrain.CheckPassability(fCurrPosition, DesiredPassability))
   or fTerrain.CheckAnimalIsStuck(fCurrPosition, DesiredPassability) then begin
     KillUnit; //Animal is stuck so it dies
-    exit;
+    Exit;
   end;
 
   SetActionSteer;
@@ -1197,16 +1199,13 @@ begin
   if (fCurrentAction is TUnitActionWalkTo)
   and TUnitActionWalkTo(fCurrentAction).DoingExchange then
   begin
-    fKillASAP := true; //Unit will be killed ASAP
-    exit;
+    fKillASAP := True; //Unit will be killed ASAP
+    Exit;
   end;
 
-  //Update statistics
-  if (fPlayers<>nil) and (fOwner <> PLAYER_NONE) and (fOwner <> PLAYER_ANIMAL) then
-  begin
-    fPlayers[fOwner].Stats.UnitLost(fUnitType);
-    fScripting.ProcUnitLost(fUnitType, fOwner);
-  end;
+  //Signal to our owner that we have died
+  Assert(Assigned(OnDied), 'OnDied unassigned');
+  OnDied(Self);
 
   fThought := th_None; //Reset thought
   SetAction(nil); //Dispose of current action (TTaskDie will set it to LockedStay)
@@ -1629,21 +1628,23 @@ end;
 //Return true if the unit has to be killed due to lack of space
 function TKMUnit.UpdateVisibility: Boolean;
 begin
-  Result := false;
-  if fInHouse = nil then exit; //There's nothing to update, we are always visible
+  Result := False;
+  if fInHouse = nil then Exit; //There's nothing to update, we are always visible
 
   if fInHouse.IsDestroyed then //Someone has destroyed the house we were in
   begin
-    fVisible := true;
+    fVisible := True;
     //If we are walking into/out of the house then don't set our position, ActionGoInOut will sort it out
-    if (not (GetUnitAction is TUnitActionGoInOut)) or (not TUnitActionGoInOut(GetUnitAction).GetHasStarted) or
-       (TUnitActionGoInOut(GetUnitAction).GetWaitingForPush) then
+    if (not (GetUnitAction is TUnitActionGoInOut))
+    or (not TUnitActionGoInOut(GetUnitAction).GetHasStarted)
+    or (TUnitActionGoInOut(GetUnitAction).GetWaitingForPush) then
     begin
       //Position in a spiral nearest to entrance of house, updating IsUnit.
       if not fPlayers.FindPlaceForUnit(fInHouse.GetEntrance.X, fInHouse.GetEntrance.Y, UnitType, fCurrPosition, fTerrain.GetWalkConnectID(fInHouse.GetEntrance)) then
       begin
         //There is no space for this unit so it must be destroyed
-        if (fPlayers<>nil) and (fOwner <> PLAYER_NONE) and (fOwner <> PLAYER_ANIMAL) then
+        //todo: rerote to KillUnit and let it sort out that unit is invisible and cant be placed
+        if (fPlayers<>nil) and (fOwner <> PLAYER_NONE) then
         begin
           fPlayers[fOwner].Stats.UnitLost(fUnitType);
           fScripting.ProcUnitLost(fUnitType, fOwner);
@@ -2089,29 +2090,30 @@ end;
 
 { AutoPlace means should we find a spot for this unit or just place it where we are told.
   Used for creating units still inside schools }
-function TKMUnitsCollection.Add(aOwner: TPlayerIndex; aUnitType: TUnitType; PosX, PosY: Integer; AutoPlace: Boolean=true; RequiredWalkConnect:byte=0): TKMUnit;
+function TKMUnitsCollection.Add(aOwner: TPlayerIndex; aUnitType: TUnitType; PosX, PosY: Integer; aAutoPlace: Boolean=true; aRequiredWalkConnect:byte=0): TKMUnit;
 var
   ID: Cardinal;
   P: TKMPoint;
 begin
-  if AutoPlace then
+  if aAutoPlace then
   begin
     P := KMPoint(0,0); // Will have 0:0 if no place found
-    if RequiredWalkConnect = 0 then
-      RequiredWalkConnect := fTerrain.GetWalkConnectID(KMPoint(PosX,PosY));
-    fPlayers.FindPlaceForUnit(PosX,PosY,aUnitType, P, RequiredWalkConnect);
+    if aRequiredWalkConnect = 0 then
+      aRequiredWalkConnect := fTerrain.GetWalkConnectID(KMPoint(PosX, PosY));
+    fPlayers.FindPlaceForUnit(PosX, PosY, aUnitType, P, aRequiredWalkConnect);
     PosX := P.X;
     PosY := P.Y;
   end;
 
   //Check if Pos is within map coords first, as other checks rely on this
-  if not fTerrain.TileInMapCoords(PosX, PosY) then begin
+  if not fTerrain.TileInMapCoords(PosX, PosY) then
+  begin
     fLog.AddTime('Unable to add unit to '+KM_Points.TypeToString(KMPoint(PosX,PosY)));
     Result := nil;
-    exit;
+    Exit;
   end;
 
-  if fTerrain.HasUnit(KMPoint(PosX,PosY)) then
+  if fTerrain.HasUnit(KMPoint(PosX, PosY)) then
     raise ELocError.Create('No space for ' + fResource.UnitDat[aUnitType].UnitName +
                            ', tile occupied by ' + fResource.UnitDat[TKMUnit(fTerrain.Land[PosY,PosX].IsUnit).UnitType].UnitName,
                            KMPoint(PosX,PosY));
@@ -2126,7 +2128,7 @@ begin
     ut_Recruit:                       Result := TKMUnitRecruit.Create(ID, aUnitType, PosX, PosY, aOwner);
     WARRIOR_MIN..WARRIOR_MAX:         Result := TKMUnitWarrior.Create(ID, aUnitType, PosX, PosY, aOwner);
     ANIMAL_MIN..ANIMAL_MAX:           Result := TKMUnitAnimal.Create(ID, aUnitType, PosX, PosY, aOwner);
-    else                              raise ELocError.Create('Add '+fResource.UnitDat[aUnitType].UnitName,KMPoint(PosX, PosY));
+    else                              raise ELocError.Create('Add ' + fResource.UnitDat[aUnitType].UnitName, KMPoint(PosX, PosY));
   end;
 
   if Result <> nil then

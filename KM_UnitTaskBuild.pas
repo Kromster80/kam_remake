@@ -632,7 +632,7 @@ begin
   //Destroy the house if worker was killed (e.g. by archer or hunger)
   //as we don't have mechanics to resume the building process yet
   if HouseNeedsWorker and (fHouse <> nil) and not fHouse.IsDestroyed then
-    fPlayers[fUnit.Owner].RemHouse(fHouseLoc, True);
+    fHouse.DemolishHouse(fUnit.Owner);
 
   //Complete the task in the end (Worker could have died while trying to exit building area)
   if HouseReadyToBuild and not HouseNeedsWorker and (fHouse <> nil) and not fHouse.IsDestroyed then
@@ -700,9 +700,11 @@ begin
           fPlayers[Owner].Stats.HousePlanRemoved(fHouseType);
           BuildID := -1; //Other workers can't take this task from now on
           Assert(fHouse = nil);
-          fPlayers[Owner].AddHouseWIP(fHouseType, fHouseLoc, fHouse);
+
+          fHouse := fPlayers[Owner].AddHouseWIP(fHouseType, fHouseLoc);
+          Assert(fHouse <> nil, 'Failed to add wip house');
           fHouse := fHouse.GetHousePointer; //We need to register a pointer to the house
-          Assert(fHouse <> nil);
+
           HouseNeedsWorker := True; //The house placed on the map, if something happens with Worker the house will be removed
           SetActionLockedStay(2, ua_Walk);
           Thought := th_None;
