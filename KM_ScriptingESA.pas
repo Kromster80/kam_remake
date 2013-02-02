@@ -31,6 +31,10 @@ type
     function UnitCount(aPlayer: Byte): Integer;
     function UnitTypeCount(aPlayer, aUnitType: Byte): Integer;
     function PlayerName(aPlayer: Byte): AnsiString;
+    function HouseAt(aX, aY: Word): Integer;
+    function HouseOwner(aHouseID: Integer): Integer;
+    function HouseType(aHouseID: Integer): Integer;
+    function HouseDamage(aHouseID: Integer): Integer;
   end;
 
   TKMScriptActions = class
@@ -45,6 +49,7 @@ type
     procedure ShowMsg(aPlayer, aIndex: Word);
     procedure ShowMsgFormatted(aPlayer, aIndex: Word; const Args: array of const);
     procedure UnlockHouse(aPlayer, aHouseType: Word);
+    procedure AddHouseDamage(aHouseID: Integer; aDamage: Word);
     procedure SetOverlayText(aPlayer, aIndex: Word);
     procedure SetOverlayTextFormatted(aPlayer, aIndex: Word; const Args: array of const);
   end;
@@ -172,6 +177,50 @@ begin
 end;
 
 
+function TKMScriptStates.HouseAt(aX, aY: Word): Integer;
+var H: TKMHouse;
+begin
+  H := fPlayers.HousesHitTest(aX, aY);
+  if (H <> nil) and not H.IsDestroyed then
+    Result := H.ID
+  else
+    Result := -1;
+end;
+
+
+function TKMScriptStates.HouseOwner(aHouseID: Integer): Integer;
+var H: TKMHouse;
+begin
+  H := fPlayers.GetHouseByID(aHouseID);
+  if (H <> nil) and not H.IsDestroyed then
+    Result := H.Owner
+  else
+    Result := -1;
+end;
+
+
+function TKMScriptStates.HouseType(aHouseID: Integer): Integer;
+var H: TKMHouse;
+begin
+  H := fPlayers.GetHouseByID(aHouseID);
+  if (H <> nil) and not H.IsDestroyed then
+    Result := HouseTypeToIndex[H.HouseType]-1
+  else
+    Result := -1;
+end;
+
+
+function TKMScriptStates.HouseDamage(aHouseID: Integer): Integer;
+var H: TKMHouse;
+begin
+  H := fPlayers.GetHouseByID(aHouseID);
+  if (H <> nil) and not H.IsDestroyed then
+    Result := H.GetDamage
+  else
+    Result := -1;
+end;
+
+
 { TKMScriptActions }
 procedure TKMScriptActions.LogError(aFuncName: string; const aValues: array of Integer);
 var
@@ -265,23 +314,15 @@ end;
 
 procedure TKMScriptActions.ShowMsg(aPlayer, aIndex: Word);
 begin
-  //Verify all input parameters
   if aPlayer = MyPlayer.PlayerIndex then
     fGame.ShowMessage(mkText, fTextLibrary.GetMissionString(aIndex), KMPoint(0,0))
-  else
-    //@Krom: Why is this logged as an error? Shouldn't we just ignore it if it's not MyPlayer?
-    LogError('Actions.ShowMsg', [aPlayer, aIndex]);
 end;
 
 
 procedure TKMScriptActions.ShowMsgFormatted(aPlayer, aIndex: Word; const Args: array of const);
 begin
-  //Verify all input parameters
   if aPlayer = MyPlayer.PlayerIndex then
     fGame.ShowMessage(mkText, Format(fTextLibrary.GetMissionString(aIndex),Args), KMPoint(0,0))
-  else
-    //@Krom: Why is this logged as an error? Shouldn't we just ignore it if it's not MyPlayer?
-    LogError('Actions.ShowMsg', [aPlayer, aIndex]);
 end;
 
 
@@ -293,6 +334,16 @@ begin
     fPlayers[aPlayer].Stats.HouseGranted[HouseIndexToType[aHouseType]] := True
   else
     LogError('Actions.UnlockHouse', [aPlayer, aHouseType]);
+end;
+
+
+procedure TKMScriptActions.AddHouseDamage(aHouseID: Integer; aDamage: Word);
+var H: TKMHouse;
+begin
+  H := fPlayers.GetHouseByID(aHouseID);
+  if (H <> nil) and not H.IsDestroyed then
+    H.AddDamage(aDamage);
+  //Silently ignore if house doesn't exist
 end;
 
 

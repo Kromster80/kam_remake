@@ -128,6 +128,10 @@ begin
       RegisterMethod('function UnitCount(aPlayer: Byte): Integer');
       RegisterMethod('function UnitTypeCount(aPlayer, aUnitType: Byte): Integer');
       RegisterMethod('function PlayerName(aPlayer: Byte): AnsiString');
+      RegisterMethod('function HouseAt(aX, aY: Word): Integer');
+      RegisterMethod('function HouseOwner(aHouseID: Integer): Integer');
+      RegisterMethod('function HouseType(aHouseID: Integer): Integer');
+      RegisterMethod('function HouseDamage(aHouseID: Integer): Integer');
     end;
 
     with Sender.AddClassN(nil, fActions.ClassName) do
@@ -140,6 +144,7 @@ begin
       RegisterMethod('procedure ShowMsg(aPlayer, aIndex: Word)');
       RegisterMethod('procedure ShowMsgFormatted(aPlayer, aIndex: Word; const Args: array of const)');
       RegisterMethod('procedure UnlockHouse(aPlayer, aHouseType: Word)');
+      RegisterMethod('procedure AddHouseDamage(aHouseID: Integer; aDamage: Word)');
       RegisterMethod('procedure SetOverlayText(aPlayer, aIndex: Word)');
       RegisterMethod('procedure SetOverlayTextFormatted(aPlayer, aIndex: Word; const Args: array of const)');
     end;
@@ -255,6 +260,10 @@ begin
     RegisterMethod(@TKMScriptStates.UnitCount, 'UNITCOUNT');
     RegisterMethod(@TKMScriptStates.UnitTypeCount, 'UNITTYPECOUNT');
     RegisterMethod(@TKMScriptStates.PlayerName, 'PLAYERNAME');
+    RegisterMethod(@TKMScriptStates.HouseAt, 'HOUSEAT');
+    RegisterMethod(@TKMScriptStates.HouseOwner, 'HOUSEOWNER');
+    RegisterMethod(@TKMScriptStates.HouseType, 'HOUSETYPE');
+    RegisterMethod(@TKMScriptStates.HouseDamage, 'HOUSEDAMAGE');
   end;
 
   with ClassImp.Add(TKMScriptActions) do
@@ -267,6 +276,7 @@ begin
     RegisterMethod(@TKMScriptActions.ShowMsg, 'SHOWMSG');
     RegisterMethod(@TKMScriptActions.ShowMsgFormatted, 'SHOWMSGFORMATTED');
     RegisterMethod(@TKMScriptActions.UnlockHouse, 'UNLOCKHOUSE');
+    RegisterMethod(@TKMScriptActions.AddHouseDamage, 'ADDHOUSEDAMAGE');
     RegisterMethod(@TKMScriptActions.SetOverlayText, 'SETOVERLAYTEXT');
     RegisterMethod(@TKMScriptActions.SetOverlayTextFormatted, 'SETOVERLAYTEXTFORMATTED');
   end;
