@@ -42,6 +42,7 @@ We can discuss them in dialog-style and maybe move to GC issues later on
 		Ability to set your default color next to your name on MP page (it will be selected in the lobby if available)
 		A way to assign locations to random people within a team (e.g. random 1,2,3,4 vs random 5,6,7,8). Most maps require specific team layouts so random locations are not used.
 		Allow saving from within replays. This would let you create a save of a game at a certain moment and continue playing from there, which could be good for practice (e.g. town building) or fun.
+		A way to order +100 weapons at weapon makers (shift + click?)
 
 
 REJECTED:

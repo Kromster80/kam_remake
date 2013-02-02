@@ -4,6 +4,7 @@ Features:
 	Lobby name/description by host (shown in room info and inside the room as 1st message)
 	Coop maps handled better in lobby (AI players hidden and automatic, AI map areas not revealed)
 	Kick/ban/whisper dropdown when clicking on player flag
+	Army graph starts 5 minutes before peacetime (or before first variation?)
 
 
 Finishing up:
@@ -30,5 +31,9 @@ Undecided:
 
 Maps:
 	Pawel's fixes for campaign missions that he emailed to us
+	New coop missions and fixes to coop missions (from andreus, kirelareus, pawel?)
 	Iceline (thunder)
 	Final Frontier (To)
+	Shark Islands (andreus and vovets1)
+	To's changes to Accoss the Desert?
+	Get latest version of PAKER's maps and decide whether or not to add any new ones
