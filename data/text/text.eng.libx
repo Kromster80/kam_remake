@@ -235,8 +235,8 @@ MaxID:2817
 1693:Title
 1694:Size
 1695:Mission type: %s
-1696:Win condition: %s
-1697:Defeat condition: %s
+1696:Win condition:
+1697:Defeat condition:
 1698:Allies:
 1699:Enemies:
 1701:New map size

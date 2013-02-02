@@ -11,6 +11,7 @@ Finishing up:
 	Decide which script commands will be implemented for this release and implement them
 	Finish new MapEd features (add ADD_WARE_TO_LAST)
 	Ask RC testers to make map from scratch in MapEd
+	Example maps that show what can be done with new scripts
 
 
 Balance/exploits:
