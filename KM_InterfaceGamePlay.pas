@@ -163,6 +163,7 @@ type
       Image_Clock:TKMImage; //Clock displayed when game speed is increased
       Label_Clock:TKMLabel;
       Label_ClockSpeedup:TKMLabel;
+      Label_ScriptedOverlay:TKMLabel; //Label that can be set from script
       Label_MenuTitle: TKMLabel; //Displays the title of the current menu to the right of return
       Image_DirectionCursor:TKMImage;
 
@@ -363,6 +364,7 @@ type
     procedure ShowPlayMore(DoShow:boolean; Msg:TGameResultMsg);
     procedure ShowMPPlayMore(Msg:TGameResultMsg);
     procedure ShowNetworkLag(DoShow:boolean; aPlayers:TStringList; IsHost:boolean);
+    procedure SetScriptedOverlay(aText:AnsiString);
     property LastSaveName: AnsiString read fLastSaveName write fLastSaveName;
     procedure ReleaseDirectionSelector;
     procedure SetChatText(const aString: string);
@@ -820,6 +822,8 @@ begin
     Label_Clock.Hide;
     Label_ClockSpeedup := TKMLabel.Create(Panel_Main,265,48,'x1',fnt_Metal,taCenter);
     Label_ClockSpeedup.Hide;
+
+    Label_ScriptedOverlay := TKMLabel.Create(Panel_Main,265,110,'',fnt_Outline,taLeft);
 
     Image_DirectionCursor := TKMImage.Create(Panel_Main,0,0,35,36,519);
     Image_DirectionCursor.Hide;
@@ -3372,6 +3376,12 @@ begin
 
   Label_NetWait.Caption := S;
   Panel_NetWait.Visible := DoShow;
+end;
+
+
+procedure TKMGamePlayInterface.SetScriptedOverlay(aText:AnsiString);
+begin
+  Label_ScriptedOverlay.Caption := aText;
 end;
 
 

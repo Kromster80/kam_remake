@@ -42,7 +42,10 @@ type
     procedure GiveWares(aPlayer, aType, aCount: Word);
     procedure RevealCircle(aPlayer, X, Y, aRadius: Word);
     procedure ShowMsg(aPlayer, aIndex: Word);
+    procedure ShowMsgFormatted(aPlayer, aIndex: Word; const Args: array of const);
     procedure UnlockHouse(aPlayer, aHouseType: Word);
+    procedure SetOverlayText(aPlayer, aIndex: Word);
+    procedure SetOverlayTextFormatted(aPlayer, aIndex: Word; const Args: array of const);
   end;
 
 
@@ -253,6 +256,18 @@ begin
   if aPlayer = MyPlayer.PlayerIndex then
     fGame.ShowMessage(mkText, fTextLibrary.GetMissionString(aIndex), KMPoint(0,0))
   else
+    //@Krom: Why is this logged as an error? Shouldn't we just ignore it if it's not MyPlayer?
+    LogError('Actions.ShowMsg', [aPlayer, aIndex]);
+end;
+
+
+procedure TKMScriptActions.ShowMsgFormatted(aPlayer, aIndex: Word; const Args: array of const);
+begin
+  //Verify all input parameters
+  if aPlayer = MyPlayer.PlayerIndex then
+    fGame.ShowMessage(mkText, Format(fTextLibrary.GetMissionString(aIndex),Args), KMPoint(0,0))
+  else
+    //@Krom: Why is this logged as an error? Shouldn't we just ignore it if it's not MyPlayer?
     LogError('Actions.ShowMsg', [aPlayer, aIndex]);
 end;
 
@@ -265,6 +280,20 @@ begin
     fPlayers[aPlayer].Stats.HouseGranted[HouseIndexToType[aHouseType]] := True
   else
     LogError('Actions.UnlockHouse', [aPlayer, aHouseType]);
+end;
+
+
+procedure TKMScriptActions.SetOverlayText(aPlayer, aIndex: Word);
+begin
+  if aPlayer = MyPlayer.PlayerIndex then
+    fGame.GamePlayInterface.SetScriptedOverlay(fTextLibrary.GetMissionString(aIndex));
+end;
+
+
+procedure TKMScriptActions.SetOverlayTextFormatted(aPlayer, aIndex: Word; const Args: array of const);
+begin
+  if aPlayer = MyPlayer.PlayerIndex then
+    fGame.GamePlayInterface.SetScriptedOverlay(Format(fTextLibrary.GetMissionString(aIndex), Args));
 end;
 
 

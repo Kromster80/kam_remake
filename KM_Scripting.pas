@@ -132,7 +132,10 @@ begin
       RegisterMethod('procedure GiveWares(aPlayer, aType, aCount: Word)');
       RegisterMethod('procedure RevealCircle(aPlayer, X, Y, aRadius: Word');
       RegisterMethod('procedure ShowMsg(aPlayer, aIndex: Word)');
+      RegisterMethod('procedure ShowMsgFormatted(aPlayer, aIndex: Word; const Args: array of const)');
       RegisterMethod('procedure UnlockHouse(aPlayer, aHouseType: Word)');
+      RegisterMethod('procedure SetOverlayText(aPlayer, aIndex: Word)');
+      RegisterMethod('procedure SetOverlayTextFormatted(aPlayer, aIndex: Word; const Args: array of const)');
     end;
 
     //Register objects
@@ -246,7 +249,10 @@ begin
     RegisterMethod(@TKMScriptActions.GiveWares, 'GIVEWARES');
     RegisterMethod(@TKMScriptActions.RevealCircle, 'REVEALCIRCLE');
     RegisterMethod(@TKMScriptActions.ShowMsg, 'SHOWMSG');
+    RegisterMethod(@TKMScriptActions.ShowMsgFormatted, 'SHOWMSGFORMATTED');
     RegisterMethod(@TKMScriptActions.UnlockHouse, 'UNLOCKHOUSE');
+    RegisterMethod(@TKMScriptActions.SetOverlayText, 'SETOVERLAYTEXT');
+    RegisterMethod(@TKMScriptActions.SetOverlayTextFormatted, 'SETOVERLAYTEXTFORMATTED');
   end;
 
   //Append classes info to Exec
