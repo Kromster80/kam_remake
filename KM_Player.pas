@@ -703,20 +703,24 @@ begin
     Deliveries.Queue.RemDemand(aHouse);
   end;
 
-  //Distribute honors
-  if aFrom = fPlayerIndex then
-    if aHouse.BuildingState in [hbs_NoGlyph..hbs_Stone] then
-      fStats.HouseEnded(aHouse.HouseType)
-    else
-      //Only Done houses are treated as Self-Destruct
-      fStats.HouseSelfDestruct(aHouse.HouseType)
-  else
-  begin
-    Stats.HouseLost(aHouse.HouseType);
+  fScripting.ProcHouseLost(aHouse.HouseType, fPlayerIndex, aHouse.BuildingState=hbs_Done);
+  if (aFrom <> -1) and (aFrom <> fPlayerIndex) then
+    fScripting.ProcHouseDestroyed(aHouse.HouseType, fPlayerIndex, aFrom, aHouse.BuildingState=hbs_Done);
 
-    if aFrom <> -1 then
-      fPlayers[aFrom].Stats.HouseDestroyed(aHouse.HouseType);
-  end;
+  //Only Done houses are treated as Self-Destruct, Lost, Destroyed
+  if aHouse.BuildingState in [hbs_NoGlyph..hbs_Stone] then
+    fStats.HouseEnded(aHouse.HouseType)
+  else
+    //Distribute honors
+    if aFrom = fPlayerIndex then
+      fStats.HouseSelfDestruct(aHouse.HouseType)
+    else
+    begin
+      Stats.HouseLost(aHouse.HouseType);
+
+      if aFrom <> -1 then
+        fPlayers[aFrom].Stats.HouseDestroyed(aHouse.HouseType);
+    end;
 
   if fPlayers.Highlight = aHouse then
     fPlayers.Highlight := nil;
