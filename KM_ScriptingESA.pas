@@ -60,6 +60,7 @@ type
     function CitizenCount(aPlayer: Byte): Integer;
     function GameTime: Cardinal;
     function PeaceTime: Cardinal;
+    function CheckAlliance(aPlayer1, aPlayer2: Byte): Boolean;
     function HouseTypeCount(aPlayer, aHouseType: Byte): Integer;
     function PlayerCount: Integer;
     function PlayerDefeated(aPlayer: Byte): Boolean;
@@ -102,6 +103,10 @@ type
     procedure SetOverlayText(aPlayer, aIndex: Word);
     procedure SetOverlayTextFormatted(aPlayer, aIndex: Word; const Args: array of const);
     procedure SetUnitHunger(aUnitID, aHungerLevel: Integer);
+    procedure SetUnitDirection(aUnitID, aDirection: Integer);
+    procedure GroupOrderWalk(aGroupID: Integer; X, Y, aDirection: Word);
+    procedure GroupOrderAttackHouse(aGroupID, aHouseID: Integer);
+    procedure GroupOrderAttackUnit(aGroupID, aUnitID: Integer);
   end;
 
 
@@ -170,6 +175,19 @@ begin
 end;
 
 
+function TKMScriptStates.CheckAlliance(aPlayer1, aPlayer2: Byte): Boolean;
+begin
+  if  InRange(aPlayer1, 0, fPlayers.Count - 1)
+  and InRange(aPlayer2, 0, fPlayers.Count - 1) then
+    Result := fPlayers[aPlayer1].Alliances[aPlayer2] = at_Ally
+  else
+  begin
+    Result := False;
+    LogError('States.CheckAlliance', [aPlayer1, aPlayer2]);
+  end;
+end;
+
+
 function TKMScriptStates.HouseTypeCount(aPlayer, aHouseType: Byte): Integer;
 begin
   if InRange(aPlayer, 0, fPlayers.Count - 1)
@@ -179,7 +197,7 @@ begin
   else
   begin
     Result := 0;
-    LogError('States.HouseTypeCount', [aPlayer]);
+    LogError('States.HouseTypeCount', [aPlayer, aHouseType]);
   end;
 end;
 
@@ -223,7 +241,7 @@ begin
   else
   begin
     Result := 0;
-    LogError('States.UnitTypeCount', [aPlayer]);
+    LogError('States.UnitTypeCount', [aPlayer, aUnitType]);
   end;
 end;
 
@@ -247,7 +265,7 @@ begin
   else
   begin
     Result := False;
-    LogError('States.PlayerName', [aPlayer]);
+    LogError('States.PlayerEnabled', [aPlayer]);
   end;
 end;
 
@@ -623,6 +641,70 @@ begin
   end
   else
     LogError('Actions.SetUnitHunger', [aUnitID, aHungerLevel]);
+end;
+
+
+procedure TKMScriptActions.SetUnitDirection(aUnitID, aDirection: Integer);
+var U: TKMUnit;
+begin
+  if (aUnitID > 0) and (TKMDirection(aDirection+1) in [dir_N..dir_NW]) then
+  begin
+    U := fIDCache.GetUnit(aUnitID);
+    if U <> nil then
+      U.Direction := TKMDirection(aDirection+1);
+  end
+  else
+    LogError('Actions.SetUnitDirection', [aUnitID, aDirection]);
+end;
+
+
+procedure TKMScriptActions.GroupOrderWalk(aGroupID: Integer; X, Y, aDirection: Word);
+var G: TKMUnitGroup;
+begin
+  if (aGroupID > 0)
+  and fTerrain.TileInMapCoords(X,Y)
+  and (TKMDirection(aDirection+1) in [dir_N..dir_NW]) then
+  begin
+    G := fIDCache.GetGroup(aGroupID);
+    if (G <> nil) and G.CanWalkTo(KMPoint(X,Y), 0) then
+      G.OrderWalk(KMPoint(X,Y), True, TKMDirection(aDirection+1));
+  end
+  else
+    LogError('Actions.GroupOrderWalk', [aGroupID, X, Y, aDirection]);
+end;
+
+
+procedure TKMScriptActions.GroupOrderAttackHouse(aGroupID, aHouseID: Integer);
+var
+  G: TKMUnitGroup;
+  H: TKMHouse;
+begin
+  if (aGroupID > 0) and (aHouseID > 0) then
+  begin
+    G := fIDCache.GetGroup(aGroupID);
+    H := fIDCache.GetHouse(aHouseID);
+    if (G <> nil) and (H <> nil) then
+      G.OrderAttackHouse(H, True);
+  end
+  else
+    LogError('Actions.GroupOrderAttackHouse', [aGroupID, aHouseID]);
+end;
+
+
+procedure TKMScriptActions.GroupOrderAttackUnit(aGroupID, aUnitID: Integer);
+var
+  G: TKMUnitGroup;
+  U: TKMUnit;
+begin
+  if (aGroupID > 0) and (aUnitID > 0) then
+  begin
+    G := fIDCache.GetGroup(aGroupID);
+    U := fIDCache.GetUnit(aUnitID);
+    if (G <> nil) and (U <> nil) then
+      G.OrderAttackUnit(U, True);
+  end
+  else
+    LogError('Actions.GroupOrderAttackHouse', [aGroupID, aUnitID]);
 end;
 
 

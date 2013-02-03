@@ -132,6 +132,7 @@ begin
       RegisterMethod('function CitizenCount(aPlayer: Byte): Integer');
       RegisterMethod('function GameTime: Cardinal');
       RegisterMethod('function PeaceTime: Cardinal');
+      RegisterMethod('function CheckAlliance(aPlayer1, aPlayer2: Byte): Boolean');
       RegisterMethod('function HouseTypeCount(aPlayer, aHouseType: Byte): Integer');
       RegisterMethod('function PlayerCount: Integer');
       RegisterMethod('function PlayerDefeated(aPlayer: Byte): Boolean');
@@ -170,6 +171,10 @@ begin
       RegisterMethod('procedure SetOverlayText(aPlayer, aIndex: Word)');
       RegisterMethod('procedure SetOverlayTextFormatted(aPlayer, aIndex: Word; const Args: array of const)');
       RegisterMethod('procedure SetUnitHunger(aUnitID, aHungerLevel: Integer)');
+      RegisterMethod('procedure SetUnitDirection(aUnitID, aDirection: Integer)');
+      RegisterMethod('procedure GroupOrderWalk(aGroupID: Integer; X, Y, aDirection: Word)');
+      RegisterMethod('procedure GroupOrderAttackHouse(aGroupID, aHouseID: Integer)');
+      RegisterMethod('procedure GroupOrderAttackUnit(aGroupID, aUnitID: Integer)');
     end;
 
     //Register objects
@@ -309,6 +314,7 @@ begin
     RegisterMethod(@TKMScriptStates.CitizenCount, 'CITIZENCOUNT');
     RegisterMethod(@TKMScriptStates.GameTime, 'GAMETIME');
     RegisterMethod(@TKMScriptStates.PeaceTime, 'PEACETIME');
+    RegisterMethod(@TKMScriptStates.CheckAlliance, 'CHECKALLIANCE');
     RegisterMethod(@TKMScriptStates.HouseTypeCount, 'HOUSETYPECOUNT');
     RegisterMethod(@TKMScriptStates.PlayerCount, 'PLAYERCOUNT');
     RegisterMethod(@TKMScriptStates.PlayerDefeated, 'PLAYERDEFEATED');
@@ -347,6 +353,10 @@ begin
     RegisterMethod(@TKMScriptActions.SetOverlayText, 'SETOVERLAYTEXT');
     RegisterMethod(@TKMScriptActions.SetOverlayTextFormatted, 'SETOVERLAYTEXTFORMATTED');
     RegisterMethod(@TKMScriptActions.SetUnitHunger, 'SETUNITHUNGER');
+    RegisterMethod(@TKMScriptActions.SetUnitDirection, 'SETUNITDIRECTION');
+    RegisterMethod(@TKMScriptActions.GroupOrderWalk, 'GROUPORDERWALK');
+    RegisterMethod(@TKMScriptActions.GroupOrderAttackHouse, 'GROUPORDERATTACKHOUSE');
+    RegisterMethod(@TKMScriptActions.GroupOrderAttackUnit, 'GROUPORDERATTACKUNIT');
   end;
 
   //Append classes info to Exec
