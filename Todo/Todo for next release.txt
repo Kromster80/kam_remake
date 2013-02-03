@@ -15,6 +15,10 @@ Finishing up:
 	Example maps that show what can be done with new scripts
 
 
+Known issues to fix:
+	Selecting a save in the lobby causes a crash
+
+
 Balance/exploits:
 	Increase market loss ratio?
 	Stop builders emptying towers (builders refuse to walk into range of a tower or player blocked from building there?)

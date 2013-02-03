@@ -752,8 +752,21 @@ end;
 
 
 procedure TKMMainMenuInterface.ResultsMP_Fill(aMsg: TGameResultMsg=gr_Silent);
+
+  procedure SetPlayerControls(aPlayer: Integer; aEnabled: Boolean);
+  var I: Integer;
+  begin
+    Label_ResultsPlayerName1[aPlayer].Visible := aEnabled;
+    Label_ResultsPlayerName2[aPlayer].Visible := aEnabled;
+    for I := 0 to 9 do
+    begin
+      Bar_Results[aPlayer,I].Visible := aEnabled;
+      Image_ResultsRosette[aPlayer,I].Visible := aEnabled;
+    end;
+  end;
+
 var
-  I,K: Integer;
+  I,K,Index, EnabledPlayerCount: Integer;
   UnitsMax, HousesMax, GoodsMax, WeaponsMax, MaxValue: Integer;
   Bests: array [0..9] of Cardinal;
   Totals: array [0..9] of Cardinal;
@@ -773,19 +786,19 @@ begin
 
   //Update visibility depending on players count
   for I := 0 to MAX_PLAYERS - 1 do
-  begin
-    Label_ResultsPlayerName1[I].Visible := (I < fPlayers.Count);
-    Label_ResultsPlayerName2[I].Visible := (I < fPlayers.Count);
-    for K := 0 to 9 do
+    SetPlayerControls(I, False); //Disable them all to start
+  Index := 0;
+  for I := 0 to fPlayers.Count - 1 do
+    if fPlayers[I].Enabled then
     begin
-      Bar_Results[I,K].Visible := (I < fPlayers.Count);
-      Image_ResultsRosette[I,K].Visible := (I < fPlayers.Count);
+      SetPlayerControls(Index, True); //Enable used ones
+      inc(Index);
     end;
-  end;
+  EnabledPlayerCount := Index; //Number of enabled players
 
   //Update positioning
-  Panel_StatsMP1.Height := 40 + fPlayers.Count * 22;
-  Panel_StatsMP2.Height := 40 + fPlayers.Count * 22;
+  Panel_StatsMP1.Height := 40 + EnabledPlayerCount * 22;
+  Panel_StatsMP2.Height := 40 + EnabledPlayerCount * 22;
 
   Panel_StatsMP1.Top := 144 + (520 - Panel_StatsMP1.Height * 2) div 2 -
                         (768 - Min(Panel_ResultsMP.Height,768)) div 2; //Manually apply anchoring
@@ -801,82 +814,86 @@ begin
 
   //Calculate bests for each "section"
   for I := 0 to fPlayers.Count - 1 do
-    with fPlayers[I].Stats do
-    begin
-      if Bests[0] < GetCitizensTrained then Bests[0] := GetCitizensTrained;
-      if Bests[1] > GetCitizensLost    then Bests[1] := GetCitizensLost;
-      if Bests[2] < GetWarriorsTrained then Bests[2] := GetWarriorsTrained;
-      if Bests[3] > GetWarriorsLost    then Bests[3] := GetWarriorsLost;
-      if Bests[4] < GetWarriorsKilled  then Bests[4] := GetWarriorsKilled;
-      if Bests[5] < GetHousesBuilt     then Bests[5] := GetHousesBuilt;
-      if Bests[6] > GetHousesLost      then Bests[6] := GetHousesLost;
-      if Bests[7] < GetHousesDestroyed then Bests[7] := GetHousesDestroyed;
-      if Bests[8] < GetCivilProduced   then Bests[8] := GetCivilProduced;
-      if Bests[9] < GetWeaponsProduced then Bests[9] := GetWeaponsProduced;
+    if fPlayers[I].Enabled then
+      with fPlayers[I].Stats do
+      begin
+        if Bests[0] < GetCitizensTrained then Bests[0] := GetCitizensTrained;
+        if Bests[1] > GetCitizensLost    then Bests[1] := GetCitizensLost;
+        if Bests[2] < GetWarriorsTrained then Bests[2] := GetWarriorsTrained;
+        if Bests[3] > GetWarriorsLost    then Bests[3] := GetWarriorsLost;
+        if Bests[4] < GetWarriorsKilled  then Bests[4] := GetWarriorsKilled;
+        if Bests[5] < GetHousesBuilt     then Bests[5] := GetHousesBuilt;
+        if Bests[6] > GetHousesLost      then Bests[6] := GetHousesLost;
+        if Bests[7] < GetHousesDestroyed then Bests[7] := GetHousesDestroyed;
+        if Bests[8] < GetCivilProduced   then Bests[8] := GetCivilProduced;
+        if Bests[9] < GetWeaponsProduced then Bests[9] := GetWeaponsProduced;
 
-      //If Totals is 0 the category skipped and does not have "Best" icon on it
-      Inc(Totals[0], GetCitizensTrained);
-      Inc(Totals[1], GetCitizensLost);
-      Inc(Totals[2], GetWarriorsTrained);
-      Inc(Totals[3], GetWarriorsLost);
-      Inc(Totals[4], GetWarriorsKilled);
-      Inc(Totals[5], GetHousesBuilt);
-      Inc(Totals[6], GetHousesLost);
-      Inc(Totals[7], GetHousesDestroyed);
-      Inc(Totals[8], GetCivilProduced);
-      Inc(Totals[9], GetWeaponsProduced);
-    end;
+        //If Totals is 0 the category skipped and does not have "Best" icon on it
+        Inc(Totals[0], GetCitizensTrained);
+        Inc(Totals[1], GetCitizensLost);
+        Inc(Totals[2], GetWarriorsTrained);
+        Inc(Totals[3], GetWarriorsLost);
+        Inc(Totals[4], GetWarriorsKilled);
+        Inc(Totals[5], GetHousesBuilt);
+        Inc(Totals[6], GetHousesLost);
+        Inc(Totals[7], GetHousesDestroyed);
+        Inc(Totals[8], GetCivilProduced);
+        Inc(Totals[9], GetWeaponsProduced);
+      end;
 
   //Fill in raw values
+  Index := 0;
   for I := 0 to fPlayers.Count - 1 do
-  begin
-    Label_ResultsPlayerName1[I].Caption   := fPlayers[I].PlayerName;
-    Label_ResultsPlayerName1[I].FontColor := FlagColorToTextColor(fPlayers[I].FlagColor);
-    Label_ResultsPlayerName2[I].Caption   := fPlayers[I].PlayerName;
-    Label_ResultsPlayerName2[I].FontColor := FlagColorToTextColor(fPlayers[I].FlagColor);
-
-    with fPlayers[I].Stats do
+    if fPlayers[I].Enabled then
     begin
-      //Living things
-      Bar_Results[I,0].Tag := GetCitizensTrained;
-      Bar_Results[I,1].Tag := GetCitizensLost;
-      Bar_Results[I,2].Tag := GetWarriorsTrained;
-      Bar_Results[I,3].Tag := GetWarriorsLost;
-      Bar_Results[I,4].Tag := GetWarriorsKilled;
-      Image_ResultsRosette[I,0].Visible := (GetCitizensTrained >= Bests[0]) and (Totals[0] > 0);
-      Image_ResultsRosette[I,1].Visible := (GetCitizensLost    <= Bests[1]) and (Totals[1] > 0);
-      Image_ResultsRosette[I,2].Visible := (GetWarriorsTrained >= Bests[2]) and (Totals[2] > 0);
-      Image_ResultsRosette[I,3].Visible := (GetWarriorsLost    <= Bests[3]) and (Totals[3] > 0);
-      Image_ResultsRosette[I,4].Visible := (GetWarriorsKilled  >= Bests[4]) and (Totals[4] > 0);
-      //Objects
-      Bar_Results[I,5].Tag := GetHousesBuilt;
-      Bar_Results[I,6].Tag := GetHousesLost;
-      Bar_Results[I,7].Tag := GetHousesDestroyed;
-      Bar_Results[I,8].Tag := GetCivilProduced;
-      Bar_Results[I,9].Tag := GetWeaponsProduced;
-      Image_ResultsRosette[I,5].Visible := (GetHousesBuilt     >= Bests[5]) and (Totals[5] > 0);
-      Image_ResultsRosette[I,6].Visible := (GetHousesLost      <= Bests[6]) and (Totals[6] > 0);
-      Image_ResultsRosette[I,7].Visible := (GetHousesDestroyed >= Bests[7]) and (Totals[7] > 0);
-      Image_ResultsRosette[I,8].Visible := (GetCivilProduced   >= Bests[8]) and (Totals[8] > 0);
-      Image_ResultsRosette[I,9].Visible := (GetWeaponsProduced >= Bests[9]) and (Totals[9] > 0);
+      Label_ResultsPlayerName1[Index].Caption   := fPlayers[I].PlayerName;
+      Label_ResultsPlayerName1[Index].FontColor := FlagColorToTextColor(fPlayers[I].FlagColor);
+      Label_ResultsPlayerName2[Index].Caption   := fPlayers[I].PlayerName;
+      Label_ResultsPlayerName2[Index].FontColor := FlagColorToTextColor(fPlayers[I].FlagColor);
+
+      with fPlayers[I].Stats do
+      begin
+        //Living things
+        Bar_Results[Index,0].Tag := GetCitizensTrained;
+        Bar_Results[Index,1].Tag := GetCitizensLost;
+        Bar_Results[Index,2].Tag := GetWarriorsTrained;
+        Bar_Results[Index,3].Tag := GetWarriorsLost;
+        Bar_Results[Index,4].Tag := GetWarriorsKilled;
+        Image_ResultsRosette[Index,0].Visible := (GetCitizensTrained >= Bests[0]) and (Totals[0] > 0);
+        Image_ResultsRosette[Index,1].Visible := (GetCitizensLost    <= Bests[1]) and (Totals[1] > 0);
+        Image_ResultsRosette[Index,2].Visible := (GetWarriorsTrained >= Bests[2]) and (Totals[2] > 0);
+        Image_ResultsRosette[Index,3].Visible := (GetWarriorsLost    <= Bests[3]) and (Totals[3] > 0);
+        Image_ResultsRosette[Index,4].Visible := (GetWarriorsKilled  >= Bests[4]) and (Totals[4] > 0);
+        //Objects
+        Bar_Results[Index,5].Tag := GetHousesBuilt;
+        Bar_Results[Index,6].Tag := GetHousesLost;
+        Bar_Results[Index,7].Tag := GetHousesDestroyed;
+        Bar_Results[Index,8].Tag := GetCivilProduced;
+        Bar_Results[Index,9].Tag := GetWeaponsProduced;
+        Image_ResultsRosette[Index,5].Visible := (GetHousesBuilt     >= Bests[5]) and (Totals[5] > 0);
+        Image_ResultsRosette[Index,6].Visible := (GetHousesLost      <= Bests[6]) and (Totals[6] > 0);
+        Image_ResultsRosette[Index,7].Visible := (GetHousesDestroyed >= Bests[7]) and (Totals[7] > 0);
+        Image_ResultsRosette[Index,8].Visible := (GetCivilProduced   >= Bests[8]) and (Totals[8] > 0);
+        Image_ResultsRosette[Index,9].Visible := (GetWeaponsProduced >= Bests[9]) and (Totals[9] > 0);
+      end;
+      inc(Index);
     end;
-  end;
 
   //Update percent bars for each category
   UnitsMax := 0;
-  for K := 0 to 4 do for I := 0 to fPlayers.Count - 1 do
+  for K := 0 to 4 do for I := 0 to EnabledPlayerCount - 1 do
     UnitsMax := Max(Bar_Results[I,K].Tag, UnitsMax);
 
   HousesMax := 0;
-  for K := 5 to 7 do for I := 0 to fPlayers.Count - 1 do
+  for K := 5 to 7 do for I := 0 to EnabledPlayerCount - 1 do
     HousesMax := Max(Bar_Results[I,K].Tag, HousesMax);
 
   GoodsMax := 0;
-  for I := 0 to fPlayers.Count - 1 do
+  for I := 0 to EnabledPlayerCount - 1 do
     GoodsMax := Max(Bar_Results[I,8].Tag, GoodsMax);
 
   WeaponsMax := 0;
-  for I := 0 to fPlayers.Count - 1 do
+  for I := 0 to EnabledPlayerCount - 1 do
     WeaponsMax := Max(Bar_Results[I,9].Tag, WeaponsMax);
 
   //Knowing Max in each category we may fill bars properly
@@ -888,7 +905,7 @@ begin
       8:    MaxValue := GoodsMax;
       else  MaxValue := WeaponsMax;
     end;
-    for I := 0 to fPlayers.Count - 1 do
+    for I := 0 to EnabledPlayerCount - 1 do
     begin
       if MaxValue <> 0 then
         Bar_Results[I,K].Position := Bar_Results[I,K].Tag / MaxValue
@@ -903,11 +920,12 @@ begin
   begin
     Radio_MPResultsWarePlayer.Clear;
     for I := 0 to fPlayers.Count - 1 do
-      Radio_MPResultsWarePlayer.Add('[$'+IntToHex(FlagColorToTextColor(fPlayers[I].FlagColor) and $00FFFFFF,6)+']'+fPlayers[I].PlayerName+'[]');
+      if fPlayers[I].Enabled then
+        Radio_MPResultsWarePlayer.Add('[$'+IntToHex(FlagColorToTextColor(fPlayers[I].FlagColor) and $00FFFFFF,6)+']'+fPlayers[I].PlayerName+'[]');
 
     Radio_MPResultsWarePlayer.ItemIndex := 0;
-    Radio_MPResultsWarePlayer.Height := 25*fPlayers.Count;
-    Image_MPResultsBackplate.Height := 24 + 25*fPlayers.Count;
+    Radio_MPResultsWarePlayer.Height := 25*EnabledPlayerCount;
+    Image_MPResultsBackplate.Height := 24 + 25*EnabledPlayerCount;
 
     for R := WARE_MIN to WARE_MAX do
       fWaresVisible[R] := True; //All are visible by default
@@ -925,32 +943,38 @@ begin
 
     for I := 0 to fPlayers.Count - 1 do
     with fPlayers[I] do
-      Graph_MPArmy.AddLine(PlayerName, FlagColor, Stats.GraphArmy);
+      if Enabled then
+        Graph_MPArmy.AddLine(PlayerName, FlagColor, Stats.GraphArmy);
 
     for I := 0 to fPlayers.Count - 1 do
     with fPlayers[I] do
-      Graph_MPCitizens.AddLine(PlayerName, FlagColor, Stats.GraphCitizens);
+      if Enabled then
+        Graph_MPCitizens.AddLine(PlayerName, FlagColor, Stats.GraphCitizens);
 
     for I := 0 to fPlayers.Count - 1 do
     with fPlayers[I] do
-      Graph_MPHouses.AddLine(PlayerName, FlagColor, Stats.GraphHouses);
+      if Enabled then
+        Graph_MPHouses.AddLine(PlayerName, FlagColor, Stats.GraphHouses);
 
+    Index := 0;
     for I := 0 to fPlayers.Count - 1 do
+    if fPlayers[I].Enabled then
     begin
-      Graph_MPWares[I].Clear;
-      Graph_MPWares[I].MaxLength := MyPlayer.Stats.GraphCount;
-      Graph_MPWares[I].MaxTime := fGame.GameTickCount div 10;
-      Graph_MPWares[I].Caption := fTextLibrary[TX_GRAPH_TITLE_RESOURCES]+' - [$'+IntToHex(FlagColorToTextColor(fPlayers[I].FlagColor) and $00FFFFFF,6)+']'+fPlayers[I].PlayerName+'[]';
+      Graph_MPWares[Index].Clear;
+      Graph_MPWares[Index].MaxLength := MyPlayer.Stats.GraphCount;
+      Graph_MPWares[Index].MaxTime := fGame.GameTickCount div 10;
+      Graph_MPWares[Index].Caption := fTextLibrary[TX_GRAPH_TITLE_RESOURCES]+' - [$'+IntToHex(FlagColorToTextColor(fPlayers[I].FlagColor) and $00FFFFFF,6)+']'+fPlayers[I].PlayerName+'[]';
       for R := WARE_MIN to WARE_MAX do
       begin
         G := fPlayers[I].Stats.GraphGoods[R];
         for K := 0 to High(G) do
           if G[K] <> 0 then
           begin
-            Graph_MPWares[I].AddLine(fResource.Resources[R].Title, ResourceColor[R] or $FF000000, G, Byte(R));
+            Graph_MPWares[Index].AddLine(fResource.Resources[R].Title, ResourceColor[R] or $FF000000, G, Byte(R));
             Break;
           end;
       end;
+      inc(Index);
     end;
 
     Button_MPResultsWares.Enabled := (fGame.MissionMode = mm_Normal);
