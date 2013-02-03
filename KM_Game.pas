@@ -489,6 +489,7 @@ begin
   //When everything is ready we can update UI
   UpdateUI;
   fViewport.Position := KMPointF(MyPlayer.CenterScreen);
+  fScripting.ProcMissionStart;
 
   fLog.AddTime('Gameplay initialized', true);
 end;
