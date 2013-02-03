@@ -74,6 +74,13 @@ type
     function HouseDamage(aHouseID: Integer): Integer;
     function KaMRandom: Single;
     function KaMRandomI(aMax:Integer): Integer;
+    function UnitAt(aX, aY: Word): Integer;
+    function UnitDead(aUnitID: Integer): Boolean;
+    function UnitOwner(aUnitID: Integer): Integer;
+    function UnitType(aUnitID: Integer): Integer;
+    function UnitHunger(aUnitID: Integer): Integer;
+    function UnitMaxHunger: Integer;
+    function UnitLowHunger: Integer;
   end;
 
   TKMScriptActions = class
@@ -83,8 +90,8 @@ type
   public
     constructor Create(aIDCache: TKMIDCache);
     procedure Defeat(aPlayer: Word);
-    procedure GiveGroup(aPlayer, aType, X,Y, aDir, aCount, aColumns: Word);
-    procedure GiveUnit(aPlayer, aType, X,Y, aDir: Word);
+    function GiveGroup(aPlayer, aType, X,Y, aDir, aCount, aColumns: Word): Integer;
+    function GiveUnit(aPlayer, aType, X,Y, aDir: Word): Integer;
     procedure GiveWares(aPlayer, aType, aCount: Word);
     procedure RevealCircle(aPlayer, X, Y, aRadius: Word);
     procedure ShowMsg(aPlayer, aIndex: Word);
@@ -94,6 +101,7 @@ type
     procedure GiveWaresToHouse(aHouseID: Integer; aType, aCount: Word);
     procedure SetOverlayText(aPlayer, aIndex: Word);
     procedure SetOverlayTextFormatted(aPlayer, aIndex: Word; const Args: array of const);
+    procedure SetUnitHunger(aUnitID, aHungerLevel: Integer);
   end;
 
 
@@ -328,6 +336,89 @@ begin
 end;
 
 
+function TKMScriptStates.UnitAt(aX, aY: Word): Integer;
+var U: TKMUnit;
+begin
+  U := fPlayers.UnitsHitTest(aX, aY);
+  if (U <> nil) and not U.IsDead then
+    Result := U.ID
+  else
+    Result := -1;
+end;
+
+
+function TKMScriptStates.UnitDead(aUnitID: Integer): Boolean;
+var U: TKMUnit;
+begin
+  Result := True;
+  if aUnitID > 0 then
+  begin
+    U := fIDCache.GetUnit(aUnitID);
+    if U <> nil then
+      Result := U.IsDead;
+  end
+  else
+    LogError('States.UnitDead', [aUnitID]);
+end;
+
+
+function TKMScriptStates.UnitOwner(aUnitID: Integer): Integer;
+var U: TKMUnit;
+begin
+  Result := -1;
+  if aUnitID > 0 then
+  begin
+    U := fIDCache.GetUnit(aUnitID);
+    if U <> nil then
+      Result := U.Owner;
+  end
+  else
+    LogError('States.UnitOwner', [aUnitID]);
+end;
+
+
+function TKMScriptStates.UnitType(aUnitID: Integer): Integer;
+var U: TKMUnit;
+begin
+  Result := -1;
+  if aUnitID > 0 then
+  begin
+    U := fIDCache.GetUnit(aUnitID);
+    if U <> nil then
+      Result := UnitTypeToIndex[U.UnitType];
+  end
+  else
+    LogError('States.UnitType', [aUnitID]);
+end;
+
+
+function TKMScriptStates.UnitHunger(aUnitID: Integer): Integer;
+var U: TKMUnit;
+begin
+  Result := -1;
+  if aUnitID > 0 then
+  begin
+    U := fIDCache.GetUnit(aUnitID);
+    if U <> nil then
+      Result := Max(U.Condition, 0)*CONDITION_PACE;
+  end
+  else
+    LogError('States.UnitHunger', [aUnitID]);
+end;
+
+
+function TKMScriptStates.UnitMaxHunger: Integer;
+begin
+  Result := UNIT_MAX_CONDITION*CONDITION_PACE;
+end;
+
+
+function TKMScriptStates.UnitLowHunger: Integer;
+begin
+  Result := UNIT_MIN_CONDITION*CONDITION_PACE;
+end;
+
+
 { TKMScriptActions }
 constructor TKMScriptActions.Create(aIDCache: TKMIDCache);
 begin
@@ -357,33 +448,44 @@ begin
 end;
 
 
-procedure TKMScriptActions.GiveGroup(aPlayer, aType, X,Y, aDir, aCount, aColumns: Word);
+function TKMScriptActions.GiveGroup(aPlayer, aType, X,Y, aDir, aCount, aColumns: Word): Integer;
+var G: TKMUnitGroup;
 begin
+  Result := -1;
   //Verify all input parameters
   if InRange(aPlayer, 0, fPlayers.Count - 1)
-  and (aType in [Low(UnitIndexToType)..High(UnitIndexToType)])
+  and (aType in [UnitTypeToIndex[WARRIOR_MIN]..UnitTypeToIndex[WARRIOR_MAX]])
   and fTerrain.TileInMapCoords(X,Y)
   and (TKMDirection(aDir+1) in [dir_N..dir_NW]) then
-    fPlayers[aPlayer].AddUnitGroup(UnitIndexToType[aType],
-                                   KMPoint(X,Y),
-                                   TKMDirection(aDir+1),
-                                   aColumns,
-                                   aCount)
+  begin
+    G := fPlayers[aPlayer].AddUnitGroup(UnitIndexToType[aType],
+                                        KMPoint(X,Y),
+                                        TKMDirection(aDir+1),
+                                        aColumns,
+                                        aCount);
+    if G = nil then Exit;
+    Result := G.ID;
+  end
   else
     LogError('Actions.GiveGroup', [aPlayer, aType, X, Y, aDir, aCount, aColumns]);
 end;
 
 
-procedure TKMScriptActions.GiveUnit(aPlayer, aType, X, Y, aDir: Word);
+function TKMScriptActions.GiveUnit(aPlayer, aType, X, Y, aDir: Word): Integer;
+var U: TKMUnit;
 begin
+  Result := -1;
   //Verify all input parameters
   if InRange(aPlayer, 0, fPlayers.Count - 1)
-  and (aType in [Low(UnitIndexToType)..High(UnitIndexToType)])
+  and (aType in [UnitTypeToIndex[CITIZEN_MIN]..UnitTypeToIndex[CITIZEN_MAX]])
   and fTerrain.TileInMapCoords(X,Y)
   and (TKMDirection(aDir+1) in [dir_N..dir_NW]) then
-    fPlayers[aPlayer].AddUnit(UnitIndexToType[aType],
-                              KMPoint(X,Y))
-    //Direction is ignored for now
+  begin
+    U := fPlayers[aPlayer].AddUnit(UnitIndexToType[aType], KMPoint(X,Y));
+    if U = nil then Exit;
+    Result := U.ID;
+    U.Direction := TKMDirection(aDir+1);
+  end
   else
     LogError('Actions.GiveUnit', [aPlayer, aType, X, Y, aDir]);
 end;
@@ -506,6 +608,21 @@ procedure TKMScriptActions.SetOverlayTextFormatted(aPlayer, aIndex: Word; const 
 begin
   if aPlayer = MyPlayer.PlayerIndex then
     fGame.GamePlayInterface.SetScriptedOverlay(Format(fTextLibrary.GetMissionString(aIndex), Args));
+end;
+
+
+procedure TKMScriptActions.SetUnitHunger(aUnitID, aHungerLevel: Integer);
+var U: TKMUnit;
+begin
+  aHungerLevel := Round(aHungerLevel / CONDITION_PACE);
+  if (aUnitID > 0) and InRange(aHungerLevel, 0, UNIT_MAX_CONDITION) then
+  begin
+    U := fIDCache.GetUnit(aUnitID);
+    if U <> nil then
+      U.Condition := aHungerLevel;
+  end
+  else
+    LogError('Actions.SetUnitHunger', [aUnitID, aHungerLevel]);
 end;
 
 

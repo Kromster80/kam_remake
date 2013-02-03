@@ -140,13 +140,20 @@ begin
       RegisterMethod('function HouseDamage(aHouseID: Integer): Integer');
       RegisterMethod('function KaMRandom: Single');
       RegisterMethod('function KaMRandomI(aMax:Integer): Integer');
+      RegisterMethod('function UnitAt(aX, aY: Word): Integer');
+      RegisterMethod('function UnitDead(aUnitID: Integer): Boolean');
+      RegisterMethod('function UnitOwner(aUnitID: Integer): Integer');
+      RegisterMethod('function UnitType(aUnitID: Integer): Integer');
+      RegisterMethod('function UnitHunger(aUnitID: Integer): Integer');
+      RegisterMethod('function UnitMaxHunger: Integer');
+      RegisterMethod('function UnitLowHunger: Integer');
     end;
 
     with Sender.AddClassN(nil, fActions.ClassName) do
     begin
       RegisterMethod('procedure Defeat(aPlayer: Word)');
-      RegisterMethod('procedure GiveGroup(aPlayer, aType, X, Y, aDir, aCount, aColumns: Word)');
-      RegisterMethod('procedure GiveUnit(aPlayer, aType, X, Y, aDir: Word)');
+      RegisterMethod('function GiveGroup(aPlayer, aType, X, Y, aDir, aCount, aColumns: Word): Integer');
+      RegisterMethod('function GiveUnit(aPlayer, aType, X,Y, aDir: Word): Integer');
       RegisterMethod('procedure GiveWares(aPlayer, aType, aCount: Word)');
       RegisterMethod('procedure RevealCircle(aPlayer, X, Y, aRadius: Word');
       RegisterMethod('procedure ShowMsg(aPlayer, aIndex: Word)');
@@ -156,6 +163,7 @@ begin
       RegisterMethod('procedure GiveWaresToHouse(aHouseID: Integer; aType, aCount: Word)');
       RegisterMethod('procedure SetOverlayText(aPlayer, aIndex: Word)');
       RegisterMethod('procedure SetOverlayTextFormatted(aPlayer, aIndex: Word; const Args: array of const)');
+      RegisterMethod('procedure SetUnitHunger(aUnitID, aHungerLevel: Integer)');
     end;
 
     //Register objects
@@ -278,6 +286,13 @@ begin
     RegisterMethod(@TKMScriptStates.HouseDamage, 'HOUSEDAMAGE');
     RegisterMethod(@TKMScriptStates.KaMRandom, 'KAMRANDOM');
     RegisterMethod(@TKMScriptStates.KaMRandomI, 'KAMRANDOMI');
+    RegisterMethod(@TKMScriptStates.UnitAt, 'UNITAT');
+    RegisterMethod(@TKMScriptStates.UnitDead, 'UNITDEAD');
+    RegisterMethod(@TKMScriptStates.UnitOwner, 'UNITOWNER');
+    RegisterMethod(@TKMScriptStates.UnitType, 'UNITTYPE');
+    RegisterMethod(@TKMScriptStates.UnitHunger, 'UNITHUNGER');
+    RegisterMethod(@TKMScriptStates.UnitMaxHunger, 'UNITMAXHUNGER');
+    RegisterMethod(@TKMScriptStates.UnitLowHunger, 'UNITLOWHUNGER');
   end;
 
   with ClassImp.Add(TKMScriptActions) do
@@ -294,6 +309,7 @@ begin
     RegisterMethod(@TKMScriptActions.GiveWaresToHouse, 'GIVEWARESTOHOUSE');
     RegisterMethod(@TKMScriptActions.SetOverlayText, 'SETOVERLAYTEXT');
     RegisterMethod(@TKMScriptActions.SetOverlayTextFormatted, 'SETOVERLAYTEXTFORMATTED');
+    RegisterMethod(@TKMScriptActions.SetUnitHunger, 'SETUNITHUNGER');
   end;
 
   //Append classes info to Exec
