@@ -1286,7 +1286,7 @@ begin
   if fTicker mod 5 = 0 then
     CheckForFight;
 
-  if not InFight and (fTicker mod 11 = 0) then
+  if not InFight and (fTicker mod 7 = 0) then
     CheckOrderDone;
 end;
 
