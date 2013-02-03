@@ -134,6 +134,8 @@ begin
       RegisterMethod('function HouseOwner(aHouseID: Integer): Integer');
       RegisterMethod('function HouseType(aHouseID: Integer): Integer');
       RegisterMethod('function HouseDamage(aHouseID: Integer): Integer');
+      RegisterMethod('function KaMRandom: Single');
+      RegisterMethod('function KaMRandomI(aMax:Integer): Integer');
     end;
 
     with Sender.AddClassN(nil, fActions.ClassName) do
@@ -269,6 +271,8 @@ begin
     RegisterMethod(@TKMScriptStates.HouseOwner, 'HOUSEOWNER');
     RegisterMethod(@TKMScriptStates.HouseType, 'HOUSETYPE');
     RegisterMethod(@TKMScriptStates.HouseDamage, 'HOUSEDAMAGE');
+    RegisterMethod(@TKMScriptStates.KaMRandom, 'KAMRANDOM');
+    RegisterMethod(@TKMScriptStates.KaMRandomI, 'KAMRANDOMI');
   end;
 
   with ClassImp.Add(TKMScriptActions) do

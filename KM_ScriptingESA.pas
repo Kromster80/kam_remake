@@ -37,6 +37,8 @@ type
     function HouseOwner(aHouseID: Integer): Integer;
     function HouseType(aHouseID: Integer): Integer;
     function HouseDamage(aHouseID: Integer): Integer;
+    function KaMRandom: Single;
+    function KaMRandomI(aMax:Integer): Integer;
   end;
 
   TKMScriptActions = class
@@ -60,7 +62,7 @@ type
 
 implementation
 uses KM_AI, KM_Houses, KM_Terrain, KM_Game, KM_CommonTypes, KM_PlayersCollection,
-  KM_TextLibrary, KM_ResourceUnit, KM_ResourceResource, KM_ResourceHouse, KM_Log;
+  KM_TextLibrary, KM_ResourceUnit, KM_ResourceResource, KM_ResourceHouse, KM_Log, KM_Utils;
 
 
   //We need to check all input parameters as could be wildly off range due to
@@ -239,6 +241,18 @@ begin
     Result := H.GetDamage
   else
     Result := -1;
+end;
+
+
+function TKMScriptStates.KaMRandom: Single;
+begin
+  Result := KaMRandom;
+end;
+
+
+function TKMScriptStates.KaMRandomI(aMax:Integer): Integer;
+begin
+  Result := KaMRandom(aMax);
 end;
 
 
