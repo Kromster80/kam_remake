@@ -5,7 +5,8 @@ begin
   if aIndex = 4 then Actions.ShowMsg(0, 4);
 end;
 
+procedure OnTick;
 begin
   if States.GameTime = 20 then 
     Actions.ShowMsg(0, 1);
-end.
+end;

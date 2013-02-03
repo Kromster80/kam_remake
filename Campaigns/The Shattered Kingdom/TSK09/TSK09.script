@@ -1,4 +1,5 @@
+procedure OnTick;
 begin
   if States.GameTime = 95000 then
     Actions.ShowMsg(0, 0);
-end.
+end;

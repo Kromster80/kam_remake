@@ -36,6 +36,7 @@ type
     procedure LoadFromFile(aFileName: string);
     procedure ExportDataToText;
 
+    procedure ProcTick;
     procedure ProcMissionStart;
     procedure ProcHouseBuilt(aHouseType: THouseType; aOwner: TPlayerIndex);
     procedure ProcHouseLost(aHouseType: THouseType; aOwner: TPlayerIndex; aFullyBuilt:Boolean);
@@ -206,6 +207,7 @@ begin
   Result := True;
 
   //todo: Sender.MakeError reports the wrong line number so the user has no idea what the error is
+  //todo: Refactor this so it isn't so long and ugly xD
 
   //Check if the proc is the proc we want
   if (Proc.Name = 'ONHOUSEDESTROYED') then
@@ -255,7 +257,7 @@ begin
       Result := False;
       Exit;
     end;
-  if Proc.Name = 'ONMISSIONSTART' then
+  if (Proc.Name = 'ONMISSIONSTART') or (Proc.Name = 'ONTICK') then
     //Check if the proc has the correct params
     if not ExportCheck(Sender, Proc, [0], []) then
     begin
@@ -278,7 +280,7 @@ begin
     Compiler.OnUseVariable := ScriptOnUseVariable;
     Compiler.OnExportCheck := ScriptOnExportCheck; // Assign the onExportCheck event
 
-    //Compiler.AllowNoEnd
+    Compiler.AllowNoEnd := True; //Scripts only use event handlers now, main section is unused
 
     if not Compiler.Compile(fScriptCode) then  // Compile the Pascal script into bytecode
     begin
@@ -393,6 +395,17 @@ var
 begin
   //Check if event handler (procedure) exists and run it
   TestFunc := TKMEvent(fExec.GetProcAsMethodN('ONMISSIONSTART'));
+  if @TestFunc <> nil then
+    TestFunc;
+end;
+
+
+procedure TKMScripting.ProcTick;
+var
+  TestFunc: TKMEvent;
+begin
+  //Check if event handler (procedure) exists and run it
+  TestFunc := TKMEvent(fExec.GetProcAsMethodN('ONTICK'));
   if @TestFunc <> nil then
     TestFunc;
 end;
@@ -626,7 +639,7 @@ end;
 
 procedure TKMScripting.UpdateState;
 begin
-  fExec.RunScript;
+  ProcTick;
   fIDCache.UpdateState;
 end;
 
