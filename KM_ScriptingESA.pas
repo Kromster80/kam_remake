@@ -3,10 +3,42 @@ unit KM_ScriptingESA;
 interface
 uses
   Classes, Math, SysUtils, StrUtils,
-  KM_Defaults, KM_Points;
+  KM_Defaults, KM_Points, KM_Houses, KM_Units, KM_UnitGroups;
 
 
+//For caching unit/house/group IDs. Shared between States and Actions.
+//Because scripts runs the same on every computer (i.e. no access to MyPlayer)
+//we can safely use pointers within the cache
+const CACHE_SIZE = 16; //Too big means caching becomes slow
 type
+  TKMIDCache = class
+  private
+    fUnitCount: Byte;
+    fUnitLastAdded: Byte;
+    fUnitCache: array[0..CACHE_SIZE-1] of record
+                                            ID: Integer;
+                                            U: TKMUnit;
+                                          end;
+    fHouseCount: Byte;
+    fHouseLastAdded: Byte;
+    fHouseCache: array[0..CACHE_SIZE-1] of record
+                                             ID: Integer;
+                                             H: TKMHouse;
+                                           end;
+    fGroupCount: Byte;
+    fGroupLastAdded: Byte;
+    fGroupCache: array[0..CACHE_SIZE-1] of record
+                                             ID: Integer;
+                                             G: TKMUnitGroup;
+                                           end;
+
+  public
+    function GetUnit(aID:Integer): TKMUnit;
+    function GetHouse(aID:Integer): TKMHouse;
+    function GetGroup(aID:Integer): TKMUnitGroup;
+    procedure UpdateState;
+  end;
+
   //Two classes exposed to scripting States and Actions
 
   //All functions can be split into these three categories:
@@ -20,8 +52,10 @@ type
   //3. Add method name to Runtime (TKMScripting.LinkRuntime)
   TKMScriptStates = class
   private
+    fIDCache: TKMIDCache;
     procedure LogError(aFuncName: string; const aValues: array of Integer);
   public
+    constructor Create(aIDCache: TKMIDCache);
     function ArmyCount(aPlayer: Byte): Integer;
     function CitizenCount(aPlayer: Byte): Integer;
     function GameTime: Cardinal;
@@ -34,6 +68,7 @@ type
     function PlayerName(aPlayer: Byte): AnsiString;
     function PlayerEnabled(aPlayer: Byte): Boolean;
     function HouseAt(aX, aY: Word): Integer;
+    function HouseDestroyed(aHouseID: Integer): Boolean;
     function HouseOwner(aHouseID: Integer): Integer;
     function HouseType(aHouseID: Integer): Integer;
     function HouseDamage(aHouseID: Integer): Integer;
@@ -43,8 +78,10 @@ type
 
   TKMScriptActions = class
   private
+    fIDCache: TKMIDCache;
     procedure LogError(aFuncName: string; const aValues: array of Integer);
   public
+    constructor Create(aIDCache: TKMIDCache);
     procedure Defeat(aPlayer: Word);
     procedure GiveGroup(aPlayer, aType, X,Y, aDir, aCount, aColumns: Word);
     procedure GiveUnit(aPlayer, aType, X,Y, aDir: Word);
@@ -61,7 +98,7 @@ type
 
 
 implementation
-uses KM_AI, KM_Houses, KM_Terrain, KM_Game, KM_CommonTypes, KM_PlayersCollection,
+uses KM_AI, KM_Terrain, KM_Game, KM_CommonTypes, KM_PlayersCollection,
   KM_TextLibrary, KM_ResourceUnit, KM_ResourceResource, KM_ResourceHouse, KM_Log, KM_Utils;
 
 
@@ -71,6 +108,13 @@ uses KM_AI, KM_Houses, KM_Terrain, KM_Game, KM_CommonTypes, KM_PlayersCollection
   // - report to player
 
 { TKMScriptStates }
+constructor TKMScriptStates.Create(aIDCache: TKMIDCache);
+begin
+  Inherited Create;
+  fIDCache := aIDCache;
+end;
+
+
 procedure TKMScriptStates.LogError(aFuncName: string; const aValues: array of Integer);
 var
   I: Integer;
@@ -211,52 +255,87 @@ begin
 end;
 
 
+function TKMScriptStates.HouseDestroyed(aHouseID: Integer): Boolean;
+var H: TKMHouse;
+begin
+  Result := True;
+  if aHouseID > 0 then
+  begin
+    H := fIDCache.GetHouse(aHouseID);
+    if H <> nil then
+      Result := H.IsDestroyed;
+  end
+  else
+    LogError('States.HouseDestroyed', [aHouseID]);
+end;
+
+
 function TKMScriptStates.HouseOwner(aHouseID: Integer): Integer;
 var H: TKMHouse;
 begin
-  H := fPlayers.GetHouseByID(aHouseID);
-  if (H <> nil) and not H.IsDestroyed then
-    Result := H.Owner
+  Result := -1;
+  if aHouseID > 0 then
+  begin
+    H := fIDCache.GetHouse(aHouseID);
+    if H <> nil then
+      Result := H.Owner;
+  end
   else
-    Result := -1;
+    LogError('States.HouseOwner', [aHouseID]);
 end;
 
 
 function TKMScriptStates.HouseType(aHouseID: Integer): Integer;
 var H: TKMHouse;
 begin
-  H := fPlayers.GetHouseByID(aHouseID);
-  if (H <> nil) and not H.IsDestroyed then
-    Result := HouseTypeToIndex[H.HouseType]-1
+  Result := -1;
+  if aHouseID > 0 then
+  begin
+    H := fIDCache.GetHouse(aHouseID);
+    if H <> nil then
+      Result := HouseTypeToIndex[H.HouseType]-1;
+  end
   else
-    Result := -1;
+    LogError('States.HouseType', [aHouseID]);
 end;
 
 
 function TKMScriptStates.HouseDamage(aHouseID: Integer): Integer;
 var H: TKMHouse;
 begin
-  H := fPlayers.GetHouseByID(aHouseID);
-  if (H <> nil) and not H.IsDestroyed then
-    Result := H.GetDamage
+  Result := -1;
+  if aHouseID > 0 then
+  begin
+    H := fIDCache.GetHouse(aHouseID);
+    if H <> nil then
+      Result := H.GetDamage;
+  end
   else
-    Result := -1;
+    LogError('States.HouseDamage', [aHouseID]);
 end;
 
 
 function TKMScriptStates.KaMRandom: Single;
 begin
-  Result := KaMRandom;
+  Result := KM_Utils.KaMRandom;
 end;
 
 
 function TKMScriptStates.KaMRandomI(aMax:Integer): Integer;
 begin
-  Result := KaMRandom(aMax);
+  //No parameters to check, any integer is fine (even negative)
+  Result := KM_Utils.KaMRandom(aMax);
 end;
 
 
 { TKMScriptActions }
+constructor TKMScriptActions.Create(aIDCache: TKMIDCache);
+begin
+  Inherited Create;
+  fIDCache := aIDCache;
+end;
+
+
 procedure TKMScriptActions.LogError(aFuncName: string; const aValues: array of Integer);
 var
   I: Integer;
@@ -375,10 +454,14 @@ end;
 procedure TKMScriptActions.AddHouseDamage(aHouseID: Integer; aDamage: Word);
 var H: TKMHouse;
 begin
-  H := fPlayers.GetHouseByID(aHouseID);
-  if (H <> nil) and not H.IsDestroyed then
-    H.AddDamage(-1, aDamage);
-  //Silently ignore if house doesn't exist
+  if aHouseID > 0 then
+  begin
+    H := fIDCache.GetHouse(aHouseID);
+    if H <> nil then
+      H.AddDamage(-1, aDamage);
+  end
+  else
+    LogError('Actions.AddHouseDamage', [aHouseID, aDamage]);
 end;
 
 
@@ -388,10 +471,10 @@ var
   Res: TResourceType;
 begin
   Res := ResourceIndexToType[aType];
-  if (aType in [Low(ResourceIndexToType)..High(ResourceIndexToType)]) then
+  if (aType in [Low(ResourceIndexToType)..High(ResourceIndexToType)]) and (aHouseID > 0) then
   begin
-    H := fPlayers.GetHouseByID(aHouseID);
-    if (H <> nil) and not H.IsDestroyed then
+    H := fIDCache.GetHouse(aHouseID);
+    if H <> nil then
     begin
       if H is TKMHouseBarracks then
       begin
@@ -405,6 +488,7 @@ begin
         //todo: @Krom: We should show an error if adding trunks to tannery, House needs methods like CanTakeWare, etc. Overfilling should be silently ignored IMO, since you might want to ensure a house is completely full by adding 5
         H.ResAddToIn(Res, aCount, True);
     end;
+    //Silently ignore if house doesn't exist
   end
   else
     LogError('Actions.GiveWaresToHouse', [aHouseID, aType, aCount]);
@@ -422,6 +506,128 @@ procedure TKMScriptActions.SetOverlayTextFormatted(aPlayer, aIndex: Word; const 
 begin
   if aPlayer = MyPlayer.PlayerIndex then
     fGame.GamePlayInterface.SetScriptedOverlay(Format(fTextLibrary.GetMissionString(aIndex), Args));
+end;
+
+
+{TKMIDCache}
+function TKMIDCache.GetUnit(aID:Integer): TKMUnit;
+var I, NewItem: Shortint;
+begin
+  for I:=0 to fUnitCount-1 do
+    if fUnitCache[i].ID = aID then
+    begin
+      Result := fUnitCache[i].U;
+      Exit;
+    end;
+
+  //Not found so do lookup and add it to the cache
+  if fUnitCount < CACHE_SIZE then
+  begin
+    NewItem := fUnitCount;
+    Inc(fUnitCount);
+  end
+  else
+  begin
+    //Cache full, overwrite the oldest item
+    NewItem := fUnitLastAdded;
+    Inc(fUnitLastAdded);
+    if fUnitLastAdded = CACHE_SIZE then fUnitLastAdded := 0;
+  end;
+
+  Result := fPlayers.GetUnitByID(aID);
+  if (Result <> nil) and Result.IsDead then
+    Result := nil;
+
+  fUnitCache[NewItem].ID := aID;
+  fUnitCache[NewItem].U := Result.GetUnitPointer;
+end;
+
+
+function TKMIDCache.GetHouse(aID:Integer): TKMHouse;
+var I, NewItem: Shortint;
+begin
+  for I:=0 to fHouseCount-1 do
+    if fHouseCache[i].ID = aID then
+    begin
+      Result := fHouseCache[i].H;
+      Exit;
+    end;
+
+  //Not found so do lookup and add it to the cache
+  if fHouseCount < CACHE_SIZE then
+  begin
+    NewItem := fHouseCount;
+    Inc(fHouseCount);
+  end
+  else
+  begin
+    //Cache full, overwrite the oldest item
+    NewItem := fHouseLastAdded;
+    Inc(fHouseLastAdded);
+    if fHouseLastAdded = CACHE_SIZE then fHouseLastAdded := 0;
+  end;
+
+  Result := fPlayers.GetHouseByID(aID);
+  if (Result <> nil) and Result.IsDestroyed then
+    Result := nil;
+
+  fHouseCache[NewItem].ID := aID;
+  fHouseCache[NewItem].H := Result.GetHousePointer;
+end;
+
+
+function TKMIDCache.GetGroup(aID:Integer): TKMUnitGroup;
+var I, NewItem: Shortint;
+begin
+  for I:=0 to fGroupCount-1 do
+    if fGroupCache[i].ID = aID then
+    begin
+      Result := fGroupCache[i].G;
+      Exit;
+    end;
+
+  //Not found so do lookup and add it to the cache
+  if fGroupCount < CACHE_SIZE then
+  begin
+    NewItem := fGroupCount;
+    Inc(fGroupCount);
+  end
+  else
+  begin
+    //Cache full, overwrite the oldest item
+    NewItem := fGroupLastAdded;
+    Inc(fGroupLastAdded);
+    if fGroupLastAdded = CACHE_SIZE then fGroupLastAdded := 0;
+  end;
+
+  Result := fPlayers.GetGroupByID(aID);
+  if (Result <> nil) and Result.IsDead then
+    Result := nil;
+
+  fGroupCache[NewItem].ID := aID;
+  fGroupCache[NewItem].G := Result.GetGroupPointer;
+end;
+
+
+procedure TKMIDCache.UpdateState;
+var I: Integer;
+begin
+  //Clear out dead IDs every now and again
+  //Leave them in the cache as nils, because we still might need to lookup that ID
+  if fGame.GameTickCount mod 11 = 0 then
+  begin
+    for I:=0 to fUnitCount-1 do
+      if (fUnitCache[i].U <> nil) and fUnitCache[i].U.IsDead then
+        fPlayers.CleanUpUnitPointer(fUnitCache[i].U);
+
+    for I:=0 to fHouseCount-1 do
+      if (fHouseCache[i].H <> nil) and fHouseCache[i].H.IsDestroyed then
+        fPlayers.CleanUpHousePointer(fHouseCache[i].H);
+
+    for I:=0 to fGroupCount-1 do
+      if (fGroupCache[i].G <> nil) and fGroupCache[i].G.IsDead then
+        fPlayers.CleanUpGroupPointer(fGroupCache[i].G);
+  end;
 end;
 
 

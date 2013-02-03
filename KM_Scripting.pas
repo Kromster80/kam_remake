@@ -21,6 +21,7 @@ type
 
     fStates: TKMScriptStates;
     fActions: TKMScriptActions;
+    fIDCache: TKMIDCache;
 
     function ScriptOnUses(Sender: TPSPascalCompiler; const Name: AnsiString): Boolean;
     procedure ScriptOnUseVariable(Sender: TPSPascalCompiler; VarType: TPSVariableType; VarNo: Longint; ProcNo, Position: Cardinal; const PropData: tbtString);
@@ -66,8 +67,9 @@ constructor TKMScripting.Create;
 begin
   inherited;
   fExec := TPSExec.Create;  // Create an instance of the executer.
-  fStates := TKMScriptStates.Create;
-  fActions := TKMScriptActions.Create;
+  fIDCache := TKMIDCache.Create;
+  fStates := TKMScriptStates.Create(fIDCache);
+  fActions := TKMScriptActions.Create(fIDCache);
 end;
 
 
@@ -75,6 +77,7 @@ destructor TKMScripting.Destroy;
 begin
   FreeAndNil(fStates);
   FreeAndNil(fActions);
+  FreeAndNil(fIDCache);
   FreeAndNil(fExec);
   inherited;
 end;
@@ -131,6 +134,7 @@ begin
       RegisterMethod('function PlayerName(aPlayer: Byte): AnsiString');
       RegisterMethod('function PlayerEnabled(aPlayer: Byte): Boolean');
       RegisterMethod('function HouseAt(aX, aY: Word): Integer');
+      RegisterMethod('function HouseDestroyed(aHouseID: Integer): Boolean');
       RegisterMethod('function HouseOwner(aHouseID: Integer): Integer');
       RegisterMethod('function HouseType(aHouseID: Integer): Integer');
       RegisterMethod('function HouseDamage(aHouseID: Integer): Integer');
@@ -269,6 +273,7 @@ begin
     RegisterMethod(@TKMScriptStates.PlayerEnabled, 'PLAYERENABLED');
     RegisterMethod(@TKMScriptStates.HouseAt, 'HOUSEAT');
     RegisterMethod(@TKMScriptStates.HouseOwner, 'HOUSEOWNER');
+    RegisterMethod(@TKMScriptStates.HouseDestroyed, 'HOUSEDESTROYED');
     RegisterMethod(@TKMScriptStates.HouseType, 'HOUSETYPE');
     RegisterMethod(@TKMScriptStates.HouseDamage, 'HOUSEDAMAGE');
     RegisterMethod(@TKMScriptStates.KaMRandom, 'KAMRANDOM');
@@ -524,6 +529,7 @@ end;
 procedure TKMScripting.UpdateState;
 begin
   fExec.RunScript;
+  fIDCache.UpdateState;
 end;
 
 
