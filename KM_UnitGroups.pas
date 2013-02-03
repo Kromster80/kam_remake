@@ -654,6 +654,7 @@ begin
         else
           //@Lewin: Perhaps archers should stay still and attack only those enemies they can
           //without walking to/from them
+          //@Krom: Yes that's probably best
     end
   else
   begin

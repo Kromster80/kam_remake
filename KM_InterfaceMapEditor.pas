@@ -1045,6 +1045,7 @@ begin
       TrackBar_RecruitFactor := TKMTrackBar.Create(Panel_Defence, 0, 190, TB_WIDTH, 1, 20);
       TrackBar_RecruitFactor.Caption := 'Recruits per Barracks';
       TrackBar_RecruitFactor.Hint := 'How many recruits AI should have in barracks'; //@Lewin: Please check me on this one
+                                                                                     //@Krom: That's correct
       TrackBar_RecruitFactor.OnClick := Town_DefenceChange;
 
       Button_EditFormations := TKMButton.Create(Panel_Defence, 0, 235, TB_WIDTH, 25, 'Edit formations', bsGame);
@@ -3126,6 +3127,7 @@ begin
   //@Lewin: Looks like we can't achieve it without changing(adding) mission scripts.. discussed in ICQ.
   //@Lewin: See SET_USER_PLAYER command, it allows to set player as human selectable. SET_AI_PLAYER allows player to be AI. Both can be combined.
   //        Do you think we need option #2 support? (disableable AIs)
+  //@Krom: Yes I guess so, since some coop and scripted missions you wouldn't want it to be possible for an AI to take a human's place
 
   PlayerId := TKMCheckBox(Sender).Tag;
 

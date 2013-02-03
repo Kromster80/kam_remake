@@ -520,6 +520,12 @@ end;
 //       your allies village, but you couldn't see it at the start, you had to walk there)
 //       I think it would be bad to change it. Maybe it could be a script option eventually.
 //@Lewin: Do you have such missions at hand to show? Makes sense to share info between players ..
+//@Krom: The Dark Lord's mission "Race Against the Clock" (included in SP list) has an allied force which "arrives" after a certain time
+//       to save you. So they are meant to walk out of the unexplored area, but in the Remake you can see the allied force from the start.
+//       There's also my mission "The Island" (on my mission site) where you have to find an allied village then save it.
+//       I imagine there are other examples now with scripted missions where you want allies in unexplored areas.
+//       I think a command like !DISABLE_FOW_SHARING <PlayerID> would be useful. Maybe there are even are cases where you want to share
+//       FOW with enemies in some scripted quest or something. I'm not sure if we can make these things possible without complicating it.
 procedure TKMPlayersCollection.RevealForTeam(aPlayer: TPlayerIndex; Pos: TKMPoint; Radius, Amount: Word);
 var I: Integer;
 begin

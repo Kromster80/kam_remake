@@ -1395,14 +1395,11 @@ end;
 
 
 function TKMTerrain.CanFindFishingWater(aLoc: TKMPoint; aRadius: Integer): Boolean;
-//@Krom: Do you remember why we can't fish from map edges?
-//@Lewin: I dont remember writing that line and I have no idea why it could be so. Feel free to reset it to default
-const Ins=2; //2..Map-2
 var I,K:integer;
 begin
   Result := False;
-  for I := max(aLoc.Y - aRadius, Ins) to Min(aLoc.Y + aRadius, fMapY - Ins) do
-  for K := max(aLoc.X - aRadius, Ins) to Min(aLoc.X + aRadius, fMapX - Ins) do
+  for I := max(aLoc.Y - aRadius, 1) to Min(aLoc.Y + aRadius, fMapY-1) do
+  for K := max(aLoc.X - aRadius, 1) to Min(aLoc.X + aRadius, fMapX-1) do
     if (KMLengthDiag(aLoc, KMPoint(K,I)) <= aRadius)
     and TileIsWater(K,I) then
     begin

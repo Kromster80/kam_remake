@@ -237,6 +237,7 @@ end;
 
 //Order of positions is important (AI fills them with troops from 0 to N)
 //@Lewin: Do we allow to delete DP during game? Probably yes, for scripting needs..
+//@Krom: Probably, but we need to make sure the group that took the DP gets reassigned correctly
 procedure TAIDefencePositions.Delete(aIndex: Integer);
 begin
   Assert(InRange(aIndex, 0, Count - 1));
