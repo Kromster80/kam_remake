@@ -1203,10 +1203,8 @@ begin
     Exit;
   end;
 
-  //Signal to our owner that we have died (except animals)
-  Assert(Assigned(OnDied) or (Self is TKMUnitAnimal), 'OnDied unassigned');
-  if not (Self is TKMUnitAnimal) then
-    OnDied(Self);
+  //Signal to our owner that we have died (doesn't have to be assigned since f.e. animals don't use it)
+  if Assigned(OnDied) then OnDied(Self);
 
   fThought := th_None; //Reset thought
   SetAction(nil); //Dispose of current action (TTaskDie will set it to LockedStay)
