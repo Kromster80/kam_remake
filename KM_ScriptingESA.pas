@@ -64,6 +64,7 @@ type
     function HouseTypeCount(aPlayer, aHouseType: Byte): Integer;
     function PlayerCount: Integer;
     function PlayerDefeated(aPlayer: Byte): Boolean;
+    function PlayerVictorious(aPlayer: Byte): Boolean;
     function UnitCount(aPlayer: Byte): Integer;
     function UnitTypeCount(aPlayer, aUnitType: Byte): Integer;
     function PlayerName(aPlayer: Byte): AnsiString;
@@ -91,6 +92,7 @@ type
   public
     constructor Create(aIDCache: TKMIDCache);
     procedure Defeat(aPlayer: Word);
+    procedure Victory(const aVictors: array of Integer; aTeamVictory: Boolean);
     function GiveGroup(aPlayer, aType, X,Y, aDir, aCount, aColumns: Word): Integer;
     function GiveUnit(aPlayer, aType, X,Y, aDir: Word): Integer;
     procedure GiveWares(aPlayer, aType, aCount: Word);
@@ -99,11 +101,13 @@ type
     procedure ShowMsgFormatted(aPlayer, aIndex: Word; const Args: array of const);
     procedure UnlockHouse(aPlayer, aHouseType: Word);
     procedure AddHouseDamage(aHouseID: Integer; aDamage: Word);
+    procedure DestroyHouse(aHouseID: Integer);
     procedure GiveWaresToHouse(aHouseID: Integer; aType, aCount: Word);
     procedure SetOverlayText(aPlayer, aIndex: Word);
     procedure SetOverlayTextFormatted(aPlayer, aIndex: Word; const Args: array of const);
     procedure SetUnitHunger(aUnitID, aHungerLevel: Integer);
     procedure SetUnitDirection(aUnitID, aDirection: Integer);
+    procedure KillUnit(aUnitID: Integer);
     procedure GroupOrderWalk(aGroupID: Integer; X, Y, aDirection: Word);
     procedure GroupOrderAttackHouse(aGroupID, aHouseID: Integer);
     procedure GroupOrderAttackUnit(aGroupID, aUnitID: Integer);
@@ -216,6 +220,18 @@ begin
   begin
     Result := False;
     LogError('States.PlayerDefeated', [aPlayer]);
+  end;
+end;
+
+
+function TKMScriptStates.PlayerVictorious(aPlayer: Byte): Boolean;
+begin
+  if InRange(aPlayer, 0, fPlayers.Count - 1) then
+    Result := (fPlayers[aPlayer].AI.WonOrLost = wol_Won)
+  else
+  begin
+    Result := False;
+    LogError('States.PlayerVictorious', [aPlayer]);
   end;
 end;
 
@@ -466,6 +482,36 @@ begin
 end;
 
 
+//Sets all player IDs in aVictors to victorious, and all their team members if aTeamVictory is true.
+//All other players are set to defeated.
+procedure TKMScriptActions.Victory(const aVictors: array of Integer; aTeamVictory: Boolean);
+var I,K: Integer;
+begin
+  //Verify all input parameters
+  for I:=0 to Length(aVictors)-1 do
+  if not InRange(aVictors[I], 0, fPlayers.Count - 1) then
+  begin
+    LogError('Actions.Victory', [aVictors[I]]);
+    Exit;
+  end;
+
+  for I:=0 to Length(aVictors)-1 do
+    if fPlayers[aVictors[I]].Enabled then
+    begin
+      fPlayers[aVictors[I]].AI.Victory;
+      if aTeamVictory then
+        for K:=0 to fPlayers.Count-1 do
+          if fPlayers[K].Enabled and (fPlayers[aVictors[I]].Alliances[K] = at_Ally) then
+            fPlayers[K].AI.Victory;
+    end;
+
+  //All other players get defeated
+  for I:=0 to fPlayers.Count-1 do
+    if fPlayers[I].Enabled and (fPlayers[I].AI.WonOrLost = wol_None) then
+      fPlayers[I].AI.Defeat;
+end;
+
+
 function TKMScriptActions.GiveGroup(aPlayer, aType, X,Y, aDir, aCount, aColumns: Word): Integer;
 var G: TKMUnitGroup;
 begin
@@ -585,6 +631,20 @@ begin
 end;
 
 
+procedure TKMScriptActions.DestroyHouse(aHouseID: Integer);
+var H: TKMHouse;
+begin
+  if aHouseID > 0 then
+  begin
+    H := fIDCache.GetHouse(aHouseID);
+    if H <> nil then
+      H.DemolishHouse(-1, False);
+  end
+  else
+    LogError('Actions.DestroyHouse', [aHouseID]);
+end;
+
+
 procedure TKMScriptActions.GiveWaresToHouse(aHouseID: Integer; aType, aCount: Word);
 var
   H: TKMHouse;
@@ -655,6 +715,20 @@ begin
   end
   else
     LogError('Actions.SetUnitDirection', [aUnitID, aDirection]);
+end;
+
+
+procedure TKMScriptActions.KillUnit(aUnitID: Integer);
+var U: TKMUnit;
+begin
+  if (aUnitID > 0) then
+  begin
+    U := fIDCache.GetUnit(aUnitID);
+    if U <> nil then
+      U.KillUnit;
+  end
+  else
+    LogError('Actions.KillUnit', [aUnitID]);
 end;
 
 

@@ -31,6 +31,7 @@ type
     property General: TKMGeneral read fGeneral;
 
     procedure Defeat; //Defeat the player, this is not reversible
+    procedure Victory; //Set this player as victorious, this is not reversible
     property WonOrLost: TWonOrLost read fWonOrLost;
     procedure OwnerUpdate(aPlayer: TPlayerIndex);
     procedure HouseAttackNotification(aHouse: TKMHouse; aAttacker: TKMUnitWarrior);
@@ -77,9 +78,13 @@ end;
 //Defeated player remains in place, but does no actions
 procedure TKMPlayerAI.Defeat;
 begin
-  if fWonOrLost <> wol_Lost then
+  if fWonOrLost = wol_None then
   begin
     fWonOrLost := wol_Lost;
+
+    //Let everyone know in MP mode
+    if not fGame.IsReplay and (fGame.IsMultiplayer or (MyPlayer = fPlayers[fOwner])) then
+      fGame.PlayerDefeat(fOwner);
 
     //Script may have additional event processors
     fScripting.ProcPlayerDefeated(fOwner);
@@ -87,6 +92,27 @@ begin
 end;
 
 
+//Set player to victorious (from scripting), this is not reversible.
+//You probably need to make sure all other players are defeated or victorious too
+//otherwise it will look odd.
+procedure TKMPlayerAI.Victory;
+begin
+  if fWonOrLost = wol_None then
+  begin
+    fWonOrLost := wol_Won;
+
+    //Let everyone know in MP mode
+    if not fGame.IsReplay and (fGame.IsMultiplayer or (MyPlayer = fPlayers[fOwner])) then
+      fGame.PlayerVictory(fOwner);
+
+    //Script may have additional event processors
+    fScripting.ProcPlayerVictory(fOwner);
+  end;
+end;
+
+
+//@Krom: What's this procedure for? Doesn't CheckGoals take care of defeating the player?
+//       This looks unnecessary to me. UpdateState mentions this being something about events.
 procedure TKMPlayerAI.CheckDefeated;
 var
   DoDefeat: Boolean;
@@ -178,26 +204,17 @@ begin
         SurvivalSatisfied := False;
     end;
 
-  //Now we know if player has been defeated or won
-  if not SurvivalSatisfied then
-    fWonOrLost := wol_Lost
-  else
-    if VictorySatisfied then
-      fWonOrLost := wol_Won;
-
   //You can't win and lose at the same time. In KaM defeats override victories, except
   //when there are no goals defined, in which case you win for some weird reason...
   //But given that having no goals is pretty pointless we'll make defeat override so you can't
   //win battle missions by waiting for your troops to simultainiously starve to death.
 
-  //Let everyone know in MP mode
-  if not fGame.IsReplay
-  and (fGame.IsMultiplayer or (MyPlayer = fPlayers[fOwner])) then
-    if not SurvivalSatisfied then
-      fGame.PlayerDefeat(fOwner)
-    else
+  //Now we know if player has been defeated or won
+  if not SurvivalSatisfied then
+    Defeat
+  else
     if VictorySatisfied then
-      fGame.PlayerVictory(fOwner);
+      Victory;
 end;
 
 

@@ -46,6 +46,7 @@ type
     procedure ProcUnitKilled(aUnitType: TUnitType; aOwner, aKillerOwner: TPlayerIndex);
     procedure ProcWarriorEquipped(aUnitType: TUnitType; aOwner: TPlayerIndex);
     procedure ProcPlayerDefeated(aPlayer: TPlayerIndex);
+    procedure ProcPlayerVictory(aPlayer: TPlayerIndex);
 
     procedure Save(SaveStream: TKMemoryStream);
     procedure Load(LoadStream: TKMemoryStream);
@@ -137,6 +138,7 @@ begin
       RegisterMethod('function HouseTypeCount(aPlayer, aHouseType: Byte): Integer');
       RegisterMethod('function PlayerCount: Integer');
       RegisterMethod('function PlayerDefeated(aPlayer: Byte): Boolean');
+      RegisterMethod('function PlayerVictorious(aPlayer: Byte): Boolean');
       RegisterMethod('function UnitCount(aPlayer: Byte): Integer');
       RegisterMethod('function UnitTypeCount(aPlayer, aUnitType: Byte): Integer');
       RegisterMethod('function PlayerName(aPlayer: Byte): AnsiString');
@@ -160,6 +162,7 @@ begin
     with Sender.AddClassN(nil, fActions.ClassName) do
     begin
       RegisterMethod('procedure Defeat(aPlayer: Word)');
+      RegisterMethod('procedure Victory(const aVictors: array of Integer; aTeamVictory: Boolean)');
       RegisterMethod('function GiveGroup(aPlayer, aType, X, Y, aDir, aCount, aColumns: Word): Integer');
       RegisterMethod('function GiveUnit(aPlayer, aType, X,Y, aDir: Word): Integer');
       RegisterMethod('procedure GiveWares(aPlayer, aType, aCount: Word)');
@@ -168,11 +171,13 @@ begin
       RegisterMethod('procedure ShowMsgFormatted(aPlayer, aIndex: Word; const Args: array of const)');
       RegisterMethod('procedure UnlockHouse(aPlayer, aHouseType: Word)');
       RegisterMethod('procedure AddHouseDamage(aHouseID: Integer; aDamage: Word)');
+      RegisterMethod('procedure DestroyHouse(aHouseID: Integer)');
       RegisterMethod('procedure GiveWaresToHouse(aHouseID: Integer; aType, aCount: Word)');
       RegisterMethod('procedure SetOverlayText(aPlayer, aIndex: Word)');
       RegisterMethod('procedure SetOverlayTextFormatted(aPlayer, aIndex: Word; const Args: array of const)');
       RegisterMethod('procedure SetUnitHunger(aUnitID, aHungerLevel: Integer)');
       RegisterMethod('procedure SetUnitDirection(aUnitID, aDirection: Integer)');
+      RegisterMethod('procedure KillUnit(aUnitID: Integer)');
       RegisterMethod('procedure GroupOrderWalk(aGroupID: Integer; X, Y, aDirection: Word)');
       RegisterMethod('procedure GroupOrderAttackHouse(aGroupID, aHouseID: Integer)');
       RegisterMethod('procedure GroupOrderAttackUnit(aGroupID, aUnitID: Integer)');
@@ -248,7 +253,7 @@ begin
       Result := False;
       Exit;
     end;
-  if Proc.Name = 'ONPLAYERDEFEATED' then
+  if (Proc.Name = 'ONPLAYERDEFEATED') and (Proc.Name = 'ONPLAYERVICTORY') then
     //Check if the proc has the correct params
     if not ExportCheck(Sender, Proc, [0, btS32], [pmIn]) then
     begin
@@ -320,6 +325,7 @@ begin
     RegisterMethod(@TKMScriptStates.HouseTypeCount, 'HOUSETYPECOUNT');
     RegisterMethod(@TKMScriptStates.PlayerCount, 'PLAYERCOUNT');
     RegisterMethod(@TKMScriptStates.PlayerDefeated, 'PLAYERDEFEATED');
+    RegisterMethod(@TKMScriptStates.PlayerVictorious, 'PLAYERVICTORIOUS');
     RegisterMethod(@TKMScriptStates.UnitCount, 'UNITCOUNT');
     RegisterMethod(@TKMScriptStates.UnitTypeCount, 'UNITTYPECOUNT');
     RegisterMethod(@TKMScriptStates.PlayerName, 'PLAYERNAME');
@@ -343,6 +349,7 @@ begin
   with ClassImp.Add(TKMScriptActions) do
   begin
     RegisterMethod(@TKMScriptActions.Defeat, 'DEFEAT');
+    RegisterMethod(@TKMScriptActions.Victory, 'VICTORY');
     RegisterMethod(@TKMScriptActions.GiveGroup, 'GIVEGROUP');
     RegisterMethod(@TKMScriptActions.GiveUnit, 'GIVEUNIT');
     RegisterMethod(@TKMScriptActions.GiveWares, 'GIVEWARES');
@@ -351,11 +358,13 @@ begin
     RegisterMethod(@TKMScriptActions.ShowMsgFormatted, 'SHOWMSGFORMATTED');
     RegisterMethod(@TKMScriptActions.UnlockHouse, 'UNLOCKHOUSE');
     RegisterMethod(@TKMScriptActions.AddHouseDamage, 'ADDHOUSEDAMAGE');
+    RegisterMethod(@TKMScriptActions.DestroyHouse, 'DESTROYHOUSE');
     RegisterMethod(@TKMScriptActions.GiveWaresToHouse, 'GIVEWARESTOHOUSE');
     RegisterMethod(@TKMScriptActions.SetOverlayText, 'SETOVERLAYTEXT');
     RegisterMethod(@TKMScriptActions.SetOverlayTextFormatted, 'SETOVERLAYTEXTFORMATTED');
     RegisterMethod(@TKMScriptActions.SetUnitHunger, 'SETUNITHUNGER');
     RegisterMethod(@TKMScriptActions.SetUnitDirection, 'SETUNITDIRECTION');
+    RegisterMethod(@TKMScriptActions.KillUnit, 'KILLUNIT');
     RegisterMethod(@TKMScriptActions.GroupOrderWalk, 'GROUPORDERWALK');
     RegisterMethod(@TKMScriptActions.GroupOrderAttackHouse, 'GROUPORDERATTACKHOUSE');
     RegisterMethod(@TKMScriptActions.GroupOrderAttackUnit, 'GROUPORDERATTACKUNIT');
@@ -501,6 +510,17 @@ var
 begin
   //Check if event handler (procedure) exists and run it
   TestFunc := TKMEvent1I(fExec.GetProcAsMethodN('ONPLAYERDEFEATED'));
+  if @TestFunc <> nil then
+    TestFunc(aPlayer);
+end;
+
+
+procedure TKMScripting.ProcPlayerVictory(aPlayer: TPlayerIndex);
+var
+  TestFunc: TKMEvent1I;
+begin
+  //Check if event handler (procedure) exists and run it
+  TestFunc := TKMEvent1I(fExec.GetProcAsMethodN('ONPLAYERVICTORY'));
   if @TestFunc <> nil then
     TestFunc(aPlayer);
 end;
