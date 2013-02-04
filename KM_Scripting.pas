@@ -157,11 +157,19 @@ begin
       RegisterMethod('function UnitHunger(aUnitID: Integer): Integer');
       RegisterMethod('function UnitMaxHunger: Integer');
       RegisterMethod('function UnitLowHunger: Integer');
+      RegisterMethod('function UnitsGroup(aUnitID: Integer): Integer');
       RegisterMethod('function GroupAt(aX, aY: Word): Integer');
       RegisterMethod('function GroupDead(aGroupID: Integer): Boolean');
       RegisterMethod('function GroupOwner(aGroupID: Integer): Integer');
       RegisterMethod('function GroupMemberCount(aGroupID: Integer): Integer');
       RegisterMethod('function GroupMember(aGroupID, aMemberIndex: Integer): Integer');
+      RegisterMethod('function UnitKilledCount(aPlayer, aUnitType: Byte): Integer');
+      RegisterMethod('function UnitLostCount(aPlayer, aUnitType: Byte): Integer');
+      RegisterMethod('function ResourceProducedCount(aPlayer, aResType: Byte): Integer');
+      RegisterMethod('function HouseRepair(aHouseID: Integer): Boolean');
+      RegisterMethod('function HouseDeliveryBlocked(aHouseID: Integer): Boolean');
+      RegisterMethod('function HouseResourceAmount(aHouseID, aResource: Integer): Integer');
+      RegisterMethod('function HouseHasOccupant(aHouseID: Integer): Boolean');
     end;
 
     with Sender.AddClassN(nil, fActions.ClassName) do
@@ -179,6 +187,7 @@ begin
       RegisterMethod('procedure AddHouseDamage(aHouseID: Integer; aDamage: Word)');
       RegisterMethod('procedure DestroyHouse(aHouseID: Integer)');
       RegisterMethod('procedure GiveWaresToHouse(aHouseID: Integer; aType, aCount: Word)');
+      RegisterMethod('procedure SetHouseRepair(aHouseID: Integer; aRepairEnabled: Boolean)');
       RegisterMethod('procedure SetOverlayText(aPlayer, aIndex: Word)');
       RegisterMethod('procedure SetOverlayTextFormatted(aPlayer, aIndex: Word; const Args: array of const)');
       RegisterMethod('procedure SetUnitHunger(aUnitID, aHungerLevel: Integer)');
@@ -187,6 +196,18 @@ begin
       RegisterMethod('procedure GroupOrderWalk(aGroupID: Integer; X, Y, aDirection: Word)');
       RegisterMethod('procedure GroupOrderAttackHouse(aGroupID, aHouseID: Integer)');
       RegisterMethod('procedure GroupOrderAttackUnit(aGroupID, aUnitID: Integer)');
+      RegisterMethod('procedure AddRoadPlan(aPlayer, X, Y: Word)');
+      RegisterMethod('procedure AddFieldPlan(aPlayer, X, Y: Word)');
+      RegisterMethod('procedure AddWinefieldPlan(aPlayer, X, Y: Word)');
+      RegisterMethod('procedure AddHousePlan(aPlayer, aHouseType, X, Y: Word)');
+      RegisterMethod('procedure SetHouseDeliveryBlocked(aHouseID: Integer; aDeliveryBlocked: Boolean)');
+      RegisterMethod('procedure SchoolAddToQueue(aHouseID: Integer; aUnitType: Integer; aCount: Integer)');
+      RegisterMethod('procedure BarracksEquip(aHouseID: Integer; aUnitType: Integer; aCount: Integer)');
+      RegisterMethod('procedure GroupOrderFood(aGroupID: Integer)');
+      RegisterMethod('procedure GroupOrderStorm(aGroupID: Integer)');
+      RegisterMethod('procedure GroupOrderHalt(aGroupID: Integer)');
+      RegisterMethod('procedure GroupOrderLink(aGroupID, aDestGroupID: Integer)');
+      RegisterMethod('procedure GroupSetFormation(aGroupID: Integer; aNumColumns: Byte)');
     end;
 
     //Register objects
@@ -351,11 +372,19 @@ begin
     RegisterMethod(@TKMScriptStates.UnitHunger, 'UNITHUNGER');
     RegisterMethod(@TKMScriptStates.UnitMaxHunger, 'UNITMAXHUNGER');
     RegisterMethod(@TKMScriptStates.UnitLowHunger, 'UNITLOWHUNGER');
+    RegisterMethod(@TKMScriptStates.UnitsGroup, 'UNITSGROUP');
     RegisterMethod(@TKMScriptStates.GroupAt, 'GROUPAT');
     RegisterMethod(@TKMScriptStates.GroupDead, 'GROUPDEAD');
     RegisterMethod(@TKMScriptStates.GroupOwner, 'GROUPOWNER');
     RegisterMethod(@TKMScriptStates.GroupMemberCount, 'GROUPMEMBERCOUNT');
     RegisterMethod(@TKMScriptStates.GroupMember, 'GROUPMEMBER');
+    RegisterMethod(@TKMScriptStates.UnitKilledCount, 'UNITKILLEDCOUNT');
+    RegisterMethod(@TKMScriptStates.UnitLostCount, 'UNITLOSTCOUNT');
+    RegisterMethod(@TKMScriptStates.ResourceProducedCount, 'RESOURCEPRODUCEDCOUNT');
+    RegisterMethod(@TKMScriptStates.HouseRepair, 'HOUSEREPAIR');
+    RegisterMethod(@TKMScriptStates.HouseDeliveryBlocked, 'HOUSEDELIVERYBLOCKED');
+    RegisterMethod(@TKMScriptStates.HouseResourceAmount, 'HOUSERESOURCEAMOUNT');
+    RegisterMethod(@TKMScriptStates.HouseHasOccupant, 'HOUSEHASOCCUPANT');
   end;
 
   with ClassImp.Add(TKMScriptActions) do
@@ -373,6 +402,7 @@ begin
     RegisterMethod(@TKMScriptActions.AddHouseDamage, 'ADDHOUSEDAMAGE');
     RegisterMethod(@TKMScriptActions.DestroyHouse, 'DESTROYHOUSE');
     RegisterMethod(@TKMScriptActions.GiveWaresToHouse, 'GIVEWARESTOHOUSE');
+    RegisterMethod(@TKMScriptActions.SetHouseRepair, 'SETHOUSEREPAIR');
     RegisterMethod(@TKMScriptActions.SetOverlayText, 'SETOVERLAYTEXT');
     RegisterMethod(@TKMScriptActions.SetOverlayTextFormatted, 'SETOVERLAYTEXTFORMATTED');
     RegisterMethod(@TKMScriptActions.SetUnitHunger, 'SETUNITHUNGER');
@@ -381,6 +411,18 @@ begin
     RegisterMethod(@TKMScriptActions.GroupOrderWalk, 'GROUPORDERWALK');
     RegisterMethod(@TKMScriptActions.GroupOrderAttackHouse, 'GROUPORDERATTACKHOUSE');
     RegisterMethod(@TKMScriptActions.GroupOrderAttackUnit, 'GROUPORDERATTACKUNIT');
+    RegisterMethod(@TKMScriptActions.AddRoadPlan, 'ADDROADPLAN');
+    RegisterMethod(@TKMScriptActions.AddFieldPlan, 'ADDFIELDPLAN');
+    RegisterMethod(@TKMScriptActions.AddWinefieldPlan, 'ADDWINEFIELDPLAN');
+    RegisterMethod(@TKMScriptActions.AddHousePlan, 'ADDHOUSEPLAN');
+    RegisterMethod(@TKMScriptActions.SetHouseDeliveryBlocked, 'SETHOUSEDELIVERYBLOCKED');
+    RegisterMethod(@TKMScriptActions.SchoolAddToQueue, 'SCHOOLADDTOQUEUE');
+    RegisterMethod(@TKMScriptActions.BarracksEquip, 'BARRACKSEQUIP');
+    RegisterMethod(@TKMScriptActions.GroupOrderFood, 'GROUPORDERFOOD');
+    RegisterMethod(@TKMScriptActions.GroupOrderStorm, 'GROUPORDERSTORM');
+    RegisterMethod(@TKMScriptActions.GroupOrderHalt, 'GROUPORDERHALT');
+    RegisterMethod(@TKMScriptActions.GroupOrderLink, 'GROUPORDERLINK');
+    RegisterMethod(@TKMScriptActions.GroupSetFormation, 'GROUPSETFORMATION');
   end;
 
   //Append classes info to Exec

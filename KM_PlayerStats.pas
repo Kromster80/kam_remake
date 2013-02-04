@@ -72,6 +72,8 @@ type
     function GetHouseWip(aType: THouseType): Integer; overload;
     function GetHouseWip(aType: array of THouseType): Integer; overload;
     function GetUnitQty(aType: TUnitType): Integer;
+    function GetUnitKilledQty(aType: TUnitType): Integer;
+    function GetUnitLostQty(aType: TUnitType): Integer;
     function GetResourceQty(aRT: TResourceType): Integer;
     function GetArmyCount: Integer;
     function GetCitizensCount(aIncludeRecruits:Boolean=True): Integer;
@@ -350,6 +352,18 @@ begin
                       dec(Result, Units[UT].Trained); //Trained soldiers use a recruit
                 end;
   end;
+end;
+
+
+function TKMPlayerStats.GetUnitKilledQty(aType: TUnitType): Integer;
+begin
+  Result := Units[aType].Killed;
+end;
+
+
+function TKMPlayerStats.GetUnitLostQty(aType: TUnitType): Integer;
+begin
+  Result := Units[aType].Lost;
 end;
 
 

@@ -56,33 +56,45 @@ type
     procedure LogError(aFuncName: string; const aValues: array of Integer);
   public
     constructor Create(aIDCache: TKMIDCache);
-    function ArmyCount(aPlayer: Byte): Integer;
-    function CitizenCount(aPlayer: Byte): Integer;
     function GameTime: Cardinal;
     function PeaceTime: Cardinal;
     function CheckAlliance(aPlayer1, aPlayer2: Byte): Boolean;
-    function HouseTypeCount(aPlayer, aHouseType: Byte): Integer;
     function PlayerCount: Integer;
     function PlayerDefeated(aPlayer: Byte): Boolean;
     function PlayerVictorious(aPlayer: Byte): Boolean;
-    function UnitCount(aPlayer: Byte): Integer;
-    function UnitTypeCount(aPlayer, aUnitType: Byte): Integer;
     function PlayerName(aPlayer: Byte): AnsiString;
     function PlayerEnabled(aPlayer: Byte): Boolean;
+    function KaMRandom: Single;
+    function KaMRandomI(aMax:Integer): Integer;
+
+    function ArmyCount(aPlayer: Byte): Integer;
+    function CitizenCount(aPlayer: Byte): Integer;
+    function UnitCount(aPlayer: Byte): Integer;
+    function UnitTypeCount(aPlayer, aUnitType: Byte): Integer;
+    function UnitKilledCount(aPlayer, aUnitType: Byte): Integer;
+    function UnitLostCount(aPlayer, aUnitType: Byte): Integer;
+    function ResourceProducedCount(aPlayer, aResType: Byte): Integer;
+    function HouseTypeCount(aPlayer, aHouseType: Byte): Integer;
+
     function HouseAt(aX, aY: Word): Integer;
     function HouseDestroyed(aHouseID: Integer): Boolean;
     function HouseOwner(aHouseID: Integer): Integer;
     function HouseType(aHouseID: Integer): Integer;
     function HouseDamage(aHouseID: Integer): Integer;
-    function KaMRandom: Single;
-    function KaMRandomI(aMax:Integer): Integer;
+    function HouseRepair(aHouseID: Integer): Boolean;
+    function HouseDeliveryBlocked(aHouseID: Integer): Boolean;
+    function HouseResourceAmount(aHouseID, aResource: Integer): Integer;
+    function HouseHasOccupant(aHouseID: Integer): Boolean;
+
     function UnitAt(aX, aY: Word): Integer;
     function UnitDead(aUnitID: Integer): Boolean;
     function UnitOwner(aUnitID: Integer): Integer;
+    function UnitsGroup(aUnitID: Integer): Integer;
     function UnitType(aUnitID: Integer): Integer;
     function UnitHunger(aUnitID: Integer): Integer;
     function UnitMaxHunger: Integer;
     function UnitLowHunger: Integer;
+
     function GroupAt(aX, aY: Word): Integer;
     function GroupDead(aGroupID: Integer): Boolean;
     function GroupOwner(aGroupID: Integer): Integer;
@@ -103,25 +115,43 @@ type
     function GiveAnimal(aType, X,Y: Word): Integer;
     procedure GiveWares(aPlayer, aType, aCount: Word);
     procedure RevealCircle(aPlayer, X, Y, aRadius: Word);
+    procedure UnlockHouse(aPlayer, aHouseType: Word);
+
     procedure ShowMsg(aPlayer, aIndex: Word);
     procedure ShowMsgFormatted(aPlayer, aIndex: Word; const Args: array of const);
-    procedure UnlockHouse(aPlayer, aHouseType: Word);
+    procedure SetOverlayText(aPlayer, aIndex: Word);
+    procedure SetOverlayTextFormatted(aPlayer, aIndex: Word; const Args: array of const);
+
+    procedure AddRoadPlan(aPlayer, X, Y: Word);
+    procedure AddFieldPlan(aPlayer, X, Y: Word);
+    procedure AddWinefieldPlan(aPlayer, X, Y: Word);
+    procedure AddHousePlan(aPlayer, aHouseType, X, Y: Word);
+
     procedure AddHouseDamage(aHouseID: Integer; aDamage: Word);
     procedure DestroyHouse(aHouseID: Integer);
     procedure GiveWaresToHouse(aHouseID: Integer; aType, aCount: Word);
-    procedure SetOverlayText(aPlayer, aIndex: Word);
-    procedure SetOverlayTextFormatted(aPlayer, aIndex: Word; const Args: array of const);
+    procedure SetHouseRepair(aHouseID: Integer; aRepairEnabled: Boolean);
+    procedure SetHouseDeliveryBlocked(aHouseID: Integer; aDeliveryBlocked: Boolean);
+    procedure SchoolAddToQueue(aHouseID: Integer; aUnitType: Integer; aCount: Integer);
+    procedure BarracksEquip(aHouseID: Integer; aUnitType: Integer; aCount: Integer);
+
     procedure SetUnitHunger(aUnitID, aHungerLevel: Integer);
     procedure SetUnitDirection(aUnitID, aDirection: Integer);
     procedure KillUnit(aUnitID: Integer);
+
     procedure GroupOrderWalk(aGroupID: Integer; X, Y, aDirection: Word);
     procedure GroupOrderAttackHouse(aGroupID, aHouseID: Integer);
     procedure GroupOrderAttackUnit(aGroupID, aUnitID: Integer);
+    procedure GroupOrderFood(aGroupID: Integer);
+    procedure GroupOrderStorm(aGroupID: Integer);
+    procedure GroupOrderHalt(aGroupID: Integer);
+    procedure GroupOrderLink(aGroupID, aDestGroupID: Integer);
+    procedure GroupSetFormation(aGroupID: Integer; aNumColumns: Byte);
   end;
 
 
 implementation
-uses KM_AI, KM_Terrain, KM_Game, KM_CommonTypes, KM_PlayersCollection,
+uses KM_AI, KM_Terrain, KM_Game, KM_CommonTypes, KM_PlayersCollection, KM_Units_Warrior,
   KM_TextLibrary, KM_ResourceUnit, KM_ResourceResource, KM_ResourceHouse, KM_Log, KM_Utils;
 
 
@@ -268,6 +298,48 @@ begin
 end;
 
 
+function TKMScriptStates.UnitKilledCount(aPlayer, aUnitType: Byte): Integer;
+begin
+  if InRange(aPlayer, 0, fPlayers.Count - 1)
+  and (aUnitType in [Low(UnitIndexToType)..High(UnitIndexToType)])
+  then
+    Result := fPlayers[aPlayer].Stats.GetUnitKilledQty(UnitIndexToType[aUnitType])
+  else
+  begin
+    Result := 0;
+    LogError('States.UnitKilledCount', [aPlayer, aUnitType]);
+  end;
+end;
+
+
+function TKMScriptStates.UnitLostCount(aPlayer, aUnitType: Byte): Integer;
+begin
+  if InRange(aPlayer, 0, fPlayers.Count - 1)
+  and (aUnitType in [Low(UnitIndexToType)..High(UnitIndexToType)])
+  then
+    Result := fPlayers[aPlayer].Stats.GetUnitLostQty(UnitIndexToType[aUnitType])
+  else
+  begin
+    Result := 0;
+    LogError('States.UnitLostCount', [aPlayer, aUnitType]);
+  end;
+end;
+
+
+function TKMScriptStates.ResourceProducedCount(aPlayer, aResType: Byte): Integer;
+begin
+  if InRange(aPlayer, 0, fPlayers.Count - 1)
+  and (aResType in [Low(ResourceIndexToType)..High(ResourceIndexToType)])
+  then
+    Result := fPlayers[aPlayer].Stats.GetGoodsProduced(ResourceIndexToType[aResType])
+  else
+  begin
+    Result := 0;
+    LogError('States.ResourceProducedCount', [aPlayer, aResType]);
+  end;
+end;
+
+
 function TKMScriptStates.PlayerName(aPlayer: Byte): AnsiString;
 begin
   if InRange(aPlayer, 0, fPlayers.Count - 1) then
@@ -360,6 +432,69 @@ begin
   end
   else
     LogError('States.HouseDamage', [aHouseID]);
+end;
+
+
+function TKMScriptStates.HouseRepair(aHouseID: Integer): Boolean;
+var H: TKMHouse;
+begin
+  Result := False;
+  if aHouseID > 0 then
+  begin
+    H := fIDCache.GetHouse(aHouseID);
+    if H <> nil then
+      Result := H.BuildingRepair;
+  end
+  else
+    LogError('States.HouseRepair', [aHouseID]);
+end;
+
+
+function TKMScriptStates.HouseDeliveryBlocked(aHouseID: Integer): Boolean;
+var H: TKMHouse;
+begin
+  Result := True;
+  if aHouseID > 0 then
+  begin
+    H := fIDCache.GetHouse(aHouseID);
+    if H <> nil then
+      Result := H.WareDelivery;
+  end
+  else
+    LogError('States.HouseDeliveryBlocked', [aHouseID]);
+end;
+
+
+function TKMScriptStates.HouseResourceAmount(aHouseID, aResource: Integer): Integer;
+var
+  H: TKMHouse;
+  Res: TResourceType;
+begin
+  Result := -1;
+  Res := ResourceIndexToType[aResource];
+  if (aHouseID > 0) and (Res in [WARE_MIN..WARE_MAX]) then
+  begin
+    H := fIDCache.GetHouse(aHouseID);
+    if H <> nil then
+      Result := H.CheckResIn(Res) + H.CheckResOut(Res); //Count both in and out
+  end
+  else
+    LogError('States.HouseResourceAmount', [aHouseID, aResource]);
+end;
+
+
+function TKMScriptStates.HouseHasOccupant(aHouseID: Integer): Boolean;
+var H: TKMHouse;
+begin
+  Result := False;
+  if aHouseID > 0 then
+  begin
+    H := fIDCache.GetHouse(aHouseID);
+    if H <> nil then
+      Result := H.GetHasOwner;
+  end
+  else
+    LogError('States.HouseHasOccupant', [aHouseID]);
 end;
 
 
@@ -467,6 +602,25 @@ begin
     Result := G.ID
   else
     Result := -1;
+end;
+
+
+function TKMScriptStates.UnitsGroup(aUnitID: Integer): Integer;
+var U: TKMUnit; G: TKMUnitGroup;
+begin
+  Result := -1;
+  if aUnitID > 0 then
+  begin
+    U := fIDCache.GetUnit(aUnitID);
+    if (U <> nil) and (U is TKMUnitWarrior) then
+    begin
+      G := fPlayers[U.Owner].UnitGroups.GetGroupByMember(TKMUnitWarrior(U));
+      if G <> nil then
+        Result := G.ID;
+    end;
+  end
+  else
+    LogError('States.UnitsGroup', [aUnitID]);
 end;
 
 
@@ -774,6 +928,64 @@ begin
 end;
 
 
+procedure TKMScriptActions.SetHouseRepair(aHouseID: Integer; aRepairEnabled: Boolean);
+var H: TKMHouse;
+begin
+  if aHouseID > 0 then
+  begin
+    H := fIDCache.GetHouse(aHouseID);
+    if (H <> nil) then
+      H.BuildingRepair := aRepairEnabled;
+  end
+  else
+    LogError('Actions.SetHouseRepair', [aHouseID, Byte(aRepairEnabled)]);
+end;
+
+
+procedure TKMScriptActions.SetHouseDeliveryBlocked(aHouseID: Integer; aDeliveryBlocked: Boolean);
+var H: TKMHouse;
+begin
+  if aHouseID > 0 then
+  begin
+    H := fIDCache.GetHouse(aHouseID);
+    if (H <> nil) then
+      H.WareDelivery := not aDeliveryBlocked;
+  end
+  else
+    LogError('Actions.SetHouseDeliveryBlocked', [aHouseID, Byte(aDeliveryBlocked)]);
+end;
+
+
+procedure TKMScriptActions.SchoolAddToQueue(aHouseID: Integer; aUnitType: Integer; aCount: Integer);
+var H: TKMHouse;
+begin
+  if (aHouseID > 0)
+  and (aUnitType in [UnitTypeToIndex[CITIZEN_MIN]..UnitTypeToIndex[CITIZEN_MAX]]) then
+  begin
+    H := fIDCache.GetHouse(aHouseID);
+    if (H <> nil) and (H is TKMHouseSchool) then
+      TKMHouseSchool(H).AddUnitToQueue(UnitIndexToType[aUnitType], aCount);
+  end
+  else
+    LogError('Actions.SchoolAddToQueue', [aHouseID, aUnitType]);
+end;
+
+
+procedure TKMScriptActions.BarracksEquip(aHouseID: Integer; aUnitType: Integer; aCount: Integer);
+var H: TKMHouse;
+begin
+  if (aHouseID > 0)
+  and (aUnitType in [UnitTypeToIndex[WARRIOR_EQUIPABLE_MIN]..UnitTypeToIndex[WARRIOR_EQUIPABLE_MAX]]) then
+  begin
+    H := fIDCache.GetHouse(aHouseID);
+    if (H <> nil) and (H is TKMHouseBarracks) then
+      TKMHouseBarracks(H).Equip(UnitIndexToType[aUnitType], aCount);
+  end
+  else
+    LogError('Actions.BarracksEquip', [aHouseID, aUnitType]);
+end;
+
+
 procedure TKMScriptActions.SetOverlayText(aPlayer, aIndex: Word);
 begin
   if aPlayer = MyPlayer.PlayerIndex then
@@ -785,6 +997,63 @@ procedure TKMScriptActions.SetOverlayTextFormatted(aPlayer, aIndex: Word; const 
 begin
   if aPlayer = MyPlayer.PlayerIndex then
     fGame.GamePlayInterface.SetScriptedOverlay(Format(fTextLibrary.GetMissionString(aIndex), Args));
+end;
+
+
+procedure TKMScriptActions.AddRoadPlan(aPlayer, X, Y: Word);
+begin
+  //Verify all input parameters
+  if InRange(aPlayer, 0, fPlayers.Count - 1)
+  and fTerrain.TileInMapCoords(X,Y) then
+  begin
+    if fPlayers[aPlayer].CanAddFieldPlan(KMPoint(X, Y), ft_Road) then
+      fPlayers[aPlayer].BuildList.FieldworksList.AddField(KMPoint(X, Y), ft_Road)
+  end
+  else
+    LogError('Actions.AddRoadPlan', [aPlayer, X, Y]);
+end;
+
+
+procedure TKMScriptActions.AddFieldPlan(aPlayer, X, Y: Word);
+begin
+  //Verify all input parameters
+  if InRange(aPlayer, 0, fPlayers.Count - 1)
+  and fTerrain.TileInMapCoords(X,Y) then
+  begin
+    if fPlayers[aPlayer].CanAddFieldPlan(KMPoint(X, Y), ft_Corn) then
+      fPlayers[aPlayer].BuildList.FieldworksList.AddField(KMPoint(X, Y), ft_Corn)
+  end
+  else
+    LogError('Actions.AddFieldPlan', [aPlayer, X, Y]);
+end;
+
+
+procedure TKMScriptActions.AddWinefieldPlan(aPlayer, X, Y: Word);
+begin
+  //Verify all input parameters
+  if InRange(aPlayer, 0, fPlayers.Count - 1)
+  and fTerrain.TileInMapCoords(X,Y) then
+  begin
+    if fPlayers[aPlayer].CanAddFieldPlan(KMPoint(X, Y), ft_Wine) then
+      fPlayers[aPlayer].BuildList.FieldworksList.AddField(KMPoint(X, Y), ft_Wine)
+  end
+  else
+    LogError('Actions.AddWinefieldPlan', [aPlayer, X, Y]);
+end;
+
+
+procedure TKMScriptActions.AddHousePlan(aPlayer, aHouseType, X, Y: Word);
+begin
+  //Verify all input parameters
+  if InRange(aPlayer, 0, fPlayers.Count - 1)
+  and (aHouseType in [Low(HouseIndexToType)..High(HouseIndexToType)])
+  and fTerrain.TileInMapCoords(X,Y) then
+  begin
+    if fPlayers[aPlayer].CanAddHousePlan(KMPoint(X, Y), HouseIndexToType[aHouseType]) then
+      fPlayers[aPlayer].BuildList.HousePlanList.AddPlan(HouseIndexToType[aHouseType], KMPoint(X, Y))
+  end
+  else
+    LogError('Actions.AddHousePlan', [aPlayer, aHouseType, X, Y]);
 end;
 
 
@@ -878,6 +1147,86 @@ begin
   end
   else
     LogError('Actions.GroupOrderAttackHouse', [aGroupID, aUnitID]);
+end;
+
+
+procedure TKMScriptActions.GroupOrderFood(aGroupID: Integer);
+var
+  G: TKMUnitGroup;
+  U: TKMUnit;
+begin
+  if (aGroupID > 0) then
+  begin
+    G := fIDCache.GetGroup(aGroupID);
+    if (G <> nil) then
+      G.OrderFood(True);
+  end
+  else
+    LogError('Actions.GroupOrderFood', [aGroupID]);
+end;
+
+
+procedure TKMScriptActions.GroupOrderStorm(aGroupID: Integer);
+var
+  G: TKMUnitGroup;
+  U: TKMUnit;
+begin
+  if (aGroupID > 0) then
+  begin
+    G := fIDCache.GetGroup(aGroupID);
+    if (G <> nil) and (G.GroupType = gt_Melee) then
+      G.OrderStorm(True);
+  end
+  else
+    LogError('Actions.GroupOrderStorm', [aGroupID]);
+end;
+
+
+procedure TKMScriptActions.GroupOrderHalt(aGroupID: Integer);
+var
+  G: TKMUnitGroup;
+  U: TKMUnit;
+begin
+  if (aGroupID > 0) then
+  begin
+    G := fIDCache.GetGroup(aGroupID);
+    if (G <> nil) then
+      G.OrderHalt(True);
+  end
+  else
+    LogError('Actions.GroupOrderHalt', [aGroupID]);
+end;
+
+
+procedure TKMScriptActions.GroupOrderLink(aGroupID, aDestGroupID: Integer);
+var
+  G, G2: TKMUnitGroup;
+begin
+  if (aGroupID > 0) and (aDestGroupID > 0) then
+  begin
+    G := fIDCache.GetGroup(aGroupID);
+    G2 := fIDCache.GetGroup(aDestGroupID);
+    if (G <> nil) and (G2 <> nil) then
+      G.OrderLinkTo(G2, True);
+  end
+  else
+    LogError('Actions.GroupOrderLink', [aGroupID, aDestGroupID]);
+end;
+
+
+procedure TKMScriptActions.GroupSetFormation(aGroupID: Integer; aNumColumns: Byte);
+var
+  G: TKMUnitGroup;
+  U: TKMUnit;
+begin
+  if (aGroupID > 0) then
+  begin
+    G := fIDCache.GetGroup(aGroupID);
+    if (G <> nil) then
+      G.UnitsPerRow := aNumColumns;
+  end
+  else
+    LogError('Actions.GroupSetFormation', [aGroupID, aNumColumns]);
 end;
 
 
