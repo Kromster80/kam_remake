@@ -59,6 +59,7 @@ type
     DefaultHuman: TPlayerIndex;
     PlayerHuman: array [0..MAX_PLAYERS - 1] of Boolean;
     PlayerAI: array [0..MAX_PLAYERS - 1] of Boolean;
+    RevealAll: array [0..MAX_PLAYERS-1] of Boolean;
     constructor Create;
     destructor Destroy; override;
     property Deposits: TKMDeposits read fDeposits;
@@ -380,7 +381,7 @@ begin
 
         if KMInRect(ScreenLoc, fGame.Viewport.ViewRect) then
         begin
-          PaintTextInShape(IntToStr(K), ScreenLoc.X, ScreenLoc.Y - 15, $F0FF8000);
+          PaintTextInShape(IntToStr(K+1), ScreenLoc.X, ScreenLoc.Y - 15, $F0FF8000);
           PaintTextInShape(fPlayers[I].AI.General.DefencePositions[K].UITitle, ScreenLoc.X, ScreenLoc.Y, $F0FF8000);
         end;
       end;

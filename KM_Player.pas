@@ -271,9 +271,9 @@ function TKMPlayer.AddUnit(aUnitType: TUnitType; Position: TKMPoint; AutoPlace: 
 begin
   Result := inherited AddUnit(aUnitType, Position, AutoPlace);
 
-  Result.OnDied := UnitDied;
-
   if Result = nil then Exit;
+
+  Result.OnDied := UnitDied;
 
   if aUnitType = ut_Worker then
     fBuildList.AddWorker(TKMUnitWorker(Result));

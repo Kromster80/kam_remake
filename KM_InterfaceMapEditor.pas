@@ -227,7 +227,7 @@ type
         TrackBar_RevealNewSize: TKMTrackBar;
         CheckBox_RevealAll: TKMCheckBox;
         Button_CenterScreen: TKMButtonFlat;
-        Label_PlayerCenterScreen: TKMLabel;
+        Button_PlayerCenterScreen: TKMButton;
 
     //Global things
     Panel_Mission: TKMPanel;
@@ -1024,7 +1024,7 @@ begin
     //Defence settings
     Panel_Defence := TKMPanel.Create(Panel_Town, 0, 28, TB_WIDTH, 400);
       TKMLabel.Create(Panel_Defence, 0, PAGE_TITLE_Y, TB_WIDTH, 0, 'Defence positions', fnt_Outline, taCenter);
-      Button_DefencePosAdd := TKMButtonFlat.Create(Panel_Defence, 0, 30, 33, 33, 335);
+      Button_DefencePosAdd := TKMButtonFlat.Create(Panel_Defence, 0, 30, 33, 33, 338);
       Button_DefencePosAdd.OnClick := Town_DefenceAddClick;
       Button_DefencePosAdd.Hint    := 'Place defence position for AI';
 
@@ -1143,14 +1143,17 @@ begin
       Button_Reveal         := TKMButtonFlat.Create(Panel_Markers, 0, 30, 33, 33, 394);
       Button_Reveal.Hint    := 'Reveal a portion of map';
       Button_Reveal.OnClick := Player_MarkerClick;
-      TrackBar_RevealNewSize  := TKMTrackBar.Create(Panel_Markers, 37, 35, 140, 1, 50);
+      TrackBar_RevealNewSize  := TKMTrackBar.Create(Panel_Markers, 37, 35, 140, 1, 64);
+      TrackBar_RevealNewSize.OnChange := Player_MarkerClick;
       CheckBox_RevealAll          := TKMCheckBox.Create(Panel_Markers, 0, 75, 140, 20, 'Reveal all', fnt_Metal);
-      CheckBox_RevealAll.Enabled  := False;
+      CheckBox_RevealAll.OnClick  := Player_MarkerClick;
       TKMLabel.Create(Panel_Markers, 0, 100, TB_WIDTH, 0, 'Center screen', fnt_Outline, taCenter);
       Button_CenterScreen         := TKMButtonFlat.Create(Panel_Markers, 0, 120, 33, 33, 391);
       Button_CenterScreen.Hint    := 'Center screen on mission start';
       Button_CenterScreen.OnClick := Player_MarkerClick;
-      Label_PlayerCenterScreen    := TKMLabel.Create(Panel_Markers, 40, 130, '[X,Y]', fnt_Metal, taLeft);
+      Button_PlayerCenterScreen    := TKMButton.Create(Panel_Markers, 40, 120, 80, 33, '[X,Y]', bsGame);
+      Button_PlayerCenterScreen.OnClick := Player_MarkerClick;
+      Button_PlayerCenterScreen.Hint := 'Jump to location';
 end;
 
 
@@ -1667,7 +1670,7 @@ begin
   Image_MarkerPic := TKMImage.Create(Panel_Marker, 0, 30, 32, 32, 338);
 
     Panel_MarkerReveal := TKMPanel.Create(Panel_Marker, 0, 60, TB_WIDTH, 400);
-      TrackBar_RevealSize := TKMTrackBar.Create(Panel_MarkerReveal, 0, 10, TB_WIDTH, 1, 128);
+      TrackBar_RevealSize := TKMTrackBar.Create(Panel_MarkerReveal, 0, 10, TB_WIDTH, 1, 64);
       TrackBar_RevealSize.Caption := 'Area';
       TrackBar_RevealSize.OnChange := Marker_Change;
       Button_RevealDelete := TKMButton.Create(Panel_MarkerReveal, 0, 55, 25, 25, 340, rxGui, bsGame);
@@ -1682,7 +1685,7 @@ begin
       DropList_DefenceType.SetItems('FrontLine'+eol+'BackLine');
       DropList_DefenceType.OnChange := Marker_Change;
       TrackBar_DefenceRad := TKMTrackBar.Create(Panel_MarkerDefence, 0, 70, TB_WIDTH, 1, 128);
-      TrackBar_DefenceRad.Caption := 'Radius';
+      TrackBar_DefenceRad.Caption := 'Defence radius';
       TrackBar_DefenceRad.OnChange := Marker_Change;
       Button_DefenceCCW  := TKMButton.Create(Panel_MarkerDefence, 0, 120, 50, 35, 23, rxGui, bsGame);
       Button_DefenceCCW.OnClick := Marker_Change;
@@ -2527,13 +2530,15 @@ begin
   case aMarker.MarkerType of
     mtDefence:    begin
                     Label_MarkerType.Caption := 'Defence position';
+                    Image_MarkerPic.TexID := 338;
                     DropList_DefenceGroup.ItemIndex := Byte(fPlayers[aMarker.Owner].AI.General.DefencePositions[aMarker.Index].GroupType);
                     DropList_DefenceType.ItemIndex := Byte(fPlayers[aMarker.Owner].AI.General.DefencePositions[aMarker.Index].DefenceType);
                     TrackBar_DefenceRad.Position := fPlayers[aMarker.Owner].AI.General.DefencePositions[aMarker.Index].Radius;
                     DisplayPage(Panel_MarkerDefence);
                   end;
     mtRevealFOW:  begin
-                    Label_MarkerType.Caption := 'Reveal FOW';
+                    Label_MarkerType.Caption := 'Reveal fog';
+                    Image_MarkerPic.TexID := 393;
                     TrackBar_RevealSize.Position := fGame.MapEditor.Revealers[aMarker.Owner].Tag[aMarker.Index];
                     DisplayPage(Panel_MarkerReveal);
                   end;
@@ -3018,13 +3023,22 @@ end;
 procedure TKMapEdInterface.Player_MarkerClick(Sender: TObject);
 begin
   //Press the button
-  Button_Reveal.Down := not Button_Reveal.Down and (Sender = Button_Reveal);
-  Button_CenterScreen.Down := not Button_CenterScreen.Down and (Sender = Button_CenterScreen);
+  if Sender = Button_Reveal then
+  begin
+    Button_Reveal.Down := not Button_Reveal.Down;
+    Button_CenterScreen.Down := False;
+  end;
+  if Sender = Button_CenterScreen then
+  begin
+    Button_CenterScreen.Down := not Button_CenterScreen.Down;
+    Button_Reveal.Down := False;
+  end;
 
   if Button_Reveal.Down then
   begin
     GameCursor.Mode := cmMarkers;
     GameCursor.Tag1 := MARKER_REVEAL;
+    GameCursor.MapEdSize := TrackBar_RevealNewSize.Position;
   end
   else
   if Button_CenterScreen.Down then
@@ -3038,7 +3052,15 @@ begin
     GameCursor.Tag1 := 0;
   end;
 
-  Label_PlayerCenterScreen.Caption := TypeToString(MyPlayer.CenterScreen);
+  if Sender = CheckBox_RevealAll then
+    fGame.MapEditor.RevealAll[MyPlayer.PlayerIndex] := CheckBox_RevealAll.Checked
+  else
+    CheckBox_RevealAll.Checked := fGame.MapEditor.RevealAll[MyPlayer.PlayerIndex];
+
+  if Sender = Button_PlayerCenterScreen then
+    fGame.Viewport.Position := KMPointF(MyPlayer.CenterScreen); //Jump to location
+
+  Button_PlayerCenterScreen.Caption := TypeToString(MyPlayer.CenterScreen);
 end;
 
 
@@ -3290,13 +3312,14 @@ begin
     if fPlayers.Selected is TKMUnitGroup then
       TKMUnitGroup(fPlayers.Selected).Position := P;
 
-    case fActiveMarker.MarkerType of
-      mtDefence:   begin
-                     DP := fPlayers[fActiveMarker.Owner].AI.General.DefencePositions[fActiveMarker.Index];
-                     DP.Position := KMPointDir(P, DP.Position.Dir);
-                   end;
-      mtRevealFOW: fGame.MapEditor.Revealers[fActiveMarker.Owner][fActiveMarker.Index] := P;
-    end;
+    if Panel_Marker.Visible then
+      case fActiveMarker.MarkerType of
+        mtDefence:   begin
+                       DP := fPlayers[fActiveMarker.Owner].AI.General.DefencePositions[fActiveMarker.Index];
+                       DP.Position := KMPointDir(P, DP.Position.Dir);
+                     end;
+        mtRevealFOW: fGame.MapEditor.Revealers[fActiveMarker.Owner][fActiveMarker.Index] := P;
+      end;
 
   end
   else
@@ -3348,7 +3371,10 @@ begin
       cmMarkers:  case GameCursor.Tag1 of
                     MARKER_REVEAL:        fGame.MapEditor.Revealers[MyPlayer.PlayerIndex].AddEntry(P, TrackBar_RevealNewSize.Position);
                     MARKER_DEFENCE:       MyPlayer.AI.General.DefencePositions.Add(KMPointDir(P, dir_N), gt_Melee, 10, adt_FrontLine);
-                    MARKER_CENTERSCREEN:  MyPlayer.CenterScreen := P;
+                    MARKER_CENTERSCREEN:  begin
+                                            MyPlayer.CenterScreen := P;
+                                            Player_MarkerClick(nil); //Update XY display
+                                          end;
                   end;
       cmErase:    case GetShownPage of
                     esp_Terrain:    fTerrain.Land[P.Y,P.X].Obj := 255;

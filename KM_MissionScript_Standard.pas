@@ -186,7 +186,7 @@ begin
                         begin
                           if fParsingMode = mpm_Editor then
                             if P[0] = 255 then
-                              fGame.MapEditor.Revealers[fLastPlayer].AddEntry(KMPoint(0,0), 255)
+                              fGame.MapEditor.RevealAll[fLastPlayer] := True
                             else
                               fGame.MapEditor.Revealers[fLastPlayer].AddEntry(KMPoint(P[0]+1,P[1]+1), P[2])
                           else
@@ -366,7 +366,9 @@ begin
                           end;
                         end;
     ct_AINoBuild:       if fLastPlayer >= 0 then
-                          fPlayers[fLastPlayer].AI.Setup.Autobuild := False;
+                          fPlayers[fLastPlayer].AI.Setup.AutoBuild := False;
+    ct_AIAutoRepair:    if fLastPlayer >= 0 then
+                          fPlayers[fLastPlayer].AI.Setup.AutoRepair := True;
     ct_AIAutoDefend:    if fLastPlayer >= 0 then
                           fPlayers[fLastPlayer].AI.Setup.AutoDefend := True;
     ct_AIStartPosition: if fLastPlayer >= 0 then
@@ -587,10 +589,10 @@ begin
 
     with fGame.MapEditor.Revealers[I] do
     for K := 0 to Count - 1 do
-      if (Items[K].X = 0) and (Items[K].Y = 0) and (Tag[K] = 255) then
-        AddCommand(ct_ClearUp, [255])
-      else
-        AddCommand(ct_ClearUp, [Items[K].X-1, Items[K].Y-1, Tag[K]]);
+      AddCommand(ct_ClearUp, [Items[K].X-1, Items[K].Y-1, Tag[K]]);
+
+    if fGame.MapEditor.RevealAll[I] then
+      AddCommand(ct_ClearUp, [255]);
 
     AddData(''); //NL
 
@@ -617,6 +619,7 @@ begin
     begin
       AddCommand(ct_AIStartPosition, [fPlayers[I].AI.Setup.StartPosition.X-1,fPlayers[I].AI.Setup.StartPosition.Y-1]);
       if not fPlayers[I].AI.Setup.AutoBuild then AddCommand(ct_AINoBuild, []);
+      if fPlayers[I].AI.Setup.AutoRepair then    AddCommand(ct_AIAutoRepair, []);
       if fPlayers[I].AI.Setup.AutoDefend then    AddCommand(ct_AIAutoDefend, []);
       AddCommand(ct_AICharacter,cpt_Recruits, [fPlayers[I].AI.Setup.RecruitFactor]);
       AddCommand(ct_AICharacter,cpt_WorkerFactor, [fPlayers[I].AI.Setup.SerfFactor]);

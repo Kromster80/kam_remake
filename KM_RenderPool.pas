@@ -1128,7 +1128,13 @@ begin
                 else
                   RenderCursorBuildIcon(P); //Red X
     cmMarkers:  case GameCursor.Tag1 of
-                  MARKER_REVEAL:        RenderCursorBuildIcon(P, 394, MyPlayer.FlagColor);
+                  MARKER_REVEAL:        begin
+                                          RenderCursorBuildIcon(P, 394, MyPlayer.FlagColor);
+                                          fRenderAux.CircleOnTerrain(P.X, P.Y,
+                                           GameCursor.MapEdSize,
+                                           MyPlayer.FlagColor AND $10FFFFFF,
+                                           MyPlayer.FlagColor);
+                                        end;
                   MARKER_DEFENCE:       RenderCursorBuildIcon(P, 519, MyPlayer.FlagColor);
                   MARKER_CENTERSCREEN:  RenderCursorBuildIcon(P, 391, MyPlayer.FlagColor);
                 end;
