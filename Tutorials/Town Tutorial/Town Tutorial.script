@@ -16,10 +16,10 @@ var
     MsgShown[aMsg] := True;
   end;
 
-procedure OnHouseBuilt(aIndex: Integer; aHouseType: Integer);
+procedure OnHouseBuilt(aHouseID: Integer);
 begin
-  if aIndex = 0 then //Make sure we process only human player
-  case aHouseType of
+  if States.HouseOwner(aHouseID) = 0 then //Make sure we process only human player
+  case States.HouseType(aHouseID) of
     13: Show(4,5);
     27: Show(6,0);
     14: Show(7,0);

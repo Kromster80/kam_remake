@@ -83,6 +83,11 @@ type
     function UnitHunger(aUnitID: Integer): Integer;
     function UnitMaxHunger: Integer;
     function UnitLowHunger: Integer;
+    function GroupAt(aX, aY: Word): Integer;
+    function GroupDead(aGroupID: Integer): Boolean;
+    function GroupOwner(aGroupID: Integer): Integer;
+    function GroupMemberCount(aGroupID: Integer): Integer;
+    function GroupMember(aGroupID, aMemberIndex: Integer): Integer;
   end;
 
   TKMScriptActions = class
@@ -95,6 +100,7 @@ type
     procedure Victory(const aVictors: array of Integer; aTeamVictory: Boolean);
     function GiveGroup(aPlayer, aType, X,Y, aDir, aCount, aColumns: Word): Integer;
     function GiveUnit(aPlayer, aType, X,Y, aDir: Word): Integer;
+    function GiveAnimal(aType, X,Y: Word): Integer;
     procedure GiveWares(aPlayer, aType, aCount: Word);
     procedure RevealCircle(aPlayer, X, Y, aRadius: Word);
     procedure ShowMsg(aPlayer, aIndex: Word);
@@ -373,7 +379,7 @@ end;
 function TKMScriptStates.UnitAt(aX, aY: Word): Integer;
 var U: TKMUnit;
 begin
-  U := fPlayers.UnitsHitTest(aX, aY);
+  U := fTerrain.UnitsHitTest(aX, aY);
   if (U <> nil) and not U.IsDead then
     Result := U.ID
   else
@@ -450,6 +456,82 @@ end;
 function TKMScriptStates.UnitLowHunger: Integer;
 begin
   Result := UNIT_MIN_CONDITION*CONDITION_PACE;
+end;
+
+
+function TKMScriptStates.GroupAt(aX, aY: Word): Integer;
+var G: TKMUnitGroup;
+begin
+  G := fPlayers.GroupsHitTest(aX, aY);
+  if (G <> nil) and not G.IsDead then
+    Result := G.ID
+  else
+    Result := -1;
+end;
+
+
+function TKMScriptStates.GroupDead(aGroupID: Integer): Boolean;
+var G: TKMUnitGroup;
+begin
+  Result := True;
+  if aGroupID > 0 then
+  begin
+    G := fIDCache.GetGroup(aGroupID);
+    if G <> nil then
+      Result := G.IsDead;
+  end
+  else
+    LogError('States.GroupDead', [aGroupID]);
+end;
+
+
+function TKMScriptStates.GroupOwner(aGroupID: Integer): Integer;
+var G: TKMUnitGroup;
+begin
+  Result := -1;
+  if aGroupID > 0 then
+  begin
+    G := fIDCache.GetGroup(aGroupID);
+    if G <> nil then
+      Result := G.Owner;
+  end
+  else
+    LogError('States.GroupOwner', [aGroupID]);
+end;
+
+
+function TKMScriptStates.GroupMemberCount(aGroupID: Integer): Integer;
+var G: TKMUnitGroup;
+begin
+  Result := 0;
+  if aGroupID > 0 then
+  begin
+    G := fIDCache.GetGroup(aGroupID);
+    if G <> nil then
+      Result := G.Count;
+  end
+  else
+    LogError('States.GroupMemberCount', [aGroupID]);
+end;
+
+
+function TKMScriptStates.GroupMember(aGroupID, aMemberIndex: Integer): Integer;
+var G: TKMUnitGroup;
+begin
+  Result := 0;
+  if aGroupID > 0 then
+  begin
+    G := fIDCache.GetGroup(aGroupID);
+    if G <> nil then
+    begin
+      if InRange(aMemberIndex, 0, G.Count-1) then
+        Result := G.Members[aMemberIndex].ID
+      else
+        LogError('States.GroupMember', [aGroupID, aMemberIndex]);
+    end;
+  end
+  else
+    LogError('States.GroupMember', [aGroupID, aMemberIndex]);
 end;
 
 
@@ -552,6 +634,23 @@ begin
   end
   else
     LogError('Actions.GiveUnit', [aPlayer, aType, X, Y, aDir]);
+end;
+
+
+function TKMScriptActions.GiveAnimal(aType, X, Y: Word): Integer;
+var U: TKMUnit;
+begin
+  Result := -1;
+  //Verify all input parameters
+  if (aType in [UnitTypeToOldIndex[ANIMAL_MIN]..UnitTypeToOldIndex[ANIMAL_MAX]])
+  and fTerrain.TileInMapCoords(X,Y) then
+  begin
+    U := fPlayers.PlayerAnimals.AddUnit(UnitOldIndexToType[aType], KMPoint(X,Y));
+    if U <> nil then
+      Result := U.ID;
+  end
+  else
+    LogError('Actions.GiveAnimal', [aType, X, Y]);
 end;
 
 

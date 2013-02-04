@@ -38,13 +38,13 @@ type
 
     procedure ProcTick;
     procedure ProcMissionStart;
-    procedure ProcHouseBuilt(aHouseType: THouseType; aOwner: TPlayerIndex);
+    procedure ProcHouseBuilt(aHouseID: Integer);
     procedure ProcHouseLost(aHouseType: THouseType; aOwner: TPlayerIndex; aFullyBuilt:Boolean);
     procedure ProcHouseDestroyed(aHouseType: THouseType; aOwner, aDestroyerOwner: TPlayerIndex; aFullyBuilt:Boolean);
-    procedure ProcUnitTrained(aUnitType: TUnitType; aOwner: TPlayerIndex);
+    procedure ProcUnitTrained(aUnitID: Integer);
     procedure ProcUnitLost(aUnitType: TUnitType; aOwner: TPlayerIndex);
     procedure ProcUnitKilled(aUnitType: TUnitType; aOwner, aKillerOwner: TPlayerIndex);
-    procedure ProcWarriorEquipped(aUnitType: TUnitType; aOwner: TPlayerIndex);
+    procedure ProcWarriorEquipped(aUnitID, aGroupID: Integer);
     procedure ProcPlayerDefeated(aPlayer: TPlayerIndex);
     procedure ProcPlayerVictory(aPlayer: TPlayerIndex);
 
@@ -157,6 +157,11 @@ begin
       RegisterMethod('function UnitHunger(aUnitID: Integer): Integer');
       RegisterMethod('function UnitMaxHunger: Integer');
       RegisterMethod('function UnitLowHunger: Integer');
+      RegisterMethod('function GroupAt(aX, aY: Word): Integer');
+      RegisterMethod('function GroupDead(aGroupID: Integer): Boolean');
+      RegisterMethod('function GroupOwner(aGroupID: Integer): Integer');
+      RegisterMethod('function GroupMemberCount(aGroupID: Integer): Integer');
+      RegisterMethod('function GroupMember(aGroupID, aMemberIndex: Integer): Integer');
     end;
 
     with Sender.AddClassN(nil, fActions.ClassName) do
@@ -165,6 +170,7 @@ begin
       RegisterMethod('procedure Victory(const aVictors: array of Integer; aTeamVictory: Boolean)');
       RegisterMethod('function GiveGroup(aPlayer, aType, X, Y, aDir, aCount, aColumns: Word): Integer');
       RegisterMethod('function GiveUnit(aPlayer, aType, X,Y, aDir: Word): Integer');
+      RegisterMethod('function GiveAnimal(aType, X,Y: Word): Integer');
       RegisterMethod('procedure GiveWares(aPlayer, aType, aCount: Word)');
       RegisterMethod('procedure RevealCircle(aPlayer, X, Y, aRadius: Word');
       RegisterMethod('procedure ShowMsg(aPlayer, aIndex: Word)');
@@ -244,7 +250,7 @@ begin
       Result := False;
       Exit;
     end;
-  if (Proc.Name = 'ONHOUSEBUILT') or (Proc.Name = 'ONUNITTRAINED') or (Proc.Name = 'ONWARRIOREQUIPPED') or (Proc.Name = 'ONUNITLOST') then
+  if (Proc.Name = 'ONWARRIOREQUIPPED') or (Proc.Name = 'ONUNITLOST') then
     //Check if the proc has the correct params
     if not ExportCheck(Sender, Proc, [0, btS32, btS32], [pmIn, pmIn]) then
     begin
@@ -253,7 +259,8 @@ begin
       Result := False;
       Exit;
     end;
-  if (Proc.Name = 'ONPLAYERDEFEATED') and (Proc.Name = 'ONPLAYERVICTORY') then
+  if (Proc.Name = 'ONUNITTRAINED') or (Proc.Name = 'ONHOUSEBUILT')
+  or (Proc.Name = 'ONPLAYERDEFEATED') or (Proc.Name = 'ONPLAYERVICTORY') then
     //Check if the proc has the correct params
     if not ExportCheck(Sender, Proc, [0, btS32], [pmIn]) then
     begin
@@ -344,6 +351,11 @@ begin
     RegisterMethod(@TKMScriptStates.UnitHunger, 'UNITHUNGER');
     RegisterMethod(@TKMScriptStates.UnitMaxHunger, 'UNITMAXHUNGER');
     RegisterMethod(@TKMScriptStates.UnitLowHunger, 'UNITLOWHUNGER');
+    RegisterMethod(@TKMScriptStates.GroupAt, 'GROUPAT');
+    RegisterMethod(@TKMScriptStates.GroupDead, 'GROUPDEAD');
+    RegisterMethod(@TKMScriptStates.GroupOwner, 'GROUPOWNER');
+    RegisterMethod(@TKMScriptStates.GroupMemberCount, 'GROUPMEMBERCOUNT');
+    RegisterMethod(@TKMScriptStates.GroupMember, 'GROUPMEMBER');
   end;
 
   with ClassImp.Add(TKMScriptActions) do
@@ -352,6 +364,7 @@ begin
     RegisterMethod(@TKMScriptActions.Victory, 'VICTORY');
     RegisterMethod(@TKMScriptActions.GiveGroup, 'GIVEGROUP');
     RegisterMethod(@TKMScriptActions.GiveUnit, 'GIVEUNIT');
+    RegisterMethod(@TKMScriptActions.GiveAnimal, 'GIVEANIMAL');
     RegisterMethod(@TKMScriptActions.GiveWares, 'GIVEWARES');
     RegisterMethod(@TKMScriptActions.RevealCircle, 'REVEALCIRCLE');
     RegisterMethod(@TKMScriptActions.ShowMsg, 'SHOWMSG');
@@ -420,15 +433,15 @@ begin
 end;
 
 
-procedure TKMScripting.ProcHouseBuilt(aHouseType: THouseType; aOwner: TPlayerIndex);
+procedure TKMScripting.ProcHouseBuilt(aHouseID: Integer);
 var
-  TestFunc: TKMEvent2I;
+  TestFunc: TKMEvent1I;
 begin
   //Check if event handler (procedure) exists and run it
   //Store house by its KaM index to keep it consistent with DAT scripts
-  TestFunc := TKMEvent2I(fExec.GetProcAsMethodN('ONHOUSEBUILT'));
+  TestFunc := TKMEvent1I(fExec.GetProcAsMethodN('ONHOUSEBUILT'));
   if @TestFunc <> nil then
-    TestFunc(aOwner, HouseTypeToIndex[aHouseType] - 1);
+    TestFunc(aHouseID);
 end;
 
 
@@ -456,15 +469,15 @@ begin
 end;
 
 
-procedure TKMScripting.ProcUnitTrained(aUnitType: TUnitType; aOwner: TPlayerIndex);
+procedure TKMScripting.ProcUnitTrained(aUnitID: Integer);
 var
-  TestFunc: TKMEvent2I;
+  TestFunc: TKMEvent1I;
 begin
   //Check if event handler (procedure) exists and run it
   //Store unit by its KaM index to keep it consistent with DAT scripts
-  TestFunc := TKMEvent2I(fExec.GetProcAsMethodN('ONUNITTRAINED'));
+  TestFunc := TKMEvent1I(fExec.GetProcAsMethodN('ONUNITTRAINED'));
   if @TestFunc <> nil then
-    TestFunc(aOwner, UnitTypeToIndex[aUnitType]);
+    TestFunc(aUnitID);
 end;
 
 
@@ -492,7 +505,7 @@ begin
 end;
 
 
-procedure TKMScripting.ProcWarriorEquipped(aUnitType: TUnitType; aOwner: TPlayerIndex);
+procedure TKMScripting.ProcWarriorEquipped(aUnitID, aGroupID: Integer);
 var
   TestFunc: TKMEvent2I;
 begin
@@ -500,7 +513,7 @@ begin
   //Store unit by its KaM index to keep it consistent with DAT scripts
   TestFunc := TKMEvent2I(fExec.GetProcAsMethodN('ONWARRIOREQUIPPED'));
   if @TestFunc <> nil then
-    TestFunc(aOwner, UnitTypeToIndex[aUnitType]);
+    TestFunc(aUnitID, aGroupID);
 end;
 
 

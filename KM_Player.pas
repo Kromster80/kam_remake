@@ -303,7 +303,7 @@ begin
   if aUnit.UnitType = ut_Serf then
     fDeliveries.AddSerf(TKMUnitSerf(aUnit));
 
-  fScripting.ProcUnitTrained(aUnit.UnitType, fPlayerIndex);
+  fScripting.ProcUnitTrained(aUnit.ID);
   fStats.UnitCreated(aUnit.UnitType, True);
 end;
 

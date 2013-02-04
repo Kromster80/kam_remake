@@ -1424,23 +1424,29 @@ end;
 procedure TKMUnitGroups.WarriorTrained(aUnit: TKMUnitWarrior);
 var
   LinkUnit: TKMUnitWarrior;
-  LinkGroup: TKMUnitGroup;
+  G: TKMUnitGroup;
 begin
-  fScripting.ProcWarriorEquipped(aUnit.UnitType, aUnit.Owner);
   case fPlayers[aUnit.Owner].PlayerType of
     pt_Human:    begin
                    LinkUnit := aUnit.FindLinkUnit(aUnit.GetPosition);
                    if LinkUnit <> nil then
                    begin
-                     LinkGroup := fPlayers[aUnit.Owner].UnitGroups.GetGroupByMember(LinkUnit);
-                     LinkGroup.AddMember(aUnit);
-                     LinkGroup.OrderRepeat;
+                     G := fPlayers[aUnit.Owner].UnitGroups.GetGroupByMember(LinkUnit);
+                     G.AddMember(aUnit);
+                     G.OrderRepeat;
                    end
                    else
-                     fGroups.Add(TKMUnitGroup.Create(fGame.GetNewID, aUnit));
+                   begin
+                     G := TKMUnitGroup.Create(fGame.GetNewID, aUnit);
+                     fGroups.Add(G);
+                   end;
                  end;
-    pt_Computer:   fGroups.Add(TKMUnitGroup.Create(fGame.GetNewID, aUnit));
+    pt_Computer: begin
+                   G := TKMUnitGroup.Create(fGame.GetNewID, aUnit);
+                   fGroups.Add(G);
+                 end;
   end;
+  fScripting.ProcWarriorEquipped(aUnit.ID, G.ID);
 end;
 
 
