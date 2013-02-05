@@ -9,7 +9,7 @@ const
 //|===================| <- constant name length
   MAX_MAP_SIZE          = 256;
   CELL_SIZE_PX          = 40;           //Single cell size in pixels (width)
-  CELL_HEIGHT_DIV       = 1033.333;       //Height divider, controlls terrains pseudo-3d look
+  CELL_HEIGHT_DIV       = 33.333;       //Height divider, controlls terrains pseudo-3d look
   TOOLBAR_WIDTH         = 224;          //Toolbar width in game
   TERRAIN_PACE          = 200;          //Each tile gets updated once per ** ticks (100 by default), Warning, it affects field/tree growth rate
   FOW_PACE              = 10;           //Each tile gets updated once per ** ticks (10 by default)
@@ -27,7 +27,7 @@ const
   MENU_DESIGN_X         = 1024;         //Thats the size menu was designed for. All elements are placed in this size
   MENU_DESIGN_Y         = 768;          //Thats the size menu was designed for. All elements are placed in this size
 
-  GAME_REVISION         = 'r4499';       //Should be updated for every release (each time save format is changed)
+  GAME_REVISION         = 'r4560';       //Should be updated for every release (each time save format is changed)
   GAME_VERSION          = 'Next Demo ' + GAME_REVISION;       //Game version string displayed in menu corner
   NET_PROTOCOL_REVISON  = GAME_REVISION;     //Clients of this version may connect to the dedicated server
 
@@ -38,12 +38,12 @@ const
 
 var
   //These should be True
-  MAKE_ANIM_TERRAIN     :Boolean = False;  //Should we animate water and swamps
-  MAKE_TEAM_COLORS      :Boolean = False;  //Whenever to make team colors or not, saves RAM for debug
+  MAKE_ANIM_TERRAIN     :Boolean = True;  //Should we animate water and swamps
+  MAKE_TEAM_COLORS      :Boolean = True;  //Whenever to make team colors or not, saves RAM for debug
   DYNAMIC_TERRAIN       :Boolean = True;  //Update terrain each tick to grow things
   CHEATS_ENABLED        :Boolean = True;  //Enable cheats in game (add_resource, instant_win, etc)
   FREE_POINTERS         :Boolean = True;  //If True, units/houses will be freed and removed from the list once they are no longer needed
-  CAP_MAX_FPS           :Boolean = False;  //Should limit rendering performance to avoid GPU overheating (disable to measure debug performance)
+  CAP_MAX_FPS           :Boolean = True;  //Should limit rendering performance to avoid GPU overheating (disable to measure debug performance)
   CRASH_ON_REPLAY       :Boolean = True;  //Crash as soon as replay consistency fails (random numbers mismatch)
   BLOCK_DUPLICATE_APP   :Boolean = False;  //Do not allow to run multiple games at once (to prevent MP cheating)
 
@@ -64,8 +64,8 @@ var
   USE_CCL_WALKCONNECT   :Boolean = False; //Use CCL instead of FloodFill for walk-connect (CCL is generaly worse. It's a bit slower, counts 1 tile areas and needs more AreaIDs to work / makes sparsed IDs)
   FOG_OF_WAR_ENABLE     :Boolean = False; //Whenever dynamic fog of war is enabled or not
   SHOW_DISMISS_BUTTON   :Boolean = False; //The button to order citizens go back to school
-  AI_GEN_NAVMESH        :Boolean = True; //Generate navmesh for AI to plan attacks/defenses
-  AI_GEN_INFLUENCE_MAPS :Boolean = True; //Generate influence maps for AI to plan attacks/defenses
+  AI_GEN_NAVMESH        :Boolean = False; //Generate navmesh for AI to plan attacks/defenses
+  AI_GEN_INFLUENCE_MAPS :Boolean = False; //Generate influence maps for AI to plan attacks/defenses
   CACHE_PATHFINDING     :Boolean = False; //Cache routes incase they are needed soon (Vortamic PF runs x4 faster even with lame approach)
   PathFinderToUse       :Byte = 1;
   TEST_HOUSE_SELECTION  :Boolean = True; //See how house selection looks (its indended to highlight houses mentioned in messages ONLY. not players selection)
@@ -80,7 +80,7 @@ var
   OVERLAY_RESOLUTIONS   :Boolean = False; //Render constraining frame
   {Gameplay display}
   SKIP_RENDER           :Boolean = False; //Skip all the rendering in favor of faster logic
-  SKIP_SOUND            :Boolean = True; //Skip all the sounds in favor of faster logic
+  SKIP_SOUND            :Boolean = False; //Skip all the sounds in favor of faster logic
   AGGRESSIVE_REPLAYS    :Boolean = False; //Write a command gic_TempDoNothing every tick in order to find exactly when a replay mismatch occurs
   SHOW_TERRAIN_WIRES    :Boolean = False; //Makes terrain height visible
   SHOW_TERRAIN_PASS     :Byte = 0; //Byte(TPassability)
@@ -121,7 +121,7 @@ var
   MULTIPLAYER_SPEEDUP   :Boolean = True; //Allow you to use F8 to speed up multiplayer for debugging (only effects local client)
   SKIP_EXE_CRC          :Boolean = False; //Don't check KaM_Remake.exe CRC before MP game (useful for testing with different versions)
   ALLOW_MP_MODS         :Boolean = False; //Don't let people enter MP mode if they are using mods (unit.dat, house.dat, etc.)
-  ALLOW_TAKE_AI_PLAYERS :Boolean = False; //Allow to load SP maps without Human player (usefull for AI testing)
+  ALLOW_TAKE_AI_PLAYERS :Boolean = True; //Allow to load SP maps without Human player (usefull for AI testing)
   {Data output}
   WRITE_DECODED_MISSION :Boolean = True; //Save decoded mission as txt file
   WRITE_DELIVERY_LOG    :Boolean = False; //Write even more output into log + slows down game noticably
