@@ -116,6 +116,8 @@ type
     procedure GiveWares(aPlayer, aType, aCount: Word);
     procedure RevealCircle(aPlayer, X, Y, aRadius: Word);
     procedure UnlockHouse(aPlayer, aHouseType: Word);
+    procedure SetHouseAllowed(aPlayer, aHouseType: Word; aAllowed: Boolean);
+    procedure SetTradeAllowed(aPlayer, aResType: Word; aAllowed: Boolean);
 
     procedure ShowMsg(aPlayer, aIndex: Word);
     procedure ShowMsgFormatted(aPlayer, aIndex: Word; const Args: array of const);
@@ -137,6 +139,7 @@ type
 
     procedure SetUnitHunger(aUnitID, aHungerLevel: Integer);
     procedure SetUnitDirection(aUnitID, aDirection: Integer);
+    procedure UnitOrderWalk(aUnitID: Integer; X, Y: Word);
     procedure KillUnit(aUnitID: Integer);
 
     procedure GroupOrderWalk(aGroupID: Integer; X, Y, aDirection: Word);
@@ -146,6 +149,7 @@ type
     procedure GroupOrderStorm(aGroupID: Integer);
     procedure GroupOrderHalt(aGroupID: Integer);
     procedure GroupOrderLink(aGroupID, aDestGroupID: Integer);
+    function GroupOrderSplit(aGroupID: Integer): Integer;
     procedure GroupSetFormation(aGroupID: Integer; aNumColumns: Byte);
   end;
 
@@ -870,6 +874,28 @@ begin
 end;
 
 
+procedure TKMScriptActions.SetHouseAllowed(aPlayer, aHouseType: Word; aAllowed: Boolean);
+begin
+  //Verify all input parameters
+  if InRange(aPlayer, 0, fPlayers.Count - 1)
+  and (aHouseType in [Low(HouseIndexToType) .. High(HouseIndexToType)]) then
+    fPlayers[aPlayer].Stats.HouseBlocked[HouseIndexToType[aHouseType]] := aAllowed
+  else
+    LogError('Actions.SetHouseAllowed', [aPlayer, aHouseType, Byte(aAllowed)]);
+end;
+
+
+procedure TKMScriptActions.SetTradeAllowed(aPlayer, aResType: Word; aAllowed: Boolean);
+begin
+  //Verify all input parameters
+  if InRange(aPlayer, 0, fPlayers.Count - 1)
+  and (aResType in [Low(ResourceIndexToType)..High(ResourceIndexToType)]) then
+    fPlayers[aPlayer].Stats.AllowToTrade[ResourceIndexToType[aResType]] := aAllowed
+  else
+    LogError('Actions.SetTradeAllowed', [aPlayer, aResType, Byte(aAllowed)]);
+end;
+
+
 procedure TKMScriptActions.AddHouseDamage(aHouseID: Integer; aDamage: Word);
 var H: TKMHouse;
 begin
@@ -1086,6 +1112,21 @@ begin
 end;
 
 
+procedure TKMScriptActions.UnitOrderWalk(aUnitID: Integer; X, Y: Word);
+var U: TKMUnit;
+begin
+  if (aUnitID > 0) and fTerrain.TileInMapCoords(X, Y) then
+  begin
+    U := fIDCache.GetUnit(aUnitID);
+    //Can only make idle units walk so we don't mess up tasks and cause crashes
+    if (U <> nil) and U.IsIdle then
+      U.SetActionWalk(KMPoint(X,Y), ua_Walk, 0, nil, nil);
+  end
+  else
+    LogError('Actions.UnitOrderWalk', [aUnitID, X, Y]);
+end;
+
+
 procedure TKMScriptActions.KillUnit(aUnitID: Integer);
 var U: TKMUnit;
 begin
@@ -1153,7 +1194,6 @@ end;
 procedure TKMScriptActions.GroupOrderFood(aGroupID: Integer);
 var
   G: TKMUnitGroup;
-  U: TKMUnit;
 begin
   if (aGroupID > 0) then
   begin
@@ -1169,7 +1209,6 @@ end;
 procedure TKMScriptActions.GroupOrderStorm(aGroupID: Integer);
 var
   G: TKMUnitGroup;
-  U: TKMUnit;
 begin
   if (aGroupID > 0) then
   begin
@@ -1185,7 +1224,6 @@ end;
 procedure TKMScriptActions.GroupOrderHalt(aGroupID: Integer);
 var
   G: TKMUnitGroup;
-  U: TKMUnit;
 begin
   if (aGroupID > 0) then
   begin
@@ -1211,6 +1249,26 @@ begin
   end
   else
     LogError('Actions.GroupOrderLink', [aGroupID, aDestGroupID]);
+end;
+
+
+function TKMScriptActions.GroupOrderSplit(aGroupID: Integer): Integer;
+var
+  G, G2: TKMUnitGroup;
+begin
+  Result := -1;
+  if (aGroupID > 0) then
+  begin
+    G := fIDCache.GetGroup(aGroupID);
+    if (G <> nil) then
+    begin
+      G2 := G.OrderSplit(True);
+      if G2 <> nil then
+        Result := G.ID;
+    end;
+  end
+  else
+    LogError('Actions.GroupOrderSplit', [aGroupID]);
 end;
 
 

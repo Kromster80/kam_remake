@@ -208,6 +208,10 @@ begin
       RegisterMethod('procedure GroupOrderHalt(aGroupID: Integer)');
       RegisterMethod('procedure GroupOrderLink(aGroupID, aDestGroupID: Integer)');
       RegisterMethod('procedure GroupSetFormation(aGroupID: Integer; aNumColumns: Byte)');
+      RegisterMethod('procedure SetHouseAllowed(aPlayer, aHouseType: Word; aAllowed: Boolean)');
+      RegisterMethod('procedure SetTradeAllowed(aPlayer, aResType: Word; aAllowed: Boolean)');
+      RegisterMethod('function GroupOrderSplit(aGroupID: Integer): Integer');
+      RegisterMethod('procedure UnitOrderWalk(aUnitID: Integer; X, Y: Word)');
     end;
 
     //Register objects
@@ -423,6 +427,10 @@ begin
     RegisterMethod(@TKMScriptActions.GroupOrderHalt, 'GROUPORDERHALT');
     RegisterMethod(@TKMScriptActions.GroupOrderLink, 'GROUPORDERLINK');
     RegisterMethod(@TKMScriptActions.GroupSetFormation, 'GROUPSETFORMATION');
+    RegisterMethod(@TKMScriptActions.SetHouseAllowed, 'SETHOUSEALLOWED');
+    RegisterMethod(@TKMScriptActions.SetTradeAllowed, 'SETTRADEALLOWED');
+    RegisterMethod(@TKMScriptActions.GroupOrderSplit, 'GROUPORDERSPLIT');
+    RegisterMethod(@TKMScriptActions.UnitOrderWalk, 'UNITORDERWALK');
   end;
 
   //Append classes info to Exec

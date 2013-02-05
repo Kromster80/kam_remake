@@ -126,7 +126,7 @@ type
     procedure OrderLinkTo(aTargetGroup: TKMUnitGroup; aClearOffenders: Boolean);
     procedure OrderNone;
     procedure OrderRepeat;
-    procedure OrderSplit(aClearOffenders: Boolean);
+    function OrderSplit(aClearOffenders: Boolean): TKMUnitGroup;
     procedure OrderSplitLinkTo(aGroup: TKMUnitGroup; aCount: Word; aClearOffenders: Boolean);
     procedure OrderStorm(aClearOffenders: Boolean);
     procedure OrderWalk(aLoc: TKMPoint; aClearOffenders: Boolean; aDir: TKMDirection = dir_NA);
@@ -980,13 +980,14 @@ end;
 
 //Split group in half
 //or split different unit types apart
-procedure TKMUnitGroup.OrderSplit(aClearOffenders: Boolean);
+function TKMUnitGroup.OrderSplit(aClearOffenders: Boolean): TKMUnitGroup;
 var
   I: Integer;
   NewGroup: TKMUnitGroup;
   NewLeader: TKMUnitWarrior;
   MultipleTypes: Boolean;
 begin
+  Result := nil;
   if IsDead then Exit;
   if Count < 2 then Exit;
   if aClearOffenders and CanTakeOrders then ClearOffenders;
@@ -1041,6 +1042,8 @@ begin
   //Tell both groups to reposition
   OrderHalt(False);
   NewGroup.OrderHalt(False);
+
+  Result := NewGroup; //Return the new group in case somebody is interested in it
 end;
 
 
