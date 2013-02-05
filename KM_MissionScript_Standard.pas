@@ -9,7 +9,7 @@ uses
 
 type
   TKMCommandParamType = (cpt_Unknown=0,cpt_Recruits,cpt_Constructors,cpt_WorkerFactor,cpt_RecruitCount,cpt_TownDefence,
-                         cpt_MaxSoldier,cpt_EquipRate,cpt_AttackFactor,cpt_TroopParam);
+                         cpt_MaxSoldier,cpt_EquipRate,cpt_EquipRateIron,cpt_EquipRateLeather,cpt_AttackFactor,cpt_TroopParam);
 
   TAIAttackParamType = (cpt_Type, cpt_TotalAmount, cpt_Counter, cpt_Range, cpt_TroopAmount, cpt_Target, cpt_Position, cpt_TakeAll);
 
@@ -47,7 +47,7 @@ uses KM_PlayersCollection, KM_Player, KM_AI, KM_AIDefensePos, KM_TerrainPainter,
 const
   PARAMVALUES: array [TKMCommandParamType] of AnsiString = (
     '', 'RECRUTS', 'CONSTRUCTORS', 'WORKER_FACTOR', 'RECRUT_COUNT', 'TOWN_DEFENSE',
-    'MAX_SOLDIER', 'EQUIP_RATE', 'ATTACK_FACTOR', 'TROUP_PARAM');
+    'MAX_SOLDIER', 'EQUIP_RATE', 'EQUIP_RATE_IRON', 'EQUIP_RATE_LEATHER', 'ATTACK_FACTOR', 'TROUP_PARAM');
 
   AI_ATTACK_PARAMS: array [TAIAttackParamType] of AnsiString = (
     'TYPE', 'TOTAL_AMOUNT', 'COUNTER', 'RANGE', 'TROUP_AMOUNT', 'TARGET', 'POSITION', 'TAKEALL');
@@ -353,12 +353,14 @@ begin
                           if TextParam = PARAMVALUES[cpt_RecruitCount] then iPlayerAI.Setup.RecruitDelay  := P[1];
                           if TextParam = PARAMVALUES[cpt_TownDefence]  then iPlayerAI.Setup.TownDefence   := P[1];
                           if TextParam = PARAMVALUES[cpt_MaxSoldier]   then iPlayerAI.Setup.MaxSoldiers   := P[1];
-                          if TextParam = PARAMVALUES[cpt_EquipRate]    then
+                          if TextParam = PARAMVALUES[cpt_EquipRate]    then //Now depreciated, kept for backwards compatibility
                           begin
                             iPlayerAI.Setup.EquipRateLeather := P[1];
                             iPlayerAI.Setup.EquipRateIron    := P[1]; //Both the same for now, could be separate commands later
                           end;
-                          if TextParam = PARAMVALUES[cpt_AttackFactor] then iPlayerAI.Setup.Aggressiveness:= P[1];
+                          if TextParam = PARAMVALUES[cpt_EquipRateLeather] then iPlayerAI.Setup.EquipRateLeather := P[1];
+                          if TextParam = PARAMVALUES[cpt_EquipRateIron]    then iPlayerAI.Setup.EquipRateIron    := P[1];
+                          if TextParam = PARAMVALUES[cpt_AttackFactor]     then iPlayerAI.Setup.Aggressiveness   := P[1];
                           if TextParam = PARAMVALUES[cpt_TroopParam]   then
                           begin
                             iPlayerAI.General.DefencePositions.TroopFormations[TGroupType(P[1])].NumUnits := P[2];
@@ -628,7 +630,8 @@ begin
       //Only store if a limit is in place (high is the default)
       if fPlayers[I].AI.Setup.MaxSoldiers <> High(fPlayers[I].AI.Setup.MaxSoldiers) then
         AddCommand(ct_AICharacter,cpt_MaxSoldier, [fPlayers[I].AI.Setup.MaxSoldiers]);
-      AddCommand(ct_AICharacter,cpt_EquipRate,    [fPlayers[I].AI.Setup.EquipRateLeather]); //Iron and Leather could be made into separate commands later
+      AddCommand(ct_AICharacter,cpt_EquipRateLeather, [fPlayers[I].AI.Setup.EquipRateLeather]);
+      AddCommand(ct_AICharacter,cpt_EquipRateIron,    [fPlayers[I].AI.Setup.EquipRateIron]);
       AddCommand(ct_AICharacter,cpt_AttackFactor, [fPlayers[I].AI.Setup.Aggressiveness]);
       AddCommand(ct_AICharacter,cpt_RecruitCount, [fPlayers[I].AI.Setup.RecruitDelay]);
       for G:=Low(TGroupType) to High(TGroupType) do

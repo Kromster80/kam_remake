@@ -13,10 +13,13 @@ Finishing up:
 	Finish new MapEd features (add ADD_WARE_TO_LAST)
 	Ask RC testers to make map from scratch in MapEd
 	Example maps that show what can be done with new scripts
+	Message log
 
 
 Known issues to fix:
 	Selecting a save in the lobby causes a crash
+	Script command PlayerCount returns number of locations on map, not number of active players (new command needed for that?)
+	Campaign/tutorials show warnings about showing messages with goals being depreciated
 
 
 Balance/exploits:

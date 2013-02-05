@@ -1145,6 +1145,7 @@ begin
       Button_Reveal.OnClick := Player_MarkerClick;
       TrackBar_RevealNewSize  := TKMTrackBar.Create(Panel_Markers, 37, 35, 140, 1, 64);
       TrackBar_RevealNewSize.OnChange := Player_MarkerClick;
+      TrackBar_RevealNewSize.Position := 8;
       CheckBox_RevealAll          := TKMCheckBox.Create(Panel_Markers, 0, 75, 140, 20, 'Reveal all', fnt_Metal);
       CheckBox_RevealAll.OnClick  := Player_MarkerClick;
       TKMLabel.Create(Panel_Markers, 0, 100, TB_WIDTH, 0, 'Center screen', fnt_Outline, taCenter);
