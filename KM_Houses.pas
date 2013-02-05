@@ -726,7 +726,7 @@ begin
     fBuildState := hbs_Done;
     fPlayers[fOwner].Stats.HouseEnded(fHouseType);
     Activate(True);
-    fScripting.ProcHouseBuilt(ID);
+    fScripting.ProcHouseBuilt(Self);
     //House was damaged while under construction, so set the repair mode now it is complete
     if (fDamage > 0) and BuildingRepair then
       fPlayers[fOwner].BuildList.RepairList.AddHouse(Self);

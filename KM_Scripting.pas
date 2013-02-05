@@ -4,7 +4,7 @@ interface
 uses
   Classes, Math, SysUtils, StrUtils,
   uPSCompiler, uPSRuntime, uPSUtils, uPSDisassembly,
-  KM_CommonClasses, KM_Defaults, KM_ScriptingESA;
+  KM_CommonClasses, KM_Defaults, KM_ScriptingESA, KM_Houses, KM_Units, KM_UnitGroups;
 
   //Dynamic scripts allow mapmakers to control the mission flow
 
@@ -38,13 +38,13 @@ type
 
     procedure ProcTick;
     procedure ProcMissionStart;
-    procedure ProcHouseBuilt(aHouseID: Integer);
+    procedure ProcHouseBuilt(aHouse: TKMHouse);
     procedure ProcHouseLost(aHouseType: THouseType; aOwner: TPlayerIndex; aFullyBuilt:Boolean);
     procedure ProcHouseDestroyed(aHouseType: THouseType; aOwner, aDestroyerOwner: TPlayerIndex; aFullyBuilt:Boolean);
-    procedure ProcUnitTrained(aUnitID: Integer);
+    procedure ProcUnitTrained(aUnit: TKMUnit);
     procedure ProcUnitLost(aUnitType: TUnitType; aOwner: TPlayerIndex);
     procedure ProcUnitKilled(aUnitType: TUnitType; aOwner, aKillerOwner: TPlayerIndex);
-    procedure ProcWarriorEquipped(aUnitID, aGroupID: Integer);
+    procedure ProcWarriorEquipped(aUnit: TKMUnit; aGroup: TKMUnitGroup);
     procedure ProcPlayerDefeated(aPlayer: TPlayerIndex);
     procedure ProcPlayerVictory(aPlayer: TPlayerIndex);
 
@@ -483,7 +483,7 @@ begin
 end;
 
 
-procedure TKMScripting.ProcHouseBuilt(aHouseID: Integer);
+procedure TKMScripting.ProcHouseBuilt(aHouse: TKMHouse);
 var
   TestFunc: TKMEvent1I;
 begin
@@ -491,7 +491,10 @@ begin
   //Store house by its KaM index to keep it consistent with DAT scripts
   TestFunc := TKMEvent1I(fExec.GetProcAsMethodN('ONHOUSEBUILT'));
   if @TestFunc <> nil then
-    TestFunc(aHouseID);
+  begin
+    fIDCache.CacheHouse(aHouse, aHouse.ID); //Improves cache efficiency since aHouse will probably be accessed soon
+    TestFunc(aHouse.ID);
+  end;
 end;
 
 
@@ -519,7 +522,7 @@ begin
 end;
 
 
-procedure TKMScripting.ProcUnitTrained(aUnitID: Integer);
+procedure TKMScripting.ProcUnitTrained(aUnit: TKMUnit);
 var
   TestFunc: TKMEvent1I;
 begin
@@ -527,7 +530,10 @@ begin
   //Store unit by its KaM index to keep it consistent with DAT scripts
   TestFunc := TKMEvent1I(fExec.GetProcAsMethodN('ONUNITTRAINED'));
   if @TestFunc <> nil then
-    TestFunc(aUnitID);
+  begin
+    fIDCache.CacheUnit(aUnit, aUnit.ID); //Improves cache efficiency since aUnit will probably be accessed soon
+    TestFunc(aUnit.ID);
+  end;
 end;
 
 
@@ -555,7 +561,7 @@ begin
 end;
 
 
-procedure TKMScripting.ProcWarriorEquipped(aUnitID, aGroupID: Integer);
+procedure TKMScripting.ProcWarriorEquipped(aUnit: TKMUnit; aGroup: TKMUnitGroup);
 var
   TestFunc: TKMEvent2I;
 begin
@@ -563,7 +569,11 @@ begin
   //Store unit by its KaM index to keep it consistent with DAT scripts
   TestFunc := TKMEvent2I(fExec.GetProcAsMethodN('ONWARRIOREQUIPPED'));
   if @TestFunc <> nil then
-    TestFunc(aUnitID, aGroupID);
+  begin
+    fIDCache.CacheUnit(aUnit, aUnit.ID); //Improves cache efficiency since aUnit will probably be accessed soon
+    fIDCache.CacheGroup(aGroup, aGroup.ID);
+    TestFunc(aUnit.ID, aGroup.ID);
+  end;
 end;
 
 

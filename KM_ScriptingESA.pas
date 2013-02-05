@@ -33,6 +33,9 @@ type
                                            end;
 
   public
+    procedure CacheUnit(aUnit: TKMUnit; aID: Integer);
+    procedure CacheHouse(aHouse: TKMHouse; aID: Integer);
+    procedure CacheGroup(aGroup: TKMUnitGroup; aID: Integer);
     function GetUnit(aID:Integer): TKMUnit;
     function GetHouse(aID:Integer): TKMHouse;
     function GetGroup(aID:Integer): TKMUnitGroup;
@@ -247,8 +250,12 @@ end;
 
 
 function TKMScriptStates.PlayerCount: Integer;
+var I: Integer;
 begin
-  Result := fPlayers.Count;
+  Result := 0;
+  for I:=0 to fPlayers.Count-1 do
+    if fPlayers[I].Enabled then
+      Inc(Result);
 end;
 
 
@@ -373,7 +380,10 @@ var H: TKMHouse;
 begin
   H := fPlayers.HousesHitTest(aX, aY);
   if (H <> nil) and not H.IsDestroyed then
-    Result := H.ID
+  begin
+    Result := H.ID;
+    fIDCache.CacheHouse(H, H.ID); //Improves cache efficiency since H will probably be accessed soon
+  end
   else
     Result := -1;
 end;
@@ -520,7 +530,10 @@ var U: TKMUnit;
 begin
   U := fTerrain.UnitsHitTest(aX, aY);
   if (U <> nil) and not U.IsDead then
-    Result := U.ID
+  begin
+    Result := U.ID;
+    fIDCache.CacheUnit(U, U.ID); //Improves cache efficiency since U will probably be accessed soon
+  end
   else
     Result := -1;
 end;
@@ -603,7 +616,10 @@ var G: TKMUnitGroup;
 begin
   G := fPlayers.GroupsHitTest(aX, aY);
   if (G <> nil) and not G.IsDead then
-    Result := G.ID
+  begin
+    Result := G.ID;
+    fIDCache.CacheGroup(G, G.ID); //Improves cache efficiency since G will probably be accessed soon
+  end
   else
     Result := -1;
 end;
@@ -620,7 +636,10 @@ begin
     begin
       G := fPlayers[U.Owner].UnitGroups.GetGroupByMember(TKMUnitWarrior(U));
       if G <> nil then
+      begin
         Result := G.ID;
+        fIDCache.CacheGroup(G, G.ID); //Improves cache efficiency since G will probably be accessed soon
+      end;
     end;
   end
   else
@@ -683,7 +702,11 @@ begin
     if G <> nil then
     begin
       if InRange(aMemberIndex, 0, G.Count-1) then
-        Result := G.Members[aMemberIndex].ID
+      begin
+        Result := G.Members[aMemberIndex].ID;
+        //Improves cache efficiency since unit will probably be accessed soon
+        fIDCache.CacheUnit(G.Members[aMemberIndex], Result);
+      end
       else
         LogError('States.GroupMember', [aGroupID, aMemberIndex]);
     end;
@@ -1289,17 +1312,13 @@ end;
 
 
 {TKMIDCache}
-function TKMIDCache.GetUnit(aID:Integer): TKMUnit;
+procedure TKMIDCache.CacheUnit(aUnit: TKMUnit; aID: Integer);
 var I, NewItem: Shortint;
 begin
   for I:=0 to fUnitCount-1 do
     if fUnitCache[i].ID = aID then
-    begin
-      Result := fUnitCache[i].U;
-      Exit;
-    end;
+      Exit; //Already in cache
 
-  //Not found so do lookup and add it to the cache
   if fUnitCount < CACHE_SIZE then
   begin
     NewItem := fUnitCount;
@@ -1313,12 +1332,86 @@ begin
     if fUnitLastAdded = CACHE_SIZE then fUnitLastAdded := 0;
   end;
 
+  fUnitCache[NewItem].ID := aID;
+  if aUnit <> nil then
+    fUnitCache[NewItem].U := aUnit.GetUnitPointer
+  else
+    fUnitCache[NewItem].U := nil;
+end;
+
+
+procedure TKMIDCache.CacheHouse(aHouse: TKMHouse; aID: Integer);
+var I, NewItem: Shortint;
+begin
+  for I:=0 to fHouseCount-1 do
+    if fHouseCache[i].ID = aID then
+      Exit; //Already in cache
+
+  if fHouseCount < CACHE_SIZE then
+  begin
+    NewItem := fHouseCount;
+    Inc(fHouseCount);
+  end
+  else
+  begin
+    //Cache full, overwrite the oldest item
+    NewItem := fHouseLastAdded;
+    Inc(fHouseLastAdded);
+    if fHouseLastAdded = CACHE_SIZE then fHouseLastAdded := 0;
+  end;
+
+  fHouseCache[NewItem].ID := aID;
+  if aHouse <> nil then
+    fHouseCache[NewItem].H := aHouse.GetHousePointer
+  else
+    fHouseCache[NewItem].H := nil;
+end;
+
+
+procedure TKMIDCache.CacheGroup(aGroup: TKMUnitGroup; aID: Integer);
+var I, NewItem: Shortint;
+begin
+  for I:=0 to fGroupCount-1 do
+    if fGroupCache[i].ID = aID then
+      Exit; //Already in cache
+
+  if fGroupCount < CACHE_SIZE then
+  begin
+    NewItem := fGroupCount;
+    Inc(fGroupCount);
+  end
+  else
+  begin
+    //Cache full, overwrite the oldest item
+    NewItem := fGroupLastAdded;
+    Inc(fGroupLastAdded);
+    if fGroupLastAdded = CACHE_SIZE then fGroupLastAdded := 0;
+  end;
+
+  fGroupCache[NewItem].ID := aID;
+  if aGroup <> nil then
+    fGroupCache[NewItem].G := aGroup.GetGroupPointer
+  else
+    fGroupCache[NewItem].G := nil;
+end;
+
+
+function TKMIDCache.GetUnit(aID:Integer): TKMUnit;
+var I: Shortint;
+begin
+  for I:=0 to fUnitCount-1 do
+    if fUnitCache[i].ID = aID then
+    begin
+      Result := fUnitCache[i].U;
+      Exit;
+    end;
+
+  //Not found so do lookup and add it to the cache
   Result := fPlayers.GetUnitByID(aID);
   if (Result <> nil) and Result.IsDead then
     Result := nil;
 
-  fUnitCache[NewItem].ID := aID;
-  fUnitCache[NewItem].U := Result.GetUnitPointer;
+  CacheUnit(Result, aID);
 end;
 
 
@@ -1333,25 +1426,11 @@ begin
     end;
 
   //Not found so do lookup and add it to the cache
-  if fHouseCount < CACHE_SIZE then
-  begin
-    NewItem := fHouseCount;
-    Inc(fHouseCount);
-  end
-  else
-  begin
-    //Cache full, overwrite the oldest item
-    NewItem := fHouseLastAdded;
-    Inc(fHouseLastAdded);
-    if fHouseLastAdded = CACHE_SIZE then fHouseLastAdded := 0;
-  end;
-
   Result := fPlayers.GetHouseByID(aID);
   if (Result <> nil) and Result.IsDestroyed then
     Result := nil;
 
-  fHouseCache[NewItem].ID := aID;
-  fHouseCache[NewItem].H := Result.GetHousePointer;
+  CacheHouse(Result, aID);
 end;
 
 
@@ -1366,25 +1445,11 @@ begin
     end;
 
   //Not found so do lookup and add it to the cache
-  if fGroupCount < CACHE_SIZE then
-  begin
-    NewItem := fGroupCount;
-    Inc(fGroupCount);
-  end
-  else
-  begin
-    //Cache full, overwrite the oldest item
-    NewItem := fGroupLastAdded;
-    Inc(fGroupLastAdded);
-    if fGroupLastAdded = CACHE_SIZE then fGroupLastAdded := 0;
-  end;
-
   Result := fPlayers.GetGroupByID(aID);
   if (Result <> nil) and Result.IsDead then
     Result := nil;
 
-  fGroupCache[NewItem].ID := aID;
-  fGroupCache[NewItem].G := Result.GetGroupPointer;
+  CacheGroup(Result, aID);
 end;
 
 

@@ -1449,7 +1449,7 @@ begin
                    fGroups.Add(G);
                  end;
   end;
-  fScripting.ProcWarriorEquipped(aUnit.ID, G.ID);
+  fScripting.ProcWarriorEquipped(aUnit, G);
 end;
 
 

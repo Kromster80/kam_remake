@@ -18,7 +18,6 @@ Finishing up:
 
 Known issues to fix:
 	Selecting a save in the lobby causes a crash
-	Script command PlayerCount returns number of locations on map, not number of active players (new command needed for that?)
 	Campaign/tutorials show warnings about showing messages with goals being depreciated
 
 
