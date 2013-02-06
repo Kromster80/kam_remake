@@ -57,6 +57,7 @@ type
     property Path: string read fPath;
     property FileName: string read fFileName;
     function FullPath(const aExt: string): string;
+    function HumanUsableLocations: TPlayerIndexArray;
     property CRC: Cardinal read fCRC;
     function LocationName(aIndex: TPlayerIndex): string;
     function SizeText: string;
@@ -177,6 +178,18 @@ end;
 function TKMapInfo.FullPath(const aExt: string): string;
 begin
   Result := fPath + fFileName + aExt;
+end;
+
+
+function TKMapInfo.HumanUsableLocations: TPlayerIndexArray;
+var I: Integer;
+begin
+  for I := 0 to MAX_PLAYERS - 1 do
+    if CanBeHuman[I] then
+    begin
+      SetLength(Result, Length(Result)+1);
+      Result[Length(Result)-1] := I;
+    end;
 end;
 
 

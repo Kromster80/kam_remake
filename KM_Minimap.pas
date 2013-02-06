@@ -40,7 +40,7 @@ type
     property MapY: Word read fMapY;
     property MapTex: TTexture read fMapTex;
 
-    procedure LoadFromMission(aMissionPath: string; aRevealFor: TPlayerIndex);
+    procedure LoadFromMission(aMissionPath: string; const aRevealFor: array of TPlayerIndex);
     procedure LoadFromTerrain(aAlerts: TKMAlerts);
     procedure LoadFromStream(LoadStream: TKMemoryStream);
     procedure SaveToStream(SaveStream: TKMemoryStream);
@@ -77,7 +77,7 @@ end;
 
 
 //Load map in a direct way, should be used only when in Menu
-procedure TKMMinimap.LoadFromMission(aMissionPath: string; aRevealFor: TPlayerIndex);
+procedure TKMMinimap.LoadFromMission(aMissionPath: string; const aRevealFor: array of TPlayerIndex);
 var I: Integer;
 begin
   fParser.LoadMission(aMissionPath, aRevealFor);

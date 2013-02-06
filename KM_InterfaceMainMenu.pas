@@ -2509,7 +2509,7 @@ begin
     M := fMaps[MapId];
 
     //Refresh minimap with selected location and player color
-    fMinimap.LoadFromMission(M.FullPath('.dat'), fSingleLoc + 1);
+    fMinimap.LoadFromMission(M.FullPath('.dat'), [TPlayerIndex(fSingleLoc + 1)]);
     fMinimap.PlayerColors[fSingleLoc+1] := fSingleColor;
     fMinimap.Update(False);
     MinimapView_Single.SetMinimap(fMinimap);
@@ -3266,7 +3266,7 @@ begin
   //If we have a map selected update the preview
   if (fGameApp.Networking.SelectGameKind = ngk_Map) and fGameApp.Networking.MapInfo.IsValid then
   begin
-    fMinimap.Update(True);
+    fMinimap.Update(not fGameApp.Networking.MapInfo.IsCoop);
     MinimapView_Lobby.SetMinimap(fMinimap);
   end;
 
@@ -3590,8 +3590,8 @@ begin
                 //Only load the minimap preview if the map is valid
                 if M.IsValid then
                 begin
-                  fMinimap.LoadFromMission(M.FullPath('.dat'), -1);
-                  fMinimap.Update(True);
+                  fMinimap.LoadFromMission(M.FullPath('.dat'), M.HumanUsableLocations);
+                  fMinimap.Update(not M.IsCoop);
                   MinimapView_Lobby.SetMinimap(fMinimap);
                 end;
                 Label_LobbyMapName.Caption := M.FileName;
@@ -4118,7 +4118,7 @@ begin
 
     Maps.Lock;
       fLastMapCRC := Maps[ID].CRC;
-      fMinimap.LoadFromMission(Maps[ID].FullPath('.dat'), -1);
+      fMinimap.LoadFromMission(Maps[ID].FullPath('.dat'), []);
     Maps.Unlock;
 
     fMinimap.Update(True);

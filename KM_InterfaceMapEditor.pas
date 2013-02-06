@@ -703,6 +703,7 @@ begin
       Button_PlayerSelect[I]         := TKMFlatButtonShape.Create(Panel_Main, 8 + I*23, 215, 21, 21, IntToStr(I+1), fnt_Grey, $FF0000FF);
       Button_PlayerSelect[I].Tag     := I;
       Button_PlayerSelect[I].OnClick := Player_ChangeActive;
+      if I = 0 then Button_PlayerSelect[I].Down := True //First player selected by default
     end;
 
     Bevel_HintBG := TKMBevel.Create(Panel_Main,224+32,Panel_Main.Height-23,300,21);
