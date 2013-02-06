@@ -430,7 +430,7 @@ begin
   begin
     Loc := fPlayers[I].CenterScreen;
     case aLayer of
-      plTerrain:  fRenderAux.SquareOnTerrain(Loc.X - 2, Loc.Y - 1.5,
+      plTerrain:  fRenderAux.SquareOnTerrain(Loc.X - 3, Loc.Y - 2.5,
                                              Loc.X + 2, Loc.Y + 1.5,
                                              fPlayers[I].FlagColor AND $20FFFFFF,
                                              fPlayers[I].FlagColor);

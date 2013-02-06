@@ -312,12 +312,14 @@ type
       Panel_MarkerReveal: TKMPanel;
         TrackBar_RevealSize: TKMTrackBar;
         Button_RevealDelete: TKMButton;
+        Button_RevealClose: TKMButton;
       Panel_MarkerDefence: TKMPanel;
         DropList_DefenceGroup: TKMDropList;
         DropList_DefenceType: TKMDropList;
         TrackBar_DefenceRad: TKMTrackBar;
         Button_DefenceCW, Button_DefenceCCW: TKMButton;
         Button_DefenceDelete: TKMButton;
+        Button_DefenceClose: TKMButton;
 
     //PopUp panels
     Panel_Formations: TKMPanel;
@@ -808,7 +810,7 @@ const
     (tkSwamp,       tkGrassyWater,  tkWater,        tkFastWater,    tkCustom),
     (tkShallowSnow, tkSnow,         tkDeepSnow,     tkIce,          tkCustom),
     (tkStoneMount,  tkGoldMount,    tkIronMount,    tkAbyss,        tkCustom),
-    (tkCoal,        tkGold,         tkIron,         tkCustom,       tkCustom));
+    (tkCoal,        tkGold,         tkIron,         tkLava,         tkCustom));
 var
   I: TKMTerrainTab;
   J,K: Integer;
@@ -841,7 +843,7 @@ begin
         BrushTable[J,K].OnClick := Terrain_BrushChange;
       end;
 
-      BrushRandom := TKMCheckBox.Create(Panel_Brushes, 0, 380, TB_WIDTH, 20, 'Random elements', fnt_Metal);
+      BrushRandom := TKMCheckBox.Create(Panel_Brushes, 0, 350, TB_WIDTH, 20, 'Random elements', fnt_Metal);
       BrushRandom.OnClick := Terrain_BrushChange;
 
     Panel_Heights := TKMPanel.Create(Panel_Terrain,0,28,TB_WIDTH,400);
@@ -1670,18 +1672,21 @@ procedure TKMapEdInterface.Create_Marker;
 begin
   Panel_Marker := TKMPanel.Create(Panel_Common, 0, 50, TB_WIDTH, 400);
 
-  Label_MarkerType := TKMLabel.Create(Panel_Marker, 0, 10, TB_WIDTH, 0, '', fnt_Outline, taCenter);
-  Image_MarkerPic := TKMImage.Create(Panel_Marker, 0, 30, 32, 32, 338);
+  Label_MarkerType := TKMLabel.Create(Panel_Marker, 32, 10, TB_WIDTH, 0, '', fnt_Outline, taLeft);
+  Image_MarkerPic := TKMImage.Create(Panel_Marker, 0, 10, 32, 32, 338);
 
-    Panel_MarkerReveal := TKMPanel.Create(Panel_Marker, 0, 60, TB_WIDTH, 400);
-      TrackBar_RevealSize := TKMTrackBar.Create(Panel_MarkerReveal, 0, 10, TB_WIDTH, 1, 64);
-      TrackBar_RevealSize.Caption := 'Area';
+    Panel_MarkerReveal := TKMPanel.Create(Panel_Marker, 0, 46, TB_WIDTH, 400);
+      TrackBar_RevealSize := TKMTrackBar.Create(Panel_MarkerReveal, 0, 0, TB_WIDTH, 1, 64);
+      TrackBar_RevealSize.Caption := 'Radius';
       TrackBar_RevealSize.OnChange := Marker_Change;
       Button_RevealDelete := TKMButton.Create(Panel_MarkerReveal, 0, 55, 25, 25, 340, rxGui, bsGame);
       Button_RevealDelete.Hint := 'Delete current marker';
       Button_RevealDelete.OnClick := Marker_Change;
+      Button_RevealClose := TKMButton.Create(Panel_MarkerReveal, TB_WIDTH-100, 55, 100, 25, 'Close', bsGame);
+      Button_RevealClose.Hint := 'Return to the markers page';
+      Button_RevealClose.OnClick := Marker_Change;
 
-    Panel_MarkerDefence := TKMPanel.Create(Panel_Marker, 0, 60, TB_WIDTH, 400);
+    Panel_MarkerDefence := TKMPanel.Create(Panel_Marker, 0, 46, TB_WIDTH, 400);
       DropList_DefenceGroup := TKMDropList.Create(Panel_MarkerDefence, 0, 10, TB_WIDTH, 20, fnt_Game, '', bsGame);
       DropList_DefenceGroup.Add('Melee');
       DropList_DefenceGroup.Add('AntiHorse');
@@ -1702,6 +1707,9 @@ begin
       Button_DefenceDelete := TKMButton.Create(Panel_MarkerDefence, 0, 165, 25, 25, 340, rxGui, bsGame);
       Button_DefenceDelete.Hint := 'Delete current marker';
       Button_DefenceDelete.OnClick := Marker_Change;
+      Button_DefenceClose := TKMButton.Create(Panel_MarkerDefence, TB_WIDTH-100, 165, 100, 25, 'Close', bsGame);
+      Button_DefenceClose.Hint := 'Return to the defence page';
+      Button_DefenceClose.OnClick := Marker_Change;
 end;
 
 
@@ -1802,6 +1810,7 @@ begin
     Button_Citizen[I].FlagColor := MyPlayer.FlagColor;
   for I := Low(Button_Warriors) to High(Button_Warriors) do
     Button_Warriors[I].FlagColor := MyPlayer.FlagColor;
+  Button_Reveal.FlagColor := MyPlayer.FlagColor;
 end;
 
 
@@ -2614,6 +2623,9 @@ begin
                       fPlayers[fActiveMarker.Owner].AI.General.DefencePositions.Delete(fActiveMarker.Index);
                       SwitchPage(Button_Town[ttDefences]);
                     end;
+
+                    if Sender = Button_DefenceClose then
+                      SwitchPage(Button_Town[ttDefences]);
                   end;
     mtRevealFOW:  begin
                     //Shortcut to structure we update
@@ -2627,6 +2639,9 @@ begin
                       Rev.DeleteEntry(fActiveMarker.Index);
                       SwitchPage(Button_Player[ptMarkers]);
                     end;
+
+                    if Sender = Button_RevealClose then
+                      SwitchPage(Button_Player[ptMarkers]);
                   end;
   end;
 end;
@@ -3048,6 +3063,12 @@ begin
     Button_Reveal.Down := False;
   end;
 
+  if (Sender = nil) and (GameCursor.Mode = cmNone) then
+  begin
+    Button_Reveal.Down := False;
+    Button_CenterScreen.Down := False;
+  end;
+
   if Button_Reveal.Down then
   begin
     GameCursor.Mode := cmMarkers;
@@ -3241,7 +3262,9 @@ begin
 
   if fMyControls.CtrlOver <> nil then
   begin
-    fResource.Cursors.Cursor := kmc_Default;
+    //kmc_Edit and kmc_DragUp are handled by Controls.MouseMove (it will reset them when required)
+    if not fGame.Viewport.Scrolling and not (fResource.Cursors.Cursor in [kmc_Edit,kmc_DragUp]) then
+      fResource.Cursors.Cursor := kmc_Default;
     GameCursor.SState := []; //Don't do real-time elevate when the mouse is over controls, only terrain
     Exit;
   end
