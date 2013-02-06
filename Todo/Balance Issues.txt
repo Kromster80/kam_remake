@@ -66,6 +66,11 @@ SOLUTIONS:
     - Divides community further over what "true KaM gameplay" is
  2. Make towers less accurate like they were in r3392
     - Towers become basically useless, no way to protect yourself and have sieges. Games finish 10 min after PT ends.
+ 3. Make towers easier to destoy (reduce hp by half)
+    - decent defence will require even more towers placed
+    - Without reducing the cost it will be non-consistent with other houses (50hp per 1 building material)
+ 4. Bring back siege equipment with a bonus against houses or able to attack houses only
+    + Good use for siege equipment
 
 
 ISSUE:
@@ -91,5 +96,10 @@ Builder rushes when enemy spams builders and covers whole map in its houseplans.
 
 
 ISSUE:
-Excess builders used to empty enemies towers.
-
+Excess builders used to empty enemy towers.
+SOLUTIONS:
+ 1. Disalow to place plans within complete towers range
+    - players can still place plans deeper into enemy territory (if they scout it) and workers will walk to them through towers
+ 2. Make citizens and workers to avoid enemy towers (as if they are scared to walk around it, cos they get killed)
+    + makes the most sense so far, army ppl are prepared to sacrifice their lives for kingdom, but common folks are not suicidals
+    - there needs to be a visual queue why citizens stopped using roads next to towers and why workers refuse to go near towers
