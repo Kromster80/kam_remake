@@ -400,6 +400,11 @@ begin
                 for I := 1 to fNetworking.NetPlayers.Count do
                   //PlayerID is 0 based
                   PlayerEnabled[fNetworking.NetPlayers[I].StartLocation - 1] := True;
+
+                //Fixed AIs are always enabled (e.g. coop missions)
+                for I := 1 to fNetworking.MapInfo.PlayerCount-1 do
+                  if fNetworking.MapInfo.CanBeAI[I] and not fNetworking.MapInfo.CanBeHuman[I] then
+                    PlayerEnabled[I] := True;
               end;
     gmSingle: //Setup should tell us which player is AI and which not
               for I := 0 to MAX_PLAYERS - 1 do
