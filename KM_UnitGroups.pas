@@ -496,8 +496,8 @@ end;
 procedure TKMUnitGroup.SetPosition(aValue: TKMPoint);
 begin
   Assert(fGame.IsMapEditor);
-  fOrderLoc.Loc := aValue;
   Members[0].SetPosition(aValue);
+  fOrderLoc.Loc := Members[0].GetPosition; //Don't assume we can move to aValue
 end;
 
 
