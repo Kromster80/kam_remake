@@ -446,14 +446,22 @@ begin
   end;
 
   for i:=1 to fNetPlayers.Count do
+  begin
     for k:=1 to fSaveInfo.Info.PlayerCount do
-      if (i = aPlayerID) or (aPlayerID = -1) then //-1 means update all players
-        if fNetPlayers.LocAvailable(k) then
-        begin
-          if ((fNetPlayers[i].IsComputer) and (fSaveInfo.Info.PlayerTypes[k-1] = pt_Computer))
-          or (fNetPlayers[i].Nikname = fSaveInfo.Info.LocationName[k-1]) then
-            fNetPlayers[i].StartLocation := k;
-        end;
+      if fSaveInfo.Info.Enabled[k-1] then
+      begin
+        if (i = aPlayerID) or (aPlayerID = -1) then //-1 means update all players
+          if fNetPlayers.LocAvailable(k) then
+          begin
+            if ((fNetPlayers[i].IsComputer) and (fSaveInfo.Info.PlayerTypes[k-1] = pt_Computer))
+            or (fNetPlayers[i].Nikname = fSaveInfo.Info.LocationName[k-1]) then
+            begin
+              fNetPlayers[i].StartLocation := k;
+              Break;
+            end;
+          end;
+      end;
+  end;
 end;
 
 
@@ -492,6 +500,8 @@ begin
     SelectNoMap('Invalid');
     Exit;
   end;
+
+  fMapInfo.LoadExtra; //Lobby requires extra map info such as CanBeHuman
 
   fNetPlayers.ResetLocAndReady; //Reset start locations
 

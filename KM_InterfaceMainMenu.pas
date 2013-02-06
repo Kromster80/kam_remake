@@ -3097,10 +3097,10 @@ begin
     //Starting location
     if (Sender = DropBox_LobbyLoc[i]) and DropBox_LobbyLoc[i].Enabled then
     begin
-      fGameApp.Networking.SelectLoc(DropBox_LobbyLoc[i].ItemIndex, i+1);
+      fGameApp.Networking.SelectLoc(DropBox_LobbyLoc[i].GetSelectedTag, i+1);
       //Host with HostDoesSetup could have given us some location we don't know about from a map/save we don't have
       if fGameApp.Networking.SelectGameKind <> ngk_None then
-        DropBox_LobbyLoc[i].ItemIndex := fGameApp.Networking.NetPlayers[i+1].StartLocation;
+        DropBox_LobbyLoc[i].SelectByTag(fGameApp.Networking.NetPlayers[i+1].StartLocation);
     end;
 
     //Team
@@ -3204,7 +3204,7 @@ begin
     if fGameApp.Networking.SelectGameKind = ngk_Map then
       IsValid := fGameApp.Networking.MapInfo.IsValid;
     if IsValid then
-      DropBox_LobbyLoc[I].ItemIndex := fGameApp.Networking.NetPlayers[I+1].StartLocation
+      DropBox_LobbyLoc[I].SelectByTag(fGameApp.Networking.NetPlayers[I+1].StartLocation)
     else
       DropBox_LobbyLoc[I].ItemIndex := 0;
 
@@ -3526,15 +3526,25 @@ end;
 
 
 procedure TKMMainMenuInterface.Lobby_OnMapName(const aData: string);
+
+  procedure AddLocation(aText: string; aTag: Integer);
+  var I: Integer;
+  begin
+    for I := 0 to MAX_PLAYERS - 1 do
+      DropBox_LobbyLoc[I].Add(aText, aTag);
+  end;
+
 var
   I: Integer;
-  DropText: string;
   M: TKMapInfo;
   S: TKMSaveInfo;
 begin
   //Common settings
   MinimapView_Lobby.Visible := (fGameApp.Networking.SelectGameKind = ngk_Map) and fGameApp.Networking.MapInfo.IsValid;
   TrackBar_LobbyPeacetime.Enabled := fGameApp.Networking.IsHost and (fGameApp.Networking.SelectGameKind = ngk_Map) and fGameApp.Networking.MapInfo.IsValid;
+
+  for I := 0 to MAX_PLAYERS - 1 do
+    DropBox_LobbyLoc[I].Clear;
 
   case  fGameApp.Networking.SelectGameKind of
     ngk_None: begin
@@ -3548,7 +3558,7 @@ begin
                 end;
 
                 //Starting locations text
-                DropText := fTextLibrary[TX_LOBBY_RANDOM] + eol;
+                AddLocation(fTextLibrary[TX_LOBBY_RANDOM], 0);
               end;
     ngk_Save: begin
                 S := fGameApp.Networking.SaveInfo;
@@ -3559,10 +3569,10 @@ begin
                 Memo_LobbyMapDesc.Text := S.Info.GetTitleWithTime;
 
                 //Starting locations text
-                DropText := fTextLibrary[TX_LOBBY_SELECT] + eol;
+                AddLocation(fTextLibrary[TX_LOBBY_SELECT], 0);
                 for I := 0 to S.Info.PlayerCount - 1 do
-                if S.Info.CanBeHuman[I] then
-                  DropText := DropText + S.Info.LocationName[I] + eol;
+                if (S.Info.CanBeHuman[I] or ALLOW_TAKE_AI_PLAYERS) and S.Info.Enabled[I] then
+                  AddLocation(S.Info.LocationName[I], I+1);
               end;
     ngk_Map:  begin
                 M := fGameApp.Networking.MapInfo;
@@ -3588,15 +3598,12 @@ begin
                 Memo_LobbyMapDesc.Text := M.BigDesc;
 
               //Starting locations text
-              DropText := fTextLibrary[TX_LOBBY_RANDOM] + eol;
+              AddLocation(fTextLibrary[TX_LOBBY_RANDOM], 0);
               for I := 0 to M.PlayerCount - 1 do
               if M.CanBeHuman[I] or ALLOW_TAKE_AI_PLAYERS then
-                DropText := DropText + M.LocationName(I) + eol;
+                AddLocation(M.LocationName(I), I+1);
             end;
   end;
-
-  for I := 0 to MAX_PLAYERS - 1 do
-    DropBox_LobbyLoc[I].SetItems(DropText);
 end;
 
 

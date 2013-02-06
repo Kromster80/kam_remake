@@ -1558,7 +1558,9 @@ begin
     //Group order
     TKMLabel.Create(Panel_Army, 0, 140, TB_WIDTH, 0, 'Group order', fnt_Outline, taLeft);
     DropBox_ArmyOrder   := TKMDropList.Create(Panel_Army, 0, 160, TB_WIDTH, 20, fnt_Metal, '', bsGame);
-    DropBox_ArmyOrder.SetItems('None'+eol+'Walk to'+eol+'Attack position');
+    DropBox_ArmyOrder.Add('None');
+    DropBox_ArmyOrder.Add('Walk to');
+    DropBox_ArmyOrder.Add('Attack position');
     DropBox_ArmyOrder.OnChange := Unit_ArmyChange1;
     Edit_ArmyOrderX := TKMNumericEdit.Create(Panel_Army, 0, 185, 0, 255);
     Edit_ArmyOrderX.OnChange := Unit_ArmyChange1;
@@ -1680,10 +1682,14 @@ begin
 
     Panel_MarkerDefence := TKMPanel.Create(Panel_Marker, 0, 60, TB_WIDTH, 400);
       DropList_DefenceGroup := TKMDropList.Create(Panel_MarkerDefence, 0, 10, TB_WIDTH, 20, fnt_Game, '', bsGame);
-      DropList_DefenceGroup.SetItems('Melee'+eol+'AntiHorse'+eol+'Ranged'+eol+'Mounted');
+      DropList_DefenceGroup.Add('Melee');
+      DropList_DefenceGroup.Add('AntiHorse');
+      DropList_DefenceGroup.Add('Ranged');
+      DropList_DefenceGroup.Add('Mounted');
       DropList_DefenceGroup.OnChange := Marker_Change;
       DropList_DefenceType := TKMDropList.Create(Panel_MarkerDefence, 0, 40, TB_WIDTH, 20, fnt_Game, '', bsGame);
-      DropList_DefenceType.SetItems('FrontLine'+eol+'BackLine');
+      DropList_DefenceType.Add('FrontLine');
+      DropList_DefenceType.Add('BackLine');
       DropList_DefenceType.OnChange := Marker_Change;
       TrackBar_DefenceRad := TKMTrackBar.Create(Panel_MarkerDefence, 0, 70, TB_WIDTH, 1, 128);
       TrackBar_DefenceRad.Caption := 'Defence radius';
@@ -2662,7 +2668,7 @@ begin
   fMaps.TerminateScan;
   fMapsMP.TerminateScan;
 
-  ListBox_Load.SetItems('');
+  ListBox_Load.Clear;
   ListBox_Load.ItemIndex := -1;
 
   if Radio_Load_MapType.ItemIndex = 0 then
@@ -2673,11 +2679,17 @@ end;
 
 
 procedure TKMapEdInterface.Menu_LoadUpdateDone(Sender: TObject);
+var M: TKMapsCollection; I: Integer;
 begin
   if Radio_Load_MapType.ItemIndex = 0 then
-    ListBox_Load.SetItems(fMaps.MapList)
+    M := fMaps
   else
-    ListBox_Load.SetItems(fMapsMP.MapList);
+    M := fMapsMP;
+
+  M.Lock;
+  for I:=0 to M.Count-1 do
+    ListBox_Load.Add(M.Maps[I].FileName);
+  M.Unlock;
 
   //Try to select first map by default
   if ListBox_Load.ItemIndex = -1 then

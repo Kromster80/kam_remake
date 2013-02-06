@@ -256,6 +256,7 @@ begin
       repeat
         ReadLn(ft, st);
         if SameText(st, 'SmallDesc') then ReadLn(ft, SmallDesc);
+        if SameText(st, 'SetCoop')   then IsCoop := True;
       until(eof(ft));
       CloseFile(ft);
     end;
@@ -320,6 +321,7 @@ begin
   S.Read(MissionMode, SizeOf(TKMissionMode));
   S.Read(PlayerCount);
   S.Read(SmallDesc);
+  S.Read(IsCoop);
 
   //Other properties are not saved, they are fast to reload
   S.Free;
@@ -343,6 +345,7 @@ begin
     S.Write(MissionMode, SizeOf(TKMissionMode));
     S.Write(PlayerCount);
     S.Write(SmallDesc);
+    S.Write(IsCoop);
 
     //Other properties from text file are not saved, they are fast to reload
     S.SaveToFile(aPath);

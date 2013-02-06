@@ -1070,6 +1070,7 @@ begin
 
       if NetIndex = -1 then
       begin
+        fGameInfo.Enabled[I] := False;
         fGameInfo.CanBeHuman[I] := False;
         fGameInfo.LocationName[I] := 'Unknown ' + IntToStr(I + 1);
         fGameInfo.PlayerTypes[I] := pt_Human;
@@ -1077,6 +1078,7 @@ begin
         fGameInfo.Team[I] := 0;
       end else
       begin
+        fGameInfo.Enabled[I] := True;
         fGameInfo.CanBeHuman[I] := fNetworking.NetPlayers[NetIndex].IsHuman;
         fGameInfo.LocationName[I] := fNetworking.NetPlayers[NetIndex].Nikname;
         fGameInfo.PlayerTypes[I] := fNetworking.NetPlayers[NetIndex].GetPlayerType;

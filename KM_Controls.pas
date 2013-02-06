@@ -600,16 +600,16 @@ type
     procedure SetEnabled(aValue: Boolean); override;
     procedure SetVisible(aValue: Boolean); override;
   public
+    ItemTags: array of Integer;
     constructor Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight: Integer; aFont: TKMFont; aStyle: TButtonStyle);
     destructor Destroy; override;
 
     property AutoHideScrollBar: boolean read fAutoHideScrollBar write SetAutoHideScrollBar;
     property BackAlpha: Single write SetBackAlpha;
 
-    procedure Add(aItem: string);
+    procedure Add(aItem: string; aTag: Integer=0);
     procedure Clear;
     function Count: Integer;
-    procedure SetItems(aText: string);
 
     property Item[aIndex: Integer]: string read GetItem;
     property ItemHeight: Byte read fItemHeight write SetItemHeight; //Accessed by DropBox
@@ -808,9 +808,11 @@ type
     constructor Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight: Integer; aFont: TKMFont; aDefaultCaption: string; aStyle: TButtonStyle);
     procedure Clear; override;
     function Count: Integer; override;
-    procedure Add(aItem: string);
-    procedure SetItems(aText: string);
+    procedure Add(aItem: string; aTag: Integer=0);
     procedure SelectByName(aText: string);
+    procedure SelectByTag(aTag: Integer);
+    function GetTag(aIndex: Integer): Integer;
+    function GetSelectedTag: Integer;
     property DefaultCaption: string read fDefaultCaption write fDefaultCaption;
     property Item[aIndex: Integer]: string read GetItem;
 
@@ -2932,9 +2934,11 @@ begin
 end;
 
 
-procedure TKMListBox.Add(aItem: string);
+procedure TKMListBox.Add(aItem: string; aTag: Integer=0);
 begin
   fItems.Add(aItem);
+  SetLength(ItemTags, Length(ItemTags)+1);
+  ItemTags[Length(ItemTags)-1] := aTag;
   UpdateScrollBar;
 end;
 
@@ -2942,15 +2946,8 @@ end;
 procedure TKMListBox.Clear;
 begin
   fItems.Clear;
+  SetLength(ItemTags, 0);
   fItemIndex := -1;
-  UpdateScrollBar;
-end;
-
-
-//When you want to reset ItemIndex do so separately
-procedure TKMListBox.SetItems(aText: string);
-begin
-  fItems.Text := aText;
   UpdateScrollBar;
 end;
 
@@ -3750,16 +3747,9 @@ begin
 end;
 
 
-procedure TKMDropList.Add(aItem: string);
+procedure TKMDropList.Add(aItem: string; aTag: Integer=0);
 begin
-  fList.Add(aItem);
-  UpdateDropPosition;
-end;
-
-
-procedure TKMDropList.SetItems(aText: string);
-begin
-  fList.SetItems(aText);
+  fList.Add(aItem, aTag);
   UpdateDropPosition;
 end;
 
@@ -3771,6 +3761,28 @@ begin
   for i:=0 to fList.Count-1 do
     if fList.Item[i] = aText then
       SetItemIndex(i);
+end;
+
+
+procedure TKMDropList.SelectByTag(aTag: Integer);
+var i: Integer;
+begin
+  fList.ItemIndex := -1;
+  for i:=0 to fList.Count-1 do
+    if fList.ItemTags[i] = aTag then
+      SetItemIndex(i);
+end;
+
+
+function TKMDropList.GetTag(aIndex: Integer): Integer;
+begin
+  Result := fList.ItemTags[aIndex];
+end;
+
+
+function TKMDropList.GetSelectedTag: Integer;
+begin
+  Result := GetTag(fList.fItemIndex);
 end;
 
 

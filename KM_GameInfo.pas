@@ -22,6 +22,7 @@ type
 
     PlayerCount: Byte;
     //Location name is string because for savegames we store players name there
+    Enabled: array [0..MAX_PLAYERS-1] of Boolean;
     CanBeHuman: array [0..MAX_PLAYERS-1] of Boolean;
     LocationName: array [0..MAX_PLAYERS-1] of AnsiString;
     PlayerTypes: array [0..MAX_PLAYERS-1] of TPlayerType;
@@ -78,6 +79,7 @@ begin
   for I := 0 to PlayerCount - 1 do
   begin
     LoadStream.Read(CanBeHuman[I]);
+    LoadStream.Read(Enabled[I]);
     LoadStream.Read(LocationName[I]);
     LoadStream.Read(PlayerTypes[I], SizeOf(PlayerTypes[I]));
     LoadStream.Read(ColorID[I]);
@@ -105,6 +107,7 @@ begin
   for I := 0 to PlayerCount - 1 do
   begin
     SaveStream.Write(CanBeHuman[I]);
+    SaveStream.Write(Enabled[I]);
     SaveStream.Write(LocationName[I]);
     SaveStream.Write(PlayerTypes[I], SizeOf(PlayerTypes[I]));
     SaveStream.Write(ColorID[I]);
