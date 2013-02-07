@@ -3549,7 +3549,6 @@ end;
 
 procedure TKMMainMenuInterface.Lobby_OnMapName(const aData: string);
 var
-  I: Integer;
   M: TKMapInfo;
   S: TKMSaveInfo;
 begin

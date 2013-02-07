@@ -36,6 +36,7 @@ type
     property ParseError: string read fParseError;
     function IsValid(aCheckDATCRC: Boolean): Boolean;
     function AICount: Byte;
+    function HumanCount: Byte;
     function SizeText: string;
     function MissionModeText: string;
     function GetTimeText: string;
@@ -130,6 +131,16 @@ begin
   Result := 0;
   for I := 0 to PlayerCount - 1 do
     if PlayerTypes[I] = pt_Computer then
+      Inc(Result);
+end;
+
+
+function TKMGameInfo.HumanCount: Byte;
+var I: Integer;
+begin
+  Result := 0;
+  for I := 0 to PlayerCount - 1 do
+    if Enabled[I] and (PlayerTypes[I] = pt_Human) then
       Inc(Result);
 end;
 

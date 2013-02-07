@@ -429,39 +429,24 @@ begin
   begin
     //If we are matching all then reset them all first so we don't get clashes
     for i:=1 to fNetPlayers.Count do
-    begin
       fNetPlayers[i].StartLocation := 0;
-      //Remove all closed players so we have space to fill with AIs (unused slots are closed below)
-      if fNetPlayers[i].IsClosed then fNetPlayers.RemClosedPlayer(i);
-    end;
 
-    //Add enough AI players automatically (when we are matching all)
-    for i:=fNetPlayers.GetAICount to fSaveInfo.Info.AICount-1 do
-      if fNetPlayers.Count < MAX_PLAYERS then
-        fNetPlayers.AddAIPlayer;
-
-    for i:=1 to MAX_PLAYERS - fSaveInfo.Info.PlayerCount - fNetPlayers.GetClosedCount do
+    for i:=1 to MAX_PLAYERS - fSaveInfo.Info.HumanCount - fNetPlayers.GetClosedCount do
       if fNetPlayers.Count < MAX_PLAYERS then
         fNetPlayers.AddClosedPlayer; //Close unused slots
   end;
 
+  //Match players based on their nicknames
   for i:=1 to fNetPlayers.Count do
-  begin
     for k:=1 to fSaveInfo.Info.PlayerCount do
-      if fSaveInfo.Info.Enabled[k-1] then
+      if fSaveInfo.Info.Enabled[k-1]
+      and ((i = aPlayerID) or (aPlayerID = -1)) //-1 means update all players
+      and fNetPlayers.LocAvailable(k)
+      and (fNetPlayers[i].Nikname = fSaveInfo.Info.LocationName[k-1]) then
       begin
-        if (i = aPlayerID) or (aPlayerID = -1) then //-1 means update all players
-          if fNetPlayers.LocAvailable(k) then
-          begin
-            if ((fNetPlayers[i].IsComputer) and (fSaveInfo.Info.PlayerTypes[k-1] = pt_Computer))
-            or (fNetPlayers[i].Nikname = fSaveInfo.Info.LocationName[k-1]) then
-            begin
-              fNetPlayers[i].StartLocation := k;
-              Break;
-            end;
-          end;
+        fNetPlayers[i].StartLocation := k;
+        Break;
       end;
-  end;
 end;
 
 
