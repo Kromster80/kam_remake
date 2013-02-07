@@ -80,6 +80,8 @@ type
     function HouseTypeCount(aPlayer, aHouseType: Byte): Integer;
 
     function HouseAt(aX, aY: Word): Integer;
+    function HousePositionX(aHouseID: Integer): Integer;
+    function HousePositionY(aHouseID: Integer): Integer;
     function HouseDestroyed(aHouseID: Integer): Boolean;
     function HouseOwner(aHouseID: Integer): Integer;
     function HouseType(aHouseID: Integer): Integer;
@@ -90,6 +92,8 @@ type
     function HouseHasOccupant(aHouseID: Integer): Boolean;
 
     function UnitAt(aX, aY: Word): Integer;
+    function UnitPositionX(aUnitID: Integer): Integer;
+    function UnitPositionY(aUnitID: Integer): Integer;
     function UnitDead(aUnitID: Integer): Boolean;
     function UnitOwner(aUnitID: Integer): Integer;
     function UnitsGroup(aUnitID: Integer): Integer;
@@ -127,10 +131,10 @@ type
     procedure SetOverlayText(aPlayer, aIndex: Word);
     procedure SetOverlayTextFormatted(aPlayer, aIndex: Word; const Args: array of const);
 
-    procedure AddRoadPlan(aPlayer, X, Y: Word);
-    procedure AddFieldPlan(aPlayer, X, Y: Word);
-    procedure AddWinefieldPlan(aPlayer, X, Y: Word);
-    procedure AddHousePlan(aPlayer, aHouseType, X, Y: Word);
+    function AddRoadPlan(aPlayer, X, Y: Word): Boolean;
+    function AddFieldPlan(aPlayer, X, Y: Word): Boolean;
+    function AddWinefieldPlan(aPlayer, X, Y: Word): Boolean;
+    function AddHousePlan(aPlayer, aHouseType, X, Y: Word): Boolean;
 
     procedure AddHouseDamage(aHouseID: Integer; aDamage: Word);
     procedure DestroyHouse(aHouseID: Integer);
@@ -389,6 +393,36 @@ begin
 end;
 
 
+function TKMScriptStates.HousePositionX(aHouseID: Integer): Integer;
+var H: TKMHouse;
+begin
+  Result := -1;
+  if aHouseID > 0 then
+  begin
+    H := fIDCache.GetHouse(aHouseID);
+    if H <> nil then
+      Result := H.GetPosition.X;
+  end
+  else
+    LogError('States.HouseX', [aHouseID]);
+end;
+
+
+function TKMScriptStates.HousePositionY(aHouseID: Integer): Integer;
+var H: TKMHouse;
+begin
+  Result := -1;
+  if aHouseID > 0 then
+  begin
+    H := fIDCache.GetHouse(aHouseID);
+    if H <> nil then
+      Result := H.GetPosition.Y;
+  end
+  else
+    LogError('States.HouseY', [aHouseID]);
+end;
+
+
 function TKMScriptStates.HouseDestroyed(aHouseID: Integer): Boolean;
 var H: TKMHouse;
 begin
@@ -536,6 +570,36 @@ begin
   end
   else
     Result := -1;
+end;
+
+
+function TKMScriptStates.UnitPositionX(aUnitID: Integer): Integer;
+var U: TKMUnit;
+begin
+  Result := -1;
+  if aUnitID > 0 then
+  begin
+    U := fIDCache.GetUnit(aUnitID);
+    if U <> nil then
+      Result := U.GetPosition.X;
+  end
+  else
+    LogError('States.UnitX', [aUnitID]);
+end;
+
+
+function TKMScriptStates.UnitPositionY(aUnitID: Integer): Integer;
+var U: TKMUnit;
+begin
+  Result := -1;
+  if aUnitID > 0 then
+  begin
+    U := fIDCache.GetUnit(aUnitID);
+    if U <> nil then
+      Result := U.GetPosition.Y;
+  end
+  else
+    LogError('States.UnitY', [aUnitID]);
 end;
 
 
@@ -1049,57 +1113,73 @@ begin
 end;
 
 
-procedure TKMScriptActions.AddRoadPlan(aPlayer, X, Y: Word);
+function TKMScriptActions.AddRoadPlan(aPlayer, X, Y: Word): Boolean;
 begin
+  Result := False;
   //Verify all input parameters
   if InRange(aPlayer, 0, fPlayers.Count - 1)
   and fTerrain.TileInMapCoords(X,Y) then
   begin
     if fPlayers[aPlayer].CanAddFieldPlan(KMPoint(X, Y), ft_Road) then
-      fPlayers[aPlayer].BuildList.FieldworksList.AddField(KMPoint(X, Y), ft_Road)
+    begin
+      Result := True;
+      fPlayers[aPlayer].BuildList.FieldworksList.AddField(KMPoint(X, Y), ft_Road);
+    end;
   end
   else
     LogError('Actions.AddRoadPlan', [aPlayer, X, Y]);
 end;
 
 
-procedure TKMScriptActions.AddFieldPlan(aPlayer, X, Y: Word);
+function TKMScriptActions.AddFieldPlan(aPlayer, X, Y: Word): Boolean;
 begin
+  Result := False;
   //Verify all input parameters
   if InRange(aPlayer, 0, fPlayers.Count - 1)
   and fTerrain.TileInMapCoords(X,Y) then
   begin
     if fPlayers[aPlayer].CanAddFieldPlan(KMPoint(X, Y), ft_Corn) then
-      fPlayers[aPlayer].BuildList.FieldworksList.AddField(KMPoint(X, Y), ft_Corn)
+    begin
+      Result := True;
+      fPlayers[aPlayer].BuildList.FieldworksList.AddField(KMPoint(X, Y), ft_Corn);
+    end;
   end
   else
     LogError('Actions.AddFieldPlan', [aPlayer, X, Y]);
 end;
 
 
-procedure TKMScriptActions.AddWinefieldPlan(aPlayer, X, Y: Word);
+function TKMScriptActions.AddWinefieldPlan(aPlayer, X, Y: Word): Boolean;
 begin
+  Result := False;
   //Verify all input parameters
   if InRange(aPlayer, 0, fPlayers.Count - 1)
   and fTerrain.TileInMapCoords(X,Y) then
   begin
     if fPlayers[aPlayer].CanAddFieldPlan(KMPoint(X, Y), ft_Wine) then
-      fPlayers[aPlayer].BuildList.FieldworksList.AddField(KMPoint(X, Y), ft_Wine)
+    begin
+      Result := True;
+      fPlayers[aPlayer].BuildList.FieldworksList.AddField(KMPoint(X, Y), ft_Wine);
+    end;
   end
   else
     LogError('Actions.AddWinefieldPlan', [aPlayer, X, Y]);
 end;
 
 
-procedure TKMScriptActions.AddHousePlan(aPlayer, aHouseType, X, Y: Word);
+function TKMScriptActions.AddHousePlan(aPlayer, aHouseType, X, Y: Word): Boolean;
 begin
+  Result := False;
   //Verify all input parameters
   if InRange(aPlayer, 0, fPlayers.Count - 1)
   and (aHouseType in [Low(HouseIndexToType)..High(HouseIndexToType)])
   and fTerrain.TileInMapCoords(X,Y) then
   begin
     if fPlayers[aPlayer].CanAddHousePlan(KMPoint(X, Y), HouseIndexToType[aHouseType]) then
-      fPlayers[aPlayer].BuildList.HousePlanList.AddPlan(HouseIndexToType[aHouseType], KMPoint(X, Y))
+    begin
+      Result := True;
+      fPlayers[aPlayer].BuildList.HousePlanList.AddPlan(HouseIndexToType[aHouseType], KMPoint(X, Y));
+    end;
   end
   else
     LogError('Actions.AddHousePlan', [aPlayer, aHouseType, X, Y]);
@@ -1127,7 +1207,8 @@ begin
   if (aUnitID > 0) and (TKMDirection(aDirection+1) in [dir_N..dir_NW]) then
   begin
     U := fIDCache.GetUnit(aUnitID);
-    if U <> nil then
+    //Can only make idle units change direction so we don't mess up tasks and cause crashes
+    if (U <> nil) and U.IsIdle then
       U.Direction := TKMDirection(aDirection+1);
   end
   else

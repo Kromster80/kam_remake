@@ -170,6 +170,10 @@ begin
       RegisterMethod('function HouseDeliveryBlocked(aHouseID: Integer): Boolean');
       RegisterMethod('function HouseResourceAmount(aHouseID, aResource: Integer): Integer');
       RegisterMethod('function HouseHasOccupant(aHouseID: Integer): Boolean');
+      RegisterMethod('function HousePositionX(aHouseID: Integer): Integer');
+      RegisterMethod('function HousePositionY(aHouseID: Integer): Integer');
+      RegisterMethod('function UnitPositionX(aHouseID: Integer): Integer');
+      RegisterMethod('function UnitPositionY(aHouseID: Integer): Integer');
     end;
 
     with Sender.AddClassN(nil, fActions.ClassName) do
@@ -196,10 +200,10 @@ begin
       RegisterMethod('procedure GroupOrderWalk(aGroupID: Integer; X, Y, aDirection: Word)');
       RegisterMethod('procedure GroupOrderAttackHouse(aGroupID, aHouseID: Integer)');
       RegisterMethod('procedure GroupOrderAttackUnit(aGroupID, aUnitID: Integer)');
-      RegisterMethod('procedure AddRoadPlan(aPlayer, X, Y: Word)');
-      RegisterMethod('procedure AddFieldPlan(aPlayer, X, Y: Word)');
-      RegisterMethod('procedure AddWinefieldPlan(aPlayer, X, Y: Word)');
-      RegisterMethod('procedure AddHousePlan(aPlayer, aHouseType, X, Y: Word)');
+      RegisterMethod('function AddRoadPlan(aPlayer, X, Y: Word): Boolean');
+      RegisterMethod('function AddFieldPlan(aPlayer, X, Y: Word): Boolean');
+      RegisterMethod('function AddWinefieldPlan(aPlayer, X, Y: Word): Boolean');
+      RegisterMethod('function AddHousePlan(aPlayer, aHouseType, X, Y: Word): Boolean');
       RegisterMethod('procedure SetHouseDeliveryBlocked(aHouseID: Integer; aDeliveryBlocked: Boolean)');
       RegisterMethod('procedure SchoolAddToQueue(aHouseID: Integer; aUnitType: Integer; aCount: Integer)');
       RegisterMethod('procedure BarracksEquip(aHouseID: Integer; aUnitType: Integer; aCount: Integer)');
@@ -389,6 +393,10 @@ begin
     RegisterMethod(@TKMScriptStates.HouseDeliveryBlocked, 'HOUSEDELIVERYBLOCKED');
     RegisterMethod(@TKMScriptStates.HouseResourceAmount, 'HOUSERESOURCEAMOUNT');
     RegisterMethod(@TKMScriptStates.HouseHasOccupant, 'HOUSEHASOCCUPANT');
+    RegisterMethod(@TKMScriptStates.HousePositionX, 'HOUSEPOSITIONX');
+    RegisterMethod(@TKMScriptStates.HousePositionY, 'HOUSEPOSITIONY');
+    RegisterMethod(@TKMScriptStates.UnitPositionX, 'UNITPOSITIONX');
+    RegisterMethod(@TKMScriptStates.UnitPositionY, 'UNITPOSITIONY');
   end;
 
   with ClassImp.Add(TKMScriptActions) do
