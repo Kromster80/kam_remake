@@ -225,7 +225,7 @@ type
     procedure SyncLoad; override;
     procedure DemolishHouse(aFrom: TPlayerIndex; IsEditor: Boolean = False); override;
     procedure ResAddToIn(aResource: TResourceType; aCount: Word = 1; aFromScript: Boolean = False); override;
-    procedure AddUnitToQueue(aUnit: TUnitType; aCount: Byte); //Should add unit to queue if there's a place
+    function AddUnitToQueue(aUnit: TUnitType; aCount: Byte): Byte; //Should add unit to queue if there's a place
     procedure RemUnitFromQueue(aID: Byte); //Should remove unit from queue and shift rest up
     procedure StartTrainingUnit; //This should Create new unit and start training cycle
     procedure UnitTrainingComplete(aUnit: Pointer); //This should shift queue filling rest with ut_None
@@ -255,7 +255,7 @@ type
     function CanTakeResOut(aResource: TResourceType): Boolean;
     function CanEquip(aUnitType: TUnitType): Boolean;
     procedure ToggleAcceptFlag(aRes: TResourceType);
-    procedure Equip(aUnitType: TUnitType; aCount: Byte);
+    function Equip(aUnitType: TUnitType; aCount: Byte): Byte;
     procedure Save(SaveStream: TKMemoryStream); override;
   end;
 
@@ -1765,13 +1765,16 @@ end;
 
 //Add units to training queue
 //aCount allows to add several units at once (but not more than Schools queue can fit)
-procedure TKMHouseSchool.AddUnitToQueue(aUnit: TUnitType; aCount: Byte);
+//Returns the number of units successfully added to the queue
+function TKMHouseSchool.AddUnitToQueue(aUnit: TUnitType; aCount: Byte): Byte;
 var I, K: Integer;
 begin
+  Result := 0;
   for K := 1 to aCount do
   for I := 1 to High(Queue) do
   if Queue[I] = ut_None then
   begin
+    Inc(Result);
     Queue[I] := aUnit;
     if I = 1 then
       StartTrainingUnit; //If thats the first unit then start training it
@@ -2129,11 +2132,13 @@ end;
 
 
 //Equip a new soldier and make him walk out of the house
-procedure TKMHouseBarracks.Equip(aUnitType: TUnitType; aCount: Byte);
+//Return the number of units successfully equipped
+function TKMHouseBarracks.Equip(aUnitType: TUnitType; aCount: Byte): Byte;
 var
   I, K: Integer;
   Soldier: TKMUnitWarrior;
 begin
+  Result := 0;
   Assert(aUnitType in [WARRIOR_EQUIPABLE_MIN..WARRIOR_EQUIPABLE_MAX]);
 
   for K := 0 to aCount - 1 do
@@ -2162,6 +2167,7 @@ begin
     Soldier.Condition := Round(TROOPS_TRAINED_CONDITION * UNIT_MAX_CONDITION); //All soldiers start with 3/4, so groups get hungry at the same time
     //Soldier.OrderLoc := KMPointBelow(GetEntrance); //Position in front of the barracks facing north
     Soldier.SetActionGoIn(ua_Walk, gd_GoOutside, Self);
+    Inc(Result);
   end;
 end;
 

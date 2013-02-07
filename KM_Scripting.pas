@@ -195,7 +195,7 @@ begin
       RegisterMethod('procedure SetOverlayText(aPlayer, aIndex: Word)');
       RegisterMethod('procedure SetOverlayTextFormatted(aPlayer, aIndex: Word; const Args: array of const)');
       RegisterMethod('procedure SetUnitHunger(aUnitID, aHungerLevel: Integer)');
-      RegisterMethod('procedure SetUnitDirection(aUnitID, aDirection: Integer)');
+      RegisterMethod('function SetUnitDirection(aUnitID, aDirection: Integer): Boolean');
       RegisterMethod('procedure KillUnit(aUnitID: Integer)');
       RegisterMethod('procedure GroupOrderWalk(aGroupID: Integer; X, Y, aDirection: Word)');
       RegisterMethod('procedure GroupOrderAttackHouse(aGroupID, aHouseID: Integer)');
@@ -205,8 +205,8 @@ begin
       RegisterMethod('function AddWinefieldPlan(aPlayer, X, Y: Word): Boolean');
       RegisterMethod('function AddHousePlan(aPlayer, aHouseType, X, Y: Word): Boolean');
       RegisterMethod('procedure SetHouseDeliveryBlocked(aHouseID: Integer; aDeliveryBlocked: Boolean)');
-      RegisterMethod('procedure SchoolAddToQueue(aHouseID: Integer; aUnitType: Integer; aCount: Integer)');
-      RegisterMethod('procedure BarracksEquip(aHouseID: Integer; aUnitType: Integer; aCount: Integer)');
+      RegisterMethod('function SchoolAddToQueue(aHouseID: Integer; aUnitType: Integer; aCount: Integer): Integer');
+      RegisterMethod('function BarracksEquip(aHouseID: Integer; aUnitType: Integer; aCount: Integer): Integer');
       RegisterMethod('procedure GroupOrderFood(aGroupID: Integer)');
       RegisterMethod('procedure GroupOrderStorm(aGroupID: Integer)');
       RegisterMethod('procedure GroupOrderHalt(aGroupID: Integer)');
@@ -215,7 +215,7 @@ begin
       RegisterMethod('procedure SetHouseAllowed(aPlayer, aHouseType: Word; aAllowed: Boolean)');
       RegisterMethod('procedure SetTradeAllowed(aPlayer, aResType: Word; aAllowed: Boolean)');
       RegisterMethod('function GroupOrderSplit(aGroupID: Integer): Integer');
-      RegisterMethod('procedure UnitOrderWalk(aUnitID: Integer; X, Y: Word)');
+      RegisterMethod('function UnitOrderWalk(aUnitID: Integer; X, Y: Word): Boolean');
     end;
 
     //Register objects

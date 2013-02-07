@@ -141,12 +141,12 @@ type
     procedure GiveWaresToHouse(aHouseID: Integer; aType, aCount: Word);
     procedure SetHouseRepair(aHouseID: Integer; aRepairEnabled: Boolean);
     procedure SetHouseDeliveryBlocked(aHouseID: Integer; aDeliveryBlocked: Boolean);
-    procedure SchoolAddToQueue(aHouseID: Integer; aUnitType: Integer; aCount: Integer);
-    procedure BarracksEquip(aHouseID: Integer; aUnitType: Integer; aCount: Integer);
+    function SchoolAddToQueue(aHouseID: Integer; aUnitType: Integer; aCount: Integer): Integer;
+    function BarracksEquip(aHouseID: Integer; aUnitType: Integer; aCount: Integer): Integer;
 
     procedure SetUnitHunger(aUnitID, aHungerLevel: Integer);
-    procedure SetUnitDirection(aUnitID, aDirection: Integer);
-    procedure UnitOrderWalk(aUnitID: Integer; X, Y: Word);
+    function SetUnitDirection(aUnitID, aDirection: Integer): Boolean;
+    function UnitOrderWalk(aUnitID: Integer; X, Y: Word): Boolean;
     procedure KillUnit(aUnitID: Integer);
 
     procedure GroupOrderWalk(aGroupID: Integer; X, Y, aDirection: Word);
@@ -1069,30 +1069,32 @@ begin
 end;
 
 
-procedure TKMScriptActions.SchoolAddToQueue(aHouseID: Integer; aUnitType: Integer; aCount: Integer);
+function TKMScriptActions.SchoolAddToQueue(aHouseID: Integer; aUnitType: Integer; aCount: Integer): Integer;
 var H: TKMHouse;
 begin
+  Result := 0;
   if (aHouseID > 0)
   and (aUnitType in [UnitTypeToIndex[CITIZEN_MIN]..UnitTypeToIndex[CITIZEN_MAX]]) then
   begin
     H := fIDCache.GetHouse(aHouseID);
     if (H <> nil) and (H is TKMHouseSchool) then
-      TKMHouseSchool(H).AddUnitToQueue(UnitIndexToType[aUnitType], aCount);
+      Result := TKMHouseSchool(H).AddUnitToQueue(UnitIndexToType[aUnitType], aCount);
   end
   else
     LogError('Actions.SchoolAddToQueue', [aHouseID, aUnitType]);
 end;
 
 
-procedure TKMScriptActions.BarracksEquip(aHouseID: Integer; aUnitType: Integer; aCount: Integer);
+function TKMScriptActions.BarracksEquip(aHouseID: Integer; aUnitType: Integer; aCount: Integer): Integer;
 var H: TKMHouse;
 begin
+  Result := 0;
   if (aHouseID > 0)
   and (aUnitType in [UnitTypeToIndex[WARRIOR_EQUIPABLE_MIN]..UnitTypeToIndex[WARRIOR_EQUIPABLE_MAX]]) then
   begin
     H := fIDCache.GetHouse(aHouseID);
     if (H <> nil) and (H is TKMHouseBarracks) then
-      TKMHouseBarracks(H).Equip(UnitIndexToType[aUnitType], aCount);
+      Result := TKMHouseBarracks(H).Equip(UnitIndexToType[aUnitType], aCount);
   end
   else
     LogError('Actions.BarracksEquip', [aHouseID, aUnitType]);
@@ -1201,30 +1203,38 @@ begin
 end;
 
 
-procedure TKMScriptActions.SetUnitDirection(aUnitID, aDirection: Integer);
+function TKMScriptActions.SetUnitDirection(aUnitID, aDirection: Integer): Boolean;
 var U: TKMUnit;
 begin
+  Result := False;
   if (aUnitID > 0) and (TKMDirection(aDirection+1) in [dir_N..dir_NW]) then
   begin
     U := fIDCache.GetUnit(aUnitID);
     //Can only make idle units change direction so we don't mess up tasks and cause crashes
     if (U <> nil) and U.IsIdle then
+    begin
+      Result := True;
       U.Direction := TKMDirection(aDirection+1);
+    end;
   end
   else
     LogError('Actions.SetUnitDirection', [aUnitID, aDirection]);
 end;
 
 
-procedure TKMScriptActions.UnitOrderWalk(aUnitID: Integer; X, Y: Word);
+function TKMScriptActions.UnitOrderWalk(aUnitID: Integer; X, Y: Word): Boolean;
 var U: TKMUnit;
 begin
+  Result := False;
   if (aUnitID > 0) and fTerrain.TileInMapCoords(X, Y) then
   begin
     U := fIDCache.GetUnit(aUnitID);
     //Can only make idle units walk so we don't mess up tasks and cause crashes
     if (U <> nil) and U.IsIdle then
+    begin
+      Result := True;
       U.SetActionWalk(KMPoint(X,Y), ua_Walk, 0, nil, nil);
+    end;
   end
   else
     LogError('Actions.UnitOrderWalk', [aUnitID, X, Y]);
