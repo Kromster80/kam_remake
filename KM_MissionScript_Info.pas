@@ -54,8 +54,8 @@ end;
 
 function TMissionParserInfo.LoadMission(const aFileName: string; aMapInfo: TKMapInfo; aParsing: TKMMissionParsing): Boolean;
 const
-  CommandsBase: array [0..1] of AnsiString = (
-    '!SET_MAX_PLAYER', '!SET_TACTIC');
+  CommandsBase: array [0..3] of AnsiString = (
+    '!SET_MAX_PLAYER', '!SET_TACTIC', '!SET_CURR_PLAYER', '!SET_USER_PLAYER');
   CommandsExtra: array [0..9] of AnsiString = (
     '!SET_MAX_PLAYER', '!SET_TACTIC',
     '!SET_CURR_PLAYER', '!SET_HUMAN_PLAYER', '!SET_USER_PLAYER',

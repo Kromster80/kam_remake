@@ -345,7 +345,6 @@ type
     Panel_Goal: TKMPanel;
       Radio_GoalType: TKMRadioGroup;
       Radio_GoalCondition: TKMRadioGroup;
-      Radio_GoalStatus: TKMRadioGroup;
       NumEdit_GoalTime: TKMNumericEdit;
       NumEdit_GoalMessage: TKMNumericEdit;
       NumEdit_GoalPlayer: TKMNumericEdit;
@@ -1092,7 +1091,7 @@ begin
     Panel_Goals := TKMPanel.Create(Panel_Player,0,28,TB_WIDTH,400);
       TKMLabel.Create(Panel_Goals, 0, 10, TB_WIDTH, 0, 'Goals', fnt_Outline, taCenter);
       List_Goals := TKMColumnListBox.Create(Panel_Goals, 0, 50, TB_WIDTH, 210, fnt_Game, bsGame);
-      List_Goals.SetColumns(fnt_Outline, ['Type', 'Condition', 'Status', 'Player', 'Time', 'Msg'], [0, 20, 100, 120, 140, 160]);
+      List_Goals.SetColumns(fnt_Outline, ['Type', 'Condition', 'Player', 'Time', 'Msg'], [0, 20, 120, 140, 160]);
       List_Goals.OnClick := Goals_ListClick;
       List_Goals.OnDoubleClick := Goals_ListDoubleClick;
 
@@ -1507,19 +1506,14 @@ begin
     NumEdit_GoalPlayer := TKMNumericEdit.Create(Panel_Goal, 330, 60, 1, MAX_PLAYERS);
     NumEdit_GoalPlayer.OnChange := Goal_Change;
 
-    TKMLabel.Create(Panel_Goal, 420, 40, 100, 0, 'Status', fnt_Metal, taLeft);
-    Radio_GoalStatus := TKMRadioGroup.Create(Panel_Goal, 420, 60, 100, 40, fnt_Metal);
-    Radio_GoalStatus.Add('True');
-    Radio_GoalStatus.Add('False');
-    Radio_GoalStatus.OnChange := Goal_Change;
-
-    TKMLabel.Create(Panel_Goal, 530, 40, 'Time', fnt_Metal, taLeft);
-    NumEdit_GoalTime := TKMNumericEdit.Create(Panel_Goal, 530, 60, 0, 32767);
+    TKMLabel.Create(Panel_Goal, 480, 40, 'Time', fnt_Metal, taLeft);
+    NumEdit_GoalTime := TKMNumericEdit.Create(Panel_Goal, 480, 60, 0, 32767);
     NumEdit_GoalTime.OnChange := Goal_Change;
 
-    TKMLabel.Create(Panel_Goal, 530, 90, 'Message Id', fnt_Metal, taLeft);
-    NumEdit_GoalMessage := TKMNumericEdit.Create(Panel_Goal, 530, 110, 0, 0);
+    TKMLabel.Create(Panel_Goal, 480, 90, 'Message ID', fnt_Metal, taLeft);
+    NumEdit_GoalMessage := TKMNumericEdit.Create(Panel_Goal, 480, 110, 0, 0);
     NumEdit_GoalMessage.Hint := 'This setting is deprecated';
+    NumEdit_GoalMessage.Disable;
 
     Button_GoalOk := TKMButton.Create(Panel_Goal, SIZE_X-20-320-10, SIZE_Y - 50, 160, 30, 'Ok', bsMenu);
     Button_GoalOk.OnClick := Goal_Close;
@@ -2195,7 +2189,10 @@ begin
     //Copy Goal info from controls to Goals
     G.GoalType := TGoalType(Radio_GoalType.ItemIndex);
     G.GoalCondition := TGoalCondition(Radio_GoalCondition.ItemIndex);
-    G.GoalStatus := TGoalStatus(Radio_GoalStatus.ItemIndex);
+    if G.GoalType = glt_Survive then
+      G.GoalStatus := gs_True
+    else
+      G.GoalStatus := gs_False;
     G.GoalTime := NumEdit_GoalTime.Value * 10;
     G.MessageToShow := NumEdit_GoalMessage.Value;
     G.PlayerIndex := NumEdit_GoalPlayer.Value - 1;
@@ -2212,7 +2209,6 @@ procedure TKMapEdInterface.Goal_Refresh(aGoal: TKMGoal);
 begin
   Radio_GoalType.ItemIndex := Byte(aGoal.GoalType);
   Radio_GoalCondition.ItemIndex := Byte(aGoal.GoalCondition);
-  Radio_GoalStatus.ItemIndex := Byte(aGoal.GoalStatus);
   NumEdit_GoalTime.Value := aGoal.GoalTime div 10;
   NumEdit_GoalMessage.Value := aGoal.MessageToShow;
   NumEdit_GoalPlayer.Value := aGoal.PlayerIndex + 1;
@@ -2280,7 +2276,6 @@ end;
 procedure TKMapEdInterface.Goals_Refresh;
 const
   Typ: array [TGoalType] of string = ('-', 'V', 'S');
-  Stat: array [TGoalStatus] of string = ('V', 'X');
 var
   I: Integer;
   G: TKMGoal;
@@ -2292,7 +2287,6 @@ begin
     G := MyPlayer.Goals[I];
     List_Goals.AddItem(MakeListRow([Typ[G.GoalType],
                                     IntToStr(Byte(G.GoalCondition)),
-                                    Stat[G.GoalStatus],
                                     IntToStr(G.GoalTime div 10),
                                     IntToStr(G.MessageToShow),
                                     IntToStr(G.PlayerIndex + 1)]));

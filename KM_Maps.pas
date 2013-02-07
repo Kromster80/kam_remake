@@ -10,6 +10,7 @@ type
     smByNameAsc, smByNameDesc,
     smBySizeAsc, smBySizeDesc,
     smByPlayersAsc, smByPlayersDesc,
+    smByHumanPlayersAsc, smByHumanPlayersDesc,
     smByModeAsc, smByModeDesc);
 
   TKMapInfo = class;
@@ -62,6 +63,7 @@ type
     function LocationName(aIndex: TPlayerIndex): string;
     function SizeText: string;
     function IsValid: Boolean;
+    function HumanPlayerCount: Byte;
   end;
 
   TTMapsScanner = class(TThread)
@@ -335,6 +337,7 @@ begin
   S.Read(PlayerCount);
   S.Read(SmallDesc);
   S.Read(IsCoop);
+  S.Read(CanBeHuman, SizeOf(CanBeHuman));
 
   //Other properties are not saved, they are fast to reload
   S.Free;
@@ -359,6 +362,7 @@ begin
     S.Write(PlayerCount);
     S.Write(SmallDesc);
     S.Write(IsCoop);
+    S.Write(CanBeHuman, SizeOf(CanBeHuman));
 
     //Other properties from text file are not saved, they are fast to reload
     S.SaveToFile(aPath);
@@ -373,6 +377,16 @@ begin
   Result := (PlayerCount > 0) and
             FileExists(fPath + fFileName + '.dat') and
             FileExists(fPath + fFileName + '.map');
+end;
+
+
+function TKMapInfo.HumanPlayerCount: Byte;
+var I: Integer;
+begin
+  Result := 0;
+  for I := 0 to MAX_PLAYERS - 1 do
+    if CanBeHuman[I] then
+      Inc(Result);
 end;
 
 
@@ -471,6 +485,8 @@ procedure TKMapsCollection.DoSort;
       smBySizeDesc:     Result := (A.MapSizeX * A.MapSizeY) > (B.MapSizeX * B.MapSizeY);
       smByPlayersAsc:   Result := A.PlayerCount < B.PlayerCount;
       smByPlayersDesc:  Result := A.PlayerCount > B.PlayerCount;
+      smByHumanPlayersAsc:   Result := A.HumanPlayerCount < B.HumanPlayerCount;
+      smByHumanPlayersDesc:  Result := A.HumanPlayerCount > B.HumanPlayerCount;
       smByModeAsc:      Result := A.MissionMode < B.MissionMode;
       smByModeDesc:     Result := A.MissionMode > B.MissionMode;
     end;

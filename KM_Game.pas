@@ -505,12 +505,9 @@ procedure TKMGame.MultiplayerRig;
 var
   I: Integer;
   PlayerIndex: TPlayerIndex;
-  PlayerEnabled: TPlayerEnabledArray;
 begin
   //Copy game options from lobby to this game
   fGameOptions.Peacetime := fNetworking.NetGameOptions.Peacetime;
-
-  FillChar(PlayerEnabled, SizeOf(PlayerEnabled), #0);
 
   //Assign existing NetPlayers(1..N) to map players(0..N-1)
   for I := 1 to fNetworking.NetPlayers.Count do
@@ -519,7 +516,6 @@ begin
     fPlayers[PlayerIndex].PlayerType := fNetworking.NetPlayers[I].GetPlayerType;
     fPlayers[PlayerIndex].PlayerName := fNetworking.NetPlayers[I].Nikname;
     fPlayers[PlayerIndex].FlagColor := fNetworking.NetPlayers[I].FlagColor;
-    PlayerEnabled[PlayerIndex] := True;
   end;
 
   //Setup alliances
@@ -531,11 +527,6 @@ begin
   MyPlayer := fPlayers[fNetworking.NetPlayers[fNetworking.MyIndex].StartLocation-1];
 
   //We cannot remove a player from a save (as they might be interacting with other players)
-  //so make them inactive (uncontrolled human)
-  if fNetworking.SelectGameKind = ngk_Save then
-    for I := 0 to fPlayers.Count - 1 do
-      if not PlayerEnabled[I] then
-        fPlayers[I].PlayerType := pt_Human; //Without controlling player it will be idling
 
   fPlayers.SyncFogOfWar; //Syncs fog of war revelation between players AFTER alliances
   if fNetworking.SelectGameKind = ngk_Map then

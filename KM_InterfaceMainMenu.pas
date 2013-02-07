@@ -3155,7 +3155,7 @@ end;
 //We should reflect it to UI
 procedure TKMMainMenuInterface.Lobby_OnPlayersSetup(Sender: TObject);
 var
-  I,ID,LocaleID: Integer;
+  I,K,ID,LocaleID: Integer;
   MyNik, CanEdit, HostCanEdit, IsSave, IsValid: Boolean;
 begin
   IsSave := fGameApp.Networking.SelectGameKind = ngk_Save;
@@ -3199,10 +3199,32 @@ begin
 
     //If we can't load the map, don't attempt to show starting locations
     IsValid := false;
+    DropBox_LobbyLoc[I].Clear;
+    if fGameApp.Networking.SelectGameKind = ngk_None then
+      DropBox_LobbyLoc[I].Add(fTextLibrary[TX_LOBBY_RANDOM], 0);
+
     if fGameApp.Networking.SelectGameKind = ngk_Save then
+    begin
       IsValid := fGameApp.Networking.SaveInfo.IsValid;
+      DropBox_LobbyLoc[I].Add(fTextLibrary[TX_LOBBY_SELECT], 0);
+      if fGameApp.Networking.NetPlayers[I+1].IsHuman then //Cannot add AIs to MP save, they are filled automatically
+        for K := 0 to fGameApp.Networking.SaveInfo.Info.PlayerCount - 1 do
+          if fGameApp.Networking.SaveInfo.Info.Enabled[K]
+          and (fGameApp.Networking.SaveInfo.Info.CanBeHuman[K] or ALLOW_TAKE_AI_PLAYERS) then
+            DropBox_LobbyLoc[I].Add(fGameApp.Networking.SaveInfo.Info.LocationName[K], K+1);
+    end;
     if fGameApp.Networking.SelectGameKind = ngk_Map then
+    begin
       IsValid := fGameApp.Networking.MapInfo.IsValid;
+      DropBox_LobbyLoc[I].Add(fTextLibrary[TX_LOBBY_RANDOM], 0);
+      for K := 0 to fGameApp.Networking.MapInfo.PlayerCount - 1 do
+        if fGameApp.Networking.MapInfo.CanBeHuman[K] or ALLOW_TAKE_AI_PLAYERS then
+        begin
+          if fGameApp.Networking.NetPlayers[I+1].IsHuman
+          or (fGameApp.Networking.NetPlayers[I+1].IsComputer and fGameApp.Networking.MapInfo.CanBeAI[K]) then
+            DropBox_LobbyLoc[I].Add(fGameApp.Networking.MapInfo.LocationName(K), K+1);
+        end;
+    end;
     if IsValid then
       DropBox_LobbyLoc[I].SelectByTag(fGameApp.Networking.NetPlayers[I+1].StartLocation)
     else
@@ -3390,7 +3412,7 @@ begin
 
       if AddMap then
         DropCol_LobbyMaps.Add(MakeListRow([fMapsMP[I].FileName,
-                                           IntToStr(fMapsMP[I].PlayerCount),
+                                           IntToStr(fMapsMP[I].HumanPlayerCount),
                                            fMapsMP[I].SizeText], I));
     end;
 
@@ -3472,9 +3494,9 @@ begin
           else
             SM := smByNameAsc;
       1:  if SortDirection = sdDown then
-            SM := smByPlayersDesc
+            SM := smByHumanPlayersDesc
           else
-            SM := smByPlayersAsc;
+            SM := smByHumanPlayersAsc;
       2:  if SortDirection = sdDown then
             SM := smBySizeDesc
           else
@@ -3526,14 +3548,6 @@ end;
 
 
 procedure TKMMainMenuInterface.Lobby_OnMapName(const aData: string);
-
-  procedure AddLocation(aText: string; aTag: Integer);
-  var I: Integer;
-  begin
-    for I := 0 to MAX_PLAYERS - 1 do
-      DropBox_LobbyLoc[I].Add(aText, aTag);
-  end;
-
 var
   I: Integer;
   M: TKMapInfo;
@@ -3542,9 +3556,6 @@ begin
   //Common settings
   MinimapView_Lobby.Visible := (fGameApp.Networking.SelectGameKind = ngk_Map) and fGameApp.Networking.MapInfo.IsValid;
   TrackBar_LobbyPeacetime.Enabled := fGameApp.Networking.IsHost and (fGameApp.Networking.SelectGameKind = ngk_Map) and fGameApp.Networking.MapInfo.IsValid;
-
-  for I := 0 to MAX_PLAYERS - 1 do
-    DropBox_LobbyLoc[I].Clear;
 
   case  fGameApp.Networking.SelectGameKind of
     ngk_None: begin
@@ -3556,9 +3567,6 @@ begin
                   Label_LobbyMapName.Caption := '';
                   Memo_LobbyMapDesc.Text := aData; //aData is some error message
                 end;
-
-                //Starting locations text
-                AddLocation(fTextLibrary[TX_LOBBY_RANDOM], 0);
               end;
     ngk_Save: begin
                 S := fGameApp.Networking.SaveInfo;
@@ -3567,12 +3575,6 @@ begin
 
                 Label_LobbyMapName.Caption := S.FileName;
                 Memo_LobbyMapDesc.Text := S.Info.GetTitleWithTime;
-
-                //Starting locations text
-                AddLocation(fTextLibrary[TX_LOBBY_SELECT], 0);
-                for I := 0 to S.Info.PlayerCount - 1 do
-                if (S.Info.CanBeHuman[I] or ALLOW_TAKE_AI_PLAYERS) and S.Info.Enabled[I] then
-                  AddLocation(S.Info.LocationName[I], I+1);
               end;
     ngk_Map:  begin
                 M := fGameApp.Networking.MapInfo;
@@ -3596,12 +3598,6 @@ begin
                 end;
                 Label_LobbyMapName.Caption := M.FileName;
                 Memo_LobbyMapDesc.Text := M.BigDesc;
-
-              //Starting locations text
-              AddLocation(fTextLibrary[TX_LOBBY_RANDOM], 0);
-              for I := 0 to M.PlayerCount - 1 do
-              if M.CanBeHuman[I] or ALLOW_TAKE_AI_PLAYERS then
-                AddLocation(M.LocationName(I), I+1);
             end;
   end;
 end;
