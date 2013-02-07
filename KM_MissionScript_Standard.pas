@@ -273,6 +273,7 @@ begin
                             fPlayers[fLastPlayer].Stats.GoodInitial(ResourceIndexToType[P[0]], Qty);
                           end;
                         end;
+    //Depreciated by ct_AddWareToLast, but we keep it for backwards compatibility in loading
     ct_AddWareTo:       if fLastPlayer >= 0 then
                         begin //HouseType, House Order, Ware Type, Count
                           Qty := EnsureRange(P[3], -1, High(Word)); //Sometimes user can define it to be 999999
@@ -284,6 +285,19 @@ begin
                             H.ResAddToIn(ResourceIndexToType[P[2]], Qty, True);
                             fPlayers[fLastPlayer].Stats.GoodInitial(ResourceIndexToType[P[2]], Qty);
                           end;
+                        end;
+    ct_AddWareToLast:   if fLastPlayer >= 0 then
+                        begin //Ware Type, Count
+                          Qty := EnsureRange(P[1], -1, High(Word)); //Sometimes user can define it to be 999999
+                          if Qty = -1 then Qty := High(Word); //-1 means maximum resources
+
+                          if (fLastHouse <> nil) and (ResourceIndexToType[P[0]] in [WARE_MIN..WARE_MAX]) then
+                          begin
+                            fLastHouse.ResAddToIn(ResourceIndexToType[P[0]], Qty, True);
+                            fPlayers[fLastPlayer].Stats.GoodInitial(ResourceIndexToType[P[0]], Qty);
+                          end
+                          else
+                            AddError('ct_AddWareToLast without prior declaration of House');
                         end;
     ct_AddWeapon:       if fLastPlayer >= 0 then
                         begin
@@ -507,7 +521,7 @@ var
   f: textfile;
   I: longint; //longint because it is used for encoding entire output, which will limit the file size
   K,iX,iY,CommandLayerCount: Integer;
-  HouseCount: array[THouseType] of Integer;
+  StoreCount, BarracksCount: Integer;
   Res: TResourceType;
   G: TGroupType;
   U: TKMUnit;
@@ -702,6 +716,8 @@ begin
         AddCommand(ct_BlockTrade, [ResourceTypeToIndex[Res]]);
 
     //Houses
+    StoreCount := 0;
+    BarracksCount := 0;
     for K:=0 to fPlayers[I].Houses.Count-1 do
     begin
       H := fPlayers[I].Houses[K];
@@ -710,45 +726,35 @@ begin
         AddCommand(ct_SetHouse, [HouseTypeToIndex[H.HouseType]-1, H.GetPosition.X-1, H.GetPosition.Y-1]);
         if H.IsDamaged then
           AddCommand(ct_SetHouseDamage, [H.GetDamage]);
+
+        //Process any wares in this house
+        //First two Stores use special KaM commands
+        if (H.HouseType = ht_Store) and (StoreCount < 2) then
+        begin
+          Inc(StoreCount);
+          for Res := WARE_MIN to WARE_MAX do
+            if H.CheckResIn(Res) > 0 then
+              case StoreCount of
+                1:  AddCommand(ct_AddWare, [ResourceTypeToIndex[Res], H.CheckResIn(Res)]);
+                2:  AddCommand(ct_AddWareToSecond, [ResourceTypeToIndex[Res], H.CheckResIn(Res)]);
+              end;
+        end
+        else
+        //First Barracks uses special KaM command
+        if (H.HouseType = ht_Barracks) and (BarracksCount = 0) then
+        begin
+          Inc(BarracksCount);
+          for Res := WARFARE_MIN to WARFARE_MAX do
+            if H.CheckResIn(Res) > 0 then
+              AddCommand(ct_AddWeapon, [ResourceTypeToIndex[Res], H.CheckResIn(Res)]); //Ware, Count
+        end
+        else
+          for Res := WARE_MIN to WARE_MAX do
+            if H.CheckResIn(Res) > 0 then
+              AddCommand(ct_AddWareToLast, [ResourceTypeToIndex[Res], H.CheckResIn(Res)]);
       end;
     end;
     AddData(''); //NL
-
-    //Wares. Check every house to see if it has any wares in it
-    FillChar(HouseCount, SizeOf(HouseCount), #0);
-    for K := 0 to fPlayers[I].Houses.Count - 1 do
-    begin
-      H := fPlayers[I].Houses[K];
-      Inc(HouseCount[H.HouseType]);
-
-      if H.IsDestroyed then Continue;
-
-      //First two Stores use special KaM commands
-      if (H.HouseType = ht_Store) and (HouseCount[ht_Store] <= 2) then
-      begin
-        for Res := WARE_MIN to WARE_MAX do
-          if H.CheckResIn(Res) > 0 then
-            case HouseCount[ht_Store] of
-              1:  AddCommand(ct_AddWare, [ResourceTypeToIndex[Res], H.CheckResIn(Res)]);
-              2:  AddCommand(ct_AddWareToSecond, [ResourceTypeToIndex[Res], H.CheckResIn(Res)]);
-            end;
-      end
-      else
-      //First Barracks uses special KaM command
-      if (H.HouseType = ht_Barracks) and (HouseCount[ht_Barracks] <= 1) then
-      begin
-        for Res := WARFARE_MIN to WARFARE_MAX do
-          if H.CheckResIn(Res) > 0 then
-            AddCommand(ct_AddWeapon, [ResourceTypeToIndex[Res], H.CheckResIn(Res)]); //Ware, Count
-      end
-      else
-        for Res := WARE_MIN to WARE_MAX do
-          if H.CheckResIn(Res) > 0 then
-            AddCommand(ct_AddWareTo, [HouseTypeToIndex[H.HouseType]-1, HouseCount[H.HouseType], ResourceTypeToIndex[Res], H.CheckResIn(Res)]);
-
-    end;
-    AddData(''); //NL
-
 
     //Roads and fields. We must check EVERY terrain tile
     CommandLayerCount := 0; //Enable command layering
