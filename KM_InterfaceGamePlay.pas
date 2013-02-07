@@ -3475,6 +3475,9 @@ begin
   if aObject is TKMHouse then
     fSelection[Key] := TKMHouse(aObject).ID
   else
+  if aObject is TKMUnitGroup then
+    fSelection[Key] := TKMUnitGroup(aObject).ID
+  else
     fSelection[Key] := -1;
 end;
 
@@ -3491,13 +3494,13 @@ begin
     fPlayers.Selected := fPlayers.GetUnitByID(fSelection[Key]);
     if fPlayers.Selected <> nil then
     begin
-      if (OldSelected <> fPlayers.Selected) and not fReplay and not HasLostMPGame then
+      if TKMUnit(fPlayers.Selected).IsDeadOrDying then
       begin
-        if fPlayers.Selected is TKMUnitWarrior then
-          fSoundLib.PlayWarrior(TKMUnit(fPlayers.Selected).UnitType, sp_Select)
-        else
-          fSoundLib.PlayCitizen(TKMUnit(fPlayers.Selected).UnitType, sp_Select);
+        fPlayers.Selected := nil; //Don't select dead/dying units
+        Exit;
       end;
+      if (OldSelected <> fPlayers.Selected) and not fReplay and not HasLostMPGame then
+        fSoundLib.PlayCitizen(TKMUnit(fPlayers.Selected).UnitType, sp_Select);
       //Selecting a unit twice is the shortcut to center on that unit
       if OldSelected = fPlayers.Selected then
         fGame.Viewport.Position := TKMUnit(fPlayers.Selected).PositionF;
@@ -3505,11 +3508,32 @@ begin
     else
     begin
       fPlayers.Selected := fPlayers.GetHouseByID(fSelection[Key]);
-      if (fPlayers.Selected <> nil) and TKMHouse(fPlayers.Selected).IsDestroyed then
-        fPlayers.Selected := nil; //Don't select destroyed houses
-      //Selecting a house twice is the shortcut to center on that house
-      if (fPlayers.Selected <> nil) and (OldSelected = fPlayers.Selected) then
-        fGame.Viewport.Position := KMPointF(TKMHouse(fPlayers.Selected).GetEntrance);
+      if fPlayers.Selected <> nil then
+      begin
+        if TKMHouse(fPlayers.Selected).IsDestroyed then
+        begin
+          fPlayers.Selected := nil; //Don't select destroyed houses
+          Exit;
+        end;
+        //Selecting a house twice is the shortcut to center on that house
+        if OldSelected = fPlayers.Selected then
+          fGame.Viewport.Position := KMPointF(TKMHouse(fPlayers.Selected).GetEntrance);
+      end
+      else
+      begin
+        fPlayers.Selected := fPlayers.GetGroupByID(fSelection[Key]);
+        if (fPlayers.Selected = nil) or TKMUnitGroup(fPlayers.Selected).IsDead then
+        begin
+          fPlayers.Selected := nil; //Don't select dead groups
+          Exit;
+        end;
+        TKMUnitGroup(fPlayers.Selected).SelectFlagBearer;
+        if (OldSelected <> fPlayers.Selected) and not fReplay and not HasLostMPGame then
+          fSoundLib.PlayWarrior(TKMUnitGroup(fPlayers.Selected).SelectedUnit.UnitType, sp_Select);
+        //Selecting a group twice is the shortcut to center on that group
+        if OldSelected = fPlayers.Selected then
+          fGame.Viewport.Position := TKMUnitGroup(fPlayers.Selected).SelectedUnit.PositionF;
+      end;
     end;
 
   end

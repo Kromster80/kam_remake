@@ -90,6 +90,7 @@ type
     procedure AddMember(aWarrior: TKMUnitWarrior; aIndex: Integer = -1);
     function HitTest(X,Y: Integer): Boolean;
     procedure SelectHitTest(X,Y: Integer);
+    procedure SelectFlagBearer;
     function HasMember(aWarrior: TKMUnit): Boolean;
     procedure ResetAnimStep;
     function InFight: Boolean; //Fighting and can't take any orders from player
@@ -809,6 +810,12 @@ begin
     'Should match with HitTest that selected this group in TKMPlayersCollection.SelectHitTest');
 
   fSelected := TKMUnitWarrior(U);
+end;
+
+
+procedure TKMUnitGroup.SelectFlagBearer;
+begin
+  fSelected := fMembers[0];
 end;
 
 
