@@ -465,6 +465,7 @@ type
     fLabelValue: TKMLabel;
     fButtonDec: TKMButton;
     procedure ButtonClick(Sender: TObject; AButton: TMouseButton);
+    procedure SetSharedHint(aHint: string);
   protected
     procedure SetEnabled(aValue: Boolean); override;
     procedure SetVisible(aValue: Boolean); override;
@@ -473,6 +474,7 @@ type
     ValueMin: SmallInt;
     ValueMax: SmallInt;
     OnChange: TNotifyEvent;
+    property SharedHint: string read Hint write SetSharedHint;
     constructor Create(aParent: TKMPanel; aLeft,aTop: Integer; aValueMin, aValueMax: SmallInt);
     procedure Paint; override;
   end;
@@ -2317,6 +2319,14 @@ begin
   //Signal if new value has been assigned successfuly
   if (NewValue = Value) and Assigned(OnChange) then
     OnChange(Self);
+end;
+
+
+procedure TKMNumericEdit.SetSharedHint(aHint: string);
+begin
+  Hint := aHint;
+  fButtonInc.Hint := aHint;
+  fButtonDec.Hint := aHint;
 end;
 
 

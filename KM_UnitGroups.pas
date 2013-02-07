@@ -720,6 +720,9 @@ begin
                       end
                       else
                       begin
+                        //todo: This will cause heaps of pathfinding calls when the target is moving,
+                        //      we don't need to recalculate the route so often (depends how close they are)
+
                         //Melee units must kill target unit and its Group
                         OrderExecuted := (OrderTargetUnit = nil) and (OrderTargetGroup = nil);
 

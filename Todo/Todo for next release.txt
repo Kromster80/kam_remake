@@ -22,6 +22,11 @@ Known issues to fix:
 	ALL MP maps will need SET_USER_PLAYER set for them, since when maps were made with Lewin's editor all locations are AI except the first one
 	MP maps are still using auto generated goals. Do we keep it like that? It means scripting can't do custom victory/defeat conditions...
 
+After first RC:
+	Magic water in MapEd?
+	Add missing texts from MapEd to LIBX (maybe ignore some stuff in temporary interfaces that will be improved next release?)
+	Send text off to be translated (do this late in the RC testing so translators don't get 3 separate requests for each RC with changed text)
+
 
 Balance/exploits:
 	Increase market loss ratio?

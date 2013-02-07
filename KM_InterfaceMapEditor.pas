@@ -1509,10 +1509,11 @@ begin
     TKMLabel.Create(Panel_Goal, 480, 40, 'Time', fnt_Metal, taLeft);
     NumEdit_GoalTime := TKMNumericEdit.Create(Panel_Goal, 480, 60, 0, 32767);
     NumEdit_GoalTime.OnChange := Goal_Change;
+    NumEdit_GoalTime.SharedHint := 'This setting is deprecated, use scripts instead';
 
     TKMLabel.Create(Panel_Goal, 480, 90, 'Message ID', fnt_Metal, taLeft);
     NumEdit_GoalMessage := TKMNumericEdit.Create(Panel_Goal, 480, 110, 0, 0);
-    NumEdit_GoalMessage.Hint := 'This setting is deprecated';
+    NumEdit_GoalMessage.SharedHint := 'This setting is deprecated, use scripts instead';
     NumEdit_GoalMessage.Disable;
 
     Button_GoalOk := TKMButton.Create(Panel_Goal, SIZE_X-20-320-10, SIZE_Y - 50, 160, 30, 'Ok', bsMenu);
@@ -1553,17 +1554,21 @@ begin
     Button_ArmyInc.OnClickEither  := Unit_ArmyChange2;
 
     //Group order
+    //todo: These should be placed graphically on the map (with a line drawn from the group to the order?)
     TKMLabel.Create(Panel_Army, 0, 140, TB_WIDTH, 0, 'Group order', fnt_Outline, taLeft);
     DropBox_ArmyOrder   := TKMDropList.Create(Panel_Army, 0, 160, TB_WIDTH, 20, fnt_Metal, '', bsGame);
     DropBox_ArmyOrder.Add('None');
     DropBox_ArmyOrder.Add('Walk to');
     DropBox_ArmyOrder.Add('Attack position');
     DropBox_ArmyOrder.OnChange := Unit_ArmyChange1;
-    Edit_ArmyOrderX := TKMNumericEdit.Create(Panel_Army, 0, 185, 0, 255);
+    TKMLabel.Create(Panel_Army, 0, 185, 'X:', fnt_Grey, taLeft);
+    Edit_ArmyOrderX := TKMNumericEdit.Create(Panel_Army, 20, 185, 0, 255);
     Edit_ArmyOrderX.OnChange := Unit_ArmyChange1;
-    Edit_ArmyOrderY := TKMNumericEdit.Create(Panel_Army, 0, 205, 0, 255);
+    TKMLabel.Create(Panel_Army, 0, 205, 'Y:', fnt_Grey, taLeft);
+    Edit_ArmyOrderY := TKMNumericEdit.Create(Panel_Army, 20, 205, 0, 255);
     Edit_ArmyOrderY.OnChange := Unit_ArmyChange1;
-    Edit_ArmyOrderDir := TKMNumericEdit.Create(Panel_Army, 80, 185, -1, 7);
+    TKMLabel.Create(Panel_Army, 110, 185, 'Direction', fnt_Grey, taLeft);
+    Edit_ArmyOrderDir := TKMNumericEdit.Create(Panel_Army, 110, 205, 0, 7);
     Edit_ArmyOrderDir.OnChange := Unit_ArmyChange1;
 end;
 
@@ -2520,7 +2525,8 @@ begin
   DropBox_ArmyOrder.ItemIndex := Byte(Sender.MapEdOrder.Order);
   Edit_ArmyOrderX.Value := Sender.MapEdOrder.Pos.Loc.X;
   Edit_ArmyOrderY.Value := Sender.MapEdOrder.Pos.Loc.Y;
-  Edit_ArmyOrderDir.Value := Byte(Sender.MapEdOrder.Pos.Dir) - 1;
+  Edit_ArmyOrderDir.Value := Max(Byte(Sender.MapEdOrder.Pos.Dir) - 1, 0);
+  Unit_ArmyChange1(nil);
   Panel_Army.Show;
 end;
 
@@ -2849,6 +2855,26 @@ begin
   Group.MapEdOrder.Pos.Loc.X := Edit_ArmyOrderX.Value;
   Group.MapEdOrder.Pos.Loc.Y := Edit_ArmyOrderY.Value;
   Group.MapEdOrder.Pos.Dir := TKMDirection(Edit_ArmyOrderDir.Value + 1);
+
+  if DropBox_ArmyOrder.ItemIndex = 0 then
+  begin
+    Edit_ArmyOrderX.Disable;
+    Edit_ArmyOrderY.Disable;
+    Edit_ArmyOrderDir.Disable;
+  end
+  else
+    if DropBox_ArmyOrder.ItemIndex = 2 then
+    begin
+      Edit_ArmyOrderX.Enable;
+      Edit_ArmyOrderY.Enable;
+      Edit_ArmyOrderDir.Disable; //Attack position doesn't let you set direction
+    end
+    else
+    begin
+      Edit_ArmyOrderX.Enable;
+      Edit_ArmyOrderY.Enable;
+      Edit_ArmyOrderDir.Enable;
+    end;
 end;
 
 
