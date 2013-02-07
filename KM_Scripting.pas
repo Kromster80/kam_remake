@@ -184,7 +184,7 @@ begin
       RegisterMethod('function GiveUnit(aPlayer, aType, X,Y, aDir: Word): Integer');
       RegisterMethod('function GiveAnimal(aType, X,Y: Word): Integer');
       RegisterMethod('procedure GiveWares(aPlayer, aType, aCount: Word)');
-      RegisterMethod('procedure RevealCircle(aPlayer, X, Y, aRadius: Word');
+      RegisterMethod('procedure RevealCircle(aPlayer, X, Y, aRadius: Word)');
       RegisterMethod('procedure ShowMsg(aPlayer, aIndex: Word)');
       RegisterMethod('procedure ShowMsgFormatted(aPlayer, aIndex: Word; const Args: array of const)');
       RegisterMethod('procedure UnlockHouse(aPlayer, aHouseType: Word)');
@@ -638,7 +638,8 @@ begin
 
   LoadStream.Read(fScriptCode);
 
-  CompileScript;
+  if fScriptCode <> '' then
+    CompileScript;
 
   //Read script variables
   LoadStream.Read(I);
