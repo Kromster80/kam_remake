@@ -20,6 +20,7 @@ Known issues to fix:
 	Selecting a save in the lobby causes a crash
 	Campaign/tutorials show warnings about showing messages with goals being depreciated
 	ALL MP maps will need SET_USER_PLAYER set for them, since when maps were made with Lewin's editor all locations are AI except the first one
+	MP maps are still using auto generated goals. Do we keep it like that? It means scripting can't do custom victory/defeat conditions...
 
 
 Balance/exploits:

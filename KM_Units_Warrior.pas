@@ -46,7 +46,7 @@ type
     procedure CloseUnit(aRemoveTileUsage: Boolean = True); override;
     destructor Destroy; override;
 
-    function GetActivityText: string; override;
+    function GetWarriorActivityText(aIsAttackingUnit: Boolean): string;
     procedure KillUnit; override;
 
     //Commands from TKMUnitGroup
@@ -325,23 +325,32 @@ begin
 end;
 
 
-function TKMUnitWarrior.GetActivityText: string;
+//Only the group knows the difference between Walking and Attacking unit, so we need aIsAttackingUnit parameter
+function TKMUnitWarrior.GetWarriorActivityText(aIsAttackingUnit: Boolean): string;
 begin
-  Result := '';
+  //We can't rely on fOrder because it does not get reset, so look at actions/tasks
   if fCurrentAction is TUnitActionFight then
     if IsRanged then
       Result := fTextLibrary[TX_UNIT_TASK_FIRING]
     else
       Result := fTextLibrary[TX_UNIT_TASK_FIGHTING]
   else
-  case fOrder of
-    woNone:         Result := fTextLibrary[TX_UNIT_TASK_IDLE];
-    woWalk:         Result := fTextLibrary[TX_UNIT_TASK_MOVING];
-    woWalkOut:      Result := fTextLibrary[TX_UNIT_TASK_MOVING];
-    woAttackUnit:   Result := fTextLibrary[TX_UNIT_TASK_ATTACKING];
-    woAttackHouse:  Result := fTextLibrary[TX_UNIT_TASK_ATTACKING_HOUSE];
-    woStorm:        Result := fTextLibrary[TX_UNIT_TASK_STORM_ATTACK];
-  end;
+  if fCurrentAction is TUnitActionStormAttack then
+    Result := fTextLibrary[TX_UNIT_TASK_STORM_ATTACK]
+  else
+  if fUnitTask is TTaskAttackHouse then
+    Result := fTextLibrary[TX_UNIT_TASK_ATTACKING_HOUSE]
+  else
+  if fCurrentAction is TUnitActionGoInOut then
+    Result := fTextLibrary[TX_UNIT_TASK_MOVING]
+  else
+  if fCurrentAction is TUnitActionWalkTo then
+    if aIsAttackingUnit then
+      Result := fTextLibrary[TX_UNIT_TASK_ATTACKING]
+    else
+      Result := fTextLibrary[TX_UNIT_TASK_MOVING]
+  else
+    Result := fTextLibrary[TX_UNIT_TASK_IDLE];
 end;
 
 
@@ -368,6 +377,7 @@ end;
 function TKMUnitWarrior.OrderDone: Boolean;
 begin
   Result := False;
+  if fNextOrder <> woNone then Exit; //We haven't had time to take the order yet, so return false
 
   //Did we performed the Order?
   case fOrder of

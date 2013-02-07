@@ -94,6 +94,7 @@ type
     procedure ResetAnimStep;
     function InFight: Boolean; //Fighting and can't take any orders from player
     function IsAttackingHouse: Boolean; //Attacking house
+    function IsAttackingUnit: Boolean;
     function CanTakeOrders: Boolean;
     function CanWalkTo(aTo: TKMPoint; aDistance: Single): Boolean;
     function FightMaxRange: Single;
@@ -305,7 +306,6 @@ begin
     fMembers[I] := TKMUnitWarrior(fPlayers.GetUnitByID(Cardinal(fMembers[I])));
     Members[I].OnKilled := Member_Killed;
     Members[I].OnPickedFight := Member_PickedFight;
-    //OnTrained
   end;
 
   for I := 0 to fOffenders.Count - 1 do
@@ -777,6 +777,12 @@ begin
       Result := True;
       Exit;
     end;
+end;
+
+
+function TKMUnitGroup.IsAttackingUnit: Boolean;
+begin
+  Result := (fOrder = goAttackUnit) and (OrderTargetUnit <> nil);
 end;
 
 
