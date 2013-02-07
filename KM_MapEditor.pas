@@ -100,7 +100,7 @@ end;
 function TKMDeposits.TileDepositExists(aMat: TRawDeposit; X,Y: Word) : Boolean;
 begin
   if aMat = rdFish then
-    Result := fTerrain.TileIsWater(KMPoint(X+1,Y+1))
+    Result := fTerrain.TileIsWater(KMPoint(X,Y))
   else
     Result := TileDeposit(aMat,X,Y) > 0;
 end;
@@ -112,10 +112,10 @@ var
 curUnit : TKMUnit;
 begin
   case aMat of
-    rdStone: Result := 3*fTerrain.TileIsStone(X+1, Y+1); //3 stone produced by each time
-    rdCoal:  Result := fTerrain.TileIsCoal(X+1, Y+1);
-    rdIron:  Result := fTerrain.TileIsIron(X+1, Y+1);
-    rdGold:  Result := fTerrain.TileIsGold(X+1, Y+1);
+    rdStone: Result := 3*fTerrain.TileIsStone(X, Y); //3 stone produced by each time
+    rdCoal:  Result := fTerrain.TileIsCoal(X, Y);
+    rdIron:  Result := fTerrain.TileIsIron(X, Y);
+    rdGold:  Result := fTerrain.TileIsGold(X, Y);
     rdFish:  begin
                curUnit := fTerrain.Land[Y + 1, X + 1].IsUnit;
                if (curUnit <> nil) and (curUnit is TKMUnitAnimal) and (curUnit.UnitType = ut_Fish) then
@@ -143,19 +143,19 @@ var
       fArea[R,Y,X] := AreaID;
       Inc(AreaAmount);
       //We must test diagonals for at least fish since they can be taken from water through diagonals
-      if X-1 >= 0 then
+      if X-1 >= 1 then
       begin
-        if Y-1 >= 0 then               FillArea(X-1, Y-1);
+        if Y-1 >= 1 then               FillArea(X-1, Y-1);
                                        FillArea(X-1, Y);
         if Y+1 <= fTerrain.MapY-1 then FillArea(X-1, Y+1);
       end;
 
-      if Y-1 >= 0 then                 FillArea(X, Y-1);
+      if Y-1 >= 1 then                 FillArea(X, Y-1);
       if Y+1 <= fTerrain.MapY-1 then   FillArea(X, Y+1);
 
       if X+1 <= fTerrain.MapX-1 then
       begin
-        if Y-1 >= 0 then               FillArea(X+1, Y-1);
+        if Y-1 >= 1 then               FillArea(X+1, Y-1);
                                        FillArea(X+1, Y);
         if Y+1 <= fTerrain.MapY-1 then FillArea(X+1, Y+1);
       end;
@@ -173,8 +173,8 @@ begin
     SetLength(fArea[R], fTerrain.MapY, fTerrain.MapX);
 
     AreaID := 0;
-    for I := 0 to fTerrain.MapY - 1 do
-    for K := 0 to fTerrain.MapX - 1 do
+    for I := 1 to fTerrain.MapY - 1 do
+    for K := 1 to fTerrain.MapX - 1 do
     if (fArea[R,I,K] = 0) and TileDepositExists(R,K,I) then
     begin
       Inc(AreaID);
@@ -216,8 +216,8 @@ begin
     SetLength(AreaPos, fAreaCount[R]);
 
     //Fill array of resource amounts per area
-    for I := 0 to fTerrain.MapY - 1 do
-    for K := 0 to fTerrain.MapX - 1 do
+    for I := 1 to fTerrain.MapY - 1 do
+    for K := 1 to fTerrain.MapX - 1 do
     if fArea[R, I, K] <> 0 then
     begin
       //Do -1 to make the lists 0 based
@@ -225,9 +225,9 @@ begin
       //Increase amount of resource in area
       Inc(fAreaAmount[R, AreaID], TileDeposit(R, K, I));
 
-      //Accumulate area locations (add +1 because of Terrain is 1..N)
-      AreaPos[AreaID].X := AreaPos[AreaID].X + K + 1;
-      AreaPos[AreaID].Y := AreaPos[AreaID].Y + I + 1;
+      //Accumulate area locations
+      AreaPos[AreaID].X := AreaPos[AreaID].X + K;
+      AreaPos[AreaID].Y := AreaPos[AreaID].Y + I;
       Inc(AreaSize[AreaID]);
     end;
 
