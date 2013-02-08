@@ -58,7 +58,6 @@ type
     fCount: Integer;
     fNetPlayers: array [1 .. MAX_PLAYERS] of TKMNetPlayerInfo;
     function GetPlayer(aIndex: Integer): TKMNetPlayerInfo;
-    procedure ValidateLocations(aMaxLoc: Byte);
     procedure ValidateColors;
     procedure RemAllClosedPlayers;
     procedure UpdateAIPlayerNames;
@@ -100,7 +99,7 @@ type
 
     procedure ResetLocAndReady;
     procedure SetAIReady;
-    function ValidateSetup(aMaxLoc: Byte; out ErrorMsg: string): Boolean;
+    function ValidateSetup(aHumanUsableLocs, aAIUsableLocs: TPlayerIndexArray; out ErrorMsg: string): Boolean;
 
     //Import/Export
     function GetAsText: string; //Gets all relevant information as text string
@@ -258,54 +257,6 @@ end;
 function TKMNetPlayersList.GetPlayer(aIndex: Integer): TKMNetPlayerInfo;
 begin
   Result := fNetPlayers[aIndex];
-end;
-
-
-//Make sure all starting locations are valid
-procedure TKMNetPlayersList.ValidateLocations(aMaxLoc:byte);
-var
-  i,k,LocCount:integer;
-  UsedLoc:array of boolean;
-  AvailableLoc:array[1..MAX_PLAYERS] of byte;
-begin
-  //All wrong start locations will be reset to "undefined"
-  for i:=1 to fCount do
-    if not Math.InRange(fNetPlayers[i].StartLocation, 0, aMaxLoc) then fNetPlayers[i].StartLocation := 0;
-
-  SetLength(UsedLoc, aMaxLoc+1); //01..aMaxLoc, all false
-  for i:=1 to aMaxLoc do UsedLoc[i] := false;
-
-  //Remember all used locations and drop duplicates
-  for i:=1 to fCount do
-    if UsedLoc[fNetPlayers[i].StartLocation] then
-      fNetPlayers[i].StartLocation := 0
-    else
-      UsedLoc[fNetPlayers[i].StartLocation] := true;
-
-  //Collect available locations in a list
-  LocCount := 0;
-  for i:=1 to aMaxLoc do
-  if not UsedLoc[i] then begin
-    inc(LocCount);
-    AvailableLoc[LocCount] := i;
-  end;
-
-  //Randomize (don't use KaMRandom - we want varied results and PlayerList is synced to clients before start)
-  for i:=1 to LocCount do
-    SwapInt(AvailableLoc[i], AvailableLoc[Random(LocCount)+1]);
-
-  //Allocate available starting locations
-  k := 0;
-  for i:=1 to fCount do
-  if fNetPlayers[i].StartLocation = 0 then begin
-    inc(k);
-    if k<=LocCount then
-      fNetPlayers[i].StartLocation := AvailableLoc[k];
-  end;
-
-  //Check for odd players
-  for i:=1 to fCount do
-    Assert(fNetPlayers[i].StartLocation <> 0, 'Everyone should have a starting location!');
 end;
 
 
@@ -719,21 +670,130 @@ end;
 
 //Convert undefined/random start locations to fixed and assign random colors
 //Remove odd players
-function TKMNetPlayersList.ValidateSetup(aMaxLoc:byte; out ErrorMsg:String):boolean;
+function TKMNetPlayersList.ValidateSetup(aHumanUsableLocs, aAIUsableLocs: TPlayerIndexArray; out ErrorMsg:String):boolean;
+
+  function IsHumanLoc(aLoc: Byte): Boolean;
+  var I: Integer;
+  begin
+    Result := False;
+    for I:=0 to Length(aHumanUsableLocs)-1 do
+      if aLoc = aHumanUsableLocs[I]+1 then
+      begin
+        Result := True;
+        Exit;
+      end;
+  end;
+
+  function IsAILoc(aLoc: Byte): Boolean;
+  var I: Integer;
+  begin
+    Result := False;
+    for I:=0 to Length(aAIUsableLocs)-1 do
+      if aLoc = aAIUsableLocs[I]+1 then
+      begin
+        Result := True;
+        Exit;
+      end;
+  end;
+
+var
+  i:integer;
+  UsedLoc:array of boolean;
+  AvailableLocHuman, AvailableLocBoth:array[1..MAX_PLAYERS] of byte;
+  LocHumanCount, LocBothCount: Byte;
+  TmpLocHumanCount, TmpLocBothCount: Byte;
 begin
   if not AllReady then begin
     ErrorMsg := fTextLibrary[TX_LOBBY_EVERYONE_NOT_READY];
     Result := False;
-  end else
-  if (fCount-GetClosedCount) > aMaxLoc then begin
-    ErrorMsg := fTextLibrary[TX_LOBBY_PLAYER_LIMIT];
-    Result := False;
-  end else begin
-    RemAllClosedPlayers; //Closed players are just a marker in the lobby, delete them when the game starts
-    ValidateLocations(aMaxLoc);
-    ValidateColors;
-    Result := True;
+    Exit;
   end;
+
+  //All wrong start locations will be reset to "undefined"
+  for i:=1 to fCount do
+    if ((fNetPlayers[i].PlayerNetType = nptHuman) and not IsHumanLoc(fNetPlayers[i].StartLocation))
+    or ((fNetPlayers[i].PlayerNetType = nptComputer) and not IsAILoc(fNetPlayers[i].StartLocation)) then
+      fNetPlayers[i].StartLocation := 0;
+
+  SetLength(UsedLoc, MAX_PLAYERS+1); //01..MAX_PLAYERS, all false
+  for i:=1 to MAX_PLAYERS do UsedLoc[i] := false;
+
+  //Remember all used locations and drop duplicates
+  for i:=1 to fCount do
+    if UsedLoc[fNetPlayers[i].StartLocation] then
+      fNetPlayers[i].StartLocation := 0
+    else
+      UsedLoc[fNetPlayers[i].StartLocation] := true;
+
+  //Collect available locations in a list
+  LocHumanCount := 0;
+  LocBothCount := 0;
+  for I:=1 to MAX_PLAYERS do
+  if not UsedLoc[I] then
+    begin
+      if IsHumanLoc(I) and IsAILoc(I) then
+      begin
+        Inc(LocBothCount);
+        AvailableLocBoth[LocBothCount] := I;
+      end
+      else
+        if IsHumanLoc(I) then
+        begin
+          Inc(LocHumanCount);
+          AvailableLocHuman[LocHumanCount] := I;
+        end;
+    end;
+
+  //Make sure there's enough available locations for everyone who hasn't got one yet
+  TmpLocHumanCount := LocHumanCount;
+  TmpLocBothCount := LocBothCount;
+  for i:=1 to fCount do
+    if (fNetPlayers[i].StartLocation = 0) and (fNetPlayers[i].PlayerNetType <> nptClosed) then
+    begin
+      if (fNetPlayers[i].PlayerNetType = nptHuman) and (TmpLocHumanCount > 0) then
+        Dec(TmpLocHumanCount)
+      else
+        if TmpLocBothCount > 0 then
+          Dec(TmpLocBothCount)
+        else
+        begin
+          ErrorMsg := fTextLibrary[TX_LOBBY_UNABLE_RANDOM_LOCS];
+          Result := False;
+          Exit;
+        end;
+    end;
+    
+  RemAllClosedPlayers; //Closed players are just a marker in the lobby, delete them when the game starts
+
+  //Randomize all available lists (don't use KaMRandom - we want varied results and PlayerList is synced to clients before start)
+  for i:=1 to LocBothCount do
+    SwapInt(AvailableLocBoth[i], AvailableLocBoth[Random(LocBothCount)+1]);
+  for i:=1 to LocHumanCount do
+    SwapInt(AvailableLocHuman[i], AvailableLocHuman[Random(LocHumanCount)+1]);
+
+  //First assign Human only available locations, after that assign mixed ones together
+  for i:=1 to fCount do
+    if (fNetPlayers[i].StartLocation = 0) and (fNetPlayers[i].PlayerNetType = nptHuman) and (LocHumanCount > 0) then
+    begin
+      fNetPlayers[i].StartLocation := AvailableLocHuman[LocHumanCount];
+      Dec(LocHumanCount);
+    end;
+
+  //Now allocate locations that can be human or AI
+  for i:=1 to fCount do
+    if fNetPlayers[i].StartLocation = 0 then
+    begin
+      Assert(LocBothCount > 0, 'Not enough locations to allocate');
+      fNetPlayers[i].StartLocation := AvailableLocBoth[LocBothCount];
+      Dec(LocBothCount);
+    end;
+
+  //Check for odd players
+  for i:=1 to fCount do
+    Assert(fNetPlayers[i].StartLocation <> 0, 'Everyone should have a starting location!');
+
+  ValidateColors;
+  Result := True;
 end;
 
 

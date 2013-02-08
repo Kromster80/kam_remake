@@ -46,6 +46,7 @@ type
     FlagColors: array [0..MAX_PLAYERS-1] of Cardinal;
     Author, SmallDesc, BigDesc: AnsiString;
     IsCoop: Boolean; //Some multiplayer missions are defined as coop
+    IsSpecial: Boolean; //Some missions are defined as special (e.g. tower defence, quest, etc.)
 
     constructor Create;
     destructor Destroy; override;
@@ -59,6 +60,7 @@ type
     property FileName: string read fFileName;
     function FullPath(const aExt: string): string;
     function HumanUsableLocations: TPlayerIndexArray;
+    function AIUsableLocations: TPlayerIndexArray;
     property CRC: Cardinal read fCRC;
     function LocationName(aIndex: TPlayerIndex): string;
     function SizeText: string;
@@ -195,6 +197,18 @@ begin
 end;
 
 
+function TKMapInfo.AIUsableLocations: TPlayerIndexArray;
+var I: Integer;
+begin
+  for I := 0 to MAX_PLAYERS - 1 do
+    if CanBeAI[I] then
+    begin
+      SetLength(Result, Length(Result)+1);
+      Result[Length(Result)-1] := I;
+    end;
+end;
+
+
 function TKMapInfo.LocationName(aIndex: TPlayerIndex): string;
 begin
   Result := Format(fTextLibrary[TX_LOBBY_LOCATION_X], [aIndex + 1]);
@@ -272,6 +286,7 @@ begin
         ReadLn(ft, st);
         if SameText(st, 'SmallDesc') then ReadLn(ft, SmallDesc);
         if SameText(st, 'SetCoop')   then IsCoop := True;
+        if SameText(st, 'SetSpecial')then IsSpecial := True;
       until(eof(ft));
       CloseFile(ft);
     end;
@@ -310,6 +325,7 @@ begin
       if SameText(st, 'Author')    then ReadLn(ft, Author);
       if SameText(st, 'BigDesc')   then ReadLn(ft, BigDesc);
       if SameText(st, 'SetCoop')   then IsCoop := True;
+      if SameText(st, 'SetSpecial')then IsSpecial := True;
     until(eof(ft));
     CloseFile(ft);
   end;
@@ -337,6 +353,7 @@ begin
   S.Read(PlayerCount);
   S.Read(SmallDesc);
   S.Read(IsCoop);
+  S.Read(IsSpecial);
   S.Read(CanBeHuman, SizeOf(CanBeHuman));
 
   //Other properties are not saved, they are fast to reload
@@ -362,6 +379,7 @@ begin
     S.Write(PlayerCount);
     S.Write(SmallDesc);
     S.Write(IsCoop);
+    S.Write(IsSpecial);
     S.Write(CanBeHuman, SizeOf(CanBeHuman));
 
     //Other properties from text file are not saved, they are fast to reload

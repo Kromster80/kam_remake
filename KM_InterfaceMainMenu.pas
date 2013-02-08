@@ -1230,15 +1230,16 @@ begin
     Panel_LobbySetup.Anchors := [akLeft, akTop, akBottom];
       with TKMBevel.Create(Panel_LobbySetup,  0,  0, 270, 712) do Stretch;
       Label_LobbyChooseMap := TKMLabel.Create(Panel_LobbySetup, 10, 10, 250, 20, fTextLibrary[TX_LOBBY_MAP_TYPE], fnt_Outline, taLeft);
-      Radio_LobbyMapType := TKMRadioGroup.Create(Panel_LobbySetup, 10, 29, 250, 60, fnt_Metal);
+      Radio_LobbyMapType := TKMRadioGroup.Create(Panel_LobbySetup, 10, 29, 250, 80, fnt_Metal);
       Radio_LobbyMapType.Add(fTextLibrary[TX_LOBBY_MAP_BUILD]);
       Radio_LobbyMapType.Add(fTextLibrary[TX_LOBBY_MAP_FIGHT]);
       Radio_LobbyMapType.Add(fTextLibrary[TX_LOBBY_MAP_COOP]);
+      Radio_LobbyMapType.Add(fTextLibrary[TX_LOBBY_MAP_SPECIAL]);
       Radio_LobbyMapType.Add(fTextLibrary[TX_LOBBY_MAP_SAVED]);
       Radio_LobbyMapType.ItemIndex := 0;
       Radio_LobbyMapType.OnChange := Lobby_MapTypeSelect;
 
-      DropCol_LobbyMaps := TKMDropColumns.Create(Panel_LobbySetup, 10, 99, 250, 20, fnt_Metal, fTextLibrary[TX_LOBBY_MAP_SELECT], bsMenu);
+      DropCol_LobbyMaps := TKMDropColumns.Create(Panel_LobbySetup, 10, 119, 250, 20, fnt_Metal, fTextLibrary[TX_LOBBY_MAP_SELECT], bsMenu);
       DropCol_LobbyMaps.DropCount := 19;
       DropCol_LobbyMaps.DropWidth := 430; //180 extra width
       DropCol_LobbyMaps.SetColumns(fnt_Outline, [fTextLibrary[TX_MENU_MAP_TITLE], '#', fTextLibrary[TX_MENU_MAP_SIZE]], [0, 290, 320]);
@@ -1246,11 +1247,11 @@ begin
       DropCol_LobbyMaps.OnChange := Lobby_MapSelect;
       Label_LobbyMapName := TKMLabel.Create(Panel_LobbySetup, 10, 99, 250, 20, '', fnt_Metal, taLeft);
 
-      TKMBevel.Create(Panel_LobbySetup, 35, 124, 199, 199);
-      MinimapView_Lobby := TKMMinimapView.Create(Panel_LobbySetup, 39, 128, 191, 191);
+      TKMBevel.Create(Panel_LobbySetup, 35, 144, 199, 199);
+      MinimapView_Lobby := TKMMinimapView.Create(Panel_LobbySetup, 39, 148, 191, 191);
       MinimapView_Lobby.ShowLocs := True; //In the minimap we want player locations to be shown
 
-      Memo_LobbyMapDesc := TKMMemo.Create(Panel_LobbySetup, 10, 328, 250, 294, fnt_Game, bsMenu);
+      Memo_LobbyMapDesc := TKMMemo.Create(Panel_LobbySetup, 10, 348, 250, 274, fnt_Game, bsMenu);
       Memo_LobbyMapDesc.Anchors := [akLeft,akTop,akBottom];
       Memo_LobbyMapDesc.AutoWrap := True;
       Memo_LobbyMapDesc.ItemHeight := 16;
@@ -3323,28 +3324,17 @@ begin
   fSavesMP.TerminateScan;
   DropCol_LobbyMaps.Clear; //Clear previous items in case scanning finds no maps/saves
   case Radio_LobbyMapType.ItemIndex of
-    0:  //Build Map
+    0,  //Build Map
+    1,  //Fight Map
+    2,  //Co-op Map
+    3:  //Special map Map
         begin
           fMapsMP.Refresh(Lobby_ScanUpdate);
           DropCol_LobbyMaps.DefaultCaption := fTextLibrary[TX_LOBBY_MAP_SELECT];
           DropCol_LobbyMaps.List.Header.Columns[0].Caption := fTextLibrary[TX_MENU_MAP_TITLE];
           DropCol_LobbyMaps.List.Header.Columns[2].Caption := fTextLibrary[TX_MENU_MAP_SIZE];
         end;
-    1:  //Fight Map
-        begin
-          fMapsMP.Refresh(Lobby_ScanUpdate);
-          DropCol_LobbyMaps.DefaultCaption := fTextLibrary[TX_LOBBY_MAP_SELECT];
-          DropCol_LobbyMaps.List.Header.Columns[0].Caption := fTextLibrary[TX_MENU_MAP_TITLE];
-          DropCol_LobbyMaps.List.Header.Columns[2].Caption := fTextLibrary[TX_MENU_MAP_SIZE];
-        end;
-    2:  //Co-op Map
-        begin
-          fMapsMP.Refresh(Lobby_ScanUpdate);
-          DropCol_LobbyMaps.DefaultCaption := fTextLibrary[TX_LOBBY_MAP_SELECT];
-          DropCol_LobbyMaps.List.Header.Columns[0].Caption := fTextLibrary[TX_MENU_MAP_TITLE];
-          DropCol_LobbyMaps.List.Header.Columns[2].Caption := fTextLibrary[TX_MENU_MAP_SIZE];
-        end;
-    3:  //Saved Game
+    4:  //Saved Game
         begin
           fSavesMP.Refresh(Lobby_ScanUpdate, True);
           DropCol_LobbyMaps.DefaultCaption := fTextLibrary[TX_LOBBY_MAP_SELECT_SAVED];
@@ -3404,9 +3394,10 @@ begin
     begin
       //Different modes allow different maps
       case Radio_LobbyMapType.ItemIndex of
-        0:    AddMap := (fMapsMP[I].MissionMode = mm_Normal) and not fMapsMP[I].IsCoop; //BuildMap
-        1:    AddMap := (fMapsMP[I].MissionMode = mm_Tactic) and not fMapsMP[I].IsCoop; //FightMap
+        0:    AddMap := (fMapsMP[I].MissionMode = mm_Normal) and not fMapsMP[I].IsCoop and not fMapsMP[I].IsSpecial; //BuildMap
+        1:    AddMap := (fMapsMP[I].MissionMode = mm_Tactic) and not fMapsMP[I].IsCoop and not fMapsMP[I].IsSpecial; //FightMap
         2:    AddMap := fMapsMP[I].IsCoop; //CoopMap
+        3:    AddMap := fMapsMP[I].IsSpecial; //Special map
         else  AddMap := False; //Other cases are already handled in Lobby_MapTypeSelect
       end;
 
@@ -3484,7 +3475,7 @@ var
   SSM: TSavesSortMethod;
 begin
 
-  if Radio_LobbyMapType.ItemIndex < 3 then
+  if Radio_LobbyMapType.ItemIndex < 4 then
   begin
     //Determine Sort method depending on which column user clicked
     with DropCol_LobbyMaps.List do
@@ -3532,7 +3523,7 @@ end;
 //Just pass FileName to Networking, it will check validity itself
 procedure TKMMainMenuInterface.Lobby_MapSelect(Sender: TObject);
 begin
-  if Radio_LobbyMapType.ItemIndex < 3 then
+  if Radio_LobbyMapType.ItemIndex < 4 then
   begin
     fMapsMP.Lock;
       fGameApp.Networking.SelectMap(fMapsMP[DropCol_LobbyMaps.Item[DropCol_LobbyMaps.ItemIndex].Tag].FileName);
@@ -3570,7 +3561,7 @@ begin
     ngk_Save: begin
                 S := fGameApp.Networking.SaveInfo;
                 if not fGameApp.Networking.IsHost then
-                  Radio_LobbyMapType.ItemIndex := 3;
+                  Radio_LobbyMapType.ItemIndex := 4;
 
                 Label_LobbyMapName.Caption := S.FileName;
                 Memo_LobbyMapDesc.Text := S.Info.GetTitleWithTime;
@@ -3582,10 +3573,13 @@ begin
                   if M.IsCoop then
                     Radio_LobbyMapType.ItemIndex := 2
                   else
-                    if M.MissionMode = mm_Tactic then
-                      Radio_LobbyMapType.ItemIndex := 1
+                    if M.IsSpecial then
+                      Radio_LobbyMapType.ItemIndex := 3
                     else
-                      Radio_LobbyMapType.ItemIndex := 0;
+                      if M.MissionMode = mm_Tactic then
+                        Radio_LobbyMapType.ItemIndex := 1
+                      else
+                        Radio_LobbyMapType.ItemIndex := 0;
                 end;
 
                 //Only load the minimap preview if the map is valid
@@ -3623,15 +3617,18 @@ begin
     Radio_LobbyMapType.ItemIndex := 0 //Default
   else
     if fGameApp.Networking.SelectGameKind = ngk_Save then
-      Radio_LobbyMapType.ItemIndex := 3
+      Radio_LobbyMapType.ItemIndex := 4
     else
       if fGameApp.Networking.MapInfo.IsCoop then
         Radio_LobbyMapType.ItemIndex := 2
       else
-        if fGameApp.Networking.MapInfo.MissionMode = mm_Tactic then
-          Radio_LobbyMapType.ItemIndex := 1
+        if fGameApp.Networking.MapInfo.IsSpecial then
+          Radio_LobbyMapType.ItemIndex := 3
         else
-          Radio_LobbyMapType.ItemIndex := 0;
+          if fGameApp.Networking.MapInfo.MissionMode = mm_Tactic then
+            Radio_LobbyMapType.ItemIndex := 1
+          else
+            Radio_LobbyMapType.ItemIndex := 0;
 
   //Don't force rescanning all the maps unless the map type changed or no map was selected
   if (Radio_LobbyMapType.ItemIndex <> OldMapType) or (DropCol_LobbyMaps.ItemIndex = -1) then

@@ -650,7 +650,7 @@ end;
 //Tell other players we want to start
 procedure TKMNetworking.StartClick;
 var
-  PlayerCount: Byte;
+  HumanUsableLocs, AIUsableLocs: TPlayerIndexArray;
   ErrorMessage: string;
 begin
   Assert(IsHost, 'Only host can start the game');
@@ -660,11 +660,20 @@ begin
   //Define random parameters (start locations and flag colors)
   //This will also remove odd players from the List, they will lose Host in few seconds
   case fSelectGameKind of
-    ngk_Map:  PlayerCount := fMapInfo.PlayerCount;
-    ngk_Save: PlayerCount := fSaveInfo.Info.PlayerCount;
-    else      PlayerCount := 0;
+    ngk_Map:  begin
+                HumanUsableLocs := fMapInfo.HumanUsableLocations;
+                AIUsableLocs := fMapInfo.AIUsableLocations;
+              end;
+    ngk_Save: begin
+                HumanUsableLocs := fSaveInfo.Info.HumanUsableLocations;
+                SetLength(AIUsableLocs, 0); //You can't add AIs into a save
+              end;
+    else      begin
+                SetLength(HumanUsableLocs, 0);
+                SetLength(AIUsableLocs, 0);
+              end;
   end;
-  if not fNetPlayers.ValidateSetup(PlayerCount, ErrorMessage) then
+  if not fNetPlayers.ValidateSetup(HumanUsableLocs, AIUsableLocs, ErrorMessage) then
   begin
     PostLocalMessage(Format(fTextLibrary[TX_LOBBY_CANNOT_START], [ErrorMessage]));
     Exit;

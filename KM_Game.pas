@@ -529,8 +529,9 @@ begin
   //We cannot remove a player from a save (as they might be interacting with other players)
 
   fPlayers.SyncFogOfWar; //Syncs fog of war revelation between players AFTER alliances
-  if fNetworking.SelectGameKind = ngk_Map then
-    fPlayers.AddDefaultMPGoals(fMissionMode); //Multiplayer missions don't have goals yet, so add the defaults
+  //Multiplayer missions don't have goals yet, so add the defaults (except for special missions)
+  if (fNetworking.SelectGameKind = ngk_Map) and not fNetworking.MapInfo.IsSpecial then
+    fPlayers.AddDefaultMPGoals(fMissionMode);
 
   fNetworking.OnPlay           := GameMPPlay;
   fNetworking.OnReadyToPlay    := GameMPReadyToPlay;

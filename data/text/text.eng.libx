@@ -1,5 +1,5 @@
 
-MaxID:2817
+MaxID:2819
 
 0:Sawmill
 1:Iron smithy
@@ -547,3 +547,5 @@ MaxID:2817
 2815:Supplies:
 2816:Ping / FPS
 2817:Vertical Sync
+2818:Special map
+2819:Unable to assign random locations

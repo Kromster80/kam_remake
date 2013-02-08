@@ -37,6 +37,7 @@ type
     function IsValid(aCheckDATCRC: Boolean): Boolean;
     function AICount: Byte;
     function HumanCount: Byte;
+    function HumanUsableLocations: TPlayerIndexArray;
     function SizeText: string;
     function MissionModeText: string;
     function GetTimeText: string;
@@ -142,6 +143,18 @@ begin
   for I := 0 to PlayerCount - 1 do
     if Enabled[I] and (PlayerTypes[I] = pt_Human) then
       Inc(Result);
+end;
+
+
+function TKMGameInfo.HumanUsableLocations: TPlayerIndexArray;
+var I: Integer;
+begin
+  for I := 0 to MAX_PLAYERS - 1 do
+    if CanBeHuman[I] then
+    begin
+      SetLength(Result, Length(Result)+1);
+      Result[Length(Result)-1] := I;
+    end;
 end;
 
 
