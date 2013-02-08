@@ -993,8 +993,8 @@ type
     fView: TViewport;
     fPaintWidth: Integer;
     fPaintHeight: Integer;
-    fNewLeft: Integer;
-    fNewTop: Integer;
+    fLeftOffset: Integer;
+    fTopOffset: Integer;
 
     fOnChange, fOnMinimapClick: TPointEvent;
     fShowLocs: Boolean;
@@ -4084,15 +4084,15 @@ begin
   begin
     fPaintWidth := Width;
     fPaintHeight := Round(Height * fMinimap.MapY / Max(fMinimap.MapX, 1)); // X could = 0
-    fNewLeft := Left;
-    fNewTop := Top + (Height - fPaintHeight) div 2;
+    fLeftOffset := 0;
+    fTopOffset := (Height - fPaintHeight) div 2;
   end
   else
   begin
     fPaintWidth := Round(Width * fMinimap.MapX / Max(fMinimap.MapY, 1)); // Y could = 0
     fPaintHeight := Height;
-    fNewLeft := Left + (Width - fPaintWidth) div 2;
-    fNewTop := Top;
+    fLeftOffset := (Width - fPaintWidth) div 2;
+    fTopOffset := 0;
   end;
 end;
 
@@ -4106,16 +4106,16 @@ end;
 function TKMMinimapView.LocalToMapCoords(X,Y: Integer; const Inset: ShortInt = 0): TKMPoint;
 begin
   Assert(Inset >= -1, 'Min allowed inset is -1, to be within TKMPoint range of 0..n');
-  Result.X := EnsureRange(Round((X - fNewLeft) * fMinimap.MapX / fPaintWidth),  1+Inset, fMinimap.MapX-Inset);
-  Result.Y := EnsureRange(Round((Y - fNewTop)  * fMinimap.MapY / fPaintHeight), 1+Inset, fMinimap.MapY-Inset);
+  Result.X := EnsureRange(Round((X - Left - fLeftOffset) * fMinimap.MapX / fPaintWidth),  1+Inset, fMinimap.MapX-Inset);
+  Result.Y := EnsureRange(Round((Y - Top  - fTopOffset ) * fMinimap.MapY / fPaintHeight), 1+Inset, fMinimap.MapY-Inset);
 end;
 
 
 function TKMMinimapView.MapCoordsToLocal(X,Y: Single; const Inset: ShortInt = 0): TKMPoint;
 begin
   Assert(Inset >= -1, 'Min allowed inset is -1, to be within TKMPoint range of 0..n');
-  Result.X := fNewLeft + EnsureRange(Round(X * fPaintWidth /  fMinimap.MapX), Inset, fPaintWidth  - Inset);
-  Result.Y := fNewTop  + EnsureRange(Round(Y * fPaintHeight / fMinimap.MapY), Inset, fPaintHeight - Inset);
+  Result.X := Left + fLeftOffset + EnsureRange(Round(X * fPaintWidth /  fMinimap.MapX), Inset, fPaintWidth  - Inset);
+  Result.Y := Top  + fTopOffset  + EnsureRange(Round(Y * fPaintHeight / fMinimap.MapY), Inset, fPaintHeight - Inset);
 end;
 
 
@@ -4169,7 +4169,7 @@ begin
     Exit;
 
   if (fMinimap.MapTex.Tex <> 0) then
-    TKMRenderUI.WriteTexture(fNewLeft, fNewTop, fPaintWidth, fPaintHeight, fMinimap.MapTex, $FFFFFFFF)
+    TKMRenderUI.WriteTexture(Left + fLeftOffset, Top + fTopOffset, fPaintWidth, fPaintHeight, fMinimap.MapTex, $FFFFFFFF)
   else
     TKMRenderUI.WriteBevel(Left, Top, fWidth, fHeight);
 
@@ -4188,10 +4188,10 @@ begin
   begin
     R := fView.GetMinimapClip;
     if (R.Right - R.Left) * (R.Bottom - R.Top) > 0 then
-      TKMRenderUI.WriteOutline(fNewLeft + Round(R.Left*fPaintWidth / fMinimap.MapX),
-                          fNewTop  + Round(R.Top*fPaintHeight / fMinimap.MapY),
-                          Round((R.Right - R.Left)*fPaintWidth / fMinimap.MapX),
-                          Round((R.Bottom - R.Top)*fPaintHeight / fMinimap.MapY), 1, $FFFFFFFF);
+      TKMRenderUI.WriteOutline(Left + fLeftOffset + Round(R.Left*fPaintWidth / fMinimap.MapX),
+                               Top  + fTopOffset  + Round(R.Top*fPaintHeight / fMinimap.MapY),
+                               Round((R.Right - R.Left)*fPaintWidth / fMinimap.MapX),
+                               Round((R.Bottom - R.Top)*fPaintHeight / fMinimap.MapY), 1, $FFFFFFFF);
   end;
 
   if not fShowLocs then Exit;
