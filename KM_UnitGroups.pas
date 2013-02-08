@@ -726,10 +726,20 @@ begin
                         //Melee units must kill target unit and its Group
                         OrderExecuted := (OrderTargetUnit = nil) and (OrderTargetGroup = nil);
 
-                        //See if target is escaping
-                        if (OrderTargetUnit <> nil)
-                        and not KMSamePoint(OrderTargetUnit.NextPosition, fOrderLoc.Loc) then
-                          OrderAttackUnit(fOrderTargetUnit, False);
+                        if OrderTargetUnit <> nil then
+                        begin
+                          //See if target is escaping
+                          if not KMSamePoint(OrderTargetUnit.NextPosition, fOrderLoc.Loc) then
+                            OrderAttackUnit(fOrderTargetUnit, False);
+
+                          for I := 0 to Count - 1 do
+                            if Members[I].IsIdle then
+                            begin
+                              P := GetMemberLoc(I);
+                              Members[I].OrderWalk(P.Loc, P.Exact);
+                            end;
+                        end;
+
 
                         //If Enemy was killed, but target Group still exists
                         if (OrderTargetUnit = nil) and (OrderTargetGroup <> nil) then
@@ -853,6 +863,7 @@ begin
     for I := 0 to Count - 1 do
     if Members[I].IsIdle then
     begin
+      Members[I].FaceDir := dir_NA; //Tells archer it's okay to shoot enemies in any direction
       //Check target in range, and if not - chase it / back up from it
       if (KMLength(Members[I].GetPosition, OrderTargetUnit.GetPosition) > Members[I].GetFightMaxRange) then
         //Too far away
