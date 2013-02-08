@@ -719,7 +719,7 @@ begin
 
     {5 big tabs}
     Button_Main[1] := TKMButton.Create(Panel_Common, BIG_PAD_W*0, 0, BIG_TAB_W, BIG_TAB_H, 381, rxGui, bsGame);
-    Button_Main[2] := TKMButton.Create(Panel_Common, BIG_PAD_W*1, 0, BIG_TAB_W, BIG_TAB_H, 368, rxGui, bsGame);
+    Button_Main[2] := TKMButton.Create(Panel_Common, BIG_PAD_W*1, 0, BIG_TAB_W, BIG_TAB_H, 589, rxGui, bsGame);
     Button_Main[3] := TKMButton.Create(Panel_Common, BIG_PAD_W*2, 0, BIG_TAB_W, BIG_TAB_H, 392, rxGui, bsGame);
     Button_Main[4] := TKMButton.Create(Panel_Common, BIG_PAD_W*3, 0, BIG_TAB_W, BIG_TAB_H, 441, rxGui, bsGame);
     Button_Main[5] := TKMButton.Create(Panel_Common, BIG_PAD_W*4, 0, BIG_TAB_W, BIG_TAB_H, 389, rxGui, bsGame);
@@ -941,7 +941,8 @@ end;
 {Build page}
 procedure TKMapEdInterface.Create_Town;
 const
-  TabGlyph: array [TKMTownTab] of Word = (391, 141, 327, 43, 43);
+  TabGlyph: array [TKMTownTab] of Word    = (391,   141,   62,        43,    53);
+  TabRXX  : array [TKMTownTab] of TRXType = (rxGui, rxGui, rxGuiMain, rxGui, rxGui);
 var
   I: Integer;
   VT: TKMTownTab;
@@ -950,7 +951,7 @@ begin
 
     for VT := Low(TKMTownTab) to High(TKMTownTab) do
     begin
-      Button_Town[VT] := TKMButton.Create(Panel_Town, SMALL_PAD_W * Byte(VT), 0, SMALL_TAB_W, SMALL_TAB_H, TabGlyph[VT], rxGui, bsGame);
+      Button_Town[VT] := TKMButton.Create(Panel_Town, SMALL_PAD_W * Byte(VT), 0, SMALL_TAB_W, SMALL_TAB_H, TabGlyph[VT], TabRXX[VT], bsGame);
       Button_Town[VT].OnClick := SwitchPage;
     end;
 
@@ -1011,7 +1012,7 @@ begin
 
     //Town settings
     Panel_Script := TKMPanel.Create(Panel_Town, 0, 28, TB_WIDTH, 400);
-      TKMLabel.Create(Panel_Script, 0, PAGE_TITLE_Y, TB_WIDTH, 0, 'Scripts', fnt_Outline, taCenter);
+      TKMLabel.Create(Panel_Script, 0, PAGE_TITLE_Y, TB_WIDTH, 0, 'AI settings', fnt_Outline, taCenter);
       CheckBox_AutoBuild := TKMCheckBox.Create(Panel_Script, 0, 30, TB_WIDTH, 20, 'Autobuild', fnt_Metal);
       CheckBox_AutoBuild.OnClick := Town_ScriptChange;
       CheckBox_AutoRepair := TKMCheckBox.Create(Panel_Script, 0, 50, TB_WIDTH, 20, 'Autorepair', fnt_Metal);
@@ -1025,32 +1026,32 @@ begin
 
     //Defence settings
     Panel_Defence := TKMPanel.Create(Panel_Town, 0, 28, TB_WIDTH, 400);
-      TKMLabel.Create(Panel_Defence, 0, PAGE_TITLE_Y, TB_WIDTH, 0, 'Defence positions', fnt_Outline, taCenter);
+      TKMLabel.Create(Panel_Defence, 0, PAGE_TITLE_Y, TB_WIDTH, 0, 'AI defence positions', fnt_Outline, taCenter);
       Button_DefencePosAdd := TKMButtonFlat.Create(Panel_Defence, 0, 30, 33, 33, 338);
       Button_DefencePosAdd.OnClick := Town_DefenceAddClick;
       Button_DefencePosAdd.Hint    := 'Place defence position for AI';
 
-      TKMLabel.Create(Panel_Defence, 0, 65, TB_WIDTH, 0, 'Defence', fnt_Outline, taCenter);
+      TKMLabel.Create(Panel_Defence, 0, 65, TB_WIDTH, 0, 'AI defence', fnt_Outline, taCenter);
       CheckBox_AutoDefence := TKMCheckBox.Create(Panel_Defence, 0, 90, TB_WIDTH, 20, 'AutoDefence', fnt_Metal);
       CheckBox_AutoDefence.OnClick := Town_DefenceChange;
 
-      TrackBar_EquipRateLeather := TKMTrackBar.Create(Panel_Defence, 0, 110, TB_WIDTH, 10, 300);
+      TrackBar_EquipRateLeather := TKMTrackBar.Create(Panel_Defence, 0, 120, TB_WIDTH, 10, 300);
       TrackBar_EquipRateLeather.Caption := 'Equip rate iron';
       TrackBar_EquipRateLeather.Step := 5;
       TrackBar_EquipRateLeather.OnClick := Town_DefenceChange;
 
-      TrackBar_EquipRateIron := TKMTrackBar.Create(Panel_Defence, 0, 150, TB_WIDTH, 10, 300);
+      TrackBar_EquipRateIron := TKMTrackBar.Create(Panel_Defence, 0, 164, TB_WIDTH, 10, 300);
       TrackBar_EquipRateIron.Caption := 'Equip rate leather';
       TrackBar_EquipRateIron.Step := 5;
       TrackBar_EquipRateIron.OnClick := Town_DefenceChange;
 
-      TrackBar_RecruitFactor := TKMTrackBar.Create(Panel_Defence, 0, 190, TB_WIDTH, 1, 20);
+      TrackBar_RecruitFactor := TKMTrackBar.Create(Panel_Defence, 0, 208, TB_WIDTH, 1, 20);
       TrackBar_RecruitFactor.Caption := 'Recruits per Barracks';
       TrackBar_RecruitFactor.Hint := 'How many recruits AI should have in barracks'; //@Lewin: Please check me on this one
                                                                                      //@Krom: That's correct
       TrackBar_RecruitFactor.OnClick := Town_DefenceChange;
 
-      Button_EditFormations := TKMButton.Create(Panel_Defence, 0, 235, TB_WIDTH, 25, 'Edit formations', bsGame);
+      Button_EditFormations := TKMButton.Create(Panel_Defence, 0, 255, TB_WIDTH, 25, 'Edit formations', bsGame);
       Button_EditFormations.OnClick := Formations_Show;
 
     //Offence settings
@@ -1074,7 +1075,8 @@ end;
 
 procedure TKMapEdInterface.Create_Player;
 const
-  TabGlyph: array [TKMPlayerTab] of Word = (41, 382, 38, 327, 393);
+  TabGlyph: array [TKMPlayerTab] of Word    = (8,         1159,     38,    327,   393);
+  TabRXX  : array [TKMPlayerTab] of TRXType = (rxGuiMain, rxHouses, rxGui, rxGui, rxGui);
 var
   I: Integer;
   Col: array [0..255] of TColor4;
@@ -1084,13 +1086,13 @@ begin
 
     for PT := Low(TKMPlayerTab) to High(TKMPlayerTab) do
     begin
-      Button_Player[PT] := TKMButton.Create(Panel_Player, SMALL_PAD_W * Byte(PT), 0, SMALL_TAB_W, SMALL_TAB_H,  TabGlyph[PT], rxGui, bsGame);
+      Button_Player[PT] := TKMButton.Create(Panel_Player, SMALL_PAD_W * Byte(PT), 0, SMALL_TAB_W, SMALL_TAB_H,  TabGlyph[PT], TabRXX[PT], bsGame);
       Button_Player[PT].OnClick := SwitchPage;
     end;
 
     Panel_Goals := TKMPanel.Create(Panel_Player,0,28,TB_WIDTH,400);
-      TKMLabel.Create(Panel_Goals, 0, 10, TB_WIDTH, 0, 'Goals', fnt_Outline, taCenter);
-      List_Goals := TKMColumnListBox.Create(Panel_Goals, 0, 50, TB_WIDTH, 210, fnt_Game, bsGame);
+      TKMLabel.Create(Panel_Goals, 0, PAGE_TITLE_Y, TB_WIDTH, 0, 'Goals', fnt_Outline, taCenter);
+      List_Goals := TKMColumnListBox.Create(Panel_Goals, 0, 30, TB_WIDTH, 230, fnt_Game, bsGame);
       List_Goals.SetColumns(fnt_Outline, ['Type', 'Condition', 'Player', 'Time', 'Msg'], [0, 20, 120, 140, 160]);
       List_Goals.OnClick := Goals_ListClick;
       List_Goals.OnDoubleClick := Goals_ListDoubleClick;
@@ -1809,6 +1811,7 @@ begin
     Button_Citizen[I].FlagColor := MyPlayer.FlagColor;
   for I := Low(Button_Warriors) to High(Button_Warriors) do
     Button_Warriors[I].FlagColor := MyPlayer.FlagColor;
+  Button_Player[ptColor].FlagColor := MyPlayer.FlagColor;
   Button_Reveal.FlagColor := MyPlayer.FlagColor;
 end;
 
@@ -3167,7 +3170,7 @@ begin
     CheckBox_PlayerTypes[I, 2].Enabled := fPlayers[I] <> nil;
 
     CheckBox_PlayerTypes[I, 0].Checked := (fPlayers[I] <> nil) and (fGame.MapEditor.DefaultHuman = I);
-    CheckBox_PlayerTypes[I, 1].Checked := (fPlayers[I] <> nil) and (fGame.MapEditor.PlayerHuman[I] or CheckBox_PlayerTypes[I, 0].Checked);
+    CheckBox_PlayerTypes[I, 1].Checked := (fPlayers[I] <> nil) and fGame.MapEditor.PlayerHuman[I];
     CheckBox_PlayerTypes[I, 2].Checked := (fPlayers[I] <> nil) and fGame.MapEditor.PlayerAI[I];
   end;
 end;

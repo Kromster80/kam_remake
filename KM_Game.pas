@@ -451,7 +451,8 @@ begin
       Assert(InRange(aLocation, 0, fPlayers.Count - 1), 'No human player detected');
       fPlayers[aLocation].PlayerType := pt_Human;
       MyPlayer := fPlayers[aLocation];
-      MyPlayer.FlagColor := aColor;
+      if aColor <> $00000000 then //If no color specified use default from mission file (don't overwrite it)
+        MyPlayer.FlagColor := aColor;
     end;
 
     if (Parser.MinorErrors <> '') and (fGameMode <> gmMapEd) then

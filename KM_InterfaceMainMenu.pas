@@ -2522,7 +2522,7 @@ begin
     M := fMaps[MapId];
 
     //Refresh minimap with selected location and player color
-    fMinimap.LoadFromMission(M.FullPath('.dat'), [TPlayerIndex(fSingleLoc + 1)]);
+    fMinimap.LoadFromMission(M.FullPath('.dat'), [TPlayerIndex(fSingleLoc)]);
     fMinimap.PlayerColors[fSingleLoc+1] := fSingleColor;
     fMinimap.Update(False);
     MinimapView_Single.SetMinimap(fMinimap);
