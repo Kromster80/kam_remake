@@ -9,6 +9,7 @@ type
   TKMGameOptions = class
   public
     Peacetime: Word; //Peacetime in minutes
+    SpeedPT, SpeedAfterPT: Byte;
     procedure Save(SaveStream: TKMemoryStream);
     procedure Load(LoadStream: TKMemoryStream);
 
@@ -25,12 +26,16 @@ implementation
 procedure TKMGameOptions.Load(LoadStream: TKMemoryStream);
 begin
   LoadStream.Read(Peacetime);
+  LoadStream.Read(SpeedPT);
+  LoadStream.Read(SpeedAfterPT);
 end;
 
 
 procedure TKMGameOptions.Save(SaveStream: TKMemoryStream);
 begin
   SaveStream.Write(Peacetime);
+  SaveStream.Write(SpeedPT);
+  SaveStream.Write(SpeedAfterPT);
 end;
 
 
@@ -38,6 +43,8 @@ end;
 procedure TKMGameOptions.Reset;
 begin
   Peacetime := 0;
+  SpeedPT := 1;
+  SpeedAfterPT := 1;
 end;
 
 

@@ -520,6 +520,8 @@ begin
   fNetPlayers.ResetLocAndReady; //Reset start locations
 
   NetGameOptions.Peacetime := fSaveInfo.GameOptions.Peacetime;
+  NetGameOptions.SpeedPT := fSaveInfo.GameOptions.SpeedPT;
+  NetGameOptions.SpeedAfterPT := fSaveInfo.GameOptions.SpeedAfterPT;
   SendGameOptions;
   if Assigned(fOnGameOptions) then fOnGameOptions(Self);
 

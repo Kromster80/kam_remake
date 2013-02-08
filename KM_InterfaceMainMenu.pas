@@ -244,6 +244,7 @@ type
         Label_LobbyMapName: TKMLabel;
         Memo_LobbyMapDesc: TKMMemo;
         TrackBar_LobbyPeacetime: TKMTrackBar;
+        TrackBar_LobbySpeedPT, TrackBar_LobbySpeedAfterPT: TKMTrackBar;
         MinimapView_Lobby: TKMMinimapView;
 
       Memo_LobbyPosts:TKMMemo;
@@ -1251,17 +1252,27 @@ begin
       MinimapView_Lobby := TKMMinimapView.Create(Panel_LobbySetup, 39, 148, 191, 191);
       MinimapView_Lobby.ShowLocs := True; //In the minimap we want player locations to be shown
 
-      Memo_LobbyMapDesc := TKMMemo.Create(Panel_LobbySetup, 10, 348, 250, 274, fnt_Game, bsMenu);
+      Memo_LobbyMapDesc := TKMMemo.Create(Panel_LobbySetup, 10, 348, 250, 194, fnt_Game, bsMenu);
       Memo_LobbyMapDesc.Anchors := [akLeft,akTop,akBottom];
       Memo_LobbyMapDesc.AutoWrap := True;
       Memo_LobbyMapDesc.ItemHeight := 16;
 
-      with TKMLabel.Create(Panel_LobbySetup, 10, 626, 250, 20, fTextLibrary[TX_LOBBY_GAME_OPTIONS], fnt_Outline, taLeft) do Anchors := [akLeft,akBottom];
-      TrackBar_LobbyPeacetime := TKMTrackBar.Create(Panel_LobbySetup, 10, 648, 250, 0, 120);
+      with TKMLabel.Create(Panel_LobbySetup, 10, 546, 250, 20, fTextLibrary[TX_LOBBY_GAME_OPTIONS], fnt_Outline, taLeft) do Anchors := [akLeft,akBottom];
+      TrackBar_LobbyPeacetime := TKMTrackBar.Create(Panel_LobbySetup, 10, 568, 250, 0, 120);
       TrackBar_LobbyPeacetime.Anchors := [akLeft,akBottom];
       TrackBar_LobbyPeacetime.Caption := fTextLibrary[TX_LOBBY_PEACETIME];
       TrackBar_LobbyPeacetime.Step := 5; //Round to 5min steps
       TrackBar_LobbyPeacetime.OnChange := Lobby_GameOptionsChange;
+
+      TrackBar_LobbySpeedAfterPT := TKMTrackBar.Create(Panel_LobbySetup, 10, 614, 250, 1, 3);
+      TrackBar_LobbySpeedAfterPT.Anchors := [akLeft,akBottom];
+      TrackBar_LobbySpeedAfterPT.Caption := 'Game speed';
+      TrackBar_LobbySpeedAfterPT.OnChange := Lobby_GameOptionsChange;
+
+      TrackBar_LobbySpeedPT := TKMTrackBar.Create(Panel_LobbySetup, 10, 658, 250, 1, 3);
+      TrackBar_LobbySpeedPT.Anchors := [akLeft,akBottom];
+      TrackBar_LobbySpeedPT.Caption := 'Game speed (peacetime)';
+      TrackBar_LobbySpeedPT.OnChange := Lobby_GameOptionsChange;
 
     Button_LobbyBack := TKMButton.Create(Panel_Lobby, 30, 712, 230, 30, fTextLibrary[TX_LOBBY_QUIT], bsMenu);
     Button_LobbyBack.Anchors := [akLeft, akBottom];
@@ -1286,6 +1297,7 @@ begin
                                         fTextLibrary[TX_MENU_CAMPAIGNS_MAPS_UNLOCKED], ''],
                                         [0, 320, 460, 600]);
     List_Camps.Anchors := [];
+    List_Camps.Header.Anchors := [];
     List_Camps.OnChange := Campaign_ListChange;
     List_Camps.OnDoubleClick := SwitchMenuPage;
 
@@ -3030,6 +3042,8 @@ begin
   Memo_LobbyMapDesc.Clear;
 
   TrackBar_LobbyPeacetime.Position := 0; //Default peacetime = 0
+  TrackBar_LobbySpeedPT.Position := 1; //Default speed = 1
+  TrackBar_LobbySpeedAfterPT.Position := 1; //Default speed = 1
 
   Lobby_OnMapName('');
 
@@ -3044,7 +3058,9 @@ begin
     Label_LobbyChooseMap.Show;
     Button_LobbyStart.Caption := fTextLibrary[TX_LOBBY_START]; //Start
     Button_LobbyStart.Disable;
-    TrackBar_LobbyPeacetime.Enable;
+    TrackBar_LobbyPeacetime.Disable;
+    TrackBar_LobbySpeedPT.Disable;
+    TrackBar_LobbySpeedAfterPT.Disable;
     CheckBox_LobbyHostControl.Enable;
   end
   else //Setup for Joiner
@@ -3057,6 +3073,8 @@ begin
     Button_LobbyStart.Caption := fTextLibrary[TX_LOBBY_READY]; //Ready
     Button_LobbyStart.Enable;
     TrackBar_LobbyPeacetime.Disable;
+    TrackBar_LobbySpeedPT.Disable;
+    TrackBar_LobbySpeedAfterPT.Disable;
     CheckBox_LobbyHostControl.Disable;
   end;
 end;
@@ -3066,6 +3084,8 @@ procedure TKMMainMenuInterface.Lobby_GameOptionsChange(Sender: TObject);
 begin
   //Set the peacetime
   fGameApp.Networking.NetGameOptions.Peacetime := EnsureRange(TrackBar_LobbyPeacetime.Position, 0, 300);
+  fGameApp.Networking.NetGameOptions.SpeedPT := EnsureRange(TrackBar_LobbySpeedPT.Position, 1, 5);
+  fGameApp.Networking.NetGameOptions.SpeedAfterPT := EnsureRange(TrackBar_LobbySpeedAfterPT.Position, 1, 5);
   fGameApp.Networking.SendGameOptions;
 
   //Refresh the data to controls
@@ -3075,7 +3095,10 @@ end;
 
 procedure TKMMainMenuInterface.Lobby_OnGameOptions(Sender: TObject);
 begin
-  TrackBar_LobbyPeacetime.Position := fGameApp.Networking.NetGameOptions.Peacetime;
+  TrackBar_LobbyPeacetime.Position    := fGameApp.Networking.NetGameOptions.Peacetime;
+  TrackBar_LobbySpeedPT.Position      := fGameApp.Networking.NetGameOptions.SpeedPT;
+  TrackBar_LobbySpeedAfterPT.Position := fGameApp.Networking.NetGameOptions.SpeedAfterPT;
+  TrackBar_LobbySpeedPT.Enabled := TrackBar_LobbyPeacetime.Position > 0;
 end;
 
 
@@ -3546,6 +3569,8 @@ begin
   //Common settings
   MinimapView_Lobby.Visible := (fGameApp.Networking.SelectGameKind = ngk_Map) and fGameApp.Networking.MapInfo.IsValid;
   TrackBar_LobbyPeacetime.Enabled := fGameApp.Networking.IsHost and (fGameApp.Networking.SelectGameKind = ngk_Map) and fGameApp.Networking.MapInfo.IsValid;
+  TrackBar_LobbySpeedPT.Enabled := TrackBar_LobbyPeacetime.Enabled and (TrackBar_LobbyPeacetime.Position > 0);
+  TrackBar_LobbySpeedAfterPT.Enabled := TrackBar_LobbyPeacetime.Enabled;
 
   case  fGameApp.Networking.SelectGameKind of
     ngk_None: begin

@@ -3692,13 +3692,16 @@ begin
     VK_DOWN:  fGame.Viewport.ScrollKeyDown  := False;
     VK_BACK:  fGame.Viewport.ResetZoom;
 
-    //Game speed/pause: Not available in multiplayer mode yet (handled in fGame)
+    Ord(SC_SHOW_TEAMS):  fGame.ShowTeamNames := False;
+  end;
+
+  if not fGame.IsMultiplayer or MULTIPLAYER_SPEEDUP then
+  case Key of
+    //Game speed/pause: Not available in multiplayer mode
     VK_F5:    fGame.SetGameSpeed(1);
     VK_F6:    fGame.SetGameSpeed(fGameApp.GameSettings.SpeedMedium);
     VK_F7:    fGame.SetGameSpeed(fGameApp.GameSettings.SpeedFast);
     VK_F8:    fGame.SetGameSpeed(fGameApp.GameSettings.SpeedVeryFast);
-
-    Ord(SC_SHOW_TEAMS):  fGame.ShowTeamNames := False;
   end;
 
   //All the following keys don't work in Replay,

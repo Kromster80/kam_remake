@@ -508,6 +508,13 @@ var
 begin
   //Copy game options from lobby to this game
   fGameOptions.Peacetime := fNetworking.NetGameOptions.Peacetime;
+  fGameOptions.SpeedPT := fNetworking.NetGameOptions.SpeedPT;
+  fGameOptions.SpeedAfterPT := fNetworking.NetGameOptions.SpeedAfterPT;
+
+  if IsPeaceTime then
+    SetGameSpeed(fGameOptions.SpeedPT)
+  else
+    SetGameSpeed(fGameOptions.SpeedAfterPT);
 
   //Assign existing NetPlayers(1..N) to map players(0..N-1)
   for I := 1 to fNetworking.NetPlayers.Count do
@@ -973,7 +980,10 @@ begin
   begin
     fSoundLib.Play(sfxn_Peacetime, 1.0, True); //Fades music
     if fGameMode = gmMulti then
+    begin
+      SetGameSpeed(fGameOptions.SpeedAfterPT);
       fNetworking.PostLocalMessage(fTextLibrary[TX_MP_PEACETIME_OVER], false);
+    end;
   end;
 end;
 
@@ -990,7 +1000,7 @@ begin
   Assert(aSpeed > 0);
 
   //MapEd always runs at x1
-  if (IsMapEditor) or (IsMultiplayer and not MULTIPLAYER_SPEEDUP) then
+  if IsMapEditor then
   begin
     fGameSpeed := 1;
     fGameSpeedMultiplier := 1;
@@ -1017,7 +1027,8 @@ begin
     fTimerGame.Interval := Round(fGameApp.GameSettings.SpeedPace / fGameSpeed);
   end;
 
-  if fGamePlayInterface <> nil then
+  //don't show speed clock in MP since you can't turn it on/off
+  if (fGamePlayInterface <> nil) and not IsMultiplayer then
     fGamePlayInterface.ShowClock(fGameSpeed);
 end;
 
