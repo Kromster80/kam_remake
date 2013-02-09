@@ -1246,7 +1246,7 @@ begin
       DropCol_LobbyMaps.SetColumns(fnt_Outline, [fTextLibrary[TX_MENU_MAP_TITLE], '#', fTextLibrary[TX_MENU_MAP_SIZE]], [0, 290, 320]);
       DropCol_LobbyMaps.List.OnColumnClick := Lobby_MapColumnClick;
       DropCol_LobbyMaps.OnChange := Lobby_MapSelect;
-      Label_LobbyMapName := TKMLabel.Create(Panel_LobbySetup, 10, 99, 250, 20, '', fnt_Metal, taLeft);
+      Label_LobbyMapName := TKMLabel.Create(Panel_LobbySetup, 10, 119, 250, 20, '', fnt_Metal, taLeft);
 
       TKMBevel.Create(Panel_LobbySetup, 35, 144, 199, 199);
       MinimapView_Lobby := TKMMinimapView.Create(Panel_LobbySetup, 39, 148, 191, 191);
@@ -1264,15 +1264,15 @@ begin
       TrackBar_LobbyPeacetime.Step := 5; //Round to 5min steps
       TrackBar_LobbyPeacetime.OnChange := Lobby_GameOptionsChange;
 
-      TrackBar_LobbySpeedAfterPT := TKMTrackBar.Create(Panel_LobbySetup, 10, 614, 250, 1, 3);
-      TrackBar_LobbySpeedAfterPT.Anchors := [akLeft,akBottom];
-      TrackBar_LobbySpeedAfterPT.Caption := 'Game speed';
-      TrackBar_LobbySpeedAfterPT.OnChange := Lobby_GameOptionsChange;
-
-      TrackBar_LobbySpeedPT := TKMTrackBar.Create(Panel_LobbySetup, 10, 658, 250, 1, 3);
+      TrackBar_LobbySpeedPT := TKMTrackBar.Create(Panel_LobbySetup, 10, 614, 250, 1, 3);
       TrackBar_LobbySpeedPT.Anchors := [akLeft,akBottom];
       TrackBar_LobbySpeedPT.Caption := 'Game speed (peacetime)';
       TrackBar_LobbySpeedPT.OnChange := Lobby_GameOptionsChange;
+
+      TrackBar_LobbySpeedAfterPT := TKMTrackBar.Create(Panel_LobbySetup, 10, 658, 250, 1, 3);
+      TrackBar_LobbySpeedAfterPT.Anchors := [akLeft,akBottom];
+      TrackBar_LobbySpeedAfterPT.Caption := 'Game speed';
+      TrackBar_LobbySpeedAfterPT.OnChange := Lobby_GameOptionsChange;
 
     Button_LobbyBack := TKMButton.Create(Panel_Lobby, 30, 712, 230, 30, fTextLibrary[TX_LOBBY_QUIT], bsMenu);
     Button_LobbyBack.Anchors := [akLeft, akBottom];
@@ -3096,9 +3096,9 @@ end;
 procedure TKMMainMenuInterface.Lobby_OnGameOptions(Sender: TObject);
 begin
   TrackBar_LobbyPeacetime.Position    := fGameApp.Networking.NetGameOptions.Peacetime;
-  TrackBar_LobbySpeedPT.Position      := fGameApp.Networking.NetGameOptions.SpeedPT;
-  TrackBar_LobbySpeedAfterPT.Position := fGameApp.Networking.NetGameOptions.SpeedAfterPT;
-  TrackBar_LobbySpeedPT.Enabled := TrackBar_LobbyPeacetime.Position > 0;
+  TrackBar_LobbySpeedPT.Position      := EnsureRange(fGameApp.Networking.NetGameOptions.SpeedPT, 1, 3);
+  TrackBar_LobbySpeedAfterPT.Position := EnsureRange(fGameApp.Networking.NetGameOptions.SpeedAfterPT, 1, 3);
+  TrackBar_LobbySpeedPT.Enabled := (TrackBar_LobbyPeacetime.Position > 0) and TrackBar_LobbySpeedAfterPT.Enabled;
 end;
 
 

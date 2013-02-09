@@ -61,13 +61,13 @@ type
     procedure DoRandomCheck(aTick:cardinal; aPlayerIndex:TPlayerIndex);
 
     procedure SetDelay(aNewDelay:integer);
-    procedure AdjustDelay;
   protected
     procedure TakeCommand(aCommand:TGameInputCommand); override;
   public
     constructor Create(aReplayState:TGIPReplayState; aNetworking:TKMNetworking);
     destructor Destroy; override;
     procedure WaitingForConfirmation(aTick:cardinal); override;
+    procedure AdjustDelay(aGameSpeed: Word);
     function GetNetworkDelay:word;
     property GetNumberConsecutiveWaits:word read fNumberConsecutiveWaits;
     procedure GetWaitingPlayers(aTick:cardinal; aPlayersList:TStringList);
@@ -144,7 +144,7 @@ begin
   fNetworking := aNetworking;
   fNetworking.OnCommands := RecieveCommands;
   fNetworking.OnResyncFromTick := ResyncFromTick;
-  AdjustDelay; //Initialise the delay
+  AdjustDelay(1); //Initialise the delay
 
   //Allocate memory for all commands packs
   for i:=0 to MAX_SCHEDULE-1 do for k:=0 to MAX_PLAYERS-1 do
@@ -226,12 +226,12 @@ begin
 end;
 
 
-procedure TGameInputProcess_Multi.AdjustDelay;
+procedure TGameInputProcess_Multi.AdjustDelay(aGameSpeed: Word);
 begin
   //Half of the maximum round trip is a good guess for delay. +1.2 is our safety net to account
   //for processing the packet and random variations in ping. It's always better for commands to
   //be slightly delayed than for the game to freeze/lag regularly.
-  SetDelay( Ceil(fNetworking.NetPlayers.GetMaxHighestRoundTripLatency/200 + 1.2) );
+  SetDelay( Ceil(aGameSpeed*fNetworking.NetPlayers.GetMaxHighestRoundTripLatency/200 + 1.2) );
 end;
 
 
@@ -394,7 +394,7 @@ begin
   FillChar(fRecievedData[Tick], SizeOf(fRecievedData[Tick]), #0); //Reset
   fSent[Tick] := False;
 
-  if aTick mod DELAY_ADJUST = 0 then AdjustDelay; //Adjust fDelay every X ticks
+  if aTick mod DELAY_ADJUST = 0 then AdjustDelay(fGame.GameSpeed); //Adjust fDelay every X ticks
 end;
 
 

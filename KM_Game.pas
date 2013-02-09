@@ -124,6 +124,7 @@ type
     property GameName: string read fGameName;
     property CampaignName: AnsiString read fCampaignName;
     property CampaignMap: Byte read fCampaignMap;
+    property GameSpeed: Word read fGameSpeed;
     function PlayerLoc: Byte;
     function PlayerColor: Cardinal;
 
@@ -136,7 +137,7 @@ type
     property IsPaused: Boolean read fIsPaused write fIsPaused;
     property MissionMode: TKMissionMode read fMissionMode write fMissionMode;
     function GetNewID: Cardinal;
-    procedure SetGameSpeed(aSpeed: Word);
+    procedure SetGameSpeed(aSpeed: Word; aToggle: Boolean);
     procedure StepOneFrame;
     function SaveName(const aName, aExt: string; aMultiPlayer: Boolean): string;
     procedure UpdateMultiplayerTeams;
@@ -220,7 +221,7 @@ begin
   fViewport := TViewport.Create(aRender.ScreenX, aRender.ScreenY);
 
   fTimerGame := TTimer.Create(nil);
-  SetGameSpeed(1); //Initialize relevant variables
+  SetGameSpeed(1, False); //Initialize relevant variables
   fTimerGame.OnTimer := UpdateGame;
   fTimerGame.Enabled := True;
 
@@ -513,9 +514,9 @@ begin
   fGameOptions.SpeedAfterPT := fNetworking.NetGameOptions.SpeedAfterPT;
 
   if IsPeaceTime then
-    SetGameSpeed(fGameOptions.SpeedPT)
+    SetGameSpeed(fGameOptions.SpeedPT, False)
   else
-    SetGameSpeed(fGameOptions.SpeedAfterPT);
+    SetGameSpeed(fGameOptions.SpeedAfterPT, False);
 
   //Assign existing NetPlayers(1..N) to map players(0..N-1)
   for I := 1 to fNetworking.NetPlayers.Count do
@@ -982,7 +983,7 @@ begin
     fSoundLib.Play(sfxn_Peacetime, 1.0, True); //Fades music
     if fGameMode = gmMulti then
     begin
-      SetGameSpeed(fGameOptions.SpeedAfterPT);
+      SetGameSpeed(fGameOptions.SpeedAfterPT, False);
       fNetworking.PostLocalMessage(fTextLibrary[TX_MP_PEACETIME_OVER], false);
     end;
   end;
@@ -996,7 +997,7 @@ begin
 end;
 
 
-procedure TKMGame.SetGameSpeed(aSpeed: Word);
+procedure TKMGame.SetGameSpeed(aSpeed: Word; aToggle: Boolean);
 begin
   Assert(aSpeed > 0);
 
@@ -1010,7 +1011,7 @@ begin
   end;
 
   //Make the speed toggle between 1 and desired value
-  if aSpeed = fGameSpeed then
+  if (aSpeed = fGameSpeed) and aToggle then
     fGameSpeed := 1
   else
     fGameSpeed := aSpeed;
@@ -1031,6 +1032,10 @@ begin
   //don't show speed clock in MP since you can't turn it on/off
   if (fGamePlayInterface <> nil) and not IsMultiplayer then
     fGamePlayInterface.ShowClock(fGameSpeed);
+
+  //Need to adjust the delay immediately in MP
+  if IsMultiplayer and (fGameInputProcess <> nil) then
+    TGameInputProcess_Multi(fGameInputProcess).AdjustDelay(fGameSpeed);
 end;
 
 
@@ -1038,7 +1043,7 @@ end;
 procedure TKMGame.StepOneFrame;
 begin
   Assert(fGameMode in [gmReplaySingle,gmReplayMulti], 'We can work step-by-step only in Replay');
-  SetGameSpeed(1); //Make sure we step only one tick. Do not allow multiple updates in UpdateState loop
+  SetGameSpeed(1, False); //Make sure we step only one tick. Do not allow multiple updates in UpdateState loop
   fAdvanceFrame := True;
 end;
 

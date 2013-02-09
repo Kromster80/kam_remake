@@ -3698,10 +3698,10 @@ begin
   if not fGame.IsMultiplayer or MULTIPLAYER_SPEEDUP then
   case Key of
     //Game speed/pause: Not available in multiplayer mode
-    VK_F5:    fGame.SetGameSpeed(1);
-    VK_F6:    fGame.SetGameSpeed(fGameApp.GameSettings.SpeedMedium);
-    VK_F7:    fGame.SetGameSpeed(fGameApp.GameSettings.SpeedFast);
-    VK_F8:    fGame.SetGameSpeed(fGameApp.GameSettings.SpeedVeryFast);
+    VK_F5:    fGame.SetGameSpeed(1, False);
+    VK_F6:    fGame.SetGameSpeed(fGameApp.GameSettings.SpeedMedium, True);
+    VK_F7:    fGame.SetGameSpeed(fGameApp.GameSettings.SpeedFast, True);
+    VK_F8:    fGame.SetGameSpeed(fGameApp.GameSettings.SpeedVeryFast, True);
   end;
 
   //All the following keys don't work in Replay,

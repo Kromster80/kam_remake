@@ -393,7 +393,7 @@ begin
   or (fGameApp.Game.IsMultiplayer and not MULTIPLAYER_SPEEDUP and not fGameApp.Game.IsReplay) then
     Exit;
 
-  fGameApp.Game.SetGameSpeed(IfThen(chkSuperSpeed.Checked, 300, 1));
+  fGameApp.Game.SetGameSpeed(IfThen(chkSuperSpeed.Checked, 300, 1), False);
 end;
 
 
