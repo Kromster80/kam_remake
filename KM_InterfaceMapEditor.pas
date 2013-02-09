@@ -117,6 +117,7 @@ type
     procedure Town_UnitRefresh;
     procedure Unit_ArmyChange1(Sender: TObject); overload;
     procedure Unit_ArmyChange2(Sender: TObject; AButton: TMouseButton); overload;
+    procedure ExtraMessage_Switch(Sender: TObject);
 
     procedure SwitchPage(Sender: TObject);
     procedure DisplayPage(aPage: TKMPanel);
@@ -500,18 +501,7 @@ begin
   begin
     Menu_LoadUpdate;
     DisplayPage(Panel_Load)
-  end else
-
-  if Sender = Image_Extra then
-    DisplayPage(Panel_Extra)
-  else
-  if Sender = Image_ExtraClose then
-    Panel_Extra.Hide;
-  if Sender = Image_Message then
-    DisplayPage(Panel_Message)
-  else
-  if Sender = Image_MessageClose then
-    Panel_Message.Hide;
+  end;
 end;
 
 
@@ -707,6 +697,10 @@ begin
       if I = 0 then Button_PlayerSelect[I].Down := True //First player selected by default
     end;
 
+  //Must be created before Hint so it goes over them
+  Create_Extra;
+  Create_Message;
+
     Bevel_HintBG := TKMBevel.Create(Panel_Main,224+32,Panel_Main.Height-23,300,21);
     Bevel_HintBG.BackAlpha := 0.5;
     Bevel_HintBG.Hide;
@@ -743,9 +737,6 @@ begin
     Create_MenuLoad;
     Create_MenuQuit;
 
-  Create_Extra;
-  Create_Message;
-
   Create_Unit;
   Create_House;
     Create_HouseStore;
@@ -756,12 +747,13 @@ begin
   Image_Extra := TKMImage.Create(Panel_Main, TOOLBAR_WIDTH, Panel_Main.Height - 48, 30, 48, 494);
   Image_Extra.Anchors := [akLeft, akBottom];
   Image_Extra.HighlightOnMouseOver := True;
-  Image_Extra.OnClick := SwitchPage;
+  Image_Extra.OnClick := ExtraMessage_Switch;
 
   Image_Message := TKMImage.Create(Panel_Main, TOOLBAR_WIDTH, Panel_Main.Height - 48*2, 30, 48, 496);
   Image_Message.Anchors := [akLeft, akBottom];
   Image_Message.HighlightOnMouseOver := True;
-  Image_Message.OnClick := SwitchPage;
+  Image_Message.OnClick := ExtraMessage_Switch;
+  Image_Message.Hide; //Hidden by default, only visible when a message is shown
 
   //Pages that need to be on top of everything
   Create_AttackPopUp;
@@ -1311,25 +1303,26 @@ begin
     Image_ExtraClose := TKMImage.Create(Panel_Extra, 800-35, 20, 32, 32, 52);
     Image_ExtraClose.Anchors := [akTop, akRight];
     Image_ExtraClose.Hint := fTextLibrary[TX_MSG_CLOSE_HINT];
-    Image_ExtraClose.OnClick := SwitchPage;
+    Image_ExtraClose.OnClick := ExtraMessage_Switch;
     Image_ExtraClose.HighlightOnMouseOver := True;
 
-    TrackBar_Passability := TKMTrackBar.Create(Panel_Extra, 20, 50, 180, 0, Byte(High(TPassability)));
+    TrackBar_Passability := TKMTrackBar.Create(Panel_Extra, 50, 70, 180, 0, Byte(High(TPassability)));
+    TrackBar_Passability.Font := fnt_Antiqua;
     TrackBar_Passability.Caption := 'View passability';
     TrackBar_Passability.Position := 0; //Disabled by default
     TrackBar_Passability.OnChange := Extra_Change;
-    Label_Passability := TKMLabel.Create(Panel_Extra, 20, 90, 180, 0, 'Off', fnt_Metal, taLeft);
+    Label_Passability := TKMLabel.Create(Panel_Extra, 50, 114, 180, 0, 'Off', fnt_Antiqua, taLeft);
 
-    CheckBox_ShowObjects := TKMCheckBox.Create(Panel_Extra, 220, 50, 180, 20, 'Show objects', fnt_Metal);
+    CheckBox_ShowObjects := TKMCheckBox.Create(Panel_Extra, 250, 70, 180, 20, 'Show objects', fnt_Antiqua);
     CheckBox_ShowObjects.Checked := True; //Enabled by default
     CheckBox_ShowObjects.OnClick := Extra_Change;
-    CheckBox_ShowHouses := TKMCheckBox.Create(Panel_Extra, 220, 70, 180, 20, 'Show houses', fnt_Metal);
+    CheckBox_ShowHouses := TKMCheckBox.Create(Panel_Extra, 250, 90, 180, 20, 'Show houses', fnt_Antiqua);
     CheckBox_ShowHouses.Checked := True; //Enabled by default
     CheckBox_ShowHouses.OnClick := Extra_Change;
-    CheckBox_ShowUnits := TKMCheckBox.Create(Panel_Extra, 220, 90, 180, 20, 'Show units', fnt_Metal);
+    CheckBox_ShowUnits := TKMCheckBox.Create(Panel_Extra, 250, 110, 180, 20, 'Show units', fnt_Antiqua);
     CheckBox_ShowUnits.Checked := True; //Enabled by default
     CheckBox_ShowUnits.OnClick := Extra_Change;
-    CheckBox_ShowDeposits := TKMCheckBox.Create(Panel_Extra, 220, 110, 180, 20, 'Show deposits', fnt_Metal);
+    CheckBox_ShowDeposits := TKMCheckBox.Create(Panel_Extra, 250, 130, 180, 20, 'Show deposits', fnt_Antiqua);
     CheckBox_ShowDeposits.Checked := True; //Enabled by default
     CheckBox_ShowDeposits.OnClick := Extra_Change;
 end;
@@ -1350,7 +1343,7 @@ begin
     Image_MessageClose := TKMImage.Create(Panel_Message, 800-35, 20, 32, 32, 52);
     Image_MessageClose.Anchors := [akTop, akRight];
     Image_MessageClose.Hint := fTextLibrary[TX_MSG_CLOSE_HINT];
-    Image_MessageClose.OnClick := SwitchPage;
+    Image_MessageClose.OnClick := ExtraMessage_Switch;
     Image_MessageClose.HighlightOnMouseOver := True;
 
     Label_Message := TKMLabel.Create(Panel_Message, 40, 50, 7000, 0, '', fnt_Grey, taLeft);
@@ -2465,18 +2458,18 @@ begin
 
   case Sender.HouseType of
     ht_Store:     begin
+                    DisplayPage(Panel_HouseStore); //Must be displayed first
                     House_StoreRefresh(nil);
                     //Reselect the ware so the display is updated
                     House_StoreSelectWare(Button_Store[fStorehouseItem]);
-                    DisplayPage(Panel_HouseStore);
                   end;
     ht_Barracks:  begin
+                    DisplayPage(Panel_HouseBarracks); //Must be displayed first
                     House_BarracksRefresh(nil);
                     //In the barrack the recruit icon is always enabled
                     Image_House_Worker.Enable;
                     //Reselect the ware so the display is updated
                     House_BarracksSelectWare(Button_Barracks[fBarracksItem]);
-                    DisplayPage(Panel_HouseBarracks);
                   end;
     ht_TownHall:;
     else          DisplayPage(Panel_House);
@@ -2570,6 +2563,7 @@ procedure TKMapEdInterface.ShowMessage(aText: string);
 begin
   Label_Message.Caption := aText;
   Panel_Message.Show;
+  Image_Message.Show; //Hidden by default, only visible when a message is shown
 end;
 
 
@@ -2898,6 +2892,38 @@ begin
   Group.MapEdCount := EnsureRange(NewCount, 0, 200); //Limit max members
   ImageStack_Army.SetCount(Group.MapEdCount, Group.UnitsPerRow, Group.UnitsPerRow div 2 + 1);
   Label_ArmyCount.Caption := IntToStr(Group.MapEdCount);
+end;
+
+
+procedure TKMapEdInterface.ExtraMessage_Switch(Sender: TObject);
+begin
+  //Don't use DisplayPage because that hides other stuff
+  if Sender = Image_Extra then
+  begin
+    if Panel_Extra.Visible then
+      Panel_Extra.Hide
+    else
+    begin
+      Panel_Extra.Show;
+      Panel_Message.Hide;
+    end;
+  end
+  else
+  if Sender = Image_ExtraClose then
+    Panel_Extra.Hide;
+  if Sender = Image_Message then
+  begin
+    if Panel_Message.Visible then
+      Panel_Message.Hide
+    else
+    begin
+      Panel_Message.Show;
+      Panel_Extra.Hide;
+    end;
+  end
+  else
+  if Sender = Image_MessageClose then
+    Panel_Message.Hide;
 end;
 
 

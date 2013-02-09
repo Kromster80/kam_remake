@@ -276,10 +276,10 @@ end;
 
 function KMRectGrowBottomRight(aRect: TKMRect): TKMRect;
 begin
-  Result.Left   := aRect.Left + 1;
-  Result.Right  := aRect.Right;
-  Result.Top    := aRect.Top  + 1;
-  Result.Bottom := aRect.Bottom;
+  Result.Left   := aRect.Left;
+  Result.Right  := aRect.Right + 1;
+  Result.Top    := aRect.Top;
+  Result.Bottom := aRect.Bottom + 1;
 end;
 
 
