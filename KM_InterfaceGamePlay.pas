@@ -1683,10 +1683,11 @@ begin
   Inc(LineH, 20);
   Button_Market_In  := TKMButtonFlat.Create(Panel_HouseMarket,  0, LineH, 36, 40, 0);
   Button_Market_In.HideHighlight := True;
-  Button_Market_In.Disable;
+  Button_Market_In.Clickable := False;
   Button_Market_In.Hint := fTextLibrary[TX_HOUSES_MARKET_SELECT_LEFT];
   Button_Market_Out := TKMButtonFlat.Create(Panel_HouseMarket, TB_WIDTH - 36, LineH, 36, 40, 0);
-  Button_Market_Out.Disable;
+  Button_Market_Out.HideHighlight := True;
+  Button_Market_Out.Clickable := False;
   Button_Market_Out.Hint := fTextLibrary[TX_HOUSES_MARKET_SELECT_RIGHT];
 
   with TKMShape.Create(Panel_HouseMarket,  0, LineH, 36, 40) do

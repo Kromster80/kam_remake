@@ -329,6 +329,7 @@ type
     Down: Boolean;
     FlagColor: TColor4;
     HideHighlight: Boolean;
+    Clickable: Boolean; //Disables clicking without dimming
 
     constructor Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight,aTexID: Integer; aRX: TRXType = rxGui);
 
@@ -1857,11 +1858,13 @@ begin
   TexID     := aTexID;
   FlagColor := $FFFF00FF;
   fFont     := fnt_Game;
+  Clickable := True;
 end;
 
 
 procedure TKMButtonFlat.MouseUp(X,Y: Integer; Shift: TShiftState; Button: TMouseButton);
 begin
+  if not Clickable then Exit;
   if fEnabled and (csDown in State) then fSoundLib.Play(sfx_Click);
   inherited;
 end;
