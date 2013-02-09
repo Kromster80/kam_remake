@@ -1,8 +1,8 @@
 Features:
-	MP game speed up slider (1.0, 1.5, 2.0?)
+ +	MP game speed up slider (1x,2x, 3x)
+ +	Coop maps handled better in lobby (AI players hidden and automatic, AI map areas not revealed)
 	Host can set password for lobby
 	Lobby name/description by host (shown in room info and inside the room as 1st message)
-	Coop maps handled better in lobby (AI players hidden and automatic, AI map areas not revealed)
 	Kick/ban/whisper dropdown when clicking on player flag
 	Army graph starts 5 minutes before peacetime (or before first variation?)
 
@@ -22,6 +22,7 @@ Known issues to fix:
 	ALL MP maps will need SET_USER_PLAYER set for them, since when maps were made with Lewin's editor all locations are AI except the first one
 	MP maps are still using auto generated goals. Do we keep it like that? It means scripting can't do custom victory/defeat conditions...
 
+
 After first RC:
 	Magic water in MapEd?
 	Add missing texts from MapEd to LIBX (maybe ignore some stuff in temporary interfaces that will be improved next release?)
@@ -29,9 +30,9 @@ After first RC:
 
 
 Balance/exploits:
-	Increase market loss ratio?
+ +	Increased market loss ratio to 2.2
+ +	Tested: 4 farms (with unsown fields) + 2 stables beats 6 woodcutters (with 5 grown trees each) + 1 market in horse production by 16% (20 mins), 30% (30 mins), 45% (40 mins), 77% (60 mins)
 	Stop builders emptying towers (builders refuse to walk into range of a tower or player blocked from building there?)
-	trunks for horses (6 woodcutters and 1 market replace stables with farms equally)
 
 
 Undecided:
