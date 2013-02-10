@@ -23,6 +23,7 @@ object FormMain: TFormMain
   OnKeyPress = FormKeyPress
   OnKeyUp = FormKeyUp
   OnMouseWheel = FormMouseWheel
+  OnShow = FormShow
   DesignSize = (
     521
     532)

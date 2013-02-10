@@ -95,6 +95,7 @@ type
     procedure FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure Debug_ExportMenuClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
+    procedure FormShow(Sender: TObject);
     procedure FormKeyPress(Sender: TObject; var Key: Char);
     procedure Debug_EnableCheatsClick(Sender: TObject);
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
@@ -207,14 +208,7 @@ end;
 
 //Remove VCL panel and use flicker-free TMyPanel instead
 procedure TFormMain.FormCreate(Sender: TObject);
-var
-  Margin: TPoint;
 begin
-  Margin.X := Width - ClientWidth;
-  Margin.Y := Height - ClientHeight;
-  Constraints.MinWidth := MIN_RESOLUTION_WIDTH + Margin.X;
-  Constraints.MinHeight := MIN_RESOLUTION_HEIGHT + Margin.Y;
-
   RemoveControl(Panel5);
   Panel5 := TMyPanel.Create(Self);
   Panel5.Parent := Self;
@@ -233,6 +227,19 @@ begin
   //Put debug panel on top
   Panel5.SendToBack;
   GroupBox1.BringToFront;
+end;
+
+
+procedure TFormMain.FormShow(Sender: TObject);
+var Margin: TPoint;
+begin
+  //We do this in OnShow rather than OnCreate as the window borders aren't
+  //counted properly in OnCreate
+  Margin.X := Width - ClientWidth;
+  Margin.Y := Height - ClientHeight;
+  //Constraints includes window borders, so we add them on as Margin
+  Constraints.MinWidth := MIN_RESOLUTION_WIDTH + Margin.X;
+  Constraints.MinHeight := MIN_RESOLUTION_HEIGHT + Margin.Y;
 end;
 
 
