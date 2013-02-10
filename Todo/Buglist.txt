@@ -53,7 +53,8 @@ Improvements:
  +	L	Wares need to be taken out of the barracks for trading at the market
  +	M	Terrain painting brushes in MapEd
  +	L	Disabling Market buttons will let player know that he can't select new trade without canceling current one
- +  L Improved stats panel, when possible items are placed one per row 
+ +	L	Improved stats panel, when possible items are placed one per row 
+ +	L	Host can set password for lobby
  wip	Dismiss button to make units walk into the school and disappear (gold is not refunded)
  wip	Simple dedicated server form which lets you set the properties of the INI for the server and start it [gemGreg]
 	L	Placing houses in MP should put a temp/fake visual markup until the real one can be added to make it appear responsive

@@ -23,11 +23,11 @@ const
     [mk_RefuseToJoin,mk_HostingRights,mk_IndexOnServer,mk_GameVersion,mk_WelcomeMessage,mk_Ping,
      mk_ConnectedToRoom,mk_PingInfo,mk_Kicked,mk_ServerName],
     //lgs_Query
-    [mk_AllowToJoin,mk_RefuseToJoin,mk_GameCRC,mk_Ping,mk_PingInfo,mk_Kicked],
+    [mk_AllowToJoin,mk_RefuseToJoin,mk_GameCRC,mk_Ping,mk_PingInfo,mk_Kicked,mk_ReqPassword],
     //lgs_Lobby
     [mk_AskToJoin,mk_ClientLost,mk_ReassignHost,mk_Disconnect,mk_Ping,mk_PingInfo,mk_PlayersList,
      mk_StartingLocQuery,mk_SetTeam,mk_FlagColorQuery,mk_ResetMap,mk_MapSelect,mk_MapCRC,mk_SaveSelect,
-     mk_SaveCRC,mk_ReadyToStart,mk_Start,mk_Text,mk_Kicked,mk_LangCode,mk_GameOptions,mk_ServerName],
+     mk_SaveCRC,mk_ReadyToStart,mk_Start,mk_Text,mk_Kicked,mk_LangCode,mk_GameOptions,mk_ServerName,mk_Password],
     //lgs_Loading
     [mk_AskToJoin,mk_ClientLost,mk_ReassignHost,mk_Disconnect,mk_Ping,mk_PingInfo,mk_PlayersList,
      mk_ReadyToPlay,mk_Play,mk_Text,mk_Kicked],
@@ -61,6 +61,8 @@ type
     fMyNikname: string;
     fWelcomeMessage: string;
     fServerName: string; // Name of the server we are currently in (shown in the lobby)
+    fPassword: string;
+    fEnteringPassword: Boolean;
     fMyIndexOnServer: integer;
     fMyIndex: integer; // In NetPlayers list
     fIgnorePings: integer; // During loading ping measurements will be high, so discard them. (when networking is threaded this might be unnecessary)
@@ -74,6 +76,7 @@ type
 
     fOnJoinSucc: TNotifyEvent;
     fOnJoinFail: TStringEvent;
+    fOnJoinPassword: TNotifyEvent;
     fOnJoinAssignedHost: TNotifyEvent;
     fOnHostFail: TStringEvent;
     fOnReassignedHost: TNotifyEvent;
@@ -99,6 +102,7 @@ type
     procedure SetGameState(aState:TNetGameState);
     procedure SendMapOrSave;
     procedure DoReconnection;
+    procedure PlayerJoined(aServerIndex: Integer; aPlayerName: AnsiString);
     function CalculateGameCRC:Cardinal;
 
     procedure ConnectSucceed(Sender:TObject);
@@ -135,6 +139,9 @@ type
     procedure SelectTeam(aIndex:integer; aPlayerIndex:integer);
     procedure SelectColor(aIndex:integer; aPlayerIndex:integer);
     procedure KickPlayer(aPlayerIndex:integer);
+    procedure SendPassword(aPassword: string);
+    procedure SetPassword(aPassword: string);
+    property Password: string read fPassword;
     function ReadyToStart:boolean;
     function CanStart:boolean;
     procedure StartClick; //All required arguments are in our class
@@ -160,6 +167,7 @@ type
 
     property OnJoinSucc:TNotifyEvent write fOnJoinSucc;         //We were allowed to join
     property OnJoinFail:TStringEvent write fOnJoinFail;         //We were refused to join
+    property OnJoinPassword:TNotifyEvent write fOnJoinPassword; //Lobby requires password
     property OnHostFail:TStringEvent write fOnHostFail;         //Server failed to start (already running a server?)
     property OnJoinAssignedHost:TNotifyEvent write fOnJoinAssignedHost; //We were assigned hosting rights upon connection
     property OnReassignedHost:TNotifyEvent write fOnReassignedHost;     //We were reassigned hosting rights when the host quit
@@ -239,6 +247,7 @@ end;
 procedure TKMNetworking.Host(aUserName, aServerName, aPort: string; aAnnounceServer: boolean);
 begin
   fWelcomeMessage := '';
+  fPassword := '';
   fIgnorePings := 0; //Accept pings
   fNetServer.Stop;
 
@@ -263,6 +272,7 @@ begin
   Assert(not fNetClient.Connected, 'Cannot connect: We are already connected');
 
   fWelcomeMessage := '';
+  fPassword := '';
   fIgnorePings := 0; //Accept pings
   fJoinTimeout := TimeGet;
   fMyIndex := -1; //Host will send us PlayerList and we will get our index from there
@@ -317,6 +327,7 @@ procedure TKMNetworking.Disconnect;
 begin
   fIgnorePings := 0;
   fReconnectRequested := 0; //Cancel any reconnection that was requested
+  fEnteringPassword := False;
   SetGameState(lgs_None);
   fOnJoinSucc := nil;
   fOnJoinFail := nil;
@@ -609,6 +620,26 @@ begin
 end;
 
 
+procedure TKMNetworking.SendPassword(aPassword: string);
+var M: TKMemoryStream;
+begin
+  M := TKMemoryStream.Create;
+  M.Write(aPassword);
+  M.Write(fMyNikname);
+  PacketSend(NET_ADDRESS_HOST, mk_Password, M.ReadAsText, 0);
+  M.Free;
+  fEnteringPassword := False;
+  fJoinTimeout := TimeGet; //Wait another X seconds for host to reply before timing out
+end;
+
+
+procedure TKMNetworking.SetPassword(aPassword: string);
+begin
+  Assert(IsHost, 'Only host can set password');
+  fPassword := aPassword;
+end;
+
+
 //Joiner indicates that he is ready to start
 function TKMNetworking.ReadyToStart:boolean;
 begin
@@ -849,6 +880,20 @@ begin
 end;
 
 
+procedure TKMNetworking.PlayerJoined(aServerIndex: Integer; aPlayerName: AnsiString);
+begin
+  PacketSend(aServerIndex, mk_GameCRC, '', Integer(CalculateGameCRC));
+  fNetPlayers.AddPlayer(aPlayerName, aServerIndex);
+  PacketSend(aServerIndex, mk_AllowToJoin, '', 0);
+  SendMapOrSave; //Send the map first so it doesn't override starting locs
+
+  if fSelectGameKind = ngk_Save then MatchPlayersToSave(fNetPlayers.ServerToLocal(aServerIndex)); //Match only this player
+  SendPlayerListAndRefreshPlayersSetup;
+  SendGameOptions;
+  PostMessage(aPlayerName+' has joined');
+end;
+
+
 function TKMNetworking.CalculateGameCRC:Cardinal;
 begin
   //CRC checks are done on the data we already loaded, not the files on HDD which can change.
@@ -1022,18 +1067,34 @@ begin
                 ReMsg := 'Cannot join while the game is in progress';
               if ReMsg = '' then
               begin
-                PacketSend(aSenderIndex, mk_GameCRC, '', Integer(CalculateGameCRC));
-                fNetPlayers.AddPlayer(Msg, aSenderIndex);
-                PacketSend(aSenderIndex, mk_AllowToJoin, '', 0);
-                SendMapOrSave; //Send the map first so it doesn't override starting locs
-
-                if fSelectGameKind = ngk_Save then MatchPlayersToSave(fNetPlayers.ServerToLocal(aSenderIndex)); //Match only this player
-                SendPlayerListAndRefreshPlayersSetup;
-                SendGameOptions;
-                PostMessage(Msg+' has joined');
+                if fPassword = '' then
+                  PlayerJoined(aSenderIndex, Msg)
+                else
+                  PacketSend(aSenderIndex, mk_ReqPassword, '', 0);
               end
               else
                 PacketSend(aSenderIndex, mk_RefuseToJoin, ReMsg, 0);
+            end;
+
+    mk_Password:
+            if IsHost then begin
+              M := TKMemoryStream.Create;
+              M.WriteAsText(Msg);
+              M.Read(ReMsg); //Password
+              if ReMsg = fPassword then
+              begin
+                M.Read(Msg); //Player name
+                ReMsg := fNetPlayers.CheckCanJoin(Msg, aSenderIndex);
+                if (ReMsg = '') and (fNetGameState <> lgs_Lobby) then
+                  ReMsg := 'Cannot join while the game is in progress';
+                if ReMsg = '' then
+                  PlayerJoined(aSenderIndex, Msg)
+                else
+                  PacketSend(aSenderIndex, mk_RefuseToJoin, ReMsg, 0);
+              end
+              else
+                PacketSend(aSenderIndex, mk_ReqPassword, '', 0);
+              M.Free;
             end;
 
     mk_LangCode:
@@ -1058,6 +1119,13 @@ begin
             if fNetPlayerKind = lpk_Joiner then begin
               fNetClient.Disconnect;
               fOnJoinFail(Msg);
+            end;
+
+    mk_ReqPassword:
+            if fNetPlayerKind = lpk_Joiner then
+            begin
+              fEnteringPassword := True; //Disables timing out
+              fOnJoinPassword(Self);
             end;
 
     mk_GameCRC:
@@ -1458,7 +1526,8 @@ begin
   if (fReconnectRequested <> 0) and (GetTimeSince(fReconnectRequested) > RECONNECT_PAUSE) then DoReconnection;
   //Joining timeout
   if fNetGameState in [lgs_Connecting,lgs_Reconnecting,lgs_Query] then
-    if (GetTimeSince(fJoinTimeout) > JOIN_TIMEOUT) and (fReconnectRequested = 0) then
+    if (GetTimeSince(fJoinTimeout) > JOIN_TIMEOUT) and not fEnteringPassword
+    and (fReconnectRequested = 0) then
       if Assigned(fOnJoinFail) then fOnJoinFail('Query timed out');
 end;
 

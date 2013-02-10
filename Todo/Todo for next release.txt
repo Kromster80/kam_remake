@@ -1,7 +1,7 @@
 Features:
  +	MP game speed up slider (1x,2x, 3x)
  +	Coop maps handled better in lobby (AI players hidden and automatic, AI map areas not revealed)
-	Host can set password for lobby
+ +	Host can set password for lobby
 	Lobby name/description by host (shown in room info and inside the room as 1st message)
 	Kick/ban/whisper dropdown when clicking on player flag
 	Army graph starts 5 minutes before peacetime (or before first variation?)
@@ -11,19 +11,18 @@ Finishing up:
 	Finish AI stuff (defending and attacking prototype?)
 	Decide which script commands will be implemented for this release and implement them
 	Finish new MapEd features (add ADD_WARE_TO_LAST)
-	Ask RC testers to make map from scratch in MapEd
 	Example maps that show what can be done with new scripts
 	Message log
 
 
 Known issues to fix:
-	Selecting a save in the lobby causes a crash
+ +	MP maps are still using auto generated goals. Do we keep it like that? Yes, but "Special" maps don't have auto goals so scripts can customise it
 	Campaign/tutorials show warnings about showing messages with goals being depreciated
 	ALL MP maps will need SET_USER_PLAYER set for them, since when maps were made with Lewin's editor all locations are AI except the first one
-	MP maps are still using auto generated goals. Do we keep it like that? It means scripting can't do custom victory/defeat conditions...
 
 
 After first RC:
+	Ask RC testers to make map from scratch in MapEd
 	Magic water in MapEd?
 	Check main menu / gameplay interfaces for text that needs to be added to the LIBX (e.g. lobby speed)
 	Add missing texts from MapEd to LIBX (maybe ignore some stuff in temporary interfaces that will be improved next release?)
@@ -52,3 +51,4 @@ Maps:
 	Shark Islands (andreus and vovets1)
 	To's changes to Accoss the Desert?
 	Get latest version of PAKER's maps and decide whether or not to add any new ones
+	czechboss' new map

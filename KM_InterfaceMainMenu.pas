@@ -96,6 +96,7 @@ type
     procedure MP_FindServerClick(Sender: TObject);
     procedure MP_CreateServerCancelClick(Sender: TObject);
     procedure MP_FindServerIPClick(Sender: TObject);
+    procedure MP_PasswordClick(Sender: TObject);
     procedure MP_FindServerCancelClick(Sender: TObject);
     procedure MP_ServersRefresh(Sender: TObject);
     procedure MP_ServersSort(aIndex: Integer);
@@ -105,6 +106,7 @@ type
     function MP_ValidatePlayerName(const aName: string): Boolean;
     function MP_GetInEnabled: Boolean;
     procedure MP_Join(aServerAddress, aPort: string; aRoom: Integer);
+    procedure MP_JoinPassword(Sender: TObject);
     procedure MP_JoinSuccess(Sender: TObject);
     procedure MP_JoinFail(const aData: string);
     procedure MP_JoinAssignedHost(Sender: TObject);
@@ -132,6 +134,7 @@ type
     procedure Lobby_OnDisconnect(const aData:string);
     procedure Lobby_BackClick(Sender: TObject);
     procedure Lobby_StartClick(Sender: TObject);
+    procedure Lobby_PasswordClick(Sender: TObject);
 
     procedure Load_Click(Sender: TObject);
     procedure Load_Delete_Click(Sender: TObject);
@@ -221,12 +224,22 @@ type
         Edit_MP_FindIP,
         Edit_MP_FindPort,
         Edit_MP_FindRoom: TKMEdit;
+      Panel_MPPassword: TKMPanel;
+        Edit_MP_Password: TKMEdit;
+        Button_MP_PasswordOk: TKMButton;
+        Button_MP_PasswordCancel: TKMButton;
 
     Panel_Lobby:TKMPanel;
+      Panel_LobbySetPassword: TKMPanel;
+        Edit_Lobby_Password: TKMEdit;
+        Button_Lobby_PasswordSet: TKMButton;
+        Button_Lobby_PasswordCancel: TKMButton;
+
       Panel_LobbyServerName:TKMPanel;
         Label_LobbyServerName:TKMLabel;
 
       Panel_LobbyPlayers:TKMPanel;
+        CheckBox_LobbyHostControl: TKMCheckBox;
         Image_LobbyFlag:array [0..MAX_PLAYERS-1] of TKMImage;
         DropBox_LobbyPlayerSlot:array [0..MAX_PLAYERS-1] of TKMDropList;
         Label_LobbyPlayer:array [0..MAX_PLAYERS-1] of TKMLabel;
@@ -237,7 +250,6 @@ type
         Label_LobbyPing:array [0..MAX_PLAYERS-1] of TKMLabel;
 
       Panel_LobbySetup:TKMPanel;
-        CheckBox_LobbyHostControl: TKMCheckBox;
         Label_LobbyChooseMap: TKMLabel;
         Radio_LobbyMapType: TKMRadioGroup;
         DropCol_LobbyMaps: TKMDropColumns;
@@ -252,6 +264,7 @@ type
       Edit_LobbyPost:TKMEdit;
 
       Button_LobbyBack:TKMButton;
+      Button_LobbyChangePassword: TKMButton;
       Button_LobbyStart:TKMButton;
 
     Panel_CampSelect: TKMPanel;
@@ -1088,6 +1101,23 @@ procedure TKMMainMenuInterface.Create_MultiPlayer;
       Button_MP_FindCancel := TKMButton.Create(Panel_MPFindServer, 20, 150, 280, 30, fTextLibrary[TX_MP_MENU_FIND_SERVER_CANCEL], bsMenu);
       Button_MP_FindCancel.OnClick := MP_FindServerCancelClick;
   end;
+  procedure PasswordPopUp;
+  begin
+    Panel_MPPassword := TKMPanel.Create(Panel_Main, 362, 250, 320, 300);
+    Panel_MPPassword.Anchors := [];
+      TKMBevel.Create(Panel_MPPassword, -1000,  -1000, 4000, 4000);
+      TKMImage.Create(Panel_MPPassword, -20, -75, 340, 310, 15, rxGuiMain);
+      TKMBevel.Create(Panel_MPPassword,   0,  0, 320, 300);
+      TKMLabel.Create(Panel_MPPassword,  20, 10, 280, 20, 'Password protected lobby', fnt_Outline, taCenter);
+
+      TKMLabel.Create(Panel_MPPassword, 20, 50, 156, 20, 'Password', fnt_Outline, taLeft);
+      Edit_MP_Password := TKMEdit.Create(Panel_MPPassword, 20, 70, 152, 20, fnt_Grey);
+      Edit_MP_Password.AllowedChars := acText;
+      Button_MP_PasswordOk := TKMButton.Create(Panel_MPPassword, 20, 110, 280, 30, 'Join', bsMenu);
+      Button_MP_PasswordOk.OnClick := MP_PasswordClick;
+      Button_MP_PasswordCancel := TKMButton.Create(Panel_MPPassword, 20, 150, 280, 30, fTextLibrary[TX_MP_MENU_FIND_SERVER_CANCEL], bsMenu);
+      Button_MP_PasswordCancel.OnClick := MP_PasswordClick;
+  end;
 begin
   Panel_MultiPlayer := TKMPanel.Create(Panel_Main, 0, 0, Panel_Main.Width, Panel_Main.Height);
   Panel_MultiPlayer.Stretch;
@@ -1110,6 +1140,8 @@ begin
     Button_MP_FindServer.OnClick := MP_FindServerClick;
 
     FindServerPopUp;
+
+    PasswordPopUp;
 
     //Master server announcement
     Memo_MP_Announcement := TKMMemo.Create(Panel_MultiPlayer, 45, 45, 620, 189, fnt_Grey, bsMenu);
@@ -1153,11 +1185,32 @@ end;
 
 
 procedure TKMMainMenuInterface.Create_Lobby;
+
+  procedure SetPasswordPopUp;
+  begin
+    Panel_LobbySetPassword := TKMPanel.Create(Panel_Main, 362, 250, 320, 300);
+    Panel_LobbySetPassword.Anchors := [];
+      TKMBevel.Create(Panel_LobbySetPassword, -1000,  -1000, 4000, 4000);
+      TKMImage.Create(Panel_LobbySetPassword, -20, -75, 340, 310, 15, rxGuiMain);
+      TKMBevel.Create(Panel_LobbySetPassword,   0,  0, 320, 300);
+      TKMLabel.Create(Panel_LobbySetPassword,  20, 10, 280, 20, 'Set lobby password', fnt_Outline, taCenter);
+
+      TKMLabel.Create(Panel_LobbySetPassword, 20, 50, 156, 20, 'Password', fnt_Outline, taLeft);
+      Edit_Lobby_Password := TKMEdit.Create(Panel_LobbySetPassword, 20, 70, 152, 20, fnt_Grey);
+      Edit_Lobby_Password.AllowedChars := acText;
+      Button_Lobby_PasswordSet := TKMButton.Create(Panel_LobbySetPassword, 20, 110, 280, 30, 'Ok', bsMenu);
+      Button_Lobby_PasswordSet.OnClick := Lobby_PasswordClick;
+      Button_Lobby_PasswordCancel := TKMButton.Create(Panel_LobbySetPassword, 20, 150, 280, 30, fTextLibrary[TX_MP_MENU_FIND_SERVER_CANCEL], bsMenu);
+      Button_Lobby_PasswordCancel.OnClick := Lobby_PasswordClick;
+  end;
+
 const CW = 690; C1 = 35; C2 = 195; C3 = 355; C4 = 445; C5 = 570; C6 = 650;
 var i,k,top:integer;
 begin
   Panel_Lobby := TKMPanel.Create(Panel_Main,0,0,Panel_Main.Width, Panel_Main.Height);
   Panel_Lobby.Stretch;
+
+    SetPasswordPopUp;
 
     //Server Name
     Panel_LobbyServerName := TKMPanel.Create(Panel_Lobby, 30, 30, CW, 30);
@@ -1274,10 +1327,14 @@ begin
       TrackBar_LobbySpeedAfterPT.Caption := 'Game speed';
       TrackBar_LobbySpeedAfterPT.OnChange := Lobby_GameOptionsChange;
 
-    Button_LobbyBack := TKMButton.Create(Panel_Lobby, 30, 712, 230, 30, fTextLibrary[TX_LOBBY_QUIT], bsMenu);
+    Button_LobbyBack := TKMButton.Create(Panel_Lobby, 30, 712, 220, 30, fTextLibrary[TX_LOBBY_QUIT], bsMenu);
     Button_LobbyBack.Anchors := [akLeft, akBottom];
     Button_LobbyBack.OnClick := Lobby_BackClick;
-    Button_LobbyStart := TKMButton.Create(Panel_Lobby, 285, 712, 230, 30, '<<<LEER>>>', bsMenu);
+
+    Button_LobbyChangePassword := TKMButton.Create(Panel_Lobby, 265, 712, 220, 30, 'Set password', bsMenu);
+    Button_LobbyChangePassword.OnClick := Lobby_PasswordClick;
+
+    Button_LobbyStart := TKMButton.Create(Panel_Lobby, 500, 712, 220, 30, '<<<LEER>>>', bsMenu);
     Button_LobbyStart.Anchors := [akLeft, akBottom];
     Button_LobbyStart.OnClick := Lobby_StartClick;
 end;
@@ -2696,6 +2753,22 @@ begin
 end;
 
 
+procedure TKMMainMenuInterface.MP_PasswordClick(Sender: TObject);
+begin
+  if Sender = Button_MP_PasswordOk then
+  begin
+    Panel_MPPassword.Hide;
+    fGameApp.Networking.SendPassword(Edit_MP_Password.Text);
+  end;
+  if Sender = Button_MP_PasswordCancel then
+  begin
+    fGameApp.Networking.Disconnect;
+    Panel_MPPassword.Hide;
+    MP_Update(fTextLibrary[TX_MP_MENU_STATUS_READY], icGreen, False);
+  end;
+end;
+
+
 //Save the Player and IP name so it is not lost inbetween activities
 procedure TKMMainMenuInterface.MP_SaveSettings;
 begin
@@ -2955,8 +3028,18 @@ begin
   //Send request to join
   fGameApp.Networking.OnJoinSucc := MP_JoinSuccess;
   fGameApp.Networking.OnJoinFail := MP_JoinFail;
+  fGameApp.Networking.OnJoinPassword := MP_JoinPassword;
   fGameApp.Networking.OnJoinAssignedHost := MP_JoinAssignedHost;
   fGameApp.Networking.Join(aServerAddress, aPort, Edit_MP_PlayerName.Text, aRoom); //Init lobby
+end;
+
+
+procedure TKMMainMenuInterface.MP_JoinPassword(Sender: TObject);
+begin
+  Panel_MPFindServer.Hide;
+  Edit_MP_Password.Text := '';
+  Panel_MPPassword.Show;
+  MyControls.CtrlFocus := Edit_MP_Password;
 end;
 
 
@@ -3062,6 +3145,7 @@ begin
     TrackBar_LobbySpeedPT.Disable;
     TrackBar_LobbySpeedAfterPT.Disable;
     CheckBox_LobbyHostControl.Enable;
+    Button_LobbyChangePassword.Show;
   end
   else //Setup for Joiner
   begin
@@ -3076,6 +3160,7 @@ begin
     TrackBar_LobbySpeedPT.Disable;
     TrackBar_LobbySpeedAfterPT.Disable;
     CheckBox_LobbyHostControl.Disable;
+    Button_LobbyChangePassword.Hide;
   end;
 end;
 
@@ -3732,6 +3817,32 @@ begin
       Button_LobbyStart.Caption := fTextLibrary[TX_LOBBY_NOT_READY]
     else
       Button_LobbyStart.Caption := fTextLibrary[TX_LOBBY_READY];
+  end;
+end;
+
+
+procedure TKMMainMenuInterface.Lobby_PasswordClick(Sender: TObject);
+begin
+  if Sender = Button_LobbyChangePassword then
+  begin
+    Edit_Lobby_Password.Text := fGameApp.Networking.Password;
+    Panel_LobbySetPassword.Show;
+    fMyControls.CtrlFocus := Edit_Lobby_Password;
+  end;
+  if Sender = Button_Lobby_PasswordCancel then
+  begin
+    Panel_LobbySetPassword.Hide;
+    fMyControls.CtrlFocus := Edit_LobbyPost;
+  end;
+  if Sender = Button_Lobby_PasswordSet then
+  begin
+    Panel_LobbySetPassword.Hide;
+    fMyControls.CtrlFocus := Edit_LobbyPost;
+    fGameApp.Networking.SetPassword(Edit_Lobby_Password.Text);
+    if Edit_Lobby_Password.Text <> '' then
+      Button_LobbyChangePassword.Caption := 'Change password'
+    else
+      Button_LobbyChangePassword.Caption := 'Set password';
   end;
 end;
 

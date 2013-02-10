@@ -74,7 +74,10 @@ type
     mk_ClientReconnected, //Host tells other players the index of a reconnected client
 
     mk_Commands,        //Clients exchange commands for next ticks
-    mk_Text             //Clients exchange text messages
+    mk_Text,            //Clients exchange text messages
+
+    mk_ReqPassword,     //Host requests joiner to send password
+    mk_Password         //Joiner sends password to host
     );
 
 
@@ -130,7 +133,9 @@ const
     pfNoData,   //mk_ReconnectionAccepted
     pfNumber,   //mk_ClientReconnected
     pfBinary,   //mk_Commands
-    pfBinary    //mk_Text
+    pfBinary,   //mk_Text
+    pfNoData,   //mk_ReqPassword
+    pfBinary    //mk_Password
   );
 
 
