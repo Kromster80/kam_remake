@@ -8,11 +8,11 @@ Features:
 
 
 Finishing up:
+ +	Message log
 	Finish AI stuff (defending and attacking prototype?)
 	Decide which script commands will be implemented for this release and implement them
 	Finish new MapEd features (add ADD_WARE_TO_LAST)
 	Example maps that show what can be done with new scripts
-	Message log
 
 
 Known issues to fix:

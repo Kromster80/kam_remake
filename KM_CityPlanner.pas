@@ -221,6 +221,8 @@ begin
   Result := False;
 
   if not GetSourceLocation([ht_Store], TargetLoc) then Exit;
+  //todo: Using FindStone with such a large radius is very slow due to GetTilesWithinDistance (10ms average)
+  //      Maybe instead check 60x60 area, but only each 5th cell or so
   if not fTerrain.FindStone(KMPointBelow(TargetLoc), RAD, KMPoint(0,0), True, StoneLoc) then Exit;
 
   BestBid := MaxSingle;
