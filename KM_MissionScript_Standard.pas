@@ -630,59 +630,57 @@ begin
       end;
     AddData(''); //NL
 
-    //Computer specific, e.g. AI commands
-    if fPlayers[I].PlayerType = pt_Computer then
-    begin
-      AddCommand(ct_AIStartPosition, [fPlayers[I].AI.Setup.StartPosition.X-1,fPlayers[I].AI.Setup.StartPosition.Y-1]);
-      if not fPlayers[I].AI.Setup.AutoBuild then AddCommand(ct_AINoBuild, []);
-      if fPlayers[I].AI.Setup.AutoRepair then    AddCommand(ct_AIAutoRepair, []);
-      if fPlayers[I].AI.Setup.AutoDefend then    AddCommand(ct_AIAutoDefend, []);
-      AddCommand(ct_AICharacter,cpt_Recruits, [fPlayers[I].AI.Setup.RecruitFactor]);
-      AddCommand(ct_AICharacter,cpt_WorkerFactor, [fPlayers[I].AI.Setup.SerfFactor]);
-      AddCommand(ct_AICharacter,cpt_Constructors, [fPlayers[I].AI.Setup.WorkerFactor]);
-      AddCommand(ct_AICharacter,cpt_TownDefence, [fPlayers[I].AI.Setup.TownDefence]);
-      //Only store if a limit is in place (high is the default)
-      if fPlayers[I].AI.Setup.MaxSoldiers <> High(fPlayers[I].AI.Setup.MaxSoldiers) then
-        AddCommand(ct_AICharacter,cpt_MaxSoldier, [fPlayers[I].AI.Setup.MaxSoldiers]);
-      AddCommand(ct_AICharacter,cpt_EquipRateLeather, [fPlayers[I].AI.Setup.EquipRateLeather]);
-      AddCommand(ct_AICharacter,cpt_EquipRateIron,    [fPlayers[I].AI.Setup.EquipRateIron]);
-      AddCommand(ct_AICharacter,cpt_AttackFactor, [fPlayers[I].AI.Setup.Aggressiveness]);
-      AddCommand(ct_AICharacter,cpt_RecruitCount, [fPlayers[I].AI.Setup.RecruitDelay]);
-      for G:=Low(TGroupType) to High(TGroupType) do
-        if fPlayers[I].AI.General.DefencePositions.TroopFormations[G].NumUnits <> 0 then //Must be valid and used
-          AddCommand(ct_AICharacter, cpt_TroopParam, [KaMGroupType[G], fPlayers[I].AI.General.DefencePositions.TroopFormations[G].NumUnits, fPlayers[I].AI.General.DefencePositions.TroopFormations[G].UnitsPerRow]);
-      AddData(''); //NL
-      for K:=0 to fPlayers[I].AI.General.DefencePositions.Count - 1 do
-        with fPlayers[I].AI.General.DefencePositions[K] do
-          AddCommand(ct_AIDefence, [Position.Loc.X-1,Position.Loc.Y-1,byte(Position.Dir)-1,KaMGroupType[GroupType],Radius,byte(DefenceType)]);
-      AddData(''); //NL
-      AddData(''); //NL
-      for K:=0 to fPlayers[I].AI.General.Attacks.Count - 1 do
-        with fPlayers[I].AI.General.Attacks[K] do
-        begin
-          AddCommand(ct_AIAttack, cpt_Type, [KaMAttackType[AttackType]]);
-          AddCommand(ct_AIAttack, cpt_TotalAmount, [TotalMen]);
-          if TakeAll then
-            AddCommand(ct_AIAttack, cpt_TakeAll, [])
-          else
-            for G:=Low(TGroupType) to High(TGroupType) do
-              AddCommand(ct_AIAttack, cpt_TroopAmount, [KaMGroupType[G], GroupAmounts[G]]);
+    //Computer specific, e.g. AI commands. Always save these commands even if the player
+    //is not AI so no data is lost from MapEd (human players will ignore AI script anyway)
+    AddCommand(ct_AIStartPosition, [fPlayers[I].AI.Setup.StartPosition.X-1,fPlayers[I].AI.Setup.StartPosition.Y-1]);
+    if not fPlayers[I].AI.Setup.AutoBuild then AddCommand(ct_AINoBuild, []);
+    if fPlayers[I].AI.Setup.AutoRepair then    AddCommand(ct_AIAutoRepair, []);
+    if fPlayers[I].AI.Setup.AutoDefend then    AddCommand(ct_AIAutoDefend, []);
+    AddCommand(ct_AICharacter,cpt_Recruits, [fPlayers[I].AI.Setup.RecruitFactor]);
+    AddCommand(ct_AICharacter,cpt_WorkerFactor, [fPlayers[I].AI.Setup.SerfFactor]);
+    AddCommand(ct_AICharacter,cpt_Constructors, [fPlayers[I].AI.Setup.WorkerFactor]);
+    AddCommand(ct_AICharacter,cpt_TownDefence, [fPlayers[I].AI.Setup.TownDefence]);
+    //Only store if a limit is in place (high is the default)
+    if fPlayers[I].AI.Setup.MaxSoldiers <> High(fPlayers[I].AI.Setup.MaxSoldiers) then
+      AddCommand(ct_AICharacter,cpt_MaxSoldier, [fPlayers[I].AI.Setup.MaxSoldiers]);
+    AddCommand(ct_AICharacter,cpt_EquipRateLeather, [fPlayers[I].AI.Setup.EquipRateLeather]);
+    AddCommand(ct_AICharacter,cpt_EquipRateIron,    [fPlayers[I].AI.Setup.EquipRateIron]);
+    AddCommand(ct_AICharacter,cpt_AttackFactor, [fPlayers[I].AI.Setup.Aggressiveness]);
+    AddCommand(ct_AICharacter,cpt_RecruitCount, [fPlayers[I].AI.Setup.RecruitDelay]);
+    for G:=Low(TGroupType) to High(TGroupType) do
+      if fPlayers[I].AI.General.DefencePositions.TroopFormations[G].NumUnits <> 0 then //Must be valid and used
+        AddCommand(ct_AICharacter, cpt_TroopParam, [KaMGroupType[G], fPlayers[I].AI.General.DefencePositions.TroopFormations[G].NumUnits, fPlayers[I].AI.General.DefencePositions.TroopFormations[G].UnitsPerRow]);
+    AddData(''); //NL
+    for K:=0 to fPlayers[I].AI.General.DefencePositions.Count - 1 do
+      with fPlayers[I].AI.General.DefencePositions[K] do
+        AddCommand(ct_AIDefence, [Position.Loc.X-1,Position.Loc.Y-1,byte(Position.Dir)-1,KaMGroupType[GroupType],Radius,byte(DefenceType)]);
+    AddData(''); //NL
+    AddData(''); //NL
+    for K:=0 to fPlayers[I].AI.General.Attacks.Count - 1 do
+      with fPlayers[I].AI.General.Attacks[K] do
+      begin
+        AddCommand(ct_AIAttack, cpt_Type, [KaMAttackType[AttackType]]);
+        AddCommand(ct_AIAttack, cpt_TotalAmount, [TotalMen]);
+        if TakeAll then
+          AddCommand(ct_AIAttack, cpt_TakeAll, [])
+        else
+          for G:=Low(TGroupType) to High(TGroupType) do
+            AddCommand(ct_AIAttack, cpt_TroopAmount, [KaMGroupType[G], GroupAmounts[G]]);
 
-          if (Delay > 0) or (AttackType = aat_Once) then //Type once must always have counter because it uses the delay
-            AddCommand(ct_AIAttack,cpt_Counter, [Delay]);
+        if (Delay > 0) or (AttackType = aat_Once) then //Type once must always have counter because it uses the delay
+          AddCommand(ct_AIAttack,cpt_Counter, [Delay]);
 
-          AddCommand(ct_AIAttack,cpt_Target, [Byte(Target)]);
-          if Target = att_CustomPosition then
-            AddCommand(ct_AIAttack,cpt_Position, [CustomPosition.X-1,CustomPosition.Y-1]);
+        AddCommand(ct_AIAttack,cpt_Target, [Byte(Target)]);
+        if Target = att_CustomPosition then
+          AddCommand(ct_AIAttack,cpt_Position, [CustomPosition.X-1,CustomPosition.Y-1]);
 
-          if Range > 0 then
-            AddCommand(ct_AIAttack,cpt_Range, [Range]);
+        if Range > 0 then
+          AddCommand(ct_AIAttack,cpt_Range, [Range]);
 
-          AddCommand(ct_CopyAIAttack, [K]); //Store attack with ID number
-          AddData(''); //NL
-        end;
-      AddData(''); //NL
-    end;
+        AddCommand(ct_CopyAIAttack, [K]); //Store attack with ID number
+        AddData(''); //NL
+      end;
+    AddData(''); //NL
 
     //General, e.g. units, roads, houses, etc.
     //Alliances

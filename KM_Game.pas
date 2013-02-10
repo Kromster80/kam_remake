@@ -1454,6 +1454,7 @@ begin
     fViewport.ResetZoom;
 
     fMapEditorInterface.Player_UpdateColors;
+    fMapEditorInterface.UpdateAITabsEnabled;
     fMapEditorInterface.SetMapName(fGameName);
     fMapEditorInterface.SetMinimap;
   end

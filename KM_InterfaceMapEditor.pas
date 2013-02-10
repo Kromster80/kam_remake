@@ -355,6 +355,7 @@ type
     constructor Create(aScreenX, aScreenY: word);
     destructor Destroy; override;
     procedure Player_UpdateColors;
+    procedure UpdateAITabsEnabled;
     procedure SetMinimap;
     procedure SetMapName(const aName:string);
     procedure RightClick_Cancel;
@@ -1048,7 +1049,7 @@ begin
 
     //Offence settings
     Panel_Offence := TKMPanel.Create(Panel_Town, 0, 28, TB_WIDTH, 400);
-      TKMLabel.Create(Panel_Offence, 0, PAGE_TITLE_Y, TB_WIDTH, 0, 'Attacks', fnt_Outline, taCenter);
+      TKMLabel.Create(Panel_Offence, 0, PAGE_TITLE_Y, TB_WIDTH, 0, 'AI attacks', fnt_Outline, taCenter);
 
       CheckBox_AutoAttack := TKMCheckBox.Create(Panel_Offence, 0, 30, TB_WIDTH, 20, 'AutoAttack', fnt_Metal);
       CheckBox_AutoAttack.Disable;
@@ -1159,8 +1160,8 @@ var I,K: Integer;
 begin
   Panel_Mission := TKMPanel.Create(Panel_Common, 0, 45, TB_WIDTH, 28);
     Button_Mission[1] := TKMButton.Create(Panel_Mission, SMALL_PAD_W * 0, 0, SMALL_TAB_W, SMALL_TAB_H, 41, rxGui, bsGame);
-    Button_Mission[2] := TKMButton.Create(Panel_Mission, SMALL_PAD_W * 1, 0, SMALL_TAB_W, SMALL_TAB_H, 41, rxGui, bsGame);
-    Button_Mission[3] := TKMButton.Create(Panel_Mission, SMALL_PAD_W * 2, 0, SMALL_TAB_W, SMALL_TAB_H, 41, rxGui, bsGame);
+    Button_Mission[2] := TKMButton.Create(Panel_Mission, SMALL_PAD_W * 1, 0, SMALL_TAB_W, SMALL_TAB_H, 386, rxGui, bsGame);
+    Button_Mission[3] := TKMButton.Create(Panel_Mission, SMALL_PAD_W * 2, 0, SMALL_TAB_W, SMALL_TAB_H, 656, rxGui, bsGame);
     for I := 1 to 3 do Button_Mission[I].OnClick := SwitchPage;
 
     Panel_Mode := TKMPanel.Create(Panel_Mission,0,28,TB_WIDTH,400);
@@ -1839,6 +1840,7 @@ begin
     Button_PlayerSelect[I].Down := (I = MyPlayer.PlayerIndex);
 
   Player_UpdateColors;
+  UpdateAITabsEnabled;
 end;
 
 
@@ -2739,6 +2741,25 @@ begin
 end;
 
 
+procedure TKMapEdInterface.UpdateAITabsEnabled;
+begin
+  if fGame.MapEditor.PlayerAI[MyPlayer.PlayerIndex] then
+  begin
+    Button_Town[ttScript].Enable;
+    Button_Town[ttDefences].Enable;
+    Button_Town[ttOffence].Enable;
+  end
+  else
+  begin
+    Button_Town[ttScript].Disable;
+    Button_Town[ttDefences].Disable;
+    Button_Town[ttOffence].Disable;
+    if Panel_Script.Visible or Panel_Defence.Visible or Panel_Offence.Visible then
+      Button_Town[ttHouses].Click; //Change back to first tab
+  end;
+end;
+
+
 procedure TKMapEdInterface.SetLoadMode(aMultiplayer: Boolean);
 begin
   if aMultiplayer then
@@ -3248,6 +3269,7 @@ begin
     fGame.MapEditor.PlayerAI[PlayerId] := CheckBox_PlayerTypes[PlayerId, 2].Checked;
 
   Mission_PlayerTypesUpdate;
+  UpdateAITabsEnabled;
 end;
 
 
