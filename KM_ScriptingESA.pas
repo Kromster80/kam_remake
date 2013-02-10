@@ -1021,7 +1021,7 @@ begin
   begin
     H := fIDCache.GetHouse(aHouseID);
     if H <> nil then
-      if H.ResCanAddToIn(aType) then
+      if H.ResCanAddToIn(Res) then
         H.ResAddToIn(Res, aCount, True)
       else
         LogError('Actions.GiveWaresToHouse wrong ware type', [aHouseID, aType, aCount]);
