@@ -69,6 +69,7 @@ begin
   LoadStream.Read(fLoc);
   LoadStream.Read(fText);
   LoadStream.Read(fKind, SizeOf(TKMMessageKind));
+  LoadStream.Read(IsRead);
 end;
 
 
@@ -92,6 +93,7 @@ begin
   SaveStream.Write(fLoc);
   SaveStream.Write(fText);
   SaveStream.Write(fKind, SizeOf(TKMMessageKind));
+  SaveStream.Write(IsRead);
 end;
 
 

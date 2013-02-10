@@ -1026,7 +1026,7 @@ begin
   Image_MessageLog := TKMImage.Create(Panel_Main,TOOLBAR_WIDTH,Panel_Main.Height-48 - IfThen(fMultiplayer, 48*2),30,48,495);
   Image_MessageLog.Anchors := [akLeft, akBottom];
   Image_MessageLog.HighlightOnMouseOver := true;
-  Image_MessageLog.Hint := 'Messgae log';
+  Image_MessageLog.Hint := 'Message log';
   Image_MessageLog.OnClick := MessageLog_Click;
 
   for I := 0 to MAX_VISIBLE_MSGS do
@@ -1110,31 +1110,30 @@ var
   I: Integer;
   H: Integer;
 begin
-  H := 18 * MAX_LOG_MSGS;
+  H := 18 * MAX_LOG_MSGS + 2; //+2 for some margin at the bottom
 
   Panel_MessageLog := TKMPanel.Create(Panel_Main, TOOLBAR_WIDTH, Panel_Main.Height - (H + 65 + 20), Panel_Main.Width - TOOLBAR_WIDTH, H + 65 + 20);
-  Panel_MessageLog.Anchors := [akLeft, akRight, akBottom];
+  Panel_MessageLog.Anchors := [akLeft, akBottom];
   Panel_MessageLog.Hide; //Hide it now because it doesn't get hidden by SwitchPage
 
-    with TKMImage.Create(Panel_MessageLog, 0, 0, Panel_MessageLog.Width, Panel_MessageLog.Height, 409) do
+    with TKMImage.Create(Panel_MessageLog, 0, 0, 800, Panel_MessageLog.Height, 409) do
       ImageStretch;
 
-    Image_MessageLogClose := TKMImage.Create(Panel_MessageLog, Panel_MessageLog.Width - 35, 20, 32, 32, 52);
-    Image_MessageLogClose.Anchors := [akTop, akRight];
+    Image_MessageLogClose := TKMImage.Create(Panel_MessageLog, 800 - 35, 20, 32, 32, 52);
+    Image_MessageLogClose.Anchors := [akTop, akLeft];
     Image_MessageLogClose.Hint := fTextLibrary[TX_MSG_CLOSE_HINT];
     Image_MessageLogClose.OnClick := MessageLog_Close;
     Image_MessageLogClose.HighlightOnMouseOver := True;
 
-    ListBox_MessageLog := TKMColumnListBox.Create(Panel_MessageLog, 45, 65, Panel_MessageLog.Width - 90, H, fnt_Grey, bsGame);
-    ListBox_MessageLog.SetColumns(fnt_Outline, ['Icon', 'Message', 'Go to'], [0, 25, 650]);
+    ListBox_MessageLog := TKMColumnListBox.Create(Panel_MessageLog, 45, 65, 800 - 90, H, fnt_Grey, bsGame);
+    ListBox_MessageLog.SetColumns(fnt_Outline, ['Icon', 'Message'], [0, 25]);
     ListBox_MessageLog.ShowHeader := False;
-    //ListBox_MessageLog.HideSelection := True;
     ListBox_MessageLog.ItemHeight := 18;
-    ListBox_MessageLog.BackAlpha := 0;
+    ListBox_MessageLog.BackAlpha := 0.5;
     ListBox_MessageLog.EdgeAlpha := 0;
     ListBox_MessageLog.OnClick := MessageLog_ItemClick;
     for I := 0 to MAX_LOG_MSGS - 1 do
-      ListBox_MessageLog.AddItem(MakeListRow(['', '', ''], -1));
+      ListBox_MessageLog.AddItem(MakeListRow(['', ''], -1));
 end;
 
 
@@ -1870,6 +1869,7 @@ begin
   Allies_Close(nil);
   Panel_Chat.Show;
   Message_Close(nil);
+  MessageLog_Close(nil);
   if fGame.Networking.NetPlayers[fGame.Networking.MyIndex].Team = 0 then
   begin
     CheckBox_SendToAllies.Checked := false;
@@ -1896,6 +1896,7 @@ begin
   Panel_Allies.Show;
   Chat_Close(nil);
   Message_Close(nil);
+  MessageLog_Close(nil);
 end;
 
 
@@ -1938,7 +1939,8 @@ begin
     Image_Message[ShownMessage].Highlight := False;
 
     //Play sound
-    fSoundLib.Play(sfx_MessageClose);
+    if Sender <> nil then
+      fSoundLib.Play(sfx_MessageClose);
   end;
 
   ShownMessage := -1;
@@ -2884,7 +2886,10 @@ end;
 procedure TKMGamePlayInterface.MessageLog_Click(Sender: TObject);
 begin
   if Panel_MessageLog.Visible then
-    Panel_MessageLog.Hide
+  begin
+    Panel_MessageLog.Hide;
+    fSoundLib.Play(sfx_MessageClose);
+  end
   else
   begin
     MessageLog_Update(True);
@@ -2892,6 +2897,7 @@ begin
     Allies_Close(nil);
     Chat_Close(nil); //Removes focus from Edit_Text
     MessageLog_Close(nil);
+    Message_Close(nil);
 
     Panel_MessageLog.Show;
     ListBox_MessageLog.TopIndex := ListBox_MessageLog.RowCount;
@@ -2903,6 +2909,8 @@ end;
 procedure TKMGamePlayInterface.MessageLog_Close(Sender: TObject);
 begin
   Panel_MessageLog.Hide;
+  if Sender = Image_MessageLogClose then
+    fSoundLib.Play(sfx_MessageClose);
 end;
 
 
@@ -2943,11 +2951,14 @@ begin
   //Exit if synced already
   if not aFullRefresh and (fLastSyncedMessage = fMessageList.CountLog) then Exit;
 
+  //Clear the selection if a new item is added so the wrong one is not selected
+  if fLastSyncedMessage <> fMessageList.CountLog then
+    ListBox_MessageLog.ItemIndex := -1;
+
   K := 0;
   for I := Max(fMessageList.CountLog - MAX_LOG_MSGS, 0) to fMessageList.CountLog - 1 do
   begin
-    R := MakeListRow(['', fMessageList.MessagesLog[I].Text, ''], I);
-    R.Cells[2].Pic := MakePic(rxGui, 59);
+    R := MakeListRow(['', fMessageList.MessagesLog[I].Text], I);
 
     if fMessageList.MessagesLog[I].Kind = mkUnit then
     begin

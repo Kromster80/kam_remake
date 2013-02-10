@@ -235,9 +235,7 @@ begin
         //Flip direction
         if Combo[Ter1, Ter2, Nodes] < 0 then
           Rot := (Rot + 2) mod 4;
-        //For some weird reason lava needs to be rotated 90`.
-        //@Krom: This is hacky, maybe there's a better solution?
-        //@Lewin: Looks good enough to me. To be deleted..
+        //For some weird reason lava needs to be rotated 90`
         if Ter1 = tkLava then
           Rot := (Rot + 1) mod 4;
       end;
