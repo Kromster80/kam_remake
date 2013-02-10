@@ -960,6 +960,8 @@ begin
       if Enabled then
         Graph_MPArmy.AddLine(PlayerName, FlagColor, Stats.GraphArmy);
 
+    Graph_MPArmy.TrimToFirstVariation;
+
     for I := 0 to fPlayers.Count - 1 do
     with fPlayers[I] do
       if Enabled then

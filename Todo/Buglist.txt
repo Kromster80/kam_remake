@@ -55,6 +55,8 @@ Improvements:
  +	L	Disabling Market buttons will let player know that he can't select new trade without canceling current one
  +	L	Improved stats panel, when possible items are placed one per row 
  +	L	Host can set password for lobby
+ +	M	Sliders in lobby for selecting speed during peacetime and after peacetime
+ +	L	Army graph starts 5% before the first variation (to skip peacetime)
  wip	Dismiss button to make units walk into the school and disappear (gold is not refunded)
  wip	Simple dedicated server form which lets you set the properties of the INI for the server and start it [gemGreg]
 	L	Placing houses in MP should put a temp/fake visual markup until the real one can be added to make it appear responsive
@@ -77,7 +79,6 @@ Improvements:
 
 	L	Multiplayer in-game player list and lobby description ordered (grouped) by teams
 	M	Scrolling around the map using middle mouse click, as in TPR
-	M	Sliders in lobby for selecting speed during peacetime and after peacetime
 	M	New column in load/replays menus: Date/time (stored internally in save format since file modified date is not very trustworthy) [Marcin]
 	M	Some way to visualise fog of war for the selected player in replays (and MapEd) (semi-transparent?) so you can understand player's perspective [Krom/Lewin]
 	L	New command !SKIP_HOUSE. If I want a map with no stone, then after building the inn the woodcutter and tower should become available (skips the stonemason)

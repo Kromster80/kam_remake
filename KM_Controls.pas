@@ -963,6 +963,7 @@ type
     fLineOver: Integer;
     fLines: array of TKMGraphLine;
     fMaxLength: Cardinal; //Maximum samples (by horizontal axis)
+    fMinTime: Cardinal; //Minimum time (in sec), used only for Rendering time ticks
     fMaxTime: Cardinal; //Maximum time (in sec), used only for Rendering time ticks
     fMaxValue: Cardinal; //Maximum value (by vertical axis)
     procedure UpdateMaxValue;
@@ -971,6 +972,7 @@ type
     constructor Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight: Integer);
 
     procedure AddLine(aTitle: string; aColor: TColor4; const aValues: TKMCardinalArray; aTag:Integer=-1);
+    procedure TrimToFirstVariation;
     property Caption: string read fCaption write fCaption;
     procedure Clear;
     procedure SetLineVisible(aLineID:Integer; aVisible:Boolean);
@@ -4319,6 +4321,36 @@ begin
 end;
 
 
+//Trims the graph until 5% before the first variation
+procedure TKMGraph.TrimToFirstVariation;
+var
+  I, K, FirstVarSample: Integer;
+  StartVal: Cardinal;
+begin
+  FirstVarSample := -1;
+  for I:=0 to fCount-1 do
+    if Length(fLines[I].Values) > 0 then
+    begin
+      StartVal := fLines[I].Values[0];
+      for K:=1 to Length(fLines[I].Values)-1 do
+        if fLines[I].Values[K] <> StartVal then
+        begin
+          if (K < FirstVarSample) or (FirstVarSample = -1) then
+            FirstVarSample := K;
+          Break;
+        end;
+    end;
+  if FirstVarSample = -1 then Exit; //No variation at all, so don't trim it
+  //Take 5% before the first varied sample
+  FirstVarSample := Max(0, FirstVarSample - Round(0.05*fMaxLength));
+  //Trim all fLines[I].Values to start at FirstVarSample
+  for I:=0 to fCount-1 do
+    Move(fLines[I].Values[FirstVarSample], fLines[I].Values[0], Length(fLines[I].Values)-FirstVarSample);
+  //Set start time so the horizontal time ticks are rendered correctly
+  fMinTime := Round((FirstVarSample/fMaxLength) * fMaxTime);
+end;
+
+
 procedure TKMGraph.Clear;
 begin
   fCount := 0;
@@ -4396,7 +4428,7 @@ procedure TKMGraph.Paint;
   end;
 const
   IntervalCount: array [0..9] of Word = (1, 5, 10, 50, 100, 500, 1000, 5000, 10000, 50000);
-  IntervalTime: array [0..9] of Word = (30, 1*60, 5*60, 15*60, 30*60, 1*60*60, 2*60*60, 3*60*60, 4*60*60, 5*60*60);
+  IntervalTime: array [0..10] of Word = (30, 1*60, 5*60, 10*60, 15*60, 30*60, 1*60*60, 2*60*60, 3*60*60, 4*60*60, 5*60*60);
 var
   I: Integer;
   G: TKMRect;
@@ -4412,7 +4444,7 @@ begin
 
   //Find first interval that will have less than 10 ticks
   Best := 0;
-  for I := 0 to 9 do
+  for I := Low(IntervalCount) to High(IntervalCount) do
     if TopValue div IntervalCount[I] < 10 then
     begin
       Best := IntervalCount[I];
@@ -4465,24 +4497,24 @@ begin
   TKMRenderUI.WriteText(G.Left + 5, G.Top + 5, 0, fCaption, fFont, taLeft);
 
   //Render vertical axis captions
-  TKMRenderUI.WriteText(G.Left - 5, G.Bottom + 5, 0, IntToStr(0), fnt_Game, taRight);
+  TKMRenderUI.WriteText(G.Left - 5, G.Bottom - 6, 0, IntToStr(0), fnt_Game, taRight);
   //TKMRenderUI.WriteText(Left+20, Top + 20, 0, 0, IntToStr(fMaxValue), fnt_Game, taRight);
 
   //Render horizontal axis ticks
   //Find first interval that will have less than 10 ticks
   Best := 0;
-  for I := 0 to 9 do
-    if fMaxTime div IntervalTime[I] < 6 then
+  for I := Low(IntervalTime) to High(IntervalTime) do
+    if (fMaxTime-fMinTime) div IntervalTime[I] < 6 then
     begin
       Best := IntervalTime[I];
       Break;
     end;
 
   if Best <> 0 then
-  for I := 1 to (fMaxTime div Best) do
+  for I := Ceil(fMinTime / Best) to (fMaxTime div Best) do
   begin
-    TKMRenderUI.WriteShape(G.Left + Round(I * Best / fMaxTime * (G.Right - G.Left)), G.Bottom - 2, 2, 5, $FFFFFFFF);
-    TKMRenderUI.WriteText(G.Left + Round(I * Best / fMaxTime * (G.Right - G.Left)), G.Bottom + 4, 0, TimeToString((I * Best) / 24 / 60 / 60), fnt_Game, taLeft);
+    TKMRenderUI.WriteShape(G.Left + Round((I * Best - fMinTime) / (fMaxTime-fMinTime) * (G.Right - G.Left)), G.Bottom - 2, 2, 5, $FFFFFFFF);
+    TKMRenderUI.WriteText (G.Left + Round((I * Best - fMinTime) / (fMaxTime-fMinTime) * (G.Right - G.Left)), G.Bottom + 4, 0, TimeToString((I * Best) / 24 / 60 / 60), fnt_Game, taLeft);
   end;
 end;
 

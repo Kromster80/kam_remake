@@ -16,6 +16,7 @@ type
     procedure Reset;
     procedure SetAsText(const aText: string);
     function GetAsText: string;
+    constructor Create;
   end;
 
 
@@ -23,6 +24,12 @@ implementation
 
 
 { TKMGameOptions }
+constructor TKMGameOptions.Create;
+begin
+  Reset;
+end;
+
+
 procedure TKMGameOptions.Load(LoadStream: TKMemoryStream);
 begin
   LoadStream.Read(Peacetime);

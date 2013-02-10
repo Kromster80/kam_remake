@@ -2,9 +2,9 @@ Features:
  +	MP game speed up slider (1x,2x, 3x)
  +	Coop maps handled better in lobby (AI players hidden and automatic, AI map areas not revealed)
  +	Host can set password for lobby
+ +	Army graph starts 5% before the first variation (to skip peacetime)
 	Lobby name/description by host (shown in room info and inside the room as 1st message)
 	Kick/ban/whisper dropdown when clicking on player flag
-	Army graph starts 5 minutes before peacetime (or before first variation?)
 
 
 Finishing up:
