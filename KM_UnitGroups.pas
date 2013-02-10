@@ -1451,22 +1451,27 @@ begin
 end;
 
 
+//Warrior has been trained and we need to see where to place him
 procedure TKMUnitGroups.WarriorTrained(aUnit: TKMUnitWarrior);
 var
   LinkUnit: TKMUnitWarrior;
   G: TKMUnitGroup;
 begin
+  G := nil; //Makes compiler happy
+
   case fPlayers[aUnit.Owner].PlayerType of
     pt_Human:    begin
                    LinkUnit := aUnit.FindLinkUnit(aUnit.GetPosition);
                    if LinkUnit <> nil then
                    begin
+                     //Link to other group
                      G := fPlayers[aUnit.Owner].UnitGroups.GetGroupByMember(LinkUnit);
                      G.AddMember(aUnit);
                      G.OrderRepeat;
                    end
                    else
                    begin
+                     //Create a new group with this one warrior
                      G := TKMUnitGroup.Create(fGame.GetNewID, aUnit);
                      fGroups.Add(G);
                    end;
@@ -1476,6 +1481,8 @@ begin
                    fGroups.Add(G);
                  end;
   end;
+
+  //Generate scripting event
   fScripting.ProcWarriorEquipped(aUnit, G);
 end;
 

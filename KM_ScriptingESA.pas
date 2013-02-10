@@ -1389,12 +1389,11 @@ end;
 procedure TKMScriptActions.GroupSetFormation(aGroupID: Integer; aNumColumns: Byte);
 var
   G: TKMUnitGroup;
-  U: TKMUnit;
 begin
   if (aGroupID > 0) then
   begin
     G := fIDCache.GetGroup(aGroupID);
-    if (G <> nil) then
+    if G <> nil then
       G.UnitsPerRow := aNumColumns;
   end
   else
@@ -1406,7 +1405,7 @@ end;
 procedure TKMIDCache.CacheUnit(aUnit: TKMUnit; aID: Integer);
 var I, NewItem: Shortint;
 begin
-  for I:=0 to fUnitCount-1 do
+  for I := 0 to fUnitCount - 1 do
     if fUnitCache[i].ID = aID then
       Exit; //Already in cache
 
@@ -1434,7 +1433,7 @@ end;
 procedure TKMIDCache.CacheHouse(aHouse: TKMHouse; aID: Integer);
 var I, NewItem: Shortint;
 begin
-  for I:=0 to fHouseCount-1 do
+  for I := 0 to fHouseCount - 1 do
     if fHouseCache[i].ID = aID then
       Exit; //Already in cache
 
@@ -1462,7 +1461,7 @@ end;
 procedure TKMIDCache.CacheGroup(aGroup: TKMUnitGroup; aID: Integer);
 var I, NewItem: Shortint;
 begin
-  for I:=0 to fGroupCount-1 do
+  for I := 0 to fGroupCount - 1 do
     if fGroupCache[i].ID = aID then
       Exit; //Already in cache
 
@@ -1490,7 +1489,7 @@ end;
 function TKMIDCache.GetUnit(aID:Integer): TKMUnit;
 var I: Shortint;
 begin
-  for I:=0 to fUnitCount-1 do
+  for I := 0 to fUnitCount - 1 do
     if fUnitCache[i].ID = aID then
     begin
       Result := fUnitCache[i].U;
@@ -1507,9 +1506,9 @@ end;
 
 
 function TKMIDCache.GetHouse(aID:Integer): TKMHouse;
-var I, NewItem: Shortint;
+var I: Shortint;
 begin
-  for I:=0 to fHouseCount-1 do
+  for I := 0 to fHouseCount - 1 do
     if fHouseCache[i].ID = aID then
     begin
       Result := fHouseCache[i].H;
@@ -1526,9 +1525,9 @@ end;
 
 
 function TKMIDCache.GetGroup(aID:Integer): TKMUnitGroup;
-var I, NewItem: Shortint;
+var I: Shortint;
 begin
-  for I:=0 to fGroupCount-1 do
+  for I := 0 to fGroupCount - 1 do
     if fGroupCache[i].ID = aID then
     begin
       Result := fGroupCache[i].G;
@@ -1551,15 +1550,15 @@ begin
   //Leave them in the cache as nils, because we still might need to lookup that ID
   if fGame.GameTickCount mod 11 = 0 then
   begin
-    for I:=0 to fUnitCount-1 do
+    for I := 0 to fUnitCount - 1 do
       if (fUnitCache[i].U <> nil) and fUnitCache[i].U.IsDead then
         fPlayers.CleanUpUnitPointer(fUnitCache[i].U);
 
-    for I:=0 to fHouseCount-1 do
+    for I := 0 to fHouseCount - 1 do
       if (fHouseCache[i].H <> nil) and fHouseCache[i].H.IsDestroyed then
         fPlayers.CleanUpHousePointer(fHouseCache[i].H);
 
-    for I:=0 to fGroupCount-1 do
+    for I := 0 to fGroupCount - 1 do
       if (fGroupCache[i].G <> nil) and fGroupCache[i].G.IsDead then
         fPlayers.CleanUpGroupPointer(fGroupCache[i].G);
   end;

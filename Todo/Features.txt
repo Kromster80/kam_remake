@@ -1,6 +1,5 @@
 Distant future
 	Fog of war
-	Map Editor
 	Networking in separate thread to minimize lags
 
 Future
@@ -14,10 +13,11 @@ Future
 Next release
 	Bugfixes
 	Defensive AI
-	Refactor warriors into TGroups
-	Scripting
+ +	Refactor warriors into TGroups
+ +	Scripting
+ +	Map Editor
 	File transfer in multiplayer for missions and saves [Lewin]
-	Change versioning system and drop Demo tag
+	Change versioning system and drop Demo tag (suggest we'd keep it)
 
 
 5th Multiplayer Demo (r4001) - 2012-10-04:
