@@ -15,7 +15,8 @@ type
   public
     class procedure SetupClipX        (X1,X2: SmallInt);
     class procedure SetupClipY        (Y1,Y2: SmallInt);
-    class procedure ReleaseClip;
+    class procedure ReleaseClipX;
+    class procedure ReleaseClipY;
     class procedure Write3DButton     (PosX,PosY,SizeX,SizeY: SmallInt; aRX: TRXType; aID: Word; aFlagColor: TColor4; State: TButtonStateSet; aStyle: TButtonStyle);
     class procedure WriteBevel        (X, Y, W, H: SmallInt; aEdgeAlpha: Single = 1; aBackAlpha: Single = 0.5);
     class procedure WritePercentBar   (PosX,PosY,SizeX,SizeY:SmallInt; aSeam: Single; aPos: Single);
@@ -36,8 +37,8 @@ uses KM_Resource, KM_ResourceFonts;
 
 //X axis uses planes 0,1 and Y axis uses planes 2,3, so that they don't interfere when both axis are
 //clipped from both sides
-class procedure TKMRenderUI.SetupClipX(X1,X2:smallint);
-var cp:array[0..3]of real; //Function uses 8byte floats //ClipPlane X+Y+Z=-D
+class procedure TKMRenderUI.SetupClipX(X1,X2: SmallInt);
+var cp: array[0..3]of Real; //Function uses 8byte floats //ClipPlane X+Y+Z=-D
 begin
   glEnable(GL_CLIP_PLANE0);
   glEnable(GL_CLIP_PLANE1);
@@ -49,8 +50,8 @@ begin
 end;
 
 
-class procedure TKMRenderUI.SetupClipY(Y1,Y2:smallint);
-var cp:array[0..3]of real; //Function uses 8byte floats //ClipPlane X+Y+Z=-D
+class procedure TKMRenderUI.SetupClipY(Y1,Y2: SmallInt);
+var cp: array[0..3]of Real; //Function uses 8byte floats //ClipPlane X+Y+Z=-D
 begin
   glEnable(GL_CLIP_PLANE2);
   glEnable(GL_CLIP_PLANE3);
@@ -62,11 +63,17 @@ begin
 end;
 
 
-//Release all clipping planes
-class procedure TKMRenderUI.ReleaseClip;
+//Separate release of clipping planes
+class procedure TKMRenderUI.ReleaseClipX;
 begin
   glDisable(GL_CLIP_PLANE0);
   glDisable(GL_CLIP_PLANE1);
+end;
+
+
+//Separate release of clipping planes
+class procedure TKMRenderUI.ReleaseClipY;
+begin
   glDisable(GL_CLIP_PLANE2);
   glDisable(GL_CLIP_PLANE3);
 end;
@@ -576,7 +583,7 @@ begin
     glPopMatrix;
   end;
 
-  ReleaseClip;
+  ReleaseClipX;
 end;
 
 

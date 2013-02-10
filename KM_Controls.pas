@@ -774,6 +774,7 @@ type
     function GetItemIndex: smallint; virtual; abstract;
     procedure SetItemIndex(aIndex: smallint); virtual; abstract;
   protected
+    procedure SetTop(aValue: Integer); override;
     procedure SetEnabled(aValue: Boolean); override;
     procedure SetVisible(aValue: Boolean); override;
   public
@@ -1579,7 +1580,7 @@ begin
               else Col := $FF888888;
 
   TKMRenderUI.WriteText(Left, NewTop, Width, fCaption, fFont, fTextAlign, Col);
-  TKMRenderUI.ReleaseClip;
+  TKMRenderUI.ReleaseClipY;
 end;
 
 
@@ -3461,7 +3462,8 @@ begin
   if (ssLeft in Shift)
   and InRange(X, Left, Left + Width - fScrollBar.Width * Byte(fScrollBar.Visible))
   and InRange(Y, Top + fHeader.Height*Byte(fHeader.Visible), Top + fHeader.Height*Byte(fHeader.Visible) + GetVisibleRows * fItemHeight - 1)
-  then begin
+  then
+  begin
     NewIndex := TopIndex + (Y - Top - fHeader.Height * Byte(fShowHeader)) div fItemHeight;
 
     if NewIndex >= fRowCount then
@@ -3485,7 +3487,7 @@ end;
 procedure TKMColumnListBox.MouseWheel(Sender: TObject; WheelDelta: Integer);
 begin
   inherited;
-  SetTopIndex(TopIndex - sign(WheelDelta));
+  SetTopIndex(TopIndex - Sign(WheelDelta));
   fScrollBar.Position := TopIndex; //Make the scrollbar move too when using the wheel
 end;
 
@@ -3565,7 +3567,7 @@ begin
   fHeader.Width := PaintWidth;
 
   Y := Top + fHeader.Height * Byte(fShowHeader);
-  MaxItem := GetVisibleRows - 1;
+  MaxItem := GetVisibleRows;
 
   TKMRenderUI.WriteBevel(Left, Y, PaintWidth, Height - fHeader.Height * Byte(fShowHeader), fEdgeAlpha, fBackAlpha);
 
@@ -3583,9 +3585,13 @@ begin
     TKMRenderUI.WriteOutline(Left, Y + fItemHeight * (fItemIndex - TopIndex) - 1, PaintWidth, fItemHeight+1, 1 + Byte(fShowLines), $FFFFFFFF);
   end;
 
+  TKMRenderUI.SetupClipY(Top, Top + Height);
+
   //Paint rows text and icons above selection for clear visibility
-  for I := 0 to Math.min(fRowCount - 1, MaxItem) do
+  for I := 0 to Math.min(fRowCount - TopIndex - 1, MaxItem) do
     DoPaintLine(TopIndex + I, Left, Y + I * fItemHeight, PaintWidth);
+
+  TKMRenderUI.ReleaseClipY;
 end;
 
 
@@ -3641,6 +3647,14 @@ procedure TKMDropCommon.SetEnabled(aValue: Boolean);
 begin
   inherited;
   fButton.Enabled := aValue;
+end;
+
+
+procedure TKMDropCommon.SetTop(aValue: Integer);
+begin
+  inherited;
+  //Stick the button to us
+  fButton.Top := aValue;
 end;
 
 
