@@ -1017,23 +1017,14 @@ var
   Res: TResourceType;
 begin
   Res := ResourceIndexToType[aType];
-  if (aType in [Low(ResourceIndexToType)..High(ResourceIndexToType)]) and (aHouseID > 0) then
+  if (aHouseID > 0) then
   begin
     H := fIDCache.GetHouse(aHouseID);
     if H <> nil then
-    begin
-      if H is TKMHouseBarracks then
-      begin
-        if Res in [WARFARE_MIN..WARFARE_MAX] then
-          H.ResAddToIn(Res, aCount, True) //Barracks only accepts warfare
-        //else @Krom: Should we log the specific error here? Or silently ignore?
-        //@Lewin: I think we should raise an error. Generally the case should be handled by House.CanAcceptWare: Boolean kind of thing
-      end
+      if H.ResCanAddToIn(aType) then
+        H.ResAddToIn(Res, aCount, True)
       else
-        //Try to add it, it will be ignored if it's the wrong type and won't overfill due to aFromScript=True
-        //todo: @Krom: We should show an error if adding trunks to tannery, House needs methods like CanTakeWare, etc. Overfilling should be silently ignored IMO, since you might want to ensure a house is completely full by adding 5
-        H.ResAddToIn(Res, aCount, True);
-    end;
+        LogError('Actions.GiveWaresToHouse wrong ware type', [aHouseID, aType, aCount]);
     //Silently ignore if house doesn't exist
   end
   else

@@ -229,7 +229,7 @@ begin
         end;
       end;
 
-      //Some tiles placed upside and should be rotated 180`
+      //Some tiles placed upside down or need other special treatment
       if Nodes < 4 then
       begin
         //Flip direction
@@ -237,6 +237,7 @@ begin
           Rot := (Rot + 2) mod 4;
         //For some weird reason lava needs to be rotated 90`.
         //@Krom: This is hacky, maybe there's a better solution?
+        //@Lewin: Looks good enough to me. To be deleted..
         if Ter1 = tkLava then
           Rot := (Rot + 1) mod 4;
       end;

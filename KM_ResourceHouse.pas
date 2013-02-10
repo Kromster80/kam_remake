@@ -35,8 +35,8 @@ type
     Foot2: array[1..12]of smallint; //vs sprite ID
   end;
 
-  THouseArea = array[1..4,1..4]of byte;
-  THouseRes = array[1..4]of TResourceType;
+  THouseArea = array [1..4, 1..4] of Byte;
+  THouseRes = array [1..4] of TResourceType;
 
   //This class wraps KaM House info
   //it hides unused fields and adds new ones

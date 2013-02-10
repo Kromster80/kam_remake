@@ -135,6 +135,7 @@ type
     procedure ResTakeFromIn(aResource:TResourceType; aCount:byte=1);
     procedure ResTakeFromOut(aResource:TResourceType; const aCount: Word=1); virtual;
     procedure ResEditOrder(aID:byte; aAmount:integer); virtual;
+    function ResCanAddToIn(aRes: TResourceType): Boolean; virtual;
 
     procedure Save(SaveStream:TKMemoryStream); virtual;
 
@@ -206,6 +207,7 @@ type
     procedure ResAddToIn(aResource: TResourceType; aCount:word=1; aFromScript:boolean=false); override;
     procedure ResEditOrder(aID:byte; aAmount:integer); override;
     procedure ResTakeFromOut(aResource:TResourceType; const aCount: Word=1); override;
+    function ResCanAddToIn(aRes: TResourceType): Boolean; override;
 
     procedure Save(SaveStream: TKMemoryStream); override;
     procedure Paint; override;
@@ -253,6 +255,7 @@ type
     procedure ResTakeFromOut(aResource: TResourceType; const aCount: Word = 1); override;
     function CheckResIn(aResource: TResourceType): Word; override;
     function CanTakeResOut(aResource: TResourceType): Boolean;
+    function ResCanAddToIn(aRes: TResourceType): Boolean; override;
     function CanEquip(aUnitType: TUnitType): Boolean;
     procedure ToggleAcceptFlag(aRes: TResourceType);
     function Equip(aUnitType: TUnitType; aCount: Byte): Byte;
@@ -272,6 +275,7 @@ type
     procedure ResAddToIn(aResource: TResourceType; aCount: Word = 1; aFromScript: Boolean = False); override;
     function CheckResIn(aResource: TResourceType): Word; override;
     procedure ResTakeFromOut(aResource: TResourceType; const aCount: Word = 1); override;
+    function ResCanAddToIn(aRes: TResourceType): Boolean; override;
     procedure Save(SaveStream: TKMemoryStream); override;
     end;
 
@@ -988,6 +992,16 @@ begin
 end;
 
 
+function TKMHouse.ResCanAddToIn(aRes: TResourceType): Boolean;
+var I: Integer;
+begin
+  Result := False;
+  for I := 1 to 4 do
+  if aRes = fResource.HouseDat[fHouseType].ResInput[I] then
+    Result := True;
+end;
+
+
 //Take resource from Input and order more of that kind if DistributionRatios allow
 procedure TKMHouse.ResTakeFromIn(aResource:TResourceType; aCount:byte=1);
 var I,K: Integer;
@@ -1549,6 +1563,12 @@ begin
 end;
 
 
+function TKMHouseMarket.ResCanAddToIn(aRes: TResourceType): Boolean;
+begin
+  Result := (aRes in [WARE_MIN..WARE_MAX]);
+end;
+
+
 procedure TKMHouseMarket.AttemptExchange;
 var TradeCount: Word;
 begin
@@ -1927,6 +1947,12 @@ begin
 end;
 
 
+function TKMHouseStore.ResCanAddToIn(aRes: TResourceType): Boolean;
+begin
+  Result := (aRes in [WARE_MIN..WARE_MAX]);
+end;
+
+
 function TKMHouseStore.CheckResIn(aResource: TResourceType): Word;
 begin
   if aResource in [WARE_MIN..WARE_MAX] then
@@ -2086,6 +2112,12 @@ begin
 
   ResourceCount[aResource] := EnsureRange(ResourceCount[aResource]+aCount, 0, High(Word));
   fPlayers[fOwner].Deliveries.Queue.AddOffer(Self,aResource,aCount);
+end;
+
+
+function TKMHouseBarracks.ResCanAddToIn(aRes: TResourceType): Boolean;
+begin
+  Result := (aRes in [WARFARE_MIN..WARFARE_MAX]);
 end;
 
 

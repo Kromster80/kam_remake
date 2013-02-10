@@ -241,7 +241,7 @@ begin
                           Qty := EnsureRange(P[1], -1, High(Word)); //Sometimes user can define it to be 999999
                           if Qty = -1 then Qty := High(Word); //-1 means maximum resources
                           H := fPlayers[fLastPlayer].FindHouse(ht_Store,1);
-                          if (H <> nil) and (ResourceIndexToType[P[0]] in [WARE_MIN..WARE_MAX]) then
+                          if (H <> nil) and H.ResCanAddToIn(ResourceIndexToType[P[0]]) then
                           begin
                             H.ResAddToIn(ResourceIndexToType[P[0]], Qty, True);
                             fPlayers[fLastPlayer].Stats.GoodInitial(ResourceIndexToType[P[0]], Qty);
@@ -253,8 +253,8 @@ begin
                           if Qty = -1 then Qty := High(Word); //-1 means maximum resources
                           for i:=0 to fPlayers.Count-1 do
                           begin
-                            H := fPlayers[i].FindHouse(ht_Store,1);
-                            if (H<>nil) and (ResourceIndexToType[P[0]] in [WARE_MIN..WARE_MAX]) then
+                            H := fPlayers[i].FindHouse(ht_Store, 1);
+                            if (H <> nil) and H.ResCanAddToIn(ResourceIndexToType[P[0]]) then
                             begin
                               H.ResAddToIn(ResourceIndexToType[P[0]], Qty, True);
                               fPlayers[i].Stats.GoodInitial(ResourceIndexToType[P[0]], Qty);
@@ -267,7 +267,7 @@ begin
                           if Qty = -1 then Qty := High(Word); //-1 means maximum resources
 
                           H := TKMHouseStore(fPlayers[fLastPlayer].FindHouse(ht_Store, 2));
-                          if (H <> nil) and (ResourceIndexToType[P[0]] in [WARE_MIN..WARE_MAX]) then
+                          if (H <> nil) and H.ResCanAddToIn(ResourceIndexToType[P[0]]) then
                           begin
                             H.ResAddToIn(ResourceIndexToType[P[0]], Qty, True);
                             fPlayers[fLastPlayer].Stats.GoodInitial(ResourceIndexToType[P[0]], Qty);
@@ -280,7 +280,7 @@ begin
                           if Qty = -1 then Qty := High(Word); //-1 means maximum resources
 
                           H := fPlayers[fLastPlayer].FindHouse(HouseIndexToType[P[0]], P[1]);
-                          if (H <> nil) and (ResourceIndexToType[P[2]] in [WARE_MIN..WARE_MAX]) then
+                          if (H <> nil) and H.ResCanAddToIn(ResourceIndexToType[P[2]]) then
                           begin
                             H.ResAddToIn(ResourceIndexToType[P[2]], Qty, True);
                             fPlayers[fLastPlayer].Stats.GoodInitial(ResourceIndexToType[P[2]], Qty);
@@ -291,7 +291,7 @@ begin
                           Qty := EnsureRange(P[1], -1, High(Word)); //Sometimes user can define it to be 999999
                           if Qty = -1 then Qty := High(Word); //-1 means maximum resources
 
-                          if (fLastHouse <> nil) and (ResourceIndexToType[P[0]] in [WARE_MIN..WARE_MAX]) then
+                          if (fLastHouse <> nil) and fLastHouse.ResCanAddToIn(ResourceIndexToType[P[0]]) then
                           begin
                             fLastHouse.ResAddToIn(ResourceIndexToType[P[0]], Qty, True);
                             fPlayers[fLastPlayer].Stats.GoodInitial(ResourceIndexToType[P[0]], Qty);
@@ -304,7 +304,7 @@ begin
                           Qty := EnsureRange(P[1], -1, High(Word)); //Sometimes user can define it to be 999999
                           if Qty = -1 then Qty := High(Word); //-1 means maximum weapons
                           H := TKMHouseBarracks(fPlayers[fLastPlayer].FindHouse(ht_Barracks, 1));
-                          if (H <> nil) and (ResourceIndexToType[P[0]] in [WARFARE_MIN..WARFARE_MAX]) then
+                          if (H <> nil) and H.ResCanAddToIn(ResourceIndexToType[P[0]]) then
                           begin
                             H.ResAddToIn(ResourceIndexToType[P[0]], Qty, True);
                             fPlayers[fLastPlayer].Stats.GoodInitial(ResourceIndexToType[P[0]], Qty);
