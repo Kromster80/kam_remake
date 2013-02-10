@@ -1040,8 +1040,7 @@ begin
 
       TrackBar_RecruitFactor := TKMTrackBar.Create(Panel_Defence, 0, 208, TB_WIDTH, 1, 20);
       TrackBar_RecruitFactor.Caption := 'Recruits per Barracks';
-      TrackBar_RecruitFactor.Hint := 'How many recruits AI should have in barracks'; //@Lewin: Please check me on this one
-                                                                                     //@Krom: That's correct
+      TrackBar_RecruitFactor.Hint := 'How many recruits AI should have in barracks';
       TrackBar_RecruitFactor.OnClick := Town_DefenceChange;
 
       Button_EditFormations := TKMButton.Create(Panel_Defence, 0, 255, TB_WIDTH, 25, 'Edit formations', bsGame);
