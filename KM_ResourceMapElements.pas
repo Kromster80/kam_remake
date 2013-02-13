@@ -60,7 +60,7 @@ begin
   S.Free;
 
   ValidCount := 0;
-  for I := 1 to MapElemQty do
+  for I := 0 to MapElemQty-1 do
   if (MapElem[I].Anim.Count > 0) and (MapElem[I].Anim.Step[1] > 0) then
   begin
     ValidToObject[ValidCount] := I; //pointer
