@@ -20,7 +20,6 @@ type
 
     fWonOrLost: TWonOrLost; //Has this player won/lost? If so, do not check goals
 
-    procedure CheckDefeated;
     procedure CheckGoals;
   public
     constructor Create(aPlayerIndex: TPlayerIndex);
@@ -108,30 +107,6 @@ begin
     //Script may have additional event processors
     fScripting.ProcPlayerVictory(fOwner);
   end;
-end;
-
-
-//@Krom: What's this procedure for? Doesn't CheckGoals take care of defeating the player?
-//       This looks unnecessary to me. UpdateState mentions this being something about events.
-procedure TKMPlayerAI.CheckDefeated;
-var
-  DoDefeat: Boolean;
-  Stat: TKMPlayerStats;
-begin
-  Stat := fPlayers[fOwner].Stats;
-
-  //KaM defeat conditions are merge of two things: simplicity and objective.
-  //They imply that enemy is powerful enough to destroy all houses and units,
-  //but destroying Store-School-Barracks-Army is enough to show that.
-  //Of course opponent can rebuild with workers, but that will take a lot of time in
-  //already half-ruined city.
-
-  DoDefeat := (Stat.GetHouseQty([ht_School, ht_Barracks, ht_Store, ht_TownHall, ht_SiegeWorkshop]) = 0) and
-            (Stat.GetArmyCount = 0);
-
-  //Let the event system know (defeat may trigger events for other players)
-  if DoDefeat then
-    Defeat;
 end;
 
 
@@ -320,10 +295,6 @@ end;
 //OR maybe we can collect all Updates into one list and run them from there (sounds like a better more manageble idea)
 procedure TKMPlayerAI.UpdateState(aTick: Cardinal);
 begin
-  //Check if player has been defeated for Events
-  if (aTick + Byte(fOwner)) mod MAX_PLAYERS = 0 then
-    CheckDefeated;
-
   //Check goals for all players to maintain multiplayer consistency
   //AI does not care if it won or lost and Human dont need Mayor and Army management
   case fPlayers[fOwner].PlayerType of
