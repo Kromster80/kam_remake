@@ -349,123 +349,126 @@ var
 begin
   //Create an instance of the runtime class importer
   ClassImp := TPSRuntimeClassImporter.Create;
+  try
+    //Register classes and their exposed methods to Runtime (must be uppercase)
+    with ClassImp.Add(TKMScriptStates) do
+    begin
+      RegisterMethod(@TKMScriptStates.ArmyCount, 'ARMYCOUNT');
+      RegisterMethod(@TKMScriptStates.CitizenCount, 'CITIZENCOUNT');
+      RegisterMethod(@TKMScriptStates.GameTime, 'GAMETIME');
+      RegisterMethod(@TKMScriptStates.PeaceTime, 'PEACETIME');
+      RegisterMethod(@TKMScriptStates.CheckAlliance, 'CHECKALLIANCE');
+      RegisterMethod(@TKMScriptStates.HouseTypeCount, 'HOUSETYPECOUNT');
+      RegisterMethod(@TKMScriptStates.PlayerCount, 'PLAYERCOUNT');
+      RegisterMethod(@TKMScriptStates.PlayerDefeated, 'PLAYERDEFEATED');
+      RegisterMethod(@TKMScriptStates.PlayerVictorious, 'PLAYERVICTORIOUS');
+      RegisterMethod(@TKMScriptStates.UnitCount, 'UNITCOUNT');
+      RegisterMethod(@TKMScriptStates.UnitTypeCount, 'UNITTYPECOUNT');
+      RegisterMethod(@TKMScriptStates.PlayerName, 'PLAYERNAME');
+      RegisterMethod(@TKMScriptStates.PlayerEnabled, 'PLAYERENABLED');
+      RegisterMethod(@TKMScriptStates.HouseAt, 'HOUSEAT');
+      RegisterMethod(@TKMScriptStates.HouseOwner, 'HOUSEOWNER');
+      RegisterMethod(@TKMScriptStates.HouseDestroyed, 'HOUSEDESTROYED');
+      RegisterMethod(@TKMScriptStates.HouseType, 'HOUSETYPE');
+      RegisterMethod(@TKMScriptStates.HouseDamage, 'HOUSEDAMAGE');
+      RegisterMethod(@TKMScriptStates.KaMRandom, 'KAMRANDOM');
+      RegisterMethod(@TKMScriptStates.KaMRandomI, 'KAMRANDOMI');
+      RegisterMethod(@TKMScriptStates.UnitAt, 'UNITAT');
+      RegisterMethod(@TKMScriptStates.UnitDead, 'UNITDEAD');
+      RegisterMethod(@TKMScriptStates.UnitOwner, 'UNITOWNER');
+      RegisterMethod(@TKMScriptStates.UnitType, 'UNITTYPE');
+      RegisterMethod(@TKMScriptStates.UnitHunger, 'UNITHUNGER');
+      RegisterMethod(@TKMScriptStates.UnitMaxHunger, 'UNITMAXHUNGER');
+      RegisterMethod(@TKMScriptStates.UnitLowHunger, 'UNITLOWHUNGER');
+      RegisterMethod(@TKMScriptStates.UnitsGroup, 'UNITSGROUP');
+      RegisterMethod(@TKMScriptStates.GroupAt, 'GROUPAT');
+      RegisterMethod(@TKMScriptStates.GroupDead, 'GROUPDEAD');
+      RegisterMethod(@TKMScriptStates.GroupOwner, 'GROUPOWNER');
+      RegisterMethod(@TKMScriptStates.GroupMemberCount, 'GROUPMEMBERCOUNT');
+      RegisterMethod(@TKMScriptStates.GroupMember, 'GROUPMEMBER');
+      RegisterMethod(@TKMScriptStates.UnitKilledCount, 'UNITKILLEDCOUNT');
+      RegisterMethod(@TKMScriptStates.UnitLostCount, 'UNITLOSTCOUNT');
+      RegisterMethod(@TKMScriptStates.ResourceProducedCount, 'RESOURCEPRODUCEDCOUNT');
+      RegisterMethod(@TKMScriptStates.HouseRepair, 'HOUSEREPAIR');
+      RegisterMethod(@TKMScriptStates.HouseDeliveryBlocked, 'HOUSEDELIVERYBLOCKED');
+      RegisterMethod(@TKMScriptStates.HouseResourceAmount, 'HOUSERESOURCEAMOUNT');
+      RegisterMethod(@TKMScriptStates.HouseHasOccupant, 'HOUSEHASOCCUPANT');
+      RegisterMethod(@TKMScriptStates.HousePositionX, 'HOUSEPOSITIONX');
+      RegisterMethod(@TKMScriptStates.HousePositionY, 'HOUSEPOSITIONY');
+      RegisterMethod(@TKMScriptStates.UnitPositionX, 'UNITPOSITIONX');
+      RegisterMethod(@TKMScriptStates.UnitPositionY, 'UNITPOSITIONY');
+    end;
 
-  //Register classes and their exposed methods to Runtime (must be uppercase)
-  with ClassImp.Add(TKMScriptStates) do
-  begin
-    RegisterMethod(@TKMScriptStates.ArmyCount, 'ARMYCOUNT');
-    RegisterMethod(@TKMScriptStates.CitizenCount, 'CITIZENCOUNT');
-    RegisterMethod(@TKMScriptStates.GameTime, 'GAMETIME');
-    RegisterMethod(@TKMScriptStates.PeaceTime, 'PEACETIME');
-    RegisterMethod(@TKMScriptStates.CheckAlliance, 'CHECKALLIANCE');
-    RegisterMethod(@TKMScriptStates.HouseTypeCount, 'HOUSETYPECOUNT');
-    RegisterMethod(@TKMScriptStates.PlayerCount, 'PLAYERCOUNT');
-    RegisterMethod(@TKMScriptStates.PlayerDefeated, 'PLAYERDEFEATED');
-    RegisterMethod(@TKMScriptStates.PlayerVictorious, 'PLAYERVICTORIOUS');
-    RegisterMethod(@TKMScriptStates.UnitCount, 'UNITCOUNT');
-    RegisterMethod(@TKMScriptStates.UnitTypeCount, 'UNITTYPECOUNT');
-    RegisterMethod(@TKMScriptStates.PlayerName, 'PLAYERNAME');
-    RegisterMethod(@TKMScriptStates.PlayerEnabled, 'PLAYERENABLED');
-    RegisterMethod(@TKMScriptStates.HouseAt, 'HOUSEAT');
-    RegisterMethod(@TKMScriptStates.HouseOwner, 'HOUSEOWNER');
-    RegisterMethod(@TKMScriptStates.HouseDestroyed, 'HOUSEDESTROYED');
-    RegisterMethod(@TKMScriptStates.HouseType, 'HOUSETYPE');
-    RegisterMethod(@TKMScriptStates.HouseDamage, 'HOUSEDAMAGE');
-    RegisterMethod(@TKMScriptStates.KaMRandom, 'KAMRANDOM');
-    RegisterMethod(@TKMScriptStates.KaMRandomI, 'KAMRANDOMI');
-    RegisterMethod(@TKMScriptStates.UnitAt, 'UNITAT');
-    RegisterMethod(@TKMScriptStates.UnitDead, 'UNITDEAD');
-    RegisterMethod(@TKMScriptStates.UnitOwner, 'UNITOWNER');
-    RegisterMethod(@TKMScriptStates.UnitType, 'UNITTYPE');
-    RegisterMethod(@TKMScriptStates.UnitHunger, 'UNITHUNGER');
-    RegisterMethod(@TKMScriptStates.UnitMaxHunger, 'UNITMAXHUNGER');
-    RegisterMethod(@TKMScriptStates.UnitLowHunger, 'UNITLOWHUNGER');
-    RegisterMethod(@TKMScriptStates.UnitsGroup, 'UNITSGROUP');
-    RegisterMethod(@TKMScriptStates.GroupAt, 'GROUPAT');
-    RegisterMethod(@TKMScriptStates.GroupDead, 'GROUPDEAD');
-    RegisterMethod(@TKMScriptStates.GroupOwner, 'GROUPOWNER');
-    RegisterMethod(@TKMScriptStates.GroupMemberCount, 'GROUPMEMBERCOUNT');
-    RegisterMethod(@TKMScriptStates.GroupMember, 'GROUPMEMBER');
-    RegisterMethod(@TKMScriptStates.UnitKilledCount, 'UNITKILLEDCOUNT');
-    RegisterMethod(@TKMScriptStates.UnitLostCount, 'UNITLOSTCOUNT');
-    RegisterMethod(@TKMScriptStates.ResourceProducedCount, 'RESOURCEPRODUCEDCOUNT');
-    RegisterMethod(@TKMScriptStates.HouseRepair, 'HOUSEREPAIR');
-    RegisterMethod(@TKMScriptStates.HouseDeliveryBlocked, 'HOUSEDELIVERYBLOCKED');
-    RegisterMethod(@TKMScriptStates.HouseResourceAmount, 'HOUSERESOURCEAMOUNT');
-    RegisterMethod(@TKMScriptStates.HouseHasOccupant, 'HOUSEHASOCCUPANT');
-    RegisterMethod(@TKMScriptStates.HousePositionX, 'HOUSEPOSITIONX');
-    RegisterMethod(@TKMScriptStates.HousePositionY, 'HOUSEPOSITIONY');
-    RegisterMethod(@TKMScriptStates.UnitPositionX, 'UNITPOSITIONX');
-    RegisterMethod(@TKMScriptStates.UnitPositionY, 'UNITPOSITIONY');
+    with ClassImp.Add(TKMScriptActions) do
+    begin
+      RegisterMethod(@TKMScriptActions.Defeat, 'DEFEAT');
+      RegisterMethod(@TKMScriptActions.Victory, 'VICTORY');
+      RegisterMethod(@TKMScriptActions.GiveGroup, 'GIVEGROUP');
+      RegisterMethod(@TKMScriptActions.GiveUnit, 'GIVEUNIT');
+      RegisterMethod(@TKMScriptActions.GiveAnimal, 'GIVEANIMAL');
+      RegisterMethod(@TKMScriptActions.GiveWares, 'GIVEWARES');
+      RegisterMethod(@TKMScriptActions.RevealCircle, 'REVEALCIRCLE');
+      RegisterMethod(@TKMScriptActions.ShowMsg, 'SHOWMSG');
+      RegisterMethod(@TKMScriptActions.ShowMsgFormatted, 'SHOWMSGFORMATTED');
+      RegisterMethod(@TKMScriptActions.UnlockHouse, 'UNLOCKHOUSE');
+      RegisterMethod(@TKMScriptActions.AddHouseDamage, 'ADDHOUSEDAMAGE');
+      RegisterMethod(@TKMScriptActions.DestroyHouse, 'DESTROYHOUSE');
+      RegisterMethod(@TKMScriptActions.GiveWaresToHouse, 'GIVEWARESTOHOUSE');
+      RegisterMethod(@TKMScriptActions.SetHouseRepair, 'SETHOUSEREPAIR');
+      RegisterMethod(@TKMScriptActions.SetOverlayText, 'SETOVERLAYTEXT');
+      RegisterMethod(@TKMScriptActions.SetOverlayTextFormatted, 'SETOVERLAYTEXTFORMATTED');
+      RegisterMethod(@TKMScriptActions.SetUnitHunger, 'SETUNITHUNGER');
+      RegisterMethod(@TKMScriptActions.SetUnitDirection, 'SETUNITDIRECTION');
+      RegisterMethod(@TKMScriptActions.KillUnit, 'KILLUNIT');
+      RegisterMethod(@TKMScriptActions.GroupOrderWalk, 'GROUPORDERWALK');
+      RegisterMethod(@TKMScriptActions.GroupOrderAttackHouse, 'GROUPORDERATTACKHOUSE');
+      RegisterMethod(@TKMScriptActions.GroupOrderAttackUnit, 'GROUPORDERATTACKUNIT');
+      RegisterMethod(@TKMScriptActions.AddRoadPlan, 'ADDROADPLAN');
+      RegisterMethod(@TKMScriptActions.AddFieldPlan, 'ADDFIELDPLAN');
+      RegisterMethod(@TKMScriptActions.AddWinefieldPlan, 'ADDWINEFIELDPLAN');
+      RegisterMethod(@TKMScriptActions.AddHousePlan, 'ADDHOUSEPLAN');
+      RegisterMethod(@TKMScriptActions.SetHouseDeliveryBlocked, 'SETHOUSEDELIVERYBLOCKED');
+      RegisterMethod(@TKMScriptActions.SchoolAddToQueue, 'SCHOOLADDTOQUEUE');
+      RegisterMethod(@TKMScriptActions.BarracksEquip, 'BARRACKSEQUIP');
+      RegisterMethod(@TKMScriptActions.GroupOrderFood, 'GROUPORDERFOOD');
+      RegisterMethod(@TKMScriptActions.GroupOrderStorm, 'GROUPORDERSTORM');
+      RegisterMethod(@TKMScriptActions.GroupOrderHalt, 'GROUPORDERHALT');
+      RegisterMethod(@TKMScriptActions.GroupOrderLink, 'GROUPORDERLINK');
+      RegisterMethod(@TKMScriptActions.GroupSetFormation, 'GROUPSETFORMATION');
+      RegisterMethod(@TKMScriptActions.SetHouseAllowed, 'SETHOUSEALLOWED');
+      RegisterMethod(@TKMScriptActions.SetTradeAllowed, 'SETTRADEALLOWED');
+      RegisterMethod(@TKMScriptActions.GroupOrderSplit, 'GROUPORDERSPLIT');
+      RegisterMethod(@TKMScriptActions.UnitOrderWalk, 'UNITORDERWALK');
+    end;
+
+    //Append classes info to Exec
+    RegisterClassLibraryRuntime(fExec, ClassImp);
+
+    if not fExec.LoadData(fByteCode) then // Load the data from the Data string.
+    begin
+      { For some reason the script could not be loaded. This is usually the case when a
+        library that has been used at compile time isn't registered at runtime. }
+      fErrorString := fErrorString + 'Uknown error in loading bytecode to Exec|';
+      Exit;
+    end;
+
+    for I := 0 to fExec.GetVarCount - 1 do
+    begin
+      V := fExec.GetVarNo(I);
+      Allowed := (V.FType.BaseType in [btU8, btS32, btSingle])
+                 or ((V.FType.BaseType = btStaticArray) and (TPSTypeRec_StaticArray(V.FType).ArrayType.BaseType in [btU8, btS32, btSingle]))
+                 or SameText(V.FType.ExportName, 'TKMScriptStates')
+                 or SameText(V.FType.ExportName, 'TKMScriptActions');
+      if not Allowed then
+        fErrorString := fErrorString + 'Unsupported global variable type ' + IntToStr(V.FType.BaseType) + '|';
+    end;
+
+    //Link script objects with objects
+    SetVariantToClass(fExec.GetVarNo(fExec.GetVar('STATES')), fStates);
+    SetVariantToClass(fExec.GetVarNo(fExec.GetVar('ACTIONS')), fActions);
+  finally
+    ClassImp.Free;
   end;
-
-  with ClassImp.Add(TKMScriptActions) do
-  begin
-    RegisterMethod(@TKMScriptActions.Defeat, 'DEFEAT');
-    RegisterMethod(@TKMScriptActions.Victory, 'VICTORY');
-    RegisterMethod(@TKMScriptActions.GiveGroup, 'GIVEGROUP');
-    RegisterMethod(@TKMScriptActions.GiveUnit, 'GIVEUNIT');
-    RegisterMethod(@TKMScriptActions.GiveAnimal, 'GIVEANIMAL');
-    RegisterMethod(@TKMScriptActions.GiveWares, 'GIVEWARES');
-    RegisterMethod(@TKMScriptActions.RevealCircle, 'REVEALCIRCLE');
-    RegisterMethod(@TKMScriptActions.ShowMsg, 'SHOWMSG');
-    RegisterMethod(@TKMScriptActions.ShowMsgFormatted, 'SHOWMSGFORMATTED');
-    RegisterMethod(@TKMScriptActions.UnlockHouse, 'UNLOCKHOUSE');
-    RegisterMethod(@TKMScriptActions.AddHouseDamage, 'ADDHOUSEDAMAGE');
-    RegisterMethod(@TKMScriptActions.DestroyHouse, 'DESTROYHOUSE');
-    RegisterMethod(@TKMScriptActions.GiveWaresToHouse, 'GIVEWARESTOHOUSE');
-    RegisterMethod(@TKMScriptActions.SetHouseRepair, 'SETHOUSEREPAIR');
-    RegisterMethod(@TKMScriptActions.SetOverlayText, 'SETOVERLAYTEXT');
-    RegisterMethod(@TKMScriptActions.SetOverlayTextFormatted, 'SETOVERLAYTEXTFORMATTED');
-    RegisterMethod(@TKMScriptActions.SetUnitHunger, 'SETUNITHUNGER');
-    RegisterMethod(@TKMScriptActions.SetUnitDirection, 'SETUNITDIRECTION');
-    RegisterMethod(@TKMScriptActions.KillUnit, 'KILLUNIT');
-    RegisterMethod(@TKMScriptActions.GroupOrderWalk, 'GROUPORDERWALK');
-    RegisterMethod(@TKMScriptActions.GroupOrderAttackHouse, 'GROUPORDERATTACKHOUSE');
-    RegisterMethod(@TKMScriptActions.GroupOrderAttackUnit, 'GROUPORDERATTACKUNIT');
-    RegisterMethod(@TKMScriptActions.AddRoadPlan, 'ADDROADPLAN');
-    RegisterMethod(@TKMScriptActions.AddFieldPlan, 'ADDFIELDPLAN');
-    RegisterMethod(@TKMScriptActions.AddWinefieldPlan, 'ADDWINEFIELDPLAN');
-    RegisterMethod(@TKMScriptActions.AddHousePlan, 'ADDHOUSEPLAN');
-    RegisterMethod(@TKMScriptActions.SetHouseDeliveryBlocked, 'SETHOUSEDELIVERYBLOCKED');
-    RegisterMethod(@TKMScriptActions.SchoolAddToQueue, 'SCHOOLADDTOQUEUE');
-    RegisterMethod(@TKMScriptActions.BarracksEquip, 'BARRACKSEQUIP');
-    RegisterMethod(@TKMScriptActions.GroupOrderFood, 'GROUPORDERFOOD');
-    RegisterMethod(@TKMScriptActions.GroupOrderStorm, 'GROUPORDERSTORM');
-    RegisterMethod(@TKMScriptActions.GroupOrderHalt, 'GROUPORDERHALT');
-    RegisterMethod(@TKMScriptActions.GroupOrderLink, 'GROUPORDERLINK');
-    RegisterMethod(@TKMScriptActions.GroupSetFormation, 'GROUPSETFORMATION');
-    RegisterMethod(@TKMScriptActions.SetHouseAllowed, 'SETHOUSEALLOWED');
-    RegisterMethod(@TKMScriptActions.SetTradeAllowed, 'SETTRADEALLOWED');
-    RegisterMethod(@TKMScriptActions.GroupOrderSplit, 'GROUPORDERSPLIT');
-    RegisterMethod(@TKMScriptActions.UnitOrderWalk, 'UNITORDERWALK');
-  end;
-
-  //Append classes info to Exec
-  RegisterClassLibraryRuntime(fExec, ClassImp);
-
-  if not fExec.LoadData(fByteCode) then // Load the data from the Data string.
-  begin
-    { For some reason the script could not be loaded. This is usually the case when a
-      library that has been used at compile time isn't registered at runtime. }
-    fErrorString := fErrorString + 'Uknown error in loading bytecode to Exec|';
-    Exit;
-  end;
-
-  for I := 0 to fExec.GetVarCount - 1 do
-  begin
-    V := fExec.GetVarNo(I);
-    Allowed := (V.FType.BaseType in [btU8, btS32, btSingle])
-               or ((V.FType.BaseType = btStaticArray) and (TPSTypeRec_StaticArray(V.FType).ArrayType.BaseType in [btU8, btS32, btSingle]))
-               or SameText(V.FType.ExportName, 'TKMScriptStates')
-               or SameText(V.FType.ExportName, 'TKMScriptActions');
-    if not Allowed then
-      fErrorString := fErrorString + 'Unsupported global variable type ' + IntToStr(V.FType.BaseType) + '|';
-  end;
-
-  //Link script objects with objects
-  SetVariantToClass(fExec.GetVarNo(fExec.GetVar('STATES')), fStates);
-  SetVariantToClass(fExec.GetVarNo(fExec.GetVar('ACTIONS')), fActions);
 end;
 
 
