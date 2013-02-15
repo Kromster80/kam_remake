@@ -691,15 +691,15 @@ const //Corresponding indices in units.rx //pt_Arrow, pt_Bolt are unused
 
 
 type
-  //@Krom: Sketch of the goal and message displaying system used in KaM (from scripting point of view anyway)
-  //       Please let me know your thoughts. This is very similar to that used in KaM and is quite flexable/expandable. (we can add more parameters/conditions as well as existing KaM ones, possibly using a new script command)
-  //       Somethings are probably named unclearly, please give me suggestions or change them. Goals are the one part
-  //       of scripting that seems to confuse everyone at first, mainly because of the TGoalStatus. In 99% of cases gs_True and gt_Defeat
-  //       go together, because the if the defeat conditions is NOT true you lose, not the other way around. I guess it should be called a
-  //       "survival" conditions rather than defeat.
-  //       I put some examples below to give you an idea of how it works. Remember this is basically a copy of the goal scripting system in KaM,
-  //       not something I designed. It can change, this is just easiest to implement from script compatability point of view.
-  //       Talk to me about it on Skype/ICQ sometime :)
+  //Sketch of the goal and message displaying system used in KaM (from scripting point of view anyway)
+  //This is very similar to that used in KaM and is quite flexable/expandable.
+  //(we can add more parameters/conditions as well as existing KaM ones, possibly using a new script command)
+  //Some things are probably named unclearly, please give me suggestions or change them. Goals are the one part
+  //of scripting that seems to confuse everyone at first, mainly because of the TGoalStatus. In 99% of cases gs_True and gt_Defeat
+  //go together, because the if the defeat conditions is NOT true you lose, not the other way around. I guess it should be called a
+  //"survival" conditions rather than defeat.
+  //I put some examples below to give you an idea of how it works. Remember this is basically a copy of the goal scripting system in KaM,
+  //not something I designed. It can change, this is just easiest to implement from script compatability point of view.
 
   TGoalType = (glt_None=0,  //Means: It is not required for victory or defeat (e.g. simply display a message)
                glt_Victory, //Means: "The following condition must be true for you to win"

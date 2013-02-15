@@ -2254,11 +2254,13 @@ begin
       ut_Recruit:               U := TKMUnitRecruit.Load(LoadStream);
       WARRIOR_MIN..WARRIOR_MAX: U := TKMUnitWarrior.Load(LoadStream);
       ANIMAL_MIN..ANIMAL_MAX:   U := TKMUnitAnimal.Load(LoadStream);
-      else                      fLog.AddAssert('Unknown unit type in Savegame');
+      else                      U := nil;
     end;
 
     if U <> nil then
-      fUnits.Add(U);
+      fUnits.Add(U)
+    else
+      fLog.AddAssert('Unknown unit type in Savegame');
   end;
 end;
 
