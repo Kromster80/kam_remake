@@ -140,7 +140,7 @@ type
 
   TKMUnitGroups = class
   private
-    fGroups: TList;
+    fGroups: TKMList;
 
     function GetCount: Integer;
     function GetGroup(aIndex: Integer): TKMUnitGroup;
@@ -1376,7 +1376,7 @@ constructor TKMUnitGroups.Create;
 begin
   inherited Create;
 
-  fGroups := TList.Create;
+  fGroups := TKMList.Create;
 end;
 
 
@@ -1425,14 +1425,14 @@ end;
 
 
 function TKMUnitGroups.GetGroupByID(aID: Integer): TKMUnitGroup;
-var i:integer;
+var I: Integer;
 begin
   Result := nil;
-  for i := 0 to Count-1 do
-    if aID = Groups[i].ID then
+  for I := 0 to Count-1 do
+    if aID = Groups[I].ID then
     begin
-      Result := Groups[i];
-      exit;
+      Result := Groups[I];
+      Break;
     end;
 end;
 
@@ -1550,10 +1550,7 @@ begin
   if FREE_POINTERS
   and Groups[I].IsDead
   and (Groups[I].fPointerCount = 0) then
-  begin
-    Groups[I].Free;
     fGroups.Delete(I);
-  end;
 
   for I := 0 to Count - 1 do
   if not Groups[I].IsDead then
