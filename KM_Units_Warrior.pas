@@ -710,7 +710,7 @@ begin
   fRenderPool.AddUnit(fUnitType, Act, Direction, AnimStep, UnitPos.X, UnitPos.Y, fPlayers[fOwner].FlagColor, True);
 
   if fThought <> th_None then
-    fRenderPool.AddUnitThought(fThought, UnitPos.X, UnitPos.Y);
+    fRenderPool.AddUnitThought(fUnitType, Act, Direction, fThought, UnitPos.X, UnitPos.Y);
 
   if SHOW_ATTACK_RADIUS then
     if IsRanged then

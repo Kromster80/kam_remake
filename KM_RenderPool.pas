@@ -82,7 +82,7 @@ type
     procedure AddHouseEater(Loc: TKMPoint; aUnit: TUnitType; aAct: TUnitActionType; aDir: TKMDirection; StepID: Integer; OffX,OffY: Single; FlagColor: TColor4);
     procedure AddUnit(aUnit: TUnitType; aAct: TUnitActionType; aDir: TKMDirection; StepID: Integer; pX,pY: Single; FlagColor: TColor4; NewInst: Boolean; DoImmediateRender: Boolean = False; Deleting: Boolean = False);
     procedure AddUnitCarry(aCarry: TResourceType; aDir: TKMDirection; StepID: Integer; pX,pY: Single);
-    procedure AddUnitThought(Thought: TUnitThought; pX,pY: Single);
+    procedure AddUnitThought(aUnit: TUnitType; aAct: TUnitActionType; aDir: TKMDirection; Thought: TUnitThought; pX,pY: Single);
     procedure AddUnitFlag(aUnit: TUnitType; aAct: TUnitActionType; aDir: TKMDirection; UnitAnim, FlagAnim: Integer; pX,pY: Single; FlagColor: TColor4);
     procedure AddUnitWithDefaultArm(aUnit: TUnitType; aAct: TUnitActionType; aDir: TKMDirection; StepID: Integer; pX,pY: Single; FlagColor: TColor4; DoImmediateRender: Boolean = False; Deleting: Boolean = False);
 
@@ -665,14 +665,27 @@ begin
 end;
 
 
-procedure TRenderPool.AddUnitThought(Thought: TUnitThought; pX,pY: Single);
+procedure TRenderPool.AddUnitThought(aUnit: TUnitType; aAct: TUnitActionType;
+                                     aDir: TKMDirection;
+                                     Thought: TUnitThought; pX,pY: Single);
 var
   ID: Integer;
-  CornerX, CornerY: Single;
+  CornerX, CornerY, Ground: Single;
   R: TRXData;
+  A: TKMAnimLoop;
+  ID0: Integer;
 begin
   if Thought = th_None then Exit;
   R := fRXData[rxUnits];
+
+  //Unit position
+  A := fResource.UnitDat[aUnit].UnitAnim[aAct, aDir];
+  ID0 := A.Step[UnitStillFrames[aDir] mod Byte(A.Count) + 1] + 1;
+
+  //Units feet
+  Ground := pY + (R.Pivot[ID0].Y + R.Size[ID0].Y) / CELL_SIZE_PX;
+  //The thought should be slightly lower than the unit so it goes OVER warrior flags
+  Ground := Ground+0.1;
 
   //Thought bubbles are animated in reverse
   ID := ThoughtBounds[Thought, 2] + 1 -
@@ -680,7 +693,7 @@ begin
 
   CornerX := pX + R.Pivot[ID].X / CELL_SIZE_PX;
   CornerY := fTerrain.FlatToHeight(pX, pY) + (R.Pivot[ID].Y + R.Size[ID].Y) / CELL_SIZE_PX - 1.5;
-  fRenderList.AddSprite(rxUnits, ID, CornerX, CornerY);
+  fRenderList.AddSpriteG(rxUnits, ID, CornerX, CornerY, pX, Ground);
 end;
 
 

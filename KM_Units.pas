@@ -348,7 +348,7 @@ begin
   end;
 
   if fThought <> th_None then
-    fRenderPool.AddUnitThought(fThought, XPaintPos, YPaintPos);
+    fRenderPool.AddUnitThought(fUnitType, Act, Direction, fThought, XPaintPos, YPaintPos);
 end;
 
 
@@ -556,7 +556,7 @@ begin
   end;
 
   if fThought<>th_None then
-    fRenderPool.AddUnitThought(fThought, XPaintPos, YPaintPos);
+    fRenderPool.AddUnitThought(fUnitType, Act, Direction, fThought, XPaintPos, YPaintPos);
 end;
 
 
@@ -718,7 +718,7 @@ begin
     fRenderPool.AddUnit(UnitType, ua_WalkArm, Direction, AnimStep, XPaintPos, YPaintPos, fPlayers[fOwner].FlagColor, false);
 
   if fThought <> th_None then
-    fRenderPool.AddUnitThought(fThought, XPaintPos, YPaintPos);
+    fRenderPool.AddUnitThought(fUnitType, Act, Direction, fThought, XPaintPos, YPaintPos);
 end;
 
 
@@ -858,7 +858,7 @@ begin
   fRenderPool.AddUnit(UnitType, fCurrentAction.fActionType, Direction, AnimStep, XPaintPos, YPaintPos, fPlayers[fOwner].FlagColor, true);
 
   if fThought <> th_None then
-    fRenderPool.AddUnitThought(fThought, XPaintPos, YPaintPos);
+    fRenderPool.AddUnitThought(fUnitType, fCurrentAction.ActionType, Direction, fThought, XPaintPos, YPaintPos);
 end;
 
 
