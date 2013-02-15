@@ -298,20 +298,23 @@ type
   end;
 
 
-  TKMHousesCollection = class(TKMList)
+  TKMHousesCollection = class
   private
+    fHouses: TKMList; //Private to hide methods we don't want to expose
     function AddToCollection(aHouseType: THouseType; PosX,PosY:integer; aOwner: TPlayerIndex; aHBS:THouseBuildState):TKMHouse;
-    function GetHouse(Index: Integer): TKMHouse;
-    procedure SetHouse(Index: Integer; Item: TKMHouse);
+    function GetHouse(aIndex: Integer): TKMHouse;
+    function GetCount: Integer;
   public
     constructor Create;
+    destructor Destroy; override;
     function AddHouse(aHouseType: THouseType; PosX,PosY:integer; aOwner: TPlayerIndex; RelativeEntrance:boolean):TKMHouse;
     function AddHouseWIP(aHouseType: THouseType; PosX,PosY:integer; aOwner: TPlayerIndex):TKMHouse;
+    property Count: Integer read GetCount;
     procedure OwnerUpdate(aOwner:TPlayerIndex);
-    property Houses[Index: Integer]: TKMHouse read GetHouse write SetHouse; default;
+    property Houses[aIndex: Integer]: TKMHouse read GetHouse; default;
     function HitTest(X, Y: Integer): TKMHouse;
     function GetHouseByID(aID: Integer): TKMHouse;
-    function FindEmptyHouse(aUnitType:TUnitType; Loc:TKMPoint): TKMHouse;
+    function FindEmptyHouse(aUnitType: TUnitType; Loc: TKMPoint): TKMHouse;
     function FindHouse(aType:THouseType; X,Y:word; const aIndex:byte=1; aOnlyCompleted:boolean=true): TKMHouse;
     function GetTotalPointers: Cardinal;
     procedure Save(SaveStream: TKMemoryStream);
@@ -2327,7 +2330,14 @@ end;
 constructor TKMHousesCollection.Create;
 begin
   inherited;
+  fHouses := TKMList.Create;
+end;
 
+
+destructor TKMHousesCollection.Destroy;
+begin
+  fHouses.Free;
+  inherited;
 end;
 
 
@@ -2350,19 +2360,19 @@ begin
   end;
 
   if Result <> nil then
-    Add(Result);
+    fHouses.Add(Result);
 end;
 
 
-function TKMHousesCollection.GetHouse(Index: Integer): TKMHouse;
+function TKMHousesCollection.GetCount: Integer;
 begin
-  Result := TKMHouse(Items[Index])
+  Result := fHouses.Count;
 end;
 
 
-procedure TKMHousesCollection.SetHouse(Index: Integer; Item: TKMHouse);
+function TKMHousesCollection.GetHouse(aIndex: Integer): TKMHouse;
 begin
-  Items[Index] := Item;
+  Result := fHouses[aIndex];
 end;
 
 
@@ -2391,26 +2401,26 @@ end;
 
 
 function TKMHousesCollection.HitTest(X, Y: Integer): TKMHouse;
-var i:integer;
+var I: Integer;
 begin
   Result:= nil;
-  for i:=0 to Count-1 do
-    if Houses[i].HitTest(X, Y) and (not Houses[i].IsDestroyed) then
+  for I := 0 to Count - 1 do
+    if Houses[I].HitTest(X, Y) and (not Houses[I].IsDestroyed) then
     begin
-      Result := TKMHouse(Items[i]);
+      Result := Houses[I];
       Break;
     end;
 end;
 
 
 function TKMHousesCollection.GetHouseByID(aID: Integer): TKMHouse;
-var i:integer;
+var I: Integer;
 begin
   Result := nil;
-  for i := 0 to Count-1 do
-    if aID = Houses[i].ID then
+  for I := 0 to Count - 1 do
+    if aID = Houses[I].ID then
     begin
-      Result := Houses[i];
+      Result := Houses[I];
       exit;
     end;
 end;
@@ -2512,27 +2522,33 @@ begin
 end;
 
 
-procedure TKMHousesCollection.Load(LoadStream:TKMemoryStream);
-var i,HouseCount: Integer; HouseType: THouseType;
+procedure TKMHousesCollection.Load(LoadStream: TKMemoryStream);
+var
+  I, NewCount: Integer;
+  HouseType: THouseType;
+  T: TKMHouse;
 begin
   LoadStream.ReadAssert('Houses');
 
-  LoadStream.Read(HouseCount);
-  for i := 0 to HouseCount - 1 do
+  LoadStream.Read(NewCount);
+  for I := 0 to NewCount - 1 do
   begin
     LoadStream.Read(HouseType, SizeOf(HouseType));
     case HouseType of
       ht_Swine,
-      ht_Stables:     inherited Add(TKMHouseSwineStable.Load(LoadStream));
-      ht_Inn:         inherited Add(TKMHouseInn.Load(LoadStream));
-      ht_Marketplace: inherited Add(TKMHouseMarket.Load(LoadStream));
-      ht_School:      inherited Add(TKMHouseSchool.Load(LoadStream));
-      ht_Barracks:    inherited Add(TKMHouseBarracks.Load(LoadStream));
-      ht_Store:       inherited Add(TKMHouseStore.Load(LoadStream));
-      ht_WatchTower:  inherited Add(TKMHouseTower.Load(LoadStream));
-      ht_Woodcutters: inherited Add(TKMHouseWoodcutters.Load(LoadStream));
-      else            inherited Add(TKMHouse.Load(LoadStream));
+      ht_Stables:     T := TKMHouseSwineStable.Load(LoadStream);
+      ht_Inn:         T := TKMHouseInn.Load(LoadStream);
+      ht_Marketplace: T := TKMHouseMarket.Load(LoadStream);
+      ht_School:      T := TKMHouseSchool.Load(LoadStream);
+      ht_Barracks:    T := TKMHouseBarracks.Load(LoadStream);
+      ht_Store:       T := TKMHouseStore.Load(LoadStream);
+      ht_WatchTower:  T := TKMHouseTower.Load(LoadStream);
+      ht_Woodcutters: T := TKMHouseWoodcutters.Load(LoadStream);
+      else            T := TKMHouse.Load(LoadStream);
     end;
+
+    if T <> nil then
+      fHouses.Add(T);
   end;
 end;
 
@@ -2551,11 +2567,11 @@ end;
 
 //Update resource requested counts for all houses
 procedure TKMHousesCollection.UpdateResRequest;
-var i:integer;
+var I: Integer;
 begin
-  for i:=0 to Count-1 do
-  if (not Houses[i].IsDestroyed) and (Houses[i].fBuildState = hbs_Done) then
-    Houses[i].UpdateResRequest;
+  for I := 0 to Count - 1 do
+  if (not Houses[I].IsDestroyed) and (Houses[I].fBuildState = hbs_Done) then
+    Houses[I].UpdateResRequest;
 end;
 
 
@@ -2569,10 +2585,7 @@ begin
   if FREE_POINTERS
   and Houses[I].IsDestroyed
   and (Houses[I].PointerCount = 0) then
-  begin
-    Houses[I].Free; //Because no one needs this anymore it must DIE!!!!! :D
-    Delete(I);
-  end;
+    fHouses.Delete(I); //Because no one needs this anymore it must DIE!!!!! :D
 
   for I := 0 to Count - 1 do
   if not Houses[I].IsDestroyed then

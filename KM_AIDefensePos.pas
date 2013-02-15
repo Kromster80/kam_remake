@@ -1,7 +1,7 @@
 unit KM_AIDefensePos;
 {$I KaM_Remake.inc}
 interface
-uses Classes, Math,
+uses Classes, Math, SysUtils,
   KM_CommonClasses, KM_Defaults, KM_UnitGroups, KM_Points;
 
 
@@ -42,9 +42,9 @@ type
 
   TAIDefencePositions = class
   private
-    fCount: Integer;
-    fPositions: array of TAIDefencePosition;
+    fPositions: TKMList;
     function GetPosition(aIndex: Integer): TAIDefencePosition;
+    function GetCount: Integer;
   public
     //Defines how defending troops will be formatted. 0 means leave unchanged.
     TroopFormations: array [TGroupType] of TKMFormation;
@@ -54,7 +54,7 @@ type
 
     procedure Add(aPos: TKMPointDir; aGroupType: TGroupType; aRadius: Integer; aDefenceType: TAIDefencePosType);
     procedure Clear;
-    property Count: Integer read fCount;
+    property Count: Integer read GetCount;
     procedure Delete(aIndex: Integer);
     property Positions[aIndex: Integer]: TAIDefencePosition read GetPosition; default;
 
@@ -194,6 +194,8 @@ var GT: TGroupType;
 begin
   inherited Create;
 
+  fPositions := TKMList.Create;
+
   for GT := Low(TGroupType) to High(TGroupType) do
   begin
     TroopFormations[GT].NumUnits := 9; //These are the defaults in KaM
@@ -204,9 +206,15 @@ end;
 
 destructor TAIDefencePositions.Destroy;
 begin
-  Clear;
+  fPositions.Free;
 
   inherited;
+end;
+
+
+function TAIDefencePositions.GetCount: Integer;
+begin
+  Result := fPositions.Count;
 end;
 
 
@@ -218,20 +226,13 @@ end;
 
 procedure TAIDefencePositions.Add(aPos: TKMPointDir; aGroupType: TGroupType; aRadius: Integer; aDefenceType: TAIDefencePosType);
 begin
-  SetLength(fPositions, fCount + 8);
-  fPositions[fCount] := TAIDefencePosition.Create(aPos, aGroupType, aRadius, aDefenceType);
-  Inc(fCount);
+  fPositions.Add(TAIDefencePosition.Create(aPos, aGroupType, aRadius, aDefenceType));
 end;
 
 
 procedure TAIDefencePositions.Clear;
-var
-  I: Integer;
 begin
-  for I := 0 to fCount - 1 do
-    fPositions[I].Free;
-
-  fCount := 0;
+  fPositions.Clear;
 end;
 
 
@@ -240,15 +241,7 @@ end;
 //@Krom: Probably, but we need to make sure the group that took the DP gets reassigned correctly
 procedure TAIDefencePositions.Delete(aIndex: Integer);
 begin
-  Assert(InRange(aIndex, 0, Count - 1));
-
-  //Release position
-  fPositions[aIndex].Free;
-
-  if (aIndex <> Count - 1) then
-    Move(fPositions[aIndex + 1], fPositions[aIndex], (Count - 1 - aIndex) * SizeOf(fPositions[0]));
-
-  Dec(fCount);
+  fPositions.Delete(aIndex);
 end;
 
 
@@ -322,7 +315,7 @@ var
 begin
   Result := nil;
 
-  for I := 0 to fCount - 1 do
+  for I := 0 to Count - 1 do
   if Positions[I].CurrentGroup = aGroup then
   begin
     Result := Positions[I];
@@ -336,31 +329,30 @@ var I: Integer;
 begin
   SaveStream.Write('PlayerAI');
   SaveStream.Write(TroopFormations, SizeOf(TroopFormations));
-  SaveStream.Write(fCount);
+  SaveStream.Write(Count);
 
-  for I := 0 to fCount - 1 do
-    fPositions[i].Save(SaveStream);
+  for I := 0 to Count - 1 do
+    Positions[I].Save(SaveStream);
 end;
 
 
-procedure TAIDefencePositions.Load(LoadStream:TKMemoryStream);
-var I: Integer;
+procedure TAIDefencePositions.Load(LoadStream: TKMemoryStream);
+var I, NewCount: Integer;
 begin
   LoadStream.ReadAssert('PlayerAI');
   LoadStream.Read(TroopFormations, SizeOf(TroopFormations));
-  LoadStream.Read(fCount);
-  SetLength(fPositions, fCount);
+  LoadStream.Read(NewCount);
 
-  for I := 0 to fCount - 1 do
-    fPositions[I] := TAIDefencePosition.Load(LoadStream);
+  for I := 0 to NewCount - 1 do
+    fPositions.Add(TAIDefencePosition.Load(LoadStream));
 end;
 
 
 procedure TAIDefencePositions.SyncLoad;
 var I: Integer;
 begin
-  for I := 0 to fCount - 1 do
-    fPositions[I].SyncLoad;
+  for I := 0 to Count - 1 do
+    Positions[I].SyncLoad;
 end;
 
 
@@ -369,16 +361,16 @@ var I,K: Integer;
 begin
   //Make sure no defence position Group is dead
   for I := 0 to Count - 1 do
-    fPositions[I].UpdateState;
+    Positions[I].UpdateState;
 
   //In KaM the order of defence positions is the priority: The first defined is higher priority
   for I := 0 to Count - 1 do
-  if (fPositions[I].CurrentGroup = nil) then
+  if (Positions[I].CurrentGroup = nil) then
     for K := I + 1 to Count - 1 do
-    if fPositions[I].GroupType = fPositions[K].GroupType then
+    if Positions[I].GroupType = Positions[K].GroupType then
     begin
-      fPositions[I].CurrentGroup := fPositions[K].CurrentGroup; //Take new position
-      fPositions[K].CurrentGroup := nil; //Leave current position
+      Positions[I].CurrentGroup := Positions[K].CurrentGroup; //Take new position
+      Positions[K].CurrentGroup := nil; //Leave current position
       Break;
     end;
 end;

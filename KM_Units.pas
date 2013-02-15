@@ -254,15 +254,17 @@ type
   end;
 
 
-  TKMUnitsCollection = class(TKMList)
+  TKMUnitsCollection = class
   private
+    fUnits: TKMList;
     function GetUnit(aIndex: Integer): TKMUnit;
-    procedure SetUnit(aIndex: Integer; aItem: TKMUnit);
+    function GetCount: Integer;
   public
     constructor Create;
     destructor Destroy; override;
     function Add(aOwner: TPlayerIndex; aUnitType: TUnitType; PosX, PosY: Integer; aAutoPlace: boolean = true; aRequiredWalkConnect: Byte = 0): TKMUnit;
-    property Units[aIndex: Integer]: TKMUnit read GetUnit write SetUnit; default; //Use instead of Items[.]
+    property Count: Integer read GetCount;
+    property Units[aIndex: Integer]: TKMUnit read GetUnit; default; //Use instead of Items[.]
     procedure RemoveUnit(aUnit: TKMUnit);
     procedure OwnerUpdate(aOwner: TPlayerIndex);
     function HitTest(X, Y: Integer; const UT: TUnitType = ut_Any): TKMUnit;
@@ -2065,25 +2067,27 @@ constructor TKMUnitsCollection.Create;
 begin
   inherited Create;
 
+  fUnits := TKMList.Create;
 end;
 
 
 destructor TKMUnitsCollection.Destroy;
 begin
-  //No need to free units individually since they are Freed by TKMList.Clear command.
+  //No need to free units individually since they are Freed by TKMList.Clear command in destructor
+  fUnits.Free;
   inherited;
+end;
+
+
+function TKMUnitsCollection.GetCount: Integer;
+begin
+  Result := fUnits.Count;
 end;
 
 
 function TKMUnitsCollection.GetUnit(aIndex: Integer): TKMUnit;
 begin
-  Result := Items[aIndex];
-end;
-
-
-procedure TKMUnitsCollection.SetUnit(aIndex: Integer; aItem: TKMUnit);
-begin
-  Items[aIndex] := aItem;
+  Result := fUnits[aIndex];
 end;
 
 
@@ -2131,15 +2135,14 @@ begin
   end;
 
   if Result <> nil then
-    inherited Add(Result);
+    fUnits.Add(Result);
 end;
 
 
 procedure TKMUnitsCollection.RemoveUnit(aUnit: TKMUnit);
 begin
   aUnit.CloseUnit; //Should free up the unit properly (freeing terrain usage and memory)
-  aUnit.Free;
-  Remove(aUnit);
+  fUnits.Remove(aUnit); //Will free the unit
 end;
 
 
@@ -2236,6 +2239,7 @@ procedure TKMUnitsCollection.Load(LoadStream: TKMemoryStream);
 var
   I, NewCount: Integer;
   UnitType: TUnitType;
+  U: TKMUnit;
 begin
   LoadStream.ReadAssert('Units');
   LoadStream.Read(NewCount);
@@ -2243,15 +2247,18 @@ begin
   begin
     LoadStream.Read(UnitType, SizeOf(UnitType));
     case UnitType of
-      ut_Serf:                  inherited Add(TKMUnitSerf.Load(LoadStream));
-      ut_Worker:                inherited Add(TKMUnitWorker.Load(LoadStream));
+      ut_Serf:                  U := TKMUnitSerf.Load(LoadStream);
+      ut_Worker:                U := TKMUnitWorker.Load(LoadStream);
       ut_WoodCutter..ut_Fisher,{ut_Worker,}ut_StoneCutter..ut_Metallurgist:
-                                inherited Add(TKMUnitCitizen.Load(LoadStream));
-      ut_Recruit:               inherited Add(TKMUnitRecruit.Load(LoadStream));
-      WARRIOR_MIN..WARRIOR_MAX: inherited Add(TKMUnitWarrior.Load(LoadStream));
-      ANIMAL_MIN..ANIMAL_MAX:   inherited Add(TKMUnitAnimal.Load(LoadStream));
+                                U := TKMUnitCitizen.Load(LoadStream);
+      ut_Recruit:               U := TKMUnitRecruit.Load(LoadStream);
+      WARRIOR_MIN..WARRIOR_MAX: U := TKMUnitWarrior.Load(LoadStream);
+      ANIMAL_MIN..ANIMAL_MAX:   U := TKMUnitAnimal.Load(LoadStream);
       else                      fLog.AddAssert('Unknown unit type in Savegame');
     end;
+
+    if U <> nil then
+      fUnits.Add(U);
   end;
 end;
 
@@ -2262,7 +2269,7 @@ var
 begin
   for I := 0 to Count - 1 do
   begin
-    case Units[I].fUnitType of
+    Units[I].SyncLoad(* of
       ut_Serf:                  TKMUnitSerf(Items[I]).SyncLoad;
       ut_Worker:                TKMUnitWorker(Items[I]).SyncLoad;
       ut_WoodCutter..ut_Fisher,{ut_Worker,}ut_StoneCutter..ut_Metallurgist:
@@ -2270,7 +2277,7 @@ begin
       ut_Recruit:               TKMUnitRecruit(Items[I]).SyncLoad;
       WARRIOR_MIN..WARRIOR_MAX: TKMUnitWarrior(Items[I]).SyncLoad;
       ANIMAL_MIN..ANIMAL_MAX:   TKMUnitAnimal(Items[I]).SyncLoad;
-    end;
+    end;*)
   end;
 end;
 
@@ -2284,10 +2291,7 @@ begin
   for I := Count - 1 downto 0 do
   if FREE_POINTERS
   and Units[I].IsDead and (Units[I].fPointerCount = 0) then
-  begin
-    Units[I].Free;
-    Delete(I);
-  end;
+    fUnits.Delete(I);
 
   for I := 0 to Count - 1 do
   if not Units[I].IsDead then
@@ -2323,7 +2327,7 @@ begin
   Rect := KMRectGrow(fGame.Viewport.GetClip, Margin);
 
   for I := 0 to Count - 1 do
-  if (Items[I] <> nil) and not Units[I].IsDead and KMInRect(Units[I].fPosition, Rect) then
+  if (Units[I] <> nil) and not Units[I].IsDead and KMInRect(Units[I].fPosition, Rect) then
     Units[I].Paint;
 end;
 

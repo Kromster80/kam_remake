@@ -63,10 +63,11 @@ type
   end;
 
 
-  //List that clears up its items, used only in Units/Houses}
+  //TKMList owns items and frees them when they are deleted from the list
   TKMList = class(TList)
-  public
-    procedure Clear; override;
+  protected
+    //This one function is enough to free all deleted/cleared/rewritten objects
+    procedure Notify(Ptr: Pointer; Action: TListNotification); override;
   end;
 
   TKMPointList = class
@@ -211,14 +212,11 @@ end;
 
 
 { TKMList }
-procedure TKMList.Clear;
-var I: Integer;
+//We were notified that the item is deleted from the list
+procedure TKMList.Notify(Ptr: Pointer; Action: TListNotification);
 begin
-  for I := 0 to Count - 1 do begin
-    TObject(Items[I]).Free;
-    Items[I] := nil;
-  end;
-  inherited;
+  if (Action = lnDeleted) then
+    TObject(Ptr).Free;
 end;
 
 
