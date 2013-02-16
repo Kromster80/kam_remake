@@ -2717,6 +2717,9 @@ begin
   else
     M := fMapsMP;
 
+  ListBox_Load.Clear;
+  ListBox_Load.ItemIndex := -1;
+
   M.Lock;
   for I:=0 to M.Count-1 do
     ListBox_Load.Add(M.Maps[I].FileName);

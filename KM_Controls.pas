@@ -731,6 +731,7 @@ type
     procedure AddItem(aItem: TKMListRow);
     procedure Clear;
     function GetVisibleRows: Integer;
+    function GetVisibleRowsExact: Single;
     property ShowHeader: Boolean read fShowHeader write SetShowHeader;
     property ShowLines: Boolean read fShowLines write fShowLines;
 
@@ -3300,7 +3301,13 @@ end;
 
 function TKMColumnListBox.GetVisibleRows: Integer;
 begin
-  Result := (fHeight - fHeader.Height * Byte(fShowHeader)) div fItemHeight;
+  Result := Floor(GetVisibleRowsExact);
+end;
+
+
+function TKMColumnListBox.GetVisibleRowsExact: Single;
+begin
+  Result := (fHeight - fHeader.Height * Byte(fShowHeader)) / fItemHeight;
 end;
 
 
@@ -3461,7 +3468,7 @@ begin
 
   if (ssLeft in Shift)
   and InRange(X, Left, Left + Width - fScrollBar.Width * Byte(fScrollBar.Visible))
-  and InRange(Y, Top + fHeader.Height*Byte(fHeader.Visible), Top + fHeader.Height*Byte(fHeader.Visible) + GetVisibleRows * fItemHeight - 1)
+  and InRange(Y, Top + fHeader.Height*Byte(fHeader.Visible), Top + fHeader.Height*Byte(fHeader.Visible) + Floor(GetVisibleRowsExact * fItemHeight) - 1)
   then
   begin
     NewIndex := TopIndex + (Y - Top - fHeader.Height * Byte(fShowHeader)) div fItemHeight;
@@ -3576,6 +3583,8 @@ begin
   for I := 0 to Math.min(fRowCount - 1, MaxItem) do
     TKMRenderUI.WriteShape(Left+1, Y + I * fItemHeight - 1, PaintWidth - 2, 1, $FFBBBBBB);
 
+  TKMRenderUI.SetupClipY(Top, Top + Height);
+
   //Selection highlight
   if not HideSelection
   and (fItemIndex <> -1)
@@ -3584,8 +3593,6 @@ begin
     TKMRenderUI.WriteShape(Left, Y + fItemHeight * (fItemIndex - TopIndex) - 1, PaintWidth, fItemHeight+1, $88888888);
     TKMRenderUI.WriteOutline(Left, Y + fItemHeight * (fItemIndex - TopIndex) - 1, PaintWidth, fItemHeight+1, 1 + Byte(fShowLines), $FFFFFFFF);
   end;
-
-  TKMRenderUI.SetupClipY(Top, Top + Height);
 
   //Paint rows text and icons above selection for clear visibility
   for I := 0 to Math.min(fRowCount - TopIndex - 1, MaxItem) do

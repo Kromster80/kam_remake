@@ -411,9 +411,6 @@ uses KM_Main, KM_NetworkTypes, KM_TextLibrary, KM_Game, KM_GameApp, KM_PlayersCo
   KM_Utils, KM_Log, KM_Sound, KM_Networking, KM_Resource, KM_Player, KM_CommonTypes, KM_RenderUI;
 
 const
-  MENU_SP_MAPS_COUNT    = 12;           //Number of single player maps to display in menu
-  MENU_SP_MAPS_HEIGHT   = 40;
-
   MAPSIZES_COUNT = 15;
   MapSize: array [1..MAPSIZES_COUNT] of Word = (32, 48, 64, 80, 96, 112, 128, 144, 160, 176, 192, 208, 224, 240, 256);
 
@@ -1419,8 +1416,8 @@ end;
 
 procedure TKMMainMenuInterface.Create_SingleMap;
 const
-  PAD_VERT = 45; //Padding from top/bottom
-  PAD_SIDE = 45; //Padding from sides
+  PAD_VERT = 44; //Padding from top/bottom
+  PAD_SIDE = 44; //Padding from sides
 var
   I: Integer;
   Half: Word; //Half width for panes
@@ -2435,35 +2432,36 @@ end;
 
 procedure TKMMainMenuInterface.SingleMap_RefreshList(aJumpToSelected: Boolean);
 var
-  I, MapIndex: Integer;
+  I, OldTopIndex: Integer;
   R: TKMListRow;
 begin
+  OldTopIndex := ColList_SingleMaps.TopIndex;
+  ColList_SingleMaps.Clear;
+
   fMaps.Lock;
-    ColList_SingleMaps.Clear;
+    for I := 0 to fMaps.Count - 1 do
+    begin
+      R := MakeListRow(['', IntToStr(fMaps[I].PlayerCount), fMaps[I].FileName, MapSizeText(fMaps[I].MapSizeX, fMaps[I].MapSizeY)]);
+      R.Cells[2].Hint := fMaps[I].SmallDesc;
+      R.Cells[0].Pic := MakePic(rxGui, 28 + Byte(fMaps[I].MissionMode <> mm_Tactic) * 14);
+      ColList_SingleMaps.AddItem(R);
+    end;
 
     //IDs of maps could changed, so use CRC to check which one was selected
-    MapIndex := -1;
       for I := 0 to fMaps.Count-1 do
         if (fMaps[I].CRC = fLastMapCRC) then
-          MapIndex := I;
-
-    if aJumpToSelected
-    and not InRange(MapIndex - ColList_SingleMaps.TopIndex, 0, MENU_SP_MAPS_COUNT - 1)
-    then
-      if MapIndex < ColList_SingleMaps.TopIndex + MENU_SP_MAPS_COUNT - 1 then
-        ColList_SingleMaps.TopIndex := MapIndex
-      else
-      if MapIndex > ColList_SingleMaps.TopIndex + MENU_SP_MAPS_COUNT - 1 then
-        ColList_SingleMaps.TopIndex := MapIndex - MENU_SP_MAPS_COUNT + 1;
-
-      for I := 0 to fMaps.Count - 1 do
-      begin
-        R := MakeListRow(['', IntToStr(fMaps[I].PlayerCount), fMaps[I].FileName, MapSizeText(fMaps[I].MapSizeX, fMaps[I].MapSizeY)]);
-        R.Cells[2].Hint := fMaps[I].SmallDesc;
-        R.Cells[0].Pic := MakePic(rxGui, 28 + Byte(fMaps[I].MissionMode <> mm_Tactic) * 14);
-        ColList_SingleMaps.AddItem(R);
-      end;
+          ColList_SingleMaps.ItemIndex := I;
   fMaps.Unlock;
+
+  ColList_SingleMaps.TopIndex := OldTopIndex;
+  if aJumpToSelected
+  and not InRange(ColList_SingleMaps.ItemIndex - ColList_SingleMaps.TopIndex, 0, ColList_SingleMaps.GetVisibleRows - 1)
+  then
+    if ColList_SingleMaps.ItemIndex < ColList_SingleMaps.TopIndex + ColList_SingleMaps.GetVisibleRows - 1 then
+      ColList_SingleMaps.TopIndex := ColList_SingleMaps.ItemIndex
+    else
+    if ColList_SingleMaps.ItemIndex > ColList_SingleMaps.TopIndex + ColList_SingleMaps.GetVisibleRows - 1 then
+      ColList_SingleMaps.TopIndex := ColList_SingleMaps.ItemIndex - ColList_SingleMaps.GetVisibleRows + 1;
 end;
 
 
@@ -2648,6 +2646,7 @@ begin
       fGameApp.NewSingleMap(fMaps[I].FullPath('.dat'), fMaps[I].FileName, fSingleLoc, fSingleColor);
       Exit;
     end;
+  Assert(False); //We should NOT reach here, since we checked that the start button was enabled
 end;
 
 
