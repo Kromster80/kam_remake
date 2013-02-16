@@ -473,7 +473,7 @@ begin
 end;
 
 
-//MapEd procedure to remove any house below
+//MapEd procedure to remove any house under cursor
 procedure TKMPlayersCollection.RemAnyHouse(Position: TKMPoint);
 var I: Integer;
 begin
@@ -482,7 +482,7 @@ begin
 end;
 
 
-//MapEd procedure to remove any unit below
+//MapEd procedure to remove any unit under cursor
 procedure TKMPlayersCollection.RemAnyUnit(Position: TKMPoint);
 var I: Integer;
 begin
@@ -494,55 +494,48 @@ begin
 end;
 
 
-//Reveal portion of terrain for said player and his allies
-//@Lewin: I don't see a reason against revealing a map for allies always
-//@Krom: Well in singleplayer KaM you couldn't see what your allies could. It could mess up some campaign/fanmade missions,
-//       possibly where you "discover" allies that you couldn't see at the start. (I made one such mission, you had to defend
-//       your allies village, but you couldn't see it at the start, you had to walk there)
-//       I think it would be bad to change it. Maybe it could be a script option eventually.
-//@Lewin: Do you have such missions at hand to show? Makes sense to share info between players ..
-//@Krom: The Dark Lord's mission "Race Against the Clock" (included in SP list) has an allied force which "arrives" after a certain time
-//       to save you. So they are meant to walk out of the unexplored area, but in the Remake you can see the allied force from the start.
-//       There's also my mission "The Island" (on my mission site) where you have to find an allied village then save it.
-//       I imagine there are other examples now with scripted missions where you want allies in unexplored areas.
-//       I think a command like !DISABLE_FOW_SHARING <PlayerID> would be useful. Maybe there are even are cases where you want to share
-//       FOW with enemies in some scripted quest or something. I'm not sure if we can make these things possible without complicating it.
+//Reveal portion of terrain for said player and his allies (if they share vision)
+//In singleplayer KaM sometimes you should not see your allies till some time
+//todo: Add ShareVision: array [0.. MAX_PLAYERS-1] of Boolean alongside Alliances array
 procedure TKMPlayersCollection.RevealForTeam(aPlayer: TPlayerIndex; Pos: TKMPoint; Radius, Amount: Word);
 var I: Integer;
 begin
   fPlayerList[aPlayer].FogOfWar.RevealCircle(Pos,Radius,Amount);
-  //if fGame.MultiplayerMode then
-    for I := 0 to fCount - 1 do
-      if (I <> aPlayer) and (fPlayerList[aPlayer].Alliances[I] = at_Ally) then
-        fPlayerList[I].FogOfWar.RevealCircle(Pos, Radius, Amount);
+
+  for I := 0 to fCount - 1 do
+  if (I <> aPlayer) and (fPlayerList[aPlayer].Alliances[I] = at_Ally) then
+    fPlayerList[I].FogOfWar.RevealCircle(Pos, Radius, Amount);
 end;
 
 
+//Synchronize FOW between players (e.g. when alliances change)
 procedure TKMPlayersCollection.SyncFogOfWar;
-var i,k: integer;
+var I,K: Integer;
 begin
-  for i:=0 to fCount-1 do
-    for k:=0 to fCount-1 do
-      if (i<>k) and (fPlayerList[i].Alliances[k] = at_Ally) then
-        fPlayerList[k].FogOfWar.SyncFOW(fPlayerList[i].FogOfWar);
+  for I := 0 to fCount - 1 do
+  for K := 0 to fCount - 1 do
+  if (I <> K) and (fPlayerList[I].Alliances[K] = at_Ally) then
+    fPlayerList[K].FogOfWar.SyncFOW(fPlayerList[I].FogOfWar);
 end;
 
 
 procedure TKMPlayersCollection.AddDefaultMPGoals(aMissionMode: TKMissionMode);
 var
-  i,k: integer;
-  Enemies:array[TPlayerIndex] of array of TPlayerIndex;
+  I,K: Integer;
+  Enemies: array of array of TPlayerIndex;
 begin
-  for i:=0 to fCount-1 do
+  SetLength(Enemies, fCount);
+
+  for I := 0 to fCount - 1 do
   begin
-    SetLength(Enemies[i],0);
-    for k:=0 to fCount-1 do
-      if (i<>k) and (fPlayerList[i].Alliances[k] = at_Enemy) then
-      begin
-        SetLength(Enemies[i],Length(Enemies[i])+1);
-        Enemies[i,Length(Enemies[i])-1] := k;
-      end;
-    fPlayerList[i].Goals.AddDefaultMPGoals(aMissionMode <> mm_Tactic, i, Enemies[i]);
+    SetLength(Enemies[I], 0);
+    for K := 0 to fCount - 1 do
+    if (I <> K) and (fPlayerList[I].Alliances[K] = at_Enemy) then
+    begin
+      SetLength(Enemies[I], Length(Enemies[I])+1);
+      Enemies[I, Length(Enemies[I])-1] := K;
+    end;
+    fPlayerList[I].Goals.AddDefaultMPGoals(aMissionMode <> mm_Tactic, I, Enemies[I]);
   end;
 end;
 
