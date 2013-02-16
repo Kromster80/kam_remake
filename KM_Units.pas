@@ -99,7 +99,7 @@ type
     OnUnitDied: TKMUnitEvent;
     OnUnitTrained: TKMUnitEvent;
 
-    constructor Create(aID: Cardinal; aUnitType: TUnitType; PosX, PosY: Word; aOwner: TPlayerIndex);
+    constructor Create(aID: Cardinal; aUnitType: TUnitType; aLoc: TKMPoint; aOwner: TPlayerIndex);
     constructor Load(LoadStream: TKMemoryStream); dynamic;
     procedure SyncLoad; virtual;
     destructor Destroy; override;
@@ -209,7 +209,7 @@ type
   private
     fCarry: TResourceType;
   public
-    constructor Create(aID: Cardinal; aUnitType: TUnitType; PosX, PosY: Word; aOwner: TPlayerIndex);
+    constructor Create(aID: Cardinal; aUnitType: TUnitType; aLoc: TKMPoint; aOwner: TPlayerIndex);
     constructor Load(LoadStream: TKMemoryStream); override;
     procedure Save(SaveStream: TKMemoryStream); override;
 
@@ -245,7 +245,7 @@ type
   private
     fFishCount:byte; //1-5
   public
-    constructor Create(aID: Cardinal; aUnitType: TUnitType; PosX, PosY: Word; aOwner: TPlayerIndex); overload;
+    constructor Create(aID: Cardinal; aUnitType: TUnitType; aLoc: TKMPoint; aOwner: TPlayerIndex); overload;
     constructor Load(LoadStream: TKMemoryStream); override;
     property FishCount: byte read fFishCount;
     function ReduceFish: Boolean;
@@ -655,7 +655,7 @@ end;
 
 
 { TKMSerf }
-constructor TKMUnitSerf.Create(aID: Cardinal; aUnitType: TUnitType; PosX, PosY: Word; aOwner: TPlayerIndex);
+constructor TKMUnitSerf.Create(aID: Cardinal; aUnitType: TUnitType; aLoc: TKMPoint; aOwner: TPlayerIndex);
 begin
   inherited;
   fCarry := rt_None;
@@ -893,7 +893,7 @@ end;
 
 
 { TKMUnitAnimal }
-constructor TKMUnitAnimal.Create(aID: Cardinal; aUnitType: TUnitType; PosX, PosY: Word; aOwner: TPlayerIndex);
+constructor TKMUnitAnimal.Create(aID: Cardinal; aUnitType: TUnitType; aLoc: TKMPoint; aOwner: TPlayerIndex);
 begin
   inherited;
 
@@ -996,7 +996,7 @@ end;
 
 
 { TKMUnit }
-constructor TKMUnit.Create(aID: Cardinal; aUnitType: TUnitType; PosX, PosY: Word; aOwner: TPlayerIndex);
+constructor TKMUnit.Create(aID: Cardinal; aUnitType: TUnitType; aLoc: TKMPoint; aOwner: TPlayerIndex);
 begin
   inherited Create;
   fID           := aID;
@@ -1007,10 +1007,10 @@ begin
   fThought      := th_None;
   fHome         := nil;
   fInHouse      := nil;
-  fPosition     := KMPointF(PosX, PosY);
-  fCurrPosition := KMPoint(PosX, PosY);
-  fPrevPosition := fCurrPosition; //Init values
-  fNextPosition := fCurrPosition; //Init values
+  fPosition     := KMPointF(aLoc);
+  fCurrPosition := aLoc;
+  fPrevPosition := aLoc; //Init values
+  fNextPosition := aLoc; //Init values
   fOwner        := aOwner;
   fUnitType     := aUnitType;
   fDirection    := dir_S;
@@ -2122,14 +2122,14 @@ begin
 
   ID := fGame.GetNewID;
   case aUnitType of
-    ut_Serf:                          Result := TKMUnitSerf.Create(ID, aUnitType, PlaceTo.X, PlaceTo.Y, aOwner);
-    ut_Worker:                        Result := TKMUnitWorker.Create(ID, aUnitType, PlaceTo.X, PlaceTo.Y, aOwner);
+    ut_Serf:                          Result := TKMUnitSerf.Create(ID, aUnitType, PlaceTo, aOwner);
+    ut_Worker:                        Result := TKMUnitWorker.Create(ID, aUnitType, PlaceTo, aOwner);
     ut_WoodCutter..ut_Fisher,
     {ut_Worker,}
-    ut_StoneCutter..ut_Metallurgist:  Result := TKMUnitCitizen.Create(ID, aUnitType, PlaceTo.X, PlaceTo.Y, aOwner);
-    ut_Recruit:                       Result := TKMUnitRecruit.Create(ID, aUnitType, PlaceTo.X, PlaceTo.Y, aOwner);
-    WARRIOR_MIN..WARRIOR_MAX:         Result := TKMUnitWarrior.Create(ID, aUnitType, PlaceTo.X, PlaceTo.Y, aOwner);
-    ANIMAL_MIN..ANIMAL_MAX:           Result := TKMUnitAnimal.Create(ID, aUnitType, PlaceTo.X, PlaceTo.Y, aOwner);
+    ut_StoneCutter..ut_Metallurgist:  Result := TKMUnitCitizen.Create(ID, aUnitType, PlaceTo, aOwner);
+    ut_Recruit:                       Result := TKMUnitRecruit.Create(ID, aUnitType, PlaceTo, aOwner);
+    WARRIOR_MIN..WARRIOR_MAX:         Result := TKMUnitWarrior.Create(ID, aUnitType, PlaceTo, aOwner);
+    ANIMAL_MIN..ANIMAL_MAX:           Result := TKMUnitAnimal.Create(ID, aUnitType, PlaceTo, aOwner);
     else                              raise ELocError.Create('Add ' + fResource.UnitDat[aUnitType].UnitName, PlaceTo);
   end;
 

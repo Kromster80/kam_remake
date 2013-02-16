@@ -39,7 +39,7 @@ type
     OnPickedFight: TKMWarrior2Event;
     FaceDir: TKMDirection; //Direction we should face after walking. Only check for enemies in this direction.
 
-    constructor Create(aID: Cardinal; aUnitType: TUnitType; PosX, PosY: Word; aOwner: TPlayerIndex);
+    constructor Create(aID: Cardinal; aUnitType: TUnitType; aLoc: TKMPoint; aOwner: TPlayerIndex);
     constructor Load(LoadStream: TKMemoryStream); override;
     procedure SyncLoad; override;
     procedure CloseUnit(aRemoveTileUsage: Boolean = True); override;
@@ -84,7 +84,7 @@ uses KM_DeliverQueue, KM_TextLibrary, KM_PlayersCollection, KM_RenderPool, KM_Re
 
 
 { TKMUnitWarrior }
-constructor TKMUnitWarrior.Create(aID: Cardinal; aUnitType: TUnitType; PosX, PosY: Word; aOwner: TPlayerIndex);
+constructor TKMUnitWarrior.Create(aID: Cardinal; aUnitType: TUnitType; aLoc: TKMPoint; aOwner: TPlayerIndex);
 begin
   inherited;
   fOrderTargetUnit   := nil;
@@ -92,7 +92,7 @@ begin
   fRequestedFood     := False;
   fNextOrder         := woNone;
   fOrder             := woNone;
-  fOrderLoc          := KMPoint(PosX, PosY);
+  fOrderLoc          := aLoc;
 end;
 
 
