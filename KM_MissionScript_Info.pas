@@ -8,7 +8,10 @@ uses
 
 
 type
-  TKMMissionParsing = (pmBase, pmExtra);
+  TKMMissionParsing = (
+    pmBase, //Load base map info for SP maplist (player count, tactic, description)
+    pmExtra //Load extra map info to be displayed when map is selected (goals, alliances, etc)
+    );
 
   TKMMissionInfo = class
   public
@@ -22,14 +25,11 @@ type
 
   TMissionParserInfo = class(TMissionParserCommon)
   private
-    fMapInfo: TKMapInfo;
+    fMapInfo: TKMapInfo; //We are given this structure and asked to fill it
     function LoadMapInfo(const aFileName: string): Boolean;
   protected
     function ProcessCommand(CommandType: TKMCommandType; P: array of Integer; TextParam: AnsiString = ''): Boolean; override;
   public
-    constructor Create(aStrictParsing: Boolean);
-    destructor Destroy; override;
-
     function LoadMission(const aFileName: string; aMapInfo: TKMapInfo; aParsing: TKMMissionParsing): Boolean; reintroduce;
   end;
 
@@ -38,20 +38,6 @@ implementation
 
 
 { TMissionParserInfo }
-constructor TMissionParserInfo.Create(aStrictParsing: Boolean);
-begin
-  inherited;
-
-end;
-
-
-destructor TMissionParserInfo.Destroy;
-begin
-
-  inherited;
-end;
-
-
 function TMissionParserInfo.LoadMission(const aFileName: string; aMapInfo: TKMapInfo; aParsing: TKMMissionParsing): Boolean;
 const
   CommandsBase: array [0..3] of AnsiString = (

@@ -148,7 +148,7 @@ begin
           if (SearchRec.Name <> '.') and (SearchRec.Name <> '..')
           and FileExists(PathToMaps[I] + SearchRec.Name + '\' + SearchRec.Name + '.map') then
           begin
-            MissionParser.LoadMission(PathToMaps[I] + SearchRec.Name + '\' + SearchRec.Name + '.dat', MapInfo);
+            MissionParser.LoadMission(PathToMaps[I] + SearchRec.Name + '\' + SearchRec.Name + '.dat', MapInfo, pmExtra);
             for J := 0 to MAX_PLAYERS - 1 do
             begin
               for K := 0 to MapInfo.GoalsVictoryCount[J] - 1 do
