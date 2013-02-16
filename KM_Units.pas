@@ -96,7 +96,8 @@ type
   public
     AnimStep: Integer;
     IsExchanging: Boolean; //Current walk is an exchange, used for sliding
-    OnDied: TKMUnitEvent;
+    OnUnitDied: TKMUnitEvent;
+    OnUnitTrained: TKMUnitEvent;
 
     constructor Create(aID: Cardinal; aUnitType: TUnitType; PosX, PosY: Word; aOwner: TPlayerIndex);
     constructor Load(LoadStream: TKMemoryStream); dynamic;
@@ -262,7 +263,7 @@ type
   public
     constructor Create;
     destructor Destroy; override;
-    function Add(aOwner: TPlayerIndex; aUnitType: TUnitType; PosX, PosY: Integer; aAutoPlace: boolean = true; aRequiredWalkConnect: Byte = 0): TKMUnit;
+    function AddUnit(aOwner: TPlayerIndex; aUnitType: TUnitType; PosX, PosY: Integer; aAutoPlace: boolean = true; aRequiredWalkConnect: Byte = 0): TKMUnit;
     property Count: Integer read GetCount;
     property Units[aIndex: Integer]: TKMUnit read GetUnit; default; //Use instead of Items[.]
     procedure RemoveUnit(aUnit: TKMUnit);
@@ -1206,7 +1207,8 @@ begin
   end;
 
   //Signal to our owner that we have died (doesn't have to be assigned since f.e. animals don't use it)
-  if Assigned(OnDied) then OnDied(Self);
+  if Assigned(OnUnitDied) then
+    OnUnitDied(Self);
 
   fThought := th_None; //Reset thought
   SetAction(nil); //Dispose of current action (TTaskDie will set it to LockedStay)
@@ -1645,19 +1647,17 @@ begin
       begin
         //There is no space for this unit so it must be destroyed
         //todo: rerote to KillUnit and let it sort out that unit is invisible and cant be placed
-        if (fPlayers<>nil) and (fOwner <> PLAYER_NONE) then
+        if (fPlayers <> nil) and (fOwner <> PLAYER_NONE) then
         begin
           fPlayers[fOwner].Stats.UnitLost(fUnitType);
           fScripting.ProcUnitLost(fUnitType, fOwner);
         end;
-        FreeAndNil(fCurrentAction);
-        FreeAndNil(fUnitTask);
         CloseUnit(false); //Close the unit without removing tile usage (because this unit was in a house it has none)
         Result := true;
         exit;
       end;
       //Make sure these are reset properly
-      assert(not fTerrain.HasUnit(fCurrPosition));
+      Assert(not fTerrain.HasUnit(fCurrPosition));
       IsExchanging := false;
       fPosition := KMPointF(fCurrPosition);
       fPrevPosition := fCurrPosition;
@@ -2093,7 +2093,7 @@ end;
 
 { AutoPlace means should we find a spot for this unit or just place it where we are told.
   Used for creating units still inside schools }
-function TKMUnitsCollection.Add(aOwner: TPlayerIndex; aUnitType: TUnitType; PosX, PosY: Integer; aAutoPlace: Boolean=true; aRequiredWalkConnect:byte=0): TKMUnit;
+function TKMUnitsCollection.AddUnit(aOwner: TPlayerIndex; aUnitType: TUnitType; PosX, PosY: Integer; aAutoPlace: Boolean=true; aRequiredWalkConnect:byte=0): TKMUnit;
 var
   ID: Cardinal;
   P: TKMPoint;
@@ -2146,7 +2146,7 @@ begin
 end;
 
 
-procedure TKMUnitsCollection.OwnerUpdate(aOwner:TPlayerIndex);
+procedure TKMUnitsCollection.OwnerUpdate(aOwner: TPlayerIndex);
 var I: Integer;
 begin
   for I := 0 to Count - 1 do
@@ -2154,7 +2154,7 @@ begin
 end;
 
 
-function TKMUnitsCollection.HitTest(X, Y: Integer; const UT:TUnitType = ut_Any): TKMUnit;
+function TKMUnitsCollection.HitTest(X, Y: Integer; const UT: TUnitType = ut_Any): TKMUnit;
 var I: Integer;
 begin
   Result := nil;

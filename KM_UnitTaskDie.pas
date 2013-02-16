@@ -31,41 +31,44 @@ end;
 
 
 function TTaskDie.Execute: TTaskResult;
-var SequenceLength:smallint;
+var
+  SequenceLength: SmallInt;
 begin
   Result := TaskContinues;
   with fUnit do
   case fPhase of
-    0:  if Visible then
-          SetActionLockedStay(0,ua_Walk)
-        else begin
-          if (GetHome<>nil) and not GetHome.IsDestroyed then begin
-            GetHome.SetState(hst_Idle);
-            GetHome.SetState(hst_Empty);
-          end;
-          SetActionGoIn(ua_Walk,gd_GoOutside,fPlayers.HousesHitTest(fUnit.NextPosition.X,fUnit.NextPosition.Y));
-        end;
-    1:  begin
-          SequenceLength := fResource.UnitDat[UnitType].UnitAnim[ua_Die, Direction].Count;
-          if fUnit is TKMUnitAnimal then //Animals don't have a dying sequence. Can be changed later.
-            SetActionLockedStay(0,ua_Walk,false)
+    0:    if Visible then
+            SetActionLockedStay(0, ua_Walk)
           else
-            SetActionLockedStay(SequenceLength,ua_Die,false);
-          //Do not play sounds if unit is invisible to MyPlayer
-          //We should not use KaMRandom below this line because sound playback depends on FOW and is individual for each player
-          if MyPlayer.FogOfWar.CheckTileRevelation(fUnit.GetPosition.X, fUnit.GetPosition.Y, true) >= 255 then
           begin
-            if fUnit is TKMUnitWarrior then
-              fSoundLib.PlayWarrior(fUnit.UnitType, sp_Death, fUnit.PositionF)
-            else
-              fSoundLib.PlayCitizen(fUnit.UnitType, sp_Death, fUnit.PositionF);
+            if (GetHome <> nil) and not GetHome.IsDestroyed then
+            begin
+              GetHome.SetState(hst_Idle);
+              GetHome.SetState(hst_Empty);
+            end;
+            SetActionGoIn(ua_Walk, gd_GoOutside, fPlayers.HousesHitTest(fUnit.NextPosition.X, fUnit.NextPosition.Y));
           end;
-        end;
-    else begin
-          fUnit.CloseUnit;          //This will FreeAndNil the Task and mark unit as "closed"
-          Result := TaskContinues;  //Running UpdateState will exit without further changes
-          exit;                     //Next UpdateState won't happen cos unit is "closed"
-        end;
+    1:    begin
+            SequenceLength := fResource.UnitDat[UnitType].UnitAnim[ua_Die, Direction].Count;
+            if fUnit is TKMUnitAnimal then //Animals don't have a dying sequence. Can be changed later.
+              SetActionLockedStay(0, ua_Walk, False)
+            else
+              SetActionLockedStay(SequenceLength, ua_Die, False);
+            //Do not play sounds if unit is invisible to MyPlayer
+            //We should not use KaMRandom below this line because sound playback depends on FOW and is individual for each player
+            if MyPlayer.FogOfWar.CheckTileRevelation(fUnit.GetPosition.X, fUnit.GetPosition.Y, True) >= 255 then
+            begin
+              if fUnit is TKMUnitWarrior then
+                fSoundLib.PlayWarrior(fUnit.UnitType, sp_Death, fUnit.PositionF)
+              else
+                fSoundLib.PlayCitizen(fUnit.UnitType, sp_Death, fUnit.PositionF);
+            end;
+          end;
+    else  begin
+            fUnit.CloseUnit;          //This will FreeAndNil the Task and mark unit as "closed"
+            Result := TaskContinues;  //Running UpdateState will exit without further changes
+            Exit;                     //Next UpdateState won't happen cos unit is "closed"
+          end;
   end;
   inc(fPhase);
 end;

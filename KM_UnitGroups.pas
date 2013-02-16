@@ -6,6 +6,8 @@ uses Classes, Math, SysUtils, Types,
      KM_Units_Warrior;
 
 type
+  TKMUnitGroup = class;
+  TKMUnitGroupEvent = procedure(aGroup: TKMUnitGroup) of object;
   TKMTurnDirection = (tdNone, tdCW, tdCCW);
   TKMInitialOrder = (ioNoOrder, ioSendGroup, ioAttackPosition);
 
@@ -17,11 +19,13 @@ type
     goStorm         //Run forward
     );
 
+  //MapEd allows to set order for a group that will be executed on mission start
   TKMMapEdOrder = record
     Order: TKMInitialOrder;
     Pos: TKMPointDir;
   end;
 
+  //Group of warriors
   TKMUnitGroup = class
   private
     fID: Cardinal;
@@ -66,7 +70,7 @@ type
     procedure CheckOrderDone;
     procedure UpdateHungerMessage;
 
-    procedure Member_Killed(aMember: TKMUnitWarrior);
+    procedure Member_Died(aMember: TKMUnitWarrior);
     procedure Member_PickedFight(aMember: TKMUnitWarrior; aEnemy: TKMUnit);
 
     function GetCondition: Integer;
@@ -77,6 +81,7 @@ type
     //SendGroup - walk to some location
     //AttackPosition - attack something at position (or walk there if its empty)
     MapEdOrder: TKMMapEdOrder;
+    OnGroupDied: TKMUnitGroupEvent;
 
     constructor Create(aID: Cardinal; aCreator: TKMUnitWarrior); overload;
     constructor Create(aID: Cardinal; aOwner: TPlayerIndex; aUnitType: TUnitType; PosX, PosY: Word; aDir: TKMDirection; aUnitPerRow, aCount: Word); overload;
@@ -138,6 +143,7 @@ type
   end;
 
 
+  //Collection of Groups
   TKMUnitGroups = class
   private
     fGroups: TKMList;
@@ -158,7 +164,7 @@ type
     function GetGroupByMember(aUnit: TKMUnitWarrior): TKMUnitGroup;
     function HitTest(X,Y: Integer): TKMUnitGroup;
 
-    procedure WarriorTrained(aUnit: TKMUnitWarrior);
+    function WarriorTrained(aUnit: TKMUnitWarrior): TKMUnitGroup;
 
     procedure Save(SaveStream: TKMemoryStream);
     procedure Load(LoadStream: TKMemoryStream);
@@ -305,7 +311,7 @@ begin
   for I := 0 to Count - 1 do
   begin
     fMembers[I] := TKMUnitWarrior(fPlayers.GetUnitByID(Cardinal(fMembers[I])));
-    Members[I].OnKilled := Member_Killed;
+    Members[I].OnWarriorDied := Member_Died;
     Members[I].OnPickedFight := Member_PickedFight;
   end;
 
@@ -534,8 +540,10 @@ begin
     fMembers.Insert(aIndex, aWarrior.GetUnitPointer)
   else
     fMembers.Add(aWarrior.GetUnitPointer);
+
+  //Member reports to Group if something happens to him, so that Group can apply its logic
   aWarrior.OnPickedFight := Member_PickedFight;
-  aWarrior.OnKilled := Member_Killed;
+  aWarrior.OnWarriorDied := Member_Died;
 end;
 
 
@@ -580,7 +588,7 @@ end;
 
 
 //Member reports that he has died (or been killed)
-procedure TKMUnitGroup.Member_Killed(aMember: TKMUnitWarrior);
+procedure TKMUnitGroup.Member_Died(aMember: TKMUnitWarrior);
 var
   I: Integer;
   NewSel: Integer;
@@ -610,6 +618,10 @@ begin
   end;
 
   SetUnitsPerRow(fUnitsPerRow);
+
+  //If Group has died report to owner
+  if IsDead and Assigned(OnGroupDied) then
+    OnGroupDied(Self);
 
   if not IsDead and CanTakeOrders then
     OrderRepeat;
@@ -1038,6 +1050,7 @@ begin
   fMembers.Remove(NewLeader);
 
   NewGroup := fPlayers[Owner].UnitGroups.AddGroup(NewLeader);
+  NewGroup.OnGroupDied := OnGroupDied;
 
   //Split by UnitTypes or by Count (make NewGroup half or smaller half)
   for I := Count - 1 downto 0 do
@@ -1452,12 +1465,12 @@ end;
 
 
 //Warrior has been trained and we need to see where to place him
-procedure TKMUnitGroups.WarriorTrained(aUnit: TKMUnitWarrior);
+//Return group he was assigned to
+function TKMUnitGroups.WarriorTrained(aUnit: TKMUnitWarrior): TKMUnitGroup;
 var
   LinkUnit: TKMUnitWarrior;
-  G: TKMUnitGroup;
 begin
-  G := nil; //Makes compiler happy
+  Result := nil; //Makes compiler happy
 
   case fPlayers[aUnit.Owner].PlayerType of
     pt_Human:    begin
@@ -1465,25 +1478,22 @@ begin
                    if LinkUnit <> nil then
                    begin
                      //Link to other group
-                     G := fPlayers[aUnit.Owner].UnitGroups.GetGroupByMember(LinkUnit);
-                     G.AddMember(aUnit);
-                     G.OrderRepeat;
+                     Result := fPlayers[aUnit.Owner].UnitGroups.GetGroupByMember(LinkUnit);
+                     Result.AddMember(aUnit);
+                     Result.OrderRepeat;
                    end
                    else
                    begin
                      //Create a new group with this one warrior
-                     G := TKMUnitGroup.Create(fGame.GetNewID, aUnit);
-                     fGroups.Add(G);
+                     Result := TKMUnitGroup.Create(fGame.GetNewID, aUnit);
+                     fGroups.Add(Result);
                    end;
                  end;
     pt_Computer: begin
-                   G := TKMUnitGroup.Create(fGame.GetNewID, aUnit);
-                   fGroups.Add(G);
+                   Result := TKMUnitGroup.Create(fGame.GetNewID, aUnit);
+                   fGroups.Add(Result);
                  end;
   end;
-
-  //Generate scripting event
-  fScripting.ProcWarriorEquipped(aUnit, G);
 end;
 
 

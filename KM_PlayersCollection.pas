@@ -66,7 +66,6 @@ type
     procedure SyncLoad;
     procedure IncAnimStep;
 
-    procedure UpdateSelection;
     procedure UpdateState(aTick: Cardinal);
     procedure Paint;
   end;
@@ -391,24 +390,6 @@ begin
 end;
 
 
-//todo: @Krom: This idea is flawed as we discussed, we should use OnKilled for houses, units and groups
-//             to clear the selection and make sure you cannot select something after it is OnKilled
-procedure TKMPlayersCollection.UpdateSelection;
-begin
-  //Update highlight after games tick (and nil it if necessary)
-  if (fHighlight is TKMUnitGroup) and TKMUnitGroup(fHighlight).IsDead then
-    fHighlight := nil;
-
-  //Hide the highlight
-  if TimeGet > fHighlightEnd then
-    fHighlight := nil;
-
-  //Update selection after games tick (and nil it if necessary)
-  if (fSelected is TKMUnitGroup) and TKMUnitGroup(fSelected).IsDead then
-    fSelected := nil;
-end;
-
-
 //Get total unit count for statistics display
 function TKMPlayersCollection.GetUnitCount: Integer;
 var I: Integer;
@@ -631,6 +612,10 @@ procedure TKMPlayersCollection.UpdateState(aTick: Cardinal);
 var
   I: Integer;
 begin
+  //Hide the highlight
+  if TimeGet > fHighlightEnd then
+    fHighlight := nil;
+
   for I := 0 to Count - 1 do
   if not fGame.IsPaused and not fGame.IsExiting then
     fPlayerList[I].UpdateState(aTick)

@@ -58,8 +58,10 @@ type
 
     function  GetAlliances(aIndex: Integer): TAllianceType;
     procedure SetAlliances(aIndex: Integer; aValue: TAllianceType);
-    procedure UnitDied(aUnit: TKMUnit);
+    procedure GroupDied(aGroup: TKMUnitGroup);
     procedure HouseDestroyed(aHouse: TKMHouse; aFrom: TPlayerIndex);
+    procedure UnitDied(aUnit: TKMUnit);
+    procedure UnitTrained(aUnit: TKMUnit);
   public
     Enabled: Boolean;
 
@@ -91,7 +93,6 @@ type
     function AddUnitGroup(aUnitType: TUnitType; Position: TKMPoint; aDir: TKMDirection; aUnitPerRow, aCount: Word): TKMUnitGroup;
 
     function TrainUnit(aUnitType: TUnitType; Position: TKMPoint): TKMUnit;
-    procedure TrainingDone(aUnit: TKMUnit);
 
     function CanAddFieldPlan(aLoc: TKMPoint; aFieldType: TFieldType): Boolean;
     function CanAddFakeFieldPlan(aLoc: TKMPoint; aFieldType: TFieldType): Boolean;
@@ -139,7 +140,7 @@ type
 
 
 implementation
-uses KM_PlayersCollection, KM_Resource, KM_ResourceHouse, KM_Sound, KM_Game,
+uses KM_PlayersCollection, KM_Resource, KM_ResourceHouse, KM_Sound, KM_Game, KM_Units_Warrior,
    KM_TextLibrary, KM_AIFields, KM_Scripting;
 
 
@@ -161,7 +162,7 @@ end;
 
 function TKMPlayerCommon.AddUnit(aUnitType: TUnitType; Position: TKMPoint; AutoPlace: Boolean=true; aRequiredWalkConnect: Byte = 0): TKMUnit;
 begin
-  Result := fUnits.Add(fPlayerIndex, aUnitType, Position.X, Position.Y, AutoPlace);
+  Result := fUnits.AddUnit(fPlayerIndex, aUnitType, Position.X, Position.Y, AutoPlace);
 end;
 
 
@@ -264,7 +265,7 @@ begin
 end;
 
 
-//Add unit of aUnitType to Position
+//Add unit of aUnitType to Position via script
 //AutoPlace - add unit to nearest available spot if Position is already taken (or unwalkable)
 //WasTrained - the unit was trained by player and therefor will be counted by Stats
 function TKMPlayer.AddUnit(aUnitType: TUnitType; Position: TKMPoint; AutoPlace: Boolean=true; aRequiredWalkConnect: Byte = 0; WasTrained: Boolean=false): TKMUnit;
@@ -273,7 +274,8 @@ begin
 
   if Result = nil then Exit;
 
-  Result.OnDied := UnitDied;
+  Result.OnUnitDied := UnitDied;
+  Result.OnUnitTrained := UnitTrained; //Used for debug Scout placed by a cheat
 
   if aUnitType = ut_Worker then
     fBuildList.AddWorker(TKMUnitWorker(Result));
@@ -284,24 +286,37 @@ begin
 end;
 
 
-//Start training unit in school/barracks
+//Start training unit in School/Barracks
 //User can cancel the training, so we don't add unit to stats just yet
 function TKMPlayer.TrainUnit(aUnitType: TUnitType; Position: TKMPoint): TKMUnit;
 begin
-  Result := fUnits.Add(fPlayerIndex, aUnitType, Position.X, Position.Y, false);
+  Result := fUnits.AddUnit(fPlayerIndex, aUnitType, Position.X, Position.Y, False);
+  Result.OnUnitDied := UnitDied;
+  Result.OnUnitTrained := UnitTrained;
 
-  fTerrain.UnitRem(Position); //Adding a unit automatically sets IsUnit, but as the unit is inside for this case we don't want that
+  //Adding a unit automatically sets fTerrain.IsUnit, but since the unit was trained
+  //inside School/Barracks we don't need that
+  fTerrain.UnitRem(Position);
 
   //Do not add unit to statistic just yet, wait till it's training complete
 end;
 
 
-procedure TKMPlayer.TrainingDone(aUnit: TKMUnit);
+procedure TKMPlayer.UnitTrained(aUnit: TKMUnit);
+var G: TKMUnitGroup;
 begin
   if aUnit.UnitType = ut_Worker then
     fBuildList.AddWorker(TKMUnitWorker(aUnit));
   if aUnit.UnitType = ut_Serf then
     fDeliveries.AddSerf(TKMUnitSerf(aUnit));
+
+  if aUnit is TKMUnitWarrior then
+  begin
+    G := fUnitGroups.WarriorTrained(TKMUnitWarrior(aUnit));
+    Assert(G <> nil, 'It is certain that equipped warrior creates or find some group to join to');
+    G.OnGroupDied := GroupDied;
+    fScripting.ProcWarriorEquipped(aUnit, G);
+  end;
 
   fScripting.ProcUnitTrained(aUnit);
   fStats.UnitCreated(aUnit.UnitType, True);
@@ -321,6 +336,10 @@ begin
   else
   if aUnitType in [WARRIOR_MIN..WARRIOR_MAX] then
     Result := fUnitGroups.AddGroup(fPlayerIndex, aUnitType, Position.X, Position.Y, aDir, aUnitPerRow, aCount);
+
+  //Group can be nil if it fails to be placed on terrain (e.g. because of terrain height passability)
+  if Result <> nil then
+    Result.OnGroupDied := GroupDied;
 
   //Units will be added to statistic inside the function for some units may not fit on map
 end;
@@ -952,9 +971,17 @@ begin
 
   //Assign event handler after load
   for I := 0 to fUnits.Count - 1 do
-    fUnits[I].OnDied := UnitDied;
+  begin
+    fUnits[I].OnUnitDied := UnitDied;
+    fUnits[I].OnUnitTrained := UnitTrained;
+  end;
 
   fUnitGroups.SyncLoad;
+
+  //Assign event handler after load
+  for I := 0 to fUnitGroups.Count - 1 do
+    fUnitGroups[I].OnGroupDied := GroupDied;
+
   fHouses.SyncLoad;
 
   //Assign event handler after load
@@ -984,6 +1011,16 @@ begin
   if fPlayers.Highlight = aUnit then
     fPlayers.Highlight := nil;
   if fPlayers.Selected = aUnit then
+    fPlayers.Selected := nil;
+end;
+
+
+procedure TKMPlayer.GroupDied(aGroup: TKMUnitGroup);
+begin
+  //Groups arent counted in statistics
+  if fPlayers.Highlight = aGroup then
+    fPlayers.Highlight := nil;
+  if fPlayers.Selected = aGroup then
     fPlayers.Selected := nil;
 end;
 

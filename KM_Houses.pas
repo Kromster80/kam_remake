@@ -1818,7 +1818,7 @@ begin
     if UnitWIP <> nil then
     begin //Make sure unit started training
       TKMUnit(UnitWIP).CloseUnit(False); //Don't remove tile usage, we are inside the school
-      fHideOneGold := false;
+      fHideOneGold := False;
     end;
     UnitWIP := nil;
     Queue[0] := ut_None; //Removed the in training unit
@@ -2195,9 +2195,8 @@ begin
     RecruitsList.Delete(0); //Delete first recruit in the list
 
     //Make new unit
-    Soldier := TKMUnitWarrior(fPlayers[fOwner].AddUnit(aUnitType, GetEntrance, False, 0, True));
-    fTerrain.UnitRem(GetEntrance); //Adding a unit automatically sets IsUnit, but as the unit is inside for this case we don't want that
-    Soldier.SetInHouse(Self); //Put him in the barracks, so when it is destroyed he is placed somewhere
+    Soldier := TKMUnitWarrior(fPlayers[fOwner].TrainUnit(aUnitType, GetEntrance));
+    Soldier.SetInHouse(Self); //Put him in the barracks, so if it is destroyed while he is inside he is placed somewhere
     Soldier.Visible := False; //Make him invisible as he is inside the barracks
     Soldier.Condition := Round(TROOPS_TRAINED_CONDITION * UNIT_MAX_CONDITION); //All soldiers start with 3/4, so groups get hungry at the same time
     //Soldier.OrderLoc := KMPointBelow(GetEntrance); //Position in front of the barracks facing north

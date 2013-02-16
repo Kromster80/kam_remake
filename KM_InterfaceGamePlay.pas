@@ -1555,18 +1555,19 @@ begin
     //Hints
     //@Lewin: I suggest we check other games, but I have a feeling that using same shortcuts for every version would be better
     //@Krom: Yes we should check other games. I did it this way to match KaM TSK/TPR.
-    Button_Army_GoTo.Hint   := fTextLibrary[TX_ARMY_GOTO_HINT];
-    Button_Army_Stop.Hint   := Format(fTextLibrary[TX_TROOP_HALT_HINT], [SC_ARMY_HALT]);
-    Button_Army_Attack.Hint := fTextLibrary[TX_ARMY_ATTACK_HINT];
-    Button_Army_RotCW.Hint  := fTextLibrary[TX_ARMY_ROTATE_CW_HINT];
-    Button_Army_Storm.Hint  := fTextLibrary[TX_ARMY_STORM_HINT];
-    Button_Army_RotCCW.Hint := fTextLibrary[TX_ARMY_ROTATE_CCW_HINT];
-    Button_Army_ForDown.Hint:= fTextLibrary[TX_ARMY_LINE_ADD_HINT];
-    Button_Army_ForUp.Hint  := fTextLibrary[TX_ARMY_LINE_REM_HINT];
-    Button_Army_Split.Hint  := Format(fTextLibrary[TX_TROOP_SPLIT_HINT], [SC_ARMY_SPLIT]);
-    Button_Army_Join.Hint   := Format(fTextLibrary[TX_TROOP_LINK_HINT], [SC_ARMY_LINK]);
-    Button_Army_Feed.Hint   := fTextLibrary[TX_ARMY_FEED_HINT];
-    Button_Unit_Dismiss.Hint:= 'Dismiss unit';
+    //@Lewin: Lets take Eng layout as base and stick to it
+    Button_Army_GoTo.Hint     := fTextLibrary[TX_ARMY_GOTO_HINT];
+    Button_Army_Stop.Hint     := Format(fTextLibrary[TX_TROOP_HALT_HINT], [SC_ARMY_HALT]);
+    Button_Army_Attack.Hint   := fTextLibrary[TX_ARMY_ATTACK_HINT];
+    Button_Army_RotCW.Hint    := fTextLibrary[TX_ARMY_ROTATE_CW_HINT];
+    Button_Army_Storm.Hint    := fTextLibrary[TX_ARMY_STORM_HINT];
+    Button_Army_RotCCW.Hint   := fTextLibrary[TX_ARMY_ROTATE_CCW_HINT];
+    Button_Army_ForDown.Hint  := fTextLibrary[TX_ARMY_LINE_ADD_HINT];
+    Button_Army_ForUp.Hint    := fTextLibrary[TX_ARMY_LINE_REM_HINT];
+    Button_Army_Split.Hint    := Format(fTextLibrary[TX_TROOP_SPLIT_HINT], [SC_ARMY_SPLIT]);
+    Button_Army_Join.Hint     := Format(fTextLibrary[TX_TROOP_LINK_HINT], [SC_ARMY_LINK]);
+    Button_Army_Feed.Hint     := fTextLibrary[TX_ARMY_FEED_HINT];
+    Button_Unit_Dismiss.Hint  := 'Dismiss unit';
 
     {Army controls...
     Go to     Stop      Attack

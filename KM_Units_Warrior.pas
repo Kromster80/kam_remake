@@ -35,9 +35,8 @@ type
     procedure TakeNextOrder;
     procedure WalkedOut;
   public
-    OnKilled: TKMWarriorEvent;
+    OnWarriorDied: TKMWarriorEvent; //Separate event from OnUnitDied to report to Group
     OnPickedFight: TKMWarrior2Event;
-    OnTrained: TKMWarriorEvent;
     FaceDir: TKMDirection; //Direction we should face after walking. Only check for enemies in this direction.
 
     constructor Create(aID: Cardinal; aUnitType: TUnitType; PosX, PosY: Word; aOwner: TPlayerIndex);
@@ -94,10 +93,6 @@ begin
   fNextOrder         := woNone;
   fOrder             := woNone;
   fOrderLoc          := KMPoint(PosX, PosY);
-
-  //When player trains a warrior, we need that warrior to report to Groups
-  //when he walks out of the Barracks, to properly link him to nearest Group
-  OnTrained := fPlayers[fOwner].UnitGroups.WarriorTrained;
 end;
 
 
@@ -113,10 +108,6 @@ begin
   LoadStream.Read(fStormDelay);
   LoadStream.Read(fUseExactTarget);
   LoadStream.Read(FaceDir);
-
-  //Incase save occured after warrior was created, but before he walked out of Barracks
-  if not fIsDead then
-    OnTrained := fPlayers[fOwner].UnitGroups.WarriorTrained;
 end;
 
 
@@ -151,7 +142,10 @@ begin
   if not IsDeadOrDying then
   begin
     ClearOrderTarget; //This ensures that pointer usage tracking is reset
-    OnKilled(Self);
+
+    //Report to Group that we have died
+    if Assigned(OnWarriorDied) then
+      OnWarriorDied(Self);
   end;
 
   inherited;
@@ -267,8 +261,8 @@ end;
 //(units are independent when leaving barracks, till they find a group to link to)
 function TKMUnitWarrior.InAGroup: Boolean;
 begin
-  //Event is assigned when unit is added to a group
-  Result := Assigned(OnKilled);
+  //Event is assigned when unit is added to a group, so we can use it as a marker
+  Result := Assigned(OnWarriorDied);
 end;
 
 
@@ -610,8 +604,8 @@ end;
 procedure TKMUnitWarrior.WalkedOut;
 begin
   //Report for duty (Groups will link us or create a new group)
-  if Assigned(OnTrained) then
-    OnTrained(Self);
+  if Assigned(OnUnitTrained) then
+    OnUnitTrained(Self);
 end;
 
 
