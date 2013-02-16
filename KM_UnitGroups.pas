@@ -227,8 +227,6 @@ begin
   //Whole group should have the same condition
   NewCondition := Round(UNIT_MAX_CONDITION * (UNIT_CONDITION_BASE + KaMRandomS(UNIT_CONDITION_RANDOM)));
 
-  DesiredArea := fTerrain.GetWalkConnectID(KMPoint(PosX, PosY));
-
   if fGame.IsMapEditor then
   begin
     //In MapEd we create only flagholder, other members are virtual
@@ -243,18 +241,22 @@ begin
     end;
   end
   else
-  for I := 0 to aCount - 1 do
   begin
-    UnitLoc := GetPositionInGroup2(PosX, PosY, aDir, I, aUnitPerRow, fTerrain.MapX, fTerrain.MapY, DoesFit);
-    if not DoesFit then Continue;
+    //We want all of the Group memmbers to be placed in one area
+    DesiredArea := fTerrain.GetWalkConnectID(KMPoint(PosX, PosY));
+    for I := 0 to aCount - 1 do
+    begin
+      UnitLoc := GetPositionInGroup2(PosX, PosY, aDir, I, aUnitPerRow, fTerrain.MapX, fTerrain.MapY, DoesFit);
+      if not DoesFit then Continue;
 
-    Warrior := TKMUnitWarrior(fPlayers[aOwner].AddUnit(aUnitType, UnitLoc, True, DesiredArea, False));
-    if Warrior = nil then Continue;
+      Warrior := TKMUnitWarrior(fPlayers[aOwner].AddUnit(aUnitType, UnitLoc, True, DesiredArea));
+      if Warrior = nil then Continue;
 
-    Warrior.Direction := aDir;
-    Warrior.AnimStep  := UnitStillFrames[aDir];
-    AddMember(Warrior);
-    Warrior.Condition := NewCondition;
+      Warrior.Direction := aDir;
+      Warrior.AnimStep  := UnitStillFrames[aDir];
+      AddMember(Warrior);
+      Warrior.Condition := NewCondition;
+    end;
   end;
 
   //We could not set it earlier cos it's limited by Count

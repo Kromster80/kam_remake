@@ -22,7 +22,7 @@ type
     property PlayerIndex: TPlayerIndex read fPlayerIndex;
     property Units: TKMUnitsCollection read fUnits;
 
-    function AddUnit(aUnitType: TUnitType; Position: TKMPoint; AutoPlace: Boolean=true; aRequiredWalkConnect: Byte = 0): TKMUnit;
+    function AddUnit(aUnitType: TUnitType; Position: TKMPoint; AutoPlace: Boolean = True): TKMUnit;
     procedure RemUnit(Position: TKMPoint);
     function UnitsHitTest(X, Y: Integer; const UT: TUnitType = ut_Any): TKMUnit;
 
@@ -89,7 +89,7 @@ type
 
     procedure AfterMissionInit(aFlattenRoads: Boolean);
 
-    function AddUnit(aUnitType: TUnitType; Position: TKMPoint; AutoPlace: Boolean=true; aRequiredWalkConnect: Byte = 0; WasTrained: Boolean = False): TKMUnit; reintroduce;
+    function AddUnit(aUnitType: TUnitType; Position: TKMPoint; AutoPlace: Boolean = True; aRequiredWalkConnect: Byte = 0): TKMUnit; reintroduce;
     function AddUnitGroup(aUnitType: TUnitType; Position: TKMPoint; aDir: TKMDirection; aUnitPerRow, aCount: Word): TKMUnitGroup;
 
     function TrainUnit(aUnitType: TUnitType; Position: TKMPoint): TKMUnit;
@@ -160,9 +160,9 @@ begin
 end;
 
 
-function TKMPlayerCommon.AddUnit(aUnitType: TUnitType; Position: TKMPoint; AutoPlace: Boolean=true; aRequiredWalkConnect: Byte = 0): TKMUnit;
+function TKMPlayerCommon.AddUnit(aUnitType: TUnitType; Position: TKMPoint; AutoPlace: Boolean = True): TKMUnit;
 begin
-  Result := fUnits.AddUnit(fPlayerIndex, aUnitType, Position.X, Position.Y, AutoPlace);
+  Result := fUnits.AddUnit(fPlayerIndex, aUnitType, Position, AutoPlace);
 end;
 
 
@@ -267,22 +267,22 @@ end;
 
 //Add unit of aUnitType to Position via script
 //AutoPlace - add unit to nearest available spot if Position is already taken (or unwalkable)
-//WasTrained - the unit was trained by player and therefor will be counted by Stats
-function TKMPlayer.AddUnit(aUnitType: TUnitType; Position: TKMPoint; AutoPlace: Boolean=true; aRequiredWalkConnect: Byte = 0; WasTrained: Boolean=false): TKMUnit;
+function TKMPlayer.AddUnit(aUnitType: TUnitType; Position: TKMPoint; AutoPlace: Boolean = True; aRequiredWalkConnect: Byte = 0): TKMUnit;
 begin
-  Result := inherited AddUnit(aUnitType, Position, AutoPlace);
+  Result := fUnits.AddUnit(fPlayerIndex, aUnitType, Position, AutoPlace, aRequiredWalkConnect);
 
+  //Unit failed to add, that happens
   if Result = nil then Exit;
 
   Result.OnUnitDied := UnitDied;
   Result.OnUnitTrained := UnitTrained; //Used for debug Scout placed by a cheat
 
-  if aUnitType = ut_Worker then
+  if Result is TKMUnitWorker then
     fBuildList.AddWorker(TKMUnitWorker(Result));
-  if aUnitType = ut_Serf then
+  if Result is TKMUnitWorker then
     fDeliveries.AddSerf(TKMUnitSerf(Result));
 
-  fStats.UnitCreated(aUnitType, WasTrained);
+  fStats.UnitCreated(aUnitType, False);
 end;
 
 
@@ -290,7 +290,7 @@ end;
 //User can cancel the training, so we don't add unit to stats just yet
 function TKMPlayer.TrainUnit(aUnitType: TUnitType; Position: TKMPoint): TKMUnit;
 begin
-  Result := fUnits.AddUnit(fPlayerIndex, aUnitType, Position.X, Position.Y, False);
+  Result := fUnits.AddUnit(fPlayerIndex, aUnitType, Position, False);
   Result.OnUnitDied := UnitDied;
   Result.OnUnitTrained := UnitTrained;
 

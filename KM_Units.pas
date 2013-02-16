@@ -263,7 +263,7 @@ type
   public
     constructor Create;
     destructor Destroy; override;
-    function AddUnit(aOwner: TPlayerIndex; aUnitType: TUnitType; PosX, PosY: Integer; aAutoPlace: boolean = true; aRequiredWalkConnect: Byte = 0): TKMUnit;
+    function AddUnit(aOwner: TPlayerIndex; aUnitType: TUnitType; aLoc: TKMPoint; aAutoPlace: boolean = True; aRequiredWalkConnect: Byte = 0): TKMUnit;
     property Count: Integer read GetCount;
     property Units[aIndex: Integer]: TKMUnit read GetUnit; default; //Use instead of Items[.]
     procedure RemoveUnit(aUnit: TKMUnit);
@@ -2091,47 +2091,46 @@ begin
 end;
 
 
-{ AutoPlace means should we find a spot for this unit or just place it where we are told.
-  Used for creating units still inside schools }
-function TKMUnitsCollection.AddUnit(aOwner: TPlayerIndex; aUnitType: TUnitType; PosX, PosY: Integer; aAutoPlace: Boolean=true; aRequiredWalkConnect:byte=0): TKMUnit;
+//AutoPlace means we should try to find a spot for this unit instead of just placing it where we were told to
+function TKMUnitsCollection.AddUnit(aOwner: TPlayerIndex; aUnitType: TUnitType; aLoc: TKMPoint; aAutoPlace: Boolean = True; aRequiredWalkConnect: Byte = 0): TKMUnit;
 var
   ID: Cardinal;
-  P: TKMPoint;
+  PlaceTo: TKMPoint;
 begin
   if aAutoPlace then
   begin
-    P := KMPoint(0,0); // Will have 0:0 if no place found
+    PlaceTo := KMPoint(0,0); // Will have 0:0 if no place found
     if aRequiredWalkConnect = 0 then
-      aRequiredWalkConnect := fTerrain.GetWalkConnectID(KMPoint(PosX, PosY));
-    fPlayers.FindPlaceForUnit(PosX, PosY, aUnitType, P, aRequiredWalkConnect);
-    PosX := P.X;
-    PosY := P.Y;
-  end;
+      aRequiredWalkConnect := fTerrain.GetWalkConnectID(aLoc);
+    fPlayers.FindPlaceForUnit(aLoc.X, aLoc.Y, aUnitType, PlaceTo, aRequiredWalkConnect);
+  end
+  else
+    PlaceTo := aLoc;
 
   //Check if Pos is within map coords first, as other checks rely on this
-  if not fTerrain.TileInMapCoords(PosX, PosY) then
+  if not fTerrain.TileInMapCoords(PlaceTo.X, PlaceTo.Y) then
   begin
-    fLog.AddTime('Unable to add unit to '+KM_Points.TypeToString(KMPoint(PosX,PosY)));
+    fLog.AddTime('Unable to add unit to ' + KM_Points.TypeToString(PlaceTo));
     Result := nil;
     Exit;
   end;
 
-  if fTerrain.HasUnit(KMPoint(PosX, PosY)) then
+  if fTerrain.HasUnit(PlaceTo) then
     raise ELocError.Create('No space for ' + fResource.UnitDat[aUnitType].UnitName +
-                           ', tile occupied by ' + fResource.UnitDat[TKMUnit(fTerrain.Land[PosY,PosX].IsUnit).UnitType].UnitName,
-                           KMPoint(PosX,PosY));
+                           ', tile occupied by ' + fResource.UnitDat[TKMUnit(fTerrain.Land[PlaceTo.Y,PlaceTo.X].IsUnit).UnitType].UnitName,
+                           PlaceTo);
 
   ID := fGame.GetNewID;
   case aUnitType of
-    ut_Serf:                          Result := TKMUnitSerf.Create(ID, aUnitType, PosX, PosY, aOwner);
-    ut_Worker:                        Result := TKMUnitWorker.Create(ID, aUnitType, PosX, PosY, aOwner);
+    ut_Serf:                          Result := TKMUnitSerf.Create(ID, aUnitType, PlaceTo.X, PlaceTo.Y, aOwner);
+    ut_Worker:                        Result := TKMUnitWorker.Create(ID, aUnitType, PlaceTo.X, PlaceTo.Y, aOwner);
     ut_WoodCutter..ut_Fisher,
     {ut_Worker,}
-    ut_StoneCutter..ut_Metallurgist:  Result := TKMUnitCitizen.Create(ID, aUnitType, PosX, PosY, aOwner);
-    ut_Recruit:                       Result := TKMUnitRecruit.Create(ID, aUnitType, PosX, PosY, aOwner);
-    WARRIOR_MIN..WARRIOR_MAX:         Result := TKMUnitWarrior.Create(ID, aUnitType, PosX, PosY, aOwner);
-    ANIMAL_MIN..ANIMAL_MAX:           Result := TKMUnitAnimal.Create(ID, aUnitType, PosX, PosY, aOwner);
-    else                              raise ELocError.Create('Add ' + fResource.UnitDat[aUnitType].UnitName, KMPoint(PosX, PosY));
+    ut_StoneCutter..ut_Metallurgist:  Result := TKMUnitCitizen.Create(ID, aUnitType, PlaceTo.X, PlaceTo.Y, aOwner);
+    ut_Recruit:                       Result := TKMUnitRecruit.Create(ID, aUnitType, PlaceTo.X, PlaceTo.Y, aOwner);
+    WARRIOR_MIN..WARRIOR_MAX:         Result := TKMUnitWarrior.Create(ID, aUnitType, PlaceTo.X, PlaceTo.Y, aOwner);
+    ANIMAL_MIN..ANIMAL_MAX:           Result := TKMUnitAnimal.Create(ID, aUnitType, PlaceTo.X, PlaceTo.Y, aOwner);
+    else                              raise ELocError.Create('Add ' + fResource.UnitDat[aUnitType].UnitName, PlaceTo);
   end;
 
   if Result <> nil then
