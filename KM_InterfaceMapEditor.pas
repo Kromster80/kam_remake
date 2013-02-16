@@ -166,6 +166,7 @@ type
         TilesRandom: TKMCheckBox;
       Panel_Objects: TKMPanel;
         ObjectErase: TKMButtonFlat;
+        ObjectBlock: TKMButtonFlat;
         ObjectsTable: array [0..8] of TKMButtonFlat;
         ObjectsScroll: TKMScrollBar;
       Panel_Selection: TKMPanel;
@@ -433,7 +434,13 @@ begin
   end else
   if (Sender = Button_Terrain[ttObject]) then
   begin
-    Terrain_ObjectsChange(ObjectsTable[fLastObject]);
+    if fLastObject = 255 then
+      Terrain_ObjectsChange(ObjectErase)
+    else
+      if fLastObject = 61 then
+        Terrain_ObjectsChange(ObjectBlock)
+      else
+        Terrain_ObjectsChange(ObjectsTable[fLastObject]);
     DisplayPage(Panel_Objects);
   end else
   if (Sender = Button_Terrain[ttSelection]) then
@@ -902,8 +909,6 @@ begin
       ObjectsScroll.MaxValue := fResource.MapElements.ValidCount div 3 - 3;
       ObjectsScroll.Position := 0;
       ObjectsScroll.OnChange := Terrain_ObjectsRefresh;
-      ObjectErase := TKMButtonFlat.Create(Panel_Objects, 0, 8,32,32,340);
-      ObjectErase.Hint := fTextLibrary[TX_MAPED_TERRAIN_OBJECTS_REMOVE];
       for J := 0 to 2 do for K := 0 to 2 do
       begin
         ObjectsTable[J*3+K] := TKMButtonFlat.Create(Panel_Objects, J*65, 40+K*85,64,84,1,rxTrees); //RXid=1  // 1 2
@@ -911,8 +916,15 @@ begin
         ObjectsTable[J*3+K].OnClick := Terrain_ObjectsChange;
         ObjectsTable[J*3+K].OnMouseWheel := ObjectsScroll.MouseWheel;
       end;
+      ObjectErase := TKMButtonFlat.Create(Panel_Objects, 0, 8,32,32,340);
+      ObjectErase.Hint := fTextLibrary[TX_MAPED_TERRAIN_OBJECTS_REMOVE];
       ObjectErase.Tag := 255; //no object
       ObjectErase.OnClick := Terrain_ObjectsChange;
+
+      ObjectBlock := TKMButtonFlat.Create(Panel_Objects, TB_WIDTH-32, 8,32,32,254,rxTrees);
+      ObjectBlock.Hint := 'Block walking';
+      ObjectBlock.Tag := 61; //no object
+      ObjectBlock.OnClick := Terrain_ObjectsChange;
 
     Panel_Selection := TKMPanel.Create(Panel_Terrain,0,28,TB_WIDTH,400);
       TKMLabel.Create(Panel_Selection, 0, PAGE_TITLE_Y, TB_WIDTH, 0, 'Copy/paste', fnt_Outline, taCenter);
@@ -1980,6 +1992,10 @@ begin
     //Erase
     GameCursor.Tag1 := 255
   else
+  if TKMButtonFlat(Sender).Tag = 61 then
+    //Block
+    GameCursor.Tag1 := 61
+  else
     //Object
     GameCursor.Tag1 := fResource.MapElements.ValidToObject[ObjID]; //0..n-1
 
@@ -2014,6 +2030,7 @@ begin
   end;
 
   ObjectErase.Down := (GameCursor.Mode = cmObjects) and (GameCursor.Tag1 = 255); //or delete button
+  ObjectBlock.Down := (GameCursor.Mode = cmObjects) and (GameCursor.Tag1 = 61); //or block button
 end;
 
 
@@ -2909,7 +2926,7 @@ begin
   else //Increase
     NewCount := Group.MapEdCount + ClickAmount[AButton];
 
-  Group.MapEdCount := EnsureRange(NewCount, 0, 200); //Limit max members
+  Group.MapEdCount := EnsureRange(NewCount, 1, 200); //Limit max members
   ImageStack_Army.SetCount(Group.MapEdCount, Group.UnitsPerRow, Group.UnitsPerRow div 2 + 1);
   Label_ArmyCount.Caption := IntToStr(Group.MapEdCount);
 end;

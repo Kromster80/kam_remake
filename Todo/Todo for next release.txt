@@ -9,9 +9,10 @@ Features:
 
 Finishing up:
  +	Message log
+ +	Finish new MapEd features (add ADD_WARE_TO_LAST)
+	SP maps list will keep jumping to the top while items are being added (you can't scroll down until scanning is done)
 	Finish AI stuff (defending and attacking prototype?)
 	Decide which script commands will be implemented for this release and implement them
-	Finish new MapEd features (add ADD_WARE_TO_LAST)
 	Example maps that show what can be done with new scripts
 
 
