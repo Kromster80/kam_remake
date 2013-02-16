@@ -22,7 +22,7 @@ type
     property PlayerIndex: TPlayerIndex read fPlayerIndex;
     property Units: TKMUnitsCollection read fUnits;
 
-    function AddUnit(aUnitType: TUnitType; Position: TKMPoint; AutoPlace: Boolean = True): TKMUnit;
+    function AddUnit(aUnitType: TUnitType; aLoc: TKMPoint): TKMUnit;
     procedure RemUnit(Position: TKMPoint);
     function UnitsHitTest(X, Y: Integer; const UT: TUnitType = ut_Any): TKMUnit;
 
@@ -89,7 +89,7 @@ type
 
     procedure AfterMissionInit(aFlattenRoads: Boolean);
 
-    function AddUnit(aUnitType: TUnitType; Position: TKMPoint; AutoPlace: Boolean = True; aRequiredWalkConnect: Byte = 0): TKMUnit; reintroduce;
+    function AddUnit(aUnitType: TUnitType; aLoc: TKMPoint; AutoPlace: Boolean = True; aRequiredWalkConnect: Byte = 0): TKMUnit; reintroduce;
     function AddUnitGroup(aUnitType: TUnitType; Position: TKMPoint; aDir: TKMDirection; aUnitPerRow, aCount: Word): TKMUnitGroup;
 
     function TrainUnit(aUnitType: TUnitType; Position: TKMPoint): TKMUnit;
@@ -160,9 +160,10 @@ begin
 end;
 
 
-function TKMPlayerCommon.AddUnit(aUnitType: TUnitType; Position: TKMPoint; AutoPlace: Boolean = True): TKMUnit;
+function TKMPlayerCommon.AddUnit(aUnitType: TUnitType; aLoc: TKMPoint): TKMUnit;
 begin
-  Result := fUnits.AddUnit(fPlayerIndex, aUnitType, Position, AutoPlace);
+  //Animals are autoplaced by default
+  Result := fUnits.AddUnit(fPlayerIndex, aUnitType, aLoc, True);
 end;
 
 
@@ -265,11 +266,11 @@ begin
 end;
 
 
-//Add unit of aUnitType to Position via script
-//AutoPlace - add unit to nearest available spot if Position is already taken (or unwalkable)
-function TKMPlayer.AddUnit(aUnitType: TUnitType; Position: TKMPoint; AutoPlace: Boolean = True; aRequiredWalkConnect: Byte = 0): TKMUnit;
+//Place unit of aUnitType to aLoc via script
+//AutoPlace - add unit to nearest available spot if aLoc is already taken (or unwalkable)
+function TKMPlayer.AddUnit(aUnitType: TUnitType; aLoc: TKMPoint; AutoPlace: Boolean = True; aRequiredWalkConnect: Byte = 0): TKMUnit;
 begin
-  Result := fUnits.AddUnit(fPlayerIndex, aUnitType, Position, AutoPlace, aRequiredWalkConnect);
+  Result := fUnits.AddUnit(fPlayerIndex, aUnitType, aLoc, AutoPlace, aRequiredWalkConnect);
 
   //Unit failed to add, that happens
   if Result = nil then Exit;

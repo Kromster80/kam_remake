@@ -3470,14 +3470,15 @@ begin
                     fPlayers.RemAnyUnit(P)
                   else
                   if fTerrain.CanPlaceUnit(P, TUnitType(GameCursor.Tag1)) then
-                  begin //Check if we can really add a unit
+                  begin
+                    //Check if we can really add a unit
                     if TUnitType(GameCursor.Tag1) in [CITIZEN_MIN..CITIZEN_MAX] then
                       MyPlayer.AddUnit(TUnitType(GameCursor.Tag1), P, False)
                     else
                     if TUnitType(GameCursor.Tag1) in [WARRIOR_MIN..WARRIOR_MAX] then
                       MyPlayer.AddUnitGroup(TUnitType(GameCursor.Tag1), P, dir_S, 1, 1)
                     else
-                      fPlayers.PlayerAnimals.AddUnit(TUnitType(GameCursor.Tag1), P, false);
+                      fPlayers.PlayerAnimals.AddUnit(TUnitType(GameCursor.Tag1), P);
                   end;
       cmMarkers:  case GameCursor.Tag1 of
                     MARKER_REVEAL:        fGame.MapEditor.Revealers[MyPlayer.PlayerIndex].AddEntry(P, TrackBar_RevealNewSize.Position);
