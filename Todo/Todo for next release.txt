@@ -28,6 +28,7 @@ After first RC:
 	Check main menu / gameplay interfaces for text that needs to be added to the LIBX (e.g. lobby speed)
 	Add missing texts from MapEd to LIBX (maybe ignore some stuff in temporary interfaces that will be improved next release?)
 	Send text off to be translated (do this late in the RC testing so translators don't get 3 separate requests for each RC with changed text)
+	Performance test the replay of a full MP game to check for chokepoints in a real-world scenario
 
 
 Balance/exploits:

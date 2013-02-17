@@ -103,6 +103,26 @@ var
 begin
   //Clear previous data
   Reset;
+  //@Krom: On the first run fOpenRef will be empty, then we SetLength here and below assume all
+  //       the allocated space is filled with nil. Does SetLength fill the newly allocated memory
+  //       with nil for dynamic arrays of TObject? Delphi Baiscs says:
+  //       http://www.delphibasics.co.uk/RTL.asp?Name=SetLength
+  //       "This extra space is only initialised if it contains strings, interfaces, or Variants. "
+  //       Does that include TObject? Should the code be more like this?:
+
+  {
+  //Check whether oRef needs to be initialised
+  if Length(fOpenRef) = 0 then
+  begin
+    SetLength(fOpenRef, fTerrain.MapY+1, fTerrain.MapX+1);
+    for I := 0 to High(fOpenRef) do
+    for K := 0 to High(fOpenRef[I]) do
+      fOpenRef[I,K] := nil;
+  end
+  else
+    Reset; //Clear the old data from last time
+  }
+
   SetLength(fOpenRef, fTerrain.MapY+1, fTerrain.MapX+1);
 
   //Initialize first element
