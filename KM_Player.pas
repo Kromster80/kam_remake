@@ -280,7 +280,7 @@ begin
 
   if Result is TKMUnitWorker then
     fBuildList.AddWorker(TKMUnitWorker(Result));
-  if Result is TKMUnitWorker then
+  if Result is TKMUnitSerf then
     fDeliveries.AddSerf(TKMUnitSerf(Result));
 
   fStats.UnitCreated(aUnitType, False);
