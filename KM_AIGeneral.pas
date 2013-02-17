@@ -197,6 +197,7 @@ var
   G: TGroupType;
   Positioned: Boolean;
   Group: TKMUnitGroup;
+  GroupType: TGroupType;
   NeedsLinkingTo: array [TGroupType] of TKMUnitGroup;
 begin
   for G := Low(TGroupType) to High(TGroupType) do
@@ -221,9 +222,28 @@ begin
       //We already have a position, finished with this group
       Positioned := fDefencePositions.FindPositionOf(Group) <> nil;
 
-      if Positioned then Continue;
+      if Positioned then
+      begin
+        //If this group doesn't have enough members
+        if (Group.Count < fDefencePositions.TroopFormations[Group.GroupType].NumUnits) then
+          if NeedsLinkingTo[Group.GroupType] = nil then
+            NeedsLinkingTo[Group.GroupType] := Group; //Flag us as needing to be added to
 
-      //Look for group that needs additional members, or a new position to defend
+        Continue;
+      end;
+
+      //Look for group that needs additional members
+      GroupType := Group.GroupType; //Remember it because Group might get emptied
+      if NeedsLinkingTo[GroupType] <> nil then
+      begin
+        fDefencePositions.RestockPositionWith(NeedsLinkingTo[GroupType], Group);
+        if NeedsLinkingTo[GroupType].Count >= fDefencePositions.TroopFormations[GroupType].NumUnits then
+          NeedsLinkingTo[GroupType] := nil; //Group is now full
+
+        Continue;
+      end;
+
+      //Look for a new position to defend
       //In this case we choose the closest group, then move to a higher priority one later (see above)
       //This means at the start of the mission troops will take the position they are placed at rather than swapping around
       Positioned := fDefencePositions.FindPlaceForGroup(Group, AI_LINK_IDLE, AI_FILL_CLOSEST);
@@ -235,13 +255,7 @@ begin
         //If this group doesn't have enough members
         if (Group.Count < fDefencePositions.TroopFormations[Group.GroupType].NumUnits) then
           if NeedsLinkingTo[Group.GroupType] = nil then
-            NeedsLinkingTo[Group.GroupType] := Group //Flag us as needing to be added to
-          else
-          begin
-            fDefencePositions.RestockPositionWith(NeedsLinkingTo[UnitGroups[Group.UnitType]], Group);
-            if NeedsLinkingTo[Group.GroupType].Count >= fDefencePositions.TroopFormations[UnitGroups[Group.UnitType]].NumUnits then
-              NeedsLinkingTo[Group.GroupType] := nil; //Group is now full
-          end;
+            NeedsLinkingTo[Group.GroupType] := Group; //Flag us as needing to be added to
     end;
   end;
 end;
