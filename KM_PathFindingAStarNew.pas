@@ -109,6 +109,11 @@ begin
   //       http://www.delphibasics.co.uk/RTL.asp?Name=SetLength
   //       "This extra space is only initialised if it contains strings, interfaces, or Variants. "
   //       Does that include TObject? Should the code be more like this?:
+  //@Lewin: I believe initialized is meant here in a way strings need additional
+  //        init apart from memory allocation (pointer counting, 0-terminator, etc)
+  //        With TObject memory is just filled with zeroes (which are the same as nil pointer)
+  //        I've checked with debugger - all the TANodes are neat nils (even when
+  //        SetLength used to grow the array by each new element). To be deleted ..
 
   {
   //Check whether oRef needs to be initialised
