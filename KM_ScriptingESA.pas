@@ -1239,7 +1239,7 @@ begin
   begin
     U := fIDCache.GetUnit(aUnitID);
     if U <> nil then
-      U.KillUnit;
+      U.KillUnit(-1);
   end
   else
     LogError('Actions.KillUnit', [aUnitID]);

@@ -273,12 +273,8 @@ begin
                               if fType = pt_SlingRock then Damage := fResource.UnitDat[ut_Slingshot].Attack;
                               Damage := Damage div Math.max(fResource.UnitDat[U.UnitType].GetDefenceVsProjectiles, 1); //Max is not needed, but animals have 0 defence
                               if (FRIENDLY_FIRE or (fPlayers.CheckAlliance(fOwner, U.Owner)= at_Enemy))
-                              and (Damage >= KaMRandom(101))
-                              and U.HitPointsDecrease(1) then
-                              begin
-                                fPlayers[fOwner].Stats.UnitKilled(U.UnitType);
-                                fScripting.ProcUnitKilled(U.UnitType, U.Owner, fOwner);
-                              end;
+                              and (Damage >= KaMRandom(101)) then
+                                U.HitPointsDecrease(1, fOwner);
                             end
                             else
                             begin
@@ -290,12 +286,8 @@ begin
                             end;
               pt_TowerRock: if (U <> nil) and not U.IsDeadOrDying and U.Visible
                             and not (U is TKMUnitAnimal)
-                            and (FRIENDLY_FIRE or (fPlayers.CheckAlliance(fOwner, U.Owner)= at_Enemy))
-                            and U.HitPointsDecrease(U.HitPointsMax) then //Instant death
-                            begin
-                              fPlayers[fOwner].Stats.UnitKilled(U.UnitType);
-                              fScripting.ProcUnitKilled(U.UnitType, U.Owner, fOwner);
-                            end;
+                            and (FRIENDLY_FIRE or (fPlayers.CheckAlliance(fOwner, U.Owner)= at_Enemy)) then
+                              U.HitPointsDecrease(U.HitPointsMax, fOwner); //Instant death
             end;
           end;
           RemItem(i);

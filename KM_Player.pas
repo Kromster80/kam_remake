@@ -60,7 +60,7 @@ type
     procedure SetAlliances(aIndex: Integer; aValue: TAllianceType);
     procedure GroupDied(aGroup: TKMUnitGroup);
     procedure HouseDestroyed(aHouse: TKMHouse; aFrom: TPlayerIndex);
-    procedure UnitDied(aUnit: TKMUnit);
+    procedure UnitDied(aUnit: TKMUnit; aFrom: TPlayerIndex);
     procedure UnitTrained(aUnit: TKMUnit);
   public
     Enabled: Boolean;
@@ -723,9 +723,9 @@ begin
     Deliveries.Queue.RemDemand(aHouse);
   end;
 
-  fScripting.ProcHouseLost(aHouse.ID, aHouse.BuildingState=hbs_Done);
+  fScripting.ProcHouseLost(aHouse, aHouse.BuildingState=hbs_Done);
   if (aFrom <> -1) and (aFrom <> fPlayerIndex) then
-    fScripting.ProcHouseDestroyed(aHouse.ID, aFrom, aHouse.BuildingState=hbs_Done);
+    fScripting.ProcHouseDestroyed(aHouse, aFrom, aHouse.BuildingState=hbs_Done);
 
   //Only Done houses are treated as Self-Destruct, Lost, Destroyed
   if aHouse.BuildingState in [hbs_NoGlyph..hbs_Stone] then
@@ -1003,11 +1003,16 @@ begin
 end;
 
 
-procedure TKMPlayer.UnitDied(aUnit: TKMUnit);
+procedure TKMPlayer.UnitDied(aUnit: TKMUnit; aFrom: TPlayerIndex);
 begin
   //Update statistics
   Stats.UnitLost(aUnit.UnitType);
-  fScripting.ProcUnitLost(aUnit.UnitType, fPlayerIndex);
+  fScripting.ProcUnitLost(aUnit);
+  if aFrom <> -1 then
+  begin
+    fPlayers[aFrom].Stats.UnitKilled(aUnit.UnitType);
+    fScripting.ProcUnitKilled(aUnit, aFrom);
+  end;
 
   if fPlayers.Highlight = aUnit then
     fPlayers.Highlight := nil;

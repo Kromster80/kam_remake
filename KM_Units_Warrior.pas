@@ -46,7 +46,7 @@ type
     destructor Destroy; override;
 
     function GetWarriorActivityText(aIsAttackingUnit: Boolean): string;
-    procedure KillUnit; override;
+    procedure KillUnit(aFrom: TPlayerIndex); override;
 
     //Commands from TKMUnitGroup
     procedure OrderFood;
@@ -137,7 +137,7 @@ begin
 end;
 
 
-procedure TKMUnitWarrior.KillUnit;
+procedure TKMUnitWarrior.KillUnit(aFrom: TPlayerIndex);
 begin
   if not IsDeadOrDying then
   begin

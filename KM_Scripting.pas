@@ -39,11 +39,11 @@ type
     procedure ProcTick;
     procedure ProcMissionStart;
     procedure ProcHouseBuilt(aHouse: TKMHouse);
-    procedure ProcHouseLost(aHouseID: Integer; aFullyBuilt: Boolean);
-    procedure ProcHouseDestroyed(aHouseID: Integer; aDestroyerOwner: TPlayerIndex; aFullyBuilt:Boolean);
+    procedure ProcHouseLost(aHouse: TKMHouse; aFullyBuilt: Boolean);
+    procedure ProcHouseDestroyed(aHouse: TKMHouse; aDestroyerOwner: TPlayerIndex; aFullyBuilt:Boolean);
     procedure ProcUnitTrained(aUnit: TKMUnit);
-    procedure ProcUnitLost(aUnitType: TUnitType; aOwner: TPlayerIndex);
-    procedure ProcUnitKilled(aUnitType: TUnitType; aOwner, aKillerOwner: TPlayerIndex);
+    procedure ProcUnitLost(aUnit: TKMUnit);
+    procedure ProcUnitKilled(aUnit: TKMUnit; aKillerOwner: TPlayerIndex);
     procedure ProcWarriorEquipped(aUnit: TKMUnit; aGroup: TKMUnitGroup);
     procedure ProcPlayerDefeated(aPlayer: TPlayerIndex);
     procedure ProcPlayerVictory(aPlayer: TPlayerIndex);
@@ -269,17 +269,7 @@ begin
       Result := False;
       Exit;
     end;
-  //Check if the proc is the proc we want
-  if (Proc.Name = 'ONUNITKILLED') then
-    //Check if the proc has the correct params
-    if not ExportCheck(Sender, Proc, [0, btS32, btS32, btS32], [pmIn, pmIn, pmIn]) then
-    begin
-      //Something is wrong, so cause an error
-      Sender.MakeError('', ecTypeMismatch, '');
-      Result := False;
-      Exit;
-    end;
-  if (Proc.Name = 'ONWARRIOREQUIPPED') or (Proc.Name = 'ONUNITLOST') then
+  if (Proc.Name = 'ONWARRIOREQUIPPED') or (Proc.Name = 'ONUNITKILLED') then
     //Check if the proc has the correct params
     if not ExportCheck(Sender, Proc, [0, btS32, btS32], [pmIn, pmIn]) then
     begin
@@ -289,7 +279,8 @@ begin
       Exit;
     end;
   if (Proc.Name = 'ONUNITTRAINED') or (Proc.Name = 'ONHOUSEBUILT')
-  or (Proc.Name = 'ONPLAYERDEFEATED') or (Proc.Name = 'ONPLAYERVICTORY') then
+  or (Proc.Name = 'ONPLAYERDEFEATED') or (Proc.Name = 'ONPLAYERVICTORY')
+  or (Proc.Name = 'ONUNITLOST') then
     //Check if the proc has the correct params
     if not ExportCheck(Sender, Proc, [0, btS32], [pmIn]) then
     begin
@@ -509,7 +500,7 @@ begin
 end;
 
 
-procedure TKMScripting.ProcHouseLost(aHouseID: Integer; aFullyBuilt: Boolean);
+procedure TKMScripting.ProcHouseLost(aHouse: TKMHouse; aFullyBuilt: Boolean);
 var
   TestFunc: TKMEvent1I1B;
 begin
@@ -517,11 +508,14 @@ begin
   //Store house by its KaM index to keep it consistent with DAT scripts
   TestFunc := TKMEvent1I1B(fExec.GetProcAsMethodN('ONHOUSELOST'));
   if @TestFunc <> nil then
-    TestFunc(aHouseID, aFullyBuilt);
+  begin
+    fIDCache.CacheHouse(aHouse, aHouse.ID); //Improves cache efficiency since aHouse will probably be accessed soon
+    TestFunc(aHouse.ID, aFullyBuilt);
+  end;
 end;
 
 
-procedure TKMScripting.ProcHouseDestroyed(aHouseID: Integer; aDestroyerOwner: TPlayerIndex; aFullyBuilt:Boolean);
+procedure TKMScripting.ProcHouseDestroyed(aHouse: TKMHouse; aDestroyerOwner: TPlayerIndex; aFullyBuilt:Boolean);
 var
   TestFunc: TKMEvent2I1B;
 begin
@@ -529,7 +523,10 @@ begin
   //Store house by its KaM index to keep it consistent with DAT scripts
   TestFunc := TKMEvent2I1B(fExec.GetProcAsMethodN('ONHOUSEDESTROYED'));
   if @TestFunc <> nil then
-    TestFunc(aHouseID, aDestroyerOwner, aFullyBuilt);
+  begin
+    fIDCache.CacheHouse(aHouse, aHouse.ID); //Improves cache efficiency since aHouse will probably be accessed soon
+    TestFunc(aHouse.ID, aDestroyerOwner, aFullyBuilt);
+  end;
 end;
 
 
@@ -548,27 +545,33 @@ begin
 end;
 
 
-procedure TKMScripting.ProcUnitLost(aUnitType: TUnitType; aOwner: TPlayerIndex);
+procedure TKMScripting.ProcUnitLost(aUnit: TKMUnit);
+var
+  TestFunc: TKMEvent1I;
+begin
+  //Check if event handler (procedure) exists and run it
+  //Store unit by its KaM index to keep it consistent with DAT scripts
+  TestFunc := TKMEvent1I(fExec.GetProcAsMethodN('ONUNITLOST'));
+  if @TestFunc <> nil then
+  begin
+    fIDCache.CacheUnit(aUnit, aUnit.ID); //Improves cache efficiency since aUnit will probably be accessed soon
+    TestFunc(aUnit.ID);
+  end;
+end;
+
+
+procedure TKMScripting.ProcUnitKilled(aUnit: TKMUnit; aKillerOwner: TPlayerIndex);
 var
   TestFunc: TKMEvent2I;
 begin
   //Check if event handler (procedure) exists and run it
   //Store unit by its KaM index to keep it consistent with DAT scripts
-  TestFunc := TKMEvent2I(fExec.GetProcAsMethodN('ONUNITLOST'));
+  TestFunc := TKMEvent2I(fExec.GetProcAsMethodN('ONUNITKILLED'));
   if @TestFunc <> nil then
-    TestFunc(aOwner, UnitTypeToIndex[aUnitType]);
-end;
-
-
-procedure TKMScripting.ProcUnitKilled(aUnitType: TUnitType; aOwner, aKillerOwner: TPlayerIndex);
-var
-  TestFunc: TKMEvent3I;
-begin
-  //Check if event handler (procedure) exists and run it
-  //Store unit by its KaM index to keep it consistent with DAT scripts
-  TestFunc := TKMEvent3I(fExec.GetProcAsMethodN('ONUNITKILLED'));
-  if @TestFunc <> nil then
-    TestFunc(aOwner, aKillerOwner, UnitTypeToIndex[aUnitType]);
+  begin
+    fIDCache.CacheUnit(aUnit, aUnit.ID); //Improves cache efficiency since aUnit will probably be accessed soon
+    TestFunc(aUnit.ID, aKillerOwner);
+  end;
 end;
 
 

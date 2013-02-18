@@ -14,6 +14,7 @@ type
   TKMUnit = class;
   TKMUnitWorker = class;
   TKMUnitEvent = procedure(aUnit: TKMUnit) of object;
+  TKMUnitFromEvent = procedure(aUnit: TKMUnit; aFrom: TPlayerIndex) of object;
 
   TActionResult = (ActContinues, ActDone, ActAborted); //
 
@@ -76,6 +77,7 @@ type
     fVisible: Boolean;
     fIsDead: Boolean;
     fKillASAP: Boolean;
+    fKillASAPFrom: TPlayerIndex;
     fPointerCount: Word;
     fInHouse: TKMHouse; //House we are currently in
     fCurrPosition: TKMPoint; //Where we are now
@@ -96,7 +98,7 @@ type
   public
     AnimStep: Integer;
     IsExchanging: Boolean; //Current walk is an exchange, used for sliding
-    OnUnitDied: TKMUnitEvent;
+    OnUnitDied: TKMUnitFromEvent;
     OnUnitTrained: TKMUnitEvent;
 
     constructor Create(aID: Cardinal; aUnitType: TUnitType; aLoc: TKMPoint; aOwner: TPlayerIndex);
@@ -108,7 +110,7 @@ type
     procedure ReleaseUnitPointer;  //Decreases the pointer counter
     property GetPointerCount: Word read fPointerCount;
 
-    procedure KillUnit; virtual; //Creates TTaskDie which then will Close the unit from further access
+    procedure KillUnit(aFrom: TPlayerIndex); virtual; //Creates TTaskDie which then will Close the unit from further access
     procedure CloseUnit(aRemoveTileUsage: Boolean = True); dynamic;
 
     property ID: Integer read fID;
@@ -144,7 +146,7 @@ type
     property UnitType: TUnitType read fUnitType;
     function GetUnitActText: string;
     property Condition: Integer read fCondition write fCondition;
-    function HitPointsDecrease(aAmount: Byte): Boolean;
+    procedure HitPointsDecrease(aAmount: Byte; aFrom: TPlayerIndex);
     property HitPointsMax: Byte read GetHitPointsMax;
     procedure CancelUnitTask;
     property Visible: boolean read fVisible write fVisible;
@@ -918,7 +920,7 @@ begin
   if fFishCount > 1 then
     Dec(fFishCount)
   else
-    KillUnit;
+    KillUnit(-1);
 end;
 
 
@@ -957,7 +959,7 @@ begin
   //First make sure the animal isn't stuck (check passibility of our position)
   if (not fTerrain.CheckPassability(fCurrPosition, DesiredPassability))
   or fTerrain.CheckAnimalIsStuck(fCurrPosition, DesiredPassability) then begin
-    KillUnit; //Animal is stuck so it dies
+    KillUnit(-1); //Animal is stuck so it dies
     Exit;
   end;
 
@@ -1004,6 +1006,7 @@ begin
   fPointerCount := 0;
   fIsDead       := false;
   fKillASAP     := false;
+  fKillASAPFrom := -1;
   fThought      := th_None;
   fHome         := nil;
   fInHouse      := nil;
@@ -1108,6 +1111,7 @@ begin
   LoadStream.Read(fVisible);
   LoadStream.Read(fIsDead);
   LoadStream.Read(fKillASAP);
+  LoadStream.Read(fKillASAPFrom);
   LoadStream.Read(IsExchanging);
   LoadStream.Read(fPointerCount);
   LoadStream.Read(fID);
@@ -1192,7 +1196,7 @@ end;
 // Kill - release all unit-specific tasks
 // TTaskDie - perform dying animation
 // CloseUnit - erase all unit data and hide it from further access
-procedure TKMUnit.KillUnit;
+procedure TKMUnit.KillUnit(aFrom: TPlayerIndex);
 begin
   //Don't kill unit if it's already dying
   if fUnitTask is TTaskDie then
@@ -1203,12 +1207,14 @@ begin
   and TUnitActionWalkTo(fCurrentAction).DoingExchange then
   begin
     fKillASAP := True; //Unit will be killed ASAP
+    fKillASAPFrom := aFrom;
     Exit;
   end;
 
   //Signal to our owner that we have died (doesn't have to be assigned since f.e. animals don't use it)
+  //This must be called before actually killing the unit because fScripting uses it
   if Assigned(OnUnitDied) then
-    OnUnitDied(Self);
+    OnUnitDied(Self, aFrom);
 
   fThought := th_None; //Reset thought
   SetAction(nil); //Dispose of current action (TTaskDie will set it to LockedStay)
@@ -1245,9 +1251,8 @@ end;
 
 
 //Return TRUE if unit was killed
-function TKMUnit.HitPointsDecrease(aAmount: Byte): Boolean;
+procedure TKMUnit.HitPointsDecrease(aAmount: Byte; aFrom: TPlayerIndex);
 begin
-  Result := False;
   Assert(aAmount > 0, '0 damage should be handled outside so not to reset HPCounter');
 
   //When we are first hit reset the counter
@@ -1257,11 +1262,8 @@ begin
   // Sign of aAmount does not affect (how come it ever did 0_o)
   fHitPoints := Max(fHitPoints - aAmount, 0);
   if (fHitPoints = 0) and not IsDeadOrDying then
-  begin
     //Make sure to kill only once
-    KillUnit;
-    Result := True;
-  end;
+    KillUnit(aFrom);
 end;
 
 
@@ -1650,9 +1652,9 @@ begin
         if (fPlayers <> nil) and (fOwner <> PLAYER_NONE) then
         begin
           fPlayers[fOwner].Stats.UnitLost(fUnitType);
-          fScripting.ProcUnitLost(fUnitType, fOwner);
+          fScripting.ProcUnitLost(Self);
         end;
-        CloseUnit(false); //Close the unit without removing tile usage (because this unit was in a house it has none)
+        CloseUnit(False); //Close the unit without removing tile usage (because this unit was in a house it has none)
         Result := true;
         exit;
       end;
@@ -1851,6 +1853,7 @@ begin
   SaveStream.Write(fVisible);
   SaveStream.Write(fIsDead);
   SaveStream.Write(fKillASAP);
+  SaveStream.Write(fKillASAPFrom);
   SaveStream.Write(IsExchanging);
   SaveStream.Write(fPointerCount);
 
@@ -1879,7 +1882,7 @@ begin
   if fKillASAP
   and not ((fCurrentAction is TUnitActionWalkTo) and TUnitActionWalkTo(fCurrentAction).DoingExchange) then
   begin
-    KillUnit;
+    KillUnit(fKillASAPFrom);
     fKillASAP := false;
     Assert(IsDeadOrDying); //Just in case KillUnit failed
   end;
@@ -1895,7 +1898,7 @@ begin
 
   //Unit killing could be postponed by few ticks, hence fCondition could be <0
   if fCondition <= 0 then
-    KillUnit;
+    KillUnit(-1);
 
   //We only need to update fog of war regularly if we're using dynamic fog of war, otherwise only update it when the unit moves
   if FOG_OF_WAR_ENABLE and (fTicker mod 10 = 0) then

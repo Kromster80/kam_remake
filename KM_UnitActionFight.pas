@@ -264,11 +264,7 @@ begin
 
     IsHit := (Damage >= KaMRandom(101)); //Damage is a % chance to hit
     if IsHit then
-      if fOpponent.HitPointsDecrease(1) then
-      begin
-        fPlayers[fUnit.Owner].Stats.UnitKilled(fOpponent.UnitType);
-        fScripting.ProcUnitKilled(fOpponent.UnitType, fOpponent.Owner, fUnit.Owner);
-      end;
+      fOpponent.HitPointsDecrease(1, fUnit.Owner);
 
     MakeSound(IsHit); //Different sounds for hit and for miss
   end;
