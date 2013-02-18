@@ -93,6 +93,7 @@ type
     procedure CheckStrategy;
 
     procedure CheckUnitCount;
+    procedure CheckDeliveriesBalance;
     procedure BuildCore;
     procedure BuildMaterials;
     procedure BuildGold;
@@ -544,6 +545,26 @@ begin
 end;
 
 
+procedure TKMayor.CheckDeliveriesBalance;
+var
+  I: Integer;
+  S: TKMHouseStore;
+begin
+  //Block stone to store to reduce serf usage
+  I := 1;
+  S := TKMHouseStore(fPlayers[fOwner].FindHouse(ht_Store, I));
+  while S <> nil do
+  begin
+    S.NotAcceptFlag[rt_Trunk] := S.CheckResIn(rt_Trunk) > 50;
+    S.NotAcceptFlag[rt_Stone] := S.CheckResIn(rt_Stone) > 50;
+
+    //Look for next Store
+    Inc(I);
+    S := TKMHouseStore(fPlayers[fOwner].FindHouse(ht_Store, I));
+  end;
+end;
+
+
 procedure TKMayor.CheckExhaustedMines;
 var
   I: Integer;
@@ -987,6 +1008,9 @@ begin
   if fSetup.AutoBuild then
   begin
     CheckHouseCount;
+
+    //Manage wares ratios and block stone to Store
+    CheckDeliveriesBalance;
 
     //Build more roads if necessary
     CheckRoadsCount;

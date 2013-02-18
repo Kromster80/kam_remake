@@ -424,6 +424,11 @@ end;
 
 procedure TKMGeneral.UpdateState(aTick: Cardinal);
 begin
+  //Update defence positions locations
+  if fSetup.AutoDefend then
+    if (aTick + Byte(fOwner)) mod (MAX_PLAYERS * 120) = 0 then
+      CheckDefences;
+
   if (aTick + Byte(fOwner)) mod MAX_PLAYERS = 0 then
   begin
     fDefencePositions.UpdateState;
@@ -436,10 +441,6 @@ begin
     //Anything Else?
   end;
 
-  //Manage defence positions
-  if fSetup.AutoDefend then
-    if (aTick + Byte(fOwner)) mod (MAX_PLAYERS * 120) = 0 then
-      CheckDefences;
 end;
 
 

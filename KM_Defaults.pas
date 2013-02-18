@@ -64,11 +64,10 @@ var
   USE_CCL_WALKCONNECT   :Boolean = False; //Use CCL instead of FloodFill for walk-connect (CCL is generaly worse. It's a bit slower, counts 1 tile areas and needs more AreaIDs to work / makes sparsed IDs)
   FOG_OF_WAR_ENABLE     :Boolean = False; //Whenever dynamic fog of war is enabled or not
   SHOW_DISMISS_BUTTON   :Boolean = False; //The button to order citizens go back to school
-  AI_GEN_NAVMESH        :Boolean = False; //Generate navmesh for AI to plan attacks/defenses
-  AI_GEN_INFLUENCE_MAPS :Boolean = False; //Generate influence maps for AI to plan attacks/defenses
+  AI_GEN_NAVMESH        :Boolean = True; //Generate navmesh for AI to plan attacks/defenses
+  AI_GEN_INFLUENCE_MAPS :Boolean = True; //Generate influence maps for AI to plan attacks/defenses
   CACHE_PATHFINDING     :Boolean = False; //Cache routes incase they are needed soon (Vortamic PF runs x4 faster even with lame approach)
   PathFinderToUse       :Byte = 1;
-  TEST_HOUSE_SELECTION  :Boolean = True; //See how house selection looks (its indended to highlight houses mentioned in messages ONLY. not players selection)
 
   //These are debug things, should be False
   {User interface options}

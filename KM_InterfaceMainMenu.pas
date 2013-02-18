@@ -683,6 +683,7 @@ begin
     for I := 0 to TempGraphCount - 1 do
       Graph_Houses.AddLine(Format(fTextLibrary[TX_PLAYER_X], [I+1]), TempGraphs[I].Color, TempGraphs[I].G);
 
+    //Wares
     for R := WARE_MIN to WARE_MAX do
     begin
       G := MyPlayer.Stats.GraphGoods[R];

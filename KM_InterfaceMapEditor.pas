@@ -197,11 +197,12 @@ type
         TrackBar_SerfFactor: TKMTrackBar;
         TrackBar_WorkerFactor: TKMTrackBar;
       Panel_Defence: TKMPanel;
+        Button_DefencePosAdd: TKMButtonFlat;
         CheckBox_AutoDefence: TKMCheckBox;
         TrackBar_EquipRateLeather: TKMTrackBar;
         TrackBar_EquipRateIron: TKMTrackBar;
         TrackBar_RecruitFactor: TKMTrackBar;
-        Button_DefencePosAdd: TKMButtonFlat;
+        TrackBar_MaxSoldiers: TKMTrackBar;
         Button_EditFormations: TKMButton;
       Panel_Offence: TKMPanel;
         CheckBox_AutoAttack: TKMCheckBox;
@@ -1055,7 +1056,13 @@ begin
       TrackBar_RecruitFactor.Hint := 'How many recruits AI should have in barracks';
       TrackBar_RecruitFactor.OnClick := Town_DefenceChange;
 
-      Button_EditFormations := TKMButton.Create(Panel_Defence, 0, 255, TB_WIDTH, 25, 'Edit formations', bsGame);
+      TrackBar_MaxSoldiers := TKMTrackBar.Create(Panel_Defence, 0, 252, TB_WIDTH, 0, 500);
+      TrackBar_MaxSoldiers.Caption := 'Max soldiers';
+      TrackBar_MaxSoldiers.Hint := 'How many soldiers AI can have at once';
+      TrackBar_MaxSoldiers.Step := 5;
+      TrackBar_MaxSoldiers.OnClick := Town_DefenceChange;
+
+      Button_EditFormations := TKMButton.Create(Panel_Defence, 0, 300, TB_WIDTH, 25, 'Edit formations', bsGame);
       Button_EditFormations.OnClick := Formations_Show;
 
     //Offence settings
@@ -1772,6 +1779,7 @@ begin
   MyPlayer.AI.Setup.EquipRateLeather := TrackBar_EquipRateLeather.Position * 10;
   MyPlayer.AI.Setup.EquipRateIron := TrackBar_EquipRateIron.Position * 10;
   MyPlayer.AI.Setup.RecruitFactor := TrackBar_RecruitFactor.Position;
+  MyPlayer.AI.Setup.MaxSoldiers := TrackBar_MaxSoldiers.Position;
 end;
 
 
@@ -1781,6 +1789,7 @@ begin
   TrackBar_EquipRateLeather.Position := MyPlayer.AI.Setup.EquipRateLeather div 10;
   TrackBar_EquipRateIron.Position := MyPlayer.AI.Setup.EquipRateIron div 10;
   TrackBar_RecruitFactor.Position := MyPlayer.AI.Setup.RecruitFactor;
+  TrackBar_MaxSoldiers.Position := MyPlayer.AI.Setup.MaxSoldiers;
 end;
 
 
