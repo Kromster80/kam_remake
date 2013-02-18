@@ -8,26 +8,24 @@ uses Classes,
 type
   TDeliverKind = (dk_ToHouse, dk_ToConstruction, dk_ToUnit);
 
-
-  {Perform delivery}
   TTaskDeliver = class(TUnitTask)
   private
-    fFrom:TKMHouse;
-    fToHouse:TKMHouse;
-    fToUnit:TKMUnit;
-    fResourceType:TResourceType;
-    fDeliverID:integer;
-    fDeliverKind:TDeliverKind;
+    fFrom: TKMHouse;
+    fToHouse: TKMHouse;
+    fToUnit: TKMUnit;
+    fResourceType: TResourceType;
+    fDeliverID: Integer;
+    fDeliverKind: TDeliverKind;
   public
-    constructor Create(aSerf:TKMUnitSerf; aFrom:TKMHouse; toHouse:TKMHouse; Res:TResourceType; aID:integer); overload;
-    constructor Create(aSerf:TKMUnitSerf; aFrom:TKMHouse; toUnit:TKMUnit; Res:TResourceType; aID:integer); overload;
-    constructor Load(LoadStream:TKMemoryStream); override;
+    constructor Create(aSerf: TKMUnitSerf; aFrom: TKMHouse; toHouse: TKMHouse; Res: TResourceType; aID: Integer); overload;
+    constructor Create(aSerf: TKMUnitSerf; aFrom: TKMHouse; toUnit: TKMUnit; Res: TResourceType; aID: Integer); overload;
+    constructor Load(LoadStream: TKMemoryStream); override;
     procedure SyncLoad; override;
     destructor Destroy; override;
-    function WalkShouldAbandon:boolean; override;
+    function WalkShouldAbandon: Boolean; override;
     property DeliverKind: TDeliverKind read fDeliverKind;
-    function Execute:TTaskResult; override;
-    procedure Save(SaveStream:TKMemoryStream); override;
+    function Execute: TTaskResult; override;
+    procedure Save(SaveStream: TKMemoryStream); override;
   end;
 
 
@@ -36,13 +34,15 @@ uses KM_PlayersCollection, KM_Units_Warrior, KM_Log;
 
 
 { TTaskDeliver }
-constructor TTaskDeliver.Create(aSerf:TKMUnitSerf; aFrom:TKMHouse; toHouse:TKMHouse; Res:TResourceType; aID:integer);
+constructor TTaskDeliver.Create(aSerf: TKMUnitSerf; aFrom: TKMHouse; toHouse: TKMHouse; Res: TResourceType; aID: Integer);
 begin
   inherited Create(aSerf);
   fTaskName := utn_Deliver;
 
-  Assert((aFrom<>nil) and (toHouse<>nil) and (Res <> rt_None), 'Serf '+inttostr(fUnit.ID)+': invalid delivery task');
-  if WRITE_DELIVERY_LOG then fLog.AddTime('Serf '+inttostr(fUnit.ID)+' created delivery task '+inttostr(fDeliverID));
+  Assert((aFrom <> nil) and (toHouse <> nil) and (Res <> rt_None), 'Serf ' + IntToStr(fUnit.ID) + ': invalid delivery task');
+
+  if WRITE_DELIVERY_LOG then
+    fLog.AddTime('Serf ' + IntToStr(fUnit.ID) + ' created delivery task ' + IntToStr(fDeliverID));
 
   fFrom    := aFrom.GetHousePointer;
   fToHouse := toHouse.GetHousePointer;
@@ -57,7 +57,7 @@ begin
 end;
 
 
-constructor TTaskDeliver.Create(aSerf:TKMUnitSerf; aFrom:TKMHouse; toUnit:TKMUnit; Res:TResourceType; aID:integer);
+constructor TTaskDeliver.Create(aSerf: TKMUnitSerf; aFrom: TKMHouse; toUnit: TKMUnit; Res: TResourceType; aID: Integer);
 begin
   inherited Create(aSerf);
   fTaskName := utn_Deliver;
@@ -73,7 +73,7 @@ begin
 end;
 
 
-constructor TTaskDeliver.Load(LoadStream:TKMemoryStream);
+constructor TTaskDeliver.Load(LoadStream: TKMemoryStream);
 begin
   inherited;
   LoadStream.Read(fFrom, 4);
@@ -88,9 +88,9 @@ end;
 procedure TTaskDeliver.SyncLoad;
 begin
   inherited;
-  fFrom    := fPlayers.GetHouseByID(cardinal(fFrom));
-  fToHouse := fPlayers.GetHouseByID(cardinal(fToHouse));
-  fToUnit  := fPlayers.GetUnitByID(cardinal(fToUnit));
+  fFrom    := fPlayers.GetHouseByID(Cardinal(fFrom));
+  fToHouse := fPlayers.GetHouseByID(Cardinal(fToHouse));
+  fToUnit  := fPlayers.GetUnitByID(Cardinal(fToUnit));
 end;
 
 
@@ -115,7 +115,7 @@ end;
 
 
 //Note: Phase is -1 because it will have been increased at the end of last Execute
-function TTaskDeliver.WalkShouldAbandon:boolean;
+function TTaskDeliver.WalkShouldAbandon: Boolean;
 begin
   Result := false;
 
@@ -151,7 +151,7 @@ begin
           SetActionWalkToSpot(KMPointBelow(fFrom.GetEntrance));
         end;
     1:  begin
-          SetActionGoIn(ua_Walk,gd_GoInside,fFrom);
+          SetActionGoIn(ua_Walk, gd_GoInside, fFrom);
         end;
     2:  begin
           //Barracks can consume the resource (by equipping) before we arrive
@@ -208,14 +208,11 @@ begin
   with TKMUnitSerf(fUnit) do
   case fPhase of
     0..4:;
-    //@Lewin: It's the only place in KaM that used to access houses entrance from diagonals, right?
-    //        I suspect it was made similar to workers - tile was declared  "Under construction" and
-    //        could accept goods from any side, or something alike. 
-    //        I have removed this Distance=1 from here because it simplifies our WalkToSpot method.
-    //        Please give me your thoughts on this case - maybe we need to use Distance=n
-    //        in some other occasions of WalkToSpot too?
-    //@Krom: Since this change some people have complained because it's hard for serfs to get wares to the site
-    //       when workers block the enterance. But it is much simpler this way so I don't have a problem really.
+    //It's the only place in KaM that used to access houses entrance from diagonals. Supposably it
+    //was made similar to workers - tile was declared  "Under construction" and could accept goods
+    //from any side, or something alike. Removing of Distance=1 from here simplifies our WalkToSpot method.
+    //Since this change some people have complained because it's hard for serfs to get wares to the site
+    //when workers block the enterance. But it is much simpler this way so we don't have a problem really.
     5:  SetActionWalkToSpot(KMPointBelow(fToHouse.GetEntrance));
     6:  begin
           Direction := KMGetDirection(GetPosition, fToHouse.GetEntrance);
@@ -284,11 +281,11 @@ begin
     else Result := TaskDone;
   end;
 
-  inc(fPhase);
+  Inc(fPhase);
 end;
 
 
-procedure TTaskDeliver.Save(SaveStream:TKMemoryStream);
+procedure TTaskDeliver.Save(SaveStream: TKMemoryStream);
 begin
   inherited;
   if fFrom <> nil then
