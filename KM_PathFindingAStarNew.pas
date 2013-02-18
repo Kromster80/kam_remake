@@ -5,8 +5,6 @@ uses SysUtils, Math, KromUtils, KM_PathFinding,
   KM_CommonClasses, KM_Defaults, KM_Terrain, KM_Points, BinaryHeap;
 
 
-{$DEFINE USEDNODES} //Optimize array reset
-
 type
   TANode = class
              X,Y: SmallInt;
@@ -23,10 +21,8 @@ type
     fHeap: TBinaryHeap;
     fMinN: TANode;
     fOpenRef: array of array of TANode; //References to OpenList, Sized as map
-    {$IFDEF USEDNODES}
     fUsedNodes: array of TANode; //Used to make Reset more efficient
     fUsedNodeCount: Integer;
-    {$ENDIF}
     function HeapCmp(A,B: Pointer): Boolean;
     function GetNodeAt(X,Y: SmallInt): TANode;
     procedure Reset;
@@ -79,13 +75,11 @@ begin
     fOpenRef[Y,X].X := X;
     fOpenRef[Y,X].Y := Y;
 
-    {$IFDEF USEDNODES}
     if Length(fUsedNodes) <= fUsedNodeCount then
-      SetLength(fUsedNodes, fUsedNodeCount+64);
+      SetLength(fUsedNodes, fUsedNodeCount + 64);
 
     fUsedNodes[fUsedNodeCount] := fOpenRef[Y,X];
     Inc(fUsedNodeCount);
-    {$ENDIF}
   end;
 
   Result := fOpenRef[Y,X];
@@ -94,19 +88,8 @@ end;
 
 procedure TPathFindingAStarNew.Reset;
 var
-  I,K: Integer;
+  I: Integer;
 begin
-  {$IFNDEF USEDNODES}
-  for I := 0 to High(fOpenRef) do
-  for K := 0 to High(fOpenRef[I]) do
-  if fOpenRef[I,K] <> nil then
-  begin
-    fOpenRef[I,K].Free;
-    fOpenRef[I,K] := nil;
-  end;
-  {$ENDIF}
-
-  {$IFDEF USEDNODES}
   //Reverse seems to work ~10% faster (cos of cache access probably)
   for I := fUsedNodeCount - 1 downto 0 do
   begin
@@ -115,13 +98,6 @@ begin
   end;
 
   fUsedNodeCount := 0;
-  {$ENDIF}
-
-  //Tested having a second list that stores only used ORef cells, it's slower
-  //@Krom: Did you do it the way I've done it? I get 10-40% performance improvement in path finder util (maybe I didn't test thoroughly enough)
-  //@Lewin: I retested with your code and I get 20-60% boost now.
-  //        Must be my bad at testing when I overlooked something ..
-  //        I tested with TKMPoint, maybe that made the diff. To be deleted ..
 end;
 
 
