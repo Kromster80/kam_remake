@@ -21,6 +21,8 @@ type
     fHeap: TBinaryHeap;
     fMinN: TANode;
     fOpenRef: array of array of TANode; //References to OpenList, Sized as map
+    fUsedNodes: array of TANode; //Used to make Reset more efficient
+    fUsedNodeCount: Integer;
     function HeapCmp(A,B: Pointer): Boolean;
     function GetNodeAt(X,Y: SmallInt): TANode;
     procedure Reset;
@@ -72,6 +74,12 @@ begin
     fOpenRef[Y,X] := TANode.Create;
     fOpenRef[Y,X].X := X;
     fOpenRef[Y,X].Y := Y;
+
+    if Length(fUsedNodes) <= fUsedNodeCount then
+      SetLength(fUsedNodes, fUsedNodeCount+64);
+
+    fUsedNodes[fUsedNodeCount] := fOpenRef[Y,X];
+    Inc(fUsedNodeCount);
   end;
 
   Result := fOpenRef[Y,X];
@@ -82,15 +90,16 @@ procedure TPathFindingAStarNew.Reset;
 var
   I,K: Integer;
 begin
-  for I := 0 to High(fOpenRef) do
-  for K := 0 to High(fOpenRef[I]) do
-  if fOpenRef[I,K] <> nil then
+  for I := 0 to fUsedNodeCount-1 do
   begin
-    fOpenRef[I,K].Free;
-    fOpenRef[I,K] := nil;
+    fOpenRef[fUsedNodes[I].Y, fUsedNodes[I].X] := nil;
+    fUsedNodes[I].Free;
   end;
 
+  fUsedNodeCount := 0;
+
   //Tested having a second list that stores only used ORef cells, it's slower
+  //@Krom: Did you do it the way I've done it? I get 10-40% performance improvement in path finder util (maybe I didn't test thoroughly enough)
 end;
 
 
@@ -103,32 +112,11 @@ var
 begin
   //Clear previous data
   Reset;
-  //@Krom: On the first run fOpenRef will be empty, then we SetLength here and below assume all
-  //       the allocated space is filled with nil. Does SetLength fill the newly allocated memory
-  //       with nil for dynamic arrays of TObject? Delphi Baiscs says:
-  //       http://www.delphibasics.co.uk/RTL.asp?Name=SetLength
-  //       "This extra space is only initialised if it contains strings, interfaces, or Variants. "
-  //       Does that include TObject? Should the code be more like this?:
-  //@Lewin: I believe initialized is meant here in a way strings need additional
-  //        init apart from memory allocation (pointer counting, 0-terminator, etc)
-  //        With TObject memory is just filled with zeroes (which are the same as nil pointer)
-  //        I've checked with debugger - all the TANodes are neat nils (even when
-  //        SetLength used to grow the array by each new element). To be deleted ..
-
-  {
-  //Check whether oRef needs to be initialised
-  if Length(fOpenRef) = 0 then
-  begin
+  //Check that fOpenRef has been initialised (running SetLength when it's already correct size
+  //is inefficient with such a large array, SetLength doesn't seem to test for that condition
+  //because the CPU debugger runs through all of SetLength anyway on both dimensions)
+  if (Length(fOpenRef) <> fTerrain.MapY+1) or (Length(fOpenRef[0]) <> fTerrain.MapX+1) then
     SetLength(fOpenRef, fTerrain.MapY+1, fTerrain.MapX+1);
-    for I := 0 to High(fOpenRef) do
-    for K := 0 to High(fOpenRef[I]) do
-      fOpenRef[I,K] := nil;
-  end
-  else
-    Reset; //Clear the old data from last time
-  }
-
-  SetLength(fOpenRef, fTerrain.MapY+1, fTerrain.MapX+1);
 
   //Initialize first element
   N := GetNodeAt(fLocA.X, fLocA.Y);
