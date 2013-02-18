@@ -39,8 +39,8 @@ type
     procedure ProcTick;
     procedure ProcMissionStart;
     procedure ProcHouseBuilt(aHouse: TKMHouse);
-    procedure ProcHouseLost(aHouseType: THouseType; aOwner: TPlayerIndex; aFullyBuilt:Boolean);
-    procedure ProcHouseDestroyed(aHouseType: THouseType; aOwner, aDestroyerOwner: TPlayerIndex; aFullyBuilt:Boolean);
+    procedure ProcHouseLost(aHouseID: Integer; aFullyBuilt: Boolean);
+    procedure ProcHouseDestroyed(aHouseID: Integer; aDestroyerOwner: TPlayerIndex; aFullyBuilt:Boolean);
     procedure ProcUnitTrained(aUnit: TKMUnit);
     procedure ProcUnitLost(aUnitType: TUnitType; aOwner: TPlayerIndex);
     procedure ProcUnitKilled(aUnitType: TUnitType; aOwner, aKillerOwner: TPlayerIndex);
@@ -59,8 +59,8 @@ type
   TKMEvent1I = procedure (aIndex: Integer) of object;
   TKMEvent2I = procedure (aIndex, aParam: Integer) of object;
   TKMEvent3I = procedure (aIndex, aParam, aParam2: Integer) of object;
-  TKMEvent3I1B = procedure (aIndex, aParam, aParam2: Integer; aParam3: Boolean) of object;
   TKMEvent2I1B = procedure (aIndex, aParam: Integer; aParam2: Boolean) of object;
+  TKMEvent1I1B = procedure (aIndex: Integer; aParam2: Boolean) of object;
 
 var
   fScripting: TKMScripting;
@@ -252,7 +252,7 @@ begin
   //Check if the proc is the proc we want
   if (Proc.Name = 'ONHOUSEDESTROYED') then
     //Check if the proc has the correct params
-    if not ExportCheck(Sender, Proc, [0, btS32, btS32, btS32, btEnum], [pmIn, pmIn, pmIn, pmIn]) then
+    if not ExportCheck(Sender, Proc, [0, btS32, btS32, btEnum], [pmIn, pmIn, pmIn]) then
     begin
       //Something is wrong, so cause an error
       Sender.MakeError('', ecTypeMismatch, '');
@@ -262,7 +262,7 @@ begin
   //Check if the proc is the proc we want
   if (Proc.Name = 'ONHOUSELOST') then
     //Check if the proc has the correct params
-    if not ExportCheck(Sender, Proc, [0, btS32, btS32, btEnum], [pmIn, pmIn, pmIn]) then
+    if not ExportCheck(Sender, Proc, [0, btS32, btEnum], [pmIn, pmIn]) then
     begin
       //Something is wrong, so cause an error
       Sender.MakeError('', ecTypeMismatch, '');
@@ -509,27 +509,27 @@ begin
 end;
 
 
-procedure TKMScripting.ProcHouseLost(aHouseType: THouseType; aOwner: TPlayerIndex; aFullyBuilt:Boolean);
+procedure TKMScripting.ProcHouseLost(aHouseID: Integer; aFullyBuilt: Boolean);
+var
+  TestFunc: TKMEvent1I1B;
+begin
+  //Check if event handler (procedure) exists and run it
+  //Store house by its KaM index to keep it consistent with DAT scripts
+  TestFunc := TKMEvent1I1B(fExec.GetProcAsMethodN('ONHOUSELOST'));
+  if @TestFunc <> nil then
+    TestFunc(aHouseID, aFullyBuilt);
+end;
+
+
+procedure TKMScripting.ProcHouseDestroyed(aHouseID: Integer; aDestroyerOwner: TPlayerIndex; aFullyBuilt:Boolean);
 var
   TestFunc: TKMEvent2I1B;
 begin
   //Check if event handler (procedure) exists and run it
   //Store house by its KaM index to keep it consistent with DAT scripts
-  TestFunc := TKMEvent2I1B(fExec.GetProcAsMethodN('ONHOUSELOST'));
+  TestFunc := TKMEvent2I1B(fExec.GetProcAsMethodN('ONHOUSEDESTROYED'));
   if @TestFunc <> nil then
-    TestFunc(aOwner, HouseTypeToIndex[aHouseType] - 1, aFullyBuilt);
-end;
-
-
-procedure TKMScripting.ProcHouseDestroyed(aHouseType: THouseType; aOwner, aDestroyerOwner: TPlayerIndex; aFullyBuilt:Boolean);
-var
-  TestFunc: TKMEvent3I1B;
-begin
-  //Check if event handler (procedure) exists and run it
-  //Store house by its KaM index to keep it consistent with DAT scripts
-  TestFunc := TKMEvent3I1B(fExec.GetProcAsMethodN('ONHOUSEDESTROYED'));
-  if @TestFunc <> nil then
-    TestFunc(aOwner, aDestroyerOwner, HouseTypeToIndex[aHouseType] - 1, aFullyBuilt);
+    TestFunc(aHouseID, aDestroyerOwner, aFullyBuilt);
 end;
 
 

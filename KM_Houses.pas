@@ -489,6 +489,7 @@ var I: Integer; R: TResourceType;
 begin
   if IsDestroyed then Exit;
 
+  //We must do this before setting fIsDestroyed for scripting
   OnDestroyed(Self, aFrom);
 
   //If anyone still has a pointer to the house he should check for IsDestroyed flag

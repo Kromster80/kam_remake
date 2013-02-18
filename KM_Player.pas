@@ -723,9 +723,9 @@ begin
     Deliveries.Queue.RemDemand(aHouse);
   end;
 
-  fScripting.ProcHouseLost(aHouse.HouseType, fPlayerIndex, aHouse.BuildingState=hbs_Done);
+  fScripting.ProcHouseLost(aHouse.ID, aHouse.BuildingState=hbs_Done);
   if (aFrom <> -1) and (aFrom <> fPlayerIndex) then
-    fScripting.ProcHouseDestroyed(aHouse.HouseType, fPlayerIndex, aFrom, aHouse.BuildingState=hbs_Done);
+    fScripting.ProcHouseDestroyed(aHouse.ID, aFrom, aHouse.BuildingState=hbs_Done);
 
   //Only Done houses are treated as Self-Destruct, Lost, Destroyed
   if aHouse.BuildingState in [hbs_NoGlyph..hbs_Stone] then
