@@ -17,7 +17,7 @@ type
     Value: array {Run} of array {Value} of Integer;
     TimesCount: Integer;
     TimeMin, TimeMax: Integer;
-    Times: array {Run} of array {Tick} of Integer;
+    Times: array {Run} of array {Tick} of Cardinal;
   end;
 
   TKMRunnerCommon = class
@@ -133,7 +133,6 @@ var I: Integer;
 begin
   for I := 0 to fResults.TimesCount - 1 do
   begin
-
     fResults.Times[fRun, I] := TimeGet;
 
     fGameApp.Game.UpdateGame(nil);
