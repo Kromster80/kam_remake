@@ -44,6 +44,7 @@ We can discuss them in dialog-style and maybe move to GC issues later on
 		Allow saving from within replays. This would let you create a save of a game at a certain moment and continue playing from there, which could be good for practice (e.g. town building) or fun.
 		A way to order +100 weapons at weapon makers (shift + click?)
 		Invisible links between water bodies to connect water under bridges
+    Allow to start Remake with commandline parameters to autoconnect to MP server .\KamRemake.exe -ip 10.3.6.241 -port 2325 -room 0
 
 
 REJECTED:
