@@ -243,11 +243,25 @@ end;
   ParameterType is @ for a normal parameter and ! for a var parameter.
   A result type of 0 means no result}
 function TKMScripting.ScriptOnExportCheck(Sender: TPSPascalCompiler; Proc: TPSInternalProcedure; const ProcDecl: AnsiString): Boolean;
+//todo: Refactor this so it isn't so long and ugly xD
+//@Lewin: We could probably do it like so, rigging the loop, matchiong the strings and
+//        cutting Typ/Dir to length in place (we can fill only static arrays in const clause)
+{const
+  Procs: array [0..1] of record
+    Names: string;
+    TypCount: Byte;
+    Typ: array[0..3] of Byte;
+    DirCount: Byte;
+    Dir: array[0..2] of TPSParameterMode;
+  end =
+  (
+  (Names: 'ONHOUSEDESTROYED'; TypCount: 3; Typ: (0, btS32, btS32,  btEnum); DirCount: 3; Dir: (pmIn, pmIn, pmIn)),
+  (Names: 'ONHOUSELOST';      TypCount: 2; Typ: (0, btS32, btEnum, 0);      DirCount: 2; Dir: (pmIn, pmIn, pmIn))
+  );}
 begin
   Result := True;
 
   //todo: Sender.MakeError reports the wrong line number so the user has no idea what the error is
-  //todo: Refactor this so it isn't so long and ugly xD
 
   //Check if the proc is the proc we want
   if (Proc.Name = 'ONHOUSEDESTROYED') then
