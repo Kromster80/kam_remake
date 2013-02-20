@@ -243,75 +243,39 @@ end;
   ParameterType is @ for a normal parameter and ! for a var parameter.
   A result type of 0 means no result}
 function TKMScripting.ScriptOnExportCheck(Sender: TPSPascalCompiler; Proc: TPSInternalProcedure; const ProcDecl: AnsiString): Boolean;
-//todo: Refactor this so it isn't so long and ugly xD
-//@Lewin: We could probably do it like so, rigging the loop, matchiong the strings and
-//        cutting Typ/Dir to length in place (we can fill only static arrays in const clause)
-{const
-  Procs: array [0..1] of record
+const
+  Procs: array [0..10] of record
     Names: string;
-    TypCount: Byte;
+    ParamCount: Byte;
     Typ: array[0..3] of Byte;
-    DirCount: Byte;
     Dir: array[0..2] of TPSParameterMode;
   end =
   (
-  (Names: 'ONHOUSEDESTROYED'; TypCount: 3; Typ: (0, btS32, btS32,  btEnum); DirCount: 3; Dir: (pmIn, pmIn, pmIn)),
-  (Names: 'ONHOUSELOST';      TypCount: 2; Typ: (0, btS32, btEnum, 0);      DirCount: 2; Dir: (pmIn, pmIn, pmIn))
-  );}
+  (Names: 'ONHOUSEDESTROYED';  ParamCount: 3; Typ: (0, btS32, btS32,  btEnum); Dir: (pmIn, pmIn, pmIn)),
+  (Names: 'ONHOUSELOST';       ParamCount: 2; Typ: (0, btS32, btEnum, 0);      Dir: (pmIn, pmIn, pmIn)),
+  (Names: 'ONWARRIOREQUIPPED'; ParamCount: 2; Typ: (0, btS32, btS32,  0);      Dir: (pmIn, pmIn, pmIn)),
+  (Names: 'ONUNITKILLED';      ParamCount: 2; Typ: (0, btS32, btS32,  0);      Dir: (pmIn, pmIn, pmIn)),
+  (Names: 'ONUNITTRAINED';     ParamCount: 1; Typ: (0, btS32, 0,      0);      Dir: (pmIn, pmIn, pmIn)),
+  (Names: 'ONPLAYERDEFEATED';  ParamCount: 1; Typ: (0, btS32, 0,      0);      Dir: (pmIn, pmIn, pmIn)),
+  (Names: 'ONPLAYERVICTORY';   ParamCount: 1; Typ: (0, btS32, 0,      0);      Dir: (pmIn, pmIn, pmIn)),
+  (Names: 'ONUNITLOST';        ParamCount: 1; Typ: (0, btS32, 0,      0);      Dir: (pmIn, pmIn, pmIn)),
+  (Names: 'ONHOUSEBUILT';      ParamCount: 1; Typ: (0, btS32, 0,      0);      Dir: (pmIn, pmIn, pmIn)),
+  (Names: 'ONMISSIONSTART';    ParamCount: 1; Typ: (0, 0,     0,      0);      Dir: (pmIn, pmIn, pmIn)),
+  (Names: 'ONTICK';            ParamCount: 0; Typ: (0, 0,     0,      0);      Dir: (pmIn, pmIn, pmIn))
+  );
+var I: Integer;
 begin
   Result := True;
-
-  //todo: Sender.MakeError reports the wrong line number so the user has no idea what the error is
-
-  //Check if the proc is the proc we want
-  if (Proc.Name = 'ONHOUSEDESTROYED') then
-    //Check if the proc has the correct params
-    if not ExportCheck(Sender, Proc, [0, btS32, btS32, btEnum], [pmIn, pmIn, pmIn]) then
-    begin
-      //Something is wrong, so cause an error
-      Sender.MakeError('', ecTypeMismatch, '');
-      Result := False;
-      Exit;
-    end;
-  //Check if the proc is the proc we want
-  if (Proc.Name = 'ONHOUSELOST') then
-    //Check if the proc has the correct params
-    if not ExportCheck(Sender, Proc, [0, btS32, btEnum], [pmIn, pmIn]) then
-    begin
-      //Something is wrong, so cause an error
-      Sender.MakeError('', ecTypeMismatch, '');
-      Result := False;
-      Exit;
-    end;
-  if (Proc.Name = 'ONWARRIOREQUIPPED') or (Proc.Name = 'ONUNITKILLED') then
-    //Check if the proc has the correct params
-    if not ExportCheck(Sender, Proc, [0, btS32, btS32], [pmIn, pmIn]) then
-    begin
-      //Something is wrong, so cause an error
-      Sender.MakeError('', ecTypeMismatch, '');
-      Result := False;
-      Exit;
-    end;
-  if (Proc.Name = 'ONUNITTRAINED') or (Proc.Name = 'ONHOUSEBUILT')
-  or (Proc.Name = 'ONPLAYERDEFEATED') or (Proc.Name = 'ONPLAYERVICTORY')
-  or (Proc.Name = 'ONUNITLOST') then
-    //Check if the proc has the correct params
-    if not ExportCheck(Sender, Proc, [0, btS32], [pmIn]) then
-    begin
-      //Something is wrong, so cause an error
-      Sender.MakeError('', ecTypeMismatch, '');
-      Result := False;
-      Exit;
-    end;
-  if (Proc.Name = 'ONMISSIONSTART') or (Proc.Name = 'ONTICK') then
-    //Check if the proc has the correct params
-    if not ExportCheck(Sender, Proc, [0], []) then
-    begin
-      //Something is wrong, so cause an error
-      Sender.MakeError('', ecTypeMismatch, '');
-      Result := False;
-      Exit;
-    end;
+  for I:=Low(Procs) to High(Procs) do
+    if (Proc.Name = Procs[I].Names) then
+      if not ExportCheck(Sender, Proc, Slice(Procs[I].Typ, Procs[I].ParamCount+1), Slice(Procs[I].Dir, Procs[I].ParamCount)) then
+      begin
+        //Something is wrong, so cause an error
+        //todo: Sender.MakeError reports the wrong line number so the user has no idea what the error is
+        Sender.MakeError(Procs[I].Names, ecTypeMismatch, '');
+        Result := False;
+        Exit;
+      end;
 end;
 
 
