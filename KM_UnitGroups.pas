@@ -640,7 +640,7 @@ begin
 end;
 
 
-//If we picked up a fight, while doing any other order - manage it
+//If we picked up a fight, while doing any other order - manage it here
 procedure TKMUnitGroup.CheckForFight;
 var
   I,K: Integer;
@@ -659,21 +659,21 @@ begin
   if fOffenders.Count = 0 then Exit;
 
   if IsRanged then
+  begin
     for I := 0 to Count - 1 do
-    begin
-      //Try shooting the offenders
-      if not Members[I].InFight then
-        for K := 0 to fOffenders.Count - 1 do
-        if Members[I].WithinFightRange(TKMUnitWarrior(fOffenders[K]).GetPosition) then
-          Members[I].OrderFight(TKMUnitWarrior(fOffenders[K]))
-        else
-          //@Lewin: Perhaps archers should stay still and attack only those enemies they can
-          //without walking to/from them
-          //@Krom: Yes that's probably best
-    end
+    if not Members[I].InFight then
+      //If there are several enemies within range, shooting any of the offenders is first priority
+      //If there are no offenders in range then CheckForEnemy will pick a new target
+      for K := 0 to fOffenders.Count - 1 do
+      if Members[I].WithinFightRange(TKMUnitWarrior(fOffenders[K]).GetPosition) then
+        Members[I].OrderFight(TKMUnitWarrior(fOffenders[K]))
+      else
+        //Archers stay still and attack enemies only within their attack range
+        //without walking to/from them
+  end
   else
   begin
-    //Let idle help fellow members
+    //Idle members should help their comrades
     for I := 0 to Count - 1 do
     if not Members[I].InFight then
       Members[I].OrderWalk(TKMUnitWarrior(fOffenders[KaMRandom(fOffenders.Count)]).NextPosition, False);
