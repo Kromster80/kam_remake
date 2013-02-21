@@ -297,30 +297,29 @@ begin
 end;
 
 
+//Render special market wares display
 procedure TKMHouseMarket.Paint;
-
-  function GetInResource(out ResType: TResourceType; out ResCount: word):boolean;
-  var RT: TResourceType;
-  begin
-    ResCount := 0;
-    ResType := rt_None;
-    Result := false;
-    for RT := WARE_MIN to WARE_MAX do
-      if fMarketResIn[RT] > ResCount then
-      begin
-        ResCount := fMarketResIn[RT];
-        ResType := RT;
-        Result := True;
-      end;
-  end;
-
-var ResType: TResourceType; ResCount: Word;
+var
+  R: TResourceType;
+  MaxCount: Word;
+  MaxRes: TResourceType;
 begin
   inherited;
-  //Render special market wares display
-  if fBuildState = hbs_Done then
-    if GetInResource(ResType, ResCount) then
-      fRenderPool.AddHouseMarketSupply(fPosition, ResType, ResCount, FlagAnimStep); //FlagAnimStep is required for horses
+  if fBuildState < hbs_Done then Exit;
+
+  //Market can display only one ware at a time (lookup ware that has most count)
+  MaxCount := 0;
+  MaxRes := rt_None;
+  for R := WARE_MIN to WARE_MAX do
+  if fMarketResIn[R] > MaxCount then
+  begin
+    MaxCount := fMarketResIn[R];
+    MaxRes := R;
+  end;
+
+  if MaxCount > 0 then
+    //FlagAnimStep is required for horses animation
+    fRenderPool.AddHouseMarketSupply(fPosition, MaxRes, MaxCount, FlagAnimStep);
 end;
 
 
