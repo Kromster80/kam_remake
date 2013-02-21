@@ -8,15 +8,15 @@ uses
 type
   //Marketplace
   TKMHouseMarket = class(TKMHouse)
-  protected
+  private
     fResFrom, fResTo: TResourceType;
     fMarketResIn: array [WARE_MIN..WARE_MAX] of Word;
     fMarketResOut: array [WARE_MIN..WARE_MAX] of Word;
     fMarketDeliveryCount: array [WARE_MIN..WARE_MAX] of Word;
     fTradeAmount: Word;
     procedure AttemptExchange;
-    procedure SetResFrom(Value: TResourceType);
-    procedure SetResTo(Value: TResourceType);
+    procedure SetResFrom(aRes: TResourceType);
+    procedure SetResTo(aRes: TResourceType);
   public
     constructor Create(aID: Cardinal; aHouseType: THouseType; PosX, PosY: Integer; aOwner: TPlayerIndex; aBuildState: THouseBuildState);
     constructor Load(LoadStream: TKMemoryStream); override;
@@ -27,7 +27,7 @@ type
     function RatioFrom: Byte;
     function RatioTo: Byte;
 
-    function AllowedToTrade(Value: TResourceType): Boolean;
+    function AllowedToTrade(aRes: TResourceType): Boolean;
     function TradeInProgress: Boolean;
     function GetResTotal(aResource: TResourceType): Word; overload;
     function CheckResIn(aResource: TResourceType): Word; override;
@@ -134,7 +134,7 @@ begin
   //We don't want Marketplace to act like a Store
   if not aFromScript then
     dec(fMarketDeliveryCount[aResource], aCount); //We must keep track of the number ordered, which is less now because this has arrived
-  if (aResource = fResFrom) and (fTradeAmount > 0) then
+  if (aResource = fResFrom) and TradeInProgress then
   begin
     inc(fMarketResIn[aResource], aCount); //Place the new resource in the IN list
     //As we only order 10 resources at one time, we might need to order another now to fill the gap made by the one delivered
@@ -166,7 +166,7 @@ begin
   Assert((fResFrom <> rt_None) and (fResTo <> rt_None) and (fResFrom <> fResTo) and
           AllowedToTrade(fResFrom) and AllowedToTrade(fResTo));
 
-  if (fTradeAmount > 0) and (fMarketResIn[fResFrom] >= RatioFrom) then
+  if TradeInProgress and (fMarketResIn[fResFrom] >= RatioFrom) then
   begin
     //How much can we trade
     TradeCount := Min((fMarketResIn[fResFrom] div RatioFrom), fTradeAmount);
@@ -191,28 +191,29 @@ begin
 end;
 
 
-function TKMHouseMarket.AllowedToTrade(Value: TResourceType):boolean;
+function TKMHouseMarket.AllowedToTrade(aRes: TResourceType): Boolean;
 begin
-  Result := fPlayers[fOwner].Stats.AllowToTrade[Value];
+  Result := fPlayers[fOwner].Stats.AllowToTrade[aRes];
 end;
 
 
-procedure TKMHouseMarket.SetResFrom(Value: TResourceType);
+procedure TKMHouseMarket.SetResFrom(aRes: TResourceType);
 begin
-  if not AllowedToTrade(Value) then exit;
-  if fTradeAmount > 0 then Exit;
-  fResFrom := Value;
+  if TradeInProgress or not AllowedToTrade(aRes) then
+    Exit;
+
+  fResFrom := aRes;
   if fResTo = fResFrom then
     fResTo := rt_None;
 end;
 
 
-procedure TKMHouseMarket.SetResTo(Value: TResourceType);
+procedure TKMHouseMarket.SetResTo(aRes: TResourceType);
 begin
-  if not AllowedToTrade(Value) or TradeInProgress then
+  if TradeInProgress or not AllowedToTrade(aRes) then
     Exit;
 
-  fResTo := Value;
+  fResTo := aRes;
   if fResFrom = fResTo then
     fResFrom := rt_None;
 end;
