@@ -61,6 +61,7 @@ procedure TKMHouseMarket.DemolishHouse(aFrom: TPlayerIndex; IsEditor: Boolean = 
 var
   R: TResourceType;
 begin
+  //Count resources as lost
   for R := WARE_MIN to WARE_MAX do
     fPlayers[fOwner].Stats.GoodConsumed(R, fMarketResIn[R] + fMarketResOut[R]);
 
@@ -68,31 +69,19 @@ begin
 end;
 
 
-function TKMHouseMarket.GetResTotal(aResource:TResourceType):word;
+function TKMHouseMarket.GetResTotal(aResource: TResourceType): Word;
 begin
-  if aResource in [WARE_MIN..WARE_MAX] then
-    Result := fMarketResIn[aResource] + fMarketResOut[aResource]
-  else
-  begin
-    Result := 0;
-    Assert(False);
-  end;
+  Result := fMarketResIn[aResource] + fMarketResOut[aResource];
 end;
 
 
-function TKMHouseMarket.CheckResIn(aResource:TResourceType):word;
+function TKMHouseMarket.CheckResIn(aResource: TResourceType): Word;
 begin
-  if aResource in [WARE_MIN..WARE_MAX] then
-    Result := fMarketResIn[aResource]
-  else
-  begin
-    Result := 0;
-    Assert(False);
-  end;
+  Result := fMarketResIn[aResource];
 end;
 
 
-function TKMHouseMarket.CheckResOrder(aID: byte): word;
+function TKMHouseMarket.CheckResOrder(aID: Byte): Word;
 begin
   Result := fTradeAmount;
 end;
@@ -106,7 +95,7 @@ begin
     //When trading target ware is priced higher
     CostFrom := fResource.Resources[fResFrom].MarketPrice;
     CostTo := fResource.Resources[fResTo].MarketPrice * MARKET_TRADEOFF_FACTOR;
-    Result := Round(CostTo/Min(CostFrom, CostTo));
+    Result := Round(CostTo / Min(CostFrom, CostTo));
   end else
     Result := 1;
 end;
@@ -120,14 +109,14 @@ begin
     //When trading target ware is priced higher
     CostFrom := fResource.Resources[fResFrom].MarketPrice;
     CostTo := fResource.Resources[fResTo].MarketPrice * MARKET_TRADEOFF_FACTOR;
-    Result := Round(CostFrom/Min(CostFrom, CostTo));
+    Result := Round(CostFrom / Min(CostFrom, CostTo));
   end else
     Result := 1;
 end;
 
 
-procedure TKMHouseMarket.ResAddToIn(aResource: TResourceType; aCount:word=1; aFromScript:boolean=false);
-var ResRequired:integer;
+procedure TKMHouseMarket.ResAddToIn(aResource: TResourceType; aCount: Word = 1; aFromScript: Boolean = False);
+var ResRequired: Integer;
 begin
   //If user cancelled the exchange (or began new one with different resources already)
   //then incoming resourced should be added to Offer list immediately
@@ -171,19 +160,19 @@ begin
     //How much can we trade
     TradeCount := Min((fMarketResIn[fResFrom] div RatioFrom), fTradeAmount);
 
-    dec(fMarketResIn[fResFrom], TradeCount * RatioFrom);
+    Dec(fMarketResIn[fResFrom], TradeCount * RatioFrom);
     fPlayers[fOwner].Stats.GoodConsumed(fResFrom, TradeCount * RatioFrom);
-    dec(fTradeAmount, TradeCount);
-    inc(fMarketResOut[fResTo], TradeCount * RatioTo);
+    Dec(fTradeAmount, TradeCount);
+    Inc(fMarketResOut[fResTo], TradeCount * RatioTo);
     fPlayers[fOwner].Stats.GoodProduced(fResTo, TradeCount * RatioTo);
     fPlayers[fOwner].Deliveries.Queue.AddOffer(Self, fResTo, TradeCount * RatioTo);
 
-    fSoundLib.Play(sfxn_Trade,GetEntrance);
+    fSoundLib.Play(sfxn_Trade, fPosition);
   end;
 end;
 
 
-procedure TKMHouseMarket.ResTakeFromOut(aResource:TResourceType; const aCount: Word=1);
+procedure TKMHouseMarket.ResTakeFromOut(aResource: TResourceType; const aCount: Word = 1);
 begin
   Assert(aCount <= fMarketResOut[aResource]);
 
