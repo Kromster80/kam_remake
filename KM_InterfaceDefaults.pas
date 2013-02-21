@@ -42,7 +42,7 @@ const
 
   //Shortcuts
   //All shortcuts are in English and are the same for all languages to avoid
-  //names collisions and confusion in discussions
+  //naming collisions and confusion in discussions
   SC_MENU_BUILD = VK_F1;
   SC_MENU_RATIO = VK_F2;
   SC_MENU_STATS = VK_F3;

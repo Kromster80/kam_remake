@@ -1553,9 +1553,6 @@ begin
     Button_Army_Attack.Disable;
 
     //Hints
-    //@Lewin: I suggest we check other games, but I have a feeling that using same shortcuts for every version would be better
-    //@Krom: Yes we should check other games. I did it this way to match KaM TSK/TPR.
-    //@Lewin: Lets take Eng layout as base and stick to it
     Button_Army_GoTo.Hint     := fTextLibrary[TX_ARMY_GOTO_HINT];
     Button_Army_Stop.Hint     := Format(fTextLibrary[TX_TROOP_HALT_HINT], [SC_ARMY_HALT]);
     Button_Army_Attack.Hint   := fTextLibrary[TX_ARMY_ATTACK_HINT];
