@@ -14,6 +14,7 @@ Finishing up:
 	Finish AI stuff (defending and attacking prototype?)
 	Decide which script commands will be implemented for this release and implement them
 	Example maps that show what can be done with new scripts
+	Performance test city builder and optimise/fix slow stuff (NextToOre using FindNearest for example)
 
 
 Known issues to fix:

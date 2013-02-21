@@ -15,8 +15,18 @@ type
     fUpdatePlayerId: TPlayerIndex; //Player we will be updating next
     //This is cache for CanOwn in fTerrain.Land
     Ownable: array of array of Boolean;
-    //Each players area of influence
-    Influence: array of array of array of Byte;
+
+    //Stored in 1D arrays for optimisation, accessed through property
+    fInfluence: array of Byte; //Each players area of influence
+    fOwnership: array of Byte;
+
+    function GetInfluence(aPlayer: Byte; Y,X: Word): Byte;
+    procedure SetInfluence(aPlayer: Byte; Y,X: Word; aInfluence: Byte);
+    function GetOwnership(aPlayer: Byte; Y,X: Word): Byte;
+    procedure SetOwnership(aPlayer: Byte; Y,X: Word; aOwnership: Byte);
+
+    property Influence[aPlayer:Byte; Y,X: Word]: Byte read GetInfluence write SetInfluence;
+
     procedure InitInfluenceAvoid;
     procedure InitInfluenceOwnable;
     procedure UpdateDirectInfluence(aIndex: TPlayerIndex);
@@ -26,7 +36,7 @@ type
     AvoidBuilding: array of array of Byte;
 
     //Tiles best owner and his influence
-    Ownership: array of array of array of Byte;
+    property Ownership[aPlayer:Byte; Y,X: Word]: Byte read GetOwnership write SetOwnership;
     //Tension: array of array of array of SmallInt;
 
     procedure AddAvoidBuilding(X,Y: Word; aRad: Byte);
@@ -117,8 +127,8 @@ begin
   fMapY := fTerrain.MapY;
   SetLength(AvoidBuilding, fMapY, fMapX);
   SetLength(Ownable, fMapY, fMapX);
-  SetLength(Influence, fPlayers.Count, fMapY, fMapX);
-  SetLength(Ownership, fPlayers.Count, fMapY, fMapX);
+  SetLength(fInfluence, fPlayers.Count*fMapY*fMapX);
+  SetLength(fOwnership, fPlayers.Count*fMapY*fMapX);
   InitInfluenceAvoid;
   InitInfluenceOwnable;
 
@@ -128,6 +138,30 @@ begin
     UpdateDirectInfluence(I);
     UpdateOwnershipInfluence(I);
   end;
+end;
+
+
+function TKMInfluences.GetInfluence(aPlayer: Byte; Y,X: Word): Byte;
+begin
+  Result := fInfluence[aPlayer*fMapX*fMapY + Y*fMapX +X];
+end;
+
+
+procedure TKMInfluences.SetInfluence(aPlayer: Byte; Y,X: Word; aInfluence: Byte);
+begin
+  fInfluence[aPlayer*fMapX*fMapY + Y*fMapX +X] := aInfluence;
+end;
+
+
+function TKMInfluences.GetOwnership(aPlayer: Byte; Y,X: Word): Byte;
+begin
+  Result := fOwnership[aPlayer*fMapX*fMapY + Y*fMapX +X];
+end;
+
+
+procedure TKMInfluences.SetOwnership(aPlayer: Byte; Y,X: Word; aOwnership: Byte);
+begin
+  fOwnership[aPlayer*fMapX*fMapY + Y*fMapX +X] := aOwnership;
 end;
 
 
@@ -238,10 +272,9 @@ begin
   for I := 1 to fMapY - 1 do
   for K := 1 to fMapX - 1 do
   begin
-    if Influence[aIndex, I, K] <> 0 then
+    T := Influence[aIndex, I, K];
+    if T <> 0 then
     begin
-      T := Influence[aIndex, I, K];
-
       for H := 0 to fPlayers.Count - 1 do
       if (H <> aIndex) and (fPlayers[aIndex].Alliances[H] = at_Enemy) then
         T := T - Influence[H, I, K] div INFLUENCE_ENEMY_DIV;
@@ -293,7 +326,7 @@ var
   PCount: Word;
   I,K: Integer;
 begin
-  PCount := Length(Influence);
+  PCount := fPlayers.Count;
 
   SaveStream.Write('Influences');
 
@@ -302,13 +335,8 @@ begin
   SaveStream.Write(fMapX);
   SaveStream.Write(fUpdatePlayerId);
 
-  for I := 0 to PCount - 1 do
-    for K := 0 to fMapY - 1 do
-      SaveStream.Write(Influence[I,K,0], fMapX * SizeOf(Influence[0,0,0]));
-
-  for I := 0 to PCount - 1 do
-    for K := 0 to fMapY - 1 do
-      SaveStream.Write(Ownership[I,K,0], fMapX * SizeOf(Ownership[0,0,0]));
+  SaveStream.Write(fInfluence[0], fMapX * fMapY * PCount * SizeOf(fInfluence[0]));
+  SaveStream.Write(fOwnership[0], fMapX * fMapY * PCount * SizeOf(fOwnership[0]));
 
   for K := 0 to fMapY - 1 do
     SaveStream.Write(AvoidBuilding[K,0], fMapX * SizeOf(AvoidBuilding[0,0]));
@@ -330,18 +358,13 @@ begin
   LoadStream.Read(fMapY);
   LoadStream.Read(fUpdatePlayerId);
 
-  SetLength(Influence, PCount, fMapY, fMapX);
-  SetLength(Ownership, PCount, fMapY, fMapX);
+  SetLength(fInfluence, PCount * fMapY * fMapX);
+  SetLength(fOwnership, PCount * fMapY * fMapX);
   SetLength(AvoidBuilding, fMapY, fMapX);
   SetLength(Ownable, fMapY, fMapX);
 
-  for I := 0 to PCount - 1 do
-    for K := 0 to fMapY - 1 do
-      LoadStream.Read(Influence[I,K,0], fMapX * SizeOf(Influence[0,0,0]));
-
-  for I := 0 to PCount - 1 do
-    for K := 0 to fMapY - 1 do
-      LoadStream.Read(Ownership[I,K,0], fMapX * SizeOf(Ownership[0,0,0]));
+  LoadStream.Read(fInfluence[0], fMapX * fMapY * PCount * SizeOf(fInfluence[0]));
+  LoadStream.Read(fOwnership[0], fMapX * fMapY * PCount * SizeOf(fOwnership[0]));
 
   for K := 0 to fMapY - 1 do
     LoadStream.Read(AvoidBuilding[K,0], fMapX * SizeOf(AvoidBuilding[0,0]));
