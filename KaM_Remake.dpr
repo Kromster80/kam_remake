@@ -35,7 +35,6 @@ uses
   KM_DeliverQueue in 'KM_DeliverQueue.pas',
   {$IFDEF USE_MAD_EXCEPT}KM_Exceptions in 'KM_Exceptions.pas',{$ENDIF}
   KM_FogOfWar in 'KM_FogOfWar.pas',
-  KM_Houses in 'KM_Houses.pas',
   KM_InterfaceDefaults in 'KM_InterfaceDefaults.pas',
   KM_InterfaceGamePlay in 'KM_InterfaceGamePlay.pas',
   KM_InterfaceMainMenu in 'KM_InterfaceMainMenu.pas',
@@ -49,6 +48,8 @@ uses
   KM_GameInputProcess_Multi in 'KM_GameInputProcess_Multi.pas',
   KM_GameInputProcess_Single in 'KM_GameInputProcess_Single.pas',
   KM_Goals in 'KM_Goals.pas',
+  KM_HouseMarket in 'KM_HouseMarket.pas',
+  KM_Houses in 'KM_Houses.pas',
   KM_HTTPClient in 'KM_HTTPClient.pas',
   KM_Hungarian in 'KM_Hungarian.pas',
   KM_Locales in 'KM_Locales.pas',

@@ -135,7 +135,6 @@
 			<DCCReference Include="KM_Defaults.pas"/>
 			<DCCReference Include="KM_DeliverQueue.pas"/>
 			<DCCReference Include="KM_FogOfWar.pas"/>
-			<DCCReference Include="KM_Houses.pas"/>
 			<DCCReference Include="KM_InterfaceDefaults.pas"/>
 			<DCCReference Include="KM_InterfaceGamePlay.pas"/>
 			<DCCReference Include="KM_InterfaceMainMenu.pas"/>
@@ -149,6 +148,8 @@
 			<DCCReference Include="KM_GameInputProcess_Multi.pas"/>
 			<DCCReference Include="KM_GameInputProcess_Single.pas"/>
 			<DCCReference Include="KM_Goals.pas"/>
+			<DCCReference Include="KM_HouseMarket.pas"/>
+			<DCCReference Include="KM_Houses.pas"/>
 			<DCCReference Include="KM_HTTPClient.pas"/>
 			<DCCReference Include="KM_Hungarian.pas"/>
 			<DCCReference Include="KM_Locales.pas"/>
