@@ -178,24 +178,26 @@ end;
 
 
 procedure TKMInfluences.UpdateDirectInfluence(aIndex: TPlayerIndex);
-  procedure DoFill(X,Y: Integer; V: Byte);
+  procedure DoFill(X,Y: Word; V: Byte);
   begin
-    if  InRange(Y, 1, fMapY - 1)
-    and InRange(X, 1, fMapX - 1)
-    and (V > Influence[aIndex, Y, X])
+    if  (V > Influence[aIndex, Y, X])
     and (Ownable[Y,X]) then
     begin
       Influence[aIndex, Y, X] := V;
-      DoFill(X, Y-1, Max(V - INFLUENCE_DECAY, 0));
-      DoFill(X-1, Y, Max(V - INFLUENCE_DECAY, 0));
-      DoFill(X+1, Y, Max(V - INFLUENCE_DECAY, 0));
-      DoFill(X, Y+1, Max(V - INFLUENCE_DECAY, 0));
+      if V - INFLUENCE_DECAY <= 0 then Exit;
+
+      if Y-1 >= 1       then DoFill(X, Y-1, V - INFLUENCE_DECAY);
+      if X-1 >= 1       then DoFill(X-1, Y, V - INFLUENCE_DECAY);
+      if X+1 <= fMapX-1 then DoFill(X+1, Y, V - INFLUENCE_DECAY);
+      if Y+1 <= fMapY-1 then DoFill(X, Y+1, V - INFLUENCE_DECAY);
 
       //We can get away with 4-tap fill, it looks fine already
-      DoFill(X-1, Y-1, Max(V - INFLUENCE_DECAY_D, 0));
-      DoFill(X+1, Y-1, Max(V - INFLUENCE_DECAY_D, 0));
-      DoFill(X-1, Y+1, Max(V - INFLUENCE_DECAY_D, 0));
-      DoFill(X+1, Y+1, Max(V - INFLUENCE_DECAY_D, 0));
+      //Diagonals passages are uncommon and don't matter that much for influence
+      {if V - INFLUENCE_DECAY_D <= 0 then Exit;
+      DoFill(X-1, Y-1, V - INFLUENCE_DECAY_D);
+      DoFill(X+1, Y-1, V - INFLUENCE_DECAY_D);
+      DoFill(X-1, Y+1, V - INFLUENCE_DECAY_D);
+      DoFill(X+1, Y+1, V - INFLUENCE_DECAY_D);}
     end;
   end;
 var
@@ -214,17 +216,12 @@ begin
   //Sync tile ownership
   PlayerHouses := fPlayers[aIndex].Houses;
   for I := 0 to PlayerHouses.Count - 1 do
-  if PlayerHouses[I].HouseType <> ht_WatchTower then
+  if not PlayerHouses[I].IsDestroyed and (PlayerHouses[I].HouseType <> ht_WatchTower) then
   begin
     P := PlayerHouses[I].GetPosition;
-    Influence[aIndex, P.Y, P.X] := 254;
+    //Expand influence with faloff
+    DoFill(P.X, P.Y, 255);
   end;
-
-  //Expand influence with faloff
-  for I := 1 to fMapY - 1 do
-  for K := 1 to fMapX - 1 do
-  if Influence[aIndex, I, K] = 254 then
-    DoFill(K,I,Influence[aIndex, I, K]+1);
 end;
 
 
