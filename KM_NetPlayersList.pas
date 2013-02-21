@@ -151,11 +151,21 @@ end;
 
 
 function TKMNetPlayerInfo.GetMaxPing: Word;
-var I: Integer;
+var I: Integer; Worst: Word;
 begin
   Result := 0;
+  Worst := 0;
+  //We should ignore the worst ping so we don't delay game input due to one ping spike
   for I := 0 to PING_COUNT - 1 do
-    Result := Math.max(Result, fPings[I]);
+  begin
+    if fPings[I] > Worst then
+    begin
+      Result := Math.max(Result, Worst);
+      Worst := fPings[I]
+    end
+    else
+      Result := Math.max(Result, fPings[I]);
+  end;
 end;
 
 
@@ -588,18 +598,19 @@ end;
 
 
 function TKMNetPlayersList.GetMaxHighestRoundTripLatency:word;
-var I: Integer; Highest, Highest2: word;
+var I: Integer; Highest, Highest2, PlayerPing: word;
 begin
   Highest := 0;
   Highest2 := 0;
   for i:=1 to fCount do
     if fNetPlayers[i].Connected and fNetPlayers[i].IsHuman then
     begin
-      if fNetPlayers[i].GetMaxPing > Highest then
-        Highest := fNetPlayers[i].GetMaxPing
+      PlayerPing := fNetPlayers[i].GetMaxPing;
+      if PlayerPing > Highest then
+        Highest := PlayerPing
       else
-        if fNetPlayers[i].GetMaxPing > Highest2 then
-          Highest2 := fNetPlayers[i].GetMaxPing;
+        if PlayerPing > Highest2 then
+          Highest2 := PlayerPing;
     end;
   Result := min(Highest + Highest2, High(Word));
 end;
