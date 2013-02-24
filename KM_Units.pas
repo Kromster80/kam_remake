@@ -2291,7 +2291,7 @@ var
   I: Integer;
 begin
   //We delete dead units only next tick after they died
-  //so that fPlayers.Selected could register their death and reset
+  //so that fPlayers.Selected could register their death and reset (deprecated, now its handled by OnDied event)
   for I := Count - 1 downto 0 do
   if FREE_POINTERS
   and Units[I].IsDead and (Units[I].fPointerCount = 0) then
