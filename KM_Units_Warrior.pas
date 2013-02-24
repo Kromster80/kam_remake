@@ -121,8 +121,9 @@ end;
 
 procedure TKMUnitWarrior.CloseUnit;
 begin
-  fPlayers.CleanUpUnitPointer(fOrderTargetUnit);
-  fPlayers.CleanUpHousePointer(fOrderTargetHouse);
+  //This ensures that pointer usage tracking is reset
+  ClearOrderTarget;
+
   fNextOrder := woNone;
   inherited;
 end;
@@ -130,8 +131,8 @@ end;
 
 destructor TKMUnitWarrior.Destroy;
 begin
-  fPlayers.CleanUpUnitPointer(fOrderTargetUnit);
-  fPlayers.CleanUpHousePointer(fOrderTargetHouse);
+  //This ensures that pointer usage tracking is reset
+  ClearOrderTarget;
 
   inherited;
 end;

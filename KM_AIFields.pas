@@ -349,7 +349,7 @@ end;
 procedure TKMInfluences.Load(LoadStream: TKMemoryStream);
 var
   PCount: Word;
-  I,K: Integer;
+  K: Integer;
 begin
   LoadStream.ReadAssert('Influences');
 

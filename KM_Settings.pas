@@ -268,7 +268,7 @@ end;
 
 destructor TGameSettings.Destroy;
 begin
-  SaveToINI(ExeDir+SETTINGS_FILE);
+  SaveToINI(ExeDir + SETTINGS_FILE);
   inherited;
 end;
 
@@ -289,98 +289,105 @@ end;
 
 
 function TGameSettings.LoadFromINI(FileName: string): Boolean;
-var f: TMemIniFile;
+var
+  F: TMemIniFile;
 begin
   Result := FileExists(FileName);
 
-  f := TMemIniFile.Create(FileName);
+  F := TMemIniFile.Create(FileName);
+  try
+    fBrightness       := F.ReadInteger('GFX', 'Brightness',       1);
+    fAlphaShadows     := F.ReadBool   ('GFX', 'AlphaShadows',     True);
 
-  fBrightness       := f.ReadInteger('GFX', 'Brightness',       1);
-  fAlphaShadows     := f.ReadBool   ('GFX', 'AlphaShadows',     True);
+    fAutosave       := F.ReadBool   ('Game', 'Autosave',       True); //Should be ON by default
+    fScrollSpeed    := F.ReadInteger('Game', 'ScrollSpeed',    10);
+    Locale          := F.ReadString ('Game', 'Locale',         DEFAULT_LOCALE); //Wrong name will become ENG too
+    fSpeedPace      := F.ReadInteger('Game', 'SpeedPace',      100);
+    fSpeedMedium    := F.ReadInteger('Game', 'SpeedMedium',    3);
+    fSpeedFast      := F.ReadInteger('Game', 'SpeedFast',      6);
+    fSpeedVeryFast  := F.ReadInteger('Game', 'SpeedVeryFast',  10);
 
-  fAutosave       := f.ReadBool   ('Game', 'Autosave',       True); //Should be ON by default
-  fScrollSpeed    := f.ReadInteger('Game', 'ScrollSpeed',    10);
-  Locale          := f.ReadString ('Game', 'Locale',         DEFAULT_LOCALE); //Wrong name will become ENG too
-  fSpeedPace      := f.ReadInteger('Game', 'SpeedPace',      100);
-  fSpeedMedium    := f.ReadInteger('Game', 'SpeedMedium',    3);
-  fSpeedFast      := f.ReadInteger('Game', 'SpeedFast',      6);
-  fSpeedVeryFast  := f.ReadInteger('Game', 'SpeedVeryFast',  10);
+    fSoundFXVolume  := F.ReadFloat  ('SFX',  'SFXVolume',      0.5);
+    fMusicVolume    := F.ReadFloat  ('SFX',  'MusicVolume',    0.5);
+    fMusicOff       := F.ReadBool   ('SFX',  'MusicDisabled',  False);
+    fShuffleOn      := F.ReadBool   ('SFX',  'ShuffleEnabled', False);
 
-  fSoundFXVolume  := f.ReadFloat  ('SFX',  'SFXVolume',      0.5);
-  fMusicVolume    := f.ReadFloat  ('SFX',  'MusicVolume',    0.5);
-  fMusicOff       := f.ReadBool   ('SFX',  'MusicDisabled',  False);
-  fShuffleOn      := f.ReadBool   ('SFX',  'ShuffleEnabled', False);
+    if INI_HITPOINT_RESTORE then
+      HITPOINT_RESTORE_PACE := F.ReadInteger('Fights', 'HitPointRestorePace', DEFAULT_HITPOINT_RESTORE)
+    else
+      HITPOINT_RESTORE_PACE := DEFAULT_HITPOINT_RESTORE;
 
-  if INI_HITPOINT_RESTORE then
-    HITPOINT_RESTORE_PACE := f.ReadInteger('Fights', 'HitPointRestorePace', DEFAULT_HITPOINT_RESTORE)
-  else
-    HITPOINT_RESTORE_PACE := DEFAULT_HITPOINT_RESTORE;
+    fMultiplayerName        := F.ReadString ('Multiplayer','Name','NoName');
+    fLastIP                 := F.ReadString ('Multiplayer','LastIP','127.0.0.1');
+    fLastPort               := F.ReadString ('Multiplayer','LastPort','56789');
+    fLastRoom               := F.ReadString ('Multiplayer','LastRoom','0');
+    fServerPort             := F.ReadString ('Server','ServerPort','56789');
+    //We call it MasterServerAddressNew to force it to update in everyone's .ini file when we changed address.
+    //If the key stayed the same then everyone would still be using the old value from their settings.
+    fMasterServerAddress    := F.ReadString ('Server','MasterServerAddressNew','http://kam.hodgman.id.au/');
+    fMasterAnnounceInterval := F.ReadInteger('Server','MasterServerAnnounceInterval',180);
+    fAnnounceServer         := F.ReadBool   ('Server','AnnounceDedicatedServer',True);
+    fServerName             := F.ReadString ('Server','ServerName','KaM Remake Server');
+    fMaxRooms               := F.ReadInteger('Server','MaxRooms',16);
+    fAutoKickTimeout        := F.ReadInteger('Server','AutoKickTimeout',20);
+    fPingInterval           := F.ReadInteger('Server','PingMeasurementInterval',1000);
+    fHTMLStatusFile         := F.ReadString ('Server','HTMLStatusFile','KaM_Remake_Server_Status.html');
+    fServerWelcomeMessage   := F.ReadString ('Server','WelcomeMessage','');
+  finally
+    F.Free;
+  end;
 
-  fMultiplayerName        := f.ReadString ('Multiplayer','Name','NoName');
-  fLastIP                 := f.ReadString ('Multiplayer','LastIP','127.0.0.1');
-  fLastPort               := f.ReadString ('Multiplayer','LastPort','56789');
-  fLastRoom               := f.ReadString ('Multiplayer','LastRoom','0');
-  fServerPort             := f.ReadString ('Server','ServerPort','56789');
-  //We call it MasterServerAddressNew to force it to update in everyone's .ini file when we changed address.
-  //If the key stayed the same then everyone would still be using the old value from their settings.
-  fMasterServerAddress    := f.ReadString ('Server','MasterServerAddressNew','http://kam.hodgman.id.au/');
-  fMasterAnnounceInterval := f.ReadInteger('Server','MasterServerAnnounceInterval',180);
-  fAnnounceServer         := f.ReadBool   ('Server','AnnounceDedicatedServer',True);
-  fServerName             := f.ReadString ('Server','ServerName','KaM Remake Server');
-  fMaxRooms               := f.ReadInteger('Server','MaxRooms',16);
-  fAutoKickTimeout        := f.ReadInteger('Server','AutoKickTimeout',20);
-  fPingInterval           := f.ReadInteger('Server','PingMeasurementInterval',1000);
-  fHTMLStatusFile         := f.ReadString ('Server','HTMLStatusFile','KaM_Remake_Server_Status.html');
-  fServerWelcomeMessage   := f.ReadString ('Server','WelcomeMessage','');
-
-  FreeAndNil(f);
   fNeedsSave := False;
 end;
 
 
 //Don't rewrite the file for each individual change, do it in one batch for simplicity
 procedure TGameSettings.SaveToINI(FileName: string);
-var F: TMemIniFile;
+var
+  F: TMemIniFile;
 begin
   F := TMemIniFile.Create(FileName);
+  try
+    F.WriteInteger('GFX','Brightness',      fBrightness);
+    F.WriteBool   ('GFX','AlphaShadows',    fAlphaShadows);
 
-  F.WriteInteger('GFX','Brightness',      fBrightness);
-  F.WriteBool   ('GFX','AlphaShadows',    fAlphaShadows);
+    F.WriteBool   ('Game','Autosave',     fAutosave);
+    F.WriteInteger('Game','ScrollSpeed',  fScrollSpeed);
+    F.WriteString ('Game','Locale',       fLocale);
+    F.WriteInteger('Game','SpeedPace',    fSpeedPace);
+    F.WriteInteger('Game','SpeedMedium',  fSpeedMedium);
+    F.WriteInteger('Game','SpeedFast',    fSpeedFast);
+    F.WriteInteger('Game','SpeedVeryFast',fSpeedVeryFast);
 
-  F.WriteBool   ('Game','Autosave',     fAutosave);
-  F.WriteInteger('Game','ScrollSpeed',  fScrollSpeed);
-  F.WriteString ('Game','Locale',       fLocale);
-  F.WriteInteger('Game','SpeedPace',    fSpeedPace);
-  F.WriteInteger('Game','SpeedMedium',  fSpeedMedium);
-  F.WriteInteger('Game','SpeedFast',    fSpeedFast);
-  F.WriteInteger('Game','SpeedVeryFast',fSpeedVeryFast);
+    F.WriteFloat  ('SFX','SFXVolume',     fSoundFXVolume);
+    F.WriteFloat  ('SFX','MusicVolume',   fMusicVolume);
+    F.WriteBool   ('SFX','MusicDisabled', fMusicOff);
+    F.WriteBool   ('SFX','ShuffleEnabled',fShuffleOn);
 
-  F.WriteFloat  ('SFX','SFXVolume',     fSoundFXVolume);
-  F.WriteFloat  ('SFX','MusicVolume',   fMusicVolume);
-  F.WriteBool   ('SFX','MusicDisabled', fMusicOff);
-  F.WriteBool   ('SFX','ShuffleEnabled',fShuffleOn);
+    if INI_HITPOINT_RESTORE then
+      F.WriteInteger('Fights','HitPointRestorePace', HITPOINT_RESTORE_PACE);
 
-  if INI_HITPOINT_RESTORE then
-    F.WriteInteger('Fights','HitPointRestorePace', HITPOINT_RESTORE_PACE);
+    F.WriteString ('Multiplayer','Name',    fMultiplayerName);
+    F.WriteString ('Multiplayer','LastIP',  fLastIP);
+    F.WriteString ('Multiplayer','LastPort',fLastPort);
+    F.WriteString ('Multiplayer','LastRoom',fLastRoom);
 
-  F.WriteString ('Multiplayer','Name',    fMultiplayerName);
-  F.WriteString ('Multiplayer','LastIP',  fLastIP);
-  F.WriteString ('Multiplayer','LastPort',fLastPort);
-  F.WriteString ('Multiplayer','LastRoom',fLastRoom);
+    F.WriteString ('Server','ServerName',fServerName);
+    F.WriteString ('Server','WelcomeMessage',fServerWelcomeMessage);
+    F.WriteString ('Server','ServerPort',fServerPort);
+    F.WriteBool   ('Server','AnnounceDedicatedServer',fAnnounceServer);
+    F.WriteInteger('Server','MaxRooms',fMaxRooms);
+    F.WriteString ('Server','HTMLStatusFile',fHTMLStatusFile);
+    F.WriteInteger('Server','MasterServerAnnounceInterval',fMasterAnnounceInterval);
+    F.WriteString ('Server','MasterServerAddressNew',fMasterServerAddress);
+    F.WriteInteger('Server','AutoKickTimeout',fAutoKickTimeout);
+    F.WriteInteger('Server','PingMeasurementInterval',fPingInterval);
 
-  F.WriteString ('Server','ServerName',fServerName);
-  F.WriteString ('Server','WelcomeMessage',fServerWelcomeMessage);
-  F.WriteString ('Server','ServerPort',fServerPort);
-  F.WriteBool   ('Server','AnnounceDedicatedServer',fAnnounceServer);
-  F.WriteInteger('Server','MaxRooms',fMaxRooms);
-  F.WriteString ('Server','HTMLStatusFile',fHTMLStatusFile);
-  F.WriteInteger('Server','MasterServerAnnounceInterval',fMasterAnnounceInterval);
-  F.WriteString ('Server','MasterServerAddressNew',fMasterServerAddress);
-  F.WriteInteger('Server','AutoKickTimeout',fAutoKickTimeout);
-  F.WriteInteger('Server','PingMeasurementInterval',fPingInterval);
+    F.UpdateFile; //Write changes to file
+  finally
+    F.Free;
+  end;
 
-  F.UpdateFile; //Write changes to file
-  FreeAndNil(F);
   fNeedsSave := False;
 end;
 

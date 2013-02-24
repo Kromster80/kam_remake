@@ -2214,12 +2214,12 @@ begin
 end;
 
 
-function TKMUnitsCollection.GetTotalPointers: integer;
-var i: Integer;
+function TKMUnitsCollection.GetTotalPointers: Integer;
+var I: Integer;
 begin
   Result := 0;
-  for i:=0 to Count-1 do
-    inc(Result, Units[i].GetPointerCount);
+  for I := 0 to Count - 1 do
+    Inc(Result, Units[I].GetPointerCount);
 end;
 
 
