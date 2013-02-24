@@ -608,7 +608,6 @@ begin
       fSelected := Members[NewSel];
   end;
 
-  Members[I].ReleaseUnitPointer;
   fMembers.Delete(I);
 
   //Move nearest member to placeholders place
@@ -618,6 +617,8 @@ begin
     if NewSel <> -1 then
       fMembers.Exchange(NewSel, 0);
   end;
+
+  fPlayers.CleanUpUnitPointer(TKMUnit(aMember));
 
   SetUnitsPerRow(fUnitsPerRow);
 
@@ -644,12 +645,14 @@ end;
 procedure TKMUnitGroup.CheckForFight;
 var
   I,K: Integer;
+  U: TKMUnit;
 begin
   //Verify we still have foes
   for I := fOffenders.Count - 1 downto 0 do
   if TKMUnitWarrior(fOffenders[I]).IsDeadOrDying then
   begin
-    TKMUnitWarrior(fOffenders[I]).ReleaseUnitPointer;
+    U := fOffenders[I]; //Need to pass var
+    fPlayers.CleanUpUnitPointer(U);
     fOffenders.Delete(I);
     if fOffenders.Count = 0 then
       OrderRepeat;
@@ -956,6 +959,7 @@ end;
 
 
 procedure TKMUnitGroup.OrderLinkTo(aTargetGroup: TKMUnitGroup; aClearOffenders: Boolean);
+var U: TKMUnit;
 begin
   if aClearOffenders and CanTakeOrders then ClearOffenders;
 
@@ -971,8 +975,9 @@ begin
   //Move our members and self to the new group
   while (fMembers.Count <> 0) do
   begin
+    U := Members[0];
     aTargetGroup.AddMember(Members[0]);
-    Members[0].ReleaseUnitPointer;
+    fPlayers.CleanUpUnitPointer(U);
     fMembers.Delete(0);
   end;
 
@@ -1027,6 +1032,7 @@ var
   NewGroup: TKMUnitGroup;
   NewLeader: TKMUnitWarrior;
   MultipleTypes: Boolean;
+  U: TKMUnit;
 begin
   Result := nil;
   if IsDead then Exit;
@@ -1048,7 +1054,7 @@ begin
     end;
 
   //Remove from the group
-  NewLeader.ReleaseUnitPointer;
+  fPlayers.CleanUpUnitPointer(TKMUnit(NewLeader));
   fMembers.Remove(NewLeader);
 
   NewGroup := fPlayers[Owner].UnitGroups.AddGroup(NewLeader);
@@ -1059,7 +1065,8 @@ begin
   if (MultipleTypes and (Members[I].UnitType = NewLeader.UnitType))
   or (not MultipleTypes and (Count > NewGroup.Count + 1)) then
   begin
-    Members[I].ReleaseUnitPointer;
+    U := Members[I];
+    fPlayers.CleanUpUnitPointer(U);
     NewGroup.AddMember(Members[I], 1); // Join new group (insert next to commander)
     fMembers.Delete(I); // Leave this group
   end;
@@ -1093,6 +1100,7 @@ end;
 procedure TKMUnitGroup.OrderSplitLinkTo(aGroup: TKMUnitGroup; aCount: Word; aClearOffenders: Boolean);
 var
   I: Integer;
+  U: TKMUnit;
 begin
   //Make sure to leave someone in the group
   Assert(aCount < Count);
@@ -1101,7 +1109,8 @@ begin
   //Take units from the end, to keep flagholder
   for I := fMembers.Count - 1 downto fMembers.Count - aCount do
   begin
-    Members[I].ReleaseUnitPointer;
+    U := Members[I];
+    fPlayers.CleanUpUnitPointer(U);
     aGroup.AddMember(Members[I]);
     fMembers.Delete(I);
   end;
@@ -1225,10 +1234,13 @@ end;
 
 
 procedure TKMUnitGroup.ClearOffenders;
-var I: Integer;
+var I: Integer; U: TKMUnit;
 begin
   for I := fOffenders.Count - 1 downto 0 do
-    TKMUnitWarrior(fOffenders[I]).ReleaseUnitPointer;
+  begin
+    U := fOffenders[I]; //Need to pass variable
+    fPlayers.CleanUpUnitPointer(U);
+  end;
   fOffenders.Clear;
 end;
 

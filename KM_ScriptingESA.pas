@@ -1542,16 +1542,16 @@ begin
   if fGame.GameTickCount mod 11 = 0 then
   begin
     for I := 0 to fUnitCount - 1 do
-      if (fUnitCache[i].U <> nil) and fUnitCache[i].U.IsDead then
-        fPlayers.CleanUpUnitPointer(fUnitCache[i].U);
+      if (fUnitCache[I].U <> nil) and fUnitCache[I].U.IsDead then
+        fPlayers.CleanUpUnitPointer(fUnitCache[I].U);
 
     for I := 0 to fHouseCount - 1 do
-      if (fHouseCache[i].H <> nil) and fHouseCache[i].H.IsDestroyed then
-        fPlayers.CleanUpHousePointer(fHouseCache[i].H);
+      if (fHouseCache[I].H <> nil) and fHouseCache[I].H.IsDestroyed then
+        fPlayers.CleanUpHousePointer(fHouseCache[I].H);
 
     for I := 0 to fGroupCount - 1 do
-      if (fGroupCache[i].G <> nil) and fGroupCache[i].G.IsDead then
-        fPlayers.CleanUpGroupPointer(fGroupCache[i].G);
+      if (fGroupCache[I].G <> nil) and fGroupCache[I].G.IsDead then
+        fPlayers.CleanUpGroupPointer(fGroupCache[I].G);
   end;
 end;
 

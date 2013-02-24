@@ -449,6 +449,8 @@ begin
 end;
 
 
+//We need to clean pointers through this method because on games exit we free all objects and in
+//destructor we must release all pointers. It is common that there are cross-pointers (units in fight f.e.) that cant be cross-freed
 procedure TKMPlayersCollection.CleanUpUnitPointer(var aUnit: TKMUnit);
 begin
   if (aUnit <> nil) and not fGame.IsExiting then

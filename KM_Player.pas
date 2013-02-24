@@ -250,11 +250,15 @@ end;
 //Stats/Deliveries and other collection in their Destroy/Abandon/Demolish methods
 destructor TKMPlayer.Destroy;
 begin
-  inherited; //Free fUnits first
+  //Groups freed before units since we need to release pointers they have to units
+  FreeThenNil(fUnitGroups);
+
+  //Free units
+  inherited;
+
   FreeThenNil(fArmyEval);
   FreeThenNil(fRoadsList);
   FreeThenNil(fHouses);
-  FreeThenNil(fUnitGroups);
 
   //Should be freed after Houses and Units, as they write Stats on Destroy
   FreeThenNil(fStats);
