@@ -1127,7 +1127,7 @@ begin
                   end;
                   case GameCursor.MapEdShape of
                     hsCircle: fRenderAux.CircleOnTerrain(round(F.X), round(F.Y), Rad, $00000000,  $FFFFFFFF);
-                    hsSquare: fRenderAux.SquareOnTerrain(round(F.X) - Rad, round(F.Y) - Rad, round(F.X + Rad), round(F.Y) + Rad, $00000000,  $FFFFFFFF);
+                    hsSquare: fRenderAux.SquareOnTerrain(round(F.X) - Rad, round(F.Y) - Rad, round(F.X + Rad), round(F.Y) + Rad, $FFFFFFFF);
                   end;
                 end;
     cmUnits:    if (GameCursor.Mode = cmUnits) and (GameCursor.Tag1 = 255) then

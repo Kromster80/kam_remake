@@ -73,7 +73,7 @@ type
 
 
 implementation
-uses KM_Game, KM_PlayersCollection, KM_RenderAux, KM_RenderUI, KM_AIFields;
+uses KM_Game, KM_PlayersCollection, KM_RenderAux, KM_RenderUI, KM_AIFields, KM_UnitGroups;
 
 
 { TKMDeposits }
@@ -389,6 +389,7 @@ var
   I, K: Integer;
   Loc: TKMPoint;
   LocDir: TKMPointDir;
+  G: TKMUnitGroup;
 begin
   if mlDefences in fVisibleLayers then
   for I := 0 to fPlayers.Count - 1 do
@@ -427,10 +428,20 @@ begin
     case aLayer of
       plTerrain:  fRenderAux.SquareOnTerrain(Loc.X - 3, Loc.Y - 2.5,
                                              Loc.X + 2, Loc.Y + 1.5,
-                                             fPlayers[I].FlagColor AND $20FFFFFF,
                                              fPlayers[I].FlagColor);
       plCursors:  fRenderPool.RenderCursorBuildIcon(Loc,
                       391, fPlayers[I].FlagColor);
+    end;
+  end;
+
+  //Show selected group order target
+  if fPlayers.Selected is TKMUnitGroup then
+  begin
+    G := TKMUnitGroup(fPlayers.Selected);
+    if G.MapEdOrder.Order <> ioNoOrder then
+    begin
+      fRenderAux.Quad(G.MapEdOrder.Pos.Loc.X, G.MapEdOrder.Pos.Loc.Y, $40FF00FF);
+      fRenderAux.LineOnTerrain(G.Position.X - 0.5, G.Position.Y - 0.5, G.MapEdOrder.Pos.Loc.X - 0.5, G.MapEdOrder.Pos.Loc.Y - 0.5, $FF0000FF);
     end;
   end;
 end;

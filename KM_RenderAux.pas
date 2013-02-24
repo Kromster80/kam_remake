@@ -26,7 +26,7 @@ type
     procedure Passability(aRect: TKMRect; aPass: Byte);
     procedure Projectile(x1,y1,x2,y2: Single);
     procedure Quad(pX,pY: Integer; aCol: TColor4);
-    procedure SquareOnTerrain(X1, Y1, X2, Y2: Single; Fill, Line: TColor4);
+    procedure SquareOnTerrain(X1, Y1, X2, Y2: Single; aLineColor: TColor4);
     procedure Text(pX, pY: Integer; const aText: string; aCol: TColor4);
     procedure UnitMoves(aRect: TKMRect);
     procedure UnitPointers(pX,pY: Single; Count: Integer);
@@ -134,10 +134,10 @@ begin
 end;
 
 
-procedure TRenderAux.SquareOnTerrain(X1, Y1, X2, Y2: Single; Fill, Line: TColor4);
+procedure TRenderAux.SquareOnTerrain(X1, Y1, X2, Y2: Single; aLineColor: TColor4);
 var I: Integer;
 begin
-  glColor4ubv(@Line);
+  glColor4ubv(@aLineColor);
   glBegin(GL_LINE_LOOP);
     glVertex2f(X1, fTerrain.FlatToHeight(X1, Y1));
     for I := Ceil(X1) to Trunc(X2) do

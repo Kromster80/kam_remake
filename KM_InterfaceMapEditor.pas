@@ -203,6 +203,7 @@ type
         TrackBar_EquipRateIron: TKMTrackBar;
         TrackBar_RecruitFactor: TKMTrackBar;
         TrackBar_MaxSoldiers: TKMTrackBar;
+        CheckBox_MaxSoldiers: TKMCheckBox;
         Button_EditFormations: TKMButton;
       Panel_Offence: TKMPanel;
         CheckBox_AutoAttack: TKMCheckBox;
@@ -1056,7 +1057,10 @@ begin
       TrackBar_RecruitFactor.Hint := 'How many recruits AI should have in barracks';
       TrackBar_RecruitFactor.OnClick := Town_DefenceChange;
 
-      TrackBar_MaxSoldiers := TKMTrackBar.Create(Panel_Defence, 0, 252, TB_WIDTH, 0, 500);
+      CheckBox_MaxSoldiers := TKMCheckBox.Create(Panel_Defence, 0, 252, 30, 20, '', fnt_Metal);
+      CheckBox_MaxSoldiers.Hint := 'How many soldiers AI can have at once';
+      CheckBox_MaxSoldiers.OnClick := Town_DefenceChange;
+      TrackBar_MaxSoldiers := TKMTrackBar.Create(Panel_Defence, 30, 252, TB_WIDTH - 30, 0, 500);
       TrackBar_MaxSoldiers.Caption := 'Max soldiers';
       TrackBar_MaxSoldiers.Hint := 'How many soldiers AI can have at once';
       TrackBar_MaxSoldiers.Step := 5;
@@ -1779,7 +1783,13 @@ begin
   MyPlayer.AI.Setup.EquipRateLeather := TrackBar_EquipRateLeather.Position * 10;
   MyPlayer.AI.Setup.EquipRateIron := TrackBar_EquipRateIron.Position * 10;
   MyPlayer.AI.Setup.RecruitFactor := TrackBar_RecruitFactor.Position;
-  MyPlayer.AI.Setup.MaxSoldiers := TrackBar_MaxSoldiers.Position;
+
+  if CheckBox_MaxSoldiers.Checked then
+    MyPlayer.AI.Setup.MaxSoldiers := -1
+  else
+    MyPlayer.AI.Setup.MaxSoldiers := TrackBar_MaxSoldiers.Position;
+
+  Town_DefenceRefresh;
 end;
 
 
@@ -1789,7 +1799,10 @@ begin
   TrackBar_EquipRateLeather.Position := MyPlayer.AI.Setup.EquipRateLeather div 10;
   TrackBar_EquipRateIron.Position := MyPlayer.AI.Setup.EquipRateIron div 10;
   TrackBar_RecruitFactor.Position := MyPlayer.AI.Setup.RecruitFactor;
-  TrackBar_MaxSoldiers.Position := MyPlayer.AI.Setup.MaxSoldiers;
+
+  CheckBox_MaxSoldiers.Checked := (MyPlayer.AI.Setup.MaxSoldiers < 0);
+  TrackBar_MaxSoldiers.Enabled := not CheckBox_MaxSoldiers.Checked;
+  TrackBar_MaxSoldiers.Position := Max(MyPlayer.AI.Setup.MaxSoldiers, 0);
 end;
 
 
