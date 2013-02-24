@@ -120,7 +120,9 @@ var
 begin
   if fGame.IsPeaceTime then Exit; //Do not train soldiers during peacetime
 
-  if fPlayers[fOwner].Stats.GetArmyCount >= fSetup.MaxSoldiers then Exit; //Don't train if we have reached our limit
+  //Don't train if we have reached our limit
+  if (fSetup.MaxSoldiers <> -1) and (fPlayers[fOwner].Stats.GetArmyCount >= fSetup.MaxSoldiers) then
+    Exit;
 
   //Delay between equipping soldiers for KaM compatibility
   CanEquipIron := fGame.CheckTime(fLastEquippedTime + fSetup.EquipRateIron);
@@ -175,7 +177,7 @@ begin
       and ((CanEquipIron and (UT in WARRIORS_IRON)) or (CanEquipLeather and not (UT in WARRIORS_IRON))) then
         while HB.CanEquip(UT)
         and (GroupReq[GT] > 0)
-        and (fPlayers[fOwner].Stats.GetArmyCount < fSetup.MaxSoldiers) do
+        and ((fSetup.MaxSoldiers = -1) or (fPlayers[fOwner].Stats.GetArmyCount < fSetup.MaxSoldiers)) do
         begin
           HB.Equip(UT, 1);
           Dec(GroupReq[GT]);

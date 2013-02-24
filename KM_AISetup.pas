@@ -45,7 +45,7 @@ begin
 
   EquipRateIron := 500; //Measured in KaM: AI equips 1 iron soldier every ~50 seconds
   EquipRateLeather := 1000; //Measured in KaM: AI equips 1 leather soldier every ~100 seconds (if no iron one was already equipped)
-  MaxSoldiers := High(MaxSoldiers); //No limit by default
+  MaxSoldiers := -1; //No limit by default
   WorkerFactor := 6;
   RecruitFactor := 5; //This means the number in the barracks, watchtowers are counted seperately
   RecruitDelay := 0; //Can train at start

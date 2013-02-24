@@ -33,7 +33,7 @@ type
     function CheckResIn(aResource: TResourceType): Word; override;
     function CheckResOrder(aID: Byte): Word; override;
     procedure ResAddToIn(aResource: TResourceType; aCount: Word=1; aFromScript: Boolean=false); override;
-    procedure ResEditOrder(aID:byte; aAmount:integer); override;
+    procedure ResEditOrder(aID: Byte; aAmount: Integer); override;
     procedure ResTakeFromOut(aResource: TResourceType; const aCount: Word=1); override;
     function ResCanAddToIn(aRes: TResourceType): Boolean; override;
 
@@ -215,9 +215,12 @@ end;
 
 
 //Player has changed the amount of order
-procedure TKMHouseMarket.ResEditOrder(aID:byte; aAmount:integer);
-var ResRequired, OrdersAllowed, OrdersRemoved:integer;
-const MAX_RES_ORDERED = 10; //Maximum number of Demands we can place at once (stops the delivery queue from becoming clogged with 1500 items)
+procedure TKMHouseMarket.ResEditOrder(aID: Byte; aAmount: Integer);
+const
+  //Maximum number of Demands we can place at once (stops the delivery queue from becoming clogged with 1500 items)
+  MAX_RES_ORDERED = 10;
+var
+  ResRequired, OrdersAllowed, OrdersRemoved: Integer;
 begin
   if (fResFrom = rt_None) or (fResTo = rt_None) or (fResFrom = fResTo) then Exit;
 

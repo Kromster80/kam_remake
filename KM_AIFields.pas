@@ -324,7 +324,7 @@ end;
 procedure TKMInfluences.Save(SaveStream: TKMemoryStream);
 var
   PCount: Word;
-  I,K: Integer;
+  K: Integer;
 begin
   PCount := fPlayers.Count;
 
