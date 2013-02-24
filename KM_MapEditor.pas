@@ -73,7 +73,7 @@ type
 
 
 implementation
-uses KM_Game, KM_PlayersCollection, KM_RenderAux, KM_RenderUI, KM_AIFields, KM_UnitGroups;
+uses KM_Game, KM_PlayersCollection, KM_RenderAux, KM_RenderUI, KM_AIFields, KM_AIDefensePos, KM_UnitGroups;
 
 
 { TKMDeposits }
@@ -343,10 +343,12 @@ procedure TKMMapEditor.PaintUI;
     //Paint the label on top of the background
     TKMRenderUI.WriteText(X, Y - 7, 0, aText, fnt_Metal, taCenter, $FFFFFFFF);
   end;
-
+const
+  DefenceLine: array [TAIDefencePosType] of Cardinal = ($FF80FF00, $FFFF8000);
 var
   I, K: Integer;
   R: TRawDeposit;
+  DP: TAIDefencePosition;
   LocF: TKMPointF;
   ScreenLoc: TKMPointI;
 begin
@@ -371,13 +373,14 @@ begin
     for I := 0 to fPlayers.Count - 1 do
       for K := 0 to fPlayers[I].AI.General.DefencePositions.Count - 1 do
       begin
-        LocF := fTerrain.FlatToHeight(KMPointF(fPlayers[I].AI.General.DefencePositions[K].Position.Loc));
+        DP := fPlayers[I].AI.General.DefencePositions[K];
+        LocF := fTerrain.FlatToHeight(KMPointF(DP.Position.Loc));
         ScreenLoc := fGame.Viewport.MapToScreen(LocF);
 
         if KMInRect(ScreenLoc, fGame.Viewport.ViewRect) then
         begin
-          PaintTextInShape(IntToStr(K+1), ScreenLoc.X, ScreenLoc.Y - 15, $F0FF8000);
-          PaintTextInShape(fPlayers[I].AI.General.DefencePositions[K].UITitle, ScreenLoc.X, ScreenLoc.Y, $F0FF8000);
+          PaintTextInShape(IntToStr(K+1), ScreenLoc.X, ScreenLoc.Y - 15, DefenceLine[DP.DefenceType]);
+          PaintTextInShape(DP.UITitle, ScreenLoc.X, ScreenLoc.Y, DefenceLine[DP.DefenceType]);
         end;
       end;
   end;

@@ -1077,7 +1077,7 @@ begin
       CheckBox_AutoAttack.Disable;
 
       List_Attacks := TKMColumnListBox.Create(Panel_Offence, 0, 50, TB_WIDTH, 210, fnt_Game, bsGame);
-      List_Attacks.SetColumns(fnt_Outline, ['Type', 'Delay', 'Men', 'Target', 'Loc'], [0, 20, 50, 90, 150]);
+      List_Attacks.SetColumns(fnt_Outline, ['Type', 'Delay', 'Men', 'Target', 'Loc'], [0, 20, 60, 100, 130]);
       List_Attacks.OnClick := Attacks_ListClick;
       List_Attacks.OnDoubleClick := Attacks_ListDoubleClick;
 
@@ -1105,6 +1105,7 @@ begin
       Button_Player[PT].OnClick := SwitchPage;
     end;
 
+    //Goals
     Panel_Goals := TKMPanel.Create(Panel_Player,0,28,TB_WIDTH,400);
       TKMLabel.Create(Panel_Goals, 0, PAGE_TITLE_Y, TB_WIDTH, 0, 'Goals', fnt_Outline, taCenter);
       List_Goals := TKMColumnListBox.Create(Panel_Goals, 0, 30, TB_WIDTH, 230, fnt_Game, bsGame);
@@ -2189,7 +2190,7 @@ end;
 
 procedure TKMapEdInterface.Attacks_Refresh;
 const
-  Typ: array [TAIAttackType] of string = ('1', 'R');
+  Typ: array [TAIAttackType] of string = ('O', 'R');
   Tgt: array [TAIAttackTarget] of string = ('U', 'H1', 'H2', 'Pos');
 var
   I: Integer;
@@ -2200,7 +2201,7 @@ begin
   for I := 0 to MyPlayer.AI.General.Attacks.Count - 1 do
   begin
     A := MyPlayer.AI.General.Attacks[I];
-    List_Attacks.AddItem(MakeListRow([Typ[A.AttackType], IntToStr(A.Delay), IntToStr(A.TotalMen), Tgt[A.Target], TypeToString(A.CustomPosition)]));
+    List_Attacks.AddItem(MakeListRow([Typ[A.AttackType], IntToStr(A.Delay div 10), IntToStr(A.TotalMen), Tgt[A.Target], TypeToString(A.CustomPosition)]));
   end;
 
   Attacks_ListClick(nil);
@@ -2317,6 +2318,9 @@ end;
 procedure TKMapEdInterface.Goals_Refresh;
 const
   Typ: array [TGoalType] of string = ('-', 'V', 'S');
+  Cnd: array [TGoalCondition] of string = (
+    'None', 'BuildTutorial', 'Time', 'Buildings', 'Troops', 'Unknown',
+    'MilitaryAssets', 'SerfsAndSchools', 'EconomyBuildings');
 var
   I: Integer;
   G: TKMGoal;
@@ -2327,10 +2331,10 @@ begin
   begin
     G := MyPlayer.Goals[I];
     List_Goals.AddItem(MakeListRow([Typ[G.GoalType],
-                                    IntToStr(Byte(G.GoalCondition)),
+                                    Cnd[G.GoalCondition],
+                                    IntToStr(G.PlayerIndex + 1),
                                     IntToStr(G.GoalTime div 10),
-                                    IntToStr(G.MessageToShow),
-                                    IntToStr(G.PlayerIndex + 1)]));
+                                    IntToStr(G.MessageToShow)]));
   end;
 
   Goals_ListClick(nil);
