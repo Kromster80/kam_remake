@@ -25,7 +25,7 @@ type
     fUsedNodeCount: Integer;
     function HeapCmp(A,B: Pointer): Boolean;
     function GetNodeAt(X,Y: SmallInt): TANode;
-    procedure Reset;
+    procedure Flush;
   protected
     function MakeRoute: Boolean; override;
     procedure ReturnRoute(NodeList: TKMPointList); override;
@@ -50,7 +50,7 @@ end;
 
 destructor TPathFindingAStarNew.Destroy;
 begin
-  Reset;
+  Flush;
   fHeap.Free;
 
   inherited;
@@ -86,7 +86,7 @@ begin
 end;
 
 
-procedure TPathFindingAStarNew.Reset;
+procedure TPathFindingAStarNew.Flush;
 var
   I: Integer;
 begin
@@ -109,7 +109,7 @@ var
   NewCost: Word;
 begin
   //Clear previous data
-  Reset;
+  Flush;
 
   //Check that fOpenRef has been initialised (running SetLength when it's already correct size
   //is inefficient with such a large array, SetLength doesn't seem to test for that condition
