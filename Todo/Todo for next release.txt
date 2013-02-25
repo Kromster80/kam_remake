@@ -1,5 +1,5 @@
 Features:
- +	MP game speed up slider (1x,2x, 3x)
+ +	MP game speed up slider (x1, x1.5, x2, x2.5, x3)
  +	Coop maps handled better in lobby (AI players hidden and automatic, AI map areas not revealed)
  +	Host can set password for lobby
  +	Army graph starts 5% before the first variation (to skip peacetime)
