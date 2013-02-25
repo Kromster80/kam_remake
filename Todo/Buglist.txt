@@ -57,6 +57,10 @@ Improvements:
  +	L	Host can set password for lobby
  +	M	Sliders in lobby for selecting speed during peacetime and after peacetime
  +	L	Army graph starts 5% before the first variation (to skip peacetime)
+ +  L	Add a command to let the AI repair houses without building new ones (wasn't possible in KaM)
+ +	L	Draw highlight on houses mentioned in an open message
+ +    Fix fences shading along edges of FOW
+
  wip	Dismiss button to make units walk into the school and disappear (gold is not refunded)
  wip	Simple dedicated server form which lets you set the properties of the INI for the server and start it [gemGreg]
 	L	Placing houses in MP should put a temp/fake visual markup until the real one can be added to make it appear responsive
@@ -83,7 +87,6 @@ Improvements:
 	M	Some way to visualise fog of war for the selected player in replays (and MapEd) (semi-transparent?) so you can understand player's perspective [Krom/Lewin]
 	L	New command !SKIP_HOUSE. If I want a map with no stone, then after building the inn the woodcutter and tower should become available (skips the stonemason)
 	M	Pause in multiplayer (only host can use it, maybe later have a lobby setting "clients may pause")
-	L	Add a command to let the AI repair houses without building new ones (wasn't possible in KaM)
 	L	"Checkpoints" in replays every 20 minutes or so to allow skipping forwards/backwards (saves entire game state which can be loaded) Using compression can keep the save file tiny.
 			Krom: Not sure how this will cope with 29hour games
 			Lewin: We can delete save points as the game goes longer. By the time we reach 29 hours we only keep save points from every 1-2 hours. For 90 minute games we keep one every 10 minutes.
@@ -99,14 +102,12 @@ Improvements:
 	L	Option in the lobby to select starting with a small village, everything up to sawmill (placed automatically by city builder?)
 	L	Rally point for the barracks (with new beacon/flag)
 	L	House not occupied message should mention which house it is ("This farm is not occupied")
-	L	Draw highlight on houses mentioned in an open message
 	L	Add script command to allow to add recruits into the Barracks in MapEd (only Barracks for simplicity, other houses dont need it)
 	L	Allow dedicated servers to optionally specify their IP in the INI file (some servers have multiple IP addresses, the external one the master server sees might not be the correct one)
-	L	Serfs that are f.e. taking corn to the mill should claim/lock a flour in the output before arriving, rather than only checking it when arriving (which usually means another serf takes it)
-	L	MP army graph should start when PT ends, otherwise half of the graph is wasted with no change
 	L	Pressing a character with a dropdown/listbox selected will choose the first item starting with that character
 	L	Icon before the server name: Swords/house/floppy for battle/build/save (save icon only shown while in lobby)
 	L	Shift+3 joins the selected warrior group to the group assigned to hotkey 3 (Starcraft style)
+  L Maplist still takes too long to load, scrollbar moves irritatingly while maps are being added
 
 	L	MapEd: Allow to toggle trees/objects opacity (make them partially visible) [Marcin]
 	L	MapEd: Allow to toggle AI defence positions display
