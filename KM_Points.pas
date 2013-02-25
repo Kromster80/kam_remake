@@ -14,11 +14,12 @@ type
   TKMPointExact = packed record Loc: TKMPoint; Exact: Boolean; end;
   TKMPointF = packed record X,Y: Single; end;
   TKMPointI = packed record X,Y: Integer; end; //Allows negative values
-  TKMPointArray = array of TKMPointI;
+  TKMPointArray = array of TKMPoint;
+  TKMPointIArray = array of TKMPointI;
   TKMTrisArray = array of array [0..2] of Integer;
 
   TKMTriMesh = record
-    Vertices: TKMPointArray;
+    Vertices: TKMPointIArray;
     Polygons: TKMTrisArray;
   end;
 
@@ -550,7 +551,7 @@ end;
 
 
 //This function has a bug, it fails to triangulate W-shaped polygon
-procedure KMTriangulate(VerticeCount: Integer; Vertice: TKMPointArray; var PolyCount: Integer; var Polys: array of Word);
+procedure KMTriangulate(VerticeCount: Integer; Vertice: TKMPointIArray; var PolyCount: Integer; var Polys: array of Word);
 var
   LoopCount: Integer;
   n0,n1,n2:integer;

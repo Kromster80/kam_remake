@@ -8,7 +8,7 @@ uses
 type
   TKMNodesArray = record
     Count: Integer;
-    Nodes: TKMPointArray;
+    Nodes: TKMPointIArray;
   end;
 
   TKMShapesArray = record
@@ -76,7 +76,7 @@ end;
 
 procedure TKMSimplifyShapes.Simplify(aShape, aFrom, aTo: Integer; aErrorSqr: Single; aForceSplit: Boolean = False);
 var
-  InLoop: TKMPointArray;
+  InLoop: TKMPointIArray;
   I: Integer;
   MaxDistI: Integer;
   MaxDistSqr: Single;
@@ -572,7 +572,7 @@ var
   end;
 
   procedure TriangulateLoop;
-  var L: Integer; V: TKMPointArray; PCount: Word; Pols: array of Word;
+  var L: Integer; V: TKMPointIArray; PCount: Word; Pols: array of Word;
   begin
     SetLength(V, LoopCount);
     SetLength(Pols, (LoopCount - 2) * 3);
@@ -696,7 +696,7 @@ procedure ForceOutlines(var aTriMesh: TKMTriMesh; aRect: TKMRect; fSimpleOutline
   end;
 
 var
-  Tmp: TKMPointArray;
+  Tmp: TKMPointIArray;
 
   procedure SortAndApply(aX: Boolean);
   var

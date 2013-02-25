@@ -10,7 +10,7 @@ uses KM_Points, Math;
 const
   maxpolypoint = 100;
 
-procedure Triangulate(pts: TKMPointArray; Count: Byte; var Tris: array of Word; out TCount: Word);
+procedure Triangulate(pts: TKMPointIArray; Count: Byte; var Tris: array of Word; out TCount: Word);
 
 
 implementation
@@ -256,7 +256,7 @@ loop2:
 end;
 
 
-procedure Triangulate(pts: TKMPointArray; Count: Byte; var Tris: array of Word; out TCount: Word);
+procedure Triangulate(pts: TKMPointIArray; Count: Byte; var Tris: array of Word; out TCount: Word);
 var
   I: Integer;
   K: Integer;

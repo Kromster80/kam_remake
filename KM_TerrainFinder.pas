@@ -7,19 +7,25 @@ type
   //General implementation of algorithm that finds something on terrain
   TKMTerrainFinderCommon = class
   private
+    MapX, MapY: Word;
     fStart: TKMPoint;
     fRadius: Byte;
     fPassability: TPassability;
-    MapX, MapY: Word;
+    fMaxCount: Word;
+    fOutput: TKMPointTagList;
     BestDist: Byte;
     BestLoc: TKMPoint;
     Visited: array of array of Byte;
   protected
     function CanWalkHere(const X,Y: Word): Boolean; virtual; abstract;
     function CanUse(const X,Y: Word): Boolean; virtual; abstract;
+    procedure SaveTile(const X,Y: Word; aWalkDistance: Byte);
+    procedure UseFinder;
   public
     constructor Create;
-    function FindNearest(aStart: TKMPoint; aRadius: Byte; aPassability: TPassability; out aEnd: TKMPoint): Boolean;
+    destructor Destroy; override;
+    function FindNearest(aStart: TKMPoint; aRadius: Byte; aPassability: TPassability; out aEnd: TKMPoint): Boolean; overload;
+    function FindNearest(aStart: TKMPoint; aRadius: Byte; aPassability: TPassability; aMaxCount: Word; out aEnd: TKMPointArray): Boolean; overload;
     procedure GetTilesWithinDistance(aStart: TKMPoint; aRadius: Byte; aPass: TPassability; aList: TKMPointList);
   end;
 
@@ -43,10 +49,75 @@ begin
 
   MapX := fTerrain.MapX;
   MapY := fTerrain.MapY;
+  fOutput := TKMPointTagList.Create;
+end;
+
+
+destructor TKMTerrainFinderCommon.Destroy;
+begin
+  fOutput.Free;
+  inherited;
 end;
 
 
 function TKMTerrainFinderCommon.FindNearest(aStart: TKMPoint; aRadius: Byte; aPassability: TPassability; out aEnd: TKMPoint): Boolean;
+begin
+  Assert(aRadius <= 120, 'FindNearest can''t handle radii > 120');
+
+  fStart := aStart;
+  fRadius := aRadius;
+  fPassability := aPassability;
+  fMaxCount := 1;
+
+  UseFinder;
+
+  aEnd := BestLoc;
+  Result := BestLoc.X <> 0;
+end;
+
+
+function TKMTerrainFinderCommon.FindNearest(aStart: TKMPoint; aRadius: Byte; aPassability: TPassability; aMaxCount: Word; out aEnd: TKMPointArray): Boolean;
+var
+  I: Integer;
+begin
+  Assert(aRadius <= 120, 'FindNearest can''t handle radii > 120');
+
+  fStart := aStart;
+  fRadius := aRadius;
+  fPassability := aPassability;
+  fMaxCount := aMaxCount;
+  fOutput.Clear;
+
+  UseFinder;
+
+  fOutput.SortByTag;
+
+  SetLength(aEnd, Min(fMaxCount, fOutput.Count));
+  for I := 0 to Min(fMaxCount, fOutput.Count) - 1 do
+    aEnd[I] := fOutput.Items[I];
+
+  Result := Min(fMaxCount, fOutput.Count) <> 0;
+end;
+
+
+procedure TKMTerrainFinderCommon.SaveTile(const X, Y: Word; aWalkDistance: Byte);
+begin
+  if fMaxCount = 1 then
+  begin
+    BestDist := aWalkDistance;
+    BestLoc := KMPoint(X,Y);
+  end
+  else
+  begin
+    fOutput.AddEntry(KMPoint(X,Y), aWalkDistance);
+    //If we have enough points we can be picky
+    if fOutput.Count >= fMaxCount then
+      BestDist := aWalkDistance;
+  end;
+end;
+
+
+procedure TKMTerrainFinderCommon.UseFinder;
   //Uses a floodfill style algorithm but only on a small area (with aRadius)
   procedure Visit(const X,Y: Word; aWalkDistance: Byte);
   var
@@ -62,10 +133,7 @@ function TKMTerrainFinderCommon.FindNearest(aStart: TKMPoint; aRadius: Byte; aPa
     if (aWalkDistance >= Visited[Xt,Yt]) then Exit;
 
     if CanUse(X,Y) then
-    begin
-      BestDist := aWalkDistance;
-      BestLoc := KMPoint(X,Y);
-    end;
+      SaveTile(X,Y,aWalkDistance);
 
     //Mark this tile as visited
     Visited[Xt,Yt] := aWalkDistance;
@@ -84,15 +152,9 @@ function TKMTerrainFinderCommon.FindNearest(aStart: TKMPoint; aRadius: Byte; aPa
 var
   I,K: Integer;
 begin
-  Assert(aRadius <= 120, 'FindNearest can''t handle radii > 120');
-
-  fStart := aStart;
-  fRadius := aRadius;
-  fPassability := aPassability;
-
   //Assign Rad to local variable,
   //when we find better Loc we reduce the Rad to skip any farther Locs
-  BestDist := aRadius * 2;
+  BestDist := fRadius * 2;
   BestLoc := KMPoint(0,0);
 
   SetLength(Visited, 2*fRadius+1, 2*fRadius+1);
@@ -102,8 +164,6 @@ begin
 
   Visit(fStart.X, fStart.Y, 0); //Starting tile is at walking distance zero
 
-  aEnd := BestLoc;
-  Result := BestLoc.X <> 0;
 end;
 
 
