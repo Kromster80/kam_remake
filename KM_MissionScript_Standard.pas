@@ -641,7 +641,7 @@ begin
     AddCommand(ct_AICharacter,cpt_Constructors, [fPlayers[I].AI.Setup.WorkerFactor]);
     AddCommand(ct_AICharacter,cpt_TownDefence, [fPlayers[I].AI.Setup.TownDefence]);
     //Only store if a limit is in place (high is the default)
-    if fPlayers[I].AI.Setup.MaxSoldiers <> High(fPlayers[I].AI.Setup.MaxSoldiers) then
+    if fPlayers[I].AI.Setup.MaxSoldiers <> -1 then
       AddCommand(ct_AICharacter,cpt_MaxSoldier, [fPlayers[I].AI.Setup.MaxSoldiers]);
     AddCommand(ct_AICharacter,cpt_EquipRateLeather, [fPlayers[I].AI.Setup.EquipRateLeather]);
     AddCommand(ct_AICharacter,cpt_EquipRateIron,    [fPlayers[I].AI.Setup.EquipRateIron]);

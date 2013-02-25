@@ -109,6 +109,7 @@ Improvements:
 	L	Shift+3 joins the selected warrior group to the group assigned to hotkey 3 (Starcraft style)
   L Maplist still takes too long to load, scrollbar moves irritatingly while maps are being added
   L Save last selected item in lists (load game, mp, maped list, savegames, etc)
+	L	Pressing a key selects the next map starting with that letter in map/save lists
 
 	L	MapEd: Allow to toggle trees/objects opacity (make them partially visible) [Marcin]
 	L	MapEd: Allow to toggle AI defence positions display

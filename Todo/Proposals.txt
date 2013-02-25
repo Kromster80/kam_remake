@@ -25,6 +25,7 @@ We can discuss them in dialog-style and maybe move to GC issues later on
 
 		Warriors should resume their last attack order after a fight "ends", so if you ask cavalry to attack archers they do not stop and stand still as soon as the first one dies because the others are not within direct reach. Probably all orders should be remembered and resumed after a fight, so if you ask a warrior to move somewhere and he bumps into a bowman, after killing him he should continue on his way.
       Krom: Is it requested only for Attack orders, or Walk too?
+	Lewin: This is already working, right now it happens for attacking and walking which seems good to me.
 		Aggressive/defensive stances for soldiers, so they will attack a unit within a few tiles in aggressive mode and only start shooting when the enemy is close in defensive mode
 	L	Add a "seperate one unit from the group" button for scouting etc. (we can rearrange interface due to unused move/attack buttons)
 	L	Add a way to feed only <30% hungry units
@@ -42,12 +43,14 @@ We can discuss them in dialog-style and maybe move to GC issues later on
 		Ability to set your default color next to your name on MP page (it will be selected in the lobby if available)
 		A way to assign locations to random people within a team (e.g. random 1,2,3,4 vs random 5,6,7,8). Most maps require specific team layouts so random locations are not used.
       Krom: I cant see how this is possible in UI
+	Lewin: The only idea I can think of is a checkbox "randomize locations within teams" so players do select locations but get randomly swapped with team members. It would be a very useful feature and multiple people have requested it.
 		Allow saving from within replays. This would let you create a save of a game at a certain moment and continue playing from there, which could be good for practice (e.g. town building) or fun.
 		A way to order +100 weapons at weapon makers (shift + click?)
 		Invisible links between water bodies to connect water under bridges
     Allow to start Remake with commandline parameters to autoconnect to MP server .\KamRemake.exe -ip 10.3.6.241 -port 2325 -room 0
 	L	Serfs that are f.e. taking corn to the mill should claim/lock a flour in the output before arriving, rather than only checking it when arriving (which usually means another serf takes it)
-      I dont think this is a good idea, that could slow deliveries down  
+      Krom: I dont think this is a good idea, that could slow deliveries down
+      Lewin: IMO it won't in almost all cases, it allows serfs to be more efficiently allocated. Remember that only 1 item is locked per serf bringing an item there, so only a few items will get locked. Right now it's very annoying when a serf drops something off and doesn't take an item out, and a serf from a long way away is made to walk there and take it instead. It also reduces overall traffic on the road networks. I think we could test it on Rayzel's map and see whether it's more efficient (compare overall productivity and average number of idle serfs?).
 
 
 REJECTED:

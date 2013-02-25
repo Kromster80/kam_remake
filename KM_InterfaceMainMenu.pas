@@ -3130,7 +3130,9 @@ begin
 
   TrackBar_LobbyPeacetime.Position := 0; //Default peacetime = 0
   TrackBar_LobbySpeedPT.Position := 1; //Default speed = 1
+  TrackBar_LobbySpeedPT.ThumbText := 'x1';
   TrackBar_LobbySpeedAfterPT.Position := 1; //Default speed = 1
+  TrackBar_LobbySpeedAfterPT.ThumbText := 'x1';
 
   Lobby_OnMapName('');
 
