@@ -108,6 +108,7 @@ Improvements:
 	L	Icon before the server name: Swords/house/floppy for battle/build/save (save icon only shown while in lobby)
 	L	Shift+3 joins the selected warrior group to the group assigned to hotkey 3 (Starcraft style)
   L Maplist still takes too long to load, scrollbar moves irritatingly while maps are being added
+  L Save last selected item in lists (load game, mp, maped list, savegames, etc)
 
 	L	MapEd: Allow to toggle trees/objects opacity (make them partially visible) [Marcin]
 	L	MapEd: Allow to toggle AI defence positions display
