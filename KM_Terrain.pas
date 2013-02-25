@@ -99,6 +99,7 @@ type
     procedure ResetDigState(Loc:TKMPoint);
 
     function CanPlaceUnit(Loc:TKMPoint; aUnitType: TUnitType): Boolean;
+    function CanPlaceGoldmine(X,Y: Word): Boolean;
     function CanPlaceHouse(Loc:TKMPoint; aHouseType: THouseType): Boolean;
     function CanPlaceHouseFromScript(aHouseType: THouseType; Loc:TKMPoint): Boolean;
     function CanAddField(aX, aY: Word; aFieldType: TFieldType): Boolean;
@@ -160,7 +161,7 @@ type
     function EnsureTileInMapCoords(X, Y: Integer; Inset: Byte = 0): TKMPoint;
 
     function TileGoodForIron(X, Y: Word): Boolean;
-    function TileGoodForGold(X, Y: Word): Boolean;
+    function TileGoodForGoldmine(X, Y: Word): Boolean;
     function TileGoodForField(X, Y: Word): Boolean;
     function TileGoodForTree(X, Y: Word): Boolean;
     function TileIsWater(Loc: TKMPoint): Boolean; overload;
@@ -473,24 +474,11 @@ begin
 end;
 
 
-function TKMTerrain.TileGoodForGold(X,Y: Word): Boolean;
-  function HousesNearTile: Boolean;
-  var I,K: Integer;
-  begin
-    Result := False;
-    for I := -1 to 1 do
-    for K := -1 to 1 do
-      if (Land[Y+I,X+K].TileLock in [tlFenced,tlDigged,tlHouse]) then
-        Result := True;
-  end;
+function TKMTerrain.TileGoodForGoldmine(X,Y: Word): Boolean;
 begin
-  Result := (Land[Y,X].Terrain in [171..175])
-    and (Land[Y,X].Rotation mod 4 = 0) //only horizontal mountain edges allowed
-    and ((Land[Y,X].Obj = 255) or (MapElem[Land[Y,X].Obj].CanBeRemoved))
-    and TileInMapCoords(X,Y, 1)
-    and not HousesNearTile
-    and (Land[Y,X].TileLock = tlNone)
-    and CheckHeightPass(KMPoint(X,Y), hpBuildingMines);
+  Result := TileInMapCoords(X,Y, 1)
+    and (Land[Y,X].Terrain in [171..175])
+    and (Land[Y,X].Rotation mod 4 = 0); //only horizontal mountain edges allowed
 end;
 
 
@@ -1452,7 +1440,7 @@ begin
       //Check house-specific conditions, e.g. allow shipyards only near water and etc..
       case aHouseType of
         ht_IronMine: AllowBuild := TileGoodForIron(P2.X, P2.Y);
-        ht_GoldMine: AllowBuild := TileGoodForGold(P2.X, P2.Y);
+        ht_GoldMine: AllowBuild := CanPlaceGoldmine(P2.X, P2.Y);
         else         AllowBuild := (CanBuild     in Land[P2.Y,P2.X].Passability);
       end;
 
@@ -2460,6 +2448,25 @@ begin
 end;
 
 
+function TKMTerrain.CanPlaceGoldmine(X,Y: Word): Boolean;
+  function HousesNearTile: Boolean;
+  var I,K: Integer;
+  begin
+    Result := False;
+    for I := -1 to 1 do
+    for K := -1 to 1 do
+      if (Land[Y+I,X+K].TileLock in [tlFenced,tlDigged,tlHouse]) then
+        Result := True;
+  end;
+begin
+  Result := TileGoodForGoldmine(X,Y)
+    and ((Land[Y,X].Obj = 255) or (MapElem[Land[Y,X].Obj].CanBeRemoved))
+    and not HousesNearTile
+    and (Land[Y,X].TileLock = tlNone)
+    and CheckHeightPass(KMPoint(X,Y), hpBuildingMines);
+end;
+
+
 {Check if house can be placed in that place}
 function TKMTerrain.CanPlaceHouse(Loc: TKMPoint; aHouseType: THouseType): Boolean;
 var I,K,X,Y: Integer; HA: THouseArea;
@@ -2478,7 +2485,7 @@ begin
 
       case aHouseType of
         ht_IronMine: Result := Result and TileGoodForIron(X, Y);
-        ht_GoldMine: Result := Result and TileGoodForGold(X, Y);
+        ht_GoldMine: Result := Result and CanPlaceGoldmine(X, Y);
         else         Result := Result and (CanBuild in Land[Y,X].Passability);
       end;
     end;

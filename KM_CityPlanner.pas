@@ -23,6 +23,7 @@ type
   TKMCityPlanner = class
   private
     fOwner: TPlayerIndex;
+    fListGold: TKMPointList; //List of possible goldmine locations
     fFinder: TKMTerrainFinderCity;
 
     function GetSourceLocation(aHouseType: array of THouseType; out Loc: TKMPoint): Boolean;
@@ -35,6 +36,8 @@ type
   public
     constructor Create(aPlayer: TPlayerIndex);
     destructor Destroy; override;
+
+    procedure AfterMissionInit;
 
     function FindNearest(const aStart: TKMPoint; aRadius: Byte; aType: TFindNearest; out aResultLoc: TKMPoint): Boolean;
     function FindPlaceForHouse(aHouse: THouseType; out aLoc: TKMPoint): Boolean;
@@ -60,11 +63,14 @@ begin
   inherited Create;
   fOwner := aPlayer;
   fFinder := TKMTerrainFinderCity.Create(fOwner);
+
+  fListGold := TKMPointList.Create;
 end;
 
 
 destructor TKMCityPlanner.Destroy;
 begin
+  fListGold.Free;
   fFinder.Free;
 
   inherited;
@@ -126,6 +132,19 @@ begin
     Loc := House.GetPosition;
     Result := True;
   end;
+end;
+
+
+procedure TKMCityPlanner.AfterMissionInit;
+var
+  I,K: Integer;
+begin
+  //Mark all spots where we could possibly place a goldmine
+  //some smarter logic can clip left/right edges later on
+  for I := 1 to fTerrain.MapY - 2 do
+  for K := 1 to fTerrain.MapX - 2 do
+  if fTerrain.TileGoodForGoldmine(K,I) then
+    fListGold.AddEntry(KMPoint(K,I));
 end;
 
 
@@ -219,7 +238,7 @@ var
   I, K: Integer;
   Bid, BestBid: Single;
   TerOwner: TPlayerIndex;
-  StoneLoc: TKMPointDir;
+  StoneLoc: TKMPoint;
   TargetLoc: TKMPoint;
 begin
   Result := False;
@@ -228,16 +247,16 @@ begin
 
   //todo: Using FindStone with such a large radius is very slow due to GetTilesWithinDistance (10ms average)
   //      Maybe instead check 60x60 area, but only each 5th cell or so
-  if not fTerrain.FindStone(KMPointBelow(TargetLoc), RAD, KMPoint(0,0), True, StoneLoc) then Exit;
-  //if not FindNearest(KMPointBelow(TargetLoc), RAD, fnStone, StoneLoc.Loc) then Exit;
+  //if not fTerrain.FindStone(KMPointBelow(TargetLoc), RAD, KMPoint(0,0), True, StoneLoc) then Exit;
+  if not FindNearest(KMPointBelow(TargetLoc), RAD, fnStone, StoneLoc) then Exit;
 
   BestBid := MaxSingle;
-  for I := StoneLoc.Loc.Y to Min(StoneLoc.Loc.Y + 5, fTerrain.MapY - 1) do
-  for K := Max(StoneLoc.Loc.X - 5, 1) to Min(StoneLoc.Loc.X + 5, fTerrain.MapX - 1) do
+  for I := StoneLoc.Y to Min(StoneLoc.Y + 6, fTerrain.MapY - 1) do
+  for K := Max(StoneLoc.X - 6, 1) to Min(StoneLoc.X + 6, fTerrain.MapX - 1) do
   if (fAIFields.Influences.AvoidBuilding[I,K] = 0)
   and fPlayers[fOwner].CanAddHousePlanAI(K, I, ht_Quary, False) then
   begin
-    Bid := KMLength(KMPoint(K,I), TargetLoc) - fAIFields.Influences.Ownership[fOwner,I,K] + KaMRandom * 4;
+    Bid := KMLength(KMPoint(K,I), TargetLoc) - fAIFields.Influences.Ownership[fOwner,I,K] / 10 + KaMRandom * 5;
     TerOwner := fAIFields.Influences.GetBestOwner(K,I);
     if (Bid < BestBid) and ((TerOwner = fOwner) or (TerOwner = PLAYER_NONE)) then
     begin
@@ -399,7 +418,8 @@ var
 begin
   //Don't build on allies and/or enemies territory
   TerOwner := fAIFields.Influences.GetBestOwner(X,Y);
-  Result := (TerOwner = fOwner) or (TerOwner = PLAYER_NONE);
+  Result := fTerrain.CheckPassability(KMPoint(X,Y), CanOwn)
+            and ((TerOwner = fOwner) or (TerOwner = PLAYER_NONE));
 end;
 
 

@@ -183,6 +183,7 @@ end;
 
 procedure TKMayor.AfterMissionInit;
 begin
+  fCityPlanner.AfterMissionInit;
   CheckStrategy;
 end;
 

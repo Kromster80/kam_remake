@@ -84,7 +84,7 @@ function TKMTerrainFinderCommon.FindNearest(aStart: TKMPoint; aRadius: Byte; aPa
 var
   I,K: Integer;
 begin
-  Assert(aRadius <= 120, 'GetTilesWithinDistance can''t handle radii > 120');
+  Assert(aRadius <= 120, 'FindNearest can''t handle radii > 120');
 
   fStart := aStart;
   fRadius := aRadius;

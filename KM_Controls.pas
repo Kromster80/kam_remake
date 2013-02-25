@@ -2437,8 +2437,7 @@ begin
   fTrackHeight := 20;
   Position := (fMinValue + fMaxValue) div 2;
   Caption := '';
-  ThumbWidth := fResource.ResourceFont.GetTextSize(IntToStr(MaxValue), fFont).X +
-                fResource.Sprites[rxGui].RXData.Size[132].X;
+  ThumbWidth := fResource.ResourceFont.GetTextSize(IntToStr(MaxValue), fFont).X + 24;
 
   Font := fnt_Metal;
   Step := 1;
