@@ -6,10 +6,13 @@ uses
 
 
 type
+  //Game options set in MP lobby
+  //(maybe later we could use some of these for SP games too)
   TKMGameOptions = class
   public
     Peacetime: Word; //Peacetime in minutes
-    SpeedPT, SpeedAfterPT: Byte;
+    SpeedPT: Single; //Game speed during peacetime
+    SpeedAfterPT: Single; //Game speed after peacetime (usually slower)
     procedure Save(SaveStream: TKMemoryStream);
     procedure Load(LoadStream: TKMemoryStream);
 

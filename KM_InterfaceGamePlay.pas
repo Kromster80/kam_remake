@@ -360,7 +360,7 @@ type
     procedure SetMenuState(aTactic: Boolean);
     procedure ClearOpenMenu;
     procedure SetMinimap;
-    procedure ShowClock(aSpeed: Word);
+    procedure ShowClock(aSpeed: Single);
     procedure ShowPlayMore(DoShow:boolean; Msg:TGameResultMsg);
     procedure ShowMPPlayMore(Msg:TGameResultMsg);
     procedure ShowNetworkLag(DoShow:boolean; aPlayers:TStringList; IsHost:boolean);
@@ -3246,12 +3246,12 @@ begin
 end;
 
 
-procedure TKMGamePlayInterface.ShowClock(aSpeed: Word);
+procedure TKMGamePlayInterface.ShowClock(aSpeed: Single);
 begin
   Image_Clock.Visible := aSpeed <> 1;
   Label_Clock.Visible := aSpeed <> 1;
   Label_ClockSpeedup.Visible := aSpeed <> 1;
-  Label_ClockSpeedup.Caption := 'x' + IntToStr(aSpeed);
+  Label_ClockSpeedup.Caption := 'x' + FloatToStr(aSpeed);
 
   //With slow GPUs it will keep old values till next frame, that can take some seconds
   //Thats why we refresh Clock.Caption here

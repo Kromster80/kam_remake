@@ -35,11 +35,11 @@ type
 
   TGameInputProcess_Multi = class (TGameInputProcess)
   private
-    fNetworking:TKMNetworking;
-    fDelay:word; //How many ticks ahead the commands are scheduled
-    fLastSentTick:cardinal; //Needed for resync
+    fNetworking: TKMNetworking;
+    fDelay: Word; //How many ticks ahead the commands are scheduled
+    fLastSentTick: Cardinal; //Needed for resync
 
-    fNumberConsecutiveWaits:word; //Number of consecutive times we have been waiting for network
+    fNumberConsecutiveWaits: Word; //Number of consecutive times we have been waiting for network
 
     //Each player can have any number of commands scheduled for execution in one tick
     fSchedule:array[0..MAX_SCHEDULE-1, TPlayerIndex] of TCommandsPack; //Ring buffer
@@ -66,8 +66,8 @@ type
   public
     constructor Create(aReplayState:TGIPReplayState; aNetworking:TKMNetworking);
     destructor Destroy; override;
-    procedure WaitingForConfirmation(aTick:cardinal); override;
-    procedure AdjustDelay(aGameSpeed: Word);
+    procedure WaitingForConfirmation(aTick: Cardinal); override;
+    procedure AdjustDelay(aGameSpeed: Single);
     function GetNetworkDelay:word;
     property GetNumberConsecutiveWaits:word read fNumberConsecutiveWaits;
     procedure GetWaitingPlayers(aTick:cardinal; aPlayersList:TStringList);
@@ -214,24 +214,24 @@ begin
 end;
 
 
-function TGameInputProcess_Multi.GetNetworkDelay:word;
+function TGameInputProcess_Multi.GetNetworkDelay: Word;
 begin
   Result := fDelay;
 end;
 
 
-procedure TGameInputProcess_Multi.SetDelay(aNewDelay:integer);
+procedure TGameInputProcess_Multi.SetDelay(aNewDelay: Integer);
 begin
-  fDelay := EnsureRange(aNewDelay,MIN_DELAY,MAX_DELAY);
+  fDelay := EnsureRange(aNewDelay, MIN_DELAY, MAX_DELAY);
 end;
 
 
-procedure TGameInputProcess_Multi.AdjustDelay(aGameSpeed: Word);
+procedure TGameInputProcess_Multi.AdjustDelay(aGameSpeed: Single);
 begin
   //Half of the maximum round trip is a good guess for delay. +1.2 is our safety net to account
   //for processing the packet and random variations in ping. It's always better for commands to
   //be slightly delayed than for the game to freeze/lag regularly.
-  SetDelay( Ceil(aGameSpeed*fNetworking.NetPlayers.GetMaxHighestRoundTripLatency/200 + 1.2) );
+  SetDelay(Ceil(aGameSpeed * fNetworking.NetPlayers.GetMaxHighestRoundTripLatency / 200 + 1.2));
 end;
 
 

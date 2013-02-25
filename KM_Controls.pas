@@ -512,7 +512,6 @@ type
   end;
 
 
-  {Ratio bar}
   TKMTrackBar = class(TKMControl)
   private
     fTrackTop: Byte; //Offset trackbar from top (if Caption <> '')
@@ -521,15 +520,19 @@ type
     fMaxValue: Word;
     fOnChange: TNotifyEvent;
     fCaption: string;
+    fPosition: Word;
     fFont: TKMFont;
-    function ThumbWidth: Word;
     procedure SetCaption(const aValue: string);
+    procedure SetPosition(aValue: Word);
   public
-    Position: Word;
     Step: Byte; //Change Position by this amount each time
+    ThumbText: string;
+    ThumbWidth: Word;
+
     constructor Create(aParent: TKMPanel; aLeft, aTop, aWidth: Integer; aMin, aMax: Word);
 
     property Caption: string read fCaption write SetCaption;
+    property Position: Word read fPosition write SetPosition;
     property Font: TKMFont read fFont write fFont;
     property MinValue: Word read fMinValue;
     property MaxValue: Word read fMaxValue;
@@ -2434,18 +2437,11 @@ begin
   fTrackHeight := 20;
   Position := (fMinValue + fMaxValue) div 2;
   Caption := '';
+  ThumbWidth := fResource.ResourceFont.GetTextSize(IntToStr(MaxValue), fFont).X +
+                fResource.Sprites[rxGui].RXData.Size[132].X;
+
   Font := fnt_Metal;
   Step := 1;
-end;
-
-
-//Calculating it each time is not necessary, but doing it properly with setters is more hassle for no gain
-function TKMTrackBar.ThumbWidth: Word;
-begin
-  //If the maximum allowed number of digits is more than 2 - use wider field to fit them
-  Result := fResource.Sprites[rxGui].RXData.Size[132].X;
-  if fMaxValue > 99 then
-    Result := Round(Result * 1.5);
 end;
 
 
@@ -2466,6 +2462,13 @@ begin
 end;
 
 
+procedure TKMTrackBar.SetPosition(aValue: Word);
+begin
+  fPosition := EnsureRange(aValue, MinValue, MaxValue);
+  ThumbText := IntToStr(Position);
+end;
+
+
 procedure TKMTrackBar.MouseDown(X,Y: Integer; Shift: TShiftState; Button: TMouseButton);
 begin
   inherited;
@@ -2482,14 +2485,14 @@ begin
   NewPos := Position;
   if (ssLeft in Shift) and InRange(Y - Top - fTrackTop, 0, fTrackHeight) then
     NewPos := EnsureRange(fMinValue + Round(((X-Left-ThumbWidth div 2) / (Width - ThumbWidth - 4))*(fMaxValue - fMinValue)/Step)*Step, fMinValue, fMaxValue);
+
   if NewPos <> Position then
   begin
     Position := NewPos;
+
     if Assigned(fOnChange) then
       fOnChange(Self);
-  end
-  else
-    Position := NewPos;
+  end;
 end;
 
 
@@ -2510,7 +2513,7 @@ begin
   ThumbHeight := fResource.Sprites[rxGui].RXData.Size[132].Y;
 
   TKMRenderUI.WritePicture(Left + ThumbPos + 2, Top+fTrackTop, ThumbWidth, ThumbHeight, [akLeft,akRight], rxGui, 132);
-  TKMRenderUI.WriteText(Left + ThumbPos + ThumbWidth div 2 + 2, Top+fTrackTop+3, 0, IntToStr(Position), fnt_Metal, taCenter, TextColor[fEnabled]);
+  TKMRenderUI.WriteText(Left + ThumbPos + ThumbWidth div 2 + 2, Top+fTrackTop+3, 0, ThumbText, fnt_Metal, taCenter, TextColor[fEnabled]);
 end;
 
 

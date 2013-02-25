@@ -43,7 +43,7 @@ type
 
     fIsExiting: Boolean; //Set this to true on Exit and unit/house pointers will be released without cross-checking
     fIsPaused: Boolean;
-    fGameSpeed: Word; //Actual speedup value
+    fGameSpeed: Single; //Actual speedup value
     fGameSpeedMultiplier: Word; //How many ticks are compressed into one
     fGameMode: TGameMode;
     fWaitingForNetwork: Boolean;
@@ -124,7 +124,7 @@ type
     property GameName: string read fGameName;
     property CampaignName: AnsiString read fCampaignName;
     property CampaignMap: Byte read fCampaignMap;
-    property GameSpeed: Word read fGameSpeed;
+    property GameSpeed: Single read fGameSpeed;
     function PlayerLoc: Byte;
     function PlayerColor: Cardinal;
 
@@ -137,7 +137,7 @@ type
     property IsPaused: Boolean read fIsPaused write fIsPaused;
     property MissionMode: TKMissionMode read fMissionMode write fMissionMode;
     function GetNewID: Cardinal;
-    procedure SetGameSpeed(aSpeed: Word; aToggle: Boolean);
+    procedure SetGameSpeed(aSpeed: Single; aToggle: Boolean);
     procedure StepOneFrame;
     function SaveName(const aName, aExt: string; aMultiPlayer: Boolean): string;
     procedure UpdateMultiplayerTeams;
@@ -997,7 +997,7 @@ begin
 end;
 
 
-procedure TKMGame.SetGameSpeed(aSpeed: Word; aToggle: Boolean);
+procedure TKMGame.SetGameSpeed(aSpeed: Single; aToggle: Boolean);
 begin
   Assert(aSpeed > 0);
 
