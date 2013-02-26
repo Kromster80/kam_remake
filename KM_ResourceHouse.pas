@@ -12,27 +12,28 @@ type
   THouseBuildSupply = array [1..2,1..6] of packed record MoveX, MoveY: Integer; end;
   THouseSupply = array [1..4, 1..5] of SmallInt;
 
+  //House fields as they are in a DAT file
   TKMHouseDat = packed record
-    StonePic,WoodPic,WoodPal,StonePal:smallint;
-    SupplyIn:THouseSupply;
-    SupplyOut:THouseSupply;
-    Anim:THouseAnim;
-    WoodPicSteps,StonePicSteps:word;
-    a1:smallint;
-    EntranceOffsetX,EntranceOffsetY:shortint;
-    EntranceOffsetXpx,EntranceOffsetYpx:shortint; //When entering house units go for the door, which is offset by these values
-    BuildArea:array[1..10,1..10]of shortint;
-    WoodCost,StoneCost:byte;
-    BuildSupply:THouseBuildSupply;
-    a5,SizeArea:smallint;
-    SizeX,SizeY,sx2,sy2:shortint;
-    WorkerWork,WorkerRest:smallint;
-    ResInput,ResOutput:array[1..4]of shortint; //KaM_Remake will use it's own tables for this matter
-    ResProductionX:shortint;
-    MaxHealth,Sight:smallint;
-    OwnerType:shortint;
-    Foot1: array[1..12]of shortint; //Sound indices
-    Foot2: array[1..12]of smallint; //vs sprite ID
+    StonePic, WoodPic, WoodPal, StonePal: SmallInt;
+    SupplyIn: THouseSupply;
+    SupplyOut: THouseSupply;
+    Anim: THouseAnim;
+    WoodPicSteps, StonePicSteps: Word;
+    a1: SmallInt;
+    EntranceOffsetX, EntranceOffsetY: ShortInt;
+    EntranceOffsetXpx, EntranceOffsetYpx: ShortInt; //When entering house units go for the door, which is offset by these values
+    BuildArea: array [1..10,1..10] of ShortInt;
+    WoodCost,StoneCost: Byte;
+    BuildSupply: THouseBuildSupply;
+    a5,SizeArea: SmallInt;
+    SizeX,SizeY,sx2,sy2: ShortInt;
+    WorkerWork,WorkerRest: SmallInt;
+    ResInput,ResOutput: array [1..4] of ShortInt; //KaM_Remake will use it's own tables for this matter
+    ResProductionX: ShortInt;
+    MaxHealth,Sight: SmallInt;
+    OwnerType: ShortInt;
+    Foot1: array [1..12] of ShortInt; //Sound indices
+    Foot2: array [1..12] of SmallInt; //vs sprite ID
   end;
 
   THouseArea = array [1..4, 1..4] of Byte;
@@ -201,26 +202,7 @@ type
 
 const
   //Remake stores additional house properties here. This looks like House.Dat, but hardcoded.
-  //I listed all fields explicitely except for ht_None/ht_Any to be sure nothing is forgotten
-  HouseDatX: array[THouseType] of THouseInfo = (
-    ( //None
-    PlanYX:     ((0,0,0,0), (0,0,0,0), (0,0,0,0), (0,0,0,0));
-    DoesOrders: 0;
-    BuildIcon:  0;
-    TabletIcon: 0;
-    Input:      (rt_None,       rt_None,       rt_None,       rt_None);
-    Output:     (rt_None,       rt_None,       rt_None,       rt_None);
-    ReleasedBy: ht_None;
-    ),
-    ( //Any
-    PlanYX:     ((0,0,0,0), (0,0,0,0), (0,0,0,0), (0,0,0,0));
-    DoesOrders: 0;
-    BuildIcon:  0;
-    TabletIcon: 0;
-    Input:      (rt_None,       rt_None,       rt_None,       rt_None);
-    Output:     (rt_None,       rt_None,       rt_None,       rt_None);
-    ReleasedBy: ht_None;
-    ),
+  HouseDatX: array [HOUSE_MIN..HOUSE_MAX] of THouseInfo = (
     ( //Armor smithy
     PlanYX:     ((0,0,0,0), (0,1,1,0), (1,1,1,1), (1,2,1,1));
     DoesOrders: 1;
