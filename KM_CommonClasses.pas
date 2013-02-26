@@ -90,7 +90,8 @@ type
     procedure Insert(ID: Integer; aLoc: TKMPoint);
     function  GetRandom(out Point: TKMPoint): Boolean;
     function  GetClosest(aLoc: TKMPoint; out Point: TKMPoint): Boolean;
-    function Contains(aLoc: TKMPoint): Boolean;
+    function Contains(const aLoc: TKMPoint): Boolean;
+    function IndexOf(const aLoc: TKMPoint): Integer;
     procedure Inverse;
     procedure SparseToDense;
     function  GetBounds(out Bounds: TKMRect): Boolean;
@@ -104,6 +105,7 @@ type
     Tag, Tag2: array of Cardinal; //0..Count-1
     procedure Clear; override;
     procedure AddEntry(aLoc: TKMPoint; aTag: Cardinal; aTag2: Cardinal = 0); reintroduce;
+    function IndexOf(const aLoc: TKMPoint; aTag: Cardinal; aTag2: Cardinal): Integer;
     procedure SortByTag;
     function RemoveEntry(aLoc: TKMPoint): Integer; override;
     procedure SaveToStream(SaveStream: TKMemoryStream); override;
@@ -430,16 +432,23 @@ begin
 end;
 
 
-function TKMPointList.Contains(aLoc: TKMPoint): Boolean;
+function TKMPointList.Contains(const aLoc: TKMPoint): Boolean;
+begin
+  Result := IndexOf(aLoc) <> -1;
+end;
+
+
+function TKMPointList.IndexOf(const aLoc: TKMPoint): Integer;
 var
   I: Integer;
 begin
-  for I := 0 to fCount - 1 do
+  Result := -1;
+  for I := fCount - 1 downto 0 do
+  if KMSamePoint(aLoc, fItems[I]) then
   begin
-    Result := KMSamePoint(aLoc,fItems[I]);
-    if Result then Exit;
+    Result := I;
+    Break;
   end;
-  Result := False;
 end;
 
 
@@ -564,6 +573,20 @@ begin
   if fCount >= Length(Tag2) then SetLength(Tag2, fCount + 32); //+32 is just a way to avoid further expansions
   Tag[fCount-1]  := aTag;
   Tag2[fCount-1] := aTag2;
+end;
+
+
+function TKMPointTagList.IndexOf(const aLoc: TKMPoint; aTag, aTag2: Cardinal): Integer;
+var
+  I: Integer;
+begin
+  Result := -1;
+  for I := fCount - 1 downto 0 do
+  if KMSamePoint(aLoc, fItems[I]) and (aTag = Tag[I]) and (aTag2 = Tag2[I]) then
+  begin
+    Result := I;
+    Break;
+  end;
 end;
 
 

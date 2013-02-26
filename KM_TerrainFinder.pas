@@ -1,7 +1,7 @@
 unit KM_TerrainFinder;
 {$I KaM_Remake.inc}
 interface
-uses Math, KM_Defaults, KM_CommonClasses, KM_Points;
+uses Math, SysUtils, KM_Defaults, KM_CommonClasses, KM_Points;
 
 type
   //General implementation of algorithm that finds something on terrain
@@ -16,11 +16,12 @@ type
     BestDist: Byte;
     BestLoc: TKMPoint;
     Visited: array of array of Byte;
+    procedure InitVisited;
+    procedure SaveTile(const X,Y: Word; aWalkDistance: Byte);
+    procedure UseFinder;
   protected
     function CanWalkHere(const X,Y: Word): Boolean; virtual; abstract;
     function CanUse(const X,Y: Word): Boolean; virtual; abstract;
-    procedure SaveTile(const X,Y: Word; aWalkDistance: Byte);
-    procedure UseFinder;
   public
     constructor Create;
     destructor Destroy; override;
@@ -62,8 +63,6 @@ end;
 
 function TKMTerrainFinderCommon.FindNearest(aStart: TKMPoint; aRadius: Byte; aPassability: TPassability; out aEnd: TKMPoint): Boolean;
 begin
-  Assert(aRadius <= 120, 'FindNearest can''t handle radii > 120');
-
   fStart := aStart;
   fRadius := aRadius;
   fPassability := aPassability;
@@ -80,8 +79,6 @@ function TKMTerrainFinderCommon.FindNearest(aStart: TKMPoint; aRadius: Byte; aPa
 var
   I: Integer;
 begin
-  Assert(aRadius <= 120, 'FindNearest can''t handle radii > 120');
-
   fStart := aStart;
   fRadius := aRadius;
   fPassability := aPassability;
@@ -101,6 +98,7 @@ end;
 
 
 procedure TKMTerrainFinderCommon.SaveTile(const X, Y: Word; aWalkDistance: Byte);
+var I: Integer;
 begin
   if fMaxCount = 1 then
   begin
@@ -109,11 +107,28 @@ begin
   end
   else
   begin
-    fOutput.AddEntry(KMPoint(X,Y), aWalkDistance);
+    //Use parent class to check only for KMPoint but ignore Tag
+    I := TKMPointList(fOutput).IndexOf(KMPoint(X,Y));
+    if I <> -1 then
+      fOutput.Tag[I] := aWalkDistance //New is always smaller
+    else
+      fOutput.AddEntry(KMPoint(X,Y), aWalkDistance);
+
     //If we have enough points we can be picky
     if fOutput.Count >= fMaxCount then
       BestDist := aWalkDistance;
   end;
+end;
+
+
+procedure TKMTerrainFinderCommon.InitVisited;
+var
+  I,K: Integer;
+begin
+  SetLength(Visited, 2*fRadius+1, 2*fRadius+1);
+  for I := 0 to 2 * fRadius do
+  for K := 0 to 2 * fRadius do
+    Visited[I,K] := 255; //Initially all tiles are unexplored
 end;
 
 
@@ -141,29 +156,23 @@ procedure TKMTerrainFinderCommon.UseFinder;
     //Run again on surrounding tiles
     //We check only 4 neighbors, because that x6 times faster than 8 neighbors
     //and we don't really care for perfect circle test
-    if (aWalkDistance + 2 <= BestDist) then
+    if (aWalkDistance + 1 <= BestDist) then
     begin
-      if X-1 >= 1 then     Visit(X-1, Y, aWalkDistance+2);
-      if Y-1 >= 1 then     Visit(X, Y-1, aWalkDistance+2);
-      if Y+1 <= MapY then  Visit(X, Y+1, aWalkDistance+2);
-      if X+1 <= MapX then  Visit(X+1, Y, aWalkDistance+2);
+      if X-1 >= 1 then     Visit(X-1, Y, aWalkDistance+1);
+      if Y-1 >= 1 then     Visit(X, Y-1, aWalkDistance+1);
+      if Y+1 <= MapY then  Visit(X, Y+1, aWalkDistance+1);
+      if X+1 <= MapX then  Visit(X+1, Y, aWalkDistance+1);
     end;
   end;
-var
-  I,K: Integer;
 begin
   //Assign Rad to local variable,
   //when we find better Loc we reduce the Rad to skip any farther Locs
-  BestDist := fRadius * 2;
+  BestDist := fRadius;
   BestLoc := KMPoint(0,0);
 
-  SetLength(Visited, 2*fRadius+1, 2*fRadius+1);
-  for I := 0 to 2 * fRadius do
-  for K := 0 to 2 * fRadius do
-    Visited[I,K] := 255; //Initially all tiles are unexplored
+  InitVisited;
 
   Visit(fStart.X, fStart.Y, 0); //Starting tile is at walking distance zero
-
 end;
 
 
@@ -224,7 +233,7 @@ begin
   if USE_WALKING_DISTANCE then
   begin
     //Because we use 10 for straight and 14 for diagonal in byte storage 24 is the maximum allowed
-    Assert(aRadius <= MAX_RAD, 'GetTilesWithinDistance can''t handle radii > MAX_RAD');
+    Assert(aRadius <= MAX_RAD, 'GetTilesWithinDistance can''t handle radii > ' + IntToStr(MAX_RAD));
     SetLength(Visited, aRadius * 2 + 1, aRadius * 2 + 1);
     for I := 0 to aRadius * 2 do
       for K := 0 to aRadius * 2 do

@@ -249,9 +249,9 @@ begin
 
   //todo: Using FindStone with such a large radius is very slow due to GetTilesWithinDistance (10ms average)
   //      Maybe instead check 60x60 area, but only each 5th cell or so
-  if not fTerrain.FindStone(KMPointBelow(TargetLoc), RAD, KMPoint(0,0), True, StoneLoc) then Exit;
-  //if not FindNearest(KMPointBelow(TargetLoc), RAD, fnStone, 100, Locs) then Exit;
-  //StoneLoc.Loc := Locs[KaMRandom(Length(Locs))];
+  //if not fTerrain.FindStone(KMPointBelow(TargetLoc), RAD, KMPoint(0,0), True, StoneLoc) then Exit;
+  if not FindNearest(KMPointBelow(TargetLoc), RAD, fnStone, 15, Locs) then Exit;
+  StoneLoc.Loc := Locs[KaMRandom(Length(Locs))];
 
   //todo: These two become camparable, 2nd takes ~50% less time, but returns bad twice as often
   //We can improve TKMTerrainFinderCommon.SaveTile to skip duplicates
@@ -431,8 +431,8 @@ var
 begin
   //Don't build on allies and/or enemies territory
   TerOwner := fAIFields.Influences.GetBestOwner(X,Y);
-  Result := fTerrain.CheckPassability(KMPoint(X,Y), CanOwn)
-            and ((TerOwner = fOwner) or (TerOwner = PLAYER_NONE));
+  Result := ((TerOwner = fOwner) or (TerOwner = PLAYER_NONE))
+            and fTerrain.CheckPassability(KMPoint(X,Y), CanOwn);
 end;
 
 
