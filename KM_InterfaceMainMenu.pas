@@ -1301,6 +1301,7 @@ begin
       DropCol_LobbyMaps.List.OnColumnClick := Lobby_MapColumnClick;
       DropCol_LobbyMaps.List.SearchColumn := 0;
       DropCol_LobbyMaps.OnChange := Lobby_MapSelect;
+      DropCol_LobbyMaps.OnClick := Lobby_MapSelectClick;
       Label_LobbyMapName := TKMLabel.Create(Panel_LobbySetup, 10, 119, 250, 20, '', fnt_Metal, taLeft);
 
       TKMBevel.Create(Panel_LobbySetup, 35, 144, 199, 199);
@@ -3660,11 +3661,6 @@ begin
       fGameApp.Networking.SelectSave(fSavesMP[DropCol_LobbyMaps.Item[DropCol_LobbyMaps.ItemIndex].Tag].FileName);
     fSavesMP.Unlock;
   end;
-
-  //Return focus back to chat once map is selected
-  fMyControls.CtrlFocus := Edit_LobbyPost;
-
-  //todo: Rework Focus so that it returned from control we hide to previous visible control automatically
 end;
 
 
@@ -3672,9 +3668,7 @@ procedure TKMMainMenuInterface.Lobby_MapSelectClick(Sender: TObject);
 begin
   //Steal focus from chat to allow to select a map with keys
   if DropCol_LobbyMaps.List.Visible then
-    fMyControls.CtrlFocus := DropCol_LobbyMaps.List
-  else
-    fMyControls.CtrlFocus := Edit_LobbyPost;
+    fMyControls.CtrlFocus := DropCol_LobbyMaps.List;
 end;
 
 

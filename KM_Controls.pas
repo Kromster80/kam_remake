@@ -41,6 +41,7 @@ type
     destructor Destroy; override;
 
     property MainPanel: TKMPanel read fCtrl;
+    procedure UpdateFocus;
 
     property CtrlDown: TKMControl read fCtrlDown write SetCtrlDown;
     property CtrlFocus: TKMControl read fCtrlFocus write SetCtrlFocus;
@@ -1187,7 +1188,16 @@ end;
 procedure TKMControl.Paint;
 var sColor: TColor4; Tmp: TKMPoint;
 begin
-  inc(CtrlPaintCount);
+  Inc(CtrlPaintCount);
+
+
+  if SHOW_CONTROLS_FOCUS and (csFocus in State) then
+  begin
+    TKMRenderUI.WriteShape(Left-1, Top-1, Width+2, Height+2, $00000000, $FF00D0FF);
+    TKMRenderUI.WriteShape(Left-2, Top-2, Width+4, Height+4, $00000000, $FF00D0FF);
+  end;
+
+
   if not SHOW_CONTROLS_OVERLAY then exit;
 
   sColor := $00000000;
@@ -1338,6 +1348,9 @@ end;
 procedure TKMControl.SetVisible(aValue: Boolean);
 begin
   fVisible := aValue;
+
+  if Focusable or (Self is TKMPanel) then
+    MasterParent.GetCollection.UpdateFocus;
 end;
 
 
@@ -1353,7 +1366,7 @@ begin
 end;
 
 
-procedure TKMControl.Hide;    begin Visible := false; end;
+procedure TKMControl.Hide;    begin Visible := False; end;
 procedure TKMControl.Center;  begin Anchors := []; end;
 procedure TKMControl.Stretch; begin Anchors := [akLeft, akTop, akRight, akBottom]; end;
 
@@ -1361,7 +1374,11 @@ procedure TKMControl.Stretch; begin Anchors := [akLeft, akTop, akRight, akBottom
 function TKMControl.MasterParent: TKMPanel;
 var P: TKMPanel;
 begin
-  P := Parent;
+  if not (Self is TKMPanel) then
+    P := Parent
+  else
+    P := TKMPanel(Self);
+
   while P.Parent <> nil do
     P := P.Parent;
   Result := P;
@@ -3646,7 +3663,7 @@ begin
   fFont := aFont;
 
   fButton := TKMButton.Create(aParent, aLeft+aWidth-aHeight, aTop, aHeight, aHeight, 590, rxGui, bsMenu);
-  fButton.fOnClick := ListShow;
+  fButton.OnClick := ListShow; //todo: Route it to be the same through DoClick
   fButton.MakesSound := False;
 
   P := MasterParent;
@@ -4615,7 +4632,7 @@ procedure TKMMasterControl.SetCtrlFocus(aCtrl: TKMControl);
 begin
   if fCtrlFocus <> nil then fCtrlFocus.State := fCtrlFocus.State - [csFocus];
   if aCtrl <> nil then aCtrl.State := aCtrl.State + [csFocus];
-  fCtrlFocus := aCtrl;
+    fCtrlFocus := aCtrl;
 end;
 
 
@@ -4636,6 +4653,40 @@ begin
       CtrlFocus := fCtrlUp
     else
       CtrlFocus := nil;
+end;
+
+
+//Check if we have Focusable controls and if our current focus is nil - pick one
+procedure TKMMasterControl.UpdateFocus;
+  function FindFocusable(C: TKMPanel): Boolean;
+  var I: Integer;
+  begin
+    Result := False;
+
+    //Check for focusable controls
+    for I := 1 to C.ChildCount do
+    if C.Childs[I].fVisible
+    and C.Childs[I].Enabled
+    and C.Childs[I].Focusable then
+    begin
+      CtrlFocus := C.Childs[I];
+      Result := True;
+      Exit;
+    end;
+
+    for I := 1 to C.ChildCount do
+    if C.Childs[I].fVisible
+    and C.Childs[I].Enabled
+    and (C.Childs[I] is TKMPanel) then
+    begin
+      Result := FindFocusable(TKMPanel(C.Childs[I]));
+      if Result then Exit;
+    end;
+  end;
+begin
+  if (CtrlFocus <> nil) and CtrlFocus.Visible and CtrlFocus.Enabled then Exit;
+
+  FindFocusable(fCtrl);
 end;
 
 
