@@ -4,7 +4,7 @@ interface
 uses
     {$IFDEF MSWindows} Windows, {$ENDIF}
     {$IFDEF Unix} LCLIntf, LCLType, {$ENDIF}
-    Classes, Controls,  Math, SysUtils, Clipbrd,
+    Classes, Controls,  Math, SysUtils, StrUtils, Clipbrd,
     KromUtils, KromOGLUtils, KM_Defaults, KM_Points, KM_CommonTypes, KM_Pics,
     KM_RenderUI, KM_ResourceSprites, KM_Minimap, KM_Viewport;
 
@@ -696,6 +696,8 @@ type
     fEdgeAlpha: Single; //Alpha of outline
     fItemHeight: Byte;
     fItemIndex: Smallint;
+    fSearch: string; //Contains user input characters we should search for
+    fLastKeyTime: Cardinal;
     fRowCount: Integer;
     fColumns: array of TKMListColumn;
     fHeader: TKMListHeader;
@@ -725,6 +727,7 @@ type
     procedure DoPaintLine(aIndex: Integer; X,Y: Integer; PaintWidth: Integer);
   public
     HideSelection: Boolean;
+    SearchColumn: ShortInt; //which columns text we should search, -1 for disabled
     Rows: array of TKMListRow; //Exposed to public since we need to edit sub-fields
 
     constructor Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight: Integer; aFont: TKMFont; aStyle: TButtonStyle);
@@ -753,6 +756,7 @@ type
     property SortDirection: TSortDirection read GetSortDirection write SetSortDirection;
 
     function KeyDown(Key: Word; Shift: TShiftState): Boolean; override;
+    procedure KeyPress(Key: Char); override;
     procedure MouseDown(X,Y: Integer; Shift: TShiftState; Button: TMouseButton); override;
     procedure MouseMove(X,Y: Integer; Shift: TShiftState); override;
     procedure MouseWheel(Sender: TObject; WheelDelta: Integer); override;
@@ -775,9 +779,10 @@ type
     procedure ListClick(Sender: TObject); virtual;
     procedure ListHide(Sender: TObject); virtual;
     function ListVisible: Boolean; virtual; abstract;
-    function GetItemIndex: smallint; virtual; abstract;
-    procedure SetItemIndex(aIndex: smallint); virtual; abstract;
+    function GetItemIndex: SmallInt; virtual; abstract;
+    procedure SetItemIndex(aIndex: SmallInt); virtual; abstract;
   protected
+    procedure DoClick(X,Y: Integer; Shift: TShiftState; Button: TMouseButton); override;
     procedure SetTop(aValue: Integer); override;
     procedure SetEnabled(aValue: Boolean); override;
     procedure SetVisible(aValue: Boolean); override;
@@ -789,7 +794,7 @@ type
 
     property DropCount: Byte read fDropCount write fDropCount;
     property DropUp: Boolean read fDropUp write fDropUp;
-    property ItemIndex: smallint read GetItemIndex write SetItemIndex;
+    property ItemIndex: SmallInt read GetItemIndex write SetItemIndex;
 
     property OnChange: TNotifyEvent read fOnChange write fOnChange;
     procedure Paint; override;
@@ -3233,6 +3238,7 @@ begin
   fItemIndex  := -1;
   fShowHeader := True;
   Focusable := True;
+  SearchColumn := -1; //Disabled by default
 
   fHeader := TKMListHeader.Create(aParent, aLeft, aTop, aWidth - fItemHeight, DEF_HEADER_HEIGHT);
 
@@ -3456,6 +3462,31 @@ begin
 end;
 
 
+procedure TKMColumnListBox.KeyPress(Key: Char);
+var
+  I: Integer;
+begin
+  if SearchColumn = -1 then
+    Exit;
+
+  //Allow to type several characters in a row to pick some item
+  if GetTimeSince(fLastKeyTime) < 1000 then
+    fSearch := fSearch + Key
+  else
+    fSearch := Key;
+
+  fLastKeyTime := TimeGet;
+
+  for I := 0 to fRowCount - 1 do
+  if StartsText(fSearch, Rows[I].Cells[SearchColumn].Caption) then
+  begin
+    fItemIndex := I;
+    TopIndex := fItemIndex - GetVisibleRows div 2;
+    Break;
+  end;
+end;
+
+
 procedure TKMColumnListBox.MouseDown(X,Y: Integer; Shift: TShiftState; Button: TMouseButton);
 begin
   inherited;
@@ -3613,7 +3644,6 @@ begin
   fDropCount := 10;
   fDropUp := False;
   fFont := aFont;
-  fOnClick := ListShow; //It's common behavior when click on dropbox will show the list
 
   fButton := TKMButton.Create(aParent, aLeft+aWidth-aHeight, aTop, aHeight, aHeight, 590, rxGui, bsMenu);
   fButton.fOnClick := ListShow;
@@ -3635,6 +3665,15 @@ begin
 
   if Count > 0 then
     fShape.Show;
+end;
+
+
+procedure TKMDropCommon.DoClick(X, Y: Integer; Shift: TShiftState; Button: TMouseButton);
+begin
+  //It's common behavior when click on dropbox will show the list
+  ListShow(Self);
+
+  inherited;
 end;
 
 

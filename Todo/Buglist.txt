@@ -57,9 +57,10 @@ Improvements:
  +	L	Host can set password for lobby
  +	M	Sliders in lobby for selecting speed during peacetime and after peacetime
  +	L	Army graph starts 5% before the first variation (to skip peacetime)
- +  L	Add a command to let the AI repair houses without building new ones (wasn't possible in KaM)
+ +	L	Add a command to let the AI repair houses without building new ones (wasn't possible in KaM)
  +	L	Draw highlight on houses mentioned in an open message
- +    Fix fences shading along edges of FOW
+ +		Fix fences shading along edges of FOW
+ +	L	Pressing a key selects the map starting with that letter in map/save lists
 
  wip	Dismiss button to make units walk into the school and disappear (gold is not refunded)
  wip	Simple dedicated server form which lets you set the properties of the INI for the server and start it [gemGreg]
@@ -109,7 +110,6 @@ Improvements:
 	L	Shift+3 joins the selected warrior group to the group assigned to hotkey 3 (Starcraft style)
   L Maplist still takes too long to load, scrollbar moves irritatingly while maps are being added
   L Save last selected item in lists (load game, mp, maped list, savegames, etc)
-	L	Pressing a key selects the next map starting with that letter in map/save lists
   L Right-click on a unit in Schools queue to move that unit to the front of the queue
 
 	L	MapEd: Allow to toggle trees/objects opacity (make them partially visible) [Marcin]

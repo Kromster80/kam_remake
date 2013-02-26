@@ -127,6 +127,7 @@ type
     procedure Lobby_RefreshMapList(aJumpToSelected:Boolean);
     procedure Lobby_RefreshSaveList(aJumpToSelected:Boolean);
     procedure Lobby_MapSelect(Sender: TObject);
+    procedure Lobby_MapSelectClick(Sender: TObject);
     procedure Lobby_OnMapName(const aData:string);
     procedure Lobby_OnReassignedToHost(Sender: TObject);
     procedure Lobby_PostKey(Sender: TObject; Key: Word);
@@ -1295,9 +1296,10 @@ begin
 
       DropCol_LobbyMaps := TKMDropColumns.Create(Panel_LobbySetup, 10, 119, 250, 20, fnt_Metal, fTextLibrary[TX_LOBBY_MAP_SELECT], bsMenu);
       DropCol_LobbyMaps.DropCount := 19;
-      DropCol_LobbyMaps.DropWidth := 430; //180 extra width
+      DropCol_LobbyMaps.DropWidth := 430; //Wider to fit mapnames well
       DropCol_LobbyMaps.SetColumns(fnt_Outline, [fTextLibrary[TX_MENU_MAP_TITLE], '#', fTextLibrary[TX_MENU_MAP_SIZE]], [0, 290, 320]);
       DropCol_LobbyMaps.List.OnColumnClick := Lobby_MapColumnClick;
+      DropCol_LobbyMaps.List.SearchColumn := 0;
       DropCol_LobbyMaps.OnChange := Lobby_MapSelect;
       Label_LobbyMapName := TKMLabel.Create(Panel_LobbySetup, 10, 119, 250, 20, '', fnt_Metal, taLeft);
 
@@ -1357,6 +1359,7 @@ begin
                                         [0, 320, 460, 600]);
     List_Camps.Anchors := [];
     List_Camps.Header.Anchors := [];
+    List_Camps.SearchColumn := 0;
     List_Camps.OnChange := Campaign_ListChange;
     List_Camps.OnDoubleClick := SwitchMenuPage;
 
@@ -1445,6 +1448,7 @@ begin
     ColList_SingleMaps.Columns[1].TextAlign := taCenter;
     ColList_SingleMaps.Columns[3].TextAlign := taCenter;
     ColList_SingleMaps.ItemHeight := 40;
+    ColList_SingleMaps.SearchColumn := 2;
     ColList_SingleMaps.ShowLines := True;
     ColList_SingleMaps.Header.Height := 40;
     ColList_SingleMaps.Header.TextAlign := taCenter;
@@ -1551,6 +1555,7 @@ begin
     List_Load := TKMColumnListBox.Create(Panel_Load, 62, 86, 700, 485, fnt_Metal, bsMenu);
     List_Load.Anchors := [akLeft,akTop,akBottom];
     List_Load.SetColumns(fnt_Outline, [fTextLibrary[TX_MENU_LOAD_FILE], fTextLibrary[TX_MENU_LOAD_DESCRIPTION]], [0, 300]);
+    List_Load.SearchColumn := 0;
     List_Load.OnColumnClick := Load_Sort;
     List_Load.OnChange := Load_ListClick;
     List_Load.OnDoubleClick := Load_Click;
@@ -1618,6 +1623,7 @@ begin
       Radio_MapEd_MapType.OnChange := MapEditor_MapTypeChange;
       List_MapEd := TKMColumnListBox.Create(Panel_MapEd_Load, 0, 80, 440, 310, fnt_Metal,  bsMenu);
       List_MapEd.SetColumns(fnt_Outline, [fTextLibrary[TX_MENU_MAP_TITLE], '#', fTextLibrary[TX_MENU_MAP_SIZE]], [0, 310, 340]);
+      List_MapEd.SearchColumn := 0;
       List_MapEd.OnColumnClick := MapEditor_ColumnClick;
       List_MapEd.OnChange := MapEditor_SelectMap;
       List_MapEd.OnDoubleClick := MapEditor_Start;
@@ -1649,6 +1655,7 @@ begin
     List_Replays := TKMColumnListBox.Create(Panel_Replays, 62, 150, 700, 485, fnt_Metal, bsMenu);
     List_Replays.SetColumns(fnt_Outline, [fTextLibrary[TX_MENU_LOAD_FILE], fTextLibrary[TX_MENU_LOAD_DESCRIPTION]], [0, 300]);
     List_Replays.Anchors := [akLeft,akTop,akBottom];
+    List_Replays.SearchColumn := 0;
     List_Replays.OnChange := Replays_ListClick;
     List_Replays.OnColumnClick := Replays_Sort;
     List_Replays.OnDoubleClick := Replays_Play;
@@ -3653,6 +3660,21 @@ begin
       fGameApp.Networking.SelectSave(fSavesMP[DropCol_LobbyMaps.Item[DropCol_LobbyMaps.ItemIndex].Tag].FileName);
     fSavesMP.Unlock;
   end;
+
+  //Return focus back to chat once map is selected
+  fMyControls.CtrlFocus := Edit_LobbyPost;
+
+  //todo: Rework Focus so that it returned from control we hide to previous visible control automatically
+end;
+
+
+procedure TKMMainMenuInterface.Lobby_MapSelectClick(Sender: TObject);
+begin
+  //Steal focus from chat to allow to select a map with keys
+  if DropCol_LobbyMaps.List.Visible then
+    fMyControls.CtrlFocus := DropCol_LobbyMaps.List
+  else
+    fMyControls.CtrlFocus := Edit_LobbyPost;
 end;
 
 
