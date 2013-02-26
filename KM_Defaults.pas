@@ -27,7 +27,7 @@ const
   MENU_DESIGN_X         = 1024;         //Thats the size menu was designed for. All elements are placed in this size
   MENU_DESIGN_Y         = 768;          //Thats the size menu was designed for. All elements are placed in this size
 
-  GAME_REVISION         = 'r4566';       //Should be updated for every release (each time save format is changed)
+  GAME_REVISION         = 'r4685';       //Should be updated for every release (each time save format is changed)
   GAME_VERSION          = 'Next Demo ' + GAME_REVISION;       //Game version string displayed in menu corner
   NET_PROTOCOL_REVISON  = GAME_REVISION;     //Clients of this version may connect to the dedicated server
 
@@ -110,7 +110,7 @@ var
   INI_HITPOINT_RESTORE  :Boolean = False; //Use the hitpoint restore rate from the INI file to compare with KaM
   SLOW_MAP_SCAN         :Boolean = False; //Scan maps with a pause to emulate uncached file access
   SLOW_SAVE_SCAN        :Boolean = False; //Scan saves with a pause to emulate uncached file access
-  DO_PERF_LOGGING       :Boolean = True; //Write each ticks time to log
+  DO_PERF_LOGGING       :Boolean = False; //Write each ticks time to log
   {Gameplay cheats}
   UNLOCK_CAMPAIGN_MAPS  :Boolean = False; //Unlock more maps for debug
   FREE_ROCK_THROWING    :Boolean = False; //Throwing a rock from Tower costs nothing. To debug throw algoritm

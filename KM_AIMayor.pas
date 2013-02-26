@@ -230,8 +230,8 @@ begin
   //Citizens
   //Count overall unit requirement (excluding Barracks and ownerless houses)
   FillChar(UnitReq, SizeOf(UnitReq), #0); //Clear up
-  for H := Low(THouseType) to High(THouseType) do
-    if fResource.HouseDat[H].IsValid and (fResource.HouseDat[H].OwnerType <> ut_None) and (H <> ht_Barracks) then
+  for H := HOUSE_MIN to HOUSE_MAX do
+    if (fResource.HouseDat[H].OwnerType <> ut_None) and (H <> ht_Barracks) then
       Inc(UnitReq[fResource.HouseDat[H].OwnerType], P.Stats.GetHouseQty(H));
 
   //Schools

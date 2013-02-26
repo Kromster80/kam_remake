@@ -142,7 +142,7 @@ end;
 procedure TKMPlayerStats.UpdateReqDone(aType: THouseType);
 var H: THouseType;
 begin
-  for H := Low(THouseType) to High(THouseType) do
+  for H := HOUSE_MIN to HOUSE_MAX do
     if fResource.HouseDat[H].ReleasedBy = aType then
       fHouseUnlocked[H] := True;
 end;
@@ -264,8 +264,7 @@ begin
   Result := 0;
   case aType of
     ht_None:    ;
-    ht_Any:     for H := Low(THouseType) to High(THouseType) do
-                if fResource.HouseDat[H].IsValid then
+    ht_Any:     for H := HOUSE_MIN to HOUSE_MAX do
                   Inc(Result, Houses[H].Initial + Houses[H].Built - Houses[H].SelfDestruct - Houses[H].Lost);
     else        Result := Houses[aType].Initial + Houses[aType].Built - Houses[aType].SelfDestruct - Houses[aType].Lost;
   end;
@@ -284,8 +283,7 @@ begin
   else
   if (Length(aType) = 1) and (aType[0] = ht_Any) then
   begin
-    for H := Low(THouseType) to High(THouseType) do
-    if fResource.HouseDat[H].IsValid then
+    for H := HOUSE_MIN to HOUSE_MAX do
       Inc(Result, Houses[H].Initial + Houses[H].Built - Houses[H].SelfDestruct - Houses[H].Lost);
   end
   else
@@ -304,8 +302,7 @@ begin
   Result := 0;
   case aType of
     ht_None:    ;
-    ht_Any:     for H := Low(THouseType) to High(THouseType) do
-                if fResource.HouseDat[H].IsValid then
+    ht_Any:     for H := HOUSE_MIN to HOUSE_MAX do
                   Inc(Result, Houses[H].Started + Houses[H].Planned - Houses[H].Ended - Houses[H].PlanRemoved);
     else        Result := Houses[aType].Started + Houses[aType].Planned - Houses[aType].Ended - Houses[aType].PlanRemoved;
   end;
@@ -324,8 +321,7 @@ begin
   else
   if (Length(aType) = 1) and (aType[0] = ht_Any) then
   begin
-    for H := Low(THouseType) to High(THouseType) do
-    if fResource.HouseDat[H].IsValid then
+    for H := HOUSE_MIN to HOUSE_MAX do
       Inc(Result, Houses[H].Started + Houses[H].Planned - Houses[H].Ended - Houses[H].PlanRemoved);
   end
   else
@@ -479,8 +475,8 @@ function TKMPlayerStats.GetHousesBuilt: Cardinal;
 var HT: THouseType;
 begin
   Result := 0;
-  for HT := Low(THouseType) to High(THouseType) do
-    inc(Result, Houses[HT].Built);
+  for HT := HOUSE_MIN to HOUSE_MAX do
+    Inc(Result, Houses[HT].Built);
 end;
 
 
@@ -488,8 +484,8 @@ function TKMPlayerStats.GetHousesLost: Cardinal;
 var HT: THouseType;
 begin
   Result := 0;
-  for HT := Low(THouseType) to High(THouseType) do
-    inc(Result, Houses[HT].Lost);
+  for HT := HOUSE_MIN to HOUSE_MAX do
+    Inc(Result, Houses[HT].Lost);
 end;
 
 
@@ -497,8 +493,7 @@ function TKMPlayerStats.GetHousesDestroyed: Cardinal;
 var HT: THouseType;
 begin
   Result := 0;
-  for HT := Low(THouseType) to High(THouseType) do
-  if fResource.HouseDat[HT].IsValid then
+  for HT := HOUSE_MIN to HOUSE_MAX do
     Inc(Result, Houses[HT].Destroyed);
 end;
 

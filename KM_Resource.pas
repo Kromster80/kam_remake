@@ -300,7 +300,7 @@ begin
   HD := TKMHouseDatCollection.Create;
 
   ci:=0;
-  for ID:=Low(THouseType) to High(THouseType) do
+  for ID := HOUSE_MIN to HOUSE_MAX do
     for Ac:=ha_Work1 to ha_Flag3 do
       for k:=1 to HD[ID].Anim[Ac].Count do
       begin

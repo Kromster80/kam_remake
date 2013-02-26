@@ -326,7 +326,7 @@ begin
                             fPlayers[fLastPlayer].Stats.HouseGranted[HouseIndexToType[P[0]]] := True;
                         end;
     ct_ReleaseAllHouses:if fLastPlayer >= 0 then
-                          for HT:=Low(THouseType) to High(THouseType) do
+                          for HT := HOUSE_MIN to HOUSE_MAX do
                             fPlayers[fLastPlayer].Stats.HouseGranted[HT] := True;
     ct_SetGroup:        if fLastPlayer >= 0 then
                           if InRange(P[0], Low(UnitIndexToType), High(UnitIndexToType)) and (UnitIndexToType[P[0]] <> ut_None) then
@@ -691,8 +691,7 @@ begin
 
     //Release/block houses
     ReleaseAllHouses := True;
-    for HT := Low(THouseType) to High(THouseType) do
-    if fResource.HouseDat[HT].IsValid then //Exclude ht_None / ht_Any
+    for HT := HOUSE_MIN to HOUSE_MAX do
     begin
       if fPlayers[I].Stats.HouseBlocked[HT] then
       begin

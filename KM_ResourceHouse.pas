@@ -60,7 +60,7 @@ type
     function GetTabletIcon:word;
   public
     constructor Create(aHouseType:THouseType);
-    function IsValid:boolean;
+    function IsValid: Boolean;
     procedure LoadFromStream(Stream:TMemoryStream);
     //Derived from KaM
     property StonePic:smallint read fHouseDat.StonePic;
@@ -101,7 +101,7 @@ type
   TKMHouseDatCollection = class
   private
     fCRC:cardinal;
-    fItems: array[THouseType] of TKMHouseDatClass;
+    fItems: array [HOUSE_MIN..HOUSE_MAX] of TKMHouseDatClass;
     //Swine&Horses, 5 beasts in each house, 3 ages for each beast
     fBeastAnim: array[1..2,1..5,1..3] of TKMAnimLoop;
     fMarketBeastAnim: array[1..3] of TKMAnimLoop;
@@ -627,7 +627,7 @@ var H: THouseType; I: Integer;
 begin
   inherited;
 
-  for H := Low(THouseType) to High(THouseType) do
+  for H := HOUSE_MIN to HOUSE_MAX do
     fItems[H] := TKMHouseDatClass.Create(H);
 
   fCRC := LoadHouseDat(ExeDir+'data\defines\houses.dat');
@@ -693,7 +693,7 @@ end;
 destructor TKMHouseDatCollection.Destroy;
 var H:THouseType;
 begin
-  for H := Low(THouseType) to High(THouseType) do
+  for H := HOUSE_MIN to HOUSE_MAX do
     FreeAndNil(fItems[H]);
 
   inherited;
@@ -765,7 +765,7 @@ begin
   S := 'House name;WoodCost;StoneCost;ResProductionX';
   SL.Append(S);
 
-  for HT := Low(THouseType) to High(THouseType) do
+  for HT := HOUSE_MIN to HOUSE_MAX do
   begin
     S := '';
     AddField(fItems[HT].HouseName);
