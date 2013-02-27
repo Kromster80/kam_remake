@@ -41,7 +41,7 @@ type
     destructor Destroy; override;
 
     property MainPanel: TKMPanel read fCtrl;
-    procedure UpdateFocus;
+    procedure UpdateFocus(aSender: TKMControl);
 
     property CtrlDown: TKMControl read fCtrlDown write SetCtrlDown;
     property CtrlFocus: TKMControl read fCtrlFocus write SetCtrlFocus;
@@ -697,6 +697,7 @@ type
     fEdgeAlpha: Single; //Alpha of outline
     fItemHeight: Byte;
     fItemIndex: Smallint;
+    fSearchColumn: ShortInt; //which columns text we should search, -1 for disabled
     fSearch: string; //Contains user input characters we should search for
     fLastKeyTime: Cardinal;
     fRowCount: Integer;
@@ -720,6 +721,7 @@ type
     procedure SetOnColumnClick(const Value: TIntegerEvent);
     function GetColumn(aIndex: Integer): TKMListColumn;
     procedure ClearColumns;
+    procedure SetSearchColumn(aValue: ShortInt);
   protected
     procedure SetTop(aValue: Integer); override;
     procedure SetHeight(aValue: Integer); override;
@@ -728,7 +730,6 @@ type
     procedure DoPaintLine(aIndex: Integer; X,Y: Integer; PaintWidth: Integer);
   public
     HideSelection: Boolean;
-    SearchColumn: ShortInt; //which columns text we should search, -1 for disabled
     Rows: array of TKMListRow; //Exposed to public since we need to edit sub-fields
 
     constructor Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight: Integer; aFont: TKMFont; aStyle: TButtonStyle);
@@ -741,6 +742,7 @@ type
     function GetVisibleRowsExact: Single;
     property ShowHeader: Boolean read fShowHeader write SetShowHeader;
     property ShowLines: Boolean read fShowLines write fShowLines;
+    property SearchColumn: ShortInt read fSearchColumn write SetSearchColumn;
 
     property Columns[aIndex: Integer]: TKMListColumn read GetColumn;
     property BackAlpha: Single read fBackAlpha write SetBackAlpha;
@@ -1350,7 +1352,7 @@ begin
   fVisible := aValue;
 
   if Focusable or (Self is TKMPanel) then
-    MasterParent.GetCollection.UpdateFocus;
+    MasterParent.GetCollection.UpdateFocus(Self);
 end;
 
 
@@ -1362,7 +1364,7 @@ procedure TKMControl.Disable; begin SetEnabled(false); end;
 procedure TKMControl.Show;
 begin
   if Parent <> nil then Parent.Show;
-  Visible := true;
+  Visible := True;
 end;
 
 
@@ -1964,6 +1966,8 @@ begin
   fFont := aFont;
   fAllowedChars := acText; //Set to the widest by default
   CursorPos := 0;
+
+  //Text input fields are focusable by concept
   Focusable := True;
 end;
 
@@ -3254,7 +3258,6 @@ begin
   fItemHeight := 20;
   fItemIndex  := -1;
   fShowHeader := True;
-  Focusable := True;
   SearchColumn := -1; //Disabled by default
 
   fHeader := TKMListHeader.Create(aParent, aLeft, aTop, aWidth - fItemHeight, DEF_HEADER_HEIGHT);
@@ -3273,6 +3276,15 @@ begin
   //Update header and scrollbar so that their Top matched
   fHeader.Top := aValue;
   fScrollBar.Top := aValue;
+end;
+
+
+procedure TKMColumnListBox.SetSearchColumn(aValue: ShortInt);
+begin
+  fSearchColumn := aValue;
+
+  //If search is disabled the we obviously dont need a focus
+  Focusable := fSearchColumn <> -1;
 end;
 
 
@@ -3754,7 +3766,6 @@ begin
   fList.AutoHideScrollBar := True; //A drop box should only have a scrollbar if required
   fList.BackAlpha := 0.85;
   fList.fOnClick := ListClick;
-  fList.Focusable := False; //For drop downs we don't want the list to be focusable
 
   ListHide(nil);
 end;
@@ -3916,7 +3927,6 @@ begin
   fList := TKMColumnListBox.Create(P, Left-P.Left, Top+aHeight-P.Top, aWidth, 0, fFont, aStyle);
   fList.BackAlpha := 0.85;
   fList.OnClick := ListClick;
-  fList.Focusable := False; //For drop downs we don't want the list to be focusable
 
   DropWidth := aWidth;
 
@@ -4656,8 +4666,8 @@ begin
 end;
 
 
-//Check if we have Focusable controls and if our current focus is nil - pick one
-procedure TKMMasterControl.UpdateFocus;
+//Update focused control
+procedure TKMMasterControl.UpdateFocus(aSender: TKMControl);
   function FindFocusable(C: TKMPanel): Boolean;
   var I: Integer;
   begin
@@ -4684,9 +4694,26 @@ procedure TKMMasterControl.UpdateFocus;
     end;
   end;
 begin
-  if (CtrlFocus <> nil) and CtrlFocus.Visible and CtrlFocus.Enabled then Exit;
-
-  FindFocusable(fCtrl);
+  //Something showed up
+  if aSender.Visible then
+  begin
+    //If something showed up - focus on it
+    if not (aSender is TKMPanel) and aSender.Focusable then
+      CtrlFocus := aSender;
+    //If panel showed up - try to focus on its contents
+    if aSender is TKMPanel then
+      FindFocusable(TKMPanel(aSender));
+  end
+  else
+  //Something went hidden
+  begin
+    if (CtrlFocus = nil) or not CtrlFocus.Visible or not CtrlFocus.Enabled then
+    begin
+      //If something went hidden
+      CtrlFocus := nil;
+      FindFocusable(fCtrl);
+    end;
+  end;
 end;
 
 

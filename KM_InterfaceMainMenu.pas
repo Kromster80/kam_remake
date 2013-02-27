@@ -127,7 +127,6 @@ type
     procedure Lobby_RefreshMapList(aJumpToSelected:Boolean);
     procedure Lobby_RefreshSaveList(aJumpToSelected:Boolean);
     procedure Lobby_MapSelect(Sender: TObject);
-    procedure Lobby_MapSelectClick(Sender: TObject);
     procedure Lobby_OnMapName(const aData:string);
     procedure Lobby_OnReassignedToHost(Sender: TObject);
     procedure Lobby_PostKey(Sender: TObject; Key: Word);
@@ -1301,7 +1300,6 @@ begin
       DropCol_LobbyMaps.List.OnColumnClick := Lobby_MapColumnClick;
       DropCol_LobbyMaps.List.SearchColumn := 0;
       DropCol_LobbyMaps.OnChange := Lobby_MapSelect;
-      DropCol_LobbyMaps.OnClick := Lobby_MapSelectClick;
       Label_LobbyMapName := TKMLabel.Create(Panel_LobbySetup, 10, 119, 250, 20, '', fnt_Metal, taLeft);
 
       TKMBevel.Create(Panel_LobbySetup, 35, 144, 199, 199);
@@ -2221,7 +2219,6 @@ begin
   or (Sender=Button_MP_CreateWAN) then
   begin
     Lobby_Reset(Sender);
-    fMyControls.CtrlFocus := Edit_LobbyPost;
     Panel_Lobby.Show;
   end;
 
@@ -3051,7 +3048,6 @@ begin
   Panel_MPFindServer.Hide;
   Edit_MP_Password.Text := '';
   Panel_MPPassword.Show;
-  MyControls.CtrlFocus := Edit_MP_Password;
 end;
 
 
@@ -3664,14 +3660,6 @@ begin
 end;
 
 
-procedure TKMMainMenuInterface.Lobby_MapSelectClick(Sender: TObject);
-begin
-  //Steal focus from chat to allow to select a map with keys
-  if DropCol_LobbyMaps.List.Visible then
-    fMyControls.CtrlFocus := DropCol_LobbyMaps.List;
-end;
-
-
 procedure TKMMainMenuInterface.Lobby_OnMapName(const aData: string);
 var
   M: TKMapInfo;
@@ -3853,17 +3841,16 @@ begin
   begin
     Edit_Lobby_Password.Text := fGameApp.Networking.Password;
     Panel_LobbySetPassword.Show;
-    fMyControls.CtrlFocus := Edit_Lobby_Password;
   end;
+
   if Sender = Button_Lobby_PasswordCancel then
   begin
     Panel_LobbySetPassword.Hide;
-    fMyControls.CtrlFocus := Edit_LobbyPost;
   end;
+
   if Sender = Button_Lobby_PasswordSet then
   begin
     Panel_LobbySetPassword.Hide;
-    fMyControls.CtrlFocus := Edit_LobbyPost;
     fGameApp.Networking.SetPassword(Edit_Lobby_Password.Text);
     if Edit_Lobby_Password.Text <> '' then
       Button_LobbyChangePassword.Caption := 'Change password'

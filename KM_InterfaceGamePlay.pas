@@ -609,8 +609,6 @@ var I: Integer; LastVisiblePage: TKMPanel;
   end;
 
 begin
-  fMyControls.CtrlFocus := nil; //Panels that require control focus should set it themselves
-
   if (Sender = Button_Main[tbBuild]) or (Sender = Button_Main[tbRatio])
   or (Sender = Button_Main[tbStats]) or (Sender = Button_Main[tbMenu])
   or (Sender = Button_Menu_Settings) or (Sender = Button_Menu_Quit) then
@@ -687,7 +685,6 @@ begin
     //Initiate refresh and process each new save added
     fSaves.Refresh(Menu_Save_RefreshList, fMultiplayer);
     Panel_Save.Show;
-    fMyControls.CtrlFocus := Edit_Save;
     Label_MenuTitle.Caption := fTextLibrary[TX_MENU_SAVE_GAME];
   end else
 
@@ -719,10 +716,6 @@ begin
   or (Sender = Panel_HouseMarket) or (Sender = Panel_HouseBarracks)
   or (Sender = Panel_HouseStore) or (Sender = Panel_HouseWoodcutter) then
     TKMPanel(Sender).Show;
-
-  //Place the cursor in the chatbox if it is open and nothing else has taken focus
-  if (Panel_Chat.Visible) and (fMyControls.CtrlFocus = nil) then
-    fMyControls.CtrlFocus := Edit_ChatMsg;
 end;
 
 
@@ -1421,12 +1414,14 @@ procedure TKMGamePlayInterface.Create_Save;
 begin
   Panel_Save := TKMPanel.Create(Panel_Controls, TB_PAD, 44, TB_WIDTH, 332);
 
-    List_Save := TKMListBox.Create(Panel_Save, 0, 4, TB_WIDTH, 220, fnt_Metal, bsGame);
-    List_Save.OnChange := Menu_Save_ListChange;
-
+    //Edit field created first to pick a focus on panel show
     Edit_Save := TKMEdit.Create(Panel_Save, 0, 235, TB_WIDTH, 20, fnt_Metal);
     Edit_Save.AllowedChars := acFileName;
     Edit_Save.OnChange := Menu_Save_EditChange;
+
+    List_Save := TKMListBox.Create(Panel_Save, 0, 4, TB_WIDTH, 220, fnt_Metal, bsGame);
+    List_Save.OnChange := Menu_Save_ListChange;
+
     Label_SaveExists := TKMLabel.Create(Panel_Save,0,260,TB_WIDTH,30,fTextLibrary[TX_GAMEPLAY_SAVE_EXISTS],fnt_Outline,taLeft);
     CheckBox_SaveExists := TKMCheckBox.Create(Panel_Save,0,280,TB_WIDTH,20,fTextLibrary[TX_GAMEPLAY_SAVE_OVERWRITE], fnt_Metal);
     CheckBox_SaveExists.OnClick := Menu_Save_CheckboxChange;
@@ -1863,7 +1858,6 @@ end;
 procedure TKMGamePlayInterface.Chat_Show(Sender: TObject);
 begin
   fSoundLib.Play(sfxn_MPChatOpen);
-  fMyControls.CtrlFocus := Edit_ChatMsg;
   Allies_Close(nil);
   Panel_Chat.Show;
   Message_Close(nil);
@@ -2800,8 +2794,6 @@ procedure TKMGamePlayInterface.Chat_Close(Sender: TObject);
 begin
   if Panel_Chat.Visible then fSoundLib.Play(sfxn_MPChatClose);
   Panel_Chat.Hide;
-  if fMyControls.CtrlFocus = Edit_ChatMsg then
-    fMyControls.CtrlFocus := nil; //Lose focus so you can't type messages with the panel hidden
 end;
 
 
