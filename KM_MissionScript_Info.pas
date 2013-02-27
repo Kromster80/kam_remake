@@ -3,8 +3,8 @@ unit KM_MissionScript_Info;
 interface
 uses
   Classes, KromUtils, SysUtils,
-  KM_CommonClasses, KM_Defaults, KM_Points,
-  KM_Goals, KM_MissionScript, KM_Maps, KM_Resource;
+  KM_CommonClasses, KM_Defaults,
+  KM_MissionScript, KM_Maps, KM_Resource;
 
 
 type

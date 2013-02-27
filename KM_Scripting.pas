@@ -4,7 +4,7 @@ interface
 uses
   Classes, Math, SysUtils, StrUtils,
   uPSCompiler, uPSRuntime, uPSUtils, uPSDisassembly,
-  KM_CommonClasses, KM_Defaults, KM_ScriptingESA, KM_Houses, KM_Units, KM_UnitGroups;
+  KM_CommonClasses, KM_Defaults, KM_ScriptingESA, KM_ScriptingIdCache, KM_Houses, KM_Units, KM_UnitGroups;
 
   //Dynamic scripts allow mapmakers to control the mission flow
 
@@ -21,7 +21,7 @@ type
 
     fStates: TKMScriptStates;
     fActions: TKMScriptActions;
-    fIDCache: TKMIDCache;
+    fIDCache: TKMScriptingIdCache;
 
     function ScriptOnUses(Sender: TPSPascalCompiler; const Name: AnsiString): Boolean;
     procedure ScriptOnUseVariable(Sender: TPSPascalCompiler; VarType: TPSVariableType; VarNo: Longint; ProcNo, Position: Cardinal; const PropData: tbtString);
@@ -67,7 +67,7 @@ var
 
 
 implementation
-uses KM_Log, KM_ResourceHouse, KM_ResourceUnit;
+uses KM_Log;
 
 
 { TKMScripting }
@@ -75,7 +75,7 @@ constructor TKMScripting.Create;
 begin
   inherited;
   fExec := TPSExec.Create;  // Create an instance of the executer.
-  fIDCache := TKMIDCache.Create;
+  fIDCache := TKMScriptingIdCache.Create;
   fStates := TKMScriptStates.Create(fIDCache);
   fActions := TKMScriptActions.Create(fIDCache);
 end;

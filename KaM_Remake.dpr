@@ -101,6 +101,7 @@ uses
   KM_Saves in 'KM_Saves.pas',
   KM_Scripting in 'KM_Scripting.pas',
   KM_ScriptingESA in 'KM_ScriptingESA.pas',
+  KM_ScriptingIdCache in 'KM_ScriptingIdCache.pas',
   KM_ServerQuery in 'KM_ServerQuery.pas',
   KM_Settings in 'KM_Settings.pas',
   KM_Sound in 'KM_Sound.pas',

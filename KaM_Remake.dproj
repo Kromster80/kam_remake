@@ -201,6 +201,7 @@
 			<DCCReference Include="KM_Saves.pas"/>
 			<DCCReference Include="KM_Scripting.pas"/>
 			<DCCReference Include="KM_ScriptingESA.pas"/>
+			<DCCReference Include="KM_ScriptingIdCache.pas"/>
 			<DCCReference Include="KM_ServerQuery.pas"/>
 			<DCCReference Include="KM_Settings.pas"/>
 			<DCCReference Include="KM_Sound.pas"/>

@@ -34,7 +34,7 @@ type
 
 
 implementation
-uses KM_PlayersCollection, KM_Sound, KM_Units_Warrior, KM_Resource, KM_Projectiles, KM_Scripting;
+uses KM_PlayersCollection, KM_Sound, KM_Units_Warrior, KM_Resource, KM_Projectiles;
 
 const STRIKE_STEP = 5; //Melee units place hit on step 5
 
