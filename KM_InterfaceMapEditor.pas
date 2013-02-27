@@ -621,7 +621,7 @@ begin
   begin
     Label_Hint.Caption := TKMControl(Sender).Hint;
     Bevel_HintBG.Show;
-    Bevel_HintBG.Width := 8 + fResource.ResourceFont.GetTextSize(Label_Hint.Caption, Label_Hint.Font).X;
+    Bevel_HintBG.Width := 8 + fResource.Fonts.GetTextSize(Label_Hint.Caption, Label_Hint.Font).X;
   end;
 
   fPrevHint := Sender;

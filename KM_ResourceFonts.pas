@@ -9,21 +9,22 @@ uses
 type
   TKMFontData = class
   public
-    TexID:Cardinal;
-    Unk1,WordSpacing,CharSpacing,Unk3:smallint; //BaseCharHeight?, Unknown, CharSpacingX, LineOffset?
-    Pal:array[0..255]of byte;
-    Letters:array[0..255]of record
-      Width,Height:word;
-      Add1,Add2,YOffset,Add4:word; //Add1-4 always 0
-      Data:array of byte;
-      u1,v1,u2,v2:single;
+    TexID: Cardinal;
+    Unk1, WordSpacing, CharSpacing, Unk3: SmallInt; //BaseCharHeight?, Unknown, CharSpacingX, LineOffset?
+    Pal: array [0..255] of Byte;
+    Letters: array [0..255] of record
+      Width, Height: Word;
+      Add1, Add2, YOffset, Add4: Word; //Add1-4 always 0
+      Data: array of Byte;
+      u1,v1,u2,v2: Single;
     end;
     LineSpacing: Byte; //Not in KaM files, we use custom value that fits well
     procedure LoadFont(const aFileName: string; aRender: TRender; aFont: TKMFont; ExportToBMP: Boolean);
   end;
 
 
-  TResourceFont = class
+  //Collection of fonts
+  TKMResourceFont = class
   private
     fRender: TRender;
     fFontData: array [TKMFont] of TKMFontData;
@@ -34,7 +35,7 @@ type
 
     property FontData[aIndex: TKMFont]: TKMFontData read GetFontData;
 
-    function WordWrap(aText: AnsiString; aFont: TKMFont; aMaxPxWidth: integer; aForced: boolean): AnsiString;
+    function WordWrap(aText: AnsiString; aFont: TKMFont; aMaxPxWidth: Integer; aForced: boolean): AnsiString;
     function CharsThatFit(const aText: AnsiString; aFont: TKMFont; aMaxPxWidth: integer): integer;
     function GetTextSize(const aText: AnsiString; Fnt: TKMFont): TKMPoint;
 
@@ -160,7 +161,7 @@ end;
 
 
 { TResourceFont }
-constructor TResourceFont.Create(aRender: TRender);
+constructor TKMResourceFont.Create(aRender: TRender);
 var F: TKMFont;
 begin
   inherited Create;
@@ -171,7 +172,7 @@ begin
 end;
 
 
-destructor TResourceFont.Destroy;
+destructor TKMResourceFont.Destroy;
 var F: TKMFont;
 begin
   for F := Low(TKMFont) to High(TKMFont) do
@@ -181,13 +182,13 @@ begin
 end;
 
 
-function TResourceFont.GetFontData(aIndex: TKMFont): TKMFontData;
+function TKMResourceFont.GetFontData(aIndex: TKMFont): TKMFontData;
 begin
   Result := fFontData[aIndex];
 end;
 
 
-procedure TResourceFont.LoadFonts(aLocale: AnsiString);
+procedure TKMResourceFont.LoadFonts(aLocale: AnsiString);
 var
   F: TKMFont;
   CodePage: AnsiString;
@@ -203,7 +204,7 @@ begin
 end;
 
 
-procedure TResourceFont.ExportFonts(aLocale: AnsiString);
+procedure TKMResourceFont.ExportFonts(aLocale: AnsiString);
 var
   F: TKMFont;
   CodePage: AnsiString;
@@ -217,7 +218,7 @@ begin
 end;
 
 
-function TResourceFont.WordWrap(aText: AnsiString; aFont: TKMFont; aMaxPxWidth: Integer; aForced: Boolean): AnsiString;
+function TKMResourceFont.WordWrap(aText: AnsiString; aFont: TKMFont; aMaxPxWidth: Integer; aForced: Boolean): AnsiString;
 var
   I, CharSpacing, AdvX, PrevX, LastSpace, TmpColor: Integer;
 begin
@@ -269,7 +270,7 @@ begin
 end;
 
 
-function TResourceFont.CharsThatFit(const aText: AnsiString; aFont: TKMFont; aMaxPxWidth:integer):integer;
+function TKMResourceFont.CharsThatFit(const aText: AnsiString; aFont: TKMFont; aMaxPxWidth:integer):integer;
 var I, CharSpacing, AdvX: Integer;
 begin
   AdvX := 0;
@@ -290,7 +291,7 @@ begin
 end;
 
 
-function TResourceFont.GetTextSize(const aText: AnsiString; Fnt: TKMFont): TKMPoint;
+function TKMResourceFont.GetTextSize(const aText: AnsiString; Fnt: TKMFont): TKMPoint;
 var
   I: Integer;
   CharSpacing, LineCount: Integer;

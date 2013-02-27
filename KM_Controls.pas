@@ -1566,11 +1566,11 @@ end;
 procedure TKMLabel.ReformatText;
 begin
   if fAutoWrap then
-    fText := fResource.ResourceFont.WordWrap(fCaption, fFont, Width, true)
+    fText := fResource.Fonts.WordWrap(fCaption, fFont, Width, true)
   else
     fText := fCaption;
 
-  fTextSize := fResource.ResourceFont.GetTextSize(fText, fFont);
+  fTextSize := fResource.Fonts.GetTextSize(fText, fFont);
 end;
 
 
@@ -1934,7 +1934,7 @@ begin
   fCaption    := aCaption;
   ShapeColor  := aShapeColor;
   fFont       := aFont;
-  fFontHeight := fResource.ResourceFont.FontData[fFont].Unk1 + 2;
+  fFontHeight := fResource.Fonts.FontData[fFont].Unk1 + 2;
 end;
 
 
@@ -1990,7 +1990,7 @@ begin
   begin
     //Remove characters to the left of fLeftIndex
     RText := Copy(fText, fLeftIndex+1, Length(fText));
-    while fCursorPos-fLeftIndex > fResource.ResourceFont.CharsThatFit(RText, fFont, Width-8) do
+    while fCursorPos-fLeftIndex > fResource.Fonts.CharsThatFit(RText, fFont, Width-8) do
     begin
       Inc(fLeftIndex);
       //Remove characters to the left of fLeftIndex
@@ -2143,7 +2143,7 @@ begin
   if (csFocus in State) and ((TimeGet div 500) mod 2 = 0) then
   begin
     SetLength(RText, CursorPos - fLeftIndex);
-    OffX := Left + 2 + fResource.ResourceFont.GetTextSize(RText, fFont).X;
+    OffX := Left + 2 + fResource.Fonts.GetTextSize(RText, fFont).X;
     TKMRenderUI.WriteShape(OffX, Top+2, 3, Height-4, Col, $FF000000);
   end;
 end;
@@ -2325,7 +2325,7 @@ var
   W: Word;
 begin
   // Text width + padding + buttons
-  W := fResource.ResourceFont.GetTextSize(IntToStr(aValueMax), fnt_Grey).X + 16 + 20 + 20;
+  W := fResource.Fonts.GetTextSize(IntToStr(aValueMax), fnt_Grey).X + 16 + 20 + 20;
 
   inherited Create(aParent, aLeft, aTop, W, 20);
 
@@ -2463,7 +2463,7 @@ begin
   fTrackHeight := 20;
   Position := (fMinValue + fMaxValue) div 2;
   Caption := '';
-  ThumbWidth := fResource.ResourceFont.GetTextSize(IntToStr(MaxValue), fFont).X + 24;
+  ThumbWidth := fResource.Fonts.GetTextSize(IntToStr(MaxValue), fFont).X + 24;
 
   Font := fnt_Metal;
   Step := 1;
@@ -2828,7 +2828,7 @@ procedure TKMMemo.ReformatText;
 var NewText: string;
 begin
   if fAutoWrap then
-    NewText := fResource.ResourceFont.WordWrap(fText, fFont, fWidth - fScrollBar.Width - 8, True)
+    NewText := fResource.Fonts.WordWrap(fText, fFont, fWidth - fScrollBar.Width - 8, True)
   else
     NewText := fText;
 
@@ -3236,7 +3236,7 @@ begin
       TKMRenderUI.WritePicture(ColumnLeft + 4, Top, ColumnWidth - 8, Height, [], fColumns[I].Glyph.RX, fColumns[I].Glyph.ID)
     else
     begin
-      TextSize := fResource.ResourceFont.GetTextSize(fColumns[I].Caption, fFont);
+      TextSize := fResource.Fonts.GetTextSize(fColumns[I].Caption, fFont);
       TKMRenderUI.WriteText(ColumnLeft + 4, Top + (Height - TextSize.Y) div 2 + 2, ColumnWidth - 8, fColumns[I].Caption, fFont, fTextAlign);
     end;
 
@@ -3598,7 +3598,7 @@ begin
     if Rows[aIndex].Cells[I].Caption <> '' then
       if Rows[aIndex].Cells[I].Hint <> '' then
       begin
-        TextSize := fResource.ResourceFont.GetTextSize(Rows[aIndex].Cells[I].Caption, fFont);
+        TextSize := fResource.Fonts.GetTextSize(Rows[aIndex].Cells[I].Caption, fFont);
         TKMRenderUI.WriteText(X + 4 + fHeader.Columns[I].Offset,
                             Y + 4,
                             AvailWidth,
@@ -3611,7 +3611,7 @@ begin
                             fColumns[I].HintFont, fColumns[I].TextAlign, $FFB0B0B0);
       end else
       begin
-        TextSize := fResource.ResourceFont.GetTextSize(Rows[aIndex].Cells[I].Caption, fFont);
+        TextSize := fResource.Fonts.GetTextSize(Rows[aIndex].Cells[I].Caption, fFont);
         TKMRenderUI.WriteText(X + 4 + fHeader.Columns[I].Offset,
                             Y + (fItemHeight - TextSize.Y) div 2 + 2,
                             AvailWidth,

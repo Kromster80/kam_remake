@@ -221,7 +221,7 @@ begin
   fSoundLib := TSoundLib.Create(fGameSettings.Locale, fGameSettings.SoundFXVolume, False);
   fSoundLib.OnRequestFade := fMusicLib.FadeMusic;
   fSoundLib.OnRequestUnfade := fMusicLib.UnfadeMusic;
-  fResource.ResourceFont.LoadFonts(fGameSettings.Locale);
+  fResource.Fonts.LoadFonts(fGameSettings.Locale);
   fCampaigns := TKMCampaignsCollection.Create; //Campaigns load text into TextLibrary
   fCampaigns.ScanFolder(ExeDir + 'Campaigns\');
   fCampaigns.LoadProgress(ExeDir + 'Saves\Campaigns.dat');

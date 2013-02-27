@@ -26,7 +26,7 @@ type
     fRender: TRender;
     fDataState: TDataLoadingState;
     fCursors: TKMCursors;
-    fResourceFont: TResourceFont;
+    fFonts: TKMResourceFont;
     fHouseDat: TKMHouseDatCollection;
     fUnitDat: TKMUnitDatCollection;
     fPalettes: TKMPalettes;
@@ -54,7 +54,7 @@ type
     property HouseDat: TKMHouseDatCollection read fHouseDat;
     property MapElements: TKMMapElements read fMapElements;
     property Palettes: TKMPalettes read fPalettes;
-    property ResourceFont: TResourceFont read fResourceFont;
+    property Fonts: TKMResourceFont read fFonts;
     property Resources: TKMResourceCollection read fResources;
     property Sprites: TKMSprites read fSprites;
     property Tileset: TKMTileset read fTileset;
@@ -93,7 +93,7 @@ begin
   FreeAndNil(fHouseDat);
   FreeAndNil(fMapElements);
   FreeAndNil(fPalettes);
-  FreeAndNil(fResourceFont);
+  FreeAndNil(fFonts);
   FreeAndNil(fResources);
   FreeAndNil(fSprites);
   FreeAndNil(fTileset);
@@ -141,8 +141,8 @@ begin
   fCursors.Cursor := kmc_Default;
 
   StepCaption('Reading fonts ...');
-  fResourceFont := TResourceFont.Create(fRender);
-  fResourceFont.LoadFonts(aLocale);
+  fFonts := TKMResourceFont.Create(fRender);
+  fFonts.LoadFonts(aLocale);
   fLog.AddTime('Read fonts is done');
 
   fTileset := TKMTileset.Create(ExeDir + 'data\defines\pattern.dat');
