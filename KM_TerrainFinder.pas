@@ -138,14 +138,13 @@ procedure TKMTerrainFinderCommon.UseFinder;
   var
     Xt, Yt: Word;
   begin
-    if not (fPassability in fTerrain.Land[Y,X].Passability)
-    or not CanWalkHere(X,Y) then Exit;
-
+    //These exit conditions are arranged in order of how long we estimate they will take
+    if not (fPassability in fTerrain.Land[Y,X].Passability) then Exit;
+    //If new path is longer than old we don't care about it
     Xt := fStart.X - X + fRadius;
     Yt := fStart.Y - Y + fRadius;
-
-    //If new path is longer than old we don't care about it
     if (aWalkDistance >= Visited[Xt,Yt]) then Exit;
+    if not CanWalkHere(X,Y) then Exit;
 
     if CanUse(X,Y) then
       SaveTile(X,Y,aWalkDistance);

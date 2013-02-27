@@ -432,7 +432,7 @@ begin
   //Don't build on allies and/or enemies territory
   TerOwner := fAIFields.Influences.GetBestOwner(X,Y);
   Result := ((TerOwner = fOwner) or (TerOwner = PLAYER_NONE))
-            and fTerrain.CheckPassability(KMPoint(X,Y), CanOwn);
+            and (CanOwn in fTerrain.Land[Y,X].Passability); //Faster than CheckPassability
 end;
 
 
