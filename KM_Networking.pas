@@ -1489,6 +1489,7 @@ procedure TKMNetworking.SetDescription(const Value: string);
 begin
   Assert(IsHost, 'Only host can set description');
   fDescription := Value;
+  fOnMPGameInfoChanged(Self); //Send the description to the server so it is shown in room info
 end;
 
 
@@ -1500,7 +1501,7 @@ begin
 end;
 
 
-//Tell the MasterServer what we know about the game
+//Tell the server what we know about the game
 procedure TKMNetworking.AnnounceGameInfo(aGameTime: TDateTime; aMap: string);
 var MPGameInfo: TMPGameInfo;
 begin

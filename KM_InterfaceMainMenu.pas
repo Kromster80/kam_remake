@@ -208,8 +208,6 @@ type
       Button_MP_FindServer: TKMButton;
       Panel_MPServerDetails: TKMPanel;
         Label_MP_Desc: TKMLabel;
-        Label_MP_Map: TKMLabel;
-        Label_MP_GameTime: TKMLabel;
         Label_MP_Players: TKMLabel;
 
       //PopUps
@@ -1168,11 +1166,9 @@ begin
       with TKMBevel.Create(Panel_MPServerDetails, 0, 0, 320, 465) do Stretch;
       TKMLabel.Create(Panel_MPServerDetails, 8, 6, 304, 20, fTextLibrary[TX_MP_MENU_HEADER_SERVER_DETAILS], fnt_Outline, taCenter);
       TKMLabel.Create(Panel_MPServerDetails, 8, 30, 304, 20, fTextLibrary[TX_MP_MENU_GAME_INFORMATION], fnt_Outline, taLeft);
-      Label_MP_Desc := TKMLabel.Create(Panel_MPServerDetails, 8, 50, 304, 30, '', fnt_Metal, taLeft);
-      Label_MP_Map := TKMLabel.Create(Panel_MPServerDetails, 8, 70, 304, 30, '', fnt_Metal, taLeft);
-      Label_MP_GameTime := TKMLabel.Create(Panel_MPServerDetails, 8, 90, 304, 30, '--:--:--', fnt_Metal, taLeft);
-      TKMLabel.Create(Panel_MPServerDetails, 8, 120, 304, 20, fTextLibrary[TX_MP_MENU_PLAYER_LIST], fnt_Outline, taLeft);
-      Label_MP_Players := TKMLabel.Create(Panel_MPServerDetails, 8, 140, 304, 340, '', fnt_Metal, taLeft);
+      Label_MP_Desc := TKMLabel.Create(Panel_MPServerDetails, 8, 50, 304, 80, '', fnt_Metal, taLeft);
+      TKMLabel.Create(Panel_MPServerDetails, 8, 110, 304, 20, fTextLibrary[TX_MP_MENU_PLAYER_LIST], fnt_Outline, taLeft);
+      Label_MP_Players := TKMLabel.Create(Panel_MPServerDetails, 8, 130, 304, 340, '', fnt_Metal, taLeft);
       Label_MP_Players.Anchors := [akLeft, akTop, akBottom];
 
     Button_MP_Back    := TKMButton.Create(Panel_MultiPlayer,  45, 720, 220, 30, fTextLibrary[TX_MENU_BACK], bsMenu);
@@ -2831,8 +2827,6 @@ begin
   fGameApp.Networking.ServerQuery.RefreshList;
   ColList_Servers.Clear;
   Label_MP_Desc.Caption := '';
-  Label_MP_Map.Caption := '';
-  Label_MP_GameTime.Caption := '';
   Label_MP_Players.Caption := '';
 
   //Do not use 'Show' here as it will also make the parent panel visible
@@ -2951,8 +2945,6 @@ begin
     fServerSelected := False;
     Button_MP_GetIn.Disable;
     Label_MP_Desc.Caption := '';
-    Label_MP_Map.Caption := '';
-    Label_MP_GameTime.Caption := '';
     Label_MP_Players.Caption := '';
     Exit;
   end;
@@ -2963,9 +2955,13 @@ begin
   fSelectedRoomInfo := fGameApp.Networking.ServerQuery.Rooms[ColList_Servers.Rows[ID].Tag];
   fSelectedServerInfo := fGameApp.Networking.ServerQuery.Servers[fSelectedRoomInfo.ServerIndex];
 
-  Label_MP_Desc.Caption := fSelectedRoomInfo.GameInfo.Description;
-  Label_MP_Map.Caption := fSelectedRoomInfo.GameInfo.Map;
-  Label_MP_GameTime.Caption := fSelectedRoomInfo.GameInfo.GetFormattedTime;
+  Label_MP_Desc.Caption := '';
+  //Description might be blank, so don't output a blank line in that case
+  if fSelectedRoomInfo.GameInfo.Description <> '' then
+    Label_MP_Desc.Caption := Label_MP_Desc.Caption + fSelectedRoomInfo.GameInfo.Description + '|';
+  //Append map and time on lines below the description
+  Label_MP_Desc.Caption := Label_MP_Desc.Caption + fSelectedRoomInfo.GameInfo.Map + '|';
+  Label_MP_Desc.Caption := Label_MP_Desc.Caption + fSelectedRoomInfo.GameInfo.GetFormattedTime;
   Label_MP_Players.Caption := fSelectedRoomInfo.GameInfo.Players;
 end;
 
