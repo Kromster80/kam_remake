@@ -62,6 +62,7 @@ type
     fWelcomeMessage: string;
     fServerName: string; // Name of the server we are currently in (shown in the lobby)
     fPassword: string;
+    fDescription: string;
     fEnteringPassword: Boolean;
     fMyIndexOnServer: integer;
     fMyIndex: integer; // In NetPlayers list
@@ -109,6 +110,7 @@ type
     procedure ConnectFailed(const S: string);
     procedure PacketRecieve(aNetClient:TKMNetClient; aSenderIndex:integer; aData:pointer; aLength:cardinal); //Process all commands
     procedure PacketSend(aRecipient:integer; aKind:TKMessageKind; const aText: AnsiString; aParam:integer);
+    procedure SetDescription(const Value: string);
   public
     constructor Create(const aMasterServerAddress:string; aKickTimeout, aPingInterval, aAnnounceInterval:word; aLang:string);
     destructor Destroy; override;
@@ -142,6 +144,7 @@ type
     procedure SendPassword(aPassword: string);
     procedure SetPassword(aPassword: string);
     property Password: string read fPassword;
+    property Description: string read fDescription write SetDescription;
     function ReadyToStart:boolean;
     function CanStart:boolean;
     procedure StartClick; //All required arguments are in our class
@@ -1482,6 +1485,13 @@ begin
 end;
 
 
+procedure TKMNetworking.SetDescription(const Value: string);
+begin
+  Assert(IsHost, 'Only host can set description');
+  fDescription := Value;
+end;
+
+
 procedure TKMNetworking.SetGameState(aState: TNetGameState);
 begin
   fNetGameState := aState;
@@ -1506,14 +1516,15 @@ begin
         ngk_Map:  aMap := fMapInfo.FileName;
         else      aMap := '';
       end;
+      aGameTime := -1;
     end;
-    if (fNetGameState in [lgs_Lobby,lgs_Loading]) then aGameTime := -1;
+    MPGameInfo.Description := fDescription;
     MPGameInfo.Map := aMap;
     MPGameInfo.GameTime := aGameTime;
     MPGameInfo.GameState := NetMPGameState[fNetGameState];
     MPGameInfo.Players := fNetPlayers.GetSimpleAsText;
     MPGameInfo.PlayerCount := fNetPlayers.GetConnectedCount;
-    PacketSend(NET_ADDRESS_SERVER,mk_SetGameInfo,MPGameInfo.GetAsText,0);
+    PacketSend(NET_ADDRESS_SERVER, mk_SetGameInfo, MPGameInfo.GetAsText, 0);
   finally
     MPGameInfo.Free;
   end;

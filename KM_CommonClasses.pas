@@ -54,6 +54,7 @@ type
     GameState: TMPGameState;
     PlayerCount: byte;
     Players: AnsiString;
+    Description: AnsiString;
     Map: AnsiString;
     GameTime: TDateTime;
     function GetFormattedTime: string;
@@ -170,6 +171,7 @@ begin
   M.Read(GameState, SizeOf(GameState));
   M.Read(PlayerCount);
   M.Read(Players);
+  M.Read(Description);
   M.Read(Map);
   M.Read(GameTime, SizeOf(GameTime));
   finally
@@ -189,13 +191,14 @@ end;
 
 
 function TMPGameInfo.GetAsText: string;
-var M:TKMemoryStream;
+var M: TKMemoryStream;
 begin
   M := TKMemoryStream.Create;
 
   M.Write(GameState, SizeOf(GameState));
   M.Write(PlayerCount);
   M.Write(Players);
+  M.Write(Description);
   M.Write(Map);
   M.Write(GameTime, SizeOf(GameTime));
 
