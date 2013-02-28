@@ -100,6 +100,7 @@ begin
   fLog := TKMLog.Create(ExeDir + 'Logs\KaM_' + FormatDateTime('yyyy-mm-dd_hh-nn-ss-zzz', Now) + '.log'); //First thing - create a log
   fLog.DeleteOldLogs;
 
+  //Resolutions are created first so that we could check Settings against them
   fResolutions := TKMResolutions.Create;
 
   //Only after we read settings (fullscreen property and resolutions)

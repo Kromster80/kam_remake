@@ -3,7 +3,7 @@ unit KM_GUIMenuOptions;
 interface
 uses
   Classes, Controls, SysUtils, KromOGLUtils,
-  KM_Controls, KM_Defaults, KM_Settings, KM_Pics,
+  KM_Controls, KM_Defaults, KM_Settings, KM_Pics, KM_Resolutions,
   KM_InterfaceDefaults;
 
 
@@ -12,6 +12,7 @@ type
   private
     fMainSettings: TMainSettings;
     fGameSettings: TGameSettings;
+    fResolutions: TKMResolutions;
 
     //We remember old values to enable/disable "Apply" button dynamicaly
     PrevResolutionId: TResIndex;
@@ -252,7 +253,7 @@ var
   I: Integer;
   ResID, RefID: Integer;
 begin
-  if fMain.Resolutions.Count = 0 then Exit;
+  if fResolutions.Count = 0 then Exit;
 
   DropBox_Options_Resolution.Enabled := CheckBox_Options_FullScreen.Checked;
   DropBox_Options_RefreshRate.Enabled := CheckBox_Options_FullScreen.Checked;
@@ -265,11 +266,11 @@ begin
 
     //Reset refresh rates, because they are different for each resolution
     DropBox_Options_RefreshRate.Clear;
-    for I := 0 to fMain.Resolutions.Items[ResID].RefRateCount - 1 do
+    for I := 0 to fResolutions.Items[ResID].RefRateCount - 1 do
     begin
-      DropBox_Options_RefreshRate.Add(Format('%d Hz', [fMain.Resolutions.Items[ResID].RefRate[I]]));
+      DropBox_Options_RefreshRate.Add(Format('%d Hz', [fResolutions.Items[ResID].RefRate[I]]));
       //Make sure to select something. SelectedRefRate is prefered, otherwise select first
-      if (I = 0) or (fMain.Resolutions.Items[ResID].RefRate[I] = DesiredRefRate) then
+      if (I = 0) or (fResolutions.Items[ResID].RefRate[I] = DesiredRefRate) then
         DropBox_Options_RefreshRate.ItemIndex := I;
     end;
   end;
@@ -282,7 +283,7 @@ begin
       (CheckBox_Options_FullScreen.Checked and ((PrevResolutionId.ResID <> ResID) or
                                                 (PrevResolutionId.RefID <> RefID)));
   //Remember which one we have selected so we can reselect it if the user changes resolution
-  DesiredRefRate := fMain.Resolutions.Items[ResID].RefRate[RefID];
+  DesiredRefRate := fResolutions.Items[ResID].RefRate[RefID];
 end;
 
 
@@ -291,15 +292,15 @@ var
   ResID, RefID: Integer;
   NewResolution: TScreenRes;
 begin
-  if fMain.Resolutions.Count = 0 then Exit;
+  if fResolutions.Count = 0 then Exit;
 
   fMainSettings.FullScreen := CheckBox_Options_FullScreen.Checked;
 
   ResID := DropBox_Options_Resolution.ItemIndex;
   RefID := DropBox_Options_RefreshRate.ItemIndex;
-  NewResolution.Width := fMain.Resolutions.Items[ResID].Width;
-  NewResolution.Height := fMain.Resolutions.Items[ResID].Height;
-  NewResolution.RefRate := fMain.Resolutions.Items[ResID].RefRate[RefID];
+  NewResolution.Width := fResolutions.Items[ResID].Width;
+  NewResolution.Height := fResolutions.Items[ResID].Height;
+  NewResolution.RefRate := fResolutions.Items[ResID].RefRate[RefID];
 
   fMainSettings.Resolution := NewResolution;
   fMain.ReinitRender(True);
@@ -321,24 +322,24 @@ begin
   DropBox_Options_Resolution.Clear;
   DropBox_Options_RefreshRate.Clear;
 
-  R := fMain.Resolutions.GetResolutionIDs(fMainSettings.Resolution);
+  R := fResolutions.GetResolutionIDs(fMainSettings.Resolution);
 
-  if fMain.Resolutions.Count > 0 then
+  if fResolutions.Count > 0 then
   begin
-    for I := 0 to fMain.Resolutions.Count - 1 do
+    for I := 0 to fResolutions.Count - 1 do
     begin
-      DropBox_Options_Resolution.Add(Format('%dx%d', [fMain.Resolutions.Items[I].Width, fMain.Resolutions.Items[I].Height]));
+      DropBox_Options_Resolution.Add(Format('%dx%d', [fResolutions.Items[I].Width, fResolutions.Items[I].Height]));
       if (I = 0) or (I = R.ResID) then
         DropBox_Options_Resolution.ItemIndex := I;
     end;
 
-    for I := 0 to fMain.Resolutions.Items[R.ResID].RefRateCount - 1 do
+    for I := 0 to fResolutions.Items[R.ResID].RefRateCount - 1 do
     begin
-      DropBox_Options_RefreshRate.Add(Format('%d Hz', [fMain.Resolutions.Items[R.ResID].RefRate[I]]));
+      DropBox_Options_RefreshRate.Add(Format('%d Hz', [fResolutions.Items[R.ResID].RefRate[I]]));
       if (I = 0) or (I = R.RefID) then
       begin
         DropBox_Options_RefreshRate.ItemIndex := I;
-        DesiredRefRate := fMain.Resolutions.Items[R.ResID].RefRate[I];
+        DesiredRefRate := fResolutions.Items[R.ResID].RefRate[I];
       end;
     end;
   end
@@ -353,9 +354,9 @@ begin
 
   CheckBox_Options_FullScreen.Checked := fMainSettings.FullScreen;
   //Controls should be disabled, when there is no resolution to choose
-  CheckBox_Options_FullScreen.Enabled := fMain.Resolutions.Count > 0;
-  DropBox_Options_Resolution.Enabled  := (fMainSettings.FullScreen) and (fMain.Resolutions.Count > 0);
-  DropBox_Options_RefreshRate.Enabled := (fMainSettings.FullScreen) and (fMain.Resolutions.Count > 0);
+  CheckBox_Options_FullScreen.Enabled := fResolutions.Count > 0;
+  DropBox_Options_Resolution.Enabled  := (fMainSettings.FullScreen) and (fResolutions.Count > 0);
+  DropBox_Options_RefreshRate.Enabled := (fMainSettings.FullScreen) and (fResolutions.Count > 0);
 
   PrevResolutionId := R;
   Button_Options_ResApply.Disable;
@@ -369,6 +370,7 @@ begin
   //Ideally we could pass them as parameters here
   fMainSettings := fMain.Settings;
   fGameSettings := fGameApp.GameSettings;
+  fResolutions := fMain.Resolutions;
 
   Refresh;
   Panel_Options.Show;
