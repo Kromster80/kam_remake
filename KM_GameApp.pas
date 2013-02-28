@@ -203,6 +203,9 @@ procedure TKMGameApp.ToggleLocale(aLocale: ShortString);
 begin
   Assert(fGame = nil, 'We don''t want to recreate whole fGame for that. Let''s limit it only to MainMenu');
 
+  fMainMenuInterface.ShowScreen(msLoading, fTextLibrary[TX_MENU_NEW_LOCALE]);
+  Render; //Force to repaint information screen
+
   fTimerUI.Enabled := False; //Disable it while switching, if an OpenAL error appears the timer should be disabled
   fGameSettings.Locale := aLocale; //Wrong Locale will be ignored
 

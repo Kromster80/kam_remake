@@ -6,6 +6,9 @@ uses
 
 
 type
+  TGUIPage = (gpMainMenu, gpOptions);
+  TGUIEvent = procedure (Sender: TObject; Dest: TGUIPage) of object;
+
   TKMUserInterface = class
   protected
     fMyControls: TKMMasterControl;

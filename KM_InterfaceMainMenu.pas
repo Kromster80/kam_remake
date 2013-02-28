@@ -7,8 +7,9 @@ uses
   {$IFDEF WDC} ShellAPI, {$ENDIF} //Required for OpenURL in Delphi
   {$IFDEF FPC} LCLIntf, {$ENDIF} //Required for OpenURL in Lazarus
   StrUtils, SysUtils, KromUtils, KromOGLUtils, Math, Classes, Forms, Controls,
-  KM_Controls, KM_Defaults, KM_Settings, KM_Maps, KM_Campaigns, KM_Saves, KM_Pics,
-  KM_InterfaceDefaults, KM_Minimap, KM_ServerQuery;
+  KM_Controls, KM_Defaults, KM_Maps, KM_Campaigns, KM_Saves, KM_Pics,
+  KM_InterfaceDefaults, KM_Minimap, KM_ServerQuery,
+  KM_GUIMenuOptions;
 
 
 const
@@ -16,7 +17,6 @@ const
 
 type
   TMenuScreen = (msError, msLoading, msMain, msOptions, msResults, msResultsMP);
-
 
   TKMMainMenuInterface = class (TKMUserInterface)
   private
@@ -40,13 +40,11 @@ type
     fLastMapCRC: Cardinal; //CRC of selected map
     fLastSaveCRC: Cardinal; //CRC of selected save
 
-    //We remember old values to enable "Apply" button dynamicaly
-    OldResolutionID: TResIndex;
-    SelectedRefRate: Integer;
-
     fSingleLoc: Integer;
     fSingleLocations: array [0..MAX_PLAYERS - 1] of Byte; //Lookup
     fSingleColor: TColor4;
+
+    fOptions: TKMGUIMainOptions;
 
     procedure Create_MainMenu;
     procedure Create_SinglePlayer;
@@ -58,12 +56,12 @@ type
     procedure Create_Lobby;
     procedure Create_MapEditor;
     procedure Create_Replays;
-    procedure Create_Options;
     procedure Create_Credits;
     procedure Create_Loading;
     procedure Create_Error;
     procedure Create_Results;
     procedure Create_ResultsMP;
+    procedure PageChange(Sender: TObject; Dest: TGUIPage);
     procedure SwitchMenuPage(Sender: TObject);
     procedure MainMenu_MultiplayerClick(Sender: TObject);
     procedure MainMenu_PlayTutorial(Sender: TObject);
@@ -161,13 +159,6 @@ type
     procedure MapEditor_RefreshList(aJumpToSelected:Boolean);
     procedure MapEditor_ColumnClick(aValue: Integer);
     procedure MapEditor_SelectMap(Sender: TObject);
-
-    procedure Options_Fill(aMainSettings: TMainSettings; aGameSettings: TGameSettings);
-    procedure Options_Change(Sender: TObject);
-    procedure Options_ChangeRes(Sender: TObject);
-    procedure Options_ApplyRes(Sender: TObject);
-    procedure Options_FlagClick(Sender: TObject);
-    procedure Options_Refresh_DropBoxes;
 
     procedure Results_GraphToggle(Sender: TObject);
     procedure ResultsMP_Toggle(Sender: TObject);
@@ -320,29 +311,6 @@ type
       Radio_MapEd_MapType: TKMRadioGroup;
       MinimapView_MapEd: TKMMinimapView;
       Button_MapEdBack,Button_MapEd_Create,Button_MapEd_Load: TKMButton;
-    Panel_Options:TKMPanel;
-      Panel_Options_GFX:TKMPanel;
-        TrackBar_Options_Brightness:TKMTrackBar;
-        CheckBox_Options_VSync:TKMCheckBox;
-        RadioGroup_Options_Shadows:TKMRadioGroup;
-      Panel_Options_Ctrl:TKMPanel;
-        TrackBar_Options_ScrollSpeed:TKMTrackBar;
-      Panel_Options_Game:TKMPanel;
-        CheckBox_Options_Autosave:TKMCheckBox;
-      Panel_Options_Sound:TKMPanel;
-        Label_Options_MusicOff: TKMLabel;
-        TrackBar_Options_SFX,TrackBar_Options_Music:TKMTrackBar;
-        CheckBox_Options_MusicOff:TKMCheckBox;
-        CheckBox_Options_ShuffleOn:TKMCheckBox;
-      Panel_Options_Lang:TKMPanel;
-        Radio_Options_Lang:TKMRadioGroup;
-        Image_Options_Lang_Flags:array of TKMImage;
-      Panel_Options_Res:TKMPanel;
-        CheckBox_Options_FullScreen:TKMCheckBox;
-        DropBox_Options_Resolution:TKMDropList;
-        DropBox_Options_RefreshRate:TKMDropList;
-        Button_Options_ResApply:TKMButton;
-      Button_Options_Back:TKMButton;
     Panel_Credits:TKMPanel;
       Label_Credits_KaM:TKMLabelScroll;
       Label_Credits_Remake:TKMLabelScroll;
@@ -452,7 +420,8 @@ begin
     Create_Lobby;
   Create_MapEditor;
   Create_Replays;
-  Create_Options;
+  fOptions := TKMGUIMainOptions.Create(Panel_Main);
+  fOptions.OnPageChange := PageChange;
   Create_Credits;
   Create_Loading;
   Create_Error;
@@ -490,6 +459,9 @@ begin
   fSaves.Free;
   fSavesMP.Free;
   fMinimap.Free;
+
+  fOptions.Free;
+
   inherited;
 end;
 
@@ -1677,111 +1649,6 @@ begin
 end;
 
 
-procedure TKMMainMenuInterface.Create_Options;
-var I: Integer;
-begin
-  Panel_Options:=TKMPanel.Create(Panel_Main,0,0,Panel_Main.Width, Panel_Main.Height);
-  Panel_Options.Stretch;
-    with TKMImage.Create(Panel_Options,705,220,round(207*1.3),round(295*1.3),6,rxGuiMain) do
-    begin
-      ImageStretch;
-      Anchors := [akLeft];
-    end;
-
-    //Controls section
-    Panel_Options_Ctrl:=TKMPanel.Create(Panel_Options,120,130,220,80);
-    Panel_Options_Ctrl.Anchors := [akLeft];
-      TKMLabel.Create(Panel_Options_Ctrl,6,0,288,20,fTextLibrary[TX_MENU_OPTIONS_CONTROLS],fnt_Outline,taLeft);
-      TKMBevel.Create(Panel_Options_Ctrl,0,20,220,60);
-
-      TrackBar_Options_ScrollSpeed := TKMTrackBar.Create(Panel_Options_Ctrl,10,27,180,OPT_SLIDER_MIN,OPT_SLIDER_MAX);
-      TrackBar_Options_ScrollSpeed.Caption := fTextLibrary[TX_MENU_OPTIONS_SCROLL_SPEED];
-      TrackBar_Options_ScrollSpeed.OnChange := Options_Change;
-
-    //Gameplay section
-    Panel_Options_Game:=TKMPanel.Create(Panel_Options,120,230,220,50);
-    Panel_Options_Game.Anchors := [akLeft];
-      TKMLabel.Create(Panel_Options_Game,6,0,188,20,fTextLibrary[TX_MENU_OPTIONS_GAMEPLAY],fnt_Outline,taLeft);
-      TKMBevel.Create(Panel_Options_Game,0,20,220,30);
-
-      CheckBox_Options_Autosave := TKMCheckBox.Create(Panel_Options_Game,12,27,196,20,fTextLibrary[TX_MENU_OPTIONS_AUTOSAVE], fnt_Metal);
-      CheckBox_Options_Autosave.OnClick := Options_Change;
-
-    //Graphics section
-    Panel_Options_GFX:=TKMPanel.Create(Panel_Options,360,300,220,178);
-    Panel_Options_GFX.Anchors := [akLeft];
-      TKMLabel.Create(Panel_Options_GFX,6,0,188,20,fTextLibrary[TX_MENU_OPTIONS_GRAPHICS],fnt_Outline,taLeft);
-      TKMBevel.Create(Panel_Options_GFX,0,20,220,158);
-      TrackBar_Options_Brightness:=TKMTrackBar.Create(Panel_Options_GFX,10,27,180,OPT_SLIDER_MIN,OPT_SLIDER_MAX);
-      TrackBar_Options_Brightness.Caption := fTextLibrary[TX_MENU_OPTIONS_BRIGHTNESS];
-      TrackBar_Options_Brightness.OnChange:=Options_Change;
-      CheckBox_Options_VSync := TKMCheckBox.Create(Panel_Options_GFX, 10, 90, 200, 20, fTextLibrary[TX_MENU_OPTIONS_VSYNC], fnt_Metal);
-      CheckBox_Options_VSync.OnClick := Options_Change;
-      TKMLabel.Create(Panel_Options_GFX,10,120,200,20,fTextLibrary[TX_MENU_OPTIONS_SHADOW_QUALITY],fnt_Metal,taLeft);
-      RadioGroup_Options_Shadows := TKMRadioGroup.Create(Panel_Options_GFX,10,138,200,32, fnt_Metal);
-      RadioGroup_Options_Shadows.Add(fTextLibrary[TX_MENU_OPTIONS_SHADOW_QUALITY_LOW]);
-      RadioGroup_Options_Shadows.Add(fTextLibrary[TX_MENU_OPTIONS_SHADOW_QUALITY_HIGH]);
-      RadioGroup_Options_Shadows.OnChange := Options_Change;
-
-    //SFX section
-    Panel_Options_Sound:=TKMPanel.Create(Panel_Options,120,300,220,167);
-    Panel_Options_Sound.Anchors := [akLeft];
-      TKMLabel.Create(Panel_Options_Sound,6,0,188,20,fTextLibrary[TX_MENU_OPTIONS_SOUND],fnt_Outline,taLeft);
-      TKMBevel.Create(Panel_Options_Sound,0,20,220,147);
-
-      TrackBar_Options_SFX       := TKMTrackBar.Create(Panel_Options_Sound, 10, 27, 180, OPT_SLIDER_MIN, OPT_SLIDER_MAX);
-      TrackBar_Options_Music     := TKMTrackBar.Create(Panel_Options_Sound, 10, 77, 180, OPT_SLIDER_MIN, OPT_SLIDER_MAX);
-      CheckBox_Options_MusicOff  := TKMCheckBox.Create(Panel_Options_Sound, 12, 127, 196, 20, fTextLibrary[TX_MENU_OPTIONS_MUSIC_DISABLE], fnt_Metal);
-      CheckBox_Options_ShuffleOn := TKMCheckBox.Create(Panel_Options_Sound, 12, 147, 196, 20, fTextLibrary[TX_MENU_OPTIONS_MUSIC_SHUFFLE], fnt_Metal);
-      TrackBar_Options_SFX.Caption   := fTextLibrary[TX_MENU_SFX_VOLUME];
-      TrackBar_Options_Music.Caption := fTextLibrary[TX_MENU_MUSIC_VOLUME];
-      TrackBar_Options_SFX.OnChange      := Options_Change;
-      TrackBar_Options_Music.OnChange    := Options_Change;
-      CheckBox_Options_MusicOff.OnClick  := Options_Change;
-      CheckBox_Options_ShuffleOn.OnClick := Options_Change;
-
-    //Resolutions section
-    Panel_Options_Res := TKMPanel.Create(Panel_Options, 360, 130, 210, 160);
-    Panel_Options_Res.Anchors := [akLeft];
-      TKMLabel.Create(Panel_Options_Res, 6, 0, 188, 20, fTextLibrary[TX_MENU_OPTIONS_RESOLUTION], fnt_Outline, taLeft);
-      TKMBevel.Create(Panel_Options_Res, 0, 20, 220, 140);
-
-      CheckBox_Options_FullScreen := TKMCheckBox.Create(Panel_Options_Res, 12, 30, 176, 20, fTextLibrary[TX_MENU_OPTIONS_FULLSCREEN], fnt_Metal);
-      CheckBox_Options_FullScreen.OnClick := Options_ChangeRes;
-
-      DropBox_Options_Resolution := TKMDropList.Create(Panel_Options_Res, 10, 50, 180, 20, fnt_Metal, '', bsMenu);
-      DropBox_Options_Resolution.OnChange := Options_ChangeRes;
-
-      DropBox_Options_RefreshRate := TKMDropList.Create(Panel_Options_Res, 10, 85, 180, 20, fnt_Metal, '', bsMenu);
-      DropBox_Options_RefreshRate.OnChange := Options_ChangeRes;
-
-      Button_Options_ResApply := TKMButton.Create(Panel_Options_Res, 10, 120, 180, 30, fTextLibrary[TX_MENU_OPTIONS_APPLY], bsMenu);
-      Button_Options_ResApply.OnClick := Options_ApplyRes;
-
-    //Language section
-    Panel_Options_Lang:=TKMPanel.Create(Panel_Options,600,130,240,30+fLocales.Count*20);
-    Panel_Options_Lang.Anchors := [akLeft];
-      TKMLabel.Create(Panel_Options_Lang,6,0,242,20,fTextLibrary[TX_MENU_OPTIONS_LANGUAGE],fnt_Outline,taLeft);
-      TKMBevel.Create(Panel_Options_Lang,0,20,260,10+fLocales.Count*20);
-
-      Radio_Options_Lang := TKMRadioGroup.Create(Panel_Options_Lang, 28, 27, 220, 20*fLocales.Count, fnt_Metal);
-      SetLength(Image_Options_Lang_Flags,fLocales.Count);
-      for i := 0 to fLocales.Count - 1 do
-      begin
-        Radio_Options_Lang.Add(fLocales[i].Title);
-        Image_Options_Lang_Flags[i] := TKMImage.Create(Panel_Options_Lang,6,28+(i*20),16,11,fLocales[i].FlagSpriteID,rxGuiMain);
-        Image_Options_Lang_Flags[i].Tag := i;
-        Image_Options_Lang_Flags[i].OnClick := Options_FlagClick;
-      end;
-      Radio_Options_Lang.OnChange := Options_Change;
-
-    //Back button
-    Button_Options_Back:=TKMButton.Create(Panel_Options,120,630,220,30,fTextLibrary[TX_MENU_BACK],bsMenu);
-    Button_Options_Back.Anchors := [akLeft];
-    Button_Options_Back.OnClick:=SwitchMenuPage;
-end;
-
-
 procedure TKMMainMenuInterface.Create_Credits;
 const OFFSET = 312;
 begin
@@ -2090,6 +1957,19 @@ begin
 end;
 
 
+procedure TKMMainMenuInterface.PageChange(Sender: TObject; Dest: TGUIPage);
+var
+  I: Integer;
+begin
+  //Hide all other pages
+  for I := 1 to Panel_Main.ChildCount do
+    if Panel_Main.Childs[I] is TKMPanel then
+      Panel_Main.Childs[I].Hide;
+
+  Panel_MainMenu.Show;
+end;
+
+
 procedure TKMMainMenuInterface.SwitchMenuPage(Sender: TObject);
 var I: Integer;
 begin
@@ -2123,13 +2003,6 @@ begin
   begin
     Panel_MultiPlayer.Show;
     MP_ServersRefresh(Sender);
-  end;
-
-  {Return to MainMenu and restore resolution changes}
-  if Sender = Button_Options_Back then
-  begin
-    fMain.Settings.SaveSettings;
-    Panel_MainMenu.Show;
   end;
 
   {Show SinglePlayer menu}
@@ -2235,8 +2108,7 @@ begin
   {Show Options menu}
   if Sender=Button_MM_Options then
   begin
-    Options_Fill(fMain.Settings, fGameApp.GameSettings);
-    Panel_Options.Show;
+    fOptions.Show;
   end;
 
   {Show Credits}
@@ -4276,188 +4148,6 @@ begin
     MinimapView_MapEd.Hide;
     fLastMapCRC := 0;
   end;
-end;
-
-
-//This is called when the options page is shown, so update all the values
-//Note: Options can be required to fill before fGameApp is completely initialized,
-//hence we need to pass either fGameApp.Settings or a direct Settings link
-procedure TKMMainMenuInterface.Options_Fill(aMainSettings: TMainSettings; aGameSettings: TGameSettings);
-begin
-  CheckBox_Options_Autosave.Checked     := aGameSettings.Autosave;
-  TrackBar_Options_Brightness.Position  := aGameSettings.Brightness;
-  CheckBox_Options_VSync.Checked        := aMainSettings.VSync;
-  RadioGroup_Options_Shadows.ItemIndex  := Byte(aGameSettings.AlphaShadows);
-  TrackBar_Options_ScrollSpeed.Position := aGameSettings.ScrollSpeed;
-  TrackBar_Options_SFX.Position         := Round(aGameSettings.SoundFXVolume * TrackBar_Options_SFX.MaxValue);
-  TrackBar_Options_Music.Position       := Round(aGameSettings.MusicVolume * TrackBar_Options_Music.MaxValue);
-  CheckBox_Options_MusicOff.Checked     := aGameSettings.MusicOff;
-  TrackBar_Options_Music.Enabled        := not CheckBox_Options_MusicOff.Checked;
-  CheckBox_Options_ShuffleOn.Checked    := aGameSettings.ShuffleOn;
-  CheckBox_Options_ShuffleOn.Enabled    := not CheckBox_Options_MusicOff.Checked;
-
-  Radio_Options_Lang.ItemIndex := fLocales.GetIDFromCode(aGameSettings.Locale);
-
-  //we need to reset dropboxes every time we enter Options page
-  Options_Refresh_DropBoxes;
-end;
-
-
-procedure TKMMainMenuInterface.Options_Change(Sender: TObject);
-var
-  MusicToggled, ShuffleToggled: Boolean;
-begin
-  //Change these options only if they changed state since last time
-  MusicToggled := (fGameApp.GameSettings.MusicOff <> CheckBox_Options_MusicOff.Checked);
-  ShuffleToggled := (fGameApp.GameSettings.ShuffleOn <> CheckBox_Options_ShuffleOn.Checked);
-
-  fGameApp.GameSettings.Autosave         := CheckBox_Options_Autosave.Checked;
-  fGameApp.GameSettings.Brightness       := TrackBar_Options_Brightness.Position;
-  fMain.Settings.VSync                   := CheckBox_Options_VSync.Checked;
-  fGameApp.GameSettings.AlphaShadows     := RadioGroup_Options_Shadows.ItemIndex = 1;
-  fGameApp.GameSettings.ScrollSpeed      := TrackBar_Options_ScrollSpeed.Position;
-  fGameApp.GameSettings.SoundFXVolume    := TrackBar_Options_SFX.Position / TrackBar_Options_SFX.MaxValue;
-  fGameApp.GameSettings.MusicVolume      := TrackBar_Options_Music.Position / TrackBar_Options_Music.MaxValue;
-  fGameApp.GameSettings.MusicOff         := CheckBox_Options_MusicOff.Checked;
-  fGameApp.GameSettings.ShuffleOn        := CheckBox_Options_ShuffleOn.Checked;
-  TrackBar_Options_Music.Enabled        := not CheckBox_Options_MusicOff.Checked;
-  CheckBox_Options_ShuffleOn.Enabled    := not CheckBox_Options_MusicOff.Checked;
-
-  fSoundLib.UpdateSoundVolume(fGameApp.GameSettings.SoundFXVolume);
-  fGameApp.MusicLib.UpdateMusicVolume(fGameApp.GameSettings.MusicVolume);
-  SetupVSync(fMain.Settings.VSync);
-  if MusicToggled then
-  begin
-    fGameApp.MusicLib.ToggleMusic(not fGameApp.GameSettings.MusicOff);
-    if not fGameApp.GameSettings.MusicOff then
-      ShuffleToggled := True; //Re-shuffle songs if music has been enabled
-  end;
-  if ShuffleToggled then
-    fGameApp.MusicLib.ToggleShuffle(fGameApp.GameSettings.ShuffleOn);
-
-  if Sender = Radio_Options_Lang then
-  begin
-    ShowScreen(msLoading, fTextLibrary[TX_MENU_NEW_LOCALE]);
-    fGameApp.Render; //Force to repaint loading screen
-    fGameApp.ToggleLocale(fLocales[Radio_Options_Lang.ItemIndex].Code);
-    exit; //Whole interface will be recreated
-  end;
-end;
-
-
-//Apply resolution changes
-procedure TKMMainMenuInterface.Options_ChangeRes(Sender: TObject);
-var
-  I: Integer;
-  ResID, RefID: Integer;
-begin
-  if fMain.Resolutions.Count = 0 then Exit;
-
-  DropBox_Options_Resolution.Enabled := CheckBox_Options_FullScreen.Checked;
-  DropBox_Options_RefreshRate.Enabled := CheckBox_Options_FullScreen.Checked;
-
-  //Repopulate RefreshRates list
-  if Sender = DropBox_Options_Resolution then
-  begin
-    ResID := DropBox_Options_Resolution.ItemIndex;
-    RefID := DropBox_Options_RefreshRate.ItemIndex;
-
-    //Reset refresh rates, because they are different for each resolution
-    DropBox_Options_RefreshRate.Clear;
-    for I := 0 to fMain.Resolutions.Items[ResID].RefRateCount - 1 do
-    begin
-      DropBox_Options_RefreshRate.Add(Format('%d Hz', [fMain.Resolutions.Items[ResID].RefRate[I]]));
-      //Make sure to select something. SelectedRefRate is prefered, otherwise select first
-      if (I = 0) or (fMain.Resolutions.Items[ResID].RefRate[I] = SelectedRefRate) then
-        DropBox_Options_RefreshRate.ItemIndex := I;
-    end;
-  end;
-
-  //Make button enabled only if new resolution/mode differs from old
-  ResID := DropBox_Options_Resolution.ItemIndex;
-  RefID := DropBox_Options_RefreshRate.ItemIndex;
-  Button_Options_ResApply.Enabled :=
-      (fMain.Settings.FullScreen <> CheckBox_Options_FullScreen.Checked) or
-      (CheckBox_Options_FullScreen.Checked and ((OldResolutionID.ResID <> ResID) or
-                                                (OldResolutionID.RefID <> RefID)));
-  //Remember which one we have selected so we can reselect it if the user changes resolution
-  SelectedRefRate := fMain.Resolutions.Items[ResID].RefRate[RefID];
-end;
-
-
-procedure TKMMainMenuInterface.Options_ApplyRes(Sender: TObject);
-var
-  ResID, RefID: Integer;
-  NewResolution: TScreenRes;
-begin
-  if fMain.Resolutions.Count = 0 then Exit;
-
-  fMain.Settings.FullScreen := CheckBox_Options_FullScreen.Checked;
-
-  ResID := DropBox_Options_Resolution.ItemIndex;
-  RefID := DropBox_Options_RefreshRate.ItemIndex;
-  NewResolution.Width := fMain.Resolutions.Items[ResID].Width;
-  NewResolution.Height := fMain.Resolutions.Items[ResID].Height;
-  NewResolution.RefRate := fMain.Resolutions.Items[ResID].RefRate[RefID];
-
-  fMain.Settings.Resolution := NewResolution;
-  fMain.ReinitRender(True);
-end;
-
-
-procedure TKMMainMenuInterface.Options_FlagClick(Sender: TObject);
-begin
-  Assert(Sender is TKMImage);
-  Radio_Options_Lang.ItemIndex := TKMImage(Sender).Tag;
-  Options_Change(Radio_Options_Lang);
-end;
-
-
-//Resets dropboxes, they will have correct values
-procedure TKMMainMenuInterface.Options_Refresh_DropBoxes;
-var I: Integer; R: TResIndex;
-begin
-  DropBox_Options_Resolution.Clear;
-  DropBox_Options_RefreshRate.Clear;
-
-  R := fMain.Resolutions.GetResolutionIDs(fMain.Settings.Resolution);
-
-  if fMain.Resolutions.Count > 0 then
-  begin
-    for I := 0 to fMain.Resolutions.Count - 1 do
-    begin
-      DropBox_Options_Resolution.Add(Format('%dx%d', [fMain.Resolutions.Items[I].Width, fMain.Resolutions.Items[I].Height]));
-      if (I = 0) or (I = R.ResID) then
-        DropBox_Options_Resolution.ItemIndex := I;
-    end;
-
-    for I := 0 to fMain.Resolutions.Items[R.ResID].RefRateCount - 1 do
-    begin
-      DropBox_Options_RefreshRate.Add(Format('%d Hz', [fMain.Resolutions.Items[R.ResID].RefRate[I]]));
-      if (I = 0) or (I = R.RefID) then
-      begin
-        DropBox_Options_RefreshRate.ItemIndex := I;
-        SelectedRefRate := fMain.Resolutions.Items[R.ResID].RefRate[I];
-      end;
-    end;
-  end
-  else
-  begin
-    //no supported resolutions
-    DropBox_Options_Resolution.Add(fTextLibrary[TX_MENU_OPTIONS_RESOLUTION_NOT_SUPPORTED]);
-    DropBox_Options_RefreshRate.Add(fTextLibrary[TX_MENU_OPTIONS_REFRESH_RATE_NOT_SUPPORTED]);
-    DropBox_Options_Resolution.ItemIndex := 0;
-    DropBox_Options_RefreshRate.ItemIndex := 0;
-  end;
-
-  CheckBox_Options_FullScreen.Checked := fMain.Settings.FullScreen;
-  //Controls should be disabled, when there is no resolution to choose
-  CheckBox_Options_FullScreen.Enabled := fMain.Resolutions.Count > 0;
-  DropBox_Options_Resolution.Enabled  := (fMain.Settings.FullScreen) and (fMain.Resolutions.Count > 0);
-  DropBox_Options_RefreshRate.Enabled := (fMain.Settings.FullScreen) and (fMain.Resolutions.Count > 0);
-
-  OldResolutionID := R;
-  Button_Options_ResApply.Disable;
 end;
 
 

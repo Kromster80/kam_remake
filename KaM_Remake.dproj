@@ -148,6 +148,7 @@
 			<DCCReference Include="KM_GameInputProcess_Multi.pas"/>
 			<DCCReference Include="KM_GameInputProcess_Single.pas"/>
 			<DCCReference Include="KM_Goals.pas"/>
+			<DCCReference Include="KM_GUIMenuOptions.pas"/>
 			<DCCReference Include="KM_HouseMarket.pas"/>
 			<DCCReference Include="KM_Houses.pas"/>
 			<DCCReference Include="KM_HTTPClient.pas"/>
