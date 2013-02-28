@@ -61,6 +61,7 @@ Improvements:
  +	L	Draw highlight on houses mentioned in an open message
  +		Fix fences shading along edges of FOW
  +	L	Pressing a key selects the map starting with that letter in map/save lists
+ +    School+Inn and Quarry+Woodcutters are unlocked in pairs to speedup early game
 
  wip	Dismiss button to make units walk into the school and disappear (gold is not refunded)
  wip	Simple dedicated server form which lets you set the properties of the INI for the server and start it [gemGreg]

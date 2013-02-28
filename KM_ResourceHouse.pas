@@ -291,7 +291,7 @@ const
     TabletIcon: 278;
     Input:      (rt_Bread,      rt_Sausages,   rt_Wine,       rt_Fish);
     Output:     (rt_None,       rt_None,       rt_None,       rt_None);
-    ReleasedBy: ht_School;
+    ReleasedBy: ht_Store;
     ),
     ( //Iron mine
     PlanYX:     ((0,0,0,0), (0,0,0,0), (0,0,0,0), (0,1,2,1));
@@ -345,7 +345,7 @@ const
     TabletIcon: 265;
     Input:      (rt_None,       rt_None,       rt_None,       rt_None);
     Output:     (rt_Stone,      rt_None,       rt_None,       rt_None);
-    ReleasedBy: ht_Inn;
+    ReleasedBy: ht_School;
     ),
     ( //Sawmill
     PlanYX:     ((0,0,0,0), (0,0,0,0), (1,1,1,1), (1,2,1,1));
@@ -462,7 +462,7 @@ const
     TabletIcon: 260;
     Input:      (rt_None,       rt_None,       rt_None,       rt_None);
     Output:     (rt_Trunk,      rt_None,       rt_None,       rt_None);
-    ReleasedBy: ht_Quary;
+    ReleasedBy: ht_School;
     )
     );
 
