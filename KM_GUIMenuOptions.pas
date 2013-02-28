@@ -8,8 +8,10 @@ uses
 
 
 type
-  TKMGUIMainOptions = class
+  TKMGUIMainOptions = class {(TKMGUIPage)}
   private
+    fOnPageChange: TGUIEvent; //will be in ancestor class
+
     fMainSettings: TMainSettings;
     fGameSettings: TGameSettings;
     fResolutions: TKMResolutions;
@@ -51,9 +53,7 @@ type
         Button_Options_ResApply: TKMButton;
       Button_Options_Back: TKMButton;
   public
-    OnPageChange: TGUIEvent;
-
-    constructor Create(aParent: TKMPanel);
+    constructor Create(aParent: TKMPanel; aOnPageChange: TGUIEvent);
     destructor Destroy; override;
 
     procedure Show;
@@ -65,11 +65,13 @@ uses KM_Main, KM_TextLibrary, KM_GameApp, KM_Locales, KM_Sound, KM_RenderUI;
 
 
 { TKMGUIMainOptions }
-constructor TKMGUIMainOptions.Create(aParent: TKMPanel);
+constructor TKMGUIMainOptions.Create(aParent: TKMPanel; aOnPageChange: TGUIEvent);
 var
   I: Integer;
 begin
   inherited Create;
+
+  fOnPageChange := aOnPageChange;
 
   //We cant pass pointers to Settings in here cos on GUI creation fMain/fGameApp are not initialized yet
 
@@ -159,12 +161,12 @@ begin
 
       Radio_Options_Lang := TKMRadioGroup.Create(Panel_Options_Lang, 28, 27, 220, 20*fLocales.Count, fnt_Metal);
       SetLength(Image_Options_Lang_Flags,fLocales.Count);
-      for i := 0 to fLocales.Count - 1 do
+      for I := 0 to fLocales.Count - 1 do
       begin
-        Radio_Options_Lang.Add(fLocales[i].Title);
-        Image_Options_Lang_Flags[i] := TKMImage.Create(Panel_Options_Lang,6,28+(i*20),16,11,fLocales[i].FlagSpriteID,rxGuiMain);
-        Image_Options_Lang_Flags[i].Tag := i;
-        Image_Options_Lang_Flags[i].OnClick := FlagClick;
+        Radio_Options_Lang.Add(fLocales[I].Title);
+        Image_Options_Lang_Flags[I] := TKMImage.Create(Panel_Options_Lang,6,28+(I*20),16,11,fLocales[I].FlagSpriteID,rxGuiMain);
+        Image_Options_Lang_Flags[I].Tag := I;
+        Image_Options_Lang_Flags[I].OnClick := FlagClick;
       end;
       Radio_Options_Lang.OnChange := Change;
 
@@ -381,7 +383,7 @@ procedure TKMGUIMainOptions.BackClick(Sender: TObject);
 begin
   //Return to MainMenu and restore resolution changes
   fMainSettings.SaveSettings;
-  OnPageChange(Self, gpMainMenu);
+  fOnPageChange(Self, gpMainMenu);
 end;
 
 

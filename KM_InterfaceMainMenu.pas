@@ -45,6 +45,7 @@ type
     fSingleColor: TColor4;
 
     fOptions: TKMGUIMainOptions;
+    //fPages: array [TGUIPage] of TKMGUIPage;
 
     procedure Create_MainMenu;
     procedure Create_SinglePlayer;
@@ -420,8 +421,7 @@ begin
     Create_Lobby;
   Create_MapEditor;
   Create_Replays;
-  fOptions := TKMGUIMainOptions.Create(Panel_Main);
-  fOptions.OnPageChange := PageChange;
+  fOptions := TKMGUIMainOptions.Create(Panel_Main, PageChange);
   Create_Credits;
   Create_Loading;
   Create_Error;
