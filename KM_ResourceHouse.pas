@@ -47,21 +47,18 @@ type
     fNameTextID: Integer;
     fHouseDat: TKMHouseDat;
     function GetArea:THouseArea;
-    function GetAcceptsGoods:boolean;
     function GetDoesOrders:boolean;
     function GetGUIIcon:word;
     function GetHouseName:string;
-    function GetMaxHealth:word;
     function GetResInput:THouseRes;
     function GetResOutput:THouseRes;
     function GetOwnerType:TUnitType;
-    function GetProducesGoods:boolean;
     function GetReleasedBy:THouseType;
     function GetTabletIcon:word;
   public
     constructor Create(aHouseType:THouseType);
-    function IsValid: Boolean;
     procedure LoadFromStream(Stream:TMemoryStream);
+    //Property accessors:
     //Derived from KaM
     property StonePic:smallint read fHouseDat.StonePic;
     property WoodPic:smallint read fHouseDat.WoodPic;
@@ -83,24 +80,26 @@ type
     property Sight:smallint read fHouseDat.Sight;
     property OwnerType:TUnitType read GetOwnerType;
     //Additional properties added by Remake
-    property AcceptsGoods:boolean read GetAcceptsGoods;
     property BuildArea:THouseArea read GetArea;
     property DoesOrders:boolean read GetDoesOrders;
     property GUIIcon:word read GetGUIIcon;
     property HouseName:string read GetHouseName;
-    property MaxHealth:word read GetMaxHealth;
-    property ProducesGoods:boolean read GetProducesGoods;
     property ReleasedBy:THouseType read GetReleasedBy;
     property ResInput:THouseRes read GetResInput;
     property ResOutput:THouseRes read GetResOutput;
     property TabletIcon:word read GetTabletIcon;
-    procedure GetOutline(aList: TKMPointList);
+    //Functions
+    function AcceptsGoods: Boolean;
+    function IsValid: Boolean;
+    function MaxHealth: Word;
+    function ProducesGoods: Boolean;
+    procedure Outline(aList: TKMPointList);
   end;
 
 
   TKMHouseDatCollection = class
   private
-    fCRC:cardinal;
+    fCRC: Cardinal;
     fItems: array [HOUSE_MIN..HOUSE_MAX] of TKMHouseDatClass;
     //Swine&Horses, 5 beasts in each house, 3 ages for each beast
     fBeastAnim: array[1..2,1..5,1..3] of TKMAnimLoop;
@@ -484,7 +483,7 @@ begin
 end;
 
 
-function TKMHouseDatClass.GetAcceptsGoods: boolean;
+function TKMHouseDatClass.AcceptsGoods: boolean;
 begin
   Result := (ResInput[1] <> rt_None) or //Exclude houses that do not receive resources
             (fHouseType = ht_Marketplace); //Marketplace also accepts goods
@@ -519,14 +518,14 @@ end;
 
 
 //MaxHealth is always a cost of construction * 50
-function TKMHouseDatClass.GetMaxHealth: word;
+function TKMHouseDatClass.MaxHealth: word;
 begin
   Result := (fHouseDat.WoodCost + fHouseDat.StoneCost) * 50;
 end;
 
 
 //Write houses outline into given list
-procedure TKMHouseDatClass.GetOutline(aList: TKMPointList);
+procedure TKMHouseDatClass.Outline(aList: TKMPointList);
 var
   I, K: Integer;
   Tmp: TKMByte2Array;
@@ -557,9 +556,9 @@ begin
 end;
 
 
-function TKMHouseDatClass.GetProducesGoods: boolean;
+function TKMHouseDatClass.ProducesGoods: Boolean;
 begin
-  Result := not (ResOutput[1] in [rt_None,rt_All,rt_Warfare]); //Exclude aggregate types
+  Result := not (ResOutput[1] in [rt_None, rt_All, rt_Warfare]); //Exclude aggregate types
 end;
 
 
@@ -589,7 +588,7 @@ end;
 
 function TKMHouseDatClass.IsValid: boolean;
 begin
-  Result := not (fHouseType in [ht_None, ht_Any]);
+  Result := fHouseType in [HOUSE_MIN..HOUSE_MAX];
 end;
 
 

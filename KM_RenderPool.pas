@@ -954,7 +954,7 @@ begin
   Outline := TKMPointList.Create;
 
   Loc := aHouse.GetPosition;
-  fResource.HouseDat[aHouse.HouseType].GetOutline(Outline);
+  fResource.HouseDat[aHouse.HouseType].Outline(Outline);
 
   glColor3f(0, 1, 1);
   glBegin(GL_LINE_LOOP);
