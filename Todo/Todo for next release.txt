@@ -21,6 +21,7 @@ Known issues to fix:
  +	MP maps are still using auto generated goals. Do we keep it like that? Yes, but "Special" maps don't have auto goals so scripts can customise it
 	Campaign/tutorials show warnings about showing messages with goals being depreciated
 	ALL MP maps will need SET_USER_PLAYER set for them, since when maps were made with Lewin's editor all locations are AI except the first one
+	Games inconsistency: AcrossDesert6p AI town layouts change depending on map revelation for player1 or just randomly?
 
 
 After first RC:
