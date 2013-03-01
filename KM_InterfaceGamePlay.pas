@@ -3772,7 +3772,7 @@ var
   H: TKMHouse;
   MyRect: TRect;
 begin
-  inherited;
+  fMyControls.MouseDown(X,Y,Shift,Button);
 
   if (fGame.IsPaused and not fReplay) or (fMyControls.CtrlOver <> nil) then
     Exit;
@@ -3832,7 +3832,7 @@ var
   P: TKMPoint;
   Group: TKMUnitGroup;
 begin
-  inherited;
+  fMyControls.MouseMove(X,Y,Shift);
 
   if fPlacingBeacon then
   begin
@@ -3979,8 +3979,6 @@ var
   Group, Group2: TKMUnitGroup;
   OldSelected: TObject;
 begin
-  inherited;
-
   if fPlacingBeacon and (Button = mbRight) then
   begin
     Beacon_Cancel;

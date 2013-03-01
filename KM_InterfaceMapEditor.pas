@@ -3345,7 +3345,7 @@ end;
 
 procedure TKMapEdInterface.MouseDown(Button: TMouseButton; Shift: TShiftState; X,Y: Integer);
 begin
-  inherited;
+  fMyControls.MouseDown(X,Y,Shift,Button);
 
   //So terrain brushes start on mouse down not mouse move
   if fMyControls.CtrlOver = nil then
@@ -3358,7 +3358,7 @@ var
   P: TKMPoint;
   Marker: TKMMapEdMarker;
 begin
-  inherited;
+  fMyControls.MouseMove(X,Y,Shift);
 
   if fMyControls.CtrlOver <> nil then
   begin
@@ -3418,9 +3418,8 @@ var
   DP: TAIDefencePosition;
   SelMarker: TKMMapEdMarker;
 begin
-  inherited;
-
-  if fMyControls.CtrlOver <> nil then begin
+  if fMyControls.CtrlOver <> nil then
+  begin
     fMyControls.MouseUp(X,Y,Shift,Button);
     exit; //We could have caused fGame reinit, so exit at once
   end;

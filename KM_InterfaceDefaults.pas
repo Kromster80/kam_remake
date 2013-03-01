@@ -22,9 +22,10 @@ type
     procedure KeyDown(Key: Word; Shift: TShiftState); virtual; abstract;
     procedure KeyPress(Key: Char);
     procedure KeyUp(Key: Word; Shift: TShiftState); virtual; abstract;
-    procedure MouseDown(Button: TMouseButton; Shift: TShiftState; X,Y: Integer); virtual;
-    procedure MouseMove(Shift: TShiftState; X,Y: Integer); virtual;
-    procedure MouseUp(Button: TMouseButton; Shift: TShiftState; X,Y: Integer); virtual;
+    //Child classes don't pass these events to controls depending on their state
+    procedure MouseDown(Button: TMouseButton; Shift: TShiftState; X,Y: Integer); virtual; abstract;
+    procedure MouseMove(Shift: TShiftState; X,Y: Integer); virtual; abstract;
+    procedure MouseUp(Button: TMouseButton; Shift: TShiftState; X,Y: Integer); virtual; abstract;
     procedure MouseWheel(Shift: TShiftState; WheelDelta: Integer; X,Y: Integer);
 
     procedure Resize(X,Y: Word); virtual; abstract;
@@ -170,27 +171,6 @@ end;
 procedure TKMUserInterface.KeyPress(Key: Char);
 begin
   fMyControls.KeyPress(Key);
-end;
-
-
-procedure TKMUserInterface.MouseDown(Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
-begin
-  //It may seem that sometimes Up gets called after mouse moves few more px from last Move event
-  fMyControls.MouseMove(X, Y, Shift);
-  fMyControls.MouseDown(X, Y, Shift, Button);
-end;
-
-
-procedure TKMUserInterface.MouseMove(Shift: TShiftState; X, Y: Integer);
-begin
-  fMyControls.MouseMove(X, Y, Shift);
-end;
-
-
-procedure TKMUserInterface.MouseUp(Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
-begin
-  //Sometimes Up gets called after mouse moves few more px from last Move event
-  fMyControls.MouseMove(X, Y, Shift);
 end;
 
 

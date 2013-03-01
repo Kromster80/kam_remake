@@ -554,7 +554,9 @@ type
     fMinValue: Integer;
     fMaxValue: Integer;
     fPosition: Integer;
-    fThumb: Word; //Length of the thumb
+    fThumbPos: Integer; //Position of the thumb
+    fThumbSize: Word; //Length of the thumb
+    fOffset: Integer;
     fScrollDec: TKMButton;
     fScrollInc: TKMButton;
     fOnChange: TNotifyEvent;
@@ -563,6 +565,7 @@ type
     procedure SetPosition(Value: Integer);
     procedure IncPosition(Sender: TObject);
     procedure DecPosition(Sender: TObject);
+    procedure UpdateThumbPos;
     procedure UpdateThumbSize;
   protected
     procedure SetTop(aValue: Integer); override;
@@ -2554,11 +2557,13 @@ begin
   fPosition := 0;
   fStyle    := aStyle;
 
-  if aScrollAxis = sa_Vertical then begin
+  if aScrollAxis = sa_Vertical then
+  begin
     fScrollDec := TKMButton.Create(aParent, aLeft, aTop, aWidth, aWidth, 591, rxGui, aStyle);
     fScrollInc := TKMButton.Create(aParent, aLeft, aTop+aHeight-aWidth, aWidth, aWidth, 590, rxGui, aStyle);
   end;
-  if aScrollAxis = sa_Horizontal then begin
+  if aScrollAxis = sa_Horizontal then
+  begin
     fScrollDec := TKMButton.Create(aParent, aLeft, aTop, aHeight, aHeight, 2, rxGui, aStyle);
     fScrollInc := TKMButton.Create(aParent, aLeft+aWidth-aHeight, aTop, aHeight, aHeight, 3, rxGui, aStyle);
   end;
@@ -2566,6 +2571,7 @@ begin
   fScrollDec.OnMouseWheel := MouseWheel;
   fScrollInc.OnClick := IncPosition;
   fScrollInc.OnMouseWheel := MouseWheel;
+  UpdateThumbPos;
   UpdateThumbSize;
 end;
 
@@ -2591,6 +2597,7 @@ begin
     fScrollInc.Top := Round(fTop+fHeight-fWidth);
 
   UpdateThumbSize; //Update Thumb size
+  UpdateThumbPos;
 end;
 
 
@@ -2630,62 +2637,109 @@ end;
 procedure TKMScrollBar.SetPosition(Value: Integer);
 begin
   fPosition := EnsureRange(Value, fMinValue, fMaxValue);
+  UpdateThumbPos;
 end;
 
 
 procedure TKMScrollBar.IncPosition(Sender: TObject);
 begin
   SetPosition(fPosition + 1);
-  if Assigned(fOnChange) then fOnChange(Self);
+
+  if Assigned(fOnChange) then
+    fOnChange(Self);
 end;
 
 
 procedure TKMScrollBar.DecPosition(Sender: TObject);
 begin
   SetPosition(fPosition - 1);
-  if Assigned(fOnChange) then fOnChange(Self);
+
+  if Assigned(fOnChange) then
+    fOnChange(Self);
+end;
+
+
+procedure TKMScrollBar.UpdateThumbPos;
+begin
+  fThumbPos := 0;
+
+  if fMaxValue > fMinValue then
+    case fScrollAxis of
+      sa_Vertical:   fThumbPos := (fPosition-fMinValue)*(Height-Width*2-fThumbSize) div (fMaxValue-fMinValue);
+      sa_Horizontal: fThumbPos := (fPosition-fMinValue)*(Width-Height*2-fThumbSize) div (fMaxValue-fMinValue);
+    end
+  else
+    case fScrollAxis of
+      sa_Vertical:   fThumbPos := Math.max((Height-Width*2-fThumbSize),0) div 2;
+      sa_Horizontal: fThumbPos := Math.max((Width-Height*2-fThumbSize),0) div 2;
+    end;
 end;
 
 
 procedure TKMScrollBar.UpdateThumbSize;
 begin
   case fScrollAxis of
-    sa_Vertical:   fThumb := Math.max(0, (Height-2*Width)) div 4;
-    sa_Horizontal: fThumb := Math.max(0, (Width-2*Height)) div 4;
+    sa_Vertical:   fThumbSize := Math.max(0, (Height-2*Width)) div 4;
+    sa_Horizontal: fThumbSize := Math.max(0, (Width-2*Height)) div 4;
   end;
 end;
 
 
 procedure TKMScrollBar.MouseDown(X,Y: Integer; Shift: TShiftState; Button: TMouseButton);
+var
+  T: Integer;
 begin
   inherited;
+
+  fOffset := 0;
+  case fScrollAxis of
+    sa_Vertical:    begin
+                      T := Y - Top - Width - fThumbPos;
+                      if InRange(T, 0, fThumbSize) then
+                        fOffset := T - fThumbSize div 2;
+                    end;
+    sa_Horizontal:  begin
+                      T := X - Left - Height - fThumbPos;
+                      if InRange(T, 0, fThumbSize) then
+                        fOffset := T - fThumbSize div 2;
+                    end;
+  end;
+
   MouseMove(X,Y,Shift); //Will change Position and call OnChange event
 end;
 
 
 procedure TKMScrollBar.MouseMove(X,Y: Integer; Shift: TShiftState);
-var NewPos: Integer;
+var
+  NewPos: Integer;
+  T: Integer;
 begin
   inherited;
+  if not (ssLeft in Shift) then Exit;
 
   NewPos := fPosition;
-  if (ssLeft in Shift) then
+
+  case fScrollAxis of
+    sa_Vertical:
+      begin
+        T := Y - fOffset - Top - Width;
+        if InRange(T, 0, Height - Width * 2) then
+          NewPos := Round(fMinValue+((T - fThumbSize / 2) / (Height-Width*2-fThumbSize)) * (fMaxValue - fMinValue) );
+      end;
+
+    sa_Horizontal:
+      begin
+        T := X - fOffset - Left - Height;
+        if InRange(T, 0, Width - Height * 2) then
+          NewPos := Round(fMinValue+((T - fThumbSize / 2) / (Width-Height*2-fThumbSize)) * (fMaxValue - fMinValue) );
+      end;
+  end;
+
+  if NewPos <> fPosition then
   begin
-
-    if fScrollAxis = sa_Vertical then
-      if InRange(Y,Top+Width,Top+Height-Width) then
-        NewPos := Round(fMinValue+((Y-Top-Width-fThumb/2)/(Height-Width*2-fThumb)) * (fMaxValue - fMinValue) );
-
-    if fScrollAxis = sa_Horizontal then
-      if InRange(X,Left+Height,Left+Width-Height) then
-        NewPos := Round(fMinValue+((X-Left-Height-fThumb/2)/(Width-Height*2-fThumb)) * (fMaxValue - fMinValue) );
-
-    if NewPos <> fPosition then begin
-      SetPosition(NewPos);
-      if Assigned(fOnChange) then
-        fOnChange(Self);
-    end;
-
+    SetPosition(NewPos);
+    if Assigned(fOnChange) then
+      fOnChange(Self);
   end;
 end;
 
@@ -2700,34 +2754,23 @@ end;
 
 procedure TKMScrollBar.Paint;
 var
-  ThumbPos: Word;
   ButtonState: TButtonStateSet;
 begin
   inherited;
-  ThumbPos := 0;
 
   case fScrollAxis of
     sa_Vertical:   TKMRenderUI.WriteBevel(Left, Top+Width, Width, Height - Width*2, EdgeAlpha, BackAlpha);
     sa_Horizontal: TKMRenderUI.WriteBevel(Left+Height, Top, Width - Height*2, Height, EdgeAlpha, BackAlpha);
   end;
 
-  if fMaxValue > fMinValue then begin
-    case fScrollAxis of
-      sa_Vertical:   ThumbPos := (fPosition-fMinValue)*(Height-Width*2-fThumb) div (fMaxValue-fMinValue);
-      sa_Horizontal: ThumbPos := (fPosition-fMinValue)*(Width-Height*2-fThumb) div (fMaxValue-fMinValue);
-    end;
-    ButtonState := [];
-  end else begin
-    case fScrollAxis of
-      sa_Vertical:   ThumbPos := Math.max((Height-Width*2-fThumb),0) div 2;
-      sa_Horizontal: ThumbPos := Math.max((Width-Height*2-fThumb),0) div 2;
-    end;
+  if fMaxValue > fMinValue then
+    ButtonState := []
+  else
     ButtonState := [bsDisabled];
-  end;
 
   case fScrollAxis of
-    sa_Vertical:   TKMRenderUI.Write3DButton(Left,Top+Width+ThumbPos,Width,fThumb,rxGui,0,$FFFF00FF,ButtonState,fStyle);
-    sa_Horizontal: TKMRenderUI.Write3DButton(Left+Height+ThumbPos,Top,fThumb,Height,rxGui,0,$FFFF00FF,ButtonState,fStyle);
+    sa_Vertical:   TKMRenderUI.Write3DButton(Left,Top+Width+fThumbPos,Width,fThumbSize,rxGui,0,$FFFF00FF,ButtonState,fStyle);
+    sa_Horizontal: TKMRenderUI.Write3DButton(Left+Height+fThumbPos,Top,fThumbSize,Height,rxGui,0,$FFFF00FF,ButtonState,fStyle);
   end;
 end;
 

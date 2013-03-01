@@ -367,6 +367,7 @@ type
 
     procedure KeyDown(Key:Word; Shift: TShiftState); override;
     procedure KeyUp(Key:Word; Shift: TShiftState); override;
+    procedure MouseDown(Button: TMouseButton; Shift: TShiftState; X,Y: Integer); override;
     procedure MouseMove(Shift: TShiftState; X,Y: Integer); override;
     procedure MouseUp(Button: TMouseButton; Shift: TShiftState; X,Y: Integer); override;
 
@@ -4163,10 +4164,16 @@ begin
 end;
 
 
+procedure TKMMainMenuInterface.MouseDown(Button: TMouseButton; Shift: TShiftState; X,Y: Integer);
+begin
+  fMyControls.MouseDown(X,Y,Shift,Button);
+end;
+
+
 //Do something related to mouse movement in menu
 procedure TKMMainMenuInterface.MouseMove(Shift: TShiftState; X,Y: Integer);
 begin
-  inherited;
+  fMyControls.MouseMove(X,Y,Shift);
 
   if (Panel_Campaign.Visible)
   and (Y > Panel_Campaign.Top + Panel_Campaign.Height - Panel_CampScroll.Height) then
@@ -4180,10 +4187,8 @@ end;
 
 procedure TKMMainMenuInterface.MouseUp(Button: TMouseButton; Shift: TShiftState; X,Y: Integer);
 begin
-  inherited;
-
   fMyControls.MouseUp(X,Y,Shift,Button);
-  Exit; //We could have caused fGameApp reinit, so exit at once
+  Exit; //We could have caused fGameApp reinit (i.e. resolution change), so exit at once
 end;
 
 
