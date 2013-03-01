@@ -411,12 +411,14 @@ begin
 end;
 
 
+//How many houses of certain type we have (assume all wip houses will be finished)
 function TKMayor.HouseCount(aHouse: THouseType): Integer;
 begin
   Result := fPlayers[fOwner].Stats.GetHouseQty(aHouse) + fPlayers[fOwner].Stats.GetHouseWip(aHouse);
 end;
 
 
+//These houses are core for town development
 procedure TKMayor.BuildCore;
 begin
   with fDemandCore do
@@ -916,29 +918,27 @@ procedure TKMayor.UpdateBalanceFood;
   var
     CornProductionRate, CornConsumptionRate: Single;
   begin
-    //@Krom: It actually only takes 4 corn to produce 1 beast (3 stages of growing, next one harvests it)
-    //       I'm struggling to understand the logic below, so could you change 5 to 4 in cases where it's refering to the
-    //       amount of corn required to grow 1 beast?
     CornProductionRate := HouseCount(ht_Farm) * ProductionRate[rt_Corn];
+    //With stable production rate we can assume consumption rate that would be required
     CornConsumptionRate := HouseCount(ht_Mill) * ProductionRate[rt_Flour]
-                         + HouseCount(ht_Swine) * ProductionRate[rt_Pig] * 5
-                         + HouseCount(ht_Stables) * ProductionRate[rt_Horse] * 5;
+                         + HouseCount(ht_Swine) * ProductionRate[rt_Pig] * 4
+                         + HouseCount(ht_Stables) * ProductionRate[rt_Horse] * 4;
 
     if CornProductionRate >= CornConsumptionRate then
     begin
       //Let every industry think the extra belongs to it
       fDemandFood.Bread.FarmTheory := (CornProductionRate - CornConsumptionRate + HouseCount(ht_Mill) * ProductionRate[rt_Flour]) * 2;
-      fDemandFood.Sausages.FarmTheory := (CornProductionRate - CornConsumptionRate + HouseCount(ht_Swine) * ProductionRate[rt_Pig] * 5) / 5 * 3;
-      fDemandWeaponry.WoodenArmor.FarmTheory := (CornProductionRate - CornConsumptionRate + HouseCount(ht_Swine) * ProductionRate[rt_Skin] * 5) / 5 * 2;
-      fDemandWeaponry.Horse.FarmTheory := (CornProductionRate - CornConsumptionRate + HouseCount(ht_Stables) * ProductionRate[rt_Horse] * 5) / 5;
+      fDemandFood.Sausages.FarmTheory := (CornProductionRate - CornConsumptionRate + HouseCount(ht_Swine) * ProductionRate[rt_Pig] * 4) / 4 * 3;
+      fDemandWeaponry.WoodenArmor.FarmTheory := (CornProductionRate - CornConsumptionRate + HouseCount(ht_Swine) * ProductionRate[rt_Skin] * 4) / 4 * 2;
+      fDemandWeaponry.Horse.FarmTheory := (CornProductionRate - CornConsumptionRate + HouseCount(ht_Stables) * ProductionRate[rt_Horse] * 4) / 4;
     end
     else
     begin
       //Share proportionaly
       fDemandFood.Bread.FarmTheory := CornProductionRate / CornConsumptionRate * (HouseCount(ht_Mill) * ProductionRate[rt_Flour]) * 2;
-      fDemandFood.Sausages.FarmTheory := (CornProductionRate / CornConsumptionRate * HouseCount(ht_Swine) * ProductionRate[rt_Pig]) / 5 * 3;
-      fDemandWeaponry.WoodenArmor.FarmTheory := (CornProductionRate / CornConsumptionRate * HouseCount(ht_Swine) * ProductionRate[rt_Skin] * 5) / 5 * 2;
-      fDemandWeaponry.Horse.FarmTheory := (CornProductionRate / CornConsumptionRate * HouseCount(ht_Stables) * ProductionRate[rt_Horse]) / 5;
+      fDemandFood.Sausages.FarmTheory := (CornProductionRate / CornConsumptionRate * HouseCount(ht_Swine) * ProductionRate[rt_Pig]) / 4 * 3;
+      fDemandWeaponry.WoodenArmor.FarmTheory := (CornProductionRate / CornConsumptionRate * HouseCount(ht_Swine) * ProductionRate[rt_Skin] * 4) / 4 * 2;
+      fDemandWeaponry.Horse.FarmTheory := (CornProductionRate / CornConsumptionRate * HouseCount(ht_Stables) * ProductionRate[rt_Horse]) / 4;
     end;
   end;
 var
@@ -983,6 +983,7 @@ begin
           + Format('  Food value: %.2f + %.2f + %.2f + %.2f|', [BreadProduction * BREAD_RESTORE, SausagesProduction * SAUSAGE_RESTORE, WineProduction * WINE_RESTORE, FishProduction * FISH_RESTORE]);
   end;
 end;
+
 
 //Tell Mayor what proportions of army is needed
 procedure TKMayor.SetArmyDemand(FootmenDemand, PikemenDemand, HorsemenDemand, ArchersDemand: Single);
