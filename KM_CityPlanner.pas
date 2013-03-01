@@ -156,7 +156,7 @@ function TKMCityPlanner.NextToGrass(aTarget, aHouse: THouseType; out aLoc: TKMPo
     FieldCount: Integer;
   begin
     Result := False;
-    if fPlayers[fOwner].CanAddHousePlanAI(aX, aY, aHouse, False)
+    if fPlayers[fOwner].CanAddHousePlanAI(aX, aY, aHouse, True)
     and (aHouse in [ht_Farm, ht_Wineyard]) then
     begin
       FieldCount := 0;
@@ -216,7 +216,7 @@ begin
   BestBid := MaxSingle;
   for I := Max(TargetLoc.Y - RAD, 1) to Min(TargetLoc.Y + RAD, fTerrain.MapY - 1) do
   for K := Max(TargetLoc.X - RAD, 1) to Min(TargetLoc.X + RAD, fTerrain.MapX - 1) do
-    if P.CanAddHousePlanAI(K, I, aHouse, False) then
+    if P.CanAddHousePlanAI(K, I, aHouse, True) then
     begin
       Bid := KMLengthDiag(KMPoint(K,I), TargetLoc) - fAIFields.Influences.Ownership[fOwner,I,K] + KaMRandom * 5;
       if (Bid < BestBid) then
@@ -255,7 +255,7 @@ begin
   BestBid := MaxSingle;
   for I := StoneLoc.Loc.Y to Min(StoneLoc.Loc.Y + 6, fTerrain.MapY - 1) do
   for K := Max(StoneLoc.Loc.X - 6, 1) to Min(StoneLoc.Loc.X + 6, fTerrain.MapX - 1) do
-  if fPlayers[fOwner].CanAddHousePlanAI(K, I, ht_Quary, False) then
+  if fPlayers[fOwner].CanAddHousePlanAI(K, I, ht_Quary, True) then
   begin
     Bid := KMLength(KMPoint(K,I), TargetLoc) - fAIFields.Influences.Ownership[fOwner,I,K] / 10 + KaMRandom * 5;
     if (Bid < BestBid) then
@@ -356,7 +356,7 @@ begin
   BestBid := MaxSingle;
   for I := Max(TreeLoc.Y - HUT_RAD, 1) to Min(TreeLoc.Y + HUT_RAD, fTerrain.MapY - 1) do
   for K := Max(TreeLoc.X - HUT_RAD, 1) to Min(TreeLoc.X + HUT_RAD, fTerrain.MapX - 1) do
-    if fPlayers[fOwner].CanAddHousePlanAI(K, I, aHouse, False) then
+    if fPlayers[fOwner].CanAddHousePlanAI(K, I, aHouse, True) then
     begin
       Bid := KMLength(KMPoint(K,I), TargetLoc) + KaMRandom * 5;
       if (Bid < BestBid) then
@@ -408,11 +408,11 @@ begin
   case FindType of
     fnStone:  Result := (fTerrain.TileIsStone(X, Max(Y-1, 1)) > 1);
     fnCoal:   Result := (fTerrain.TileIsCoal(X, Y) > 1)
-                         and fPlayers[fOwner].CanAddHousePlanAI(X, Y, ht_CoalMine, True);
+                         and fPlayers[fOwner].CanAddHousePlanAI(X, Y, ht_CoalMine, False);
     fnIron:   Result := (fTerrain.TileIsIron(X, Max(Y-1, 1)) > 0)
-                         and fPlayers[fOwner].CanAddHousePlanAI(X, Y, ht_IronMine, True);
+                         and fPlayers[fOwner].CanAddHousePlanAI(X, Y, ht_IronMine, False);
     fnGold:   Result := (fTerrain.TileIsGold(X, Max(Y-1, 1)) > 0)
-                         and fPlayers[fOwner].CanAddHousePlanAI(X, Y, ht_GoldMine, True);
+                         and fPlayers[fOwner].CanAddHousePlanAI(X, Y, ht_GoldMine, False);
     else      Result := False;
   end;
 end;

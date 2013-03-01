@@ -97,7 +97,7 @@ type
     function CanAddFieldPlan(aLoc: TKMPoint; aFieldType: TFieldType): Boolean;
     function CanAddFakeFieldPlan(aLoc: TKMPoint; aFieldType: TFieldType): Boolean;
     function CanAddHousePlan(aLoc: TKMPoint; aHouseType: THouseType): Boolean;
-    function CanAddHousePlanAI(aX, aY: Word; aHouseType: THouseType; aIgnoreInfluence: Boolean): Boolean;
+    function CanAddHousePlanAI(aX, aY: Word; aHouseType: THouseType; aCheckInfluence: Boolean): Boolean;
 
     procedure AddRoadToList(aLoc: TKMPoint);
     //procedure AddRoadConnect(LocA,LocB: TKMPoint);
@@ -464,7 +464,7 @@ begin
 end;
 
 
-function TKMPlayer.CanAddHousePlanAI(aX, aY: Word; aHouseType: THouseType; aIgnoreInfluence: Boolean): Boolean;
+function TKMPlayer.CanAddHousePlanAI(aX, aY: Word; aHouseType: THouseType; aCheckInfluence: Boolean): Boolean;
 var
   I, K, J, S, T, Tx, Ty: Integer;
   HA: THouseArea;
@@ -490,12 +490,12 @@ begin
     Result := Result and not fTerrain.CheckPassability(KMPoint(Tx, Ty), CanWalkRoad);
 
     //Check if tile's blocked
-    Result := Result and (aIgnoreInfluence or not AI_GEN_INFLUENCE_MAPS or (fAIFields.Influences.AvoidBuilding[Ty, Tx] = 0));
+    Result := Result and (not aCheckInfluence or not AI_GEN_INFLUENCE_MAPS or (fAIFields.Influences.AvoidBuilding[Ty, Tx] = 0));
 
     if not Result then Exit;
 
     //Check ownership for entrance (good enough since it does not changes that fast)
-    if not aIgnoreInfluence and (HA[I,K] = 2) then
+    if aCheckInfluence and (HA[I,K] = 2) then
     begin
       TerOwner := fAIFields.Influences.GetBestOwner(K,I);
       Result := Result and ((TerOwner = fPlayerIndex) or (TerOwner = PLAYER_NONE));
