@@ -15,6 +15,7 @@
  +	Map/save/replay lists are populated a lot faster now
  +	Citizens graph no longer counts recruits
  +	Better understanding of coop missions in lobby (don't require user to set teams and AI players, don't reveal map in preview, etc.)
+ +	Replays would mismatch if a player attempted to use a storehouse cheat pattern (the cheat was allowed in the replay causing a mismatch)
 	Armour smithy has shields as 2nd ouput, armour workshop has shields as 1st output. Would make sense to match them (note: simpply swapping in KM_ResourceHouses causes game logic to be swapped with GUI)
 	Armour smithy has iron as 1st input, weapon smithy has iron as 2nd input (iron/coal swapped). Would make sense to match them (note: simpply swapping in KM_ResourceHouses causes game logic to be swapped with GUI)
 	Deliveries should use the actual walking route length (opposed to Radius)

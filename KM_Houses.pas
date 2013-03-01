@@ -1683,7 +1683,8 @@ var
 begin
   Assert(aRes in [WARE_MIN .. WARE_MAX]); //Dunno why thats happening sometimes..
 
-  if CHEATS_ENABLED and (MULTIPLAYER_CHEATS or not fGame.IsMultiplayer) then
+  //We need to skip cheats in MP replays too, not just MP games, so don't use fGame.IsMultiplayer
+  if CHEATS_ENABLED and (MULTIPLAYER_CHEATS or not (fGame.GameMode in [gmMulti, gmReplayMulti])) then
   begin
     ApplyCheat := True;
 
