@@ -30,7 +30,7 @@ type
 
     function NextToOre(aHouse: THouseType; aOreType: TResourceType; out aLoc: TKMPoint): Boolean;
     function NextToHouse(aTarget: array of THouseType; aHouse: THouseType; out aLoc: TKMPoint): Boolean;
-    function FindPlaceForQuary(out aLoc: TKMPoint): Boolean;
+    function NextToStone(out aLoc: TKMPoint): Boolean;
     function NextToTrees(aTarget: array of THouseType; aHouse: THouseType; out aLoc: TKMPoint): Boolean;
     function NextToGrass(aTarget, aHouse: THouseType; out aLoc: TKMPoint): Boolean;
   public
@@ -105,7 +105,7 @@ begin
     ht_GoldMine:      Result := NextToOre(aHouse, rt_GoldOre, aLoc);
     ht_IronMine:      Result := NextToOre(aHouse, rt_IronOre, aLoc);
 
-    ht_Quary:         Result := FindPlaceForQuary(aLoc);
+    ht_Quary:         Result := NextToStone(aLoc);
     ht_Woodcutters:   Result := NextToTrees([ht_Store, ht_Woodcutters], aHouse, aLoc);
     ht_Farm:          Result := NextToGrass(ht_Any, aHouse, aLoc);
     ht_Wineyard:      Result := NextToGrass(ht_Any, aHouse, aLoc);
@@ -186,7 +186,6 @@ begin
   BestBid := MaxSingle;
   for I := Max(TargetLoc.Y - 5, 1) to Min(TargetLoc.Y + 6, fTerrain.MapY - 1) do
   for K := Max(TargetLoc.X - 7, 1) to Min(TargetLoc.X + 7, fTerrain.MapX - 1) do
-  if fAIFields.Influences.AvoidBuilding[I,K] = 0 then
   if CanPlaceHouse(aHouse, K, I) then
     begin
       Bid := KMLength(KMPoint(K,I), TargetLoc) + KaMRandom * 4;
@@ -205,7 +204,6 @@ const RAD = 15;
 var
   I, K: Integer;
   Bid, BestBid: Single;
-  TerOwner: TPlayerIndex;
   TargetLoc: TKMPoint;
   P: TKMPlayer;
 begin
@@ -221,8 +219,7 @@ begin
     if P.CanAddHousePlanAI(K, I, aHouse, False) then
     begin
       Bid := KMLengthDiag(KMPoint(K,I), TargetLoc) - fAIFields.Influences.Ownership[fOwner,I,K] + KaMRandom * 5;
-      TerOwner := fAIFields.Influences.GetBestOwner(K,I);
-      if (Bid < BestBid) and ((TerOwner = fOwner) or (TerOwner = PLAYER_NONE)) then
+      if (Bid < BestBid) then
       begin
         aLoc := KMPoint(K,I);
         BestBid := Bid;
@@ -233,12 +230,11 @@ end;
 
 
 //Called when AI needs to find a good spot for new Quary
-function TKMCityPlanner.FindPlaceForQuary(out aLoc: TKMPoint): Boolean;
+function TKMCityPlanner.NextToStone(out aLoc: TKMPoint): Boolean;
 const RAD = 32;
 var
   I, K: Integer;
   Bid, BestBid: Single;
-  TerOwner: TPlayerIndex;
   StoneLoc: TKMPointDir;
   Locs: TKMPointArray;
   TargetLoc: TKMPoint;
@@ -259,12 +255,10 @@ begin
   BestBid := MaxSingle;
   for I := StoneLoc.Loc.Y to Min(StoneLoc.Loc.Y + 6, fTerrain.MapY - 1) do
   for K := Max(StoneLoc.Loc.X - 6, 1) to Min(StoneLoc.Loc.X + 6, fTerrain.MapX - 1) do
-  if (fAIFields.Influences.AvoidBuilding[I,K] = 0)
-  and fPlayers[fOwner].CanAddHousePlanAI(K, I, ht_Quary, False) then
+  if fPlayers[fOwner].CanAddHousePlanAI(K, I, ht_Quary, False) then
   begin
     Bid := KMLength(KMPoint(K,I), TargetLoc) - fAIFields.Influences.Ownership[fOwner,I,K] / 10 + KaMRandom * 5;
-    TerOwner := fAIFields.Influences.GetBestOwner(K,I);
-    if (Bid < BestBid) and ((TerOwner = fOwner) or (TerOwner = PLAYER_NONE)) then
+    if (Bid < BestBid) then
     begin
       aLoc := KMPoint(K,I);
       BestBid := Bid;
@@ -304,6 +298,8 @@ begin
     rt_GoldOre: if not FindNearest(TargetLoc, 40, fnGold, P) then Exit;
   end;
 
+  //todo: If there's no ore AI should not keep calling this over and over again
+
   aLoc := P;
   Result := True;
 end;
@@ -316,7 +312,6 @@ const
 var
   I, K: Integer;
   Bid, BestBid: Single;
-  TerOwner: TPlayerIndex;
   TargetLoc: TKMPoint;
   TreeLoc: TKMPoint;
   Mx, My: SmallInt;
@@ -361,12 +356,10 @@ begin
   BestBid := MaxSingle;
   for I := Max(TreeLoc.Y - HUT_RAD, 1) to Min(TreeLoc.Y + HUT_RAD, fTerrain.MapY - 1) do
   for K := Max(TreeLoc.X - HUT_RAD, 1) to Min(TreeLoc.X + HUT_RAD, fTerrain.MapX - 1) do
-    if (fAIFields.Influences.AvoidBuilding[I,K] = 0)
-    and fPlayers[fOwner].CanAddHousePlanAI(K, I, aHouse, False) then
+    if fPlayers[fOwner].CanAddHousePlanAI(K, I, aHouse, False) then
     begin
       Bid := KMLength(KMPoint(K,I), TargetLoc) + KaMRandom * 5;
-      TerOwner := fAIFields.Influences.GetBestOwner(K,I);
-      if (Bid < BestBid) and ((TerOwner = fOwner) or (TerOwner = PLAYER_NONE)) then
+      if (Bid < BestBid) then
       begin
         aLoc := KMPoint(K,I);
         BestBid := Bid;

@@ -469,12 +469,14 @@ var
   I, K, J, S, T, Tx, Ty: Integer;
   HA: THouseArea;
   EnterOff: ShortInt;
+  TerOwner: TPlayerIndex;
 begin
   //Check if we can place house on terrain, this also makes sure the house is
   //at least 1 tile away from map border (skip that below)
   Result := fTerrain.CanPlaceHouse(KMPoint(aX, aY), aHouseType);
   if not Result then Exit;
 
+  //Perform additional cheks for AI
   HA := fResource.HouseDat[aHouseType].BuildArea;
   EnterOff := fResource.HouseDat[aHouseType].EntranceOffsetX;
   for I := 1 to 4 do
@@ -484,11 +486,21 @@ begin
     Tx := aX + K - 3 - EnterOff;
     Ty := aY + I - 4;
 
-    //Make sure tile in map coords and there's no road below
+    //Make sure tile in map coords and we don't block some road
     Result := Result and not fTerrain.CheckPassability(KMPoint(Tx, Ty), CanWalkRoad);
 
     //Check if tile's blocked
     Result := Result and (aIgnoreInfluence or not AI_GEN_INFLUENCE_MAPS or (fAIFields.Influences.AvoidBuilding[Ty, Tx] = 0));
+
+    if not Result then Exit;
+
+    //Check ownership for entrance (good enough since it does not changes that fast)
+    if not aIgnoreInfluence and (HA[I,K] = 2) then
+    begin
+      TerOwner := fAIFields.Influences.GetBestOwner(K,I);
+      Result := Result and ((TerOwner = fPlayerIndex) or (TerOwner = PLAYER_NONE));
+      if not Result then Exit;
+    end;
 
     //Make sure we can add road below house, full width + 1 on each side
     if (I = 4) then
