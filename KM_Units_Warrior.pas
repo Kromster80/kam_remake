@@ -297,7 +297,7 @@ begin
                                                aLoc.Y-LINK_RADIUS,
                                                aLoc.X+LINK_RADIUS,
                                                aLoc.Y+LINK_RADIUS),
-                                        FoundUnits, True);
+                                        FoundUnits);
 
   for I := 0 to FoundUnits.Count - 1 do
   begin

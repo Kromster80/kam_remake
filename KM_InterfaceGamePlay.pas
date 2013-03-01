@@ -4338,6 +4338,7 @@ begin
   begin
     Label_TeamName.Visible := True; //Only visible while we're using it, otherwise it shows up in other places
     for I := 0 to fTeamNames.Count - 1 do
+    if U.Visible and (MyPlayer.FogOfWar.CheckRevelation(U.PositionF, True) > FOG_OF_WAR_MIN) then
     begin
       U := TKMUnit(fTeamNames[I]);
       Label_TeamName.Caption := fPlayers[U.Owner].PlayerName;
