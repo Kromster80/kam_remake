@@ -10,20 +10,17 @@ type
   TKMCoreBalance = record
     StoreBalance, SchoolBalance, InnBalance, BarracksBalance: Single;
     Balance: Single; //Resulting balance
-    Text: string;
   end;
   TKMMaterialsBalance = record
     WoodcutTheory, SawmillTheory: Single;
     StoneBalance, WoodBalance: Single;
     Balance: Single; //Resulting balance
-    Text: string;
   end;
   TKMWareBalanceGold = record
     CoalTheory, GoldOreTheory, GoldTheory: Single;
     Production: Single; //How much do we produce
     Consumption: Single; //How much is used
     Balance: Single; //Resulting balance
-    Text: string;
   end;
   TKMWareBalanceFood = record
     Bread: record
@@ -36,7 +33,6 @@ type
     Production: Single; //How much food do we produce
     Consumption: Single; //How much food do we use
     Balance: Single; //Resulting balance
-    Text: string;
   end;
   TKMWareBalanceWeaponry = record
     SteelWeapon: record
@@ -66,7 +62,6 @@ type
     WoodenWeaponBalance, WoodenArmorBalance, WoodenShieldBalance,
     HorseBalance: Single;
     Balance: Single; //Resulting balance
-    Text: string;
   end;
 
 type
@@ -85,6 +80,13 @@ type
     fDemandGold: TKMWareBalanceGold;
     fDemandFood: TKMWareBalanceFood;
     fDemandWeaponry: TKMWareBalanceWeaponry;
+
+    //For debugging (doesn't need saving)
+    fDemandCoreText: string;
+    fDemandMaterialsText: string;
+    fDemandGoldText: string;
+    fDemandFoodText: string;
+    fDemandWeaponryText: string;
 
     function HouseCount(aHouse: THouseType): Integer;
     function TryBuildHouse(aHouse: THouseType): Boolean;
@@ -664,6 +666,7 @@ begin
              and (not fCityPlanner.FindNearest(StoreLoc, 30, fnIron, T)
                or not fCityPlanner.FindNearest(StoreLoc, 30, fnCoal, T));
 
+  //todo: This is to be removed? Most players make both iron and wooden at once, maybe we can make the AI do that later?
   fWooden := True;
 end;
 
@@ -773,7 +776,7 @@ begin
     Production := Min(CoalTheory, GoldOreTheory, GoldTheory);
     Consumption := 1;// + Byte(fSetup.Strong); //For now it's a static coef
     Balance := Production - Consumption;
-    Text := Format('Gold balance: %.2f - %.2f = %.2f', [Production, Consumption, Balance]);
+    fDemandGoldText := Format('Gold balance: %.2f - %.2f = %.2f', [Production, Consumption, Balance]);
   end;
 
   //Weaponry
@@ -862,7 +865,7 @@ begin
           + Format('          Horses: min(F%.2f, S%.2f)|',
                    [Horse.FarmTheory, Horse.StablesTheory]);
 
-    Text := S;
+    fDemandWeaponryText := S;
   end;
 end;
 
@@ -882,7 +885,7 @@ begin
     BarracksBalance := HouseCount(ht_Barracks)    - Byte(P.Stats.GetWeaponsProduced > 0);
 
     Balance := Min([StoreBalance, SchoolBalance, InnBalance, BarracksBalance]);
-    Text := Format
+    fDemandCoreText := Format
       ('Core balance: %.2f (Store %.2f, School %.2f, Inn %.2f, Barracks %.2f)',
       [Balance, StoreBalance, SchoolBalance, InnBalance, BarracksBalance]);
   end;
@@ -903,7 +906,7 @@ begin
     WoodBalance     := Min(WoodcutTheory, SawmillTheory) - WOOD_DEMAND;
 
     Balance := Min(StoneBalance, WoodBalance);
-    Text := Format('Materials balance: %.2f (Stone %.2f, Wood %.2f)', [Balance, StoneBalance, WoodBalance]);
+    fDemandMaterialsText := Format('Materials balance: %.2f (Stone %.2f, Wood %.2f)', [Balance, StoneBalance, WoodBalance]);
   end;
 end;
 
@@ -913,6 +916,9 @@ procedure TKMayor.UpdateBalanceFood;
   var
     CornProductionRate, CornConsumptionRate: Single;
   begin
+    //@Krom: It actually only takes 4 corn to produce 1 beast (3 stages of growing, next one harvests it)
+    //       I'm struggling to understand the logic below, so could you change 5 to 4 in cases where it's refering to the
+    //       amount of corn required to grow 1 beast?
     CornProductionRate := HouseCount(ht_Farm) * ProductionRate[rt_Corn];
     CornConsumptionRate := HouseCount(ht_Mill) * ProductionRate[rt_Flour]
                          + HouseCount(ht_Swine) * ProductionRate[rt_Pig] * 5
@@ -971,7 +977,7 @@ begin
 
     Consumption := P.Stats.GetUnitQty(ut_Any) / 40; //On average unit eats each 40min
     Balance := Production - Consumption;
-    Text := Format('Food balance: %.2f - %.2f = %.2f|', [Production, Consumption, Balance])
+    fDemandFoodText := Format('Food balance: %.2f - %.2f = %.2f|', [Production, Consumption, Balance])
           + Format('       Bread: min(F%.2f, M%.2f, B%.2f)|', [Bread.FarmTheory, Bread.MillTheory, Bread.BakeryTheory])
           + Format('    Sausages: min(F%.2f, S%.2f, B%.2f)|', [Sausages.FarmTheory, Sausages.SwineTheory, Sausages.ButchersTheory])
           + Format('  Food value: %.2f + %.2f + %.2f + %.2f|', [BreadProduction * BREAD_RESTORE, SausagesProduction * SAUSAGE_RESTORE, WineProduction * WINE_RESTORE, FishProduction * FISH_RESTORE]);
@@ -996,11 +1002,11 @@ end;
 
 function TKMayor.BalanceText: string;
 begin
-  Result := fDemandCore.Text + '|' +
-            fDemandMaterials.Text + '|' +
-            fDemandGold.Text + '|' +
-            fDemandFood.Text + '|' +
-            fDemandWeaponry.Text;
+  Result := fDemandCoreText + '|' +
+            fDemandMaterialsText + '|' +
+            fDemandGoldText + '|' +
+            fDemandFoodText + '|' +
+            fDemandWeaponryText;
 end;
 
 
@@ -1028,6 +1034,13 @@ procedure TKMayor.Save(SaveStream: TKMemoryStream);
 begin
   SaveStream.Write(fOwner);
   SaveStream.Write(fRoadBelowStore);
+  SaveStream.Write(fWooden);
+
+  SaveStream.Write(fDemandCore, SizeOf(fDemandCore));
+  SaveStream.Write(fDemandMaterials, SizeOf(fDemandMaterials));
+  SaveStream.Write(fDemandGold, SizeOf(fDemandGold));
+  SaveStream.Write(fDemandFood, SizeOf(fDemandFood));
+  SaveStream.Write(fDemandWeaponry, SizeOf(fDemandWeaponry));
 
   fCityPlanner.Save(SaveStream);
   fPathFindingRoad.Save(SaveStream);
@@ -1038,6 +1051,13 @@ procedure TKMayor.Load(LoadStream: TKMemoryStream);
 begin
   LoadStream.Read(fOwner);
   LoadStream.Read(fRoadBelowStore);
+  LoadStream.Read(fWooden);
+
+  LoadStream.Read(fDemandCore, SizeOf(fDemandCore));
+  LoadStream.Read(fDemandMaterials, SizeOf(fDemandMaterials));
+  LoadStream.Read(fDemandGold, SizeOf(fDemandGold));
+  LoadStream.Read(fDemandFood, SizeOf(fDemandFood));
+  LoadStream.Read(fDemandWeaponry, SizeOf(fDemandWeaponry));
 
   fCityPlanner.Load(LoadStream);
   fPathFindingRoad.Load(LoadStream);
