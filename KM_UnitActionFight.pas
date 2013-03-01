@@ -141,7 +141,9 @@ end;
 
 
 procedure TUnitActionFight.MakeSound(IsHit:boolean);
-var MakeBattleCry: boolean;
+var
+  //Battlecry is the most noticable random sound, we would like to repeat it exactly the same in each replay (?)
+  MakeBattleCry: Boolean;
 begin
   //Randomly make a battle cry. KaMRandom must always happen regardless of tile relevation.
   MakeBattleCry := KaMRandom(20) = 0;

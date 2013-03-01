@@ -1039,7 +1039,7 @@ begin
     Exit; //No work is going on
 
   Step := fResource.HouseDat[fHouseType].Anim[Work].Count;
-  if Step=0 then exit;
+  if Step = 0 then Exit;
 
   Step := WorkAnimStep mod Step;
 
@@ -1273,19 +1273,20 @@ end;
 
 //Make beast noises - each beast makes a noise (if it exists) with two second pauses between each one
 procedure TKMHouseSwineStable.MakeSound;
-var i:byte;
+var I: Byte;
 begin
   inherited;
-  if MyPlayer.FogOfWar.CheckTileRevelation(fPosition.X, fPosition.Y, true) < 255 then exit;
-  for i:=0 to 4 do
-    if BeastAge[i+1]>0 then
-      if (FlagAnimStep + 20*i) mod 100 = 0 then
-      begin
-        if fHouseType = ht_Stables then
-          fSoundLib.Play(TSoundFX(byte(sfx_Horse1) + Random(4)), fPosition); //sfx_Horse1..sfx_Horse4
-        if fHouseType = ht_Swine   then
-          fSoundLib.Play(TSoundFX(byte(sfx_Pig1)   + Random(4)), fPosition); //sfx_Pig1..sfx_Pig4
-      end;
+  if MyPlayer.FogOfWar.CheckTileRevelation(fPosition.X, fPosition.Y, true) < 255 then Exit;
+
+  for I := 0 to 4 do
+  if BeastAge[I+1] > 0 then
+  if (FlagAnimStep + 20*I) mod 100 = 0 then
+  begin
+    if fHouseType = ht_Stables then
+      fSoundLib.Play(TSoundFX(byte(sfx_Horse1) + Random(4)), fPosition); //sfx_Horse1..sfx_Horse4
+    if fHouseType = ht_Swine   then
+      fSoundLib.Play(TSoundFX(byte(sfx_Pig1)   + Random(4)), fPosition); //sfx_Pig1..sfx_Pig4
+  end;
 end;
 
 

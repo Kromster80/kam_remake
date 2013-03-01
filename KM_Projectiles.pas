@@ -240,12 +240,16 @@ end;
 
 //Update all items positions and kill some targets
 procedure TKMProjectiles.UpdateState;
-const HTicks = 6; //The number of ticks before hitting that an arrow will make the hit noise
-var i:integer; U:TKMUnit; H:TKMHouse;
-    Damage : Smallint;
+const
+  HTicks = 6; //The number of ticks before hitting that an arrow will make the hit noise
+var
+  I: Integer;
+  U: TKMUnit;
+  H: TKMHouse;
+  Damage: Smallint;
 begin
-  for i:=0 to length(fItems)-1 do
-    with fItems[i] do
+  for I := 0 to Length(fItems) - 1 do
+    with fItems[I] do
       if fSpeed <> 0 then
       begin
         fPosition := fPosition + fSpeed;
@@ -292,7 +296,7 @@ begin
                               U.HitPointsDecrease(U.HitPointsMax, fOwner); //Instant death
             end;
           end;
-          RemItem(i);
+          RemItem(I);
         end;
       end;
 end;
@@ -301,7 +305,7 @@ end;
 //Test wherever projectile is visible (used by rocks thrown from Towers)
 function TKMProjectiles.ProjectileVisible(aIndex:integer):boolean;
 begin
-  if (fItems[aIndex].fType = pt_TowerRock) 
+  if (fItems[aIndex].fType = pt_TowerRock)
   and ((fItems[aIndex].fScreenEnd.Y - fItems[aIndex].fScreenStart.Y) < 0) then
     Result := fItems[aIndex].fPosition >= 0.2 //fly behind a Tower
   else
