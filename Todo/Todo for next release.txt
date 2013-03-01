@@ -51,6 +51,7 @@ Maps:
 	Pawel's fixes for campaign missions that he emailed to us
 	New coop missions and fixes to coop missions (from andreus, kirelareus, pawel?)
 	Final Frontier (To)
+	Pizza's map
 	Shark Islands (andreus and vovets1)
 	To's changes to Accoss the Desert?
 	Get latest version of PAKER's maps and decide whether or not to add any new ones

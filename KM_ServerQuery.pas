@@ -393,7 +393,10 @@ end;
 
 procedure TKMServerQuery.RefreshList;
 begin
-  fMasterServer.QueryServer; //Start the query
+  if LOCAL_SERVER_LIST then
+    ReceiveServerList('Localhost,127.0.0.1,56789') //For debugging
+  else
+    fMasterServer.QueryServer; //Start the query
 end;
 
 
