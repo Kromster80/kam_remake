@@ -28,6 +28,8 @@ type
     function FindNearest(aStart: TKMPoint; aRadius: Byte; aPassability: TPassability; out aEnd: TKMPoint): Boolean; overload;
     function FindNearest(aStart: TKMPoint; aRadius: Byte; aPassability: TPassability; aMaxCount: Word; out aEnd: TKMPointArray): Boolean; overload;
     procedure GetTilesWithinDistance(aStart: TKMPoint; aRadius: Byte; aPass: TPassability; aList: TKMPointList);
+    procedure Save(SaveStream: TKMemoryStream); virtual;
+    procedure Load(LoadStream: TKMemoryStream); virtual;
   end;
 
 
@@ -247,6 +249,18 @@ begin
         if (aPass in fTerrain.Land[I,K].Passability) and (KMLengthDiag(aStart, KMPoint(K,I)) <= aRadius) then
           aList.AddEntry(KMPoint(K,I));
   end;
+end;
+
+
+procedure TKMTerrainFinderCommon.Save(SaveStream: TKMemoryStream);
+begin
+  //Everything we have so far is Temp
+end;
+
+
+procedure TKMTerrainFinderCommon.Load(LoadStream: TKMemoryStream);
+begin
+  //Everything we have so far is Temp
 end;
 
 

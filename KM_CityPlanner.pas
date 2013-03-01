@@ -18,6 +18,8 @@ type
     FindType: TFindNearest;
     constructor Create(aOwner: TPlayerIndex);
     procedure OwnerUpdate(aPlayer: TPlayerIndex);
+    procedure Save(SaveStream: TKMemoryStream); override;
+    procedure Load(LoadStream: TKMemoryStream); override;
   end;
 
   TKMCityPlanner = class
@@ -378,13 +380,15 @@ end;
 
 procedure TKMCityPlanner.Save(SaveStream: TKMemoryStream);
 begin
-  //
+  SaveStream.Write(fOwner);
+  fFinder.Save(SaveStream);
 end;
 
 
 procedure TKMCityPlanner.Load(LoadStream: TKMemoryStream);
 begin
-  //
+  LoadStream.Read(fOwner);
+  fFinder.Load(LoadStream);
 end;
 
 
@@ -426,6 +430,20 @@ begin
   TerOwner := fAIFields.Influences.GetBestOwner(X,Y);
   Result := ((TerOwner = fOwner) or (TerOwner = PLAYER_NONE))
             and (CanOwn in fTerrain.Land[Y,X].Passability); //Faster than CheckPassability
+end;
+
+
+procedure TKMTerrainFinderCity.Save(SaveStream: TKMemoryStream);
+begin
+  inherited;
+  SaveStream.Write(fOwner);
+end;
+
+
+procedure TKMTerrainFinderCity.Load(LoadStream: TKMemoryStream);
+begin
+  inherited;
+  LoadStream.Read(fOwner);
 end;
 
 
