@@ -3550,7 +3550,7 @@ begin
   fLastKeyTime := TimeGet;
 
   for I := 0 to fRowCount - 1 do
-  if StartsText(fSearch, Rows[I].Cells[SearchColumn].Caption) then
+  if AnsiStartsText(fSearch, Rows[I].Cells[SearchColumn].Caption) then
   begin
     fItemIndex := I;
     TopIndex := fItemIndex - GetVisibleRows div 2;

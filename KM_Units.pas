@@ -2290,16 +2290,12 @@ procedure TKMUnitsCollection.UpdateState;
 var
   I: Integer;
 begin
-  //We delete dead units only next tick after they died
-  //so that fPlayers.Selected could register their death and reset (deprecated, now its handled by OnDied event)
   for I := Count - 1 downto 0 do
-  if FREE_POINTERS
-  and Units[I].IsDead and (Units[I].fPointerCount = 0) then
-    fUnits.Delete(I);
-
-  for I := 0 to Count - 1 do
-  if not Units[I].IsDead then
-    Units[I].UpdateState;
+    if not Units[I].IsDead then
+      Units[I].UpdateState
+    else
+      if FREE_POINTERS and (Units[I].fPointerCount = 0) then
+        fUnits.Delete(I);
 
   //   --     POINTER FREEING SYSTEM - DESCRIPTION     --   //
   //  This system was implemented because unit and house objects cannot be freed until all pointers
