@@ -1360,6 +1360,9 @@ begin
                       if (fGameTickCount mod 600 = 0) and fGameApp.GameSettings.Autosave then
                         AutoSave;
 
+                      //if (fGameTickCount mod 10 = 0) then
+                      //  SaveGame(ExeDir + 'SavesLog\' + int2fix(fGameTickCount, 6));
+
                       if DO_PERF_LOGGING then fPerfLog.LeaveSection(psTick);
 
                       //Break the for loop (if we are using speed up)

@@ -614,12 +614,7 @@ end;
 procedure TGameInputProcess.StoreCommand(aCommand: TGameInputCommand);
 begin
   if ReplayState = gipReplaying then
-  begin
-    //Changing MyPlayer affect AI replay which leads to replay mismatch errors soon after
-    //if aCommand.CommandType = gic_TempChangeMyPlayer then
-      //MyPlayer := fPlayers[aCommand.Params[1]];
     Exit;
-  end;
 
   Assert(ReplayState = gipRecording);
   inc(fCount);
