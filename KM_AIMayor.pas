@@ -75,6 +75,7 @@ type
     fRoadBelowStore: Boolean;
     fWooden: Boolean;
 
+    //The following are recalculated before each use, so they don't need saving
     fDemandCore: TKMCoreBalance;
     fDemandMaterials: TKMMaterialsBalance;
     fDemandGold: TKMWareBalanceGold;
@@ -1037,11 +1038,12 @@ begin
   SaveStream.Write(fRoadBelowStore);
   SaveStream.Write(fWooden);
 
-  SaveStream.Write(fDemandCore, SizeOf(fDemandCore));
-  SaveStream.Write(fDemandMaterials, SizeOf(fDemandMaterials));
-  SaveStream.Write(fDemandGold, SizeOf(fDemandGold));
-  SaveStream.Write(fDemandFood, SizeOf(fDemandFood));
-  SaveStream.Write(fDemandWeaponry, SizeOf(fDemandWeaponry));
+  //These are not saved because they are recalculated before each use
+  {LoadStream.Read(fDemandCore, SizeOf(fDemandCore));
+  LoadStream.Read(fDemandMaterials, SizeOf(fDemandMaterials));
+  LoadStream.Read(fDemandGold, SizeOf(fDemandGold));
+  LoadStream.Read(fDemandFood, SizeOf(fDemandFood));
+  LoadStream.Read(fDemandWeaponry, SizeOf(fDemandWeaponry));}
 
   fCityPlanner.Save(SaveStream);
   fPathFindingRoad.Save(SaveStream);
@@ -1054,11 +1056,12 @@ begin
   LoadStream.Read(fRoadBelowStore);
   LoadStream.Read(fWooden);
 
-  LoadStream.Read(fDemandCore, SizeOf(fDemandCore));
+  //These are not saved because they are recalculated before each use
+  {LoadStream.Read(fDemandCore, SizeOf(fDemandCore));
   LoadStream.Read(fDemandMaterials, SizeOf(fDemandMaterials));
   LoadStream.Read(fDemandGold, SizeOf(fDemandGold));
   LoadStream.Read(fDemandFood, SizeOf(fDemandFood));
-  LoadStream.Read(fDemandWeaponry, SizeOf(fDemandWeaponry));
+  LoadStream.Read(fDemandWeaponry, SizeOf(fDemandWeaponry));}
 
   fCityPlanner.Load(LoadStream);
   fPathFindingRoad.Load(LoadStream);

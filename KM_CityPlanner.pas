@@ -382,6 +382,7 @@ procedure TKMCityPlanner.Save(SaveStream: TKMemoryStream);
 begin
   SaveStream.Write(fOwner);
   fFinder.Save(SaveStream);
+  fListGold.SaveToStream(SaveStream);
 end;
 
 
@@ -389,6 +390,7 @@ procedure TKMCityPlanner.Load(LoadStream: TKMemoryStream);
 begin
   LoadStream.Read(fOwner);
   fFinder.Load(LoadStream);
+  fListGold.LoadFromStream(LoadStream);
 end;
 
 
