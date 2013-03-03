@@ -82,23 +82,18 @@ type
   public
     constructor Create(aIDCache: TKMScriptingIdCache);
 	
-    function PlanAddField(aPlayer, X, Y: Word): Boolean;
-    function PlanAddHouse(aPlayer, aHouseType, X, Y: Word): Boolean;
-    function PlanAddRoad(aPlayer, X, Y: Word): Boolean;
-    function PlanAddWinefield(aPlayer, X, Y: Word): Boolean;
     function BarracksEquip(aHouseID: Integer; aUnitType: Integer; aCount: Integer): Integer;
     function GiveAnimal(aType, X,Y: Word): Integer;
     function GiveGroup(aPlayer, aType, X,Y, aDir, aCount, aColumns: Word): Integer;
     function GiveUnit(aPlayer, aType, X,Y, aDir: Word): Integer;
     function GroupOrderSplit(aGroupID: Integer): Integer;
+    function PlanAddField(aPlayer, X, Y: Word): Boolean;
+    function PlanAddHouse(aPlayer, aHouseType, X, Y: Word): Boolean;
+    function PlanAddRoad(aPlayer, X, Y: Word): Boolean;
+    function PlanAddWinefield(aPlayer, X, Y: Word): Boolean;
     function SchoolAddToQueue(aHouseID: Integer; aUnitType: Integer; aCount: Integer): Integer;
-    function SetUnitDirection(aUnitID, aDirection: Integer): Boolean;
-    function UnitOrderWalk(aUnitID: Integer; X, Y: Word): Boolean;
-    procedure HouseAddDamage(aHouseID: Integer; aDamage: Word);
     procedure Defeat(aPlayer: Word);
-    procedure HouseDestroy(aHouseID: Integer);
     procedure GiveWares(aPlayer, aType, aCount: Word);
-    procedure HouseAddWaresTo(aHouseID: Integer; aType, aCount: Word);
     procedure GroupOrderAttackHouse(aGroupID, aHouseID: Integer);
     procedure GroupOrderAttackUnit(aGroupID, aUnitID: Integer);
     procedure GroupOrderFood(aGroupID: Integer);
@@ -107,17 +102,22 @@ type
     procedure GroupOrderStorm(aGroupID: Integer);
     procedure GroupOrderWalk(aGroupID: Integer; X, Y, aDirection: Word);
     procedure GroupSetFormation(aGroupID: Integer; aNumColumns: Byte);
-    procedure UnitKill(aUnitID: Integer);
-    procedure RevealCircle(aPlayer, X, Y, aRadius: Word);
-    procedure SetHouseAllowed(aPlayer, aHouseType: Word; aAllowed: Boolean);
-    procedure SetHouseDeliveryBlocked(aHouseID: Integer; aDeliveryBlocked: Boolean);
+    procedure HouseAddDamage(aHouseID: Integer; aDamage: Word);
+    procedure HouseAddWaresTo(aHouseID: Integer; aType, aCount: Word);
+    procedure HouseDestroy(aHouseID: Integer);
     procedure HouseRepairEnable(aHouseID: Integer; aRepairEnabled: Boolean);
+    procedure RevealCircle(aPlayer, X, Y, aRadius: Word);
+    procedure HouseAllow(aPlayer, aHouseType: Word; aAllowed: Boolean);
+    procedure HouseDeliveryBlock(aHouseID: Integer; aDeliveryBlocked: Boolean);
     procedure SetOverlayText(aPlayer, aIndex: Word);
     procedure SetOverlayTextFormatted(aPlayer, aIndex: Word; const Args: array of const);
     procedure SetTradeAllowed(aPlayer, aResType: Word; aAllowed: Boolean);
-    procedure SetUnitHunger(aUnitID, aHungerLevel: Integer);
     procedure ShowMsg(aPlayer, aIndex: Word);
     procedure ShowMsgFormatted(aPlayer, aIndex: Word; const Args: array of const);
+    function UnitDirectionSet(aUnitID, aDirection: Integer): Boolean;
+    procedure UnitHungerSet(aUnitID, aHungerLevel: Integer);
+    procedure UnitKill(aUnitID: Integer);
+    function  UnitOrderWalk(aUnitID: Integer; X, Y: Word): Boolean;
     procedure UnlockHouse(aPlayer, aHouseType: Word);
     procedure Victory(const aVictors: array of Integer; aTeamVictory: Boolean);
   end;
@@ -923,14 +923,14 @@ begin
 end;
 
 
-procedure TKMScriptActions.SetHouseAllowed(aPlayer, aHouseType: Word; aAllowed: Boolean);
+procedure TKMScriptActions.HouseAllow(aPlayer, aHouseType: Word; aAllowed: Boolean);
 begin
   //Verify all input parameters
   if InRange(aPlayer, 0, fPlayers.Count - 1)
   and (aHouseType in [Low(HouseIndexToType) .. High(HouseIndexToType)]) then
     fPlayers[aPlayer].Stats.HouseBlocked[HouseIndexToType[aHouseType]] := aAllowed
   else
-    LogError('Actions.SetHouseAllowed', [aPlayer, aHouseType, Byte(aAllowed)]);
+    LogError('Actions.HouseAllow', [aPlayer, aHouseType, Byte(aAllowed)]);
 end;
 
 
@@ -1008,7 +1008,7 @@ begin
 end;
 
 
-procedure TKMScriptActions.SetHouseDeliveryBlocked(aHouseID: Integer; aDeliveryBlocked: Boolean);
+procedure TKMScriptActions.HouseDeliveryBlock(aHouseID: Integer; aDeliveryBlocked: Boolean);
 var H: TKMHouse;
 begin
   if aHouseID > 0 then
@@ -1018,7 +1018,7 @@ begin
       H.WareDelivery := not aDeliveryBlocked;
   end
   else
-    LogError('Actions.SetHouseDeliveryBlocked', [aHouseID, Byte(aDeliveryBlocked)]);
+    LogError('Actions.HouseDeliveryBlock', [aHouseID, Byte(aDeliveryBlocked)]);
 end;
 
 
@@ -1141,7 +1141,7 @@ begin
 end;
 
 
-procedure TKMScriptActions.SetUnitHunger(aUnitID, aHungerLevel: Integer);
+procedure TKMScriptActions.UnitHungerSet(aUnitID, aHungerLevel: Integer);
 var U: TKMUnit;
 begin
   aHungerLevel := Round(aHungerLevel / CONDITION_PACE);
@@ -1152,11 +1152,11 @@ begin
       U.Condition := aHungerLevel;
   end
   else
-    LogError('Actions.SetUnitHunger', [aUnitID, aHungerLevel]);
+    LogError('Actions.UnitHungerSet', [aUnitID, aHungerLevel]);
 end;
 
 
-function TKMScriptActions.SetUnitDirection(aUnitID, aDirection: Integer): Boolean;
+function TKMScriptActions.UnitDirectionSet(aUnitID, aDirection: Integer): Boolean;
 var U: TKMUnit;
 begin
   Result := False;
@@ -1171,7 +1171,7 @@ begin
     end;
   end
   else
-    LogError('Actions.SetUnitDirection', [aUnitID, aDirection]);
+    LogError('Actions.UnitDirectionSet', [aUnitID, aDirection]);
 end;
 
 
