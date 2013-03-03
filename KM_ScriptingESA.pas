@@ -82,10 +82,10 @@ type
   public
     constructor Create(aIDCache: TKMScriptingIdCache);
 	
-    function AddFieldPlan(aPlayer, X, Y: Word): Boolean;
-    function AddHousePlan(aPlayer, aHouseType, X, Y: Word): Boolean;
-    function AddRoadPlan(aPlayer, X, Y: Word): Boolean;
-    function AddWinefieldPlan(aPlayer, X, Y: Word): Boolean;
+    function PlanAddField(aPlayer, X, Y: Word): Boolean;
+    function PlanAddHouse(aPlayer, aHouseType, X, Y: Word): Boolean;
+    function PlanAddRoad(aPlayer, X, Y: Word): Boolean;
+    function PlanAddWinefield(aPlayer, X, Y: Word): Boolean;
     function BarracksEquip(aHouseID: Integer; aUnitType: Integer; aCount: Integer): Integer;
     function GiveAnimal(aType, X,Y: Word): Integer;
     function GiveGroup(aPlayer, aType, X,Y, aDir, aCount, aColumns: Word): Integer;
@@ -94,7 +94,7 @@ type
     function SchoolAddToQueue(aHouseID: Integer; aUnitType: Integer; aCount: Integer): Integer;
     function SetUnitDirection(aUnitID, aDirection: Integer): Boolean;
     function UnitOrderWalk(aUnitID: Integer; X, Y: Word): Boolean;
-    procedure AddHouseDamage(aHouseID: Integer; aDamage: Word);
+    procedure HouseAddDamage(aHouseID: Integer; aDamage: Word);
     procedure Defeat(aPlayer: Word);
     procedure HouseDestroy(aHouseID: Integer);
     procedure GiveWares(aPlayer, aType, aCount: Word);
@@ -945,7 +945,7 @@ begin
 end;
 
 
-procedure TKMScriptActions.AddHouseDamage(aHouseID: Integer; aDamage: Word);
+procedure TKMScriptActions.HouseAddDamage(aHouseID: Integer; aDamage: Word);
 var H: TKMHouse;
 begin
   if aHouseID > 0 then
@@ -955,7 +955,7 @@ begin
       H.AddDamage(-1, aDamage);
   end
   else
-    LogError('Actions.AddHouseDamage', [aHouseID, aDamage]);
+    LogError('Actions.HouseAddDamage', [aHouseID, aDamage]);
 end;
 
 
@@ -1068,7 +1068,7 @@ begin
 end;
 
 
-function TKMScriptActions.AddRoadPlan(aPlayer, X, Y: Word): Boolean;
+function TKMScriptActions.PlanAddRoad(aPlayer, X, Y: Word): Boolean;
 begin
   Result := False;
   //Verify all input parameters
@@ -1082,11 +1082,11 @@ begin
     end;
   end
   else
-    LogError('Actions.AddRoadPlan', [aPlayer, X, Y]);
+    LogError('Actions.PlanAddRoad', [aPlayer, X, Y]);
 end;
 
 
-function TKMScriptActions.AddFieldPlan(aPlayer, X, Y: Word): Boolean;
+function TKMScriptActions.PlanAddField(aPlayer, X, Y: Word): Boolean;
 begin
   Result := False;
   //Verify all input parameters
@@ -1100,11 +1100,11 @@ begin
     end;
   end
   else
-    LogError('Actions.AddFieldPlan', [aPlayer, X, Y]);
+    LogError('Actions.PlanAddField', [aPlayer, X, Y]);
 end;
 
 
-function TKMScriptActions.AddWinefieldPlan(aPlayer, X, Y: Word): Boolean;
+function TKMScriptActions.PlanAddWinefield(aPlayer, X, Y: Word): Boolean;
 begin
   Result := False;
   //Verify all input parameters
@@ -1118,11 +1118,11 @@ begin
     end;
   end
   else
-    LogError('Actions.AddWinefieldPlan', [aPlayer, X, Y]);
+    LogError('Actions.PlanAddWinefield', [aPlayer, X, Y]);
 end;
 
 
-function TKMScriptActions.AddHousePlan(aPlayer, aHouseType, X, Y: Word): Boolean;
+function TKMScriptActions.PlanAddHouse(aPlayer, aHouseType, X, Y: Word): Boolean;
 begin
   Result := False;
   //Verify all input parameters
@@ -1137,7 +1137,7 @@ begin
     end;
   end
   else
-    LogError('Actions.AddHousePlan', [aPlayer, aHouseType, X, Y]);
+    LogError('Actions.PlanAddHouse', [aPlayer, aHouseType, X, Y]);
 end;
 
 

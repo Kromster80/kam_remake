@@ -183,10 +183,10 @@ begin
 
     with Sender.AddClassN(nil, fActions.ClassName) do
     begin
-      RegisterMethod('function AddFieldPlan(aPlayer, X, Y: Word): Boolean');
-      RegisterMethod('function AddHousePlan(aPlayer, aHouseType, X, Y: Word): Boolean');
-      RegisterMethod('function AddRoadPlan(aPlayer, X, Y: Word): Boolean');
-      RegisterMethod('function AddWinefieldPlan(aPlayer, X, Y: Word): Boolean');
+      RegisterMethod('function PlanAddField(aPlayer, X, Y: Word): Boolean');
+      RegisterMethod('function PlanAddHouse(aPlayer, aHouseType, X, Y: Word): Boolean');
+      RegisterMethod('function PlanAddRoad(aPlayer, X, Y: Word): Boolean');
+      RegisterMethod('function PlanAddWinefield(aPlayer, X, Y: Word): Boolean');
       RegisterMethod('function BarracksEquip(aHouseID: Integer; aUnitType: Integer; aCount: Integer): Integer');
       RegisterMethod('function GiveAnimal(aType, X,Y: Word): Integer');
       RegisterMethod('function GiveGroup(aPlayer, aType, X, Y, aDir, aCount, aColumns: Word): Integer');
@@ -195,7 +195,7 @@ begin
       RegisterMethod('function SchoolAddToQueue(aHouseID: Integer; aUnitType: Integer; aCount: Integer): Integer');
       RegisterMethod('function SetUnitDirection(aUnitID, aDirection: Integer): Boolean');
       RegisterMethod('function UnitOrderWalk(aUnitID: Integer; X, Y: Word): Boolean');
-      RegisterMethod('procedure AddHouseDamage(aHouseID: Integer; aDamage: Word)');
+      RegisterMethod('procedure HouseAddDamage(aHouseID: Integer; aDamage: Word)');
       RegisterMethod('procedure Defeat(aPlayer: Word)');
       RegisterMethod('procedure HouseDestroy(aHouseID: Integer)');
       RegisterMethod('procedure GiveWares(aPlayer, aType, aCount: Word)');
@@ -382,20 +382,13 @@ begin
 
     with ClassImp.Add(TKMScriptActions) do
     begin
-      RegisterMethod(@TKMScriptActions.AddFieldPlan, 'ADDFIELDPLAN');
-      RegisterMethod(@TKMScriptActions.AddHouseDamage, 'ADDHOUSEDAMAGE');
-      RegisterMethod(@TKMScriptActions.AddHousePlan, 'ADDHOUSEPLAN');
-      RegisterMethod(@TKMScriptActions.AddRoadPlan, 'ADDROADPLAN');
-      RegisterMethod(@TKMScriptActions.AddWinefieldPlan, 'ADDWINEFIELDPLAN');
       RegisterMethod(@TKMScriptActions.BarracksEquip, 'BARRACKSEQUIP');
       RegisterMethod(@TKMScriptActions.Defeat, 'DEFEAT');
-      RegisterMethod(@TKMScriptActions.HouseDestroy, 'HOUSEDESTROY');
       RegisterMethod(@TKMScriptActions.GiveAnimal, 'GIVEANIMAL');
       RegisterMethod(@TKMScriptActions.GiveGroup, 'GIVEGROUP');
       RegisterMethod(@TKMScriptActions.GiveUnit, 'GIVEUNIT');
       RegisterMethod(@TKMScriptActions.GiveWares, 'GIVEWARES');
-      RegisterMethod(@TKMScriptActions.HouseAddWaresTo, 'HOUSEADDWARESTO');
-	  
+
       RegisterMethod(@TKMScriptActions.GroupOrderAttackHouse, 'GROUPORDERATTACKHOUSE');
       RegisterMethod(@TKMScriptActions.GroupOrderAttackUnit, 'GROUPORDERATTACKUNIT');
       RegisterMethod(@TKMScriptActions.GroupOrderFood, 'GROUPORDERFOOD');
@@ -405,7 +398,16 @@ begin
       RegisterMethod(@TKMScriptActions.GroupOrderStorm, 'GROUPORDERSTORM');
       RegisterMethod(@TKMScriptActions.GroupOrderWalk, 'GROUPORDERWALK');
       RegisterMethod(@TKMScriptActions.GroupSetFormation, 'GROUPSETFORMATION');
-	  
+
+      RegisterMethod(@TKMScriptActions.HouseAddDamage, 'HOUSEADDDAMAGE');
+      RegisterMethod(@TKMScriptActions.HouseAddWaresTo, 'HOUSEADDWARESTO');
+      RegisterMethod(@TKMScriptActions.HouseDestroy, 'HOUSEDESTROY');
+
+      RegisterMethod(@TKMScriptActions.PlanAddField, 'PLANADDFIELD');
+      RegisterMethod(@TKMScriptActions.PlanAddHouse, 'PLANADDHOUSE');
+      RegisterMethod(@TKMScriptActions.PlanAddRoad, 'PLANADDROAD');
+      RegisterMethod(@TKMScriptActions.PlanAddWinefield, 'PLANADDWINEFIELD');
+
       RegisterMethod(@TKMScriptActions.UnitKill, 'UNITKILL');
       RegisterMethod(@TKMScriptActions.RevealCircle, 'REVEALCIRCLE');
       RegisterMethod(@TKMScriptActions.SchoolAddToQueue, 'SCHOOLADDTOQUEUE');
