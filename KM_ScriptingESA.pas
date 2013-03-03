@@ -96,9 +96,9 @@ type
     function UnitOrderWalk(aUnitID: Integer; X, Y: Word): Boolean;
     procedure AddHouseDamage(aHouseID: Integer; aDamage: Word);
     procedure Defeat(aPlayer: Word);
-    procedure DestroyHouse(aHouseID: Integer);
+    procedure HouseDestroy(aHouseID: Integer);
     procedure GiveWares(aPlayer, aType, aCount: Word);
-    procedure GiveWaresToHouse(aHouseID: Integer; aType, aCount: Word);
+    procedure HouseAddWaresTo(aHouseID: Integer; aType, aCount: Word);
     procedure GroupOrderAttackHouse(aGroupID, aHouseID: Integer);
     procedure GroupOrderAttackUnit(aGroupID, aUnitID: Integer);
     procedure GroupOrderFood(aGroupID: Integer);
@@ -107,7 +107,7 @@ type
     procedure GroupOrderStorm(aGroupID: Integer);
     procedure GroupOrderWalk(aGroupID: Integer; X, Y, aDirection: Word);
     procedure GroupSetFormation(aGroupID: Integer; aNumColumns: Byte);
-    procedure KillUnit(aUnitID: Integer);
+    procedure UnitKill(aUnitID: Integer);
     procedure RevealCircle(aPlayer, X, Y, aRadius: Word);
     procedure SetHouseAllowed(aPlayer, aHouseType: Word; aAllowed: Boolean);
     procedure SetHouseDeliveryBlocked(aHouseID: Integer; aDeliveryBlocked: Boolean);
@@ -959,7 +959,7 @@ begin
 end;
 
 
-procedure TKMScriptActions.DestroyHouse(aHouseID: Integer);
+procedure TKMScriptActions.HouseDestroy(aHouseID: Integer);
 var H: TKMHouse;
 begin
   if aHouseID > 0 then
@@ -969,11 +969,11 @@ begin
       H.DemolishHouse(-1, False);
   end
   else
-    LogError('Actions.DestroyHouse', [aHouseID]);
+    LogError('Actions.HouseDestroy', [aHouseID]);
 end;
 
 
-procedure TKMScriptActions.GiveWaresToHouse(aHouseID: Integer; aType, aCount: Word);
+procedure TKMScriptActions.HouseAddWaresTo(aHouseID: Integer; aType, aCount: Word);
 var
   H: TKMHouse;
   Res: TResourceType;
@@ -986,11 +986,11 @@ begin
       if H.ResCanAddToIn(Res) then
         H.ResAddToIn(Res, aCount, True)
       else
-        LogError('Actions.GiveWaresToHouse wrong ware type', [aHouseID, aType, aCount]);
+        LogError('Actions.HouseAddWaresTo wrong ware type', [aHouseID, aType, aCount]);
     //Silently ignore if house doesn't exist
   end
   else
-    LogError('Actions.GiveWaresToHouse', [aHouseID, aType, aCount]);
+    LogError('Actions.HouseAddWaresTo', [aHouseID, aType, aCount]);
 end;
 
 
@@ -1194,7 +1194,7 @@ begin
 end;
 
 
-procedure TKMScriptActions.KillUnit(aUnitID: Integer);
+procedure TKMScriptActions.UnitKill(aUnitID: Integer);
 var U: TKMUnit;
 begin
   if (aUnitID > 0) then
@@ -1204,7 +1204,7 @@ begin
       U.KillUnit(-1);
   end
   else
-    LogError('Actions.KillUnit', [aUnitID]);
+    LogError('Actions.UnitKill', [aUnitID]);
 end;
 
 

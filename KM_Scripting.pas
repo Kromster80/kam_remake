@@ -197,9 +197,9 @@ begin
       RegisterMethod('function UnitOrderWalk(aUnitID: Integer; X, Y: Word): Boolean');
       RegisterMethod('procedure AddHouseDamage(aHouseID: Integer; aDamage: Word)');
       RegisterMethod('procedure Defeat(aPlayer: Word)');
-      RegisterMethod('procedure DestroyHouse(aHouseID: Integer)');
+      RegisterMethod('procedure HouseDestroy(aHouseID: Integer)');
       RegisterMethod('procedure GiveWares(aPlayer, aType, aCount: Word)');
-      RegisterMethod('procedure GiveWaresToHouse(aHouseID: Integer; aType, aCount: Word)');
+      RegisterMethod('procedure HouseAddWaresTo(aHouseID: Integer; aType, aCount: Word)');
 	  
       RegisterMethod('procedure GroupOrderAttackHouse(aGroupID, aHouseID: Integer)');
       RegisterMethod('procedure GroupOrderAttackUnit(aGroupID, aUnitID: Integer)');
@@ -209,8 +209,8 @@ begin
       RegisterMethod('procedure GroupOrderStorm(aGroupID: Integer)');
       RegisterMethod('procedure GroupOrderWalk(aGroupID: Integer; X, Y, aDirection: Word)');
       RegisterMethod('procedure GroupSetFormation(aGroupID: Integer; aNumColumns: Byte)');
-	  
-      RegisterMethod('procedure KillUnit(aUnitID: Integer)');
+
+      RegisterMethod('procedure UnitKill(aUnitID: Integer)');
       RegisterMethod('procedure RevealCircle(aPlayer, X, Y, aRadius: Word)');
       RegisterMethod('procedure SetHouseAllowed(aPlayer, aHouseType: Word; aAllowed: Boolean)');
       RegisterMethod('procedure SetHouseDeliveryBlocked(aHouseID: Integer; aDeliveryBlocked: Boolean)');
@@ -389,12 +389,12 @@ begin
       RegisterMethod(@TKMScriptActions.AddWinefieldPlan, 'ADDWINEFIELDPLAN');
       RegisterMethod(@TKMScriptActions.BarracksEquip, 'BARRACKSEQUIP');
       RegisterMethod(@TKMScriptActions.Defeat, 'DEFEAT');
-      RegisterMethod(@TKMScriptActions.DestroyHouse, 'DESTROYHOUSE');
+      RegisterMethod(@TKMScriptActions.HouseDestroy, 'HOUSEDESTROY');
       RegisterMethod(@TKMScriptActions.GiveAnimal, 'GIVEANIMAL');
       RegisterMethod(@TKMScriptActions.GiveGroup, 'GIVEGROUP');
       RegisterMethod(@TKMScriptActions.GiveUnit, 'GIVEUNIT');
       RegisterMethod(@TKMScriptActions.GiveWares, 'GIVEWARES');
-      RegisterMethod(@TKMScriptActions.GiveWaresToHouse, 'GIVEWARESTOHOUSE');
+      RegisterMethod(@TKMScriptActions.HouseAddWaresTo, 'HOUSEADDWARESTO');
 	  
       RegisterMethod(@TKMScriptActions.GroupOrderAttackHouse, 'GROUPORDERATTACKHOUSE');
       RegisterMethod(@TKMScriptActions.GroupOrderAttackUnit, 'GROUPORDERATTACKUNIT');
@@ -406,7 +406,7 @@ begin
       RegisterMethod(@TKMScriptActions.GroupOrderWalk, 'GROUPORDERWALK');
       RegisterMethod(@TKMScriptActions.GroupSetFormation, 'GROUPSETFORMATION');
 	  
-      RegisterMethod(@TKMScriptActions.KillUnit, 'KILLUNIT');
+      RegisterMethod(@TKMScriptActions.UnitKill, 'UNITKILL');
       RegisterMethod(@TKMScriptActions.RevealCircle, 'REVEALCIRCLE');
       RegisterMethod(@TKMScriptActions.SchoolAddToQueue, 'SCHOOLADDTOQUEUE');
       RegisterMethod(@TKMScriptActions.SetHouseAllowed, 'SETHOUSEALLOWED');
