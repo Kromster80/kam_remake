@@ -347,8 +347,9 @@ type
     fFont: TKMFont;
     fFontHeight: Byte;
   public
-    ShapeColor: TColor4;
     Down: Boolean;
+    FontColor: TColor4;
+    ShapeColor: TColor4;
     constructor Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight: Integer; aCaption: string; aFont: TKMFont; aShapeColor: TColor4);
     procedure Paint; override;
   end;
@@ -1938,6 +1939,7 @@ begin
   ShapeColor  := aShapeColor;
   fFont       := aFont;
   fFontHeight := fResource.Fonts.FontData[fFont].Unk1 + 2;
+  FontColor   := $FFFFFFFF;
 end;
 
 
@@ -1951,7 +1953,7 @@ begin
   TKMRenderUI.WriteShape(Left + 1, Top + 1, Width - 2, Width - 2, ShapeColor);
 
   TKMRenderUI.WriteText(Left, Top + (Height - fFontHeight) div 2,
-                      Width, fCaption, fFont, taCenter);
+                      Width, fCaption, fFont, taCenter, FontColor);
 
   if (csOver in State) and fEnabled then
     TKMRenderUI.WriteShape(Left + 1, Top + 1, Width - 2, Height - 2, $40FFFFFF);

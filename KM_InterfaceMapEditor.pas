@@ -1826,6 +1826,8 @@ end;
 
 
 procedure TKMapEdInterface.Player_UpdateColors;
+const
+  CAP_COLOR: array [Boolean] of TColor4 = ($80808080, $FFFFFFFF);
 var
   I: Integer;
 begin
@@ -1841,6 +1843,10 @@ begin
     Button_Warriors[I].FlagColor := MyPlayer.FlagColor;
   Button_Player[ptColor].FlagColor := MyPlayer.FlagColor;
   Button_Reveal.FlagColor := MyPlayer.FlagColor;
+
+  //todo: Move to a better place
+  for I := 0 to MAX_PLAYERS - 1 do
+    Button_PlayerSelect[I].FontColor := CAP_COLOR[(fPlayers[I].Units.Count > 0) or (fPlayers[I].Houses.Count > 0)];
 end;
 
 
