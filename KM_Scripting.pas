@@ -130,92 +130,99 @@ begin
     //After that they can be used from within the script.
     with Sender.AddClassN(nil, fStates.ClassName) do
     begin
-      RegisterMethod('function StatArmyCount(aPlayer: Byte): Integer');
-      RegisterMethod('function StatCitizenCount(aPlayer: Byte): Integer');
-      RegisterMethod('function GameTime: Cardinal');
-      RegisterMethod('function PeaceTime: Cardinal');
       RegisterMethod('function CheckAlliance(aPlayer1, aPlayer2: Byte): Boolean');
-      RegisterMethod('function StatHouseTypeCount(aPlayer, aHouseType: Byte): Integer');
-      RegisterMethod('function StatPlayerCount: Integer');
-      RegisterMethod('function PlayerDefeated(aPlayer: Byte): Boolean');
-      RegisterMethod('function PlayerVictorious(aPlayer: Byte): Boolean');
-      RegisterMethod('function StatUnitCount(aPlayer: Byte): Integer');
-      RegisterMethod('function StatUnitTypeCount(aPlayer, aUnitType: Byte): Integer');
-      RegisterMethod('function PlayerName(aPlayer: Byte): AnsiString');
-      RegisterMethod('function PlayerEnabled(aPlayer: Byte): Boolean');
-      RegisterMethod('function HouseAt(aX, aY: Word): Integer');
-      RegisterMethod('function HouseDestroyed(aHouseID: Integer): Boolean');
-      RegisterMethod('function HouseOwner(aHouseID: Integer): Integer');
-      RegisterMethod('function HouseType(aHouseID: Integer): Integer');
-      RegisterMethod('function HouseDamage(aHouseID: Integer): Integer');
+      RegisterMethod('function GameTime: Cardinal');
       RegisterMethod('function KaMRandom: Single');
       RegisterMethod('function KaMRandomI(aMax:Integer): Integer');
-      RegisterMethod('function UnitAt(aX, aY: Word): Integer');
-      RegisterMethod('function UnitDead(aUnitID: Integer): Boolean');
-      RegisterMethod('function UnitOwner(aUnitID: Integer): Integer');
-      RegisterMethod('function UnitType(aUnitID: Integer): Integer');
-      RegisterMethod('function UnitHunger(aUnitID: Integer): Integer');
-      RegisterMethod('function UnitMaxHunger: Integer');
-      RegisterMethod('function UnitLowHunger: Integer');
-      RegisterMethod('function UnitsGroup(aUnitID: Integer): Integer');
+      RegisterMethod('function PeaceTime: Cardinal');
+
       RegisterMethod('function GroupAt(aX, aY: Word): Integer');
       RegisterMethod('function GroupDead(aGroupID: Integer): Boolean');
-      RegisterMethod('function GroupOwner(aGroupID: Integer): Integer');
-      RegisterMethod('function GroupMemberCount(aGroupID: Integer): Integer');
       RegisterMethod('function GroupMember(aGroupID, aMemberIndex: Integer): Integer');
-      RegisterMethod('function StatUnitKilledCount(aPlayer, aUnitType: Byte): Integer');
-      RegisterMethod('function StatUnitLostCount(aPlayer, aUnitType: Byte): Integer');
-      RegisterMethod('function StatResourceProducedCount(aPlayer, aResType: Byte): Integer');
-      RegisterMethod('function HouseRepair(aHouseID: Integer): Boolean');
+      RegisterMethod('function GroupMemberCount(aGroupID: Integer): Integer');
+      RegisterMethod('function GroupOwner(aGroupID: Integer): Integer');
+
+      RegisterMethod('function HouseAt(aX, aY: Word): Integer');
+      RegisterMethod('function HouseDamage(aHouseID: Integer): Integer');
       RegisterMethod('function HouseDeliveryBlocked(aHouseID: Integer): Boolean');
-      RegisterMethod('function HouseResourceAmount(aHouseID, aResource: Integer): Integer');
+      RegisterMethod('function HouseDestroyed(aHouseID: Integer): Boolean');
       RegisterMethod('function HouseHasOccupant(aHouseID: Integer): Boolean');
+      RegisterMethod('function HouseOwner(aHouseID: Integer): Integer');
       RegisterMethod('function HousePositionX(aHouseID: Integer): Integer');
       RegisterMethod('function HousePositionY(aHouseID: Integer): Integer');
+      RegisterMethod('function HouseRepair(aHouseID: Integer): Boolean');
+      RegisterMethod('function HouseResourceAmount(aHouseID, aResource: Integer): Integer');
+      RegisterMethod('function HouseType(aHouseID: Integer): Integer');
+	  
+      RegisterMethod('function PlayerDefeated(aPlayer: Byte): Boolean');
+      RegisterMethod('function PlayerEnabled(aPlayer: Byte): Boolean');
+      RegisterMethod('function PlayerName(aPlayer: Byte): AnsiString');
+      RegisterMethod('function PlayerVictorious(aPlayer: Byte): Boolean');
+	  
+      RegisterMethod('function StatArmyCount(aPlayer: Byte): Integer');
+      RegisterMethod('function StatCitizenCount(aPlayer: Byte): Integer');
+      RegisterMethod('function StatHouseTypeCount(aPlayer, aHouseType: Byte): Integer');
+      RegisterMethod('function StatPlayerCount: Integer');
+      RegisterMethod('function StatResourceProducedCount(aPlayer, aResType: Byte): Integer');
+      RegisterMethod('function StatUnitCount(aPlayer: Byte): Integer');
+      RegisterMethod('function StatUnitKilledCount(aPlayer, aUnitType: Byte): Integer');
+      RegisterMethod('function StatUnitLostCount(aPlayer, aUnitType: Byte): Integer');
+      RegisterMethod('function StatUnitTypeCount(aPlayer, aUnitType: Byte): Integer');
+	  
+      RegisterMethod('function UnitAt(aX, aY: Word): Integer');
+      RegisterMethod('function UnitDead(aUnitID: Integer): Boolean');
+      RegisterMethod('function UnitHunger(aUnitID: Integer): Integer');
+      RegisterMethod('function UnitLowHunger: Integer');
+      RegisterMethod('function UnitMaxHunger: Integer');
+      RegisterMethod('function UnitOwner(aUnitID: Integer): Integer');
       RegisterMethod('function UnitPositionX(aHouseID: Integer): Integer');
       RegisterMethod('function UnitPositionY(aHouseID: Integer): Integer');
+      RegisterMethod('function UnitType(aUnitID: Integer): Integer');
+      RegisterMethod('function UnitsGroup(aUnitID: Integer): Integer');
     end;
 
     with Sender.AddClassN(nil, fActions.ClassName) do
     begin
-      RegisterMethod('procedure Defeat(aPlayer: Word)');
-      RegisterMethod('procedure Victory(const aVictors: array of Integer; aTeamVictory: Boolean)');
+      RegisterMethod('function AddFieldPlan(aPlayer, X, Y: Word): Boolean');
+      RegisterMethod('function AddHousePlan(aPlayer, aHouseType, X, Y: Word): Boolean');
+      RegisterMethod('function AddRoadPlan(aPlayer, X, Y: Word): Boolean');
+      RegisterMethod('function AddWinefieldPlan(aPlayer, X, Y: Word): Boolean');
+      RegisterMethod('function BarracksEquip(aHouseID: Integer; aUnitType: Integer; aCount: Integer): Integer');
+      RegisterMethod('function GiveAnimal(aType, X,Y: Word): Integer');
       RegisterMethod('function GiveGroup(aPlayer, aType, X, Y, aDir, aCount, aColumns: Word): Integer');
       RegisterMethod('function GiveUnit(aPlayer, aType, X,Y, aDir: Word): Integer');
-      RegisterMethod('function GiveAnimal(aType, X,Y: Word): Integer');
-      RegisterMethod('procedure GiveWares(aPlayer, aType, aCount: Word)');
-      RegisterMethod('procedure RevealCircle(aPlayer, X, Y, aRadius: Word)');
-      RegisterMethod('procedure ShowMsg(aPlayer, aIndex: Word)');
-      RegisterMethod('procedure ShowMsgFormatted(aPlayer, aIndex: Word; const Args: array of const)');
-      RegisterMethod('procedure UnlockHouse(aPlayer, aHouseType: Word)');
+      RegisterMethod('function GroupOrderSplit(aGroupID: Integer): Integer');
+      RegisterMethod('function SchoolAddToQueue(aHouseID: Integer; aUnitType: Integer; aCount: Integer): Integer');
+      RegisterMethod('function SetUnitDirection(aUnitID, aDirection: Integer): Boolean');
+      RegisterMethod('function UnitOrderWalk(aUnitID: Integer; X, Y: Word): Boolean');
       RegisterMethod('procedure AddHouseDamage(aHouseID: Integer; aDamage: Word)');
+      RegisterMethod('procedure Defeat(aPlayer: Word)');
       RegisterMethod('procedure DestroyHouse(aHouseID: Integer)');
+      RegisterMethod('procedure GiveWares(aPlayer, aType, aCount: Word)');
       RegisterMethod('procedure GiveWaresToHouse(aHouseID: Integer; aType, aCount: Word)');
+	  
+      RegisterMethod('procedure GroupOrderAttackHouse(aGroupID, aHouseID: Integer)');
+      RegisterMethod('procedure GroupOrderAttackUnit(aGroupID, aUnitID: Integer)');
+      RegisterMethod('procedure GroupOrderFood(aGroupID: Integer)');
+      RegisterMethod('procedure GroupOrderHalt(aGroupID: Integer)');
+      RegisterMethod('procedure GroupOrderLink(aGroupID, aDestGroupID: Integer)');
+      RegisterMethod('procedure GroupOrderStorm(aGroupID: Integer)');
+      RegisterMethod('procedure GroupOrderWalk(aGroupID: Integer; X, Y, aDirection: Word)');
+      RegisterMethod('procedure GroupSetFormation(aGroupID: Integer; aNumColumns: Byte)');
+	  
+      RegisterMethod('procedure KillUnit(aUnitID: Integer)');
+      RegisterMethod('procedure RevealCircle(aPlayer, X, Y, aRadius: Word)');
+      RegisterMethod('procedure SetHouseAllowed(aPlayer, aHouseType: Word; aAllowed: Boolean)');
+      RegisterMethod('procedure SetHouseDeliveryBlocked(aHouseID: Integer; aDeliveryBlocked: Boolean)');
       RegisterMethod('procedure SetHouseRepair(aHouseID: Integer; aRepairEnabled: Boolean)');
       RegisterMethod('procedure SetOverlayText(aPlayer, aIndex: Word)');
       RegisterMethod('procedure SetOverlayTextFormatted(aPlayer, aIndex: Word; const Args: array of const)');
-      RegisterMethod('procedure SetUnitHunger(aUnitID, aHungerLevel: Integer)');
-      RegisterMethod('function SetUnitDirection(aUnitID, aDirection: Integer): Boolean');
-      RegisterMethod('procedure KillUnit(aUnitID: Integer)');
-      RegisterMethod('procedure GroupOrderWalk(aGroupID: Integer; X, Y, aDirection: Word)');
-      RegisterMethod('procedure GroupOrderAttackHouse(aGroupID, aHouseID: Integer)');
-      RegisterMethod('procedure GroupOrderAttackUnit(aGroupID, aUnitID: Integer)');
-      RegisterMethod('function AddRoadPlan(aPlayer, X, Y: Word): Boolean');
-      RegisterMethod('function AddFieldPlan(aPlayer, X, Y: Word): Boolean');
-      RegisterMethod('function AddWinefieldPlan(aPlayer, X, Y: Word): Boolean');
-      RegisterMethod('function AddHousePlan(aPlayer, aHouseType, X, Y: Word): Boolean');
-      RegisterMethod('procedure SetHouseDeliveryBlocked(aHouseID: Integer; aDeliveryBlocked: Boolean)');
-      RegisterMethod('function SchoolAddToQueue(aHouseID: Integer; aUnitType: Integer; aCount: Integer): Integer');
-      RegisterMethod('function BarracksEquip(aHouseID: Integer; aUnitType: Integer; aCount: Integer): Integer');
-      RegisterMethod('procedure GroupOrderFood(aGroupID: Integer)');
-      RegisterMethod('procedure GroupOrderStorm(aGroupID: Integer)');
-      RegisterMethod('procedure GroupOrderHalt(aGroupID: Integer)');
-      RegisterMethod('procedure GroupOrderLink(aGroupID, aDestGroupID: Integer)');
-      RegisterMethod('procedure GroupSetFormation(aGroupID: Integer; aNumColumns: Byte)');
-      RegisterMethod('procedure SetHouseAllowed(aPlayer, aHouseType: Word; aAllowed: Boolean)');
       RegisterMethod('procedure SetTradeAllowed(aPlayer, aResType: Word; aAllowed: Boolean)');
-      RegisterMethod('function GroupOrderSplit(aGroupID: Integer): Integer');
-      RegisterMethod('function UnitOrderWalk(aUnitID: Integer; X, Y: Word): Boolean');
+      RegisterMethod('procedure SetUnitHunger(aUnitID, aHungerLevel: Integer)');
+      RegisterMethod('procedure ShowMsg(aPlayer, aIndex: Word)');
+      RegisterMethod('procedure ShowMsgFormatted(aPlayer, aIndex: Word; const Args: array of const)');
+      RegisterMethod('procedure UnlockHouse(aPlayer, aHouseType: Word)');
+      RegisterMethod('procedure Victory(const aVictors: array of Integer; aTeamVictory: Boolean)');
     end;
 
     //Register objects
@@ -251,17 +258,17 @@ const
     Dir: array[0..2] of TPSParameterMode;
   end =
   (
+  (Names: 'ONHOUSEBUILT';      ParamCount: 1; Typ: (0, btS32, 0,      0);      Dir: (pmIn, pmIn, pmIn)),
   (Names: 'ONHOUSEDESTROYED';  ParamCount: 3; Typ: (0, btS32, btS32,  btEnum); Dir: (pmIn, pmIn, pmIn)),
   (Names: 'ONHOUSELOST';       ParamCount: 2; Typ: (0, btS32, btEnum, 0);      Dir: (pmIn, pmIn, pmIn)),
-  (Names: 'ONWARRIOREQUIPPED'; ParamCount: 2; Typ: (0, btS32, btS32,  0);      Dir: (pmIn, pmIn, pmIn)),
-  (Names: 'ONUNITKILLED';      ParamCount: 2; Typ: (0, btS32, btS32,  0);      Dir: (pmIn, pmIn, pmIn)),
-  (Names: 'ONUNITTRAINED';     ParamCount: 1; Typ: (0, btS32, 0,      0);      Dir: (pmIn, pmIn, pmIn)),
+  (Names: 'ONMISSIONSTART';    ParamCount: 1; Typ: (0, 0,     0,      0);      Dir: (pmIn, pmIn, pmIn)),
   (Names: 'ONPLAYERDEFEATED';  ParamCount: 1; Typ: (0, btS32, 0,      0);      Dir: (pmIn, pmIn, pmIn)),
   (Names: 'ONPLAYERVICTORY';   ParamCount: 1; Typ: (0, btS32, 0,      0);      Dir: (pmIn, pmIn, pmIn)),
+  (Names: 'ONTICK';            ParamCount: 0; Typ: (0, 0,     0,      0);      Dir: (pmIn, pmIn, pmIn)),
+  (Names: 'ONUNITKILLED';      ParamCount: 2; Typ: (0, btS32, btS32,  0);      Dir: (pmIn, pmIn, pmIn)),
   (Names: 'ONUNITLOST';        ParamCount: 1; Typ: (0, btS32, 0,      0);      Dir: (pmIn, pmIn, pmIn)),
-  (Names: 'ONHOUSEBUILT';      ParamCount: 1; Typ: (0, btS32, 0,      0);      Dir: (pmIn, pmIn, pmIn)),
-  (Names: 'ONMISSIONSTART';    ParamCount: 1; Typ: (0, 0,     0,      0);      Dir: (pmIn, pmIn, pmIn)),
-  (Names: 'ONTICK';            ParamCount: 0; Typ: (0, 0,     0,      0);      Dir: (pmIn, pmIn, pmIn))
+  (Names: 'ONUNITTRAINED';     ParamCount: 1; Typ: (0, btS32, 0,      0);      Dir: (pmIn, pmIn, pmIn)),
+  (Names: 'ONWARRIOREQUIPPED'; ParamCount: 2; Typ: (0, btS32, btS32,  0);      Dir: (pmIn, pmIn, pmIn))
   );
 var I: Integer;
 begin
@@ -322,92 +329,99 @@ begin
     //Register classes and their exposed methods to Runtime (must be uppercase)
     with ClassImp.Add(TKMScriptStates) do
     begin
-      RegisterMethod(@TKMScriptStates.StatArmyCount, 'STATARMYCOUNT');
-      RegisterMethod(@TKMScriptStates.StatCitizenCount, 'STATCITIZENCOUNT');
-      RegisterMethod(@TKMScriptStates.GameTime, 'GAMETIME');
-      RegisterMethod(@TKMScriptStates.PeaceTime, 'PEACETIME');
       RegisterMethod(@TKMScriptStates.CheckAlliance, 'CHECKALLIANCE');
-      RegisterMethod(@TKMScriptStates.StatHouseTypeCount, 'HOUSETYPECOUNT');
-      RegisterMethod(@TKMScriptStates.StatPlayerCount, 'STATPLAYERCOUNT');
-      RegisterMethod(@TKMScriptStates.PlayerDefeated, 'PLAYERDEFEATED');
-      RegisterMethod(@TKMScriptStates.PlayerVictorious, 'PLAYERVICTORIOUS');
-      RegisterMethod(@TKMScriptStates.StatUnitCount, 'STATUNITCOUNT');
-      RegisterMethod(@TKMScriptStates.StatUnitTypeCount, 'STATUNITTYPECOUNT');
-      RegisterMethod(@TKMScriptStates.PlayerName, 'PLAYERNAME');
-      RegisterMethod(@TKMScriptStates.PlayerEnabled, 'PLAYERENABLED');
-      RegisterMethod(@TKMScriptStates.HouseAt, 'HOUSEAT');
-      RegisterMethod(@TKMScriptStates.HouseOwner, 'HOUSEOWNER');
-      RegisterMethod(@TKMScriptStates.HouseDestroyed, 'HOUSEDESTROYED');
-      RegisterMethod(@TKMScriptStates.HouseType, 'HOUSETYPE');
-      RegisterMethod(@TKMScriptStates.HouseDamage, 'HOUSEDAMAGE');
+      RegisterMethod(@TKMScriptStates.GameTime, 'GAMETIME');
       RegisterMethod(@TKMScriptStates.KaMRandom, 'KAMRANDOM');
       RegisterMethod(@TKMScriptStates.KaMRandomI, 'KAMRANDOMI');
-      RegisterMethod(@TKMScriptStates.UnitAt, 'UNITAT');
-      RegisterMethod(@TKMScriptStates.UnitDead, 'UNITDEAD');
-      RegisterMethod(@TKMScriptStates.UnitOwner, 'UNITOWNER');
-      RegisterMethod(@TKMScriptStates.UnitType, 'UNITTYPE');
-      RegisterMethod(@TKMScriptStates.UnitHunger, 'UNITHUNGER');
-      RegisterMethod(@TKMScriptStates.UnitMaxHunger, 'UNITMAXHUNGER');
-      RegisterMethod(@TKMScriptStates.UnitLowHunger, 'UNITLOWHUNGER');
-      RegisterMethod(@TKMScriptStates.UnitsGroup, 'UNITSGROUP');
+      RegisterMethod(@TKMScriptStates.PeaceTime, 'PEACETIME');
+
       RegisterMethod(@TKMScriptStates.GroupAt, 'GROUPAT');
       RegisterMethod(@TKMScriptStates.GroupDead, 'GROUPDEAD');
-      RegisterMethod(@TKMScriptStates.GroupOwner, 'GROUPOWNER');
-      RegisterMethod(@TKMScriptStates.GroupMemberCount, 'GROUPMEMBERCOUNT');
       RegisterMethod(@TKMScriptStates.GroupMember, 'GROUPMEMBER');
-      RegisterMethod(@TKMScriptStates.StatUnitKilledCount, 'STATUNITKILLEDCOUNT');
-      RegisterMethod(@TKMScriptStates.StatUnitLostCount, 'STATUNITLOSTCOUNT');
-      RegisterMethod(@TKMScriptStates.StatResourceProducedCount, 'RESOURCEPRODUCEDCOUNT');
-      RegisterMethod(@TKMScriptStates.HouseRepair, 'HOUSEREPAIR');
+      RegisterMethod(@TKMScriptStates.GroupMemberCount, 'GROUPMEMBERCOUNT');
+      RegisterMethod(@TKMScriptStates.GroupOwner, 'GROUPOWNER');
+
+      RegisterMethod(@TKMScriptStates.HouseAt, 'HOUSEAT');
+      RegisterMethod(@TKMScriptStates.HouseDamage, 'HOUSEDAMAGE');
       RegisterMethod(@TKMScriptStates.HouseDeliveryBlocked, 'HOUSEDELIVERYBLOCKED');
-      RegisterMethod(@TKMScriptStates.HouseResourceAmount, 'HOUSERESOURCEAMOUNT');
+      RegisterMethod(@TKMScriptStates.HouseDestroyed, 'HOUSEDESTROYED');
       RegisterMethod(@TKMScriptStates.HouseHasOccupant, 'HOUSEHASOCCUPANT');
+      RegisterMethod(@TKMScriptStates.HouseOwner, 'HOUSEOWNER');
       RegisterMethod(@TKMScriptStates.HousePositionX, 'HOUSEPOSITIONX');
       RegisterMethod(@TKMScriptStates.HousePositionY, 'HOUSEPOSITIONY');
+      RegisterMethod(@TKMScriptStates.HouseRepair, 'HOUSEREPAIR');
+      RegisterMethod(@TKMScriptStates.HouseResourceAmount, 'HOUSERESOURCEAMOUNT');
+      RegisterMethod(@TKMScriptStates.HouseType, 'HOUSETYPE');
+
+      RegisterMethod(@TKMScriptStates.PlayerDefeated, 'PLAYERDEFEATED');
+      RegisterMethod(@TKMScriptStates.PlayerEnabled, 'PLAYERENABLED');
+      RegisterMethod(@TKMScriptStates.PlayerName, 'PLAYERNAME');
+      RegisterMethod(@TKMScriptStates.PlayerVictorious, 'PLAYERVICTORIOUS');
+
+      RegisterMethod(@TKMScriptStates.StatArmyCount, 'STATARMYCOUNT');
+      RegisterMethod(@TKMScriptStates.StatCitizenCount, 'STATCITIZENCOUNT');
+      RegisterMethod(@TKMScriptStates.StatHouseTypeCount, 'HOUSETYPECOUNT');
+      RegisterMethod(@TKMScriptStates.StatPlayerCount, 'STATPLAYERCOUNT');
+      RegisterMethod(@TKMScriptStates.StatResourceProducedCount, 'RESOURCEPRODUCEDCOUNT');
+      RegisterMethod(@TKMScriptStates.StatUnitCount, 'STATUNITCOUNT');
+      RegisterMethod(@TKMScriptStates.StatUnitKilledCount, 'STATUNITKILLEDCOUNT');
+      RegisterMethod(@TKMScriptStates.StatUnitLostCount, 'STATUNITLOSTCOUNT');
+      RegisterMethod(@TKMScriptStates.StatUnitTypeCount, 'STATUNITTYPECOUNT');
+
+      RegisterMethod(@TKMScriptStates.UnitAt, 'UNITAT');
+      RegisterMethod(@TKMScriptStates.UnitDead, 'UNITDEAD');
+      RegisterMethod(@TKMScriptStates.UnitHunger, 'UNITHUNGER');
+      RegisterMethod(@TKMScriptStates.UnitLowHunger, 'UNITLOWHUNGER');
+      RegisterMethod(@TKMScriptStates.UnitMaxHunger, 'UNITMAXHUNGER');
+      RegisterMethod(@TKMScriptStates.UnitOwner, 'UNITOWNER');
       RegisterMethod(@TKMScriptStates.UnitPositionX, 'UNITPOSITIONX');
       RegisterMethod(@TKMScriptStates.UnitPositionY, 'UNITPOSITIONY');
+      RegisterMethod(@TKMScriptStates.UnitType, 'UNITTYPE');
+      RegisterMethod(@TKMScriptStates.UnitsGroup, 'UNITSGROUP');
     end;
 
     with ClassImp.Add(TKMScriptActions) do
     begin
+      RegisterMethod(@TKMScriptActions.AddFieldPlan, 'ADDFIELDPLAN');
+      RegisterMethod(@TKMScriptActions.AddHouseDamage, 'ADDHOUSEDAMAGE');
+      RegisterMethod(@TKMScriptActions.AddHousePlan, 'ADDHOUSEPLAN');
+      RegisterMethod(@TKMScriptActions.AddRoadPlan, 'ADDROADPLAN');
+      RegisterMethod(@TKMScriptActions.AddWinefieldPlan, 'ADDWINEFIELDPLAN');
+      RegisterMethod(@TKMScriptActions.BarracksEquip, 'BARRACKSEQUIP');
       RegisterMethod(@TKMScriptActions.Defeat, 'DEFEAT');
-      RegisterMethod(@TKMScriptActions.Victory, 'VICTORY');
+      RegisterMethod(@TKMScriptActions.DestroyHouse, 'DESTROYHOUSE');
+      RegisterMethod(@TKMScriptActions.GiveAnimal, 'GIVEANIMAL');
       RegisterMethod(@TKMScriptActions.GiveGroup, 'GIVEGROUP');
       RegisterMethod(@TKMScriptActions.GiveUnit, 'GIVEUNIT');
-      RegisterMethod(@TKMScriptActions.GiveAnimal, 'GIVEANIMAL');
       RegisterMethod(@TKMScriptActions.GiveWares, 'GIVEWARES');
-      RegisterMethod(@TKMScriptActions.RevealCircle, 'REVEALCIRCLE');
-      RegisterMethod(@TKMScriptActions.ShowMsg, 'SHOWMSG');
-      RegisterMethod(@TKMScriptActions.ShowMsgFormatted, 'SHOWMSGFORMATTED');
-      RegisterMethod(@TKMScriptActions.UnlockHouse, 'UNLOCKHOUSE');
-      RegisterMethod(@TKMScriptActions.AddHouseDamage, 'ADDHOUSEDAMAGE');
-      RegisterMethod(@TKMScriptActions.DestroyHouse, 'DESTROYHOUSE');
       RegisterMethod(@TKMScriptActions.GiveWaresToHouse, 'GIVEWARESTOHOUSE');
+	  
+      RegisterMethod(@TKMScriptActions.GroupOrderAttackHouse, 'GROUPORDERATTACKHOUSE');
+      RegisterMethod(@TKMScriptActions.GroupOrderAttackUnit, 'GROUPORDERATTACKUNIT');
+      RegisterMethod(@TKMScriptActions.GroupOrderFood, 'GROUPORDERFOOD');
+      RegisterMethod(@TKMScriptActions.GroupOrderHalt, 'GROUPORDERHALT');
+      RegisterMethod(@TKMScriptActions.GroupOrderLink, 'GROUPORDERLINK');
+      RegisterMethod(@TKMScriptActions.GroupOrderSplit, 'GROUPORDERSPLIT');
+      RegisterMethod(@TKMScriptActions.GroupOrderStorm, 'GROUPORDERSTORM');
+      RegisterMethod(@TKMScriptActions.GroupOrderWalk, 'GROUPORDERWALK');
+      RegisterMethod(@TKMScriptActions.GroupSetFormation, 'GROUPSETFORMATION');
+	  
+      RegisterMethod(@TKMScriptActions.KillUnit, 'KILLUNIT');
+      RegisterMethod(@TKMScriptActions.RevealCircle, 'REVEALCIRCLE');
+      RegisterMethod(@TKMScriptActions.SchoolAddToQueue, 'SCHOOLADDTOQUEUE');
+      RegisterMethod(@TKMScriptActions.SetHouseAllowed, 'SETHOUSEALLOWED');
+      RegisterMethod(@TKMScriptActions.SetHouseDeliveryBlocked, 'SETHOUSEDELIVERYBLOCKED');
       RegisterMethod(@TKMScriptActions.SetHouseRepair, 'SETHOUSEREPAIR');
       RegisterMethod(@TKMScriptActions.SetOverlayText, 'SETOVERLAYTEXT');
       RegisterMethod(@TKMScriptActions.SetOverlayTextFormatted, 'SETOVERLAYTEXTFORMATTED');
-      RegisterMethod(@TKMScriptActions.SetUnitHunger, 'SETUNITHUNGER');
-      RegisterMethod(@TKMScriptActions.SetUnitDirection, 'SETUNITDIRECTION');
-      RegisterMethod(@TKMScriptActions.KillUnit, 'KILLUNIT');
-      RegisterMethod(@TKMScriptActions.GroupOrderWalk, 'GROUPORDERWALK');
-      RegisterMethod(@TKMScriptActions.GroupOrderAttackHouse, 'GROUPORDERATTACKHOUSE');
-      RegisterMethod(@TKMScriptActions.GroupOrderAttackUnit, 'GROUPORDERATTACKUNIT');
-      RegisterMethod(@TKMScriptActions.AddRoadPlan, 'ADDROADPLAN');
-      RegisterMethod(@TKMScriptActions.AddFieldPlan, 'ADDFIELDPLAN');
-      RegisterMethod(@TKMScriptActions.AddWinefieldPlan, 'ADDWINEFIELDPLAN');
-      RegisterMethod(@TKMScriptActions.AddHousePlan, 'ADDHOUSEPLAN');
-      RegisterMethod(@TKMScriptActions.SetHouseDeliveryBlocked, 'SETHOUSEDELIVERYBLOCKED');
-      RegisterMethod(@TKMScriptActions.SchoolAddToQueue, 'SCHOOLADDTOQUEUE');
-      RegisterMethod(@TKMScriptActions.BarracksEquip, 'BARRACKSEQUIP');
-      RegisterMethod(@TKMScriptActions.GroupOrderFood, 'GROUPORDERFOOD');
-      RegisterMethod(@TKMScriptActions.GroupOrderStorm, 'GROUPORDERSTORM');
-      RegisterMethod(@TKMScriptActions.GroupOrderHalt, 'GROUPORDERHALT');
-      RegisterMethod(@TKMScriptActions.GroupOrderLink, 'GROUPORDERLINK');
-      RegisterMethod(@TKMScriptActions.GroupSetFormation, 'GROUPSETFORMATION');
-      RegisterMethod(@TKMScriptActions.SetHouseAllowed, 'SETHOUSEALLOWED');
       RegisterMethod(@TKMScriptActions.SetTradeAllowed, 'SETTRADEALLOWED');
-      RegisterMethod(@TKMScriptActions.GroupOrderSplit, 'GROUPORDERSPLIT');
+      RegisterMethod(@TKMScriptActions.SetUnitDirection, 'SETUNITDIRECTION');
+      RegisterMethod(@TKMScriptActions.SetUnitHunger, 'SETUNITHUNGER');
+      RegisterMethod(@TKMScriptActions.ShowMsg, 'SHOWMSG');
+      RegisterMethod(@TKMScriptActions.ShowMsgFormatted, 'SHOWMSGFORMATTED');
       RegisterMethod(@TKMScriptActions.UnitOrderWalk, 'UNITORDERWALK');
+      RegisterMethod(@TKMScriptActions.UnlockHouse, 'UNLOCKHOUSE');
+      RegisterMethod(@TKMScriptActions.Victory, 'VICTORY');
     end;
 
     //Append classes info to Exec

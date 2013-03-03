@@ -27,51 +27,52 @@ type
     function GameTime: Cardinal;
     function PeaceTime: Cardinal;
     function CheckAlliance(aPlayer1, aPlayer2: Byte): Boolean;
-    function StatPlayerCount: Integer;
-    function PlayerDefeated(aPlayer: Byte): Boolean;
-    function PlayerVictorious(aPlayer: Byte): Boolean;
-    function PlayerName(aPlayer: Byte): AnsiString;
-    function PlayerEnabled(aPlayer: Byte): Boolean;
     function KaMRandom: Single;
     function KaMRandomI(aMax:Integer): Integer;
 
     function StatArmyCount(aPlayer: Byte): Integer;
     function StatCitizenCount(aPlayer: Byte): Integer;
+    function StatHouseTypeCount(aPlayer, aHouseType: Byte): Integer;
+    function StatPlayerCount: Integer;
+    function StatResourceProducedCount(aPlayer, aResType: Byte): Integer;
     function StatUnitCount(aPlayer: Byte): Integer;
-    function StatUnitTypeCount(aPlayer, aUnitType: Byte): Integer;
     function StatUnitKilledCount(aPlayer, aUnitType: Byte): Integer;
     function StatUnitLostCount(aPlayer, aUnitType: Byte): Integer;
-    function StatResourceProducedCount(aPlayer, aResType: Byte): Integer;
-    function StatHouseTypeCount(aPlayer, aHouseType: Byte): Integer;
-
-    function HouseAt(aX, aY: Word): Integer;
-    function HousePositionX(aHouseID: Integer): Integer;
-    function HousePositionY(aHouseID: Integer): Integer;
-    function HouseDestroyed(aHouseID: Integer): Boolean;
-    function HouseOwner(aHouseID: Integer): Integer;
-    function HouseType(aHouseID: Integer): Integer;
-    function HouseDamage(aHouseID: Integer): Integer;
-    function HouseRepair(aHouseID: Integer): Boolean;
-    function HouseDeliveryBlocked(aHouseID: Integer): Boolean;
-    function HouseResourceAmount(aHouseID, aResource: Integer): Integer;
-    function HouseHasOccupant(aHouseID: Integer): Boolean;
-
-    function UnitAt(aX, aY: Word): Integer;
-    function UnitPositionX(aUnitID: Integer): Integer;
-    function UnitPositionY(aUnitID: Integer): Integer;
-    function UnitDead(aUnitID: Integer): Boolean;
-    function UnitOwner(aUnitID: Integer): Integer;
-    function UnitsGroup(aUnitID: Integer): Integer;
-    function UnitType(aUnitID: Integer): Integer;
-    function UnitHunger(aUnitID: Integer): Integer;
-    function UnitMaxHunger: Integer;
-    function UnitLowHunger: Integer;
+    function StatUnitTypeCount(aPlayer, aUnitType: Byte): Integer;
 
     function GroupAt(aX, aY: Word): Integer;
     function GroupDead(aGroupID: Integer): Boolean;
     function GroupOwner(aGroupID: Integer): Integer;
     function GroupMemberCount(aGroupID: Integer): Integer;
     function GroupMember(aGroupID, aMemberIndex: Integer): Integer;
+
+    function HouseAt(aX, aY: Word): Integer;
+    function HouseDamage(aHouseID: Integer): Integer;
+    function HouseDeliveryBlocked(aHouseID: Integer): Boolean;
+    function HouseDestroyed(aHouseID: Integer): Boolean;
+    function HouseHasOccupant(aHouseID: Integer): Boolean;
+    function HouseOwner(aHouseID: Integer): Integer;
+    function HousePositionX(aHouseID: Integer): Integer;
+    function HousePositionY(aHouseID: Integer): Integer;
+    function HouseRepair(aHouseID: Integer): Boolean;
+    function HouseResourceAmount(aHouseID, aResource: Integer): Integer;
+    function HouseType(aHouseID: Integer): Integer;
+
+    function PlayerDefeated(aPlayer: Byte): Boolean;
+    function PlayerEnabled(aPlayer: Byte): Boolean;
+    function PlayerName(aPlayer: Byte): AnsiString;
+    function PlayerVictorious(aPlayer: Byte): Boolean;
+
+    function UnitAt(aX, aY: Word): Integer;
+    function UnitDead(aUnitID: Integer): Boolean;
+    function UnitHunger(aUnitID: Integer): Integer;
+    function UnitLowHunger: Integer;
+    function UnitMaxHunger: Integer;
+    function UnitOwner(aUnitID: Integer): Integer;
+    function UnitPositionX(aUnitID: Integer): Integer;
+    function UnitPositionY(aUnitID: Integer): Integer;
+    function UnitType(aUnitID: Integer): Integer;
+    function UnitsGroup(aUnitID: Integer): Integer;
   end;
 
   TKMScriptActions = class
@@ -80,49 +81,45 @@ type
     procedure LogError(aFuncName: string; const aValues: array of Integer);
   public
     constructor Create(aIDCache: TKMScriptingIdCache);
-    procedure Defeat(aPlayer: Word);
-    procedure Victory(const aVictors: array of Integer; aTeamVictory: Boolean);
+	
+    function AddFieldPlan(aPlayer, X, Y: Word): Boolean;
+    function AddHousePlan(aPlayer, aHouseType, X, Y: Word): Boolean;
+    function AddRoadPlan(aPlayer, X, Y: Word): Boolean;
+    function AddWinefieldPlan(aPlayer, X, Y: Word): Boolean;
+    function BarracksEquip(aHouseID: Integer; aUnitType: Integer; aCount: Integer): Integer;
+    function GiveAnimal(aType, X,Y: Word): Integer;
     function GiveGroup(aPlayer, aType, X,Y, aDir, aCount, aColumns: Word): Integer;
     function GiveUnit(aPlayer, aType, X,Y, aDir: Word): Integer;
-    function GiveAnimal(aType, X,Y: Word): Integer;
-    procedure GiveWares(aPlayer, aType, aCount: Word);
-    procedure RevealCircle(aPlayer, X, Y, aRadius: Word);
-    procedure UnlockHouse(aPlayer, aHouseType: Word);
-    procedure SetHouseAllowed(aPlayer, aHouseType: Word; aAllowed: Boolean);
-    procedure SetTradeAllowed(aPlayer, aResType: Word; aAllowed: Boolean);
-
-    procedure ShowMsg(aPlayer, aIndex: Word);
-    procedure ShowMsgFormatted(aPlayer, aIndex: Word; const Args: array of const);
-    procedure SetOverlayText(aPlayer, aIndex: Word);
-    procedure SetOverlayTextFormatted(aPlayer, aIndex: Word; const Args: array of const);
-
-    function AddRoadPlan(aPlayer, X, Y: Word): Boolean;
-    function AddFieldPlan(aPlayer, X, Y: Word): Boolean;
-    function AddWinefieldPlan(aPlayer, X, Y: Word): Boolean;
-    function AddHousePlan(aPlayer, aHouseType, X, Y: Word): Boolean;
-
-    procedure AddHouseDamage(aHouseID: Integer; aDamage: Word);
-    procedure DestroyHouse(aHouseID: Integer);
-    procedure GiveWaresToHouse(aHouseID: Integer; aType, aCount: Word);
-    procedure SetHouseRepair(aHouseID: Integer; aRepairEnabled: Boolean);
-    procedure SetHouseDeliveryBlocked(aHouseID: Integer; aDeliveryBlocked: Boolean);
+    function GroupOrderSplit(aGroupID: Integer): Integer;
     function SchoolAddToQueue(aHouseID: Integer; aUnitType: Integer; aCount: Integer): Integer;
-    function BarracksEquip(aHouseID: Integer; aUnitType: Integer; aCount: Integer): Integer;
-
-    procedure SetUnitHunger(aUnitID, aHungerLevel: Integer);
     function SetUnitDirection(aUnitID, aDirection: Integer): Boolean;
     function UnitOrderWalk(aUnitID: Integer; X, Y: Word): Boolean;
-    procedure KillUnit(aUnitID: Integer);
-
-    procedure GroupOrderWalk(aGroupID: Integer; X, Y, aDirection: Word);
+    procedure AddHouseDamage(aHouseID: Integer; aDamage: Word);
+    procedure Defeat(aPlayer: Word);
+    procedure DestroyHouse(aHouseID: Integer);
+    procedure GiveWares(aPlayer, aType, aCount: Word);
+    procedure GiveWaresToHouse(aHouseID: Integer; aType, aCount: Word);
     procedure GroupOrderAttackHouse(aGroupID, aHouseID: Integer);
     procedure GroupOrderAttackUnit(aGroupID, aUnitID: Integer);
     procedure GroupOrderFood(aGroupID: Integer);
-    procedure GroupOrderStorm(aGroupID: Integer);
     procedure GroupOrderHalt(aGroupID: Integer);
     procedure GroupOrderLink(aGroupID, aDestGroupID: Integer);
-    function GroupOrderSplit(aGroupID: Integer): Integer;
+    procedure GroupOrderStorm(aGroupID: Integer);
+    procedure GroupOrderWalk(aGroupID: Integer; X, Y, aDirection: Word);
     procedure GroupSetFormation(aGroupID: Integer; aNumColumns: Byte);
+    procedure KillUnit(aUnitID: Integer);
+    procedure RevealCircle(aPlayer, X, Y, aRadius: Word);
+    procedure SetHouseAllowed(aPlayer, aHouseType: Word; aAllowed: Boolean);
+    procedure SetHouseDeliveryBlocked(aHouseID: Integer; aDeliveryBlocked: Boolean);
+    procedure SetHouseRepair(aHouseID: Integer; aRepairEnabled: Boolean);
+    procedure SetOverlayText(aPlayer, aIndex: Word);
+    procedure SetOverlayTextFormatted(aPlayer, aIndex: Word; const Args: array of const);
+    procedure SetTradeAllowed(aPlayer, aResType: Word; aAllowed: Boolean);
+    procedure SetUnitHunger(aUnitID, aHungerLevel: Integer);
+    procedure ShowMsg(aPlayer, aIndex: Word);
+    procedure ShowMsgFormatted(aPlayer, aIndex: Word; const Args: array of const);
+    procedure UnlockHouse(aPlayer, aHouseType: Word);
+    procedure Victory(const aVictors: array of Integer; aTeamVictory: Boolean);
   end;
 
 
