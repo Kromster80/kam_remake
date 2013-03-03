@@ -130,17 +130,17 @@ begin
     //After that they can be used from within the script.
     with Sender.AddClassN(nil, fStates.ClassName) do
     begin
-      RegisterMethod('function ArmyCount(aPlayer: Byte): Integer');
-      RegisterMethod('function CitizenCount(aPlayer: Byte): Integer');
+      RegisterMethod('function StatArmyCount(aPlayer: Byte): Integer');
+      RegisterMethod('function StatCitizenCount(aPlayer: Byte): Integer');
       RegisterMethod('function GameTime: Cardinal');
       RegisterMethod('function PeaceTime: Cardinal');
       RegisterMethod('function CheckAlliance(aPlayer1, aPlayer2: Byte): Boolean');
-      RegisterMethod('function HouseTypeCount(aPlayer, aHouseType: Byte): Integer');
-      RegisterMethod('function PlayerCount: Integer');
+      RegisterMethod('function StatHouseTypeCount(aPlayer, aHouseType: Byte): Integer');
+      RegisterMethod('function StatPlayerCount: Integer');
       RegisterMethod('function PlayerDefeated(aPlayer: Byte): Boolean');
       RegisterMethod('function PlayerVictorious(aPlayer: Byte): Boolean');
-      RegisterMethod('function UnitCount(aPlayer: Byte): Integer');
-      RegisterMethod('function UnitTypeCount(aPlayer, aUnitType: Byte): Integer');
+      RegisterMethod('function StatUnitCount(aPlayer: Byte): Integer');
+      RegisterMethod('function StatUnitTypeCount(aPlayer, aUnitType: Byte): Integer');
       RegisterMethod('function PlayerName(aPlayer: Byte): AnsiString');
       RegisterMethod('function PlayerEnabled(aPlayer: Byte): Boolean');
       RegisterMethod('function HouseAt(aX, aY: Word): Integer');
@@ -163,9 +163,9 @@ begin
       RegisterMethod('function GroupOwner(aGroupID: Integer): Integer');
       RegisterMethod('function GroupMemberCount(aGroupID: Integer): Integer');
       RegisterMethod('function GroupMember(aGroupID, aMemberIndex: Integer): Integer');
-      RegisterMethod('function UnitKilledCount(aPlayer, aUnitType: Byte): Integer');
-      RegisterMethod('function UnitLostCount(aPlayer, aUnitType: Byte): Integer');
-      RegisterMethod('function ResourceProducedCount(aPlayer, aResType: Byte): Integer');
+      RegisterMethod('function StatUnitKilledCount(aPlayer, aUnitType: Byte): Integer');
+      RegisterMethod('function StatUnitLostCount(aPlayer, aUnitType: Byte): Integer');
+      RegisterMethod('function StatResourceProducedCount(aPlayer, aResType: Byte): Integer');
       RegisterMethod('function HouseRepair(aHouseID: Integer): Boolean');
       RegisterMethod('function HouseDeliveryBlocked(aHouseID: Integer): Boolean');
       RegisterMethod('function HouseResourceAmount(aHouseID, aResource: Integer): Integer');
@@ -322,17 +322,17 @@ begin
     //Register classes and their exposed methods to Runtime (must be uppercase)
     with ClassImp.Add(TKMScriptStates) do
     begin
-      RegisterMethod(@TKMScriptStates.ArmyCount, 'ARMYCOUNT');
-      RegisterMethod(@TKMScriptStates.CitizenCount, 'CITIZENCOUNT');
+      RegisterMethod(@TKMScriptStates.StatArmyCount, 'STATARMYCOUNT');
+      RegisterMethod(@TKMScriptStates.StatCitizenCount, 'STATCITIZENCOUNT');
       RegisterMethod(@TKMScriptStates.GameTime, 'GAMETIME');
       RegisterMethod(@TKMScriptStates.PeaceTime, 'PEACETIME');
       RegisterMethod(@TKMScriptStates.CheckAlliance, 'CHECKALLIANCE');
-      RegisterMethod(@TKMScriptStates.HouseTypeCount, 'HOUSETYPECOUNT');
-      RegisterMethod(@TKMScriptStates.PlayerCount, 'PLAYERCOUNT');
+      RegisterMethod(@TKMScriptStates.StatHouseTypeCount, 'HOUSETYPECOUNT');
+      RegisterMethod(@TKMScriptStates.StatPlayerCount, 'STATPLAYERCOUNT');
       RegisterMethod(@TKMScriptStates.PlayerDefeated, 'PLAYERDEFEATED');
       RegisterMethod(@TKMScriptStates.PlayerVictorious, 'PLAYERVICTORIOUS');
-      RegisterMethod(@TKMScriptStates.UnitCount, 'UNITCOUNT');
-      RegisterMethod(@TKMScriptStates.UnitTypeCount, 'UNITTYPECOUNT');
+      RegisterMethod(@TKMScriptStates.StatUnitCount, 'STATUNITCOUNT');
+      RegisterMethod(@TKMScriptStates.StatUnitTypeCount, 'STATUNITTYPECOUNT');
       RegisterMethod(@TKMScriptStates.PlayerName, 'PLAYERNAME');
       RegisterMethod(@TKMScriptStates.PlayerEnabled, 'PLAYERENABLED');
       RegisterMethod(@TKMScriptStates.HouseAt, 'HOUSEAT');
@@ -355,9 +355,9 @@ begin
       RegisterMethod(@TKMScriptStates.GroupOwner, 'GROUPOWNER');
       RegisterMethod(@TKMScriptStates.GroupMemberCount, 'GROUPMEMBERCOUNT');
       RegisterMethod(@TKMScriptStates.GroupMember, 'GROUPMEMBER');
-      RegisterMethod(@TKMScriptStates.UnitKilledCount, 'UNITKILLEDCOUNT');
-      RegisterMethod(@TKMScriptStates.UnitLostCount, 'UNITLOSTCOUNT');
-      RegisterMethod(@TKMScriptStates.ResourceProducedCount, 'RESOURCEPRODUCEDCOUNT');
+      RegisterMethod(@TKMScriptStates.StatUnitKilledCount, 'STATUNITKILLEDCOUNT');
+      RegisterMethod(@TKMScriptStates.StatUnitLostCount, 'STATUNITLOSTCOUNT');
+      RegisterMethod(@TKMScriptStates.StatResourceProducedCount, 'RESOURCEPRODUCEDCOUNT');
       RegisterMethod(@TKMScriptStates.HouseRepair, 'HOUSEREPAIR');
       RegisterMethod(@TKMScriptStates.HouseDeliveryBlocked, 'HOUSEDELIVERYBLOCKED');
       RegisterMethod(@TKMScriptStates.HouseResourceAmount, 'HOUSERESOURCEAMOUNT');

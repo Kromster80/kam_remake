@@ -27,7 +27,7 @@ type
     function GameTime: Cardinal;
     function PeaceTime: Cardinal;
     function CheckAlliance(aPlayer1, aPlayer2: Byte): Boolean;
-    function PlayerCount: Integer;
+    function StatPlayerCount: Integer;
     function PlayerDefeated(aPlayer: Byte): Boolean;
     function PlayerVictorious(aPlayer: Byte): Boolean;
     function PlayerName(aPlayer: Byte): AnsiString;
@@ -35,14 +35,14 @@ type
     function KaMRandom: Single;
     function KaMRandomI(aMax:Integer): Integer;
 
-    function ArmyCount(aPlayer: Byte): Integer;
-    function CitizenCount(aPlayer: Byte): Integer;
-    function UnitCount(aPlayer: Byte): Integer;
-    function UnitTypeCount(aPlayer, aUnitType: Byte): Integer;
-    function UnitKilledCount(aPlayer, aUnitType: Byte): Integer;
-    function UnitLostCount(aPlayer, aUnitType: Byte): Integer;
-    function ResourceProducedCount(aPlayer, aResType: Byte): Integer;
-    function HouseTypeCount(aPlayer, aHouseType: Byte): Integer;
+    function StatArmyCount(aPlayer: Byte): Integer;
+    function StatCitizenCount(aPlayer: Byte): Integer;
+    function StatUnitCount(aPlayer: Byte): Integer;
+    function StatUnitTypeCount(aPlayer, aUnitType: Byte): Integer;
+    function StatUnitKilledCount(aPlayer, aUnitType: Byte): Integer;
+    function StatUnitLostCount(aPlayer, aUnitType: Byte): Integer;
+    function StatResourceProducedCount(aPlayer, aResType: Byte): Integer;
+    function StatHouseTypeCount(aPlayer, aHouseType: Byte): Integer;
 
     function HouseAt(aX, aY: Word): Integer;
     function HousePositionX(aHouseID: Integer): Integer;
@@ -155,26 +155,26 @@ begin
 end;
 
 
-function TKMScriptStates.ArmyCount(aPlayer: Byte): Integer;
+function TKMScriptStates.StatArmyCount(aPlayer: Byte): Integer;
 begin
   if InRange(aPlayer, 0, fPlayers.Count - 1) then
     Result := fPlayers[aPlayer].Stats.GetArmyCount
   else
   begin
     Result := 0;
-    LogError('States.ArmyCount', [aPlayer]);
+    LogError('States.StatArmyCount', [aPlayer]);
   end;
 end;
 
 
-function TKMScriptStates.CitizenCount(aPlayer: Byte): Integer;
+function TKMScriptStates.StatCitizenCount(aPlayer: Byte): Integer;
 begin
   if InRange(aPlayer, 0, fPlayers.Count - 1) then
     Result := fPlayers[aPlayer].Stats.GetCitizensCount
   else
   begin
     Result := 0;
-    LogError('States.CitizenCount', [aPlayer]);
+    LogError('States.StatCitizenCount', [aPlayer]);
   end;
 end;
 
@@ -204,7 +204,7 @@ begin
 end;
 
 
-function TKMScriptStates.HouseTypeCount(aPlayer, aHouseType: Byte): Integer;
+function TKMScriptStates.StatHouseTypeCount(aPlayer, aHouseType: Byte): Integer;
 begin
   if InRange(aPlayer, 0, fPlayers.Count - 1)
   and (aHouseType in [Low(HouseIndexToType)..High(HouseIndexToType)])
@@ -213,16 +213,16 @@ begin
   else
   begin
     Result := 0;
-    LogError('States.HouseTypeCount', [aPlayer, aHouseType]);
+    LogError('States.StatHouseTypeCount', [aPlayer, aHouseType]);
   end;
 end;
 
 
-function TKMScriptStates.PlayerCount: Integer;
+function TKMScriptStates.StatPlayerCount: Integer;
 var I: Integer;
 begin
   Result := 0;
-  for I:=0 to fPlayers.Count-1 do
+  for I := 0 to fPlayers.Count - 1 do
     if fPlayers[I].Enabled then
       Inc(Result);
 end;
@@ -252,19 +252,19 @@ begin
 end;
 
 
-function TKMScriptStates.UnitCount(aPlayer: Byte): Integer;
+function TKMScriptStates.StatUnitCount(aPlayer: Byte): Integer;
 begin
   if InRange(aPlayer, 0, fPlayers.Count - 1) then
     Result := fPlayers[aPlayer].Stats.GetUnitQty(ut_Any)
   else
   begin
     Result := 0;
-    LogError('States.UnitCount', [aPlayer]);
+    LogError('States.StatUnitCount', [aPlayer]);
   end;
 end;
 
 
-function TKMScriptStates.UnitTypeCount(aPlayer, aUnitType: Byte): Integer;
+function TKMScriptStates.StatUnitTypeCount(aPlayer, aUnitType: Byte): Integer;
 begin
   if InRange(aPlayer, 0, fPlayers.Count - 1)
   and (aUnitType in [Low(UnitIndexToType)..High(UnitIndexToType)])
@@ -273,12 +273,12 @@ begin
   else
   begin
     Result := 0;
-    LogError('States.UnitTypeCount', [aPlayer, aUnitType]);
+    LogError('States.StatUnitTypeCount', [aPlayer, aUnitType]);
   end;
 end;
 
 
-function TKMScriptStates.UnitKilledCount(aPlayer, aUnitType: Byte): Integer;
+function TKMScriptStates.StatUnitKilledCount(aPlayer, aUnitType: Byte): Integer;
 begin
   if InRange(aPlayer, 0, fPlayers.Count - 1)
   and (aUnitType in [Low(UnitIndexToType)..High(UnitIndexToType)])
@@ -287,12 +287,12 @@ begin
   else
   begin
     Result := 0;
-    LogError('States.UnitKilledCount', [aPlayer, aUnitType]);
+    LogError('States.StatUnitKilledCount', [aPlayer, aUnitType]);
   end;
 end;
 
 
-function TKMScriptStates.UnitLostCount(aPlayer, aUnitType: Byte): Integer;
+function TKMScriptStates.StatUnitLostCount(aPlayer, aUnitType: Byte): Integer;
 begin
   if InRange(aPlayer, 0, fPlayers.Count - 1)
   and (aUnitType in [Low(UnitIndexToType)..High(UnitIndexToType)])
@@ -301,12 +301,12 @@ begin
   else
   begin
     Result := 0;
-    LogError('States.UnitLostCount', [aPlayer, aUnitType]);
+    LogError('States.StatUnitLostCount', [aPlayer, aUnitType]);
   end;
 end;
 
 
-function TKMScriptStates.ResourceProducedCount(aPlayer, aResType: Byte): Integer;
+function TKMScriptStates.StatResourceProducedCount(aPlayer, aResType: Byte): Integer;
 begin
   if InRange(aPlayer, 0, fPlayers.Count - 1)
   and (aResType in [Low(ResourceIndexToType)..High(ResourceIndexToType)])
@@ -315,7 +315,7 @@ begin
   else
   begin
     Result := 0;
-    LogError('States.ResourceProducedCount', [aPlayer, aResType]);
+    LogError('States.StatResourceProducedCount', [aPlayer, aResType]);
   end;
 end;
 
