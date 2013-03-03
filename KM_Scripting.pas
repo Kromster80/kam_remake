@@ -214,7 +214,7 @@ begin
       RegisterMethod('procedure RevealCircle(aPlayer, X, Y, aRadius: Word)');
       RegisterMethod('procedure SetHouseAllowed(aPlayer, aHouseType: Word; aAllowed: Boolean)');
       RegisterMethod('procedure SetHouseDeliveryBlocked(aHouseID: Integer; aDeliveryBlocked: Boolean)');
-      RegisterMethod('procedure SetHouseRepair(aHouseID: Integer; aRepairEnabled: Boolean)');
+      RegisterMethod('procedure HouseRepairEnable(aHouseID: Integer; aRepairEnabled: Boolean)');
       RegisterMethod('procedure SetOverlayText(aPlayer, aIndex: Word)');
       RegisterMethod('procedure SetOverlayTextFormatted(aPlayer, aIndex: Word; const Args: array of const)');
       RegisterMethod('procedure SetTradeAllowed(aPlayer, aResType: Word; aAllowed: Boolean)');
@@ -413,7 +413,7 @@ begin
       RegisterMethod(@TKMScriptActions.SchoolAddToQueue, 'SCHOOLADDTOQUEUE');
       RegisterMethod(@TKMScriptActions.SetHouseAllowed, 'SETHOUSEALLOWED');
       RegisterMethod(@TKMScriptActions.SetHouseDeliveryBlocked, 'SETHOUSEDELIVERYBLOCKED');
-      RegisterMethod(@TKMScriptActions.SetHouseRepair, 'SETHOUSEREPAIR');
+      RegisterMethod(@TKMScriptActions.HouseRepairEnable, 'HOUSEREPAIRENABLE');
       RegisterMethod(@TKMScriptActions.SetOverlayText, 'SETOVERLAYTEXT');
       RegisterMethod(@TKMScriptActions.SetOverlayTextFormatted, 'SETOVERLAYTEXTFORMATTED');
       RegisterMethod(@TKMScriptActions.SetTradeAllowed, 'SETTRADEALLOWED');

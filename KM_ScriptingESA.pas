@@ -111,7 +111,7 @@ type
     procedure RevealCircle(aPlayer, X, Y, aRadius: Word);
     procedure SetHouseAllowed(aPlayer, aHouseType: Word; aAllowed: Boolean);
     procedure SetHouseDeliveryBlocked(aHouseID: Integer; aDeliveryBlocked: Boolean);
-    procedure SetHouseRepair(aHouseID: Integer; aRepairEnabled: Boolean);
+    procedure HouseRepairEnable(aHouseID: Integer; aRepairEnabled: Boolean);
     procedure SetOverlayText(aPlayer, aIndex: Word);
     procedure SetOverlayTextFormatted(aPlayer, aIndex: Word; const Args: array of const);
     procedure SetTradeAllowed(aPlayer, aResType: Word; aAllowed: Boolean);
@@ -994,7 +994,7 @@ begin
 end;
 
 
-procedure TKMScriptActions.SetHouseRepair(aHouseID: Integer; aRepairEnabled: Boolean);
+procedure TKMScriptActions.HouseRepairEnable(aHouseID: Integer; aRepairEnabled: Boolean);
 var H: TKMHouse;
 begin
   if aHouseID > 0 then
@@ -1004,7 +1004,7 @@ begin
       H.BuildingRepair := aRepairEnabled;
   end
   else
-    LogError('Actions.SetHouseRepair', [aHouseID, Byte(aRepairEnabled)]);
+    LogError('Actions.HouseRepairEnable', [aHouseID, Byte(aRepairEnabled)]);
 end;
 
 
