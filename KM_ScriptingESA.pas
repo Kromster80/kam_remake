@@ -92,7 +92,6 @@ type
     function PlanAddRoad(aPlayer, X, Y: Word): Boolean;
     function PlanAddWinefield(aPlayer, X, Y: Word): Boolean;
     function SchoolAddToQueue(aHouseID: Integer; aUnitType: Integer; aCount: Integer): Integer;
-    procedure Defeat(aPlayer: Word);
     procedure GiveWares(aPlayer, aType, aCount: Word);
     procedure GroupOrderAttackHouse(aGroupID, aHouseID: Integer);
     procedure GroupOrderAttackUnit(aGroupID, aUnitID: Integer);
@@ -109,6 +108,7 @@ type
     procedure RevealCircle(aPlayer, X, Y, aRadius: Word);
     procedure HouseAllow(aPlayer, aHouseType: Word; aAllowed: Boolean);
     procedure HouseDeliveryBlock(aHouseID: Integer; aDeliveryBlocked: Boolean);
+    procedure PlayerDefeat(aPlayer: Word);
     procedure SetOverlayText(aPlayer, aIndex: Word);
     procedure SetOverlayTextFormatted(aPlayer, aIndex: Word; const Args: array of const);
     procedure SetTradeAllowed(aPlayer, aResType: Word; aAllowed: Boolean);
@@ -761,13 +761,13 @@ begin
 end;
 
 
-procedure TKMScriptActions.Defeat(aPlayer: Word);
+procedure TKMScriptActions.PlayerDefeat(aPlayer: Word);
 begin
   //Verify all input parameters
   if InRange(aPlayer, 0, fPlayers.Count - 1) then
     fPlayers[aPlayer].AI.Defeat
   else
-    LogError('Actions.Defeat', [aPlayer]);
+    LogError('Actions.PlayerDefeat', [aPlayer]);
 end;
 
 
