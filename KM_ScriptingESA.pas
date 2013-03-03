@@ -103,12 +103,14 @@ type
     procedure GroupSetFormation(aGroupID: Integer; aNumColumns: Byte);
     procedure HouseAddDamage(aHouseID: Integer; aDamage: Word);
     procedure HouseAddWaresTo(aHouseID: Integer; aType, aCount: Word);
+    procedure HouseAllow(aPlayer, aHouseType: Word; aAllowed: Boolean);
     procedure HouseDestroy(aHouseID: Integer);
     procedure HouseRepairEnable(aHouseID: Integer; aRepairEnabled: Boolean);
-    procedure RevealCircle(aPlayer, X, Y, aRadius: Word);
-    procedure HouseAllow(aPlayer, aHouseType: Word; aAllowed: Boolean);
     procedure HouseDeliveryBlock(aHouseID: Integer; aDeliveryBlocked: Boolean);
+    procedure HouseUnlock(aPlayer, aHouseType: Word);
     procedure PlayerDefeat(aPlayer: Word);
+    procedure PlayerWin(const aVictors: array of Integer; aTeamVictory: Boolean);
+    procedure RevealCircle(aPlayer, X, Y, aRadius: Word);
     procedure SetOverlayText(aPlayer, aIndex: Word);
     procedure SetOverlayTextFormatted(aPlayer, aIndex: Word; const Args: array of const);
     procedure SetTradeAllowed(aPlayer, aResType: Word; aAllowed: Boolean);
@@ -118,8 +120,6 @@ type
     procedure UnitHungerSet(aUnitID, aHungerLevel: Integer);
     procedure UnitKill(aUnitID: Integer);
     function  UnitOrderWalk(aUnitID: Integer; X, Y: Word): Boolean;
-    procedure UnlockHouse(aPlayer, aHouseType: Word);
-    procedure Victory(const aVictors: array of Integer; aTeamVictory: Boolean);
   end;
 
 
@@ -773,14 +773,14 @@ end;
 
 //Sets all player IDs in aVictors to victorious, and all their team members if aTeamVictory is true.
 //All other players are set to defeated.
-procedure TKMScriptActions.Victory(const aVictors: array of Integer; aTeamVictory: Boolean);
+procedure TKMScriptActions.PlayerWin(const aVictors: array of Integer; aTeamVictory: Boolean);
 var I,K: Integer;
 begin
   //Verify all input parameters
   for I:=0 to Length(aVictors)-1 do
   if not InRange(aVictors[I], 0, fPlayers.Count - 1) then
   begin
-    LogError('Actions.Victory', [aVictors[I]]);
+    LogError('Actions.PlayerWin', [aVictors[I]]);
     Exit;
   end;
 
@@ -912,14 +912,14 @@ begin
 end;
 
 
-procedure TKMScriptActions.UnlockHouse(aPlayer, aHouseType: Word);
+procedure TKMScriptActions.HouseUnlock(aPlayer, aHouseType: Word);
 begin
   //Verify all input parameters
   if InRange(aPlayer, 0, fPlayers.Count - 1)
   and (aHouseType in [Low(HouseIndexToType) .. High(HouseIndexToType)]) then
     fPlayers[aPlayer].Stats.HouseGranted[HouseIndexToType[aHouseType]] := True
   else
-    LogError('Actions.UnlockHouse', [aPlayer, aHouseType]);
+    LogError('Actions.HouseUnlock', [aPlayer, aHouseType]);
 end;
 
 

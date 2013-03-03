@@ -187,40 +187,46 @@ begin
       RegisterMethod('function GiveAnimal(aType, X,Y: Word): Integer');
       RegisterMethod('function GiveGroup(aPlayer, aType, X, Y, aDir, aCount, aColumns: Word): Integer');
       RegisterMethod('function GiveUnit(aPlayer, aType, X,Y, aDir: Word): Integer');
-      RegisterMethod('function GroupOrderSplit(aGroupID: Integer): Integer');
       RegisterMethod('function SchoolAddToQueue(aHouseID: Integer; aUnitType: Integer; aCount: Integer): Integer');
-      RegisterMethod('function UnitDirectionSet(aUnitID, aDirection: Integer): Boolean');
-      RegisterMethod('function UnitOrderWalk(aUnitID: Integer; X, Y: Word): Boolean');
       RegisterMethod('procedure GiveWares(aPlayer, aType, aCount: Word)');
-      RegisterMethod('procedure GroupOrderAttackHouse(aGroupID, aHouseID: Integer)');
+      
+	    RegisterMethod('procedure GroupOrderAttackHouse(aGroupID, aHouseID: Integer)');
       RegisterMethod('procedure GroupOrderAttackUnit(aGroupID, aUnitID: Integer)');
       RegisterMethod('procedure GroupOrderFood(aGroupID: Integer)');
       RegisterMethod('procedure GroupOrderHalt(aGroupID: Integer)');
       RegisterMethod('procedure GroupOrderLink(aGroupID, aDestGroupID: Integer)');
+      RegisterMethod('function  GroupOrderSplit(aGroupID: Integer): Integer');
       RegisterMethod('procedure GroupOrderStorm(aGroupID: Integer)');
       RegisterMethod('procedure GroupOrderWalk(aGroupID: Integer; X, Y, aDirection: Word)');
       RegisterMethod('procedure GroupSetFormation(aGroupID: Integer; aNumColumns: Byte)');
-      RegisterMethod('procedure HouseAddDamage(aHouseID: Integer; aDamage: Word)');
+      
+  	  RegisterMethod('procedure HouseAddDamage(aHouseID: Integer; aDamage: Word)');
       RegisterMethod('procedure HouseAddWaresTo(aHouseID: Integer; aType, aCount: Word)');
       RegisterMethod('procedure HouseAllow(aPlayer, aHouseType: Word; aAllowed: Boolean)');
       RegisterMethod('procedure HouseDeliveryBlock(aHouseID: Integer; aDeliveryBlocked: Boolean)');
       RegisterMethod('procedure HouseDestroy(aHouseID: Integer)');
       RegisterMethod('procedure HouseRepairEnable(aHouseID: Integer; aRepairEnabled: Boolean)');
+      RegisterMethod('procedure HouseUnlock(aPlayer, aHouseType: Word)');
+
       RegisterMethod('function  PlanAddField(aPlayer, X, Y: Word): Boolean');
       RegisterMethod('function  PlanAddHouse(aPlayer, aHouseType, X, Y: Word): Boolean');
       RegisterMethod('function  PlanAddRoad(aPlayer, X, Y: Word): Boolean');
       RegisterMethod('function  PlanAddWinefield(aPlayer, X, Y: Word): Boolean');
+
       RegisterMethod('procedure PlayerDefeat(aPlayer: Word)');
+      RegisterMethod('procedure PlayerWin(const aVictors: array of Integer; aTeamVictory: Boolean)');
+
       RegisterMethod('procedure RevealCircle(aPlayer, X, Y, aRadius: Word)');
       RegisterMethod('procedure SetOverlayText(aPlayer, aIndex: Word)');
       RegisterMethod('procedure SetOverlayTextFormatted(aPlayer, aIndex: Word; const Args: array of const)');
       RegisterMethod('procedure SetTradeAllowed(aPlayer, aResType: Word; aAllowed: Boolean)');
       RegisterMethod('procedure ShowMsg(aPlayer, aIndex: Word)');
       RegisterMethod('procedure ShowMsgFormatted(aPlayer, aIndex: Word; const Args: array of const)');
+
+      RegisterMethod('function  UnitDirectionSet(aUnitID, aDirection: Integer): Boolean');
       RegisterMethod('procedure UnitHungerSet(aUnitID, aHungerLevel: Integer)');
       RegisterMethod('procedure UnitKill(aUnitID: Integer)');
-      RegisterMethod('procedure UnlockHouse(aPlayer, aHouseType: Word)');
-      RegisterMethod('procedure Victory(const aVictors: array of Integer; aTeamVictory: Boolean)');
+      RegisterMethod('function  UnitOrderWalk(aUnitID: Integer; X, Y: Word): Boolean');
     end;
 
     //Register objects
@@ -385,6 +391,7 @@ begin
       RegisterMethod(@TKMScriptActions.GiveGroup, 'GIVEGROUP');
       RegisterMethod(@TKMScriptActions.GiveUnit, 'GIVEUNIT');
       RegisterMethod(@TKMScriptActions.GiveWares, 'GIVEWARES');
+
       RegisterMethod(@TKMScriptActions.GroupOrderAttackHouse, 'GROUPORDERATTACKHOUSE');
       RegisterMethod(@TKMScriptActions.GroupOrderAttackUnit, 'GROUPORDERATTACKUNIT');
       RegisterMethod(@TKMScriptActions.GroupOrderFood, 'GROUPORDERFOOD');
@@ -394,32 +401,36 @@ begin
       RegisterMethod(@TKMScriptActions.GroupOrderStorm, 'GROUPORDERSTORM');
       RegisterMethod(@TKMScriptActions.GroupOrderWalk, 'GROUPORDERWALK');
       RegisterMethod(@TKMScriptActions.GroupSetFormation, 'GROUPSETFORMATION');
+
+      RegisterMethod(@TKMScriptActions.HouseAllow, 'HOUSEALLOW');
       RegisterMethod(@TKMScriptActions.HouseAddDamage, 'HOUSEADDDAMAGE');
       RegisterMethod(@TKMScriptActions.HouseAddWaresTo, 'HOUSEADDWARESTO');
+      RegisterMethod(@TKMScriptActions.HouseDeliveryBlock, 'HOUSEDELIVERYBLOCK');
       RegisterMethod(@TKMScriptActions.HouseDestroy, 'HOUSEDESTROY');
       RegisterMethod(@TKMScriptActions.HouseRepairEnable, 'HOUSEREPAIRENABLE');
+      RegisterMethod(@TKMScriptActions.HouseUnlock, 'HOUSEUNLOCK');
 
       RegisterMethod(@TKMScriptActions.PlanAddField, 'PLANADDFIELD');
       RegisterMethod(@TKMScriptActions.PlanAddHouse, 'PLANADDHOUSE');
       RegisterMethod(@TKMScriptActions.PlanAddRoad, 'PLANADDROAD');
       RegisterMethod(@TKMScriptActions.PlanAddWinefield, 'PLANADDWINEFIELD');
+
       RegisterMethod(@TKMScriptActions.PlayerDefeat, 'PLAYERDEFEAT');
+      RegisterMethod(@TKMScriptActions.PlayerWin, 'PLAYERWIN');
 
       RegisterMethod(@TKMScriptActions.RevealCircle, 'REVEALCIRCLE');
       RegisterMethod(@TKMScriptActions.SchoolAddToQueue, 'SCHOOLADDTOQUEUE');
-      RegisterMethod(@TKMScriptActions.HouseAllow, 'HOUSEALLOW');
-      RegisterMethod(@TKMScriptActions.HouseDeliveryBlock, 'HOUSEDELIVERYBLOCK');
+
       RegisterMethod(@TKMScriptActions.SetOverlayText, 'SETOVERLAYTEXT');
       RegisterMethod(@TKMScriptActions.SetOverlayTextFormatted, 'SETOVERLAYTEXTFORMATTED');
       RegisterMethod(@TKMScriptActions.SetTradeAllowed, 'SETTRADEALLOWED');
       RegisterMethod(@TKMScriptActions.ShowMsg, 'SHOWMSG');
       RegisterMethod(@TKMScriptActions.ShowMsgFormatted, 'SHOWMSGFORMATTED');
+
       RegisterMethod(@TKMScriptActions.UnitDirectionSet, 'UNITDIRECTIONSET');
       RegisterMethod(@TKMScriptActions.UnitHungerSet, 'UNITHUNGERSET');
       RegisterMethod(@TKMScriptActions.UnitKill, 'UNITKILL');
       RegisterMethod(@TKMScriptActions.UnitOrderWalk, 'UNITORDERWALK');
-      RegisterMethod(@TKMScriptActions.UnlockHouse, 'UNLOCKHOUSE');
-      RegisterMethod(@TKMScriptActions.Victory, 'VICTORY');
     end;
 
     //Append classes info to Exec
