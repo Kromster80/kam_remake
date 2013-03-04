@@ -627,6 +627,8 @@ begin
                                         fGameSettings.MasterAnnounceInterval,
                                         fGameSettings.Locale);
   fNetworking.OnMPGameInfoChanged := SendMPGameInfo;
+  fNetworking.OnStartMap := NewMultiplayerMap;
+  fNetworking.OnStartSave := NewMultiplayerSave;
 end;
 
 

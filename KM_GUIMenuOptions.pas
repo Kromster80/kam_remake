@@ -10,7 +10,7 @@ uses
 type
   TKMGUIMainOptions = class {(TKMGUIPage)}
   private
-    fOnPageChange: TGUIEvent; //will be in ancestor class
+    fOnPageChange: TGUIEventText; //will be in ancestor class
 
     fMainSettings: TMainSettings;
     fGameSettings: TGameSettings;
@@ -53,7 +53,7 @@ type
         Button_Options_ResApply: TKMButton;
       Button_Options_Back: TKMButton;
   public
-    constructor Create(aParent: TKMPanel; aOnPageChange: TGUIEvent);
+    constructor Create(aParent: TKMPanel; aOnPageChange: TGUIEventText);
     destructor Destroy; override;
 
     procedure Show;
@@ -65,7 +65,7 @@ uses KM_Main, KM_TextLibrary, KM_GameApp, KM_Locales, KM_Sound, KM_RenderUI;
 
 
 { TKMGUIMainOptions }
-constructor TKMGUIMainOptions.Create(aParent: TKMPanel; aOnPageChange: TGUIEvent);
+constructor TKMGUIMainOptions.Create(aParent: TKMPanel; aOnPageChange: TGUIEventText);
 var
   I: Integer;
 begin
@@ -383,7 +383,7 @@ procedure TKMGUIMainOptions.BackClick(Sender: TObject);
 begin
   //Return to MainMenu and restore resolution changes
   fMainSettings.SaveSettings;
-  fOnPageChange(Self, gpMainMenu);
+  fOnPageChange(Self, gpMainMenu, '');
 end;
 
 

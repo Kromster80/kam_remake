@@ -175,11 +175,11 @@ type
     property OnJoinAssignedHost:TNotifyEvent write fOnJoinAssignedHost; //We were assigned hosting rights upon connection
     property OnReassignedHost:TNotifyEvent write fOnReassignedHost;     //We were reassigned hosting rights when the host quit
 
-    property OnPlayersSetup:TNotifyEvent write fOnPlayersSetup; //Player list updated
-    property OnGameOptions:TNotifyEvent write fOnGameOptions; //Game options updated
-    property OnMapName:TStringEvent write fOnMapName;           //Map name updated
-    property OnStartMap:TStringEvent write fOnStartMap;       //Start the game
-    property OnStartSave:TStringEvent write fOnStartSave;       //Load the game
+    property OnPlayersSetup: TNotifyEvent write fOnPlayersSetup; //Player list updated
+    property OnGameOptions: TNotifyEvent write fOnGameOptions; //Game options updated
+    property OnMapName: TStringEvent write fOnMapName;           //Map name updated
+    property OnStartMap: TStringEvent write fOnStartMap;       //Start the game
+    property OnStartSave: TStringEvent write fOnStartSave;       //Load the game
     property OnPlay:TNotifyEvent write fOnPlay;                 //Start the gameplay
     property OnReadyToPlay:TNotifyEvent write fOnReadyToPlay;   //Update the list of players ready to play
     property OnPingInfo:TNotifyEvent write fOnPingInfo;         //Ping info updated

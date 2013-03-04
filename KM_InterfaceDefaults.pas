@@ -6,8 +6,9 @@ uses
 
 
 type
-  TGUIPage = (gpMainMenu, gpOptions);
+  TGUIPage = (gpMainMenu, gpMultiplayer, gpOptions);
   TGUIEvent = procedure (Sender: TObject; Dest: TGUIPage) of object;
+  TGUIEventText = procedure (Sender: TObject; Dest: TGUIPage; aText: string) of object;
 
   TKMUserInterface = class
   protected
