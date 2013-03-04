@@ -201,7 +201,7 @@ begin
     nptHuman:     Result := Nikname;
     nptComputer:  Result := fTextLibrary[TX_LOBBY_SLOT_AI_PLAYER];
     nptClosed:    Result := fTextLibrary[TX_LOBBY_SLOT_CLOSED];
-    else          Result := '<<<LEER>>>';
+    else          Result := NO_TEXT;
   end;
 end;
 

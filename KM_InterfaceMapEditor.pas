@@ -694,7 +694,7 @@ begin
     MinimapView := TKMMinimapView.Create(Panel_Main, 10, 10, 176, 176);
     MinimapView.OnChange := Minimap_Update;
 
-    Label_MissionName := TKMLabel.Create(Panel_Main, 230, 10, 184, 10, '<<<LEER>>>', fnt_Grey, taLeft);
+    Label_MissionName := TKMLabel.Create(Panel_Main, 230, 10, 184, 10, NO_TEXT, fnt_Grey, taLeft);
     Label_Coordinates := TKMLabel.Create(Panel_Main, 230, 30, 'X: Y:', fnt_Grey, taLeft);
     Label_Stat := TKMLabel.Create(Panel_Main, 230, 50, 0, 0, '', fnt_Outline, taLeft);
 

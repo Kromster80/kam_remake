@@ -535,6 +535,7 @@ begin
 end;
 
 
+//Access chat messages history to copy it over to gameplay chat
 function TKMMainMenuInterface.GetChatMessages: string;
 begin
   Result := Memo_LobbyPosts.Text;
@@ -582,7 +583,7 @@ begin
     gr_Defeat:    Label_Results.Caption := fTextLibrary[TX_MENU_MISSION_DEFEAT];
     gr_Cancel:    Label_Results.Caption := fTextLibrary[TX_MENU_MISSION_CANCELED];
     gr_ReplayEnd: Label_Results.Caption := fTextLibrary[TX_MENU_REPLAY_ENDED];
-    else          Label_Results.Caption := '<<<LEER>>>'; //Thats string used in all Synetic games for missing texts =)
+    else          Label_Results.Caption := NO_TEXT; //Thats string used in all Synetic games for missing texts =)
   end;
   //Append mission name and time after the result message
   Label_Results.Caption := Label_Results.Caption + ' - ' + fGame.GameName; //Don't show the mission time in SP because it's already shown elsewhere
@@ -764,7 +765,7 @@ begin
     gr_Defeat:    Label_ResultsMP.Caption := fTextLibrary[TX_MENU_MISSION_DEFEAT];
     gr_Cancel:    Label_ResultsMP.Caption := fTextLibrary[TX_MENU_MISSION_CANCELED];
     gr_ReplayEnd: Label_ResultsMP.Caption := fTextLibrary[TX_MENU_REPLAY_ENDED];
-    else          Label_ResultsMP.Caption := '<<<LEER>>>'; //Thats string used in all Synetic games for missing texts =)
+    else          Label_ResultsMP.Caption := NO_TEXT; //Thats string used in all Synetic games for missing texts =)
   end;
   //Append mission name and time after the result message
   Label_ResultsMP.Caption := Label_ResultsMP.Caption + ' - ' + fGame.GameName + ' - ' + TimeToString(fGame.MissionTime);
@@ -1314,7 +1315,7 @@ begin
     Button_LobbyChangeSettings := TKMButton.Create(Panel_Lobby, 265, 712, 220, 30, 'Room Settings', bsMenu);
     Button_LobbyChangeSettings.OnClick := Lobby_SettingsClick;
 
-    Button_LobbyStart := TKMButton.Create(Panel_Lobby, 500, 712, 220, 30, '<<<LEER>>>', bsMenu);
+    Button_LobbyStart := TKMButton.Create(Panel_Lobby, 500, 712, 220, 30, NO_TEXT, bsMenu);
     Button_LobbyStart.Anchors := [akLeft, akBottom];
     Button_LobbyStart.OnClick := Lobby_StartClick;
 end;
@@ -1381,9 +1382,9 @@ begin
 
     Image_Scroll := TKMImage.Create(Panel_CampScroll, 0, 0,360,430,{15}3,rxGuiMain);
     Image_Scroll.ImageStretch;
-    Label_CampaignTitle := TKMLabel.Create(Panel_CampScroll, 130, 18,100,20, '<<<LEER>>>', fnt_Outline, taCenter);
+    Label_CampaignTitle := TKMLabel.Create(Panel_CampScroll, 130, 18,100,20, NO_TEXT, fnt_Outline, taCenter);
 
-    Label_CampaignText := TKMLabel.Create(Panel_CampScroll, 20, 50, 325, 310, '<<<LEER>>>', fnt_Briefing, taLeft);
+    Label_CampaignText := TKMLabel.Create(Panel_CampScroll, 20, 50, 325, 310, NO_TEXT, fnt_Briefing, taLeft);
     Label_CampaignText.AutoWrap := true;
 
   Button_CampaignStart := TKMButton.Create(Panel_Campaign, Panel_Main.Width-220-20, Panel_Main.Height-50, 220, 30, fTextLibrary[TX_MENU_START_MISSION], bsMenu);
@@ -1734,7 +1735,7 @@ begin
       FillColor := $A0000000;
     end;
 
-    Label_Results := TKMLabel.Create(Panel_Results,62,140,900,20,'<<<LEER>>>',fnt_Metal,taCenter);
+    Label_Results := TKMLabel.Create(Panel_Results,62,140,900,20,NO_TEXT,fnt_Metal,taCenter);
     Label_Results.Anchors := [akLeft];
 
     Panel_Stats := TKMPanel.Create(Panel_Results, 30, 216, 360, 354);
@@ -1850,7 +1851,7 @@ begin
       FillColor := $A0000000;
     end;
 
-    Label_ResultsMP := TKMLabel.Create(Panel_ResultsMP,62,125,900,20,'<<<LEER>>>',fnt_Metal,taCenter);
+    Label_ResultsMP := TKMLabel.Create(Panel_ResultsMP,62,125,900,20,NO_TEXT,fnt_Metal,taCenter);
     Label_ResultsMP.Anchors := [akLeft];
 
     Button_MPResultsStats := TKMButtonFlat.Create(Panel_ResultsMP, 160, 155, 176, 20, 8, rxGuiMain);
@@ -3345,7 +3346,7 @@ begin
         end;
     else
         begin
-          DropCol_LobbyMaps.DefaultCaption := '<<<LEER>>>';
+          DropCol_LobbyMaps.DefaultCaption := NO_TEXT;
         end;
   end;
   DropCol_LobbyMaps.ItemIndex := -1; //Clear previously selected item

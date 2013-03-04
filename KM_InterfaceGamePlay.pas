@@ -935,9 +935,9 @@ begin
       Image_PlayMore:=TKMImage.Create(Panel_PlayMoreMsg,100,40,0,0,556);
       Image_PlayMore.ImageCenter;
 
-      Label_PlayMore  := TKMLabel.Create(Panel_PlayMoreMsg,100,80,'<<<LEER>>>',fnt_Outline,taCenter);
-      Button_PlayMore := TKMButton.Create(Panel_PlayMoreMsg,0,100,200,30,'<<<LEER>>>',bsGame);
-      Button_PlayQuit := TKMButton.Create(Panel_PlayMoreMsg,0,140,200,30,'<<<LEER>>>',bsGame);
+      Label_PlayMore  := TKMLabel.Create(Panel_PlayMoreMsg,100,80,NO_TEXT,fnt_Outline,taCenter);
+      Button_PlayMore := TKMButton.Create(Panel_PlayMoreMsg,0,100,200,30,NO_TEXT,bsGame);
+      Button_PlayQuit := TKMButton.Create(Panel_PlayMoreMsg,0,140,200,30,NO_TEXT,bsGame);
       Button_PlayMore.OnClick := PlayMoreClick;
       Button_PlayQuit.OnClick := PlayMoreClick;
     Panel_PlayMore.Hide; //Initially hidden
@@ -954,9 +954,9 @@ begin
       Image_MPPlayMore:=TKMImage.Create(Panel_MPPlayMore,200,40,0,0,556);
       Image_MPPlayMore.ImageCenter;
 
-      Label_MPPlayMore  := TKMLabel.Create(Panel_MPPlayMore,200,80,'<<<LEER>>>',fnt_Outline,taCenter);
-      Button_MPPlayMore := TKMButton.Create(Panel_MPPlayMore,100,100,200,30,'<<<LEER>>>',bsGame);
-      Button_MPPlayQuit := TKMButton.Create(Panel_MPPlayMore,100,140,200,30,'<<<LEER>>>',bsGame);
+      Label_MPPlayMore  := TKMLabel.Create(Panel_MPPlayMore,200,80,NO_TEXT,fnt_Outline,taCenter);
+      Button_MPPlayMore := TKMButton.Create(Panel_MPPlayMore,100,100,200,30,NO_TEXT,bsGame);
+      Button_MPPlayQuit := TKMButton.Create(Panel_MPPlayMore,100,140,200,30,NO_TEXT,bsGame);
       Button_MPPlayMore.OnClick := MPPlayMoreClick;
       Button_MPPlayQuit.OnClick := MPPlayMoreClick;
     Panel_MPPlayMore.Hide; //Initially hidden
@@ -976,8 +976,8 @@ begin
       Image_NetWait:=TKMImage.Create(Panel_NetWaitMsg,Panel_Main.Width div 2,40,0,0,556);
       Image_NetWait.ImageCenter;
 
-      Label_NetWait  := TKMLabel.Create(Panel_NetWaitMsg,Panel_Main.Width div 2,80,'<<<LEER>>>',fnt_Outline,taCenter);
-      Label_NetDropPlayersDelay := TKMLabel.Create(Panel_NetWaitMsg,Panel_Main.Width div 2,110,'<<<LEER>>>',fnt_Outline,taCenter);
+      Label_NetWait  := TKMLabel.Create(Panel_NetWaitMsg,Panel_Main.Width div 2,80,NO_TEXT,fnt_Outline,taCenter);
+      Label_NetDropPlayersDelay := TKMLabel.Create(Panel_NetWaitMsg,Panel_Main.Width div 2,110,NO_TEXT,fnt_Outline,taCenter);
       Panel_NetWaitButtons := TKMPanel.Create(Panel_NetWaitMsg,0,140,Panel_Main.Width,80);
         Button_NetQuit := TKMButton.Create(Panel_NetWaitButtons,(Panel_Main.Width div 2)-150,0,300,30,fTextLibrary[TX_GAMEPLAY_QUIT_TO_MENU],bsGame);
         Button_NetQuit.OnClick := NetWaitClick;
@@ -985,8 +985,8 @@ begin
         Button_NetDropPlayers.OnClick := NetWaitClick;
 
       Panel_NetWaitConfirm := TKMPanel.Create(Panel_NetWaitMsg,0,180,Panel_Main.Width,140);
-        Label_NetWaitConfirm := TKMLabel.Create(Panel_NetWaitConfirm,(Panel_Main.Width div 2),10,'<<<LEER>>>',fnt_Outline,taCenter);
-        Button_NetConfirmYes := TKMButton.Create(Panel_NetWaitConfirm,(Panel_Main.Width div 2)-150,40,300,30,'<<<LEER>>>',bsGame);
+        Label_NetWaitConfirm := TKMLabel.Create(Panel_NetWaitConfirm,(Panel_Main.Width div 2),10,NO_TEXT,fnt_Outline,taCenter);
+        Button_NetConfirmYes := TKMButton.Create(Panel_NetWaitConfirm,(Panel_Main.Width div 2)-150,40,300,30,NO_TEXT,bsGame);
         Button_NetConfirmYes.OnClick := NetWaitClick;
         Button_NetConfirmNo := TKMButton.Create(Panel_NetWaitConfirm,(Panel_Main.Width div 2)-150,80,300,30,fTextLibrary[TX_GAMEPLAY_CONFIRM_CANCEL],bsGame);
         Button_NetConfirmNo.OnClick := NetWaitClick;
@@ -1043,7 +1043,7 @@ begin
 
     Panel_ReplayCtrl := TKMPanel.Create(Panel_Replay, 320, 8, 160, 60);
       PercentBar_Replay     := TKMPercentBar.Create(Panel_ReplayCtrl, 0, 0, 160, 20);
-      Label_Replay          := TKMLabel.Create(Panel_ReplayCtrl,  80,  2, '<<<LEER>>>', fnt_Grey, taCenter);
+      Label_Replay          := TKMLabel.Create(Panel_ReplayCtrl,  80,  2, NO_TEXT, fnt_Grey, taCenter);
       Button_ReplayRestart  := TKMButton.Create(Panel_ReplayCtrl,  0, 24, 24, 24, 582, rxGui, bsGame);
       Button_ReplayPause    := TKMButton.Create(Panel_ReplayCtrl, 25, 24, 24, 24, 583, rxGui, bsGame);
       Button_ReplayStep     := TKMButton.Create(Panel_ReplayCtrl, 50, 24, 24, 24, 584, rxGui, bsGame);
@@ -1317,7 +1317,7 @@ begin
   end;
 
   Image_RatioPic0 := TKMImage.Create(Panel_Ratios,4,76,32,32,327);
-  Label_RatioLab0 := TKMLabel.Create(Panel_Ratios,36,72,148,30,'<<<LEER>>>',fnt_Outline,taLeft);
+  Label_RatioLab0 := TKMLabel.Create(Panel_Ratios,36,72,148,30,NO_TEXT,fnt_Outline,taLeft);
 
   for i:=1 to 4 do begin
     Image_RatioPic[i]            := TKMImage.Create(Panel_Ratios,4,124+(i-1)*50,32,32,327);

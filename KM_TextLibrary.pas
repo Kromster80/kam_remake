@@ -12,6 +12,7 @@ const
   //Load text IDs from this include file that is managed by the Translation Manager
   {$I KM_TextIDs.inc}
 
+  NO_TEXT = '<<<LEER>>>'; //Supposed for places where some text must be placed
 
 type
   TTextLibrary = class
@@ -22,16 +23,16 @@ type
     MissionStrings: TAnsiStringArray; //Strings used in a mission
     procedure LoadLIBXFile(FilePath: string; aFirstIndex: Word; var aArray: TAnsiStringArray; aOverwrite: Boolean);
     procedure ExportTextLibrary(aLibrary: array of AnsiString; aFileName: string);
-    function GetTexts(aIndex:word): AnsiString;
+    function GetTexts(aIndex: Word): AnsiString;
   public
     constructor Create(aLibPath: string; aLocale: AnsiString);
 
     function AppendCampaign(aFileName: string): Word;
     procedure LoadMissionStrings(aFileName: string);
 
-    function GetMissionString(aIndex: word): AnsiString;
+    function GetMissionString(aIndex: Word): AnsiString;
 
-    property Texts[aIndex: word]: AnsiString read GetTexts; default;
+    property Texts[aIndex: Word]: AnsiString read GetTexts; default;
 
     procedure ExportTextLibraries;
   end;

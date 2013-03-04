@@ -1967,7 +1967,6 @@ end;
 constructor TKMEdit.Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight: Integer; aFont: TKMFont);
 begin
   inherited Create(aParent, aLeft, aTop, aWidth, aHeight);
-  fText := '<<<LEER>>>';
   fFont := aFont;
   fAllowedChars := acText; //Set to the widest by default
   CursorPos := 0;
