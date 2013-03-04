@@ -38,6 +38,7 @@ type
     procedure Lobby_OnPlayersSetup(Sender: TObject);
     procedure Lobby_OnReassignedToHost(Sender: TObject);
 
+    function DetectMapType: Integer;
     procedure BackClick(Sender: TObject);
     procedure SettingsClick(Sender: TObject);
     procedure StartClick(Sender: TObject);
@@ -279,6 +280,26 @@ begin
 end;
 
 
+//Try to detect which kind it is
+function TKMGUIMenuLobby.DetectMapType: Integer;
+begin
+  //Default
+  Result := 0;
+
+  case fNetworking.SelectGameKind of
+    ngk_Map:  if fNetworking.MapInfo.IsCoop then
+                Result := 2
+              else
+              if fNetworking.MapInfo.IsSpecial then
+                Result := 3
+              else
+              if fNetworking.MapInfo.MissionMode = mm_Tactic then
+                Result := 1;
+    ngk_Save: Result := 4;
+  end;
+end;
+
+
 //Access text that user was typing to copy it over to gameplay chat
 function TKMGUIMenuLobby.GetChatText: string;
 begin
@@ -396,7 +417,6 @@ begin
     Button_LobbyChangeSettings.Hide;
   end;
 end;
-
 
 
 procedure TKMGUIMenuLobby.Lobby_GameOptionsChange(Sender: TObject);
@@ -647,17 +667,17 @@ end;
 
 
 procedure TKMGUIMenuLobby.Lobby_OnPingInfo(Sender: TObject);
-var i:integer;
+var I: Integer;
 begin
-  for i:=0 to MAX_PLAYERS-1 do
-  if (fNetworking.Connected) and (i < fNetworking.NetPlayers.Count) and
-     (fNetworking.NetPlayers[i+1].IsHuman) then
+  for I := 0 to MAX_PLAYERS - 1 do
+  if (fNetworking.Connected) and (I < fNetworking.NetPlayers.Count) and
+     (fNetworking.NetPlayers[I+1].IsHuman) then
   begin
-    Label_LobbyPing[i].Caption := IntToStr(fNetworking.NetPlayers[i+1].GetInstantPing);
-    Label_LobbyPing[i].FontColor := GetPingColor(fNetworking.NetPlayers[i+1].GetInstantPing);
+    Label_LobbyPing[I].Caption := IntToStr(fNetworking.NetPlayers[I+1].GetInstantPing);
+    Label_LobbyPing[I].FontColor := GetPingColor(fNetworking.NetPlayers[I+1].GetInstantPing);
   end
   else
-    Label_LobbyPing[i].Caption := '';
+    Label_LobbyPing[I].Caption := '';
   Label_LobbyServerName.Caption := fNetworking.ServerName+' #'+IntToStr(fNetworking.ServerRoom+1)+
                                    '  '+fNetworking.ServerAddress+' : '+fNetworking.ServerPort;
 end;
@@ -884,6 +904,8 @@ begin
 end;
 
 
+//We have received MapName
+//Update UI to show it
 procedure TKMGUIMenuLobby.Lobby_OnMapName(const aData: string);
 var
   M: TKMapInfo;
@@ -895,7 +917,9 @@ begin
   TrackBar_LobbySpeedPT.Enabled := TrackBar_LobbyPeacetime.Enabled and (TrackBar_LobbyPeacetime.Position > 0);
   TrackBar_LobbySpeedAfterPT.Enabled := TrackBar_LobbyPeacetime.Enabled;
 
-  case  fNetworking.SelectGameKind of
+  Radio_LobbyMapType.ItemIndex := DetectMapType;
+
+  case fNetworking.SelectGameKind of
     ngk_None: begin
                 Memo_LobbyMapDesc.Clear;
                 if aData = fTextLibrary[TX_LOBBY_MAP_NONE] then
@@ -908,27 +932,11 @@ begin
               end;
     ngk_Save: begin
                 S := fNetworking.SaveInfo;
-                if not fNetworking.IsHost then
-                  Radio_LobbyMapType.ItemIndex := 4;
-
                 Label_LobbyMapName.Caption := S.FileName;
                 Memo_LobbyMapDesc.Text := S.Info.GetTitleWithTime;
               end;
     ngk_Map:  begin
                 M := fNetworking.MapInfo;
-                if not fNetworking.IsHost then
-                begin
-                  if M.IsCoop then
-                    Radio_LobbyMapType.ItemIndex := 2
-                  else
-                    if M.IsSpecial then
-                      Radio_LobbyMapType.ItemIndex := 3
-                    else
-                      if M.MissionMode = mm_Tactic then
-                        Radio_LobbyMapType.ItemIndex := 1
-                      else
-                        Radio_LobbyMapType.ItemIndex := 0;
-                end;
 
                 //Only load the minimap preview if the map is valid
                 if M.IsValid then
@@ -957,26 +965,13 @@ procedure TKMGUIMenuLobby.Lobby_OnReassignedToHost(Sender: TObject);
         Break;
       end;
   end;
-var OldMapType: byte;
+var OldMapType: Integer;
 begin
   Lobby_Reset(lpk_Host, True, True); //Will reset the lobby page into host mode, preserving messages/maps
   OldMapType := Radio_LobbyMapType.ItemIndex;
-  if fNetworking.SelectGameKind = ngk_None then
-    Radio_LobbyMapType.ItemIndex := 0 //Default
-  else
-    if fNetworking.SelectGameKind = ngk_Save then
-      Radio_LobbyMapType.ItemIndex := 4
-    else
-      if fNetworking.MapInfo.IsCoop then
-        Radio_LobbyMapType.ItemIndex := 2
-      else
-        if fNetworking.MapInfo.IsSpecial then
-          Radio_LobbyMapType.ItemIndex := 3
-        else
-          if fNetworking.MapInfo.MissionMode = mm_Tactic then
-            Radio_LobbyMapType.ItemIndex := 1
-          else
-            Radio_LobbyMapType.ItemIndex := 0;
+
+  //Pick correct position of map type selector
+  Radio_LobbyMapType.ItemIndex := DetectMapType;
 
   //Don't force rescanning all the maps unless the map type changed or no map was selected
   if (Radio_LobbyMapType.ItemIndex <> OldMapType) or (DropCol_LobbyMaps.ItemIndex = -1) then
@@ -984,18 +979,17 @@ begin
   else
     Lobby_RefreshMapList(False); //Just fill the list from fMapMP
 
-  if fNetworking.SelectGameKind = ngk_Save then
-    SelectByName(fNetworking.SaveInfo.FileName) //Select the map
-  else
-    if fNetworking.SelectGameKind = ngk_Map then
-      SelectByName(fNetworking.MapInfo.FileName); //Select the map
+  case fNetworking.SelectGameKind of
+    ngk_Map:  SelectByName(fNetworking.MapInfo.FileName);
+    ngk_Save: SelectByName(fNetworking.SaveInfo.FileName);
+  end;
 
   Lobby_OnGameOptions(nil);
-  if fNetworking.SelectGameKind = ngk_Save then
-    Lobby_OnMapName(fNetworking.SaveInfo.FileName)
-  else
-    if fNetworking.SelectGameKind = ngk_Map then
-      Lobby_OnMapName(fNetworking.MapInfo.FileName);
+
+  case fNetworking.SelectGameKind of
+    ngk_Map:  Lobby_OnMapName(fNetworking.MapInfo.FileName);
+    ngk_Save: Lobby_OnMapName(fNetworking.SaveInfo.FileName);
+  end;
 end;
 
 
@@ -1020,14 +1014,14 @@ begin
 end;
 
 
-procedure TKMGUIMenuLobby.Lobby_OnMessage(const aData:string);
+procedure TKMGUIMenuLobby.Lobby_OnMessage(const aData: string);
 begin
   Memo_LobbyPosts.Add(aData);
 end;
 
 
 //We were disconnected from Server. Either we were kicked, or connection broke down
-procedure TKMGUIMenuLobby.Lobby_OnDisconnect(const aData:string);
+procedure TKMGUIMenuLobby.Lobby_OnDisconnect(const aData: string);
 begin
   fNetworking.Disconnect;
   fSoundLib.Play(sfxn_Error);
