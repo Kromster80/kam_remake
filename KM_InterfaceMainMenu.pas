@@ -583,7 +583,7 @@ begin
     gr_Defeat:    Label_Results.Caption := fTextLibrary[TX_MENU_MISSION_DEFEAT];
     gr_Cancel:    Label_Results.Caption := fTextLibrary[TX_MENU_MISSION_CANCELED];
     gr_ReplayEnd: Label_Results.Caption := fTextLibrary[TX_MENU_REPLAY_ENDED];
-    else          Label_Results.Caption := NO_TEXT; //Thats string used in all Synetic games for missing texts =)
+    else          Label_Results.Caption := NO_TEXT;
   end;
   //Append mission name and time after the result message
   Label_Results.Caption := Label_Results.Caption + ' - ' + fGame.GameName; //Don't show the mission time in SP because it's already shown elsewhere
@@ -765,7 +765,7 @@ begin
     gr_Defeat:    Label_ResultsMP.Caption := fTextLibrary[TX_MENU_MISSION_DEFEAT];
     gr_Cancel:    Label_ResultsMP.Caption := fTextLibrary[TX_MENU_MISSION_CANCELED];
     gr_ReplayEnd: Label_ResultsMP.Caption := fTextLibrary[TX_MENU_REPLAY_ENDED];
-    else          Label_ResultsMP.Caption := NO_TEXT; //Thats string used in all Synetic games for missing texts =)
+    else          Label_ResultsMP.Caption := NO_TEXT;
   end;
   //Append mission name and time after the result message
   Label_ResultsMP.Caption := Label_ResultsMP.Caption + ' - ' + fGame.GameName + ' - ' + TimeToString(fGame.MissionTime);

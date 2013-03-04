@@ -12,7 +12,9 @@ const
   //Load text IDs from this include file that is managed by the Translation Manager
   {$I KM_TextIDs.inc}
 
-  NO_TEXT = '<<<LEER>>>'; //Supposed for places where some text must be placed
+  //Supposed for places where some text must be placed
+  //That string was used in all Synetic games for missing texts
+  NO_TEXT = '<<<LEER>>>';
 
 type
   TTextLibrary = class
