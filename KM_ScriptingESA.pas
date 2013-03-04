@@ -116,7 +116,7 @@ type
     procedure SetTradeAllowed(aPlayer, aResType: Word; aAllowed: Boolean);
     procedure ShowMsg(aPlayer, aIndex: Word);
     procedure ShowMsgFormatted(aPlayer, aIndex: Word; const Args: array of const);
-    function UnitDirectionSet(aUnitID, aDirection: Integer): Boolean;
+    function  UnitDirectionSet(aUnitID, aDirection: Integer): Boolean;
     procedure UnitHungerSet(aUnitID, aHungerLevel: Integer);
     procedure UnitKill(aUnitID: Integer);
     function  UnitOrderWalk(aUnitID: Integer; X, Y: Word): Boolean;

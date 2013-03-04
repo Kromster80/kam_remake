@@ -16,6 +16,7 @@ type
     tkAbyss, tkGravel, tkWater, tkCoal, tkGold,
     tkIron, tkFastWater, tkLava);
 
+  //Terrain helper that is used to paint terrain types by Map Editor
   TKMTerrainPainter = class
   private
     //Fraction part of height, for smooth height editing

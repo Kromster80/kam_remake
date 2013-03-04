@@ -122,12 +122,15 @@ type
     procedure SwitchPage(Sender: TObject);
     procedure DisplayPage(aPage: TKMPanel);
     procedure DisplayHint(Sender: TObject);
-    procedure ShowHouseInfo(Sender:TKMHouse);
-    procedure ShowUnitInfo(Sender:TKMUnit);
+    procedure Player_UpdateColors;
+    procedure RightClick_Cancel;
+    procedure ShowHouseInfo(Sender: TKMHouse);
+    procedure ShowUnitInfo(Sender: TKMUnit);
     procedure ShowGroupInfo(Sender: TKMUnitGroup);
     procedure ShowMarkerInfo(aMarker: TKMMapEdMarker);
     procedure SetActivePlayer(aIndex: TPlayerIndex);
-    procedure SetTileDirection(aTileDirection: byte);
+    procedure SetTileDirection(aTileDirection: Byte);
+    procedure UpdateAITabsEnabled;
   protected
     Panel_Main:TKMPanel;
       MinimapView: TKMMinimapView;
@@ -357,11 +360,7 @@ type
   public
     constructor Create(aScreenX, aScreenY: word);
     destructor Destroy; override;
-    procedure Player_UpdateColors;
-    procedure UpdateAITabsEnabled;
-    procedure SetMinimap;
-    procedure SetMapName(const aName:string);
-    procedure RightClick_Cancel;
+
     function GetShownPage: TKMMapEdShownPage;
     procedure SetLoadMode(aMultiplayer:boolean);
     procedure ShowMessage(aText: string);
@@ -373,6 +372,7 @@ type
     procedure MouseUp(Button: TMouseButton; Shift: TShiftState; X,Y: Integer); override;
 
     procedure Resize(X,Y: Word); override;
+    procedure SyncUI;
     procedure UpdateState(aTickCount: Cardinal); override;
     procedure Paint; override;
   end;
@@ -1733,9 +1733,31 @@ end;
 
 //Should update any items changed by game (resource counts, hp, etc..)
 procedure TKMapEdInterface.UpdateState(aTickCount: Cardinal);
+const
+  CAP_COLOR: array [Boolean] of TColor4 = ($80808080, $FFFFFFFF);
+var
+  I: Integer;
 begin
+  //Show players without assets in grey
+  if aTickCount mod 10 = 0 then
+  for I := 0 to MAX_PLAYERS - 1 do
+    Button_PlayerSelect[I].FontColor := CAP_COLOR[fPlayers[I].HasAssets];
+
   if fMaps <> nil then fMaps.UpdateState;
   if fMapsMP <> nil then fMapsMP.UpdateState;
+end;
+
+
+//Update UI state according to game state
+procedure TKMapEdInterface.SyncUI;
+begin
+  Player_UpdateColors;
+  UpdateAITabsEnabled;
+
+  Label_MissionName.Caption := fGame.GameName;
+
+  MinimapView.SetMinimap(fGame.Minimap);
+  MinimapView.SetViewport(fGame.Viewport);
 end;
 
 
@@ -1744,19 +1766,6 @@ begin
   fGame.MapEditor.PaintUI;
 
   inherited;
-end;
-
-
-procedure TKMapEdInterface.SetMinimap;
-begin
-  MinimapView.SetMinimap(fGame.Minimap);
-  MinimapView.SetViewport(fGame.Viewport);
-end;
-
-
-procedure TKMapEdInterface.SetMapName(const aName: string);
-begin
-  Label_MissionName.Caption := aName;
 end;
 
 
@@ -1826,8 +1835,6 @@ end;
 
 
 procedure TKMapEdInterface.Player_UpdateColors;
-const
-  CAP_COLOR: array [Boolean] of TColor4 = ($80808080, $FFFFFFFF);
 var
   I: Integer;
 begin
@@ -1843,10 +1850,6 @@ begin
     Button_Warriors[I].FlagColor := MyPlayer.FlagColor;
   Button_Player[ptColor].FlagColor := MyPlayer.FlagColor;
   Button_Reveal.FlagColor := MyPlayer.FlagColor;
-
-  //todo: Move to a better place
-  for I := 0 to MAX_PLAYERS - 1 do
-    Button_PlayerSelect[I].FontColor := CAP_COLOR[(fPlayers[I].Units.Count > 0) or (fPlayers[I].Houses.Count > 0)];
 end;
 
 
@@ -2785,7 +2788,7 @@ begin
 end;
 
 
-procedure TKMapEdInterface.SetTileDirection(aTileDirection: byte);
+procedure TKMapEdInterface.SetTileDirection(aTileDirection: Byte);
 begin
   fTileDirection := aTileDirection mod 4; //0..3
   GameCursor.MapEdDir := fTileDirection;
@@ -3427,7 +3430,7 @@ begin
   if fMyControls.CtrlOver <> nil then
   begin
     fMyControls.MouseUp(X,Y,Shift,Button);
-    exit; //We could have caused fGame reinit, so exit at once
+    Exit; //We could have caused fGame reinit, so exit at once
   end;
 
   fGame.UpdateGameCursor(X, Y, Shift); //Updates the shift state
@@ -3438,11 +3441,11 @@ begin
 
     //Right click performs some special functions and shortcuts
     case GameCursor.Mode of
-      cmTiles:   begin
+      cmTiles:    begin
                     SetTileDirection(GameCursor.MapEdDir+1); //Rotate tile direction
                     TilesRandom.Checked := false; //Reset
                   end;
-      cmObjects: fTerrain.Land[P.Y,P.X].Obj := 255; //Delete object
+      cmObjects:  fTerrain.Land[P.Y,P.X].Obj := 255; //Delete object
     end;
     //Move the selected object to the cursor location
     if fPlayers.Selected is TKMHouse then
@@ -3462,7 +3465,6 @@ begin
                      end;
         mtRevealFOW: fGame.MapEditor.Revealers[fActiveMarker.Owner][fActiveMarker.Index] := P;
       end;
-
   end
   else
   if Button = mbLeft then //Only allow placing of roads etc. with the left mouse button

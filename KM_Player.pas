@@ -81,6 +81,7 @@ type
     procedure SetPlayerID(aNewIndex: TPlayerIndex);
     property PlayerName: string read fPlayerName write fPlayerName;
     function GetFormattedPlayerName: string;
+    function HasAssets: Boolean;
     property PlayerType: TPlayerType read fPlayerType write fPlayerType; //Is it Human or AI
     property FlagColor: Cardinal read fFlagColor write fFlagColor;
     property FlagColorIndex: Byte read GetColorIndex;
@@ -726,6 +727,13 @@ begin
     inc(I);
     H := TKMHouseInn(FindHouse(ht_Inn, I));
   until(H = nil);
+end;
+
+
+//Does the player has any assets (without assets player is harmless)
+function TKMPlayer.HasAssets: Boolean;
+begin
+  Result := (Units.Count > 0) or (Houses.Count > 0);
 end;
 
 

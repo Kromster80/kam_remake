@@ -65,7 +65,7 @@ type
     procedure MultiplayerRig;
     procedure SaveGame(const aPathName: string);
     procedure UpdatePeaceTime;
-    procedure UpdateUI;
+    procedure SyncUI;
   public
     PlayOnState: TGameResultMsg;
     DoGameHold: Boolean; //Request to run GameHold after UpdateState has finished
@@ -493,10 +493,12 @@ begin
   if fGameMode in [gmSingle, gmMulti] then
     SaveGame(SaveName('basesave', 'bas', IsMultiplayer));
 
-  //When everything is ready we can update UI
-  UpdateUI;
-  fViewport.Position := KMPointF(MyPlayer.CenterScreen);
+  //MissionStart goes after basesave to keep it pure (repeats on Load of basesave)
   fScripting.ProcMissionStart;
+
+  //When everything is ready we can update UI
+  SyncUI;
+  fViewport.Position := KMPointF(MyPlayer.CenterScreen);
 
   fLog.AddTime('Gameplay initialized', true);
 end;
@@ -813,8 +815,7 @@ begin
     fPlayers[I].FogOfWar.RevealEverything;
 
   //When everything is ready we can update UI
-  UpdateUI;
-  fViewport.Position := KMPointF(aSizeX/2, aSizeY/2);
+  SyncUI;
 
   fLog.AddTime('Gameplay initialized', True);
 end;
@@ -1305,8 +1306,12 @@ begin
     CopyFile(PChar(ChangeFileExt(aPathName, '.bas')), PChar(SaveName('basesave', 'bas', IsMultiplayer)), False);
   end;
 
+  //Repeat mission init if necessary
+  if fGameTickCount = 0 then
+    fScripting.ProcMissionStart;
+
   //When everything is ready we can update UI
-  UpdateUI;
+  SyncUI;
   if SaveIsMultiplayer then //MP does not saves view position cos of save identity for all players
     fViewport.Position := KMPointF(MyPlayer.CenterScreen);
 
@@ -1440,24 +1445,22 @@ begin
 end;
 
 
-procedure TKMGame.UpdateUI;
+procedure TKMGame.SyncUI;
 begin
   fMinimap.LoadFromTerrain(fAlerts);
   fMinimap.Update(False);
 
   if fGameMode = gmMapEd then
   begin
-    fViewport.ResizeMap(fTerrain.MapX, fTerrain.MapY, 100/CELL_SIZE_PX);
+    fViewport.ResizeMap(fTerrain.MapX, fTerrain.MapY, 100 / CELL_SIZE_PX);
     fViewport.ResetZoom;
+    fViewport.Position := KMPointF(fTerrain.MapX / 2, fTerrain.MapY / 2);
 
-    fMapEditorInterface.Player_UpdateColors;
-    fMapEditorInterface.UpdateAITabsEnabled;
-    fMapEditorInterface.SetMapName(fGameName);
-    fMapEditorInterface.SetMinimap;
+    fMapEditorInterface.SyncUI;
   end
   else
   begin
-    fViewport.ResizeMap(fTerrain.MapX, fTerrain.MapY, fTerrain.TopHill/CELL_SIZE_PX);
+    fViewport.ResizeMap(fTerrain.MapX, fTerrain.MapY, fTerrain.TopHill / CELL_SIZE_PX);
     fViewport.ResetZoom;
 
     fGamePlayInterface.SetMinimap;
