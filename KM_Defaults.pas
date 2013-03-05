@@ -558,6 +558,9 @@ type
   ha_Fire1, ha_Fire2, ha_Fire3, ha_Fire4, ha_Fire5, ha_Fire6, ha_Fire7, ha_Fire8);
   THouseActionSet = set of THouseActionType;
 
+  TDemandType = (dt_Once, dt_Always); //Is this one-time demand like usual, or constant (storehouse, barracks)
+  TDemandImportance = (di_Norm, di_High);
+
 const
   HOUSE_MIN = ht_ArmorSmithy;
   HOUSE_MAX = ht_Woodcutters;

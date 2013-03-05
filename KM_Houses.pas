@@ -267,9 +267,9 @@ type
 
 implementation
 uses
-  KM_CommonTypes, KM_DeliverQueue, KM_RenderPool, KM_RenderAux, KM_Units, KM_Scripting,
+  KM_CommonTypes, KM_RenderPool, KM_RenderAux, KM_Units, KM_Scripting,
   KM_Units_Warrior, KM_PlayersCollection, KM_Sound, KM_Game, KM_TextLibrary, KM_Player,
-  KM_Resource, KM_ResourceResource, KM_ResourceHouse, KM_Utils;
+  KM_Resource, KM_ResourceHouse, KM_Utils;
 
 
 { TKMHouse }
@@ -834,6 +834,7 @@ const
     //rt_Sword, rt_Pike, rt_Hallebard, rt_Bow, rt_Arbalet
 begin
   //AI always order production of everything. Could be changed later with a script command to only make certain things
+  //todo: Make AI manage that
   if (fPlayers[fOwner].PlayerType = pt_Computer)
   and (fResource.HouseDat[fHouseType].ResOutput[aID] <> rt_None) then
     Result := DefOrderCount[fResource.HouseDat[fHouseType].ResOutput[aID]]
