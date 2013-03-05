@@ -494,10 +494,22 @@ begin
   //by manually sending that command (with Enter or Send)
   //@Lewin: What do you think, how do we handle incomplete chat message if there's any?
   //Guess we could just append the command and let player sort it out way he likes
+  //@Krom: I'm not sure. I guess the player will learn to not use these features while
+  //       he has an imcomplete message. They're really just hints to help people learn
+  //       the "console commands" and give you the player number.
+  //       However, a better option would be to stop using "console commands" completely and do everything with
+  //       buttons/UI (add a confirm dialog). I don't really like console commands because player IDs
+  //       are confusing and unreliable (if the 2nd player leaves, the IDs below him all shift up and 3rd becomes 2nd etc.)
+  //       If clicking the flag can do everything the console commands can do, then we don't need the commands.
 
   //todo: Allow to edit banlist from Settings menu, so that any mistake bans could be easily reverted
   //@Lewin: I think banlist could be global, so that any future rooms hosted by the player had his banlist applied
   //What to do about host reassign if there are banned ppl in the room? I suggest keep em, but if they leave they can't reenter
+  //@Krom: We can't really do global bans because player's IP addresses change all the time (and we have no other way to identify someone).
+  //       For now I think bans only apply to the current room, once/if we have an accounts system we can do global bans.
+  //       My idea was for bans to be managed completely by the server, since player's don't actually know each other's IPs.
+  //       So the host says "please ban client 3257" and the server adds his IP to the ban list for this room. The ban list
+  //       is then reset when the room becomes empty. Maybe we need to call the button "ban from this lobby" instead.
 
   //Item picked - hide the menu
   Shape_PlayerMenuBG.Hide;

@@ -388,6 +388,12 @@ end;
 
 
 //@Lewin: Why do we count recruits as citizens some times and some times not?
+//@Krom: Because we don't want recruits on the citizens graph on the results screen.
+//       If we include recruits the citizens graph drops by 50-100 at peacetime because all the recruits
+//       become soldiers, and continually fluctuates. Recruits dominate the graph, meaning you can't use
+//       it for the intended purpose of looking at your villagers. The army graph already indicates when
+//       you trained soldiers, no need to see big variations in the citizens graph because of recruits.
+//       To be converted to a comment explaining what aIncludeRecruits is needed for.
 function TKMPlayerStats.GetCitizensCount(aIncludeRecruits:Boolean=True): Integer;
 var UT: TUnitType;
 begin
