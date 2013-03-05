@@ -6,7 +6,7 @@ uses
   {$IFDEF MSWindows} Windows, {$ENDIF}
   Classes, SysUtils, TypInfo, Forms, KromUtils,
   KM_CommonClasses, KM_CommonTypes, KM_NetworkTypes, KM_Defaults,
-  KM_Player, KM_Saves, KM_GameInfo, KM_GameOptions,
+  KM_Saves, KM_GameInfo, KM_GameOptions,
   KM_Maps, KM_NetPlayersList, KM_DedicatedServer, KM_NetClient, KM_ServerQuery;
 
 type

@@ -3,7 +3,7 @@ unit KM_HouseMarket;
 interface
 uses
    Classes, Math,
-   KM_CommonClasses, KM_Defaults, KM_Houses, KM_Points;
+   KM_CommonClasses, KM_Defaults, KM_Houses;
 
 type
   //Marketplace
