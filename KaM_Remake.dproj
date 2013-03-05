@@ -150,6 +150,7 @@
 			<DCCReference Include="KM_Goals.pas"/>
 			<DCCReference Include="KM_GUIMenuLobby.pas"/>
 			<DCCReference Include="KM_GUIMenuOptions.pas"/>
+			<DCCReference Include="KM_HouseCollection.pas"/>
 			<DCCReference Include="KM_HouseMarket.pas"/>
 			<DCCReference Include="KM_Houses.pas"/>
 			<DCCReference Include="KM_HTTPClient.pas"/>

@@ -4,7 +4,7 @@ interface
 uses Classes, KromUtils, SysUtils, Math,
   KM_CommonClasses, KM_Defaults, KM_Points,
   KM_ArmyEvaluation, KM_BuildList, KM_DeliverQueue, KM_FogOfWar,
-  KM_Goals, KM_Houses, KM_Terrain, KM_AI, KM_PlayerStats, KM_Units, KM_UnitGroups, KM_MapEditor;
+  KM_Goals, KM_HouseCollection, KM_Houses, KM_Terrain, KM_AI, KM_PlayerStats, KM_Units, KM_UnitGroups, KM_MapEditor;
 
 
 type

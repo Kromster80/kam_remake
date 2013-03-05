@@ -51,7 +51,7 @@ type
 
 
 implementation
-uses KM_Houses, KM_Player, KM_PlayersCollection, KM_RenderAux, KM_Terrain;
+uses KM_HouseCollection, KM_Houses, KM_Player, KM_PlayersCollection, KM_RenderAux, KM_Terrain;
 
 
 const

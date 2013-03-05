@@ -44,7 +44,8 @@ type
 
 implementation
 uses
-  KM_DeliverQueue, KM_PlayersCollection, KM_RenderPool, KM_Resource, KM_ResourceResource, KM_Sound;
+  KM_DeliverQueue, KM_PlayersCollection, KM_RenderPool,
+  KM_Resource, KM_ResourceResource, KM_Sound;
 
 
 { TKMHouseMarket }
