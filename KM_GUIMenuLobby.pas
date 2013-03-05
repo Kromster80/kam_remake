@@ -18,8 +18,15 @@ type
     fMinimap: TKMMinimap;
     fNetworking: TKMNetworking;
 
+    procedure CreateControls(aParent: TKMPanel);
+    procedure CreatePlayerMenu(aParent: TKMPanel);
+    procedure CreateSettingsPopUp(aParent: TKMPanel);
+
     procedure Lobby_Reset(aKind: TNetPlayerKind; aPreserveMessage: Boolean = False; aPreserveMaps: Boolean = False);
     procedure Lobby_GameOptionsChange(Sender: TObject);
+    procedure PlayerMenuClick(Sender: TObject);
+    procedure PlayerMenuHide(Sender: TObject);
+    procedure PlayerMenuShow(Sender: TObject);
     procedure Lobby_PlayersSetupChange(Sender: TObject);
     procedure Lobby_MapColumnClick(aValue: Integer);
     procedure Lobby_MapTypeSelect(Sender: TObject);
@@ -49,6 +56,9 @@ type
         Edit_LobbyPassword: TKMEdit;
         Button_LobbySettingsSave: TKMButton;
         Button_LobbySettingsCancel: TKMButton;
+
+      Shape_PlayerMenuBG: TKMShape;
+      Listbox_PlayerMenu: TKMListBox;
 
       Panel_LobbyServerName: TKMPanel;
         Label_LobbyServerName: TKMLabel;
@@ -98,32 +108,6 @@ uses KM_TextLibrary, KM_Locales, KM_Utils, KM_Sound, KM_RenderUI;
 
 { TKMGUIMenuLobby }
 constructor TKMGUIMenuLobby.Create(aParent: TKMPanel; aOnPageChange: TGUIEventText);
-  procedure LobbySettingsPopUp;
-  begin
-    Panel_LobbySettings := TKMPanel.Create(aParent, 362, 250, 320, 300);
-    Panel_LobbySettings.Anchors := [];
-      TKMBevel.Create(Panel_LobbySettings, -1000,  -1000, 4000, 4000);
-      TKMImage.Create(Panel_LobbySettings, -20, -75, 340, 310, 15, rxGuiMain);
-      TKMBevel.Create(Panel_LobbySettings,   0,  0, 320, 300);
-      TKMLabel.Create(Panel_LobbySettings,  20, 10, 280, 20, 'Room settings', fnt_Outline, taCenter);
-
-      TKMLabel.Create(Panel_LobbySettings, 20, 50, 156, 20, 'Description', fnt_Outline, taLeft);
-      Edit_LobbyDescription := TKMEdit.Create(Panel_LobbySettings, 20, 70, 152, 20, fnt_Grey);
-      Edit_LobbyDescription.AllowedChars := acText;
-
-      TKMLabel.Create(Panel_LobbySettings, 20, 100, 156, 20, 'Password', fnt_Outline, taLeft);
-      Edit_LobbyPassword := TKMEdit.Create(Panel_LobbySettings, 20, 120, 152, 20, fnt_Grey);
-      Edit_LobbyPassword.AllowedChars := acText;
-
-      Button_LobbySettingsSave := TKMButton.Create(Panel_LobbySettings, 20, 160, 280, 30, 'Ok', bsMenu);
-      Button_LobbySettingsSave.OnClick := SettingsClick;
-      Button_LobbySettingsCancel := TKMButton.Create(Panel_LobbySettings, 20, 200, 280, 30, fTextLibrary[TX_MP_MENU_FIND_SERVER_CANCEL], bsMenu);
-      Button_LobbySettingsCancel.OnClick := SettingsClick;
-  end;
-const
-  CW = 690; C1 = 35; C2 = 195; C3 = 355; C4 = 445; C5 = 570; C6 = 650;
-var
-  i,k,top:integer;
 begin
   inherited Create;
 
@@ -134,10 +118,30 @@ begin
   fMapsMP := TKMapsCollection.Create(True);
   fSavesMP := TKMSavesCollection.Create;
 
+  CreateControls(aParent);
+  CreatePlayerMenu(aParent);
+  CreateSettingsPopUp(aParent);
+end;
+
+
+destructor TKMGUIMenuLobby.Destroy;
+begin
+  fMapsMP.Free;
+  fSavesMP.Free;
+  fMinimap.Free;
+
+  inherited;
+end;
+
+
+procedure TKMGUIMenuLobby.CreateControls(aParent: TKMPanel);
+const
+  CW = 690; C1 = 35; C2 = 195; C3 = 355; C4 = 445; C5 = 570; C6 = 650;
+var
+  I, K, OffY: Integer;
+begin
   Panel_Lobby := TKMPanel.Create(aParent,0,0,aParent.Width, aParent.Height);
   Panel_Lobby.Stretch;
-
-    LobbySettingsPopUp;
 
     //Server Name
     Panel_LobbyServerName := TKMPanel.Create(Panel_Lobby, 30, 30, CW, 30);
@@ -151,6 +155,7 @@ begin
       CheckBox_LobbyHostControl := TKMCheckBox.Create(Panel_LobbyPlayers, 10, 10, 450, 20, fTextLibrary[TX_LOBBY_HOST_DOES_SETUP], fnt_Metal);
       CheckBox_LobbyHostControl.OnClick := Lobby_PlayersSetupChange;
 
+      //Column titles
       TKMLabel.Create(Panel_LobbyPlayers, C1, 40, 150,  20, fTextLibrary[TX_LOBBY_HEADER_PLAYERS], fnt_Outline, taLeft);
       TKMLabel.Create(Panel_LobbyPlayers, C2, 40, 150,  20, fTextLibrary[TX_LOBBY_HEADER_STARTLOCATION], fnt_Outline, taLeft);
       TKMLabel.Create(Panel_LobbyPlayers, C3, 40,  80,  20, fTextLibrary[TX_LOBBY_HEADER_TEAM], fnt_Outline, taLeft);
@@ -158,43 +163,46 @@ begin
       TKMLabel.Create(Panel_LobbyPlayers, C5, 40, fTextLibrary[TX_LOBBY_HEADER_READY], fnt_Outline, taCenter);
       TKMLabel.Create(Panel_LobbyPlayers, C6, 40, fTextLibrary[TX_LOBBY_HEADER_PING], fnt_Outline, taCenter);
 
-      for i:=0 to MAX_PLAYERS-1 do begin
-        top := 60+i*24;
-        Image_LobbyFlag[i] := TKMImage.Create(Panel_LobbyPlayers, 10, top+3, 16, 11, 0, rxGuiMain);
+      for I := 0 to MAX_PLAYERS - 1 do
+      begin
+        OffY := 60 + I * 24;
+        Image_LobbyFlag[I] := TKMImage.Create(Panel_LobbyPlayers, 10, OffY, 20, 20, 0, rxGuiMain);
+        Image_LobbyFlag[I].ImageCenter;
+        Image_LobbyFlag[I].OnClick := PlayerMenuShow;
 
-        Label_LobbyPlayer[i] := TKMLabel.Create(Panel_LobbyPlayers, C1, top+2, 150, 20, '', fnt_Grey, taLeft);
-        Label_LobbyPlayer[i].Hide;
+        Label_LobbyPlayer[I] := TKMLabel.Create(Panel_LobbyPlayers, C1, OffY+2, 150, 20, '', fnt_Grey, taLeft);
+        Label_LobbyPlayer[I].Hide;
 
-        DropBox_LobbyPlayerSlot[i] := TKMDropList.Create(Panel_LobbyPlayers, C1, top, 150, 20, fnt_Grey, '', bsMenu);
-        DropBox_LobbyPlayerSlot[i].Add(fTextLibrary[TX_LOBBY_SLOT_OPEN]); //Player can join into this slot
-        DropBox_LobbyPlayerSlot[i].Add(fTextLibrary[TX_LOBBY_SLOT_CLOSED]); //Closed, nobody can join it
-        DropBox_LobbyPlayerSlot[i].Add(fTextLibrary[TX_LOBBY_SLOT_AI_PLAYER]); //This slot is an AI player
-        DropBox_LobbyPlayerSlot[i].ItemIndex := 0; //Open
-        DropBox_LobbyPlayerSlot[i].OnChange := Lobby_PlayersSetupChange;
+        DropBox_LobbyPlayerSlot[I] := TKMDropList.Create(Panel_LobbyPlayers, C1, OffY, 150, 20, fnt_Grey, '', bsMenu);
+        DropBox_LobbyPlayerSlot[I].Add(fTextLibrary[TX_LOBBY_SLOT_OPEN]); //Player can join into this slot
+        DropBox_LobbyPlayerSlot[I].Add(fTextLibrary[TX_LOBBY_SLOT_CLOSED]); //Closed, nobody can join it
+        DropBox_LobbyPlayerSlot[I].Add(fTextLibrary[TX_LOBBY_SLOT_AI_PLAYER]); //This slot is an AI player
+        DropBox_LobbyPlayerSlot[I].ItemIndex := 0; //Open
+        DropBox_LobbyPlayerSlot[I].OnChange := Lobby_PlayersSetupChange;
 
-        DropBox_LobbyLoc[i] := TKMDropList.Create(Panel_LobbyPlayers, C2, top, 150, 20, fnt_Grey, '', bsMenu);
-        DropBox_LobbyLoc[i].Add(fTextLibrary[TX_LOBBY_RANDOM]);
-        DropBox_LobbyLoc[i].OnChange := Lobby_PlayersSetupChange;
+        DropBox_LobbyLoc[I] := TKMDropList.Create(Panel_LobbyPlayers, C2, OffY, 150, 20, fnt_Grey, '', bsMenu);
+        DropBox_LobbyLoc[I].Add(fTextLibrary[TX_LOBBY_RANDOM]);
+        DropBox_LobbyLoc[I].OnChange := Lobby_PlayersSetupChange;
 
-        DropBox_LobbyTeam[i] := TKMDropList.Create(Panel_LobbyPlayers, C3, top, 80, 20, fnt_Grey, '', bsMenu);
-        DropBox_LobbyTeam[i].Add('-');
-        for k:=1 to 4 do DropBox_LobbyTeam[i].Add(IntToStr(k));
-        DropBox_LobbyTeam[i].OnChange := Lobby_PlayersSetupChange;
+        DropBox_LobbyTeam[I] := TKMDropList.Create(Panel_LobbyPlayers, C3, OffY, 80, 20, fnt_Grey, '', bsMenu);
+        DropBox_LobbyTeam[I].Add('-');
+        for K := 1 to 4 do DropBox_LobbyTeam[I].Add(IntToStr(K));
+        DropBox_LobbyTeam[I].OnChange := Lobby_PlayersSetupChange;
 
-        Drop_LobbyColors[i] := TKMDropColumns.Create(Panel_LobbyPlayers, C4, top, 80, 20, fnt_Grey, '', bsMenu);
-        Drop_LobbyColors[i].SetColumns(fnt_Outline, [''], [0]);
-        Drop_LobbyColors[i].List.ShowHeader := False;
-        Drop_LobbyColors[i].FadeImageWhenDisabled := False;
-        Drop_LobbyColors[i].Add(MakeListRow([''], [$FFFFFFFF], [MakePic(rxGuiMain, 31)], 0));
+        Drop_LobbyColors[I] := TKMDropColumns.Create(Panel_LobbyPlayers, C4, OffY, 80, 20, fnt_Grey, '', bsMenu);
+        Drop_LobbyColors[I].SetColumns(fnt_Outline, [''], [0]);
+        Drop_LobbyColors[I].List.ShowHeader := False;
+        Drop_LobbyColors[I].FadeImageWhenDisabled := False;
+        Drop_LobbyColors[I].Add(MakeListRow([''], [$FFFFFFFF], [MakePic(rxGuiMain, 31)], 0));
         for K := Low(MP_TEAM_COLORS) to High(MP_TEAM_COLORS) do
-          Drop_LobbyColors[i].Add(MakeListRow([''], [MP_TEAM_COLORS[K]], [MakePic(rxGuiMain, 30)]));
-        Drop_LobbyColors[i].OnChange := Lobby_PlayersSetupChange;
+          Drop_LobbyColors[I].Add(MakeListRow([''], [MP_TEAM_COLORS[K]], [MakePic(rxGuiMain, 30)]));
+        Drop_LobbyColors[I].OnChange := Lobby_PlayersSetupChange;
 
-        Image_LobbyReady[i] := TKMImage.Create(Panel_LobbyPlayers, C5-8, top, 16, 16, 32, rxGuiMain);
-        Label_LobbyPing[i] := TKMLabel.Create(Panel_LobbyPlayers, C6, top, '', fnt_Metal, taCenter);
+        Image_LobbyReady[I] := TKMImage.Create(Panel_LobbyPlayers, C5-8, OffY, 16, 16, 32, rxGuiMain);
+        Label_LobbyPing[I] := TKMLabel.Create(Panel_LobbyPlayers, C6, OffY, '', fnt_Metal, taCenter);
       end;
 
-    //Chat
+    //Chat area
     Memo_LobbyPosts := TKMMemo.Create(Panel_Lobby, 30, 330, CW, 320, fnt_Metal, bsMenu);
     Memo_LobbyPosts.AutoWrap := True;
     Memo_LobbyPosts.ScrollDown := True;
@@ -262,6 +270,7 @@ begin
     Button_LobbyBack.OnClick := BackClick;
 
     Button_LobbyChangeSettings := TKMButton.Create(Panel_Lobby, 265, 712, 220, 30, 'Room Settings', bsMenu);
+    Button_LobbyChangeSettings.Anchors := [akLeft, akBottom];
     Button_LobbyChangeSettings.OnClick := SettingsClick;
 
     Button_LobbyStart := TKMButton.Create(Panel_Lobby, 500, 712, 220, 30, NO_TEXT, bsMenu);
@@ -270,13 +279,46 @@ begin
 end;
 
 
-destructor TKMGUIMenuLobby.Destroy;
+procedure TKMGUIMenuLobby.CreatePlayerMenu(aParent: TKMPanel);
 begin
-  fMapsMP.Free;
-  fSavesMP.Free;
-  fMinimap.Free;
+  Shape_PlayerMenuBG := TKMShape.Create(aParent, 0,  0, aParent.Width, aParent.Height);
+  Shape_PlayerMenuBG.Stretch;
+  Shape_PlayerMenuBG.OnClick := PlayerMenuHide;
+  Shape_PlayerMenuBG.Hide;
 
-  inherited;
+  Listbox_PlayerMenu := TKMListBox.Create(aParent, 0, 0, 120, 120, fnt_Grey, bsMenu);
+  Listbox_PlayerMenu.Height := Listbox_PlayerMenu.ItemHeight * 3;
+  Listbox_PlayerMenu.AutoHideScrollBar := True;
+  Listbox_PlayerMenu.Focusable := False;
+  Listbox_PlayerMenu.Add('/whisper');
+  Listbox_PlayerMenu.Add('/kick');
+  Listbox_PlayerMenu.Add('/ban');
+  Listbox_PlayerMenu.OnClick := PlayerMenuClick;
+  Listbox_PlayerMenu.Hide;
+end;
+
+
+procedure TKMGUIMenuLobby.CreateSettingsPopUp(aParent: TKMPanel);
+begin
+  Panel_LobbySettings := TKMPanel.Create(aParent, 362, 250, 320, 300);
+  Panel_LobbySettings.Anchors := [];
+    TKMBevel.Create(Panel_LobbySettings, -1000,  -1000, 4000, 4000);
+    TKMImage.Create(Panel_LobbySettings, -20, -75, 340, 310, 15, rxGuiMain);
+    TKMBevel.Create(Panel_LobbySettings,   0,  0, 320, 300);
+    TKMLabel.Create(Panel_LobbySettings,  20, 10, 280, 20, 'Room settings', fnt_Outline, taCenter);
+
+    TKMLabel.Create(Panel_LobbySettings, 20, 50, 156, 20, 'Description', fnt_Outline, taLeft);
+    Edit_LobbyDescription := TKMEdit.Create(Panel_LobbySettings, 20, 70, 152, 20, fnt_Grey);
+    Edit_LobbyDescription.AllowedChars := acText;
+
+    TKMLabel.Create(Panel_LobbySettings, 20, 100, 156, 20, 'Password', fnt_Outline, taLeft);
+    Edit_LobbyPassword := TKMEdit.Create(Panel_LobbySettings, 20, 120, 152, 20, fnt_Grey);
+    Edit_LobbyPassword.AllowedChars := acText;
+
+    Button_LobbySettingsSave := TKMButton.Create(Panel_LobbySettings, 20, 160, 280, 30, 'Ok', bsMenu);
+    Button_LobbySettingsSave.OnClick := SettingsClick;
+    Button_LobbySettingsCancel := TKMButton.Create(Panel_LobbySettings, 20, 200, 280, 30, fTextLibrary[TX_MP_MENU_FIND_SERVER_CANCEL], bsMenu);
+    Button_LobbySettingsCancel.OnClick := SettingsClick;
 end;
 
 
@@ -442,6 +484,48 @@ begin
 
   TrackBar_LobbySpeedAfterPT.Position   := Round((fNetworking.NetGameOptions.SpeedAfterPT - 1) * 2 + 1);
   TrackBar_LobbySpeedAfterPT.ThumbText  := 'x' + FloatToStr(fNetworking.NetGameOptions.SpeedAfterPT);
+end;
+
+
+procedure TKMGUIMenuLobby.PlayerMenuClick(Sender: TObject);
+begin
+  //todo: Handle selected action
+  //Construct chat command and paste it in chat to make the player verify his intent
+  //by manually sending that command (with Enter or Send)
+  //@Lewin: What do you think, how do we handle incomplete chat message if there's any?
+  //Guess we could just append the command and let player sort it out way he likes
+
+  //todo: Allow to edit banlist from Settings menu, so that any mistake bans could be easily reverted
+  //@Lewin: I think banlist could be global, so that any future rooms hosted by the player had his banlist applied
+  //What to do about host reassign if there are banned ppl in the room? I suggest keep em, but if they leave they can't reenter
+
+  //Item picked - hide the menu
+  Shape_PlayerMenuBG.Hide;
+  Listbox_PlayerMenu.Hide;
+end;
+
+
+procedure TKMGUIMenuLobby.PlayerMenuHide(Sender: TObject);
+begin
+  Shape_PlayerMenuBG.Hide;
+  Listbox_PlayerMenu.Hide;
+end;
+
+
+procedure TKMGUIMenuLobby.PlayerMenuShow(Sender: TObject);
+var C: TKMControl;
+begin
+  C := TKMControl(Sender);
+
+  //Position the menu next to the icon, but do not overlap players name
+  Listbox_PlayerMenu.Left := C.Left;
+  Listbox_PlayerMenu.Top := C.Top + C.Height;
+
+  //Reset previously selected item
+  Listbox_PlayerMenu.ItemIndex := -1;
+
+  Shape_PlayerMenuBG.Show;
+  Listbox_PlayerMenu.Show;
 end;
 
 
@@ -1065,8 +1149,6 @@ begin
     fNetworking.SetPassword(Edit_LobbyPassword.Text);
   end;
 end;
-
-
 
 
 //Should update anything we want to be updated, obviously

@@ -2,7 +2,7 @@ unit KM_HouseMarket;
 {$I KaM_Remake.inc}
 interface
 uses
-   Classes, Math,
+   Math,
    KM_CommonClasses, KM_Defaults, KM_Houses;
 
 type
@@ -44,8 +44,7 @@ type
 
 implementation
 uses
-  KM_DeliverQueue, KM_PlayersCollection, KM_RenderPool,
-  KM_Resource, KM_ResourceResource, KM_Sound;
+  KM_PlayersCollection, KM_RenderPool, KM_Resource, KM_ResourceResource, KM_Sound;
 
 
 { TKMHouseMarket }

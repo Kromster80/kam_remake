@@ -3724,6 +3724,7 @@ begin
 
   P := MasterParent;
   fShape := TKMShape.Create(P, 0, 0, P.Width, P.Height);
+  fShape.Stretch; //todo: Should be stretched t whole screen, not just Panel_Main which is constrained by MENU_DESIGN_SIZE
   fShape.fOnClick := ListHide;
 end;
 
