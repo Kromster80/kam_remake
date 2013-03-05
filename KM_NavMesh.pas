@@ -3,8 +3,8 @@ unit KM_NavMesh;
 interface
 uses
   Classes, KromUtils, Math, SysUtils, Graphics, Delaunay,
-  KM_CommonClasses, KM_CommonTypes, KM_Defaults,
-  KM_Points, KM_PolySimplify;
+  KM_CommonClasses, KM_CommonTypes, KM_Defaults, KM_Points,
+  KM_AIInfluences, KM_PolySimplify;
 
 type
   TKMWeightSegments = array of record
@@ -15,6 +15,9 @@ type
   //Strcucture to describe NavMesh layout
   TKMNavMesh = class
   private
+    //Access influences to read terrain ownership values
+    fInfluences: TKMInfluences;
+
     //Keep a copy of these temp arrays for debug rendering
     fRawOutlines: TKMShapesArray;
     fSimpleOutlines: TKMShapesArray;
@@ -51,6 +54,8 @@ type
     function PolyEnemyPresence(aIndex: Integer; aOwner: TPlayerIndex): Word;
     procedure UpdateOwnership;
   public
+    constructor Create(aInfluences: TKMInfluences);
+
     procedure Init;
     procedure GetDefenceOutline(aOwner: TPlayerIndex; out aOutline1, aOutline2: TKMWeightSegments);
 
@@ -63,10 +68,18 @@ type
 
 
 implementation
-uses KM_AIFields, KM_Outline, KM_PlayersCollection, KM_RenderAux, KM_Terrain;
+uses KM_Outline, KM_PlayersCollection, KM_RenderAux, KM_Terrain;
 
 
 { TKMNavMesh }
+constructor TKMNavMesh.Create(aInfluences: TKMInfluences);
+begin
+  inherited Create;
+
+  fInfluences := aInfluences;
+end;
+
+
 procedure TKMNavMesh.Init;
 var
   TileOutlines: TKMShapesArray;
@@ -310,10 +323,10 @@ begin
   for I := 0 to fNodeCount - 1 do
     for K := 0 to fPlayers.Count - 1 do
       fNodes[I].Owner[K] := Min(255, Max(
-        Max(fAIFields.Influences.Ownership[K, Max(fNodes[I].Loc.Y, 1), Max(fNodes[I].Loc.X, 1)],
-            fAIFields.Influences.Ownership[K, Max(fNodes[I].Loc.Y, 1), Min(fNodes[I].Loc.X+1, fTerrain.MapX - 1)]),
-        Max(fAIFields.Influences.Ownership[K, Min(fNodes[I].Loc.Y+1, fTerrain.MapY - 1), Max(fNodes[I].Loc.X, 1)],
-            fAIFields.Influences.Ownership[K, Min(fNodes[I].Loc.Y+1, fTerrain.MapY - 1), Min(fNodes[I].Loc.X+1, fTerrain.MapX - 1)])
+        Max(fInfluences.Ownership[K, Max(fNodes[I].Loc.Y, 1), Max(fNodes[I].Loc.X, 1)],
+            fInfluences.Ownership[K, Max(fNodes[I].Loc.Y, 1), Min(fNodes[I].Loc.X+1, fTerrain.MapX - 1)]),
+        Max(fInfluences.Ownership[K, Min(fNodes[I].Loc.Y+1, fTerrain.MapY - 1), Max(fNodes[I].Loc.X, 1)],
+            fInfluences.Ownership[K, Min(fNodes[I].Loc.Y+1, fTerrain.MapY - 1), Min(fNodes[I].Loc.X+1, fTerrain.MapX - 1)])
             ));
 end;
 

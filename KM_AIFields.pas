@@ -3,8 +3,8 @@ unit KM_AIFields;
 interface
 uses
   Classes, KromUtils, Math, SysUtils, Graphics,
-  KM_CommonClasses, KM_Terrain, KM_Defaults,
-  KM_Player, KM_Points, KM_AIInfluences, KM_NavMesh;
+  KM_CommonClasses, KM_Defaults,
+  KM_Points, KM_AIInfluences, KM_NavMesh;
 
 type
   //Influence maps, navmeshes, etc
@@ -33,7 +33,6 @@ var
 
 
 implementation
-uses KM_PlayersCollection, KM_RenderAux, KM_Houses;
 
 
 { TKMAIFields }
@@ -41,8 +40,8 @@ constructor TKMAIFields.Create;
 begin
   inherited;
 
-  fNavMesh := TKMNavMesh.Create;
   fInfluences := TKMInfluences.Create;
+  fNavMesh := TKMNavMesh.Create(fInfluences);
 end;
 
 

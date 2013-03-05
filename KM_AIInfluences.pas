@@ -3,8 +3,7 @@ unit KM_AIInfluences;
 interface
 uses
   Classes, Graphics, KromUtils, Math, SysUtils,
-  KM_CommonClasses, KM_Terrain, KM_Defaults,
-  KM_Player, KM_Points;
+  KM_CommonClasses, KM_Defaults, KM_Points;
 
 type
   //Strcucture to describe NavMesh layout
@@ -52,7 +51,7 @@ type
 
 
 implementation
-uses KM_PlayersCollection, KM_RenderAux, KM_Houses;
+uses KM_Houses, KM_Player, KM_PlayersCollection, KM_RenderAux, KM_Terrain;
 
 
 const
