@@ -12,7 +12,8 @@ type
     Weight: Single;
   end;
 
-  //Strcucture to describe NavMesh layout
+  //NavMesh is used to acess the map on a higher level than tiles
+  //terrain is represented as a mesh interconnected polygons
   TKMNavMesh = class
   private
     //Access influences to read terrain ownership values

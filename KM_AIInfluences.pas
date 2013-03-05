@@ -6,7 +6,7 @@ uses
   KM_CommonClasses, KM_Defaults, KM_Points;
 
 type
-  //Strcucture to describe NavMesh layout
+  //Collection of influence maps
   TKMInfluences = class
   private
     fMapX: Word;
@@ -24,7 +24,7 @@ type
     function GetOwnership(aPlayer: Byte; Y,X: Word): Byte;
     procedure SetOwnership(aPlayer: Byte; Y,X: Word; aOwnership: Byte);
 
-    property Influence[aPlayer:Byte; Y,X: Word]: Byte read GetInfluence write SetInfluence;
+    property Influence[aPlayer: Byte; Y,X: Word]: Byte read GetInfluence write SetInfluence;
 
     procedure InitInfluenceAvoid;
     procedure InitInfluenceOwnable;

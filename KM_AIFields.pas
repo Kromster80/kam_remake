@@ -7,7 +7,8 @@ uses
   KM_Points, KM_AIInfluences, KM_NavMesh;
 
 type
-  //Influence maps, navmeshes, etc
+  //Master class for Influence maps, NavMeshe and other terrain representations
+  //that are helpful in decision making by Mayour/General
   TKMAIFields = class
   private
     fNavMesh: TKMNavMesh;
