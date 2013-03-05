@@ -347,7 +347,10 @@ begin
 
       gic_TempAddScout:           if DEBUG_CHEATS and (MULTIPLAYER_CHEATS or not fGame.IsMultiplayer) then
                                   begin
-                                    W := TKMUnitWarrior(P.AddUnit(ut_HorseScout, KMPoint(Params[1], Params[2])));
+                                    //Place a warrior
+                                    W := TKMUnitWarrior(P.AddUnit(ut_HorseScout, KMPoint(Params[1], Params[2]), True, 0, False));
+
+                                    //Try to link warrior to suitable group
                                     if W <> nil then
                                       W.OnUnitTrained(W);
                                   end;

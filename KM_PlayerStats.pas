@@ -387,6 +387,7 @@ begin
 end;
 
 
+//@Lewin: Why do we count recruits as citizens some times and some times not?
 function TKMPlayerStats.GetCitizensCount(aIncludeRecruits:Boolean=True): Integer;
 var UT: TUnitType;
 begin

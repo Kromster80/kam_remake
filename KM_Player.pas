@@ -90,7 +90,7 @@ type
 
     procedure AfterMissionInit(aFlattenRoads: Boolean);
 
-    function AddUnit(aUnitType: TUnitType; aLoc: TKMPoint; AutoPlace: Boolean = True; aRequiredWalkConnect: Byte = 0): TKMUnit; reintroduce;
+    function AddUnit(aUnitType: TUnitType; aLoc: TKMPoint; AutoPlace: Boolean = True; aRequiredWalkConnect: Byte = 0; aAddToStats: Boolean = True): TKMUnit; reintroduce;
     function AddUnitGroup(aUnitType: TUnitType; Position: TKMPoint; aDir: TKMDirection; aUnitPerRow, aCount: Word): TKMUnitGroup;
 
     function TrainUnit(aUnitType: TUnitType; Position: TKMPoint): TKMUnit;
@@ -273,7 +273,7 @@ end;
 
 //Place unit of aUnitType to aLoc via script
 //AutoPlace - add unit to nearest available spot if aLoc is already taken (or unwalkable)
-function TKMPlayer.AddUnit(aUnitType: TUnitType; aLoc: TKMPoint; AutoPlace: Boolean = True; aRequiredWalkConnect: Byte = 0): TKMUnit;
+function TKMPlayer.AddUnit(aUnitType: TUnitType; aLoc: TKMPoint; AutoPlace: Boolean = True; aRequiredWalkConnect: Byte = 0; aAddToStats: Boolean = True): TKMUnit;
 begin
   Result := fUnits.AddUnit(fPlayerIndex, aUnitType, aLoc, AutoPlace, aRequiredWalkConnect);
 
@@ -288,7 +288,9 @@ begin
   if Result is TKMUnitSerf then
     fDeliveries.AddSerf(TKMUnitSerf(Result));
 
-  fStats.UnitCreated(aUnitType, False);
+  //When we place a cheat Scout we dont want to count it just yet, wait till it calls OnTrained
+  if aAddToStats then
+    fStats.UnitCreated(aUnitType, False);
 end;
 
 
@@ -319,7 +321,7 @@ begin
   if aUnit is TKMUnitWarrior then
   begin
     G := fUnitGroups.WarriorTrained(TKMUnitWarrior(aUnit));
-    Assert(G <> nil, 'It is certain that equipped warrior creates or find some group to join to');
+    Assert(G <> nil, 'It is certain that equipped warrior creates or finds some group to join to');
     G.OnGroupDied := GroupDied;
     fScripting.ProcWarriorEquipped(aUnit, G);
   end;

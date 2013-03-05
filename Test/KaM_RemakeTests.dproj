@@ -98,8 +98,10 @@
 			<DCCReference Include="TestKM_FogOfWar.pas"/>
 			<DCCReference Include="TestKM_Points.pas"/>
 			<DCCReference Include="TestKM_Utils.pas"/>
-			<DCCReference Include="TestKM_UnitActionGoInOut.pas"/>
-			<DCCReference Include="TestKM_MessageStack.pas"/>
+			<DCCReference Include="TestKM_UnitActionGoInOut.pas">
+				<Form>,
+  TestKM_MessageStack in &apos;TestKM_MessageStack.pas&apos;</Form>
+			</DCCReference>
 			<None Include="Profiling\AQtimeModule1.aqt"/>
 			<BuildConfiguration Include="Release">
 				<Key>Cfg_2</Key>

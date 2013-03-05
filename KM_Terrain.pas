@@ -2109,8 +2109,9 @@ var TilesFactored: Integer;
   procedure EnsureWalkable(aX,aY: Word);
   begin
     //We did not recalculated passability yet, hence tile has CanWalk but CheckHeightPass=False already
-    if (Land[aY,aX].IsUnit <> nil)
-    and CheckPassability(KMPoint(aX,aY), CanWalk)
+    if (CanWalk in Land[aY,aX].Passability)
+    //Yield in TestStone is much better if we comment this out, also general result is flatter/"friendlier"
+    //and (Land[aY,aX].IsUnit <> nil)
     and not CheckHeightPass(KMPoint(aX,aY), hpWalking)
     and not fMapEditor //Allow units to become "stuck" in MapEd, as height changing is allowed anywhere
     then

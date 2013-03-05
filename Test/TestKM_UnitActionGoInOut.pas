@@ -40,7 +40,7 @@ begin
   fPlayers.AddPlayers(1);
   MyPlayer := fPlayers[0];
 
-  fUnit := TKMUnit.Create(0, ut_Serf, 8, 10, 0);
+  fUnit := TKMUnit.Create(0, ut_Serf, KMPoint(8, 10), 0);
   fHouse := TKMHouse.Create(0, ht_Store, 9, 9, 0, hbs_Done);
   FUnitActionGoInOut := TUnitActionGoInOut.Create(fUnit, ua_Walk, gd_GoInside, fHouse);
 end;
@@ -72,7 +72,7 @@ begin
     for K := 0 to I do
       FUnitActionGoInOut.Execute;
 
-    fUnit.HitPointsDecrease(255);
+    fUnit.HitPointsDecrease(255, PLAYER_NONE);
     FUnitActionGoInOut.Execute;
     TearDown;
   end;
