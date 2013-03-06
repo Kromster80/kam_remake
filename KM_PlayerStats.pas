@@ -5,14 +5,17 @@ uses Classes, SysUtils,
   KM_CommonClasses, KM_CommonTypes, KM_Defaults;
 
 
-{These are mission specific settings and stats for each player}
+//These are stats for each player
 type
   TKMPlayerStats = class
   private
-    fGraphCount: Integer;
-    fGraphCapacity: Integer;
-    fGraphHouses, fGraphCitizens, fGraphArmy: TKMCardinalArray;
-    fGraphGoods: array [WARE_MIN..WARE_MAX] of TKMCardinalArray;
+    fChartCount: Integer;
+    fChartCapacity: Integer;
+    fChartHouses: TKMCardinalArray;
+    fChartCitizens: TKMCardinalArray;
+    fChartRecruits: TKMCardinalArray;
+    fChartArmy: TKMCardinalArray;
+    fChartGoods: array [WARE_MIN..WARE_MAX] of TKMCardinalArray;
     fHouseUnlocked: array [THouseType] of Boolean; //If building requirements performed
     Houses: array [THouseType] of packed record
       Planned,          //Houseplans were placed
@@ -37,7 +40,7 @@ type
       Consumed: Cardinal;
     end;
     fResourceRatios: array [1..4, 1..4]of Byte;
-    function GetGraphGoods(aWare: TresourceType): TKMCardinalArray;
+    function GetChartGoods(aWare: TresourceType): TKMCardinalArray;
     function GetRatio(aRes: TResourceType; aHouse: THouseType): Byte;
     procedure SetRatio(aRes: TResourceType; aHouse: THouseType; aValue: Byte);
     procedure UpdateReqDone(aType: THouseType);
@@ -76,7 +79,7 @@ type
     function GetUnitLostQty(aType: TUnitType): Integer;
     function GetResourceQty(aRT: TResourceType): Integer;
     function GetArmyCount: Integer;
-    function GetCitizensCount(aIncludeRecruits:Boolean=True): Integer;
+    function GetCitizensCount: Integer;
     function GetCanBuild(aType: THouseType): Boolean;
 
     function GetCitizensTrained: Cardinal;
@@ -92,11 +95,12 @@ type
     function GetCivilProduced: Cardinal;
     function GetWeaponsProduced: Cardinal;
 
-    property GraphCount: Integer read fGraphCount;
-    property GraphHouses: TKMCardinalArray read fGraphHouses;
-    property GraphCitizens: TKMCardinalArray read fGraphCitizens;
-    property GraphArmy: TKMCardinalArray read fGraphArmy;
-    property GraphGoods[aWare: TResourceType]: TKMCardinalArray read GetGraphGoods;
+    property ChartCount: Integer read fChartCount;
+    property ChartHouses: TKMCardinalArray read fChartHouses;
+    property ChartCitizens: TKMCardinalArray read fChartCitizens;
+    property ChartRecruits: TKMCardinalArray read fChartRecruits;
+    property ChartArmy: TKMCardinalArray read fChartArmy;
+    property ChartGoods[aWare: TResourceType]: TKMCardinalArray read GetChartGoods;
 
     procedure Save(SaveStream: TKMemoryStream);
     procedure Load(LoadStream: TKMemoryStream);
@@ -387,20 +391,12 @@ begin
 end;
 
 
-//@Lewin: Why do we count recruits as citizens some times and some times not?
-//@Krom: Because we don't want recruits on the citizens graph on the results screen.
-//       If we include recruits the citizens graph drops by 50-100 at peacetime because all the recruits
-//       become soldiers, and continually fluctuates. Recruits dominate the graph, meaning you can't use
-//       it for the intended purpose of looking at your villagers. The army graph already indicates when
-//       you trained soldiers, no need to see big variations in the citizens graph because of recruits.
-//       To be converted to a comment explaining what aIncludeRecruits is needed for.
-function TKMPlayerStats.GetCitizensCount(aIncludeRecruits:Boolean=True): Integer;
+function TKMPlayerStats.GetCitizensCount: Integer;
 var UT: TUnitType;
 begin
   Result := 0;
   for UT := CITIZEN_MIN to CITIZEN_MAX do
-    if aIncludeRecruits or (UT <> ut_Recruit) then
-      Inc(Result, GetUnitQty(UT));
+    Inc(Result, GetUnitQty(UT));
 end;
 
 
@@ -569,9 +565,9 @@ begin
 end;
 
 
-function TKMPlayerStats.GetGraphGoods(aWare: TresourceType): TKMCardinalArray;
+function TKMPlayerStats.GetChartGoods(aWare: TresourceType): TKMCardinalArray;
 begin
-  Result := fGraphGoods[aWare];
+  Result := fChartGoods[aWare];
 end;
 
 
@@ -588,14 +584,15 @@ begin
   SaveStream.Write(AllowToTrade, SizeOf(AllowToTrade));
   SaveStream.Write(fHouseUnlocked, SizeOf(fHouseUnlocked));
 
-  SaveStream.Write(fGraphCount);
-  if fGraphCount <> 0 then
+  SaveStream.Write(fChartCount);
+  if fChartCount <> 0 then
   begin
-    SaveStream.Write(fGraphHouses[0], SizeOf(fGraphHouses[0]) * fGraphCount);
-    SaveStream.Write(fGraphCitizens[0], SizeOf(fGraphCitizens[0]) * fGraphCount);
-    SaveStream.Write(fGraphArmy[0], SizeOf(fGraphArmy[0]) * fGraphCount);
+    SaveStream.Write(fChartHouses[0], SizeOf(fChartHouses[0]) * fChartCount);
+    SaveStream.Write(fChartCitizens[0], SizeOf(fChartCitizens[0]) * fChartCount);
+    SaveStream.Write(fChartRecruits[0], SizeOf(fChartRecruits[0]) * fChartCount);
+    SaveStream.Write(fChartArmy[0], SizeOf(fChartArmy[0]) * fChartCount);
     for R := WARE_MIN to WARE_MAX do
-      SaveStream.Write(fGraphGoods[R][0], SizeOf(fGraphGoods[R][0]) * fGraphCount);
+      SaveStream.Write(fChartGoods[R][0], SizeOf(fChartGoods[R][0]) * fChartCount);
   end;
 end;
 
@@ -613,20 +610,22 @@ begin
   LoadStream.Read(AllowToTrade, SizeOf(AllowToTrade));
   LoadStream.Read(fHouseUnlocked, SizeOf(fHouseUnlocked));
 
-  LoadStream.Read(fGraphCount);
-  if fGraphCount <> 0 then
+  LoadStream.Read(fChartCount);
+  if fChartCount <> 0 then
   begin
-    fGraphCapacity := fGraphCount;
-    SetLength(fGraphHouses, fGraphCount);
-    SetLength(fGraphCitizens, fGraphCount);
-    SetLength(fGraphArmy, fGraphCount);
-    LoadStream.Read(fGraphHouses[0], SizeOf(fGraphHouses[0]) * fGraphCount);
-    LoadStream.Read(fGraphCitizens[0], SizeOf(fGraphCitizens[0]) * fGraphCount);
-    LoadStream.Read(fGraphArmy[0], SizeOf(fGraphArmy[0]) * fGraphCount);
+    fChartCapacity := fChartCount;
+    SetLength(fChartHouses, fChartCount);
+    SetLength(fChartCitizens, fChartCount);
+    SetLength(fChartRecruits, fChartCount);
+    SetLength(fChartArmy, fChartCount);
+    LoadStream.Read(fChartHouses[0], SizeOf(fChartHouses[0]) * fChartCount);
+    LoadStream.Read(fChartCitizens[0], SizeOf(fChartCitizens[0]) * fChartCount);
+    LoadStream.Read(fChartRecruits[0], SizeOf(fChartRecruits[0]) * fChartCount);
+    LoadStream.Read(fChartArmy[0], SizeOf(fChartArmy[0]) * fChartCount);
     for R := WARE_MIN to WARE_MAX do
     begin
-      SetLength(fGraphGoods[R], fGraphCount);
-      LoadStream.Read(fGraphGoods[R][0], SizeOf(fGraphGoods[R][0]) * fGraphCount);
+      SetLength(fChartGoods[R], fChartCount);
+      LoadStream.Read(fChartGoods[R][0], SizeOf(fChartGoods[R][0]) * fChartCount);
     end;
   end;
 end;
@@ -637,27 +636,34 @@ var I: TResourceType;
 begin
   if not DISPLAY_CHARTS_RESULT then Exit;
 
-  //Store player stats in graph
+  //Store player stats in Chart
 
   //Grow the list
-  if fGraphCount >= fGraphCapacity then
+  if fChartCount >= fChartCapacity then
   begin
-    fGraphCapacity := fGraphCount + 32;
-    SetLength(fGraphHouses, fGraphCapacity);
-    SetLength(fGraphCitizens, fGraphCapacity);
-    SetLength(fGraphArmy, fGraphCapacity);
+    fChartCapacity := fChartCount + 32;
+    SetLength(fChartHouses, fChartCapacity);
+    SetLength(fChartCitizens, fChartCapacity);
+    SetLength(fChartRecruits, fChartCapacity);
+    SetLength(fChartArmy, fChartCapacity);
     for I := WARE_MIN to WARE_MAX do
-      SetLength(fGraphGoods[I], fGraphCapacity);
+      SetLength(fChartGoods[I], fChartCapacity);
   end;
 
-  fGraphHouses[fGraphCount] := GetHouseQty(ht_Any);
-  fGraphArmy[fGraphCount] := GetArmyCount;
-  fGraphCitizens[fGraphCount] := GetCitizensCount(False);
+  fChartHouses[fChartCount] := GetHouseQty(ht_Any);
+  fChartArmy[fChartCount] := GetArmyCount;
+  //We don't want recruits on the citizens Chart on the results screen.
+  //If we include recruits the citizens Chart drops by 50-100 at peacetime because all the recruits
+  //become soldiers, and continually fluctuates. Recruits dominate the Chart, meaning you can't use
+  //it for the intended purpose of looking at your villagers. The army Chart already indicates when
+  //you trained soldiers, no need to see big variations in the citizens Chart because of recruits.
+  fChartCitizens[fChartCount] := GetCitizensCount - GetUnitQty(ut_Recruit);
+  fChartRecruits[fChartCount] := GetUnitQty(ut_Recruit);
 
   for I := WARE_MIN to WARE_MAX do
-    fGraphGoods[I, fGraphCount] := Goods[I].Produced;
+    fChartGoods[I, fChartCount] := Goods[I].Produced;
 
-  Inc(fGraphCount);
+  Inc(fChartCount);
 end;
 
 

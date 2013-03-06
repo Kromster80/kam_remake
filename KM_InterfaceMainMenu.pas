@@ -270,10 +270,10 @@ type
         Button_ResultsCitizens,
         Button_ResultsHouses,
         Button_ResultsWares: TKMButtonFlat;
-        Graph_Army: TKMGraph;
-        Graph_Citizens: TKMGraph;
-        Graph_Houses: TKMGraph;
-        Graph_Wares: TKMGraph;
+        Chart_Army: TKMChart;
+        Chart_Citizens: TKMChart;
+        Chart_Houses: TKMChart;
+        Chart_Wares: TKMChart;
       Button_ResultsBack,Button_ResultsRepeat,Button_ResultsContinue: TKMButton;
     Panel_ResultsMP:TKMPanel;
       Button_MPResultsStats,
@@ -286,10 +286,10 @@ type
         Bar_Results:array[0..MAX_PLAYERS-1, 0..9] of TKMPercentBar;
         Image_ResultsRosette:array[0..MAX_PLAYERS-1, 0..9] of TKMImage;
       Panel_GraphsMP: TKMPanel;
-        Graph_MPArmy: TKMGraph;
-        Graph_MPCitizens: TKMGraph;
-        Graph_MPHouses: TKMGraph;
-        Graph_MPWares: array[0..MAX_PLAYERS-1] of TKMGraph; //One for each player
+        Chart_MPArmy: TKMChart;
+        Chart_MPCitizens: TKMChart;
+        Chart_MPHouses: TKMChart;
+        Chart_MPWares: array[0..MAX_PLAYERS-1] of TKMChart; //One for each player
         Image_MPResultsBackplate: TKMImage;
         Radio_MPResultsWarePlayer: TKMRadioGroup;
       Button_ResultsMPBack:TKMButton;
@@ -487,11 +487,12 @@ var
                                           G: TKMCardinalArray;
                                         end;
 
+  //Temp graphs are used to adjoin same colored AI opponents into one chart
   procedure AddToTempGraph(aColor:Cardinal; aGraph:TKMCardinalArray);
   var I, ID: Integer;
   begin
     ID := -1;
-    for I:=0 to TempGraphCount-1 do
+    for I := 0 to TempGraphCount - 1 do
       if aColor = TempGraphs[I].Color then
       begin
         ID := I;
@@ -514,6 +515,7 @@ var
   R: TResourceType;
   G: TKMCardinalArray;
 begin
+  //Header
   fGameResultMsg := aMsg;
   case aMsg of
     gr_Win:       Label_Results.Caption := fTextLibrary[TX_MENU_MISSION_VICTORY];
@@ -527,7 +529,7 @@ begin
 
   if (MyPlayer = nil) or (MyPlayer.Stats = nil) then Exit;
 
-  //Fill in table values (like old KaM did)
+  //List values (like old KaM did)
   with MyPlayer.Stats do
   begin
     Label_Stat[1].Caption := IntToStr(GetCitizensLost + GetWarriorsLost);
@@ -541,67 +543,70 @@ begin
     Label_Stat[9].Caption := TimeToString(fGame.MissionTime);
   end;
 
-  //Fill in chart values
+  //Chart values
   if DISPLAY_CHARTS_RESULT then
   begin
-    Graph_Army.Clear;
-    Graph_Citizens.Clear;
-    Graph_Houses.Clear;
-    Graph_Wares.Clear;
-    Graph_Army.MaxLength      := MyPlayer.Stats.GraphCount;
-    Graph_Citizens.MaxLength  := MyPlayer.Stats.GraphCount;
-    Graph_Houses.MaxLength    := MyPlayer.Stats.GraphCount;
-    Graph_Wares.MaxLength     := MyPlayer.Stats.GraphCount;
+    Chart_Army.Clear;
+    Chart_Citizens.Clear;
+    Chart_Houses.Clear;
+    Chart_Wares.Clear;
+    Chart_Army.MaxLength      := MyPlayer.Stats.ChartCount;
+    Chart_Citizens.MaxLength  := MyPlayer.Stats.ChartCount;
+    Chart_Houses.MaxLength    := MyPlayer.Stats.ChartCount;
+    Chart_Wares.MaxLength     := MyPlayer.Stats.ChartCount;
 
-    Graph_Army.MaxTime      := fGame.GameTickCount div 10;
-    Graph_Citizens.MaxTime  := fGame.GameTickCount div 10;
-    Graph_Houses.MaxTime    := fGame.GameTickCount div 10;
-    Graph_Wares.MaxTime     := fGame.GameTickCount div 10;
+    Chart_Army.MaxTime      := fGame.GameTickCount div 10;
+    Chart_Citizens.MaxTime  := fGame.GameTickCount div 10;
+    Chart_Houses.MaxTime    := fGame.GameTickCount div 10;
+    Chart_Wares.MaxTime     := fGame.GameTickCount div 10;
 
     //Army
     TempGraphCount := 0; //Reset
     for I := 0 to fPlayers.Count - 1 do
     with fPlayers[I] do
       if PlayerType = pt_Computer then
-        AddToTempGraph(FlagColor, Stats.GraphArmy)
+        AddToTempGraph(FlagColor, Stats.ChartArmy)
       else
-        Graph_Army.AddLine(GetFormattedPlayerName, FlagColor, Stats.GraphArmy);
+        Chart_Army.AddLine(GetFormattedPlayerName, FlagColor, Stats.ChartArmy);
 
     for I := 0 to TempGraphCount - 1 do
-      Graph_Army.AddLine(Format(fTextLibrary[TX_PLAYER_X], [I+1]), TempGraphs[I].Color, TempGraphs[I].G);
+      Chart_Army.AddLine(Format(fTextLibrary[TX_PLAYER_X], [I+1]), TempGraphs[I].Color, TempGraphs[I].G);
 
     //Citizens
     TempGraphCount := 0; //Reset
     for I := 0 to fPlayers.Count - 1 do
     with fPlayers[I] do
       if PlayerType = pt_Computer then
-        AddToTempGraph(FlagColor, Stats.GraphCitizens)
+        AddToTempGraph(FlagColor, Stats.ChartCitizens)
       else
-        Graph_Citizens.AddLine(GetFormattedPlayerName, FlagColor, Stats.GraphCitizens);
+      begin
+        Chart_Citizens.AddLine(GetFormattedPlayerName, FlagColor, Stats.ChartCitizens);
+        Chart_Citizens.AddAltLine(Stats.ChartRecruits);
+      end;
 
     for I := 0 to TempGraphCount - 1 do
-      Graph_Citizens.AddLine(Format(fTextLibrary[TX_PLAYER_X], [I+1]), TempGraphs[I].Color, TempGraphs[I].G);
+      Chart_Citizens.AddLine(Format(fTextLibrary[TX_PLAYER_X], [I+1]), TempGraphs[I].Color, TempGraphs[I].G);
 
     //Houses
     TempGraphCount := 0; //Reset
     for I := 0 to fPlayers.Count - 1 do
     with fPlayers[I] do
       if PlayerType = pt_Computer then
-        AddToTempGraph(FlagColor, Stats.GraphHouses)
+        AddToTempGraph(FlagColor, Stats.ChartHouses)
       else
-        Graph_Houses.AddLine(GetFormattedPlayerName, FlagColor, Stats.GraphHouses);
+        Chart_Houses.AddLine(GetFormattedPlayerName, FlagColor, Stats.ChartHouses);
 
     for I := 0 to TempGraphCount - 1 do
-      Graph_Houses.AddLine(Format(fTextLibrary[TX_PLAYER_X], [I+1]), TempGraphs[I].Color, TempGraphs[I].G);
+      Chart_Houses.AddLine(Format(fTextLibrary[TX_PLAYER_X], [I+1]), TempGraphs[I].Color, TempGraphs[I].G);
 
     //Wares
     for R := WARE_MIN to WARE_MAX do
     begin
-      G := MyPlayer.Stats.GraphGoods[R];
+      G := MyPlayer.Stats.ChartGoods[R];
       for I := 0 to High(G) do
         if G[I] <> 0 then
         begin
-          Graph_Wares.AddLine(fResource.Resources[R].Title, ResourceColor[R] or $FF000000, G);
+          Chart_Wares.AddLine(fResource.Resources[R].Title, ResourceColor[R] or $FF000000, G);
           Break;
         end;
     end;
@@ -616,10 +621,10 @@ end;
 
 procedure TKMMainMenuInterface.Results_GraphToggle(Sender: TObject);
 begin
-  Graph_Army.Visible := Sender = Button_ResultsArmy;
-  Graph_Citizens.Visible := Sender = Button_ResultsCitizens;
-  Graph_Houses.Visible := Sender = Button_ResultsHouses;
-  Graph_Wares.Visible := Sender = Button_ResultsWares;
+  Chart_Army.Visible := Sender = Button_ResultsArmy;
+  Chart_Citizens.Visible := Sender = Button_ResultsCitizens;
+  Chart_Houses.Visible := Sender = Button_ResultsHouses;
+  Chart_Wares.Visible := Sender = Button_ResultsWares;
 
   Button_ResultsArmy.Down := Sender = Button_ResultsArmy;
   Button_ResultsCitizens.Down := Sender = Button_ResultsCitizens;
@@ -637,11 +642,11 @@ begin
   Panel_GraphsMP.Visible   :=(Sender = Button_MPResultsArmy)
                           or (Sender = Button_MPResultsEconomy)
                           or (Sender = Button_MPResultsWares);
-  Graph_MPArmy.Visible     := Sender = Button_MPResultsArmy;
-  Graph_MPCitizens.Visible := Sender = Button_MPResultsEconomy;
-  Graph_MPHouses.Visible   := Sender = Button_MPResultsEconomy;
-  for I:=0 to MAX_PLAYERS-1 do
-    Graph_MPWares[I].Visible := (Sender = Button_MPResultsWares) and (Radio_MPResultsWarePlayer.ItemIndex = I);
+  Chart_MPArmy.Visible     := Sender = Button_MPResultsArmy;
+  Chart_MPCitizens.Visible := Sender = Button_MPResultsEconomy;
+  Chart_MPHouses.Visible   := Sender = Button_MPResultsEconomy;
+  for I := 0 to MAX_PLAYERS - 1 do
+    Chart_MPWares[I].Visible := (Sender = Button_MPResultsWares) and (Radio_MPResultsWarePlayer.ItemIndex = I);
   Radio_MPResultsWarePlayer.Visible := Sender = Button_MPResultsWares;
   Image_MPResultsBackplate.Visible  := Sender = Button_MPResultsWares;
 
@@ -659,18 +664,18 @@ begin
   Assert(ID in [0..MAX_PLAYERS-1]);
 
   for I:=0 to MAX_PLAYERS-1 do
-    if Graph_MPWares[I].Visible then
+    if Chart_MPWares[I].Visible then
     begin
-      Graph_MPWares[I].Visible := False; //Hide the old one
+      Chart_MPWares[I].Visible := False; //Hide the old one
       //Update the values of which lines are visible in our internal record
-      for K := 0 to Graph_MPWares[I].LineCount-1 do
-        fWaresVisible[TResourceType(Graph_MPWares[I].Lines[K].Tag)] := Graph_MPWares[I].Lines[K].Visible;
+      for K := 0 to Chart_MPWares[I].LineCount-1 do
+        fWaresVisible[TResourceType(Chart_MPWares[I].Lines[K].Tag)] := Chart_MPWares[I].Lines[K].Visible;
     end;
 
-  Graph_MPWares[ID].Visible := True;
+  Chart_MPWares[ID].Visible := True;
   //Show only the line that are visible in our internal record
-  for K := 0 to Graph_MPWares[ID].LineCount-1 do
-    Graph_MPWares[ID].SetLineVisible(K,fWaresVisible[TResourceType(Graph_MPWares[ID].Lines[K].Tag)]);
+  for K := 0 to Chart_MPWares[ID].LineCount-1 do
+    Chart_MPWares[ID].SetLineVisible(K,fWaresVisible[TResourceType(Chart_MPWares[ID].Lines[K].Tag)]);
 end;
 
 
@@ -853,49 +858,52 @@ begin
     for R := WARE_MIN to WARE_MAX do
       fWaresVisible[R] := True; //All are visible by default
 
-    Graph_MPArmy.Clear;
-    Graph_MPCitizens.Clear;
-    Graph_MPHouses.Clear;
-    Graph_MPArmy.MaxLength      := MyPlayer.Stats.GraphCount;
-    Graph_MPCitizens.MaxLength  := MyPlayer.Stats.GraphCount;
-    Graph_MPHouses.MaxLength    := MyPlayer.Stats.GraphCount;
+    Chart_MPArmy.Clear;
+    Chart_MPCitizens.Clear;
+    Chart_MPHouses.Clear;
+    Chart_MPArmy.MaxLength      := MyPlayer.Stats.ChartCount;
+    Chart_MPCitizens.MaxLength  := MyPlayer.Stats.ChartCount;
+    Chart_MPHouses.MaxLength    := MyPlayer.Stats.ChartCount;
 
-    Graph_MPArmy.MaxTime      := fGame.GameTickCount div 10;
-    Graph_MPCitizens.MaxTime  := fGame.GameTickCount div 10;
-    Graph_MPHouses.MaxTime    := fGame.GameTickCount div 10;
-
-    for I := 0 to fPlayers.Count - 1 do
-    with fPlayers[I] do
-      if Enabled then
-        Graph_MPArmy.AddLine(PlayerName, FlagColor, Stats.GraphArmy);
-
-    Graph_MPArmy.TrimToFirstVariation;
+    Chart_MPArmy.MaxTime      := fGame.GameTickCount div 10;
+    Chart_MPCitizens.MaxTime  := fGame.GameTickCount div 10;
+    Chart_MPHouses.MaxTime    := fGame.GameTickCount div 10;
 
     for I := 0 to fPlayers.Count - 1 do
     with fPlayers[I] do
       if Enabled then
-        Graph_MPCitizens.AddLine(PlayerName, FlagColor, Stats.GraphCitizens);
+        Chart_MPArmy.AddLine(PlayerName, FlagColor, Stats.ChartArmy);
+
+    Chart_MPArmy.TrimToFirstVariation;
+
+    for I := 0 to fPlayers.Count - 1 do
+    with fPlayers[I] do
+    if Enabled then
+    begin
+      Chart_MPCitizens.AddLine(PlayerName, FlagColor, Stats.ChartCitizens);
+      Chart_MPCitizens.AddLine(PlayerName + ' recruits', FlagColor, Stats.ChartRecruits);
+    end;
 
     for I := 0 to fPlayers.Count - 1 do
     with fPlayers[I] do
       if Enabled then
-        Graph_MPHouses.AddLine(PlayerName, FlagColor, Stats.GraphHouses);
+        Chart_MPHouses.AddLine(PlayerName, FlagColor, Stats.ChartHouses);
 
     Index := 0;
     for I := 0 to fPlayers.Count - 1 do
     if fPlayers[I].Enabled then
     begin
-      Graph_MPWares[Index].Clear;
-      Graph_MPWares[Index].MaxLength := MyPlayer.Stats.GraphCount;
-      Graph_MPWares[Index].MaxTime := fGame.GameTickCount div 10;
-      Graph_MPWares[Index].Caption := fTextLibrary[TX_GRAPH_TITLE_RESOURCES]+' - [$'+IntToHex(FlagColorToTextColor(fPlayers[I].FlagColor) and $00FFFFFF,6)+']'+fPlayers[I].PlayerName+'[]';
+      Chart_MPWares[Index].Clear;
+      Chart_MPWares[Index].MaxLength := MyPlayer.Stats.ChartCount;
+      Chart_MPWares[Index].MaxTime := fGame.GameTickCount div 10;
+      Chart_MPWares[Index].Caption := fTextLibrary[TX_GRAPH_TITLE_RESOURCES]+' - [$'+IntToHex(FlagColorToTextColor(fPlayers[I].FlagColor) and $00FFFFFF,6)+']'+fPlayers[I].PlayerName+'[]';
       for R := WARE_MIN to WARE_MAX do
       begin
-        G := fPlayers[I].Stats.GraphGoods[R];
+        G := fPlayers[I].Stats.ChartGoods[R];
         for K := 0 to High(G) do
           if G[K] <> 0 then
           begin
-            Graph_MPWares[Index].AddLine(fResource.Resources[R].Title, ResourceColor[R] or $FF000000, G, Byte(R));
+            Chart_MPWares[Index].AddLine(fResource.Resources[R].Title, ResourceColor[R] or $FF000000, G, Byte(R));
             Break;
           end;
       end;
@@ -1568,21 +1576,21 @@ begin
       Button_ResultsWares.CapOffsetY := -11;
       Button_ResultsWares.OnClick := Results_GraphToggle;
 
-      Graph_Army := TKMGraph.Create(Panel_StatsCharts, 0, 46, 610, 374);
-      Graph_Army.Caption := fTextLibrary[TX_GRAPH_ARMY];
-      Graph_Army.Anchors := [akLeft];
+      Chart_Army := TKMChart.Create(Panel_StatsCharts, 0, 46, 610, 374);
+      Chart_Army.Caption := fTextLibrary[TX_GRAPH_ARMY];
+      Chart_Army.Anchors := [akLeft];
 
-      Graph_Citizens := TKMGraph.Create(Panel_StatsCharts, 0, 46, 610, 374);
-      Graph_Citizens.Caption := fTextLibrary[TX_GRAPH_CITIZENS];
-      Graph_Citizens.Anchors := [akLeft];
+      Chart_Citizens := TKMChart.Create(Panel_StatsCharts, 0, 46, 610, 374);
+      Chart_Citizens.Caption := fTextLibrary[TX_GRAPH_CITIZENS];
+      Chart_Citizens.Anchors := [akLeft];
 
-      Graph_Houses := TKMGraph.Create(Panel_StatsCharts, 0, 46, 610, 374);
-      Graph_Houses.Caption := fTextLibrary[TX_GRAPH_HOUSES];
-      Graph_Houses.Anchors := [akLeft];
+      Chart_Houses := TKMChart.Create(Panel_StatsCharts, 0, 46, 610, 374);
+      Chart_Houses.Caption := fTextLibrary[TX_GRAPH_HOUSES];
+      Chart_Houses.Anchors := [akLeft];
 
-      Graph_Wares := TKMGraph.Create(Panel_StatsCharts, 0, 46, 610, 374);
-      Graph_Wares.Caption := fTextLibrary[TX_GRAPH_TITLE_RESOURCES];
-      Graph_Wares.Anchors := [akLeft];
+      Chart_Wares := TKMChart.Create(Panel_StatsCharts, 0, 46, 610, 374);
+      Chart_Wares.Caption := fTextLibrary[TX_GRAPH_TITLE_RESOURCES];
+      Chart_Wares.Anchors := [akLeft];
     end;
 
     Button_ResultsBack := TKMButton.Create(Panel_Results,30,610,220,30,fTextLibrary[TX_MENU_BACK],bsMenu);
@@ -1698,17 +1706,17 @@ begin
     Panel_GraphsMP := TKMPanel.Create(Panel_ResultsMP, 0, 185, 1024, 560);
     Panel_GraphsMP.Anchors := [akLeft];
 
-      Graph_MPArmy := TKMGraph.Create(Panel_GraphsMP, 12, 0, 1000, 435);
-      Graph_MPArmy.Caption := fTextLibrary[TX_GRAPH_ARMY];
-      Graph_MPArmy.Anchors := [akLeft];
+      Chart_MPArmy := TKMChart.Create(Panel_GraphsMP, 12, 0, 1000, 435);
+      Chart_MPArmy.Caption := fTextLibrary[TX_GRAPH_ARMY];
+      Chart_MPArmy.Anchors := [akLeft];
 
-      Graph_MPCitizens := TKMGraph.Create(Panel_GraphsMP, 62, 0, 900, 200);
-      Graph_MPCitizens.Caption := fTextLibrary[TX_GRAPH_CITIZENS];
-      Graph_MPCitizens.Anchors := [akLeft];
+      Chart_MPCitizens := TKMChart.Create(Panel_GraphsMP, 62, 0, 900, 200);
+      Chart_MPCitizens.Caption := fTextLibrary[TX_GRAPH_CITIZENS];
+      Chart_MPCitizens.Anchors := [akLeft];
 
-      Graph_MPHouses := TKMGraph.Create(Panel_GraphsMP, 62, 235, 900, 200);
-      Graph_MPHouses.Caption := fTextLibrary[TX_GRAPH_HOUSES];
-      Graph_MPHouses.Anchors := [akLeft];
+      Chart_MPHouses := TKMChart.Create(Panel_GraphsMP, 62, 235, 900, 200);
+      Chart_MPHouses.Caption := fTextLibrary[TX_GRAPH_HOUSES];
+      Chart_MPHouses.Anchors := [akLeft];
 
       Image_MPResultsBackplate := TKMImage.Create(Panel_GraphsMP, 12, 56, 178, 224, 3, rxGuiMain);
       Image_MPResultsBackplate.ImageStretch;
@@ -1718,12 +1726,12 @@ begin
       Radio_MPResultsWarePlayer.Anchors := [akLeft];
       Radio_MPResultsWarePlayer.OnChange := ResultsMP_PlayerSelect;
 
-      for I:=0 to MAX_PLAYERS-1 do
+      for I := 0 to MAX_PLAYERS - 1 do
       begin
-        Graph_MPWares[I] := TKMGraph.Create(Panel_GraphsMP, 190, 0, 822, 435);
-        Graph_MPWares[I].Caption := fTextLibrary[TX_GRAPH_TITLE_RESOURCES];
-        Graph_MPWares[I].Font := fnt_Metal; //fnt_Outline doesn't work because player names blend badly with yellow
-        Graph_MPWares[I].Anchors := [akLeft];
+        Chart_MPWares[I] := TKMChart.Create(Panel_GraphsMP, 190, 0, 822, 435);
+        Chart_MPWares[I].Caption := fTextLibrary[TX_GRAPH_TITLE_RESOURCES];
+        Chart_MPWares[I].Font := fnt_Metal; //fnt_Outline doesn't work because player names blend badly with yellow
+        Chart_MPWares[I].Anchors := [akLeft];
       end;
 
     Button_ResultsMPBack := TKMButton.Create(Panel_ResultsMP,100,630,220,30,fTextLibrary[TX_MENU_BACK],bsMenu);

@@ -968,9 +968,10 @@ type
                 Color: TColor4;
                 Visible: Boolean;
                 Values: TKMCardinalArray;
+                ValuesAlt: TKMCardinalArray;
               end;
 
-  TKMGraph = class(TKMControl)
+  TKMChart = class(TKMControl)
   private
     fCaption: string;
     fFont: TKMFont;
@@ -989,6 +990,7 @@ type
     constructor Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight: Integer);
 
     procedure AddLine(aTitle: string; aColor: TColor4; const aValues: TKMCardinalArray; aTag:Integer=-1);
+    procedure AddAltLine(const aAltValues: TKMCardinalArray);
     procedure TrimToFirstVariation;
     property Caption: string read fCaption write fCaption;
     procedure Clear;
@@ -4421,8 +4423,8 @@ begin
 end;
 
 
-{ TKMGraph }
-constructor TKMGraph.Create(aParent: TKMPanel; aLeft, aTop, aWidth, aHeight: Integer);
+{ TKMChart }
+constructor TKMChart.Create(aParent: TKMPanel; aLeft, aTop, aWidth, aHeight: Integer);
 begin
   inherited Create(aParent, aLeft, aTop, aWidth, aHeight);
 
@@ -4433,7 +4435,7 @@ begin
 end;
 
 
-procedure TKMGraph.AddLine(aTitle: string; aColor: TColor4; const aValues: TKMCardinalArray; aTag:Integer=-1);
+procedure TKMChart.AddLine(aTitle: string; aColor: TColor4; const aValues: TKMCardinalArray; aTag:Integer=-1);
 begin
   if fMaxLength = 0 then Exit;
 
@@ -4455,8 +4457,21 @@ begin
 end;
 
 
+//Add alternative values line (e.g. wares count vs. wares produced)
+procedure TKMChart.AddAltLine(const aAltValues: TKMCardinalArray);
+begin
+  Assert(Length(aAltValues) >= fMaxLength);
+
+  SetLength(fLines[fCount-1].ValuesAlt, fMaxLength);
+  if SizeOf(aAltValues) <> 0 then
+    Move(aAltValues[0], fLines[fCount-1].ValuesAlt[0], SizeOf(aAltValues[0]) * fMaxLength);
+
+  UpdateMaxValue;
+end;
+
+
 //Trims the graph until 5% before the first variation
-procedure TKMGraph.TrimToFirstVariation;
+procedure TKMChart.TrimToFirstVariation;
 var
   I, K, FirstVarSample: Integer;
   StartVal: Cardinal;
@@ -4485,7 +4500,7 @@ begin
 end;
 
 
-procedure TKMGraph.Clear;
+procedure TKMChart.Clear;
 begin
   fCount := 0;
   SetLength(fLines, 0);
@@ -4493,14 +4508,14 @@ begin
 end;
 
 
-procedure TKMGraph.SetLineVisible(aLineID:Integer; aVisible:Boolean);
+procedure TKMChart.SetLineVisible(aLineID: Integer; aVisible: Boolean);
 begin
   fLines[aLineID].Visible := aVisible;
   UpdateMaxValue;
 end;
 
 
-procedure TKMGraph.UpdateMaxValue;
+procedure TKMChart.UpdateMaxValue;
 var I, K: Integer;
 begin
   fMaxValue := 0;
@@ -4512,13 +4527,13 @@ begin
 end;
 
 
-function TKMGraph.GetLine(aIndex:Integer):TKMGraphLine;
+function TKMChart.GetLine(aIndex: Integer): TKMGraphLine;
 begin
   Result := fLines[aIndex];
 end;
 
 
-procedure TKMGraph.MouseMove(X, Y: Integer; Shift: TShiftState);
+procedure TKMChart.MouseMove(X, Y: Integer; Shift: TShiftState);
 begin
   inherited;
 
@@ -4528,7 +4543,7 @@ begin
 end;
 
 
-procedure TKMGraph.MouseUp(X, Y: Integer; Shift: TShiftState; Button: TMouseButton);
+procedure TKMChart.MouseUp(X, Y: Integer; Shift: TShiftState; Button: TMouseButton);
 var I: Integer;
 begin
   inherited;
@@ -4544,21 +4559,17 @@ begin
 end;
 
 
-procedure TKMGraph.Paint;
+procedure TKMChart.Paint;
   function EnsureColorBlend(aColor: TColor4): TColor4;
   var
     R, G, B: Byte;
     Hue, Sat, Bri: Single;
   begin
     ConvertRGB2HSB(aColor and $FF, aColor shr 8 and $FF, aColor shr 16 and $FF, Hue, Sat, Bri);
-    //Lighten
+    //Lighten colors to ensure they are visible on black background
     Bri := Max(Bri, 0.2);
     ConvertHSB2RGB(Hue, Sat, Bri, R, G, B);
     Result := (R + G shl 8 + B shl 16) or $FF000000;
-
-    {Result := Max(aColor and $FF, 48) +
-              Max((aColor shr 8) and $FF, 48) shl 8 +
-              Max((aColor shr 16) and $FF, 48) shl 16 + aColor and $FF000000;}
   end;
 const
   IntervalCount: array [0..9] of Word = (1, 5, 10, 50, 100, 500, 1000, 5000, 10000, 50000);
@@ -4609,7 +4620,11 @@ begin
 
     //Charts
     if fLines[I].Visible then
+    begin
       TKMRenderUI.WritePlot(G.Left, G.Top, G.Right-G.Left, G.Bottom-G.Top, fLines[I].Values, TopValue, NewColor, 2);
+      if Length(fLines[I].ValuesAlt) > 0 then
+        TKMRenderUI.WritePlot(G.Left, G.Top, G.Right-G.Left, G.Bottom-G.Top, fLines[I].ValuesAlt, TopValue, NewColor, 1);
+    end;
 
     //Checkboxes
     TKMRenderUI.WriteShape(G.Right + 5, G.Top - 2 + I*fItemHeight+2, 11, 11, NewColor);
