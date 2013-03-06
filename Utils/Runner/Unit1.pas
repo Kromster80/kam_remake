@@ -124,7 +124,7 @@ begin
               if fResults.ValueMax <> 0 then
                 DotY := Image1.Height - Round(fResults.Value[J,I] / fResults.ValueMax * Image1.Height)
               else
-                DotY := 0;
+                DotY := Image1.Height;
               Image1.Canvas.Ellipse(DotX-2, DotY-2, DotX+2, DotY+2);
               if J = 0 then
                 Image1.Canvas.PenPos := Point(DotX, DotY)
@@ -172,6 +172,7 @@ begin
             Image1.Canvas.Pen.Color := LineCol[I mod COLORS_COUNT];
 
             for J := 0 to fResults.TimesCount - 1 do
+            if fResults.Times[I,J] > 10 then
             begin
               DotX := Round(J / (fResults.TimesCount - 1) * Image1.Width);
               DotY := Image1.Height - Round(fResults.Times[I,J] / fResults.TimeMax * Image1.Height);

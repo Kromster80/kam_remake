@@ -384,7 +384,7 @@ begin
     ct_AINoBuild:       if fLastPlayer >= 0 then
                           fPlayers[fLastPlayer].AI.Setup.AutoBuild := False;
     ct_AIAutoRepair:    if fLastPlayer >= 0 then
-                          fPlayers[fLastPlayer].AI.Setup.AutoRepair := True;
+                          fPlayers[fLastPlayer].AI.Mayor.AutoRepair := True;
     ct_AIAutoDefend:    if fLastPlayer >= 0 then
                           fPlayers[fLastPlayer].AI.Setup.AutoDefend := True;
     ct_AIStartPosition: if fLastPlayer >= 0 then
@@ -634,7 +634,7 @@ begin
     //is not AI so no data is lost from MapEd (human players will ignore AI script anyway)
     AddCommand(ct_AIStartPosition, [fPlayers[I].AI.Setup.StartPosition.X-1,fPlayers[I].AI.Setup.StartPosition.Y-1]);
     if not fPlayers[I].AI.Setup.AutoBuild then AddCommand(ct_AINoBuild, []);
-    if fPlayers[I].AI.Setup.AutoRepair then    AddCommand(ct_AIAutoRepair, []);
+    if fPlayers[I].AI.Mayor.AutoRepair then    AddCommand(ct_AIAutoRepair, []);
     if fPlayers[I].AI.Setup.AutoDefend then    AddCommand(ct_AIAutoDefend, []);
     AddCommand(ct_AICharacter,cpt_Recruits, [fPlayers[I].AI.Setup.RecruitFactor]);
     AddCommand(ct_AICharacter,cpt_WorkerFactor, [fPlayers[I].AI.Setup.SerfFactor]);

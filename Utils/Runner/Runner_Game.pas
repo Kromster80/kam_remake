@@ -161,7 +161,7 @@ procedure TKMRunnerAIBuild.SetUp;
 begin
   inherited;
   fResults.ValueCount := 5;
-  fResults.TimesCount := 15*60*10;
+  fResults.TimesCount := 60*60*10;
 end;
 
 
@@ -174,7 +174,7 @@ end;
 
 procedure TKMRunnerAIBuild.Execute(aRun: Integer);
 begin
-  fGameApp.NewSingleMap(ExtractFilePath(ParamStr(0)) + '..\..\MapsMP\Across the Desert\Across the Desert.dat', 'Across the Desert');
+  fGameApp.NewSingleMap(ExtractFilePath(ParamStr(0)) + '..\..\Maps\AcrossDesert\AcrossDesert.dat', 'Across the Desert');
 
   fPlayers.RemovePlayer(0);
   MyPlayer := fPlayers[0];

@@ -608,9 +608,14 @@ function TKMPlayer.AddHouse(aHouseType: THouseType; PosX, PosY:word; RelativeEnt
 begin
   Result := fHouses.AddHouse(aHouseType, PosX, PosY, fPlayerIndex, RelativeEntrace);
   Result.OnDestroyed := HouseDestroyed;
+
+  //Set default house repair mode
+  if fPlayerType = pt_Computer then
+    Result.BuildingRepair := fAI.Mayor.AutoRepair;
 end;
 
 
+//Add plan of a house, house is not created until after worker flattens the terrain
 procedure TKMPlayer.AddHousePlan(aHouseType: THouseType; aLoc: TKMPoint);
 var
   Loc: TKMPoint;
@@ -628,6 +633,11 @@ function TKMPlayer.AddHouseWIP(aHouseType: THouseType; aLoc: TKMPoint): TKMHouse
 begin
   Result := fHouses.AddHouseWIP(aHouseType, aLoc.X, aLoc.Y, fPlayerIndex);
   Result.OnDestroyed := HouseDestroyed;
+
+  //Set default house repair mode
+  if fPlayerType = pt_Computer then
+    Result.BuildingRepair := fAI.Mayor.AutoRepair;
+
   fStats.HouseStarted(aHouseType);
 end;
 

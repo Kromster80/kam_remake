@@ -78,7 +78,7 @@ object Form2: TForm2
   end
   object Memo2: TMemo
     Left = 16
-    Top = 312
+    Top = 320
     Width = 249
     Height = 121
     Anchors = [akLeft, akBottom]

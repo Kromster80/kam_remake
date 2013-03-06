@@ -328,7 +328,7 @@ begin
       gic_BuildHousePlan:         if P.CanAddHousePlan(KMPoint(Params[2],Params[3]), THouseType(Params[1])) then
                                     P.AddHousePlan(THouseType(Params[1]), KMPoint(Params[2],Params[3]));
 
-      gic_HouseRepairToggle:      SrcHouse.RepairToggle;
+      gic_HouseRepairToggle:      SrcHouse.BuildingRepair := not SrcHouse.BuildingRepair;
       gic_HouseDeliveryToggle:    SrcHouse.WareDelivery := not SrcHouse.WareDelivery;
       gic_HouseOrderProduct:      SrcHouse.ResEditOrder(Params[2], Params[3]);
       gic_HouseMarketFrom:        TKMHouseMarket(SrcHouse).ResFrom := TResourceType(Params[2]);

@@ -983,10 +983,12 @@ var
   I: Integer;
 begin
   for I := 0 to fHousesCount - 1 do
-    if fHouses[I].House <> nil then
-      if (not fHouses[I].House.IsDamaged or not fHouses[I].House.BuildingRepair or fHouses[I].House.IsDestroyed)
-      and (fHouses[I].Assigned = 0) then
-        fPlayers.CleanUpHousePointer(fHouses[I].House);
+    if (fHouses[I].House <> nil)
+    and (not fHouses[I].House.IsDamaged
+         or not fHouses[I].House.BuildingRepair
+         or fHouses[I].House.IsDestroyed)
+    and (fHouses[I].Assigned = 0) then
+      fPlayers.CleanUpHousePointer(fHouses[I].House);
 end;
 
 

@@ -35,7 +35,6 @@ type
     procedure OwnerUpdate(aPlayer: TPlayerIndex);
     procedure HouseAttackNotification(aHouse: TKMHouse; aAttacker: TKMUnitWarrior);
     procedure UnitAttackNotification(aUnit: TKMUnit; aAttacker: TKMUnitWarrior);
-    function HouseAutoRepair: Boolean; //Do we automatically repair all houses?
 
     procedure Save(SaveStream: TKMemoryStream);
     procedure Load(LoadStream: TKMemoryStream);
@@ -158,7 +157,7 @@ begin
   for I := 0 to Goals.Count - 1 do //Test each goal to see if it has occured
     if GoalConditionSatisfied(Goals[I]) then
     begin
-      //Messages in goals have been replaced by EVT files, so this code is disabled now,
+      //Messages in goals have been replaced by SCRIPT files, so this code is disabled now,
       //but kept in case we need it for something later. (conversion process?)
 
       //Display message if set and not already shown and not a blank text
@@ -248,15 +247,6 @@ begin
         fGeneral.RetaliateAgainstThreat(aAttacker); //Nearby soldiers should come to assist
       end;
   end;
-end;
-
-
-//Do we automatically repair all houses?
-//For now use fAutobuild, which is what KaM does. Later we can add a script command to turn this on and off
-//Also could be changed later to disable repairing when under attack? (only repair if the enemy goes away?)
-function TKMPlayerAI.HouseAutoRepair: Boolean;
-begin
-  Result := fSetup.AutoBuild;
 end;
 
 

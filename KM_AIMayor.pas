@@ -72,6 +72,8 @@ type
     fCityPlanner: TKMCityPlanner;
     fPathFindingRoad: TPathFindingRoad;
 
+    fAutoRepair: Boolean;
+
     fRoadBelowStore: Boolean;
     fWooden: Boolean;
 
@@ -88,6 +90,8 @@ type
     fDemandGoldText: string;
     fDemandFoodText: string;
     fDemandWeaponryText: string;
+
+    procedure SetAutoRepair(const Value: Boolean);
 
     function HouseCount(aHouse: THouseType): Integer;
     function TryBuildHouse(aHouse: THouseType): Boolean;
@@ -119,6 +123,7 @@ type
     property CityPlanner: TKMCityPlanner read fCityPlanner;
 
     procedure AfterMissionInit;
+    property AutoRepair: Boolean read fAutoRepair write SetAutoRepair;
     procedure OwnerUpdate(aPlayer: TPlayerIndex);
     procedure SetArmyDemand(FootmenDemand, PikemenDemand, HorsemenDemand, ArchersDemand: Single);
     function BalanceText: string;
@@ -171,6 +176,8 @@ begin
   fPathFindingRoad := TPathFindingRoad.Create(fOwner);
 
   fSetup := aSetup;
+
+  fAutoRepair := False; //In KaM it is Off by default
 
   SetArmyDemand(1, 0.5, 0.5, 1);
 end;
@@ -1002,6 +1009,18 @@ begin
 end;
 
 
+procedure TKMayor.SetAutoRepair(const Value: Boolean);
+var
+  I: Integer;
+begin
+  fAutoRepair := Value;
+
+  //Apply to those houses placed by a script before AutoRepair command
+  for I := 0 to fPlayers[fOwner].Houses.Count - 1 do
+    fPlayers[fOwner].Houses[I].BuildingRepair := fAutoRepair;
+end;
+
+
 function TKMayor.BalanceText: string;
 begin
   Result := fDemandCoreText + '|' +
@@ -1035,6 +1054,7 @@ end;
 procedure TKMayor.Save(SaveStream: TKMemoryStream);
 begin
   SaveStream.Write(fOwner);
+  SaveStream.Write(fAutoRepair);
   SaveStream.Write(fRoadBelowStore);
   SaveStream.Write(fWooden);
 
@@ -1053,6 +1073,7 @@ end;
 procedure TKMayor.Load(LoadStream: TKMemoryStream);
 begin
   LoadStream.Read(fOwner);
+  LoadStream.Read(fAutoRepair);
   LoadStream.Read(fRoadBelowStore);
   LoadStream.Read(fWooden);
 

@@ -1819,7 +1819,7 @@ end;
 procedure TKMapEdInterface.Town_ScriptRefresh;
 begin
   CheckBox_AutoBuild.Checked := MyPlayer.AI.Setup.AutoBuild;
-  CheckBox_AutoRepair.Checked := MyPlayer.AI.Setup.AutoRepair;
+  CheckBox_AutoRepair.Checked := MyPlayer.AI.Mayor.AutoRepair;
   TrackBar_SerfFactor.Position := MyPlayer.AI.Setup.SerfFactor;
   TrackBar_WorkerFactor.Position := MyPlayer.AI.Setup.WorkerFactor;
 end;
@@ -1828,7 +1828,7 @@ end;
 procedure TKMapEdInterface.Town_ScriptChange(Sender: TObject);
 begin
   MyPlayer.AI.Setup.AutoBuild := CheckBox_AutoBuild.Checked;
-  MyPlayer.AI.Setup.AutoRepair := CheckBox_AutoRepair.Checked;
+  MyPlayer.AI.Mayor.AutoRepair := CheckBox_AutoRepair.Checked;
   MyPlayer.AI.Setup.SerfFactor := TrackBar_SerfFactor.Position;
   MyPlayer.AI.Setup.WorkerFactor := TrackBar_WorkerFactor.Position;
 end;

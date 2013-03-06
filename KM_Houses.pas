@@ -61,11 +61,10 @@ type
     fTimeSinceUnoccupiedReminder: Integer;
 
     procedure Activate(aWasBuilt: Boolean); virtual;
-    procedure EnableRepair;
-    procedure DisableRepair;
 
     procedure MakeSound; dynamic; //Swine/stables make extra sounds
-    function GetResDistribution(aID:byte):byte; //Will use GetRatio from mission settings to find distribution amount
+    function GetResDistribution(aID:byte):byte;
+    procedure SetBuildingRepair(aValue: Boolean); //Will use GetRatio from mission settings to find distribution amount
   protected
     fBuildState: THouseBuildState; // = (hbs_Glyph, hbs_NoGlyph, hbs_Wood, hbs_Stone, hbs_Done);
     FlagAnimStep: Cardinal; //Used for Flags and Burning animation
@@ -100,7 +99,7 @@ type
     function GetRandomCellWithin: TKMPoint;
     function HitTest(X, Y: Integer): Boolean;
     property HouseType: THouseType read fHouseType;
-    property BuildingRepair:boolean read fBuildingRepair write fBuildingRepair;
+    property BuildingRepair: Boolean read fBuildingRepair write SetBuildingRepair;
     property WareDelivery:boolean read fWareDelivery write fWareDelivery;
     property GetHasOwner:boolean read fHasOwner write fHasOwner;
     property Owner:TPlayerIndex read fOwner;
@@ -114,7 +113,6 @@ type
     procedure AddDamage(aFrom: TPlayerIndex; aAmount: Word; aIsEditor: Boolean = False);
     procedure AddRepair(aAmount:word=5);
     procedure UpdateDamage;
-    procedure RepairToggle;
 
     function IsStone:boolean;
     function IsComplete:boolean;
@@ -704,7 +702,7 @@ begin
 
   //(NoGlyph houses MaxHealth = 0 destroyed instantly)
   fDamage := Math.min(fDamage + aAmount, MaxHealth);
-  if (fBuildState = hbs_Done) then
+  if IsComplete then
   begin
     if BuildingRepair then
       fPlayers[fOwner].BuildList.RepairList.AddHouse(Self);
@@ -745,39 +743,29 @@ begin
 end;
 
 
-{if house is damaged then add repair to buildlist}
-procedure TKMHouse.EnableRepair;
+procedure TKMHouse.SetBuildingRepair(aValue: Boolean);
 begin
-  BuildingRepair := True;
-  AddDamage(-1, 0); //Shortcut to refresh of damage
-end;
+  fBuildingRepair := aValue;
 
-
-{if house is damaged then remove repair from buildlist and free up workers}
-procedure TKMHouse.DisableRepair;
-begin
-  BuildingRepair := false;
-  AddRepair(0); //Shortcut to refresh of damage
-end;
-
-
-procedure TKMHouse.RepairToggle;
-begin
-  if BuildingRepair then
-    DisableRepair
+  if fBuildingRepair then
+  begin
+    if IsComplete and IsDamaged and not IsDestroyed then
+      fPlayers[fOwner].BuildList.RepairList.AddHouse(Self);
+  end
   else
-    EnableRepair;
+    //Worker checks on house and will cancel the walk if Repair is turned off
+    //RepairList removes the house automatically too
 end;
 
 
-function TKMHouse.IsStone:boolean;
+function TKMHouse.IsStone: Boolean;
 begin
   Result := fBuildState = hbs_Stone;
 end;
 
 
 {Check if house is completely built, nevermind the damage}
-function TKMHouse.IsComplete:boolean;
+function TKMHouse.IsComplete: Boolean;
 begin
   Result := fBuildState = hbs_Done;
 end;
@@ -1159,12 +1147,7 @@ end;
 
 procedure TKMHouse.UpdateState;
 begin
-  if fBuildState<>hbs_Done then exit; //Don't update unbuilt houses
-  //Toggle repair for AI players (allows AI to turn repair on and off based on requirements)
-  if (not fBuildingRepair) and (fPlayers[fOwner].PlayerType = pt_Computer) and (fPlayers[fOwner].AI.HouseAutoRepair) then
-    EnableRepair;
-  if fBuildingRepair and (fPlayers[fOwner].PlayerType = pt_Computer) and (not fPlayers[fOwner].AI.HouseAutoRepair) then
-    DisableRepair;
+  if not IsComplete then Exit; //Don't update unbuilt houses
 
   //Show unoccupied message if needed and house belongs to human player and can have owner at all and not a barracks
   if (not fHasOwner) and (fResource.HouseDat[fHouseType].OwnerType <> ut_None) and (fHouseType <> ht_Barracks) then
