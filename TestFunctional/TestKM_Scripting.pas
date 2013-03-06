@@ -17,6 +17,7 @@ type
 
 
 implementation
+uses KM_Maps;
 
 
 procedure TestKMScripting.SetUp;
@@ -37,55 +38,34 @@ end;
 procedure TestKMScripting.TestLoadAllMaps;
 var
   I: Integer;
-  Count, Total: Integer;
-  SearchRec: TSearchRec;
+  GoodMaps: Integer;
   PathToMaps: TStringList;
 begin
-  Count := 0;
-  Total := 0;
+  GoodMaps := 0;
 
   PathToMaps := TStringList.Create;
   try
-    PathToMaps.Add(ExeDir + 'Maps\');
-    PathToMaps.Add(ExeDir + 'MapsMP\');
-    PathToMaps.Add(ExeDir + 'Tutorials\');
-
-    //Include all campaigns maps
-    FindFirst(ExeDir + 'Campaigns\*', faDirectory, SearchRec);
-    repeat
-      if (SearchRec.Name <> '.') and (SearchRec.Name <> '..') then
-        PathToMaps.Add(ExeDir + 'Campaigns\' + SearchRec.Name + '\');
-    until (FindNext(SearchRec) <> 0);
-    FindClose(SearchRec);
+    TKMapsCollection.GetAllMapPaths(ExeDir, PathToMaps);
 
     for I := 0 to PathToMaps.Count - 1 do
-      if DirectoryExists(PathToMaps[I]) then
-      begin
-        FindFirst(PathToMaps[I] + '*', faDirectory, SearchRec);
-        repeat
-          if (SearchRec.Name <> '.') and (SearchRec.Name <> '..')
-          and FileExists(PathToMaps[I] + SearchRec.Name + '\' + SearchRec.Name + '.script') then
-          begin
-            try
-              fScripting.LoadFromFile(PathToMaps[I] + SearchRec.Name + '\' + SearchRec.Name + '.script');
-              Inc(Count);
-            except
-              //Report and swallow asserts
-              on E: EAssertionFailed do
-                Status('Script did not load: ' + SearchRec.Name + '. '+ E.Message);
-            end;
-            Check(fScripting.ErrorString = '', 'Script did not load: ' + SearchRec.Name);
-            Inc(Total);
-          end;
-        until (FindNext(SearchRec) <> 0);
-        FindClose(SearchRec);
+    if FileExists(ChangeFileExt(PathToMaps[I], '.script')) then
+    begin
+      try
+        fScripting.LoadFromFile(ChangeFileExt(PathToMaps[I], '.script'));
+        Inc(GoodMaps);
+      except
+        //Report and swallow asserts
+        on E: EAssertionFailed do
+          Status('Script did not load: ' + PathToMaps[I] + '. '+ E.Message);
       end;
 
+      Check(fScripting.ErrorString = '', 'Script did not load: ' + PathToMaps[I]);
+    end;
+
+    Status(IntToStr(PathToMaps.Count - GoodMaps) + ' of ' + IntToStr(PathToMaps.Count) + ' scripts failed');
   finally
     PathToMaps.Free;
   end;
-
-  Status(IntToStr(Total - Count) + ' of ' + IntToStr(Total) + ' scripts failed');
 end;
 
 

@@ -105,6 +105,7 @@ type
     procedure Unlock;
 
     class function FullPath(const aName, aExt: string; aMultiplayer: Boolean): string;
+    class procedure GetAllMapPaths(aExeDir: string; aList: TStringList);
 
     procedure Refresh(aOnRefresh: TNotifyEvent);
     procedure TerminateScan;
@@ -620,6 +621,46 @@ end;
 class function TKMapsCollection.FullPath(const aName, aExt: string; aMultiplayer: Boolean): string;
 begin
   Result := ExeDir + MAP_FOLDER_MP[aMultiplayer] + '\' + aName + '\' + aName + aExt;
+end;
+
+
+class procedure TKMapsCollection.GetAllMapPaths(aExeDir: string; aList: TStringList);
+var
+  I: Integer;
+  SearchRec: TSearchRec;
+  PathToMaps: TStringList;
+begin
+  aList.Clear;
+
+  PathToMaps := TStringList.Create;
+  try
+    PathToMaps.Add(aExeDir + 'Maps\');
+    PathToMaps.Add(aExeDir + 'MapsMP\');
+    PathToMaps.Add(aExeDir + 'Tutorials\');
+
+    //Include all campaigns maps
+    FindFirst(aExeDir + 'Campaigns\*', faDirectory, SearchRec);
+    repeat
+      if (SearchRec.Name <> '.') and (SearchRec.Name <> '..') then
+        PathToMaps.Add(aExeDir + 'Campaigns\' + SearchRec.Name + '\');
+    until (FindNext(SearchRec) <> 0);
+    FindClose(SearchRec);
+
+    for I := 0 to PathToMaps.Count - 1 do
+    if DirectoryExists(PathToMaps[I]) then
+    begin
+      FindFirst(PathToMaps[I] + '*', faDirectory, SearchRec);
+      repeat
+        if (SearchRec.Name <> '.') and (SearchRec.Name <> '..')
+        and FileExists(PathToMaps[I] + SearchRec.Name + '\' + SearchRec.Name + '.dat')
+        and FileExists(PathToMaps[I] + SearchRec.Name + '\' + SearchRec.Name + '.map') then
+          aList.Add(PathToMaps[I] + SearchRec.Name + '\' + SearchRec.Name + '.dat');
+      until (FindNext(SearchRec) <> 0);
+      FindClose(SearchRec);
+    end;
+  finally
+    PathToMaps.Free;
+  end;
 end;
 
 

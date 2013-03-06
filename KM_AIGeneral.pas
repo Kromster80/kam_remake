@@ -205,6 +205,9 @@ begin
   for G := Low(TGroupType) to High(TGroupType) do
     NeedsLinkingTo[G] := nil;
 
+//Vas (15:07:16 6/03/2013)
+//todo: if AI attacks with a troop and the toop is hungry, he cant decide if he wants to attack or go back to feed the troop
+
   //Check: Hunger, (feed) formation, (units per row) position (from defence positions)
   for I := 0 to fPlayers[fOwner].UnitGroups.Count - 1 do
   begin

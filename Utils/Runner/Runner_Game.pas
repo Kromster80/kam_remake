@@ -191,11 +191,11 @@ begin
   fResults.Value[aRun, 3] := fPlayers[3].Stats.GetWarriorsTrained;
   fResults.Value[aRun, 4] := fPlayers[4].Stats.GetWarriorsTrained;
 
-  fResults.Value[aRun, 0] := fPlayers[0].Stats.GetGoodsProduced(rt_Stone);
+  {fResults.Value[aRun, 0] := fPlayers[0].Stats.GetGoodsProduced(rt_Stone);
   fResults.Value[aRun, 1] := fPlayers[1].Stats.GetGoodsProduced(rt_Stone);
   fResults.Value[aRun, 2] := fPlayers[2].Stats.GetGoodsProduced(rt_Stone);
   fResults.Value[aRun, 3] := fPlayers[3].Stats.GetGoodsProduced(rt_Stone);
-  fResults.Value[aRun, 4] := fPlayers[4].Stats.GetGoodsProduced(rt_Stone);
+  fResults.Value[aRun, 4] := fPlayers[4].Stats.GetGoodsProduced(rt_Stone);}
 
   {fResults.Value[aRun, 0] := fPlayers[0].Stats.GetHousesBuilt;
   fResults.Value[aRun, 1] := fPlayers[0].Stats.GetHousesBuilt;

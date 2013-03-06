@@ -112,15 +112,21 @@ begin
 
   case RadioGroup1.ItemIndex of
     0:  begin
-          for J := 0 to fResults.ValueCount - 1 do
+          for I := 0 to fResults.ValueCount - 1 do
           begin
-            Image1.Canvas.Pen.Color := LineCol[J mod COLORS_COUNT];
-            for I := 0 to fResults.ChartsCount - 1 do
+            Image1.Canvas.Pen.Color := LineCol[I mod COLORS_COUNT];
+            for J := 0 to fResults.ChartsCount - 1 do
             begin
-              DotX := Round(I / (fResults.ChartsCount - 1) * Image1.Width);
-              DotY := Image1.Height - Round(fResults.Value[I,J] / fResults.ValueMax * Image1.Height);
+              if fResults.ChartsCount > 1 then
+                DotX := Round(J / (fResults.ChartsCount - 1) * Image1.Width)
+              else
+                DotX := Image1.Width div 2;
+              if fResults.ValueMax <> 0 then
+                DotY := Image1.Height - Round(fResults.Value[J,I] / fResults.ValueMax * Image1.Height)
+              else
+                DotY := 0;
               Image1.Canvas.Ellipse(DotX-2, DotY-2, DotX+2, DotY+2);
-              if I = 0 then
+              if J = 0 then
                 Image1.Canvas.PenPos := Point(DotX, DotY)
               else
                 Image1.Canvas.LineTo(DotX, DotY);
@@ -130,28 +136,28 @@ begin
           TopY := fResults.ValueMax;
         end;
     1:  begin
-          for J := 0 to fResults.ValueCount - 1 do
+          for I := 0 to fResults.ValueCount - 1 do
           begin
-            Image1.Canvas.Pen.Color := LineCol[J mod COLORS_COUNT];
+            Image1.Canvas.Pen.Color := LineCol[I mod COLORS_COUNT];
 
             SetLength(Stats, 0); //Erase
             SetLength(Stats, Round(fResults.ValueMax) - Round(fResults.ValueMin) + 1);
-            for I := 0 to fResults.ChartsCount - 1 do
-              Inc(Stats[Round(fResults.Value[I,J]) - Round(fResults.ValueMin)]);
+            for J := 0 to fResults.ChartsCount - 1 do
+              Inc(Stats[Round(fResults.Value[J,I]) - Round(fResults.ValueMin)]);
 
             StatMax := Stats[Low(Stats)];
-            for I := Low(Stats)+1 to High(Stats) do
-              StatMax := Max(StatMax, Stats[I]);
+            for J := Low(Stats)+1 to High(Stats) do
+              StatMax := Max(StatMax, Stats[J]);
 
-            for I := Low(Stats) to High(Stats) do
+            for J := Low(Stats) to High(Stats) do
             begin
-              DotX := Round((I - Low(Stats)) / (Length(Stats) - 1) * Image1.Width);
-              DotY := Image1.Height - Round(Stats[I] / StatMax * Image1.Height);
+              DotX := Round((J - Low(Stats)) / (Length(Stats) - 1) * Image1.Width);
+              DotY := Image1.Height - Round(Stats[J] / StatMax * Image1.Height);
 
               if DotY <> Image1.Height then
                 Image1.Canvas.Ellipse(DotX-2, DotY-2, DotX+2, DotY+2);
 
-              if I = 0 then
+              if J = 0 then
                 Image1.Canvas.PenPos := Point(DotX, DotY)
               else
                 Image1.Canvas.LineTo(DotX, DotY);
