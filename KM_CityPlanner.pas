@@ -31,7 +31,7 @@ type
     function GetSourceLocation(aHouseType: array of THouseType; out Loc: TKMPoint): Boolean;
 
     function NextToOre(aHouse: THouseType; aOreType: TResourceType; out aLoc: TKMPoint): Boolean;
-    function NextToHouse(aTarget: array of THouseType; aHouse: THouseType; out aLoc: TKMPoint): Boolean;
+    function NextToHouse(aHouse: THouseType; aTarget, aAvoid: array of THouseType; out aLoc: TKMPoint): Boolean;
     function NextToStone(out aLoc: TKMPoint): Boolean;
     function NextToTrees(aTarget: array of THouseType; aHouse: THouseType; out aLoc: TKMPoint): Boolean;
     function NextToGrass(aTarget, aHouse: THouseType; out aLoc: TKMPoint): Boolean;
@@ -85,23 +85,23 @@ begin
   Result := False;
 
   case aHouse of
-    ht_Store:           Result := NextToHouse([ht_Any], aHouse, aLoc);
-    ht_ArmorSmithy:     Result := NextToHouse([ht_IronSmithy, ht_CoalMine, ht_Barracks], aHouse, aLoc);
-    ht_ArmorWorkshop:   Result := NextToHouse([ht_Tannery, ht_Barracks], aHouse, aLoc);
-    ht_Bakery:          Result := NextToHouse([ht_Mill], aHouse, aLoc);
-    ht_Barracks:        Result := NextToHouse([ht_Any], aHouse, aLoc);
-    ht_Butchers:        Result := NextToHouse([ht_Swine], aHouse, aLoc);
-    ht_Inn:             Result := NextToHouse([ht_Store], aHouse, aLoc);
-    ht_IronSmithy:      Result := NextToHouse([ht_IronMine, ht_CoalMine], aHouse, aLoc);
-    ht_Metallurgists:   Result := NextToHouse([ht_GoldMine], aHouse, aLoc);
-    ht_Mill:            Result := NextToHouse([ht_Farm], aHouse, aLoc);
-    ht_Sawmill:         Result := NextToHouse([ht_Woodcutters], aHouse, aLoc);
-    ht_School:          Result := NextToHouse([ht_Store, ht_Barracks], aHouse, aLoc);
-    ht_Stables:         Result := NextToHouse([ht_Farm], aHouse, aLoc);
-    ht_Swine:           Result := NextToHouse([ht_Farm], aHouse, aLoc);
-    ht_Tannery:         Result := NextToHouse([ht_Swine], aHouse, aLoc);
-    ht_WeaponSmithy:    Result := NextToHouse([ht_IronSmithy, ht_CoalMine, ht_Barracks], aHouse, aLoc);
-    ht_WeaponWorkshop:  Result := NextToHouse([ht_Sawmill, ht_Barracks], aHouse, aLoc);
+    ht_Store:           Result := NextToHouse(aHouse, [ht_Any], [ht_Store], aLoc);
+    ht_ArmorSmithy:     Result := NextToHouse(aHouse, [ht_IronSmithy, ht_CoalMine, ht_Barracks], [], aLoc);
+    ht_ArmorWorkshop:   Result := NextToHouse(aHouse, [ht_Tannery, ht_Barracks], [], aLoc);
+    ht_Bakery:          Result := NextToHouse(aHouse, [ht_Mill], [], aLoc);
+    ht_Barracks:        Result := NextToHouse(aHouse, [ht_Any], [], aLoc);
+    ht_Butchers:        Result := NextToHouse(aHouse, [ht_Swine], [], aLoc);
+    ht_Inn:             Result := NextToHouse(aHouse, [ht_Any], [ht_Inn], aLoc);
+    ht_IronSmithy:      Result := NextToHouse(aHouse, [ht_IronMine, ht_CoalMine], [], aLoc);
+    ht_Metallurgists:   Result := NextToHouse(aHouse, [ht_GoldMine], [], aLoc);
+    ht_Mill:            Result := NextToHouse(aHouse, [ht_Farm], [], aLoc);
+    ht_Sawmill:         Result := NextToHouse(aHouse, [ht_Woodcutters], [], aLoc);
+    ht_School:          Result := NextToHouse(aHouse, [ht_Store, ht_Barracks], [], aLoc);
+    ht_Stables:         Result := NextToHouse(aHouse, [ht_Farm], [], aLoc);
+    ht_Swine:           Result := NextToHouse(aHouse, [ht_Farm], [], aLoc);
+    ht_Tannery:         Result := NextToHouse(aHouse, [ht_Swine], [], aLoc);
+    ht_WeaponSmithy:    Result := NextToHouse(aHouse, [ht_IronSmithy, ht_CoalMine, ht_Barracks], [], aLoc);
+    ht_WeaponWorkshop:  Result := NextToHouse(aHouse, [ht_Sawmill, ht_Barracks], [], aLoc);
 
     ht_CoalMine:      Result := NextToOre(aHouse, rt_Coal, aLoc);
     ht_GoldMine:      Result := NextToOre(aHouse, rt_GoldOre, aLoc);
@@ -201,7 +201,7 @@ begin
 end;
 
 
-function TKMCityPlanner.NextToHouse(aTarget: array of THouseType; aHouse: THouseType; out aLoc: TKMPoint): Boolean;
+function TKMCityPlanner.NextToHouse(aHouse: THouseType; aTarget, aAvoid: array of THouseType; out aLoc: TKMPoint): Boolean;
 const RAD = 15;
 var
   I, K: Integer;
@@ -218,16 +218,18 @@ begin
   BestBid := MaxSingle;
   for I := Max(TargetLoc.Y - RAD, 1) to Min(TargetLoc.Y + RAD, fTerrain.MapY - 1) do
   for K := Max(TargetLoc.X - RAD, 1) to Min(TargetLoc.X + RAD, fTerrain.MapX - 1) do
-    if P.CanAddHousePlanAI(K, I, aHouse, True) then
+  if P.CanAddHousePlanAI(K, I, aHouse, True) then
+  begin
+    Bid := KMLengthDiag(KMPoint(K,I), TargetLoc)
+           - fAIFields.Influences.Ownership[fOwner,I,K] / 10
+           + KaMRandom * 5;
+    if (Bid < BestBid) then
     begin
-      Bid := KMLengthDiag(KMPoint(K,I), TargetLoc) - fAIFields.Influences.Ownership[fOwner,I,K] + KaMRandom * 5;
-      if (Bid < BestBid) then
-      begin
-        aLoc := KMPoint(K,I);
-        BestBid := Bid;
-        Result := True;
-      end;
+      aLoc := KMPoint(K,I);
+      BestBid := Bid;
+      Result := True;
     end;
+  end;
 end;
 
 
