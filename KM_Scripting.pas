@@ -130,7 +130,6 @@ begin
     //After that they can be used from within the script.
     with Sender.AddClassN(nil, fStates.ClassName) do
     begin
-      RegisterMethod('function CheckAlliance(aPlayer1, aPlayer2: Byte): Boolean');
       RegisterMethod('function GameTime: Cardinal');
       RegisterMethod('function KaMRandom: Single');
       RegisterMethod('function KaMRandomI(aMax:Integer): Integer');
@@ -153,7 +152,8 @@ begin
       RegisterMethod('function HouseRepair(aHouseID: Integer): Boolean');
       RegisterMethod('function HouseResourceAmount(aHouseID, aResource: Integer): Integer');
       RegisterMethod('function HouseType(aHouseID: Integer): Integer');
-	  
+
+      RegisterMethod('function PlayerAllianceCheck(aPlayer1, aPlayer2: Byte): Boolean');
       RegisterMethod('function PlayerDefeated(aPlayer: Byte): Boolean');
       RegisterMethod('function PlayerEnabled(aPlayer: Byte): Boolean');
       RegisterMethod('function PlayerName(aPlayer: Byte): AnsiString');
@@ -333,7 +333,6 @@ begin
     //Register classes and their exposed methods to Runtime (must be uppercase)
     with ClassImp.Add(TKMScriptStates) do
     begin
-      RegisterMethod(@TKMScriptStates.CheckAlliance, 'CHECKALLIANCE');
       RegisterMethod(@TKMScriptStates.GameTime, 'GAMETIME');
       RegisterMethod(@TKMScriptStates.KaMRandom, 'KAMRANDOM');
       RegisterMethod(@TKMScriptStates.KaMRandomI, 'KAMRANDOMI');
@@ -357,6 +356,7 @@ begin
       RegisterMethod(@TKMScriptStates.HouseResourceAmount, 'HOUSERESOURCEAMOUNT');
       RegisterMethod(@TKMScriptStates.HouseType, 'HOUSETYPE');
 
+      RegisterMethod(@TKMScriptStates.PlayerAllianceCheck, 'PLAYERALLIANCECHECK');
       RegisterMethod(@TKMScriptStates.PlayerDefeated, 'PLAYERDEFEATED');
       RegisterMethod(@TKMScriptStates.PlayerEnabled, 'PLAYERENABLED');
       RegisterMethod(@TKMScriptStates.PlayerName, 'PLAYERNAME');

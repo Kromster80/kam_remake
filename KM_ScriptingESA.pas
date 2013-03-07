@@ -26,7 +26,6 @@ type
     constructor Create(aIDCache: TKMScriptingIdCache);
     function GameTime: Cardinal;
     function PeaceTime: Cardinal;
-    function CheckAlliance(aPlayer1, aPlayer2: Byte): Boolean;
     function KaMRandom: Single;
     function KaMRandomI(aMax:Integer): Integer;
 
@@ -58,6 +57,7 @@ type
     function HouseResourceAmount(aHouseID, aResource: Integer): Integer;
     function HouseType(aHouseID: Integer): Integer;
 
+    function PlayerAllianceCheck(aPlayer1, aPlayer2: Byte): Boolean;
     function PlayerDefeated(aPlayer: Byte): Boolean;
     function PlayerEnabled(aPlayer: Byte): Boolean;
     function PlayerName(aPlayer: Byte): AnsiString;
@@ -188,7 +188,7 @@ begin
 end;
 
 
-function TKMScriptStates.CheckAlliance(aPlayer1, aPlayer2: Byte): Boolean;
+function TKMScriptStates.PlayerAllianceCheck(aPlayer1, aPlayer2: Byte): Boolean;
 begin
   if  InRange(aPlayer1, 0, fPlayers.Count - 1)
   and InRange(aPlayer2, 0, fPlayers.Count - 1) then
@@ -196,7 +196,7 @@ begin
   else
   begin
     Result := False;
-    LogError('States.CheckAlliance', [aPlayer1, aPlayer2]);
+    LogError('States.PlayerAllianceCheck', [aPlayer1, aPlayer2]);
   end;
 end;
 
