@@ -816,7 +816,7 @@ end;
 function TKMHouse.CheckResOrder(aID: Byte): Word;
 const
   //Values are proportional to how many types of troops need this armament
-  DefOrderCount: array [WEAPON_MIN..WEAPON_MAX] of Byte = (
+  DEF_NEED: array [WEAPON_MIN..WEAPON_MAX] of Byte = (
     2, 2, 4, 4, 2, 2, 1, 1, 1, 1);
     //rt_Shield, rt_MetalShield, rt_Armor, rt_MetalArmor, rt_Axe,
     //rt_Sword, rt_Pike, rt_Hallebard, rt_Bow, rt_Arbalet
@@ -825,41 +825,55 @@ begin
   //todo: Make AI manage that
   if (fPlayers[fOwner].PlayerType = pt_Computer)
   and (fResource.HouseDat[fHouseType].ResOutput[aID] <> rt_None) then
-    Result := DefOrderCount[fResource.HouseDat[fHouseType].ResOutput[aID]]
+    Result := DEF_NEED[fResource.HouseDat[fHouseType].ResOutput[aID]]
   else
     Result := fResourceOrder[aID];
 end;
 
 
-function TKMHouse.PickOrder:byte;
-var i, Res: byte; Ware: TResourceType;
+//Select order we will be making
+//Order picking in sequential, so that if orders for 1st = 6 and for 2nd = 2
+//then the production will go like so: 12121111
+function TKMHouse.PickOrder: Byte;
+var
+  I, ItemId: Byte;
+  Ware: TResourceType;
 begin
+  //@Lewin: Sequential picking has a flaw. Lets say we have armory and workshop and we need to make
+  //50 archers and 50 axeman. Given sequential ordering, halfway through we will be limited by armors:
+  // - 25 bows, 25 axes, 25 armors and 25 shields, thats only 12.5 warriors.
+  //If we do more sophisticated approach and do ratio picking:
+  // - 25 bows, 25 axes, 33 armors and 16 shields, which is our optimum 16 warriors
+  //Another reason to change it is the way AI places orders. It works with ratios, not actual numbers
+  //e.g. despite the code above the sequential picking will lead to all items produces the same amounts
+  //even when we change AI to order exact amounts, they are still gonna be big ratios (100,50)
+
   Result := 0;
-  for i:=0 to 3 do
+  for I := 0 to 3 do
   begin
-    Res := ((fLastOrderProduced+i) mod 4)+1; //1..4
-    Ware := fResource.HouseDat[fHouseType].ResOutput[Res];
-    if (CheckResOrder(Res) > 0) //Player has ordered some of this
+    ItemId := ((fLastOrderProduced + I) mod 4)+1; //1..4
+    Ware := fResource.HouseDat[fHouseType].ResOutput[ItemId];
+    if (CheckResOrder(ItemId) > 0) //Player has ordered some of this
     and (CheckResOut(Ware) < MAX_RES_IN_HOUSE) //Output of this is not full
     //Check we have wares to produce this weapon. If both are the same type check > 1 not > 0
     and ((WarfareCosts[Ware,1] <> WarfareCosts[Ware,2]) or (CheckResIn(WarfareCosts[Ware,1]) > 1))
     and ((WarfareCosts[Ware,1] = rt_None) or (CheckResIn(WarfareCosts[Ware,1]) > 0))
     and ((WarfareCosts[Ware,2] = rt_None) or (CheckResIn(WarfareCosts[Ware,2]) > 0)) then
     begin
-      Result := Res;
+      Result := ItemId;
       exit;
     end;
   end;
 end;
 
 
-procedure TKMHouse.SetLastOrderProduced(aResource:TResourceType);
-var i: byte;
+procedure TKMHouse.SetLastOrderProduced(aResource: TResourceType);
+var I: Byte;
 begin
   if aResource <> rt_None then
-    for i:=1 to 4 do
-      if fResource.HouseDat[HouseType].ResOutput[i] = aResource then
-        fLastOrderProduced := i;
+    for I := 1 to 4 do
+      if fResource.HouseDat[HouseType].ResOutput[I] = aResource then
+        fLastOrderProduced := I;
 end;
 
 

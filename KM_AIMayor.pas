@@ -179,7 +179,7 @@ begin
 
   fAutoRepair := False; //In KaM it is Off by default
 
-  SetArmyDemand(1, 0.5, 0.5, 1);
+  SetArmyDemand(1, 0, 0, 1);
 end;
 
 
@@ -986,9 +986,9 @@ begin
     Consumption := P.Stats.GetUnitQty(ut_Any) / 40; //On average unit eats each 40min
     Balance := Production - Consumption;
     fDemandFoodText := Format('Food balance: %.2f - %.2f = %.2f|', [Production, Consumption, Balance])
-          + Format('       Bread: min(F%.2f, M%.2f, B%.2f)|', [Bread.FarmTheory, Bread.MillTheory, Bread.BakeryTheory])
-          + Format('    Sausages: min(F%.2f, S%.2f, B%.2f)|', [Sausages.FarmTheory, Sausages.SwineTheory, Sausages.ButchersTheory])
-          + Format('  Food value: %.2f + %.2f + %.2f + %.2f|', [BreadProduction * BREAD_RESTORE, SausagesProduction * SAUSAGE_RESTORE, WineProduction * WINE_RESTORE, FishProduction * FISH_RESTORE]);
+                     + Format('       Bread: min(F%.2f, M%.2f, B%.2f)|', [Bread.FarmTheory, Bread.MillTheory, Bread.BakeryTheory])
+                     + Format('    Sausages: min(F%.2f, S%.2f, B%.2f)|', [Sausages.FarmTheory, Sausages.SwineTheory, Sausages.ButchersTheory])
+                     + Format('  Food value: %.2f + %.2f + %.2f + %.2f|', [BreadProduction * BREAD_RESTORE, SausagesProduction * SAUSAGE_RESTORE, WineProduction * WINE_RESTORE, FishProduction * FISH_RESTORE]);
   end;
 end;
 
