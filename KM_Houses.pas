@@ -906,18 +906,18 @@ begin
   Assert(aResource <> rt_None);
 
   for I := 1 to 4 do
-    if aResource = fResource.HouseDat[fHouseType].ResInput[I] then
+  if aResource = fResource.HouseDat[fHouseType].ResInput[I] then
+  begin
+    //Don't allow the script to overfill houses
+    if aFromScript then aCount := Min(aCount, GetMaxInRes - fResourceIn[I]);
+    Inc(fResourceIn[I], aCount);
+    if aFromScript then
     begin
-      //Don't allow the script to overfill houses
-      if aFromScript then aCount := Min(aCount, GetMaxInRes - fResourceIn[I]);
-      Inc(fResourceIn[I], aCount);
-      if aFromScript then
-      begin
-        Inc(fResourceDeliveryCount[I], aCount);
-        OrdersRemoved := fPlayers[fOwner].Deliveries.Queue.TryRemoveDemand(Self, aResource, aCount);
-        Dec(fResourceDeliveryCount[I], OrdersRemoved);
-      end;
+      Inc(fResourceDeliveryCount[I], aCount);
+      OrdersRemoved := fPlayers[fOwner].Deliveries.Queue.TryRemoveDemand(Self, aResource, aCount);
+      Dec(fResourceDeliveryCount[I], OrdersRemoved);
     end;
+  end;
 end;
 
 
