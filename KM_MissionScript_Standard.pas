@@ -472,9 +472,15 @@ begin
                           if TextParam = AI_ATTACK_PARAMS[cpt_TakeAll] then
                             fAIAttack.TakeAll := True;
                         end;
-    ct_CopyAIAttack:    if fLastPlayer >= 0 then
-                          //Save the attack to the AI assets
-                          fPlayers[fLastPlayer].AI.General.Attacks.AddAttack(fAIAttack);
+    ct_CopyAIAttack:    begin
+                          if fLastPlayer >= 0 then
+                            //Save the attack to the AI assets
+                            fPlayers[fLastPlayer].AI.General.Attacks.AddAttack(fAIAttack);
+
+                          //Reset values before next Attack processing
+                          FillChar(fAIAttack, SizeOf(fAIAttack), #0);
+                        end;
+
     ct_EnablePlayer:    begin
                           //Serves no real purpose, all players have this command anyway
                         end;
