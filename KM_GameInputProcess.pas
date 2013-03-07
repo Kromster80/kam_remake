@@ -136,7 +136,7 @@ type
     procedure CmdBuild(aCommandType: TGameInputCommandType; aLoc: TKMPoint; aHouseType: THouseType); overload;
 
     procedure CmdHouse(aCommandType: TGameInputCommandType; aHouse: TKMHouse); overload;
-    procedure CmdHouse(aCommandType: TGameInputCommandType; aHouse: TKMHouse; aItem, aAmount:integer); overload;
+    procedure CmdHouse(aCommandType: TGameInputCommandType; aHouse: TKMHouse; aItem, aAmountChange: Integer); overload;
     procedure CmdHouse(aCommandType: TGameInputCommandType; aHouse: TKMHouse; aItem: TResourceType); overload;
     procedure CmdHouse(aCommandType: TGameInputCommandType; aHouse: TKMHouse; aWoodcutterMode: TWoodcutterMode); overload;
     procedure CmdHouse(aCommandType: TGameInputCommandType; aHouse: TKMHouse; aUnitType: TUnitType; aCount:byte); overload;
@@ -330,7 +330,7 @@ begin
 
       gic_HouseRepairToggle:      SrcHouse.BuildingRepair := not SrcHouse.BuildingRepair;
       gic_HouseDeliveryToggle:    SrcHouse.WareDelivery := not SrcHouse.WareDelivery;
-      gic_HouseOrderProduct:      SrcHouse.ResEditOrder(Params[2], Params[3]);
+      gic_HouseOrderProduct:      SrcHouse.ResOrder[Params[2]] := SrcHouse.ResOrder[Params[2]] + Params[3];
       gic_HouseMarketFrom:        TKMHouseMarket(SrcHouse).ResFrom := TResourceType(Params[2]);
       gic_HouseMarketTo:          TKMHouseMarket(SrcHouse).ResTo := TResourceType(Params[2]);
       gic_HouseStoreAcceptFlag:   TKMHouseStore(SrcHouse).ToggleAcceptFlag(TResourceType(Params[2]));
@@ -468,10 +468,10 @@ begin
 end;
 
 
-procedure TGameInputProcess.CmdHouse(aCommandType: TGameInputCommandType; aHouse: TKMHouse; aItem, aAmount:integer);
+procedure TGameInputProcess.CmdHouse(aCommandType: TGameInputCommandType; aHouse: TKMHouse; aItem, aAmountChange: Integer);
 begin
   Assert(aCommandType = gic_HouseOrderProduct);
-  TakeCommand(MakeCommand(aCommandType, [aHouse.ID, aItem, aAmount]));
+  TakeCommand(MakeCommand(aCommandType, [aHouse.ID, aItem, aAmountChange]));
 end;
 
 

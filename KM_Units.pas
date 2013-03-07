@@ -510,9 +510,11 @@ begin
   and (fHome.CheckResOut(TM.WorkPlan.Product2) < MAX_RES_IN_HOUSE) then
   begin
     if fResource.HouseDat[fHome.HouseType].DoesOrders then
-      fHome.ResEditOrder(Res, -1); //Take order
+      //Take order to production
+      fHome.ResOrder[Res] := fHome.ResOrder[Res] - 1;
     Result := TM;
-  end else
+  end
+  else
   begin
     TM.Free;
     Result := nil;

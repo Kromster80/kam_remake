@@ -17,6 +17,9 @@ type
     procedure AttemptExchange;
     procedure SetResFrom(aRes: TResourceType);
     procedure SetResTo(aRes: TResourceType);
+  protected
+    function GetResOrder(aId: Byte): Integer; override;
+    procedure SetResOrder(aId: Byte; aValue: Integer); override;
   public
     constructor Create(aID: Cardinal; aHouseType: THouseType; PosX, PosY: Integer; aOwner: TPlayerIndex; aBuildState: THouseBuildState);
     constructor Load(LoadStream: TKMemoryStream); override;
@@ -31,9 +34,7 @@ type
     function TradeInProgress: Boolean;
     function GetResTotal(aResource: TResourceType): Word; overload;
     function CheckResIn(aResource: TResourceType): Word; override;
-    function CheckResOrder(aID: Byte): Word; override;
     procedure ResAddToIn(aResource: TResourceType; aCount: Word=1; aFromScript: Boolean=false); override;
-    procedure ResEditOrder(aID: Byte; aAmount: Integer); override;
     procedure ResTakeFromOut(aResource: TResourceType; const aCount: Word=1); override;
     function ResCanAddToIn(aRes: TResourceType): Boolean; override;
 
@@ -81,7 +82,7 @@ begin
 end;
 
 
-function TKMHouseMarket.CheckResOrder(aID: Byte): Word;
+function TKMHouseMarket.GetResOrder(aID: Byte): Integer;
 begin
   Result := fTradeAmount;
 end;
@@ -215,7 +216,7 @@ end;
 
 
 //Player has changed the amount of order
-procedure TKMHouseMarket.ResEditOrder(aID: Byte; aAmount: Integer);
+procedure TKMHouseMarket.SetResOrder(aId: Byte; aValue: Integer);
 const
   //Maximum number of Demands we can place at once (stops the delivery queue from becoming clogged with 1500 items)
   MAX_RES_ORDERED = 10;
@@ -224,7 +225,7 @@ var
 begin
   if (fResFrom = rt_None) or (fResTo = rt_None) or (fResFrom = fResTo) then Exit;
 
-  fTradeAmount := EnsureRange(fTradeAmount + aAmount, 0, MAX_ORDER);
+  fTradeAmount := EnsureRange(aValue, 0, MAX_ORDER);
 
   //Try to make an exchange from existing resources
   AttemptExchange;

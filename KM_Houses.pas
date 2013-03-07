@@ -63,13 +63,15 @@ type
     procedure Activate(aWasBuilt: Boolean); virtual;
 
     procedure MakeSound; dynamic; //Swine/stables make extra sounds
-    function GetResDistribution(aID:byte):byte;
-    procedure SetBuildingRepair(aValue: Boolean); //Will use GetRatio from mission settings to find distribution amount
+    function GetResDistribution(aID: Byte): Byte; //Will use GetRatio from mission settings to find distribution amount
+    procedure SetBuildingRepair(aValue: Boolean);
   protected
     fBuildState: THouseBuildState; // = (hbs_Glyph, hbs_NoGlyph, hbs_Wood, hbs_Stone, hbs_Done);
     FlagAnimStep: Cardinal; //Used for Flags and Burning animation
     fOwner: TPlayerIndex; //House owner player, determines flag color as well
     fPosition: TKMPoint; //House position on map, kinda virtual thing cos it doesn't match with entrance
+    function GetResOrder(aId: Byte): Integer; virtual;
+    procedure SetResOrder(aId: Byte; aValue: Integer); virtual;
   public
     fCurrentAction: THouseAction; //Current action, withing HouseTask or idle
     ResourceDepletedMsgIssued: boolean;
@@ -125,7 +127,6 @@ type
 
     function CheckResIn(aResource:TResourceType):word; virtual;
     function CheckResOut(aResource:TResourceType):byte;
-    function CheckResOrder(aID:byte):word; virtual;
     function PickOrder:byte;
     procedure SetLastOrderProduced(aResource:TResourceType);
     function CheckResToBuild:boolean;
@@ -135,8 +136,8 @@ type
     procedure ResAddToBuild(aResource:TResourceType);
     procedure ResTakeFromIn(aResource:TResourceType; aCount:byte=1);
     procedure ResTakeFromOut(aResource:TResourceType; const aCount: Word=1); virtual;
-    procedure ResEditOrder(aID:byte; aAmount:integer); virtual;
     function ResCanAddToIn(aRes: TResourceType): Boolean; virtual;
+    property ResOrder[aId: Byte]: Integer read GetResOrder write SetResOrder;
 
     procedure Save(SaveStream:TKMemoryStream); virtual;
 
@@ -813,7 +814,7 @@ end;
 
 
 {Check amount of placed order for given ID}
-function TKMHouse.CheckResOrder(aID: Byte): Word;
+function TKMHouse.GetResOrder(aID: Byte): Integer;
 const
   //Values are proportional to how many types of troops need this armament
   DEF_NEED: array [WEAPON_MIN..WEAPON_MAX] of Byte = (
@@ -853,7 +854,7 @@ begin
   begin
     ItemId := ((fLastOrderProduced + I) mod 4)+1; //1..4
     Ware := fResource.HouseDat[fHouseType].ResOutput[ItemId];
-    if (CheckResOrder(ItemId) > 0) //Player has ordered some of this
+    if (ResOrder[ItemId] > 0) //Player has ordered some of this
     and (CheckResOut(Ware) < MAX_RES_IN_HOUSE) //Output of this is not full
     //Check we have wares to produce this weapon. If both are the same type check > 1 not > 0
     and ((WarfareCosts[Ware,1] <> WarfareCosts[Ware,2]) or (CheckResIn(WarfareCosts[Ware,1]) > 1))
@@ -992,10 +993,11 @@ begin
 end;
 
 
-{ Edit production order as + / - }
-procedure TKMHouse.ResEditOrder(aID:byte; aAmount:integer);
+//Input value is integer because we might get a -100 order from above and need to
+//fit it to range properly here
+procedure TKMHouse.SetResOrder(aID: Byte; aValue: Integer);
 begin
-  fResourceOrder[aID] := EnsureRange(fResourceOrder[aID] + aAmount, 0, MAX_ORDER);
+  fResourceOrder[aID] := EnsureRange(aValue, 0, MAX_ORDER);
 end;
 
 

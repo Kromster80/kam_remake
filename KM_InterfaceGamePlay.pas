@@ -2240,7 +2240,7 @@ begin
               ResRow_Order[i].Caption := fResource.Resources[fResource.HouseDat[Sender.HouseType].ResOutput[i]].Title;
               ResRow_Order[i].Hint := fResource.Resources[fResource.HouseDat[Sender.HouseType].ResOutput[i]].Title;
               ResRow_Order[i].ResourceCount := Sender.CheckResOut(fResource.HouseDat[Sender.HouseType].ResOutput[i]);
-              ResRow_Order[i].OrderCount := Sender.CheckResOrder(i);
+              ResRow_Order[i].OrderCount := Sender.ResOrder[I];
               ResRow_Order[i].Show;
               ResRow_Order[i].Top := Base+Line*LineAdv;
               inc(Line);
@@ -2390,11 +2390,11 @@ begin
 
   H := TKMHouse(fPlayers.Selected);
 
-  for i:=1 to 4 do begin
-    if Sender = ResRow_Order[i].OrderRem then
-      fGame.GameInputProcess.CmdHouse(gic_HouseOrderProduct, H, i, -ClickAmount[AButton]);
-    if Sender = ResRow_Order[i].OrderAdd then
-      fGame.GameInputProcess.CmdHouse(gic_HouseOrderProduct, H, i, ClickAmount[AButton]);
+  for I := 1 to 4 do begin
+    if Sender = ResRow_Order[I].OrderRem then
+      fGame.GameInputProcess.CmdHouse(gic_HouseOrderProduct, H, I, -ClickAmount[AButton]);
+    if Sender = ResRow_Order[I].OrderAdd then
+      fGame.GameInputProcess.CmdHouse(gic_HouseOrderProduct, H, I, ClickAmount[AButton]);
   end;
 end;
 
@@ -3033,8 +3033,8 @@ begin
 
   Button_Market_Remove.Enabled := (aMarket.ResFrom <> rt_None) and (aMarket.ResTo <> rt_None);
   Button_Market_Add.Enabled := Button_Market_Remove.Enabled;
-  Label_Market_FromAmount.Caption := IntToStr(aMarket.RatioFrom * aMarket.CheckResOrder(1));
-  Label_Market_ToAmount.Caption := IntToStr(aMarket.RatioTo * aMarket.CheckResOrder(1));
+  Label_Market_FromAmount.Caption := IntToStr(aMarket.RatioFrom * aMarket.ResOrder[1]);
+  Label_Market_ToAmount.Caption := IntToStr(aMarket.RatioTo * aMarket.ResOrder[1]);
 end;
 
 
