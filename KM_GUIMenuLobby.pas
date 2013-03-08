@@ -1021,7 +1021,10 @@ begin
   TrackBar_LobbySpeedPT.Enabled := TrackBar_LobbyPeacetime.Enabled and (TrackBar_LobbyPeacetime.Position > 0);
   TrackBar_LobbySpeedAfterPT.Enabled := TrackBar_LobbyPeacetime.Enabled;
 
-  Radio_LobbyMapType.ItemIndex := DetectMapType;
+  //Don't reset the selection if no map is selected
+  if ((fNetworking.SelectGameKind = ngk_Map) and fNetworking.MapInfo.IsValid)
+  or ((fNetworking.SelectGameKind = ngk_Save) and fNetworking.SaveInfo.IsValid) then
+    Radio_LobbyMapType.ItemIndex := DetectMapType;
 
   case fNetworking.SelectGameKind of
     ngk_None: begin

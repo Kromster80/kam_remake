@@ -351,6 +351,9 @@ begin
                                     W := TKMUnitWarrior(P.AddUnit(ut_HorseScout, KMPoint(Params[1], Params[2]), True, 0, False));
 
                                     //Try to link warrior to suitable group
+                                    //todo: CRASH: We can't treat this warrior as trained in stats since recruit count is calculated as:
+                                    //      RecruitsTrained - WarriorsEquipped. We get -1 recruits and it causes a crash when creating
+                                    //      the graph.
                                     if W <> nil then
                                       W.OnUnitTrained(W);
                                   end;
