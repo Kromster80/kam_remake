@@ -849,6 +849,17 @@ begin
   //e.g. despite the code above the sequential picking will lead to all items produces the same amounts
   //even when we change AI to order exact amounts, they are still gonna be big ratios (100,50)
 
+  //@Krom: For the AI: Agreed, sequential ordering doesn't make sense, he needs ratios.
+  //       For humans: When we had it random people complained that it was too unpredictable.
+  //In a situation like you described most skilled players seem to make 2 workshops,
+  //one producing armour only, the other producing both. This ends up with half as many sheilds.
+  //IMO a better system would be to set ratios, so you can say 40% shields 60% armour (with sliders that
+  //must add to 100%, if you reduce one it increases another), then have an option to turn off production
+  //completely. Maybe we could let the player choose between ratios and exact numbers with a toggle?
+  //IMO ratios/percentages are far more useful than exact numbers, it's rare that I wanted exactly 20 swords,
+  //I usually want my guys to keep making weapons forever, but in specific ratios.
+  //What do you think?
+
   Result := 0;
   for I := 0 to 3 do
   begin
