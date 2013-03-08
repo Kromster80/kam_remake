@@ -1057,11 +1057,11 @@ begin
       TrackBar_RecruitFactor.Hint := 'How many recruits AI should have in barracks';
       TrackBar_RecruitFactor.OnClick := Town_DefenceChange;
 
-      CheckBox_MaxSoldiers := TKMCheckBox.Create(Panel_Defence, 0, 252, 30, 20, '', fnt_Metal);
+      CheckBox_MaxSoldiers := TKMCheckBox.Create(Panel_Defence, 0, 252, TB_WIDTH, 20, 'Max soldiers', fnt_Metal);
       CheckBox_MaxSoldiers.Hint := 'How many soldiers AI can have at once';
       CheckBox_MaxSoldiers.OnClick := Town_DefenceChange;
-      TrackBar_MaxSoldiers := TKMTrackBar.Create(Panel_Defence, 30, 252, TB_WIDTH - 30, 0, 500);
-      TrackBar_MaxSoldiers.Caption := 'Max soldiers';
+      TrackBar_MaxSoldiers := TKMTrackBar.Create(Panel_Defence, 20, 270, TB_WIDTH - 20, 0, 500);
+      TrackBar_MaxSoldiers.Caption := '';
       TrackBar_MaxSoldiers.Hint := 'How many soldiers AI can have at once';
       TrackBar_MaxSoldiers.Step := 5;
       TrackBar_MaxSoldiers.OnClick := Town_DefenceChange;
