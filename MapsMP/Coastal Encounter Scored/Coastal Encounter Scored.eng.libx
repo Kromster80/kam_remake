@@ -2,4 +2,4 @@
 MaxID:2
 
 1:Scores:
-2:%s: %d
+2:[$%s]%s[]: %d

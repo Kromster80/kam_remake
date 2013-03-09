@@ -63,6 +63,7 @@ type
     function PlayerDefeated(aPlayer: Byte): Boolean;
     function PlayerEnabled(aPlayer: Byte): Boolean;
     function PlayerName(aPlayer: Byte): AnsiString;
+    function PlayerColorText(aPlayer: Byte): AnsiString;
     function PlayerVictorious(aPlayer: Byte): Boolean;
 
     function UnitAt(aX, aY: Word): Integer;
@@ -325,6 +326,18 @@ begin
   begin
     Result := '';
     LogError('States.PlayerName', [aPlayer]);
+  end;
+end;
+
+
+function TKMScriptStates.PlayerColorText(aPlayer: Byte): AnsiString;
+begin
+  if InRange(aPlayer, 0, fPlayers.Count - 1) then
+    Result := Format('%.6x', [fPlayers[aPlayer].FlagColor and $FFFFFF])
+  else
+  begin
+    Result := '';
+    LogError('States.PlayerColorText', [aPlayer]);
   end;
 end;
 

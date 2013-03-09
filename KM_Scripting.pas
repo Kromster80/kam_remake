@@ -156,6 +156,7 @@ begin
       RegisterMethod('function HouseType(aHouseID: Integer): Integer');
 
       RegisterMethod('function PlayerAllianceCheck(aPlayer1, aPlayer2: Byte): Boolean');
+      RegisterMethod('function PlayerColorText(aPlayer: Byte): AnsiString');
       RegisterMethod('function PlayerDefeated(aPlayer: Byte): Boolean');
       RegisterMethod('function PlayerEnabled(aPlayer: Byte): Boolean');
       RegisterMethod('function PlayerName(aPlayer: Byte): AnsiString');
@@ -359,6 +360,7 @@ begin
       RegisterMethod(@TKMScriptStates.HouseType,            'HOUSETYPE');
 
       RegisterMethod(@TKMScriptStates.PlayerAllianceCheck,  'PLAYERALLIANCECHECK');
+      RegisterMethod(@TKMScriptStates.PlayerColorText,      'PLAYERCOLORTEXT');
       RegisterMethod(@TKMScriptStates.PlayerDefeated,       'PLAYERDEFEATED');
       RegisterMethod(@TKMScriptStates.PlayerEnabled,        'PLAYERENABLED');
       RegisterMethod(@TKMScriptStates.PlayerName,           'PLAYERNAME');
@@ -640,7 +642,7 @@ var
   ArrayVar: TPSVariantIFC;
   TmpInt: Integer;
   TmpSingle: Single;
-  TmpString: AnsiString;
+  //TmpString: AnsiString;
 begin
   LoadStream.ReadAssert('Script');
 
@@ -665,10 +667,10 @@ begin
                       LoadStream.Read(TmpSingle);
                       VSetReal(V, TmpSingle);
                     end;
-      btString:     begin
+      {btString:     begin
                       LoadStream.Read(TmpString);
                       VSetString(V, TmpString);
-                    end;
+                    end;}
       btStaticArray:begin
                       //See uPSRuntime line 1630 for algo idea
                       LoadStream.Read(ArrayCount);
@@ -689,12 +691,12 @@ begin
                                         LoadStream.Read(TmpSingle);  //Byte, Boolean, Integer
                                         VNSetReal(ArrayVar, TmpSingle);
                                       end;
-                        btString:     for K := 0 to ArrayCount - 1 do
+                        {btString:     for K := 0 to ArrayCount - 1 do
                                       begin
                                         ArrayVar := PSGetArrayField(NewTPSVariantIFC(V, False), K);
                                         LoadStream.Read(TmpString);
                                         VNSetString(ArrayVar, TmpString);
-                                      end;
+                                      end;}
                         else Assert(False);
                       end;
                     end;
@@ -712,7 +714,7 @@ var
   ArrayVar: TPSVariantIFC;
   TmpInt: Integer;
   TmpSingle: Single;
-  TmpString: AnsiString;
+  //TmpString: AnsiString;
 begin
   SaveStream.Write('Script');
 
@@ -730,10 +732,10 @@ begin
                       TmpSingle := VGetReal(V);
                       SaveStream.Write(TmpSingle);
                     end;
-      btString:     begin
+      {btString:     begin
                       TmpString := VGetString(V);
-                      SaveStream.Write(TmpSingle);
-                    end;
+                      SaveStream.Write(TmpString);
+                    end;}
       btStaticArray:begin
                       //See uPSRuntime line 1630 for algo idea
                       ArrayCount := TPSTypeRec_StaticArray(V.FType).Size; //Elements in array
@@ -754,15 +756,18 @@ begin
                                         TmpSingle := VNGetReal(ArrayVar);
                                         SaveStream.Write(TmpSingle);
                                       end;
-                        btString:     for K := 0 to ArrayCount - 1 do
+                        {btString:     for K := 0 to ArrayCount - 1 do
                                       begin
                                         ArrayVar := PSGetArrayField(NewTPSVariantIFC(V, False), K);
                                         TmpString := VNGetString(ArrayVar);
                                         SaveStream.Write(TmpSingle);
-                                      end;
+                                      end;}
                         else Assert(False);
                       end;
                     end;
+      btClass: ; //Don't give an error for States and Actions
+      //todo: It would be better to alert the scripter to this mistake during compilation rather than relying on an assert in saving
+      else Assert(False, 'Only some types can be global vars');
     end;
   end;
 end;
