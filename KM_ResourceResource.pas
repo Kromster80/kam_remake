@@ -11,13 +11,13 @@ type
     fType: TResourceType;
     fMarketPrice: Single;
     function GetGUIIcon: Word;
-    function GetTitle: string;
+    function GetTitle: AnsiString;
   public
     constructor Create(aType: TResourceType);
     function IsValid: Boolean;
     property GUIIcon: Word read GetGUIIcon;
     property MarketPrice: Single read fMarketPrice;
-    property Title: String read GetTitle;
+    property Title: AnsiString read GetTitle;
   end;
 
   TKMResourceCollection = class
@@ -58,36 +58,43 @@ uses KM_TextLibrary;
 
 { TKMResourceCollection }
 constructor TKMResourceCollection.Create;
-var i:TResourceType;
+var I: TResourceType;
 begin
   inherited;
-  for i:=Low(TResourceType) to High(TResourceType) do
-    fList[i] := TKMResourceDat.Create(i);
-  CalculateCostsTable; //Calcuate the trade costs once
+
+  for I := Low(TResourceType) to High(TResourceType) do
+    fList[I] := TKMResourceDat.Create(I);
+
+  //Calcuate the trade costs for marketplace once
+  CalculateCostsTable;
 end;
 
 
 destructor TKMResourceCollection.Destroy;
-var i:TResourceType;
+var I: TResourceType;
 begin
-  for i:=Low(TResourceType) to High(TResourceType) do
-    fList[i].Free;
+  for I := Low(TResourceType) to High(TResourceType) do
+    fList[I].Free;
+
   inherited;
 end;
 
 
+//Export costs table for analysis in human-friendly form
 procedure TKMResourceCollection.ExportCostsTable(const aFilename: string);
 var
   SL: TStringList;
-  i:TResourceType;
+  I: TResourceType;
 begin
   SL := TStringList.Create;
+  try
+    for I := WARE_MIN to WARE_MAX do
+      SL.Add(fList[I].GetTitle + #9 + #9 + FloatToStr(fList[I].fMarketPrice));
 
-  for i:=WARE_MIN to WARE_MAX do
-    SL.Add(fList[i].GetTitle+#9+#9+FloatToStr(fList[i].fMarketPrice));
-
-  SL.SaveToFile(aFilename);
-  SL.Free;
+    SL.SaveToFile(aFilename);
+  finally
+    SL.Free;
+  end;
 end;
 
 
@@ -141,6 +148,7 @@ end;
 constructor TKMResourceDat.Create(aType: TResourceType);
 begin
   inherited Create;
+
   fType := aType;
 end;
 
@@ -154,7 +162,7 @@ begin
 end;
 
 
-function TKMResourceDat.GetTitle: string;
+function TKMResourceDat.GetTitle: AnsiString;
 begin
   if IsValid then
     Result := fTextLibrary[TX_RESOURCES_NAMES__27 + ResourceTypeToIndex[fType]]
@@ -163,7 +171,7 @@ begin
 end;
 
 
-function TKMResourceDat.IsValid: boolean;
+function TKMResourceDat.IsValid: Boolean;
 begin
   Result := fType in [WARE_MIN..WARE_MAX];
 end;
