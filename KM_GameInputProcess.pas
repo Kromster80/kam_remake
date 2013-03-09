@@ -346,17 +346,8 @@ begin
                                   end;
 
       gic_TempAddScout:           if DEBUG_CHEATS and (MULTIPLAYER_CHEATS or not fGame.IsMultiplayer) then
-                                  begin
                                     //Place a warrior
-                                    W := TKMUnitWarrior(P.AddUnit(ut_HorseScout, KMPoint(Params[1], Params[2]), True, 0, False));
-
-                                    //Try to link warrior to suitable group
-                                    //todo: CRASH: We can't treat this warrior as trained in stats since recruit count is calculated as:
-                                    //      RecruitsTrained - WarriorsEquipped. We get -1 recruits and it causes a crash when creating
-                                    //      the graph.
-                                    if W <> nil then
-                                      W.OnUnitTrained(W);
-                                  end;
+                                    W := TKMUnitWarrior(P.AddUnit(ut_HorseScout, KMPoint(Params[1], Params[2]), True, 0, True));
       gic_TempRevealMap:          if DEBUG_CHEATS and (MULTIPLAYER_CHEATS or not fGame.IsMultiplayer) then
                                     P.FogOfWar.RevealEverything;
       gic_TempDoNothing:          ;

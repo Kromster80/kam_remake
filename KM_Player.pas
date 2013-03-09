@@ -90,7 +90,7 @@ type
 
     procedure AfterMissionInit(aFlattenRoads: Boolean);
 
-    function AddUnit(aUnitType: TUnitType; aLoc: TKMPoint; AutoPlace: Boolean = True; aRequiredWalkConnect: Byte = 0; aAddToStats: Boolean = True): TKMUnit; reintroduce;
+    function AddUnit(aUnitType: TUnitType; aLoc: TKMPoint; AutoPlace: Boolean = True; aRequiredWalkConnect: Byte = 0; aCheat: Boolean = False): TKMUnit; reintroduce;
     function AddUnitGroup(aUnitType: TUnitType; Position: TKMPoint; aDir: TKMDirection; aUnitPerRow, aCount: Word): TKMUnitGroup;
 
     function TrainUnit(aUnitType: TUnitType; Position: TKMPoint): TKMUnit;
@@ -273,7 +273,9 @@ end;
 
 //Place unit of aUnitType to aLoc via script
 //AutoPlace - add unit to nearest available spot if aLoc is already taken (or unwalkable)
-function TKMPlayer.AddUnit(aUnitType: TUnitType; aLoc: TKMPoint; AutoPlace: Boolean = True; aRequiredWalkConnect: Byte = 0; aAddToStats: Boolean = True): TKMUnit;
+function TKMPlayer.AddUnit(aUnitType: TUnitType; aLoc: TKMPoint; AutoPlace: Boolean = True; aRequiredWalkConnect: Byte = 0; aCheat: Boolean = False): TKMUnit;
+var
+  G: TKMUnitGroup;
 begin
   Result := fUnits.AddUnit(fPlayerIndex, aUnitType, aLoc, AutoPlace, aRequiredWalkConnect);
 
@@ -288,9 +290,23 @@ begin
   if Result is TKMUnitSerf then
     fDeliveries.AddSerf(TKMUnitSerf(Result));
 
-  //When we place a cheat Scout we dont want to count it just yet, wait till it calls OnTrained
-  if aAddToStats then
-    fStats.UnitCreated(aUnitType, False);
+  if not aCheat then
+    fStats.UnitCreated(aUnitType, False)
+  else
+    if Result is TKMUnitWarrior then
+    begin
+      //When we place a cheat Scout we want to rig it immediately
+
+      //Add recruit to stats to keep balance right (Recruit count = initial + trained - lost - warriorsCount)
+      fStats.UnitCreated(ut_Recruit, False);
+      fStats.UnitCreated(aUnitType, True);
+      fScripting.ProcUnitTrained(Result);
+
+      G := fUnitGroups.WarriorTrained(TKMUnitWarrior(Result));
+      Assert(G <> nil, 'It is certain that equipped warrior creates or finds some group to join to');
+      G.OnGroupDied := GroupDied;
+      fScripting.ProcWarriorEquipped(Result, G);
+    end;
 end;
 
 
