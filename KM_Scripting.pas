@@ -266,7 +266,7 @@ const
   (Names: 'ONHOUSEBUILT';      ParamCount: 1; Typ: (0, btS32, 0,      0);      Dir: (pmIn, pmIn, pmIn)),
   (Names: 'ONHOUSEDESTROYED';  ParamCount: 3; Typ: (0, btS32, btS32,  btEnum); Dir: (pmIn, pmIn, pmIn)),
   (Names: 'ONHOUSELOST';       ParamCount: 2; Typ: (0, btS32, btEnum, 0);      Dir: (pmIn, pmIn, pmIn)),
-  (Names: 'ONMISSIONSTART';    ParamCount: 1; Typ: (0, 0,     0,      0);      Dir: (pmIn, pmIn, pmIn)),
+  (Names: 'ONMISSIONSTART';    ParamCount: 0; Typ: (0, 0,     0,      0);      Dir: (pmIn, pmIn, pmIn)),
   (Names: 'ONPLAYERDEFEATED';  ParamCount: 1; Typ: (0, btS32, 0,      0);      Dir: (pmIn, pmIn, pmIn)),
   (Names: 'ONPLAYERVICTORY';   ParamCount: 1; Typ: (0, btS32, 0,      0);      Dir: (pmIn, pmIn, pmIn)),
   (Names: 'ONTICK';            ParamCount: 0; Typ: (0, 0,     0,      0);      Dir: (pmIn, pmIn, pmIn)),
@@ -454,7 +454,7 @@ begin
                  or SameText(V.FType.ExportName, 'TKMScriptStates')
                  or SameText(V.FType.ExportName, 'TKMScriptActions');
       if not Allowed then
-        fErrorString := fErrorString + 'Unsupported global variable type ' + IntToStr(V.FType.BaseType) + '|';
+        fErrorString := fErrorString + 'Unsupported global variable type ' + IntToStr(V.FType.BaseType) + ': ' + V.FType.ExportName + '|';
     end;
 
     //Link script objects with objects
@@ -697,7 +697,6 @@ begin
                                         LoadStream.Read(TmpString);
                                         VNSetString(ArrayVar, TmpString);
                                       end;}
-                        else Assert(False);
                       end;
                     end;
     end;
@@ -762,12 +761,12 @@ begin
                                         TmpString := VNGetString(ArrayVar);
                                         SaveStream.Write(TmpSingle);
                                       end;}
-                        else Assert(False);
+                        //Already checked and reported as an error in LinkRuntime, no need to crash it here
+                        //else Assert(False);
                       end;
                     end;
-      btClass: ; //Don't give an error for States and Actions
-      //todo: It would be better to alert the scripter to this mistake during compilation rather than relying on an assert in saving
-      else Assert(False, 'Only some types can be global vars');
+      //Already checked and reported as an error in LinkRuntime, no need to crash it here
+      //else Assert(False);
     end;
   end;
 end;
