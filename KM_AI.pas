@@ -143,6 +143,7 @@ procedure TKMPlayerAI.CheckGoals;
 
 var
   I: Integer;
+  HasVictoryGoal: Boolean;
   VictorySatisfied, SurvivalSatisfied: Boolean;
 begin
   //If player has elected to play on past victory or defeat
@@ -150,13 +151,21 @@ begin
   if fWonOrLost <> wol_None then Exit;
 
   //Assume they will win/survive, then prove it with goals
+  HasVictoryGoal := False;
   VictorySatisfied  := True;
   SurvivalSatisfied := True;
 
   with fPlayers[fOwner] do
-  for I := 0 to Goals.Count - 1 do //Test each goal to see if it has occured
-    if GoalConditionSatisfied(Goals[I]) then
-    begin
+  for I := 0 to Goals.Count - 1 do
+  case Goals[I].GoalType of
+    glt_Victory:  begin
+                    //In a sandbox or script-ruled mission there may be no victory conditions in Goals
+                    //so we make sure player wins by Goals only if he has such goals
+                    HasVictoryGoal := True;
+                    VictorySatisfied := VictorySatisfied and GoalConditionSatisfied(Goals[I]);
+                  end;
+    glt_Survive:  SurvivalSatisfied := SurvivalSatisfied and GoalConditionSatisfied(Goals[I]);
+  end;
       //Messages in goals have been replaced by SCRIPT files, so this code is disabled now,
       //but kept in case we need it for something later. (conversion process?)
 
@@ -169,14 +178,6 @@ begin
           fGameG.ShowMessage(mkText, fTextLibrary[Goals[I].MessageToShow], KMPoint(0,0));
         Goals.SetMessageHasShown(I);
       end;}
-    end
-    else
-    begin
-      if Goals[I].GoalType = glt_Victory then
-        VictorySatisfied := False;
-      if Goals[I].GoalType = glt_Survive then
-        SurvivalSatisfied := False;
-    end;
 
   //You can't win and lose at the same time. In KaM defeats override victories, except
   //when there are no goals defined, in which case you win for some weird reason...
@@ -187,7 +188,7 @@ begin
   if not SurvivalSatisfied then
     Defeat
   else
-    if VictorySatisfied then
+    if HasVictoryGoal and VictorySatisfied then
       Victory;
 end;
 

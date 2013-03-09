@@ -7,7 +7,7 @@ var
   begin
     if MsgShown[aMsg] then Exit; //Show messages only once
 
-    Actions.ShowMsg(0, aMsg);
+    Actions.ShowMsg(0, States.Text(aMsg));
     if aNextMsg <> 0 then
     begin
       NextMsg := aNextMsg;
@@ -41,15 +41,15 @@ end;
 
 procedure OnPlayerDefeated(aIndex: Integer);
 begin
-  if aIndex = 1 then Actions.ShowMsg(0, 24);
-  if aIndex = 2 then Actions.ShowMsg(0, 25);
+  if aIndex = 1 then Actions.ShowMsg(0, States.Text(24));
+  if aIndex = 2 then Actions.ShowMsg(0, States.Text(25));
 end;
 
 procedure OnTick;
 begin
-  if States.GameTime = 30 then Actions.ShowMsg(0, 1);
-  if States.GameTime = 160 then Actions.ShowMsg(0, 2);
-  if States.GameTime = 340 then Actions.ShowMsg(0, 3);
+  if States.GameTime = 30 then Actions.ShowMsg(0, States.Text(1));
+  if States.GameTime = 160 then Actions.ShowMsg(0, States.Text(2));
+  if States.GameTime = 340 then Actions.ShowMsg(0, States.Text(3));
 
-  if States.GameTime = NextTime then Actions.ShowMsg(0, NextMsg);
+  if States.GameTime = NextTime then Actions.ShowMsg(0, States.Text(NextMsg));
 end;
