@@ -83,7 +83,7 @@ type
     procedure LogError(aFuncName: string; const aValues: array of Integer);
   public
     constructor Create(aIDCache: TKMScriptingIdCache);
-	
+
     function BarracksEquip(aHouseID: Integer; aUnitType: Integer; aCount: Integer): Integer;
     function GiveAnimal(aType, X,Y: Word): Integer;
     function GiveGroup(aPlayer, aType, X,Y, aDir, aCount, aColumns: Word): Integer;
@@ -789,25 +789,25 @@ procedure TKMScriptActions.PlayerWin(const aVictors: array of Integer; aTeamVict
 var I,K: Integer;
 begin
   //Verify all input parameters
-  for I:=0 to Length(aVictors)-1 do
+  for I := 0 to Length(aVictors) - 1 do
   if not InRange(aVictors[I], 0, fPlayers.Count - 1) then
   begin
     LogError('Actions.PlayerWin', [aVictors[I]]);
     Exit;
   end;
 
-  for I:=0 to Length(aVictors)-1 do
+  for I := 0 to Length(aVictors) - 1 do
     if fPlayers[aVictors[I]].Enabled then
     begin
       fPlayers[aVictors[I]].AI.Victory;
       if aTeamVictory then
-        for K:=0 to fPlayers.Count-1 do
+        for K := 0 to fPlayers.Count - 1 do
           if fPlayers[K].Enabled and (fPlayers[aVictors[I]].Alliances[K] = at_Ally) then
             fPlayers[K].AI.Victory;
     end;
 
   //All other players get defeated
-  for I:=0 to fPlayers.Count-1 do
+  for I := 0 to fPlayers.Count - 1 do
     if fPlayers[I].Enabled and (fPlayers[I].AI.WonOrLost = wol_None) then
       fPlayers[I].AI.Defeat;
 end;

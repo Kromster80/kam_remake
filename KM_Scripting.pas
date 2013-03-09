@@ -340,50 +340,50 @@ begin
       RegisterMethod(@TKMScriptStates.Text, 'TEXT');
       RegisterMethod(@TKMScriptStates.TextFormatted, 'TEXTFORMATTED');
 
-      RegisterMethod(@TKMScriptStates.GroupAt, 'GROUPAT');
-      RegisterMethod(@TKMScriptStates.GroupDead, 'GROUPDEAD');
-      RegisterMethod(@TKMScriptStates.GroupMember, 'GROUPMEMBER');
+      RegisterMethod(@TKMScriptStates.GroupAt,          'GROUPAT');
+      RegisterMethod(@TKMScriptStates.GroupDead,        'GROUPDEAD');
+      RegisterMethod(@TKMScriptStates.GroupMember,      'GROUPMEMBER');
       RegisterMethod(@TKMScriptStates.GroupMemberCount, 'GROUPMEMBERCOUNT');
-      RegisterMethod(@TKMScriptStates.GroupOwner, 'GROUPOWNER');
+      RegisterMethod(@TKMScriptStates.GroupOwner,       'GROUPOWNER');
 
-      RegisterMethod(@TKMScriptStates.HouseAt, 'HOUSEAT');
-      RegisterMethod(@TKMScriptStates.HouseDamage, 'HOUSEDAMAGE');
+      RegisterMethod(@TKMScriptStates.HouseAt,              'HOUSEAT');
+      RegisterMethod(@TKMScriptStates.HouseDamage,          'HOUSEDAMAGE');
       RegisterMethod(@TKMScriptStates.HouseDeliveryBlocked, 'HOUSEDELIVERYBLOCKED');
-      RegisterMethod(@TKMScriptStates.HouseDestroyed, 'HOUSEDESTROYED');
-      RegisterMethod(@TKMScriptStates.HouseHasOccupant, 'HOUSEHASOCCUPANT');
-      RegisterMethod(@TKMScriptStates.HouseOwner, 'HOUSEOWNER');
-      RegisterMethod(@TKMScriptStates.HousePositionX, 'HOUSEPOSITIONX');
-      RegisterMethod(@TKMScriptStates.HousePositionY, 'HOUSEPOSITIONY');
-      RegisterMethod(@TKMScriptStates.HouseRepair, 'HOUSEREPAIR');
-      RegisterMethod(@TKMScriptStates.HouseResourceAmount, 'HOUSERESOURCEAMOUNT');
-      RegisterMethod(@TKMScriptStates.HouseType, 'HOUSETYPE');
+      RegisterMethod(@TKMScriptStates.HouseDestroyed,       'HOUSEDESTROYED');
+      RegisterMethod(@TKMScriptStates.HouseHasOccupant,     'HOUSEHASOCCUPANT');
+      RegisterMethod(@TKMScriptStates.HouseOwner,           'HOUSEOWNER');
+      RegisterMethod(@TKMScriptStates.HousePositionX,       'HOUSEPOSITIONX');
+      RegisterMethod(@TKMScriptStates.HousePositionY,       'HOUSEPOSITIONY');
+      RegisterMethod(@TKMScriptStates.HouseRepair,          'HOUSEREPAIR');
+      RegisterMethod(@TKMScriptStates.HouseResourceAmount,  'HOUSERESOURCEAMOUNT');
+      RegisterMethod(@TKMScriptStates.HouseType,            'HOUSETYPE');
 
-      RegisterMethod(@TKMScriptStates.PlayerAllianceCheck, 'PLAYERALLIANCECHECK');
-      RegisterMethod(@TKMScriptStates.PlayerDefeated, 'PLAYERDEFEATED');
-      RegisterMethod(@TKMScriptStates.PlayerEnabled, 'PLAYERENABLED');
-      RegisterMethod(@TKMScriptStates.PlayerName, 'PLAYERNAME');
-      RegisterMethod(@TKMScriptStates.PlayerVictorious, 'PLAYERVICTORIOUS');
+      RegisterMethod(@TKMScriptStates.PlayerAllianceCheck,  'PLAYERALLIANCECHECK');
+      RegisterMethod(@TKMScriptStates.PlayerDefeated,       'PLAYERDEFEATED');
+      RegisterMethod(@TKMScriptStates.PlayerEnabled,        'PLAYERENABLED');
+      RegisterMethod(@TKMScriptStates.PlayerName,           'PLAYERNAME');
+      RegisterMethod(@TKMScriptStates.PlayerVictorious,     'PLAYERVICTORIOUS');
 
-      RegisterMethod(@TKMScriptStates.StatArmyCount, 'STATARMYCOUNT');
-      RegisterMethod(@TKMScriptStates.StatCitizenCount, 'STATCITIZENCOUNT');
-      RegisterMethod(@TKMScriptStates.StatHouseTypeCount, 'HOUSETYPECOUNT');
-      RegisterMethod(@TKMScriptStates.StatPlayerCount, 'STATPLAYERCOUNT');
-      RegisterMethod(@TKMScriptStates.StatResourceProducedCount, 'RESOURCEPRODUCEDCOUNT');
-      RegisterMethod(@TKMScriptStates.StatUnitCount, 'STATUNITCOUNT');
-      RegisterMethod(@TKMScriptStates.StatUnitKilledCount, 'STATUNITKILLEDCOUNT');
-      RegisterMethod(@TKMScriptStates.StatUnitLostCount, 'STATUNITLOSTCOUNT');
-      RegisterMethod(@TKMScriptStates.StatUnitTypeCount, 'STATUNITTYPECOUNT');
+      RegisterMethod(@TKMScriptStates.StatArmyCount,              'STATARMYCOUNT');
+      RegisterMethod(@TKMScriptStates.StatCitizenCount,           'STATCITIZENCOUNT');
+      RegisterMethod(@TKMScriptStates.StatHouseTypeCount,         'STATHOUSETYPECOUNT');
+      RegisterMethod(@TKMScriptStates.StatPlayerCount,            'STATPLAYERCOUNT');
+      RegisterMethod(@TKMScriptStates.StatResourceProducedCount,  'STATRESOURCEPRODUCEDCOUNT');
+      RegisterMethod(@TKMScriptStates.StatUnitCount,              'STATUNITCOUNT');
+      RegisterMethod(@TKMScriptStates.StatUnitKilledCount,        'STATUNITKILLEDCOUNT');
+      RegisterMethod(@TKMScriptStates.StatUnitLostCount,          'STATUNITLOSTCOUNT');
+      RegisterMethod(@TKMScriptStates.StatUnitTypeCount,          'STATUNITTYPECOUNT');
 
-      RegisterMethod(@TKMScriptStates.UnitAt, 'UNITAT');
-      RegisterMethod(@TKMScriptStates.UnitDead, 'UNITDEAD');
-      RegisterMethod(@TKMScriptStates.UnitHunger, 'UNITHUNGER');
-      RegisterMethod(@TKMScriptStates.UnitLowHunger, 'UNITLOWHUNGER');
-      RegisterMethod(@TKMScriptStates.UnitMaxHunger, 'UNITMAXHUNGER');
-      RegisterMethod(@TKMScriptStates.UnitOwner, 'UNITOWNER');
-      RegisterMethod(@TKMScriptStates.UnitPositionX, 'UNITPOSITIONX');
-      RegisterMethod(@TKMScriptStates.UnitPositionY, 'UNITPOSITIONY');
-      RegisterMethod(@TKMScriptStates.UnitType, 'UNITTYPE');
-      RegisterMethod(@TKMScriptStates.UnitsGroup, 'UNITSGROUP');
+      RegisterMethod(@TKMScriptStates.UnitAt,         'UNITAT');
+      RegisterMethod(@TKMScriptStates.UnitDead,       'UNITDEAD');
+      RegisterMethod(@TKMScriptStates.UnitHunger,     'UNITHUNGER');
+      RegisterMethod(@TKMScriptStates.UnitLowHunger,  'UNITLOWHUNGER');
+      RegisterMethod(@TKMScriptStates.UnitMaxHunger,  'UNITMAXHUNGER');
+      RegisterMethod(@TKMScriptStates.UnitOwner,      'UNITOWNER');
+      RegisterMethod(@TKMScriptStates.UnitPositionX,  'UNITPOSITIONX');
+      RegisterMethod(@TKMScriptStates.UnitPositionY,  'UNITPOSITIONY');
+      RegisterMethod(@TKMScriptStates.UnitType,       'UNITTYPE');
+      RegisterMethod(@TKMScriptStates.UnitsGroup,     'UNITSGROUP');
     end;
 
     with ClassImp.Add(TKMScriptActions) do
@@ -640,7 +640,7 @@ var
   ArrayVar: TPSVariantIFC;
   TmpInt: Integer;
   TmpSingle: Single;
-  TmpString: string;
+  TmpString: AnsiString;
 begin
   LoadStream.ReadAssert('Script');
 
@@ -712,7 +712,7 @@ var
   ArrayVar: TPSVariantIFC;
   TmpInt: Integer;
   TmpSingle: Single;
-  TmpString: string;
+  TmpString: AnsiString;
 begin
   SaveStream.Write('Script');
 
