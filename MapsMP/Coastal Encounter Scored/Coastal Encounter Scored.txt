@@ -1,0 +1,4 @@
+SetSpecial
+
+BigDesc
+The old coastal road offers stunning views of the beach below the cliff. But seldom is the sight enjoyed by those brave enough to traverse it, for the road is a no man's land connecting three kingdoms at war!||The goal is to get the highest score rather than being the last man standing. Score is given for each unit you kill:|Militia: 1|Axefighter: 3|Swordfighter: 5|Bowman: 2|Crossbowman: 3|Lance carrier: 2|Pikeman: 3|Scout: 4|Knight: 6||Original map from Knights and Merchants The Shattered Kingdom, modified by Lewin to demonstrate dynamic mission scripts.

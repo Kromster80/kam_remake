@@ -759,10 +759,6 @@ begin
     Deliveries.Queue.RemDemand(aHouse);
   end;
 
-  fScripting.ProcHouseLost(aHouse, aHouse.BuildingState=hbs_Done);
-  if (aFrom <> -1) and (aFrom <> fPlayerIndex) then
-    fScripting.ProcHouseDestroyed(aHouse, aFrom, aHouse.BuildingState=hbs_Done);
-
   //Only Done houses are treated as Self-Destruct, Lost, Destroyed
   if aHouse.BuildingState in [hbs_NoGlyph..hbs_Stone] then
     fStats.HouseEnded(aHouse.HouseType)
@@ -777,6 +773,11 @@ begin
       if aFrom <> -1 then
         fPlayers[aFrom].Stats.HouseDestroyed(aHouse.HouseType);
     end;
+
+  //Scripting events happen AFTER updating statistics
+  fScripting.ProcHouseLost(aHouse, aHouse.BuildingState=hbs_Done);
+  if (aFrom <> -1) and (aFrom <> fPlayerIndex) then
+    fScripting.ProcHouseDestroyed(aHouse, aFrom, aHouse.BuildingState=hbs_Done);
 
   if fPlayers.Highlight = aHouse then
     fPlayers.Highlight := nil;
@@ -1041,14 +1042,14 @@ end;
 
 procedure TKMPlayer.UnitDied(aUnit: TKMUnit; aFrom: TPlayerIndex);
 begin
-  //Update statistics
+  //Update statistics before calling script events
   Stats.UnitLost(aUnit.UnitType);
-  fScripting.ProcUnitLost(aUnit);
   if aFrom <> -1 then
   begin
     fPlayers[aFrom].Stats.UnitKilled(aUnit.UnitType);
     fScripting.ProcUnitKilled(aUnit, aFrom);
   end;
+  fScripting.ProcUnitLost(aUnit);
 
   if fPlayers.Highlight = aUnit then
     fPlayers.Highlight := nil;

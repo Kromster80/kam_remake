@@ -1,0 +1,99 @@
+const
+  LOC_COUNT = 3; //Total number of locations on this map
+
+var
+  //Score for each player, stored in a global variable
+  PlayerScore: array[0..2] of Integer;
+
+function ScoreForUnit(aUnitID: Integer): Byte;
+begin
+  //Find out what kind of unit it was and return the score for that unit
+  case States.UnitType(aUnitID) of
+    14:  Result := 1; //Militia
+    15:  Result := 3; //Axefighter
+    16:  Result := 5; //Swordfighter
+    17:  Result := 2; //Bowman
+    18:  Result := 3; //Crossbowman
+    19:  Result := 2; //Lance carrier
+    20:  Result := 3; //Pikeman
+    21:  Result := 4; //Scout
+    22:  Result := 6; //Knight
+    else Result := 0; //Don't care about any other units
+  end;
+end;
+
+procedure OnUnitKilled(aUnitID: Integer; aKillerIndex: Integer);
+begin
+  //Score each kill
+  PlayerScore[aKillerIndex] := PlayerScore[aKillerIndex] + ScoreForUnit(aUnitID);
+end;
+
+function CalculateHighestScore: Integer;
+var I: Integer;
+begin
+  Result := 0;
+  for I := 0 to LOC_COUNT-1 do
+    if PlayerScore[I] > Result then
+      Result := PlayerScore[I];
+end;
+
+//If only one player is alive, the game ends and the player with the highest score wins
+procedure CheckVictoryConditions;
+var
+  I: Integer;
+  PlayersAlive: Integer;
+  HighestScore: Integer;
+  Winners: array of Integer;
+begin
+  //Test whether each player has won
+  PlayersAlive := 0;
+  for I := 0 to LOC_COUNT-1 do
+    if States.PlayerEnabled(I) and (States.StatArmyCount(I) > 0) then //Is this player still alive?
+      PlayersAlive := PlayersAlive + 1;
+
+  if PlayersAlive <= 1 then
+  begin
+    //The game ends, the player(s) with the highest score wins
+    //Remember that in rare conditions multiple players could win (same score)
+    HighestScore := CalculateHighestScore;
+    //Make an array of all the players who have the highest score (usually only one)
+    SetLength(Winners, 0);
+    for I := 0 to LOC_COUNT-1 do
+      if PlayerScore[I] = HighestScore then
+      begin
+        SetLength(Winners, Length(Winners)+1);
+        Winners[Length(Winners)-1] := I;
+      end;
+    //Declare those players victorious (all other players defeated automatically by Actions.PlayerWin)
+    Actions.PlayerWin(Winners, False);
+  end;
+end;
+
+procedure OnUnitLost(aUnitID: Integer);
+var Owner: Integer;
+begin
+  //Find out which player owns this unit
+  Owner := States.UnitOwner(aUnitID);
+
+  //See if this caused another player to win
+  CheckVictoryConditions;
+end;
+
+procedure ShowScores;
+var
+  I: Integer;
+  ScoreText: string;
+begin
+  ScoreText := States.Text(1);
+  for I:=0 to LOC_COUNT-1 do
+    if States.PlayerEnabled(I) then
+      ScoreText := ScoreText + '|' + States.TextFormatted(2 ,[States.PlayerName(I), PlayerScore[I]]);
+
+  for I:=0 to LOC_COUNT-1 do
+    Actions.SetOverlayText(I, ScoreText);
+end;
+
+procedure OnTick;
+begin
+  ShowScores;
+end;

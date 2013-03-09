@@ -134,6 +134,8 @@ begin
       RegisterMethod('function KaMRandom: Single');
       RegisterMethod('function KaMRandomI(aMax:Integer): Integer');
       RegisterMethod('function PeaceTime: Cardinal');
+      RegisterMethod('function Text(aIndex: Word): AnsiString');
+      RegisterMethod('function TextFormatted(aIndex: Word; const Args: array of const): AnsiString');
 
       RegisterMethod('function GroupAt(aX, aY: Word): Integer');
       RegisterMethod('function GroupDead(aGroupID: Integer): Boolean');
@@ -217,11 +219,9 @@ begin
       RegisterMethod('procedure PlayerWin(const aVictors: array of Integer; aTeamVictory: Boolean)');
 
       RegisterMethod('procedure RevealCircle(aPlayer, X, Y, aRadius: Word)');
-      RegisterMethod('procedure SetOverlayText(aPlayer, aIndex: Word)');
-      RegisterMethod('procedure SetOverlayTextFormatted(aPlayer, aIndex: Word; const Args: array of const)');
+      RegisterMethod('procedure SetOverlayText(aPlayer: Word; aText: AnsiString)');
       RegisterMethod('procedure SetTradeAllowed(aPlayer, aResType: Word; aAllowed: Boolean)');
-      RegisterMethod('procedure ShowMsg(aPlayer, aIndex: Word)');
-      RegisterMethod('procedure ShowMsgFormatted(aPlayer, aIndex: Word; const Args: array of const)');
+      RegisterMethod('procedure ShowMsg(aPlayer: Word; aText: AnsiString)');
 
       RegisterMethod('function  UnitDirectionSet(aUnitID, aDirection: Integer): Boolean');
       RegisterMethod('procedure UnitHungerSet(aUnitID, aHungerLevel: Integer)');
@@ -337,6 +337,8 @@ begin
       RegisterMethod(@TKMScriptStates.KaMRandom, 'KAMRANDOM');
       RegisterMethod(@TKMScriptStates.KaMRandomI, 'KAMRANDOMI');
       RegisterMethod(@TKMScriptStates.PeaceTime, 'PEACETIME');
+      RegisterMethod(@TKMScriptStates.Text, 'TEXT');
+      RegisterMethod(@TKMScriptStates.TextFormatted, 'TEXTFORMATTED');
 
       RegisterMethod(@TKMScriptStates.GroupAt, 'GROUPAT');
       RegisterMethod(@TKMScriptStates.GroupDead, 'GROUPDEAD');
@@ -422,10 +424,8 @@ begin
       RegisterMethod(@TKMScriptActions.SchoolAddToQueue, 'SCHOOLADDTOQUEUE');
 
       RegisterMethod(@TKMScriptActions.SetOverlayText, 'SETOVERLAYTEXT');
-      RegisterMethod(@TKMScriptActions.SetOverlayTextFormatted, 'SETOVERLAYTEXTFORMATTED');
       RegisterMethod(@TKMScriptActions.SetTradeAllowed, 'SETTRADEALLOWED');
       RegisterMethod(@TKMScriptActions.ShowMsg, 'SHOWMSG');
-      RegisterMethod(@TKMScriptActions.ShowMsgFormatted, 'SHOWMSGFORMATTED');
 
       RegisterMethod(@TKMScriptActions.UnitDirectionSet, 'UNITDIRECTIONSET');
       RegisterMethod(@TKMScriptActions.UnitHungerSet, 'UNITHUNGERSET');
@@ -640,6 +640,7 @@ var
   ArrayVar: TPSVariantIFC;
   TmpInt: Integer;
   TmpSingle: Single;
+  TmpString: string;
 begin
   LoadStream.ReadAssert('Script');
 
@@ -664,6 +665,10 @@ begin
                       LoadStream.Read(TmpSingle);
                       VSetReal(V, TmpSingle);
                     end;
+      btString:     begin
+                      LoadStream.Read(TmpString);
+                      VSetString(V, TmpString);
+                    end;
       btStaticArray:begin
                       //See uPSRuntime line 1630 for algo idea
                       LoadStream.Read(ArrayCount);
@@ -684,6 +689,12 @@ begin
                                         LoadStream.Read(TmpSingle);  //Byte, Boolean, Integer
                                         VNSetReal(ArrayVar, TmpSingle);
                                       end;
+                        btString:     for K := 0 to ArrayCount - 1 do
+                                      begin
+                                        ArrayVar := PSGetArrayField(NewTPSVariantIFC(V, False), K);
+                                        LoadStream.Read(TmpString);
+                                        VNSetString(ArrayVar, TmpString);
+                                      end;
                         else Assert(False);
                       end;
                     end;
@@ -701,6 +712,7 @@ var
   ArrayVar: TPSVariantIFC;
   TmpInt: Integer;
   TmpSingle: Single;
+  TmpString: string;
 begin
   SaveStream.Write('Script');
 
@@ -716,6 +728,10 @@ begin
       btU8, btS32:  SaveStream.Write(Integer(VGetInt(V)));   //Byte, Boolean, Integer
       btSingle:     begin                                    //Single
                       TmpSingle := VGetReal(V);
+                      SaveStream.Write(TmpSingle);
+                    end;
+      btString:     begin
+                      TmpString := VGetString(V);
                       SaveStream.Write(TmpSingle);
                     end;
       btStaticArray:begin
@@ -736,7 +752,13 @@ begin
                                       begin
                                         ArrayVar := PSGetArrayField(NewTPSVariantIFC(V, False), K);
                                         TmpSingle := VNGetReal(ArrayVar);
-                                        SaveStream.Write(TmpSingle);  //Byte, Boolean, Integer
+                                        SaveStream.Write(TmpSingle);
+                                      end;
+                        btString:     for K := 0 to ArrayCount - 1 do
+                                      begin
+                                        ArrayVar := PSGetArrayField(NewTPSVariantIFC(V, False), K);
+                                        TmpString := VNGetString(ArrayVar);
+                                        SaveStream.Write(TmpSingle);
                                       end;
                         else Assert(False);
                       end;

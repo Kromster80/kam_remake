@@ -28,6 +28,8 @@ type
     function PeaceTime: Cardinal;
     function KaMRandom: Single;
     function KaMRandomI(aMax:Integer): Integer;
+    function Text(aIndex: Word): AnsiString;
+    function TextFormatted(aIndex: Word; const Args: array of const): AnsiString;
 
     function StatArmyCount(aPlayer: Byte): Integer;
     function StatCitizenCount(aPlayer: Byte): Integer;
@@ -111,11 +113,9 @@ type
     procedure PlayerDefeat(aPlayer: Word);
     procedure PlayerWin(const aVictors: array of Integer; aTeamVictory: Boolean);
     procedure RevealCircle(aPlayer, X, Y, aRadius: Word);
-    procedure SetOverlayText(aPlayer, aIndex: Word);
-    procedure SetOverlayTextFormatted(aPlayer, aIndex: Word; const Args: array of const);
     procedure SetTradeAllowed(aPlayer, aResType: Word; aAllowed: Boolean);
-    procedure ShowMsg(aPlayer, aIndex: Word);
-    procedure ShowMsgFormatted(aPlayer, aIndex: Word; const Args: array of const);
+    procedure ShowMsg(aPlayer: Word; aText: AnsiString);
+    procedure SetOverlayText(aPlayer: Word; aText: AnsiString);
     function  UnitDirectionSet(aUnitID, aDirection: Integer): Boolean;
     procedure UnitHungerSet(aUnitID, aHungerLevel: Integer);
     procedure UnitKill(aUnitID: Integer);
@@ -521,6 +521,18 @@ begin
 end;
 
 
+function TKMScriptStates.Text(aIndex: Word): AnsiString;
+begin
+  Result := fTextLibrary.GetMissionString(aIndex);
+end;
+
+
+function TKMScriptStates.TextFormatted(aIndex: Word; const Args: array of const): AnsiString;
+begin
+  Result := Format(fTextLibrary.GetMissionString(aIndex), Args);
+end;
+
+
 function TKMScriptStates.UnitAt(aX, aY: Word): Integer;
 var U: TKMUnit;
 begin
@@ -898,17 +910,10 @@ begin
 end;
 
 
-procedure TKMScriptActions.ShowMsg(aPlayer, aIndex: Word);
+procedure TKMScriptActions.ShowMsg(aPlayer: Word; aText: AnsiString);
 begin
   if aPlayer = MyPlayer.PlayerIndex then
-    fGame.ShowMessage(mkText, fTextLibrary.GetMissionString(aIndex), KMPoint(0,0))
-end;
-
-
-procedure TKMScriptActions.ShowMsgFormatted(aPlayer, aIndex: Word; const Args: array of const);
-begin
-  if aPlayer = MyPlayer.PlayerIndex then
-    fGame.ShowMessage(mkText, Format(fTextLibrary.GetMissionString(aIndex),Args), KMPoint(0,0))
+    fGame.ShowMessage(mkText, aText, KMPoint(0,0))
 end;
 
 
@@ -1054,17 +1059,10 @@ begin
 end;
 
 
-procedure TKMScriptActions.SetOverlayText(aPlayer, aIndex: Word);
+procedure TKMScriptActions.SetOverlayText(aPlayer: Word; aText: AnsiString);
 begin
   if aPlayer = MyPlayer.PlayerIndex then
-    fGame.GamePlayInterface.SetScriptedOverlay(fTextLibrary.GetMissionString(aIndex));
-end;
-
-
-procedure TKMScriptActions.SetOverlayTextFormatted(aPlayer, aIndex: Word; const Args: array of const);
-begin
-  if aPlayer = MyPlayer.PlayerIndex then
-    fGame.GamePlayInterface.SetScriptedOverlay(Format(fTextLibrary.GetMissionString(aIndex), Args));
+    fGame.GamePlayInterface.SetScriptedOverlay(aText);
 end;
 
 
