@@ -2094,7 +2094,7 @@ begin
     Label_HouseConstructionStone.Caption := IntToStr(Sender.GetBuildStoneDelivered)+' / '+IntToStr(fResource.HouseDat[Sender.HouseType].StoneCost);
     Label_House.Show;
     Image_House_Logo.Show;
-    Image_House_Worker.Show;
+    Image_House_Worker.Visible := fResource.HouseDat[Sender.HouseType].OwnerType <> ut_None;
     Image_House_Worker.Enable;
     HealthBar_House.Show;
     Label_HouseHealth.Show;
