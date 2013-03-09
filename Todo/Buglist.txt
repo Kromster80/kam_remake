@@ -64,6 +64,7 @@ Improvements:
  +		Fix fences shading along edges of FOW
  +	L	Pressing a key selects the map starting with that letter in map/save lists
  +    School+Inn and Quarry+Woodcutters are unlocked in pairs to speedup early game
+ +	Made that missions without victory goals do not proclaim player victorious immediately. Instead victory never happens (or ruled by script)
 
  wip	Dismiss button to make units walk into the school and disappear (gold is not refunded)
  wip	Simple dedicated server form which lets you set the properties of the INI for the server and start it [gemGreg]
