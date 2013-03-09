@@ -1,0 +1,4 @@
+SetSpecial
+
+BigDesc
+To win your team must have one or more unit on the hill in the centre of the map continuously for 5 minutes, without allowing your opponents to have any units on the hill.||Map made by thunder[HU], script made by Lewin.
