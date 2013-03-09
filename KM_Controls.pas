@@ -4494,9 +4494,14 @@ begin
   FirstVarSample := Max(0, FirstVarSample - Round(0.05*fMaxLength));
   //Trim all fLines[I].Values to start at FirstVarSample
   for I:=0 to fCount-1 do
-    Move(fLines[I].Values[FirstVarSample], fLines[I].Values[0], Length(fLines[I].Values)-FirstVarSample);
+  begin
+    Move(fLines[I].Values[FirstVarSample], fLines[I].Values[0], (Length(fLines[I].Values)-FirstVarSample)*SizeOf(fLines[I].Values[0]));
+    SetLength(fLines[I].Values, Length(fLines[I].Values)-FirstVarSample);
+  end;
   //Set start time so the horizontal time ticks are rendered correctly
   fMinTime := Round((FirstVarSample/fMaxLength) * fMaxTime);
+  //All lines have now been trimmed, so update fMaxLength
+  fMaxLength := fMaxLength - FirstVarSample;
 end;
 
 
