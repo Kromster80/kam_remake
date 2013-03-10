@@ -128,7 +128,6 @@ type
     function CheckResIn(aResource:TResourceType):word; virtual;
     function CheckResOut(aResource:TResourceType):byte;
     function PickOrder:byte;
-    procedure SetLastOrderProduced(aResource:TResourceType);
     function CheckResToBuild:boolean;
     function GetMaxInRes: Word;
     procedure ResAddToIn(aResource:TResourceType; aCount:word=1; aFromScript:boolean=false); virtual; //override for School and etc..
@@ -881,16 +880,6 @@ begin
 
   if Result <> 0 then
     Dec(fResourceOrder[Result]);
-end;
-
-
-procedure TKMHouse.SetLastOrderProduced(aResource: TResourceType);
-var I: Byte;
-begin
-  if aResource <> rt_None then
-    for I := 1 to 4 do
-      if fResource.HouseDat[HouseType].ResOutput[I] = aResource then
-        fLastOrderProduced := I;
 end;
 
 

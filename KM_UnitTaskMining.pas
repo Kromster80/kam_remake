@@ -334,8 +334,6 @@ begin
           if ResAcquired then begin
             GetHome.ResAddToOut(WorkPlan.Product1,WorkPlan.ProdCount1);
             GetHome.ResAddToOut(WorkPlan.Product2,WorkPlan.ProdCount2);
-            GetHome.SetLastOrderProduced(WorkPlan.Product1); //Required to make order production sequential
-            GetHome.SetLastOrderProduced(WorkPlan.Product2); //Will be ignored if rt_None
             fPlayers[fUnit.Owner].Stats.GoodProduced(WorkPlan.Product1,WorkPlan.ProdCount1);
             fPlayers[fUnit.Owner].Stats.GoodProduced(WorkPlan.Product2,WorkPlan.ProdCount2);
           end;
