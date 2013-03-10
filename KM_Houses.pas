@@ -859,6 +859,7 @@ begin
   //IMO ratios/percentages are far more useful than exact numbers, it's rare that I wanted exactly 20 swords,
   //I usually want my guys to keep making weapons forever, but in specific ratios.
   //What do you think?
+  //@Lewin: IMO we need to keep numbers and make PickOrder proportional instead of sequential, for reasons described above. Your example will work just fine with proportional ordering. What do you think?
 
   Result := 0;
   for I := 0 to 3 do
