@@ -160,7 +160,12 @@ const //Sample list made by AntonP
   //Hiring_Army (Barracks)
   //Hiring_Army2 (School, CoalMine x2, GoldMine)
 
-  WOOD_RAD = 6;
+  WOOD_BLOCK_RAD = 6;
+
+  //How much building materials do we need for city development
+  TOWN_STONE_NEED = 10;
+  TOWN_WOOD_NEED = 4.5;
+  TOWN_GOLD_NEED = 1;
 
 
 { TKMayor }
@@ -452,7 +457,7 @@ begin
 
   //Block any buildings nearby
   if aHouse = ht_Woodcutters then
-    fAIFields.Influences.AddAvoidBuilding(Loc.X-1, Loc.Y, WOOD_RAD); //X-1 because entrance is on right
+    fAIFields.Influences.AddAvoidBuilding(Loc.X-1, Loc.Y, WOOD_BLOCK_RAD); //X-1 because entrance is on right
 
   //Build more roads around 2nd Store
   if aHouse = ht_Store then
@@ -782,7 +787,7 @@ procedure TKMayor.UpdateBalance;
   begin
     TrunkProductionRate := HouseCount(ht_Woodcutters) * ProductionRate[rt_Trunk];
     WoodProductionRate := HouseCount(ht_Sawmill) * ProductionRate[rt_Wood];
-    WoodConsumptionRate := 4 //For city building
+    WoodConsumptionRate := TOWN_WOOD_NEED
                          + HouseCount(ht_ArmorWorkshop) / 2 * ProductionRate[rt_Armor] //we /2 because half of the time house makes armor and half - shields
                          + HouseCount(ht_WeaponWorkshop) * ProductionRate[rt_Pike];
     with fDemandWeaponry do
@@ -837,7 +842,7 @@ begin
     GoldTheory := HouseCount(ht_Metallurgists) * ProductionRate[rt_Gold];
     //Actual production is minimum of the above
     Production := Min(CoalTheory, GoldOreTheory, GoldTheory);
-    Consumption := 1;// + Byte(fSetup.Strong); //For now it's a static coef
+    Consumption := TOWN_GOLD_NEED;// + Byte(fSetup.Strong); //For now it's a static coef
     Balance := Production - Consumption;
     fDemandGoldText := Format('%.2f Gold: %.2f - %.2f', [Balance, Production, Consumption]);
   end;
@@ -951,17 +956,14 @@ end;
 
 
 procedure TKMayor.UpdateBalanceMaterials;
-const
-  STONE_DEMAND = 10; //Average town needs 10 stone/minute
-  WOOD_DEMAND = 3.5; //Average town needs 4 wood/minute
 begin
   with fDemandMaterials do
   begin
     //Balance = Available - Required
-    StoneBalance    := HouseCount(ht_Quary) * ProductionRate[rt_Stone] - STONE_DEMAND;
+    StoneBalance    := HouseCount(ht_Quary) * ProductionRate[rt_Stone] - TOWN_STONE_NEED;
     WoodcutTheory   := HouseCount(ht_Woodcutters) * ProductionRate[rt_Trunk];
     SawmillTheory   := HouseCount(ht_Sawmill) * ProductionRate[rt_Wood];
-    WoodBalance     := Min(WoodcutTheory, SawmillTheory) - WOOD_DEMAND;
+    WoodBalance     := Min(WoodcutTheory, SawmillTheory) - TOWN_WOOD_NEED;
 
     Balance := Min(StoneBalance, WoodBalance);
     fDemandMaterialsText := Format('%.2f Materials: (Stone %.2f, Wood %.2f)', [Balance, StoneBalance, WoodBalance]);

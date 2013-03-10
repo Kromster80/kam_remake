@@ -7,7 +7,7 @@ uses
 
 
 type
-  TFindNearest = (fnStone, fnTrees, fnSoil, fnWater, fnCoal, fnIron, fnGold);
+  TFindNearest = (fnHouse, fnStone, fnTrees, fnSoil, fnWater, fnCoal, fnIron, fnGold);
 
   TKMTerrainFinderCity = class(TKMTerrainFinderCommon)
   protected
@@ -16,6 +16,7 @@ type
     function CanUse(const X,Y: Word): Boolean; override;
   public
     FindType: TFindNearest;
+    HouseType: THouseType;
     constructor Create(aOwner: TPlayerIndex);
     procedure OwnerUpdate(aPlayer: TPlayerIndex);
     procedure Save(SaveStream: TKMemoryStream); override;
@@ -43,6 +44,7 @@ type
 
     function FindNearest(const aStart: TKMPoint; aRadius: Byte; aType: TFindNearest; out aResultLoc: TKMPoint): Boolean; overload;
     function FindNearest(const aStart: TKMPoint; aRadius: Byte; aType: TFindNearest; aMaxCount: Word; out aResultLoc: TKMPointArray): Boolean; overload;
+    function FindNearest(const aStart: TKMPoint; aRadius: Byte; aHouse: THouseType; aMaxCount: Word; out aResultLoc: TKMPointArray): Boolean; overload;
     function FindPlaceForHouse(aHouse: THouseType; out aLoc: TKMPoint): Boolean;
     procedure OwnerUpdate(aPlayer: TPlayerIndex);
     procedure Save(SaveStream: TKMemoryStream);
@@ -202,30 +204,27 @@ end;
 
 
 function TKMCityPlanner.NextToHouse(aHouse: THouseType; aTarget, aAvoid: array of THouseType; out aLoc: TKMPoint): Boolean;
-const RAD = 15;
 var
-  I, K: Integer;
+  I: Integer;
   Bid, BestBid: Single;
   TargetLoc: TKMPoint;
-  P: TKMPlayer;
+  Locs: TKMPointArray;
 begin
   Result := False;
 
   if not GetSourceLocation(aTarget, TargetLoc) then Exit;
 
-  P := fPlayers[fOwner];
+  if not FindNearest(KMPointBelow(TargetLoc), 32, aHouse, 12, Locs) then Exit;
 
   BestBid := MaxSingle;
-  for I := Max(TargetLoc.Y - RAD, 1) to Min(TargetLoc.Y + RAD, fTerrain.MapY - 1) do
-  for K := Max(TargetLoc.X - RAD, 1) to Min(TargetLoc.X + RAD, fTerrain.MapX - 1) do
-  if P.CanAddHousePlanAI(K, I, aHouse, True) then
+  for I := 0 to Length(Locs) - 1 do
   begin
-    Bid := KMLengthDiag(KMPoint(K,I), TargetLoc)
-           - fAIFields.Influences.Ownership[fOwner,I,K] / 10
+    Bid := KMLengthDiag(TargetLoc, Locs[I])
+           - fAIFields.Influences.Ownership[fOwner,Locs[I].Y,Locs[I].X] / 5
            + KaMRandom * 5;
     if (Bid < BestBid) then
     begin
-      aLoc := KMPoint(K,I);
+      aLoc := Locs[I];
       BestBid := Bid;
       Result := True;
     end;
@@ -235,7 +234,6 @@ end;
 
 //Called when AI needs to find a good spot for new Quary
 function TKMCityPlanner.NextToStone(out aLoc: TKMPoint): Boolean;
-const RAD = 32;
 var
   I, K: Integer;
   Bid, BestBid: Single;
@@ -247,13 +245,9 @@ begin
 
   if not GetSourceLocation([ht_Store], TargetLoc) then Exit;
 
-  //todo: Using FindStone with such a large radius is very slow due to GetTilesWithinDistance (10ms average)
-  //      Maybe instead check 60x60 area, but only each 5th cell or so
-  //if not fTerrain.FindStone(KMPointBelow(TargetLoc), RAD, KMPoint(0,0), True, StoneLoc) then Exit;
-  if not FindNearest(KMPointBelow(TargetLoc), RAD, fnStone, 15, Locs) then Exit;
+  if not FindNearest(KMPointBelow(TargetLoc), 32, fnStone, 15, Locs) then Exit;
   StoneLoc.Loc := Locs[KaMRandom(Length(Locs))];
 
-  //todo: These two become camparable, 2nd takes ~50% less time, but returns bad twice as often
   //We can improve TKMTerrainFinderCommon.SaveTile to skip duplicates
 
   BestBid := MaxSingle;
@@ -275,6 +269,7 @@ end;
 function TKMCityPlanner.FindNearest(const aStart: TKMPoint; aRadius: Byte; aType: TFindNearest; out aResultLoc: TKMPoint): Boolean;
 begin
   fFinder.FindType := aType;
+  fFinder.HouseType := ht_None;
   Result := fFinder.FindNearest(aStart, aRadius, CanOwn, aResultLoc);
 end;
 
@@ -282,6 +277,15 @@ end;
 function TKMCityPlanner.FindNearest(const aStart: TKMPoint; aRadius: Byte; aType: TFindNearest; aMaxCount: Word; out aResultLoc: TKMPointArray): Boolean;
 begin
   fFinder.FindType := aType;
+  fFinder.HouseType := ht_None;
+  Result := fFinder.FindNearest(aStart, aRadius, CanOwn, aMaxCount, aResultLoc);
+end;
+
+
+function TKMCityPlanner.FindNearest(const aStart: TKMPoint; aRadius: Byte; aHouse: THouseType; aMaxCount: Word; out aResultLoc: TKMPointArray): Boolean;
+begin
+  fFinder.FindType := fnHouse;
+  fFinder.HouseType := aHouse;
   Result := fFinder.FindNearest(aStart, aRadius, CanOwn, aMaxCount, aResultLoc);
 end;
 
@@ -414,6 +418,7 @@ end;
 function TKMTerrainFinderCity.CanUse(const X, Y: Word): Boolean;
 begin
   case FindType of
+    fnHouse:  Result := fPlayers[fOwner].CanAddHousePlanAI(X, Y, HouseType, False);
     fnStone:  Result := (fTerrain.TileIsStone(X, Max(Y-1, 1)) > 1);
     fnCoal:   Result := (fTerrain.TileIsCoal(X, Y) > 1)
                          and fPlayers[fOwner].CanAddHousePlanAI(X, Y, ht_CoalMine, False);
@@ -432,8 +437,9 @@ var
 begin
   //Don't build on allies and/or enemies territory
   TerOwner := fAIFields.Influences.GetBestOwner(X,Y);
-  Result := ((TerOwner = fOwner) or (TerOwner = PLAYER_NONE))
-            and (CanOwn in fTerrain.Land[Y,X].Passability); //Faster than CheckPassability
+  Result := ((TerOwner = fOwner) or (TerOwner = PLAYER_NONE));
+
+  //CheckPassability is already done in TKMFinder.Visit
 end;
 
 
