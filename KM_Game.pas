@@ -546,6 +546,7 @@ begin
 
   //@Lewin: Now that we have advanced locations setup (Human/AI) we can preserve mission goals for Coop maps as well?
   //Possibly blocking alliance settings change in MP lobby. Does that makes sense?
+  //@Krom: That sounds good to me :) To be implemented.
 
   fNetworking.OnPlay           := GameMPPlay;
   fNetworking.OnReadyToPlay    := GameMPReadyToPlay;

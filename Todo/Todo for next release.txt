@@ -15,6 +15,7 @@ Finishing up:
 	Decide which script commands will be implemented for this release and implement them
 	Example maps that show what can be done with new scripts
 	Performance test city builder and optimise/fix slow stuff (NextToOre using FindNearest for example)
+	Before RC search for all todos and @Lewin/@Krom comments to see if there's something important we forgot about
 
 
 Known issues to fix:
@@ -59,3 +60,5 @@ Maps:
 	Get latest version of PAKER's maps and decide whether or not to add any new ones
 	czechboss' new map
 	Circus? (thunder)
+	Clavicus Valley (Ben)
+	Frozen waters? (sado)
