@@ -17,7 +17,7 @@ begin
   for I:=0 to LOC_COUNT-1 do
     if States.PlayerEnabled(I) then
 	  if (I = aPlayer) or States.PlayerAllianceCheck(aPlayer,I) then
-	    Result := '[$'+States.PlayerColorText(I)+']'+States.PlayerName(I)+'[], ';
+	    Result := Result + '[$'+States.PlayerColorText(I)+']'+States.PlayerName(I)+'[], ';
   //Remove ', ' from the end
   if Result <> '' then
     Result := Copy(Result, 1, Length(Result)-2); //Remove two characters from the end
