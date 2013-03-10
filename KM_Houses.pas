@@ -860,6 +860,10 @@ begin
   //I usually want my guys to keep making weapons forever, but in specific ratios.
   //What do you think?
   //@Lewin: IMO we need to keep numbers and make PickOrder proportional instead of sequential, for reasons described above. Your example will work just fine with proportional ordering. What do you think?
+  //@Krom: That sounds great, I didn't realise you meant like that. I only have two concerns:
+  //       1. People won't understand the new system (we can explain in our "new release" post and on the forum)
+  //       2. I assume you want it to work with random weights, but that means due to randomness
+  //          you could order 50 armour 50 shields and he might make 10 shields before make a single armour (unlikely though)
 
   Result := 0;
   for I := 0 to 3 do
