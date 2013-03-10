@@ -52,7 +52,6 @@ type
     fResourceOut: array[1..4]of Byte; //Resource count in output
     fResourceOrder: array[1..4]of Word; //If HousePlaceOrders=true then here are production orders
     fResOrderDesired: array[1..4]of Single;
-    fLastOrderProduced: Byte; //Last order we made (1..4)
 
     WorkAnimStep: cardinal; //Used for Work and etc.. which is not in sync with Flags
 
@@ -323,8 +322,10 @@ begin
 end;
 
 
-constructor TKMHouse.Load(LoadStream:TKMemoryStream);
-var i:integer; HasAct:boolean;
+constructor TKMHouse.Load(LoadStream: TKMemoryStream);
+var
+  I: Integer;
+  HasAct: Boolean;
 begin
   inherited Create;
   LoadStream.Read(fHouseType, SizeOf(fHouseType));
@@ -339,11 +340,11 @@ begin
   LoadStream.Read(fHasOwner);
   LoadStream.Read(fBuildingRepair);
   LoadStream.Read(fWareDelivery);
-  for i:=1 to 4 do LoadStream.Read(fResourceIn[i]);
-  for i:=1 to 4 do LoadStream.Read(fResourceDeliveryCount[i]);
-  for i:=1 to 4 do LoadStream.Read(fResourceOut[i]);
-  for i:=1 to 4 do LoadStream.Read(fResourceOrder[i], SizeOf(fResourceOrder[i]));
-  LoadStream.Read(fLastOrderProduced);
+  for I:=1 to 4 do LoadStream.Read(fResourceIn[I]);
+  for I:=1 to 4 do LoadStream.Read(fResourceDeliveryCount[I]);
+  for I:=1 to 4 do LoadStream.Read(fResourceOut[I]);
+  for I:=1 to 4 do LoadStream.Read(fResourceOrder[I], SizeOf(fResourceOrder[I]));
+  for I:=1 to 4 do LoadStream.Read(fResOrderDesired[I], SizeOf(fResOrderDesired[I]));
   LoadStream.Read(FlagAnimStep);
   LoadStream.Read(WorkAnimStep);
   LoadStream.Read(fIsDestroyed);
@@ -1084,8 +1085,10 @@ begin
 end;
 
 
-procedure TKMHouse.Save(SaveStream:TKMemoryStream);
-var i:integer; HasAct:boolean;
+procedure TKMHouse.Save(SaveStream: TKMemoryStream);
+var
+  I: Integer;
+  HasAct: Boolean;
 begin
   SaveStream.Write(fHouseType, SizeOf(fHouseType));
   SaveStream.Write(fPosition);
@@ -1099,11 +1102,11 @@ begin
   SaveStream.Write(fHasOwner);
   SaveStream.Write(fBuildingRepair);
   SaveStream.Write(fWareDelivery);
-  for i:=1 to 4 do SaveStream.Write(fResourceIn[i]);
-  for i:=1 to 4 do SaveStream.Write(fResourceDeliveryCount[i]);
-  for i:=1 to 4 do SaveStream.Write(fResourceOut[i]);
-  for i:=1 to 4 do SaveStream.Write(fResourceOrder[i], SizeOf(fResourceOrder[i]));
-  SaveStream.Write(fLastOrderProduced);
+  for I:=1 to 4 do SaveStream.Write(fResourceIn[I]);
+  for I:=1 to 4 do SaveStream.Write(fResourceDeliveryCount[I]);
+  for I:=1 to 4 do SaveStream.Write(fResourceOut[I]);
+  for I:=1 to 4 do SaveStream.Write(fResourceOrder[I], SizeOf(fResourceOrder[I]));
+  for I:=1 to 4 do SaveStream.Write(fResOrderDesired[I], SizeOf(fResOrderDesired[I]));
   SaveStream.Write(FlagAnimStep);
   SaveStream.Write(WorkAnimStep);
   SaveStream.Write(fIsDestroyed);

@@ -45,22 +45,17 @@ type
       TrunkTheory, WoodTheory, WorkshopTheory: Single;
     end;
     WoodenArmor: record
-      TrunkTheory, WoodTheory: Single;
-      FarmTheory, SwineTheory, TanneryTheory, WorkshopTheory: Single;
+      TrunkTheory, WoodTheory: Single; //Shields
+      FarmTheory, SwineTheory, TanneryTheory, WorkshopTheory: Single; //Armor
     end;
     Horse: record
       FarmTheory, StablesTheory: Single;
     end;
-    SteelWeaponProduction, SteelArmorProduction,
-    WoodenWeaponProduction, WoodenArmorProduction, WoodenShieldProduction,
-    HorseProduction: Single;
-    //Let General tell us what proportions of warriors he needs
-    SteelWeaponDemand, SteelArmorDemand,
-    WoodenWeaponDemand, WoodenArmorDemand, WoodenShieldDemand,
-    HorseDemand: Single;
-    SteelWeaponBalance, SteelArmorBalance,
-    WoodenWeaponBalance, WoodenArmorBalance, WoodenShieldBalance,
-    HorseBalance: Single;
+
+    Weaponry: array [WARFARE_MIN..WARFARE_MAX] of record
+      Production, Demand, Balance: Single;
+    end;
+
     Balance: Single; //Resulting balance
   end;
 
@@ -295,45 +290,46 @@ procedure TKMayor.CheckWeaponOrderCount;
 var
   I,K: Integer;
   H: TKMHouse;
+  ResOrder: Integer;
 begin
   for I := 0 to fPlayers[fOwner].Houses.Count - 1 do
   begin
     H := fPlayers[fOwner].Houses[I];
 
-    //todo: Rework fDemandWeaponry to allow to place orders on exact weaponry we need
+    ResOrder := H.ResOrder[1] + H.ResOrder[2] + H.ResOrder[3] + H.ResOrder[4];
 
-    if not H.IsDestroyed then
+    if not H.IsDestroyed and (ResOrder = 0) then
     case H.HouseType of
       ht_ArmorSmithy:     for K := 1 to 4 do
                             if fResource.HouseDat[H.HouseType].ResOutput[K] = rt_MetalShield then
-                              H.ResOrder[K] := Round(fDemandWeaponry.SteelArmorDemand * 100)
+                              H.ResOrder[K] := Round(fDemandWeaponry.Weaponry[rt_MetalShield].Demand * 100)
                             else
                             if fResource.HouseDat[H.HouseType].ResOutput[K] = rt_MetalArmor then
-                              H.ResOrder[K] := Round(fDemandWeaponry.SteelArmorDemand * 100);
+                              H.ResOrder[K] := Round(fDemandWeaponry.Weaponry[rt_MetalArmor].Demand * 100);
       ht_ArmorWorkshop:   for K := 1 to 4 do
                             if fResource.HouseDat[H.HouseType].ResOutput[K] = rt_Shield then
-                              H.ResOrder[K] := Round(fDemandWeaponry.WoodenShieldDemand * 100)
+                              H.ResOrder[K] := Round(fDemandWeaponry.Weaponry[rt_Shield].Demand * 100)
                             else
                             if fResource.HouseDat[H.HouseType].ResOutput[K] = rt_Armor then
-                              H.ResOrder[K] := Round(fDemandWeaponry.WoodenArmorDemand * 100);
+                              H.ResOrder[K] := Round(fDemandWeaponry.Weaponry[rt_Armor].Demand * 100);
       ht_WeaponSmithy:    for K := 1 to 4 do
                             if fResource.HouseDat[H.HouseType].ResOutput[K] = rt_Sword then
-                              H.ResOrder[K] := Round(fDemandWeaponry.SteelWeaponDemand * 100)
+                              H.ResOrder[K] := Round(fDemandWeaponry.Weaponry[rt_Sword].Demand * 100)
                             else
                             if fResource.HouseDat[H.HouseType].ResOutput[K] = rt_Hallebard then
-                              H.ResOrder[K] := Round(fDemandWeaponry.SteelWeaponDemand * 100)
+                              H.ResOrder[K] := Round(fDemandWeaponry.Weaponry[rt_Hallebard].Demand * 100)
                             else
                             if fResource.HouseDat[H.HouseType].ResOutput[K] = rt_Arbalet then
-                              H.ResOrder[K] := Round(fDemandWeaponry.SteelWeaponDemand * 100);
+                              H.ResOrder[K] := Round(fDemandWeaponry.Weaponry[rt_Arbalet].Demand * 100);
       ht_WeaponWorkshop:  for K := 1 to 4 do
                             if fResource.HouseDat[H.HouseType].ResOutput[K] = rt_Axe then
-                              H.ResOrder[K] := Round(fDemandWeaponry.WoodenWeaponDemand * 100)
+                              H.ResOrder[K] := Round(fDemandWeaponry.Weaponry[rt_Axe].Demand * 100)
                             else
                             if fResource.HouseDat[H.HouseType].ResOutput[K] = rt_Pike then
-                              H.ResOrder[K] := Round(fDemandWeaponry.WoodenWeaponDemand * 100)
+                              H.ResOrder[K] := Round(fDemandWeaponry.Weaponry[rt_Pike].Demand * 100)
                             else
                             if fResource.HouseDat[H.HouseType].ResOutput[K] = rt_Bow then
-                              H.ResOrder[K] := Round(fDemandWeaponry.WoodenWeaponDemand * 100);
+                              H.ResOrder[K] := Round(fDemandWeaponry.Weaponry[rt_Bow].Demand * 100);
     end;
   end;
 end;
@@ -550,59 +546,65 @@ end;
 
 
 procedure TKMayor.BuildWeaponry;
+var
+  I, Best: TResourceType;
+  BestBid: Single;
 begin
-  with fDemandWeaponry do
-  if fWooden then
+  Best := rt_None;
+  BestBid := MaxSingle;
+  for I := WARFARE_MIN to WARFARE_MAX do
+  if ((fWooden and (I in [rt_Shield, rt_Armor, rt_Axe, rt_Pike, rt_Bow, rt_Horse]))
+      or (not fWooden and (I in [rt_MetalShield, rt_MetalArmor, rt_Sword, rt_Hallebard, rt_Arbalet, rt_Horse])))
+  and (fDemandWeaponry.Weaponry[I].Balance < BestBid) then
   begin
-    //Pick best link to improve
-    case PickMin([WoodenWeaponBalance, WoodenArmorBalance, WoodenShieldBalance, HorseBalance]) of
-      0:  with fDemandWeaponry.WoodenWeapon do
-          case PickMin([TrunkTheory, WoodTheory, WorkshopTheory]) of
-            0: TryBuildHouse(ht_Woodcutters);
-            1: TryBuildHouse(ht_Sawmill);
-            2: TryBuildHouse(ht_WeaponWorkshop);
-          end;
-      1:  with fDemandWeaponry.WoodenArmor do
-          case PickMin([FarmTheory, SwineTheory, TanneryTheory, WorkshopTheory]) of
-            0: TryBuildHouse(ht_Farm);
-            1: TryBuildHouse(ht_Swine);
-            2: TryBuildHouse(ht_Tannery);
-            3: TryBuildHouse(ht_ArmorWorkshop);
-          end;
-      2:  with fDemandWeaponry.WoodenArmor do
-          case PickMin([TrunkTheory, WoodTheory, WorkshopTheory]) of
-            0: TryBuildHouse(ht_Woodcutters);
-            1: TryBuildHouse(ht_Sawmill);
-            2: TryBuildHouse(ht_WeaponWorkshop);
-          end;
-      3:  case PickMin([Horse.FarmTheory, Horse.StablesTheory]) of
-            0: TryBuildHouse(ht_Farm);
-            1: TryBuildHouse(ht_Stables);
-          end;
-    end;
-  end
-  else
-  begin
-    case PickMin([SteelWeaponBalance, SteelArmorBalance, HorseBalance]) of
-      0:  with fDemandWeaponry.SteelWeapon do
-          case PickMin([CoalTheory, IronTheory, SteelTheory, SmithyTheory]) of
-            0: TryBuildHouse(ht_CoalMine);
-            1: TryBuildHouse(ht_IronMine);
-            2: TryBuildHouse(ht_IronSmithy);
-            3: TryBuildHouse(ht_WeaponSmithy);
-          end;
-      1:  with fDemandWeaponry.SteelArmor do
-          case PickMin([CoalTheory, IronTheory, SteelTheory, SmithyTheory]) of
-            0: TryBuildHouse(ht_CoalMine);
-            1: TryBuildHouse(ht_IronMine);
-            2: TryBuildHouse(ht_IronSmithy);
-            3: TryBuildHouse(ht_ArmorSmithy);
-          end;
-      2:  case PickMin([Horse.FarmTheory, Horse.StablesTheory]) of
-            0: TryBuildHouse(ht_Farm);
-            1: TryBuildHouse(ht_Stables);
-          end;
-    end;
+    Best := I;
+    BestBid := fDemandWeaponry.Weaponry[I].Balance;
+  end;
+
+  case Best of
+    rt_MetalShield,
+    rt_MetalArmor:  with fDemandWeaponry.SteelArmor do
+                    case PickMin([CoalTheory, IronTheory, SteelTheory, SmithyTheory]) of
+                      0: TryBuildHouse(ht_CoalMine);
+                      1: TryBuildHouse(ht_IronMine);
+                      2: TryBuildHouse(ht_IronSmithy);
+                      3: TryBuildHouse(ht_ArmorSmithy);
+                    end;
+    rt_Sword,
+    rt_Hallebard,
+    rt_Arbalet:     with fDemandWeaponry.SteelWeapon do
+                    case PickMin([CoalTheory, IronTheory, SteelTheory, SmithyTheory]) of
+                      0: TryBuildHouse(ht_CoalMine);
+                      1: TryBuildHouse(ht_IronMine);
+                      2: TryBuildHouse(ht_IronSmithy);
+                      3: TryBuildHouse(ht_WeaponSmithy);
+                    end;
+    rt_Shield:      with fDemandWeaponry.WoodenArmor do
+                    case PickMin([TrunkTheory, WoodTheory, WorkshopTheory]) of
+                      0: TryBuildHouse(ht_Woodcutters);
+                      1: TryBuildHouse(ht_Sawmill);
+                      2: TryBuildHouse(ht_WeaponWorkshop);
+                    end;
+    rt_Armor:       with fDemandWeaponry.WoodenArmor do
+                    case PickMin([FarmTheory, SwineTheory, TanneryTheory, WorkshopTheory]) of
+                      0: TryBuildHouse(ht_Farm);
+                      1: TryBuildHouse(ht_Swine);
+                      2: TryBuildHouse(ht_Tannery);
+                      3: TryBuildHouse(ht_ArmorWorkshop);
+                    end;
+    rt_Axe,
+    rt_Pike,
+    rt_Bow:         with fDemandWeaponry.WoodenWeapon do
+                    case PickMin([TrunkTheory, WoodTheory, WorkshopTheory]) of
+                      0: TryBuildHouse(ht_Woodcutters);
+                      1: TryBuildHouse(ht_Sawmill);
+                      2: TryBuildHouse(ht_WeaponWorkshop);
+                    end;
+    rt_Horse:       with fDemandWeaponry.Horse do
+                    case PickMin([FarmTheory, StablesTheory]) of
+                      0: TryBuildHouse(ht_Farm);
+                      1: TryBuildHouse(ht_Stables);
+                    end;
   end;
 end;
 
@@ -781,7 +783,7 @@ procedure TKMayor.UpdateBalance;
     TrunkProductionRate := HouseCount(ht_Woodcutters) * ProductionRate[rt_Trunk];
     WoodProductionRate := HouseCount(ht_Sawmill) * ProductionRate[rt_Wood];
     WoodConsumptionRate := 4 //For city building
-                         + HouseCount(ht_ArmorWorkshop) * ProductionRate[rt_Armor]
+                         + HouseCount(ht_ArmorWorkshop) / 2 * ProductionRate[rt_Armor] //we /2 because half of the time house makes armor and half - shields
                          + HouseCount(ht_WeaponWorkshop) * ProductionRate[rt_Pike];
     with fDemandWeaponry do
     begin
@@ -817,6 +819,7 @@ procedure TKMayor.UpdateBalance;
     end;
   end;
 var
+  I: TResourceType;
   S: string;
 begin
 
@@ -836,7 +839,7 @@ begin
     Production := Min(CoalTheory, GoldOreTheory, GoldTheory);
     Consumption := 1;// + Byte(fSetup.Strong); //For now it's a static coef
     Balance := Production - Consumption;
-    fDemandGoldText := Format('Gold balance: %.2f - %.2f = %.2f', [Production, Consumption, Balance]);
+    fDemandGoldText := Format('%.2f Gold: %.2f - %.2f', [Balance, Production, Consumption]);
   end;
 
   //Weaponry
@@ -849,9 +852,12 @@ begin
       //Coal calculated above
       IronTheory := HouseCount(ht_IronMine) * ProductionRate[rt_IronOre];
       SteelTheory := HouseCount(ht_IronSmithy) * ProductionRate[rt_Steel];
-      SmithyTheory := HouseCount(ht_WeaponSmithy) * ProductionRate[rt_Hallebard]; //All 3 weapons are the same
-      SteelWeaponProduction := Min(Min(CoalTheory, IronTheory), Min(SteelTheory, SmithyTheory)) / 3;
-      SteelWeaponBalance := SteelWeaponProduction - SteelWeaponDemand;
+      SmithyTheory := HouseCount(ht_WeaponSmithy) * ProductionRate[rt_Hallebard];
+
+      //All 3 weapons are the same for now
+      Weaponry[rt_Sword].Production := Min(Min(CoalTheory, IronTheory), Min(SteelTheory, SmithyTheory)) / 3;
+      Weaponry[rt_Hallebard].Production := Min(Min(CoalTheory, IronTheory), Min(SteelTheory, SmithyTheory)) / 3;
+      Weaponry[rt_Arbalet].Production := Min(Min(CoalTheory, IronTheory), Min(SteelTheory, SmithyTheory)) / 3;
     end;
 
     //Armor
@@ -862,17 +868,21 @@ begin
       IronTheory := HouseCount(ht_IronMine) * ProductionRate[rt_IronOre];
       SteelTheory := HouseCount(ht_IronSmithy) * ProductionRate[rt_Steel];
       SmithyTheory := HouseCount(ht_ArmorSmithy) * ProductionRate[rt_MetalArmor];
-      SteelArmorProduction := Min(Min(CoalTheory, IronTheory), Min(SteelTheory, SmithyTheory)) / 2;
-      SteelArmorBalance := SteelArmorProduction - SteelArmorDemand;
+
+      Weaponry[rt_MetalShield].Production := Min(Min(CoalTheory, IronTheory), Min(SteelTheory, SmithyTheory)) / 2;
+      Weaponry[rt_MetalArmor].Production := Min(Min(CoalTheory, IronTheory), Min(SteelTheory, SmithyTheory)) / 2;
     end;
 
     with WoodenWeapon do
     begin
       //Trunk
       //Wood
+      //All 3 produced at the same speed
       WorkshopTheory := HouseCount(ht_WeaponWorkshop) * ProductionRate[rt_Pike];
-      WoodenWeaponProduction := Min(TrunkTheory, WoodTheory, WorkshopTheory) / 3;
-      WoodenWeaponBalance := WoodenWeaponProduction - WoodenWeaponDemand;
+
+      Weaponry[rt_Axe].Production := Min(TrunkTheory, WoodTheory, WorkshopTheory) / 3;
+      Weaponry[rt_Pike].Production := Min(TrunkTheory, WoodTheory, WorkshopTheory) / 3;
+      Weaponry[rt_Bow].Production := Min(TrunkTheory, WoodTheory, WorkshopTheory) / 3;
     end;
 
     with WoodenArmor do
@@ -883,47 +893,35 @@ begin
       SwineTheory := HouseCount(ht_Swine) * ProductionRate[rt_Skin] * 2;
       TanneryTheory := HouseCount(ht_Tannery) * ProductionRate[rt_Leather];
       WorkshopTheory := HouseCount(ht_ArmorWorkshop) * ProductionRate[rt_Armor];
-      WoodenShieldProduction := Min(TrunkTheory, WoodTheory, WorkshopTheory) / 2;
-      WoodenShieldBalance := WoodenShieldProduction - WoodenShieldDemand;
-      WoodenArmorProduction := Min(Min(FarmTheory, SwineTheory), Min(TanneryTheory, WorkshopTheory)) / 2;
-      WoodenArmorBalance := WoodenArmorProduction - WoodenArmorDemand;
+
+      Weaponry[rt_Shield].Production := Min(TrunkTheory, WoodTheory, WorkshopTheory) / 2;
+      Weaponry[rt_Armor].Production := Min(Min(FarmTheory, SwineTheory), Min(TanneryTheory, WorkshopTheory)) / 2;
     end;
 
     //Horse.FarmTheory calculated above
     Horse.StablesTheory := HouseCount(ht_Stables) * ProductionRate[rt_Horse];
-    HorseProduction := Min(Horse.FarmTheory, Horse.StablesTheory);
-    HorseBalance := HorseProduction - HorseDemand;
+    Weaponry[rt_Horse].Production := Min(Horse.FarmTheory, Horse.StablesTheory);
 
-    if fWooden then
-      Balance := Min([WoodenWeaponBalance, WoodenArmorBalance, WoodenShieldBalance, HorseBalance])
-    else
-      Balance := Min([SteelWeaponBalance, SteelArmorBalance, HorseBalance]);
+    for I := WARFARE_MIN to WARFARE_MAX do
+      Weaponry[I].Balance := Weaponry[I].Production - Weaponry[I].Demand;
 
-    //Append text in separate lines to isolate bugs
-    S := Format('Weaponry Balance: %.2f|', [Balance])
-          + Format('  SteelW balance: %.2f - %.2f = %.2f|', [SteelWeaponProduction, SteelWeaponDemand, SteelWeaponBalance])
-          + Format('          SteelW: min(C%.2f, I%.2f, S%.2f, W%.2f)|',
-                   [SteelWeapon.CoalTheory, SteelWeapon.IronTheory, SteelWeapon.SteelTheory, SteelWeapon.SmithyTheory]);
-    S := S
-          + Format('  SteelA balance: %.2f - %.2f = %.2f|', [SteelArmorProduction, SteelArmorDemand, SteelArmorBalance])
-          + Format('          SteelA: min(C%.2f, I%.2f, S%.2f, W%.2f)|',
-                   [SteelArmor.CoalTheory, SteelArmor.IronTheory, SteelArmor.SteelTheory, SteelArmor.SmithyTheory]);
-    S := S
-          + Format('WoodWeap balance: %.2f - %.2f = %.2f|', [WoodenWeaponProduction, WoodenWeaponDemand, WoodenWeaponBalance])
-          + Format('      WoodWeapon: min(T%.2f, W%.2f, W%.2f)|',
-                   [WoodenWeapon.TrunkTheory, WoodenWeapon.WoodTheory, WoodenWeapon.WorkshopTheory]);
-    S := S
-          + Format('WoodShie balance: %.2f - %.2f = %.2f|', [WoodenShieldProduction, WoodenShieldDemand, WoodenShieldBalance])
-          + Format('      WoodShield: min(T%.2f, W%.2f, W%.2f)|',
-                   [WoodenArmor.TrunkTheory, WoodenArmor.WoodTheory, WoodenArmor.WorkshopTheory]);
-    S := S
-          + Format('WoodArmo balance: %.2f - %.2f = %.2f|', [WoodenArmorProduction, WoodenArmorDemand, WoodenArmorBalance])
-          + Format('       WoodArmor: min(F%.2f, S%.2f, T%.2f, W%.2f)|',
-                   [WoodenArmor.FarmTheory, WoodenArmor.SwineTheory, WoodenArmor.TanneryTheory, WoodenArmor.WorkshopTheory]);
-    S := S
-          + Format('  Horses balance: %.2f - %.2f = %.2f|', [HorseProduction, HorseDemand, HorseBalance])
-          + Format('          Horses: min(F%.2f, S%.2f)|',
-                   [Horse.FarmTheory, Horse.StablesTheory]);
+    //Set Weaponry balance to the most required warfare kind
+    Balance := MaxSingle;
+    for I := WARFARE_MIN to WARFARE_MAX do
+    if ((fWooden and (I in [rt_Shield, rt_Armor, rt_Axe, rt_Pike, rt_Bow, rt_Horse]))
+        or (not fWooden and (I in [rt_MetalShield, rt_MetalArmor, rt_Sword, rt_Hallebard, rt_Arbalet, rt_Horse])))
+    and (Weaponry[I].Balance < Balance) then
+      Balance := Weaponry[I].Balance;
+
+    S := Format('%.2f Weaponry: |', [Balance]);
+    for I := WARFARE_MIN to WARFARE_MAX do
+    if ((fWooden and (I in [rt_Shield, rt_Armor, rt_Axe, rt_Pike, rt_Bow, rt_Horse]))
+        or
+        (not fWooden and (I in [rt_MetalShield, rt_MetalArmor, rt_Sword, rt_Hallebard, rt_Arbalet, rt_Horse]))
+       ) then
+      S := S
+           + fResource.Resources[I].Title
+           + Format(' balance: %.2f - %.2f = %.2f|', [Weaponry[I].Production, Weaponry[I].Demand, Weaponry[I].Balance]);
 
     fDemandWeaponryText := S;
   end;
@@ -946,7 +944,7 @@ begin
 
     Balance := Min([StoreBalance, SchoolBalance, InnBalance, BarracksBalance]);
     fDemandCoreText := Format
-      ('Core balance: %.2f (Store %.2f, School %.2f, Inn %.2f, Barracks %.2f)',
+      ('%.2f Core: (Store %.2f, School %.2f, Inn %.2f, Barracks %.2f)',
       [Balance, StoreBalance, SchoolBalance, InnBalance, BarracksBalance]);
   end;
 end;
@@ -966,7 +964,7 @@ begin
     WoodBalance     := Min(WoodcutTheory, SawmillTheory) - WOOD_DEMAND;
 
     Balance := Min(StoneBalance, WoodBalance);
-    fDemandMaterialsText := Format('Materials balance: %.2f (Stone %.2f, Wood %.2f)', [Balance, StoneBalance, WoodBalance]);
+    fDemandMaterialsText := Format('%.2f Materials: (Stone %.2f, Wood %.2f)', [Balance, StoneBalance, WoodBalance]);
   end;
 end;
 
@@ -1035,7 +1033,7 @@ begin
 
     Consumption := P.Stats.GetUnitQty(ut_Any) / 40; //On average unit eats each 40min
     Balance := Production - Consumption;
-    fDemandFoodText := Format('Food balance: %.2f - %.2f = %.2f|', [Production, Consumption, Balance])
+    fDemandFoodText := Format('%.2f Food: %.2f - %.2f|', [Balance, Production, Consumption])
                      + Format('       Bread: min(F%.2f, M%.2f, B%.2f)|', [Bread.FarmTheory, Bread.MillTheory, Bread.BakeryTheory])
                      + Format('    Sausages: min(F%.2f, S%.2f, B%.2f)|', [Sausages.FarmTheory, Sausages.SwineTheory, Sausages.ButchersTheory])
                      + Format('  Food value: %.2f + %.2f + %.2f + %.2f|', [BreadProduction * BREAD_RESTORE, SausagesProduction * SAUSAGE_RESTORE, WineProduction * WINE_RESTORE, FishProduction * FISH_RESTORE]);
@@ -1049,12 +1047,17 @@ begin
   //Convert army request into how many weapons are needed
   with fDemandWeaponry do
   begin
-    SteelWeaponDemand := FootmenDemand + HorsemenDemand + PikemenDemand + ArchersDemand;
-    SteelArmorDemand := FootmenDemand * 2 + HorsemenDemand * 2 + PikemenDemand + ArchersDemand;
-    WoodenWeaponDemand := FootmenDemand + HorsemenDemand + PikemenDemand + ArchersDemand;
-    WoodenArmorDemand := FootmenDemand + HorsemenDemand + PikemenDemand + ArchersDemand;
-    WoodenShieldDemand := FootmenDemand + HorsemenDemand;
-    HorseDemand := HorsemenDemand;
+    Weaponry[rt_Shield].Demand := FootmenDemand + HorsemenDemand;
+    Weaponry[rt_MetalShield].Demand := FootmenDemand + HorsemenDemand;
+    Weaponry[rt_Armor].Demand := FootmenDemand + PikemenDemand + HorsemenDemand + ArchersDemand;
+    Weaponry[rt_MetalArmor].Demand := FootmenDemand + PikemenDemand + HorsemenDemand + ArchersDemand;
+    Weaponry[rt_Axe].Demand := FootmenDemand + HorsemenDemand;
+    Weaponry[rt_Sword].Demand := FootmenDemand + HorsemenDemand;
+    Weaponry[rt_Pike].Demand := PikemenDemand;
+    Weaponry[rt_Hallebard].Demand := PikemenDemand;
+    Weaponry[rt_Bow].Demand := ArchersDemand;
+    Weaponry[rt_Arbalet].Demand := ArchersDemand;
+    Weaponry[rt_Horse].Demand := HorsemenDemand;
   end;
 end;
 
@@ -1110,6 +1113,9 @@ begin
   SaveStream.Write(fRoadBelowStore);
   SaveStream.Write(fWooden);
 
+  //Save because there are demands for weaponry (set by General)
+  SaveStream.Write(fDemandWeaponry.Weaponry, SizeOf(fDemandWeaponry.Weaponry));
+
   //These are not saved because they are recalculated before each use
   {LoadStream.Read(fDemandCore, SizeOf(fDemandCore));
   LoadStream.Read(fDemandMaterials, SizeOf(fDemandMaterials));
@@ -1128,6 +1134,9 @@ begin
   LoadStream.Read(fAutoRepair);
   LoadStream.Read(fRoadBelowStore);
   LoadStream.Read(fWooden);
+
+  //Load demands for weaponry set by General
+  LoadStream.Read(fDemandWeaponry.Weaponry, SizeOf(fDemandWeaponry.Weaponry));
 
   //These are not saved because they are recalculated before each use
   {LoadStream.Read(fDemandCore, SizeOf(fDemandCore));

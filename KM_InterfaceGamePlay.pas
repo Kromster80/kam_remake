@@ -3041,7 +3041,7 @@ begin
 end;
 
 
-procedure TKMGamePlayInterface.House_MarketOrderClick(Sender:TObject; AButton:TMouseButton);
+procedure TKMGamePlayInterface.House_MarketOrderClick(Sender: TObject; AButton: TMouseButton);
 var M: TKMHouseMarket;
 begin
   if not (fPlayers.Selected is TKMHouseMarket) then Exit;
