@@ -3400,7 +3400,13 @@ begin
   begin
     P := GameCursor.Cell; //Get cursor position tile-wise
     case GameCursor.Mode of
-      cmRoad:      if MyPlayer.CanAddFieldPlan(P, ft_Road) then MyPlayer.AddField(P, ft_Road);
+      cmRoad:      if MyPlayer.CanAddFieldPlan(P, ft_Road) then
+                   begin
+                     //If there's a field remove it first so we don't get road on top of the field tile (undesired in MapEd)
+                     if fTerrain.TileIsCornField(P) or fTerrain.TileIsWineField(P) then
+                       fTerrain.RemField(P);
+                     MyPlayer.AddField(P, ft_Road);
+                   end;
       cmField:     if MyPlayer.CanAddFieldPlan(P, ft_Corn) then MyPlayer.AddField(P, ft_Corn);
       cmWine:      if MyPlayer.CanAddFieldPlan(P, ft_Wine) then MyPlayer.AddField(P, ft_Wine);
       //cm_Wall:  if MyPlayer.CanAddFieldPlan(P, ft_Wall) then MyPlayer.AddField(P, ft_Wine);
@@ -3487,7 +3493,13 @@ begin
                         ShowGroupInfo(TKMUnitGroup(fPlayers.Selected));
                     end;
                   end;
-      cmRoad:     if MyPlayer.CanAddFieldPlan(P, ft_Road) then MyPlayer.AddField(P, ft_Road);
+      cmRoad:     if MyPlayer.CanAddFieldPlan(P, ft_Road) then
+                  begin
+                    //If there's a field remove it first so we don't get road on top of the field tile (undesired in MapEd)
+                    if fTerrain.TileIsCornField(P) or fTerrain.TileIsWineField(P) then
+                      fTerrain.RemField(P);
+                    MyPlayer.AddField(P, ft_Road);
+                  end;
       cmField:    if MyPlayer.CanAddFieldPlan(P, ft_Corn) then MyPlayer.AddField(P, ft_Corn);
       cmWine:     if MyPlayer.CanAddFieldPlan(P, ft_Wine) then MyPlayer.AddField(P, ft_Wine);
       //cm_Wall:
