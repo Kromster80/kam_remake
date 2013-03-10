@@ -34,7 +34,7 @@ type
     fOwner: TPlayerIndex;
     fMembers: TList;
     fOffenders: TList;
-    fSelected: TKMUnitWarrior; //Unit selected by player in GUI
+    fSelected: TKMUnitWarrior; //Unit selected by player in GUI. Should not be saved or affect game logic for MP consistency.
     fUnitsPerRow: Word;
     fTimeSinceHungryReminder: Integer;
     fGroupType: TGroupType;
@@ -297,7 +297,6 @@ begin
   LoadStream.Read(fOrderTargetHouse, 4); //subst on syncload
   LoadStream.Read(fOrderTargetUnit, 4); //subst on syncload
   LoadStream.Read(fPointerCount);
-  LoadStream.Read(fSelected, 4); //subst on syncload
   LoadStream.Read(fTicker);
   LoadStream.Read(fTimeSinceHungryReminder);
   LoadStream.Read(fUnitsPerRow);
@@ -323,7 +322,6 @@ begin
   fOrderTargetGroup := fPlayers.GetGroupByID(Cardinal(fOrderTargetGroup));
   fOrderTargetHouse := fPlayers.GetHouseByID(Cardinal(fOrderTargetHouse));
   fOrderTargetUnit  := fPlayers.GetUnitByID(Cardinal(fOrderTargetUnit));
-  fSelected := TKMUnitWarrior(fPlayers.GetUnitByID(Cardinal(fSelected)));
 end;
 
 
@@ -382,10 +380,6 @@ begin
   else
     SaveStream.Write(Integer(0));
   SaveStream.Write(fPointerCount);
-  if fSelected <> nil then
-    SaveStream.Write(fSelected.ID)
-  else
-    SaveStream.Write(Integer(0));
   SaveStream.Write(fTicker);
   SaveStream.Write(fTimeSinceHungryReminder);
   SaveStream.Write(fUnitsPerRow);
@@ -1054,7 +1048,7 @@ begin
     end;
 
   //Remove from the group
-  fPlayers.CleanUpUnitPointer(TKMUnit(NewLeader));
+  NewLeader.ReleaseUnitPointer;
   fMembers.Remove(NewLeader);
 
   NewGroup := fPlayers[Owner].UnitGroups.AddGroup(NewLeader);
