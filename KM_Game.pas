@@ -544,6 +544,9 @@ begin
   if (fNetworking.SelectGameKind = ngk_Map) and not fNetworking.MapInfo.IsSpecial then
     fPlayers.AddDefaultMPGoals(fMissionMode);
 
+  //@Lewin: Now that we have advanced locations setup (Human/AI) we can preserve mission goals for Coop maps as well?
+  //Possibly blocking alliance settings change in MP lobby. Does that makes sense?
+
   fNetworking.OnPlay           := GameMPPlay;
   fNetworking.OnReadyToPlay    := GameMPReadyToPlay;
   fNetworking.OnCommands       := TGameInputProcess_Multi(fGameInputProcess).RecieveCommands;
