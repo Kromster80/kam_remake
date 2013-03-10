@@ -1,6 +1,6 @@
 const
   TIME_TO_HOLD_HILL = 5*60*10; //5 minutes
-  MAX_TIME_AWAY = 20; //2 seconds
+  MAX_TIME_AWAY = 2*10; //2 seconds
   HILL_X = 122;
   HILL_Y = 119;
   LOC_COUNT = 8; //Total number of locations on this map
@@ -28,7 +28,7 @@ begin
   begin
     //Calculate the time left before the king wins
     Time := (TimeBecameKing + TIME_TO_HOLD_HILL) - States.GameTime;
-    if Time <= 0 then
+    if (Time <= 0) and not GameEnded then
     begin
       //Declare king and his team victorious. All other players will get set to defeated.
       Actions.PlayerWin([King], True);

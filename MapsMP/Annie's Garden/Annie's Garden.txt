@@ -1,0 +1,4 @@
+SetSpecial
+
+BigDesc
+To win your team must have one or more unit on at least 3 of the 5 victory locations in Annie's Garden, and keep one or more units there continuously for 5 minutes.||Map made by thunder[HU], script made by Lewin.

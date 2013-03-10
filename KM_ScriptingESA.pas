@@ -149,7 +149,7 @@ var
 begin
   for I := Low(aValues) to High(aValues) do
     Values := Values + IntToStr(aValues[I]) + IfThen(I<>High(aValues), ', ');
-  fLog.AddTime('Mistake in script usage' + aFuncName + ': ' + Values);
+  fLog.AddTime('Mistake in script usage ' + aFuncName + ': ' + Values);
 end;
 
 
@@ -782,7 +782,7 @@ var
 begin
   for I := Low(aValues) to High(aValues) do
     Values := Values + IntToStr(aValues[I]) + IfThen(I<>High(aValues), ', ');
-  fLog.AddTime('Mistake in script usage' + aFuncName + ': ' + Values);
+  fLog.AddTime('Mistake in script usage ' + aFuncName + ': ' + Values);
 end;
 
 
