@@ -51,6 +51,7 @@ type
     fResourceDeliveryCount: array[1..4] of Word; //Count of the resources we have ordered for the input (used for ware distribution)
     fResourceOut: array[1..4]of Byte; //Resource count in output
     fResourceOrder: array[1..4]of Word; //If HousePlaceOrders=true then here are production orders
+    fResOrderDesired: array[1..4]of Single;
     fLastOrderProduced: Byte; //Last order we made (1..4)
 
     WorkAnimStep: cardinal; //Used for Work and etc.. which is not in sync with Flags
@@ -64,13 +65,13 @@ type
 
     procedure MakeSound; dynamic; //Swine/stables make extra sounds
     function GetResDistribution(aID: Byte): Byte; //Will use GetRatio from mission settings to find distribution amount
-    procedure SetBuildingRepair(aValue: Boolean);
   protected
     fBuildState: THouseBuildState; // = (hbs_Glyph, hbs_NoGlyph, hbs_Wood, hbs_Stone, hbs_Done);
     FlagAnimStep: Cardinal; //Used for Flags and Burning animation
     fOwner: TPlayerIndex; //House owner player, determines flag color as well
     fPosition: TKMPoint; //House position on map, kinda virtual thing cos it doesn't match with entrance
     function GetResOrder(aId: Byte): Integer; virtual;
+    procedure SetBuildingRepair(aValue: Boolean);
     procedure SetResOrder(aId: Byte; aValue: Integer); virtual;
   public
     fCurrentAction: THouseAction; //Current action, withing HouseTask or idle
@@ -804,31 +805,35 @@ end;
 
 {How much resources house has in Output}
 function TKMHouse.CheckResOut(aResource: TResourceType): Byte;
-var i:integer;
+var I: Integer;
 begin
   Result := 0;
-  for i:=1 to 4 do
-  if (aResource = fResource.HouseDat[fHouseType].ResOutput[i]) or (aResource = rt_All) then
-    inc(Result, fResourceOut[i]);
+  for I := 1 to 4 do
+  if (aResource = fResource.HouseDat[fHouseType].ResOutput[I]) or (aResource = rt_All) then
+    Inc(Result, fResourceOut[I]);
 end;
 
 
 {Check amount of placed order for given ID}
 function TKMHouse.GetResOrder(aID: Byte): Integer;
-const
-  //Values are proportional to how many types of troops need this armament
-  DEF_NEED: array [WEAPON_MIN..WEAPON_MAX] of Byte = (
-    2, 2, 4, 4, 2, 2, 1, 1, 1, 1);
-    //rt_Shield, rt_MetalShield, rt_Armor, rt_MetalArmor, rt_Axe,
-    //rt_Sword, rt_Pike, rt_Hallebard, rt_Bow, rt_Arbalet
 begin
-  //AI always order production of everything. Could be changed later with a script command to only make certain things
-  //todo: Make AI manage that
-  if (fPlayers[fOwner].PlayerType = pt_Computer)
-  and (fResource.HouseDat[fHouseType].ResOutput[aID] <> rt_None) then
-    Result := DEF_NEED[fResource.HouseDat[fHouseType].ResOutput[aID]]
-  else
-    Result := fResourceOrder[aID];
+  Result := fResourceOrder[aID];
+end;
+
+
+//Input value is integer because we might get a -100 order from outside and need to fit it to range
+//properly
+procedure TKMHouse.SetResOrder(aID: Byte; aValue: Integer);
+var
+  I: Integer;
+  TotalDesired: Integer;
+begin
+  fResourceOrder[aID] := EnsureRange(aValue, 0, MAX_ORDER);
+
+  //Calculate desired production ratio (so that we are not affected by fResourceOrder which decreases till 0)
+  TotalDesired := fResourceOrder[1] + fResourceOrder[2] + fResourceOrder[3] + fResourceOrder[4];
+  for I := 1 to 4 do
+    fResOrderDesired[I] := fResourceOrder[I] / TotalDesired;
 end;
 
 
@@ -837,50 +842,44 @@ end;
 //then the production will go like so: 12121111
 function TKMHouse.PickOrder: Byte;
 var
-  I, ItemId: Byte;
+  I: Byte;
   Ware: TResourceType;
+  BestBid: Single;
+  TotalLeft: Integer;
+  LeftRatio: array [1..4] of Single;
 begin
-  //@Lewin: Sequential picking has a flaw. Lets say we have armory and workshop and we need to make
-  //50 archers and 50 axeman. Given sequential ordering, halfway through we will be limited by armors:
-  // - 25 bows, 25 axes, 25 armors and 25 shields, thats only 12.5 warriors.
-  //If we do more sophisticated approach and do ratio picking:
-  // - 25 bows, 25 axes, 33 armors and 16 shields, which is our optimum 16 warriors
-  //Another reason to change it is the way AI places orders. It works with ratios, not actual numbers
-  //e.g. despite the code above the sequential picking will lead to all items produces the same amounts
-  //even when we change AI to order exact amounts, they are still gonna be big ratios (100,50)
+  //See the ratio between items that were made (since last order amount change)
+  TotalLeft := fResourceOrder[1] + fResourceOrder[2] + fResourceOrder[3] + fResourceOrder[4];
+  for I := 1 to 4 do
+    LeftRatio[I] := fResourceOrder[I] / TotalLeft;
 
-  //@Krom: For the AI: Agreed, sequential ordering doesn't make sense, he needs ratios.
-  //       For humans: When we had it random people complained that it was too unpredictable.
-  //In a situation like you described most skilled players seem to make 2 workshops,
-  //one producing armour only, the other producing both. This ends up with half as many sheilds.
-  //IMO a better system would be to set ratios, so you can say 40% shields 60% armour (with sliders that
-  //must add to 100%, if you reduce one it increases another), then have an option to turn off production
-  //completely. Maybe we could let the player choose between ratios and exact numbers with a toggle?
-  //IMO ratios/percentages are far more useful than exact numbers, it's rare that I wanted exactly 20 swords,
-  //I usually want my guys to keep making weapons forever, but in specific ratios.
-  //What do you think?
-  //@Lewin: IMO we need to keep numbers and make PickOrder proportional instead of sequential, for reasons described above. Your example will work just fine with proportional ordering. What do you think?
-  //@Krom: That sounds great, I didn't realise you meant like that. I only have two concerns:
-  //       1. People won't understand the new system (we can explain in our "new release" post and on the forum)
-  //       2. I assume you want it to work with random weights, but that means due to randomness
-  //          you could order 50 armour 50 shields and he might make 10 shields before make a single armour (unlikely though)
+  //Left   Desired
+  //0.5    0.6
+  //0.3    0.3
+  //0.2    0.1
 
+  //Find order that which production ratio is the smallest
   Result := 0;
-  for I := 0 to 3 do
+  BestBid := -MaxSingle;
+  for I := 1 to 4 do
+  if (ResOrder[I] > 0) then //Player has ordered some of this
   begin
-    ItemId := ((fLastOrderProduced + I) mod 4)+1; //1..4
-    Ware := fResource.HouseDat[fHouseType].ResOutput[ItemId];
-    if (ResOrder[ItemId] > 0) //Player has ordered some of this
-    and (CheckResOut(Ware) < MAX_RES_IN_HOUSE) //Output of this is not full
-    //Check we have wares to produce this weapon. If both are the same type check > 1 not > 0
+    Ware := fResource.HouseDat[fHouseType].ResOutput[I];
+
+    if (CheckResOut(Ware) < MAX_RES_IN_HOUSE) //Output of this is not full
+    //Check we have enough wares to produce this weapon. If both are the same type check > 1 not > 0
     and ((WarfareCosts[Ware,1] <> WarfareCosts[Ware,2]) or (CheckResIn(WarfareCosts[Ware,1]) > 1))
     and ((WarfareCosts[Ware,1] = rt_None) or (CheckResIn(WarfareCosts[Ware,1]) > 0))
-    and ((WarfareCosts[Ware,2] = rt_None) or (CheckResIn(WarfareCosts[Ware,2]) > 0)) then
+    and ((WarfareCosts[Ware,2] = rt_None) or (CheckResIn(WarfareCosts[Ware,2]) > 0))
+    and (LeftRatio[I] - fResOrderDesired[I] > BestBid) then
     begin
-      Result := ItemId;
-      exit;
+      Result := I;
+      BestBid := LeftRatio[Result] - fResOrderDesired[Result];
     end;
   end;
+
+  if Result <> 0 then
+    Dec(fResourceOrder[Result]);
 end;
 
 
@@ -1006,14 +1005,6 @@ begin
     dec(fResourceOut[i], aCount);
     exit;
   end;
-end;
-
-
-//Input value is integer because we might get a -100 order from above and need to
-//fit it to range properly here
-procedure TKMHouse.SetResOrder(aID: Byte; aValue: Integer);
-begin
-  fResourceOrder[aID] := EnsureRange(aValue, 0, MAX_ORDER);
 end;
 
 

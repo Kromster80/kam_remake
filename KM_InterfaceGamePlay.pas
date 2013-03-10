@@ -2044,7 +2044,7 @@ end;
 
 procedure TKMGamePlayInterface.ShowHouseInfo(Sender: TKMHouse; aAskDemolish: Boolean = False);
 const LineAdv = 25; //Each new Line is placed ## pixels after previous
-var i,RowRes,Base,Line:integer; Res:TResourceType;
+var I,RowRes,Base,Line:integer; Res:TResourceType;
 begin
   Assert(fPlayers.Selected = Sender);
   fAskDemolish := aAskDemolish;
@@ -2066,8 +2066,8 @@ begin
 
   if fAskDemolish then
   begin
-    for i:=1 to Panel_House.ChildCount do
-      Panel_House.Childs[i].Hide; //hide all
+    for I:=1 to Panel_House.ChildCount do
+      Panel_House.Childs[I].Hide; //hide all
     Label_House_Demolish.Show;
     Button_House_DemolishYes.Show;
     Button_House_DemolishNo.Show;
@@ -2083,8 +2083,8 @@ begin
 
   if not Sender.IsComplete then
   begin
-    for i:=1 to Panel_House.ChildCount do
-      Panel_House.Childs[i].Hide; //hide all
+    for I:=1 to Panel_House.ChildCount do
+      Panel_House.Childs[I].Hide; //hide all
     Label_House_UnderConstruction.Show;
     Image_HouseConstructionWood.Show;
     Image_HouseConstructionStone.Show;
@@ -2103,8 +2103,8 @@ begin
   end;
 
 
-  for i:=1 to Panel_House.ChildCount do
-    Panel_House.Childs[i].Show; //show all
+  for I:=1 to Panel_House.ChildCount do
+    Panel_House.Childs[I].Show; //show all
 
   Image_House_Worker.Enabled := Sender.GetHasOwner;
   Image_House_Worker.Visible := fResource.HouseDat[Sender.HouseType].OwnerType <> ut_None;
@@ -2159,8 +2159,8 @@ begin
           SwitchPage(Panel_HouseWoodcutter);
 
           //First thing - hide everything
-          for i:=1 to Panel_House_Common.ChildCount do
-            Panel_House_Common.Childs[i].Hide;
+          for I:=1 to Panel_House_Common.ChildCount do
+            Panel_House_Common.Childs[I].Hide;
 
           Label_Common_Offer.Show;
           Label_Common_Offer.Caption := fTextLibrary[TX_HOUSE_DELIVERS]+'(x'+inttostr(fResource.HouseDat[Sender.HouseType].ResProductionX)+'):';
@@ -2177,8 +2177,8 @@ begin
     else
         begin
           //First thing - hide everything
-          for i:=1 to Panel_House_Common.ChildCount do
-            Panel_House_Common.Childs[i].Hide;
+          for I:=1 to Panel_House_Common.ChildCount do
+            Panel_House_Common.Childs[I].Hide;
 
           //Now show only what we need
           RowRes := 1; Line := 0; Base := 2;
@@ -2190,13 +2190,13 @@ begin
             Label_Common_Demand.Top := Base+Line*LineAdv+6;
             inc(Line);
 
-            for i:=1 to 4 do
-            if fResource.Resources[fResource.HouseDat[Sender.HouseType].ResInput[i]].IsValid then
+            for I:=1 to 4 do
+            if fResource.Resources[fResource.HouseDat[Sender.HouseType].ResInput[I]].IsValid then
             begin
-              ResRow_Common_Resource[RowRes].TexID := fResource.Resources[fResource.HouseDat[Sender.HouseType].ResInput[i]].GUIIcon;
-              ResRow_Common_Resource[RowRes].Caption := fResource.Resources[fResource.HouseDat[Sender.HouseType].ResInput[i]].Title;
-              ResRow_Common_Resource[RowRes].Hint := fResource.Resources[fResource.HouseDat[Sender.HouseType].ResInput[i]].Title;
-              ResRow_Common_Resource[RowRes].ResourceCount := Sender.CheckResIn(fResource.HouseDat[Sender.HouseType].ResInput[i]);
+              ResRow_Common_Resource[RowRes].TexID := fResource.Resources[fResource.HouseDat[Sender.HouseType].ResInput[I]].GUIIcon;
+              ResRow_Common_Resource[RowRes].Caption := fResource.Resources[fResource.HouseDat[Sender.HouseType].ResInput[I]].Title;
+              ResRow_Common_Resource[RowRes].Hint := fResource.Resources[fResource.HouseDat[Sender.HouseType].ResInput[I]].Title;
+              ResRow_Common_Resource[RowRes].ResourceCount := Sender.CheckResIn(fResource.HouseDat[Sender.HouseType].ResInput[I]);
               ResRow_Common_Resource[RowRes].Top := Base+Line*LineAdv;
               ResRow_Common_Resource[RowRes].Show;
               inc(Line);
@@ -2212,13 +2212,13 @@ begin
             Label_Common_Offer.Top := Base+Line*LineAdv+6;
             inc(Line);
 
-            for i:=1 to 4 do
-            if fResource.Resources[fResource.HouseDat[Sender.HouseType].ResOutput[i]].IsValid then
+            for I:=1 to 4 do
+            if fResource.Resources[fResource.HouseDat[Sender.HouseType].ResOutput[I]].IsValid then
             begin
-              ResRow_Common_Resource[RowRes].TexID := fResource.Resources[fResource.HouseDat[Sender.HouseType].ResOutput[i]].GUIIcon;
-              ResRow_Common_Resource[RowRes].ResourceCount := Sender.CheckResOut(fResource.HouseDat[Sender.HouseType].ResOutput[i]);
-              ResRow_Common_Resource[RowRes].Caption := fResource.Resources[fResource.HouseDat[Sender.HouseType].ResOutput[i]].Title;
-              ResRow_Common_Resource[RowRes].Hint := fResource.Resources[fResource.HouseDat[Sender.HouseType].ResOutput[i]].Title;
+              ResRow_Common_Resource[RowRes].TexID := fResource.Resources[fResource.HouseDat[Sender.HouseType].ResOutput[I]].GUIIcon;
+              ResRow_Common_Resource[RowRes].ResourceCount := Sender.CheckResOut(fResource.HouseDat[Sender.HouseType].ResOutput[I]);
+              ResRow_Common_Resource[RowRes].Caption := fResource.Resources[fResource.HouseDat[Sender.HouseType].ResOutput[I]].Title;
+              ResRow_Common_Resource[RowRes].Hint := fResource.Resources[fResource.HouseDat[Sender.HouseType].ResOutput[I]].Title;
               ResRow_Common_Resource[RowRes].Show;
               ResRow_Common_Resource[RowRes].Top := Base+Line*LineAdv;
               inc(Line);
@@ -2233,36 +2233,39 @@ begin
             Label_Common_Offer.Caption:=fTextLibrary[TX_HOUSE_DELIVERS]+'(x'+inttostr(fResource.HouseDat[Sender.HouseType].ResProductionX)+'):';
             Label_Common_Offer.Top:=Base+Line*LineAdv+6;
             inc(Line);
-            for i:=1 to 4 do //Orders
-            if fResource.Resources[fResource.HouseDat[Sender.HouseType].ResOutput[i]].IsValid then
+            for I := 1 to 4 do //Orders
             begin
-              ResRow_Order[i].TexID := fResource.Resources[fResource.HouseDat[Sender.HouseType].ResOutput[i]].GUIIcon;
-              ResRow_Order[i].Caption := fResource.Resources[fResource.HouseDat[Sender.HouseType].ResOutput[i]].Title;
-              ResRow_Order[i].Hint := fResource.Resources[fResource.HouseDat[Sender.HouseType].ResOutput[i]].Title;
-              ResRow_Order[i].ResourceCount := Sender.CheckResOut(fResource.HouseDat[Sender.HouseType].ResOutput[i]);
-              ResRow_Order[i].OrderCount := Sender.ResOrder[I];
-              ResRow_Order[i].Show;
-              ResRow_Order[i].Top := Base+Line*LineAdv;
-              inc(Line);
+              Res := fResource.HouseDat[Sender.HouseType].ResOutput[I];
+              if fResource.Resources[Res].IsValid then
+              begin
+                ResRow_Order[I].TexID := fResource.Resources[Res].GUIIcon;
+                ResRow_Order[I].Caption := fResource.Resources[Res].Title;
+                ResRow_Order[I].Hint := fResource.Resources[Res].Title;
+                ResRow_Order[I].ResourceCount := Sender.CheckResOut(Res);
+                ResRow_Order[I].OrderCount := Sender.ResOrder[I];
+                ResRow_Order[I].Show;
+                ResRow_Order[I].Top := Base+Line*LineAdv;
+                inc(Line);
+              end;
             end;
             Label_Common_Costs.Show;
             Label_Common_Costs.Top:=Base+Line*LineAdv+2;
             inc(Line);
-            for i:=1 to 4 do //Costs
+            for I:=1 to 4 do //Costs
             begin
-              Res := fResource.HouseDat[Sender.HouseType].ResOutput[i];
+              Res := fResource.HouseDat[Sender.HouseType].ResOutput[I];
               if fResource.Resources[Res].IsValid then
               begin
-                ResRow_Costs[i].Caption := fResource.Resources[Res].Title;
-                ResRow_Costs[i].RX := rxGui;
+                ResRow_Costs[I].Caption := fResource.Resources[Res].Title;
+                ResRow_Costs[I].RX := rxGui;
                 //Hide the icons when they are not used
-                if WarfareCosts[Res, 1] = rt_None then ResRow_Costs[i].TexID1 := 0
-                else ResRow_Costs[i].TexID1 := fResource.Resources[WarfareCosts[Res, 1]].GUIIcon;
-                if WarfareCosts[Res, 2] = rt_None then ResRow_Costs[i].TexID2 := 0
-                else ResRow_Costs[i].TexID2 := fResource.Resources[WarfareCosts[Res, 2]].GUIIcon;
+                if WarfareCosts[Res, 1] = rt_None then ResRow_Costs[I].TexID1 := 0
+                else ResRow_Costs[I].TexID1 := fResource.Resources[WarfareCosts[Res, 1]].GUIIcon;
+                if WarfareCosts[Res, 2] = rt_None then ResRow_Costs[I].TexID2 := 0
+                else ResRow_Costs[I].TexID2 := fResource.Resources[WarfareCosts[Res, 2]].GUIIcon;
 
-                ResRow_Costs[i].Show;
-                ResRow_Costs[i].Top := Base + Line * LineAdv - 2*i - 6; //Pack them closer so they fit on 1024x576
+                ResRow_Costs[I].Show;
+                ResRow_Costs[I].Top := Base + Line * LineAdv - 2*I - 6; //Pack them closer so they fit on 1024x576
                 inc(Line);
               end;
             end;

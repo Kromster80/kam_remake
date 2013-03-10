@@ -111,6 +111,7 @@ type
     procedure CheckHousePlans;
     procedure CheckRoadsCount;
     procedure CheckExhaustedMines;
+    procedure CheckWeaponOrderCount;
 
     procedure UpdateBalance;
     procedure UpdateBalanceCore;
@@ -284,6 +285,55 @@ begin
               if fGame.CheckTime(fSetup.RecruitDelay) then //Recruits can only be trained after this time
                 if not TryAddToQueue(ut_Recruit, fSetup.RecruitFactor * P.Stats.GetHouseQty(ht_Barracks)) then
                   Break; //There's no unit demand at all
+    end;
+  end;
+end;
+
+
+//Check that we have weapons ordered for production
+procedure TKMayor.CheckWeaponOrderCount;
+var
+  I,K: Integer;
+  H: TKMHouse;
+begin
+  for I := 0 to fPlayers[fOwner].Houses.Count - 1 do
+  begin
+    H := fPlayers[fOwner].Houses[I];
+
+    //todo: Rework fDemandWeaponry to allow to place orders on exact weaponry we need
+
+    if not H.IsDestroyed then
+    case H.HouseType of
+      ht_ArmorSmithy:     for K := 1 to 4 do
+                            if fResource.HouseDat[H.HouseType].ResOutput[K] = rt_MetalShield then
+                              H.ResOrder[K] := Round(fDemandWeaponry.SteelArmorDemand * 100)
+                            else
+                            if fResource.HouseDat[H.HouseType].ResOutput[K] = rt_MetalArmor then
+                              H.ResOrder[K] := Round(fDemandWeaponry.SteelArmorDemand * 100);
+      ht_ArmorWorkshop:   for K := 1 to 4 do
+                            if fResource.HouseDat[H.HouseType].ResOutput[K] = rt_Shield then
+                              H.ResOrder[K] := Round(fDemandWeaponry.WoodenShieldDemand * 100)
+                            else
+                            if fResource.HouseDat[H.HouseType].ResOutput[K] = rt_Armor then
+                              H.ResOrder[K] := Round(fDemandWeaponry.WoodenArmorDemand * 100);
+      ht_WeaponSmithy:    for K := 1 to 4 do
+                            if fResource.HouseDat[H.HouseType].ResOutput[K] = rt_Sword then
+                              H.ResOrder[K] := Round(fDemandWeaponry.SteelWeaponDemand * 100)
+                            else
+                            if fResource.HouseDat[H.HouseType].ResOutput[K] = rt_Hallebard then
+                              H.ResOrder[K] := Round(fDemandWeaponry.SteelWeaponDemand * 100)
+                            else
+                            if fResource.HouseDat[H.HouseType].ResOutput[K] = rt_Arbalet then
+                              H.ResOrder[K] := Round(fDemandWeaponry.SteelWeaponDemand * 100);
+      ht_WeaponWorkshop:  for K := 1 to 4 do
+                            if fResource.HouseDat[H.HouseType].ResOutput[K] = rt_Axe then
+                              H.ResOrder[K] := Round(fDemandWeaponry.WoodenWeaponDemand * 100)
+                            else
+                            if fResource.HouseDat[H.HouseType].ResOutput[K] = rt_Pike then
+                              H.ResOrder[K] := Round(fDemandWeaponry.WoodenWeaponDemand * 100)
+                            else
+                            if fResource.HouseDat[H.HouseType].ResOutput[K] = rt_Bow then
+                              H.ResOrder[K] := Round(fDemandWeaponry.WoodenWeaponDemand * 100);
     end;
   end;
 end;
@@ -1037,6 +1087,8 @@ begin
 
   //Train new units (citizens, serfs, workers and recruits) if needed
   CheckUnitCount;
+
+  CheckWeaponOrderCount;
 
   if fSetup.AutoBuild then
   begin

@@ -509,9 +509,9 @@ begin
   and (fHome.CheckResOut(TM.WorkPlan.Product1) < MAX_RES_IN_HOUSE)
   and (fHome.CheckResOut(TM.WorkPlan.Product2) < MAX_RES_IN_HOUSE) then
   begin
-    if fResource.HouseDat[fHome.HouseType].DoesOrders then
+    //if fResource.HouseDat[fHome.HouseType].DoesOrders then
       //Take order to production
-      fHome.ResOrder[Res] := fHome.ResOrder[Res] - 1;
+      //fHome.ResOrder[Res] := fHome.ResOrder[Res] - 1;
     Result := TM;
   end
   else
