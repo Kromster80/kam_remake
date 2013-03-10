@@ -298,13 +298,16 @@ begin
       //When we place a cheat Scout we want to rig it immediately
 
       //Add recruit to stats to keep balance right (Recruit count = initial + trained - lost - warriorsCount)
+      //@Krom: I think it would be simpler to count cheat scouts as initial, rather than trained. Then we don't need
+      //       to mess with initial recruits. But I'm not sure, they don't really fit into the stats system either way.
       fStats.UnitCreated(ut_Recruit, False);
       fStats.UnitCreated(aUnitType, True);
-      fScripting.ProcUnitTrained(Result);
 
       G := fUnitGroups.WarriorTrained(TKMUnitWarrior(Result));
       Assert(G <> nil, 'It is certain that equipped warrior creates or finds some group to join to');
       G.OnGroupDied := GroupDied;
+      //@Krom: Maybe scripting doesn't care about scouts added this way? It could cause issues if the scripter
+      //       assumes the warrior came from the player's barracks. The event is "OnWarriorEquipped" not "OnWarriorCreated".
       fScripting.ProcWarriorEquipped(Result, G);
     end;
 end;
@@ -340,9 +343,10 @@ begin
     Assert(G <> nil, 'It is certain that equipped warrior creates or finds some group to join to');
     G.OnGroupDied := GroupDied;
     fScripting.ProcWarriorEquipped(aUnit, G);
-  end;
+  end
+  else
+    fScripting.ProcUnitTrained(aUnit); //Warriors don't trigger "OnTrained" event
 
-  fScripting.ProcUnitTrained(aUnit);
   fStats.UnitCreated(aUnit.UnitType, True);
 end;
 
