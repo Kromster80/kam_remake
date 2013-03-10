@@ -1445,6 +1445,7 @@ end;
 
 procedure TKMHouseSchool.SyncLoad;
 begin
+  Inherited;
   UnitWIP := fPlayers.GetUnitByID(Cardinal(UnitWIP));
 end;
 
@@ -1754,6 +1755,7 @@ end;
 procedure TKMHouseBarracks.SyncLoad;
 var I: Integer;
 begin
+  Inherited;
   for I := 0 to RecruitsList.Count - 1 do
     RecruitsList.Items[I] := fPlayers.GetUnitByID(Cardinal(RecruitsList.Items[I]));
 end;

@@ -27,7 +27,7 @@ type
       fLoc: TKMPoint;
       BuildID: Integer;
       DemandSet: Boolean;
-      TileLockSet, InitialFieldSet: Boolean;
+      TileLockSet: Boolean;
     public
       constructor Create(aWorker: TKMUnitWorker; aLoc: TKMPoint; aID: Integer);
       constructor Load(LoadStream: TKMemoryStream); override;
@@ -256,7 +256,6 @@ begin
   BuildID   := aID;
   DemandSet := False;
   TileLockSet := False;
-  InitialFieldSet := False;
 end;
 
 
@@ -267,7 +266,6 @@ begin
   LoadStream.Read(BuildID);
   LoadStream.Read(DemandSet);
   LoadStream.Read(TileLockSet);
-  LoadStream.Read(InitialFieldSet);
 end;
 
 
@@ -284,7 +282,6 @@ begin
 
   if DemandSet   then fPlayers[fUnit.Owner].Deliveries.Queue.RemDemand(fUnit);
   if TileLockSet then fTerrain.UnlockTile(fLoc);
-  if InitialFieldSet then fTerrain.RemField(fLoc);
   inherited;
 end;
 
@@ -334,7 +331,6 @@ begin
    4: begin
         fTerrain.ResetDigState(fLoc);
         fTerrain.SetField(fLoc, Owner, ft_InitWine); //Replace the terrain, but don't seed grapes yet
-        InitialFieldSet := True;
         SetActionLockedStay(30, ua_Work1);
         Thought := th_Wood;
       end;
@@ -349,7 +345,6 @@ begin
       end;
    7: begin
         fTerrain.SetField(fLoc, Owner, ft_Wine);
-        InitialFieldSet := False;
         SetActionStay(5, ua_Walk);
         fTerrain.UnlockTile(fLoc);
         TileLockSet := False;
@@ -367,7 +362,6 @@ begin
   SaveStream.Write(BuildID);
   SaveStream.Write(DemandSet);
   SaveStream.Write(TileLockSet);
-  SaveStream.Write(InitialFieldSet);
 end;
 
 
