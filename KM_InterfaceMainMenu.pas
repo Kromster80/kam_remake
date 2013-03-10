@@ -164,7 +164,7 @@ type
     Panel_MultiPlayer: TKMPanel;
       Panel_MPAnnouncement: TKMPanel;
         Memo_MP_Announcement: TKMMemo;
-      ColList_Servers: TKMColumnListBox;
+      ColumnBox_Servers: TKMColumnBox;
       Label_Servers_Status: TKMLabel;
       Button_MP_Back: TKMButton;
       Button_MP_Refresh: TKMButton;
@@ -198,7 +198,7 @@ type
         Button_MP_PasswordCancel: TKMButton;
 
     Panel_CampSelect: TKMPanel;
-      List_Camps: TKMColumnListBox;
+      ColumnBox_Camps: TKMColumnBox;
       Image_CampsPreview: TKMImage;
       Button_Camp_Start, Button_Camp_Back: TKMButton;
 
@@ -216,8 +216,8 @@ type
         Label_SingleTitle: TKMLabel;
         Memo_SingleDesc: TKMMemo;
         MinimapView_Single: TKMMinimapView;
-        Drop_SingleLoc: TKMDropList;
-        Drop_SingleColor: TKMDropColumns;
+        DropBox_SingleLoc: TKMDropList;
+        DropBox_SingleColor: TKMDropColumns;
         Image_SingleAllies: array [0..MAX_PLAYERS-1] of TKMImage;
         Image_SingleEnemies: array [0..MAX_PLAYERS-1] of TKMImage;
         Image_SingleVictGoal: array [0..MAX_UI_GOALS-1] of TKMImage;
@@ -226,10 +226,10 @@ type
         Image_SingleSurvGoal: array [0..MAX_UI_GOALS-1] of TKMImage;
         Label_SingleSurvGoal: array [0..MAX_UI_GOALS-1] of TKMLabel;
         Image_SingleSurvGoalSt: array [0..MAX_UI_GOALS-1] of TKMImage;
-      ColList_SingleMaps: TKMColumnListBox;
+      ColumnBox_SingleMaps: TKMColumnBox;
       Button_SingleBack, Button_SingleStart: TKMButton;
     Panel_Load:TKMPanel;
-      List_Load: TKMColumnListBox;
+      ColumnBox_Load: TKMColumnBox;
       Button_Load: TKMButton;
       Button_Delete: TKMButton;
       Label_DeleteConfirm: TKMLabel;
@@ -238,15 +238,15 @@ type
       MinimapView_Load: TKMMinimapView;
     Panel_Replays:TKMPanel;
       Radio_Replays_Type:TKMRadioGroup;
-      List_Replays: TKMColumnListBox;
+      ColumnBox_Replays: TKMColumnBox;
       Button_ReplaysPlay: TKMButton;
       Button_ReplaysBack:TKMButton;
       MinimapView_Replay: TKMMinimapView;
     Panel_MapEd: TKMPanel;
-      Panel_MapEd_SizeXY: TKMPanel;
-      Radio_MapEd_SizeX,Radio_MapEd_SizeY: TKMRadioGroup;
-      Panel_MapEd_Load: TKMPanel;
-      List_MapEd: TKMColumnListBox;
+      Panel_MapEdSizeXY: TKMPanel;
+      Radio_MapEdSizeX, Radio_MapEdSizeY: TKMRadioGroup;
+      Panel_MapEdLoad: TKMPanel;
+      ColumnBox_MapEd: TKMColumnBox;
       Radio_MapEd_MapType: TKMRadioGroup;
       MinimapView_MapEd: TKMMinimapView;
       Button_MapEdBack,Button_MapEd_Create,Button_MapEd_Load: TKMButton;
@@ -1069,12 +1069,12 @@ begin
     Memo_MP_Announcement.ItemHeight := 16;
 
     //List of available servers
-    ColList_Servers := TKMColumnListBox.Create(Panel_MultiPlayer,45,240,620,465,fnt_Metal, bsMenu);
-    ColList_Servers.Anchors := [akLeft, akTop, akBottom];
-    ColList_Servers.SetColumns(fnt_Outline, [fTextLibrary[TX_MP_MENU_SERVERLIST_NAME],fTextLibrary[TX_MP_MENU_SERVERLIST_STATE],fTextLibrary[TX_MP_MENU_SERVERLIST_PLAYERS],fTextLibrary[TX_MP_MENU_SERVERLIST_PING]],[0,300,430,525]);
-    ColList_Servers.OnColumnClick := MP_ServersSort;
-    ColList_Servers.OnChange := MP_ServersClick;
-    ColList_Servers.OnDoubleClick := MP_ServersDoubleClick;
+    ColumnBox_Servers := TKMColumnBox.Create(Panel_MultiPlayer,45,240,620,465,fnt_Metal, bsMenu);
+    ColumnBox_Servers.Anchors := [akLeft, akTop, akBottom];
+    ColumnBox_Servers.SetColumns(fnt_Outline, [fTextLibrary[TX_MP_MENU_SERVERLIST_NAME],fTextLibrary[TX_MP_MENU_SERVERLIST_STATE],fTextLibrary[TX_MP_MENU_SERVERLIST_PLAYERS],fTextLibrary[TX_MP_MENU_SERVERLIST_PING]],[0,300,430,525]);
+    ColumnBox_Servers.OnColumnClick := MP_ServersSort;
+    ColumnBox_Servers.OnChange := MP_ServersClick;
+    ColumnBox_Servers.OnDoubleClick := MP_ServersDoubleClick;
     Label_Servers_Status := TKMLabel.Create(Panel_MultiPlayer, 45+310, 240+230, '', fnt_Grey, taCenter);
     Label_Servers_Status.Anchors := [akLeft];
     Label_Servers_Status.Hide;
@@ -1110,16 +1110,16 @@ begin
 
     L := TKMLabel.Create(Panel_CampSelect, Panel_Main.Width div 2, 230, fTextLibrary[TX_MENU_CAMP_HEADER], fnt_Outline, taCenter);
     L.Anchors := [];
-    List_Camps := TKMColumnListBox.Create(Panel_CampSelect, 80, 260, 600, 300, fnt_Grey, bsMenu);
-    List_Camps.SetColumns(fnt_Outline, [fTextLibrary[TX_MENU_CAMPAIGNS_TITLE],
+    ColumnBox_Camps := TKMColumnBox.Create(Panel_CampSelect, 80, 260, 600, 300, fnt_Grey, bsMenu);
+    ColumnBox_Camps.SetColumns(fnt_Outline, [fTextLibrary[TX_MENU_CAMPAIGNS_TITLE],
                                         fTextLibrary[TX_MENU_CAMPAIGNS_MAPS_COUNT],
                                         fTextLibrary[TX_MENU_CAMPAIGNS_MAPS_UNLOCKED], ''],
                                         [0, 320, 460, 600]);
-    List_Camps.Anchors := [];
-    List_Camps.Header.Anchors := [];
-    List_Camps.SearchColumn := 0;
-    List_Camps.OnChange := Campaign_ListChange;
-    List_Camps.OnDoubleClick := SwitchMenuPage;
+    ColumnBox_Camps.Anchors := [];
+    ColumnBox_Camps.Header.Anchors := [];
+    ColumnBox_Camps.SearchColumn := 0;
+    ColumnBox_Camps.OnChange := Campaign_ListChange;
+    ColumnBox_Camps.OnDoubleClick := SwitchMenuPage;
 
     with TKMBevel.Create(Panel_CampSelect, 696, 306, 275, 208) do Anchors := [];
     Image_CampsPreview := TKMImage.Create(Panel_CampSelect, 700, 310, 267, 200, 0, rxGuiMain);
@@ -1193,28 +1193,28 @@ begin
 
     Half := (Panel_Main.Width - PAD_SIDE) div 2 - PAD_SIDE;
 
-    ColList_SingleMaps := TKMColumnListBox.Create(Panel_Single,
+    ColumnBox_SingleMaps := TKMColumnBox.Create(Panel_Single,
                                                   (Panel_Main.Width + PAD_SIDE) div 2,
                                                   PAD_VERT,
                                                   Half,
                                                   Panel_Main.Height - PAD_VERT*2,
                                                   fnt_MainMapGold, bsMenu);
-    ColList_SingleMaps.Anchors := [akTop, akBottom];
-    ColList_SingleMaps.SetColumns(fnt_Outline, ['', '', 'Title', 'Size'], [0, 50, 100, 380]);
-    ColList_SingleMaps.Columns[2].Font := fnt_Metal;
-    ColList_SingleMaps.Columns[2].HintFont := fnt_Grey;
-    ColList_SingleMaps.Columns[1].TextAlign := taCenter;
-    ColList_SingleMaps.Columns[3].TextAlign := taCenter;
-    ColList_SingleMaps.ItemHeight := 40;
-    ColList_SingleMaps.SearchColumn := 2;
-    ColList_SingleMaps.ShowLines := True;
-    ColList_SingleMaps.Header.Height := 40;
-    ColList_SingleMaps.Header.TextAlign := taCenter;
-    ColList_SingleMaps.Header.Columns[0].Glyph := MakePic(rxGui, 42);
-    ColList_SingleMaps.Header.Columns[1].Glyph := MakePic(rxGui, 31);
-    ColList_SingleMaps.OnColumnClick := SingleMap_Sort;
-    ColList_SingleMaps.OnChange := SingleMap_ListClick;
-    ColList_SingleMaps.OnDoubleClick := SingleMap_Start;
+    ColumnBox_SingleMaps.Anchors := [akTop, akBottom];
+    ColumnBox_SingleMaps.SetColumns(fnt_Outline, ['', '', 'Title', 'Size'], [0, 50, 100, 380]);
+    ColumnBox_SingleMaps.Columns[2].Font := fnt_Metal;
+    ColumnBox_SingleMaps.Columns[2].HintFont := fnt_Grey;
+    ColumnBox_SingleMaps.Columns[1].TextAlign := taCenter;
+    ColumnBox_SingleMaps.Columns[3].TextAlign := taCenter;
+    ColumnBox_SingleMaps.ItemHeight := 40;
+    ColumnBox_SingleMaps.SearchColumn := 2;
+    ColumnBox_SingleMaps.ShowLines := True;
+    ColumnBox_SingleMaps.Header.Height := 40;
+    ColumnBox_SingleMaps.Header.TextAlign := taCenter;
+    ColumnBox_SingleMaps.Header.Columns[0].Glyph := MakePic(rxGui, 42);
+    ColumnBox_SingleMaps.Header.Columns[1].Glyph := MakePic(rxGui, 31);
+    ColumnBox_SingleMaps.OnColumnClick := SingleMap_Sort;
+    ColumnBox_SingleMaps.OnChange := SingleMap_ListClick;
+    ColumnBox_SingleMaps.OnDoubleClick := SingleMap_Start;
 
     Panel_SingleDesc := TKMPanel.Create(Panel_Single, PAD_SIDE, PAD_VERT, Half, Panel_Main.Height - PAD_VERT*2);
     Panel_SingleDesc.Anchors := [akTop, akBottom];
@@ -1235,19 +1235,19 @@ begin
       //Other setup settings can go below
       L := TKMLabel.Create(Panel_SingleDesc, 200, 330, 150, 20, fTextLibrary[TX_LOBBY_HEADER_STARTLOCATION], fnt_Metal, taLeft);
       L.Anchors := [akLeft, akBottom];
-      Drop_SingleLoc := TKMDropList.Create(Panel_SingleDesc, 200, 350, 150, 20, fnt_Metal, 'Location', bsMenu);
-      Drop_SingleLoc.Anchors := [akLeft, akBottom];
-      Drop_SingleLoc.OnChange := SingleMap_OptionsChange;
+      DropBox_SingleLoc := TKMDropList.Create(Panel_SingleDesc, 200, 350, 150, 20, fnt_Metal, 'Location', bsMenu);
+      DropBox_SingleLoc.Anchors := [akLeft, akBottom];
+      DropBox_SingleLoc.OnChange := SingleMap_OptionsChange;
 
       L := TKMLabel.Create(Panel_SingleDesc, 360, 330, 80, 20, fTextLibrary[TX_LOBBY_HEADER_FLAGCOLOR], fnt_Metal, taLeft);
       L.Anchors := [akLeft, akBottom];
-      Drop_SingleColor := TKMDropColumns.Create(Panel_SingleDesc, 360, 350, 80, 20, fnt_Grey, '', bsMenu);
-      Drop_SingleColor.Anchors := [akLeft, akBottom];
-      Drop_SingleColor.SetColumns(fnt_Outline, [''], [0]);
-      Drop_SingleColor.List.ShowHeader := False;
-      Drop_SingleColor.FadeImageWhenDisabled := False;
-      Drop_SingleColor.Add(MakeListRow([''], [$FFFFFFFF], [MakePic(rxGuiMain, 31)], 0));
-      Drop_SingleColor.OnChange := SingleMap_OptionsChange;
+      DropBox_SingleColor := TKMDropColumns.Create(Panel_SingleDesc, 360, 350, 80, 20, fnt_Grey, '', bsMenu);
+      DropBox_SingleColor.Anchors := [akLeft, akBottom];
+      DropBox_SingleColor.SetColumns(fnt_Outline, [''], [0]);
+      DropBox_SingleColor.List.ShowHeader := False;
+      DropBox_SingleColor.FadeImageWhenDisabled := False;
+      DropBox_SingleColor.Add(MakeListRow([''], [$FFFFFFFF], [MakePic(rxGuiMain, 31)], 0));
+      DropBox_SingleColor.OnChange := SingleMap_OptionsChange;
 
       //Goals
       B := TKMBevel.Create(Panel_SingleDesc, 0, 530, Half, 30);
@@ -1310,13 +1310,13 @@ begin
 
     TKMLabel.Create(Panel_Load, Panel_Main.Width div 2, 50, fTextLibrary[TX_MENU_LOAD_LIST], fnt_Outline, taCenter);
 
-    List_Load := TKMColumnListBox.Create(Panel_Load, 62, 86, 700, 485, fnt_Metal, bsMenu);
-    List_Load.Anchors := [akLeft,akTop,akBottom];
-    List_Load.SetColumns(fnt_Outline, [fTextLibrary[TX_MENU_LOAD_FILE], fTextLibrary[TX_MENU_LOAD_DESCRIPTION]], [0, 300]);
-    List_Load.SearchColumn := 0;
-    List_Load.OnColumnClick := Load_Sort;
-    List_Load.OnChange := Load_ListClick;
-    List_Load.OnDoubleClick := Load_Click;
+    ColumnBox_Load := TKMColumnBox.Create(Panel_Load, 62, 86, 700, 485, fnt_Metal, bsMenu);
+    ColumnBox_Load.Anchors := [akLeft,akTop,akBottom];
+    ColumnBox_Load.SetColumns(fnt_Outline, [fTextLibrary[TX_MENU_LOAD_FILE], fTextLibrary[TX_MENU_LOAD_DESCRIPTION]], [0, 300]);
+    ColumnBox_Load.SearchColumn := 0;
+    ColumnBox_Load.OnColumnClick := Load_Sort;
+    ColumnBox_Load.OnChange := Load_ListClick;
+    ColumnBox_Load.OnDoubleClick := Load_Click;
 
     Button_Load := TKMButton.Create(Panel_Load,337,590,350,30,fTextLibrary[TX_MENU_LOAD_LOAD], bsMenu);
     Button_Load.Anchors := [akLeft,akBottom];
@@ -1351,44 +1351,44 @@ var I: Integer;
 begin
   Panel_MapEd:=TKMPanel.Create(Panel_Main,0,0,Panel_Main.Width, Panel_Main.Height);
   Panel_MapEd.Stretch;
-    Panel_MapEd_SizeXY := TKMPanel.Create(Panel_MapEd, 80, 160, 200, 400);
-    Panel_MapEd_SizeXY.Anchors := [akLeft];
-      TKMLabel.Create(Panel_MapEd_SizeXY, 6, 0, 188, 20, fTextLibrary[TX_MENU_NEW_MAP_SIZE], fnt_Outline, taLeft);
-      TKMBevel.Create(Panel_MapEd_SizeXY, 0, 20, 200, 370);
-      TKMLabel.Create(Panel_MapEd_SizeXY, 8, 27, 88, 20, fTextLibrary[TX_MENU_MAP_WIDTH], fnt_Outline, taLeft);
-      TKMLabel.Create(Panel_MapEd_SizeXY, 108, 27, 88, 20, fTextLibrary[TX_MENU_MAP_HEIGHT], fnt_Outline, taLeft);
+    Panel_MapEdSizeXY := TKMPanel.Create(Panel_MapEd, 80, 160, 200, 400);
+    Panel_MapEdSizeXY.Anchors := [akLeft];
+      TKMLabel.Create(Panel_MapEdSizeXY, 6, 0, 188, 20, fTextLibrary[TX_MENU_NEW_MAP_SIZE], fnt_Outline, taLeft);
+      TKMBevel.Create(Panel_MapEdSizeXY, 0, 20, 200, 370);
+      TKMLabel.Create(Panel_MapEdSizeXY, 8, 27, 88, 20, fTextLibrary[TX_MENU_MAP_WIDTH], fnt_Outline, taLeft);
+      TKMLabel.Create(Panel_MapEdSizeXY, 108, 27, 88, 20, fTextLibrary[TX_MENU_MAP_HEIGHT], fnt_Outline, taLeft);
 
-      Radio_MapEd_SizeX := TKMRadioGroup.Create(Panel_MapEd_SizeXY, 10, 52, 88, 332, fnt_Metal);
-      Radio_MapEd_SizeY := TKMRadioGroup.Create(Panel_MapEd_SizeXY, 110, 52, 88, 332, fnt_Metal);
+      Radio_MapEdSizeX := TKMRadioGroup.Create(Panel_MapEdSizeXY, 10, 52, 88, 332, fnt_Metal);
+      Radio_MapEdSizeY := TKMRadioGroup.Create(Panel_MapEdSizeXY, 110, 52, 88, 332, fnt_Metal);
       for I := 1 to MAPSIZES_COUNT do begin
-        Radio_MapEd_SizeX.Add(IntToStr(MapSize[I]));
-        Radio_MapEd_SizeY.Add(IntToStr(MapSize[I]));
+        Radio_MapEdSizeX.Add(IntToStr(MapSize[I]));
+        Radio_MapEdSizeY.Add(IntToStr(MapSize[I]));
       end;
-      Radio_MapEd_SizeX.ItemIndex := 2; //64
-      Radio_MapEd_SizeY.ItemIndex := 2; //64
+      Radio_MapEdSizeX.ItemIndex := 2; //64
+      Radio_MapEdSizeY.ItemIndex := 2; //64
 
-      Button_MapEd_Create := TKMButton.Create(Panel_MapEd_SizeXY, 0, 400, 200, 30, fTextLibrary[TX_MENU_MAP_CREATE_NEW_MAP], bsMenu);
+      Button_MapEd_Create := TKMButton.Create(Panel_MapEdSizeXY, 0, 400, 200, 30, fTextLibrary[TX_MENU_MAP_CREATE_NEW_MAP], bsMenu);
       Button_MapEd_Create.OnClick := MapEditor_Start;
 
-    Panel_MapEd_Load := TKMPanel.Create(Panel_MapEd, 300, 160, 620, 500);
-    Panel_MapEd_Load.Anchors := [akLeft];
-      TKMLabel.Create(Panel_MapEd_Load, 6, 0, 288, 20, fTextLibrary[TX_MENU_MAP_AVAILABLE], fnt_Outline, taLeft);
-      TKMBevel.Create(Panel_MapEd_Load, 0, 20, 300, 50);
-      Radio_MapEd_MapType := TKMRadioGroup.Create(Panel_MapEd_Load,8,28,286,40,fnt_Grey);
+    Panel_MapEdLoad := TKMPanel.Create(Panel_MapEd, 300, 160, 620, 500);
+    Panel_MapEdLoad.Anchors := [akLeft];
+      TKMLabel.Create(Panel_MapEdLoad, 6, 0, 288, 20, fTextLibrary[TX_MENU_MAP_AVAILABLE], fnt_Outline, taLeft);
+      TKMBevel.Create(Panel_MapEdLoad, 0, 20, 300, 50);
+      Radio_MapEd_MapType := TKMRadioGroup.Create(Panel_MapEdLoad,8,28,286,40,fnt_Grey);
       Radio_MapEd_MapType.ItemIndex := 0;
       Radio_MapEd_MapType.Add(fTextLibrary[TX_MENU_MAPED_SPMAPS]);
       Radio_MapEd_MapType.Add(fTextLibrary[TX_MENU_MAPED_MPMAPS]);
       Radio_MapEd_MapType.OnChange := MapEditor_MapTypeChange;
-      List_MapEd := TKMColumnListBox.Create(Panel_MapEd_Load, 0, 80, 440, 310, fnt_Metal,  bsMenu);
-      List_MapEd.SetColumns(fnt_Outline, [fTextLibrary[TX_MENU_MAP_TITLE], '#', fTextLibrary[TX_MENU_MAP_SIZE]], [0, 310, 340]);
-      List_MapEd.SearchColumn := 0;
-      List_MapEd.OnColumnClick := MapEditor_ColumnClick;
-      List_MapEd.OnChange := MapEditor_SelectMap;
-      List_MapEd.OnDoubleClick := MapEditor_Start;
-      Button_MapEd_Load := TKMButton.Create(Panel_MapEd_Load, 0, 400, 300, 30, fTextLibrary[TX_MENU_MAP_LOAD_EXISTING], bsMenu);
+      ColumnBox_MapEd := TKMColumnBox.Create(Panel_MapEdLoad, 0, 80, 440, 310, fnt_Metal,  bsMenu);
+      ColumnBox_MapEd.SetColumns(fnt_Outline, [fTextLibrary[TX_MENU_MAP_TITLE], '#', fTextLibrary[TX_MENU_MAP_SIZE]], [0, 310, 340]);
+      ColumnBox_MapEd.SearchColumn := 0;
+      ColumnBox_MapEd.OnColumnClick := MapEditor_ColumnClick;
+      ColumnBox_MapEd.OnChange := MapEditor_SelectMap;
+      ColumnBox_MapEd.OnDoubleClick := MapEditor_Start;
+      Button_MapEd_Load := TKMButton.Create(Panel_MapEdLoad, 0, 400, 300, 30, fTextLibrary[TX_MENU_MAP_LOAD_EXISTING], bsMenu);
       Button_MapEd_Load.OnClick := MapEditor_Start;
-      TKMBevel.Create(Panel_MapEd_Load, 448, 80, 199, 199);
-      MinimapView_MapEd := TKMMinimapView.Create(Panel_MapEd_Load, 452, 84, 191, 191);
+      TKMBevel.Create(Panel_MapEdLoad, 448, 80, 199, 199);
+      MinimapView_MapEd := TKMMinimapView.Create(Panel_MapEdLoad, 452, 84, 191, 191);
 
     Button_MapEdBack := TKMButton.Create(Panel_MapEd, 80, 620, 220, 30, fTextLibrary[TX_MENU_BACK], bsMenu);
     Button_MapEdBack.Anchors := [akLeft];
@@ -1410,13 +1410,13 @@ begin
     Radio_Replays_Type.Add(fTextLibrary[TX_MENU_MAPED_MPMAPS]);
     Radio_Replays_Type.OnChange := Replay_TypeChange;
 
-    List_Replays := TKMColumnListBox.Create(Panel_Replays, 62, 150, 700, 485, fnt_Metal, bsMenu);
-    List_Replays.SetColumns(fnt_Outline, [fTextLibrary[TX_MENU_LOAD_FILE], fTextLibrary[TX_MENU_LOAD_DESCRIPTION]], [0, 300]);
-    List_Replays.Anchors := [akLeft,akTop,akBottom];
-    List_Replays.SearchColumn := 0;
-    List_Replays.OnChange := Replays_ListClick;
-    List_Replays.OnColumnClick := Replays_Sort;
-    List_Replays.OnDoubleClick := Replays_Play;
+    ColumnBox_Replays := TKMColumnBox.Create(Panel_Replays, 62, 150, 700, 485, fnt_Metal, bsMenu);
+    ColumnBox_Replays.SetColumns(fnt_Outline, [fTextLibrary[TX_MENU_LOAD_FILE], fTextLibrary[TX_MENU_LOAD_DESCRIPTION]], [0, 300]);
+    ColumnBox_Replays.Anchors := [akLeft,akTop,akBottom];
+    ColumnBox_Replays.SearchColumn := 0;
+    ColumnBox_Replays.OnChange := Replays_ListClick;
+    ColumnBox_Replays.OnColumnClick := Replays_Sort;
+    ColumnBox_Replays.OnDoubleClick := Replays_Play;
 
     Button_ReplaysPlay := TKMButton.Create(Panel_Replays,337,660,350,30,fTextLibrary[TX_MENU_VIEW_REPLAY], bsMenu);
     Button_ReplaysPlay.Anchors := [akLeft,akBottom];
@@ -1818,9 +1818,9 @@ begin
   end;
 
   {Show campaign screen}
-  if (Sender = Button_Camp_Start) or (Sender = List_Camps) then
+  if (Sender = Button_Camp_Start) or (Sender = ColumnBox_Camps) then
   begin
-    Campaign_Set(fGameApp.Campaigns.CampaignByTitle(List_Camps.Rows[List_Camps.ItemIndex].Cells[3].Caption));
+    Campaign_Set(fGameApp.Campaigns.CampaignByTitle(ColumnBox_Camps.Rows[ColumnBox_Camps.ItemIndex].Cells[3].Caption));
     Panel_Campaign.Show;
   end;
   if (Sender = Button_ResultsContinue) then
@@ -1847,12 +1847,12 @@ begin
     //Stop current scan so it can't add a save after we clear the list
     fSaves.TerminateScan;
     fLastSaveCRC := 0;
-    List_Load.Clear; //clear the list
+    ColumnBox_Load.Clear; //clear the list
     Load_DeleteConfirmation(False);
     Load_ListClick(nil);
     //Initiate refresh and process each new save added
     fSaves.Refresh(Load_ScanUpdate, False);
-    Load_Sort(List_Load.SortIndex); //Apply sorting from last time we were on this page
+    Load_Sort(ColumnBox_Load.SortIndex); //Apply sorting from last time we were on this page
     Panel_Load.Show;
   end;
 
@@ -1861,7 +1861,7 @@ begin
     fLastSaveCRC := 0;
     Radio_Replays_Type.ItemIndex := 0; //we always show SP replays on start
     Replay_TypeChange(nil); //Select SP as this will refresh everything
-    Replays_Sort(List_Replays.SortIndex); //Apply sorting from last time we were on this page
+    Replays_Sort(ColumnBox_Replays.SortIndex); //Apply sorting from last time we were on this page
     Panel_Replays.Show;
   end;
 
@@ -1960,10 +1960,10 @@ begin
   Camps := fGameApp.Campaigns;
 
   Image_CampsPreview.TexID := 0; //Clear preview image
-  List_Camps.Clear;
+  ColumnBox_Camps.Clear;
   for I := 0 to Camps.Count - 1 do
   with Camps[I] do
-    List_Camps.AddItem(MakeListRow(
+    ColumnBox_Camps.AddItem(MakeListRow(
                         [CampaignTitle, IntToStr(MapCount), IntToStr(UnlockedMap+1), ShortTitle],
                         [$FFFFFFFF, $FFFFFFFF, $FFFFFFFF, $00FFFFFF]));
 
@@ -1975,7 +1975,7 @@ procedure TKMMainMenuInterface.Campaign_ListChange(Sender: TObject);
 var Camp: TKMCampaign;
 begin
   Button_Camp_Start.Enable;
-  Camp := fGameApp.Campaigns.CampaignByTitle(List_Camps.Rows[List_Camps.ItemIndex].Cells[3].Caption);
+  Camp := fGameApp.Campaigns.CampaignByTitle(ColumnBox_Camps.Rows[ColumnBox_Camps.ItemIndex].Cells[3].Caption);
 
   Image_CampsPreview.RX := Camp.BackGroundPic.RX;
   Image_CampsPreview.TexID := Camp.BackGroundPic.ID;
@@ -2077,7 +2077,7 @@ end;
 
 procedure TKMMainMenuInterface.SingleMap_Clear;
 begin
-  ColList_SingleMaps.Clear;
+  ColumnBox_SingleMaps.Clear;
   SingleMap_ListClick(nil);
   fLastMapCRC := 0;
 end;
@@ -2100,8 +2100,8 @@ var
   I, OldTopIndex: Integer;
   R: TKMListRow;
 begin
-  OldTopIndex := ColList_SingleMaps.TopIndex;
-  ColList_SingleMaps.Clear;
+  OldTopIndex := ColumnBox_SingleMaps.TopIndex;
+  ColumnBox_SingleMaps.Clear;
 
   fMaps.Lock;
     for I := 0 to fMaps.Count - 1 do
@@ -2109,24 +2109,24 @@ begin
       R := MakeListRow(['', IntToStr(fMaps[I].PlayerCount), fMaps[I].FileName, MapSizeText(fMaps[I].MapSizeX, fMaps[I].MapSizeY)]);
       R.Cells[2].Hint := fMaps[I].SmallDesc;
       R.Cells[0].Pic := MakePic(rxGui, 28 + Byte(fMaps[I].MissionMode <> mm_Tactic) * 14);
-      ColList_SingleMaps.AddItem(R);
+      ColumnBox_SingleMaps.AddItem(R);
     end;
 
     //IDs of maps could changed, so use CRC to check which one was selected
       for I := 0 to fMaps.Count-1 do
         if (fMaps[I].CRC = fLastMapCRC) then
-          ColList_SingleMaps.ItemIndex := I;
+          ColumnBox_SingleMaps.ItemIndex := I;
   fMaps.Unlock;
 
-  ColList_SingleMaps.TopIndex := OldTopIndex;
+  ColumnBox_SingleMaps.TopIndex := OldTopIndex;
   if aJumpToSelected
-  and not InRange(ColList_SingleMaps.ItemIndex - ColList_SingleMaps.TopIndex, 0, ColList_SingleMaps.GetVisibleRows - 1)
+  and not InRange(ColumnBox_SingleMaps.ItemIndex - ColumnBox_SingleMaps.TopIndex, 0, ColumnBox_SingleMaps.GetVisibleRows - 1)
   then
-    if ColList_SingleMaps.ItemIndex < ColList_SingleMaps.TopIndex + ColList_SingleMaps.GetVisibleRows - 1 then
-      ColList_SingleMaps.TopIndex := ColList_SingleMaps.ItemIndex
+    if ColumnBox_SingleMaps.ItemIndex < ColumnBox_SingleMaps.TopIndex + ColumnBox_SingleMaps.GetVisibleRows - 1 then
+      ColumnBox_SingleMaps.TopIndex := ColumnBox_SingleMaps.ItemIndex
     else
-    if ColList_SingleMaps.ItemIndex > ColList_SingleMaps.TopIndex + ColList_SingleMaps.GetVisibleRows - 1 then
-      ColList_SingleMaps.TopIndex := ColList_SingleMaps.ItemIndex - ColList_SingleMaps.GetVisibleRows + 1;
+    if ColumnBox_SingleMaps.ItemIndex > ColumnBox_SingleMaps.TopIndex + ColumnBox_SingleMaps.GetVisibleRows - 1 then
+      ColumnBox_SingleMaps.TopIndex := ColumnBox_SingleMaps.ItemIndex - ColumnBox_SingleMaps.GetVisibleRows + 1;
 end;
 
 
@@ -2136,7 +2136,7 @@ var
   I, K: Integer;
 begin
   fMaps.Lock;
-    MapId := ColList_SingleMaps.ItemIndex;
+    MapId := ColumnBox_SingleMaps.ItemIndex;
 
     //User could have clicked on empty space in list and we get -1 or unused MapId
     if not InRange(MapId, 0, fMaps.Count - 1) then
@@ -2147,8 +2147,8 @@ begin
 
       MinimapView_Single.Hide;
 
-      Drop_SingleLoc.Clear;
-      Drop_SingleColor.Clear;
+      DropBox_SingleLoc.Clear;
+      DropBox_SingleColor.Clear;
     end
     else
     begin
@@ -2163,15 +2163,15 @@ begin
 
       //Location
       K := 0;
-      Drop_SingleLoc.Clear;
+      DropBox_SingleLoc.Clear;
       for I := 0 to fMaps[MapId].PlayerCount - 1 do
       if fMaps[MapId].CanBeHuman[I] or ALLOW_TAKE_AI_PLAYERS then
       begin
-        Drop_SingleLoc.Add(fMaps[MapId].LocationName(I));
+        DropBox_SingleLoc.Add(fMaps[MapId].LocationName(I));
         fSingleLocations[K] := I;
 
         if I = fMaps[MapId].DefaultHuman then
-          Drop_SingleLoc.ItemIndex := K;
+          DropBox_SingleLoc.ItemIndex := K;
 
         Inc(K);
       end;
@@ -2179,15 +2179,15 @@ begin
       //Color
       //Fill in colors for each map individually
       //I plan to skip colors that are similar to those on a map already
-      Drop_SingleColor.Clear;
+      DropBox_SingleColor.Clear;
       for I := Low(MP_TEAM_COLORS) to High(MP_TEAM_COLORS) do
-        Drop_SingleColor.Add(MakeListRow([''], [MP_TEAM_COLORS[I]], [MakePic(rxGuiMain, 30)]));
-      Drop_SingleColor.ItemIndex := 0; //Select default
+        DropBox_SingleColor.Add(MakeListRow([''], [MP_TEAM_COLORS[I]], [MakePic(rxGuiMain, 30)]));
+      DropBox_SingleColor.ItemIndex := 0; //Select default
 
     end;
 
-    Drop_SingleLoc.Enabled := Drop_SingleLoc.Count > 1;
-    Drop_SingleColor.Enabled := Drop_SingleColor.Count > 1;
+    DropBox_SingleLoc.Enabled := DropBox_SingleLoc.Count > 1;
+    DropBox_SingleColor.Enabled := DropBox_SingleColor.Count > 1;
 
     SingleMap_OptionsChange(nil);
 
@@ -2197,13 +2197,13 @@ end;
 
 procedure TKMMainMenuInterface.SingleMap_OptionsChange(Sender: TObject);
 begin
-  if InRange(Drop_SingleLoc.ItemIndex, Low(fSingleLocations), High(fSingleLocations)) then
-    fSingleLoc := fSingleLocations[Drop_SingleLoc.ItemIndex]
+  if InRange(DropBox_SingleLoc.ItemIndex, Low(fSingleLocations), High(fSingleLocations)) then
+    fSingleLoc := fSingleLocations[DropBox_SingleLoc.ItemIndex]
   else
     fSingleLoc := -1;
 
-  if InRange(Drop_SingleColor.ItemIndex + 1, Low(MP_TEAM_COLORS), High(MP_TEAM_COLORS)) then
-    fSingleColor := MP_TEAM_COLORS[Drop_SingleColor.ItemIndex + 1]
+  if InRange(DropBox_SingleColor.ItemIndex + 1, Low(MP_TEAM_COLORS), High(MP_TEAM_COLORS)) then
+    fSingleColor := MP_TEAM_COLORS[DropBox_SingleColor.ItemIndex + 1]
   else
     fSingleColor := MP_TEAM_COLORS[1];
 
@@ -2238,9 +2238,9 @@ begin
   end;
   Button_SingleStart.Disable;
 
-  if (fSingleLoc <> -1) and (ColList_SingleMaps.ItemIndex <> -1) then
+  if (fSingleLoc <> -1) and (ColumnBox_SingleMaps.ItemIndex <> -1) then
   begin
-    MapId := ColList_SingleMaps.ItemIndex;
+    MapId := ColumnBox_SingleMaps.ItemIndex;
     M := fMaps[MapId];
 
     //Refresh minimap with selected location and player color
@@ -2462,7 +2462,7 @@ procedure TKMMainMenuInterface.MP_ServersRefresh(Sender: TObject);
 begin
   fGameApp.Networking.ServerQuery.OnListUpdated := MP_ServersUpdateList;
   fGameApp.Networking.ServerQuery.RefreshList;
-  ColList_Servers.Clear;
+  ColumnBox_Servers.Clear;
   Label_MP_Desc.Caption := '';
   Label_MP_Players.Caption := '';
 
@@ -2484,9 +2484,9 @@ var
   S: TKMServerInfo;
   R: TKMRoomInfo;
 begin
-  OldTopIndex := ColList_Servers.TopIndex;
-  ColList_Servers.Clear;
-  ColList_Servers.ItemIndex := -1;
+  OldTopIndex := ColumnBox_Servers.TopIndex;
+  ColumnBox_Servers.Clear;
+  ColumnBox_Servers.ItemIndex := -1;
 
   if fGameApp.Networking.ServerQuery.Rooms.Count = 0 then
   begin
@@ -2505,7 +2505,7 @@ begin
 
       //Only show # if Server has more than 1 Room
       DisplayName := IfThen(R.OnlyRoom, S.Name, S.Name + ' #' + IntToStr(R.RoomID + 1));
-      ColList_Servers.AddItem(
+      ColumnBox_Servers.AddItem(
       MakeListRow([DisplayName, fTextLibrary[GameStateTextIDs[R.GameInfo.GameState]], IntToStr(R.GameInfo.PlayerCount), IntToStr(S.Ping)],
                   [$FFFFFFFF, $FFFFFFFF, $FFFFFFFF, GetPingColor(S.Ping)], I));
 
@@ -2515,20 +2515,20 @@ begin
       and (S.IP = fSelectedServerInfo.IP)
       and (S.Port = fSelectedServerInfo.Port) then
       begin
-        ColList_Servers.ItemIndex := I;
+        ColumnBox_Servers.ItemIndex := I;
         MP_ServersClick(nil); //Shows info about this selected server
       end;
     end;
 
-    ColList_Servers.TopIndex := OldTopIndex;
-    if (ColList_Servers.ItemIndex <> -1)
-    and not InRange(ColList_Servers.ItemIndex - ColList_Servers.TopIndex, 0, ColList_Servers.GetVisibleRows - 1) then
+    ColumnBox_Servers.TopIndex := OldTopIndex;
+    if (ColumnBox_Servers.ItemIndex <> -1)
+    and not InRange(ColumnBox_Servers.ItemIndex - ColumnBox_Servers.TopIndex, 0, ColumnBox_Servers.GetVisibleRows - 1) then
     begin
-      if ColList_Servers.ItemIndex < ColList_Servers.TopIndex + ColList_Servers.GetVisibleRows - 1 then
-        ColList_Servers.TopIndex := ColList_Servers.ItemIndex
+      if ColumnBox_Servers.ItemIndex < ColumnBox_Servers.TopIndex + ColumnBox_Servers.GetVisibleRows - 1 then
+        ColumnBox_Servers.TopIndex := ColumnBox_Servers.ItemIndex
       else
-      if ColList_Servers.ItemIndex > ColList_Servers.TopIndex + ColList_Servers.GetVisibleRows - 1 then
-        ColList_Servers.TopIndex := ColList_Servers.ItemIndex - ColList_Servers.GetVisibleRows + 1;
+      if ColumnBox_Servers.ItemIndex > ColumnBox_Servers.TopIndex + ColumnBox_Servers.GetVisibleRows - 1 then
+        ColumnBox_Servers.TopIndex := ColumnBox_Servers.ItemIndex - ColumnBox_Servers.GetVisibleRows + 1;
     end;
   end;
 end;
@@ -2544,24 +2544,24 @@ end;
 //Sort the servers list by said column ID
 procedure TKMMainMenuInterface.MP_ServersSort(aIndex: Integer);
 begin
-  case ColList_Servers.SortIndex of
+  case ColumnBox_Servers.SortIndex of
     //Sorting by name goes A..Z by default
-    0:  if ColList_Servers.SortDirection = sdDown then
+    0:  if ColumnBox_Servers.SortDirection = sdDown then
           fGameApp.Networking.ServerQuery.SortMethod := ssmByNameAsc
         else
           fGameApp.Networking.ServerQuery.SortMethod := ssmByNameDesc;
     //Sorting by state goes Lobby,Loading,Game,None by default
-    1:  if ColList_Servers.SortDirection = sdDown then
+    1:  if ColumnBox_Servers.SortDirection = sdDown then
           fGameApp.Networking.ServerQuery.SortMethod := ssmByStateAsc
         else
           fGameApp.Networking.ServerQuery.SortMethod := ssmByStateDesc;
     //Sorting by player count goes 8..0 by default
-    2:  if ColList_Servers.SortDirection = sdDown then
+    2:  if ColumnBox_Servers.SortDirection = sdDown then
           fGameApp.Networking.ServerQuery.SortMethod := ssmByPlayersDesc
         else
           fGameApp.Networking.ServerQuery.SortMethod := ssmByPlayersAsc;
     //Sorting by ping goes 0 ... 1000 by default
-    3:  if ColList_Servers.SortDirection = sdDown then
+    3:  if ColumnBox_Servers.SortDirection = sdDown then
           fGameApp.Networking.ServerQuery.SortMethod := ssmByPingAsc
         else
           fGameApp.Networking.ServerQuery.SortMethod := ssmByPingDesc;
@@ -2576,8 +2576,8 @@ end;
 procedure TKMMainMenuInterface.MP_ServersClick(Sender: TObject);
 var ID: Integer;
 begin
-  ID := ColList_Servers.ItemIndex;
-  if (ID = -1) or (ColList_Servers.Rows[ID].Tag = -1) then
+  ID := ColumnBox_Servers.ItemIndex;
+  if (ID = -1) or (ColumnBox_Servers.Rows[ID].Tag = -1) then
   begin
     fServerSelected := False;
     Button_MP_GetIn.Disable;
@@ -2589,7 +2589,7 @@ begin
   fServerSelected := True;
   Button_MP_GetIn.Enabled := MP_GetInEnabled;
 
-  fSelectedRoomInfo := fGameApp.Networking.ServerQuery.Rooms[ColList_Servers.Rows[ID].Tag];
+  fSelectedRoomInfo := fGameApp.Networking.ServerQuery.Rooms[ColumnBox_Servers.Rows[ID].Tag];
   fSelectedServerInfo := fGameApp.Networking.ServerQuery.Servers[fSelectedRoomInfo.ServerIndex];
 
   Label_MP_Desc.Caption := '';
@@ -2606,8 +2606,8 @@ end;
 procedure TKMMainMenuInterface.MP_ServersDoubleClick(Sender: TObject);
 begin
   //MP_SelectServer gets called by first Click
-  if Button_MP_GetIn.Enabled and (ColList_Servers.ItemIndex <> -1)
-  and InRange(ColList_Servers.Rows[ColList_Servers.ItemIndex].Tag, 0, fGameApp.Networking.ServerQuery.Rooms.Count-1) then
+  if Button_MP_GetIn.Enabled and (ColumnBox_Servers.ItemIndex <> -1)
+  and InRange(ColumnBox_Servers.Rows[ColumnBox_Servers.ItemIndex].Tag, 0, fGameApp.Networking.ServerQuery.Rooms.Count-1) then
     MP_GetInClick(Sender);
 end;
 
@@ -2659,11 +2659,11 @@ end;
 
 
 //Join button is enabled if valid server is selected and the lobby is not busy
-function TKMMainMenuInterface.MP_GetInEnabled:Boolean;
+function TKMMainMenuInterface.MP_GetInEnabled: Boolean;
 var ID: Integer;
 begin
-  ID := ColList_Servers.ItemIndex;
-  Result := (not fLobbyBusy) and (ID <> -1) and (ColList_Servers.Rows[ID].Tag <> -1);
+  ID := ColumnBox_Servers.ItemIndex;
+  Result := (not fLobbyBusy) and (ID <> -1) and (ColumnBox_Servers.Rows[ID].Tag <> -1);
 end;
 
 
@@ -2746,20 +2746,20 @@ procedure TKMMainMenuInterface.Load_ListClick(Sender: TObject);
 begin
   fSaves.Lock;
     //Hide delete confirmation if player has selected a different savegame item
-    if Sender = List_Load then
+    if Sender = ColumnBox_Load then
       Load_DeleteConfirmation(False);
 
-    Button_Delete.Enabled := InRange(List_Load.ItemIndex, 0, fSaves.Count-1);
-    Button_Load.Enabled := InRange(List_Load.ItemIndex, 0, fSaves.Count-1)
-                           and fSaves[List_Load.ItemIndex].IsValid;
+    Button_Delete.Enabled := InRange(ColumnBox_Load.ItemIndex, 0, fSaves.Count-1);
+    Button_Load.Enabled := InRange(ColumnBox_Load.ItemIndex, 0, fSaves.Count-1)
+                           and fSaves[ColumnBox_Load.ItemIndex].IsValid;
 
-    if InRange(List_Load.ItemIndex, 0, fSaves.Count-1) then
-      fLastSaveCRC := fSaves[List_Load.ItemIndex].CRC
+    if InRange(ColumnBox_Load.ItemIndex, 0, fSaves.Count-1) then
+      fLastSaveCRC := fSaves[ColumnBox_Load.ItemIndex].CRC
     else
       fLastSaveCRC := 0;
 
     MinimapView_Load.Hide; //Hide by default, then show it if we load the map successfully
-    if Button_Load.Enabled and fSaves[List_Load.ItemIndex].LoadMinimap(fMinimap) then
+    if Button_Load.Enabled and fSaves[ColumnBox_Load.ItemIndex].LoadMinimap(fMinimap) then
     begin
       MinimapView_Load.SetMinimap(fMinimap);
       MinimapView_Load.Show;
@@ -2771,9 +2771,9 @@ end;
 procedure TKMMainMenuInterface.Load_Click(Sender: TObject);
 begin
   if not Button_Load.Enabled then exit; //This is also called by double clicking
-  if not InRange(List_Load.ItemIndex, 0, fSaves.Count-1) then Exit;
+  if not InRange(ColumnBox_Load.ItemIndex, 0, fSaves.Count-1) then Exit;
   fSaves.TerminateScan; //stop scan as it is no longer needed
-  fGameApp.NewSingleSave(fSaves[List_Load.ItemIndex].FileName);
+  fGameApp.NewSingleSave(fSaves[ColumnBox_Load.ItemIndex].FileName);
 end;
 
 
@@ -2781,7 +2781,7 @@ procedure TKMMainMenuInterface.Load_Delete_Click(Sender: TObject);
 var
   PreviouslySelected: Integer;
 begin
-  if List_Load.ItemIndex = -1 then Exit;
+  if ColumnBox_Load.ItemIndex = -1 then Exit;
 
   if Sender = Button_Delete then
     Load_DeleteConfirmation(true);
@@ -2792,14 +2792,14 @@ begin
   //Delete the savegame
   if Sender = Button_DeleteYes then
   begin
-    PreviouslySelected := List_Load.ItemIndex;
-    fSaves.DeleteSave(List_Load.ItemIndex);
+    PreviouslySelected := ColumnBox_Load.ItemIndex;
+    fSaves.DeleteSave(ColumnBox_Load.ItemIndex);
     Load_RefreshList(False);
-    if List_Load.RowCount > 0 then
-      List_Load.ItemIndex := EnsureRange(PreviouslySelected, 0, List_Load.RowCount - 1)
+    if ColumnBox_Load.RowCount > 0 then
+      ColumnBox_Load.ItemIndex := EnsureRange(PreviouslySelected, 0, ColumnBox_Load.RowCount - 1)
     else
-      List_Load.ItemIndex := -1; //there are no saves, nothing to select
-    Load_ListClick(List_Load);
+      ColumnBox_Load.ItemIndex := -1; //there are no saves, nothing to select
+    Load_ListClick(ColumnBox_Load);
   end;
 end;
 
@@ -2820,30 +2820,30 @@ procedure TKMMainMenuInterface.Load_RefreshList(aJumpToSelected:Boolean);
 var I, OldTopIndex: Integer;
 begin
   fSaves.Lock;
-    OldTopIndex := List_Load.TopIndex;
-    List_Load.Clear;
+    OldTopIndex := ColumnBox_Load.TopIndex;
+    ColumnBox_Load.Clear;
 
     for I := 0 to fSaves.Count - 1 do
-      List_Load.AddItem(MakeListRow(
+      ColumnBox_Load.AddItem(MakeListRow(
                         [fSaves[i].FileName, fSaves[I].Info.GetTitleWithTime],
                         [$FFFFFFFF, $FFFFFFFF]));
 
     //IDs of saves could changed, so use CRC to check which one was selected
     for I := 0 to fSaves.Count - 1 do
       if (fSaves[I].CRC = fLastSaveCRC) then
-        List_Load.ItemIndex := I;
+        ColumnBox_Load.ItemIndex := I;
 
-    List_Load.TopIndex := OldTopIndex;
+    ColumnBox_Load.TopIndex := OldTopIndex;
 
-    if aJumpToSelected and (List_Load.ItemIndex <> -1)
-    and not InRange(List_Load.ItemIndex - List_Load.TopIndex, 0, List_Load.GetVisibleRows - 1)
+    if aJumpToSelected and (ColumnBox_Load.ItemIndex <> -1)
+    and not InRange(ColumnBox_Load.ItemIndex - ColumnBox_Load.TopIndex, 0, ColumnBox_Load.GetVisibleRows - 1)
     then
     begin
-      if List_Load.ItemIndex < List_Load.TopIndex + List_Load.GetVisibleRows - 1 then
-        List_Load.TopIndex := List_Load.ItemIndex
+      if ColumnBox_Load.ItemIndex < ColumnBox_Load.TopIndex + ColumnBox_Load.GetVisibleRows - 1 then
+        ColumnBox_Load.TopIndex := ColumnBox_Load.ItemIndex
       else
-        if List_Load.ItemIndex > List_Load.TopIndex + List_Load.GetVisibleRows - 1 then
-          List_Load.TopIndex := List_Load.ItemIndex - List_Load.GetVisibleRows + 1;
+        if ColumnBox_Load.ItemIndex > ColumnBox_Load.TopIndex + ColumnBox_Load.GetVisibleRows - 1 then
+          ColumnBox_Load.TopIndex := ColumnBox_Load.ItemIndex - ColumnBox_Load.GetVisibleRows + 1;
     end;
 
     Load_ListClick(nil);
@@ -2853,14 +2853,14 @@ end;
 
 procedure TKMMainMenuInterface.Load_Sort(aIndex: Integer);
 begin
-  case List_Load.SortIndex of
+  case ColumnBox_Load.SortIndex of
     //Sorting by filename goes A..Z by default
-    0:  if List_Load.SortDirection = sdDown then
+    0:  if ColumnBox_Load.SortDirection = sdDown then
           fSaves.Sort(smByFileNameDesc, Load_SortUpdate)
         else
           fSaves.Sort(smByFileNameAsc, Load_SortUpdate);
     //Sorting by description goes A..Z by default
-    1:  if List_Load.SortDirection = sdDown then
+    1:  if ColumnBox_Load.SortDirection = sdDown then
           fSaves.Sort(smByDescriptionDesc, Load_SortUpdate)
         else
           fSaves.Sort(smByDescriptionAsc, Load_SortUpdate);
@@ -2883,7 +2883,7 @@ procedure TKMMainMenuInterface.Replays_ListClick(Sender: TObject);
 var ID: Integer;
 begin
   fSaves.Lock;
-    ID := List_Replays.ItemIndex;
+    ID := ColumnBox_Replays.ItemIndex;
 
     Button_ReplaysPlay.Enabled := InRange(ID, 0, fSaves.Count-1)
                                   and fSaves[ID].IsValid
@@ -2908,7 +2908,7 @@ procedure TKMMainMenuInterface.Replay_TypeChange(Sender: TObject);
 begin
   fSaves.TerminateScan;
   fLastSaveCRC := 0;
-  List_Replays.Clear;
+  ColumnBox_Replays.Clear;
   Replays_ListClick(nil);
   fSaves.Refresh(Replays_ScanUpdate, (Radio_Replays_Type.ItemIndex = 1));
 end;
@@ -2931,42 +2931,42 @@ var
   I, OldTopIndex: Integer;
 begin
   fSaves.Lock;
-    OldTopIndex := List_Replays.TopIndex;
-    List_Replays.Clear;
+    OldTopIndex := ColumnBox_Replays.TopIndex;
+    ColumnBox_Replays.Clear;
 
     for I := 0 to fSaves.Count - 1 do
-      List_Replays.AddItem(MakeListRow(
+      ColumnBox_Replays.AddItem(MakeListRow(
                            [fSaves[I].FileName, fSaves[I].Info.GetTitleWithTime],
                            [$FFFFFFFF, $FFFFFFFF]));
 
     for I := 0 to fSaves.Count - 1 do
       if (fSaves[I].CRC = fLastSaveCRC) then
-        List_Replays.ItemIndex := I;
+        ColumnBox_Replays.ItemIndex := I;
 
-    List_Replays.TopIndex := OldTopIndex;
+    ColumnBox_Replays.TopIndex := OldTopIndex;
 
-    if aJumpToSelected and (List_Replays.ItemIndex <> -1)
-    and not InRange(List_Replays.ItemIndex - List_Replays.TopIndex, 0, List_Replays.GetVisibleRows-1)
+    if aJumpToSelected and (ColumnBox_Replays.ItemIndex <> -1)
+    and not InRange(ColumnBox_Replays.ItemIndex - ColumnBox_Replays.TopIndex, 0, ColumnBox_Replays.GetVisibleRows-1)
     then
-      if List_Replays.ItemIndex < List_Replays.TopIndex then
-        List_Replays.TopIndex := List_Replays.ItemIndex
+      if ColumnBox_Replays.ItemIndex < ColumnBox_Replays.TopIndex then
+        ColumnBox_Replays.TopIndex := ColumnBox_Replays.ItemIndex
       else
-      if List_Replays.ItemIndex > List_Replays.TopIndex + List_Replays.GetVisibleRows - 1 then
-        List_Replays.TopIndex := List_Replays.ItemIndex - List_Replays.GetVisibleRows + 1;
+      if ColumnBox_Replays.ItemIndex > ColumnBox_Replays.TopIndex + ColumnBox_Replays.GetVisibleRows - 1 then
+        ColumnBox_Replays.TopIndex := ColumnBox_Replays.ItemIndex - ColumnBox_Replays.GetVisibleRows + 1;
   fSaves.Unlock;
 end;
 
 
 procedure TKMMainMenuInterface.Replays_Sort(aIndex: Integer);
 begin
-  case List_Replays.SortIndex of
+  case ColumnBox_Replays.SortIndex of
     //Sorting by filename goes A..Z by default
-    0:  if List_Replays.SortDirection = sdDown then
+    0:  if ColumnBox_Replays.SortDirection = sdDown then
           fSaves.Sort(smByFileNameDesc, Replays_SortUpdate)
         else
           fSaves.Sort(smByFileNameAsc, Replays_SortUpdate);
     //Sorting by description goes A..Z by default
-    1:  if List_Replays.SortDirection = sdDown then
+    1:  if ColumnBox_Replays.SortDirection = sdDown then
           fSaves.Sort(smByDescriptionDesc, Replays_SortUpdate)
         else
           fSaves.Sort(smByDescriptionAsc, Replays_SortUpdate);
@@ -2980,7 +2980,7 @@ var
 begin
   if not Button_ReplaysPlay.Enabled then exit; //This is also called by double clicking
 
-  ID := List_Replays.ItemIndex;
+  ID := ColumnBox_Replays.ItemIndex;
   if not InRange(ID, 0, fSaves.Count-1) then Exit;
   fSaves.TerminateScan; //stop scan as it is no longer needed
   fGameApp.NewReplay(fSaves[ID].Path + fSaves[ID].FileName + '.bas');
@@ -2995,16 +2995,16 @@ var
 begin
   if Sender = Button_MapEd_Create then
   begin
-    MapEdSizeX := MapSize[Radio_MapEd_SizeX.ItemIndex+1];
-    MapEdSizeY := MapSize[Radio_MapEd_SizeY.ItemIndex+1];
+    MapEdSizeX := MapSize[Radio_MapEdSizeX.ItemIndex+1];
+    MapEdSizeY := MapSize[Radio_MapEdSizeY.ItemIndex+1];
     fGameApp.NewMapEditor('', MapEdSizeX, MapEdSizeY);
   end;
 
   //This is also called by double clicking on a map in the list
-  if ((Sender = Button_MapEd_Load) or (Sender = List_MapEd)) and
-     Button_MapEd_Load.Enabled and (List_MapEd.ItemIndex <> -1) then
+  if ((Sender = Button_MapEd_Load) or (Sender = ColumnBox_MapEd)) and
+     Button_MapEd_Load.Enabled and (ColumnBox_MapEd.ItemIndex <> -1) then
   begin
-    ID := List_MapEd.Rows[List_MapEd.ItemIndex].Tag;
+    ID := ColumnBox_MapEd.Rows[ColumnBox_MapEd.ItemIndex].Tag;
     if Radio_MapEd_MapType.ItemIndex = 0 then
       Maps := fMaps
     else
@@ -3037,7 +3037,7 @@ begin
   fMaps.TerminateScan;
   fMapsMP.TerminateScan;
 
-  List_MapEd.Clear;
+  ColumnBox_MapEd.Clear;
   fLastMapCRC := 0;
   MapEditor_SelectMap(nil);
 
@@ -3066,8 +3066,8 @@ var
   I, OldTopIndex: Integer;
   Maps: TKMapsCollection;
 begin
-  OldTopIndex := List_MapEd.TopIndex;
-  List_MapEd.Clear;
+  OldTopIndex := ColumnBox_MapEd.TopIndex;
+  ColumnBox_MapEd.Clear;
 
   if Radio_MapEd_MapType.ItemIndex = 0 then
     Maps := fMaps
@@ -3076,23 +3076,23 @@ begin
 
   Maps.Lock;
     for I := 0 to Maps.Count - 1 do
-      List_MapEd.AddItem(MakeListRow([Maps[I].FileName, IntToStr(Maps[I].PlayerCount), Maps[I].SizeText], I));
+      ColumnBox_MapEd.AddItem(MakeListRow([Maps[I].FileName, IntToStr(Maps[I].PlayerCount), Maps[I].SizeText], I));
 
     for I := 0 to Maps.Count - 1 do
       if (Maps[I].CRC = fLastMapCRC) then
-        List_MapEd.ItemIndex := I;
+        ColumnBox_MapEd.ItemIndex := I;
   Maps.Unlock;
 
-  List_MapEd.TopIndex := OldTopIndex;
+  ColumnBox_MapEd.TopIndex := OldTopIndex;
 
-  if aJumpToSelected and (List_MapEd.ItemIndex <> -1)
-  and not InRange(List_MapEd.ItemIndex - List_MapEd.TopIndex, 0, List_MapEd.GetVisibleRows-1)
+  if aJumpToSelected and (ColumnBox_MapEd.ItemIndex <> -1)
+  and not InRange(ColumnBox_MapEd.ItemIndex - ColumnBox_MapEd.TopIndex, 0, ColumnBox_MapEd.GetVisibleRows-1)
   then
-    if List_MapEd.ItemIndex < List_MapEd.TopIndex then
-      List_MapEd.TopIndex := List_MapEd.ItemIndex
+    if ColumnBox_MapEd.ItemIndex < ColumnBox_MapEd.TopIndex then
+      ColumnBox_MapEd.TopIndex := ColumnBox_MapEd.ItemIndex
     else
-    if List_MapEd.ItemIndex > List_MapEd.TopIndex + List_MapEd.GetVisibleRows - 1 then
-      List_MapEd.TopIndex := List_MapEd.ItemIndex - List_MapEd.GetVisibleRows + 1;
+    if ColumnBox_MapEd.ItemIndex > ColumnBox_MapEd.TopIndex + ColumnBox_MapEd.GetVisibleRows - 1 then
+      ColumnBox_MapEd.TopIndex := ColumnBox_MapEd.ItemIndex - ColumnBox_MapEd.GetVisibleRows + 1;
 end;
 
 
@@ -3101,7 +3101,7 @@ var
   SM: TMapsSortMethod;
 begin
   //Determine Sort method depending on which column user clicked
-  with List_MapEd do
+  with ColumnBox_MapEd do
   case SortIndex of
     0:  if SortDirection = sdDown then
           SM := smByNameDesc
@@ -3129,11 +3129,11 @@ var
   ID: Integer;
   Maps: TKMapsCollection;
 begin
-  Button_MapEd_Load.Enabled := (List_MapEd.ItemIndex <> -1);
+  Button_MapEd_Load.Enabled := (ColumnBox_MapEd.ItemIndex <> -1);
 
   if Button_MapEd_Load.Enabled then
   begin
-    ID := List_MapEd.Rows[List_MapEd.ItemIndex].Tag;
+    ID := ColumnBox_MapEd.Rows[ColumnBox_MapEd.ItemIndex].Tag;
     if Radio_MapEd_MapType.ItemIndex = 0 then
       Maps := fMaps
     else

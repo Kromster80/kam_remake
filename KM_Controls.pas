@@ -694,7 +694,7 @@ type
     TextAlign: TTextAlign;
   end;
 
-  TKMColumnListBox = class(TKMControl)
+  TKMColumnBox = class(TKMControl)
   private
     fFont: TKMFont;
     fBackAlpha: Single; //Alpha of background
@@ -782,6 +782,7 @@ type
     fShape: TKMShape;
     fOnChange: TNotifyEvent;
     procedure UpdateDropPosition; virtual; abstract;
+    procedure ButtonClick(Sender: TObject);
     procedure ListShow(Sender: TObject); virtual;
     procedure ListClick(Sender: TObject); virtual;
     procedure ListHide(Sender: TObject); virtual;
@@ -808,6 +809,7 @@ type
   end;
 
 
+  //DropBox with a ListBox
   TKMDropList = class(TKMDropCommon)
   private
     fCaption: string; //Current caption (Default or from list)
@@ -840,11 +842,12 @@ type
   end;
 
 
+  //DropBox with a ColumnBox
   TKMDropColumns = class(TKMDropCommon)
   private
     fDefaultCaption: string;
     fDropWidth: Integer;
-    fList: TKMColumnListBox;
+    fList: TKMColumnBox;
     procedure UpdateDropPosition; override;
     procedure ListShow(Sender: TObject); override;
     procedure ListClick(Sender: TObject); override;
@@ -863,7 +866,7 @@ type
     procedure Add(aItem: TKMListRow);
     procedure Clear; override;
     function Count: Integer; override;
-    property List: TKMColumnListBox read fList;
+    property List: TKMColumnBox read fList;
     property Item[aIndex: Integer]: TKMListRow read GetItem;
     procedure SetColumns(aFont: TKMFont; aColumns: array of string; aColumnOffsets: array of Word);
     property DefaultCaption: string read fDefaultCaption write fDefaultCaption;
@@ -873,7 +876,8 @@ type
   end;
 
 
-  TKMDropColorBox = class(TKMControl)
+  //DropBox with a ColorSwatch
+  TKMDropColors = class(TKMControl)
   private
     fColorIndex: Integer;
     fRandomCaption: string;
@@ -3206,7 +3210,7 @@ begin
   begin
     //We could process the clicks here (i.e. do the sorting inplace)
     //but there are various circumstances where plain string sorting will look wrong
-    //and the listbox just misses the knowledge to do it right:
+    //and the ListBox just misses the knowledge to do it right:
     //MP game status (sort by type), ping (sort 1>9), playercount (sort 9>1), dates (sort by TDateTime)
     //Let the UI communicate to Game and do it right
 
@@ -3296,7 +3300,7 @@ end;
 
 
 { TKMColumnListBox }
-constructor TKMColumnListBox.Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight: Integer; aFont: TKMFont; aStyle: TButtonStyle);
+constructor TKMColumnBox.Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight: Integer; aFont: TKMFont; aStyle: TButtonStyle);
 const DEF_HEADER_HEIGHT = 24;
 begin
   inherited Create(aParent, aLeft, aTop, aWidth, aHeight);
@@ -3315,7 +3319,7 @@ begin
 end;
 
 
-procedure TKMColumnListBox.SetTop(aValue: Integer);
+procedure TKMColumnBox.SetTop(aValue: Integer);
 begin
   inherited;
 
@@ -3325,7 +3329,7 @@ begin
 end;
 
 
-procedure TKMColumnListBox.SetSearchColumn(aValue: ShortInt);
+procedure TKMColumnBox.SetSearchColumn(aValue: ShortInt);
 begin
   fSearchColumn := aValue;
 
@@ -3334,14 +3338,14 @@ begin
 end;
 
 
-procedure TKMColumnListBox.SetShowHeader(aValue: Boolean);
+procedure TKMColumnBox.SetShowHeader(aValue: Boolean);
 begin
   fHeader.Visible := aValue;
   fShowHeader := aValue;
 end;
 
 
-procedure TKMColumnListBox.SetHeight(aValue: Integer);
+procedure TKMColumnBox.SetHeight(aValue: Integer);
 begin
   inherited;
   fScrollBar.Height := fHeight;
@@ -3349,26 +3353,26 @@ begin
 end;
 
 
-procedure TKMColumnListBox.SetOnColumnClick(const Value: TIntegerEvent);
+procedure TKMColumnBox.SetOnColumnClick(const Value: TIntegerEvent);
 begin
   fHeader.OnColumnClick := Value;
 end;
 
 
-procedure TKMColumnListBox.SetSortDirection(aDirection: TSortDirection);
+procedure TKMColumnBox.SetSortDirection(aDirection: TSortDirection);
 begin
   fHeader.SortDirection := aDirection;
 end;
 
 
-procedure TKMColumnListBox.SetSortIndex(aIndex: Integer);
+procedure TKMColumnBox.SetSortIndex(aIndex: Integer);
 begin
   fHeader.SortIndex := aIndex;
 end;
 
 
 //Copy property to scrollbar. Otherwise it won't be rendered
-procedure TKMColumnListBox.SetVisible(aValue: Boolean);
+procedure TKMColumnBox.SetVisible(aValue: Boolean);
 begin
   inherited;
   fHeader.Visible := fVisible and fShowHeader;
@@ -3376,31 +3380,31 @@ begin
 end;
 
 
-function TKMColumnListBox.GetTopIndex: Integer;
+function TKMColumnBox.GetTopIndex: Integer;
 begin
   Result := fScrollBar.Position;
 end;
 
 
-function TKMColumnListBox.GetVisibleRows: Integer;
+function TKMColumnBox.GetVisibleRows: Integer;
 begin
   Result := Floor(GetVisibleRowsExact);
 end;
 
 
-function TKMColumnListBox.GetVisibleRowsExact: Single;
+function TKMColumnBox.GetVisibleRowsExact: Single;
 begin
   Result := (fHeight - fHeader.Height * Byte(fShowHeader)) / fItemHeight;
 end;
 
 
-procedure TKMColumnListBox.SetTopIndex(aIndex: Integer);
+procedure TKMColumnBox.SetTopIndex(aIndex: Integer);
 begin
   fScrollBar.Position := aIndex;
 end;
 
 
-procedure TKMColumnListBox.SetBackAlpha(aValue: Single);
+procedure TKMColumnBox.SetBackAlpha(aValue: Single);
 begin
   fBackAlpha := aValue;
   fHeader.BackAlpha := aValue;
@@ -3408,7 +3412,7 @@ begin
 end;
 
 
-procedure TKMColumnListBox.SetEdgeAlpha(aValue: Single);
+procedure TKMColumnBox.SetEdgeAlpha(aValue: Single);
 begin
   fEdgeAlpha := aValue;
   fHeader.EdgeAlpha := aValue;
@@ -3416,7 +3420,7 @@ begin
 end;
 
 
-procedure TKMColumnListBox.SetEnabled(aValue: Boolean);
+procedure TKMColumnBox.SetEnabled(aValue: Boolean);
 begin
   inherited;
   fHeader.Enabled := aValue;
@@ -3424,32 +3428,32 @@ begin
 end;
 
 
-function TKMColumnListBox.GetColumn(aIndex: Integer): TKMListColumn;
+function TKMColumnBox.GetColumn(aIndex: Integer): TKMListColumn;
 begin
   Result := fColumns[aIndex];
 end;
 
 
-function TKMColumnListBox.GetOnColumnClick: TIntegerEvent;
+function TKMColumnBox.GetOnColumnClick: TIntegerEvent;
 begin
   Result := fHeader.OnColumnClick;
 end;
 
 
-function TKMColumnListBox.GetSortDirection: TSortDirection;
+function TKMColumnBox.GetSortDirection: TSortDirection;
 begin
   Result := fHeader.SortDirection;
 end;
 
 
-function TKMColumnListBox.GetSortIndex: Integer;
+function TKMColumnBox.GetSortIndex: Integer;
 begin
   Result := fHeader.SortIndex;
 end;
 
 
 //fRowCount or Height has changed
-procedure TKMColumnListBox.UpdateScrollBar;
+procedure TKMColumnBox.UpdateScrollBar;
 begin
   fScrollBar.MaxValue := fRowCount - (fHeight - fHeader.Height * Byte(fShowHeader)) div fItemHeight;
   Assert(fScrollBar.MaxValue >= fScrollBar.MinValue);
@@ -3458,7 +3462,7 @@ end;
 
 
 //If we don't add columns there will be Assert on items add
-procedure TKMColumnListBox.SetColumns(aHeaderFont: TKMFont; aCaptions: array of string; aOffsets: array of Word);
+procedure TKMColumnBox.SetColumns(aHeaderFont: TKMFont; aCaptions: array of string; aOffsets: array of Word);
 var
   I: Integer;
 begin
@@ -3479,7 +3483,7 @@ begin
 end;
 
 
-procedure TKMColumnListBox.AddItem(aItem: TKMListRow);
+procedure TKMColumnBox.AddItem(aItem: TKMListRow);
 begin
   Assert(fHeader.ColumnCount > 0);
   Assert(Length(aItem.Cells) = fHeader.ColumnCount);
@@ -3494,7 +3498,7 @@ begin
 end;
 
 
-procedure TKMColumnListBox.Clear;
+procedure TKMColumnBox.Clear;
 begin
   fRowCount := 0;
   fItemIndex := -1;
@@ -3502,7 +3506,7 @@ begin
 end;
 
 
-procedure TKMColumnListBox.ClearColumns;
+procedure TKMColumnBox.ClearColumns;
 var
   I: Integer;
 begin
@@ -3511,7 +3515,7 @@ begin
 end;
 
 
-function TKMColumnListBox.KeyDown(Key: Word; Shift: TShiftState): Boolean;
+function TKMColumnBox.KeyDown(Key: Word; Shift: TShiftState): Boolean;
 var
   NewIndex: Integer;
 begin
@@ -3537,7 +3541,7 @@ begin
 end;
 
 
-procedure TKMColumnListBox.KeyPress(Key: Char);
+procedure TKMColumnBox.KeyPress(Key: Char);
 var
   I: Integer;
 begin
@@ -3562,14 +3566,14 @@ begin
 end;
 
 
-procedure TKMColumnListBox.MouseDown(X,Y: Integer; Shift: TShiftState; Button: TMouseButton);
+procedure TKMColumnBox.MouseDown(X,Y: Integer; Shift: TShiftState; Button: TMouseButton);
 begin
   inherited;
   MouseMove(X,Y,Shift); //Will change Position and call OnChange event
 end;
 
 
-procedure TKMColumnListBox.MouseMove(X,Y: Integer; Shift: TShiftState);
+procedure TKMColumnBox.MouseMove(X,Y: Integer; Shift: TShiftState);
 var NewIndex: Integer;
 begin
   inherited;
@@ -3599,7 +3603,7 @@ begin
 end;
 
 
-procedure TKMColumnListBox.MouseWheel(Sender: TObject; WheelDelta: Integer);
+procedure TKMColumnBox.MouseWheel(Sender: TObject; WheelDelta: Integer);
 begin
   inherited;
   SetTopIndex(TopIndex - Sign(WheelDelta));
@@ -3607,7 +3611,7 @@ begin
 end;
 
 
-destructor TKMColumnListBox.Destroy;
+destructor TKMColumnBox.Destroy;
 begin
   ClearColumns;
 
@@ -3615,7 +3619,7 @@ begin
 end;
 
 
-procedure TKMColumnListBox.DoPaintLine(aIndex: Integer; X, Y: Integer; PaintWidth: Integer);
+procedure TKMColumnBox.DoPaintLine(aIndex: Integer; X, Y: Integer; PaintWidth: Integer);
 var
   I: Integer;
   AvailWidth: Integer;
@@ -3668,7 +3672,7 @@ begin
 end;
 
 
-procedure TKMColumnListBox.Paint;
+procedure TKMColumnBox.Paint;
 var
   I, PaintWidth, MaxItem, Y: Integer;
 begin
@@ -3721,13 +3725,20 @@ begin
   fFont := aFont;
 
   fButton := TKMButton.Create(aParent, aLeft+aWidth-aHeight, aTop, aHeight, aHeight, 590, rxGui, bsMenu);
-  fButton.OnClick := ListShow; //todo: Route it to be the same through DoClick
+  fButton.OnClick := ButtonClick;
   fButton.MakesSound := False;
 
   P := MasterParent;
   fShape := TKMShape.Create(P, 0, 0, P.Width, P.Height);
-  fShape.Stretch; //todo: Should be stretched t whole screen, not just Panel_Main which is constrained by MENU_DESIGN_SIZE
+  fShape.Stretch; //todo: Should be stretched to whole screen, not just Panel_Main which is constrained by MENU_DESIGN_SIZE
   fShape.fOnClick := ListHide;
+end;
+
+
+procedure TKMDropCommon.ButtonClick(Sender: TObject);
+begin
+  //Call the DoDlick event to show the list AND generate DropBox.OnClick event
+  DoClick(fButton.Left + fButton.Width div 2, fButton.Top + fButton.Height div 2, [], mbLeft);
 end;
 
 
@@ -3971,7 +3982,7 @@ begin
   P := MasterParent;
 
   //In FullScreen mode P initialized already with offset (P.Top <> 0)
-  fList := TKMColumnListBox.Create(P, Left-P.Left, Top+aHeight-P.Top, aWidth, 0, fFont, aStyle);
+  fList := TKMColumnBox.Create(P, Left-P.Left, Top+aHeight-P.Top, aWidth, 0, fFont, aStyle);
   fList.BackAlpha := 0.85;
   fList.OnClick := ListClick;
 
@@ -4116,7 +4127,7 @@ end;
 
 
 { TKMDropColorBox }
-constructor TKMDropColorBox.Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight,aCount: Integer);
+constructor TKMDropColors.Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight,aCount: Integer);
 var P: TKMPanel; Size: Integer;
 begin
   inherited Create(aParent, aLeft,aTop,aWidth,aHeight);
@@ -4144,7 +4155,7 @@ begin
 end;
 
 
-procedure TKMDropColorBox.ListShow(Sender: TObject);
+procedure TKMDropColors.ListShow(Sender: TObject);
 begin
   if fSwatch.Visible then
   begin
@@ -4157,7 +4168,7 @@ begin
 end;
 
 
-procedure TKMDropColorBox.ListClick(Sender: TObject);
+procedure TKMDropColors.ListClick(Sender: TObject);
 begin
   fColorIndex := fSwatch.ColorIndex;
   if Assigned(fOnChange) then fOnChange(Self);
@@ -4165,14 +4176,14 @@ begin
 end;
 
 
-procedure TKMDropColorBox.ListHide(Sender: TObject);
+procedure TKMDropColors.ListHide(Sender: TObject);
 begin
   fSwatch.Hide;
   fShape.Hide;
 end;
 
 
-procedure TKMDropColorBox.SetEnabled(aValue: Boolean);
+procedure TKMDropColors.SetEnabled(aValue: Boolean);
 begin
   inherited;
   fButton.Enabled := aValue;
@@ -4181,14 +4192,14 @@ end;
 
 
 //Set ColorIndex to fSwatch as well since it holds the actual color that we use on Paint
-procedure TKMDropColorBox.SetColorIndex(aIndex: Integer);
+procedure TKMDropColors.SetColorIndex(aIndex: Integer);
 begin
   fColorIndex := aIndex;
   fSwatch.ColorIndex := aIndex;
 end;
 
 
-procedure TKMDropColorBox.SetColors(const aColors: array of TColor4; aRandomCaption: string = '');
+procedure TKMDropColors.SetColors(const aColors: array of TColor4; aRandomCaption: string = '');
 begin
   //Store local copy of flag to substitute 0 color with "Random" text
   fRandomCaption := aRandomCaption;
@@ -4196,7 +4207,7 @@ begin
 end;
 
 
-procedure TKMDropColorBox.Paint;
+procedure TKMDropColors.Paint;
 var Col: TColor4;
 begin
   inherited;

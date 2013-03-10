@@ -210,7 +210,7 @@ type
         Button_EditFormations: TKMButton;
       Panel_Offence: TKMPanel;
         CheckBox_AutoAttack: TKMCheckBox;
-        List_Attacks: TKMColumnListBox;
+        ColumnBox_Attacks: TKMColumnBox;
         Button_AttacksAdd: TKMButton;
         Button_AttacksDel: TKMButton;
 
@@ -218,7 +218,7 @@ type
     Panel_Player: TKMPanel;
       Button_Player: array [TKMPlayerTab] of TKMButton;
       Panel_Goals: TKMPanel;
-        List_Goals: TKMColumnListBox;
+        ColumnBox_Goals: TKMColumnBox;
         Button_GoalsAdd: TKMButton;
         Button_GoalsDel: TKMButton;
       Panel_Color: TKMPanel;
@@ -1076,10 +1076,10 @@ begin
       CheckBox_AutoAttack := TKMCheckBox.Create(Panel_Offence, 0, 30, TB_WIDTH, 20, 'AutoAttack', fnt_Metal);
       CheckBox_AutoAttack.Disable;
 
-      List_Attacks := TKMColumnListBox.Create(Panel_Offence, 0, 50, TB_WIDTH, 210, fnt_Game, bsGame);
-      List_Attacks.SetColumns(fnt_Outline, ['Type', 'Delay', 'Men', 'Target', 'Loc'], [0, 20, 60, 100, 130]);
-      List_Attacks.OnClick := Attacks_ListClick;
-      List_Attacks.OnDoubleClick := Attacks_ListDoubleClick;
+      ColumnBox_Attacks := TKMColumnBox.Create(Panel_Offence, 0, 50, TB_WIDTH, 210, fnt_Game, bsGame);
+      ColumnBox_Attacks.SetColumns(fnt_Outline, ['Type', 'Delay', 'Men', 'Target', 'Loc'], [0, 20, 60, 100, 130]);
+      ColumnBox_Attacks.OnClick := Attacks_ListClick;
+      ColumnBox_Attacks.OnDoubleClick := Attacks_ListDoubleClick;
 
       Button_AttacksAdd := TKMButton.Create(Panel_Offence, 0, 270, 25, 25, '+', bsGame);
       Button_AttacksAdd.OnClick := Attacks_Add;
@@ -1108,10 +1108,10 @@ begin
     //Goals
     Panel_Goals := TKMPanel.Create(Panel_Player,0,28,TB_WIDTH,400);
       TKMLabel.Create(Panel_Goals, 0, PAGE_TITLE_Y, TB_WIDTH, 0, 'Goals', fnt_Outline, taCenter);
-      List_Goals := TKMColumnListBox.Create(Panel_Goals, 0, 30, TB_WIDTH, 230, fnt_Game, bsGame);
-      List_Goals.SetColumns(fnt_Outline, ['Type', 'Condition', 'Player', 'Time', 'Msg'], [0, 20, 120, 140, 160]);
-      List_Goals.OnClick := Goals_ListClick;
-      List_Goals.OnDoubleClick := Goals_ListDoubleClick;
+      ColumnBox_Goals := TKMColumnBox.Create(Panel_Goals, 0, 30, TB_WIDTH, 230, fnt_Game, bsGame);
+      ColumnBox_Goals.SetColumns(fnt_Outline, ['Type', 'Condition', 'Player', 'Time', 'Msg'], [0, 20, 120, 140, 160]);
+      ColumnBox_Goals.OnClick := Goals_ListClick;
+      ColumnBox_Goals.OnDoubleClick := Goals_ListDoubleClick;
 
       Button_GoalsAdd := TKMButton.Create(Panel_Goals, 0, 270, 25, 25, '+', bsGame);
       Button_GoalsAdd.OnClick := Goals_Add;
@@ -2099,7 +2099,7 @@ begin
   if Sender = Button_AttackOk then
   begin
     //Attack we are editing
-    I := List_Attacks.ItemIndex;
+    I := ColumnBox_Attacks.ItemIndex;
 
     //Copy attack info from controls to Attacks
     AA.AttackType := TAIAttackType(Radio_AttackType.ItemIndex);
@@ -2150,17 +2150,17 @@ begin
   MyPlayer.AI.General.Attacks.AddAttack(AA);
 
   Attacks_Refresh;
-  List_Attacks.ItemIndex := MyPlayer.AI.General.Attacks.Count - 1;
+  ColumnBox_Attacks.ItemIndex := MyPlayer.AI.General.Attacks.Count - 1;
 
   //Edit the attack we have just appended
-  Attacks_Edit(List_Attacks.ItemIndex);
+  Attacks_Edit(ColumnBox_Attacks.ItemIndex);
 end;
 
 
 procedure TKMapEdInterface.Attacks_Del(Sender: TObject);
 var I: Integer;
 begin
-  I := List_Attacks.ItemIndex;
+  I := ColumnBox_Attacks.ItemIndex;
   if InRange(I, 0, MyPlayer.AI.General.Attacks.Count - 1) then
     MyPlayer.AI.General.Attacks.Delete(I);
 
@@ -2180,7 +2180,7 @@ procedure TKMapEdInterface.Attacks_ListClick(Sender: TObject);
 var
   I: Integer;
 begin
-  I := List_Attacks.ItemIndex;
+  I := ColumnBox_Attacks.ItemIndex;
   Button_AttacksDel.Enabled := InRange(I, 0, MyPlayer.AI.General.Attacks.Count - 1);
 end;
 
@@ -2189,7 +2189,7 @@ procedure TKMapEdInterface.Attacks_ListDoubleClick(Sender: TObject);
 var
   I: Integer;
 begin
-  I := List_Attacks.ItemIndex;
+  I := ColumnBox_Attacks.ItemIndex;
 
   //Check if user double-clicked on an existing item (not on an empty space)
   if InRange(I, 0, MyPlayer.AI.General.Attacks.Count - 1) then
@@ -2205,12 +2205,12 @@ var
   I: Integer;
   A: TAIAttack;
 begin
-  List_Attacks.Clear;
+  ColumnBox_Attacks.Clear;
 
   for I := 0 to MyPlayer.AI.General.Attacks.Count - 1 do
   begin
     A := MyPlayer.AI.General.Attacks[I];
-    List_Attacks.AddItem(MakeListRow([Typ[A.AttackType], IntToStr(A.Delay div 10), IntToStr(A.TotalMen), Tgt[A.Target], TypeToString(A.CustomPosition)]));
+    ColumnBox_Attacks.AddItem(MakeListRow([Typ[A.AttackType], IntToStr(A.Delay div 10), IntToStr(A.TotalMen), Tgt[A.Target], TypeToString(A.CustomPosition)]));
   end;
 
   Attacks_ListClick(nil);
@@ -2235,7 +2235,7 @@ begin
   if Sender = Button_GoalOk then
   begin
     //Goal we are editing
-    I := List_Goals.ItemIndex;
+    I := ColumnBox_Goals.ItemIndex;
 
     //Copy Goal info from controls to Goals
     G.GoalType := TGoalType(Radio_GoalType.ItemIndex);
@@ -2278,17 +2278,17 @@ begin
   MyPlayer.Goals.AddGoal(G);
 
   Goals_Refresh;
-  List_Goals.ItemIndex := MyPlayer.Goals.Count - 1;
+  ColumnBox_Goals.ItemIndex := MyPlayer.Goals.Count - 1;
 
   //Edit the attack we have just appended
-  Goals_Edit(List_Goals.ItemIndex);
+  Goals_Edit(ColumnBox_Goals.ItemIndex);
 end;
 
 
 procedure TKMapEdInterface.Goals_Del(Sender: TObject);
 var I: Integer;
 begin
-  I := List_Goals.ItemIndex;
+  I := ColumnBox_Goals.ItemIndex;
   if InRange(I, 0, MyPlayer.Goals.Count - 1) then
     MyPlayer.Goals.Delete(I);
   Goals_Refresh;
@@ -2307,7 +2307,7 @@ procedure TKMapEdInterface.Goals_ListClick(Sender: TObject);
 var
   I: Integer;
 begin
-  I := List_Goals.ItemIndex;
+  I := ColumnBox_Goals.ItemIndex;
   Button_GoalsDel.Enabled := InRange(I, 0, MyPlayer.Goals.Count - 1);
 end;
 
@@ -2316,7 +2316,7 @@ procedure TKMapEdInterface.Goals_ListDoubleClick(Sender: TObject);
 var
   I: Integer;
 begin
-  I := List_Goals.ItemIndex;
+  I := ColumnBox_Goals.ItemIndex;
 
   //Check if user double-clicked on an existing item (not on an empty space)
   if InRange(I, 0, MyPlayer.Goals.Count - 1) then
@@ -2334,12 +2334,12 @@ var
   I: Integer;
   G: TKMGoal;
 begin
-  List_Goals.Clear;
+  ColumnBox_Goals.Clear;
 
   for I := 0 to MyPlayer.Goals.Count - 1 do
   begin
     G := MyPlayer.Goals[I];
-    List_Goals.AddItem(MakeListRow([Typ[G.GoalType],
+    ColumnBox_Goals.AddItem(MakeListRow([Typ[G.GoalType],
                                     Cnd[G.GoalCondition],
                                     IntToStr(G.PlayerIndex + 1),
                                     IntToStr(G.GoalTime div 10),

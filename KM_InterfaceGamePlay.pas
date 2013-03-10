@@ -201,7 +201,7 @@ type
       Button_MessageDelete: TKMButton;
       Button_MessageClose: TKMButton;
     Panel_MessageLog: TKMPanel;
-      ListBox_MessageLog: TKMColumnListBox;
+      ColumnBox_MessageLog: TKMColumnBox;
       Image_MessageLogClose: TKMImage;
     Panel_Pause:TKMPanel;
       Bevel_Pause:TKMBevel;
@@ -257,15 +257,15 @@ type
       Label_Menu_Track, Label_GameTime: TKMLabel;
 
       Panel_Save:TKMPanel;
-        List_Save: TKMListBox;
+        ListBox_Save: TKMListBox;
         Edit_Save: TKMEdit;
         Label_SaveExists: TKMLabel;
         CheckBox_SaveExists: TKMCheckBox;
         Button_Save: TKMButton;
 
-      Panel_Load:TKMPanel;
-        List_Load: TKMListBox;
-        Label_Load_Description: TKMLabel;
+      Panel_Load: TKMPanel;
+        ListBox_Load: TKMListBox;
+        Label_LoadDescription: TKMLabel;
         Button_Load: TKMButton;
 
       Panel_Settings: TKMPanel;
@@ -468,7 +468,7 @@ begin
     if InRange(TKMListBox(Sender).ItemIndex, 0, fSaves.Count-1) then
     begin
       fSave_Selected := TKMListBox(Sender).ItemIndex;
-      Edit_Save.Text := fSaves[List_Save.ItemIndex].FileName;
+      Edit_Save.Text := fSaves[ListBox_Save.ItemIndex].FileName;
       //We just selected something from the list so it exists
       CheckBox_SaveExists.Enabled := True;
       CheckBox_SaveExists.Checked := False;
@@ -483,7 +483,7 @@ procedure TKMGamePlayInterface.Menu_Save_EditChange(Sender: TObject);
 begin
   if (Sender <> fSaves) then
   begin
-    List_Save.ItemIndex := -1;
+    ListBox_Save.ItemIndex := -1;
     fSave_Selected := -1;
     CheckBox_SaveExists.Enabled := FileExists(fGame.SaveName(Edit_Save.Text, 'sav', fMultiplayer));
     Label_SaveExists.Visible := CheckBox_SaveExists.Enabled;
@@ -506,8 +506,8 @@ end;
 procedure TKMGamePlayInterface.Menu_Save_RefreshList(Sender: TObject);
 var I, OldTopIndex: Integer;
 begin
-  OldTopIndex := List_Save.TopIndex;
-  List_Save.Clear;
+  OldTopIndex := ListBox_Save.TopIndex;
+  ListBox_Save.Clear;
 
   if fSaves.ScanFinished then
   begin
@@ -526,12 +526,12 @@ begin
   begin
     fSaves.Lock;
       for I := 0 to fSaves.Count - 1 do
-        List_Save.Add(fSaves[i].FileName);
+        ListBox_Save.Add(fSaves[i].FileName);
     fSaves.Unlock;
   end;
 
-  List_Save.ItemIndex := fSave_Selected;
-  List_Save.TopIndex := OldTopIndex;
+  ListBox_Save.ItemIndex := fSave_Selected;
+  ListBox_Save.TopIndex := OldTopIndex;
 end;
 
 
@@ -555,12 +555,12 @@ end;
 procedure TKMGamePlayInterface.Menu_Load_ListClick(Sender: TObject);
 begin
   fSaves.Lock;
-    Button_Load.Enabled := InRange(List_Load.ItemIndex, 0, fSaves.Count - 1)
-                           and fSaves[List_Load.ItemIndex].IsValid;
-    if InRange(List_Load.ItemIndex,0,fSaves.Count-1) then
+    Button_Load.Enabled := InRange(ListBox_Load.ItemIndex, 0, fSaves.Count - 1)
+                           and fSaves[ListBox_Load.ItemIndex].IsValid;
+    if InRange(ListBox_Load.ItemIndex,0,fSaves.Count-1) then
     begin
-      Label_Load_Description.Caption := fSaves[List_Load.ItemIndex].Info.GetTitleWithTime;
-      fSave_Selected := List_Load.ItemIndex;
+      Label_LoadDescription.Caption := fSaves[ListBox_Load.ItemIndex].Info.GetTitleWithTime;
+      fSave_Selected := ListBox_Load.ItemIndex;
     end;
   fSaves.Unlock;
 end;
@@ -568,28 +568,28 @@ end;
 
 procedure TKMGamePlayInterface.Menu_Load_Click(Sender: TObject);
 begin
-  if not InRange(List_Load.ItemIndex, 0, fSaves.Count - 1) then Exit;
+  if not InRange(ListBox_Load.ItemIndex, 0, fSaves.Count - 1) then Exit;
   fSaves.TerminateScan; //Stop scan as it is no longer needed
-  fGameApp.NewSingleSave(fSaves[List_Load.ItemIndex].FileName);
+  fGameApp.NewSingleSave(fSaves[ListBox_Load.ItemIndex].FileName);
 end;
 
 
 procedure TKMGamePlayInterface.Menu_Load_RefreshList(Sender: TObject);
 var I, OldTopIndex: Integer;
 begin
-  OldTopIndex := List_Load.TopIndex;
-  List_Load.Clear;
+  OldTopIndex := ListBox_Load.TopIndex;
+  ListBox_Load.Clear;
 
   if (Sender = fSaves) then
   begin
     fSaves.Lock;
     for i:=0 to fSaves.Count-1 do
-      List_Load.Add(fSaves[i].FileName);
+      ListBox_Load.Add(fSaves[i].FileName);
     fSaves.Unlock;
   end;
 
-  List_Load.TopIndex := OldTopIndex;
-  List_Load.ItemIndex := fSave_Selected;
+  ListBox_Load.TopIndex := OldTopIndex;
+  ListBox_Load.ItemIndex := fSave_Selected;
 
   Menu_Load_ListClick(nil);
 end;
@@ -1118,15 +1118,15 @@ begin
     Image_MessageLogClose.OnClick := MessageLog_Close;
     Image_MessageLogClose.HighlightOnMouseOver := True;
 
-    ListBox_MessageLog := TKMColumnListBox.Create(Panel_MessageLog, 45, 65, 800 - 90, H, fnt_Grey, bsGame);
-    ListBox_MessageLog.SetColumns(fnt_Outline, ['Icon', 'Message'], [0, 25]);
-    ListBox_MessageLog.ShowHeader := False;
-    ListBox_MessageLog.ItemHeight := 18;
-    ListBox_MessageLog.BackAlpha := 0.5;
-    ListBox_MessageLog.EdgeAlpha := 0;
-    ListBox_MessageLog.OnClick := MessageLog_ItemClick;
+    ColumnBox_MessageLog := TKMColumnBox.Create(Panel_MessageLog, 45, 65, 800 - 90, H, fnt_Grey, bsGame);
+    ColumnBox_MessageLog.SetColumns(fnt_Outline, ['Icon', 'Message'], [0, 25]);
+    ColumnBox_MessageLog.ShowHeader := False;
+    ColumnBox_MessageLog.ItemHeight := 18;
+    ColumnBox_MessageLog.BackAlpha := 0.5;
+    ColumnBox_MessageLog.EdgeAlpha := 0;
+    ColumnBox_MessageLog.OnClick := MessageLog_ItemClick;
     for I := 0 to MAX_LOG_MSGS - 1 do
-      ListBox_MessageLog.AddItem(MakeListRow(['', ''], -1));
+      ColumnBox_MessageLog.AddItem(MakeListRow(['', ''], -1));
 end;
 
 
@@ -1419,8 +1419,8 @@ begin
     Edit_Save.AllowedChars := acFileName;
     Edit_Save.OnChange := Menu_Save_EditChange;
 
-    List_Save := TKMListBox.Create(Panel_Save, 0, 4, TB_WIDTH, 220, fnt_Metal, bsGame);
-    List_Save.OnChange := Menu_Save_ListChange;
+    ListBox_Save := TKMListBox.Create(Panel_Save, 0, 4, TB_WIDTH, 220, fnt_Metal, bsGame);
+    ListBox_Save.OnChange := Menu_Save_ListChange;
 
     Label_SaveExists := TKMLabel.Create(Panel_Save,0,260,TB_WIDTH,30,fTextLibrary[TX_GAMEPLAY_SAVE_EXISTS],fnt_Outline,taLeft);
     CheckBox_SaveExists := TKMCheckBox.Create(Panel_Save,0,280,TB_WIDTH,20,fTextLibrary[TX_GAMEPLAY_SAVE_OVERWRITE], fnt_Metal);
@@ -1436,11 +1436,11 @@ procedure TKMGamePlayInterface.Create_Load;
 begin
   Panel_Load := TKMPanel.Create(Panel_Controls, TB_PAD, 44, TB_WIDTH, 332);
 
-    List_Load := TKMListBox.Create(Panel_Load, 0, 2, TB_WIDTH, 260, fnt_Metal, bsGame);
-    List_Load.OnChange := Menu_Load_ListClick;
+    ListBox_Load := TKMListBox.Create(Panel_Load, 0, 2, TB_WIDTH, 260, fnt_Metal, bsGame);
+    ListBox_Load.OnChange := Menu_Load_ListClick;
 
-    Label_Load_Description := TKMLabel.Create(Panel_Load,0,265,TB_WIDTH,0,'',fnt_Grey,taLeft);
-    Label_Load_Description.AutoWrap := true;
+    Label_LoadDescription := TKMLabel.Create(Panel_Load,0,265,TB_WIDTH,0,'',fnt_Grey,taLeft);
+    Label_LoadDescription.AutoWrap := true;
 
     Button_Load := TKMButton.Create(Panel_Load,0,300,TB_WIDTH,30,fTextLibrary[TX_GAMEPLAY_LOAD], bsGame);
     Button_Load.OnClick := Menu_Load_Click;
@@ -2890,7 +2890,7 @@ begin
     Message_Close(nil);
 
     Panel_MessageLog.Show;
-    ListBox_MessageLog.TopIndex := ListBox_MessageLog.RowCount;
+    ColumnBox_MessageLog.TopIndex := ColumnBox_MessageLog.RowCount;
     fSoundLib.Play(sfx_MessageOpen); //Play parchment sound when they open the message
   end;
 end;
@@ -2910,10 +2910,10 @@ var
   Msg: TKMMessage;
   H: TKMHouse;
 begin
-  ItemId := ListBox_MessageLog.ItemIndex;
+  ItemId := ColumnBox_MessageLog.ItemIndex;
   if ItemId = -1 then Exit;
 
-  MessageId := ListBox_MessageLog.Rows[ItemId].Tag;
+  MessageId := ColumnBox_MessageLog.Rows[ItemId].Tag;
   if MessageId = -1 then Exit;
 
   Msg := fMessageList.MessagesLog[MessageId];
@@ -2943,7 +2943,7 @@ begin
 
   //Clear the selection if a new item is added so the wrong one is not selected
   if fLastSyncedMessage <> fMessageList.CountLog then
-    ListBox_MessageLog.ItemIndex := -1;
+    ColumnBox_MessageLog.ItemIndex := -1;
 
   K := 0;
   for I := Max(fMessageList.CountLog - MAX_LOG_MSGS, 0) to fMessageList.CountLog - 1 do
@@ -2967,7 +2967,7 @@ begin
         R.Cells[1].Color := $FFFFFFFF;
     end;
 
-    ListBox_MessageLog.Rows[K] := R;
+    ColumnBox_MessageLog.Rows[K] := R;
     Inc(K);
   end;
 
