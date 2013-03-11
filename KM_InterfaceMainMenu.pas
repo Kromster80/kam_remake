@@ -883,7 +883,7 @@ begin
     if Enabled then
     begin
       Chart_MPCitizens.AddLine(PlayerName, FlagColor, Stats.ChartCitizens);
-      Chart_MPCitizens.AddLine(PlayerName + ' recruits', FlagColor, Stats.ChartRecruits);
+      Chart_MPCitizens.AddLine(Format(fTextLibrary[TX_GRAPH_RECRUITS], [PlayerName]), FlagColor, Stats.ChartRecruits);
     end;
 
     for I := 0 to fPlayers.Count - 1 do
@@ -1029,12 +1029,12 @@ procedure TKMMainMenuInterface.Create_MultiPlayer;
       TKMBevel.Create(Panel_MPPassword, -1000,  -1000, 4000, 4000);
       TKMImage.Create(Panel_MPPassword, -20, -75, 340, 310, 15, rxGuiMain);
       TKMBevel.Create(Panel_MPPassword,   0,  0, 320, 300);
-      TKMLabel.Create(Panel_MPPassword,  20, 10, 280, 20, 'Password protected lobby', fnt_Outline, taCenter);
+      TKMLabel.Create(Panel_MPPassword,  20, 10, 280, 20, fTextLibrary[TX_MP_MENU_PASSWORD_HEADER], fnt_Outline, taCenter);
 
-      TKMLabel.Create(Panel_MPPassword, 20, 50, 156, 20, 'Password', fnt_Outline, taLeft);
+      TKMLabel.Create(Panel_MPPassword, 20, 50, 156, 20, fTextLibrary[TX_MP_MENU_PASSWORD], fnt_Outline, taLeft);
       Edit_MP_Password := TKMEdit.Create(Panel_MPPassword, 20, 70, 152, 20, fnt_Grey);
       Edit_MP_Password.AllowedChars := acText;
-      Button_MP_PasswordOk := TKMButton.Create(Panel_MPPassword, 20, 110, 280, 30, 'Join', bsMenu);
+      Button_MP_PasswordOk := TKMButton.Create(Panel_MPPassword, 20, 110, 280, 30, fTextLibrary[TX_MP_MENU_SERVER_JOIN], bsMenu);
       Button_MP_PasswordOk.OnClick := MP_PasswordClick;
       Button_MP_PasswordCancel := TKMButton.Create(Panel_MPPassword, 20, 150, 280, 30, fTextLibrary[TX_MP_MENU_FIND_SERVER_CANCEL], bsMenu);
       Button_MP_PasswordCancel.OnClick := MP_PasswordClick;
@@ -1202,7 +1202,7 @@ begin
                                                   Panel_Main.Height - PAD_VERT*2,
                                                   fnt_MainMapGold, bsMenu);
     ColumnBox_SingleMaps.Anchors := [akTop, akBottom];
-    ColumnBox_SingleMaps.SetColumns(fnt_Outline, ['', '', 'Title', 'Size'], [0, 50, 100, 380]);
+    ColumnBox_SingleMaps.SetColumns(fnt_Outline, ['', '', fTextLibrary[TX_MENU_MAP_TITLE], fTextLibrary[TX_MENU_MAP_SIZE]], [0, 50, 100, 380]);
     ColumnBox_SingleMaps.Columns[2].Font := fnt_Metal;
     ColumnBox_SingleMaps.Columns[2].HintFont := fnt_Grey;
     ColumnBox_SingleMaps.Columns[1].TextAlign := taCenter;

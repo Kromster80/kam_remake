@@ -797,7 +797,7 @@ procedure TKMGame.GameStart(aSizeX, aSizeY: Integer);
 var
   I: Integer;
 begin
-  fGameName := fTextLibrary[TX_MAP_ED_NEW_MISSION];
+  fGameName := fTextLibrary[TX_MAPED_NEW_MISSION];
 
   fMissionFile := '';
   fSaveFile := '';

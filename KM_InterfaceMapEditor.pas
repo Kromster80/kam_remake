@@ -698,7 +698,7 @@ begin
     Label_Coordinates := TKMLabel.Create(Panel_Main, 230, 30, 'X: Y:', fnt_Grey, taLeft);
     Label_Stat := TKMLabel.Create(Panel_Main, 230, 50, 0, 0, '', fnt_Outline, taLeft);
 
-    TKMLabel.Create(Panel_Main, TB_PAD, 195, TB_WIDTH, 0, 'Players:', fnt_Outline, taLeft);
+    TKMLabel.Create(Panel_Main, TB_PAD, 195, TB_WIDTH, 0, fTextLibrary[TX_MAPED_PLAYERS], fnt_Outline, taLeft);
     for I := 0 to MAX_PLAYERS - 1 do
     begin
       Button_PlayerSelect[I]         := TKMFlatButtonShape.Create(Panel_Main, 8 + I*23, 215, 21, 21, IntToStr(I+1), fnt_Grey, $FF0000FF);
@@ -825,7 +825,7 @@ begin
     end;
 
     Panel_Brushes := TKMPanel.Create(Panel_Terrain,0,28,TB_WIDTH,400);
-      TKMLabel.Create(Panel_Brushes, 0, PAGE_TITLE_Y, TB_WIDTH, 0, 'Brush', fnt_Outline, taCenter);
+      TKMLabel.Create(Panel_Brushes, 0, PAGE_TITLE_Y, TB_WIDTH, 0, fTextLibrary[TX_MAPED_TERRAIN_BRUSH], fnt_Outline, taCenter);
       BrushSize   := TKMTrackBar.Create(Panel_Brushes, 0, 30, 100, 0, 12);
       BrushSize.OnChange := Terrain_BrushChange;
       BrushCircle := TKMButtonFlat.Create(Panel_Brushes, 106, 28, 24, 24, 592);
@@ -844,11 +844,11 @@ begin
         BrushTable[J,K].OnClick := Terrain_BrushChange;
       end;
 
-      BrushRandom := TKMCheckBox.Create(Panel_Brushes, 0, 350, TB_WIDTH, 20, 'Random elements', fnt_Metal);
+      BrushRandom := TKMCheckBox.Create(Panel_Brushes, 0, 350, TB_WIDTH, 20, fTextLibrary[TX_MAPED_TERRAIN_BRUSH_RANDOM], fnt_Metal);
       BrushRandom.OnClick := Terrain_BrushChange;
 
     Panel_Heights := TKMPanel.Create(Panel_Terrain,0,28,TB_WIDTH,400);
-      TKMLabel.Create(Panel_Heights, 0, PAGE_TITLE_Y, TB_WIDTH, 0, 'Heights', fnt_Outline, taCenter);
+      TKMLabel.Create(Panel_Heights, 0, PAGE_TITLE_Y, TB_WIDTH, 0, fTextLibrary[TX_MAPED_TERRAIN_HEIGHTS], fnt_Outline, taCenter);
       HeightShapeLabel := TKMLabel.Create(Panel_Heights, 0, 34, TB_WIDTH, 0, fTextLibrary[TX_MAPED_TERRAIN_HEIGHTS_SHAPE], fnt_Metal, taLeft);
       HeightCircle := TKMButtonFlat.Create(Panel_Heights, 120, 30, 24, 24, 592);
       HeightCircle.Hint := fTextLibrary[TX_MAPED_TERRAIN_HEIGHTS_CIRCLE];
@@ -905,7 +905,7 @@ begin
       end;
 
     Panel_Objects := TKMPanel.Create(Panel_Terrain,0,28,TB_WIDTH,400);
-      TKMLabel.Create(Panel_Objects, 0, PAGE_TITLE_Y, TB_WIDTH, 0, 'Objects', fnt_Outline, taCenter);
+      TKMLabel.Create(Panel_Objects, 0, PAGE_TITLE_Y, TB_WIDTH, 0, fTextLibrary[TX_MAPED_OBJECTS], fnt_Outline, taCenter);
       ObjectsScroll := TKMScrollBar.Create(Panel_Objects, 0, 295, TB_WIDTH, 20, sa_Horizontal, bsGame);
       ObjectsScroll.MinValue := 0;
       ObjectsScroll.MaxValue := fResource.MapElements.ValidCount div 3 - 3;
@@ -924,23 +924,23 @@ begin
       ObjectErase.OnClick := Terrain_ObjectsChange;
 
       ObjectBlock := TKMButtonFlat.Create(Panel_Objects, TB_WIDTH-32, 8,32,32,254,rxTrees);
-      ObjectBlock.Hint := 'Block walking';
+      ObjectBlock.Hint := fTextLibrary[TX_MAPED_TERRAIN_OBJECTS_BLOCK];
       ObjectBlock.Tag := 61; //no object
       ObjectBlock.OnClick := Terrain_ObjectsChange;
 
     Panel_Selection := TKMPanel.Create(Panel_Terrain,0,28,TB_WIDTH,400);
-      TKMLabel.Create(Panel_Selection, 0, PAGE_TITLE_Y, TB_WIDTH, 0, 'Copy/paste', fnt_Outline, taCenter);
+      TKMLabel.Create(Panel_Selection, 0, PAGE_TITLE_Y, TB_WIDTH, 0, fTextLibrary[TX_MAPED_COPY_TITLE], fnt_Outline, taCenter);
         Button_SelectCopy := TKMButtonFlat.Create(Panel_Selection, 24, 28, 24, 24, 384);
-        Button_SelectCopy.Hint := 'Copy terrain';
+        Button_SelectCopy.Hint := fTextLibrary[TX_MAPED_COPY_COPY_HINT];
         Button_SelectCopy.OnClick := Terrain_ClipboardChange;
         Button_SelectPaste := TKMButtonFlat.Create(Panel_Selection, 52, 28, 24, 24, 384);
-        Button_SelectPaste.Hint := 'Paste terrain';
+        Button_SelectPaste.Hint := fTextLibrary[TX_MAPED_COPY_PASTE_HINT];
         Button_SelectPaste.OnClick := Terrain_ClipboardChange;
         Button_SelectFlipH := TKMButtonFlat.Create(Panel_Selection, 80, 28, 24, 24, 384);
-        Button_SelectFlipH.Hint := 'Paste horizontally flipped terrain';
+        Button_SelectFlipH.Hint := fTextLibrary[TX_MAPED_COPY_PASTE_HFLIP_HINT];
         Button_SelectFlipH.OnClick := Terrain_ClipboardChange;
         Button_SelectFlipV := TKMButtonFlat.Create(Panel_Selection, 108, 28, 24, 24, 384);
-        Button_SelectFlipV.Hint := 'Paste vertically flipped terrain';
+        Button_SelectFlipV.Hint := fTextLibrary[TX_MAPED_COPY_PASTE_VFLIP_HINT];
         Button_SelectFlipV.OnClick := Terrain_ClipboardChange;
 end;
 
@@ -964,7 +964,7 @@ begin
 
     //Town placement
     Panel_Build := TKMPanel.Create(Panel_Town,0,28,TB_WIDTH,400);
-      TKMLabel.Create(Panel_Build,0,PAGE_TITLE_Y,TB_WIDTH,0,'Roadworks',fnt_Outline,taCenter);
+      TKMLabel.Create(Panel_Build,0,PAGE_TITLE_Y,TB_WIDTH,0,fTextLibrary[TX_MAPED_ROAD_TITLE],fnt_Outline,taCenter);
       Button_BuildRoad   := TKMButtonFlat.Create(Panel_Build,  0,28,33,33,335);
       Button_BuildField  := TKMButtonFlat.Create(Panel_Build, 37,28,33,33,337);
       Button_BuildWine   := TKMButtonFlat.Create(Panel_Build, 74,28,33,33,336);
@@ -978,7 +978,7 @@ begin
       Button_BuildWine.Hint     := fTextLibrary[TX_BUILD_WINE_HINT];
       Button_BuildCancel.Hint   := fTextLibrary[TX_BUILD_CANCEL_HINT];
 
-      TKMLabel.Create(Panel_Build,0,65,TB_WIDTH,0,'Houses',fnt_Outline,taCenter);
+      TKMLabel.Create(Panel_Build,0,65,TB_WIDTH,0,fTextLibrary[TX_MAPED_HOUSES_TITLE],fnt_Outline,taCenter);
       for I:=1 to GUI_HOUSE_COUNT do
         if GUIHouseOrder[I] <> ht_None then begin
           Button_Build[I]:=TKMButtonFlat.Create(Panel_Build, ((I-1) mod 5)*37,83+((I-1) div 5)*37,33,33,fResource.HouseDat[GUIHouseOrder[I]].GUIIcon);
@@ -1019,65 +1019,71 @@ begin
 
     //Town settings
     Panel_Script := TKMPanel.Create(Panel_Town, 0, 28, TB_WIDTH, 400);
-      TKMLabel.Create(Panel_Script, 0, PAGE_TITLE_Y, TB_WIDTH, 0, 'AI settings', fnt_Outline, taCenter);
-      CheckBox_AutoBuild := TKMCheckBox.Create(Panel_Script, 0, 30, TB_WIDTH, 20, 'Autobuild', fnt_Metal);
+      TKMLabel.Create(Panel_Script, 0, PAGE_TITLE_Y, TB_WIDTH, 0, fTextLibrary[TX_MAPED_AI_TITLE], fnt_Outline, taCenter);
+      CheckBox_AutoBuild := TKMCheckBox.Create(Panel_Script, 0, 30, TB_WIDTH, 20, fTextLibrary[TX_MAPED_AI_AUTOBUILD], fnt_Metal);
       CheckBox_AutoBuild.OnClick := Town_ScriptChange;
-      CheckBox_AutoRepair := TKMCheckBox.Create(Panel_Script, 0, 50, TB_WIDTH, 20, 'Autorepair', fnt_Metal);
+      CheckBox_AutoRepair := TKMCheckBox.Create(Panel_Script, 0, 50, TB_WIDTH, 20, fTextLibrary[TX_MAPED_AI_AUTOREPAIR], fnt_Metal);
       CheckBox_AutoRepair.OnClick := Town_ScriptChange;
       TrackBar_SerfFactor := TKMTrackBar.Create(Panel_Script, 0, 70, TB_WIDTH, 0, 20);
-      TrackBar_SerfFactor.Caption := 'Serf factor';
+      TrackBar_SerfFactor.Caption := fTextLibrary[TX_MAPED_AI_SERF_FACTOR];
       TrackBar_SerfFactor.OnClick := Town_ScriptChange;
       TrackBar_WorkerFactor := TKMTrackBar.Create(Panel_Script, 0, 110, TB_WIDTH, 0, 30);
-      TrackBar_WorkerFactor.Caption := 'Workers';
+      TrackBar_WorkerFactor.Caption := fTextLibrary[TX_MAPED_AI_WORKERS];
       TrackBar_WorkerFactor.OnClick := Town_ScriptChange;
 
     //Defence settings
     Panel_Defence := TKMPanel.Create(Panel_Town, 0, 28, TB_WIDTH, 400);
-      TKMLabel.Create(Panel_Defence, 0, PAGE_TITLE_Y, TB_WIDTH, 0, 'AI defence positions', fnt_Outline, taCenter);
+      TKMLabel.Create(Panel_Defence, 0, PAGE_TITLE_Y, TB_WIDTH, 0, fTextLibrary[TX_MAPED_AI_DEFENSE], fnt_Outline, taCenter);
       Button_DefencePosAdd := TKMButtonFlat.Create(Panel_Defence, 0, 30, 33, 33, 338);
       Button_DefencePosAdd.OnClick := Town_DefenceAddClick;
-      Button_DefencePosAdd.Hint    := 'Place defence position for AI';
+      Button_DefencePosAdd.Hint    := fTextLibrary[TX_MAPED_AI_DEFENSE_HINT];
 
       TKMLabel.Create(Panel_Defence, 0, 65, TB_WIDTH, 0, 'AI defence', fnt_Outline, taCenter);
-      CheckBox_AutoDefence := TKMCheckBox.Create(Panel_Defence, 0, 90, TB_WIDTH, 20, 'AutoDefence', fnt_Metal);
+      CheckBox_AutoDefence := TKMCheckBox.Create(Panel_Defence, 0, 90, TB_WIDTH, 20, fTextLibrary[TX_MAPED_AI_DEFENSE_AUTO], fnt_Metal);
+      CheckBox_AutoDefence.Hint := fTextLibrary[TX_MAPED_AI_DEFENSE_AUTO_HINT];
       CheckBox_AutoDefence.OnClick := Town_DefenceChange;
 
       TrackBar_EquipRateLeather := TKMTrackBar.Create(Panel_Defence, 0, 120, TB_WIDTH, 10, 300);
-      TrackBar_EquipRateLeather.Caption := 'Equip rate iron';
+      TrackBar_EquipRateLeather.Caption := fTextLibrary[TX_MAPED_AI_DEFENSE_EQUIP_IRON];
       TrackBar_EquipRateLeather.Step := 5;
       TrackBar_EquipRateLeather.OnClick := Town_DefenceChange;
 
       TrackBar_EquipRateIron := TKMTrackBar.Create(Panel_Defence, 0, 164, TB_WIDTH, 10, 300);
-      TrackBar_EquipRateIron.Caption := 'Equip rate leather';
+      TrackBar_EquipRateIron.Caption := fTextLibrary[TX_MAPED_AI_DEFENSE_EQUIP_LEATHER];
       TrackBar_EquipRateIron.Step := 5;
       TrackBar_EquipRateIron.OnClick := Town_DefenceChange;
 
       TrackBar_RecruitFactor := TKMTrackBar.Create(Panel_Defence, 0, 208, TB_WIDTH, 1, 20);
-      TrackBar_RecruitFactor.Caption := 'Recruits per Barracks';
-      TrackBar_RecruitFactor.Hint := 'How many recruits AI should have in barracks';
+      TrackBar_RecruitFactor.Caption := fTextLibrary[TX_MAPED_AI_RECRUITS];
+      TrackBar_RecruitFactor.Hint := fTextLibrary[TX_MAPED_AI_RECRUITS_HINT];
       TrackBar_RecruitFactor.OnClick := Town_DefenceChange;
 
-      CheckBox_MaxSoldiers := TKMCheckBox.Create(Panel_Defence, 0, 252, TB_WIDTH, 20, 'Max soldiers', fnt_Metal);
-      CheckBox_MaxSoldiers.Hint := 'How many soldiers AI can have at once';
+      CheckBox_MaxSoldiers := TKMCheckBox.Create(Panel_Defence, 0, 252, TB_WIDTH, 20, fTextLibrary[TX_MAPED_AI_MAX_SOLDIERS], fnt_Metal);
+      CheckBox_MaxSoldiers.Hint := fTextLibrary[TX_MAPED_AI_MAX_SOLDIERS_ENABLE_HINT];
       CheckBox_MaxSoldiers.OnClick := Town_DefenceChange;
       TrackBar_MaxSoldiers := TKMTrackBar.Create(Panel_Defence, 20, 270, TB_WIDTH - 20, 0, 500);
       TrackBar_MaxSoldiers.Caption := '';
-      TrackBar_MaxSoldiers.Hint := 'How many soldiers AI can have at once';
+      TrackBar_MaxSoldiers.Hint := fTextLibrary[TX_MAPED_AI_MAX_SOLDIERS_HINT];
       TrackBar_MaxSoldiers.Step := 5;
       TrackBar_MaxSoldiers.OnClick := Town_DefenceChange;
 
-      Button_EditFormations := TKMButton.Create(Panel_Defence, 0, 300, TB_WIDTH, 25, 'Edit formations', bsGame);
+      Button_EditFormations := TKMButton.Create(Panel_Defence, 0, 300, TB_WIDTH, 25, fTextLibrary[TX_MAPED_AI_FORMATIONS], bsGame);
       Button_EditFormations.OnClick := Formations_Show;
 
     //Offence settings
     Panel_Offence := TKMPanel.Create(Panel_Town, 0, 28, TB_WIDTH, 400);
-      TKMLabel.Create(Panel_Offence, 0, PAGE_TITLE_Y, TB_WIDTH, 0, 'AI attacks', fnt_Outline, taCenter);
+      TKMLabel.Create(Panel_Offence, 0, PAGE_TITLE_Y, TB_WIDTH, 0, fTextLibrary[TX_MAPED_AI_ATTACK], fnt_Outline, taCenter);
 
-      CheckBox_AutoAttack := TKMCheckBox.Create(Panel_Offence, 0, 30, TB_WIDTH, 20, 'AutoAttack', fnt_Metal);
+      CheckBox_AutoAttack := TKMCheckBox.Create(Panel_Offence, 0, 30, TB_WIDTH, 20, fTextLibrary[TX_MAPED_AI_ATTACK_AUTO], fnt_Metal);
       CheckBox_AutoAttack.Disable;
 
       ColumnBox_Attacks := TKMColumnBox.Create(Panel_Offence, 0, 50, TB_WIDTH, 210, fnt_Game, bsGame);
-      ColumnBox_Attacks.SetColumns(fnt_Outline, ['Type', 'Delay', 'Men', 'Target', 'Loc'], [0, 20, 60, 100, 130]);
+      ColumnBox_Attacks.SetColumns(fnt_Outline,
+        [fTextLibrary[TX_MAPED_AI_ATTACK_COL_TYPE],
+         fTextLibrary[TX_MAPED_AI_ATTACK_COL_DELAY],
+         fTextLibrary[TX_MAPED_AI_ATTACK_COL_MEN],
+         fTextLibrary[TX_MAPED_AI_ATTACK_COL_TARGET],
+         fTextLibrary[TX_MAPED_AI_ATTACK_COL_LOC]], [0, 20, 60, 100, 130]);
       ColumnBox_Attacks.OnClick := Attacks_ListClick;
       ColumnBox_Attacks.OnDoubleClick := Attacks_ListDoubleClick;
 
@@ -1107,9 +1113,14 @@ begin
 
     //Goals
     Panel_Goals := TKMPanel.Create(Panel_Player,0,28,TB_WIDTH,400);
-      TKMLabel.Create(Panel_Goals, 0, PAGE_TITLE_Y, TB_WIDTH, 0, 'Goals', fnt_Outline, taCenter);
+      TKMLabel.Create(Panel_Goals, 0, PAGE_TITLE_Y, TB_WIDTH, 0, fTextLibrary[TX_MAPED_GOALS], fnt_Outline, taCenter);
       ColumnBox_Goals := TKMColumnBox.Create(Panel_Goals, 0, 30, TB_WIDTH, 230, fnt_Game, bsGame);
-      ColumnBox_Goals.SetColumns(fnt_Outline, ['Type', 'Condition', 'Player', 'Time', 'Msg'], [0, 20, 120, 140, 160]);
+      ColumnBox_Goals.SetColumns(fnt_Outline,
+        [fTextLibrary[TX_MAPED_GOALS_TYPE],
+         fTextLibrary[TX_MAPED_GOALS_CONDITION],
+         fTextLibrary[TX_MAPED_GOALS_PLAYER],
+         fTextLibrary[TX_MAPED_GOALS_TIME],
+         fTextLibrary[TX_MAPED_GOALS_MESSAGE]], [0, 20, 120, 140, 160]);
       ColumnBox_Goals.OnClick := Goals_ListClick;
       ColumnBox_Goals.OnDoubleClick := Goals_ListDoubleClick;
 
@@ -1120,7 +1131,7 @@ begin
 
     //Players color
     Panel_Color := TKMPanel.Create(Panel_Player, 0, 28, TB_WIDTH, 400);
-      TKMLabel.Create(Panel_Color, 0, PAGE_TITLE_Y, TB_WIDTH, 0, 'Colors', fnt_Outline, taCenter);
+      TKMLabel.Create(Panel_Color, 0, PAGE_TITLE_Y, TB_WIDTH, 0, fTextLibrary[TX_MAPED_PLAYER_COLORS], fnt_Outline, taCenter);
       TKMBevel.Create(Panel_Color, 0, 30, TB_WIDTH, 210);
       ColorSwatch_Color := TKMColorSwatch.Create(Panel_Color, 0, 32, 16, 16, 11);
       for I := 0 to 255 do Col[I] := fResource.Palettes.DefDal.Color32(I);
@@ -1129,7 +1140,7 @@ begin
 
     //Allow/Block house building
     Panel_BlockHouse := TKMPanel.Create(Panel_Player, 0, 28, TB_WIDTH, 400);
-      TKMLabel.Create(Panel_BlockHouse, 0, PAGE_TITLE_Y, TB_WIDTH, 0, 'Block/Release houses', fnt_Outline, taCenter);
+      TKMLabel.Create(Panel_BlockHouse, 0, PAGE_TITLE_Y, TB_WIDTH, 0, fTextLibrary[TX_MAPED_BLOCK_HOUSES], fnt_Outline, taCenter);
       for I := 1 to GUI_HOUSE_COUNT do
       if GUIHouseOrder[I] <> ht_None then
       begin
@@ -1144,7 +1155,7 @@ begin
 
     //Allow/Block ware trading
     Panel_BlockTrade := TKMPanel.Create(Panel_Player, 0, 28, TB_WIDTH, 400);
-      TKMLabel.Create(Panel_BlockTrade, 0, PAGE_TITLE_Y, TB_WIDTH, 0, 'Block trade', fnt_Outline, taCenter);
+      TKMLabel.Create(Panel_BlockTrade, 0, PAGE_TITLE_Y, TB_WIDTH, 0, fTextLibrary[TX_MAPED_BLOCK_TRADE], fnt_Outline, taCenter);
       for I := 1 to STORE_RES_COUNT do
       begin
         Button_BlockTrade[I] := TKMButtonFlat.Create(Panel_BlockTrade, ((I-1) mod 5)*37, 30 + ((I-1) div 5)*37,33,33, 0);
@@ -1159,22 +1170,22 @@ begin
 
     //FOW settings
     Panel_Markers := TKMPanel.Create(Panel_Player, 0, 28, TB_WIDTH, 400);
-      TKMLabel.Create(Panel_Markers, 0, PAGE_TITLE_Y, TB_WIDTH, 0, 'Reveal fog', fnt_Outline, taCenter);
+      TKMLabel.Create(Panel_Markers, 0, PAGE_TITLE_Y, TB_WIDTH, 0, fTextLibrary[TX_MAPED_FOG], fnt_Outline, taCenter);
       Button_Reveal         := TKMButtonFlat.Create(Panel_Markers, 0, 30, 33, 33, 394);
-      Button_Reveal.Hint    := 'Reveal a portion of map';
+      Button_Reveal.Hint    := fTextLibrary[TX_MAPED_FOG_HINT];
       Button_Reveal.OnClick := Player_MarkerClick;
       TrackBar_RevealNewSize  := TKMTrackBar.Create(Panel_Markers, 37, 35, 140, 1, 64);
       TrackBar_RevealNewSize.OnChange := Player_MarkerClick;
       TrackBar_RevealNewSize.Position := 8;
-      CheckBox_RevealAll          := TKMCheckBox.Create(Panel_Markers, 0, 75, 140, 20, 'Reveal all', fnt_Metal);
+      CheckBox_RevealAll          := TKMCheckBox.Create(Panel_Markers, 0, 75, 140, 20, fTextLibrary[TX_MAPED_FOG_ALL], fnt_Metal);
       CheckBox_RevealAll.OnClick  := Player_MarkerClick;
-      TKMLabel.Create(Panel_Markers, 0, 100, TB_WIDTH, 0, 'Center screen', fnt_Outline, taCenter);
+      TKMLabel.Create(Panel_Markers, 0, 100, TB_WIDTH, 0, fTextLibrary[TX_MAPED_FOG_CENTER], fnt_Outline, taCenter);
       Button_CenterScreen         := TKMButtonFlat.Create(Panel_Markers, 0, 120, 33, 33, 391);
-      Button_CenterScreen.Hint    := 'Center screen on mission start';
+      Button_CenterScreen.Hint    := fTextLibrary[TX_MAPED_FOG_CENTER_HINT];
       Button_CenterScreen.OnClick := Player_MarkerClick;
       Button_PlayerCenterScreen    := TKMButton.Create(Panel_Markers, 40, 120, 80, 33, '[X,Y]', bsGame);
       Button_PlayerCenterScreen.OnClick := Player_MarkerClick;
-      Button_PlayerCenterScreen.Hint := 'Jump to location';
+      Button_PlayerCenterScreen.Hint := fTextLibrary[TX_MAPED_FOG_CENTER_JUMP];
 end;
 
 
@@ -1188,14 +1199,14 @@ begin
     for I := 1 to 3 do Button_Mission[I].OnClick := SwitchPage;
 
     Panel_Mode := TKMPanel.Create(Panel_Mission,0,28,TB_WIDTH,400);
-      TKMLabel.Create(Panel_Mode, 0, PAGE_TITLE_Y, TB_WIDTH, 0, 'Mode', fnt_Outline, taCenter);
+      TKMLabel.Create(Panel_Mode, 0, PAGE_TITLE_Y, TB_WIDTH, 0, fTextLibrary[TX_MAPED_MISSION_MODE], fnt_Outline, taCenter);
       Radio_MissionMode := TKMRadioGroup.Create(Panel_Mode, 0, 30, TB_WIDTH, 40, fnt_Metal);
-      Radio_MissionMode.Add('Normal');
-      Radio_MissionMode.Add('Tactic');
+      Radio_MissionMode.Add(fTextLibrary[TX_MAPED_MISSION_NORMAL]);
+      Radio_MissionMode.Add(fTextLibrary[TX_MAPED_MISSION_TACTIC]);
       Radio_MissionMode.OnChange := Mission_ModeChange;
 
     Panel_Alliances := TKMPanel.Create(Panel_Mission,0,28,TB_WIDTH,400);
-      TKMLabel.Create(Panel_Alliances, 0, PAGE_TITLE_Y, TB_WIDTH, 0, 'Alliances', fnt_Outline, taCenter);
+      TKMLabel.Create(Panel_Alliances, 0, PAGE_TITLE_Y, TB_WIDTH, 0, fTextLibrary[TX_MAPED_ALLIANCE], fnt_Outline, taCenter);
       for I := 0 to MAX_PLAYERS - 1 do
       begin
         TKMLabel.Create(Panel_Alliances,24+I*20+2,30,20,20,inttostr(I+1),fnt_Outline,taLeft);
@@ -1211,14 +1222,14 @@ begin
 
       //It does not have OnClick event for a reason:
       // - we don't have a rule to make alliances symmetrical yet
-      CheckBox_AlliancesSym := TKMCheckBox.Create(Panel_Alliances, 0, 50+MAX_PLAYERS*25, TB_WIDTH, 20, 'Symmetrical', fnt_Metal);
+      CheckBox_AlliancesSym := TKMCheckBox.Create(Panel_Alliances, 0, 50+MAX_PLAYERS*25, TB_WIDTH, 20, fTextLibrary[TX_MAPED_ALLIANCE_SYMMETRIC], fnt_Metal);
       CheckBox_AlliancesSym.Checked := true;
       CheckBox_AlliancesSym.Disable;
 
     Panel_PlayerTypes := TKMPanel.Create(Panel_Mission, 0, 28, TB_WIDTH, 400);
-      TKMLabel.Create(Panel_PlayerTypes, 0, PAGE_TITLE_Y, TB_WIDTH, 0, 'Player types', fnt_Outline, taCenter);
+      TKMLabel.Create(Panel_PlayerTypes, 0, PAGE_TITLE_Y, TB_WIDTH, 0, fTextLibrary[TX_MAPED_PLAYERS_TYPE], fnt_Outline, taCenter);
       TKMLabel.Create(Panel_PlayerTypes,  4, 30, 20, 20, '#',       fnt_Grey, taLeft);
-      TKMLabel.Create(Panel_PlayerTypes, 24, 30, 60, 20, 'Default', fnt_Grey, taLeft);
+      TKMLabel.Create(Panel_PlayerTypes, 24, 30, 60, 20, fTextLibrary[TX_MAPED_PLAYERS_DEFAULT], fnt_Grey, taLeft);
       TKMImage.Create(Panel_PlayerTypes,104, 30, 60, 20, 588, rxGui);
       TKMImage.Create(Panel_PlayerTypes,164, 30, 20, 20,  62, rxGuiMain);
       for I := 0 to MAX_PLAYERS - 1 do
@@ -1267,10 +1278,10 @@ begin
     TKMLabel.Create(Panel_Save,0,90,TB_WIDTH,20,'Save map',fnt_Outline,taCenter);
     Edit_SaveName       := TKMEdit.Create(Panel_Save,0,110,TB_WIDTH,20, fnt_Grey);
     Edit_SaveName.AllowedChars := acFileName;
-    Label_SaveExists    := TKMLabel.Create(Panel_Save,0,140,TB_WIDTH,0,'Map already exists',fnt_Outline,taCenter);
-    CheckBox_SaveExists := TKMCheckBox.Create(Panel_Save,0,160,TB_WIDTH,20,'Overwrite', fnt_Metal);
-    Button_SaveSave     := TKMButton.Create(Panel_Save,0,180,TB_WIDTH,30,'Save',bsGame);
-    Button_SaveCancel   := TKMButton.Create(Panel_Save,0,220,TB_WIDTH,30,'Cancel',bsGame);
+    Label_SaveExists    := TKMLabel.Create(Panel_Save,0,140,TB_WIDTH,0,fTextLibrary[TX_MAPED_SAVE_EXISTS],fnt_Outline,taCenter);
+    CheckBox_SaveExists := TKMCheckBox.Create(Panel_Save,0,160,TB_WIDTH,20,fTextLibrary[TX_MAPED_SAVE_OVERWRITE], fnt_Metal);
+    Button_SaveSave     := TKMButton.Create(Panel_Save,0,180,TB_WIDTH,30,fTextLibrary[TX_MAPED_SAVE],bsGame);
+    Button_SaveCancel   := TKMButton.Create(Panel_Save,0,220,TB_WIDTH,30,fTextLibrary[TX_MAPED_SAVE_CANCEL],bsGame);
     Edit_SaveName.OnChange      := Menu_SaveClick;
     CheckBox_SaveExists.OnClick := Menu_SaveClick;
     Button_SaveSave.OnClick     := Menu_SaveClick;
@@ -1282,7 +1293,7 @@ end;
 procedure TKMapEdInterface.Create_MenuLoad;
 begin
   Panel_Load := TKMPanel.Create(Panel_Common,0,45,TB_WIDTH,400);
-    TKMLabel.Create(Panel_Load, 0, PAGE_TITLE_Y, TB_WIDTH, 30, 'Load map', fnt_Outline, taLeft);
+    TKMLabel.Create(Panel_Load, 0, PAGE_TITLE_Y, TB_WIDTH, 30, fTextLibrary[TX_MAPED_LOAD_TITLE], fnt_Outline, taLeft);
     TKMBevel.Create(Panel_Load, 0, 30, TB_WIDTH, 38);
     Radio_Load_MapType := TKMRadioGroup.Create(Panel_Load,0,32,TB_WIDTH,35,fnt_Grey);
     Radio_Load_MapType.ItemIndex := 0;
@@ -1292,8 +1303,8 @@ begin
     ListBox_Load := TKMListBox.Create(Panel_Load, 0, 85, TB_WIDTH, 205, fnt_Grey, bsGame);
     ListBox_Load.ItemHeight := 18;
     ListBox_Load.AutoHideScrollBar := True;
-    Button_LoadLoad     := TKMButton.Create(Panel_Load,0,300,TB_WIDTH,30,'Load',bsGame);
-    Button_LoadCancel   := TKMButton.Create(Panel_Load,0,335,TB_WIDTH,30,'Cancel',bsGame);
+    Button_LoadLoad     := TKMButton.Create(Panel_Load,0,300,TB_WIDTH,30,fTextLibrary[TX_MAPED_LOAD],bsGame);
+    Button_LoadCancel   := TKMButton.Create(Panel_Load,0,335,TB_WIDTH,30,fTextLibrary[TX_MAPED_LOAD_CANCEL],bsGame);
     Button_LoadLoad.OnClick     := Menu_LoadClick;
     Button_LoadCancel.OnClick   := SwitchPage;
 end;
@@ -1303,7 +1314,7 @@ end;
 procedure TKMapEdInterface.Create_MenuQuit;
 begin
   Panel_Quit := TKMPanel.Create(Panel_Common, 0, 45, TB_WIDTH, 400);
-    TKMLabel.Create(Panel_Quit, 0, 40, TB_WIDTH, 60, 'Any unsaved|changes will be lost', fnt_Outline, taCenter);
+    TKMLabel.Create(Panel_Quit, 0, 40, TB_WIDTH, 60, fTextLibrary[TX_MAPED_LOAD_UNSAVED], fnt_Outline, taCenter);
     Button_Quit_Yes := TKMButton.Create(Panel_Quit, 0, 100, TB_WIDTH, 30, fTextLibrary[TX_MENU_QUIT_MISSION], bsGame);
     Button_Quit_No  := TKMButton.Create(Panel_Quit, 0, 140, TB_WIDTH, 30, fTextLibrary[TX_MENU_DONT_QUIT_MISSION], bsGame);
     Button_Quit_Yes.Hint    := fTextLibrary[TX_MENU_QUIT_MISSION];
@@ -1333,21 +1344,21 @@ begin
 
     TrackBar_Passability := TKMTrackBar.Create(Panel_Extra, 50, 70, 180, 0, Byte(High(TPassability)));
     TrackBar_Passability.Font := fnt_Antiqua;
-    TrackBar_Passability.Caption := 'View passability';
+    TrackBar_Passability.Caption := fTextLibrary[TX_MAPED_VIEW_PASSABILITY];
     TrackBar_Passability.Position := 0; //Disabled by default
     TrackBar_Passability.OnChange := Extra_Change;
     Label_Passability := TKMLabel.Create(Panel_Extra, 50, 114, 180, 0, 'Off', fnt_Antiqua, taLeft);
 
-    CheckBox_ShowObjects := TKMCheckBox.Create(Panel_Extra, 250, 70, 180, 20, 'Show objects', fnt_Antiqua);
+    CheckBox_ShowObjects := TKMCheckBox.Create(Panel_Extra, 250, 70, 180, 20, fTextLibrary[TX_MAPED_VIEW_OBJECTS], fnt_Antiqua);
     CheckBox_ShowObjects.Checked := True; //Enabled by default
     CheckBox_ShowObjects.OnClick := Extra_Change;
-    CheckBox_ShowHouses := TKMCheckBox.Create(Panel_Extra, 250, 90, 180, 20, 'Show houses', fnt_Antiqua);
+    CheckBox_ShowHouses := TKMCheckBox.Create(Panel_Extra, 250, 90, 180, 20, fTextLibrary[TX_MAPED_VIEW_HOUSES], fnt_Antiqua);
     CheckBox_ShowHouses.Checked := True; //Enabled by default
     CheckBox_ShowHouses.OnClick := Extra_Change;
-    CheckBox_ShowUnits := TKMCheckBox.Create(Panel_Extra, 250, 110, 180, 20, 'Show units', fnt_Antiqua);
+    CheckBox_ShowUnits := TKMCheckBox.Create(Panel_Extra, 250, 110, 180, 20, fTextLibrary[TX_MAPED_VIEW_UNITS], fnt_Antiqua);
     CheckBox_ShowUnits.Checked := True; //Enabled by default
     CheckBox_ShowUnits.OnClick := Extra_Change;
-    CheckBox_ShowDeposits := TKMCheckBox.Create(Panel_Extra, 250, 130, 180, 20, 'Show deposits', fnt_Antiqua);
+    CheckBox_ShowDeposits := TKMCheckBox.Create(Panel_Extra, 250, 130, 180, 20, fTextLibrary[TX_MAPED_VIEW_DEPOSISTS], fnt_Antiqua);
     CheckBox_ShowDeposits.Checked := True; //Enabled by default
     CheckBox_ShowDeposits.OnClick := Extra_Change;
 end;
@@ -1377,7 +1388,7 @@ end;
 
 procedure TKMapEdInterface.Create_AttackPopUp;
 const
-  T: array [TGroupType] of string = ('Melee', 'AntiHorse', 'Ranged', 'Mounted');
+  T: array [TGroupType] of Integer = (TX_MAPED_AI_ATTACK_TYPE_MELEE, TX_MAPED_AI_ATTACK_TYPE_ANTIHORSE, TX_MAPED_AI_ATTACK_TYPE_RANGED, TX_MAPED_AI_ATTACK_TYPE_MOUNTED);
   SIZE_X = 570;
   SIZE_Y = 360;
 var
@@ -1390,44 +1401,44 @@ begin
     TKMBevel.Create(Panel_Attack, -1000,  -1000, 4000, 4000);
     with TKMImage.Create(Panel_Attack, -20, -50, SIZE_X+40, SIZE_Y+60, 15, rxGuiMain) do ImageStretch;
     TKMBevel.Create(Panel_Attack,   0,  0, SIZE_X, SIZE_Y);
-    TKMLabel.Create(Panel_Attack, SIZE_X div 2, 10, 'Attack info', fnt_Outline, taCenter);
+    TKMLabel.Create(Panel_Attack, SIZE_X div 2, 10, fTextLibrary[TX_MAPED_AI_ATTACK_INFO], fnt_Outline, taCenter);
 
-    TKMLabel.Create(Panel_Attack, 20, 40, 'Type', fnt_Metal, taLeft);
+    TKMLabel.Create(Panel_Attack, 20, 40, fTextLibrary[TX_MAPED_AI_ATTACK_COL_TYPE], fnt_Metal, taLeft);
     Radio_AttackType := TKMRadioGroup.Create(Panel_Attack, 20, 60, 80, 40, fnt_Metal);
-    Radio_AttackType.Add('Once');
-    Radio_AttackType.Add('Repeating');
+    Radio_AttackType.Add(fTextLibrary[TX_MAPED_AI_ATTACK_TYPE_ONCE]);
+    Radio_AttackType.Add(fTextLibrary[TX_MAPED_AI_ATTACK_TYPE_REP]);
     Radio_AttackType.OnChange := Attack_Change;
 
-    TKMLabel.Create(Panel_Attack, 130, 40, 'Delay, s', fnt_Metal, taLeft);
+    TKMLabel.Create(Panel_Attack, 130, 40, fTextLibrary[TX_MAPED_AI_ATTACK_DELAY], fnt_Metal, taLeft);
     NumEdit_AttackDelay := TKMNumericEdit.Create(Panel_Attack, 130, 60, 0, High(SmallInt));
     NumEdit_AttackDelay.OnChange := Attack_Change;
 
-    TKMLabel.Create(Panel_Attack, 240, 40, 'Men', fnt_Metal, taLeft);
+    TKMLabel.Create(Panel_Attack, 240, 40, fTextLibrary[TX_MAPED_AI_ATTACK_COL_MEN], fnt_Metal, taLeft);
     NumEdit_AttackMen := TKMNumericEdit.Create(Panel_Attack, 240, 60, 0, 1000);
     NumEdit_AttackMen.OnChange := Attack_Change;
 
-    TKMLabel.Create(Panel_Attack, 340, 40, 'Group count', fnt_Metal, taLeft);
+    TKMLabel.Create(Panel_Attack, 340, 40, fTextLibrary[TX_MAPED_AI_ATTACK_COUNT], fnt_Metal, taLeft);
     for GT := Low(TGroupType) to High(TGroupType) do
     begin
-      TKMLabel.Create(Panel_Attack, 425, 60 + Byte(GT) * 20, 0, 0, T[GT], fnt_Metal, taLeft);
+      TKMLabel.Create(Panel_Attack, 425, 60 + Byte(GT) * 20, 0, 0, fTextLibrary[T[GT]], fnt_Metal, taLeft);
       NumEdit_AttackAmount[GT] := TKMNumericEdit.Create(Panel_Attack, 340, 60 + Byte(GT) * 20, 0, 255);
       NumEdit_AttackAmount[GT].OnChange := Attack_Change;
     end;
 
-    CheckBox_AttackTakeAll := TKMCheckBox.Create(Panel_Attack, 340, 145, 160, 20, 'Take all', fnt_Metal);
+    CheckBox_AttackTakeAll := TKMCheckBox.Create(Panel_Attack, 340, 145, 160, 20, fTextLibrary[TX_MAPED_AI_ATTACK_TAKE_ALL], fnt_Metal);
     CheckBox_AttackTakeAll.OnClick := Attack_Change;
 
     //Second row
 
-    TKMLabel.Create(Panel_Attack, 20, 170, 'Target', fnt_Metal, taLeft);
+    TKMLabel.Create(Panel_Attack, 20, 170, fTextLibrary[TX_MAPED_AI_ATTACK_COL_TARGET], fnt_Metal, taLeft);
     Radio_AttackTarget := TKMRadioGroup.Create(Panel_Attack, 20, 190, 160, 80, fnt_Metal);
-    Radio_AttackTarget.Add('Closest unit');
-    Radio_AttackTarget.Add('Closest house 1');
-    Radio_AttackTarget.Add('Closest house 2');
-    Radio_AttackTarget.Add('Custom position');
+    Radio_AttackTarget.Add(fTextLibrary[TX_MAPED_AI_TARGET_CLOSEST]);
+    Radio_AttackTarget.Add(fTextLibrary[TX_MAPED_AI_TARGET_HOUSE1]);
+    Radio_AttackTarget.Add(fTextLibrary[TX_MAPED_AI_TARGET_HOUSE2]);
+    Radio_AttackTarget.Add(fTextLibrary[TX_MAPED_AI_TARGET_CUSTOM]);
     Radio_AttackTarget.OnChange := Attack_Change;
 
-    TKMLabel.Create(Panel_Attack, 200, 170, 'Position', fnt_Metal, taLeft);
+    TKMLabel.Create(Panel_Attack, 200, 170, fTextLibrary[TX_MAPED_AI_TARGET_POS], fnt_Metal, taLeft);
     NumEdit_AttackLocX := TKMNumericEdit.Create(Panel_Attack, 200, 190, 0, MAX_MAP_SIZE);
     NumEdit_AttackLocX.OnChange := Attack_Change;
     NumEdit_AttackLocY := TKMNumericEdit.Create(Panel_Attack, 200, 210, 0, MAX_MAP_SIZE);
@@ -1438,17 +1449,16 @@ begin
     TrackBar_AttackRange.Disable;
     TrackBar_AttackRange.OnChange := Attack_Change;
 
-    Button_AttackOk := TKMButton.Create(Panel_Attack, SIZE_X-20-320-10, SIZE_Y - 50, 160, 30, 'Ok', bsMenu);
+    Button_AttackOk := TKMButton.Create(Panel_Attack, SIZE_X-20-320-10, SIZE_Y - 50, 160, 30, fTextLibrary[TX_MAPED_OK], bsMenu);
     Button_AttackOk.OnClick := Attack_Close;
-    Button_AttackCancel := TKMButton.Create(Panel_Attack, SIZE_X-20-160, SIZE_Y - 50, 160, 30, 'Cancel', bsMenu);
+    Button_AttackCancel := TKMButton.Create(Panel_Attack, SIZE_X-20-160, SIZE_Y - 50, 160, 30, fTextLibrary[TX_MAPED_CANCEL], bsMenu);
     Button_AttackCancel.OnClick := Attack_Close;
 end;
 
 
 procedure TKMapEdInterface.Create_FormationsPopUp;
 const
-  T: array [TGroupType] of string = ('Melee', 'AntiHorse', 'Ranged', 'Mounted');
-  SIZE_X = 570;
+  T: array [TGroupType] of Integer = (TX_MAPED_AI_ATTACK_TYPE_MELEE, TX_MAPED_AI_ATTACK_TYPE_ANTIHORSE, TX_MAPED_AI_ATTACK_TYPE_RANGED, TX_MAPED_AI_ATTACK_TYPE_MOUNTED);  SIZE_X = 570;
   SIZE_Y = 200;
 var
   GT: TGroupType;
@@ -1462,23 +1472,23 @@ begin
     Img := TKMImage.Create(Panel_Formations, -20, -50, SIZE_X+40, SIZE_Y+60, 15, rxGuiMain);
     Img.ImageStretch;
     TKMBevel.Create(Panel_Formations,   0,  0, SIZE_X, SIZE_Y);
-    TKMLabel.Create(Panel_Formations, SIZE_X div 2, 10, 'Troop Formations', fnt_Outline, taCenter);
+    TKMLabel.Create(Panel_Formations, SIZE_X div 2, 10, fTextLibrary[TX_MAPED_AI_FORMATIONS_TITLE], fnt_Outline, taCenter);
 
     Image_FormationsFlag := TKMImage.Create(Panel_Formations, 10, 10, 0, 0, 30, rxGuiMain);
 
-    TKMLabel.Create(Panel_Formations, 20, 70, 80, 0, 'Count', fnt_Metal, taLeft);
-    TKMLabel.Create(Panel_Formations, 20, 95, 80, 0, 'Columns', fnt_Metal, taLeft);
+    TKMLabel.Create(Panel_Formations, 20, 70, 80, 0, fTextLibrary[TX_MAPED_AI_FORMATIONS_COUNT], fnt_Metal, taLeft);
+    TKMLabel.Create(Panel_Formations, 20, 95, 80, 0, fTextLibrary[TX_MAPED_AI_FORMATIONS_COLUMNS], fnt_Metal, taLeft);
 
     for GT := Low(TGroupType) to High(TGroupType) do
     begin
-      TKMLabel.Create(Panel_Formations, 130 + Byte(GT) * 110 + 32, 50, 0, 0, T[GT], fnt_Metal, taCenter);
+      TKMLabel.Create(Panel_Formations, 130 + Byte(GT) * 110 + 32, 50, 0, 0, fTextLibrary[T[GT]], fnt_Metal, taCenter);
       NumEdit_FormationsCount[GT] := TKMNumericEdit.Create(Panel_Formations, 130 + Byte(GT) * 110, 70, 1, 255);
       NumEdit_FormationsColumns[GT] := TKMNumericEdit.Create(Panel_Formations, 130 + Byte(GT) * 110, 95, 1, 255);
     end;
 
-    Button_Formations_Ok := TKMButton.Create(Panel_Formations, SIZE_X-20-320-10, 150, 160, 30, 'Ok', bsMenu);
+    Button_Formations_Ok := TKMButton.Create(Panel_Formations, SIZE_X-20-320-10, 150, 160, 30, fTextLibrary[TX_MAPED_OK], bsMenu);
     Button_Formations_Ok.OnClick := Formations_Close;
-    Button_Formations_Cancel := TKMButton.Create(Panel_Formations, SIZE_X-20-160, 150, 160, 30, 'Cancel', bsMenu);
+    Button_Formations_Cancel := TKMButton.Create(Panel_Formations, SIZE_X-20-160, 150, 160, 30, fTextLibrary[TX_MAPED_CANCEL], bsMenu);
     Button_Formations_Cancel.OnClick := Formations_Close;
 end;
 
@@ -1498,47 +1508,47 @@ begin
     Img := TKMImage.Create(Panel_Goal, -20, -50, SIZE_X+40, SIZE_Y+60, 15, rxGuiMain);
     Img.ImageStretch;
     TKMBevel.Create(Panel_Goal,   0,  0, SIZE_X, SIZE_Y);
-    TKMLabel.Create(Panel_Goal, SIZE_X div 2, 10, 'Goal', fnt_Outline, taCenter);
+    TKMLabel.Create(Panel_Goal, SIZE_X div 2, 10, fTextLibrary[TX_MAPED_GOALS_TITLE], fnt_Outline, taCenter);
 
     Image_FormationsFlag := TKMImage.Create(Panel_Goal, 10, 10, 0, 0, 30, rxGuiMain);
 
-    TKMLabel.Create(Panel_Goal, 20, 40, 100, 0, 'Type', fnt_Metal, taLeft);
+    TKMLabel.Create(Panel_Goal, 20, 40, 100, 0, fTextLibrary[TX_MAPED_GOALS_TYPE], fnt_Metal, taLeft);
     Radio_GoalType := TKMRadioGroup.Create(Panel_Goal, 20, 60, 100, 60, fnt_Metal);
-    Radio_GoalType.Add('None');
-    Radio_GoalType.Add('Victory');
-    Radio_GoalType.Add('Survive');
+    Radio_GoalType.Add(fTextLibrary[TX_MAPED_GOALS_TYPE_NONE]);
+    Radio_GoalType.Add(fTextLibrary[TX_MAPED_GOALS_TYPE_VICTORY]);
+    Radio_GoalType.Add(fTextLibrary[TX_MAPED_GOALS_TYPE_SURVIVE]);
     Radio_GoalType.OnChange := Goal_Change;
 
-    TKMLabel.Create(Panel_Goal, 140, 40, 180, 0, 'Condition', fnt_Metal, taLeft);
+    TKMLabel.Create(Panel_Goal, 140, 40, 180, 0, fTextLibrary[TX_MAPED_GOALS_CONDITION], fnt_Metal, taLeft);
     Radio_GoalCondition := TKMRadioGroup.Create(Panel_Goal, 140, 60, 180, 180, fnt_Metal);
-    Radio_GoalCondition.Add('None', False);
-    Radio_GoalCondition.Add('BuildTutorial', False);
-    Radio_GoalCondition.Add('Time', False);
-    Radio_GoalCondition.Add('Buildings');
-    Radio_GoalCondition.Add('Troops');
-    Radio_GoalCondition.Add('Unknown', False);
-    Radio_GoalCondition.Add('MilitaryAssets');
-    Radio_GoalCondition.Add('SerfsAndSchools');
-    Radio_GoalCondition.Add('EconomyBuildings');
+    Radio_GoalCondition.Add(fTextLibrary[TX_MAPED_GOALS_CONDITION_NONE], False);
+    Radio_GoalCondition.Add(fTextLibrary[TX_MAPED_GOALS_CONDITION_TUTORIAL], False);
+    Radio_GoalCondition.Add(fTextLibrary[TX_MAPED_GOALS_CONDITION_TIME], False);
+    Radio_GoalCondition.Add(fTextLibrary[TX_MAPED_GOALS_CONDITION_BUILDS]);
+    Radio_GoalCondition.Add(fTextLibrary[TX_MAPED_GOALS_CONDITION_TROOPS]);
+    Radio_GoalCondition.Add(fTextLibrary[TX_MAPED_GOALS_CONDITION_UNKNOWN], False);
+    Radio_GoalCondition.Add(fTextLibrary[TX_MAPED_GOALS_CONDITION_ASSETS]);
+    Radio_GoalCondition.Add(fTextLibrary[TX_MAPED_GOALS_CONDITION_SERFS]);
+    Radio_GoalCondition.Add(fTextLibrary[TX_MAPED_GOALS_CONDITION_ECONOMY]);
     Radio_GoalCondition.OnChange := Goal_Change;
 
-    TKMLabel.Create(Panel_Goal, 330, 40, 'Player', fnt_Metal, taLeft);
+    TKMLabel.Create(Panel_Goal, 330, 40, fTextLibrary[TX_MAPED_GOALS_PLAYER], fnt_Metal, taLeft);
     NumEdit_GoalPlayer := TKMNumericEdit.Create(Panel_Goal, 330, 60, 1, MAX_PLAYERS);
     NumEdit_GoalPlayer.OnChange := Goal_Change;
 
-    TKMLabel.Create(Panel_Goal, 480, 40, 'Time', fnt_Metal, taLeft);
+    TKMLabel.Create(Panel_Goal, 480, 40, fTextLibrary[TX_MAPED_GOALS_TIME], fnt_Metal, taLeft);
     NumEdit_GoalTime := TKMNumericEdit.Create(Panel_Goal, 480, 60, 0, 32767);
     NumEdit_GoalTime.OnChange := Goal_Change;
     NumEdit_GoalTime.SharedHint := 'This setting is deprecated, use scripts instead';
 
-    TKMLabel.Create(Panel_Goal, 480, 90, 'Message ID', fnt_Metal, taLeft);
+    TKMLabel.Create(Panel_Goal, 480, 90, fTextLibrary[TX_MAPED_GOALS_MESSAGE], fnt_Metal, taLeft);
     NumEdit_GoalMessage := TKMNumericEdit.Create(Panel_Goal, 480, 110, 0, 0);
     NumEdit_GoalMessage.SharedHint := 'This setting is deprecated, use scripts instead';
     NumEdit_GoalMessage.Disable;
 
-    Button_GoalOk := TKMButton.Create(Panel_Goal, SIZE_X-20-320-10, SIZE_Y - 50, 160, 30, 'Ok', bsMenu);
+    Button_GoalOk := TKMButton.Create(Panel_Goal, SIZE_X-20-320-10, SIZE_Y - 50, 160, 30, fTextLibrary[TX_MAPED_OK], bsMenu);
     Button_GoalOk.OnClick := Goal_Close;
-    Button_GoalCancel := TKMButton.Create(Panel_Goal, SIZE_X-20-160, SIZE_Y - 50, 160, 30, 'Cancel', bsMenu);
+    Button_GoalCancel := TKMButton.Create(Panel_Goal, SIZE_X-20-160, SIZE_Y - 50, 160, 30, fTextLibrary[TX_MAPED_CANCEL], bsMenu);
     Button_GoalCancel.OnClick := Goal_Close;
 end;
 
@@ -1707,10 +1717,10 @@ begin
 
     Panel_MarkerDefence := TKMPanel.Create(Panel_Marker, 0, 46, TB_WIDTH, 400);
       DropList_DefenceGroup := TKMDropList.Create(Panel_MarkerDefence, 0, 10, TB_WIDTH, 20, fnt_Game, '', bsGame);
-      DropList_DefenceGroup.Add('Melee');
-      DropList_DefenceGroup.Add('AntiHorse');
-      DropList_DefenceGroup.Add('Ranged');
-      DropList_DefenceGroup.Add('Mounted');
+      DropList_DefenceGroup.Add(fTextLibrary[TX_MAPED_AI_ATTACK_TYPE_MELEE]);
+      DropList_DefenceGroup.Add(fTextLibrary[TX_MAPED_AI_ATTACK_TYPE_ANTIHORSE]);
+      DropList_DefenceGroup.Add(fTextLibrary[TX_MAPED_AI_ATTACK_TYPE_RANGED]);
+      DropList_DefenceGroup.Add(fTextLibrary[TX_MAPED_AI_ATTACK_TYPE_MOUNTED]);
       DropList_DefenceGroup.OnChange := Marker_Change;
       DropList_DefenceType := TKMDropList.Create(Panel_MarkerDefence, 0, 40, TB_WIDTH, 20, fnt_Game, '', bsGame);
       DropList_DefenceType.Add('FrontLine');

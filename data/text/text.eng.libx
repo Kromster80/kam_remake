@@ -1,5 +1,5 @@
 
-MaxID:2819
+MaxID:2942
 
 0:Sawmill
 1:Iron smithy
@@ -549,3 +549,122 @@ MaxID:2819
 2817:Vertical Sync
 2818:Special map
 2819:Unable to assign random locations
+2820:Room settings
+2822:Game speed
+2823:Game speed (peacetime)
+2824:Password
+2825:Description
+2826:Cancel
+2827:OK
+2828:Whisper
+2829:Kick
+2830:Ban
+2831:Set to host
+2833:%s recruits
+2835:Password protected room
+2836:Password
+2837:Players:
+2838:Objects
+2839:Copy/paste
+2840:Copy terrain
+2841:Paste terrain
+2842:Paste horizontally flipped terrain
+2843:Paste vertically flipped terrain
+2844:Roadworks
+2845:Houses
+2846:AI settings
+2847:Autobuild
+2848:Autorepair
+2849:Serf factor
+2850:Workers
+2851:AI defence positions
+2852:Place defence position for AI
+2853:Autodefence
+2854:Equip rate iron
+2855:Equip rate leather
+2856:Recruits per Barracks
+2857:How many recruits AI should have in barracks
+2858:Set max. soldiers
+2859:How many soldiers AI can have at once
+2860:Set a limit on number of soldiers AI can have
+2861:Edit formations
+2862:AI attacks
+2863:Autoattack
+2864:Type
+2865:Delay
+2866:Men
+2867:Target
+2868:Loc.
+2869:Goals
+2870:Type
+2871:Condition
+2872:Player
+2873:Time
+2874:Msg.
+2875:Colors
+2876:Block/release houses
+2877:Block trade
+2878:Reveal fog
+2879:Reveal a portion of map
+2880:Reveal all
+2881:Center screen
+2882:Center screen on mission start
+2883:Jump to location
+2884:Mode
+2885:Normal
+2886:Tactic
+2887:Alliances
+2888:Symmetrical
+2889:Player types
+2890:Default
+2891:Map already exists
+2892:Overwrite
+2893:Save
+2894:Cancel
+2895:Load map
+2896:Load
+2897:Cancel
+2898:Any unsaved|changes will be lost
+2899:View passability
+2900:Show objects
+2901:Show houses
+2902:Show units
+2903:Show deposits
+2904:Melee
+2905:Antihorse
+2906:Ranged
+2907:Mounted
+2908:Attack info
+2910:Once
+2911:Repeating
+2912:Delay, s
+2913:Group count
+2914:Take all
+2915:Closest unit
+2916:Closest house 1
+2917:Closest house 2
+2918:Custom position
+2919:Position
+2920:OK
+2921:Cancel
+2922:Troop Formations
+2923:Count
+2924:Columns
+2925:Goal
+2926:None
+2927:Victory
+2928:Survive
+2929:None
+2930:Build Tutorial
+2931:Time
+2932:Buildings
+2933:Troops
+2934:Unknown
+2935:Military assets
+2936:Serfs and schools
+2937:Economy buildings
+2938:Block walking
+2939:Random elements
+2940:Heights
+2941:Brush
+2942:AI creates and manages defence positions automatically

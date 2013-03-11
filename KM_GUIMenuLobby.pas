@@ -298,13 +298,13 @@ begin
 
         TrackBar_LobbySpeedPT := TKMTrackBar.Create(Panel_LobbySetupOptions, 10, 72, 250, 1, 5);
         TrackBar_LobbySpeedPT.Anchors := [akLeft,akBottom];
-        TrackBar_LobbySpeedPT.Caption := 'Game speed (peacetime)';
+        TrackBar_LobbySpeedPT.Caption := fTextLibrary[TX_LOBBY_GAMESPEED_PEACETIME];
         TrackBar_LobbySpeedPT.ThumbWidth := 45; //Enough to fit 'x2.5'
         TrackBar_LobbySpeedPT.OnChange := Lobby_GameOptionsChange;
 
         TrackBar_LobbySpeedAfterPT := TKMTrackBar.Create(Panel_LobbySetupOptions, 10, 116, 250, 1, 5);
         TrackBar_LobbySpeedAfterPT.Anchors := [akLeft,akBottom];
-        TrackBar_LobbySpeedAfterPT.Caption := 'Game speed';
+        TrackBar_LobbySpeedAfterPT.Caption := fTextLibrary[TX_LOBBY_GAMESPEED];
         TrackBar_LobbySpeedAfterPT.ThumbWidth := 45; //Enough to fit 'x2.5'
         TrackBar_LobbySpeedAfterPT.OnChange := Lobby_GameOptionsChange;
 
@@ -312,7 +312,7 @@ begin
     Button_LobbyBack.Anchors := [akLeft, akBottom];
     Button_LobbyBack.OnClick := BackClick;
 
-    Button_LobbyChangeSettings := TKMButton.Create(Panel_Lobby, 265, 712, 220, 30, 'Room Settings', bsMenu);
+    Button_LobbyChangeSettings := TKMButton.Create(Panel_Lobby, 265, 712, 220, 30, fTextLibrary[TX_LOBBY_ROOMSETTINGS], bsMenu);
     Button_LobbyChangeSettings.Anchors := [akLeft, akBottom];
     Button_LobbyChangeSettings.OnClick := SettingsClick;
 
@@ -348,10 +348,10 @@ begin
   Shape_PlayerMenuBG.Hide;
 
   ListBox_PlayerMenuHost := TKMListBox.Create(aParent, 0, 0, 120, 120, fnt_Grey, bsMenu);
-  ListBox_PlayerMenuHost.Add('Whisper');
-  ListBox_PlayerMenuHost.Add('Kick');
-  ListBox_PlayerMenuHost.Add('Ban');
-  ListBox_PlayerMenuHost.Add('Set to host');
+  ListBox_PlayerMenuHost.Add(fTextLibrary[TX_LOBBY_PLAYER_WHISPER]);
+  ListBox_PlayerMenuHost.Add(fTextLibrary[TX_LOBBY_PLAYER_KICK]);
+  ListBox_PlayerMenuHost.Add(fTextLibrary[TX_LOBBY_PLAYER_BAN]);
+  ListBox_PlayerMenuHost.Add(fTextLibrary[TX_LOBBY_PLAYER_SETHOST]);
   ListBox_PlayerMenuHost.AutoHideScrollBar := True;
   ListBox_PlayerMenuHost.BackAlpha := 0.8;
   ListBox_PlayerMenuHost.Focusable := False;
@@ -360,7 +360,7 @@ begin
   ListBox_PlayerMenuHost.Hide;
 
   ListBox_PlayerMenuJoiner := TKMListBox.Create(aParent, 0, 0, 120, 120, fnt_Grey, bsMenu);
-  ListBox_PlayerMenuJoiner.Add('Whisper');
+  ListBox_PlayerMenuJoiner.Add(fTextLibrary[TX_LOBBY_PLAYER_WHISPER]);
   ListBox_PlayerMenuJoiner.AutoHideScrollBar := True;
   ListBox_PlayerMenuJoiner.BackAlpha := 0.8;
   ListBox_PlayerMenuJoiner.Focusable := False;
@@ -377,19 +377,19 @@ begin
     TKMBevel.Create(Panel_LobbySettings, -1000,  -1000, 4000, 4000);
     TKMImage.Create(Panel_LobbySettings, -20, -75, 340, 310, 15, rxGuiMain);
     TKMBevel.Create(Panel_LobbySettings,   0,  0, 320, 300);
-    TKMLabel.Create(Panel_LobbySettings,  20, 10, 280, 20, 'Room settings', fnt_Outline, taCenter);
+    TKMLabel.Create(Panel_LobbySettings,  20, 10, 280, 20, fTextLibrary[TX_LOBBY_ROOMSETTINGS], fnt_Outline, taCenter);
 
-    TKMLabel.Create(Panel_LobbySettings, 20, 50, 156, 20, 'Description', fnt_Outline, taLeft);
+    TKMLabel.Create(Panel_LobbySettings, 20, 50, 156, 20, fTextLibrary[TX_LOBBY_ROOM_DESCRIPTION], fnt_Outline, taLeft);
     Edit_LobbyDescription := TKMEdit.Create(Panel_LobbySettings, 20, 70, 152, 20, fnt_Grey);
     Edit_LobbyDescription.AllowedChars := acText;
 
-    TKMLabel.Create(Panel_LobbySettings, 20, 100, 156, 20, 'Password', fnt_Outline, taLeft);
+    TKMLabel.Create(Panel_LobbySettings, 20, 100, 156, 20, fTextLibrary[TX_LOBBY_ROOM_PASSWORD], fnt_Outline, taLeft);
     Edit_LobbyPassword := TKMEdit.Create(Panel_LobbySettings, 20, 120, 152, 20, fnt_Grey);
     Edit_LobbyPassword.AllowedChars := acText;
 
-    Button_LobbySettingsSave := TKMButton.Create(Panel_LobbySettings, 20, 160, 280, 30, 'Ok', bsMenu);
+    Button_LobbySettingsSave := TKMButton.Create(Panel_LobbySettings, 20, 160, 280, 30, fTextLibrary[TX_LOBBY_ROOM_OK], bsMenu);
     Button_LobbySettingsSave.OnClick := SettingsClick;
-    Button_LobbySettingsCancel := TKMButton.Create(Panel_LobbySettings, 20, 200, 280, 30, fTextLibrary[TX_MP_MENU_FIND_SERVER_CANCEL], bsMenu);
+    Button_LobbySettingsCancel := TKMButton.Create(Panel_LobbySettings, 20, 200, 280, 30, fTextLibrary[TX_LOBBY_ROOM_CANCEL], bsMenu);
     Button_LobbySettingsCancel.OnClick := SettingsClick;
 end;
 
