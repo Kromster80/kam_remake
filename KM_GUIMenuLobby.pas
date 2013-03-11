@@ -58,7 +58,8 @@ type
         Button_LobbySettingsCancel: TKMButton;
 
       Shape_PlayerMenuBG: TKMShape;
-      ListBox_PlayerMenu: TKMListBox;
+      ListBox_PlayerMenuHost: TKMListBox;
+      ListBox_PlayerMenuJoiner: TKMListBox;
 
       Panel_LobbyServerName: TKMPanel;
         Label_LobbyServerName: TKMLabel;
@@ -168,6 +169,7 @@ begin
         OffY := 60 + I * 24;
         Image_LobbyFlag[I] := TKMImage.Create(Panel_LobbyPlayers, 10, OffY, 20, 20, 0, rxGuiMain);
         Image_LobbyFlag[I].ImageCenter;
+        Image_LobbyFlag[I].Tag := I+1; //Required for PlayerMenuShow
         Image_LobbyFlag[I].OnClick := PlayerMenuShow;
 
         Label_LobbyPlayer[I] := TKMLabel.Create(Panel_LobbyPlayers, C1, OffY+2, 150, 20, '', fnt_Grey, taLeft);
@@ -286,15 +288,26 @@ begin
   Shape_PlayerMenuBG.OnClick := PlayerMenuHide;
   Shape_PlayerMenuBG.Hide;
 
-  ListBox_PlayerMenu := TKMListBox.Create(aParent, 0, 0, 120, 120, fnt_Grey, bsMenu);
-  ListBox_PlayerMenu.Height := ListBox_PlayerMenu.ItemHeight * 3;
-  ListBox_PlayerMenu.AutoHideScrollBar := True;
-  ListBox_PlayerMenu.Focusable := False;
-  ListBox_PlayerMenu.Add('/whisper');
-  ListBox_PlayerMenu.Add('/kick');
-  ListBox_PlayerMenu.Add('/ban');
-  ListBox_PlayerMenu.OnClick := PlayerMenuClick;
-  ListBox_PlayerMenu.Hide;
+  ListBox_PlayerMenuHost := TKMListBox.Create(aParent, 0, 0, 120, 120, fnt_Grey, bsMenu);
+  ListBox_PlayerMenuHost.BackAlpha := 0.8;
+  ListBox_PlayerMenuHost.Height := ListBox_PlayerMenuHost.ItemHeight * 4;
+  ListBox_PlayerMenuHost.AutoHideScrollBar := True;
+  ListBox_PlayerMenuHost.Focusable := False;
+  ListBox_PlayerMenuHost.Add('Whisper');
+  ListBox_PlayerMenuHost.Add('Kick');
+  ListBox_PlayerMenuHost.Add('Ban');
+  ListBox_PlayerMenuHost.Add('Set to host');
+  ListBox_PlayerMenuHost.OnClick := PlayerMenuClick;
+  ListBox_PlayerMenuHost.Hide;
+
+  ListBox_PlayerMenuJoiner := TKMListBox.Create(aParent, 0, 0, 120, 120, fnt_Grey, bsMenu);
+  ListBox_PlayerMenuJoiner.BackAlpha := 0.8;
+  ListBox_PlayerMenuJoiner.Height := ListBox_PlayerMenuJoiner.ItemHeight * 1;
+  ListBox_PlayerMenuJoiner.AutoHideScrollBar := True;
+  ListBox_PlayerMenuJoiner.Focusable := False;
+  ListBox_PlayerMenuJoiner.Add('Whisper');
+  ListBox_PlayerMenuJoiner.OnClick := PlayerMenuClick;
+  ListBox_PlayerMenuJoiner.Hide;
 end;
 
 
@@ -488,6 +501,7 @@ end;
 
 
 procedure TKMGUIMenuLobby.PlayerMenuClick(Sender: TObject);
+var I: Integer;
 begin
   //todo: Handle selected action
   //Construct chat command and paste it in chat to make the player verify his intent
@@ -519,33 +533,63 @@ begin
   //        In any way banlist should be editable from within the lobby, so we will need methods to get the list
   //        from the server and allow to remove items from it.
 
+  I := fNetworking.NetPlayers.ServerToLocal(TKMControl(Sender).Tag);
+  if I = -1 then Exit; //Player has quit the lobby
+
+  //Whisper
+  //if ((Sender = ListBox_PlayerMenuHost) and (ListBox_PlayerMenuHost.ItemIndex = 0))
+  //or ((Sender = ListBox_PlayerMenuJoiner) and (ListBox_PlayerMenuHost.ItemIndex = 0)) then
+
+  //Kick
+  if (Sender = ListBox_PlayerMenuHost) and (ListBox_PlayerMenuHost.ItemIndex = 1) then
+    fNetworking.KickPlayer(I);
+
+  //Ban
+  //if (Sender = ListBox_PlayerMenuHost) and (ListBox_PlayerMenuHost.ItemIndex = 2) then
+
+  //Set to host
+  //if (Sender = ListBox_PlayerMenuHost) and (ListBox_PlayerMenuHost.ItemIndex = 3) then
+
   //Item picked - hide the menu
-  Shape_PlayerMenuBG.Hide;
-  ListBox_PlayerMenu.Hide;
+  PlayerMenuHide(nil);
 end;
 
 
 procedure TKMGUIMenuLobby.PlayerMenuHide(Sender: TObject);
 begin
   Shape_PlayerMenuBG.Hide;
-  ListBox_PlayerMenu.Hide;
+  ListBox_PlayerMenuHost.Hide;
+  ListBox_PlayerMenuJoiner.Hide;
 end;
 
 
 procedure TKMGUIMenuLobby.PlayerMenuShow(Sender: TObject);
-var C: TKMControl;
+var
+  C: TKMControl;
+  ListBox: TKMListBox;
 begin
   C := TKMControl(Sender);
+  //Only human players (excluding ourselves) have the player menu
+  if not fNetworking.NetPlayers[C.Tag].IsHuman
+  or (fNetworking.MyIndex = C.Tag) then Exit;
+
+  if fNetworking.IsHost then
+    ListBox := ListBox_PlayerMenuHost
+  else
+    ListBox := ListBox_PlayerMenuJoiner;
 
   //Position the menu next to the icon, but do not overlap players name
-  ListBox_PlayerMenu.Left := C.Left;
-  ListBox_PlayerMenu.Top := C.Top + C.Height;
+  ListBox.Left := C.Left;
+  ListBox.Top := C.Top + C.Height;
 
   //Reset previously selected item
-  ListBox_PlayerMenu.ItemIndex := -1;
+  ListBox.ItemIndex := -1;
+
+  //Remember which player it is by their server index (order of players can change)
+  ListBox.Tag := fNetworking.NetPlayers[C.Tag].IndexOnServer;
 
   Shape_PlayerMenuBG.Show;
-  ListBox_PlayerMenu.Show;
+  ListBox.Show;
 end;
 
 
