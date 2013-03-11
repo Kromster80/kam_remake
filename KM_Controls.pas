@@ -2782,10 +2782,11 @@ begin
   else
     ButtonState := [bsDisabled];
 
-  case fScrollAxis of
-    sa_Vertical:   TKMRenderUI.Write3DButton(Left,Top+Width+fThumbPos,Width,fThumbSize,rxGui,0,$FFFF00FF,ButtonState,fStyle);
-    sa_Horizontal: TKMRenderUI.Write3DButton(Left+Height+fThumbPos,Top,fThumbSize,Height,rxGui,0,$FFFF00FF,ButtonState,fStyle);
-  end;
+  if not (bsDisabled in ButtonState) then //Only show thumb when usable
+    case fScrollAxis of
+      sa_Vertical:   TKMRenderUI.Write3DButton(Left,Top+Width+fThumbPos,Width,fThumbSize,rxGui,0,$FFFF00FF,ButtonState,fStyle);
+      sa_Horizontal: TKMRenderUI.Write3DButton(Left+Height+fThumbPos,Top,fThumbSize,Height,rxGui,0,$FFFF00FF,ButtonState,fStyle);
+    end;
 end;
 
 
