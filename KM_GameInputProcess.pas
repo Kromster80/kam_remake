@@ -249,7 +249,6 @@ var
   SrcGroup, TgtGroup: TKMUnitGroup;
   TgtUnit: TKMUnit;
   SrcHouse, TgtHouse: TKMHouse;
-  W: TKMUnitWarrior;
 begin
   //NOTE: MyPlayer should not be used for important stuff here, use P instead (commands must be executed the same for all players)
   IsSilent := (aCommand.PlayerIndex <> MyPlayer.PlayerIndex);
@@ -347,7 +346,7 @@ begin
 
       gic_TempAddScout:           if DEBUG_CHEATS and (MULTIPLAYER_CHEATS or not fGame.IsMultiplayer) then
                                     //Place a warrior
-                                    W := TKMUnitWarrior(P.AddUnit(ut_HorseScout, KMPoint(Params[1], Params[2]), True, 0, True));
+                                    P.AddUnit(ut_HorseScout, KMPoint(Params[1], Params[2]), True, 0, True);
       gic_TempRevealMap:          if DEBUG_CHEATS and (MULTIPLAYER_CHEATS or not fGame.IsMultiplayer) then
                                     P.FogOfWar.RevealEverything;
       gic_TempDoNothing:          ;
