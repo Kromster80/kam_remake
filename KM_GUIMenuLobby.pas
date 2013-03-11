@@ -23,15 +23,23 @@ type
     fLobbyTab: TLobbyTab;
 
     procedure CreateControls(aParent: TKMPanel);
+    procedure CreateChatMenu(aParent: TKMPanel);
     procedure CreatePlayerMenu(aParent: TKMPanel);
     procedure CreateSettingsPopUp(aParent: TKMPanel);
 
     procedure Lobby_Reset(aKind: TNetPlayerKind; aPreserveMessage: Boolean = False; aPreserveMaps: Boolean = False);
     procedure LobbyTabSwitch(Sender: TObject);
     procedure Lobby_GameOptionsChange(Sender: TObject);
+
+    procedure ChatMenuSelect(aItem: Integer);
+    procedure ChatMenuClick(Sender: TObject);
+    procedure ChatMenuHide(Sender: TObject);
+    procedure ChatMenuShow(Sender: TObject);
+
     procedure PlayerMenuClick(Sender: TObject);
     procedure PlayerMenuHide(Sender: TObject);
     procedure PlayerMenuShow(Sender: TObject);
+
     procedure Lobby_PlayersSetupChange(Sender: TObject);
     procedure Lobby_MapColumnClick(aValue: Integer);
     procedure Lobby_MapTypeSelect(Sender: TObject);
@@ -61,6 +69,9 @@ type
         Edit_LobbyPassword: TKMEdit;
         Button_LobbySettingsSave: TKMButton;
         Button_LobbySettingsCancel: TKMButton;
+
+      Shape_ChatMenuBG: TKMShape;
+      ListBox_ChatMenu: TKMListBox;
 
       Shape_PlayerMenuBG: TKMShape;
       ListBox_PlayerMenuHost: TKMListBox;
@@ -95,6 +106,7 @@ type
 
       Memo_LobbyPosts: TKMMemo;
       Label_LobbyPost: TKMLabel;
+      Button_LobbyPost: TKMButtonFlat;
       Edit_LobbyPost: TKMEdit;
 
       Button_LobbyBack: TKMButton;
@@ -113,7 +125,7 @@ type
 
 
 implementation
-uses KM_TextLibrary, KM_Locales, KM_Utils, KM_Sound, KM_RenderUI;
+uses KM_TextLibrary, KM_Locales, KM_Utils, KM_Sound, KM_RenderUI, KM_Resource;
 
 
 { TKMGUIMenuLobby }
@@ -129,6 +141,7 @@ begin
   fSavesMP := TKMSavesCollection.Create;
 
   CreateControls(aParent);
+  CreateChatMenu(aParent);
   CreatePlayerMenu(aParent);
   CreateSettingsPopUp(aParent);
 end;
@@ -223,7 +236,13 @@ begin
     Memo_LobbyPosts.Anchors := [akLeft, akTop, akBottom];
     Label_LobbyPost := TKMLabel.Create(Panel_Lobby, 30, 663, CW, 20, fTextLibrary[TX_LOBBY_POST_WRITE], fnt_Outline, taLeft);
     Label_LobbyPost.Anchors := [akLeft, akBottom];
-    Edit_LobbyPost := TKMEdit.Create(Panel_Lobby, 30, 683, CW, 20, fnt_Metal);
+    Button_LobbyPost := TKMButtonFlat.Create(Panel_Lobby, 30, 683, 30, 20, 0);
+    //Button_LobbyPost.HideHighlight := True;
+    Button_LobbyPost.CapOffsetY := -10;
+    Button_LobbyPost.Font := fnt_Game;
+    Button_LobbyPost.OnClick := ChatMenuShow;
+
+    Edit_LobbyPost := TKMEdit.Create(Panel_Lobby, 60, 683, CW, 20, fnt_Metal);
     Edit_LobbyPost.OnKeyDown := Lobby_PostKey;
     Edit_LobbyPost.Anchors := [akLeft, akBottom];
     Edit_LobbyPost.ShowColors := True;
@@ -303,6 +322,24 @@ begin
 end;
 
 
+procedure TKMGUIMenuLobby.CreateChatMenu(aParent: TKMPanel);
+begin
+  Shape_ChatMenuBG := TKMShape.Create(aParent, 0,  0, aParent.Width, aParent.Height);
+  Shape_ChatMenuBG.Stretch;
+  Shape_ChatMenuBG.OnClick := ChatMenuHide;
+  Shape_ChatMenuBG.Hide;
+
+  ListBox_ChatMenu := TKMListBox.Create(aParent, 0, 0, 120, 120, fnt_Grey, bsMenu);
+  ListBox_ChatMenu.BackAlpha := 0.8;
+  ListBox_ChatMenu.AutoHideScrollBar := True;
+  ListBox_ChatMenu.Focusable := False;
+  ListBox_ChatMenu.Add('All');
+  ListBox_ChatMenu.Add('Team');
+  ListBox_ChatMenu.OnClick := ChatMenuClick;
+  ListBox_ChatMenu.Hide;
+end;
+
+
 procedure TKMGUIMenuLobby.CreatePlayerMenu(aParent: TKMPanel);
 begin
   Shape_PlayerMenuBG := TKMShape.Create(aParent, 0,  0, aParent.Width, aParent.Height);
@@ -311,23 +348,23 @@ begin
   Shape_PlayerMenuBG.Hide;
 
   ListBox_PlayerMenuHost := TKMListBox.Create(aParent, 0, 0, 120, 120, fnt_Grey, bsMenu);
-  ListBox_PlayerMenuHost.BackAlpha := 0.8;
-  ListBox_PlayerMenuHost.Height := ListBox_PlayerMenuHost.ItemHeight * 4;
-  ListBox_PlayerMenuHost.AutoHideScrollBar := True;
-  ListBox_PlayerMenuHost.Focusable := False;
   ListBox_PlayerMenuHost.Add('Whisper');
   ListBox_PlayerMenuHost.Add('Kick');
   ListBox_PlayerMenuHost.Add('Ban');
   ListBox_PlayerMenuHost.Add('Set to host');
+  ListBox_PlayerMenuHost.AutoHideScrollBar := True;
+  ListBox_PlayerMenuHost.BackAlpha := 0.8;
+  ListBox_PlayerMenuHost.Focusable := False;
+  ListBox_PlayerMenuHost.Height := ListBox_PlayerMenuHost.ItemHeight * ListBox_PlayerMenuHost.Count;
   ListBox_PlayerMenuHost.OnClick := PlayerMenuClick;
   ListBox_PlayerMenuHost.Hide;
 
   ListBox_PlayerMenuJoiner := TKMListBox.Create(aParent, 0, 0, 120, 120, fnt_Grey, bsMenu);
-  ListBox_PlayerMenuJoiner.BackAlpha := 0.8;
-  ListBox_PlayerMenuJoiner.Height := ListBox_PlayerMenuJoiner.ItemHeight * 1;
-  ListBox_PlayerMenuJoiner.AutoHideScrollBar := True;
-  ListBox_PlayerMenuJoiner.Focusable := False;
   ListBox_PlayerMenuJoiner.Add('Whisper');
+  ListBox_PlayerMenuJoiner.AutoHideScrollBar := True;
+  ListBox_PlayerMenuJoiner.BackAlpha := 0.8;
+  ListBox_PlayerMenuJoiner.Focusable := False;
+  ListBox_PlayerMenuJoiner.Height := ListBox_PlayerMenuJoiner.ItemHeight * ListBox_PlayerMenuJoiner.Count;
   ListBox_PlayerMenuJoiner.OnClick := PlayerMenuClick;
   ListBox_PlayerMenuJoiner.Hide;
 end;
@@ -354,6 +391,66 @@ begin
     Button_LobbySettingsSave.OnClick := SettingsClick;
     Button_LobbySettingsCancel := TKMButton.Create(Panel_LobbySettings, 20, 200, 280, 30, fTextLibrary[TX_MP_MENU_FIND_SERVER_CANCEL], bsMenu);
     Button_LobbySettingsCancel.OnClick := SettingsClick;
+end;
+
+
+procedure TKMGUIMenuLobby.ChatMenuSelect(aItem: Integer);
+var
+  Cap: AnsiString;
+  CapWidth: Integer;
+begin
+  if aItem <> -1 then
+  begin
+    //Update button width according to selected item
+    Cap := ListBox_ChatMenu[aItem];
+    CapWidth := fResource.Fonts.GetTextSize(Cap, Button_LobbyPost.Font).X;
+    Button_LobbyPost.Caption := Cap;
+    Button_LobbyPost.Width := CapWidth + 10;
+    Edit_LobbyPost.Left := Button_LobbyPost.Left + Button_LobbyPost.Width + 2;
+    Edit_LobbyPost.Width := Memo_LobbyPosts.Width - Edit_LobbyPost.Left;
+  end;
+end;
+
+
+procedure TKMGUIMenuLobby.ChatMenuClick(Sender: TObject);
+begin
+  ChatMenuSelect(ListBox_ChatMenu.ItemIndex);
+
+  ChatMenuHide(nil);
+end;
+
+
+procedure TKMGUIMenuLobby.ChatMenuHide(Sender: TObject);
+begin
+  Shape_ChatMenuBG.Hide;
+  ListBox_ChatMenu.Hide;
+end;
+
+
+procedure TKMGUIMenuLobby.ChatMenuShow(Sender: TObject);
+var
+  C: TKMControl;
+begin
+  C := TKMControl(Sender);
+
+  //Populate menu with right options
+  ListBox_ChatMenu.Clear;
+
+  ListBox_ChatMenu.Add('All');
+  ListBox_ChatMenu.Add('Team');
+  ListBox_ChatMenu.Add('Player 1');
+  ListBox_ChatMenu.Add('Player 2');
+
+  //Position the menu next to the icon, but do not overlap players name
+  ListBox_ChatMenu.Height := ListBox_ChatMenu.ItemHeight * ListBox_ChatMenu.Count;
+  ListBox_ChatMenu.Left := C.Left;
+  ListBox_ChatMenu.Top := C.Top - ListBox_ChatMenu.Height;
+
+  //Reset previously selected item
+  ListBox_ChatMenu.ItemIndex := -1;
+
+  Shape_ChatMenuBG.Show;
+  ListBox_ChatMenu.Show;
 end;
 
 
@@ -408,6 +505,8 @@ begin
   //fNetworking.OnStartSave - already assigned in fGameApp when Net is created
   fNetworking.OnDisconnect   := Lobby_OnDisconnect;
   fNetworking.OnReassignedHost := Lobby_OnReassignedToHost;
+
+  ChatMenuSelect(0);
 
   Panel_Lobby.Show;
   Lobby_Resize(aMainHeight);

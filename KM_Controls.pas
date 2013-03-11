@@ -321,7 +321,6 @@ type
   {FlatButton}
   TKMButtonFlat = class(TKMControl)
   private
-    fFont: TKMFont;
   public
     RX: TRXType;
     TexID: Word;
@@ -331,6 +330,7 @@ type
     Caption: string;
     Down: Boolean;
     FlagColor: TColor4;
+    Font: TKMFont;
     HideHighlight: Boolean;
     Clickable: Boolean; //Disables clicking without dimming
 
@@ -624,7 +624,7 @@ type
     procedure Clear;
     function Count: Integer;
 
-    property Item[aIndex: Integer]: string read GetItem;
+    property Item[aIndex: Integer]: string read GetItem; default;
     property ItemHeight: Byte read fItemHeight write SetItemHeight; //Accessed by DropBox
     property ItemIndex: Smallint read fItemIndex write fItemIndex;
     property TopIndex: Integer read GetTopIndex write SetTopIndex;
@@ -1905,7 +1905,7 @@ begin
   RX        := aRX;
   TexID     := aTexID;
   FlagColor := $FFFF00FF;
-  fFont     := fnt_Game;
+  Font      := fnt_Game;
   Clickable := True;
 end;
 
@@ -1934,7 +1934,7 @@ begin
   if (csOver in State) and fEnabled and not HideHighlight then
     TKMRenderUI.WriteShape(Left+1, Top+1, Width-2, Height-2, $40FFFFFF);
 
-  TKMRenderUI.WriteText(Left, Top + (Height div 2) + 4 + CapOffsetY, Width, Caption, fFont, taCenter, TextCol[fEnabled]);
+  TKMRenderUI.WriteText(Left, Top + (Height div 2) + 4 + CapOffsetY, Width, Caption, Font, taCenter, TextCol[fEnabled]);
 
   {if not fEnabled then
     TKMRenderUI.WriteShape(Left, Top, Width, Height, $80000000);}
