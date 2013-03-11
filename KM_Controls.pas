@@ -92,6 +92,9 @@ type
     fOnMouseWheel: TNotifyEventMW;
     //fOnMouseOver: TNotifyEvent;
 
+    //todo: @Krom: We need AbsLeft/AbsTop, and make existing uses of Left consistent.
+    //      Currently GetLeft is GetAbsLeft but SetLeft is SetLocLeft...
+    //      So all Get usages of Left need to change to AbsLeft, but Set usages of Left can stay as LocLeft.
     function GetLeft: Integer;
     function GetTop: Integer;
     function GetHeight: Integer;
