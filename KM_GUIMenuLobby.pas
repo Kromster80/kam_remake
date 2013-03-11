@@ -71,6 +71,7 @@ type
 
       Panel_LobbyPlayers: TKMPanel;
         CheckBox_LobbyHostControl: TKMCheckBox;
+        CheckBox_LobbyRandomizeTeamLocations: TKMCheckBox;
         Image_LobbyFlag: array [0..MAX_PLAYERS-1] of TKMImage;
         DropBox_LobbyPlayerSlot: array [0..MAX_PLAYERS-1] of TKMDropList;
         Label_LobbyPlayer: array [0..MAX_PLAYERS-1] of TKMLabel;
@@ -158,23 +159,26 @@ begin
       Label_LobbyServerName := TKMLabel.Create(Panel_LobbyServerName, 10, 10, CW-20, 20, '', fnt_Metal, taLeft);
 
     //Players
-    Panel_LobbyPlayers := TKMPanel.Create(Panel_Lobby, 30, 65, CW, 260);
-      TKMBevel.Create(Panel_LobbyPlayers,  0,  0, CW, 260);
+    Panel_LobbyPlayers := TKMPanel.Create(Panel_Lobby, 30, 65, CW, 268);
+      TKMBevel.Create(Panel_LobbyPlayers,  0,  0, CW, 268);
 
       CheckBox_LobbyHostControl := TKMCheckBox.Create(Panel_LobbyPlayers, 10, 10, 450, 20, fTextLibrary[TX_LOBBY_HOST_DOES_SETUP], fnt_Metal);
       CheckBox_LobbyHostControl.OnClick := Lobby_PlayersSetupChange;
 
+      CheckBox_LobbyRandomizeTeamLocations := TKMCheckBox.Create(Panel_LobbyPlayers, 10, 28, 450, 20, 'Randomize locations within teams', fnt_Metal);
+      CheckBox_LobbyRandomizeTeamLocations.OnClick := Lobby_PlayersSetupChange;
+
       //Column titles
-      TKMLabel.Create(Panel_LobbyPlayers, C1, 40, 150,  20, fTextLibrary[TX_LOBBY_HEADER_PLAYERS], fnt_Outline, taLeft);
-      TKMLabel.Create(Panel_LobbyPlayers, C2, 40, 150,  20, fTextLibrary[TX_LOBBY_HEADER_STARTLOCATION], fnt_Outline, taLeft);
-      TKMLabel.Create(Panel_LobbyPlayers, C3, 40,  80,  20, fTextLibrary[TX_LOBBY_HEADER_TEAM], fnt_Outline, taLeft);
-      TKMLabel.Create(Panel_LobbyPlayers, C4, 40,  80,  20, fTextLibrary[TX_LOBBY_HEADER_FLAGCOLOR], fnt_Outline, taLeft);
-      TKMLabel.Create(Panel_LobbyPlayers, C5, 40, fTextLibrary[TX_LOBBY_HEADER_READY], fnt_Outline, taCenter);
-      TKMLabel.Create(Panel_LobbyPlayers, C6, 40, fTextLibrary[TX_LOBBY_HEADER_PING], fnt_Outline, taCenter);
+      TKMLabel.Create(Panel_LobbyPlayers, C1, 50, 150,  20, fTextLibrary[TX_LOBBY_HEADER_PLAYERS], fnt_Outline, taLeft);
+      TKMLabel.Create(Panel_LobbyPlayers, C2, 50, 150,  20, fTextLibrary[TX_LOBBY_HEADER_STARTLOCATION], fnt_Outline, taLeft);
+      TKMLabel.Create(Panel_LobbyPlayers, C3, 50,  80,  20, fTextLibrary[TX_LOBBY_HEADER_TEAM], fnt_Outline, taLeft);
+      TKMLabel.Create(Panel_LobbyPlayers, C4, 50,  80,  20, fTextLibrary[TX_LOBBY_HEADER_FLAGCOLOR], fnt_Outline, taLeft);
+      TKMLabel.Create(Panel_LobbyPlayers, C5, 50, fTextLibrary[TX_LOBBY_HEADER_READY], fnt_Outline, taCenter);
+      TKMLabel.Create(Panel_LobbyPlayers, C6, 50, fTextLibrary[TX_LOBBY_HEADER_PING], fnt_Outline, taCenter);
 
       for I := 0 to MAX_PLAYERS - 1 do
       begin
-        OffY := 60 + I * 24;
+        OffY := 70 + I * 24;
         Image_LobbyFlag[I] := TKMImage.Create(Panel_LobbyPlayers, 10, OffY, 20, 20, 0, rxGuiMain);
         Image_LobbyFlag[I].ImageCenter;
         Image_LobbyFlag[I].Tag := I+1; //Required for PlayerMenuShow
@@ -213,13 +217,13 @@ begin
       end;
 
     //Chat area
-    Memo_LobbyPosts := TKMMemo.Create(Panel_Lobby, 30, 330, CW, 320, fnt_Metal, bsMenu);
+    Memo_LobbyPosts := TKMMemo.Create(Panel_Lobby, 30, 338, CW, 320, fnt_Metal, bsMenu);
     Memo_LobbyPosts.AutoWrap := True;
     Memo_LobbyPosts.ScrollDown := True;
     Memo_LobbyPosts.Anchors := [akLeft, akTop, akBottom];
-    Label_LobbyPost := TKMLabel.Create(Panel_Lobby, 30, 655, CW, 20, fTextLibrary[TX_LOBBY_POST_WRITE], fnt_Outline, taLeft);
+    Label_LobbyPost := TKMLabel.Create(Panel_Lobby, 30, 663, CW, 20, fTextLibrary[TX_LOBBY_POST_WRITE], fnt_Outline, taLeft);
     Label_LobbyPost.Anchors := [akLeft, akBottom];
-    Edit_LobbyPost := TKMEdit.Create(Panel_Lobby, 30, 675, CW, 20, fnt_Metal);
+    Edit_LobbyPost := TKMEdit.Create(Panel_Lobby, 30, 683, CW, 20, fnt_Metal);
     Edit_LobbyPost.OnKeyDown := Lobby_PostKey;
     Edit_LobbyPost.Anchors := [akLeft, akBottom];
     Edit_LobbyPost.ShowColors := True;
@@ -520,6 +524,7 @@ begin
     TrackBar_LobbySpeedPT.Disable;
     TrackBar_LobbySpeedAfterPT.Disable;
     CheckBox_LobbyHostControl.Enable;
+    CheckBox_LobbyRandomizeTeamLocations.Enable;
     Button_LobbyChangeSettings.Show;
   end
   else //Setup for Joiner
@@ -534,6 +539,7 @@ begin
     TrackBar_LobbySpeedPT.Disable;
     TrackBar_LobbySpeedAfterPT.Disable;
     CheckBox_LobbyHostControl.Disable;
+    CheckBox_LobbyRandomizeTeamLocations.Disable;
     Button_LobbyChangeSettings.Hide;
   end;
 end;
@@ -669,6 +675,12 @@ begin
   if Sender = CheckBox_LobbyHostControl then
   begin
     fNetworking.NetPlayers.HostDoesSetup := CheckBox_LobbyHostControl.Checked;
+    fNetworking.SendPlayerListAndRefreshPlayersSetup;
+  end;
+
+  if Sender = CheckBox_LobbyRandomizeTeamLocations then
+  begin
+    fNetworking.NetPlayers.RandomizeTeamLocations := CheckBox_LobbyRandomizeTeamLocations.Checked;
     fNetworking.SendPlayerListAndRefreshPlayersSetup;
   end;
 
@@ -873,6 +885,7 @@ begin
   end;
 
   CheckBox_LobbyHostControl.Checked := fNetworking.NetPlayers.HostDoesSetup;
+  CheckBox_LobbyRandomizeTeamLocations.Checked := fNetworking.NetPlayers.RandomizeTeamLocations;
   if fNetworking.IsHost then
     Button_LobbyStart.Enabled := fNetworking.CanStart;
   //If the game can't be started the text message with explanation will appear in chat area

@@ -63,6 +63,7 @@ type
     procedure UpdateAIPlayerNames;
   public
     HostDoesSetup: Boolean; //Gives host absolute control over locations/teams (not colors)
+    RandomizeTeamLocations: Boolean; //When the game starts locations are shuffled within each team
     constructor Create;
     destructor Destroy; override;
     procedure Clear;
@@ -260,6 +261,7 @@ end;
 procedure TKMNetPlayersList.Clear;
 begin
   HostDoesSetup := False;
+  RandomizeTeamLocations := False;
   fCount := 0;
 end;
 
@@ -708,11 +710,12 @@ function TKMNetPlayersList.ValidateSetup(aHumanUsableLocs, aAIUsableLocs: TPlaye
   end;
 
 var
-  i:integer;
+  I, K, J:integer;
   UsedLoc:array of boolean;
   AvailableLocHuman, AvailableLocBoth:array[1..MAX_PLAYERS] of byte;
   LocHumanCount, LocBothCount: Byte;
   TmpLocHumanCount, TmpLocBothCount: Byte;
+  TeamLocs:array of Integer;
 begin
   if not AllReady then begin
     ErrorMsg := fTextLibrary[TX_LOBBY_EVERYONE_NOT_READY];
@@ -803,6 +806,30 @@ begin
   for i:=1 to fCount do
     Assert(fNetPlayers[i].StartLocation <> 0, 'Everyone should have a starting location!');
 
+  //Shuffle locations within each team if requested
+  if RandomizeTeamLocations then
+    for I := 1 to 4 do //Each team
+    begin
+      SetLength(TeamLocs, 0); //Reset
+      for K := 1 to fCount do
+        if fNetPlayers[K].Team = I then
+        begin
+          SetLength(TeamLocs, Length(TeamLocs)+1);
+          TeamLocs[Length(TeamLocs)-1] := fNetPlayers[K].StartLocation;
+        end;
+      //Shuffle the locations
+      for K := 0 to Length(TeamLocs)-1 do
+        SwapInt(TeamLocs[K], TeamLocs[Random(Length(TeamLocs))]);
+      //Assign each location back to a player
+      J := 0;
+      for K := 1 to fCount do
+        if fNetPlayers[K].Team = I then
+        begin
+          fNetPlayers[K].StartLocation := TeamLocs[J];
+          Inc(J);
+        end;
+    end;
+
   ValidateColors;
   Result := True;
 end;
@@ -817,6 +844,7 @@ begin
   M := TKMemoryStream.Create;
 
   M.Write(HostDoesSetup);
+  M.Write(RandomizeTeamLocations);
   M.Write(fCount);
   for i:=1 to fCount do
     fNetPlayers[i].Save(M);
@@ -833,6 +861,7 @@ begin
   try
     M.WriteAsText(aText);
     M.Read(HostDoesSetup);
+    M.Read(RandomizeTeamLocations);
     M.Read(fCount);
     for i:=1 to fCount do
       fNetPlayers[i].Load(M);
