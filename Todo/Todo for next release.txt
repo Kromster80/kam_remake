@@ -17,6 +17,7 @@ Finishing up:
 	Decide which script commands will be implemented for this release and implement them
 	Performance test city builder and optimise/fix slow stuff (NextToOre using FindNearest for example)
 	Before RC search for all todos and @Lewin/@Krom comments to see if there's something important we forgot about
+	Before RC remove unused strings from LIBX (Lewin: I have code that lists unused strings) and compact indexes
 
 
 Known issues to fix:
