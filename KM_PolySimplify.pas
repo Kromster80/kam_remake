@@ -862,9 +862,6 @@ var
         end;
         Inc(I);
       until(I >= Length(Polygons));
-      if CutCount > Length(Polygons) then
-        //todo: @Krom: Neryn_12 (sent to us by Vas) crashes here. I committed it to the maps folder.
-        Assert(False, '');
     end;
   end;
 var
