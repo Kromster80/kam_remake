@@ -333,7 +333,7 @@ end;
 function TKMScriptStates.PlayerColorText(aPlayer: Byte): AnsiString;
 begin
   if InRange(aPlayer, 0, fPlayers.Count - 1) then
-    Result := Format('%.6x', [fPlayers[aPlayer].FlagColor and $FFFFFF])
+    Result := Format('%.6x', [FlagColorToTextColor(fPlayers[aPlayer].FlagColor) and $FFFFFF])
   else
   begin
     Result := '';

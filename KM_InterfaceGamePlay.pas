@@ -16,6 +16,7 @@ const
 
 type
   TKMTabButtons = (tbBuild, tbRatio, tbStats, tbMenu);
+  TChatMode = (cmAll, cmTeam, cmWhisper);
 
   TKMGamePlayInterface = class (TKMUserInterface)
   private
@@ -39,6 +40,8 @@ type
     fTeamNames: TList;
     Label_TeamName: TKMLabel;
     fLastSyncedMessage: Word; //Last message that we synced with MessageLog
+    fChatMode: TChatMode;
+    fChatWhisperRecipient: Integer; //Server index of the player who will receive the whisper
 
     //Saved
     fLastSaveName: AnsiString; //The file name we last used to save this file (used as default in Save menu)
@@ -51,6 +54,7 @@ type
     procedure Create_Replay;
     procedure Create_Allies;
     procedure Create_Chat;
+    procedure CreateChatMenu(aParent: TKMPanel);
     procedure Create_Message;
     procedure Create_MessageLog;
     procedure Create_Pause;
@@ -140,6 +144,9 @@ type
     procedure Chat_Close(Sender: TObject);
     procedure Chat_Post(Sender:TObject; Key:word);
     procedure Chat_Resize(Sender: TObject; X,Y: Integer);
+    procedure Chat_MenuClick(Sender: TObject);
+    procedure Chat_MenuHide(Sender: TObject);
+    procedure Chat_MenuShow(Sender: TObject);
     procedure Allies_Close(Sender: TObject);
     procedure Stats_Update;
     procedure Menu_Update;
@@ -193,8 +200,10 @@ type
       Image_Chat: TKMImage;
       Memo_ChatText: TKMMemo;
       Edit_ChatMsg: TKMEdit;
-      CheckBox_SendToAllies: TKMCheckBox;
+      Button_ChatRecipient: TKMButton;
       Image_ChatClose: TKMImage;
+      Shape_ChatMenuBG: TKMShape;
+      ListBox_ChatMenu: TKMListBox;
     Panel_Message: TKMPanel;
       Label_MessageText: TKMLabel;
       Button_MessageGoTo: TKMButton;
@@ -831,6 +840,7 @@ begin
   Create_NetWait; //Overlay blocking everyhitng but sidestack and messages
   Create_Allies; //MessagePage sibling
   Create_Chat; //On top of NetWait to allow players to chat while waiting for late opponents
+  CreateChatMenu(Panel_Main);
   Create_Message; //Must go bellow message stack
   Create_MessageLog; //Must go bellow message stack
   Create_SideStack; //Messages, Allies, Chat icons
@@ -1152,21 +1162,39 @@ begin
     Memo_ChatText.AutoWrap := True;
     Memo_ChatText.Anchors := [akLeft, akTop, akRight, akBottom];
 
-    Edit_ChatMsg := TKMEdit.Create(Panel_Chat, 45, 151, 680-85, 20, fnt_Metal);
+    Edit_ChatMsg := TKMEdit.Create(Panel_Chat, 45, 154, 580, 20, fnt_Metal);
     Edit_ChatMsg.Anchors := [akLeft, akRight, akBottom];
     Edit_ChatMsg.OnKeyDown := Chat_Post;
     Edit_ChatMsg.Text := '';
     Edit_ChatMsg.ShowColors := True;
 
-    CheckBox_SendToAllies := TKMCheckBox.Create(Panel_Chat,645,154,155,20, fTextLibrary[TX_GAMEPLAY_CHAT_TOTEAM], fnt_Outline);
-    CheckBox_SendToAllies.Checked := True;
-    CheckBox_SendToAllies.Anchors := [akRight, akBottom];
+    Button_ChatRecipient := TKMButton.Create(Panel_Chat,628,154,132,20, 'All', bsGame);
+    Button_ChatRecipient.OnClick := Chat_MenuShow;
+    Button_ChatRecipient.Anchors := [akRight, akBottom];
 
     Image_ChatClose := TKMImage.Create(Panel_Chat, 800-35, 20, 32, 32, 52);
     Image_ChatClose.Anchors := [akTop, akRight];
     Image_ChatClose.Hint := fTextLibrary[TX_MSG_CLOSE_HINT];
     Image_ChatClose.OnClick := Chat_Close;
     Image_ChatClose.HighlightOnMouseOver := True;
+end;
+
+
+procedure TKMGamePlayInterface.CreateChatMenu(aParent: TKMPanel);
+begin
+  Shape_ChatMenuBG := TKMShape.Create(aParent, 0,  0, aParent.Width, aParent.Height);
+  Shape_ChatMenuBG.Stretch;
+  Shape_ChatMenuBG.OnClick := Chat_MenuHide;
+  Shape_ChatMenuBG.Hide;
+
+  ListBox_ChatMenu := TKMListBox.Create(aParent, 0, 0, 132, 100, fnt_Grey, bsMenu);
+  ListBox_ChatMenu.BackAlpha := 0.8;
+  ListBox_ChatMenu.AutoHideScrollBar := True;
+  ListBox_ChatMenu.Focusable := False;
+  ListBox_ChatMenu.Add('All');
+  ListBox_ChatMenu.Add('Team');
+  ListBox_ChatMenu.OnClick := Chat_MenuClick;
+  ListBox_ChatMenu.Hide;
 end;
 
 
@@ -1862,13 +1890,6 @@ begin
   Panel_Chat.Show;
   Message_Close(nil);
   MessageLog_Close(nil);
-  if fGame.Networking.NetPlayers[fGame.Networking.MyIndex].Team = 0 then
-  begin
-    CheckBox_SendToAllies.Checked := false;
-    CheckBox_SendToAllies.Enabled := false;
-  end
-  else
-    CheckBox_SendToAllies.Enabled := true;
   Label_MPChatUnread.Caption := ''; //No unread messages
 end;
 
@@ -2804,7 +2825,10 @@ procedure TKMGamePlayInterface.Chat_Post(Sender: TObject; Key: Word);
 begin
   if (Key = VK_RETURN) and (Trim(Edit_ChatMsg.Text) <> '') and (fGame.Networking <> nil) then
   begin
-    fGame.Networking.PostMessage(Edit_ChatMsg.Text, True, CheckBox_SendToAllies.Checked);
+    if fChatMode in [cmAll, cmTeam] then
+      fGame.Networking.PostMessage(Edit_ChatMsg.Text, True, fChatMode = cmTeam);
+    if fChatMode = cmWhisper then
+      fGame.Networking.PostMessage(Edit_ChatMsg.Text, True, False, fChatWhisperRecipient);
     Edit_ChatMsg.Text := '';
   end;
 end;
@@ -2816,6 +2840,90 @@ begin
   H := EnsureRange(-Y, 0, MESSAGE_AREA_RESIZE_Y);
   Panel_Chat.Top := Panel_Main.Height - (MESSAGE_AREA_HEIGHT + H);
   Panel_Chat.Height := MESSAGE_AREA_HEIGHT + H;
+end;
+
+
+procedure TKMGamePlayInterface.Chat_MenuClick(Sender: TObject);
+var I: Integer;
+begin
+  //All
+  if ListBox_ChatMenu.ItemIndex = 0 then
+  begin
+    fChatMode := cmAll;
+    Button_ChatRecipient.Caption := 'All';
+    Edit_ChatMsg.DrawOutline := False; //No outline for All
+    Edit_ChatMsg.OutlineColor := $;
+  end;
+  //Team
+  if ListBox_ChatMenu.ItemIndex = 1 then
+  begin
+    fChatMode := cmTeam;
+    Button_ChatRecipient.Caption := '[$66FF66]Team';
+    Edit_ChatMsg.DrawOutline := True;
+    Edit_ChatMsg.OutlineColor := $FF66FF66;
+  end;
+  //Whisper
+  if ListBox_ChatMenu.ItemIndex >= 2 then
+  begin
+    I := ListBox_ChatMenu.ItemTags[ListBox_ChatMenu.ItemIndex];
+    I := fGame.Networking.NetPlayers.ServerToLocal(I);
+    if I <> -1 then
+    begin
+      fChatMode := cmWhisper;
+      Edit_ChatMsg.DrawOutline := True;
+      Edit_ChatMsg.OutlineColor := $FF00B9FF;
+      with fGame.Networking.NetPlayers[I] do
+      begin
+        fChatWhisperRecipient := IndexOnServer;
+        if FlagColor <> 0 then
+          Button_ChatRecipient.Caption := '[$'+IntToHex(FlagColorToTextColor(FlagColor) and $00FFFFFF,6)+']' + Nikname
+        else
+          Button_ChatRecipient.Caption := Nikname;
+      end;
+    end;
+  end;
+  Chat_MenuHide(nil);
+end;
+
+
+procedure TKMGamePlayInterface.Chat_MenuHide(Sender: TObject);
+begin
+  Shape_ChatMenuBG.Hide;
+  ListBox_ChatMenu.Hide;
+end;
+
+
+procedure TKMGamePlayInterface.Chat_MenuShow(Sender: TObject);
+var C: TKMControl; I: Integer;
+begin
+  //First populate the list
+  ListBox_ChatMenu.Clear;
+  ListBox_ChatMenu.Add('All');
+  //Only show "Team" if the player is on a team
+  if fGame.Networking.NetPlayers[fGame.Networking.MyIndex].Team <> 0 then
+    ListBox_ChatMenu.Add('[$66FF66]Team');
+
+  for I := 1 to fGame.Networking.NetPlayers.Count do
+    if I <> fGame.Networking.MyIndex then //Can't whisper to yourself
+      with fGame.Networking.NetPlayers[I] do
+        if IsHuman and Connected and not Dropped then
+          if FlagColor <> 0 then
+            ListBox_ChatMenu.Add('[$'+IntToHex(FlagColorToTextColor(FlagColor) and $00FFFFFF,6)+']' + Nikname, IndexOnServer)
+          else
+            ListBox_ChatMenu.Add(Nikname, IndexOnServer);
+
+  ListBox_ChatMenu.Height := ListBox_ChatMenu.Count * ListBox_ChatMenu.ItemHeight;
+
+  C := TKMControl(Sender);
+  //Position the menu next to the icon, but do not overlap players name
+  ListBox_ChatMenu.Left := C.Left + C.Width - ListBox_ChatMenu.Width;
+  ListBox_ChatMenu.Top := C.Top - ListBox_ChatMenu.Height;
+
+  //Reset previously selected item
+  ListBox_ChatMenu.ItemIndex := -1;
+
+  Shape_ChatMenuBG.Show;
+  ListBox_ChatMenu.Show;
 end;
 
 

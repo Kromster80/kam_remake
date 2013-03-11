@@ -115,6 +115,8 @@ type
     Focusable: Boolean; //Can this control have focus (e.g. TKMEdit sets this true)
     State: TKMControlStateSet; //Each control has it localy to avoid quering Collection on each Render
     Scale: Single; //Child controls position is scaled
+    DrawOutline: Boolean;
+    OutlineColor: Cardinal;
 
     Tag: Integer; //Some tag which can be used for various needs
     Hint: string; //Text that shows up when cursor is over that control, mainly for Buttons
@@ -1202,6 +1204,11 @@ var sColor: TColor4; Tmp: TKMPoint;
 begin
   Inc(CtrlPaintCount);
 
+  if DrawOutline then
+  begin
+    TKMRenderUI.WriteShape(Left-1, Top-1, Width+2, Height+2, $00000000, OutlineColor);
+    TKMRenderUI.WriteShape(Left-2, Top-2, Width+4, Height+4, $00000000, OutlineColor);
+  end;
 
   if SHOW_CONTROLS_FOCUS and (csFocus in State) then
   begin

@@ -153,7 +153,7 @@ type
 
     //Common
     procedure ConsoleCommand(aText:string);
-    procedure PostMessage(aText:string; aShowName:boolean=false; aTeamOnly:boolean=false);
+    procedure PostMessage(aText:string; aShowName:boolean=false; aTeamOnly:boolean=false; aRecipientServerIndex:Integer=-1);
     procedure PostLocalMessage(aText:string; aMakeSound:boolean=true);
     procedure AnnounceGameInfo(aGameTime: TDateTime; aMap: string);
 
@@ -809,7 +809,18 @@ end;
 
 //We route the message through Server to ensure everyone sees messages in the same order
 //with exact same timestamps (possibly added by Server?)
-procedure TKMNetworking.PostMessage(aText:string; aShowName:boolean=false; aTeamOnly:boolean=false);
+procedure TKMNetworking.PostMessage(aText:string; aShowName:boolean=false; aTeamOnly:boolean=false; aRecipientServerIndex:Integer=-1);
+
+  function GetRecipientName: string;
+  var I: Integer;
+  begin
+    I := NetPlayers.ServerToLocal(aRecipientServerIndex);
+    if I <> -1 then
+      Result := NetPlayers[I].Nikname
+    else
+      Result := '';
+  end;
+
 var i: integer; NameText:String;
 begin
   if aShowName then
@@ -825,11 +836,22 @@ begin
       if aTeamOnly then
         aText := NameText+' [$66FF66](Team)[]: '+aText
       else
-        aText := NameText+' (All): '+aText;
+        if aRecipientServerIndex <> -1 then
+          aText := NameText+' [$00B9FF](Whisper to '+GetRecipientName+')[]: '+aText
+        else
+          aText := NameText+' (All): '+aText;
     end;
   end;
   if not aTeamOnly then
-    PacketSend(NET_ADDRESS_ALL, mk_Text, aText, 0) //Send to all
+  begin
+    if aRecipientServerIndex <> -1 then
+    begin
+      PacketSend(aRecipientServerIndex, mk_Text, aText, 0); //Send to specific player
+      PacketSend(fMyIndexOnServer, mk_Text, aText, 0); //Send to self as well so the player sees it
+    end
+    else
+      PacketSend(NET_ADDRESS_ALL, mk_Text, aText, 0) //Send to all
+  end
   else
     if NetPlayers[fMyIndex].Team = 0 then
       PacketSend(fMyIndexOnServer, mk_Text, aText, 0) //Send to self only if we have no team
