@@ -2852,7 +2852,6 @@ begin
     fChatMode := cmAll;
     Button_ChatRecipient.Caption := 'All';
     Edit_ChatMsg.DrawOutline := False; //No outline for All
-    Edit_ChatMsg.OutlineColor := $;
   end;
   //Team
   if ListBox_ChatMenu.ItemIndex = 1 then

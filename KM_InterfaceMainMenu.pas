@@ -429,6 +429,8 @@ begin
         Left := Campaign_Selected.Maps[I].Flag.X - Round((Width/2)*(1-Panel_Campaign_Flags.Scale));
         Top  := Campaign_Selected.Maps[I].Flag.Y - Round(Height   *(1-Panel_Campaign_Flags.Scale));
       end;
+
+  fLobby.Lobby_Resize(Panel_Main.Height);
 end;
 
 
@@ -1877,10 +1879,10 @@ begin
 
   { Lobby }
   if (Sender = Button_MP_FindServerIP) or (Sender = Button_MP_GetIn) then
-    fLobby.Show(lpk_Joiner, fGameApp.Networking);
+    fLobby.Show(lpk_Joiner, fGameApp.Networking, Panel_Main.Height);
 
   if (Sender = Button_MP_CreateLAN) or (Sender = Button_MP_CreateWAN) then
-    fLobby.Show(lpk_Host, fGameApp.Networking);
+    fLobby.Show(lpk_Host, fGameApp.Networking, Panel_Main.Height);
 
   {Show MapEditor menu}
   if Sender=Button_MM_MapEd then begin

@@ -9,6 +9,8 @@ uses
 
 
 type
+  TLobbyTab = (ltDesc, ltOptions);
+
   TKMGUIMenuLobby = class
   private
     fOnPageChange: TGUIEventText; //will be in ancestor class
@@ -18,11 +20,14 @@ type
     fMinimap: TKMMinimap;
     fNetworking: TKMNetworking;
 
+    fLobbyTab: TLobbyTab;
+
     procedure CreateControls(aParent: TKMPanel);
     procedure CreatePlayerMenu(aParent: TKMPanel);
     procedure CreateSettingsPopUp(aParent: TKMPanel);
 
     procedure Lobby_Reset(aKind: TNetPlayerKind; aPreserveMessage: Boolean = False; aPreserveMaps: Boolean = False);
+    procedure LobbyTabSwitch(Sender: TObject);
     procedure Lobby_GameOptionsChange(Sender: TObject);
     procedure PlayerMenuClick(Sender: TObject);
     procedure PlayerMenuHide(Sender: TObject);
@@ -76,14 +81,16 @@ type
         Label_LobbyPing: array [0..MAX_PLAYERS-1] of TKMLabel;
 
       Panel_LobbySetup: TKMPanel;
-        Label_LobbyChooseMap: TKMLabel;
         Radio_LobbyMapType: TKMRadioGroup;
         DropCol_LobbyMaps: TKMDropColumns;
         Label_LobbyMapName: TKMLabel;
-        Memo_LobbyMapDesc: TKMMemo;
-        TrackBar_LobbyPeacetime: TKMTrackBar;
-        TrackBar_LobbySpeedPT, TrackBar_LobbySpeedAfterPT: TKMTrackBar;
         MinimapView_Lobby: TKMMinimapView;
+        Button_LobbyTabDesc, Button_LobbyTabOptions: TKMButton;
+        Panel_LobbySetupDesc: TKMPanel;
+          Memo_LobbyMapDesc: TKMMemo;
+        Panel_LobbySetupOptions: TKMPanel;
+          TrackBar_LobbyPeacetime: TKMTrackBar;
+          TrackBar_LobbySpeedPT, TrackBar_LobbySpeedAfterPT: TKMTrackBar;
 
       Memo_LobbyPosts: TKMMemo;
       Label_LobbyPost: TKMLabel;
@@ -98,7 +105,8 @@ type
 
     function GetChatText: string;
     function GetChatMessages: string;
-    procedure Show(aKind: TNetPlayerKind; aNetworking: TKMNetworking);
+    procedure Show(aKind: TNetPlayerKind; aNetworking: TKMNetworking; aMainHeight: Word);
+    procedure Lobby_Resize(aMainHeight: Word);
     procedure UpdateState(aTickCount: Cardinal);
   end;
 
@@ -220,8 +228,7 @@ begin
     Panel_LobbySetup := TKMPanel.Create(Panel_Lobby, 725, 30, 270, 712);
     Panel_LobbySetup.Anchors := [akLeft, akTop, akBottom];
       with TKMBevel.Create(Panel_LobbySetup,  0,  0, 270, 712) do Stretch;
-      Label_LobbyChooseMap := TKMLabel.Create(Panel_LobbySetup, 10, 10, 250, 20, fTextLibrary[TX_LOBBY_MAP_TYPE], fnt_Outline, taLeft);
-      Radio_LobbyMapType := TKMRadioGroup.Create(Panel_LobbySetup, 10, 29, 250, 80, fnt_Metal);
+      Radio_LobbyMapType := TKMRadioGroup.Create(Panel_LobbySetup, 10, 10, 250, 80, fnt_Metal);
       Radio_LobbyMapType.Add(fTextLibrary[TX_LOBBY_MAP_BUILD]);
       Radio_LobbyMapType.Add(fTextLibrary[TX_LOBBY_MAP_FIGHT]);
       Radio_LobbyMapType.Add(fTextLibrary[TX_LOBBY_MAP_COOP]);
@@ -230,42 +237,53 @@ begin
       Radio_LobbyMapType.ItemIndex := 0;
       Radio_LobbyMapType.OnChange := Lobby_MapTypeSelect;
 
-      DropCol_LobbyMaps := TKMDropColumns.Create(Panel_LobbySetup, 10, 119, 250, 20, fnt_Metal, fTextLibrary[TX_LOBBY_MAP_SELECT], bsMenu);
+      DropCol_LobbyMaps := TKMDropColumns.Create(Panel_LobbySetup, 10, 95, 250, 20, fnt_Metal, fTextLibrary[TX_LOBBY_MAP_SELECT], bsMenu);
       DropCol_LobbyMaps.DropCount := 19;
       DropCol_LobbyMaps.DropWidth := 430; //Wider to fit mapnames well
       DropCol_LobbyMaps.SetColumns(fnt_Outline, [fTextLibrary[TX_MENU_MAP_TITLE], '#', fTextLibrary[TX_MENU_MAP_SIZE]], [0, 290, 320]);
       DropCol_LobbyMaps.List.OnColumnClick := Lobby_MapColumnClick;
       DropCol_LobbyMaps.List.SearchColumn := 0;
       DropCol_LobbyMaps.OnChange := Lobby_MapSelect;
-      Label_LobbyMapName := TKMLabel.Create(Panel_LobbySetup, 10, 119, 250, 20, '', fnt_Metal, taLeft);
+      Label_LobbyMapName := TKMLabel.Create(Panel_LobbySetup, 10, 95, 250, 20, '', fnt_Metal, taLeft);
 
-      TKMBevel.Create(Panel_LobbySetup, 35, 144, 199, 199);
-      MinimapView_Lobby := TKMMinimapView.Create(Panel_LobbySetup, 39, 148, 191, 191);
+      TKMBevel.Create(Panel_LobbySetup, 35, 120, 199, 199);
+      MinimapView_Lobby := TKMMinimapView.Create(Panel_LobbySetup, 39, 124, 191, 191);
       MinimapView_Lobby.ShowLocs := True; //In the minimap we want player locations to be shown
 
-      Memo_LobbyMapDesc := TKMMemo.Create(Panel_LobbySetup, 10, 348, 250, 194, fnt_Game, bsMenu);
-      Memo_LobbyMapDesc.Anchors := [akLeft,akTop,akBottom];
-      Memo_LobbyMapDesc.AutoWrap := True;
-      Memo_LobbyMapDesc.ItemHeight := 16;
+      Button_LobbyTabDesc := TKMButton.Create(Panel_LobbySetup, 10, 324, 125, 20, 'Description', bsMenu);
+      Button_LobbyTabDesc.OnClick := LobbyTabSwitch;
+      Button_LobbyTabDesc.Hide;
+      Button_LobbyTabOptions := TKMButton.Create(Panel_LobbySetup, 10+125, 324, 125, 20, 'Options', bsMenu);
+      Button_LobbyTabOptions.OnClick := LobbyTabSwitch;
+      Button_LobbyTabOptions.Hide;
 
-      with TKMLabel.Create(Panel_LobbySetup, 10, 546, 250, 20, fTextLibrary[TX_LOBBY_GAME_OPTIONS], fnt_Outline, taLeft) do Anchors := [akLeft,akBottom];
-      TrackBar_LobbyPeacetime := TKMTrackBar.Create(Panel_LobbySetup, 10, 568, 250, 0, 120);
-      TrackBar_LobbyPeacetime.Anchors := [akLeft,akBottom];
-      TrackBar_LobbyPeacetime.Caption := fTextLibrary[TX_LOBBY_PEACETIME];
-      TrackBar_LobbyPeacetime.Step := 5; //Round to 5min steps
-      TrackBar_LobbyPeacetime.OnChange := Lobby_GameOptionsChange;
+      Panel_LobbySetupDesc := TKMPanel.Create(Panel_LobbySetup, 0, 324, 270, 218);
+      Panel_LobbySetupDesc.Anchors := [akLeft, akTop, akBottom];
+        Memo_LobbyMapDesc := TKMMemo.Create(Panel_LobbySetupDesc, 10, 0, 250, 218, fnt_Game, bsMenu);
+        Memo_LobbyMapDesc.Anchors := [akLeft,akTop,akBottom];
+        Memo_LobbyMapDesc.AutoWrap := True;
+        Memo_LobbyMapDesc.ItemHeight := 16;
 
-      TrackBar_LobbySpeedPT := TKMTrackBar.Create(Panel_LobbySetup, 10, 614, 250, 1, 5);
-      TrackBar_LobbySpeedPT.Anchors := [akLeft,akBottom];
-      TrackBar_LobbySpeedPT.Caption := 'Game speed (peacetime)';
-      TrackBar_LobbySpeedPT.ThumbWidth := 45; //Enough to fit 'x2.5'
-      TrackBar_LobbySpeedPT.OnChange := Lobby_GameOptionsChange;
+      Panel_LobbySetupOptions := TKMPanel.Create(Panel_LobbySetup, 0, 542, 270, 170);
+      Panel_LobbySetupOptions.Anchors := [akLeft,akBottom];
+        with TKMLabel.Create(Panel_LobbySetupOptions, 10, 4, 250, 20, fTextLibrary[TX_LOBBY_GAME_OPTIONS], fnt_Outline, taLeft) do Anchors := [akLeft,akBottom];
+        TrackBar_LobbyPeacetime := TKMTrackBar.Create(Panel_LobbySetupOptions, 10, 26, 250, 0, 120);
+        TrackBar_LobbyPeacetime.Anchors := [akLeft,akBottom];
+        TrackBar_LobbyPeacetime.Caption := fTextLibrary[TX_LOBBY_PEACETIME];
+        TrackBar_LobbyPeacetime.Step := 5; //Round to 5min steps
+        TrackBar_LobbyPeacetime.OnChange := Lobby_GameOptionsChange;
 
-      TrackBar_LobbySpeedAfterPT := TKMTrackBar.Create(Panel_LobbySetup, 10, 658, 250, 1, 5);
-      TrackBar_LobbySpeedAfterPT.Anchors := [akLeft,akBottom];
-      TrackBar_LobbySpeedAfterPT.Caption := 'Game speed';
-      TrackBar_LobbySpeedAfterPT.ThumbWidth := 45; //Enough to fit 'x2.5'
-      TrackBar_LobbySpeedAfterPT.OnChange := Lobby_GameOptionsChange;
+        TrackBar_LobbySpeedPT := TKMTrackBar.Create(Panel_LobbySetupOptions, 10, 72, 250, 1, 5);
+        TrackBar_LobbySpeedPT.Anchors := [akLeft,akBottom];
+        TrackBar_LobbySpeedPT.Caption := 'Game speed (peacetime)';
+        TrackBar_LobbySpeedPT.ThumbWidth := 45; //Enough to fit 'x2.5'
+        TrackBar_LobbySpeedPT.OnChange := Lobby_GameOptionsChange;
+
+        TrackBar_LobbySpeedAfterPT := TKMTrackBar.Create(Panel_LobbySetupOptions, 10, 116, 250, 1, 5);
+        TrackBar_LobbySpeedAfterPT.Anchors := [akLeft,akBottom];
+        TrackBar_LobbySpeedAfterPT.Caption := 'Game speed';
+        TrackBar_LobbySpeedAfterPT.ThumbWidth := 45; //Enough to fit 'x2.5'
+        TrackBar_LobbySpeedAfterPT.OnChange := Lobby_GameOptionsChange;
 
     Button_LobbyBack := TKMButton.Create(Panel_Lobby, 30, 712, 220, 30, fTextLibrary[TX_LOBBY_QUIT], bsMenu);
     Button_LobbyBack.Anchors := [akLeft, akBottom];
@@ -369,7 +387,7 @@ begin
 end;
 
 
-procedure TKMGUIMenuLobby.Show(aKind: TNetPlayerKind; aNetworking: TKMNetworking);
+procedure TKMGUIMenuLobby.Show(aKind: TNetPlayerKind; aNetworking: TKMNetworking; aMainHeight: Word);
 begin
   fNetworking := aNetworking;
 
@@ -388,6 +406,55 @@ begin
   fNetworking.OnReassignedHost := Lobby_OnReassignedToHost;
 
   Panel_Lobby.Show;
+  Lobby_Resize(aMainHeight);
+end;
+
+
+procedure TKMGUIMenuLobby.Lobby_Resize(aMainHeight: Word);
+begin
+  if not Panel_Lobby.Visible then Exit;
+  //If the vertical screen height goes below a certain amount we need to switch to "compact" mode
+  if aMainHeight >= 660 then
+  begin
+    //We have enough space, so stack Options below Desc
+    Panel_LobbySetupDesc.Top := 324;
+    Panel_LobbySetupDesc.Height := aMainHeight-550;
+    Panel_LobbySetupOptions.Top := 324 + Panel_LobbySetupDesc.Height;
+    Button_LobbyTabDesc.Hide;
+    Button_LobbyTabOptions.Hide;
+    Panel_LobbySetupDesc.Show;
+    Panel_LobbySetupOptions.Show;
+  end
+  else
+  begin
+    //Not enough space, so enabled tabbed view
+    Panel_LobbySetupDesc.Top := 350;
+    Panel_LobbySetupDesc.Height := aMainHeight-420;
+    Panel_LobbySetupOptions.Top := 350;
+    Button_LobbyTabDesc.Show;
+    Button_LobbyTabOptions.Show;
+    LobbyTabSwitch(nil);
+  end;
+end;
+
+
+procedure TKMGUIMenuLobby.LobbyTabSwitch(Sender: TObject);
+begin
+  if Sender = Button_LobbyTabDesc then
+    fLobbyTab := ltDesc;
+  if Sender = Button_LobbyTabOptions then
+    fLobbyTab := ltOptions;
+
+  case fLobbyTab of
+    ltDesc:    begin
+                 Panel_LobbySetupDesc.Show;
+                 Panel_LobbySetupOptions.Hide;
+               end;
+    ltOptions: begin
+                 Panel_LobbySetupDesc.Hide;
+                 Panel_LobbySetupOptions.Show;
+               end;
+  end;
 end;
 
 
@@ -447,7 +514,6 @@ begin
     if not aPreserveMaps then Lobby_MapTypeSelect(nil);
     DropCol_LobbyMaps.Show;
     Label_LobbyMapName.Hide;
-    Label_LobbyChooseMap.Show;
     Button_LobbyStart.Caption := fTextLibrary[TX_LOBBY_START]; //Start
     Button_LobbyStart.Disable;
     TrackBar_LobbyPeacetime.Disable;
@@ -462,7 +528,6 @@ begin
     Radio_LobbyMapType.ItemIndex := 0;
     DropCol_LobbyMaps.Hide;
     Label_LobbyMapName.Show;
-    Label_LobbyChooseMap.Hide;
     Button_LobbyStart.Caption := fTextLibrary[TX_LOBBY_READY]; //Ready
     Button_LobbyStart.Enable;
     TrackBar_LobbyPeacetime.Disable;
