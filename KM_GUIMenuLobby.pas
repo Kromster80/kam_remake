@@ -21,6 +21,8 @@ type
     fNetworking: TKMNetworking;
 
     fLobbyTab: TLobbyTab;
+    fChatMode: TChatMode;
+    fChatWhisperRecipient: Integer; //Server index of the player who will receive the whisper
 
     procedure CreateControls(aParent: TKMPanel);
     procedure CreateChatMenu(aParent: TKMPanel);
@@ -105,7 +107,6 @@ type
           TrackBar_LobbySpeedPT, TrackBar_LobbySpeedAfterPT: TKMTrackBar;
 
       Memo_LobbyPosts: TKMMemo;
-      Label_LobbyPost: TKMLabel;
       Button_LobbyPost: TKMButtonFlat;
       Edit_LobbyPost: TKMEdit;
 
@@ -230,17 +231,16 @@ begin
       end;
 
     //Chat area
-    Memo_LobbyPosts := TKMMemo.Create(Panel_Lobby, 30, 338, CW, 320, fnt_Metal, bsMenu);
+    Memo_LobbyPosts := TKMMemo.Create(Panel_Lobby, 30, 338, CW, 342, fnt_Metal, bsMenu);
     Memo_LobbyPosts.AutoWrap := True;
     Memo_LobbyPosts.ScrollDown := True;
     Memo_LobbyPosts.Anchors := [akLeft, akTop, akBottom];
-    Label_LobbyPost := TKMLabel.Create(Panel_Lobby, 30, 663, CW, 20, fTextLibrary[TX_LOBBY_POST_WRITE], fnt_Outline, taLeft);
-    Label_LobbyPost.Anchors := [akLeft, akBottom];
     Button_LobbyPost := TKMButtonFlat.Create(Panel_Lobby, 30, 683, 30, 20, 0);
     //Button_LobbyPost.HideHighlight := True;
     Button_LobbyPost.CapOffsetY := -10;
-    Button_LobbyPost.Font := fnt_Game;
+    Button_LobbyPost.Font := fnt_Grey;
     Button_LobbyPost.OnClick := ChatMenuShow;
+    Button_LobbyPost.Anchors := [akLeft, akBottom];
 
     Edit_LobbyPost := TKMEdit.Create(Panel_Lobby, 60, 683, CW, 20, fnt_Metal);
     Edit_LobbyPost.OnKeyDown := Lobby_PostKey;
@@ -395,26 +395,63 @@ end;
 
 
 procedure TKMGUIMenuLobby.ChatMenuSelect(aItem: Integer);
-var
-  Cap: AnsiString;
-  CapWidth: Integer;
-begin
-  if aItem <> -1 then
+
+  procedure UpdateButtonCaption(aCaption: AnsiString; aColor: Cardinal = 0);
+  var CapWidth: Integer;
+  const MIN_SIZE = 80; //Minimum size for the button
   begin
     //Update button width according to selected item
-    Cap := ListBox_ChatMenu[aItem];
-    CapWidth := fResource.Fonts.GetTextSize(Cap, Button_LobbyPost.Font).X;
-    Button_LobbyPost.Caption := Cap;
-    Button_LobbyPost.Width := CapWidth + 10;
-    Edit_LobbyPost.Left := Button_LobbyPost.Left + Button_LobbyPost.Width + 2;
-    Edit_LobbyPost.Width := Memo_LobbyPosts.Width - Edit_LobbyPost.Left;
+    CapWidth := fResource.Fonts.GetTextSize(aCaption, Button_LobbyPost.Font).X;
+    CapWidth := Max(MIN_SIZE, CapWidth+10); //Apply minimum size
+    if aColor <> 0 then
+      aCaption := '[$'+IntToHex(aColor and $00FFFFFF,6)+']'+aCaption;
+    Button_LobbyPost.Caption := aCaption;
+    Button_LobbyPost.Width := CapWidth;
+    Edit_LobbyPost.Left := Button_LobbyPost.Left + Button_LobbyPost.Width + 4;
+    Edit_LobbyPost.Width := Memo_LobbyPosts.Width - Edit_LobbyPost.Left + Memo_LobbyPosts.Left;
   end;
+
+var I: Integer;
+begin
+  //All
+  if aItem = -1 then
+  begin
+    fChatMode := cmAll;
+    UpdateButtonCaption('All');
+    Edit_LobbyPost.DrawOutline := False; //No outline for All
+  end
+  else
+    //Team
+    if aItem = -2 then
+    begin
+      fChatMode := cmTeam;
+      UpdateButtonCaption('Team', $FF66FF66);
+      Edit_LobbyPost.DrawOutline := True;
+      Edit_LobbyPost.OutlineColor := $FF66FF66;
+    end
+    else
+    //Whisper
+    begin
+      I := fNetworking.NetPlayers.ServerToLocal(aItem);
+      if I <> -1 then
+      begin
+        fChatMode := cmWhisper;
+        Edit_LobbyPost.DrawOutline := True;
+        Edit_LobbyPost.OutlineColor := $FF00B9FF;
+        with fNetworking.NetPlayers[I] do
+        begin
+          fChatWhisperRecipient := IndexOnServer;
+          UpdateButtonCaption(Nikname, IfThen(FlagColorID <> 0, FlagColorToTextColor(FlagColor), 0));
+        end;
+      end;
+    end;
 end;
 
 
 procedure TKMGUIMenuLobby.ChatMenuClick(Sender: TObject);
 begin
-  ChatMenuSelect(ListBox_ChatMenu.ItemIndex);
+  if ListBox_ChatMenu.ItemIndex <> -1 then
+    ChatMenuSelect(ListBox_ChatMenu.ItemTags[ListBox_ChatMenu.ItemIndex]);
 
   ChatMenuHide(nil);
 end;
@@ -430,16 +467,26 @@ end;
 procedure TKMGUIMenuLobby.ChatMenuShow(Sender: TObject);
 var
   C: TKMControl;
+  I: Integer;
 begin
   C := TKMControl(Sender);
 
   //Populate menu with right options
   ListBox_ChatMenu.Clear;
 
-  ListBox_ChatMenu.Add('All');
-  ListBox_ChatMenu.Add('Team');
-  ListBox_ChatMenu.Add('Player 1');
-  ListBox_ChatMenu.Add('Player 2');
+  ListBox_ChatMenu.Add('All', -1);
+  //Only show "Team" if the player is on a team
+  if fNetworking.NetPlayers[fNetworking.MyIndex].Team <> 0 then
+    ListBox_ChatMenu.Add('[$66FF66]Team', -2);
+    
+  for I := 1 to fNetworking.NetPlayers.Count do
+    if I <> fNetworking.MyIndex then //Can't whisper to yourself
+      with fNetworking.NetPlayers[I] do
+        if IsHuman and Connected and not Dropped then
+          if FlagColorID <> 0 then
+            ListBox_ChatMenu.Add('[$'+IntToHex(FlagColorToTextColor(FlagColor) and $00FFFFFF,6)+']' + Nikname, IndexOnServer)
+          else
+            ListBox_ChatMenu.Add(Nikname, IndexOnServer);
 
   //Position the menu next to the icon, but do not overlap players name
   ListBox_ChatMenu.Height := ListBox_ChatMenu.ItemHeight * ListBox_ChatMenu.Count;
@@ -597,6 +644,7 @@ begin
 
   if not aPreserveMessage then Memo_LobbyPosts.Clear;
   Edit_LobbyPost.Text := '';
+  ChatMenuSelect(-1); //All
 
   Label_LobbyMapName.Caption := '';
   Memo_LobbyMapDesc.Clear;
@@ -983,6 +1031,18 @@ begin
     MinimapView_Lobby.SetMinimap(fMinimap);
   end;
 
+  //If we are in team chat mode and find ourselves not on a team (player went back to no team), switch back to all
+  if (fChatMode = cmTeam) and (fNetworking.NetPlayers[fNetworking.MyIndex].Team = 0) then
+    ChatMenuSelect(-1);
+  //If we are in whisper chat mode and find the player has left, switch back to all
+  if fChatMode = cmWhisper then
+  begin
+    if fNetworking.NetPlayers.ServerToLocal(fChatWhisperRecipient) = -1 then
+      ChatMenuSelect(-1)
+    else
+      ChatMenuSelect(fChatWhisperRecipient); //In case that player changed his color
+  end;
+
   CheckBox_LobbyHostControl.Checked := fNetworking.NetPlayers.HostDoesSetup;
   CheckBox_LobbyRandomizeTeamLocations.Checked := fNetworking.NetPlayers.RandomizeTeamLocations;
   if fNetworking.IsHost then
@@ -1327,16 +1387,20 @@ var ChatMessage: string;
 begin
   if (Key <> VK_RETURN) or (Trim(Edit_LobbyPost.Text) = '') then exit;
   ChatMessage := Edit_LobbyPost.Text;
+  //Console commands are disabled for now, maybe we'll reuse them later
   //Check for console commands
-  if (Length(ChatMessage) > 1) and (ChatMessage[1] = '/')
+  {if (Length(ChatMessage) > 1) and (ChatMessage[1] = '/')
   and (ChatMessage[2] <> '/') then //double slash is the escape to place a slash at the start of a sentence
     fNetworking.ConsoleCommand(ChatMessage)
   else
   begin
     if (Length(ChatMessage) > 1) and (ChatMessage[1] = '/') and (ChatMessage[2] = '/') then
       Delete(ChatMessage, 1, 1); //Remove one of the /'s
-    fNetworking.PostMessage(ChatMessage, True);
-  end;
+  end;}
+  if fChatMode in [cmAll, cmTeam] then
+    fNetworking.PostMessage(ChatMessage, True, fChatMode = cmTeam);
+  if fChatMode = cmWhisper then
+    fNetworking.PostMessage(ChatMessage, True, False, fChatWhisperRecipient);
 
   Edit_LobbyPost.Text := '';
 end;

@@ -1291,6 +1291,7 @@ begin
     Radio_Load_MapType.OnChange := Menu_LoadChange;
     ListBox_Load := TKMListBox.Create(Panel_Load, 0, 85, TB_WIDTH, 205, fnt_Grey, bsGame);
     ListBox_Load.ItemHeight := 18;
+    ListBox_Load.AutoHideScrollBar := True;
     Button_LoadLoad     := TKMButton.Create(Panel_Load,0,300,TB_WIDTH,30,'Load',bsGame);
     Button_LoadCancel   := TKMButton.Create(Panel_Load,0,335,TB_WIDTH,30,'Cancel',bsGame);
     Button_LoadLoad.OnClick     := Menu_LoadClick;

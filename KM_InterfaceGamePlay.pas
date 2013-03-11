@@ -16,7 +16,6 @@ const
 
 type
   TKMTabButtons = (tbBuild, tbRatio, tbStats, tbMenu);
-  TChatMode = (cmAll, cmTeam, cmWhisper);
 
   TKMGamePlayInterface = class (TKMUserInterface)
   private
@@ -1448,6 +1447,7 @@ begin
     Edit_Save.OnChange := Menu_Save_EditChange;
 
     ListBox_Save := TKMListBox.Create(Panel_Save, 0, 4, TB_WIDTH, 220, fnt_Metal, bsGame);
+    ListBox_Save.AutoHideScrollBar := True;
     ListBox_Save.OnChange := Menu_Save_ListChange;
 
     Label_SaveExists := TKMLabel.Create(Panel_Save,0,260,TB_WIDTH,30,fTextLibrary[TX_GAMEPLAY_SAVE_EXISTS],fnt_Outline,taLeft);
@@ -1465,6 +1465,7 @@ begin
   Panel_Load := TKMPanel.Create(Panel_Controls, TB_PAD, 44, TB_WIDTH, 332);
 
     ListBox_Load := TKMListBox.Create(Panel_Load, 0, 2, TB_WIDTH, 260, fnt_Metal, bsGame);
+    ListBox_Load.AutoHideScrollBar := True;
     ListBox_Load.OnChange := Menu_Load_ListClick;
 
     Label_LoadDescription := TKMLabel.Create(Panel_Load,0,265,TB_WIDTH,0,'',fnt_Grey,taLeft);
@@ -2846,41 +2847,43 @@ end;
 procedure TKMGamePlayInterface.Chat_MenuClick(Sender: TObject);
 var I: Integer;
 begin
+  if ListBox_ChatMenu.ItemIndex = -1 then Exit;
   //All
-  if ListBox_ChatMenu.ItemIndex = 0 then
+  if ListBox_ChatMenu.ItemTags[ListBox_ChatMenu.ItemIndex] = -1 then
   begin
     fChatMode := cmAll;
     Button_ChatRecipient.Caption := 'All';
     Edit_ChatMsg.DrawOutline := False; //No outline for All
-  end;
-  //Team
-  if ListBox_ChatMenu.ItemIndex = 1 then
-  begin
-    fChatMode := cmTeam;
-    Button_ChatRecipient.Caption := '[$66FF66]Team';
-    Edit_ChatMsg.DrawOutline := True;
-    Edit_ChatMsg.OutlineColor := $FF66FF66;
-  end;
-  //Whisper
-  if ListBox_ChatMenu.ItemIndex >= 2 then
-  begin
-    I := ListBox_ChatMenu.ItemTags[ListBox_ChatMenu.ItemIndex];
-    I := fGame.Networking.NetPlayers.ServerToLocal(I);
-    if I <> -1 then
+  end
+  else
+    //Team
+    if ListBox_ChatMenu.ItemTags[ListBox_ChatMenu.ItemIndex] = -2 then
     begin
-      fChatMode := cmWhisper;
+      fChatMode := cmTeam;
+      Button_ChatRecipient.Caption := '[$66FF66]Team';
       Edit_ChatMsg.DrawOutline := True;
-      Edit_ChatMsg.OutlineColor := $FF00B9FF;
-      with fGame.Networking.NetPlayers[I] do
+      Edit_ChatMsg.OutlineColor := $FF66FF66;
+    end
+    else
+    //Whisper
+    begin
+      I := ListBox_ChatMenu.ItemTags[ListBox_ChatMenu.ItemIndex];
+      I := fGame.Networking.NetPlayers.ServerToLocal(I);
+      if I <> -1 then
       begin
-        fChatWhisperRecipient := IndexOnServer;
-        if FlagColor <> 0 then
-          Button_ChatRecipient.Caption := '[$'+IntToHex(FlagColorToTextColor(FlagColor) and $00FFFFFF,6)+']' + Nikname
-        else
-          Button_ChatRecipient.Caption := Nikname;
+        fChatMode := cmWhisper;
+        Edit_ChatMsg.DrawOutline := True;
+        Edit_ChatMsg.OutlineColor := $FF00B9FF;
+        with fGame.Networking.NetPlayers[I] do
+        begin
+          fChatWhisperRecipient := IndexOnServer;
+          if FlagColor <> 0 then
+            Button_ChatRecipient.Caption := '[$'+IntToHex(FlagColorToTextColor(FlagColor) and $00FFFFFF,6)+']' + Nikname
+          else
+            Button_ChatRecipient.Caption := Nikname;
+        end;
       end;
     end;
-  end;
   Chat_MenuHide(nil);
 end;
 
@@ -2897,10 +2900,10 @@ var C: TKMControl; I: Integer;
 begin
   //First populate the list
   ListBox_ChatMenu.Clear;
-  ListBox_ChatMenu.Add('All');
+  ListBox_ChatMenu.Add('All', -1);
   //Only show "Team" if the player is on a team
   if fGame.Networking.NetPlayers[fGame.Networking.MyIndex].Team <> 0 then
-    ListBox_ChatMenu.Add('[$66FF66]Team');
+    ListBox_ChatMenu.Add('[$66FF66]Team', -2);
 
   for I := 1 to fGame.Networking.NetPlayers.Count do
     if I <> fGame.Networking.MyIndex then //Can't whisper to yourself
@@ -4448,23 +4451,25 @@ begin
   begin
     Label_TeamName.Visible := True; //Only visible while we're using it, otherwise it shows up in other places
     for I := 0 to fTeamNames.Count - 1 do
-    if U.Visible and (MyPlayer.FogOfWar.CheckRevelation(U.PositionF, True) > FOG_OF_WAR_MIN) then
     begin
       U := TKMUnit(fTeamNames[I]);
-      Label_TeamName.Caption := fPlayers[U.Owner].PlayerName;
-      Label_TeamName.FontColor := FlagColorToTextColor(fPlayers[U.Owner].FlagColor);
-
-      UnitLoc := U.PositionF;
-      UnitLoc.X := UnitLoc.X - 0.5;
-      UnitLoc.Y := UnitLoc.Y - 1;
-      MapLoc := fTerrain.FlatToHeight(UnitLoc);
-      ScreenLoc := fGame.Viewport.MapToScreen(MapLoc);
-
-      if KMInRect(ScreenLoc, KMRect(0, 0, Panel_Main.Width, Panel_Main.Height)) then
+      if U.Visible and (MyPlayer.FogOfWar.CheckRevelation(U.PositionF, True) > FOG_OF_WAR_MIN) then
       begin
-        Label_TeamName.Left := ScreenLoc.X;
-        Label_TeamName.Top := ScreenLoc.Y;
-        Label_TeamName.Paint;
+        Label_TeamName.Caption := fPlayers[U.Owner].PlayerName;
+        Label_TeamName.FontColor := FlagColorToTextColor(fPlayers[U.Owner].FlagColor);
+
+        UnitLoc := U.PositionF;
+        UnitLoc.X := UnitLoc.X - 0.5;
+        UnitLoc.Y := UnitLoc.Y - 1;
+        MapLoc := fTerrain.FlatToHeight(UnitLoc);
+        ScreenLoc := fGame.Viewport.MapToScreen(MapLoc);
+
+        if KMInRect(ScreenLoc, KMRect(0, 0, Panel_Main.Width, Panel_Main.Height)) then
+        begin
+          Label_TeamName.Left := ScreenLoc.X;
+          Label_TeamName.Top := ScreenLoc.Y;
+          Label_TeamName.Paint;
+        end;
       end;
     end;
   end;

@@ -829,18 +829,14 @@ begin
       NameText := '[$'+IntToHex(FlagColorToTextColor(NetPlayers[fMyIndex].FlagColor) and $00FFFFFF,6)+']'+fMyNikname+'[]'
     else
       NameText := fMyNikname;
-    if fNetGameState <> lgs_Game then
-      aText := NameText+': '+aText
+
+    if aTeamOnly then
+      aText := NameText+' [$66FF66](Team)[]: '+aText
     else
-    begin
-      if aTeamOnly then
-        aText := NameText+' [$66FF66](Team)[]: '+aText
+      if aRecipientServerIndex <> -1 then
+        aText := NameText+' [$00B9FF](Whisper to '+GetRecipientName+')[]: '+aText
       else
-        if aRecipientServerIndex <> -1 then
-          aText := NameText+' [$00B9FF](Whisper to '+GetRecipientName+')[]: '+aText
-        else
-          aText := NameText+' (All): '+aText;
-    end;
+        aText := NameText+' (All): '+aText;
   end;
   if not aTeamOnly then
   begin
