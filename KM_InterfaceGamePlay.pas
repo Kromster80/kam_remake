@@ -144,6 +144,7 @@ type
     procedure Chat_Post(Sender:TObject; Key:word);
     procedure Chat_Resize(Sender: TObject; X,Y: Integer);
     procedure Chat_MenuClick(Sender: TObject);
+    procedure Chat_MenuSelect(aItem: Integer);
     procedure Chat_MenuHide(Sender: TObject);
     procedure Chat_MenuShow(Sender: TObject);
     procedure Allies_Close(Sender: TObject);
@@ -199,7 +200,7 @@ type
       Image_Chat: TKMImage;
       Memo_ChatText: TKMMemo;
       Edit_ChatMsg: TKMEdit;
-      Button_ChatRecipient: TKMButton;
+      Button_ChatRecipient: TKMButtonFlat;
       Image_ChatClose: TKMImage;
       Shape_ChatMenuBG: TKMShape;
       ListBox_ChatMenu: TKMListBox;
@@ -1161,13 +1162,15 @@ begin
     Memo_ChatText.AutoWrap := True;
     Memo_ChatText.Anchors := [akLeft, akTop, akRight, akBottom];
 
-    Edit_ChatMsg := TKMEdit.Create(Panel_Chat, 45, 154, 580, 20, fnt_Metal);
+    Edit_ChatMsg := TKMEdit.Create(Panel_Chat, 75, 154, 580, 20, fnt_Metal);
     Edit_ChatMsg.Anchors := [akLeft, akRight, akBottom];
     Edit_ChatMsg.OnKeyDown := Chat_Post;
     Edit_ChatMsg.Text := '';
     Edit_ChatMsg.ShowColors := True;
 
-    Button_ChatRecipient := TKMButton.Create(Panel_Chat,628,154,132,20, 'All', bsGame);
+    Button_ChatRecipient := TKMButtonFlat.Create(Panel_Chat,45,154,132,20,0);
+    Button_ChatRecipient.Font := fnt_Grey;
+    Button_ChatRecipient.CapOffsetY := -11;
     Button_ChatRecipient.OnClick := Chat_MenuShow;
     Button_ChatRecipient.Anchors := [akRight, akBottom];
 
@@ -2844,31 +2847,46 @@ begin
 end;
 
 
-procedure TKMGamePlayInterface.Chat_MenuClick(Sender: TObject);
+procedure TKMGamePlayInterface.Chat_MenuSelect(aItem: Integer);
+
+  procedure UpdateButtonCaption(aCaption: AnsiString; aColor: Cardinal = 0);
+  var CapWidth: Integer;
+  const MIN_SIZE = 80; //Minimum size for the button
+  begin
+    //Update button width according to selected item
+    CapWidth := fResource.Fonts.GetTextSize(aCaption, Button_ChatRecipient.Font).X;
+    CapWidth := Max(MIN_SIZE, CapWidth+10); //Apply minimum size
+    if aColor <> 0 then
+      aCaption := '[$'+IntToHex(aColor and $00FFFFFF,6)+']'+aCaption;
+    Button_ChatRecipient.Caption := aCaption;
+    Button_ChatRecipient.Width := CapWidth;
+    //todo: Needs to use AbsLeft
+    Edit_ChatMsg.Left := Button_ChatRecipient.Left + Button_ChatRecipient.Width + 4;
+    Edit_ChatMsg.Width := Memo_ChatText.Width - Edit_ChatMsg.Left + Memo_ChatText.Left;
+  end;
+
 var I: Integer;
 begin
-  if ListBox_ChatMenu.ItemIndex = -1 then Exit;
   //All
-  if ListBox_ChatMenu.ItemTags[ListBox_ChatMenu.ItemIndex] = -1 then
+  if aItem = -1 then
   begin
     fChatMode := cmAll;
-    Button_ChatRecipient.Caption := 'All';
+    UpdateButtonCaption('All');
     Edit_ChatMsg.DrawOutline := False; //No outline for All
   end
   else
     //Team
-    if ListBox_ChatMenu.ItemTags[ListBox_ChatMenu.ItemIndex] = -2 then
+    if aItem = -2 then
     begin
       fChatMode := cmTeam;
-      Button_ChatRecipient.Caption := '[$66FF66]Team';
+      UpdateButtonCaption('Team', $FF66FF66);
       Edit_ChatMsg.DrawOutline := True;
       Edit_ChatMsg.OutlineColor := $FF66FF66;
     end
     else
     //Whisper
     begin
-      I := ListBox_ChatMenu.ItemTags[ListBox_ChatMenu.ItemIndex];
-      I := fGame.Networking.NetPlayers.ServerToLocal(I);
+      I := fGame.Networking.NetPlayers.ServerToLocal(aItem);
       if I <> -1 then
       begin
         fChatMode := cmWhisper;
@@ -2877,13 +2895,18 @@ begin
         with fGame.Networking.NetPlayers[I] do
         begin
           fChatWhisperRecipient := IndexOnServer;
-          if FlagColor <> 0 then
-            Button_ChatRecipient.Caption := '[$'+IntToHex(FlagColorToTextColor(FlagColor) and $00FFFFFF,6)+']' + Nikname
-          else
-            Button_ChatRecipient.Caption := Nikname;
+          UpdateButtonCaption(Nikname, IfThen(FlagColorID <> 0, FlagColorToTextColor(FlagColor), 0));
         end;
       end;
     end;
+end;
+
+
+procedure TKMGamePlayInterface.Chat_MenuClick(Sender: TObject);
+begin
+  if ListBox_ChatMenu.ItemIndex <> -1 then
+    Chat_MenuSelect(ListBox_ChatMenu.ItemTags[ListBox_ChatMenu.ItemIndex]);
+
   Chat_MenuHide(nil);
 end;
 
@@ -2918,6 +2941,7 @@ begin
 
   C := TKMControl(Sender);
   //Position the menu next to the icon, but do not overlap players name
+  //todo: Needs to use AbsLeft / AbsTop
   ListBox_ChatMenu.Left := C.Left + C.Width - ListBox_ChatMenu.Width;
   ListBox_ChatMenu.Top := C.Top - ListBox_ChatMenu.Height;
 
