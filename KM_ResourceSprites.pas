@@ -570,7 +570,8 @@ begin
     begin
       GFXData[fRT,LeftIndex].Tex.ID := TRender.GenTexture(WidthPOT,HeightPOT,@TD[0],aTexType);
       //TeamColors are done through alternative plain colored texture
-      if HasMsk then begin
+      if HasMsk then
+      begin
         GFXData[fRT,LeftIndex].Alt.ID := TRender.GenTexture(WidthPOT,HeightPOT,@TA[0],tf_Alpha8);
         Inc(ColorRAM, WidthPOT * HeightPOT * TexFormatSize[aTexType]); //GL_ALPHA4
       end;

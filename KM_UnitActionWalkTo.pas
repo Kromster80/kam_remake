@@ -153,7 +153,8 @@ begin
   if KMSamePoint(fWalkFrom,fWalkTo) then //We don't care for this case, Execute will report action is done immediately
     exit; //so we don't need to perform any more processing
 
-  if aSetPushed then begin
+  if aSetPushed then
+  begin
     fInteractionStatus := kis_Pushed; //So that unit knows it was pushed not just walking somewhere
     Explanation := 'We were asked to get out of the way';
     ExplanationLogAdd;

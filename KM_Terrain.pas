@@ -167,6 +167,7 @@ type
     function TileIsWater(Loc: TKMPoint): Boolean; overload;
     function TileIsWater(X, Y: Word): Boolean; overload;
     function TileIsStone(X, Y: Word): Byte;
+    function TileIsSnow(X, Y: Word): Boolean;
     function TileIsCoal(X, Y: Word): Byte;
     function TileIsIron(X, Y: Word): Byte;
     function TileIsGold(X, Y: Word): Byte;
@@ -569,6 +570,11 @@ begin
   Result := fTileset.TileIsSand(Land[Loc.Y, Loc.X].Terrain);
 end;
 
+
+function TKMTerrain.TileIsSnow(X, Y: Word): Boolean;
+begin
+  Result := fTileset.TileIsSnow(Land[Y, X].Terrain);
+end;
 
 //Check if requested tile is Stone and returns Stone deposit
 function TKMTerrain.TileIsStone(X,Y: Word): Byte;

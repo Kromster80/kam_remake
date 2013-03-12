@@ -40,6 +40,7 @@ type
     //function TileHasWater(aTile: Byte): Boolean;
     function TileIsSand(aTile: Byte): Boolean;
     function TileIsStone(aTile: Byte): Byte;
+    function TileIsSnow(aTile: Byte): Boolean;
     function TileIsCoal(aTile: Byte): Byte;
     function TileIsIron(aTile: Byte): Byte;
     function TileIsGold(aTile: Byte): Byte;
@@ -163,6 +164,13 @@ begin
     128,133: Result := 1;
     else     Result := 0;
   end;
+end;
+
+
+{Check if requested tile is sand suitable for crabs}
+function TKMTileset.TileIsSnow(aTile: Byte): Boolean;
+begin
+  Result := aTile in [45, 46, 47, 49, 52, 65, 203, 204, 205, 212, 213, 220];
 end;
 
 

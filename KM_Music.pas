@@ -235,11 +235,13 @@ begin
        or (GetFileExt(SearchRec.Name) = 'AC3')
        or (GetFileExt(SearchRec.Name) = 'AAC')
        or (GetFileExt(SearchRec.Name) = 'OGA')
-       {$ENDIF} then begin
+       {$ENDIF} then
+       begin
       Inc(MusicCount);
       MusicTracks[MusicCount] := Path + SearchRec.Name;
     end;
-    {if GetFileExt(SearchRec.Name)='MID' then begin
+    {if GetFileExt(SearchRec.Name)='MID' then
+    begin
       inc(MIDICount);
       MIDITracks[MIDICount] := Path + SearchRec.Name;
     end;}
@@ -513,7 +515,8 @@ begin
   wDeviceID := mciOpen.wDeviceID;
   mciStat.dwItem := MCI_SEQ_STATUS_PORT;
   Result := mciSendCommand (wDeviceID, MCI_STATUS, MCI_STATUS_ITEM, longint (@mciStat));
-  if Result <> 0 then begin
+  if Result <> 0 then
+  begin
     mciSendCommand (wDeviceID, MCI_CLOSE, 0, 0);
     exit;
   end;
@@ -525,7 +528,8 @@ begin
   mciPlay.dwCallback := Form1.Handle;
   Result := mciSendCommand (wDeviceID, MCI_PLAY,
   MCI_NOTIFY, longint (@mciPlay));
-  if Result <> 0 then begin
+  if Result <> 0 then
+  begin
     mciSendCommand (wDeviceID, MCI_CLOSE, 0, 0);
     exit;
   end;

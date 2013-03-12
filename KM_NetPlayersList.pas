@@ -718,7 +718,8 @@ var
   TmpLocHumanCount, TmpLocBothCount: Byte;
   TeamLocs:array of Integer;
 begin
-  if not AllReady then begin
+  if not AllReady then
+  begin
     ErrorMsg := fTextLibrary[TX_LOBBY_EVERYONE_NOT_READY];
     Result := False;
     Exit;

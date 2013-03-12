@@ -55,6 +55,7 @@ type
     function GetOwnerType:TUnitType;
     function GetReleasedBy:THouseType;
     function GetTabletIcon:word;
+    function GetSnowPic: SmallInt;
   public
     constructor Create(aHouseType:THouseType);
     procedure LoadFromStream(Stream:TMemoryStream);
@@ -88,6 +89,7 @@ type
     property ResInput:THouseRes read GetResInput;
     property ResOutput:THouseRes read GetResOutput;
     property TabletIcon:word read GetTabletIcon;
+    property SnowPic: SmallInt read GetSnowPic;
     //Functions
     function AcceptsGoods: Boolean;
     function IsValid: Boolean;
@@ -197,6 +199,7 @@ type
     Input:THouseRes;
     Output:THouseRes;
     ReleasedBy:THouseType; //Which house type allows to build this house type
+    SnowPic: SmallInt;
   end;
 
 const
@@ -453,6 +456,7 @@ const
     Input:      (rt_None,       rt_None,       rt_None,       rt_None);
     Output:     (rt_Wine,       rt_None,       rt_None,       rt_None);
     ReleasedBy: ht_Sawmill;
+    SnowPic:    2047;
     ),
     ( //Woodcutter
     PlanYX:     ((0,0,0,0), (0,0,0,0), (1,1,1,0), (1,1,2,0));
@@ -577,6 +581,12 @@ end;
 function TKMHouseDatClass.GetResOutput: THouseRes;
 begin
   Result := HouseDatX[fHouseType].Output;
+end;
+
+
+function TKMHouseDatClass.GetSnowPic: SmallInt;
+begin
+  Result := HouseDatX[fHouseType].SnowPic;
 end;
 
 

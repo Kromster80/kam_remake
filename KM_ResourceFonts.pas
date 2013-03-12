@@ -122,7 +122,8 @@ begin
           fLog.AddAssert('FontData palette <> 1');
 
         //Switch to new line
-        if AdvX+Width+2>TexWidth then begin
+        if AdvX+Width+2>TexWidth then
+        begin
           AdvX := 0;
           inc(AdvY, MaxHeight);
         end;

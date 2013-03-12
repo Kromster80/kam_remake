@@ -106,10 +106,13 @@ begin
       for y:=0 to sy-1 do for x:=0 to sx-1 do
       begin
         //todo: Find a PC which doesn't shows transparency and try to change 4th byte in bm.Canvas.Pixels
-        if fRXData.RGBA[Cursors[KMC],y*sx+x] and $FF000000 = 0 then begin
+        if fRXData.RGBA[Cursors[KMC],y*sx+x] and $FF000000 = 0 then
+        begin
           bm.Canvas.Pixels[x,y] := 0; //If not reset will invert background color
           bm2.Canvas.Pixels[x,y] := clWhite;
-        end else begin
+        end
+        else
+        begin
           bm.Canvas.Pixels[x,y] := (fRXData.RGBA[Cursors[KMC],y*sx+x] AND $FFFFFF);
           bm2.Canvas.Pixels[x,y] := clBlack;
         end;

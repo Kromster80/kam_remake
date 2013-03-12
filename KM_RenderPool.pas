@@ -75,6 +75,7 @@ type
     procedure AddHouseBuildSupply(aHouse: THouseType; Loc: TKMPoint; Wood,Stone: Byte);
     procedure AddHouseWood(aHouse: THouseType; Loc: TKMPoint; Step: Single);
     procedure AddHouseStone(aHouse: THouseType; Loc: TKMPoint; Step: Single);
+    procedure AddHouseSnow(aHouse: THouseType; Loc: TKMPoint; Step: Single);
     procedure AddHouseWork(aHouse: THouseType; Loc: TKMPoint; aActSet: THouseActionSet; AnimStep: Cardinal; FlagColor: TColor4);
     procedure AddHouseSupply(aHouse: THouseType; Loc: TKMPoint; const R1,R2:array of byte);
     procedure AddHouseMarketSupply(Loc: TKMPoint; ResType: TResourceType; ResCount:word; AnimStep: Integer);
@@ -433,6 +434,27 @@ begin
 
   R := fRXData[rxHouses];
   ID := fResource.HouseDat[aHouse].StonePic + 1;
+  CornerX := Loc.X + R.Pivot[ID].X / CELL_SIZE_PX;
+  CornerY := Loc.Y + (R.Pivot[ID].Y + R.Size[ID].Y) / CELL_SIZE_PX
+                   - fTerrain.Land[Loc.Y + 1, Loc.X].Height / CELL_HEIGHT_DIV;
+  fRenderList.AddSprite(rxHouses, ID, CornerX, CornerY, $0, Step);
+end;
+
+
+//Render house in snow
+procedure TRenderPool.AddHouseSnow(aHouse: THouseType; Loc: TKMPoint; Step: Single);
+var
+  ID: Integer;
+  CornerX, CornerY: Single;
+  R: TRXData;
+begin
+  //We need to render Wood part of the house because Stone part may have some of
+  //detail clipped where there's no stone used(e.g. Sawmills left side)
+  AddHouseWood(aHouse, Loc, 1);
+  AddHouseStone(aHouse, Loc, 1);
+
+  R := fRXData[rxHouses];
+  ID := fResource.HouseDat[aHouse].SnowPic + 1;
   CornerX := Loc.X + R.Pivot[ID].X / CELL_SIZE_PX;
   CornerY := Loc.Y + (R.Pivot[ID].Y + R.Size[ID].Y) / CELL_SIZE_PX
                    - fTerrain.Land[Loc.Y + 1, Loc.X].Height / CELL_HEIGHT_DIV;

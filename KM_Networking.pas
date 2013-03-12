@@ -1139,7 +1139,8 @@ begin
             end;
 
     mk_RefuseToJoin:
-            if fNetPlayerKind = lpk_Joiner then begin
+            if fNetPlayerKind = lpk_Joiner then
+            begin
               fNetClient.Disconnect;
               fOnJoinFail(Msg);
             end;
@@ -1266,14 +1267,16 @@ begin
             end;
 
     mk_PlayersList:
-            if fNetPlayerKind = lpk_Joiner then begin
+            if fNetPlayerKind = lpk_Joiner then
+            begin
               fNetPlayers.SetAsText(Msg); //Our index could have changed on players add/removal
               fMyIndex := fNetPlayers.NiknameToLocal(fMyNikname);
               if Assigned(fOnPlayersSetup) then fOnPlayersSetup(Self);
             end;
 
     mk_GameOptions:
-            if fNetPlayerKind = lpk_Joiner then begin
+            if fNetPlayerKind = lpk_Joiner then
+            begin
               fNetGameOptions.SetAsText(Msg);
               if Assigned(fOnGameOptions) then fOnGameOptions(Self);
             end;
@@ -1288,7 +1291,8 @@ begin
             end;
 
     mk_MapSelect:
-            if fNetPlayerKind = lpk_Joiner then begin
+            if fNetPlayerKind = lpk_Joiner then
+            begin
               fSelectGameKind := ngk_Map;
               FreeAndNil(fMapInfo);
               fMapInfo := TKMapInfo.Create;
