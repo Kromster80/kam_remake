@@ -1082,6 +1082,8 @@ begin
       //@Lewin: This is a good feature, but implementation needs to be more complex,
       //we need to allow to select player we watch from replay panel as well
       //(possibly a dropdown menu with playernames).
+      //@Krom: You can select the player by selecting some of his assets, the same way you get to
+      //       view his stats menu. IMO that works ok, but a player selector would be nice too.
 
       //todo: Make generic TKMMenu control [Krom]
 end;
