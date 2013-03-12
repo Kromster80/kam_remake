@@ -42,6 +42,7 @@
 	Unexpectedly high ping values (high_ping.jpg)
 		Lewin: That's not our problem, it usually means his internet connection is not running smoothly. For example if you are downloading a file/video/youtube while playing your ping will go much higher because packets are queued and delayed by your modem when running at maximum speed. If all players have high ping that indicates a problem with the server, but in this case it's only him. It can also be due to being located a long way away from the server, although that will give you ~500 ping in the worst case (one side of the world to the other). Tell him to try a test website like pingtest.net to measure his internet connection quality
   Terrain brushes in MapEd erase corn/wine fields (should try to preserve them)
+  Keep road bends when neighbour road is destroyed (e.g. house entrances)
 
 	Water looks ugly brown when you zoom out too far due to water tiles having brown checkerboard pattern (anti-aliasing won't help)
 	Wooden house frames flicking on Onboard Intel HD Family Chipset (see images "Hidden House Frame Intel Onboard 1.jpg")
@@ -127,6 +128,7 @@ Improvements:
 	L	MapEd: Magic water brush to allow to change waterflow direction on whole area
 	L	MapEd: Make houses highlight red when about to erase them as trees/units do
 	L	MapEd: Flat terrain checkbox on Extras popup
+  L MapEd: Allow to set troops order destination with mouse on map
  
  -	One type of pine tree cannot be cut (same as KaM, there are not even sprites for it falling down)
  -	The ingame briefing texture is too short, see attached picture
