@@ -305,8 +305,8 @@ begin
   SaveStream.Write('Influences');
 
   SaveStream.Write(PCount);
-  SaveStream.Write(fMapY);
   SaveStream.Write(fMapX);
+  SaveStream.Write(fMapY);
   SaveStream.Write(fUpdatePlayerId);
 
   SaveStream.Write(fInfluence[0], fMapX * fMapY * PCount * SizeOf(fInfluence[0]));

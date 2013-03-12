@@ -235,9 +235,8 @@ begin
         if aUnit is TKMUnitWarrior then
         begin
           Group := fPlayers[fOwner].UnitGroups.GetGroupByMember(TKMUnitWarrior(aUnit));
-          Assert(Group <> nil, 'Each Warrior must belong to some Group');
-
-          if not Group.IsDead then
+          //It's ok for the group to be nil, the warrior could still be walking out of the barracks
+          if (Group <> nil) and not Group.IsDead then
             //If we are already in the process of attacking something, don't change our minds,
             //otherwise you can make a unit walk backwards and forwards forever between two groups of archers
             if not Group.InFight then
