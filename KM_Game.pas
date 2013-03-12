@@ -1410,7 +1410,8 @@ begin
                     if not SkipReplayEndCheck and fGameInputProcess.ReplayEnded then
                       RequestGameHold(gr_ReplayEnd);
 
-                    if fAdvanceFrame then begin
+                    if fAdvanceFrame then
+                    begin
                       fAdvanceFrame := False;
                       fIsPaused := True;
                     end;

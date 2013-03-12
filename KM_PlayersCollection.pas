@@ -413,7 +413,7 @@ end;
 {Should return closest position where unit can be placed}
 function TKMPlayersCollection.FindPlaceForUnit(PosX,PosY:integer; aUnitType: TUnitType; out PlacePoint: TKMPoint; RequiredWalkConnect:byte):Boolean;
 var
-  i:integer;
+  I: Integer;
   P: TKMPointI;
   T: TKMPoint;
   Pass: TPassability; //temp for required passability
@@ -421,12 +421,15 @@ begin
   Result := False; // if function fails to find valid position
   Pass := fResource.UnitDat[aUnitType].AllowedPassability;
 
-  for i:=0 to 255 do begin
-    P := GetPositionFromIndex(KMPoint(PosX,PosY), i);
-    if fTerrain.TileInMapCoords(P.X,P.Y) then begin
+  for I := 0 to 255 do
+  begin
+    P := GetPositionFromIndex(KMPoint(PosX,PosY), I);
+    if fTerrain.TileInMapCoords(P.X,P.Y) then
+    begin
       T := KMPoint(P);
       if fTerrain.CheckPassability(T, Pass) and (fTerrain.GetWalkConnectID(T) = RequiredWalkConnect)
-      and not fTerrain.HasUnit(T) then begin
+      and not fTerrain.HasUnit(T) then
+      begin
         PlacePoint := T; // Assign if all test are passed
         Result := True;
         exit;

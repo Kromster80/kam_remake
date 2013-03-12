@@ -459,15 +459,18 @@ var i,k,j:integer;
 begin
   Assert(aResource <> rt_None, 'Demanding rt_None');
 
-  for k:=1 to aCount do begin
+  for k:=1 to aCount do
+  begin
     i:=1; while (i<=fDemandCount)and(fDemand[i].Resource<>rt_None) do inc(i);
-    if i>fDemandCount then begin
+    if i>fDemandCount then
+    begin
       inc(fDemandCount, LENGTH_INC);
       SetLength(fDemand, fDemandCount+1);
       for j:=i to fDemandCount do FillChar(fDemand[j],SizeOf(fDemand[j]),#0); //Initialise the new queue space
     end;
 
-    with fDemand[i] do begin
+    with fDemand[i] do
+    begin
       if aHouse <> nil then Loc_House:=aHouse.GetHousePointer;
       if aUnit <> nil then Loc_Unit:=aUnit.GetUnitPointer;
       DemandType:=aType; //Once or Always
@@ -725,7 +728,8 @@ var i:Integer;
 begin
   //Find a place where Delivery will be written to after Offer-Demand pair is found
   i:=1; while (i<=fQueueCount)and(fQueue[i].JobStatus<>js_Empty) do inc(i);
-  if i>fQueueCount then begin
+  if i > fQueueCount then
+  begin
     inc(fQueueCount, LENGTH_INC);
     SetLength(fQueue, fQueueCount+1);
   end;
@@ -941,7 +945,8 @@ begin
   assignfile(f,aFileName); Rewrite(f);
 
   s:='Demand:'+eol+'---------------------------------'+eol;
-  for i:=1 to fDemandCount do if fDemand[i].Resource<>rt_None then begin
+  for i:=1 to fDemandCount do if fDemand[i].Resource<>rt_None then
+  begin
     s:=s+#9;
     if fDemand[i].Loc_House<>nil then s:=s+fResource.HouseDat[fDemand[i].Loc_House.HouseType].HouseName+#9+#9;
     if fDemand[i].Loc_Unit<>nil then s:=s+fResource.UnitDat[fDemand[i].Loc_Unit.UnitType].UnitName+#9+#9;
@@ -950,7 +955,8 @@ begin
     s:=s+eol;
   end;
   s:=s+eol+'Offer:'+eol+'---------------------------------'+eol;
-  for i:=1 to fOfferCount do if fOffer[i].Resource<>rt_None then begin
+  for i:=1 to fOfferCount do if fOffer[i].Resource<>rt_None then
+  begin
     s:=s+#9;
     if fOffer[i].Loc_House<>nil then s:=s+fResource.HouseDat[fOffer[i].Loc_House.HouseType].HouseName+#9+#9;
     s:=s+fResource.Resources[fOffer[i].Resource].Title+#9;
@@ -959,7 +965,8 @@ begin
   end;
 
   s:=s+eol+'Running deliveries:'+eol+'---------------------------------'+eol;
-  for i:=1 to fQueueCount do if fQueue[i].OfferID<>0 then begin
+  for i:=1 to fQueueCount do if fQueue[i].OfferID<>0 then
+  begin
 
     s:=s+'id '+inttostr(i)+'.'+#9;
     s:=s+fResource.Resources[fOffer[fQueue[i].OfferID].Resource].Title+#9;

@@ -315,8 +315,9 @@ function TKMUnitCitizen.FindHome: Boolean;
 var H: TKMHouse;
 begin
   Result:=false;
-  H := fPlayers[fOwner].Houses.FindEmptyHouse(fUnitType,fCurrPosition);
-  if H<>nil then begin
+  H := fPlayers[fOwner].Houses.FindEmptyHouse(fUnitType, fCurrPosition);
+  if H <> nil then
+  begin
     fHome  := H.GetHousePointer;
     Result := true;
   end;
@@ -527,8 +528,9 @@ function TKMUnitRecruit.FindHome: Boolean;
 var H: TKMHouse;
 begin
   Result  := false;
-  H := fPlayers[fOwner].Houses.FindEmptyHouse(fUnitType,fCurrPosition);
-  if H<>nil then begin
+  H := fPlayers[fOwner].Houses.FindEmptyHouse(fUnitType, fCurrPosition);
+  if H <> nil then
+  begin
     fHome  := H.GetHousePointer;
     Result := true;
   end;
@@ -960,7 +962,8 @@ begin
 
   //First make sure the animal isn't stuck (check passibility of our position)
   if (not fTerrain.CheckPassability(fCurrPosition, DesiredPassability))
-  or fTerrain.CheckAnimalIsStuck(fCurrPosition, DesiredPassability) then begin
+  or fTerrain.CheckAnimalIsStuck(fCurrPosition, DesiredPassability) then
+  begin
     KillUnit(-1); //Animal is stuck so it dies
     Exit;
   end;
@@ -1774,11 +1777,13 @@ begin
 
   LookupDiagonal := abs(DX) + abs(DY); //which gives us swith: 1-straight, 2-diagonal.
 
-  if aCheck = ax_X then begin
+  if aCheck = ax_X then
+  begin
     PixelPos := Round(abs(fPosition.Y-PrevPosition.Y)*CELL_SIZE_PX*sqrt(LookupDiagonal)); //Diagonal movement *sqrt(2)
     Result := Result+(DY*SlideLookup[LookupDiagonal,PixelPos])/CELL_SIZE_PX;
   end;
-  if aCheck = ax_Y then begin
+  if aCheck = ax_Y then
+  begin
     PixelPos := Round(abs(fPosition.X-PrevPosition.X)*CELL_SIZE_PX*sqrt(LookupDiagonal)); //Diagonal movement *sqrt(2)
     Result := Result-(DX*SlideLookup[LookupDiagonal,PixelPos])/CELL_SIZE_PX;
   end;

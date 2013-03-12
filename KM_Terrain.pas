@@ -1999,7 +1999,8 @@ begin
     if CheckPassability(T, aPass)
       and (WalkConnectID = Land[T.Y,T.X].WalkConnect[wcType])
       and (not HasUnit(T) or KMSamePoint(T,OriginLoc)) //Allow position we are currently on, but not ones with other units
-    then begin
+    then
+    begin
       Result := T; //Assign if all test are passed
       exit;
     end;

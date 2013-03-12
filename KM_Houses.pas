@@ -653,11 +653,13 @@ procedure TKMHouse.IncBuildingProgress;
 begin
   if IsComplete then Exit;
 
-  if (fBuildState=hbs_Wood) and (fBuildReserve = 0) then begin
+  if (fBuildState=hbs_Wood) and (fBuildReserve = 0) then
+  begin
     dec(fBuildSupplyWood);
     inc(fBuildReserve, 50);
   end;
-  if (fBuildState=hbs_Stone) and (fBuildReserve = 0) then begin
+  if (fBuildState=hbs_Stone) and (fBuildReserve = 0) then
+  begin
     dec(fBuildSupplyStone);
     inc(fBuildReserve, 50);
   end;
@@ -990,7 +992,8 @@ begin
   Assert(aResource<>rt_None);
   Assert(not(fHouseType in [ht_Store,ht_Barracks]));
   for i:=1 to 4 do
-  if aResource = fResource.HouseDat[fHouseType].ResOutput[i] then begin
+  if aResource = fResource.HouseDat[fHouseType].ResOutput[i] then
+  begin
     Assert(aCount <= fResourceOut[i]);
     dec(fResourceOut[i], aCount);
     exit;

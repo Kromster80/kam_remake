@@ -672,7 +672,8 @@ end;
 function TKMPointDirList.GetRandom(out Point: TKMPointDir):Boolean;
 begin
   Result := False;
-  if fCount > 0 then begin
+  if fCount > 0 then
+  begin
     Point := fItems[KaMRandom(fCount)];
     Result := True;
   end;

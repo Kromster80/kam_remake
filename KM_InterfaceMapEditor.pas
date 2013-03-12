@@ -3249,27 +3249,29 @@ end;
 
 
 procedure TKMapEdInterface.Mission_AlliancesChange(Sender: TObject);
-var i,k:Integer;
+var I,K: Integer;
 begin
-  if Sender = nil then begin
-    for i:=0 to fPlayers.Count-1 do
-    for k:=0 to fPlayers.Count-1 do
-      if (fPlayers[i]<>nil)and(fPlayers[k]<>nil) then
-        CheckBox_Alliances[i,k].Checked := (fPlayers.CheckAlliance(fPlayers[i].PlayerIndex, fPlayers[k].PlayerIndex)=at_Ally)
+  if Sender = nil then
+  begin
+    for I:=0 to fPlayers.Count-1 do
+    for K:=0 to fPlayers.Count-1 do
+      if (fPlayers[I]<>nil)and(fPlayers[K]<>nil) then
+        CheckBox_Alliances[I,K].Checked := (fPlayers.CheckAlliance(fPlayers[I].PlayerIndex, fPlayers[K].PlayerIndex)=at_Ally)
       else
-        CheckBox_Alliances[i,k].Disable; //Player does not exist?
+        CheckBox_Alliances[I,K].Disable; //Player does not exist?
     exit;
   end;
 
-  i := TKMCheckBox(Sender).Tag div fPlayers.Count;
-  k := TKMCheckBox(Sender).Tag mod fPlayers.Count;
-  if CheckBox_Alliances[i,k].Checked then fPlayers[i].Alliances[k] := at_Ally
-                                     else fPlayers[i].Alliances[k] := at_Enemy;
+  I := TKMCheckBox(Sender).Tag div fPlayers.Count;
+  K := TKMCheckBox(Sender).Tag mod fPlayers.Count;
+  if CheckBox_Alliances[I,K].Checked then fPlayers[I].Alliances[K] := at_Ally
+                                     else fPlayers[I].Alliances[K] := at_Enemy;
 
   //Copy status to symmetrical item
-  if CheckBox_AlliancesSym.Checked then begin
-    CheckBox_Alliances[k,i].Checked := CheckBox_Alliances[i,k].Checked;
-    fPlayers[k].Alliances[i] := fPlayers[i].Alliances[k];
+  if CheckBox_AlliancesSym.Checked then
+  begin
+    CheckBox_Alliances[K,I].Checked := CheckBox_Alliances[I,K].Checked;
+    fPlayers[K].Alliances[I] := fPlayers[I].Alliances[K];
   end;
 end;
 

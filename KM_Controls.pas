@@ -1233,7 +1233,8 @@ begin
 
   if Self is TKMPanel then sColor := $200000FF;
 
-  if Self is TKMLabel then begin //Special case for aligned text
+  if Self is TKMLabel then
+  begin //Special case for aligned text
     Tmp := TKMLabel(Self).TextSize;
     TKMRenderUI.WriteShape(TKMLabel(Self).TextLeft, AbsTop, Tmp.X, Tmp.Y, $4000FFFF, $80FFFFFF);
     TKMRenderUI.WriteOutline(AbsLeft, AbsTop, fWidth, fHeight, 1, $FFFFFFFF);
@@ -1241,7 +1242,8 @@ begin
     Exit;
   end;
 
-  if Self is TKMLabelScroll then begin //Special case for aligned text
+  if Self is TKMLabelScroll then
+  begin //Special case for aligned text
     Tmp := TKMLabelScroll(Self).TextSize;
     TKMRenderUI.WriteShape(TKMLabelScroll(Self).TextLeft, AbsTop, Tmp.X, Tmp.Y, $4000FFFF, $80FFFFFF);
     TKMRenderUI.WriteOutline(AbsLeft, AbsTop, fWidth, fHeight, 1, $FFFFFFFF);
@@ -1684,13 +1686,15 @@ end;
 // Enabled (can't shortcut disabled function, e.g. Halt during fight)
 function TKMImage.Click: Boolean;
 begin
-  if Visible and fEnabled then begin
+  if Visible and fEnabled then
+  begin
     //Mark self as CtrlOver and CtrlUp, don't mark CtrlDown since MouseUp manually Nils it
     Parent.GetCollection.CtrlOver := Self;
     Parent.GetCollection.CtrlUp := Self;
     if Assigned(fOnClick) then fOnClick(Self);
     Result := true; //Click has happened
-  end else
+  end
+  else
     Result := false; //No, we couldn't click for Control is unreachable
 end;
 
@@ -1818,7 +1822,8 @@ end;
 procedure TKMColorSwatch.MouseUp(X,Y: Integer; Shift: TShiftState; Button: TMouseButton);
 var NewColor: Integer;
 begin
-  if Button = mbLeft then begin
+  if Button = mbLeft then
+  begin
     NewColor := EnsureRange((Y-AbsTop) div fCellSize, 0, fRowCount-1)*fColumnCount +
                 EnsureRange((X-AbsLeft) div fCellSize, 0, fColumnCount-1);
     if InRange(NewColor, 0, Length(Colors)-1) then
@@ -1827,6 +1832,7 @@ begin
       if Assigned(fOnChange) then fOnChange(Self);
     end;
   end;
+
   inherited;
 end;
 
@@ -1890,13 +1896,15 @@ end;
 // Enabled (can't shortcut disabled function, e.g. Halt during fight)
 function TKMButton.Click: Boolean;
 begin
-  if Visible and fEnabled then begin
+  if Visible and fEnabled then
+  begin
     //Mark self as CtrlOver and CtrlUp, don't mark CtrlDown since MouseUp manually Nils it
     Parent.GetCollection.CtrlOver := Self;
     Parent.GetCollection.CtrlUp := Self;
     if Assigned(fOnClick) then fOnClick(Self);
     Result := true; //Click has happened
-  end else
+  end
+  else
     Result := false; //No, we couldn't click for Control is unreachable
 end;
 
@@ -2228,11 +2236,13 @@ begin
   inherited;
   if fEnabled then Col:=$FFFFFFFF else Col:=$FF888888;
 
-  if fFlatStyle then begin
+  if fFlatStyle then
+  begin
     TKMRenderUI.WriteBevel(AbsLeft, AbsTop, Width, Height, 0.5);
     if fChecked then
       TKMRenderUI.WriteShape(AbsLeft+4, AbsTop+4, Width-8, Height-8, $C0A0A0A0, $D0A0A0A0);
-  end else
+  end
+  else
   begin
     TKMRenderUI.WriteText(AbsLeft, AbsTop, Width, '[ ] '+fCaption, fFont, taLeft, Col);
     if fChecked then
@@ -3159,7 +3169,8 @@ begin
   if (ssLeft in Shift)
   and InRange(X, AbsLeft, AbsLeft + Width - (fScrollBar.Width*byte(fScrollBar.Visible)))
   and InRange(Y, AbsTop, AbsTop + Height div fItemHeight * fItemHeight)
-  then begin
+  then
+  begin
     NewIndex := TopIndex + (Y-AbsTop) div fItemHeight;
 
     if NewIndex > fItems.Count - 1 then
@@ -3169,7 +3180,8 @@ begin
       NewIndex := fItems.Count - 1;
     end;
 
-    if (NewIndex<>fItemIndex) then begin
+    if NewIndex <> fItemIndex then
+    begin
       fItemIndex := NewIndex;
       fTimeOfLastClick := 0; //Double click shouldn't happen if you click on one server A, then server B
       if Assigned(fOnChange) then

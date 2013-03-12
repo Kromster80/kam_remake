@@ -467,7 +467,8 @@ const
 var
   C1, C2, NextSeed: integer;
 begin
-  if not CUSTOM_RANDOM then begin
+  if not CUSTOM_RANDOM then
+  begin
     Result := Random;
     Exit;
   end;

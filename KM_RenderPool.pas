@@ -252,7 +252,9 @@ begin
   pX := LocX - 1;
   pY := LocY - 1;
 
-  if aIndex = 61 then begin //Invisible wall
+  if aIndex = 61 then
+  begin
+    //Invisible wall
     CornerX := pX; //Required if DoImmediateRender = true
     CornerY := pY;
     //Render as a red outline in map editor mode
@@ -261,7 +263,9 @@ begin
       fRenderAux.Quad(pX+1, pY+1, $600000FF);
       RenderCursorWireQuad(KMPoint(pX+1, pY+1), $800000FF);
     end;
-  end else begin
+  end
+  else
+  begin
     R := fRXData[rxTrees];
     gX := pX + (R.Pivot[ID0].X + R.Size[ID0].X/2) / CELL_SIZE_PX;
     gY := pY + (R.Pivot[ID0].Y + R.Size[ID0].Y) / CELL_SIZE_PX;

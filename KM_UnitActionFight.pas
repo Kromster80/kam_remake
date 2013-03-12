@@ -223,7 +223,8 @@ begin
         fFightDelay := BOWMEN_AIMING_DELAY_MIN + KaMRandom(BOWMEN_AIMING_DELAY_ADD);
     end;
 
-    if fFightDelay>0 then begin
+    if fFightDelay > 0 then
+    begin
       dec(fFightDelay);
       Result := true; //do not increment AnimStep, just exit;
       Locked := False; //Allowed to abandon while we are aiming

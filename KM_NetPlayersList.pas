@@ -295,7 +295,8 @@ begin
   //Collect available colors
   ColorCount := 0;
   for i:=1 to MP_COLOR_COUNT do
-  if not UsedColor[i] then begin
+  if not UsedColor[i] then
+  begin
     inc(ColorCount);
     AvailableColor[ColorCount] := i;
   end;

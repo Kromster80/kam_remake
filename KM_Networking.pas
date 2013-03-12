@@ -1082,7 +1082,8 @@ begin
             end;
 
     mk_AskToJoin:
-            if IsHost then begin
+            if IsHost then
+            begin
               ReMsg := fNetPlayers.CheckCanJoin(Msg, aSenderIndex);
               if (ReMsg = '') and (fNetGameState <> lgs_Lobby) then
                 ReMsg := 'Cannot join while the game is in progress';
@@ -1098,7 +1099,8 @@ begin
             end;
 
     mk_Password:
-            if IsHost then begin
+            if IsHost then
+            begin
               M := TKMemoryStream.Create;
               M.WriteAsText(Msg);
               M.Read(ReMsg); //Password
@@ -1320,7 +1322,8 @@ begin
             end;
 
     mk_SaveSelect:
-            if fNetPlayerKind = lpk_Joiner then begin
+            if fNetPlayerKind = lpk_Joiner then
+            begin
               fSelectGameKind := ngk_Save;
               FreeAndNil(fSaveInfo);
               fSaveInfo := TKMSaveInfo.Create(ExeDir + 'SavesMP\', Msg);
@@ -1368,7 +1371,8 @@ begin
             end;
 
     mk_SetTeam:
-            if IsHost and not fNetPlayers.HostDoesSetup then begin
+            if IsHost and not fNetPlayers.HostDoesSetup then
+            begin
               TeamID := Param;
               //Update Players setup
               fNetPlayers[fNetPlayers.ServerToLocal(aSenderIndex)].Team := TeamID;
@@ -1376,7 +1380,8 @@ begin
             end;
 
     mk_FlagColorQuery:
-            if IsHost then begin
+            if IsHost then
+            begin
               ColorID := Param;
               //The player list could have changed since the joiner sent this request (over slow connection)
               if fNetPlayers.ColorAvailable(ColorID) then
@@ -1389,13 +1394,15 @@ begin
             end;
 
     mk_ReadyToStart:
-            if IsHost then begin
+            if IsHost then
+            begin
               fNetPlayers[fNetPlayers.ServerToLocal(aSenderIndex)].ReadyToStart := not fNetPlayers[fNetPlayers.ServerToLocal(aSenderIndex)].ReadyToStart;
               SendPlayerListAndRefreshPlayersSetup;
             end;
 
     mk_Start:
-            if fNetPlayerKind = lpk_Joiner then begin
+            if fNetPlayerKind = lpk_Joiner then
+            begin
               fNetPlayers.SetAsText(Msg);
               fMyIndex := fNetPlayers.NiknameToLocal(fMyNikname);
               StartGame;

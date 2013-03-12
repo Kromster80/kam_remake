@@ -349,7 +349,8 @@ begin
           end;
       end;
 
-      if SHOW_PROJECTILES then begin
+      if SHOW_PROJECTILES then
+      begin
         fRenderAux.Projectile(fItems[i].fScreenStart.X,
                               fItems[i].fScreenStart.Y,
                               fItems[i].fScreenEnd.X,

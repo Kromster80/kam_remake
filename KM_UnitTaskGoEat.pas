@@ -92,7 +92,8 @@ begin
         SetActionGoIn(ua_Walk, gd_GoInside, fInn); //Enter Inn
         PlaceID := fInn.EaterGetsInside(UnitType);
         //If there's no free place in the Inn skip to the step where we go out hungry
-        if PlaceID = 0 then begin
+        if PlaceID = 0 then
+        begin
           fPhase := 7;
           Exit;
         end;
@@ -109,7 +110,8 @@ begin
         fInn.UpdateEater(PlaceID, rt_Bread);
       end else
         SetActionLockedStay(0,ua_Walk);
-   4: if (Condition<UNIT_MAX_CONDITION*0.9)and(fInn.CheckResIn(rt_Sausages)>0) then begin
+   4: if (Condition<UNIT_MAX_CONDITION*0.9)and(fInn.CheckResIn(rt_Sausages)>0) then
+   begin
         fInn.ResTakeFromIn(rt_Sausages);
         fPlayers[fUnit.Owner].Stats.GoodConsumed(rt_Sausages);
         SetActionLockedStay(29*4, ua_Eat, False);
@@ -117,7 +119,8 @@ begin
         fInn.UpdateEater(PlaceID, rt_Sausages);
       end else
         SetActionLockedStay(0,ua_Walk);
-   5: if (Condition<UNIT_MAX_CONDITION*0.9)and(fInn.CheckResIn(rt_Wine)>0) then begin
+   5: if (Condition<UNIT_MAX_CONDITION*0.9)and(fInn.CheckResIn(rt_Wine)>0) then
+   begin
         fInn.ResTakeFromIn(rt_Wine);
         fPlayers[fUnit.Owner].Stats.GoodConsumed(rt_Wine);
         SetActionLockedStay(29*4, ua_Eat, False);
@@ -125,7 +128,8 @@ begin
         fInn.UpdateEater(PlaceID, rt_Wine);
       end else
         SetActionLockedStay(0,ua_Walk);
-   6: if (Condition<UNIT_MAX_CONDITION*0.9)and(fInn.CheckResIn(rt_Fish)>0) then begin
+   6: if (Condition<UNIT_MAX_CONDITION*0.9)and(fInn.CheckResIn(rt_Fish)>0) then
+   begin
         fInn.ResTakeFromIn(rt_Fish);
         fPlayers[fUnit.Owner].Stats.GoodConsumed(rt_Fish);
         SetActionLockedStay(29*4, ua_Eat, False);

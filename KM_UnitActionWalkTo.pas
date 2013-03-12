@@ -248,13 +248,14 @@ begin
   if fDoExchange and not fGame.IsExiting then
     Assert(not fDoExchange, 'Oops, thats a very bad situation');
 
-  if WRITE_WALKTO_LOG then begin
+  if WRITE_WALKTO_LOG then
+  begin
     Explanation := 'WalkTo destroyed at'+floattostr(fUnit.PositionF.X)+':'+floattostr(fUnit.PositionF.Y);
     ExplanationLogAdd;
     ExplanationLog.SaveToFile(ExeDir+'ExpLog'+inttostr(fUnit.ID)+'.txt');
   end;
-  FreeAndNil(ExplanationLog);
 
+  FreeAndNil(ExplanationLog);
   FreeAndNil(NodeList);
 
   if not KMSamePoint(fVertexOccupied, KMPoint(0,0)) then
@@ -801,7 +802,8 @@ begin
   //Find the unit that is in our path
   fOpponent := fTerrain.UnitsHitTest(NodeList[NodePos+1].X, NodeList[NodePos+1].Y);
   //If there's currently no unit in the way but tile is pre-occupied
-  if fOpponent = nil then begin
+  if fOpponent = nil then
+  begin
     //Do nothing and wait till unit is actually there so we can interact with it
     Explanation:='Can''t walk. No Unit in the way but tile is occupied';
     ExplanationLogAdd;
@@ -813,7 +815,8 @@ begin
     HighestInteractionCount := max(fInteractionCount,TUnitActionWalkTo(fOpponent.GetUnitAction).fInteractionCount)
   else HighestInteractionCount := fInteractionCount;
 
-  if (fOpponent.GetUnitAction is TUnitActionGoInOut) then begin //Unit is walking into house, we can wait
+  if (fOpponent.GetUnitAction is TUnitActionGoInOut) then
+  begin //Unit is walking into house, we can wait
     Explanation:='Unit is walking into house, we can wait';
     ExplanationLogAdd;
     exit;
@@ -919,19 +922,22 @@ begin
   fDoesWalking := False; //Set it to false at start of update
 
   //Happens whe e.g. Serf stays in front of Store and gets Deliver task
-  if KMSamePoint(fWalkFrom, fWalkTo) then begin
+  if KMSamePoint(fWalkFrom, fWalkTo) then
+  begin
     Result := ActDone;
     Exit;
   end;
 
   //Route was not built
-  if NodeList.Count = 0 then begin
+  if NodeList.Count = 0 then
+  begin
     Result := ActAborted;
     Exit;
   end;
 
   //Walk complete - NodePos cannot be greater than NodeCount (this should not happen, cause is unknown but for now this check stops crashes)
-  if NodePos > NodeList.Count - 1 then begin
+  if NodePos > NodeList.Count - 1 then
+  begin
     if KMStepIsDiag(fUnit.PrevPosition, fUnit.NextPosition) then
       DecVertex; //Unoccupy vertex
     fUnit.IsExchanging := False; //Disable sliding (in case it was set in previous step)
@@ -974,7 +980,8 @@ begin
     end;
 
     //Check if we need to walk to a new destination
-    if CanAbandonInternal and (CheckForNewDestination = dc_NoRoute) then begin
+    if CanAbandonInternal and (CheckForNewDestination = dc_NoRoute) then
+    begin
       Result := ActAborted;
       Exit;
     end;

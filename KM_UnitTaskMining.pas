@@ -287,15 +287,19 @@ begin
         fPlayers[fUnit.Owner].Stats.GoodConsumed(WorkPlan.Resource1, WorkPlan.Count1);
         fPlayers[fUnit.Owner].Stats.GoodConsumed(WorkPlan.Resource2, WorkPlan.Count2);
         GetHome.fCurrentAction.SubActionAdd([ha_Smoke]);
-        if WorkPlan.GatheringScript = gs_SwineBreeder then begin //Swines get feed and taken immediately
+        if WorkPlan.GatheringScript = gs_SwineBreeder then
+        begin //Swines get feed and taken immediately
           fBeastID := TKMHouseSwineStable(GetHome).FeedBeasts;
           TKMHouseSwineStable(GetHome).TakeBeast(fBeastID);
         end;
-        if WorkPlan.ActCount >= fPhase2 then begin
+        if WorkPlan.ActCount >= fPhase2 then
+        begin
           GetHome.fCurrentAction.SubActionWork(WorkPlan.HouseAct[fPhase2].Act);
           //Keep unit idling till next Phase, Idle time is -1 to compensate TaskExecution Phase
           SetActionLockedStay(WorkPlan.HouseAct[fPhase2].TimeToWork-1,ua_Walk);
-        end else begin
+        end
+        else
+        begin
           fPhase := SkipWork; //Skip to step 31
           SetActionLockedStay(0,ua_Walk);
           exit;
@@ -312,7 +316,9 @@ begin
                SetActionLockedStay(WorkPlan.HouseAct[fPhase2].TimeToWork-1,ua_Walk) //-1 to compensate units UpdateState run
              else
                SetActionLockedStay(WorkPlan.HouseAct[fPhase2].TimeToWork-2,ua_Walk) //-2 to compensate 2 UpdateStates of a unit in last Act
-           end else begin
+           end
+           else
+           begin
              fPhase := SkipWork; //Skip to step 31
              SetActionLockedStay(0,ua_Walk);
              exit;
@@ -331,7 +337,8 @@ begin
             else             ResAcquired := true;
           end;
 
-          if ResAcquired then begin
+          if ResAcquired then
+          begin
             GetHome.ResAddToOut(WorkPlan.Product1,WorkPlan.ProdCount1);
             GetHome.ResAddToOut(WorkPlan.Product2,WorkPlan.ProdCount2);
             fPlayers[fUnit.Owner].Stats.GoodProduced(WorkPlan.Product1,WorkPlan.ProdCount1);
