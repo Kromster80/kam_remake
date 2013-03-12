@@ -406,9 +406,9 @@ procedure TKMGUIMenuLobby.ChatMenuSelect(aItem: Integer);
       aCaption := '[$'+IntToHex(aColor and $00FFFFFF,6)+']'+aCaption;
     Button_LobbyPost.Caption := aCaption;
     Button_LobbyPost.Width := CapWidth;
-    //todo: Needs to use AbsLeft
-    Edit_LobbyPost.Left := Button_LobbyPost.Left + Button_LobbyPost.Width + 4;
-    Edit_LobbyPost.Width := Memo_LobbyPosts.Width - Edit_LobbyPost.Left + Memo_LobbyPosts.Left;
+
+    Edit_LobbyPost.AbsLeft := Button_LobbyPost.AbsLeft + Button_LobbyPost.Width + 4;
+    Edit_LobbyPost.Width := Memo_LobbyPosts.Width - Button_LobbyPost.Width - 4;
   end;
 
 var I: Integer;
@@ -490,9 +490,8 @@ begin
 
   //Position the menu next to the icon, but do not overlap players name
   ListBox_ChatMenu.Height := ListBox_ChatMenu.ItemHeight * ListBox_ChatMenu.Count;
-  //todo: Needs to use AbsLeft / AbsTop
-  ListBox_ChatMenu.Left := C.Left;
-  ListBox_ChatMenu.Top := C.Top - ListBox_ChatMenu.Height;
+  ListBox_ChatMenu.AbsLeft := C.AbsLeft;
+  ListBox_ChatMenu.AbsTop := C.AbsTop - ListBox_ChatMenu.Height;
 
   //Reset previously selected item
   ListBox_ChatMenu.ItemIndex := -1;
@@ -798,9 +797,8 @@ begin
     ListBox := ListBox_PlayerMenuJoiner;
 
   //Position the menu next to the icon, but do not overlap players name
-  //todo: Needs to use AbsLeft / AbsTop
-  ListBox.Left := C.Left;
-  ListBox.Top := C.Top + C.Height;
+  ListBox.AbsLeft := C.AbsLeft;
+  ListBox.AbsTop := C.AbsTop + C.Height;
 
   //Reset previously selected item
   ListBox.ItemIndex := -1;

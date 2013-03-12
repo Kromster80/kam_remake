@@ -2899,9 +2899,9 @@ procedure TKMGamePlayInterface.Chat_MenuSelect(aItem: Integer);
       aCaption := '[$'+IntToHex(aColor and $00FFFFFF,6)+']'+aCaption;
     Button_ChatRecipient.Caption := aCaption;
     Button_ChatRecipient.Width := CapWidth;
-    //todo: Needs to use AbsLeft
-    Edit_ChatMsg.Left := Button_ChatRecipient.Left + Button_ChatRecipient.Width + 4;
-    Edit_ChatMsg.Width := Memo_ChatText.Width - Edit_ChatMsg.Left + Memo_ChatText.Left;
+
+    Edit_ChatMsg.AbsLeft := Button_ChatRecipient.AbsLeft + Button_ChatRecipient.Width + 4;
+    Edit_ChatMsg.Width := Memo_ChatText.Width - Button_ChatRecipient.Width - 4;
   end;
 
 var I: Integer;
@@ -2980,9 +2980,8 @@ begin
 
   C := TKMControl(Sender);
   //Position the menu next to the icon, but do not overlap players name
-  //todo: Needs to use AbsLeft / AbsTop
-  ListBox_ChatMenu.Left := C.Left + C.Width - ListBox_ChatMenu.Width;
-  ListBox_ChatMenu.Top := C.Top - ListBox_ChatMenu.Height;
+  ListBox_ChatMenu.AbsLeft := C.AbsLeft + C.Width - ListBox_ChatMenu.Width;
+  ListBox_ChatMenu.AbsTop := C.AbsTop - ListBox_ChatMenu.Height;
 
   //Reset previously selected item
   ListBox_ChatMenu.ItemIndex := -1;
