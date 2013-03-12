@@ -174,7 +174,7 @@ var
   T1, T2, tx, ty: Integer;
   Alpha: Byte;
 begin
-  for HT := Low(THouseType) to High(THouseType) do
+  for HT := HOUSE_MIN to HOUSE_MAX do
   if aHouseDat[HT].IsValid then
   for Lay := 1 to 2 do //House is rendered in two layers since Stone does not covers Wood parts in e.g. Sawmill
   begin
@@ -217,7 +217,7 @@ var
   T: Integer;
   A, B, C, D: Byte;
 begin
-  for HT := Low(THouseType) to High(THouseType) do
+  for HT := HOUSE_MIN to HOUSE_MAX do
   if aHouseDat[HT].IsValid then
   for Lay := 1 to 2 do //House is rendered in two layers since Stone does not covers Wood parts in e.g. Sawmill
   begin
