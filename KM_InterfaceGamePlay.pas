@@ -3960,21 +3960,25 @@ begin
       U := fTerrain.UnitsHitTest(GameCursor.Cell.X, GameCursor.Cell.Y);
       H := fPlayers.HousesHitTest(GameCursor.Cell.X, GameCursor.Cell.Y);
       if ((U = nil) or U.IsDeadOrDying or (fPlayers.CheckAlliance(MyPlayer.PlayerIndex, U.Owner) = at_Ally)) and
-         ((H = nil) or (fPlayers.CheckAlliance(MyPlayer.PlayerIndex, H.Owner) = at_Ally)) and
-        Group.CanWalkTo(GameCursor.Cell, 0) then
+         ((H = nil) or (fPlayers.CheckAlliance(MyPlayer.PlayerIndex, H.Owner) = at_Ally)) then
       begin
-        SelectingTroopDirection := True; //MouseMove will take care of cursor changing
-        //Restrict the cursor to inside the main panel so it does not get jammed when used near the edge of the window in windowed mode
-        {$IFDEF MSWindows}
-        MyRect := fMain.ClientRect;
-        ClipCursor(@MyRect);
-        {$ENDIF}
-        //Now record it as Client XY
-        SelectingDirPosition.X := X;
-        SelectingDirPosition.Y := Y;
-        SelectedDirection := dir_NA;
-        DirectionCursorShow(X, Y, SelectedDirection);
-        fResource.Cursors.Cursor := kmc_Invisible;
+        if Group.CanWalkTo(GameCursor.Cell, 0) then
+        begin
+          SelectingTroopDirection := True; //MouseMove will take care of cursor changing
+          //Restrict the cursor to inside the main panel so it does not get jammed when used near the edge of the window in windowed mode
+          {$IFDEF MSWindows}
+          MyRect := fMain.ClientRect;
+          ClipCursor(@MyRect);
+          {$ENDIF}
+          //Now record it as Client XY
+          SelectingDirPosition.X := X;
+          SelectingDirPosition.Y := Y;
+          SelectedDirection := dir_NA;
+          DirectionCursorShow(X, Y, SelectedDirection);
+          fResource.Cursors.Cursor := kmc_Invisible;
+        end
+        else
+          fSoundLib.Play(sfx_CantPlace, GameCursor.Cell, False, 4.0);
       end;
     end;
   end;
@@ -4262,9 +4266,6 @@ begin
                   end
               end;
     mbRight:  begin
-                //Select direction
-                ReleaseDirectionSelector;
-
                 //Cancel build/join
                 if Panel_Build.Visible then
                   SwitchPage(Button_Back);
@@ -4304,7 +4305,8 @@ begin
                         fSoundLib.PlayWarrior(Group.UnitType, sp_Attack);
                       end
                       else //If there's no house - Walk to spot
-                        if Group.CanWalkTo(P, 0) then
+                        //Ensure down click was successful (could have been over a mountain, then dragged to a walkable location)
+                        if SelectingTroopDirection and Group.CanWalkTo(P, 0) then
                         begin
                           fGame.GameInputProcess.CmdArmy(gic_ArmyWalk, Group, P, SelectedDirection);
                           fSoundLib.PlayWarrior(Group.UnitType, sp_Move);
@@ -4312,7 +4314,8 @@ begin
                     end;
                   end;
                 end;
-
+                //Not selecting direction now (must do it at the end because SelectingTroopDirection is used for Walk above)
+                ReleaseDirectionSelector;
               end;
     mbMiddle: if DEBUG_CHEATS and (MULTIPLAYER_CHEATS or not fMultiplayer) then
                 fGame.GameInputProcess.CmdTemp(gic_TempAddScout, P);
