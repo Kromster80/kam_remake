@@ -1078,6 +1078,12 @@ begin
       Button_ReplayFog.Hint     := fTextLibrary[TX_REPLAY_TOGGLE_FOG];
       Button_ReplayStep.Disable; //Initial state
       Button_ReplayResume.Disable; //Initial state
+
+      //@Lewin: This is a good feature, but implementation needs to be more complex,
+      //we need to allow to select player we watch from replay panel as well
+      //(possibly a dropdown menu with playernames).
+
+      //todo: Make generic TKMMenu control [Krom]
 end;
 
 
