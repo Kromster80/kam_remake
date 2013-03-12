@@ -1,5 +1,5 @@
 
-MaxID:2942
+MaxID:2943
 
 0:Sawmill
 1:Iron smithy
@@ -668,3 +668,4 @@ MaxID:2942
 2940:Heights
 2941:Brush
 2942:AI creates and manages defence positions automatically
+2943:Toggle fog of war on/off

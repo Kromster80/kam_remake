@@ -359,6 +359,7 @@ TX_REPLAY_PAUSE = 2744; //Pause replay
 TX_REPLAY_STEP = 2743; //Step 1 tick forward
 TX_REPLAY_RESUME = 2742; //Resume paused replay
 TX_REPLAY_QUIT = 2741; //Quit replay
+TX_REPLAY_TOGGLE_FOG = 2943; //Toggle fog of war on/off
 
 TX_HOUSES_MARKET_SELECT_LEFT = 1757; //Use the left mouse button to select the ware to trade
 TX_HOUSES_MARKET_SELECT_RIGHT = 1758; //Use the right mouse button to select the ware to trade

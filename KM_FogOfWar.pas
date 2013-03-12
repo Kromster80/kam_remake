@@ -89,7 +89,7 @@ end;
 //but false in cases where it will effect the gameplay (e.g. unit hit test)
 function TKMFogOfWar.CheckVerticeRevelation(const X,Y: Word; aSkipForReplay:boolean):byte;
 begin
-  if aSkipForReplay and fGame.IsReplay then
+  if aSkipForReplay and fGame.IsReplayFOWRevealed then
   begin
     Result := 255;
     exit;
@@ -116,7 +116,7 @@ end;
 //but false in cases where it will effect the gameplay (e.g. unit hit test)
 function TKMFogOfWar.CheckTileRevelation(const X,Y: Word; aSkipForReplay:boolean):byte;
 begin
-  if aSkipForReplay and ((fGame = nil) or fGame.IsReplay) then
+  if aSkipForReplay and ((fGame = nil) or fGame.IsReplayFOWRevealed) then
   begin
     Result := 255;
     exit;
@@ -144,7 +144,7 @@ end;
 function TKMFogOfWar.CheckRevelation(const aPoint: TKMPointF; aSkipForReplay: Boolean): Byte;
 var A, B, C, D, Y1, Y2: Byte;
 begin
-  if aSkipForReplay and fGame.IsReplay then
+  if aSkipForReplay and fGame.IsReplayFOWRevealed then
   begin
     Result := 255;
     Exit;

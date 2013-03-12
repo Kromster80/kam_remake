@@ -67,6 +67,7 @@ Improvements:
  +		Made that missions without victory goals do not proclaim player victorious immediately. Instead victory never happens (or ruled by script)
  +	L	Randomize locations within teams option in the lobby
  +	L	Ability to send a whisper (private chat) to a specific player
+ +	M	Visualise fog of war for the selected player in replays so you can understand player's perspective
 
  wip	Dismiss button to make units walk into the school and disappear (gold is not refunded)
  wip	Simple dedicated server form which lets you set the properties of the INI for the server and start it [gemGreg]
@@ -91,7 +92,6 @@ Improvements:
 	L	Multiplayer in-game player list and lobby description ordered (grouped) by teams
 	M	Scrolling around the map using middle mouse click, as in TPR
 	M	New column in load/replays menus: Date/time (stored internally in save format since file modified date is not very trustworthy) [Marcin]
-	M	Some way to visualise fog of war for the selected player in replays (and MapEd) (semi-transparent?) so you can understand player's perspective [Krom/Lewin]
 	L	New command !SKIP_HOUSE. If I want a map with no stone, then after building the inn the woodcutter and tower should become available (skips the stonemason)
 	M	Pause in multiplayer (only host can use it, maybe later have a lobby setting "clients may pause")
 	L	"Checkpoints" in replays every 20 minutes or so to allow skipping forwards/backwards (saves entire game state which can be loaded) Using compression can keep the save file tiny.
