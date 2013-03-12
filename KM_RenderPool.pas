@@ -873,11 +873,11 @@ begin
 
   //Field plans (road, corn, wine) for self and allies
   FieldsList := TKMPointTagList.Create;
-  MyPlayer.GetFieldPlans(FieldsList, Rect, True, fGame.IsReplay); //Include fake field plans for painting
+  MyPlayer.GetFieldPlans(FieldsList, Rect, True, fGame.IsReplayIndividual); //Include fake field plans for painting
 
   //House plans for self and allies
   HousePlansList := TKMPointDirList.Create;
-  MyPlayer.GetHousePlans(HousePlansList, Rect, fGame.IsReplay);
+  MyPlayer.GetHousePlans(HousePlansList, Rect, fGame.IsReplayIndividual);
 
 
   fRenderTerrain.Render(Rect, fTerrain.AnimStep, MyPlayer.FogOfWar, FieldsList, HousePlansList);

@@ -119,7 +119,7 @@ type
     function IsMapEditor: Boolean;
     function IsMultiplayer: Boolean;
     function IsReplay: Boolean;
-    function IsReplayFOWRevealed: Boolean;
+    function IsReplayIndividual: Boolean;
     procedure ShowMessage(aKind: TKMMessageKind; aText: string; aLoc: TKMPoint);
     property GameTickCount:cardinal read fGameTickCount;
     property GameName: string read fGameName;
@@ -949,9 +949,9 @@ begin
 end;
 
 
-function TKMGame.IsReplayFOWRevealed: Boolean;
+function TKMGame.IsReplayIndividual: Boolean;
 begin
-  Result := (fGameMode in [gmReplaySingle, gmReplayMulti]) and fGamePlayInterface.ReplayFog;
+  Result := IsReplay and not fGamePlayInterface.ReplayIndividual;
 end;
 
 

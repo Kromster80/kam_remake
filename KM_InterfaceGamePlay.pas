@@ -41,7 +41,7 @@ type
     fLastSyncedMessage: Word; //Last message that we synced with MessageLog
     fChatMode: TChatMode;
     fChatWhisperRecipient: Integer; //Server index of the player who will receive the whisper
-    fReplayFog: Boolean;
+    fReplayIndividual: Boolean; //Show individual player perspective
 
     //Saved (in singleplayer only)
     fLastSaveName: AnsiString; //The file name we last used to save this file (used as default in Save menu)
@@ -188,7 +188,7 @@ type
       Button_ReplayStep:TKMButton;
       Button_ReplayResume:TKMButton;
       Button_ReplayExit:TKMButton;
-      Button_ReplayFog:TKMButton;
+      Button_ReplayPerspective:TKMButton;
     Panel_Allies:TKMPanel;
       Label_PeacetimeRemaining: TKMLabel;
       Image_AlliesLang:array [0..MAX_PLAYERS-1] of TKMImage;
@@ -377,7 +377,7 @@ type
     procedure ShowNetworkLag(DoShow:boolean; aPlayers:TStringList; IsHost:boolean);
     procedure SetScriptedOverlay(aText:AnsiString);
     property LastSaveName: AnsiString read fLastSaveName write fLastSaveName;
-    property ReplayFog: Boolean read fReplayFog;
+    property ReplayIndividual: Boolean read fReplayIndividual;
     procedure ReleaseDirectionSelector;
     procedure SetChatText(const aString: string);
     procedure SetChatMessages(const aString: string);
@@ -800,7 +800,7 @@ begin
   SelectingDirPosition.X := 0;
   SelectingDirPosition.Y := 0;
   ShownMessage := -1; //0 is the first message, -1 is invalid
-  fReplayFog := True;
+  fReplayIndividual := False;
 
   LastSchoolUnit   := 0;
   LastBarracksUnit := 0;
@@ -1063,19 +1063,19 @@ begin
       Button_ReplayStep     := TKMButton.Create(Panel_ReplayCtrl, 50, 24, 24, 24, 584, rxGui, bsGame);
       Button_ReplayResume   := TKMButton.Create(Panel_ReplayCtrl, 75, 24, 24, 24, 585, rxGui, bsGame);
       Button_ReplayExit     := TKMButton.Create(Panel_ReplayCtrl,100, 24, 24, 24, 586, rxGui, bsGame);
-      Button_ReplayFog      := TKMButton.Create(Panel_ReplayCtrl,125, 24, 24, 24, 393, rxGui, bsGame);
+      Button_ReplayPerspective := TKMButton.Create(Panel_ReplayCtrl,125, 24, 24, 24, 393, rxGui, bsGame);
       Button_ReplayRestart.OnClick := ReplayClick;
       Button_ReplayPause.OnClick   := ReplayClick;
       Button_ReplayStep.OnClick    := ReplayClick;
       Button_ReplayResume.OnClick  := ReplayClick;
       Button_ReplayExit.OnClick    := ReplayClick;
-      Button_ReplayFog.OnClick     := ReplayClick;
+      Button_ReplayPerspective.OnClick := ReplayClick;
       Button_ReplayRestart.Hint := fTextLibrary[TX_REPLAY_RESTART];
       Button_ReplayPause.Hint   := fTextLibrary[TX_REPLAY_PAUSE];
       Button_ReplayStep.Hint    := fTextLibrary[TX_REPLAY_STEP];
       Button_ReplayResume.Hint  := fTextLibrary[TX_REPLAY_RESUME];
       Button_ReplayExit.Hint    := fTextLibrary[TX_REPLAY_QUIT];
-      Button_ReplayFog.Hint     := fTextLibrary[TX_REPLAY_TOGGLE_FOG];
+      Button_ReplayPerspective.Hint := fTextLibrary[TX_REPLAY_PLAYER_PERSPECTIVE];
       Button_ReplayStep.Disable; //Initial state
       Button_ReplayResume.Disable; //Initial state
 
@@ -3005,11 +3005,13 @@ begin
     SetButtons(True);
   end;
 
-  if (Sender = Button_ReplayFog) then
+  if (Sender = Button_ReplayPerspective) then
   begin
-    fReplayFog := not fReplayFog;
-    fGame.Minimap.Update(False); //Force update right now so it doesn't appear to lag
-    Button_ReplayFog.TexID := IfThen(fReplayFog, 393, 657);
+    fReplayIndividual := not fReplayIndividual;
+    fGame.Minimap.Update(False); //Force update right now so FOW doesn't appear to lag
+    Button_ReplayPerspective.TexID := IfThen(fReplayIndividual, 141, 393);
+    if fReplayIndividual then
+      Button_ReplayPerspective.FlagColor := MyPlayer.FlagColor;
   end;
 end;
 
@@ -4491,6 +4493,10 @@ var
   MapLoc: TKMPointF;
   ScreenLoc: TKMPointI;
 begin
+  //During replays update the player flag color for the individual button
+  if fReplay and fReplayIndividual then
+    Button_ReplayPerspective.FlagColor := MyPlayer.FlagColor;
+
   if fGame.ShowTeamNames then
   begin
     Label_TeamName.Visible := True; //Only visible while we're using it, otherwise it shows up in other places
