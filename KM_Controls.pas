@@ -169,6 +169,8 @@ type
   private
     GetCollection: TKMMasterControl;
   protected
+    //Do not propogate SetEnabled and SetVisible because that would show/enable ALL child controls
+    //e.g. scrollbar on a listbox
     procedure SetHeight(aValue: Integer); override;
     procedure SetWidth(aValue: Integer); override;
   public
@@ -557,8 +559,7 @@ type
 
   TScrollAxis = (sa_Vertical, sa_Horizontal);
 
-  { Scroll bar }
-  TKMScrollBar = class(TKMControl)
+  TKMScrollBar = class(TKMPanel)
   private
     fScrollAxis: TScrollAxis;
     fStyle: TButtonStyle;
@@ -579,12 +580,9 @@ type
     procedure UpdateThumbPos;
     procedure UpdateThumbSize;
   protected
-    procedure SetLeft(aValue: Integer); override;
-    procedure SetTop(aValue: Integer); override;
     procedure SetHeight(aValue: Integer); override;
     procedure SetWidth(aValue: Integer); override;
     procedure SetEnabled(aValue: Boolean); override;
-    procedure SetVisible(aValue: Boolean); override;
   public
     BackAlpha: Single; //Alpha of background (usually 0.5, dropbox 1)
     EdgeAlpha: Single; //Alpha of background outline (usually 1)
@@ -2628,59 +2626,32 @@ begin
 
   if aScrollAxis = sa_Vertical then
   begin
-    fScrollDec := TKMButton.Create(aParent, aLeft, aTop, aWidth, aWidth, 591, rxGui, aStyle);
-    fScrollInc := TKMButton.Create(aParent, aLeft, aTop+aHeight-aWidth, aWidth, aWidth, 590, rxGui, aStyle);
+    fScrollDec := TKMButton.Create(Self, 0, 0, aWidth, aWidth, 591, rxGui, aStyle);
+    fScrollInc := TKMButton.Create(Self, 0, aHeight-aWidth, aWidth, aWidth, 590, rxGui, aStyle);
+    fScrollDec.Anchors := [akLeft, akTop, akRight];
+    fScrollInc.Anchors := [akLeft, akRight, akBottom];
   end;
   if aScrollAxis = sa_Horizontal then
   begin
-    fScrollDec := TKMButton.Create(aParent, aLeft, aTop, aHeight, aHeight, 2, rxGui, aStyle);
-    fScrollInc := TKMButton.Create(aParent, aLeft+aWidth-aHeight, aTop, aHeight, aHeight, 3, rxGui, aStyle);
+    fScrollDec := TKMButton.Create(Self, 0, 0, aHeight, aHeight, 2, rxGui, aStyle);
+    fScrollInc := TKMButton.Create(Self, aWidth-aHeight, 0, aHeight, aHeight, 3, rxGui, aStyle);
+    fScrollDec.Anchors := [akLeft, akTop, akBottom];
+    fScrollInc.Anchors := [akTop, akRight, akBottom];
   end;
   fScrollDec.OnClick := DecPosition;
   fScrollDec.OnMouseWheel := MouseWheel;
   fScrollInc.OnClick := IncPosition;
   fScrollInc.OnMouseWheel := MouseWheel;
-  UpdateThumbPos;
   UpdateThumbSize;
-end;
-
-
-procedure TKMScrollBar.SetLeft(aValue: Integer);
-begin
-  inherited;
-
-  fScrollDec.Left := Left;
-
-  if fScrollAxis = sa_Vertical then
-    fScrollInc.Left := Left;
-
-  if fScrollAxis = sa_Horizontal then
-    fScrollInc.Left := Left + Width - Height;
-end;
-
-
-procedure TKMScrollBar.SetTop(aValue: Integer);
-begin
-  inherited;
-
-  fScrollDec.Top := Top;
-
-  if fScrollAxis = sa_Vertical then
-    fScrollInc.Top := Top + Height - Width;
-
-  if fScrollAxis = sa_Horizontal then
-    fScrollInc.Top := Top;
 end;
 
 
 procedure TKMScrollBar.SetHeight(aValue: Integer);
 begin
   inherited;
-  if fScrollAxis = sa_Vertical then
-    fScrollInc.Top := Top+Height-Width;
 
-  UpdateThumbSize; //Update Thumb size
-  UpdateThumbPos;
+  //Update Thumb size
+  UpdateThumbSize;
 end;
 
 
@@ -2688,16 +2659,8 @@ procedure TKMScrollBar.SetWidth(aValue: Integer);
 begin
   inherited;
 
-  fScrollInc.Left := Left;
-
-  if fScrollAxis = sa_Vertical then
-    fScrollDec.Left := Left;
-
-  if fScrollAxis = sa_Horizontal then
-    fScrollDec.Left := Left + Width - Height;
-
-  UpdateThumbSize; //Update Thumb size
-  UpdateThumbPos;
+  //Update Thumb size
+  UpdateThumbSize;
 end;
 
 
@@ -2709,19 +2672,10 @@ begin
 end;
 
 
-//Copy property to child buttons. Otherwise they won't be rendered
-procedure TKMScrollBar.SetVisible(aValue: Boolean);
-begin
-  inherited;
-  fScrollDec.Visible := fVisible;
-  fScrollInc.Visible := fVisible;
-end;
-
-
 procedure TKMScrollBar.SetMinValue(Value: Integer);
 begin
   fMinValue := Max(0, Value);
-  SetEnabled(fMaxValue > fMinValue);
+  Enabled := (fMaxValue > fMinValue);
   SetPosition(fPosition);
 end;
 
@@ -2729,7 +2683,7 @@ end;
 procedure TKMScrollBar.SetMaxValue(Value: Integer);
 begin
   fMaxValue := Max(0, Value);
-  SetEnabled(fMaxValue > fMinValue);
+  Enabled := (fMaxValue > fMinValue);
   SetPosition(fPosition);
 end;
 
@@ -2782,6 +2736,9 @@ begin
     sa_Vertical:   fThumbSize := Math.max(0, (Height-2*Width)) div 4;
     sa_Horizontal: fThumbSize := Math.max(0, (Width-2*Height)) div 4;
   end;
+
+  //If size has changed, then Pos needs to be updated as well (depends on it)
+  UpdateThumbPos;
 end;
 
 
@@ -4906,19 +4863,25 @@ end;
 { Recursing function to find topmost control (excl. Panels)}
 function TKMMasterControl.HitControl(X,Y: Integer; aIncludeDisabled: Boolean=false): TKMControl;
   function ScanChild(P: TKMPanel; aX,aY: Integer): TKMControl;
-  var i: Integer;
+  var I: Integer;
   begin
     Result := nil;
-    for i:=P.ChildCount downto 1 do
-    if P.Childs[i].fVisible then //ignore invisible controls
-      if (P.Childs[i] is TKMPanel) then begin
-        Result := ScanChild(TKMPanel(P.Childs[i]),aX,aY);
+    //Process controls in reverse order since last created are on top
+    for I := P.ChildCount downto 1 do
+    if P.Childs[I].fVisible then //If we can't see it, we can't touch it
+    begin
+      //Scan Panels childs first, if none is hit - hittest the panel
+      if (P.Childs[I] is TKMPanel) then
+      begin
+        Result := ScanChild(TKMPanel(P.Childs[I]),aX,aY);
         if Result <> nil then exit;
-      end else
-      if P.Childs[i].HitTest(aX,aY,aIncludeDisabled) then begin
-        Result := P.Childs[i];
-        exit;
       end;
+      if P.Childs[I].HitTest(aX, aY, aIncludeDisabled) then
+      begin
+        Result := P.Childs[I];
+        Exit;
+      end;
+    end;
   end;
 begin
   Result := ScanChild(fCtrl, X, Y);
