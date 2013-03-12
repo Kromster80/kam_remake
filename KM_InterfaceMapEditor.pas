@@ -2880,8 +2880,8 @@ begin
   if not (fPlayers.Selected is TKMHouse) then Exit;
   H := TKMHouse(fPlayers.Selected);
 
-  if Sender = Button_HouseHealthDec then H.AddDamage(-1, ClickAmount[AButton] * 5, True);
-  if Sender = Button_HouseHealthInc then H.AddRepair(ClickAmount[AButton] * 5);
+  if Sender = Button_HouseHealthDec then H.AddDamage(-1, ORDER_CLICK_AMOUNT[AButton] * 5, True);
+  if Sender = Button_HouseHealthInc then H.AddRepair(ORDER_CLICK_AMOUNT[AButton] * 5);
 
   for I := 0 to 3 do
   begin
@@ -2889,13 +2889,13 @@ begin
 
     if Sender = ResRow_Resource[I].OrderAdd then
     begin
-      NewCount := Math.Min(ClickAmount[aButton], MAX_RES_IN_HOUSE - H.CheckResIn(Res));
+      NewCount := Math.Min(ORDER_CLICK_AMOUNT[aButton], MAX_RES_IN_HOUSE - H.CheckResIn(Res));
       H.ResAddToIn(Res, NewCount);
     end;
 
     if Sender = ResRow_Resource[I].OrderRem then
     begin
-      NewCount := Math.Min(ClickAmount[aButton], H.CheckResIn(Res));
+      NewCount := Math.Min(ORDER_CLICK_AMOUNT[aButton], H.CheckResIn(Res));
       H.ResTakeFromIn(Res, NewCount);
     end;
   end;
@@ -2971,9 +2971,9 @@ begin
   Group := TKMUnitGroup(fPlayers.Selected);
 
   if Sender = Button_ArmyDec then //Decrease
-    NewCount := Group.MapEdCount - ClickAmount[AButton]
+    NewCount := Group.MapEdCount - ORDER_CLICK_AMOUNT[AButton]
   else //Increase
-    NewCount := Group.MapEdCount + ClickAmount[AButton];
+    NewCount := Group.MapEdCount + ORDER_CLICK_AMOUNT[AButton];
 
   Group.MapEdCount := EnsureRange(NewCount, 1, 200); //Limit max members
   ImageStack_Army.SetCount(Group.MapEdCount, Group.UnitsPerRow, Group.UnitsPerRow div 2 + 1);
@@ -3070,12 +3070,12 @@ begin
   Barracks := TKMHouseBarracks(fPlayers.Selected);
 
   if (Sender = Button_BarracksDec100) or (Sender = Button_BarracksDec) then begin
-    NewCount := Math.Min(Barracks.CheckResIn(Res), ClickAmount[aButton] * TKMButton(Sender).Tag);
+    NewCount := Math.Min(Barracks.CheckResIn(Res), ORDER_CLICK_AMOUNT[aButton] * TKMButton(Sender).Tag);
     Barracks.ResTakeFromOut(Res, NewCount);
   end;
 
   if (Sender = Button_BarracksInc100) or (Sender = Button_BarracksInc) then begin
-    NewCount := Math.Min(High(Word) - Barracks.CheckResIn(Res), ClickAmount[aButton] * TKMButton(Sender).Tag);
+    NewCount := Math.Min(High(Word) - Barracks.CheckResIn(Res), ORDER_CLICK_AMOUNT[aButton] * TKMButton(Sender).Tag);
     Barracks.ResAddToIn(Res, NewCount);
   end;
 
@@ -3097,13 +3097,13 @@ begin
 
   //We need to take no more than it is there, thats part of bugtracking idea
   if (Sender = Button_StoreDec100) or (Sender = Button_StoreDec) then begin
-    NewCount := Math.Min(Store.CheckResIn(Res), ClickAmount[aButton]*TKMButton(Sender).Tag);
+    NewCount := Math.Min(Store.CheckResIn(Res), ORDER_CLICK_AMOUNT[aButton]*TKMButton(Sender).Tag);
     Store.ResTakeFromOut(Res, NewCount);
   end;
 
   //We can always add any amount of resource, it will be capped by Store
   if (Sender = Button_StoreInc100) or (Sender = Button_StoreInc) then
-    Store.ResAddToIn(Res, ClickAmount[aButton]*TKMButton(Sender).Tag);
+    Store.ResAddToIn(Res, ORDER_CLICK_AMOUNT[aButton]*TKMButton(Sender).Tag);
 
   Label_Store_WareCount.Caption := inttostr(Store.CheckResIn(Res));
   House_StoreRefresh(nil);

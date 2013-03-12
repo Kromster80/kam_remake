@@ -90,6 +90,7 @@ type
     procedure House_RepairToggle(Sender:TObject);
     procedure House_WareDeliveryToggle(Sender:TObject);
     procedure House_OrderClick(Sender:TObject; AButton:TMouseButton);
+    procedure House_OrderWheel(Sender: TObject; WheelDelta: Integer);
     procedure House_MarketFill(aMarket: TKMHouseMarket);
     procedure House_MarketOrderClick(Sender:TObject; AButton:TMouseButton);
     procedure House_MarketSelect(Sender:TObject; AButton:TMouseButton);
@@ -1679,6 +1680,9 @@ begin
         ResRow_Order[I].OrderAdd.OnClickEither := House_OrderClick;
         ResRow_Order[I].OrderRem.Hint          := fTextLibrary[TX_HOUSE_ORDER_DEC_HINT];
         ResRow_Order[I].OrderAdd.Hint          := fTextLibrary[TX_HOUSE_ORDER_INC_HINT];
+        ResRow_Order[I].OrderRem.OnMouseWheel := House_OrderWheel;
+        ResRow_Order[I].OrderAdd.OnMouseWheel := House_OrderWheel;
+        ResRow_Order[I].OnMouseWheel          := House_OrderWheel;
 
         ResRow_Costs[I] := TKMCostsRow.Create(Panel_House_Common, 0,22,TB_WIDTH,20);
         ResRow_Costs[I].RX := rxGui;
@@ -2435,9 +2439,29 @@ begin
 
   for I := 1 to 4 do begin
     if Sender = ResRow_Order[I].OrderRem then
-      fGame.GameInputProcess.CmdHouse(gic_HouseOrderProduct, H, I, -ClickAmount[AButton]);
+      fGame.GameInputProcess.CmdHouse(gic_HouseOrderProduct, H, I, -ORDER_CLICK_AMOUNT[AButton]);
     if Sender = ResRow_Order[I].OrderAdd then
-      fGame.GameInputProcess.CmdHouse(gic_HouseOrderProduct, H, I, ClickAmount[AButton]);
+      fGame.GameInputProcess.CmdHouse(gic_HouseOrderProduct, H, I, ORDER_CLICK_AMOUNT[AButton]);
+  end;
+end;
+
+procedure TKMGamePlayInterface.House_OrderWheel(Sender: TObject; WheelDelta: Integer);
+var
+  I: Integer;
+  Amount: Integer;
+  H: TKMHouse;
+begin
+  if not (fPlayers.Selected is TKMHouse) then Exit;
+
+  H := TKMHouse(fPlayers.Selected);
+
+  Amount := ORDER_WHEEL_AMOUNT * Sign(WheelDelta);
+
+  for I := 1 to 4 do begin
+    if (Sender = ResRow_Order[I])
+    or (Sender = ResRow_Order[I].OrderRem)
+    or (Sender = ResRow_Order[I].OrderAdd) then
+      fGame.GameInputProcess.CmdHouse(gic_HouseOrderProduct, H, I, Amount);
   end;
 end;
 
@@ -3207,9 +3231,9 @@ begin
   M := TKMHouseMarket(fPlayers.Selected);
 
   if Sender = Button_Market_Remove then
-    fGame.GameInputProcess.CmdHouse(gic_HouseOrderProduct, M, 1, -ClickAmount[AButton]);
+    fGame.GameInputProcess.CmdHouse(gic_HouseOrderProduct, M, 1, -ORDER_CLICK_AMOUNT[AButton]);
   if Sender = Button_Market_Add then
-    fGame.GameInputProcess.CmdHouse(gic_HouseOrderProduct, M, 1, ClickAmount[AButton]);
+    fGame.GameInputProcess.CmdHouse(gic_HouseOrderProduct, M, 1, ORDER_CLICK_AMOUNT[AButton]);
 end;
 
 
