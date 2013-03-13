@@ -138,17 +138,26 @@ begin
         Pixel := I * Size[H].X + K;
         L := Data[H, Pixel]; //0..255
 
+        //Flagcolors in KaM are 24..30
+        //We decode them according to visualization pipeline to greyscale
+        //and make a color transparency mask
         if RXInfo[fRT].TeamColors and (L in [24..30])
         and (Palette <> fPalettes.PalData[pal_lin])
         and ((fRT <> rxHouses) or (H > 400))  //Skip the Inn Weapon Smithy and the rest
         and ((fRT <> rxGui) or InRange(H, 141, 154) or InRange(H, 521, 550)) then //Unit icons and scrolls
         begin
-          RGBA[H, Pixel] := cardinal(((L - 27) * 42 + 128) * 65793) OR $FF000000;
-          case L of //Maybe it makes sense to convert to 8bit?
-            24, 30: Mask[H, Pixel] := $60;   //7  //6
-            25, 29: Mask[H, Pixel] := $90;   //11 //9
-            26, 28: Mask[H, Pixel] := $C0;   //14 //12
-            27:     Mask[H, Pixel] := $FF;   //16 //16
+          //RGBA[H, Pixel] := cardinal(((L - 27) * 42 + 128) * 65793) OR $FF000000;
+          //Use black and white background for more saturated colors
+          if L < 27 then
+            RGBA[H, Pixel] := FLAG_COLOR_DARK
+          else
+            RGBA[H, Pixel] := FLAG_COLOR_LITE;
+
+          case L of
+            24, 30: Mask[H, Pixel] := $60;   //38%
+            25, 29: Mask[H, Pixel] := $90;   //56%
+            26, 28: Mask[H, Pixel] := $C0;   //75%
+            27:     Mask[H, Pixel] := $FF;   //100%
           end;
           HasMask[H] := True;
         end else

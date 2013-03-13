@@ -10,6 +10,13 @@ uses
   {$IFDEF WDC}, ZLib {$ENDIF}
   {$IFDEF FPC}, BGRABitmap, BGRABitmapTypes {$ENDIF};
 
+
+const
+  //Colors to paint beneath player color areas (flags)
+  //The blacker/whighter - the more contrast player color will be
+  FLAG_COLOR_DARK = $FF101010;   //Dark-grey (Black)
+  FLAG_COLOR_LITE = $FFFFFFFF;   //White
+
 type
   TRXUsage = (ruMenu, ruGame); //Where sprites are used
 
@@ -117,7 +124,7 @@ var
 
 
 implementation
-uses KromUtils, KM_Log, Types, StrUtils, KM_BinPacking;
+uses KromUtils, KM_Log, Types, StrUtils, KM_BinPacking, KM_Utils;
 
 
 { TKMSpritePack }
@@ -163,7 +170,8 @@ end;
 procedure TKMSpritePack.AddImage(aFolder, aFilename: string; aIndex: Integer);
 var
   I,K:integer;
-  T: Byte;
+  Tr, Tg, Tb, T: Byte;
+  Thue, Tsat, Tbri: Single;
   ft: TextFile;
   {$IFDEF WDC}
   p: Cardinal;
@@ -255,11 +263,24 @@ begin
       {$IFDEF WDC}
       for K := 0 to po.Height - 1 do
       for I := 0 to po.Width - 1 do
-      if Cardinal(po.Pixels[I,K] and $FF) <> 0 then
+      if Cardinal(po.Pixels[I,K] and $FFFFFF) <> 0 then
       begin
-        T := fRXData.RGBA[aIndex, K*po.Width+I] and $FF; //Take red component
-        fRXData.RGBA[aIndex, K*po.Width+I] := T * 65793 or $FF000000;
-        fRXData.Mask[aIndex, K*po.Width+I] := Byte(255 - Abs(255 - T * 2));
+        Tr := fRXData.RGBA[aIndex, K*po.Width+I] and $FF;
+        Tg := fRXData.RGBA[aIndex, K*po.Width+I] shr 8 and $FF;
+        Tb := fRXData.RGBA[aIndex, K*po.Width+I] shr 16 and $FF;
+
+        //Determine color brightness
+        ConvertRGB2HSB(Tr, Tg, Tb, Thue, Tsat, Tbri);
+
+        //Make background RGBA black or white for more saturated colors
+        if Tbri < 0.5 then
+          fRXData.RGBA[aIndex, K*po.Width+I] := FLAG_COLOR_DARK
+        else
+          fRXData.RGBA[aIndex, K*po.Width+I] := FLAG_COLOR_LITE;
+
+        //Map brightness from 0..1 to 0..255..0
+        T := Trunc((0.5 - Abs(Tbri - 0.5)) * 510);
+        fRXData.Mask[aIndex, K*po.Width+I] := T;
       end;
       {$ENDIF}
       {$IFDEF FPC}
@@ -267,9 +288,22 @@ begin
       for I := 0 to po.Width - 1 do
       if Cardinal(po.GetPixel(I,K).red) <> 0 then
       begin
-        T := fRXData.RGBA[aIndex, K*po.Width+I] and $FF; //Take red component
-        fRXData.RGBA[aIndex, K*po.Width+I] := T * 65793 or $FF000000;
-        fRXData.Mask[aIndex, K*po.Width+I] := Byte(255 - Abs(255 - T * 2));
+        Tr := fRXData.RGBA[aIndex, K*po.Width+I] and $FF;
+        Tg := fRXData.RGBA[aIndex, K*po.Width+I] shr 8 and $FF;
+        Tb := fRXData.RGBA[aIndex, K*po.Width+I] shr 16 and $FF;
+
+        //Determine color brightness
+        ConvertRGB2HSB(Tr, Tg, Tb, Thue, Tsat, Tbri);
+
+        //Make background RGBA black or white for more saturated colors
+        if Tbri < 0.5 then
+          fRXData.RGBA[aIndex, K*po.Width+I] := FLAG_COLOR_DARK
+        else
+          fRXData.RGBA[aIndex, K*po.Width+I] := FLAG_COLOR_LITE;
+
+        //Map brightness from 0..1 to 0..255..0
+        T := Trunc((0.5 - Abs(Tbri - 0.5)) * 510);
+        fRXData.Mask[aIndex, K*po.Width+I] := T;
       end;
       {$ENDIF}
     end;
@@ -384,6 +418,7 @@ var
   {$IFDEF WDC} Png: TPNGObject; {$ENDIF}
   {$IFDEF FPC} po: TBGRABitmap; {$ENDIF}
   ID, I, K: Integer;
+  M: Byte;
   SizeX, SizeY: Integer;
 begin
   ForceDirectories(aFolder);
@@ -404,12 +439,31 @@ begin
     for K := 0 to SizeX - 1 do
     begin
       {$IFDEF WDC}
-      Png.Pixels[K,I] := fRXData.RGBA[ID, I*SizeX + K] and $FFFFFF;
+      if fRXData.HasMask[ID] and (fRXData.Mask[ID, I*SizeX + K] > 0) then
+      begin
+        M := fRXData.Mask[ID, I*SizeX + K];
+        if fRXData.RGBA[ID, I*SizeX + K] = FLAG_COLOR_DARK then
+          Png.Pixels[K,I] := M
+        else
+          Png.Pixels[K,I] := $FF + (255 - M) * $010100;
+      end
+      else
+        Png.Pixels[K,I] := fRXData.RGBA[ID, I*SizeX + K] and $FFFFFF;
+
       Png.AlphaScanline[I]^[K] := fRXData.RGBA[ID, I*SizeX + K] shr 24;
       {$ENDIF}
       {$IFDEF FPC}
       //I can't figure out how to get transparency to save in PNGs, so for now everything is opaque
-      po.CanvasBGRA.Pixels[K,I] := fRXData.RGBA[ID, I*SizeX + K] and $FFFFFF;
+      if fRXData.HasMask[ID] and (fRXData.Mask[ID, I*SizeX + K] > 0) then
+      begin
+        M := fRXData.Mask[ID, I*SizeX + K];
+        if fRXData.RGBA[ID, I*SizeX + K] = FLAG_COLOR_DARK then
+          po.CanvasBGRA.Pixels[K,I] := M
+        else
+          po.CanvasBGRA.Pixels[K,I] := $FF + (255 - M) * $010100;
+      end
+      else
+        po.CanvasBGRA.Pixels[K,I] := fRXData.RGBA[ID, I*SizeX + K] and $FFFFFF;
       {$ENDIF}
     end;
 
@@ -422,19 +476,18 @@ begin
     {$IFDEF WDC} Png.SaveToFile(aFolder + Format('%d_%.4d.png', [Byte(fRT)+1, ID])); {$ENDIF}
     {$IFDEF FPC} po.SaveToFile(aFolder + Format('%d_%.4d.png', [Byte(fRT)+1, ID])); {$ENDIF}
 
-    //Export Flag values
+    //Export Mask
     if fRXData.HasMask[ID] then
     begin
       for I := 0 to SizeY - 1 do
       for K := 0 to SizeX - 1 do
       begin
         {$IFDEF WDC}
-        //65793 is a magic number to convert Byte to greyscale RRGGBB
-        Png.Pixels[K,I] := fRXData.Mask[ID, I*SizeX + K] * 65793;
+        Png.Pixels[K,I] := Byte(fRXData.Mask[ID, I*SizeX + K] > 0) * $FFFFFF;
         Png.AlphaScanline[I]^[K] := $FF; //Always there
         {$ENDIF}
         {$IFDEF FPC}
-        po.CanvasBGRA.Pixels[K,I] := (fRXData.Mask[ID, I*SizeX + K] * 65793) or $FF000000;
+        po.CanvasBGRA.Pixels[K,I] := (Byte(fRXData.Mask[ID, I*SizeX + K] > 0) * $FFFFFF) or $FF000000;
         {$ENDIF}
       end;
 
@@ -570,7 +623,7 @@ begin
       HasMsk := HasMsk or fRXData.HasMask[j];
 
     //If we need to prepare textures for TeamColors          //special fix for iron mine logo
-    if MAKE_TEAM_COLorS and RXInfo[fRT].TeamColors and (not ((fRT=rxGui)and InRange(49,LeftIndex,RightIndex))) then
+    if MAKE_TEAM_COLORS and RXInfo[fRT].TeamColors and (not ((fRT=rxGui)and InRange(49,LeftIndex,RightIndex))) then
     begin
       GFXData[fRT,LeftIndex].Tex.ID := TRender.GenTexture(WidthPOT,HeightPOT,@TD[0],aTexType);
       //TeamColors are done through alternative plain colored texture
@@ -775,7 +828,7 @@ var
   {$IFDEF FPC} po: TBGRABitmap; {$ENDIF}
   Folder: string;
 begin
-  if EXPorT_SPRITE_ATLASES then
+  if EXPORT_SPRITE_ATLASES then
   begin
     Folder := ExeDir + 'Export\GenTextures\';
     ForceDirectories(Folder);
