@@ -41,6 +41,8 @@ type
     Export_HousesRX: TMenuItem;
     Export_UnitsRX: TMenuItem;
     Export_GUIMainRX: TMenuItem;
+    Export_GUIMainH: TMenuItem;
+    Export_Tileset: TMenuItem;
     Export_Fonts1: TMenuItem;
     GroupBox1: TGroupBox;
     chkSuperSpeed: TCheckBox;
@@ -56,7 +58,6 @@ type
     Other1: TMenuItem;
     Debug_ShowPanel: TMenuItem;
     Export_TreeAnim1: TMenuItem;
-    Export_GUIMainHRX: TMenuItem;
     ExportMainMenu: TMenuItem;
     Debug_EnableCheats: TMenuItem;
     ExportGamePages: TMenuItem;
@@ -108,9 +109,10 @@ type
     procedure Export_TreesRXClick(Sender: TObject);
     procedure Export_HousesRXClick(Sender: TObject);
     procedure Export_UnitsRXClick(Sender: TObject);
-    procedure Export_GUIRXClick(Sender: TObject);
+    procedure Export_GUIClick(Sender: TObject);
     procedure Export_GUIMainRXClick(Sender: TObject);
     procedure Export_GUIMainHRXClick(Sender: TObject);
+    procedure Export_TilesetClick(Sender: TObject);
     procedure Export_Sounds1Click(Sender: TObject);
     procedure Export_HouseAnim1Click(Sender: TObject);
     procedure Export_UnitAnim1Click(Sender: TObject);
@@ -335,25 +337,77 @@ end;
 
 
 procedure TFormMain.Debug_ShowPanelClick(Sender: TObject);
-begin GroupBox1.Visible := not GroupBox1.Visible; end;
+begin
+  GroupBox1.Visible := not GroupBox1.Visible;
+end;
 
 
 //Exports
-procedure TFormMain.Export_TreesRXClick(Sender: TObject);   begin fResource.Sprites.ExportToPNG(rxTrees); end;
-procedure TFormMain.Export_HousesRXClick(Sender: TObject);  begin fResource.Sprites.ExportToPNG(rxHouses); end;
-procedure TFormMain.Export_UnitsRXClick(Sender: TObject);   begin fResource.Sprites.ExportToPNG(rxUnits); end;
-procedure TFormMain.Export_GUIRXClick(Sender: TObject);     begin fResource.Sprites.ExportToPNG(rxGUI); end;
-procedure TFormMain.Export_GUIMainRXClick(Sender: TObject); begin fResource.Sprites.ExportToPNG(rxGUIMain); end;
-procedure TFormMain.Export_GUIMainHRXClick(Sender: TObject);begin {fResource.Sprites.ExportToPNG(rxGUIMainH);} end;
-procedure TFormMain.Export_Sounds1Click(Sender: TObject);   begin fSoundLib.ExportSounds; end;
-procedure TFormMain.Export_TreeAnim1Click(Sender: TObject); begin fResource.ExportTreeAnim; end;
-procedure TFormMain.Export_HouseAnim1Click(Sender: TObject);begin fResource.ExportHouseAnim; end;
-procedure TFormMain.Export_UnitAnim1Click(Sender: TObject); begin fResource.ExportUnitAnim;  end;
-procedure TFormMain.HousesDat1Click(Sender: TObject);       begin fResource.HouseDat.ExportCSV(ExeDir+'Export\houses.dat.csv') end;
+procedure TFormMain.Export_TreesRXClick(Sender: TObject);
+begin
+  fResource.Sprites.ExportToPNG(rxTrees);
+end;
+
+procedure TFormMain.Export_HousesRXClick(Sender: TObject);
+begin
+  fResource.Sprites.ExportToPNG(rxHouses);
+end;
+
+procedure TFormMain.Export_UnitsRXClick(Sender: TObject);
+begin
+  fResource.Sprites.ExportToPNG(rxUnits);
+end;
+
+procedure TFormMain.Export_GUIClick(Sender: TObject);
+begin
+  fResource.Sprites.ExportToPNG(rxGUI);
+end;
+
+procedure TFormMain.Export_GUIMainRXClick(Sender: TObject);
+begin
+  fResource.Sprites.ExportToPNG(rxGUIMain);
+end;
+
+procedure TFormMain.Export_GUIMainHRXClick(Sender: TObject);
+begin
+  fResource.Sprites.ExportToPNG(rxGUIMainH);
+end;
+
+procedure TFormMain.Export_TilesetClick(Sender: TObject);
+begin
+  fResource.Sprites.ExportToPNG(rxTiles);
+end;
+
+procedure TFormMain.Export_Sounds1Click(Sender: TObject);
+begin
+  fSoundLib.ExportSounds;
+end;
+
+procedure TFormMain.Export_TreeAnim1Click(Sender: TObject);
+begin
+  fResource.ExportTreeAnim;
+end;
+
+procedure TFormMain.Export_HouseAnim1Click(Sender: TObject);
+begin
+  fResource.ExportHouseAnim;
+end;
+
+procedure TFormMain.Export_UnitAnim1Click(Sender: TObject);
+begin
+  fResource.ExportUnitAnim;
+end;
+
+procedure TFormMain.HousesDat1Click(Sender: TObject);
+begin
+  fResource.HouseDat.ExportCSV(ExeDir + 'Export\houses.dat.csv')
+end;
 
 
 procedure TFormMain.Export_TextClick(Sender: TObject);
-var I: Integer; MyTextLibrary: TTextLibrary;
+var
+  I: Integer;
+  MyTextLibrary: TTextLibrary;
 begin
   for I := 0 to fLocales.Count-1 do
   begin
@@ -363,6 +417,7 @@ begin
     MyTextLibrary.Free;
   end;
 end;
+
 
 procedure TFormMain.Export_Fonts1Click(Sender: TObject);
 begin
