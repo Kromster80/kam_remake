@@ -2874,7 +2874,7 @@ end;
 procedure TKMMemo.SetWidth(aValue: Integer);
 begin
   inherited;
-  fScrollBar.Left := Round(fLeft + fWidth) - 20;
+  fScrollBar.Left := Left + Width - fScrollBar.Width;
   ReformatText; //Repositions the scroll bar as well
 end;
 
@@ -3403,7 +3403,7 @@ begin
   inherited;
 
   fHeader.Left := Left;
-  fScrollBar.Left := Left + Width - fItemHeight;
+  fScrollBar.Left := Left + Width - fScrollBar.Width;
 end;
 
 
@@ -3422,7 +3422,7 @@ begin
   inherited;
 
   fHeader.Width := Width;
-  fScrollBar.Left := Left + Width - fItemHeight;
+  fScrollBar.Left := Left + Width - fScrollBar.Width;
 end;
 
 
