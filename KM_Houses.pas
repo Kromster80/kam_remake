@@ -410,7 +410,7 @@ begin
 
   //Built houses accumulate snow slowly, pre-placed houses are already covered
   CheckOnSnow;
-  fSnowStep := Byte(aWasBuilt);
+  fSnowStep := Byte(not aWasBuilt);
 
   for I := 1 to 4 do
   begin
