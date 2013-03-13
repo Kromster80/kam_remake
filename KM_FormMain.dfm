@@ -101,7 +101,6 @@ object FormMain: TFormMain
         Width = 60
         Height = 13
         Caption = 'Building step'
-        Visible = False
       end
       object tbAngleX: TTrackBar
         Left = 4
@@ -139,7 +138,6 @@ object FormMain: TFormMain
         ThumbLength = 14
         TickMarks = tmBoth
         TickStyle = tsNone
-        Visible = False
         OnChange = ControlsUpdate
       end
     end
