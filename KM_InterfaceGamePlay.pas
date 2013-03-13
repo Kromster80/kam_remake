@@ -1206,6 +1206,7 @@ begin
   Shape_ChatMenuBG.Hide;
 
   ListBox_ChatMenu := TKMListBox.Create(aParent, 0, 0, 132, 100, fnt_Grey, bsMenu);
+  ListBox_ChatMenu.Anchors := [akLeft, akBottom];
   ListBox_ChatMenu.BackAlpha := 0.8;
   ListBox_ChatMenu.AutoHideScrollBar := True;
   ListBox_ChatMenu.Focusable := False;
@@ -1213,6 +1214,8 @@ begin
   ListBox_ChatMenu.Add('Team');
   ListBox_ChatMenu.OnClick := Chat_MenuClick;
   ListBox_ChatMenu.Hide;
+
+  Chat_MenuSelect(-1); //All is selected at the start and positions are updated
 end;
 
 
@@ -2980,7 +2983,7 @@ begin
 
   C := TKMControl(Sender);
   //Position the menu next to the icon, but do not overlap players name
-  ListBox_ChatMenu.AbsLeft := C.AbsLeft + C.Width - ListBox_ChatMenu.Width;
+  ListBox_ChatMenu.AbsLeft := C.AbsLeft;
   ListBox_ChatMenu.AbsTop := C.AbsTop - ListBox_ChatMenu.Height;
 
   //Reset previously selected item

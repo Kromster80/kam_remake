@@ -329,6 +329,7 @@ begin
   Shape_ChatMenuBG.Hide;
 
   ListBox_ChatMenu := TKMListBox.Create(aParent, 0, 0, 120, 120, fnt_Grey, bsMenu);
+  ListBox_ChatMenu.Anchors := [akLeft, akBottom];
   ListBox_ChatMenu.BackAlpha := 0.8;
   ListBox_ChatMenu.AutoHideScrollBar := True;
   ListBox_ChatMenu.Focusable := False;
@@ -553,7 +554,7 @@ begin
   fNetworking.OnDisconnect   := Lobby_OnDisconnect;
   fNetworking.OnReassignedHost := Lobby_OnReassignedToHost;
 
-  ChatMenuSelect(0);
+  ChatMenuSelect(-1); //All
 
   Panel_Lobby.Show;
   Lobby_Resize(aMainHeight);
