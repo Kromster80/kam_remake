@@ -1197,30 +1197,31 @@ begin
     hbs_NoGlyph:; //Nothing
     hbs_Wood:   begin
                   Progress := fBuildingProgress / 50 / H.WoodCost;
-                  fRenderPool.AddHouseWood(fHouseType, fPosition, Progress); //0...1 range
+                  fRenderPool.AddHouse(fHouseType, fPosition, Progress, 0, 0);
                   fRenderPool.AddHouseBuildSupply(fHouseType, fPosition, fBuildSupplyWood, fBuildSupplyStone);
                 end;
     hbs_Stone:  begin
                   Progress := (fBuildingProgress / 50 - H.WoodCost) / H.StoneCost;
-                  fRenderPool.AddHouseStone(fHouseType, fPosition, Progress); //0...1 range
+                  fRenderPool.AddHouse(fHouseType, fPosition, 1, Progress, 0);
                   fRenderPool.AddHouseBuildSupply(fHouseType, fPosition, fBuildSupplyWood, fBuildSupplyStone);
                 end;
     else        begin
-                  if HOUSE_BUILDING_STEP <> 0 then
-                    if HOUSE_BUILDING_STEP < 0.5 then
-                      fRenderPool.AddHouseWood(fHouseType, fPosition, HOUSE_BUILDING_STEP * 2)
-                    else
-                      fRenderPool.AddHouseStone(fHouseType, fPosition, (HOUSE_BUILDING_STEP - 0.5) * 2)
-                  else
+                  //Incase we need to render house at desired step in debug mode
+                  if HOUSE_BUILDING_STEP = 0 then
                   begin
                     if fTerrain.TileIsSnow(GetEntrance.X, GetEntrance.Y) then
-                      fRenderPool.AddHouseSnow(fHouseType, fPosition, 1)
+                      fRenderPool.AddHouse(fHouseType, fPosition, 1, 1, 1)
                     else
-                      fRenderPool.AddHouseStone(fHouseType, fPosition, 1);
+                      fRenderPool.AddHouse(fHouseType, fPosition, 1, 1, 0);
                     fRenderPool.AddHouseSupply(fHouseType, fPosition, fResourceIn, fResourceOut);
                     if fCurrentAction <> nil then
                       fRenderPool.AddHouseWork(fHouseType, fPosition, fCurrentAction.SubAction, WorkAnimStep, fPlayers[fOwner].FlagColor);
-                  end;
+                  end
+                  else
+                    fRenderPool.AddHouse(fHouseType, fPosition,
+                      Min(HOUSE_BUILDING_STEP * 3, 1),
+                      EnsureRange(HOUSE_BUILDING_STEP * 3 - 1, 0, 1),
+                      Max(HOUSE_BUILDING_STEP * 3 - 2, 0));
                 end;
   end;
 
