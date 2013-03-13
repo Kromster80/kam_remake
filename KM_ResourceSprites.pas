@@ -162,7 +162,7 @@ end;
 //Add PNG images to spritepack if user has any addons in Sprites folder
 procedure TKMSpritePack.AddImage(aFolder, aFilename: string; aIndex: Integer);
 var
-  x,y:integer;
+  I,K:integer;
   T: Byte;
   ft: TextFile;
   {$IFDEF WDC}
@@ -201,33 +201,33 @@ begin
     //There are ways to process PNG transparency
     case po.TransparencyMode of
       ptmNone:
-        for y:=0 to po.Height-1 do for x:=0 to po.Width-1 do
-          fRXData.RGBA[aIndex, y*po.Width+x] := cardinal(po.Pixels[x,y]) OR $FF000000;
+        for K:=0 to po.Height-1 do for I:=0 to po.Width-1 do
+          fRXData.RGBA[aIndex, K*po.Width+I] := cardinal(po.Pixels[I,K]) or $FF000000;
       ptmBit:
         begin
           Transparent := 0;
           if TChunktRNS(po.Chunks.ItemFromClass(TChunktRNS)).DataSize > 0 then
             Transparent := TChunktRNS(po.Chunks.ItemFromClass(TChunktRNS)).PaletteValues[0]; //We don't handle multi-transparent palettes yet
-          for y:=0 to po.Height-1 do for x:=0 to po.Width-1 do
-            if PByteArray(po.Scanline[y])^[x] = Transparent then
-              fRXData.RGBA[aIndex, y*po.Width+x] := cardinal(po.Pixels[x,y]) AND $FFFFFF //avoid black edging
+          for K:=0 to po.Height-1 do for I:=0 to po.Width-1 do
+            if PByteArray(po.Scanline[K])^[I] = Transparent then
+              fRXData.RGBA[aIndex, K*po.Width+I] := cardinal(po.Pixels[I,K]) and $FFFFFF //avoid black edging
             else
-              fRXData.RGBA[aIndex, y*po.Width+x] := cardinal(po.Pixels[x,y]) OR $FF000000;
+              fRXData.RGBA[aIndex, K*po.Width+I] := cardinal(po.Pixels[I,K]) or $FF000000;
         end;
       ptmPartial:
-        for y:=0 to po.Height-1 do for x:=0 to po.Width-1 do
+        for K:=0 to po.Height-1 do for I:=0 to po.Width-1 do
         begin
-          p := po.AlphaScanline[y]^[x];
-          fRXData.RGBA[aIndex, y*po.Width+x] := cardinal(po.Pixels[x,y]) OR (p shl 24);
+          p := po.AlphaScanline[K]^[I];
+          fRXData.RGBA[aIndex, K*po.Width+I] := cardinal(po.Pixels[I,K]) or (p shl 24);
         end;
       else
         Assert(false, 'Unknown PNG transparency mode')
     end;
     {$ENDIF}
     {$IFDEF FPC}
-    for y:=0 to po.Height-1 do for x:=0 to po.Width-1 do
-      fRXData.RGBA[aIndex, y*po.Width+x] := cardinal(po.GetPixel(x,y).red) OR (cardinal(po.GetPixel(x,y).green) shl 8) OR
-                                           (cardinal(po.GetPixel(x,y).blue) shl 16) OR (cardinal(po.GetPixel(x,y).alpha) shl 24);
+    for K:=0 to po.Height-1 do for I:=0 to po.Width-1 do
+      fRXData.RGBA[aIndex, K*po.Width+I] := cardinal(po.GetPixel(I,K).red) or (cardinal(po.GetPixel(I,K).green) shl 8) or
+                                           (cardinal(po.GetPixel(I,K).blue) shl 16) or (cardinal(po.GetPixel(I,K).alpha) shl 24);
     {$ENDIF}
   finally
     po.Free;
@@ -239,7 +239,7 @@ begin
   //Load and process the mask if it exists
   if fRXData.HasMask[aIndex] then
   begin
-    //PNG masks are designed for the artist, they take standard KaM reds so it's easier
+    //! PNG masks are designed for the artist, they take standard KaM reds so it's easier
     {$IFDEF WDC}
     po := TPNGObject.Create;
     po.LoadFromFile(aFolder + FileNameA);
@@ -248,25 +248,28 @@ begin
     po := TBGRABitmap.Create(aFolder + FileNameA);
     {$ENDIF}
 
-    if (fRXData.Size[aIndex].X = po.Width) and (fRXData.Size[aIndex].Y = po.Height) then
+    if (fRXData.Size[aIndex].X = po.Width)
+    and (fRXData.Size[aIndex].Y = po.Height) then
     begin
       //We don't handle transparency in Masks
       {$IFDEF WDC}
-      for y:=0 to po.Height-1 do for x:=0 to po.Width-1 do
-      if cardinal(po.Pixels[x,y] AND $FF) <> 0 then
+      for K := 0 to po.Height - 1 do
+      for I := 0 to po.Width - 1 do
+      if Cardinal(po.Pixels[I,K] and $FF) <> 0 then
       begin
-        T := fRXData.RGBA[aIndex, y*po.Width+x] AND $FF; //Take red component
-        fRXData.Mask[aIndex, y*po.Width+x] := Byte(255-Abs(255-T*2));
-        fRXData.RGBA[aIndex, y*po.Width+x] := T*65793 OR $FF000000;
+        T := fRXData.RGBA[aIndex, K*po.Width+I] and $FF; //Take red component
+        fRXData.RGBA[aIndex, K*po.Width+I] := T * 65793 or $FF000000;
+        fRXData.Mask[aIndex, K*po.Width+I] := Byte(255 - Abs(255 - T * 2));
       end;
       {$ENDIF}
       {$IFDEF FPC}
-      for y:=0 to po.Height-1 do for x:=0 to po.Width-1 do
-      if cardinal(po.GetPixel(x,y).red) <> 0 then
+      for K := 0 to po.Height - 1 do
+      for I := 0 to po.Width - 1 do
+      if Cardinal(po.GetPixel(I,K).red) <> 0 then
       begin
-        T := fRXData.RGBA[aIndex, y*po.Width+x] AND $FF; //Take red component
-        fRXData.Mask[aIndex, y*po.Width+x] := Byte(255-Abs(255-T*2));
-        fRXData.RGBA[aIndex, y*po.Width+x] := T*65793 OR $FF000000;
+        T := fRXData.RGBA[aIndex, K*po.Width+I] and $FF; //Take red component
+        fRXData.RGBA[aIndex, K*po.Width+I] := T * 65793 or $FF000000;
+        fRXData.Mask[aIndex, K*po.Width+I] := Byte(255 - Abs(255 - T * 2));
       end;
       {$ENDIF}
     end;
@@ -385,7 +388,7 @@ var
 begin
   ForceDirectories(aFolder);
 
-  {$IFDEF WDC} Png := TPNGObject.CreateBlank(COLOR_RGBALPHA, 8, 0, 0); {$ENDIF}
+  {$IFDEF WDC} Png := TPNGObject.CreateBlank(COLor_RGBALPHA, 8, 0, 0); {$ENDIF}
   {$IFDEF FPC} po := TBGRABitmap.Create(0, 0, BGRABlack); {$ENDIF}
 
   for ID := 1 to fRXData.Count do
@@ -426,11 +429,12 @@ begin
       for K := 0 to SizeX - 1 do
       begin
         {$IFDEF WDC}
-        Png.Pixels[K,I] := Byte(fRXData.Mask[ID, I*SizeX + K] > 0) * $FFFFFF;
+        //65793 is a magic number to convert Byte to greyscale RRGGBB
+        Png.Pixels[K,I] := fRXData.Mask[ID, I*SizeX + K] * 65793;
         Png.AlphaScanline[I]^[K] := $FF; //Always there
         {$ENDIF}
         {$IFDEF FPC}
-        po.CanvasBGRA.Pixels[K,I] := Byte(fRXData.Mask[ID, I*SizeX + K] > 0) * $FFFFFFFF;
+        po.CanvasBGRA.Pixels[K,I] := (fRXData.Mask[ID, I*SizeX + K] * 65793) or $FF000000;
         {$ENDIF}
       end;
 
@@ -532,7 +536,7 @@ begin
     while((LeftIndex+SpanCount<fRXData.Count)and //Keep packing until end of sprites
           (
             (HeightPOT=MakePOT(fRXData.Size[LeftIndex+SpanCount].Y)) //Pack if HeightPOT matches
-        or((HeightPOT>=MakePOT(fRXData.Size[LeftIndex+SpanCount].Y))AND(WidthPOT+fRXData.Size[LeftIndex+SpanCount].X<MakePOT(WidthPOT)))
+        or((HeightPOT>=MakePOT(fRXData.Size[LeftIndex+SpanCount].Y))and(WidthPOT+fRXData.Size[LeftIndex+SpanCount].X<MakePOT(WidthPOT)))
           )and
           (WidthPOT+fRXData.Size[LeftIndex+SpanCount].X <= MAX_TEX_RESOLUTION)) //Pack until max Tex_Resolution approached
     do begin
@@ -555,7 +559,7 @@ begin
           begin
             //CopyMemory(TD[(i-1)*WidthPOT+ci-1], fRXData.RGBA[j,(i-1)*fRXData.Size[j].X+k-1], )
             TD[i*WidthPOT+ci] := fRXData.RGBA[j,i*fRXData.Size[j].X+k];
-            TA[i*WidthPOT+ci] := (fRXData.Mask[j,i*fRXData.Size[j].X+k] SHL 24) OR $FFFFFF;
+            TA[i*WidthPOT+ci] := (fRXData.Mask[j,i*fRXData.Size[j].X+k] SHL 24) or $FFFFFF;
           end;
           inc(ci);
         end;
@@ -566,7 +570,7 @@ begin
       HasMsk := HasMsk or fRXData.HasMask[j];
 
     //If we need to prepare textures for TeamColors          //special fix for iron mine logo
-    if MAKE_TEAM_COLORS and RXInfo[fRT].TeamColors and (not ((fRT=rxGui)and InRange(49,LeftIndex,RightIndex))) then
+    if MAKE_TEAM_COLorS and RXInfo[fRT].TeamColors and (not ((fRT=rxGui)and InRange(49,LeftIndex,RightIndex))) then
     begin
       GFXData[fRT,LeftIndex].Tex.ID := TRender.GenTexture(WidthPOT,HeightPOT,@TD[0],aTexType);
       //TeamColors are done through alternative plain colored texture
@@ -771,7 +775,7 @@ var
   {$IFDEF FPC} po: TBGRABitmap; {$ENDIF}
   Folder: string;
 begin
-  if EXPORT_SPRITE_ATLASES then
+  if EXPorT_SPRITE_ATLASES then
   begin
     Folder := ExeDir + 'Export\GenTextures\';
     ForceDirectories(Folder);

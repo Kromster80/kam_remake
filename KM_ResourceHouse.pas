@@ -700,7 +700,7 @@ end;
 
 
 destructor TKMHouseDatCollection.Destroy;
-var H:THouseType;
+var H: THouseType;
 begin
   for H := HOUSE_MIN to HOUSE_MAX do
     FreeAndNil(fItems[H]);
