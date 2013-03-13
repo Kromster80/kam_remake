@@ -54,6 +54,8 @@ type
     fResOrderDesired: array[1..4]of Single;
 
     WorkAnimStep: cardinal; //Used for Work and etc.. which is not in sync with Flags
+    fIsOnSnow: Boolean;
+    fSnowStep: Single;
 
     fIsDestroyed: Boolean;
     RemoveRoadWhenDemolish: Boolean;
@@ -61,6 +63,7 @@ type
     fTimeSinceUnoccupiedReminder: Integer;
 
     procedure Activate(aWasBuilt: Boolean); virtual;
+    procedure CheckOnSnow;
 
     procedure MakeSound; dynamic; //Swine/stables make extra sounds
     function GetResDistribution(aID: Byte): Byte; //Will use GetRatio from mission settings to find distribution amount
@@ -316,7 +319,8 @@ begin
     Activate(False);
     fBuildingProgress := fResource.HouseDat[fHouseType].MaxHealth;
     fTerrain.SetHouse(fPosition, fHouseType, hsBuilt, fOwner, (fGame <> nil) and (fGame.GameMode <> gmMapEd)); //Sets passability and flattens terrain if we're not in the map editor
-  end else
+  end
+  else
     fTerrain.SetHouse(fPosition, fHouseType, hsFence, fOwner); //Terrain remains neutral yet
 end;
 
@@ -396,30 +400,32 @@ end;
 procedure TKMHouse.Activate(aWasBuilt: Boolean);
 var I: Integer; Res: TResourceType;
 begin
-  fPlayers[fOwner].Stats.HouseCreated(fHouseType,aWasBuilt); //Only activated houses count
+  fPlayers[fOwner].Stats.HouseCreated(fHouseType, aWasBuilt); //Only activated houses count
   fPlayers.RevealForTeam(fOwner, fPosition, fResource.HouseDat[fHouseType].Sight, FOG_OF_WAR_MAX);
 
-  fCurrentAction:=THouseAction.Create(Self, hst_Empty);
-  fCurrentAction.SubActionAdd([ha_Flagpole,ha_Flag1..ha_Flag3]);
+  fCurrentAction := THouseAction.Create(Self, hst_Empty);
+  fCurrentAction.SubActionAdd([ha_Flagpole, ha_Flag1..ha_Flag3]);
 
   UpdateDamage; //House might have been damaged during construction, so show flames when it is built
 
-  for i:=1 to 4 do
+  //Built houses accumulate snow slowly, pre-placed houses are already covered
+  CheckOnSnow;
+  fSnowStep := Byte(aWasBuilt);
+
+  for I := 1 to 4 do
   begin
-    Res := fResource.HouseDat[fHouseType].ResInput[i];
+    Res := fResource.HouseDat[fHouseType].ResInput[I];
     with fPlayers[fOwner].Deliveries.Queue do
     case Res of
       rt_None:    ;
       rt_Warfare: AddDemand(Self, nil, Res, 1, dt_Always, di_Norm);
       rt_All:     AddDemand(Self, nil, Res, 1, dt_Always, di_Norm);
-      else
-      begin
-        AddDemand(Self, nil, Res, GetResDistribution(i), dt_Once,   di_Norm); //Every new house needs 5 resourceunits
-        inc(fResourceDeliveryCount[i],GetResDistribution(i)); //Keep track of how many resources we have on order (for distribution of wares)
-      end;
+      else        begin
+                    AddDemand(Self, nil, Res, GetResDistribution(I), dt_Once,   di_Norm); //Every new house needs 5 resourceunits
+                    inc(fResourceDeliveryCount[I],GetResDistribution(I)); //Keep track of how many resources we have on order (for distribution of wares)
+                  end;
     end;
   end;
-
 end;
 
 
@@ -476,6 +482,8 @@ end;
 
 //Used by MapEditor
 procedure TKMHouse.SetPosition(aPos: TKMPoint);
+var
+  WasOnSnow: Boolean;
 begin
   Assert(fGame.GameMode = gmMapEd);
   //We have to remove the house THEN check to see if we can place it again so we can put it on the old position
@@ -488,6 +496,12 @@ begin
   end;
   fTerrain.SetHouse(fPosition, fHouseType, hsBuilt, fOwner);
   fTerrain.SetField(GetEntrance, fOwner, ft_Road);
+
+  //Do not remove all snow if house is moved from snow to snow
+  WasOnSnow := fIsOnSnow;
+  CheckOnSnow;
+  if not WasOnSnow or not fIsOnSnow then
+    fSnowStep := 0;
 end;
 
 
@@ -791,6 +805,27 @@ end;
 function TKMHouse.GetState:THouseState;
 begin
   Result := fCurrentAction.State;
+end;
+
+
+//Check if house is placed mostly on snow
+procedure TKMHouse.CheckOnSnow;
+var
+  I: Byte;
+  SnowTiles: Byte;
+  Cells: TKMPointList;
+begin
+  Cells := TKMPointList.Create;
+
+  GetListOfCellsWithin(Cells);
+
+  SnowTiles := 0;
+  for I := 0 to Cells.Count - 1 do
+    SnowTiles := SnowTiles + Byte(fTerrain.TileIsSnow(Cells[I].X, Cells[I].Y));
+
+  fIsOnSnow := SnowTiles > (Cells.Count div 2);
+
+  Cells.Free;
 end;
 
 
@@ -1116,8 +1151,12 @@ end;
 
 procedure TKMHouse.IncAnimStep;
 begin
-  inc(FlagAnimStep);
-  inc(WorkAnimStep);
+  Inc(FlagAnimStep);
+  Inc(WorkAnimStep);
+
+  if fIsOnSnow and (fSnowStep < 1) then
+    fSnowStep := Min(fSnowStep + 0.001 + Byte(fGame.IsMapEditor) * 0.02, 1);
+
   //FlagAnimStep is a sort of counter to reveal terrain once a sec
   if FOG_OF_WAR_ENABLE then
   if FlagAnimStep mod 10 = 0 then
@@ -1209,8 +1248,8 @@ begin
                   //Incase we need to render house at desired step in debug mode
                   if HOUSE_BUILDING_STEP = 0 then
                   begin
-                    if fTerrain.TileIsSnow(GetEntrance.X, GetEntrance.Y) then
-                      fRenderPool.AddHouse(fHouseType, fPosition, 1, 1, 1)
+                    if fIsOnSnow then
+                      fRenderPool.AddHouse(fHouseType, fPosition, 1, 1, fSnowStep)
                     else
                       fRenderPool.AddHouse(fHouseType, fPosition, 1, 1, 0);
                     fRenderPool.AddHouseSupply(fHouseType, fPosition, fResourceIn, fResourceOut);

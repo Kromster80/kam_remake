@@ -192,13 +192,13 @@ uses KromUtils, KM_Outline, KM_Points, KM_PolySimplify, KM_TextLibrary, KM_Resou
 
 type
   THouseInfo = record
-    PlanYX:THouseArea;
-    DoesOrders:byte; //Does house output needs to be ordered by Player or it's producing by itself
-    BuildIcon:word;  //Icon in GUI
-    TabletIcon:word; //House area WIP tablet
-    Input:THouseRes;
-    Output:THouseRes;
-    ReleasedBy:THouseType; //Which house type allows to build this house type
+    PlanYX: THouseArea;
+    DoesOrders: Byte; //Does house output needs to be ordered by Player or it's producing by itself
+    BuildIcon: Word;  //Icon in GUI
+    TabletIcon: Word; //House area WIP tablet
+    Input: THouseRes;
+    Output: THouseRes;
+    ReleasedBy: THouseType; //Which house type allows to build this house type
     SnowPic: SmallInt;
   end;
 
@@ -213,6 +213,7 @@ const
     Input:      (rt_Steel,      rt_Coal,       rt_None,       rt_None);
     Output:     (rt_MetalArmor, rt_MetalShield,rt_None,       rt_None);
     ReleasedBy: ht_IronSmithy;
+    SnowPic:    -1;
     ),
     ( //Armor workshop
     PlanYX:     ((0,0,0,0), (0,1,1,0), (0,1,1,1), (0,2,1,1));
@@ -222,6 +223,7 @@ const
     Input:      (rt_Wood,       rt_Leather,    rt_None,       rt_None);
     Output:     (rt_Shield,     rt_Armor,      rt_None,       rt_None);
     ReleasedBy: ht_Tannery;
+    SnowPic:    -1;
     ),
     ( //Bakery
     PlanYX:     ((0,0,0,0), (0,1,1,1), (0,1,1,1), (0,1,1,2));
@@ -231,6 +233,7 @@ const
     Input:      (rt_Flour,      rt_None,       rt_None,       rt_None);
     Output:     (rt_Bread,      rt_None,       rt_None,       rt_None);
     ReleasedBy: ht_Mill;
+    SnowPic:    -1;
     ),
     ( //Barracks
     PlanYX:     ((1,1,1,1), (1,1,1,1), (1,1,1,1), (1,2,1,1));
@@ -240,6 +243,7 @@ const
     Input:      (rt_Warfare,    rt_None,       rt_None,       rt_None);
     Output:     (rt_None,       rt_None,       rt_None,       rt_None);
     ReleasedBy: ht_Sawmill;
+    SnowPic:    -1;
     ),
     ( //Butchers
     PlanYX:     ((0,0,0,0), (0,1,1,0), (0,1,1,1), (0,1,1,2));
@@ -249,6 +253,7 @@ const
     Input:      (rt_Pig,        rt_None,       rt_None,       rt_None);
     Output:     (rt_Sausages,   rt_None,       rt_None,       rt_None);
     ReleasedBy: ht_Swine;
+    SnowPic:    -1;
     ),
     ( //Coal mine
     PlanYX:     ((0,0,0,0), (0,0,0,0), (1,1,1,0), (1,2,1,0));
@@ -258,6 +263,7 @@ const
     Input:      (rt_None,       rt_None,       rt_None,       rt_None);
     Output:     (rt_Coal,       rt_None,       rt_None,       rt_None);
     ReleasedBy: ht_Sawmill;
+    SnowPic:    -1;
     ),
     ( //Farm
     PlanYX:     ((0,0,0,0), (1,1,1,1), (1,1,1,1), (1,2,1,1));
@@ -267,6 +273,7 @@ const
     Input:      (rt_None,       rt_None,       rt_None,       rt_None);
     Output:     (rt_Corn,       rt_None,       rt_None,       rt_None);
     ReleasedBy: ht_Sawmill;
+    SnowPic:    -1;
     ),
     ( //Fisher hut
     PlanYX:     ((0,0,0,0), (0,0,0,0), (0,1,1,0), (0,2,1,1));
@@ -276,6 +283,7 @@ const
     Input:      (rt_None,       rt_None,       rt_None,       rt_None);
     Output:     (rt_Fish,       rt_None,       rt_None,       rt_None);
     ReleasedBy: ht_Sawmill;
+    SnowPic:    -1;
     ),
     ( //Gold mine
     PlanYX:     ((0,0,0,0), (0,0,0,0), (0,0,0,0), (0,1,2,0));
@@ -285,6 +293,7 @@ const
     Input:      (rt_None,       rt_None,       rt_None,       rt_None);
     Output:     (rt_GoldOre,    rt_None,       rt_None,       rt_None);
     ReleasedBy: ht_Sawmill;
+    SnowPic:    -1;
     ),
     ( //Inn
     PlanYX:     ((0,0,0,0), (0,1,1,1), (1,1,1,1), (1,2,1,1));
@@ -294,6 +303,7 @@ const
     Input:      (rt_Bread,      rt_Sausages,   rt_Wine,       rt_Fish);
     Output:     (rt_None,       rt_None,       rt_None,       rt_None);
     ReleasedBy: ht_Store;
+    SnowPic:    -1;
     ),
     ( //Iron mine
     PlanYX:     ((0,0,0,0), (0,0,0,0), (0,0,0,0), (0,1,2,1));
@@ -303,6 +313,7 @@ const
     Input:      (rt_None,       rt_None,       rt_None,       rt_None);
     Output:     (rt_IronOre,    rt_None,       rt_None,       rt_None);
     ReleasedBy: ht_Sawmill;
+    SnowPic:    -1;
     ),
     ( //Iron smithy
     PlanYX:     ((0,0,0,0), (0,0,0,0), (1,1,1,1), (1,1,2,1));
@@ -312,6 +323,7 @@ const
     Input:      (rt_IronOre,    rt_Coal,       rt_None,       rt_None);
     Output:     (rt_Steel,      rt_None,       rt_None,       rt_None);
     ReleasedBy: ht_IronMine;
+    SnowPic:    -1;
     ),
     ( //Marketplace
     PlanYX:     ((0,0,0,0), (0,1,1,1), (1,1,1,1), (1,1,1,2));
@@ -321,6 +333,7 @@ const
     Input:      (rt_None,       rt_None,       rt_None,       rt_None);
     Output:     (rt_None,       rt_None,       rt_None,       rt_None);
     ReleasedBy: ht_Sawmill;
+    SnowPic:    -1;
     ),
     ( //Metallurgist
     PlanYX:     ((0,0,0,0), (1,1,1,0), (1,1,1,0), (1,2,1,0));
@@ -330,6 +343,7 @@ const
     Input:      (rt_GoldOre,    rt_Coal,       rt_None,       rt_None);
     Output:     (rt_Gold,       rt_None,       rt_None,       rt_None);
     ReleasedBy: ht_GoldMine;
+    SnowPic:    -1;
     ),
     ( //Mill
     PlanYX:     ((0,0,0,0), (0,0,0,0), (0,1,1,1), (0,1,2,1));
@@ -339,6 +353,7 @@ const
     Input:      (rt_Corn,       rt_None,       rt_None,       rt_None);
     Output:     (rt_Flour,      rt_None,       rt_None,       rt_None);
     ReleasedBy: ht_Farm;
+    SnowPic:    -1;
     ),
     ( //Quarry
     PlanYX:     ((0,0,0,0), (0,0,0,0), (0,1,1,1), (0,1,2,1));
@@ -348,6 +363,7 @@ const
     Input:      (rt_None,       rt_None,       rt_None,       rt_None);
     Output:     (rt_Stone,      rt_None,       rt_None,       rt_None);
     ReleasedBy: ht_School;
+    SnowPic:    -1;
     ),
     ( //Sawmill
     PlanYX:     ((0,0,0,0), (0,0,0,0), (1,1,1,1), (1,2,1,1));
@@ -357,6 +373,7 @@ const
     Input:      (rt_Trunk,      rt_None,       rt_None,       rt_None);
     Output:     (rt_Wood,       rt_None,       rt_None,       rt_None);
     ReleasedBy: ht_Woodcutters;
+    SnowPic:    -1;
     ),
     ( //School
     PlanYX:     ((0,0,0,0), (1,1,1,0), (1,1,1,0), (1,2,1,0));
@@ -366,6 +383,7 @@ const
     Input:      (rt_Gold,       rt_None,       rt_None,       rt_None);
     Output:     (rt_None,       rt_None,       rt_None,       rt_None);
     ReleasedBy: ht_Store;
+    SnowPic:    -1;
     ),
     ( //Siege workshop
     PlanYX:     ((0,0,0,0), (0,0,0,0), (0,1,1,1), (0,2,1,1));
@@ -375,6 +393,7 @@ const
     Input:      (rt_Wood,       rt_Steel,      rt_None,       rt_None);
     Output:     (rt_None,       rt_None,       rt_None,       rt_None);
     ReleasedBy: ht_IronSmithy;
+    SnowPic:    -1;
     ),
     ( //Stables
     PlanYX:     ((0,0,0,0), (1,1,1,1), (1,1,1,1), (1,1,2,1));
@@ -384,6 +403,7 @@ const
     Input:      (rt_Corn,       rt_None,       rt_None,       rt_None);
     Output:     (rt_Horse,      rt_None,       rt_None,       rt_None);
     ReleasedBy: ht_Farm;
+    SnowPic:    -1;
     ),
     ( //Store
     PlanYX:     ((0,0,0,0), (1,1,1,0), (1,1,1,0), (1,2,1,0));
@@ -393,6 +413,7 @@ const
     Input:      (rt_All,        rt_None,       rt_None,       rt_None);
     Output:     (rt_All,        rt_None,       rt_None,       rt_None);
     ReleasedBy: ht_None; //
+    SnowPic:    -1;
     ),
     ( //Swine
     PlanYX:     ((0,0,0,0), (0,1,1,1), (1,1,1,1), (1,1,1,2));
@@ -402,6 +423,7 @@ const
     Input:      (rt_Corn,       rt_None,       rt_None,       rt_None);
     Output:     (rt_Pig,        rt_Skin,       rt_None,       rt_None);
     ReleasedBy: ht_Farm;
+    SnowPic:    -1;
     ),
     ( //Tannery
     PlanYX:     ((0,0,0,0), (0,0,0,0), (0,1,1,1), (0,1,2,1));
@@ -411,6 +433,7 @@ const
     Input:      (rt_Skin,       rt_None,       rt_None,       rt_None);
     Output:     (rt_Leather,    rt_None,       rt_None,       rt_None);
     ReleasedBy: ht_Swine;
+    SnowPic:    -1;
     ),
     ( //Town hall
     PlanYX:     ((0,0,0,0), (1,1,1,1), (1,1,1,1), (1,2,1,1));
@@ -420,6 +443,7 @@ const
     Input:      (rt_Gold,       rt_None,       rt_None,       rt_None);
     Output:     (rt_None,       rt_None,       rt_None,       rt_None);
     ReleasedBy: ht_Metallurgists;
+    SnowPic:    -1;
     ),
     ( //Watch tower
     PlanYX:   ((0,0,0,0), (0,0,0,0), (0,1,1,0), (0,1,2,0));
@@ -429,6 +453,7 @@ const
     Input:      (rt_Stone,      rt_None,       rt_None,       rt_None);
     Output:     (rt_None,       rt_None,       rt_None,       rt_None);
     ReleasedBy: ht_Quary;
+    SnowPic:    -1;
     ),
     ( //Weapon smithy
     PlanYX:     ((0,0,0,0), (0,0,0,0), (1,1,1,1), (1,2,1,1));
@@ -438,6 +463,7 @@ const
     Input:      (rt_Coal,       rt_Steel,      rt_None,       rt_None);
     Output:     (rt_Sword,      rt_Hallebard,  rt_Arbalet,    rt_None);
     ReleasedBy: ht_IronSmithy;
+    SnowPic:    -1;
     ),
     ( //Weapon workshop
     PlanYX:     ((0,0,0,0), (0,0,0,0), (1,1,1,1), (1,2,1,1));
@@ -447,6 +473,7 @@ const
     Input:      (rt_Wood,       rt_None,       rt_None,       rt_None);
     Output:     (rt_Axe,        rt_Pike,       rt_Bow,        rt_None);
     ReleasedBy: ht_Sawmill;
+    SnowPic:    -1;
     ),
     ( //Wineyard
     PlanYX:     ((0,0,0,0), (0,0,0,0), (0,1,1,1), (0,1,1,2));
@@ -466,6 +493,7 @@ const
     Input:      (rt_None,       rt_None,       rt_None,       rt_None);
     Output:     (rt_Trunk,      rt_None,       rt_None,       rt_None);
     ReleasedBy: ht_School;
+    SnowPic:    -1;
     )
     );
 
