@@ -168,6 +168,7 @@ end;
 
 //Add PNG images to spritepack if user has any addons in Sprites folder
 procedure TKMSpritePack.AddImage(aFolder, aFilename: string; aIndex: Integer);
+type TMaskType = (mtNone, mtPlain, mtSmart);
 var
   I,K:integer;
   Tr, Tg, Tb, T: Byte;
@@ -180,7 +181,8 @@ var
   {$IFDEF FPC}
   po: TBGRABitmap;
   {$ENDIF}
-  FileNameA: string;
+  MaskFile: array [TMaskType] of string;
+  MaskTyp: TMaskType;
   Transparent: Byte;
 begin
   Assert(SameText(ExtractFileExt(aFilename), '.png'));
@@ -241,19 +243,32 @@ begin
     po.Free;
   end;
 
-  FileNameA := StringReplace(aFilename, '.png', 'a.png', [rfReplaceAll, rfIgnoreCase]);
-  fRXData.HasMask[aIndex] := FileExists(aFolder + FileNameA);
+  MaskFile[mtPlain] := aFolder + StringReplace(aFilename, '.png', 'm.png', [rfReplaceAll, rfIgnoreCase]);
+  MaskFile[mtSmart] := aFolder + StringReplace(aFilename, '.png', 'a.png', [rfReplaceAll, rfIgnoreCase]);
+
+  //Determine mask processing mode
+  if FileExists(MaskFile[mtPlain]) then
+    MaskTyp := mtPlain
+  else
+  if FileExists(MaskFile[mtSmart]) then
+    MaskTyp := mtSmart
+  else
+    MaskTyp := mtNone;
+
+  fRXData.HasMask[aIndex] := MaskTyp in [mtPlain, mtSmart];
 
   //Load and process the mask if it exists
   if fRXData.HasMask[aIndex] then
   begin
-    //! PNG masks are designed for the artist, they take standard KaM reds so it's easier
+    //Plain masks are used 'as is'
+    //Smart masks are designed for the artist, they convert color brightness into a mask
+
     {$IFDEF WDC}
     po := TPNGObject.Create;
-    po.LoadFromFile(aFolder + FileNameA);
+    po.LoadFromFile(MaskFile[MaskTyp]);
     {$ENDIF}
     {$IFDEF FPC}
-    po := TBGRABitmap.Create(aFolder + FileNameA);
+    po := TBGRABitmap.Create(MaskFile[MaskTyp]);
     {$ENDIF}
 
     if (fRXData.Size[aIndex].X = po.Width)
@@ -263,48 +278,64 @@ begin
       {$IFDEF WDC}
       for K := 0 to po.Height - 1 do
       for I := 0 to po.Width - 1 do
-      if Cardinal(po.Pixels[I,K] and $FFFFFF) <> 0 then
-      begin
-        Tr := fRXData.RGBA[aIndex, K*po.Width+I] and $FF;
-        Tg := fRXData.RGBA[aIndex, K*po.Width+I] shr 8 and $FF;
-        Tb := fRXData.RGBA[aIndex, K*po.Width+I] shr 16 and $FF;
+      case MaskTyp of
+        mtPlain:  begin
+                    //For now process just red (assume pic is greyscale)
+                    fRXData.Mask[aIndex, K*po.Width+I] := po.Pixels[I,K] and $FF;
+                  end;
+        mtSmart:  begin
+                    if Cardinal(po.Pixels[I,K] and $FFFFFF) <> 0 then
+                    begin
+                      Tr := fRXData.RGBA[aIndex, K*po.Width+I] and $FF;
+                      Tg := fRXData.RGBA[aIndex, K*po.Width+I] shr 8 and $FF;
+                      Tb := fRXData.RGBA[aIndex, K*po.Width+I] shr 16 and $FF;
 
-        //Determine color brightness
-        ConvertRGB2HSB(Tr, Tg, Tb, Thue, Tsat, Tbri);
+                      //Determine color brightness
+                      ConvertRGB2HSB(Tr, Tg, Tb, Thue, Tsat, Tbri);
 
-        //Make background RGBA black or white for more saturated colors
-        if Tbri < 0.5 then
-          fRXData.RGBA[aIndex, K*po.Width+I] := FLAG_COLOR_DARK
-        else
-          fRXData.RGBA[aIndex, K*po.Width+I] := FLAG_COLOR_LITE;
+                      //Make background RGBA black or white for more saturated colors
+                      if Tbri < 0.5 then
+                        fRXData.RGBA[aIndex, K*po.Width+I] := FLAG_COLOR_DARK
+                      else
+                        fRXData.RGBA[aIndex, K*po.Width+I] := FLAG_COLOR_LITE;
 
-        //Map brightness from 0..1 to 0..255..0
-        T := Trunc((0.5 - Abs(Tbri - 0.5)) * 510);
-        fRXData.Mask[aIndex, K*po.Width+I] := T;
-      end;
+                      //Map brightness from 0..1 to 0..255..0
+                      T := Trunc((0.5 - Abs(Tbri - 0.5)) * 510);
+                      fRXData.Mask[aIndex, K*po.Width+I] := T;
+                    end;
+                 end;
+        end;
       {$ENDIF}
       {$IFDEF FPC}
       for K := 0 to po.Height - 1 do
       for I := 0 to po.Width - 1 do
-      if Cardinal(po.GetPixel(I,K).red) <> 0 then
-      begin
-        Tr := fRXData.RGBA[aIndex, K*po.Width+I] and $FF;
-        Tg := fRXData.RGBA[aIndex, K*po.Width+I] shr 8 and $FF;
-        Tb := fRXData.RGBA[aIndex, K*po.Width+I] shr 16 and $FF;
+      case MaskTyp of
+        mtPlain:  begin
+                    //For now process just red (assume pic is greyscale)
+                    fRXData.Mask[aIndex, K*po.Width+I] := po.GetPixel(I,K).red;
+                  end;
+        mtSmart:  begin
+                    if Cardinal(po.GetPixel(I,K) and $FFFFFF) <> 0 then
+                    begin
+                      Tr := fRXData.RGBA[aIndex, K*po.Width+I] and $FF;
+                      Tg := fRXData.RGBA[aIndex, K*po.Width+I] shr 8 and $FF;
+                      Tb := fRXData.RGBA[aIndex, K*po.Width+I] shr 16 and $FF;
 
-        //Determine color brightness
-        ConvertRGB2HSB(Tr, Tg, Tb, Thue, Tsat, Tbri);
+                      //Determine color brightness
+                      ConvertRGB2HSB(Tr, Tg, Tb, Thue, Tsat, Tbri);
 
-        //Make background RGBA black or white for more saturated colors
-        if Tbri < 0.5 then
-          fRXData.RGBA[aIndex, K*po.Width+I] := FLAG_COLOR_DARK
-        else
-          fRXData.RGBA[aIndex, K*po.Width+I] := FLAG_COLOR_LITE;
+                      //Make background RGBA black or white for more saturated colors
+                      if Tbri < 0.5 then
+                        fRXData.RGBA[aIndex, K*po.Width+I] := FLAG_COLOR_DARK
+                      else
+                        fRXData.RGBA[aIndex, K*po.Width+I] := FLAG_COLOR_LITE;
 
-        //Map brightness from 0..1 to 0..255..0
-        T := Trunc((0.5 - Abs(Tbri - 0.5)) * 510);
-        fRXData.Mask[aIndex, K*po.Width+I] := T;
-      end;
+                      //Map brightness from 0..1 to 0..255..0
+                      T := Trunc((0.5 - Abs(Tbri - 0.5)) * 510);
+                      fRXData.Mask[aIndex, K*po.Width+I] := T;
+                    end;
+                 end;
+        end;
       {$ENDIF}
     end;
     po.Free;
@@ -442,9 +473,13 @@ begin
       if fRXData.HasMask[ID] and (fRXData.Mask[ID, I*SizeX + K] > 0) then
       begin
         M := fRXData.Mask[ID, I*SizeX + K];
+
+        //Replace background with corresponding brightness of Red
         if fRXData.RGBA[ID, I*SizeX + K] = FLAG_COLOR_DARK then
+          //Brightness < 0.5, mix with black
           Png.Pixels[K,I] := M
         else
+          //Brightness > 0.5, mix with white
           Png.Pixels[K,I] := $FF + (255 - M) * $010100;
       end
       else
