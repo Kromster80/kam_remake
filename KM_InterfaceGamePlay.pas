@@ -30,9 +30,9 @@ type
     PlayMoreMsg: TGameResultMsg; //Remember which message we are showing
     fJoiningGroups, fPlacingBeacon: Boolean;
     fAskDemolish, fAskDismiss: Boolean;
-    DragScrolling: Boolean;
-    DragScrollingCursorPos: TPoint;
-    DragScrollingViewportPos: TKMPointF;
+    fDragScrolling: Boolean;
+    fDragScrollingCursorPos: TPoint;
+    fDragScrollingViewportPos: TKMPointF;
     fNetWaitDropPlayersDelayStarted: Cardinal;
     SelectedDirection: TKMDirection;
     SelectingTroopDirection: Boolean;
@@ -800,11 +800,11 @@ begin
   LastSaveName := '';
   fJoiningGroups := False;
   fPlacingBeacon := False;
-  DragScrolling := False;
-  DragScrollingCursorPos.X := 0;
-  DragScrollingCursorPos.Y := 0;
-  DragScrollingViewportPos.X := 0.0;
-  DragScrollingViewportPos.Y := 0.0;
+  fDragScrolling := False;
+  fDragScrollingCursorPos.X := 0;
+  fDragScrollingCursorPos.Y := 0;
+  fDragScrollingViewportPos.X := 0.0;
+  fDragScrollingViewportPos.Y := 0.0;
   SelectingTroopDirection := False;
   SelectingDirPosition.X := 0;
   SelectingDirPosition.Y := 0;
@@ -3969,25 +3969,25 @@ var
 begin
   fMyControls.MouseDown(X,Y,Shift,Button);
 
+  if (fGame.IsPaused and not fReplay) or (fMyControls.CtrlOver <> nil) then
+    Exit;
+
   if (Button = mbMiddle) then
   begin
-     DragScrolling := True;
+     fDragScrolling := True;
      //Restrict the cursor to the window, for now.
      //TODO: Allow one to drag out of the window, and still capture.
      {$IFDEF MSWindows}
        MyRect := fMain.ClientRect;
        ClipCursor(@MyRect);
      {$ENDIF}
-     DragScrollingCursorPos.X := X;
-     DragScrollingCursorPos.Y := Y;
-     DragScrollingViewportPos.X := fGame.Viewport.Position.X;
-     DragScrollingViewportPos.Y := fGame.Viewport.Position.Y;
+     fDragScrollingCursorPos.X := X;
+     fDragScrollingCursorPos.Y := Y;
+     fDragScrollingViewportPos.X := fGame.Viewport.Position.X;
+     fDragScrollingViewportPos.Y := fGame.Viewport.Position.Y;
      fResource.Cursors.Cursor := kmc_Drag;
      Exit;
   end;
-
-  if (fGame.IsPaused and not fReplay) or (fMyControls.CtrlOver <> nil) then
-    Exit;
 
   if SelectingTroopDirection then
   begin
@@ -4049,15 +4049,15 @@ var
   VP: TKMPointF;
   Group: TKMUnitGroup;
 begin
-  fMyControls.MouseMove(X,Y,Shift);
-
-  if DragScrolling then
+  if fDragScrolling then
   begin
-    VP.X := DragScrollingViewportPos.X + (DragScrollingCursorPos.X - X) / (CELL_SIZE_PX * fGame.Viewport.Zoom);
-    VP.Y := DragScrollingViewportPos.Y + (DragScrollingCursorPos.Y - Y) / (CELL_SIZE_PX * fGame.Viewport.Zoom);
+    VP.X := fDragScrollingViewportPos.X + (fDragScrollingCursorPos.X - X) / (CELL_SIZE_PX * fGame.Viewport.Zoom);
+    VP.Y := fDragScrollingViewportPos.Y + (fDragScrollingCursorPos.Y - Y) / (CELL_SIZE_PX * fGame.Viewport.Zoom);
     fGame.Viewport.Position := VP;
     Exit;
   end;
+
+  fMyControls.MouseMove(X,Y,Shift);
 
   if fPlacingBeacon then
   begin
@@ -4204,11 +4204,11 @@ var
   Group, Group2: TKMUnitGroup;
   OldSelected: TObject;
 begin
-  if DragScrolling then
+  if fDragScrolling then
   begin
     if Button = mbMiddle then
     begin
-      DragScrolling := False;
+      fDragScrolling := False;
       fResource.Cursors.Cursor := kmc_Default; //Reset cursor
       fMain.ApplyCursorRestriction;
     end;

@@ -24,6 +24,9 @@ type
     fBarracksItem: Byte; //Selected ware in barracks
     fTileDirection: Byte;
     fActiveMarker: TKMMapEdMarker;
+    fDragScrolling: Boolean;
+    fDragScrollingCursorPos: TPoint;
+    fDragScrollingViewportPos: TKMPointF;
 
     fMaps: TKMapsCollection;
     fMapsMP: TKMapsCollection;
@@ -380,7 +383,7 @@ type
 
 implementation
 uses
-  KM_CommonClasses, KM_PlayersCollection, KM_Player, KM_TextLibrary, KM_Game,
+  KM_CommonClasses, KM_PlayersCollection, KM_Player, KM_TextLibrary, KM_Game, KM_Main,
   KM_GameApp, KM_Resource, KM_TerrainPainter, KM_ResourceUnit, KM_ResourceCursors,
   KM_ResourceMapElements, KM_AIDefensePos, KM_ResourceHouse, KM_RenderUI, KM_Sound;
 
@@ -680,6 +683,11 @@ begin
   fBarracksItem   := 1; //First ware selected by default
   fStorehouseItem := 1; //First ware selected by default
   fTileDirection := 0;
+  fDragScrolling := False;
+  fDragScrollingCursorPos.X := 0;
+  fDragScrollingCursorPos.Y := 0;
+  fDragScrollingViewportPos.X := 0.0;
+  fDragScrollingViewportPos.Y := 0.0;
   fMaps := TKMapsCollection.Create(False);
   fMapsMP := TKMapsCollection.Create(True);
 
@@ -3366,8 +3374,26 @@ end;
 
 
 procedure TKMapEdInterface.MouseDown(Button: TMouseButton; Shift: TShiftState; X,Y: Integer);
+var MyRect: TRect;
 begin
   fMyControls.MouseDown(X,Y,Shift,Button);
+
+  if (Button = mbMiddle) and (fMyControls.CtrlOver = nil) then
+  begin
+     fDragScrolling := True;
+     //Restrict the cursor to the window, for now.
+     //TODO: Allow one to drag out of the window, and still capture.
+     {$IFDEF MSWindows}
+       MyRect := fMain.ClientRect;
+       ClipCursor(@MyRect);
+     {$ENDIF}
+     fDragScrollingCursorPos.X := X;
+     fDragScrollingCursorPos.Y := Y;
+     fDragScrollingViewportPos.X := fGame.Viewport.Position.X;
+     fDragScrollingViewportPos.Y := fGame.Viewport.Position.Y;
+     fResource.Cursors.Cursor := kmc_Drag;
+     Exit;
+  end;
 
   //So terrain brushes start on mouse down not mouse move
   if fMyControls.CtrlOver = nil then
@@ -3379,7 +3405,16 @@ procedure TKMapEdInterface.MouseMove(Shift: TShiftState; X,Y: Integer);
 var
   P: TKMPoint;
   Marker: TKMMapEdMarker;
+  VP: TKMPointF;
 begin
+  if fDragScrolling then
+  begin
+    VP.X := fDragScrollingViewportPos.X + (fDragScrollingCursorPos.X - X) / (CELL_SIZE_PX * fGame.Viewport.Zoom);
+    VP.Y := fDragScrollingViewportPos.Y + (fDragScrollingCursorPos.Y - Y) / (CELL_SIZE_PX * fGame.Viewport.Zoom);
+    fGame.Viewport.Position := VP;
+    Exit;
+  end;
+
   fMyControls.MouseMove(X,Y,Shift);
 
   if fMyControls.CtrlOver <> nil then
@@ -3446,6 +3481,17 @@ var
   DP: TAIDefencePosition;
   SelMarker: TKMMapEdMarker;
 begin
+  if fDragScrolling then
+  begin
+    if Button = mbMiddle then
+    begin
+      fDragScrolling := False;
+      fResource.Cursors.Cursor := kmc_Default; //Reset cursor
+      fMain.ApplyCursorRestriction;
+    end;
+    Exit;
+  end;
+
   if fMyControls.CtrlOver <> nil then
   begin
     fMyControls.MouseUp(X,Y,Shift,Button);
