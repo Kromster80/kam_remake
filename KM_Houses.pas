@@ -51,6 +51,7 @@ type
     fResourceDeliveryCount: array[1..4] of Word; //Count of the resources we have ordered for the input (used for ware distribution)
     fResourceOut: array[1..4]of Byte; //Resource count in output
     fResourceOrder: array[1..4]of Word; //If HousePlaceOrders=true then here are production orders
+    fLastOrderProduced: Byte;
     fResOrderDesired: array[1..4]of Single;
 
     WorkAnimStep: cardinal; //Used for Work and etc.. which is not in sync with Flags
@@ -348,6 +349,7 @@ begin
   for I:=1 to 4 do LoadStream.Read(fResourceOut[I]);
   for I:=1 to 4 do LoadStream.Read(fResourceOrder[I], SizeOf(fResourceOrder[I]));
   for I:=1 to 4 do LoadStream.Read(fResOrderDesired[I], SizeOf(fResOrderDesired[I]));
+  LoadStream.Read(fLastOrderProduced);
   LoadStream.Read(FlagAnimStep);
   LoadStream.Read(WorkAnimStep);
   LoadStream.Read(fIsOnSnow);
@@ -881,39 +883,61 @@ end;
 //then the production will go like so: 12121111
 function TKMHouse.PickOrder: Byte;
 var
-  I: Byte;
+  I, Res: Byte;
   Ware: TResourceType;
   BestBid: Single;
   TotalLeft: Integer;
   LeftRatio: array [1..4] of Single;
 begin
-  //See the ratio between items that were made (since last order amount change)
-  TotalLeft := fResourceOrder[1] + fResourceOrder[2] + fResourceOrder[3] + fResourceOrder[4];
-  for I := 1 to 4 do
-    LeftRatio[I] := fResourceOrder[I] / TotalLeft;
-
-  //Left   Desired
-  //0.5    0.6
-  //0.3    0.3
-  //0.2    0.1
-
-  //Find order that which production ratio is the smallest
   Result := 0;
-  BestBid := -MaxSingle;
-  for I := 1 to 4 do
-  if (ResOrder[I] > 0) then //Player has ordered some of this
-  begin
-    Ware := fResource.HouseDat[fHouseType].ResOutput[I];
 
-    if (CheckResOut(Ware) < MAX_RES_IN_HOUSE) //Output of this is not full
-    //Check we have enough wares to produce this weapon. If both are the same type check > 1 not > 0
-    and ((WarfareCosts[Ware,1] <> WarfareCosts[Ware,2]) or (CheckResIn(WarfareCosts[Ware,1]) > 1))
-    and ((WarfareCosts[Ware,1] = rt_None) or (CheckResIn(WarfareCosts[Ware,1]) > 0))
-    and ((WarfareCosts[Ware,2] = rt_None) or (CheckResIn(WarfareCosts[Ware,2]) > 0))
-    and (LeftRatio[I] - fResOrderDesired[I] > BestBid) then
+  if WARFARE_ORDER_SEQUENTIAL then
+    for I := 0 to 3 do
     begin
-      Result := I;
-      BestBid := LeftRatio[Result] - fResOrderDesired[Result];
+      Res := ((fLastOrderProduced + I) mod 4) + 1; //1..4
+      Ware := fResource.HouseDat[fHouseType].ResOutput[Res];
+      if (ResOrder[Res] > 0) //Player has ordered some of this
+      and (CheckResOut(Ware) < MAX_RES_IN_HOUSE) //Output of this is not full
+      //Check we have wares to produce this weapon. If both are the same type check > 1 not > 0
+      and ((WarfareCosts[Ware,1] <> WarfareCosts[Ware,2]) or (CheckResIn(WarfareCosts[Ware,1]) > 1))
+      and ((WarfareCosts[Ware,1] = rt_None) or (CheckResIn(WarfareCosts[Ware,1]) > 0))
+      and ((WarfareCosts[Ware,2] = rt_None) or (CheckResIn(WarfareCosts[Ware,2]) > 0)) then
+      begin
+        Result := Res;
+        fLastOrderProduced := Res;
+        Break;
+      end;
+    end;
+
+  if WARFARE_ORDER_PROPORTIONAL then
+  begin
+    //See the ratio between items that were made (since last order amount change)
+    TotalLeft := fResourceOrder[1] + fResourceOrder[2] + fResourceOrder[3] + fResourceOrder[4];
+    for I := 1 to 4 do
+      LeftRatio[I] := fResourceOrder[I] / TotalLeft;
+
+    //Left   Desired
+    //0.5    0.6
+    //0.3    0.3
+    //0.2    0.1
+
+    //Find order that which production ratio is the smallest
+    BestBid := -MaxSingle;
+    for I := 1 to 4 do
+    if (ResOrder[I] > 0) then //Player has ordered some of this
+    begin
+      Ware := fResource.HouseDat[fHouseType].ResOutput[I];
+
+      if (CheckResOut(Ware) < MAX_RES_IN_HOUSE) //Output of this is not full
+      //Check we have enough wares to produce this weapon. If both are the same type check > 1 not > 0
+      and ((WarfareCosts[Ware,1] <> WarfareCosts[Ware,2]) or (CheckResIn(WarfareCosts[Ware,1]) > 1))
+      and ((WarfareCosts[Ware,1] = rt_None) or (CheckResIn(WarfareCosts[Ware,1]) > 0))
+      and ((WarfareCosts[Ware,2] = rt_None) or (CheckResIn(WarfareCosts[Ware,2]) > 0))
+      and (LeftRatio[I] - fResOrderDesired[I] > BestBid) then
+      begin
+        Result := I;
+        BestBid := LeftRatio[Result] - fResOrderDesired[Result];
+      end;
     end;
   end;
 
@@ -1136,6 +1160,7 @@ begin
   for I:=1 to 4 do SaveStream.Write(fResourceOut[I]);
   for I:=1 to 4 do SaveStream.Write(fResourceOrder[I], SizeOf(fResourceOrder[I]));
   for I:=1 to 4 do SaveStream.Write(fResOrderDesired[I], SizeOf(fResOrderDesired[I]));
+  SaveStream.Write(fLastOrderProduced);
   SaveStream.Write(FlagAnimStep);
   SaveStream.Write(WorkAnimStep);
   SaveStream.Write(fIsOnSnow);
