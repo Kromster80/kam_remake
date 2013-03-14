@@ -350,6 +350,8 @@ begin
   for I:=1 to 4 do LoadStream.Read(fResOrderDesired[I], SizeOf(fResOrderDesired[I]));
   LoadStream.Read(FlagAnimStep);
   LoadStream.Read(WorkAnimStep);
+  LoadStream.Read(fIsOnSnow);
+  LoadStream.Read(fSnowStep);
   LoadStream.Read(fIsDestroyed);
   LoadStream.Read(RemoveRoadWhenDemolish);
   LoadStream.Read(fPointerCount);
@@ -1136,6 +1138,8 @@ begin
   for I:=1 to 4 do SaveStream.Write(fResOrderDesired[I], SizeOf(fResOrderDesired[I]));
   SaveStream.Write(FlagAnimStep);
   SaveStream.Write(WorkAnimStep);
+  SaveStream.Write(fIsOnSnow);
+  SaveStream.Write(fSnowStep);
   SaveStream.Write(fIsDestroyed);
   SaveStream.Write(RemoveRoadWhenDemolish);
   SaveStream.Write(fPointerCount);
