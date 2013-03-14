@@ -51,6 +51,7 @@ uses
   KM_Goals in 'KM_Goals.pas',
   KM_GUIMenuLobby in 'KM_GUIMenuLobby.pas',
   KM_GUIMenuOptions in 'KM_GUIMenuOptions.pas',
+  KM_GUIMenuSingleMap in 'KM_GUIMenuSingleMap.pas',
   KM_HouseCollection in 'KM_HouseCollection.pas',
   KM_HouseMarket in 'KM_HouseMarket.pas',
   KM_Houses in 'KM_Houses.pas',

@@ -558,6 +558,9 @@ end;
 
 procedure TKMGUIMenuLobby.BackClick(Sender: TObject);
 begin
+  //Scan should be terminated, it is no longer needed
+  fMapsMP.TerminateScan;
+
   fNetworking.AnnounceDisconnect;
   fNetworking.Disconnect;
 
