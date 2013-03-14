@@ -70,6 +70,7 @@ Improvements:
  +	L	Randomize locations within teams option in the lobby
  +	L	Ability to send a whisper (private chat) to a specific player
  +	M	Visualise fog of war for the selected player in replays so you can understand player's perspective
+ +	M	Scrolling around the map using middle mouse click, as in TPR
 
  wip	Dismiss button to make units walk into the school and disappear (gold is not refunded)
  wip	Simple dedicated server form which lets you set the properties of the INI for the server and start it [gemGreg]
@@ -92,7 +93,6 @@ Improvements:
 	L	Clicking a location on the lobby minimap selects that location if it's available
 
 	L	Multiplayer in-game player list and lobby description ordered (grouped) by teams
-	M	Scrolling around the map using middle mouse click, as in TPR
 	M	New column in load/replays menus: Date/time (stored internally in save format since file modified date is not very trustworthy) [Marcin]
 	L	New command !SKIP_HOUSE. If I want a map with no stone, then after building the inn the woodcutter and tower should become available (skips the stonemason)
 	M	Pause in multiplayer (only host can use it, maybe later have a lobby setting "clients may pause")

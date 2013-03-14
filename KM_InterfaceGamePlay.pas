@@ -30,6 +30,9 @@ type
     PlayMoreMsg: TGameResultMsg; //Remember which message we are showing
     fJoiningGroups, fPlacingBeacon: Boolean;
     fAskDemolish, fAskDismiss: Boolean;
+    DragScrolling: Boolean;
+    DragScrollingCursorPos: TPoint;
+    DragScrollingViewportPos: TKMPointF;
     fNetWaitDropPlayersDelayStarted: Cardinal;
     SelectedDirection: TKMDirection;
     SelectingTroopDirection: Boolean;
@@ -797,6 +800,11 @@ begin
   LastSaveName := '';
   fJoiningGroups := False;
   fPlacingBeacon := False;
+  DragScrolling := False;
+  DragScrollingCursorPos.X := 0;
+  DragScrollingCursorPos.Y := 0;
+  DragScrollingViewportPos.X := 0.0;
+  DragScrollingViewportPos.Y := 0.0;
   SelectingTroopDirection := False;
   SelectingDirPosition.X := 0;
   SelectingDirPosition.Y := 0;
@@ -3961,6 +3969,23 @@ var
 begin
   fMyControls.MouseDown(X,Y,Shift,Button);
 
+  if (Button = mbMiddle) then
+  begin
+     DragScrolling := True;
+     //Restrict the cursor to the window, for now.
+     //TODO: Allow one to drag out of the window, and still capture.
+     {$IFDEF MSWindows}
+       MyRect := fMain.ClientRect;
+       ClipCursor(@MyRect);
+     {$ENDIF}
+     DragScrollingCursorPos.X := X;
+     DragScrollingCursorPos.Y := Y;
+     DragScrollingViewportPos.X := fGame.Viewport.Position.X;
+     DragScrollingViewportPos.Y := fGame.Viewport.Position.Y;
+     fResource.Cursors.Cursor := kmc_Drag;
+     Exit;
+  end;
+
   if (fGame.IsPaused and not fReplay) or (fMyControls.CtrlOver <> nil) then
     Exit;
 
@@ -4021,9 +4046,18 @@ var
   U: TKMUnit;
   H: TKMHouse;
   P: TKMPoint;
+  VP: TKMPointF;
   Group: TKMUnitGroup;
 begin
   fMyControls.MouseMove(X,Y,Shift);
+
+  if DragScrolling then
+  begin
+    VP.X := DragScrollingViewportPos.X + (DragScrollingCursorPos.X - X) / (CELL_SIZE_PX * fGame.Viewport.Zoom);
+    VP.Y := DragScrollingViewportPos.Y + (DragScrollingCursorPos.Y - Y) / (CELL_SIZE_PX * fGame.Viewport.Zoom);
+    fGame.Viewport.Position := VP;
+    Exit;
+  end;
 
   if fPlacingBeacon then
   begin
@@ -4170,6 +4204,17 @@ var
   Group, Group2: TKMUnitGroup;
   OldSelected: TObject;
 begin
+  if DragScrolling then
+  begin
+    if Button = mbMiddle then
+    begin
+      DragScrolling := False;
+      fResource.Cursors.Cursor := kmc_Default; //Reset cursor
+      fMain.ApplyCursorRestriction;
+    end;
+    Exit;
+  end;
+
   if fPlacingBeacon and (Button = mbRight) then
   begin
     Beacon_Cancel;
@@ -4343,8 +4388,9 @@ begin
                 //Not selecting direction now (must do it at the end because SelectingTroopDirection is used for Walk above)
                 ReleaseDirectionSelector;
               end;
-    mbMiddle: if DEBUG_CHEATS and (MULTIPLAYER_CHEATS or not fMultiplayer) then
-                fGame.GameInputProcess.CmdTemp(gic_TempAddScout, P);
+    //Placing scouts with middle click is disabled now we have middle click scrolling. Use Q key instead.
+    {mbMiddle: if DEBUG_CHEATS and (MULTIPLAYER_CHEATS or not fMultiplayer) then
+                fGame.GameInputProcess.CmdTemp(gic_TempAddScout, P);}
   end;
 
   LastDragPoint := KMPoint(0,0);
