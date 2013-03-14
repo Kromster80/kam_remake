@@ -1206,9 +1206,11 @@ end;
 procedure TKMGamePlayInterface.CreateChatMenu(aParent: TKMPanel);
 begin
   Menu_Chat := TKMMenu.Create(aParent, 120);
+  Menu_Chat.Anchors := [akLeft, akBottom];
   //Menu gets populated right before show
   Menu_Chat.AddItem(NO_TEXT);
   Menu_Chat.OnClick := Chat_MenuClick;
+  Chat_MenuSelect(-1); //Initialise it
 end;
 
 

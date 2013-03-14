@@ -72,7 +72,6 @@ type
 
       Menu_Chat: TKMMenu;
       Menu_Host: TKMMenu;
-      Menu_Join: TKMMenu;
 
       Panel_LobbyServerName: TKMPanel;
         Label_LobbyServerName: TKMLabel;
@@ -319,6 +318,7 @@ end;
 procedure TKMGUIMenuLobby.CreateChatMenu(aParent: TKMPanel);
 begin
   Menu_Chat := TKMMenu.Create(aParent, 120);
+  Menu_Chat.Anchors := [akLeft, akBottom];
   //Menu gets populated right before show
   Menu_Chat.AddItem(NO_TEXT);
   Menu_Chat.OnClick := ChatMenuClick;
@@ -328,16 +328,10 @@ end;
 procedure TKMGUIMenuLobby.CreatePlayerMenu(aParent: TKMPanel);
 begin
   Menu_Host := TKMMenu.Create(aParent, 120);
-  Menu_Host.AddItem(fTextLibrary[TX_LOBBY_PLAYER_WHISPER]);
   Menu_Host.AddItem(fTextLibrary[TX_LOBBY_PLAYER_KICK]);
   Menu_Host.AddItem(fTextLibrary[TX_LOBBY_PLAYER_BAN]);
   Menu_Host.AddItem(fTextLibrary[TX_LOBBY_PLAYER_SETHOST]);
   Menu_Host.OnClick := PlayerMenuClick;
-
-  Menu_Join := TKMMenu.Create(aParent, 120);
-  //Menu gets populated right before show
-  Menu_Join.AddItem(NO_TEXT);
-  Menu_Join.OnClick := PlayerMenuClick;
 end;
 
 
@@ -708,43 +702,31 @@ begin
   I := fNetworking.NetPlayers.ServerToLocal(TKMControl(Sender).Tag);
   if I = -1 then Exit; //Player has quit the lobby
 
-  //Whisper
-  //if ((Sender = ListBox_PlayerMenuHost) and (ListBox_PlayerMenuHost.ItemIndex = 0))
-  //or ((Sender = ListBox_PlayerMenuJoiner) and (ListBox_PlayerMenuHost.ItemIndex = 0)) then
-
   //Kick
-  if (Sender = Menu_Host) and (Menu_Host.ItemIndex = 1) then
+  if (Sender = Menu_Host) and (Menu_Host.ItemIndex = 0) then
     fNetworking.KickPlayer(I);
 
   //Ban
-  //if (Sender = ListBox_PlayerMenuHost) and (ListBox_PlayerMenuHost.ItemIndex = 2) then
+  //if (Sender = Menu_Host) and (ListBox_PlayerMenuHost.ItemIndex = 1) then
 
   //Set to host
-  //if (Sender = ListBox_PlayerMenuHost) and (ListBox_PlayerMenuHost.ItemIndex = 3) then
+  //if (Sender = Menu_Host) and (ListBox_PlayerMenuHost.ItemIndex = 2) then
 end;
 
 
 procedure TKMGUIMenuLobby.PlayerMenuShow(Sender: TObject);
-var
-  C: TKMControl;
-  M: TKMMenu;
+var C: TKMControl;
 begin
   C := TKMControl(Sender);
   //Only human players (excluding ourselves) have the player menu
   if not fNetworking.NetPlayers[C.Tag].IsHuman
   or (fNetworking.MyIndex = C.Tag) then Exit;
 
-  //Chose right menu to show
-  if fNetworking.IsHost then
-    M := Menu_Host
-  else
-    M := Menu_Join;
-
   //Remember which player it is by their server index (order of players can change)
-  M.Tag := fNetworking.NetPlayers[C.Tag].IndexOnServer;
+  Menu_Host.Tag := fNetworking.NetPlayers[C.Tag].IndexOnServer;
 
   //Position the menu next to the icon, but do not overlap players name
-  M.ShowAt(C.AbsLeft, C.AbsTop + C.Height);
+  Menu_Host.ShowAt(C.AbsLeft, C.AbsTop + C.Height);
 end;
 
 
