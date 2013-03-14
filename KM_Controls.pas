@@ -955,6 +955,25 @@ type
   end;
 
 
+  TKMMenu = class(TKMPanel)
+  private
+    fShapeBG: TKMShape;
+    fList: TKMColumnBox;
+    procedure MenuHide(Sender: TObject);
+    procedure MenuClick(Sender: TObject);
+    procedure SetItemIndex(aValue: Integer);
+    function GetItemIndex: Integer;
+    function GetItemTag(aIndex: Integer): Integer;
+  public
+    constructor Create(aParent: TKMPanel; aWidth: Integer);
+    procedure AddItem(aCaption: string; aTag: Integer = 0);
+    procedure Clear;
+    property ItemIndex: Integer read GetItemIndex write SetItemIndex;
+    property ItemTags[aIndex: Integer]: Integer read GetItemTag;
+    procedure ShowAt(X,Y: Integer);
+  end;
+
+
   TDragAxis = (daHoriz, daVertic, daAll);
 
   //Element that player can drag within allowed bounds
@@ -3792,6 +3811,87 @@ begin
     DoPaintLine(TopIndex + I, AbsLeft, Y + I * fItemHeight, PaintWidth);
 
   TKMRenderUI.ReleaseClipY;
+end;
+
+
+{ TKMMenu }
+procedure TKMMenu.Clear;
+begin
+  fList.Clear;
+end;
+
+
+constructor TKMMenu.Create(aParent: TKMPanel; aWidth: Integer);
+begin
+  inherited Create(aParent.MasterParent, 0, 0, aWidth, 0);
+
+  fShapeBG := TKMShape.Create(Self, 0, 0, aParent.Width, aParent.Height);
+  fShapeBG.Stretch;
+  fShapeBG.OnClick := MenuHide;
+  fShapeBG.Hide;
+
+  fList := TKMColumnBox.Create(Self, 0, 0, aWidth, 0, fnt_Grey, bsMenu);
+  fList.Stretch;
+  fList.BackAlpha := 0.8;
+  fList.Focusable := False;
+  fList.SetColumns(fnt_Grey, [''], [0]);
+  fList.ShowHeader := False;
+  fList.OnClick := MenuClick;
+  fList.Hide;
+end;
+
+
+function TKMMenu.GetItemIndex: Integer;
+begin
+  Result := fList.ItemIndex;
+end;
+
+
+function TKMMenu.GetItemTag(aIndex: Integer): Integer;
+begin
+  Result := fList.Rows[aIndex].Tag;
+end;
+
+
+procedure TKMMenu.SetItemIndex(aValue: Integer);
+begin
+  fList.ItemIndex := aValue;
+end;
+
+
+procedure TKMMenu.AddItem(aCaption: string; aTag: Integer = 0);
+begin
+  fList.AddItem(MakeListRow(aCaption, aTag));
+  Height := fList.ItemHeight * fList.RowCount;
+end;
+
+
+procedure TKMMenu.MenuClick(Sender: TObject);
+begin
+  if Assigned(fOnClick) then
+    fOnClick(Self);
+
+  MenuHide(Self);
+end;
+
+
+procedure TKMMenu.MenuHide(Sender: TObject);
+begin
+  fList.Hide;
+  fShapeBG.Hide;
+end;
+
+
+procedure TKMMenu.ShowAt(X, Y: Integer);
+begin
+  fList.AbsLeft := X;
+  fList.AbsTop := Y;
+
+  //Reset previously selected item
+  fList.ItemIndex := -1;
+
+  fShapeBG.Show;
+  fList.Show;
 end;
 
 

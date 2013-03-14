@@ -150,7 +150,6 @@ type
     procedure Chat_Resize(Sender: TObject; X,Y: Integer);
     procedure Chat_MenuClick(Sender: TObject);
     procedure Chat_MenuSelect(aItem: Integer);
-    procedure Chat_MenuHide(Sender: TObject);
     procedure Chat_MenuShow(Sender: TObject);
     procedure Allies_Close(Sender: TObject);
     procedure Stats_Update;
@@ -208,8 +207,7 @@ type
       Edit_ChatMsg: TKMEdit;
       Button_ChatRecipient: TKMButtonFlat;
       Image_ChatClose: TKMImage;
-      Shape_ChatMenuBG: TKMShape;
-      ListBox_ChatMenu: TKMListBox;
+      Menu_Chat: TKMMenu;
     Panel_Message: TKMPanel;
       Label_MessageText: TKMLabel;
       Button_MessageGoTo: TKMButton;
@@ -1093,8 +1091,7 @@ begin
       //(possibly a dropdown menu with playernames).
       //@Krom: You can select the player by selecting some of his assets, the same way you get to
       //       view his stats menu. IMO that works ok, but a player selector would be nice too.
-
-      //todo: Make generic TKMMenu control [Krom]
+      //@Lewin: As discussed, we need a menu to make the selection trivial if some players are e.g. in FOW
 end;
 
 
@@ -1208,22 +1205,10 @@ end;
 
 procedure TKMGamePlayInterface.CreateChatMenu(aParent: TKMPanel);
 begin
-  Shape_ChatMenuBG := TKMShape.Create(aParent, 0,  0, aParent.Width, aParent.Height);
-  Shape_ChatMenuBG.Stretch;
-  Shape_ChatMenuBG.OnClick := Chat_MenuHide;
-  Shape_ChatMenuBG.Hide;
-
-  ListBox_ChatMenu := TKMListBox.Create(aParent, 0, 0, 132, 100, fnt_Grey, bsMenu);
-  ListBox_ChatMenu.Anchors := [akLeft, akBottom];
-  ListBox_ChatMenu.BackAlpha := 0.8;
-  ListBox_ChatMenu.AutoHideScrollBar := True;
-  ListBox_ChatMenu.Focusable := False;
-  ListBox_ChatMenu.Add('All');
-  ListBox_ChatMenu.Add('Team');
-  ListBox_ChatMenu.OnClick := Chat_MenuClick;
-  ListBox_ChatMenu.Hide;
-
-  Chat_MenuSelect(-1); //All is selected at the start and positions are updated
+  Menu_Chat := TKMMenu.Create(aParent, 120);
+  //Menu gets populated right before show
+  Menu_Chat.AddItem(NO_TEXT);
+  Menu_Chat.OnClick := Chat_MenuClick;
 end;
 
 
@@ -2954,17 +2939,8 @@ end;
 
 procedure TKMGamePlayInterface.Chat_MenuClick(Sender: TObject);
 begin
-  if ListBox_ChatMenu.ItemIndex <> -1 then
-    Chat_MenuSelect(ListBox_ChatMenu.ItemTags[ListBox_ChatMenu.ItemIndex]);
-
-  Chat_MenuHide(nil);
-end;
-
-
-procedure TKMGamePlayInterface.Chat_MenuHide(Sender: TObject);
-begin
-  Shape_ChatMenuBG.Hide;
-  ListBox_ChatMenu.Hide;
+  if Menu_Chat.ItemIndex <> -1 then
+    Chat_MenuSelect(Menu_Chat.ItemTags[Menu_Chat.ItemIndex]);
 end;
 
 
@@ -2972,33 +2948,24 @@ procedure TKMGamePlayInterface.Chat_MenuShow(Sender: TObject);
 var C: TKMControl; I: Integer;
 begin
   //First populate the list
-  ListBox_ChatMenu.Clear;
-  ListBox_ChatMenu.Add('All', -1);
+  Menu_Chat.Clear;
+  Menu_Chat.AddItem('All', -1);
   //Only show "Team" if the player is on a team
   if fGame.Networking.NetPlayers[fGame.Networking.MyIndex].Team <> 0 then
-    ListBox_ChatMenu.Add('[$66FF66]Team', -2);
+    Menu_Chat.AddItem('[$66FF66]Team', -2);
 
   for I := 1 to fGame.Networking.NetPlayers.Count do
     if I <> fGame.Networking.MyIndex then //Can't whisper to yourself
       with fGame.Networking.NetPlayers[I] do
         if IsHuman and Connected and not Dropped then
           if FlagColor <> 0 then
-            ListBox_ChatMenu.Add('[$'+IntToHex(FlagColorToTextColor(FlagColor) and $00FFFFFF,6)+']' + Nikname, IndexOnServer)
+            Menu_Chat.AddItem('[$'+IntToHex(FlagColorToTextColor(FlagColor) and $00FFFFFF,6)+']' + Nikname, IndexOnServer)
           else
-            ListBox_ChatMenu.Add(Nikname, IndexOnServer);
-
-  ListBox_ChatMenu.Height := ListBox_ChatMenu.Count * ListBox_ChatMenu.ItemHeight;
+            Menu_Chat.AddItem(Nikname, IndexOnServer);
 
   C := TKMControl(Sender);
   //Position the menu next to the icon, but do not overlap players name
-  ListBox_ChatMenu.AbsLeft := C.AbsLeft;
-  ListBox_ChatMenu.AbsTop := C.AbsTop - ListBox_ChatMenu.Height;
-
-  //Reset previously selected item
-  ListBox_ChatMenu.ItemIndex := -1;
-
-  Shape_ChatMenuBG.Show;
-  ListBox_ChatMenu.Show;
+  Menu_Chat.ShowAt(C.AbsLeft, C.AbsTop - Menu_Chat.Height);
 end;
 
 

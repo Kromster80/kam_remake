@@ -878,7 +878,8 @@ begin
 
     Chart_MPArmy.TrimToFirstVariation;
 
-    //todo: @Krom: I think having 2 lines per player looks ugly, we should discuss a better way to do this if we want to show a recruits graph
+    //@Krom: I think having 2 lines per player looks ugly, we should discuss a better way to do this if we want to show a recruits graph
+    //@Lewin: No, I think you are right, we dont need recruits there. To be deleted ..
     for I := 0 to fPlayers.Count - 1 do
     with fPlayers[I] do
     if Enabled then

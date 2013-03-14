@@ -721,7 +721,7 @@ begin
     //Houses
     StoreCount := 0;
     BarracksCount := 0;
-    for K:=0 to fPlayers[I].Houses.Count-1 do
+    for K := 0 to fPlayers[I].Houses.Count - 1 do
     begin
       H := fPlayers[I].Houses[K];
       if not H.IsDestroyed then

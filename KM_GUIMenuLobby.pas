@@ -35,11 +35,9 @@ type
 
     procedure ChatMenuSelect(aItem: Integer);
     procedure ChatMenuClick(Sender: TObject);
-    procedure ChatMenuHide(Sender: TObject);
     procedure ChatMenuShow(Sender: TObject);
 
     procedure PlayerMenuClick(Sender: TObject);
-    procedure PlayerMenuHide(Sender: TObject);
     procedure PlayerMenuShow(Sender: TObject);
 
     procedure Lobby_PlayersSetupChange(Sender: TObject);
@@ -72,12 +70,9 @@ type
         Button_LobbySettingsSave: TKMButton;
         Button_LobbySettingsCancel: TKMButton;
 
-      Shape_ChatMenuBG: TKMShape;
-      ListBox_ChatMenu: TKMListBox;
-
-      Shape_PlayerMenuBG: TKMShape;
-      ListBox_PlayerMenuHost: TKMListBox;
-      ListBox_PlayerMenuJoiner: TKMListBox;
+      Menu_Chat: TKMMenu;
+      Menu_Host: TKMMenu;
+      Menu_Join: TKMMenu;
 
       Panel_LobbyServerName: TKMPanel;
         Label_LobbyServerName: TKMLabel;
@@ -323,50 +318,26 @@ end;
 
 procedure TKMGUIMenuLobby.CreateChatMenu(aParent: TKMPanel);
 begin
-  Shape_ChatMenuBG := TKMShape.Create(aParent, 0,  0, aParent.Width, aParent.Height);
-  Shape_ChatMenuBG.Stretch;
-  Shape_ChatMenuBG.OnClick := ChatMenuHide;
-  Shape_ChatMenuBG.Hide;
-
-  ListBox_ChatMenu := TKMListBox.Create(aParent, 0, 0, 120, 120, fnt_Grey, bsMenu);
-  ListBox_ChatMenu.Anchors := [akLeft, akBottom];
-  ListBox_ChatMenu.BackAlpha := 0.8;
-  ListBox_ChatMenu.AutoHideScrollBar := True;
-  ListBox_ChatMenu.Focusable := False;
-  ListBox_ChatMenu.Add('All');
-  ListBox_ChatMenu.Add('Team');
-  ListBox_ChatMenu.OnClick := ChatMenuClick;
-  ListBox_ChatMenu.Hide;
+  Menu_Chat := TKMMenu.Create(aParent, 120);
+  //Menu gets populated right before show
+  Menu_Chat.AddItem(NO_TEXT);
+  Menu_Chat.OnClick := ChatMenuClick;
 end;
 
 
 procedure TKMGUIMenuLobby.CreatePlayerMenu(aParent: TKMPanel);
 begin
-  Shape_PlayerMenuBG := TKMShape.Create(aParent, 0,  0, aParent.Width, aParent.Height);
-  Shape_PlayerMenuBG.Stretch;
-  Shape_PlayerMenuBG.OnClick := PlayerMenuHide;
-  Shape_PlayerMenuBG.Hide;
+  Menu_Host := TKMMenu.Create(aParent, 120);
+  Menu_Host.AddItem(fTextLibrary[TX_LOBBY_PLAYER_WHISPER]);
+  Menu_Host.AddItem(fTextLibrary[TX_LOBBY_PLAYER_KICK]);
+  Menu_Host.AddItem(fTextLibrary[TX_LOBBY_PLAYER_BAN]);
+  Menu_Host.AddItem(fTextLibrary[TX_LOBBY_PLAYER_SETHOST]);
+  Menu_Host.OnClick := PlayerMenuClick;
 
-  ListBox_PlayerMenuHost := TKMListBox.Create(aParent, 0, 0, 120, 120, fnt_Grey, bsMenu);
-  ListBox_PlayerMenuHost.Add(fTextLibrary[TX_LOBBY_PLAYER_WHISPER]);
-  ListBox_PlayerMenuHost.Add(fTextLibrary[TX_LOBBY_PLAYER_KICK]);
-  ListBox_PlayerMenuHost.Add(fTextLibrary[TX_LOBBY_PLAYER_BAN]);
-  ListBox_PlayerMenuHost.Add(fTextLibrary[TX_LOBBY_PLAYER_SETHOST]);
-  ListBox_PlayerMenuHost.AutoHideScrollBar := True;
-  ListBox_PlayerMenuHost.BackAlpha := 0.8;
-  ListBox_PlayerMenuHost.Focusable := False;
-  ListBox_PlayerMenuHost.Height := ListBox_PlayerMenuHost.ItemHeight * ListBox_PlayerMenuHost.Count;
-  ListBox_PlayerMenuHost.OnClick := PlayerMenuClick;
-  ListBox_PlayerMenuHost.Hide;
-
-  ListBox_PlayerMenuJoiner := TKMListBox.Create(aParent, 0, 0, 120, 120, fnt_Grey, bsMenu);
-  ListBox_PlayerMenuJoiner.Add(fTextLibrary[TX_LOBBY_PLAYER_WHISPER]);
-  ListBox_PlayerMenuJoiner.AutoHideScrollBar := True;
-  ListBox_PlayerMenuJoiner.BackAlpha := 0.8;
-  ListBox_PlayerMenuJoiner.Focusable := False;
-  ListBox_PlayerMenuJoiner.Height := ListBox_PlayerMenuJoiner.ItemHeight * ListBox_PlayerMenuJoiner.Count;
-  ListBox_PlayerMenuJoiner.OnClick := PlayerMenuClick;
-  ListBox_PlayerMenuJoiner.Hide;
+  Menu_Join := TKMMenu.Create(aParent, 120);
+  //Menu gets populated right before show
+  Menu_Join.AddItem(NO_TEXT);
+  Menu_Join.OnClick := PlayerMenuClick;
 end;
 
 
@@ -451,17 +422,8 @@ end;
 
 procedure TKMGUIMenuLobby.ChatMenuClick(Sender: TObject);
 begin
-  if ListBox_ChatMenu.ItemIndex <> -1 then
-    ChatMenuSelect(ListBox_ChatMenu.ItemTags[ListBox_ChatMenu.ItemIndex]);
-
-  ChatMenuHide(nil);
-end;
-
-
-procedure TKMGUIMenuLobby.ChatMenuHide(Sender: TObject);
-begin
-  Shape_ChatMenuBG.Hide;
-  ListBox_ChatMenu.Hide;
+  if Menu_Chat.ItemIndex <> -1 then
+    ChatMenuSelect(Menu_Chat.ItemTags[Menu_Chat.ItemIndex]);
 end;
 
 
@@ -470,35 +432,26 @@ var
   C: TKMControl;
   I: Integer;
 begin
-  C := TKMControl(Sender);
-
   //Populate menu with right options
-  ListBox_ChatMenu.Clear;
+  Menu_Chat.Clear;
 
-  ListBox_ChatMenu.Add('All', -1);
+  Menu_Chat.AddItem('All', -1);
   //Only show "Team" if the player is on a team
   if fNetworking.NetPlayers[fNetworking.MyIndex].Team <> 0 then
-    ListBox_ChatMenu.Add('[$66FF66]Team', -2);
-    
+    Menu_Chat.AddItem('[$66FF66]Team', -2);
+
   for I := 1 to fNetworking.NetPlayers.Count do
     if I <> fNetworking.MyIndex then //Can't whisper to yourself
       with fNetworking.NetPlayers[I] do
         if IsHuman and Connected and not Dropped then
           if FlagColorID <> 0 then
-            ListBox_ChatMenu.Add('[$'+IntToHex(FlagColorToTextColor(FlagColor) and $00FFFFFF,6)+']' + Nikname, IndexOnServer)
+            Menu_Chat.AddItem('[$'+IntToHex(FlagColorToTextColor(FlagColor) and $00FFFFFF,6)+']' + Nikname, IndexOnServer)
           else
-            ListBox_ChatMenu.Add(Nikname, IndexOnServer);
+            Menu_Chat.AddItem(Nikname, IndexOnServer);
 
+  C := TKMControl(Sender);
   //Position the menu next to the icon, but do not overlap players name
-  ListBox_ChatMenu.Height := ListBox_ChatMenu.ItemHeight * ListBox_ChatMenu.Count;
-  ListBox_ChatMenu.AbsLeft := C.AbsLeft;
-  ListBox_ChatMenu.AbsTop := C.AbsTop - ListBox_ChatMenu.Height;
-
-  //Reset previously selected item
-  ListBox_ChatMenu.ItemIndex := -1;
-
-  Shape_ChatMenuBG.Show;
-  ListBox_ChatMenu.Show;
+  Menu_Chat.ShowAt(C.AbsLeft, C.AbsTop - Menu_Chat.Height);
 end;
 
 
@@ -760,7 +713,7 @@ begin
   //or ((Sender = ListBox_PlayerMenuJoiner) and (ListBox_PlayerMenuHost.ItemIndex = 0)) then
 
   //Kick
-  if (Sender = ListBox_PlayerMenuHost) and (ListBox_PlayerMenuHost.ItemIndex = 1) then
+  if (Sender = Menu_Host) and (Menu_Host.ItemIndex = 1) then
     fNetworking.KickPlayer(I);
 
   //Ban
@@ -768,47 +721,30 @@ begin
 
   //Set to host
   //if (Sender = ListBox_PlayerMenuHost) and (ListBox_PlayerMenuHost.ItemIndex = 3) then
-
-  //Item picked - hide the menu
-  PlayerMenuHide(nil);
-end;
-
-
-procedure TKMGUIMenuLobby.PlayerMenuHide(Sender: TObject);
-begin
-  Shape_PlayerMenuBG.Hide;
-  ListBox_PlayerMenuHost.Hide;
-  ListBox_PlayerMenuJoiner.Hide;
 end;
 
 
 procedure TKMGUIMenuLobby.PlayerMenuShow(Sender: TObject);
 var
   C: TKMControl;
-  ListBox: TKMListBox;
+  M: TKMMenu;
 begin
   C := TKMControl(Sender);
   //Only human players (excluding ourselves) have the player menu
   if not fNetworking.NetPlayers[C.Tag].IsHuman
   or (fNetworking.MyIndex = C.Tag) then Exit;
 
+  //Chose right menu to show
   if fNetworking.IsHost then
-    ListBox := ListBox_PlayerMenuHost
+    M := Menu_Host
   else
-    ListBox := ListBox_PlayerMenuJoiner;
-
-  //Position the menu next to the icon, but do not overlap players name
-  ListBox.AbsLeft := C.AbsLeft;
-  ListBox.AbsTop := C.AbsTop + C.Height;
-
-  //Reset previously selected item
-  ListBox.ItemIndex := -1;
+    M := Menu_Join;
 
   //Remember which player it is by their server index (order of players can change)
-  ListBox.Tag := fNetworking.NetPlayers[C.Tag].IndexOnServer;
+  M.Tag := fNetworking.NetPlayers[C.Tag].IndexOnServer;
 
-  Shape_PlayerMenuBG.Show;
-  ListBox.Show;
+  //Position the menu next to the icon, but do not overlap players name
+  M.ShowAt(C.AbsLeft, C.AbsTop + C.Height);
 end;
 
 
