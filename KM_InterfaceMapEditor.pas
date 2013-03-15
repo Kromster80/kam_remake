@@ -2,11 +2,11 @@ unit KM_InterfaceMapEditor;
 {$I KaM_Remake.inc}
 interface
 uses
-     {$IFDEF MSWindows} Windows, {$ENDIF}
-     {$IFDEF Unix} LCLIntf, LCLType, {$ENDIF}
-     Classes, Controls, KromUtils, Math, StrUtils, SysUtils, KromOGLUtils, TypInfo,
-     KM_Controls, KM_Defaults, KM_Pics, KM_Maps, KM_Houses, KM_Units, KM_UnitGroups, KM_MapEditor,
-     KM_Points, KM_InterfaceDefaults, KM_AIAttacks, KM_Goals, KM_Terrain;
+   {$IFDEF MSWindows} Windows, {$ENDIF}
+   {$IFDEF Unix} LCLIntf, LCLType, {$ENDIF}
+   Classes, Controls, KromUtils, Math, StrUtils, SysUtils, KromOGLUtils, TypInfo,
+   KM_Controls, KM_Defaults, KM_Pics, KM_Maps, KM_Houses, KM_Units, KM_UnitGroups, KM_MapEditor,
+   KM_Points, KM_InterfaceDefaults, KM_AIAttacks, KM_Goals, KM_Terrain;
 
 type
   TKMTerrainTab = (ttBrush, ttHeights, ttTile, ttObject, ttSelection);

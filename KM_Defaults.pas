@@ -284,13 +284,13 @@ type
 type
   TResourceType = (
     rt_None,  //Special resource types
-    rt_Trunk, rt_Stone, rt_Wood, rt_IronOre, rt_GoldOre,
-    rt_Coal, rt_Steel, rt_Gold, rt_Wine, rt_Corn,
-    rt_Bread, rt_Flour, rt_Leather, rt_Sausages, rt_Pig,
-    rt_Skin, rt_Shield, rt_MetalShield, rt_Armor, rt_MetalArmor,
-    rt_Axe, rt_Sword, rt_Pike, rt_Hallebard, rt_Bow,
-    rt_Arbalet, rt_Horse, rt_Fish,
-    rt_All, rt_Warfare, rt_Food);
+    rt_Trunk,   rt_Stone,   rt_Wood,        rt_IronOre,   rt_GoldOre,
+    rt_Coal,    rt_Steel,   rt_Gold,        rt_Wine,      rt_Corn,
+    rt_Bread,   rt_Flour,   rt_Leather,     rt_Sausages,  rt_Pig,
+    rt_Skin,    rt_Shield,  rt_MetalShield, rt_Armor,     rt_MetalArmor,
+    rt_Axe,     rt_Sword,   rt_Pike,        rt_Hallebard, rt_Bow,
+    rt_Arbalet, rt_Horse,   rt_Fish,
+    rt_All,     rt_Warfare, rt_Food);
 
 const
   WARE_MIN = rt_Trunk;
@@ -311,7 +311,7 @@ const
     $101080, $0080FF, $FFBF00);
 
   //How many of resource gets produced per minute on AVERAGE
-  //Measured on a test map RES_COUNT / TIME
+  //Measured on a test map RES_COUNT / TIME in minutes
   ProductionRate: array [WARE_MIN..WARE_MAX] of Single = (
      88/120, 414/120, 390/120, 160/120, 160/120,
     155/120, 218/120, 330/120, 120/120, 138/120,
@@ -319,6 +319,24 @@ const
      84/180, 190/120, 155/120, 170/120, 155/120,
     200/120, 195/120, 195/120, 195/120, 200/120,
     190/120,  69/120, 122/120);
+
+  //How much time it takes from owner taking a house till stable production
+  //1 minute on average for the time it takes to process input into output
+  //Some wares need extra time to grow (e.g. Horses) and some
+  //depend on environment supply (e.g. Trunks)
+  //Trunks 1-15
+  //Wine 1-8
+  //Corn 1-11
+  //Pigs 6
+  //Skins 6
+  //Horses 6
+  ProductionLag: array [WARE_MIN..WARE_MAX] of Byte = (
+     6, 1, 1, 1, 1,
+     1, 1, 1, 4, 5,
+     1, 1, 1, 1, 6,
+     6, 1, 1, 1, 1,
+     1, 1, 1, 1, 1,
+     1, 6, 1);
 
   //Using shortints instead of bools makes it look much neater in code-view
   CheatStorePattern: array [WARE_MIN..WARE_MAX] of Byte = (

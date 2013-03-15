@@ -27,15 +27,15 @@ type
 
     procedure Create_SingleMap(aParent: TKMPanel);
 
-    procedure SingleMap_Clear;
-    procedure SingleMap_ScanUpdate(Sender: TObject);
-    procedure SingleMap_SortUpdate(Sender: TObject);
-    procedure SingleMap_RefreshList(aJumpToSelected:Boolean);
-    procedure SingleMap_ListClick(Sender: TObject);
-    procedure SingleMap_OptionsChange(Sender: TObject);
-    procedure SingleMap_Update;
+    procedure Clear;
+    procedure ScanUpdate(Sender: TObject);
+    procedure SortUpdate(Sender: TObject);
+    procedure ListRefresh(aJumpToSelected:Boolean);
+    procedure ListClick(Sender: TObject);
+    procedure OptionsChange(Sender: TObject);
+    procedure Update;
     procedure StartClick(Sender: TObject);
-    procedure SingleMap_Sort(aColumn: Integer);
+    procedure ListSort(aColumn: Integer);
 
     procedure BackClick(Sender: TObject);
   protected
@@ -126,8 +126,8 @@ begin
     ColumnBox_SingleMaps.Header.TextAlign := taCenter;
     ColumnBox_SingleMaps.Header.Columns[0].Glyph := MakePic(rxGui, 42);
     ColumnBox_SingleMaps.Header.Columns[1].Glyph := MakePic(rxGui, 31);
-    ColumnBox_SingleMaps.OnColumnClick := SingleMap_Sort;
-    ColumnBox_SingleMaps.OnChange := SingleMap_ListClick;
+    ColumnBox_SingleMaps.OnColumnClick := ListSort;
+    ColumnBox_SingleMaps.OnChange := ListClick;
     ColumnBox_SingleMaps.OnDoubleClick := StartClick;
 
     Panel_SingleDesc := TKMPanel.Create(Panel_Single, PAD_SIDE, PAD_VERT, Half, aParent.Height - PAD_VERT*2);
@@ -151,7 +151,7 @@ begin
       L.Anchors := [akLeft, akBottom];
       DropBox_SingleLoc := TKMDropList.Create(Panel_SingleDesc, 200, 350, 150, 20, fnt_Metal, 'Location', bsMenu);
       DropBox_SingleLoc.Anchors := [akLeft, akBottom];
-      DropBox_SingleLoc.OnChange := SingleMap_OptionsChange;
+      DropBox_SingleLoc.OnChange := OptionsChange;
 
       L := TKMLabel.Create(Panel_SingleDesc, 360, 330, 80, 20, fTextLibrary[TX_LOBBY_HEADER_FLAGCOLOR], fnt_Metal, taLeft);
       L.Anchors := [akLeft, akBottom];
@@ -161,7 +161,7 @@ begin
       DropBox_SingleColor.List.ShowHeader := False;
       DropBox_SingleColor.FadeImageWhenDisabled := False;
       DropBox_SingleColor.Add(MakeListRow([''], [$FFFFFFFF], [MakePic(rxGuiMain, 31)], 0));
-      DropBox_SingleColor.OnChange := SingleMap_OptionsChange;
+      DropBox_SingleColor.OnChange := OptionsChange;
 
       //Goals
       B := TKMBevel.Create(Panel_SingleDesc, 0, 530, Half, 30);
@@ -217,27 +217,27 @@ begin
 end;
 
 
-procedure TKMGUIMenuSingleMap.SingleMap_Clear;
+procedure TKMGUIMenuSingleMap.Clear;
 begin
   ColumnBox_SingleMaps.Clear;
-  SingleMap_ListClick(nil);
+  ListClick(nil);
   fLastMapCRC := 0;
 end;
 
 
-procedure TKMGUIMenuSingleMap.SingleMap_ScanUpdate(Sender: TObject);
+procedure TKMGUIMenuSingleMap.ScanUpdate(Sender: TObject);
 begin
-  SingleMap_RefreshList(False); //Don't jump to selected with each scan update
+  ListRefresh(False); //Don't jump to selected with each scan update
 end;
 
 
-procedure TKMGUIMenuSingleMap.SingleMap_SortUpdate(Sender: TObject);
+procedure TKMGUIMenuSingleMap.SortUpdate(Sender: TObject);
 begin
-  SingleMap_RefreshList(True); //After sorting jump to the selected item
+  ListRefresh(True); //After sorting jump to the selected item
 end;
 
 
-procedure TKMGUIMenuSingleMap.SingleMap_RefreshList(aJumpToSelected: Boolean);
+procedure TKMGUIMenuSingleMap.ListRefresh(aJumpToSelected: Boolean);
 var
   I, OldTopIndex: Integer;
   R: TKMListRow;
@@ -246,6 +246,7 @@ begin
   ColumnBox_SingleMaps.Clear;
 
   fMaps.Lock;
+  try
     for I := 0 to fMaps.Count - 1 do
     begin
       R := MakeListRow(['', IntToStr(fMaps[I].PlayerCount), fMaps[I].FileName, MapSizeText(fMaps[I].MapSizeX, fMaps[I].MapSizeY)]);
@@ -255,10 +256,12 @@ begin
     end;
 
     //IDs of maps could changed, so use CRC to check which one was selected
-      for I := 0 to fMaps.Count-1 do
-        if (fMaps[I].CRC = fLastMapCRC) then
-          ColumnBox_SingleMaps.ItemIndex := I;
-  fMaps.Unlock;
+    for I := 0 to fMaps.Count - 1 do
+      if (fMaps[I].CRC = fLastMapCRC) then
+        ColumnBox_SingleMaps.ItemIndex := I;
+  finally
+    fMaps.Unlock;
+  end;
 
   ColumnBox_SingleMaps.TopIndex := OldTopIndex;
   if aJumpToSelected
@@ -272,12 +275,13 @@ begin
 end;
 
 
-procedure TKMGUIMenuSingleMap.SingleMap_ListClick(Sender: TObject);
+procedure TKMGUIMenuSingleMap.ListClick(Sender: TObject);
 var
   MapId: Integer;
   I, K: Integer;
 begin
   fMaps.Lock;
+  try
     MapId := ColumnBox_SingleMaps.ItemIndex;
 
     //User could have clicked on empty space in list and we get -1 or unused MapId
@@ -331,13 +335,14 @@ begin
     DropBox_SingleLoc.Enabled := DropBox_SingleLoc.Count > 1;
     DropBox_SingleColor.Enabled := DropBox_SingleColor.Count > 1;
 
-    SingleMap_OptionsChange(nil);
-
-  fMaps.Unlock;
+    OptionsChange(nil);
+  finally
+    fMaps.Unlock;
+  end;
 end;
 
 
-procedure TKMGUIMenuSingleMap.SingleMap_OptionsChange(Sender: TObject);
+procedure TKMGUIMenuSingleMap.OptionsChange(Sender: TObject);
 begin
   if InRange(DropBox_SingleLoc.ItemIndex, Low(fSingleLocations), High(fSingleLocations)) then
     fSingleLoc := fSingleLocations[DropBox_SingleLoc.ItemIndex]
@@ -349,11 +354,11 @@ begin
   else
     fSingleColor := MP_TEAM_COLORS[1];
 
-  SingleMap_Update;
+  Update;
 end;
 
 
-procedure TKMGUIMenuSingleMap.SingleMap_Update;
+procedure TKMGUIMenuSingleMap.Update;
 const
   GoalCondPic: array [TGoalCondition] of Word = (
     41, 39, 592, 38, 62, 41, 303, 141, 312);
@@ -457,7 +462,7 @@ begin
 end;
 
 
-procedure TKMGUIMenuSingleMap.SingleMap_Sort(aColumn: Integer);
+procedure TKMGUIMenuSingleMap.ListSort(aColumn: Integer);
 var
   Method: TMapsSortMethod;
 begin
@@ -485,7 +490,7 @@ begin
   end;
 
   //Start sorting and wait for SortComplete event
-  fMaps.Sort(Method, SingleMap_SortUpdate);
+  fMaps.Sort(Method, SortUpdate);
 end;
 
 
@@ -495,11 +500,11 @@ begin
   fMaps.TerminateScan;
 
   //Remove any old entries from UI
-  SingleMap_Clear;
-  SingleMap_ListClick(nil);
+  Clear;
+  ListClick(nil);
 
   //Initiate refresh and process each new map added
-  fMaps.Refresh(SingleMap_ScanUpdate);
+  fMaps.Refresh(ScanUpdate);
   Panel_Single.Show;
 end;
 
