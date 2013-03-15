@@ -315,7 +315,9 @@ begin
                     fRXData.Mask[aIndex, K*po.Width+I] := po.GetPixel(I,K).red;
                   end;
         mtSmart:  begin
-                    if Cardinal(po.GetPixel(I,K) and $FFFFFF) <> 0 then
+                    if Cardinal(po.GetPixel(I,K).red or
+                                po.GetPixel(I,K).green or
+                                po.GetPixel(I,K).blue) <> 0 then
                     begin
                       Tr := fRXData.RGBA[aIndex, K*po.Width+I] and $FF;
                       Tg := fRXData.RGBA[aIndex, K*po.Width+I] shr 8 and $FF;
