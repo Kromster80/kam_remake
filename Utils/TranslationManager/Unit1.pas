@@ -340,6 +340,9 @@ begin
 
   IgnoreChanges := true;
   ID := ListboxLookup[ListBox1.ItemIndex];
+
+  btnRename.Enabled := fTextManager.Consts[ID].TextID <> -1;
+
   lblConstName.Caption := fTextManager.Consts[ID].ConstName;
 
   for I := 0 to fLocales.Count - 1 do
@@ -521,6 +524,8 @@ var
   ID: Integer;
   T: TTextInfo;
 begin
+  if ListBox1.ItemIndex = -1 then Exit;
+
   ID := ListboxLookup[ListBox1.ItemIndex];
   if fTextManager.Consts[ID].TextID = -1 then Exit;
 
