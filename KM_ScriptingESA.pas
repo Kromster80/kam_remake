@@ -69,6 +69,7 @@ type
     function UnitAt(aX, aY: Word): Integer;
     function UnitDead(aUnitID: Integer): Boolean;
     function UnitHunger(aUnitID: Integer): Integer;
+    function UnitCarrying(aUnitID: Integer): Integer;
     function UnitLowHunger: Integer;
     function UnitMaxHunger: Integer;
     function UnitOwner(aUnitID: Integer): Integer;
@@ -647,6 +648,21 @@ begin
   end
   else
     LogError('States.UnitHunger', [aUnitID]);
+end;
+
+
+function TKMScriptStates.UnitCarrying(aUnitID: Integer): Integer;
+var U: TKMUnit;
+begin
+  Result := -1;
+  if aUnitID > 0 then
+  begin
+    U := fIDCache.GetUnit(aUnitID);
+    if (U <> nil) and (U is TKMUnitSerf) and (TKMUnitSerf(U).Carry in [WARE_MIN..WARE_MAX]) then
+      Result := ResourceTypeToIndex[TKMUnitSerf(U).Carry];
+  end
+  else
+    LogError('States.UnitCarrying', [aUnitID]);
 end;
 
 

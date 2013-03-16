@@ -175,6 +175,7 @@ begin
       RegisterMethod('function UnitAt(aX, aY: Word): Integer');
       RegisterMethod('function UnitDead(aUnitID: Integer): Boolean');
       RegisterMethod('function UnitHunger(aUnitID: Integer): Integer');
+      RegisterMethod('function UnitCarrying(aUnitID: Integer): Integer');
       RegisterMethod('function UnitLowHunger: Integer');
       RegisterMethod('function UnitMaxHunger: Integer');
       RegisterMethod('function UnitOwner(aUnitID: Integer): Integer');
@@ -379,6 +380,7 @@ begin
       RegisterMethod(@TKMScriptStates.UnitAt,         'UNITAT');
       RegisterMethod(@TKMScriptStates.UnitDead,       'UNITDEAD');
       RegisterMethod(@TKMScriptStates.UnitHunger,     'UNITHUNGER');
+      RegisterMethod(@TKMScriptStates.UnitCarrying,   'UNITCARRYING');
       RegisterMethod(@TKMScriptStates.UnitLowHunger,  'UNITLOWHUNGER');
       RegisterMethod(@TKMScriptStates.UnitMaxHunger,  'UNITMAXHUNGER');
       RegisterMethod(@TKMScriptStates.UnitOwner,      'UNITOWNER');
