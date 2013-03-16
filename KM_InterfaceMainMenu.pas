@@ -552,7 +552,8 @@ begin
       else
       begin
         Chart_Citizens.AddLine(GetFormattedPlayerName, FlagColor, Stats.ChartCitizens);
-        Chart_Citizens.AddAltLine(Stats.ChartRecruits);
+        //Recruits aren't that important, but if we want to include them they should be a separate graph
+        //Chart_Citizens.AddAltLine(Stats.ChartRecruits);
       end;
 
     for I := 0 to TempGraphCount - 1 do
@@ -847,15 +848,10 @@ begin
 
     Chart_MPArmy.TrimToFirstVariation;
 
-    //@Krom: I think having 2 lines per player looks ugly, we should discuss a better way to do this if we want to show a recruits graph
-    //@Lewin: No, I think you are right, we dont need recruits there. To be deleted ..
     for I := 0 to fPlayers.Count - 1 do
     with fPlayers[I] do
     if Enabled then
-    begin
       Chart_MPCitizens.AddLine(PlayerName, FlagColor, Stats.ChartCitizens);
-      Chart_MPCitizens.AddLine(Format(fTextLibrary[TX_GRAPH_RECRUITS], [PlayerName]), FlagColor, Stats.ChartRecruits);
-    end;
 
     for I := 0 to fPlayers.Count - 1 do
     with fPlayers[I] do
