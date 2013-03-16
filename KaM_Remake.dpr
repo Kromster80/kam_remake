@@ -21,6 +21,7 @@ uses
   KM_AIFields in 'KM_AIFields.pas',
   KM_AIGeneral in 'KM_AIGeneral.pas',
   KM_AIMayor in 'KM_AIMayor.pas',
+  KM_AIMayorBalance in 'KM_AIMayorBalance.pas',
   KM_AISetup in 'KM_AISetup.pas',
   KM_Alerts in 'KM_Alerts.pas',
   KM_ArmyEvaluation in 'KM_ArmyEvaluation.pas',

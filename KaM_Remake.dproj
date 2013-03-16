@@ -121,6 +121,7 @@
 			<DCCReference Include="KM_AIFields.pas"/>
 			<DCCReference Include="KM_AIGeneral.pas"/>
 			<DCCReference Include="KM_AIMayor.pas"/>
+			<DCCReference Include="KM_AIMayorBalance.pas"/>
 			<DCCReference Include="KM_AISetup.pas"/>
 			<DCCReference Include="KM_Alerts.pas"/>
 			<DCCReference Include="KM_ArmyEvaluation.pas"/>

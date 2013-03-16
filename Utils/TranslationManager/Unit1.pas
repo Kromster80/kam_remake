@@ -4,7 +4,8 @@ interface
 uses
   Classes, Controls, Dialogs, ExtCtrls, Forms, Graphics, Math,
   {$IFDEF MSWINDOWS} FileCtrl, {$ENDIF}
-  StdCtrls, StrUtils, SysUtils, Windows, KM_Locales, Unit_Text, Unit_PathManager, ComCtrls;
+  StdCtrls, StrUtils, SysUtils, Windows, KM_Locales, Unit_Text, Unit_PathManager, ComCtrls,
+  Vcl.Menus;
 
 const
   USER_MODE = False; //Disables insert, delete, compact, sort, etc. functions so translators don't click them by mistake
@@ -12,10 +13,7 @@ const
 type
   TForm1 = class(TForm)
     ListBox1: TListBox;
-    EditConstName: TEdit;
-    Label1: TLabel;
-    btnSortByIndex: TButton;
-    btnSave: TButton;
+    lblConstName: TLabel;
     btnInsert: TButton;
     ScrollBox1: TScrollBox;
     btnDelete: TButton;
@@ -26,8 +24,6 @@ type
     Label2: TLabel;
     cbIncludeSameAsEnglish: TCheckBox;
     LabelIncludeSameAsEnglish: TLabel;
-    btnSortByName: TButton;
-    btnCompactIndexes: TButton;
     Label3: TLabel;
     Button1: TButton;
     lbFolders: TListBox;
@@ -37,12 +33,21 @@ type
     Edit1: TEdit;
     Label5: TLabel;
     cbShowLang: TComboBox;
-    btnUnused: TButton;
+    MainMenu1: TMainMenu;
+    File1: TMenuItem;
+    Edit2: TMenuItem;
+    mnuSave: TMenuItem;
+    mnuSortByIndex: TMenuItem;
+    mnuSortByName: TMenuItem;
+    mnuCompactIndexes: TMenuItem;
+    mnuListUnused: TMenuItem;
+    N1: TMenuItem;
+    mnuExit: TMenuItem;
+    btnRename: TButton;
     procedure FormCreate(Sender: TObject);
     procedure ListBox1Click(Sender: TObject);
     procedure btnSortByIndexClick(Sender: TObject);
     procedure btnSortByNameClick(Sender: TObject);
-    procedure EditConstNameChange(Sender: TObject);
     procedure btnSaveClick(Sender: TObject);
     procedure btnInsertClick(Sender: TObject);
     procedure btnDeleteClick(Sender: TObject);
@@ -62,6 +67,8 @@ type
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
     procedure cbShowLangChange(Sender: TObject);
     procedure btnUnusedClick(Sender: TObject);
+    procedure mnuExitClick(Sender: TObject);
+    procedure btnRenameClick(Sender: TObject);
   private
     fPathManager: TPathManager;
     fTextManager: TTextManager;
@@ -106,20 +113,20 @@ begin
 
   fTextManager := TTextManager.Create;
 
-  btnSave.Enabled := False;
+  mnuSave.Enabled := False;
 
   btnInsert.Visible := not USER_MODE;
+  btnRename.Enabled := not USER_MODE; //Users can't change constants names
   btnDelete.Visible := not USER_MODE;
   btnInsertSeparator.Visible := not USER_MODE;
-  btnSortByIndex.Visible := not USER_MODE;
+  mnuSortByIndex.Visible := not USER_MODE;
   btnMoveUp.Visible := not USER_MODE;
   btnMoveDown.Visible := not USER_MODE;
-  btnSortByName.Visible := not USER_MODE;
-  btnCompactIndexes.Visible := not USER_MODE;
+  mnuSortByName.Visible := not USER_MODE;
+  mnuCompactIndexes.Visible := not USER_MODE;
   btnCopy.Visible := not USER_MODE;
   btnPaste.Visible := not USER_MODE;
-  btnUnused.Visible := not USER_MODE;
-  EditConstName.Enabled := not USER_MODE; //Users can't change constants names
+  mnuListUnused.Visible := not USER_MODE;
 end;
 
 
@@ -147,7 +154,7 @@ const MSG_WARNING: string = 'You have unsaved changes that will be lost, load ne
 var ID: Integer;
 begin
   //Let the user abort and save edited translations
-  if btnSave.Enabled
+  if mnuSave.Enabled
   and (MessageDlg(MSG_WARNING, mtWarning, mbOKCancel, 0) <> mrOK) then
   begin
     lbFolders.ItemIndex := fPreviousFolder;
@@ -162,28 +169,28 @@ begin
   if SameText(lbFolders.Items[ID], 'data\text\text.%s.libx') then
   begin
     fTextManager.Load(fWorkDir + lbFolders.Items[ID], fWorkDir + 'KM_TextIDs.inc');
-    EditConstName.Enabled := not USER_MODE;
     btnInsertSeparator.Enabled := True;
+    btnRename.Enabled := not USER_MODE;
     btnMoveUp.Enabled := True;
     btnMoveDown.Enabled := True;
-    btnSortByName.Enabled := True;
-    btnSortByIndex.Enabled := True;
-    btnCompactIndexes.Enabled := True;
+    mnuSortByName.Enabled := True;
+    mnuSortByIndex.Enabled := True;
+    mnuCompactIndexes.Enabled := True;
   end
   else
   begin
     fTextManager.Load(fWorkDir + lbFolders.Items[ID], '');
-    EditConstName.Enabled := False;
     btnInsertSeparator.Enabled := False;
+    btnRename.Enabled := False;
     btnMoveUp.Enabled := False;
     btnMoveDown.Enabled := False;
-    btnSortByName.Enabled := False;
-    btnSortByIndex.Enabled := False;
-    btnCompactIndexes.Enabled := False;
+    mnuSortByName.Enabled := False;
+    mnuSortByIndex.Enabled := False;
+    mnuCompactIndexes.Enabled := False;
   end;
 
   RefreshList;
-  btnSave.Enabled := False;
+  mnuSave.Enabled := False;
 end;
 
 
@@ -198,7 +205,7 @@ begin
   else
     fTextManager.Save(fWorkDir + lbFolders.Items[ID], '');
 
-  btnSave.Enabled := False;
+  mnuSave.Enabled := False;
 end;
 
 
@@ -333,7 +340,7 @@ begin
 
   IgnoreChanges := true;
   ID := ListboxLookup[ListBox1.ItemIndex];
-  EditConstName.Text := fTextManager.Consts[ID].ConstName;
+  lblConstName.Caption := fTextManager.Consts[ID].ConstName;
 
   for I := 0 to fLocales.Count - 1 do
     if fTextManager.Consts[ID].TextID <> -1 then
@@ -349,7 +356,7 @@ procedure TForm1.btnSortByIndexClick(Sender: TObject);
 begin
   fTextManager.SortByIndex;
   RefreshList;
-  btnSave.Enabled := True;
+  mnuSave.Enabled := True;
 end;
 
 
@@ -359,7 +366,7 @@ begin
   fTextManager.SortByName;
   //Compact Indexes
   RefreshList;
-  btnSave.Enabled := True;
+  mnuSave.Enabled := True;
 end;
 
 
@@ -404,7 +411,7 @@ procedure TForm1.btnCompactIndexesClick(Sender: TObject);
 begin
   fTextManager.CompactIndexes;
   RefreshList;
-  btnSave.Enabled := True;
+  mnuSave.Enabled := True;
 end;
 
 
@@ -414,20 +421,9 @@ begin
 end;
 
 
-procedure TForm1.EditConstNameChange(Sender: TObject);
-var ID: Integer; T: TTextInfo;
+procedure TForm1.mnuExitClick(Sender: TObject);
 begin
-  if IgnoreChanges then Exit;
-
-  ID := ListboxLookup[ListBox1.ItemIndex];
-  if fTextManager.Consts[ID].TextID = -1 then exit;
-
-  T := fTextManager.Consts[ID];
-  T.ConstName := EditConstName.Text;
-  fTextManager.Consts[ID] := T;
-
-  RefreshList;
-  btnSave.Enabled := True;
+  Close;
 end;
 
 
@@ -439,7 +435,7 @@ begin
   if fTextManager.Consts[ID].TextID = -1 then exit;
   T := TMemo(Sender).Tag;
   fTextManager.Texts[fTextManager.Consts[ID].TextID][T] := {$IFDEF FPC}Utf8ToAnsi{$ENDIF}(TMemo(Sender).Text);
-  btnSave.Enabled := True;
+  mnuSave.Enabled := True;
 end;
 
 
@@ -451,7 +447,7 @@ begin
 
   fTextManager.Insert(ID);
   RefreshList;
-  btnSave.Enabled := True;
+  mnuSave.Enabled := True;
 end;
 
 
@@ -463,7 +459,7 @@ begin
 
   fTextManager.InsertSeparator(ID);
   RefreshList;
-  btnSave.Enabled := True;
+  mnuSave.Enabled := True;
 end;
 
 
@@ -475,7 +471,7 @@ begin
 
   fTextManager.DeleteConst(ID);
   RefreshList;
-  btnSave.Enabled := True;
+  mnuSave.Enabled := True;
 end;
 
 
@@ -488,7 +484,7 @@ begin
   RefreshList;
   ListBox1.ItemIndex := Max(ID - 1, 0);
   ListBox1Click(nil); //Reselect the item to update the translation boxes
-  btnSave.Enabled := True;
+  mnuSave.Enabled := True;
 end;
 
 
@@ -497,8 +493,6 @@ var I, ID: Integer;
 begin
   ID := ListBox1.ItemIndex;
   if ID = -1 then Exit;
-
-
 
   SetLength(fBuffer, fLocales.Count);
   for I := 0 to fLocales.Count - 1 do
@@ -516,8 +510,34 @@ begin
   Assert(Length(fBuffer) = fLocales.Count);
   for I := 0 to fLocales.Count - 1 do
     fTextManager.Texts[fTextManager.Consts[ListboxLookup[ID]].TextID][I] := fBuffer[I];
-  btnSave.Enabled := True;
+  mnuSave.Enabled := True;
   ListBox1Click(nil);
+end;
+
+
+procedure TForm1.btnRenameClick(Sender: TObject);
+var
+  OldName, NewName: string;
+  ID: Integer;
+  T: TTextInfo;
+begin
+  ID := ListboxLookup[ListBox1.ItemIndex];
+  if fTextManager.Consts[ID].TextID = -1 then Exit;
+
+  //Copy to temp record to allow to assign to field
+  T := fTextManager.Consts[ID];
+
+  OldName := T.ConstName;
+  NewName := InputBox('', 'New name:', OldName);
+
+  if NewName = OldName then
+    Exit;
+
+  T.ConstName := NewName;
+  fTextManager.Consts[ID] := T;
+
+  RefreshList;
+  mnuSave.Enabled := True;
 end;
 
 
@@ -531,7 +551,7 @@ begin
   RefreshList;
   ListBox1.ItemIndex := Min(ID + 1, ListBox1.Count - 1);
   ListBox1Click(nil); //Reselect the item to update the translation boxes
-  btnSave.Enabled := True;
+  mnuSave.Enabled := True;
 end;
 
 
@@ -543,9 +563,9 @@ begin
   Filter := cbShowMissing.ItemIndex > 0;
 
   //Disable buttons
-  btnSortByIndex.Enabled := not Filter;
-  btnSortByName.Enabled := not Filter;
-  btnCompactIndexes.Enabled := not Filter;
+  mnuSortByIndex.Enabled := not Filter;
+  mnuSortByName.Enabled := not Filter;
+  mnuCompactIndexes.Enabled := not Filter;
   btnInsert.Enabled := not Filter;
   btnDelete.Enabled := not Filter;
   btnInsertSeparator.Enabled := not Filter;
@@ -575,7 +595,7 @@ end;
 
 procedure TForm1.FormCloseQuery(Sender: TObject; var CanClose: Boolean);
 begin
-  CanClose := (not btnSave.Enabled) or
+  CanClose := (not mnuSave.Enabled) or
               (MessageDlg('You have unsaved changes that will be lost, are you sure you want to exit?', mtWarning, [mbYes,mbNo], 0) = mrYes);
 end;
 
@@ -652,14 +672,14 @@ begin
   sl:= TStringList.Create;
   for i:=0 to fTextManager.ConstCount-1 do
   begin
-    btnUnused.Caption := 'Searching.... '+IntToStr(I)+' / '+IntToStr(fTextManager.ConstCount-1);
+    mnuListUnused.Caption := 'Searching.... '+IntToStr(I)+' / '+IntToStr(fTextManager.ConstCount-1);
     {$IFDEF WDC}
     res := GetDosOutput('findstr "'+fTextManager.Consts[i].ConstName+'" *.pas', fWorkDir);
     {$ENDIF}
     if res = '' then sl.Add(fTextManager.Consts[i].ConstName);
   end;
   sl.SaveToFile('TM_unused.txt');
-  btnUnused.Caption := 'List unused';
+  mnuListUnused.Caption := 'List unused';
   ShowMessage('Found '+IntToStr(sl.Count)+' unused strings in files '+fWorkDir+'*.pas. Saved list to TM_unused.txt');
   sl.Free;
 end;
