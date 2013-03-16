@@ -1,5 +1,5 @@
 
-MaxID:2943
+MaxID:2949
 
 0:Sawmill
 1:Iron smithy
@@ -669,3 +669,9 @@ MaxID:2943
 2941:Brush
 2942:AI creates and manages defence positions automatically
 2943:Toggle individual player perspective
+2944:Randomize locations within teams
+2945:Description
+2946:Options
+2947:All
+2948:Team
+2949:Message log

@@ -1040,7 +1040,7 @@ begin
   Image_MessageLog := TKMImage.Create(Panel_Main,TOOLBAR_WIDTH,Panel_Main.Height-48 - IfThen(fMultiplayer, 48*2),30,48,495);
   Image_MessageLog.Anchors := [akLeft, akBottom];
   Image_MessageLog.HighlightOnMouseOver := true;
-  Image_MessageLog.Hint := 'Message log';
+  Image_MessageLog.Hint := fTextLibrary[TX_GAME_MESSAGE_LOG];
   Image_MessageLog.OnClick := MessageLog_Click;
 
   for I := 0 to MAX_VISIBLE_MSGS do
@@ -2908,7 +2908,7 @@ begin
   if aItem = -1 then
   begin
     fChatMode := cmAll;
-    UpdateButtonCaption('All');
+    UpdateButtonCaption(fTextLibrary[TX_CHAT_ALL]);
     Edit_ChatMsg.DrawOutline := False; //No outline for All
   end
   else
@@ -2916,7 +2916,7 @@ begin
     if aItem = -2 then
     begin
       fChatMode := cmTeam;
-      UpdateButtonCaption('Team', $FF66FF66);
+      UpdateButtonCaption(fTextLibrary[TX_CHAT_TEAM], $FF66FF66);
       Edit_ChatMsg.DrawOutline := True;
       Edit_ChatMsg.OutlineColor := $FF66FF66;
     end
@@ -2951,10 +2951,10 @@ var C: TKMControl; I: Integer;
 begin
   //First populate the list
   Menu_Chat.Clear;
-  Menu_Chat.AddItem('All', -1);
+  Menu_Chat.AddItem(fTextLibrary[TX_CHAT_ALL], -1);
   //Only show "Team" if the player is on a team
   if fGame.Networking.NetPlayers[fGame.Networking.MyIndex].Team <> 0 then
-    Menu_Chat.AddItem('[$66FF66]Team', -2);
+    Menu_Chat.AddItem('[$66FF66]'+fTextLibrary[TX_CHAT_TEAM], -2);
 
   for I := 1 to fGame.Networking.NetPlayers.Count do
     if I <> fGame.Networking.MyIndex then //Can't whisper to yourself

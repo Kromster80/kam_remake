@@ -173,7 +173,7 @@ begin
       CheckBox_LobbyHostControl := TKMCheckBox.Create(Panel_LobbyPlayers, 10, 10, 450, 20, fTextLibrary[TX_LOBBY_HOST_DOES_SETUP], fnt_Metal);
       CheckBox_LobbyHostControl.OnClick := Lobby_PlayersSetupChange;
 
-      CheckBox_LobbyRandomizeTeamLocations := TKMCheckBox.Create(Panel_LobbyPlayers, 10, 28, 450, 20, 'Randomize locations within teams', fnt_Metal);
+      CheckBox_LobbyRandomizeTeamLocations := TKMCheckBox.Create(Panel_LobbyPlayers, 10, 28, 450, 20, fTextLibrary[TX_LOBBY_RANDOMIZE_LOCATIONS], fnt_Metal);
       CheckBox_LobbyRandomizeTeamLocations.OnClick := Lobby_PlayersSetupChange;
 
       //Column titles
@@ -266,10 +266,10 @@ begin
       MinimapView_Lobby := TKMMinimapView.Create(Panel_LobbySetup, 39, 124, 191, 191);
       MinimapView_Lobby.ShowLocs := True; //In the minimap we want player locations to be shown
 
-      Button_LobbyTabDesc := TKMButton.Create(Panel_LobbySetup, 10, 324, 125, 20, 'Description', bsMenu);
+      Button_LobbyTabDesc := TKMButton.Create(Panel_LobbySetup, 10, 324, 125, 20, fTextLibrary[TX_LOBBY_MAP_DESCRIPTION], bsMenu);
       Button_LobbyTabDesc.OnClick := LobbyTabSwitch;
       Button_LobbyTabDesc.Hide;
-      Button_LobbyTabOptions := TKMButton.Create(Panel_LobbySetup, 10+125, 324, 125, 20, 'Options', bsMenu);
+      Button_LobbyTabOptions := TKMButton.Create(Panel_LobbySetup, 10+125, 324, 125, 20, fTextLibrary[TX_LOBBY_OPTIONS], bsMenu);
       Button_LobbyTabOptions.OnClick := LobbyTabSwitch;
       Button_LobbyTabOptions.Hide;
 
@@ -383,7 +383,7 @@ begin
   if aItem = -1 then
   begin
     fChatMode := cmAll;
-    UpdateButtonCaption('All');
+    UpdateButtonCaption(fTextLibrary[TX_CHAT_ALL]);
     Edit_LobbyPost.DrawOutline := False; //No outline for All
   end
   else
@@ -391,7 +391,7 @@ begin
     if aItem = -2 then
     begin
       fChatMode := cmTeam;
-      UpdateButtonCaption('Team', $FF66FF66);
+      UpdateButtonCaption(fTextLibrary[TX_CHAT_TEAM], $FF66FF66);
       Edit_LobbyPost.DrawOutline := True;
       Edit_LobbyPost.OutlineColor := $FF66FF66;
     end
@@ -429,10 +429,10 @@ begin
   //Populate menu with right options
   Menu_Chat.Clear;
 
-  Menu_Chat.AddItem('All', -1);
+  Menu_Chat.AddItem(fTextLibrary[TX_CHAT_ALL], -1);
   //Only show "Team" if the player is on a team
   if fNetworking.NetPlayers[fNetworking.MyIndex].Team <> 0 then
-    Menu_Chat.AddItem('[$66FF66]Team', -2);
+    Menu_Chat.AddItem('[$66FF66]'+fTextLibrary[TX_CHAT_TEAM], -2);
 
   for I := 1 to fNetworking.NetPlayers.Count do
     if I <> fNetworking.MyIndex then //Can't whisper to yourself

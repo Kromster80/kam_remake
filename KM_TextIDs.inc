@@ -351,6 +351,7 @@ TX_GAME_ERROR_ILLEGAL_PLAYERNAME = 2696; //Error: Player name contains illegal c
 TX_GAME_ERROR_CONNECTION_FAILED = 1751; //Connection failed: %s
 TX_GAME_ERROR_DISCONNECT = 1752; //You have disconnected
 TX_GAME_MISSION = 1753; //Mission %d
+TX_GAME_MESSAGE_LOG = 2949; //Message log
 TX_MSG_FISHERMAN_TOO_FAR = 1754; //Your fisherman's hut is too far away from the water.
 TX_MSG_FISHERMAN_CANNOT_CATCH = 1755; //Your fisherman cannot catch any further fish in the nearby water bodies.
 
@@ -566,7 +567,12 @@ TX_LOBBY_PLAYER_SETHOST = 2831; //Set to host
 TX_LOBBY_PLAYER_BAN = 2830; //Ban
 TX_LOBBY_PLAYER_KICK = 2829; //Kick
 TX_LOBBY_PLAYER_WHISPER = 2828; //Whisper
+TX_LOBBY_RANDOMIZE_LOCATIONS = 2944; //Randomize locations within teams
+TX_LOBBY_MAP_DESCRIPTION = 2945; //Description
+TX_LOBBY_OPTIONS = 2946; //Options
 TX_MULTIPLAYER_WAITING = 1816; //Waiting for players:
+TX_CHAT_ALL = 2947; //All
+TX_CHAT_TEAM = 2948; //Team
 
 TX_CREDITS = 1817; //KaM Remake Credits
 TX_CREDITS_ORIGINAL = 1818; //Original Knights & Merchants Credits
