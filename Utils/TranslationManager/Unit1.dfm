@@ -255,4 +255,13 @@ object Form1: TForm1
     TabOrder = 19
     OnChange = cbShowLangChange
   end
+  object btnUnused: TButton
+    Left = 336
+    Top = 304
+    Width = 145
+    Height = 25
+    Caption = 'List unused'
+    TabOrder = 20
+    OnClick = btnUnusedClick
+  end
 end

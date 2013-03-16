@@ -17,8 +17,9 @@ Finishing up:
 	Finish AI stuff (defending and attacking prototype?)
 	Decide which script commands will be implemented for this release and implement them
 	Performance test city builder and optimise/fix slow stuff (NextToOre using FindNearest for example)
+	Snow houses
 	Before RC search for all todos and @Lewin/@Krom comments to see if there's something important we forgot about
-	Before RC remove unused strings from LIBX (Lewin: I have code that lists unused strings; Krom: should be in TransMan perhaps) and compact indexes
+	Before RC remove unused strings from LIBX (Lewin: I have code that lists unused strings; Krom: should be in TransMan perhaps; Lewin: Done) and compact indexes
 
 
 Known issues to fix:

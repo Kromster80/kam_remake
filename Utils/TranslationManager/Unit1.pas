@@ -37,6 +37,7 @@ type
     Edit1: TEdit;
     Label5: TLabel;
     cbShowLang: TComboBox;
+    btnUnused: TButton;
     procedure FormCreate(Sender: TObject);
     procedure ListBox1Click(Sender: TObject);
     procedure btnSortByIndexClick(Sender: TObject);
@@ -60,6 +61,7 @@ type
     procedure Edit1Change(Sender: TObject);
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
     procedure cbShowLangChange(Sender: TObject);
+    procedure btnUnusedClick(Sender: TObject);
   private
     fPathManager: TPathManager;
     fTextManager: TTextManager;
@@ -116,6 +118,7 @@ begin
   btnCompactIndexes.Visible := not USER_MODE;
   btnCopy.Visible := not USER_MODE;
   btnPaste.Visible := not USER_MODE;
+  btnUnused.Visible := not USER_MODE;
   EditConstName.Enabled := not USER_MODE; //Users can't change constants names
 end;
 
@@ -582,6 +585,83 @@ begin
   FreeAndNil(fLocales);
   fLocales := TKMLocales.Create(fWorkDir + 'data\locales.txt');
   RefreshLocales;
+end;
+
+{$IFDEF WDC}
+function GetDosOutput(CommandLine: string; Work: string = 'C:\'): string;
+var
+  SA: TSecurityAttributes;
+  SI: TStartupInfo;
+  PI: TProcessInformation;
+  StdOutPipeRead, StdOutPipeWrite: THandle;
+  WasOK: Boolean;
+  Buffer: array[0..255] of AnsiChar;
+  BytesRead: Cardinal;
+  WorkDir: string;
+  Handle: Boolean;
+begin
+  Result := '';
+  with SA do begin
+    nLength := SizeOf(SA);
+    bInheritHandle := True;
+    lpSecurityDescriptor := nil;
+  end;
+  CreatePipe(StdOutPipeRead, StdOutPipeWrite, @SA, 0);
+  try
+    with SI do
+    begin
+      FillChar(SI, SizeOf(SI), 0);
+      cb := SizeOf(SI);
+      dwFlags := STARTF_USESHOWWINDOW or STARTF_USESTDHANDLES;
+      wShowWindow := SW_HIDE;
+      hStdInput := GetStdHandle(STD_INPUT_HANDLE); // don't redirect stdin
+      hStdOutput := StdOutPipeWrite;
+      hStdError := StdOutPipeWrite;
+    end;
+    WorkDir := Work;
+    Handle := CreateProcess(nil, PChar('cmd.exe /C ' + CommandLine),
+                            nil, nil, True, 0, nil,
+                            PChar(WorkDir), SI, PI);
+    CloseHandle(StdOutPipeWrite);
+    if Handle then
+      try
+        repeat
+          WasOK := ReadFile(StdOutPipeRead, Buffer, 255, BytesRead, nil);
+          if BytesRead > 0 then
+          begin
+            Buffer[BytesRead] := #0;
+            Result := Result + Buffer;
+          end;
+        until not WasOK or (BytesRead = 0);
+        WaitForSingleObject(PI.hProcess, INFINITE);
+      finally
+        CloseHandle(PI.hThread);
+        CloseHandle(PI.hProcess);
+      end;
+  finally
+    CloseHandle(StdOutPipeRead);
+  end;
+end;
+{$ENDIF}
+
+
+procedure TForm1.btnUnusedClick(Sender: TObject);
+var i, DefLoc:integer; res:string; sl: TStringList;
+begin
+  DefLoc := fLocales.GetIDFromCode(DEFAULT_LOCALE);
+  sl:= TStringList.Create;
+  for i:=0 to fTextManager.ConstCount-1 do
+  begin
+    btnUnused.Caption := 'Searching.... '+IntToStr(I)+' / '+IntToStr(fTextManager.ConstCount-1);
+    {$IFDEF WDC}
+    res := GetDosOutput('findstr "'+fTextManager.Consts[i].ConstName+'" *.pas', fWorkDir);
+    {$ENDIF}
+    if res = '' then sl.Add(fTextManager.Consts[i].ConstName);
+  end;
+  sl.SaveToFile('TM_unused.txt');
+  btnUnused.Caption := 'List unused';
+  ShowMessage('Found '+IntToStr(sl.Count)+' unused strings in files '+fWorkDir+'*.pas. Saved list to TM_unused.txt');
+  sl.Free;
 end;
 
 end.
