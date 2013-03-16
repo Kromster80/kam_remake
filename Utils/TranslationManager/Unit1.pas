@@ -2,10 +2,10 @@ unit Unit1;
 {$I ..\..\KaM_Remake.inc}
 interface
 uses
-  Classes, Controls, Dialogs, ExtCtrls, Forms, Graphics, Math,
-  {$IFDEF MSWINDOWS} FileCtrl, {$ENDIF}
-  StdCtrls, StrUtils, SysUtils, Windows, KM_Locales, Unit_Text, Unit_PathManager, ComCtrls,
-  Vcl.Menus;
+  Classes, Controls, Dialogs, ExtCtrls, Forms, Graphics, Math, Menus,
+  {$IFDEF MSWINDOWS} ComCtrls, FileCtrl, {$ENDIF}
+  StdCtrls, StrUtils, Windows, SysUtils,
+  KM_Locales, Unit_Text, Unit_PathManager;
 
 const
   USER_MODE = False; //Disables insert, delete, compact, sort, etc. functions so translators don't click them by mistake
@@ -670,7 +670,7 @@ end;
 {$ENDIF}
 
 
-procedure TForm1.btnUnusedClick(Sender: TObject);
+(*procedure TForm1.btnUnusedClick(Sender: TObject);
 var i, DefLoc:integer; res:string; sl: TStringList;
 begin
   DefLoc := fLocales.GetIDFromCode(DEFAULT_LOCALE);
@@ -687,6 +687,46 @@ begin
   mnuListUnused.Caption := 'List unused';
   ShowMessage('Found '+IntToStr(sl.Count)+' unused strings in files '+fWorkDir+'*.pas. Saved list to TM_unused.txt');
   sl.Free;
+end;*)
+
+
+//@Lewin: This seems to be much faster and readable. Can you tell why did you chose above method?
+procedure TForm1.btnUnusedClick(Sender: TObject);
+var
+  I: Integer;
+  SearchRec: TSearchRec;
+  ConstList: TStringList;
+  PasFile: TStringStream;
+begin
+  ConstList := TStringList.Create;
+  PasFile := TStringStream.Create;
+  try
+    //Prepare list of all constants we will be looking for
+    for I := 0 to fTextManager.ConstCount - 1 do
+      ConstList.Append(fTextManager.Consts[I].ConstName);
+
+    //Check all *.pas files
+    FindFirst(fWorkDir + '*.pas', faAnyFile - faDirectory, SearchRec);
+    repeat
+      PasFile.LoadFromFile(fWorkDir + SearchRec.Name);
+      for I := ConstList.Count - 1 downto 0 do
+      if Pos(ConstList[I], PasFile.DataString) <> 0 then
+        ConstList.Delete(I);
+    until (FindNext(SearchRec) <> 0);
+    FindClose(SearchRec);
+
+    //Remove duplicate EOLs (keep section separators)
+    for I := ConstList.Count - 2 downto 0 do
+    if (ConstList[I] = '') and (ConstList[I+1] = '') then
+      ConstList.Delete(I);
+
+    ConstList.SaveToFile(fWorkDir + 'TM_unused.txt');
+    ShowMessage(ConstList.Text);
+  finally
+    PasFile.Free;
+    ConstList.Free;
+  end;
 end;
+
 
 end.

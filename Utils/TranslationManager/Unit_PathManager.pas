@@ -6,6 +6,7 @@ uses
 
 
 type
+  //Scans folder and subfolders in search of a .libx files
   TPathManager = class
   private
     fPaths: TStringList;
@@ -25,11 +26,6 @@ implementation
 
 
 { TPathManager }
-procedure TPathManager.Clear;
-begin
-  fPaths.Clear;
-end;
-
 constructor TPathManager.Create;
 begin
   inherited;
@@ -50,6 +46,11 @@ end;
 function TPathManager.GetPath(aIndex: Integer): string;
 begin
   Result := fPaths[aIndex];
+end;
+
+procedure TPathManager.Clear;
+begin
+  fPaths.Clear;
 end;
 
 procedure TPathManager.AddPath(aPath: string);
