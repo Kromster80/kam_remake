@@ -212,7 +212,7 @@ type
       Label_MessageText: TKMLabel;
       Button_MessageGoTo: TKMButton;
       Button_MessageDelete: TKMButton;
-      Button_MessageClose: TKMButton;
+      Image_MessageClose: TKMImage;
     Panel_MessageLog: TKMPanel;
       ColumnBox_MessageLog: TKMColumnBox;
       Image_MessageLogClose: TKMImage;
@@ -1098,12 +1098,11 @@ end;
 {Message page}
 procedure TKMGamePlayInterface.Create_Message;
 begin
-  Panel_Message := TKMPanel.Create(Panel_Main, TOOLBAR_WIDTH, Panel_Main.Height - MESSAGE_AREA_HEIGHT, Panel_Main.Width - TOOLBAR_WIDTH, MESSAGE_AREA_HEIGHT);
+  Panel_Message := TKMPanel.Create(Panel_Main, TOOLBAR_WIDTH, Panel_Main.Height - MESSAGE_AREA_HEIGHT, 600, MESSAGE_AREA_HEIGHT);
   Panel_Message.Anchors := [akLeft, akRight, akBottom];
   Panel_Message.Hide; //Hide it now because it doesn't get hidden by SwitchPage
 
-    with TKMImage.Create(Panel_Message, 0, 0, 600, 190, 409) do
-      ImageStretch;
+    TKMImage.Create(Panel_Message, 0, 0, 600, 500, 409);
 
     Label_MessageText := TKMLabel.Create(Panel_Message, 47, 67, 432, 122, '', fnt_Antiqua, taLeft);
     Label_MessageText.AutoWrap := True;
@@ -1119,11 +1118,11 @@ begin
     Button_MessageDelete.OnClick := Message_Delete;
     Button_MessageDelete.MakesSound := False; //Don't play default Click as these buttons use sfx_MessageClose
 
-    Button_MessageClose := TKMButton.Create(Panel_Message, 490, 134, 100, 24, fTextLibrary[TX_MSG_CLOSE], bsGame);
-    Button_MessageClose.Font := fnt_Antiqua;
-    Button_MessageClose.Hint := fTextLibrary[TX_MSG_CLOSE_HINT];
-    Button_MessageClose.OnClick := Message_Close;
-    Button_MessageClose.MakesSound := False; //Don't play default Click as these buttons use sfx_MessageClose
+    Image_MessageClose := TKMImage.Create(Panel_Message, 600 - 76, 24, 32, 32, 52);
+    Image_MessageClose.Anchors := [akTop, akLeft];
+    Image_MessageClose.Hint := fTextLibrary[TX_MSG_CLOSE_HINT];
+    Image_MessageClose.OnClick := Message_Close;
+    Image_MessageClose.HighlightOnMouseOver := True;
 end;
 
 
@@ -1140,16 +1139,15 @@ begin
   Panel_MessageLog.Anchors := [akLeft, akBottom];
   Panel_MessageLog.Hide; //Hide it now because it doesn't get hidden by SwitchPage
 
-    with TKMImage.Create(Panel_MessageLog, 0, 0, 800, Panel_MessageLog.Height, 409) do
-      ImageStretch;
+    TKMImage.Create(Panel_MessageLog, 0, 0, 600, 500, 409);
 
-    Image_MessageLogClose := TKMImage.Create(Panel_MessageLog, 800 - 35, 20, 32, 32, 52);
+    Image_MessageLogClose := TKMImage.Create(Panel_MessageLog, 600 - 76, 24, 32, 32, 52);
     Image_MessageLogClose.Anchors := [akTop, akLeft];
     Image_MessageLogClose.Hint := fTextLibrary[TX_MSG_CLOSE_HINT];
     Image_MessageLogClose.OnClick := MessageLog_Close;
     Image_MessageLogClose.HighlightOnMouseOver := True;
 
-    ColumnBox_MessageLog := TKMColumnBox.Create(Panel_MessageLog, 45, 65, 800 - 90, H, fnt_Grey, bsGame);
+    ColumnBox_MessageLog := TKMColumnBox.Create(Panel_MessageLog, 45, 65, 600 - 90, H, fnt_Grey, bsGame);
     ColumnBox_MessageLog.SetColumns(fnt_Outline, ['Icon', 'Message'], [0, 25]);
     ColumnBox_MessageLog.ShowHeader := False;
     ColumnBox_MessageLog.ItemHeight := 18;
@@ -1168,22 +1166,21 @@ begin
   Panel_Chat.Anchors := [akLeft, akBottom];
   Panel_Chat.Hide;
 
-    Image_Chat := TKMImage.Create(Panel_Chat,0,0,800,190,409);
+    Image_Chat := TKMImage.Create(Panel_Chat, 0, 0, 600, 500, 409);
     Image_Chat.Anchors := [akLeft,akTop,akBottom];
-    Image_Chat.ImageStretch;
 
     //Allow to resize chat area height
-    Dragger_Chat := TKMDragger.Create(Panel_Chat, 45, 36, 800-85, 10);
+    Dragger_Chat := TKMDragger.Create(Panel_Chat, 45, 36, 600-130, 10);
     Dragger_Chat.Anchors := [akTop];
     Dragger_Chat.SetBounds(0, -MESSAGE_AREA_RESIZE_Y, 0, 0);
     Dragger_Chat.OnMove := Chat_Resize;
 
-    Memo_ChatText := TKMMemo.Create(Panel_Chat,45,50,800-85,101, fnt_Metal, bsGame);
+    Memo_ChatText := TKMMemo.Create(Panel_Chat,45,50,600-85,101, fnt_Metal, bsGame);
     Memo_ChatText.ScrollDown := True;
     Memo_ChatText.AutoWrap := True;
     Memo_ChatText.Anchors := [akLeft, akTop, akRight, akBottom];
 
-    Edit_ChatMsg := TKMEdit.Create(Panel_Chat, 75, 154, 580, 20, fnt_Metal);
+    Edit_ChatMsg := TKMEdit.Create(Panel_Chat, 75, 154, 380, 20, fnt_Metal);
     Edit_ChatMsg.Anchors := [akLeft, akRight, akBottom];
     Edit_ChatMsg.OnKeyDown := Chat_Post;
     Edit_ChatMsg.Text := '';
@@ -1195,7 +1192,7 @@ begin
     Button_ChatRecipient.OnClick := Chat_MenuShow;
     Button_ChatRecipient.Anchors := [akRight, akBottom];
 
-    Image_ChatClose := TKMImage.Create(Panel_Chat, 800-35, 20, 32, 32, 52);
+    Image_ChatClose := TKMImage.Create(Panel_Chat, 600-76, 24, 32, 32, 52);
     Image_ChatClose.Anchors := [akTop, akRight];
     Image_ChatClose.Hint := fTextLibrary[TX_MSG_CLOSE_HINT];
     Image_ChatClose.OnClick := Chat_Close;
@@ -3885,7 +3882,7 @@ begin
                             Chat_Show(Self);
     VK_ESCAPE:            //'or' allows us to go through Clicks one by one
                           if Button_Army_Join_Cancel.Click
-                            or Button_MessageClose.Click
+                            or Image_MessageClose.Click
                             or Image_ChatClose.Click
                             or Image_AlliesClose.Click
                             or Button_Back.Click then ;
