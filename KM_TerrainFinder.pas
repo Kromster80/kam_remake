@@ -1,7 +1,8 @@
 unit KM_TerrainFinder;
 {$I KaM_Remake.inc}
 interface
-uses Math, SysUtils, KM_Defaults, KM_CommonClasses, KM_Points;
+uses Math, SysUtils,
+  KM_Defaults, KM_CommonClasses, KM_Points;
 
 type
   //General implementation of algorithm that finds something on terrain
@@ -12,10 +13,13 @@ type
     fRadius: Byte;
     fPassability: TPassability;
     fMaxCount: Word;
-    fOutput: TKMPointTagList;
     BestDist: Byte;
     BestLoc: TKMPoint;
     Visited: array of array of Byte;
+
+    //Temp for list that we need to fill
+    fLocs: TKMPointTagList;
+
     procedure InitVisited;
     procedure SaveTile(const X,Y: Word; aWalkDistance: Byte);
     procedure UseFinder;
@@ -26,7 +30,7 @@ type
     constructor Create;
     destructor Destroy; override;
     function FindNearest(aStart: TKMPoint; aRadius: Byte; aPassability: TPassability; out aEnd: TKMPoint): Boolean; overload;
-    function FindNearest(aStart: TKMPoint; aRadius: Byte; aPassability: TPassability; aMaxCount: Word; out aEnd: TKMPointArray): Boolean; overload;
+    procedure FindNearest(aStart: TKMPoint; aRadius: Byte; aPassability: TPassability; aMaxCount: Word; aLocs: TKMPointTagList); overload;
     procedure GetTilesWithinDistance(aStart: TKMPoint; aRadius: Byte; aPass: TPassability; aList: TKMPointList);
     procedure Save(SaveStream: TKMemoryStream); virtual;
     procedure Load(LoadStream: TKMemoryStream); virtual;
@@ -52,13 +56,12 @@ begin
 
   MapX := fTerrain.MapX;
   MapY := fTerrain.MapY;
-  fOutput := TKMPointTagList.Create;
 end;
 
 
 destructor TKMTerrainFinderCommon.Destroy;
 begin
-  fOutput.Free;
+
   inherited;
 end;
 
@@ -77,7 +80,7 @@ begin
 end;
 
 
-function TKMTerrainFinderCommon.FindNearest(aStart: TKMPoint; aRadius: Byte; aPassability: TPassability; aMaxCount: Word; out aEnd: TKMPointArray): Boolean;
+procedure TKMTerrainFinderCommon.FindNearest(aStart: TKMPoint; aRadius: Byte; aPassability: TPassability; aMaxCount: Word; aLocs: TKMPointTagList);
 var
   I: Integer;
 begin
@@ -85,17 +88,14 @@ begin
   fRadius := aRadius;
   fPassability := aPassability;
   fMaxCount := aMaxCount;
-  fOutput.Clear;
+  fLocs := aLocs;
 
+  fLocs.Clear;
   UseFinder;
 
-  fOutput.SortByTag;
-
-  SetLength(aEnd, Min(fMaxCount, fOutput.Count));
-  for I := 0 to Min(fMaxCount, fOutput.Count) - 1 do
-    aEnd[I] := fOutput.Items[I];
-
-  Result := Min(fMaxCount, fOutput.Count) <> 0;
+  //Prepare output
+  fLocs.SortByTag;
+  fLocs.Count := Min(fMaxCount, fLocs.Count);
 end;
 
 
@@ -110,14 +110,14 @@ begin
   else
   begin
     //Use parent class to check only for KMPoint but ignore Tag
-    I := TKMPointList(fOutput).IndexOf(KMPoint(X,Y));
+    I := TKMPointList(fLocs).IndexOf(KMPoint(X,Y));
     if I <> -1 then
-      fOutput.Tag[I] := aWalkDistance //New is always smaller
+      fLocs.Tag[I] := aWalkDistance //New is always smaller
     else
-      fOutput.AddEntry(KMPoint(X,Y), aWalkDistance);
+      fLocs.AddEntry(KMPoint(X,Y), aWalkDistance);
 
-    //If we have enough points we can be picky
-    if fOutput.Count >= fMaxCount then
+    //If we have enough points we can be picky and take only better distances
+    if fLocs.Count >= fMaxCount then
       BestDist := aWalkDistance;
   end;
 end;
@@ -142,6 +142,7 @@ procedure TKMTerrainFinderCommon.UseFinder;
   begin
     //These exit conditions are arranged in order of how long we estimate they will take
     if not (fPassability in fTerrain.Land[Y,X].Passability) then Exit;
+
     //If new path is longer than old we don't care about it
     Xt := fStart.X - X + fRadius;
     Yt := fStart.Y - Y + fRadius;

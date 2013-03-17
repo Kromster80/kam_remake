@@ -80,7 +80,7 @@ type
   public
     constructor Create;
 
-    property Count: Integer read fCount;
+    property Count: Integer read fCount write fCount;
     property Items[aIndex: Integer]: TKMPoint read GetPoint write SetPoint; default;
 
     procedure Clear; virtual;
