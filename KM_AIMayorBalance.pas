@@ -83,11 +83,11 @@ type
 
     function HouseCount(aHouse: THouseType): Integer;
 
-    procedure BuildCore;
-    procedure BuildMaterials;
-    procedure BuildGold;
-    procedure BuildFood;
-    procedure BuildWeaponry;
+    procedure AppendCore;
+    procedure AppendMaterials;
+    procedure AppendGold;
+    procedure AppendFood;
+    procedure AppendWeaponry;
 
     procedure Append(aHouse: THouseType);
 
@@ -155,19 +155,20 @@ end;
 
 
 //These houses are core for town development
-procedure TKMayorBalance.BuildCore;
+procedure TKMayorBalance.AppendCore;
 begin
   with fDemandCore do
-  case PickMin([StoreBalance, SchoolBalance, InnBalance, BarracksBalance]) of
-    0: Append(ht_Store);
-    1: Append(ht_School);
-    2: Append(ht_Inn);
-    3: Append(ht_Barracks);
+  case PickMin([0, StoreBalance, SchoolBalance, InnBalance, BarracksBalance]) of
+    0: ;
+    1: Append(ht_Store);
+    2: Append(ht_School);
+    3: Append(ht_Inn);
+    4: Append(ht_Barracks);
   end;
 end;
 
 
-procedure TKMayorBalance.BuildMaterials;
+procedure TKMayorBalance.AppendMaterials;
 var
   P: TKMPlayer;
 begin
@@ -187,7 +188,7 @@ end;
 
 
 //Increase Gold production
-procedure TKMayorBalance.BuildGold;
+procedure TKMayorBalance.AppendGold;
 begin
   //If all 3 shares 0 we whould pick in that order Gold > Coal > Metallurgists
   with fDemandGold do
@@ -199,7 +200,7 @@ begin
 end;
 
 
-procedure TKMayorBalance.BuildFood;
+procedure TKMayorBalance.AppendFood;
 begin
   //Pick smallest production and increase it
   with fDemandFood do
@@ -221,7 +222,7 @@ begin
 end;
 
 
-procedure TKMayorBalance.BuildWeaponry;
+procedure TKMayorBalance.AppendWeaponry;
 var
   I, Best: TResourceType;
   BestBid: Single;
@@ -627,18 +628,15 @@ begin
   //Try to express needs in terms of Balance = Production - Demand
   UpdateBalance;
 
-    if fDemandCore.Balance < 0 then
-      BuildCore
-    else
-    if fDemandMaterials.Balance < 0 then
-      BuildMaterials
-    else
-    case PickMin([0, fDemandGold.Balance * 10, fDemandFood.Balance * 5, fDemandWeaponry.Balance]) of
-      0:  {BuildNothing};
-      1:  BuildGold;
-      2:  BuildFood;
-      3:  BuildWeaponry;
-    end;
+  AppendCore;
+  AppendMaterials;
+
+  case PickMin([0, fDemandGold.Balance * 10, fDemandFood.Balance * 5, fDemandWeaponry.Balance]) of
+    0:  {BuildNothing};
+    1:  AppendGold;
+    2:  AppendFood;
+    3:  AppendWeaponry;
+  end;
 end;
 
 
@@ -646,7 +644,7 @@ function TKMayorBalance.Peek: THouseType;
 begin
   //Take element from fAdvice queue
   if Length(fAdvice) > 0 then
-    Result := fAdvice[High(fAdvice)]
+    Result := fAdvice[0]
   else
     Result := ht_None;
 end;
