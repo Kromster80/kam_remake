@@ -375,6 +375,17 @@ begin
   ReturnValue := FKMPointTagList.RemoveEntry(KMPoint(7,8));
   Check(ReturnValue = -1);
   Check(FKMPointTagList.Count = OldCount);
+
+  //Test removed second to last
+  FKMPointTagList.Clear;
+  FKMPointTagList.AddEntry(KMPoint(0,0), 0, 0);
+  FKMPointTagList.AddEntry(KMPoint(1,1), 1, 1);
+  FKMPointTagList.AddEntry(KMPoint(2,2), 2, 2);
+  FKMPointTagList.AddEntry(KMPoint(3,3), 3, 3);
+  ReturnValue := FKMPointTagList.RemoveEntry(KMPoint(2,2));
+  Check(ReturnValue = 2);
+  Check(FKMPointTagList.Count = 3);
+  Check(FKMPointTagList.Tag[2] = 3);
 end;
 
 procedure TestTKMPointTagList.TestSaveToStream;

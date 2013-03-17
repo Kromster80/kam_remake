@@ -4854,7 +4854,8 @@ begin
       Break;
     end;
 
-  if Best <> 0 then
+  //Paint time axis labels
+  if (Best <> 0) and (fMaxTime <> fMinTime) then
   for I := Ceil(fMinTime / Best) to (fMaxTime div Best) do
   begin
     TKMRenderUI.WriteShape(G.Left + Round((I * Best - fMinTime) / (fMaxTime-fMinTime) * (G.Right - G.Left)), G.Bottom - 2, 2, 5, $FFFFFFFF);

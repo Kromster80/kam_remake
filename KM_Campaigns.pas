@@ -68,18 +68,16 @@ type
     procedure ScanFolder(const aPath: string);
     procedure LoadProgress(const FileName: string);
     procedure SaveProgress(const FileName: string);
+    procedure Save(SaveStream: TKMemoryStream);
+    procedure Load(LoadStream: TKMemoryStream);
 
     //Usage
     property ActiveCampaign: TKMCampaign read fActiveCampaign;// write fActiveCampaign;
-    property ActiveCampaignMap: Byte read fActiveCampaignMap;// write fActiveCampaignMap;
     function Count: Integer;
     property Campaigns[aIndex: Integer]: TKMCampaign read GetCampaign; default;
     function CampaignByTitle(const aShortTitle: AnsiString): TKMCampaign;
     procedure SetActive(aCampaign: TKMCampaign; aMap: Byte);
     procedure UnlockNextMap;
-
-    procedure Save(SaveStream: TKMemoryStream);
-    procedure Load(LoadStream: TKMemoryStream);
   end;
 
 
@@ -232,7 +230,7 @@ end;
 procedure TKMCampaignsCollection.UnlockNextMap;
 begin
   if ActiveCampaign <> nil then
-    ActiveCampaign.UnlockedMap := ActiveCampaignMap + 1;
+    ActiveCampaign.UnlockedMap := fActiveCampaignMap + 1;
 end;
 
 
@@ -262,9 +260,9 @@ end;
 constructor TKMCampaign.Create;//(const aShortTitle: AnsiString; aMapCount:byte; aBackRX: TRXType; aBackID:word);
 begin
   inherited;
+
   //1st map is always unlocked to allow to start campaign
   fUnlockedMap := 0;
-
 end;
 
 

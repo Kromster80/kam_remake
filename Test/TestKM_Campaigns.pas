@@ -24,7 +24,7 @@ type
   // Test methods for class TKMCampaignsCollection
   TestTKMCampaignsCollection = class(TTestCase)
   strict private
-    FKMCampaignsCollection: TKMCampaignsCollection;
+    fCampaigns: TKMCampaignsCollection;
   public
     procedure SetUp; override;
     procedure TearDown; override;
@@ -116,7 +116,7 @@ begin
   fLocales := TKMLocales.Create(ExeDir+'data\locales.txt');
   fResource := TResource.Create(nil, nil, nil);
   fTextLibrary := TTextLibrary.Create(ExeDir + 'data\text\', 'eng');
-  FKMCampaignsCollection := TKMCampaignsCollection.Create;
+  fCampaigns := TKMCampaignsCollection.Create;
 end;
 
 procedure TestTKMCampaignsCollection.TearDown;
@@ -125,15 +125,15 @@ begin
   FreeAndNil(fResource);
   FreeAndNil(fLocales);
   FreeAndNil(fLog);
-  FreeAndNil(FKMCampaignsCollection);
+  FreeAndNil(fCampaigns);
 end;
 
 procedure TestTKMCampaignsCollection.TestCount;
 begin
-  Check(FKMCampaignsCollection.Count = 0);
+  Check(fCampaigns.Count = 0);
 
-  FKMCampaignsCollection.ScanFolder(ExeDir + 'Campaigns\');
-  Check(FKMCampaignsCollection.Count >= 2, 'TSK and TPR campaigns should be there');
+  fCampaigns.ScanFolder(ExeDir + 'Campaigns\');
+  Check(fCampaigns.Count >= 2, 'TSK and TPR campaigns should be there');
 end;
 
 procedure TestTKMCampaignsCollection.TestCampaignByTitle;
@@ -150,15 +150,16 @@ procedure TestTKMCampaignsCollection.TestUnlockNextMap;
 var I: Integer;
 begin
   //Check that first map is available
-  FKMCampaignsCollection.ScanFolder(ExeDir + 'Campaigns\');
-  FKMCampaignsCollection.SetActive(FKMCampaignsCollection.Campaigns[0], 0);
-  Check(FKMCampaignsCollection.ActiveCampaign.UnlockedMap = 0, 'First map should be unlocked');
+  fCampaigns.ScanFolder(ExeDir + 'Campaigns\');
+  fCampaigns.SetActive(fCampaigns.Campaigns[0], 0);
+  Check(fCampaigns.ActiveCampaign.UnlockedMap = 0, 'First map should be unlocked');
 
-  //Unlock all the maps consequentaly
-  for I := 0 to FKMCampaignsCollection.Count do
+  //Unlock all the maps consequently
+  for I := 0 to fCampaigns.Campaigns[0].MapCount do
   begin
-    FKMCampaignsCollection.UnlockNextMap;
-    Check(FKMCampaignsCollection.ActiveCampaign.UnlockedMap = Min(I+1, FKMCampaignsCollection.Count - 1), 'Wrong next map ' + IntToStr(I));
+    fCampaigns.SetActive(fCampaigns.Campaigns[0], I);
+    fCampaigns.UnlockNextMap;
+    Check(fCampaigns.ActiveCampaign.UnlockedMap = Min(I+1, fCampaigns.Campaigns[0].MapCount - 1), 'Wrong next map ' + IntToStr(I));
   end;
 end;
 
@@ -168,10 +169,10 @@ var
 begin
   //Empty collection
   SaveStream := TKMemoryStream.Create;
-  FKMCampaignsCollection.Save(SaveStream);
+  fCampaigns.Save(SaveStream);
   SaveStream.Position := 0;
-  FKMCampaignsCollection.Load(SaveStream);
-  Check(FKMCampaignsCollection.Count = 0);
+  fCampaigns.Load(SaveStream);
+  Check(fCampaigns.Count = 0);
   SaveStream.Free;
 end;
 
@@ -182,8 +183,8 @@ end;
 
 procedure TestTKMCampaignsCollection.TestScanFolder;
 begin
-  FKMCampaignsCollection.ScanFolder(ExeDir + 'Campaigns\');
-  Check(FKMCampaignsCollection.Count >= 2);
+  fCampaigns.ScanFolder(ExeDir + 'Campaigns\');
+  Check(fCampaigns.Count >= 2);
 end;
 
 procedure TestTKMCampaignsCollection.TestLoadProgress;
@@ -197,11 +198,10 @@ var
 begin
   //Empty
   FileName := ExtractFilePath(ParamStr(0)) + 'Temp\camp.tmp';
-  FKMCampaignsCollection.SaveProgress(FileName);
-  FKMCampaignsCollection.LoadProgress(FileName);
-  Check(FKMCampaignsCollection.Count = 0);
-  Check(FKMCampaignsCollection.ActiveCampaign = nil, 'Empty campaign should be nil');
-  Check(FKMCampaignsCollection.ActiveCampaignMap = 0, 'Empty map should be empty');
+  fCampaigns.SaveProgress(FileName);
+  fCampaigns.LoadProgress(FileName);
+  Check(fCampaigns.Count = 0);
+  Check(fCampaigns.ActiveCampaign = nil, 'Empty campaign should be nil');
 
   //Filled
 end;
@@ -209,15 +209,13 @@ end;
 procedure TestTKMCampaignsCollection.TestSetActive;
 begin
   //Check that first map is available
-  FKMCampaignsCollection.ScanFolder(ExeDir + 'Campaigns\');
-  Check(FKMCampaignsCollection.ActiveCampaign = nil, 'Initial campaign should be nil');
-  Check(FKMCampaignsCollection.ActiveCampaignMap = 0, 'Initial map should be empty');
+  fCampaigns.ScanFolder(ExeDir + 'Campaigns\');
+  Check(fCampaigns.ActiveCampaign = nil, 'Initial campaign should be nil');
 
   //Select first campaign
-  FKMCampaignsCollection.SetActive(FKMCampaignsCollection.Campaigns[0], 0);
-  Check(FKMCampaignsCollection.ActiveCampaign = FKMCampaignsCollection.Campaigns[0]);
-  Check(FKMCampaignsCollection.ActiveCampaignMap = 0);
-  Check(FKMCampaignsCollection.ActiveCampaign.UnlockedMap = 0, 'First map should be unlocked');
+  fCampaigns.SetActive(fCampaigns.Campaigns[0], 0);
+  Check(fCampaigns.ActiveCampaign = fCampaigns.Campaigns[0]);
+  Check(fCampaigns.ActiveCampaign.UnlockedMap = 0, 'First map should be unlocked');
 end;
 
 initialization
