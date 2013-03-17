@@ -486,6 +486,7 @@ const //Corresponding indices in units.rx
   UNIT_OFF_Y = -0.4;
 
   //TileCursors
+  TC_OUTLINE = 0;
   TC_BLOCK = 479;
   TC_BLOCK_MINE = 480;
   TC_ENTRANCE = 481;

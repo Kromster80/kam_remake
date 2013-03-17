@@ -860,7 +860,7 @@ begin
 
   //Tiles are not diagonal to each other
   if (Abs(aFrom.X - bX) <> 1) or (Abs(aFrom.Y - bY) <> 1) then
-    Exit; 
+    Exit;
                                                                  //Relative tiles locations
   if (aFrom.X < bX) and (aFrom.Y < bY) then                               //   A
     Result := not MapElem[Land[bY, bX].Obj].DiagonalBlocked               //     B
@@ -1420,67 +1420,69 @@ procedure TKMTerrain.GetHouseMarks(aLoc: TKMPoint; aHouseType: THouseType; aList
   var I: Integer;
   begin
     for I := 0 to aList.Count - 1 do //Skip wires from comparison
-      if (aList.Tag[I] <> 0) and KMSamePoint(aList[I], aPoint) then
+      if (aList.Tag[I] <> TC_OUTLINE) and KMSamePoint(aList[I], aPoint) then
         Exit;
     aList.AddEntry(aPoint, aID);
   end;
 
 var
-  i,k,s,t:integer;
-  P2:TKMPoint;
+  I,K,S,T: Integer;
+  P2: TKMPoint;
   AllowBuild: Boolean;
   HA: THouseArea;
 begin
   Assert(aList.Count = 0);
   HA := fResource.HouseDat[aHouseType].BuildArea;
 
-  for i:=1 to 4 do for k:=1 to 4 do
-  if HA[i,k] <> 0 then
+  for I := 1 to 4 do
+  for K := 1 to 4 do
+  if HA[I,K] <> 0 then
   begin
 
-    if TileInMapCoords(aLoc.X+k-3-fResource.HouseDat[aHouseType].EntranceOffsetX,aLoc.Y+i-4,1) then
+    if TileInMapCoords(aLoc.X+K-3-fResource.HouseDat[aHouseType].EntranceOffsetX,aLoc.Y+I-4,1) then
     begin
       //This can't be done earlier since values can be off-map
-      P2 := KMPoint(aLoc.X+k-3-fResource.HouseDat[aHouseType].EntranceOffsetX,aLoc.Y+i-4);
+      P2 := KMPoint(aLoc.X+K-3-fResource.HouseDat[aHouseType].EntranceOffsetX,aLoc.Y+I-4);
 
       //Check house-specific conditions, e.g. allow shipyards only near water and etc..
       case aHouseType of
         ht_IronMine: AllowBuild := TileGoodForIron(P2.X, P2.Y);
         ht_GoldMine: AllowBuild := CanPlaceGoldmine(P2.X, P2.Y);
-        else         AllowBuild := (CanBuild     in Land[P2.Y,P2.X].Passability);
+        else         AllowBuild := (CanBuild in Land[P2.Y,P2.X].Passability);
       end;
 
       //Check surrounding tiles in +/- 1 range for other houses pressence
       if not AllowBuild then
-      for s:=-1 to 1 do for t:=-1 to 1 do
-      if (s<>0) or (t<>0) then  //This is a surrounding tile, not the actual tile
-      if Land[P2.Y+t,P2.X+s].TileLock in [tlFenced,tlDigged,tlHouse] then
+      for S:=-1 to 1 do for T:=-1 to 1 do
+      if (S<>0) or (T<>0) then  //This is a surrounding tile, not the actual tile
+      if Land[P2.Y+T,P2.X+S].TileLock in [tlFenced,tlDigged,tlHouse] then
       begin
-        MarkPoint(KMPoint(P2.X+s,P2.Y+t), TC_BLOCK);
+        MarkPoint(KMPoint(P2.X+S,P2.Y+T), TC_BLOCK);
         AllowBuild := false;
       end;
 
       //Mark the tile according to previous check results
       if AllowBuild then
       begin
-        aList.AddEntry(P2, 0);
-        if HA[i,k] = 2 then
-          MarkPoint(P2, TC_ENTRANCE);
-      end else
+        if HA[I,K] = 2 then
+          MarkPoint(P2, TC_ENTRANCE)
+        else
+          MarkPoint(P2, TC_OUTLINE);
+      end
+      else
       begin
-        if HA[i,k]=2 then
+        if HA[I,K] = 2 then
           MarkPoint(P2, TC_BLOCK_ENTRANCE)
         else
-          if aHouseType in [ht_GoldMine,ht_IronMine] then
+          if aHouseType in [ht_GoldMine, ht_IronMine] then
             MarkPoint(P2, TC_BLOCK_MINE)
           else
             MarkPoint(P2, TC_BLOCK);
       end;
-
     end
     else
-      if TileInMapCoords(aLoc.X+k-3-fResource.HouseDat[aHouseType].EntranceOffsetX,aLoc.Y+i-4, 0) then
-        MarkPoint(KMPoint(aLoc.X+k-3-fResource.HouseDat[aHouseType].EntranceOffsetX,aLoc.Y+i-4), 479);
+      if TileInMapCoords(aLoc.X+K-3-fResource.HouseDat[aHouseType].EntranceOffsetX,aLoc.Y+I-4, 0) then
+        MarkPoint(KMPoint(aLoc.X+K-3-fResource.HouseDat[aHouseType].EntranceOffsetX,aLoc.Y+I-4), TC_BLOCK);
   end;
 end;
 

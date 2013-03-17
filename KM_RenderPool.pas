@@ -997,7 +997,7 @@ begin
   MyPlayer.GetHouseMarks(P, aHouseType, MarksList);
 
   for I := 0 to MarksList.Count - 1 do
-  if MarksList.Tag[I] = 0 then
+  if MarksList.Tag[I] = TC_OUTLINE then
     RenderCursorWireQuad(MarksList[I], $FFFFFF00) //Cyan rect
   else
     RenderCursorBuildIcon(MarksList[I], MarksList.Tag[I]); //icon

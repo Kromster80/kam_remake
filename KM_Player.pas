@@ -919,7 +919,7 @@ procedure TKMPlayer.GetHouseMarks(aLoc: TKMPoint; aHouseType: THouseType; aList:
   end;
 
 var
-  i,k,j,s,t: Integer;
+  I,K,J,S,T: Integer;
   P2: TKMPoint;
   AllowBuild: Boolean;
   HA: THouseArea;
@@ -927,40 +927,42 @@ begin
   //Get basic Marks
   fTerrain.GetHouseMarks(aLoc, aHouseType, aList);
 
-  //Override marks if there are House/FieldPlans (only we know about our plans)
-  //and or FogOfWar
+  //Override marks if there are House/FieldPlans (only we know about our plans) and or FogOfWar
   HA := fResource.HouseDat[aHouseType].BuildArea;
 
-  for i:=1 to 4 do for k:=1 to 4 do
-  if (HA[i,k] <> 0)
-  and fTerrain.TileInMapCoords(aLoc.X+k-3-fResource.HouseDat[aHouseType].EntranceOffsetX,aLoc.Y+i-4,1) then
+  for I := 1 to 4 do for K := 1 to 4 do
+  if (HA[I,K] <> 0)
+  and fTerrain.TileInMapCoords(aLoc.X+K-3-fResource.HouseDat[aHouseType].EntranceOffsetX, aLoc.Y+I-4, 1) then
   begin
     //This can't be done earlier since values can be off-map
-    P2 := KMPoint(aLoc.X+k-3-fResource.HouseDat[aHouseType].EntranceOffsetX, aLoc.Y+i-4);
+    P2 := KMPoint(aLoc.X+K-3-fResource.HouseDat[aHouseType].EntranceOffsetX, aLoc.Y+I-4);
 
     //Forbid planning on unrevealed areas and fieldplans
     AllowBuild := (fFogOfWar.CheckTileRevelation(P2.X, P2.Y, False) > 0);
 
     //This tile must not contain fields/houses of allied players or self
-    for j := 0 to fPlayers.Count - 1 do
-      if (j = fPlayerIndex) or (fPlayers.CheckAlliance(fPlayerIndex, j) = at_Ally) then
-        AllowBuild := AllowBuild and (fPlayers[j].fBuildList.FieldworksList.HasField(P2) = ft_None)
-                                 and not fPlayers[j].fBuildList.HousePlanList.HasPlan(P2);
+    if AllowBuild then
+    for J := 0 to fPlayers.Count - 1 do
+    if ((J = fPlayerIndex) or (fPlayers.CheckAlliance(fPlayerIndex, J) = at_Ally))
+    and ((fPlayers[J].fBuildList.FieldworksList.HasField(P2) <> ft_None)
+       or fPlayers[J].fBuildList.HousePlanList.HasPlan(P2)) then
+       AllowBuild := False;
 
     //Check surrounding tiles in +/- 1 range for other houses pressence
-    for s:=-1 to 1 do for t:=-1 to 1 do
-      if (s<>0) or (t<>0) then //This is a surrounding tile, not the actual tile
-        for j := 0 to fPlayers.Count - 1 do
-          if ((j = fPlayerIndex) or (fPlayers.CheckAlliance(fPlayerIndex, j) = at_Ally))
-          and fPlayers[j].fBuildList.HousePlanList.HasPlan(KMPoint(P2.X+s,P2.Y+t)) then
+    if AllowBuild then
+    for S := -1 to 1 do for T := -1 to 1 do
+      if (S<>0) or (T<>0) then //This is a surrounding tile, not the actual tile
+        for J := 0 to fPlayers.Count - 1 do
+          if ((J = fPlayerIndex) or (fPlayers.CheckAlliance(fPlayerIndex, J) = at_Ally))
+          and fPlayers[J].fBuildList.HousePlanList.HasPlan(KMPoint(P2.X+S,P2.Y+T)) then
           begin
-            BlockPoint(KMPoint(P2.X+s,P2.Y+t), TC_BLOCK); //Block surrounding points
+            BlockPoint(KMPoint(P2.X+S,P2.Y+T), TC_BLOCK); //Block surrounding points
             AllowBuild := False;
           end;
 
     //Mark the tile according to previous check results
     if not AllowBuild then
-      if HA[i,k] = 2 then
+      if HA[I,K] = 2 then
         BlockPoint(P2, TC_BLOCK_ENTRANCE)
       else
         if aHouseType in [ht_GoldMine, ht_IronMine] then
