@@ -166,7 +166,7 @@ begin
   begin
     S := fPlayers[J].FindHouse(ht_Store);
     if S <> nil then
-    for I := Max(S.GetEntrance.Y - 4, 1) to Min(S.GetEntrance.Y + 3, fMapY - 1) do
+    for I := Max(S.GetEntrance.Y - 4, 1) to Min(S.GetEntrance.Y + 2, fMapY - 1) do
     for K := Max(S.GetEntrance.X - 3, 1) to Min(S.GetEntrance.X + 3, fMapX - 1) do
       AvoidBuilding[I,K] := AvoidBuilding[I,K] or $FF;
   end;

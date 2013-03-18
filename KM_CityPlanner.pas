@@ -188,7 +188,7 @@ begin
   if not GetSourceLocation([aTarget], TargetLoc) then Exit;
 
   BestBid := MaxSingle;
-  for I := Max(TargetLoc.Y - 5, 1) to Min(TargetLoc.Y + 6, fTerrain.MapY - 1) do
+  for I := Max(TargetLoc.Y - 7, 1) to Min(TargetLoc.Y + 6, fTerrain.MapY - 1) do
   for K := Max(TargetLoc.X - 7, 1) to Min(TargetLoc.X + 7, fTerrain.MapX - 1) do
   if CanPlaceHouse(aHouse, K, I) then
   begin
@@ -331,15 +331,17 @@ end;
 
 function TKMCityPlanner.NextToTrees(aTarget: array of THouseType; aHouse: THouseType; out aLoc: TKMPoint): Boolean;
 const
+  SEARCH_RES = 7;
   SEARCH_RAD = 20; //Search for forests within this radius
-  HUT_RAD = 5; //Search for the best place for a hut in this radius
+  SEARCH_DIV = (SEARCH_RAD * 2) div SEARCH_RES + 1;
+  HUT_RAD = 4; //Search for the best place for a hut in this radius
 var
   I, K: Integer;
   Bid, BestBid: Single;
   TargetLoc: TKMPoint;
   TreeLoc: TKMPoint;
   Mx, My: SmallInt;
-  MyForest: array [0..7, 0..7] of ShortInt;
+  MyForest: array [0..SEARCH_RES-1, 0..SEARCH_RES-1] of ShortInt;
 begin
   Result := False;
 
@@ -351,8 +353,8 @@ begin
   for K := Max(TargetLoc.X - SEARCH_RAD, 1) to Min(TargetLoc.X + SEARCH_RAD, fTerrain.MapX - 1) do
   if fTerrain.ObjectIsChopableTree(K, I) then
   begin
-    Mx := Round((K - TargetLoc.X + SEARCH_RAD) / (SEARCH_RAD * 2 + 1) * 7);
-    My := Round((I - TargetLoc.Y + SEARCH_RAD) / (SEARCH_RAD * 2 + 1) * 7);
+    Mx := (K - TargetLoc.X + SEARCH_RAD) div SEARCH_DIV;
+    My := (I - TargetLoc.Y + SEARCH_RAD) div SEARCH_DIV;
 
     Inc(MyForest[My, Mx]);
   end;
@@ -363,8 +365,8 @@ begin
   for I := Low(MyForest) to High(MyForest) do
   for K := Low(MyForest[I]) to High(MyForest[I]) do
   begin
-    Mx := Round(K / 7 * (SEARCH_RAD * 2 + 1) + TargetLoc.X - SEARCH_RAD);
-    My := Round(I / 7 * (SEARCH_RAD * 2 + 1) + TargetLoc.Y - SEARCH_RAD);
+    Mx := Round(TargetLoc.X - SEARCH_RAD + (K + 0.5) * SEARCH_DIV);
+    My := Round(TargetLoc.Y - SEARCH_RAD + (I + 0.5) * SEARCH_DIV);
     if InRange(Mx, 1, fTerrain.MapX - 1) and InRange(My, 1, fTerrain.MapY - 1)
     and (fAIFields.Influences.AvoidBuilding[My, Mx] = 0) then
     begin
@@ -434,7 +436,7 @@ end;
 function TKMTerrainFinderCity.CanUse(const X, Y: Word): Boolean;
 begin
   case FindType of
-    fnHouse:  Result := fPlayers[fOwner].CanAddHousePlanAI(X, Y, HouseType, False);
+    fnHouse:  Result := fPlayers[fOwner].CanAddHousePlanAI(X, Y, HouseType, True);
 
     fnStone:  Result := (fTerrain.TileIsStone(X, Max(Y-1, 1)) > 1);
 
