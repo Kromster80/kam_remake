@@ -36,6 +36,7 @@ type
   private
     fSocketServer:TLTCP;
     fLastTag:integer;
+    fListening: Boolean;
     fOnError:TGetStrProc;
     fOnClientConnect:THandleEvent;
     fOnClientDisconnect:THandleEvent;
@@ -138,6 +139,7 @@ begin
   fSocketServer.ReuseAddress := True; //Allows us to overwrite an old connection in the wait state rather than saying the port is still in use
   if not fSocketServer.Listen(StrToInt(aPort)) then
     raise Exception.Create('Server failed to start');
+  fListening := True;
 end;
 
 
@@ -161,6 +163,7 @@ begin
   end;
   FreeAndNil(fSocketServer);
   fLastTag := FIRST_TAG-1;
+  fListening := False;
 end;
 
 
@@ -278,6 +281,9 @@ procedure TKMNetServerLNet.UpdateStateIdle;
 begin
   if fSocketServer <> nil then
     fSocketServer.CallAction; //Process network events
+
+  if fListening and not fSocketServer.Connected then
+    raise Exception.Create('Server is no longer listening! Server will restart.');
 end;
 
 
