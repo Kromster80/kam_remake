@@ -6,7 +6,7 @@ uses
   KM_Defaults, KM_CommonClasses, KM_Points;
 
 type
-  //MayorBalance is not a real class, it's a cluster of functions that choose optimal house to build
+  //MayorBalance is a cluster of functions that choose optimal houses to build
 
   TKMCoreBalance = record
     StoreBalance, SchoolBalance, InnBalance, BarracksBalance: Single;

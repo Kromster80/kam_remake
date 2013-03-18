@@ -192,7 +192,9 @@ begin
   for K := Max(TargetLoc.X - 7, 1) to Min(TargetLoc.X + 7, fTerrain.MapX - 1) do
   if CanPlaceHouse(aHouse, K, I) then
   begin
-    Bid := KMLength(KMPoint(K,I), TargetLoc) + KaMRandom * 4;
+    Bid := KMLength(KMPoint(K,I), TargetLoc)
+           - fAIFields.Influences.Ownership[fOwner, I, K] / 5
+           + KaMRandom * 4;
     if Bid < BestBid then
     begin
       aLoc := KMPoint(K,I);
@@ -242,7 +244,7 @@ function TKMCityPlanner.NextToStone(out aLoc: TKMPoint): Boolean;
 var
   I, K: Integer;
   Bid, BestBid: Single;
-  StoneLoc: TKMPointDir;
+  StoneLoc: TKMPoint;
   Locs: TKMPointTagList;
   TargetLoc: TKMPoint;
 begin
@@ -252,17 +254,21 @@ begin
 
   Locs := TKMPointTagList.Create;
   try
+    //1. Find all tiles from which stone can be mined
     FindNearest(KMPointBelow(TargetLoc), 32, fnStone, 15, Locs);
-    Locs.GetRandom(StoneLoc.Loc);
 
-    //We can improve TKMTerrainFinderCommon.SaveTile to skip duplicates
+    //2. Pick random loc
+    if not Locs.GetRandom(StoneLoc) then Exit;
 
+    //3. Find place for Quarry near that loc
     BestBid := MaxSingle;
-    for I := StoneLoc.Loc.Y to Min(StoneLoc.Loc.Y + 6, fTerrain.MapY - 1) do
-    for K := Max(StoneLoc.Loc.X - 6, 1) to Min(StoneLoc.Loc.X + 6, fTerrain.MapX - 1) do
+    for I := StoneLoc.Y to Min(StoneLoc.Y + 6, fTerrain.MapY - 1) do
+    for K := Max(StoneLoc.X - 6, 1) to Min(StoneLoc.X + 6, fTerrain.MapX - 1) do
     if fPlayers[fOwner].CanAddHousePlanAI(K, I, ht_Quary, True) then
     begin
-      Bid := KMLength(KMPoint(K,I), TargetLoc) - fAIFields.Influences.Ownership[fOwner,I,K] / 10 + KaMRandom * 5;
+      Bid := KMLength(KMPoint(K,I), TargetLoc)
+             - fAIFields.Influences.Ownership[fOwner,I,K] / 10
+             + KaMRandom * 5;
       if (Bid < BestBid) then
       begin
         aLoc := KMPoint(K,I);
