@@ -122,12 +122,9 @@ type
   public
     procedure Clear;
     procedure AddItem(aLoc: TKMPointDir);
-
     property Count: Integer read fCount;
     property Items[aIndex: Integer]: TKMPointDir read GetItem; default;
-
     function GetRandom(out Point: TKMPointDir):Boolean;
-
     procedure LoadFromStream(LoadStream: TKMemoryStream); virtual;
     procedure SaveToStream(SaveStream: TKMemoryStream); virtual;
   end;
@@ -137,6 +134,7 @@ type
   public
     Tag, Tag2: array of Cardinal; //0..Count-1
     procedure AddItem(aLoc: TKMPointDir; aTag,aTag2: Cardinal); reintroduce;
+    procedure SortByTag;
     procedure SaveToStream(SaveStream: TKMemoryStream); override;
     procedure LoadFromStream(LoadStream: TKMemoryStream); override;
   end;
@@ -705,6 +703,20 @@ begin
   if fCount >= Length(Tag2) then SetLength(Tag2, fCount + 32); //+32 is just a way to avoid further expansions
   Tag[fCount-1]  := aTag;
   Tag2[fCount-1] := aTag2;
+end;
+
+
+procedure TKMPointDirTagList.SortByTag;
+var I,K: Integer;
+begin
+  for I := 0 to fCount - 1 do
+  for K := I + 1 to fCount - 1 do
+  if Tag[K] < Tag[I] then
+  begin
+    KMSwapPointDir(fItems[I], fItems[K]);
+    KMSwapInt(Tag[I], Tag[K]);
+    KMSwapInt(Tag2[I], Tag2[K]);
+  end;
 end;
 
 

@@ -494,10 +494,12 @@ var
   EnterOff: ShortInt;
   TerOwner: TPlayerIndex;
 begin
+  Result := False;
+
   //Check if we can place house on terrain, this also makes sure the house is
   //at least 1 tile away from map border (skip that below)
-  Result := fTerrain.CanPlaceHouse(KMPoint(aX, aY), aHouseType);
-  if not Result then Exit;
+  if not fTerrain.CanPlaceHouse(KMPoint(aX, aY), aHouseType) then
+    Exit;
 
   //Perform additional cheks for AI
   HA := fResource.HouseDat[aHouseType].BuildArea;
@@ -510,40 +512,49 @@ begin
     Ty := aY + I - 4;
 
     //Make sure tile in map coords and we don't block some road
-    Result := Result and not fTerrain.CheckPassability(KMPoint(Tx, Ty), CanWalkRoad);
+    if fTerrain.CheckPassability(KMPoint(Tx, Ty), CanWalkRoad) then
+      Exit;
 
-    //Check if tile's blocked
-    Result := Result and (not aCheckInfluence or not AI_GEN_INFLUENCE_MAPS or (fAIFields.Influences.AvoidBuilding[Ty, Tx] = 0));
-
-    if not Result then Exit;
-
-    //Check ownership for entrance (good enough since it does not changes that fast)
-    if aCheckInfluence and (HA[I,K] = 2) then
+    //Check with influence maps
+    if aCheckInfluence and AI_GEN_INFLUENCE_MAPS then
     begin
-      TerOwner := fAIFields.Influences.GetBestOwner(K,I);
-      Result := Result and ((TerOwner = fPlayerIndex) or (TerOwner = PLAYER_NONE));
-      if not Result then Exit;
+      //Check if tile's blocked
+      if (fAIFields.Influences.AvoidBuilding[Ty, Tx] > 0) then
+        Exit;
+
+      //Check ownership for entrance (good enough since it does not changes that fast)
+      if (HA[I,K] = 2) then
+      begin
+        TerOwner := fAIFields.Influences.GetBestOwner(Tx,Ty);
+        if ((TerOwner <> fPlayerIndex) and (TerOwner <> PLAYER_NONE)) then
+          Exit;
+      end;
     end;
 
     //Make sure we can add road below house, full width + 1 on each side
     if (I = 4) then
-      Result := Result and fTerrain.CheckPassability(KMPoint(Tx - 1, Ty + 1), CanMakeRoads)
-                       and fTerrain.CheckPassability(KMPoint(Tx    , Ty + 1), CanMakeRoads)
-                       and fTerrain.CheckPassability(KMPoint(Tx + 1, Ty + 1), CanMakeRoads);
-
-    if not Result then Exit;
+      if not fTerrain.CheckPassability(KMPoint(Tx - 1, Ty + 1), CanMakeRoads)
+      or not fTerrain.CheckPassability(KMPoint(Tx    , Ty + 1), CanMakeRoads)
+      or not fTerrain.CheckPassability(KMPoint(Tx + 1, Ty + 1), CanMakeRoads)
+    then
+      Exit;
 
     //This tile must not contain fields/houses of allied players or self
     for J := 0 to fPlayers.Count - 1 do
       if (J = fPlayerIndex) or (fAlliances[J] = at_Ally) then
       begin
-        Result := Result and (fPlayers[J].fBuildList.FieldworksList.HasField(KMPoint(Tx,Ty)) = ft_None);
+        if (fPlayers[J].fBuildList.FieldworksList.HasField(KMPoint(Tx,Ty)) <> ft_None) then
+          Exit;
+
         //Surrounding tiles must not be a house
         for S := -1 to 1 do
-          for T := -1 to 1 do
-            Result := Result and not fPlayers[J].fBuildList.HousePlanList.HasPlan(KMPoint(Tx+S,Ty+T));
+        for T := -1 to 1 do
+        if fPlayers[J].fBuildList.HousePlanList.HasPlan(KMPoint(Tx+S,Ty+T)) then
+          Exit;
       end;
   end;
+
+  Result := True;
 end;
 
 

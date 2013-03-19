@@ -339,6 +339,7 @@ procedure TKMGeneral.CheckDefences;
 var
   Outline1, Outline2: TKMWeightSegments;
   I: Integer;
+  Locs: TKMPointDirTagList;
   Loc: TKMPoint;
   LocI: TKMPointI;
   FaceDir: TKMDirection;
@@ -348,20 +349,32 @@ begin
 
   fDefencePositions.Clear;
 
-  //Create missing defence positions
-  for I := 0 to High(Outline2) do
-  begin
-    FaceDir := KMGetDirection(KMPointF(Outline2[I].A), KMPerpendecular(Outline2[I].A, Outline2[I].B));
+  Locs := TKMPointDirTagList.Create;
+  try
+    //Make list of defence positions
+    for I := 0 to High(Outline2) do
+    begin
+      FaceDir := KMGetDirection(KMPointF(Outline2[I].A), KMPerpendecular(Outline2[I].A, Outline2[I].B));
+      Loc := KMPointRound(KMLerp(Outline2[I].A, Outline2[I].B, 0.5));
+      Locs.AddItem(KMPointDir(Loc, FaceDir), Round(Outline2[I].Weight * 100), 0);
+    end;
 
-    Loc := KMPointRound(KMLerp(Outline2[I].A, Outline2[I].B, 0.5));
-    LocI := KMGetPointInDir(Loc, KMAddDirection(FaceDir, 4), 1);
-    Loc := fTerrain.EnsureTileInMapCoords(LocI.X, LocI.Y, 3);
-    fDefencePositions.Add(KMPointDir(Loc, FaceDir), gt_Melee, 25, adt_FrontLine);
+    //Sort according to positions weight
+    Locs.SortByTag;
 
-    Loc := KMPointRound(KMLerp(Outline2[I].A, Outline2[I].B, 0.5));
-    LocI := KMGetPointInDir(Loc, KMAddDirection(FaceDir, 4), 4);
-    Loc := fTerrain.EnsureTileInMapCoords(LocI.X, LocI.Y, 3);
-    fDefencePositions.Add(KMPointDir(Loc, FaceDir), gt_Ranged, 25, adt_FrontLine);
+    //Add defence positions
+    for I := Locs.Count - 1 downto 0 do
+    begin
+      LocI := KMGetPointInDir(Locs[I].Loc, KMAddDirection(Locs[I].Dir, 4), 1);
+      Loc := fTerrain.EnsureTileInMapCoords(LocI.X, LocI.Y, 3);
+      fDefencePositions.Add(KMPointDir(Loc, Locs[I].Dir), gt_Melee, 25, adt_FrontLine);
+
+      LocI := KMGetPointInDir(Locs[I].Loc, KMAddDirection(Locs[I].Dir, 4), 4);
+      Loc := fTerrain.EnsureTileInMapCoords(LocI.X, LocI.Y, 3);
+      fDefencePositions.Add(KMPointDir(Loc, Locs[I].Dir), gt_Ranged, 25, adt_FrontLine);
+    end;
+  finally
+    Locs.Free;
   end;
 
   //Compare existing defence positions with the sample

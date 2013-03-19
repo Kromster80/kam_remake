@@ -104,6 +104,7 @@ type
 
   procedure KMSwapPoints(var A,B: TKMPoint); overload;
   procedure KMSwapPoints(var A,B: TKMPointI); overload;
+  procedure KMSwapPointDir(var A,B: TKMPointDir);
 
   function TypeToString(T: TKMPoint): string; overload;
   function TypeToString(T: TKMDirection): string; overload;
@@ -699,6 +700,16 @@ var T: Integer;
 begin
   T:=A.X; A.X:=B.X; B.X:=T;
   T:=A.Y; A.Y:=B.Y; B.Y:=T;
+end;
+
+
+procedure KMSwapPointDir(var A,B: TKMPointDir);
+var
+  T: TKMPointDir;
+begin
+  T := A;
+  A := B;
+  B := T;
 end;
 
 

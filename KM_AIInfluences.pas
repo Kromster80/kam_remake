@@ -101,8 +101,8 @@ begin
   fMapY := fTerrain.MapY;
   SetLength(AvoidBuilding, fMapY, fMapX);
   SetLength(Ownable, fMapY, fMapX);
-  SetLength(fInfluence, fPlayers.Count*fMapY*fMapX);
-  SetLength(fOwnership, fPlayers.Count*fMapY*fMapX);
+  SetLength(fInfluence, fPlayers.Count * fMapY * fMapX);
+  SetLength(fOwnership, fPlayers.Count * fMapY * fMapX);
   InitInfluenceAvoid;
   InitInfluenceOwnable;
 
@@ -117,25 +117,25 @@ end;
 
 function TKMInfluences.GetInfluence(aPlayer: Byte; Y,X: Word): Byte;
 begin
-  Result := fInfluence[aPlayer*fMapX*fMapY + Y*fMapX +X];
+  Result := fInfluence[aPlayer*fMapX*fMapY + Y*fMapX + X];
 end;
 
 
 procedure TKMInfluences.SetInfluence(aPlayer: Byte; Y,X: Word; aInfluence: Byte);
 begin
-  fInfluence[aPlayer*fMapX*fMapY + Y*fMapX +X] := aInfluence;
+  fInfluence[aPlayer*fMapX*fMapY + Y*fMapX + X] := aInfluence;
 end;
 
 
 function TKMInfluences.GetOwnership(aPlayer: Byte; Y,X: Word): Byte;
 begin
-  Result := fOwnership[aPlayer*fMapX*fMapY + Y*fMapX +X];
+  Result := fOwnership[aPlayer*fMapX*fMapY + Y*fMapX + X];
 end;
 
 
 procedure TKMInfluences.SetOwnership(aPlayer: Byte; Y,X: Word; aOwnership: Byte);
 begin
-  fOwnership[aPlayer*fMapX*fMapY + Y*fMapX +X] := aOwnership;
+  fOwnership[aPlayer*fMapX*fMapY + Y*fMapX + X] := aOwnership;
 end;
 
 
