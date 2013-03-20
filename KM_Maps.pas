@@ -48,13 +48,11 @@ type
     IsCoop: Boolean; //Some multiplayer missions are defined as coop
     IsSpecial: Boolean; //Some missions are defined as special (e.g. tower defence, quest, etc.)
 
-    constructor Create;
+    constructor Create(const aFolder: string; aStrictParsing, aIsMultiplayer: Boolean);
     destructor Destroy; override;
 
     procedure AddGoal(aType: TGoalType; aPlayer: TPlayerIndex; aCondition: TGoalCondition; aStatus: TGoalStatus; aPlayerIndex: TPlayerIndex);
-    procedure Load(const aFolder: string; aStrictParsing, aIsMultiplayer: Boolean);
     procedure LoadExtra;
-    procedure Clear;
 
     property Path: string read fPath;
     property FileName: string read fFileName;
@@ -128,10 +126,78 @@ const
 
 
 { TKMapInfo }
-constructor TKMapInfo.Create;
+constructor TKMapInfo.Create(const aFolder: string; aStrictParsing, aIsMultiplayer: Boolean);
+var
+  st, DatFile, MapFile, ScriptFile: string;
+  DatCRC, OthersCRC: Cardinal;
+  ft: TextFile;
+  fMissionParser: TMissionParserInfo;
 begin
-  inherited;
+  inherited Create;
 
+  fPath := ExeDir + MAP_FOLDER_MP[aIsMultiplayer] + '\' + aFolder + '\';
+  fFileName := aFolder;
+
+  fStrictParsing := aStrictParsing;
+
+  DatFile := fPath + fFileName + '.dat';
+  MapFile := fPath + fFileName + '.map';
+  ScriptFile := fPath + fFileName + '.script'; //Needed for CRC
+
+  if not FileExists(DatFile) then Exit;
+
+  //Try loading info from cache, since map scanning is rather slow
+  LoadFromFile(fPath + fFileName + '.mi'); //Data will be empty if failed
+
+  //We will scan map once again if anything has changed
+  //In SP mode (non-strict) we check DAT CRC and version, that is enough
+  //In MP mode (strict) we also need exact CRCs to match maps between players
+
+  DatCRC := Adler32CRC(DatFile);
+  //.map file CRC is the slowest, so only calculate it if necessary
+  OthersCRC := 0; //Supresses incorrect warning by Delphi
+  if fStrictParsing then
+    OthersCRC := Adler32CRC(MapFile) xor Adler32CRC(ScriptFile);
+
+  //Does the map need to be fully rescanned? (.mi cache is outdated?)
+  if (fVersion <> GAME_REVISION) or
+     (fDatCRC <> DatCRC) or //In non-strict mode only DAT CRC matters (SP)
+     (fStrictParsing and (fCRC <> DatCRC xor OthersCRC)) //In strict mode we check all CRCs (MP)
+  then
+  begin
+    //Calculate OthersCRC if it wasn't calculated before
+    if not fStrictParsing then
+      OthersCRC := Adler32CRC(MapFile) xor Adler32CRC(ScriptFile);
+
+    fCRC := DatCRC xor OthersCRC;
+    fDatCRC := DatCRC;
+    fVersion := GAME_REVISION;
+
+    fMissionParser := TMissionParserInfo.Create(False);
+    try
+      //Fill Self properties with MissionParser
+      fMissionParser.LoadMission(DatFile, Self, pmBase);
+    finally
+      fMissionParser.Free;
+    end;
+
+    //Load additional text info
+    if FileExists(fPath + fFileName + '.txt') then
+    begin
+      AssignFile(ft, fPath + fFileName + '.txt');
+      FileMode := fmOpenRead;
+      Reset(ft);
+      repeat
+        ReadLn(ft, st);
+        if SameText(st, 'SmallDesc') then ReadLn(ft, SmallDesc);
+        if SameText(st, 'SetCoop')   then IsCoop := True;
+        if SameText(st, 'SetSpecial')then IsSpecial := True;
+      until(eof(ft));
+      CloseFile(ft);
+    end;
+
+    SaveToFile(fPath + fFileName + '.mi'); //Save new cache file
+  end;
 end;
 
 
@@ -139,21 +205,6 @@ destructor TKMapInfo.Destroy;
 begin
 
   inherited;
-end;
-
-
-procedure TKMapInfo.Clear;
-var
-  I: Integer;
-begin
-  for I := 0 to MAX_PLAYERS - 1 do
-  begin
-    GoalsVictoryCount[I] := 0;
-    GoalsSurviveCount[I] := 0;
-    SetLength(GoalsVictory[I], 0);
-    SetLength(GoalsSurvive[I], 0);
-  end;
-  //TODO: clear all fields
 end;
 
 
@@ -219,81 +270,6 @@ end;
 function TKMapInfo.SizeText: string;
 begin
   Result := MapSizeText(MapSizeX, MapSizeY);
-end;
-
-
-procedure TKMapInfo.Load(const aFolder: string; aStrictParsing, aIsMultiplayer: Boolean);
-var
-  st, DatFile, MapFile, ScriptFile: string;
-  DatCRC, OthersCRC: Cardinal;
-  ft: TextFile;
-  fMissionParser: TMissionParserInfo;
-begin
-  Clear;
-
-  fPath := ExeDir + MAP_FOLDER_MP[aIsMultiplayer] + '\' + aFolder + '\';
-  fFileName := aFolder;
-
-  fStrictParsing := aStrictParsing;
-
-  DatFile := fPath + fFileName + '.dat';
-  MapFile := fPath + fFileName + '.map';
-  ScriptFile := fPath + fFileName + '.script'; //Needed for CRC
-
-  if not FileExists(DatFile) then Exit;
-
-  //Try loading info from cache, since map scanning is rather slow
-  LoadFromFile(fPath + fFileName + '.mi'); //Data will be empty if failed
-
-  //We will scan map once again if anything has changed
-  //In SP mode (non-strict) we check DAT CRC and version, that is enough
-  //In MP mode (strict) we also need exact CRCs to match maps between players
-
-  DatCRC := Adler32CRC(DatFile);
-  //.map file CRC is the slowest, so only calculate it if necessary
-  OthersCRC := 0; //Supresses incorrect warning by Delphi
-  if fStrictParsing then
-    OthersCRC := Adler32CRC(MapFile) xor Adler32CRC(ScriptFile);
-
-  //Does the map need to be fully rescanned? (.mi cache is outdated?)
-  if (fVersion <> GAME_REVISION) or
-     (fDatCRC <> DatCRC) or //In non-strict mode only DAT CRC matters (SP)
-     (fStrictParsing and (fCRC <> DatCRC xor OthersCRC)) //In strict mode we check all CRCs (MP)
-  then
-  begin
-    //Calculate OthersCRC if it wasn't calculated before
-    if not fStrictParsing then
-      OthersCRC := Adler32CRC(MapFile) xor Adler32CRC(ScriptFile);
-
-    fCRC := DatCRC xor OthersCRC;
-    fDatCRC := DatCRC;
-    fVersion := GAME_REVISION;
-
-    fMissionParser := TMissionParserInfo.Create(False);
-    try
-      //Fill Self properties with MissionParser
-      fMissionParser.LoadMission(DatFile, Self, pmBase);
-    finally
-      fMissionParser.Free;
-    end;
-
-    //Load additional text info
-    if FileExists(fPath + fFileName + '.txt') then
-    begin
-      AssignFile(ft, fPath + fFileName + '.txt');
-      FileMode := fmOpenRead;
-      Reset(ft);
-      repeat
-        ReadLn(ft, st);
-        if SameText(st, 'SmallDesc') then ReadLn(ft, SmallDesc);
-        if SameText(st, 'SetCoop')   then IsCoop := True;
-        if SameText(st, 'SetSpecial')then IsSpecial := True;
-      until(eof(ft));
-      CloseFile(ft);
-    end;
-
-    SaveToFile(fPath + fFileName + '.mi'); //Save new cache file
-  end;
 end;
 
 
@@ -700,8 +676,7 @@ begin
     and FileExists(TKMapsCollection.FullPath(SearchRec.Name, '.dat', fMultiplayerPath))
     and FileExists(TKMapsCollection.FullPath(SearchRec.Name, '.map', fMultiplayerPath)) then
     begin
-      Map := TKMapInfo.Create;
-      Map.Load(SearchRec.Name, false, fMultiplayerPath);
+      Map := TKMapInfo.Create(SearchRec.Name, false, fMultiplayerPath);
       if SLOW_MAP_SCAN then
         Sleep(50);
       fOnMapAdd(Map);

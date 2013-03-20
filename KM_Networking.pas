@@ -490,9 +490,9 @@ begin
   Assert(IsHost, 'Only host can select maps');
   FreeAndNil(fMapInfo);
   FreeAndNil(fSaveInfo);
-  fMapInfo := TKMapInfo.Create;
 
-  fMapInfo.Load(aName, True, True); //Strict scanning to force CRC recalculation
+  //Strict scanning to force CRC recalculation
+  fMapInfo := TKMapInfo.Create(aName, True, True);
 
   if not fMapInfo.IsValid then
   begin
@@ -1295,8 +1295,7 @@ begin
             begin
               fSelectGameKind := ngk_Map;
               FreeAndNil(fMapInfo);
-              fMapInfo := TKMapInfo.Create;
-              fMapInfo.Load(Msg, true, true);
+              fMapInfo := TKMapInfo.Create(Msg, True, True);
               fNetPlayers.ResetLocAndReady;
               if Assigned(fOnMapName) then fOnMapName(fMapInfo.FileName);
               if Assigned(fOnPlayersSetup) then fOnPlayersSetup(Self);
