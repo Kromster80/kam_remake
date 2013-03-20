@@ -193,7 +193,7 @@ begin
       RegisterMethod('function GiveUnit(aPlayer, aType, X,Y, aDir: Word): Integer');
       RegisterMethod('function SchoolAddToQueue(aHouseID: Integer; aUnitType: Integer; aCount: Integer): Integer');
       RegisterMethod('procedure GiveWares(aPlayer, aType, aCount: Word)');
-      
+
 	    RegisterMethod('procedure GroupOrderAttackHouse(aGroupID, aHouseID: Integer)');
       RegisterMethod('procedure GroupOrderAttackUnit(aGroupID, aUnitID: Integer)');
       RegisterMethod('procedure GroupOrderFood(aGroupID: Integer)');
@@ -448,6 +448,7 @@ begin
       Exit;
     end;
 
+    //Check global variables in script to be only of supported type
     for I := 0 to fExec.GetVarCount - 1 do
     begin
       V := fExec.GetVarNo(I);
@@ -644,6 +645,7 @@ var
   ArrayVar: TPSVariantIFC;
   TmpInt: Integer;
   TmpSingle: Single;
+  //Do not save PS global variables strings
   //TmpString: AnsiString;
 begin
   LoadStream.ReadAssert('Script');
@@ -658,7 +660,6 @@ begin
   Assert(I = fExec.GetVarCount, 'Script variable count mismatches saved variables count');
   for I := 0 to fExec.GetVarCount - 1 do
   begin
-    //todo: So far we blindly assume that vars order is exactly the same
     V := fExec.GetVarNo(I);
     case V.FType.BaseType of
       btU8, btS32:  begin

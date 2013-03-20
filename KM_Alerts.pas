@@ -55,7 +55,7 @@ type
     procedure AddFight(aLoc: TKMPointF; aPlayer: TPlayerIndex; aAsset: TAttackNotification);
     property Count: Integer read GetCount;
     property Items[aIndex: Integer]: TKMAlert read GetAlert; default;
-    procedure Paint;
+    procedure Paint(aPass: Byte);
     procedure UpdateState;
   end;
 
@@ -330,7 +330,13 @@ begin
 end;
 
 
-procedure TKMAlerts.Paint;
+//We want beacons to be Z sorted on explored area, but always on top in FOW areas
+//so that beacon is not occluded by houses in FOW (which we need to render to show
+//their rooftops from under the FOW) to block seeing enemy town silhouettes
+//Rendered in 2 passes
+//1 - beacon amid other sprites
+//2 - if in FOW render always
+procedure TKMAlerts.Paint(aPass: Byte);
 var
   I: Integer;
   R: TKMRect;
@@ -338,9 +344,16 @@ begin
   R := KMRectGrow(fViewport.GetMinimapClip, 4); //Beacons may stick up over a few tiles
 
   for I := 0 to fList.Count - 1 do
-    if Items[I].VisibleTerrain
-    and KMInRect(Items[I].Loc, R) then
-      fRenderPool.AddAlert(Items[I].Loc, Items[I].TexTerrain.ID, fPlayers[Items[I].Owner].FlagColor);
+  if Items[I].VisibleTerrain
+  and KMInRect(Items[I].Loc, R) then
+  begin
+    case aPass of
+      0:  if MyPlayer.FogOfWar.CheckRevelation(Items[I].Loc, False) > 0 then
+            fRenderPool.AddAlert(Items[I].Loc, Items[I].TexTerrain.ID, fPlayers[Items[I].Owner].FlagColor);
+      1:  if MyPlayer.FogOfWar.CheckRevelation(Items[I].Loc, False) = 0 then
+            fRenderPool.RenderSpriteOnTerrain(Items[I].Loc, Items[I].TexTerrain.ID, fPlayers[Items[I].Owner].FlagColor);
+    end;
+  end;
 end;
 
 

@@ -9,6 +9,7 @@ uses
   KM_RenderTerrain, KM_ResourceSprites, KM_Points, KM_Houses, KM_Terrain;
 
 type
+  //List of sprites prepared to be rendered
   TRenderList = class
   private
     fCount: Word;
@@ -41,7 +42,7 @@ type
     procedure Render;
   end;
 
-  //Game Renderer
+  //Collect everything that need to be rendered and put it in a list
   TRenderPool = class
   private
     fRXData: array [TRXType] of TRXData; //Shortcuts
@@ -56,15 +57,15 @@ type
     procedure RenderHouseOutline(aHouse: TKMHouse);
 
     //Terrain rendering sub-class
-    procedure RenderTerrain;
-    procedure RenderTerrainObjects(aRect: TKMRect; AnimStep: Cardinal);
+    procedure CollectTerrain;
+    procedure CollectTerrainObjects(aRect: TKMRect; AnimStep: Cardinal);
 
-    procedure RenderSprites;
+    procedure CollectSprites;
 
     //Terrain overlay cursors rendering (incl. sprites highlighting)
-    procedure RenderCursors;
-    procedure RenderCursorWireQuad(P: TKMPoint; Col: TColor4);
-    procedure RenderCursorWireHousePlan(P: TKMPoint; aHouseType: THouseType);
+    procedure CollectCursors;
+    procedure RenderWire(P: TKMPoint; Col: TColor4);
+    procedure RenderWireHousePlan(P: TKMPoint; aHouseType: THouseType);
   public
     constructor Create(aRender: TRender);
     destructor Destroy; override;
@@ -86,7 +87,8 @@ type
     procedure AddUnitFlag(aUnit: TUnitType; aAct: TUnitActionType; aDir: TKMDirection; UnitAnim, FlagAnim: Integer; pX,pY: Single; FlagColor: TColor4);
     procedure AddUnitWithDefaultArm(aUnit: TUnitType; aAct: TUnitActionType; aDir: TKMDirection; StepId: Integer; pX,pY: Single; FlagColor: TColor4; DoImmediateRender: Boolean = False; Deleting: Boolean = False);
 
-    procedure RenderCursorBuildIcon(aLoc: TKMPoint; aId: Integer = TC_BLOCK; aFlagColor: TColor4 = $FFFFFFFF);
+    procedure RenderSpriteOnTile(aLoc: TKMPoint; aId: Word; aFlagColor: TColor4 = $FFFFFFFF);
+    procedure RenderSpriteOnTerrain(aLoc: TKMPointF; aId: Word; aFlagColor: TColor4 = $FFFFFFFF);
     procedure RenderTile(Index: Byte; pX,pY,Rot: Integer);
     procedure RenderObjectOrQuad(aIndex: Byte; AnimStep,pX,pY: Integer; DoImmediateRender: Boolean = False; Deleting: Boolean = False);
 
@@ -168,20 +170,20 @@ begin
     glPointSize(fGame.Viewport.Zoom * 5);
 
     //Background
-    RenderTerrain;
+    CollectTerrain;
 
     //Sprites are added by Terrain/Players/Projectiles, then sorted by position
-    RenderSprites;
+    CollectSprites;
 
     //Cursor overlays (including blue-wire plans), go on top of everything
-    RenderCursors;
+    CollectCursors;
 
     if DISPLAY_SOUNDS then fSoundLib.Paint;
   glPopAttrib;
 end;
 
 
-procedure TRenderPool.RenderTerrainObjects(aRect: TKMRect; AnimStep: Cardinal);
+procedure TRenderPool.CollectTerrainObjects(aRect: TKMRect; AnimStep: Cardinal);
 var
   I, K: Integer;
   TabletsList: TKMPointTagList;
@@ -261,7 +263,7 @@ begin
     if fGame.IsMapEditor then
     begin
       fRenderAux.Quad(pX+1, pY+1, $600000FF);
-      RenderCursorWireQuad(KMPoint(pX+1, pY+1), $800000FF);
+      RenderWire(KMPoint(pX+1, pY+1), $800000FF);
     end;
   end
   else
@@ -346,7 +348,6 @@ begin
   CornerX := aLoc.X + R.Pivot[aId].X / CELL_SIZE_PX;
   CornerY := fTerrain.FlatToHeight(aLoc).Y + R.Pivot[aId].Y / CELL_SIZE_PX;
 
-  //todo: Beacons should ignore FOW
   fRenderList.AddSpriteG(rxGui, aId, CornerX, CornerY, aLoc.X, aLoc.Y, aFlagColor);
 end;
 
@@ -868,7 +869,7 @@ begin
 end;
 
 
-procedure TRenderPool.RenderTerrain;
+procedure TRenderPool.CollectTerrain;
 var
   Rect: TKMRect;
   FieldsList: TKMPointTagList;
@@ -912,23 +913,25 @@ end;
 
 
 //Collect all the sprites in the pool, sort them and render
-procedure TRenderPool.RenderSprites;
+procedure TRenderPool.CollectSprites;
 var
   Rect: TKMRect;
 begin
   Rect := fGame.Viewport.GetClip;
 
-  RenderTerrainObjects(Rect, fTerrain.AnimStep);
+  CollectTerrainObjects(Rect, fTerrain.AnimStep);
 
   fPlayers.Paint; //Quite slow           //Units and houses
   fProjectiles.Paint;
-  fGame.Alerts.Paint;
+  fGame.Alerts.Paint(0);
 
   fRenderList.Render;
+
+  fGame.Alerts.Paint(1);
 end;
 
 
-procedure TRenderPool.RenderCursorWireQuad(P: TKMPoint; Col: TColor4);
+procedure TRenderPool.RenderWire(P: TKMPoint; Col: TColor4);
 begin
   if not fTerrain.TileInMapCoords(P.X, P.Y) then exit;
   glColor4ubv(@Col);
@@ -976,19 +979,33 @@ begin
 end;
 
 
-procedure TRenderPool.RenderCursorBuildIcon(aLoc: TKMPoint; aId: Integer = TC_BLOCK; aFlagColor: TColor4 = $FFFFFFFF);
+procedure TRenderPool.RenderSpriteOnTile(aLoc: TKMPoint; aId: Word; aFlagColor: TColor4 = $FFFFFFFF);
 var
   pX, pY: Single;
 begin
   if not fTerrain.TileInMapCoords(aLoc.X, aLoc.Y) then Exit;
 
-  pX := aLoc.X - 0.5 - GFXData[rxGui, aId].PxWidth/CELL_SIZE_PX/2;
-  pY := fTerrain.FlatToHeight(aLoc.X - 0.5, aLoc.Y - 0.5) + GFXData[rxGui, aId].PxHeight/CELL_SIZE_PX/2;
+  pX := aLoc.X - 0.5 + fRXData[rxGui].Pivot[aId].X / CELL_SIZE_PX;
+  pY := fTerrain.FlatToHeight(aLoc.X - 0.5, aLoc.Y - 0.5) -
+        fRXData[rxGui].Pivot[aId].Y / CELL_SIZE_PX;
   RenderSprite(rxGui, aId, pX, pY, aFlagColor, 255);
 end;
 
 
-procedure TRenderPool.RenderCursorWireHousePlan(P: TKMPoint; aHouseType: THouseType);
+procedure TRenderPool.RenderSpriteOnTerrain(aLoc: TKMPointF; aId: Word; aFlagColor: TColor4 = $FFFFFFFF);
+var
+  pX, pY: Single;
+begin
+  //if not fTerrain.TileInMapCoords(aLoc.X, aLoc.Y) then Exit;
+
+  pX := aLoc.X + fRXData[rxGui].Pivot[aId].X / CELL_SIZE_PX;
+  pY := fTerrain.FlatToHeight(aLoc.X, aLoc.Y) -
+        fRXData[rxGui].Pivot[aId].Y / CELL_SIZE_PX;
+  RenderSprite(rxGui, aId, pX, pY, aFlagColor, 255);
+end;
+
+
+procedure TRenderPool.RenderWireHousePlan(P: TKMPoint; aHouseType: THouseType);
 var
   I: Integer;
   MarksList: TKMPointTagList;
@@ -998,15 +1015,15 @@ begin
 
   for I := 0 to MarksList.Count - 1 do
   if MarksList.Tag[I] = TC_OUTLINE then
-    RenderCursorWireQuad(MarksList[I], $FFFFFF00) //Cyan rect
+    RenderWire(MarksList[I], $FFFFFF00) //Cyan rect
   else
-    RenderCursorBuildIcon(MarksList[I], MarksList.Tag[I]); //icon
+    RenderSpriteOnTile(MarksList[I], MarksList.Tag[I]); //icon
 
   MarksList.Free;
 end;
 
 
-procedure TRenderPool.RenderCursors;
+procedure TRenderPool.CollectCursors;
 var
   P: TKMPoint;
   F: TKMPointF;
@@ -1025,7 +1042,7 @@ begin
 
   if (GameCursor.Mode <> cmNone) and (GameCursor.Mode <> cmHouses) and
      (MyPlayer.FogOfWar.CheckTileRevelation(P.X, P.Y, False) = 0) then
-    RenderCursorBuildIcon(P)       //Red X
+    RenderSpriteOnTile(P, TC_BLOCK)       //Red X
   else
 
   with fTerrain do
@@ -1041,9 +1058,9 @@ begin
                                or (Land[P.Y,P.X].TileOverlay=to_Road)
                                or (fPlayers.HousesHitTest(P.X, P.Y) <> nil))
                       then
-                        RenderCursorWireQuad(P, $FFFFFF00) //Cyan quad
+                        RenderWire(P, $FFFFFF00) //Cyan quad
                       else
-                        RenderCursorBuildIcon(P); //Red X
+                        RenderSpriteOnTile(P, TC_BLOCK); //Red X
                     end;
 
                   gmSingle, gmMulti, gmReplaySingle, gmReplayMulti:
@@ -1052,28 +1069,28 @@ begin
                           or MyPlayer.BuildList.HousePlanList.HasPlan(P)
                           or (MyPlayer.HousesHitTest(P.X, P.Y) <> nil))
                       then
-                        RenderCursorWireQuad(P, $FFFFFF00) //Cyan quad
+                        RenderWire(P, $FFFFFF00) //Cyan quad
                       else
-                        RenderCursorBuildIcon(P); //Red X
+                        RenderSpriteOnTile(P, TC_BLOCK); //Red X
                     end;
                 end;
     cmRoad:     if MyPlayer.CanAddFakeFieldPlan(P, ft_Road) then
-                  RenderCursorWireQuad(P, $FFFFFF00) //Cyan quad
+                  RenderWire(P, $FFFFFF00) //Cyan quad
                 else
-                  RenderCursorBuildIcon(P);       //Red X
+                  RenderSpriteOnTile(P, TC_BLOCK);       //Red X
     cmField:    if MyPlayer.CanAddFakeFieldPlan(P, ft_Corn) then
-                  RenderCursorWireQuad(P, $FFFFFF00) //Cyan quad
+                  RenderWire(P, $FFFFFF00) //Cyan quad
                 else
-                  RenderCursorBuildIcon(P);       //Red X
+                  RenderSpriteOnTile(P, TC_BLOCK);       //Red X
     cmWine:     if MyPlayer.CanAddFakeFieldPlan(P, ft_Wine) then
-                  RenderCursorWireQuad(P, $FFFFFF00) //Cyan quad
+                  RenderWire(P, $FFFFFF00) //Cyan quad
                 else
-                  RenderCursorBuildIcon(P);       //Red X
+                  RenderSpriteOnTile(P, TC_BLOCK);       //Red X
     cmWall:     if MyPlayer.CanAddFakeFieldPlan(P, ft_Wall) then
-                  RenderCursorWireQuad(P, $FFFFFF00) //Cyan quad
+                  RenderWire(P, $FFFFFF00) //Cyan quad
                 else
-                  RenderCursorBuildIcon(P);       //Red X
-    cmHouses:   RenderCursorWireHousePlan(P, THouseType(GameCursor.Tag1)); //Cyan quads and red Xs
+                  RenderSpriteOnTile(P, TC_BLOCK);       //Red X
+    cmHouses:   RenderWireHousePlan(P, THouseType(GameCursor.Tag1)); //Cyan quads and red Xs
     cmBrush:    if GameCursor.Tag1 <> 0 then
                 begin
                   Rad := GameCursor.MapEdSize;
@@ -1144,17 +1161,17 @@ begin
                 if CanPlaceUnit(P, TUnitType(GameCursor.Tag1)) then
                   AddUnitWithDefaultArm(TUnitType(GameCursor.Tag1), ua_Walk, dir_S, UnitStillFrames[dir_S], P.X+UNIT_OFF_X, P.Y+UNIT_OFF_Y, MyPlayer.FlagColor, True)
                 else
-                  RenderCursorBuildIcon(P); //Red X
+                  RenderSpriteOnTile(P, TC_BLOCK); //Red X
     cmMarkers:  case GameCursor.Tag1 of
                   MARKER_REVEAL:        begin
-                                          RenderCursorBuildIcon(P, 394, MyPlayer.FlagColor);
+                                          RenderSpriteOnTile(P, 394, MyPlayer.FlagColor);
                                           fRenderAux.CircleOnTerrain(P.X, P.Y,
                                            GameCursor.MapEdSize,
                                            MyPlayer.FlagColor AND $10FFFFFF,
                                            MyPlayer.FlagColor);
                                         end;
-                  MARKER_DEFENCE:       RenderCursorBuildIcon(P, 519, MyPlayer.FlagColor);
-                  MARKER_CENTERSCREEN:  RenderCursorBuildIcon(P, 391, MyPlayer.FlagColor);
+                  MARKER_DEFENCE:       RenderSpriteOnTile(P, 519, MyPlayer.FlagColor);
+                  MARKER_CENTERSCREEN:  RenderSpriteOnTile(P, 391, MyPlayer.FlagColor);
                 end;
   end;
 end;
@@ -1186,19 +1203,16 @@ begin
   begin
     RenderOrder[I] := I;
     RenderList[I].FOWvalue := MyPlayer.FogOfWar.CheckRevelation(RenderList[I].Feet, True);
-
-    //We rendered only houses under FOW to see their rooftops
-    //But we might as well render everything for consistency
-    //if (RenderList[I].FOWvalue <= 128) and RenderList[I].IsUnit then
-    //  RenderOrder[I] := -1;}
-  end else begin
+  end
+  else
+  begin
     RenderOrder[I] := -1;
     RenderList[I].FOWvalue := RenderList[I-1].FOWvalue; //Take from previous
   end;
 end;
 
 
-{Need to sort all items in list from top-right to bottom-left}
+//Sort all items in list from top-right to bottom-left
 procedure TRenderList.SortRenderList;
 var I,K: Integer;
 begin
@@ -1217,8 +1231,8 @@ end;
 //New items must provide their ground level
 procedure TRenderList.AddSpriteG(aRX: TRXType; aId: Word; pX,pY,gX,gY: Single; aTeam: Cardinal = $0; aAlphaStep: Single = -1);
 begin
-
-  if fCount >= Length(RenderList) then SetLength(RenderList, fCount + 256); //Book some space
+  if fCount >= Length(RenderList) then
+    SetLength(RenderList, fCount + 256); //Book some space
 
   RenderList[fCount].Loc        := KMPointF(pX, pY); //Position of sprite, floating-point
   RenderList[fCount].Feet       := KMPointF(gX, gY); //Ground position of sprite for Z-sorting
@@ -1229,15 +1243,15 @@ begin
   RenderList[fCount].AlphaStep  := aAlphaStep;      //Alpha step for wip buildings
   RenderList[fCount].FOWvalue   := 255;             //Visibility recomputed in ClipRender anyway
 
-  inc(fCount); //New item added
+  Inc(fCount); //New item added
 end;
 
 
 //Child items don't need ground level
 procedure TRenderList.AddSprite(aRX: TRXType; aId: Word; pX,pY: Single; aTeam: Cardinal = $0; aAlphaStep: Single = -1);
 begin
-
-  if fCount >= Length(RenderList) then SetLength(RenderList, fCount + 256); //Book some space
+  if fCount >= Length(RenderList) then
+    SetLength(RenderList, fCount + 256); //Book some space
 
   RenderList[fCount].Loc        := KMPointF(pX,pY); //Position of sprite, floating-point
   RenderList[fCount].Feet       := KMPointF(0, 0);  //Ground position of sprite for Z-sorting
@@ -1248,7 +1262,7 @@ begin
   RenderList[fCount].AlphaStep  := aAlphaStep;      //Alpha step for wip buildings
   RenderList[fCount].FOWvalue   := 255;             //Visibility recomputed in ClipRender anyway
 
-  inc(fCount); //New item added
+  Inc(fCount); //New item added
 end;
 
 

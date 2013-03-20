@@ -404,7 +404,7 @@ begin
                                fPlayers[I].AI.General.DefencePositions[K].Radius,
                                fPlayers[I].FlagColor AND $20FFFF80,
                                fPlayers[I].FlagColor);
-      plCursors:  fRenderPool.RenderCursorBuildIcon(LocDir.Loc,
+      plCursors:  fRenderPool.RenderSpriteOnTile(LocDir.Loc,
                       510 + Byte(LocDir.Dir), fPlayers[I].FlagColor);
     end;
   end;
@@ -419,7 +419,7 @@ begin
                                            fRevealers[I].Tag[K],
                                            fPlayers[I].FlagColor AND $20FFFFFF,
                                            fPlayers[I].FlagColor);
-      plCursors:  fRenderPool.RenderCursorBuildIcon(Loc,
+      plCursors:  fRenderPool.RenderSpriteOnTile(Loc,
                       394, fPlayers[I].FlagColor);
     end;
   end;
@@ -432,7 +432,7 @@ begin
       plTerrain:  fRenderAux.SquareOnTerrain(Loc.X - 3, Loc.Y - 2.5,
                                              Loc.X + 2, Loc.Y + 1.5,
                                              fPlayers[I].FlagColor);
-      plCursors:  fRenderPool.RenderCursorBuildIcon(Loc,
+      plCursors:  fRenderPool.RenderSpriteOnTile(Loc,
                       391, fPlayers[I].FlagColor);
     end;
   end;
