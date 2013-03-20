@@ -541,15 +541,9 @@ end;
 //Tell Mayor what proportions of army is needed
 procedure TKMayor.SetArmyDemand(FootmenDemand, PikemenDemand, HorsemenDemand, ArchersDemand: Single);
 var
-  EquipRate, DemandAmnt: Single;
+  EquipRate, WarPerMin: Single;
 begin
   //todo: normalize input values to sum = 1
-
-  //How many troops script tells us to train
-  if fWooden then
-    EquipRate := fSetup.EquipRateLeather
-  else
-    EquipRate := fSetup.EquipRateIron;
 
   //Store localy in Mayor to place weapon orders
   ShieldNeed := FootmenDemand + HorsemenDemand;
@@ -559,9 +553,17 @@ begin
   BowNeed := ArchersDemand;
   HorseNeed := HorsemenDemand;
 
-  DemandAmnt := EnsureRange(EquipRate / 600, 0.1, 6);
+  //Actual equip rate
+  if fWooden then
+    EquipRate := fSetup.EquipRateLeather
+  else
+    EquipRate := fSetup.EquipRateIron;
 
-  fBalance.SetArmyDemand(ShieldNeed * DemandAmnt, ArmorNeed * DemandAmnt, AxeNeed * DemandAmnt, PikeNeed * DemandAmnt, BowNeed * DemandAmnt, HorseNeed * DemandAmnt);
+  //How many warriors we would need to equip per-minute
+  WarPerMin := EnsureRange(EquipRate / 600, 0.1, 6);
+
+  //Update warfare needs accordingly
+  fBalance.SetArmyDemand(ShieldNeed * WarPerMin, ArmorNeed * WarPerMin, AxeNeed * WarPerMin, PikeNeed * WarPerMin, BowNeed * WarPerMin, HorseNeed * WarPerMin);
 end;
 
 
