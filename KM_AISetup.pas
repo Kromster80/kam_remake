@@ -73,7 +73,7 @@ begin
     EquipRate := EquipRateIron;
 
   //How many warriors we would need to equip per-minute
-  Result := EnsureRange(EquipRate / 600, 0.1, 6);
+  Result := EnsureRange(600 / Max(EquipRate, 1), 0.1, 6);
 end;
 
 
