@@ -10,10 +10,10 @@ const
   PATH_CACHE_INIT_WEIGHT = 5; //New path weight
 
 type
-  TDestinationPoint = (
-    dp_Location, //Walk to location
-    dp_Passability, //Walk to desired passability
-    dp_House //Approach house from any side (workers and warriors)
+  TKMPathDestination = (
+    pdLocation, //Walk to location
+    pdPassability, //Walk to desired passability
+    pdHouse //Approach house from any side (workers and warriors)
     );
 
   //This is a helper class for TTerrain
@@ -32,7 +32,6 @@ type
     fTargetNetwork: Byte;
     fDistance: Single;
     fIsInteractionAvoid: Boolean;
-    fDestination: TDestinationPoint;
     fTargetHouse: TKMHouse;
     fWeightRoutes: Boolean;
     procedure AddToCache(NodeList: TKMPointList);
@@ -40,10 +39,12 @@ type
   protected
     fLocA: TKMPoint;
     fLocB: TKMPoint;
+    fDestination: TKMPathDestination;
     function CanWalkTo(const aFrom: TKMPoint; bX, bY: SmallInt): Boolean; virtual;
     function DestinationReached(aX, aY: Word): Boolean; virtual;
     function IsWalkableTile(aX, aY: Word): Boolean; virtual;
     function MovementCost(aFromX, aFromY, aToX, aToY: Word): Word; virtual;
+    function EstimateToFinish(aX, aY: Word): Word; virtual;
     function MakeRoute: Boolean; virtual; abstract;
     procedure ReturnRoute(NodeList: TKMPointList); virtual; abstract;
   public
@@ -104,9 +105,9 @@ begin
   fTargetHouse := aTargetHouse;
   fWeightRoutes := aWeightRoutes and DO_WEIGHT_ROUTES;
   if fTargetHouse = nil then
-    fDestination := dp_Location
+    fDestination := pdLocation
   else
-    fDestination := dp_House;
+    fDestination := pdHouse;
 
   //Try to find similar route in cache and reuse it
   if CACHE_PATHFINDING and TryRouteFromCache(NodeList) then
@@ -135,9 +136,9 @@ begin
   fIsInteractionAvoid := True;
   fTargetHouse := aTargetHouse;
   if fTargetHouse = nil then
-    fDestination := dp_Location
+    fDestination := pdLocation
   else
-    fDestination := dp_House;
+    fDestination := pdHouse;
 
   if MakeRoute then
   begin
@@ -160,7 +161,7 @@ begin
   fDistance := 0;
   fIsInteractionAvoid := False;
   fTargetHouse := nil;
-  fDestination := dp_Passability;
+  fDestination := pdPassability;
 
   if MakeRoute then
   begin
@@ -203,12 +204,20 @@ begin
 end;
 
 
+function TPathFinding.EstimateToFinish(aX, aY: Word): Word;
+begin
+  //Use Estim even if destination is Passability, as it will make it faster.
+  //Target should be in the right direction even though it's not our destination.
+  Result := (Abs(aX - fLocB.X) + Abs(aY - fLocB.Y)) * 10;
+end;
+
+
 function TPathFinding.DestinationReached(aX, aY: Word): Boolean;
 begin
   case fDestination of
-    dp_Location:    Result := KMLengthDiag(KMPoint(aX, aY), fLocB) <= fDistance;
-    dp_Passability: Result := fTerrain.GetConnectID(fTargetWalkConnect, KMPoint(aX, aY)) = fTargetNetwork;
-    dp_House:       Result := fTargetHouse.InReach(KMPoint(aX, aY), fDistance);
+    pdLocation:    Result := KMLengthDiag(KMPoint(aX, aY), fLocB) <= fDistance;
+    pdPassability: Result := fTerrain.GetConnectID(fTargetWalkConnect, KMPoint(aX, aY)) = fTargetNetwork;
+    pdHouse:       Result := fTargetHouse.InReach(KMPoint(aX, aY), fDistance);
     else            Result := true;
   end;
 end;

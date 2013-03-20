@@ -30,7 +30,6 @@ type
 
     procedure SetAutoRepair(const Value: Boolean);
 
-    function HouseCount(aHouse: THouseType): Integer;
     function TryBuildHouse(aHouse: THouseType): Boolean;
     function TryConnectToRoad(aLoc: TKMPoint): Boolean;
 
@@ -281,7 +280,7 @@ var
   I: Integer;
   P: TKMPlayer;
   H: TKMHouse;
-  LocPlan, LocTo: TKMPoint;
+  LocTo: TKMPoint;
   NodeList: TKMPointList;
   RoadExists: Boolean;
 begin
@@ -293,15 +292,9 @@ begin
   if H = nil then Exit; //We are screwed, no houses left
   LocTo := KMPointBelow(H.GetEntrance);
 
-  //Check building plans, maybe there's another plan nearby we can connect to with road
-  //(avoid parallel connection of several planned house to town)
-  if P.BuildList.HousePlanList.FindHousePlan(aLoc, KMPointAbove(aLoc), LocPlan) then
-    if KMLengthSqr(aLoc, LocPlan) <= KMLengthSqr(aLoc, LocTo) then
-      LocTo := KMPointBelow(LocPlan);
-
   NodeList := TKMPointList.Create;
   try
-    RoadExists := fPathFindingRoad.Route_Make(aLoc, LocTo, NodeList);
+    RoadExists := fPathFindingRoad.Route_ReturnToWalkable(aLoc, LocTo, NodeList);
 
     if not RoadExists then
       Exit;
@@ -405,13 +398,6 @@ begin
 end;
 
 
-//How many houses of certain type we have (assume all wip houses will be finished)
-function TKMayor.HouseCount(aHouse: THouseType): Integer;
-begin
-  Result := fPlayers[fOwner].Stats.GetHouseQty(aHouse) + fPlayers[fOwner].Stats.GetHouseWip(aHouse);
-end;
-
-
 procedure TKMayor.CheckHousePlans;
 begin
   //
@@ -484,7 +470,7 @@ begin
 
   //todo: Check if planned houses are not building
   //(e.g. worker died while digging or elevation changed to impassable)
-  //CheckHousePlans;
+  CheckHousePlans;
 end;
 
 

@@ -2,24 +2,26 @@ unit KM_PathFindingRoad;
 {$I KaM_Remake.inc}
 interface
 uses SysUtils, KromUtils,
-  KM_CommonClasses, KM_Defaults, KM_PathFindingAStarNew, KM_Points;
+  KM_CommonClasses, KM_Defaults, KM_PathFinding, KM_PathFindingAStarNew, KM_Points;
 
 
 type
-  //Pathfinding with regard to players plans
+  //Pathfinding that finds a route for a road to be built
   TPathFindingRoad = class(TPathFindingAStarNew)
   private
     fOwner: TPlayerIndex;
   protected
-    function CanWalkTo(const aFrom: TKMPoint; bX, bY: SmallInt): Boolean; override;
+    function CanWalkTo(const aFrom: TKMPoint; aToX, aToY: SmallInt): Boolean; override;
     function DestinationReached(aX, aY: Word): Boolean; override;
     function IsWalkableTile(aX, aY: Word): Boolean; override;
     function MovementCost(aFromX, aFromY, aToX, aToY: Word): Word; override;
+    function EstimateToFinish(aX, aY: Word): Word; override;
   public
     constructor Create(aOwner: TPlayerIndex);
 
     procedure OwnerUpdate(aPlayer: TPlayerIndex);
-    function Route_Make(aLocA, aLocB: TKMPoint; NodeList: TKMPointList): Boolean; reintroduce;//load;
+    function Route_Make(aLocA, aLocB: TKMPoint; NodeList: TKMPointList): Boolean; reintroduce;
+    function Route_ReturnToWalkable(aLocA, aLocB: TKMPoint; NodeList: TKMPointList): Boolean; reintroduce;
     procedure Save(SaveStream: TKMemoryStream); override;
     procedure Load(LoadStream: TKMemoryStream); override;
   end;
@@ -57,9 +59,10 @@ begin
 end;
 
 
-function TPathFindingRoad.CanWalkTo(const aFrom: TKMPoint; bX, bY: SmallInt): Boolean;
+function TPathFindingRoad.CanWalkTo(const aFrom: TKMPoint; aToX, aToY: SmallInt): Boolean;
 begin
-  Result := (bX - aFrom.X = 0) or (bY - aFrom.Y = 0);
+  //Roads can't go diagonally, only in 90 turns
+  Result := (aToX = aFrom.X) or (aToY = aFrom.Y);
 end;
 
 
@@ -73,6 +76,19 @@ begin
   if fTerrain.TileIsCornField(KMPoint(aToX, aToY))
   or fTerrain.TileIsWineField(KMPoint(aToX, aToY)) then
     Inc(Result, 60); //60 points equals to 6 tiles penalty
+end;
+
+
+function TPathFindingRoad.EstimateToFinish(aX, aY: Word): Word;
+begin
+  case fDestination of
+    pdLocation:    //Rough estimation
+                    Result := (Abs(aX - fLocB.X) + Abs(aY - fLocB.Y)) * 10;
+
+    pdPassability: //Every direction is equaly good
+                    Result := 0;
+    else            Result := 0;
+  end;
 end;
 
 
@@ -104,6 +120,13 @@ end;
 function TPathFindingRoad.Route_Make(aLocA, aLocB: TKMPoint; NodeList: TKMPointList): Boolean;
 begin
   Result := inherited Route_Make(aLocA, aLocB, [CanMakeRoads, CanWalkRoad], 0, nil, NodeList, False);
+end;
+
+
+//Even though we are only going to a road network it is useful to know where our target is so we start off in the right direction (makes algorithm faster/work over long distances)
+function TPathFindingRoad.Route_ReturnToWalkable(aLocA, aLocB: TKMPoint; NodeList: TKMPointList): Boolean;
+begin
+  Result := inherited Route_ReturnToWalkable(aLocA, aLocB, wcRoad, 0, [CanMakeRoads, CanWalkRoad], NodeList);
 end;
 
 

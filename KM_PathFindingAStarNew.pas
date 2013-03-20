@@ -119,7 +119,7 @@ begin
 
   //Initialize first element
   N := GetNodeAt(fLocA.X, fLocA.Y);
-  N.Estim := (Abs(fLocB.X - fLocA.X) + Abs(fLocB.Y - fLocA.Y)) * 10;
+  N.Estim := EstimateToFinish(fLocA.X, fLocA.Y);
   N.Parent  := nil;
 
   //Seed
@@ -144,7 +144,7 @@ begin
         if IsWalkableTile(X, Y) then
         begin
           N.CostTo := fMinN.CostTo + MovementCost(fMinN.X, fMinN.Y, X, Y);
-          N.Estim := (Abs(X - fLocB.X) + Abs(Y - fLocB.Y)) * 10; //Use Estim even if destination is Passability, as it will make it faster. Target should be in the right direction even though it's not our destination.
+          N.Estim := EstimateToFinish(X,Y);
           fHeap.Push(N);
         end
         else //If cell doen't meets Passability then mark it as Closed
