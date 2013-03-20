@@ -17,12 +17,16 @@ type
     procedure CircleOnTerrain(X, Y, Rad: Single; Fill, Line: TColor4);
     procedure Dot(X,Y: Single; aCol: TColor4; aSize: Single = 0.05);
     procedure DotOnTerrain(X,Y: Single; aCol: TColor4);
-    procedure LineOnTerrain(X1,Y1,X2,Y2: Single; aCol: TColor4);
+    procedure LineOnTerrain(X1,Y1,X2,Y2: Single; aCol: TColor4; aPattern: Word = $FFFF); overload;
+    procedure LineOnTerrain(A,B: TKMPoint; aCol: TColor4; aPattern: Word = $FFFF); overload;
+    procedure LineOnTerrain(A,B: TKMPointI; aCol: TColor4; aPattern: Word = $FFFF); overload;
+    procedure LineOnTerrain(A,B: TKMPointF; aCol: TColor4; aPattern: Word = $FFFF); overload;
     procedure Line(A, B: TKMPoint; aCol: TColor4; aPattern: Word = $FFFF); overload;
     procedure Line(A, B: TKMPointI; aCol: TColor4; aPattern: Word = $FFFF); overload;
     procedure Line(A, B: TKMPointF; aCol: TColor4; aPattern: Word = $FFFF); overload;
     procedure Line(X1,Y1,X2,Y2: Single; aCol: TColor4; aPattern: Word = $FFFF); overload;
     procedure Triangle(X1,Y1,X2,Y2,X3,Y3: Single; aCol: TColor4);
+    procedure TriangleOnTerrain(X1,Y1,X2,Y2,X3,Y3: Single; aCol: TColor4);
     procedure Passability(aRect: TKMRect; aPass: Byte);
     procedure Projectile(x1,y1,x2,y2: Single);
     procedure Quad(pX,pY: Integer; aCol: TColor4);
@@ -166,12 +170,33 @@ begin
 end;
 
 
-procedure TRenderAux.LineOnTerrain(X1,Y1,X2,Y2: Single; aCol: TColor4);
+procedure TRenderAux.LineOnTerrain(X1,Y1,X2,Y2: Single; aCol: TColor4; aPattern: Word = $FFFF);
 begin
   glColor4ubv(@aCol);
+  glEnable(GL_LINE_STIPPLE);
+  glLineStipple(2, aPattern);
   RenderLine(X1,Y1,X2,Y2);
+  glDisable(GL_LINE_STIPPLE);
   RenderDot(X1, fTerrain.FlatToHeight(X1, Y1));
   RenderDot(X2, fTerrain.FlatToHeight(X2, Y2));
+end;
+
+
+procedure TRenderAux.LineOnTerrain(A,B: TKMPoint; aCol: TColor4; aPattern: Word = $FFFF);
+begin
+  LineOnTerrain(A.X, A.Y, B.X, B.Y, aCol);
+end;
+
+
+procedure TRenderAux.LineOnTerrain(A,B: TKMPointI; aCol: TColor4; aPattern: Word = $FFFF);
+begin
+  LineOnTerrain(A.X, A.Y, B.X, B.Y, aCol);
+end;
+
+
+procedure TRenderAux.LineOnTerrain(A,B: TKMPointF; aCol: TColor4; aPattern: Word = $FFFF);
+begin
+  LineOnTerrain(A.X, A.Y, B.X, B.Y, aCol);
 end;
 
 
@@ -219,6 +244,18 @@ begin
     glVertex2f(x1, y1);
     glVertex2f(x2, y2);
     glVertex2f(x3, y3);
+  glEnd;
+end;
+
+
+procedure TRenderAux.TriangleOnTerrain(X1,Y1,X2,Y2,X3,Y3: Single; aCol: TColor4);
+begin
+  glColor4ubv(@aCol);
+
+  glBegin(GL_TRIANGLES);
+    glVertex2f(x1, fTerrain.FlatToHeight(x1, y1));
+    glVertex2f(x2, fTerrain.FlatToHeight(x2, y2));
+    glVertex2f(x3, fTerrain.FlatToHeight(x3, y3));
   glEnd;
 end;
 

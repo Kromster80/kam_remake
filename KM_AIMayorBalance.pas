@@ -8,6 +8,15 @@ uses
 type
   //MayorBalance is a cluster of functions that choose optimal houses to build
 
+//Calculate various demands and save intermediate numbers in case we need them
+//in determing what exactly to build to satisfy demand the best
+//Production is how much of this resource gets made each minute
+// - we evaluate each links theoretical production of end resource (f.e. 1 Corn = 3/5 Sausages)
+// - in chain production the speed is limited by slowest link
+//todo: - resource in reserve adds to each production rate a fraction
+//Consumption is how much gets consumed
+//Balance = Production - Consumption;
+
   TKMCoreBalance = record
     StoreBalance, SchoolBalance, InnBalance, BarracksBalance: Single;
     Balance: Single; //Resulting balance
@@ -91,13 +100,16 @@ type
 
     procedure Append(aHouse: THouseType);
 
-    procedure UpdateBalance;
+    procedure CoalDistribution;
+    procedure WoodDistribution;
+
+    procedure UpdateBalanceGold;
     procedure UpdateBalanceCore;
     procedure UpdateBalanceMaterials;
     procedure UpdateBalanceFood;
-
+    procedure UpdateBalanceWeaponry;
   public
-    OnlyWood: Boolean;
+    ArmyType: TArmyType;
     GoldNeed: Single; //How much gold the town needs per minute (may change over time)
     StoneNeed: Single; //How much building materials do we need for city development
     WoodNeed: Single; //How much building materials do we need for city development
@@ -231,8 +243,8 @@ begin
 
   BestBid := MaxSingle;
   for I := WARFARE_MIN to WARFARE_MAX do
-  if ((OnlyWood and (I in [rt_Shield, rt_Armor, rt_Axe, rt_Pike, rt_Bow, rt_Horse]))
-      or (not OnlyWood and (I in [rt_MetalShield, rt_MetalArmor, rt_Sword, rt_Hallebard, rt_Arbalet, rt_Horse])))
+  if (((ArmyType = atLeather) and (I in [rt_Shield, rt_Armor, rt_Axe, rt_Pike, rt_Bow, rt_Horse]))
+      or ((ArmyType = atIron) and (I in [rt_MetalShield, rt_MetalArmor, rt_Sword, rt_Hallebard, rt_Arbalet, rt_Horse])))
   and (fDemandWeaponry.Weaponry[I].Balance < BestBid) then
   begin
     Best := I;
@@ -293,108 +305,102 @@ begin
 end;
 
 
-//Calculate various demands and save intermediate numbers in case we need them
-//in determing what exactly to build to satisfy demand the best
-//Production is how much of this resource gets made each minute
-// - we evaluate each links theoretical production of end resource (f.e. 1 Corn = 3/5 Sausages)
-// - in chain production the speed is limited by slowest link
-//todo: - resource in reserve adds to each production rate a fraction
-//Consumption is how much gets consumed
-//Balance = Production - Consumption;
-procedure TKMayorBalance.UpdateBalance;
-  procedure CoalDistribution;
-  var
-    CoalProductionRate, CoalConsumptionRate: Single;
-  begin
-    CoalProductionRate := HouseCount(ht_CoalMine) * ProductionRate[rt_Coal];
-    CoalConsumptionRate := HouseCount(ht_ArmorSmithy) * ProductionRate[rt_Shield] //Each operations uses 1 Coal per product
-                         + HouseCount(ht_IronSmithy) * ProductionRate[rt_Steel]
-                         + HouseCount(ht_Metallurgists) * ProductionRate[rt_Gold]
-                         + HouseCount(ht_WeaponSmithy) * ProductionRate[rt_Sword];
+procedure TKMayorBalance.CoalDistribution;
+var
+  CoalProductionRate, CoalConsumptionRate: Single;
+begin
+  CoalProductionRate := HouseCount(ht_CoalMine) * ProductionRate[rt_Coal];
+  CoalConsumptionRate := HouseCount(ht_ArmorSmithy) * ProductionRate[rt_Shield] //Each operations uses 1 Coal per product
+                       + HouseCount(ht_IronSmithy) * ProductionRate[rt_Steel]
+                       + HouseCount(ht_Metallurgists) * ProductionRate[rt_Gold]
+                       + HouseCount(ht_WeaponSmithy) * ProductionRate[rt_Sword];
 
-    if CoalProductionRate >= CoalConsumptionRate then
+  if CoalProductionRate >= CoalConsumptionRate then
+  begin
+    //Let every industry think the extra belongs to it
+    fDemandGold.CoalTheory := (CoalProductionRate - CoalConsumptionRate + HouseCount(ht_Metallurgists) * ProductionRate[rt_Gold]) * 2;
+    fDemandWeaponry.SteelWeapon.CoalTheory := CoalProductionRate - CoalConsumptionRate + HouseCount(ht_IronSmithy) * ProductionRate[rt_Steel] + HouseCount(ht_WeaponSmithy) * ProductionRate[rt_Pike];
+    fDemandWeaponry.SteelArmor.CoalTheory := CoalProductionRate - CoalConsumptionRate + HouseCount(ht_IronSmithy) * ProductionRate[rt_Steel] + HouseCount(ht_ArmorSmithy) * ProductionRate[rt_MetalArmor];
+  end
+  else
+  begin
+    //Share proportionaly
+    fDemandGold.CoalTheory := CoalProductionRate / CoalConsumptionRate * (HouseCount(ht_Metallurgists) * ProductionRate[rt_Gold]) * 2;
+    fDemandWeaponry.SteelWeapon.CoalTheory := CoalProductionRate / CoalConsumptionRate * (HouseCount(ht_IronSmithy) * ProductionRate[rt_Steel] + HouseCount(ht_WeaponSmithy) * ProductionRate[rt_Pike]);
+    fDemandWeaponry.SteelArmor.CoalTheory := CoalProductionRate / CoalConsumptionRate * (HouseCount(ht_IronSmithy) * ProductionRate[rt_Steel] + HouseCount(ht_ArmorSmithy) * ProductionRate[rt_MetalArmor]);
+  end;
+end;
+
+
+procedure TKMayorBalance.WoodDistribution;
+var
+  TrunkProductionRate: Single;
+  WoodProductionRate, WoodConsumptionRate: Single;
+begin
+  TrunkProductionRate := HouseCount(ht_Woodcutters) * ProductionRate[rt_Trunk];
+  WoodProductionRate := HouseCount(ht_Sawmill) * ProductionRate[rt_Wood];
+  WoodConsumptionRate := WoodNeed
+                       + HouseCount(ht_ArmorWorkshop) / 2 * ProductionRate[rt_Armor] //we /2 because half of the time house makes armor and half - shields
+                       + HouseCount(ht_WeaponWorkshop) * ProductionRate[rt_Pike];
+  with fDemandWeaponry do
+  begin
+    if WoodProductionRate >= WoodConsumptionRate then
     begin
       //Let every industry think the extra belongs to it
-      fDemandGold.CoalTheory := (CoalProductionRate - CoalConsumptionRate + HouseCount(ht_Metallurgists) * ProductionRate[rt_Gold]) * 2;
-      fDemandWeaponry.SteelWeapon.CoalTheory := CoalProductionRate - CoalConsumptionRate + HouseCount(ht_IronSmithy) * ProductionRate[rt_Steel] + HouseCount(ht_WeaponSmithy) * ProductionRate[rt_Pike];
-      fDemandWeaponry.SteelArmor.CoalTheory := CoalProductionRate - CoalConsumptionRate + HouseCount(ht_IronSmithy) * ProductionRate[rt_Steel] + HouseCount(ht_ArmorSmithy) * ProductionRate[rt_MetalArmor];
+      WoodenWeapon.WoodTheory := (WoodProductionRate - WoodConsumptionRate + HouseCount(ht_WeaponWorkshop) * ProductionRate[rt_Pike]);
+      WoodenArmor.WoodTheory := (WoodProductionRate - WoodConsumptionRate + HouseCount(ht_ArmorWorkshop) * ProductionRate[rt_Armor]);
     end
     else
     begin
       //Share proportionaly
-      fDemandGold.CoalTheory := CoalProductionRate / CoalConsumptionRate * (HouseCount(ht_Metallurgists) * ProductionRate[rt_Gold]) * 2;
-      fDemandWeaponry.SteelWeapon.CoalTheory := CoalProductionRate / CoalConsumptionRate * (HouseCount(ht_IronSmithy) * ProductionRate[rt_Steel] + HouseCount(ht_WeaponSmithy) * ProductionRate[rt_Pike]);
-      fDemandWeaponry.SteelArmor.CoalTheory := CoalProductionRate / CoalConsumptionRate * (HouseCount(ht_IronSmithy) * ProductionRate[rt_Steel] + HouseCount(ht_ArmorSmithy) * ProductionRate[rt_MetalArmor]);
-    end;
-  end;
-  procedure WoodDistribution;
-  var
-    TrunkProductionRate: Single;
-    WoodProductionRate, WoodConsumptionRate: Single;
-  begin
-    TrunkProductionRate := HouseCount(ht_Woodcutters) * ProductionRate[rt_Trunk];
-    WoodProductionRate := HouseCount(ht_Sawmill) * ProductionRate[rt_Wood];
-    WoodConsumptionRate := WoodNeed
-                         + HouseCount(ht_ArmorWorkshop) / 2 * ProductionRate[rt_Armor] //we /2 because half of the time house makes armor and half - shields
-                         + HouseCount(ht_WeaponWorkshop) * ProductionRate[rt_Pike];
-    with fDemandWeaponry do
-    begin
-      if WoodProductionRate >= WoodConsumptionRate then
+      if WoodConsumptionRate <> 0 then
       begin
-        //Let every industry think the extra belongs to it
-        WoodenWeapon.WoodTheory := (WoodProductionRate - WoodConsumptionRate + HouseCount(ht_WeaponWorkshop) * ProductionRate[rt_Pike]);
-        WoodenArmor.WoodTheory := (WoodProductionRate - WoodConsumptionRate + HouseCount(ht_ArmorWorkshop) * ProductionRate[rt_Armor]);
-      end
-      else
-      begin
-        //Share proportionaly
-        if WoodConsumptionRate <> 0 then
-        begin
-          WoodenWeapon.WoodTheory := WoodProductionRate / WoodConsumptionRate * HouseCount(ht_WeaponWorkshop) * ProductionRate[rt_Pike];
-          WoodenArmor.WoodTheory := WoodProductionRate / WoodConsumptionRate * HouseCount(ht_ArmorWorkshop) * ProductionRate[rt_Armor];
-        end else
-        begin
-          WoodenWeapon.WoodTheory := 0;
-          WoodenArmor.WoodTheory := 0;
-        end;
-      end;
-
-      if WoodProductionRate <> 0 then
-      begin
-        WoodenWeapon.TrunkTheory := WoodenWeapon.WoodTheory / WoodProductionRate * TrunkProductionRate * 2;
-        WoodenArmor.TrunkTheory := WoodenArmor.WoodTheory / WoodProductionRate * TrunkProductionRate * 2;
+        WoodenWeapon.WoodTheory := WoodProductionRate / WoodConsumptionRate * HouseCount(ht_WeaponWorkshop) * ProductionRate[rt_Pike];
+        WoodenArmor.WoodTheory := WoodProductionRate / WoodConsumptionRate * HouseCount(ht_ArmorWorkshop) * ProductionRate[rt_Armor];
       end else
       begin
-        WoodenWeapon.TrunkTheory := 0;
-        WoodenArmor.TrunkTheory := 0;
+        WoodenWeapon.WoodTheory := 0;
+        WoodenArmor.WoodTheory := 0;
       end;
     end;
+
+    if WoodProductionRate <> 0 then
+    begin
+      WoodenWeapon.TrunkTheory := WoodenWeapon.WoodTheory / WoodProductionRate * TrunkProductionRate * 2;
+      WoodenArmor.TrunkTheory := WoodenArmor.WoodTheory / WoodProductionRate * TrunkProductionRate * 2;
+    end else
+    begin
+      WoodenWeapon.TrunkTheory := 0;
+      WoodenArmor.TrunkTheory := 0;
+    end;
   end;
+end;
+
+
+procedure TKMayorBalance.UpdateBalanceGold;
+
 var
   I: TResourceType;
   S: string;
 begin
-
-  UpdateBalanceCore;
-  UpdateBalanceMaterials;
-  UpdateBalanceFood;
-
-  CoalDistribution;
-  WoodDistribution;
-
-  //Gold
   with fDemandGold do
   begin
     GoldOreTheory := HouseCount(ht_GoldMine) * ProductionRate[rt_GoldOre] * 2; //*2 since every Ore becomes 2 Gold
     GoldTheory := HouseCount(ht_Metallurgists) * ProductionRate[rt_Gold];
     //Actual production is minimum of the above
     Production := Min(CoalTheory, GoldOreTheory, GoldTheory);
-    Consumption := GoldNeed;// + Byte(fSetup.Strong); //For now it's a static coef
+    Consumption := GoldNeed + fPlayers[fOwner].AI.Setup.WarriorsPerMinute(ArmyType);
     Balance := Production - Consumption;
     fDemandGoldText := Format('%.2f Gold: %.2f - %.2f', [Balance, Production, Consumption]);
   end;
+end;
 
-  //Weaponry
+
+procedure TKMayorBalance.UpdateBalanceWeaponry;
+var
+  I: TResourceType;
+  S: string;
+begin
   with fDemandWeaponry do
   begin
     //Weapon
@@ -460,16 +466,16 @@ begin
     //Set Weaponry balance to the most required warfare kind
     Balance := MaxSingle;
     for I := WARFARE_MIN to WARFARE_MAX do
-    if ((OnlyWood and (I in [rt_Shield, rt_Armor, rt_Axe, rt_Pike, rt_Bow, rt_Horse]))
-        or (not OnlyWood and (I in [rt_MetalShield, rt_MetalArmor, rt_Sword, rt_Hallebard, rt_Arbalet, rt_Horse])))
+    if (((ArmyType = atLeather) and (I in [rt_Shield, rt_Armor, rt_Axe, rt_Pike, rt_Bow, rt_Horse]))
+        or ((ArmyType = atIron) and (I in [rt_MetalShield, rt_MetalArmor, rt_Sword, rt_Hallebard, rt_Arbalet, rt_Horse])))
     and (Weaponry[I].Balance < Balance) then
       Balance := Weaponry[I].Balance;
 
     S := Format('%.2f Weaponry: |', [Balance]);
     for I := WARFARE_MIN to WARFARE_MAX do
-    if ((OnlyWood and (I in [rt_Shield, rt_Armor, rt_Axe, rt_Pike, rt_Bow, rt_Horse]))
+    if (((ArmyType = atLeather) and (I in [rt_Shield, rt_Armor, rt_Axe, rt_Pike, rt_Bow, rt_Horse]))
         or
-        (not OnlyWood and (I in [rt_MetalShield, rt_MetalArmor, rt_Sword, rt_Hallebard, rt_Arbalet, rt_Horse]))
+        ((ArmyType = atIron) and (I in [rt_MetalShield, rt_MetalArmor, rt_Sword, rt_Hallebard, rt_Arbalet, rt_Horse]))
        ) then
       S := S
            + fResource.Resources[I].Title
@@ -627,10 +633,21 @@ begin
 
   //Refresh balance of each industry
   //Try to express needs in terms of Balance = Production - Demand
-  UpdateBalance;
-
+  UpdateBalanceCore;
   AppendCore;
+
+  if fPlayers[fOwner].Stats.GetHouseQty(ht_School) = 0 then Exit;
+
+  UpdateBalanceMaterials;
   AppendMaterials;
+
+  UpdateBalanceFood;
+
+  CoalDistribution;
+  WoodDistribution;
+
+  UpdateBalanceGold;
+  UpdateBalanceWeaponry;
 
   case PickMin([0, fDemandGold.Balance * 4, fDemandFood.Balance * 2, fDemandWeaponry.Balance]) of
     0:  {BuildNothing};
@@ -674,7 +691,7 @@ procedure TKMayorBalance.Save(SaveStream: TKMemoryStream);
 begin
   SaveStream.Write(fOwner);
 
-  SaveStream.Write(OnlyWood);
+  SaveStream.Write(ArmyType, SizeOf(TArmyType));
   SaveStream.Write(GoldNeed);
   SaveStream.Write(StoneNeed);
   SaveStream.Write(WoodNeed);
@@ -695,7 +712,7 @@ procedure TKMayorBalance.Load(LoadStream: TKMemoryStream);
 begin
   LoadStream.Read(fOwner);
 
-  LoadStream.Read(OnlyWood);
+  LoadStream.Read(ArmyType, SizeOf(TArmyType));
   LoadStream.Read(GoldNeed);
   LoadStream.Read(StoneNeed);
   LoadStream.Read(WoodNeed);

@@ -428,6 +428,8 @@ type
 
 //Used for AI defence and linking troops
 type
+  TArmyType = (atLeather, atIron);
+
   TGroupType = (gt_Melee, gt_AntiHorse, gt_Ranged, gt_Mounted);
   TGroupTypeArray = array [TGroupType] of Word;
 

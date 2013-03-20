@@ -22,6 +22,7 @@ type
 
     constructor Create;
     function GetEquipRate(aUnit: TUnitType): Word;
+    function WarriorsPerMinute(aArmy: TArmyType): Single;
 
     procedure Save(SaveStream: TKMemoryStream);
     procedure Load(LoadStream: TKMemoryStream);
@@ -59,6 +60,20 @@ begin
     Result := EquipRateIron
   else
     Result := EquipRateLeather;
+end;
+
+
+function TKMPlayerAISetup.WarriorsPerMinute(aArmy: TArmyType): Single;
+var
+  EquipRate: Single;
+begin
+  if aArmy = atLeather then
+    EquipRate := EquipRateLeather
+  else
+    EquipRate := EquipRateIron;
+
+  //How many warriors we would need to equip per-minute
+  Result := EnsureRange(EquipRate / 600, 0.1, 6);
 end;
 
 

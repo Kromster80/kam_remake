@@ -1052,12 +1052,12 @@ begin
       CheckBox_AutoDefence.OnClick := Town_DefenceChange;
 
       TrackBar_EquipRateLeather := TKMTrackBar.Create(Panel_Defence, 0, 120, TB_WIDTH, 10, 300);
-      TrackBar_EquipRateLeather.Caption := fTextLibrary[TX_MAPED_AI_DEFENSE_EQUIP_IRON];
+      TrackBar_EquipRateLeather.Caption := fTextLibrary[TX_MAPED_AI_DEFENSE_EQUIP_LEATHER];
       TrackBar_EquipRateLeather.Step := 5;
       TrackBar_EquipRateLeather.OnClick := Town_DefenceChange;
 
       TrackBar_EquipRateIron := TKMTrackBar.Create(Panel_Defence, 0, 164, TB_WIDTH, 10, 300);
-      TrackBar_EquipRateIron.Caption := fTextLibrary[TX_MAPED_AI_DEFENSE_EQUIP_LEATHER];
+      TrackBar_EquipRateIron.Caption := fTextLibrary[TX_MAPED_AI_DEFENSE_EQUIP_IRON];
       TrackBar_EquipRateIron.Step := 5;
       TrackBar_EquipRateIron.OnClick := Town_DefenceChange;
 

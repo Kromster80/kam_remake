@@ -19,7 +19,7 @@ type
     fAutoRepair: Boolean;
 
     fRoadBelowStore: Boolean;
-    fWooden: Boolean;
+    fArmyType: TArmyType;
 
     ShieldNeed: Single;
     ArmorNeed: Single;
@@ -518,14 +518,20 @@ begin
   if Store = nil then Exit;
   StoreLoc := Store.GetEntrance;
 
-  //AI will be Wooden if there no iron/coal nearby
-  fWooden := (fPlayers[fOwner].PlayerType = pt_Computer) and fSetup.AutoBuild
-             and (not fCityPlanner.FindNearest(StoreLoc, 30, fnIron, T)
-               or not fCityPlanner.FindNearest(StoreLoc, 30, fnCoal, T));
+  //AI will be Wooden if there is no iron/coal nearby
+  if (fPlayers[fOwner].PlayerType = pt_Computer) and fSetup.AutoBuild then
+  begin
+    //@Lewin: Maybe we can choose army type from MapEd
+    if (fCityPlanner.FindNearest(StoreLoc, 30, fnIron, T) and fCityPlanner.FindNearest(StoreLoc, 30, fnCoal, T)) then
+      fArmyType := atIron
+    else
+      fArmyType := atLeather;
 
-  //todo: This is to be removed? Most players make both iron and wooden at once, maybe we can make the AI do that later?
-  fWooden := True;
-  fBalance.OnlyWood := fWooden;
+    //todo: This is to be removed? Most players make both iron and wooden at once, maybe we can make the AI do that later?
+    //fArmyType := atIronLeather;
+  end;
+
+  fBalance.ArmyType := fArmyType;
 end;
 
 
@@ -541,7 +547,7 @@ end;
 //Tell Mayor what proportions of army is needed
 procedure TKMayor.SetArmyDemand(FootmenDemand, PikemenDemand, HorsemenDemand, ArchersDemand: Single);
 var
-  EquipRate, WarPerMin: Single;
+  WarPerMin: Single;
 begin
   //todo: normalize input values to sum = 1
 
@@ -553,14 +559,8 @@ begin
   BowNeed := ArchersDemand;
   HorseNeed := HorsemenDemand;
 
-  //Actual equip rate
-  if fWooden then
-    EquipRate := fSetup.EquipRateLeather
-  else
-    EquipRate := fSetup.EquipRateIron;
-
   //How many warriors we would need to equip per-minute
-  WarPerMin := EnsureRange(EquipRate / 600, 0.1, 6);
+  WarPerMin := fSetup.WarriorsPerMinute(fArmyType);
 
   //Update warfare needs accordingly
   fBalance.SetArmyDemand(ShieldNeed * WarPerMin, ArmorNeed * WarPerMin, AxeNeed * WarPerMin, PikeNeed * WarPerMin, BowNeed * WarPerMin, HorseNeed * WarPerMin);
@@ -612,7 +612,7 @@ begin
   SaveStream.Write(fOwner);
   SaveStream.Write(fAutoRepair);
   SaveStream.Write(fRoadBelowStore);
-  SaveStream.Write(fWooden);
+  SaveStream.Write(fArmyType, SizeOf(TArmyType));
 
   SaveStream.Write(ShieldNeed);
   SaveStream.Write(ArmorNeed);
@@ -632,7 +632,7 @@ begin
   LoadStream.Read(fOwner);
   LoadStream.Read(fAutoRepair);
   LoadStream.Read(fRoadBelowStore);
-  LoadStream.Read(fWooden);
+  LoadStream.Read(fArmyType, SizeOf(TArmyType));
 
   LoadStream.Read(ShieldNeed);
   LoadStream.Read(ArmorNeed);

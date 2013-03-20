@@ -81,8 +81,6 @@ end;
 
 
 procedure TKMTerrainFinderCommon.FindNearest(aStart: TKMPoint; aRadius: Byte; aPassability: TPassability; aMaxCount: Word; aLocs: TKMPointTagList);
-var
-  I: Integer;
 begin
   fStart := aStart;
   fRadius := aRadius;

@@ -664,12 +664,12 @@ begin
     for I := 0 to fRawOutlines.Count - 1 do
     for K := 0 to fRawOutlines.Shape[I].Count - 1 do
     with fRawOutlines.Shape[I] do
-      fRenderAux.Line(Nodes[K], Nodes[(K + 1) mod Count], $FFFF00FF);
+      fRenderAux.LineOnTerrain(Nodes[K], Nodes[(K + 1) mod Count], $FFFF00FF);
 
   //NavMesh polys coverage
   if OVERLAY_NAVMESH then
     for I := 0 to fPolyCount - 1 do
-      fRenderAux.Triangle(
+      fRenderAux.TriangleOnTerrain(
         fNodes[fPolygons[I].Indices[0]].Loc.X,
         fNodes[fPolygons[I].Indices[0]].Loc.Y,
         fNodes[fPolygons[I].Indices[1]].Loc.X,
@@ -686,7 +686,7 @@ begin
       T1 := KMPointF(fNodes[Indices[K]].Loc);
       J := (K + 1) mod 2;
       T2 := KMPointF(fNodes[Indices[J]].Loc);
-      fRenderAux.Line(T1, T2, $FFFF8000, $F0F0);
+      fRenderAux.LineOnTerrain(T1, T2, $FFFF8000, $F0F0);
     end;
 
   //NavMesh vertice ids
@@ -735,16 +735,14 @@ begin
       GetDefenceOutline(I, Outline1, Outline2);
 
       for K := 0 to High(Outline1) do
-      begin
-        fRenderAux.Line(Outline1[K].A, Outline1[K].B, $FF00FFFF, $FF00);
-      end;
+        fRenderAux.LineOnTerrain(Outline1[K].A, Outline1[K].B, $FF00FFFF, $FF00);
 
       for K := 0 to High(Outline2) do
       begin
-        fRenderAux.Line(Outline2[K].A, Outline2[K].B, $B000FF00);
+        fRenderAux.LineOnTerrain(Outline2[K].A, Outline2[K].B, $A000FF00);
         T1 := KMPointF(Outline2[K].A);
         T2 := KMPerpendecular(Outline2[K].A, Outline2[K].B);
-        fRenderAux.Line(T1, T2, $B000FF00);
+        fRenderAux.LineOnTerrain(T1.X, T1.Y, T2.X, T2.Y, $A000FF00);
       end;
     end;
 end;
