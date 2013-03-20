@@ -228,6 +228,7 @@ var
   BestBid: Single;
 begin
   Best := rt_None;
+
   BestBid := MaxSingle;
   for I := WARFARE_MIN to WARFARE_MAX do
   if ((OnlyWood and (I in [rt_Shield, rt_Armor, rt_Axe, rt_Pike, rt_Bow, rt_Horse]))
@@ -595,7 +596,7 @@ begin
   //Convert army request into how many weapons are needed
   with fDemandWeaponry do
   begin
-    Weaponry[rt_Shield].Demand := ShieldNeed;
+    Weaponry[rt_Shield].Demand := ShieldNeed ;
     Weaponry[rt_MetalShield].Demand := ShieldNeed;
     Weaponry[rt_Armor].Demand := ArmorNeed;
     Weaponry[rt_MetalArmor].Demand := ArmorNeed;
@@ -631,7 +632,7 @@ begin
   AppendCore;
   AppendMaterials;
 
-  case PickMin([0, fDemandGold.Balance * 10, fDemandFood.Balance * 5, fDemandWeaponry.Balance]) of
+  case PickMin([0, fDemandGold.Balance * 4, fDemandFood.Balance * 2, fDemandWeaponry.Balance]) of
     0:  {BuildNothing};
     1:  AppendGold;
     2:  AppendFood;

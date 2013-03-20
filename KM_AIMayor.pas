@@ -113,7 +113,7 @@ begin
 
   fAutoRepair := False; //In KaM it is Off by default
 
-  SetArmyDemand(1, 0, 0, 1);
+  SetArmyDemand(0.5, 0, 0, 0.5);
 end;
 
 
@@ -226,6 +226,10 @@ end;
 
 //Check that we have weapons ordered for production
 procedure TKMayor.CheckWeaponOrderCount;
+const
+  //Order weapons in portions to avoid overproduction of one ware over another
+  //(e.g. Shields in armory until Leather is available)
+  PORTIONS = 8;
 var
   I,K: Integer;
   H: TKMHouse;
@@ -241,34 +245,34 @@ begin
     case H.HouseType of
       ht_ArmorSmithy:     for K := 1 to 4 do
                             if fResource.HouseDat[H.HouseType].ResOutput[K] = rt_MetalShield then
-                              H.ResOrder[K] := Round(ShieldNeed * 100)
+                              H.ResOrder[K] := Round(ShieldNeed * PORTIONS)
                             else
                             if fResource.HouseDat[H.HouseType].ResOutput[K] = rt_MetalArmor then
-                              H.ResOrder[K] := Round(ArmorNeed * 100);
+                              H.ResOrder[K] := Round(ArmorNeed * PORTIONS);
       ht_ArmorWorkshop:   for K := 1 to 4 do
                             if fResource.HouseDat[H.HouseType].ResOutput[K] = rt_Shield then
-                              H.ResOrder[K] := Round(ShieldNeed * 100)
+                              H.ResOrder[K] := Round(ShieldNeed * PORTIONS)
                             else
                             if fResource.HouseDat[H.HouseType].ResOutput[K] = rt_Armor then
-                              H.ResOrder[K] := Round(ArmorNeed * 100);
+                              H.ResOrder[K] := Round(ArmorNeed * PORTIONS);
       ht_WeaponSmithy:    for K := 1 to 4 do
                             if fResource.HouseDat[H.HouseType].ResOutput[K] = rt_Sword then
-                              H.ResOrder[K] := Round(AxeNeed * 100)
+                              H.ResOrder[K] := Round(AxeNeed * PORTIONS)
                             else
                             if fResource.HouseDat[H.HouseType].ResOutput[K] = rt_Hallebard then
-                              H.ResOrder[K] := Round(PikeNeed * 100)
+                              H.ResOrder[K] := Round(PikeNeed * PORTIONS)
                             else
                             if fResource.HouseDat[H.HouseType].ResOutput[K] = rt_Arbalet then
-                              H.ResOrder[K] := Round(BowNeed * 100);
+                              H.ResOrder[K] := Round(BowNeed * PORTIONS);
       ht_WeaponWorkshop:  for K := 1 to 4 do
                             if fResource.HouseDat[H.HouseType].ResOutput[K] = rt_Axe then
-                              H.ResOrder[K] := Round(AxeNeed * 100)
+                              H.ResOrder[K] := Round(AxeNeed * PORTIONS)
                             else
                             if fResource.HouseDat[H.HouseType].ResOutput[K] = rt_Pike then
-                              H.ResOrder[K] := Round(PikeNeed * 100)
+                              H.ResOrder[K] := Round(PikeNeed * PORTIONS)
                             else
                             if fResource.HouseDat[H.HouseType].ResOutput[K] = rt_Bow then
-                              H.ResOrder[K] := Round(BowNeed * 100);
+                              H.ResOrder[K] := Round(BowNeed * PORTIONS);
     end;
   end;
 end;
@@ -536,7 +540,18 @@ end;
 
 //Tell Mayor what proportions of army is needed
 procedure TKMayor.SetArmyDemand(FootmenDemand, PikemenDemand, HorsemenDemand, ArchersDemand: Single);
+var
+  EquipRate, DemandAmnt: Single;
 begin
+  //todo: normalize input values to sum = 1
+
+  //How many troops script tells us to train
+  if fWooden then
+    EquipRate := fSetup.EquipRateLeather
+  else
+    EquipRate := fSetup.EquipRateIron;
+
+  //Store localy in Mayor to place weapon orders
   ShieldNeed := FootmenDemand + HorsemenDemand;
   ArmorNeed := FootmenDemand + PikemenDemand + HorsemenDemand + ArchersDemand;
   AxeNeed := FootmenDemand + HorsemenDemand;
@@ -544,7 +559,9 @@ begin
   BowNeed := ArchersDemand;
   HorseNeed := HorsemenDemand;
 
-  fBalance.SetArmyDemand(ShieldNeed, ArmorNeed, AxeNeed, PikeNeed, BowNeed, HorseNeed);
+  DemandAmnt := EnsureRange(EquipRate / 600, 0.1, 6);
+
+  fBalance.SetArmyDemand(ShieldNeed * DemandAmnt, ArmorNeed * DemandAmnt, AxeNeed * DemandAmnt, PikeNeed * DemandAmnt, BowNeed * DemandAmnt, HorseNeed * DemandAmnt);
 end;
 
 
