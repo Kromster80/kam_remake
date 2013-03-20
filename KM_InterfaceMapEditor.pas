@@ -1592,7 +1592,6 @@ begin
     Button_ArmyInc.OnClickEither  := Unit_ArmyChange2;
 
     //Group order
-    //todo: These should be placed graphically on the map (with a line drawn from the group to the order?)
     TKMLabel.Create(Panel_Army, 0, 140, TB_WIDTH, 0, 'Group order', fnt_Outline, taLeft);
     DropBox_ArmyOrder   := TKMDropList.Create(Panel_Army, 0, 160, TB_WIDTH, 20, fnt_Metal, '', bsGame);
     DropBox_ArmyOrder.Add('None');
