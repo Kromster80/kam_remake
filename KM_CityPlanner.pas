@@ -145,7 +145,7 @@ var
   I,K: Integer;
 begin
   //Mark all spots where we could possibly place a goldmine
-  //some smarter logic can clip left/right edges later on
+  //some smarter logic can clip left/right edges later on?
   for I := 1 to fTerrain.MapY - 2 do
   for K := 1 to fTerrain.MapX - 2 do
   if fTerrain.TileGoodForGoldmine(K,I) then
@@ -286,7 +286,7 @@ function TKMCityPlanner.FindNearest(const aStart: TKMPoint; aRadius: Byte; aType
 begin
   fFinder.FindType := aType;
   fFinder.HouseType := ht_None;
-  Result := fFinder.FindNearest(aStart, aRadius, CanOwn, aResultLoc);
+  Result := fFinder.FindNearest(aStart, aRadius, [CanWalkRoad, CanMakeRoads], aResultLoc);
 end;
 
 
@@ -294,7 +294,7 @@ procedure TKMCityPlanner.FindNearest(const aStart: TKMPoint; aRadius: Byte; aTyp
 begin
   fFinder.FindType := aType;
   fFinder.HouseType := ht_None;
-  fFinder.FindNearest(aStart, aRadius, CanOwn, aMaxCount, aLocs);
+  fFinder.FindNearest(aStart, aRadius, [CanWalkRoad, CanMakeRoads], aMaxCount, aLocs);
 end;
 
 
@@ -302,7 +302,7 @@ procedure TKMCityPlanner.FindNearest(const aStart: TKMPoint; aRadius: Byte; aHou
 begin
   fFinder.FindType := fnHouse;
   fFinder.HouseType := aHouse;
-  fFinder.FindNearest(aStart, aRadius, CanOwn, aMaxCount, aLocs);
+  fFinder.FindNearest(aStart, aRadius, [CanWalkRoad, CanMakeRoads], aMaxCount, aLocs);
 end;
 
 
@@ -317,9 +317,9 @@ begin
 
   //Look for nearest Ore
   case aOreType of
-    rt_Coal:    if not FindNearest(TargetLoc, 40, fnCoal, P) then Exit;
-    rt_IronOre: if not FindNearest(TargetLoc, 40, fnIron, P) then Exit;
-    rt_GoldOre: if not FindNearest(TargetLoc, 40, fnGold, P) then Exit;
+    rt_Coal:    if not FindNearest(KMPointBelow(TargetLoc), 40, fnCoal, P) then Exit;
+    rt_IronOre: if not FindNearest(KMPointBelow(TargetLoc), 40, fnIron, P) then Exit;
+    rt_GoldOre: if not FindNearest(KMPointBelow(TargetLoc), 40, fnGold, P) then Exit;
   end;
 
   //todo: If there's no ore AI should not keep calling this over and over again
@@ -347,6 +347,7 @@ begin
 
   if not GetSourceLocation(aTarget, TargetLoc) then Exit;
 
+    //todo: Rework through FindNearest to avoid roundabouts
   //Fill in MyForest map
   FillChar(MyForest[0,0], SizeOf(MyForest), #0);
   for I := Max(TargetLoc.Y - SEARCH_RAD, 1) to Min(TargetLoc.Y + SEARCH_RAD, fTerrain.MapY - 1) do
@@ -438,7 +439,7 @@ begin
   case FindType of
     fnHouse:  Result := fPlayers[fOwner].CanAddHousePlanAI(X, Y, HouseType, True);
 
-    fnStone:  Result := (fTerrain.TileIsStone(X, Max(Y-1, 1)) > 1);
+    fnStone:  Result := (fTerrain.TileIsStone(X, Max(Y-2, 1)) > 1);
 
     fnCoal:   Result := (fTerrain.TileIsCoal(X, Y) > 1)
                          and fPlayers[fOwner].CanAddHousePlanAI(X, Y, ht_CoalMine, False);
@@ -458,11 +459,22 @@ function TKMTerrainFinderCity.CanWalkHere(const X,Y: Word): Boolean;
 var
   TerOwner: TPlayerIndex;
 begin
+  //Check for specific passabilities
+  case FindType of
+    fnIron:   Result := (fPassability * fTerrain.Land[Y,X].Passability <> [])
+                        or fTerrain.TileGoodForIron(X, Y);
+
+    fnGold:   Result := (fPassability * fTerrain.Land[Y,X].Passability <> [])
+                        or fTerrain.TileGoodForGoldmine(X, Y);
+
+    else      Result := (fPassability * fTerrain.Land[Y,X].Passability <> []);
+  end;
+
+  if not Result then Exit;
+
   //Don't build on allies and/or enemies territory
   TerOwner := fAIFields.Influences.GetBestOwner(X,Y);
   Result := ((TerOwner = fOwner) or (TerOwner = PLAYER_NONE));
-
-  //CheckPassability is already done in TKMFinder.Visit
 end;
 
 

@@ -528,7 +528,7 @@ begin
       fArmyType := atLeather;
 
     //todo: This is to be removed? Most players make both iron and wooden at once, maybe we can make the AI do that later?
-    //fArmyType := atIronLeather;
+    //fArmyType := atLeatherIron;
   end;
 
   fBalance.ArmyType := fArmyType;

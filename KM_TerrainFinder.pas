@@ -5,13 +5,12 @@ uses Math, SysUtils,
   KM_Defaults, KM_CommonClasses, KM_Points;
 
 type
-  //General implementation of algorithm that finds something on terrain
+  //General implementation of algorithm that finds something on terrain without building a route to it
   TKMTerrainFinderCommon = class
   private
     MapX, MapY: Word;
     fStart: TKMPoint;
     fRadius: Byte;
-    fPassability: TPassability;
     fMaxCount: Word;
     BestDist: Byte;
     BestLoc: TKMPoint;
@@ -24,13 +23,14 @@ type
     procedure SaveTile(const X,Y: Word; aWalkDistance: Byte);
     procedure UseFinder;
   protected
+    fPassability: TPassabilitySet;
     function CanWalkHere(const X,Y: Word): Boolean; virtual; abstract;
     function CanUse(const X,Y: Word): Boolean; virtual; abstract;
   public
     constructor Create;
     destructor Destroy; override;
-    function FindNearest(aStart: TKMPoint; aRadius: Byte; aPassability: TPassability; out aEnd: TKMPoint): Boolean; overload;
-    procedure FindNearest(aStart: TKMPoint; aRadius: Byte; aPassability: TPassability; aMaxCount: Word; aLocs: TKMPointTagList); overload;
+    function FindNearest(aStart: TKMPoint; aRadius: Byte; aPassability: TPassabilitySet; out aEnd: TKMPoint): Boolean; overload;
+    procedure FindNearest(aStart: TKMPoint; aRadius: Byte; aPassability: TPassabilitySet; aMaxCount: Word; aLocs: TKMPointTagList); overload;
     procedure GetTilesWithinDistance(aStart: TKMPoint; aRadius: Byte; aPass: TPassability; aList: TKMPointList);
     procedure Save(SaveStream: TKMemoryStream); virtual;
     procedure Load(LoadStream: TKMemoryStream); virtual;
@@ -66,7 +66,7 @@ begin
 end;
 
 
-function TKMTerrainFinderCommon.FindNearest(aStart: TKMPoint; aRadius: Byte; aPassability: TPassability; out aEnd: TKMPoint): Boolean;
+function TKMTerrainFinderCommon.FindNearest(aStart: TKMPoint; aRadius: Byte; aPassability: TPassabilitySet; out aEnd: TKMPoint): Boolean;
 begin
   fStart := aStart;
   fRadius := aRadius;
@@ -80,7 +80,7 @@ begin
 end;
 
 
-procedure TKMTerrainFinderCommon.FindNearest(aStart: TKMPoint; aRadius: Byte; aPassability: TPassability; aMaxCount: Word; aLocs: TKMPointTagList);
+procedure TKMTerrainFinderCommon.FindNearest(aStart: TKMPoint; aRadius: Byte; aPassability: TPassabilitySet; aMaxCount: Word; aLocs: TKMPointTagList);
 begin
   fStart := aStart;
   fRadius := aRadius;
@@ -138,15 +138,15 @@ procedure TKMTerrainFinderCommon.UseFinder;
   var
     Xt, Yt: Word;
   begin
-    //These exit conditions are arranged in order of how long we estimate they will take
-    if not (fPassability in fTerrain.Land[Y,X].Passability) then Exit;
-
     //If new path is longer than old we don't care about it
     Xt := fStart.X - X + fRadius;
     Yt := fStart.Y - Y + fRadius;
     if (aWalkDistance >= Visited[Xt,Yt]) then Exit;
+
+    //Check if we can walk through this tile
     if not CanWalkHere(X,Y) then Exit;
 
+    //Check if we can take this tile
     if CanUse(X,Y) then
       SaveTile(X,Y,aWalkDistance);
 
@@ -273,8 +273,7 @@ end;
 
 function TKMTerrainFinder.CanWalkHere(const X, Y: Word): Boolean;
 begin
-  //We don't need to check anything extra in common case
-  Result := True;
+  Result := (fPassability * fTerrain.Land[Y,X].Passability <> []);
 end;
 
 
