@@ -1592,6 +1592,7 @@ begin
     Button_ArmyInc.OnClickEither  := Unit_ArmyChange2;
 
     //Group order
+    //todo: Orders should be placed with a cursor (but keep numeric input as well?)
     TKMLabel.Create(Panel_Army, 0, 140, TB_WIDTH, 0, 'Group order', fnt_Outline, taLeft);
     DropBox_ArmyOrder   := TKMDropList.Create(Panel_Army, 0, 160, TB_WIDTH, 20, fnt_Metal, '', bsGame);
     DropBox_ArmyOrder.Add('None');
