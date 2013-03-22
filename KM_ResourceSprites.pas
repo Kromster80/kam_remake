@@ -450,14 +450,17 @@ procedure TKMSpritePack.ExportToPNG(const aFolder: string);
 var
   {$IFDEF WDC} Png: TPNGObject; {$ENDIF}
   {$IFDEF FPC} po: TBGRABitmap; {$ENDIF}
+  SL: TStringList;
   ID, I, K: Integer;
   M: Byte;
   SizeX, SizeY: Integer;
+  TreatMask: Boolean;
 begin
   ForceDirectories(aFolder);
 
-  {$IFDEF WDC} Png := TPNGObject.CreateBlank(COLor_RGBALPHA, 8, 0, 0); {$ENDIF}
+  {$IFDEF WDC} Png := TPNGObject.CreateBlank(COLOR_RGBALPHA, 8, 0, 0); {$ENDIF}
   {$IFDEF FPC} po := TBGRABitmap.Create(0, 0, BGRABlack); {$ENDIF}
+  SL := TStringList.Create;
 
   for ID := 1 to fRXData.Count do
   if fRXData.Flag[ID] = 1 then
@@ -471,8 +474,12 @@ begin
     for I := 0 to SizeY - 1 do
     for K := 0 to SizeX - 1 do
     begin
+      TreatMask := fRXData.HasMask[ID] and (fRXData.Mask[ID, I*SizeX + K] > 0);
+      if (fRT = rxHouses) and ((ID < 680) or (ID = 1657) or (ID = 1659) or (ID = 1681) or (ID = 1683)) then
+        TreatMask := False;
+
       {$IFDEF WDC}
-      if fRXData.HasMask[ID] and (fRXData.Mask[ID, I*SizeX + K] > 0) then
+      if TreatMask then
       begin
         M := fRXData.Mask[ID, I*SizeX + K];
 
@@ -489,9 +496,10 @@ begin
 
       Png.AlphaScanline[I]^[K] := fRXData.RGBA[ID, I*SizeX + K] shr 24;
       {$ENDIF}
+
       {$IFDEF FPC}
       //I can't figure out how to get transparency to save in PNGs, so for now everything is opaque
-      if fRXData.HasMask[ID] and (fRXData.Mask[ID, I*SizeX + K] > 0) then
+      if TreatMask then
       begin
         M := fRXData.Mask[ID, I*SizeX + K];
         if fRXData.RGBA[ID, I*SizeX + K] = FLAG_COLOR_DARK then
@@ -531,10 +539,17 @@ begin
       {$IFDEF WDC} Png.SaveToFile(aFolder + Format('%d_%.4da.png', [Byte(fRT)+1, ID])); {$ENDIF}
       {$IFDEF FPC} po.SaveToFile(aFolder + Format('%d_%.4da.png', [Byte(fRT)+1, ID])); {$ENDIF}
     end;
+
+    //Export pivot
+    SL.Clear;
+    SL.Append(IntToStr(fRXData.Pivot[ID].x));
+    SL.Append(IntToStr(fRXData.Pivot[ID].y));
+    SL.SaveToFile(aFolder + Format('%d_%.4d.txt', [Byte(fRT)+1, ID]));
   end;
 
   {$IFDEF WDC} Png.Free; {$ENDIF}
   {$IFDEF FPC} po.Free; {$ENDIF}
+  SL.Free;
 end;
 
 
