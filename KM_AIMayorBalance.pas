@@ -30,6 +30,7 @@ type
     CoalTheory, GoldOreTheory, GoldTheory: Single;
     Production: Single; //How much do we produce
     Consumption: Single; //How much is used
+    Reserve: Single; //
     Balance: Single; //Resulting balance
   end;
   TKMWareBalanceFood = record
@@ -204,7 +205,9 @@ end;
 procedure TKMayorBalance.AppendGold;
 begin
   //If all 3 shares 0 we whould pick in that order Gold > Coal > Metallurgists
+
   with fDemandGold do
+  if Balance < 0 then
   case PickMin([GoldOreTheory, CoalTheory, GoldTheory]) of
     0:  Append(ht_GoldMine);
     1:  Append(ht_CoalMine);
@@ -217,6 +220,7 @@ procedure TKMayorBalance.AppendFood;
 begin
   //Pick smallest production and increase it
   with fDemandFood do
+  if Balance < 0 then
   case PickMin([BreadProduction, SausagesProduction, WineProduction]) of
     0:  with Bread do
         case PickMin([FarmTheory, MillTheory, BakeryTheory]) of
@@ -251,6 +255,9 @@ begin
     Best := I;
     BestBid := fDemandWeaponry.Weaponry[I].Balance;
   end;
+
+  //Don't need anything
+  if BestBid > 0 then Exit;
 
   case Best of
     rt_MetalShield,
@@ -379,20 +386,26 @@ end;
 
 
 procedure TKMayorBalance.UpdateBalanceGold;
-
-var
-  I: TResourceType;
-  S: string;
 begin
   with fDemandGold do
   begin
+    //How much gol in theory we could get
+    //CoalTheory - coal calculated above
     GoldOreTheory := HouseCount(ht_GoldMine) * ProductionRate[rt_GoldOre] * 2; //*2 since every Ore becomes 2 Gold
     GoldTheory := HouseCount(ht_Metallurgists) * ProductionRate[rt_Gold];
+
     //Actual production is minimum of the above
     Production := Min(CoalTheory, GoldOreTheory, GoldTheory);
-    Consumption := GoldNeed + fPlayers[fOwner].AI.Setup.WarriorsPerMinute(ArmyType);
-    Balance := Production - Consumption;
-    fDemandGoldText := Format('%.2f Gold: %.2f - %.2f', [Balance, Production, Consumption]);
+
+    //How much Gold do we need
+    Consumption := GoldNeed + Byte(HouseCount(ht_Barracks) > 0) * fPlayers[fOwner].AI.Setup.WarriorsPerMinute(ArmyType);
+
+    //How much reserve do we have
+    Reserve := fPlayers[fOwner].Stats.GetResourceQty(rt_Gold) / Consumption;
+
+    Balance := Production - Consumption + Max(Reserve - 30, 0);
+
+    fDemandGoldText := Format('%.2f Gold (%.2f - %.2f + %.2f)', [Balance, Production, Consumption, Reserve]);
   end;
 end;
 
@@ -634,35 +647,35 @@ var
   I: Integer;
 begin
   SetLength(fAdvice, 0);
+  try
+    //Refresh balance of each industry
+    //Try to express needs in terms of Balance = Production - Demand
+    UpdateBalanceCore;
+    AppendCore;
 
-  //Refresh balance of each industry
-  //Try to express needs in terms of Balance = Production - Demand
-  UpdateBalanceCore;
-  AppendCore;
+    if fPlayers[fOwner].Stats.GetHouseQty(ht_School) = 0 then Exit;
 
-  if fPlayers[fOwner].Stats.GetHouseQty(ht_School) = 0 then Exit;
+    UpdateBalanceMaterials;
+    AppendMaterials;
 
-  UpdateBalanceMaterials;
-  AppendMaterials;
 
-  UpdateBalanceFood;
+    CoalDistribution;
+    WoodDistribution;
 
-  CoalDistribution;
-  WoodDistribution;
+    UpdateBalanceGold;
+    AppendGold;
 
-  UpdateBalanceGold;
-  UpdateBalanceWeaponry;
+    UpdateBalanceFood;
+    AppendFood;
 
-  case PickMin([0, fDemandGold.Balance * 4, fDemandFood.Balance * 2, fDemandWeaponry.Balance]) of
-    0:  {BuildNothing};
-    1:  AppendGold;
-    2:  AppendFood;
-    3:  AppendWeaponry;
+    UpdateBalanceWeaponry;
+    AppendWeaponry;
+
+  finally
+    fAdviceText := '';
+    for I := 0 to High(fAdvice) do
+      fAdviceText := fAdviceText + fResource.HouseDat[fAdvice[I]].HouseName + IfThen(I < High(fAdvice), ', ', '.');
   end;
-
-  fAdviceText := '';
-  for I := 0 to High(fAdvice) do
-    fAdviceText := fAdviceText + fResource.HouseDat[fAdvice[I]].HouseName + IfThen(I < High(fAdvice), ', ', '.');
 end;
 
 

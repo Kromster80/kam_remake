@@ -90,7 +90,7 @@ const //Sample list made by AntonP
   //Hiring_Army (Barracks)
   //Hiring_Army2 (School, CoalMine x2, GoldMine)
 
-  WOOD_BLOCK_RAD = 6;
+  WOOD_BLOCK_RAD = 5.8;
 
   //How much building materials do we need for city development
   TOWN_STONE_NEED = 10;
