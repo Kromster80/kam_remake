@@ -110,7 +110,7 @@ begin
     ht_IronMine:      Result := NextToOre(aHouse, rt_IronOre, aLoc);
 
     ht_Quary:         Result := NextToStone(aLoc);
-    ht_Woodcutters:   Result := NextToTrees([ht_Store, ht_Woodcutters], aHouse, aLoc);
+    ht_Woodcutters:   Result := NextToTrees([ht_Store, ht_Woodcutters, ht_Sawmill], aHouse, aLoc);
     ht_Farm:          Result := NextToGrass(ht_Any, aHouse, aLoc);
     ht_Wineyard:      Result := NextToGrass(ht_Any, aHouse, aLoc);
     ht_FisherHut:     {Result := NextToWater(aHouse, aLoc)};
@@ -224,8 +224,7 @@ begin
     for I := 0 to Locs.Count - 1 do
     begin
       Bid := Locs.Tag[I]
-             - fAIFields.Influences.Ownership[fOwner,Locs[I].Y,Locs[I].X] / 5
-             + KaMRandom * 5;
+             - fAIFields.Influences.Ownership[fOwner,Locs[I].Y,Locs[I].X] / 5;
       if (Bid < BestBid) then
       begin
         aLoc := Locs[I];

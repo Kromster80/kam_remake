@@ -23,6 +23,7 @@ type
   end;
   TKMMaterialsBalance = record
     WoodcutTheory, SawmillTheory: Single;
+    StoneProduction, WoodProduction: Single;
     StoneBalance, WoodBalance: Single;
     Balance: Single; //Resulting balance
   end;
@@ -195,7 +196,7 @@ begin
   case PickMin([0, StoneBalance, WoodBalance]) of
     0:  ;
     1:  Append(ht_Quary);
-    2:  if (P.Stats.GetHouseQty(ht_Quary) >= 2) and (P.Stats.GetHouseWip(ht_Any) < 2) then
+    2:  if (P.Stats.GetHouseQty(ht_Quary) >= 2) then
           if (WoodcutTheory < SawmillTheory) or not P.Stats.GetCanBuild(ht_Sawmill) then
             Append(ht_Woodcutters)
           else
@@ -351,42 +352,48 @@ end;
 
 procedure TKMayorBalance.DistributeWood;
 var
-  TrunkProductionRate: Single;
-  WoodProductionRate, WoodConsumptionRate: Single;
+  TrunkProduction: Single;
+  WoodProduction, WoodConsumption: Single;
 begin
-  TrunkProductionRate := HouseCount(ht_Woodcutters) * ProductionRate[rt_Trunk];
-  WoodProductionRate := HouseCount(ht_Sawmill) * ProductionRate[rt_Wood];
-  WoodConsumptionRate := WoodNeed
-                       + HouseCount(ht_ArmorWorkshop) / 2 * ProductionRate[rt_Shield] //we /2 because half of the time house makes armor and half - shields
-                       + HouseCount(ht_WeaponWorkshop) * ProductionRate[rt_Pike];
+  TrunkProduction := HouseCount(ht_Woodcutters) * ProductionRate[rt_Trunk] * 2;
+  WoodProduction := HouseCount(ht_Sawmill) * ProductionRate[rt_Wood];
+  WoodConsumption := WoodNeed
+                   + fDemandWeaponry.Weaponry[rt_Shield].Demand
+                   + fDemandWeaponry.Weaponry[rt_Axe].Demand
+                   + fDemandWeaponry.Weaponry[rt_Pike].Demand
+                   + fDemandWeaponry.Weaponry[rt_Bow].Demand;
 
   with fDemandWeaponry do
   begin
-    if WoodProductionRate >= WoodConsumptionRate then
+    //Wood shares
+    if WoodProduction >= WoodConsumption then
     begin
       //Let every industry think the extra belongs to it
-      WoodenWeapon.WoodTheory := (WoodProductionRate - WoodConsumptionRate + HouseCount(ht_WeaponWorkshop) * ProductionRate[rt_Pike]);
-      WoodenArmor.WoodTheory := (WoodProductionRate - WoodConsumptionRate + HouseCount(ht_ArmorWorkshop) * ProductionRate[rt_Shield]);
+      WoodenWeapon.WoodTheory := (WoodProduction - WoodConsumption + HouseCount(ht_WeaponWorkshop) * ProductionRate[rt_Pike]);
+      WoodenArmor.WoodTheory := (WoodProduction - WoodConsumption + HouseCount(ht_ArmorWorkshop) * ProductionRate[rt_Shield]);
     end
     else
     begin
       //Share proportionaly
-      if WoodConsumptionRate <> 0 then
+      if WoodConsumption <> 0 then
       begin
-        WoodenWeapon.WoodTheory := WoodProductionRate / WoodConsumptionRate * HouseCount(ht_WeaponWorkshop) * ProductionRate[rt_Pike];
-        WoodenArmor.WoodTheory := WoodProductionRate / WoodConsumptionRate * HouseCount(ht_ArmorWorkshop) * ProductionRate[rt_Shield];
-      end else
+        WoodenWeapon.WoodTheory := WoodProduction / WoodConsumption * HouseCount(ht_WeaponWorkshop) * ProductionRate[rt_Pike];
+        WoodenArmor.WoodTheory := WoodProduction / WoodConsumption * HouseCount(ht_ArmorWorkshop) * ProductionRate[rt_Shield];
+      end
+      else
       begin
         WoodenWeapon.WoodTheory := 0;
         WoodenArmor.WoodTheory := 0;
       end;
     end;
 
-    if WoodProductionRate <> 0 then
+    //Trunk shares
+    if WoodProduction <> 0 then
     begin
-      WoodenWeapon.TrunkTheory := WoodenWeapon.WoodTheory / WoodProductionRate * TrunkProductionRate * 2;
-      WoodenArmor.TrunkTheory := WoodenArmor.WoodTheory / WoodProductionRate * TrunkProductionRate * 2;
-    end else
+      WoodenWeapon.TrunkTheory := WoodenWeapon.WoodTheory / WoodProduction * TrunkProduction;
+      WoodenArmor.TrunkTheory := WoodenArmor.WoodTheory / WoodProduction * TrunkProduction;
+    end
+    else
     begin
       WoodenWeapon.TrunkTheory := 0;
       WoodenArmor.TrunkTheory := 0;
@@ -519,6 +526,12 @@ begin
     end;
 
     S := Format('%.2f Weaponry: |', [Balance]);
+    with fDemandWeaponry.WoodenArmor do
+      S := S + Format('LeatherArm: %.1f %.1f %.1f|', [TrunkTheory, WoodTheory, WorkshopTheory]);
+
+    with fDemandWeaponry.WoodenWeapon do
+      S := S + Format('WoodWeap: %.1f %.1f %.1f|', [TrunkTheory, WoodTheory, WorkshopTheory]);
+
     for I := WARFARE_MIN to WARFARE_MAX do
     begin
       case ArmyType of
@@ -565,14 +578,18 @@ procedure TKMayorBalance.UpdateBalanceMaterials;
 begin
   with fDemandMaterials do
   begin
-    //Balance = Available - Required
-    StoneBalance    := HouseCount(ht_Quary) * ProductionRate[rt_Stone] - StoneNeed;
-    WoodcutTheory   := HouseCount(ht_Woodcutters) * ProductionRate[rt_Trunk];
-    SawmillTheory   := HouseCount(ht_Sawmill) * ProductionRate[rt_Wood];
-    WoodBalance     := Min(WoodcutTheory, SawmillTheory) - WoodNeed;
+    StoneProduction := HouseCount(ht_Quary) * ProductionRate[rt_Stone];
+
+    WoodcutTheory := HouseCount(ht_Woodcutters) * ProductionRate[rt_Trunk];
+    SawmillTheory := HouseCount(ht_Sawmill) * ProductionRate[rt_Wood];
+    WoodProduction := Min(WoodcutTheory, SawmillTheory);
+
+    StoneBalance    := StoneProduction - StoneNeed;
+    WoodBalance     := WoodProduction - WoodNeed;
 
     Balance := Min(StoneBalance, WoodBalance);
-    fDemandMaterialsText := Format('%.2f Materials: (Stone %.2f, Wood %.2f)', [Balance, StoneBalance, WoodBalance]);
+    fDemandMaterialsText := Format('%.2f Materials: (Stone %.1f-%.1f, Wood %.1f-%.1f)',
+                                   [Balance, StoneProduction, StoneNeed, WoodProduction, WoodNeed]);
   end;
 end;
 
@@ -693,15 +710,19 @@ begin
     UpdateBalanceCore;
     AppendCore;
 
+    //Don't build anything if we don't have a working School
     if fPlayers[fOwner].Stats.GetHouseQty(ht_School) = 0 then Exit;
 
     UpdateBalanceMaterials;
     AppendMaterials;
 
+    //Don't build anything if we are short on materials
+    if (fDemandMaterials.StoneProduction < 0.5)
+    or (fDemandMaterials.WoodProduction < 0.5) then Exit;
 
     DistributeCorn;
-    CoDistributeCoal
-    WoodDistribution;
+    DistributeCoal;
+    DistributeWood;
 
     UpdateBalanceGold;
     AppendGold;
@@ -720,6 +741,7 @@ begin
 end;
 
 
+//Look at next item in advice queue
 function TKMayorBalance.Peek: THouseType;
 begin
   //Take element from fAdvice queue
@@ -730,6 +752,7 @@ begin
 end;
 
 
+//Reject the item because it could not be built
 procedure TKMayorBalance.Reject;
 begin
   Take;
@@ -739,6 +762,7 @@ begin
 end;
 
 
+//Advised item was taken and most certainly will be finished
 procedure TKMayorBalance.Take;
 begin
   if Length(fAdvice) > 1 then
