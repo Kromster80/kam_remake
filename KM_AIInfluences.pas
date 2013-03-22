@@ -38,7 +38,7 @@ type
     property Ownership[aPlayer:Byte; Y,X: Word]: Byte read GetOwnership write SetOwnership;
     //Tension: array of array of array of SmallInt;
 
-    procedure AddAvoidBuilding(X,Y: Word; aRad: Byte);
+    procedure AddAvoidBuilding(X,Y: Word; aRad: Single);
     function GetBestOwner(X, Y: Word): TPlayerIndex;
     procedure Init;
     procedure ExportInfluenceMaps;
@@ -64,11 +64,11 @@ const
 
 { TKMInfluenceMaps }
 //Make the area around to be avoided by common houses
-procedure TKMInfluences.AddAvoidBuilding(X,Y: Word; aRad: Byte);
+procedure TKMInfluences.AddAvoidBuilding(X,Y: Word; aRad: Single);
 var I,K: Integer;
 begin
-  for I := Max(Y - aRad, 1) to Min(Y + aRad, fMapY - 1) do
-  for K := Max(X - aRad, 1) to Min(X + aRad, fMapX - 1) do
+  for I := Max(Y - Ceil(aRad), 1) to Min(Y + Ceil(aRad), fMapY - 1) do
+  for K := Max(X - Ceil(aRad), 1) to Min(X + Ceil(aRad), fMapX - 1) do
     if Sqr(X-K) + Sqr(Y-I) <= Sqr(aRAD) then
       AvoidBuilding[I,K] := 255;
 end;
