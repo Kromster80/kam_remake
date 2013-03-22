@@ -2,7 +2,7 @@ unit KM_AIMayorBalance;
 {$I KaM_Remake.inc}
 interface
 uses
-  Classes, KromUtils, Math, SysUtils,
+  Classes, KromUtils, Math, SysUtils, StrUtils,
   KM_Defaults, KM_CommonClasses, KM_Points;
 
 type
@@ -89,6 +89,7 @@ type
     fDemandGoldText: string;
     fDemandFoodText: string;
     fDemandWeaponryText: string;
+    fAdviceText: string;
 
     function HouseCount(aHouse: THouseType): Integer;
 
@@ -623,11 +624,14 @@ begin
             fDemandMaterialsText + '|' +
             fDemandGoldText + '|' +
             fDemandFoodText + '|' +
-            fDemandWeaponryText;
+            fDemandWeaponryText + '|' +
+            fAdviceText;
 end;
 
 
 procedure TKMayorBalance.Refresh;
+var
+  I: Integer;
 begin
   SetLength(fAdvice, 0);
 
@@ -655,6 +659,10 @@ begin
     2:  AppendFood;
     3:  AppendWeaponry;
   end;
+
+  fAdviceText := '';
+  for I := 0 to High(fAdvice) do
+    fAdviceText := fAdviceText + fResource.HouseDat[fAdvice[I]].HouseName + IfThen(I < High(fAdvice), ', ', '.');
 end;
 
 
