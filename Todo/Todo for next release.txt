@@ -15,10 +15,10 @@ Finishing up:
  +	SP maps list will keep jumping to the top while items are being added (you can't scroll down until scanning is done)
  +	Example maps that show what can be done with new scripts (more can be added later)
  +	Decide which script commands will be implemented for this release and implement them (can add more as requested)
+ +	Lock icon next to password protected servers
 	Finish AI stuff (defending and attacking prototype?)
 	Performance test city builder and optimise/fix slow stuff (NextToOre using FindNearest for example)
 	Snow houses
-	Lock icon next to password protected servers
 	Before RC search for all todos and @Lewin/@Krom comments to see if there's something important we forgot about
 	Before RC remove unused strings from LIBX (Lewin: I have code that lists unused strings; Krom: should be in TransMan perhaps; Lewin: Done) and compact indexes
 

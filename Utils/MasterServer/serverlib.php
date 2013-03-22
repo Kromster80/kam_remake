@@ -223,7 +223,7 @@ function GetStats($Format)
 	{
 		//Data does not yet use quotes or backslashes, but it might in future
 		$Line = trim(stripslashes_if_gpc_magic_quotes($Line));
-		list($Name,$IP,$Port,$PlayerCount,$Alive,$Expiry) = explode("|",$Line);
+		list($Name,$IP,$Port,$PlayerCount,$IsDedicated,$OS,$Alive,$Expiry) = explode("|",$Line);
 		if(time() < $Expiry)
 		{
 			$ServerCount++;
@@ -287,7 +287,7 @@ function GetServers($aFormat,$aRev)
 	{
 		//Data does not yet use quotes or backslashes, but it might in future
 		$Line = trim(stripslashes_if_gpc_magic_quotes($Line));
-		list($Name,$IP,$Port,$PlayerCount,$Alive,$Expiry) = explode("|",$Line);
+		list($Name,$IP,$Port,$PlayerCount,$IsDedicated,$OS,$Alive,$Expiry) = explode("|",$Line);
 		if(time() < $Expiry)
 		{
 			$cnts++;
@@ -318,7 +318,10 @@ function GetServers($aFormat,$aRev)
 					$Result[] = $srvsgl;
 					break;
 				default:
-					$Result .= "$Name,$IP,$Port\n";
+					if(substr($aRev,1) >= 4878) //New server releases expect more parameters
+						$Result .= "$Name,$IP,$Port,$IsDedicated,$OS\n";
+					else
+						$Result .= "$Name,$IP,$Port\n";
 			}
 		}
 	}
@@ -338,7 +341,7 @@ function GetServers($aFormat,$aRev)
 	return $Result;
 }
 
-function AddServer($aName,$aIP,$aPort,$aPlayerCount,$aTTL,$aRev)
+function AddServer($aName,$aIP,$aPort,$aPlayerCount,$aIsDedicated,$aOS,$aTTL,$aRev)
 {
 	global $DISALLOWED_CHARS, $MAX_TTL, $DO_STATS, $MAIN_VERSION;
 	$DATA_FILE = GetDataFileName($aRev);
@@ -379,24 +382,24 @@ function AddServer($aName,$aIP,$aPort,$aPlayerCount,$aTTL,$aRev)
 		{
 			//Data does not yet use quotes or backslashes, but it might in future
 			$Line = trim(stripslashes_if_gpc_magic_quotes($Line));
-			list($Name,$IP,$Port,$PlayerCount,$Alive,$Expiry) = explode("|",$Line);
+			list($Name,$IP,$Port,$PlayerCount,$IsDedicated,$OS,$Alive,$Expiry) = explode("|",$Line);
 			if(time() < $Expiry)
 			{
 				if(($IP == $aIP) && ($Port == $aPort))
 				{
-					$Servers .= "$aName|$IP|$Port|$aPlayerCount|$aAlive|".(time()+$aTTL)."\n";
+					$Servers .= "$aName|$IP|$Port|$aPlayerCount|$aIsDedicated|$aOS|$aAlive|".(time()+$aTTL)."\n";
 					$Exists = true;
 				}
 				else
 				{
-					$Servers .= "$Name|$IP|$Port|$PlayerCount|$Alive|$Expiry\n";
+					$Servers .= "$Name|$IP|$Port|$PlayerCount|$IsDedicated|$OS|$Alive|$Expiry\n";
 				}
 			}
 		}
 	}
 	if(!$Exists)
 	{
-		$Servers .= "$aName|$aIP|$aPort|$aPlayerCount|$aAlive|".(time()+$aTTL)."\n";
+		$Servers .= "$aName|$aIP|$aPort|$aPlayerCount|$aIsDedicated|$aOS|$aAlive|".(time()+$aTTL)."\n";
 	}
 	$fh = fopen($DATA_FILE, 'w') or die("can't open file");
 	fwrite($fh, $Servers);

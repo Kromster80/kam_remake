@@ -1040,7 +1040,7 @@ begin
     //List of available servers
     ColumnBox_Servers := TKMColumnBox.Create(Panel_MultiPlayer,45,240,620,465,fnt_Metal, bsMenu);
     ColumnBox_Servers.Anchors := [akLeft, akTop, akBottom];
-    ColumnBox_Servers.SetColumns(fnt_Outline, [fTextLibrary[TX_MP_MENU_SERVERLIST_NAME],fTextLibrary[TX_MP_MENU_SERVERLIST_STATE],fTextLibrary[TX_MP_MENU_SERVERLIST_PLAYERS],fTextLibrary[TX_MP_MENU_SERVERLIST_PING]],[0,300,430,525]);
+    ColumnBox_Servers.SetColumns(fnt_Outline, ['','',fTextLibrary[TX_MP_MENU_SERVERLIST_NAME],fTextLibrary[TX_MP_MENU_SERVERLIST_STATE],fTextLibrary[TX_MP_MENU_SERVERLIST_PLAYERS],fTextLibrary[TX_MP_MENU_SERVERLIST_PING]],[0,20,40,300,430,525]);
     ColumnBox_Servers.OnColumnClick := MP_ServersSort;
     ColumnBox_Servers.OnChange := MP_ServersClick;
     ColumnBox_Servers.OnDoubleClick := MP_ServersDoubleClick;
@@ -2067,8 +2067,9 @@ begin
       //Only show # if Server has more than 1 Room
       DisplayName := IfThen(R.OnlyRoom, S.Name, S.Name + ' #' + IntToStr(R.RoomID + 1));
       ColumnBox_Servers.AddItem(
-      MakeListRow([DisplayName, fTextLibrary[GameStateTextIDs[R.GameInfo.GameState]], IntToStr(R.GameInfo.PlayerCount), IntToStr(S.Ping)],
-                  [$FFFFFFFF, $FFFFFFFF, $FFFFFFFF, GetPingColor(S.Ping)], I));
+      MakeListRow(['', '', DisplayName, fTextLibrary[GameStateTextIDs[R.GameInfo.GameState]], IntToStr(R.GameInfo.PlayerCount), IntToStr(S.Ping)],
+                  [$FFFFFFFF, $FFFFFFFF, $FFFFFFFF, $FFFFFFFF, $FFFFFFFF, GetPingColor(S.Ping)],
+                  [ServerTypePic[S.ServerType],MakePic(rxGuiMain,IfThen(R.GameInfo.PasswordLocked, 73, 0)),MakePic(rxGuiMain,0),MakePic(rxGuiMain,0),MakePic(rxGuiMain,0),MakePic(rxGuiMain,0)], I));
 
       //if server was selected, we need to select it again, because TKMColumnListBox was cleared
       if fServerSelected
@@ -2106,23 +2107,26 @@ end;
 procedure TKMMainMenuInterface.MP_ServersSort(aIndex: Integer);
 begin
   case ColumnBox_Servers.SortIndex of
+    //todo: Sorting by locked/server type
+    //0:
+    //1:
     //Sorting by name goes A..Z by default
-    0:  if ColumnBox_Servers.SortDirection = sdDown then
+    2:  if ColumnBox_Servers.SortDirection = sdDown then
           fGameApp.Networking.ServerQuery.SortMethod := ssmByNameAsc
         else
           fGameApp.Networking.ServerQuery.SortMethod := ssmByNameDesc;
     //Sorting by state goes Lobby,Loading,Game,None by default
-    1:  if ColumnBox_Servers.SortDirection = sdDown then
+    3:  if ColumnBox_Servers.SortDirection = sdDown then
           fGameApp.Networking.ServerQuery.SortMethod := ssmByStateAsc
         else
           fGameApp.Networking.ServerQuery.SortMethod := ssmByStateDesc;
     //Sorting by player count goes 8..0 by default
-    2:  if ColumnBox_Servers.SortDirection = sdDown then
+    4:  if ColumnBox_Servers.SortDirection = sdDown then
           fGameApp.Networking.ServerQuery.SortMethod := ssmByPlayersDesc
         else
           fGameApp.Networking.ServerQuery.SortMethod := ssmByPlayersAsc;
     //Sorting by ping goes 0 ... 1000 by default
-    3:  if ColumnBox_Servers.SortDirection = sdDown then
+    5:  if ColumnBox_Servers.SortDirection = sdDown then
           fGameApp.Networking.ServerQuery.SortMethod := ssmByPingAsc
         else
           fGameApp.Networking.ServerQuery.SortMethod := ssmByPingDesc;

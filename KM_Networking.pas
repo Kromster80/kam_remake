@@ -640,6 +640,7 @@ procedure TKMNetworking.SetPassword(aPassword: string);
 begin
   Assert(IsHost, 'Only host can set password');
   fPassword := aPassword;
+  fOnMPGameInfoChanged(Self); //Send the password state to the server so it is shown in server list
 end;
 
 
@@ -1551,6 +1552,7 @@ begin
     MPGameInfo.Map := aMap;
     MPGameInfo.GameTime := aGameTime;
     MPGameInfo.GameState := NetMPGameState[fNetGameState];
+    MPGameInfo.PasswordLocked := (fPassword <> '');
     MPGameInfo.Players := fNetPlayers.GetSimpleAsText;
     MPGameInfo.PlayerCount := fNetPlayers.GetConnectedCount;
     PacketSend(NET_ADDRESS_SERVER, mk_SetGameInfo, MPGameInfo.GetAsText, 0);

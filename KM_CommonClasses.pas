@@ -52,7 +52,8 @@ type
   TMPGameInfo = class
   public
     GameState: TMPGameState;
-    PlayerCount: byte;
+    PasswordLocked: Boolean;
+    PlayerCount: Byte;
     Players: AnsiString;
     Description: AnsiString;
     Map: AnsiString;
@@ -167,6 +168,7 @@ begin
   try
     M.WriteAsText(aText);
   M.Read(GameState, SizeOf(GameState));
+  M.Read(PasswordLocked);
   M.Read(PlayerCount);
   M.Read(Players);
   M.Read(Description);
@@ -194,6 +196,7 @@ begin
   M := TKMemoryStream.Create;
 
   M.Write(GameState, SizeOf(GameState));
+  M.Write(PasswordLocked);
   M.Write(PlayerCount);
   M.Write(Players);
   M.Write(Description);

@@ -12,6 +12,8 @@ $PlayerCount = $_REQUEST["playercount"];
 $TTL = $_REQUEST["ttl"];
 $Rev = $_REQUEST["rev"];
 $Coderev = $_REQUEST["coderev"];
+$IsDedicated = $_REQUEST["dedicated"];
+$OS = $_REQUEST["os"];
 if(($Name == "") || ($IP == "") || ($Port == "") || ($TTL == "") || ($PlayerCount == ""))
 {
 	die("Incorrect parameters");
@@ -23,5 +25,5 @@ if((($Coderev == "r4179") || ($Coderev == "r4185")) && ($_SERVER['HTTP_USER_AGEN
 	die("Please download the server update");
 }
 
-echo AddServer($Name,$IP,$Port,$PlayerCount,$TTL,$Rev);
+echo AddServer($Name,$IP,$Port,$PlayerCount,$IsDedicated,$OS,$TTL,$Rev);
 ?>

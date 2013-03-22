@@ -13,6 +13,7 @@ type
     Name: string;
     IP: string;
     Port: string;
+    ServerType: TKMServerType;
     Ping: Word;
   end;
 
@@ -74,7 +75,7 @@ type
     fCount:integer;
     fLastQueried:integer;
     fServers:array of TKMServerInfo;
-    procedure AddServer(aIP, aPort, aName: string; aPing: word);
+    procedure AddServer(aIP, aPort, aName: string; aType: TKMServerType; aPing: word);
     function GetServer(aIndex: Integer): TKMServerInfo;
     procedure Clear;
     procedure LoadFromText(const aText: AnsiString);
@@ -187,12 +188,13 @@ end;
 
 
 { TKMServerList }
-procedure TKMServerList.AddServer(aIP, aPort, aName: string; aPing: word);
+procedure TKMServerList.AddServer(aIP, aPort, aName: string; aType: TKMServerType; aPing: word);
 begin
   if Length(fServers) <= fCount then SetLength(fServers, fCount+16);
   fServers[fCount].Name := aName;
   fServers[fCount].IP := aIP;
   fServers[fCount].Port := aPort;
+  fServers[fCount].ServerType := aType;
   fServers[fCount].Ping := aPing;
   inc(fCount);
 end;
@@ -212,6 +214,22 @@ end;
 
 
 procedure TKMServerList.LoadFromText(const aText: AnsiString);
+
+  function GetServerType(aDedicated, aOS: AnsiString): TKMServerType;
+  begin
+    Result := st_None;
+    if aDedicated = '0' then
+      Result := st_Client
+    else
+      if aDedicated = '1' then
+      begin
+        if aOS = 'Unix' then
+          Result := st_DedicatedLinux
+        else
+          Result := st_Dedicated;
+      end;
+  end;
+
 var
   Strings, Items: TStringList;
   i: integer;
@@ -224,8 +242,8 @@ begin
   for i:=0 to Strings.Count-1 do
   begin
     ParseDelimited(Items, Strings[i], ','); //Automatically clears Items and loads each value
-    if Items.Count = 3 then //Must have 3 parameters
-      AddServer(Items[1], Items[2], Items[0], 0);
+    if Items.Count = 5 then //Must have 5 parameters
+      AddServer(Items[1], Items[2], Items[0], GetServerType(Items[3], Items[4]), 0);
   end;
 
   Items.Free;
@@ -394,7 +412,7 @@ end;
 procedure TKMServerQuery.RefreshList;
 begin
   if LOCAL_SERVER_LIST then
-    ReceiveServerList('Localhost,127.0.0.1,56789') //For debugging
+    ReceiveServerList('Localhost,127.0.0.1,56789,0,Windows') //For debugging
   else
     fMasterServer.QueryServer; //Start the query
 end;
