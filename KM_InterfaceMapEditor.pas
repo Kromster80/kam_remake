@@ -1034,10 +1034,10 @@ begin
       CheckBox_AutoRepair.OnClick := Town_ScriptChange;
       TrackBar_SerfFactor := TKMTrackBar.Create(Panel_Script, 0, 70, TB_WIDTH, 0, 20);
       TrackBar_SerfFactor.Caption := fTextLibrary[TX_MAPED_AI_SERF_FACTOR];
-      TrackBar_SerfFactor.OnClick := Town_ScriptChange;
+      TrackBar_SerfFactor.OnChange := Town_ScriptChange;
       TrackBar_WorkerFactor := TKMTrackBar.Create(Panel_Script, 0, 110, TB_WIDTH, 0, 30);
       TrackBar_WorkerFactor.Caption := fTextLibrary[TX_MAPED_AI_WORKERS];
-      TrackBar_WorkerFactor.OnClick := Town_ScriptChange;
+      TrackBar_WorkerFactor.OnChange := Town_ScriptChange;
 
     //Defence settings
     Panel_Defence := TKMPanel.Create(Panel_Town, 0, 28, TB_WIDTH, 400);
@@ -1054,17 +1054,17 @@ begin
       TrackBar_EquipRateLeather := TKMTrackBar.Create(Panel_Defence, 0, 120, TB_WIDTH, 10, 300);
       TrackBar_EquipRateLeather.Caption := fTextLibrary[TX_MAPED_AI_DEFENSE_EQUIP_LEATHER];
       TrackBar_EquipRateLeather.Step := 5;
-      TrackBar_EquipRateLeather.OnClick := Town_DefenceChange;
+      TrackBar_EquipRateLeather.OnChange := Town_DefenceChange;
 
       TrackBar_EquipRateIron := TKMTrackBar.Create(Panel_Defence, 0, 164, TB_WIDTH, 10, 300);
       TrackBar_EquipRateIron.Caption := fTextLibrary[TX_MAPED_AI_DEFENSE_EQUIP_IRON];
       TrackBar_EquipRateIron.Step := 5;
-      TrackBar_EquipRateIron.OnClick := Town_DefenceChange;
+      TrackBar_EquipRateIron.OnChange := Town_DefenceChange;
 
       TrackBar_RecruitFactor := TKMTrackBar.Create(Panel_Defence, 0, 208, TB_WIDTH, 1, 20);
       TrackBar_RecruitFactor.Caption := fTextLibrary[TX_MAPED_AI_RECRUITS];
       TrackBar_RecruitFactor.Hint := fTextLibrary[TX_MAPED_AI_RECRUITS_HINT];
-      TrackBar_RecruitFactor.OnClick := Town_DefenceChange;
+      TrackBar_RecruitFactor.OnChange := Town_DefenceChange;
 
       CheckBox_MaxSoldiers := TKMCheckBox.Create(Panel_Defence, 0, 252, TB_WIDTH, 20, fTextLibrary[TX_MAPED_AI_MAX_SOLDIERS], fnt_Metal);
       CheckBox_MaxSoldiers.Hint := fTextLibrary[TX_MAPED_AI_MAX_SOLDIERS_ENABLE_HINT];
@@ -1073,7 +1073,7 @@ begin
       TrackBar_MaxSoldiers.Caption := '';
       TrackBar_MaxSoldiers.Hint := fTextLibrary[TX_MAPED_AI_MAX_SOLDIERS_HINT];
       TrackBar_MaxSoldiers.Step := 5;
-      TrackBar_MaxSoldiers.OnClick := Town_DefenceChange;
+      TrackBar_MaxSoldiers.OnChange := Town_DefenceChange;
 
       Button_EditFormations := TKMButton.Create(Panel_Defence, 0, 300, TB_WIDTH, 25, fTextLibrary[TX_MAPED_AI_FORMATIONS], bsGame);
       Button_EditFormations.OnClick := Formations_Show;
