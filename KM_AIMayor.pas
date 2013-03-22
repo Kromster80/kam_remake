@@ -113,6 +113,7 @@ begin
 
   fAutoRepair := False; //In KaM it is Off by default
 
+  //todo: We can't run this here, it needs to happen AFTER the script has completely loaded so we get the equip rate from the script
   SetArmyDemand(0.5, 0, 0, 0.5);
 end;
 
