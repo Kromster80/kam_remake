@@ -1,0 +1,23 @@
+Here is a list of graphical problems relating to snow houses. Most can be fixed by removing backgrounds from house overlays, keeping shadows (using chessboard style) where possible.
+
+
+Backgrounds to remove from house overlays
+ - Winefarm squashing animation covers snow on roof
+ - Carpenter in weapons workshop covers snow on roof and post when working
+ - 5 timber in weapons workshop covers some snow on roof
+ - Coal, iron ore and iron in iron smelter covers snow on walls and roof
+ - Corn in swine farm cover some bits of snow
+ - Recruit idle and throwing animation in tower covers snow on roof
+ - Mill working animation covers snow on roof
+ - Carpenter in armour workshop covers snow on wall behind his head in both working and idle animations (shadows on wall to be kept)
+ - Bread in bakery covers snow on table legs
+ - Sawmill logs hides snow on fence
+ - Corn in farm covers snow
+ - Fish in fisherman's hut covers snow
+ - Iron ore in iron mine covers snow
+
+
+Other things to fix:
+ - Pigs in swine farm cover some bits of snow. Makes Z order look wrong since snow now extends beyond original fence boundaries. Fix by clipping snow on fences to original fence pixels, so pig animations fit around it.
+ - Shadow of mill blades on roof look odd (convert shadows to pixel chessboard like other shadows)
+

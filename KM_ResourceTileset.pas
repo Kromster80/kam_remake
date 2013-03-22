@@ -170,7 +170,7 @@ end;
 {Check if requested tile is sand suitable for crabs}
 function TKMTileset.TileIsSnow(aTile: Byte): Boolean;
 begin
-  Result := aTile in [45, 46, 47, 49, 52, 65, 203, 204, 205, 212, 213, 220];
+  Result := aTile in [45, 46, 47, 49, 52, 64, 65, 166, 171, 203, 204, 205, 212, 213, 220];
 end;
 
 
