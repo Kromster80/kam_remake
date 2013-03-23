@@ -2,8 +2,10 @@ unit KM_GameApp;
 {$I KaM_Remake.inc}
 interface
 uses
-  Windows, Classes, Controls, Dialogs, ExtCtrls, KromUtils, Math, SysUtils, TypInfo,
-  KM_CommonTypes, KM_Defaults,
+  {$IFDEF MSWindows} Windows, {$ENDIF}
+  {$IFDEF Unix} LCLType, {$ENDIF}
+  Classes, Controls, Dialogs, ExtCtrls, KromUtils, Math, SysUtils, TypInfo,
+  KM_CommonTypes, KM_Defaults, KM_RenderControl,
   KM_Campaigns, KM_Game,
   KM_InterfaceMainMenu,
   KM_Locales, KM_Music, KM_Networking, KM_Settings, KM_TextLibrary, KM_Render;
@@ -44,7 +46,7 @@ type
     procedure LoadGameFromScratch(aSizeX, aSizeY: Integer; aGameMode: TGameMode);
     function SaveName(const aName, aExt: string; aMultiPlayer: Boolean): string;
   public
-    constructor Create(aHandle: HWND; aScreenX, aScreenY: Word; aVSync: Boolean; aLS: TEvent; aLT: TStringEvent; aOnCursorUpdate: TIntegerStringEvent; NoMusic: Boolean = False);
+    constructor Create(aRenderControl: TKMRenderControl; aScreenX, aScreenY: Word; aVSync: Boolean; aLS: TEvent; aLT: TStringEvent; aOnCursorUpdate: TIntegerStringEvent; NoMusic: Boolean = False);
     destructor Destroy; override;
     procedure AfterConstruction(aReturnToOptions: Boolean); reintroduce;
 
@@ -104,18 +106,18 @@ uses
 
 
 { Creating everything needed for MainMenu, game stuff is created on StartGame }
-constructor TKMGameApp.Create(aHandle: HWND; aScreenX, aScreenY: Word; aVSync: Boolean; aLS: TEvent; aLT: TStringEvent; aOnCursorUpdate: TIntegerStringEvent; NoMusic: Boolean = False);
+constructor TKMGameApp.Create(aRenderControl: TKMRenderControl; aScreenX, aScreenY: Word; aVSync: Boolean; aLS: TEvent; aLT: TStringEvent; aOnCursorUpdate: TIntegerStringEvent; NoMusic: Boolean = False);
 begin
   inherited Create;
 
   fOnCursorUpdate := aOnCursorUpdate;
 
-  fLocales      := TKMLocales.Create(ExeDir + 'data\locales.txt');
+  fLocales      := TKMLocales.Create(ExeDir + 'data' + PathDelim + 'locales.txt');
   fGameSettings := TGameSettings.Create;
-  fTextLibrary  := TTextLibrary.Create(ExeDir + 'data\text\', fGameSettings.Locale);
+  fTextLibrary  := TTextLibrary.Create(ExeDir + 'data' + PathDelim + 'text' + PathDelim, fGameSettings.Locale);
   {$IFDEF USE_MAD_EXCEPT}fExceptions.LoadTranslation;{$ENDIF}
 
-  fRender       := TRender.Create(aHandle, aScreenX, aScreenY, aVSync);
+  fRender       := TRender.Create(aRenderControl, aScreenX, aScreenY, aVSync);
 
   //Show the message if user has old OpenGL drivers (pre-1.4)
   if fRender.IsOldGLVersion then
@@ -132,8 +134,8 @@ begin
   fSoundLib.OnRequestUnfade := fMusicLib.UnfadeMusic;
 
   fCampaigns    := TKMCampaignsCollection.Create;
-  fCampaigns.ScanFolder(ExeDir + 'Campaigns\');
-  fCampaigns.LoadProgress(ExeDir + 'Saves\Campaigns.dat');
+  fCampaigns.ScanFolder(ExeDir + 'Campaigns' + PathDelim);
+  fCampaigns.LoadProgress(ExeDir + 'Saves' + PathDelim + 'Campaigns.dat');
 
   //If game was reinitialized from options menu then we should return there
   fMainMenuInterface := TKMMainMenuInterface.Create(aScreenX, aScreenY);
@@ -173,7 +175,7 @@ begin
   Stop(gr_Silent);
 
   FreeAndNil(fTimerUI);
-  if fCampaigns <> nil then fCampaigns.SaveProgress(ExeDir + 'Saves\Campaigns.dat');
+  if fCampaigns <> nil then fCampaigns.SaveProgress(ExeDir + 'Saves' + PathDelim + 'Campaigns.dat');
   FreeThenNil(fCampaigns);
   FreeThenNil(fGameSettings);
   FreeThenNil(fLocales);
@@ -217,7 +219,7 @@ begin
   FreeAndNil(fTextLibrary);
 
   //Recreate resources that use Locale info
-  fTextLibrary := TTextLibrary.Create(ExeDir + 'data\text\', fGameSettings.Locale);
+  fTextLibrary := TTextLibrary.Create(ExeDir + 'data' + PathDelim + 'text' + PathDelim + '', fGameSettings.Locale);
   {$IFDEF USE_MAD_EXCEPT}fExceptions.LoadTranslation;{$ENDIF}
   //Don't reshow the warning dialog when initing sounds, it gets stuck behind in full screen
   //and the user already saw it when starting the game.
@@ -226,8 +228,8 @@ begin
   fSoundLib.OnRequestUnfade := fMusicLib.UnfadeMusic;
   fResource.Fonts.LoadFonts(fGameSettings.Locale);
   fCampaigns := TKMCampaignsCollection.Create; //Campaigns load text into TextLibrary
-  fCampaigns.ScanFolder(ExeDir + 'Campaigns\');
-  fCampaigns.LoadProgress(ExeDir + 'Saves\Campaigns.dat');
+  fCampaigns.ScanFolder(ExeDir + 'Campaigns' + PathDelim);
+  fCampaigns.LoadProgress(ExeDir + 'Saves' + PathDelim + 'Campaigns.dat');
   fMainMenuInterface := TKMMainMenuInterface.Create(fRender.ScreenX, fRender.ScreenY);
   fMainMenuInterface.ShowScreen(msOptions);
   Resize(fRender.ScreenX, fRender.ScreenY); //Force the recreated main menu to resize to the user's screen
@@ -612,9 +614,9 @@ end;
 function TKMGameApp.SaveName(const aName, aExt: string; aMultiPlayer: Boolean): string;
 begin
   if aMultiPlayer then
-    Result := ExeDir + 'SavesMP\' + aName + '.' + aExt
+    Result := ExeDir + 'SavesMP' + PathDelim + aName + '.' + aExt
   else
-    Result := ExeDir + 'Saves\' + aName + '.' + aExt;
+    Result := ExeDir + 'Saves' + PathDelim + aName + '.' + aExt;
 end;
 
 

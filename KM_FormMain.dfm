@@ -29,20 +29,6 @@ object FormMain: TFormMain
     532)
   PixelsPerInch = 96
   TextHeight = 13
-  object Panel5: TPanel
-    Left = 0
-    Top = 0
-    Width = 521
-    Height = 512
-    Anchors = [akLeft, akTop, akRight, akBottom]
-    BevelOuter = bvNone
-    Color = clMaroon
-    UseDockManager = False
-    TabOrder = 0
-    OnMouseDown = Panel1MouseDown
-    OnMouseMove = Panel1MouseMove
-    OnMouseUp = Panel1MouseUp
-  end
   object StatusBar1: TStatusBar
     Left = 0
     Top = 512

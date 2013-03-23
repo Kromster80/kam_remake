@@ -4,8 +4,8 @@ interface
 uses
   {$IFDEF MSWindows} Windows, {$ENDIF}
   {$IFDEF WDC} Graphics, JPEG, {$ENDIF} //Lazarus doesn't have JPEG library yet -> FPReadJPEG?
-  {$IFDEF Unix} LCLIntf, LCLType, {$ENDIF}
-  Math, dglOpenGL, KromOGLUtils, KromUtils;
+  {$IFDEF Unix} LCLIntf, LCLType, OpenGLContext, {$ENDIF}
+  Math, dglOpenGL, KromOGLUtils, KromUtils, KM_RenderControl;
 
 
 type
@@ -23,13 +23,12 @@ type
   //General OpenGL handling
   TRender = class
   private
-    h_DC: HDC;
-    h_RC: HGLRC;
+    fRenderControl: TKMRenderControl;
     fOpenGL_Vendor, fOpenGL_Renderer, fOpenGL_Version: AnsiString;
     fScreenX, fScreenY: Word;
     fBlind: Boolean;
   public
-    constructor Create(RenderFrame: HWND; ScreenX,ScreenY: Integer; aVSync: Boolean);
+    constructor Create(aRenderControl: TKMRenderControl; ScreenX,ScreenY: Integer; aVSync: Boolean);
     destructor Destroy; override;
 
     procedure SetRenderMode(aRenderMode: TRenderMode); //Switch between 2D and 3D perspectives
@@ -58,16 +57,17 @@ implementation
 uses KM_Log;
 
 
-constructor TRender.Create(RenderFrame: HWND; ScreenX,ScreenY: Integer; aVSync: Boolean);
+constructor TRender.Create(aRenderControl: TKMRenderControl; ScreenX,ScreenY: Integer; aVSync: Boolean);
 begin
   inherited Create;
 
-  fBlind := RenderFrame = 0;
+  fBlind := aRenderControl = nil;
+  fRenderControl := aRenderControl;
 
   if not fBlind then
   begin
-    SetRenderFrame(RenderFrame, h_DC, h_RC);
-    SetRenderDefaults;
+    fRenderControl.CreateRenderContext;
+
     glDisable(GL_LIGHTING); //We don't need it
     //glEnable(GL_CULL_FACE);
     //glCullFace(GL_FRONT);
@@ -77,7 +77,8 @@ begin
     fOpenGL_Version  := glGetString(GL_VERSION);  fLog.AddNoTime('OpenGL Version: '  + string(fOpenGL_Version));
 
     SetupVSync(aVSync);
-    BuildFont(h_DC, 16, FW_BOLD);
+    //todo: Is this needed? Make it multiplatform
+    //BuildFont(h_DC, 16, FW_BOLD);
 
     Resize(ScreenX, ScreenY);
   end;
@@ -87,15 +88,7 @@ end;
 destructor TRender.Destroy;
 begin
   if not fBlind then
-  begin
-    {$IFDEF MSWindows}
-    wglMakeCurrent(h_DC, 0);
-    wglDeleteContext(h_RC);
-    {$ENDIF}
-    {$IFDEF Unix}
-      //?
-    {$ENDIF}
-  end;
+    fRenderControl.DestroyRenderContext;
   inherited;
 end;
 
@@ -274,12 +267,7 @@ begin
   if fBlind then Exit;
 
   glFinish;
-  {$IFDEF MSWindows}
-  SwapBuffers(h_DC);
-  {$ENDIF}
-  {$IFDEF Unix}
-  glXSwapBuffers(FDisplay, FDC);
-  {$ENDIF}
+  fRenderControl.SwapBuffers;
 end;
 
 

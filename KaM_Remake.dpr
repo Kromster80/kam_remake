@@ -90,6 +90,7 @@ uses
   KM_Projectiles in 'KM_Projectiles.pas',
   KM_Render in 'KM_Render.pas',
   KM_RenderAux in 'KM_RenderAux.pas',
+  KM_RenderControl in 'KM_RenderControl.pas',
   KM_RenderPool in 'KM_RenderPool.pas',
   KM_RenderTerrain in 'KM_RenderTerrain.pas',
   KM_RenderUI in 'KM_RenderUI.pas',

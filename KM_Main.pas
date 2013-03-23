@@ -96,8 +96,8 @@ begin
   {$ENDIF}
   ExeDir := ExtractFilePath(Application.ExeName);
 
-  CreateDir(ExeDir + 'Logs\');
-  fLog := TKMLog.Create(ExeDir + 'Logs\KaM_' + FormatDateTime('yyyy-mm-dd_hh-nn-ss-zzz', Now) + '.log'); //First thing - create a log
+  CreateDir(ExeDir + 'Logs' + PathDelim);
+  fLog := TKMLog.Create(ExeDir + 'Logs' + PathDelim + 'KaM_' + FormatDateTime('yyyy-mm-dd_hh-nn-ss-zzz', Now) + '.log'); //First thing - create a log
   fLog.DeleteOldLogs;
 
   //Resolutions are created first so that we could check Settings against them
@@ -156,11 +156,17 @@ begin
       fGameApp.Game.IsPaused := True;
 
     //Ask the Player
+    {$IFDEF MSWindows}
+    //MessageBox works best in Windows (gets stuck under main form less)
     CanClose := MessageBox( fFormMain.Handle,
                             PChar('Any unsaved changes will be lost. Exit?'),
                             PChar('Warning'),
                             MB_YESNO or MB_ICONWARNING or MB_SETFOREGROUND or MB_TASKMODAL
                            ) = IDYES;
+    {$ENDIF}
+    {$IFDEF Unix}
+    CanClose := MessageDlg('Any unsaved changes will be lost. Exit?', mtWarning, [mbYes, mbNo], 0) = mrYes;
+    {$ENDIF}
 
     //Resume the game
     if not CanClose and WasRunning then
@@ -204,7 +210,9 @@ begin
   //Prevent the game window from being in the way by minimizing when alt-tabbing
   if (fMainSettings <> nil) and fMainSettings.FullScreen then
   begin
-    ClipCursor(nil); //Remove all cursor clipping just in case Windows doesn't automatically
+    {$IFDEF MSWindows}
+      ClipCursor(nil); //Remove all cursor clipping just in case Windows doesn't automatically
+    {$ENDIF}
     Application.Minimize;
   end;
 end;
@@ -265,10 +273,9 @@ begin
 
   //It's required to re-init whole OpenGL related things when RC gets toggled fullscreen
   FreeThenNil(fGameApp); //Saves all settings into ini file in midst
-  fGameApp := TKMGameApp.Create(
-                                fFormMain.Panel5.Handle,
-                                fFormMain.Panel5.Width,
-                                fFormMain.Panel5.Height,
+  fGameApp := TKMGameApp.Create(fFormMain.RenderArea,
+                                fFormMain.RenderArea.Width,
+                                fFormMain.RenderArea.Height,
                                 fMainSettings.VSync,
                                 fFormLoading.LoadingStep,
                                 fFormLoading.LoadingText,
@@ -277,13 +284,13 @@ begin
 
   fLog.AddTime('ToggleFullscreen');
   fLog.AddTime('Form Width/Height: '+inttostr(fFormMain.Width)+':'+inttostr(fFormMain.Height));
-  fLog.AddTime('Panel Width/Height: '+inttostr(fFormMain.Panel5.Width)+':'+inttostr(fFormMain.Panel5.Height));
+  fLog.AddTime('Panel Width/Height: '+inttostr(fFormMain.RenderArea.Width)+':'+inttostr(fFormMain.RenderArea.Height));
 
   //Hide'n'show will make form go ontop of taskbar
   fFormMain.Hide;
   fFormMain.Show;
 
-  Resize(fFormMain.Panel5.Width, fFormMain.Panel5.Height); //Force everything to resize
+  Resize(fFormMain.RenderArea.Width, fFormMain.RenderArea.Height); //Force everything to resize
   ApplyCursorRestriction;
 end;
 
@@ -311,7 +318,7 @@ end;
 
 function TKMMain.ClientRect: TRect;
 begin
-  Result := fFormMain.Panel5.ClientRect;
+  Result := fFormMain.RenderArea.ClientRect;
   Result.TopLeft := ClientToScreen(Result.TopLeft);
   Result.BottomRight := ClientToScreen(Result.BottomRight);
 end;
@@ -319,7 +326,7 @@ end;
 
 function TKMMain.ClientToScreen(aPoint: TPoint): TPoint;
 begin
-  Result := fFormMain.Panel5.ClientToScreen(aPoint);
+  Result := fFormMain.RenderArea.ClientToScreen(aPoint);
 end;
 
 

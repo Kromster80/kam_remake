@@ -3,22 +3,10 @@ unit KM_FormMain;
 interface
 uses
   Classes, ComCtrls, Controls, Buttons, Dialogs, ExtCtrls, Forms, Graphics, Math, Menus, StdCtrls, SysUtils, StrUtils, TypInfo,
+  KM_RenderControl,
   {$IFDEF FPC} LResources, {$ENDIF}
   {$IFDEF MSWindows} Windows, Messages; {$ENDIF}
   {$IFDEF Unix} LCLIntf, LCLType; {$ENDIF}
-
-
-type
-  //Custom flicker-free Panel
-  TMyPanel = class(TPanel)
-  private
-    LastScreenPos: TPoint;
-    procedure WMEraseBkgnd(var Message: TWmEraseBkgnd); message WM_ERASEBKGND;
-    procedure WMSize(var Message: TWMSize); message WM_SIZE;
-    procedure WMPaint(var Message: TWMPaint); message WM_PAINT;
-  published
-    property OnMouseWheel; //Required for Lazarus
-  end;
 
 
 type
@@ -33,7 +21,6 @@ type
     N1: TMenuItem;
     About1: TMenuItem;
     Debug1: TMenuItem;
-    Panel5: TPanel;
     Debug_PrintScreen: TMenuItem;
     Export1: TMenuItem;
     Export_GUIRX: TMenuItem;
@@ -100,9 +87,6 @@ type
     procedure FormKeyPress(Sender: TObject; var Key: Char);
     procedure Debug_EnableCheatsClick(Sender: TObject);
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
-    procedure Panel1MouseDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
-    procedure Panel1MouseMove(Sender: TObject; Shift: TShiftState; X,Y: Integer);
-    procedure Panel1MouseUp(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
     procedure AboutClick(Sender: TObject);
     procedure ExitClick(Sender: TObject);
     procedure Debug_PrintScreenClick(Sender: TObject);
@@ -125,19 +109,26 @@ type
     procedure chkSuperSpeedClick(Sender: TObject);
     procedure Debug_ShowPanelClick(Sender: TObject);
     procedure FormMouseWheel(Sender: TObject; Shift: TShiftState; WheelDelta: Integer; MousePos: TPoint; var Handled: Boolean);
-    procedure Panel5MouseWheel(Sender: TObject; Shift: TShiftState; WheelDelta: Integer; MousePos: TPoint; var Handled: Boolean);
     procedure Debug_ExportGamePagesClick(Sender: TObject);
     procedure Debug_ExportMenuPagesClick(Sender: TObject);
     procedure HousesDat1Click(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure ResourceValues1Click(Sender: TObject);
     procedure ControlsUpdate(Sender: TObject);
+    
+    procedure RenderAreaMouseDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+    procedure RenderAreaMouseMove(Sender: TObject; Shift: TShiftState; X,Y: Integer);
+    procedure RenderAreaMouseUp(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+    procedure RenderAreaMouseWheel(Sender: TObject; Shift: TShiftState; WheelDelta: Integer; MousePos: TPoint; var Handled: Boolean);
+    procedure RenderAreaResize(aWidth, aHeight: Integer);
+    procedure RenderAreaRender(aSender: TObject);
   private
     fUpdating: Boolean;
     {$IFDEF MSWindows}
     procedure WMSysCommand(var Msg: TWMSysCommand); message WM_SYSCOMMAND;
     {$ENDIF}
   public
+    RenderArea: TKMRenderControl;
     procedure ControlsSetVisibile(aShowCtrls: Boolean);
     procedure ControlsReset;
     procedure ToggleFullscreen(aFullscreen: Boolean);
@@ -166,68 +157,30 @@ uses
   KM_Locales;
 
 
-{ TMyPanel }
-procedure TMyPanel.WMEraseBkgnd(var Message: TWmEraseBkgnd);
-begin
-  //Do not erase background, thats causing BG color flickering on repaint
-  //Just tell it's done
-  Message.Result := 1;
-end;
-
-
-procedure TMyPanel.WMPaint(var Message: TWMPaint);
-var
-  PS: TPaintStruct;
-  P: TPoint;
-begin
-  P := ClientToScreen(Classes.Point(0, 0));
-  //It is said to help with black borders bug in Windows
-  if (LastScreenPos.X <> P.X) or (LastScreenPos.Y <> P.Y) then
-  begin
-    PostMessage(Handle, WM_SIZE, SIZE_RESTORED, Width + (Height shl 16));
-    LastScreenPos := P;
-  end;
-
-  BeginPaint(Handle, PS);
-  try
-    fMain.Render;
-  finally
-    EndPaint(Handle, PS);
-  end;
-
-  inherited;
-end;
-
-
-//Let the renderer know that client area size has changed ASAP
-//Handling it through VCL functions takes too long and Panel is already filled with bg color
-procedure TMyPanel.WMSize(var Message: TWMSize);
-begin
-  //inherited;
-  fMain.Resize(Message.Width, Message.Height);
-end;
-
-
 //Remove VCL panel and use flicker-free TMyPanel instead
 procedure TFormMain.FormCreate(Sender: TObject);
 begin
-  RemoveControl(Panel5);
-  Panel5 := TMyPanel.Create(Self);
-  Panel5.Parent := Self;
-  Panel5.BevelOuter := bvNone;
-  Panel5.Align := alClient;
-  Panel5.Color := clMaroon;
-  Panel5.OnMouseDown := Panel1MouseDown;
-  Panel5.OnMouseMove := Panel1MouseMove;
-  Panel5.OnMouseUp := Panel1MouseUp;
-  //Lazarus needs OnMouseWheel event to be for the panel, not the entire form
-  {$IFDEF FPC} TMyPanel(Panel5).OnMouseWheel := Panel5MouseWheel; {$ENDIF}
+  RenderArea := TKMRenderControl.Create(Self);
+  RenderArea.Parent := Self;
+  RenderArea.Align := alClient;
+  RenderArea.Color := clMaroon;
+  RenderArea.OnMouseDown := RenderAreaMouseDown;
+  RenderArea.OnMouseMove := RenderAreaMouseMove;
+  RenderArea.OnMouseUp := RenderAreaMouseUp;
+  RenderArea.OnResize := RenderAreaResize;
+  RenderArea.OnRender := RenderAreaRender;
 
-  //Means it will receive WM_SIZE WM_PAINT always in pair (if False - WM_PAINT is not called if size becames smaller)
-  Panel5.FullRepaint := True;
+  //Lazarus needs OnMouseWheel event to be for the panel, not the entire form
+  {$IFDEF FPC} RenderArea.OnMouseWheel := RenderAreaMouseWheel; {$ENDIF}
+
+  {$IFDEF MSWindows}
+    //Means it will receive WM_SIZE WM_PAINT always in pair (if False - WM_PAINT is not called if size becames smaller)
+    RenderArea.FullRepaint := True;
+    RenderArea.BevelOuter := bvNone;
+  {$ENDIF}
 
   //Put debug panel on top
-  Panel5.SendToBack;
+  RenderArea.SendToBack;
   GroupBox1.BringToFront;
 end;
 
@@ -273,23 +226,35 @@ begin
 end;
 
 
-procedure TFormMain.Panel1MouseDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+procedure TFormMain.RenderAreaMouseDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
 begin if fGameApp <> nil then fGameApp.MouseDown(Button, Shift, X, Y); end;
 
 
-procedure TFormMain.Panel1MouseMove(Sender: TObject; Shift: TShiftState; X,Y: Integer);
+procedure TFormMain.RenderAreaMouseMove(Sender: TObject; Shift: TShiftState; X,Y: Integer);
 begin if fGameApp <> nil then fGameApp.MouseMove(Shift, X, Y); end;
 
 
-procedure TFormMain.Panel1MouseUp(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+procedure TFormMain.RenderAreaMouseUp(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
 begin if fGameApp <> nil then fGameApp.MouseUp(Button, Shift, X, Y); end;
 
 
 procedure TFormMain.FormMouseWheel(Sender: TObject; Shift: TShiftState; WheelDelta: Integer; MousePos: TPoint; var Handled: Boolean);
-begin if fGameApp <> nil then fGameApp.MouseWheel(Shift, WheelDelta, Panel5.ScreenToClient(MousePos).X, Panel5.ScreenToClient(MousePos).Y); end;
+begin if fGameApp <> nil then fGameApp.MouseWheel(Shift, WheelDelta, RenderArea.ScreenToClient(MousePos).X, RenderArea.ScreenToClient(MousePos).Y); end;
 
-procedure TFormMain.Panel5MouseWheel(Sender: TObject; Shift: TShiftState; WheelDelta: Integer; MousePos: TPoint; var Handled: Boolean);
+procedure TFormMain.RenderAreaMouseWheel(Sender: TObject; Shift: TShiftState; WheelDelta: Integer; MousePos: TPoint; var Handled: Boolean);
 begin if fGameApp <> nil then fGameApp.MouseWheel(Shift, WheelDelta, MousePos.X, MousePos.Y); end;
+
+
+procedure TFormMain.RenderAreaResize(aWidth, aHeight: Integer);
+begin
+  fMain.Resize(aWidth, aHeight);
+end;
+
+
+procedure TFormMain.RenderAreaRender(aSender: TObject);
+begin
+  fMain.Render;
+end;
 
 
 //Open
@@ -412,7 +377,7 @@ begin
   for I := 0 to fLocales.Count-1 do
   begin
     //Don't mess up the actual text library by loading other locales
-    MyTextLibrary := TTextLibrary.Create(ExeDir+'data\text\', fLocales[i].Code);
+    MyTextLibrary := TTextLibrary.Create(ExeDir+'data' + PathDelim + 'text' + PathDelim, fLocales[i].Code);
     MyTextLibrary.ExportTextLibraries;
     MyTextLibrary.Free;
   end;
@@ -517,11 +482,11 @@ begin
 
   Refresh;
 
-  Panel5.Top    := 0;
-  Panel5.Height := ClientHeight;
-  Panel5.Width  := ClientWidth;
+  RenderArea.Top    := 0;
+  RenderArea.Height := ClientHeight;
+  RenderArea.Width  := ClientWidth;
 
-  fMain.Resize(Panel5.Width, Panel5.Height);
+  fMain.Resize(RenderArea.Width, RenderArea.Height);
 end;
 
 
@@ -602,7 +567,7 @@ begin
   end;
 
   //Make sure Panel is properly aligned
-  Panel5.Align := alClient;
+  RenderArea.Align := alClient;
 end;
 
 {$IFDEF MSWindows}

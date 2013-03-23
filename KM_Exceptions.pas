@@ -95,7 +95,7 @@ begin
   LogMessage := 'Exception occured: ' + ExceptIntf.ExceptClass + ': ' + ExceptIntf.ExceptMessage;
   if ExceptIntf.ExceptObject is ELocError then
     LogMessage := LogMessage + ' at location ' + TypeToString(ELocError(ExceptIntf.ExceptObject).Loc);
-  fLog.AppendLog(LogMessage);
+  fLog.AddTime(LogMessage);
 
   //Append the exception message on a new paragraph of the dialog. It might be useful to the user (e.g. file permissions wrong)
   //and sometimes people send us a screenshot of the crash report window, it would be nice to know what the error was from that.
