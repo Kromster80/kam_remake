@@ -316,9 +316,9 @@ begin
 
   //Look for nearest Ore
   case aOreType of
-    rt_Coal:    if not FindNearest(KMPointBelow(TargetLoc), 40, fnCoal, P) then Exit;
-    rt_IronOre: if not FindNearest(KMPointBelow(TargetLoc), 40, fnIron, P) then Exit;
-    rt_GoldOre: if not FindNearest(KMPointBelow(TargetLoc), 40, fnGold, P) then Exit;
+    rt_Coal:    if not FindNearest(KMPointBelow(TargetLoc), 45, fnCoal, P) then Exit;
+    rt_IronOre: if not FindNearest(KMPointBelow(TargetLoc), 45, fnIron, P) then Exit;
+    rt_GoldOre: if not FindNearest(KMPointBelow(TargetLoc), 45, fnGold, P) then Exit;
   end;
 
   //todo: If there's no ore AI should not keep calling this over and over again
