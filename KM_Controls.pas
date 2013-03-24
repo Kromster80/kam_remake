@@ -3815,12 +3815,6 @@ end;
 
 
 { TKMMenu }
-procedure TKMMenu.Clear;
-begin
-  fList.Clear;
-end;
-
-
 constructor TKMMenu.Create(aParent: TKMPanel; aWidth: Integer);
 begin
   inherited Create(aParent.MasterParent, 0, 0, aWidth, 0);
@@ -3838,6 +3832,14 @@ begin
   fList.ShowHeader := False;
   fList.OnClick := MenuClick;
   fList.Hide;
+
+  Hide;
+end;
+
+
+procedure TKMMenu.Clear;
+begin
+  fList.Clear;
 end;
 
 
@@ -3877,6 +3879,7 @@ end;
 
 procedure TKMMenu.MenuHide(Sender: TObject);
 begin
+  Hide;
   fList.Hide;
   fShapeBG.Hide;
 end;
@@ -3890,6 +3893,7 @@ begin
   //Reset previously selected item
   fList.ItemIndex := -1;
 
+  Show;
   fShapeBG.Show;
   fList.Show;
 end;

@@ -57,7 +57,7 @@ type
     procedure Create_Replay;
     procedure Create_Allies;
     procedure Create_Chat;
-    procedure CreateChatMenu(aParent: TKMPanel);
+    procedure Create_ChatMenu(aParent: TKMPanel);
     procedure Create_Message;
     procedure Create_MessageLog;
     procedure Create_Pause;
@@ -851,7 +851,7 @@ begin
   Create_NetWait; //Overlay blocking everyhitng but sidestack and messages
   Create_Allies; //MessagePage sibling
   Create_Chat; //On top of NetWait to allow players to chat while waiting for late opponents
-  CreateChatMenu(Panel_Main);
+  Create_ChatMenu(Panel_Main);
   Create_Message; //Must go bellow message stack
   Create_MessageLog; //Must go bellow message stack
   Create_SideStack; //Messages, Allies, Chat icons
@@ -1200,7 +1200,7 @@ begin
 end;
 
 
-procedure TKMGamePlayInterface.CreateChatMenu(aParent: TKMPanel);
+procedure TKMGamePlayInterface.Create_ChatMenu(aParent: TKMPanel);
 begin
   Menu_Chat := TKMMenu.Create(aParent, 120);
   Menu_Chat.Anchors := [akLeft, akBottom];
