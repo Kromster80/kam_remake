@@ -3,7 +3,7 @@ unit KM_InterfaceMainMenu;
 interface
 uses
   {$IFDEF MSWindows} Windows, {$ENDIF}
-  {$IFDEF Unix} LCLIntf, LCLType, {$ENDIF}
+  {$IFDEF Unix} LCLType, {$ENDIF}
   {$IFDEF WDC} ShellAPI, {$ENDIF} //Required for OpenURL in Delphi
   {$IFDEF FPC} LCLIntf, {$ENDIF} //Required for OpenURL in Lazarus
   StrUtils, SysUtils, KromUtils, KromOGLUtils, Math, Classes, Forms, Controls,
