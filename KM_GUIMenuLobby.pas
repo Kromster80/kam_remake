@@ -3,6 +3,7 @@ unit KM_GUIMenuLobby;
 interface
 uses
   {$IFDEF MSWindows} Windows, {$ENDIF}
+  {$IFDEF Unix} LCLType, {$ENDIF}
   Controls, Math, SysUtils,
   KM_Defaults,
   KM_Controls, KM_Maps, KM_Saves, KM_Pics, KM_InterfaceDefaults, KM_Minimap, KM_Networking;

@@ -565,9 +565,14 @@ end;
 //Win will automatically release the Mutex on application exit
 function CheckDuplicateApplication(aGUID: string): Boolean;
 begin
-  if CreateMutex(nil, True, PChar(aGUID)) = 0 then
-    RaiseLastOSError;
-  Result := (GetLastError = ERROR_ALREADY_EXISTS);
+  {$IFDEF MSWindows}
+    if CreateMutex(nil, True, PChar(aGUID)) = 0 then
+      RaiseLastOSError;
+    Result := (GetLastError = ERROR_ALREADY_EXISTS);
+  {$ENDIF}
+  {$IFDEF Unix}
+    Result := False;
+  {$ENDIF}
 end;
 
 

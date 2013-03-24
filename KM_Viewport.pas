@@ -1,7 +1,7 @@
 unit KM_Viewport;
 {$I KaM_Remake.inc}
 interface
-uses Math, Controls, {$IFDEF MSWindows} Windows, {$ENDIF}
+uses Math, classes, Controls, {$IFDEF MSWindows} Windows, {$ENDIF}
   KM_CommonClasses, KM_Points;
 
 type
@@ -182,11 +182,16 @@ var
   Temp:byte;
   MousePos: TPoint;
 begin
-  //Don't use Mouse.CursorPos, it will throw an EOSError (code 5: access denied) in some cases when
-  //the OS doesn't want us controling the mouse, or possibly when the mouse is reset in some way.
-  //It happens for me in Windows 7 every time I press CTRL+ALT+DEL with the game running.
-  //On Windows XP I get "call to an OS function failed" instead.
-  if not Windows.GetCursorPos(MousePos) then Exit;
+  {$IFDEF MSWindows}
+    //Don't use Mouse.CursorPos, it will throw an EOSError (code 5: access denied) in some cases when
+    //the OS doesn't want us controling the mouse, or possibly when the mouse is reset in some way.
+    //It happens for me in Windows 7 every time I press CTRL+ALT+DEL with the game running.
+    //On Windows XP I get "call to an OS function failed" instead.
+    if not Windows.GetCursorPos(MousePos) then Exit;
+  {$ENDIF}
+  {$IFDEF Unix}
+    MousePos := Mouse.CursorPos;
+  {$ENDIF}
   if not fMain.GetScreenBounds(ScreenBounds) then Exit;
 
   //With multiple monitors the cursor position can be outside of this screen, which makes scrolling too fast

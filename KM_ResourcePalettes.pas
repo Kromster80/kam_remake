@@ -127,7 +127,7 @@ procedure TKMPalettes.LoadPalettes;
 var i:TKMPal;
 begin
   for i:=Low(TKMPal) to High(TKMPal) do
-    fPalData[i].LoadFromFile(ExeDir+'data\gfx\'+PalFiles[i]);
+    fPalData[i].LoadFromFile(ExeDir+'data' + PathDelim + 'gfx' + PathDelim +PalFiles[i]);
 end;
 
 

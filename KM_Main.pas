@@ -298,21 +298,28 @@ end;
 function TKMMain.LockMutex: Boolean;
 begin
   Result := True;
-  if not BLOCK_DUPLICATE_APP then Exit;
-  fMutex := CreateMutex(nil, True, PChar(KAM_MUTEX));
-  if fMutex = 0 then
-    RaiseLastOSError;
-  Result := (GetLastError <> ERROR_ALREADY_EXISTS);
+  {$IFDEF MSWindows}
+    if not BLOCK_DUPLICATE_APP then Exit;
+    fMutex := CreateMutex(nil, True, PChar(KAM_MUTEX));
+    if fMutex = 0 then
+      RaiseLastOSError;
+    Result := (GetLastError <> ERROR_ALREADY_EXISTS);
   if not Result then UnlockMutex; //Close our own handle on the mutex because someone else already made the mutex
+  {$ENDIF}
+  {$IFDEF Unix}
+    Result := False;
+  {$ENDIF}
 end;
 
 
 procedure TKMMain.UnlockMutex;
 begin
-  if not BLOCK_DUPLICATE_APP then Exit;
-  if fMutex = 0 then Exit; //Didn't have a mutex lock
-  CloseHandle(fMutex);
-  fMutex := 0;
+  {$IFDEF MSWindows}
+    if not BLOCK_DUPLICATE_APP then Exit;
+    if fMutex = 0 then Exit; //Didn't have a mutex lock
+    CloseHandle(fMutex);
+    fMutex := 0;
+  {$ENDIF}
 end;
 
 

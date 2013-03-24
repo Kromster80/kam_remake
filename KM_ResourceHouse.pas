@@ -667,7 +667,7 @@ begin
   for H := HOUSE_MIN to HOUSE_MAX do
     fItems[H] := TKMHouseDatClass.Create(H);
 
-  fCRC := LoadHouseDat(ExeDir+'data\defines\houses.dat');
+  fCRC := LoadHouseDat(ExeDir+'data' + PathDelim + 'defines' + PathDelim + 'houses.dat');
 
   fItems[ht_Marketplace].fHouseType := ht_Marketplace;
   fItems[ht_Marketplace].fHouseDat.OwnerType := -1; //No unit works here (yet anyway)

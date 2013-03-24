@@ -193,10 +193,10 @@ end;
 
 
 procedure TKMResolutions.SetResolution(aResolution: TScreenRes);
+{$IFDEF MSWindows}
 var
-  {$IFDEF MSWindows}
   DeviceMode: TDeviceMode;
-  {$ENDIF}
+{$ENDIF}
 begin
   //Double-check anything we get from outside
   Assert(IsValid(aResolution));

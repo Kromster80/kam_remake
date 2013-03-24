@@ -10,7 +10,7 @@ uses
   KM_Alerts, KM_GameInputProcess, KM_GameOptions,
   KM_InterfaceDefaults, KM_InterfaceMapEditor, KM_InterfaceGamePlay,
   KM_MapEditor, KM_Minimap, KM_Networking,
-  KM_PathFinding, KM_PathFindingAstarOld, KM_PathFindingAStarNew, KM_PathFindingJPS,
+  KM_PathFinding, KM_PathFindingAStarOld, KM_PathFindingAStarNew, KM_PathFindingJPS,
   KM_PerfLog, KM_Projectiles, KM_Render, KM_Viewport;
 
 type

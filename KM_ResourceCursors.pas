@@ -4,6 +4,7 @@ interface
 uses
   Classes, Forms,
   {$IFDEF MSWindows} Windows, {$ENDIF}
+  {$IFDEF Unix} LCLIntf, LCLType, {$ENDIF}
   Graphics, Math, SysUtils,
   KM_Points, KM_ResourceSprites;
 
@@ -74,8 +75,8 @@ var
   KMC: TKMCursor;
   sx,sy,x,y: Integer;
   bm,bm2: TBitmap;
-  IconInfo: TIconInfo;
-  {$IFDEF Unix} IconInfoPointer:PIconInfo; {$ENDIF}
+  {$IFDEF MSWindows} IconInfo: TIconInfo; {$ENDIF}
+  {$IFDEF Unix} IconInfo:TIconInfo; {$ENDIF}
 begin
   if SKIP_RENDER then Exit;
 
@@ -137,8 +138,7 @@ begin
       Screen.Cursors[Byte(KMC) + COUNT_OFFSET] := CreateIconIndirect(IconInfo);
     {$ENDIF}
     {$IFDEF Unix}
-      IconInfoPointer := @IconInfo;
-      Screen.Cursors[Byte(KMC) + COUNT_OFFSET] := CreateIconIndirect(IconInfoPointer);
+      Screen.Cursors[Byte(KMC) + COUNT_OFFSET] := CreateIconIndirect(@IconInfo);
     {$ENDIF}
   end;
 

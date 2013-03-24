@@ -11,9 +11,13 @@ interface
 //              - ZLibPlay is GPL but BASS is not, and BASS can only be used for free in non-commercial products
 
 {.DEFINE USEBASS}
-{$DEFINE USELIBZPLAY}
+{$IFDEF MSWindows}
+  {$DEFINE USELIBZPLAY}
+{$ENDIF}
 
-uses Classes, Windows, SysUtils, KromUtils, Math, KM_Defaults
+uses Classes,
+     {$IFDEF MSWindows} Windows, {$ENDIF}
+     SysUtils, KromUtils, Math, KM_Defaults
      {$IFDEF USEBASS}     , Bass {$ENDIF}
      {$IFDEF USELIBZPLAY} , libZPlay {$ENDIF}
      ;

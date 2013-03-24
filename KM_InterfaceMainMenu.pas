@@ -705,12 +705,12 @@ begin
   //Second panel does not move from the middle of the screen: results always go above and below the middle
 
   //Calculate best scores
-  ZeroMemory(@Bests, SizeOf(Bests));
+  FillChar(Bests, SizeOf(Bests), #0);
   //These are a special case: Less is better so we initialized them high
   Bests[1] := High(Cardinal);
   Bests[3] := High(Cardinal);
   Bests[6] := High(Cardinal);
-  ZeroMemory(@Totals, SizeOf(Totals));
+  FillChar(Totals, SizeOf(Totals), #0);
 
   //Calculate bests for each "section"
   for I := 0 to fPlayers.Count - 1 do

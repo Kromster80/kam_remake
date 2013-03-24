@@ -349,7 +349,7 @@ begin
   for U := Low(TUnitType) to High(TUnitType) do
     fItems[U] := TKMUnitDatClass.Create(U);
 
-  fCRC := LoadUnitsDat(ExeDir+'data\defines\unit.dat');
+  fCRC := LoadUnitsDat(ExeDir+'data' + PathDelim + 'defines' + PathDelim + 'unit.dat');
   //ExportCSV(ExeDir+'Houses.csv');
 end;
 

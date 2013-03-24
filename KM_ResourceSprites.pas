@@ -441,7 +441,7 @@ begin
   if SKIP_RENDER then Exit;
 
   ProcessFolder(aFolder);
-  ProcessFolder(aFolder + IntToStr(Byte(fRT) + 1) + '\');
+  ProcessFolder(aFolder + IntToStr(Byte(fRT) + 1) + PathDelim);
 end;
 
 
@@ -1005,15 +1005,15 @@ end;
 //Try to load RXX first, then RX, then use Folder
 procedure TKMSprites.LoadSprites(aRT: TRXType; aAlphaShadows: Boolean);
 begin
-  if aAlphaShadows and FileExists(ExeDir + 'data\sprites\' + RXInfo[aRT].FileName + '_a.rxx') then
-    fSprites[aRT].LoadFromRXXFile(ExeDir + 'data\sprites\' + RXInfo[aRT].FileName + '_a.rxx')
+  if aAlphaShadows and FileExists(ExeDir + 'data' + PathDelim + 'Sprites' + PathDelim + RXInfo[aRT].FileName + '_a.rxx') then
+    fSprites[aRT].LoadFromRXXFile(ExeDir + 'data' + PathDelim + 'Sprites' + PathDelim + RXInfo[aRT].FileName + '_a.rxx')
   else
-  if FileExists(ExeDir + 'data\sprites\' + RXInfo[aRT].FileName + '.rxx') then
-    fSprites[aRT].LoadFromRXXFile(ExeDir + 'data\sprites\' + RXInfo[aRT].FileName + '.rxx')
+  if FileExists(ExeDir + 'data' + PathDelim + 'Sprites' + PathDelim + RXInfo[aRT].FileName + '.rxx') then
+    fSprites[aRT].LoadFromRXXFile(ExeDir + 'data' + PathDelim + 'Sprites' + PathDelim + RXInfo[aRT].FileName + '.rxx')
   else
     Exit;
 
-  fSprites[aRT].OverloadFromFolder(ExeDir + 'Sprites\');
+  fSprites[aRT].OverloadFromFolder(ExeDir + 'Sprites' + PathDelim);
 end;
 
 

@@ -2,7 +2,9 @@ unit KM_InterfaceDefaults;
 {$I KaM_Remake.inc}
 interface
 uses
-   Controls, Classes, Windows, KM_Defaults, KM_Controls;
+  {$IFDEF MSWindows} Windows, {$ENDIF}
+  {$IFDEF Unix} LCLType, {$ENDIF}
+   Controls, Classes, KM_Defaults, KM_Controls;
 
 
 type
