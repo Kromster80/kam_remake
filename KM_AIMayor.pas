@@ -553,7 +553,7 @@ begin
   //Store localy in Mayor to place weapon orders
   ShieldNeed := FootmenDemand + HorsemenDemand;
   ArmorNeed := FootmenDemand + PikemenDemand + HorsemenDemand + ArchersDemand;
-  AxeNeed := FootmenDemand + HorsemenDemand;
+  AxeNeed := FootmenDemand * 2 + HorsemenDemand;
   PikeNeed := PikemenDemand;
   BowNeed := ArchersDemand;
   HorseNeed := HorsemenDemand;
