@@ -122,7 +122,6 @@ object Form1: TForm1
       item
         Width = 50
       end>
-    ExplicitTop = 473
   end
   object ScrollBox1: TScrollBox
     Left = 168

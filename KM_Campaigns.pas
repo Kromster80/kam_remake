@@ -318,7 +318,12 @@ begin
     M.Write(Maps[I].Flag);
     M.Write(Maps[I].NodeCount);
     for K := 0 to Maps[I].NodeCount - 1 do
+    begin
+      //One-time fix for campaigns made before r4880
+      //Inc(Maps[I].Nodes[K].X, 5);
+      //Inc(Maps[I].Nodes[K].Y, 5);
       M.Write(Maps[I].Nodes[K]);
+    end;
     M.Write(Maps[I].TextPos, SizeOf(TCorner));
   end;
 

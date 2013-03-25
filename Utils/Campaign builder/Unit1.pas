@@ -120,8 +120,9 @@ begin
 
   if (fSelectedNode <> -1) then
   begin
-    C.Maps[fSelectedMap].Nodes[fSelectedNode].X := Img.Left - Image1.Left;
-    C.Maps[fSelectedMap].Nodes[fSelectedNode].Y := Img.Top  - Image1.Top;
+    //Position node centers, so that if someone changes the nodes they still look correct
+    C.Maps[fSelectedMap].Nodes[fSelectedNode].X := Img.Left - Image1.Left + Img.Width div 2;
+    C.Maps[fSelectedMap].Nodes[fSelectedNode].Y := Img.Top  - Image1.Top + Img.Height div 2;
   end
   else
   begin
@@ -352,8 +353,9 @@ begin
 
   for I := 0 to C.Maps[fSelectedMap].NodeCount - 1 do
   begin
-    imgNodes[I].Left := C.Maps[fSelectedMap].Nodes[I].X + Image1.Left;
-    imgNodes[I].Top := C.Maps[fSelectedMap].Nodes[I].Y + Image1.Top;
+    //Position node centers, so that if someone changes the nodes they still look correct
+    imgNodes[I].Left := Image1.Left + C.Maps[fSelectedMap].Nodes[I].X - imgNodes[I].Width div 2;
+    imgNodes[I].Top := Image1.Top + C.Maps[fSelectedMap].Nodes[I].Y - imgNodes[I].Height div 2;
   end;
 
   shpBriefing.Top := Image1.Height - shpBriefing.Height;
