@@ -330,8 +330,8 @@ procedure TKMGUIMenuLobby.CreatePlayerMenu(aParent: TKMPanel);
 begin
   Menu_Host := TKMMenu.Create(aParent, 120);
   Menu_Host.AddItem(fTextLibrary[TX_LOBBY_PLAYER_KICK]);
-  Menu_Host.AddItem(fTextLibrary[TX_LOBBY_PLAYER_BAN]);
-  Menu_Host.AddItem(fTextLibrary[TX_LOBBY_PLAYER_SETHOST]);
+  //Menu_Host.AddItem(fTextLibrary[TX_LOBBY_PLAYER_BAN]);
+  //Menu_Host.AddItem(fTextLibrary[TX_LOBBY_PLAYER_SETHOST]);
   Menu_Host.OnClick := PlayerMenuClick;
 end;
 
@@ -673,10 +673,6 @@ end;
 procedure TKMGUIMenuLobby.PlayerMenuClick(Sender: TObject);
 var I: Integer;
 begin
-  //todo: Handle selected action
-  //Construct chat command and paste it in chat to make the player verify his intent
-  //by manually sending that command (with Enter or Send)
-
   //@Lewin: What do you think, how do we handle incomplete chat message if there's any?
   //Guess we could just append the command and let player sort it out way he likes
   //@Krom: I'm not sure. I guess the player will learn to not use these features while
@@ -723,8 +719,10 @@ var C: TKMControl;
 begin
   C := TKMControl(Sender);
   //Only human players (excluding ourselves) have the player menu
-  if not fNetworking.NetPlayers[C.Tag].IsHuman
-  or (fNetworking.MyIndex = C.Tag) then Exit;
+  if not fNetworking.NetPlayers[C.Tag].IsHuman //No menu for AI players
+  or (fNetworking.MyIndex = C.Tag) //No menu for ourselves
+  or not fNetworking.IsHost then //Only host gets to use the menu (for now)
+    Exit;
 
   //Remember which player it is by their server index (order of players can change)
   Menu_Host.Tag := fNetworking.NetPlayers[C.Tag].IndexOnServer;

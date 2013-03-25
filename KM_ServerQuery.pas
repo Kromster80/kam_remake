@@ -28,6 +28,8 @@ type
   TServerDataEvent = procedure(aServerID:integer; aData:string; aPingStarted:cardinal) of object;
 
   TServerSortMethod = (
+    ssmByTypeAsc, ssmByTypeDesc, //Client or dedicated
+    ssmByPasswordAsc, ssmByPasswordDesc, //Passworded or not
     ssmByNameAsc, ssmByNameDesc, //Server names
     ssmByPingAsc, ssmByPingDesc, //Server pings
     ssmByStateAsc, ssmByStateDesc, //Room state
@@ -414,6 +416,7 @@ procedure TKMServerQuery.RefreshList;
 begin
   if LOCAL_SERVER_LIST then
     ReceiveServerList('Localhost,127.0.0.1,56789,0,Windows') //For debugging
+    //+#13+'Localhost,127.0.0.1,56788,1,Windows'+#13+'Localhost,127.0.0.1,56787,1,Unix'
   else
     fMasterServer.QueryServer; //Start the query
 end;
@@ -492,6 +495,10 @@ procedure TKMServerQuery.Sort;
     AServerInfo := Servers[A.ServerIndex];
     BServerInfo := Servers[B.ServerIndex];
     case aMethod of
+      ssmByPasswordAsc: Result := A.GameInfo.PasswordLocked and not B.GameInfo.PasswordLocked;
+      ssmByPasswordDesc:Result := not A.GameInfo.PasswordLocked and B.GameInfo.PasswordLocked;
+      ssmByTypeAsc:     Result := AServerInfo.ServerType > BServerInfo.ServerType;
+      ssmByTypeDesc:    Result := AServerInfo.ServerType < BServerInfo.ServerType;
       ssmByNameAsc:     Result := CompareText(AServerInfo.Name, BServerInfo.Name) > 0;
       ssmByNameDesc:    Result := CompareText(AServerInfo.Name, BServerInfo.Name) < 0;
       ssmByPingAsc:     Result := AServerInfo.Ping > BServerInfo.Ping;

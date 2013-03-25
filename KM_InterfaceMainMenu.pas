@@ -2108,9 +2108,14 @@ end;
 procedure TKMMainMenuInterface.MP_ServersSort(aIndex: Integer);
 begin
   case ColumnBox_Servers.SortIndex of
-    //todo: Sorting by locked/server type
-    //0:
-    //1:
+    0:  if ColumnBox_Servers.SortDirection = sdDown then
+          fGameApp.Networking.ServerQuery.SortMethod := ssmByTypeAsc
+        else
+          fGameApp.Networking.ServerQuery.SortMethod := ssmByTypeDesc;
+    1:  if ColumnBox_Servers.SortDirection = sdDown then
+          fGameApp.Networking.ServerQuery.SortMethod := ssmByPasswordAsc
+        else
+          fGameApp.Networking.ServerQuery.SortMethod := ssmByPasswordDesc;
     //Sorting by name goes A..Z by default
     2:  if ColumnBox_Servers.SortDirection = sdDown then
           fGameApp.Networking.ServerQuery.SortMethod := ssmByNameAsc
