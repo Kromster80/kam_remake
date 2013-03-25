@@ -5,7 +5,7 @@ uses
   Classes, ComCtrls, Controls, Dialogs, ExtCtrls, Forms,
   Graphics, Mask, Math, Spin, StdCtrls, SysUtils, Windows,
   {$IFDEF WDC} PNGImage, {$ENDIF}
-  KM_Campaigns, KM_Pics, KM_ResourceSpritesEdit;
+  KM_Defaults, KM_Campaigns, KM_Pics, KM_ResourceSpritesEdit;
 
 
 type
@@ -79,6 +79,8 @@ procedure TForm1.FormCreate(Sender: TObject);
 begin
   DoubleBuffered := True; //Makes images drag around smoothly
   ScrollBox1.DoubleBuffered := True;
+
+  Caption := 'Campaign Builder (' + GAME_REVISION + ')';
 
   C := TKMCampaign.Create;
   fSelectedMap := -1;
