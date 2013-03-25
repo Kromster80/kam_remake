@@ -1,7 +1,7 @@
 unit Constants;
 {$I ..\..\KaM_Remake.inc}
 interface
-uses Classes, Graphics, Controls, Forms, ExtCtrls, KromUtils;
+uses Classes, Graphics, Controls, Forms,  KromUtils;
 
 
 {Palettes}

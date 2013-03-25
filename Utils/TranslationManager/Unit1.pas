@@ -5,7 +5,7 @@ uses
   Classes, Controls, Dialogs, ExtCtrls, Forms, Graphics, Math, Menus,
   {$IFDEF MSWINDOWS} ComCtrls, FileCtrl, {$ENDIF}
   StdCtrls, StrUtils, Windows, SysUtils,
-  KM_Locales, Unit_Text, Unit_PathManager;
+  KM_Defaults, KM_Locales, Unit_Text, Unit_PathManager;
 
 const
   USER_MODE = False; //Disables insert, delete, compact, sort, etc. functions so translators don't click them by mistake
@@ -104,6 +104,8 @@ const
 
 procedure TForm1.FormCreate(Sender: TObject);
 begin
+  Caption := 'KaM Remake Translation Manager (' + GAME_REVISION + ')';
+
   fWorkDir := ExtractFilePath((ParamStr(0))) + '..\..\';
   fLocales := TKMLocales.Create(fWorkDir + 'data\locales.txt');
   RefreshLocales;

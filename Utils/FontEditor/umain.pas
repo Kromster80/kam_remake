@@ -6,7 +6,9 @@ uses
   {$IFDEF MSWindows} Windows, {$ENDIF}
   {$IFDEF Unix} LCLType, {$ENDIF}
   SysUtils, Classes, Graphics, Controls, Forms, Dialogs, ExtCtrls,
-  StdCtrls, Math, ComCtrls, Buttons, Spin, StrUtils, KromUtils, Constants;
+  StdCtrls, Math, ComCtrls, Buttons, Spin, StrUtils, KromUtils,
+  KM_Defaults,
+  Constants; //Declared last to override TKMFont (we could redesign that later, but for now it works okay)
 
 
 {Globals}
@@ -19,11 +21,11 @@ var
 
   FontData: record
     Title: TKMFont;
-    Unk1,WordSpacing,CharOffset,Unk3: smallint; //@Lewin: BaseCharHeight?, Unknown, CharSpacingX, LineOffset?
+    Unk1,WordSpacing,CharOffset,Unk3: SmallInt; //@Lewin: BaseCharHeight?, Unknown, CharSpacingX, LineOffset?
     Pal: array[0..65000]of byte; //Switch to determine if letter is there
     Letters: array[0..65000]of record
       Width,Height: Word;
-      Add1,Add2,YOffset,Add4: smallint; //Add1-4 always 0, YOffset could be negative?
+      Add1,Add2,YOffset,Add4: SmallInt; //Add1-4 always 0, YOffset could be negative?
       Data: array[1..4096] of byte;
     end;
   end;
@@ -100,6 +102,8 @@ implementation
 
 procedure TfrmMain.FormCreate(Sender: TObject);
 begin
+  Caption := 'KaM Font Editor (' + GAME_REVISION + ')';
+
   ExeDir := ExtractFilePath(ParamStr(0));
   DataDir := ExeDir;
   if DirectoryExists(ExeDir + '..\..\Data\gfx\Fonts\') then //Remake project location

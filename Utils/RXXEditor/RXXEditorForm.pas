@@ -67,6 +67,8 @@ var
 begin
   ExeDir := ExtractFilePath(Application.ExeName) + '..\..\';
 
+  Caption := 'RXX Editor (' + GAME_REVISION + ')';
+
   //Although we don't need them in this tool, these are required to load sprites
   fLog := TKMLog.Create(ExeDir + 'RXXEditor.log');
 
