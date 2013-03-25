@@ -1,10 +1,11 @@
 unit Unit1;
+{$I ..\..\KaM_Remake.inc}
 interface
 uses
   Windows, Classes, Controls, Forms, Math, StdCtrls, SysUtils,
-  KM_Points, KM_Defaults, KM_CommonClasses, KromUtils,
+  KM_Defaults, KM_CommonClasses, KM_Points, KromUtils,
   KM_GameApp, KM_Locales, KM_Log, KM_PlayersCollection, KM_TextLibrary,
-  KM_Maps, KM_MissionScript_Info, KM_Terrain, KM_Units_Warrior, KM_Utils;
+  KM_Maps, KM_MissionScript_Info, KM_Terrain, KM_Utils;
 
 
 type
@@ -48,7 +49,7 @@ begin
   fLog := TKMLog.Create(ExtractFilePath(ParamStr(0)) + 'temp.log');
   fLocales := TKMLocales.Create(ExeDir+'data\locales.txt');
   fTextLibrary := TTextLibrary.Create(ExeDir + 'data\text\', 'eng');
-  fGameApp := TKMGameApp.Create(0, 1024, 768, False, nil, nil, nil, True);
+  fGameApp := TKMGameApp.Create(nil, 1024, 768, False, nil, nil, nil, True);
   fGameApp.GameSettings.Autosave := False;
 end;
 
@@ -63,6 +64,7 @@ begin
 end;
 
 
+//Rename marketplace sprites from rxRemake scheme to rxHouses library
 procedure TForm1.Button1Click(Sender: TObject);
 var
   SearchRec: TSearchRec;
@@ -86,6 +88,7 @@ begin
 end;
 
 
+//Export message goals into EVT files to allow to rig them easily
 procedure TForm1.Button3Click(Sender: TObject);
 var
   I: Integer;
@@ -110,10 +113,7 @@ end;
 procedure TForm1.Button2Click(Sender: TObject);
 var
   I,J,K: Integer;
-  Count: Integer;
-  SearchRec: TSearchRec;
   PathToMaps: TStringList;
-  MissionParser: TMissionParserInfo;
   MapInfo: TKMapInfo;
   WinCond, DefeatCond: array [TGoalCondition] of Word;
   WinStat, DefeatStat: array [TGoalStatus] of Word;
@@ -122,49 +122,31 @@ begin
   ControlsEnable(False);
   SetUp;
 
-  Count := 0;
-  MissionParser := TMissionParserInfo.Create(False);
-  MapInfo := TKMapInfo.Create;
+  FillChar(WinCond, SizeOf(WinCond), #0);
+  FillChar(DefeatCond, SizeOf(WinCond), #0);
+  FillChar(WinStat, SizeOf(WinCond), #0);
+  FillChar(DefeatStat, SizeOf(WinCond), #0);
 
   PathToMaps := TStringList.Create;
   try
-    PathToMaps.Add(ExeDir + 'Maps\');
-    PathToMaps.Add(ExeDir + 'MapsMP\');
-    PathToMaps.Add(ExeDir + 'Tutorials\');
-
-    //Include all campaigns maps
-    FindFirst(ExeDir + 'Campaigns\*', faDirectory, SearchRec);
-    repeat
-      if (SearchRec.Name <> '.') and (SearchRec.Name <> '..') then
-        PathToMaps.Add(ExeDir + 'Campaigns\' + SearchRec.Name + '\');
-    until (FindNext(SearchRec) <> 0);
-    FindClose(SearchRec);
+    TKMapsCollection.GetAllMapPaths(ExeDir, PathToMaps);
 
     for I := 0 to PathToMaps.Count - 1 do
-      if DirectoryExists(PathToMaps[I]) then
+    begin
+      MapInfo := TKMapInfo.Create(TruncateExt(ExtractFileName(PathToMaps[I])), False, Pos('MapsMP', PathToMaps[I]) > 0);
+      MapInfo.LoadExtra;
+      for J := 0 to MAX_PLAYERS - 1 do
       begin
-        FindFirst(PathToMaps[I] + '*', faDirectory, SearchRec);
-        repeat
-          if (SearchRec.Name <> '.') and (SearchRec.Name <> '..')
-          and FileExists(PathToMaps[I] + SearchRec.Name + '\' + SearchRec.Name + '.map') then
-          begin
-            MissionParser.LoadMission(PathToMaps[I] + SearchRec.Name + '\' + SearchRec.Name + '.dat', MapInfo, pmExtra);
-            for J := 0 to MAX_PLAYERS - 1 do
-            begin
-              for K := 0 to MapInfo.GoalsVictoryCount[J] - 1 do
-                Inc(WinCond[MapInfo.GoalsVictory[J,K].Cond]);
-              for K := 0 to MapInfo.GoalsSurviveCount[J] - 1 do
-                Inc(DefeatCond[MapInfo.GoalsSurvive[J,K].Cond]);
-              for K := 0 to MapInfo.GoalsVictoryCount[J] - 1 do
-                Inc(WinStat[MapInfo.GoalsVictory[J,K].Stat]);
-              for K := 0 to MapInfo.GoalsSurviveCount[J] - 1 do
-                Inc(DefeatStat[MapInfo.GoalsSurvive[J,K].Stat]);
-            end;
-            Inc(Count);
-          end;
-        until (FindNext(SearchRec) <> 0);
-        FindClose(SearchRec);
+        for K := 0 to MapInfo.GoalsVictoryCount[J] - 1 do
+          Inc(WinCond[MapInfo.GoalsVictory[J,K].Cond]);
+        for K := 0 to MapInfo.GoalsSurviveCount[J] - 1 do
+          Inc(DefeatCond[MapInfo.GoalsSurvive[J,K].Cond]);
+        for K := 0 to MapInfo.GoalsVictoryCount[J] - 1 do
+          Inc(WinStat[MapInfo.GoalsVictory[J,K].Stat]);
+        for K := 0 to MapInfo.GoalsSurviveCount[J] - 1 do
+          Inc(DefeatStat[MapInfo.GoalsSurvive[J,K].Stat]);
       end;
+    end;
 
   finally
     PathToMaps.Free;
@@ -173,11 +155,12 @@ begin
   Memo1.Clear;
   for GC := Low(TGoalCondition) to High(TGoalCondition) do
   begin
-    Memo1.Lines.Append(Format('%d / %d ' + GoalConditionStr[GC], [WinCond[GC], DefeatCond[GC]]))
+    Memo1.Lines.Append(Format('%3d / %3d ' + GoalConditionStr[GC], [WinCond[GC], DefeatCond[GC]]))
   end;
 
   TearDown;
   ControlsEnable(True);
 end;
+
 
 end.

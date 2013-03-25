@@ -43,7 +43,6 @@
 			<Manifest_File>None</Manifest_File>
 			<DCC_GenerateStackFrames>true</DCC_GenerateStackFrames>
 			<VerInfo_Keys>CompanyName=;FileDescription=;FileVersion=1.0.0.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductName=;ProductVersion=1.0.0.0;Comments=</VerInfo_Keys>
-			<DCC_Define>DUNIT_TEST;$(DCC_Define)</DCC_Define>
 			<DCC_UnitSearchPath>..\..\;..\..\Common\;..\..\Common\zlib\;..\..\Common\Overbyte ICS 7\;..\..\Common\pascalscript\Source\;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
 			<VerInfo_Locale>1049</VerInfo_Locale>
 			<DCC_UsePackage>bindcompfmx;fmx;rtl;dbrtl;IndySystem;DbxClientDriver;bindcomp;inetdb;DBXInterBaseDriver;DataSnapCommon;DataSnapClient;DataSnapServer;DataSnapProviderClient;xmlrtl;DbxCommonDriver;IndyProtocols;DBXMySQLDriver;dbxcds;bindengine;soaprtl;DBXOracleDriver;dsnap;DBXInformixDriver;IndyCore;fmxase;DBXFirebirdDriver;inet;fmxobj;inetdbxpress;DBXSybaseASADriver;fmxdae;dbexpress;DataSnapIndy10ServerTransport;IPIndyImpl;$(DCC_UsePackage)</DCC_UsePackage>
@@ -141,6 +140,7 @@
 						<Source Name="MainSource">Batcher.dpr</Source>
 					</Source>
 					<Excluded_Packages>
+						<Excluded_Packages Name="C:\Program Files (x86)\RemObjects Software\Everwood\Bin\RemObjects_Everwood_D16.bpl">File C:\Program Files (x86)\RemObjects Software\Everwood\Bin\RemObjects_Everwood_D16.bpl not found</Excluded_Packages>
 						<Excluded_Packages Name="$(BDSBIN)\dcloffice2k160.bpl">Microsoft Office 2000 Sample Automation Server Wrapper Components</Excluded_Packages>
 						<Excluded_Packages Name="$(BDSBIN)\dclofficexp160.bpl">Microsoft Office XP Sample Automation Server Wrapper Components</Excluded_Packages>
 					</Excluded_Packages>
