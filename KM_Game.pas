@@ -90,7 +90,7 @@ type
     procedure MouseUp(Button: TMouseButton; Shift: TShiftState; X,Y: Integer);
     procedure MouseWheel(Shift: TShiftState; WheelDelta: Integer; X,Y: Integer);
 
-    procedure GameStart(aMissionFile, aGameName, aCampName: string; aCampMap: Byte; aLocation: Byte; aColor: Cardinal); overload;
+    procedure GameStart(aMissionFile, aGameName, aCampName: string; aCampMap: Byte; aLocation: ShortInt; aColor: Cardinal); overload;
     procedure GameStart(aSizeX, aSizeY: Integer); overload;
     procedure Load(const aPathName: string);
 
@@ -376,7 +376,7 @@ begin
 end;
 
 
-procedure TKMGame.GameStart(aMissionFile, aGameName, aCampName: string; aCampMap: Byte; aLocation: Byte; aColor: Cardinal);
+procedure TKMGame.GameStart(aMissionFile, aGameName, aCampName: string; aCampMap: Byte; aLocation: ShortInt; aColor: Cardinal);
 var
   I: Integer;
   ParseMode: TMissionParsingMode;
@@ -449,6 +449,10 @@ begin
     begin
       for I := 0 to fPlayers.Count - 1 do
         fPlayers[I].PlayerType := pt_Computer;
+
+      //-1 means automatically detect the location (used for tutorials and campaigns)
+      if aLocation = -1 then
+        aLocation := Parser.DefaultLocation;
 
       Assert(InRange(aLocation, 0, fPlayers.Count - 1), 'No human player detected');
       fPlayers[aLocation].PlayerType := pt_Human;

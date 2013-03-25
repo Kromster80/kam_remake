@@ -42,7 +42,7 @@ type
     procedure GameLoadingStep(const aText: string);
     procedure LoadGameAssets;
     procedure LoadGameFromSave(aFilePath: string; aGameMode: TGameMode);
-    procedure LoadGameFromScript(aMissionFile, aGameName: string; aCampaignName: string; aMap: Byte; aGameMode: TGameMode; aDesiredLoc: Byte; aDesiredColor: Cardinal);
+    procedure LoadGameFromScript(aMissionFile, aGameName: string; aCampaignName: string; aMap: Byte; aGameMode: TGameMode; aDesiredLoc: ShortInt; aDesiredColor: Cardinal);
     procedure LoadGameFromScratch(aSizeX, aSizeY: Integer; aGameMode: TGameMode);
     function SaveName(const aName, aExt: string; aMultiPlayer: Boolean): string;
   public
@@ -63,7 +63,7 @@ type
 
     //These are all different game kinds we can start
     procedure NewCampaignMap(aCampaign: TKMCampaign; aMap: Byte);
-    procedure NewSingleMap(aMissionFile, aGameName: string; aDesiredLoc: Byte = 0; aDesiredColor: Cardinal = $00000000);
+    procedure NewSingleMap(aMissionFile, aGameName: string; aDesiredLoc: ShortInt = -1; aDesiredColor: Cardinal = $00000000);
     procedure NewSingleSave(aSaveName: string);
     procedure NewMultiplayerMap(const aFileName: string);
     procedure NewMultiplayerSave(const aSaveName: string);
@@ -467,7 +467,7 @@ begin
 end;
 
 
-procedure TKMGameApp.LoadGameFromScript(aMissionFile, aGameName: string; aCampaignName: string; aMap: Byte; aGameMode: TGameMode; aDesiredLoc: Byte; aDesiredColor: Cardinal);
+procedure TKMGameApp.LoadGameFromScript(aMissionFile, aGameName: string; aCampaignName: string; aMap: Byte; aGameMode: TGameMode; aDesiredLoc: ShortInt; aDesiredColor: Cardinal);
 var
   LoadError: string;
 begin
@@ -535,11 +535,11 @@ end;
 
 procedure TKMGameApp.NewCampaignMap(aCampaign: TKMCampaign; aMap: Byte);
 begin
-  LoadGameFromScript(aCampaign.MissionFile(aMap), aCampaign.MissionTitle(aMap), aCampaign.ShortTitle, aMap, gmSingle, 0, 0);
+  LoadGameFromScript(aCampaign.MissionFile(aMap), aCampaign.MissionTitle(aMap), aCampaign.ShortTitle, aMap, gmSingle, -1, 0);
 end;
 
 
-procedure TKMGameApp.NewSingleMap(aMissionFile, aGameName: string; aDesiredLoc: Byte = 0; aDesiredColor: Cardinal = $00000000);
+procedure TKMGameApp.NewSingleMap(aMissionFile, aGameName: string; aDesiredLoc: ShortInt = -1; aDesiredColor: Cardinal = $00000000);
 begin
   LoadGameFromScript(aMissionFile, aGameName, '', 0, gmSingle, aDesiredLoc, aDesiredColor);
 end;

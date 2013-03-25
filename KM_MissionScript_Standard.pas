@@ -27,6 +27,7 @@ type
     fAIAttack: TAIAttack;
     fAttackPositions: array of TKMAttackPosition;
     fAttackPositionsCount: Integer;
+    fDefaultLocation: ShortInt;
     procedure ProcessAttackPositions;
   protected
     function ProcessCommand(CommandType: TKMCommandType; P: array of Integer; TextParam: AnsiString = ''): Boolean; override;
@@ -35,6 +36,7 @@ type
     constructor Create(aMode: TMissionParsingMode; aPlayersEnabled: TPlayerEnabledArray; aStrictParsing: Boolean); overload;
     function LoadMission(const aFileName: string): Boolean; overload; override;
 
+    property DefaultLocation: ShortInt read fDefaultLocation;
     procedure SaveDATFile(const aFileName: string);
   end;
 
@@ -60,6 +62,7 @@ var I: Integer;
 begin
   inherited Create(aStrictParsing);
   fParsingMode := aMode;
+  fDefaultLocation := -1;
 
   for I := 0 to High(fPlayerEnabled) do
     fPlayerEnabled[I] := True;
@@ -70,6 +73,7 @@ constructor TMissionParserStandard.Create(aMode: TMissionParsingMode; aPlayersEn
 begin
   inherited Create(aStrictParsing);
   fParsingMode := aMode;
+  fDefaultLocation := -1;
 
   //Tells us which player should be enabled and which ignored/skipped
   fPlayerEnabled := aPlayersEnabled;
@@ -156,13 +160,16 @@ begin
                           fLastHouse := nil;
                           fLastTroop := nil;
                         end;
-    ct_HumanPlayer:     //We use this command in a sense "Default human player"
-                        //MP and SP set human players themselves
-                        //Remains usefull for map preview and MapEd
-                        if (fParsingMode = mpm_Editor) and (fPlayers <> nil) then
-                        begin
-                          fGame.MapEditor.DefaultHuman := P[0];
-                          fGame.MapEditor.PlayerHuman[P[0]] := True;
+    ct_HumanPlayer:     begin
+                          //We use this command in a sense "Default human player"
+                          //MP and SP set human players themselves
+                          //Remains usefull for map preview and MapEd
+                          fDefaultLocation := P[0];
+                          if (fParsingMode = mpm_Editor) and (fPlayers <> nil) then
+                          begin
+                            fGame.MapEditor.DefaultHuman := P[0];
+                            fGame.MapEditor.PlayerHuman[P[0]] := True;
+                          end;
                         end;
     ct_UserPlayer:      //New command added by KMR - mark player as allowed to be human
                         //MP and SP set human players themselves
