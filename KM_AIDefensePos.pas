@@ -252,13 +252,6 @@ begin
   Matched := -1;
   Best := MaxSingle;
 
-  //todo: From Vas: AI put his soldiers on positions by list. first sort must be front and back line. I give you an example:
-  //1 defence @x,y  frontline
-  //2 defence @x,y  backline
-  //3 defence @x,y  frontline
-  //At the moment AI chooses positions in this order: 1,2,3
-  //it should be 1,3,2. first priority has frontline, you know? should be easy to fix it :)
-
   for I := 0 to Count - 1 do
   if Positions[I].GroupType = UnitGroups[aGroup.UnitType] then
   begin
