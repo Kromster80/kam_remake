@@ -368,9 +368,9 @@ begin
                         begin
                           if fPlayers[fLastPlayer].PlayerType <> pt_Computer then Exit;
                           iPlayerAI := fPlayers[fLastPlayer].AI; //Setup the AI's character
-                          if TextParam = PARAMVALUES[cpt_Recruits]     then iPlayerAI.Setup.RecruitFactor := P[1];
-                          if TextParam = PARAMVALUES[cpt_Constructors] then iPlayerAI.Setup.WorkerFactor  := P[1];
-                          if TextParam = PARAMVALUES[cpt_WorkerFactor] then iPlayerAI.Setup.SerfFactor    := P[1];
+                          if TextParam = PARAMVALUES[cpt_Recruits]     then iPlayerAI.Setup.RecruitCount  := P[1];
+                          if TextParam = PARAMVALUES[cpt_Constructors] then iPlayerAI.Setup.WorkerCount   := P[1];
+                          if TextParam = PARAMVALUES[cpt_WorkerFactor] then iPlayerAI.Setup.SerfsPerHouse := (10/P[1]);
                           if TextParam = PARAMVALUES[cpt_RecruitCount] then iPlayerAI.Setup.RecruitDelay  := P[1];
                           if TextParam = PARAMVALUES[cpt_TownDefence]  then iPlayerAI.Setup.TownDefence   := P[1];
                           if TextParam = PARAMVALUES[cpt_MaxSoldier]   then iPlayerAI.Setup.MaxSoldiers   := P[1];
@@ -649,9 +649,9 @@ begin
     if not fPlayers[I].AI.Setup.AutoBuild then AddCommand(ct_AINoBuild, []);
     if fPlayers[I].AI.Mayor.AutoRepair then    AddCommand(ct_AIAutoRepair, []);
     if fPlayers[I].AI.Setup.AutoDefend then    AddCommand(ct_AIAutoDefend, []);
-    AddCommand(ct_AICharacter,cpt_Recruits, [fPlayers[I].AI.Setup.RecruitFactor]);
-    AddCommand(ct_AICharacter,cpt_WorkerFactor, [fPlayers[I].AI.Setup.SerfFactor]);
-    AddCommand(ct_AICharacter,cpt_Constructors, [fPlayers[I].AI.Setup.WorkerFactor]);
+    AddCommand(ct_AICharacter,cpt_Recruits, [fPlayers[I].AI.Setup.RecruitCount]);
+    AddCommand(ct_AICharacter,cpt_WorkerFactor, [Round(10 / fPlayers[I].AI.Setup.SerfsPerHouse)]);
+    AddCommand(ct_AICharacter,cpt_Constructors, [fPlayers[I].AI.Setup.WorkerCount]);
     AddCommand(ct_AICharacter,cpt_TownDefence, [fPlayers[I].AI.Setup.TownDefence]);
     //Only store if a limit is in place (high is the default)
     if fPlayers[I].AI.Setup.MaxSoldiers <> -1 then

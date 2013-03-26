@@ -1104,7 +1104,7 @@ begin
 
     TKMImage.Create(Panel_Message, 0, 0, 600, 500, 409);
 
-    Label_MessageText := TKMLabel.Create(Panel_Message, 47, 67, 432, 122, '', fnt_Antiqua, taLeft);
+    Label_MessageText := TKMLabel.Create(Panel_Message, 47, 58, 432, 112, '', fnt_Antiqua, taLeft);
     Label_MessageText.AutoWrap := True;
 
     Button_MessageGoTo := TKMButton.Create(Panel_Message, 490, 74, 100, 24, fTextLibrary[TX_MSG_GOTO], bsGame);
@@ -1147,7 +1147,7 @@ begin
     Image_MessageLogClose.OnClick := MessageLog_Close;
     Image_MessageLogClose.HighlightOnMouseOver := True;
 
-    ColumnBox_MessageLog := TKMColumnBox.Create(Panel_MessageLog, 45, 65, 600 - 90, H, fnt_Grey, bsGame);
+    ColumnBox_MessageLog := TKMColumnBox.Create(Panel_MessageLog, 45, 60, 600 - 90, H, fnt_Grey, bsGame);
     ColumnBox_MessageLog.SetColumns(fnt_Outline, ['Icon', 'Message'], [0, 25]);
     ColumnBox_MessageLog.ShowHeader := False;
     ColumnBox_MessageLog.ItemHeight := 18;
@@ -1271,7 +1271,7 @@ begin
   Panel_Allies.Anchors := [akLeft, akRight, akBottom];
   Panel_Allies.Hide;
 
-    with TKMImage.Create(Panel_Allies,0,0,800,190,409) do ImageStretch;
+    with TKMImage.Create(Panel_Allies,0,0,800,190,409) do ImageAnchors := [akLeft, akRight, akTop];
 
     Label_PeacetimeRemaining := TKMLabel.Create(Panel_Allies,400,20,'',fnt_Outline,taCenter);
 
@@ -1295,7 +1295,7 @@ begin
       Label_AlliesPing[I]   := TKMLabel.Create(Panel_Allies,   350+(I div 4)*380, 80+(I mod 4)*24, '', fnt_Grey, taCenter);
     end;
 
-    Image_AlliesClose:=TKMImage.Create(Panel_Allies,800-35,20,32,32,52,rxGui);
+    Image_AlliesClose:=TKMImage.Create(Panel_Allies,800-97,29,32,32,52,rxGui);
     Image_AlliesClose.Hint := fTextLibrary[TX_MSG_CLOSE_HINT];
     Image_AlliesClose.OnClick := Allies_Close;
     Image_AlliesClose.HighlightOnMouseOver := True;
@@ -1952,6 +1952,7 @@ begin
     Image_Message[I].Highlight := (ShownMessage = I);
 
   Label_MessageText.Caption := fMessageList.MessagesStack[ShownMessage].Text;
+  Button_MessageGoTo.Enabled := not KMSamePoint(fMessageList.MessagesStack[ShownMessage].Loc, KMPoint(0,0));
 
   Allies_Close(nil);
   Chat_Close(nil); //Removes focus from Edit_Text

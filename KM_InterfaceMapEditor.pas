@@ -200,14 +200,14 @@ type
       Panel_Script: TKMPanel;
         CheckBox_AutoBuild: TKMCheckBox;
         CheckBox_AutoRepair: TKMCheckBox;
-        TrackBar_SerfFactor: TKMTrackBar;
-        TrackBar_WorkerFactor: TKMTrackBar;
+        TrackBar_SerfsPer10Houses: TKMTrackBar;
+        TrackBar_WorkerCount: TKMTrackBar;
       Panel_Defence: TKMPanel;
         Button_DefencePosAdd: TKMButtonFlat;
         CheckBox_AutoDefence: TKMCheckBox;
         TrackBar_EquipRateLeather: TKMTrackBar;
         TrackBar_EquipRateIron: TKMTrackBar;
-        TrackBar_RecruitFactor: TKMTrackBar;
+        TrackBar_RecruitCount: TKMTrackBar;
         TrackBar_MaxSoldiers: TKMTrackBar;
         CheckBox_MaxSoldiers: TKMCheckBox;
         Button_EditFormations: TKMButton;
@@ -1032,12 +1032,12 @@ begin
       CheckBox_AutoBuild.OnClick := Town_ScriptChange;
       CheckBox_AutoRepair := TKMCheckBox.Create(Panel_Script, 0, 50, TB_WIDTH, 20, fTextLibrary[TX_MAPED_AI_AUTOREPAIR], fnt_Metal);
       CheckBox_AutoRepair.OnClick := Town_ScriptChange;
-      TrackBar_SerfFactor := TKMTrackBar.Create(Panel_Script, 0, 70, TB_WIDTH, 0, 20);
-      TrackBar_SerfFactor.Caption := fTextLibrary[TX_MAPED_AI_SERF_FACTOR];
-      TrackBar_SerfFactor.OnChange := Town_ScriptChange;
-      TrackBar_WorkerFactor := TKMTrackBar.Create(Panel_Script, 0, 110, TB_WIDTH, 0, 30);
-      TrackBar_WorkerFactor.Caption := fTextLibrary[TX_MAPED_AI_WORKERS];
-      TrackBar_WorkerFactor.OnChange := Town_ScriptChange;
+      TrackBar_SerfsPer10Houses := TKMTrackBar.Create(Panel_Script, 0, 70, TB_WIDTH, 1, 20);
+      TrackBar_SerfsPer10Houses.Caption := fTextLibrary[TX_MAPED_AI_SERFS_PER_10_HOUSES];
+      TrackBar_SerfsPer10Houses.OnChange := Town_ScriptChange;
+      TrackBar_WorkerCount := TKMTrackBar.Create(Panel_Script, 0, 110, TB_WIDTH, 0, 30);
+      TrackBar_WorkerCount.Caption := fTextLibrary[TX_MAPED_AI_WORKERS];
+      TrackBar_WorkerCount.OnChange := Town_ScriptChange;
 
     //Defence settings
     Panel_Defence := TKMPanel.Create(Panel_Town, 0, 28, TB_WIDTH, 400);
@@ -1061,10 +1061,10 @@ begin
       TrackBar_EquipRateIron.Step := 5;
       TrackBar_EquipRateIron.OnChange := Town_DefenceChange;
 
-      TrackBar_RecruitFactor := TKMTrackBar.Create(Panel_Defence, 0, 208, TB_WIDTH, 1, 20);
-      TrackBar_RecruitFactor.Caption := fTextLibrary[TX_MAPED_AI_RECRUITS];
-      TrackBar_RecruitFactor.Hint := fTextLibrary[TX_MAPED_AI_RECRUITS_HINT];
-      TrackBar_RecruitFactor.OnChange := Town_DefenceChange;
+      TrackBar_RecruitCount := TKMTrackBar.Create(Panel_Defence, 0, 208, TB_WIDTH, 1, 20);
+      TrackBar_RecruitCount.Caption := fTextLibrary[TX_MAPED_AI_RECRUITS];
+      TrackBar_RecruitCount.Hint := fTextLibrary[TX_MAPED_AI_RECRUITS_HINT];
+      TrackBar_RecruitCount.OnChange := Town_DefenceChange;
 
       CheckBox_MaxSoldiers := TKMCheckBox.Create(Panel_Defence, 0, 252, TB_WIDTH, 20, fTextLibrary[TX_MAPED_AI_MAX_SOLDIERS], fnt_Metal);
       CheckBox_MaxSoldiers.Hint := fTextLibrary[TX_MAPED_AI_MAX_SOLDIERS_ENABLE_HINT];
@@ -1811,7 +1811,7 @@ begin
   MyPlayer.AI.Setup.AutoDefend := CheckBox_AutoDefence.Checked;
   MyPlayer.AI.Setup.EquipRateLeather := TrackBar_EquipRateLeather.Position * 10;
   MyPlayer.AI.Setup.EquipRateIron := TrackBar_EquipRateIron.Position * 10;
-  MyPlayer.AI.Setup.RecruitFactor := TrackBar_RecruitFactor.Position;
+  MyPlayer.AI.Setup.RecruitCount := TrackBar_RecruitCount.Position;
 
   if CheckBox_MaxSoldiers.Checked then
     MyPlayer.AI.Setup.MaxSoldiers := -1
@@ -1827,7 +1827,7 @@ begin
   CheckBox_AutoDefence.Checked := MyPlayer.AI.Setup.AutoDefend;
   TrackBar_EquipRateLeather.Position := MyPlayer.AI.Setup.EquipRateLeather div 10;
   TrackBar_EquipRateIron.Position := MyPlayer.AI.Setup.EquipRateIron div 10;
-  TrackBar_RecruitFactor.Position := MyPlayer.AI.Setup.RecruitFactor;
+  TrackBar_RecruitCount.Position := MyPlayer.AI.Setup.RecruitCount;
 
   CheckBox_MaxSoldiers.Checked := (MyPlayer.AI.Setup.MaxSoldiers < 0);
   TrackBar_MaxSoldiers.Enabled := not CheckBox_MaxSoldiers.Checked;
@@ -1839,8 +1839,8 @@ procedure TKMapEdInterface.Town_ScriptRefresh;
 begin
   CheckBox_AutoBuild.Checked := MyPlayer.AI.Setup.AutoBuild;
   CheckBox_AutoRepair.Checked := MyPlayer.AI.Mayor.AutoRepair;
-  TrackBar_SerfFactor.Position := MyPlayer.AI.Setup.SerfFactor;
-  TrackBar_WorkerFactor.Position := MyPlayer.AI.Setup.WorkerFactor;
+  TrackBar_SerfsPer10Houses.Position := Round(10*MyPlayer.AI.Setup.SerfsPerHouse);
+  TrackBar_WorkerCount.Position := MyPlayer.AI.Setup.WorkerCount;
 end;
 
 
@@ -1848,8 +1848,8 @@ procedure TKMapEdInterface.Town_ScriptChange(Sender: TObject);
 begin
   MyPlayer.AI.Setup.AutoBuild := CheckBox_AutoBuild.Checked;
   MyPlayer.AI.Mayor.AutoRepair := CheckBox_AutoRepair.Checked;
-  MyPlayer.AI.Setup.SerfFactor := TrackBar_SerfFactor.Position;
-  MyPlayer.AI.Setup.WorkerFactor := TrackBar_WorkerFactor.Position;
+  MyPlayer.AI.Setup.SerfsPerHouse := TrackBar_SerfsPer10Houses.Position / 10;
+  MyPlayer.AI.Setup.WorkerCount := TrackBar_WorkerCount.Position;
 end;
 
 

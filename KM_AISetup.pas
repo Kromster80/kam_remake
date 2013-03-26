@@ -14,11 +14,11 @@ type
     EquipRateLeather, EquipRateIron: Word; //Number of ticks between soldiers being equipped. Seperated into Leather/Iron to keep KaM compatibility.
     MaxSoldiers: Integer; //-1 means not used or default
     RecruitDelay: Cardinal; //Recruits (for barracks) can only be trained after this many ticks
-    RecruitFactor: Byte;
-    SerfFactor: Byte;
+    RecruitCount: Byte;
+    SerfsPerHouse: Single;
     StartPosition: TKMPoint; //Defines roughly where to defend and build around
     TownDefence: Integer; //-1 means not used or default
-    WorkerFactor: Byte;
+    WorkerCount: Byte;
 
     constructor Create;
     function GetEquipRate(aUnit: TUnitType): Word;
@@ -45,10 +45,10 @@ begin
   EquipRateIron := 500; //Measured in KaM: AI equips 1 iron soldier every ~50 seconds
   EquipRateLeather := 1000; //Measured in KaM: AI equips 1 leather soldier every ~100 seconds (if no iron one was already equipped)
   MaxSoldiers := -1; //No limit by default
-  WorkerFactor := 6;
-  RecruitFactor := 5; //This means the number in the barracks, watchtowers are counted seperately
+  WorkerCount := 6;
+  RecruitCount := 5; //This means the number in the barracks, watchtowers are counted seperately
   RecruitDelay := 0; //Can train at start
-  SerfFactor := 10; //Means 1 serf per building
+  SerfsPerHouse := 1;
   StartPosition := KMPoint(1,1);
   TownDefence := 100; //In KaM 100 is standard, although we don't completely understand this command
 end;
@@ -86,11 +86,11 @@ begin
   SaveStream.Write(EquipRateIron);
   SaveStream.Write(MaxSoldiers);
   SaveStream.Write(RecruitDelay);
-  SaveStream.Write(RecruitFactor);
-  SaveStream.Write(SerfFactor);
+  SaveStream.Write(RecruitCount);
+  SaveStream.Write(SerfsPerHouse);
   SaveStream.Write(StartPosition);
   SaveStream.Write(TownDefence);
-  SaveStream.Write(WorkerFactor);
+  SaveStream.Write(WorkerCount);
 end;
 
 
@@ -103,11 +103,11 @@ begin
   LoadStream.Read(EquipRateIron);
   LoadStream.Read(MaxSoldiers);
   LoadStream.Read(RecruitDelay);
-  LoadStream.Read(RecruitFactor);
-  LoadStream.Read(SerfFactor);
+  LoadStream.Read(RecruitCount);
+  LoadStream.Read(SerfsPerHouse);
   LoadStream.Read(StartPosition);
   LoadStream.Read(TownDefence);
-  LoadStream.Read(WorkerFactor);
+  LoadStream.Read(WorkerCount);
 end;
 
 
