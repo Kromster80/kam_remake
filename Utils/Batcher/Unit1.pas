@@ -190,12 +190,11 @@ begin
         fPlayers[K].Goals.Delete(J);
 
         Memo1.Lines.Append(ExtractFileName(PathToMaps[I]));
-        //Edited := True;
+        Edited := True;
       end;
 
-
       if Edited then
-        fGameApp.Game.SaveMapEditor(TruncateExt(ExtractFileName(PathToMaps[I])), Pos('MapsMP', PathToMaps[I]) > 0);
+        fGameApp.Game.SaveMapEditor(PathToMaps[I]);
     end;
 
   finally

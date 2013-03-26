@@ -109,7 +109,7 @@ type
     procedure GameDropWaitingPlayers;
 
     procedure AutoSave;
-    procedure SaveMapEditor(const aMissionName:string; aMultiplayer:boolean);
+    procedure SaveMapEditor(const aPathName: string);
     procedure RestartReplay; //Restart the replay but keep current viewport position/zoom
 
     function MissionTime: TDateTime;
@@ -853,33 +853,32 @@ begin
 end;
 
 
-procedure TKMGame.SaveMapEditor(const aMissionName: string; aMultiplayer: Boolean);
+//aPathName - full path to DAT file
+procedure TKMGame.SaveMapEditor(const aPathName: string);
 var
-  i: integer;
+  I: integer;
   fMissionParser: TMissionParserStandard;
-  MapName: string;
 begin
-  if aMissionName = '' then exit;
+  if aPathName = '' then exit;
 
   //Prepare and save
   fPlayers.RemoveEmptyPlayers;
 
-  MapName := TKMapsCollection.FullPath(aMissionName, '.map', aMultiplayer);
-  ForceDirectories(ExtractFilePath(MapName));
-  fLog.AddTime('Saving from map editor: '+MapName);
+  ForceDirectories(ExtractFilePath(aPathName));
+  fLog.AddTime('Saving from map editor: ' + aPathName);
 
-  fTerrain.SaveToFile(MapName);
-  fTerrainPainter.SaveToFile(MapName);
+  fTerrain.SaveToFile(ChangeFileExt(aPathName, '.map'));
+  fTerrainPainter.SaveToFile(ChangeFileExt(aPathName, '.map'));
   fMissionParser := TMissionParserStandard.Create(mpm_Editor, false);
-  fMissionParser.SaveDATFile(ChangeFileExt(MapName, '.dat'));
+  fMissionParser.SaveDATFile(ChangeFileExt(aPathName, '.dat'));
   FreeAndNil(fMissionParser);
 
-  fGameName := aMissionName;
+  fGameName := TruncateExt(ExtractFileName(aPathName));
   fPlayers.AddPlayers(MAX_PLAYERS - fPlayers.Count); // Activate all players
 
   //Reveal all players since we'll swap between them in MapEd
-  for i := 0 to fPlayers.Count - 1 do
-    fPlayers[i].FogOfWar.RevealEverything;
+  for I := 0 to fPlayers.Count - 1 do
+    fPlayers[I].FogOfWar.RevealEverything;
 
   if MyPlayer = nil then
     MyPlayer := fPlayers[0];

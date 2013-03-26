@@ -2642,11 +2642,11 @@ procedure TKMapEdInterface.Menu_SaveClick(Sender: TObject);
 var
   SaveName: string;
 begin
-  SaveName := Trim(Edit_SaveName.Text);
+  SaveName := TKMapsCollection.FullPath(Trim(Edit_SaveName.Text), '.dat', Radio_Save_MapType.ItemIndex = 1);
 
   if (Sender = Edit_SaveName) or (Sender = Radio_Save_MapType) then
   begin
-    CheckBox_SaveExists.Enabled := FileExists(TKMapsCollection.FullPath(SaveName, '.dat', Radio_Save_MapType.ItemIndex = 1));
+    CheckBox_SaveExists.Enabled := FileExists(SaveName);
     Label_SaveExists.Visible := CheckBox_SaveExists.Enabled;
     CheckBox_SaveExists.Checked := False;
     Button_SaveSave.Enabled := not CheckBox_SaveExists.Enabled;
@@ -2657,8 +2657,7 @@ begin
 
   if Sender = Button_SaveSave then
   begin
-    //Should we expand the path here? It depends.. since we are passing mask for map/dat files/folder
-    fGame.SaveMapEditor(SaveName, Radio_Save_MapType.ItemIndex = 1);
+    fGame.SaveMapEditor(SaveName);
 
     Player_UpdateColors;
     Player_ChangeActive(nil);

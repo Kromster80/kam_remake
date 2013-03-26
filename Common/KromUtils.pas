@@ -206,7 +206,6 @@ end;
 function TruncateExt(FileName:string): string;
 var i:word; DotPlace:word;
 begin
-
   DotPlace := length(FileName) + 1; //In case there's no Extension
   for i:=1 to length(FileName) do
     if FileName[i] = '.' then //FileExtension separator is always a .
