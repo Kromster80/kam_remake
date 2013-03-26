@@ -118,7 +118,6 @@ var
   PathToMaps: TStringList;
   MapInfo: TKMapInfo;
   WinCond, DefeatCond: array [TGoalCondition] of Word;
-  WinStat, DefeatStat: array [TGoalStatus] of Word;
   GC: TGoalCondition;
 begin
   ControlsEnable(False);
@@ -126,8 +125,6 @@ begin
 
   FillChar(WinCond, SizeOf(WinCond), #0);
   FillChar(DefeatCond, SizeOf(WinCond), #0);
-  FillChar(WinStat, SizeOf(WinCond), #0);
-  FillChar(DefeatStat, SizeOf(WinCond), #0);
 
   PathToMaps := TStringList.Create;
   try
@@ -143,16 +140,13 @@ begin
           Inc(WinCond[MapInfo.GoalsVictory[J,K].Cond]);
         for K := 0 to MapInfo.GoalsSurviveCount[J] - 1 do
           Inc(DefeatCond[MapInfo.GoalsSurvive[J,K].Cond]);
-        for K := 0 to MapInfo.GoalsVictoryCount[J] - 1 do
-          Inc(WinStat[MapInfo.GoalsVictory[J,K].Stat]);
-        for K := 0 to MapInfo.GoalsSurviveCount[J] - 1 do
-          Inc(DefeatStat[MapInfo.GoalsSurvive[J,K].Stat]);
       end;
     end;
 
     //Report results
     Memo1.Clear;
     Memo1.Lines.Append(IntToStr(PathToMaps.Count) + ' maps');
+    Memo1.Lines.Append('Win / Def');
     for GC := Low(TGoalCondition) to High(TGoalCondition) do
       Memo1.Lines.Append(Format('%3d / %3d ' + GoalConditionStr[GC], [WinCond[GC], DefeatCond[GC]]));
   finally
