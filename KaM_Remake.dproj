@@ -149,6 +149,7 @@
 			<DCCReference Include="KM_GameInputProcess_Multi.pas"/>
 			<DCCReference Include="KM_GameInputProcess_Single.pas"/>
 			<DCCReference Include="KM_Goals.pas"/>
+			<DCCReference Include="KM_GUIMenuCampaign.pas"/>
 			<DCCReference Include="KM_GUIMenuLobby.pas"/>
 			<DCCReference Include="KM_GUIMenuOptions.pas"/>
 			<DCCReference Include="KM_GUIMenuSingleMap.pas"/>
@@ -189,6 +190,7 @@
 			<DCCReference Include="KM_Projectiles.pas"/>
 			<DCCReference Include="KM_Render.pas"/>
 			<DCCReference Include="KM_RenderAux.pas"/>
+			<DCCReference Include="KM_RenderControl.pas"/>
 			<DCCReference Include="KM_RenderPool.pas"/>
 			<DCCReference Include="KM_RenderTerrain.pas"/>
 			<DCCReference Include="KM_RenderUI.pas"/>

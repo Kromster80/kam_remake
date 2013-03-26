@@ -9,7 +9,7 @@ uses
 
 type
   TChatMode = (cmAll, cmTeam, cmWhisper);
-  TGUIPage = (gpMainMenu, gpSingleplayer, gpMultiplayer, gpOptions);
+  TGUIPage = (gpMainMenu, gpSingleplayer, gpMultiplayer, gpOptions, gmCampSelect);
   TGUIEvent = procedure (Sender: TObject; Dest: TGUIPage) of object;
   TGUIEventText = procedure (Sender: TObject; Dest: TGUIPage; aText: string) of object;
 

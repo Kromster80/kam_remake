@@ -50,6 +50,7 @@ uses
   KM_GameInputProcess_Multi in 'KM_GameInputProcess_Multi.pas',
   KM_GameInputProcess_Single in 'KM_GameInputProcess_Single.pas',
   KM_Goals in 'KM_Goals.pas',
+  KM_GUIMenuCampaign in 'KM_GUIMenuCampaign.pas',
   KM_GUIMenuLobby in 'KM_GUIMenuLobby.pas',
   KM_GUIMenuOptions in 'KM_GUIMenuOptions.pas',
   KM_GUIMenuSingleMap in 'KM_GUIMenuSingleMap.pas',

@@ -11,7 +11,8 @@ uses
   KM_InterfaceDefaults, KM_Minimap, KM_ServerQuery,
   KM_GUIMenuLobby,
   KM_GUIMenuOptions,
-  KM_GUIMenuSingleMap;
+  KM_GUIMenuSingleMap,
+  KM_GUIMenuCampaign;
 
 
 type
@@ -19,9 +20,6 @@ type
 
   TKMMainMenuInterface = class (TKMUserInterface)
   private
-    Campaign_Selected: TKMCampaign;
-    Campaign_MapIndex: Byte;
-
     fServerSelected: Boolean;
     fSelectedRoomInfo: TKMRoomInfo;
     fSelectedServerInfo: TKMServerInfo;
@@ -40,13 +38,13 @@ type
 
     fLobby: TKMGUIMenuLobby;
     fOptions: TKMGUIMainOptions;
+    fGuiCampaign: TKMGUIMainCampaign;
     fSingleMap: TKMGUIMenuSingleMap;
     //fPages: array [TGUIPage] of TKMGUIPage;
 
     procedure Create_MainMenu;
     procedure Create_SinglePlayer;
     procedure Create_CampSelect;
-    procedure Create_Campaign;
     procedure Create_Load;
     procedure Create_MultiPlayer;
     procedure Create_MapEditor;
@@ -64,9 +62,6 @@ type
     procedure Results_RepeatLastMap(Sender: TObject);
     procedure Campaign_FillList;
     procedure Campaign_ListChange(Sender: TObject);
-    procedure Campaign_Set(aCampaign: TKMCampaign);
-    procedure Campaign_SelectMap(Sender: TObject);
-    procedure Campaign_StartMap(Sender: TObject);
     procedure Credits_LinkClick(Sender: TObject);
 
     procedure MP_Init(Sender: TObject);
@@ -186,15 +181,6 @@ type
       Image_CampsPreview: TKMImage;
       Button_Camp_Start, Button_Camp_Back: TKMButton;
 
-    Panel_Campaign: TKMPanel;
-      Image_CampaignBG: TKMImage;
-      Panel_Campaign_Flags: TKMPanel;
-        Image_CampaignFlags: array[0..MAX_CAMP_MAPS - 1] of TKMImage;
-        Image_CampaignSubNode: array[0..MAX_CAMP_NODES - 1] of TKMImage;
-      Panel_CampScroll: TKMPanel;
-        Image_ScrollTop, Image_Scroll: TKMImage;
-        Label_CampaignTitle, Label_CampaignText: TKMLabel;
-      Button_CampaignStart, Button_CampaignBack: TKMButton;
     Panel_Load:TKMPanel;
       ColumnBox_Load: TKMColumnBox;
       Button_Load: TKMButton;
@@ -297,8 +283,6 @@ begin
   inherited;
   Assert(fTextLibrary <> nil, 'fTextLibrary should be initialized before MainMenuInterface');
 
-  Campaign_MapIndex := 1;
-
   fMinimap := TKMMinimap.Create(True, False, True);
 
   fMaps := TKMapsCollection.Create(False);
@@ -319,7 +303,7 @@ begin
   Create_MainMenu;
   Create_SinglePlayer;
     Create_CampSelect;
-      Create_Campaign;
+      fGuiCampaign := TKMGUIMainCampaign.Create(Panel_Main, PageChange);
   fSingleMap := TKMGUIMenuSingleMap.Create(Panel_Main, PageChange);
     Create_Load;
   Create_MultiPlayer;
@@ -367,6 +351,7 @@ begin
   fLobby.Free;
   fOptions.Free;
   fSingleMap.Free;
+  fGuiCampaign.Free;
 
   inherited;
 end;
@@ -374,7 +359,6 @@ end;
 
 //Keep Panel_Main centered
 procedure TKMMainMenuInterface.Resize(X, Y: Word);
-var I: Integer;
 begin
   Panel_Main.Width  := Min(X, MENU_DESIGN_X);
   Panel_Main.Height := Min(Y, MENU_DESIGN_Y);
@@ -382,23 +366,10 @@ begin
   Panel_Main.Left := (X - Panel_Main.Width) div 2;
   Panel_Main.Top  := (Y - Panel_Main.Height) div 2;
 
-  //Special rules for resizing the campaigns panel
-  Panel_Campaign_Flags.Scale := Min(768,Y) / 768;
-  Panel_Campaign_Flags.Left := Round(1024*(1-Panel_Campaign_Flags.Scale) / 2);
-  Image_CampaignBG.Left := Round(1024*(1-Panel_Campaign_Flags.Scale) / 2);
-  Image_CampaignBG.Height := Min(768,Y);
-  Image_CampaignBG.Width := Round(1024*Panel_Campaign_Flags.Scale);
-  //Special rule to keep campaign flags pivoted at the right place (so the flagpole doesn't move when you resize)
-  if Campaign_Selected <> nil then
-    for I := 0 to Campaign_Selected.MapCount - 1 do
-      with Image_CampaignFlags[I] do
-      begin
-        //Pivot flags around Y=bottom X=middle, that's where the flag pole is
-        Left := Campaign_Selected.Maps[I].Flag.X - Round((Width/2)*(1-Panel_Campaign_Flags.Scale));
-        Top  := Campaign_Selected.Maps[I].Flag.Y - Round(Height   *(1-Panel_Campaign_Flags.Scale));
-      end;
+  //Needs to resize the map and move flag positions accordingly
+  fGuiCampaign.Resize(X, Y);
 
-  //Lobby needs resize event to swap map description / game settings on low resolution displays
+  //Needs to swap map description / game settings on low resolution displays
   fLobby.Lobby_Resize(Panel_Main.Height);
 end;
 
@@ -1105,48 +1076,6 @@ begin
 end;
 
 
-procedure TKMMainMenuInterface.Create_Campaign;
-var I: Integer;
-begin
-  Panel_Campaign := TKMPanel.Create(Panel_Main,0,0,Panel_Main.Width, Panel_Main.Height);
-  Panel_Campaign.Stretch;
-    Image_CampaignBG := TKMImage.Create(Panel_Campaign,0,0,Panel_Main.Width, Panel_Main.Height,0,rxGuiMain);
-    Image_CampaignBG.ImageStretch;
-
-    Panel_Campaign_Flags:=TKMPanel.Create(Panel_Campaign,0,0,Panel_Main.Width, Panel_Main.Height);
-    Panel_Campaign_Flags.Stretch;
-    for I := 0 to High(Image_CampaignFlags) do
-    begin
-      Image_CampaignFlags[I] := TKMImage.Create(Panel_Campaign_Flags, Panel_Main.Width, Panel_Main.Height, 23, 29, 10, rxGuiMain);
-      Image_CampaignFlags[I].OnClick := Campaign_SelectMap;
-      Image_CampaignFlags[I].Tag := I;
-    end;
-    for I := 0 to High(Image_CampaignSubNode) do
-    begin
-      Image_CampaignSubNode[I] := TKMImage.Create(Panel_Campaign_Flags, Panel_Main.Width, Panel_Main.Height, 0, 0, 16, rxGuiMain);
-      Image_CampaignSubNode[I].ImageCenter; //Pivot at the center of the dot (width/height = 0)
-    end;
-
-  Panel_CampScroll := TKMPanel.Create(Panel_Campaign,Panel_Main.Width-360,Panel_Main.Height-430,360,430);
-  Panel_CampScroll.Anchors := [akLeft,akBottom];
-
-    Image_Scroll := TKMImage.Create(Panel_CampScroll, 0, 0,360,430,{15}3,rxGuiMain);
-    Image_Scroll.ImageStretch;
-    Label_CampaignTitle := TKMLabel.Create(Panel_CampScroll, 130, 18,100,20, NO_TEXT, fnt_Outline, taCenter);
-
-    Label_CampaignText := TKMLabel.Create(Panel_CampScroll, 20, 50, 325, 310, NO_TEXT, fnt_Briefing, taLeft);
-    Label_CampaignText.AutoWrap := true;
-
-  Button_CampaignStart := TKMButton.Create(Panel_Campaign, Panel_Main.Width-220-20, Panel_Main.Height-50, 220, 30, fTextLibrary[TX_MENU_START_MISSION], bsMenu);
-  Button_CampaignStart.Anchors := [akLeft,akBottom];
-  Button_CampaignStart.OnClick := Campaign_StartMap;
-
-  Button_CampaignBack := TKMButton.Create(Panel_Campaign, 20, Panel_Main.Height-50, 220, 30, fTextLibrary[TX_MENU_BACK], bsMenu);
-  Button_CampaignBack.Anchors := [akLeft,akBottom];
-  Button_CampaignBack.OnClick := SwitchMenuPage;
-end;
-
-
 procedure TKMMainMenuInterface.Create_Load;
 begin
   Panel_Load := TKMPanel.Create(Panel_Main,0,0,Panel_Main.Width, Panel_Main.Height);
@@ -1603,13 +1532,19 @@ begin
                       MP_ServersRefresh(Sender);
                     end;
     gpOptions:      ;
+    gmCampSelect:   begin
+                      Campaign_FillList;
+                      Panel_CampSelect.Show;
+                    end;
   end;
 
 end;
 
 
 procedure TKMMainMenuInterface.SwitchMenuPage(Sender: TObject);
-var I: Integer;
+var
+  I: Integer;
+  CmpName: string;
 begin
   Label_Version.Caption := GAME_VERSION + ' / ' + fGameApp.RenderVersion;
 
@@ -1650,10 +1585,8 @@ begin
   end;
 
   {Show campaign selection menu}
-  if (Sender = Button_SP_Camp)
-  or (Sender = Button_CampaignBack) then
+  if (Sender = Button_SP_Camp) then
   begin
-    fGameApp.MusicLib.StopPlayingOtherFile; //Cancel briefing if it was playing
     Campaign_FillList;
     Panel_CampSelect.Show;
   end;
@@ -1661,14 +1594,12 @@ begin
   {Show campaign screen}
   if (Sender = Button_Camp_Start) or (Sender = ColumnBox_Camps) then
   begin
-    Campaign_Set(fGameApp.Campaigns.CampaignByTitle(ColumnBox_Camps.Rows[ColumnBox_Camps.ItemIndex].Cells[3].Caption));
-    Panel_Campaign.Show;
+    CmpName := ColumnBox_Camps.Rows[ColumnBox_Camps.ItemIndex].Cells[3].Caption;
+    fGuiCampaign.Show(fGameApp.Campaigns.CampaignByTitle(CmpName));
   end;
+
   if (Sender = Button_ResultsContinue) then
-  begin
-    Campaign_Set(fGameApp.Campaigns.ActiveCampaign);
-    Panel_Campaign.Show;
-  end;
+    fGuiCampaign.Show(fGameApp.Campaigns.ActiveCampaign);
 
   {Show SingleMap menu}
   if Sender = Button_SP_Single then
@@ -1812,80 +1743,6 @@ begin
 
   Image_CampsPreview.RX := Camp.BackGroundPic.RX;
   Image_CampsPreview.TexID := Camp.BackGroundPic.ID;
-end;
-
-
-procedure TKMMainMenuInterface.Campaign_Set(aCampaign: TKMCampaign);
-const MapPic: array [Boolean] of byte = (10, 11);
-var I: Integer;
-begin
-  Campaign_Selected := aCampaign;
-
-  //Choose background
-  Image_CampaignBG.RX := Campaign_Selected.BackGroundPic.RX;
-  Image_CampaignBG.TexID := Campaign_Selected.BackGroundPic.ID;
-
-  //Setup sites
-  for I := 0 to High(Image_CampaignFlags) do
-  begin
-    Image_CampaignFlags[I].Visible := I < Campaign_Selected.MapCount;
-    Image_CampaignFlags[I].TexID   := MapPic[I <= Campaign_Selected.UnlockedMap];
-    Image_CampaignFlags[I].HighlightOnMouseOver := I <= Campaign_Selected.UnlockedMap;
-  end;
-
-  //Place sites
-  for I := 0 to Campaign_Selected.MapCount - 1 do
-  begin
-    //Pivot flags around Y=bottom X=middle, that's where the flag pole is
-    Image_CampaignFlags[I].Left := Campaign_Selected.Maps[I].Flag.X - Round((Image_CampaignFlags[I].Width/2)*(1-Panel_Campaign_Flags.Scale));
-    Image_CampaignFlags[I].Top  := Campaign_Selected.Maps[I].Flag.Y - Round(Image_CampaignFlags[I].Height   *(1-Panel_Campaign_Flags.Scale));
-  end;
-
-  //Select last map to play by 'clicking' last node
-  Campaign_SelectMap(Image_CampaignFlags[Campaign_Selected.UnlockedMap]);
-
-  //When opening campaign screen set the scroll initial position properly
-  //Player can move it later (to allow to select previous maps and look at camp map)
-  Panel_CampScroll.Left := IfThen(Campaign_Selected.Maps[Campaign_MapIndex].TextPos = cBottomRight, Panel_Campaign.Width - Panel_CampScroll.Width, 0);
-end;
-
-
-procedure TKMMainMenuInterface.Campaign_SelectMap(Sender: TObject);
-var I: Integer;
-begin
-  if not (Sender is TKMImage) then exit;
-  if not TKMImage(Sender).HighlightOnMouseOver then exit; //Skip closed maps
-
-  Campaign_MapIndex := TKMImage(Sender).Tag;
-
-  //Place highlight
-  for I := 0 to High(Image_CampaignFlags) do
-    Image_CampaignFlags[I].Highlight := (Campaign_MapIndex = I);
-
-  //Connect by sub-nodes
-  for I := 0 to High(Image_CampaignSubNode) do
-  begin
-    Image_CampaignSubNode[I].Visible := InRange(I, 0, Campaign_Selected.Maps[Campaign_MapIndex].NodeCount-1);
-    Image_CampaignSubNode[I].Left := Campaign_Selected.Maps[Campaign_MapIndex].Nodes[I].X;
-    Image_CampaignSubNode[I].Top  := Campaign_Selected.Maps[Campaign_MapIndex].Nodes[I].Y;
-  end;
-
-  Label_CampaignTitle.Caption := Format(fTextLibrary[TX_GAME_MISSION], [Campaign_MapIndex+1]);
-  Label_CampaignText.Caption := Campaign_Selected.MissionText(Campaign_MapIndex);
-
-  Panel_CampScroll.Height := 50 + Label_CampaignText.TextSize.Y + 70; //Add offset from top and space on bottom
-  Panel_CampScroll.Top := Panel_Main.Height - Panel_CampScroll.Height;
-  Image_Scroll.Height := Panel_CampScroll.Height;
-
-  fGameApp.MusicLib.StopPlayingOtherFile; //Stop playing the previous breifing even if this one doesn't exist
-  fGameApp.PauseMusicToPlayFile(Campaign_Selected.BreifingAudioFile(Campaign_MapIndex, fGameApp.GameSettings.Locale));
-end;
-
-
-procedure TKMMainMenuInterface.Campaign_StartMap(Sender: TObject);
-begin
-  fGameApp.MusicLib.StopPlayingOtherFile;
-  fGameApp.NewCampaignMap(Campaign_Selected, Campaign_MapIndex);
 end;
 
 
@@ -2749,13 +2606,7 @@ procedure TKMMainMenuInterface.MouseMove(Shift: TShiftState; X,Y: Integer);
 begin
   fMyControls.MouseMove(X,Y,Shift);
 
-  if (Panel_Campaign.Visible)
-  and (Y > Panel_Campaign.Top + Panel_Campaign.Height - Panel_CampScroll.Height) then
-    if X < Panel_Campaign.Left +  Panel_CampScroll.Width then
-      Panel_CampScroll.Left := Panel_Campaign.Width - Panel_CampScroll.Width
-    else
-    if X > Panel_Campaign.Left +  Panel_Campaign.Width - Panel_CampScroll.Width then
-      Panel_CampScroll.Left := 0;
+  fGuiCampaign.MouseMove(Shift, X, Y);
 end;
 
 
