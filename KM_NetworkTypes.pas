@@ -141,12 +141,12 @@ const
 
 type
   TMPGameState = (mgs_None, mgs_Lobby, mgs_Loading, mgs_Game);
-  TKMServerType = (st_None, st_Client, st_Dedicated, st_DedicatedLinux);
+  TKMServerType = (st_None, st_Client, st_Dedicated);
 
 const
   //Used in the dedicated server display as it does not care about translations (translated ones are in KM_TextLibrary)
   GameStateText:array[TMPGameState] of string = ('None','Lobby','Loading','Game');
-  ServerTypePic:array[TKMServerType] of TKMPic = ((RX: rxGuiMain; ID:0), (RX: rxGuiMain; ID:74), (RX: rxGuiMain; ID:75), (RX: rxGuiMain; ID:76));
+  ServerTypePic:array[TKMServerType] of TKMPic = ((RX: rxGuiMain; ID:0), (RX: rxGuiMain; ID:74), (RX: rxGuiMain; ID:75));
 
 
 implementation

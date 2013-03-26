@@ -224,13 +224,7 @@ procedure TKMServerList.LoadFromText(const aText: AnsiString);
     if aDedicated = '0' then
       Result := st_Client
     else
-      if aDedicated = '1' then
-      begin
-        if aOS = 'Unix' then
-          Result := st_DedicatedLinux
-        else
-          Result := st_Dedicated;
-      end;
+      Result := st_Dedicated;
   end;
 
 var
