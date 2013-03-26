@@ -2127,7 +2127,8 @@ begin
 
   if fTerrain.HasUnit(PlaceTo) then
     raise ELocError.Create('No space for ' + fResource.UnitDat[aUnitType].UnitName +
-                           ', tile occupied by ' + fResource.UnitDat[TKMUnit(fTerrain.Land[PlaceTo.Y,PlaceTo.X].IsUnit).UnitType].UnitName,
+                           ' at ' + TypeToString(aLoc) +
+                           ', tile is already occupied by ' + fResource.UnitDat[TKMUnit(fTerrain.Land[PlaceTo.Y,PlaceTo.X].IsUnit).UnitType].UnitName,
                            PlaceTo);
 
   ID := fGame.GetNewID;

@@ -14,9 +14,11 @@ type
     Button1: TButton;
     Button2: TButton;
     Memo1: TMemo;
+    Button4: TButton;
     procedure Button3Click(Sender: TObject);
     procedure Button1Click(Sender: TObject);
     procedure Button2Click(Sender: TObject);
+    procedure Button4Click(Sender: TObject);
   private
     procedure SetUp;
     procedure TearDown;
@@ -135,7 +137,7 @@ begin
     begin
       MapInfo := TKMapInfo.Create(TruncateExt(ExtractFileName(PathToMaps[I])), False, Pos('MapsMP', PathToMaps[I]) > 0);
       MapInfo.LoadExtra;
-      for J := 0 to MAX_PLAYERS - 1 do
+      for J := 0 to MapInfo.PlayerCount - 1 do
       begin
         for K := 0 to MapInfo.GoalsVictoryCount[J] - 1 do
           Inc(WinCond[MapInfo.GoalsVictory[J,K].Cond]);
@@ -148,14 +150,56 @@ begin
       end;
     end;
 
+    //Report results
+    Memo1.Clear;
+    Memo1.Lines.Append(IntToStr(PathToMaps.Count) + ' maps');
+    for GC := Low(TGoalCondition) to High(TGoalCondition) do
+      Memo1.Lines.Append(Format('%3d / %3d ' + GoalConditionStr[GC], [WinCond[GC], DefeatCond[GC]]));
   finally
     PathToMaps.Free;
   end;
 
+  TearDown;
+  ControlsEnable(True);
+end;
+
+
+procedure TForm1.Button4Click(Sender: TObject);
+var
+  I,J,K: Integer;
+  PathToMaps: TStringList;
+  Edited: Boolean;
+begin
   Memo1.Clear;
-  for GC := Low(TGoalCondition) to High(TGoalCondition) do
-  begin
-    Memo1.Lines.Append(Format('%3d / %3d ' + GoalConditionStr[GC], [WinCond[GC], DefeatCond[GC]]))
+  ControlsEnable(False);
+  SetUp;
+
+  PathToMaps := TStringList.Create;
+  try
+    TKMapsCollection.GetAllMapPaths(ExeDir, PathToMaps);
+
+    for I := 0 to PathToMaps.Count - 1 do
+    begin
+      fGameApp.NewMapEditor(PathToMaps[I], 0, 0);
+
+      Edited := False;
+      for K := 0 to fPlayers.Count - 1 do
+      for J := fPlayers[K].Goals.Count - 1 downto 0 do
+      if fPlayers[K].Goals[J].GoalCondition = gc_Time then
+      begin
+        fPlayers[K].Goals.Delete(J);
+
+        Memo1.Lines.Append(ExtractFileName(PathToMaps[I]));
+        //Edited := True;
+      end;
+
+
+      if Edited then
+        fGameApp.Game.SaveMapEditor(TruncateExt(ExtractFileName(PathToMaps[I])), Pos('MapsMP', PathToMaps[I]) > 0);
+    end;
+
+  finally
+    PathToMaps.Free;
   end;
 
   TearDown;

@@ -753,8 +753,15 @@ const
     [gc_Buildings, gc_Troops, gc_MilitaryAssets, gc_SerfsAndSchools, gc_EconomyBuildings];
 
   GoalConditionStr: array [TGoalCondition] of string =
-  ('Unknown 0', 'Build Tannery', 'Time', 'Store School Barracks', 'Troops', 'Unknown 5',
-   'Military assets', 'Serfs&Schools', 'School Inn Store');
+  ('Unknown 0',
+   'Build Tannery',
+   'Time',
+   'Store School Barracks',
+   'Troops',
+   'Unknown 5',
+   'Military assets',
+   'Serfs&Schools',
+   'School Inn Store');
 
   GoalStatusStr: array [TGoalStatus] of string =
   ('True', 'False');

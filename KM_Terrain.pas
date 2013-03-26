@@ -278,9 +278,9 @@ end;
 
 procedure TKMTerrain.LoadFromFile(FileName: string; aMapEditor: Boolean);
 var
-  i,k:integer;
-  S:TKMemoryStream;
-  NewX,NewY: Integer;
+  I, K: Integer;
+  S: TKMemoryStream;
+  NewX, NewY: Integer;
 begin
   fMapX := 0;
   fMapY := 0;
@@ -300,32 +300,32 @@ begin
     fMapX := NewX;
     fMapY := NewY;
 
-    for i:=1 to fMapY do for k:=1 to fMapX do
+    for I := 1 to fMapY do for K := 1 to fMapX do
     begin
-      Land[i,k].OldTerrain   := 0;
-      Land[i,k].OldRotation  := 0;
-      Land[i,k].TileOverlay  := to_None;
-      Land[i,k].TileLock     := tlNone;
-      Land[i,k].Passability  := []; //Gets recalculated later
-      Land[i,k].TileOwner    := -1;
-      Land[i,k].IsUnit       := nil;
-      Land[i,k].IsVertexUnit := vu_None;
-      Land[i,k].FieldAge     := 0;
-      Land[i,k].TreeAge      := 0;
-      Land[i,k].Fence       := fncNone;
-      Land[i,k].FenceSide   := 0;
+      Land[I,K].OldTerrain   := 0;
+      Land[I,K].OldRotation  := 0;
+      Land[I,K].TileOverlay  := to_None;
+      Land[I,K].TileLock     := tlNone;
+      Land[I,K].Passability  := []; //Gets recalculated later
+      Land[I,K].TileOwner    := PLAYER_NONE;
+      Land[I,K].IsUnit       := nil;
+      Land[I,K].IsVertexUnit := vu_None;
+      Land[I,K].FieldAge     := 0;
+      Land[I,K].TreeAge      := 0;
+      Land[I,K].Fence        := fncNone;
+      Land[I,K].FenceSide    := 0;
 
-      S.Read(Land[i,k].Terrain); //1
+      S.Read(Land[I,K].Terrain); //1
       S.Seek(1, soFromCurrent);
-      S.Read(Land[i,k].Height); //3
-      S.Read(Land[i,k].Rotation); //4
+      S.Read(Land[I,K].Height); //3
+      S.Read(Land[I,K].Rotation); //4
       S.Seek(1, soFromCurrent);
-      S.Read(Land[i,k].Obj); //6
+      S.Read(Land[I,K].Obj); //6
       S.Seek(17, soFromCurrent);
-      if ObjectIsChopableTree(KMPoint(k,i), caAge1) then Land[i,k].TreeAge := 1;
-      if ObjectIsChopableTree(KMPoint(k,i), caAge2) then Land[i,k].TreeAge := TREE_AGE_1;
-      if ObjectIsChopableTree(KMPoint(k,i), caAge3) then Land[i,k].TreeAge := TREE_AGE_2;
-      if ObjectIsChopableTree(KMPoint(k,i), caAgeFull) then Land[i,k].TreeAge := TREE_AGE_FULL;
+      if ObjectIsChopableTree(KMPoint(K,I), caAge1) then Land[I,K].TreeAge := 1;
+      if ObjectIsChopableTree(KMPoint(K,I), caAge2) then Land[I,K].TreeAge := TREE_AGE_1;
+      if ObjectIsChopableTree(KMPoint(K,I), caAge3) then Land[I,K].TreeAge := TREE_AGE_2;
+      if ObjectIsChopableTree(KMPoint(K,I), caAgeFull) then Land[I,K].TreeAge := TREE_AGE_FULL;
       //Everything else is default
     end;
   finally
@@ -363,8 +363,9 @@ begin
   b205 := 205;
   for i:=1 to fMapY do for k:=1 to fMapX do
   begin
+    //Map file stores terrain, not the fields placed over it, so save OldTerrain rather than Terrain
     if TileIsCornField(KMPoint(k,i)) or TileIsWineField(KMPoint(k,i)) then
-      blockwrite(f,Land[i,k].OldTerrain,1) //Map file stores terrain, not the fields placed over it, so save OldTerrain rather than Terrain
+      blockwrite(f,Land[i,k].OldTerrain,1)
     else
       blockwrite(f,Land[i,k].Terrain,1);
 
@@ -372,8 +373,9 @@ begin
     blockwrite(f,light,1); //Light
     blockwrite(f,Land[i,k].Height,1);
 
+    //Map file stores terrain, not the fields placed over it, so save OldRotation rather than Rotation
     if TileIsCornField(KMPoint(k,i)) or TileIsWineField(KMPoint(k,i)) then
-      blockwrite(f,Land[i,k].OldRotation,1) //Map file stores terrain, not the fields placed over it, so save OldRotation rather than Rotation
+      blockwrite(f,Land[i,k].OldRotation,1)
     else
       blockwrite(f,Land[i,k].Rotation,1);
 

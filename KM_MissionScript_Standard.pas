@@ -337,6 +337,7 @@ begin
                             fPlayers[fLastPlayer].Stats.HouseGranted[HT] := True;
     ct_SetGroup:        if fLastPlayer >= 0 then
                           if InRange(P[0], Low(UnitIndexToType), High(UnitIndexToType)) and (UnitIndexToType[P[0]] <> ut_None) then
+                          try
                             fLastTroop := fPlayers[fLastPlayer].AddUnitGroup(
                               UnitIndexToType[P[0]],
                               KMPoint(P[1]+1, P[2]+1),
@@ -344,6 +345,12 @@ begin
                               P[4],
                               P[5]
                               );
+                          except
+                            //Group could not be placed because there's already another flagholder there
+                            //flagholders need to be placed on exact spots, no autoplacing is used
+                            on E: ELocError do
+                              AddError(ELocError(E).Message);
+                          end;
     ct_SendGroup:       if fLastPlayer >= 0 then
                         begin
                           if fLastTroop <> nil then

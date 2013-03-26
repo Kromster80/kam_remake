@@ -113,7 +113,7 @@ begin
   //Make sure we dont have degenerate polys left
   CheckForDegenerates(fRawMesh);
 
-  Assert(Length(fRawMesh.Polygons) > 8);
+  Assert(Length(fRawMesh.Polygons) >= 6);
 
   //Fill in NavMesh structure
   AssembleNavMesh;

@@ -1552,7 +1552,6 @@ begin
     TKMLabel.Create(Panel_Goal, 480, 90, fTextLibrary[TX_MAPED_GOALS_MESSAGE], fnt_Metal, taLeft);
     NumEdit_GoalMessage := TKMNumericEdit.Create(Panel_Goal, 480, 110, 0, 0);
     NumEdit_GoalMessage.SharedHint := 'This setting is deprecated, use scripts instead';
-    NumEdit_GoalMessage.Disable;
 
     Button_GoalOk := TKMButton.Create(Panel_Goal, SIZE_X-20-320-10, SIZE_Y - 50, 160, 30, fTextLibrary[TX_MAPED_OK], bsMenu);
     Button_GoalOk.OnClick := Goal_Close;
