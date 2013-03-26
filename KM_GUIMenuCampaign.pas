@@ -32,7 +32,6 @@ type
       Button_CampaignStart, Button_CampaignBack: TKMButton;
   public
     constructor Create(aParent: TKMPanel; aOnPageChange: TGUIEventText);
-    destructor Destroy; override;
 
     procedure MouseMove(Shift: TShiftState; X,Y: Integer);
     procedure Resize(X, Y: Word);
@@ -51,10 +50,8 @@ var
 begin
   inherited Create;
 
-  fOnPageChange := aOnPageChange;
-
   fMapIndex := 1;
-
+  fOnPageChange := aOnPageChange;
 
   Panel_Campaign := TKMPanel.Create(aParent, 0, 0, aParent.Width, aParent.Height);
   Panel_Campaign.Stretch;
@@ -75,14 +72,15 @@ begin
       Image_CampaignSubNode[I].ImageCenter; //Pivot at the center of the dot (width/height = 0)
     end;
 
-  Panel_CampScroll := TKMPanel.Create(Panel_Campaign,aParent.Width-360,aParent.Height-430,360,430);
+  Panel_CampScroll := TKMPanel.Create(Panel_Campaign, 0, 0, 360, 430);
   Panel_CampScroll.Anchors := [akLeft,akBottom];
 
-    Image_Scroll := TKMImage.Create(Panel_CampScroll, 0, 0,360,430,{15}3,rxGuiMain);
+    Image_Scroll := TKMImage.Create(Panel_CampScroll, 0, 0, 360, 430, 410, rxGui);
+    Image_Scroll.Stretch;
     Image_Scroll.ImageStretch;
-    Label_CampaignTitle := TKMLabel.Create(Panel_CampScroll, 130, 18,100,20, NO_TEXT, fnt_Outline, taCenter);
+    Label_CampaignTitle := TKMLabel.Create(Panel_CampScroll, 130, 25, 100, 20, NO_TEXT, fnt_Outline, taCenter);
 
-    Label_CampaignText := TKMLabel.Create(Panel_CampScroll, 20, 50, 325, 310, NO_TEXT, fnt_Briefing, taLeft);
+    Label_CampaignText := TKMLabel.Create(Panel_CampScroll, 20, 55, 325, 310, NO_TEXT, fnt_Briefing, taLeft);
     Label_CampaignText.AutoWrap := true;
 
   Button_CampaignStart := TKMButton.Create(Panel_Campaign, aParent.Width-220-20, aParent.Height-50, 220, 30, fTextLibrary[TX_MENU_START_MISSION], bsMenu);
@@ -92,13 +90,6 @@ begin
   Button_CampaignBack := TKMButton.Create(Panel_Campaign, 20, aParent.Height-50, 220, 30, fTextLibrary[TX_MENU_BACK], bsMenu);
   Button_CampaignBack.Anchors := [akLeft,akBottom];
   Button_CampaignBack.OnClick := BackClick;
-end;
-
-
-destructor TKMGUIMainCampaign.Destroy;
-begin
-
-  inherited;
 end;
 
 
@@ -138,9 +129,9 @@ end;
 
 
 procedure TKMGUIMainCampaign.Campaign_SelectMap(Sender: TObject);
-var I: Integer;
+var
+  I: Integer;
 begin
-  if not (Sender is TKMImage) then exit;
   if not TKMImage(Sender).HighlightOnMouseOver then exit; //Skip closed maps
 
   fMapIndex := TKMImage(Sender).Tag;
@@ -160,9 +151,9 @@ begin
   Label_CampaignTitle.Caption := Format(fTextLibrary[TX_GAME_MISSION], [fMapIndex+1]);
   Label_CampaignText.Caption := fCampaign.MissionText(fMapIndex);
 
-  Panel_CampScroll.Height := 50 + Label_CampaignText.TextSize.Y + 70; //Add offset from top and space on bottom
+  //Add offset from top and space on bottom to fit buttons
+  Panel_CampScroll.Height := Label_CampaignText.Top + Label_CampaignText.TextSize.Y + 70;
   Panel_CampScroll.Top := Panel_Campaign.Height - Panel_CampScroll.Height;
-  Image_Scroll.Height := Panel_CampScroll.Height;
 
   fGameApp.MusicLib.StopPlayingOtherFile; //Stop playing the previous breifing even if this one doesn't exist
   fGameApp.PauseMusicToPlayFile(fCampaign.BreifingAudioFile(fMapIndex, fGameApp.GameSettings.Locale));
@@ -198,7 +189,7 @@ begin
 end;
 
 
-//Mission description jumps around
+//Mission description jumps around to allow to pick any of beaten maps
 procedure TKMGUIMainCampaign.MouseMove(Shift: TShiftState; X,Y: Integer);
 begin
   //If cursor hits the description, toggle it between left/right corner
