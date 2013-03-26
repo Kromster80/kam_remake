@@ -186,15 +186,15 @@ type
       Image_CampsPreview: TKMImage;
       Button_Camp_Start, Button_Camp_Back: TKMButton;
 
-    Panel_Campaign:TKMPanel;
-      Image_CampaignBG:TKMImage;
-      Panel_Campaign_Flags:TKMPanel;
-        Image_CampaignFlags:array[0..MAX_CAMP_MAPS - 1] of TKMImage;
-        Image_CampaignSubNode:array[0..MAX_CAMP_NODES - 1] of TKMImage;
-      Panel_CampScroll:TKMPanel;
-        Image_ScrollTop,Image_Scroll:TKMImage;
-        Label_CampaignTitle,Label_CampaignText:TKMLabel;
-      Button_CampaignStart,Button_CampaignBack:TKMButton;
+    Panel_Campaign: TKMPanel;
+      Image_CampaignBG: TKMImage;
+      Panel_Campaign_Flags: TKMPanel;
+        Image_CampaignFlags: array[0..MAX_CAMP_MAPS - 1] of TKMImage;
+        Image_CampaignSubNode: array[0..MAX_CAMP_NODES - 1] of TKMImage;
+      Panel_CampScroll: TKMPanel;
+        Image_ScrollTop, Image_Scroll: TKMImage;
+        Label_CampaignTitle, Label_CampaignText: TKMLabel;
+      Button_CampaignStart, Button_CampaignBack: TKMButton;
     Panel_Load:TKMPanel;
       ColumnBox_Load: TKMColumnBox;
       Button_Load: TKMButton;
@@ -1117,15 +1117,14 @@ begin
     Panel_Campaign_Flags.Stretch;
     for I := 0 to High(Image_CampaignFlags) do
     begin
-      Image_CampaignFlags[I] := TKMImage.Create(Panel_Campaign_Flags, Panel_Main.Width, Panel_Main.Height, 0, 0, 20, rxGuiMain);
-      Image_CampaignFlags[I].ImageAnchors := [akBottom];
+      Image_CampaignFlags[I] := TKMImage.Create(Panel_Campaign_Flags, Panel_Main.Width, Panel_Main.Height, 23, 29, 10, rxGuiMain);
       Image_CampaignFlags[I].OnClick := Campaign_SelectMap;
       Image_CampaignFlags[I].Tag := I;
     end;
     for I := 0 to High(Image_CampaignSubNode) do
     begin
       Image_CampaignSubNode[I] := TKMImage.Create(Panel_Campaign_Flags, Panel_Main.Width, Panel_Main.Height, 0, 0, 16, rxGuiMain);
-      Image_CampaignSubNode[I].ImageCenter;
+      Image_CampaignSubNode[I].ImageCenter; //Pivot at the center of the dot (width/height = 0)
     end;
 
   Panel_CampScroll := TKMPanel.Create(Panel_Campaign,Panel_Main.Width-360,Panel_Main.Height-430,360,430);
@@ -1838,8 +1837,8 @@ begin
   for I := 0 to Campaign_Selected.MapCount - 1 do
   begin
     //Pivot flags around Y=bottom X=middle, that's where the flag pole is
-    Image_CampaignFlags[I].Left := Campaign_Selected.Maps[I].Flag.X;
-    Image_CampaignFlags[I].Top  := Campaign_Selected.Maps[I].Flag.Y;
+    Image_CampaignFlags[I].Left := Campaign_Selected.Maps[I].Flag.X - Round((Image_CampaignFlags[I].Width/2)*(1-Panel_Campaign_Flags.Scale));
+    Image_CampaignFlags[I].Top  := Campaign_Selected.Maps[I].Flag.Y - Round(Image_CampaignFlags[I].Height   *(1-Panel_Campaign_Flags.Scale));
   end;
 
   //Select last map to play by 'clicking' last node
