@@ -9,7 +9,7 @@ type
   TKMTerrainFinderCommon = class
   private
     MapX, MapY: Word;
-    fStart: TKMPoint;
+    fStart: TKMPointArray;
     fRadius: Byte;
     fMaxCount: Word;
     BestDist: Byte;
@@ -30,7 +30,7 @@ type
     constructor Create;
     destructor Destroy; override;
     function FindNearest(aStart: TKMPoint; aRadius: Byte; aPassability: TPassabilitySet; out aEnd: TKMPoint): Boolean; overload;
-    procedure FindNearest(aStart: TKMPoint; aRadius: Byte; aPassability: TPassabilitySet; aMaxCount: Word; aLocs: TKMPointTagList); overload;
+    procedure FindNearest(aStart: TKMPointArray; aRadius: Byte; aPassability: TPassabilitySet; aMaxCount: Word; aLocs: TKMPointTagList); overload;
     procedure GetTilesWithinDistance(aStart: TKMPoint; aRadius: Byte; aPass: TPassability; aList: TKMPointList);
     procedure Save(SaveStream: TKMemoryStream); virtual;
     procedure Load(LoadStream: TKMemoryStream); virtual;
@@ -56,6 +56,7 @@ begin
 
   MapX := fTerrain.MapX;
   MapY := fTerrain.MapY;
+  SetLength(Visited, MapY+1, MapX+1);
 end;
 
 
@@ -68,7 +69,8 @@ end;
 
 function TKMTerrainFinderCommon.FindNearest(aStart: TKMPoint; aRadius: Byte; aPassability: TPassabilitySet; out aEnd: TKMPoint): Boolean;
 begin
-  fStart := aStart;
+  SetLength(fStart, 1);
+  fStart[0] := aStart;
   fRadius := aRadius;
   fPassability := aPassability;
   fMaxCount := 1;
@@ -80,7 +82,7 @@ begin
 end;
 
 
-procedure TKMTerrainFinderCommon.FindNearest(aStart: TKMPoint; aRadius: Byte; aPassability: TPassabilitySet; aMaxCount: Word; aLocs: TKMPointTagList);
+procedure TKMTerrainFinderCommon.FindNearest(aStart: TKMPointArray; aRadius: Byte; aPassability: TPassabilitySet; aMaxCount: Word; aLocs: TKMPointTagList);
 begin
   fStart := aStart;
   fRadius := aRadius;
@@ -125,23 +127,19 @@ procedure TKMTerrainFinderCommon.InitVisited;
 var
   I,K: Integer;
 begin
-  SetLength(Visited, 2*fRadius+1, 2*fRadius+1);
-  for I := 0 to 2 * fRadius do
-  for K := 0 to 2 * fRadius do
-    Visited[I,K] := 255; //Initially all tiles are unexplored
+  //Initially all tiles are unexplored
+  for I := 1 to MapY do
+  for K := 1 to MapX do
+    Visited[I,K] := 255;
 end;
 
 
 procedure TKMTerrainFinderCommon.UseFinder;
   //Uses a floodfill style algorithm but only on a small area (with aRadius)
   procedure Visit(const X,Y: Word; aWalkDistance: Byte);
-  var
-    Xt, Yt: Word;
   begin
     //If new path is longer than old we don't care about it
-    Xt := fStart.X - X + fRadius;
-    Yt := fStart.Y - Y + fRadius;
-    if (aWalkDistance >= Visited[Xt,Yt]) then Exit;
+    if (aWalkDistance >= Visited[X,Y]) then Exit;
 
     //Check if we can walk through this tile
     if not CanWalkHere(X,Y) then Exit;
@@ -151,7 +149,7 @@ procedure TKMTerrainFinderCommon.UseFinder;
       SaveTile(X,Y,aWalkDistance);
 
     //Mark this tile as visited
-    Visited[Xt,Yt] := aWalkDistance;
+    Visited[X,Y] := aWalkDistance;
 
     //Run again on surrounding tiles
     //We check only 4 neighbors, because that x6 times faster than 8 neighbors
@@ -164,6 +162,8 @@ procedure TKMTerrainFinderCommon.UseFinder;
       if X+1 <= MapX then  Visit(X+1, Y, aWalkDistance+1);
     end;
   end;
+var
+  I: Integer;
 begin
   //Assign Rad to local variable,
   //when we find better Loc we reduce the Rad to skip any farther Locs
@@ -172,7 +172,10 @@ begin
 
   InitVisited;
 
-  Visit(fStart.X, fStart.Y, 0); //Starting tile is at walking distance zero
+  //Starting tile is at walking distance zero
+  //When using multiple points they will overlap if new WalkDistance is shorter
+  for I := Low(fStart) to High(fStart) do
+    Visit(fStart[I].X, fStart[I].Y, 0);
 end;
 
 
