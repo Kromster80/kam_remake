@@ -1232,17 +1232,23 @@ end;
 
 
 procedure TKMHouse.UpdateState;
+var
+  HouseName: string;
 begin
   if not IsComplete then Exit; //Don't update unbuilt houses
 
   //Show unoccupied message if needed and house belongs to human player and can have owner at all and not a barracks
-  if (not fHasOwner) and (fResource.HouseDat[fHouseType].OwnerType <> ut_None) and (fHouseType <> ht_Barracks) then
+  if not fHasOwner and (fResource.HouseDat[fHouseType].OwnerType <> ut_None) and (fHouseType <> ht_Barracks) then
   begin
-    dec(fTimeSinceUnoccupiedReminder);
+    Dec(fTimeSinceUnoccupiedReminder);
     if fTimeSinceUnoccupiedReminder = 0 then
     begin
       if (fOwner = MyPlayer.PlayerIndex) and not fGame.IsReplay then
+      begin
+        HouseName := fResource.HouseDat[HouseType].HouseName;
+        //We can't paste houses name instead of %s like that because of plurals and feminine/masculine attrib
         fGame.ShowMessage(mkHouse, fTextLibrary[TX_MSG_HOUSE_UNOCCUPIED], GetEntrance);
+      end;
       fTimeSinceUnoccupiedReminder := TIME_BETWEEN_MESSAGES; //Don't show one again until it is time
     end;
   end

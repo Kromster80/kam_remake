@@ -71,6 +71,8 @@ Improvements:
  +	L	Ability to send a whisper (private chat) to a specific player
  +	M	Visualise fog of war for the selected player in replays so you can understand player's perspective
  +	M	Scrolling around the map using middle mouse click, as in TPR
+ +	M	Allow host to set a description for the lobby shown on the server selection page ("noobs/pros only", "chat lobby", etc.)
+ +	L	Private messaging in MP
 
  wip	Dismiss button to make units walk into the school and disappear (gold is not refunded)
  wip	Simple dedicated server form which lets you set the properties of the INI for the server and start it [gemGreg]
@@ -89,14 +91,12 @@ Improvements:
 	L	Minimap preview in lobby could indicate teams somehow as well (border around the color circle?)
 	L	Pack textures into atlases with regard to GPU max supported texture resolution (512 or 1024 px)
 	L	Clicking and holding on the add/subtract buttons in weapons workshops could increase the number to save repeated clicking
-	M	Allow host to set a title for his lobby shown in a column on the server selection page ("noobs/pros only", "fight map only", "chat lobby", etc.)
 	L	Clicking a location on the lobby minimap selects that location if it's available
-
-	L	Multiplayer in-game player list and lobby description ordered (grouped) by teams
+	L	Multiplayer in-game player list and lobby description ordered (grouped) by teams [Lewin, implemented?]
 	M	New column in load/replays menus: Date/time (stored internally in save format since file modified date is not very trustworthy) [Marcin]
 	L	New command !SKIP_HOUSE. If I want a map with no stone, then after building the inn the woodcutter and tower should become available (skips the stonemason)
 	M	Pause in multiplayer (only host can use it, maybe later have a lobby setting "clients may pause")
-	L	"Checkpoints" in replays every 20 minutes or so to allow skipping forwards/backwards (saves entire game state which can be loaded) Using compression can keep the save file tiny.
+	L	"Checkpoints" in replays every 20 minutes or so to allow skipping forwards/backwards (zips entire game state which can be loaded)
 			Krom: Not sure how this will cope with 29hour games
 			Lewin: We can delete save points as the game goes longer. By the time we reach 29 hours we only keep save points from every 1-2 hours. For 90 minute games we keep one every 10 minutes.
 	L	Way to place roads/fields/destroyed buildings belonging to no player (for maps like Battle In The Ruined City where currently the roads don't always show depending on which locations are played) (maybe through special player like animals?
@@ -104,10 +104,9 @@ Improvements:
 	LM	Place all the roads for all players, then all the houses for all players, then all the units for all players from the script, repositioning units that are on houses and do floodfill for houses once at the end rather than for each house
 	L	Changing teams in multiplayer
 			Lewin: When joining a team the team members must "accept" you before it occurs. Leaving a team must also require acceptance I guess, otherwise you can walk into an ally's village and become his enemy, and some people would surely do this. We might also need a "lock teams" option in the lobby for this to work.
-	L	Clicking on a player inserts "/whisper PlayerName " into chat to send private message
 	L	Shortcuts for all soldier buttons: , & . to rotate, [ & ] to add/withdraw lines, x to charge, f for food?
 	L	Ability to mark maps as a favourite (gold star) so they appear at the top of the list (find your favourite maps without scrolling through whole list)
-	L	Add an option /givehost# to give hosting rights to another player in lobby
+	L	Add an option to give hosting rights to another player in lobby
 	L	Option in the lobby to select starting with a small village, everything up to sawmill (placed automatically by city builder?)
 	L	Rally point for the barracks (with new beacon/flag)
 	L	House not occupied message should mention which house it is ("This farm is not occupied")
