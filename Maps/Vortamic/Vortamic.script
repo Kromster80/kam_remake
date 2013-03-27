@@ -1,2 +1,12 @@
+procedure OnPlayerDefeated(aIndex: Integer);
+begin
+  if aIndex = 4 then
+    Actions.ShowMsg(0, States.Text(561));
+end;
+
+
+procedure OnTick;
+begin
   if States.GameTime = 100 then
     Actions.ShowMsg(0, States.Text(560));
+end;

@@ -304,6 +304,39 @@ begin
       if GoalLog.Count > 0 then
         GoalLog.SaveToFile(ChangeFileExt(PathToMaps[I], '.goals.log'));
 
+      //Remove goals which have messages in them
+      GoalLoc := 1;
+      repeat
+        //ADD_GOAL *condition* *status* MsgId *player_id*
+        GoalLoc := PosEx('!ADD_GOAL ', Txt, GoalLoc);
+        if GoalLoc <> 0 then
+        begin
+          //Many maps have letters aligned in columns, meaning that
+          //command length is varying cos of spaces between arguments
+
+          //Look for command end marker (!, eol, /)
+          GoalEnd := GoalLoc + 1;
+          while (GoalEnd < Length(Txt)) and not (Txt[GoalEnd] in ['!', #13, '/']) do
+            Inc(GoalEnd);
+
+          GoalTxt := Copy(Txt, GoalLoc, GoalEnd - GoalLoc);
+          GoalTxt := StringReplace(GoalTxt, '    ', ' ', [rfReplaceAll]);
+          GoalTxt := StringReplace(GoalTxt, '   ', ' ', [rfReplaceAll]);
+          GoalTxt := StringReplace(GoalTxt, '  ', ' ', [rfReplaceAll]);
+          Args.DelimitedText := GoalTxt;
+          //Is this a gcTime MsgId goal
+          if Args[3] <> '0' then
+          begin
+            Memo1.Lines.Append(TruncateExt(ExtractFileName(PathToMaps[I])) + ' ' + GoalTxt);
+
+            //Found only one case, so it was easier to fix by hand
+            Inc(GoalLoc, Length(GoalTxt));
+          end
+          else
+            Inc(GoalLoc, Length(GoalTxt));
+        end;
+      until (GoalLoc = 0);
+
       {HumanLoc := Pos(' !SET_HUMAN_PLAYER', Txt);
       HasUserLocs := Pos(' !SET_USER_PLAYER', Txt) <> 0;
       if (HumanLoc <> 0) and not HasUserLocs then}
