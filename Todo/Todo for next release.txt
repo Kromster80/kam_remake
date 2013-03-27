@@ -4,8 +4,8 @@ Features:
  +	Host can set password for lobby
  +	Army graph starts 5% before the first variation (to skip peacetime)
  +	Lobby name/description by host (shown in room info and inside the room as 1st message)
- +	Replace in-game "team only" checkbox with button with "All, Team, <Player Name>". Clicking it brings up menu to select recipient. Chat editbox is highlighted with one of 3 colors depending on mode (to remind player which mode it is in)
- +  Improved players color saturation and unified sprites import/export
+ +	Replace in-game "team only" checkbox with button with "All, Team, <Player Name>". Clicking it brings up menu to select recipient.
+ +	Improved players color saturation and unified sprites import/export
  +	Kick dropdown when clicking on player flag in lobby and disable console cmds for now (could be added later for "/cheats 1" and similar)
 
 
@@ -26,7 +26,7 @@ Finishing up:
 Known issues to fix:
  +	MP maps are still using auto generated goals. Do we keep it like that? Yes, but "Special" maps don't have auto goals so scripts can customise it
  +	Campaign/tutorials show warnings about showing messages with goals being depreciated, make tool to fix them [Krom]
-  Fix "Vortamic" and "On the Way" texts (need to get texts 560..564) [Lewin]
+	Fix "Vortamic" and "On the Way" texts (need to get texts 560..564) [Lewin]
 	Copy data\sfx\knights\battle4.wav to Polish sfx (horse sound Pol is missing) [Lewin]
 	ALL MP maps will need SET_USER_PLAYER set for them, since when maps were made with Lewin's editor all locations are AI except the first one. Make a tool to fix this and publish memo about "fixing" maps made in other editors [Krom]
 	TSK campaign fixes by BornFree
