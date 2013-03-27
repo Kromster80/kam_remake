@@ -42,13 +42,13 @@ type
     procedure PlayerMenuShow(Sender: TObject);
 
     procedure Lobby_PlayersSetupChange(Sender: TObject);
-    procedure Lobby_MapColumnClick(aValue: Integer);
-    procedure Lobby_MapTypeSelect(Sender: TObject);
+    procedure MapColumnClick(aValue: Integer);
+    procedure MapTypeChange(Sender: TObject);
     procedure Lobby_SortUpdate(Sender: TObject);
     procedure Lobby_ScanUpdate(Sender: TObject);
     procedure Lobby_RefreshMapList(aJumpToSelected: Boolean);
     procedure Lobby_RefreshSaveList(aJumpToSelected: Boolean);
-    procedure Lobby_MapSelect(Sender: TObject);
+    procedure MapChange(Sender: TObject);
     procedure Lobby_PostKey(Sender: TObject; Key: Word);
 
     procedure Lobby_OnDisconnect(const aData:string);
@@ -204,7 +204,7 @@ begin
         DropBox_LobbyPlayerSlot[I].OnChange := Lobby_PlayersSetupChange;
 
         DropBox_LobbyLoc[I] := TKMDropList.Create(Panel_LobbyPlayers, C2, OffY, 150, 20, fnt_Grey, '', bsMenu);
-        DropBox_LobbyLoc[I].Add(fTextLibrary[TX_LOBBY_RANDOM]);
+        DropBox_LobbyLoc[I].Add(fTextLibrary[TX_LOBBY_RANDOM], 0);
         DropBox_LobbyLoc[I].OnChange := Lobby_PlayersSetupChange;
 
         DropBox_LobbyTeam[I] := TKMDropList.Create(Panel_LobbyPlayers, C3, OffY, 80, 20, fnt_Grey, '', bsMenu);
@@ -252,15 +252,15 @@ begin
       Radio_LobbyMapType.Add(fTextLibrary[TX_LOBBY_MAP_SPECIAL]);
       Radio_LobbyMapType.Add(fTextLibrary[TX_LOBBY_MAP_SAVED]);
       Radio_LobbyMapType.ItemIndex := 0;
-      Radio_LobbyMapType.OnChange := Lobby_MapTypeSelect;
+      Radio_LobbyMapType.OnChange := MapTypeChange;
 
       DropCol_LobbyMaps := TKMDropColumns.Create(Panel_LobbySetup, 10, 95, 250, 20, fnt_Metal, fTextLibrary[TX_LOBBY_MAP_SELECT], bsMenu);
       DropCol_LobbyMaps.DropCount := 19;
       DropCol_LobbyMaps.DropWidth := 430; //Wider to fit mapnames well
       DropCol_LobbyMaps.SetColumns(fnt_Outline, [fTextLibrary[TX_MENU_MAP_TITLE], '#', fTextLibrary[TX_MENU_MAP_SIZE]], [0, 290, 320]);
-      DropCol_LobbyMaps.List.OnColumnClick := Lobby_MapColumnClick;
+      DropCol_LobbyMaps.List.OnColumnClick := MapColumnClick;
       DropCol_LobbyMaps.List.SearchColumn := 0;
-      DropCol_LobbyMaps.OnChange := Lobby_MapSelect;
+      DropCol_LobbyMaps.OnChange := MapChange;
       Label_LobbyMapName := TKMLabel.Create(Panel_LobbySetup, 10, 95, 250, 20, '', fnt_Metal, taLeft);
 
       TKMBevel.Create(Panel_LobbySetup, 35, 120, 199, 199);
@@ -614,7 +614,7 @@ begin
   begin
     Radio_LobbyMapType.Enable;
     Radio_LobbyMapType.ItemIndex := 0;
-    if not aPreserveMaps then Lobby_MapTypeSelect(nil);
+    if not aPreserveMaps then MapTypeChange(nil);
     DropCol_LobbyMaps.Show;
     Label_LobbyMapName.Hide;
     Button_LobbyStart.Caption := fTextLibrary[TX_LOBBY_START]; //Start
@@ -737,7 +737,8 @@ end;
 //If the change is possible Networking will send query to the Host.
 //Host will reply with OnPlayersSetup event and data will be actualized.
 procedure TKMGUIMenuLobby.Lobby_PlayersSetupChange(Sender: TObject);
-var i:integer;
+var
+  I: Integer;
 begin
   //Host control toggle
   if Sender = CheckBox_LobbyHostControl then
@@ -752,53 +753,53 @@ begin
     fNetworking.SendPlayerListAndRefreshPlayersSetup;
   end;
 
-  for i:=0 to MAX_PLAYERS-1 do
+  for I := 0 to MAX_PLAYERS - 1 do
   begin
     //Starting location
-    if (Sender = DropBox_LobbyLoc[i]) and DropBox_LobbyLoc[i].Enabled then
+    if (Sender = DropBox_LobbyLoc[I]) and DropBox_LobbyLoc[I].Enabled then
     begin
-      fNetworking.SelectLoc(DropBox_LobbyLoc[i].GetSelectedTag, i+1);
+      fNetworking.SelectLoc(DropBox_LobbyLoc[I].GetSelectedTag, I+1);
       //Host with HostDoesSetup could have given us some location we don't know about from a map/save we don't have
       if fNetworking.SelectGameKind <> ngk_None then
-        DropBox_LobbyLoc[i].SelectByTag(fNetworking.NetPlayers[i+1].StartLocation);
+        DropBox_LobbyLoc[I].SelectByTag(fNetworking.NetPlayers[I+1].StartLocation);
     end;
 
     //Team
-    if (Sender = DropBox_LobbyTeam[i]) and DropBox_LobbyTeam[i].Enabled then
-      fNetworking.SelectTeam(DropBox_LobbyTeam[i].ItemIndex, i+1);
+    if (Sender = DropBox_LobbyTeam[I]) and DropBox_LobbyTeam[I].Enabled then
+      fNetworking.SelectTeam(DropBox_LobbyTeam[I].ItemIndex, I+1);
 
     //Color
-    if (Sender = DropBox_LobbyColors[i]) and DropBox_LobbyColors[i].Enabled then
+    if (Sender = DropBox_LobbyColors[I]) and DropBox_LobbyColors[I].Enabled then
     begin
-      fNetworking.SelectColor(DropBox_LobbyColors[i].ItemIndex, i+1);
-      DropBox_LobbyColors[i].ItemIndex := fNetworking.NetPlayers[i+1].FlagColorID;
+      fNetworking.SelectColor(DropBox_LobbyColors[I].ItemIndex, I+1);
+      DropBox_LobbyColors[I].ItemIndex := fNetworking.NetPlayers[I+1].FlagColorID;
     end;
 
-    if Sender = DropBox_LobbyPlayerSlot[i] then
+    if Sender = DropBox_LobbyPlayerSlot[I] then
     begin
       //Modify an existing player
-      if (i < fNetworking.NetPlayers.Count) then
+      if (I < fNetworking.NetPlayers.Count) then
       begin
-        case DropBox_LobbyPlayerSlot[i].ItemIndex of
+        case DropBox_LobbyPlayerSlot[I].ItemIndex of
           0: //Open
             begin
-              if fNetworking.NetPlayers[i+1].IsComputer then
-                fNetworking.NetPlayers.RemAIPlayer(i+1)
-              else if fNetworking.NetPlayers[i+1].IsClosed then
-                fNetworking.NetPlayers.RemClosedPlayer(i+1);
+              if fNetworking.NetPlayers[I+1].IsComputer then
+                fNetworking.NetPlayers.RemAIPlayer(I+1)
+              else if fNetworking.NetPlayers[I+1].IsClosed then
+                fNetworking.NetPlayers.RemClosedPlayer(I+1);
             end;
           1: //Closed
-            fNetworking.NetPlayers.AddClosedPlayer(i+1); //Replace it
+            fNetworking.NetPlayers.AddClosedPlayer(I+1); //Replace it
           2: //AI
-            fNetworking.NetPlayers.AddAIPlayer(i+1); //Replace it
+            fNetworking.NetPlayers.AddAIPlayer(I+1); //Replace it
         end;
       end
       else
       begin
         //Add a new player
-        if DropBox_LobbyPlayerSlot[i].ItemIndex = 1 then //Closed
+        if DropBox_LobbyPlayerSlot[I].ItemIndex = 1 then //Closed
           fNetworking.NetPlayers.AddClosedPlayer;
-        if DropBox_LobbyPlayerSlot[i].ItemIndex = 2 then //AI
+        if DropBox_LobbyPlayerSlot[I].ItemIndex = 2 then //AI
         begin
           fNetworking.NetPlayers.AddAIPlayer;
           if fNetworking.SelectGameKind = ngk_Save then
@@ -937,9 +938,9 @@ begin
   end;
 
   //Update the minimap preivew with player colors
-  for I := 1 to MAX_PLAYERS do
+  for I := 0 to MAX_PLAYERS - 1 do
   begin
-    ID := fNetworking.NetPlayers.StartingLocToLocal(I);
+    ID := fNetworking.NetPlayers.StartingLocToLocal(I+1);
     if ID <> -1 then
       fMinimap.PlayerColors[I] := fNetworking.NetPlayers[ID].FlagColor
     else
@@ -989,7 +990,7 @@ begin
 end;
 
 
-procedure TKMGUIMenuLobby.Lobby_MapTypeSelect(Sender: TObject);
+procedure TKMGUIMenuLobby.MapTypeChange(Sender: TObject);
 begin
   //Terminate any running scans otherwise they will continue to fill the drop box in the background
   fMapsMP.TerminateScan;
@@ -1101,7 +1102,9 @@ end;
 
 
 procedure TKMGUIMenuLobby.Lobby_RefreshSaveList(aJumpToSelected:Boolean);
-var I, OldTopIndex: Integer; PrevSave: string;
+var
+  I, OldTopIndex: Integer;
+  PrevSave: string;
 begin
   fSavesMP.Lock;
     //Remember previous save selected
@@ -1141,12 +1144,11 @@ begin
 end;
 
 
-procedure TKMGUIMenuLobby.Lobby_MapColumnClick(aValue: Integer);
+procedure TKMGUIMenuLobby.MapColumnClick(aValue: Integer);
 var
   SM: TMapsSortMethod;
   SSM: TSavesSortMethod;
 begin
-
   if Radio_LobbyMapType.ItemIndex < 4 then
   begin
     //Determine Sort method depending on which column user clicked
@@ -1193,7 +1195,7 @@ end;
 
 
 //Just pass FileName to Networking, it will check validity itself
-procedure TKMGUIMenuLobby.Lobby_MapSelect(Sender: TObject);
+procedure TKMGUIMenuLobby.MapChange(Sender: TObject);
 begin
   if Radio_LobbyMapType.ItemIndex < 4 then
   begin
@@ -1274,7 +1276,8 @@ procedure TKMGUIMenuLobby.Lobby_OnReassignedToHost(Sender: TObject);
         Break;
       end;
   end;
-var OldMapType: Integer;
+var
+  OldMapType: Integer;
 begin
   Lobby_Reset(lpk_Host, True, True); //Will reset the lobby page into host mode, preserving messages/maps
   OldMapType := Radio_LobbyMapType.ItemIndex;
@@ -1284,7 +1287,7 @@ begin
 
   //Don't force rescanning all the maps unless the map type changed or no map was selected
   if (Radio_LobbyMapType.ItemIndex <> OldMapType) or (DropCol_LobbyMaps.ItemIndex = -1) then
-    Lobby_MapTypeSelect(nil)
+    MapTypeChange(nil)
   else
     Lobby_RefreshMapList(False); //Just fill the list from fMapMP
 
@@ -1304,7 +1307,8 @@ end;
 
 //Post what user has typed
 procedure TKMGUIMenuLobby.Lobby_PostKey(Sender: TObject; Key: Word);
-var ChatMessage: string;
+var
+  ChatMessage: string;
 begin
   if (Key <> VK_RETURN) or (Trim(Edit_LobbyPost.Text) = '') then exit;
   ChatMessage := Edit_LobbyPost.Text;
