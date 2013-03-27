@@ -590,10 +590,11 @@ end;
 
 
 procedure TKMPlayersCollection.SyncLoad;
-var i:byte;
+var I: Integer;
 begin
-  for i:=0 to fCount-1 do
-    fPlayerList[i].SyncLoad;
+  for I := 0 to fCount - 1 do
+    fPlayerList[I].SyncLoad;
+
   PlayerAnimals.SyncLoad;
 end;
 

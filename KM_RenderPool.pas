@@ -432,7 +432,8 @@ begin
   end;
 
   //Snow
-  if aSnowStep > 0 then
+  if (aSnowStep > 0)
+  and (PicSnow <> 0) then
   begin
     CornerX := aLoc.X + R.Pivot[PicSnow].X / CELL_SIZE_PX;
     CornerY := aLoc.Y + (R.Pivot[PicSnow].Y + R.Size[PicSnow].Y) / CELL_SIZE_PX

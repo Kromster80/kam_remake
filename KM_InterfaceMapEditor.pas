@@ -3299,13 +3299,13 @@ var I: Integer;
 begin
   for I := 0 to fPlayers.Count - 1 do
   begin
-    CheckBox_PlayerTypes[I, 0].Enabled := fPlayers[I] <> nil;
-    CheckBox_PlayerTypes[I, 1].Enabled := fPlayers[I] <> nil;
-    CheckBox_PlayerTypes[I, 2].Enabled := fPlayers[I] <> nil;
+    CheckBox_PlayerTypes[I, 0].Enabled := fPlayers[I].HasAssets;
+    CheckBox_PlayerTypes[I, 1].Enabled := fPlayers[I].HasAssets;
+    CheckBox_PlayerTypes[I, 2].Enabled := fPlayers[I].HasAssets;
 
-    CheckBox_PlayerTypes[I, 0].Checked := (fPlayers[I] <> nil) and (fGame.MapEditor.DefaultHuman = I);
-    CheckBox_PlayerTypes[I, 1].Checked := (fPlayers[I] <> nil) and fGame.MapEditor.PlayerHuman[I];
-    CheckBox_PlayerTypes[I, 2].Checked := (fPlayers[I] <> nil) and fGame.MapEditor.PlayerAI[I];
+    CheckBox_PlayerTypes[I, 0].Checked := fPlayers[I].HasAssets and (fGame.MapEditor.DefaultHuman = I);
+    CheckBox_PlayerTypes[I, 1].Checked := fPlayers[I].HasAssets and fGame.MapEditor.PlayerHuman[I];
+    CheckBox_PlayerTypes[I, 2].Checked := fPlayers[I].HasAssets and fGame.MapEditor.PlayerAI[I];
   end;
 end;
 
