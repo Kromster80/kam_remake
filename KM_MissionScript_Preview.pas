@@ -11,7 +11,7 @@ type
   TTilePreviewInfo = record
                        TileID: Byte;
                        TileHeight: Byte; //Used for calculating light
-                       TileOwner: Byte;
+                       TileOwner: TPlayerIndex;
                        Revealed: Boolean;
                      end;
 
@@ -26,7 +26,7 @@ type
   private
     fMapX: Integer;
     fMapY: Integer;
-    fPlayerPreview: array [1 .. MAX_PLAYERS] of TPlayerPreviewInfo;
+    fPlayerPreview: array [0 .. MAX_PLAYERS-1] of TPlayerPreviewInfo;
     fMapPreview: array [1 .. MAX_MAP_SIZE * MAX_MAP_SIZE] of TTilePreviewInfo;
 
     fRevealFor: array of TPlayerIndex;
@@ -106,27 +106,29 @@ function TMissionParserPreview.ProcessCommand(CommandType: TKMCommandType; P: ar
   end;
 
   function RevealForPlayer(aPlayerIndex: TPlayerIndex): Boolean;
-  var I: Integer;
+  var
+    I: Integer;
   begin
     Result := False;
-    for I:=0 to Length(fRevealFor)-1 do
-      if (fRevealFor[I]+1 = aPlayerIndex) then
-      begin
-        Result := True;
-        Exit;
-      end;
+    for I := 0 to Length(fRevealFor)-1 do
+    if (fRevealFor[I] = aPlayerIndex) then
+    begin
+      Result := True;
+      Exit;
+    end;
   end;
 
   procedure RevealCircle(X,Y,Radius: Word);
-  var I,K:Word;
+  var
+    I, K: Word;
   begin
     if not RevealForPlayer(fLastPlayer) then
       Exit;
 
-    for I:=max(Y-Radius,1) to min(Y+Radius,fMapY) do
-    for K:=max(X-Radius,1) to min(X+Radius,fMapX) do
-       if (sqr(X-K) + sqr(Y-I)) <= sqr(Radius) then
-         fMapPreview[(I-1)*fMapX + K].Revealed := True;
+    for I := Max(Y-Radius,1) to Min(Y+Radius,fMapY) do
+    for K := Max(X-Radius,1) to Min(X+Radius,fMapX) do
+    if (Sqr(X-K) + Sqr(Y-I)) <= Sqr(Radius) then
+      fMapPreview[(I-1)*fMapX + K].Revealed := True;
   end;
 
 var
@@ -136,7 +138,7 @@ var
   Loc: TKMPoint;
 begin
   case CommandType of
-    ct_SetCurrPlayer:   fLastPlayer := P[0]+1;
+    ct_SetCurrPlayer:   fLastPlayer := P[0];
     ct_SetHouse:        if InRange(P[0], Low(HouseIndexToType), High(HouseIndexToType)) then
                         begin
                           RevealCircle(P[1]+1, P[2]+1, fResource.HouseDat[HouseIndexToType[P[0]]].Sight);
@@ -146,7 +148,7 @@ begin
                               if InRange(P[1]+1+k-3, 1, fMapX) and InRange(P[2]+1+i-4, 1, fMapY) then
                                 SetOwner(P[1]+1+k-3, P[2]+1+i-4);
                         end;
-    ct_SetMapColor:     if InRange(fLastPlayer, 1, MAX_PLAYERS) then
+    ct_SetMapColor:     if InRange(fLastPlayer, 0, MAX_PLAYERS-1) then
                           fPlayerPreview[fLastPlayer].Color := fResource.Palettes.DefDal.Color32(P[0]);
     ct_CenterScreen:    fPlayerPreview[fLastPlayer].StartingLoc := KMPoint(P[0]+1,P[1]+1);
     ct_HumanPlayer:     //Default human player can be human, obviously
@@ -222,6 +224,9 @@ begin
 
   FillChar(fMapPreview, SizeOf(fMapPreview), #0);
   FillChar(fPlayerPreview, SizeOf(fPlayerPreview), #0);
+
+  for I := Low(fMapPreview) to High(fMapPreview) do
+    fMapPreview[I].TileOwner := PLAYER_NONE;
 
   FileText := ReadMissionFile(aFileName);
   if FileText = '' then

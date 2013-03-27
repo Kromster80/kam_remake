@@ -10,7 +10,6 @@ uses
 type
   TestKMMissionScript = class(TTestCase)
   public
-    fMissionScript: TMissionParserStandard;
     procedure SetUp; override;
     procedure TearDown; override;
   published
@@ -49,11 +48,8 @@ end;
 procedure TestKMMissionScript.TestLoadMissionScripts;
 var
   I: Integer;
-  GoodMaps: Integer;
   PathToMaps: TStringList;
 begin
-  GoodMaps := 0;
-
   PathToMaps := TStringList.Create;
   try
     TKMapsCollection.GetAllMapPaths(ExeDir, PathToMaps);
@@ -69,10 +65,7 @@ begin
         on E: EAssertionFailed do
           Status('Script did not load: ' + PathToMaps[I] + '. '+ E.Message);
       end;
-
     end;
-
-    Status(IntToStr(PathToMaps.Count - GoodMaps) + ' of ' + IntToStr(PathToMaps.Count) + ' maps failed');
   finally
     PathToMaps.Free;
   end;

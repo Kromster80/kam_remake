@@ -29,9 +29,9 @@ type
     procedure UpdateMinimapFromParser(aRevealAll:Boolean);
     procedure UpdateTexture;
   public
-    PlayerColors: array [1..MAX_PLAYERS] of Cardinal;
-    PlayerLocations: array [1..MAX_PLAYERS] of TKMPoint;
-    PlayerShow: array [1..MAX_PLAYERS] of Boolean;
+    PlayerColors: array [0..MAX_PLAYERS-1] of Cardinal;
+    PlayerLocations: array [0..MAX_PLAYERS-1] of TKMPoint;
+    PlayerShow: array [0..MAX_PLAYERS-1] of Boolean;
     constructor Create(aFromParser: Boolean; aIsMapEditor: Boolean; aSepia: Boolean);
     destructor Destroy; override;
 
@@ -90,7 +90,7 @@ begin
   fMapTex.U := fMapX / fWidthPOT;
   fMapTex.V := fMapY / fHeightPOT;
 
-  for I := 1 to MAX_PLAYERS do
+  for I := 0 to MAX_PLAYERS - 1 do
   begin
     PlayerColors[I] := fParser.PlayerPreview[I].Color;
     PlayerLocations[I] := fParser.PlayerPreview[I].StartingLoc;
@@ -111,7 +111,7 @@ begin
   fMapTex.U := fMapX / fWidthPOT;
   fMapTex.V := fMapY / fHeightPOT;
 
-  for I := 1 to MAX_PLAYERS do
+  for I := 0 to MAX_PLAYERS - 1 do
   begin
     PlayerColors[I] := $00000000;
     PlayerLocations[I] := KMPoint(0,0);
@@ -136,7 +136,7 @@ begin
       if not aRevealAll and not Revealed then
         fBase[N] := $E0000000
       else
-        if TileOwner <> 0 then
+        if TileOwner <> PLAYER_NONE then
           fBase[N] := PlayerColors[TileOwner]
         else
         begin
@@ -301,7 +301,7 @@ begin
   SaveStream.Write(L);
   if L > 0 then
     SaveStream.Write(fBase[0], L * SizeOf(Cardinal));
-  for I := 1 to MAX_PLAYERS do
+  for I := 0 to MAX_PLAYERS - 1 do
   begin
     SaveStream.Write(PlayerColors[I]);
     SaveStream.Write(PlayerLocations[I]);
@@ -323,7 +323,7 @@ begin
   SetLength(fBase, L);
   if L > 0 then
     LoadStream.Read(fBase[0], L * SizeOf(Cardinal));
-  for I := 1 to MAX_PLAYERS do
+  for I := 0 to MAX_PLAYERS - 1 do
   begin
     LoadStream.Read(PlayerColors[I]);
     LoadStream.Read(PlayerLocations[I]);
