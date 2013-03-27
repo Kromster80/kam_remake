@@ -17,11 +17,13 @@ type
     Button4: TButton;
     Button5: TButton;
     Button6: TButton;
+    Button7: TButton;
     procedure Button3Click(Sender: TObject);
     procedure Button1Click(Sender: TObject);
     procedure Button2Click(Sender: TObject);
     procedure Button4Click(Sender: TObject);
     procedure Button5Click(Sender: TObject);
+    procedure Button7Click(Sender: TObject);
   private
     procedure SetUp;
     procedure TearDown;
@@ -227,10 +229,9 @@ end;
 
 procedure TForm1.Button4Click(Sender: TObject);
 var
-  I,J,K: Integer;
+  I: Integer;
   PathToMaps: TStringList;
-  GoalLoc, GoalEnd, HumanLoc: Integer;
-  HasUserLocs: Boolean;
+  GoalLoc, GoalEnd: Integer;
   Txt, GoalTxt: AnsiString;
   L,R: AnsiString;
   MP: TMissionParserPatcher;
@@ -304,7 +305,48 @@ begin
       if GoalLog.Count > 0 then
         GoalLog.SaveToFile(ChangeFileExt(PathToMaps[I], '.goals.log'));
 
-      //Remove goals which have messages in them
+      MP.SaveToFile(Txt, PathToMaps[I]);
+    end;
+  finally
+    PathToMaps.Free;
+  end;
+
+  Memo1.Lines.Append(IntToStr(Memo1.Lines.Count));
+
+  TearDown;
+  ControlsEnable(True);
+end;
+
+
+procedure TForm1.Button7Click(Sender: TObject);
+var
+  I: Integer;
+  PathToMaps: TStringList;
+  GoalLoc, GoalEnd: Integer;
+  Txt, GoalTxt: AnsiString;
+  MP: TMissionParserPatcher;
+  Args: TStringList;
+begin
+  Memo1.Clear;
+  ControlsEnable(False);
+  SetUp;
+
+  Args := TStringList.Create;
+  Args.StrictDelimiter := True;
+  Args.Delimiter := ' ';
+
+  PathToMaps := TStringList.Create;
+  try
+    TKMapsCollection.GetAllMapPaths(ExeDir, PathToMaps);
+
+    //Intent of this design is to rip the specified lines with least impact
+    MP := TMissionParserPatcher.Create(False);
+
+    for I := 0 to PathToMaps.Count - 1 do
+    begin
+      Txt := MP.ReadMissionFile(PathToMaps[I]);
+
+      //Show goals which have messages in them
       GoalLoc := 1;
       repeat
         //ADD_GOAL *condition* *status* MsgId *player_id*
@@ -336,12 +378,6 @@ begin
             Inc(GoalLoc, Length(GoalTxt));
         end;
       until (GoalLoc = 0);
-
-      {HumanLoc := Pos(' !SET_HUMAN_PLAYER', Txt);
-      HasUserLocs := Pos(' !SET_USER_PLAYER', Txt) <> 0;
-      if (HumanLoc <> 0) and not HasUserLocs then}
-
-      MP.SaveToFile(Txt, PathToMaps[I]);
     end;
   finally
     PathToMaps.Free;

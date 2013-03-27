@@ -2,7 +2,7 @@ object Form1: TForm1
   Left = 0
   Top = 0
   Caption = 'Form1'
-  ClientHeight = 305
+  ClientHeight = 313
   ClientWidth = 665
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -13,7 +13,7 @@ object Form1: TForm1
   OldCreateOrder = False
   DesignSize = (
     665
-    305)
+    313)
   PixelsPerInch = 96
   TextHeight = 13
   object Button3: TButton
@@ -44,10 +44,10 @@ object Form1: TForm1
     OnClick = Button2Click
   end
   object Memo1: TMemo
-    Left = 224
+    Left = 248
     Top = 24
-    Width = 417
-    Height = 257
+    Width = 393
+    Height = 265
     Anchors = [akLeft, akTop, akRight, akBottom]
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText
@@ -59,11 +59,12 @@ object Form1: TForm1
     ParentFont = False
     ScrollBars = ssVertical
     TabOrder = 3
+    ExplicitHeight = 257
   end
   object Button4: TButton
     Left = 24
     Top = 168
-    Width = 185
+    Width = 121
     Height = 25
     Caption = 'Rip time goals'
     TabOrder = 4
@@ -71,20 +72,29 @@ object Form1: TForm1
   end
   object Button5: TButton
     Left = 24
-    Top = 216
-    Width = 89
+    Top = 240
+    Width = 121
     Height = 25
     Caption = 'unXOR all maps'
     TabOrder = 5
     OnClick = Button5Click
   end
   object Button6: TButton
-    Left = 120
-    Top = 216
-    Width = 89
+    Left = 24
+    Top = 264
+    Width = 121
     Height = 25
     Caption = 'XOR all maps'
     TabOrder = 6
     OnClick = Button5Click
+  end
+  object Button7: TButton
+    Left = 24
+    Top = 192
+    Width = 121
+    Height = 25
+    Caption = 'Show message goals'
+    TabOrder = 7
+    OnClick = Button7Click
   end
 end
