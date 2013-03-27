@@ -26,6 +26,7 @@ Finishing up:
 Known issues to fix:
  +	MP maps are still using auto generated goals. Do we keep it like that? Yes, but "Special" maps don't have auto goals so scripts can customise it
 	Campaign/tutorials show warnings about showing messages with goals being depreciated, make tool to fix them [Krom]
+  Fix "Vortamic" and "On the Way" texts (need to get texts 560..564) [Lewin]
 	Copy data\sfx\knights\battle4.wav to Polish sfx (horse sound Pol is missing) [Lewin]
 	ALL MP maps will need SET_USER_PLAYER set for them, since when maps were made with Lewin's editor all locations are AI except the first one. Make a tool to fix this and publish memo about "fixing" maps made in other editors [Krom]
 	TSK campaign fixes by BornFree

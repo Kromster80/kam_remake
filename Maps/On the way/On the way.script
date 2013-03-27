@@ -1,0 +1,8 @@
+  if States.GameTime = 50 then
+    Actions.ShowMsg(0, States.Text(561));
+  if States.GameTime = 2200 then
+    Actions.ShowMsg(0, States.Text(562));
+  if States.GameTime = 4200 then
+    Actions.ShowMsg(0, States.Text(563));
+  if States.GameTime = 48000 then
+    Actions.ShowMsg(0, States.Text(564));

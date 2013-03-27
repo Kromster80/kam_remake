@@ -1,0 +1,2 @@
+  if States.GameTime = 100 then
+    Actions.ShowMsg(0, States.Text(560));
