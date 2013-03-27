@@ -32,12 +32,14 @@ begin
   fTerrain := TKMTerrain.Create;
 end;
 
+
 procedure TestKMTerrain.TearDown;
 begin
   fTerrain.Free;
   fResource.Free;
   fLog.Free;
 end;
+
 
 //See if all maps load into Terrain
 procedure TestKMTerrain.TestLoadAllMaps;

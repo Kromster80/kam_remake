@@ -149,8 +149,16 @@ begin
     ct_SetMapColor:     if InRange(fLastPlayer, 1, MAX_PLAYERS) then
                           fPlayerPreview[fLastPlayer].Color := fResource.Palettes.DefDal.Color32(P[0]);
     ct_CenterScreen:    fPlayerPreview[fLastPlayer].StartingLoc := KMPoint(P[0]+1,P[1]+1);
-    ct_UserPlayer:      fPlayerPreview[fLastPlayer].CanHuman := True;
-    ct_AIPlayer:        fPlayerPreview[fLastPlayer].CanAI := True;
+    ct_HumanPlayer:     //Default human player can be human, obviously
+                        fPlayerPreview[P[0]].CanHuman := True;
+    ct_UserPlayer:      if P[0] = -1 then
+                          fPlayerPreview[fLastPlayer].CanHuman := True
+                        else
+                          fPlayerPreview[P[0]].CanHuman := True;
+    ct_AIPlayer:        if P[0] = -1 then
+                          fPlayerPreview[fLastPlayer].CanAI := True
+                        else
+                          fPlayerPreview[P[0]].CanAI := True;
     ct_SetRoad,
     ct_SetField,
     ct_SetWinefield:    SetOwner(P[0]+1, P[1]+1);

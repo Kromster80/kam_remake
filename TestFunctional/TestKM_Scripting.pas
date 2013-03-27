@@ -28,11 +28,13 @@ begin
   fScripting := TKMScripting.Create;
 end;
 
+
 procedure TestKMScripting.TearDown;
 begin
   fScripting.Free;
   fLog.Free;
 end;
+
 
 //See if all maps load into Scripting
 procedure TestKMScripting.TestLoadAllMaps;

@@ -80,6 +80,7 @@ begin
     ct_SetTactic:       fMapInfo.MissionMode      := mm_Tactic;
     ct_SetCurrPlayer:   fLastPlayer      := P[0];
     ct_HumanPlayer:     begin
+                          //Default human player can be human, obviously
                           fMapInfo.DefaultHuman     := P[0];
                           fMapInfo.CanBeHuman[P[0]] := True;
                         end;
