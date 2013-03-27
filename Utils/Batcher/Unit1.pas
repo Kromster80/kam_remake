@@ -2,7 +2,7 @@ unit Unit1;
 {$I ..\..\KaM_Remake.inc}
 interface
 uses
-  Windows, Classes, Controls, Forms, Math, StdCtrls, SysUtils,
+  Windows, Classes, Controls, Forms, Math, StdCtrls, SysUtils, StrUtils,
   KM_Defaults, KM_CommonClasses, KM_Points, KromUtils,
   KM_GameApp, KM_Locales, KM_Log, KM_PlayersCollection, KM_TextLibrary,
   KM_Maps, KM_MissionScript_Info, KM_Terrain, KM_Utils;
@@ -15,10 +15,13 @@ type
     Button2: TButton;
     Memo1: TMemo;
     Button4: TButton;
+    Button5: TButton;
+    Button6: TButton;
     procedure Button3Click(Sender: TObject);
     procedure Button1Click(Sender: TObject);
     procedure Button2Click(Sender: TObject);
     procedure Button4Click(Sender: TObject);
+    procedure Button5Click(Sender: TObject);
   private
     procedure SetUp;
     procedure TearDown;
@@ -31,7 +34,71 @@ var
 
 
 implementation
+uses KM_MissionScript;
 {$R *.dfm}
+
+
+type
+  TMissionParserPatcher = class(TMissionParserCommon)
+  public
+    function ReadMissionFile(const aFileName: string): AnsiString;
+    procedure SaveToFile(aTxt: AnsiString; const aFileName: string);
+  end;
+
+
+{ TMissionParserPatcher }
+function TMissionParserPatcher.ReadMissionFile(const aFileName: string): AnsiString;
+var
+  I,Num: Cardinal;
+  F: TStringStream;
+begin
+  Result := '';
+
+  if not FileExists(aFileName) then Exit;
+
+  //Load and decode .DAT file into FileText
+  F := TStringStream.Create;
+  try
+    F.LoadFromFile(aFileName);
+
+    if F.Size = 0 then Exit;
+
+    //Detect whether mission is encoded so we can support decoded/encoded .DAT files
+    //We can't test 1st char, it can be any. Instead see how often common chracters meet
+    Num := 0;
+    for I := 0 to F.Size - 1 do               //tab, eol, 0..9, space, !
+      if PByte(Cardinal(F.Memory)+I)^ in [9,10,13,ord('0')..ord('9'),$20,$21] then
+        Inc(Num);
+
+    //Usually 30-50% is numerals/spaces, tested on typical KaM maps, take half of that as margin
+    if (Num / F.Size < 0.20) then
+    for I := 0 to F.Size - 1 do
+      PByte(Cardinal(F.Memory)+I)^ := PByte(Cardinal(F.Memory)+I)^ xor 239;
+
+    Result := F.DataString;
+  finally
+    F.Free;
+  end;
+end;
+
+
+procedure TMissionParserPatcher.SaveToFile(aTxt: AnsiString; const aFileName: string);
+var
+  I: Integer;
+  F: TStringStream;
+begin
+  F := TStringStream.Create;
+  try
+    F.WriteString(aTxt);
+
+    for I := 0 to F.Size - 1 do
+      PByte(Cardinal(F.Memory)+I)^ := PByte(Cardinal(F.Memory)+I)^ xor 239;
+
+    F.SaveToFile(aFileName);
+  finally
+    F.Free;
+  end;
+end;
 
 
 procedure TForm1.ControlsEnable(aFlag: Boolean);
@@ -162,38 +229,156 @@ procedure TForm1.Button4Click(Sender: TObject);
 var
   I,J,K: Integer;
   PathToMaps: TStringList;
-  Edited: Boolean;
+  GoalLoc, GoalEnd, HumanLoc: Integer;
+  HasUserLocs: Boolean;
+  Txt, GoalTxt: AnsiString;
+  L,R: AnsiString;
+  MP: TMissionParserPatcher;
+  Args: TStringList;
+  GoalLog: TStringList;
 begin
   Memo1.Clear;
   ControlsEnable(False);
   SetUp;
 
+  Args := TStringList.Create;
+  Args.StrictDelimiter := True;
+  Args.Delimiter := ' ';
+
+  GoalLog := TStringList.Create;
+
   PathToMaps := TStringList.Create;
   try
     TKMapsCollection.GetAllMapPaths(ExeDir, PathToMaps);
 
+    //Intent of this design is to rip the specified lines with least impact
+    MP := TMissionParserPatcher.Create(False);
+
     for I := 0 to PathToMaps.Count - 1 do
     begin
-      fGameApp.NewMapEditor(PathToMaps[I], 0, 0);
+      Txt := MP.ReadMissionFile(PathToMaps[I]);
 
-      Edited := False;
-      for K := 0 to fPlayers.Count - 1 do
-      for J := fPlayers[K].Goals.Count - 1 downto 0 do
-      if fPlayers[K].Goals[J].GoalCondition = gc_Time then
-      begin
-        fPlayers[K].Goals.Delete(J);
+      //Treat all goals
 
-        Memo1.Lines.Append(ExtractFileName(PathToMaps[I]));
-        Edited := True;
-      end;
+      //Remove goals solely used to display messages at a time
+      GoalLog.Clear;
+      GoalLoc := 1;
+      repeat
+        //ADD_GOAL gcTime *status* MsgId Delay
+        GoalLoc := PosEx('!ADD_GOAL 2 ', Txt, GoalLoc);
+        if GoalLoc <> 0 then
+        begin
+          //Many maps have letters aligned in columns, meaning that
+          //command length is varying cos of spaces between arguments
 
-      if Edited then
-        fGameApp.Game.SaveMapEditor(PathToMaps[I]);
+          //Look for command end marker (!, eol, /)
+          GoalEnd := GoalLoc + 1;
+          while (GoalEnd < Length(Txt)) and not (Txt[GoalEnd] in ['!', #13, '/']) do
+            Inc(GoalEnd);
+
+          GoalTxt := Copy(Txt, GoalLoc, GoalEnd - GoalLoc);
+          GoalTxt := StringReplace(GoalTxt, '    ', ' ', [rfReplaceAll]);
+          GoalTxt := StringReplace(GoalTxt, '   ', ' ', [rfReplaceAll]);
+          GoalTxt := StringReplace(GoalTxt, '  ', ' ', [rfReplaceAll]);
+          Args.DelimitedText := GoalTxt;
+          //Is this a gcTime MsgId goal
+          if Args[3] <> '0' then
+          begin
+            Memo1.Lines.Append(TruncateExt(ExtractFileName(PathToMaps[I])) + ' ' + GoalTxt);
+
+            GoalLog.Append('  if States.GameTime = ' + Args[4] + ' then' + eol +
+                           '    Actions.ShowMsg( ?, States.Text(' + Args[3] + '));');
+
+            //Cut Goal out
+            L := LeftStr(Txt, GoalLoc-1);
+            R := RightStr(Txt, Length(Txt) - GoalLoc - Length(GoalTxt) + 1);
+            Txt := L + R;
+
+            //Keep GoalLoc in place incase there are two consequential goals
+          end
+          else
+            Inc(GoalLoc, Length(GoalTxt));
+        end;
+      until (GoalLoc = 0);
+
+      if GoalLog.Count > 0 then
+        GoalLog.SaveToFile(ChangeFileExt(PathToMaps[I], '.goals.log'));
+
+      {HumanLoc := Pos(' !SET_HUMAN_PLAYER', Txt);
+      HasUserLocs := Pos(' !SET_USER_PLAYER', Txt) <> 0;
+      if (HumanLoc <> 0) and not HasUserLocs then}
+
+      MP.SaveToFile(Txt, PathToMaps[I]);
     end;
-
   finally
     PathToMaps.Free;
   end;
+
+  Memo1.Lines.Append(IntToStr(Memo1.Lines.Count));
+
+  TearDown;
+  ControlsEnable(True);
+end;
+
+
+procedure TForm1.Button5Click(Sender: TObject);
+var
+  I, K: Integer;
+  PathToMaps: TStringList;
+  Num: Integer;
+  F: TMemoryStream;
+  UnXOR: Boolean;
+  MapCount: Integer;
+begin
+  Memo1.Clear;
+  ControlsEnable(False);
+  SetUp;
+
+  UnXOR := (Sender = Button5);
+
+  PathToMaps := TStringList.Create;
+  try
+    TKMapsCollection.GetAllMapPaths(ExeDir, PathToMaps);
+
+    MapCount := 0;
+    for I := 0 to PathToMaps.Count - 1 do
+    begin
+      //Load and decode .DAT file into FileText
+      F := TMemoryStream.Create;
+      try
+        F.LoadFromFile(PathToMaps[I]);
+
+        if F.Size > 0 then
+        begin
+          //Detect whether mission is encoded so we can support decoded/encoded .DAT files
+          //We can't test 1st char, it can be any. Instead see how often common chracters meet
+          Num := 0;
+          for K := 0 to F.Size - 1 do               //tab, eol, 0..9, space, !
+          if PByte(Cardinal(F.Memory)+K)^ in [9,10,13,ord('0')..ord('9'),$20,$21] then
+            Inc(Num);
+
+          //Usually 30-50% is numerals/spaces, tested on typical KaM maps, take half of that as margin
+          if (UnXOR and (Num/F.Size < 0.20))
+          or (not UnXOR and (Num/F.Size > 0.20)) then
+          begin
+            for K := 0 to F.Size - 1 do
+              PByte(Cardinal(F.Memory)+K)^ := PByte(Cardinal(F.Memory)+K)^ xor 239;
+            Inc(MapCount);
+          end;
+
+          F.SaveToFile(PathToMaps[I]);
+        end
+        else
+          Memo1.Lines.Append('Mission file ' + ExtractFileName(PathToMaps[I]) + ' is empty');
+      finally
+        F.Free;
+      end;
+    end;
+  finally
+    PathToMaps.Free;
+  end;
+
+  Memo1.Lines.Append(IntToStr(MapCount) + ' maps changed');
 
   TearDown;
   ControlsEnable(True);

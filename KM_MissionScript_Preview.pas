@@ -209,8 +209,9 @@ begin
   Result := False;
 
   SetLength(fRevealFor, Length(aRevealFor));
-  for I:=0 to Length(aRevealFor)-1 do
+  for I := 0 to Length(aRevealFor) - 1 do
     fRevealFor[I] := aRevealFor[I];
+
   FillChar(fMapPreview, SizeOf(fMapPreview), #0);
   FillChar(fPlayerPreview, SizeOf(fPlayerPreview), #0);
 

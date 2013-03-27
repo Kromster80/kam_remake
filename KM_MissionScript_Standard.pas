@@ -428,7 +428,8 @@ begin
                             end
                           else
                             AddError('ct_AttackPosition without prior declaration of Troop');
-    ct_AddGoal:         if fLastPlayer < 0 then
+    ct_AddGoal:         //ADD_GOAL, condition, status, message_id, player_id,
+                        if fLastPlayer < 0 then
                           AddError('Add_Goal for non existing player')
                         else
                         if not InRange(P[0], 0, Byte(High(TGoalCondition))) then

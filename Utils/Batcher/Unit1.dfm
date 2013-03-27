@@ -57,9 +57,8 @@ object Form1: TForm1
     Lines.Strings = (
       'Memo1')
     ParentFont = False
+    ScrollBars = ssVertical
     TabOrder = 3
-    ExplicitWidth = 241
-    ExplicitHeight = 241
   end
   object Button4: TButton
     Left = 24
@@ -69,5 +68,23 @@ object Form1: TForm1
     Caption = 'Rip time goals'
     TabOrder = 4
     OnClick = Button4Click
+  end
+  object Button5: TButton
+    Left = 24
+    Top = 216
+    Width = 89
+    Height = 25
+    Caption = 'unXOR all maps'
+    TabOrder = 5
+    OnClick = Button5Click
+  end
+  object Button6: TButton
+    Left = 120
+    Top = 216
+    Width = 89
+    Height = 25
+    Caption = 'XOR all maps'
+    TabOrder = 6
+    OnClick = Button5Click
   end
 end
