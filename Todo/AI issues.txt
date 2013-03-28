@@ -1,0 +1,9 @@
+Big issues:
+  Choose iron/leather strategy
+  Backline defence positions placement
+  Add some attacks (f.e. attack closest enemy house)
+
+Smaller issues:
+  AI prefers to train militia
+  Woodcutters placed way off sometimes (need to use FindNearest)
+
