@@ -62,7 +62,7 @@ begin
   MapElem[63].Anim.Count := 1;
   MapElem[63].Anim.Step[1] := 16;
   MapElem[63].CuttableTree := False;
-  MapElem[63].DiagonalBlocked := True;
+  MapElem[63].DiagonalBlocked := False;
   MapElem[63].AllBlocked := False;
   MapElem[63].WineOrCorn := False;
   MapElem[63].CanGrow := False;

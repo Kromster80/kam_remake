@@ -72,6 +72,7 @@ Improvements:
  +	M	Scrolling around the map using middle mouse click, as in TPR
  +	M	Allow host to set a description for the lobby shown on the server selection page ("noobs/pros only", "chat lobby", etc.)
  +	L	Private messaging in MP
+ +	L	Add unused sprite 17 from trees.rx
 
  wip	Dismiss button to make units walk into the school and disappear (gold is not refunded)
  wip	Simple dedicated server form which lets you set the properties of the INI for the server and start it [gemGreg]
@@ -117,7 +118,6 @@ Improvements:
 	L	Maplist still takes too long to load, scrollbar moves irritatingly while maps are being added
 	L	Save last selected item in lists (load game, mp, maped list, savegames, etc)
 	L	Right-click on a unit in Schools queue to move that unit to the front of the queue (currently RMB is "remove to here")
-	L	Add unused sprite 17 from trees.rx to mapelem.dat (requires an editor)
 
 	L	MapEd: Allow to toggle trees/objects opacity (make them partially visible) [Marcin]
 	L	MapEd: Allow to toggle AI defence positions display
