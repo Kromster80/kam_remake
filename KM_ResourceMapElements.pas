@@ -27,7 +27,7 @@ type
     property Count: Integer read fCount;
 
     procedure LoadFromFile(const FileName: string);
-    //procedure SaveToFile(const FileName: string);
+    procedure SaveToFile(const FileName: string);
     procedure ExportToText(const FileName: string);
     property CRC: Cardinal read fCRC;
   end;
@@ -57,6 +57,31 @@ begin
   S.Read(MapElem[0], 255 * SizeOf(TKMMapElement));
   fCount := S.Size div SizeOf(TKMMapElement); //254 by default
   fCRC := Adler32CRC(S);
+  S.Free;
+
+  MapElem[63].Anim.Count := 1;
+  MapElem[63].Anim.Step[1] := 16;
+  MapElem[63].CuttableTree := False;
+  MapElem[63].DiagonalBlocked := True;
+  MapElem[63].AllBlocked := False;
+  MapElem[63].WineOrCorn := False;
+  MapElem[63].CanGrow := False;
+  MapElem[63].DontPlantNear := False;
+  MapElem[63].Stump := -1;
+  MapElem[63].CanBeRemoved := True;
+
+  //SaveToFile(FileName);
+end;
+
+
+procedure TKMMapElements.SaveToFile(const FileName: string);
+var
+  I: Integer;
+  S: TMemoryStream;
+begin
+  S := TMemoryStream.Create;
+  S.Write(MapElem[0], fCount * SizeOf(TKMMapElement));
+  S.SaveToFile(FileName);
   S.Free;
 end;
 

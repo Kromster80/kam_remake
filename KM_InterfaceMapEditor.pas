@@ -687,7 +687,8 @@ var
 begin
   fCountCompact := 0;
   for I := 0 to fResource.MapElements.Count - 1 do
-  if (MapElem[I].Anim.Count > 0) and (MapElem[I].Anim.Step[1] > 0) then
+  if (MapElem[I].Anim.Count > 0) and (MapElem[I].Anim.Step[1] > 0)
+  and (MapElem[I].Stump = -1) then
   begin
     fCompactToMapElem[fCountCompact] := I; //pointer
     fMapElemToCompact[I] := fCountCompact; //Reverse lookup

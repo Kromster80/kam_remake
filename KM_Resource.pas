@@ -391,7 +391,7 @@ begin
       //We can insert field here and press Export>TreeAnim. Rename each folder after export to 'Cuttable',
       //'Quad' and etc.. there you'll have it. Note, we use 1..254 counting, JBSnorro uses 0..253 counting
       if SizeX * SizeY > 0 then
-        Bmp.SaveToFile(Folder + Format('%.3d_%.2d', [I, K]) + '.bmp');
+        Bmp.SaveToFile(Folder + Format('%.3d_%.2d(%.2d)', [I, K, SpriteID]) + '.bmp');
     end;
   end;
 
