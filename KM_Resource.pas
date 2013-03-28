@@ -149,7 +149,7 @@ begin
   fTileset.TileColor := fSprites.Sprites[rxTiles].GetSpriteColors(248); //Tiles 249..256 are road overlays
 
   fMapElements := TKMMapElements.Create;
-  fMapElements.LoadMapElements(ExeDir + 'data\defines\mapelem.dat');
+  fMapElements.LoadFromFile(ExeDir + 'data\defines\mapelem.dat');
 
   fSprites.ClearTemp;
 

@@ -24,11 +24,10 @@ type
     fCount: Integer;
     fCRC: Cardinal;
   public
-    ValidCount: Byte;
-    ValidToObject: array [Byte] of Byte; //Pointers to valid MapElem's
-    ObjectToValid: array [Byte] of Byte; //Pointers of valid MapElem's back to map objects. (reverse lookup to one above) 256 is no object.
     property Count: Integer read fCount;
-    procedure LoadMapElements(const FileName: string);
+
+    procedure LoadFromFile(const FileName: string);
+    //procedure SaveToFile(const FileName: string);
     procedure ExportToText(const FileName: string);
     property CRC: Cardinal read fCRC;
   end;
@@ -46,7 +45,7 @@ implementation
 
 { TKMMapElements }
 //Reading map elements properties and animation data
-procedure TKMMapElements.LoadMapElements(const FileName: string);
+procedure TKMMapElements.LoadFromFile(const FileName: string);
 var
   I: Integer;
   S: TMemoryStream;
@@ -59,15 +58,6 @@ begin
   fCount := S.Size div SizeOf(TKMMapElement); //254 by default
   fCRC := Adler32CRC(S);
   S.Free;
-
-  ValidCount := 0;
-  for I := 0 to fCount - 1 do
-  if (MapElem[I].Anim.Count > 0) and (MapElem[I].Anim.Step[1] > 0) then
-  begin
-    ValidToObject[ValidCount] := I; //pointer
-    ObjectToValid[I] := ValidCount; //Reverse lookup
-    Inc(ValidCount);
-  end;
 end;
 
 

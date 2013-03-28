@@ -31,6 +31,12 @@ type
     fMaps: TKMapsCollection;
     fMapsMP: TKMapsCollection;
 
+    //Objects in MapElem are placed sparsely, so we need to compact them
+    //to use in MapEd palette
+    fCountCompact: Integer;
+    fCompactToMapElem: array [Byte] of Byte; //Pointers to valid MapElem's
+    fMapElemToCompact: array [Byte] of Byte; //Pointers of valid MapElem's back to map objects. (reverse lookup to one above) 256 is no object.
+
     procedure Create_Terrain;
     procedure Create_Town;
     procedure Create_Player;
@@ -59,6 +65,7 @@ type
     procedure Attacks_ListClick(Sender: TObject);
     procedure Attacks_ListDoubleClick(Sender: TObject);
     procedure Attacks_Refresh;
+    procedure CompactMapElements;
     procedure Extra_Change(Sender: TObject);
     procedure Formations_Show(Sender: TObject);
     procedure Formations_Close(Sender: TObject);
@@ -674,6 +681,21 @@ begin
 end;
 
 
+procedure TKMapEdInterface.CompactMapElements;
+var
+  I: Integer;
+begin
+  fCountCompact := 0;
+  for I := 0 to fResource.MapElements.Count - 1 do
+  if (MapElem[I].Anim.Count > 0) and (MapElem[I].Anim.Step[1] > 0) then
+  begin
+    fCompactToMapElem[fCountCompact] := I; //pointer
+    fMapElemToCompact[I] := fCountCompact; //Reverse lookup
+    Inc(fCountCompact);
+  end;
+end;
+
+
 constructor TKMapEdInterface.Create(aScreenX, aScreenY: Word);
 var
   I: Integer;
@@ -690,6 +712,8 @@ begin
   fDragScrollingViewportPos.Y := 0.0;
   fMaps := TKMapsCollection.Create(False);
   fMapsMP := TKMapsCollection.Create(True);
+
+  CompactMapElements;
 
   //Parent Page for whole toolbar in-game
   Panel_Main := TKMPanel.Create(fMyControls, 0, 0, aScreenX, aScreenY);
@@ -916,7 +940,7 @@ begin
       TKMLabel.Create(Panel_Objects, 0, PAGE_TITLE_Y, TB_WIDTH, 0, fTextLibrary[TX_MAPED_OBJECTS], fnt_Outline, taCenter);
       ObjectsScroll := TKMScrollBar.Create(Panel_Objects, 0, 295, TB_WIDTH, 20, sa_Horizontal, bsGame);
       ObjectsScroll.MinValue := 0;
-      ObjectsScroll.MaxValue := fResource.MapElements.ValidCount div 3 - 3;
+      ObjectsScroll.MaxValue := fCountCompact div 3 - 3;
       ObjectsScroll.Position := 0;
       ObjectsScroll.OnChange := Terrain_ObjectsRefresh;
       for J := 0 to 2 do for K := 0 to 2 do
@@ -2033,7 +2057,7 @@ begin
   ObjID := ObjectsScroll.Position * 3 + TKMButtonFlat(Sender).Tag; //0..n-1
 
   //Skip indexes out of range
-  if not InRange(ObjID, 0, fResource.MapElements.ValidCount - 1)
+  if not InRange(ObjID, 0, fCountCompact - 1)
   and not (TKMButtonFlat(Sender).Tag = 255) then
     Exit;
 
@@ -2047,7 +2071,7 @@ begin
     GameCursor.Tag1 := 61
   else
     //Object
-    GameCursor.Tag1 := fResource.MapElements.ValidToObject[ObjID]; //0..n-1
+    GameCursor.Tag1 := fCompactToMapElem[ObjID]; //0..n-1
 
   fLastObject := TKMButtonFlat(Sender).Tag;
 
@@ -2063,9 +2087,9 @@ begin
   for I := 0 to 8 do
   begin
     ObjID := ObjectsScroll.Position * 3 + I;
-    if ObjID < fResource.MapElements.ValidCount then
+    if ObjID < fCountCompact then
     begin
-      ObjectsTable[I].TexID := MapElem[fResource.MapElements.ValidToObject[ObjID]].Anim.Step[1] + 1;
+      ObjectsTable[I].TexID := MapElem[fCompactToMapElem[ObjID]].Anim.Step[1] + 1;
       ObjectsTable[I].Caption := IntToStr(ObjID);
       ObjectsTable[I].Enable;
     end
@@ -2076,7 +2100,7 @@ begin
       ObjectsTable[I].Disable;
     end;
     //Mark the selected one using reverse lookup
-    ObjectsTable[I].Down := (GameCursor.Mode = cmObjects) and (ObjID = fResource.MapElements.ObjectToValid[GameCursor.Tag1]);
+    ObjectsTable[I].Down := (GameCursor.Mode = cmObjects) and (ObjID = fMapElemToCompact[GameCursor.Tag1]);
   end;
 
   ObjectErase.Down := (GameCursor.Mode = cmObjects) and (GameCursor.Tag1 = 255); //or delete button
