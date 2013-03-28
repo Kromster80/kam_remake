@@ -19,10 +19,10 @@ Finishing up:
  +	Lock icon next to password protected servers
  +	Finish AI stuff (defending and attacking prototype?)
  +	Performance test city builder and optimise/fix slow stuff (NextToOre using FindNearest for example)
+ +	Remove falling trees from MapEd trees palette
 	Snow houses artwork [KillingB]
 	Snow house overlay fixes [KillingB, Krom]
 	Improve snow falling random noise so it looks more natural [Krom]
-	Remove falling trees from MapEd trees palette
 	Before RC search for all todos and @Lewin/@Krom comments to see if there's something important we forgot about
 	Before RC remove unused strings from LIBX (Lewin: I have code that lists unused strings; Krom: should be in TransMan perhaps; Lewin: Done) and compact indexes
 	Press release for our site where we collect all the big features and improvements [Lewin]
@@ -34,7 +34,7 @@ Known issues to fix:
  +	Fix "Vortamic" and "On the Way" texts (need to get texts 560..564) [Lewin]
 	Copy data\sfx\knights\battle4.wav to Polish sfx (horse sound Pol is missing) [Lewin]
 	ALL MP maps will need SET_USER_PLAYER set for them, since when maps were made with Lewin's editor all locations are AI except the first one. Make a tool to fix this and publish memo about "fixing" maps made in other editors [Krom]
-	TSK campaign fixes by BornFree, check they all make sense [Lewin]
+	TSK campaign fixes by BornFree, check they all make sense [Lewin] (easy to do with Batcher.UnXOR all maps)
 
 
 After first RC:
