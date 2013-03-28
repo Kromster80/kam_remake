@@ -18,7 +18,7 @@
  +	Replays would mismatch if a player attempted to use a storehouse cheat pattern (the cheat was allowed in the replay causing a mismatch)
  +	Listbox scrollbars jump when trying to drag them by upper/lower thumb edge
  +	AI attack scripts carried uninitialized values (e.g. delay) over from previous attacks
-	Armour smithy has shields as 2nd ouput, armour workshop has shields as 1st output. Would make sense to match them (note: simpply swapping in KM_ResourceHouses causes game logic to be swapped with GUI)
+	Armour smithy has shields as 2nd ouput, armour workshop has shields as 1st output. Would make sense to match them (note: simply swapping in KM_ResourceHouses causes game logic to be swapped with GUI)
 	Armour smithy has iron as 1st input, weapon smithy has iron as 2nd input (iron/coal swapped). Would make sense to match them (note: simpply swapping in KM_ResourceHouses causes game logic to be swapped with GUI)
 	Deliveries should use the actual walking route length (opposed to Radius)
 	AIs should retaliate when the arrow is in mid flight or when it lands, not while the archer is still aiming/firing
@@ -39,10 +39,9 @@
 	Using F11->File->Open/Edit Mission during an MP game will not unlock the mutex, and thus you can't enter the MP area after that until restarting the game (F11->Stop could cause the same problem?)
 	If just one player cannot run the game smoothly MP will lag for everyone in his game. For example if you zoom out a lot you will get a poor frame rate and your game will run at < 10 ticks per second forcing other players down to that speed. The lagger's ping will not look any different. Maybe have a way to indicate to that player and the others on the server that he is causing the lag? Our planned 2x speed in MP will make this much worse as some computers will lag more.
 	There's no message in MP when you defeat AI opponent (if you defeat human opponent it shows one)
-	Unexpectedly high ping values (high_ping.jpg)
-		Lewin: That's not our problem, it usually means his internet connection is not running smoothly. For example if you are downloading a file/video/youtube while playing your ping will go much higher because packets are queued and delayed by your modem when running at maximum speed. If all players have high ping that indicates a problem with the server, but in this case it's only him. It can also be due to being located a long way away from the server, although that will give you ~500 ping in the worst case (one side of the world to the other). Tell him to try a test website like pingtest.net to measure his internet connection quality
-  Terrain brushes in MapEd erase corn/wine fields (should try to preserve them)
-  Keep road bends when neighbour road is destroyed (e.g. house entrances)
+	TSK15 - AI does not build because stone is too far away (AI builder is incomplete)
+	Terrain brushes in MapEd erase corn/wine fields (should try to preserve them)
+	Keep road bends when neighbour road is destroyed (e.g. house entrances)
 
 	Water looks ugly brown when you zoom out too far due to water tiles having brown checkerboard pattern (anti-aliasing won't help)
 	Wooden house frames flicking on Onboard Intel HD Family Chipset (see images "Hidden House Frame Intel Onboard 1.jpg")
@@ -115,9 +114,10 @@ Improvements:
 	L	Pressing a character with a dropdown/listbox selected will choose the first item starting with that character
 	L	Icon before the server name: Swords/house/floppy for battle/build/save (save icon only shown while in lobby)
 	L	Shift+3 joins the selected warrior group to the group assigned to hotkey 3 (Starcraft style)
-  L Maplist still takes too long to load, scrollbar moves irritatingly while maps are being added
-  L Save last selected item in lists (load game, mp, maped list, savegames, etc)
-  L Right-click on a unit in Schools queue to move that unit to the front of the queue
+	L	Maplist still takes too long to load, scrollbar moves irritatingly while maps are being added
+	L	Save last selected item in lists (load game, mp, maped list, savegames, etc)
+	L	Right-click on a unit in Schools queue to move that unit to the front of the queue (currently RMB is "remove to here")
+	L	Add unused sprite 17 from trees.rx to mapelem.dat (requires an editor)
 
 	L	MapEd: Allow to toggle trees/objects opacity (make them partially visible) [Marcin]
 	L	MapEd: Allow to toggle AI defence positions display
@@ -127,8 +127,10 @@ Improvements:
 	L	MapEd: Magic water brush to allow to change waterflow direction on whole area
 	L	MapEd: Make houses highlight red when about to erase them as trees/units do
 	L	MapEd: Flat terrain checkbox on Extras popup
-  L MapEd: Allow to set troops order destination with mouse on map
+	L	MapEd: Allow to set troops order destination with mouse on map
  
+ -	Unexpectedly high ping values (high_ping.jpg)
+		Lewin: That's not our problem, it usually means his internet connection is not running smoothly. For example if you are downloading a file/video/youtube while playing your ping will go much higher because packets are queued and delayed by your modem when running at maximum speed. If all players have high ping that indicates a problem with the server, but in this case it's only him. It can also be due to being located a long way away from the server, although that will give you ~500 ping in the worst case (one side of the world to the other). Tell him to try a test website like pingtest.net to measure his internet connection quality
  -	One type of pine tree cannot be cut (same as KaM, there are not even sprites for it falling down)
  -	The ingame briefing texture is too short, see attached picture
  -	Serfs should take wares back or to suitable house if destination is destroyed
