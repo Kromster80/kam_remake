@@ -2,6 +2,7 @@ Big issues:
   Choose iron/leather strategy
   Backline defence positions placement
   Add some attacks (f.e. attack closest enemy house)
+  Take note of alliances (defence lines)
 
 Smaller issues:
   AI prefers to train militia
