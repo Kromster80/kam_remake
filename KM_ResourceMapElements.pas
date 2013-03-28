@@ -21,11 +21,13 @@ type
 
   TKMMapElements = class
   private
+    fCount: Integer;
     fCRC: Cardinal;
   public
     ValidCount: Byte;
     ValidToObject: array [Byte] of Byte; //Pointers to valid MapElem's
     ObjectToValid: array [Byte] of Byte; //Pointers of valid MapElem's back to map objects. (reverse lookup to one above) 256 is no object.
+    property Count: Integer read fCount;
     procedure LoadMapElements(const FileName: string);
     procedure ExportToText(const FileName: string);
     property CRC: Cardinal read fCRC;
@@ -42,25 +44,24 @@ var
 implementation
 
 
-const
-  MapElemQty = 254; //Default qty
-
-
 { TKMMapElements }
 //Reading map elements properties and animation data
 procedure TKMMapElements.LoadMapElements(const FileName: string);
-var I: Integer; S: TMemoryStream;
+var
+  I: Integer;
+  S: TMemoryStream;
 begin
   if not FileExists(FileName) then Exit;
 
   S := TMemoryStream.Create;
   S.LoadFromFile(FileName);
-  S.Read(MapElem[0], MapElemQty * SizeOf(TKMMapElement));
+  S.Read(MapElem[0], 255 * SizeOf(TKMMapElement));
+  fCount := S.Size div SizeOf(TKMMapElement); //254 by default
   fCRC := Adler32CRC(S);
   S.Free;
 
   ValidCount := 0;
-  for I := 0 to MapElemQty-1 do
+  for I := 0 to fCount - 1 do
   if (MapElem[I].Anim.Count > 0) and (MapElem[I].Anim.Step[1] > 0) then
   begin
     ValidToObject[ValidCount] := I; //pointer
@@ -75,7 +76,7 @@ var I,K: Integer; ft: TextFile;
 begin
   AssignFile(ft, ExeDir + 'Trees.txt');
   Rewrite(ft);
-  for I := 1 to MapElemQty do
+  for I := 1 to fCount do
   begin
     Writeln(ft);
     Writeln(ft, inttostr(I) + ' :' + inttostr(MapElem[I].Anim.Count));

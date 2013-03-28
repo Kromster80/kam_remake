@@ -359,7 +359,6 @@ var
   Folder: string;
   Bmp: TBitmap;
   I, K, L, M: Integer;
-  ElemID: Integer;
   SpriteID: Integer;
   SizeY,SizeX: Integer;
 begin
@@ -372,14 +371,13 @@ begin
   Bmp := TBitmap.Create;
   Bmp.PixelFormat := pf24bit;
 
-  for I := 0 to fMapElements.ValidCount - 1 do
+  for I := 0 to fMapElements.Count - 1 do
+  if (MapElem[I].Anim.Count > 0) and (MapElem[I].Anim.Step[1] > 0) then
   begin
-    ElemID := fMapElements.ValidToObject[I];
-
-    for K := 1 to MapElem[ElemID].Anim.Count do
-    if MapElem[ElemID].Anim.Step[K]+1 <> 0 then
+    for K := 1 to MapElem[I].Anim.Count do
+    if MapElem[I].Anim.Step[K]+1 <> 0 then
     begin
-      SpriteID := MapElem[ElemID].Anim.Step[K]+1;
+      SpriteID := MapElem[I].Anim.Step[K]+1;
 
       SizeX := RXData.Size[SpriteID].X;
       SizeY := RXData.Size[SpriteID].Y;
