@@ -15,6 +15,7 @@ type
 
   TKMapInfo = class;
   TMapEvent = procedure (aMap: TKMapInfo) of object;
+  TKMMapInfoAmount = (iaBase, iaExtra);
 
   TKMMapGoalInfo = packed record
     Cond: TGoalCondition;
@@ -30,6 +31,7 @@ type
     fCRC: Cardinal;
     fDatCRC: Cardinal; //Used to speed up scanning
     fVersion: AnsiString; //Savegame version, yet unused in maps, they always have actual version
+    fInfoAmount: TKMMapInfoAmount;
     procedure LoadFromFile(const aPath: string);
     procedure SaveToFile(const aPath: string);
   public
@@ -54,6 +56,7 @@ type
     procedure AddGoal(aType: TGoalType; aPlayer: TPlayerIndex; aCondition: TGoalCondition; aStatus: TGoalStatus; aPlayerIndex: TPlayerIndex);
     procedure LoadExtra;
 
+    property InfoAmount: TKMMapInfoAmount read fInfoAmount;
     property Path: string read fPath;
     property FileName: string read fFileName;
     function FullPath(const aExt: string): string;
@@ -198,6 +201,8 @@ begin
 
     SaveToFile(fPath + fFileName + '.mi'); //Save new cache file
   end;
+
+  fInfoAmount := iaBase;
 end;
 
 
@@ -280,6 +285,9 @@ var
   ft: TextFile;
   fMissionParser: TMissionParserInfo;
 begin
+  //Do not append Extra info twice
+  if fInfoAmount = iaExtra then Exit;
+
   DatFile := fPath + fFileName + '.dat';
   MapFile := fPath + fFileName + '.map';
 
@@ -299,13 +307,15 @@ begin
     Reset(ft);
     repeat
       ReadLn(ft, st);
-      if SameText(st, 'Author')    then ReadLn(ft, Author);
-      if SameText(st, 'BigDesc')   then ReadLn(ft, BigDesc);
+      if SameText(st, 'Author')    then Readln(ft, Author);
+      if SameText(st, 'BigDesc')   then Readln(ft, BigDesc);
       if SameText(st, 'SetCoop')   then IsCoop := True;
       if SameText(st, 'SetSpecial')then IsSpecial := True;
     until(eof(ft));
     CloseFile(ft);
   end;
+
+  fInfoAmount := iaExtra;
 end;
 
 

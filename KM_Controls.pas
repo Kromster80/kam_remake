@@ -3401,6 +3401,14 @@ begin
 end;
 
 
+destructor TKMColumnBox.Destroy;
+begin
+  ClearColumns;
+
+  inherited;
+end;
+
+
 procedure TKMColumnBox.SetSearchColumn(aValue: ShortInt);
 begin
   fSearchColumn := aValue;
@@ -3637,7 +3645,9 @@ begin
     if TopIndex > fItemIndex then //Moving up
       TopIndex := fItemIndex;
   end;
-  if Assigned(fOnChange) then fOnChange(Self);
+
+  if Assigned(fOnChange) then
+    fOnChange(Self);
 end;
 
 
@@ -3663,6 +3673,9 @@ begin
     TopIndex := fItemIndex - GetVisibleRows div 2;
     Break;
   end;
+
+  if Assigned(fOnChange) then
+    fOnChange(Self);
 end;
 
 
@@ -3708,14 +3721,6 @@ begin
   inherited;
   SetTopIndex(TopIndex - Sign(WheelDelta));
   fScrollBar.Position := TopIndex; //Make the scrollbar move too when using the wheel
-end;
-
-
-destructor TKMColumnBox.Destroy;
-begin
-  ClearColumns;
-
-  inherited;
 end;
 
 

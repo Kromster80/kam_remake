@@ -276,7 +276,7 @@ uses
 
 { TKMHouse }
 constructor TKMHouse.Create(aID: Cardinal; aHouseType: THouseType; PosX, PosY: Integer; aOwner: TPlayerIndex; aBuildState: THouseBuildState);
-var i: byte;
+var i: Byte;
 begin
   Assert((PosX <> 0) and (PosY <> 0)); // Can create only on map
 
@@ -323,6 +323,10 @@ begin
   end
   else
     fTerrain.SetHouse(fPosition, fHouseType, hsFence, fOwner); //Terrain remains neutral yet
+
+  //Built houses accumulate snow slowly, pre-placed houses are already covered
+  CheckOnSnow;
+  fSnowStep := Byte(aBuildState = hbs_Done);
 end;
 
 
@@ -411,10 +415,6 @@ begin
   fCurrentAction.SubActionAdd([ha_Flagpole, ha_Flag1..ha_Flag3]);
 
   UpdateDamage; //House might have been damaged during construction, so show flames when it is built
-
-  //Built houses accumulate snow slowly, pre-placed houses are already covered
-  CheckOnSnow;
-  fSnowStep := Byte(not aWasBuilt);
 
   for I := 1 to 4 do
   begin
@@ -1179,12 +1179,15 @@ end;
 
 
 procedure TKMHouse.IncAnimStep;
+const
+  //How much ticks it takes for a house to become completely covered in snow
+  SNOW_TIME = 300;
 begin
   Inc(FlagAnimStep);
   Inc(WorkAnimStep);
 
   if fIsOnSnow and (fSnowStep < 1) then
-    fSnowStep := Min(fSnowStep + 0.001 + Byte(fGame.IsMapEditor) * 0.02, 1);
+    fSnowStep := Min(fSnowStep + (1 + Byte(fGame.IsMapEditor) * 2) / SNOW_TIME, 1);
 
   //FlagAnimStep is a sort of counter to reveal terrain once a sec
   if FOG_OF_WAR_ENABLE then
