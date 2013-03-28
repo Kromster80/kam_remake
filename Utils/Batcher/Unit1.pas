@@ -231,7 +231,7 @@ procedure TForm1.Button4Click(Sender: TObject);
 var
   I: Integer;
   PathToMaps: TStringList;
-  GoalLoc, GoalEnd: Integer;
+  GoalLoc, GoalEnd, GoalSize: Integer;
   Txt, GoalTxt: AnsiString;
   L,R: AnsiString;
   MP: TMissionParserPatcher;
@@ -291,8 +291,8 @@ begin
                            '    Actions.ShowMsg( ?, States.Text(' + Args[3] + '));');
 
             //Cut Goal out
-            L := LeftStr(Txt, GoalLoc-1);
-            R := RightStr(Txt, Length(Txt) - GoalLoc - Length(GoalTxt) + 1);
+            L := LeftStr(Txt, GoalLoc - 1);
+            R := RightStr(Txt, Length(Txt) - GoalEnd + 1);
             Txt := L + R;
 
             //Keep GoalLoc in place incase there are two consequential goals
