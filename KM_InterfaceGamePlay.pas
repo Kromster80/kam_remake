@@ -64,7 +64,7 @@ type
     procedure Create_PlayMore;
     procedure Create_MPPlayMore;
     procedure Create_NetWait;
-    procedure Create_SideStack;
+    procedure Create_MessageStack;
     procedure Create_Build;
     procedure Create_Ratios;
     procedure Create_Stats;
@@ -854,7 +854,7 @@ begin
   Create_ChatMenu(Panel_Main);
   Create_Message; //Must go bellow message stack
   Create_MessageLog; //Must go bellow message stack
-  Create_SideStack; //Messages, Allies, Chat icons
+  Create_MessageStack; //Messages, Allies, Chat icons
 
   Create_Pause;
   Create_Replay; //Replay controls
@@ -1016,7 +1016,7 @@ begin
 end;
 
 
-procedure TKMGamePlayInterface.Create_SideStack;
+procedure TKMGamePlayInterface.Create_MessageStack;
 var
   I: Integer;
 begin
@@ -1095,7 +1095,7 @@ begin
 end;
 
 
-{Message page}
+//Individual message page
 procedure TKMGamePlayInterface.Create_Message;
 begin
   Panel_Message := TKMPanel.Create(Panel_Main, TOOLBAR_WIDTH, Panel_Main.Height - MESSAGE_AREA_HEIGHT, 600, MESSAGE_AREA_HEIGHT);
@@ -1133,7 +1133,7 @@ var
   I: Integer;
   H: Integer;
 begin
-  H := 18 * MAX_LOG_MSGS + 2; //+2 for some margin at the bottom
+  H := 20 * MAX_LOG_MSGS + 2; //+2 for some margin at the bottom
 
   Panel_MessageLog := TKMPanel.Create(Panel_Main, TOOLBAR_WIDTH, Panel_Main.Height - (H + 65 + 20), Panel_Main.Width - TOOLBAR_WIDTH, H + 65 + 20);
   Panel_MessageLog.Anchors := [akLeft, akBottom];
@@ -1148,10 +1148,12 @@ begin
     Image_MessageLogClose.HighlightOnMouseOver := True;
 
     ColumnBox_MessageLog := TKMColumnBox.Create(Panel_MessageLog, 45, 60, 600 - 90, H, fnt_Grey, bsGame);
+    ColumnBox_MessageLog.Anchors := [akLeft, akTop, akRight, akBottom];
     ColumnBox_MessageLog.SetColumns(fnt_Outline, ['Icon', 'Message'], [0, 25]);
     ColumnBox_MessageLog.ShowHeader := False;
-    ColumnBox_MessageLog.ItemHeight := 18;
-    ColumnBox_MessageLog.BackAlpha := 0.5;
+    ColumnBox_MessageLog.HideSelection := True;
+    ColumnBox_MessageLog.ItemHeight := 20;
+    ColumnBox_MessageLog.BackAlpha := 0;
     ColumnBox_MessageLog.EdgeAlpha := 0;
     ColumnBox_MessageLog.OnClick := MessageLog_ItemClick;
     for I := 0 to MAX_LOG_MSGS - 1 do

@@ -35,6 +35,7 @@ Known issues to fix:
 	Copy data\sfx\knights\battle4.wav to Polish sfx (horse sound Pol is missing) [Lewin]
 	ALL MP maps will need SET_USER_PLAYER set for them, since when maps were made with Lewin's editor all locations are AI except the first one. Make a tool to fix this and publish memo about "fixing" maps made in other editors [Krom]
 	TSK campaign fixes by BornFree, check they all make sense [Lewin] (easy to do with Batcher.UnXOR all maps)
+  Ask translators to shorten up messages that we show in message log (empty house, feed troops, etc)
 
 
 After first RC:
