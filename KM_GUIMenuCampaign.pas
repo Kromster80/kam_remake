@@ -77,10 +77,10 @@ begin
 
     Image_Scroll := TKMImage.Create(Panel_CampScroll, 0, 0, 360, 430, 410, rxGui);
     Image_Scroll.Stretch;
-    Image_Scroll.ImageStretch;
-    Label_CampaignTitle := TKMLabel.Create(Panel_CampScroll, 130, 25, 100, 20, NO_TEXT, fnt_Outline, taCenter);
+    Image_Scroll.ImageAnchors := [akLeft, akRight, akTop];
+    Label_CampaignTitle := TKMLabel.Create(Panel_CampScroll, 130, 46, 100, 20, NO_TEXT, fnt_Outline, taCenter);
 
-    Label_CampaignText := TKMLabel.Create(Panel_CampScroll, 20, 55, 325, 310, NO_TEXT, fnt_Briefing, taLeft);
+    Label_CampaignText := TKMLabel.Create(Panel_CampScroll, 20, 70, 325, 310, NO_TEXT, fnt_Briefing, taLeft);
     Label_CampaignText.AutoWrap := true;
 
   Button_CampaignStart := TKMButton.Create(Panel_Campaign, aParent.Width-220-20, aParent.Height-50, 220, 30, fTextLibrary[TX_MENU_START_MISSION], bsMenu);
