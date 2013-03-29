@@ -688,7 +688,7 @@ begin
   fCountCompact := 0;
   for I := 0 to fResource.MapElements.Count - 1 do
   if (MapElem[I].Anim.Count > 0) and (MapElem[I].Anim.Step[1] > 0)
-  and (MapElem[I].Stump = -1) then
+  and (MapElem[I].Stump = -1) and (I <> 61) then //Hide falling trees and invisible wall (61)
   begin
     fCompactToMapElem[fCountCompact] := I; //pointer
     fMapElemToCompact[I] := fCountCompact; //Reverse lookup
@@ -2059,7 +2059,8 @@ begin
 
   //Skip indexes out of range
   if not InRange(ObjID, 0, fCountCompact - 1)
-  and not (TKMButtonFlat(Sender).Tag = 255) then
+  and not (TKMButtonFlat(Sender).Tag = 255)
+  and not (TKMButtonFlat(Sender).Tag = 61) then
     Exit;
 
   GameCursor.Mode := cmObjects;
