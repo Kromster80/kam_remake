@@ -27,7 +27,7 @@ object Form1: TForm1
   end
   object Button1: TButton
     Left = 24
-    Top = 72
+    Top = 64
     Width = 185
     Height = 25
     Caption = 'Mass rename'
@@ -36,8 +36,8 @@ object Form1: TForm1
   end
   object Button2: TButton
     Left = 24
-    Top = 120
-    Width = 185
+    Top = 104
+    Width = 121
     Height = 25
     Caption = 'Check goals count'
     TabOrder = 2
@@ -62,7 +62,7 @@ object Form1: TForm1
   end
   object Button4: TButton
     Left = 24
-    Top = 168
+    Top = 128
     Width = 121
     Height = 25
     Caption = 'Rip time goals'
@@ -71,7 +71,7 @@ object Form1: TForm1
   end
   object Button5: TButton
     Left = 24
-    Top = 240
+    Top = 232
     Width = 121
     Height = 25
     Caption = 'unXOR all maps'
@@ -80,7 +80,7 @@ object Form1: TForm1
   end
   object Button6: TButton
     Left = 24
-    Top = 264
+    Top = 256
     Width = 121
     Height = 25
     Caption = 'XOR all maps'
@@ -89,11 +89,20 @@ object Form1: TForm1
   end
   object Button7: TButton
     Left = 24
-    Top = 192
+    Top = 152
     Width = 121
     Height = 25
     Caption = 'Show message goals'
     TabOrder = 7
     OnClick = Button7Click
+  end
+  object Button8: TButton
+    Left = 24
+    Top = 176
+    Width = 185
+    Height = 25
+    Caption = 'Append user players to MP maps'
+    TabOrder = 8
+    OnClick = Button8Click
   end
 end
