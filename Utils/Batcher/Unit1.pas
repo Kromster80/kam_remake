@@ -446,7 +446,7 @@ begin
           if not PlayersSet[PlayerId] then
           begin
             //Add from new line
-            Insert(eol + '!SET_USER_PLAYER', Txt, CurrEnd);
+            Insert(eol + '!SET_USER_PLAYER ', Txt, CurrEnd);
             PlayersSet[PlayerId] := True;
           end;
 
