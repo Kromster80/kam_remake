@@ -841,13 +841,11 @@ var
   procedure CutTriangles;
   var
     I: Integer;
-    CutCount: Integer;
   begin
     with aTriMesh do
     begin
       //Cut the triangles
       I := 0;
-      CutCount := 0;
       repeat
         if Mark[I] = pfRemove then
         begin
@@ -858,7 +856,6 @@ var
           Mark[I] := Mark[High(Polygons)];
           Dec(I);
           SetLength(Polygons, Length(Polygons) - 1);
-          Inc(CutCount);
         end;
         Inc(I);
       until(I >= Length(Polygons));

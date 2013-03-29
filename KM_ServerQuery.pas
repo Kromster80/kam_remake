@@ -220,7 +220,6 @@ procedure TKMServerList.LoadFromText(const aText: AnsiString);
 
   function GetServerType(aDedicated, aOS: AnsiString): TKMServerType;
   begin
-    Result := st_None;
     if aDedicated = '0' then
       Result := st_Client
     else
@@ -229,16 +228,16 @@ procedure TKMServerList.LoadFromText(const aText: AnsiString);
 
 var
   Strings, Items: TStringList;
-  i: integer;
+  I: Integer;
 begin
   fLastQueried := -1; //First is 0
   Clear;
   Strings := TStringList.Create;
   Items := TStringList.Create;
   Strings.Text := aText; //Parse according to EOLs
-  for i:=0 to Strings.Count-1 do
+  for I := 0 to Strings.Count - 1 do
   begin
-    ParseDelimited(Items, Strings[i], ','); //Automatically clears Items and loads each value
+    ParseDelimited(Items, Strings[I], ','); //Automatically clears Items and loads each value
     if Items.Count = 5 then //Must have 5 parameters
       AddServer(Items[1], Items[2], Items[0], GetServerType(Items[3], Items[4]), 0);
   end;

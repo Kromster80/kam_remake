@@ -47,7 +47,6 @@ implementation
 //Reading map elements properties and animation data
 procedure TKMMapElements.LoadFromFile(const FileName: string);
 var
-  I: Integer;
   S: TMemoryStream;
 begin
   if not FileExists(FileName) then Exit;
@@ -70,13 +69,13 @@ begin
   MapElem[63].Stump := -1;
   MapElem[63].CanBeRemoved := True;
 
+  //Save ti file if we want to have it there. For now hardcoded is ok
   //SaveToFile(FileName);
 end;
 
 
 procedure TKMMapElements.SaveToFile(const FileName: string);
 var
-  I: Integer;
   S: TMemoryStream;
 begin
   S := TMemoryStream.Create;

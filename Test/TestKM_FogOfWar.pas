@@ -57,8 +57,6 @@ var
   I,K: Word;
   ReturnValue: Byte;
   aSkipForReplay: Boolean;
-  Y: Word;
-  X: Word;
 begin
   FKMFogOfWar.RevealEverything;
   aSkipForReplay := False;
@@ -76,8 +74,6 @@ var
   I,K: Word;
   ReturnValue: Byte;
   aSkipForReplay: Boolean;
-  Y: Word;
-  X: Word;
 begin
   FKMFogOfWar.RevealEverything;
   aSkipForReplay := False;
