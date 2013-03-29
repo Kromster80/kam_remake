@@ -19,10 +19,10 @@ Finishing up:
  +	Lock icon next to password protected servers
  +	Finish AI stuff (defending and attacking prototype?)
  +	Performance test city builder and optimise/fix slow stuff (NextToOre using FindNearest for example)
- +	Remove falling trees from MapEd trees palette
+ +	Remove falling trees and block from MapEd trees palette, re-add reed
+ +	Improve snow falling random noise so it looks more natural [Krom]
 	Snow houses artwork [KillingB]
 	Snow house overlay fixes [KillingB, Krom]
-	Improve snow falling random noise so it looks more natural [Krom]
 	Before RC search for all todos and @Lewin/@Krom comments to see if there's something important we forgot about
 	Before RC remove unused strings from LIBX (Lewin: I have code that lists unused strings; Krom: should be in TransMan perhaps; Lewin: Done) and compact indexes
 	Press release for our site where we collect all the big features and improvements [Lewin]

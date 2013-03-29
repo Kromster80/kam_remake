@@ -54,7 +54,7 @@ type
     fLastOrderProduced: Byte;
     fResOrderDesired: array[1..4]of Single;
 
-    WorkAnimStep: cardinal; //Used for Work and etc.. which is not in sync with Flags
+    WorkAnimStep: Cardinal; //Used for Work and etc.. which is not in sync with Flags
     fIsOnSnow: Boolean;
     fSnowStep: Single;
 
