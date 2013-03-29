@@ -43,6 +43,7 @@
 	Terrain brushes in MapEd erase corn/wine fields (should try to preserve them)
 	Keep road bends when neighbour road is destroyed (e.g. house entrances)
 	Limit chat messgae to some sane amount of characters (120?) to avoid spam
+	Woodcutter would cut tree on a corn field that is gone (replaced with corn) shortly before he arrived
 
 	Water looks ugly brown when you zoom out too far due to water tiles having brown checkerboard pattern (anti-aliasing won't help)
 	Wooden house frames flicking on Onboard Intel HD Family Chipset (see images "Hidden House Frame Intel Onboard 1.jpg")
