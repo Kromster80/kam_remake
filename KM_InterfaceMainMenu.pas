@@ -274,6 +274,7 @@ uses KM_Main, KM_NetworkTypes, KM_TextLibrary, KM_Game, KM_GameApp, KM_PlayersCo
 const
   MAPSIZES_COUNT = 15;
   MapSize: array [1..MAPSIZES_COUNT] of Word = (32, 48, 64, 80, 96, 112, 128, 144, 160, 176, 192, 208, 224, 240, 256);
+  MAX_NAME_LENGTH = 16;
 
 
 { TKMMainMenuInterface }
@@ -986,6 +987,7 @@ begin
       TKMBevel.Create(Panel_MPPlayerName, 0, 0, 320, 120);
       TKMLabel.Create(Panel_MPPlayerName, 8, 10, 304, 20, fTextLibrary[TX_MP_MENU_PLAYERNAME], fnt_Outline, taLeft);
       Edit_MP_PlayerName := TKMEdit.Create(Panel_MPPlayerName, 8, 30, 140, 20, fnt_Grey);
+      Edit_MP_PlayerName.MaxLen := MAX_NAME_LENGTH;
       TKMLabel.Create(Panel_MPPlayerName, 8, 60, 304, 20, fTextLibrary[TX_MP_MENU_STATUS], fnt_Outline, taLeft);
       Label_MP_Status := TKMLabel.Create(Panel_MPPlayerName, 8, 80, 304, 36, '', fnt_Grey, taLeft);
       Label_MP_Status.AutoWrap := True;
@@ -2061,7 +2063,6 @@ end;
 
 
 function TKMMainMenuInterface.MP_ValidatePlayerName(const aName: string): Boolean;
-const MAX_NAME_LENGTH = 16;
 begin
   Result := False;
 

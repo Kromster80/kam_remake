@@ -383,6 +383,7 @@ type
     Masked: Boolean; //Mask entered text as *s
     ReadOnly: Boolean;
     ShowColors: Boolean;
+    MaxLen: Word;
     OnChange: TNotifyEvent;
     OnKeyDown: TNotifyEventKey;
     constructor Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight: Integer; aFont: TKMFont);
@@ -2055,6 +2056,7 @@ begin
   fFont := aFont;
   fAllowedChars := acText; //Set to the widest by default
   CursorPos := 0;
+  MaxLen := 256; //Default max length is 256
 
   //Text input fields are focusable by concept
   Focusable := True;
@@ -2092,11 +2094,11 @@ end;
 procedure TKMEdit.SetText(aText: string);
 begin
   fText := aText;
+  ValidateText; //Validate first since it could change fText
   CursorPos := Math.Min(CursorPos, Length(fText));
   //Setting the text should place cursor to the end
   fLeftIndex := 0;
   SetCursorPos(Length(Text));
-  ValidateText;
 end;
 
 
@@ -2110,6 +2112,7 @@ const
   NonFileChars: set of Char = [#0 .. #31, '<', '>', '|', '"', '\', '/', ':', '*', '?'];
   NonTextChars: set of Char = [#0 .. #31, '|'];
 begin
+  //Validate contents
   for I := Length(fText) downto 1 do
   if (fAllowedChars = acDigits) and not(fText[i] in DigitChars) or
      (fAllowedChars = acFileName) and (fText[i] in NonFileChars) or
@@ -2119,6 +2122,10 @@ begin
     if CursorPos >= I then //Keep cursor in place
       CursorPos := CursorPos - 1;
   end;
+
+  //Validate length
+  if Length(fText) > MaxLen then
+    fText := Copy(fText, 0, MaxLen);
 end;
 
 
@@ -2163,8 +2170,8 @@ begin
                 end;
       Ord('V'): begin
                   Insert(Clipboard.AsText, fText, CursorPos + 1);
-                  CursorPos := CursorPos + Length(Clipboard.AsText);
                   ValidateText;
+                  CursorPos := CursorPos + Length(Clipboard.AsText);
                 end;
     end;
   end;
@@ -2185,10 +2192,11 @@ end;
 procedure TKMEdit.KeyPress(Key: Char);
 begin
   if ReadOnly then Exit;
+  if Length(fText) >= MaxLen then Exit;
 
   Insert(Key, fText, CursorPos + 1);
-  CursorPos := CursorPos + 1;
   ValidateText;
+  CursorPos := CursorPos + 1;
 end;
 
 

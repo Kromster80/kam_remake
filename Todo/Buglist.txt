@@ -18,6 +18,7 @@
  +	Replays would mismatch if a player attempted to use a storehouse cheat pattern (the cheat was allowed in the replay causing a mismatch)
  +	Listbox scrollbars jump when trying to drag them by upper/lower thumb edge
  +	AI attack scripts carried uninitialized values (e.g. delay) over from previous attacks
+ +	Limit chat messgae to some sane amount of characters (256) to avoid spam
 	Armour smithy has shields as 2nd ouput, armour workshop has shields as 1st output. Would make sense to match them (note: simply swapping in KM_ResourceHouses causes game logic to be swapped with GUI)
 	Armour smithy has iron as 1st input, weapon smithy has iron as 2nd input (iron/coal swapped). Would make sense to match them (note: simpply swapping in KM_ResourceHouses causes game logic to be swapped with GUI)
 	Deliveries should use the actual walking route length (opposed to Radius)
@@ -34,7 +35,6 @@
 	Stonemason could stuck on a mountain after flattening (stonebug2.jpg)
 	Market cart should be an overlay like flagshtok to prevent duplication of its shadow (rendered when there are no wares)
 	Few terrain tiles (4th, 14th) have noticeable seams on their side when looked closely at
-	Copying very very long amounts of text into chat or connect IP edit boxes can cause errors when submitting them
 	Opening chat or sending a message at the right moment during the reconnect cycle can cause a crash because Networking.MyIndex does not exist (or is not you) in NetPlayersList
 	Using F11->File->Open/Edit Mission during an MP game will not unlock the mutex, and thus you can't enter the MP area after that until restarting the game (F11->Stop could cause the same problem?)
 	If just one player cannot run the game smoothly MP will lag for everyone in his game. For example if you zoom out a lot you will get a poor frame rate and your game will run at < 10 ticks per second forcing other players down to that speed. The lagger's ping will not look any different. Maybe have a way to indicate to that player and the others on the server that he is causing the lag? Our planned 2x speed in MP will make this much worse as some computers will lag more.
@@ -42,7 +42,6 @@
 	TSK15 - AI does not build because stone is too far away (AI builder is incomplete)
 	Terrain brushes in MapEd erase corn/wine fields (should try to preserve them)
 	Keep road bends when neighbour road is destroyed (e.g. house entrances)
-	Limit chat messgae to some sane amount of characters (120?) to avoid spam
 	Woodcutter would cut tree on a corn field that is gone (replaced with corn) shortly before he arrived
 
 	Water looks ugly brown when you zoom out too far due to water tiles having brown checkerboard pattern (anti-aliasing won't help)
