@@ -12,7 +12,7 @@ type
     fOnPageChange: TGUIEventText; //will be in ancestor class
 
     fGameResultMsg: TGameResultMsg; //So we know where to go after results screen
-    fWaresVisible: array [WARE_MIN..WARE_MAX] of Boolean; //For MP results page
+    fPlayersVisible: array [0 .. MAX_PLAYERS - 1] of Boolean; //Remember visible players when toggling wares
     fEnabledPlayers: Integer;
 
     procedure BackClick(Sender: TObject);
@@ -20,7 +20,7 @@ type
     procedure CreateBars(aParent: TKMPanel);
 
     procedure TabChange(Sender: TObject);
-    procedure ResultsMP_PlayerSelect(Sender: TObject);
+    procedure WareChange(Sender: TObject);
     procedure Refresh;
     procedure RefreshBars;
     procedure RefreshCharts;
@@ -33,17 +33,17 @@ type
       Label_ResultsMP: TKMLabel;
       Panel_Bars: TKMPanel;
         Panel_BarsUpper, Panel_BarsLower: TKMPanel;
-          Label_ResultsPlayerName1, Label_ResultsPlayerName2: array [0..MAX_PLAYERS-1] of TKMLabel;
-          Bar_Results: array [0..MAX_PLAYERS-1, 0..9] of TKMPercentBar;
-          Image_ResultsRosette: array [0..MAX_PLAYERS-1, 0..9] of TKMImage;
+          Label_ResultsPlayerName1, Label_ResultsPlayerName2: array [0 .. MAX_PLAYERS - 1] of TKMLabel;
+          Bar_Results: array [0 .. MAX_PLAYERS - 1, 0 .. 9] of TKMPercentBar;
+          Image_ResultsRosette: array [0 .. MAX_PLAYERS - 1, 0 .. 9] of TKMImage;
       Panel_ChartsMP: TKMPanel;
         Chart_MPArmy: TKMChart;
         Chart_MPCitizens: TKMChart;
         Chart_MPHouses: TKMChart;
-        Chart_MPWares: array[0..MAX_PLAYERS-1] of TKMChart; //One for each player
+        Chart_MPWares: array [WARE_MIN..WARE_MAX] of TKMChart; //One for each player
         //Image_MPResultsBackplate: TKMImage;
-        Radio_MPResultsWarePlayer: TKMRadioGroup;
-      Button_ResultsMPBack:TKMButton;
+        Radio_Wares: TKMRadioGroup;
+      Button_ResultsMPBack: TKMButton;
   public
     constructor Create(aParent: TKMPanel; aOnPageChange: TGUIEventText);
     destructor Destroy; override;
@@ -137,7 +137,7 @@ end;
 
 
 procedure TKMGUIMenuResultsMP.TabChange(Sender: TObject);
-var I: Integer;
+var I: TResourceType;
 begin
   Panel_Bars.Visible := (Sender = Button_MPResultsBars);
   Panel_ChartsMP.Visible   :=(Sender = Button_MPResultsArmy)
@@ -147,10 +147,10 @@ begin
   Chart_MPCitizens.Visible := Sender = Button_MPResultsEconomy;
   Chart_MPHouses.Visible   := Sender = Button_MPResultsEconomy;
 
-  for I := 0 to MAX_PLAYERS - 1 do
-    Chart_MPWares[I].Visible := (Sender = Button_MPResultsWares) and (Radio_MPResultsWarePlayer.ItemIndex = I);
+  for I := WARE_MIN to WARE_MAX do
+    Chart_MPWares[I].Visible := (Sender = Button_MPResultsWares) and (Radio_Wares.ItemIndex = Byte(I));
 
-  Radio_MPResultsWarePlayer.Visible := Sender = Button_MPResultsWares;
+  Radio_Wares.Visible := Sender = Button_MPResultsWares;
   //Image_MPResultsBackplate.Visible  := Sender = Button_MPResultsWares;
 
   Button_MPResultsBars.Down := Sender = Button_MPResultsBars;
@@ -160,25 +160,28 @@ begin
 end;
 
 
-procedure TKMGUIMenuResultsMP.ResultsMP_PlayerSelect(Sender: TObject);
-var ID, I, K: Integer;
+procedure TKMGUIMenuResultsMP.WareChange(Sender: TObject);
+var
+  K: Integer;
+  I, R: TResourceType;
 begin
-  ID := Radio_MPResultsWarePlayer.ItemIndex;
-  Assert(ID in [0..MAX_PLAYERS-1]);
+  R := TResourceType(Radio_Wares.ItemIndex+1);
 
-  for I:=0 to MAX_PLAYERS-1 do
+  //Find and hide old chart
+  for I := WARE_MIN to WARE_MAX do
     if Chart_MPWares[I].Visible then
     begin
-      Chart_MPWares[I].Visible := False; //Hide the old one
-      //Update the values of which lines are visible in our internal record
-      for K := 0 to Chart_MPWares[I].LineCount-1 do
-        fWaresVisible[TResourceType(Chart_MPWares[I].Lines[K].Tag)] := Chart_MPWares[I].Lines[K].Visible;
+      Chart_MPWares[I].Visible := False;
+      //Remember which lines were visible
+      for K := 0 to Chart_MPWares[I].LineCount - 1 do
+        fPlayersVisible[Chart_MPWares[I].Lines[K].Tag] := Chart_MPWares[I].Lines[K].Visible;
     end;
 
-  Chart_MPWares[ID].Visible := True;
-  //Show only the line that are visible in our internal record
-  for K := 0 to Chart_MPWares[ID].LineCount-1 do
-    Chart_MPWares[ID].SetLineVisible(K,fWaresVisible[TResourceType(Chart_MPWares[ID].Lines[K].Tag)]);
+  Chart_MPWares[R].Visible := True;
+
+  //Restore previously visible lines
+  for K := 0 to Chart_MPWares[R].LineCount - 1 do
+    Chart_MPWares[R].SetLineVisible(K, fPlayersVisible[Chart_MPWares[R].Lines[K].Tag]);
 end;
 
 
@@ -370,17 +373,16 @@ var
   G: TKMCardinalArray;
 begin
   //Fill in chart values
-  Radio_MPResultsWarePlayer.Clear;
-  for I := 0 to fPlayers.Count - 1 do
-    if fPlayers[I].Enabled then
-      Radio_MPResultsWarePlayer.Add('[$'+IntToHex(FlagColorToTextColor(fPlayers[I].FlagColor) and $00FFFFFF,6)+']'+fPlayers[I].PlayerName+'[]');
+  Radio_Wares.Clear;
+  for R := WARE_MIN to WARE_MAX do
+    Radio_Wares.Add(fResource.Resources[R].Title);
 
-  Radio_MPResultsWarePlayer.ItemIndex := 0;
-  Radio_MPResultsWarePlayer.Height := 25 * fEnabledPlayers;
+  Radio_Wares.ItemIndex := 0;
+  Radio_Wares.Height := 25 * Radio_Wares.Count;
   //Image_MPResultsBackplate.Height := 24 + 25 * fEnabledPlayers;
 
-  for R := WARE_MIN to WARE_MAX do
-    fWaresVisible[R] := True; //All are visible by default
+  for I := 0 to MAX_PLAYERS - 1 do
+    fPlayersVisible[I] := True;
 
   Chart_MPArmy.Clear;
   Chart_MPCitizens.Clear;
@@ -410,25 +412,25 @@ begin
     if Enabled then
       Chart_MPHouses.AddLine(PlayerName, FlagColor, Stats.ChartHouses);
 
-  Index := 0;
-  for I := 0 to fPlayers.Count - 1 do
-  if fPlayers[I].Enabled then
+  for R := WARE_MIN to WARE_MAX do
   begin
-    Chart_MPWares[Index].Clear;
-    Chart_MPWares[Index].MaxLength := MyPlayer.Stats.ChartCount;
-    Chart_MPWares[Index].MaxTime := fGame.GameTickCount div 10;
-    Chart_MPWares[Index].Caption := fTextLibrary[TX_GRAPH_TITLE_RESOURCES]+' - [$'+IntToHex(FlagColorToTextColor(fPlayers[I].FlagColor) and $00FFFFFF,6)+']'+fPlayers[I].PlayerName+'[]';
-    for R := WARE_MIN to WARE_MAX do
+    Chart_MPWares[R].Clear;
+    Chart_MPWares[R].MaxLength := MyPlayer.Stats.ChartCount;
+    Chart_MPWares[R].MaxTime := fGame.GameTickCount div 10;
+    Chart_MPWares[R].Caption := fTextLibrary[TX_GRAPH_TITLE_RESOURCES] + ' - ' + fResource.Resources[R].Title;
+
+    for I := 0 to fPlayers.Count - 1 do
+    with fPlayers[I] do
+    if Enabled then
     begin
       G := fPlayers[I].Stats.ChartGoods[R];
       for K := 0 to High(G) do
         if G[K] <> 0 then
         begin
-          Chart_MPWares[Index].AddLine(fResource.Resources[R].Title, ResourceColor[R] or $FF000000, G, Byte(R));
+          Chart_MPWares[R].AddLine(PlayerName, FlagColor, G, I);
           Break;
         end;
     end;
-    inc(Index);
   end;
 end;
 
@@ -436,7 +438,7 @@ end;
 
 procedure TKMGUIMenuResultsMP.Create_ResultsMP(aParent: TKMPanel);
 var
-  I: Integer;
+  I: TResourceType;
 begin
   Panel_ResultsMP := TKMPanel.Create(aParent, 0, 0, aParent.Width, aParent.Height);
   Panel_ResultsMP.Stretch;
@@ -507,12 +509,11 @@ begin
       //Image_MPResultsBackplate.ImageStretch;
       //Image_MPResultsBackplate.Center;
 
-      Radio_MPResultsWarePlayer := TKMRadioGroup.Create(Panel_ChartsMP, 26, 70, 150, 200, fnt_Metal);
-      //Radio_MPResultsWarePlayer.Font := fnt_Game;
-      Radio_MPResultsWarePlayer.Anchors := [akLeft];
-      Radio_MPResultsWarePlayer.OnChange := ResultsMP_PlayerSelect;
+      Radio_Wares := TKMRadioGroup.Create(Panel_ChartsMP, 26, 0, 150, 200, fnt_Game);
+      Radio_Wares.Anchors := [akLeft];
+      Radio_Wares.OnChange := WareChange;
 
-      for I := 0 to MAX_PLAYERS - 1 do
+      for I := WARE_MIN to WARE_MAX do
       begin
         Chart_MPWares[I] := TKMChart.Create(Panel_ChartsMP, 190, 0, 822, 435);
         Chart_MPWares[I].Caption := fTextLibrary[TX_GRAPH_TITLE_RESOURCES];
