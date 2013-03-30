@@ -20,6 +20,13 @@ Next release
 	Change versioning system and drop Demo tag (suggest we'd keep it)
 
 
+
+5th Multiplayer Demo Balance-testing closed beta (r4297) - 
+
+
+5th Multiplayer Demo Update (r4179) - 
+
+
 5th Multiplayer Demo (r4001) - 2012-10-04:
  +	Custom campaigns
  +	Charts of game results
@@ -63,6 +70,8 @@ Next release
  +	Improved AI scripting [Lewin]
  +	Custom images in menu and cursors
  +	Bugfixes
+
+Demo (r1359) - 2011-??-??:
 
 
 2nd Fighting Demo (r1345) - 2010-12-31:
