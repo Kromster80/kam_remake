@@ -25,7 +25,7 @@ Finishing up:
 	Snow houses artwork [KillingB]
 	Snow house overlay fixes [KillingB, Krom]
 	Before RC search for all todos and @Lewin/@Krom comments to see if there's something important we forgot about
-	Before RC remove unused strings from LIBX (Lewin: I have code that lists unused strings; Krom: should be in TransMan perhaps; Lewin: Done) and compact indexes
+	Before RC remove unused strings from LIBX and compact indexes [Lewin]
 	Press release for our site where we collect all the big features and improvements [Lewin]
 
 
@@ -37,7 +37,6 @@ Known issues to fix:
 	Publish a memo about SET_USER_PLAYER "fixing" maps made in other editors [Lewin]
 	Copy data\sfx\knights\battle4.wav to Polish sfx (horse sound Pol is missing) [Lewin]
 	TSK campaign fixes by BornFree, check they all make sense [Lewin] (easy to do with Batcher.UnXOR all maps)
-	Ask translators to shorten up messages that we show in message log (empty house, feed troops, etc)
 
 
 After first RC:
@@ -46,6 +45,7 @@ After first RC:
 	Check main menu / gameplay interfaces for text that needs to be added to the LIBX (e.g. lobby speed)
 	Add missing texts from MapEd to LIBX (maybe ignore some stuff in temporary interfaces that will be improved next release?)
 	Send text off to be translated (do this late in the RC testing so translators don't get 3 separate requests for each RC with changed text)
+	Ask translators to shorten up messages that we show in message log (empty house, feed troops, etc)
 	Performance test the replay of a full MP game to check for chokepoints in a real-world scenario
 	Press release?
 
