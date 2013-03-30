@@ -129,6 +129,7 @@ Improvements:
 	L	MapEd: Make houses highlight red when about to erase them as trees/units do
 	L	MapEd: Flat terrain checkbox on Extras popup
 	L	MapEd: Allow to set troops order destination with mouse on map
+	L	MapEd: Add size to Object delete brush (possibly in a new tab where artistic brushes will be)
  
  -	Unexpectedly high ping values (high_ping.jpg)
 		Lewin: That's not our problem, it usually means his internet connection is not running smoothly. For example if you are downloading a file/video/youtube while playing your ping will go much higher because packets are queued and delayed by your modem when running at maximum speed. If all players have high ping that indicates a problem with the server, but in this case it's only him. It can also be due to being located a long way away from the server, although that will give you ~500 ping in the worst case (one side of the world to the other). Tell him to try a test website like pingtest.net to measure his internet connection quality
