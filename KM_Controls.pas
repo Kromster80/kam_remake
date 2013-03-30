@@ -255,6 +255,7 @@ type
     Highlight: Boolean;
     HighlightOnMouseOver: Boolean;
     Lightness: Single;
+    ClipToBounds: Boolean;
     constructor Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight: Integer; aTexID: Word; aRX: TRXType = rxGui);
     property RX: TRXType read fRX write fRX;
     property TexID: Word read fTexID write fTexID;
@@ -1738,9 +1739,17 @@ begin
   inherited;
   if fTexID = 0 then Exit; //No picture to draw
 
+  if ClipToBounds then
+  begin
+    TKMRenderUI.SetupClipX(AbsLeft, AbsLeft + Width);
+    TKMRenderUI.SetupClipY(AbsTop,  AbsTop + Height);
+  end;
+
   PaintLightness := Lightness + 0.4 * (Byte(HighlightOnMouseOver and (csOver in State)) + Byte(Highlight));
 
   TKMRenderUI.WritePicture(AbsLeft, AbsTop, fWidth, fHeight, ImageAnchors, fRX, fTexID, fEnabled, fFlagColor, PaintLightness);
+  TKMRenderUI.ReleaseClipX;
+  TKMRenderUI.ReleaseClipY;
 end;
 
 

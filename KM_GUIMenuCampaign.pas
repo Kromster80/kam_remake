@@ -76,6 +76,7 @@ begin
   Panel_CampScroll.Anchors := [akLeft,akBottom];
 
     Image_Scroll := TKMImage.Create(Panel_CampScroll, 0, 0, 360, 430, 410, rxGui);
+    Image_Scroll.ClipToBounds := True;
     Image_Scroll.Stretch;
     Image_Scroll.ImageAnchors := [akLeft, akRight, akTop];
     Label_CampaignTitle := TKMLabel.Create(Panel_CampScroll, 130, 46, 100, 20, NO_TEXT, fnt_Outline, taCenter);
