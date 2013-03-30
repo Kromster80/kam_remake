@@ -401,10 +401,7 @@ begin
                       fCampaigns.SetActive(fCampaigns.CampaignByTitle(fGame.CampaignName), fGame.CampaignMap);
 
                       if (fGame.GameMode in [gmMulti, gmReplayMulti]) then
-                      begin
-                        fMainMenuInterface.ResultsMP_Fill(Msg);
-                        fMainMenuInterface.ShowScreen(msResultsMP, '', Msg);
-                      end
+                        fMainMenuInterface.ShowResultsMP(Msg)
                       else
                       begin
                         //Remember which map we played so we could restart it
