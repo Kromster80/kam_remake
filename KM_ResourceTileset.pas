@@ -89,7 +89,7 @@ begin
   fCRC := Adler32CRC(FileName);
 
   if WriteResourceInfoToTXT then
-    ExportPatternDat(ExeDir + 'Export\Pattern.csv');
+    ExportPatternDat(ExeDir + 'Export'+PathDelim+'Pattern.csv');
 
   Result := true;
 end;

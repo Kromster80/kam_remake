@@ -446,9 +446,9 @@ var
   Save: TKMSaveInfo;
 begin
   if fMultiplayerPath then
-    PathToSaves := ExeDir + 'SavesMP\'
+    PathToSaves := ExeDir + 'SavesMP'+PathDelim
   else
-    PathToSaves := ExeDir + 'Saves\';
+    PathToSaves := ExeDir + 'Saves'+PathDelim;
 
   if not DirectoryExists(PathToSaves) then Exit;
 

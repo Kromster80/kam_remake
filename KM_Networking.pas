@@ -523,7 +523,7 @@ begin
   FreeAndNil(fMapInfo);
   FreeAndNil(fSaveInfo);
 
-  fSaveInfo := TKMSaveInfo.Create(ExeDir + 'SavesMP\', aName);
+  fSaveInfo := TKMSaveInfo.Create(ExeDir + 'SavesMP'+PathDelim, aName);
 
   if not fSaveInfo.IsValid then
   begin
@@ -1330,7 +1330,7 @@ begin
             begin
               fSelectGameKind := ngk_Save;
               FreeAndNil(fSaveInfo);
-              fSaveInfo := TKMSaveInfo.Create(ExeDir + 'SavesMP\', Msg);
+              fSaveInfo := TKMSaveInfo.Create(ExeDir + 'SavesMP'+PathDelim, Msg);
               fNetPlayers.ResetLocAndReady;
               if Assigned(fOnMapName) then fOnMapName(fSaveInfo.FileName);
               if Assigned(fOnPlayersSetup) then fOnPlayersSetup(Self);

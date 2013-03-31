@@ -365,7 +365,7 @@ end;
 
 procedure TFormMain.HousesDat1Click(Sender: TObject);
 begin
-  fResource.HouseDat.ExportCSV(ExeDir + 'Export\houses.dat.csv')
+  fResource.HouseDat.ExportCSV(ExeDir + 'Export' + PathDelim + 'houses.dat.csv')
 end;
 
 
@@ -584,8 +584,8 @@ end;
 
 procedure TFormMain.Debug_ExportMenuClick(Sender: TObject);
 begin
-  ForceDirectories(ExeDir + 'Export\');
-  fGameApp.MainMenuInterface.MyControls.SaveToFile(ExeDir + 'Export\MainMenu.txt');
+  ForceDirectories(ExeDir + 'Export' + PathDelim);
+  fGameApp.MainMenuInterface.MyControls.SaveToFile(ExeDir + 'Export' + PathDelim + 'MainMenu.txt');
 end;
 
 
@@ -597,7 +597,7 @@ begin
   if fGameApp.MainMenuInterface = nil then Exit;
 
   MC := fGameApp.MainMenuInterface.MyControls;
-  ForceDirectories(ExeDir + 'Export\MainMenu\');
+  ForceDirectories(ExeDir + 'Export'+PathDelim+'MainMenu'+PathDelim);
 
   for I := 1 to MC.MainPanel.ChildCount do
     if MC.MainPanel.Childs[I] is TKMPanel then
@@ -610,7 +610,7 @@ begin
       MC.MainPanel.Childs[I].Show;
 
       fGameApp.Render;
-      fGameApp.PrintScreen(ExeDir + 'Export\MainMenu\Panel' + int2fix(I, 3) + '.jpg');
+      fGameApp.PrintScreen(ExeDir + 'Export' + PathDelim + 'MainMenu' + PathDelim + 'Panel' + int2fix(I, 3) + '.jpg');
     end;
 end;
 
@@ -622,7 +622,7 @@ begin
   if (fGameApp.Game = nil) or (fGameApp.Game.GamePlayInterface = nil) then Exit;
 
   MC := fGameApp.Game.GamePlayInterface.MyControls;
-  ForceDirectories(ExeDir + 'Export\GamePlay\');
+  ForceDirectories(ExeDir + 'Export' + PathDelim + 'GamePlay' + PathDelim);
 
   for I := 1 to MC.MainPanel.ChildCount do
     if MC.MainPanel.Childs[I] is TKMPanel then
@@ -635,7 +635,7 @@ begin
       MC.MainPanel.Childs[I].Show;
 
       fGameApp.Render;
-      fGameApp.PrintScreen(ExeDir + 'Export\GamePlay\Panel' + int2fix(I, 3) + '.jpg');
+      fGameApp.PrintScreen(ExeDir + 'Export' + PathDelim + 'GamePlay' + PathDelim + 'Panel' + int2fix(I, 3) + '.jpg');
     end;
 end;
 

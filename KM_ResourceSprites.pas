@@ -882,7 +882,7 @@ var
 begin
   if EXPORT_SPRITE_ATLASES then
   begin
-    Folder := ExeDir + 'Export\GenTextures\';
+    Folder := ExeDir + 'Export'+PathDelim+'GenTextures'+PathDelim;
     ForceDirectories(Folder);
 
     {$IFDEF WDC}
@@ -1020,7 +1020,7 @@ end;
 procedure TKMSprites.ExportToPNG(aRT: TRXType);
 begin
   LoadSprites(aRT, False);
-  fSprites[aRT].ExportToPNG(ExeDir + 'Export\' + RXInfo[aRT].FileName + '.rx\');
+  fSprites[aRT].ExportToPNG(ExeDir + 'Export' + PathDelim + RXInfo[aRT].FileName + '.rx' + PathDelim);
   ClearTemp;
 end;
 

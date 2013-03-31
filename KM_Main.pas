@@ -307,7 +307,7 @@ begin
   if not Result then UnlockMutex; //Close our own handle on the mutex because someone else already made the mutex
   {$ENDIF}
   {$IFDEF Unix}
-    Result := False;
+    Result := True;
   {$ENDIF}
 end;
 

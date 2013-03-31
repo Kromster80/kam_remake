@@ -187,8 +187,8 @@ end;
 
 procedure TTextLibrary.ExportTextLibraries;
 begin
-  CreateDir(ExeDir + 'Export\');
-  ExportTextLibrary(GameStrings, ExeDir + 'Export\text.'+fLocale+'.libx');
+  CreateDir(ExeDir + 'Export' + PathDelim);
+  ExportTextLibrary(GameStrings, ExeDir + 'Export' + PathDelim + 'text.'+fLocale+'.libx');
 end;
 
 

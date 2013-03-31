@@ -131,8 +131,8 @@ begin
   repeat
     if (SearchRec.Name <> '.') and (SearchRec.Name <> '..')
     and (SearchRec.Attr and faDirectory = faDirectory)
-    and FileExists(aPath + SearchRec.Name + '\info.cmp') then
-      AddCampaign(aPath + SearchRec.Name + '\');
+    and FileExists(aPath + SearchRec.Name + PathDelim+'info.cmp') then
+      AddCampaign(aPath + SearchRec.Name + PathDelim);
   until (FindNext(SearchRec) <> 0);
   FindClose(SearchRec);
 end;
@@ -384,7 +384,7 @@ end;
 
 function TKMCampaign.MissionFile(aIndex: Byte): string;
 begin
-  Result := fPath + fShortTitle + Format('%.2d', [aIndex+1]) + '\' +
+  Result := fPath + fShortTitle + Format('%.2d', [aIndex+1]) + PathDelim +
             fShortTitle + Format('%.2d', [aIndex+1]) + '.dat';
 end;
 
@@ -405,7 +405,7 @@ end;
 
 function TKMCampaign.BreifingAudioFile(aIndex: Byte; aLang: string): string;
 begin
-  Result := fPath + fShortTitle + Format('%.2d', [aIndex+1]) + '\' +
+  Result := fPath + fShortTitle + Format('%.2d', [aIndex+1]) + PathDelim +
             fShortTitle + Format('%.2d', [aIndex+1]) + '.' + aLang + '.mp3';
 end;
 

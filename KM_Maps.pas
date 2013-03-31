@@ -138,7 +138,7 @@ var
 begin
   inherited Create;
 
-  fPath := ExeDir + MAP_FOLDER_MP[aIsMultiplayer] + '\' + aFolder + '\';
+  fPath := ExeDir + MAP_FOLDER_MP[aIsMultiplayer] + PathDelim + aFolder + PathDelim;
   fFileName := aFolder;
 
   fStrictParsing := aStrictParsing;
@@ -606,7 +606,7 @@ end;
 
 class function TKMapsCollection.FullPath(const aName, aExt: string; aMultiplayer: Boolean): string;
 begin
-  Result := ExeDir + MAP_FOLDER_MP[aMultiplayer] + '\' + aName + '\' + aName + aExt;
+  Result := ExeDir + MAP_FOLDER_MP[aMultiplayer] + PathDelim + aName + PathDelim + aName + aExt;
 end;
 
 
@@ -620,15 +620,15 @@ begin
 
   PathToMaps := TStringList.Create;
   try
-    PathToMaps.Add(aExeDir + 'Maps\');
-    PathToMaps.Add(aExeDir + 'MapsMP\');
-    PathToMaps.Add(aExeDir + 'Tutorials\');
+    PathToMaps.Add(aExeDir + 'Maps' + PathDelim);
+    PathToMaps.Add(aExeDir + 'MapsMP' + PathDelim);
+    PathToMaps.Add(aExeDir + 'Tutorials' + PathDelim);
 
     //Include all campaigns maps
-    FindFirst(aExeDir + 'Campaigns\*', faDirectory, SearchRec);
+    FindFirst(aExeDir + 'Campaigns'+PathDelim+'*', faDirectory, SearchRec);
     repeat
       if (SearchRec.Name <> '.') and (SearchRec.Name <> '..') then
-        PathToMaps.Add(aExeDir + 'Campaigns\' + SearchRec.Name + '\');
+        PathToMaps.Add(aExeDir + 'Campaigns'+PathDelim + SearchRec.Name + PathDelim);
     until (FindNext(SearchRec) <> 0);
     FindClose(SearchRec);
 
@@ -638,9 +638,9 @@ begin
       FindFirst(PathToMaps[I] + '*', faDirectory, SearchRec);
       repeat
         if (SearchRec.Name <> '.') and (SearchRec.Name <> '..')
-        and FileExists(PathToMaps[I] + SearchRec.Name + '\' + SearchRec.Name + '.dat')
-        and FileExists(PathToMaps[I] + SearchRec.Name + '\' + SearchRec.Name + '.map') then
-          aList.Add(PathToMaps[I] + SearchRec.Name + '\' + SearchRec.Name + '.dat');
+        and FileExists(PathToMaps[I] + SearchRec.Name + PathDelim + SearchRec.Name + '.dat')
+        and FileExists(PathToMaps[I] + SearchRec.Name + PathDelim + SearchRec.Name + '.map') then
+          aList.Add(PathToMaps[I] + SearchRec.Name + PathDelim + SearchRec.Name + '.dat');
       until (FindNext(SearchRec) <> 0);
       FindClose(SearchRec);
     end;
@@ -676,7 +676,7 @@ var
   PathToMaps: string;
   Map: TKMapInfo;
 begin
-  PathToMaps := ExeDir + MAP_FOLDER_MP[fMultiplayerPath] + '\';
+  PathToMaps := ExeDir + MAP_FOLDER_MP[fMultiplayerPath] + PathDelim;
 
   if not DirectoryExists(PathToMaps) then Exit;
 

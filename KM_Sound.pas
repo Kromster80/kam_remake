@@ -250,18 +250,18 @@ const
     (WarriorVoice: ut_Bowman;       SelectID:3; DeathID:0)  //ut_Recruit
     );
 
-  NewSFXFolder = 'Sounds\';
+  NewSFXFolder = 'Sounds'+PathDelim;
   NewSFXFile: array [TSoundFXNew] of string = (
-    'UI\ButtonClick.wav',
-    'Buildings\MarketPlace\Trade.wav',
-    'Chat\ChatArrive.wav',
-    'Chat\ChatOpen.wav',
-    'Chat\ChatClose.wav',
-    'Misc\Victory.wav',
-    'Misc\Defeat.wav',
-    'UI\Beacon.wav',
-    'UI\Error.wav',
-    'Misc\PeaceTime.wav');
+    'UI'+PathDelim+'ButtonClick.wav',
+    'Buildings'+PathDelim+'MarketPlace'+PathDelim+'Trade.wav',
+    'Chat'+PathDelim+'ChatArrive.wav',
+    'Chat'+PathDelim+'ChatOpen.wav',
+    'Chat'+PathDelim+'ChatClose.wav',
+    'Misc'+PathDelim+'Victory.wav',
+    'Misc'+PathDelim+'Defeat.wav',
+    'UI'+PathDelim+'Beacon.wav',
+    'UI'+PathDelim+'Error.wav',
+    'Misc'+PathDelim+'PeaceTime.wav');
 
 
 { TSoundLib }
@@ -275,10 +275,10 @@ begin
 
   if SKIP_SOUND then Exit;
 
-  if DirectoryExists(ExeDir+'data\sfx\speech.'+aLocale+'\') then
+  if DirectoryExists(ExeDir+'data'+PathDelim+'sfx'+PathDelim+'speech.'+aLocale+PathDelim) then
     fLocale := aLocale
   else
-    if DirectoryExists(ExeDir+'data\sfx\speech.'+fLocales.GetLocale(aLocale).FallbackLocale+'\') then
+    if DirectoryExists(ExeDir+'data'+PathDelim+'sfx'+PathDelim+'speech.'+fLocales.GetLocale(aLocale).FallbackLocale+PathDelim) then
       fLocale := fLocales.GetLocale(aLocale).FallbackLocale //Use fallback local when primary doesn't exist
     else
       fLocale := DEFAULT_LOCALE; //Use English voices when no language specific voices exist
@@ -396,10 +396,10 @@ var
   i,Tmp:integer;
 begin
   if not fIsSoundInitialized then Exit;
-  if not CheckFileExists(ExeDir+'data\sfx\sounds.dat') then Exit;
+  if not CheckFileExists(ExeDir+'data'+PathDelim+'sfx'+PathDelim+'sounds.dat') then Exit;
 
   S := TMemoryStream.Create;
-  S.LoadFromFile(ExeDir + 'data\sfx\sounds.dat');
+  S.LoadFromFile(ExeDir + 'data'+PathDelim+'sfx'+PathDelim+'sounds.dat');
   S.Read(Head, 4);
   S.Read(Tab1, Head.Count*4); //Read Count*4bytes into Tab1(WaveSizes)
   S.Read(Tab2, Head.Count*2); //Read Count*2bytes into Tab2(No idea what is it)
@@ -446,7 +446,7 @@ var
 begin
   if not fIsSoundInitialized then Exit;
 
-  ForceDirectories(ExeDir + 'Export\SoundsDat\');
+  ForceDirectories(ExeDir + 'Export'+PathDelim+'SoundsDat'+PathDelim);
 
   for I := 1 to fWavesCount do
   if Length(fWaves[I].Data) > 0 then
@@ -455,7 +455,7 @@ begin
     S.Write(fWaves[I].Head, SizeOf(fWaves[I].Head));
     S.Write(fWaves[I].Data[0], Length(fWaves[I].Data));
     S.Write(fWaves[I].Foot[0], Length(fWaves[I].Foot));
-    S.SaveToFile(ExeDir + 'Export\SoundsDat\sound_' + int2fix(I, 3) + '_' +
+    S.SaveToFile(ExeDir + 'Export'+PathDelim+'SoundsDat'+PathDelim+'sound_' + int2fix(I, 3) + '_' +
                  GetEnumName(TypeInfo(TSoundFX), I) + '.wav');
     S.Free;
   end;
@@ -656,12 +656,12 @@ function TSoundLib.WarriorSoundFile(aUnitType:TUnitType; aSound:TWarriorSpeech; 
 var S:string;
 begin
   if not fIsSoundInitialized then Exit;
-  S := ExeDir + 'data\sfx\speech.'+fLocale+'\';
+  S := ExeDir + 'data'+PathDelim+'sfx'+PathDelim+'speech.'+fLocale+PathDelim;
   if fWarriorUseBackup[aUnitType] then
     S := S + WarriorSFXFolderBackup[aUnitType]
   else
     S := S + WarriorSFXFolder[aUnitType];
-  S := S + '\' + WarriorSFX[aSound] + IntToStr(aNumber);
+  S := S + PathDelim + WarriorSFX[aSound] + IntToStr(aNumber);
   Result := '';
   if FileExists(S+'.snd') then Result := S+'.snd'; //Some languages use .snd files, but inside they are just WAVs renamed
   if FileExists(S+'.wav') then Result := S+'.wav';
@@ -672,7 +672,7 @@ function TSoundLib.NotificationSoundFile(aSound:TAttackNotification; aNumber:byt
 var S:string;
 begin
   if not fIsSoundInitialized then Exit;
-  S := ExeDir + 'data\sfx\speech.'+fLocale+ '\' + AttackNotifications[aSound] + int2fix(aNumber,2);
+  S := ExeDir + 'data'+PathDelim+'sfx'+PathDelim+'speech.'+fLocale+ PathDelim + AttackNotifications[aSound] + int2fix(aNumber,2);
   Result := '';
   if FileExists(S+'.snd') then Result := S+'.snd';
   if FileExists(S+'.wav') then Result := S+'.wav'; //In Russian version there are WAVs
@@ -797,7 +797,7 @@ var
   AN: TAttackNotification;
   SpeechPath: string;
 begin
-  SpeechPath := ExeDir + 'data\sfx\speech.' + fLocale + '\';
+  SpeechPath := ExeDir + 'data'+PathDelim+'sfx'+PathDelim+'speech.' + fLocale + PathDelim;
 
   //Reset counts from previous locale/unsuccessful load
   FillChar(fWarriorSoundCount, SizeOf(fWarriorSoundCount), #0);
@@ -813,7 +813,7 @@ begin
 
   //First inspect folders, if the prefered ones don't exist use the backups
   for U := WARRIOR_MIN to WARRIOR_MAX do
-    if not DirectoryExists(SpeechPath + WarriorSFXFolder[U] + '\') then
+    if not DirectoryExists(SpeechPath + WarriorSFXFolder[U] + PathDelim) then
       fWarriorUseBackup[U] := True;
 
   //If the folder exists it is likely all the sounds are there

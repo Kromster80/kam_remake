@@ -267,7 +267,7 @@ begin
   //if (fGameInputProcess <> nil) and (fGameInputProcess.ReplayState = gipRecording) then
   //  fGameInputProcess.SaveToFile(SaveName('basesave', 'rpl', fGameMode = gmMulti));
 
-  if DO_PERF_LOGGING and (fPerfLog <> nil) then fPerfLog.SaveToFile(ExeDir + 'Logs\PerfLog.txt');
+  if DO_PERF_LOGGING and (fPerfLog <> nil) then fPerfLog.SaveToFile(ExeDir + 'Logs'+PathDelim+'PerfLog.txt');
 
   FreeAndNil(fTimerGame);
 
@@ -1378,7 +1378,7 @@ begin
                         AutoSave;
 
                       //if (fGameTickCount mod 10 = 0) then
-                      //  SaveGame(ExeDir + 'SavesLog\' + int2fix(fGameTickCount, 6));
+                      //  SaveGame(ExeDir + 'SavesLog'+PathDelim + int2fix(fGameTickCount, 6));
 
                       if DO_PERF_LOGGING then fPerfLog.LeaveSection(psTick);
 
@@ -1485,9 +1485,9 @@ end;
 function TKMGame.SaveName(const aName, aExt: string; aMultiPlayer: Boolean): string;
 begin
   if aMultiPlayer then
-    Result := ExeDir + 'SavesMP\' + aName + '.' + aExt
+    Result := ExeDir + 'SavesMP'+PathDelim + aName + '.' + aExt
   else
-    Result := ExeDir + 'Saves\' + aName + '.' + aExt;
+    Result := ExeDir + 'Saves'+PathDelim + aName + '.' + aExt;
 end;
 
 

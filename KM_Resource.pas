@@ -145,11 +145,11 @@ begin
   fFonts.LoadFonts(aLocale);
   fLog.AddTime('Read fonts is done');
 
-  fTileset := TKMTileset.Create(ExeDir + 'data\defines\pattern.dat');
+  fTileset := TKMTileset.Create(ExeDir + 'data'+PathDelim+'defines'+PathDelim+'pattern.dat');
   fTileset.TileColor := fSprites.Sprites[rxTiles].GetSpriteColors(248); //Tiles 249..256 are road overlays
 
   fMapElements := TKMMapElements.Create;
-  fMapElements.LoadFromFile(ExeDir + 'data\defines\mapelem.dat');
+  fMapElements.LoadFromFile(ExeDir + 'data'+PathDelim+'defines'+PathDelim+'mapelem.dat');
 
   fSprites.ClearTemp;
 
@@ -197,7 +197,7 @@ begin
   fSprites.LoadSprites(rxUnits, False); //BMP can't show alpha shadows anyways
   RXData := fSprites[rxUnits].RXData;
 
-  Folder := ExeDir + 'Export\UnitAnim\';
+  Folder := ExeDir + 'Export'+PathDelim+'UnitAnim'+PathDelim;
   ForceDirectories(Folder);
 
   Bmp := TBitmap.Create;
@@ -212,7 +212,7 @@ begin
   if fUnitDat[U].UnitAnim[A,D].Step[1] <> -1 then
   for i := 1 to fUnitDat[U].UnitAnim[A, D].Count do
   begin
-    ForceDirectories(Folder + fUnitDat[U].UnitName + '\' + UnitAct[A] + '\');
+    ForceDirectories(Folder + fUnitDat[U].UnitName + PathDelim + UnitAct[A] + PathDelim);
 
     if fUnitDat[U].UnitAnim[A,D].Step[i] + 1 <> 0 then
     begin
@@ -229,7 +229,7 @@ begin
 
       if sy > 0 then
         Bmp.SaveToFile(Folder +
-          fUnitDat[U].UnitName + '\' + UnitAct[A] + '\' +
+          fUnitDat[U].UnitName + PathDelim + UnitAct[A] + PathDelim +
           'Dir' + IntToStr(Byte(D)) + '_' + int2fix(i, 2) + '.bmp');
     end;
   end;
@@ -268,7 +268,7 @@ begin
     for y:=0 to sy-1 do for x:=0 to sx-1 do
       Bmp.Canvas.Pixels[x,y] := RXData.RGBA[ci, y*sx+x] AND $FFFFFF;
 
-    if sy>0 then Bmp.SaveToFile(Folder + '_Unused\_'+int2fix(ci,4) + '.bmp');
+    if sy>0 then Bmp.SaveToFile(Folder + '_Unused'+PathDelim+'_'+int2fix(ci,4) + '.bmp');
   end;
 
   fSprites.ClearTemp;
@@ -291,7 +291,7 @@ begin
   fSprites.LoadSprites(rxHouses, False); //BMP can't show alpha shadows anyways
   RXData := fSprites[rxHouses].RXData;
 
-  Folder := ExeDir + 'Export\HouseAnim\';
+  Folder := ExeDir + 'Export'+PathDelim+'HouseAnim'+PathDelim;
   ForceDirectories(Folder);
 
   Bmp := TBitmap.Create;
@@ -304,7 +304,7 @@ begin
     for Ac:=ha_Work1 to ha_Flag3 do
       for k:=1 to HD[ID].Anim[Ac].Count do
       begin
-        ForceDirectories(Folder+HD[ID].HouseName+'_'+HouseAction[Ac]+'\');
+        ForceDirectories(Folder+HD[ID].HouseName+'_'+HouseAction[Ac]+PathDelim);
         if HD[ID].Anim[Ac].Step[k] <> -1 then
           ci := HD[ID].Anim[Ac].Step[k]+1;
 
@@ -317,7 +317,7 @@ begin
           Bmp.Canvas.Pixels[x,y] := RXData.RGBA[ci,y*sx+x] AND $FFFFFF;
 
         if sy>0 then Bmp.SaveToFile(
-        Folder+HD[ID].HouseName+'_'+HouseAction[Ac]+'\_'+int2fix(k,2)+'.bmp');
+        Folder+HD[ID].HouseName+'_'+HouseAction[Ac]+PathDelim+'_'+int2fix(k,2)+'.bmp');
       end;
 
   ci:=0;
@@ -325,12 +325,12 @@ begin
   begin
     if Q=1 then ID:=ht_Swine
            else ID:=ht_Stables;
-    CreateDir(Folder+'_'+HD[ID].HouseName+'\');
+    CreateDir(Folder+'_'+HD[ID].HouseName+PathDelim);
     for Beast:=1 to 5 do
       for i:=1 to 3 do
         for k:=1 to HD.BeastAnim[ID,Beast,i].Count do
         begin
-          CreateDir(Folder+'_'+HD[ID].HouseName+'\'+int2fix(Beast,2)+'\');
+          CreateDir(Folder+'_'+HD[ID].HouseName+PathDelim+int2fix(Beast,2)+PathDelim);
           if HD.BeastAnim[ID,Beast,i].Step[k]+1<>0 then
             ci := HD.BeastAnim[ID,Beast,i].Step[k]+1;
 
@@ -342,7 +342,7 @@ begin
           for y:=0 to sy-1 do for x:=0 to sx-1 do
             Bmp.Canvas.Pixels[x,y] := RXData.RGBA[ci,y*sx+x] AND $FFFFFF;
 
-          if sy>0 then Bmp.SaveToFile(Folder+'_'+HD[ID].HouseName+'\'+int2fix(Beast,2)+'\_'+int2fix(i,1)+'_'+int2fix(k,2)+'.bmp');
+          if sy>0 then Bmp.SaveToFile(Folder+'_'+HD[ID].HouseName+PathDelim+int2fix(Beast,2)+PathDelim+'_'+int2fix(i,1)+'_'+int2fix(k,2)+'.bmp');
         end;
   end;
 
@@ -365,7 +365,7 @@ begin
   fSprites.LoadSprites(rxTrees, False);
   RXData := fSprites[rxTrees].RXData;
 
-  Folder := ExeDir + 'Export\TreeAnim\';
+  Folder := ExeDir + 'Export'+PathDelim+'TreeAnim'+PathDelim;
   ForceDirectories(Folder);
 
   Bmp := TBitmap.Create;

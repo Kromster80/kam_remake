@@ -80,7 +80,7 @@ var I: Integer;
 begin
   inherited Create;
   IsMusicInitialized := True;
-  ScanMusicTracks(ExeDir + 'Music\');
+  ScanMusicTracks(ExeDir + 'Music'+PathDelim);
 
 
   {$IFDEF USELIBZPLAY}

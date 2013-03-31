@@ -75,8 +75,7 @@ var
   KMC: TKMCursor;
   sx,sy,x,y: Integer;
   bm,bm2: TBitmap;
-  {$IFDEF MSWindows} IconInfo: TIconInfo; {$ENDIF}
-  {$IFDEF Unix} IconInfo:TIconInfo; {$ENDIF}
+  IconInfo: TIconInfo;
 begin
   if SKIP_RENDER then Exit;
 
@@ -130,15 +129,17 @@ begin
 
     IconInfo.fIcon := false; //true=Icon, false=Cursor
     IconInfo.hbmColor := bm.Handle;
-    IconInfo.hbmMask  := bm2.Handle;
 
     //I have a suspicion that maybe Windows could create icon delayed, at a time when bitmap data is
     //no longer valid (replaced by other bitmap or freed). Hence issues with transparency.
     {$IFDEF MSWindows}
+      IconInfo.hbmMask  := bm2.Handle;
       Screen.Cursors[Byte(KMC) + COUNT_OFFSET] := CreateIconIndirect(IconInfo);
     {$ENDIF}
     {$IFDEF Unix}
-      Screen.Cursors[Byte(KMC) + COUNT_OFFSET] := CreateIconIndirect(@IconInfo);
+      bm2.Mask(clWhite);
+      IconInfo.hbmMask  := bm2.MaskHandle;
+      Screen.Cursors[Byte(KMC) + COUNT_OFFSET] :=  CreateIconIndirect(@IconInfo);
     {$ENDIF}
   end;
 
