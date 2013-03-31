@@ -2277,7 +2277,7 @@ begin
   if fChecked then
     TKMRenderUI.WriteText(AbsLeft+(CheckSize-4)div 2, AbsTop, 0, 'x', fFont, taCenter, Col);
 
-  TKMRenderUI.WriteText(AbsLeft+Height, AbsTop, Width-Height, fCaption, fFont, taLeft, Col);
+  TKMRenderUI.WriteText(AbsLeft+CheckSize, AbsTop, Width-Height, fCaption, fFont, taLeft, Col);
 end;
 
 
@@ -2352,7 +2352,7 @@ begin
     if fItemIndex = I then
       TKMRenderUI.WriteText(AbsLeft+(CheckSize-4)div 2, AbsTop + I * LineHeight, 0, 'x', fFont, taCenter, FntCol[fEnabled and fItems[I].Enabled]);
 
-    TKMRenderUI.WriteText(AbsLeft+LineHeight, AbsTop + I * LineHeight, Width-LineHeight, fItems[I].Text, fFont, taLeft, FntCol[fEnabled and fItems[I].Enabled]);
+    TKMRenderUI.WriteText(AbsLeft+CheckSize, AbsTop + I * LineHeight, Width-LineHeight, fItems[I].Text, fFont, taLeft, FntCol[fEnabled and fItems[I].Enabled]);
   end;
 end;
 
