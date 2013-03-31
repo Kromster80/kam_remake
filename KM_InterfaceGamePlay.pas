@@ -182,7 +182,6 @@ type
       Button_Main: array [TKMTabButtons] of TKMButton; //4 common buttons + Return
       Button_Back: TKMButton;
 
-    Panel_Replay:TKMPanel; //Bigger Panel to contain Shapes to block all interface below
     Panel_ReplayCtrl:TKMPanel; //Smaller Panel to contain replay controls
       PercentBar_Replay: TKMPercentBar;
       Label_Replay:TKMLabel;
@@ -1058,10 +1057,7 @@ end;
 
 procedure TKMGamePlayInterface.Create_Replay;
 begin
-  Panel_Replay := TKMPanel.Create(Panel_Main, 0, 0, 1024, 768);
-  Panel_Replay.Stretch;
-
-    Panel_ReplayCtrl := TKMPanel.Create(Panel_Replay, 320, 8, 160, 60);
+    Panel_ReplayCtrl := TKMPanel.Create(Panel_Main, 320, 8, 160, 60);
       PercentBar_Replay     := TKMPercentBar.Create(Panel_ReplayCtrl, 0, 0, 160, 20);
       Label_Replay          := TKMLabel.Create(Panel_ReplayCtrl,  80,  2, NO_TEXT, fnt_Grey, taCenter);
       Button_ReplayRestart  := TKMButton.Create(Panel_ReplayCtrl,  0, 24, 24, 24, 582, rxGui, bsGame);
@@ -3392,7 +3388,7 @@ begin
   //Message stack is visible in Replay as it shows which messages player got
   //and does not affect replay consistency
 
-  Panel_Replay.Visible := fReplay;
+  Panel_ReplayCtrl.Visible := fReplay;
 end;
 
 
