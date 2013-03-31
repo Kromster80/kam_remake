@@ -40,7 +40,7 @@ type
         Chart_MPArmy: TKMChart;
         Chart_MPCitizens: TKMChart;
         Chart_MPHouses: TKMChart;
-        Chart_MPWares: array [WARE_MIN..WARE_MAX] of TKMChart; //One for each player
+        Chart_MPWares: array [WARE_MIN..WARE_MAX] of TKMChart; //One for each ware
         Columnbox_Wares: TKMColumnBox;
       Button_ResultsMPBack: TKMButton;
   public
@@ -136,7 +136,6 @@ end;
 
 
 procedure TKMGUIMenuResultsMP.TabChange(Sender: TObject);
-var I: TResourceType;
 begin
   Panel_Bars.Visible := (Sender = Button_MPResultsBars);
   Panel_ChartsMP.Visible   :=(Sender = Button_MPResultsArmy)
@@ -363,7 +362,7 @@ end;
 
 procedure TKMGUIMenuResultsMP.RefreshCharts;
 var
-  I,K,Index: Integer;
+  I,K: Integer;
   R: TResourceType;
   G: TKMCardinalArray;
   WareAdded: Boolean;
@@ -428,7 +427,9 @@ begin
     end;
   end;
 
+  Columnbox_Wares.ItemIndex := 0;
   Columnbox_Wares.ItemHeight := Min(Columnbox_Wares.Height div 15, 20);
+  WareChange(nil);
 end;
 
 
