@@ -441,16 +441,28 @@ end;
 
 
 procedure TKMGUIMenuResultsMP.RefreshChartWares;
+const
+  Wares: array [0..30] of TWareType = (
+    wt_All,     wt_Warfare, wt_Food,
+    wt_Trunk,   wt_Stone,   wt_Wood,        wt_IronOre,   wt_GoldOre,
+    wt_Coal,    wt_Steel,   wt_Gold,        wt_Wine,      wt_Corn,
+    wt_Bread,   wt_Flour,   wt_Leather,     wt_Sausages,  wt_Pig,
+    wt_Skin,    wt_Shield,  wt_MetalShield, wt_Armor,     wt_MetalArmor,
+    wt_Axe,     wt_Sword,   wt_Pike,        wt_Hallebard, wt_Bow,
+    wt_Arbalet, wt_Horse,   wt_Fish);
 var
-  I,K: Integer;
+  I,K,J: Integer;
   R: TWareType;
   G: TKMCardinalArray;
   WareAdded: Boolean;
 begin
   //Fill in chart values
   Columnbox_Wares.Clear;
-  for R := Low(TWareType) to High(TWareType) do
+
+  for J := Low(Wares) to High(Wares) do
   begin
+    R := Wares[J];
+
     Chart_MPWares[R].Clear;
     Chart_MPWares[R].MaxLength := MyPlayer.Stats.ChartCount;
     Chart_MPWares[R].MaxTime := fGame.GameTickCount div 10;

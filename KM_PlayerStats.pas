@@ -573,20 +573,24 @@ begin
   case aWare of
     WARE_MIN..WARE_MAX: Result := fChartWares[aWare];
     wt_All:             begin
-                          Result := fChartWares[WARE_MIN];
-                          for RT := Succ(WARE_MIN) to WARE_MAX do
-                          for I := 0 to High(Result) do
-                            Inc(Result[I], fChartWares[RT][I]);
+                          SetLength(Result, fChartCount);
+                          for I := 0 to fChartCount - 1 do
+                            Result[I] := 0;
+                          for RT := WARE_MIN to WARE_MAX do
+                          for I := 0 to fChartCount - 1 do
+                            Result[I] := Result[I] + fChartWares[RT][I];
                         end;
     wt_Warfare:         begin
-                          Result := fChartWares[WARFARE_MIN];
-                          for RT := Succ(WARFARE_MIN) to WARFARE_MAX do
-                          for I := 0 to High(Result) do
-                            Inc(Result[I], fChartWares[RT][I]);
+                          SetLength(Result, fChartCount);
+                          for I := 0 to fChartCount - 1 do
+                            Result[I] := 0;
+                          for RT := WARFARE_MIN to WARFARE_MAX do
+                          for I := 0 to fChartCount - 1 do
+                            Result[I] := Result[I] + fChartWares[RT][I];
                         end;
     wt_Food:            begin
                           SetLength(Result, fChartCount);
-                          for I := 0 to High(Result) do
+                          for I := 0 to fChartCount - 1 do
                             Result[I] := fChartWares[wt_Bread][I] + fChartWares[wt_Sausages][I] + fChartWares[wt_Wine][I] + fChartWares[wt_Fish][I];
                         end;
   end;

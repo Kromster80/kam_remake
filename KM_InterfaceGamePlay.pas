@@ -3722,7 +3722,7 @@ end;
 procedure TKMGamePlayInterface.WarriorCommanderDied(DeadID, NewID: Cardinal);
 var I: Integer;
 begin
-  for I:=0 to 9 do
+  for I := 0 to 9 do
     if fSelection[I] = DeadID then
       fSelection[I] := NewID; //If the commander dies select the new commander
 end;
@@ -3730,7 +3730,7 @@ end;
 
 procedure TKMGamePlayInterface.AlliesOnPlayerSetup(Sender: TObject);
 var
-  I,LocaleID: Integer;
+  I, LocaleID: Integer;
 begin
   for I := 0 to fGame.Networking.NetPlayers.Count - 1 do
   begin
