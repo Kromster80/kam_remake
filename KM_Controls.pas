@@ -807,7 +807,7 @@ type
     procedure SetEnabled(aValue: Boolean); override;
     procedure SetVisible(aValue: Boolean); override;
   public
-    constructor Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight: Integer; aFont: TKMFont);
+    constructor Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight: Integer; aFont: TKMFont; aStyle: TButtonStyle);
 
     procedure Clear; virtual; abstract;
     function Count: Integer; virtual; abstract;
@@ -3921,7 +3921,7 @@ end;
 
 
 { TKMDropCommon }
-constructor TKMDropCommon.Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight: Integer; aFont: TKMFont);
+constructor TKMDropCommon.Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight: Integer; aFont: TKMFont; aStyle: TButtonStyle);
 var P: TKMPanel;
 begin
   inherited Create(aParent, aLeft,aTop,aWidth,aHeight);
@@ -3930,7 +3930,7 @@ begin
   fDropUp := False;
   fFont := aFont;
 
-  fButton := TKMButton.Create(aParent, aLeft+aWidth-aHeight, aTop, aHeight, aHeight, 590, rxGui, bsMenu);
+  fButton := TKMButton.Create(aParent, aLeft+aWidth-aHeight, aTop, aHeight, aHeight, 590, rxGui, aStyle);
   fButton.OnClick := ButtonClick;
   fButton.MakesSound := False;
 
@@ -4018,7 +4018,7 @@ end;
 constructor TKMDropList.Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight: Integer; aFont: TKMFont; aDefaultCaption: string; aStyle: TButtonStyle);
 var P: TKMPanel;
 begin
-  inherited Create(aParent, aLeft,aTop,aWidth,aHeight, aFont);
+  inherited Create(aParent, aLeft,aTop,aWidth,aHeight, aFont, aStyle);
 
   fDefaultCaption := aDefaultCaption;
 
@@ -4181,7 +4181,7 @@ end;
 constructor TKMDropColumns.Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight: Integer; aFont: TKMFont; aDefaultCaption: string; aStyle: TButtonStyle);
 var P: TKMPanel;
 begin
-  inherited Create(aParent, aLeft,aTop,aWidth,aHeight, aFont);
+  inherited Create(aParent, aLeft,aTop,aWidth,aHeight, aFont, aStyle);
 
   fDefaultCaption := aDefaultCaption;
 

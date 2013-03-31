@@ -182,15 +182,16 @@ type
       Button_Main: array [TKMTabButtons] of TKMButton; //4 common buttons + Return
       Button_Back: TKMButton;
 
-    Panel_ReplayCtrl:TKMPanel; //Smaller Panel to contain replay controls
+    Panel_ReplayCtrl: TKMPanel; //Smaller Panel to contain replay controls
       PercentBar_Replay: TKMPercentBar;
-      Label_Replay:TKMLabel;
-      Button_ReplayRestart:TKMButton;
-      Button_ReplayPause:TKMButton;
-      Button_ReplayStep:TKMButton;
-      Button_ReplayResume:TKMButton;
-      Button_ReplayExit:TKMButton;
-      Button_ReplayPerspective:TKMButton;
+      Label_Replay: TKMLabel;
+      Button_ReplayRestart: TKMButton;
+      Button_ReplayPause: TKMButton;
+      Button_ReplayStep: TKMButton;
+      Button_ReplayResume: TKMButton;
+      Button_ReplayExit: TKMButton;
+      //Button_ReplayPerspective: TKMButton;
+      Dropbox_ReplayPlayer: TKMDropList;
     Panel_Allies:TKMPanel;
       Label_PeacetimeRemaining: TKMLabel;
       Image_AlliesLang:array [0..MAX_PLAYERS-1] of TKMImage;
@@ -404,7 +405,7 @@ type
 
 implementation
 uses KM_Main, KM_GameInputProcess, KM_GameInputProcess_Multi, KM_AI, KM_RenderUI,
-  KM_PlayersCollection, KM_RenderPool, KM_TextLibrary, KM_Game,  KM_GameApp, KM_Utils, KM_Locales,
+  KM_PlayersCollection, KM_Player, KM_RenderPool, KM_TextLibrary, KM_Game,  KM_GameApp, KM_Utils, KM_Locales,
   KM_Sound, KM_Resource, KM_Log, KM_ResourceUnit, KM_ResourceCursors, KM_ResourceSprites;
 
 
@@ -1057,36 +1058,32 @@ end;
 
 procedure TKMGamePlayInterface.Create_Replay;
 begin
-    Panel_ReplayCtrl := TKMPanel.Create(Panel_Main, 320, 8, 160, 60);
-      PercentBar_Replay     := TKMPercentBar.Create(Panel_ReplayCtrl, 0, 0, 160, 20);
-      Label_Replay          := TKMLabel.Create(Panel_ReplayCtrl,  80,  2, NO_TEXT, fnt_Grey, taCenter);
-      Button_ReplayRestart  := TKMButton.Create(Panel_ReplayCtrl,  0, 24, 24, 24, 582, rxGui, bsGame);
-      Button_ReplayPause    := TKMButton.Create(Panel_ReplayCtrl, 25, 24, 24, 24, 583, rxGui, bsGame);
-      Button_ReplayStep     := TKMButton.Create(Panel_ReplayCtrl, 50, 24, 24, 24, 584, rxGui, bsGame);
-      Button_ReplayResume   := TKMButton.Create(Panel_ReplayCtrl, 75, 24, 24, 24, 585, rxGui, bsGame);
-      Button_ReplayExit     := TKMButton.Create(Panel_ReplayCtrl,100, 24, 24, 24, 586, rxGui, bsGame);
-      Button_ReplayPerspective := TKMButton.Create(Panel_ReplayCtrl,125, 24, 24, 24, 393, rxGui, bsGame);
-      Button_ReplayRestart.OnClick := ReplayClick;
-      Button_ReplayPause.OnClick   := ReplayClick;
-      Button_ReplayStep.OnClick    := ReplayClick;
-      Button_ReplayResume.OnClick  := ReplayClick;
-      Button_ReplayExit.OnClick    := ReplayClick;
-      Button_ReplayPerspective.OnClick := ReplayClick;
-      Button_ReplayRestart.Hint := fTextLibrary[TX_REPLAY_RESTART];
-      Button_ReplayPause.Hint   := fTextLibrary[TX_REPLAY_PAUSE];
-      Button_ReplayStep.Hint    := fTextLibrary[TX_REPLAY_STEP];
-      Button_ReplayResume.Hint  := fTextLibrary[TX_REPLAY_RESUME];
-      Button_ReplayExit.Hint    := fTextLibrary[TX_REPLAY_QUIT];
-      Button_ReplayPerspective.Hint := fTextLibrary[TX_REPLAY_PLAYER_PERSPECTIVE];
-      Button_ReplayStep.Disable; //Initial state
-      Button_ReplayResume.Disable; //Initial state
+  Panel_ReplayCtrl := TKMPanel.Create(Panel_Main, 320, 8, 160, 60);
+    PercentBar_Replay     := TKMPercentBar.Create(Panel_ReplayCtrl, 0, 0, 160, 20);
+    Label_Replay          := TKMLabel.Create(Panel_ReplayCtrl,  80,  2, NO_TEXT, fnt_Grey, taCenter);
+    Button_ReplayRestart  := TKMButton.Create(Panel_ReplayCtrl,  0, 24, 24, 24, 582, rxGui, bsGame);
+    Button_ReplayPause    := TKMButton.Create(Panel_ReplayCtrl, 25, 24, 24, 24, 583, rxGui, bsGame);
+    Button_ReplayStep     := TKMButton.Create(Panel_ReplayCtrl, 50, 24, 24, 24, 584, rxGui, bsGame);
+    Button_ReplayResume   := TKMButton.Create(Panel_ReplayCtrl, 75, 24, 24, 24, 585, rxGui, bsGame);
+    Button_ReplayExit     := TKMButton.Create(Panel_ReplayCtrl,100, 24, 24, 24, 586, rxGui, bsGame);
+    //todo: Button_ReplayFF       := TKMButton.Create(Panel_ReplayCtrl,125, 24, 24, 24, 393, rxGui, bsGame);
+    Button_ReplayRestart.OnClick := ReplayClick;
+    Button_ReplayPause.OnClick   := ReplayClick;
+    Button_ReplayStep.OnClick    := ReplayClick;
+    Button_ReplayResume.OnClick  := ReplayClick;
+    Button_ReplayExit.OnClick    := ReplayClick;
+    Button_ReplayRestart.Hint := fTextLibrary[TX_REPLAY_RESTART];
+    Button_ReplayPause.Hint   := fTextLibrary[TX_REPLAY_PAUSE];
+    Button_ReplayStep.Hint    := fTextLibrary[TX_REPLAY_STEP];
+    Button_ReplayResume.Hint  := fTextLibrary[TX_REPLAY_RESUME];
+    Button_ReplayExit.Hint    := fTextLibrary[TX_REPLAY_QUIT];
 
-      //@Lewin: This is a good feature, but implementation needs to be more complex,
-      //we need to allow to select player we watch from replay panel as well
-      //(possibly a dropdown menu with playernames).
-      //@Krom: You can select the player by selecting some of his assets, the same way you get to
-      //       view his stats menu. IMO that works ok, but a player selector would be nice too.
-      //@Lewin: As discussed, we need a menu to make the selection trivial if some players are e.g. in FOW
+    Button_ReplayStep.Disable; //Initial state
+    Button_ReplayResume.Disable; //Initial state
+
+    Dropbox_ReplayPlayer := TKMDropList.Create(Panel_ReplayCtrl, 0, 50, 160, 20, fnt_Metal, '', bsGame);
+    Dropbox_ReplayPlayer.Hint := fTextLibrary[TX_REPLAY_PLAYER_PERSPECTIVE];
+    Dropbox_ReplayPlayer.OnChange := ReplayClick;
 end;
 
 
@@ -3006,13 +3003,12 @@ begin
     SetButtons(True);
   end;
 
-  if (Sender = Button_ReplayPerspective) then
+  if (Sender = Dropbox_ReplayPlayer) then
   begin
-    fReplayIndividual := not fReplayIndividual;
-    fGame.Minimap.Update(False); //Force update right now so FOW doesn't appear to lag
-    Button_ReplayPerspective.TexID := IfThen(fReplayIndividual, 141, 393);
+    fReplayIndividual := (Dropbox_ReplayPlayer.ItemIndex > 0);
     if fReplayIndividual then
-      Button_ReplayPerspective.FlagColor := MyPlayer.FlagColor;
+      MyPlayer := fPlayers[Dropbox_ReplayPlayer.GetTag(Dropbox_ReplayPlayer.ItemIndex)];
+    fGame.Minimap.Update(False); //Force update right now so FOW doesn't appear to lag
   end;
 end;
 
@@ -3367,6 +3363,8 @@ end;
 
 
 procedure TKMGamePlayInterface.SetMenuState(aTactic: Boolean);
+var
+  I: Integer;
 begin
   Button_Main[tbBuild].Enabled := not aTactic and not fReplay and not HasLostMPGame;
   Button_Main[tbRatio].Enabled := not aTactic and not fReplay and not HasLostMPGame;
@@ -3389,6 +3387,15 @@ begin
   //and does not affect replay consistency
 
   Panel_ReplayCtrl.Visible := fReplay;
+  if fReplay then
+  begin
+    Dropbox_ReplayPlayer.Clear;
+    Dropbox_ReplayPlayer.Add('Show all', 0);
+    for I := 0 to fPlayers.Count - 1 do
+    if fPlayers[I].Enabled and (fPlayers[I].PlayerType = pt_Human) then
+        Dropbox_ReplayPlayer.Add('[$' + IntToHex(FlagColorToTextColor(fPlayers[I].FlagColor) and $00FFFFFF, 6) + ']' + fPlayers[I].GetFormattedPlayerName, I);
+    Dropbox_ReplayPlayer.ItemIndex := 0;
+  end;
 end;
 
 
@@ -4534,10 +4541,6 @@ var
   MapLoc: TKMPointF;
   ScreenLoc: TKMPointI;
 begin
-  //During replays update the player flag color for the individual button
-  if fReplay and fReplayIndividual then
-    Button_ReplayPerspective.FlagColor := MyPlayer.FlagColor;
-
   if fGame.ShowTeamNames then
   begin
     Label_TeamName.Visible := True; //Only visible while we're using it, otherwise it shows up in other places

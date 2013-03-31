@@ -709,7 +709,7 @@ end;
 procedure TKMGame.PlayerVictory(aPlayerIndex: TPlayerIndex);
 begin
   if aPlayerIndex = MyPlayer.PlayerIndex then
-    fSoundLib.Play(sfxn_Victory, 1.0, true); //Fade music
+    fSoundLib.Play(sfxn_Victory, 1.0, True); //Fade music
 
   if fGameMode = gmMulti then
   begin
@@ -730,9 +730,11 @@ begin
 end;
 
 
-procedure TKMGame.PlayerDefeat(aPlayerIndex:TPlayerIndex);
+procedure TKMGame.PlayerDefeat(aPlayerIndex: TPlayerIndex);
 begin
-  if aPlayerIndex = MyPlayer.PlayerIndex then fSoundLib.Play(sfxn_Defeat, 1.0, true); //Fade music
+  if aPlayerIndex = MyPlayer.PlayerIndex then
+    fSoundLib.Play(sfxn_Defeat, 1.0, True); //Fade music
+
   if fGameMode = gmMulti then
   begin
     fNetworking.PostLocalMessage(Format(fTextLibrary[TX_MULTIPLAYER_PLAYER_DEFEATED],
