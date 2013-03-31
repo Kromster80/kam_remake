@@ -18,12 +18,14 @@ type
     procedure BackClick(Sender: TObject);
     procedure Create_ResultsMP(aParent: TKMPanel);
     procedure CreateBars(aParent: TKMPanel);
+    procedure CreateChartWares(aParent: TKMPanel);
 
     procedure TabChange(Sender: TObject);
     procedure WareChange(Sender: TObject);
     procedure Refresh;
     procedure RefreshBars;
     procedure RefreshCharts;
+    procedure RefreshChartWares;
   protected
     Panel_ResultsMP: TKMPanel;
       Button_MPResultsBars,
@@ -40,12 +42,13 @@ type
         Chart_MPArmy: TKMChart;
         Chart_MPCitizens: TKMChart;
         Chart_MPHouses: TKMChart;
-        Chart_MPWares: array [WARE_MIN..WARE_MAX] of TKMChart; //One for each ware
+      Panel_ChartsWares: TKMPanel;
         Columnbox_Wares: TKMColumnBox;
+        Chart_MPWares: array [TWareType] of TKMChart; //One for each kind
+        Label_NoWareData: TKMLabel;
       Button_ResultsMPBack: TKMButton;
   public
     constructor Create(aParent: TKMPanel; aOnPageChange: TGUIEventText);
-    destructor Destroy; override;
 
     procedure Show(aMsg: TGameResultMsg);
   end;
@@ -128,29 +131,51 @@ begin
 end;
 
 
-destructor TKMGUIMenuResultsMP.Destroy;
+procedure TKMGUIMenuResultsMP.CreateChartWares(aParent: TKMPanel);
+var
+  I: TWareType;
 begin
+  Panel_ChartsWares := TKMPanel.Create(aParent, 62, PANES_TOP, 900, 435);
+  Panel_ChartsWares.Anchors := [];
 
-  inherited;
+    Columnbox_Wares := TKMColumnBox.Create(Panel_ChartsWares, 0, 0, 140, 435, fnt_Game, bsMenu);
+    Columnbox_Wares.SetColumns(fnt_Game, ['', ''], [0, 20]);
+    Columnbox_Wares.ShowHeader := False;
+    Columnbox_Wares.ShowLines := False;
+    Columnbox_Wares.OnChange := WareChange;
+
+    for I := Low(TWareType) to High(TWareType) do
+    begin
+      Chart_MPWares[I] := TKMChart.Create(Panel_ChartsWares, 140, 0, 900-140, 435);
+      Chart_MPWares[I].Caption := fTextLibrary[TX_GRAPH_TITLE_RESOURCES];
+      Chart_MPWares[I].Font := fnt_Metal; //fnt_Outline doesn't work because player names blend badly with yellow
+      Chart_MPWares[I].Hide;
+    end;
+
+    Label_NoWareData := TKMLabel.Create(Panel_ChartsWares, 450, 215, 'No data', fnt_Metal, taCenter);
 end;
 
 
 procedure TKMGUIMenuResultsMP.TabChange(Sender: TObject);
 begin
-  Panel_Bars.Visible := (Sender = Button_MPResultsBars);
-  Panel_ChartsMP.Visible   :=(Sender = Button_MPResultsArmy)
-                          or (Sender = Button_MPResultsEconomy)
-                          or (Sender = Button_MPResultsWares);
-  Chart_MPArmy.Visible     := Sender = Button_MPResultsArmy;
-  Chart_MPCitizens.Visible := Sender = Button_MPResultsEconomy;
-  Chart_MPHouses.Visible   := Sender = Button_MPResultsEconomy;
-
-  Columnbox_Wares.Visible := Sender = Button_MPResultsWares;
-
   Button_MPResultsBars.Down := Sender = Button_MPResultsBars;
   Button_MPResultsArmy.Down := Sender = Button_MPResultsArmy;
   Button_MPResultsEconomy.Down := Sender = Button_MPResultsEconomy;
   Button_MPResultsWares.Down := Sender = Button_MPResultsWares;
+
+  Panel_Bars.Visible        := (Sender = Button_MPResultsBars);
+
+  Panel_ChartsMP.Visible    :=(Sender = Button_MPResultsArmy)
+                            or (Sender = Button_MPResultsEconomy)
+                            or (Sender = Button_MPResultsWares);
+  Chart_MPArmy.Visible      := Sender = Button_MPResultsArmy;
+  Chart_MPCitizens.Visible  := Sender = Button_MPResultsEconomy;
+  Chart_MPHouses.Visible    := Sender = Button_MPResultsEconomy;
+
+  Panel_ChartsWares.Visible := Sender = Button_MPResultsWares;
+
+  if Sender = Button_MPResultsWares then
+    WareChange(nil);
 end;
 
 
@@ -159,17 +184,26 @@ var
   K: Integer;
   I, R: TWareType;
 begin
+  if Columnbox_Wares.ItemIndex = -1 then
+  begin
+    Label_NoWareData.Show;
+    Exit;
+  end;
+
+  Label_NoWareData.Hide;
+
   R := TWareType(Columnbox_Wares.Rows[Columnbox_Wares.ItemIndex].Tag);
 
   //Find and hide old chart
-  for I := WARE_MIN to WARE_MAX do
+  for I := Low(TWareType) to High(TWareType) do
+  begin
+    Chart_MPWares[I].Visible := False;
+
+    //Remember which lines were visible
     if Chart_MPWares[I].Visible then
-    begin
-      Chart_MPWares[I].Visible := False;
-      //Remember which lines were visible
-      for K := 0 to Chart_MPWares[I].LineCount - 1 do
-        fPlayersVisible[Chart_MPWares[I].Lines[K].Tag] := Chart_MPWares[I].Lines[K].Visible;
-    end;
+    for K := 0 to Chart_MPWares[I].LineCount - 1 do
+      fPlayersVisible[Chart_MPWares[I].Lines[K].Tag] := Chart_MPWares[I].Lines[K].Visible;
+  end;
 
   Chart_MPWares[R].Visible := True;
 
@@ -201,10 +235,13 @@ begin
 
   RefreshBars;
   RefreshCharts;
+  RefreshChartWares;
 
   Button_MPResultsWares.Enabled := (fGame.MissionMode = mm_Normal);
   Button_MPResultsEconomy.Enabled := (fGame.MissionMode = mm_Normal);
-  TabChange(Button_MPResultsBars); //Statistics (not graphs) page shown by default every time
+
+  //Show first tab
+  TabChange(Button_MPResultsBars);
 end;
 
 
@@ -397,11 +434,19 @@ begin
   with fPlayers[I] do
     if Enabled then
       Chart_MPHouses.AddLine(PlayerName, FlagColor, Stats.ChartHouses);
+end;
 
 
+procedure TKMGUIMenuResultsMP.RefreshChartWares;
+var
+  I,K: Integer;
+  R: TWareType;
+  G: TKMCardinalArray;
+  WareAdded: Boolean;
+begin
   //Fill in chart values
   Columnbox_Wares.Clear;
-  for R := WARE_MIN to WARE_MAX do
+  for R := Low(TWareType) to High(TWareType) do
   begin
     Chart_MPWares[R].Clear;
     Chart_MPWares[R].MaxLength := MyPlayer.Stats.ChartCount;
@@ -503,20 +548,7 @@ begin
       Chart_MPHouses.Caption := fTextLibrary[TX_GRAPH_HOUSES];
       Chart_MPHouses.Anchors := [akLeft];
 
-      Columnbox_Wares := TKMColumnBox.Create(Panel_ChartsMP, 62, 0, 140, 435, fnt_Game, bsMenu);
-      Columnbox_Wares.Anchors := [akLeft];
-      Columnbox_Wares.SetColumns(fnt_Game, ['', ''], [0, 20]);
-      Columnbox_Wares.ShowHeader := False;
-      Columnbox_Wares.ShowLines := False;
-      Columnbox_Wares.OnChange := WareChange;
-
-      for I := WARE_MIN to WARE_MAX do
-      begin
-        Chart_MPWares[I] := TKMChart.Create(Panel_ChartsMP, 190, 0, 822, 435);
-        Chart_MPWares[I].Caption := fTextLibrary[TX_GRAPH_TITLE_RESOURCES];
-        Chart_MPWares[I].Font := fnt_Metal; //fnt_Outline doesn't work because player names blend badly with yellow
-        Chart_MPWares[I].Anchors := [akLeft];
-      end;
+    CreateChartWares(Panel_ResultsMP);
 
     Button_ResultsMPBack := TKMButton.Create(Panel_ResultsMP,100,630,220,30,fTextLibrary[TX_MENU_BACK],bsMenu);
     Button_ResultsMPBack.Anchors := [akLeft];

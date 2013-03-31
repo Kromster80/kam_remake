@@ -165,10 +165,13 @@ end;
 
 function TKMWare.GetTitle: AnsiString;
 begin
-  if IsValid then
-    Result := fTextLibrary[TX_RESOURCES_NAMES__27 + WareTypeToIndex[fType]]
-  else
-    Result := 'N/A';
+  case fType of
+    WARE_MIN..WARE_MAX: Result := fTextLibrary[TX_RESOURCES_NAMES__27 + WareTypeToIndex[fType]];
+    wt_All: Result := 'All';
+    wt_Warfare: Result := 'Warfare';
+    wt_Food: Result := 'Food';
+    else                Result := 'N/A';
+  end;
 end;
 
 

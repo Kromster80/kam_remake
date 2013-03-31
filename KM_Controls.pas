@@ -735,6 +735,7 @@ type
     function GetColumn(aIndex: Integer): TKMListColumn;
     procedure ClearColumns;
     procedure SetSearchColumn(aValue: ShortInt);
+    procedure SetItemIndex(const Value: Smallint);
   protected
     procedure SetLeft(aValue: Integer); override;
     procedure SetTop(aValue: Integer); override;
@@ -764,7 +765,7 @@ type
     property EdgeAlpha: Single read fEdgeAlpha write SetEdgeAlpha;
     property RowCount: Integer read fRowCount;
     property ItemHeight: Byte read fItemHeight write fItemHeight;
-    property ItemIndex: Smallint read fItemIndex write fItemIndex;
+    property ItemIndex: Smallint read fItemIndex write SetItemIndex;
     property TopIndex: Integer read GetTopIndex write SetTopIndex;
     property Header: TKMListHeader read fHeader;
 
@@ -3464,6 +3465,15 @@ begin
   inherited;
   fScrollBar.Height := fHeight;
   UpdateScrollBar; //Since height has changed
+end;
+
+
+procedure TKMColumnBox.SetItemIndex(const Value: Smallint);
+begin
+  if InRange(Value, 0, RowCount - 1) then
+    fItemIndex := Value
+  else
+    fItemIndex := -1;
 end;
 
 
