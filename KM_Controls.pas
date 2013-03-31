@@ -2272,7 +2272,7 @@ begin
 
   CheckSize := fResource.Fonts.GetTextSize('I', fFont).Y + 1;
 
-  TKMRenderUI.WriteBevel(AbsLeft, AbsTop, CheckSize-4, CheckSize-4, 0.75);
+  TKMRenderUI.WriteBevel(AbsLeft, AbsTop, CheckSize-4, CheckSize-4, 1, 0.3);
 
   if fChecked then
     TKMRenderUI.WriteText(AbsLeft+(CheckSize-4)div 2, AbsTop, 0, 'x', fFont, taCenter, Col);
@@ -2347,7 +2347,7 @@ begin
 
   for I := 0 to Count - 1 do
   begin
-    TKMRenderUI.WriteBevel(AbsLeft, AbsTop + I * LineHeight, CheckSize-4, CheckSize-4, 0.75);
+    TKMRenderUI.WriteBevel(AbsLeft, AbsTop + I * LineHeight, CheckSize-4, CheckSize-4, 1, 0.3);
 
     if fItemIndex = I then
       TKMRenderUI.WriteText(AbsLeft+(CheckSize-4)div 2, AbsTop + I * LineHeight, 0, 'x', fFont, taCenter, FntCol[fEnabled and fItems[I].Enabled]);
