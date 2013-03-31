@@ -64,7 +64,7 @@ var
 begin
   //Count resources as lost
   for R := WARE_MIN to WARE_MAX do
-    fPlayers[fOwner].Stats.GoodConsumed(R, fMarketResIn[R] + fMarketResOut[R]);
+    fPlayers[fOwner].Stats.WareConsumed(R, fMarketResIn[R] + fMarketResOut[R]);
 
   inherited;
 end;
@@ -162,10 +162,10 @@ begin
     TradeCount := Min((fMarketResIn[fResFrom] div RatioFrom), fTradeAmount);
 
     Dec(fMarketResIn[fResFrom], TradeCount * RatioFrom);
-    fPlayers[fOwner].Stats.GoodConsumed(fResFrom, TradeCount * RatioFrom);
+    fPlayers[fOwner].Stats.WareConsumed(fResFrom, TradeCount * RatioFrom);
     Dec(fTradeAmount, TradeCount);
     Inc(fMarketResOut[fResTo], TradeCount * RatioTo);
-    fPlayers[fOwner].Stats.GoodProduced(fResTo, TradeCount * RatioTo);
+    fPlayers[fOwner].Stats.WareProduced(fResTo, TradeCount * RatioTo);
     fPlayers[fOwner].Deliveries.Queue.AddOffer(Self, fResTo, TradeCount * RatioTo);
 
     fSoundLib.Play(sfxn_Trade, fPosition);

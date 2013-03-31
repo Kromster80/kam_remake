@@ -251,7 +251,7 @@ begin
                           if (H <> nil) and H.ResCanAddToIn(ResourceIndexToType[P[0]]) then
                           begin
                             H.ResAddToIn(ResourceIndexToType[P[0]], Qty, True);
-                            fPlayers[fLastPlayer].Stats.GoodInitial(ResourceIndexToType[P[0]], Qty);
+                            fPlayers[fLastPlayer].Stats.WareInitial(ResourceIndexToType[P[0]], Qty);
                           end;
 
                         end;
@@ -264,7 +264,7 @@ begin
                             if (H <> nil) and H.ResCanAddToIn(ResourceIndexToType[P[0]]) then
                             begin
                               H.ResAddToIn(ResourceIndexToType[P[0]], Qty, True);
-                              fPlayers[i].Stats.GoodInitial(ResourceIndexToType[P[0]], Qty);
+                              fPlayers[i].Stats.WareInitial(ResourceIndexToType[P[0]], Qty);
                             end;
                           end;
                         end;
@@ -277,7 +277,7 @@ begin
                           if (H <> nil) and H.ResCanAddToIn(ResourceIndexToType[P[0]]) then
                           begin
                             H.ResAddToIn(ResourceIndexToType[P[0]], Qty, True);
-                            fPlayers[fLastPlayer].Stats.GoodInitial(ResourceIndexToType[P[0]], Qty);
+                            fPlayers[fLastPlayer].Stats.WareInitial(ResourceIndexToType[P[0]], Qty);
                           end;
                         end;
     //Depreciated by ct_AddWareToLast, but we keep it for backwards compatibility in loading
@@ -290,7 +290,7 @@ begin
                           if (H <> nil) and H.ResCanAddToIn(ResourceIndexToType[P[2]]) then
                           begin
                             H.ResAddToIn(ResourceIndexToType[P[2]], Qty, True);
-                            fPlayers[fLastPlayer].Stats.GoodInitial(ResourceIndexToType[P[2]], Qty);
+                            fPlayers[fLastPlayer].Stats.WareInitial(ResourceIndexToType[P[2]], Qty);
                           end;
                         end;
     ct_AddWareToLast:   if fLastPlayer >= 0 then
@@ -301,7 +301,7 @@ begin
                           if (fLastHouse <> nil) and fLastHouse.ResCanAddToIn(ResourceIndexToType[P[0]]) then
                           begin
                             fLastHouse.ResAddToIn(ResourceIndexToType[P[0]], Qty, True);
-                            fPlayers[fLastPlayer].Stats.GoodInitial(ResourceIndexToType[P[0]], Qty);
+                            fPlayers[fLastPlayer].Stats.WareInitial(ResourceIndexToType[P[0]], Qty);
                           end
                           else
                             AddError('ct_AddWareToLast without prior declaration of House');
@@ -314,7 +314,7 @@ begin
                           if (H <> nil) and H.ResCanAddToIn(ResourceIndexToType[P[0]]) then
                           begin
                             H.ResAddToIn(ResourceIndexToType[P[0]], Qty, True);
-                            fPlayers[fLastPlayer].Stats.GoodInitial(ResourceIndexToType[P[0]], Qty);
+                            fPlayers[fLastPlayer].Stats.WareInitial(ResourceIndexToType[P[0]], Qty);
                           end;
                         end;
     ct_BlockTrade:      if fLastPlayer >= 0 then

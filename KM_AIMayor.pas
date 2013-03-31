@@ -141,7 +141,7 @@ var
   begin
     //Producing gold or (Gold > 10)
     Result := (P.Stats.GetWaresProduced(rt_Gold) > 1)
-              or (P.Stats.GetResourceQty(rt_Gold) > 10);
+              or (P.Stats.GetWareBalance(rt_Gold) > 10);
   end;
 
   function TryAddToQueue(aUnitType: TUnitType; aReq: Integer): Boolean;

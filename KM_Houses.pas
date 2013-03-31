@@ -448,17 +448,17 @@ begin
   if (fBuildState > hbs_NoGlyph) and not IsEditor then
     fSoundLib.Play(sfx_HouseDestroy, fPosition);
 
-  fPlayers[fOwner].Stats.GoodConsumed(rt_Wood, fBuildSupplyWood);
-  fPlayers[fOwner].Stats.GoodConsumed(rt_Stone, fBuildSupplyStone);
+  fPlayers[fOwner].Stats.WareConsumed(rt_Wood, fBuildSupplyWood);
+  fPlayers[fOwner].Stats.WareConsumed(rt_Stone, fBuildSupplyStone);
 
   for I := 1 to 4 do
   begin
     R := fResource.HouseDat[fHouseType].ResInput[I];
     if R in [WARE_MIN..WARE_MAX] then
-      fPlayers[fOwner].Stats.GoodConsumed(R, fResourceIn[I]);
+      fPlayers[fOwner].Stats.WareConsumed(R, fResourceIn[I]);
     R := fResource.HouseDat[fHouseType].ResOutput[I];
     if R in [WARE_MIN..WARE_MAX] then
-      fPlayers[fOwner].Stats.GoodConsumed(R, fResourceOut[I]);
+      fPlayers[fOwner].Stats.WareConsumed(R, fResourceOut[I]);
   end;
 
   fTerrain.SetHouse(fPosition, fHouseType, hsNone, -1);
@@ -1615,7 +1615,7 @@ begin
   UnitWIP := nil;
   Queue[0] := ut_None; //Clear the unit in training
   ResTakeFromIn(rt_Gold); //Do the goldtaking
-  fPlayers[fOwner].Stats.GoodConsumed(rt_Gold);
+  fPlayers[fOwner].Stats.WareConsumed(rt_Gold);
   fHideOneGold := False;
   fTrainProgress := 0;
 
@@ -1727,7 +1727,7 @@ var
   R: TResourceType;
 begin
   for R := WARE_MIN to WARE_MAX do
-    fPlayers[fOwner].Stats.GoodConsumed(R, ResourceCount[R]);
+    fPlayers[fOwner].Stats.WareConsumed(R, ResourceCount[R]);
 
   inherited;
 end;
@@ -1761,7 +1761,7 @@ begin
     case aRes of
       rt_Arbalet: begin
                     ResAddToIn(rt_All, 10);
-                    fPlayers[fOwner].Stats.GoodProduced(rt_All, 10);
+                    fPlayers[fOwner].Stats.WareProduced(rt_All, 10);
                     Exit;
                   end;
       rt_Horse:   if not fGame.IsMultiplayer then
@@ -1859,7 +1859,7 @@ begin
   RecruitsList.Clear;
 
   for R := WARFARE_MIN to WARFARE_MAX do
-    fPlayers[fOwner].Stats.GoodConsumed(R, ResourceCount[R]);
+    fPlayers[fOwner].Stats.WareConsumed(R, ResourceCount[R]);
 
   inherited;
 end;
@@ -1942,7 +1942,7 @@ begin
     if TroopCost[aUnitType, I] <> rt_None then
     begin
       Dec(ResourceCount[TroopCost[aUnitType, I]]);
-      fPlayers[fOwner].Stats.GoodConsumed(TroopCost[aUnitType, I]);
+      fPlayers[fOwner].Stats.WareConsumed(TroopCost[aUnitType, I]);
       fPlayers[fOwner].Deliveries.Queue.RemOffer(Self, TroopCost[aUnitType, I], 1);
     end;
 

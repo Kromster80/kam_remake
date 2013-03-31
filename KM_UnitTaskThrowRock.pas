@@ -80,7 +80,7 @@ begin
           if not FREE_ROCK_THROWING then
           begin
             GetHome.ResTakeFromIn(rt_Stone, 1);
-            fPlayers[Owner].Stats.GoodConsumed(rt_Stone);
+            fPlayers[Owner].Stats.WareConsumed(rt_Stone);
           end;
           fFlightTime := fProjectiles.AimTarget(PositionF, fTarget, pt_TowerRock, Owner, RANGE_WATCHTOWER_MAX, RANGE_WATCHTOWER_MIN);
           fPlayers.CleanUpUnitPointer(fTarget); //We don't need it anymore

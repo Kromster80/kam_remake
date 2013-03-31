@@ -158,7 +158,7 @@ TX_HOUSE_SCHOOL_PREV_HINT = 194; //Previous profession
 TX_HOUSE_SCHOOL_TRAIN_HINT = 195; //Add to queue
 TX_HOUSE_TOGGLE_DELIVERS_HINT = 224; //Switch on/off delivery of wares
 
-TX_HOUSE_GOOD_COST = 196; //Cost:
+TX_HOUSE_WARE_COSTS = 196; //Cost:
 TX_HOUSE_TOGGLE_REPAIR_HINT = 197; //Switch on/off house repair
 TX_HOUSE_NOT_AVAIABLE = 198; //Building not available at this time
 TX_UNIT_CONDITION = 199; //Condition

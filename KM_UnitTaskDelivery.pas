@@ -103,7 +103,7 @@ begin
 
   if TKMUnitSerf(fUnit).Carry <> rt_None then
   begin
-    fPlayers[fUnit.Owner].Stats.GoodConsumed(TKMUnitSerf(fUnit).Carry);
+    fPlayers[fUnit.Owner].Stats.WareConsumed(TKMUnitSerf(fUnit).Carry);
     TKMUnitSerf(fUnit).CarryTake; //empty hands
   end;
 
@@ -217,7 +217,7 @@ begin
     6:  begin
           Direction := KMGetDirection(GetPosition, fToHouse.GetEntrance);
           fToHouse.ResAddToBuild(Carry);
-          fPlayers[Owner].Stats.GoodConsumed(Carry);
+          fPlayers[Owner].Stats.WareConsumed(Carry);
           CarryTake;
           fPlayers[Owner].Deliveries.Queue.GaveDemand(fDeliverID);
           fPlayers[Owner].Deliveries.Queue.AbandonDelivery(fDeliverID);
@@ -253,7 +253,7 @@ begin
             fToUnit.Feed(UNIT_MAX_CONDITION); //Feed the warrior
             TKMUnitWarrior(fToUnit).RequestedFood := False;
           end;
-          fPlayers[Owner].Stats.GoodConsumed(Carry);
+          fPlayers[Owner].Stats.WareConsumed(Carry);
           CarryTake;
           fPlayers[Owner].Deliveries.Queue.GaveDemand(fDeliverID);
           fPlayers[Owner].Deliveries.Queue.AbandonDelivery(fDeliverID);

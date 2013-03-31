@@ -52,9 +52,9 @@ type
     constructor Create;
 
     //Input reported by Player
-    procedure GoodInitial(aRes: TResourceType; aCount: Cardinal);
-    procedure GoodProduced(aRes: TResourceType; aCount: Cardinal);
-    procedure GoodConsumed(aRes: TResourceType; aCount: Cardinal = 1);
+    procedure WareInitial(aRes: TResourceType; aCount: Cardinal);
+    procedure WareProduced(aRes: TResourceType; aCount: Cardinal);
+    procedure WareConsumed(aRes: TResourceType; aCount: Cardinal = 1);
     procedure HousePlanned(aType: THouseType);
     procedure HousePlanRemoved(aType: THouseType);
     procedure HouseStarted(aType: THouseType);
@@ -77,7 +77,7 @@ type
     function GetUnitQty(aType: TUnitType): Integer;
     function GetUnitKilledQty(aType: TUnitType): Integer;
     function GetUnitLostQty(aType: TUnitType): Integer;
-    function GetResourceQty(aRT: TResourceType): Integer;
+    function GetWareBalance(aRT: TResourceType): Integer;
     function GetArmyCount: Integer;
     function GetCitizensCount: Integer;
     function GetCanBuild(aType: THouseType): Boolean;
@@ -231,7 +231,7 @@ begin
 end;
 
 
-procedure TKMPlayerStats.GoodInitial(aRes: TResourceType; aCount: Cardinal);
+procedure TKMPlayerStats.WareInitial(aRes: TResourceType; aCount: Cardinal);
 begin
   if not DISPLAY_CHARTS_RESULT then Exit;
   if aRes <> rt_None then
@@ -239,7 +239,7 @@ begin
 end;
 
 
-procedure TKMPlayerStats.GoodProduced(aRes: TResourceType; aCount: Cardinal);
+procedure TKMPlayerStats.WareProduced(aRes: TResourceType; aCount: Cardinal);
 var R: TResourceType;
 begin
   if aRes <> rt_None then
@@ -248,12 +248,12 @@ begin
                     Inc(Wares[R].Produced, aCount);
       WARE_MIN..
       WARE_MAX:   Inc(Wares[aRes].Produced, aCount);
-      else        Assert(False, 'Cant''t add produced good ' + fResource.Resources[aRes].Title);
+      else        Assert(False, 'Cant''t add produced ware ' + fResource.Resources[aRes].Title);
     end;
 end;
 
 
-procedure TKMPlayerStats.GoodConsumed(aRes: TResourceType; aCount: Cardinal = 1);
+procedure TKMPlayerStats.WareConsumed(aRes: TResourceType; aCount: Cardinal = 1);
 begin
   if not DISPLAY_CHARTS_RESULT then Exit;
   if aRes <> rt_None then
@@ -367,7 +367,7 @@ begin
 end;
 
 
-function TKMPlayerStats.GetResourceQty(aRT: TResourceType): Integer;
+function TKMPlayerStats.GetWareBalance(aRT: TResourceType): Integer;
 var RT: TResourceType;
 begin
   Result := 0;

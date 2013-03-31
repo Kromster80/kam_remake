@@ -441,7 +441,7 @@ begin
     Consumption := GoldNeed + Byte(HouseCount(ht_Barracks) > 0) * fPlayers[fOwner].AI.Setup.WarriorsPerMinute(ArmyType);
 
     //How much reserve do we have
-    Reserve := fPlayers[fOwner].Stats.GetResourceQty(rt_Gold) / Consumption;
+    Reserve := fPlayers[fOwner].Stats.GetWareBalance(rt_Gold) / Consumption;
 
     Balance := Production - Consumption + Max(Reserve - 30, 0);
 

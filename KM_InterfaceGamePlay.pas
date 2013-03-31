@@ -1663,7 +1663,7 @@ begin
     Panel_House_Common := TKMPanel.Create(Panel_House,0,76,200,310);
       Label_Common_Demand := TKMLabel.Create(Panel_House_Common,0,2,TB_WIDTH,0,fTextLibrary[TX_HOUSE_NEEDS],fnt_Grey,taCenter);
       Label_Common_Offer  := TKMLabel.Create(Panel_House_Common,0,2,TB_WIDTH,0,'',fnt_Grey,taCenter);
-      Label_Common_Costs  := TKMLabel.Create(Panel_House_Common,0,2,TB_WIDTH,0,fTextLibrary[TX_HOUSE_GOOD_COST],fnt_Grey,taCenter);
+      Label_Common_Costs  := TKMLabel.Create(Panel_House_Common,0,2,TB_WIDTH,0,fTextLibrary[TX_HOUSE_WARE_COSTS],fnt_Grey,taCenter);
 
       //They get repositioned on display
       for I := 1 to 4 do

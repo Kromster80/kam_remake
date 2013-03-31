@@ -915,7 +915,7 @@ begin
     if H <> nil then
     begin
       H.ResAddToIn(ResourceIndexToType[aType], aCount);
-      fPlayers[aPlayer].Stats.GoodProduced(ResourceIndexToType[aType], aCount);
+      fPlayers[aPlayer].Stats.WareProduced(ResourceIndexToType[aType], aCount);
     end;
   end
   else

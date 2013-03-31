@@ -104,7 +104,7 @@ begin
       if (Condition<UNIT_MAX_CONDITION*0.9)and(fInn.CheckResIn(rt_Bread)>0) then
       begin
         fInn.ResTakeFromIn(rt_Bread);
-        fPlayers[fUnit.Owner].Stats.GoodConsumed(rt_Bread);
+        fPlayers[fUnit.Owner].Stats.WareConsumed(rt_Bread);
         SetActionLockedStay(29*4, ua_Eat, False);
         Feed(UNIT_MAX_CONDITION * BREAD_RESTORE);
         fInn.UpdateEater(PlaceID, rt_Bread);
@@ -113,7 +113,7 @@ begin
    4: if (Condition<UNIT_MAX_CONDITION*0.9)and(fInn.CheckResIn(rt_Sausages)>0) then
    begin
         fInn.ResTakeFromIn(rt_Sausages);
-        fPlayers[fUnit.Owner].Stats.GoodConsumed(rt_Sausages);
+        fPlayers[fUnit.Owner].Stats.WareConsumed(rt_Sausages);
         SetActionLockedStay(29*4, ua_Eat, False);
         Feed(UNIT_MAX_CONDITION * SAUSAGE_RESTORE);
         fInn.UpdateEater(PlaceID, rt_Sausages);
@@ -122,7 +122,7 @@ begin
    5: if (Condition<UNIT_MAX_CONDITION*0.9)and(fInn.CheckResIn(rt_Wine)>0) then
    begin
         fInn.ResTakeFromIn(rt_Wine);
-        fPlayers[fUnit.Owner].Stats.GoodConsumed(rt_Wine);
+        fPlayers[fUnit.Owner].Stats.WareConsumed(rt_Wine);
         SetActionLockedStay(29*4, ua_Eat, False);
         Feed(UNIT_MAX_CONDITION * WINE_RESTORE);
         fInn.UpdateEater(PlaceID, rt_Wine);
@@ -131,7 +131,7 @@ begin
    6: if (Condition<UNIT_MAX_CONDITION*0.9)and(fInn.CheckResIn(rt_Fish)>0) then
    begin
         fInn.ResTakeFromIn(rt_Fish);
-        fPlayers[fUnit.Owner].Stats.GoodConsumed(rt_Fish);
+        fPlayers[fUnit.Owner].Stats.WareConsumed(rt_Fish);
         SetActionLockedStay(29*4, ua_Eat, False);
         Feed(UNIT_MAX_CONDITION * FISH_RESTORE);
         fInn.UpdateEater(PlaceID, rt_Fish);
