@@ -3,7 +3,7 @@ unit KM_GUIMenuResultsMP;
 interface
 uses
   Controls, Math, StrUtils, SysUtils,
-  KM_Controls, KM_Defaults, KM_Pics, KM_InterfaceDefaults;
+  KM_CommonTypes, KM_Controls, KM_Defaults, KM_Pics, KM_InterfaceDefaults;
 
 
 type
@@ -22,6 +22,7 @@ type
 
     procedure TabChange(Sender: TObject);
     procedure WareChange(Sender: TObject);
+    function GetChartWares(aPlayer: TPlayerIndex; aWare: TWareType): TKMCardinalArray;
     procedure Refresh;
     procedure RefreshBars;
     procedure RefreshCharts;
@@ -55,7 +56,7 @@ type
 
 
 implementation
-uses KM_TextLibrary, KM_Game, KM_PlayersCollection, KM_Utils, KM_Resource, KM_CommonTypes, KM_RenderUI;
+uses KM_TextLibrary, KM_Game, KM_PlayersCollection, KM_Utils, KM_Resource, KM_RenderUI;
 
 
 const
@@ -458,40 +459,43 @@ var
 begin
   //Fill in chart values
   Columnbox_Wares.Clear;
-
-  for J := Low(Wares) to High(Wares) do
+  for I := Low(Wares) to High(Wares) do
   begin
-    R := Wares[J];
+    R := Wares[I];
+    WareAdded := False;
+    for K := 0 to fPlayers.Count - 1 do
+    if fPlayers[K].Enabled
+    and not fPlayers[K].Stats.ChartWaresEmpty(R) then
+    begin
+      Columnbox_Wares.AddItem(MakeListRow(['', fResource.Wares[R].Title],
+                                          [$FFFFFFFF, $FFFFFFFF],
+                                          [MakePic(rxGui, fResource.Wares[R].GUIIcon), MakePic(rxGui, 0)],
+                                          Byte(R)));
+      WareAdded := True;
+      Break;
+    end;
+  end;
+
+  for J := 0 to Columnbox_Wares.RowCount - 1 do
+  begin
+    R := TWareType(Columnbox_Wares.Rows[J].Tag);
 
     Chart_MPWares[R].Clear;
     Chart_MPWares[R].MaxLength := MyPlayer.Stats.ChartCount;
     Chart_MPWares[R].MaxTime := fGame.GameTickCount div 10;
     Chart_MPWares[R].Caption := fTextLibrary[TX_GRAPH_TITLE_RESOURCES] + ' - ' + fResource.Wares[R].Title;
 
-    WareAdded := False;
     for I := 0 to fPlayers.Count - 1 do
     with fPlayers[I] do
     if Enabled then
-    begin
-      G := fPlayers[I].Stats.ChartWares[R];
-      for K := 0 to High(G) do
-        if G[K] <> 0 then
-        begin
-          if not WareAdded then
-            Columnbox_Wares.AddItem(MakeListRow(['', fResource.Wares[R].Title], [$FFFFFFFF, $FFFFFFFF], [MakePic(rxGui, fResource.Wares[R].GUIIcon), MakePic(rxGui, 0)], Byte(R)));
-          WareAdded := True;
-
-          Chart_MPWares[R].AddLine(PlayerName, FlagColor, G, I);
-          Break;
-        end;
-    end;
+      //Do some postprocessing on stats (GDP, food value)
+      Chart_MPWares[R].AddLine(PlayerName, FlagColor, GetChartWares(I, R), I);
   end;
 
   Columnbox_Wares.ItemIndex := 0;
   Columnbox_Wares.ItemHeight := Min(Columnbox_Wares.Height div 15, 20);
   WareChange(nil);
 end;
-
 
 
 procedure TKMGUIMenuResultsMP.Create_ResultsMP(aParent: TKMPanel);
@@ -566,6 +570,45 @@ begin
     Button_ResultsMPBack := TKMButton.Create(Panel_ResultsMP, 100, 630, 220, 30, NO_TEXT, bsMenu);
     Button_ResultsMPBack.Anchors := [akLeft];
     Button_ResultsMPBack.OnClick := BackClick;
+end;
+
+
+function TKMGUIMenuResultsMP.GetChartWares(aPlayer: TPlayerIndex; aWare: TWareType): TKMCardinalArray;
+var
+  RT: TWareType;
+  I: Integer;
+begin
+  with fPlayers[aPlayer].Stats do
+  case aWare of
+    WARE_MIN..WARE_MAX: Result := ChartWares[aWare];
+    wt_All:             begin
+                          SetLength(Result, ChartCount);
+                          for I := 0 to ChartCount - 1 do
+                            Result[I] := 0;
+                          for RT := WARE_MIN to WARE_MAX do
+                          for I := 0 to ChartCount - 1 do
+                            Result[I] := Result[I] + ChartWares[RT][I];
+                          //@Lewin: We could show GDP here if we divide by ProductionRate,
+                          //so that easy to make Stones do not steal other wares value
+                        end;
+    wt_Warfare:         begin
+                          SetLength(Result, ChartCount);
+                          for I := 0 to ChartCount - 1 do
+                            Result[I] := 0;
+                          for RT := WARFARE_MIN to WARFARE_MAX do
+                          for I := 0 to ChartCount - 1 do
+                            Result[I] := Result[I] + ChartWares[RT][I];
+                        end;
+    wt_Food:            begin
+                          //Compute food value according to food types condition restore
+                          SetLength(Result, ChartCount);
+                          for I := 0 to ChartCount - 1 do
+                            Result[I] := Round(ChartWares[wt_Bread][I] * BREAD_RESTORE) +
+                                         Round(ChartWares[wt_Sausages][I] * SAUSAGE_RESTORE) +
+                                         Round(ChartWares[wt_Wine][I] * WINE_RESTORE) +
+                                         Round(ChartWares[wt_Fish][I] * FISH_RESTORE);
+                        end;
+  end;
 end;
 
 

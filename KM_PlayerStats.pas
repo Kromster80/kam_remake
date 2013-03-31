@@ -7,38 +7,45 @@ uses Classes, SysUtils,
 
 //These are stats for each player
 type
+  THouseStats = packed record
+    Planned,          //Houseplans were placed
+    PlanRemoved,      //Houseplans were removed
+    Started,          //Construction started
+    Ended,            //Construction ended (either done or destroyed/cancelled)
+    Initial,          //created by script on mission start
+    Built,            //constructed by player
+    SelfDestruct,     //deconstructed by player
+    Lost,             //lost from attacks and self-demolished
+    Destroyed: Word;  //damage to other players
+  end;
+
+  TUnitStats = packed record
+    Initial,          //Provided at mission start
+    Trained,          //Trained by player
+    Lost,             //Died of hunger or killed
+    Killed: Word;     //Killed (incl. self)
+  end;
+
+  TWareStats = packed record
+    Initial: Cardinal;
+    Produced: Cardinal;
+    Consumed: Cardinal;
+  end;
+
+  //Player statistics (+ ratios, house unlock, trade permissions)
   TKMPlayerStats = class
   private
     fChartCount: Integer;
     fChartCapacity: Integer;
     fChartHouses: TKMCardinalArray;
     fChartCitizens: TKMCardinalArray;
-    fChartRecruits: TKMCardinalArray;
     fChartArmy: TKMCardinalArray;
     fChartWares: array [WARE_MIN..WARE_MAX] of TKMCardinalArray;
+
     fHouseUnlocked: array [THouseType] of Boolean; //If building requirements performed
-    Houses: array [THouseType] of packed record
-      Planned,          //Houseplans were placed
-      PlanRemoved,      //Houseplans were removed
-      Started,          //Construction started
-      Ended,            //Construction ended (either done or destroyed/cancelled)
-      Initial,          //created by script on mission start
-      Built,            //constructed by player
-      SelfDestruct,     //deconstructed by player
-      Lost,             //lost from attacks and self-demolished
-      Destroyed: Word;  //damage to other players
-    end;
-    Units: array [HUMANS_MIN..HUMANS_MAX] of packed record
-      Initial,          //Provided at mission start
-      Trained,          //Trained by player
-      Lost,             //Died of hunger or killed
-      Killed: Word;     //Killed (incl. self)
-    end;
-    Wares: array [WARE_MIN..WARE_MAX] of packed record
-      Initial: Cardinal;
-      Produced: Cardinal;
-      Consumed: Cardinal;
-    end;
+    Houses: array [THouseType] of THouseStats;
+    Units: array [HUMANS_MIN..HUMANS_MAX] of TUnitStats;
+    Wares: array [WARE_MIN..WARE_MAX] of TWareStats;
     fResourceRatios: array [1..4, 1..4]of Byte;
     function GetChartWares(aWare: TWareType): TKMCardinalArray;
     function GetRatio(aRes: TWareType; aHouse: THouseType): Byte;
@@ -98,9 +105,9 @@ type
     property ChartCount: Integer read fChartCount;
     property ChartHouses: TKMCardinalArray read fChartHouses;
     property ChartCitizens: TKMCardinalArray read fChartCitizens;
-    property ChartRecruits: TKMCardinalArray read fChartRecruits;
     property ChartArmy: TKMCardinalArray read fChartArmy;
     property ChartWares[aWare: TWareType]: TKMCardinalArray read GetChartWares;
+    function ChartWaresEmpty(aWare: TWareType): Boolean;
 
     procedure Save(SaveStream: TKMemoryStream);
     procedure Load(LoadStream: TKMemoryStream);
@@ -128,7 +135,7 @@ const
 constructor TKMPlayerStats.Create;
 var
   W: TWareType;
-  i,k: Integer;
+  I,K: Integer;
 begin
   inherited;
 
@@ -138,8 +145,8 @@ begin
   //Release Store at the start of the game by default
   fHouseUnlocked[ht_Store] := True;
 
-  for i:=1 to 4 do for k:=1 to 4 do
-    fResourceRatios[i,k] := DistributionDefaults[i,k];
+  for I:=1 to 4 do for K:=1 to 4 do
+    fResourceRatios[I,K] := DistributionDefaults[I,K];
 end;
 
 
@@ -573,6 +580,7 @@ begin
   case aWare of
     WARE_MIN..WARE_MAX: Result := fChartWares[aWare];
     wt_All:             begin
+                          //Create new array and fill it (otherwise we assign pointers and corrupt data)
                           SetLength(Result, fChartCount);
                           for I := 0 to fChartCount - 1 do
                             Result[I] := 0;
@@ -581,6 +589,7 @@ begin
                             Result[I] := Result[I] + fChartWares[RT][I];
                         end;
     wt_Warfare:         begin
+                          //Create new array and fill it (otherwise we assign pointers and corrupt data)
                           SetLength(Result, fChartCount);
                           for I := 0 to fChartCount - 1 do
                             Result[I] := 0;
@@ -589,10 +598,44 @@ begin
                             Result[I] := Result[I] + fChartWares[RT][I];
                         end;
     wt_Food:            begin
+                          //Create new array and fill it (otherwise we assign pointers and corrupt data)
                           SetLength(Result, fChartCount);
                           for I := 0 to fChartCount - 1 do
                             Result[I] := fChartWares[wt_Bread][I] + fChartWares[wt_Sausages][I] + fChartWares[wt_Wine][I] + fChartWares[wt_Fish][I];
                         end;
+    else                begin
+                          //Return empty array
+                          SetLength(Result, fChartCount);
+                          for I := 0 to fChartCount - 1 do
+                            Result[I] := 0;
+                        end;
+  end;
+end;
+
+
+function TKMPlayerStats.ChartWaresEmpty(aWare: TWareType): Boolean;
+var
+  RT: TWareType;
+begin
+  case aWare of
+    WARE_MIN..WARE_MAX: Result := ChartWares[aWare][fChartCount-1] = 0;
+    wt_All:             begin
+                          Result := True;
+                          for RT := WARE_MIN to WARE_MAX do
+                          if ChartWares[RT][fChartCount-1] <> 0 then
+                            Result := False;
+                        end;
+    wt_Warfare:         begin
+                          Result := True;
+                          for RT := WARFARE_MIN to WARFARE_MAX do
+                          if ChartWares[RT][fChartCount-1] <> 0 then
+                            Result := False;
+                        end;
+    wt_Food:            Result := ChartWares[wt_Wine][fChartCount-1] +
+                                  ChartWares[wt_Bread][fChartCount-1] +
+                                  ChartWares[wt_Sausages][fChartCount-1] +
+                                  ChartWares[wt_Fish][fChartCount-1] = 0;
+    else                Result := True;
   end;
 end;
 
@@ -615,7 +658,6 @@ begin
   begin
     SaveStream.Write(fChartHouses[0], SizeOf(fChartHouses[0]) * fChartCount);
     SaveStream.Write(fChartCitizens[0], SizeOf(fChartCitizens[0]) * fChartCount);
-    SaveStream.Write(fChartRecruits[0], SizeOf(fChartRecruits[0]) * fChartCount);
     SaveStream.Write(fChartArmy[0], SizeOf(fChartArmy[0]) * fChartCount);
     for R := WARE_MIN to WARE_MAX do
       SaveStream.Write(fChartWares[R][0], SizeOf(fChartWares[R][0]) * fChartCount);
@@ -642,11 +684,9 @@ begin
     fChartCapacity := fChartCount;
     SetLength(fChartHouses, fChartCount);
     SetLength(fChartCitizens, fChartCount);
-    SetLength(fChartRecruits, fChartCount);
     SetLength(fChartArmy, fChartCount);
     LoadStream.Read(fChartHouses[0], SizeOf(fChartHouses[0]) * fChartCount);
     LoadStream.Read(fChartCitizens[0], SizeOf(fChartCitizens[0]) * fChartCount);
-    LoadStream.Read(fChartRecruits[0], SizeOf(fChartRecruits[0]) * fChartCount);
     LoadStream.Read(fChartArmy[0], SizeOf(fChartArmy[0]) * fChartCount);
     for R := WARE_MIN to WARE_MAX do
     begin
@@ -670,7 +710,6 @@ begin
     fChartCapacity := fChartCount + 32;
     SetLength(fChartHouses, fChartCapacity);
     SetLength(fChartCitizens, fChartCapacity);
-    SetLength(fChartRecruits, fChartCapacity);
     SetLength(fChartArmy, fChartCapacity);
     for I := WARE_MIN to WARE_MAX do
       SetLength(fChartWares[I], fChartCapacity);
@@ -684,7 +723,6 @@ begin
   //it for the intended purpose of looking at your villagers. The army Chart already indicates when
   //you trained soldiers, no need to see big variations in the citizens Chart because of recruits.
   fChartCitizens[fChartCount] := GetCitizensCount - GetUnitQty(ut_Recruit);
-  fChartRecruits[fChartCount] := GetUnitQty(ut_Recruit);
 
   for I := WARE_MIN to WARE_MAX do
     fChartWares[I, fChartCount] := Wares[I].Produced;
