@@ -1,5 +1,5 @@
 
-MaxID:2949
+MaxID:2951
 
 0:Sawmill
 1:Iron smithy
@@ -675,3 +675,5 @@ MaxID:2949
 2947:All
 2948:Team
 2949:Message log
+2950:Back to Replays
+2951:Back to Multiplayer

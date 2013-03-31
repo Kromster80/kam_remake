@@ -162,7 +162,7 @@ begin
 end;
 
 
-function TAIDefencePosition.IsFullyStocked(aAmount: integer): Boolean;
+function TAIDefencePosition.IsFullyStocked(aAmount: Integer): Boolean;
 begin
   Result := (CurrentGroup <> nil) and (CurrentGroup.Count >= aAmount);
 end;

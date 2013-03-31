@@ -240,6 +240,12 @@ begin
   Button_MPResultsWares.Enabled := (fGame.MissionMode = mm_Normal);
   Button_MPResultsEconomy.Enabled := (fGame.MissionMode = mm_Normal);
 
+  //Back button has different captions depending on where it returns us to
+  if fGameResultMsg <> gr_ReplayEnd then
+    Button_ResultsMPBack.Caption := fTextLibrary[TX_RESULTS_BACK_MP]
+  else
+    Button_ResultsMPBack.Caption := fTextLibrary[TX_RESULTS_BACK_REPLAYS];
+
   //Show first tab
   TabChange(Button_MPResultsBars);
 end;
@@ -545,7 +551,7 @@ begin
 
     CreateChartWares(Panel_ResultsMP);
 
-    Button_ResultsMPBack := TKMButton.Create(Panel_ResultsMP,100,630,220,30,fTextLibrary[TX_MENU_BACK],bsMenu);
+    Button_ResultsMPBack := TKMButton.Create(Panel_ResultsMP, 100, 630, 220, 30, NO_TEXT, bsMenu);
     Button_ResultsMPBack.Anchors := [akLeft];
     Button_ResultsMPBack.OnClick := BackClick;
 end;
