@@ -127,7 +127,7 @@ type
 
 implementation
 uses KM_AI, KM_Terrain, KM_Game, KM_CommonTypes, KM_PlayersCollection, KM_Units_Warrior,
-  KM_TextLibrary, KM_ResourceUnit, KM_ResourceResource, KM_ResourceHouse, KM_Log, KM_Utils;
+  KM_TextLibrary, KM_ResourceUnit, KM_ResourceWares, KM_ResourceHouse, KM_Log, KM_Utils;
 
 
   //We need to check all input parameters as could be wildly off range due to
@@ -308,9 +308,9 @@ end;
 function TKMScriptStates.StatResourceProducedCount(aPlayer, aResType: Byte): Integer;
 begin
   if InRange(aPlayer, 0, fPlayers.Count - 1)
-  and (aResType in [Low(ResourceIndexToType)..High(ResourceIndexToType)])
+  and (aResType in [Low(WareIndexToType)..High(WareIndexToType)])
   then
-    Result := fPlayers[aPlayer].Stats.GetWaresProduced(ResourceIndexToType[aResType])
+    Result := fPlayers[aPlayer].Stats.GetWaresProduced(WareIndexToType[aResType])
   else
   begin
     Result := 0;
@@ -495,7 +495,7 @@ var
   Res: TWareType;
 begin
   Result := -1;
-  Res := ResourceIndexToType[aResource];
+  Res := WareIndexToType[aResource];
   if (aHouseID > 0) and (Res in [WARE_MIN..WARE_MAX]) then
   begin
     H := fIDCache.GetHouse(aHouseID);
@@ -659,7 +659,7 @@ begin
   begin
     U := fIDCache.GetUnit(aUnitID);
     if (U <> nil) and (U is TKMUnitSerf) and (TKMUnitSerf(U).Carry in [WARE_MIN..WARE_MAX]) then
-      Result := ResourceTypeToIndex[TKMUnitSerf(U).Carry];
+      Result := WareTypeToIndex[TKMUnitSerf(U).Carry];
   end
   else
     LogError('States.UnitCarrying', [aUnitID]);
@@ -909,13 +909,13 @@ begin
   //Verify all input parameters
   if InRange(aPlayer, 0, fPlayers.Count - 1)
   and InRange(aCount, 0, High(Word))
-  and (aType in [Low(ResourceIndexToType)..High(ResourceIndexToType)]) then
+  and (aType in [Low(WareIndexToType)..High(WareIndexToType)]) then
   begin
     H := fPlayers[aPlayer].FindHouse(ht_Store, 1);
     if H <> nil then
     begin
-      H.ResAddToIn(ResourceIndexToType[aType], aCount);
-      fPlayers[aPlayer].Stats.WareProduced(ResourceIndexToType[aType], aCount);
+      H.ResAddToIn(WareIndexToType[aType], aCount);
+      fPlayers[aPlayer].Stats.WareProduced(WareIndexToType[aType], aCount);
     end;
   end
   else
@@ -972,8 +972,8 @@ procedure TKMScriptActions.SetTradeAllowed(aPlayer, aResType: Word; aAllowed: Bo
 begin
   //Verify all input parameters
   if InRange(aPlayer, 0, fPlayers.Count - 1)
-  and (aResType in [Low(ResourceIndexToType)..High(ResourceIndexToType)]) then
-    fPlayers[aPlayer].Stats.AllowToTrade[ResourceIndexToType[aResType]] := aAllowed
+  and (aResType in [Low(WareIndexToType)..High(WareIndexToType)]) then
+    fPlayers[aPlayer].Stats.AllowToTrade[WareIndexToType[aResType]] := aAllowed
   else
     LogError('Actions.SetTradeAllowed', [aPlayer, aResType, Byte(aAllowed)]);
 end;
@@ -1012,7 +1012,7 @@ var
   H: TKMHouse;
   Res: TWareType;
 begin
-  Res := ResourceIndexToType[aType];
+  Res := WareIndexToType[aType];
   if (aHouseID > 0) then
   begin
     H := fIDCache.GetHouse(aHouseID);

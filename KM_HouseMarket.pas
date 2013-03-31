@@ -45,7 +45,7 @@ type
 
 implementation
 uses
-  KM_PlayersCollection, KM_RenderPool, KM_Resource, KM_ResourceResource, KM_Sound;
+  KM_PlayersCollection, KM_RenderPool, KM_Resource, KM_ResourceWares, KM_Sound;
 
 
 { TKMHouseMarket }
@@ -94,8 +94,8 @@ begin
   if (fResFrom <> wt_None) and (fResTo <> wt_None) then
   begin
     //When trading target ware is priced higher
-    CostFrom := fResource.Resources[fResFrom].MarketPrice;
-    CostTo := fResource.Resources[fResTo].MarketPrice * MARKET_TRADEOFF_FACTOR;
+    CostFrom := fResource.Wares[fResFrom].MarketPrice;
+    CostTo := fResource.Wares[fResTo].MarketPrice * MARKET_TRADEOFF_FACTOR;
     Result := Round(CostTo / Min(CostFrom, CostTo));
   end else
     Result := 1;
@@ -108,8 +108,8 @@ begin
   if (fResFrom <> wt_None) and (fResTo <> wt_None) then
   begin
     //When trading target ware is priced higher
-    CostFrom := fResource.Resources[fResFrom].MarketPrice;
-    CostTo := fResource.Resources[fResTo].MarketPrice * MARKET_TRADEOFF_FACTOR;
+    CostFrom := fResource.Wares[fResFrom].MarketPrice;
+    CostTo := fResource.Wares[fResTo].MarketPrice * MARKET_TRADEOFF_FACTOR;
     Result := Round(CostFrom / Min(CostFrom, CostTo));
   end else
     Result := 1;

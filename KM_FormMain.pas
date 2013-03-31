@@ -661,7 +661,7 @@ end;
 
 procedure TFormMain.ResourceValues1Click(Sender: TObject);
 begin
-  fResource.Resources.ExportCostsTable('ResourceValues.txt');
+  fResource.Wares.ExportCostsTable('ResourceValues.txt');
 end;
 
 

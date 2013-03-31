@@ -248,7 +248,7 @@ begin
                     Inc(Wares[R].Produced, aCount);
       WARE_MIN..
       WARE_MAX:   Inc(Wares[aRes].Produced, aCount);
-      else        Assert(False, 'Cant''t add produced ware ' + fResource.Resources[aRes].Title);
+      else        Assert(False, 'Cant''t add produced ware ' + fResource.Wares[aRes].Title);
     end;
 end;
 

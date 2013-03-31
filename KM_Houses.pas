@@ -1008,7 +1008,7 @@ begin
   case aResource of
     wt_Wood: Inc(fBuildSupplyWood);
     wt_Stone: Inc(fBuildSupplyStone);
-  else raise ELocError.Create('WIP house is not supposed to recieve '+fResource.Resources[aResource].Title+', right?', fPosition);
+  else raise ELocError.Create('WIP house is not supposed to recieve '+fResource.Wares[aResource].Title+', right?', fPosition);
   end;
 end;
 
@@ -1699,7 +1699,7 @@ begin
                   ResourceCount[aResource]:=EnsureRange(ResourceCount[aResource]+aCount, 0, High(Word));
                   fPlayers[fOwner].Deliveries.Queue.AddOffer(Self,aResource,aCount);
                 end;
-    else        raise ELocError.Create('Cant''t add '+fResource.Resources[aResource].Title, GetPosition);
+    else        raise ELocError.Create('Cant''t add '+fResource.Wares[aResource].Title, GetPosition);
   end;
 end;
 

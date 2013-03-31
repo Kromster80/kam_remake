@@ -438,8 +438,8 @@ begin
 
   RatioTab := TKMButton(Sender).Tag;
 
-  Image_RatioPic0.TexID := fResource.Resources[ResRatioType[RatioTab]].GUIIcon;//Show resource icon
-  Label_RatioLab0.Caption := fResource.Resources[ResRatioType[RatioTab]].Title;
+  Image_RatioPic0.TexID := fResource.Wares[ResRatioType[RatioTab]].GUIIcon;//Show resource icon
+  Label_RatioLab0.Caption := fResource.Wares[ResRatioType[RatioTab]].Title;
   Image_RatioPic0.Show;
   Label_RatioLab0.Show;
 
@@ -1353,8 +1353,8 @@ begin
 
   for i:=1 to 4 do begin
     Button_Ratios[i]         := TKMButton.Create(Panel_Ratios, (i-1)*40,20,32,32,0, rxGui, bsGame);
-    Button_Ratios[i].TexID   := fResource.Resources[Res[i]].GUIIcon;
-    Button_Ratios[i].Hint    := fResource.Resources[Res[i]].Title;
+    Button_Ratios[i].TexID   := fResource.Wares[Res[i]].GUIIcon;
+    Button_Ratios[i].Hint    := fResource.Wares[Res[i]].Title;
     Button_Ratios[i].Tag     := i;
     Button_Ratios[i].OnClick := SwitchPage_Ratios;
   end;
@@ -1648,8 +1648,8 @@ begin
     Image_HouseConstructionWood.ImageCenter;
     Image_HouseConstructionStone := TKMImage.Create(Panel_House,100,170,40,40,654);
     Image_HouseConstructionStone.ImageCenter;
-    Label_HouseConstructionWood  := TKMLabel.Create(Panel_House,60,210,fResource.Resources[wt_Wood].Title,fnt_Grey,taCenter);
-    Label_HouseConstructionStone := TKMLabel.Create(Panel_House,120,210,fResource.Resources[wt_Stone].Title,fnt_Grey,taCenter);
+    Label_HouseConstructionWood  := TKMLabel.Create(Panel_House,60,210,fResource.Wares[wt_Wood].Title,fnt_Grey,taCenter);
+    Label_HouseConstructionStone := TKMLabel.Create(Panel_House,120,210,fResource.Wares[wt_Stone].Title,fnt_Grey,taCenter);
 
     Label_House_Demolish := TKMLabel.Create(Panel_House,0,130,TB_WIDTH,0,fTextLibrary[TX_HOUSE_DEMOLISH],fnt_Grey,taCenter);
     Label_House_Demolish.AutoWrap := True;
@@ -1699,8 +1699,8 @@ begin
   begin
     Button_Market[I] := TKMButtonFlat.Create(Panel_HouseMarket, (I mod 6)*31, 12 + (I div 6) * MARKET_RES_HEIGHT, 26, 31, 0);
     Button_Market[I].TexOffsetY := 1;
-    Button_Market[I].TexID := fResource.Resources[StoreResType[I+1]].GUIIcon;
-    Button_Market[I].Hint := fResource.Resources[StoreResType[I+1]].Title;
+    Button_Market[I].TexID := fResource.Wares[StoreResType[I+1]].GUIIcon;
+    Button_Market[I].Hint := fResource.Wares[StoreResType[I+1]].Title;
     Button_Market[I].Tag := Byte(StoreResType[I+1]);
     Button_Market[I].OnClickEither := House_MarketSelect;
   end;
@@ -1768,9 +1768,9 @@ begin
     dX := 2 + ((I - 1) mod 5) * 36;
     dY := 19 + ((I - 1) div 5) * 42;
     Button_Store[I] := TKMButtonFlat.Create(Panel_HouseStore, dX, dY, 32, 36, 0);
-    Button_Store[I].TexID := fResource.Resources[StoreResType[I]].GUIIcon;
+    Button_Store[I].TexID := fResource.Wares[StoreResType[I]].GUIIcon;
     Button_Store[I].Tag := I;
-    Button_Store[I].Hint := fResource.Resources[StoreResType[I]].Title;
+    Button_Store[I].Hint := fResource.Wares[StoreResType[I]].Title;
     Button_Store[I].OnClick := House_StoreAcceptFlag;
 
     Image_Store_Accept[I] := TKMImage.Create(Panel_HouseStore, dX + 20, dY, 12, 12, 49);
@@ -1789,9 +1789,9 @@ begin
 
     ResRow_School_Resource := TKMResourceRow.Create(Panel_House_School, 0,22,TB_WIDTH,20);
     ResRow_School_Resource.RX := rxGui;
-    ResRow_School_Resource.TexID := fResource.Resources[wt_Gold].GUIIcon;
-    ResRow_School_Resource.Caption := fResource.Resources[wt_Gold].Title;
-    ResRow_School_Resource.Hint := fResource.Resources[wt_Gold].Title;
+    ResRow_School_Resource.TexID := fResource.Wares[wt_Gold].GUIIcon;
+    ResRow_School_Resource.Caption := fResource.Wares[wt_Gold].Title;
+    ResRow_School_Resource.Hint := fResource.Wares[wt_Gold].Title;
 
     Button_School_UnitWIP := TKMButton.Create(Panel_House_School,  0,48,32,32,0, rxGui, bsGame);
     Button_School_UnitWIP.Hint := fTextLibrary[TX_HOUSE_SCHOOL_WIP_HINT];
@@ -1840,8 +1840,8 @@ begin
       Button_Barracks[I].CapOffsetY := 2;
       Button_Barracks[I].HideHighlight := True;
       Button_Barracks[I].Tag := I;
-      Button_Barracks[I].TexID := fResource.Resources[BarracksResType[I]].GUIIcon;
-      Button_Barracks[I].Hint := fResource.Resources[BarracksResType[I]].Title;
+      Button_Barracks[I].TexID := fResource.Wares[BarracksResType[I]].GUIIcon;
+      Button_Barracks[I].Hint := fResource.Wares[BarracksResType[I]].Title;
       Button_Barracks[I].OnClick := House_BarracksAcceptFlag;
 
       Image_Barracks_Accept[I] := TKMImage.Create(Panel_HouseBarracks, dX+16, dY, 12, 12, 49);
@@ -2208,10 +2208,10 @@ begin
           Label_Common_Offer.Caption := fTextLibrary[TX_HOUSE_DELIVERS]+'(x'+inttostr(fResource.HouseDat[Sender.HouseType].ResProductionX)+'):';
           Label_Common_Offer.Top := 8;
 
-          ResRow_Common_Resource[1].TexID := fResource.Resources[fResource.HouseDat[Sender.HouseType].ResOutput[1]].GUIIcon;
+          ResRow_Common_Resource[1].TexID := fResource.Wares[fResource.HouseDat[Sender.HouseType].ResOutput[1]].GUIIcon;
           ResRow_Common_Resource[1].ResourceCount := Sender.CheckResOut(fResource.HouseDat[Sender.HouseType].ResOutput[1]);
-          ResRow_Common_Resource[1].Caption := fResource.Resources[fResource.HouseDat[Sender.HouseType].ResOutput[1]].Title;
-          ResRow_Common_Resource[1].Hint := fResource.Resources[fResource.HouseDat[Sender.HouseType].ResOutput[1]].Title;
+          ResRow_Common_Resource[1].Caption := fResource.Wares[fResource.HouseDat[Sender.HouseType].ResOutput[1]].Title;
+          ResRow_Common_Resource[1].Hint := fResource.Wares[fResource.HouseDat[Sender.HouseType].ResOutput[1]].Title;
           ResRow_Common_Resource[1].Show;
           ResRow_Common_Resource[1].Top := 2+LineAdv;
         end;
@@ -2233,11 +2233,11 @@ begin
             inc(Line);
 
             for I:=1 to 4 do
-            if fResource.Resources[fResource.HouseDat[Sender.HouseType].ResInput[I]].IsValid then
+            if fResource.Wares[fResource.HouseDat[Sender.HouseType].ResInput[I]].IsValid then
             begin
-              ResRow_Common_Resource[RowRes].TexID := fResource.Resources[fResource.HouseDat[Sender.HouseType].ResInput[I]].GUIIcon;
-              ResRow_Common_Resource[RowRes].Caption := fResource.Resources[fResource.HouseDat[Sender.HouseType].ResInput[I]].Title;
-              ResRow_Common_Resource[RowRes].Hint := fResource.Resources[fResource.HouseDat[Sender.HouseType].ResInput[I]].Title;
+              ResRow_Common_Resource[RowRes].TexID := fResource.Wares[fResource.HouseDat[Sender.HouseType].ResInput[I]].GUIIcon;
+              ResRow_Common_Resource[RowRes].Caption := fResource.Wares[fResource.HouseDat[Sender.HouseType].ResInput[I]].Title;
+              ResRow_Common_Resource[RowRes].Hint := fResource.Wares[fResource.HouseDat[Sender.HouseType].ResInput[I]].Title;
               ResRow_Common_Resource[RowRes].ResourceCount := Sender.CheckResIn(fResource.HouseDat[Sender.HouseType].ResInput[I]);
               ResRow_Common_Resource[RowRes].Top := Base+Line*LineAdv;
               ResRow_Common_Resource[RowRes].Show;
@@ -2256,12 +2256,12 @@ begin
             inc(Line);
 
             for I:=1 to 4 do
-            if fResource.Resources[fResource.HouseDat[Sender.HouseType].ResOutput[I]].IsValid then
+            if fResource.Wares[fResource.HouseDat[Sender.HouseType].ResOutput[I]].IsValid then
             begin
-              ResRow_Common_Resource[RowRes].TexID := fResource.Resources[fResource.HouseDat[Sender.HouseType].ResOutput[I]].GUIIcon;
+              ResRow_Common_Resource[RowRes].TexID := fResource.Wares[fResource.HouseDat[Sender.HouseType].ResOutput[I]].GUIIcon;
               ResRow_Common_Resource[RowRes].ResourceCount := Sender.CheckResOut(fResource.HouseDat[Sender.HouseType].ResOutput[I]);
-              ResRow_Common_Resource[RowRes].Caption := fResource.Resources[fResource.HouseDat[Sender.HouseType].ResOutput[I]].Title;
-              ResRow_Common_Resource[RowRes].Hint := fResource.Resources[fResource.HouseDat[Sender.HouseType].ResOutput[I]].Title;
+              ResRow_Common_Resource[RowRes].Caption := fResource.Wares[fResource.HouseDat[Sender.HouseType].ResOutput[I]].Title;
+              ResRow_Common_Resource[RowRes].Hint := fResource.Wares[fResource.HouseDat[Sender.HouseType].ResOutput[I]].Title;
               ResRow_Common_Resource[RowRes].Show;
               ResRow_Common_Resource[RowRes].Top := Base+Line*LineAdv;
               inc(Line);
@@ -2279,11 +2279,11 @@ begin
             for I := 1 to 4 do //Orders
             begin
               Res := fResource.HouseDat[Sender.HouseType].ResOutput[I];
-              if fResource.Resources[Res].IsValid then
+              if fResource.Wares[Res].IsValid then
               begin
-                ResRow_Order[I].TexID := fResource.Resources[Res].GUIIcon;
-                ResRow_Order[I].Caption := fResource.Resources[Res].Title;
-                ResRow_Order[I].Hint := fResource.Resources[Res].Title;
+                ResRow_Order[I].TexID := fResource.Wares[Res].GUIIcon;
+                ResRow_Order[I].Caption := fResource.Wares[Res].Title;
+                ResRow_Order[I].Hint := fResource.Wares[Res].Title;
                 ResRow_Order[I].ResourceCount := Sender.CheckResOut(Res);
                 ResRow_Order[I].OrderCount := Sender.ResOrder[I];
                 ResRow_Order[I].Show;
@@ -2297,15 +2297,15 @@ begin
             for I:=1 to 4 do //Costs
             begin
               Res := fResource.HouseDat[Sender.HouseType].ResOutput[I];
-              if fResource.Resources[Res].IsValid then
+              if fResource.Wares[Res].IsValid then
               begin
-                ResRow_Costs[I].Caption := fResource.Resources[Res].Title;
+                ResRow_Costs[I].Caption := fResource.Wares[Res].Title;
                 ResRow_Costs[I].RX := rxGui;
                 //Hide the icons when they are not used
                 if WarfareCosts[Res, 1] = wt_None then ResRow_Costs[I].TexID1 := 0
-                else ResRow_Costs[I].TexID1 := fResource.Resources[WarfareCosts[Res, 1]].GUIIcon;
+                else ResRow_Costs[I].TexID1 := fResource.Wares[WarfareCosts[Res, 1]].GUIIcon;
                 if WarfareCosts[Res, 2] = wt_None then ResRow_Costs[I].TexID2 := 0
-                else ResRow_Costs[I].TexID2 := fResource.Resources[WarfareCosts[Res, 2]].GUIIcon;
+                else ResRow_Costs[I].TexID2 := fResource.Wares[WarfareCosts[Res, 2]].GUIIcon;
 
                 ResRow_Costs[I].Show;
                 ResRow_Costs[I].Top := Base + Line * LineAdv - 2*I - 6; //Pack them closer so they fit on 1024x576
@@ -3150,8 +3150,8 @@ begin
     R := TWareType(Button_Market[I].Tag);
     if aMarket.AllowedToTrade(R) then
     begin
-      Button_Market[I].TexID := fResource.Resources[R].GUIIcon;
-      Button_Market[I].Hint := fResource.Resources[R].Title;
+      Button_Market[I].TexID := fResource.Wares[R].GUIIcon;
+      Button_Market[I].Hint := fResource.Wares[R].Title;
       Tmp := aMarket.GetResTotal(R);
       Button_Market[I].Caption := IfThen(Tmp = 0, '-', IntToStr(Tmp));
     end
@@ -3173,11 +3173,11 @@ begin
     Shape_Market_From.Left := ((Byte(aMarket.ResFrom)-1) mod 6) * 31;
     Shape_Market_From.Top := 12 + ((Byte(aMarket.ResFrom)-1) div 6) * MARKET_RES_HEIGHT;
     Label_Market_In.Caption := Format(fTextLibrary[TX_HOUSES_MARKET_FROM], [aMarket.RatioFrom]) + ':';
-    Button_Market_In.TexID := fResource.Resources[aMarket.ResFrom].GUIIcon;
+    Button_Market_In.TexID := fResource.Wares[aMarket.ResFrom].GUIIcon;
     Button_Market_In.Caption := IntToStr(aMarket.GetResTotal(aMarket.ResFrom));
   end else begin
     Label_Market_In.Caption := Format(fTextLibrary[TX_HOUSES_MARKET_FROM],[0]) + ':';
-    Button_Market_In.TexID := fResource.Resources[wt_None].GUIIcon;
+    Button_Market_In.TexID := fResource.Wares[wt_None].GUIIcon;
     Button_Market_In.Caption := '-';
   end;
 
@@ -3189,10 +3189,10 @@ begin
     Shape_Market_To.Top := 12 + ((Byte(aMarket.ResTo)-1) div 6) * MARKET_RES_HEIGHT;
     Label_Market_Out.Caption := Format(fTextLibrary[TX_HOUSES_MARKET_TO], [aMarket.RatioTo]) + ':';
     Button_Market_Out.Caption := IntToStr(aMarket.GetResTotal(aMarket.ResTo));
-    Button_Market_Out.TexID := fResource.Resources[aMarket.ResTo].GUIIcon;
+    Button_Market_Out.TexID := fResource.Wares[aMarket.ResTo].GUIIcon;
   end else begin
     Label_Market_Out.Caption := Format(fTextLibrary[TX_HOUSES_MARKET_TO], [0]) + ':';
-    Button_Market_Out.TexID := fResource.Resources[wt_None].GUIIcon;
+    Button_Market_Out.TexID := fResource.Wares[wt_None].GUIIcon;
     Button_Market_Out.Caption := '-';
   end;
 

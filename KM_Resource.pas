@@ -11,10 +11,10 @@ uses
   KM_ResourceHouse,
   KM_ResourceMapElements,
   KM_ResourcePalettes,
-  KM_ResourceResource,
   KM_ResourceSprites,
   KM_ResourceTileset,
-  KM_ResourceUnit;
+  KM_ResourceUnit,
+  KM_ResourceWares;
 
 
 type
@@ -30,7 +30,7 @@ type
     fHouseDat: TKMHouseDatCollection;
     fUnitDat: TKMUnitDatCollection;
     fPalettes: TKMPalettes;
-    fResources: TKMResourceCollection;
+    fWares: TKMWaresList;
     fSprites: TKMSprites;
     fTileset: TKMTileset;
     fMapElements: TKMMapElements;
@@ -55,7 +55,7 @@ type
     property MapElements: TKMMapElements read fMapElements;
     property Palettes: TKMPalettes read fPalettes;
     property Fonts: TKMResourceFont read fFonts;
-    property Resources: TKMResourceCollection read fResources;
+    property Wares: TKMWaresList read fWares;
     property Sprites: TKMSprites read fSprites;
     property Tileset: TKMTileset read fTileset;
     property UnitDat: TKMUnitDatCollection read fUnitDat;
@@ -94,7 +94,7 @@ begin
   FreeAndNil(fMapElements);
   FreeAndNil(fPalettes);
   FreeAndNil(fFonts);
-  FreeAndNil(fResources);
+  FreeAndNil(fWares);
   FreeAndNil(fSprites);
   FreeAndNil(fTileset);
   FreeAndNil(fUnitDat);
@@ -153,7 +153,7 @@ begin
 
   fSprites.ClearTemp;
 
-  fResources := TKMResourceCollection.Create;
+  fWares := TKMWaresList.Create;
   fHouseDat := TKMHouseDatCollection.Create;
   fUnitDat := TKMUnitDatCollection.Create;
 

@@ -52,6 +52,7 @@ const
     wt_Axe, wt_Sword, wt_Pike, wt_Hallebard, wt_Bow,
     wt_Arbalet, wt_Horse, wt_Fish);
 
+
 implementation
 uses KM_TextLibrary;
 
@@ -144,7 +145,7 @@ begin
 end;
 
 
-{ TKMResourceDat }
+{ TKMWare }
 constructor TKMWare.Create(aType: TWareType);
 begin
   inherited Create;

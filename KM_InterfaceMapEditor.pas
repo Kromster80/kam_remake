@@ -1192,8 +1192,8 @@ begin
       for I := 1 to STORE_RES_COUNT do
       begin
         Button_BlockTrade[I] := TKMButtonFlat.Create(Panel_BlockTrade, ((I-1) mod 5)*37, 30 + ((I-1) div 5)*37,33,33, 0);
-        Button_BlockTrade[I].TexID := fResource.Resources[StoreResType[I]].GUIIcon;
-        Button_BlockTrade[I].Hint := fResource.Resources[StoreResType[I]].Title;
+        Button_BlockTrade[I].TexID := fResource.Wares[StoreResType[I]].GUIIcon;
+        Button_BlockTrade[I].Hint := fResource.Wares[StoreResType[I]].Title;
         Button_BlockTrade[I].OnClick := Player_BlockTradeClick;
         Button_BlockTrade[I].Tag := I;
         Image_BlockTrade[I] := TKMImage.Create(Panel_BlockTrade, ((I-1) mod 5)*37 + 13, 30 + ((I-1) div 5)*37 + 13, 16, 16, 0, rxGuiMain);
@@ -1673,9 +1673,9 @@ begin
     for I := 1 to STORE_RES_COUNT do
     begin
       Button_Store[I] := TKMButtonFlat.Create(Panel_HouseStore, 2 + ((I-1)mod 5)*36,8+((I-1)div 5)*42,32,36,0);
-      Button_Store[I].TexID := fResource.Resources[StoreResType[I]].GUIIcon;
+      Button_Store[I].TexID := fResource.Wares[StoreResType[I]].GUIIcon;
       Button_Store[I].Tag := I;
-      Button_Store[I].Hint := fResource.Resources[StoreResType[I]].Title;
+      Button_Store[I].Hint := fResource.Wares[StoreResType[I]].Title;
       Button_Store[I].OnClick := House_StoreSelectWare;
     end;
 
@@ -1704,11 +1704,11 @@ begin
     begin
       Button_Barracks[i]:=TKMButtonFlat.Create(Panel_HouseBarracks, ((i-1)mod 6)*31,8+((i-1)div 6)*42,28,38,0);
       Button_Barracks[i].Tag := i;
-      Button_Barracks[i].TexID := fResource.Resources[BarracksResType[i]].GUIIcon;
+      Button_Barracks[i].TexID := fResource.Wares[BarracksResType[i]].GUIIcon;
       Button_Barracks[i].TexOffsetX := 1;
       Button_Barracks[i].TexOffsetY := 1;
       Button_Barracks[i].CapOffsetY := 2;
-      Button_Barracks[i].Hint := fResource.Resources[BarracksResType[i]].Title;
+      Button_Barracks[i].Hint := fResource.Wares[BarracksResType[i]].Title;
       Button_Barracks[i].OnClick := House_BarracksSelectWare;
     end;
     Button_BarracksDec100     := TKMButton.Create(Panel_HouseBarracks,108,218,20,20,'<', bsGame);
@@ -2537,11 +2537,11 @@ begin
   for I := 0 to 3 do
   begin
     Res := HouseDat.ResInput[I+1];
-    if fResource.Resources[Res].IsValid then
+    if fResource.Wares[Res].IsValid then
     begin
-      ResRow_Resource[I].TexID := fResource.Resources[Res].GUIIcon;
-      ResRow_Resource[I].Caption := fResource.Resources[Res].Title;
-      ResRow_Resource[I].Hint := fResource.Resources[Res].Title;
+      ResRow_Resource[I].TexID := fResource.Wares[Res].GUIIcon;
+      ResRow_Resource[I].Caption := fResource.Wares[Res].Title;
+      ResRow_Resource[I].Hint := fResource.Wares[Res].Title;
       ResRow_Resource[I].ResourceCount := Sender.CheckResIn(Res);
       ResRow_Resource[I].OrderCount := Sender.CheckResIn(Res);
       ResRow_Resource[I].Show;

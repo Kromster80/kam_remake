@@ -65,9 +65,9 @@ type
     function PermitDelivery(iO, iD: Integer; aSerf: TKMUnitSerf): Boolean;
     function CalculateBid(iO, iD: Integer; aSerf: TKMUnitSerf): Single;
   public
-    procedure AddOffer(aHouse: TKMHouse; aResource: TWareType; aCount: Integer);
+    procedure AddOffer(aHouse: TKMHouse; aWare: TWareType; aCount: Integer);
     procedure RemAllOffers(aHouse: TKMHouse);
-    procedure RemOffer(aHouse: TKMHouse; aResource: TWareType; aCount: Integer);
+    procedure RemOffer(aHouse: TKMHouse; aWare: TWareType; aCount: Integer);
 
     procedure AddDemand(aHouse: TKMHouse; aUnit: TKMUnit; aResource: TWareType; aCount: Byte; aType: TDemandType; aImp: TDemandImportance);
     function TryRemoveDemand(aHouse: TKMHouse; aResource: TWareType; aCount: Word): word;
@@ -314,14 +314,14 @@ end;
 //Adds new Offer to the list. List is stored without sorting
 //(it matters only for Demand to keep everything in waiting its order in line),
 //so we just find an empty place and write there.
-procedure TKMDeliverQueue.AddOffer(aHouse: TKMHouse; aResource: TWareType; aCount: Integer);
+procedure TKMDeliverQueue.AddOffer(aHouse: TKMHouse; aWare: TWareType; aCount: Integer);
 var
   I, K: Integer;
 begin
   //Add Count of resource to old offer
   for I := 1 to fOfferCount do
     if (fOffer[I].Loc_House = aHouse)
-    and (fOffer[I].Ware = aResource)
+    and (fOffer[I].Ware = aWare)
     and not fOffer[I].IsDeleted then
     begin
       Inc(fOffer[I].Count, aCount);
@@ -345,7 +345,7 @@ begin
   begin
     if aHouse <> nil then
       Loc_House := aHouse.GetHousePointer;
-    Ware := aResource;
+    Ware := aWare;
     Count := aCount;
     Assert((BeingPerformed = 0) and not IsDeleted); //Make sure this item has been closed properly, if not there is a flaw
   end;
@@ -354,7 +354,7 @@ end;
 
 //Remove Offer from the list. E.G on house demolish
 //List is stored without sorting so we have to parse it to find that entry..
-procedure TKMDeliverQueue.RemAllOffers(aHouse:TKMHouse);
+procedure TKMDeliverQueue.RemAllOffers(aHouse: TKMHouse);
 var i:integer;
 begin
   //We need to parse whole list, never knowing how many offers the house had
@@ -371,14 +371,14 @@ begin
 end;
 
 
-procedure TKMDeliverQueue.RemOffer(aHouse: TKMHouse; aResource: TWareType; aCount: Integer);
+procedure TKMDeliverQueue.RemOffer(aHouse: TKMHouse; aWare: TWareType; aCount: Integer);
 var
   I: Integer;
 begin
   //Add Count of resource to old offer
   for I := 1 to fOfferCount do
     if (fOffer[I].Loc_House = aHouse)
-    and (fOffer[I].Ware = aResource)
+    and (fOffer[I].Ware = aWare)
     and not fOffer[I].IsDeleted then
     begin
       Assert(fOffer[I].Count >= aCount, 'Removing too many offers');
@@ -398,7 +398,7 @@ end;
 
 //Remove Demand from the list. List is stored without sorting
 //so we parse it to find all entries..
-procedure TKMDeliverQueue.RemDemand(aHouse:TKMHouse);
+procedure TKMDeliverQueue.RemDemand(aHouse: TKMHouse);
 var i:integer;
 begin
   assert(aHouse <> nil);
@@ -950,7 +950,7 @@ begin
     s:=s+#9;
     if fDemand[i].Loc_House<>nil then s:=s+fResource.HouseDat[fDemand[i].Loc_House.HouseType].HouseName+#9+#9;
     if fDemand[i].Loc_Unit<>nil then s:=s+fResource.UnitDat[fDemand[i].Loc_Unit.UnitType].UnitName+#9+#9;
-    s:=s+fResource.Resources[fDemand[i].Ware].Title;
+    s:=s+fResource.Wares[fDemand[i].Ware].Title;
     if fDemand[i].Importance=di_High then s:=s+'^';
     s:=s+eol;
   end;
@@ -959,7 +959,7 @@ begin
   begin
     s:=s+#9;
     if fOffer[i].Loc_House<>nil then s:=s+fResource.HouseDat[fOffer[i].Loc_House.HouseType].HouseName+#9+#9;
-    s:=s+fResource.Resources[fOffer[i].Ware].Title+#9;
+    s:=s+fResource.Wares[fOffer[i].Ware].Title+#9;
     s:=s+IntToStr(fOffer[i].Count);
     s:=s+eol;
   end;
@@ -969,7 +969,7 @@ begin
   begin
 
     s:=s+'id '+inttostr(i)+'.'+#9;
-    s:=s+fResource.Resources[fOffer[fQueue[i].OfferID].Ware].Title+#9;
+    s:=s+fResource.Wares[fOffer[fQueue[i].OfferID].Ware].Title+#9;
 
     if fOffer[fQueue[i].OfferID].Loc_House = nil then
       s:=s+'Destroyed'+' >>> '

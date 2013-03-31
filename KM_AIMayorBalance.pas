@@ -564,7 +564,7 @@ begin
       end;
 
       if WeapUse then
-        S := S + Format('%s: %.2f - %.2f = %.2f|', [fResource.Resources[I].Title,
+        S := S + Format('%s: %.2f - %.2f = %.2f|', [fResource.Wares[I].Title,
                                                     Weaponry[I].Production,
                                                     Weaponry[I].Demand,
                                                     Weaponry[I].Balance]);

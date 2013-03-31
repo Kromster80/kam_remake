@@ -406,7 +406,7 @@ begin
     Chart_MPWares[R].Clear;
     Chart_MPWares[R].MaxLength := MyPlayer.Stats.ChartCount;
     Chart_MPWares[R].MaxTime := fGame.GameTickCount div 10;
-    Chart_MPWares[R].Caption := fTextLibrary[TX_GRAPH_TITLE_RESOURCES] + ' - ' + fResource.Resources[R].Title;
+    Chart_MPWares[R].Caption := fTextLibrary[TX_GRAPH_TITLE_RESOURCES] + ' - ' + fResource.Wares[R].Title;
 
     WareAdded := False;
     for I := 0 to fPlayers.Count - 1 do
@@ -418,7 +418,7 @@ begin
         if G[K] <> 0 then
         begin
           if not WareAdded then
-            Columnbox_Wares.AddItem(MakeListRow(['', fResource.Resources[R].Title], [$FFFFFFFF, $FFFFFFFF], [MakePic(rxGui, fResource.Resources[R].GUIIcon), MakePic(rxGui, 0)], Byte(R)));
+            Columnbox_Wares.AddItem(MakeListRow(['', fResource.Wares[R].Title], [$FFFFFFFF, $FFFFFFFF], [MakePic(rxGui, fResource.Wares[R].GUIIcon), MakePic(rxGui, 0)], Byte(R)));
           WareAdded := True;
 
           Chart_MPWares[R].AddLine(PlayerName, FlagColor, G, I);

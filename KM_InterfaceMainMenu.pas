@@ -532,7 +532,7 @@ begin
       for I := 0 to High(G) do
         if G[I] <> 0 then
         begin
-          Chart_Wares.AddLine(fResource.Resources[R].Title, ResourceColor[R] or $FF000000, G);
+          Chart_Wares.AddLine(fResource.Wares[R].Title, ResourceColor[R] or $FF000000, G);
           Break;
         end;
     end;

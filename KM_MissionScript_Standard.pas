@@ -43,7 +43,7 @@ type
 
 implementation
 uses KM_PlayersCollection, KM_Player, KM_AI, KM_AIDefensePos, KM_TerrainPainter,
-  KM_Resource, KM_ResourceHouse, KM_ResourceUnit, KM_ResourceResource, KM_Game;
+  KM_Resource, KM_ResourceHouse, KM_ResourceUnit, KM_ResourceWares, KM_Game;
 
 
 const
@@ -248,10 +248,10 @@ begin
                           Qty := EnsureRange(P[1], -1, High(Word)); //Sometimes user can define it to be 999999
                           if Qty = -1 then Qty := High(Word); //-1 means maximum resources
                           H := fPlayers[fLastPlayer].FindHouse(ht_Store,1);
-                          if (H <> nil) and H.ResCanAddToIn(ResourceIndexToType[P[0]]) then
+                          if (H <> nil) and H.ResCanAddToIn(WareIndexToType[P[0]]) then
                           begin
-                            H.ResAddToIn(ResourceIndexToType[P[0]], Qty, True);
-                            fPlayers[fLastPlayer].Stats.WareInitial(ResourceIndexToType[P[0]], Qty);
+                            H.ResAddToIn(WareIndexToType[P[0]], Qty, True);
+                            fPlayers[fLastPlayer].Stats.WareInitial(WareIndexToType[P[0]], Qty);
                           end;
 
                         end;
@@ -261,10 +261,10 @@ begin
                           for i:=0 to fPlayers.Count-1 do
                           begin
                             H := fPlayers[i].FindHouse(ht_Store, 1);
-                            if (H <> nil) and H.ResCanAddToIn(ResourceIndexToType[P[0]]) then
+                            if (H <> nil) and H.ResCanAddToIn(WareIndexToType[P[0]]) then
                             begin
-                              H.ResAddToIn(ResourceIndexToType[P[0]], Qty, True);
-                              fPlayers[i].Stats.WareInitial(ResourceIndexToType[P[0]], Qty);
+                              H.ResAddToIn(WareIndexToType[P[0]], Qty, True);
+                              fPlayers[i].Stats.WareInitial(WareIndexToType[P[0]], Qty);
                             end;
                           end;
                         end;
@@ -274,10 +274,10 @@ begin
                           if Qty = -1 then Qty := High(Word); //-1 means maximum resources
 
                           H := TKMHouseStore(fPlayers[fLastPlayer].FindHouse(ht_Store, 2));
-                          if (H <> nil) and H.ResCanAddToIn(ResourceIndexToType[P[0]]) then
+                          if (H <> nil) and H.ResCanAddToIn(WareIndexToType[P[0]]) then
                           begin
-                            H.ResAddToIn(ResourceIndexToType[P[0]], Qty, True);
-                            fPlayers[fLastPlayer].Stats.WareInitial(ResourceIndexToType[P[0]], Qty);
+                            H.ResAddToIn(WareIndexToType[P[0]], Qty, True);
+                            fPlayers[fLastPlayer].Stats.WareInitial(WareIndexToType[P[0]], Qty);
                           end;
                         end;
     //Depreciated by ct_AddWareToLast, but we keep it for backwards compatibility in loading
@@ -287,10 +287,10 @@ begin
                           if Qty = -1 then Qty := High(Word); //-1 means maximum resources
 
                           H := fPlayers[fLastPlayer].FindHouse(HouseIndexToType[P[0]], P[1]);
-                          if (H <> nil) and H.ResCanAddToIn(ResourceIndexToType[P[2]]) then
+                          if (H <> nil) and H.ResCanAddToIn(WareIndexToType[P[2]]) then
                           begin
-                            H.ResAddToIn(ResourceIndexToType[P[2]], Qty, True);
-                            fPlayers[fLastPlayer].Stats.WareInitial(ResourceIndexToType[P[2]], Qty);
+                            H.ResAddToIn(WareIndexToType[P[2]], Qty, True);
+                            fPlayers[fLastPlayer].Stats.WareInitial(WareIndexToType[P[2]], Qty);
                           end;
                         end;
     ct_AddWareToLast:   if fLastPlayer >= 0 then
@@ -298,10 +298,10 @@ begin
                           Qty := EnsureRange(P[1], -1, High(Word)); //Sometimes user can define it to be 999999
                           if Qty = -1 then Qty := High(Word); //-1 means maximum resources
 
-                          if (fLastHouse <> nil) and fLastHouse.ResCanAddToIn(ResourceIndexToType[P[0]]) then
+                          if (fLastHouse <> nil) and fLastHouse.ResCanAddToIn(WareIndexToType[P[0]]) then
                           begin
-                            fLastHouse.ResAddToIn(ResourceIndexToType[P[0]], Qty, True);
-                            fPlayers[fLastPlayer].Stats.WareInitial(ResourceIndexToType[P[0]], Qty);
+                            fLastHouse.ResAddToIn(WareIndexToType[P[0]], Qty, True);
+                            fPlayers[fLastPlayer].Stats.WareInitial(WareIndexToType[P[0]], Qty);
                           end
                           else
                             AddError('ct_AddWareToLast without prior declaration of House');
@@ -311,16 +311,16 @@ begin
                           Qty := EnsureRange(P[1], -1, High(Word)); //Sometimes user can define it to be 999999
                           if Qty = -1 then Qty := High(Word); //-1 means maximum weapons
                           H := TKMHouseBarracks(fPlayers[fLastPlayer].FindHouse(ht_Barracks, 1));
-                          if (H <> nil) and H.ResCanAddToIn(ResourceIndexToType[P[0]]) then
+                          if (H <> nil) and H.ResCanAddToIn(WareIndexToType[P[0]]) then
                           begin
-                            H.ResAddToIn(ResourceIndexToType[P[0]], Qty, True);
-                            fPlayers[fLastPlayer].Stats.WareInitial(ResourceIndexToType[P[0]], Qty);
+                            H.ResAddToIn(WareIndexToType[P[0]], Qty, True);
+                            fPlayers[fLastPlayer].Stats.WareInitial(WareIndexToType[P[0]], Qty);
                           end;
                         end;
     ct_BlockTrade:      if fLastPlayer >= 0 then
                         begin
-                          if ResourceIndexToType[P[0]] in [WARE_MIN..WARE_MAX] then
-                            fPlayers[fLastPlayer].Stats.AllowToTrade[ResourceIndexToType[P[0]]] := false;
+                          if WareIndexToType[P[0]] in [WARE_MIN..WARE_MAX] then
+                            fPlayers[fLastPlayer].Stats.AllowToTrade[WareIndexToType[P[0]]] := false;
                         end;
     ct_BlockHouse:      if fLastPlayer >= 0 then
                         begin
@@ -731,7 +731,7 @@ begin
     //Block trades
     for Res := WARE_MIN to WARE_MAX do
       if not fPlayers[I].Stats.AllowToTrade[Res] then
-        AddCommand(ct_BlockTrade, [ResourceTypeToIndex[Res]]);
+        AddCommand(ct_BlockTrade, [WareTypeToIndex[Res]]);
 
     //Houses
     StoreCount := 0;
@@ -753,8 +753,8 @@ begin
           for Res := WARE_MIN to WARE_MAX do
             if H.CheckResIn(Res) > 0 then
               case StoreCount of
-                1:  AddCommand(ct_AddWare, [ResourceTypeToIndex[Res], H.CheckResIn(Res)]);
-                2:  AddCommand(ct_AddWareToSecond, [ResourceTypeToIndex[Res], H.CheckResIn(Res)]);
+                1:  AddCommand(ct_AddWare, [WareTypeToIndex[Res], H.CheckResIn(Res)]);
+                2:  AddCommand(ct_AddWareToSecond, [WareTypeToIndex[Res], H.CheckResIn(Res)]);
               end;
         end
         else
@@ -764,12 +764,12 @@ begin
           Inc(BarracksCount);
           for Res := WARFARE_MIN to WARFARE_MAX do
             if H.CheckResIn(Res) > 0 then
-              AddCommand(ct_AddWeapon, [ResourceTypeToIndex[Res], H.CheckResIn(Res)]); //Ware, Count
+              AddCommand(ct_AddWeapon, [WareTypeToIndex[Res], H.CheckResIn(Res)]); //Ware, Count
         end
         else
           for Res := WARE_MIN to WARE_MAX do
             if H.CheckResIn(Res) > 0 then
-              AddCommand(ct_AddWareToLast, [ResourceTypeToIndex[Res], H.CheckResIn(Res)]);
+              AddCommand(ct_AddWareToLast, [WareTypeToIndex[Res], H.CheckResIn(Res)]);
       end;
     end;
     AddData(''); //NL

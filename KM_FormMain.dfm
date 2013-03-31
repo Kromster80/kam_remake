@@ -59,7 +59,7 @@ object FormMain: TFormMain
     Height = 489
     Anchors = [akTop, akRight]
     Caption = ' Development controls '
-    TabOrder = 2
+    TabOrder = 1
     object GroupBox4: TGroupBox
       Left = 8
       Top = 392
