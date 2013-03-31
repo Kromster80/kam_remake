@@ -415,7 +415,7 @@ const
   MESSAGE_AREA_RESIZE_Y = 200; //How much can we resize it
 
   ResRatioCount = 4;
-  ResRatioType:array[1..ResRatioCount] of TResourceType = (rt_Steel, rt_Coal, rt_Wood, rt_Corn);
+  ResRatioType:array[1..ResRatioCount] of TWareType = (wt_Steel, wt_Coal, wt_Wood, wt_Corn);
   ResRatioHint:array[1..ResRatioCount] of word = (298, 300, 302, 304); //Distribution of rt_***
   ResRatioHouseCount:array[1..ResRatioCount] of byte = (2, 4, 2, 3);
   ResRatioHouse:array[1..ResRatioCount, 1..4] of THouseType = (
@@ -467,7 +467,7 @@ end;
 
 
 procedure TKMGamePlayInterface.RatiosChange(Sender: TObject);
-var RT:TResourceType; HT:THouseType;
+var RT:TWareType; HT:THouseType;
 begin
   RT := ResRatioType[RatioTab];
   HT := ResRatioHouse[RatioTab, TKMTrackBar(Sender).Tag];
@@ -1346,7 +1346,7 @@ end;
 
 {Ratios page}
 procedure TKMGamePlayInterface.Create_Ratios;
-const Res:array[1..4] of TResourceType = (rt_Steel,rt_Coal,rt_Wood,rt_Corn);
+const Res:array[1..4] of TWareType = (wt_Steel,wt_Coal,wt_Wood,wt_Corn);
 var I: Integer;
 begin
   Panel_Ratios:=TKMPanel.Create(Panel_Controls, TB_PAD, 44, TB_WIDTH, 332);
@@ -1648,8 +1648,8 @@ begin
     Image_HouseConstructionWood.ImageCenter;
     Image_HouseConstructionStone := TKMImage.Create(Panel_House,100,170,40,40,654);
     Image_HouseConstructionStone.ImageCenter;
-    Label_HouseConstructionWood  := TKMLabel.Create(Panel_House,60,210,fResource.Resources[rt_Wood].Title,fnt_Grey,taCenter);
-    Label_HouseConstructionStone := TKMLabel.Create(Panel_House,120,210,fResource.Resources[rt_Stone].Title,fnt_Grey,taCenter);
+    Label_HouseConstructionWood  := TKMLabel.Create(Panel_House,60,210,fResource.Resources[wt_Wood].Title,fnt_Grey,taCenter);
+    Label_HouseConstructionStone := TKMLabel.Create(Panel_House,120,210,fResource.Resources[wt_Stone].Title,fnt_Grey,taCenter);
 
     Label_House_Demolish := TKMLabel.Create(Panel_House,0,130,TB_WIDTH,0,fTextLibrary[TX_HOUSE_DEMOLISH],fnt_Grey,taCenter);
     Label_House_Demolish.AutoWrap := True;
@@ -1789,9 +1789,9 @@ begin
 
     ResRow_School_Resource := TKMResourceRow.Create(Panel_House_School, 0,22,TB_WIDTH,20);
     ResRow_School_Resource.RX := rxGui;
-    ResRow_School_Resource.TexID := fResource.Resources[rt_Gold].GUIIcon;
-    ResRow_School_Resource.Caption := fResource.Resources[rt_Gold].Title;
-    ResRow_School_Resource.Hint := fResource.Resources[rt_Gold].Title;
+    ResRow_School_Resource.TexID := fResource.Resources[wt_Gold].GUIIcon;
+    ResRow_School_Resource.Caption := fResource.Resources[wt_Gold].Title;
+    ResRow_School_Resource.Hint := fResource.Resources[wt_Gold].Title;
 
     Button_School_UnitWIP := TKMButton.Create(Panel_House_School,  0,48,32,32,0, rxGui, bsGame);
     Button_School_UnitWIP.Hint := fTextLibrary[TX_HOUSE_SCHOOL_WIP_HINT];
@@ -2086,7 +2086,7 @@ end;
 
 procedure TKMGamePlayInterface.ShowHouseInfo(Sender: TKMHouse; aAskDemolish: Boolean = False);
 const LineAdv = 25; //Each new Line is placed ## pixels after previous
-var I,RowRes,Base,Line:integer; Res:TResourceType;
+var I,RowRes,Base,Line:integer; Res:TWareType;
 begin
   Assert(fPlayers.Selected = Sender);
   fAskDemolish := aAskDemolish;
@@ -2178,7 +2178,7 @@ begin
 
     ht_School:
         begin
-          ResRow_School_Resource.ResourceCount := Sender.CheckResIn(rt_Gold) - byte(TKMHouseSchool(Sender).HideOneGold);
+          ResRow_School_Resource.ResourceCount := Sender.CheckResIn(wt_Gold) - byte(TKMHouseSchool(Sender).HideOneGold);
           Button_School_UnitWIP.FlagColor := fPlayers[Sender.Owner].FlagColor;
           for I := 1 to 5 do
             Button_School_UnitPlan[I].FlagColor := fPlayers[Sender.Owner].FlagColor;
@@ -2302,9 +2302,9 @@ begin
                 ResRow_Costs[I].Caption := fResource.Resources[Res].Title;
                 ResRow_Costs[I].RX := rxGui;
                 //Hide the icons when they are not used
-                if WarfareCosts[Res, 1] = rt_None then ResRow_Costs[I].TexID1 := 0
+                if WarfareCosts[Res, 1] = wt_None then ResRow_Costs[I].TexID1 := 0
                 else ResRow_Costs[I].TexID1 := fResource.Resources[WarfareCosts[Res, 1]].GUIIcon;
-                if WarfareCosts[Res, 2] = rt_None then ResRow_Costs[I].TexID2 := 0
+                if WarfareCosts[Res, 2] = wt_None then ResRow_Costs[I].TexID2 := 0
                 else ResRow_Costs[I].TexID2 := fResource.Resources[WarfareCosts[Res, 2]].GUIIcon;
 
                 ResRow_Costs[I].Show;
@@ -3142,12 +3142,12 @@ end;
 
 procedure TKMGamePlayInterface.House_MarketFill(aMarket: TKMHouseMarket);
 var
-  R: TResourceType;
+  R: TWareType;
   I, Tmp: Integer;
 begin
   for I := 0 to STORE_RES_COUNT - 1 do
   begin
-    R := TResourceType(Button_Market[I].Tag);
+    R := TWareType(Button_Market[I].Tag);
     if aMarket.AllowedToTrade(R) then
     begin
       Button_Market[I].TexID := fResource.Resources[R].GUIIcon;
@@ -3167,8 +3167,8 @@ begin
   end;
 
   //Position the shape that marks the FROM ware
-  Shape_Market_From.Visible := aMarket.ResFrom <> rt_None;
-  if aMarket.ResFrom <> rt_None then
+  Shape_Market_From.Visible := aMarket.ResFrom <> wt_None;
+  if aMarket.ResFrom <> wt_None then
   begin
     Shape_Market_From.Left := ((Byte(aMarket.ResFrom)-1) mod 6) * 31;
     Shape_Market_From.Top := 12 + ((Byte(aMarket.ResFrom)-1) div 6) * MARKET_RES_HEIGHT;
@@ -3177,13 +3177,13 @@ begin
     Button_Market_In.Caption := IntToStr(aMarket.GetResTotal(aMarket.ResFrom));
   end else begin
     Label_Market_In.Caption := Format(fTextLibrary[TX_HOUSES_MARKET_FROM],[0]) + ':';
-    Button_Market_In.TexID := fResource.Resources[rt_None].GUIIcon;
+    Button_Market_In.TexID := fResource.Resources[wt_None].GUIIcon;
     Button_Market_In.Caption := '-';
   end;
 
   //Position the shape that marks the TO ware
-  Shape_Market_To.Visible := aMarket.ResTo <> rt_None;
-  if aMarket.ResTo <> rt_None then
+  Shape_Market_To.Visible := aMarket.ResTo <> wt_None;
+  if aMarket.ResTo <> wt_None then
   begin
     Shape_Market_To.Left := ((Byte(aMarket.ResTo)-1) mod 6) * 31;
     Shape_Market_To.Top := 12 + ((Byte(aMarket.ResTo)-1) div 6) * MARKET_RES_HEIGHT;
@@ -3192,11 +3192,11 @@ begin
     Button_Market_Out.TexID := fResource.Resources[aMarket.ResTo].GUIIcon;
   end else begin
     Label_Market_Out.Caption := Format(fTextLibrary[TX_HOUSES_MARKET_TO], [0]) + ':';
-    Button_Market_Out.TexID := fResource.Resources[rt_None].GUIIcon;
+    Button_Market_Out.TexID := fResource.Resources[wt_None].GUIIcon;
     Button_Market_Out.Caption := '-';
   end;
 
-  Button_Market_Remove.Enabled := (aMarket.ResFrom <> rt_None) and (aMarket.ResTo <> rt_None);
+  Button_Market_Remove.Enabled := (aMarket.ResFrom <> wt_None) and (aMarket.ResTo <> wt_None);
   Button_Market_Add.Enabled := Button_Market_Remove.Enabled;
   Label_Market_FromAmount.Caption := IntToStr(aMarket.RatioFrom * aMarket.ResOrder[1]);
   Label_Market_ToAmount.Caption := IntToStr(aMarket.RatioTo * aMarket.ResOrder[1]);
@@ -3225,9 +3225,9 @@ begin
   M := TKMHouseMarket(fPlayers.Selected);
 
   if aButton = mbLeft then
-    fGame.GameInputProcess.CmdHouse(gic_HouseMarketFrom, M, TResourceType(TKMButtonFlat(Sender).Tag));
+    fGame.GameInputProcess.CmdHouse(gic_HouseMarketFrom, M, TWareType(TKMButtonFlat(Sender).Tag));
   if aButton = mbRight then
-    fGame.GameInputProcess.CmdHouse(gic_HouseMarketTo, M, TResourceType(TKMButtonFlat(Sender).Tag));
+    fGame.GameInputProcess.CmdHouse(gic_HouseMarketTo, M, TWareType(TKMButtonFlat(Sender).Tag));
 
   House_MarketFill(M); //Update costs and order count
 end;

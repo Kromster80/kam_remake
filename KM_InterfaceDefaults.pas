@@ -84,19 +84,19 @@ const
 
   //Template for how resources are shown in Barracks
   BARRACKS_RES_COUNT = 11;
-  BarracksResType: array [1..BARRACKS_RES_COUNT] of TResourceType =
-    (rt_Shield, rt_MetalShield, rt_Armor, rt_MetalArmor, rt_Axe, rt_Sword,
-     rt_Pike, rt_Hallebard, rt_Bow, rt_Arbalet, rt_Horse);
+  BarracksResType: array [1..BARRACKS_RES_COUNT] of TWareType =
+    (wt_Shield, wt_MetalShield, wt_Armor, wt_MetalArmor, wt_Axe, wt_Sword,
+     wt_Pike, wt_Hallebard, wt_Bow, wt_Arbalet, wt_Horse);
 
   //Layout of resources in Store
   STORE_RES_COUNT = 28;
-  StoreResType: array [1..STORE_RES_COUNT] of TResourceType =
-    (rt_Trunk,    rt_Stone,   rt_Wood,        rt_IronOre,   rt_GoldOre,
-     rt_Coal,     rt_Steel,   rt_Gold,        rt_Wine,      rt_Corn,
-     rt_Bread,    rt_Flour,   rt_Leather,     rt_Sausages,  rt_Pig,
-     rt_Skin,     rt_Shield,  rt_MetalShield, rt_Armor,     rt_MetalArmor,
-     rt_Axe,      rt_Sword,   rt_Pike,        rt_Hallebard, rt_Bow,
-     rt_Arbalet,  rt_Horse,   rt_Fish);
+  StoreResType: array [1..STORE_RES_COUNT] of TWareType =
+    (wt_Trunk,    wt_Stone,   wt_Wood,        wt_IronOre,   wt_GoldOre,
+     wt_Coal,     wt_Steel,   wt_Gold,        wt_Wine,      wt_Corn,
+     wt_Bread,    wt_Flour,   wt_Leather,     wt_Sausages,  wt_Pig,
+     wt_Skin,     wt_Shield,  wt_MetalShield, wt_Armor,     wt_MetalArmor,
+     wt_Axe,      wt_Sword,   wt_Pike,        wt_Hallebard, wt_Bow,
+     wt_Arbalet,  wt_Horse,   wt_Fish);
 
   School_Order: array [0..13] of TUnitType = (
     ut_Serf, ut_Worker, ut_StoneCutter, ut_Woodcutter, ut_Lamberjack,

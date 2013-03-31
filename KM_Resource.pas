@@ -187,7 +187,7 @@ var
   U: TUnitType;
   A: TUnitActionType;
   D: TKMDirection;
-  R: TResourceType;
+  R: TWareType;
   T: TUnitThought;
   i,ci:integer;
   sy,sx,y,x:integer;
@@ -246,7 +246,7 @@ begin
     Used[fUnitDat[U].UnitAnim[A,D].Step[i]+1] := fUnitDat[U].UnitAnim[A,D].Step[i]+1 <> 0;
 
   //Exclude serfs carrying stuff
-  for R := Low(TResourceType) to High(TResourceType) do
+  for R := Low(TWareType) to High(TWareType) do
   if R in [WARE_MIN..WARE_MAX] then
   for D := dir_N to dir_NW do
   if fUnitDat.SerfCarry[R,D].Step[1] <> -1 then

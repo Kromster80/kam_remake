@@ -109,7 +109,7 @@ type
     function FindWineField(aLoc:TKMPoint; aRadius:integer; aAvoidLoc:TKMPoint; out FieldPoint:TKMPointDir): Boolean;
     function FindCornField(aLoc:TKMPoint; aRadius:integer; aAvoidLoc:TKMPoint; aPlantAct:TPlantAct; out PlantAct:TPlantAct; out FieldPoint:TKMPointDir): Boolean;
     function FindStone(aLoc: TKMPoint; aRadius: Byte; aAvoidLoc: TKMPoint; aIgnoreWorkingUnits:Boolean; out StonePoint: TKMPointDir): Boolean;
-    function FindOre(aLoc: TKMPoint; aRes: TResourceType; out OrePoint: TKMPoint): Boolean;
+    function FindOre(aLoc: TKMPoint; aRes: TWareType; out OrePoint: TKMPoint): Boolean;
     function CanFindTree(aLoc: TKMPoint; aRadius: Word):Boolean;
     procedure FindTree(aLoc: TKMPoint; aRadius: Word; aAvoidLoc: TKMPoint; aPlantAct: TPlantAct; Trees:TKMPointDirList; BestToPlant,SecondBestToPlant: TKMPointList);
     function FindFishWater(aLoc:TKMPoint; aRadius:integer; aAvoidLoc:TKMPoint; aIgnoreWorkingUnits:Boolean; out FishPoint: TKMPointDir): Boolean;
@@ -130,7 +130,7 @@ type
     procedure CutGrapes(Loc:TKMPoint);
 
     procedure DecStoneDeposit(Loc:TKMPoint);
-    function DecOreDeposit(Loc:TKMPoint; rt:TResourceType): Boolean;
+    function DecOreDeposit(Loc:TKMPoint; rt:TWareType): Boolean;
 
     function CheckPassability(Loc:TKMPoint; aPass:TPassability): Boolean;
     function HasUnit(Loc:TKMPoint): Boolean;
@@ -1188,14 +1188,14 @@ end;
 
 
 //Given aLoc the function return location of richest ore within predefined bounds
-function TKMTerrain.FindOre(aLoc: TKMPoint; aRes: TResourceType; out OrePoint: TKMPoint): Boolean;
+function TKMTerrain.FindOre(aLoc: TKMPoint; aRes: TWareType; out OrePoint: TKMPoint): Boolean;
 var
   I,K: Integer;
   RadLeft, RadRight, RadTop, RadBottom: Integer;
   R1,R2,R3,R4: Byte; //Ore densities
   L: array [1..4] of TKMPointList;
 begin
-  if not (aRes in [rt_IronOre, rt_GoldOre, rt_Coal]) then
+  if not (aRes in [wt_IronOre, wt_GoldOre, wt_Coal]) then
     raise ELocError.Create('Wrong resource as Ore', aLoc);
 
   //Create separate list for each density, to be able to pick best one
@@ -1204,9 +1204,9 @@ begin
 
   //These values have been measured from KaM
   case aRes of
-    rt_GoldOre: begin RadLeft:=7; RadRight:=6; RadTop:=11; RadBottom:=2; R1:=144; R2:=145; R3:=146; R4:=147; end;
-    rt_IronOre: begin RadLeft:=7; RadRight:=5; RadTop:=11; RadBottom:=2; R1:=148; R2:=149; R3:=150; R4:=151; end;
-    rt_Coal:    begin RadLeft:=4; RadRight:=5; RadTop:= 5; RadBottom:=2; R1:=152; R2:=153; R3:=154; R4:=155; end;
+    wt_GoldOre: begin RadLeft:=7; RadRight:=6; RadTop:=11; RadBottom:=2; R1:=144; R2:=145; R3:=146; R4:=147; end;
+    wt_IronOre: begin RadLeft:=7; RadRight:=5; RadTop:=11; RadBottom:=2; R1:=148; R2:=149; R3:=150; R4:=151; end;
+    wt_Coal:    begin RadLeft:=4; RadRight:=5; RadTop:= 5; RadBottom:=2; R1:=152; R2:=153; R3:=154; R4:=155; end;
     else        begin RadLeft:=0; RadRight:=0; RadTop:= 0; RadBottom:=0; R1:=  0; R2:=  0; R3:=  0; R4:=  0; end;
   end;
 
@@ -1634,9 +1634,9 @@ end;
 
 { Try to extract one unit of ore
   It may fail cos of two miners mining the same last piece of ore }
-function TKMTerrain.DecOreDeposit(Loc:TKMPoint; rt:TResourceType): Boolean;
+function TKMTerrain.DecOreDeposit(Loc:TKMPoint; rt:TWareType): Boolean;
 begin
-  if not (rt in [rt_IronOre,rt_GoldOre,rt_Coal]) then
+  if not (rt in [wt_IronOre,wt_GoldOre,wt_Coal]) then
     raise ELocError.Create('Wrong ore decrease',Loc);
 
   Result := true;

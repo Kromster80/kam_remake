@@ -2511,7 +2511,7 @@ procedure TKMapEdInterface.ShowHouseInfo(Sender: TKMHouse);
 var
   HouseDat: TKMHouseDatClass;
   I: Integer;
-  Res: TResourceType;
+  Res: TWareType;
 begin
   if Sender = nil then
   begin
@@ -2904,7 +2904,7 @@ procedure TKMapEdInterface.House_HealthChange(Sender: TObject; AButton: TMouseBu
 var
   H: TKMHouse;
   I: Integer;
-  Res: TResourceType;
+  Res: TWareType;
   NewCount: Integer;
 begin
   if not (fPlayers.Selected is TKMHouse) then Exit;
@@ -3090,7 +3090,7 @@ end;
 
 procedure TKMapEdInterface.House_BarracksEditCount(Sender: TObject; AButton:TMouseButton);
 var
-  Res: TResourceType;
+  Res: TWareType;
   Barracks: TKMHouseBarracks;
   NewCount: Word;
 begin
@@ -3116,7 +3116,7 @@ end;
 
 procedure TKMapEdInterface.House_StoreEditCount(Sender: TObject; AButton:TMouseButton);
 var
-  Res: TResourceType;
+  Res: TWareType;
   Store: TKMHouseStore;
   NewCount: Word;
 begin
@@ -3201,7 +3201,7 @@ end;
 procedure TKMapEdInterface.Player_BlockTradeClick(Sender: TObject);
 var
   I: Integer;
-  R: TResourceType;
+  R: TWareType;
 begin
   I := TKMButtonFlat(Sender).Tag;
   R := StoreResType[I];
@@ -3215,7 +3215,7 @@ end;
 procedure TKMapEdInterface.Player_BlockTradeRefresh;
 var
   I: Integer;
-  R: TResourceType;
+  R: TWareType;
 begin
   for I := 1 to STORE_RES_COUNT do
   begin

@@ -437,7 +437,7 @@ var
 
 var
   I: Integer;
-  R: TResourceType;
+  R: TWareType;
   G: TKMCardinalArray;
 begin
   //Header

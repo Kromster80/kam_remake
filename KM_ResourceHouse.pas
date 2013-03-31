@@ -37,7 +37,7 @@ type
   end;
 
   THouseArea = array [1..4, 1..4] of Byte;
-  THouseRes = array [1..4] of TResourceType;
+  THouseRes = array [1..4] of TWareType;
 
   //This class wraps KaM House info
   //it hides unused fields and adds new ones
@@ -126,7 +126,7 @@ const
   MarketWaresOffsetX = -93;
   MarketWaresOffsetY = -88;
   MarketWareTexStart = 1724; //ID of where market ware sprites start. Allows us to relocate them easily.
-  MarketWares: array[TResourceType] of record
+  MarketWares: array[TWareType] of record
                                          TexStart: Integer; //Tex ID for first sprite
                                          Count: Integer; //Total sprites for this resource
                                        end
@@ -210,8 +210,8 @@ const
     DoesOrders: 1;
     BuildIcon:  311;
     TabletIcon: 261;
-    Input:      (rt_Steel,      rt_Coal,       rt_None,       rt_None);
-    Output:     (rt_MetalArmor, rt_MetalShield,rt_None,       rt_None);
+    Input:      (wt_Steel,      wt_Coal,       wt_None,       wt_None);
+    Output:     (wt_MetalArmor, wt_MetalShield,wt_None,       wt_None);
     ReleasedBy: ht_IronSmithy;
     SnowPic:    -1;
     ),
@@ -220,8 +220,8 @@ const
     DoesOrders: 1;
     BuildIcon:  321;
     TabletIcon: 271;
-    Input:      (rt_Wood,       rt_Leather,    rt_None,       rt_None);
-    Output:     (rt_Shield,     rt_Armor,      rt_None,       rt_None);
+    Input:      (wt_Wood,       wt_Leather,    wt_None,       wt_None);
+    Output:     (wt_Shield,     wt_Armor,      wt_None,       wt_None);
     ReleasedBy: ht_Tannery;
     SnowPic:    2067;
     ),
@@ -230,8 +230,8 @@ const
     DoesOrders: 0;
     BuildIcon:  308;
     TabletIcon: 258;
-    Input:      (rt_Flour,      rt_None,       rt_None,       rt_None);
-    Output:     (rt_Bread,      rt_None,       rt_None,       rt_None);
+    Input:      (wt_Flour,      wt_None,       wt_None,       wt_None);
+    Output:     (wt_Bread,      wt_None,       wt_None,       wt_None);
     ReleasedBy: ht_Mill;
     SnowPic:    2054;
     ),
@@ -240,8 +240,8 @@ const
     DoesOrders: 0;
     BuildIcon:  322;
     TabletIcon: 272;
-    Input:      (rt_Warfare,    rt_None,       rt_None,       rt_None);
-    Output:     (rt_None,       rt_None,       rt_None,       rt_None);
+    Input:      (wt_Warfare,    wt_None,       wt_None,       wt_None);
+    Output:     (wt_None,       wt_None,       wt_None,       wt_None);
     ReleasedBy: ht_Sawmill;
     SnowPic:    -1;
     ),
@@ -250,8 +250,8 @@ const
     DoesOrders: 0;
     BuildIcon:  325;
     TabletIcon: 275;
-    Input:      (rt_Pig,        rt_None,       rt_None,       rt_None);
-    Output:     (rt_Sausages,   rt_None,       rt_None,       rt_None);
+    Input:      (wt_Pig,        wt_None,       wt_None,       wt_None);
+    Output:     (wt_Sausages,   wt_None,       wt_None,       wt_None);
     ReleasedBy: ht_Swine;
     SnowPic:    2066;
     ),
@@ -260,8 +260,8 @@ const
     DoesOrders: 0;
     BuildIcon:  304;
     TabletIcon: 254;
-    Input:      (rt_None,       rt_None,       rt_None,       rt_None);
-    Output:     (rt_Coal,       rt_None,       rt_None,       rt_None);
+    Input:      (wt_None,       wt_None,       wt_None,       wt_None);
+    Output:     (wt_Coal,       wt_None,       wt_None,       wt_None);
     ReleasedBy: ht_Sawmill;
     SnowPic:    -1;
     ),
@@ -270,8 +270,8 @@ const
     DoesOrders: 0;
     BuildIcon:  309;
     TabletIcon: 259;
-    Input:      (rt_None,       rt_None,       rt_None,       rt_None);
-    Output:     (rt_Corn,       rt_None,       rt_None,       rt_None);
+    Input:      (wt_None,       wt_None,       wt_None,       wt_None);
+    Output:     (wt_Corn,       wt_None,       wt_None,       wt_None);
     ReleasedBy: ht_Sawmill;
     SnowPic:    2055;
     ),
@@ -280,8 +280,8 @@ const
     DoesOrders: 0;
     BuildIcon:  307;
     TabletIcon: 257;
-    Input:      (rt_None,       rt_None,       rt_None,       rt_None);
-    Output:     (rt_Fish,       rt_None,       rt_None,       rt_None);
+    Input:      (wt_None,       wt_None,       wt_None,       wt_None);
+    Output:     (wt_Fish,       wt_None,       wt_None,       wt_None);
     ReleasedBy: ht_Sawmill;
     SnowPic:    2053;
     ),
@@ -290,8 +290,8 @@ const
     DoesOrders: 0;
     BuildIcon:  306;
     TabletIcon: 256;
-    Input:      (rt_None,       rt_None,       rt_None,       rt_None);
-    Output:     (rt_GoldOre,    rt_None,       rt_None,       rt_None);
+    Input:      (wt_None,       wt_None,       wt_None,       wt_None);
+    Output:     (wt_GoldOre,    wt_None,       wt_None,       wt_None);
     ReleasedBy: ht_Sawmill;
     SnowPic:    -1;
     ),
@@ -300,8 +300,8 @@ const
     DoesOrders: 0;
     BuildIcon:  328;
     TabletIcon: 278;
-    Input:      (rt_Bread,      rt_Sausages,   rt_Wine,       rt_Fish);
-    Output:     (rt_None,       rt_None,       rt_None,       rt_None);
+    Input:      (wt_Bread,      wt_Sausages,   wt_Wine,       wt_Fish);
+    Output:     (wt_None,       wt_None,       wt_None,       wt_None);
     ReleasedBy: ht_Store;
     SnowPic:    2063;
     ),
@@ -310,8 +310,8 @@ const
     DoesOrders: 0;
     BuildIcon:  305;
     TabletIcon: 255;
-    Input:      (rt_None,       rt_None,       rt_None,       rt_None);
-    Output:     (rt_IronOre,    rt_None,       rt_None,       rt_None);
+    Input:      (wt_None,       wt_None,       wt_None,       wt_None);
+    Output:     (wt_IronOre,    wt_None,       wt_None,       wt_None);
     ReleasedBy: ht_Sawmill;
     SnowPic:    2052;
     ),
@@ -320,8 +320,8 @@ const
     DoesOrders: 0;
     BuildIcon:  302;
     TabletIcon: 252;
-    Input:      (rt_IronOre,    rt_Coal,       rt_None,       rt_None);
-    Output:     (rt_Steel,      rt_None,       rt_None,       rt_None);
+    Input:      (wt_IronOre,    wt_Coal,       wt_None,       wt_None);
+    Output:     (wt_Steel,      wt_None,       wt_None,       wt_None);
     ReleasedBy: ht_IronMine;
     SnowPic:    2051;
     ),
@@ -330,8 +330,8 @@ const
     DoesOrders: 0;
     BuildIcon:  327;
     TabletIcon: 277;
-    Input:      (rt_None,       rt_None,       rt_None,       rt_None);
-    Output:     (rt_None,       rt_None,       rt_None,       rt_None);
+    Input:      (wt_None,       wt_None,       wt_None,       wt_None);
+    Output:     (wt_None,       wt_None,       wt_None,       wt_None);
     ReleasedBy: ht_Sawmill;
     SnowPic:    -1;
     ),
@@ -340,8 +340,8 @@ const
     DoesOrders: 0;
     BuildIcon:  316;
     TabletIcon: 266;
-    Input:      (rt_GoldOre,    rt_Coal,       rt_None,       rt_None);
-    Output:     (rt_Gold,       rt_None,       rt_None,       rt_None);
+    Input:      (wt_GoldOre,    wt_Coal,       wt_None,       wt_None);
+    Output:     (wt_Gold,       wt_None,       wt_None,       wt_None);
     ReleasedBy: ht_GoldMine;
     SnowPic:    -1;
     ),
@@ -350,8 +350,8 @@ const
     DoesOrders: 0;
     BuildIcon:  323;
     TabletIcon: 273;
-    Input:      (rt_Corn,       rt_None,       rt_None,       rt_None);
-    Output:     (rt_Flour,      rt_None,       rt_None,       rt_None);
+    Input:      (wt_Corn,       wt_None,       wt_None,       wt_None);
+    Output:     (wt_Flour,      wt_None,       wt_None,       wt_None);
     ReleasedBy: ht_Farm;
     SnowPic:    2062;
     ),
@@ -360,8 +360,8 @@ const
     DoesOrders: 0;
     BuildIcon:  315;
     TabletIcon: 265;
-    Input:      (rt_None,       rt_None,       rt_None,       rt_None);
-    Output:     (rt_Stone,      rt_None,       rt_None,       rt_None);
+    Input:      (wt_None,       wt_None,       wt_None,       wt_None);
+    Output:     (wt_Stone,      wt_None,       wt_None,       wt_None);
     ReleasedBy: ht_School;
     SnowPic:    2058;
     ),
@@ -370,8 +370,8 @@ const
     DoesOrders: 0;
     BuildIcon:  301;
     TabletIcon: 251;
-    Input:      (rt_Trunk,      rt_None,       rt_None,       rt_None);
-    Output:     (rt_Wood,       rt_None,       rt_None,       rt_None);
+    Input:      (wt_Trunk,      wt_None,       wt_None,       wt_None);
+    Output:     (wt_Wood,       wt_None,       wt_None,       wt_None);
     ReleasedBy: ht_Woodcutters;
     SnowPic:    2050;
     ),
@@ -380,8 +380,8 @@ const
     DoesOrders: 0;
     BuildIcon:  314;
     TabletIcon: 264;
-    Input:      (rt_Gold,       rt_None,       rt_None,       rt_None);
-    Output:     (rt_None,       rt_None,       rt_None,       rt_None);
+    Input:      (wt_Gold,       wt_None,       wt_None,       wt_None);
+    Output:     (wt_None,       wt_None,       wt_None,       wt_None);
     ReleasedBy: ht_Store;
     SnowPic:    2059;
     ),
@@ -390,8 +390,8 @@ const
     DoesOrders: 1;
     BuildIcon:  324;
     TabletIcon: 274;
-    Input:      (rt_Wood,       rt_Steel,      rt_None,       rt_None);
-    Output:     (rt_None,       rt_None,       rt_None,       rt_None);
+    Input:      (wt_Wood,       wt_Steel,      wt_None,       wt_None);
+    Output:     (wt_None,       wt_None,       wt_None,       wt_None);
     ReleasedBy: ht_IronSmithy;
     SnowPic:    -1;
     ),
@@ -400,8 +400,8 @@ const
     DoesOrders: 0;
     BuildIcon:  313;
     TabletIcon: 263;
-    Input:      (rt_Corn,       rt_None,       rt_None,       rt_None);
-    Output:     (rt_Horse,      rt_None,       rt_None,       rt_None);
+    Input:      (wt_Corn,       wt_None,       wt_None,       wt_None);
+    Output:     (wt_Horse,      wt_None,       wt_None,       wt_None);
     ReleasedBy: ht_Farm;
     SnowPic:    -1;
     ),
@@ -410,8 +410,8 @@ const
     DoesOrders: 0;
     BuildIcon:  312;
     TabletIcon: 262;
-    Input:      (rt_All,        rt_None,       rt_None,       rt_None);
-    Output:     (rt_All,        rt_None,       rt_None,       rt_None);
+    Input:      (wt_All,        wt_None,       wt_None,       wt_None);
+    Output:     (wt_All,        wt_None,       wt_None,       wt_None);
     ReleasedBy: ht_None; //
     SnowPic:    2056;
     ),
@@ -420,8 +420,8 @@ const
     DoesOrders: 0;
     BuildIcon:  317;
     TabletIcon: 267;
-    Input:      (rt_Corn,       rt_None,       rt_None,       rt_None);
-    Output:     (rt_Pig,        rt_Skin,       rt_None,       rt_None);
+    Input:      (wt_Corn,       wt_None,       wt_None,       wt_None);
+    Output:     (wt_Pig,        wt_Skin,       wt_None,       wt_None);
     ReleasedBy: ht_Farm;
     SnowPic:    2064;
     ),
@@ -430,8 +430,8 @@ const
     DoesOrders: 0;
     BuildIcon:  326;
     TabletIcon: 276;
-    Input:      (rt_Skin,       rt_None,       rt_None,       rt_None);
-    Output:     (rt_Leather,    rt_None,       rt_None,       rt_None);
+    Input:      (wt_Skin,       wt_None,       wt_None,       wt_None);
+    Output:     (wt_Leather,    wt_None,       wt_None,       wt_None);
     ReleasedBy: ht_Swine;
     SnowPic:    -1;
     ),
@@ -440,8 +440,8 @@ const
     DoesOrders: 0;
     BuildIcon:  319;
     TabletIcon: 269;
-    Input:      (rt_Gold,       rt_None,       rt_None,       rt_None);
-    Output:     (rt_None,       rt_None,       rt_None,       rt_None);
+    Input:      (wt_Gold,       wt_None,       wt_None,       wt_None);
+    Output:     (wt_None,       wt_None,       wt_None,       wt_None);
     ReleasedBy: ht_Metallurgists;
     SnowPic:    -1;
     ),
@@ -450,8 +450,8 @@ const
     DoesOrders: 0;
     BuildIcon:  318;
     TabletIcon: 268;
-    Input:      (rt_Stone,      rt_None,       rt_None,       rt_None);
-    Output:     (rt_None,       rt_None,       rt_None,       rt_None);
+    Input:      (wt_Stone,      wt_None,       wt_None,       wt_None);
+    Output:     (wt_None,       wt_None,       wt_None,       wt_None);
     ReleasedBy: ht_Quary;
     SnowPic:    2060;
     ),
@@ -460,8 +460,8 @@ const
     DoesOrders: 1;
     BuildIcon:  303;
     TabletIcon: 253;
-    Input:      (rt_Coal,       rt_Steel,      rt_None,       rt_None);
-    Output:     (rt_Sword,      rt_Hallebard,  rt_Arbalet,    rt_None);
+    Input:      (wt_Coal,       wt_Steel,      wt_None,       wt_None);
+    Output:     (wt_Sword,      wt_Hallebard,  wt_Arbalet,    wt_None);
     ReleasedBy: ht_IronSmithy;
     SnowPic:    -1;
     ),
@@ -470,8 +470,8 @@ const
     DoesOrders: 1;
     BuildIcon:  320;
     TabletIcon: 270;
-    Input:      (rt_Wood,       rt_None,       rt_None,       rt_None);
-    Output:     (rt_Axe,        rt_Pike,       rt_Bow,        rt_None);
+    Input:      (wt_Wood,       wt_None,       wt_None,       wt_None);
+    Output:     (wt_Axe,        wt_Pike,       wt_Bow,        wt_None);
     ReleasedBy: ht_Sawmill;
     SnowPic:    2061;
     ),
@@ -480,8 +480,8 @@ const
     DoesOrders: 0;
     BuildIcon:  329;
     TabletIcon: 279;
-    Input:      (rt_None,       rt_None,       rt_None,       rt_None);
-    Output:     (rt_Wine,       rt_None,       rt_None,       rt_None);
+    Input:      (wt_None,       wt_None,       wt_None,       wt_None);
+    Output:     (wt_Wine,       wt_None,       wt_None,       wt_None);
     ReleasedBy: ht_Sawmill;
     SnowPic:    2065;
     ),
@@ -490,8 +490,8 @@ const
     DoesOrders: 0;
     BuildIcon:  310;
     TabletIcon: 260;
-    Input:      (rt_None,       rt_None,       rt_None,       rt_None);
-    Output:     (rt_Trunk,      rt_None,       rt_None,       rt_None);
+    Input:      (wt_None,       wt_None,       wt_None,       wt_None);
+    Output:     (wt_Trunk,      wt_None,       wt_None,       wt_None);
     ReleasedBy: ht_School;
     SnowPic:    2057;
     )
@@ -517,7 +517,7 @@ end;
 
 function TKMHouseDatClass.AcceptsWares: boolean;
 begin
-  Result := (ResInput[1] <> rt_None) or //Exclude houses that do not receive wares
+  Result := (ResInput[1] <> wt_None) or //Exclude houses that do not receive wares
             (fHouseType = ht_Marketplace); //Marketplace also accepts wares
 end;
 
@@ -590,7 +590,7 @@ end;
 
 function TKMHouseDatClass.ProducesWares: Boolean;
 begin
-  Result := not (ResOutput[1] in [rt_None, rt_All, rt_Warfare]); //Exclude aggregate types
+  Result := not (ResOutput[1] in [wt_None, wt_All, wt_Warfare]); //Exclude aggregate types
 end;
 
 

@@ -13,12 +13,12 @@ type
     fFrom: TKMHouse;
     fToHouse: TKMHouse;
     fToUnit: TKMUnit;
-    fResourceType: TResourceType;
+    fWareType: TWareType;
     fDeliverID: Integer;
     fDeliverKind: TDeliverKind;
   public
-    constructor Create(aSerf: TKMUnitSerf; aFrom: TKMHouse; toHouse: TKMHouse; Res: TResourceType; aID: Integer); overload;
-    constructor Create(aSerf: TKMUnitSerf; aFrom: TKMHouse; toUnit: TKMUnit; Res: TResourceType; aID: Integer); overload;
+    constructor Create(aSerf: TKMUnitSerf; aFrom: TKMHouse; toHouse: TKMHouse; Res: TWareType; aID: Integer); overload;
+    constructor Create(aSerf: TKMUnitSerf; aFrom: TKMHouse; toUnit: TKMUnit; Res: TWareType; aID: Integer); overload;
     constructor Load(LoadStream: TKMemoryStream); override;
     procedure SyncLoad; override;
     destructor Destroy; override;
@@ -34,12 +34,12 @@ uses KM_PlayersCollection, KM_Units_Warrior, KM_Log;
 
 
 { TTaskDeliver }
-constructor TTaskDeliver.Create(aSerf: TKMUnitSerf; aFrom: TKMHouse; toHouse: TKMHouse; Res: TResourceType; aID: Integer);
+constructor TTaskDeliver.Create(aSerf: TKMUnitSerf; aFrom: TKMHouse; toHouse: TKMHouse; Res: TWareType; aID: Integer);
 begin
   inherited Create(aSerf);
   fTaskName := utn_Deliver;
 
-  Assert((aFrom <> nil) and (toHouse <> nil) and (Res <> rt_None), 'Serf ' + IntToStr(fUnit.ID) + ': invalid delivery task');
+  Assert((aFrom <> nil) and (toHouse <> nil) and (Res <> wt_None), 'Serf ' + IntToStr(fUnit.ID) + ': invalid delivery task');
 
   if WRITE_DELIVERY_LOG then
     fLog.AddTime('Serf ' + IntToStr(fUnit.ID) + ' created delivery task ' + IntToStr(fDeliverID));
@@ -52,23 +52,24 @@ begin
     fDeliverKind := dk_ToHouse
   else
     fDeliverKind := dk_ToConstruction;
-  fResourceType := Res;
-  fDeliverID    := aID;
+
+  fWareType   := Res;
+  fDeliverID  := aID;
 end;
 
 
-constructor TTaskDeliver.Create(aSerf: TKMUnitSerf; aFrom: TKMHouse; toUnit: TKMUnit; Res: TResourceType; aID: Integer);
+constructor TTaskDeliver.Create(aSerf: TKMUnitSerf; aFrom: TKMHouse; toUnit: TKMUnit; Res: TWareType; aID: Integer);
 begin
   inherited Create(aSerf);
   fTaskName := utn_Deliver;
 
-  Assert((aFrom<>nil) and (toUnit<>nil) and ((toUnit is TKMUnitWarrior) or (toUnit is TKMUnitWorker)) and (Res <> rt_None), 'Serf '+inttostr(fUnit.ID)+': invalid delivery task');
+  Assert((aFrom<>nil) and (toUnit<>nil) and ((toUnit is TKMUnitWarrior) or (toUnit is TKMUnitWorker)) and (Res <> wt_None), 'Serf '+inttostr(fUnit.ID)+': invalid delivery task');
   if WRITE_DELIVERY_LOG then fLog.AddTime('Serf '+inttostr(fUnit.ID)+' created delivery task '+inttostr(fDeliverID));
 
   fFrom    := aFrom.GetHousePointer;
   fToUnit  := toUnit.GetUnitPointer;
   fDeliverKind := dk_ToUnit;
-  fResourceType := Res;
+  fWareType := Res;
   fDeliverID    := aID;
 end;
 
@@ -79,7 +80,7 @@ begin
   LoadStream.Read(fFrom, 4);
   LoadStream.Read(fToHouse, 4);
   LoadStream.Read(fToUnit, 4);
-  LoadStream.Read(fResourceType, SizeOf(fResourceType));
+  LoadStream.Read(fWareType, SizeOf(fWareType));
   LoadStream.Read(fDeliverID);
   LoadStream.Read(fDeliverKind, SizeOf(fDeliverKind));
 end;
@@ -101,7 +102,7 @@ begin
   if fDeliverID <> 0 then
     fPlayers[fUnit.Owner].Deliveries.Queue.AbandonDelivery(fDeliverID);
 
-  if TKMUnitSerf(fUnit).Carry <> rt_None then
+  if TKMUnitSerf(fUnit).Carry <> wt_None then
   begin
     fPlayers[fUnit.Owner].Stats.WareConsumed(TKMUnitSerf(fUnit).Carry);
     TKMUnitSerf(fUnit).CarryTake; //empty hands
@@ -155,15 +156,15 @@ begin
         end;
     2:  begin
           //Barracks can consume the resource (by equipping) before we arrive
-          if (fFrom is TKMHouseBarracks) and not TKMHouseBarracks(fFrom).CanTakeResOut(fResourceType) then
+          if (fFrom is TKMHouseBarracks) and not TKMHouseBarracks(fFrom).CanTakeResOut(fWareType) then
           begin
             SetActionGoIn(ua_Walk, gd_GoOutside, fFrom); //Step back out
             fPhase := 99; //Exit next run
             Exit;
           end;
           SetActionLockedStay(5,ua_Walk); //Wait a moment inside
-          fFrom.ResTakeFromOut(fResourceType);
-          CarryGive(fResourceType);
+          fFrom.ResTakeFromOut(fWareType);
+          CarryGive(fWareType);
           fPlayers[Owner].Deliveries.Queue.TakenOffer(fDeliverID);
         end;
     3:  if fFrom.IsDestroyed then //We have the resource, so we don't care if house is destroyed
@@ -300,7 +301,7 @@ begin
     SaveStream.Write(fToUnit.ID) //Store ID, then substitute it with reference on SyncLoad
   else
     SaveStream.Write(Integer(0));
-  SaveStream.Write(fResourceType, SizeOf(fResourceType));
+  SaveStream.Write(fWareType, SizeOf(fWareType));
   SaveStream.Write(fDeliverID);
   SaveStream.Write(fDeliverKind, SizeOf(fDeliverKind));
 end;

@@ -16,7 +16,7 @@ type
     function ChooseToCutOrPlant: TPlantAct;
     procedure FindAnotherWorkPlan;
   public
-    constructor Create(aUnit: TKMUnit; aRes: TResourceType);
+    constructor Create(aUnit: TKMUnit; aRes: TWareType);
     destructor Destroy; override;
     function WalkShouldAbandon:boolean; override;
     constructor Load(LoadStream: TKMemoryStream); override;
@@ -32,7 +32,7 @@ uses KM_Houses, KM_PlayersCollection, KM_Resource, KM_TextLibrary;
 
 
 { TTaskMining }
-constructor TTaskMining.Create(aUnit: TKMUnit; aRes: TResourceType);
+constructor TTaskMining.Create(aUnit: TKMUnit; aRes: TWareType);
 begin
   inherited Create(aUnit);
   fTaskName := utn_Mining;
@@ -78,12 +78,12 @@ begin
   case fUnit.GetHome.HouseType of
     ht_Woodcutters: case TKMHouseWoodcutters(fUnit.GetHome).WoodcutterMode of
                       wcm_Chop:         Result := taCut;
-                      wcm_ChopAndPlant: if fUnit.GetHome.CheckResOut(rt_Trunk) >= MAX_RES_IN_HOUSE then
+                      wcm_ChopAndPlant: if fUnit.GetHome.CheckResOut(wt_Trunk) >= MAX_RES_IN_HOUSE then
                                           Result := taPlant
                                         else
                                           Result := taAny;
                     end;
-    ht_Farm:        if fUnit.GetHome.CheckResOut(rt_Corn) >= MAX_RES_IN_HOUSE then
+    ht_Farm:        if fUnit.GetHome.CheckResOut(wt_Corn) >= MAX_RES_IN_HOUSE then
                       Result := taPlant
                     else
                       Result := taAny;
@@ -159,7 +159,7 @@ begin
                               ActionWalkFrom  := ua_WalkTool; //Carry our scythe back (without the corn) as the player saw us take it out
                               ActionWorkType  := ua_Work1;
                               WorkCyc    := 10;
-                              Product1   := rt_None; //Don't produce corn
+                              Product1   := wt_None; //Don't produce corn
                               ProdCount1 := 0;
                             end;
                         end;
@@ -282,8 +282,8 @@ begin
         Thought := th_None;
         fPhase2 := 1;
         GetHome.SetState(hst_Work); //Set house to Work state
-        if WorkPlan.Resource1 <> rt_None then GetHome.ResTakeFromIn(WorkPlan.Resource1, WorkPlan.Count1);
-        if WorkPlan.Resource2 <> rt_None then GetHome.ResTakeFromIn(WorkPlan.Resource2, WorkPlan.Count2);
+        if WorkPlan.Resource1 <> wt_None then GetHome.ResTakeFromIn(WorkPlan.Resource1, WorkPlan.Count1);
+        if WorkPlan.Resource2 <> wt_None then GetHome.ResTakeFromIn(WorkPlan.Resource2, WorkPlan.Count2);
         fPlayers[fUnit.Owner].Stats.WareConsumed(WorkPlan.Resource1, WorkPlan.Count1);
         fPlayers[fUnit.Owner].Stats.WareConsumed(WorkPlan.Resource2, WorkPlan.Count2);
         GetHome.fCurrentAction.SubActionAdd([ha_Smoke]);
@@ -329,9 +329,9 @@ begin
             TKMHouseSwineStable(GetHome).TakeBeast(fBeastID); //Take the horse after feeding
 
           case WorkPlan.GatheringScript of
-            gs_CoalMiner:    ResAcquired := fTerrain.DecOreDeposit(WorkPlan.Loc, rt_Coal);
-            gs_GoldMiner:    ResAcquired := fTerrain.DecOreDeposit(WorkPlan.Loc, rt_GoldOre);
-            gs_IronMiner:    ResAcquired := fTerrain.DecOreDeposit(WorkPlan.Loc, rt_IronOre);
+            gs_CoalMiner:    ResAcquired := fTerrain.DecOreDeposit(WorkPlan.Loc, wt_Coal);
+            gs_GoldMiner:    ResAcquired := fTerrain.DecOreDeposit(WorkPlan.Loc, wt_GoldOre);
+            gs_IronMiner:    ResAcquired := fTerrain.DecOreDeposit(WorkPlan.Loc, wt_IronOre);
             gs_SwineBreeder: ResAcquired := fBeastID<>0;
             gs_HorseBreeder: ResAcquired := fBeastID<>0;
             else             ResAcquired := true;

@@ -31,7 +31,7 @@ type
 
     function GetSeeds(aHouseType: array of THouseType): TKMPointArray;
 
-    function NextToOre(aHouse: THouseType; aOreType: TResourceType; out aLoc: TKMPoint): Boolean;
+    function NextToOre(aHouse: THouseType; aOreType: TWareType; out aLoc: TKMPoint): Boolean;
     function NextToHouse(aHouse: THouseType; aSeed, aAvoid: array of THouseType; out aLoc: TKMPoint): Boolean;
     function NextToStone(aHouse: THouseType; out aLoc: TKMPoint): Boolean;
     function NextToTrees(aHouse: THouseType; aSeed: array of THouseType; out aLoc: TKMPoint): Boolean;
@@ -105,9 +105,9 @@ begin
     ht_WeaponSmithy:    Result := NextToHouse(aHouse, [ht_IronSmithy, ht_CoalMine, ht_Barracks], [], aLoc);
     ht_WeaponWorkshop:  Result := NextToHouse(aHouse, [ht_Sawmill, ht_Barracks], [], aLoc);
 
-    ht_CoalMine:      Result := NextToOre(aHouse, rt_Coal, aLoc);
-    ht_GoldMine:      Result := NextToOre(aHouse, rt_GoldOre, aLoc);
-    ht_IronMine:      Result := NextToOre(aHouse, rt_IronOre, aLoc);
+    ht_CoalMine:      Result := NextToOre(aHouse, wt_Coal, aLoc);
+    ht_GoldMine:      Result := NextToOre(aHouse, wt_GoldOre, aLoc);
+    ht_IronMine:      Result := NextToOre(aHouse, wt_IronOre, aLoc);
 
     ht_Quary:         Result := NextToStone(aHouse, aLoc);
     ht_Woodcutters:   Result := NextToTrees(aHouse, [ht_Store, ht_Woodcutters, ht_Sawmill], aLoc);
@@ -329,7 +329,7 @@ begin
 end;
 
 
-function TKMCityPlanner.NextToOre(aHouse: THouseType; aOreType: TResourceType; out aLoc: TKMPoint): Boolean;
+function TKMCityPlanner.NextToOre(aHouse: THouseType; aOreType: TWareType; out aLoc: TKMPoint): Boolean;
 var
   P: TKMPoint;
   SeedLocs: TKMPointArray;
@@ -341,9 +341,9 @@ begin
 
   //Look for nearest Ore
   case aOreType of
-    rt_Coal:    if not FindNearest(SeedLocs[0], 45, fnCoal, P) then Exit;
-    rt_IronOre: if not FindNearest(SeedLocs[0], 45, fnIron, P) then Exit;
-    rt_GoldOre: if not FindNearest(SeedLocs[0], 45, fnGold, P) then Exit;
+    wt_Coal:    if not FindNearest(SeedLocs[0], 45, fnCoal, P) then Exit;
+    wt_IronOre: if not FindNearest(SeedLocs[0], 45, fnIron, P) then Exit;
+    wt_GoldOre: if not FindNearest(SeedLocs[0], 45, fnGold, P) then Exit;
   end;
 
   //todo: If there's no ore AI should not keep calling this over and over again

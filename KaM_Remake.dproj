@@ -202,10 +202,10 @@
 			<DCCReference Include="KM_ResourceHouse.pas"/>
 			<DCCReference Include="KM_ResourceMapElements.pas"/>
 			<DCCReference Include="KM_ResourcePalettes.pas"/>
-			<DCCReference Include="KM_ResourceResource.pas"/>
 			<DCCReference Include="KM_ResourceSprites.pas"/>
 			<DCCReference Include="KM_ResourceTileset.pas"/>
 			<DCCReference Include="KM_ResourceUnit.pas"/>
+			<DCCReference Include="KM_ResourceWares.pas"/>
 			<DCCReference Include="KM_Saves.pas"/>
 			<DCCReference Include="KM_Scripting.pas"/>
 			<DCCReference Include="KM_ScriptingESA.pas"/>

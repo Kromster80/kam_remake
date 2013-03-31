@@ -78,11 +78,11 @@ type
     procedure AddHouseBuildSupply(aHouse: THouseType; Loc: TKMPoint; Wood,Stone: Byte);
     procedure AddHouseWork(aHouse: THouseType; Loc: TKMPoint; aActSet: THouseActionSet; AnimStep: Cardinal; FlagColor: TColor4);
     procedure AddHouseSupply(aHouse: THouseType; Loc: TKMPoint; const R1,R2:array of byte);
-    procedure AddHouseMarketSupply(Loc: TKMPoint; ResType: TResourceType; ResCount:word; AnimStep: Integer);
+    procedure AddHouseMarketSupply(Loc: TKMPoint; ResType: TWareType; ResCount:word; AnimStep: Integer);
     procedure AddHouseStableBeasts(aHouse: THouseType; Loc: TKMPoint; BeastId,BeastAge,AnimStep: Integer; aRX: TRXType = rxHouses);
     procedure AddHouseEater(Loc: TKMPoint; aUnit: TUnitType; aAct: TUnitActionType; aDir: TKMDirection; StepId: Integer; OffX,OffY: Single; FlagColor: TColor4);
     procedure AddUnit(aUnit: TUnitType; aAct: TUnitActionType; aDir: TKMDirection; StepId: Integer; pX,pY: Single; FlagColor: TColor4; NewInst: Boolean; DoImmediateRender: Boolean = False; Deleting: Boolean = False);
-    procedure AddUnitCarry(aCarry: TResourceType; aDir: TKMDirection; StepId: Integer; pX,pY: Single);
+    procedure AddUnitCarry(aCarry: TWareType; aDir: TKMDirection; StepId: Integer; pX,pY: Single);
     procedure AddUnitThought(aUnit: TUnitType; aAct: TUnitActionType; aDir: TKMDirection; Thought: TUnitThought; pX,pY: Single);
     procedure AddUnitFlag(aUnit: TUnitType; aAct: TUnitActionType; aDir: TKMDirection; UnitAnim, FlagAnim: Integer; pX,pY: Single; FlagColor: TColor4);
     procedure AddUnitWithDefaultArm(aUnit: TUnitType; aAct: TUnitActionType; aDir: TKMDirection; StepId: Integer; pX,pY: Single; FlagColor: TColor4; DoImmediateRender: Boolean = False; Deleting: Boolean = False);
@@ -517,11 +517,11 @@ begin
 end;
 
 
-procedure TRenderPool.AddHouseMarketSupply(Loc: TKMPoint; ResType: TResourceType; ResCount:word; AnimStep: Integer);
+procedure TRenderPool.AddHouseMarketSupply(Loc: TKMPoint; ResType: TWareType; ResCount:word; AnimStep: Integer);
 var i,Id: Integer;
   CornerX,CornerY: Single; R: TRXData;
 begin
-  if ResType = rt_Horse then //Horses are a beast, BeastId is the count, age is 1
+  if ResType = wt_Horse then //Horses are a beast, BeastId is the count, age is 1
     for i:=1 to Min(ResCount, MarketWares[ResType].Count) do //Render each beast
       AddHouseStableBeasts(ht_Marketplace, Loc, i, 1, AnimStep, rxHouses)
   else
@@ -654,7 +654,7 @@ begin
 end;
 
 
-procedure TRenderPool.AddUnitCarry(aCarry: TResourceType; aDir: TKMDirection; StepId: Integer; pX,pY: Single);
+procedure TRenderPool.AddUnitCarry(aCarry: TWareType; aDir: TKMDirection; StepId: Integer; pX,pY: Single);
 var
   CornerX, CornerY: Single;
   Id: Integer;

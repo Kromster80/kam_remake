@@ -101,40 +101,40 @@ begin
    3: //Typically when unit comes to Inn he is at 13%
       //Order is Bread-Sausages-Wine-Fish
       //We allow unit to eat foods until he is over 90% condition
-      if (Condition<UNIT_MAX_CONDITION*0.9)and(fInn.CheckResIn(rt_Bread)>0) then
+      if (Condition<UNIT_MAX_CONDITION*0.9)and(fInn.CheckResIn(wt_Bread)>0) then
       begin
-        fInn.ResTakeFromIn(rt_Bread);
-        fPlayers[fUnit.Owner].Stats.WareConsumed(rt_Bread);
+        fInn.ResTakeFromIn(wt_Bread);
+        fPlayers[fUnit.Owner].Stats.WareConsumed(wt_Bread);
         SetActionLockedStay(29*4, ua_Eat, False);
         Feed(UNIT_MAX_CONDITION * BREAD_RESTORE);
-        fInn.UpdateEater(PlaceID, rt_Bread);
+        fInn.UpdateEater(PlaceID, wt_Bread);
       end else
         SetActionLockedStay(0,ua_Walk);
-   4: if (Condition<UNIT_MAX_CONDITION*0.9)and(fInn.CheckResIn(rt_Sausages)>0) then
+   4: if (Condition<UNIT_MAX_CONDITION*0.9)and(fInn.CheckResIn(wt_Sausages)>0) then
    begin
-        fInn.ResTakeFromIn(rt_Sausages);
-        fPlayers[fUnit.Owner].Stats.WareConsumed(rt_Sausages);
+        fInn.ResTakeFromIn(wt_Sausages);
+        fPlayers[fUnit.Owner].Stats.WareConsumed(wt_Sausages);
         SetActionLockedStay(29*4, ua_Eat, False);
         Feed(UNIT_MAX_CONDITION * SAUSAGE_RESTORE);
-        fInn.UpdateEater(PlaceID, rt_Sausages);
+        fInn.UpdateEater(PlaceID, wt_Sausages);
       end else
         SetActionLockedStay(0,ua_Walk);
-   5: if (Condition<UNIT_MAX_CONDITION*0.9)and(fInn.CheckResIn(rt_Wine)>0) then
+   5: if (Condition<UNIT_MAX_CONDITION*0.9)and(fInn.CheckResIn(wt_Wine)>0) then
    begin
-        fInn.ResTakeFromIn(rt_Wine);
-        fPlayers[fUnit.Owner].Stats.WareConsumed(rt_Wine);
+        fInn.ResTakeFromIn(wt_Wine);
+        fPlayers[fUnit.Owner].Stats.WareConsumed(wt_Wine);
         SetActionLockedStay(29*4, ua_Eat, False);
         Feed(UNIT_MAX_CONDITION * WINE_RESTORE);
-        fInn.UpdateEater(PlaceID, rt_Wine);
+        fInn.UpdateEater(PlaceID, wt_Wine);
       end else
         SetActionLockedStay(0,ua_Walk);
-   6: if (Condition<UNIT_MAX_CONDITION*0.9)and(fInn.CheckResIn(rt_Fish)>0) then
+   6: if (Condition<UNIT_MAX_CONDITION*0.9)and(fInn.CheckResIn(wt_Fish)>0) then
    begin
-        fInn.ResTakeFromIn(rt_Fish);
-        fPlayers[fUnit.Owner].Stats.WareConsumed(rt_Fish);
+        fInn.ResTakeFromIn(wt_Fish);
+        fPlayers[fUnit.Owner].Stats.WareConsumed(wt_Fish);
         SetActionLockedStay(29*4, ua_Eat, False);
         Feed(UNIT_MAX_CONDITION * FISH_RESTORE);
-        fInn.UpdateEater(PlaceID, rt_Fish);
+        fInn.UpdateEater(PlaceID, wt_Fish);
       end else
         SetActionLockedStay(0,ua_Walk);
    7: begin

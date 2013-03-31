@@ -492,7 +492,7 @@ end;
 function TKMScriptStates.HouseResourceAmount(aHouseID, aResource: Integer): Integer;
 var
   H: TKMHouse;
-  Res: TResourceType;
+  Res: TWareType;
 begin
   Result := -1;
   Res := ResourceIndexToType[aResource];
@@ -1010,7 +1010,7 @@ end;
 procedure TKMScriptActions.HouseAddWaresTo(aHouseID: Integer; aType, aCount: Word);
 var
   H: TKMHouse;
-  Res: TResourceType;
+  Res: TWareType;
 begin
   Res := ResourceIndexToType[aType];
   if (aHouseID > 0) then

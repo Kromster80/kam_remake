@@ -157,9 +157,9 @@ end;
 procedure TKMGUIMenuResultsMP.WareChange(Sender: TObject);
 var
   K: Integer;
-  I, R: TResourceType;
+  I, R: TWareType;
 begin
-  R := TResourceType(Columnbox_Wares.Rows[Columnbox_Wares.ItemIndex].Tag);
+  R := TWareType(Columnbox_Wares.Rows[Columnbox_Wares.ItemIndex].Tag);
 
   //Find and hide old chart
   for I := WARE_MIN to WARE_MAX do
@@ -363,7 +363,7 @@ end;
 procedure TKMGUIMenuResultsMP.RefreshCharts;
 var
   I,K: Integer;
-  R: TResourceType;
+  R: TWareType;
   G: TKMCardinalArray;
   WareAdded: Boolean;
 begin
@@ -436,7 +436,7 @@ end;
 
 procedure TKMGUIMenuResultsMP.Create_ResultsMP(aParent: TKMPanel);
 var
-  I: TResourceType;
+  I: TWareType;
 begin
   Panel_ResultsMP := TKMPanel.Create(aParent, 0, 0, aParent.Width, aParent.Height);
   Panel_ResultsMP.Stretch;

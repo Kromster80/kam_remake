@@ -543,7 +543,7 @@ var
   I: longint; //longint because it is used for encoding entire output, which will limit the file size
   K,iX,iY,CommandLayerCount: Integer;
   StoreCount, BarracksCount: Integer;
-  Res: TResourceType;
+  Res: TWareType;
   G: TGroupType;
   U: TKMUnit;
   H: TKMHouse;

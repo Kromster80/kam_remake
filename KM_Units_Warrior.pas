@@ -158,7 +158,7 @@ procedure TKMUnitWarrior.OrderFood;
 begin
   if (fCondition < (UNIT_MAX_CONDITION * TROOPS_FEED_MAX)) and not fRequestedFood then
   begin
-    fPlayers[fOwner].Deliveries.Queue.AddDemand(nil, Self, rt_Food, 1, dt_Once, di_High);
+    fPlayers[fOwner].Deliveries.Queue.AddDemand(nil, Self, wt_Food, 1, dt_Once, di_High);
     fRequestedFood := True;
   end;
 end;

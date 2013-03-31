@@ -40,9 +40,9 @@ type
       Consumed: Cardinal;
     end;
     fResourceRatios: array [1..4, 1..4]of Byte;
-    function GetChartWares(aWare: TresourceType): TKMCardinalArray;
-    function GetRatio(aRes: TResourceType; aHouse: THouseType): Byte;
-    procedure SetRatio(aRes: TResourceType; aHouse: THouseType; aValue: Byte);
+    function GetChartWares(aWare: TWareType): TKMCardinalArray;
+    function GetRatio(aRes: TWareType; aHouse: THouseType): Byte;
+    procedure SetRatio(aRes: TWareType; aHouse: THouseType; aValue: Byte);
     procedure UpdateReqDone(aType: THouseType);
   public
     HouseBlocked: array [THouseType] of Boolean; //Allowance derived from mission script
@@ -52,9 +52,9 @@ type
     constructor Create;
 
     //Input reported by Player
-    procedure WareInitial(aRes: TResourceType; aCount: Cardinal);
-    procedure WareProduced(aRes: TResourceType; aCount: Cardinal);
-    procedure WareConsumed(aRes: TResourceType; aCount: Cardinal = 1);
+    procedure WareInitial(aRes: TWareType; aCount: Cardinal);
+    procedure WareProduced(aRes: TWareType; aCount: Cardinal);
+    procedure WareConsumed(aRes: TWareType; aCount: Cardinal = 1);
     procedure HousePlanned(aType: THouseType);
     procedure HousePlanRemoved(aType: THouseType);
     procedure HouseStarted(aType: THouseType);
@@ -67,7 +67,7 @@ type
     procedure UnitLost(aType: TUnitType);
     procedure UnitKilled(aType: TUnitType);
 
-    property Ratio[aRes: TResourceType; aHouse: THouseType]: Byte read GetRatio write SetRatio;
+    property Ratio[aRes: TWareType; aHouse: THouseType]: Byte read GetRatio write SetRatio;
 
     //Output
     function GetHouseQty(aType: THouseType): Integer; overload;
@@ -77,7 +77,7 @@ type
     function GetUnitQty(aType: TUnitType): Integer;
     function GetUnitKilledQty(aType: TUnitType): Integer;
     function GetUnitLostQty(aType: TUnitType): Integer;
-    function GetWareBalance(aRT: TResourceType): Integer;
+    function GetWareBalance(aRT: TWareType): Integer;
     function GetArmyCount: Integer;
     function GetCitizensCount: Integer;
     function GetCanBuild(aType: THouseType): Boolean;
@@ -91,7 +91,7 @@ type
     function GetWarriorsTrained: Cardinal;
     function GetWarriorsKilled: Cardinal;
     function GetWarriorsLost: Cardinal;
-    function GetWaresProduced(aRT: TResourceType): Cardinal;
+    function GetWaresProduced(aRT: TWareType): Cardinal;
     function GetCivilProduced: Cardinal;
     function GetWeaponsProduced: Cardinal;
 
@@ -100,7 +100,7 @@ type
     property ChartCitizens: TKMCardinalArray read fChartCitizens;
     property ChartRecruits: TKMCardinalArray read fChartRecruits;
     property ChartArmy: TKMCardinalArray read fChartArmy;
-    property ChartWares[aWare: TResourceType]: TKMCardinalArray read GetChartWares;
+    property ChartWares[aWare: TWareType]: TKMCardinalArray read GetChartWares;
 
     procedure Save(SaveStream: TKMemoryStream);
     procedure Load(LoadStream: TKMemoryStream);
@@ -127,7 +127,7 @@ const
 { TKMPlayerStats }
 constructor TKMPlayerStats.Create;
 var
-  W: TResourceType;
+  W: TWareType;
   i,k: Integer;
 begin
   inherited;
@@ -231,20 +231,20 @@ begin
 end;
 
 
-procedure TKMPlayerStats.WareInitial(aRes: TResourceType; aCount: Cardinal);
+procedure TKMPlayerStats.WareInitial(aRes: TWareType; aCount: Cardinal);
 begin
   if not DISPLAY_CHARTS_RESULT then Exit;
-  if aRes <> rt_None then
+  if aRes <> wt_None then
     Inc(Wares[aRes].Initial, aCount);
 end;
 
 
-procedure TKMPlayerStats.WareProduced(aRes: TResourceType; aCount: Cardinal);
-var R: TResourceType;
+procedure TKMPlayerStats.WareProduced(aRes: TWareType; aCount: Cardinal);
+var R: TWareType;
 begin
-  if aRes <> rt_None then
+  if aRes <> wt_None then
     case aRes of
-      rt_All:     for R := WARE_MIN to WARE_MAX do
+      wt_All:     for R := WARE_MIN to WARE_MAX do
                     Inc(Wares[R].Produced, aCount);
       WARE_MIN..
       WARE_MAX:   Inc(Wares[aRes].Produced, aCount);
@@ -253,10 +253,10 @@ begin
 end;
 
 
-procedure TKMPlayerStats.WareConsumed(aRes: TResourceType; aCount: Cardinal = 1);
+procedure TKMPlayerStats.WareConsumed(aRes: TWareType; aCount: Cardinal = 1);
 begin
   if not DISPLAY_CHARTS_RESULT then Exit;
-  if aRes <> rt_None then
+  if aRes <> wt_None then
     Inc(Wares[aRes].Consumed, aCount);
 end;
 
@@ -367,15 +367,15 @@ begin
 end;
 
 
-function TKMPlayerStats.GetWareBalance(aRT: TResourceType): Integer;
-var RT: TResourceType;
+function TKMPlayerStats.GetWareBalance(aRT: TWareType): Integer;
+var RT: TWareType;
 begin
   Result := 0;
   case aRT of
-    rt_None:    ;
-    rt_All:     for RT := WARE_MIN to WARE_MAX do
+    wt_None:    ;
+    wt_All:     for RT := WARE_MIN to WARE_MAX do
                   Inc(Result, Wares[RT].Initial + Wares[RT].Produced - Wares[RT].Consumed);
-    rt_Warfare: for RT := WARFARE_MIN to WARFARE_MAX do
+    wt_Warfare: for RT := WARFARE_MIN to WARFARE_MAX do
                   Inc(Result, Wares[RT].Initial + Wares[RT].Produced - Wares[RT].Consumed);
     else        Result := Wares[aRT].Initial + Wares[aRT].Produced - Wares[aRT].Consumed;
   end;
@@ -407,19 +407,19 @@ begin
 end;
 
 
-function TKMPlayerStats.GetRatio(aRes: TResourceType; aHouse: THouseType): Byte;
+function TKMPlayerStats.GetRatio(aRes: TWareType; aHouse: THouseType): Byte;
 begin  
   Result := 5; //Default should be 5, for house/resource combinations that don't have a setting (on a side note this should be the only place the resourse limit is defined)
   case aRes of
-    rt_Steel: if aHouse = ht_WeaponSmithy   then Result := fResourceRatios[1,1] else
+    wt_Steel: if aHouse = ht_WeaponSmithy   then Result := fResourceRatios[1,1] else
               if aHouse = ht_ArmorSmithy    then Result := fResourceRatios[1,2];
-    rt_Coal:  if aHouse = ht_IronSmithy     then Result := fResourceRatios[2,1] else
+    wt_Coal:  if aHouse = ht_IronSmithy     then Result := fResourceRatios[2,1] else
               if aHouse = ht_Metallurgists  then Result := fResourceRatios[2,2] else
               if aHouse = ht_WeaponSmithy   then Result := fResourceRatios[2,3] else
               if aHouse = ht_ArmorSmithy    then Result := fResourceRatios[2,4];
-    rt_Wood:  if aHouse = ht_ArmorWorkshop  then Result := fResourceRatios[3,1] else
+    wt_Wood:  if aHouse = ht_ArmorWorkshop  then Result := fResourceRatios[3,1] else
               if aHouse = ht_WeaponWorkshop then Result := fResourceRatios[3,2];
-    rt_Corn:  if aHouse = ht_Mill           then Result := fResourceRatios[4,1] else
+    wt_Corn:  if aHouse = ht_Mill           then Result := fResourceRatios[4,1] else
               if aHouse = ht_Swine          then Result := fResourceRatios[4,2] else
               if aHouse = ht_Stables        then Result := fResourceRatios[4,3];
     else      //Handled in 1st row to avoid repeating in if .. else lines
@@ -427,18 +427,18 @@ begin
 end;
 
 
-procedure TKMPlayerStats.SetRatio(aRes: TResourceType; aHouse: THouseType; aValue: Byte);
+procedure TKMPlayerStats.SetRatio(aRes: TWareType; aHouse: THouseType; aValue: Byte);
 begin
   case aRes of
-    rt_Steel: if aHouse = ht_WeaponSmithy   then fResourceRatios[1,1] := aValue else
+    wt_Steel: if aHouse = ht_WeaponSmithy   then fResourceRatios[1,1] := aValue else
               if aHouse = ht_ArmorSmithy    then fResourceRatios[1,2] := aValue;
-    rt_Coal:  if aHouse = ht_IronSmithy     then fResourceRatios[2,1] := aValue else
+    wt_Coal:  if aHouse = ht_IronSmithy     then fResourceRatios[2,1] := aValue else
               if aHouse = ht_Metallurgists  then fResourceRatios[2,2] := aValue else
               if aHouse = ht_WeaponSmithy   then fResourceRatios[2,3] := aValue else
               if aHouse = ht_ArmorSmithy    then fResourceRatios[2,4] := aValue;
-    rt_Wood:  if aHouse = ht_ArmorWorkshop  then fResourceRatios[3,1] := aValue else
+    wt_Wood:  if aHouse = ht_ArmorWorkshop  then fResourceRatios[3,1] := aValue else
               if aHouse = ht_WeaponWorkshop then fResourceRatios[3,2] := aValue;
-    rt_Corn:  if aHouse = ht_Mill           then fResourceRatios[4,1] := aValue else
+    wt_Corn:  if aHouse = ht_Mill           then fResourceRatios[4,1] := aValue else
               if aHouse = ht_Swine          then fResourceRatios[4,2] := aValue else
               if aHouse = ht_Stables        then fResourceRatios[4,3] := aValue;
     else      Assert(False, 'Unexpected resource at SetRatio');
@@ -529,15 +529,15 @@ begin
 end;
 
 
-function TKMPlayerStats.GetWaresProduced(aRT: TResourceType): Cardinal;
-var RT: TResourceType;
+function TKMPlayerStats.GetWaresProduced(aRT: TWareType): Cardinal;
+var RT: TWareType;
 begin
   Result := 0;
   case aRT of
-    rt_None:    ;
-    rt_All:     for RT := WARE_MIN to WARE_MAX do
+    wt_None:    ;
+    wt_All:     for RT := WARE_MIN to WARE_MAX do
                   Inc(Result, Wares[RT].Produced);
-    rt_Warfare: for RT := WARFARE_MIN to WARFARE_MAX do
+    wt_Warfare: for RT := WARFARE_MIN to WARFARE_MAX do
                   Inc(Result, Wares[RT].Produced);
     else        Result := Wares[aRT].Produced;
   end;
@@ -546,7 +546,7 @@ end;
 
 //Everything except weapons
 function TKMPlayerStats.GetCivilProduced: Cardinal;
-var RT: TResourceType;
+var RT: TWareType;
 begin
   Result := 0;
   for RT := WARE_MIN to WARE_MAX do
@@ -557,7 +557,7 @@ end;
 
 //KaM includes all weapons and armor, but not horses
 function TKMPlayerStats.GetWeaponsProduced: Cardinal;
-var RT: TResourceType;
+var RT: TWareType;
 begin
   Result := 0;
   for RT := WEAPON_MIN to WEAPON_MAX do
@@ -565,14 +565,14 @@ begin
 end;
 
 
-function TKMPlayerStats.GetChartWares(aWare: TresourceType): TKMCardinalArray;
+function TKMPlayerStats.GetChartWares(aWare: TWareType): TKMCardinalArray;
 begin
   Result := fChartWares[aWare];
 end;
 
 
 procedure TKMPlayerStats.Save(SaveStream: TKMemoryStream);
-var R: TResourceType;
+var R: TWareType;
 begin
   SaveStream.Write('PlayerStats');
   SaveStream.Write(Houses, SizeOf(Houses));
@@ -598,7 +598,7 @@ end;
 
 
 procedure TKMPlayerStats.Load(LoadStream: TKMemoryStream);
-var R: TResourceType;
+var R: TWareType;
 begin
   LoadStream.ReadAssert('PlayerStats');
   LoadStream.Read(Houses, SizeOf(Houses));
@@ -632,7 +632,7 @@ end;
 
 
 procedure TKMPlayerStats.UpdateState;
-var I: TResourceType;
+var I: TWareType;
 begin
   if not DISPLAY_CHARTS_RESULT then Exit;
 

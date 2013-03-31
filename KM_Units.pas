@@ -209,18 +209,18 @@ type
   //Serf - transports all wares between houses
   TKMUnitSerf = class(TKMUnit)
   private
-    fCarry: TResourceType;
+    fCarry: TWareType;
   public
     constructor Create(aID: Cardinal; aUnitType: TUnitType; aLoc: TKMPoint; aOwner: TPlayerIndex);
     constructor Load(LoadStream: TKMemoryStream); override;
     procedure Save(SaveStream: TKMemoryStream); override;
 
-    procedure Deliver(aFrom: TKMHouse; toHouse: TKMHouse; Res: TResourceType; aID: integer); overload;
-    procedure Deliver(aFrom: TKMHouse; toUnit: TKMUnit; Res: TResourceType; aID: integer); overload;
+    procedure Deliver(aFrom: TKMHouse; toHouse: TKMHouse; Res: TWareType; aID: integer); overload;
+    procedure Deliver(aFrom: TKMHouse; toUnit: TKMUnit; Res: TWareType; aID: integer); overload;
     function TryDeliverFrom(aFrom: TKMHouse): Boolean;
 
-    property Carry: TResourceType read fCarry;
-    procedure CarryGive(Res: TResourceType);
+    property Carry: TWareType read fCarry;
+    procedure CarryGive(Res: TWareType);
     procedure CarryTake;
     procedure SetNewDelivery(aDelivery:TUnitTask);
 
@@ -505,8 +505,8 @@ begin
     IssueResourceDepletedMessage;
 
   if TM.WorkPlan.IsIssued
-  and ((TM.WorkPlan.Resource1 = rt_None) or (fHome.CheckResIn(TM.WorkPlan.Resource1) >= TM.WorkPlan.Count1))
-  and ((TM.WorkPlan.Resource2 = rt_None) or (fHome.CheckResIn(TM.WorkPlan.Resource2) >= TM.WorkPlan.Count2))
+  and ((TM.WorkPlan.Resource1 = wt_None) or (fHome.CheckResIn(TM.WorkPlan.Resource1) >= TM.WorkPlan.Count1))
+  and ((TM.WorkPlan.Resource2 = wt_None) or (fHome.CheckResIn(TM.WorkPlan.Resource2) >= TM.WorkPlan.Count2))
   and (fHome.CheckResOut(TM.WorkPlan.Product1) < MAX_RES_IN_HOUSE)
   and (fHome.CheckResOut(TM.WorkPlan.Product2) < MAX_RES_IN_HOUSE) then
   begin
@@ -646,7 +646,7 @@ begin
   Result := nil;
 
   //See if we are in a tower and have something to throw
-  if (not (fHome is TKMHouseTower)) or ((not FREE_ROCK_THROWING) and (fHome.CheckResIn(rt_Stone) <= 0)) then
+  if (not (fHome is TKMHouseTower)) or ((not FREE_ROCK_THROWING) and (fHome.CheckResIn(wt_Stone) <= 0)) then
     Exit;
 
   Enemy := fTerrain.UnitsHitTestWithinRad(fCurrPosition, RANGE_WATCHTOWER_MIN, RANGE_WATCHTOWER_MAX, fOwner, at_Enemy, dir_NA, not RANDOM_TARGETS);
@@ -664,18 +664,18 @@ end;
 constructor TKMUnitSerf.Create(aID: Cardinal; aUnitType: TUnitType; aLoc: TKMPoint; aOwner: TPlayerIndex);
 begin
   inherited;
-  fCarry := rt_None;
+  fCarry := wt_None;
 end;
 
 
-procedure TKMUnitSerf.Deliver(aFrom, toHouse: TKMHouse; Res: TResourceType; aID: integer);
+procedure TKMUnitSerf.Deliver(aFrom, toHouse: TKMHouse; Res: TWareType; aID: integer);
 begin
   fThought := th_None; //Clear ? thought
   fUnitTask := TTaskDeliver.Create(Self, aFrom, toHouse, Res, aID);
 end;
 
 
-procedure TKMUnitSerf.Deliver(aFrom: TKMHouse; toUnit: TKMUnit; Res: TResourceType; aID: integer);
+procedure TKMUnitSerf.Deliver(aFrom: TKMHouse; toUnit: TKMUnit; Res: TWareType; aID: integer);
 begin
   fThought := th_None; //Clear ? thought
   fUnitTask := TTaskDeliver.Create(Self, aFrom, toUnit, Res, aID);
@@ -721,7 +721,7 @@ begin
 
   if fUnitTask is TTaskDie then exit; //Do not show unnecessary arms
 
-  if Carry <> rt_None then
+  if Carry <> wt_None then
     fRenderPool.AddUnitCarry(Carry, Direction, AnimStep, XPaintPos, YPaintPos)
   else
     fRenderPool.AddUnit(UnitType, ua_WalkArm, Direction, AnimStep, XPaintPos, YPaintPos, fPlayers[fOwner].FlagColor, false);
@@ -773,17 +773,17 @@ begin
 end;
 
 
-procedure TKMUnitSerf.CarryGive(Res:TResourceType);
+procedure TKMUnitSerf.CarryGive(Res:TWareType);
 begin
-  Assert(fCarry=rt_None, 'Giving Serf another Carry');
+  Assert(fCarry=wt_None, 'Giving Serf another Carry');
   fCarry := Res;
 end;
 
 
 procedure TKMUnitSerf.CarryTake;
 begin
-  Assert(Carry <> rt_None, 'Taking wrong resource from Serf');
-  fCarry := rt_None;
+  Assert(Carry <> wt_None, 'Taking wrong resource from Serf');
+  fCarry := wt_None;
 end;
 
 

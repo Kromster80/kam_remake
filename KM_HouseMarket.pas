@@ -9,14 +9,14 @@ type
   //Marketplace
   TKMHouseMarket = class(TKMHouse)
   private
-    fResFrom, fResTo: TResourceType;
+    fResFrom, fResTo: TWareType;
     fMarketResIn: array [WARE_MIN..WARE_MAX] of Word;
     fMarketResOut: array [WARE_MIN..WARE_MAX] of Word;
     fMarketDeliveryCount: array [WARE_MIN..WARE_MAX] of Word;
     fTradeAmount: Word;
     procedure AttemptExchange;
-    procedure SetResFrom(aRes: TResourceType);
-    procedure SetResTo(aRes: TResourceType);
+    procedure SetResFrom(aRes: TWareType);
+    procedure SetResTo(aRes: TWareType);
   protected
     function GetResOrder(aId: Byte): Integer; override;
     procedure SetResOrder(aId: Byte; aValue: Integer); override;
@@ -25,18 +25,18 @@ type
     constructor Load(LoadStream: TKMemoryStream); override;
 
     procedure DemolishHouse(aFrom: TPlayerIndex; IsEditor: Boolean = False); override;
-    property ResFrom: TResourceType read fResFrom write SetResFrom;
-    property ResTo: TResourceType read fResTo write SetResTo;
+    property ResFrom: TWareType read fResFrom write SetResFrom;
+    property ResTo: TWareType read fResTo write SetResTo;
     function RatioFrom: Byte;
     function RatioTo: Byte;
 
-    function AllowedToTrade(aRes: TResourceType): Boolean;
+    function AllowedToTrade(aRes: TWareType): Boolean;
     function TradeInProgress: Boolean;
-    function GetResTotal(aResource: TResourceType): Word; overload;
-    function CheckResIn(aResource: TResourceType): Word; override;
-    procedure ResAddToIn(aResource: TResourceType; aCount: Word=1; aFromScript: Boolean=false); override;
-    procedure ResTakeFromOut(aResource: TResourceType; const aCount: Word=1); override;
-    function ResCanAddToIn(aRes: TResourceType): Boolean; override;
+    function GetResTotal(aResource: TWareType): Word; overload;
+    function CheckResIn(aResource: TWareType): Word; override;
+    procedure ResAddToIn(aResource: TWareType; aCount: Word=1; aFromScript: Boolean=false); override;
+    procedure ResTakeFromOut(aResource: TWareType; const aCount: Word=1); override;
+    function ResCanAddToIn(aRes: TWareType): Boolean; override;
 
     procedure Save(SaveStream: TKMemoryStream); override;
     procedure Paint; override;
@@ -53,14 +53,14 @@ constructor TKMHouseMarket.Create(aID: Cardinal; aHouseType: THouseType; PosX, P
 begin
   inherited;
 
-  fResFrom := rt_None;
-  fResTo := rt_None;
+  fResFrom := wt_None;
+  fResTo := wt_None;
 end;
 
 
 procedure TKMHouseMarket.DemolishHouse(aFrom: TPlayerIndex; IsEditor: Boolean = False);
 var
-  R: TResourceType;
+  R: TWareType;
 begin
   //Count resources as lost
   for R := WARE_MIN to WARE_MAX do
@@ -70,13 +70,13 @@ begin
 end;
 
 
-function TKMHouseMarket.GetResTotal(aResource: TResourceType): Word;
+function TKMHouseMarket.GetResTotal(aResource: TWareType): Word;
 begin
   Result := fMarketResIn[aResource] + fMarketResOut[aResource];
 end;
 
 
-function TKMHouseMarket.CheckResIn(aResource: TResourceType): Word;
+function TKMHouseMarket.CheckResIn(aResource: TWareType): Word;
 begin
   Result := fMarketResIn[aResource];
 end;
@@ -91,7 +91,7 @@ end;
 function TKMHouseMarket.RatioFrom: Byte;
 var CostFrom, CostTo: Single;
 begin
-  if (fResFrom <> rt_None) and (fResTo <> rt_None) then
+  if (fResFrom <> wt_None) and (fResTo <> wt_None) then
   begin
     //When trading target ware is priced higher
     CostFrom := fResource.Resources[fResFrom].MarketPrice;
@@ -105,7 +105,7 @@ end;
 function TKMHouseMarket.RatioTo: Byte;
 var CostFrom, CostTo: Single;
 begin
-  if (fResFrom <> rt_None) and (fResTo <> rt_None) then
+  if (fResFrom <> wt_None) and (fResTo <> wt_None) then
   begin
     //When trading target ware is priced higher
     CostFrom := fResource.Resources[fResFrom].MarketPrice;
@@ -116,7 +116,7 @@ begin
 end;
 
 
-procedure TKMHouseMarket.ResAddToIn(aResource: TResourceType; aCount: Word = 1; aFromScript: Boolean = False);
+procedure TKMHouseMarket.ResAddToIn(aResource: TWareType; aCount: Word = 1; aFromScript: Boolean = False);
 var ResRequired: Integer;
 begin
   //If user cancelled the exchange (or began new one with different resources already)
@@ -144,7 +144,7 @@ begin
 end;
 
 
-function TKMHouseMarket.ResCanAddToIn(aRes: TResourceType): Boolean;
+function TKMHouseMarket.ResCanAddToIn(aRes: TWareType): Boolean;
 begin
   Result := (aRes in [WARE_MIN..WARE_MAX]);
 end;
@@ -153,7 +153,7 @@ end;
 procedure TKMHouseMarket.AttemptExchange;
 var TradeCount: Word;
 begin
-  Assert((fResFrom <> rt_None) and (fResTo <> rt_None) and (fResFrom <> fResTo) and
+  Assert((fResFrom <> wt_None) and (fResTo <> wt_None) and (fResFrom <> fResTo) and
           AllowedToTrade(fResFrom) and AllowedToTrade(fResTo));
 
   if TradeInProgress and (fMarketResIn[fResFrom] >= RatioFrom) then
@@ -173,7 +173,7 @@ begin
 end;
 
 
-procedure TKMHouseMarket.ResTakeFromOut(aResource: TResourceType; const aCount: Word = 1);
+procedure TKMHouseMarket.ResTakeFromOut(aResource: TWareType; const aCount: Word = 1);
 begin
   Assert(aCount <= fMarketResOut[aResource]);
 
@@ -181,31 +181,31 @@ begin
 end;
 
 
-function TKMHouseMarket.AllowedToTrade(aRes: TResourceType): Boolean;
+function TKMHouseMarket.AllowedToTrade(aRes: TWareType): Boolean;
 begin
   Result := fPlayers[fOwner].Stats.AllowToTrade[aRes];
 end;
 
 
-procedure TKMHouseMarket.SetResFrom(aRes: TResourceType);
+procedure TKMHouseMarket.SetResFrom(aRes: TWareType);
 begin
   if TradeInProgress or not AllowedToTrade(aRes) then
     Exit;
 
   fResFrom := aRes;
   if fResTo = fResFrom then
-    fResTo := rt_None;
+    fResTo := wt_None;
 end;
 
 
-procedure TKMHouseMarket.SetResTo(aRes: TResourceType);
+procedure TKMHouseMarket.SetResTo(aRes: TWareType);
 begin
   if TradeInProgress or not AllowedToTrade(aRes) then
     Exit;
 
   fResTo := aRes;
   if fResFrom = fResTo then
-    fResFrom := rt_None;
+    fResFrom := wt_None;
 end;
 
 
@@ -223,7 +223,7 @@ const
 var
   ResRequired, OrdersAllowed, OrdersRemoved: Integer;
 begin
-  if (fResFrom = rt_None) or (fResTo = rt_None) or (fResFrom = fResTo) then Exit;
+  if (fResFrom = wt_None) or (fResTo = wt_None) or (fResFrom = fResTo) then Exit;
 
   fTradeAmount := EnsureRange(aValue, 0, MAX_ORDER);
 
@@ -294,16 +294,16 @@ end;
 //Render special market wares display
 procedure TKMHouseMarket.Paint;
 var
-  R: TResourceType;
+  R: TWareType;
   MaxCount: Word;
-  MaxRes: TResourceType;
+  MaxRes: TWareType;
 begin
   inherited;
   if fBuildState < hbs_Done then Exit;
 
   //Market can display only one ware at a time (lookup ware that has most count)
   MaxCount := 0;
-  MaxRes := rt_None;
+  MaxRes := wt_None;
   for R := WARE_MIN to WARE_MAX do
   if fMarketResIn[R] > MaxCount then
   begin

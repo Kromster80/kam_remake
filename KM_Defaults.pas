@@ -280,25 +280,25 @@ type
 
   TAllianceType = (at_Enemy=0, at_Ally=1); //Must match KaM script IDs for now
 
-{Resources}
+{Wares}
 type
-  TResourceType = (
-    rt_None,  //Special resource types
-    rt_Trunk,   rt_Stone,   rt_Wood,        rt_IronOre,   rt_GoldOre,
-    rt_Coal,    rt_Steel,   rt_Gold,        rt_Wine,      rt_Corn,
-    rt_Bread,   rt_Flour,   rt_Leather,     rt_Sausages,  rt_Pig,
-    rt_Skin,    rt_Shield,  rt_MetalShield, rt_Armor,     rt_MetalArmor,
-    rt_Axe,     rt_Sword,   rt_Pike,        rt_Hallebard, rt_Bow,
-    rt_Arbalet, rt_Horse,   rt_Fish,
-    rt_All,     rt_Warfare, rt_Food);
+  TWareType = (
+    wt_None,
+    wt_Trunk,   wt_Stone,   wt_Wood,        wt_IronOre,   wt_GoldOre,
+    wt_Coal,    wt_Steel,   wt_Gold,        wt_Wine,      wt_Corn,
+    wt_Bread,   wt_Flour,   wt_Leather,     wt_Sausages,  wt_Pig,
+    wt_Skin,    wt_Shield,  wt_MetalShield, wt_Armor,     wt_MetalArmor,
+    wt_Axe,     wt_Sword,   wt_Pike,        wt_Hallebard, wt_Bow,
+    wt_Arbalet, wt_Horse,   wt_Fish,
+    wt_All,     wt_Warfare, wt_Food); //Special ware types
 
 const
-  WARE_MIN = rt_Trunk;
-  WARE_MAX = rt_Fish;
-  WARFARE_MIN = rt_Shield;
-  WEAPON_MIN = rt_Shield;
-  WEAPON_MAX = rt_Arbalet;
-  WARFARE_MAX = rt_Horse;
+  WARE_MIN = wt_Trunk;
+  WARE_MAX = wt_Fish;
+  WARFARE_MIN = wt_Shield;
+  WEAPON_MIN = wt_Shield;
+  WEAPON_MAX = wt_Arbalet;
+  WARFARE_MAX = wt_Horse;
 
   //Resources colors for Results charts
   //Made by naospor from kamclub.ru
@@ -348,17 +348,17 @@ const
   0,0,0);
 
 const {Aligned to right to use them in GUI costs display as well}
-  WarfareCosts: array[WEAPON_MIN..WEAPON_MAX, 1..2]of TResourceType = (
-    (rt_None,   rt_Wood), //rt_Shield
-    (rt_Coal,  rt_Steel), //rt_MetalShield
-    (rt_None,rt_Leather), //rt_Armor
-    (rt_Coal,  rt_Steel), //rt_MetalArmor
-    (rt_Wood,   rt_Wood), //rt_Axe
-    (rt_Coal,  rt_Steel), //rt_Sword
-    (rt_Wood,   rt_Wood), //rt_Pike
-    (rt_Coal,  rt_Steel), //rt_Hallebard
-    (rt_Wood,   rt_Wood), //rt_Bow
-    (rt_Coal,  rt_Steel)  //rt_Arbalet
+  WarfareCosts: array[WEAPON_MIN..WEAPON_MAX, 1..2]of TWareType = (
+    (wt_None,   wt_Wood), //rt_Shield
+    (wt_Coal,  wt_Steel), //rt_MetalShield
+    (wt_None,wt_Leather), //rt_Armor
+    (wt_Coal,  wt_Steel), //rt_MetalArmor
+    (wt_Wood,   wt_Wood), //rt_Axe
+    (wt_Coal,  wt_Steel), //rt_Sword
+    (wt_Wood,   wt_Wood), //rt_Pike
+    (wt_Coal,  wt_Steel), //rt_Hallebard
+    (wt_Wood,   wt_Wood), //rt_Bow
+    (wt_Coal,  wt_Steel)  //rt_Arbalet
   );
 
 { Terrain }
@@ -597,16 +597,16 @@ const
 
 
   //Number means ResourceType as it is stored in Barracks, hence it's not rt_Something
-  TroopCost:array[ut_Militia..ut_Cavalry,1..4] of TResourceType = (
-  (rt_Axe,          rt_None,        rt_None,  rt_None ), //Militia
-  (rt_Shield,       rt_Armor,       rt_Axe,   rt_None ), //Axefighter
-  (rt_MetalShield,  rt_MetalArmor,  rt_Sword, rt_None ), //Swordfighter
-  (rt_Armor,        rt_Bow,         rt_None,  rt_None ), //Bowman
-  (rt_MetalArmor,   rt_Arbalet,     rt_None,  rt_None ), //Crossbowman
-  (rt_Armor,        rt_Pike,        rt_None,  rt_None ), //Lance Carrier
-  (rt_MetalArmor,   rt_Hallebard,   rt_None,  rt_None ), //Pikeman
-  (rt_Shield,       rt_Armor,       rt_Axe,   rt_Horse), //Scout
-  (rt_MetalShield,  rt_MetalArmor,  rt_Sword, rt_Horse)  //Knight
+  TroopCost:array[ut_Militia..ut_Cavalry,1..4] of TWareType = (
+  (wt_Axe,          wt_None,        wt_None,  wt_None ), //Militia
+  (wt_Shield,       wt_Armor,       wt_Axe,   wt_None ), //Axefighter
+  (wt_MetalShield,  wt_MetalArmor,  wt_Sword, wt_None ), //Swordfighter
+  (wt_Armor,        wt_Bow,         wt_None,  wt_None ), //Bowman
+  (wt_MetalArmor,   wt_Arbalet,     wt_None,  wt_None ), //Crossbowman
+  (wt_Armor,        wt_Pike,        wt_None,  wt_None ), //Lance Carrier
+  (wt_MetalArmor,   wt_Hallebard,   wt_None,  wt_None ), //Pikeman
+  (wt_Shield,       wt_Armor,       wt_Axe,   wt_Horse), //Scout
+  (wt_MetalShield,  wt_MetalArmor,  wt_Sword, wt_Horse)  //Knight
   );
 
 

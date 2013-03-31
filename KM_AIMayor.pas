@@ -140,8 +140,8 @@ var
   function HasEnoughGold: Boolean;
   begin
     //Producing gold or (Gold > 10)
-    Result := (P.Stats.GetWaresProduced(rt_Gold) > 1)
-              or (P.Stats.GetWareBalance(rt_Gold) > 10);
+    Result := (P.Stats.GetWaresProduced(wt_Gold) > 1)
+              or (P.Stats.GetWareBalance(wt_Gold) > 10);
   end;
 
   function TryAddToQueue(aUnitType: TUnitType; aReq: Integer): Boolean;
@@ -241,34 +241,34 @@ begin
     if not H.IsDestroyed and (ResOrder = 0) then
     case H.HouseType of
       ht_ArmorSmithy:     for K := 1 to 4 do
-                            if fResource.HouseDat[H.HouseType].ResOutput[K] = rt_MetalShield then
+                            if fResource.HouseDat[H.HouseType].ResOutput[K] = wt_MetalShield then
                               H.ResOrder[K] := Round(ShieldNeed * PORTIONS)
                             else
-                            if fResource.HouseDat[H.HouseType].ResOutput[K] = rt_MetalArmor then
+                            if fResource.HouseDat[H.HouseType].ResOutput[K] = wt_MetalArmor then
                               H.ResOrder[K] := Round(ArmorNeed * PORTIONS);
       ht_ArmorWorkshop:   for K := 1 to 4 do
-                            if fResource.HouseDat[H.HouseType].ResOutput[K] = rt_Shield then
+                            if fResource.HouseDat[H.HouseType].ResOutput[K] = wt_Shield then
                               H.ResOrder[K] := Round(ShieldNeed * PORTIONS)
                             else
-                            if fResource.HouseDat[H.HouseType].ResOutput[K] = rt_Armor then
+                            if fResource.HouseDat[H.HouseType].ResOutput[K] = wt_Armor then
                               H.ResOrder[K] := Round(ArmorNeed * PORTIONS);
       ht_WeaponSmithy:    for K := 1 to 4 do
-                            if fResource.HouseDat[H.HouseType].ResOutput[K] = rt_Sword then
+                            if fResource.HouseDat[H.HouseType].ResOutput[K] = wt_Sword then
                               H.ResOrder[K] := Round(AxeNeed * PORTIONS)
                             else
-                            if fResource.HouseDat[H.HouseType].ResOutput[K] = rt_Hallebard then
+                            if fResource.HouseDat[H.HouseType].ResOutput[K] = wt_Hallebard then
                               H.ResOrder[K] := Round(PikeNeed * PORTIONS)
                             else
-                            if fResource.HouseDat[H.HouseType].ResOutput[K] = rt_Arbalet then
+                            if fResource.HouseDat[H.HouseType].ResOutput[K] = wt_Arbalet then
                               H.ResOrder[K] := Round(BowNeed * PORTIONS);
       ht_WeaponWorkshop:  for K := 1 to 4 do
-                            if fResource.HouseDat[H.HouseType].ResOutput[K] = rt_Axe then
+                            if fResource.HouseDat[H.HouseType].ResOutput[K] = wt_Axe then
                               H.ResOrder[K] := Round(AxeNeed * PORTIONS)
                             else
-                            if fResource.HouseDat[H.HouseType].ResOutput[K] = rt_Pike then
+                            if fResource.HouseDat[H.HouseType].ResOutput[K] = wt_Pike then
                               H.ResOrder[K] := Round(PikeNeed * PORTIONS)
                             else
-                            if fResource.HouseDat[H.HouseType].ResOutput[K] = rt_Bow then
+                            if fResource.HouseDat[H.HouseType].ResOutput[K] = wt_Bow then
                               H.ResOrder[K] := Round(BowNeed * PORTIONS);
     end;
   end;
@@ -415,8 +415,8 @@ begin
   S := TKMHouseStore(fPlayers[fOwner].FindHouse(ht_Store, I));
   while S <> nil do
   begin
-    S.NotAcceptFlag[rt_Trunk] := S.CheckResIn(rt_Trunk) > 50;
-    S.NotAcceptFlag[rt_Stone] := S.CheckResIn(rt_Stone) > 50;
+    S.NotAcceptFlag[wt_Trunk] := S.CheckResIn(wt_Trunk) > 50;
+    S.NotAcceptFlag[wt_Stone] := S.CheckResIn(wt_Stone) > 50;
 
     //Look for next Store
     Inc(I);

@@ -76,13 +76,13 @@ type
     fSerfCarry: array [WARE_MIN..WARE_MAX, dir_N..dir_NW] of TKMAnimLoop;
     function LoadUnitsDat(aPath: string): Cardinal;
     function GetUnitDat(aType: TUnitType): TKMUnitDatClass;
-    function GetSerfCarry(aType: TResourceType; aDir: TKMDirection): TKMAnimLoop;
+    function GetSerfCarry(aType: TWareType; aDir: TKMDirection): TKMAnimLoop;
   public
     constructor Create;
     destructor Destroy; override;
 
     property UnitsDat[aType: TUnitType]: TKMUnitDatClass read GetUnitDat; default;
-    property SerfCarry[aType: TResourceType; aDir: TKMDirection]: TKMAnimLoop read GetSerfCarry;
+    property SerfCarry[aType: TWareType; aDir: TKMDirection]: TKMAnimLoop read GetSerfCarry;
     property CRC: Cardinal read fCRC; //Return hash of all values
 
     procedure ExportCSV(aPath: string);
@@ -416,7 +416,7 @@ begin
 end;
 
 
-function TKMUnitDatCollection.GetSerfCarry(aType: TResourceType; aDir: TKMDirection): TKMAnimLoop;
+function TKMUnitDatCollection.GetSerfCarry(aType: TWareType; aDir: TKMDirection): TKMAnimLoop;
 begin
   Assert(aType in [WARE_MIN .. WARE_MAX]);
   Result := fSerfCarry[aType, aDir];
