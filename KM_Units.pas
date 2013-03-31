@@ -206,7 +206,7 @@ type
     procedure DestroyInBarracks;
   end;
 
-  //Serf class - transports all goods in game between houses
+  //Serf - transports all wares between houses
   TKMUnitSerf = class(TKMUnit)
   private
     fCarry: TResourceType;

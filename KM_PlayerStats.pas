@@ -15,7 +15,7 @@ type
     fChartCitizens: TKMCardinalArray;
     fChartRecruits: TKMCardinalArray;
     fChartArmy: TKMCardinalArray;
-    fChartGoods: array [WARE_MIN..WARE_MAX] of TKMCardinalArray;
+    fChartWares: array [WARE_MIN..WARE_MAX] of TKMCardinalArray;
     fHouseUnlocked: array [THouseType] of Boolean; //If building requirements performed
     Houses: array [THouseType] of packed record
       Planned,          //Houseplans were placed
@@ -34,13 +34,13 @@ type
       Lost,             //Died of hunger or killed
       Killed: Word;     //Killed (incl. self)
     end;
-    Goods: array [WARE_MIN..WARE_MAX] of packed record
+    Wares: array [WARE_MIN..WARE_MAX] of packed record
       Initial: Cardinal;
       Produced: Cardinal;
       Consumed: Cardinal;
     end;
     fResourceRatios: array [1..4, 1..4]of Byte;
-    function GetChartGoods(aWare: TresourceType): TKMCardinalArray;
+    function GetChartWares(aWare: TresourceType): TKMCardinalArray;
     function GetRatio(aRes: TResourceType; aHouse: THouseType): Byte;
     procedure SetRatio(aRes: TResourceType; aHouse: THouseType; aValue: Byte);
     procedure UpdateReqDone(aType: THouseType);
@@ -91,7 +91,7 @@ type
     function GetWarriorsTrained: Cardinal;
     function GetWarriorsKilled: Cardinal;
     function GetWarriorsLost: Cardinal;
-    function GetGoodsProduced(aRT: TResourceType): Cardinal;
+    function GetWaresProduced(aRT: TResourceType): Cardinal;
     function GetCivilProduced: Cardinal;
     function GetWeaponsProduced: Cardinal;
 
@@ -100,7 +100,7 @@ type
     property ChartCitizens: TKMCardinalArray read fChartCitizens;
     property ChartRecruits: TKMCardinalArray read fChartRecruits;
     property ChartArmy: TKMCardinalArray read fChartArmy;
-    property ChartGoods[aWare: TResourceType]: TKMCardinalArray read GetChartGoods;
+    property ChartWares[aWare: TResourceType]: TKMCardinalArray read GetChartWares;
 
     procedure Save(SaveStream: TKMemoryStream);
     procedure Load(LoadStream: TKMemoryStream);
@@ -235,7 +235,7 @@ procedure TKMPlayerStats.GoodInitial(aRes: TResourceType; aCount: Cardinal);
 begin
   if not DISPLAY_CHARTS_RESULT then Exit;
   if aRes <> rt_None then
-    Inc(Goods[aRes].Initial, aCount);
+    Inc(Wares[aRes].Initial, aCount);
 end;
 
 
@@ -245,9 +245,9 @@ begin
   if aRes <> rt_None then
     case aRes of
       rt_All:     for R := WARE_MIN to WARE_MAX do
-                    Inc(Goods[R].Produced, aCount);
+                    Inc(Wares[R].Produced, aCount);
       WARE_MIN..
-      WARE_MAX:   Inc(Goods[aRes].Produced, aCount);
+      WARE_MAX:   Inc(Wares[aRes].Produced, aCount);
       else        Assert(False, 'Cant''t add produced good ' + fResource.Resources[aRes].Title);
     end;
 end;
@@ -257,7 +257,7 @@ procedure TKMPlayerStats.GoodConsumed(aRes: TResourceType; aCount: Cardinal = 1)
 begin
   if not DISPLAY_CHARTS_RESULT then Exit;
   if aRes <> rt_None then
-    Inc(Goods[aRes].Consumed, aCount);
+    Inc(Wares[aRes].Consumed, aCount);
 end;
 
 
@@ -374,10 +374,10 @@ begin
   case aRT of
     rt_None:    ;
     rt_All:     for RT := WARE_MIN to WARE_MAX do
-                  Inc(Result, Goods[RT].Initial + Goods[RT].Produced - Goods[RT].Consumed);
+                  Inc(Result, Wares[RT].Initial + Wares[RT].Produced - Wares[RT].Consumed);
     rt_Warfare: for RT := WARFARE_MIN to WARFARE_MAX do
-                  Inc(Result, Goods[RT].Initial + Goods[RT].Produced - Goods[RT].Consumed);
-    else        Result := Goods[aRT].Initial + Goods[aRT].Produced - Goods[aRT].Consumed;
+                  Inc(Result, Wares[RT].Initial + Wares[RT].Produced - Wares[RT].Consumed);
+    else        Result := Wares[aRT].Initial + Wares[aRT].Produced - Wares[aRT].Consumed;
   end;
 end;
 
@@ -529,17 +529,17 @@ begin
 end;
 
 
-function TKMPlayerStats.GetGoodsProduced(aRT: TResourceType): Cardinal;
+function TKMPlayerStats.GetWaresProduced(aRT: TResourceType): Cardinal;
 var RT: TResourceType;
 begin
   Result := 0;
   case aRT of
     rt_None:    ;
     rt_All:     for RT := WARE_MIN to WARE_MAX do
-                  Inc(Result, Goods[RT].Produced);
+                  Inc(Result, Wares[RT].Produced);
     rt_Warfare: for RT := WARFARE_MIN to WARFARE_MAX do
-                  Inc(Result, Goods[RT].Produced);
-    else        Result := Goods[aRT].Produced;
+                  Inc(Result, Wares[RT].Produced);
+    else        Result := Wares[aRT].Produced;
   end;
 end;
 
@@ -551,7 +551,7 @@ begin
   Result := 0;
   for RT := WARE_MIN to WARE_MAX do
   if not (RT in [WEAPON_MIN..WEAPON_MAX]) then
-    Inc(Result, Goods[RT].Produced);
+    Inc(Result, Wares[RT].Produced);
 end;
 
 
@@ -561,13 +561,13 @@ var RT: TResourceType;
 begin
   Result := 0;
   for RT := WEAPON_MIN to WEAPON_MAX do
-    Inc(Result, Goods[RT].Produced);
+    Inc(Result, Wares[RT].Produced);
 end;
 
 
-function TKMPlayerStats.GetChartGoods(aWare: TresourceType): TKMCardinalArray;
+function TKMPlayerStats.GetChartWares(aWare: TresourceType): TKMCardinalArray;
 begin
-  Result := fChartGoods[aWare];
+  Result := fChartWares[aWare];
 end;
 
 
@@ -577,7 +577,7 @@ begin
   SaveStream.Write('PlayerStats');
   SaveStream.Write(Houses, SizeOf(Houses));
   SaveStream.Write(Units, SizeOf(Units));
-  SaveStream.Write(Goods, SizeOf(Goods));
+  SaveStream.Write(Wares, SizeOf(Wares));
   SaveStream.Write(fResourceRatios, SizeOf(fResourceRatios));
   SaveStream.Write(HouseBlocked, SizeOf(HouseBlocked));
   SaveStream.Write(HouseGranted, SizeOf(HouseGranted));
@@ -592,7 +592,7 @@ begin
     SaveStream.Write(fChartRecruits[0], SizeOf(fChartRecruits[0]) * fChartCount);
     SaveStream.Write(fChartArmy[0], SizeOf(fChartArmy[0]) * fChartCount);
     for R := WARE_MIN to WARE_MAX do
-      SaveStream.Write(fChartGoods[R][0], SizeOf(fChartGoods[R][0]) * fChartCount);
+      SaveStream.Write(fChartWares[R][0], SizeOf(fChartWares[R][0]) * fChartCount);
   end;
 end;
 
@@ -603,7 +603,7 @@ begin
   LoadStream.ReadAssert('PlayerStats');
   LoadStream.Read(Houses, SizeOf(Houses));
   LoadStream.Read(Units, SizeOf(Units));
-  LoadStream.Read(Goods, SizeOf(Goods));
+  LoadStream.Read(Wares, SizeOf(Wares));
   LoadStream.Read(fResourceRatios, SizeOf(fResourceRatios));
   LoadStream.Read(HouseBlocked, SizeOf(HouseBlocked));
   LoadStream.Read(HouseGranted, SizeOf(HouseGranted));
@@ -624,8 +624,8 @@ begin
     LoadStream.Read(fChartArmy[0], SizeOf(fChartArmy[0]) * fChartCount);
     for R := WARE_MIN to WARE_MAX do
     begin
-      SetLength(fChartGoods[R], fChartCount);
-      LoadStream.Read(fChartGoods[R][0], SizeOf(fChartGoods[R][0]) * fChartCount);
+      SetLength(fChartWares[R], fChartCount);
+      LoadStream.Read(fChartWares[R][0], SizeOf(fChartWares[R][0]) * fChartCount);
     end;
   end;
 end;
@@ -647,7 +647,7 @@ begin
     SetLength(fChartRecruits, fChartCapacity);
     SetLength(fChartArmy, fChartCapacity);
     for I := WARE_MIN to WARE_MAX do
-      SetLength(fChartGoods[I], fChartCapacity);
+      SetLength(fChartWares[I], fChartCapacity);
   end;
 
   fChartHouses[fChartCount] := GetHouseQty(ht_Any);
@@ -661,7 +661,7 @@ begin
   fChartRecruits[fChartCount] := GetUnitQty(ut_Recruit);
 
   for I := WARE_MIN to WARE_MAX do
-    fChartGoods[I, fChartCount] := Goods[I].Produced;
+    fChartWares[I, fChartCount] := Wares[I].Produced;
 
   Inc(fChartCount);
 end;

@@ -91,10 +91,10 @@ type
     property TabletIcon:word read GetTabletIcon;
     property SnowPic: SmallInt read GetSnowPic;
     //Functions
-    function AcceptsGoods: Boolean;
+    function AcceptsWares: Boolean;
     function IsValid: Boolean;
     function MaxHealth: Word;
-    function ProducesGoods: Boolean;
+    function ProducesWares: Boolean;
     procedure Outline(aList: TKMPointList);
   end;
 
@@ -515,10 +515,10 @@ begin
 end;
 
 
-function TKMHouseDatClass.AcceptsGoods: boolean;
+function TKMHouseDatClass.AcceptsWares: boolean;
 begin
-  Result := (ResInput[1] <> rt_None) or //Exclude houses that do not receive resources
-            (fHouseType = ht_Marketplace); //Marketplace also accepts goods
+  Result := (ResInput[1] <> rt_None) or //Exclude houses that do not receive wares
+            (fHouseType = ht_Marketplace); //Marketplace also accepts wares
 end;
 
 
@@ -588,7 +588,7 @@ begin
 end;
 
 
-function TKMHouseDatClass.ProducesGoods: Boolean;
+function TKMHouseDatClass.ProducesWares: Boolean;
 begin
   Result := not (ResOutput[1] in [rt_None, rt_All, rt_Warfare]); //Exclude aggregate types
 end;

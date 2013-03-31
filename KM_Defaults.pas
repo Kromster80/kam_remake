@@ -366,7 +366,7 @@ type
   TPassability = (
     CanUnused,
     CanWalk,        // General passability of tile for any walking units
-    CanWalkRoad,    // Type of passability for Serfs when transporting goods, only roads have it
+    CanWalkRoad,    // Type of passability for Serfs when transporting wares, only roads have it
     CanBuild,       // Can we build a house on this tile?
     CanMakeRoads,   // Thats less strict than house building, roads Can be placed almost everywhere where units Can walk, except e.g. bridges
     CanFish,        // Water tiles where fish Can move around

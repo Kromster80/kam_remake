@@ -140,7 +140,7 @@ var
   function HasEnoughGold: Boolean;
   begin
     //Producing gold or (Gold > 10)
-    Result := (P.Stats.GetGoodsProduced(rt_Gold) > 1)
+    Result := (P.Stats.GetWaresProduced(rt_Gold) > 1)
               or (P.Stats.GetResourceQty(rt_Gold) > 10);
   end;
 

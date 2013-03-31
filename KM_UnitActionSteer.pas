@@ -88,7 +88,7 @@ begin
 end;
 
 
-function TUnitActionSteer.ChooseNextStep(out Point: TKMPoint):Boolean;
+function TUnitActionSteer.ChooseNextStep(out Point: TKMPoint): Boolean;
 var
   I,K,J: Integer;
   Loc:TKMPoint;

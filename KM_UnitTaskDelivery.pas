@@ -123,7 +123,7 @@ begin
   if fPhase <= 2 then
     Result := Result or fFrom.IsDestroyed;
 
-  //Until we implement "goods recycling" we just abandon the delivery if target is destroyed/dead
+  //Until we implement "wares recycling" we just abandon the delivery if target is destroyed/dead
   if (fDeliverKind = dk_ToHouse) and (fPhase <= 8) then
     Result := Result or fToHouse.IsDestroyed;
 
@@ -209,7 +209,7 @@ begin
   case fPhase of
     0..4:;
     //It's the only place in KaM that used to access houses entrance from diagonals. Supposably it
-    //was made similar to workers - tile was declared  "Under construction" and could accept goods
+    //was made similar to workers - tile was declared  "Under construction" and could accept wares
     //from any side, or something alike. Removing of Distance=1 from here simplifies our WalkToSpot method.
     //Since this change some people have complained because it's hard for serfs to get wares to the site
     //when workers block the enterance. But it is much simpler this way so we don't have a problem really.
@@ -258,7 +258,7 @@ begin
           fPlayers[Owner].Deliveries.Queue.GaveDemand(fDeliverID);
           fPlayers[Owner].Deliveries.Queue.AbandonDelivery(fDeliverID);
           fDeliverID := 0; //So that it can't be abandoned if unit dies while staying
-          SetActionLockedStay(5, ua_Walk); //Pause breifly (like we are handing over the goods)
+          SetActionLockedStay(5, ua_Walk); //Pause breifly (like we are handing over the ware/food)
         end;
     7:  begin
           //After feeding troops, serf should walk away, but ToUnit could be dead by now

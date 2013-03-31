@@ -319,8 +319,8 @@ type
 
     Panel_House:TKMPanel;
       Label_House:TKMLabel;
-      Button_House_Goods,Button_House_Repair:TKMButton;
-      Image_House_Logo,Image_House_Worker:TKMImage;
+      Button_HouseWaresBlock,Button_HouseRepair: TKMButton;
+      Image_House_Logo,Image_House_Worker: TKMImage;
       HealthBar_House:TKMPercentBar;
       Label_HouseHealth:TKMLabel;
 
@@ -1628,12 +1628,12 @@ begin
     //Thats common things
     //Custom things come in fixed size blocks (more smaller Panels?), and to be shown upon need
     Label_House := TKMLabel.Create(Panel_House, 0, 14, TB_WIDTH, 0, '', fnt_Outline, taCenter);
-    Button_House_Goods := TKMButton.Create(Panel_House,0,42,30,30,37, rxGui, bsGame);
-    Button_House_Goods.Hint := fTextLibrary[TX_HOUSE_TOGGLE_DELIVERS_HINT];
-    Button_House_Goods.OnClick := House_WareDeliveryToggle;
-    Button_House_Repair := TKMButton.Create(Panel_House,30,42,30,30,40, rxGui, bsGame);
-    Button_House_Repair.Hint := fTextLibrary[TX_HOUSE_TOGGLE_REPAIR_HINT];
-    Button_House_Repair.OnClick := House_RepairToggle;
+    Button_HouseWaresBlock := TKMButton.Create(Panel_House,0,42,30,30,37, rxGui, bsGame);
+    Button_HouseWaresBlock.Hint := fTextLibrary[TX_HOUSE_TOGGLE_DELIVERS_HINT];
+    Button_HouseWaresBlock.OnClick := House_WareDeliveryToggle;
+    Button_HouseRepair := TKMButton.Create(Panel_House,30,42,30,30,40, rxGui, bsGame);
+    Button_HouseRepair.Hint := fTextLibrary[TX_HOUSE_TOGGLE_REPAIR_HINT];
+    Button_HouseRepair.OnClick := House_RepairToggle;
     Image_House_Logo := TKMImage.Create(Panel_House,60,41,32,32,338);
     Image_House_Logo.ImageCenter;
     Image_House_Worker := TKMImage.Create(Panel_House,90,41,32,32,141);
@@ -2150,9 +2150,9 @@ begin
 
   Image_House_Worker.Enabled := Sender.GetHasOwner;
   Image_House_Worker.Visible := fResource.HouseDat[Sender.HouseType].OwnerType <> ut_None;
-  Button_House_Goods.Enabled := fResource.HouseDat[Sender.HouseType].AcceptsGoods;
-  if Sender.BuildingRepair then Button_House_Repair.TexID:=39 else Button_House_Repair.TexID:=40;
-  if Sender.WareDelivery then Button_House_Goods.TexID:=37 else Button_House_Goods.TexID:=38;
+  Button_HouseWaresBlock.Enabled := fResource.HouseDat[Sender.HouseType].AcceptsWares;
+  if Sender.BuildingRepair then Button_HouseRepair.TexID:=39 else Button_HouseRepair.TexID:=40;
+  if Sender.WareDelivery then Button_HouseWaresBlock.TexID:=37 else Button_HouseWaresBlock.TexID:=38;
   Label_House_UnderConstruction.Hide;
   Image_HouseConstructionWood.Hide;
   Image_HouseConstructionStone.Hide;
@@ -2226,7 +2226,7 @@ begin
           RowRes := 1; Line := 0; Base := 2;
 
           //Show Demand
-          if fResource.HouseDat[Sender.HouseType].AcceptsGoods then
+          if fResource.HouseDat[Sender.HouseType].AcceptsWares then
           begin
             Label_Common_Demand.Show;
             Label_Common_Demand.Top := Base+Line*LineAdv+6;
@@ -2248,7 +2248,8 @@ begin
 
           //Show Output
           if not fResource.HouseDat[Sender.HouseType].DoesOrders then
-          if fResource.HouseDat[Sender.HouseType].ProducesGoods then begin
+          if fResource.HouseDat[Sender.HouseType].ProducesWares then
+          begin
             Label_Common_Offer.Show;
             Label_Common_Offer.Caption := fTextLibrary[TX_HOUSE_DELIVERS]+'(x'+inttostr(fResource.HouseDat[Sender.HouseType].ResProductionX)+'):';
             Label_Common_Offer.Top := Base+Line*LineAdv+6;
@@ -2413,7 +2414,7 @@ begin
   if (fPlayers.Selected = nil) or not (fPlayers.Selected is TKMHouse) then Exit;
 
   fGame.GameInputProcess.CmdHouse(gic_HouseRepairToggle, TKMHouse(fPlayers.Selected));
-  Button_House_Repair.TexID := IfThen(TKMHouse(fPlayers.Selected).BuildingRepair, 39, 40);
+  Button_HouseRepair.TexID := IfThen(TKMHouse(fPlayers.Selected).BuildingRepair, 39, 40);
 end;
 
 
@@ -2422,7 +2423,7 @@ begin
   if (fPlayers.Selected = nil) or not (fPlayers.Selected is TKMHouse) then Exit;
 
   fGame.GameInputProcess.CmdHouse(gic_HouseDeliveryToggle, TKMHouse(fPlayers.Selected));
-  Button_House_Goods.TexID := IfThen(TKMHouse(fPlayers.Selected).WareDelivery, 37, 38);
+  Button_HouseWaresBlock.TexID := IfThen(TKMHouse(fPlayers.Selected).WareDelivery, 37, 38);
 end;
 
 
@@ -2642,8 +2643,8 @@ begin
 end;
 
 
-{That small red triangle blocking delivery of goods to Barracks}
-{Resource determined by Button.Tag property}
+{That small red triangle blocking delivery of wares to Barracks}
+{Ware determined by Button.Tag property}
 procedure TKMGamePlayInterface.House_BarracksAcceptFlag(Sender: TObject);
 begin
   if fPlayers.Selected = nil then Exit;
@@ -2652,8 +2653,8 @@ begin
 end;
 
 
-{That small red triangle blocking delivery of goods to Storehouse}
-{Resource determined by Button.Tag property}
+{That small red triangle blocking delivery of wares to Storehouse}
+{Ware determined by Button.Tag property}
 procedure TKMGamePlayInterface.House_StoreAcceptFlag(Sender: TObject);
 begin
   if fPlayers.Selected = nil then Exit;

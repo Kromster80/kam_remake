@@ -528,7 +528,7 @@ begin
     //Wares
     for R := WARE_MIN to WARE_MAX do
     begin
-      G := MyPlayer.Stats.ChartGoods[R];
+      G := MyPlayer.Stats.ChartWares[R];
       for I := 0 to High(G) do
         if G[I] <> 0 then
         begin

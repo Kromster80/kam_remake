@@ -310,7 +310,7 @@ begin
   if InRange(aPlayer, 0, fPlayers.Count - 1)
   and (aResType in [Low(ResourceIndexToType)..High(ResourceIndexToType)])
   then
-    Result := fPlayers[aPlayer].Stats.GetGoodsProduced(ResourceIndexToType[aResType])
+    Result := fPlayers[aPlayer].Stats.GetWaresProduced(ResourceIndexToType[aResType])
   else
   begin
     Result := 0;

@@ -224,7 +224,7 @@ procedure TKMGUIMenuResultsMP.RefreshBars;
 
 var
   I,K,Index: Integer;
-  UnitsMax, HousesMax, GoodsMax, WeaponsMax, MaxValue: Integer;
+  UnitsMax, HousesMax, WaresMax, WeaponsMax, MaxValue: Integer;
   Bests: array [0..9] of Cardinal;
   Totals: array [0..9] of Cardinal;
 begin
@@ -331,9 +331,9 @@ begin
   for K := 5 to 7 do for I := 0 to fEnabledPlayers - 1 do
     HousesMax := Max(Bar_Results[I,K].Tag, HousesMax);
 
-  GoodsMax := 0;
+  WaresMax := 0;
   for I := 0 to fEnabledPlayers - 1 do
-    GoodsMax := Max(Bar_Results[I,8].Tag, GoodsMax);
+    WaresMax := Max(Bar_Results[I,8].Tag, WaresMax);
 
   WeaponsMax := 0;
   for I := 0 to fEnabledPlayers - 1 do
@@ -345,7 +345,7 @@ begin
     case K of
       0..4: MaxValue := UnitsMax;
       5..7: MaxValue := HousesMax;
-      8:    MaxValue := GoodsMax;
+      8:    MaxValue := WaresMax;
       else  MaxValue := WeaponsMax;
     end;
     for I := 0 to fEnabledPlayers - 1 do
@@ -413,7 +413,7 @@ begin
     with fPlayers[I] do
     if Enabled then
     begin
-      G := fPlayers[I].Stats.ChartGoods[R];
+      G := fPlayers[I].Stats.ChartWares[R];
       for K := 0 to High(G) do
         if G[K] <> 0 then
         begin
