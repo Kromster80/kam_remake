@@ -741,8 +741,6 @@ begin
     begin
       PlayOnState := gr_Defeat;
       fGamePlayInterface.ShowMPPlayMore(gr_Defeat);
-      fGamePlayInterface.SetMenuState(fMissionMode = mm_Tactic); //Refresh it so that menu buttons become disabled
-      fGamePlayInterface.ClearOpenMenu; //Close e.g. the build menu if it was open
     end;
   end
   else

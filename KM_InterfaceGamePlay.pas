@@ -371,7 +371,6 @@ type
     procedure MessageIssue(aKind: TKMMessageKind; aText: string); overload;
     procedure MessageIssue(aKind: TKMMessageKind; aText: string; aLoc: TKMPoint); overload;
     procedure SetMenuState(aTactic: Boolean);
-    procedure ClearOpenMenu;
     procedure SetMinimap;
     procedure ShowClock(aSpeed: Single);
     procedure ShowPlayMore(DoShow:boolean; Msg:TGameResultMsg);
@@ -3397,12 +3396,6 @@ begin
 end;
 
 
-procedure TKMGamePlayInterface.ClearOpenMenu;
-begin
-  SwitchPage(Button_Back);
-end;
-
-
 procedure TKMGamePlayInterface.ShowClock(aSpeed: Single);
 begin
   Image_Clock.Visible := aSpeed <> 1;
@@ -3463,6 +3456,11 @@ begin
                     Button_MPPlayQuit.Caption := fTextLibrary[TX_GAMEPLAY_VICTORY];
                   end;
     gr_Defeat:    begin
+                    //Refresh it so that menu buttons become disabled
+                    SetMenuState(fGame.MissionMode = mm_Tactic);
+                    //Close e.g. the build menu if it was open
+                    SwitchPage(Button_Back);
+
                     Label_MPPlayMore.Caption := fTextLibrary[TX_GAMEPLAY_LOST];
                     Button_MPPlayMore.Caption := fTextLibrary[TX_GAMEPLAY_DEFEAT_CONTINUEWATCHING];
                     Button_MPPlayQuit.Caption := fTextLibrary[TX_GAMEPLAY_DEFEAT];
