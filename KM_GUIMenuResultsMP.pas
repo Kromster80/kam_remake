@@ -399,10 +399,7 @@ end;
 
 procedure TKMGUIMenuResultsMP.RefreshCharts;
 var
-  I,K: Integer;
-  R: TWareType;
-  G: TKMCardinalArray;
-  WareAdded: Boolean;
+  I: Integer;
 begin
   for I := 0 to MAX_PLAYERS - 1 do
     fPlayersVisible[I] := True;
@@ -480,8 +477,6 @@ end;
 
 
 procedure TKMGUIMenuResultsMP.Create_ResultsMP(aParent: TKMPanel);
-var
-  I: TWareType;
 begin
   Panel_ResultsMP := TKMPanel.Create(aParent, 0, 0, aParent.Width, aParent.Height);
   Panel_ResultsMP.Stretch;
