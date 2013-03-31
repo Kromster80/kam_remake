@@ -41,8 +41,7 @@ type
         Chart_MPCitizens: TKMChart;
         Chart_MPHouses: TKMChart;
         Chart_MPWares: array [WARE_MIN..WARE_MAX] of TKMChart; //One for each player
-        //Image_MPResultsBackplate: TKMImage;
-        Radio_Wares: TKMRadioGroup;
+        Columnbox_Wares: TKMColumnBox;
       Button_ResultsMPBack: TKMButton;
   public
     constructor Create(aParent: TKMPanel; aOnPageChange: TGUIEventText);
@@ -147,11 +146,7 @@ begin
   Chart_MPCitizens.Visible := Sender = Button_MPResultsEconomy;
   Chart_MPHouses.Visible   := Sender = Button_MPResultsEconomy;
 
-  for I := WARE_MIN to WARE_MAX do
-    Chart_MPWares[I].Visible := (Sender = Button_MPResultsWares) and (Radio_Wares.ItemIndex = Byte(I));
-
-  Radio_Wares.Visible := Sender = Button_MPResultsWares;
-  //Image_MPResultsBackplate.Visible  := Sender = Button_MPResultsWares;
+  Columnbox_Wares.Visible := Sender = Button_MPResultsWares;
 
   Button_MPResultsBars.Down := Sender = Button_MPResultsBars;
   Button_MPResultsArmy.Down := Sender = Button_MPResultsArmy;
@@ -165,7 +160,7 @@ var
   K: Integer;
   I, R: TResourceType;
 begin
-  R := TResourceType(Radio_Wares.ItemIndex+1);
+  R := TResourceType(Columnbox_Wares.Rows[Columnbox_Wares.ItemIndex].Tag);
 
   //Find and hide old chart
   for I := WARE_MIN to WARE_MAX do
@@ -371,16 +366,8 @@ var
   I,K,Index: Integer;
   R: TResourceType;
   G: TKMCardinalArray;
+  WareAdded: Boolean;
 begin
-  //Fill in chart values
-  Radio_Wares.Clear;
-  for R := WARE_MIN to WARE_MAX do
-    Radio_Wares.Add(fResource.Resources[R].Title);
-
-  Radio_Wares.ItemIndex := 0;
-  Radio_Wares.Height := 25 * Radio_Wares.Count;
-  //Image_MPResultsBackplate.Height := 24 + 25 * fEnabledPlayers;
-
   for I := 0 to MAX_PLAYERS - 1 do
     fPlayersVisible[I] := True;
 
@@ -412,6 +399,9 @@ begin
     if Enabled then
       Chart_MPHouses.AddLine(PlayerName, FlagColor, Stats.ChartHouses);
 
+
+  //Fill in chart values
+  Columnbox_Wares.Clear;
   for R := WARE_MIN to WARE_MAX do
   begin
     Chart_MPWares[R].Clear;
@@ -419,6 +409,7 @@ begin
     Chart_MPWares[R].MaxTime := fGame.GameTickCount div 10;
     Chart_MPWares[R].Caption := fTextLibrary[TX_GRAPH_TITLE_RESOURCES] + ' - ' + fResource.Resources[R].Title;
 
+    WareAdded := False;
     for I := 0 to fPlayers.Count - 1 do
     with fPlayers[I] do
     if Enabled then
@@ -427,11 +418,17 @@ begin
       for K := 0 to High(G) do
         if G[K] <> 0 then
         begin
+          if not WareAdded then
+            Columnbox_Wares.AddItem(MakeListRow(['', fResource.Resources[R].Title], [$FFFFFFFF, $FFFFFFFF], [MakePic(rxGui, fResource.Resources[R].GUIIcon), MakePic(rxGui, 0)], Byte(R)));
+          WareAdded := True;
+
           Chart_MPWares[R].AddLine(PlayerName, FlagColor, G, I);
           Break;
         end;
     end;
   end;
+
+  Columnbox_Wares.ItemHeight := Min(Columnbox_Wares.Height div 15, 20);
 end;
 
 
@@ -505,13 +502,12 @@ begin
       Chart_MPHouses.Caption := fTextLibrary[TX_GRAPH_HOUSES];
       Chart_MPHouses.Anchors := [akLeft];
 
-      //Image_MPResultsBackplate := TKMImage.Create(Panel_ChartsMP, 12, 56, 178, 224, 3, rxGuiMain);
-      //Image_MPResultsBackplate.ImageStretch;
-      //Image_MPResultsBackplate.Center;
-
-      Radio_Wares := TKMRadioGroup.Create(Panel_ChartsMP, 26, 0, 150, 200, fnt_Game);
-      Radio_Wares.Anchors := [akLeft];
-      Radio_Wares.OnChange := WareChange;
+      Columnbox_Wares := TKMColumnBox.Create(Panel_ChartsMP, 62, 0, 140, 435, fnt_Game, bsMenu);
+      Columnbox_Wares.Anchors := [akLeft];
+      Columnbox_Wares.SetColumns(fnt_Game, ['', ''], [0, 20]);
+      Columnbox_Wares.ShowHeader := False;
+      Columnbox_Wares.ShowLines := False;
+      Columnbox_Wares.OnChange := WareChange;
 
       for I := WARE_MIN to WARE_MAX do
       begin

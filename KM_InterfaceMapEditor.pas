@@ -1248,7 +1248,6 @@ begin
         begin
           CheckBox_Alliances[I,K] := TKMCheckBox.Create(Panel_Alliances, 20+K*20, 46+I*25, 20, 20, '', fnt_Metal);
           CheckBox_Alliances[I,K].Tag       := I * MAX_PLAYERS + K;
-          CheckBox_Alliances[I,K].FlatStyle := true;
           CheckBox_Alliances[I,K].OnClick   := Mission_AlliancesChange;
         end;
       end;
@@ -1272,7 +1271,6 @@ begin
         begin
           CheckBox_PlayerTypes[I,K] := TKMCheckBox.Create(Panel_PlayerTypes, 44+K*60, 48+I*25, 20, 20, '', fnt_Metal);
           CheckBox_PlayerTypes[I,K].Tag       := I;
-          CheckBox_PlayerTypes[I,K].FlatStyle := True;
           CheckBox_PlayerTypes[I,K].OnClick   := Mission_PlayerTypesChange;
         end;
       end;

@@ -53,6 +53,7 @@ uses
   KM_GUIMenuCampaign in 'KM_GUIMenuCampaign.pas',
   KM_GUIMenuLobby in 'KM_GUIMenuLobby.pas',
   KM_GUIMenuOptions in 'KM_GUIMenuOptions.pas',
+  KM_GUIMenuResultsMP in 'KM_GUIMenuResultsMP.pas',
   KM_GUIMenuSingleMap in 'KM_GUIMenuSingleMap.pas',
   KM_HouseCollection in 'KM_HouseCollection.pas',
   KM_HouseMarket in 'KM_HouseMarket.pas',

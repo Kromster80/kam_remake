@@ -406,13 +406,11 @@ type
   private
     fCaption: string;
     fChecked: Boolean;
-    fFlatStyle: Boolean; //Render the check as a rectangle (modern style)
     fFont: TKMFont;
   public
     constructor Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight: Integer; aCaption: string; aFont: TKMFont); overload;
     property Caption: string read fCaption write fCaption;
     property Checked: Boolean read fChecked write fChecked;
-    property FlatStyle: Boolean read fFlatStyle write fFlatStyle;
     procedure MouseUp(X,Y: Integer; Shift: TShiftState; Button: TMouseButton); override;
     procedure Paint; override;
   end;
@@ -431,7 +429,6 @@ type
     fOnChange: TNotifyEvent;
   public
     constructor Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight: Integer; aFont: TKMFont);
-    destructor Destroy; override;
 
     procedure Add(aText: string; aEnabled: Boolean = True);
     procedure Clear;
@@ -2267,23 +2264,19 @@ end;
 //Might need additional graphics to be added to gui.rx
 //Some kind of box with an outline, darkened background and shadow maybe, similar to other controls.
 procedure TKMCheckBox.Paint;
-var Col: TColor4;
+var Col: TColor4; CheckSize: Integer;
 begin
   inherited;
   if fEnabled then Col:=$FFFFFFFF else Col:=$FF888888;
 
-  if fFlatStyle then
-  begin
-    TKMRenderUI.WriteBevel(AbsLeft, AbsTop, Width, Height, 0.5);
-    if fChecked then
-      TKMRenderUI.WriteShape(AbsLeft+4, AbsTop+4, Width-8, Height-8, $C0A0A0A0, $D0A0A0A0);
-  end
-  else
-  begin
-    TKMRenderUI.WriteText(AbsLeft, AbsTop, Width, '[ ] '+fCaption, fFont, taLeft, Col);
-    if fChecked then
-      TKMRenderUI.WriteText(AbsLeft+3, AbsTop-1, 0, 'x', fFont, taLeft, Col);
-  end;
+  CheckSize := fResource.Fonts.GetTextSize('I', fFont).Y + 1;
+
+  TKMRenderUI.WriteBevel(AbsLeft, AbsTop, CheckSize-4, CheckSize-4, 0.75);
+
+  if fChecked then
+    TKMRenderUI.WriteText(AbsLeft+(CheckSize-4)div 2, AbsTop, 0, 'x', fFont, taCenter, Col);
+
+  TKMRenderUI.WriteText(AbsLeft+Height, AbsTop, Width-Height, fCaption, fFont, taLeft, Col);
 end;
 
 
@@ -2293,14 +2286,6 @@ begin
   inherited Create(aParent, aLeft,aTop,aWidth,aHeight);
   fFont := aFont;
   fItemIndex := -1;
-
-end;
-
-
-destructor TKMRadioGroup.Destroy;
-begin
-
-  inherited;
 end;
 
 
@@ -2350,19 +2335,23 @@ end;
 procedure TKMRadioGroup.Paint;
 const FntCol: array [Boolean] of TColor4 = ($FF888888, $FFFFFFFF);
 var
-  LineHeight: Integer;
+  LineHeight, CheckSize: Integer;
   I: Integer;
 begin
   inherited;
   if Count = 0 then Exit; //Avoid dividing by zero
 
   LineHeight := Round(fHeight / Count);
+  CheckSize := fResource.Fonts.GetTextSize('I', fFont).Y + 1;
 
   for I := 0 to Count - 1 do
   begin
-    TKMRenderUI.WriteText(AbsLeft, AbsTop + I * LineHeight, Width, '[ ] ' + fItems[I].Text, fFont, taLeft, FntCol[fEnabled and fItems[I].Enabled]);
+    TKMRenderUI.WriteBevel(AbsLeft, AbsTop + I * LineHeight, CheckSize-4, CheckSize-4, 0.75);
+
     if fItemIndex = I then
-      TKMRenderUI.WriteText(AbsLeft + 3, AbsTop + I * LineHeight - 1, 0, 'x', fFont, taLeft, FntCol[fEnabled and fItems[I].Enabled]);
+      TKMRenderUI.WriteText(AbsLeft+(CheckSize-4)div 2, AbsTop + I * LineHeight, 0, 'x', fFont, taCenter, FntCol[fEnabled and fItems[I].Enabled]);
+
+    TKMRenderUI.WriteText(AbsLeft+LineHeight, AbsTop + I * LineHeight, Width-LineHeight, fItems[I].Text, fFont, taLeft, FntCol[fEnabled and fItems[I].Enabled]);
   end;
 end;
 
