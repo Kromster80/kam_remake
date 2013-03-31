@@ -139,7 +139,7 @@ procedure TKMTerrainFinderCommon.UseFinder;
   procedure Visit(const X,Y: Word; aWalkDistance: Byte);
   begin
     //If new path is longer than old we don't care about it
-    if (aWalkDistance >= Visited[X,Y]) then Exit;
+    if (aWalkDistance >= Visited[Y,X]) then Exit;
 
     //Check if we can walk through this tile
     if not CanWalkHere(X,Y) then Exit;
@@ -149,7 +149,7 @@ procedure TKMTerrainFinderCommon.UseFinder;
       SaveTile(X,Y,aWalkDistance);
 
     //Mark this tile as visited
-    Visited[X,Y] := aWalkDistance;
+    Visited[Y,X] := aWalkDistance;
 
     //Run again on surrounding tiles
     //We check only 4 neighbors, because that x6 times faster than 8 neighbors
@@ -197,14 +197,14 @@ const
     not (aPass in fTerrain.Land[Y,X].Passability) then Exit;
     Xt := aStart.X - X + aRadius;
     Yt := aStart.Y - Y + aRadius;
-    if (aWalkDistance >= Visited[Xt,Yt]) then Exit;
+    if (aWalkDistance >= Visited[Yt,Xt]) then Exit;
 
     //Only add to results once (255 is the intial value)
-    if Visited[Xt,Yt] = 255 then
+    if Visited[Yt,Xt] = 255 then
       aList.AddEntry(KMPoint(X,Y));
 
     //Mark this tile as visited
-    Visited[Xt,Yt] := aWalkDistance;
+    Visited[Yt,Xt] := aWalkDistance;
 
     //Run again on surrounding tiles
     //We use +10 for straights and +14 for diagonals rather than +1 and +1.41 then div by 10 in
