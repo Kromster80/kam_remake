@@ -102,6 +102,7 @@ type
     procedure AppendWeaponry;
 
     procedure Append(aHouse: THouseType);
+    function HouseCount(aHouse: THouseType): Integer;
 
     procedure DistributeCorn;
     procedure DistributeCoal;
@@ -120,7 +121,6 @@ type
     StoneNeed: Single; //How much building materials do we need for city development
     WoodNeed: Single; //How much building materials do we need for city development
     constructor Create(aPlayer: TPlayerIndex);
-    destructor Destroy; override;
 
     procedure OwnerUpdate(aPlayer: TPlayerIndex);
     procedure Refresh;
@@ -151,17 +151,10 @@ begin
 end;
 
 
-destructor TKMayorBalance.Destroy;
-begin
-
-  inherited;
-end;
-
-
 //How many houses of certain type we have (assume all wip houses will be finished)
 function TKMayorBalance.HouseCount(aHouse: THouseType): Integer;
 begin
-  Result := fPlayers[fOwner].Stats.GetHouseQty(aHouse) + fPlayers[fOwner].Stats.GetHouseWip(aHouse);
+  Result := fPlayers[fOwner].Stats.GetHouseTotal(aHouse);
 end;
 
 
