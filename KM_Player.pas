@@ -1318,9 +1318,6 @@ end;
 
 procedure TKMSpectator.SetHighlight(Value: TObject);
 begin
-  //fHighlight cannot use house/unit pointers in MP since those go into the save file,
-  //and saves must be created identical on all computers in MP
-  //Instead we make sure after each tick that Highlight is still valid, otherwise nil it
   fHighlight := Value;
   fHighlightEnd := TimeGet + 3000;
 end;
@@ -1337,9 +1334,6 @@ end;
 
 procedure TKMSpectator.SetSelected(Value: TObject);
 begin
-  //fSelected cannot use house/unit pointers in MP since those go into the save file,
-  //and saves must be created identical on all computers in MP
-  //Instead we make sure after each tick that selection is still valid, otherwise nil it
   fSelected := Value;
 end;
 
