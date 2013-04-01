@@ -437,6 +437,8 @@ begin
     if fGameMode = gmMapEd then
     begin
       fPlayers.AddPlayers(MAX_PLAYERS - fPlayers.Count); //Activate all players
+      for I := 0 to fPlayers.Count - 1 do
+        fPlayers[I].FogOfWar.RevealEverything;
       MySpectator := TKMSpectator.Create(0);
       MySpectator.FOWIndex := PLAYER_NONE;
     end
@@ -795,6 +797,8 @@ end;
 
 
 procedure TKMGame.GameStart(aSizeX, aSizeY: Integer);
+var
+  I: Integer;
 begin
   fGameName := fTextLibrary[TX_MAPED_NEW_MISSION];
 
@@ -807,6 +811,8 @@ begin
   fMapEditor := TKMMapEditor.Create;
   fPlayers.AddPlayers(MAX_PLAYERS); //Create MAX players
   fPlayers[0].PlayerType := pt_Human; //Make Player1 human by default
+  for I := 0 to fPlayers.Count - 1 do
+    fPlayers[I].FogOfWar.RevealEverything;
 
   MySpectator := TKMSpectator.Create(0);
   MySpectator.FOWIndex := PLAYER_NONE;
@@ -1272,7 +1278,7 @@ begin
   fTextLibrary.LoadMissionStrings(ExeDir + LibxPath);
 
   if IsReplay then
-    MySpectator.FOWIndex := -1; //Show all by default in replays
+    MySpectator.FOWIndex := PLAYER_NONE; //Show all by default in replays
 
   //Multiplayer saves don't have this piece of information. Its valid only for MyPlayer
   //todo: Send all message commands through GIP
