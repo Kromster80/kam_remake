@@ -3,7 +3,8 @@ unit KM_PlayersCollection;
 interface
 uses
   Classes, KromUtils, Math, SysUtils, Graphics,
-  KM_CommonClasses, KM_Units, KM_UnitGroups, KM_Terrain, KM_Houses, KM_Defaults, KM_Player, KM_Utils, KM_Points;
+  KM_CommonClasses, KM_Defaults, KM_Units, KM_UnitGroups, KM_Terrain, KM_Houses,
+  KM_Player, KM_PlayerSpectator, KM_Utils, KM_Points;
 
 
 { Players are identified by their starting location }

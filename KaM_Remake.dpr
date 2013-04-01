@@ -86,6 +86,7 @@ uses
   KM_Pics in 'KM_Pics.pas',
   KM_Player in 'KM_Player.pas',
   KM_PlayersCollection in 'KM_PlayersCollection.pas',
+  KM_PlayerSpectator in 'KM_PlayerSpectator.pas',
   KM_PlayerStats in 'KM_PlayerStats.pas',
   KM_Points in 'KM_Points.pas',
   KM_PolySimplify in 'KM_PolySimplify.pas',
