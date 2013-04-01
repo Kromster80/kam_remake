@@ -338,11 +338,13 @@ end;
 procedure TKMGeneral.CheckDefences;
 var
   Outline1, Outline2: TKMWeightSegments;
-  I: Integer;
+  I, K: Integer;
   Locs: TKMPointDirTagList;
   Loc: TKMPoint;
   LocI: TKMPointI;
   FaceDir: TKMDirection;
+  SegLength, Ratio: Single;
+  DefCount: Byte;
 begin
   //Get defence Outline with weights representing how important each segment is
   fAIFields.NavMesh.GetDefenceOutline(fOwner, Outline1, Outline2);
@@ -355,8 +357,17 @@ begin
     for I := 0 to High(Outline2) do
     begin
       FaceDir := KMGetDirection(KMPointF(Outline2[I].A), KMPerpendecular(Outline2[I].A, Outline2[I].B));
-      Loc := KMPointRound(KMLerp(Outline2[I].A, Outline2[I].B, 0.5));
-      Locs.AddItem(KMPointDir(Loc, FaceDir), Round(Outline2[I].Weight * 100), 0);
+
+      //Longer segments will get several DefencePositions
+      SegLength := KMLength(Outline2[I].A, Outline2[I].B);
+      DefCount := Trunc(SegLength / 5);
+
+      for K := 0 to DefCount - 1 do
+      begin
+        Ratio := (K + 1) / (DefCount + 1);
+        Loc := KMPointRound(KMLerp(Outline2[I].A, Outline2[I].B, Ratio));
+        Locs.AddItem(KMPointDir(Loc, FaceDir), Round(Outline2[I].Weight * 100), 0);
+      end;
     end;
 
     //Sort according to positions weight
