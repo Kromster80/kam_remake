@@ -146,14 +146,7 @@ type
     Panel_Main:TKMPanel;
       MinimapView: TKMMinimapView;
       Label_Coordinates:TKMLabel;
-      TrackBar_Passability:TKMTrackBar;
-      Label_Passability:TKMLabel;
-      CheckBox_ShowObjects: TKMCheckBox;
-      CheckBox_ShowHouses: TKMCheckBox;
-      CheckBox_ShowUnits: TKMCheckBox;
-      CheckBox_ShowDeposits: TKMCheckBox;
       Button_PlayerSelect: array [0..MAX_PLAYERS-1] of TKMFlatButtonShape; //Animals are common for all
-      Dropbox_PlayerFOW: TKMDropList;
       Label_Stat,Label_Hint: TKMLabel;
       Bevel_HintBG: TKMBevel;
 
@@ -281,6 +274,13 @@ type
 
     Panel_Extra: TKMPanel;
       Image_ExtraClose: TKMImage;
+      TrackBar_Passability:TKMTrackBar;
+      Label_Passability:TKMLabel;
+      CheckBox_ShowObjects: TKMCheckBox;
+      CheckBox_ShowHouses: TKMCheckBox;
+      CheckBox_ShowUnits: TKMCheckBox;
+      CheckBox_ShowDeposits: TKMCheckBox;
+      Dropbox_PlayerFOW: TKMDropList;
 
     Panel_Message: TKMPanel;
       Label_Message: TKMLabel;
@@ -797,11 +797,6 @@ begin
   Image_Message.HighlightOnMouseOver := True;
   Image_Message.OnClick := ExtraMessage_Switch;
   Image_Message.Hide; //Hidden by default, only visible when a message is shown
-
-  //dropdown list needs to be ontop other buttons created on Panel_Main
-  Dropbox_PlayerFOW := TKMDropList.Create(Panel_Main, 8, 230, 160, 20, fnt_Metal, '', bsGame);
-  Dropbox_PlayerFOW.Hint := fTextLibrary[TX_REPLAY_PLAYER_PERSPECTIVE];
-  Dropbox_PlayerFOW.OnChange := Player_FOWChange;
 
   //Pages that need to be on top of everything
   Create_AttackPopUp;
@@ -1397,6 +1392,14 @@ begin
     CheckBox_ShowDeposits := TKMCheckBox.Create(Panel_Extra, 250, 130, 180, 20, fTextLibrary[TX_MAPED_VIEW_DEPOSISTS], fnt_Antiqua);
     CheckBox_ShowDeposits.Checked := True; //Enabled by default
     CheckBox_ShowDeposits.OnClick := Extra_Change;
+
+    //dropdown list needs to be ontop other buttons created on Panel_Main
+    Dropbox_PlayerFOW := TKMDropList.Create(Panel_Extra, 460, 70, 160, 20, fnt_Metal, '', bsGame);
+    Dropbox_PlayerFOW.Hint := fTextLibrary[TX_REPLAY_PLAYER_PERSPECTIVE];
+    Dropbox_PlayerFOW.OnChange := Player_FOWChange;
+    //todo: This feature isn't working properly yet so it's hidden. FOW should be set by
+    //revealers list and current locations of units/houses (must update when they move)
+    Dropbox_PlayerFOW.Hide;
 end;
 
 
@@ -1903,6 +1906,8 @@ begin
   Dropbox_PlayerFOW.Add('Show all', -1);
   for I := 0 to MAX_PLAYERS - 1 do
     Dropbox_PlayerFOW.Add('[$' + IntToHex(FlagColorToTextColor(fPlayers[I].FlagColor) and $00FFFFFF, 6) + ']' + fPlayers[I].GetFormattedPlayerName, I);
+  if PrevIndex = -1 then
+    PrevIndex := 0; //Select Show All
   Dropbox_PlayerFOW.ItemIndex := PrevIndex;
 end;
 
