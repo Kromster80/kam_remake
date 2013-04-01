@@ -1369,10 +1369,10 @@ begin
     with TKMImage.Create(Panel_Extra, 0, 0, 800, 190, 409) do
     begin
       Anchors := [akLeft, akTop, akBottom];
-      ImageStretch;
+      ImageAnchors := [akLeft, akRight, akTop];
     end;
 
-    Image_ExtraClose := TKMImage.Create(Panel_Extra, 800-35, 20, 32, 32, 52);
+    Image_ExtraClose := TKMImage.Create(Panel_Extra, 800-97, 29, 32, 32, 52);
     Image_ExtraClose.Anchors := [akTop, akRight];
     Image_ExtraClose.Hint := fTextLibrary[TX_MSG_CLOSE_HINT];
     Image_ExtraClose.OnClick := ExtraMessage_Switch;
