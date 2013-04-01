@@ -1124,7 +1124,8 @@ begin
 
     fTerrain.Save(SaveStream); //Saves the map
     fPlayers.Save(SaveStream, fGameMode = gmMulti); //Saves all players properties individually
-    MySpectator.Save(SaveStream);
+    if fGameMode <> gmMulti then
+      MySpectator.Save(SaveStream);
     fAIFields.Save(SaveStream);
     fPathfinding.Save(SaveStream);
     fProjectiles.Save(SaveStream);
@@ -1257,7 +1258,8 @@ begin
 
   fPlayers.Load(LoadStream);
   MySpectator := TKMSpectator.Create(0);
-  MySpectator.Load(LoadStream);
+  if not SaveIsMultiplayer then
+    MySpectator.Load(LoadStream);
   fAIFields.Load(LoadStream);
   fPathfinding.Load(LoadStream);
   fProjectiles.Load(LoadStream);
@@ -1268,6 +1270,9 @@ begin
   //locale info shuold not be a problem as it is represented by %s
   LoadStream.Read(LibxPath);
   fTextLibrary.LoadMissionStrings(ExeDir + LibxPath);
+
+  if IsReplay then
+    MySpectator.FOWIndex := -1; //Show all by default in replays
 
   //Multiplayer saves don't have this piece of information. Its valid only for MyPlayer
   //todo: Send all message commands through GIP
