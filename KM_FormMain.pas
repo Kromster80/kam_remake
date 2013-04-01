@@ -410,7 +410,7 @@ begin
     Exit;
 
   if (fPlayers <> nil) and (RGPlayer.ItemIndex < fPlayers.Count) then
-    MyPlayer := fPlayers[RGPlayer.ItemIndex];
+    MySpectator.PlayerIndex := RGPlayer.ItemIndex;
 end;
 
 

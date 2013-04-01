@@ -10,15 +10,10 @@ uses
 type
   TKMPlayersCollection = class
   private
-    fHighlight: TObject; //Unit/House/Group that is shown highlighted to draw players attention
-    fHighlightEnd: Cardinal; //Highlight has a short time to live
-    fSelected: TObject; //Unit/House/Group selected by player and shown in UI
     fCount: Byte;
     fPlayerList: array of TKMPlayer;
     fPlayerAnimals: TKMPlayerAnimals;
     function GetPlayer(aIndex: Integer): TKMPlayer;
-    procedure SetHighlight(Value: TObject);
-    procedure SetSelected(Value: TObject);
   public
     constructor Create;
     destructor Destroy; override;
@@ -26,8 +21,6 @@ type
     property Count: Byte read fCount;
     property Player[aIndex: Integer]: TKMPlayer read GetPlayer; default;
     property PlayerAnimals: TKMPlayerAnimals read fPlayerAnimals;
-    property Highlight: TObject read fHighlight write SetHighlight;
-    property Selected: TObject read fSelected write SetSelected;
 
     procedure AddPlayers(aCount: Byte); //Batch add several players
 
@@ -43,8 +36,7 @@ type
     function GetHouseByID(aID: Integer): TKMHouse;
     function GetUnitByID(aID: Integer): TKMUnit;
     function GetGroupByID(aID: Integer): TKMUnitGroup;
-    function HitTest(X,Y: Integer; aOnlyMyPlayer: Boolean): TObject;
-    procedure SelectHitTest(X,Y: Integer; aOnlyMyPlayer: Boolean);
+    function HitTest(X,Y: Integer): TObject;
     function GetUnitCount:integer;
     function FindPlaceForUnit(PosX,PosY:integer; aUnitType: TUnitType; out PlacePoint: TKMPoint; RequiredWalkConnect:byte):Boolean;
 
@@ -72,7 +64,7 @@ type
 
 var
   fPlayers: TKMPlayersCollection;
-  MyPlayer: TKMPlayer; //shortcut to access players player
+  MySpectator: TKMSpectator; //Wrap to acces player/fow separately
 
 
 implementation
@@ -96,8 +88,6 @@ begin
 
   PlayerAnimals.Free;
 
-  MyPlayer := nil;
-  Selected := nil;
   inherited;
 end;
 
@@ -151,9 +141,6 @@ end;
 procedure TKMPlayersCollection.RemovePlayer(aIndex: TPlayerIndex);
 var i,k:integer;
 begin
-  if MyPlayer = fPlayerList[aIndex] then
-    MyPlayer := nil;
-
   //Remove other players goals using this player
   for i:=0 to fCount-1 do
     fPlayerList[i].Goals.RemoveReference(aIndex);
@@ -299,7 +286,7 @@ begin
 end;
 
 
-function TKMPlayersCollection.HitTest(X,Y: Integer; aOnlyMyPlayer: Boolean): TObject;
+function TKMPlayersCollection.HitTest(X,Y: Integer): TObject;
 var
   H: TKMHouse;
   U: TKMUnit;
@@ -309,84 +296,22 @@ begin
   //Selection priority is as follows:
   //BuiltHouses > UnitGroups > Units > IncompleteHouses
 
-  if aOnlyMyPlayer then
-  begin
-    H := MyPlayer.HousesHitTest(X,Y);
-    if (H <> nil) and (H.BuildingState in [hbs_Stone, hbs_Done]) then
-      Result := H
+  H := HousesHitTest(X,Y);
+  if (H <> nil) and (H.BuildingState in [hbs_Stone, hbs_Done]) then
+    Result := H
+  else begin
+    G := GroupsHitTest(X,Y);
+    if (G <> nil) then
+      Result := G
     else
     begin
-      G := MyPlayer.GroupsHitTest(X,Y);
-      if (G <> nil) then
-        Result := G
+      U := UnitsHitTest(X,Y);
+      if (U <> nil) and (not U.IsDeadOrDying) then
+        Result := U
       else
-      begin
-        U := MyPlayer.UnitsHitTest(X,Y);
-        if (U <> nil) and (not U.IsDeadOrDying) then
-          Result := U
-        else
-          Result := H; //Incomplete house or nil
-      end;
-    end
-  end
-  else
-  begin
-    H := HousesHitTest(X,Y);
-    if (H <> nil) and (H.BuildingState in [hbs_Stone, hbs_Done]) then
-      Result := H
-    else begin
-      G := GroupsHitTest(X,Y);
-      if (G <> nil) then
-        Result := G
-      else
-      begin
-        U := UnitsHitTest(X,Y);
-        if (U <> nil) and (not U.IsDeadOrDying) then
-          Result := U
-        else
-          Result := H; //Incomplete house or nil
-      end;
+        Result := H; //Incomplete house or nil
     end;
   end;
-end;
-
-
-procedure TKMPlayersCollection.SelectHitTest(X,Y: Integer; aOnlyMyPlayer: Boolean);
-var
-  Obj: TObject;
-begin
-  Obj := HitTest(X, Y, aOnlyMyPlayer);
-
-  //Don't select a warrior directly, only select his group.
-  //A warrior can be incorrectly selected while walking out of the barracks (before he has a group)
-  if Obj is TKMUnitWarrior then Exit;
-
-  if Obj <> nil then
-  begin
-    Selected := Obj;
-    //Update selected unit within a group
-    if Selected is TKMUnitGroup then
-      TKMUnitGroup(Selected).SelectHitTest(X,Y);
-  end;
-end;
-
-
-procedure TKMPlayersCollection.SetHighlight(Value: TObject);
-begin
-  //fHighlight cannot use house/unit pointers in MP since those go into the save file,
-  //and saves must be created identical on all computers in MP
-  //Instead we make sure after each tick that Highlight is still valid, otherwise nil it
-  fHighlight := Value;
-  fHighlightEnd := TimeGet + 3000;
-end;
-
-
-procedure TKMPlayersCollection.SetSelected(Value: TObject);
-begin
-  //fSelected cannot use house/unit pointers in MP since those go into the save file,
-  //and saves must be created identical on all computers in MP
-  //Instead we make sure after each tick that selection is still valid, otherwise nil it
-  fSelected := Value;
 end;
 
 
@@ -547,26 +472,20 @@ end;
 
 // aMultiplayer - savegames should be identical when in MP mode
 procedure TKMPlayersCollection.Save(SaveStream: TKMemoryStream; aMultiplayer: Boolean);
-var I: Integer;
+var
+  I: Integer;
 begin
   SaveStream.Write('Players');
   SaveStream.Write(fCount);
   for I := 0 to fCount - 1 do
     fPlayerList[I].Save(SaveStream);
   PlayerAnimals.Save(SaveStream);
-
-  //Multiplayer saves must be identical
-  if aMultiplayer then
-    SaveStream.Write(Player[0].PlayerIndex)
-  else
-    SaveStream.Write(MyPlayer.PlayerIndex);
 end;
 
 
 procedure TKMPlayersCollection.Load(LoadStream: TKMemoryStream);
 var
   I: Integer;
-  PlayerIndex: TPlayerIndex;
 begin
   LoadStream.ReadAssert('Players');
   LoadStream.Read(fCount);
@@ -582,10 +501,6 @@ begin
     fPlayerList[I].Load(LoadStream);
   end;
   PlayerAnimals.Load(LoadStream);
-
-  LoadStream.Read(PlayerIndex);
-  MyPlayer := fPlayerList[PlayerIndex];
-  Selected := nil;
 end;
 
 
@@ -611,10 +526,6 @@ procedure TKMPlayersCollection.UpdateState(aTick: Cardinal);
 var
   I: Integer;
 begin
-  //Hide the highlight
-  if TimeGet > fHighlightEnd then
-    fHighlight := nil;
-
   for I := 0 to Count - 1 do
   if not fGame.IsPaused and not fGame.IsExiting then
     fPlayerList[I].UpdateState(aTick)

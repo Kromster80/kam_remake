@@ -81,7 +81,7 @@ begin
     fWonOrLost := wol_Lost;
 
     //Let everyone know in MP mode
-    if not fGame.IsReplay and (fGame.IsMultiplayer or (MyPlayer = fPlayers[fOwner])) then
+    if not fGame.IsReplay and (fGame.IsMultiplayer or (MySpectator.PlayerIndex = fOwner)) then
       fGame.PlayerDefeat(fOwner);
 
     //Script may have additional event processors
@@ -100,7 +100,7 @@ begin
     fWonOrLost := wol_Won;
 
     //Let everyone know in MP mode
-    if not fGame.IsReplay and (fGame.IsMultiplayer or (MyPlayer = fPlayers[fOwner])) then
+    if not fGame.IsReplay and (fGame.IsMultiplayer or (MySpectator.PlayerIndex = fOwner)) then
       fGame.PlayerVictory(fOwner);
 
     //Script may have additional event processors
@@ -208,7 +208,7 @@ begin
     pt_Human:
       begin
         //No fight alerts in replays, and only show alerts for ourselves
-        if (not fGame.IsReplay) and (fOwner = MyPlayer.PlayerIndex) then
+        if (not fGame.IsReplay) and (fOwner = MySpectator.PlayerIndex) then
           fGame.Alerts.AddFight(KMPointF(aHouse.GetPosition), fOwner, an_Town);
       end;
     pt_Computer:
@@ -227,7 +227,7 @@ begin
   case fPlayers[fOwner].PlayerType of
     pt_Human:
       //No fight alerts in replays, and only show alerts for ourselves
-      if not fGame.IsReplay and (fOwner = MyPlayer.PlayerIndex) then
+      if not fGame.IsReplay and (fOwner = MySpectator.PlayerIndex) then
         fGame.Alerts.AddFight(aUnit.PositionF, fOwner, NotifyKind[aUnit is TKMUnitWarrior]);
     pt_Computer:
       begin

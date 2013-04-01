@@ -54,9 +54,9 @@ begin
               SetActionLockedStay(0, ua_Walk, False)
             else
               SetActionLockedStay(SequenceLength, ua_Die, False);
-            //Do not play sounds if unit is invisible to MyPlayer
+            //Do not play sounds if unit is invisible to MySpectator
             //We should not use KaMRandom below this line because sound playback depends on FOW and is individual for each player
-            if MyPlayer.FogOfWar.CheckTileRevelation(fUnit.GetPosition.X, fUnit.GetPosition.Y, True) >= 255 then
+            if MySpectator.FogOfWar.CheckTileRevelation(fUnit.GetPosition.X, fUnit.GetPosition.Y, True) >= 255 then
             begin
               if fUnit is TKMUnitWarrior then
                 fSoundLib.PlayWarrior(fUnit.UnitType, sp_Death, fUnit.PositionF)

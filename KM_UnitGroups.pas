@@ -976,9 +976,9 @@ begin
   end;
 
   //In MP commands execution may be delayed, check if we still selected
-  if fPlayers.Selected = Self then
+  if MySpectator.Selected = Self then
   begin
-    fPlayers.Selected := aTargetGroup;
+    MySpectator.Selected := aTargetGroup;
     //What if fSelected died by now
     if not fSelected.IsDeadOrDying then
     begin
@@ -1068,7 +1068,7 @@ begin
   //Keep the selected unit Selected
   if NewGroup.HasMember(fSelected) then
   begin
-    fPlayers.Selected := NewGroup;
+    MySpectator.Selected := NewGroup;
     NewGroup.fSelected := fSelected;
   end;
 
@@ -1208,7 +1208,7 @@ begin
     dec(fTimeSinceHungryReminder, HUNGER_CHECK_FREQ);
     if fTimeSinceHungryReminder < 1 then
     begin
-      if (Owner = MyPlayer.PlayerIndex) and not fGame.IsReplay then
+      if (Owner = MySpectator.PlayerIndex) and not fGame.IsReplay then
         fGame.ShowMessage(mkUnit, fTextLibrary[TX_MSG_TROOP_HUNGRY], Position);
       fTimeSinceHungryReminder := TIME_BETWEEN_MESSAGES; //Don't show one again until it is time
     end;
@@ -1364,7 +1364,7 @@ begin
   UnitPos.Y := FlagCarrier.PositionF.Y + UNIT_OFF_Y + FlagCarrier.GetSlide(ax_Y);
 
   //Highlight selected group
-  FlagColor := IfThen(fPlayers.Selected = Self, $FFFFFFFF, fPlayers[FlagCarrier.Owner].FlagColor);
+  FlagColor := IfThen(MySpectator.Selected = Self, $FFFFFFFF, fPlayers[FlagCarrier.Owner].FlagColor);
 
   //In MapEd units fTicker always the same, use Terrain instead
   FlagStep := IfThen(fGame.GameMode = gmMapEd, fTerrain.AnimStep, fTicker);

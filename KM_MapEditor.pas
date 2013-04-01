@@ -438,9 +438,9 @@ begin
   end;
 
   //Show selected group order target
-  if fPlayers.Selected is TKMUnitGroup then
+  if MySpectator.Selected is TKMUnitGroup then
   begin
-    G := TKMUnitGroup(fPlayers.Selected);
+    G := TKMUnitGroup(MySpectator.Selected);
     if G.MapEdOrder.Order <> ioNoOrder then
     begin
       fRenderAux.Quad(G.MapEdOrder.Pos.Loc.X, G.MapEdOrder.Pos.Loc.Y, $40FF00FF);

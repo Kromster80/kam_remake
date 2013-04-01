@@ -475,7 +475,7 @@ begin
 
   Assert(Msg <> 0, fResource.HouseDat[fHome.HouseType].HouseName+' resource cant possibly deplet');
 
-  if (fOwner = MyPlayer.PlayerIndex) and not fGame.IsReplay then //Don't show message for other players or during replays
+  if (fOwner = MySpectator.PlayerIndex) and not fGame.IsReplay then //Don't show message for other players or during replays
     fGame.ShowMessage(mkHouse, fTextLibrary[Msg], fHome.GetEntrance);
 
   fHome.ResourceDepletedMsgIssued := True;
@@ -1191,7 +1191,7 @@ begin
   FreeAndNil(fCurrentAction);
   FreeAndNil(fUnitTask);
 
-  Assert(fPlayers.Selected <> Self,
+  Assert(MySpectator.Selected <> Self,
     'Removed units should be flushed from UI earlier inTaskDie or never appear there when training cancelled or alike');
 end;
 

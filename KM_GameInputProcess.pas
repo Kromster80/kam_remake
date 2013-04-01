@@ -218,7 +218,7 @@ var
   I: Integer;
 begin
   Result.CommandType := aGIC;
-  Result.PlayerIndex := MyPlayer.PlayerIndex;
+  Result.PlayerIndex := MySpectator.PlayerIndex;
 
   for I := Low(aParam) to High(aParam) do
     Result.Params[I+1] := aParam[I];
@@ -233,7 +233,7 @@ function TGameInputProcess.MakeCommand(aGIC: TGameInputCommandType; const aTextP
 var i:integer;
 begin
   Result.CommandType := aGIC;
-  Result.PlayerIndex := MyPlayer.PlayerIndex;
+  Result.PlayerIndex := MySpectator.PlayerIndex;
 
   for i:=Low(Result.Params) to High(Result.Params) do
     Result.Params[i] := maxint;
@@ -250,8 +250,8 @@ var
   TgtUnit: TKMUnit;
   SrcHouse, TgtHouse: TKMHouse;
 begin
-  //NOTE: MyPlayer should not be used for important stuff here, use P instead (commands must be executed the same for all players)
-  IsSilent := (aCommand.PlayerIndex <> MyPlayer.PlayerIndex);
+  //NOTE: MySpectator.PlayerIndex should not be used for important stuff here, use P instead (commands must be executed the same for all players)
+  IsSilent := (aCommand.PlayerIndex <> MySpectator.PlayerIndex);
   P := fPlayers[aCommand.PlayerIndex];
   SrcGroup := nil;
   TgtGroup := nil;
@@ -369,7 +369,7 @@ begin
                                   end;
       gic_GameAlertBeacon:        if fReplayState = gipRecording then //Beacons don't show up in replay
                                     //Beacons are only for allies
-                                    if fPlayers.CheckAlliance(Params[3], MyPlayer.PlayerIndex) = at_Ally then
+                                    if fPlayers.CheckAlliance(Params[3], MySpectator.PlayerIndex) = at_Ally then
                                       fGame.Alerts.AddBeacon(KMPointF(Params[1]/10,Params[2]/10), Params[3]);
       else                        Assert(false);
     end;
@@ -423,11 +423,11 @@ procedure TGameInputProcess.CmdBuild(aCommandType: TGameInputCommandType; aLoc: 
 begin
   Assert(aCommandType in [gic_BuildRemoveFieldPlan, gic_BuildRemoveHouse, gic_BuildRemoveHousePlan]);
 
-  //Remove fake markup that will be visible only to MyPlayer until Server verifies it.
+  //Remove fake markup that will be visible only to MySpectator until Server verifies it.
   //Must go before TakeCommand as it could execute command immediately (in singleplayer)
   //and the fake markup must be added first otherwise our logic in FieldsList fails
   if fGame.IsMultiplayer and (aCommandType = gic_BuildRemoveFieldPlan) then
-    MyPlayer.RemFakeFieldPlan(aLoc);
+    fPlayers[MySpectator.PlayerIndex].RemFakeFieldPlan(aLoc);
 
   TakeCommand(MakeCommand(aCommandType, [aLoc.X, aLoc.Y]));
 end;
@@ -437,11 +437,11 @@ procedure TGameInputProcess.CmdBuild(aCommandType: TGameInputCommandType; aLoc: 
 begin
   Assert(aCommandType in [gic_BuildAddFieldPlan]);
 
-  //Add fake markup that will be visible only to MyPlayer until Server verifies it.
+  //Add fake markup that will be visible only to MySpectator until Server verifies it.
   //Must go before TakeCommand as it could execute command immediately (in singleplayer)
   //and the fake markup must be added first otherwise our logic in FieldsList fails
   if fGame.IsMultiplayer then
-    MyPlayer.ToggleFakeFieldPlan(aLoc, aFieldType);
+    fPlayers[MySpectator.PlayerIndex].ToggleFakeFieldPlan(aLoc, aFieldType);
 
   TakeCommand(MakeCommand(aCommandType, [aLoc.X, aLoc.Y, Byte(aFieldType)]));
 end;

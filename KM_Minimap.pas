@@ -211,8 +211,8 @@ begin
   for I := 0 to fMapY - 1 do
   for K := 0 to fMapX - 1 do
   begin
-    if MyPlayer <> nil then
-      FOW := MyPlayer.FogOfWar.CheckTileRevelation(K+1,I+1,true)
+    if MySpectator <> nil then
+      FOW := MySpectator.FogOfWar.CheckTileRevelation(K+1,I+1,true)
     else
       FOW := 255;
     if FOW = 0 then

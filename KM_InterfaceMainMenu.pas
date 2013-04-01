@@ -451,10 +451,8 @@ begin
   //Append mission name and time after the result message
   Label_Results.Caption := Label_Results.Caption + ' - ' + fGame.GameName; //Don't show the mission time in SP because it's already shown elsewhere
 
-  if (MyPlayer = nil) or (MyPlayer.Stats = nil) then Exit;
-
   //List values (like old KaM did)
-  with MyPlayer.Stats do
+  with fPlayers[MySpectator.PlayerIndex].Stats do
   begin
     Label_Stat[1].Caption := IntToStr(GetCitizensLost + GetWarriorsLost);
     Label_Stat[2].Caption := IntToStr(GetCitizensKilled + GetWarriorsKilled);
@@ -474,10 +472,10 @@ begin
     Chart_Citizens.Clear;
     Chart_Houses.Clear;
     Chart_Wares.Clear;
-    Chart_Army.MaxLength      := MyPlayer.Stats.ChartCount;
-    Chart_Citizens.MaxLength  := MyPlayer.Stats.ChartCount;
-    Chart_Houses.MaxLength    := MyPlayer.Stats.ChartCount;
-    Chart_Wares.MaxLength     := MyPlayer.Stats.ChartCount;
+    Chart_Army.MaxLength      := fPlayers[MySpectator.PlayerIndex].Stats.ChartCount;
+    Chart_Citizens.MaxLength  := fPlayers[MySpectator.PlayerIndex].Stats.ChartCount;
+    Chart_Houses.MaxLength    := fPlayers[MySpectator.PlayerIndex].Stats.ChartCount;
+    Chart_Wares.MaxLength     := fPlayers[MySpectator.PlayerIndex].Stats.ChartCount;
 
     Chart_Army.MaxTime      := fGame.GameTickCount div 10;
     Chart_Citizens.MaxTime  := fGame.GameTickCount div 10;
@@ -527,7 +525,7 @@ begin
     //Wares
     for R := WARE_MIN to WARE_MAX do
     begin
-      G := MyPlayer.Stats.ChartWares[R];
+      G := fPlayers[MySpectator.PlayerIndex].Stats.ChartWares[R];
       for I := 0 to High(G) do
         if G[I] <> 0 then
         begin

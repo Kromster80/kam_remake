@@ -414,10 +414,10 @@ begin
   Chart_MPArmy.Clear;
   Chart_MPCitizens.Clear;
   Chart_MPHouses.Clear;
-  Chart_MPArmy.MaxLength      := MyPlayer.Stats.ChartCount;
-  Chart_MPCitizens.MaxLength  := MyPlayer.Stats.ChartCount;
-  Chart_MPHouses.MaxLength    := MyPlayer.Stats.ChartCount;
 
+  Chart_MPArmy.MaxLength := 0;
+  Chart_MPCitizens.MaxLength := 0;
+  Chart_MPHouses.MaxLength := 0;
   Chart_MPArmy.MaxTime      := fGame.GameTickCount div 10;
   Chart_MPCitizens.MaxTime  := fGame.GameTickCount div 10;
   Chart_MPHouses.MaxTime    := fGame.GameTickCount div 10;
@@ -425,19 +425,28 @@ begin
   for I := 0 to fPlayers.Count - 1 do
   with fPlayers[I] do
     if Enabled then
+    begin
+      Chart_MPArmy.MaxLength := Max(Chart_MPArmy.MaxLength, Stats.ChartCount);
       Chart_MPArmy.AddLine(PlayerName, FlagColor, Stats.ChartArmy);
+    end;
 
   Chart_MPArmy.TrimToFirstVariation;
 
   for I := 0 to fPlayers.Count - 1 do
   with fPlayers[I] do
-  if Enabled then
-    Chart_MPCitizens.AddLine(PlayerName, FlagColor, Stats.ChartCitizens);
+    if Enabled then
+    begin
+      Chart_MPCitizens.MaxLength := Max(Chart_MPCitizens.MaxLength, Stats.ChartCount);
+      Chart_MPCitizens.AddLine(PlayerName, FlagColor, Stats.ChartCitizens);
+    end;
 
   for I := 0 to fPlayers.Count - 1 do
   with fPlayers[I] do
     if Enabled then
+    begin
+      Chart_MPHouses.MaxLength := Max(Chart_MPHouses.MaxLength, Stats.ChartCount);
       Chart_MPHouses.AddLine(PlayerName, FlagColor, Stats.ChartHouses);
+    end;
 end;
 
 
@@ -481,15 +490,18 @@ begin
     R := TWareType(Columnbox_Wares.Rows[J].Tag);
 
     Chart_MPWares[R].Clear;
-    Chart_MPWares[R].MaxLength := MyPlayer.Stats.ChartCount;
+    Chart_MPWares[R].MaxLength := 0;
     Chart_MPWares[R].MaxTime := fGame.GameTickCount div 10;
     Chart_MPWares[R].Caption := fTextLibrary[TX_GRAPH_TITLE_RESOURCES] + ' - ' + fResource.Wares[R].Title;
 
     for I := 0 to fPlayers.Count - 1 do
     with fPlayers[I] do
     if Enabled then
+    begin
+      Chart_MPWares[R].MaxLength := Max(Chart_MPWares[R].MaxLength, Stats.ChartCount);
       //Do some postprocessing on stats (GDP, food value)
       Chart_MPWares[R].AddLine(PlayerName, FlagColor, GetChartWares(I, R), I);
+    end;
   end;
 
   Columnbox_Wares.ItemIndex := 0;

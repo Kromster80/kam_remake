@@ -493,7 +493,7 @@ begin
   //We have to remove the house THEN check to see if we can place it again so we can put it on the old position
   fTerrain.SetHouse(fPosition, fHouseType, hsNone, -1);
   fTerrain.RemRoad(GetEntrance);
-  if MyPlayer.CanAddHousePlan(aPos, HouseType) then
+  if fPlayers[MySpectator.PlayerIndex].CanAddHousePlan(aPos, HouseType) then
   begin
     fPosition.X := aPos.X - fResource.HouseDat[fHouseType].EntranceOffsetX;
     fPosition.Y := aPos.Y;
@@ -1089,9 +1089,9 @@ begin
 
   Step := WorkAnimStep mod Step;
 
-  //Do not play sounds if house is invisible to MyPlayer
+  //Do not play sounds if house is invisible to MySpectator
   //This check is slower so we do it after other Exit checks
-  if MyPlayer.FogOfWar.CheckTileRevelation(fPosition.X, fPosition.Y, true) < 255 then exit;
+  if MySpectator.FogOfWar.CheckTileRevelation(fPosition.X, fPosition.Y, true) < 255 then exit;
 
   case fHouseType of //Various buildings and HouseActions producing sounds
     ht_School:        if (Work = ha_Work5)and(Step = 28) then fSoundLib.Play(sfx_SchoolDing, fPosition); //Ding as the clock strikes 12
@@ -1246,7 +1246,7 @@ begin
     Dec(fTimeSinceUnoccupiedReminder);
     if fTimeSinceUnoccupiedReminder = 0 then
     begin
-      if (fOwner = MyPlayer.PlayerIndex) and not fGame.IsReplay then
+      if (fOwner = MySpectator.PlayerIndex) and not fGame.IsReplay then
       begin
         HouseName := fResource.HouseDat[HouseType].HouseName;
         //We can't paste houses name instead of %s like that because of plurals and feminine/masculine attrib
@@ -1339,7 +1339,7 @@ procedure TKMHouseSwineStable.MakeSound;
 var I: Byte;
 begin
   inherited;
-  if MyPlayer.FogOfWar.CheckTileRevelation(fPosition.X, fPosition.Y, true) < 255 then Exit;
+  if MySpectator.FogOfWar.CheckTileRevelation(fPosition.X, fPosition.Y, true) < 255 then Exit;
 
   for I := 0 to 4 do
   if BeastAge[I+1] > 0 then

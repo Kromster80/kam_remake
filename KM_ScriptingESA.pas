@@ -941,7 +941,7 @@ end;
 
 procedure TKMScriptActions.ShowMsg(aPlayer: Word; aText: AnsiString);
 begin
-  if aPlayer = MyPlayer.PlayerIndex then
+  if aPlayer = MySpectator.PlayerIndex then
     fGame.ShowMessage(mkText, aText, KMPoint(0,0))
 end;
 
@@ -1090,7 +1090,7 @@ end;
 
 procedure TKMScriptActions.SetOverlayText(aPlayer: Word; aText: AnsiString);
 begin
-  if aPlayer = MyPlayer.PlayerIndex then
+  if aPlayer = MySpectator.PlayerIndex then
     fGame.GamePlayInterface.SetScriptedOverlay(aText);
 end;
 

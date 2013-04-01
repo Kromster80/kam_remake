@@ -82,18 +82,19 @@ begin
 end;
 
 
-{Check if requested vertice is revealed for given player}
-{Return value of revelation is 0..255}
+//Check if requested vertice is revealed for given player
+//Return value of revelation is 0..255
 //0 unrevealed, 255 revealed completely
 //aSkipForReplay should be true in cases where replay should always return revealed (e.g. sounds, render)
 //but false in cases where it will effect the gameplay (e.g. unit hit test)
-function TKMFogOfWar.CheckVerticeRevelation(const X,Y: Word; aSkipForReplay:boolean):byte;
+function TKMFogOfWar.CheckVerticeRevelation(const X,Y: Word; aSkipForReplay: Boolean): Byte;
 begin
-  if aSkipForReplay and fGame.IsReplayIndividual then
+  if aSkipForReplay then
   begin
     Result := 255;
-    exit;
+    Exit;
   end;
+
   //I like how "alive" the fog looks with some tweaks
   //pulsating around units and slowly thickening when they leave :)
   if FOG_OF_WAR_ENABLE then
@@ -114,12 +115,12 @@ end;
 //Return value of revelation within 0..255 (0 unrevealed, 255 fully revealed)
 //aSkipForReplay should be true in cases where replay should always return revealed (e.g. sounds, render)
 //but false in cases where it will effect the gameplay (e.g. unit hit test)
-function TKMFogOfWar.CheckTileRevelation(const X,Y: Word; aSkipForReplay:boolean):byte;
+function TKMFogOfWar.CheckTileRevelation(const X,Y: Word; aSkipForReplay: Boolean): Byte;
 begin
-  if aSkipForReplay and ((fGame = nil) or fGame.IsReplayIndividual) then
+  if aSkipForReplay then
   begin
     Result := 255;
-    exit;
+    Exit;
   end;
 
   if (X <= 0) or (X >= MapX)
@@ -144,7 +145,7 @@ end;
 function TKMFogOfWar.CheckRevelation(const aPoint: TKMPointF; aSkipForReplay: Boolean): Byte;
 var A, B, C, D, Y1, Y2: Byte;
 begin
-  if aSkipForReplay and fGame.IsReplayIndividual then
+  if aSkipForReplay then
   begin
     Result := 255;
     Exit;

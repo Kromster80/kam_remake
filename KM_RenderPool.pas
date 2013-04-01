@@ -207,10 +207,18 @@ begin
 
   //Tablets on house plans, for self and allies
   TabletsList := TKMPointTagList.Create;
-  MyPlayer.GetPlansTablets(TabletsList, aRect, fGame.IsReplay);
-  for I := 0 to TabletsList.Count - 1 do
-    AddHouseTablet(THouseType(TabletsList.Tag[I]), TabletsList[I]);
-  TabletsList.Free;
+  try
+    if fGame.IsReplay then
+      for I := 0 to fPlayers.Count - 1 do
+        fPlayers[I].GetPlansTablets(TabletsList, aRect)
+    else
+      fPlayers[MySpectator.PlayerIndex].GetPlansTablets(TabletsList, aRect);
+
+    for I := 0 to TabletsList.Count - 1 do
+      AddHouseTablet(THouseType(TabletsList.Tag[I]), TabletsList[I]);
+  finally
+    TabletsList.Free;
+  end;
 end;
 
 
@@ -244,7 +252,7 @@ begin
 
   A := MapElem[aIndex].Anim;
 
-  FOW := MyPlayer.FogOfWar.CheckTileRevelation(LocX,LocY,true);
+  FOW := MySpectator.FogOfWar.CheckTileRevelation(LocX,LocY,true);
   if FOW = 0 then exit; //Don't render objects which are unexplored
   if FOW <= 128 then AnimStep := 0; //Stop animation
   Id := A.Step[AnimStep mod Byte(A.Count) +1]+1;
@@ -318,7 +326,7 @@ var
 var
   FOW: Byte;
 begin
-  FOW := MyPlayer.FogOfWar.CheckTileRevelation(pX, pY, True);
+  FOW := MySpectator.FogOfWar.CheckTileRevelation(pX, pY, True);
   if FOW <= 128 then AnimStep := 0; //Stop animation
 
   R := fRXData[rxTrees];
@@ -570,7 +578,7 @@ begin
   //We don't care about off-map arrows, but still we get TKMPoint error if X/Y gets negative
   if not fTerrain.TileInMapCoords(Round(aRenderPos.X), Round(aRenderPos.Y)) then Exit;
 
-  FOW := MyPlayer.FogOfWar.CheckTileRevelation(Round(aRenderPos.X), Round(aRenderPos.Y), True);
+  FOW := MySpectator.FogOfWar.CheckTileRevelation(Round(aRenderPos.X), Round(aRenderPos.Y), True);
   if FOW <= 128 then Exit; //Don't render objects which are behind FOW
 
   case aProj of
@@ -872,29 +880,47 @@ end;
 
 procedure TRenderPool.CollectTerrain;
 var
+  I: Integer;
   Rect: TKMRect;
   FieldsList: TKMPointTagList;
   HousePlansList: TKMPointDirList;
 begin
   Rect := fGame.Viewport.GetClip;
 
-  //Field plans (road, corn, wine) for self and allies
+  //Collect field plans (road, corn, wine)
   FieldsList := TKMPointTagList.Create;
-  MyPlayer.GetFieldPlans(FieldsList, Rect, True, fGame.IsReplayIndividual); //Include fake field plans for painting
+  if fGame.IsReplay then
+  begin
+    //Field plans for everyone
+    for I := 0 to fPlayers.Count - 1 do
+      fPlayers[I].GetFieldPlans(FieldsList, Rect, False);
+  end
+  else
+  begin
+    //Field plans for self and allies
+    //Include fake field plans for painting
+    fPlayers[MySpectator.PlayerIndex].GetFieldPlans(FieldsList, Rect, True);
+  end;
 
   //House plans for self and allies
   HousePlansList := TKMPointDirList.Create;
-  MyPlayer.GetHousePlans(HousePlansList, Rect, fGame.IsReplayIndividual);
+  if fGame.IsReplay then
+  begin
+    for I := 0 to fPlayers.Count - 1 do
+      fPlayers[I].GetHousePlans(HousePlansList, Rect);
+  end
+  else
+    fPlayers[MySpectator.PlayerIndex].GetHousePlans(HousePlansList, Rect);
 
 
-  fRenderTerrain.Render(Rect, fTerrain.AnimStep, MyPlayer.FogOfWar, FieldsList, HousePlansList);
+  fRenderTerrain.Render(Rect, fTerrain.AnimStep, MySpectator.FogOfWar, FieldsList, HousePlansList);
 
 
   FreeAndNil(FieldsList);
   FreeAndNil(HousePlansList);
 
-  if fPlayers.Highlight is TKMHouse then
-    RenderHouseOutline(TKMHouse(fPlayers.Highlight));
+  if MySpectator.Highlight is TKMHouse then
+    RenderHouseOutline(TKMHouse(MySpectator.Highlight));
 
   if fGame.IsMapEditor then
     fGame.MapEditor.Paint(plTerrain);
@@ -1012,7 +1038,7 @@ var
   MarksList: TKMPointTagList;
 begin
   MarksList := TKMPointTagList.Create;
-  MyPlayer.GetHouseMarks(P, aHouseType, MarksList);
+  fPlayers[MySpectator.PlayerIndex].GetHouseMarks(P, aHouseType, MarksList);
 
   for I := 0 to MarksList.Count - 1 do
   if MarksList.Tag[I] = TC_OUTLINE then
@@ -1042,7 +1068,7 @@ begin
   F := GameCursor.Float;
 
   if (GameCursor.Mode <> cmNone) and (GameCursor.Mode <> cmHouses) and
-     (MyPlayer.FogOfWar.CheckTileRevelation(P.X, P.Y, False) = 0) then
+     (MySpectator.FogOfWar.CheckTileRevelation(P.X, P.Y, False) = 0) then
     RenderSpriteOnTile(P, TC_BLOCK)       //Red X
   else
 
@@ -1066,28 +1092,28 @@ begin
 
                   gmSingle, gmMulti, gmReplaySingle, gmReplayMulti:
                     begin
-                      if ((MyPlayer.BuildList.FieldworksList.HasFakeField(P) <> ft_None)
-                          or MyPlayer.BuildList.HousePlanList.HasPlan(P)
-                          or (MyPlayer.HousesHitTest(P.X, P.Y) <> nil))
+                      if ((fPlayers[MySpectator.PlayerIndex].BuildList.FieldworksList.HasFakeField(P) <> ft_None)
+                          or fPlayers[MySpectator.PlayerIndex].BuildList.HousePlanList.HasPlan(P)
+                          or (fPlayers[MySpectator.PlayerIndex].HousesHitTest(P.X, P.Y) <> nil))
                       then
                         RenderWire(P, $FFFFFF00) //Cyan quad
                       else
                         RenderSpriteOnTile(P, TC_BLOCK); //Red X
                     end;
                 end;
-    cmRoad:     if MyPlayer.CanAddFakeFieldPlan(P, ft_Road) then
+    cmRoad:     if fPlayers[MySpectator.PlayerIndex].CanAddFakeFieldPlan(P, ft_Road) then
                   RenderWire(P, $FFFFFF00) //Cyan quad
                 else
                   RenderSpriteOnTile(P, TC_BLOCK);       //Red X
-    cmField:    if MyPlayer.CanAddFakeFieldPlan(P, ft_Corn) then
+    cmField:    if fPlayers[MySpectator.PlayerIndex].CanAddFakeFieldPlan(P, ft_Corn) then
                   RenderWire(P, $FFFFFF00) //Cyan quad
                 else
                   RenderSpriteOnTile(P, TC_BLOCK);       //Red X
-    cmWine:     if MyPlayer.CanAddFakeFieldPlan(P, ft_Wine) then
+    cmWine:     if fPlayers[MySpectator.PlayerIndex].CanAddFakeFieldPlan(P, ft_Wine) then
                   RenderWire(P, $FFFFFF00) //Cyan quad
                 else
                   RenderSpriteOnTile(P, TC_BLOCK);       //Red X
-    cmWall:     if MyPlayer.CanAddFakeFieldPlan(P, ft_Wall) then
+    cmWall:     if fPlayers[MySpectator.PlayerIndex].CanAddFakeFieldPlan(P, ft_Wall) then
                   RenderWire(P, $FFFFFF00) //Cyan quad
                 else
                   RenderSpriteOnTile(P, TC_BLOCK);       //Red X
@@ -1157,22 +1183,22 @@ begin
                 begin
                   U := fTerrain.UnitsHitTest(P.X, P.Y);
                   if U <> nil then
-                    AddUnitWithDefaultArm(U.UnitType,ua_Walk,U.Direction,U.AnimStep,P.X+UNIT_OFF_X,P.Y+UNIT_OFF_Y,MyPlayer.FlagColor,true,true);
+                    AddUnitWithDefaultArm(U.UnitType,ua_Walk,U.Direction,U.AnimStep,P.X+UNIT_OFF_X,P.Y+UNIT_OFF_Y,fPlayers[MySpectator.PlayerIndex].FlagColor,true,true);
                 end else
                 if CanPlaceUnit(P, TUnitType(GameCursor.Tag1)) then
-                  AddUnitWithDefaultArm(TUnitType(GameCursor.Tag1), ua_Walk, dir_S, UnitStillFrames[dir_S], P.X+UNIT_OFF_X, P.Y+UNIT_OFF_Y, MyPlayer.FlagColor, True)
+                  AddUnitWithDefaultArm(TUnitType(GameCursor.Tag1), ua_Walk, dir_S, UnitStillFrames[dir_S], P.X+UNIT_OFF_X, P.Y+UNIT_OFF_Y, fPlayers[MySpectator.PlayerIndex].FlagColor, True)
                 else
                   RenderSpriteOnTile(P, TC_BLOCK); //Red X
     cmMarkers:  case GameCursor.Tag1 of
                   MARKER_REVEAL:        begin
-                                          RenderSpriteOnTile(P, 394, MyPlayer.FlagColor);
+                                          RenderSpriteOnTile(P, 394, fPlayers[MySpectator.PlayerIndex].FlagColor);
                                           fRenderAux.CircleOnTerrain(P.X, P.Y,
                                            GameCursor.MapEdSize,
-                                           MyPlayer.FlagColor AND $10FFFFFF,
-                                           MyPlayer.FlagColor);
+                                           fPlayers[MySpectator.PlayerIndex].FlagColor AND $10FFFFFF,
+                                           fPlayers[MySpectator.PlayerIndex].FlagColor);
                                         end;
-                  MARKER_DEFENCE:       RenderSpriteOnTile(P, 519, MyPlayer.FlagColor);
-                  MARKER_CENTERSCREEN:  RenderSpriteOnTile(P, 391, MyPlayer.FlagColor);
+                  MARKER_DEFENCE:       RenderSpriteOnTile(P, 519, fPlayers[MySpectator.PlayerIndex].FlagColor);
+                  MARKER_CENTERSCREEN:  RenderSpriteOnTile(P, 391, fPlayers[MySpectator.PlayerIndex].FlagColor);
                 end;
   end;
 end;
@@ -1203,7 +1229,7 @@ begin
   if RenderList[I].NewInst then
   begin
     RenderOrder[I] := I;
-    RenderList[I].FOWvalue := MyPlayer.FogOfWar.CheckRevelation(RenderList[I].Feet, True);
+    RenderList[I].FOWvalue := MySpectator.FogOfWar.CheckRevelation(RenderList[I].Feet, True);
   end
   else
   begin

@@ -116,14 +116,15 @@ type
     function FindInn(Loc: TKMPoint; aUnit: TKMUnit; UnitIsAtHome: Boolean = False): TKMHouseInn;
     function FindHouse(aType: THouseType; aPosition: TKMPoint; Index: Byte=1): TKMHouse; overload;
     function FindHouse(aType: THouseType; Index: Byte=1): TKMHouse; overload;
+    function HitTest(X,Y: Integer): TObject;
     function HousesHitTest(X, Y: Integer): TKMHouse;
     function GroupsHitTest(X, Y: Integer): TKMUnitGroup;
     procedure GetHouseMarks(aLoc: TKMPoint; aHouseType: THouseType; aList: TKMPointTagList);
 
     function GetFieldsCount: Integer;
-    procedure GetFieldPlans(aList: TKMPointTagList; aRect: TKMRect; aIncludeFake:Boolean; aAllPlayers:Boolean);
-    procedure GetHousePlans(aList: TKMPointDirList; aRect: TKMRect; aAllPlayers:Boolean);
-    procedure GetPlansTablets(aList: TKMPointTagList; aRect: TKMRect; aAllPlayers:Boolean);
+    procedure GetFieldPlans(aList: TKMPointTagList; aRect: TKMRect; aIncludeFake: Boolean);
+    procedure GetHousePlans(aList: TKMPointDirList; aRect: TKMRect);
+    procedure GetPlansTablets(aList: TKMPointTagList; aRect: TKMRect);
 
     procedure Save(SaveStream: TKMemoryStream); override;
     procedure Load(LoadStream: TKMemoryStream); override;
@@ -137,6 +138,33 @@ type
   TKMPlayerAnimals = class (TKMPlayerCommon)
   public
     function GetFishInWaterBody(aWaterID: Byte; FindHighestCount: Boolean=True): TKMUnitAnimal;
+  end;
+
+  TKMSpectator = class
+  private
+    fPlayerIndex: TPlayerIndex;
+    fHighlight: TObject; //Unit/House/Group that is shown highlighted to draw players attention
+    fHighlightEnd: Cardinal; //Highlight has a short time to live
+    fSelected: TObject;
+    fFOWIndex: TPlayerIndex; //Unit/House/Group selected by player and shown in UI
+    fFogOfWar: TKMFogOfWar;
+    procedure SetHighlight(Value: TObject);
+    procedure SetSelected(Value: TObject);
+    procedure SetPlayerIndex(const Value: TPlayerIndex);
+    procedure SetFOWIndex(const Value: TPlayerIndex);
+  public
+    constructor Create(aPlayerIndex: TPlayerIndex);
+    destructor Destroy; override;
+    property Highlight: TObject read fHighlight write SetHighlight;
+    property Selected: TObject read fSelected write SetSelected;
+    property PlayerIndex: TPlayerIndex read fPlayerIndex write SetPlayerIndex;
+    property FOWIndex: TPlayerIndex read fFOWIndex write SetFOWIndex;
+    function FogOfWar: TKMFogOfWar; //Which FOW we want to see
+    procedure SelectHitTest(X, Y: Integer);
+    function HitTest(X, Y: Integer): TObject;
+    procedure Load(LoadStream: TKMemoryStream);
+    procedure Save(SaveStream: TKMemoryStream);
+    procedure UpdateState(aTick: Cardinal);
   end;
 
 
@@ -572,12 +600,16 @@ begin
   else
     if CanAddFieldPlan(aLoc, aFieldType) then
     begin
-      if aMakeSound and not fGame.IsReplay and (Self = MyPlayer) then fSoundLib.Play(sfx_placemarker);
+      if aMakeSound and not fGame.IsReplay
+      and (PlayerIndex = MySpectator.PlayerIndex) then
+        fSoundLib.Play(sfx_placemarker);
       fBuildList.FieldworksList.AddField(aLoc, aFieldType)
     end
     else
     begin
-      if aMakeSound and not fGame.IsReplay and (Self = MyPlayer) then fSoundLib.Play(sfx_CantPlace, 4.0);
+      if aMakeSound and not fGame.IsReplay
+      and (PlayerIndex = MySpectator.PlayerIndex) then
+        fSoundLib.Play(sfx_CantPlace, 4.0);
       if Plan = ft_None then //If we can't build because there's some other plan, that's ok
       begin
         //Can't build here anymore because something changed between click and command processing, so remove any fake plans
@@ -600,17 +632,17 @@ begin
   begin
     fBuildList.FieldworksList.RemFakeField(aLoc); //Remove our fake marker which is shown to the user
     fBuildList.FieldworksList.AddFakeDeletedField(aLoc); //This will hide the real field until it is deleted from game
-    if Self = MyPlayer then fSoundLib.Play(sfx_Click);
+    if PlayerIndex = MySpectator.PlayerIndex then fSoundLib.Play(sfx_Click);
   end
   else
     if CanAddFakeFieldPlan(aLoc, aFieldType) then
     begin
       fBuildList.FieldworksList.AddFakeField(aLoc, aFieldType);
-      if Self = MyPlayer then
+      if PlayerIndex = MySpectator.PlayerIndex then
         fSoundLib.Play(sfx_placemarker);
     end
     else
-      if Self = MyPlayer then
+      if PlayerIndex = MySpectator.PlayerIndex then
         fSoundLib.Play(sfx_CantPlace, 4.0);
 end;
 
@@ -656,7 +688,7 @@ begin
 
   fBuildList.HousePlanList.AddPlan(aHouseType, Loc);
   fStats.HousePlanned(aHouseType);
-  if (Self = MyPlayer) and not fGame.IsReplay then fSoundLib.Play(sfx_placemarker);
+  if (PlayerIndex = MySpectator.PlayerIndex) and not fGame.IsReplay then fSoundLib.Play(sfx_placemarker);
 end;
 
 
@@ -693,7 +725,7 @@ begin
   if not fResource.HouseDat[HT].IsValid then exit; //Due to network delays house might not exist now
   fBuildList.HousePlanList.RemPlan(Position);
   fStats.HousePlanRemoved(HT);
-  if (Self = MyPlayer) and not fGame.IsReplay then fSoundLib.Play(sfx_Click);
+  if (PlayerIndex = MySpectator.PlayerIndex) and not fGame.IsReplay then fSoundLib.Play(sfx_Click);
 end;
 
 
@@ -701,7 +733,7 @@ end;
 procedure TKMPlayer.RemFieldPlan(Position: TKMPoint; aMakeSound: Boolean);
 begin
   fBuildList.FieldworksList.RemFieldPlan(Position);
-  if aMakeSound and not fGame.IsReplay and (Self = MyPlayer) then fSoundLib.Play(sfx_Click);
+  if aMakeSound and not fGame.IsReplay and (PlayerIndex = MySpectator.PlayerIndex) then fSoundLib.Play(sfx_Click);
 end;
 
 
@@ -723,7 +755,7 @@ procedure TKMPlayer.RemFakeFieldPlan(Position: TKMPoint);
 begin
   fBuildList.FieldworksList.RemFakeField(Position); //Remove our fake marker which is shown to the user
   fBuildList.FieldworksList.AddFakeDeletedField(Position); //This will hide the real field until it is deleted from game
-  if Self = MyPlayer then fSoundLib.Play(sfx_Click);
+  if PlayerIndex = MySpectator.PlayerIndex then fSoundLib.Play(sfx_Click);
 end;
 
 
@@ -780,6 +812,35 @@ begin
 end;
 
 
+function TKMPlayer.HitTest(X, Y: Integer): TObject;
+var
+  H: TKMHouse;
+  U: TKMUnit;
+  G: TKMUnitGroup;
+begin
+  //Houses have priority over units, so you can't select an occupant
+  //Selection priority is as follows:
+  //BuiltHouses > UnitGroups > Units > IncompleteHouses
+
+  H := HousesHitTest(X,Y);
+  if (H <> nil) and (H.BuildingState in [hbs_Stone, hbs_Done]) then
+    Result := H
+  else
+  begin
+    G := GroupsHitTest(X,Y);
+    if (G <> nil) then
+      Result := G
+    else
+    begin
+      U := UnitsHitTest(X,Y);
+      if (U <> nil) and (not U.IsDeadOrDying) then
+        Result := U
+      else
+        Result := H; //Incomplete house or nil
+    end;
+  end;
+end;
+
 //Which house whas destroyed and by whom
 procedure TKMPlayer.HouseDestroyed(aHouse: TKMHouse; aFrom: TPlayerIndex);
 begin
@@ -810,10 +871,10 @@ begin
   if (aFrom <> -1) and (aFrom <> fPlayerIndex) then
     fScripting.ProcHouseDestroyed(aHouse, aFrom, aHouse.BuildingState=hbs_Done);
 
-  if fPlayers.Highlight = aHouse then
-    fPlayers.Highlight := nil;
-  if fPlayers.Selected = aHouse then
-    fPlayers.Selected := nil;
+  if MySpectator.Highlight = aHouse then
+    MySpectator.Highlight := nil;
+  if MySpectator.Selected = aHouse then
+    MySpectator.Selected := nil;
 end;
 
 
@@ -880,38 +941,38 @@ begin
 end;
 
 
-procedure TKMPlayer.GetFieldPlans(aList: TKMPointTagList; aRect: TKMRect; aIncludeFake:Boolean; aAllPlayers:Boolean);
+procedure TKMPlayer.GetFieldPlans(aList: TKMPointTagList; aRect: TKMRect; aIncludeFake: Boolean);
 var
   I: TPlayerIndex;
 begin
   fBuildList.FieldworksList.GetFields(aList, aRect, aIncludeFake);
 
   for I := 0 to fPlayers.Count - 1 do
-    if (I <> fPlayerIndex) and (aAllPlayers or (fPlayers.CheckAlliance(fPlayerIndex, I) = at_Ally)) then
+    if (I <> fPlayerIndex) and (fPlayers.CheckAlliance(fPlayerIndex, I) = at_Ally) then
       fPlayers[I].BuildList.FieldworksList.GetFields(aList, aRect, aIncludeFake);
 end;
 
 
-procedure TKMPlayer.GetHousePlans(aList: TKMPointDirList; aRect: TKMRect; aAllPlayers:Boolean);
+procedure TKMPlayer.GetHousePlans(aList: TKMPointDirList; aRect: TKMRect);
 var
   I: TPlayerIndex;
 begin
   fBuildList.HousePlanList.GetOutlines(aList, aRect);
 
   for I := 0 to fPlayers.Count - 1 do
-    if (I <> fPlayerIndex) and (aAllPlayers or (fPlayers.CheckAlliance(fPlayerIndex, I) = at_Ally)) then
+    if (I <> fPlayerIndex) and (fPlayers.CheckAlliance(fPlayerIndex, I) = at_Ally) then
       fPlayers[I].BuildList.HousePlanList.GetOutlines(aList, aRect);
 end;
 
 
-procedure TKMPlayer.GetPlansTablets(aList: TKMPointTagList; aRect: TKMRect; aAllPlayers:Boolean);
+procedure TKMPlayer.GetPlansTablets(aList: TKMPointTagList; aRect: TKMRect);
 var
   I: TPlayerIndex;
 begin
   fBuildList.HousePlanList.GetTablets(aList, aRect);
 
   for I := 0 to fPlayers.Count - 1 do
-    if (I <> fPlayerIndex) and (aAllPlayers or (fPlayers.CheckAlliance(fPlayerIndex, I) = at_Ally)) then
+    if (I <> fPlayerIndex) and (fPlayers.CheckAlliance(fPlayerIndex, I) = at_Ally) then
       fPlayers[I].BuildList.HousePlanList.GetTablets(aList, aRect);
 end;
 
@@ -1084,20 +1145,20 @@ begin
   end;
   fScripting.ProcUnitLost(aUnit);
 
-  if fPlayers.Highlight = aUnit then
-    fPlayers.Highlight := nil;
-  if fPlayers.Selected = aUnit then
-    fPlayers.Selected := nil;
+  if MySpectator.Highlight = aUnit then
+    MySpectator.Highlight := nil;
+  if MySpectator.Selected = aUnit then
+    MySpectator.Selected := nil;
 end;
 
 
 procedure TKMPlayer.GroupDied(aGroup: TKMUnitGroup);
 begin
   //Groups arent counted in statistics
-  if fPlayers.Highlight = aGroup then
-    fPlayers.Highlight := nil;
-  if fPlayers.Selected = aGroup then
-    fPlayers.Selected := nil;
+  if MySpectator.Highlight = aGroup then
+    MySpectator.Highlight := nil;
+  if MySpectator.Selected = aGroup then
+    MySpectator.Selected := nil;
 end;
 
 
@@ -1171,6 +1232,123 @@ begin
       HighestGroupCount := Result.FishCount;
     end;
   end;
+end;
+
+
+{ TKMSpectator }
+constructor TKMSpectator.Create(aPlayerIndex: TPlayerIndex);
+begin
+  inherited Create;
+
+  fPlayerIndex := aPlayerIndex;
+
+  //We can replace that with a stub that always returns REVEALED
+  fFogOfWar := TKMFogOfWar.Create(fTerrain.MapX, fTerrain.MapY);
+  fFogOfWar.RevealEverything;
+end;
+
+
+destructor TKMSpectator.Destroy;
+begin
+  Highlight := nil;
+  Selected := nil;
+  fFogOfWar.Free;
+  inherited;
+end;
+
+
+function TKMSpectator.FogOfWar: TKMFogOfWar;
+begin
+  if fGame.IsReplay or fGame.IsMapEditor then
+    if FOWIndex = -1 then
+      Result := fFogOfWar
+    else
+      Result := fPlayers[FOWIndex].FogOfWar
+  else
+    Result := fPlayers[PlayerIndex].FogOfWar;
+end;
+
+
+procedure TKMSpectator.Load(LoadStream: TKMemoryStream);
+begin
+  LoadStream.Read(fPlayerIndex);
+end;
+
+
+procedure TKMSpectator.Save(SaveStream: TKMemoryStream);
+begin
+  SaveStream.Write(fPlayerIndex);
+end;
+
+
+function TKMSpectator.HitTest(X, Y: Integer): TObject;
+begin
+  if fGame.IsReplay or fGame.IsMapEditor then
+    Result := fPlayers.HitTest(X, Y)
+  else
+    Result := fPlayers[fPlayerIndex].HitTest(X, Y);
+end;
+
+
+procedure TKMSpectator.SelectHitTest(X,Y: Integer);
+var
+  Obj: TObject;
+begin
+  Obj := HitTest(X, Y);
+
+  //Don't select a warrior directly, only select his group.
+  //A warrior can be incorrectly selected while walking out of the barracks (before he has a group)
+  if Obj is TKMUnitWarrior then Exit;
+
+  if Obj <> nil then
+  begin
+    Selected := Obj;
+    //Update selected unit within a group
+    if Selected is TKMUnitGroup then
+      TKMUnitGroup(Selected).SelectHitTest(X,Y);
+  end;
+end;
+
+
+procedure TKMSpectator.SetFOWIndex(const Value: TPlayerIndex);
+begin
+  fFOWIndex := Value;
+end;
+
+
+procedure TKMSpectator.SetHighlight(Value: TObject);
+begin
+  //fHighlight cannot use house/unit pointers in MP since those go into the save file,
+  //and saves must be created identical on all computers in MP
+  //Instead we make sure after each tick that Highlight is still valid, otherwise nil it
+  fHighlight := Value;
+  fHighlightEnd := TimeGet + 3000;
+end;
+
+
+procedure TKMSpectator.SetPlayerIndex(const Value: TPlayerIndex);
+begin
+  Assert(DEBUG_CHEATS and (MULTIPLAYER_CHEATS or not fGame.IsMultiplayer) or fGame.IsReplay or fGame.IsMapEditor);
+  fPlayerIndex := Value;
+
+  Selected := nil;
+end;
+
+
+procedure TKMSpectator.SetSelected(Value: TObject);
+begin
+  //fSelected cannot use house/unit pointers in MP since those go into the save file,
+  //and saves must be created identical on all computers in MP
+  //Instead we make sure after each tick that selection is still valid, otherwise nil it
+  fSelected := Value;
+end;
+
+
+procedure TKMSpectator.UpdateState(aTick: Cardinal);
+begin
+  //Hide the highlight
+  if TimeGet > fHighlightEnd then
+    fHighlight := nil;
 end;
 
 

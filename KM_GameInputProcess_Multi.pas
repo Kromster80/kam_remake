@@ -180,7 +180,7 @@ begin
     exit;
   end;
 
-  if (MyPlayer.AI.WonOrLost = wol_Lost) and not (aCommand.CommandType in AllowedAfterDefeat) then
+  if (fPlayers[MySpectator.PlayerIndex].AI.WonOrLost = wol_Lost) and not (aCommand.CommandType in AllowedAfterDefeat) then
   begin
     fSoundLib.Play(sfx_CantPlace);
     Exit;
@@ -242,8 +242,8 @@ begin
   try
     Msg.Write(byte(kdp_Commands));
     Msg.Write(aTick); //Target Tick in 1..n range
-    Msg.Write(MyPlayer.PlayerIndex, SizeOf(MyPlayer.PlayerIndex));
-    fSchedule[aTick mod MAX_SCHEDULE, MyPlayer.PlayerIndex].Save(Msg); //Write all commands to the stream
+    Msg.Write(MySpectator.PlayerIndex, SizeOf(MySpectator.PlayerIndex));
+    fSchedule[aTick mod MAX_SCHEDULE, MySpectator.PlayerIndex].Save(Msg); //Write all commands to the stream
     fNetworking.SendCommands(Msg, aPlayerIndex); //Send to all players by default
   finally
     Msg.Free;
@@ -258,7 +258,7 @@ begin
   try
     Msg.Write(byte(kdp_RandomCheck));
     Msg.Write(aTick); //Target Tick in 1..n range
-    Msg.Write(MyPlayer.PlayerIndex, SizeOf(MyPlayer.PlayerIndex));
+    Msg.Write(MySpectator.PlayerIndex, SizeOf(MySpectator.PlayerIndex));
     Msg.Write(fRandomCheck[aTick mod MAX_SCHEDULE].OurCheck); //Write our random check to the stream
     fNetworking.SendCommands(Msg); //Send to all opponents
   finally
@@ -406,13 +406,13 @@ begin
   if (not fSent[I mod MAX_SCHEDULE]) and (fNetworking.Connected) then
   begin
     if not fCommandIssued[I mod MAX_SCHEDULE] then
-      fSchedule[I mod MAX_SCHEDULE, MyPlayer.PlayerIndex].Clear; //No one has used it since last time through the ring buffer
+      fSchedule[I mod MAX_SCHEDULE, MySpectator.PlayerIndex].Clear; //No one has used it since last time through the ring buffer
     fCommandIssued[I mod MAX_SCHEDULE] := False; //Make it as requiring clearing next time around
 
     fLastSentTick := I;
     SendCommands(I);
     fSent[I mod MAX_SCHEDULE] := true;
-    fRecievedData[I mod MAX_SCHEDULE, MyPlayer.PlayerIndex] := True; //Recieved commands from self
+    fRecievedData[I mod MAX_SCHEDULE, MySpectator.PlayerIndex] := True; //Recieved commands from self
   end;
 end;
 
