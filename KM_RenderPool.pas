@@ -209,8 +209,11 @@ begin
   TabletsList := TKMPointTagList.Create;
   try
     if fGame.IsReplay then
-      for I := 0 to fPlayers.Count - 1 do
-        fPlayers[I].GetPlansTablets(TabletsList, aRect)
+      if MySpectator.FOWIndex = -1 then
+        for I := 0 to fPlayers.Count - 1 do
+          fPlayers[I].GetPlansTablets(TabletsList, aRect)
+      else
+        fPlayers[MySpectator.FOWIndex].GetPlansTablets(TabletsList, aRect)
     else
       fPlayers[MySpectator.PlayerIndex].GetPlansTablets(TabletsList, aRect);
 
@@ -891,9 +894,11 @@ begin
   FieldsList := TKMPointTagList.Create;
   if fGame.IsReplay then
   begin
-    //Field plans for everyone
-    for I := 0 to fPlayers.Count - 1 do
-      fPlayers[I].GetFieldPlans(FieldsList, Rect, False);
+    if MySpectator.FOWIndex = -1 then
+      for I := 0 to fPlayers.Count - 1 do
+        fPlayers[I].GetFieldPlans(FieldsList, Rect, False)
+    else
+      fPlayers[MySpectator.FOWIndex].GetFieldPlans(FieldsList, Rect, False)
   end
   else
   begin
@@ -906,8 +911,11 @@ begin
   HousePlansList := TKMPointDirList.Create;
   if fGame.IsReplay then
   begin
-    for I := 0 to fPlayers.Count - 1 do
-      fPlayers[I].GetHousePlans(HousePlansList, Rect);
+    if MySpectator.FOWIndex = -1 then
+      for I := 0 to fPlayers.Count - 1 do
+        fPlayers[I].GetHousePlans(HousePlansList, Rect)
+    else
+      fPlayers[MySpectator.FOWIndex].GetHousePlans(HousePlansList, Rect)
   end
   else
     fPlayers[MySpectator.PlayerIndex].GetHousePlans(HousePlansList, Rect);
