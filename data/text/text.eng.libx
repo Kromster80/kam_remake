@@ -586,7 +586,7 @@ MaxID:2951
 2857:How many recruits AI should have in barracks
 2858:Set max. soldiers
 2859:How many soldiers AI can have at once
-2860:Set a limit on number of soldiers AI can have
+2860:Remove limit on how many soldiers AI can have
 2861:Edit formations
 2862:AI attacks
 2863:Autoattack

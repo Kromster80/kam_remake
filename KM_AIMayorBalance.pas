@@ -188,20 +188,29 @@ end;
 
 procedure TKMayorBalance.AppendMaterials;
 var
-  P: TKMPlayer;
+  List: array [0..2] of Single;
 begin
-  P := fPlayers[fOwner];
+  List[0] := fDemandMaterials.StoneBalance;
+  List[1] := fDemandMaterials.WoodcutTheory - WoodNeed;
+  List[2] := fDemandMaterials.SawmillTheory - WoodNeed;
 
-  with fDemandMaterials do
-  case PickMin([0, StoneBalance, WoodBalance]) of
-    0:  ;
-    1:  Append(ht_Quary);
-    2:  if (P.Stats.GetHouseQty(ht_Quary) >= 2) then
-          if (WoodcutTheory < SawmillTheory) or not P.Stats.GetCanBuild(ht_Sawmill) then
-            Append(ht_Woodcutters)
-          else
+  repeat
+    case PickMin([0, List[0], List[1], List[2]]) of
+      0:  Break;
+      1:  begin
+            Append(ht_Quary);
+            List[0] := List[0] + ProductionRate[wt_Stone];
+          end;
+      2:  begin
+            Append(ht_Woodcutters);
+            List[1] := List[1] + ProductionRate[wt_Trunk] * 2; //Each trunk brings 2 wood
+          end;
+      3:  begin
             Append(ht_Sawmill);
-  end;
+            List[2] := List[2] + ProductionRate[wt_Wood];
+          end;
+    end;
+  until False;
 end;
 
 
@@ -420,7 +429,6 @@ begin
         WoodenArmor.TrunkTheory := 0;
       end;
     end;
-
   end;
 end;
 
@@ -603,7 +611,7 @@ begin
   begin
     StoneProduction := HouseCount(ht_Quary) * ProductionRate[wt_Stone];
 
-    WoodcutTheory := HouseCount(ht_Woodcutters) * ProductionRate[wt_Trunk];
+    WoodcutTheory := HouseCount(ht_Woodcutters) * ProductionRate[wt_Trunk] * 2;
     SawmillTheory := HouseCount(ht_Sawmill) * ProductionRate[wt_Wood];
     WoodProduction := Min(WoodcutTheory, SawmillTheory);
 
