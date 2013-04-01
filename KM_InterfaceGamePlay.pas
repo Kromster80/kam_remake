@@ -4077,7 +4077,7 @@ begin
   if ssLeft in Shift then //Only allow placing of roads etc. with the left mouse button
   begin
     P := GameCursor.Cell; //Get cursor position tile-wise
-    if fPlayers[MySpectator.PlayerIndex].FogOfWar.CheckTileRevelation(P.X, P.Y, False) > 0 then
+    if fPlayers[MySpectator.PlayerIndex].FogOfWar.CheckTileRevelation(P.X, P.Y) > 0 then
     case GameCursor.Mode of
       cmRoad:  if fPlayers[MySpectator.PlayerIndex].CanAddFakeFieldPlan(P, ft_Road) and not KMSamePoint(LastDragPoint, P) then
                 begin
@@ -4143,7 +4143,7 @@ begin
 
   if (MySpectator.Selected is TKMUnitGroup)
   and not fReplay and not HasLostMPGame
-  and (MySpectator.FogOfWar.CheckTileRevelation(GameCursor.Cell.X, GameCursor.Cell.Y, false) > 0) then
+  and (MySpectator.FogOfWar.CheckTileRevelation(GameCursor.Cell.X, GameCursor.Cell.Y) > 0) then
   begin
     U := fTerrain.UnitsHitTest (GameCursor.Cell.X, GameCursor.Cell.Y);
     H := fPlayers.HousesHitTest(GameCursor.Cell.X, GameCursor.Cell.Y);
@@ -4151,8 +4151,8 @@ begin
        ((H <> nil) and (fPlayers.CheckAlliance(fPlayers[MySpectator.PlayerIndex].PlayerIndex, H.Owner) = at_Enemy)) then
       fResource.Cursors.Cursor := kmc_Attack
     else
-    if not fGame.Viewport.Scrolling then
-      fResource.Cursors.Cursor := kmc_Default;
+      if not fGame.Viewport.Scrolling then
+        fResource.Cursors.Cursor := kmc_Default;
     Exit;
   end;
 
@@ -4226,7 +4226,7 @@ begin
                 end;
 
                 //Only allow placing of roads etc. with the left mouse button
-                if MySpectator.FogOfWar.CheckTileRevelation(P.X, P.Y, True) = 0 then
+                if MySpectator.FogOfWar.CheckTileRevelation(P.X, P.Y) = 0 then
                 begin
                   if GameCursor.Mode in [cmErase, cmRoad, cmField, cmWine, cmWall, cmHouses] then
                     fSoundLib.Play(sfx_CantPlace,P,false,4.0); //Can't place noise when clicking on unexplored areas
@@ -4541,7 +4541,7 @@ begin
     for I := 0 to fTeamNames.Count - 1 do
     begin
       U := TKMUnit(fTeamNames[I]);
-      if U.Visible and (MySpectator.FogOfWar.CheckRevelation(U.PositionF, True) > FOG_OF_WAR_MIN) then
+      if U.Visible and (MySpectator.FogOfWar.CheckRevelation(U.PositionF) > FOG_OF_WAR_MIN) then
       begin
         Label_TeamName.Caption := fPlayers[U.Owner].PlayerName;
         Label_TeamName.FontColor := FlagColorToTextColor(fPlayers[U.Owner].FlagColor);

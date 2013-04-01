@@ -1091,7 +1091,7 @@ begin
 
   //Do not play sounds if house is invisible to MySpectator
   //This check is slower so we do it after other Exit checks
-  if MySpectator.FogOfWar.CheckTileRevelation(fPosition.X, fPosition.Y, true) < 255 then exit;
+  if MySpectator.FogOfWar.CheckTileRevelation(fPosition.X, fPosition.Y) < 255 then exit;
 
   case fHouseType of //Various buildings and HouseActions producing sounds
     ht_School:        if (Work = ha_Work5)and(Step = 28) then fSoundLib.Play(sfx_SchoolDing, fPosition); //Ding as the clock strikes 12
@@ -1339,7 +1339,7 @@ procedure TKMHouseSwineStable.MakeSound;
 var I: Byte;
 begin
   inherited;
-  if MySpectator.FogOfWar.CheckTileRevelation(fPosition.X, fPosition.Y, true) < 255 then Exit;
+  if MySpectator.FogOfWar.CheckTileRevelation(fPosition.X, fPosition.Y) < 255 then Exit;
 
   for I := 0 to 4 do
   if BeastAge[I+1] > 0 then

@@ -150,7 +150,7 @@ begin
 
   //Do not play sounds if unit is invisible to MySpectator
   //We should not use KaMRandom below this line because sound playback depends on FOW and is individual for each player
-  if MySpectator.FogOfWar.CheckTileRevelation(fUnit.GetPosition.X, fUnit.GetPosition.Y, true) < 255 then exit;
+  if MySpectator.FogOfWar.CheckTileRevelation(fUnit.GetPosition.X, fUnit.GetPosition.Y) < 255 then exit;
 
   if MakeBattleCry then fSoundLib.PlayWarrior(fUnit.UnitType, sp_BattleCry, fUnit.PositionF);
 

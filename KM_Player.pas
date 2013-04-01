@@ -497,7 +497,7 @@ begin
     Tx := aLoc.X - fResource.HouseDat[aHouseType].EntranceOffsetX + K - 3;
     Ty := aLoc.Y + I - 4;
     Result := Result and fTerrain.TileInMapCoords(Tx, Ty, 1)
-                     and (fFogOfWar.CheckTileRevelation(Tx, Ty, false) > 0);
+                     and (fFogOfWar.CheckTileRevelation(Tx, Ty) > 0);
     //This checks below require Tx;Ty to be within the map so exit immediately if they are not
     if not Result then exit;
 
@@ -1010,7 +1010,7 @@ begin
     P2 := KMPoint(aLoc.X+K-3-fResource.HouseDat[aHouseType].EntranceOffsetX, aLoc.Y+I-4);
 
     //Forbid planning on unrevealed areas and fieldplans
-    AllowBuild := (fFogOfWar.CheckTileRevelation(P2.X, P2.Y, False) > 0);
+    AllowBuild := (fFogOfWar.CheckTileRevelation(P2.X, P2.Y) > 0);
 
     //This tile must not contain fields/houses of allied players or self
     if AllowBuild then

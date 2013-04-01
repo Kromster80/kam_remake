@@ -348,9 +348,9 @@ begin
   and KMInRect(Items[I].Loc, R) then
   begin
     case aPass of
-      0:  if MySpectator.FogOfWar.CheckRevelation(Items[I].Loc, False) > 0 then
+      0:  if MySpectator.FogOfWar.CheckRevelation(Items[I].Loc) > 0 then
             fRenderPool.AddAlert(Items[I].Loc, Items[I].TexTerrain.ID, fPlayers[Items[I].Owner].FlagColor);
-      1:  if MySpectator.FogOfWar.CheckRevelation(Items[I].Loc, False) = 0 then
+      1:  if MySpectator.FogOfWar.CheckRevelation(Items[I].Loc) = 0 then
             fRenderPool.RenderSpriteOnTerrain(Items[I].Loc, Items[I].TexTerrain.ID, fPlayers[Items[I].Owner].FlagColor);
     end;
   end;

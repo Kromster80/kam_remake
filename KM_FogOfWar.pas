@@ -25,9 +25,9 @@ type
     constructor Create(X,Y: Word);
     procedure RevealCircle(Pos: TKMPoint; Radius,Amount: Word);
     procedure RevealEverything;
-    function CheckVerticeRevelation(const X,Y: Word; aSkipForReplay: Boolean): Byte;
-    function CheckTileRevelation(const X,Y: Word; aSkipForReplay: Boolean): Byte;
-    function CheckRevelation(const aPoint: TKMPointF; aSkipForReplay: Boolean): Byte;
+    function CheckVerticeRevelation(const X,Y: Word): Byte;
+    function CheckTileRevelation(const X,Y: Word): Byte;
+    function CheckRevelation(const aPoint: TKMPointF): Byte;
 
     procedure SyncFOW(aFOW: TKMFogOfWar);
 
@@ -87,14 +87,8 @@ end;
 //0 unrevealed, 255 revealed completely
 //aSkipForReplay should be true in cases where replay should always return revealed (e.g. sounds, render)
 //but false in cases where it will effect the gameplay (e.g. unit hit test)
-function TKMFogOfWar.CheckVerticeRevelation(const X,Y: Word; aSkipForReplay: Boolean): Byte;
+function TKMFogOfWar.CheckVerticeRevelation(const X,Y: Word): Byte;
 begin
-  if aSkipForReplay then
-  begin
-    Result := 255;
-    Exit;
-  end;
-
   //I like how "alive" the fog looks with some tweaks
   //pulsating around units and slowly thickening when they leave :)
   if FOG_OF_WAR_ENABLE then
@@ -115,14 +109,8 @@ end;
 //Return value of revelation within 0..255 (0 unrevealed, 255 fully revealed)
 //aSkipForReplay should be true in cases where replay should always return revealed (e.g. sounds, render)
 //but false in cases where it will effect the gameplay (e.g. unit hit test)
-function TKMFogOfWar.CheckTileRevelation(const X,Y: Word; aSkipForReplay: Boolean): Byte;
+function TKMFogOfWar.CheckTileRevelation(const X,Y: Word): Byte;
 begin
-  if aSkipForReplay then
-  begin
-    Result := 255;
-    Exit;
-  end;
-
   if (X <= 0) or (X >= MapX)
   or (Y <= 0) or (Y >= MapY) then
   begin
@@ -131,26 +119,20 @@ begin
   end;
 
   //Check all four corners and choose max
-  Result := CheckVerticeRevelation(X-1,Y-1,aSkipForReplay);
+  Result := CheckVerticeRevelation(X-1,Y-1);
   if Result = 255 then exit;
-  if X <= MapX-1 then Result := max(Result, CheckVerticeRevelation(X,Y-1,aSkipForReplay));
+  if X <= MapX-1 then Result := max(Result, CheckVerticeRevelation(X,Y-1));
   if Result = 255 then exit;
-  if (X <= MapX-1) and (Y <= MapY-1) then Result := max(Result, CheckVerticeRevelation(X,Y,aSkipForReplay));
+  if (X <= MapX-1) and (Y <= MapY-1) then Result := max(Result, CheckVerticeRevelation(X,Y));
   if Result = 255 then exit;
-  if Y <= MapY-1 then Result := max(Result, CheckVerticeRevelation(X-1,Y,aSkipForReplay));
+  if Y <= MapY-1 then Result := max(Result, CheckVerticeRevelation(X-1,Y));
 end;
 
 
 //Check exact revelation of the point (interpolate between vertices)
-function TKMFogOfWar.CheckRevelation(const aPoint: TKMPointF; aSkipForReplay: Boolean): Byte;
+function TKMFogOfWar.CheckRevelation(const aPoint: TKMPointF): Byte;
 var A, B, C, D, Y1, Y2: Byte;
 begin
-  if aSkipForReplay then
-  begin
-    Result := 255;
-    Exit;
-  end;
-
   if (aPoint.X <= 0) or (aPoint.X >= MapX - 1)
   or (aPoint.Y <= 0) or (aPoint.Y >= MapY - 1) then
   begin
@@ -161,10 +143,10 @@ begin
   //Interpolate as follows:
   //A-B
   //C-D
-  A := CheckVerticeRevelation(Trunc(aPoint.X),   Trunc(aPoint.Y),   aSkipForReplay);
-  B := CheckVerticeRevelation(Trunc(aPoint.X)+1, Trunc(aPoint.Y),   aSkipForReplay);
-  C := CheckVerticeRevelation(Trunc(aPoint.X),   Trunc(aPoint.Y)+1, aSkipForReplay);
-  D := CheckVerticeRevelation(Trunc(aPoint.X)+1, Trunc(aPoint.Y)+1, aSkipForReplay);
+  A := CheckVerticeRevelation(Trunc(aPoint.X),   Trunc(aPoint.Y)   );
+  B := CheckVerticeRevelation(Trunc(aPoint.X)+1, Trunc(aPoint.Y)   );
+  C := CheckVerticeRevelation(Trunc(aPoint.X),   Trunc(aPoint.Y)+1 );
+  D := CheckVerticeRevelation(Trunc(aPoint.X)+1, Trunc(aPoint.Y)+1 );
 
   Y1 := Round(A + (B - A) * Frac(aPoint.X));
   Y2 := Round(C + (D - C) * Frac(aPoint.X));

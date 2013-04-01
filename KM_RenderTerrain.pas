@@ -159,14 +159,14 @@ begin
     fPos[H+0].Y := tY-1 - Land[tY, tX].Height / CELL_HEIGHT_DIV;
     fPos[H+0].Z := -tY;
     fPos[H+0].ULit := Land[tY, tX].Light;
-    fPos[H+0].UShd := max(-Land[tY, tX].Light, 1 - fFOW.CheckVerticeRevelation(tX-1, tY-1, True) / 255);
+    fPos[H+0].UShd := max(-Land[tY, tX].Light, 1 - fFOW.CheckVerticeRevelation(tX-1, tY-1) / 255);
 
     tY := I + fRect.Top + 1;
     fPos[H+1].X := tX-1;
     fPos[H+1].Y := tY-1 - Land[tY, tX].Height / CELL_HEIGHT_DIV;
     fPos[H+1].Z := -tY + 1;
     fPos[H+1].ULit := Land[tY, tX].Light;
-    fPos[H+1].UShd := max(-Land[tY, tX].Light, 1 - fFOW.CheckVerticeRevelation(tX-1, tY-1, True) / 255);
+    fPos[H+1].UShd := max(-Land[tY, tX].Light, 1 - fFOW.CheckVerticeRevelation(tX-1, tY-1) / 255);
     H := H + 2;
   end;
 
@@ -263,7 +263,7 @@ begin
     for K := fRect.Left to fRect.Right do
     if (TexOffset + Land[I,K].Terrain + 1 <= High(GFXData[rxTiles]))
     and (GFXData[rxTiles, TexOffset + Land[I,K].Terrain + 1].Tex.ID <> 0)
-    and (fFOW.CheckTileRevelation(K,I,true) > FOG_OF_WAR_ACT) then //No animation in FOW
+    and (fFOW.CheckTileRevelation(K,I) > FOG_OF_WAR_ACT) then //No animation in FOW
     begin
       glBindTexture(GL_TEXTURE_2D, GFXData[rxTiles, TexOffset + Land[I,K].Terrain + 1].Tex.ID);
       TexC := GetTileUV(TexOffset + Land[I,K].Terrain, Land[I,K].Rotation);
@@ -465,13 +465,13 @@ begin
       for K := fRect.Left to fRect.Right do
       begin
         glBegin(GL_TRIANGLE_FAN);
-          glTexCoord1f(kromutils.max(0, -Land[I, K].Light, 1 - fFOW.CheckVerticeRevelation(K - 1, I - 1, true) / 255));
+          glTexCoord1f(kromutils.max(0, -Land[I, K].Light, 1 - fFOW.CheckVerticeRevelation(K - 1, I - 1) / 255));
           glVertex3f(K - 1, I - 1, -Land[I, K].Height / CELL_HEIGHT_DIV);
-          glTexCoord1f(kromutils.max(0, -Land[I + 1, K].Light, 1 - fFOW.CheckVerticeRevelation(K - 1, I, true) / 255));
+          glTexCoord1f(kromutils.max(0, -Land[I + 1, K].Light, 1 - fFOW.CheckVerticeRevelation(K - 1, I) / 255));
           glVertex3f(K - 1, I, -Land[I + 1, K].Height / CELL_HEIGHT_DIV);
-          glTexCoord1f(kromutils.max(0, -Land[I + 1, K + 1].Light, 1 - fFOW.CheckVerticeRevelation(K, I, true) / 255));
+          glTexCoord1f(kromutils.max(0, -Land[I + 1, K + 1].Light, 1 - fFOW.CheckVerticeRevelation(K, I) / 255));
           glVertex3f(K, I, -Land[I + 1, K + 1].Height / CELL_HEIGHT_DIV);
-          glTexCoord1f(kromutils.max(0, -Land[I, K + 1].Light, 1 - fFOW.CheckVerticeRevelation(K, I - 1, true) / 255));
+          glTexCoord1f(kromutils.max(0, -Land[I, K + 1].Light, 1 - fFOW.CheckVerticeRevelation(K, I - 1) / 255));
           glVertex3f(K, I - 1, -Land[I, K + 1].Height / CELL_HEIGHT_DIV);
         glEnd;
       end
@@ -480,13 +480,13 @@ begin
       for K := fRect.Left to fRect.Right do
       begin
         glBegin(GL_TRIANGLE_FAN);
-          glTexCoord1f(max(-Land[I, K].Light, 1 - fFOW.CheckVerticeRevelation(K - 1, I - 1, true) / 255));
+          glTexCoord1f(max(-Land[I, K].Light, 1 - fFOW.CheckVerticeRevelation(K - 1, I - 1) / 255));
           glVertex3f(K - 1, I - 1 - Land[I, K].Height / CELL_HEIGHT_DIV, -I);
-          glTexCoord1f(max(-Land[I + 1, K].Light, 1 - fFOW.CheckVerticeRevelation(K - 1, I, true) / 255));
+          glTexCoord1f(max(-Land[I + 1, K].Light, 1 - fFOW.CheckVerticeRevelation(K - 1, I) / 255));
           glVertex3f(K - 1, I - Land[I + 1, K].Height / CELL_HEIGHT_DIV, -I);
-          glTexCoord1f(max(-Land[I + 1, K + 1].Light, 1 - fFOW.CheckVerticeRevelation(K, I, true) / 255));
+          glTexCoord1f(max(-Land[I + 1, K + 1].Light, 1 - fFOW.CheckVerticeRevelation(K, I) / 255));
           glVertex3f(K, I - Land[I + 1, K + 1].Height / CELL_HEIGHT_DIV, -I);
-          glTexCoord1f(max(-Land[I, K + 1].Light, 1 - fFOW.CheckVerticeRevelation(K, I - 1, true) / 255));
+          glTexCoord1f(max(-Land[I, K + 1].Light, 1 - fFOW.CheckVerticeRevelation(K, I - 1) / 255));
           glVertex3f(K, I - 1 - Land[I, K + 1].Height / CELL_HEIGHT_DIV, -I);
         glEnd;
       end;

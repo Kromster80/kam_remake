@@ -770,7 +770,7 @@ begin
     //In KaM archers can shoot further than sight radius (shoot further into explored areas)
     //so CheckTileRevelation is required, we can't remove it to optimise.
     //But because it will not invalidate many candidates, check it late so other checks can do their work first
-    if (fPlayers[aPlayer].FogOfWar.CheckTileRevelation(K,I,false) <> 255) then Continue;
+    if (fPlayers[aPlayer].FogOfWar.CheckTileRevelation(K,I) <> 255) then Continue;
 
     //This unit could be on a different tile next to KMPoint(k,i), so we cannot use that anymore.
     //There was a crash caused by VertexUsageCompatible checking (k,i) instead of U.GetPosition.

@@ -255,7 +255,7 @@ begin
 
   A := MapElem[aIndex].Anim;
 
-  FOW := MySpectator.FogOfWar.CheckTileRevelation(LocX,LocY,true);
+  FOW := MySpectator.FogOfWar.CheckTileRevelation(LocX,LocY);
   if FOW = 0 then exit; //Don't render objects which are unexplored
   if FOW <= 128 then AnimStep := 0; //Stop animation
   Id := A.Step[AnimStep mod Byte(A.Count) +1]+1;
@@ -329,7 +329,7 @@ var
 var
   FOW: Byte;
 begin
-  FOW := MySpectator.FogOfWar.CheckTileRevelation(pX, pY, True);
+  FOW := MySpectator.FogOfWar.CheckTileRevelation(pX, pY);
   if FOW <= 128 then AnimStep := 0; //Stop animation
 
   R := fRXData[rxTrees];
@@ -581,7 +581,7 @@ begin
   //We don't care about off-map arrows, but still we get TKMPoint error if X/Y gets negative
   if not fTerrain.TileInMapCoords(Round(aRenderPos.X), Round(aRenderPos.Y)) then Exit;
 
-  FOW := MySpectator.FogOfWar.CheckTileRevelation(Round(aRenderPos.X), Round(aRenderPos.Y), True);
+  FOW := MySpectator.FogOfWar.CheckRevelation(aRenderPos);
   if FOW <= 128 then Exit; //Don't render objects which are behind FOW
 
   case aProj of
@@ -1076,7 +1076,7 @@ begin
   F := GameCursor.Float;
 
   if (GameCursor.Mode <> cmNone) and (GameCursor.Mode <> cmHouses) and
-     (MySpectator.FogOfWar.CheckTileRevelation(P.X, P.Y, False) = 0) then
+     (MySpectator.FogOfWar.CheckTileRevelation(P.X, P.Y) = 0) then
     RenderSpriteOnTile(P, TC_BLOCK)       //Red X
   else
 
@@ -1237,7 +1237,7 @@ begin
   if RenderList[I].NewInst then
   begin
     RenderOrder[I] := I;
-    RenderList[I].FOWvalue := MySpectator.FogOfWar.CheckRevelation(RenderList[I].Feet, True);
+    RenderList[I].FOWvalue := MySpectator.FogOfWar.CheckRevelation(RenderList[I].Feet);
   end
   else
   begin

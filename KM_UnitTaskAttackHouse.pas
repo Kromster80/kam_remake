@@ -122,7 +122,7 @@ begin
              SetActionLockedStay(BOWMEN_AIMING_DELAY_MIN+KaMRandom(BOWMEN_AIMING_DELAY_ADD),ua_Work,true); //Pretend to aim
            if not KMSamePoint(GetPosition, fHouse.GetClosestCell(GetPosition)) then //Unbuilt houses can be attacked from within
              Direction := KMGetDirection(GetPosition, fHouse.GetEntrance); //Look at house
-           if MySpectator.FogOfWar.CheckTileRevelation(Round(PositionF.X), Round(PositionF.Y), true) >= 255 then
+           if MySpectator.FogOfWar.CheckTileRevelation(Round(PositionF.X), Round(PositionF.Y)) >= 255 then
              case UnitType of
                ut_Arbaletman: fSoundLib.Play(sfx_CrossbowDraw, PositionF); //Aiming
                ut_Bowman:     fSoundLib.Play(sfx_BowDraw,      PositionF); //Aiming
@@ -170,7 +170,7 @@ begin
            fHouse.AddDamage(fUnit.Owner, 2);
 
            //Play a sound. We should not use KaMRandom here because sound playback depends on FOW and is individual for each player
-           if MySpectator.FogOfWar.CheckTileRevelation(GetPosition.X, GetPosition.Y, true) >= 255 then
+           if MySpectator.FogOfWar.CheckTileRevelation(GetPosition.X, GetPosition.Y) >= 255 then
              fSoundLib.Play(MeleeSoundsHouse[Random(Length(MeleeSoundsHouse))], PositionF);
 
            fPhase := 1; //Go for another hit (will be 2 after inc below)

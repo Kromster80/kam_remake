@@ -211,10 +211,8 @@ begin
   for I := 0 to fMapY - 1 do
   for K := 0 to fMapX - 1 do
   begin
-    if MySpectator <> nil then
-      FOW := MySpectator.FogOfWar.CheckTileRevelation(K+1,I+1,true)
-    else
-      FOW := 255;
+    FOW := MySpectator.FogOfWar.CheckTileRevelation(K+1,I+1);
+
     if FOW = 0 then
       fBase[I*fMapX + K] := $FF000000
     else
