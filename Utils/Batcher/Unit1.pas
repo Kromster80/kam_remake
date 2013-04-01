@@ -424,7 +424,7 @@ begin
 
       //First pass, check if SET_USER_PLAYER is already placed
       //if at least one is there we assume this map should not be fixed
-      if Pos('!SET_USER_PLAYER ', Txt) <> 0 then Continue;
+      if Pos('!SET_USER_PLAYER', Txt) <> 0 then Continue;
 
       //Show goals which have messages in them
       CurrLoc := 1;
