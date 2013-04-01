@@ -7,7 +7,14 @@ uses Classes, Math,
 
 { FOW state for each player }
 type
-  TKMFogOfWar = class
+  TKMFogOfWarCommon = class
+  public
+    function CheckVerticeRevelation(const X,Y: Word): Byte; virtual; abstract;
+    function CheckTileRevelation(const X,Y: Word): Byte; virtual; abstract;
+    function CheckRevelation(const aPoint: TKMPointF): Byte; virtual; abstract;
+  end;
+
+  TKMFogOfWar = class(TKMFogOfWarCommon)
   private
     fAnimStep: Cardinal;
     MapX: Word;
@@ -25,9 +32,9 @@ type
     constructor Create(X,Y: Word);
     procedure RevealCircle(Pos: TKMPoint; Radius,Amount: Word);
     procedure RevealEverything;
-    function CheckVerticeRevelation(const X,Y: Word): Byte;
-    function CheckTileRevelation(const X,Y: Word): Byte;
-    function CheckRevelation(const aPoint: TKMPointF): Byte;
+    function CheckVerticeRevelation(const X,Y: Word): Byte; override;
+    function CheckTileRevelation(const X,Y: Word): Byte; override;
+    function CheckRevelation(const aPoint: TKMPointF): Byte; override;
 
     procedure SyncFOW(aFOW: TKMFogOfWar);
 
@@ -35,6 +42,14 @@ type
     procedure Load(LoadStream: TKMemoryStream);
 
     procedure UpdateState;
+  end;
+
+  //FOW that is always revealed (used by MapEd, Replays)
+  TKMFogOfWarOpen = class(TKMFogOfWarCommon)
+  public
+    function CheckVerticeRevelation(const X,Y: Word): Byte; override;
+    function CheckTileRevelation(const X,Y: Word): Byte; override;
+    function CheckRevelation(const aPoint: TKMPointF): Byte; override;
   end;
 
 
@@ -204,6 +219,25 @@ begin
       if (Revelation[I, K].Visibility > FOG_OF_WAR_MIN)
       and ((I * MapX + K + fAnimStep) mod FOW_PACE = 0) then
           Dec(Revelation[I, K].Visibility, FOG_OF_WAR_DEC);
+end;
+
+
+{ TKMFogOfWarOpen }
+function TKMFogOfWarOpen.CheckRevelation(const aPoint: TKMPointF): Byte;
+begin
+  Result := 255;
+end;
+
+
+function TKMFogOfWarOpen.CheckTileRevelation(const X, Y: Word): Byte;
+begin
+  Result := 255;
+end;
+
+
+function TKMFogOfWarOpen.CheckVerticeRevelation(const X, Y: Word): Byte;
+begin
+  Result := 255;
 end;
 
 

@@ -31,7 +31,6 @@ type
 
     fLobbyBusy: Boolean;
     fGameResultMsg: TGameResultMsg; //So we know where to go after results screen
-    fWaresVisible: array [WARE_MIN..WARE_MAX] of Boolean; //For MP results page
 
     fLastMapCRC: Cardinal; //CRC of selected map
     fLastSaveCRC: Cardinal; //CRC of selected save

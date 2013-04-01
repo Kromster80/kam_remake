@@ -15,7 +15,7 @@ type
   TRenderTerrain = class
   private
     fRect: TKMRect;
-    fFOW: TKMFogOfWar;
+    fFOW: TKMFogOfWarCommon;
     fTextG: GLuint; //Shading gradient for lighting
     fUseVBO: Boolean; //Wherever to render terrain through VBO (faster but needs GL1.5) or DrawCalls (slower but needs only GL1.1)
     fPos: array of TVertice;
@@ -38,7 +38,7 @@ type
   public
     constructor Create;
     destructor Destroy; override;
-    procedure Render(aRect: TKMRect; AnimStep: Integer; aFOW: TKMFogOfWar; aFieldsList: TKMPointTagList; aHousePlansList: TKMPointDirList);
+    procedure Render(aRect: TKMRect; AnimStep: Integer; aFOW: TKMFogOfWarCommon; aFieldsList: TKMPointTagList; aHousePlansList: TKMPointDirList);
     procedure RenderTile(Index: Byte; pX,pY,Rot: Integer);
   end;
 
@@ -500,7 +500,7 @@ end;
 //aRect - boundaries of render area in tilespace
 //AnimStep - animation step for terrain (water/etc)
 //aFOW - whose players FOW to apply
-procedure TRenderTerrain.Render(aRect: TKMRect; AnimStep: Integer; aFOW: TKMFogOfWar; aFieldsList: TKMPointTagList; aHousePlansList: TKMPointDirList);
+procedure TRenderTerrain.Render(aRect: TKMRect; AnimStep: Integer; aFOW: TKMFogOfWarCommon; aFieldsList: TKMPointTagList; aHousePlansList: TKMPointDirList);
 var
   I,K: Integer;
 begin

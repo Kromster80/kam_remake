@@ -14,7 +14,7 @@ type
     fHighlightEnd: Cardinal; //Highlight has a short time to live
     fSelected: TObject;
     fFOWIndex: TPlayerIndex; //Unit/House/Group selected by player and shown in UI
-    fFogOfWar: TKMFogOfWar;
+    fFogOfWar: TKMFogOfWarOpen;
     procedure SetHighlight(Value: TObject);
     procedure SetSelected(Value: TObject);
     procedure SetPlayerIndex(const Value: TPlayerIndex);
@@ -26,7 +26,7 @@ type
     property Selected: TObject read fSelected write SetSelected;
     property PlayerIndex: TPlayerIndex read fPlayerIndex write SetPlayerIndex;
     property FOWIndex: TPlayerIndex read fFOWIndex write SetFOWIndex;
-    function FogOfWar: TKMFogOfWar; //Which FOW we want to see
+    function FogOfWar: TKMFogOfWarCommon; //Which FOW we want to see
     procedure SelectHitTest(X, Y: Integer);
     function HitTest(X, Y: Integer): TObject;
     procedure Load(LoadStream: TKMemoryStream);
@@ -46,9 +46,8 @@ begin
 
   fPlayerIndex := aPlayerIndex;
 
-  //We can replace that with a stub that always returns REVEALED
-  fFogOfWar := TKMFogOfWar.Create(fTerrain.MapX, fTerrain.MapY);
-  fFogOfWar.RevealEverything;
+  //Stub that always returns REVEALED
+  fFogOfWar := TKMFogOfWarOpen.Create;
 end;
 
 
@@ -61,7 +60,7 @@ begin
 end;
 
 
-function TKMSpectator.FogOfWar: TKMFogOfWar;
+function TKMSpectator.FogOfWar: TKMFogOfWarCommon;
 begin
   if fGame.IsReplay or fGame.IsMapEditor then
     if FOWIndex = -1 then
@@ -134,7 +133,8 @@ begin
   Assert(DEBUG_CHEATS and (MULTIPLAYER_CHEATS or not fGame.IsMultiplayer) or fGame.IsReplay or fGame.IsMapEditor);
   fPlayerIndex := Value;
 
-  Selected := nil;
+  if not fGame.IsMapEditor then
+    Selected := nil;
 end;
 
 

@@ -795,8 +795,6 @@ end;
 
 
 procedure TKMGame.GameStart(aSizeX, aSizeY: Integer);
-var
-  I: Integer;
 begin
   fGameName := fTextLibrary[TX_MAPED_NEW_MISSION];
 
@@ -851,7 +849,6 @@ end;
 //aPathName - full path to DAT file
 procedure TKMGame.SaveMapEditor(const aPathName: string);
 var
-  I: integer;
   fMissionParser: TMissionParserStandard;
 begin
   if aPathName = '' then exit;
