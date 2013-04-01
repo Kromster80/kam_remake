@@ -77,8 +77,7 @@ type
 
 
 implementation
-uses KM_DeliverQueue, KM_TextLibrary, KM_PlayersCollection, KM_RenderPool, KM_RenderAux,
-  KM_UnitTaskAttackHouse,
+uses KM_TextLibrary, KM_PlayersCollection, KM_RenderPool, KM_RenderAux, KM_UnitTaskAttackHouse,
   KM_UnitActionAbandonWalk, KM_UnitActionFight, KM_UnitActionGoInOut, KM_UnitActionWalkTo, KM_UnitActionStay,
   KM_UnitActionStormAttack, KM_Resource, KM_ResourceUnit;
 

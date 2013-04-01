@@ -15,9 +15,8 @@ interface
   {$DEFINE USELIBZPLAY}
 {$ENDIF}
 
-uses Classes,
-     {$IFDEF MSWindows} Windows, {$ENDIF}
-     SysUtils, KromUtils, Math, KM_Defaults
+uses Classes, SysUtils, KromUtils, Math,
+     KM_Defaults
      {$IFDEF USEBASS}     , Bass {$ENDIF}
      {$IFDEF USELIBZPLAY} , libZPlay {$ENDIF}
      ;
@@ -92,7 +91,7 @@ begin
   // Setup output - default device, 44100hz, stereo, 16 bits
   if not BASS_Init(-1, 44100, 0, 0, nil) then
   begin
-    fLog.AppendLog('Failed to initialize the music playback device');
+    fLog.AddTime('Failed to initialize the music playback device');
     IsMusicInitialized := False;
   end;
   {$ENDIF}

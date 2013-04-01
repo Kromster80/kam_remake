@@ -124,7 +124,7 @@ var
 
 
 implementation
-uses KromUtils, KM_Log, Types, StrUtils, KM_BinPacking, KM_Utils;
+uses KromUtils, KM_Log, KM_BinPacking, KM_Utils;
 
 
 { TKMSpritePack }

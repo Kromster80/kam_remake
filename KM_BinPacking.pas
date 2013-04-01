@@ -1,7 +1,7 @@
 unit KM_BinPacking;
 {$I KaM_Remake.inc}
 interface
-uses Classes, Math, Types;
+uses Classes, Math;
 
 type
   TBinRect = record X, Y, Width, Height: Word; end;

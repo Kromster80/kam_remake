@@ -59,7 +59,7 @@ const
 
 
 implementation
-uses KM_Houses, KM_Terrain, KM_Player, KM_PlayersCollection, KM_Utils, KM_AIFields;
+uses KM_Houses, KM_Terrain, KM_PlayersCollection, KM_Utils, KM_AIFields;
 
 
 { TKMCityPlanner }

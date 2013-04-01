@@ -2,7 +2,7 @@ unit KM_TextLibrary;
 {$I KaM_Remake.inc}
 interface
 uses
-  Classes, SysUtils, Math, StrUtils, KromUtils, KM_Defaults;
+  Classes, SysUtils, StrUtils, KromUtils, KM_Defaults;
 
 
 const

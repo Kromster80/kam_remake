@@ -3,7 +3,7 @@ unit KM_AIMayorBalance;
 interface
 uses
   Classes, KromUtils, Math, SysUtils, StrUtils,
-  KM_Defaults, KM_CommonClasses, KM_Points;
+  KM_Defaults, KM_CommonClasses;
 
 type
   //MayorBalance is a cluster of functions that choose optimal houses to build
@@ -136,7 +136,7 @@ type
 
 
 implementation
-uses KM_Houses, KM_PlayersCollection, KM_Player, KM_Resource;
+uses KM_PlayersCollection, KM_Player, KM_Resource;
 
 
 { TKMayorBalance }

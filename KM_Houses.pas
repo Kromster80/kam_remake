@@ -270,7 +270,7 @@ type
 implementation
 uses
   KM_CommonTypes, KM_RenderPool, KM_RenderAux, KM_Units, KM_Scripting,
-  KM_Units_Warrior, KM_PlayersCollection, KM_Sound, KM_Game, KM_TextLibrary, KM_Player,
+  KM_Units_Warrior, KM_PlayersCollection, KM_Sound, KM_Game, KM_TextLibrary,
   KM_Resource, KM_ResourceHouse, KM_Utils;
 
 

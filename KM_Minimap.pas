@@ -1,7 +1,7 @@
 unit KM_Minimap;
 {$I KaM_Remake.inc}
 interface
-uses Classes, dglOpenGL, KromUtils, KromOGLUtils, Math, StrUtils, SysUtils,
+uses Classes, dglOpenGL, KromUtils, KromOGLUtils, Math, SysUtils,
   KM_CommonClasses, KM_CommonTypes, KM_Defaults, KM_Points, KM_Utils,
   KM_MissionScript_Preview, KM_Render, KM_Terrain, KM_Alerts;
 

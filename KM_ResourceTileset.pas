@@ -2,7 +2,7 @@ unit KM_ResourceTileset;
 {$I KaM_Remake.inc}
 interface
 uses
-  Classes, Math, SysUtils, KromUtils,
+  Classes, SysUtils, KromUtils,
   KM_Defaults, KM_CommonTypes;
 
 

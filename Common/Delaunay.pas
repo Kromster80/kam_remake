@@ -15,7 +15,7 @@
 
 unit Delaunay;
 interface
-uses Types, KM_Points;
+uses KM_Points;
 
 //Set these as applicable
 const

@@ -2,9 +2,8 @@ unit KM_InterfaceMainMenu;
 {$I KaM_Remake.inc}
 interface
 uses
-  {$IFDEF MSWindows} Windows, {$ENDIF}
   {$IFDEF Unix} LCLType, {$ENDIF}
-  {$IFDEF WDC} ShellAPI, {$ENDIF} //Required for OpenURL in Delphi
+  {$IFDEF WDC} ShellAPI, Windows, {$ENDIF} //Required for OpenURL in Delphi
   {$IFDEF FPC} LCLIntf, {$ENDIF} //Required for OpenURL in Lazarus
   StrUtils, SysUtils, KromUtils, KromOGLUtils, Math, Classes, Forms, Controls,
   KM_Controls, KM_Defaults, KM_Maps, KM_Campaigns, KM_Saves, KM_Pics,

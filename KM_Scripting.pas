@@ -2,7 +2,7 @@ unit KM_Scripting;
 {$I KaM_Remake.inc}
 interface
 uses
-  Classes, Math, SysUtils, StrUtils,
+  Classes, SysUtils,
   uPSCompiler, uPSRuntime, uPSUtils, uPSDisassembly,
   KM_CommonClasses, KM_Defaults, KM_ScriptingESA, KM_ScriptingIdCache, KM_Houses, KM_Units, KM_UnitGroups;
 

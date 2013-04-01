@@ -2,7 +2,6 @@ unit KM_ServerQuery;
 {$I KaM_Remake.inc}
 interface
 uses Classes, SysUtils,
-  {$IFDEF MSWindows} Windows, {$ENDIF}
   KM_Defaults, KM_CommonClasses, KM_CommonTypes, KM_NetworkTypes, KM_Utils, KM_MasterServer, KM_NetClient;
 
 const
