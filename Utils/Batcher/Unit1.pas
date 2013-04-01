@@ -54,14 +54,14 @@ type
 function TMissionParserPatcher.ReadMissionFile(const aFileName: string): AnsiString;
 var
   I,Num: Cardinal;
-  F: TStringStream;
+  F: TMemoryStream;
 begin
   Result := '';
 
   if not FileExists(aFileName) then Exit;
 
   //Load and decode .DAT file into FileText
-  F := TStringStream.Create;
+  F := TMemoryStream.Create;
   try
     F.LoadFromFile(aFileName);
 
@@ -79,7 +79,7 @@ begin
     for I := 0 to F.Size - 1 do
       PByte(Cardinal(F.Memory)+I)^ := PByte(Cardinal(F.Memory)+I)^ xor 239;
 
-    Result := F.DataString;
+    SetString(Result, PChar(F.Memory), F.Size div SizeOf(AnsiChar));
   finally
     F.Free;
   end;
@@ -89,11 +89,11 @@ end;
 procedure TMissionParserPatcher.SaveToFile(aTxt: AnsiString; const aFileName: string);
 var
   I: Integer;
-  F: TStringStream;
+  F: TMemoryStream;
 begin
-  F := TStringStream.Create;
+  F := TMemoryStream.Create;
   try
-    F.WriteString(aTxt);
+    F.Write(Pointer(aTxt)^, Length(aTxt) * SizeOf(AnsiChar));
 
     for I := 0 to F.Size - 1 do
       PByte(Cardinal(F.Memory)+I)^ := PByte(Cardinal(F.Memory)+I)^ xor 239;
@@ -245,7 +245,8 @@ begin
   SetUp;
 
   Args := TStringList.Create;
-  Args.StrictDelimiter := True;
+  //@Krom: StrictDelimiter doesn't exist in D7
+  //Args.StrictDelimiter := True;
   Args.Delimiter := ' ';
 
   GoalLog := TStringList.Create;
@@ -334,7 +335,8 @@ begin
   SetUp;
 
   Args := TStringList.Create;
-  Args.StrictDelimiter := True;
+  //@Krom: StrictDelimiter doesn't exist in D7
+  //Args.StrictDelimiter := True;
   Args.Delimiter := ' ';
 
   PathToMaps := TStringList.Create;
