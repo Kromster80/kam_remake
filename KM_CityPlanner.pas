@@ -336,14 +336,33 @@ var
 begin
   Result := False;
 
-  SeedLocs := GetSeeds([ht_Store]);
-  if Length(SeedLocs) = 0 then Exit;
 
   //Look for nearest Ore
   case aOreType of
-    wt_Coal:    if not FindNearest(SeedLocs[0], 45, fnCoal, P) then Exit;
-    wt_IronOre: if not FindNearest(SeedLocs[0], 45, fnIron, P) then Exit;
-    wt_GoldOre: if not FindNearest(SeedLocs[0], 45, fnGold, P) then Exit;
+    wt_Coal:    begin
+                  if fPlayers[fOwner].Stats.GetHouseTotal(ht_CoalMine) > 0 then
+                    SeedLocs := GetSeeds([ht_CoalMine])
+                  else
+                    SeedLocs := GetSeeds([ht_Store]);
+                  if Length(SeedLocs) = 0 then Exit;
+                  if not FindNearest(SeedLocs[0], 45, fnCoal, P) then Exit;
+                end;
+    wt_IronOre: begin
+                  if fPlayers[fOwner].Stats.GetHouseTotal(ht_IronMine) > 0 then
+                    SeedLocs := GetSeeds([ht_IronMine, ht_CoalMine])
+                  else
+                    SeedLocs := GetSeeds([ht_CoalMine, ht_Store]);
+                  if Length(SeedLocs) = 0 then Exit;
+                  if not FindNearest(SeedLocs[0], 45, fnIron, P) then Exit;
+                end;
+    wt_GoldOre: begin
+                  if fPlayers[fOwner].Stats.GetHouseTotal(ht_GoldMine) > 0 then
+                    SeedLocs := GetSeeds([ht_GoldMine, ht_CoalMine])
+                  else
+                    SeedLocs := GetSeeds([ht_CoalMine, ht_Store]);
+                  if Length(SeedLocs) = 0 then Exit;
+                  if not FindNearest(SeedLocs[0], 45, fnGold, P) then Exit;
+                end;
   end;
 
   //todo: If there's no ore AI should not keep calling this over and over again

@@ -3,7 +3,7 @@ unit KM_AIMayor;
 interface
 uses
   Classes, KromUtils, Math, SysUtils,
-  KM_Defaults, KM_CommonClasses, KM_Points,
+  KM_Defaults, KM_CommonClasses, KM_Utils, KM_Points,
   KM_CityPlanner, KM_PathfindingRoad, KM_AISetup, KM_AIMayorBalance;
 
 type
@@ -519,13 +519,16 @@ begin
   if (fPlayers[fOwner].PlayerType = pt_Computer) and fSetup.AutoBuild then
   begin
     //@Lewin: Maybe we can choose army type from MapEd
-    if (fCityPlanner.FindNearest(StoreLoc, 30, fnIron, T) and fCityPlanner.FindNearest(StoreLoc, 30, fnCoal, T)) then
-      fArmyType := atIron
+    if (fCityPlanner.FindNearest(KMPointBelow(StoreLoc), 60, fnIron, T) and fCityPlanner.FindNearest(KMPointBelow(StoreLoc), 60, fnCoal, T)) then
+      if KaMRandom < 0 then
+        //Sometimes AI will be pure Iron
+        fArmyType := atIron
+      else
+        //Usually AI will do both
+        fArmyType := atLeatherIron
     else
+      //If there's no iron ore or coal
       fArmyType := atLeather;
-
-    //todo: This is to be removed? Most players make both iron and wooden at once, maybe we can make the AI do that later?
-    //fArmyType := atLeatherIron;
   end;
 
   fBalance.ArmyType := fArmyType;

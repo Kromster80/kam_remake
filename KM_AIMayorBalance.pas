@@ -93,7 +93,7 @@ type
     fDemandWeaponryText: string;
     fAdviceText: string;
 
-    function HouseCount(aHouse: THouseType): Integer;
+    function WeaponUsed(aWare: TWareType): Boolean;
 
     procedure AppendCore;
     procedure AppendMaterials;
@@ -162,6 +162,17 @@ end;
 function TKMayorBalance.HouseCount(aHouse: THouseType): Integer;
 begin
   Result := fPlayers[fOwner].Stats.GetHouseQty(aHouse) + fPlayers[fOwner].Stats.GetHouseWip(aHouse);
+end;
+
+
+function TKMayorBalance.WeaponUsed(aWare: TWareType): Boolean;
+begin
+  case ArmyType of
+    atLeather:      Result := aWare in [wt_Shield, wt_Armor, wt_Axe, wt_Pike, wt_Bow, wt_Horse];
+    atIron:         Result := aWare in [wt_MetalShield, wt_MetalArmor, wt_Sword, wt_Hallebard, wt_Arbalet, wt_Horse];
+    atLeatherIron:  Result := True;
+    else            Result := False;
+  end;
 end;
 
 
@@ -255,24 +266,16 @@ end;
 procedure TKMayorBalance.AppendWeaponry;
 var
   I, Best: TWareType;
-  WeapUse: Boolean;
   BestBid: Single;
 begin
   Best := wt_None;
 
   BestBid := MaxSingle;
   for I := WARFARE_MIN to WARFARE_MAX do
+  if WeaponUsed(I) and (fDemandWeaponry.Weaponry[I].Balance < BestBid) then
   begin
-    case ArmyType of
-      atLeather:  WeapUse := I in [wt_Shield, wt_Armor, wt_Axe, wt_Pike, wt_Bow, wt_Horse];
-      atIron:     WeapUse := I in [wt_MetalShield, wt_MetalArmor, wt_Sword, wt_Hallebard, wt_Arbalet, wt_Horse];
-      else        WeapUse := False;
-    end;
-    if WeapUse and (fDemandWeaponry.Weaponry[I].Balance < BestBid) then
-    begin
-      Best := I;
-      BestBid := fDemandWeaponry.Weaponry[I].Balance;
-    end;
+    Best := I;
+    BestBid := fDemandWeaponry.Weaponry[I].Balance;
   end;
 
   //Don't need anything
@@ -528,7 +531,6 @@ end;
 procedure TKMayorBalance.UpdateBalanceWeaponry;
 var
   I: TWareType;
-  WeapUse: Boolean;
   S: string;
 begin
   UpdateBalanceLeather;
@@ -546,15 +548,8 @@ begin
     //Set Weaponry balance to the most required warfare kind
     Balance := MaxSingle;
     for I := WARFARE_MIN to WARFARE_MAX do
-    begin
-      case ArmyType of
-        atLeather:  WeapUse := I in [wt_Shield, wt_Armor, wt_Axe, wt_Pike, wt_Bow, wt_Horse];
-        atIron:     WeapUse := I in [wt_MetalShield, wt_MetalArmor, wt_Sword, wt_Hallebard, wt_Arbalet, wt_Horse];
-        else        WeapUse := False;
-      end;
-      if WeapUse and (Weaponry[I].Balance < Balance) then
-        Balance := Weaponry[I].Balance;
-    end;
+    if WeaponUsed(I) and (Weaponry[I].Balance < Balance) then
+      Balance := Weaponry[I].Balance;
 
     S := Format('%.2f Weaponry: |', [Balance]);
     with fDemandWeaponry.WoodenArmor do
@@ -564,19 +559,11 @@ begin
       S := S + Format('WoodWeap: %.1f %.1f %.1f|', [TrunkTheory, WoodTheory, WorkshopTheory]);
 
     for I := WARFARE_MIN to WARFARE_MAX do
-    begin
-      case ArmyType of
-        atLeather:  WeapUse := I in [wt_Shield, wt_Armor, wt_Axe, wt_Pike, wt_Bow, wt_Horse];
-        atIron:     WeapUse := I in [wt_MetalShield, wt_MetalArmor, wt_Sword, wt_Hallebard, wt_Arbalet, wt_Horse];
-        else        WeapUse := False;
-      end;
-
-      if WeapUse then
-        S := S + Format('%s: %.2f - %.2f = %.2f|', [fResource.Wares[I].Title,
-                                                    Weaponry[I].Production,
-                                                    Weaponry[I].Demand,
-                                                    Weaponry[I].Balance]);
-    end;
+    if WeaponUsed(I) then
+      S := S + Format('%s: %.2f - %.2f = %.2f|', [fResource.Wares[I].Title,
+                                                  Weaponry[I].Production,
+                                                  Weaponry[I].Demand,
+                                                  Weaponry[I].Balance]);
 
     fDemandWeaponryText := S;
   end;

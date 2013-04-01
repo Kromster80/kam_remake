@@ -433,7 +433,7 @@ type
 
   TKMFormation = record NumUnits, UnitsPerRow: Integer; end;
 
-  TArmyType = (atLeather, atIron{, atLeatherIron});
+  TArmyType = (atLeather, atIron, atLeatherIron);
 
 const
   KaMGroupType: array [TGroupType] of Byte = (0, 1, 2, 3);

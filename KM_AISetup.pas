@@ -67,10 +67,12 @@ function TKMPlayerAISetup.WarriorsPerMinute(aArmy: TArmyType): Single;
 var
   EquipRate: Single;
 begin
-  if aArmy = atLeather then
-    EquipRate := EquipRateLeather
-  else
-    EquipRate := EquipRateIron;
+  case aArmy of
+    atLeather:      EquipRate := EquipRateLeather;
+    atIron:         EquipRate := EquipRateIron;
+    atLeatherIron:  EquipRate := Max(EquipRateLeather, EquipRateIron);
+    else            EquipRate := 0;
+  end;
 
   //How many warriors we would need to equip per-minute
   Result := EnsureRange(600 / Max(EquipRate, 1), 0.1, 6);
