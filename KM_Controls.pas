@@ -3823,8 +3823,8 @@ begin
   and (fItemIndex <> -1)
   and InRange(ItemIndex - TopIndex, 0, MaxItem) then
   begin
-    TKMRenderUI.WriteShape(AbsLeft, Y + fItemHeight * (fItemIndex - TopIndex) - 1, PaintWidth, fItemHeight+1, $88888888);
-    TKMRenderUI.WriteOutline(AbsLeft, Y + fItemHeight * (fItemIndex - TopIndex) - 1, PaintWidth, fItemHeight+1, 1 + Byte(fShowLines), $FFFFFFFF);
+    TKMRenderUI.WriteShape(AbsLeft, Y + fItemHeight * (fItemIndex - TopIndex), PaintWidth, fItemHeight, $88888888);
+    TKMRenderUI.WriteOutline(AbsLeft, Y + fItemHeight * (fItemIndex - TopIndex), PaintWidth, fItemHeight, 1 + Byte(fShowLines), $FFFFFFFF);
   end;
 
   //Paint rows text and icons above selection for clear visibility

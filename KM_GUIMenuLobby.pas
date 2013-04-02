@@ -1224,6 +1224,7 @@ begin
   TrackBar_LobbyPeacetime.Enabled := fNetworking.IsHost and (fNetworking.SelectGameKind = ngk_Map) and fNetworking.MapInfo.IsValid;
   TrackBar_LobbySpeedPT.Enabled := TrackBar_LobbyPeacetime.Enabled and (TrackBar_LobbyPeacetime.Position > 0);
   TrackBar_LobbySpeedAfterPT.Enabled := TrackBar_LobbyPeacetime.Enabled;
+  CheckBox_LobbyRandomizeTeamLocations.Enabled := (fNetworking.SelectGameKind <> ngk_Save);
 
   //Don't reset the selection if no map is selected
   if ((fNetworking.SelectGameKind = ngk_Map) and fNetworking.MapInfo.IsValid)

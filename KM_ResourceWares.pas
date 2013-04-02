@@ -156,10 +156,13 @@ end;
 
 function TKMWare.GetGUIIcon: Word;
 begin
-  if IsValid then
-    Result := 351 + WareTypeToIndex[fType]
-  else
-    Result := 41; //Show "Question mark"
+  case fType of
+    WARE_MIN..WARE_MAX: Result := 351 + WareTypeToIndex[fType];
+    wt_All:             Result := 657;
+    wt_Warfare:         Result := 658;
+    wt_Food:            Result := 659;
+    else                Result := 41; //Show "Question mark"
+  end;
 end;
 
 
@@ -167,7 +170,7 @@ function TKMWare.GetTitle: AnsiString;
 begin
   case fType of
     WARE_MIN..WARE_MAX: Result := fTextLibrary[TX_RESOURCES_NAMES__27 + WareTypeToIndex[fType]];
-    wt_All: Result := 'All';
+    wt_All: Result := 'All'; //todo: translate these
     wt_Warfare: Result := 'Warfare';
     wt_Food: Result := 'Food';
     else                Result := 'N/A';

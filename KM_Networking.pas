@@ -540,6 +540,8 @@ begin
 
   fSelectGameKind := ngk_Save;
   fNetPlayers[fMyIndex].ReadyToStart := True;
+  //Randomise locations within team is disabled for saves
+  NetPlayers.RandomizeTeamLocations := False;
 
   SendMapOrSave;
   MatchPlayersToSave; //Don't match players if it's not a valid save
