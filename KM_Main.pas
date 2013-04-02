@@ -124,6 +124,8 @@ begin
   Application.OnDeactivate := DoDeactivate;
   Application.OnRestore := DoRestore; //OnActivate seems to happen at the wrong times, OnRestore happens when alt-tabbing back in full screen mode
 
+  //Process messages in queue before hiding Loading, so that they all land on Loading form, not main one
+  Application.ProcessMessages;
   fFormLoading.Hide;
 end;
 
