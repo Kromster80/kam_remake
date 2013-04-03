@@ -1,14 +1,21 @@
 <?php
-function IPToCountry($ip) {   
-    $numbers = preg_split( "/\./", $ip);   
-    include("ip_files/".$numbers[0].".php");
-    $code=($numbers[0] * 16777216) + ($numbers[1] * 65536) + ($numbers[2] * 256) + ($numbers[3]);   
-    foreach($ranges as $key => $value){
-        if($key<=$code){
-            if($ranges[$key][0]>=$code){$country=$ranges[$key][1];break;}
-            }
-    }
-    if ($country==""){$country="unkown";}
+function IPToCountry($ip) {
+	$ip = floatval(sprintf("%u\n", ip2long($ip)));
+	$piece = substr($ip, 0, 3);
+
+	if (!file_exists('ip_files/' . $piece . '.php'))
+		$country="unknown";
+	
+	include 'ip_files/' . $piece . '.php';
+	foreach ($entries AS $e)
+	{
+		$e[0] = floatval($e[0]);
+		if ($e[0] <= $ip and $e[1] >= $ip)
+			$country = $e[2];
+	}
+	if ($country==""){
+		$country="unknown";
+	}
     return $country;
 }
 
