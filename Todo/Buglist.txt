@@ -76,6 +76,7 @@ Improvements:
  +	L	Private messaging in MP
  +	L	Add unused sprite 17 from trees.rx
  +	L	Pressing a character with a dropdown/listbox selected will choose the first item starting with that character
+ +	L	It is impossible to identify selected group if player flag color is white. Use dark-grey instead.
 
 	Dismiss button to make units walk into the school and disappear (gold is not refunded)
 	L	Simple dedicated server form which lets you set the properties of the INI for the server and start it [gemGreg]

@@ -1364,7 +1364,13 @@ begin
   UnitPos.Y := FlagCarrier.PositionF.Y + UNIT_OFF_Y + FlagCarrier.GetSlide(ax_Y);
 
   //Highlight selected group
-  FlagColor := IfThen(MySpectator.Selected = Self, $FFFFFFFF, fPlayers[FlagCarrier.Owner].FlagColor);
+  FlagColor := fPlayers[FlagCarrier.Owner].FlagColor;
+  if MySpectator.Selected = Self then
+    //If base color is brighter than $FFFF40 then use black highlight
+    if (FlagColor and $FF) + (FlagColor shr 8 and $FF) + (FlagColor shr 16 and $FF) > $240 then
+      FlagColor := $FF404040
+    else
+      FlagColor := $FFFFFFFF;
 
   //In MapEd units fTicker always the same, use Terrain instead
   FlagStep := IfThen(fGame.GameMode = gmMapEd, fTerrain.AnimStep, fTicker);
