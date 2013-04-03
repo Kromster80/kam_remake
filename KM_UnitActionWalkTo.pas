@@ -84,6 +84,7 @@ implementation
 uses
   KM_RenderAux, KM_Game, KM_PlayersCollection, KM_Terrain,
   KM_UnitActionGoInOut, KM_UnitActionStay,
+  KM_UnitTaskBuild,
   KM_Units_Warrior, KM_Log, KM_Resource;
 
 //INTERACTION CONSTANTS: (may need to be tweaked for optimal performance)
@@ -425,6 +426,9 @@ begin
     if (DistNext <= RANGE_WATCHTOWER_MAX)
     and (DistNext < fPlayers.DistanceToEnemyTowers(fUnit.GetPosition, fUnit.Owner)) then
     begin
+      //Cancel the plan if we cant approach it
+      if TKMUnitWorker(fUnit).UnitTask is TTaskBuild then
+        TTaskBuild(TKMUnitWorker(fUnit).UnitTask).CancelThePlan;
       Result := oc_NoRoute;
       Exit;
     end;

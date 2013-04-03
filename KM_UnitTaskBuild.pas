@@ -5,9 +5,15 @@ uses SysUtils,
   KM_CommonClasses, KM_Defaults, KM_Points,
   KM_Houses, KM_Terrain, KM_Units;
 
-{Perform building}
+
+//Do the building
 type
-  TTaskBuildRoad = class(TUnitTask)
+  TTaskBuild = class(TUnitTask)
+    public
+      procedure CancelThePlan; virtual; abstract;
+    end;
+
+  TTaskBuildRoad = class(TTaskBuild)
     private
       fLoc: TKMPoint;
       BuildID: Integer;
@@ -18,11 +24,12 @@ type
       constructor Load(LoadStream: TKMemoryStream); override;
       destructor Destroy; override;
       function WalkShouldAbandon: Boolean; override;
+      procedure CancelThePlan; override;
       function Execute: TTaskResult; override;
       procedure Save(SaveStream: TKMemoryStream); override;
     end;
 
-  TTaskBuildWine = class(TUnitTask)
+  TTaskBuildWine = class(TTaskBuild)
     private
       fLoc: TKMPoint;
       BuildID: Integer;
@@ -33,11 +40,12 @@ type
       constructor Load(LoadStream: TKMemoryStream); override;
       destructor Destroy; override;
       function WalkShouldAbandon: Boolean; override;
+      procedure CancelThePlan; override;
       function Execute: TTaskResult; override;
       procedure Save(SaveStream: TKMemoryStream); override;
     end;
 
-  TTaskBuildField = class(TUnitTask)
+  TTaskBuildField = class(TTaskBuild)
     private
       fLoc: TKMPoint;
       BuildID: Integer;
@@ -47,11 +55,12 @@ type
       constructor Load(LoadStream: TKMemoryStream); override;
       destructor Destroy; override;
       function WalkShouldAbandon: Boolean; override;
+      procedure CancelThePlan; override;
       function Execute: TTaskResult; override;
       procedure Save(SaveStream: TKMemoryStream); override;
     end;
 
-  TTaskBuildWall = class(TUnitTask)
+  TTaskBuildWall = class(TTaskBuild)
     private
       fLoc:TKMPoint;
       BuildID:integer;
@@ -61,11 +70,12 @@ type
       constructor Load(LoadStream:TKMemoryStream); override;
       destructor Destroy; override;
       //function WalkShouldAbandon: Boolean; override;
+      procedure CancelThePlan; override;
       function Execute:TTaskResult; override;
       procedure Save(SaveStream:TKMemoryStream); override;
     end;
 
-  TTaskBuildHouseArea = class(TUnitTask)
+  TTaskBuildHouseArea = class(TTaskBuild)
     private
       fHouse: TKMHouse;
       fHouseType: THouseType;
@@ -82,6 +92,7 @@ type
       procedure SyncLoad; override;
       destructor Destroy; override;
       function WalkShouldAbandon: Boolean; override;
+      procedure CancelThePlan; override;
       function Digging: Boolean;
       function Execute: TTaskResult; override;
       procedure Save(SaveStream: TKMemoryStream); override;
@@ -170,6 +181,13 @@ begin
 end;
 
 
+procedure TTaskBuildRoad.CancelThePlan;
+begin
+  fPlayers[fUnit.Owner].BuildList.FieldworksList.CloseField(BuildID); //Close the job now because it can no longer be cancelled
+  BuildID := -1;
+end;
+
+
 function TTaskBuildRoad.Execute: TTaskResult;
 begin
   Result := TaskContinues;
@@ -190,8 +208,7 @@ begin
          Thought := th_None;
          fTerrain.SetTileLock(fLoc, tlRoadWork);
          TileLockSet := True;
-         fPlayers[Owner].BuildList.FieldworksList.CloseField(BuildID); //Close the job now because it can no longer be cancelled
-         BuildID := -1;
+         CancelThePlan;
          SetActionLockedStay(11,ua_Work1,false);
        end;
     2: begin
@@ -293,6 +310,13 @@ begin
 end;
 
 
+procedure TTaskBuildWine.CancelThePlan;
+begin
+  fPlayers[fUnit.Owner].BuildList.FieldworksList.CloseField(BuildID); //Close the job now because it can no longer be cancelled
+  BuildID := -1;
+end;
+
+
 function TTaskBuildWine.Execute: TTaskResult;
 begin
   Result := TaskContinues;
@@ -313,8 +337,7 @@ begin
         Thought := th_None;
         fTerrain.SetTileLock(fLoc, tlFieldWork);
         fTerrain.ResetDigState(fLoc); //Remove any dig over that might have been there (e.g. destroyed house)
-        fPlayers[Owner].BuildList.FieldworksList.CloseField(BuildID); //Close the job now because it can no longer be cancelled
-        BuildID := -1; //it can't be cancelled now
+        CancelThePlan;
         TileLockSet := True;
         SetActionLockedStay(12*4,ua_Work1,false);
       end;
@@ -408,6 +431,13 @@ begin
 end;
 
 
+procedure TTaskBuildField.CancelThePlan;
+begin
+  fPlayers[fUnit.Owner].BuildList.FieldworksList.CloseField(BuildID); //Close the job now because it can no longer be cancelled
+  BuildID := -1;
+end;
+
+
 function TTaskBuildField.Execute: TTaskResult;
 begin
   Result := TaskContinues;
@@ -427,8 +457,7 @@ begin
     1: begin
         fTerrain.SetTileLock(fLoc, tlFieldWork);
         TileLockSet := True;
-        fPlayers[Owner].BuildList.FieldworksList.CloseField(BuildID); //Close the job now because it can no longer be cancelled
-        BuildID := -1;
+        CancelThePlan;
         SetActionLockedStay(0,ua_Walk);
        end;
     2: begin
@@ -490,6 +519,13 @@ begin
 end;
 
 
+procedure TTaskBuildWall.CancelThePlan;
+begin
+  fPlayers[fUnit.Owner].BuildList.FieldworksList.CloseField(BuildID); //Close the job now because it can no longer be cancelled
+  BuildID := -1;
+end;
+
+
 //Need an idea how to make it work
 function TTaskBuildWall.Execute:TTaskResult;
 begin
@@ -503,8 +539,7 @@ begin
     1: begin
         fTerrain.SetTileLock(fLoc, tlFieldWork);
         fTerrain.ResetDigState(fLoc); //Remove any dig over that might have been there (e.g. destroyed house)
-        fPlayers[Owner].BuildList.FieldworksList.CloseField(BuildID); //Close the job now because it can no longer be cancelled
-        BuildID := -1;
+        CancelThePlan;
         SetActionLockedStay(0,ua_Walk);
        end;
     2: begin
@@ -664,7 +699,15 @@ begin
 end;
 
 
-{Prepare building site - flatten terrain}
+procedure TTaskBuildHouseArea.CancelThePlan;
+begin
+  fPlayers[fUnit.Owner].BuildList.HousePlanList.ClosePlan(BuildID);
+  fPlayers[fUnit.Owner].Stats.HousePlanRemoved(fHouseType);
+  BuildID := -1;
+end;
+
+
+//Prepare building site - flatten terrain
 function TTaskBuildHouseArea.Execute: TTaskResult;
 var OutOfWay: TKMPoint;
 begin
@@ -690,9 +733,7 @@ begin
           Thought := th_Build;
         end;
     1:  begin
-          fPlayers[Owner].BuildList.HousePlanList.ClosePlan(BuildID);
-          fPlayers[Owner].Stats.HousePlanRemoved(fHouseType);
-          BuildID := -1; //Other workers can't take this task from now on
+          CancelThePlan;
           Assert(fHouse = nil);
 
           fHouse := fPlayers[Owner].AddHouseWIP(fHouseType, fHouseLoc);
