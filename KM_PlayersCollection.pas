@@ -33,12 +33,13 @@ type
     function GroupsHitTest(X, Y: Integer): TKMUnitGroup;
     function GetClosestUnit(aLoc: TKMPoint; aIndex: TPlayerIndex; aAlliance: TAllianceType): TKMUnit;
     function GetClosestHouse(aLoc: TKMPoint; aIndex: TPlayerIndex; aAlliance: TAllianceType; aOnlyCompleted: Boolean = True): TKMHouse;
+    function DistanceToEnemyTowers(aLoc: TKMPoint; aIndex: TPlayerIndex): Single;
     procedure GetUnitsInRect(aRect: TKMRect; List: TList);
     function GetHouseByID(aID: Integer): TKMHouse;
     function GetUnitByID(aID: Integer): TKMUnit;
     function GetGroupByID(aID: Integer): TKMUnitGroup;
     function HitTest(X,Y: Integer): TObject;
-    function GetUnitCount:integer;
+    function UnitCount:integer;
     function FindPlaceForUnit(PosX,PosY:integer; aUnitType: TUnitType; out PlacePoint: TKMPoint; RequiredWalkConnect:byte):Boolean;
 
     //Check how Player1 feels towards Player2
@@ -214,10 +215,10 @@ var
 begin
   Result := nil;
 
-  for i:=0 to fCount-1 do
-  if (aIndex<>i) and (CheckAlliance(aIndex,i) = aAlliance) then
+  for I := 0 to fCount - 1 do
+  if (aIndex <> I) and (CheckAlliance(aIndex, I) = aAlliance) then
   begin
-    U := fPlayerList[i].Units.GetClosestUnit(aLoc);
+    U := fPlayerList[I].Units.GetClosestUnit(aLoc);
     if (U <> nil)
     and ((Result = nil) or (KMLengthSqr(U.PositionF, KMPointF(aLoc)) < KMLengthSqr(Result.PositionF, KMPointF(aLoc)))) then
       Result := U;
@@ -240,6 +241,26 @@ begin
     H := fPlayerList[I].Houses.FindHouse(ht_Any, aLoc.X, aLoc.Y, 1, aOnlyCompleted);
     if (H <> nil) and ((Result = nil) or (H.GetDistance(aLoc) < Result.GetDistance(aLoc))) then
       Result := H;
+  end;
+end;
+
+
+//Return distance from the tile to the closest enemy tower
+function TKMPlayersCollection.DistanceToEnemyTowers(aLoc: TKMPoint; aIndex: TPlayerIndex): Single;
+var
+  I, K: Integer;
+  H: TKMHouseTower;
+begin
+  Result := MaxSingle;
+  for I := 0 to fCount - 1 do
+  if (aIndex <> I) and (Player[aIndex].Alliances[I] = at_Enemy) then
+  begin
+    for K := 0 to fPlayerList[I].Houses.Count - 1 do
+    if fPlayerList[I].Houses[K] is TKMHouseTower then
+    begin
+      H := TKMHouseTower(fPlayerList[I].Houses[K]);
+      Result := Min(Result, H.GetDistance(aLoc));
+    end;
   end;
 end;
 
@@ -317,7 +338,7 @@ end;
 
 
 //Get total unit count for statistics display
-function TKMPlayersCollection.GetUnitCount: Integer;
+function TKMPlayersCollection.UnitCount: Integer;
 var I: Integer;
 begin
   Result := 0;

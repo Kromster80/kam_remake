@@ -186,7 +186,7 @@ begin
     if U <> nil then
     begin
       fPushedUnit := U.GetUnitPointer;
-      fPushedUnit.SetActionWalkPushed(fTerrain.GetOutOfTheWay(U.GetPosition, KMPoint(0,0), CanWalk));
+      fPushedUnit.SetActionWalkPushed(fTerrain.GetOutOfTheWay(U, KMPoint(0,0), CanWalk));
     end;
   end;
 end;

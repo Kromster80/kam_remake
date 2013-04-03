@@ -4497,7 +4497,7 @@ begin
 
   //Debug info
   if SHOW_SPRITE_COUNT then
-    S := IntToStr(fPlayers.GetUnitCount) + ' units on map|' +
+    S := IntToStr(fPlayers.UnitCount) + ' units on map|' +
          IntToStr(fRenderPool.RenderList.Stat_Sprites) + '/' +
          IntToStr(fRenderPool.RenderList.Stat_Sprites2) + ' sprites/rendered|' +
          IntToStr(CtrlPaintCount) + ' controls rendered|';

@@ -411,16 +411,29 @@ end;
 1. go around the obstacle and keep on walking
 2. rebuild the route from current position from scratch}
 function TUnitActionWalkTo.CheckForObstacle: TObstacleCheck;
-var T: TKMPoint;
+var
+  T: TKMPoint;
+  DistNext: Single;
 begin
   Result := oc_NoObstacle;
 
   T := NodeList[NodePos+1];
 
+  if (fUnit is TKMUnitWorker) then
+  begin
+    DistNext := fPlayers.DistanceToEnemyTowers(T, fUnit.Owner);
+    if (DistNext <= RANGE_WATCHTOWER_MAX)
+    and (DistNext < fPlayers.DistanceToEnemyTowers(fUnit.GetPosition, fUnit.Owner)) then
+    begin
+      Result := oc_NoRoute;
+      Exit;
+    end;
+  end;
+
   if (not fTerrain.CheckPassability(T, GetEffectivePassability)) or
      (not fTerrain.CanWalkDiagonaly(fUnit.GetPosition, T.X, T.Y)) then
 
-    //Try side stepping the obsticle.
+    //Try side stepping the obstacle.
     //By making HighestInteractionCount be the required timeout, we assure the solution is always checked
     if IntSolutionSideStep(T, SIDESTEP_TIMEOUT) then
       Result := oc_NoObstacle
@@ -528,7 +541,7 @@ begin
     if not CanAbandonInternal then
       raise ELocError.Create('Unit walk IntSolutionPush', fUnit.GetPosition);
 
-    fOpponent.SetActionWalkPushed(fTerrain.GetOutOfTheWay(fOpponent.GetPosition, fUnit.GetPosition, OpponentPassability));
+    fOpponent.SetActionWalkPushed(fTerrain.GetOutOfTheWay(fOpponent, fUnit.GetPosition, OpponentPassability));
 
     Explanation := 'Unit was blocking the way but it has been forced to go away now';
     ExplanationLogAdd; //Hopefully next tick tile will be free and we will walk there
@@ -616,7 +629,7 @@ begin
         raise ELocError.Create('Unit walk IntCheckIfPushed',fUnit.GetPosition);
 
       //Since only Idle units can be pushed, we don't need to carry on TargetUnit/TargetHouse/etc props
-      fUnit.SetActionWalkPushed(fTerrain.GetOutOfTheWay(fUnit.GetPosition,KMPoint(0,0),GetEffectivePassability));
+      fUnit.SetActionWalkPushed(fTerrain.GetOutOfTheWay(fUnit, KMPoint(0,0),GetEffectivePassability));
       //This action has now been freed, so we must exit without changing anything
       Result := true; //Means exit DoUnitInteraction
       exit;

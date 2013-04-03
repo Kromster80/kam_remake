@@ -140,7 +140,7 @@ type
     function GetConnectID(aWalkConnect: TWalkConnect; Loc:TKMPoint): Byte;
 
     function CheckAnimalIsStuck(Loc: TKMPoint; aPass: TPassability; aCheckUnits: Boolean = True): Boolean;
-    function GetOutOfTheWay(Loc, PusherLoc: TKMPoint; aPass: TPassability): TKMPoint;
+    function GetOutOfTheWay(aUnit: Pointer; PusherLoc: TKMPoint; aPass: TPassability): TKMPoint;
     function FindSideStepPosition(Loc, Loc2, Loc3: TKMPoint; aPass: TPassability; out SidePoint: TKMPoint; OnlyTakeBest: Boolean = False): Boolean;
     function Route_CanBeMade(LocA, LocB: TKMPoint; aPass: TPassability; aDistance: Single): Boolean;
     function Route_CanBeMadeToVertex(LocA, LocB: TKMPoint; aPass: TPassability): Boolean;
@@ -1827,14 +1827,29 @@ begin
 end;
 
 
-{Return random tile surrounding Loc with aPass property. PusherLoc is the unit that pushed us which is}
-{preferable to other units (otherwise we can get two units swapping places forever)}
-function TKMTerrain.GetOutOfTheWay(Loc, PusherLoc:TKMPoint; aPass:TPassability):TKMPoint;
+//Return random tile surrounding Loc with aPass property. PusherLoc is the unit that pushed us
+//which is preferable to other units (otherwise we can get two units swapping places forever)
+function TKMTerrain.GetOutOfTheWay(aUnit: Pointer; PusherLoc: TKMPoint; aPass: TPassability): TKMPoint;
+var
+  U: TKMUnit;
+  Loc: TKMPoint;
+
+  function GoodForWorker(X,Y: Word): Boolean;
+  var
+    DistNext: Single;
+  begin
+    DistNext := fPlayers.DistanceToEnemyTowers(KMPoint(X,Y), U.Owner);
+    Result := (DistNext > RANGE_WATCHTOWER_MAX)
+    or (DistNext >= fPlayers.DistanceToEnemyTowers(Loc, U.Owner));
+  end;
 var
   I, K: Integer;
   L1, L2, L3: TKMPointList;
   TempUnit: TKMUnit;
 begin
+  U := TKMUnit(aUnit);
+  Loc := U.GetPosition;
+
   //List 1 holds all available walkable positions except self
   L1 := TKMPointList.Create;
   for I:=-1 to 1 do for K:=-1 to 1 do
@@ -1842,7 +1857,8 @@ begin
     and TileInMapCoords(Loc.X+K, Loc.Y+I)
     and CanWalkDiagonaly(Loc, Loc.X + K, Loc.Y + I) //Check for trees that stop us walking on the diagonals!
     and (Land[Loc.Y+I,Loc.X+K].TileLock in [tlNone, tlFenced])
-    and (aPass in Land[Loc.Y+I,Loc.X+K].Passability) then
+    and (aPass in Land[Loc.Y+I,Loc.X+K].Passability)
+    and (not (U is TKMUnitWorker) or GoodForWorker(Loc.X+K, Loc.Y+I)) then
       L1.AddEntry(KMPoint(Loc.X+K, Loc.Y+I));
 
   //List 2 holds the best positions, ones which are not occupied
@@ -1851,7 +1867,7 @@ begin
     if Land[L1[I].Y, L1[I].X].IsUnit = nil then
       L2.AddEntry(L1[I]);
 
-  //List 3 holds the second best positions, ones which are occupied with an idle unit
+  //List 3 holds the second best positions, ones which are occupied with an idle units
   L3 := TKMPointList.Create;
   for I := 0 to L1.Count - 1 do
     if Land[L1[I].Y, L1[I].X].IsUnit <> nil then
