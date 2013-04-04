@@ -149,7 +149,7 @@ begin
       //Other setup settings can go below
       L := TKMLabel.Create(Panel_SingleDesc, 200, 330, 150, 20, fTextLibrary[TX_LOBBY_HEADER_STARTLOCATION], fnt_Metal, taLeft);
       L.Anchors := [akLeft, akBottom];
-      DropBox_SingleLoc := TKMDropList.Create(Panel_SingleDesc, 200, 350, 150, 20, fnt_Metal, 'Location', bsMenu);
+      DropBox_SingleLoc := TKMDropList.Create(Panel_SingleDesc, 200, 350, 150, 20, fnt_Metal, fTextLibrary[TX_MENU_MAP_LOCATION], bsMenu);
       DropBox_SingleLoc.Anchors := [akLeft, akBottom];
       DropBox_SingleLoc.OnChange := OptionsChange;
 

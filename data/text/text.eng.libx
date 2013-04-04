@@ -1,5 +1,5 @@
 
-MaxID:2951
+MaxID:2957
 
 0:Sawmill
 1:Iron smithy
@@ -663,3 +663,9 @@ MaxID:2951
 2949:Message log
 2950:Back to Replays
 2951:Back to Multiplayer
+2952:No data
+2953:Location
+2954:All
+2955:Warfare
+2956:Food
+2957:Show all

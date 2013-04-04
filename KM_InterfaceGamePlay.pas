@@ -3384,7 +3384,7 @@ begin
   if fReplay then
   begin
     Dropbox_ReplayFOW.Clear;
-    Dropbox_ReplayFOW.Add('Show all', -1);
+    Dropbox_ReplayFOW.Add(fTextLibrary[TX_REPLAY_SHOW_ALL], -1);
     for I := 0 to fPlayers.Count - 1 do
     if fPlayers[I].Enabled and (fPlayers[I].PlayerType = pt_Human) then
         Dropbox_ReplayFOW.Add('[$' + IntToHex(FlagColorToTextColor(fPlayers[I].FlagColor) and $00FFFFFF, 6) + ']' + fPlayers[I].GetFormattedPlayerName, I);

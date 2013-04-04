@@ -153,7 +153,7 @@ begin
       Chart_MPWares[I].Hide;
     end;
 
-    Label_NoWareData := TKMLabel.Create(Panel_ChartsWares, 450, 215, 'No data', fnt_Metal, taCenter);
+    Label_NoWareData := TKMLabel.Create(Panel_ChartsWares, 450, 215, fTextLibrary[TX_GRAPH_NO_DATA], fnt_Metal, taCenter);
 end;
 
 
