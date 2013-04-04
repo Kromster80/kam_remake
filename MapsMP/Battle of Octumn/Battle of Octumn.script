@@ -1,0 +1,38 @@
+function PlayerHasUndefeatedEnemy(aPlayer: Integer): Boolean;
+var I: Integer;
+begin
+  Result := False;
+  for I:=0 to 7 do
+	if (I <> aPlayer) //Don't check ourselves
+	and States.PlayerEnabled(I) //Only check players which are enabled
+	and not States.PlayerDefeated(I) //Don't check defeated players
+	and not States.PlayerAllianceCheck(aPlayer, I) then //Is this player an enemy?
+	begin
+	  //We found an enemy who is not defeated, no need to check further
+	  Result := True;
+	  Exit;
+	end;
+end;
+
+procedure CheckForWinner;
+var I: Integer;
+begin
+  //Find a player with no enemies left, except those who were defeated
+  for I:=0 to 7 do
+    if States.PlayerEnabled(I) //Only enabled players
+	and not PlayerHasUndefeatedEnemy(I) then //Does this player have any enemies left?
+	begin
+      Actions.PlayerWin([I], True); //This player and his team wins
+	  Exit; //Don't check any more players, team victory took care of his team winning
+	end;
+end;
+
+procedure OnPlayerDefeated(aIndex: Integer);
+begin
+  CheckForWinner; //Every time a player gets defeated that might cause the game to end
+end;
+
+procedure OnMissionStart;
+begin
+  CheckForWinner; //In case they started the map with no enemies, we should say everybody wins at the start
+end;
