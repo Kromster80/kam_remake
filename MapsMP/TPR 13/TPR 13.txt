@@ -1,4 +1,4 @@
 SetCoop
 
 BigDesc
-Mission 13 from The Peasants Rebellion campaign converted for co-operative by sergjiei.||Locations:|HUMAN TEAM 1:|1,7|AI TEAM 2:|3,4,5,6||You MUST use this setup exactly for the mission to work properly.
+Mission 13 from The Peasants Rebellion campaign converted for co-operative by sergjiei.
