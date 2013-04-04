@@ -22,6 +22,7 @@ Finishing up:
  +	Performance test city builder and optimise/fix slow stuff (NextToOre using FindNearest for example)
  +	Remove falling trees and block from MapEd trees palette, re-add reed
  +	Improve snow falling random noise so it looks more natural [Krom]
+ +	Indent messages after each line break so you can't fake system messages
 
 	Snow houses artwork [KillingB]
 	Snow house overlay fixes [KillingB, Krom]
@@ -51,12 +52,13 @@ After first RC:
 	Press release?
 	Decided what to do about proportional/exact weapons production (hybrid solution?)
 	Script commands: Silent kill unit (no death animation, allows changing farmers to rebels), get/set ware distribution, get/set store/barracks delivery block flags
+	Write Lazarus network wrapper using base FPC sockets and see if it's more stable than LNet
 
 
 Balance/exploits:
  +	Increased market loss ratio to 2.2
  +	Tested: 4 farms (with unsown fields) + 2 stables beats 6 woodcutters (with 5 grown trees each) + 1 market in horse production by 16% (20 mins), 30% (30 mins), 45% (40 mins), 77% (60 mins)
-	Stop builders emptying towers (builders refuse to walk into range of a tower or player blocked from building there?)
+ +	Stop builders emptying towers (builders refuse to walk into range of a tower and cancel the plan)
 
 
 Not for this release, maybe next time:
@@ -68,6 +70,7 @@ Not for this release, maybe next time:
 Maps:
  +	Iceline (thunder)
  +	PAKER's maps
+ +	Clavicus Valley & Battle of Octumn (Ben)
 	Pawel's fixes for campaign missions that he emailed to us
 	New coop missions and fixes to coop missions (from andreus, kirelareus, pawel?)
 	Final Frontier (To)
@@ -75,6 +78,5 @@ Maps:
 	Shark Islands (andreus and vovets1)
 	czechboss' new map
 	Circus? (thunder)
-	Clavicus Valley (Ben)
 	Frozen waters? (sado)
 	Majestic Waters (TDL)

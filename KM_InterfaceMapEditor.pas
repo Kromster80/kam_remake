@@ -1918,6 +1918,9 @@ begin
   if Panel_House.Visible or Panel_Unit.Visible or Panel_Marker.Visible then
     fActivePage := nil;
 
+  if MySpectator.Selected <> nil then
+    MySpectator.Selected := nil;
+
   SetActivePlayer(TKMControl(Sender).Tag);
 
   //Refresh per-player settings

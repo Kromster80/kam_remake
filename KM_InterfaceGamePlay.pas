@@ -1167,6 +1167,7 @@ begin
     Memo_ChatText := TKMMemo.Create(Panel_Chat,45,50,600-85,101, fnt_Metal, bsGame);
     Memo_ChatText.ScrollDown := True;
     Memo_ChatText.AutoWrap := True;
+    Memo_ChatText.IndentAfterNL := True; //Don't let players fake system messages
     Memo_ChatText.Anchors := [akLeft, akTop, akRight, akBottom];
 
     Edit_ChatMsg := TKMEdit.Create(Panel_Chat, 75, 154, 380, 20, fnt_Metal);

@@ -228,6 +228,7 @@ begin
     //Chat area
     Memo_LobbyPosts := TKMMemo.Create(Panel_Lobby, 30, 338, CW, 342, fnt_Metal, bsMenu);
     Memo_LobbyPosts.AutoWrap := True;
+    Memo_LobbyPosts.IndentAfterNL := True; //Don't let players fake system messages
     Memo_LobbyPosts.ScrollDown := True;
     Memo_LobbyPosts.Anchors := [akLeft, akTop, akBottom];
     Button_LobbyPost := TKMButtonFlat.Create(Panel_Lobby, 30, 683, 30, 20, 0);

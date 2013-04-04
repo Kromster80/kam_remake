@@ -918,6 +918,7 @@ type
     fItemHeight: Byte;
     fItems: TStringList;
     fAutoWrap: Boolean;
+    fIndentAfterNL: Boolean;
     fText: string;
     fScrollDown: Boolean;
     fScrollBar: TKMScrollBar;
@@ -942,7 +943,8 @@ type
     procedure Add(const aItem: string);
     procedure Clear;
     procedure ScrollToBottom;
-    property AutoWrap: boolean read fAutoWrap write SetAutoWrap; //Whether to automatically wrap text within given text area width
+    property AutoWrap: Boolean read fAutoWrap write SetAutoWrap; //Whether to automatically wrap text within given text area width
+    property IndentAfterNL: Boolean read fIndentAfterNL write fIndentAfterNL;
     property Text: string read GetText write SetText;
     property ItemHeight: Byte read fItemHeight write fItemHeight;
     property TopIndex: Smallint read GetTopIndex write SetTopIndex;
@@ -1640,7 +1642,7 @@ end;
 procedure TKMLabel.ReformatText;
 begin
   if fAutoWrap then
-    fText := fResource.Fonts.WordWrap(fCaption, fFont, Width, true)
+    fText := fResource.Fonts.WordWrap(fCaption, fFont, Width, True, False)
   else
     fText := fCaption;
 
@@ -2193,8 +2195,8 @@ begin
   if Length(fText) >= MaxLen then Exit;
 
   Insert(Key, fText, CursorPos + 1);
+  CursorPos := CursorPos + 1; //Before ValidateText so it moves the cursor back if the new char was invalid
   ValidateText;
-  CursorPos := CursorPos + 1;
 end;
 
 
@@ -2965,7 +2967,7 @@ procedure TKMMemo.ReformatText;
 var NewText: string;
 begin
   if fAutoWrap then
-    NewText := fResource.Fonts.WordWrap(fText, fFont, fWidth - fScrollBar.Width - 8, True)
+    NewText := fResource.Fonts.WordWrap(fText, fFont, fWidth - fScrollBar.Width - 8, True, IndentAfterNL)
   else
     NewText := fText;
 

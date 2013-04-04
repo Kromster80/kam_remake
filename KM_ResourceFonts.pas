@@ -35,7 +35,7 @@ type
 
     property FontData[aIndex: TKMFont]: TKMFontData read GetFontData;
 
-    function WordWrap(aText: AnsiString; aFont: TKMFont; aMaxPxWidth: Integer; aForced: boolean): AnsiString;
+    function WordWrap(aText: AnsiString; aFont: TKMFont; aMaxPxWidth: Integer; aForced: Boolean; aIndentAfterNL: Boolean): AnsiString;
     function CharsThatFit(const aText: AnsiString; aFont: TKMFont; aMaxPxWidth: integer): integer;
     function GetTextSize(const aText: AnsiString; Fnt: TKMFont): TKMPoint;
 
@@ -219,9 +219,11 @@ begin
 end;
 
 
-function TKMResourceFont.WordWrap(aText: AnsiString; aFont: TKMFont; aMaxPxWidth: Integer; aForced: Boolean): AnsiString;
+function TKMResourceFont.WordWrap(aText: AnsiString; aFont: TKMFont; aMaxPxWidth: Integer; aForced: Boolean; aIndentAfterNL: Boolean): AnsiString;
 var
   I, CharSpacing, AdvX, PrevX, LastSpace, TmpColor: Integer;
+const
+  INDENT = '   ';
 begin
   Assert(aMaxPxWidth > 0);
 
@@ -254,6 +256,12 @@ begin
     //This algorithm is not perfect, somehow line width is not within SizeX, but very rare
     if ((AdvX > aMaxPxWidth)and(LastSpace<>-1))or(aText[I]=#124) then
     begin
+      if (aText[I] <> #124) and aIndentAfterNL then
+      begin
+        Insert(INDENT, aText, LastSpace+1);
+        Inc(I, Length(INDENT));
+        Inc(AdvX, Length(INDENT)*fFontData[aFont].WordSpacing);
+      end;
       aText[LastSpace] := #124; //Replace last whitespace with EOL
       dec(AdvX, PrevX); //Subtract width since replaced whitespace
       LastSpace := -1;
@@ -264,6 +272,12 @@ begin
       Insert(#124,aText,I); //Insert an EOL before this character
       AdvX := 0;
       LastSpace := -1;
+      if aIndentAfterNL then
+      begin
+        Insert(INDENT, aText, I+1);
+        Inc(I, Length(INDENT));
+        Inc(AdvX, Length(INDENT)*fFontData[aFont].WordSpacing);
+      end;
     end;
     inc(I);
   end;
