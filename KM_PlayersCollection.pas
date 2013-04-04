@@ -255,11 +255,12 @@ begin
   for I := 0 to fCount - 1 do
   if (aIndex <> I) and (Player[aIndex].Alliances[I] = at_Enemy) then
   begin
-    for K := 0 to fPlayerList[I].Houses.Count - 1 do
+    for K := fPlayerList[I].Houses.Count - 1 downto 0 do
     if fPlayerList[I].Houses[K] is TKMHouseTower then
     begin
       H := TKMHouseTower(fPlayerList[I].Houses[K]);
-      Result := Min(Result, H.GetDistance(aLoc));
+      //Don't use H.GetDistance (any tile within house) as that's not how tower range works
+      Result := Min(Result, KMLength(H.GetPosition, aLoc));
     end;
   end;
 end;
