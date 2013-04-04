@@ -615,18 +615,16 @@ begin
 end;
 
 
-//@Lewin: This seems to be much faster and readable. Can you tell why did you chose above method?
-//@Krom: Because I originally wrote it as a .bat script then imported it to the TM. I knew it was
-//       hacky, that's why I didn't commit it ) Thanks for fixing it. To be deleted.
 procedure TForm1.btnUnusedClick(Sender: TObject);
 var
   I: Integer;
   SearchRec: TSearchRec;
   ConstList: TStringList;
-  PasFile: TStringStream;
+  PasFile: TMemoryStream;
+  PasString: AnsiString;
 begin
   ConstList := TStringList.Create;
-  PasFile := TStringStream.Create;
+  PasFile := TMemoryStream.Create;
   try
     //Prepare list of all constants we will be looking for
     for I := 0 to fTextManager.ConstCount - 1 do
@@ -636,8 +634,9 @@ begin
     FindFirst(fWorkDir + '*.pas', faAnyFile - faDirectory, SearchRec);
     repeat
       PasFile.LoadFromFile(fWorkDir + SearchRec.Name);
+      SetString(PasString, PChar(PasFile.Memory), PasFile.Size);
       for I := ConstList.Count - 1 downto 0 do
-      if Pos(ConstList[I], PasFile.DataString) <> 0 then
+      if Pos(ConstList[I], PasString) <> 0 then
         ConstList.Delete(I);
     until (FindNext(SearchRec) <> 0);
     FindClose(SearchRec);
