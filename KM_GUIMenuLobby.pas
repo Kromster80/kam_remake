@@ -1227,7 +1227,7 @@ var
 begin
   //Common settings
   MinimapView_Lobby.Visible := (fNetworking.SelectGameKind = ngk_Map) and fNetworking.MapInfo.IsValid;
-  TrackBar_LobbyPeacetime.Enabled := fNetworking.IsHost and (fNetworking.SelectGameKind = ngk_Map) and fNetworking.MapInfo.IsValid;
+  TrackBar_LobbyPeacetime.Enabled := fNetworking.IsHost and (fNetworking.SelectGameKind = ngk_Map) and fNetworking.MapInfo.IsValid and not fNetworking.MapInfo.IsCoop;
   TrackBar_LobbySpeedPT.Enabled := TrackBar_LobbyPeacetime.Enabled and (TrackBar_LobbyPeacetime.Position > 0);
   TrackBar_LobbySpeedAfterPT.Enabled := TrackBar_LobbyPeacetime.Enabled;
   CheckBox_LobbyRandomizeTeamLocations.Enabled := (fNetworking.SelectGameKind <> ngk_Save);
@@ -1262,6 +1262,9 @@ begin
                   fMinimap.LoadFromMission(M.FullPath('.dat'), M.HumanUsableLocations);
                   fMinimap.Update(not M.IsCoop);
                   MinimapView_Lobby.SetMinimap(fMinimap);
+
+                  if fNetworking.MapInfo.IsCoop then
+                    TrackBar_LobbyPeacetime.Position := 0; //No peacetime in coop (trackbar gets disabled above)
                 end;
                 Label_LobbyMapName.Caption := M.FileName;
                 Memo_LobbyMapDesc.Text := M.BigDesc;

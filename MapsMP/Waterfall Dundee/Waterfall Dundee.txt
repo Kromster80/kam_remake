@@ -1,4 +1,4 @@
 SetCoop
 
 BigDesc
-LOCATIONS:|Players: 1, 2|Ally AI: 3, 7.|Enemy AI: 4, 5, 6.||Made by Creations. Special thanks to Edgar for testing this map and his support.
+Made by Creations. Special thanks to Edgar for testing this map and his support.
