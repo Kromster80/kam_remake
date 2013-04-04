@@ -119,7 +119,7 @@ end;
 
 function TPathFindingRoad.Route_Make(aLocA, aLocB: TKMPoint; NodeList: TKMPointList): Boolean;
 begin
-  Result := inherited Route_Make(aLocA, aLocB, [CanMakeRoads, CanWalkRoad], 0, nil, NodeList, False);
+  Result := inherited Route_Make(aLocA, aLocB, [CanMakeRoads, CanWalkRoad], 0, nil, NodeList);
 end;
 
 
