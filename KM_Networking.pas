@@ -1298,6 +1298,8 @@ begin
               fSelectGameKind := ngk_Map;
               FreeAndNil(fMapInfo);
               fMapInfo := TKMapInfo.Create(Msg, True, True);
+              if fMapInfo.IsValid then
+                fMapInfo.LoadExtra; //Lobby requires extra map info such as CanBeHuman
               fNetPlayers.ResetLocAndReady;
               if Assigned(fOnMapName) then fOnMapName(fMapInfo.FileName);
               if Assigned(fOnPlayersSetup) then fOnPlayersSetup(Self);

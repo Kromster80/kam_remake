@@ -403,7 +403,7 @@ begin
                   PlayerEnabled[fNetworking.NetPlayers[I].StartLocation - 1] := True;
 
                 //Fixed AIs are always enabled (e.g. coop missions)
-                for I := 1 to fNetworking.MapInfo.PlayerCount-1 do
+                for I := 0 to fNetworking.MapInfo.PlayerCount-1 do
                   if fNetworking.MapInfo.CanBeAI[I] and not fNetworking.MapInfo.CanBeHuman[I] then
                     PlayerEnabled[I] := True;
               end;
