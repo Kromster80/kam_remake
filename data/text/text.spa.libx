@@ -1,5 +1,5 @@
 
-MaxID:2957
+MaxID:667
 
 0:Aserradero
 1:Fundición de hierro
@@ -31,411 +31,411 @@ MaxID:2957
 27:Comedor
 28:Lagar
 29:Mercado
-39:Troncos
-40:Piedras
-41:Madera
-42:Mineral de hierro
-43:Mineral de oro
-44:Carbón
-45:Hierro
-46:Oro
-47:Barriles de vino
-48:Grano
-49:Panes
-50:Harina
-51:Cuero
-52:Chorizos
-53:Cerdos
-54:Pieles
-55:Escudo de madera
-56:Escudo de hierro
-57:Armadura de cuero
-58:Armadura de hierro
-59:Hacha de mano
-60:Espada
-61:Lanza
-62:Pica
-63:Arco
-64:Ballesta
-65:Caballos
-66:Peces
-69:Ayudante
-70:Leñador
-71:Minero
-72:Ganadero
-73:Campesino/Viticultor
-74:Carpintero
-75:Panadero/Molinero
-76:Carnicero/Curtidor
-77:Pescador
-78:Albañil
-79:Cantero
-80:Herrero
-81:Fundidor
-82:Recluta
-83:Milicia
-84:Soldado con hacha
-85:Soldado con espada
-86:Arquero
-87:Ballestero
-88:Lancero
-89:Piquero
-90:Vigía
-91:Caballería
-92:Bárbaro
-93:Rebelde
-94:Hondero
-95:Guerrero
-96:Vagabundo
-97:Catapulta
-98:Balista
-99:El ayudante abastece los edificios con las materias necesarias.||Tenga en cuenta que deberá haber un camino construído de casa a casa.
-100:Para abastecer el aserradero con troncos necesita al leñador.||El leñador foresta de nuevo el terreno.
-101:El minero extrae mine- rales de las minas de carbón, de hierro y de oro.
-102:En ganadero cría cerdos y caballos en los criaderos, alimentándolos con cereales.
-103:El campesino siembra y cosecha el grano en el campo.||Además pisa la uva en la viña.
-104:El carpintero trabaja en el aserradero, en el taller de armas y en el taller de armaduras.
-105:El panadero cuece el pan en la panadería.||Además produce harina moliendo el grano en el molino.
-106:El carnicero produce chorizos en la carnicería y cuero en la curtiduría.
-107:El pescador pesca peces en las aguas cercanas.
-108:El albañil construye edificios y calles. Indíquele, situando las marcas en el lugar deseado, donde ha de construír. Además repara los edificios dañados.
-109:Para que los albañiles tengan suficientes piedras para construír calles y edificios, el cantero labra las piedras.
-110:El herrero elabora armaduras pesadas y armas en la herreía de armas y de armaduras.
-111:El fundidor produce hierro, arcas de oro y de hierro.
-112:El recluta en el cuartel es equipado con las armas necesarias para luchar como soldado.||Además ocupa la atalaya.
-147:Construcción
-148:Reparto de materiales
-149:Estadística
-150:Opciones
-151:Volver
-152:Construcción
-153:Reparto de|materiales
-154:Estadística
-155:Opciones
-156:Cargar juego
-157:Guardar juego
-158:¿De veras Vos|deseáis abandonar|a vuestro pueblo?
-159:Finalizar la misión
-160:Volver
-161:Ajustes
-162:Finalizar la misión
-163:Ruidos
-164:Modificar volumen
-165:Música
-166:Música si/no.
-167:Autoalmacenar
-168:Canciones
-169:Canción anterior
-170:Próxima canción
-171:Derribar
-172:Derribar edificios/marcas
-173:Construír calle
-174:Construcción de calles
-175:Arar campo
-176:Agricultura
-177:Plantar viñas
-178:Viña
-179:Suspender
-180:Suspender formación actual.
-181:Reservas:
-182:Estado:
-183:Suministra
-184:En construcción.
-185:Derribar
-186:¿De veras Vos deseáis|derribar el edificio?
-187:Derribar edificio seleccionado.
-188:Reducir pedido
-189:Aumentar pedido
-190:Anterior tipo de unidad.
-191:Próximo tipo de unidad.
-192:Equipar unidad actual.
-193:Próximo oficio.
-194:Anterior oficio.
-195:A la cola.
-196:Reclutas presentes:
-197:ON/OFF Reparación del edificio.
-198:Edificio no disponible de momento.
-199:Aguante
-200:Girar a la izquierda
-201:Girar a la derecha
-202:¡Asalto! ('a')
-203:Enviar tropa. ('d')
-204:Abastecer con alimentos a la tropa.
-205:Iniciar asalto.
-206:Agregar fila.
-207:Retirar fila.
-208:Elegir|grupo
-209:Interrumpir
-210:Borrar
-211:Borra el mensaje actual.
-212:Mostrar
-213:Te posiciona en el lugar descrito.
-214:Cancelar
-215:Cerrar mensaje.
-216:El cantero ya no puede picar más piedras.
-217:La mina de carbón se ha agotado.
-218:La mina de hierro se ha agotado.
-219:La mina de oro se ha agotado.
-220:Esta casa está desocupada.
-221:Esta tropa está hambrienta, debería comer algo|cuanto antes!
-222:PAUSA
-223:Modificar volumen
-224:ON/OFF Suministro de mercancías.
-418:Espíritu
-419:Laboriosos
-420:Cuerno medieval
-421:La Primavera
-422:Laúd
-423:Los Soldados
-424:La princesa
-425:La reina
-426:En el mercado
-427:En el campo
-428:Baile en la corte
-429:El Ejército
-430:En el castillo
-431:Clarines
-432:La corte
-433:Entrada
-434:Azul profundo
-435:Esfuerzo
-436:Sala Real
-437:Aristocracia
-438:En el Puerto
-439:Viaje
-849:Jugar en un mapa simple
-850:Comenzar mapa
-851:Ir al menú
-852:Cargar partida
-853:Multijugador
-854:Opciones
-855:Créditos
-856:Salir
-857:Continuar
-858:Repetir misión
-859:Resolución:
-860:¡VICTORIA!
-861:¡DERROTA!
-862:Unidades perdidas:
-863:Unidades vencidas:
-864:Edificios perdidos:
-865:Edificios destruidos:
-866:Edificios construídos:
-867:Unidades formadas:
-868:Armas producidas:
-869:Soldados equipados:
-870:Duración del juego:
-1000:JOYMANIA ENTERTAINMENT||PROGRAMMING:|Peter Ohlmann||INGAME GRAPHICS:|Adam Sprys||LEVELDESIGN:|Adam Sprys|Andre Quaß||INGAME MUSIC:|Gerd Hofmann|Joachim Schäfer|Jürgen Rebhann|Klaus Staendike|Steffen Schüngel||ILLUSTRATIONS:|Boleslaw Kasza|Christoph Werner||ZUXXEZ ENTERTAINMENT AG||PRODUCER:|Uwe Schäfer||MANUAL:|Peter Ohlmann|Uwe Schäfer||BETA TESTING:|Alexandra Constandache|Dirk P. Hassinger|Achim Heidelauf|Uwe Schäfer|Ingrid Schäfer|Dirk U. Jantz|Ion Constandache|Yaman Egeli|Roman Eich|Iris Mocsnek|Anke Jantz|Liza Hassinger|Paul Hassinger||GAMES DIRECTOR:|Achim Heidelauf||CUTSCENES:||Slawomir Jedrzejewski||Kajetan Czarnecki|Wojciech Drazek|Daniel Duplaga|Rafal Januszkiewicz|Andrzej Rams|Piotr Rulka|Krzysztof Rybczynski|Grzegorz Wisniwski||VOICES:|Claus Boyen (Storyteller)||Tim Timmermann|Peter Houska|Dirk Mühlbach|Ralf Ditze|Gerhard Piske|Gernot Wassmann||ARTWORK:|Boleslaw Kasza|Adam Sprys||OPENING ANIMATION:|Uwe Schäfer|Christian Bigalk|ADDITIONAL 3D-MODELLING:|Niels Horstmann||THANKS TO:|Tadeusz Zuber|Dieter Ohlmann|Alexandra Constandache|Ingrid Schäfer
-1686:Misión Cancelada
-1687:Tutorial de Construción
-1688:Tutorial de Batalla
-1689:Un Solo Jugador
-1690:Editor de mapas
-1692:Empezar misión
-1693:Nombre
-1694:Medida
-1696:Condiciones de Victoria:
-1697:Condiciones de Derrota:
-1698:Alidados:
-1699:Enemigos:
-1701:Nueva medida de mapa
-1702:Anchura
-1703:Altura
-1704:Crear nuevo mapa
-1705:Mapa disponible
-1706:Cargar mapa
-1707:Controles:
-1708:Juego:
-1709:Sonido:
-1710:Desactivar música
-1711:Gráficos:
-1712:Brillo
-1713:Pantalla completa
-1714:Aplicar
-1715:Lenguaje:
-1716:Cargando... Por favor espera
-1717:Se ha producido un error
-1718:Cargando nueva partida local
-1719:Lista de partidas guardadas
-1720:Nombre de archivo
-1721:Descripción
-1722:Carga
-1723:Borrar
-1724:¿Estas seguro de que quieres eliminar la partida guardada?
-1725:Eliminar
-1726:Cancelar
-1728:¡ Victoria !
-1729:Continuar Jugando
-1730:¡Victoria!
-1731:¡Has perdido!
-1732:Continuar...
-1733:Derrota
-1734:La repetición ha terminado
-1735:Continuar
-1736:Regresar al Menú
-1737:No disponible
-1738:Presiona %s para continuar el juego
-1740:Informacion de jugadores
-1741:Chat
-1742:Guardar archivo existente
-1743:Sobrescribir
-1744:Salvar
-1745:Cargar
-1748:Se ha detectado una versión antigua de OpenGL, el juego puede ejecutarse lentamente y / o con defectos gráficos
-1749:Error en la red:
-1750:Error: Nombre del jugador no puede estar en blanco
-1751:Conexión fallida: %s
-1752:Te has desconectado
-1753:Misión %d
-1754:El pescador no puede pescar tan lejos del agua.
-1755:El pescador no puede pescar, no hay más peces en el agua.
-1757:Usa el botón izquierdo para selecionar la mercancia a tratar
-1758:Usa el botón derecho para selecionar la mercancia a tratar
-1759:De x%d
-1760:A x%d
-1761:Editar terreno
-1762:Planificar el pueblo
-1763:Códigos visuales
-1764:Códigos globales
-1765:Menú
-1766:Estado:
-1767:Nombre de jugador
-1768:CREAR SERVIDOR
-1769:Nombre
-1770:Puerto
-1771:Crear servidor local
-1772:Crear servidor en internet
-1773:Nombre del servidor
-1774:Estado
-1775:Jugadores
-1776:Retraso
-1777:Actualizar lista de servidores.
-1778:DETALLES DEL SERVIDOR
-1779:Lista de jugadores:
-1780:Dirección
-1781:Puerta
-1782:Sala
-1783:Entrar
-1784:Conectando. por favor espera...
-1785:Cargando Anuncios...
-1786:Actualizando...
-1787:Lista de jugadores
-1788:Empezar localización
-1789:Equipo
-1790:Color
-1791:Listo
-1792:Retraso
-1794:Abierto
-1795:Jugador IA
-1796:Seleccionar...
-1797:Aleatorio
-1799:Ninguno
-1805:Guardar Partida
-1806:Selecciona un mapa...
-1807:Seleciona para guardar...
-1813:Salir de la sala
-1814:Listo
-1815:¡Empezar!
-1816:Esperando a los jugadores:
-1817:KaM Remake Créditos
-1818:Créditos originales Knights & Merchants
-1819:PROGRAMADOR:
-1820:PROGRAMADORES ADICIONALES:
-1821:GRÁFICOS ADICIONALES:
-1822:TRADUCIONES ADICIONALES:
-1823:ESPECIALES GRACIAS A:
-1824:Mapas Multijugador
-1825:Mapas de un solo jugador
-1826:Velocidad de desplazamiento
-1827:Servidores no encontrados
-1828:Pistas aleatorias
-1829:Información de la partida:
-1830:-
-1831:En la Sala
-1832:Cargando
-1833:Jugando
-1834:Localización %d
-1835:Construir y Luchar
-1836:Luchar
-1837:No estoy listo
-1838:Listo
-1839:Error: Por favor seleciona un jugador para tomar el control
-1840:Error: El mapa no se puede cargar o no has seleccionado el mapa
-1841:No se puede iniciar: %s
-1842:Todos deben estar preparados para empezar
-1844:Versión incorrecta: %s. Este juego utiliza la versión: %s
-1845:El servidor te ha asignado como anfitrión
-1846:Aumentar cantidad
-1847:Disminuir cantidad
-1848:Guardado el juego...
-1849:¡%s ha sido derrotado!
-1850:SONIDOS ADICIONALES:
-1851:Caida de jugadores
-1852:El anfitrión dejará caer a los jugadores pasados %d segundos
-1853:El anfitrión permite la caida de estos jugadores
-1854:El Anfitrión (%s) ha abandonado la partida
-1855:La conexión con el servidor se ha perdido. Intentar volver a conectar...
-1856:¿Estás seguro que deseas salir del juego?
-1857:¿Estás seguro de que deseas expulsar de forma permantente a estos jugadores?
-1858:Cancelar
-1859:Civiles|entrenados
-1860:Civiles|Perdidos
-1861:Soldados|equipados
-1862:Soldados|perdidos
-1864:Edificios|construidos
-1865:Edificios|perdidos
-1866:Edificios|destruidos
-1867:Materiales|producidos
-1868:Armas|Produción
-1869:Comerciar este recurso no está disponible en esta misión
-1870:Planta y tala
-1871:Sólo tala
-1872:El juego a comenzado
-1873:Mapa de construcción
-1874:Mapa de lucha
-1875:Mapa cooperativo
-1876:No está permitido hacer eso en tiempos de paz.
-1877:Tiempo de paz restante: %s
-1878:El tiempo de paz se ha terminado. ¡Prepara tus armas!
-1879:Tiempo de juego:|%s
-1880:Opciones de juego:
-1884:Parar tropas ('%s')
-1885:Unir tropas ('%s')
-1886:Separar tropas ('%s')
-1887:Ver Repeticiones
-1888:Ver Repetición
-1889:Tiempo de paz (en minutos)
-1890:Formato no válido %s
-1891:Versión no válida %s
-1893:iniciando
-1895:guión
-1896:Nueva Misión
-1897:Se ha producido un error al analizar el archivo %s
-1898:Closed
-1899:Host does player setup
-1901:units
-1902:houses
-1903:trees
-1904:definitions
-1905:tileset
-2687:Crear Servidor
-2688:ENCONTRAR SERVIDOR
-2689:Conectar
-2690:Encuentra servidor por IP
-2691:Cancelar
-2692:Cancelar
-2693:No soportada
-2694:No soportada
-2695:Error: El nombre no debe tener más %d caracteres de largo
-2696:Error: El nombre del jugador tiene caracteres no permitidos
-2697:Calidad de sombras:
-2698:Bajo
-2699:Alto
-2700:Mapa no encontrado: %s
-2701:El archivo del mapa no corresponde con el del Anfitrión: %s
-2702:Partida guardada no encontrada: %s
-2703:El archivo guardado no coincide con el archivo guardado del Anfitrión: %s
-2705:Por favor, actualice los controladores de gráficos para obtener un mejor rendimiento
-2710:Su nombre: (opcional)
-2711:Su correo electrónico: (opcional)
-2747:MÚSICA ADICIONALES:
+30:Troncos
+31:Piedras
+32:Madera
+33:Mineral de hierro
+34:Mineral de oro
+35:Carbón
+36:Hierro
+37:Oro
+38:Barriles de vino
+39:Grano
+40:Panes
+41:Harina
+42:Cuero
+43:Chorizos
+44:Cerdos
+45:Pieles
+46:Escudo de madera
+47:Escudo de hierro
+48:Armadura de cuero
+49:Armadura de hierro
+50:Hacha de mano
+51:Espada
+52:Lanza
+53:Pica
+54:Arco
+55:Ballesta
+56:Caballos
+57:Peces
+58:Ayudante
+59:Leñador
+60:Minero
+61:Ganadero
+62:Campesino/Viticultor
+63:Carpintero
+64:Panadero/Molinero
+65:Carnicero/Curtidor
+66:Pescador
+67:Albañil
+68:Cantero
+69:Herrero
+70:Fundidor
+71:Recluta
+72:Milicia
+73:Soldado con hacha
+74:Soldado con espada
+75:Arquero
+76:Ballestero
+77:Lancero
+78:Piquero
+79:Vigía
+80:Caballería
+81:Bárbaro
+82:Rebelde
+83:Hondero
+84:Guerrero
+85:Vagabundo
+86:Catapulta
+87:Balista
+88:El ayudante abastece los edificios con las materias necesarias.||Tenga en cuenta que deberá haber un camino construído de casa a casa.
+89:Para abastecer el aserradero con troncos necesita al leñador.||El leñador foresta de nuevo el terreno.
+90:El minero extrae mine- rales de las minas de carbón, de hierro y de oro.
+91:En ganadero cría cerdos y caballos en los criaderos, alimentándolos con cereales.
+92:El campesino siembra y cosecha el grano en el campo.||Además pisa la uva en la viña.
+93:El carpintero trabaja en el aserradero, en el taller de armas y en el taller de armaduras.
+94:El panadero cuece el pan en la panadería.||Además produce harina moliendo el grano en el molino.
+95:El carnicero produce chorizos en la carnicería y cuero en la curtiduría.
+96:El pescador pesca peces en las aguas cercanas.
+97:El albañil construye edificios y calles. Indíquele, situando las marcas en el lugar deseado, donde ha de construír. Además repara los edificios dañados.
+98:Para que los albañiles tengan suficientes piedras para construír calles y edificios, el cantero labra las piedras.
+99:El herrero elabora armaduras pesadas y armas en la herreía de armas y de armaduras.
+100:El fundidor produce hierro, arcas de oro y de hierro.
+101:El recluta en el cuartel es equipado con las armas necesarias para luchar como soldado.||Además ocupa la atalaya.
+102:Construcción
+103:Reparto de materiales
+104:Estadística
+105:Opciones
+106:Volver
+107:Construcción
+108:Reparto de|materiales
+109:Estadística
+110:Opciones
+111:Cargar juego
+112:Guardar juego
+113:¿De veras Vos|deseáis abandonar|a vuestro pueblo?
+114:Finalizar la misión
+115:Volver
+116:Ajustes
+117:Finalizar la misión
+118:Ruidos
+119:Modificar volumen
+120:Modificar volumen
+121:Música
+122:Música si/no.
+123:Autoalmacenar
+124:Canciones
+125:Canción anterior
+126:Próxima canción
+127:Derribar
+128:Derribar edificios/marcas
+129:Construír calle
+130:Construcción de calles
+131:Arar campo
+132:Agricultura
+133:Plantar viñas
+134:Viña
+135:Suspender
+136:Suspender formación actual.
+137:Reservas:
+139:Estado:
+140:Suministra
+141:En construcción.
+142:Derribar
+143:¿De veras Vos deseáis|derribar el edificio?
+144:Derribar edificio seleccionado.
+145:Reducir pedido
+146:Aumentar pedido
+147:Anterior tipo de unidad.
+148:Próximo tipo de unidad.
+149:Equipar unidad actual.
+150:Próximo oficio.
+151:Anterior oficio.
+152:A la cola.
+153:ON/OFF Suministro de mercancías.
+154:Reclutas presentes:
+155:ON/OFF Reparación del edificio.
+156:Edificio no disponible de momento.
+157:Aguante
+158:Girar a la izquierda
+159:Girar a la derecha
+160:¡Asalto! ('a')
+161:Enviar tropa. ('d')
+162:Abastecer con alimentos a la tropa.
+163:Iniciar asalto.
+164:Agregar fila.
+165:Retirar fila.
+166:Elegir|grupo
+167:Interrumpir
+168:Borrar
+169:Borra el mensaje actual.
+170:Mostrar
+171:Te posiciona en el lugar descrito.
+172:Cancelar
+173:Cerrar mensaje.
+174:El cantero ya no puede picar más piedras.
+175:La mina de carbón se ha agotado.
+176:La mina de hierro se ha agotado.
+177:La mina de oro se ha agotado.
+179:Esta casa está desocupada.
+180:Esta tropa está hambrienta, debería comer algo|cuanto antes!
+181:PAUSA
+205:Espíritu
+206:Laboriosos
+207:Cuerno medieval
+208:La Primavera
+209:Laúd
+210:Los Soldados
+211:La princesa
+212:La reina
+213:En el mercado
+214:En el campo
+215:Baile en la corte
+216:El Ejército
+217:En el castillo
+218:Clarines
+219:La corte
+220:Entrada
+221:Azul profundo
+222:Esfuerzo
+223:Sala Real
+224:Aristocracia
+225:En el Puerto
+226:Viaje
+230:Jugar en un mapa simple
+231:Comenzar mapa
+232:Ir al menú
+233:Cargar partida
+234:Multijugador
+235:Opciones
+236:Créditos
+237:Salir
+238:Continuar
+239:Repetir misión
+240:Resolución:
+241:No soportada
+242:No soportada
+243:¡VICTORIA!
+244:¡DERROTA!
+245:Unidades perdidas:
+246:Unidades vencidas:
+247:Edificios perdidos:
+248:Edificios destruidos:
+249:Edificios construídos:
+250:Unidades formadas:
+251:Armas producidas:
+252:Soldados equipados:
+253:Duración del juego:
+256:Civiles|entrenados
+257:Civiles|Perdidos
+258:Soldados|equipados
+259:Soldados|perdidos
+261:Edificios|construidos
+262:Edificios|perdidos
+263:Edificios|destruidos
+264:Materiales|producidos
+265:Armas|Produción
+279:JOYMANIA ENTERTAINMENT||PROGRAMMING:|Peter Ohlmann||INGAME GRAPHICS:|Adam Sprys||LEVELDESIGN:|Adam Sprys|Andre Quaß||INGAME MUSIC:|Gerd Hofmann|Joachim Schäfer|Jürgen Rebhann|Klaus Staendike|Steffen Schüngel||ILLUSTRATIONS:|Boleslaw Kasza|Christoph Werner||ZUXXEZ ENTERTAINMENT AG||PRODUCER:|Uwe Schäfer||MANUAL:|Peter Ohlmann|Uwe Schäfer||BETA TESTING:|Alexandra Constandache|Dirk P. Hassinger|Achim Heidelauf|Uwe Schäfer|Ingrid Schäfer|Dirk U. Jantz|Ion Constandache|Yaman Egeli|Roman Eich|Iris Mocsnek|Anke Jantz|Liza Hassinger|Paul Hassinger||GAMES DIRECTOR:|Achim Heidelauf||CUTSCENES:||Slawomir Jedrzejewski||Kajetan Czarnecki|Wojciech Drazek|Daniel Duplaga|Rafal Januszkiewicz|Andrzej Rams|Piotr Rulka|Krzysztof Rybczynski|Grzegorz Wisniwski||VOICES:|Claus Boyen (Storyteller)||Tim Timmermann|Peter Houska|Dirk Mühlbach|Ralf Ditze|Gerhard Piske|Gernot Wassmann||ARTWORK:|Boleslaw Kasza|Adam Sprys||OPENING ANIMATION:|Uwe Schäfer|Christian Bigalk|ADDITIONAL 3D-MODELLING:|Niels Horstmann||THANKS TO:|Tadeusz Zuber|Dieter Ohlmann|Alexandra Constandache|Ingrid Schäfer
+280:Misión Cancelada
+282:Tutorial de Construción
+283:Tutorial de Batalla
+284:Un Solo Jugador
+285:Editor de mapas
+286:Empezar misión
+287:Nombre
+288:Medida
+289:Condiciones de Victoria:
+290:Condiciones de Derrota:
+291:Alidados:
+292:Enemigos:
+294:Nueva medida de mapa
+295:Anchura
+296:Altura
+297:Crear nuevo mapa
+298:Mapa disponible
+299:Cargar mapa
+301:Controles:
+302:Juego:
+303:Sonido:
+304:Desactivar música
+305:Gráficos:
+306:Brillo
+308:Pantalla completa
+309:Aplicar
+310:Lenguaje:
+311:Calidad de sombras:
+312:Bajo
+313:Alto
+314:Cargando... Por favor espera
+315:Se ha producido un error
+316:Cargando nueva partida local
+317:Lista de partidas guardadas
+318:Nombre de archivo
+319:Descripción
+320:Carga
+321:Borrar
+322:¿Estas seguro de que quieres eliminar la partida guardada?
+323:Eliminar
+324:Cancelar
+328:¡ Victoria !
+329:Continuar Jugando
+330:¡Victoria!
+331:¡Has perdido!
+332:Continuar...
+333:Derrota
+334:La repetición ha terminado
+335:Continuar
+336:Regresar al Menú
+337:No disponible
+338:Presiona %s para continuar el juego
+339:Informacion de jugadores
+340:Chat
+341:Guardar archivo existente
+342:Sobrescribir
+343:Salvar
+344:Cargar
+345:Se ha detectado una versión antigua de OpenGL, el juego puede ejecutarse lentamente y / o con defectos gráficos
+346:Por favor, actualice los controladores de gráficos para obtener un mejor rendimiento
+347:Error en la red:
+348:Error: Nombre del jugador no puede estar en blanco
+349:Error: El nombre no debe tener más %d caracteres de largo
+350:Error: El nombre del jugador tiene caracteres no permitidos
+351:Conexión fallida: %s
+352:Te has desconectado
+353:Misión %d
+355:El pescador no puede pescar tan lejos del agua.
+356:El pescador no puede pescar, no hay más peces en el agua.
+364:Usa el botón izquierdo para selecionar la mercancia a tratar
+365:Usa el botón derecho para selecionar la mercancia a tratar
+366:De x%d
+367:A x%d
+368:Editar terreno
+394:Planificar el pueblo
+395:Códigos visuales
+396:Códigos globales
+397:Menú
+499:Nueva Misión
+500:Nombre de jugador
+501:Estado:
+502:Crear Servidor
+503:CREAR SERVIDOR
+504:Nombre
+505:Puerto
+506:Crear servidor local
+507:Crear servidor en internet
+508:Cancelar
+509:Encuentra servidor por IP
+510:ENCONTRAR SERVIDOR
+511:Dirección
+512:Puerta
+513:Sala
+514:Conectar
+515:Cancelar
+518:Nombre del servidor
+519:Estado
+520:Jugadores
+521:Retraso
+522:Actualizar lista de servidores.
+523:DETALLES DEL SERVIDOR
+524:Lista de jugadores:
+525:Entrar
+526:Conectando. por favor espera...
+527:Cargando Anuncios...
+528:Actualizando...
+529:Lista de jugadores
+530:Empezar localización
+531:Equipo
+532:Color
+533:Listo
+534:Retraso
+536:Abierto
+537:Jugador IA
+538:Seleccionar...
+539:Aleatorio
+540:Ninguno
+541:Guardar Partida
+542:Selecciona un mapa...
+543:Seleciona para guardar...
+544:Salir de la sala
+545:Listo
+546:No estoy listo
+547:¡Empezar!
+561:Localización %d
+562:Error: Por favor seleciona un jugador para tomar el control
+563:Error: El mapa no se puede cargar o no has seleccionado el mapa
+564:No se puede iniciar: %s
+565:Todos deben estar preparados para empezar
+567:El servidor te ha asignado como anfitrión
+568:El juego a comenzado
+569:Mapa de construcción
+570:Mapa de lucha
+571:Mapa cooperativo
+573:Opciones de juego:
+574:Tiempo de paz (en minutos)
+575:Closed
+576:Host does player setup
+577:Esperando a los jugadores:
+580:KaM Remake Créditos
+581:Créditos originales Knights & Merchants
+582:PROGRAMADOR:
+583:PROGRAMADORES ADICIONALES:
+584:GRÁFICOS ADICIONALES:
+585:SONIDOS ADICIONALES:
+586:MÚSICA ADICIONALES:
+587:TRADUCIONES ADICIONALES:
+588:ESPECIALES GRACIAS A:
+589:Mapas Multijugador
+590:Mapas de un solo jugador
+591:Velocidad de desplazamiento
+592:Servidores no encontrados
+593:Pistas aleatorias
+594:Información de la partida:
+595:-
+596:En la Sala
+597:Cargando
+598:Jugando
+599:Construir y Luchar
+600:Luchar
+601:Listo
+602:Versión incorrecta: %s. Este juego utiliza la versión: %s
+603:Aumentar cantidad
+604:Disminuir cantidad
+605:Guardado el juego...
+606:¡%s ha sido derrotado!
+607:Caida de jugadores
+608:El anfitrión dejará caer a los jugadores pasados %d segundos
+609:El anfitrión permite la caida de estos jugadores
+610:El Anfitrión (%s) ha abandonado la partida
+611:La conexión con el servidor se ha perdido. Intentar volver a conectar...
+612:¿Estás seguro que deseas salir del juego?
+613:¿Estás seguro de que deseas expulsar de forma permantente a estos jugadores?
+614:Cancelar
+615:Comerciar este recurso no está disponible en esta misión
+616:Planta y tala
+617:Sólo tala
+618:No está permitido hacer eso en tiempos de paz.
+619:Tiempo de paz restante: %s
+620:El tiempo de paz se ha terminado. ¡Prepara tus armas!
+621:Tiempo de juego:|%s
+622:Parar tropas ('%s')
+623:Unir tropas ('%s')
+624:Separar tropas ('%s')
+625:Ver Repeticiones
+626:Ver Repetición
+627:Formato no válido %s
+628:Versión no válida %s
+630:Se ha producido un error al analizar el archivo %s
+631:iniciando
+632:guión
+633:units
+634:houses
+635:trees
+636:definitions
+637:tileset
+638:Mapa no encontrado: %s
+639:Partida guardada no encontrada: %s
+640:El archivo del mapa no corresponde con el del Anfitrión: %s
+641:El archivo guardado no coincide con el archivo guardado del Anfitrión: %s
+652:Su nombre: (opcional)
+653:Su correo electrónico: (opcional)

@@ -1,5 +1,5 @@
 
-MaxID:2957
+MaxID:667
 
 0:Sagbruk
 1:Jernsmed
@@ -31,479 +31,479 @@ MaxID:2957
 27:Vertshus
 28:Vingård
 29:Markedsplass
-39:Trestammer
-40:Steiner
-41:Treplanker
-42:Jernmalm
-43:Gullmalm
-44:Kull
-45:Jern
-46:Gull
-47:Vintønner
-48:Korn
-49:Brød
-50:Mel
-51:Lær
-52:Pølser
-53:Griser
-54:Skinn
-55:Treskjold
-56:Jernskjold
-57:Lærrustninger
-58:Jernrustninger
-59:Håndøkser
-60:Sverd
-61:Lanser
-62:Piker
-63:Langbuer
-64:Armbrøster
-65:Hester
+30:Trestammer
+31:Steiner
+32:Treplanker
+33:Jernmalm
+34:Gullmalm
+35:Kull
+36:Jern
+37:Gull
+38:Vintønner
+39:Korn
+40:Brød
+41:Mel
+42:Lær
+43:Pølser
+44:Griser
+45:Skinn
+46:Treskjold
+47:Jernskjold
+48:Lærrustninger
+49:Jernrustninger
+50:Håndøkser
+51:Sverd
+52:Lanser
+53:Piker
+54:Langbuer
+55:Armbrøster
+56:Hester
+57:Fisker
+58:Trell
+59:Tømmerhogger
+60:Gruvearbeider
+61:Dyreoppdretter
+62:Bonde
+63:Snekker
+64:Baker
+65:Slakter
 66:Fisker
-69:Trell
-70:Tømmerhogger
-71:Gruvearbeider
-72:Dyreoppdretter
-73:Bonde
-74:Snekker
-75:Baker
-76:Slakter
-77:Fisker
-78:Bygger
-79:Steinhugger
-80:Smed
-81:Metallurg
-82:Rekrutt
-83:Milits
-84:Øksekriger
-85:Sverdkjemper
-86:Bueskytter
-87:Armbrøstskytter
-88:Lansebærer
-89:Pikenér
-90:Speider
-91:Ridder
-92:Barbar
-93:Rebell
-94:Skurk
-95:Kriger
-96:Vagabond
-97:Katapult
-98:Ballista
-99:Trellen transporterer nødvendig råmateriale til bygningene dine.||Noter at det må finnes en vei mellom bygningene.
-100:For å produsere trestammer for treverket, trenger du tømmerhoggeren.||Han planter også nye trær på egen hånd.
-101:Gruvearbeideren utvinner malm fra kull-, jern- og gullgruvene.
-102:Dyreoppdretteren bruker korn for å ale opp griser på svinefarmen og hester i stallen.
-103:Bonden sår og høster korn på gårdsbruket.||Han produserer også vin på vingården.
-104:Snekkeren jobber i sagbruket, våpenverkstedet og rustningsverkstedet.||Han bygger også katapulter og ballistaer i beleiringsverkstedet.
-105:Bakeren maler korn til mel i møllen.||Han baker også brød i bakeriet.
-106:Slakteren lager pølser i slakteriet og lær i garveriet.
-107:Fiskeren fanger fisk i nærliggende vassdrag.
-108:Byggeren bygger bygninger og veier. Han utfører dette automatisk så snart du har plassert dem.||Han kan også reparere skadde bygninger.
-109:For å forsyne byggerne dine med nok materiale til å bygge veier og bygninger, så hugger og former steinhuggeren stein.
-110:Smeden smir jernvåpen og jernrustninger i de respektive smiene.
-111:Metallurgen bruker kull for å raffinere gull- og jernmalm.
-112:Rekrutten kan bli utstyrt som en soldat i brakken.||Han bemanner også vakttårnet.
-147:Til valg av bygninger
-148:Til distribusjon av varer
-149:Til statistikk
-150:Til innstillinger
-151:Tilbake
-152:Bygningsvalg
-153:Distribusjon av varer
-154:Statistikk
-155:Innstillinger
-156:Last spill
-157:Lagre spill
-158:Er du sikker på at du vil avslutte dette oppdraget?
-159:Avslutt oppdrag
-160:Tilbake
-161:Innstillinger
-162:Avslutt oppdrag
-163:SFX
-164:Endre volum
-165:Musikk
-166:Musikk på/av
-167:Autolagring
-168:Musikkspiller
-169:Forrige spor
-170:Neste spor
-171:Riv
-172:Fjern bygninger/utvalg
-173:Bygg vei
-174:Bygg veier
-175:Pløy åker
-176:Pløy åkre
-177:Plasser vinranke
-178:Plasser vinranker
-179:Avbryt
-180:Avbryt gjeldende trening
-181:Behøver:
-182:Tilstand:
-183:Leverer
-184:Hus under oppbygging
-185:Riv
-186:Ønsker du virkelig å ødelegge denne bygningen?
-187:Riv valgt bygning
-188:Reduser bestilling
-189:Øk bestilling
-190:Forrige soldattype
-191:Neste soldattype
-192:Utstyr gjeldende soldattype
-193:Neste yrke
-194:Forrige yrke
-195:Legg til kø
-196:Kostnad:
-197:Skru på/av reparasjoner
-198:Bygningen er ikke tilgjengelig på dette tidspunktet
-199:Tilstand
-200:Vend til venstre
-201:Vend til høyre
-202:Angrip ('a')
-203:Send ut tropp ('d')
-204:Gi mat til troppen
-205:Start stormangrep
-206:Legg til linje
-207:Trekk tilbake linje
-208:Velg gruppe
-209:Avbryt
-210:Fjern
-211:Fjerner gjeldende melding
-212:Gå til
-213:Hopper til gjeldende meldingsposisjon
-214:Lukk
-215:Lukker vinduet
-216:Steinhuggeren din kan ikke få tak i mer stein.
-217:En kullåre er tømt.
-218:En jernåre er tømt.
-219:En gullåre er tømt.
-220:Dette huset er ikke bebodd.
-221:Denne troppen er utsultet, de burde virkelig få seg noe å spise snart!
-222:PAUSE
-223:Endre volum
-224:Skru på/av leveranser
-418:Ånd
-419:Travel
-420:Middelalderhorn
-421:Våren
-422:Lutt
-423:Leiesoldatene
-424:Prinsessen
-425:Dronningen
-426:På markedsplassen
-427:På slagmarken
-428:Dans ved hoffet
-429:Hæren
-430:På slottet
-431:Fanfarer
-432:Ved hoffet
-433:Entree
-434:Dyp blå
-435:Kamp
-436:Kongelige værelser
-437:Aristokrati
-438:Ved havnen
-439:Ferd
-849:Spill ett enkelt kart
-850:Start kart
-851:Tilbake til meny
-852:Last lagret spill
-853:Flere spillere
-854:Innstillinger
-855:Skapere
-856:Avslutt spill
-857:Fortsett
-858:Start oppdrag på nytt
-859:Oppløsning:
-860:SEIER!
-861:TAP!
-862:Enheter tapt:
-863:Enheter beseiret:
-864:Bygninger tapt:
-865:Bygninger ødelagt:
-866:Bygninger bygget:
-867:Enheter trent:
-868:Våpen produsert:
-869:Soldater trent:
-870:Oppdrag fullført på:
-1000:JOYMANIA ENTERTAINMENT||PROGRAMMERING:|Peter Ohlmann||SPILLGRAFIKK:|Adam Sprys||BANE-DESIGN:|Adam Sprys|André Quaß||LYDREDIGERING OG MIKSING:|Tonstudio Mannheim||MUSIKK:|Gerd Hofmann|Joachim Schäfer|Jürgen Rebhann|Klaus Staendike|Steffen Schüngel||ILLUSTRASJONER:|Boleslaw Kasza|Christoph Werner||OVERSETTELSER:|Ronnie Shankland|Patricia Bellantuono|Andrea Rumpelt|||ZUXXEZ ENTERTAINMENT AG||PRODUSENT:|Uwe Schäfer||HÅNDBOK:|Peter Ohlmann|Uwe Schäfer||BETA-TESTING:|Peter Ohlmann|Adam Sprys|Alexandra Constandache|Dirk P. Hassinger|Achim Heidelauf|Uwe Schäfer|Ingrid Schäfer|Dirk U. Jantz|Ion Constandache|Yaman Egeli|Roman Eich|Iris Mocsnek|Anke Jantz|Paul Hassinger|Liza Hassinger||SPILLREGISSØR:|Achim Heidelauf||UTGITT AV:|TopWare Interactive||MELLOMSEKVENSER:||REGISSØR:|Slawomir Jedrzejewski||Kajetan Czarnecki|Wojciech Drazek|Daniel Duplaga|Rafal Januszkiewicz|Andrzej Rams|Piotr Rulka|Krzysztof Rybczynski|Grzegorz Wisniewski||STEMMER:|Claus Boyen (Fortelleren)||Tim Timmermann|Peter Houska|Dirk Mühlbach|Ralf Ditze|Gerhard Piske|Gernot Wassmann||KUNSTVERK:|Boleslaw Kasza|Adam Sprys||ÅPNINGSANIMASJON:|Uwe Schäfer|Christian Bigalk|Ytterligere 3D-Modellering:|Niels Horstmann||SPESIELL TAKK TIL:|Tadeusz Zuber|Dieter Ohlmann|Alexandra Constandache|Ingrid Schäfer
-1686:Oppdrag avbrutt
-1687:Byveiledning
-1688:Kampveiledning
-1689:En spiller
-1690:Kartredigering
-1692:Start oppdrag
-1693:Tittel
-1694:Størrelse
-1696:Seiersvilkår:
-1697:Tapsvilkår:
-1698:Allierte:
-1699:Fiender:
-1701:Ny kartstørrelse
-1702:Bredde
-1703:Høyde
-1704:Lag nytt kart
-1705:Tilgjengelige kart
-1706:Last eksisterende kart
-1707:Kontroller:
-1708:Spillinnstillinger:
-1709:Lyd:
-1710:Slå av musikk
-1711:Grafikk:
-1712:Lysstyrke
-1713:Fullskjerm
-1714:Bruk
-1715:Språk:
-1716:Laster... Vennligst vent
-1717:Det har oppstått et problem!
-1718:Laster nye regionaldata
-1719:Liste over lagrede spill
-1720:Filnavn
-1721:Beskrivelse
-1722:Last
-1723:Slett
-1724:Er du sikker på at du ønsker å slette dette lagrede spillet?
-1725:Slett
-1726:Avbryt
-1728:Du vant!
-1729:Fortsett å spille
-1730:Seier!
-1731:Du har tapt!
-1732:Fortsett å se på
-1733:Tap
-1734:Gjenvisningen har avsluttet
-1735:Fortsett å se på
-1736:Avslutt
-1737:Ikke tilgjengelig
-1738:Trykk %s for å fortsette spillet
-1740:Spillerinfo
-1741:Chat
-1742:Spillet finnes allerede
-1743:Erstatt
-1744:Lagre
-1745:Last
-1748:Gammel OpenGL-versjon oppdaget, spillet kan kjøre sakte og/eller med grafiske mangler
-1749:Nettverksfeil:
-1750:Feil: Spillernavn kan ikke være blankt
-1751:Tilkobling mislyktes: %s
-1752:Du har blitt frakoblet
-1753:Oppdrag %d
-1754:Fiskerhytten din er for langt unna vannet.
-1755:Fiskeren din kan ikke fange mer fisk i de nærliggende vassdragene.
-1757:Bruk den venstre museknappen for å velge en vare å handle med
-1758:Bruk den høyre museknappen for å velge en vare å handle med
-1759:Fra x%d
-1760:Til x%d
-1761:Terrengredigering
-1762:Byplanlegging
-1763:Visuelle script
-1764:Global scripting
-1765:Meny
-1766:Status:
-1767:Spillernavn
-1768:OPPRETT SERVER
-1769:Navn
-1770:Port
-1771:Opprett server lokalt
-1772:Opprett server på internett
-1773:Servernavn
-1774:Tilstand
-1775:Spillere
-1776:Ping
-1777:Oppdater serverliste
-1778:SERVERDETALJER
-1779:Spillerliste:
-1780:Adresse
-1781:Port
-1782:Rom
-1783:Bli med
-1784:Kobler til, vennligst vent...
-1785:Laster meldinger...
-1786:Oppdaterer...
-1787:Spillerliste
-1788:Startplassering
-1789:Lag
-1790:Farge
-1791:Klar
-1792:Ping
-1794:Åpen
-1795:AI-spiller
-1796:Velg...
-1797:Tilfeldig
-1799:Ingen
-1805:Spill lagret
-1806:Velg et kart...
-1807:Velg et lagret spill...
-1813:Forlat lobbyen
-1814:Klar
-1815:Start!
-1816:Venter på spillere:
-1817:Skapere av KaM Remake
-1818:Skapere av det originale Knights & Merchants
-1819:PROGRAMMERING:
-1820:YTTERLIGERE PROGRAMMERING:
-1821:YTTERLIGERE GRAFIKK:
-1822:YTTERLIGERE OVERSETTELSER:
-1823:SPESIELL TAKK TIL:
-1824:Flerspillerkart
-1825:Enspillerkart
-1826:Scrollhastighet
-1827:Ingen servere funnet
-1828:Bland spor
-1829:Spillinformasjon:
-1830:-
-1831:Lobby
-1832:Laster
-1833:Spill
-1834:Sted %d
-1835:Bygging og striding
-1836:Striding
-1837:Ikke klar
-1838:Klar
-1839:Feil: Vennligst velg en spiller fra det lagrede spillet å kontrollere
-1840:Feil: Kartet mislyktes i å laste, ellers er intet kart valgt
-1841:Kan ikke starte: %s
-1842:Ikke alle er klar til å starte
-1844:Feil protokollversjon: %s. Serveren bruker: %s
-1845:Serveren har gitt vertsrettigheter til oss
-1846:Øk handelsmengde
-1847:Reduser handelsmengde
-1848:Lagrer spill...
-1849:%s ble beseiret!
-1850:YTTERLIGERE LYDER:
-1851:Kast ut spillere
-1852:Verten vil kunne kaste ut disse spillerne etter %d sekunder
-1853:Verten kan nå kaste ut disse spillerne
-1854:Verten (%s) har forlatt spillet
-1855:Mistet forbindelsen med serveren. Forsøker å koble til på nytt...
-1856:Er du sikker på at du ønsker å avslutte?
-1857:Er du sikker på at du ønsker å permanent kaste ut disse spillerne?
-1858:Avbryt
-1859:Borgere|trent
-1860:Borgere|tapt
-1861:Soldater|utrustet
-1862:Soldater|tapt
-1864:Bygninger|bygget
-1865:Bygninger|tapt
-1866:Bygninger|ødelagt
-1867:Varer|produsert
-1868:Våpen|produsert
-1869:Det er ikke mulig å handle med denne ressursen i dette oppdraget
-1870:Plant og fell
-1871:Bare fell
-1872:Spill startet
-1873:Byggekart
-1874:Stridskart
-1875:Samarbeidskart
-1876:Du har ikke lov til å gjøre det i løpet av fredstiden
-1877:Gjenværende fredstid: %s
-1878:Fredstiden er over. Til våpen!
-1879:Spilltid:|%s
-1880:Spillinnstillinger:
-1884:Stans troppen ('%s')
-1885:Slå sammen tropper ('%s')
-1886:Separer troppen ('%s')
-1887:Gjenvisninger
-1888:Se gjenvisning
-1889:Fredstid (minutter)
-1890:Ingen støtte for format %s
-1891:Feilaktig versjon %s
-1893:initierer
-1895:script
-1896:Nytt oppdrag
-1897:En feil oppstod når filen %s skulle behandles
-1898:Stengt
-1899:Verten ordner spilleroppsettet
-1901:enheter
-1902:hus
-1903:trær
-1904:definisjoner
-1905:terrengstekstur
-2687:Opprett server
-2688:FINN SERVER
-2689:Finn
-2690:Finn server via IP
-2691:Avbryt
-2692:Avbryt
-2693:Støttes ikke
-2694:Støttes ikke
-2695:Feil: Spillernavn kan ikke være mer enn %d tegn langt
-2696:Feil: Spillernavn inneholder ugyldige tegn
-2697:Skyggekvalitet:
-2698:Lav
-2699:Høy
-2700:Kart ikke funnet: %s
-2701:Kartfilene samsvarer ikke med vertens for kartet: %s
-2702:Lagret spill finnes ikke: %s
-2703:Lagringsfilen samsvarer ikke vertens for det lagrede spillet: %s
-2705:Vennligst oppdater dine grafikkdrivere for å oppnå bedre ytelse
-2706:En feil oppstod i programmet. Vennligst klikk Send feilrapport slik at vi kan undersøke problemet. Takk for hjelpen!
-2707:Send feilrapport
-2708:Vis rådata
-2709:Gjenvisningen feilet en samsvarssjekk. Dette er en kjent feil som påvirker avspilling av noen gjenvisninger. Vil du fortsette å se på?
-2710:Navnet ditt: (valgfritt)
-2711:Din e-post: (valgfritt)
-2712:Husk meg
-2713:I hva for slags situasjon oppstod feilen? Kan du gi noen ytterligere informasjon? (Engelsk foretrekkes)
-2714:Legg et skjermbilde sammen med feilrapporten
-2715:(klikk for å redigere bildet)
-2716:Avslutt programmet
-2717:Fortsett programmet
-2718:Neste
-2719:Send rapport
-2720:Avbryt
-2721:Kontaktinfo
-2722:Feildetaljer
-2723:Skjermbilde
-2724:Sender feilrapport...
-2725:Kobler til server...
-2726:Sender data...
-2727:Sending av feilrapporten feilet! Serveren vår kan være opptatt, vennligst forsøk å sende den på nytt.
-2728:Informasjon
-2729:Vennligst vent et øyeblikk...
-2730:Kampanjer
-2732:Start kampanje!
-2734:Soldater|beseiret
-2736:Tittel
-2737:Kart
-2738:Låst opp
-2739:Tid
-2740:Start gjenvisning på nytt
-2741:Avslutt gjenvisning
-2742:Fortsett pauset gjenvisning
-2743:Gå 1 tikk framover
-2744:Sett gjenvisning på pause
-2745:Du kan kun ha en instans av spillet i flerspillermodus samtidig
-2746:Gjenvisning avsluttet
-2747:YTTERLIGERE MUSIKK:
-2748:Du
-2749:Spiller %d
-2750:Hær
-2751:Borgere
-2752:Hus
-2753:Ressurser
-2754:Ressurser produsert
-2755:Statistikk
-2756:Økonomi
-2757:Bygger hus
-2758:Flater ut tomt
-2759:Bygger vinranke
-2760:Graver åker
-2761:Bygger vei
-2762:Leverer
-2763:Planter tre
-2764:Drar hjem
-2765:Reparerer hus
-2766:Kjemper
-2767:Avfyrer
-2768:Angriper hus
-2769:Drar til vertshuset
-2770:Hogger tre
-2771:Hviler
-2772:Beveger seg
-2773:Stormangrep
-2774:Fisker
-2775:Høster druer
-2776:Høster korn
-2777:Sår korn
-2778:Hogger stein
-2779:Angriper
+67:Bygger
+68:Steinhugger
+69:Smed
+70:Metallurg
+71:Rekrutt
+72:Milits
+73:Øksekriger
+74:Sverdkjemper
+75:Bueskytter
+76:Armbrøstskytter
+77:Lansebærer
+78:Pikenér
+79:Speider
+80:Ridder
+81:Barbar
+82:Rebell
+83:Skurk
+84:Kriger
+85:Vagabond
+86:Katapult
+87:Ballista
+88:Trellen transporterer nødvendig råmateriale til bygningene dine.||Noter at det må finnes en vei mellom bygningene.
+89:For å produsere trestammer for treverket, trenger du tømmerhoggeren.||Han planter også nye trær på egen hånd.
+90:Gruvearbeideren utvinner malm fra kull-, jern- og gullgruvene.
+91:Dyreoppdretteren bruker korn for å ale opp griser på svinefarmen og hester i stallen.
+92:Bonden sår og høster korn på gårdsbruket.||Han produserer også vin på vingården.
+93:Snekkeren jobber i sagbruket, våpenverkstedet og rustningsverkstedet.||Han bygger også katapulter og ballistaer i beleiringsverkstedet.
+94:Bakeren maler korn til mel i møllen.||Han baker også brød i bakeriet.
+95:Slakteren lager pølser i slakteriet og lær i garveriet.
+96:Fiskeren fanger fisk i nærliggende vassdrag.
+97:Byggeren bygger bygninger og veier. Han utfører dette automatisk så snart du har plassert dem.||Han kan også reparere skadde bygninger.
+98:For å forsyne byggerne dine med nok materiale til å bygge veier og bygninger, så hugger og former steinhuggeren stein.
+99:Smeden smir jernvåpen og jernrustninger i de respektive smiene.
+100:Metallurgen bruker kull for å raffinere gull- og jernmalm.
+101:Rekrutten kan bli utstyrt som en soldat i brakken.||Han bemanner også vakttårnet.
+102:Til valg av bygninger
+103:Til distribusjon av varer
+104:Til statistikk
+105:Til innstillinger
+106:Tilbake
+107:Bygningsvalg
+108:Distribusjon av varer
+109:Statistikk
+110:Innstillinger
+111:Last spill
+112:Lagre spill
+113:Er du sikker på at du vil avslutte dette oppdraget?
+114:Avslutt oppdrag
+115:Tilbake
+116:Innstillinger
+117:Avslutt oppdrag
+118:SFX
+119:Endre volum
+120:Endre volum
+121:Musikk
+122:Musikk på/av
+123:Autolagring
+124:Musikkspiller
+125:Forrige spor
+126:Neste spor
+127:Riv
+128:Fjern bygninger/utvalg
+129:Bygg vei
+130:Bygg veier
+131:Pløy åker
+132:Pløy åkre
+133:Plasser vinranke
+134:Plasser vinranker
+135:Avbryt
+136:Avbryt gjeldende trening
+137:Behøver:
+139:Tilstand:
+140:Leverer
+141:Hus under oppbygging
+142:Riv
+143:Ønsker du virkelig å ødelegge denne bygningen?
+144:Riv valgt bygning
+145:Reduser bestilling
+146:Øk bestilling
+147:Forrige soldattype
+148:Neste soldattype
+149:Utstyr gjeldende soldattype
+150:Neste yrke
+151:Forrige yrke
+152:Legg til kø
+153:Skru på/av leveranser
+154:Kostnad:
+155:Skru på/av reparasjoner
+156:Bygningen er ikke tilgjengelig på dette tidspunktet
+157:Tilstand
+158:Vend til venstre
+159:Vend til høyre
+160:Angrip ('a')
+161:Send ut tropp ('d')
+162:Gi mat til troppen
+163:Start stormangrep
+164:Legg til linje
+165:Trekk tilbake linje
+166:Velg gruppe
+167:Avbryt
+168:Fjern
+169:Fjerner gjeldende melding
+170:Gå til
+171:Hopper til gjeldende meldingsposisjon
+172:Lukk
+173:Lukker vinduet
+174:Steinhuggeren din kan ikke få tak i mer stein.
+175:En kullåre er tømt.
+176:En jernåre er tømt.
+177:En gullåre er tømt.
+179:Dette huset er ikke bebodd.
+180:Denne troppen er utsultet, de burde virkelig få seg noe å spise snart!
+181:PAUSE
+182:Leverer
+183:Bygger vei
+184:Graver åker
+185:Bygger vinranke
+186:Flater ut tomt
+187:Bygger hus
+188:Reparerer hus
+189:Drar hjem
+190:Drar til vertshuset
+191:Angriper hus
+192:Avfyrer
+193:Kjemper
+194:Stormangrep
+195:Angriper
+196:Beveger seg
+197:Hviler
+198:Hogger stein
+199:Sår korn
+200:Høster korn
+201:Høster druer
+202:Fisker
+203:Hogger tre
+204:Planter tre
+205:Ånd
+206:Travel
+207:Middelalderhorn
+208:Våren
+209:Lutt
+210:Leiesoldatene
+211:Prinsessen
+212:Dronningen
+213:På markedsplassen
+214:På slagmarken
+215:Dans ved hoffet
+216:Hæren
+217:På slottet
+218:Fanfarer
+219:Ved hoffet
+220:Entree
+221:Dyp blå
+222:Kamp
+223:Kongelige værelser
+224:Aristokrati
+225:Ved havnen
+226:Ferd
+227:Kampanjer
+229:Start kampanje!
+230:Spill ett enkelt kart
+231:Start kart
+232:Tilbake til meny
+233:Last lagret spill
+234:Flere spillere
+235:Innstillinger
+236:Skapere
+237:Avslutt spill
+238:Fortsett
+239:Start oppdrag på nytt
+240:Oppløsning:
+241:Støttes ikke
+242:Støttes ikke
+243:SEIER!
+244:TAP!
+245:Enheter tapt:
+246:Enheter beseiret:
+247:Bygninger tapt:
+248:Bygninger ødelagt:
+249:Bygninger bygget:
+250:Enheter trent:
+251:Våpen produsert:
+252:Soldater trent:
+253:Oppdrag fullført på:
+254:Statistikk
+255:Økonomi
+256:Borgere|trent
+257:Borgere|tapt
+258:Soldater|utrustet
+259:Soldater|tapt
+260:Soldater|beseiret
+261:Bygninger|bygget
+262:Bygninger|tapt
+263:Bygninger|ødelagt
+264:Varer|produsert
+265:Våpen|produsert
+266:Hær
+267:Borgere
+268:Hus
+269:Ressurser
+270:Ressurser produsert
+272:Du
+273:Spiller %d
+279:JOYMANIA ENTERTAINMENT||PROGRAMMERING:|Peter Ohlmann||SPILLGRAFIKK:|Adam Sprys||BANE-DESIGN:|Adam Sprys|André Quaß||LYDREDIGERING OG MIKSING:|Tonstudio Mannheim||MUSIKK:|Gerd Hofmann|Joachim Schäfer|Jürgen Rebhann|Klaus Staendike|Steffen Schüngel||ILLUSTRASJONER:|Boleslaw Kasza|Christoph Werner||OVERSETTELSER:|Ronnie Shankland|Patricia Bellantuono|Andrea Rumpelt|||ZUXXEZ ENTERTAINMENT AG||PRODUSENT:|Uwe Schäfer||HÅNDBOK:|Peter Ohlmann|Uwe Schäfer||BETA-TESTING:|Peter Ohlmann|Adam Sprys|Alexandra Constandache|Dirk P. Hassinger|Achim Heidelauf|Uwe Schäfer|Ingrid Schäfer|Dirk U. Jantz|Ion Constandache|Yaman Egeli|Roman Eich|Iris Mocsnek|Anke Jantz|Paul Hassinger|Liza Hassinger||SPILLREGISSØR:|Achim Heidelauf||UTGITT AV:|TopWare Interactive||MELLOMSEKVENSER:||REGISSØR:|Slawomir Jedrzejewski||Kajetan Czarnecki|Wojciech Drazek|Daniel Duplaga|Rafal Januszkiewicz|Andrzej Rams|Piotr Rulka|Krzysztof Rybczynski|Grzegorz Wisniewski||STEMMER:|Claus Boyen (Fortelleren)||Tim Timmermann|Peter Houska|Dirk Mühlbach|Ralf Ditze|Gerhard Piske|Gernot Wassmann||KUNSTVERK:|Boleslaw Kasza|Adam Sprys||ÅPNINGSANIMASJON:|Uwe Schäfer|Christian Bigalk|Ytterligere 3D-Modellering:|Niels Horstmann||SPESIELL TAKK TIL:|Tadeusz Zuber|Dieter Ohlmann|Alexandra Constandache|Ingrid Schäfer
+280:Oppdrag avbrutt
+281:Gjenvisning avsluttet
+282:Byveiledning
+283:Kampveiledning
+284:En spiller
+285:Kartredigering
+286:Start oppdrag
+287:Tittel
+288:Størrelse
+289:Seiersvilkår:
+290:Tapsvilkår:
+291:Allierte:
+292:Fiender:
+293:Tid
+294:Ny kartstørrelse
+295:Bredde
+296:Høyde
+297:Lag nytt kart
+298:Tilgjengelige kart
+299:Last eksisterende kart
+301:Kontroller:
+302:Spillinnstillinger:
+303:Lyd:
+304:Slå av musikk
+305:Grafikk:
+306:Lysstyrke
+308:Fullskjerm
+309:Bruk
+310:Språk:
+311:Skyggekvalitet:
+312:Lav
+313:Høy
+314:Laster... Vennligst vent
+315:Det har oppstått et problem!
+316:Laster nye regionaldata
+317:Liste over lagrede spill
+318:Filnavn
+319:Beskrivelse
+320:Last
+321:Slett
+322:Er du sikker på at du ønsker å slette dette lagrede spillet?
+323:Slett
+324:Avbryt
+325:Tittel
+326:Kart
+327:Låst opp
+328:Du vant!
+329:Fortsett å spille
+330:Seier!
+331:Du har tapt!
+332:Fortsett å se på
+333:Tap
+334:Gjenvisningen har avsluttet
+335:Fortsett å se på
+336:Avslutt
+337:Ikke tilgjengelig
+338:Trykk %s for å fortsette spillet
+339:Spillerinfo
+340:Chat
+341:Spillet finnes allerede
+342:Erstatt
+343:Lagre
+344:Last
+345:Gammel OpenGL-versjon oppdaget, spillet kan kjøre sakte og/eller med grafiske mangler
+346:Vennligst oppdater dine grafikkdrivere for å oppnå bedre ytelse
+347:Nettverksfeil:
+348:Feil: Spillernavn kan ikke være blankt
+349:Feil: Spillernavn kan ikke være mer enn %d tegn langt
+350:Feil: Spillernavn inneholder ugyldige tegn
+351:Tilkobling mislyktes: %s
+352:Du har blitt frakoblet
+353:Oppdrag %d
+355:Fiskerhytten din er for langt unna vannet.
+356:Fiskeren din kan ikke fange mer fisk i de nærliggende vassdragene.
+357:Start gjenvisning på nytt
+358:Sett gjenvisning på pause
+359:Gå 1 tikk framover
+360:Fortsett pauset gjenvisning
+361:Avslutt gjenvisning
+364:Bruk den venstre museknappen for å velge en vare å handle med
+365:Bruk den høyre museknappen for å velge en vare å handle med
+366:Fra x%d
+367:Til x%d
+368:Terrengredigering
+394:Byplanlegging
+395:Visuelle script
+396:Global scripting
+397:Meny
+499:Nytt oppdrag
+500:Spillernavn
+501:Status:
+502:Opprett server
+503:OPPRETT SERVER
+504:Navn
+505:Port
+506:Opprett server lokalt
+507:Opprett server på internett
+508:Avbryt
+509:Finn server via IP
+510:FINN SERVER
+511:Adresse
+512:Port
+513:Rom
+514:Finn
+515:Avbryt
+518:Servernavn
+519:Tilstand
+520:Spillere
+521:Ping
+522:Oppdater serverliste
+523:SERVERDETALJER
+524:Spillerliste:
+525:Bli med
+526:Kobler til, vennligst vent...
+527:Laster meldinger...
+528:Oppdaterer...
+529:Spillerliste
+530:Startplassering
+531:Lag
+532:Farge
+533:Klar
+534:Ping
+536:Åpen
+537:AI-spiller
+538:Velg...
+539:Tilfeldig
+540:Ingen
+541:Spill lagret
+542:Velg et kart...
+543:Velg et lagret spill...
+544:Forlat lobbyen
+545:Klar
+546:Ikke klar
+547:Start!
+561:Sted %d
+562:Feil: Vennligst velg en spiller fra det lagrede spillet å kontrollere
+563:Feil: Kartet mislyktes i å laste, ellers er intet kart valgt
+564:Kan ikke starte: %s
+565:Ikke alle er klar til å starte
+567:Serveren har gitt vertsrettigheter til oss
+568:Spill startet
+569:Byggekart
+570:Stridskart
+571:Samarbeidskart
+573:Spillinnstillinger:
+574:Fredstid (minutter)
+575:Stengt
+576:Verten ordner spilleroppsettet
+577:Venter på spillere:
+580:Skapere av KaM Remake
+581:Skapere av det originale Knights & Merchants
+582:PROGRAMMERING:
+583:YTTERLIGERE PROGRAMMERING:
+584:YTTERLIGERE GRAFIKK:
+585:YTTERLIGERE LYDER:
+586:YTTERLIGERE MUSIKK:
+587:YTTERLIGERE OVERSETTELSER:
+588:SPESIELL TAKK TIL:
+589:Flerspillerkart
+590:Enspillerkart
+591:Scrollhastighet
+592:Ingen servere funnet
+593:Bland spor
+594:Spillinformasjon:
+595:-
+596:Lobby
+597:Laster
+598:Spill
+599:Bygging og striding
+600:Striding
+601:Klar
+602:Feil protokollversjon: %s. Serveren bruker: %s
+603:Øk handelsmengde
+604:Reduser handelsmengde
+605:Lagrer spill...
+606:%s ble beseiret!
+607:Kast ut spillere
+608:Verten vil kunne kaste ut disse spillerne etter %d sekunder
+609:Verten kan nå kaste ut disse spillerne
+610:Verten (%s) har forlatt spillet
+611:Mistet forbindelsen med serveren. Forsøker å koble til på nytt...
+612:Er du sikker på at du ønsker å avslutte?
+613:Er du sikker på at du ønsker å permanent kaste ut disse spillerne?
+614:Avbryt
+615:Det er ikke mulig å handle med denne ressursen i dette oppdraget
+616:Plant og fell
+617:Bare fell
+618:Du har ikke lov til å gjøre det i løpet av fredstiden
+619:Gjenværende fredstid: %s
+620:Fredstiden er over. Til våpen!
+621:Spilltid:|%s
+622:Stans troppen ('%s')
+623:Slå sammen tropper ('%s')
+624:Separer troppen ('%s')
+625:Gjenvisninger
+626:Se gjenvisning
+627:Ingen støtte for format %s
+628:Feilaktig versjon %s
+630:En feil oppstod når filen %s skulle behandles
+631:initierer
+632:script
+633:enheter
+634:hus
+635:trær
+636:definisjoner
+637:terrengstekstur
+638:Kart ikke funnet: %s
+639:Lagret spill finnes ikke: %s
+640:Kartfilene samsvarer ikke med vertens for kartet: %s
+641:Lagringsfilen samsvarer ikke vertens for det lagrede spillet: %s
+642:Gjenvisningen feilet en samsvarssjekk. Dette er en kjent feil som påvirker avspilling av noen gjenvisninger. Vil du fortsette å se på?
+643:Du kan kun ha en instans av spillet i flerspillermodus samtidig
+645:En feil oppstod i programmet. Vennligst klikk Send feilrapport slik at vi kan undersøke problemet. Takk for hjelpen!
+646:Send feilrapport
+647:Vis rådata
+648:Fortsett programmet
+649:Avslutt programmet
+650:Neste
+651:Kontaktinfo
+652:Navnet ditt: (valgfritt)
+653:Din e-post: (valgfritt)
+654:Husk meg
+655:Feildetaljer
+656:I hva for slags situasjon oppstod feilen? Kan du gi noen ytterligere informasjon? (Engelsk foretrekkes)
+657:Skjermbilde
+658:Legg et skjermbilde sammen med feilrapporten
+659:(klikk for å redigere bildet)
+660:Send rapport
+661:Avbryt
+662:Sender feilrapport...
+663:Kobler til server...
+664:Sender data...
+665:Sending av feilrapporten feilet! Serveren vår kan være opptatt, vennligst forsøk å sende den på nytt.
+666:Informasjon
+667:Vennligst vent et øyeblikk...

@@ -1,5 +1,5 @@
 
-MaxID:2957
+MaxID:667
 
 0:Scierie
 1:Fonderie
@@ -31,481 +31,481 @@ MaxID:2957
 27:Auberge
 28:Chai
 29:Place du Marché
-39:Tronc d'Arbre
-40:Pierre
-41:Planche
-42:Minerai de Fer
-43:Minerai d'Or
-44:Charbon
-45:Fer
-46:Caisse d'Or
-47:Barrique de Vin
-48:Blé
-49:Miche de Pain
-50:Farine
-51:Cuir
-52:Saucisse
-53:Porc Dépecé
-54:Peau
-55:Bouclier de Bois
-56:Bouclier de Fer
-57:Armure de Cuir
-58:Armure de Fer
-59:Hache
-60:Épée
-61:Lance
-62:Hallebarde
-63:Arc
-64:Arbalète
-65:Cheval
-66:Poisson
-69:Serf
-70:Bûcheron
-71:Mineur
-72:Éleveur
-73:Paysan
-74:Charpentier
-75:Boulanger
-76:Charcutier
-77:Pêcheur
-78:Maçon
-79:Tailleur de Pierres
-80:Forgeron
-81:Métallurgiste
-82:Recrue
-83:Milicien
-84:Fantassin
-85:Épéiste
-86:Archer
-87:Arbalétrier
-88:Lancier
-89:Hallebardier
-90:Cav. Légère
-91:Chevalier
-92:Barbare
-93:Rebelle
-94:Manant
-95:Guerrier
-96:Vagabond
-97:Catapulte
-98:Baliste
-99:Les serfs livrent les matières premières nécessaires à vos constructions.||Notez qu'il doit exister une route reliant les différents bâtiments.
-100:Pour obtenir les troncs d'arbres qui seront utilisés par la scierie, il faut un bûcheron.||Le bûcheron assure par ailleurs le reboisement.
-101:Le mineur extrait du charbon, des minerais de fer et d'or dans les mines.
-102:À la porcherie et aux écuries, l'éleveur nourrit les bêtes avec du blé.
-103:Le paysan sème et récolte le blé à la ferme.||Il fait aussi du vin dans le chai.
-104:Le charpentier travaille à la scierie, à l'atelier d'armes et à l'atelier d'armures.||Il construit également des catapultes et des balistes dans l'atelier de siège.
-105:Le boulanger cuit du pain au fournil.||Il fait aussi de la farine au moulin.
-106:Le charcutier fait des saucisses à la charcuterie et du cuir à la tannerie.
-107:Le pêcheur pêche du poisson dans les eaux environnantes.
-108:Le maçon construit des bâtiments et des routes. Sélectionnez simplement l'emplacement que vous avez choisi et il exécutera automatiquement vos ordres.||Il répare également les bâtiments endommagés.
-109:Afin de fournir suffisamment de pierres à vos maçons pour construire des routes et des bâtiments, le tailleur de pierres extrait des blocs de pierres et les taille.
-110:Les armures et les armes lourdes sont fabriquées par les forgerons à la forge d'armures et à la forge d'armes.
-111:Le métallurgiste produit des caisses d'or et des barres de fer à partir du minerai extrait dans les mines d'or et de fer.
-112:Dans l'enceinte du château, la recrue est équipée et entraînée.||Elle se poste également dans la tour de guet.
-147:Sélection d'un Bâtiment
-148:Répartition des Matières Premières
-149:Statistiques
-150:Options
-151:Retour
-152:Sélection|Bâtiment
-153:Répartition|Matières|Premières
-154:Statistiques
-155:Options
-156:Charger Partie
-157:Enregistrer Partie
-158:Êtes-vous sûr(e)|de vouloir quitter|cette mission ?
-159:Quitter la Mission
-160:Annuler
-161:Paramètres
-162:Quitter la Mission
-163:Effets Sonores
-164:Régler le volume
-165:Musique
-166:Musique Oui/Non
-167:Sauvegarde Auto.
-168:Lecteur de Musique
-169:Morceau précédent
-170:Morceau suivant
-171:Démolir
-172:Démolition/Annulation
-173:Construire une Route
-174:Construire des Routes
-175:Labourer un Champ
-176:Labourer des Champs
-177:Planter une Vigne
-178:Planter des Vignes
-179:Annuler
-180:Annuler l'apprentissage en cours
-181:Besoins :
-182:État :
-183:Produits
-184:Bâtiment en|construction
-185:Démolir
-186:Voulez-vous vraiment|démolir ce bâtiment ?
-187:Démolir le bâtiment sélectionné
-188:Réduire le volume de la commande
-189:Augmenter le volume de la commande
-190:Unité précédente
-191:Unité suivante
-192:Équiper l'unité sélectionnée
-193:Catégorie suivante
-194:Catégorie précédente
-195:Ajouter à la liste
-196:Coût :
-197:Réparation du bâtiment Oui/Non
-198:Bâtiment indisponible actuellement
-199:Santé
-200:Pivoter à gauche
-201:Pivoter à droite
-202:Attaquer ('a')
-203:Envoyer les Troupes ('d')
-204:Ravitailler les Troupes
-205:Attaquer : Charger !
-206:Changer la Formation : Ajouter un rang
-207:Changer la Formation : Enlever un rang
-208:Sélectionner|l'autre unité
-209:Annuler
-210:Supprimer
-211:Supprimer ce message
-212:Centrer
-213:Centrer l'écran sur l'objet de ce message
-214:Fermer
-215:Refermer ce message
-216:Votre tailleur de pierres ne peut plus rien tirer de cette carrière.
-217:Vos gisements de charbon sont épuisés.
-218:Vos gisements de fer sont épuisés.
-219:Vos gisements d'or sont épuisés.
-220:Ce bâtiment est inoccupé.
-221:Ces troupes sont affamées, vous devriez les nourrir très rapidement !
-222:Pause
-223:Régler le volume
-224:Livraison de marchandises Oui/Non
-418:Spirit
-419:Busy
-420:Middle Ages Horn
-421:Spring
-422:Lute
-423:Mercenary
-424:The Princess
-425:The Queen
-426:In the Marketplace
-427:On the Battlefield
-428:Court Dance
-429:The Army
-430:In the Castle
-431:Fanfares
-432:At Court
-433:Entree
-434:Deep Blue
-435:Struggle
-436:Royal Quarters
-437:Aristocracy
-438:At the Harbor
-439:Journey
-849:Sélectionner une Mission
-850:Débuter !
-851:Retour au Menu
-852:Charger une Partie Enregistrée
-853:Multijoueur
-854:Options
-855:Crédits
-856:Quitter
-857:Continuer
-858:Recommencer la Mission
-859:Résolution :
-860:Victoire !
-861:Défaite !
-862:Unités perdues :
-863:Unités éliminées :
-864:Bâtiments perdus :
-865:Bâtiments détruits :
-866:Bâtiments construits :
-867:Unités formées :
-868:Armes fabriquées :
-869:Soldats entraînés :
-870:Mission accomplie en :
-1000:JOYMANIA ENTERTAINMENT||PROGRAMMATION :|Peter Ohlmann||GRAPHISMES :|Adam Sprys||CONCEPTION DES NIVEAUX :|Adam Sprys|Andre Quaß||MIXAGE ET ÉDITION AUDIO :|Tonstudio Mannheim||MUSIQUE D'AMBIANCE :|Gerd Hofmann|Joachim Schäfer|Jürgen Rebhann|Klaus Staendike|Steffen Schüngel||ILLUSTRATIONS :|Boleslaw Kasza|Christoph Werner||ZUXXEZ ENTERTAINMENT AG||PRODUCTEUR :|Uwe Schäfer||MANUEL :|Peter Ohlmann|Uwe Schäfer||BÊTA TEST :|Peter Ohlmann|Adam Sprys|Alexandra Constandache|Dirk P. Hassinger|Achim Heidelauf|Uwe Schäfer|Ingrid Schäfer|Dirk U. Jantz|Ion Constandache|Yaman Egeli|Roman Eich|Iris Mocsnek|Anke Jantz|Paul Hassinger|Liza Hassinger||RESPONSABLE DU DÉVELOPPEMENT :|Achim Heidelauf||PUBLICATION :|TopWare Interactive||CINÉMATIQUES :||DIRECTION :|Slawomir Jedrzejewski||Kajetan Czarnecki|Wojciech Drazek|Daniel Duplaga|Rafal Januszkiewicz|Andrzej Rams|Piotr Rulka|Krzysztof Rybczynski|Grzegorz Wisniwski||VOIX :|Claus Boyen (Narrateur)||Tim Timmermann|Peter Houska|Dirk Mühlbach|Ralf Ditze|Gerhard Piske|Gernot Wassmann||ARTWORK :|Boleslaw Kasza|Adam Sprys||ANIMATION :|Uwe Schäfer|Christian Bigalk|Modélisation 3D Additionnelle :|Niels Horstmann||REMERCIEMENTS PARTICULIERS À :|Tadeusz Zuber|Dieter Ohlmann|Alexandra Constandache|Ingrid Schäfer|Andrea Rumpelt
-1686:Mission Annulée
-1687:Tutoriel de Construction
-1688:Tutoriel de Bataille
-1689:Joueur Solo
-1690:Éditeur de Cartes
-1692:Débuter !
-1693:Titre
-1694:Taille
-1696:Condition de Victoire :
-1697:Condition de Défaite :
-1698:Alliés :
-1699:Ennemis :
-1701:Taille de la Carte :
-1702:Largeur
-1703:Hauteur
-1704:Créer une Carte
-1705:Cartes Existantes :
-1706:Charger une Carte Existante
-1707:Contrôles :
-1708:Jouabilité :
-1709:Effets Sonores :
-1710:Désactiver
-1711:Graphisme :
-1712:Luminosité
-1713:Plein Écran
-1714:Appliquer
-1715:Langage :
-1716:Chargement... Veuillez patienter
-1717:Une Erreur S'est Produite !
-1718:Chargement du nouveau local
-1719:Liste des Sauvegardes :
-1720:Nom du Fichier
-1721:Description
-1722:Charger
-1723:Supprimer
-1724:Êtes-vous sûr(e) de vouloir supprimer cette sauvegarde ?
-1725:Supprimer
-1726:Annuler
-1728:Vous avez Gagné !
-1729:Continuer à Jouer
-1730:Victoire !
-1731:Vous avez Perdu !
-1732:Continuer à Regarder
-1733:Défaite !
-1734:Le replay est terminé
-1735:Continuer à Regarder
-1736:Quitter au Menu
-1737:Non disponible
-1738:Appuyer sur %s pour reprendre le jeu
-1740:Infos sur les joueurs
-1741:Chat
-1742:Fichier déjà existant
-1743:Écraser
-1744:Enregistrer
-1745:Charger
-1748:Une ancienne version d'OpenGL a été détectée, le jeu peut être lent et/ou avec des défauts graphiques.
-1749:Erreur réseau :
-1750:Erreur : Le nom du joueur doit contenir au moins un caractère.
-1751:Connexion échouée : %s.
-1752:Vous vous êtes déconnecté.
-1753:Mission %d
-1754:|La hutte de votre pêcheur est trop éloignée de l'eau.
-1755:|Votre pêcheur ne peut plus pêcher de poissons dans les eaux environnantes.
-1757:Utilisez le bouton gauche de la souris pour sélectionner une marchandise à échanger
-1758:Utilisez le bouton droit de la souris pour sélectionner une marchandise à échanger
-1759:de x%d
-1760:à x%d
-1761:Édition du Terrain
-1762:Planification du Village
-1763:Scripts Visuels
-1764:Scripts Globaux
-1765:Menu
-1766:Status :
-1767:Nom du Joueur :
-1768:CRÉER UN SERVEUR
-1769:Nom :
-1770:Port :
-1771:Créer un Serveur Local
-1772:Créer un Serveur Réseau
-1773:Nom du Serveur
-1774:État
-1775:Joueurs
-1776:Ping
-1777:Rafraichir la Liste des Serveurs
-1778:DÉTAILS DU SERVEUR
-1779:Liste des Joueurs :
-1780:Adresse :
-1781:Port :
-1782:Salle :
-1783:Joindre
-1784:Connexion, veuillez patienter...
-1785:Chargement des annonces...
-1786:Rafraichissement...
-1787:Liste des Joueurs
-1788:Position de Départ
-1789:Alliance
-1790:Couleur
-1791:Prêt
-1792:Ping
-1794:Libre
-1795:Joueur IA
-1796:Sélect...
-1797:Aléatoire
-1799:Aucune
-1805:Partie Enregistrée
-1806:Sélect. une mission...
-1807:Sélect. une sauvegarde...
-1813:Quitter la Préparation
-1814:Prêt
-1815:Débuter !
-1816:Attente des Joueurs :
-1817:Crédits de KaM Remake
-1818:Crédits Originaux de Knights & Merchants
-1819:PROGRAMMATION :
-1820:PROGRAMMATION ADDITIONNELLE :
-1821:GRAPHISMES ADDITIONNELS :
-1822:TRADUCTIONS ADDITIONNELLES :
-1823:REMERCIMENTS SPÉCIAUX À :
-1824:Cartes Multijoueur
-1825:Cartes Solo
-1826:Vitesse du Scroll.
-1827:Aucun serveur n'a été trouvé
-1828:Lecture aléatoire
-1829:Informations sur la Partie :
-1830:-
-1831:Préparation
-1832:Chargement
-1833:Partie
-1834:Position %d
-1835:Développement
-1836:Bataille
-1837:Non Prêt
-1838:Prêt
-1839:Erreur : Veuillez sélectionner un joueur de la sauvegarde pour le contrôler.
-1840:Erreur : Le chargement de la carte a échoué ou aucune carte n'a été sélectionnée.
-1841:Impossible de débuter : %s.
-1842:Tout le monde n'est pas prêt pour débuter.
-1844:Mauvaise version du protocole : %s. Le Serveur utilise la version : %s.
-1845:Le Serveur vous a attribué les droits d'hébergement.
-1846:Augmenter le nombre d'échanges
-1847:Réduire le nombre d'échanges
-1848:Enregistrement de la partie...
-1849:%s a perdu !
-1850:EFFETS SONORES ADDITIONNELS :
-1851:Abandonner ces Joueurs
-1852:L'hôte sera autorisé à abandonner ces joueurs après %d secondes.
-1853:L'hôte est désormais autorisé à abandonner ces joueurs.
-1854:L'hôte (%s) a quitté.
-1855:La connexion vers le serveur a été perdue. Tentative de reconnexion...
-1856:Êtes-vous sûr(e) de vouloir quitter ?
-1857:Êtes-vous sûr(e) de vouloir abandonner ces joueurs ?
-1858:Annuler
-1859:Unités|formées
-1860:Unités|perdues
-1861:Soldats|entraînés
-1862:Soldats|perdus
-1864:Bâtiments|construits
-1865:Bâtiments|perdus
-1866:Bâtiments|détruits
-1867:Marchandises|produites
-1868:Armes|fabriquées
-1869:L'échange de cette ressource est indisponible dans cette mission
-1870:Planter et Abattre
-1871:Abattre Seulement
-1872:La partie a débuté !
-1873:Développement
-1874:Bataille
-1875:Carte Coopérative
-1876:Vous n'êtes pas autorisé à faire cela pendant le temps de paix.
-1877:Temps de Paix restant : %s
-1878:Le temps de paix est terminé. À vos armes !
-1879:Temps de Jeu :|%s
-1880:Options de Jeu :
-1884:Halte ('%s')
-1885:Regrouper les Unités ('%s')
-1886:Scinder les Unités ('%s')
-1887:Lecteur de Replay
-1888:Voir le Replay
-1889:Temps de Paix (minutes)
-1890:Format non supporté %s
-1891:Version non supportée %s
-1893:initialisation
-1895:script
-1896:Nouvelle Mission
-1897:Une erreur est survenue lors de l'analyse du fichier %s.
-1898:Fermé
-1899:L'hôte configure les joueurs
-1901:unités
-1902:bâtiments
-1903:arbres
-1904:définitions
-1905:tileset
-2687:Créer un Serveur
-2688:TROUVER UN SERVEUR
-2689:Connexion
-2690:Trouver un Serveur par IP
-2691:Annuler
-2692:Annuler
-2693:Non supportée
-2694:Non supporté
-2695:Erreur : Le nom du joueur ne peut pas contenir plus de %d caractères.
-2696:Erreur : Le nom du joueur ne peut pas contenir de caractères illégaux.
-2697:Qualité de l'Ombre :
-2698:Basse
-2699:Haute
-2700:Carte non trouvée : %s
-2701:Les fichiers de la mission ne sont pas les mêmes que ceux de l'hôte : %s
-2702:Sauvegarde non trouvée : %s
-2703:Le fichier de sauvegarde n'est pas le même que celui de l'hôte : %s
-2705:Veuillez mettre à jour votre pilote graphique pour obtenir une meilleure performance.
-2706:Une erreur s'est produite dans l'application. Veuillez cliquer sur Envoyer le Rapport de Bug pour que nous puissions examiner ce problème. Merci pour votre aide !
-2707:Envoyer le Rapport de Bug
-2708:Afficher les Données Brutes
-2709:Le replay a échoué à une vérification de consistance. C'est un bug connu qui affecte la lecture de plusieurs replays. Voulez-vous continuer à le regarder ?
-2710:Votre nom : (optionnel)
-2711:Votre email : (optionnel)
-2712:Se souvenir de moi
-2713:Dans quelle situation l'erreur se produit-elle ? Pouvez-vous fournir toute information supplémentaire ? (en anglais de préférence)
-2714:Joindre une capture d'écran au rapport de bug
-2715:(cliquez pour modifier l'image)
-2716:Quitter l'Application
-2717:Reprendre l'Application
-2718:Suivant
-2719:Envoyer le Rapport
-2720:Annuler
-2721:Détails de Contact
-2722:Détails de l'Erreur
-2723:Capture d'écran
-2724:Envoi du rapport de bug...
-2725:Connexion au serveur...
-2726:Envoi des données...
-2727:L'envoi du rapport de crash a échoué ! Notre serveur était peut-être occupé, veuillez réessayer l'envoi à nouveau.
-2728:Information
-2729:Veuillez patienter un moment...
-2730:Campagnes
-2732:Débuter !
-2734:Soldats|éliminés
-2736:Titre
-2737:Cartes
-2738:Débloquées
-2739:Temps
-2740:Répétition
-2741:Stopper
-2742:Reprendre
-2743:Avancer d"une frame
-2744:Suspendre
-2745:Vous ne pouvez qu'avoir une instance du jeu en mode multijoueur à la fois.
-2746:Replay Terminé
-2747:MUSIQUES ADDITIONNELLES :
-2748:Vous
-2749:Joueur %d
-2750:Armée
-2751:Unités
-2752:Bâtiments
-2753:Ressources
-2754:Ressources produites
-2755:Statistiques
-2756:Économie
-2757:Construit un bâtiment
-2758:Aplatit l'emplacement
-2759:Plante une vigne
-2760:Labour un champ
-2761:Construit une route
-2762:Délivre
-2763:Plante un arbre
-2764:Déplacement vers son bâtiment
-2765:Répare un bâtiment
-2766:Combat
-2767:Tire
-2768:Attaque un bâtiment
-2769:Déplacement vers l'auberge
-2770:Abat un arbre
-2771:Inoccupé
-2772:Mouvement
-2773:Charge
-2774:Pêche du poisson
-2775:Récolte des vignes
-2776:Récolte du blé
-2777:Sème du blé
-2778:Extrait de la pierre
-2779:Attaque
-2780:Les modifications du jeu ne sont pas autorisées en multijoueur.|Veuillez le réinstaller pour restaurer les fichiers originaux.
-2781:Modifications non supportées
+30:Tronc d'Arbre
+31:Pierre
+32:Planche
+33:Minerai de Fer
+34:Minerai d'Or
+35:Charbon
+36:Fer
+37:Caisse d'Or
+38:Barrique de Vin
+39:Blé
+40:Miche de Pain
+41:Farine
+42:Cuir
+43:Saucisse
+44:Porc Dépecé
+45:Peau
+46:Bouclier de Bois
+47:Bouclier de Fer
+48:Armure de Cuir
+49:Armure de Fer
+50:Hache
+51:Épée
+52:Lance
+53:Hallebarde
+54:Arc
+55:Arbalète
+56:Cheval
+57:Poisson
+58:Serf
+59:Bûcheron
+60:Mineur
+61:Éleveur
+62:Paysan
+63:Charpentier
+64:Boulanger
+65:Charcutier
+66:Pêcheur
+67:Maçon
+68:Tailleur de Pierres
+69:Forgeron
+70:Métallurgiste
+71:Recrue
+72:Milicien
+73:Fantassin
+74:Épéiste
+75:Archer
+76:Arbalétrier
+77:Lancier
+78:Hallebardier
+79:Cav. Légère
+80:Chevalier
+81:Barbare
+82:Rebelle
+83:Manant
+84:Guerrier
+85:Vagabond
+86:Catapulte
+87:Baliste
+88:Les serfs livrent les matières premières nécessaires à vos constructions.||Notez qu'il doit exister une route reliant les différents bâtiments.
+89:Pour obtenir les troncs d'arbres qui seront utilisés par la scierie, il faut un bûcheron.||Le bûcheron assure par ailleurs le reboisement.
+90:Le mineur extrait du charbon, des minerais de fer et d'or dans les mines.
+91:À la porcherie et aux écuries, l'éleveur nourrit les bêtes avec du blé.
+92:Le paysan sème et récolte le blé à la ferme.||Il fait aussi du vin dans le chai.
+93:Le charpentier travaille à la scierie, à l'atelier d'armes et à l'atelier d'armures.||Il construit également des catapultes et des balistes dans l'atelier de siège.
+94:Le boulanger cuit du pain au fournil.||Il fait aussi de la farine au moulin.
+95:Le charcutier fait des saucisses à la charcuterie et du cuir à la tannerie.
+96:Le pêcheur pêche du poisson dans les eaux environnantes.
+97:Le maçon construit des bâtiments et des routes. Sélectionnez simplement l'emplacement que vous avez choisi et il exécutera automatiquement vos ordres.||Il répare également les bâtiments endommagés.
+98:Afin de fournir suffisamment de pierres à vos maçons pour construire des routes et des bâtiments, le tailleur de pierres extrait des blocs de pierres et les taille.
+99:Les armures et les armes lourdes sont fabriquées par les forgerons à la forge d'armures et à la forge d'armes.
+100:Le métallurgiste produit des caisses d'or et des barres de fer à partir du minerai extrait dans les mines d'or et de fer.
+101:Dans l'enceinte du château, la recrue est équipée et entraînée.||Elle se poste également dans la tour de guet.
+102:Sélection d'un Bâtiment
+103:Répartition des Matières Premières
+104:Statistiques
+105:Options
+106:Retour
+107:Sélection|Bâtiment
+108:Répartition|Matières|Premières
+109:Statistiques
+110:Options
+111:Charger Partie
+112:Enregistrer Partie
+113:Êtes-vous sûr(e)|de vouloir quitter|cette mission ?
+114:Quitter la Mission
+115:Annuler
+116:Paramètres
+117:Quitter la Mission
+118:Effets Sonores
+119:Régler le volume
+120:Régler le volume
+121:Musique
+122:Musique Oui/Non
+123:Sauvegarde Auto.
+124:Lecteur de Musique
+125:Morceau précédent
+126:Morceau suivant
+127:Démolir
+128:Démolition/Annulation
+129:Construire une Route
+130:Construire des Routes
+131:Labourer un Champ
+132:Labourer des Champs
+133:Planter une Vigne
+134:Planter des Vignes
+135:Annuler
+136:Annuler l'apprentissage en cours
+137:Besoins :
+139:État :
+140:Produits
+141:Bâtiment en|construction
+142:Démolir
+143:Voulez-vous vraiment|démolir ce bâtiment ?
+144:Démolir le bâtiment sélectionné
+145:Réduire le volume de la commande
+146:Augmenter le volume de la commande
+147:Unité précédente
+148:Unité suivante
+149:Équiper l'unité sélectionnée
+150:Catégorie suivante
+151:Catégorie précédente
+152:Ajouter à la liste
+153:Livraison de marchandises Oui/Non
+154:Coût :
+155:Réparation du bâtiment Oui/Non
+156:Bâtiment indisponible actuellement
+157:Santé
+158:Pivoter à gauche
+159:Pivoter à droite
+160:Attaquer ('a')
+161:Envoyer les Troupes ('d')
+162:Ravitailler les Troupes
+163:Attaquer : Charger !
+164:Changer la Formation : Ajouter un rang
+165:Changer la Formation : Enlever un rang
+166:Sélectionner|l'autre unité
+167:Annuler
+168:Supprimer
+169:Supprimer ce message
+170:Centrer
+171:Centrer l'écran sur l'objet de ce message
+172:Fermer
+173:Refermer ce message
+174:Votre tailleur de pierres ne peut plus rien tirer de cette carrière.
+175:Vos gisements de charbon sont épuisés.
+176:Vos gisements de fer sont épuisés.
+177:Vos gisements d'or sont épuisés.
+179:Ce bâtiment est inoccupé.
+180:Ces troupes sont affamées, vous devriez les nourrir très rapidement !
+181:Pause
+182:Délivre
+183:Construit une route
+184:Labour un champ
+185:Plante une vigne
+186:Aplatit l'emplacement
+187:Construit un bâtiment
+188:Répare un bâtiment
+189:Déplacement vers son bâtiment
+190:Déplacement vers l'auberge
+191:Attaque un bâtiment
+192:Tire
+193:Combat
+194:Charge
+195:Attaque
+196:Mouvement
+197:Inoccupé
+198:Extrait de la pierre
+199:Sème du blé
+200:Récolte du blé
+201:Récolte des vignes
+202:Pêche du poisson
+203:Abat un arbre
+204:Plante un arbre
+205:Spirit
+206:Busy
+207:Middle Ages Horn
+208:Spring
+209:Lute
+210:Mercenary
+211:The Princess
+212:The Queen
+213:In the Marketplace
+214:On the Battlefield
+215:Court Dance
+216:The Army
+217:In the Castle
+218:Fanfares
+219:At Court
+220:Entree
+221:Deep Blue
+222:Struggle
+223:Royal Quarters
+224:Aristocracy
+225:At the Harbor
+226:Journey
+227:Campagnes
+229:Débuter !
+230:Sélectionner une Mission
+231:Débuter !
+232:Retour au Menu
+233:Charger une Partie Enregistrée
+234:Multijoueur
+235:Options
+236:Crédits
+237:Quitter
+238:Continuer
+239:Recommencer la Mission
+240:Résolution :
+241:Non supportée
+242:Non supporté
+243:Victoire !
+244:Défaite !
+245:Unités perdues :
+246:Unités éliminées :
+247:Bâtiments perdus :
+248:Bâtiments détruits :
+249:Bâtiments construits :
+250:Unités formées :
+251:Armes fabriquées :
+252:Soldats entraînés :
+253:Mission accomplie en :
+254:Statistiques
+255:Économie
+256:Unités|formées
+257:Unités|perdues
+258:Soldats|entraînés
+259:Soldats|perdus
+260:Soldats|éliminés
+261:Bâtiments|construits
+262:Bâtiments|perdus
+263:Bâtiments|détruits
+264:Marchandises|produites
+265:Armes|fabriquées
+266:Armée
+267:Unités
+268:Bâtiments
+269:Ressources
+270:Ressources produites
+272:Vous
+273:Joueur %d
+279:JOYMANIA ENTERTAINMENT||PROGRAMMATION :|Peter Ohlmann||GRAPHISMES :|Adam Sprys||CONCEPTION DES NIVEAUX :|Adam Sprys|Andre Quaß||MIXAGE ET ÉDITION AUDIO :|Tonstudio Mannheim||MUSIQUE D'AMBIANCE :|Gerd Hofmann|Joachim Schäfer|Jürgen Rebhann|Klaus Staendike|Steffen Schüngel||ILLUSTRATIONS :|Boleslaw Kasza|Christoph Werner||ZUXXEZ ENTERTAINMENT AG||PRODUCTEUR :|Uwe Schäfer||MANUEL :|Peter Ohlmann|Uwe Schäfer||BÊTA TEST :|Peter Ohlmann|Adam Sprys|Alexandra Constandache|Dirk P. Hassinger|Achim Heidelauf|Uwe Schäfer|Ingrid Schäfer|Dirk U. Jantz|Ion Constandache|Yaman Egeli|Roman Eich|Iris Mocsnek|Anke Jantz|Paul Hassinger|Liza Hassinger||RESPONSABLE DU DÉVELOPPEMENT :|Achim Heidelauf||PUBLICATION :|TopWare Interactive||CINÉMATIQUES :||DIRECTION :|Slawomir Jedrzejewski||Kajetan Czarnecki|Wojciech Drazek|Daniel Duplaga|Rafal Januszkiewicz|Andrzej Rams|Piotr Rulka|Krzysztof Rybczynski|Grzegorz Wisniwski||VOIX :|Claus Boyen (Narrateur)||Tim Timmermann|Peter Houska|Dirk Mühlbach|Ralf Ditze|Gerhard Piske|Gernot Wassmann||ARTWORK :|Boleslaw Kasza|Adam Sprys||ANIMATION :|Uwe Schäfer|Christian Bigalk|Modélisation 3D Additionnelle :|Niels Horstmann||REMERCIEMENTS PARTICULIERS À :|Tadeusz Zuber|Dieter Ohlmann|Alexandra Constandache|Ingrid Schäfer|Andrea Rumpelt
+280:Mission Annulée
+281:Replay Terminé
+282:Tutoriel de Construction
+283:Tutoriel de Bataille
+284:Joueur Solo
+285:Éditeur de Cartes
+286:Débuter !
+287:Titre
+288:Taille
+289:Condition de Victoire :
+290:Condition de Défaite :
+291:Alliés :
+292:Ennemis :
+293:Temps
+294:Taille de la Carte :
+295:Largeur
+296:Hauteur
+297:Créer une Carte
+298:Cartes Existantes :
+299:Charger une Carte Existante
+301:Contrôles :
+302:Jouabilité :
+303:Effets Sonores :
+304:Désactiver
+305:Graphisme :
+306:Luminosité
+308:Plein Écran
+309:Appliquer
+310:Langage :
+311:Qualité de l'Ombre :
+312:Basse
+313:Haute
+314:Chargement... Veuillez patienter
+315:Une Erreur S'est Produite !
+316:Chargement du nouveau local
+317:Liste des Sauvegardes :
+318:Nom du Fichier
+319:Description
+320:Charger
+321:Supprimer
+322:Êtes-vous sûr(e) de vouloir supprimer cette sauvegarde ?
+323:Supprimer
+324:Annuler
+325:Titre
+326:Cartes
+327:Débloquées
+328:Vous avez Gagné !
+329:Continuer à Jouer
+330:Victoire !
+331:Vous avez Perdu !
+332:Continuer à Regarder
+333:Défaite !
+334:Le replay est terminé
+335:Continuer à Regarder
+336:Quitter au Menu
+337:Non disponible
+338:Appuyer sur %s pour reprendre le jeu
+339:Infos sur les joueurs
+340:Chat
+341:Fichier déjà existant
+342:Écraser
+343:Enregistrer
+344:Charger
+345:Une ancienne version d'OpenGL a été détectée, le jeu peut être lent et/ou avec des défauts graphiques.
+346:Veuillez mettre à jour votre pilote graphique pour obtenir une meilleure performance.
+347:Erreur réseau :
+348:Erreur : Le nom du joueur doit contenir au moins un caractère.
+349:Erreur : Le nom du joueur ne peut pas contenir plus de %d caractères.
+350:Erreur : Le nom du joueur ne peut pas contenir de caractères illégaux.
+351:Connexion échouée : %s.
+352:Vous vous êtes déconnecté.
+353:Mission %d
+355:|La hutte de votre pêcheur est trop éloignée de l'eau.
+356:|Votre pêcheur ne peut plus pêcher de poissons dans les eaux environnantes.
+357:Répétition
+358:Suspendre
+359:Avancer d"une frame
+360:Reprendre
+361:Stopper
+364:Utilisez le bouton gauche de la souris pour sélectionner une marchandise à échanger
+365:Utilisez le bouton droit de la souris pour sélectionner une marchandise à échanger
+366:de x%d
+367:à x%d
+368:Édition du Terrain
+394:Planification du Village
+395:Scripts Visuels
+396:Scripts Globaux
+397:Menu
+499:Nouvelle Mission
+500:Nom du Joueur :
+501:Status :
+502:Créer un Serveur
+503:CRÉER UN SERVEUR
+504:Nom :
+505:Port :
+506:Créer un Serveur Local
+507:Créer un Serveur Réseau
+508:Annuler
+509:Trouver un Serveur par IP
+510:TROUVER UN SERVEUR
+511:Adresse :
+512:Port :
+513:Salle :
+514:Connexion
+515:Annuler
+518:Nom du Serveur
+519:État
+520:Joueurs
+521:Ping
+522:Rafraichir la Liste des Serveurs
+523:DÉTAILS DU SERVEUR
+524:Liste des Joueurs :
+525:Joindre
+526:Connexion, veuillez patienter...
+527:Chargement des annonces...
+528:Rafraichissement...
+529:Liste des Joueurs
+530:Position de Départ
+531:Alliance
+532:Couleur
+533:Prêt
+534:Ping
+536:Libre
+537:Joueur IA
+538:Sélect...
+539:Aléatoire
+540:Aucune
+541:Partie Enregistrée
+542:Sélect. une mission...
+543:Sélect. une sauvegarde...
+544:Quitter la Préparation
+545:Prêt
+546:Non Prêt
+547:Débuter !
+561:Position %d
+562:Erreur : Veuillez sélectionner un joueur de la sauvegarde pour le contrôler.
+563:Erreur : Le chargement de la carte a échoué ou aucune carte n'a été sélectionnée.
+564:Impossible de débuter : %s.
+565:Tout le monde n'est pas prêt pour débuter.
+567:Le Serveur vous a attribué les droits d'hébergement.
+568:La partie a débuté !
+569:Développement
+570:Bataille
+571:Carte Coopérative
+573:Options de Jeu :
+574:Temps de Paix (minutes)
+575:Fermé
+576:L'hôte configure les joueurs
+577:Attente des Joueurs :
+580:Crédits de KaM Remake
+581:Crédits Originaux de Knights & Merchants
+582:PROGRAMMATION :
+583:PROGRAMMATION ADDITIONNELLE :
+584:GRAPHISMES ADDITIONNELS :
+585:EFFETS SONORES ADDITIONNELS :
+586:MUSIQUES ADDITIONNELLES :
+587:TRADUCTIONS ADDITIONNELLES :
+588:REMERCIMENTS SPÉCIAUX À :
+589:Cartes Multijoueur
+590:Cartes Solo
+591:Vitesse du Scroll.
+592:Aucun serveur n'a été trouvé
+593:Lecture aléatoire
+594:Informations sur la Partie :
+595:-
+596:Préparation
+597:Chargement
+598:Partie
+599:Développement
+600:Bataille
+601:Prêt
+602:Mauvaise version du protocole : %s. Le Serveur utilise la version : %s.
+603:Augmenter le nombre d'échanges
+604:Réduire le nombre d'échanges
+605:Enregistrement de la partie...
+606:%s a perdu !
+607:Abandonner ces Joueurs
+608:L'hôte sera autorisé à abandonner ces joueurs après %d secondes.
+609:L'hôte est désormais autorisé à abandonner ces joueurs.
+610:L'hôte (%s) a quitté.
+611:La connexion vers le serveur a été perdue. Tentative de reconnexion...
+612:Êtes-vous sûr(e) de vouloir quitter ?
+613:Êtes-vous sûr(e) de vouloir abandonner ces joueurs ?
+614:Annuler
+615:L'échange de cette ressource est indisponible dans cette mission
+616:Planter et Abattre
+617:Abattre Seulement
+618:Vous n'êtes pas autorisé à faire cela pendant le temps de paix.
+619:Temps de Paix restant : %s
+620:Le temps de paix est terminé. À vos armes !
+621:Temps de Jeu :|%s
+622:Halte ('%s')
+623:Regrouper les Unités ('%s')
+624:Scinder les Unités ('%s')
+625:Lecteur de Replay
+626:Voir le Replay
+627:Format non supporté %s
+628:Version non supportée %s
+629:Modifications non supportées
+630:Une erreur est survenue lors de l'analyse du fichier %s.
+631:initialisation
+632:script
+633:unités
+634:bâtiments
+635:arbres
+636:définitions
+637:tileset
+638:Carte non trouvée : %s
+639:Sauvegarde non trouvée : %s
+640:Les fichiers de la mission ne sont pas les mêmes que ceux de l'hôte : %s
+641:Le fichier de sauvegarde n'est pas le même que celui de l'hôte : %s
+642:Le replay a échoué à une vérification de consistance. C'est un bug connu qui affecte la lecture de plusieurs replays. Voulez-vous continuer à le regarder ?
+643:Vous ne pouvez qu'avoir une instance du jeu en mode multijoueur à la fois.
+644:Les modifications du jeu ne sont pas autorisées en multijoueur.|Veuillez le réinstaller pour restaurer les fichiers originaux.
+645:Une erreur s'est produite dans l'application. Veuillez cliquer sur Envoyer le Rapport de Bug pour que nous puissions examiner ce problème. Merci pour votre aide !
+646:Envoyer le Rapport de Bug
+647:Afficher les Données Brutes
+648:Reprendre l'Application
+649:Quitter l'Application
+650:Suivant
+651:Détails de Contact
+652:Votre nom : (optionnel)
+653:Votre email : (optionnel)
+654:Se souvenir de moi
+655:Détails de l'Erreur
+656:Dans quelle situation l'erreur se produit-elle ? Pouvez-vous fournir toute information supplémentaire ? (en anglais de préférence)
+657:Capture d'écran
+658:Joindre une capture d'écran au rapport de bug
+659:(cliquez pour modifier l'image)
+660:Envoyer le Rapport
+661:Annuler
+662:Envoi du rapport de bug...
+663:Connexion au serveur...
+664:Envoi des données...
+665:L'envoi du rapport de crash a échoué ! Notre serveur était peut-être occupé, veuillez réessayer l'envoi à nouveau.
+666:Information
+667:Veuillez patienter un moment...

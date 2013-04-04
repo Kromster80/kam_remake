@@ -1,5 +1,5 @@
 
-MaxID:2957
+MaxID:667
 
 0:Sawmill
 1:Iron smithy
@@ -31,641 +31,641 @@ MaxID:2957
 27:Inn
 28:Vineyard
 29:Marketplace
-39:Tree trunks
-40:Stones
-41:Timber
-42:Iron ore
-43:Gold ore
-44:Coal
-45:Iron
-46:Gold
-47:Wine barrels
-48:Corn
-49:Loaves
-50:Flour
-51:Leather
-52:Sausages
-53:Pigs
-54:Skins
-55:Wooden shields
-56:Iron shields
-57:Leather armor
-58:Iron armor
-59:Hand axes
-60:Swords
-61:Lances
-62:Pikes
-63:Longbows
-64:Crossbows
-65:Horses
-66:Fish
-69:Serf
-70:Woodcutter
-71:Miner
-72:Animal breeder
-73:Farmer
-74:Carpenter
-75:Baker
-76:Butcher
-77:Fisherman
-78:Laborer
-79:Stonemason
-80:Blacksmith
-81:Metallurgist
-82:Recruit
-83:Militia
-84:Axe fighter
-85:Sword fighter
-86:Bowman
-87:Crossbowman
-88:Lance carrier
-89:Pikeman
-90:Scout
-91:Knight
-92:Barbarian
-93:Rebel
-94:Rogue
-95:Warrior
-96:Vagabond
-97:Catapult
-98:Ballista
-99:The serf supplies your buildings with the necessary raw materials.||Note that a connecting road must exist between the buildings.
-100:To produce tree trunks for the sawmill, you need the woodcutter.||The woodcutter carries out reforesting independently.
-101:The miner mines ore from the coal, iron and gold mines.
-102:The animal breeder uses corn to raise pigs in the swine farm and horses in the stables.
-103:The farmer plants and harvests corn on the farm.||He also produces wine in the vineyard.
-104:The carpenter works in the sawmill, the weapons workshop and in the armory workshop.||He also builds catapults and ballistae in the siege workshop.
-105:The baker grinds corn into flour in the mill.||He also bakes bread in the bakery.
-106:The butcher makes sausages in the butchery and leather in the tannery.
-107:The fisherman catches fish in nearby water bodies.
-108:The laborer constructs buildings and roads. Simply highlight your preferred location and he will carry out your commands automatically.||He also repairs damaged buildings.
-109:To supply your laborers with enough material to construct roads and buildings, the stonemason will hew and cut stones.
-110:The blacksmith forges iron weapons and armor in the weapons and armor smithies.
-111:The metallurgist uses coal to refine gold and iron ore.
-112:The recruit can be equipped as a soldier in the barracks.||He also occupies the watchtower.
-147:To selection of buildings
-148:To distribution of wares
-149:To statistics
-150:To options
-151:Go back
-152:Building|Selection
-153:Distribution|of Wares
-154:Statistics
-155:Options
-156:Load Game
-157:Save Game
-158:Are you sure you|want to quit|this mission?
-159:Quit Mission
-160:Go Back
-161:Settings
-162:Quit Mission
-163:SFX
-164:Change volume
-165:Music
-166:Music on/off
-167:Autosave
-168:Music Player
-169:Previous track
-170:Next track
-171:Demolish
-172:Remove buildings/highlights
-173:Construct road
-174:Construct roads
-175:Plough field
-176:Plough fields
-177:Lay out wine field
-178:Lay out wine fields
-179:Cancel
-180:Cancel current training
-181:Needs:
-182:Condition:
-183:Delivers
-184:House under|construction
-185:Destroy
-186:Do you really want to|demolish this building?
-187:Destroy selected building
-188:Decrease order amount
-189:Increase order amount
-190:Previous soldier type
-191:Next soldier type
-192:Equip current soldier type
-193:Next profession
-194:Previous profession
-195:Add to queue
-196:Cost:
-197:Switch on/off house repair
-198:Building not available at this time
-199:Condition
-200:Turn troop left
-201:Turn troop right
-202:Attack ('a')
-203:Dispatch troop ('d')
-204:Supply troop with food
-205:Start storm attack
-206:Add line
-207:Withdraw line
-208:Select|group
-209:Cancel
-210:Delete
-211:Deletes current message
-212:Go to
-213:Jumps to current message position
-214:Close
-215:Closes window
-216:Your stonemason cannot reach any further deposits of stone.
-217:Your coal mine seams are exhausted.
-218:Your iron mine veins are exhausted.
-219:Your gold mine veins are exhausted.
-220:This house is not occupied.
-221:This troop is really hungry, they better get something to eat real soon!
-222:PAUSE
-223:Change volume
-224:Switch on/off delivery of wares
-418:Spirit
-419:Busy
-420:Middle Ages Horn
-421:Spring
-422:Lute
-423:Mercenary
-424:The Princess
-425:The Queen
-426:In the Marketplace
-427:On the Battlefield
-428:Court Dance
-429:The Army
-430:In the Castle
-431:Fanfares
-432:At Court
-433:Entree
-434:Deep Blue
-435:Struggle
-436:Royal Quarters
-437:Aristocracy
-438:At the Harbor
-439:Journey
-849:Play Single Map
-850:Start Map
-851:Back to Menu
-852:Load Saved Game
-853:Multiplayer
-854:Options
-855:Credits
-856:Exit Game
-857:Continue
-858:Restart Mission
-859:Resolution:
-860:VICTORY!
-861:DEFEAT!
-862:Units lost:
-863:Units defeated:
-864:Buildings lost:
-865:Buildings destroyed:
-866:Buildings constructed:
-867:Units trained:
-868:Weapons produced:
-869:Soldiers trained:
-870:Mission completed in:
-1000:JOYMANIA ENTERTAINMENT||PROGRAMMING:|Peter Ohlmann||GAME GRAPHICS:|Adam Sprys||LEVEL DESIGN:|Adam Sprys|André Quaß||SOUND EDITING AND MIXING:|Tonstudio Mannheim||MUSIC:|Gerd Hofmann|Joachim Schäfer|Jürgen Rebhann|Klaus Staendike|Steffen Schüngel||ILLUSTRATIONS:|Boleslaw Kasza|Christoph Werner||TRANSLATION:|Ronnie Shankland|Patricia Bellantuono|Andrea Rumpelt|||ZUXXEZ ENTERTAINMENT AG||PRODUCER:|Uwe Schäfer||MANUAL:|Peter Ohlmann|Uwe Schäfer||BETA TESTING:|Peter Ohlmann|Adam Sprys|Alexandra Constandache|Dirk P. Hassinger|Achim Heidelauf|Uwe Schäfer|Ingrid Schäfer|Dirk U. Jantz|Ion Constandache|Yaman Egeli|Roman Eich|Iris Mocsnek|Anke Jantz|Paul Hassinger|Liza Hassinger||GAMES DIRECTOR:|Achim Heidelauf||PUBLISHED BY:|TopWare Interactive||CUTSCENES:||DIRECTION:|Slawomir Jedrzejewski||Kajetan Czarnecki|Wojciech Drazek|Daniel Duplaga|Rafal Januszkiewicz|Andrzej Rams|Piotr Rulka|Krzysztof Rybczynski|Grzegorz Wisniewski||VOICES:|Claus Boyen (Storyteller)||Tim Timmermann|Peter Houska|Dirk Mühlbach|Ralf Ditze|Gerhard Piske|Gernot Wassmann||ARTWORK:|Boleslaw Kasza|Adam Sprys||OPENING ANIMATION:|Uwe Schäfer|Christian Bigalk|Additional 3D-Modelling:|Niels Horstmann||SPECIAL THANKS TO:|Tadeusz Zuber|Dieter Ohlmann|Alexandra Constandache|Ingrid Schäfer
-1686:Mission canceled
-1687:Town Tutorial
-1688:Battle Tutorial
-1689:Single Player
-1690:Map Editor
-1692:Start Mission
-1693:Title
-1694:Size
-1696:Win condition:
-1697:Defeat condition:
-1698:Allies:
-1699:Enemies:
-1701:New map size
-1702:Width
-1703:Height
-1704:Create New Map
-1705:Available maps
-1706:Load Existing Map
-1707:Controls:
-1708:Gameplay:
-1709:Sound:
-1710:Disable music
-1711:Graphics:
-1712:Brightness
-1713:Fullscreen
-1714:Apply
-1715:Language:
-1716:Loading... Please wait
-1717:An Error Has Occurred!
-1718:Loading new locale
-1719:List of savegames
-1720:File name
-1721:Description
-1722:Load
-1723:Delete
-1724:Are you sure you want to delete this save?
-1725:Delete
-1726:Cancel
-1728:You've won!
-1729:Continue playing
-1730:Victory!
-1731:You've lost!
-1732:Continue watching
-1733:Defeat
-1734:Replay has ended
-1735:Continue Watching
-1736:Quit to Menu
-1737:Not available
-1738:Press %s to resume the game
-1740:Players info
-1741:Chat
-1742:Save already exists
-1743:Overwrite
-1744:Save
-1745:Load
-1748:Old OpenGL version detected, game may run slowly and/or with graphic flaws
-1749:Network error:
-1750:Error: Player name must not be blank
-1751:Connection failed: %s
-1752:You have disconnected
-1753:Mission %d
-1754:Your fisherman's hut is too far away from the water.
-1755:Your fisherman cannot catch any further fish in the nearby water bodies.
-1757:Use the left mouse button to select the ware to trade
-1758:Use the right mouse button to select the ware to trade
-1759:From x%d
-1760:To x%d
-1761:Terrain editing
-1762:Village planning
-1763:Visual scripts
-1764:Global scripting
-1765:Menu
-1766:Status:
-1767:Player name
-1768:CREATE SERVER
-1769:Name
-1770:Port
-1771:Create Local Server
-1772:Create Internet Server
-1773:Server name
-1774:State
-1775:Players
-1776:Ping
-1777:Refresh Server List
-1778:SERVER DETAILS
-1779:Player list:
-1780:Address
-1781:Port
-1782:Room
-1783:Join
-1784:Connecting, please wait ...
-1785:Loading announcements...
-1786:Refreshing...
-1787:Players list
-1788:Start location
-1789:Team
-1790:Color
-1791:Ready
-1792:Ping
-1794:Open
-1795:AI Player
-1796:Select...
-1797:Random
-1799:None
-1805:Saved Game
-1806:Select a map...
-1807:Select a save...
-1813:Quit lobby
-1814:Ready
-1815:Start!
-1816:Waiting for players:
-1817:KaM Remake Credits
-1818:Original Knights & Merchants Credits
-1819:PROGRAMMING:
-1820:ADDITIONAL PROGRAMMING:
-1821:ADDITIONAL GRAPHICS:
-1822:ADDITIONAL TRANSLATIONS:
-1823:SPECIAL THANKS TO:
-1824:Multiplayer maps
-1825:Singleplayer maps
-1826:Scroll speed
-1827:No servers found
-1828:Shuffle tracks
-1829:Game information:
-1830:-
-1831:Lobby
-1832:Loading
-1833:Game
-1834:Location %d
-1835:Building and Fighting
-1836:Fighting
-1837:Not ready
-1838:Ready
-1839:Error: Please select a player from the save to control
-1840:Error: Map failed to load or no map selected
-1841:Cannot start: %s
-1842:Not everyone is ready to start
-1844:Wrong protocol version: %s. Server uses: %s
-1845:Server has assigned hosting rights to us
-1846:Increase trade amount
-1847:Decrease trade amount
-1848:Saving game...
-1849:%s was defeated!
-1850:ADDITIONAL SOUNDS:
-1851:Drop Players
-1852:The host will be allowed to drop these players after %d seconds
-1853:The host is now allowed to drop these players
-1854:The host (%s) has quit
-1855:The connection to the server was lost. Attempting to reconnect...
-1856:Are you sure you want to quit?
-1857:Are you sure you want to permanently drop these players?
-1858:Cancel
-1859:Citizens|trained
-1860:Citizens|lost
-1861:Soldiers|equipped
-1862:Soldiers|lost
-1864:Buildings|constructed
-1865:Buildings|lost
-1866:Buildings|destroyed
-1867:Wares|produced
-1868:Weapons|produced
-1869:Trading this resource is not available in this mission
-1870:Plant and fell
-1871:Fell only
-1872:Game started
-1873:Building Map
-1874:Fighting Map
-1875:Co-operative Map
-1876:You are not allowed to do that during peacetime
-1877:Peacetime remaining: %s
-1878:Peacetime is over. To thy weapons!
-1879:Game time:|%s
-1880:Game options:
-1884:Halt troop ('%s')
-1885:Link up troop ('%s')
-1886:Separate troop ('%s')
-1887:Replay Viewer
-1888:View Replay
-1889:Peacetime (minutes)
-1890:Unsupported format %s
-1891:Unsupported version %s
-1893:initializing
-1895:script
-1896:New Mission
-1897:An error has occurred while parsing the file %s
-1898:Closed
-1899:Host does player setup
-1901:units
-1902:houses
-1903:trees
-1904:definitions
-1905:tileset
-2687:Create Server
-2688:FIND SERVER
-2689:Connect
-2690:Find Server by IP
-2691:Cancel
-2692:Cancel
-2693:Not supported
-2694:Not supported
-2695:Error: Player name must be no more than %d characters long
-2696:Error: Player name contains illegal characters
-2697:Shadow quality:
-2698:Low
-2699:High
-2700:Map not found: %s
-2701:Map files do not match the host for the map: %s
-2702:Save not found: %s
-2703:Save file does not match the host for the save: %s
-2705:Please update your graphic drivers to get better performance
-2706:An error occurred in the application. Please click Send Bug Report so we can investigate this issue. Thanks for your help!
-2707:Send Bug Report
-2708:Show Raw Data
-2709:The replay failed a consistency check. This is a known bug which effects playback of some replays. Do you want to continue watching?
-2710:Your name: (optional)
-2711:Your email: (optional)
-2712:Remember me
-2713:In what situation did the error occur? Can you provide any additional information? (English preferred)
-2714:Attach a screenshot to the bug report
-2715:(click to edit image)
-2716:Terminate Application
-2717:Resume Application
-2718:Next
-2719:Send Report
-2720:Cancel
-2721:Contact Details
-2722:Error Details
-2723:Screenshot
-2724:Sending bug report...
-2725:Connecting to server...
-2726:Sending data...
-2727:Sending the crash report failed! Our server might be busy, please try sending it again.
-2728:Information
-2729:Please wait a moment...
-2730:Campaigns
-2731:Campaigns
-2732:Start Campaign!
-2734:Soldiers|defeated
-2736:Title
-2737:Maps
-2738:Unlocked
-2739:Time
-2740:Restart replay
-2741:Quit replay
-2742:Resume paused replay
-2743:Step 1 tick forward
-2744:Pause replay
-2745:You may only have one instance of the game in multiplayer mode at once
-2746:Replay ended
-2747:ADDITIONAL MUSIC:
-2748:You
-2749:Player %d
-2750:Army
-2751:Citizens
-2752:Houses
-2753:Resources
-2754:Resources produced
-2755:Statistics
-2756:Economy
-2757:Constructing house
-2758:Flattening house site
-2759:Constructing winefield
-2760:Digging field
-2761:Constructing road
-2762:Delivering
-2763:Planting tree
-2764:Going home
-2765:Repairing house
-2766:Fighting
-2767:Firing
-2768:Attacking house
-2769:Going to the inn
-2770:Cutting tree
-2771:Idle
-2772:Moving
-2773:Storm attack
-2774:Fishing
-2775:Harvesting grapes
-2776:Harvesting corn
-2777:Sowing corn
-2778:Mining stone
-2779:Attacking
-2780:Modifications to the game are not allowed in multiplayer.|Please reinstall to restore the original files.
-2781:Unsupported modifications
-2785:Elevate / Lower
-2787:Elevate (left click) / Lower (right click)
-2788:Unequalize / Flatten
-2790:Unequalize (left click) / Flatten (right click)
-2792:Square-shaped brush
-2793:Circle-shaped brush
-2794:Slide to change elevation slope: 1 = plateau ... 15 = peak
-2795:Slide to change brush size
-2797:Objects
-2798:Tiles
-2799:Brushes
-2800:Heights
-2804:Use right click to rotate the selected tile
-2805:Tick for randomized tile direction or use right click to rotate the selected tile
-2806:Random Direction
-2807:Size
-2808:Slope
-2809:Remove an object
-2810:Slide to change elevation speed: 1 = slow ... 15 = very fast
-2811:Speed
-2812:Your woodcutter cannot find any further trees to fell and was instructed by you to not plant trees
-2813:Brush shape
-2815:Supplies:
-2816:Ping / FPS
-2817:Vertical Sync
-2818:Special map
-2819:Unable to assign random locations
-2820:Room settings
-2822:Game speed
-2823:Game speed (peacetime)
-2824:Password
-2825:Description
-2826:Cancel
-2827:OK
-2829:Kick
-2830:Ban
-2831:Set to host
-2835:Password protected room
-2836:Password
-2837:Players:
-2838:Objects
-2839:Copy/paste
-2840:Copy terrain
-2841:Paste terrain
-2842:Paste horizontally flipped terrain
-2843:Paste vertically flipped terrain
-2844:Roadworks
-2845:Houses
-2846:AI settings
-2847:Autobuild
-2848:Autorepair
-2849:Serfs per 10 houses
-2850:Workers
-2851:AI defence positions
-2852:Place defence position for AI
-2853:Autodefence
-2854:Equip rate iron
-2855:Equip rate leather
-2856:Recruits per Barracks
-2857:How many recruits AI should have in barracks
-2858:Set max. soldiers
-2859:How many soldiers AI can have at once
-2860:Remove limit on how many soldiers AI can have
-2861:Edit formations
-2862:AI attacks
-2863:Autoattack
-2864:Type
-2865:Delay
-2866:Men
-2867:Target
-2868:Loc.
-2869:Goals
-2870:Type
-2871:Condition
-2872:Player
-2873:Time
-2874:Msg.
-2875:Colors
-2876:Block/release houses
-2877:Block trade
-2878:Reveal fog
-2879:Reveal a portion of map
-2880:Reveal all
-2881:Center screen
-2882:Center screen on mission start
-2883:Jump to location
-2884:Mode
-2885:Normal
-2886:Tactic
-2887:Alliances
-2888:Symmetrical
-2889:Player types
-2890:Default
-2891:Map already exists
-2892:Overwrite
-2893:Save
-2894:Cancel
-2895:Load map
-2896:Load
-2897:Cancel
-2898:Any unsaved|changes will be lost
-2899:View passability
-2900:Show objects
-2901:Show houses
-2902:Show units
-2903:Show deposits
-2904:Melee
-2905:Antihorse
-2906:Ranged
-2907:Mounted
-2908:Attack info
-2910:Once
-2911:Repeating
-2912:Delay, s
-2913:Group count
-2914:Take all
-2915:Closest unit
-2916:Closest house 1
-2917:Closest house 2
-2918:Custom position
-2919:Position
-2920:OK
-2921:Cancel
-2922:Troop Formations
-2923:Count
-2924:Columns
-2925:Goal
-2926:None
-2927:Victory
-2928:Survive
-2929:None
-2930:Build Tutorial
-2931:Time
-2932:Buildings
-2933:Troops
-2934:Unknown
-2935:Military assets
-2936:Serfs and schools
-2937:Economy buildings
-2938:Block walking
-2939:Random elements
-2940:Heights
-2941:Brush
-2942:AI creates and manages defence positions automatically
-2943:Toggle individual player perspective
-2944:Randomize locations within teams
-2945:Description
-2946:Options
-2947:All
-2948:Team
-2949:Message log
-2950:Back to Replays
-2951:Back to Multiplayer
-2952:No data
-2953:Location
-2954:All
-2955:Warfare
-2956:Food
-2957:Show all
+30:Tree trunks
+31:Stones
+32:Timber
+33:Iron ore
+34:Gold ore
+35:Coal
+36:Iron
+37:Gold
+38:Wine barrels
+39:Corn
+40:Loaves
+41:Flour
+42:Leather
+43:Sausages
+44:Pigs
+45:Skins
+46:Wooden shields
+47:Iron shields
+48:Leather armor
+49:Iron armor
+50:Hand axes
+51:Swords
+52:Lances
+53:Pikes
+54:Longbows
+55:Crossbows
+56:Horses
+57:Fish
+58:Serf
+59:Woodcutter
+60:Miner
+61:Animal breeder
+62:Farmer
+63:Carpenter
+64:Baker
+65:Butcher
+66:Fisherman
+67:Laborer
+68:Stonemason
+69:Blacksmith
+70:Metallurgist
+71:Recruit
+72:Militia
+73:Axe fighter
+74:Sword fighter
+75:Bowman
+76:Crossbowman
+77:Lance carrier
+78:Pikeman
+79:Scout
+80:Knight
+81:Barbarian
+82:Rebel
+83:Rogue
+84:Warrior
+85:Vagabond
+86:Catapult
+87:Ballista
+88:The serf supplies your buildings with the necessary raw materials.||Note that a connecting road must exist between the buildings.
+89:To produce tree trunks for the sawmill, you need the woodcutter.||The woodcutter carries out reforesting independently.
+90:The miner mines ore from the coal, iron and gold mines.
+91:The animal breeder uses corn to raise pigs in the swine farm and horses in the stables.
+92:The farmer plants and harvests corn on the farm.||He also produces wine in the vineyard.
+93:The carpenter works in the sawmill, the weapons workshop and in the armory workshop.||He also builds catapults and ballistae in the siege workshop.
+94:The baker grinds corn into flour in the mill.||He also bakes bread in the bakery.
+95:The butcher makes sausages in the butchery and leather in the tannery.
+96:The fisherman catches fish in nearby water bodies.
+97:The laborer constructs buildings and roads. Simply highlight your preferred location and he will carry out your commands automatically.||He also repairs damaged buildings.
+98:To supply your laborers with enough material to construct roads and buildings, the stonemason will hew and cut stones.
+99:The blacksmith forges iron weapons and armor in the weapons and armor smithies.
+100:The metallurgist uses coal to refine gold and iron ore.
+101:The recruit can be equipped as a soldier in the barracks.||He also occupies the watchtower.
+102:To selection of buildings
+103:To distribution of wares
+104:To statistics
+105:To options
+106:Go back
+107:Building|Selection
+108:Distribution|of Wares
+109:Statistics
+110:Options
+111:Load Game
+112:Save Game
+113:Are you sure you|want to quit|this mission?
+114:Quit Mission
+115:Go Back
+116:Settings
+117:Quit Mission
+118:SFX
+119:Change volume
+120:Change volume
+121:Music
+122:Music on/off
+123:Autosave
+124:Music Player
+125:Previous track
+126:Next track
+127:Demolish
+128:Remove buildings/highlights
+129:Construct road
+130:Construct roads
+131:Plough field
+132:Plough fields
+133:Lay out wine field
+134:Lay out wine fields
+135:Cancel
+136:Cancel current training
+137:Needs:
+138:Supplies:
+139:Condition:
+140:Delivers
+141:House under|construction
+142:Destroy
+143:Do you really want to|demolish this building?
+144:Destroy selected building
+145:Decrease order amount
+146:Increase order amount
+147:Previous soldier type
+148:Next soldier type
+149:Equip current soldier type
+150:Next profession
+151:Previous profession
+152:Add to queue
+153:Switch on/off delivery of wares
+154:Cost:
+155:Switch on/off house repair
+156:Building not available at this time
+157:Condition
+158:Turn troop left
+159:Turn troop right
+160:Attack ('a')
+161:Dispatch troop ('d')
+162:Supply troop with food
+163:Start storm attack
+164:Add line
+165:Withdraw line
+166:Select|group
+167:Cancel
+168:Delete
+169:Deletes current message
+170:Go to
+171:Jumps to current message position
+172:Close
+173:Closes window
+174:Your stonemason cannot reach any further deposits of stone.
+175:Your coal mine seams are exhausted.
+176:Your iron mine veins are exhausted.
+177:Your gold mine veins are exhausted.
+178:Your woodcutter cannot find any further trees to fell and was instructed by you to not plant trees
+179:This house is not occupied.
+180:This troop is really hungry, they better get something to eat real soon!
+181:PAUSE
+182:Delivering
+183:Constructing road
+184:Digging field
+185:Constructing winefield
+186:Flattening house site
+187:Constructing house
+188:Repairing house
+189:Going home
+190:Going to the inn
+191:Attacking house
+192:Firing
+193:Fighting
+194:Storm attack
+195:Attacking
+196:Moving
+197:Idle
+198:Mining stone
+199:Sowing corn
+200:Harvesting corn
+201:Harvesting grapes
+202:Fishing
+203:Cutting tree
+204:Planting tree
+205:Spirit
+206:Busy
+207:Middle Ages Horn
+208:Spring
+209:Lute
+210:Mercenary
+211:The Princess
+212:The Queen
+213:In the Marketplace
+214:On the Battlefield
+215:Court Dance
+216:The Army
+217:In the Castle
+218:Fanfares
+219:At Court
+220:Entree
+221:Deep Blue
+222:Struggle
+223:Royal Quarters
+224:Aristocracy
+225:At the Harbor
+226:Journey
+227:Campaigns
+228:Campaigns
+229:Start Campaign!
+230:Play Single Map
+231:Start Map
+232:Back to Menu
+233:Load Saved Game
+234:Multiplayer
+235:Options
+236:Credits
+237:Exit Game
+238:Continue
+239:Restart Mission
+240:Resolution:
+241:Not supported
+242:Not supported
+243:VICTORY!
+244:DEFEAT!
+245:Units lost:
+246:Units defeated:
+247:Buildings lost:
+248:Buildings destroyed:
+249:Buildings constructed:
+250:Units trained:
+251:Weapons produced:
+252:Soldiers trained:
+253:Mission completed in:
+254:Statistics
+255:Economy
+256:Citizens|trained
+257:Citizens|lost
+258:Soldiers|equipped
+259:Soldiers|lost
+260:Soldiers|defeated
+261:Buildings|constructed
+262:Buildings|lost
+263:Buildings|destroyed
+264:Wares|produced
+265:Weapons|produced
+266:Army
+267:Citizens
+268:Houses
+269:Resources
+270:Resources produced
+271:No data
+272:You
+273:Player %d
+274:Back to Multiplayer
+275:Back to Replays
+276:All
+277:Warfare
+278:Food
+279:JOYMANIA ENTERTAINMENT||PROGRAMMING:|Peter Ohlmann||GAME GRAPHICS:|Adam Sprys||LEVEL DESIGN:|Adam Sprys|André Quaß||SOUND EDITING AND MIXING:|Tonstudio Mannheim||MUSIC:|Gerd Hofmann|Joachim Schäfer|Jürgen Rebhann|Klaus Staendike|Steffen Schüngel||ILLUSTRATIONS:|Boleslaw Kasza|Christoph Werner||TRANSLATION:|Ronnie Shankland|Patricia Bellantuono|Andrea Rumpelt|||ZUXXEZ ENTERTAINMENT AG||PRODUCER:|Uwe Schäfer||MANUAL:|Peter Ohlmann|Uwe Schäfer||BETA TESTING:|Peter Ohlmann|Adam Sprys|Alexandra Constandache|Dirk P. Hassinger|Achim Heidelauf|Uwe Schäfer|Ingrid Schäfer|Dirk U. Jantz|Ion Constandache|Yaman Egeli|Roman Eich|Iris Mocsnek|Anke Jantz|Paul Hassinger|Liza Hassinger||GAMES DIRECTOR:|Achim Heidelauf||PUBLISHED BY:|TopWare Interactive||CUTSCENES:||DIRECTION:|Slawomir Jedrzejewski||Kajetan Czarnecki|Wojciech Drazek|Daniel Duplaga|Rafal Januszkiewicz|Andrzej Rams|Piotr Rulka|Krzysztof Rybczynski|Grzegorz Wisniewski||VOICES:|Claus Boyen (Storyteller)||Tim Timmermann|Peter Houska|Dirk Mühlbach|Ralf Ditze|Gerhard Piske|Gernot Wassmann||ARTWORK:|Boleslaw Kasza|Adam Sprys||OPENING ANIMATION:|Uwe Schäfer|Christian Bigalk|Additional 3D-Modelling:|Niels Horstmann||SPECIAL THANKS TO:|Tadeusz Zuber|Dieter Ohlmann|Alexandra Constandache|Ingrid Schäfer
+280:Mission canceled
+281:Replay ended
+282:Town Tutorial
+283:Battle Tutorial
+284:Single Player
+285:Map Editor
+286:Start Mission
+287:Title
+288:Size
+289:Win condition:
+290:Defeat condition:
+291:Allies:
+292:Enemies:
+293:Time
+294:New map size
+295:Width
+296:Height
+297:Create New Map
+298:Available maps
+299:Load Existing Map
+300:Location
+301:Controls:
+302:Gameplay:
+303:Sound:
+304:Disable music
+305:Graphics:
+306:Brightness
+307:Vertical Sync
+308:Fullscreen
+309:Apply
+310:Language:
+311:Shadow quality:
+312:Low
+313:High
+314:Loading... Please wait
+315:An Error Has Occurred!
+316:Loading new locale
+317:List of savegames
+318:File name
+319:Description
+320:Load
+321:Delete
+322:Are you sure you want to delete this save?
+323:Delete
+324:Cancel
+325:Title
+326:Maps
+327:Unlocked
+328:You've won!
+329:Continue playing
+330:Victory!
+331:You've lost!
+332:Continue watching
+333:Defeat
+334:Replay has ended
+335:Continue Watching
+336:Quit to Menu
+337:Not available
+338:Press %s to resume the game
+339:Players info
+340:Chat
+341:Save already exists
+342:Overwrite
+343:Save
+344:Load
+345:Old OpenGL version detected, game may run slowly and/or with graphic flaws
+346:Please update your graphic drivers to get better performance
+347:Network error:
+348:Error: Player name must not be blank
+349:Error: Player name must be no more than %d characters long
+350:Error: Player name contains illegal characters
+351:Connection failed: %s
+352:You have disconnected
+353:Mission %d
+354:Message log
+355:Your fisherman's hut is too far away from the water.
+356:Your fisherman cannot catch any further fish in the nearby water bodies.
+357:Restart replay
+358:Pause replay
+359:Step 1 tick forward
+360:Resume paused replay
+361:Quit replay
+362:Toggle individual player perspective
+363:Show all
+364:Use the left mouse button to select the ware to trade
+365:Use the right mouse button to select the ware to trade
+366:From x%d
+367:To x%d
+368:Terrain editing
+369:Brushes
+370:Heights
+371:Tiles
+372:Objects
+373:Heights
+374:Brush shape
+375:Size
+376:Slide to change brush size
+377:Slope
+378:Slide to change elevation slope: 1 = plateau ... 15 = peak
+379:Speed
+380:Slide to change elevation speed: 1 = slow ... 15 = very fast
+381:Circle-shaped brush
+382:Square-shaped brush
+383:Elevate / Lower
+384:Unequalize / Flatten
+385:Elevate (left click) / Lower (right click)
+386:Unequalize (left click) / Flatten (right click)
+387:Brush
+388:Random elements
+389:Random Direction
+390:Tick for randomized tile direction or use right click to rotate the selected tile
+391:Use right click to rotate the selected tile
+392:Block walking
+393:Remove an object
+394:Village planning
+395:Visual scripts
+396:Global scripting
+397:Menu
+398:Objects
+399:Show deposits
+400:Show units
+401:Show houses
+402:Show objects
+403:View passability
+404:Any unsaved|changes will be lost
+405:Cancel
+406:Load
+407:Load map
+408:Cancel
+409:Save
+410:Overwrite
+411:Map already exists
+412:Players:
+413:Default
+414:Player types
+415:Symmetrical
+416:Alliances
+417:Tactic
+418:Normal
+419:Mode
+420:Jump to location
+421:Center screen on mission start
+422:Center screen
+423:Reveal all
+424:Reveal a portion of map
+425:Reveal fog
+426:Block trade
+427:Block/release houses
+428:Colors
+429:Goal
+430:Msg.
+431:Time
+432:Player
+433:Economy buildings
+434:Serfs and schools
+435:Military assets
+436:Unknown
+437:Troops
+438:Buildings
+439:Time
+440:Build Tutorial
+441:None
+442:Condition
+443:Survive
+444:Victory
+445:None
+446:Type
+447:Goals
+448:OK
+449:Cancel
+450:Columns
+451:Count
+452:Troop Formations
+453:Edit formations
+454:Remove limit on how many soldiers AI can have
+455:How many soldiers AI can have at once
+456:Set max. soldiers
+457:How many recruits AI should have in barracks
+458:Recruits per Barracks
+459:Position
+460:Custom position
+461:Closest house 2
+462:Closest house 1
+463:Closest unit
+464:Take all
+465:Group count
+466:Attack info
+467:Delay, s
+468:Repeating
+469:Once
+470:Mounted
+471:Ranged
+472:Antihorse
+473:Melee
+474:Loc.
+475:Target
+476:Men
+477:Delay
+478:Type
+479:Autoattack
+480:AI attacks
+481:Equip rate leather
+482:Equip rate iron
+483:Autodefence
+484:AI creates and manages defence positions automatically
+485:Place defence position for AI
+486:AI defence positions
+487:Workers
+488:Serfs per 10 houses
+489:Autorepair
+490:Autobuild
+491:AI settings
+492:Houses
+493:Roadworks
+494:Paste vertically flipped terrain
+495:Paste horizontally flipped terrain
+496:Paste terrain
+497:Copy terrain
+498:Copy/paste
+499:New Mission
+500:Player name
+501:Status:
+502:Create Server
+503:CREATE SERVER
+504:Name
+505:Port
+506:Create Local Server
+507:Create Internet Server
+508:Cancel
+509:Find Server by IP
+510:FIND SERVER
+511:Address
+512:Port
+513:Room
+514:Connect
+515:Cancel
+516:Password protected room
+517:Password
+518:Server name
+519:State
+520:Players
+521:Ping
+522:Refresh Server List
+523:SERVER DETAILS
+524:Player list:
+525:Join
+526:Connecting, please wait ...
+527:Loading announcements...
+528:Refreshing...
+529:Players list
+530:Start location
+531:Team
+532:Color
+533:Ready
+534:Ping
+535:Ping / FPS
+536:Open
+537:AI Player
+538:Select...
+539:Random
+540:None
+541:Saved Game
+542:Select a map...
+543:Select a save...
+544:Quit lobby
+545:Ready
+546:Not ready
+547:Start!
+548:Game speed (peacetime)
+549:Game speed
+550:OK
+551:Cancel
+552:Description
+553:Password
+554:Room settings
+555:Set to host
+556:Ban
+557:Kick
+558:Randomize locations within teams
+559:Description
+560:Options
+561:Location %d
+562:Error: Please select a player from the save to control
+563:Error: Map failed to load or no map selected
+564:Cannot start: %s
+565:Not everyone is ready to start
+566:Unable to assign random locations
+567:Server has assigned hosting rights to us
+568:Game started
+569:Building Map
+570:Fighting Map
+571:Co-operative Map
+572:Special map
+573:Game options:
+574:Peacetime (minutes)
+575:Closed
+576:Host does player setup
+577:Waiting for players:
+578:All
+579:Team
+580:KaM Remake Credits
+581:Original Knights & Merchants Credits
+582:PROGRAMMING:
+583:ADDITIONAL PROGRAMMING:
+584:ADDITIONAL GRAPHICS:
+585:ADDITIONAL SOUNDS:
+586:ADDITIONAL MUSIC:
+587:ADDITIONAL TRANSLATIONS:
+588:SPECIAL THANKS TO:
+589:Multiplayer maps
+590:Singleplayer maps
+591:Scroll speed
+592:No servers found
+593:Shuffle tracks
+594:Game information:
+595:-
+596:Lobby
+597:Loading
+598:Game
+599:Building and Fighting
+600:Fighting
+601:Ready
+602:Wrong protocol version: %s. Server uses: %s
+603:Increase trade amount
+604:Decrease trade amount
+605:Saving game...
+606:%s was defeated!
+607:Drop Players
+608:The host will be allowed to drop these players after %d seconds
+609:The host is now allowed to drop these players
+610:The host (%s) has quit
+611:The connection to the server was lost. Attempting to reconnect...
+612:Are you sure you want to quit?
+613:Are you sure you want to permanently drop these players?
+614:Cancel
+615:Trading this resource is not available in this mission
+616:Plant and fell
+617:Fell only
+618:You are not allowed to do that during peacetime
+619:Peacetime remaining: %s
+620:Peacetime is over. To thy weapons!
+621:Game time:|%s
+622:Halt troop ('%s')
+623:Link up troop ('%s')
+624:Separate troop ('%s')
+625:Replay Viewer
+626:View Replay
+627:Unsupported format %s
+628:Unsupported version %s
+629:Unsupported modifications
+630:An error has occurred while parsing the file %s
+631:initializing
+632:script
+633:units
+634:houses
+635:trees
+636:definitions
+637:tileset
+638:Map not found: %s
+639:Save not found: %s
+640:Map files do not match the host for the map: %s
+641:Save file does not match the host for the save: %s
+642:The replay failed a consistency check. This is a known bug which effects playback of some replays. Do you want to continue watching?
+643:You may only have one instance of the game in multiplayer mode at once
+644:Modifications to the game are not allowed in multiplayer.|Please reinstall to restore the original files.
+645:An error occurred in the application. Please click Send Bug Report so we can investigate this issue. Thanks for your help!
+646:Send Bug Report
+647:Show Raw Data
+648:Resume Application
+649:Terminate Application
+650:Next
+651:Contact Details
+652:Your name: (optional)
+653:Your email: (optional)
+654:Remember me
+655:Error Details
+656:In what situation did the error occur? Can you provide any additional information? (English preferred)
+657:Screenshot
+658:Attach a screenshot to the bug report
+659:(click to edit image)
+660:Send Report
+661:Cancel
+662:Sending bug report...
+663:Connecting to server...
+664:Sending data...
+665:Sending the crash report failed! Our server might be busy, please try sending it again.
+666:Information
+667:Please wait a moment...

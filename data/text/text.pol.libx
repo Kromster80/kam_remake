@@ -1,5 +1,5 @@
 
-MaxID:2957
+MaxID:667
 
 0:Tartak
 1:Dymarka
@@ -31,479 +31,479 @@ MaxID:2957
 27:Gospoda
 28:Winnica
 29:Targ
-39:Pnie drzew
-40:Kamienie
-41:Drewno
-42:Ruda øelaza
-43:Ruda z≥ota
-44:WÍgiel
-45:Øelazo
-46:Z≥oto
-47:Wino
-48:Ziarno
-49:Chleb
-50:Mπka
-51:Rulony skÛry
-52:Kie≥basa
-53:åwinie
-54:P≥aty skÛry
-55:Drewniana tarcza
-56:Øelazna tarcza
-57:Pancerz
-58:Zbroja
-59:TopÛr
-60:Miecz
-61:Lanca
-62:Halabarda
-63:£uk
-64:Kusza
-65:Konie
-66:Ryby
-69:Pomocnik
-70:Drwal
-71:GÛrnik
-72:Hodowca
-73:Ch≥op
-74:Cieúla
-75:M≥ynarz/Piekarz
-76:Rzeünik/Garbarz
-77:Rybak
-78:Budowniczy
-79:Kamieniarz
-80:Kowal
-81:Hutnik
-82:Rekrut
-83:Øo≥dak
-84:Topornik
-85:Piechur z mieczem
-86:£ucznik
-87:Kusznik
-88:Piechur z lancπ
-89:Pikinier
-90:Lekka jazda
-91:CiÍøka jazda
-92:BarbarzyÒca
-93:Rebeliant
-94:Pacho≥ek
-95:Wojownik
-96:W≥ÛczÍga
-97:Katapulta
-98:Balista
-99:Pomocnik zaopatruje Twoje budynki w niezbÍdne surowce.||PamiÍtaj, øe budynki muszπ byÊ po≥πczone ze sobπ ulicami.
-100:Aby zdobyÊ pnie drzew dla Tartaku, potrzebujesz Drwala.||Drwal sam ponownie zalesia wykarczowane po≥acie lasu.
-101:GÛrnik wydobywa rudy w Kopalni WÍgla, Øelaza i Z≥ota.
-102:W Chlewie i w Stajni Hodowca hoduje úwinie i konie, karmiπc je ziarnem.
-103:Ch≥op sieje i zbiera zboøe w Gospodarstwie.||OprÛcz tego wyt≥acza wino w Winnicy.
-104:Cieúla pracuje w Tartaku Warsztacie P≥atnerskim i w Warsztacie Pancerzy.||OprÛcz tego Cieúla buduje katapulty i balisty w Warsztacie Wojennym.
-105:Piekarz piecze chleb w Piekarni.||Dodatkowo przerabia w M≥ynie ziarno na mπkÍ.
-106:Rzeünik wyrabia kie≥basy w Rzeüni i wyprawia skÛrÍ w Garbarni.
-107:Rybak ≥owi ryby w pobliskich zbiornikach wodnych.
-108:Budowniczy buduje budynki i ulice. Zaznacz wybrane miejsca, a on automatycznie zrealizuje twoje polecenia.||Poza tym naprawia uszkodzone budynki.
-109:Aby Twoi Budowniczy mieli wystarczajπcπ iloúÊ budulca do budowy ulic i domÛw, Kamieniarz eksploatuje kamieÒ.
-110:Kowal wytwarza cieøkiÍ pancerze i broÒ w Kuüni P≥atnerskiej i w Kuüni Zbroi.
-111:Hutnik produkuje z rudy z≥ota i øelaza sztaby z≥ota i stal.
-112:Rekrut otrzymuje w Warowni øo≥nierskie wyposaøenie.||OprÛcz tego pe≥ni wartÍ na Wieøy Straøniczej.
-147:WybÛr budynkÛw
-148:Podzia≥ towarÛw
-149:Statystyka
-150:Opcje
-151:PowrÛt
-152:WybÛr|budynkÛw
-153:Podzia≥|towarÛw
-154:Statystyka
-155:Opcje
-156:Za≥aduj grÍ
-157:Zapisz grÍ
-158:Czy jesteú pewien,|øe chcesz|zakoÒczyÊ grÍ?
-159:ZakoÒcz grÍ
-160:PowrÛt
-161:Ustawienia
-162:ZakoÒcz grÍ
-163:Odg≥osy
-164:Zmiana g≥oúnoúci
-165:Muzyka
-166:W≥πczyÊ/wy≥πczyÊ muzykÍ
-167:Autozapis
-168:Odtwarzacz muzyki
-169:Poprzedni utwÛr
-170:NastÍpny utwÛr
-171:Burzenie
-172:Burzenie budynkÛw i znacznikÛw
-173:Buduj ulice
-174:Budowanie ulic
-175:Oraj pole
-176:Zak≥adanie pola
-177:Za≥Ûø winnicÍ
-178:Winnica
-179:Anuluj
-180:Anuluj aktualne przyuczanie
-181:W zapasie:
-182:Stan:
-183:Dostarcza
-184:Budynek w budowie
-185:Zniszcz
-186:Czy jesteú pewien,|øe chcesz|zburzyÊ budynek?
-187:Niszczy wybrany budynek
-188:Zmniejsz zamÛwienie
-189:ZwiÍksz zamÛwienie
-190:Poprzedni typ jednostki
-191:NastÍpny typ jednostki
-192:UzbrÛj aktualny typ jednostki
-193:NastÍpny zawÛd
-194:Poprzedni zawÛd
-195:Dodaj do kolejki
-196:Koszty:
-197:Naprawa budynku w≥πcz/wy≥πcz
-198:Budynek obecnie niedostÍpny
-199:Wytrzyma≥oúÊ
-200:ObrÛÊ oddzia≥ w lewo
-201:ObrÛÊ oddzia≥ w prawo
-202:Atakuj ('a')
-203:Wyúlij oddzia≥ ('d')
-204:Zaopatrz oddzia≥ w øywnoúÊ
-205:RozpoczÍcie szturmu
-206:Dodaj szereg
-207:UsuÒ szereg
-208:Wybierz|grupÍ docelowπ
-209:Anuluj
-210:UsuÒ
-211:Usuwa aktualnπ wiadomoúÊ
-212:Idü do
-213:Skacze do pozycji aktualnej wiadomoúci
-214:Zamknij
-215:Zamknij okno
-216:TwÛj Kamieniarz nie znalaz≥ dalszych pok≥adÛw kamienia.
-217:Zasoby Twojej Kopalni WÍgla sπ wyczerpane.
-218:Zasoby Twojej Kopalni Øelaza sπ wyczerpane.
-219:Zasoby Twojej Kopalni Z≥ota sπ wyczerpane.
-220:Ten budynek nie ma gospodarza.
-221:Ten oddzia≥ jest bardzo g≥odny!|Musisz jak najszybciej dostarczyÊ im øywnoúÊ!
-222:PAUZA
-223:Zmiana g≥oúnoúci
-224:Dostawa towarÛw w≥πcz/wy≥πcz
-418:Spirit
-419:Busy
-420:Middle Ages Horn
-421:Spring
-422:Lute
-423:Mercenary
-424:The Princess
-425:The Queen
-426:In the Marketplace
-427:On the Battlefield
-428:Court Dance
-429:The Army
-430:In the Castle
-431:Fanfares
-432:At Court
-433:Entree
-434:Deep Blue
-435:Struggle
-436:Royal Quarters
-437:Aristocracy
-438:At the Harbor
-439:Journey
-849:Rozegraj jednπ misjÍ
-850:Zacznij misjÍ
-851:G≥Ûwne menu
-852:Za≥aduj grÍ
-853:Gra w sieci
-854:Opcje
-855:Autorzy
-856:ZakoÒcz grÍ
-857:Dalej
-858:PowtÛrz misjÍ
-859:RozdzielczoúÊ:
-860:MISJA WYPE£NIONA!
-861:MISJA NIEWYPE£NIONA!
-862:Utracone jednostki:
-863:Pokonane jednostki:
-864:Utracone budynki:
-865:Zburzone budynki:
-866:Zbudowane budynki:
-867:Wyszkolone jednostki:
-868:Wyprodukowana broÒ:
-869:Wyposaøeni wojownicy:
-870:Czas trwania gry:
-1000:JOYMANIA ENTERTAINMENT||PROGRAMOWANIE:|Peter Ohlmann||GRAFIKA:|Adam Sprys||MISJE:|Adam Sprys|AndrÈ Quaﬂ||DèWI KI:|Tonstudio Mannheim||MUZYKA:|Gerd Hofmann|Joachim Sch‰fer|J¸rgen Rebhann|Klaus Staendike|Steffen Sch¸ngel||ILUSTRACJE:|Boles≥aw Kasza|Christoph Werner||ZUXXEZ ENTERTAINMENT AG||PRODUCENT:|Uwe Sch‰fer||INSTRUKCJA:|Peter Ohlmann|Uwe Sch‰fer||BETA-TESTERZY:|Peter Ohlmann|Adam Sprys|Alexandra Constandache|Dirk P. Hassinger|Achim Heidelauf|Uwe Sch‰fer|Ingrid Sch‰fer|Dirk U. Jantz|Ion Constandache|Yaman Egeli|Roman Eich|Iris Mocsnek|Anke Jantz|Paul Hassinger|Liza Hassinger||NADZ”R PRODUKCJI:|Achim Heidelauf||WYDAWCA:|TopWare Poland||FILMY:||NADZ”R PRODUKCJI:|S≥awomir JÍdrzejewski||Kajetan Czarnecki|Wojciech Drazek|Daniel Duplaga|Rafa≥ Januszkiewicz|Andrzej Rams|Piotr Rulka|Krzysztof RybczyÒski|Grzegorz Wiúniewski||G£OS”W UØYCZYLI:|Zbigniew Abrachamowicz|W≥adys≥aw Aniszewski|Jerzy Batycki|Kazimierz Czapla|Bartosz Dziedzic|Ireneusz OgrodziÒski|Grzegorz Sikora|Janusz Siwy|Tomasz Sylwestrzak|Piotr Tomaszewski|Robert Wdaniec||PROJEKT INSTRUKCJI:|Uwe Sch‰fer|Alexandra Constandache||TREå∆ INSTRUKCJI:|Peter Ohlmann|Uwe Sch‰fer||ILUSTRACJE:|Boles≥aw Kasza|Adam Sprys||INTRO:|Uwe Sch‰fer|Christian Bigalk|Dodatkowe Modelowanie 3D:|Niels Horstmann||SPECJALNE|PODZI KOWANIA DLA:|Tadeusz Zuber|Dieter Ohlmann|Alexandra Constandache|Ingrid Sch‰fer|Andrea Rumpelt
-1686:Misja anulowana
-1687:Samouczek zarzπdzania miastem
-1688:Samouczek dowodzenia podczas bitwy
-1689:Jeden Gracz
-1690:Edytor Map
-1692:Rozpocznij Misje
-1693:Tytu≥
-1694:Rozmiar
-1696:Warunki wygranej:
-1697:Warunki przegranej:
-1698:Sojusznicy:
-1699:Wrogowie:
-1701:Rozmiar nowej mapy
-1702:SzerokoúÊ
-1703:WysokoúÊ
-1704:StwÛrz Nowπ MapÍ
-1705:DostÍpne mapy
-1706:Za≥aduj Istniejπcπ MapÍ
-1707:Kontrola:
-1708:Rozgrywka:
-1709:DüwiÍk
-1710:Wy≥πcz muzykÍ
-1711:Grafika:
-1712:JasnoúÊ:
-1713:Pe≥ny Ekran:
-1714:Zastosuj
-1715:JÍzyk:
-1716:£adowanie... ProszÍ czekaÊ
-1717:Wystπpi≥ B≥πd!
-1718:£adowanie nowej lokalizacji
-1719:Lista zapisanych gier
-1720:Nazwa pliku
-1721:Opis
-1722:Za≥aduj
-1723:UsuÒ
-1724:Jesteú pewny øe chcesz usunπÊ ten zapis?
-1725:UsuÒ
-1726:Anuluj
-1728:Wygra≥eú!
-1729:Kontynuuj grÍ
-1730:ZwyciÍstwo!
-1731:Przegra≥eú!
-1732:Kontynuuj oglπdanie
-1733:Poraøka
-1734:PowtÛrka siÍ zakoÒczy≥a
-1735:Kontynuuj oglπdanie
-1736:Wyjdü do menu
-1737:NiedostÍpne
-1738:Naciúnij %s aby wznowiÊ grÍ
-1740:Informacje gracza
-1741:Czat
-1742:Zapis juø istnieje
-1743:Zastπp
-1744:Zapisz
-1745:Za≥aduj
-1748:Wykryto starπ wersjÍ OpenGL, gra moøe dzia≥aÊ wolno i/lub z b≥Ídami grafiki.
-1749:B≥πd sieci:
-1750:B≥πd: Nie wpisa≥eú imienia
-1751:Po≥πczenie nie powiod≥o siÍ: %s
-1752:Zosta≥eú roz≥πczony
-1753:Misja %d
-1754:Twoja Chata rybaka jest zbyt daleko od wody.
-1755:TwÛj rybak nie moøe z≥owiÊ wiÍcej ryb w pobliskich zbiornikach wodnych.
-1757:Uøyj lewego przycisku myszy, aby wybraÊ towar do handlu
-1758:Uøyj prawego przycisku myszy, aby wybraÊ towar do handlu
-1759:Z x%d
-1760:Na x%d
-1761:Edycja terenu
-1762:Planowanie osady
-1763:Skrypty wizualne
-1764:Skryptowanie globalne
-1765:Menu
-1766:Status:
-1767:ImiÍ gracza
-1768:STW”RZ SERWER
-1769:Nazwa
-1770:Port
-1771:StwÛrz serwer lokalny
-1772:StwÛrz serwer internetowy
-1773:Nazwa Serwera
-1774:Stan
-1775:Gracze
-1776:Ping
-1777:Odúwieø ListÍ SerwerÛw
-1778:SZCZEG”£Y SERWERA
-1779:Lista graczy:
-1780:Adres
-1781:Port
-1782:PokÛj
-1783:Do≥πcz
-1784:£πczenie, proszÍ czekaÊ...
-1785:£adowanie og≥oszeÒ...
-1786:Odúwieøanie...
-1787:Lista graczy
-1788:Lokalizacja poczπtkowa
-1789:Druøyna
-1790:Kolor
-1791:Gotowy
-1792:Ping
-1794:Wolne
-1795:Komputer
-1796:Wybierz...
-1797:Przypadkowe
-1799:Øadna
-1805:Zapisane Gry
-1806:Wybierz mapÍ...
-1807:Wybierz zapis...
-1813:Wyjdü
-1814:Gotowy
-1815:Start!
-1816:Oczekiwanie na graczy:
-1817:Autorzy KaM Remake
-1818:Autorzy Oryginalnego Knights & Merchants
-1819:PROGRAMOWANIE:
-1820:DODATKOWE PROGRAMOWANIE:
-1821:DODATKOWE GRAFIKI;
-1822:DODATKOWE T£UMACZENIE:
-1823:SPECJALNE PODZI KOWANIA DLA:
-1824:Mapy dla wielu graczy
-1825:Mapy dla jednego gracza
-1826:PrÍdkoúÊ przewijania
-1827:Nie znaleziono serwerÛw
-1828:Wymieszaj utwory
-1829:Informacje o grze:
-1830:-
-1831:Lobby
-1832:£adowanie
-1833:Gra
-1834:Lokacja %d
-1835:Budowa i Walka
-1836:Walka
-1837:Nie gotowy
-1838:Gotowy
-1839:B≥πd: Wybierz gracza z zapisu do kontrolowania
-1840:B≥πd: Nie uda≥o siÍ za≥adowaÊ mapy lub nie wybrano mapy
-1841:Nie moøna rozpoczπÊ: %s
-1842:Nie wszyscy sπ gotowi do rozpoczÍcia
-1844:Z≥a wersja protoko≥u: %s. Serwer uøywa: %s
-1845:Serwer przypisa≥ prawa hosta do nas
-1846:ZwiÍksz iloúÊ towarÛw
-1847:Zmniejsz iloúÊ towarÛw
-1848:Zapisywanie gry...
-1849:%s zosta≥ pokonany!
-1850:DODATKOWE DèWI KI:
-1851:WyrzuÊ graczy
-1852:Host bÍdzie mÛg≥ wyrzuciÊ tych graczy za %d sekund
-1853:Host moøe juø wyrzuciÊ tych graczy
-1854:Host (%s) wyszed≥
-1855:Po≥πczenie z serwerem zosta≥o utracone. PrÛba ponownego po≥πczenia ...
-1856:Czy na pewno chcesz wyjúÊ?
-1857:Czy na pewno chcesz bezpowrotnie wyrzuciÊ tych graczy?
-1858:Anuluj
-1859:Poddani|wyszkoleni
-1860:Poddani|straceni
-1861:Øo≥nierze|wyszkoleni
-1862:Øo≥nierze|straceni
-1864:Budynki|wybudowane
-1865:Budynki|utracone
-1866:Budynki|zniszczone
-1867:Towary|wyprodukowane
-1868:BroÒ|wyprodukowana
-1869:Handlowanie tym zasobem jest nie moøliwe w tej misji
-1870:Sadü i úcinaj
-1871:Tylko úcinaj
-1872:Gra rozpoczÍta
-1873:Mapa Ekonomiczna
-1874:Mapa Taktyczna
-1875:Mapa Kooperacyjna
-1876:Nie masz prawa tego robiÊ w okresie pokoju
-1877:Pozosta≥y okres pokojowy: %s
-1878:Okres pokojowy minπ≥. Do broni!
-1879:Czas gry:|%s
-1880:Opcje gry:
-1884:Zatrzymaj oddzia≥ i formuj szyk ('%s')
-1885:Po≥πcz oddzia≥y ('%s')
-1886:Rozdziel oddzia≥ ('%s')
-1887:Podglπd PowtÛrek
-1888:Zobacz powtÛrkÍ
-1889:Okres pokojowy (minuty)
-1890:Niewspierany format %s
-1891:Niewspierana wersja %s
-1893:inicjowanie
-1895:skrypt
-1896:Nowa Misja
-1897:Wystπpi≥ b≥πd podczas przetwarzania pliku %s
-1898:ZamkniÍte
-1899:Host konfiguruje gracza
-1901:jednostki
-1902:domy
-1903:drzewa
-1904:definicje
-1905:grafiki terenu
-2687:UtwÛrz Serwer
-2688:ZNAJDè SERWER
-2689:Po≥πcz
-2690:Znajdü Serwer przez IP
-2691:Anuluj
-2692:Anuluj
-2693:Nie obs≥ugiwane
-2694:Nie obs≥ugiwane
-2695:B≥πd: Nazwa gracza nie moøe byÊ d≥uøsza niø %d znakÛw
-2696:B≥πd: Nazwa gracza zawiera niedozwolone znaki
-2697:JakoúÊ cieni:
-2698:Niska
-2699:Wysoka
-2700:Mapy nie odnaleziono: %s
-2701:Pliki mapy nie zgadzajπ siÍ z mapπ hosta: %s
-2702:Zapisu nie odnaleziono: %s
-2703:Plik zapisu nie zgadza siÍ z zapisem hosta: %s
-2705:ProszÍ zaktualizuj sterowniki karty graficznej aby uzyskaÊ wiÍkszπ wydajnoúÊ.
-2706:Wystπpi≥ b≥πd w aplikacji. ProszÍ kliknπÊ Wyúlij Raport o B≥Ídach, abyúmy mogli zbadaÊ ten problem. DziÍkujemy za pomoc!
-2707:Wyúlij Raport o B≥Ídach
-2708:Pokaø Dane Pierwotne
-2709:PowtÛrka wykaza≥a niespÛjnoúÊ podczas sprawdzania. Jest to znany b≥πd, ktÛry wp≥ywa na odtwarzanie niektÛrych powtÛrek. Czy chcesz kontynuowaÊ oglπdanie?
-2710:Twoje imiÍ: (opcjonalnie)
-2711:TwÛj email: (opcjonalnie)
-2712:ZapamiÍtaj mnie
-2713:W jakiej sytuacji wystÍpuje b≥πd? Moøesz podaÊ dodatkowe informacje? (preferowany agielski)
-2714:Do≥πcz zrzut ekranu do raportu o b≥Ídzie
-2715:(kliknij, aby edytowaÊ obraz)
-2716:ZakoÒcz AplikacjÍ
-2717:WznÛw AplikacjÍ
-2718:NastÍpny
-2719:Wyúlij Raport
-2720:Anuluj
-2721:Dane Kontaktowe
-2722:SzczegÛ≥y B≥Ídu
-2723:Zrzut Ekranu
-2724:Wysy≥anie raportu o b≥Ídzie...
-2725:£πczenie z serwerem...
-2726:Wysy≥anie danych...
-2727:Wysy≥anie raportu o awarii nie powiod≥o siÍ! Nasz serwer moøe byÊ zajÍty, proszÍ sprÛbowaÊ wys≥aÊ go ponownie.
-2728:Informacja
-2729:ProszÍ czekaÊ...
-2730:Kampanie
-2732:Zacznij KampaniÍ
-2734:Øo≥nierze|pokonani
-2736:Tytu≥
-2737:Mapy
-2738:Odblokowane
-2739:Czas
-2740:Uruchom ponownie powtÛrkÍ
-2741:Zamknij powtÛrkÍ
-2742:WznÛw wstrzymanπ powtÛrkÍ
-2743:Jeden krok do przodu
-2744:Wstrzymaj powtÛrkÍ
-2745:Moøesz mieÊ tylko jednπ otwartπ grÍ w trybie wieloosobowym naraz.
-2746:PowtÛrka zakoÒczona
-2747:DODATKOWA MUZYKA:
-2748:Ty
-2749:Gracz %d
-2750:Armia
-2751:MieszkaÒcy
-2752:Domy
-2753:Surowce
-2754:Wyprodukowane surowce
-2755:Statystyki
-2756:Ekonomia
-2757:Budowanie domu
-2758:WyrÛwnywanie terenu pod dom
-2759:Konstruowanie winnicy
-2760:Kopanie pola
-2761:Budowanie drogi
-2762:Dostarczanie
-2763:Sadzienie drzewa
-2764:Idzie do domu
-2765:Naprawianie domu
-2766:Walczenie
-2767:Strzelanie
-2768:Atakowanie domu
-2769:Idzie do gospody
-2770:åcinanie drzewa
-2771:Odpoczynek
-2772:Idzie
-2773:Szturmowanie
-2774:£owienie
-2775:Zbieranie winogron
-2776:Zbieranie zboøa
-2777:Sianie zboøa
-2778:Wydobywanie kamienia
-2779:Atakowanie
+30:Pnie drzew
+31:Kamienie
+32:Drewno
+33:Ruda øelaza
+34:Ruda z≥ota
+35:WÍgiel
+36:Øelazo
+37:Z≥oto
+38:Wino
+39:Ziarno
+40:Chleb
+41:Mπka
+42:Rulony skÛry
+43:Kie≥basa
+44:åwinie
+45:P≥aty skÛry
+46:Drewniana tarcza
+47:Øelazna tarcza
+48:Pancerz
+49:Zbroja
+50:TopÛr
+51:Miecz
+52:Lanca
+53:Halabarda
+54:£uk
+55:Kusza
+56:Konie
+57:Ryby
+58:Pomocnik
+59:Drwal
+60:GÛrnik
+61:Hodowca
+62:Ch≥op
+63:Cieúla
+64:M≥ynarz/Piekarz
+65:Rzeünik/Garbarz
+66:Rybak
+67:Budowniczy
+68:Kamieniarz
+69:Kowal
+70:Hutnik
+71:Rekrut
+72:Øo≥dak
+73:Topornik
+74:Piechur z mieczem
+75:£ucznik
+76:Kusznik
+77:Piechur z lancπ
+78:Pikinier
+79:Lekka jazda
+80:CiÍøka jazda
+81:BarbarzyÒca
+82:Rebeliant
+83:Pacho≥ek
+84:Wojownik
+85:W≥ÛczÍga
+86:Katapulta
+87:Balista
+88:Pomocnik zaopatruje Twoje budynki w niezbÍdne surowce.||PamiÍtaj, øe budynki muszπ byÊ po≥πczone ze sobπ ulicami.
+89:Aby zdobyÊ pnie drzew dla Tartaku, potrzebujesz Drwala.||Drwal sam ponownie zalesia wykarczowane po≥acie lasu.
+90:GÛrnik wydobywa rudy w Kopalni WÍgla, Øelaza i Z≥ota.
+91:W Chlewie i w Stajni Hodowca hoduje úwinie i konie, karmiπc je ziarnem.
+92:Ch≥op sieje i zbiera zboøe w Gospodarstwie.||OprÛcz tego wyt≥acza wino w Winnicy.
+93:Cieúla pracuje w Tartaku Warsztacie P≥atnerskim i w Warsztacie Pancerzy.||OprÛcz tego Cieúla buduje katapulty i balisty w Warsztacie Wojennym.
+94:Piekarz piecze chleb w Piekarni.||Dodatkowo przerabia w M≥ynie ziarno na mπkÍ.
+95:Rzeünik wyrabia kie≥basy w Rzeüni i wyprawia skÛrÍ w Garbarni.
+96:Rybak ≥owi ryby w pobliskich zbiornikach wodnych.
+97:Budowniczy buduje budynki i ulice. Zaznacz wybrane miejsca, a on automatycznie zrealizuje twoje polecenia.||Poza tym naprawia uszkodzone budynki.
+98:Aby Twoi Budowniczy mieli wystarczajπcπ iloúÊ budulca do budowy ulic i domÛw, Kamieniarz eksploatuje kamieÒ.
+99:Kowal wytwarza cieøkiÍ pancerze i broÒ w Kuüni P≥atnerskiej i w Kuüni Zbroi.
+100:Hutnik produkuje z rudy z≥ota i øelaza sztaby z≥ota i stal.
+101:Rekrut otrzymuje w Warowni øo≥nierskie wyposaøenie.||OprÛcz tego pe≥ni wartÍ na Wieøy Straøniczej.
+102:WybÛr budynkÛw
+103:Podzia≥ towarÛw
+104:Statystyka
+105:Opcje
+106:PowrÛt
+107:WybÛr|budynkÛw
+108:Podzia≥|towarÛw
+109:Statystyka
+110:Opcje
+111:Za≥aduj grÍ
+112:Zapisz grÍ
+113:Czy jesteú pewien,|øe chcesz|zakoÒczyÊ grÍ?
+114:ZakoÒcz grÍ
+115:PowrÛt
+116:Ustawienia
+117:ZakoÒcz grÍ
+118:Odg≥osy
+119:Zmiana g≥oúnoúci
+120:Zmiana g≥oúnoúci
+121:Muzyka
+122:W≥πczyÊ/wy≥πczyÊ muzykÍ
+123:Autozapis
+124:Odtwarzacz muzyki
+125:Poprzedni utwÛr
+126:NastÍpny utwÛr
+127:Burzenie
+128:Burzenie budynkÛw i znacznikÛw
+129:Buduj ulice
+130:Budowanie ulic
+131:Oraj pole
+132:Zak≥adanie pola
+133:Za≥Ûø winnicÍ
+134:Winnica
+135:Anuluj
+136:Anuluj aktualne przyuczanie
+137:W zapasie:
+139:Stan:
+140:Dostarcza
+141:Budynek w budowie
+142:Zniszcz
+143:Czy jesteú pewien,|øe chcesz|zburzyÊ budynek?
+144:Niszczy wybrany budynek
+145:Zmniejsz zamÛwienie
+146:ZwiÍksz zamÛwienie
+147:Poprzedni typ jednostki
+148:NastÍpny typ jednostki
+149:UzbrÛj aktualny typ jednostki
+150:NastÍpny zawÛd
+151:Poprzedni zawÛd
+152:Dodaj do kolejki
+153:Dostawa towarÛw w≥πcz/wy≥πcz
+154:Koszty:
+155:Naprawa budynku w≥πcz/wy≥πcz
+156:Budynek obecnie niedostÍpny
+157:Wytrzyma≥oúÊ
+158:ObrÛÊ oddzia≥ w lewo
+159:ObrÛÊ oddzia≥ w prawo
+160:Atakuj ('a')
+161:Wyúlij oddzia≥ ('d')
+162:Zaopatrz oddzia≥ w øywnoúÊ
+163:RozpoczÍcie szturmu
+164:Dodaj szereg
+165:UsuÒ szereg
+166:Wybierz|grupÍ docelowπ
+167:Anuluj
+168:UsuÒ
+169:Usuwa aktualnπ wiadomoúÊ
+170:Idü do
+171:Skacze do pozycji aktualnej wiadomoúci
+172:Zamknij
+173:Zamknij okno
+174:TwÛj Kamieniarz nie znalaz≥ dalszych pok≥adÛw kamienia.
+175:Zasoby Twojej Kopalni WÍgla sπ wyczerpane.
+176:Zasoby Twojej Kopalni Øelaza sπ wyczerpane.
+177:Zasoby Twojej Kopalni Z≥ota sπ wyczerpane.
+179:Ten budynek nie ma gospodarza.
+180:Ten oddzia≥ jest bardzo g≥odny!|Musisz jak najszybciej dostarczyÊ im øywnoúÊ!
+181:PAUZA
+182:Dostarczanie
+183:Budowanie drogi
+184:Kopanie pola
+185:Konstruowanie winnicy
+186:WyrÛwnywanie terenu pod dom
+187:Budowanie domu
+188:Naprawianie domu
+189:Idzie do domu
+190:Idzie do gospody
+191:Atakowanie domu
+192:Strzelanie
+193:Walczenie
+194:Szturmowanie
+195:Atakowanie
+196:Idzie
+197:Odpoczynek
+198:Wydobywanie kamienia
+199:Sianie zboøa
+200:Zbieranie zboøa
+201:Zbieranie winogron
+202:£owienie
+203:åcinanie drzewa
+204:Sadzienie drzewa
+205:Spirit
+206:Busy
+207:Middle Ages Horn
+208:Spring
+209:Lute
+210:Mercenary
+211:The Princess
+212:The Queen
+213:In the Marketplace
+214:On the Battlefield
+215:Court Dance
+216:The Army
+217:In the Castle
+218:Fanfares
+219:At Court
+220:Entree
+221:Deep Blue
+222:Struggle
+223:Royal Quarters
+224:Aristocracy
+225:At the Harbor
+226:Journey
+227:Kampanie
+229:Zacznij KampaniÍ
+230:Rozegraj jednπ misjÍ
+231:Zacznij misjÍ
+232:G≥Ûwne menu
+233:Za≥aduj grÍ
+234:Gra w sieci
+235:Opcje
+236:Autorzy
+237:ZakoÒcz grÍ
+238:Dalej
+239:PowtÛrz misjÍ
+240:RozdzielczoúÊ:
+241:Nie obs≥ugiwane
+242:Nie obs≥ugiwane
+243:MISJA WYPE£NIONA!
+244:MISJA NIEWYPE£NIONA!
+245:Utracone jednostki:
+246:Pokonane jednostki:
+247:Utracone budynki:
+248:Zburzone budynki:
+249:Zbudowane budynki:
+250:Wyszkolone jednostki:
+251:Wyprodukowana broÒ:
+252:Wyposaøeni wojownicy:
+253:Czas trwania gry:
+254:Statystyki
+255:Ekonomia
+256:Poddani|wyszkoleni
+257:Poddani|straceni
+258:Øo≥nierze|wyszkoleni
+259:Øo≥nierze|straceni
+260:Øo≥nierze|pokonani
+261:Budynki|wybudowane
+262:Budynki|utracone
+263:Budynki|zniszczone
+264:Towary|wyprodukowane
+265:BroÒ|wyprodukowana
+266:Armia
+267:MieszkaÒcy
+268:Domy
+269:Surowce
+270:Wyprodukowane surowce
+272:Ty
+273:Gracz %d
+279:JOYMANIA ENTERTAINMENT||PROGRAMOWANIE:|Peter Ohlmann||GRAFIKA:|Adam Sprys||MISJE:|Adam Sprys|AndrÈ Quaﬂ||DèWI KI:|Tonstudio Mannheim||MUZYKA:|Gerd Hofmann|Joachim Sch‰fer|J¸rgen Rebhann|Klaus Staendike|Steffen Sch¸ngel||ILUSTRACJE:|Boles≥aw Kasza|Christoph Werner||ZUXXEZ ENTERTAINMENT AG||PRODUCENT:|Uwe Sch‰fer||INSTRUKCJA:|Peter Ohlmann|Uwe Sch‰fer||BETA-TESTERZY:|Peter Ohlmann|Adam Sprys|Alexandra Constandache|Dirk P. Hassinger|Achim Heidelauf|Uwe Sch‰fer|Ingrid Sch‰fer|Dirk U. Jantz|Ion Constandache|Yaman Egeli|Roman Eich|Iris Mocsnek|Anke Jantz|Paul Hassinger|Liza Hassinger||NADZ”R PRODUKCJI:|Achim Heidelauf||WYDAWCA:|TopWare Poland||FILMY:||NADZ”R PRODUKCJI:|S≥awomir JÍdrzejewski||Kajetan Czarnecki|Wojciech Drazek|Daniel Duplaga|Rafa≥ Januszkiewicz|Andrzej Rams|Piotr Rulka|Krzysztof RybczyÒski|Grzegorz Wiúniewski||G£OS”W UØYCZYLI:|Zbigniew Abrachamowicz|W≥adys≥aw Aniszewski|Jerzy Batycki|Kazimierz Czapla|Bartosz Dziedzic|Ireneusz OgrodziÒski|Grzegorz Sikora|Janusz Siwy|Tomasz Sylwestrzak|Piotr Tomaszewski|Robert Wdaniec||PROJEKT INSTRUKCJI:|Uwe Sch‰fer|Alexandra Constandache||TREå∆ INSTRUKCJI:|Peter Ohlmann|Uwe Sch‰fer||ILUSTRACJE:|Boles≥aw Kasza|Adam Sprys||INTRO:|Uwe Sch‰fer|Christian Bigalk|Dodatkowe Modelowanie 3D:|Niels Horstmann||SPECJALNE|PODZI KOWANIA DLA:|Tadeusz Zuber|Dieter Ohlmann|Alexandra Constandache|Ingrid Sch‰fer|Andrea Rumpelt
+280:Misja anulowana
+281:PowtÛrka zakoÒczona
+282:Samouczek zarzπdzania miastem
+283:Samouczek dowodzenia podczas bitwy
+284:Jeden Gracz
+285:Edytor Map
+286:Rozpocznij Misje
+287:Tytu≥
+288:Rozmiar
+289:Warunki wygranej:
+290:Warunki przegranej:
+291:Sojusznicy:
+292:Wrogowie:
+293:Czas
+294:Rozmiar nowej mapy
+295:SzerokoúÊ
+296:WysokoúÊ
+297:StwÛrz Nowπ MapÍ
+298:DostÍpne mapy
+299:Za≥aduj Istniejπcπ MapÍ
+301:Kontrola:
+302:Rozgrywka:
+303:DüwiÍk
+304:Wy≥πcz muzykÍ
+305:Grafika:
+306:JasnoúÊ:
+308:Pe≥ny Ekran:
+309:Zastosuj
+310:JÍzyk:
+311:JakoúÊ cieni:
+312:Niska
+313:Wysoka
+314:£adowanie... ProszÍ czekaÊ
+315:Wystπpi≥ B≥πd!
+316:£adowanie nowej lokalizacji
+317:Lista zapisanych gier
+318:Nazwa pliku
+319:Opis
+320:Za≥aduj
+321:UsuÒ
+322:Jesteú pewny øe chcesz usunπÊ ten zapis?
+323:UsuÒ
+324:Anuluj
+325:Tytu≥
+326:Mapy
+327:Odblokowane
+328:Wygra≥eú!
+329:Kontynuuj grÍ
+330:ZwyciÍstwo!
+331:Przegra≥eú!
+332:Kontynuuj oglπdanie
+333:Poraøka
+334:PowtÛrka siÍ zakoÒczy≥a
+335:Kontynuuj oglπdanie
+336:Wyjdü do menu
+337:NiedostÍpne
+338:Naciúnij %s aby wznowiÊ grÍ
+339:Informacje gracza
+340:Czat
+341:Zapis juø istnieje
+342:Zastπp
+343:Zapisz
+344:Za≥aduj
+345:Wykryto starπ wersjÍ OpenGL, gra moøe dzia≥aÊ wolno i/lub z b≥Ídami grafiki.
+346:ProszÍ zaktualizuj sterowniki karty graficznej aby uzyskaÊ wiÍkszπ wydajnoúÊ.
+347:B≥πd sieci:
+348:B≥πd: Nie wpisa≥eú imienia
+349:B≥πd: Nazwa gracza nie moøe byÊ d≥uøsza niø %d znakÛw
+350:B≥πd: Nazwa gracza zawiera niedozwolone znaki
+351:Po≥πczenie nie powiod≥o siÍ: %s
+352:Zosta≥eú roz≥πczony
+353:Misja %d
+355:Twoja Chata rybaka jest zbyt daleko od wody.
+356:TwÛj rybak nie moøe z≥owiÊ wiÍcej ryb w pobliskich zbiornikach wodnych.
+357:Uruchom ponownie powtÛrkÍ
+358:Wstrzymaj powtÛrkÍ
+359:Jeden krok do przodu
+360:WznÛw wstrzymanπ powtÛrkÍ
+361:Zamknij powtÛrkÍ
+364:Uøyj lewego przycisku myszy, aby wybraÊ towar do handlu
+365:Uøyj prawego przycisku myszy, aby wybraÊ towar do handlu
+366:Z x%d
+367:Na x%d
+368:Edycja terenu
+394:Planowanie osady
+395:Skrypty wizualne
+396:Skryptowanie globalne
+397:Menu
+499:Nowa Misja
+500:ImiÍ gracza
+501:Status:
+502:UtwÛrz Serwer
+503:STW”RZ SERWER
+504:Nazwa
+505:Port
+506:StwÛrz serwer lokalny
+507:StwÛrz serwer internetowy
+508:Anuluj
+509:Znajdü Serwer przez IP
+510:ZNAJDè SERWER
+511:Adres
+512:Port
+513:PokÛj
+514:Po≥πcz
+515:Anuluj
+518:Nazwa Serwera
+519:Stan
+520:Gracze
+521:Ping
+522:Odúwieø ListÍ SerwerÛw
+523:SZCZEG”£Y SERWERA
+524:Lista graczy:
+525:Do≥πcz
+526:£πczenie, proszÍ czekaÊ...
+527:£adowanie og≥oszeÒ...
+528:Odúwieøanie...
+529:Lista graczy
+530:Lokalizacja poczπtkowa
+531:Druøyna
+532:Kolor
+533:Gotowy
+534:Ping
+536:Wolne
+537:Komputer
+538:Wybierz...
+539:Przypadkowe
+540:Øadna
+541:Zapisane Gry
+542:Wybierz mapÍ...
+543:Wybierz zapis...
+544:Wyjdü
+545:Gotowy
+546:Nie gotowy
+547:Start!
+561:Lokacja %d
+562:B≥πd: Wybierz gracza z zapisu do kontrolowania
+563:B≥πd: Nie uda≥o siÍ za≥adowaÊ mapy lub nie wybrano mapy
+564:Nie moøna rozpoczπÊ: %s
+565:Nie wszyscy sπ gotowi do rozpoczÍcia
+567:Serwer przypisa≥ prawa hosta do nas
+568:Gra rozpoczÍta
+569:Mapa Ekonomiczna
+570:Mapa Taktyczna
+571:Mapa Kooperacyjna
+573:Opcje gry:
+574:Okres pokojowy (minuty)
+575:ZamkniÍte
+576:Host konfiguruje gracza
+577:Oczekiwanie na graczy:
+580:Autorzy KaM Remake
+581:Autorzy Oryginalnego Knights & Merchants
+582:PROGRAMOWANIE:
+583:DODATKOWE PROGRAMOWANIE:
+584:DODATKOWE GRAFIKI;
+585:DODATKOWE DèWI KI:
+586:DODATKOWA MUZYKA:
+587:DODATKOWE T£UMACZENIE:
+588:SPECJALNE PODZI KOWANIA DLA:
+589:Mapy dla wielu graczy
+590:Mapy dla jednego gracza
+591:PrÍdkoúÊ przewijania
+592:Nie znaleziono serwerÛw
+593:Wymieszaj utwory
+594:Informacje o grze:
+595:-
+596:Lobby
+597:£adowanie
+598:Gra
+599:Budowa i Walka
+600:Walka
+601:Gotowy
+602:Z≥a wersja protoko≥u: %s. Serwer uøywa: %s
+603:ZwiÍksz iloúÊ towarÛw
+604:Zmniejsz iloúÊ towarÛw
+605:Zapisywanie gry...
+606:%s zosta≥ pokonany!
+607:WyrzuÊ graczy
+608:Host bÍdzie mÛg≥ wyrzuciÊ tych graczy za %d sekund
+609:Host moøe juø wyrzuciÊ tych graczy
+610:Host (%s) wyszed≥
+611:Po≥πczenie z serwerem zosta≥o utracone. PrÛba ponownego po≥πczenia ...
+612:Czy na pewno chcesz wyjúÊ?
+613:Czy na pewno chcesz bezpowrotnie wyrzuciÊ tych graczy?
+614:Anuluj
+615:Handlowanie tym zasobem jest nie moøliwe w tej misji
+616:Sadü i úcinaj
+617:Tylko úcinaj
+618:Nie masz prawa tego robiÊ w okresie pokoju
+619:Pozosta≥y okres pokojowy: %s
+620:Okres pokojowy minπ≥. Do broni!
+621:Czas gry:|%s
+622:Zatrzymaj oddzia≥ i formuj szyk ('%s')
+623:Po≥πcz oddzia≥y ('%s')
+624:Rozdziel oddzia≥ ('%s')
+625:Podglπd PowtÛrek
+626:Zobacz powtÛrkÍ
+627:Niewspierany format %s
+628:Niewspierana wersja %s
+630:Wystπpi≥ b≥πd podczas przetwarzania pliku %s
+631:inicjowanie
+632:skrypt
+633:jednostki
+634:domy
+635:drzewa
+636:definicje
+637:grafiki terenu
+638:Mapy nie odnaleziono: %s
+639:Zapisu nie odnaleziono: %s
+640:Pliki mapy nie zgadzajπ siÍ z mapπ hosta: %s
+641:Plik zapisu nie zgadza siÍ z zapisem hosta: %s
+642:PowtÛrka wykaza≥a niespÛjnoúÊ podczas sprawdzania. Jest to znany b≥πd, ktÛry wp≥ywa na odtwarzanie niektÛrych powtÛrek. Czy chcesz kontynuowaÊ oglπdanie?
+643:Moøesz mieÊ tylko jednπ otwartπ grÍ w trybie wieloosobowym naraz.
+645:Wystπpi≥ b≥πd w aplikacji. ProszÍ kliknπÊ Wyúlij Raport o B≥Ídach, abyúmy mogli zbadaÊ ten problem. DziÍkujemy za pomoc!
+646:Wyúlij Raport o B≥Ídach
+647:Pokaø Dane Pierwotne
+648:WznÛw AplikacjÍ
+649:ZakoÒcz AplikacjÍ
+650:NastÍpny
+651:Dane Kontaktowe
+652:Twoje imiÍ: (opcjonalnie)
+653:TwÛj email: (opcjonalnie)
+654:ZapamiÍtaj mnie
+655:SzczegÛ≥y B≥Ídu
+656:W jakiej sytuacji wystÍpuje b≥πd? Moøesz podaÊ dodatkowe informacje? (preferowany agielski)
+657:Zrzut Ekranu
+658:Do≥πcz zrzut ekranu do raportu o b≥Ídzie
+659:(kliknij, aby edytowaÊ obraz)
+660:Wyúlij Raport
+661:Anuluj
+662:Wysy≥anie raportu o b≥Ídzie...
+663:£πczenie z serwerem...
+664:Wysy≥anie danych...
+665:Wysy≥anie raportu o awarii nie powiod≥o siÍ! Nasz serwer moøe byÊ zajÍty, proszÍ sprÛbowaÊ wys≥aÊ go ponownie.
+666:Informacja
+667:ProszÍ czekaÊ...

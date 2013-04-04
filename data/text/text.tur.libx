@@ -1,5 +1,5 @@
 
-MaxID:2957
+MaxID:667
 
 0:Marangozhane
 1:Demir Dökümhanesi
@@ -31,504 +31,504 @@ MaxID:2957
 27:Yemekhane
 28:Þarap Mahzeni
 29:Market
-39:Odun
-40:Taþ
-41:Tahta
-42:Demir Cevheri
-43:Altýn Cevheri
-44:Kömür
-45:Demir
-46:Altýn
-47:Þarap
-48:Mýsýr
-49:Ekmek
-50:Un
-51:Kumaþ
-52:Sucuk
-53:Domuz
-54:Deri
-55:Tahta Kalkan
-56:Demir Kalkan
-57:Kumaþ Zýrh
-58:Demir Zýrh
-59:Balta
-60:Kýlýç
-61:Tahta Mýzrak
-62:Demir Mýzrak
-63:Yay
-64:Arbalet
-65:At
-66:Balýk
-69:Hamal
-70:Oduncu
-71:Madenci
-72:Hayvan Yetiþtiricisi
-73:Çiftçi
-74:Marangoz
-75:Fýrýncý
-76:Kasap
-77:Balýkçý
-78:Ýþçi
-79:Taþçý
-80:Demirci
-81:Metalurjici
-82:Asker
-83:Milis
-84:Balta Savaþçýsý
-85:Kýlýç Savaþçýsý
-86:Okçu
-87:Arbaletçi
-88:Tahta Mýzrakçý
-89:Demir Mýzrakçý
-90:Ýzci
-91:Þovalye
-92:Barbar
-93:Asi
-94:Haydut
-95:Savaþçý
-96:Serseri
-97:Mancýnýk
-98:Ballista
-99:Hamallar binalarýnýz için gerekli malzemeleri taþýrlar.||Binalar yollarla birbirine baðlanmalýdýr.
-100:Oduncular marangozhane için gerekli odunu saðlarlar.
-101:Madenciler kömür, demir ve altýn madeninden cevherler toplarlar.
-102:Hayvan yetiþtiricileri mýsýr kullanarak domuz veya at yetiþtirirler.
-103:Çiftçiler mýsýr veya üzüm yetiþtirebilirler.
-104:Marangozlar odun veya tahta iþleyerek marangozhane, silah atölyesi veya zirh atölyesinde çalýþýrlar.||Ayrýca savaþ atölyesinde mancýnýk veya ballista yapabilirler.
-105:Fýrýncýlar deðirmende mýsýrdan un yaparlar.||Ayrýca fýrýnda da undan ekmek yaparlar.
-106:Kasaplar domuzdan sucuk, deriden kumaþ yaparlar.
-107:Balýkçýlar yakýn su kýyýlarýnda balýk tutarlar.
-108:Ýþçiler binalar ve binalar için gerekli yollarý yaparlar.||Ayrýca hasar görmüþ binalarý onarýrlar.
-109:Taþçýlar yol ve bina yapýmý için gerekli taþý kazarlar.
-110:Demirciler demirden silah ve zýrh yaparlar.
-111:Metalurjiciler kömür kullanarak demir veya altýný rafine ederler.
-112:Askerler kalede yetiþtirilmek için kullanýlýrlar.||Ayrýca kulelerde de görevli olurlar.
-147:Bina seçimi
-148:Kaynak daðýlýmý
-149:Ýstatistikler
-150:Seçenekler
-151:Geri
-152:Binalar
-153:Kaynak||Daðýlýmý
-154:Ýstatistikler
-155:Seçenekler
-156:Oyunu Yükle
-157:Oyunu Kaydet
-158:Çýkmak istediðinize|emin misiniz?
-159:Çýkýþ
-160:Geri
-161:Ayarlar
-162:Çýkýþ
-163:SFX
-164:Sesi deðiþtir
-165:Müzik
-166:Müzik aç/kapa
-167:Otomatik kayýt
-168:Müzik Oynatýcý
-169:Önceki Þarký
-170:Sonraki Þarký
-171:Yýk
-172:Binalarý yýk
-173:Yol yap
-174:Yol yap
-175:Tarla kaz
-176:Tarla kaz
-177:Üzüm baðý yap
-178:Üzüm baðý yap
-179:Ýptal
-180:Eðitimi iptal et
-181:Ýhtiyaçlar:
-182:Durum:
-183:Üretim
-184:Bina yapým|aþamasýnda
-185:Yýk
-186:Yýkmak istediðinize|emin misiniz?
-187:Seçilen binayý yýk
-188:Miktarý azalt
-189:Miktarý arttýr
-190:Önceki asker tipi
-191:Sonraki asker tipi
-192:Seçilen askeri eðit
-193:Sonraki meslek
-194:Önceki meslek
-195:Sýraya ekle
-196:Maliyet:
-197:Bina onarýmýný aç/kapa
-198:Bina þu anda uygun deðil
-199:Durum
-200:Sola döne
-201:Saða dön
-202:Saldýr ('a')
-203:Ayýr ('d')
-204:Besle
-205:Hýzlý saldýrý baþlat
-206:Sýra ekle
-207:Sýra düþür
-208:Grup|seç
-209:Ýptal
-210:Sil
-211:Seçili mesajý sil
-212:Git
-213:Seçili mesaj konumuna git
-214:Kapat
-215:Pencereyi kapat
-216:|Taþçýnýz daha fazla taþ kaynaðýna ulaþamýyor.
-217:|Kömür madeniniz tükenmiþ.
-218:|Demir madeniniz tükenmiþ.
-219:|Altýn madeniniz tükenmiþ.
-220:|Bu ev kullanýlmýyor.
-221:|Askerleriniz acýktý, beslemeniz gerekiyor.
-222:Bekle
-223:Sesi deðiþtir
-224:Kaynak daðýlýmýný aç/kapa
-418:Ruh
-419:Meþgul
-420:Orta Çað Kornalarý
-421:Bahar
-422:Ut
-423:Paralý Asker
-424:Prenses
-425:Kraliçe
-426:Pazar Yerinde
-427:Savaþ Alanýnda
-428:Avluda Dans
-429:Ordu
-430:Kalede
-431:Kornalar
-432:Avluda
-433:Üniforma
-434:Derin Mavi
-435:Mücadele
-436:Kraliyet Meydaný
-437:Aristokrasi
-438:Limanda
-439:Yolculuk
-849:Tek Oyunculu Harita
-850:Haritayý Baþlat
-851:Menüye Dön
-852:Kayýtlý Oyunu Yükle
-853:Çok Oyunculu
-854:Seçenekler
-855:Credits
-856:Oyundan Çýk
-857:Devam Et
-858:Baþtan Baþlat
-859:Çözünürlük:
-860:ZAFER!
-861:MAÐLUBÝYET!
-862:Öldürülen askerler:
-863:Öldürülen birimler:
-864:Kaybedilen binalar:
-865:Yýkýlan binalar:
-866:Yapýlan binalar:
-867:Eðitilen birimler:
-868:Üretilen silahlar:
-869:Eðitilen askerler:
-870:Görev tamamlandý:
-1000:JOYMANIA ENTERTAINMENT||PROGRAMMING:|Peter Ohlmann||GAME GRAPHICS:|Adam Sprys||LEVEL DESIGN:|Adam Sprys|André Quaß||SOUND EDITING AND MIXING:|Tonstudio Mannheim||MUSIC:|Gerd Hofmann|Joachim Schäfer|Jürgen Rebhann|Klaus Staendike|Steffen Schüngel||ILLUSTRATIONS:|Boleslaw Kasza|Christoph Werner||TRANSLATION:|Ronnie Shankland|Patricia Bellantuono|Andrea Rumpelt|||ZUXXEZ ENTERTAINMENT AG||PRODUCER:|Uwe Schäfer||MANUAL:|Peter Ohlmann|Uwe Schäfer||BETA TESTING:|Peter Ohlmann|Adam Sprys|Alexandra Constandache|Dirk P. Hassinger|Achim Heidelauf|Uwe Schäfer|Ingrid Schäfer|Dirk U. Jantz|Ion Constandache|Yaman Egeli|Roman Eich|Iris Mocsnek|Anke Jantz|Paul Hassinger|Liza Hassinger||GAMES DIRECTOR:|Achim Heidelauf||PUBLISHED BY:|TopWare Interactive||CUTSCENES:||DIRECTION:|Slawomir Jedrzejewski||Kajetan Czarnecki|Wojciech Drazek|Daniel Duplaga|Rafal Januszkiewicz|Andrzej Rams|Piotr Rulka|Krzysztof Rybczynski|Grzegorz Wisniewski||VOICES:|Claus Boyen (Storyteller)||Tim Timmermann|Peter Houska|Dirk Mühlbach|Ralf Ditze|Gerhard Piske|Gernot Wassmann||ARTWORK:|Boleslaw Kasza|Adam Sprys||OPENING ANIMATION:|Uwe Schäfer|Christian Bigalk|Additional 3D-Modelling:|Niels Horstmann||SPECIAL THANKS TO:|Tadeusz Zuber|Dieter Ohlmann|Alexandra Constandache|Ingrid Schäfer
-1686:Görev iptal edildi
-1687:Yapým Eðitimi
-1688:Savaþ Eðitimi
-1689:Tek Oyunculu
-1690:Harita Düzenleyici
-1692:Yeni Görev
-1693:Baþlýk
-1694:Boyut
-1696:Kazanma þartlarý: %s
-1697:Yenilgi þartlarý: %s
-1698:Dostlar:
-1699:Düþmanlar:
-1701:Yeni harýta boyutu
-1702:Geniþlik
-1703:Yükseklik
-1704:Yeni Harita Oluþtur
-1705:Uygun haritalar
-1706:Var Olan Haritayý Yükle
-1707:Kontroller:
-1708:Oynayýþ:
-1709:Ses:
-1710:Müziði kapat
-1711:Grafikler:
-1712:Parlaklýk
-1713:Tam Ekran
-1714:Uygula
-1715:Dil:
-1716:Yükleniyor... Lütfen bekleyiniz
-1717:Bir hata oluþtu!
-1718:Loading new locale
-1719:Kayýtlarýn listesi
-1720:Dosya adý
-1721:Açýklama
-1722:Yükle
-1723:Sil
-1724:Bu kaydý silmek istediðinize emin misiniz?
-1725:Sil
-1726:Ýptal
-1728:Hazandýnýz!
-1729:Oynamaya devam et
-1730:Zafer!
-1731:Kaybettiniz!
-1732:Ýzlemeye devam et
-1733:Maðlubiyet
-1734:Kayýt bitti
-1735:Ýzlemeye Devam Et
-1736:Menüye Dön
-1737:Uygun deðil
-1738:Oyuna devam etmek için %s e basýnýz
-1740:Oyuncu bilgisi
-1741:Sohbet
-1742:Kayýt zaten var
-1743:Üstüne Kaydet
-1744:Kaydet
-1745:Yükle
-1748:Eski OpenGL versiyonu tespit edildi, oyunda yavaþlamalara neden olabilir
-1749:Network hatasý:
-1750:Hata: Oyuncu ismi boþ kalamaz
-1751:Baðlantý baþarýsýz oldu: %s
-1752:Baðlantýnýz koptu
-1753:Görev %d
-1754:Balýkçýnýz suya çok uzak.
-1755:Balýkçýnýz daha fazla balýða ulaþamýyor.
-1757:Vermek istediðiniz malzeme için sol týklayýnýz
-1758:Almak istediðiniz malzeme için sað týklayýnýz
-1759:From x%d
-1760:To x%d
-1761:Arazi düzenleme
-1762:Köy planlama
-1763:Görsel kodlama
-1764:Global kodlama
-1765:Menü
-1766:Durum:
-1767:Oyuncu adý
-1768:SUNUCU OLUÞTUR
-1769:Ýsim
-1770:Port
-1771:Yerel Sunucu Oluþtur
-1772:Ýnternet Sunucusu Oluþtur
-1773:Sunucu ismi
-1774:Durum
-1775:Oyuncular
-1776:Ping
-1777:Sunucu Listesini Güncelle
-1778:SUNUCU DETAYLARI
-1779:Oyuncu listesi:
-1780:Adres
-1781:Port
-1782:Oda
-1783:Katýl
-1784:Baðlanýyor, lütfen bekleyiniz...
-1785:Duyurular yükleniyor...
-1786:Güncelleniyor...
-1787:Oyuncu listesi
-1788:Baþlama pozisyonu
-1789:Takým
-1790:Renk
-1791:Hazýr
-1792:Ping
-1794:Açýk
-1795:YZ Oyuncu
-1796:Seç...
-1797:Rastgele
-1799:Boþ
-1805:Kayýtlý Oyun
-1806:Bir harita seçin...
-1807:Bir kayýt seçin...
-1813:Lobiye dön
-1814:Hazýr
-1815:Baþla!
-1816:Bu oyuncular için bekleniyor:
-1817:KaM Remake
-1818:Orjinal Knights & Merchants
-1819:PROGRAMLAMA:
-1820:EK PROGRAMLAMA:
-1821:EK GRAFÝKLER:
-1822:EK ÇEVÝRÝLER:
-1823:ÖZEL TEÞEKKÜRLER:
-1824:Çok oyunculu haritalar
-1825:Tek oyunculu haritalar
-1826:Kaydýrma hýzý
-1827:Hiçbir sunucu bulunamadý
-1828:Parçalarý karýþtýr
-1829:Oyun bilgisi:
-1830:-
-1831:Lobi
-1832:Yükleniyor
-1833:Oyun
-1834:Pozisyon %d
-1835:Yapým ve Savaþ
-1836:Savaþ
-1837:Hazýr deðil
-1838:Hazýr
-1839:Hata: Lütfen kontrol etmek için kayýttan bir oyuncu seçiniz
-1840:Hata: Harýta yüklenmesi baþarýsýz veya bir harita seçilmedi
-1841:Baþlayamýyor: %s
-1842:Herkes baþlamak için hazýr deðil
-1844:Yanlýþ protokol versiyonu: %s. Sunucunun versiyonu: %s
-1845:Sunucu, ev sahibi haklarýný bize verdi
-1846:Ticaret miktarýný arttýr
-1847:Ticaret miktarýný azalt
-1848:Oyun kaydediliyor...
-1849:%s yok edildi!
-1850:EK SESLER:
-1851:Oyuncularý düþür
-1852:Ev sahibi %d saniye sonra bu oyuncularý düþürebilecek
-1853:Ev sahibi þimdi bu oyuncularý düþürebilir
-1854:Ev sahibi (%s) oyundan çýktý
-1855:Sunucu ile baðlantý kesildi. Tekrar baðlanmaya çalýþýlýyor...
-1856:Çýkmak istediðinize emin misiniz?
-1857:Bu oyuncuyu kalýcý olarak düþürmek istediðinize emin misiniz?
-1858:Ýptal
-1859:Yetiþtirilen|köylüler
-1860:Kaybedilen|köylüler
-1861:Yetiþtirilen|askerler
-1862:Kaybedilen|askerler
-1864:Yapýlan|binalar
-1865:Kaybedilen|binalar
-1866:Yýkýlan|binalar
-1867:Üretilen|kaynaklar
-1868:Üretilen|silahlar
-1869:Bu kaynaðýn ticaretine bu görevde izin verilmiyor
-1870:Kes ve dik
-1871:Sadece kes
-1872:Oyun baþladý
-1873:Yapým Haritasý
-1874:Savaþ Haritasý
-1875:Ýþ Birliði Haritasý
-1876:Barýþ süresince buna izin verilmez
-1877:Kalan barýþ süresi: %s
-1878:Barýþ süresi bitti. Silahlarý kuþanýn!
-1879:Oyun süresi:|%s
-1880:Oyun seçenekleri:
-1884:Birliði durdur ('%s')
-1885:Birliði birleþtir ('%s')
-1886:Birliði ayýr ('%s')
-1887:Kayýt Ýzleyici
-1888:Kayýt Ýzle
-1889:Barýþ süresi (dakika)
-1890:Desteklenmeyen biçim %s
-1891:Desteklenmeyen versiyon %s
-1893:baþlatýlýyor
-1895:komut
-1896:Yeni Oyun
-1897:Dosya ayrýþtýrýlýrken bir hata oluþtu %s
-1898:Kapalý
-1899:Oyuncu ayarlarýný ev sahibi yapýyor
-1901:birimler
-1902:evler
-1903:aðaçlar
-1904:tanýmlamalar
-1905:döþemeler
-2687:Sunucu Oluþtur
-2688:SUNUCU BUL
-2689:Baðlan
-2690:IP ile Sunucu Bul
-2691:Ýptal
-2692:Ýptal
-2693:Desteklenmiyor
-2694:Desteklenmiyor
-2695:Hata: Oyuncu ismi %d karakterden uzun olamaz
-2696:Hata: Oyuncu ismi uygun olmayan karakter içeriyor
-2697:Gölge kalitesi:
-2698:Düþük
-2699:Yüksek
-2700:Harita bulunamadý: %s
-2701:Harita dosyasý ev sahibi ile uygun deðil: %s
-2702:Kayýt bulunamadý: %s
-2703:Kayýt dosyasý ev sahibi ile uygun deðil: %s
-2705:Daha iyi bir performans için lütfen grafik sürücünüzü güncelleyiniz
-2706:Uygulamada hata oluþtu. Lütfen hata raporu gönderiniz. Yardýmlarýnýz için teþekkürler.
-2707:Hata Raporu Gönder
-2708:Kaynak Bilgiyi Göster
-2709:Tekrar oynatma tutarlýlýk hatasý oldu. Bu hatanýn bazý oyuncularýn tekrar oynatýlmasýna etkileri olduðu biliniyor. Ýzlemeye devam etmek ister misiniz?
-2710:Adýnýz: (opsiyonel)
-2711:Email adresiniz: (opsiyonel)
-2712:Beni hatýrla
-2713:Hangi durumda oluþtu? Ek bilgi saðlayabilir misiniz? (tercihen Ýngilizce)
-2714:Hata raporuna ekran görüntüsü ekle
-2715:(düzenlemek için resme týklayýn)
-2716:Uygulamayý Kapat
-2717:Uygulamaya Devam Et
-2718:Sonraki
-2719:Hata Raporu Gönder
-2720:Ýptal
-2721:Ýletiþim Bilgileri
-2722:Hata Ayrýntýlarý
-2723:Ekran görüntüsü
-2724:Hata raporu gönderiliyor...
-2725:Sunucuya baðlanýlýyor...
-2726:Bilgi gönderiliyor...
-2727:Hata raporu gönderimi baþarýsýz! Sunucularýmýz meþgul olabilir, lütfen tekrar deneyiniz.
-2728:Bilgi
-2729:Lütfen bekleyiniz...
-2730:Seferler
-2731:Özel Seferler
-2732:Seferi Baþlat!
-2734:Öldürülen|askerler
-2736:Baþlýk
-2737:Haritalar
-2738:Kilitli deðil
-2739:Zaman
-2740:Kaydý baþtan baþlat
-2741:Kayýttan çýk
-2742:Kaydý oynatmaya devam et
-2743:Adým 1 ileri
-2744:Kaydý durdur
-2745:Ayný anda sadece bir tane çoklu oyuncu moduna girebilirsiniz
-2746:Kayýt bitti
-2747:EK MÜZÝK:
-2748:Siz
-2749:Oyuncu %d
-2750:Ordu
-2751:Köylüler
-2752:Binalar
-2753:Kaynaklar
-2754:Üretilen malzemeler
-2755:Ýstatistikler
-2756:Ekonomi
-2757:Bina yapýyor
-2758:Bina zemini hazýrlýyor
-2759:Üzüm baðý yapýyor
-2760:Tarla kazýyor
-2761:Yol yapýyor
-2762:Taþýyor
-2763:Aðaç ekiyor
-2764:Evine gidiyor
-2765:Binayý onarýyor
-2766:Savaþýyor
-2767:Ok atýyor
-2768:Binaya saldýrýyor
-2769:Yemekhaneye gidiyor
-2770:Aðaç kesiyor
-2771:Boþta
-2772:Yürüyor
-2773:Hýzlý saldýrýya çýkmýþ
-2774:Balýk tutuyor
-2775:Üzüm topluyor
-2776:Mýsýr biçiyor
-2777:Mýsýr ekiyor
-2778:Taþ kazýyor
-2779:Saldýrýyor
-2780:Oyun içi deðiþikliklere çoklu oyuncu modunda izin verilmiyor.|Lütfen orjinal oyun dosyalarýný tekrar yükleyiniz.
-2781:Desteklenmeyen deðiþiklikler
-2785:Yükselt / Alçalt
-2787:Yükselt (sol týk) / Alçalt (sað týk)
-2788:Daðýt / Düzleþtir
-2790:Daðýt (sol týk) / Düzleþtir (sað týk)
-2792:Kare fýrça
-2793:Daire fýrça
-2794:Yükselti eðimini deðiþtirmek için sürükleyiniz: 1 = alçak... 15 = yüksek
-2795:Fýrça boyutunu deðiþtirmek için sürükleyiniz
-2797:Nesneler
-2798:Döþemeler
-2799:Fýrçalar
-2800:Yükseltiler
-2804:Seçili döþemeyi çevirmek için sað týklayýnýz
-2805:Rastgele yönlendirme için iþaretle veya seçili döþemeyi çevirmek için sað týkla
-2806:Rastgele Yön
-2807:Boyut
-2808:Eðim
-2809:Bir nesneyi kaldýr
-2810:Yükselti hýzýný deðiþtirmek için sürükleyiniz: 1 = yavaþ... 15 = hýzlý
-2811:Hýz
-2812:|Oduncunuz aðaç dikip kesecek yer bulamýyor.
-2813:Fýrça þekli
+30:Odun
+31:Taþ
+32:Tahta
+33:Demir Cevheri
+34:Altýn Cevheri
+35:Kömür
+36:Demir
+37:Altýn
+38:Þarap
+39:Mýsýr
+40:Ekmek
+41:Un
+42:Kumaþ
+43:Sucuk
+44:Domuz
+45:Deri
+46:Tahta Kalkan
+47:Demir Kalkan
+48:Kumaþ Zýrh
+49:Demir Zýrh
+50:Balta
+51:Kýlýç
+52:Tahta Mýzrak
+53:Demir Mýzrak
+54:Yay
+55:Arbalet
+56:At
+57:Balýk
+58:Hamal
+59:Oduncu
+60:Madenci
+61:Hayvan Yetiþtiricisi
+62:Çiftçi
+63:Marangoz
+64:Fýrýncý
+65:Kasap
+66:Balýkçý
+67:Ýþçi
+68:Taþçý
+69:Demirci
+70:Metalurjici
+71:Asker
+72:Milis
+73:Balta Savaþçýsý
+74:Kýlýç Savaþçýsý
+75:Okçu
+76:Arbaletçi
+77:Tahta Mýzrakçý
+78:Demir Mýzrakçý
+79:Ýzci
+80:Þovalye
+81:Barbar
+82:Asi
+83:Haydut
+84:Savaþçý
+85:Serseri
+86:Mancýnýk
+87:Ballista
+88:Hamallar binalarýnýz için gerekli malzemeleri taþýrlar.||Binalar yollarla birbirine baðlanmalýdýr.
+89:Oduncular marangozhane için gerekli odunu saðlarlar.
+90:Madenciler kömür, demir ve altýn madeninden cevherler toplarlar.
+91:Hayvan yetiþtiricileri mýsýr kullanarak domuz veya at yetiþtirirler.
+92:Çiftçiler mýsýr veya üzüm yetiþtirebilirler.
+93:Marangozlar odun veya tahta iþleyerek marangozhane, silah atölyesi veya zirh atölyesinde çalýþýrlar.||Ayrýca savaþ atölyesinde mancýnýk veya ballista yapabilirler.
+94:Fýrýncýlar deðirmende mýsýrdan un yaparlar.||Ayrýca fýrýnda da undan ekmek yaparlar.
+95:Kasaplar domuzdan sucuk, deriden kumaþ yaparlar.
+96:Balýkçýlar yakýn su kýyýlarýnda balýk tutarlar.
+97:Ýþçiler binalar ve binalar için gerekli yollarý yaparlar.||Ayrýca hasar görmüþ binalarý onarýrlar.
+98:Taþçýlar yol ve bina yapýmý için gerekli taþý kazarlar.
+99:Demirciler demirden silah ve zýrh yaparlar.
+100:Metalurjiciler kömür kullanarak demir veya altýný rafine ederler.
+101:Askerler kalede yetiþtirilmek için kullanýlýrlar.||Ayrýca kulelerde de görevli olurlar.
+102:Bina seçimi
+103:Kaynak daðýlýmý
+104:Ýstatistikler
+105:Seçenekler
+106:Geri
+107:Binalar
+108:Kaynak||Daðýlýmý
+109:Ýstatistikler
+110:Seçenekler
+111:Oyunu Yükle
+112:Oyunu Kaydet
+113:Çýkmak istediðinize|emin misiniz?
+114:Çýkýþ
+115:Geri
+116:Ayarlar
+117:Çýkýþ
+118:SFX
+119:Sesi deðiþtir
+120:Sesi deðiþtir
+121:Müzik
+122:Müzik aç/kapa
+123:Otomatik kayýt
+124:Müzik Oynatýcý
+125:Önceki Þarký
+126:Sonraki Þarký
+127:Yýk
+128:Binalarý yýk
+129:Yol yap
+130:Yol yap
+131:Tarla kaz
+132:Tarla kaz
+133:Üzüm baðý yap
+134:Üzüm baðý yap
+135:Ýptal
+136:Eðitimi iptal et
+137:Ýhtiyaçlar:
+139:Durum:
+140:Üretim
+141:Bina yapým|aþamasýnda
+142:Yýk
+143:Yýkmak istediðinize|emin misiniz?
+144:Seçilen binayý yýk
+145:Miktarý azalt
+146:Miktarý arttýr
+147:Önceki asker tipi
+148:Sonraki asker tipi
+149:Seçilen askeri eðit
+150:Sonraki meslek
+151:Önceki meslek
+152:Sýraya ekle
+153:Kaynak daðýlýmýný aç/kapa
+154:Maliyet:
+155:Bina onarýmýný aç/kapa
+156:Bina þu anda uygun deðil
+157:Durum
+158:Sola döne
+159:Saða dön
+160:Saldýr ('a')
+161:Ayýr ('d')
+162:Besle
+163:Hýzlý saldýrý baþlat
+164:Sýra ekle
+165:Sýra düþür
+166:Grup|seç
+167:Ýptal
+168:Sil
+169:Seçili mesajý sil
+170:Git
+171:Seçili mesaj konumuna git
+172:Kapat
+173:Pencereyi kapat
+174:|Taþçýnýz daha fazla taþ kaynaðýna ulaþamýyor.
+175:|Kömür madeniniz tükenmiþ.
+176:|Demir madeniniz tükenmiþ.
+177:|Altýn madeniniz tükenmiþ.
+178:|Oduncunuz aðaç dikip kesecek yer bulamýyor.
+179:|Bu ev kullanýlmýyor.
+180:|Askerleriniz acýktý, beslemeniz gerekiyor.
+181:Bekle
+182:Taþýyor
+183:Yol yapýyor
+184:Tarla kazýyor
+185:Üzüm baðý yapýyor
+186:Bina zemini hazýrlýyor
+187:Bina yapýyor
+188:Binayý onarýyor
+189:Evine gidiyor
+190:Yemekhaneye gidiyor
+191:Binaya saldýrýyor
+192:Ok atýyor
+193:Savaþýyor
+194:Hýzlý saldýrýya çýkmýþ
+195:Saldýrýyor
+196:Yürüyor
+197:Boþta
+198:Taþ kazýyor
+199:Mýsýr ekiyor
+200:Mýsýr biçiyor
+201:Üzüm topluyor
+202:Balýk tutuyor
+203:Aðaç kesiyor
+204:Aðaç ekiyor
+205:Ruh
+206:Meþgul
+207:Orta Çað Kornalarý
+208:Bahar
+209:Ut
+210:Paralý Asker
+211:Prenses
+212:Kraliçe
+213:Pazar Yerinde
+214:Savaþ Alanýnda
+215:Avluda Dans
+216:Ordu
+217:Kalede
+218:Kornalar
+219:Avluda
+220:Üniforma
+221:Derin Mavi
+222:Mücadele
+223:Kraliyet Meydaný
+224:Aristokrasi
+225:Limanda
+226:Yolculuk
+227:Seferler
+228:Özel Seferler
+229:Seferi Baþlat!
+230:Tek Oyunculu Harita
+231:Haritayý Baþlat
+232:Menüye Dön
+233:Kayýtlý Oyunu Yükle
+234:Çok Oyunculu
+235:Seçenekler
+236:Credits
+237:Oyundan Çýk
+238:Devam Et
+239:Baþtan Baþlat
+240:Çözünürlük:
+241:Desteklenmiyor
+242:Desteklenmiyor
+243:ZAFER!
+244:MAÐLUBÝYET!
+245:Öldürülen askerler:
+246:Öldürülen birimler:
+247:Kaybedilen binalar:
+248:Yýkýlan binalar:
+249:Yapýlan binalar:
+250:Eðitilen birimler:
+251:Üretilen silahlar:
+252:Eðitilen askerler:
+253:Görev tamamlandý:
+254:Ýstatistikler
+255:Ekonomi
+256:Yetiþtirilen|köylüler
+257:Kaybedilen|köylüler
+258:Yetiþtirilen|askerler
+259:Kaybedilen|askerler
+260:Öldürülen|askerler
+261:Yapýlan|binalar
+262:Kaybedilen|binalar
+263:Yýkýlan|binalar
+264:Üretilen|kaynaklar
+265:Üretilen|silahlar
+266:Ordu
+267:Köylüler
+268:Binalar
+269:Kaynaklar
+270:Üretilen malzemeler
+272:Siz
+273:Oyuncu %d
+279:JOYMANIA ENTERTAINMENT||PROGRAMMING:|Peter Ohlmann||GAME GRAPHICS:|Adam Sprys||LEVEL DESIGN:|Adam Sprys|André Quaß||SOUND EDITING AND MIXING:|Tonstudio Mannheim||MUSIC:|Gerd Hofmann|Joachim Schäfer|Jürgen Rebhann|Klaus Staendike|Steffen Schüngel||ILLUSTRATIONS:|Boleslaw Kasza|Christoph Werner||TRANSLATION:|Ronnie Shankland|Patricia Bellantuono|Andrea Rumpelt|||ZUXXEZ ENTERTAINMENT AG||PRODUCER:|Uwe Schäfer||MANUAL:|Peter Ohlmann|Uwe Schäfer||BETA TESTING:|Peter Ohlmann|Adam Sprys|Alexandra Constandache|Dirk P. Hassinger|Achim Heidelauf|Uwe Schäfer|Ingrid Schäfer|Dirk U. Jantz|Ion Constandache|Yaman Egeli|Roman Eich|Iris Mocsnek|Anke Jantz|Paul Hassinger|Liza Hassinger||GAMES DIRECTOR:|Achim Heidelauf||PUBLISHED BY:|TopWare Interactive||CUTSCENES:||DIRECTION:|Slawomir Jedrzejewski||Kajetan Czarnecki|Wojciech Drazek|Daniel Duplaga|Rafal Januszkiewicz|Andrzej Rams|Piotr Rulka|Krzysztof Rybczynski|Grzegorz Wisniewski||VOICES:|Claus Boyen (Storyteller)||Tim Timmermann|Peter Houska|Dirk Mühlbach|Ralf Ditze|Gerhard Piske|Gernot Wassmann||ARTWORK:|Boleslaw Kasza|Adam Sprys||OPENING ANIMATION:|Uwe Schäfer|Christian Bigalk|Additional 3D-Modelling:|Niels Horstmann||SPECIAL THANKS TO:|Tadeusz Zuber|Dieter Ohlmann|Alexandra Constandache|Ingrid Schäfer
+280:Görev iptal edildi
+281:Kayýt bitti
+282:Yapým Eðitimi
+283:Savaþ Eðitimi
+284:Tek Oyunculu
+285:Harita Düzenleyici
+286:Yeni Görev
+287:Baþlýk
+288:Boyut
+289:Kazanma þartlarý: %s
+290:Yenilgi þartlarý: %s
+291:Dostlar:
+292:Düþmanlar:
+293:Zaman
+294:Yeni harýta boyutu
+295:Geniþlik
+296:Yükseklik
+297:Yeni Harita Oluþtur
+298:Uygun haritalar
+299:Var Olan Haritayý Yükle
+301:Kontroller:
+302:Oynayýþ:
+303:Ses:
+304:Müziði kapat
+305:Grafikler:
+306:Parlaklýk
+308:Tam Ekran
+309:Uygula
+310:Dil:
+311:Gölge kalitesi:
+312:Düþük
+313:Yüksek
+314:Yükleniyor... Lütfen bekleyiniz
+315:Bir hata oluþtu!
+316:Loading new locale
+317:Kayýtlarýn listesi
+318:Dosya adý
+319:Açýklama
+320:Yükle
+321:Sil
+322:Bu kaydý silmek istediðinize emin misiniz?
+323:Sil
+324:Ýptal
+325:Baþlýk
+326:Haritalar
+327:Kilitli deðil
+328:Hazandýnýz!
+329:Oynamaya devam et
+330:Zafer!
+331:Kaybettiniz!
+332:Ýzlemeye devam et
+333:Maðlubiyet
+334:Kayýt bitti
+335:Ýzlemeye Devam Et
+336:Menüye Dön
+337:Uygun deðil
+338:Oyuna devam etmek için %s e basýnýz
+339:Oyuncu bilgisi
+340:Sohbet
+341:Kayýt zaten var
+342:Üstüne Kaydet
+343:Kaydet
+344:Yükle
+345:Eski OpenGL versiyonu tespit edildi, oyunda yavaþlamalara neden olabilir
+346:Daha iyi bir performans için lütfen grafik sürücünüzü güncelleyiniz
+347:Network hatasý:
+348:Hata: Oyuncu ismi boþ kalamaz
+349:Hata: Oyuncu ismi %d karakterden uzun olamaz
+350:Hata: Oyuncu ismi uygun olmayan karakter içeriyor
+351:Baðlantý baþarýsýz oldu: %s
+352:Baðlantýnýz koptu
+353:Görev %d
+355:Balýkçýnýz suya çok uzak.
+356:Balýkçýnýz daha fazla balýða ulaþamýyor.
+357:Kaydý baþtan baþlat
+358:Kaydý durdur
+359:Adým 1 ileri
+360:Kaydý oynatmaya devam et
+361:Kayýttan çýk
+364:Vermek istediðiniz malzeme için sol týklayýnýz
+365:Almak istediðiniz malzeme için sað týklayýnýz
+366:From x%d
+367:To x%d
+368:Arazi düzenleme
+369:Fýrçalar
+370:Yükseltiler
+371:Döþemeler
+372:Nesneler
+374:Fýrça þekli
+375:Boyut
+376:Fýrça boyutunu deðiþtirmek için sürükleyiniz
+377:Eðim
+378:Yükselti eðimini deðiþtirmek için sürükleyiniz: 1 = alçak... 15 = yüksek
+379:Hýz
+380:Yükselti hýzýný deðiþtirmek için sürükleyiniz: 1 = yavaþ... 15 = hýzlý
+381:Daire fýrça
+382:Kare fýrça
+383:Yükselt / Alçalt
+384:Daðýt / Düzleþtir
+385:Yükselt (sol týk) / Alçalt (sað týk)
+386:Daðýt (sol týk) / Düzleþtir (sað týk)
+389:Rastgele Yön
+390:Rastgele yönlendirme için iþaretle veya seçili döþemeyi çevirmek için sað týkla
+391:Seçili döþemeyi çevirmek için sað týklayýnýz
+393:Bir nesneyi kaldýr
+394:Köy planlama
+395:Görsel kodlama
+396:Global kodlama
+397:Menü
+499:Yeni Oyun
+500:Oyuncu adý
+501:Durum:
+502:Sunucu Oluþtur
+503:SUNUCU OLUÞTUR
+504:Ýsim
+505:Port
+506:Yerel Sunucu Oluþtur
+507:Ýnternet Sunucusu Oluþtur
+508:Ýptal
+509:IP ile Sunucu Bul
+510:SUNUCU BUL
+511:Adres
+512:Port
+513:Oda
+514:Baðlan
+515:Ýptal
+518:Sunucu ismi
+519:Durum
+520:Oyuncular
+521:Ping
+522:Sunucu Listesini Güncelle
+523:SUNUCU DETAYLARI
+524:Oyuncu listesi:
+525:Katýl
+526:Baðlanýyor, lütfen bekleyiniz...
+527:Duyurular yükleniyor...
+528:Güncelleniyor...
+529:Oyuncu listesi
+530:Baþlama pozisyonu
+531:Takým
+532:Renk
+533:Hazýr
+534:Ping
+536:Açýk
+537:YZ Oyuncu
+538:Seç...
+539:Rastgele
+540:Boþ
+541:Kayýtlý Oyun
+542:Bir harita seçin...
+543:Bir kayýt seçin...
+544:Lobiye dön
+545:Hazýr
+546:Hazýr deðil
+547:Baþla!
+561:Pozisyon %d
+562:Hata: Lütfen kontrol etmek için kayýttan bir oyuncu seçiniz
+563:Hata: Harýta yüklenmesi baþarýsýz veya bir harita seçilmedi
+564:Baþlayamýyor: %s
+565:Herkes baþlamak için hazýr deðil
+567:Sunucu, ev sahibi haklarýný bize verdi
+568:Oyun baþladý
+569:Yapým Haritasý
+570:Savaþ Haritasý
+571:Ýþ Birliði Haritasý
+573:Oyun seçenekleri:
+574:Barýþ süresi (dakika)
+575:Kapalý
+576:Oyuncu ayarlarýný ev sahibi yapýyor
+577:Bu oyuncular için bekleniyor:
+580:KaM Remake
+581:Orjinal Knights & Merchants
+582:PROGRAMLAMA:
+583:EK PROGRAMLAMA:
+584:EK GRAFÝKLER:
+585:EK SESLER:
+586:EK MÜZÝK:
+587:EK ÇEVÝRÝLER:
+588:ÖZEL TEÞEKKÜRLER:
+589:Çok oyunculu haritalar
+590:Tek oyunculu haritalar
+591:Kaydýrma hýzý
+592:Hiçbir sunucu bulunamadý
+593:Parçalarý karýþtýr
+594:Oyun bilgisi:
+595:-
+596:Lobi
+597:Yükleniyor
+598:Oyun
+599:Yapým ve Savaþ
+600:Savaþ
+601:Hazýr
+602:Yanlýþ protokol versiyonu: %s. Sunucunun versiyonu: %s
+603:Ticaret miktarýný arttýr
+604:Ticaret miktarýný azalt
+605:Oyun kaydediliyor...
+606:%s yok edildi!
+607:Oyuncularý düþür
+608:Ev sahibi %d saniye sonra bu oyuncularý düþürebilecek
+609:Ev sahibi þimdi bu oyuncularý düþürebilir
+610:Ev sahibi (%s) oyundan çýktý
+611:Sunucu ile baðlantý kesildi. Tekrar baðlanmaya çalýþýlýyor...
+612:Çýkmak istediðinize emin misiniz?
+613:Bu oyuncuyu kalýcý olarak düþürmek istediðinize emin misiniz?
+614:Ýptal
+615:Bu kaynaðýn ticaretine bu görevde izin verilmiyor
+616:Kes ve dik
+617:Sadece kes
+618:Barýþ süresince buna izin verilmez
+619:Kalan barýþ süresi: %s
+620:Barýþ süresi bitti. Silahlarý kuþanýn!
+621:Oyun süresi:|%s
+622:Birliði durdur ('%s')
+623:Birliði birleþtir ('%s')
+624:Birliði ayýr ('%s')
+625:Kayýt Ýzleyici
+626:Kayýt Ýzle
+627:Desteklenmeyen biçim %s
+628:Desteklenmeyen versiyon %s
+629:Desteklenmeyen deðiþiklikler
+630:Dosya ayrýþtýrýlýrken bir hata oluþtu %s
+631:baþlatýlýyor
+632:komut
+633:birimler
+634:evler
+635:aðaçlar
+636:tanýmlamalar
+637:döþemeler
+638:Harita bulunamadý: %s
+639:Kayýt bulunamadý: %s
+640:Harita dosyasý ev sahibi ile uygun deðil: %s
+641:Kayýt dosyasý ev sahibi ile uygun deðil: %s
+642:Tekrar oynatma tutarlýlýk hatasý oldu. Bu hatanýn bazý oyuncularýn tekrar oynatýlmasýna etkileri olduðu biliniyor. Ýzlemeye devam etmek ister misiniz?
+643:Ayný anda sadece bir tane çoklu oyuncu moduna girebilirsiniz
+644:Oyun içi deðiþikliklere çoklu oyuncu modunda izin verilmiyor.|Lütfen orjinal oyun dosyalarýný tekrar yükleyiniz.
+645:Uygulamada hata oluþtu. Lütfen hata raporu gönderiniz. Yardýmlarýnýz için teþekkürler.
+646:Hata Raporu Gönder
+647:Kaynak Bilgiyi Göster
+648:Uygulamaya Devam Et
+649:Uygulamayý Kapat
+650:Sonraki
+651:Ýletiþim Bilgileri
+652:Adýnýz: (opsiyonel)
+653:Email adresiniz: (opsiyonel)
+654:Beni hatýrla
+655:Hata Ayrýntýlarý
+656:Hangi durumda oluþtu? Ek bilgi saðlayabilir misiniz? (tercihen Ýngilizce)
+657:Ekran görüntüsü
+658:Hata raporuna ekran görüntüsü ekle
+659:(düzenlemek için resme týklayýn)
+660:Hata Raporu Gönder
+661:Ýptal
+662:Hata raporu gönderiliyor...
+663:Sunucuya baðlanýlýyor...
+664:Bilgi gönderiliyor...
+665:Hata raporu gönderimi baþarýsýz! Sunucularýmýz meþgul olabilir, lütfen tekrar deneyiniz.
+666:Bilgi
+667:Lütfen bekleyiniz...

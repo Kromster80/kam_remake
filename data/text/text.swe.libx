@@ -1,5 +1,5 @@
 
-MaxID:2957
+MaxID:667
 
 0:Sågverk
 1:Järnsmedja
@@ -31,479 +31,479 @@ MaxID:2957
 27:Värdshus
 28:Vingård
 29:Marknad
-39:Trädstammar
-40:Stenar
-41:Träplankor
-42:Järnmalm
-43:Guldmalm
-44:Kol
-45:Järn
-46:Guld
-47:Vintunnor
-48:Säd
-49:Bröd
-50:Mjöl
-51:Läder
-52:Korvar
-53:Grisar
-54:Hudar
-55:Träsköld
-56:Järnsköld
-57:Läderrustning
-58:Järnrustning
-59:Handyxa
-60:Svärd
-61:Lans
-62:Pik
-63:Pilbåge
-64:Armborst
-65:Hästar
-66:Fisk
-69:Träl
-70:Skogshuggare
-71:Gruvarbetare
-72:Djuruppfödare
-73:Bonde
-74:Snickare
-75:Bagare
-76:Slaktare
-77:Fiskare
-78:Byggare
-79:Stenhuggare
-80:Smed
-81:Metallurg
-82:Rekryt
-83:Milisman
-84:Yxkrigare
-85:Svärdskrigare
-86:Bågskytt
-87:Armborstskytt
-88:Lansbärare
-89:Pikenerare
-90:Scout
-91:Riddare
-92:Vilde
-93:Rebell
-94:Skurk
-95:Krigare
-96:Lösdrivare
-97:Katapult
-98:Ballista
-99:Trälen transporterar nödvändiga råmaterial till dina byggnader.||Notera att det måste finnas en väg mellan byggnaderna.
-100:Skogshuggaren behövs för att sågverket ska få stockar att använda.||Han planterar även träd så att skogen aldrig dör helt.
-101:Gruvarbetaren jobbar i kol-, järn- och guldgruvan.
-102:Djuruppfödaren använder säd för att föda upp grisar på svingården och hästar i stallet.
-103:Bonden sår och skördar säd på bondgården.||Han producerar också vin på vingården.
-104:Snickaren jobbar i sågverket, vapenverkstaden och rustningsverkstaden.||Han bygger också katapulter och ballistor i belägringsverkstaden.
-105:Bagaren maler säd till mjöl i väderkvarnen.||Han bakar också bröd i bageriet.
-106:Slaktaren stoppar korv i slakteriet och garvar läder i garveriet.
-107:Fiskaren fångar fisk i närliggande vattendrag.
-108:Byggaren bygger vägar och byggnader. Han utför automatiskt detta så fort du placerat dem.||Han kan också reparera skadade byggnader.
-109:För att dina byggare ska få tillräckligt med material för att bygga vägar och byggnader hugger och formar stenhuggaren sten.
-110:Smeden smider vapen och rustningar av järn i respektive smedjor.
-111:Metallurgen använder kol för att raffinera guld- och järnmalm.
-112:Rekryten kan bli pårustad som soldat i kasernen.||Han bemannar också vakttornet.
-147:Till val av byggnader
-148:Till distribution av varor
-149:Till statistik
-150:Till alternativ
-151:Tillbaka
-152:Byggnadsval
-153:Distribution|av varor
-154:Statistik
-155:Alternativ
-156:Ladda spel
-157:Spara spel
-158:Är du säker på att|du vill avsluta|detta uppdrag?
-159:Avsluta uppdrag
-160:Tillbaka
-161:Inställningar
-162:Avsluta uppdrag
-163:SFX
-164:Ändra volym
-165:Musik
-166:Musik på/av
-167:Autospara
-168:Musikspelare
-169:Föregående spår
-170:Nästa spår
-171:Riv
-172:Ta bort byggnader/selektioner
-173:Bygg väg
-174:Bygg vägar
-175:Ploga fält
-176:Ploga fält
-177:Placera vinranka
-178:Placera vinrankor
-179:Avbryt
-180:Avbryt nuvarande träning
-181:Behöver:
-182:Skick:
-183:Levererar
-184:Hus under|konstruktion
-185:Riv
-186:Vill du verkligen|förstöra denna byggnad?
-187:Riv vald byggnad
-188:Minska beställning
-189:Öka beställning
-190:Föregående soldattyp
-191:Nästa soldattyp
-192:Utrusta nuvarande soldattyp
-193:Nästa yrke
-194:Föregående yrke
-195:Lägg till kö
-196:Kostnad:
-197:Stäng av/sätt på reparering
-198:Byggnaden är ej tillgänglig just nu
-199:Skick
-200:Rotera vänster
-201:Rotera höger
-202:Attackera ('a')
-203:Lös upp trupp ('d')
-204:Ge mat till truppen
-205:Börja stormattack
-206:Lägg till linje
-207:Dra tillbaka linje
-208:Välj|grupp
-209:Avbryt
-210:Ta bort
-211:Tar bort nuvarande meddelande
-212:Gå till
-213:Hoppar till nuvarande meddelandeposition
-214:Stäng
-215:Stänger fönstret
-216:Stenhuggaren kan inte få tag på mer sten.
-217:En kolådra är tömd.
-218:En järnådra är tömd.
-219:En guldådra är tömd.
-220:Detta hus har ingen ägare.
-221:Den här truppen är utsvulten, det är bäst att de får nåt att äta snart!
-222:PAUS
-223:Ändra volym
-224:Sätt på/stäng av leveranser
-418:Spirit
-419:Busy
-420:Middle Ages Horn
-421:Spring
-422:Lute
-423:Mercenary
-424:The Princess
-425:The Queen
-426:In the Marketplace
-427:On the Battlefield
-428:Court Dance
-429:The Army
-430:In the Castle
-431:Fanfares
-432:At Court
-433:Entree
-434:Deep Blue
-435:Struggle
-436:Royal Quarters
-437:Aristocracy
-438:At the Harbor
-439:Journey
-849:Spela enskild karta
-850:Starta spelet
-851:Tillbaka
-852:Ladda sparat spel
-853:Flera spelare
-854:Alternativ
-855:Skapare
-856:Avsluta spelet
-857:Fortsätt
-858:Starta om uppdraget
-859:Upplösning:
-860:SEGER!
-861:FÖRLUST!
-862:Enheter förlorade:
-863:Enheter förstörda:
-864:Byggnader förlorade:
-865:Byggnader förstörda:
-866:Byggnader uppförda:
-867:Enheter tränade:
-868:Vapen konstruerade:
-869:Soldater tränade:
-870:Uppdraget slutfört på:
-1000:JOYMANIA ENTERTAINMENT||PROGRAMMING:|Peter Ohlmann||GAME GRAPHICS:|Adam Sprys||LEVEL DESIGN:|Adam Sprys|Andre Quaß||SOUND EDITING AND MIXING:|Tonstudio Mannheim||MUSIC:|Gerd Hofmann|Joachim Schäfer|Jürgen Rebhann|Klaus Staendike|Steffen Schüngel||ILLUSTRATIONS:|Boleslaw Kasza|Christoph Werner||ZUXXEZ ENTERTAINMENT AG||PRODUCER:|Uwe Schäfer||MANUAL:|Peter Ohlmann|Uwe Schäfer||BETA TESTING:|Peter Ohlmann|Adam Sprys|Alexandra Constandache|Dirk P. Hassinger|Achim Heidelauf|Uwe Schäfer|Ingrid Schäfer|Dirk U. Jantz|Ion Constandache|Yaman Egeli|Roman Eich|Iris Mocsnek|Anke Jantz|Paul Hassinger|Liza Hassinger||GAMES DIRECTOR:|Achim Heidelauf||PUBLISHED BY:|TopWare Interactive||CUTSCENES:||DIRECTION:|Slawomir Jedrzejewski||Kajetan Czarnecki|Wojciech Drazek|Daniel Duplaga|Rafal Januszkiewicz|Andrzej Rams|Piotr Rulka|Krzysztof Rybczynski|Grzegorz Wisniwski||VOICES:|Claus Boyen (Storyteller)||Tim Timmermann|Peter Houska|Dirk Mühlbach|Ralf Ditze|Gerhard Piske|Gernot Wassmann||ARTWORK:|Boleslaw Kasza|Adam Sprys||OPENING ANIMATION:|Uwe Schäfer|Christian Bigalk|Additional 3D-Modelling:|Niels Horstmann||SPECIAL THANKS TO:|Tadeusz Zuber|Dieter Ohlmann|Alexandra Constandache|Ingrid Schäfer|Andrea Rumpelt
-1686:Uppdrag avbrutet
-1687:Stadshandledning
-1688:Stridshandledning
-1689:En spelare
-1690:Kartredigerare
-1692:Starta uppdraget
-1693:Titel
-1694:Storlek
-1696:Vinstvillkor:
-1697:Förlustvillkor:
-1698:Allierade:
-1699:Fiender:
-1701:Ny kartstorlek
-1702:Bredd
-1703:Höjd
-1704:Skapa ny karta
-1705:Tillgängliga kartor
-1706:Ladda existerande karta
-1707:Kontroller:
-1708:Spelinställningar:
-1709:Ljud:
-1710:Ingen musik
-1711:Grafik:
-1712:Ljusstyrka
-1713:Helskärm
-1714:Bekräfta
-1715:Språk:
-1716:Laddar... Var god vänta
-1717:Ett problem uppstod!
-1718:Laddar ny lokal
-1719:Lista över sparade spel
-1720:Filnamn
-1721:Beskrivning
-1722:Ladda
-1723:Ta bort
-1724:Är du säker på att du vill ta bort det här sparade spelet?
-1725:Ta bort
-1726:Avbryt
-1728:Du vann!
-1729:Fortsätt spela
-1730:Seger!
-1731:Du förlorade!
-1732:Fortsätt titta
-1733:Förlust
-1734:Återspelningen har avslutats
-1735:Fortsätt titta
-1736:Avsluta
-1737:Ej tillgänglig
-1738:Tryck %s för att åter börja spela
-1740:Spelarinfo
-1741:Chat
-1742:Spelet finns redan
-1743:Skriv över
-1744:Spara
-1745:Ladda
-1748:Gammal OpenGL version upptäckt, spelet kan köra långsamt och/eller med grafiska fel
-1749:Nätverksfel:
-1750:Error: Spelarnamnet får inte vara ingenting
-1751:Uppkoppling misslyckades: %s
-1752:Du har kopplats ner
-1753:Uppdrag %d
-1754:Din fiskares stuga är för långt från vattnet.
-1755:Din fiskare kan inte hitta nån mer fisk i de närliggande vattendragen.
-1757:Använd vänster musknapp för att välja en vara att handla med
-1758:Använd höger musknapp för att välja en vara att handla med
-1759:Från x%d
-1760:Till x%d
-1761:Terrängeditering
-1762:Byplanering
-1763:Visuella script
-1764:Globala script
-1765:Meny
-1766:Status:
-1767:Spelarnamn:
-1768:SKAPA SERVER
-1769:Servernamn
-1770:Serverport
-1771:Skapa lokalt spel
-1772:Skapa internetspel
-1773:Servernamn
-1774:Status
-1775:Spelare
-1776:Ping
-1777:Uppdatera serverlistan
-1778:SERVERDETALJER
-1779:Spelarlista:
-1780:Adress
-1781:Port
-1782:Rum
-1783:Anslut
-1784:Kopplar upp, var god vänta...
-1785:Laddar meddelanden...
-1786:Uppdaterar...
-1787:Spelarlista
-1788:Startplats
-1789:Lag
-1790:Färg
-1791:Redo
-1792:Ping
-1794:Öppen
-1795:AI-spelare
-1796:Välj...
-1797:Slumpad
-1799:Ingen
-1805:Sparat spel
-1806:Välj en karta...
-1807:Välj ett sparat spel...
-1813:Avsluta sessionen
-1814:Redo
-1815:Börja!
-1816:Väntar på spelare:
-1817:KaM Remakes skapare
-1818:Original Knights & Merchants skapare
-1819:PROGRAMMERING:
-1820:YTTERLIGARE PROGRAMMERING:
-1821:YTTERLIGARE GRAFIK:
-1822:YTTERLIGARE ÖVERSÄTTNING:
-1823:SPECIELLT TACK TILL:
-1824:Flerspelarkartor
-1825:Enkelspelarkartor
-1826:Scrollhastighet
-1827:Hittade inga servrar
-1828:Blanda spår
-1829:Spelinformation:
-1830:-
-1831:Lobby
-1832:Laddar
-1833:Spel
-1834:Plats %d
-1835:Bygg och strida
-1836:Strid
-1837:Inte redo
-1838:Redo
-1839:Fel: Sälj en spelare från sparningen att kontrollera
-1840:Fel: Kartan kunde inte laddas eller ingen karta vald
-1841:Kan inte börja: %s
-1842:Alla är inte redo att börja
-1844:Fel protokollversion: %s. Servern använder: %s
-1845:Servern har tilldelat dig värdrättigheter
-1846:Öka handelsmängd
-1847:Minska handelsmängd
-1848:Sparar spel...
-1849:%s besegrad!
-1850:YTTERLIGARE LJUD:
-1851:Kasta ut spelare
-1852:Värden kommer att kunna kasta ut dessa spelare efter %d sekunder
-1853:Värden kan nu kasta ut dessa spelare
-1854:Värden (%s) har gått ur spelet
-1855:Uppkopplingen till servern försvann. Försöker återansluta...
-1856:Är du säker på att du vill avsluta?
-1857:Är du säker på att du permanent vill kasta ut dessa spelare?
-1858:Avbryt
-1859:Invånare|tränade
-1860:Invånare|förlorade
-1861:Soldater|utrustade
-1862:Soldater|förlorade
-1864:Byggnader|konstruerade
-1865:Byggnader|förlorade
-1866:Byggnader|förstörda
-1867:Varor|producerade
-1868:Vapen|producerade
-1869:Att handla med denna vara är inte tillåtet på det här uppdraget
-1870:Plantera och hugg ner
-1871:Hugg endast ner
-1872:Spel startat
-1873:Byggkarta
-1874:Stridskarta
-1875:Samarbetskarta
-1876:Du får inte göra det under fredstiden
-1877:Fredstid kvar: %s
-1878:Fredstiden är över. Till vapen!
-1879:Speltid:|%s
-1880:Spelinställningar:
-1884:Gör halt ('%s')
-1885:Länka trupp ('%s')
-1886:Separera trupp ('%s')
-1887:Reprisvisare
-1888:Visa repris
-1889:Fredstid (minuter)
-1890:Inget stöd för format %s
-1891:Felaktig version %s
-1893:initierar
-1895:script
-1896:Nytt uppdrag
-1897:Ett fel uppstod när filen %s skulle behandlas
-1898:Stängd
-1899:Värden gör spelaruppställningen
-1901:enheter
-1902:hus
-1903:träd
-1904:definitioner
-1905:terrängtexturer
-2687:Skapa server
-2688:HITTA SERVER
-2689:Anslut
-2690:Hitta server via IP
-2691:Avbryt
-2692:Avbryt
-2693:Stöds inte
-2694:Stöds inte
-2695:Fel: Spelarnamnet får inte vara längre än %d tecken långt
-2696:Fel: Spelarnamnet innehåller förbjudna tecken
-2697:Skuggkvalitet:
-2698:Låg
-2699:Hög
-2700:Hittar inte kartan: %s
-2701:Kartfilerna stämmer inte överens med värdens karta: %s
-2702:Hittar inte sparningen: %s
-2703:Sparfilen stämmer inte överens med värdens fil: %s
-2705:Var god uppdatera dina grafikkortsdrivrutiner för bättre prestanda
-2706:Ett fel uppstod i programmet. Var vänlig klicka på Skicka Buggrapport så att vi kan undersöka saken. Tack för hjälpen!
-2707:Skicka Buggrapport
-2708:Visa Rå Data
-2709:Reprisen misslyckades vid en konsistenskontroll. Detta är en känd bugg som påverkar återspelande av vissa repriser. Vill du titta vidare?
-2710:Ditt namn: (valfritt)
-2711:Din e-post: (valfritt)
-2712:Kom ihåg mig
-2713:I vilken situation uppstod felet? Finns det någon mer information att ge? (Helst på engelska)
-2714:Bifoga en skärmdump till buggrapporten
-2715:(klicka för att editera bilden)
-2716:Avsluta programmet
-2717:Återuppta programmet
-2718:Nästa
-2719:Skicka rapporten
-2720:Avbryt
-2721:Kontaktuppgifter
-2722:Feldetaljer
-2723:Skärmdump
-2724:Skickar buggrapport...
-2725:Kopplar upp mot servern...
-2726:Skickar data...
-2727:Lyckades inte skicka kraschrapporten! Vår server kan eventuellt vara upptagen, försök igen.
-2728:Information
-2729:Var god dröj ett ögonblick...
-2730:Kampanjer
-2732:Starta kampanj!
-2734:Besegrade|soldater
-2736:Titel
-2737:Kartor
-2738:Upplåst
-2739:Tid
-2740:Starta om reprisen
-2741:Avsluta reprisen
-2742:Återuppta reprisen
-2743:Gå 1 steg framåt
-2744:Pausa reprisen
-2745:Du kan bara ha en instans av spelet igång i flerspelarläge i taget
-2746:Slut på repris
-2747:YTTERLIGARE MUSIK:
-2748:Du
-2749:Spelare %d
-2750:Armé
-2751:Invånare
-2752:Hus
-2753:Resurser
-2754:Producerade resurser
-2755:Statistik
-2756:Ekonomi
-2757:Bygger hus
-2758:Jämnar ut husgrund
-2759:Bygger vinfält
-2760:Gräver åker
-2761:Bygger väg
-2762:Levererar
-2763:Planterar träd
-2764:På väg hem
-2765:Reparerar hus
-2766:Slåss
-2767:Skjuter
-2768:Attackerar hus
-2769:På väg till värdshus
-2770:Hugger träd
-2771:Ledig
-2772:Går
-2773:Stormattack
-2774:Fiskar
-2775:Skördar druvor
-2776:Skördar säd
-2777:Sår säd
-2778:Hugger sten
-2779:Attackerar
+30:Trädstammar
+31:Stenar
+32:Träplankor
+33:Järnmalm
+34:Guldmalm
+35:Kol
+36:Järn
+37:Guld
+38:Vintunnor
+39:Säd
+40:Bröd
+41:Mjöl
+42:Läder
+43:Korvar
+44:Grisar
+45:Hudar
+46:Träsköld
+47:Järnsköld
+48:Läderrustning
+49:Järnrustning
+50:Handyxa
+51:Svärd
+52:Lans
+53:Pik
+54:Pilbåge
+55:Armborst
+56:Hästar
+57:Fisk
+58:Träl
+59:Skogshuggare
+60:Gruvarbetare
+61:Djuruppfödare
+62:Bonde
+63:Snickare
+64:Bagare
+65:Slaktare
+66:Fiskare
+67:Byggare
+68:Stenhuggare
+69:Smed
+70:Metallurg
+71:Rekryt
+72:Milisman
+73:Yxkrigare
+74:Svärdskrigare
+75:Bågskytt
+76:Armborstskytt
+77:Lansbärare
+78:Pikenerare
+79:Scout
+80:Riddare
+81:Vilde
+82:Rebell
+83:Skurk
+84:Krigare
+85:Lösdrivare
+86:Katapult
+87:Ballista
+88:Trälen transporterar nödvändiga råmaterial till dina byggnader.||Notera att det måste finnas en väg mellan byggnaderna.
+89:Skogshuggaren behövs för att sågverket ska få stockar att använda.||Han planterar även träd så att skogen aldrig dör helt.
+90:Gruvarbetaren jobbar i kol-, järn- och guldgruvan.
+91:Djuruppfödaren använder säd för att föda upp grisar på svingården och hästar i stallet.
+92:Bonden sår och skördar säd på bondgården.||Han producerar också vin på vingården.
+93:Snickaren jobbar i sågverket, vapenverkstaden och rustningsverkstaden.||Han bygger också katapulter och ballistor i belägringsverkstaden.
+94:Bagaren maler säd till mjöl i väderkvarnen.||Han bakar också bröd i bageriet.
+95:Slaktaren stoppar korv i slakteriet och garvar läder i garveriet.
+96:Fiskaren fångar fisk i närliggande vattendrag.
+97:Byggaren bygger vägar och byggnader. Han utför automatiskt detta så fort du placerat dem.||Han kan också reparera skadade byggnader.
+98:För att dina byggare ska få tillräckligt med material för att bygga vägar och byggnader hugger och formar stenhuggaren sten.
+99:Smeden smider vapen och rustningar av järn i respektive smedjor.
+100:Metallurgen använder kol för att raffinera guld- och järnmalm.
+101:Rekryten kan bli pårustad som soldat i kasernen.||Han bemannar också vakttornet.
+102:Till val av byggnader
+103:Till distribution av varor
+104:Till statistik
+105:Till alternativ
+106:Tillbaka
+107:Byggnadsval
+108:Distribution|av varor
+109:Statistik
+110:Alternativ
+111:Ladda spel
+112:Spara spel
+113:Är du säker på att|du vill avsluta|detta uppdrag?
+114:Avsluta uppdrag
+115:Tillbaka
+116:Inställningar
+117:Avsluta uppdrag
+118:SFX
+119:Ändra volym
+120:Ändra volym
+121:Musik
+122:Musik på/av
+123:Autospara
+124:Musikspelare
+125:Föregående spår
+126:Nästa spår
+127:Riv
+128:Ta bort byggnader/selektioner
+129:Bygg väg
+130:Bygg vägar
+131:Ploga fält
+132:Ploga fält
+133:Placera vinranka
+134:Placera vinrankor
+135:Avbryt
+136:Avbryt nuvarande träning
+137:Behöver:
+139:Skick:
+140:Levererar
+141:Hus under|konstruktion
+142:Riv
+143:Vill du verkligen|förstöra denna byggnad?
+144:Riv vald byggnad
+145:Minska beställning
+146:Öka beställning
+147:Föregående soldattyp
+148:Nästa soldattyp
+149:Utrusta nuvarande soldattyp
+150:Nästa yrke
+151:Föregående yrke
+152:Lägg till kö
+153:Sätt på/stäng av leveranser
+154:Kostnad:
+155:Stäng av/sätt på reparering
+156:Byggnaden är ej tillgänglig just nu
+157:Skick
+158:Rotera vänster
+159:Rotera höger
+160:Attackera ('a')
+161:Lös upp trupp ('d')
+162:Ge mat till truppen
+163:Börja stormattack
+164:Lägg till linje
+165:Dra tillbaka linje
+166:Välj|grupp
+167:Avbryt
+168:Ta bort
+169:Tar bort nuvarande meddelande
+170:Gå till
+171:Hoppar till nuvarande meddelandeposition
+172:Stäng
+173:Stänger fönstret
+174:Stenhuggaren kan inte få tag på mer sten.
+175:En kolådra är tömd.
+176:En järnådra är tömd.
+177:En guldådra är tömd.
+179:Detta hus har ingen ägare.
+180:Den här truppen är utsvulten, det är bäst att de får nåt att äta snart!
+181:PAUS
+182:Levererar
+183:Bygger väg
+184:Gräver åker
+185:Bygger vinfält
+186:Jämnar ut husgrund
+187:Bygger hus
+188:Reparerar hus
+189:På väg hem
+190:På väg till värdshus
+191:Attackerar hus
+192:Skjuter
+193:Slåss
+194:Stormattack
+195:Attackerar
+196:Går
+197:Ledig
+198:Hugger sten
+199:Sår säd
+200:Skördar säd
+201:Skördar druvor
+202:Fiskar
+203:Hugger träd
+204:Planterar träd
+205:Spirit
+206:Busy
+207:Middle Ages Horn
+208:Spring
+209:Lute
+210:Mercenary
+211:The Princess
+212:The Queen
+213:In the Marketplace
+214:On the Battlefield
+215:Court Dance
+216:The Army
+217:In the Castle
+218:Fanfares
+219:At Court
+220:Entree
+221:Deep Blue
+222:Struggle
+223:Royal Quarters
+224:Aristocracy
+225:At the Harbor
+226:Journey
+227:Kampanjer
+229:Starta kampanj!
+230:Spela enskild karta
+231:Starta spelet
+232:Tillbaka
+233:Ladda sparat spel
+234:Flera spelare
+235:Alternativ
+236:Skapare
+237:Avsluta spelet
+238:Fortsätt
+239:Starta om uppdraget
+240:Upplösning:
+241:Stöds inte
+242:Stöds inte
+243:SEGER!
+244:FÖRLUST!
+245:Enheter förlorade:
+246:Enheter förstörda:
+247:Byggnader förlorade:
+248:Byggnader förstörda:
+249:Byggnader uppförda:
+250:Enheter tränade:
+251:Vapen konstruerade:
+252:Soldater tränade:
+253:Uppdraget slutfört på:
+254:Statistik
+255:Ekonomi
+256:Invånare|tränade
+257:Invånare|förlorade
+258:Soldater|utrustade
+259:Soldater|förlorade
+260:Besegrade|soldater
+261:Byggnader|konstruerade
+262:Byggnader|förlorade
+263:Byggnader|förstörda
+264:Varor|producerade
+265:Vapen|producerade
+266:Armé
+267:Invånare
+268:Hus
+269:Resurser
+270:Producerade resurser
+272:Du
+273:Spelare %d
+279:JOYMANIA ENTERTAINMENT||PROGRAMMING:|Peter Ohlmann||GAME GRAPHICS:|Adam Sprys||LEVEL DESIGN:|Adam Sprys|Andre Quaß||SOUND EDITING AND MIXING:|Tonstudio Mannheim||MUSIC:|Gerd Hofmann|Joachim Schäfer|Jürgen Rebhann|Klaus Staendike|Steffen Schüngel||ILLUSTRATIONS:|Boleslaw Kasza|Christoph Werner||ZUXXEZ ENTERTAINMENT AG||PRODUCER:|Uwe Schäfer||MANUAL:|Peter Ohlmann|Uwe Schäfer||BETA TESTING:|Peter Ohlmann|Adam Sprys|Alexandra Constandache|Dirk P. Hassinger|Achim Heidelauf|Uwe Schäfer|Ingrid Schäfer|Dirk U. Jantz|Ion Constandache|Yaman Egeli|Roman Eich|Iris Mocsnek|Anke Jantz|Paul Hassinger|Liza Hassinger||GAMES DIRECTOR:|Achim Heidelauf||PUBLISHED BY:|TopWare Interactive||CUTSCENES:||DIRECTION:|Slawomir Jedrzejewski||Kajetan Czarnecki|Wojciech Drazek|Daniel Duplaga|Rafal Januszkiewicz|Andrzej Rams|Piotr Rulka|Krzysztof Rybczynski|Grzegorz Wisniwski||VOICES:|Claus Boyen (Storyteller)||Tim Timmermann|Peter Houska|Dirk Mühlbach|Ralf Ditze|Gerhard Piske|Gernot Wassmann||ARTWORK:|Boleslaw Kasza|Adam Sprys||OPENING ANIMATION:|Uwe Schäfer|Christian Bigalk|Additional 3D-Modelling:|Niels Horstmann||SPECIAL THANKS TO:|Tadeusz Zuber|Dieter Ohlmann|Alexandra Constandache|Ingrid Schäfer|Andrea Rumpelt
+280:Uppdrag avbrutet
+281:Slut på repris
+282:Stadshandledning
+283:Stridshandledning
+284:En spelare
+285:Kartredigerare
+286:Starta uppdraget
+287:Titel
+288:Storlek
+289:Vinstvillkor:
+290:Förlustvillkor:
+291:Allierade:
+292:Fiender:
+293:Tid
+294:Ny kartstorlek
+295:Bredd
+296:Höjd
+297:Skapa ny karta
+298:Tillgängliga kartor
+299:Ladda existerande karta
+301:Kontroller:
+302:Spelinställningar:
+303:Ljud:
+304:Ingen musik
+305:Grafik:
+306:Ljusstyrka
+308:Helskärm
+309:Bekräfta
+310:Språk:
+311:Skuggkvalitet:
+312:Låg
+313:Hög
+314:Laddar... Var god vänta
+315:Ett problem uppstod!
+316:Laddar ny lokal
+317:Lista över sparade spel
+318:Filnamn
+319:Beskrivning
+320:Ladda
+321:Ta bort
+322:Är du säker på att du vill ta bort det här sparade spelet?
+323:Ta bort
+324:Avbryt
+325:Titel
+326:Kartor
+327:Upplåst
+328:Du vann!
+329:Fortsätt spela
+330:Seger!
+331:Du förlorade!
+332:Fortsätt titta
+333:Förlust
+334:Återspelningen har avslutats
+335:Fortsätt titta
+336:Avsluta
+337:Ej tillgänglig
+338:Tryck %s för att åter börja spela
+339:Spelarinfo
+340:Chat
+341:Spelet finns redan
+342:Skriv över
+343:Spara
+344:Ladda
+345:Gammal OpenGL version upptäckt, spelet kan köra långsamt och/eller med grafiska fel
+346:Var god uppdatera dina grafikkortsdrivrutiner för bättre prestanda
+347:Nätverksfel:
+348:Error: Spelarnamnet får inte vara ingenting
+349:Fel: Spelarnamnet får inte vara längre än %d tecken långt
+350:Fel: Spelarnamnet innehåller förbjudna tecken
+351:Uppkoppling misslyckades: %s
+352:Du har kopplats ner
+353:Uppdrag %d
+355:Din fiskares stuga är för långt från vattnet.
+356:Din fiskare kan inte hitta nån mer fisk i de närliggande vattendragen.
+357:Starta om reprisen
+358:Pausa reprisen
+359:Gå 1 steg framåt
+360:Återuppta reprisen
+361:Avsluta reprisen
+364:Använd vänster musknapp för att välja en vara att handla med
+365:Använd höger musknapp för att välja en vara att handla med
+366:Från x%d
+367:Till x%d
+368:Terrängeditering
+394:Byplanering
+395:Visuella script
+396:Globala script
+397:Meny
+499:Nytt uppdrag
+500:Spelarnamn:
+501:Status:
+502:Skapa server
+503:SKAPA SERVER
+504:Servernamn
+505:Serverport
+506:Skapa lokalt spel
+507:Skapa internetspel
+508:Avbryt
+509:Hitta server via IP
+510:HITTA SERVER
+511:Adress
+512:Port
+513:Rum
+514:Anslut
+515:Avbryt
+518:Servernamn
+519:Status
+520:Spelare
+521:Ping
+522:Uppdatera serverlistan
+523:SERVERDETALJER
+524:Spelarlista:
+525:Anslut
+526:Kopplar upp, var god vänta...
+527:Laddar meddelanden...
+528:Uppdaterar...
+529:Spelarlista
+530:Startplats
+531:Lag
+532:Färg
+533:Redo
+534:Ping
+536:Öppen
+537:AI-spelare
+538:Välj...
+539:Slumpad
+540:Ingen
+541:Sparat spel
+542:Välj en karta...
+543:Välj ett sparat spel...
+544:Avsluta sessionen
+545:Redo
+546:Inte redo
+547:Börja!
+561:Plats %d
+562:Fel: Sälj en spelare från sparningen att kontrollera
+563:Fel: Kartan kunde inte laddas eller ingen karta vald
+564:Kan inte börja: %s
+565:Alla är inte redo att börja
+567:Servern har tilldelat dig värdrättigheter
+568:Spel startat
+569:Byggkarta
+570:Stridskarta
+571:Samarbetskarta
+573:Spelinställningar:
+574:Fredstid (minuter)
+575:Stängd
+576:Värden gör spelaruppställningen
+577:Väntar på spelare:
+580:KaM Remakes skapare
+581:Original Knights & Merchants skapare
+582:PROGRAMMERING:
+583:YTTERLIGARE PROGRAMMERING:
+584:YTTERLIGARE GRAFIK:
+585:YTTERLIGARE LJUD:
+586:YTTERLIGARE MUSIK:
+587:YTTERLIGARE ÖVERSÄTTNING:
+588:SPECIELLT TACK TILL:
+589:Flerspelarkartor
+590:Enkelspelarkartor
+591:Scrollhastighet
+592:Hittade inga servrar
+593:Blanda spår
+594:Spelinformation:
+595:-
+596:Lobby
+597:Laddar
+598:Spel
+599:Bygg och strida
+600:Strid
+601:Redo
+602:Fel protokollversion: %s. Servern använder: %s
+603:Öka handelsmängd
+604:Minska handelsmängd
+605:Sparar spel...
+606:%s besegrad!
+607:Kasta ut spelare
+608:Värden kommer att kunna kasta ut dessa spelare efter %d sekunder
+609:Värden kan nu kasta ut dessa spelare
+610:Värden (%s) har gått ur spelet
+611:Uppkopplingen till servern försvann. Försöker återansluta...
+612:Är du säker på att du vill avsluta?
+613:Är du säker på att du permanent vill kasta ut dessa spelare?
+614:Avbryt
+615:Att handla med denna vara är inte tillåtet på det här uppdraget
+616:Plantera och hugg ner
+617:Hugg endast ner
+618:Du får inte göra det under fredstiden
+619:Fredstid kvar: %s
+620:Fredstiden är över. Till vapen!
+621:Speltid:|%s
+622:Gör halt ('%s')
+623:Länka trupp ('%s')
+624:Separera trupp ('%s')
+625:Reprisvisare
+626:Visa repris
+627:Inget stöd för format %s
+628:Felaktig version %s
+630:Ett fel uppstod när filen %s skulle behandlas
+631:initierar
+632:script
+633:enheter
+634:hus
+635:träd
+636:definitioner
+637:terrängtexturer
+638:Hittar inte kartan: %s
+639:Hittar inte sparningen: %s
+640:Kartfilerna stämmer inte överens med värdens karta: %s
+641:Sparfilen stämmer inte överens med värdens fil: %s
+642:Reprisen misslyckades vid en konsistenskontroll. Detta är en känd bugg som påverkar återspelande av vissa repriser. Vill du titta vidare?
+643:Du kan bara ha en instans av spelet igång i flerspelarläge i taget
+645:Ett fel uppstod i programmet. Var vänlig klicka på Skicka Buggrapport så att vi kan undersöka saken. Tack för hjälpen!
+646:Skicka Buggrapport
+647:Visa Rå Data
+648:Återuppta programmet
+649:Avsluta programmet
+650:Nästa
+651:Kontaktuppgifter
+652:Ditt namn: (valfritt)
+653:Din e-post: (valfritt)
+654:Kom ihåg mig
+655:Feldetaljer
+656:I vilken situation uppstod felet? Finns det någon mer information att ge? (Helst på engelska)
+657:Skärmdump
+658:Bifoga en skärmdump till buggrapporten
+659:(klicka för att editera bilden)
+660:Skicka rapporten
+661:Avbryt
+662:Skickar buggrapport...
+663:Kopplar upp mot servern...
+664:Skickar data...
+665:Lyckades inte skicka kraschrapporten! Vår server kan eventuellt vara upptagen, försök igen.
+666:Information
+667:Var god dröj ett ögonblick...

@@ -1,5 +1,5 @@
 
-MaxID:2957
+MaxID:667
 
 0:Houtzagerij
 1:IJzersmelterij
@@ -31,479 +31,479 @@ MaxID:2957
 27:Herberg
 28:Wijngaard
 29:Markt
-39:Boomstammen
-40:Stenen
-41:Timmerhout
-42:IJzererts
-43:Gouderts
-44:Kolen
-45:IJzer
-46:Goud
-47:Wijnvaten
-48:Koren
-49:Broden
-50:Meel
-51:Leer
-52:Worsten
-53:Varkens
-54:Huiden
-55:Houten schild
-56:IJzeren schild
-57:Leren harnas
-58:IJzeren harnas
-59:Handbijlen
-60:Zwaarden
-61:Lansen
-62:Pieken
-63:Handboog
-64:Kruisboog
-65:Paarden
-66:Vissen
-69:Bediende
-70:Houthakker
-71:Mijnwerker
-72:Veefokker
-73:Boer/Wijnboer
-74:Schrijnwerker
-75:Bakker/Molenaar
-76:Slager/Leerlooier
-77:Visser
-78:Bouwvakker
-79:Steenhouwer
-80:Smid
-81:Smelter
-82:Rekruut
-83:Militie
-84:Bijlvechter
-85:Zwaardvechter
-86:Boogschutter
-87:Kruisboogschutter
-88:Lansier
-89:Piekenier
-90:Spion
-91:Riddergarde
-92:Barbaar
-93:Rebel
-94:Schildknaap
-95:Krijger
-96:Vagebond
-97:Katapult
-98:Ballista
-99:De bediende voorziet je gebouwen van de nodige grondstoffen.||Let erop dat er een wegenverbinding tussen de huizen is.
-100:Om boomstammen voor de houtzagerij te produceren, heb je de houthakker nodig.||De houthakker beplant het bos vanzelf opnieuw.
-101:De mijnwerker delft ertsen in de kolen-, ijzer- en goudmijn.
-102:In de varkensfokkerij en de stallen fokt de veefokker met behulp van koren het vee.
-103:De boer zaait en oogst het koren op de boerderij.||Bovendien perst hij wijn in de wijngaard.
-104:De schrijnwerker werkt in de houtzagerij, de wapen-, wapentuig en schiettuigmakerij.
-105:De bakker bakt brood in de bakkerij.||Bovendien verwerkt hij koren tot meel in de molen.
-106:De slager produceert worsten in de slagerij en leer in de leerlooierij.
-107:De visser vangt vis in nabijgelegen wateren.
-108:De bouwvakker maakt gebouwen en wegen. Plaats de markeringen en hij voert je opdrachten automatisch uit.||Bovendien repareert hij beschadigde huizen.
-109:Omdat je bouwvakkers voldoende stenen voor het maken van wegen en huizen nodig hebben, wint de steenhouwer stenen.
-110:Zware wapenuitrustingen en wapens worden door de smid in de wapen- en wapentuigsmederij vervaardigd.
-111:De smelter vervaardigt van goud- en ijzererts kisten goud en ijzer.
-112:De rekruut kan in de kazerne als soldaat worden bewapend.||Bovendien bemant hij de uitkijktoren.
-147:Naar de keuze van gebouwen
-148:Naar de verdeling van producten
-149:Naar de statistieken
-150:Naar de opties
-151:Terug
-152:Keuze van de bouw
-153:Verdeling van|de producten
-154:Statistieken
-155:Opties
-156:Spel laden
-157:Spel opslaan
-158:Wilt u|deze missie|werkelijk beëindigen?
-159:Missie beëindigen
-160:Terug
-161:Instellingen
-162:Missie beëindigen
-163:Geluiden
-164:Volume wijzigen
-165:Muziek
-166:Muziek in-/uitschakelen
-167:Auto-opslaan
-168:Muziekspeler
-169:Vorige lied
-170:Volgende lied
-171:Vernietigen
-172:Afbreken van huizen/markeringen
-173:Weg aanleggen
-174:Wegenbouw
-175:Akker ploegen
-176:Akkerbouw
-177:Wijngaard bouwen
-178:Wijngaard
-179:Annuleren
-180:Huidige opleiding afbreken
-181:Voorradig:
-182:Toestand:
-183:Levert
-184:Huis in aanbouw
-185:Vernietigen
-186:Wilt u het gebouw|werkelijk vernietigen?
-187:Vernietig gekozen gebouw
-188:Bestellingen verlagen
-189:Bestellingen verhogen
-190:Vorig type eenheid
-191:Volgend type eenheid
-192:Huidig type eenheid bewapenen
-193:Volgend beroep
-194:Vorig beroep
-195:Aan wachtrij toevoegen
-196:Kosten:
-197:Huizenreparatie in-/uitschakelen
-198:Gebouw nu niet beschikbaar
-199:Uith. vermogen
-200:Eenheid linksom draaien
-201:Eenheid rechtsom draaien
-202:Eenheid aanvallen ('a')
-203:Eenheid zenden ('d')
-204:Eenheid van voedsel voorzien
-205:Stormaanval starten
-206:Een rij toevoegen
-207:Een rij verwijderen
-208:Doelgroep|kiezen
-209:Stoppen
-210:Wissen
-211:Wist het huidige bericht
-212:Ga naar
-213:Springt naar de plaats van het huidige bericht
-214:Sluiten
-215:Venster sluiten
-216:Je steenhouwer heeft geen steengroeven meer.
-217:Je kolenmijn is uitgeput.
-218:Je ijzermijn is uitgeput.
-219:Je goudmijn is uitgeput.
-220:Dit huis is niet bewoond.
-221:Deze eenheid heeft erg veel honger en moet zeer snel voedsel krijgen!
-222:PAUZE
-223:Volume wijzigen
-224:Levering van producten in-/uitschakelen
-418:Spirit
-419:Busy
-420:Middleage Horn
-421:Spring
-422:Middleage Guitar
-423:Lansknechten
-424:De Prinses
-425:De Koningin
-426:Op de markt
-427:In het veld
-428:Dans aan het hof
-429:Het leger
-430:In het kasteel
-431:Fanfares
-432:Aan het hof
-433:Entree
-434:Deep Blue
-435:Struggle
-436:Koninklijke vertrekken
-437:Aristocratie
-438:Bij de Haven
-439:Reis
-849:Speel enkelvoudige kaart
-850:Begin missie
-851:Terug naar menu
-852:Laad opgeslagen spel
-853:Multiplayer
-854:Opties
-855:Credits bekijken
-856:Verlaat programma
-857:Ga verder
-858:Missie herhalen
-859:Resolutie:
-860:MISSIE GEWONNEN!
-861:MISSIE VERLOREN!
-862:Verloren eenheden:
-863:Overwonnen eenheden:
-864:Verloren gebouwen:
-865:Verwoeste gebouwen:
-866:Opgerichte gebouwen:
-867:Opgeleide eenheden:
-868:Geproduceerde wapens:
-869:Bewapende soldaten:
-870:Speelduur:
-1000:JOYMANIA ENTERTAINMENT||PROGRAMMERING:|Peter Ohlmann||SPELGRAFIEK:|Adam Sprys||LEVELDESIGN:|Adam Sprys|Andre Quaß||GELUIDSMONTAGE:|Tonstudio Mannheim||MUZIEK:|Gerd Hofmann|Joachim Schäfer|Jürgen Rebhann|Klaus Staendike|Steffen Schüngel||ILLUSTRATIES:|Boleslaw Kasza|Christoph Werner|||ZUXXEZ ENTERTAINMENT AG||PRODUCER:|Uwe Schäfer||HANDBOEK:|Peter Ohlmann|Uwe Schäfer||BETA TESTING:|Alexandra Constandache|Dirk P. Hassinger|Achim Heidelauf|Uwe Schäfer|Ingrid Schäfer|Dirk U. Jantz|Ion Constandache|Yaman Egeli|Roman Eich|Iris Mocsnek|Anke Jantz|Liza Hassinger|Paul Hassinger||GAMES DIRECTOR:|Achim Heidelauf||PUBLISHED BY:|Best Buys Interactive||CUTSCENES:||DIRECTION:|Slawomir Jedrzejewski||Kajetan Czarnecki|Wojciech Drazek|Daniel Duplaga|Rafal Januszkiewicz|Andrzej Rams|Piotr Rulka|Krzysztof Rybczynski|Grzegorz Wisniwski||STEMMEN:|Claus Boyen (Verteller)||Tim Timmermann|Peter Houska|Dirk Mühlbach|Ralf Ditze|Gerhard Piske|Gernot Wassmann||HANDBOEK ONTWERP:|Uwe Schäfer|Alexandra Constandache||HANDBOEK TEKSTEN:|Peter Ohlmann|Uwe Schäfer||ARTWORK:|Boleslaw Kasza|Adam Sprys||OPENINGSANIMATIE:|Uwe Schäfer|Christian Bigalk|Aanvullende 3D-Modelling:|Niels Horstmann||SPECIALE DANK AAN:|Tadeusz Zuber|Dieter Ohlmann|Alexandra Constandache|Ingrid Schäfer|Andrea Rumpelt|Frits van Ens
-1686:Missie geannuleerd
-1687:Stad oefenscenario
-1688:Strijd oefenscenario
-1689:Alleen spelen
-1690:Kaartbewerker
-1692:Missie starten
-1693:Titel
-1694:Gr.
-1696:Overwinningsconditie:
-1697:Nederlaagconditie:
-1698:Bondgenoten:
-1699:Vijanden:
-1701:Nieuwe kaartgrootte
-1702:Breedte
-1703:Hoogte
-1704:Nieuwe kaart creëren
-1705:Beschikbare kaarten
-1706:Bestaande kaart inladen
-1707:Besturing:
-1708:Spelinstellingen:
-1709:Geluid:
-1710:Muziek uit
-1711:Weergave:
-1712:Helderheid
-1713:Volledig scherm
-1714:Toepassen
-1715:Taal:
-1716:Aan het laden... Een ogenblik geduld
-1717:Er is een fout opgetreden!
-1718:Nieuwe taalinstellingen laden
-1719:Lijst van opgeslagen spellen
-1720:Bestandsnaam
-1721:Omschrijving
-1722:Laden
-1723:Verwijderen
-1724:Weet je zeker dat je dit opgeslagen spel wilt verwijderen?
-1725:Verwijder
-1726:Annuleren
-1728:Je hebt gewonnen!
-1729:Doorspelen
-1730:Victorie!
-1731:Je hebt verloren!
-1732:Blijven kijken
-1733:Nederlaag
-1734:Herhaling is geëindigd
-1735:Blijven kijken
-1736:Afsluiten naar menu
-1737:Niet beschikbaar
-1738:Druk op %s om verder te spelen
-1740:Spelersinformatie
-1741:Chat
-1742:Opgeslagen spel bestaat al
-1743:Overschrijven
-1744:Opslaan
-1745:Laden
-1748:Verouderde OpenGL versie gedetecteerd. Het spel kan mogelijk langzaam draaien en/of grafisch niet optimaal werken.
-1749:Netwerkfout:
-1750:Fout: spelernaam moet ingevuld zijn
-1751:Verbindingsfout: %s
-1752:Je bent verbroken met het spel
-1753:Missie %d
-1754:Je vissershut is te ver weg van het water.
-1755:De visser kan geen vis meer vangen rondom zijn vissershut.
-1757:Gebruik de linkermuisknop om de goederen te selecteren
-1758:Gebruik de rechtermuisknop om de goederen te selecteren
-1759:Van x%d
-1760:Naar x%d
-1761:Terrein bewerken
-1762:Stadsplanning
-1763:Visuele scripts
-1764:Globale scripts
-1765:Menu
-1766:Status:
-1767:Spelernaam
-1768:SERVER AANMAKEN
-1769:Naam
-1770:Poort
-1771:Lokale server aanmaken
-1772:Internetserver aanmaken
-1773:Servernaam
-1774:Status
-1775:Spelers
-1776:Ping
-1777:Serverlijst vernieuwen
-1778:SERVERINFORMATIE
-1779:Spelerslijst:
-1780:Adres
-1781:Poort
-1782:Kamer
-1783:Meedoen
-1784:Verbinding maken, een ogenblik geduld ...
-1785:Mededelingen laden...
-1786:Vernieuwen...
-1787:Spelerslijst
-1788:Startlocatie
-1789:Team
-1790:Kleur
-1791:Gereed
-1792:Ping
-1794:Open
-1795:Computerspeler
-1796:Selecteer...
-1797:Willekeurig
-1799:Geen
-1805:Opgeslagen spel
-1806:Selecteer een kaart...
-1807:Selecteer een opgeslagen spel...
-1813:Lobby verlaten
-1814:Gereed
-1815:Start!
-1816:Wachten op spelers:
-1817:KaM Remake Credits
-1818:Orginele Knights & Merchants Credits
-1819:PROGRAMMERING:
-1820:AANVULLENDE PROGRAMMERING:
-1821:AANVULLENDE GRAFISCHE WERKEN:
-1822:AANVULLENDE VERTALINGEN:
-1823:SPECIALE DANK AAN:
-1824:Multiplayer kaarten
-1825:Alleen-spelen kaarten
-1826:Scrollsnelheid
-1827:Geen servers gevonden
-1828:Willekeurig
-1829:Spelinformatie:
-1830:-
-1831:Lobby
-1832:Laden
-1833:Spel
-1834:Locatie %d
-1835:Bouwen en Vechten
-1836:Vechten
-1837:Niet gereed
-1838:Gereed
-1839:Fout: kies a.u.b. een speler uit het opgeslagen spel om te besturen
-1840:Fout: laden van de kaart mislukt of er is geen map geselecteerd.
-1841:Kan niet starten: %s
-1842:Niet iedereen is gereed om te starten
-1844:Verkeerde protocol versie: %s. De server gebruikt: %s
-1845:Server heeft ons hostingrechten toegewezen
-1846:Aantal verhogen
-1847:Aantal verlagen
-1848:Spel opslaan...
-1849:%s werd verslagen!
-1850:AANVULLENDE GELUIDEN:
-1851:Spelers verwijderen
-1852:De host mag deze spelers na %d seconden verwijderen
-1853:De host mag nu deze spelers verwijderen
-1854:De host (%s) heeft het spel verlaten
-1855:De verbinding met de server is verbroken. Poging tot herverbinden...
-1856:Weet je zeker dat je wilt afsluiten?
-1857:Weet je zeker dat je deze spelers permanent wilt verwijderen?
-1858:Annuleren
-1859:Burgers|opgeleid
-1860:Burgers|verloren
-1861:Soldaten|uitgerust
-1862:Soldaten|verloren
-1864:Gebouwen|opgericht
-1865:Gebouwen|verloren
-1866:Gebouwen|vernietigd
-1867:Producten|geproduceerd
-1868:Wapens|geproduceerd
-1869:Het verhandelen van dit product is niet beschikbaar in deze missie
-1870:Planten en kappen
-1871:Alleen kappen
-1872:Spel gestart
-1873:Bouwkaart
-1874:Gevechtskaart
-1875:Co-op kaart
-1876:Het is niet toegestaan om dat te doen tijdens vredestijd.
-1877:Resterende vredestijd: %s
-1878:De vrede is voorbij. Grijp de wapens!
-1879:Speeltijd:|%s
-1880:Spelopties:
-1884:Troep stoppen ('%s')
-1885:Troep samenvoegen ('%s')
-1886:Troep splitsen ('%s')
-1887:Herhalingen
-1888:Herhaling weergeven
-1889:Vredestijd (minuten)
-1890:Niet-ondersteund formaat %s
-1891:Niet-ondersteunde versie %s
-1893:initialiseren
-1895:script
-1896:Nieuwe missie
-1897:Er is een fout opgetreden tijdens het ontleden van het %s bestand
-1898:Gesloten
-1899:Host regelt spelerinstellingen
-1901:eenheden
-1902:gebouwen
-1903:bomen
-1904:definities
-1905:tegelset
-2687:Server aanmaken
-2688:VIND SERVER
-2689:Verbinden
-2690:Vind server met IP
-2691:Annuleren
-2692:Annuleren
-2693:Niet ondersteund
-2694:Niet ondersteund
-2695:Fout: spelernaam mag niet langer dan %d tekens zijn
-2696:Fout: spelernaam bevat verboden karakters
-2697:Schaduwkwaliteit:
-2698:Laag
-2699:Hoog
-2700:Kaart niet gevonden: %s
-2701:Kaartbestanden zijn niet gelijk aan die van de host: %s
-2702:Opgeslagen spel niet gevonden: %s
-2703:Opgeslagen bestand is niet gelijk aan dat van de host: %s
-2705:Update a.u.b. de drivers voor betere prestaties.
-2706:Er is een fout opgetreden in de applicatie. Klik op "Foutenrapport verzenden" zodat we de fout kunnen onderzoeken. Bedankt voor je hulp!
-2707:Foutenrapport verzenden
-2708:Ruwe data weergeven
-2709:De herhaling is gefaald op een consistentie controle. Dit is een bekende fout die effect heeft op het afspelen van sommige herhalingen. Wil je doorgaan met het kijken van de herhaling?
-2710:Je naam (optioneel):
-2711:Je e-mail (optioneel):
-2712:Onthoud mij
-2713:In welke situatie deed de fout zich voor? Kun je ons van extra informatie voorzien? (Antwoord in het Engels aub)
-2714:Een screenshot toevoegen aan het foutenrapport
-2715:(klik om afbeelding aan te passen)
-2716:Applicatie beëindigen
-2717:Applicatie hervatten
-2718:Volgende
-2719:Rapport verzenden
-2720:Annuleren
-2721:Contact details
-2722:Fout details
-2723:Screenshot
-2724:Foutenrapport verzenden...
-2725:Verbinden met de server...
-2726:Data verzenden...
-2727:Het versturen van het foutenrapport is mislukt! Het kan zijn dat onze server druk bezig is. Probeer het alstublieft opnieuw.
-2728:Informatie
-2729:Een ogenblik geduld...
-2730:Campagnes
-2732:Start Campagne!
-2734:Soldaten verslagen
-2736:Naam
-2737:Kaarten
-2738:Vrijgespeeld
-2739:Tijd
-2740:Herhaling herstarten
-2741:Herhaling beëindigen
-2742:Herhaling hervatten
-2743:1 Tick vooruit
-2744:Herhaling pauzeren
-2745:Je mag maar één instantie van het spel actief hebben tijdens multiplayer
-2746:Einde herhaling
-2747:AANVULLENDE MUZIEK:
-2748:Jij
-2749:Speler %d
-2750:Leger
-2751:Burgers
-2752:Gebouwen
-2753:Producten
-2754:Producten geproduceerd
-2755:Statistieken
-2756:Economie
-2757:Gebouw bouwen
-2758:Bouwterrein afgraven
-2759:Wijnveld bouwen
-2760:Akker bouwen
-2761:Straat bouwen
-2762:Bezorgen
-2763:Boom platen
-2764:Gaat naar huis
-2765:Gebouw repareren
-2766:Vechten
-2767:Vuren
-2768:Gebouw aanvallen
-2769:Gaat naar herberg
-2770:Boom kappen
-2771:Werkloos
-2772:Op weg
-2773:Stormaanval
-2774:Vissen
-2775:Druiven oogsten
-2776:Koren oogsten
-2777:Koren zaaien
-2778:Steenhouwen
-2779:Aanvallen
+30:Boomstammen
+31:Stenen
+32:Timmerhout
+33:IJzererts
+34:Gouderts
+35:Kolen
+36:IJzer
+37:Goud
+38:Wijnvaten
+39:Koren
+40:Broden
+41:Meel
+42:Leer
+43:Worsten
+44:Varkens
+45:Huiden
+46:Houten schild
+47:IJzeren schild
+48:Leren harnas
+49:IJzeren harnas
+50:Handbijlen
+51:Zwaarden
+52:Lansen
+53:Pieken
+54:Handboog
+55:Kruisboog
+56:Paarden
+57:Vissen
+58:Bediende
+59:Houthakker
+60:Mijnwerker
+61:Veefokker
+62:Boer/Wijnboer
+63:Schrijnwerker
+64:Bakker/Molenaar
+65:Slager/Leerlooier
+66:Visser
+67:Bouwvakker
+68:Steenhouwer
+69:Smid
+70:Smelter
+71:Rekruut
+72:Militie
+73:Bijlvechter
+74:Zwaardvechter
+75:Boogschutter
+76:Kruisboogschutter
+77:Lansier
+78:Piekenier
+79:Spion
+80:Riddergarde
+81:Barbaar
+82:Rebel
+83:Schildknaap
+84:Krijger
+85:Vagebond
+86:Katapult
+87:Ballista
+88:De bediende voorziet je gebouwen van de nodige grondstoffen.||Let erop dat er een wegenverbinding tussen de huizen is.
+89:Om boomstammen voor de houtzagerij te produceren, heb je de houthakker nodig.||De houthakker beplant het bos vanzelf opnieuw.
+90:De mijnwerker delft ertsen in de kolen-, ijzer- en goudmijn.
+91:In de varkensfokkerij en de stallen fokt de veefokker met behulp van koren het vee.
+92:De boer zaait en oogst het koren op de boerderij.||Bovendien perst hij wijn in de wijngaard.
+93:De schrijnwerker werkt in de houtzagerij, de wapen-, wapentuig en schiettuigmakerij.
+94:De bakker bakt brood in de bakkerij.||Bovendien verwerkt hij koren tot meel in de molen.
+95:De slager produceert worsten in de slagerij en leer in de leerlooierij.
+96:De visser vangt vis in nabijgelegen wateren.
+97:De bouwvakker maakt gebouwen en wegen. Plaats de markeringen en hij voert je opdrachten automatisch uit.||Bovendien repareert hij beschadigde huizen.
+98:Omdat je bouwvakkers voldoende stenen voor het maken van wegen en huizen nodig hebben, wint de steenhouwer stenen.
+99:Zware wapenuitrustingen en wapens worden door de smid in de wapen- en wapentuigsmederij vervaardigd.
+100:De smelter vervaardigt van goud- en ijzererts kisten goud en ijzer.
+101:De rekruut kan in de kazerne als soldaat worden bewapend.||Bovendien bemant hij de uitkijktoren.
+102:Naar de keuze van gebouwen
+103:Naar de verdeling van producten
+104:Naar de statistieken
+105:Naar de opties
+106:Terug
+107:Keuze van de bouw
+108:Verdeling van|de producten
+109:Statistieken
+110:Opties
+111:Spel laden
+112:Spel opslaan
+113:Wilt u|deze missie|werkelijk beëindigen?
+114:Missie beëindigen
+115:Terug
+116:Instellingen
+117:Missie beëindigen
+118:Geluiden
+119:Volume wijzigen
+120:Volume wijzigen
+121:Muziek
+122:Muziek in-/uitschakelen
+123:Auto-opslaan
+124:Muziekspeler
+125:Vorige lied
+126:Volgende lied
+127:Vernietigen
+128:Afbreken van huizen/markeringen
+129:Weg aanleggen
+130:Wegenbouw
+131:Akker ploegen
+132:Akkerbouw
+133:Wijngaard bouwen
+134:Wijngaard
+135:Annuleren
+136:Huidige opleiding afbreken
+137:Voorradig:
+139:Toestand:
+140:Levert
+141:Huis in aanbouw
+142:Vernietigen
+143:Wilt u het gebouw|werkelijk vernietigen?
+144:Vernietig gekozen gebouw
+145:Bestellingen verlagen
+146:Bestellingen verhogen
+147:Vorig type eenheid
+148:Volgend type eenheid
+149:Huidig type eenheid bewapenen
+150:Volgend beroep
+151:Vorig beroep
+152:Aan wachtrij toevoegen
+153:Levering van producten in-/uitschakelen
+154:Kosten:
+155:Huizenreparatie in-/uitschakelen
+156:Gebouw nu niet beschikbaar
+157:Uith. vermogen
+158:Eenheid linksom draaien
+159:Eenheid rechtsom draaien
+160:Eenheid aanvallen ('a')
+161:Eenheid zenden ('d')
+162:Eenheid van voedsel voorzien
+163:Stormaanval starten
+164:Een rij toevoegen
+165:Een rij verwijderen
+166:Doelgroep|kiezen
+167:Stoppen
+168:Wissen
+169:Wist het huidige bericht
+170:Ga naar
+171:Springt naar de plaats van het huidige bericht
+172:Sluiten
+173:Venster sluiten
+174:Je steenhouwer heeft geen steengroeven meer.
+175:Je kolenmijn is uitgeput.
+176:Je ijzermijn is uitgeput.
+177:Je goudmijn is uitgeput.
+179:Dit huis is niet bewoond.
+180:Deze eenheid heeft erg veel honger en moet zeer snel voedsel krijgen!
+181:PAUZE
+182:Bezorgen
+183:Straat bouwen
+184:Akker bouwen
+185:Wijnveld bouwen
+186:Bouwterrein afgraven
+187:Gebouw bouwen
+188:Gebouw repareren
+189:Gaat naar huis
+190:Gaat naar herberg
+191:Gebouw aanvallen
+192:Vuren
+193:Vechten
+194:Stormaanval
+195:Aanvallen
+196:Op weg
+197:Werkloos
+198:Steenhouwen
+199:Koren zaaien
+200:Koren oogsten
+201:Druiven oogsten
+202:Vissen
+203:Boom kappen
+204:Boom platen
+205:Spirit
+206:Busy
+207:Middleage Horn
+208:Spring
+209:Middleage Guitar
+210:Lansknechten
+211:De Prinses
+212:De Koningin
+213:Op de markt
+214:In het veld
+215:Dans aan het hof
+216:Het leger
+217:In het kasteel
+218:Fanfares
+219:Aan het hof
+220:Entree
+221:Deep Blue
+222:Struggle
+223:Koninklijke vertrekken
+224:Aristocratie
+225:Bij de Haven
+226:Reis
+227:Campagnes
+229:Start Campagne!
+230:Speel enkelvoudige kaart
+231:Begin missie
+232:Terug naar menu
+233:Laad opgeslagen spel
+234:Multiplayer
+235:Opties
+236:Credits bekijken
+237:Verlaat programma
+238:Ga verder
+239:Missie herhalen
+240:Resolutie:
+241:Niet ondersteund
+242:Niet ondersteund
+243:MISSIE GEWONNEN!
+244:MISSIE VERLOREN!
+245:Verloren eenheden:
+246:Overwonnen eenheden:
+247:Verloren gebouwen:
+248:Verwoeste gebouwen:
+249:Opgerichte gebouwen:
+250:Opgeleide eenheden:
+251:Geproduceerde wapens:
+252:Bewapende soldaten:
+253:Speelduur:
+254:Statistieken
+255:Economie
+256:Burgers|opgeleid
+257:Burgers|verloren
+258:Soldaten|uitgerust
+259:Soldaten|verloren
+260:Soldaten verslagen
+261:Gebouwen|opgericht
+262:Gebouwen|verloren
+263:Gebouwen|vernietigd
+264:Producten|geproduceerd
+265:Wapens|geproduceerd
+266:Leger
+267:Burgers
+268:Gebouwen
+269:Producten
+270:Producten geproduceerd
+272:Jij
+273:Speler %d
+279:JOYMANIA ENTERTAINMENT||PROGRAMMERING:|Peter Ohlmann||SPELGRAFIEK:|Adam Sprys||LEVELDESIGN:|Adam Sprys|Andre Quaß||GELUIDSMONTAGE:|Tonstudio Mannheim||MUZIEK:|Gerd Hofmann|Joachim Schäfer|Jürgen Rebhann|Klaus Staendike|Steffen Schüngel||ILLUSTRATIES:|Boleslaw Kasza|Christoph Werner|||ZUXXEZ ENTERTAINMENT AG||PRODUCER:|Uwe Schäfer||HANDBOEK:|Peter Ohlmann|Uwe Schäfer||BETA TESTING:|Alexandra Constandache|Dirk P. Hassinger|Achim Heidelauf|Uwe Schäfer|Ingrid Schäfer|Dirk U. Jantz|Ion Constandache|Yaman Egeli|Roman Eich|Iris Mocsnek|Anke Jantz|Liza Hassinger|Paul Hassinger||GAMES DIRECTOR:|Achim Heidelauf||PUBLISHED BY:|Best Buys Interactive||CUTSCENES:||DIRECTION:|Slawomir Jedrzejewski||Kajetan Czarnecki|Wojciech Drazek|Daniel Duplaga|Rafal Januszkiewicz|Andrzej Rams|Piotr Rulka|Krzysztof Rybczynski|Grzegorz Wisniwski||STEMMEN:|Claus Boyen (Verteller)||Tim Timmermann|Peter Houska|Dirk Mühlbach|Ralf Ditze|Gerhard Piske|Gernot Wassmann||HANDBOEK ONTWERP:|Uwe Schäfer|Alexandra Constandache||HANDBOEK TEKSTEN:|Peter Ohlmann|Uwe Schäfer||ARTWORK:|Boleslaw Kasza|Adam Sprys||OPENINGSANIMATIE:|Uwe Schäfer|Christian Bigalk|Aanvullende 3D-Modelling:|Niels Horstmann||SPECIALE DANK AAN:|Tadeusz Zuber|Dieter Ohlmann|Alexandra Constandache|Ingrid Schäfer|Andrea Rumpelt|Frits van Ens
+280:Missie geannuleerd
+281:Einde herhaling
+282:Stad oefenscenario
+283:Strijd oefenscenario
+284:Alleen spelen
+285:Kaartbewerker
+286:Missie starten
+287:Titel
+288:Gr.
+289:Overwinningsconditie:
+290:Nederlaagconditie:
+291:Bondgenoten:
+292:Vijanden:
+293:Tijd
+294:Nieuwe kaartgrootte
+295:Breedte
+296:Hoogte
+297:Nieuwe kaart creëren
+298:Beschikbare kaarten
+299:Bestaande kaart inladen
+301:Besturing:
+302:Spelinstellingen:
+303:Geluid:
+304:Muziek uit
+305:Weergave:
+306:Helderheid
+308:Volledig scherm
+309:Toepassen
+310:Taal:
+311:Schaduwkwaliteit:
+312:Laag
+313:Hoog
+314:Aan het laden... Een ogenblik geduld
+315:Er is een fout opgetreden!
+316:Nieuwe taalinstellingen laden
+317:Lijst van opgeslagen spellen
+318:Bestandsnaam
+319:Omschrijving
+320:Laden
+321:Verwijderen
+322:Weet je zeker dat je dit opgeslagen spel wilt verwijderen?
+323:Verwijder
+324:Annuleren
+325:Naam
+326:Kaarten
+327:Vrijgespeeld
+328:Je hebt gewonnen!
+329:Doorspelen
+330:Victorie!
+331:Je hebt verloren!
+332:Blijven kijken
+333:Nederlaag
+334:Herhaling is geëindigd
+335:Blijven kijken
+336:Afsluiten naar menu
+337:Niet beschikbaar
+338:Druk op %s om verder te spelen
+339:Spelersinformatie
+340:Chat
+341:Opgeslagen spel bestaat al
+342:Overschrijven
+343:Opslaan
+344:Laden
+345:Verouderde OpenGL versie gedetecteerd. Het spel kan mogelijk langzaam draaien en/of grafisch niet optimaal werken.
+346:Update a.u.b. de drivers voor betere prestaties.
+347:Netwerkfout:
+348:Fout: spelernaam moet ingevuld zijn
+349:Fout: spelernaam mag niet langer dan %d tekens zijn
+350:Fout: spelernaam bevat verboden karakters
+351:Verbindingsfout: %s
+352:Je bent verbroken met het spel
+353:Missie %d
+355:Je vissershut is te ver weg van het water.
+356:De visser kan geen vis meer vangen rondom zijn vissershut.
+357:Herhaling herstarten
+358:Herhaling pauzeren
+359:1 Tick vooruit
+360:Herhaling hervatten
+361:Herhaling beëindigen
+364:Gebruik de linkermuisknop om de goederen te selecteren
+365:Gebruik de rechtermuisknop om de goederen te selecteren
+366:Van x%d
+367:Naar x%d
+368:Terrein bewerken
+394:Stadsplanning
+395:Visuele scripts
+396:Globale scripts
+397:Menu
+499:Nieuwe missie
+500:Spelernaam
+501:Status:
+502:Server aanmaken
+503:SERVER AANMAKEN
+504:Naam
+505:Poort
+506:Lokale server aanmaken
+507:Internetserver aanmaken
+508:Annuleren
+509:Vind server met IP
+510:VIND SERVER
+511:Adres
+512:Poort
+513:Kamer
+514:Verbinden
+515:Annuleren
+518:Servernaam
+519:Status
+520:Spelers
+521:Ping
+522:Serverlijst vernieuwen
+523:SERVERINFORMATIE
+524:Spelerslijst:
+525:Meedoen
+526:Verbinding maken, een ogenblik geduld ...
+527:Mededelingen laden...
+528:Vernieuwen...
+529:Spelerslijst
+530:Startlocatie
+531:Team
+532:Kleur
+533:Gereed
+534:Ping
+536:Open
+537:Computerspeler
+538:Selecteer...
+539:Willekeurig
+540:Geen
+541:Opgeslagen spel
+542:Selecteer een kaart...
+543:Selecteer een opgeslagen spel...
+544:Lobby verlaten
+545:Gereed
+546:Niet gereed
+547:Start!
+561:Locatie %d
+562:Fout: kies a.u.b. een speler uit het opgeslagen spel om te besturen
+563:Fout: laden van de kaart mislukt of er is geen map geselecteerd.
+564:Kan niet starten: %s
+565:Niet iedereen is gereed om te starten
+567:Server heeft ons hostingrechten toegewezen
+568:Spel gestart
+569:Bouwkaart
+570:Gevechtskaart
+571:Co-op kaart
+573:Spelopties:
+574:Vredestijd (minuten)
+575:Gesloten
+576:Host regelt spelerinstellingen
+577:Wachten op spelers:
+580:KaM Remake Credits
+581:Orginele Knights & Merchants Credits
+582:PROGRAMMERING:
+583:AANVULLENDE PROGRAMMERING:
+584:AANVULLENDE GRAFISCHE WERKEN:
+585:AANVULLENDE GELUIDEN:
+586:AANVULLENDE MUZIEK:
+587:AANVULLENDE VERTALINGEN:
+588:SPECIALE DANK AAN:
+589:Multiplayer kaarten
+590:Alleen-spelen kaarten
+591:Scrollsnelheid
+592:Geen servers gevonden
+593:Willekeurig
+594:Spelinformatie:
+595:-
+596:Lobby
+597:Laden
+598:Spel
+599:Bouwen en Vechten
+600:Vechten
+601:Gereed
+602:Verkeerde protocol versie: %s. De server gebruikt: %s
+603:Aantal verhogen
+604:Aantal verlagen
+605:Spel opslaan...
+606:%s werd verslagen!
+607:Spelers verwijderen
+608:De host mag deze spelers na %d seconden verwijderen
+609:De host mag nu deze spelers verwijderen
+610:De host (%s) heeft het spel verlaten
+611:De verbinding met de server is verbroken. Poging tot herverbinden...
+612:Weet je zeker dat je wilt afsluiten?
+613:Weet je zeker dat je deze spelers permanent wilt verwijderen?
+614:Annuleren
+615:Het verhandelen van dit product is niet beschikbaar in deze missie
+616:Planten en kappen
+617:Alleen kappen
+618:Het is niet toegestaan om dat te doen tijdens vredestijd.
+619:Resterende vredestijd: %s
+620:De vrede is voorbij. Grijp de wapens!
+621:Speeltijd:|%s
+622:Troep stoppen ('%s')
+623:Troep samenvoegen ('%s')
+624:Troep splitsen ('%s')
+625:Herhalingen
+626:Herhaling weergeven
+627:Niet-ondersteund formaat %s
+628:Niet-ondersteunde versie %s
+630:Er is een fout opgetreden tijdens het ontleden van het %s bestand
+631:initialiseren
+632:script
+633:eenheden
+634:gebouwen
+635:bomen
+636:definities
+637:tegelset
+638:Kaart niet gevonden: %s
+639:Opgeslagen spel niet gevonden: %s
+640:Kaartbestanden zijn niet gelijk aan die van de host: %s
+641:Opgeslagen bestand is niet gelijk aan dat van de host: %s
+642:De herhaling is gefaald op een consistentie controle. Dit is een bekende fout die effect heeft op het afspelen van sommige herhalingen. Wil je doorgaan met het kijken van de herhaling?
+643:Je mag maar één instantie van het spel actief hebben tijdens multiplayer
+645:Er is een fout opgetreden in de applicatie. Klik op "Foutenrapport verzenden" zodat we de fout kunnen onderzoeken. Bedankt voor je hulp!
+646:Foutenrapport verzenden
+647:Ruwe data weergeven
+648:Applicatie hervatten
+649:Applicatie beëindigen
+650:Volgende
+651:Contact details
+652:Je naam (optioneel):
+653:Je e-mail (optioneel):
+654:Onthoud mij
+655:Fout details
+656:In welke situatie deed de fout zich voor? Kun je ons van extra informatie voorzien? (Antwoord in het Engels aub)
+657:Screenshot
+658:Een screenshot toevoegen aan het foutenrapport
+659:(klik om afbeelding aan te passen)
+660:Rapport verzenden
+661:Annuleren
+662:Foutenrapport verzenden...
+663:Verbinden met de server...
+664:Data verzenden...
+665:Het versturen van het foutenrapport is mislukt! Het kan zijn dat onze server druk bezig is. Probeer het alstublieft opnieuw.
+666:Informatie
+667:Een ogenblik geduld...

@@ -1,5 +1,5 @@
 
-MaxID:2957
+MaxID:667
 
 0:Lentpjûvë
 1:Geleþies kalvë
@@ -31,401 +31,401 @@ MaxID:2957
 27:Valgykla
 28:Vyno spaudykla
 29:Turgavietë
-39:Ràstai
-40:Akmenys
-41:Lenta
-42:Geleþies rûda
-43:Aukso rûda
-44:Anglis
-45:Geleþis
-46:Auksas
-47:Vyno statinës
-48:Grûdai
-49:Kepalai
-50:Miltai
-51:Iðdirbta oda
-52:Deðros
-53:Kiaulës
-54:Odos
-55:Medinis skydas
-56:Geleþinis skydas
-57:Odiniai ðarvai
-58:Geleþiniai ðarvai
-59:Kirvis
-60:Kalavijas
-61:Ietis
-62:Alebarda
-63:Lankas
-64:Arbaletas
-65:Arkliai
-66:Þuvis
-69:Neðëjas
-70:Medkirtys
-71:Ðachtininkas
-72:Gyvuliø augintojas
-73:Fermeris
-74:Stalius
-75:Kepëjas
-76:Mësininkas
-77:Þvejas
-78:Statybininkas
-79:Kalnakasys
-80:Kalvis
-81:Metalurgas
-82:Rekrutas
-83:Milicija
-84:Kovotojas su kirviu
-85:Fechtuotojas
-86:Lankininkas
-87:Arbaletininkas
-88:Ietininkas
-89:Alebardininkas
-90:Skautas
-91:Riteris
-92:Barbaras
-93:Sukilëlis
-94:Plëðikas
-95:Kovotojas
-96:Klajoklis
-97:Katapulta
-98:Balista
-99:Neðëjas aprûpina jûsø pastatus reikalingomis þaliavomis.||Takas turi bûti tarp pastatø.
-100:Norint iðgauti ràstus lentpjûvei, reikalingas medkirtys.||Medkirtys sodina medþius savarankiðkai.
-101:Ðachtininkas iðgauna iðkasenas ið anglies, geleþies ir aukso ðachtø.
-102:Gyvuliø augintojas naudoja grûdus veisiant kiaules fermoje ir arklius arklidëse.
-103:Fermeris sodina ir pjauna grûdus fermoje.||Be to, jis spaudþia vynà vyno spaudykloje.
-104:Stalius dirba lentpjûvëje, ginklø bei ðarvø dirbtuvëje.||Be to, jis stato katapultas ir balistas apgulties dirbtuvëje.
-105:Kepëjas mala grûdus malûne.||Jis taip pat kepa duonà kepykloje.
-106:Mësininkas gamina deðras mësinëje ir iðdirba odà odø gamykloje.
-107:Þvejas þvejoja þuvis vandens telkiniuose.
-108:Statybininkas stato pastatus ir kasa takus. Paþymëk norimà vietà ir jis dirbs automatiðkai.||Be to, jis remontuoja pastatus.
-109:Kalnakasys aprûpina statybininkus akmeniu statant pastatus ir kasant takus.
-110:Kalvis kaldina geleþinius ginklus ir ðarvus ginklø ir ðarvø kalvëse.
-111:Metalurgas naudoja anglá lydant auksà ir geleþá.
-112:Rekrutas gali tapti kareiviu kareivinëse.||Jis taip pat uþima bokðtà.
-147:Á pastatø sàraðà
-148:Á resursø paskirstymà
-149:Á statistikà
-150:Á nustatymus
-151:Atgal
-152:Pastato|Pasirinkimas
-153:Resursø|Paskirstymas
-154:Statistika
-155:Nustatymai
-156:Ákelti Þaidimà
-157:Iðsaugoti Þaidimà
-158:Ar tikrai norite|baigti ðià|misijà?
-159:Baigti Misijà
-160:Atgal
-161:Nuostatos
-162:Baigti Misijà
-163:Garso efektai
-164:Keisto garsà
-165:Muzika
-166:Muzika áj./iðj.
-167:Autoiðsaugojimas
-168:Muzikos Grotuvas
-169:Ankstesnis takelis
-170:Sekantis takelis
-171:Sunaikinti
-172:Paðalinti pastatus/þymëjimus
-173:Kasti takà
-174:Kasti takus
-175:Iðarti laukà
-176:Iðarti laukus
-177:Iðdëstyti vyno laukà
-178:Iðdëstyti vyno laukus
-179:Atðaukti
-180:Stabdyti mokymà
-181:Reikia:
-182:Bûklë:
-183:Gamina
-184:Pastatas|statomas
-185:Sugriauti
-186:Tikrai norite sunaikinti|ðá pastatà?
-187:Sugriauti pasirinktà pastatà
-188:Sumaþinti uþsakymo kieká
-189:Padidinti uþsakymo kieká
-190:Ankstesnis karys
-191:Sekantis karys
-192:Parengti dabartiná kará
-193:Sekanti profesija
-194:Ankstesnë profesija
-195:Pridëti á eilæ
-196:Kainuoja:
-197:Áj./iðj. namo remontà
-198:Pastatas dabar negalimas
-199:Bûklë
-200:Pasisukti kairën
-201:Pasisukti deðinën
-202:Pulti ('a')
-203:Iðskirti bûrá ('d')
-204:Pamaitinti bûrá
-205:Pradëti ðturmavimà
-206:Pridëti linijà
-207:Panaikinti linijà
-208:Pasirinkti|grupæ
-209:Atðaukti
-210:Iðtrinti
-211:Iðtrina dabartinæ þinutæ
-212:Eiti á
-213:Perðoka á þinutës vietà
-214:Uþdaryti
-215:Uþdaro langà
-216:Jûsø kalnakasys negali iðgauti akmens.
-217:Tavo anglies ðaltinis iðseko.
-218:Tavo geleþies ðaltinis iðseko.
-219:Tavo aukso ðaltinis iðseko.
-220:Ðitas namas negyvenamas.
-221:Ðitas bûrys labai alkanas, jis turi greitai gauti valgyti!
-222:PAUZË
-223:Keisto garsà
-418:Spirit
-419:Busy
-420:Middle Ages Horn
-421:Spring
-422:Lute
-423:Mercenary
-424:The Princess
-425:The Queen
-426:In the Marketplace
-427:On the Battlefield
-428:Court Dance
-429:The Army
-430:In the Castle
-431:Fanfares
-432:At Court
-433:Entree
-434:Deep Blue
-435:Struggle
-436:Royal Quarters
-437:Aristocracy
-438:At the Harbor
-439:Journey
-849:Þaisti Vienam
-851:Atgal á Meniu
-852:Ákelti Þaidimà
-853:Þaisti Internete
-854:Nustatymai
-855:Kreditai
-856:Iðeiti
-857:Tæsti
-858:Þaisti ið Naujo
-859:Rezoliucija:
-860:PERGALË!
-861:PRALAIMËJIMAS!
-862:Vienetø prarasta:
-863:Vienetø nugalëta:
-864:Pastatø prarasta:
-865:Pastatø sunaikinta:
-866:Pastatø pastatyta:
-867:Vienetø treniruota:
-868:Pagaminta ginklø:
-869:Treniruota kariø:
-870:Misija ávykdyta per:
-1000:JOYMANIA ENTERTAINMENT||PROGRAMAVIMAS:|Peter Ohlmann||ÞAIDIMO GRAFIKOS:|Adam Sprys||LYGIØ DIZAINAS:|Adam Sprys|Andre Quaß||GARSO REDAGAVIMAS IR MAIÐYMAS:|Tonstudio Mannheim||MUZIKA:|Gerd Hofmann|Joachim Schäfer|Jürgen Rebhann|Klaus Staendike|Steffen Schüngel||ILIUSTRACIJOS:|Boleslaw Kasza|Christoph Werner||ZUXXEZ ENTERTAINMENT AG||GAMINTOJAS:|Uwe Schäfer||ÞINYNAS:|Peter Ohlmann|Uwe Schäfer||BETA TESTAVIMAS:|Peter Ohlmann|Adam Sprys|Alexandra Constandache|Dirk P. Hassinger|Achim Heidelauf|Uwe Schäfer|Ingrid Schäfer|Dirk U. Jantz|Ion Constandache|Yaman Egeli|Roman Eich|Iris Mocsnek|Anke Jantz|Paul Hassinger|Liza Hassinger||ÞAIDIMØ DIREKTORIUS:|Achim Heidelauf||IÐLEIDO:|TopWare Interactive||VAIZDAI:||DIREKCIJA:|Slawomir Jedrzejewski||Kajetan Czarnecki|Wojciech Drazek|Daniel Duplaga|Rafal Januszkiewicz|Andrzej Rams|Piotr Rulka|Krzysztof Rybczynski|Grzegorz Wisniwski||BALSAI:|Claus Boyen (Storyteller)||Tim Timmermann|Peter Houska|Dirk Mühlbach|Ralf Ditze|Gerhard Piske|Gernot Wassmann||ARTWORK:|Boleslaw Kasza|Adam Sprys||PRADINË ANIMACIJA:|Uwe Schäfer|Christian Bigalk|Additional 3D-Modelling:|Niels Horstmann||SPECIALÛS DËKOJIMAI:|Tadeusz Zuber|Dieter Ohlmann|Alexandra Constandache|Ingrid Schäfer|Andrea Rumpelt
-1686:Misija atðaukta
-1687:Miesto Mokymas
-1688:Mûðio Mokymas
-1689:Vieno Þaidëjo Reþimas
-1690:Þemëlapio Redaktorius
-1692:Pradëti Misijà
-1693:Titulas
-1694:Dydis
-1696:Pergalës bûklë:
-1697:Pralaimëjimo bûklë:
-1698:Sàjungininkai:
-1699:Prieðai:
-1701:Naujas þemëlapio dydis
-1702:Plotis
-1703:Aukðtis
-1704:Sukurti Naujà Þemëlapá
-1705:Galimi þemëlapiai
-1706:Ákelti Esanti Þemëlapá
-1707:Valdymai:
-1708:Þaidimas:
-1709:Garsas:
-1710:Iðj. muzika
-1711:Grafikos:
-1712:Ryðkumas
-1713:Visas ekranas
-1714:Tinkinti
-1715:Kalba:
-1716:Kraunama... Praðome palaukti
-1717:Ávyko Klaida!
-1718:Kraunama nauja vieta
-1719:Iðsaugoti þaidimai
-1720:Failo vardas
-1721:Apraðymas
-1722:Ákelti
-1723:Iðtrinti
-1724:Ar tikrai norite iðtrinti ðá áraðà?
-1725:Iðtrinti
-1726:Atðaukti
-1728:Tu laimëjai!
-1729:Þaisti toliau
-1730:Pergalë!
-1731:Tu pralaimëjai!
-1732:Þiûrëti toliau
-1733:Pralaimëjimas
-1734:Pakartojimas baigësi
-1735:Þiûrëti Toliau
-1736:Iðeiti á Meniu
-1737:Neprieinamas
-1738:Spausk %s norint tæsti þaidimà
-1740:Þaidëjø informacija
-1741:Pokalbis
-1742:Áraðas jau egzistuoja
-1743:Perraðyti
-1744:Iðsaugoti
-1745:Ákelti
-1748:Aptikta sena OpenGL versija, þaidimas gali bûti lëtas ir/arba su grafikos trikèiais
-1749:Ryðio klaida:
-1750:Klaida: Þaidëjo vardas negali bûti tuðèias
-1751:Prisijungimas nepavyko: %s
-1752:Tu atsijungei
-1753:Misija %d
-1754:Tavo þvejo namas per toli nuo vandens.
-1755:Tavo þvejas nepasiekia þuvø vandenyje.
-1757:Paspausk kairyjá pelës klaviðà, kad pasirinkti prekæ
-1758:Paspausk deðiná pelës klaviðà, kad pasirinkti prekæ
-1759:Ið x%d
-1760:Á x%d
-1761:Pavirðiaus redagavimas
-1762:Kaimo planavimas
-1763:Vizualiniai skriptai
-1764:Globalinis skriptingas
-1765:Meniu
-1766:Bûsena:
-1767:Þaidëjo vardas
-1768:SUKURTI SERVERÁ
-1769:Pavadinimas
-1770:Portas
-1771:Sukurti Vietiná Serverá
-1772:Sukurti Internetiná Serverá
-1773:Serverio pavadinimas
-1774:Bûsena
-1775:Þaidëjai
-1776:Pingas
-1777:Atnaujinti Serveriø Sàraðà
-1778:SERVERIO DETALËS
-1779:Þaidëjø sàraðas:
-1780:Adresas
-1781:Portas
-1782:Kambarys
-1783:Prisijungti
-1784:Jungiamasi, praðome palaukti ...
-1785:Kraunami paskelbimai...
-1786:Atnaujinama...
-1787:Þaidëjø sàraðas
-1788:Pradinë vieta
-1789:Komanda
-1790:Spalva
-1791:Pasiruoðæs
-1792:Pingas
-1794:Laisva
-1795:Kompiuteris
-1796:Pasirinkti...
-1797:Atsitiktinis
-1799:Nëra
-1805:Iðsaugotas Þaidimas
-1806:Pasirinkti þemëlapá...
-1807:Pasirinkti áraðà...
-1813:Iðeiti ið laukimo
-1814:Pasiruoðæs
-1815:Pradëti!
-1816:Laukiama þaidëjø:
-1817:KaM Remake Kreditai
-1818:Originalûs Knights & Merchants Kreditai
-1819:PROGRAMAVIMAS:
-1820:PAPILDOMAS PROGRAMAVIMAS:
-1821:PAPILDOMOS GRAFIKOS:
-1822:PAPILDOMI VERTIMAI:
-1823:SPECIALI PADËKA:
-1824:Þemëlapiai keliems
-1825:Þemëlapiai vienam
-1826:Slinkimo greitis
-1827:Serveriø nerasta
-1828:Maiðyti takelius
-1829:Þaidimo informacija:
-1830:-
-1831:Laukiama
-1832:Kraunasi
-1833:Þaidimas
-1834:Vieta %d
-1835:Statymas ir Kovojimas
-1836:Kovojimas
-1837:Nepasiruoðæs
-1838:Pasiruoðæs
-1839:Klaida: Praðome pasirinkti þaidëjà ið áraðo, kad valdyti
-1840:Klaida: Nepavyko ákelti þemëlapá arba jis neparinktas
-1841:Negalima pradëti: %s
-1842:Ne visi pasiruoðæ pradëti
-1844:Klaidinga protokolo versija: %s. Serveris naudoja: %s
-1845:Serveris perleido kûrimo teises mums
-1846:Padidinti mainoma kieká
-1847:Sumaþinti mainoma kieká
-1848:Þaidimas iðsaugojamas...
-1849:%s buvo nugalëtas!
-1850:PAPILDOMI GARSAI:
-1851:Iðmesti Þaidëjus
-1852:Kûrëjas galës iðmesti tuos þaidëjus po %d sekundþiø
-1853:Kûrëjas jau gali iðmesti ðiuos þaidëjus
-1854:Kûrëjas (%s) iðëjo
-1855:Ryðys nutrûko. Bandoma persijungti...
-1856:Ar tikrai nori iðeiti?
-1857:Ar tikrai nori iðmesti ðiuos þaidëjus visam laikui?
-1858:Atðaukti
-1859:Treniruota|gyventojø
-1860:Prarasta|gyventojø
-1861:Paruoðta|kariø
-1862:Prarasta|kariø
-1864:Pastatyta|pastatø
-1865:Prarasta|pastatø
-1866:Sunaikinta|pastatø
-1867:Pagaminta|prekiø
-1868:Pagaminta|ginklø
-1869:Ðio resurso negalima mainyti ðioje misijoje
-1870:Sodinti ir kirsti
-1871:Tik kirsti
-1872:Þaidimas prasidëjo
-1873:Statybø Þemëlapis
-1874:Kovojimo Þemëlapis
-1875:Kooperatyvinis Þemëlapis
-1876:Tu negali daryti ðito taikos metu
-1877:Taikos laiko liko: %s
-1878:Taikos laikas baigësi. Prie ginklø!
-1879:Þaidimo laikas:|%s
-1880:Þaidimo nustatymai:
-1884:Sustabdyti bûrá ('%s')
-1885:Sujungti bûrá ('%s')
-1886:Atskirti bûrá ('%s')
-1887:Pakartojimø Grotuvas
-1888:Rodyti Pakartojimà
-1889:Taikos laikas (minutës)
-1890:Nepalaikomas formatas %s
-1891:Nepalaikoma versija %s
-1893:inicializuojama
-1895:skriptas
-1896:Nauja Misija
-1897:Ávyko klaida nagrinëjant failà %s
-1898:Uþdaryta
-1899:Kûrëjas tvarko nustatymus
-1901:vienetai
-1902:namai
-1903:medþiai
-1904:reikðmës
-1905:pagrindai
-2687:Sukurti Serverá
-2688:RASTI SERVERÁ
-2689:Rasti Serverá
-2690:Rasti Serverá
-2691:Atðaukti
-2692:Atðaukti
-2693:Nepalaikoma
-2694:Nepalaikoma
-2695:Klaida: Þaidëjo vardas neturi bûti ilgesnis nei %d simboliai
-2696:Klaida: Þaidëjo varde yra negalimi simboliai
-2697:Ðeðëliø Kokybë:
-2698:Þema
-2699:Aukðta
+30:Ràstai
+31:Akmenys
+32:Lenta
+33:Geleþies rûda
+34:Aukso rûda
+35:Anglis
+36:Geleþis
+37:Auksas
+38:Vyno statinës
+39:Grûdai
+40:Kepalai
+41:Miltai
+42:Iðdirbta oda
+43:Deðros
+44:Kiaulës
+45:Odos
+46:Medinis skydas
+47:Geleþinis skydas
+48:Odiniai ðarvai
+49:Geleþiniai ðarvai
+50:Kirvis
+51:Kalavijas
+52:Ietis
+53:Alebarda
+54:Lankas
+55:Arbaletas
+56:Arkliai
+57:Þuvis
+58:Neðëjas
+59:Medkirtys
+60:Ðachtininkas
+61:Gyvuliø augintojas
+62:Fermeris
+63:Stalius
+64:Kepëjas
+65:Mësininkas
+66:Þvejas
+67:Statybininkas
+68:Kalnakasys
+69:Kalvis
+70:Metalurgas
+71:Rekrutas
+72:Milicija
+73:Kovotojas su kirviu
+74:Fechtuotojas
+75:Lankininkas
+76:Arbaletininkas
+77:Ietininkas
+78:Alebardininkas
+79:Skautas
+80:Riteris
+81:Barbaras
+82:Sukilëlis
+83:Plëðikas
+84:Kovotojas
+85:Klajoklis
+86:Katapulta
+87:Balista
+88:Neðëjas aprûpina jûsø pastatus reikalingomis þaliavomis.||Takas turi bûti tarp pastatø.
+89:Norint iðgauti ràstus lentpjûvei, reikalingas medkirtys.||Medkirtys sodina medþius savarankiðkai.
+90:Ðachtininkas iðgauna iðkasenas ið anglies, geleþies ir aukso ðachtø.
+91:Gyvuliø augintojas naudoja grûdus veisiant kiaules fermoje ir arklius arklidëse.
+92:Fermeris sodina ir pjauna grûdus fermoje.||Be to, jis spaudþia vynà vyno spaudykloje.
+93:Stalius dirba lentpjûvëje, ginklø bei ðarvø dirbtuvëje.||Be to, jis stato katapultas ir balistas apgulties dirbtuvëje.
+94:Kepëjas mala grûdus malûne.||Jis taip pat kepa duonà kepykloje.
+95:Mësininkas gamina deðras mësinëje ir iðdirba odà odø gamykloje.
+96:Þvejas þvejoja þuvis vandens telkiniuose.
+97:Statybininkas stato pastatus ir kasa takus. Paþymëk norimà vietà ir jis dirbs automatiðkai.||Be to, jis remontuoja pastatus.
+98:Kalnakasys aprûpina statybininkus akmeniu statant pastatus ir kasant takus.
+99:Kalvis kaldina geleþinius ginklus ir ðarvus ginklø ir ðarvø kalvëse.
+100:Metalurgas naudoja anglá lydant auksà ir geleþá.
+101:Rekrutas gali tapti kareiviu kareivinëse.||Jis taip pat uþima bokðtà.
+102:Á pastatø sàraðà
+103:Á resursø paskirstymà
+104:Á statistikà
+105:Á nustatymus
+106:Atgal
+107:Pastato|Pasirinkimas
+108:Resursø|Paskirstymas
+109:Statistika
+110:Nustatymai
+111:Ákelti Þaidimà
+112:Iðsaugoti Þaidimà
+113:Ar tikrai norite|baigti ðià|misijà?
+114:Baigti Misijà
+115:Atgal
+116:Nuostatos
+117:Baigti Misijà
+118:Garso efektai
+119:Keisto garsà
+120:Keisto garsà
+121:Muzika
+122:Muzika áj./iðj.
+123:Autoiðsaugojimas
+124:Muzikos Grotuvas
+125:Ankstesnis takelis
+126:Sekantis takelis
+127:Sunaikinti
+128:Paðalinti pastatus/þymëjimus
+129:Kasti takà
+130:Kasti takus
+131:Iðarti laukà
+132:Iðarti laukus
+133:Iðdëstyti vyno laukà
+134:Iðdëstyti vyno laukus
+135:Atðaukti
+136:Stabdyti mokymà
+137:Reikia:
+139:Bûklë:
+140:Gamina
+141:Pastatas|statomas
+142:Sugriauti
+143:Tikrai norite sunaikinti|ðá pastatà?
+144:Sugriauti pasirinktà pastatà
+145:Sumaþinti uþsakymo kieká
+146:Padidinti uþsakymo kieká
+147:Ankstesnis karys
+148:Sekantis karys
+149:Parengti dabartiná kará
+150:Sekanti profesija
+151:Ankstesnë profesija
+152:Pridëti á eilæ
+154:Kainuoja:
+155:Áj./iðj. namo remontà
+156:Pastatas dabar negalimas
+157:Bûklë
+158:Pasisukti kairën
+159:Pasisukti deðinën
+160:Pulti ('a')
+161:Iðskirti bûrá ('d')
+162:Pamaitinti bûrá
+163:Pradëti ðturmavimà
+164:Pridëti linijà
+165:Panaikinti linijà
+166:Pasirinkti|grupæ
+167:Atðaukti
+168:Iðtrinti
+169:Iðtrina dabartinæ þinutæ
+170:Eiti á
+171:Perðoka á þinutës vietà
+172:Uþdaryti
+173:Uþdaro langà
+174:Jûsø kalnakasys negali iðgauti akmens.
+175:Tavo anglies ðaltinis iðseko.
+176:Tavo geleþies ðaltinis iðseko.
+177:Tavo aukso ðaltinis iðseko.
+179:Ðitas namas negyvenamas.
+180:Ðitas bûrys labai alkanas, jis turi greitai gauti valgyti!
+181:PAUZË
+205:Spirit
+206:Busy
+207:Middle Ages Horn
+208:Spring
+209:Lute
+210:Mercenary
+211:The Princess
+212:The Queen
+213:In the Marketplace
+214:On the Battlefield
+215:Court Dance
+216:The Army
+217:In the Castle
+218:Fanfares
+219:At Court
+220:Entree
+221:Deep Blue
+222:Struggle
+223:Royal Quarters
+224:Aristocracy
+225:At the Harbor
+226:Journey
+230:Þaisti Vienam
+232:Atgal á Meniu
+233:Ákelti Þaidimà
+234:Þaisti Internete
+235:Nustatymai
+236:Kreditai
+237:Iðeiti
+238:Tæsti
+239:Þaisti ið Naujo
+240:Rezoliucija:
+241:Nepalaikoma
+242:Nepalaikoma
+243:PERGALË!
+244:PRALAIMËJIMAS!
+245:Vienetø prarasta:
+246:Vienetø nugalëta:
+247:Pastatø prarasta:
+248:Pastatø sunaikinta:
+249:Pastatø pastatyta:
+250:Vienetø treniruota:
+251:Pagaminta ginklø:
+252:Treniruota kariø:
+253:Misija ávykdyta per:
+256:Treniruota|gyventojø
+257:Prarasta|gyventojø
+258:Paruoðta|kariø
+259:Prarasta|kariø
+261:Pastatyta|pastatø
+262:Prarasta|pastatø
+263:Sunaikinta|pastatø
+264:Pagaminta|prekiø
+265:Pagaminta|ginklø
+279:JOYMANIA ENTERTAINMENT||PROGRAMAVIMAS:|Peter Ohlmann||ÞAIDIMO GRAFIKOS:|Adam Sprys||LYGIØ DIZAINAS:|Adam Sprys|Andre Quaß||GARSO REDAGAVIMAS IR MAIÐYMAS:|Tonstudio Mannheim||MUZIKA:|Gerd Hofmann|Joachim Schäfer|Jürgen Rebhann|Klaus Staendike|Steffen Schüngel||ILIUSTRACIJOS:|Boleslaw Kasza|Christoph Werner||ZUXXEZ ENTERTAINMENT AG||GAMINTOJAS:|Uwe Schäfer||ÞINYNAS:|Peter Ohlmann|Uwe Schäfer||BETA TESTAVIMAS:|Peter Ohlmann|Adam Sprys|Alexandra Constandache|Dirk P. Hassinger|Achim Heidelauf|Uwe Schäfer|Ingrid Schäfer|Dirk U. Jantz|Ion Constandache|Yaman Egeli|Roman Eich|Iris Mocsnek|Anke Jantz|Paul Hassinger|Liza Hassinger||ÞAIDIMØ DIREKTORIUS:|Achim Heidelauf||IÐLEIDO:|TopWare Interactive||VAIZDAI:||DIREKCIJA:|Slawomir Jedrzejewski||Kajetan Czarnecki|Wojciech Drazek|Daniel Duplaga|Rafal Januszkiewicz|Andrzej Rams|Piotr Rulka|Krzysztof Rybczynski|Grzegorz Wisniwski||BALSAI:|Claus Boyen (Storyteller)||Tim Timmermann|Peter Houska|Dirk Mühlbach|Ralf Ditze|Gerhard Piske|Gernot Wassmann||ARTWORK:|Boleslaw Kasza|Adam Sprys||PRADINË ANIMACIJA:|Uwe Schäfer|Christian Bigalk|Additional 3D-Modelling:|Niels Horstmann||SPECIALÛS DËKOJIMAI:|Tadeusz Zuber|Dieter Ohlmann|Alexandra Constandache|Ingrid Schäfer|Andrea Rumpelt
+280:Misija atðaukta
+282:Miesto Mokymas
+283:Mûðio Mokymas
+284:Vieno Þaidëjo Reþimas
+285:Þemëlapio Redaktorius
+286:Pradëti Misijà
+287:Titulas
+288:Dydis
+289:Pergalës bûklë:
+290:Pralaimëjimo bûklë:
+291:Sàjungininkai:
+292:Prieðai:
+294:Naujas þemëlapio dydis
+295:Plotis
+296:Aukðtis
+297:Sukurti Naujà Þemëlapá
+298:Galimi þemëlapiai
+299:Ákelti Esanti Þemëlapá
+301:Valdymai:
+302:Þaidimas:
+303:Garsas:
+304:Iðj. muzika
+305:Grafikos:
+306:Ryðkumas
+308:Visas ekranas
+309:Tinkinti
+310:Kalba:
+311:Ðeðëliø Kokybë:
+312:Þema
+313:Aukðta
+314:Kraunama... Praðome palaukti
+315:Ávyko Klaida!
+316:Kraunama nauja vieta
+317:Iðsaugoti þaidimai
+318:Failo vardas
+319:Apraðymas
+320:Ákelti
+321:Iðtrinti
+322:Ar tikrai norite iðtrinti ðá áraðà?
+323:Iðtrinti
+324:Atðaukti
+328:Tu laimëjai!
+329:Þaisti toliau
+330:Pergalë!
+331:Tu pralaimëjai!
+332:Þiûrëti toliau
+333:Pralaimëjimas
+334:Pakartojimas baigësi
+335:Þiûrëti Toliau
+336:Iðeiti á Meniu
+337:Neprieinamas
+338:Spausk %s norint tæsti þaidimà
+339:Þaidëjø informacija
+340:Pokalbis
+341:Áraðas jau egzistuoja
+342:Perraðyti
+343:Iðsaugoti
+344:Ákelti
+345:Aptikta sena OpenGL versija, þaidimas gali bûti lëtas ir/arba su grafikos trikèiais
+347:Ryðio klaida:
+348:Klaida: Þaidëjo vardas negali bûti tuðèias
+349:Klaida: Þaidëjo vardas neturi bûti ilgesnis nei %d simboliai
+350:Klaida: Þaidëjo varde yra negalimi simboliai
+351:Prisijungimas nepavyko: %s
+352:Tu atsijungei
+353:Misija %d
+355:Tavo þvejo namas per toli nuo vandens.
+356:Tavo þvejas nepasiekia þuvø vandenyje.
+364:Paspausk kairyjá pelës klaviðà, kad pasirinkti prekæ
+365:Paspausk deðiná pelës klaviðà, kad pasirinkti prekæ
+366:Ið x%d
+367:Á x%d
+368:Pavirðiaus redagavimas
+394:Kaimo planavimas
+395:Vizualiniai skriptai
+396:Globalinis skriptingas
+397:Meniu
+499:Nauja Misija
+500:Þaidëjo vardas
+501:Bûsena:
+502:Sukurti Serverá
+503:SUKURTI SERVERÁ
+504:Pavadinimas
+505:Portas
+506:Sukurti Vietiná Serverá
+507:Sukurti Internetiná Serverá
+508:Atðaukti
+509:Rasti Serverá
+510:RASTI SERVERÁ
+511:Adresas
+512:Portas
+513:Kambarys
+514:Rasti Serverá
+515:Atðaukti
+518:Serverio pavadinimas
+519:Bûsena
+520:Þaidëjai
+521:Pingas
+522:Atnaujinti Serveriø Sàraðà
+523:SERVERIO DETALËS
+524:Þaidëjø sàraðas:
+525:Prisijungti
+526:Jungiamasi, praðome palaukti ...
+527:Kraunami paskelbimai...
+528:Atnaujinama...
+529:Þaidëjø sàraðas
+530:Pradinë vieta
+531:Komanda
+532:Spalva
+533:Pasiruoðæs
+534:Pingas
+536:Laisva
+537:Kompiuteris
+538:Pasirinkti...
+539:Atsitiktinis
+540:Nëra
+541:Iðsaugotas Þaidimas
+542:Pasirinkti þemëlapá...
+543:Pasirinkti áraðà...
+544:Iðeiti ið laukimo
+545:Pasiruoðæs
+546:Nepasiruoðæs
+547:Pradëti!
+561:Vieta %d
+562:Klaida: Praðome pasirinkti þaidëjà ið áraðo, kad valdyti
+563:Klaida: Nepavyko ákelti þemëlapá arba jis neparinktas
+564:Negalima pradëti: %s
+565:Ne visi pasiruoðæ pradëti
+567:Serveris perleido kûrimo teises mums
+568:Þaidimas prasidëjo
+569:Statybø Þemëlapis
+570:Kovojimo Þemëlapis
+571:Kooperatyvinis Þemëlapis
+573:Þaidimo nustatymai:
+574:Taikos laikas (minutës)
+575:Uþdaryta
+576:Kûrëjas tvarko nustatymus
+577:Laukiama þaidëjø:
+580:KaM Remake Kreditai
+581:Originalûs Knights & Merchants Kreditai
+582:PROGRAMAVIMAS:
+583:PAPILDOMAS PROGRAMAVIMAS:
+584:PAPILDOMOS GRAFIKOS:
+585:PAPILDOMI GARSAI:
+587:PAPILDOMI VERTIMAI:
+588:SPECIALI PADËKA:
+589:Þemëlapiai keliems
+590:Þemëlapiai vienam
+591:Slinkimo greitis
+592:Serveriø nerasta
+593:Maiðyti takelius
+594:Þaidimo informacija:
+595:-
+596:Laukiama
+597:Kraunasi
+598:Þaidimas
+599:Statymas ir Kovojimas
+600:Kovojimas
+601:Pasiruoðæs
+602:Klaidinga protokolo versija: %s. Serveris naudoja: %s
+603:Padidinti mainoma kieká
+604:Sumaþinti mainoma kieká
+605:Þaidimas iðsaugojamas...
+606:%s buvo nugalëtas!
+607:Iðmesti Þaidëjus
+608:Kûrëjas galës iðmesti tuos þaidëjus po %d sekundþiø
+609:Kûrëjas jau gali iðmesti ðiuos þaidëjus
+610:Kûrëjas (%s) iðëjo
+611:Ryðys nutrûko. Bandoma persijungti...
+612:Ar tikrai nori iðeiti?
+613:Ar tikrai nori iðmesti ðiuos þaidëjus visam laikui?
+614:Atðaukti
+615:Ðio resurso negalima mainyti ðioje misijoje
+616:Sodinti ir kirsti
+617:Tik kirsti
+618:Tu negali daryti ðito taikos metu
+619:Taikos laiko liko: %s
+620:Taikos laikas baigësi. Prie ginklø!
+621:Þaidimo laikas:|%s
+622:Sustabdyti bûrá ('%s')
+623:Sujungti bûrá ('%s')
+624:Atskirti bûrá ('%s')
+625:Pakartojimø Grotuvas
+626:Rodyti Pakartojimà
+627:Nepalaikomas formatas %s
+628:Nepalaikoma versija %s
+630:Ávyko klaida nagrinëjant failà %s
+631:inicializuojama
+632:skriptas
+633:vienetai
+634:namai
+635:medþiai
+636:reikðmës
+637:pagrindai
