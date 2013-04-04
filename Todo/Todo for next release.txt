@@ -23,11 +23,11 @@ Finishing up:
  +	Remove falling trees and block from MapEd trees palette, re-add reed
  +	Improve snow falling random noise so it looks more natural [Krom]
  +	Indent messages after each line break so you can't fake system messages
+ +	Before RC remove unused strings from LIBX and compact indexes [Lewin]
 
 	Snow houses artwork [KillingB]
 	Snow house overlay fixes [KillingB, Krom]
 	Before RC search for all todos and @Lewin/@Krom comments to see if there's something important we forgot about
-	Before RC remove unused strings from LIBX and compact indexes [Lewin]
 	Press release for our site where we collect all the big features and improvements [Lewin]
 
 

@@ -398,18 +398,32 @@ end;
 
 
 procedure TTextManager.CompactIndexes;
+var
+  I, K, CurIndex: Integer;
+  fOldTexts: array of TStringArray;
 begin
-  {SetLength(Used, Length(fTexts));
-  for I := 0 to High(Used) do
-    Used[I] := 1;
+  if not fUseConsts then Exit;
 
-  for I := 0 to High(fConsts) do
-    if fConsts[I].TextID <> -1 then
-      Used[fConsts[I].TextID] := 0;
+  //Backup current texts
+  SetLength(fOldTexts, Length(fTexts), fLocales.Count);
+  for I:=0 to Length(fTexts)-1 do
+    for K:=0 to fLocales.Count-1 do
+      fOldTexts[I,K] := fTexts[I,K];
 
-  for I := 1 to High(fConsts) do
-  if (fConsts[I].TextID = -1) and (fConsts[I-1].TextID = -1) then
-    DeleteConst(I);}
+  CurIndex := 0;
+  for I:=0 to Length(fConsts)-1 do
+  begin
+    if fConsts[I].TextID = -1 then
+      Continue;
+
+    for K := 0 to fLocales.Count - 1 do
+      fTexts[CurIndex,K] := fOldTexts[fConsts[I].TextID,K];
+
+    fConsts[I].TextID := CurIndex;
+    Inc(CurIndex);
+  end;
+  SetLength(fTexts, CurIndex);
+  fTextMaxID := CurIndex-1;
 end;
 
 
