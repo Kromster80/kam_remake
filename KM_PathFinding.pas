@@ -90,7 +90,7 @@ end;
 
 //Find a route from A to B which meets aPass Passability
 //Results should be written as NodeCount of waypoint nodes to Nodes
-function TPathFinding.Route_Make(aLocA, aLocB: TKMPoint; aPass:TPassabilitySet; aDistance:single; aTargetHouse:TKMHouse; NodeList:TKMPointList): Boolean;
+function TPathFinding.Route_Make(aLocA, aLocB: TKMPoint; aPass: TPassabilitySet; aDistance: Single; aTargetHouse: TKMHouse; NodeList: TKMPointList): Boolean;
 begin
   Result := False;
 
@@ -121,7 +121,7 @@ end;
 
 
 //We are using Interaction Avoid mode (go around busy units)
-function TPathFinding.Route_MakeAvoid(aLocA, aLocB: TKMPoint; aPass:TPassabilitySet; aDistance:single; aTargetHouse:TKMHouse; NodeList:TKMPointList):boolean;
+function TPathFinding.Route_MakeAvoid(aLocA, aLocB: TKMPoint; aPass: TPassabilitySet; aDistance: Single; aTargetHouse: TKMHouse; NodeList: TKMPointList): Boolean;
 begin
   Result := False;
 
@@ -147,7 +147,7 @@ end;
 
 
 //Even though we are only going to a road network it is useful to know where our target is so we start off in the right direction (makes algorithm faster/work over long distances)
-function TPathFinding.Route_ReturnToWalkable(aLocA, aLocB: TKMPoint; aTargetWalkConnect:TWalkConnect; aTargetNetwork:byte; aPass:TPassabilitySet; NodeList:TKMPointList): Boolean;
+function TPathFinding.Route_ReturnToWalkable(aLocA, aLocB: TKMPoint; aTargetWalkConnect: TWalkConnect; aTargetNetwork: Byte; aPass: TPassabilitySet; NodeList: TKMPointList): Boolean;
 begin
   Result := False;
 

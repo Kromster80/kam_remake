@@ -55,7 +55,6 @@ var
   DO_WEIGHT_ROUTES      :Boolean = True; //Add additional cost to tiles in A* if they are occupied by other units (IsUnit=1)
   CUSTOM_RANDOM         :Boolean = True; //Use our custom random number generator or the built in "Random()"
   KAM_WATER_DRAW        :Boolean = True; //Render underwater sand
-  USE_BIN_PACKING       :Boolean = True; //Use more efficient bin packing algorithm for packing sprites into atlases
   USE_WALKING_DISTANCE  :Boolean = True; //Use the walking distance for deciding place to mine rather than direct distance
   RANDOM_TARGETS        :Boolean = True; //Archers use random targets instead of closest
   DISPLAY_CHARTS_RESULT :Boolean = True; //Show charts in game results screen

@@ -56,7 +56,6 @@ type
   private
     fPad: Byte; //Force padding between sprites to avoid neighbour edge visibility
     procedure MakeGFX_BinPacking(aTexType: TTexFormat; aStartingIndex: Word; var BaseRAM, ColorRAM, TexCount: Cardinal);
-    procedure MakeGFX_StripPacking(aTexType: TTexFormat; aStartingIndex: Word; var BaseRAM, ColorRAM, TexCount: Cardinal);
     procedure SaveTextureToPNG(aWidth, aHeight: Word; aFilename: string; const Data: TKMCardinalArray);
   protected
     fRT: TRXType;
@@ -127,6 +126,10 @@ implementation
 uses KromUtils, KM_Log, KM_BinPacking, KM_Utils;
 
 
+const
+  LOG_EXTRA_GFX = False;
+
+
 { TKMSpritePack }
 constructor TKMSpritePack.Create(aRT: TRXType);
 begin
@@ -134,6 +137,7 @@ begin
 
   fRT := aRT;
 
+  //Terrain tiles need padding to avoid edge bleeding
   if fRT = rxTiles then
     fPad := 1;
 end;
@@ -598,127 +602,20 @@ begin
   else
     TexType := tf_RGB5A1;
 
-  //Second algorithm is kept until we implement better one
-  if USE_BIN_PACKING then
-    MakeGFX_BinPacking(TexType, aStartingIndex, BaseRAM, ColorRAM, TexCount)
-  else
-    MakeGFX_StripPacking(TexType, aStartingIndex, BaseRAM, ColorRAM, TexCount);
+  MakeGFX_BinPacking(TexType, aStartingIndex, BaseRAM, ColorRAM, TexCount);
 
-  IdealRAM := 0;
-  for I := aStartingIndex to fRXData.Count - 1 do
-  if fRXData.Flag[I] <> 0 then
-    Inc(IdealRAM, fRXData.Size[I].X * fRXData.Size[I].Y * TexFormatSize[TexType]);
+  if LOG_EXTRA_GFX then
+  begin
+    IdealRAM := 0;
+    for I := aStartingIndex to fRXData.Count - 1 do
+    if fRXData.Flag[I] <> 0 then
+      Inc(IdealRAM, fRXData.Size[I].X * fRXData.Size[I].Y * TexFormatSize[TexType]);
 
-  fLog.AddTime(IntToStr(TexCount) + ' Textures created');
-  fLog.AddNoTime(Format('%d/%d', [BaseRAM div 1024, IdealRAM div 1024]) +
-                ' Kbytes allocated/ideal for ' + RXInfo[fRT].FileName + ' GFX when using Packing');
-  fLog.AddNoTime(IntToStr(ColorRAM div 1024) + ' KBytes for team colors');
-end;
-
-
-//This algorithm tries to stack sprites into strips of nearest POT length
-procedure TKMSpritePack.MakeGFX_StripPacking(aTexType: TTexFormat; aStartingIndex: Word; var BaseRAM, ColorRAM, TexCount: Cardinal);
-const
-  MAX_TEX_RESOLUTION  = 512; //Maximum texture resolution client can handle (used for packing sprites)
-var
-  ci, J, I, K, LeftIndex, RightIndex, SpanCount: Integer;
-  WidthPOT, HeightPOT: Word;
-  TD: array of Cardinal;
-  TA: array of Cardinal;
-  HasMsk: Boolean;
-begin
-  LeftIndex := aStartingIndex - 1;
-  TexCount := 0;
-  repeat
-    inc(LeftIndex);
-
-    WidthPOT  := fRXData.Size[LeftIndex].X;
-    HeightPOT := MakePOT(fRXData.Size[LeftIndex].Y);
-    SpanCount := 1;
-
-    //Pack textures with same POT height into rows to save memory
-    //This also means fewer textures for GPU RAM == better performance
-    while((LeftIndex+SpanCount<fRXData.Count)and //Keep packing until end of sprites
-          (
-            (HeightPOT=MakePOT(fRXData.Size[LeftIndex+SpanCount].Y)) //Pack if HeightPOT matches
-        or((HeightPOT>=MakePOT(fRXData.Size[LeftIndex+SpanCount].Y))and(WidthPOT+fRXData.Size[LeftIndex+SpanCount].X<MakePOT(WidthPOT)))
-          )and
-          (WidthPOT+fRXData.Size[LeftIndex+SpanCount].X <= MAX_TEX_RESOLUTION)) //Pack until max Tex_Resolution approached
-    do begin
-      inc(WidthPOT,fRXData.Size[LeftIndex+SpanCount].X);
-      inc(SpanCount);
-    end;
-
-    RightIndex := LeftIndex+SpanCount-1;
-    WidthPOT := MakePOT(WidthPOT);
-    SetLength(TD,WidthPOT*HeightPOT+1);
-    SetLength(TA,WidthPOT*HeightPOT+1);
-
-    for i := 0 to HeightPOT - 1 do
-    begin
-      ci := 0;
-      for j := LeftIndex to RightIndex do
-        for k := 0 to fRXData.Size[j].X - 1 do
-        begin
-          if i < fRXData.Size[j].Y then
-          begin
-            //CopyMemory(TD[(i-1)*WidthPOT+ci-1], fRXData.RGBA[j,(i-1)*fRXData.Size[j].X+k-1], )
-            TD[i*WidthPOT+ci] := fRXData.RGBA[j,i*fRXData.Size[j].X+k];
-            TA[i*WidthPOT+ci] := (fRXData.Mask[j,i*fRXData.Size[j].X+k] SHL 24) or $FFFFFF;
-          end;
-          inc(ci);
-        end;
-    end;
-
-    HasMsk:=false;
-    for j:=LeftIndex to RightIndex do
-      HasMsk := HasMsk or fRXData.HasMask[j];
-
-    //If we need to prepare textures for TeamColors          //special fix for iron mine logo
-    if MAKE_TEAM_COLORS and RXInfo[fRT].TeamColors and (not ((fRT=rxGui)and InRange(49,LeftIndex,RightIndex))) then
-    begin
-      GFXData[fRT,LeftIndex].Tex.ID := TRender.GenTexture(WidthPOT,HeightPOT,@TD[0],aTexType);
-      //TeamColors are done through alternative plain colored texture
-      if HasMsk then
-      begin
-        GFXData[fRT,LeftIndex].Alt.ID := TRender.GenTexture(WidthPOT,HeightPOT,@TA[0],tf_Alpha8);
-        Inc(ColorRAM, WidthPOT * HeightPOT * TexFormatSize[aTexType]); //GL_ALPHA4
-      end;
-    end
-    else
-      GFXData[fRT, LeftIndex].Tex.ID := TRender.GenTexture(WidthPOT, HeightPOT, @TD[0], aTexType);
-
-    Inc(BaseRAM, WidthPOT * HeightPOT * TexFormatSize[aTexType]);
-
-    SaveTextureToPNG(WidthPOT, HeightPOT, RXInfo[fRT].FileName + '_Strip' + IntToStr(LeftIndex) + '-' + IntToStr(RightIndex), @TD[0]);
-    if HasMsk then
-      SaveTextureToPNG(WidthPOT, HeightPOT, RXInfo[fRT].FileName + '_StripMask' + IntToStr(LeftIndex) + '-' + IntToStr(RightIndex), @TA[0]);
-
-    SetLength(TD, 0);
-    SetLength(TA, 0);
-
-    K := 0;
-    for J := LeftIndex to RightIndex do
-    begin
-      GFXData[fRT, J].Tex.ID := GFXData[fRT, LeftIndex].Tex.ID;
-      GFXData[fRT, J].Alt.ID := GFXData[fRT, LeftIndex].Alt.ID;
-      GFXData[fRT, J].Tex.u1 := K / WidthPOT;
-      GFXData[fRT, J].Tex.v1 := 0;
-      Inc(K, fRXData.Size[J].X);
-      GFXData[fRT, J].Tex.u2 := K / WidthPOT;
-      GFXData[fRT, J].Tex.v2 := fRXData.Size[J].Y / HeightPOT;
-      GFXData[fRT, J].Alt.u1 := GFXData[fRT, J].Tex.u1;
-      GFXData[fRT, J].Alt.v1 := GFXData[fRT, J].Tex.v1;
-      GFXData[fRT, J].Alt.u2 := GFXData[fRT, J].Tex.u2;
-      GFXData[fRT, J].Alt.v2 := GFXData[fRT, J].Tex.v2;
-      GFXData[fRT, J].PxWidth := fRXData.Size[J].X;
-      GFXData[fRT, J].PxHeight := fRXData.Size[J].Y;
-    end;
-
-    Inc(LeftIndex, SpanCount - 1);
-    Inc(TexCount);
-
-  until (LeftIndex >= fRXData.Count);
+    fLog.AddTime(IntToStr(TexCount) + ' Textures created');
+    fLog.AddNoTime(Format('%d/%d', [BaseRAM div 1024, IdealRAM div 1024]) +
+                  ' Kbytes allocated/ideal for ' + RXInfo[fRT].FileName + ' GFX when using Packing');
+    fLog.AddNoTime(IntToStr(ColorRAM div 1024) + ' KBytes for team colors');
+  end;
 end;
 
 

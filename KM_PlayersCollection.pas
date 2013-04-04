@@ -267,29 +267,29 @@ end;
 
 
 function TKMPlayersCollection.GetHouseByID(aID: Integer): TKMHouse;
-var i:integer;
+var I: Integer;
 begin
   Result := nil;
-  if aID = 0 then exit;
+  if aID = 0 then Exit;
 
-  for i:=0 to fCount-1 do
+  for I := 0 to fCount - 1 do
   begin
-    Result := fPlayerList[i].Houses.GetHouseByID(aID);
-    if Result<>nil then exit; //else keep on testing
+    Result := fPlayerList[I].Houses.GetHouseByID(aID);
+    if Result <> nil then Exit; //else keep on testing
   end;
 end;
 
 
 function TKMPlayersCollection.GetUnitByID(aID: Integer): TKMUnit;
-var i:integer;
+var I: Integer;
 begin
   Result := nil;
-  if aID = 0 then exit;
+  if aID = 0 then Exit;
 
-  for i:=0 to fCount-1 do
+  for I := 0 to fCount - 1 do
   begin
-    Result := fPlayerList[i].Units.GetUnitByID(aID);
-    if Result<>nil then exit; //else keep on testing
+    Result := fPlayerList[I].Units.GetUnitByID(aID);
+    if Result <> nil then Exit; //else keep on testing
   end;
   if Result = nil then Result := PlayerAnimals.Units.GetUnitByID(aID);
 end;
