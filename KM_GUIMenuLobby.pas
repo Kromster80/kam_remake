@@ -817,9 +817,10 @@ end;
 procedure TKMGUIMenuLobby.Lobby_OnPlayersSetup(Sender: TObject);
 var
   I,K,ID,LocaleID: Integer;
-  MyNik, CanEdit, HostCanEdit, IsSave, IsValid: Boolean;
+  MyNik, CanEdit, HostCanEdit, IsSave, IsCoop, IsValid: Boolean;
 begin
   IsSave := fNetworking.SelectGameKind = ngk_Save;
+  IsCoop := (fNetworking.SelectGameKind = ngk_Map) and (fNetworking.MapInfo.IsCoop);
 
   //Go through active players first
   for I:=0 to fNetworking.NetPlayers.Count - 1 do
@@ -891,7 +892,11 @@ begin
     else
       DropBox_LobbyLoc[I].ItemIndex := 0;
 
-    DropBox_LobbyTeam[I].ItemIndex := fNetworking.NetPlayers[I+1].Team;
+    if IsCoop then
+      DropBox_LobbyTeam[I].ItemIndex := 0 //No teams in coop maps, it's done for you
+    else
+      DropBox_LobbyTeam[I].ItemIndex := fNetworking.NetPlayers[I+1].Team;
+
     DropBox_LobbyColors[I].ItemIndex := fNetworking.NetPlayers[I+1].FlagColorID;
     if fNetworking.NetPlayers[I+1].IsClosed then
       Image_LobbyReady[I].TexID := 0
@@ -907,7 +912,8 @@ begin
     HostCanEdit := (fNetworking.IsHost and fNetworking.NetPlayers.HostDoesSetup and
                     not fNetworking.NetPlayers[I+1].IsClosed);
     DropBox_LobbyLoc[I].Enabled := (CanEdit or HostCanEdit);
-    DropBox_LobbyTeam[I].Enabled := (CanEdit or HostCanEdit) and not IsSave; //Can't change color or teams in a loaded save
+    //Can't change color or teams in a loaded save
+    DropBox_LobbyTeam[I].Enabled := (CanEdit or HostCanEdit) and not IsSave and not IsCoop;
     DropBox_LobbyColors[I].Enabled := (CanEdit or (MyNik and not fNetworking.NetPlayers[I+1].ReadyToStart)) and not IsSave;
     if MyNik and not fNetworking.IsHost then
     begin

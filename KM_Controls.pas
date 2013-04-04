@@ -2108,7 +2108,7 @@ var
 const
   DigitChars: set of Char = ['1' .. '9', '0'];
   NonFileChars: set of Char = [#0 .. #31, '<', '>', '|', '"', '\', '/', ':', '*', '?'];
-  NonTextChars: set of Char = [#0 .. #31, '|'];
+  NonTextChars: set of Char = [#0 .. #31, '°', '|']; //° has negative width so acts like a backspace in KaM fonts
 begin
   //Validate contents
   for I := Length(fText) downto 1 do

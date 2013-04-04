@@ -533,8 +533,8 @@ begin
   end;
 
   //Setup alliances
-  //We mirror Lobby team setup on to alliances. Savegame has the setup already
-  if fNetworking.SelectGameKind = ngk_Map then
+  //We mirror Lobby team setup on to alliances. Savegame and coop has the setup already
+  if (fNetworking.SelectGameKind = ngk_Map) and not fNetworking.MapInfo.IsCoop then
     UpdateMultiplayerTeams;
 
   MySpectator := TKMSpectator.Create(fNetworking.NetPlayers[fNetworking.MyIndex].StartLocation-1);
@@ -542,13 +542,10 @@ begin
   //We cannot remove a player from a save (as they might be interacting with other players)
 
   fPlayers.SyncFogOfWar; //Syncs fog of war revelation between players AFTER alliances
-  //Multiplayer missions don't have goals yet, so add the defaults (except for special missions)
-  if (fNetworking.SelectGameKind = ngk_Map) and not fNetworking.MapInfo.IsSpecial then
+  //Multiplayer missions don't have goals yet, so add the defaults (except for special/coop missions)
+  if (fNetworking.SelectGameKind = ngk_Map)
+  and not fNetworking.MapInfo.IsSpecial and not fNetworking.MapInfo.IsCoop then
     fPlayers.AddDefaultMPGoals(fMissionMode);
-
-  //@Lewin: Now that we have advanced locations setup (Human/AI) we can preserve mission goals for Coop maps as well?
-  //Possibly blocking alliance settings change in MP lobby. Does that makes sense?
-  //@Krom: That sounds good to me :) To be implemented.
 
   fNetworking.OnPlay           := GameMPPlay;
   fNetworking.OnReadyToPlay    := GameMPReadyToPlay;
