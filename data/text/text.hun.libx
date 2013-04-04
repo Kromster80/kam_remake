@@ -234,7 +234,6 @@ MaxID:2951
 1692:Küldetés Indítása
 1693:Cím
 1694:Méret
-1695:Küldetés Típusa: %s
 1696:Gyõzelmi feltétel:
 1697:Vereség feltétel:
 1698:Szövetségesek:
@@ -276,7 +275,6 @@ MaxID:2951
 1736:Vissza a menübe
 1737:Nem elérhetõ
 1738:Nyomj %s billentyût a játék folytatásához
-1739:Csapatnak
 1740:Játékos információk
 1741:Chat
 1742:A mentett állás már létezik
@@ -327,22 +325,14 @@ MaxID:2951
 1790:Szín
 1791:Kész
 1792:Ping
-1793:Kirúg
 1794:Nyitva
 1795:Számítógép
 1796:Válassz...
 1797:Véletlen
 1799:Nincs
-1802:Üzenet írása:
-1803:Pálya típusa
-1804:Egy térkép
 1805:Mentett játék
 1806:Válassz egy térképet...
 1807:Válassz egy mentést...
-1808:Térkép infó:
-1809:Játékosok: %d
-1810:Játékmód:
-1811:Feltételek:
 1813:Kilépés
 1814:Kész
 1815:Indítás!
@@ -373,7 +363,6 @@ MaxID:2951
 1840:Hiba: Nem sikerült betölteni a térképet vagy nincs térkép kiválasztva
 1841:Nem lehet indítani: %s
 1842:Nem áll mindenki készen a kezdésre
-1843:A játékosok száma meghaladja a térkép korlátait
 1844:Hibás protokol verzió: %s. A szerver által használt: %s
 1845:A szerver átadta a házigazda szerepét nekünk
 1846:Mennyiség növelése
@@ -393,7 +382,6 @@ MaxID:2951
 1860:Polgárok|elvesztett
 1861:Katonák|felszerelt
 1862:Katonák|elvesztett
-1863:Egységek|legyõzve
 1864:Épületek|építve
 1865:Épületek|elvesztve
 1866:Épületek|megsemmisítve

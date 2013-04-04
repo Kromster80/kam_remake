@@ -234,7 +234,6 @@ MaxID:2951
 1692:Start oppdrag
 1693:Tittel
 1694:Størrelse
-1695:Oppdragstype: %s
 1696:Seiersvilkår:
 1697:Tapsvilkår:
 1698:Allierte:
@@ -276,7 +275,6 @@ MaxID:2951
 1736:Avslutt
 1737:Ikke tilgjengelig
 1738:Trykk %s for å fortsette spillet
-1739:Til lag
 1740:Spillerinfo
 1741:Chat
 1742:Spillet finnes allerede
@@ -327,22 +325,14 @@ MaxID:2951
 1790:Farge
 1791:Klar
 1792:Ping
-1793:Spark ut
 1794:Åpen
 1795:AI-spiller
 1796:Velg...
 1797:Tilfeldig
 1799:Ingen
-1802:Send melding:
-1803:Karttype
-1804:Ett enkelt kart
 1805:Spill lagret
 1806:Velg et kart...
 1807:Velg et lagret spill...
-1808:Kartinfo:
-1809:Spillere: %d
-1810:Modus:
-1811:Betingelser:
 1813:Forlat lobbyen
 1814:Klar
 1815:Start!
@@ -373,7 +363,6 @@ MaxID:2951
 1840:Feil: Kartet mislyktes i å laste, ellers er intet kart valgt
 1841:Kan ikke starte: %s
 1842:Ikke alle er klar til å starte
-1843:Spillerantall overskrider grensen på kartet
 1844:Feil protokollversjon: %s. Serveren bruker: %s
 1845:Serveren har gitt vertsrettigheter til oss
 1846:Øk handelsmengde
@@ -393,7 +382,6 @@ MaxID:2951
 1860:Borgere|tapt
 1861:Soldater|utrustet
 1862:Soldater|tapt
-1863:Enheter|beseiret
 1864:Bygninger|bygget
 1865:Bygninger|tapt
 1866:Bygninger|ødelagt

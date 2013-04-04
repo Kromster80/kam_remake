@@ -234,7 +234,6 @@ MaxID:2951
 1692:Zaèa misiu
 1693:Názov
 1694:Ve¾kos
-1695:Typ misie: %s
 1696:Podmienky víazstva:
 1697:Podmienky poráky:
 1698:Spojenci:
@@ -276,7 +275,6 @@ MaxID:2951
 1736:Spä do menu
 1737:Nedostupné
 1738:Stlaète %s pre pokraèovanie v hre
-1739:Tımu
 1740:Informácie o hráèoch
 1741:Chat
 1742:Uloená hra u existuje
@@ -327,22 +325,14 @@ MaxID:2951
 1790:Farba
 1791:Pripravenı
 1792:Ping
-1793:Preè
 1794:Otvorené
 1795:Poèítaè
 1796:Vybra...
 1797:Náhodne
 1799:iadna
-1802:Odosla správu:
-1803:Typ mapy
-1804:Samostatná mapa
 1805:Uloená hra
 1806:Vyberte mapu...
 1807:Vyberte uloenú hru...
-1808:Info o mape:
-1809:Hráèi: %d
-1810:Mód:
-1811:Podmienky k víazstvu:
 1813:Opusti ponuku
 1814:Pripravenı
 1815:Štart!
@@ -373,7 +363,6 @@ MaxID:2951
 1840:Chyba: Mapa sa nedá naèíta alebo nebola iadna vybraná
 1841:Nie je moné zaèa: %s
 1842:Nikto nie je pripravenı na štart
-1843:Poèet hráèov prekraèuje limit mapy
 1844:Odlišná verzia: %s. Server pouíva: %s
 1845:Server Vám pridelil práva správcu
 1846:Zvıši mnostvo
@@ -393,7 +382,6 @@ MaxID:2951
 1860:Stratenıch|obèanov
 1861:Vycièenıch|vojakov
 1862:Stratenıch|vojakov
-1863:Porazenıch|jendotiek
 1864:Postavenıch|budov
 1865:Stratenıch|budov
 1866:Znièenıch|budov

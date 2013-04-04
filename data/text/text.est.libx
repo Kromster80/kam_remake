@@ -234,7 +234,6 @@ MaxID:2951
 1692:Alusta missiooni
 1693:Pealkiri
 1694:Suurus
-1695:Missiooni tüüp: %s
 1696:Võitmise tingimused:
 1697:Kaotamise tingimused:
 1698:Liitlased:
@@ -276,7 +275,6 @@ MaxID:2951
 1736:Lahku menüüni
 1737:Pole saadaval
 1738:Vajuta %s, et jätkata mängu
-1739:Meeskonnale
 1740:Mängijate info
 1741:Vestlus
 1742:Salvesta üle juba olemasolev
@@ -327,22 +325,14 @@ MaxID:2951
 1790:Värv
 1791:Valmis
 1792:Ping
-1793:Eemalda
 1794:Avatud
 1795:Mängib arvuti
 1796:Vali...
 1797:Suvaline
 1799:Ühtegi
-1802:Postita sõnum:
-1803:Kaardi tüüp
-1804:Üksik Kaart
 1805:Salvestatud Mäng
 1806:Vali kaart...
 1807:Vali salvestus...
-1808:Kaardi info:
-1809:Mängijad: %d
-1810:Tüüp:
-1811:Tingimused:
 1813:Lahku eesruumi
 1814:Valmis
 1815:Alusta!
@@ -373,7 +363,6 @@ MaxID:2951
 1840:Viga: Kaardi laadimine ebaõnnestus või ühtegi kaarti ei ole valitud
 1841:Ei saa alustada: %s
 1842:Kõik ei ole valmis alustama
-1843:Mängijate arv ületab kaardi limiidi
 1844:Vale protokolli versioon: %s. Server kasutab: %s
 1845:Server on juhtimis õiused meile määranud
 1846:Tõsta kauba hulka
@@ -393,7 +382,6 @@ MaxID:2951
 1860:Elanikke|kaotatud
 1861:Sõdureid|relvastatud
 1862:Sõdureid|kaotatud
-1863:Üksusi|hävitatud
 1864:Ehitisi|ehitatud
 1865:Ehitised|kaotatud
 1866:Ehitisi|hävitatud

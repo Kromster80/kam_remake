@@ -234,7 +234,6 @@ MaxID:2951
 1692:Zaèít misi
 1693:Název
 1694:Velikost
-1695:Typ mise: %s
 1696:Podmínky vítìzství:
 1697:Podmínky porážky:
 1698:Spojenci:
@@ -276,7 +275,6 @@ MaxID:2951
 1736:Zpìt do menu
 1737:Nedostupné
 1738:Stisknìte %s pro pokraèování ve høe
-1739:Týmu
 1740:Informace o hráèích
 1741:Chat
 1742:Uložená hra již existuje
@@ -327,22 +325,14 @@ MaxID:2951
 1790:Barva
 1791:Pøipraven
 1792:Ping
-1793:Pryè
 1794:Otevøeno
 1795:Poèítaè
 1796:Vybrat...
 1797:Náhodné
 1799:Prázdné
-1802:Odeslat zprávu:
-1803:Typ mapy
-1804:Samostatná mapa
 1805:Uložená hra
 1806:Vyberte mapu...
 1807:Vyberte uloženou hru...
-1808:Info o mapì:
-1809:Hráèi: %d
-1810:Mód:
-1811:Podmínky vítìzství:
 1813:Opustit nabídku
 1814:Pøipraven
 1815:Zaèít!
@@ -373,7 +363,6 @@ MaxID:2951
 1840:Chyba: Mapa nelze naèíst nebo nebyla vybrána
 1841:Nelze zaèít: %s
 1842:Nìkdo není pøipraven ke startu
-1843:Poèet hráèù pøekraèuje maximální poèet daný mapou
 1844:Odlišná verze: %s. Server používá: %s
 1845:Server vám pøiøadil hostovací práva
 1846:Zvýšit množství
@@ -393,7 +382,6 @@ MaxID:2951
 1860:Ztraceno|obèanù
 1861:Vycvièeno|vojákù
 1862:Ztraceno|vojákù
-1863:Poraženo|jednotek
 1864:Postaveno|budov
 1865:Ztraceno|budov
 1866:Znièeno|budov

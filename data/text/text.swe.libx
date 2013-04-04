@@ -234,7 +234,6 @@ MaxID:2951
 1692:Starta uppdraget
 1693:Titel
 1694:Storlek
-1695:Uppdragstyp: %s
 1696:Vinstvillkor:
 1697:Förlustvillkor:
 1698:Allierade:
@@ -276,7 +275,6 @@ MaxID:2951
 1736:Avsluta
 1737:Ej tillgänglig
 1738:Tryck %s för att åter börja spela
-1739:Till lag
 1740:Spelarinfo
 1741:Chat
 1742:Spelet finns redan
@@ -327,22 +325,14 @@ MaxID:2951
 1790:Färg
 1791:Redo
 1792:Ping
-1793:Kicka
 1794:Öppen
 1795:AI-spelare
 1796:Välj...
 1797:Slumpad
 1799:Ingen
-1802:Skicka meddelande:
-1803:Karttyp
-1804:Enskild karta
 1805:Sparat spel
 1806:Välj en karta...
 1807:Välj ett sparat spel...
-1808:Kartinfo:
-1809:Spelare:
-1810:Läge:
-1811:Villkor:
 1813:Avsluta sessionen
 1814:Redo
 1815:Börja!
@@ -373,7 +363,6 @@ MaxID:2951
 1840:Fel: Kartan kunde inte laddas eller ingen karta vald
 1841:Kan inte börja: %s
 1842:Alla är inte redo att börja
-1843:Så många spelare kan inte spela på denna karta
 1844:Fel protokollversion: %s. Servern använder: %s
 1845:Servern har tilldelat dig värdrättigheter
 1846:Öka handelsmängd
@@ -393,7 +382,6 @@ MaxID:2951
 1860:Invånare|förlorade
 1861:Soldater|utrustade
 1862:Soldater|förlorade
-1863:Enheter|besegrade
 1864:Byggnader|konstruerade
 1865:Byggnader|förlorade
 1866:Byggnader|förstörda

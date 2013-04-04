@@ -234,7 +234,6 @@ MaxID:2951
 1692:Empezar misión
 1693:Nombre
 1694:Medida
-1695:Tipo de misión: %s
 1696:Condiciones de Victoria:
 1697:Condiciones de Derrota:
 1698:Alidados:
@@ -276,7 +275,6 @@ MaxID:2951
 1736:Regresar al Menú
 1737:No disponible
 1738:Presiona %s para continuar el juego
-1739:Para el equipo
 1740:Informacion de jugadores
 1741:Chat
 1742:Guardar archivo existente
@@ -327,22 +325,14 @@ MaxID:2951
 1790:Color
 1791:Listo
 1792:Retraso
-1793:Exulsar
 1794:Abierto
 1795:Jugador IA
 1796:Seleccionar...
 1797:Aleatorio
 1799:Ninguno
-1802:Publicar mensaje:
-1803:Tipo de mapa
-1804:Un mapa solo
 1805:Guardar Partida
 1806:Selecciona un mapa...
 1807:Seleciona para guardar...
-1808:Información de mapa:
-1809:Jugadores: %d
-1810:Modo:
-1811:Condiciones:
 1813:Salir de la sala
 1814:Listo
 1815:¡Empezar!
@@ -373,7 +363,6 @@ MaxID:2951
 1840:Error: El mapa no se puede cargar o no has seleccionado el mapa
 1841:No se puede iniciar: %s
 1842:Todos deben estar preparados para empezar
-1843:Excedes el límite de jugadores para ese mapa
 1844:Versión incorrecta: %s. Este juego utiliza la versión: %s
 1845:El servidor te ha asignado como anfitrión
 1846:Aumentar cantidad
@@ -393,7 +382,6 @@ MaxID:2951
 1860:Civiles|Perdidos
 1861:Soldados|equipados
 1862:Soldados|perdidos
-1863:Unidades|Derrotadas
 1864:Edificios|construidos
 1865:Edificios|perdidos
 1866:Edificios|destruidos

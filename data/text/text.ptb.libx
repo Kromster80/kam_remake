@@ -234,7 +234,6 @@ MaxID:2951
 1692:Iniciar Missão
 1693:Título
 1694:Tamanho
-1695:Tipo de missão: %s
 1696:Condição para ganhar:
 1697:Condição para a derrota:
 1698:Aliados:
@@ -276,7 +275,6 @@ MaxID:2951
 1736:Sair para o Menu
 1737:Indisponível
 1738:Pressione %s para continuar o jogo
-1739:Para a equipe
 1740:Informações dos jogadores
 1741:Bate-papo
 1742:Já existe um jogo salvo
@@ -327,22 +325,14 @@ MaxID:2951
 1790:Cor
 1791:Preparado
 1792:Ping
-1793:Chutar fora
 1794:Aberto
 1795:Jogador CPU
 1796:Selecionar..
 1797:Aleatório
 1799:Nenhum
-1802:Correio de mensagens:
-1803:Tipo do mapa:
-1804:Mapa Único
 1805:Jogo Salvo
 1806:Selecionar um mapa...
 1807:Selecionar um jogo salvo...
-1808:Informações do mapa:
-1809:Jogadores: %d
-1810:Modo:
-1811:Condições:
 1813:Sair da sala
 1814:Preparado
 1815:Iniciar!
@@ -373,7 +363,6 @@ MaxID:2951
 1840:Erro: Falha no mapa ou mapa não carregado
 1841:Não é possível iniciar: %s
 1842:Alguns jogadores não estão prontos para iniciar
-1843:Erro: Há mais jogadores do que o mapa permite
 1844:Versão do protocolo errado: %s. Servidor usa: %s
 1845:O servidor atribuiu direitos de hospedagem para nós
 1846:Aumentar a quantidade de comércio
@@ -393,7 +382,6 @@ MaxID:2951
 1860:Aldeões|perdidos
 1861:Soldados|equipados
 1862:Soldados|perdidos
-1863:Unidades|derrotadas
 1864:Edifícios|construídos
 1865:Edifícios|perdidos
 1866:Edifícios|destruídos

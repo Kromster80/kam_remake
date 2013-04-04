@@ -234,7 +234,6 @@ MaxID:2951
 1692:Missie starten
 1693:Titel
 1694:Gr.
-1695:Missietype: %s
 1696:Overwinningsconditie:
 1697:Nederlaagconditie:
 1698:Bondgenoten:
@@ -276,7 +275,6 @@ MaxID:2951
 1736:Afsluiten naar menu
 1737:Niet beschikbaar
 1738:Druk op %s om verder te spelen
-1739:Naar team
 1740:Spelersinformatie
 1741:Chat
 1742:Opgeslagen spel bestaat al
@@ -327,22 +325,14 @@ MaxID:2951
 1790:Kleur
 1791:Gereed
 1792:Ping
-1793:Kick
 1794:Open
 1795:Computerspeler
 1796:Selecteer...
 1797:Willekeurig
 1799:Geen
-1802:Bericht:
-1803:Kaartsoort
-1804:Enkele kaart:
 1805:Opgeslagen spel
 1806:Selecteer een kaart...
 1807:Selecteer een opgeslagen spel...
-1808:Kaartinformatie:
-1809:Spelers: %d
-1810:Modus:
-1811:Condities:
 1813:Lobby verlaten
 1814:Gereed
 1815:Start!
@@ -373,7 +363,6 @@ MaxID:2951
 1840:Fout: laden van de kaart mislukt of er is geen map geselecteerd.
 1841:Kan niet starten: %s
 1842:Niet iedereen is gereed om te starten
-1843:Aantal spelers overschrijdt kaartlimiet
 1844:Verkeerde protocol versie: %s. De server gebruikt: %s
 1845:Server heeft ons hostingrechten toegewezen
 1846:Aantal verhogen
@@ -393,7 +382,6 @@ MaxID:2951
 1860:Burgers|verloren
 1861:Soldaten|uitgerust
 1862:Soldaten|verloren
-1863:Eenheden|verslagen
 1864:Gebouwen|opgericht
 1865:Gebouwen|verloren
 1866:Gebouwen|vernietigd

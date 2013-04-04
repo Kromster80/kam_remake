@@ -232,7 +232,6 @@ MaxID:2951
 1692:Pradëti Misijà
 1693:Titulas
 1694:Dydis
-1695:Misijos tipas: %s
 1696:Pergalës bûklë:
 1697:Pralaimëjimo bûklë:
 1698:Sàjungininkai:
@@ -274,7 +273,6 @@ MaxID:2951
 1736:Iðeiti á Meniu
 1737:Neprieinamas
 1738:Spausk %s norint tæsti þaidimà
-1739:Á komandà
 1740:Þaidëjø informacija
 1741:Pokalbis
 1742:Áraðas jau egzistuoja
@@ -325,22 +323,14 @@ MaxID:2951
 1790:Spalva
 1791:Pasiruoðæs
 1792:Pingas
-1793:Iðmesti
 1794:Laisva
 1795:Kompiuteris
 1796:Pasirinkti...
 1797:Atsitiktinis
 1799:Nëra
-1802:Skelbti þinutæ:
-1803:Þemëlapio tipas
-1804:Vienas Þemëlapis
 1805:Iðsaugotas Þaidimas
 1806:Pasirinkti þemëlapá...
 1807:Pasirinkti áraðà...
-1808:Þemëlapio informacija:
-1809:Þaidëjai: %d
-1810:Reþimas:
-1811:Sàlygos:
 1813:Iðeiti ið laukimo
 1814:Pasiruoðæs
 1815:Pradëti!
@@ -371,7 +361,6 @@ MaxID:2951
 1840:Klaida: Nepavyko ákelti þemëlapá arba jis neparinktas
 1841:Negalima pradëti: %s
 1842:Ne visi pasiruoðæ pradëti
-1843:Þaidëjø skaièius virðija þemëlapio limità
 1844:Klaidinga protokolo versija: %s. Serveris naudoja: %s
 1845:Serveris perleido kûrimo teises mums
 1846:Padidinti mainoma kieká
@@ -391,7 +380,6 @@ MaxID:2951
 1860:Prarasta|gyventojø
 1861:Paruoðta|kariø
 1862:Prarasta|kariø
-1863:Nugalëta|vienetø
 1864:Pastatyta|pastatø
 1865:Prarasta|pastatø
 1866:Sunaikinta|pastatø

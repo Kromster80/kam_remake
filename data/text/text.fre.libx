@@ -234,7 +234,6 @@ MaxID:2951
 1692:Débuter !
 1693:Titre
 1694:Taille
-1695:Type de Mission : %s
 1696:Condition de Victoire :
 1697:Condition de Défaite :
 1698:Alliés :
@@ -276,7 +275,6 @@ MaxID:2951
 1736:Quitter au Menu
 1737:Non disponible
 1738:Appuyer sur %s pour reprendre le jeu
-1739:Pour l'alliance
 1740:Infos sur les joueurs
 1741:Chat
 1742:Fichier déjà existant
@@ -327,22 +325,14 @@ MaxID:2951
 1790:Couleur
 1791:Prêt
 1792:Ping
-1793:Éjecter
 1794:Libre
 1795:Joueur IA
 1796:Sélect...
 1797:Aléatoire
 1799:Aucune
-1802:Envoyer un Message :
-1803:Type de Mission :
-1804:Carte Solo
 1805:Partie Enregistrée
 1806:Sélect. une mission...
 1807:Sélect. une sauvegarde...
-1808:Informations sur la Mission :
-1809:Joueurs : %d
-1810:Mode :
-1811:Conditions :
 1813:Quitter la Préparation
 1814:Prêt
 1815:Débuter !
@@ -373,7 +363,6 @@ MaxID:2951
 1840:Erreur : Le chargement de la carte a échoué ou aucune carte n'a été sélectionnée.
 1841:Impossible de débuter : %s.
 1842:Tout le monde n'est pas prêt pour débuter.
-1843:Le nombre de joueurs dépasse la limite de la mission.
 1844:Mauvaise version du protocole : %s. Le Serveur utilise la version : %s.
 1845:Le Serveur vous a attribué les droits d'hébergement.
 1846:Augmenter le nombre d'échanges
@@ -393,7 +382,6 @@ MaxID:2951
 1860:Unités|perdues
 1861:Soldats|entraînés
 1862:Soldats|perdus
-1863:Unités|éliminées
 1864:Bâtiments|construits
 1865:Bâtiments|perdus
 1866:Bâtiments|détruits

@@ -234,7 +234,6 @@ MaxID:2951
 1692:Mission starten
 1693:Bezeichnung
 1694:Größe
-1695:Missionstyp: %s
 1696:Siegbedingung:
 1697:Niederlagebedingung:
 1698:Verbündete:
@@ -276,7 +275,6 @@ MaxID:2951
 1736:Zurück zum Menü
 1737:Nicht verfügbar
 1738:%s drücken zum Weiterspielen.
-1739:Ans Team senden
 1740:Spielerinfo
 1741:Chat
 1742:Name schon vorhand.
@@ -327,22 +325,14 @@ MaxID:2951
 1790:Farbe
 1791:Bereit
 1792:Ping
-1793:Kick
 1794:Anzeigen
 1795:Computer
 1796:Wähle...
 1797:Zufällig
 1799:Keine Info vorhanden.
-1802:Nachricht:
-1803:Typ:
-1804:Einzelkarte
 1805:Spielstand laden
 1806:Wähle eine Karte...
 1807:Spielstand wählen...
-1808:Karteninfo:
-1809:Spieler: %d
-1810:Modus:
-1811:Bedingungen:
 1813:Lobby verlassen
 1814:Bereit!
 1815:Start!
@@ -373,7 +363,6 @@ MaxID:2951
 1840:Fehler: Karte konnte nicht geladen werden oder keine Karte ausgewählt!
 1841:Kann nicht starten: %s.
 1842:Es ist noch nicht jeder bereit zu starten.
-1843:Die Spieleranzahl hat die Grenze erreicht.
 1844:Falsche Version des Protokolls: %s. Benötigt wird: %s!
 1845:Der Server hat dir die Hostingrechte übertragen.
 1846:Erhöhe Warenanzahl
@@ -393,7 +382,6 @@ MaxID:2951
 1860:Bürger|verloren
 1861:Soldaten|ausgehoben
 1862:Soldaten|verloren
-1863:Einheiten|besiegt
 1864:Gebäude|errichtet
 1865:Gebäude|verloren
 1866:Gebäude|zerstört

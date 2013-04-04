@@ -234,7 +234,6 @@ MaxID:2951
 1692:Ninmu o hajimeru
 1693:Hyoudai
 1694:Sunbou
-1695:Ninmu no shurui: %s
 1696:Katsu niwa:
 1697:Makeru niwa:
 1698:Doumeikoku:
@@ -276,7 +275,6 @@ MaxID:2951
 1736:Ichiran ni modoru
 1737:Riyou dekimasen
 1738:%s botan o oshimasu to ge-mu o pure- shitsudzukeru
-1739:Chi-mu ni
 1740:Kokuou no jouhou
 1741:Hanashi basho
 1742:Hozon shite iru ge-mu sudeni sonzai shimasu
@@ -327,22 +325,14 @@ MaxID:2951
 1790:Iro
 1791:Junbi
 1792:Pingu
-1793:Desaseru
 1794:Hiraite iru
 1795:Jinkouchinou kokuou
 1796:Yorimasu..
 1797:Futokutei
 1799:Nashi
-1802:Tsuushin o toukou shite imasu:
-1803:Chizu no shurui
-1804:Tandoku no chizu
 1805:Hozon shita ge-mu
 1806:Chizu o yorimasu...
 1807:Ge-mu o yorimasu
-1808:Chizu ni jouhou:
-1809:Kokuou: %d
-1810:Mo-do:
-1811:Hitsuyou:
 1813:Soto e demasu
 1814:Totonotte iru
 1815:Hajimaru!
@@ -373,7 +363,6 @@ MaxID:2951
 1840:Mondai: Chizu wa yoraremasen soretomo ro-do o kakashimashita
 1841:Kaishi dekimasen: %s
 1842:Daremoja arimasen wa kaishi no tame ni junbishite imasu
-1843:Oukoku goukei wa chizu no jougen o koete imasu
 1844:Warui purotocoru ba-jon: %s. Se-ba wa %s o tsukatte imasu
 1845:Seba wa wareware ni hosuto kenri o yuzurimashita
 1846:Bouekigaku o fuyashimasu
@@ -393,7 +382,6 @@ MaxID:2951
 1860:Ushinatta|shimin
 1861:Soubi shimashita|heishi
 1862:Ushinatta|heishi
-1863:Taoshita|butai
 1864:Tatemashita |tatemono
 1865:Ushinatta|tatemono
 1866:Hakai shimashita|tatemono

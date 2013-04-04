@@ -234,7 +234,6 @@ MaxID:2951
 1692:Kai Shi Ren Wu
 1693:Biao Ti
 1694:Da Xiao
-1695:Ren Wu Lei Xing: %s
 1696:Sheng Li Tiao Jian:
 1697:Shi Bai Tiao Jian:
 1698:Meng You:
@@ -276,7 +275,6 @@ MaxID:2951
 1736:Tui Chu Cai Dan
 1737:Bu Ke Yong
 1738:An %s Ji Xu You Xi
-1739:Qie Huan Dao Xiao Dui
 1740:Wan Jia Xin Xi
 1741:Liao Tian
 1742:Ji Lu Yi Jing Cun Zai
@@ -327,22 +325,14 @@ MaxID:2951
 1790:Yan Se
 1791:Zhun Bei
 1792:Ping
-1793:Ti Chu
 1794:Da Kai
 1795:Dian Nao
 1796:Xuan Ze...
 1797:Sui Ji
 1799:Mei You
-1802:Fa Song Xin Xi:
-1803:Di Tu Lei Xing
-1804:Dan Ren Di Tu
 1805:Bao Cun You Xi
 1806:Xuan Ze Yi Ge Di Tu
 1807:Xuan Ze Yi Ge Ji Lu...
-1808:Di Tu Xin Xi:
-1809:Wan Jia: %d
-1810:Mo Shi:
-1811:Tiao Jian:
 1813:Tui Chu Da Ting
 1814:Zhun Bei
 1815:Kai Shi!
@@ -373,7 +363,6 @@ MaxID:2951
 1840:Cuo Wu:Di Tu Wei Neng Ja Zai Qing Xuan Ze Di Tu
 1841:Bu Neng Kai Shi: %s
 1842:Bu Shi Suo You Ren Dou Zhun Bei Kai Shi
-1843:Wan Jia Shu Liang Chao Guo Di Tu Xian Zhi
 1844:Cuo Wu De Xie Yi Ban Ben: %s. Fu Wu Qi Shi Yong: %s
 1845:Ni Yi Jing Cheng Wei Zhu Ji
 1846:Zeng Jia Jiao Yi E Du
@@ -393,7 +382,6 @@ MaxID:2951
 1860:Dan Wei  | Si Wang
 1861:Shi Bing | Xun Lian
 1862:Shi Bing | Si Wang
-1863:Dan Wei  | Sha Di
 1864:Jian Zhu Wu | Jian Zao
 1865:Jian Zhu Wu | Sun Shi
 1866:Jian Zhu Wu | Cui Hui

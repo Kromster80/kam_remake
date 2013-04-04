@@ -234,7 +234,6 @@ MaxID:2951
 1692:Rozpocznij Misje
 1693:Tytu³
 1694:Rozmiar
-1695:Typ Misji: %s
 1696:Warunki wygranej:
 1697:Warunki przegranej:
 1698:Sojusznicy:
@@ -276,7 +275,6 @@ MaxID:2951
 1736:WyjdŸ do menu
 1737:Niedostêpne
 1738:Naciœnij %s aby wznowiæ grê
-1739:Do dru¿yny
 1740:Informacje gracza
 1741:Czat
 1742:Zapis ju¿ istnieje
@@ -327,22 +325,14 @@ MaxID:2951
 1790:Kolor
 1791:Gotowy
 1792:Ping
-1793:Wyrzuæ
 1794:Wolne
 1795:Komputer
 1796:Wybierz...
 1797:Przypadkowe
 1799:¯adna
-1802:Umieœæ wiadomoœæ:
-1803:Typ mapy
-1804:Pojedyncza mapa
 1805:Zapisane Gry
 1806:Wybierz mapê...
 1807:Wybierz zapis...
-1808:Informacje o mapie:
-1809:Gracze: %d
-1810:Tryb:
-1811:Warunki:
 1813:WyjdŸ
 1814:Gotowy
 1815:Start!
@@ -373,7 +363,6 @@ MaxID:2951
 1840:B³¹d: Nie uda³o siê za³adowaæ mapy lub nie wybrano mapy
 1841:Nie mo¿na rozpocz¹æ: %s
 1842:Nie wszyscy s¹ gotowi do rozpoczêcia
-1843:Liczba graczy przekracza limit mapy
 1844:Z³a wersja protoko³u: %s. Serwer u¿ywa: %s
 1845:Serwer przypisa³ prawa hosta do nas
 1846:Zwiêksz iloœæ towarów
@@ -393,7 +382,6 @@ MaxID:2951
 1860:Poddani|straceni
 1861:¯o³nierze|wyszkoleni
 1862:¯o³nierze|straceni
-1863:Jednostki|pokonane
 1864:Budynki|wybudowane
 1865:Budynki|utracone
 1866:Budynki|zniszczone

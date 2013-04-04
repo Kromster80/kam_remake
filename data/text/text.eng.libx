@@ -234,7 +234,6 @@ MaxID:2951
 1692:Start Mission
 1693:Title
 1694:Size
-1695:Mission type: %s
 1696:Win condition:
 1697:Defeat condition:
 1698:Allies:
@@ -276,7 +275,6 @@ MaxID:2951
 1736:Quit to Menu
 1737:Not available
 1738:Press %s to resume the game
-1739:To team
 1740:Players info
 1741:Chat
 1742:Save already exists
@@ -327,22 +325,14 @@ MaxID:2951
 1790:Color
 1791:Ready
 1792:Ping
-1793:Kick
 1794:Open
 1795:AI Player
 1796:Select...
 1797:Random
 1799:None
-1802:Post message:
-1803:Map type
-1804:Single Map
 1805:Saved Game
 1806:Select a map...
 1807:Select a save...
-1808:Map info:
-1809:Players: %d
-1810:Mode:
-1811:Conditions:
 1813:Quit lobby
 1814:Ready
 1815:Start!
@@ -373,7 +363,6 @@ MaxID:2951
 1840:Error: Map failed to load or no map selected
 1841:Cannot start: %s
 1842:Not everyone is ready to start
-1843:Player count exceeds map limit
 1844:Wrong protocol version: %s. Server uses: %s
 1845:Server has assigned hosting rights to us
 1846:Increase trade amount
@@ -393,7 +382,6 @@ MaxID:2951
 1860:Citizens|lost
 1861:Soldiers|equipped
 1862:Soldiers|lost
-1863:Units|defeated
 1864:Buildings|constructed
 1865:Buildings|lost
 1866:Buildings|destroyed
@@ -556,11 +544,9 @@ MaxID:2951
 2825:Description
 2826:Cancel
 2827:OK
-2828:Whisper
 2829:Kick
 2830:Ban
 2831:Set to host
-2833:%s recruits
 2835:Password protected room
 2836:Password
 2837:Players:

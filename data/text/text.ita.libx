@@ -234,7 +234,6 @@ MaxID:2951
 1692:Inizia Missione
 1693:Titolo
 1694:Tipo
-1695:Missione: %s
 1696:Vittoria:
 1697:Sconfitta:
 1698:Alleati:
@@ -276,7 +275,6 @@ MaxID:2951
 1736:Torna al Menu
 1737:Non disponibile
 1738:Premi %s per riprendere il gioco
-1739:Alla squadra
 1740:Info giocatori
 1741:Chat
 1742:Esiste già
@@ -327,22 +325,14 @@ MaxID:2951
 1790:Colore
 1791:Pronto
 1792:Ping
-1793:Caccia
 1794:Aperto
 1795:Giocatore IA
 1796:Seleziona...
 1797:Casuale
 1799:Nessuna
-1802:Invia messaggio:
-1803:Tipo di mappa
-1804:Giocatore singolo
 1805:Partita salvata
 1806:Mappa...
 1807:Partita salvata...
-1808:Informazioni sulla mappa:
-1809:Giocatori: %d
-1810:Tipo:
-1811:Condizioni:
 1813:Esci
 1814:Pronto
 1815:Inizia!
@@ -373,7 +363,6 @@ MaxID:2951
 1840:Errore: Caricamento della mappa fallito o mappa non selezionata
 1841:Impossibile iniziare: %s
 1842:Non tutti i giocatori sono pronti per iniziare
-1843:Troppi giocatori per questa mappa
 1844:La versione del protocollo è sbagliata: %s. Il server usa: %s
 1845:Il server ci ha assegato il ruolo di host
 1846:Aumenta quantità di merce da scambiare
@@ -393,7 +382,6 @@ MaxID:2951
 1860:Cittadini|perduti
 1861:Soldati|equipaggiati
 1862:Soldati|persi
-1863:Unità|sconfitte
 1864:Edifici|costruiti
 1865:Edifici|perduti
 1866:Edifici|distrutti

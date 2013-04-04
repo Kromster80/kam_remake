@@ -234,7 +234,6 @@ MaxID:2951
 1692:Porneste Misiunea
 1693:Titlu
 1694:Dimensiune
-1695:Tipul misiunii: %s
 1696:Conditii victorie:
 1697:Conditii înfrângere:
 1698:Aliati:
@@ -276,7 +275,6 @@ MaxID:2951
 1736:Iesi în Meniu
 1737:Nedisponibil
 1738:Apasã %s pentru a continua jocul
-1739:Echipã
 1740:Info jucãtori
 1741:Chat
 1742:Salvarea existã deja
@@ -327,22 +325,14 @@ MaxID:2951
 1790:Culoarea
 1791:Gata
 1792:Ping
-1793:Înlãturã
 1794:Deschis
 1795:Jucatori AI
 1796:Select...
 1797:Aleator
 1799:Nici una
-1802:Posteazã mesaj:
-1803:Tipul hãrtii
-1804:Single Map
 1805:Joc Salvat
 1806:Selectare hartã...
 1807:Selecteazã o salvare...
-1808:Info hartã:
-1809:Jucãtori: %d
-1810:Mod:
-1811:Conditii:
 1813:Iesi din Lobby
 1814:Gata
 1815:Start!
@@ -373,7 +363,6 @@ MaxID:2951
 1840:Eroare: Harta nu s-a încãrcat sau nu e selectatã nici o hartã
 1841:Nu pot porni %s
 1842:Nu sunt gata toti jucãtorii
-1843:Numãrul jucãtorilor depãseste limita hãrtii
 1844:Versiune de protocol gresitã: %s. Serverul foloseste: %s
 1845:Serverul a alocat drepturile de gazdã
 1846:Mãreste comertul
@@ -393,7 +382,6 @@ MaxID:2951
 1860:Cetãteni|pierduti
 1861:Soldati|Echipati
 1862:Soldati|pierduti
-1863:Unitãti|înfrânte
 1864:Clãdiri|construite
 1865:Clãdiri|pierdute
 1866:Clãdiri|distruse

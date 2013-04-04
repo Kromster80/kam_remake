@@ -234,7 +234,6 @@ MaxID:2951
 1692:Yeni Görev
 1693:Baþlýk
 1694:Boyut
-1695:Görev tipi: %s
 1696:Kazanma þartlarý: %s
 1697:Yenilgi þartlarý: %s
 1698:Dostlar:
@@ -276,7 +275,6 @@ MaxID:2951
 1736:Menüye Dön
 1737:Uygun deðil
 1738:Oyuna devam etmek için %s e basýnýz
-1739:Takýma
 1740:Oyuncu bilgisi
 1741:Sohbet
 1742:Kayýt zaten var
@@ -327,22 +325,14 @@ MaxID:2951
 1790:Renk
 1791:Hazýr
 1792:Ping
-1793:Oyundan at
 1794:Açýk
 1795:YZ Oyuncu
 1796:Seç...
 1797:Rastgele
 1799:Boþ
-1802:Mesaj gönder:
-1803:Harita tipi
-1804:Tek Oyunculu Harita
 1805:Kayýtlý Oyun
 1806:Bir harita seçin...
 1807:Bir kayýt seçin...
-1808:Harita bilgisi:
-1809:Oyuncular: %d
-1810:Mod:
-1811:Durum:
 1813:Lobiye dön
 1814:Hazýr
 1815:Baþla!
@@ -373,7 +363,6 @@ MaxID:2951
 1840:Hata: Harýta yüklenmesi baþarýsýz veya bir harita seçilmedi
 1841:Baþlayamýyor: %s
 1842:Herkes baþlamak için hazýr deðil
-1843:Oyuncu sayýsý harita sýnýrýný aþtý
 1844:Yanlýþ protokol versiyonu: %s. Sunucunun versiyonu: %s
 1845:Sunucu, ev sahibi haklarýný bize verdi
 1846:Ticaret miktarýný arttýr
@@ -393,7 +382,6 @@ MaxID:2951
 1860:Kaybedilen|köylüler
 1861:Yetiþtirilen|askerler
 1862:Kaybedilen|askerler
-1863:Öldürülen|birimler
 1864:Yapýlan|binalar
 1865:Kaybedilen|binalar
 1866:Yýkýlan|binalar
