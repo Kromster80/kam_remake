@@ -1,0 +1,11 @@
+procedure OnTick;
+begin
+  if States.GameTime = 5 then
+    Actions.ShowMsg(0, States.Text(0));
+  if States.GameTime = 5 then
+    Actions.ShowMsg(6, States.Text(0));
+  if States.GameTime = 9000 then
+    Actions.ShowMsg(0, States.Text(1));
+  if States.GameTime = 9000 then
+    Actions.ShowMsg(6, States.Text(1));
+end;

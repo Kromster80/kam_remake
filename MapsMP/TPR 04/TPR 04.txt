@@ -1,0 +1,4 @@
+SetCoop
+
+BigDesc
+Mission 4 from The Peasants Rebellion campaign converted for co-operative by andreus.

@@ -1,0 +1,7 @@
+procedure OnTick;
+begin
+  if States.GameTime = 150 then
+    Actions.ShowMsg(0, States.Text(0));
+  if States.GameTime = 6000 then
+    Actions.ShowMsg(6, States.Text(1));
+end;
