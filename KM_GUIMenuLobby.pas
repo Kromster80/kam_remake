@@ -51,6 +51,8 @@ type
     procedure MapChange(Sender: TObject);
     procedure Lobby_PostKey(Sender: TObject; Key: Word);
 
+    procedure MinimapLocClick(aValue: Integer);
+
     procedure Lobby_OnDisconnect(const aData:string);
     procedure Lobby_OnGameOptions(Sender: TObject);
     procedure Lobby_OnMapName(const aData:string);
@@ -267,6 +269,7 @@ begin
       TKMBevel.Create(Panel_LobbySetup, 35, 120, 199, 199);
       MinimapView_Lobby := TKMMinimapView.Create(Panel_LobbySetup, 39, 124, 191, 191);
       MinimapView_Lobby.ShowLocs := True; //In the minimap we want player locations to be shown
+      MinimapView_Lobby.OnLocClick := MinimapLocClick;
 
       Button_LobbyTabDesc := TKMButton.Create(Panel_LobbySetup, 10, 324, 125, 20, fTextLibrary[TX_LOBBY_MAP_DESCRIPTION], bsMenu);
       Button_LobbyTabDesc.OnClick := LobbyTabSwitch;
@@ -1012,6 +1015,27 @@ begin
   //The Sender is nil in Reset_Lobby when we are not connected
   if Sender <> nil then
     fNetworking.SelectNoMap(fTextLibrary[TX_LOBBY_MAP_NONE]);
+end;
+
+
+//Change starting location
+procedure TKMGUIMenuLobby.MinimapLocClick(aValue: Integer);
+var
+  I: Integer;
+  CanEdit: Boolean;
+begin
+  I := fNetworking.MyIndex;
+
+  CanEdit := ((fNetworking.IsHost or not fNetworking.NetPlayers.HostDoesSetup) and
+              (fNetworking.IsHost or not fNetworking.NetPlayers[I].ReadyToStart));
+
+  if CanEdit then
+  begin
+    fNetworking.SelectLoc(aValue+1, I);
+    //Host with HostDoesSetup could have given us some location we don't know about from a map/save we don't have
+    if fNetworking.SelectGameKind <> ngk_None then
+      DropBox_LobbyLoc[I-1].SelectByTag(fNetworking.NetPlayers[I].StartLocation);
+  end;
 end;
 
 

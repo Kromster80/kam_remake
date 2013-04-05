@@ -1057,8 +1057,11 @@ type
 
     fOnChange, fOnMinimapClick: TPointEvent;
     fShowLocs: Boolean;
+    fLocRad: Byte;
     fClickableOnce: Boolean;
   public
+    OnLocClick: TIntegerEvent;
+
     constructor Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight: Integer);
 
     function LocalToMapCoords(X,Y: Integer; const Inset: ShortInt = 0): TKMPoint;
@@ -4432,6 +4435,9 @@ end;
 constructor TKMMinimapView.Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight: Integer);
 begin
   inherited Create(aParent, aLeft,aTop,aWidth,aHeight);
+
+  //Radius of circle around player location
+  fLocRad := 8;
 end;
 
 
@@ -4485,20 +4491,6 @@ begin
 end;
 
 
-procedure TKMMinimapView.MouseUp(X,Y: Integer; Shift: TShiftState; Button: TMouseButton);
-var ViewPos: TKMPoint;
-begin
-  inherited;
-  if fClickableOnce then
-  begin
-    fClickableOnce := False; //Not clickable anymore
-    ViewPos := LocalToMapCoords(X,Y);
-    if Assigned(fOnMinimapClick) then
-      fOnMinimapClick(Self, ViewPos.X, ViewPos.Y);
-  end;
-end;
-
-
 procedure TKMMinimapView.MouseMove(X,Y: Integer; Shift: TShiftState);
 var ViewPos: TKMPoint;
 begin
@@ -4513,9 +4505,40 @@ begin
 end;
 
 
+procedure TKMMinimapView.MouseUp(X,Y: Integer; Shift: TShiftState; Button: TMouseButton);
+var
+  ViewPos: TKMPoint;
+  I: Integer;
+  T: TKMPoint;
+begin
+  inherited;
+  if fClickableOnce then
+  begin
+    fClickableOnce := False; //Not clickable anymore
+    ViewPos := LocalToMapCoords(X,Y);
+    if Assigned(fOnMinimapClick) then
+      fOnMinimapClick(Self, ViewPos.X, ViewPos.Y);
+  end;
+
+  for I := 0 to MAX_PLAYERS - 1 do
+  if fMinimap.PlayerShow[I] and not KMSamePoint(fMinimap.PlayerLocations[I], KMPoint(0,0)) then
+  begin
+    T := MapCoordsToLocal(fMinimap.PlayerLocations[I].X, fMinimap.PlayerLocations[I].Y, fLocRad);
+    if Sqr(T.X - X) + Sqr(T.Y - Y) < Sqr(fLocRad) then
+    begin
+      if Assigned(OnLocClick) then
+        OnLocClick(I);
+
+      //Do not repeat events for stacked locations
+      Break;
+    end;
+  end;
+end;
+
+
 procedure TKMMinimapView.Paint;
 const
-  LOC_RAD = 8; //Radius of circle around player location
+
   ALERT_RAD = 4;
 var
   I: Integer;
@@ -4559,14 +4582,14 @@ begin
   for I := 0 to MAX_PLAYERS - 1 do
   if fMinimap.PlayerShow[I] and not KMSamePoint(fMinimap.PlayerLocations[I], KMPoint(0,0)) then
   begin
-    T := MapCoordsToLocal(fMinimap.PlayerLocations[I].X, fMinimap.PlayerLocations[I].Y, LOC_RAD);
-    TKMRenderUI.WriteCircle(T.X, T.Y, LOC_RAD, fMinimap.PlayerColors[I]);
+    T := MapCoordsToLocal(fMinimap.PlayerLocations[I].X, fMinimap.PlayerLocations[I].Y, fLocRad);
+    TKMRenderUI.WriteCircle(T.X, T.Y, fLocRad, fMinimap.PlayerColors[I]);
   end;
 
   for I := 0 to MAX_PLAYERS - 1 do
   if fMinimap.PlayerShow[I] and not KMSamePoint(fMinimap.PlayerLocations[I], KMPoint(0,0)) then
   begin
-    T := MapCoordsToLocal(fMinimap.PlayerLocations[I].X, fMinimap.PlayerLocations[I].Y, LOC_RAD);
+    T := MapCoordsToLocal(fMinimap.PlayerLocations[I].X, fMinimap.PlayerLocations[I].Y, fLocRad);
     TKMRenderUI.WriteText(T.X, T.Y - 6, 0, IntToStr(I+1), fnt_Outline, taCenter);
   end;
 end;

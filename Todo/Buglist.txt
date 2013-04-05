@@ -77,6 +77,7 @@ Improvements:
  +	L	Add unused sprite 17 from trees.rx
  +	L	Pressing a character with a dropdown/listbox selected will choose the first item starting with that character
  +	L	It is impossible to identify selected group if player flag color is white. Use dark-grey instead.
+ +	L	Clicking a location on the lobby minimap selects that location if it's available
 
 	Dismiss button to make units walk into the school and disappear (gold is not refunded)
 	L	Simple dedicated server form which lets you set the properties of the INI for the server and start it [gemGreg]
@@ -95,7 +96,6 @@ Improvements:
 	L	Minimap preview in lobby could indicate teams somehow as well (border around the color circle?)
 	L	Pack textures into atlases with regard to GPU max supported texture resolution (512 or 1024 px)
 	L	Clicking and holding on the add/subtract buttons in weapons workshops could increase the number to save repeated clicking
-	L	Clicking a location on the lobby minimap selects that location if it's available
 	L	Multiplayer in-game player list and lobby description ordered (grouped) by teams [Lewin, implemented?]
 	M	New column in load/replays menus: Date/time (stored internally in save format since file modified date is not very trustworthy) [Marcin]
 	L	New command !SKIP_HOUSE. If I want a map with no stone, then after building the inn the woodcutter and tower should become available (skips the stonemason)
