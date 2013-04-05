@@ -30,8 +30,9 @@ type
     procedure UpdateTexture;
   public
     PlayerColors: array [0..MAX_PLAYERS-1] of Cardinal;
-    PlayerLocations: array [0..MAX_PLAYERS-1] of TKMPoint;
+    PlayerLoc: array [0..MAX_PLAYERS-1] of TKMPoint;
     PlayerShow: array [0..MAX_PLAYERS-1] of Boolean;
+    PlayerTeam: array [0..MAX_PLAYERS-1] of ShortInt;
     constructor Create(aFromParser: Boolean; aIsMapEditor: Boolean; aSepia: Boolean);
     destructor Destroy; override;
 
@@ -93,7 +94,7 @@ begin
   for I := 0 to MAX_PLAYERS - 1 do
   begin
     PlayerColors[I] := fParser.PlayerPreview[I].Color;
-    PlayerLocations[I] := fParser.PlayerPreview[I].StartingLoc;
+    PlayerLoc[I] := fParser.PlayerPreview[I].StartingLoc;
     PlayerShow[I] := fParser.PlayerPreview[I].CanHuman;
   end;
 end;
@@ -114,7 +115,7 @@ begin
   for I := 0 to MAX_PLAYERS - 1 do
   begin
     PlayerColors[I] := $00000000;
-    PlayerLocations[I] := KMPoint(0,0);
+    PlayerLoc[I] := KMPoint(0,0);
     PlayerShow[I] := False;
   end;
 
@@ -302,7 +303,7 @@ begin
   for I := 0 to MAX_PLAYERS - 1 do
   begin
     SaveStream.Write(PlayerColors[I]);
-    SaveStream.Write(PlayerLocations[I]);
+    SaveStream.Write(PlayerLoc[I]);
     SaveStream.Write(PlayerShow[I]);
   end;
 end;
@@ -324,7 +325,7 @@ begin
   for I := 0 to MAX_PLAYERS - 1 do
   begin
     LoadStream.Read(PlayerColors[I]);
-    LoadStream.Read(PlayerLocations[I]);
+    LoadStream.Read(PlayerLoc[I]);
     LoadStream.Read(PlayerShow[I]);
   end;
 

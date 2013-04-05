@@ -4522,9 +4522,9 @@ begin
 
   if fShowLocs then
   for I := 0 to MAX_PLAYERS - 1 do
-  if fMinimap.PlayerShow[I] and not KMSamePoint(fMinimap.PlayerLocations[I], KMPoint(0,0)) then
+  if fMinimap.PlayerShow[I] and not KMSamePoint(fMinimap.PlayerLoc[I], KMPoint(0,0)) then
   begin
-    T := MapCoordsToLocal(fMinimap.PlayerLocations[I].X, fMinimap.PlayerLocations[I].Y, fLocRad);
+    T := MapCoordsToLocal(fMinimap.PlayerLoc[I].X, fMinimap.PlayerLoc[I].Y, fLocRad);
     if Sqr(T.X - X) + Sqr(T.Y - Y) < Sqr(fLocRad) then
     begin
       if Assigned(OnLocClick) then
@@ -4539,12 +4539,11 @@ end;
 
 procedure TKMMinimapView.Paint;
 const
-
   ALERT_RAD = 4;
 var
-  I: Integer;
+  I,K: Integer;
   R: TKMRect;
-  T: TKMPoint;
+  T, T1, T2: TKMPoint;
 begin
   inherited;
 
@@ -4556,17 +4555,18 @@ begin
   else
     TKMRenderUI.WriteBevel(AbsLeft, AbsTop, fWidth, fHeight);
 
-  //Paint alerts (under viewport rectangle)
+  //Alerts (under viewport rectangle)
   if (fMinimap.Alerts <> nil) then
   for I := 0 to fMinimap.Alerts.Count - 1 do
   if fMinimap.Alerts[I].VisibleMinimap then
   begin
     T := MapCoordsToLocal(fMinimap.Alerts[I].Loc.X, fMinimap.Alerts[I].Loc.Y, ALERT_RAD);
     TKMRenderUI.WritePicture(T.X, T.Y, 0, 0, [],
-                           fMinimap.Alerts[I].TexMinimap.RX, fMinimap.Alerts[I].TexMinimap.ID, True, fMinimap.Alerts[I].TeamColor, Abs((TimeGet mod 1000)/500 - 1)); //0..1..0..1..
+                             fMinimap.Alerts[I].TexMinimap.RX, fMinimap.Alerts[I].TexMinimap.ID,
+                             True, fMinimap.Alerts[I].TeamColor, Abs((TimeGet mod 1000) / 500 - 1));
   end;
 
-  //Paint viewport rectangle
+  //Viewport rectangle
   if fView <> nil then
   begin
     R := fView.GetMinimapClip;
@@ -4579,18 +4579,30 @@ begin
 
   if not fShowLocs then Exit;
 
+  //Connect allied players
+  for I := 0 to MAX_PLAYERS - 1 do
+  if fMinimap.PlayerShow[I] and not KMSamePoint(fMinimap.PlayerLoc[I], KMPoint(0,0)) then
+    for K := I + 1 to MAX_PLAYERS - 1 do
+    if fMinimap.PlayerShow[K] and not KMSamePoint(fMinimap.PlayerLoc[K], KMPoint(0,0)) then
+      if (fMinimap.PlayerTeam[I] <> 0) and (fMinimap.PlayerTeam[I] = fMinimap.PlayerTeam[K]) then
+      begin
+        T1 := MapCoordsToLocal(fMinimap.PlayerLoc[I].X, fMinimap.PlayerLoc[I].Y, fLocRad);
+        T2 := MapCoordsToLocal(fMinimap.PlayerLoc[K].X, fMinimap.PlayerLoc[K].Y, fLocRad);
+        TKMRenderUI.WriteLine(T1.X, T1.Y, T2.X, T2.Y, $FFFFFFFF);
+      end;
+
   //Draw all the circles, THEN all the numbers so the numbers are not covered by circles when they are close
   for I := 0 to MAX_PLAYERS - 1 do
-  if fMinimap.PlayerShow[I] and not KMSamePoint(fMinimap.PlayerLocations[I], KMPoint(0,0)) then
+  if fMinimap.PlayerShow[I] and not KMSamePoint(fMinimap.PlayerLoc[I], KMPoint(0,0)) then
   begin
-    T := MapCoordsToLocal(fMinimap.PlayerLocations[I].X, fMinimap.PlayerLocations[I].Y, fLocRad);
+    T := MapCoordsToLocal(fMinimap.PlayerLoc[I].X, fMinimap.PlayerLoc[I].Y, fLocRad);
     TKMRenderUI.WriteCircle(T.X, T.Y, fLocRad, fMinimap.PlayerColors[I]);
   end;
 
   for I := 0 to MAX_PLAYERS - 1 do
-  if fMinimap.PlayerShow[I] and not KMSamePoint(fMinimap.PlayerLocations[I], KMPoint(0,0)) then
+  if fMinimap.PlayerShow[I] and not KMSamePoint(fMinimap.PlayerLoc[I], KMPoint(0,0)) then
   begin
-    T := MapCoordsToLocal(fMinimap.PlayerLocations[I].X, fMinimap.PlayerLocations[I].Y, fLocRad);
+    T := MapCoordsToLocal(fMinimap.PlayerLoc[I].X, fMinimap.PlayerLoc[I].Y, fLocRad);
     TKMRenderUI.WriteText(T.X, T.Y - 6, 0, IntToStr(I+1), fnt_Outline, taCenter);
   end;
 end;

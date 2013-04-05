@@ -27,7 +27,7 @@ type
 
     procedure Create_SingleMap(aParent: TKMPanel);
 
-    procedure Clear;
+    procedure ListClear;
     procedure ScanUpdate(Sender: TObject);
     procedure SortUpdate(Sender: TObject);
     procedure ListRefresh(aJumpToSelected:Boolean);
@@ -219,7 +219,7 @@ begin
 end;
 
 
-procedure TKMGUIMenuSingleMap.Clear;
+procedure TKMGUIMenuSingleMap.ListClear;
 begin
   ColumnBox_SingleMaps.Clear;
   ListClick(nil);
@@ -510,8 +510,7 @@ begin
   fMaps.TerminateScan;
 
   //Remove any old entries from UI
-  Clear;
-  ListClick(nil);
+  ListClear;
 
   //Initiate refresh and process each new map added
   fMaps.Refresh(ScanUpdate);

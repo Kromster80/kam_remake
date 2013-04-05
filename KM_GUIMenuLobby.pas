@@ -937,16 +937,26 @@ begin
     else
       fMinimap.PlayerColors[I] := $7F000000; //Semi-transparent when not selected
   end;
+
   //If we have a map selected update the preview
   if (fNetworking.SelectGameKind = ngk_Map) and fNetworking.MapInfo.IsValid then
   begin
     fMinimap.Update(not fNetworking.MapInfo.IsCoop);
     MinimapView_Lobby.SetMinimap(fMinimap);
+    for I := 0 to MAX_PLAYERS - 1 do
+    begin
+      ID := fNetworking.NetPlayers.StartingLocToLocal(I+1);
+      if ID <> -1 then
+        fMinimap.PlayerTeam[I] := fNetworking.NetPlayers[I+1].Team
+      else
+        fMinimap.PlayerTeam[I] := 0;
+    end;
   end;
 
   //If we are in team chat mode and find ourselves not on a team (player went back to no team), switch back to all
   if (fChatMode = cmTeam) and (fNetworking.NetPlayers[fNetworking.MyIndex].Team = 0) then
     ChatMenuSelect(-1);
+
   //If we are in whisper chat mode and find the player has left, switch back to all
   if fChatMode = cmWhisper then
   begin
