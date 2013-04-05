@@ -30,9 +30,9 @@ type
     procedure CreatePlayerMenu(aParent: TKMPanel);
     procedure CreateSettingsPopUp(aParent: TKMPanel);
 
-    procedure Lobby_Reset(aKind: TNetPlayerKind; aPreserveMessage: Boolean = False; aPreserveMaps: Boolean = False);
-    procedure LobbyTabSwitch(Sender: TObject);
-    procedure Lobby_GameOptionsChange(Sender: TObject);
+    procedure Reset(aKind: TNetPlayerKind; aPreserveMessage: Boolean = False; aPreserveMaps: Boolean = False);
+    procedure GameOptionsTabSwitch(Sender: TObject);
+    procedure GameOptionsChange(Sender: TObject);
 
     procedure ChatMenuSelect(aItem: Integer);
     procedure ChatMenuClick(Sender: TObject);
@@ -41,15 +41,15 @@ type
     procedure PlayerMenuClick(Sender: TObject);
     procedure PlayerMenuShow(Sender: TObject);
 
-    procedure Lobby_PlayersSetupChange(Sender: TObject);
+    procedure PlayersSetupChange(Sender: TObject);
     procedure MapColumnClick(aValue: Integer);
     procedure MapTypeChange(Sender: TObject);
-    procedure Lobby_SortUpdate(Sender: TObject);
-    procedure Lobby_ScanUpdate(Sender: TObject);
-    procedure Lobby_RefreshMapList(aJumpToSelected: Boolean);
-    procedure Lobby_RefreshSaveList(aJumpToSelected: Boolean);
+    procedure MapList_SortUpdate(Sender: TObject);
+    procedure MapList_ScanUpdate(Sender: TObject);
+    procedure RefreshMapList(aJumpToSelected: Boolean);
+    procedure RefreshSaveList(aJumpToSelected: Boolean);
     procedure MapChange(Sender: TObject);
-    procedure Lobby_PostKey(Sender: TObject; Key: Word);
+    procedure PostKeyDown(Sender: TObject; Key: Word);
 
     procedure MinimapLocClick(aValue: Integer);
 
@@ -174,10 +174,10 @@ begin
       TKMBevel.Create(Panel_LobbyPlayers,  0,  0, CW, 268);
 
       CheckBox_LobbyHostControl := TKMCheckBox.Create(Panel_LobbyPlayers, 10, 10, 450, 20, fTextLibrary[TX_LOBBY_HOST_DOES_SETUP], fnt_Metal);
-      CheckBox_LobbyHostControl.OnClick := Lobby_PlayersSetupChange;
+      CheckBox_LobbyHostControl.OnClick := PlayersSetupChange;
 
       CheckBox_LobbyRandomizeTeamLocations := TKMCheckBox.Create(Panel_LobbyPlayers, 10, 28, 450, 20, fTextLibrary[TX_LOBBY_RANDOMIZE_LOCATIONS], fnt_Metal);
-      CheckBox_LobbyRandomizeTeamLocations.OnClick := Lobby_PlayersSetupChange;
+      CheckBox_LobbyRandomizeTeamLocations.OnClick := PlayersSetupChange;
 
       //Column titles
       TKMLabel.Create(Panel_LobbyPlayers, C1, 50, 150,  20, fTextLibrary[TX_LOBBY_HEADER_PLAYERS], fnt_Outline, taLeft);
@@ -203,16 +203,16 @@ begin
         DropBox_LobbyPlayerSlot[I].Add(fTextLibrary[TX_LOBBY_SLOT_CLOSED]); //Closed, nobody can join it
         DropBox_LobbyPlayerSlot[I].Add(fTextLibrary[TX_LOBBY_SLOT_AI_PLAYER]); //This slot is an AI player
         DropBox_LobbyPlayerSlot[I].ItemIndex := 0; //Open
-        DropBox_LobbyPlayerSlot[I].OnChange := Lobby_PlayersSetupChange;
+        DropBox_LobbyPlayerSlot[I].OnChange := PlayersSetupChange;
 
         DropBox_LobbyLoc[I] := TKMDropList.Create(Panel_LobbyPlayers, C2, OffY, 150, 20, fnt_Grey, '', bsMenu);
         DropBox_LobbyLoc[I].Add(fTextLibrary[TX_LOBBY_RANDOM], 0);
-        DropBox_LobbyLoc[I].OnChange := Lobby_PlayersSetupChange;
+        DropBox_LobbyLoc[I].OnChange := PlayersSetupChange;
 
         DropBox_LobbyTeam[I] := TKMDropList.Create(Panel_LobbyPlayers, C3, OffY, 80, 20, fnt_Grey, '', bsMenu);
         DropBox_LobbyTeam[I].Add('-');
         for K := 1 to 4 do DropBox_LobbyTeam[I].Add(IntToStr(K));
-        DropBox_LobbyTeam[I].OnChange := Lobby_PlayersSetupChange;
+        DropBox_LobbyTeam[I].OnChange := PlayersSetupChange;
 
         DropBox_LobbyColors[I] := TKMDropColumns.Create(Panel_LobbyPlayers, C4, OffY, 80, 20, fnt_Grey, '', bsMenu);
         DropBox_LobbyColors[I].SetColumns(fnt_Outline, [''], [0]);
@@ -221,7 +221,7 @@ begin
         DropBox_LobbyColors[I].Add(MakeListRow([''], [$FFFFFFFF], [MakePic(rxGuiMain, 31)], 0));
         for K := Low(MP_TEAM_COLORS) to High(MP_TEAM_COLORS) do
           DropBox_LobbyColors[I].Add(MakeListRow([''], [MP_TEAM_COLORS[K]], [MakePic(rxGuiMain, 30)]));
-        DropBox_LobbyColors[I].OnChange := Lobby_PlayersSetupChange;
+        DropBox_LobbyColors[I].OnChange := PlayersSetupChange;
 
         Image_LobbyReady[I] := TKMImage.Create(Panel_LobbyPlayers, C5-8, OffY, 16, 16, 32, rxGuiMain);
         Label_LobbyPing[I] := TKMLabel.Create(Panel_LobbyPlayers, C6, OffY, '', fnt_Metal, taCenter);
@@ -240,7 +240,7 @@ begin
     Button_LobbyPost.Anchors := [akLeft, akBottom];
 
     Edit_LobbyPost := TKMEdit.Create(Panel_Lobby, 60, 683, CW, 20, fnt_Metal);
-    Edit_LobbyPost.OnKeyDown := Lobby_PostKey;
+    Edit_LobbyPost.OnKeyDown := PostKeyDown;
     Edit_LobbyPost.Anchors := [akLeft, akBottom];
     Edit_LobbyPost.ShowColors := True;
 
@@ -272,10 +272,10 @@ begin
       MinimapView_Lobby.OnLocClick := MinimapLocClick;
 
       Button_LobbyTabDesc := TKMButton.Create(Panel_LobbySetup, 10, 324, 125, 20, fTextLibrary[TX_LOBBY_MAP_DESCRIPTION], bsMenu);
-      Button_LobbyTabDesc.OnClick := LobbyTabSwitch;
+      Button_LobbyTabDesc.OnClick := GameOptionsTabSwitch;
       Button_LobbyTabDesc.Hide;
       Button_LobbyTabOptions := TKMButton.Create(Panel_LobbySetup, 10+125, 324, 125, 20, fTextLibrary[TX_LOBBY_OPTIONS], bsMenu);
-      Button_LobbyTabOptions.OnClick := LobbyTabSwitch;
+      Button_LobbyTabOptions.OnClick := GameOptionsTabSwitch;
       Button_LobbyTabOptions.Hide;
 
       Panel_LobbySetupDesc := TKMPanel.Create(Panel_LobbySetup, 0, 324, 270, 218);
@@ -292,19 +292,19 @@ begin
         TrackBar_LobbyPeacetime.Anchors := [akLeft,akBottom];
         TrackBar_LobbyPeacetime.Caption := fTextLibrary[TX_LOBBY_PEACETIME];
         TrackBar_LobbyPeacetime.Step := 5; //Round to 5min steps
-        TrackBar_LobbyPeacetime.OnChange := Lobby_GameOptionsChange;
+        TrackBar_LobbyPeacetime.OnChange := GameOptionsChange;
 
         TrackBar_LobbySpeedPT := TKMTrackBar.Create(Panel_LobbySetupOptions, 10, 72, 250, 1, 5);
         TrackBar_LobbySpeedPT.Anchors := [akLeft,akBottom];
         TrackBar_LobbySpeedPT.Caption := fTextLibrary[TX_LOBBY_GAMESPEED_PEACETIME];
         TrackBar_LobbySpeedPT.ThumbWidth := 45; //Enough to fit 'x2.5'
-        TrackBar_LobbySpeedPT.OnChange := Lobby_GameOptionsChange;
+        TrackBar_LobbySpeedPT.OnChange := GameOptionsChange;
 
         TrackBar_LobbySpeedAfterPT := TKMTrackBar.Create(Panel_LobbySetupOptions, 10, 116, 250, 1, 5);
         TrackBar_LobbySpeedAfterPT.Anchors := [akLeft,akBottom];
         TrackBar_LobbySpeedAfterPT.Caption := fTextLibrary[TX_LOBBY_GAMESPEED];
         TrackBar_LobbySpeedAfterPT.ThumbWidth := 45; //Enough to fit 'x2.5'
-        TrackBar_LobbySpeedAfterPT.OnChange := Lobby_GameOptionsChange;
+        TrackBar_LobbySpeedAfterPT.OnChange := GameOptionsChange;
 
     Button_LobbyBack := TKMButton.Create(Panel_Lobby, 30, 712, 220, 30, fTextLibrary[TX_LOBBY_QUIT], bsMenu);
     Button_LobbyBack.Anchors := [akLeft, akBottom];
@@ -492,7 +492,7 @@ procedure TKMGUIMenuLobby.Show(aKind: TNetPlayerKind; aNetworking: TKMNetworking
 begin
   fNetworking := aNetworking;
 
-  Lobby_Reset(aKind);
+  Reset(aKind);
 
   //Events binding is the same for Host and Joiner because of stand-alone Server
   //E.g. If Server fails, Host can be disconnected from it as well as a Joiner
@@ -536,12 +536,12 @@ begin
     Panel_LobbySetupOptions.Top := 350;
     Button_LobbyTabDesc.Show;
     Button_LobbyTabOptions.Show;
-    LobbyTabSwitch(nil);
+    GameOptionsTabSwitch(nil);
   end;
 end;
 
 
-procedure TKMGUIMenuLobby.LobbyTabSwitch(Sender: TObject);
+procedure TKMGUIMenuLobby.GameOptionsTabSwitch(Sender: TObject);
 begin
   if Sender = Button_LobbyTabDesc then
     fLobbyTab := ltDesc;
@@ -574,7 +574,7 @@ end;
 
 
 //Reset everything to it's defaults depending on users role (Host/Joiner/Reassigned)
-procedure TKMGUIMenuLobby.Lobby_Reset(aKind: TNetPlayerKind; aPreserveMessage: Boolean = False; aPreserveMaps: Boolean = False);
+procedure TKMGUIMenuLobby.Reset(aKind: TNetPlayerKind; aPreserveMessage: Boolean = False; aPreserveMaps: Boolean = False);
 var I: Integer;
 begin
   Label_LobbyServerName.Caption := '';
@@ -648,7 +648,7 @@ begin
 end;
 
 
-procedure TKMGUIMenuLobby.Lobby_GameOptionsChange(Sender: TObject);
+procedure TKMGUIMenuLobby.GameOptionsChange(Sender: TObject);
 begin
   //Set the peacetime
   fNetworking.NetGameOptions.Peacetime := EnsureRange(TrackBar_LobbyPeacetime.Position, 0, 300);
@@ -721,7 +721,7 @@ end;
 //conditions immediately and reverts the change without disturbing Host.
 //If the change is possible Networking will send query to the Host.
 //Host will reply with OnPlayersSetup event and data will be actualized.
-procedure TKMGUIMenuLobby.Lobby_PlayersSetupChange(Sender: TObject);
+procedure TKMGUIMenuLobby.PlayersSetupChange(Sender: TObject);
 var
   I: Integer;
 begin
@@ -1003,14 +1003,14 @@ begin
     2,  //Co-op Map
     3:  //Special map Map
         begin
-          fMapsMP.Refresh(Lobby_ScanUpdate);
+          fMapsMP.Refresh(MapList_ScanUpdate);
           DropCol_LobbyMaps.DefaultCaption := fTextLibrary[TX_LOBBY_MAP_SELECT];
           DropCol_LobbyMaps.List.Header.Columns[0].Caption := fTextLibrary[TX_MENU_MAP_TITLE];
           DropCol_LobbyMaps.List.Header.Columns[2].Caption := fTextLibrary[TX_MENU_MAP_SIZE];
         end;
     4:  //Saved Game
         begin
-          fSavesMP.Refresh(Lobby_ScanUpdate, True);
+          fSavesMP.Refresh(MapList_ScanUpdate, True);
           DropCol_LobbyMaps.DefaultCaption := fTextLibrary[TX_LOBBY_MAP_SELECT_SAVED];
           DropCol_LobbyMaps.List.Header.Columns[0].Caption := fTextLibrary[TX_MENU_LOAD_FILE];
           DropCol_LobbyMaps.List.Header.Columns[2].Caption := fTextLibrary[TX_MENU_SAVE_TIME];
@@ -1049,27 +1049,27 @@ begin
 end;
 
 
-procedure TKMGUIMenuLobby.Lobby_SortUpdate(Sender: TObject);
+procedure TKMGUIMenuLobby.MapList_SortUpdate(Sender: TObject);
 begin
   //After sorting jump to the selected item
   if Sender = fSavesMP then
-    Lobby_RefreshSaveList(True);
+    RefreshSaveList(True);
   if Sender = fMapsMP then
-    Lobby_RefreshMapList(True);
+    RefreshMapList(True);
 end;
 
 
-procedure TKMGUIMenuLobby.Lobby_ScanUpdate(Sender: TObject);
+procedure TKMGUIMenuLobby.MapList_ScanUpdate(Sender: TObject);
 begin
   //Don't jump to selected with each scan update
   if Sender = fSavesMP then
-    Lobby_RefreshSaveList(False);
+    RefreshSaveList(False);
   if Sender = fMapsMP then
-    Lobby_RefreshMapList(False);
+    RefreshMapList(False);
 end;
 
 
-procedure TKMGUIMenuLobby.Lobby_RefreshMapList(aJumpToSelected:Boolean);
+procedure TKMGUIMenuLobby.RefreshMapList(aJumpToSelected:Boolean);
 var
   I, OldTopIndex: Integer;
   PrevMap: string;
@@ -1123,7 +1123,7 @@ begin
 end;
 
 
-procedure TKMGUIMenuLobby.Lobby_RefreshSaveList(aJumpToSelected:Boolean);
+procedure TKMGUIMenuLobby.RefreshSaveList(aJumpToSelected:Boolean);
 var
   I, OldTopIndex: Integer;
   PrevSave: string;
@@ -1190,7 +1190,7 @@ begin
             SM := smBySizeAsc;
       else SM := smByNameAsc;
     end;
-    fMapsMP.Sort(SM, Lobby_SortUpdate);
+    fMapsMP.Sort(SM, MapList_SortUpdate);
   end
   else
   begin
@@ -1211,7 +1211,7 @@ begin
             SSM := smByTimeAsc;
       else SSM := smByFileNameAsc;
     end;
-    fSavesMP.Sort(SSM, Lobby_SortUpdate);
+    fSavesMP.Sort(SSM, MapList_SortUpdate);
   end;
 end;
 
@@ -1305,7 +1305,7 @@ procedure TKMGUIMenuLobby.Lobby_OnReassignedToHost(Sender: TObject);
 var
   OldMapType: Integer;
 begin
-  Lobby_Reset(lpk_Host, True, True); //Will reset the lobby page into host mode, preserving messages/maps
+  Reset(lpk_Host, True, True); //Will reset the lobby page into host mode, preserving messages/maps
   OldMapType := Radio_LobbyMapType.ItemIndex;
 
   //Pick correct position of map type selector
@@ -1315,7 +1315,7 @@ begin
   if (Radio_LobbyMapType.ItemIndex <> OldMapType) or (DropCol_LobbyMaps.ItemIndex = -1) then
     MapTypeChange(nil)
   else
-    Lobby_RefreshMapList(False); //Just fill the list from fMapMP
+    RefreshMapList(False); //Just fill the list from fMapMP
 
   case fNetworking.SelectGameKind of
     ngk_Map:  SelectByName(fNetworking.MapInfo.FileName);
@@ -1332,7 +1332,7 @@ end;
 
 
 //Post what user has typed
-procedure TKMGUIMenuLobby.Lobby_PostKey(Sender: TObject; Key: Word);
+procedure TKMGUIMenuLobby.PostKeyDown(Sender: TObject; Key: Word);
 var
   ChatMessage: string;
 begin
