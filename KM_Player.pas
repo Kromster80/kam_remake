@@ -1162,11 +1162,11 @@ begin
     fDeliveries.UpdateState;
   end;
 
-  if (aTick + Byte(fPlayerIndex)) mod 20 = 0 then
-  begin
-    fAI.UpdateState(aTick);
+  //AI update takes care of it's own interleaving, so run it every tick
+  fAI.UpdateState(aTick);
+
+  //if (aTick + Byte(fPlayerIndex)) mod 20 = 0 then
     //fArmyEval.UpdateState;
-  end;
 
   if (fGame.MissionMode = mm_Normal) and (aTick mod CHARTS_SAMPLING_FOR_ECONOMY = 0)
   or (fGame.MissionMode = mm_Tactic) and (aTick mod CHARTS_SAMPLING_FOR_TACTICS = 0)

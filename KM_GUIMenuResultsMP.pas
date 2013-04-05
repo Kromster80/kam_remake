@@ -602,6 +602,7 @@ begin
                             Result[I] := Result[I] + ChartWares[RT][I];
                           //@Lewin: We could show GDP here if we divide by ProductionRate,
                           //so that easy to make Stones do not steal other wares value
+                          //@Krom: That sounds worth testing. It might be confusing though.
                         end;
     wt_Warfare:         begin
                           SetLength(Result, ChartCount);

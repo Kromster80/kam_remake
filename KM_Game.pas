@@ -1285,7 +1285,7 @@ begin
     MySpectator.FOWIndex := PLAYER_NONE; //Show all by default in replays
 
   //Multiplayer saves don't have this piece of information. Its valid only for MyPlayer
-  //todo: Send all message commands through GIP
+  //todo: Send all message commands through GIP (note: that means there will be a delay when you press delete)
   if not SaveIsMultiplayer then
   begin
     fViewport.Load(LoadStream);

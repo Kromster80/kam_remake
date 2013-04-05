@@ -707,10 +707,10 @@ begin
   if (Sender = Menu_Host) and (Menu_Host.ItemIndex = 0) then
     fNetworking.KickPlayer(I);
 
-  //Ban
+  //todo: Ban
   //if (Sender = Menu_Host) and (ListBox_PlayerMenuHost.ItemIndex = 1) then
 
-  //Set to host
+  //todo: Set to host
   //if (Sender = Menu_Host) and (ListBox_PlayerMenuHost.ItemIndex = 2) then
 end;
 

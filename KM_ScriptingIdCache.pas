@@ -23,6 +23,8 @@ type
     //   but that could affect performance a bit
     //But for that we would need to introduce common ancestor to Units/Houses/Groups
     //that will have IsDead and maybe few other methods (after Release). What do you think?
+    //@Krom: I think 1 sounds better for performance reasons. A common ancestor sounds good,
+    //       maybe we can have a common ancestor for Unit/House collections too.
 
     //We employ circular buffers and store only position in buffer
     fUnitLastAdded: Byte;
