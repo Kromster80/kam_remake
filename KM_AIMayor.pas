@@ -518,8 +518,7 @@ begin
   //AI will be Wooden if there is no iron/coal nearby
   if (fPlayers[fOwner].PlayerType = pt_Computer) and fSetup.AutoBuild then
   begin
-    //@Lewin: Maybe we can choose army type from MapEd
-    //@Krom: Sounds like a good idea
+    //todo: Add preferred army type selector to MapEd
     if (fCityPlanner.FindNearest(KMPointBelow(StoreLoc), 60, fnIron, T) and fCityPlanner.FindNearest(KMPointBelow(StoreLoc), 60, fnCoal, T)) then
       if KaMRandom < 0 then
         //Sometimes AI will be pure Iron
