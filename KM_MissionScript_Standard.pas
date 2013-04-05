@@ -377,7 +377,7 @@ begin
                           iPlayerAI := fPlayers[fLastPlayer].AI; //Setup the AI's character
                           if TextParam = PARAMVALUES[cpt_Recruits]     then iPlayerAI.Setup.RecruitCount  := P[1];
                           if TextParam = PARAMVALUES[cpt_Constructors] then iPlayerAI.Setup.WorkerCount   := P[1];
-                          if TextParam = PARAMVALUES[cpt_WorkerFactor] then iPlayerAI.Setup.SerfsPerHouse := (10/P[1]);
+                          if TextParam = PARAMVALUES[cpt_WorkerFactor] then iPlayerAI.Setup.SerfsPerHouse := (10/Max(P[1],1));
                           if TextParam = PARAMVALUES[cpt_RecruitCount] then iPlayerAI.Setup.RecruitDelay  := P[1];
                           if TextParam = PARAMVALUES[cpt_TownDefence]  then iPlayerAI.Setup.TownDefence   := P[1];
                           if TextParam = PARAMVALUES[cpt_MaxSoldier]   then iPlayerAI.Setup.MaxSoldiers   := P[1];

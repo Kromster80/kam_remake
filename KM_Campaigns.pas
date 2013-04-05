@@ -7,8 +7,8 @@ uses
 
 
 const
-  MAX_CAMP_MAPS = 20;
-  MAX_CAMP_NODES = 20;
+  MAX_CAMP_MAPS = 64;
+  MAX_CAMP_NODES = 64;
 
 type
   TCorner = (cBottomRight, cBottomLeft);
