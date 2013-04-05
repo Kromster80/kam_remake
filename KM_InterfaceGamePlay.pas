@@ -1040,7 +1040,7 @@ begin
   for I := 0 to MAX_VISIBLE_MSGS do
   begin
     Image_Message[I] := TKMImage.Create(Panel_Main, TOOLBAR_WIDTH, 0, 30, 48, 495);
-    Image_Message[I].Top := Panel_Main.Height - (I+2)*48 - IfThen(fMultiplayer, 48*2);
+    Image_Message[I].Top := Panel_Main.Height - (I+2)*48 - IfThen(fMultiplayer and not fReplay, 48*2) + IfThen(fReplay, 48);
     Image_Message[I].Anchors := [akLeft, akBottom];
     Image_Message[I].Disable;
     Image_Message[I].Hide;
@@ -3376,6 +3376,7 @@ begin
   Image_MPChat.Visible       := fMultiplayer and not fReplay;
   Label_MPChatUnread.Visible := fMultiplayer and not fReplay;
   Image_MPAllies.Visible     := fMultiplayer and not fReplay;
+  Image_MessageLog.Visible   := not fReplay;
 
   //Message stack is visible in Replay as it shows which messages player got
   //and does not affect replay consistency
