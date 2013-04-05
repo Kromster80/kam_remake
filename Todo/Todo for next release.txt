@@ -71,12 +71,14 @@ Maps:
  +	Iceline (thunder)
  +	PAKER's maps
  +	Clavicus Valley & Battle of Octumn (Ben)
+ +	Majestic Waters (TDL)
+ +	Final Frontier (To)
+ +	Pizza's map
+ +	czechboss' new map
 	Pawel's fixes for campaign missions that he emailed to us
 	New coop missions and fixes to coop missions (from andreus, kirelareus, pawel?)
-	Final Frontier (To)
-	Pizza's map
 	Shark Islands (andreus and vovets1)
-	czechboss' new map
 	Circus? (thunder)
+	Dead Rivers? (thunder)
 	Frozen waters? (sado)
-	Majestic Waters (TDL)
+	Border Rivers fix by Thunder?
