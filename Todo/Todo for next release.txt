@@ -75,9 +75,9 @@ Maps:
  +	Final Frontier (To)
  +	Pizza's map
  +	czechboss' new map
-	Pawel's fixes for campaign missions that he emailed to us
-	New coop missions and fixes to coop missions (from andreus, kirelareus, pawel?)
-	Shark Islands (andreus and vovets1)
+ +	Shark Islands (andreus and vovets1)
+ +	Pawel's fixes for campaign missions that he emailed to us
+ +	New coop missions and fixes to coop missions (from andreus, pawel)
 	Circus? (thunder)
 	Dead Rivers? (thunder)
 	Frozen waters? (sado)

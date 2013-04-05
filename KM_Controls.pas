@@ -1071,7 +1071,6 @@ type
     property ShowLocs: Boolean read fShowLocs write fShowLocs;
     property ClickableOnce: Boolean read fClickableOnce write fClickableOnce;
     property OnChange: TPointEvent write fOnChange;
-    //todo: Event for when a player clicks on a loc in the lobby, so lobby can select that loc for them
     property OnMinimapClick: TPointEvent read fOnMinimapClick write fOnMinimapClick;
 
     procedure MouseDown(X,Y: Integer; Shift: TShiftState; Button: TMouseButton); override;
