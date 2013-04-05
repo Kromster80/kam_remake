@@ -390,6 +390,7 @@ begin
   fCampaignMap := aCampMap;
   fMissionFile := ExtractRelativePath(ExeDir, aMissionFile);
   fSaveFile := '';
+  MySpectator := nil; //In case somebody looks at it while parsing DAT, e.g. destroyed houses 
 
   fLog.AddTime('Loading DAT file: ' + aMissionFile);
 

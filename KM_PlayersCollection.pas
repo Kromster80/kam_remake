@@ -249,18 +249,18 @@ end;
 function TKMPlayersCollection.DistanceToEnemyTowers(aLoc: TKMPoint; aIndex: TPlayerIndex): Single;
 var
   I, K: Integer;
-  H: TKMHouseTower;
+  H: TKMHouse;
 begin
   Result := MaxSingle;
   for I := 0 to fCount - 1 do
   if (aIndex <> I) and (Player[aIndex].Alliances[I] = at_Enemy) then
   begin
     for K := fPlayerList[I].Houses.Count - 1 downto 0 do
-    if fPlayerList[I].Houses[K] is TKMHouseTower then
     begin
-      H := TKMHouseTower(fPlayerList[I].Houses[K]);
-      //Don't use H.GetDistance (any tile within house) as that's not how tower range works
-      Result := Min(Result, KMLength(H.GetPosition, aLoc));
+      H := fPlayerList[I].Houses[K];
+      if (H is TKMHouseTower) and H.IsComplete and not H.IsDestroyed then
+        //Don't use H.GetDistance (any tile within house) as that's not how tower range works
+        Result := Min(Result, KMLength(H.GetPosition, aLoc));
     end;
   end;
 end;

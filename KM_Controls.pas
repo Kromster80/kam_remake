@@ -4556,14 +4556,14 @@ begin
 
   //Draw all the circles, THEN all the numbers so the numbers are not covered by circles when they are close
   for I := 0 to MAX_PLAYERS - 1 do
-  if fMinimap.PlayerShow[I] then
+  if fMinimap.PlayerShow[I] and not KMSamePoint(fMinimap.PlayerLocations[I], KMPoint(0,0)) then
   begin
     T := MapCoordsToLocal(fMinimap.PlayerLocations[I].X, fMinimap.PlayerLocations[I].Y, LOC_RAD);
     TKMRenderUI.WriteCircle(T.X, T.Y, LOC_RAD, fMinimap.PlayerColors[I]);
   end;
 
   for I := 0 to MAX_PLAYERS - 1 do
-  if fMinimap.PlayerShow[I] then
+  if fMinimap.PlayerShow[I] and not KMSamePoint(fMinimap.PlayerLocations[I], KMPoint(0,0)) then
   begin
     T := MapCoordsToLocal(fMinimap.PlayerLocations[I].X, fMinimap.PlayerLocations[I].Y, LOC_RAD);
     TKMRenderUI.WriteText(T.X, T.Y - 6, 0, IntToStr(I+1), fnt_Outline, taCenter);

@@ -844,10 +844,14 @@ begin
   if (aFrom <> -1) and (aFrom <> fPlayerIndex) then
     fScripting.ProcHouseDestroyed(aHouse, aFrom, aHouse.BuildingState=hbs_Done);
 
-  if MySpectator.Highlight = aHouse then
-    MySpectator.Highlight := nil;
-  if MySpectator.Selected = aHouse then
-    MySpectator.Selected := nil;
+  //MySpectator is nil during loading, when houses can be destroyed at the start
+  if MySpectator <> nil then
+  begin
+    if MySpectator.Highlight = aHouse then
+      MySpectator.Highlight := nil;
+    if MySpectator.Selected = aHouse then
+      MySpectator.Selected := nil;
+  end;
 end;
 
 
@@ -1118,10 +1122,14 @@ begin
   end;
   fScripting.ProcUnitLost(aUnit);
 
-  if MySpectator.Highlight = aUnit then
-    MySpectator.Highlight := nil;
-  if MySpectator.Selected = aUnit then
-    MySpectator.Selected := nil;
+  //MySpectator is nil during loading
+  if MySpectator <> nil then
+  begin
+    if MySpectator.Highlight = aUnit then
+      MySpectator.Highlight := nil;
+    if MySpectator.Selected = aUnit then
+      MySpectator.Selected := nil;
+  end;
 end;
 
 
