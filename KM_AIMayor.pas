@@ -533,7 +533,9 @@ begin
 
   fBalance.ArmyType := fArmyType;
 
-  SetArmyDemand(0.5, 0, 0, 0.5);
+  //For now make equal amounts of each troop type (that's how it works in KaM with weapons production)
+  //todo: Calculate these based on amount needed for each defence position
+  SetArmyDemand(0.5, 0.5, 0.5, 0.5);
 end;
 
 
