@@ -36,6 +36,7 @@ type
     procedure Update;
     procedure StartClick(Sender: TObject);
     procedure ListSort(aColumn: Integer);
+    procedure MinimapLocClick(aValue: Integer);
 
     procedure BackClick(Sender: TObject);
   protected
@@ -144,6 +145,7 @@ begin
       B.Anchors := [akLeft, akBottom];
       MinimapView_Single := TKMMinimapView.Create(Panel_SingleDesc, 2, 332, 191, 191);
       MinimapView_Single.Anchors := [akLeft, akBottom];
+      MinimapView_Single.OnLocClick := MinimapLocClick;
 
       //Setup (loc and flag placed alongside just like in MP lobby)
       //Other setup settings can go below
@@ -329,10 +331,11 @@ begin
       for I := Low(MP_TEAM_COLORS) to High(MP_TEAM_COLORS) do
         DropBox_SingleColor.Add(MakeListRow([''], [MP_TEAM_COLORS[I]], [MakePic(rxGuiMain, 30)]));
       DropBox_SingleColor.ItemIndex := 0; //Select default
-
     end;
 
+    //Block options if there's nothing to choose there
     DropBox_SingleLoc.Enabled := DropBox_SingleLoc.Count > 1;
+    MinimapView_Single.ShowLocs := DropBox_SingleLoc.Count > 1;
     DropBox_SingleColor.Enabled := DropBox_SingleColor.Count > 1;
 
     OptionsChange(nil);
@@ -491,6 +494,13 @@ begin
 
   //Start sorting and wait for SortComplete event
   fMaps.Sort(Method, SortUpdate);
+end;
+
+
+procedure TKMGUIMenuSingleMap.MinimapLocClick(aValue: Integer);
+begin
+  fSingleLoc := aValue;
+  Update;
 end;
 
 

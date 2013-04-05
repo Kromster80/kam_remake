@@ -4520,6 +4520,7 @@ begin
       fOnMinimapClick(Self, ViewPos.X, ViewPos.Y);
   end;
 
+  if fShowLocs then
   for I := 0 to MAX_PLAYERS - 1 do
   if fMinimap.PlayerShow[I] and not KMSamePoint(fMinimap.PlayerLocations[I], KMPoint(0,0)) then
   begin
