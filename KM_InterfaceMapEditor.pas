@@ -1057,7 +1057,7 @@ begin
       CheckBox_AutoBuild.OnClick := Town_ScriptChange;
       CheckBox_AutoRepair := TKMCheckBox.Create(Panel_Script, 0, 50, TB_WIDTH, 20, fTextLibrary[TX_MAPED_AI_AUTOREPAIR], fnt_Metal);
       CheckBox_AutoRepair.OnClick := Town_ScriptChange;
-      TrackBar_SerfsPer10Houses := TKMTrackBar.Create(Panel_Script, 0, 70, TB_WIDTH, 1, 20);
+      TrackBar_SerfsPer10Houses := TKMTrackBar.Create(Panel_Script, 0, 70, TB_WIDTH, 1, 50);
       TrackBar_SerfsPer10Houses.Caption := fTextLibrary[TX_MAPED_AI_SERFS_PER_10_HOUSES];
       TrackBar_SerfsPer10Houses.OnChange := Town_ScriptChange;
       TrackBar_WorkerCount := TKMTrackBar.Create(Panel_Script, 0, 110, TB_WIDTH, 0, 30);
