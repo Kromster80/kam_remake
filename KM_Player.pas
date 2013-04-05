@@ -38,7 +38,7 @@ type
   TKMPlayer = class(TKMPlayerCommon)
   private
     fAI: TKMPlayerAI;
-    fArmyEval: TKMArmyEvaluation; // Can used by all players
+    fArmyEval: TKMArmyEvaluation;
     fBuildList: TKMBuildList; //Not the best name for buildingManagement
     fDeliveries: TKMDeliveries;
     fFogOfWar: TKMFogOfWar; //Stores FOW info for current player, which includes
@@ -236,7 +236,7 @@ begin
   fHouses       := TKMHousesCollection.Create;
   fDeliveries   := TKMDeliveries.Create;
   fBuildList    := TKMBuildList.Create;
-  fArmyEval     := TKMArmyEvaluation.Create(Self);
+  fArmyEval     := TKMArmyEvaluation.Create(aPlayerIndex);
   fUnitGroups   := TKMUnitGroups.Create;
 
   fPlayerName   := '';
@@ -400,10 +400,6 @@ begin
   end;
 
   fAI.Mayor.AfterMissionInit;
-
-  for I := 0 to fPlayers.Count - 1 do
-    if fPlayerIndex <> I then
-      fArmyEval.AddEnemy(fPlayers[I]);
 end;
 
 

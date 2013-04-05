@@ -4520,7 +4520,7 @@ begin
   if SHOW_ARMYEVALS then
     for I := 0 to fPlayers.Count - 1 do
     if I <> fPlayers[MySpectator.PlayerIndex].PlayerIndex then
-      S := S + Format('Enemy %d: %f|', [I, RoundTo(fPlayers[MySpectator.PlayerIndex].ArmyEval.Evaluations[I].fPower, -3)]);
+      S := S + Format('Enemy %d: %f|', [I, RoundTo(fPlayers[MySpectator.PlayerIndex].ArmyEval.Evaluations[I].Power, -3)]);
 
   if SHOW_AI_WARE_BALANCE then
     S := S + fPlayers[MySpectator.PlayerIndex].AI.Mayor.BalanceText + '|';

@@ -7,41 +7,29 @@ uses
 
 
 type
-  TKMEvaluation = class
-  public
-    fEnemyIndex: TPlayerIndex; //to make sure on get
-    fVictoryChance: Single;
-    fPower: Single;
-    fUnitTypesPower: array [WARRIOR_MIN .. WARRIOR_MAX] of Single;
-    constructor Create;
-    procedure Reset;
+  TKMEvaluation = record
+    EnemyIndex: TPlayerIndex; //Evaluation made against this player
+    VictoryChance: Single;
+    Power: Single;
+    UnitTypesPower: array [WARRIOR_MIN .. WARRIOR_MAX] of Single;
   end;
 
 
   //This class evaluate self army relatively enemy armies
   TKMArmyEvaluation = class
   private
-    fSelfPlayer: TObject; //SelfPlayer
-    fEnemies: TObjectList;
+    fOwner: TPlayerIndex;
     fEvals: array [0 .. MAX_PLAYERS - 1] of TKMEvaluation; //Results of evaluetion
 
-    function GetEnemiesCount: integer;
-    function GetEvaluationByIndex(Index: TPlayerIndex): TKMEvaluation;
-    procedure ResetEvaluation; //Reset to default
-    procedure EvaluateChance(Stats: TKMPlayerStats; PlayerIndex: TPlayerIndex);
-    procedure EvaluatePower(Stats: TKMPlayerStats; PlayerIndex: TPlayerIndex);
+    function GetEvaluation(aIndex: TPlayerIndex): TKMEvaluation;
+    procedure Reset;
+    procedure EvaluatePower(aEnemyIndex: TPlayerIndex);
   public
-    constructor Create(SelfPlayer: TObject);
+    constructor Create(aOwner: TPlayerIndex);
     destructor Destroy; override;
 
-    function AddEnemy(Player: TObject): integer;
-    procedure ClearEnemies;
-    function RemoveEnemy(Player: TObject): integer;
-
+    property Evaluations[aIndex: TPlayerIndex]: TKMEvaluation read GetEvaluation;
     procedure UpdateState; //Call to update evaluation
-
-    property EnemiesCount: integer read GetEnemiesCount;
-    property Evaluations[Index: TPlayerIndex]: TKMEvaluation read GetEvaluationByIndex;
   end;
 
 
@@ -49,185 +37,117 @@ procedure InitUnitStatEvals;
 
 
 implementation
-uses Math, KM_Player, KM_Resource;
+uses Math, KM_Player, KM_PlayersCollection, KM_Resource, KM_ResourceUnit;
 
 
 var
   //Evals matrix. 1 - Power ratio, 2 - Chance
-  UnitStatEvals: array [WARRIOR_MIN .. WARRIOR_MAX, WARRIOR_MIN .. WARRIOR_MAX, 1 .. 2] of Single;
-
-
-  { TKMArmyEvaluation }
-constructor TKMEvaluation.Create;
-begin
-  inherited;
-  fEnemyIndex := 0;
-  //Reset; //No need to reset - all fields are initialized empty by constructor
-end;
-
-
-procedure TKMEvaluation.Reset;
-begin
-  fVictoryChance := 0.0;
-  fPower := 0.0;
-  FillChar(fUnitTypesPower, SizeOf(fUnitTypesPower), #0);
-end;
+  UnitPower: array [WARRIOR_MIN .. WARRIOR_MAX, WARRIOR_MIN .. WARRIOR_MAX] of Single;
 
 
 { TKMArmyEvaluation }
-constructor TKMArmyEvaluation.Create(SelfPlayer: TObject);
+constructor TKMArmyEvaluation.Create(aOwner: TPlayerIndex);
 var I: Integer;
 begin
   inherited Create;
 
-  Assert(SelfPlayer is TKMPlayer);
-  fSelfPlayer := SelfPlayer;
+  fOwner := aOwner;
 
-  //Container will not controls the memory.
-  //@Crow: Уточни, почему выбран такой подход? Можно ли заменить на TList?
-  fEnemies := TObjectList.Create(false);
-  for i := 0 to MAX_PLAYERS - 1 do
-  begin
-    fEvals[i] := TKMEvaluation.Create;
-    fEvals[i].fEnemyIndex := i;
-  end;
+  for I := 0 to MAX_PLAYERS - 1 do
+    fEvals[I].EnemyIndex := I;
 end;
 
 
 destructor TKMArmyEvaluation.Destroy;
-var I: Integer;
 begin
-  for i := 0 to MAX_PLAYERS - 1 do
-    fEvals[i].Free;
-  FreeThenNil(fEnemies);
+
   inherited;
 end;
 
 
-function TKMArmyEvaluation.GetEnemiesCount: integer;
+function TKMArmyEvaluation.GetEvaluation(aIndex: TPlayerIndex): TKMEvaluation;
 begin
-  Result := fEnemies.Count;
+  Result := fEvals[aIndex];
 end;
 
 
-function TKMArmyEvaluation.GetEvaluationByIndex(Index: TPlayerIndex): TKMEvaluation;
+procedure TKMArmyEvaluation.Reset;
 begin
-  Assert(Index <= MAX_PLAYERS - 1);
-  Result := fEvals[Index];
+  FillChar(fEvals, SizeOf(fEvals), #0);
 end;
 
 
-procedure TKMArmyEvaluation.ResetEvaluation;
-var I: TPlayerIndex;
-begin
-  for i := 0 to MAX_PLAYERS - 1 do
-    fEvals[i].Reset;
-end;
-
-
-procedure TKMArmyEvaluation.EvaluateChance(Stats: TKMPlayerStats; PlayerIndex: TPlayerIndex);
+//Calculate our power against specified player
+procedure TKMArmyEvaluation.EvaluatePower(aEnemyIndex: TPlayerIndex);
 var
-  Res: TKMEvaluation;
-begin
-  Res := fEvals[PlayerIndex];
-  Res.fVictoryChance := 1.0;
-end;
-
-
-//@Crow: Пиши пожалуйcта комментарии по коду (какова цель метода, почему выбрано определенное решение?)
-procedure TKMArmyEvaluation.EvaluatePower(Stats: TKMPlayerStats; PlayerIndex: TPlayerIndex);
-var
-  SelfStats: TKMPlayerStats;
+  SelfStats, EnemyStats: TKMPlayerStats;
   Eval: TKMEvaluation;
-  i, j: TUnitType;
-  EnemyQty, SelfQty: integer;
+  I, K: TUnitType;
+  EnemyQty, SelfQty: Integer;
   PowerSum: Single;
 begin
-  SelfStats := (fSelfPlayer as TKMPlayer).Stats;
-  Eval := fEvals[PlayerIndex];
-  Eval.fPower := 0.0;
-  for i := WARRIOR_MIN to WARRIOR_MAX do
+  SelfStats := fPlayers[fOwner].Stats;
+  EnemyStats := fPlayers[aEnemyIndex].Stats;
+
+  Eval := fEvals[aEnemyIndex];
+  Eval.Power := 0;
+  for I := WARRIOR_MIN to WARRIOR_MAX do
   begin
-    SelfQty := SelfStats.GetUnitQty(i);
+    SelfQty := SelfStats.GetUnitQty(I);
     if SelfQty = 0 then
     begin
-      Eval.fUnitTypesPower[i] := 0.0;
+      Eval.UnitTypesPower[I] := 0;
       continue;
     end;
-    PowerSum := 0.0;
-    for j := WARRIOR_MIN to WARRIOR_MAX do
+    PowerSum := 0;
+    for K := WARRIOR_MIN to WARRIOR_MAX do
     begin
-      EnemyQty := Stats.GetUnitQty(j);
-      PowerSum := PowerSum + UnitStatEvals[i, j, 1] * EnemyQty;
+      EnemyQty := EnemyStats.GetUnitQty(K);
+      PowerSum := PowerSum + UnitPower[I, K] * EnemyQty;
     end;
     if PowerSum = 0 then
-      Eval.fUnitTypesPower[i] := 0.0
+      Eval.UnitTypesPower[I] := 0
     else
-      Eval.fUnitTypesPower[i] := SelfQty / PowerSum;
-    Eval.fPower := Eval.fPower + Eval.fUnitTypesPower[i];
+      Eval.UnitTypesPower[I] := SelfQty / PowerSum;
+    Eval.Power := Eval.Power + Eval.UnitTypesPower[I];
   end;
-end;
-
-
-function TKMArmyEvaluation.AddEnemy(Player: TObject): integer;
-begin
-  Assert(Player is TKMPlayer);
-  Assert(fEnemies.Count <= MAX_PLAYERS - 1);
-  Result := fEnemies.Add(Player);
-end;
-
-
-procedure TKMArmyEvaluation.ClearEnemies;
-begin
-  fEnemies.Clear;
-end;
-
-
-function TKMArmyEvaluation.RemoveEnemy(Player: TObject): integer;
-begin
-  Assert(Player is TKMPlayer);
-  Result := fEnemies.Remove(Player);
 end;
 
 
 procedure TKMArmyEvaluation.UpdateState;
 var
   I: Integer;
-  Player: TKMPlayer;
 begin
-  ResetEvaluation;
-  for i := 0 to fEnemies.Count - 1 do
-  begin
-    Player := TKMPlayer(fEnemies[i]);
+  Reset;
 
-    //check evaluating conditions here
-
-    EvaluatePower(Player.Stats, Player.PlayerIndex);
-    EvaluateChance(Player.Stats, Player.PlayerIndex);
-  end;
+  for I := 0 to fPlayers.Count - 1 do
+  if (I <> fOwner) and fPlayers[I].Enabled
+  and (fPlayers[fOwner].Alliances[I] = at_Enemy) then
+    EvaluatePower(I);
 end;
 
 
-//@Crow: Попробуй пожалуйста использовать более говорящие имена, чем a,b,c
+//Calculate unit strength against each other
 procedure InitUnitStatEvals;
 var
-  i, j: TUnitType;
-  a, b, c: Single;
+  I, K: TUnitType;
+  C1, C2: TKMUnitDATClass;
+  HpRatio, DirectPow, OppositePow: Single;
 begin
-  for i := WARRIOR_MIN to WARRIOR_MAX do
-    for j := WARRIOR_MIN to WARRIOR_MAX do
+  for I := WARRIOR_MIN to WARRIOR_MAX do
+  begin
+    C1 := fResource.UnitDat[I];
+
+    for K := WARRIOR_MIN to WARRIOR_MAX do
     begin
-      a := fResource.UnitDat[i].HitPoints / fResource.UnitDat[j].HitPoints;
-      b := fResource.UnitDat[i].Attack;
-      if j in [low(UnitGroups) .. high(UnitGroups)] then
-        b := b + fResource.UnitDat[i].AttackHorse * byte(UnitGroups[j] = gt_Mounted);
-      b := b / max(fResource.UnitDat[j].Defence, 1);
-      c := fResource.UnitDat[j].Attack;
-      if i in [low(UnitGroups) .. high(UnitGroups)] then
-        c := c + fResource.UnitDat[j].AttackHorse * byte(UnitGroups[i] = gt_Mounted);
-      c := c / max(fResource.UnitDat[i].Defence, 1);
-      UnitStatEvals[i, j, 1] := b * a / c;
+      C2 := fResource.UnitDat[K];
+
+      HpRatio := C1.HitPoints / C2.HitPoints;
+      DirectPow := C1.Attack + C1.AttackHorse * Byte(UnitGroups[K] = gt_Mounted) / max(C2.Defence, 1);
+      OppositePow := C2.Attack + C2.AttackHorse * Byte(UnitGroups[I] = gt_Mounted) / max(C1.Defence, 1);
+      UnitPower[I, K] := HpRatio * DirectPow / OppositePow;
     end;
+  end;
 end;
 
 
