@@ -754,7 +754,7 @@ end;
 
 function TKMGame.PlayerLoc: Byte;
 begin
-  Result := fPlayers[MySpectator.PlayerIndex].PlayerIndex;
+  Result := MySpectator.PlayerIndex;
 end;
 
 

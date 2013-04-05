@@ -463,15 +463,12 @@ const
 var
   I,K,J: Integer;
   R: TWareType;
-  G: TKMCardinalArray;
-  WareAdded: Boolean;
 begin
   //Fill in chart values
   Columnbox_Wares.Clear;
   for I := Low(Wares) to High(Wares) do
   begin
     R := Wares[I];
-    WareAdded := False;
     for K := 0 to fPlayers.Count - 1 do
     if fPlayers[K].Enabled
     and not fPlayers[K].Stats.ChartWaresEmpty(R) then
@@ -480,7 +477,6 @@ begin
                                           [$FFFFFFFF, $FFFFFFFF],
                                           [MakePic(rxGui, fResource.Wares[R].GUIIcon), MakePic(rxGui, 0)],
                                           Byte(R)));
-      WareAdded := True;
       Break;
     end;
   end;

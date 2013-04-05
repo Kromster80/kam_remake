@@ -126,8 +126,8 @@ implementation
 uses KromUtils, KM_Log, KM_BinPacking, KM_Utils;
 
 
-const
-  LOG_EXTRA_GFX = False;
+var
+  LOG_EXTRA_GFX: Boolean = False;
 
 
 { TKMSpritePack }

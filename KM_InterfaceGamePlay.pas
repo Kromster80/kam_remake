@@ -777,7 +777,7 @@ end;
 procedure TKMGamePlayInterface.Minimap_Click(Sender: TObject; const X,Y:integer);
 begin
   if not fPlacingBeacon then Exit;
-  fGame.GameInputProcess.CmdGame(gic_GameAlertBeacon, KMPointF(X,Y), fPlayers[MySpectator.PlayerIndex].PlayerIndex);
+  fGame.GameInputProcess.CmdGame(gic_GameAlertBeacon, KMPointF(X,Y), MySpectator.PlayerIndex);
   Beacon_Cancel;
 end;
 
@@ -3917,8 +3917,8 @@ begin
   if DEBUG_CHEATS and (MULTIPLAYER_CHEATS or not fMultiplayer) then
   case Key of
     Ord(SC_DEBUG_REVEALMAP): fGame.GameInputProcess.CmdTemp(gic_TempRevealMap);
-    Ord(SC_DEBUG_VICTORY):   begin fGame.PlayerVictory(fPlayers[MySpectator.PlayerIndex].PlayerIndex); Exit; end;
-    Ord(SC_DEBUG_DEFEAT):    begin fGame.PlayerDefeat (fPlayers[MySpectator.PlayerIndex].PlayerIndex); Exit; end;
+    Ord(SC_DEBUG_VICTORY):   begin fGame.PlayerVictory(MySpectator.PlayerIndex); Exit; end;
+    Ord(SC_DEBUG_DEFEAT):    begin fGame.PlayerDefeat (MySpectator.PlayerIndex); Exit; end;
     Ord(SC_DEBUG_ADDSCOUT):  fGame.GameInputProcess.CmdTemp(gic_TempAddScout, GameCursor.Cell);
   end;
 end;
@@ -3972,12 +3972,12 @@ begin
   and (MySpectator.Selected is TKMUnitGroup) then
   begin
     Group := TKMUnitGroup(MySpectator.Selected);
-    if Group.Owner = fPlayers[MySpectator.PlayerIndex].PlayerIndex then
+    if Group.Owner = MySpectator.PlayerIndex then
     begin
       U := fTerrain.UnitsHitTest(GameCursor.Cell.X, GameCursor.Cell.Y);
       H := fPlayers.HousesHitTest(GameCursor.Cell.X, GameCursor.Cell.Y);
-      if ((U = nil) or U.IsDeadOrDying or (fPlayers.CheckAlliance(fPlayers[MySpectator.PlayerIndex].PlayerIndex, U.Owner) = at_Ally)) and
-         ((H = nil) or (fPlayers.CheckAlliance(fPlayers[MySpectator.PlayerIndex].PlayerIndex, H.Owner) = at_Ally)) then
+      if ((U = nil) or U.IsDeadOrDying or (fPlayers.CheckAlliance(MySpectator.PlayerIndex, U.Owner) = at_Ally)) and
+         ((H = nil) or (fPlayers.CheckAlliance(MySpectator.PlayerIndex, H.Owner) = at_Ally)) then
       begin
         if Group.CanWalkTo(GameCursor.Cell, 0) then
         begin
@@ -4127,7 +4127,7 @@ begin
     U := fTerrain.UnitsHitTest(GameCursor.Cell.X, GameCursor.Cell.Y);
     if (U <> nil)
     and (U is TKMUnitWarrior)
-    and (U.Owner = fPlayers[MySpectator.PlayerIndex].PlayerIndex)
+    and (U.Owner = MySpectator.PlayerIndex)
     and not U.IsDeadOrDying
     and not Group.HasMember(TKMUnitWarrior(U))
     and (UnitGroups[U.UnitType] = Group.GroupType) then
@@ -4149,8 +4149,8 @@ begin
   begin
     U := fTerrain.UnitsHitTest (GameCursor.Cell.X, GameCursor.Cell.Y);
     H := fPlayers.HousesHitTest(GameCursor.Cell.X, GameCursor.Cell.Y);
-    if ((U <> nil) and (not U.IsDeadOrDying) and (fPlayers.CheckAlliance(fPlayers[MySpectator.PlayerIndex].PlayerIndex, U.Owner) = at_Enemy)) or
-       ((H <> nil) and (fPlayers.CheckAlliance(fPlayers[MySpectator.PlayerIndex].PlayerIndex, H.Owner) = at_Enemy)) then
+    if ((U <> nil) and (not U.IsDeadOrDying) and (fPlayers.CheckAlliance(MySpectator.PlayerIndex, U.Owner) = at_Enemy)) or
+       ((H <> nil) and (fPlayers.CheckAlliance(MySpectator.PlayerIndex, H.Owner) = at_Enemy)) then
       fResource.Cursors.Cursor := kmc_Attack
     else
       if not fGame.Viewport.Scrolling then
@@ -4222,7 +4222,7 @@ begin
 
                 if fPlacingBeacon then
                 begin
-                  fGame.GameInputProcess.CmdGame(gic_GameAlertBeacon, GameCursor.Float, fPlayers[MySpectator.PlayerIndex].PlayerIndex);
+                  fGame.GameInputProcess.CmdGame(gic_GameAlertBeacon, GameCursor.Float, MySpectator.PlayerIndex);
                   Beacon_Cancel;
                   Exit;
                 end;
@@ -4519,7 +4519,7 @@ begin
   //Temporary inteface (by @Crow)
   if SHOW_ARMYEVALS then
     for I := 0 to fPlayers.Count - 1 do
-    if I <> fPlayers[MySpectator.PlayerIndex].PlayerIndex then
+    if I <> MySpectator.PlayerIndex then
       S := S + Format('Enemy %d: %f|', [I, RoundTo(fPlayers[MySpectator.PlayerIndex].ArmyEval.Evaluations[I].Power, -3)]);
 
   if SHOW_AI_WARE_BALANCE then

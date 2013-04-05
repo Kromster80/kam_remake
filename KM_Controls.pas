@@ -2436,15 +2436,16 @@ var
   NewValue: Integer; //Could be -1 or 65536
 begin
   if Sender = fButtonDec then
-    NewValue := Value - Byte(AButton = mbLeft) - Byte(AButton = mbRight) * 10;
-
+    NewValue := Value - Byte(AButton = mbLeft) - Byte(AButton = mbRight) * 10
+  else
   if Sender = fButtonInc then
-    NewValue := Value + Byte(AButton = mbLeft) + Byte(AButton = mbRight) * 10;
+    NewValue := Value + Byte(AButton = mbLeft) + Byte(AButton = mbRight) * 10
+  else
+    Exit;
 
   Value := EnsureRange(NewValue, ValueMin, ValueMax);
 
-  //Signal if new value has been assigned successfuly
-  if (NewValue = Value) and Assigned(OnChange) then
+  if Assigned(OnChange) then
     OnChange(Self);
 end;
 

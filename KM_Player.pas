@@ -389,7 +389,6 @@ end;
 
 //Lay out all roads at once to save time on Terrain lighting/passability recalculations
 procedure TKMPlayer.AfterMissionInit(aFlattenRoads: Boolean);
-var I: Integer;
 begin
   if fRoadsList <> nil then
   begin

@@ -689,14 +689,6 @@ type TCallbackFunc = function(objptr: Pointer; user_data: Integer; msg: TCallbac
     Function DetectBPM(Method: TBPMDetectionMethod): Integer;
     Function DetectFileBPM(const FileName: AnsiString; Format: TStreamFormat; Method: TBPMDetectionMethod): Integer;
     Function DetectFileBPMW(const FileName: WideString; Format: TStreamFormat; Method: TBPMDetectionMethod): Integer;
-
-
-
-  published
-    { Published declarations }
-
-
-
   end;
 
 

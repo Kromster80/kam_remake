@@ -10,15 +10,14 @@ type
 
 const
   DEPOSIT_COLORS: array[TRawDeposit] of Cardinal = (
-  $FFBFBFBF, //rdStone - gray
-  $FF606060, //rdCoal - black
-  $FFBF4040, //rdIron - iron
-  $FF00FFFF, //rdGold - gold
-  $FFE3BB5B  //rdFish - light blue
+    $FFBFBFBF, //rdStone - gray
+    $FF606060, //rdCoal - black
+    $FFBF4040, //rdIron - iron
+    $FF00FFFF, //rdGold - gold
+    $FFE3BB5B  //rdFish - light blue
   );
 
 type
-
   TMarkerType = (mtNone, mtDefence, mtRevealFOW);
 
   TKMMapEdMarker = record

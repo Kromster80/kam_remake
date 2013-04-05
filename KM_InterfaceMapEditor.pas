@@ -2850,7 +2850,7 @@ end;
 
 procedure TKMapEdInterface.UpdateAITabsEnabled;
 begin
-  if fGame.MapEditor.PlayerAI[fPlayers[MySpectator.PlayerIndex].PlayerIndex] then
+  if fGame.MapEditor.PlayerAI[MySpectator.PlayerIndex] then
   begin
     Button_Town[ttScript].Enable;
     Button_Town[ttDefences].Enable;
@@ -3286,9 +3286,9 @@ begin
   end;
 
   if Sender = CheckBox_RevealAll then
-    fGame.MapEditor.RevealAll[fPlayers[MySpectator.PlayerIndex].PlayerIndex] := CheckBox_RevealAll.Checked
+    fGame.MapEditor.RevealAll[MySpectator.PlayerIndex] := CheckBox_RevealAll.Checked
   else
-    CheckBox_RevealAll.Checked := fGame.MapEditor.RevealAll[fPlayers[MySpectator.PlayerIndex].PlayerIndex];
+    CheckBox_RevealAll.Checked := fGame.MapEditor.RevealAll[MySpectator.PlayerIndex];
 
   if Sender = Button_PlayerCenterScreen then
     fGame.Viewport.Position := KMPointF(fPlayers[MySpectator.PlayerIndex].CenterScreen); //Jump to location
@@ -3626,7 +3626,7 @@ begin
                       fPlayers.PlayerAnimals.AddUnit(TUnitType(GameCursor.Tag1), P);
                   end;
       cmMarkers:  case GameCursor.Tag1 of
-                    MARKER_REVEAL:        fGame.MapEditor.Revealers[fPlayers[MySpectator.PlayerIndex].PlayerIndex].AddEntry(P, TrackBar_RevealNewSize.Position);
+                    MARKER_REVEAL:        fGame.MapEditor.Revealers[MySpectator.PlayerIndex].AddEntry(P, TrackBar_RevealNewSize.Position);
                     MARKER_DEFENCE:       fPlayers[MySpectator.PlayerIndex].AI.General.DefencePositions.Add(KMPointDir(P, dir_N), gt_Melee, 10, adt_FrontLine);
                     MARKER_CENTERSCREEN:  begin
                                             fPlayers[MySpectator.PlayerIndex].CenterScreen := P;
