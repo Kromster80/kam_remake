@@ -18,7 +18,8 @@ Bugs:
 	Dragging brush in MapEd over minimap should not trigger minimap position change
 	Gamespeed cant be set anymore for coop games
 	we had a match on "Coastal Encounter Score" with 2 humans and 1 AI. One human lost all of his troops first. The moment his last fighter died, the server disconnected him.
-	
+	Changing terrain in MapEd from snow to non-snow should update snowed houses placed there
+
 
 Finishing up:
 	Snow houses artwork [KillingB]
