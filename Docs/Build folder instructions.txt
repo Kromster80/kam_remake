@@ -1,0 +1,22 @@
+Instructions for creating build folder:
+
+Note: When extracting items from SVN folders use SVN Export (right click drag lets you do that) so that only SVN versioned items are taken (skips any test maps/files of your own, as well as unwanted files like .mi, .dat.txt, etc.).
+
+1. Start with an empty folder
+2. Copy 3 folders from Dropbox Castlesand folder: Campaigns, data and Music
+3. Copy data\locales.txt and data\text\* (SVN versioned items only)
+4. Copy data\gfx\fonts from SVN
+5. Use RXX packer to generate rxx files (original .rx files are on DropBox under SpriteResource), copy rxx files to data\Sprites
+6. SVN export Campaigns folder, merge with one from DropBox
+7. Export items from Maps folder which should be included (todo: how do we know which ones to include?)
+8. SVN export MapsMP folder
+9. SVN export Readme folder into build folder (so Readme_xxx.html files are in root of build folder)
+10. SVN export Sounds folder
+11. SVN export tutorials folder
+12. Compile Campaign Builder and put it in build folder as CampaignBuilder.exe
+13. Compile TranslationManager (in user mode?) and put it in build folder as TranslationManager.exe
+14. Compile dedicated server on Windows and Linux x86 / x86_64 (KaM_Remake_Server_win32.exe, KaM_Remake_Server_x86, KaM_Remake_Server_x86_64)
+15. Include music library dll (libzplay.dll or bass.dll)
+16. Copy KM_TextIDs.inc from SVN into build folder (required for Translation Manager to work properly)
+17. Create changelog from todo\bugslist.txt (leave only completed items)
+18. Compile Remake and put it in build folder as KaM_Remake.exe
