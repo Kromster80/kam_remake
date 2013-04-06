@@ -1018,7 +1018,10 @@ begin
     H := fIDCache.GetHouse(aHouseID);
     if H <> nil then
       if H.ResCanAddToIn(Res) then
-        H.ResAddToIn(Res, aCount, True)
+      begin
+        H.ResAddToIn(Res, aCount, True);
+        fPlayers[H.Owner].Stats.WareProduced(Res, aCount);
+      end
       else
         LogError('Actions.HouseAddWaresTo wrong ware type', [aHouseID, aType, aCount]);
     //Silently ignore if house doesn't exist
@@ -1160,7 +1163,7 @@ begin
     if fPlayers[aPlayer].CanAddHousePlan(KMPoint(X, Y), HouseIndexToType[aHouseType]) then
     begin
       Result := True;
-      fPlayers[aPlayer].BuildList.HousePlanList.AddPlan(HouseIndexToType[aHouseType], KMPoint(X, Y));
+      fPlayers[aPlayer].AddHousePlan(HouseIndexToType[aHouseType], KMPoint(X, Y));
     end;
   end
   else
