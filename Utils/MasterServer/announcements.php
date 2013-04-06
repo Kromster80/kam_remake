@@ -5,9 +5,14 @@ global $MAIN_VERSION;
 $Lang = $_REQUEST["lang"];
 $Rev = $_REQUEST["rev"];
 
+if($Rev == "r5057")
+{
+  die("Welcome to the scripting demo! Have fun and give us feedback / bug reports! :)");
+}
+
 if($Rev == "r4297")
 {
-  die("Welcome to the balance test release. Please send us your feedback on the changes.");
+  die("[$0000FF]The scripting demo release candidate is now out![]||This balance test release is outdated. Please check your email for the release candidate or email contact@kamremake.com if you want to be added to the mailing list.");
 }
 
 if(($Rev == "r3374") || ($Rev == "r3252") || ($Rev == "r3311") || ($Rev == "r3812") || ($Rev == "r3870") || ($Rev == "r3967") || ($Rev == "r3985") || ($Rev == "r4125"))

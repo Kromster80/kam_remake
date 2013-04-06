@@ -204,6 +204,7 @@ object FormMain: TFormMain
         Width = 32
         Height = 13
         Caption = 'Margin'
+        Visible = False
       end
       object Label6: TLabel
         Left = 108
@@ -211,6 +212,7 @@ object FormMain: TFormMain
         Width = 47
         Height = 13
         Caption = 'Threshold'
+        Visible = False
       end
       object chkShowOwnership: TCheckBox
         Left = 8
@@ -260,6 +262,7 @@ object FormMain: TFormMain
         ThumbLength = 14
         TickMarks = tmBoth
         TickStyle = tsNone
+        Visible = False
         OnChange = ControlsUpdate
       end
       object tbOwnThresh: TTrackBar
@@ -274,6 +277,7 @@ object FormMain: TFormMain
         ThumbLength = 14
         TickMarks = tmBoth
         TickStyle = tsNone
+        Visible = False
         OnChange = ControlsUpdate
       end
       object chkShowDefences: TCheckBox

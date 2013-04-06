@@ -130,7 +130,7 @@ end;
 
 procedure TKMSpectator.SetPlayerIndex(const Value: TPlayerIndex);
 begin
-  Assert(DEBUG_CHEATS and (MULTIPLAYER_CHEATS or not fGame.IsMultiplayer) or fGame.IsReplay or fGame.IsMapEditor);
+  Assert((MULTIPLAYER_CHEATS or not fGame.IsMultiplayer) or fGame.IsReplay or fGame.IsMapEditor);
   fPlayerIndex := Value;
 
   if not fGame.IsReplay and not fGame.IsMapEditor then

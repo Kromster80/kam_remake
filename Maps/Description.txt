@@ -7,6 +7,8 @@ Folder contains all required map files. So far these are:
  - MAP_NAME.dat which is a script file of the map
  - MAP_NAME.map which is map terrain
  - MAP_NAME.mi temporary file created by the game which stores the map/mission info so it is not necessary to scan the files each time. It can be safely deleted.
+ - MAP_NAME.script dynamic script file
+ - MAP_NAME.eng.libx Translation file for text used in dynamic script
 other files may be included later
 
 ________________________________________________________________________________________
@@ -18,6 +20,7 @@ MAP_NAME.txt notes
 	SmallDesc - map description given in few words
 	BigDesc - large description shown in SingleMap menu when player chooses the map
 	SetCoop - Sets this mission as cooperative (different list in multiplayer lobby)
+	SetSpecial - Sets this mission as special (different list in multiplayer lobby)
 
  - 	Few other options could be added (these are undecided yet, feel free to make 
 	suggestions)

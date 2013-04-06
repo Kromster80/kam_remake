@@ -14,7 +14,7 @@ Note: When extracting items from SVN folders use SVN Export (right click drag le
 10. SVN export Sounds folder
 11. SVN export tutorials folder
 12. Compile Campaign Builder and put it in build folder as CampaignBuilder.exe
-13. Compile TranslationManager (in user mode?) and put it in build folder as TranslationManager.exe
+13. Compile TranslationManager (first remove '..\..\' from fWorkDir) and put it in build folder as TranslationManager.exe
 14. Compile dedicated server on Windows and Linux x86 / x86_64 (KaM_Remake_Server_win32.exe, KaM_Remake_Server_x86, KaM_Remake_Server_x86_64)
 15. Include music library dll (libzplay.dll or bass.dll)
 16. Copy KM_TextIDs.inc from SVN into build folder (required for Translation Manager to work properly)
