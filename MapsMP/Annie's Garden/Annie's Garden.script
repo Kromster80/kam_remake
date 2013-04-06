@@ -103,6 +103,18 @@ begin
     Actions.SetOverlayText(I, Text);
 end;
 
+function IsSoldier(UnitID: Integer): Boolean;
+var UnitType: Integer;
+begin
+  if UnitID = -1 then
+    Result := False
+  else
+  begin
+    UnitType := States.UnitType(UnitID);
+    Result := (UnitType >= 14) and (UnitType <= 27); //valid range of soldiers
+  end;
+end;
+
 //Returns the owner of the unit currently on the specified location, or -1 if nobody is on it
 function GetCurrentOwner(aX, aY:Integer): Integer;
 var
@@ -115,7 +127,7 @@ begin
     for Y := -1 to 1 do
 	begin
       U := States.UnitAt(aX+X, aY+Y);
-      if U <> -1 then
+      if IsSoldier(U) then
       begin
         UnitOwner := States.UnitOwner(U);
         //Owner = -1 means invalid, -2 means animals

@@ -70,11 +70,7 @@ begin
 end;
 
 procedure OnUnitLost(aUnitID: Integer);
-var Owner: Integer;
 begin
-  //Find out which player owns this unit
-  Owner := States.UnitOwner(aUnitID);
-
   //See if this caused another player to win
   CheckVictoryConditions;
 end;
@@ -91,6 +87,13 @@ begin
 
   for I:=0 to LOC_COUNT-1 do
     Actions.SetOverlayText(I, ScoreText);
+end;
+
+procedure OnMissionStart;
+var I: Integer;
+begin
+  for I := 0 to LOC_COUNT-1 do
+    PlayerScore[I] := 0;
 end;
 
 procedure OnTick;
