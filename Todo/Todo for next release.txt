@@ -1,3 +1,48 @@
+=============
+Since 1st RC:
+=============
+
+Bugs:
+	Randomize locations within teams checkbox should only be enabled for host
+	Chat/allies/message log panels block clicks on map to the right of them (check in MapEd too)
+	Crash using terrain brush in sado's map (emailed to us)
+	Kicking also kicks the host (Linux server only?)
+	"Should match with HitTest that selected this group" when selecting a unit (MouseUp)
+	Annie's hill/garden can be won with labourers. Only soldiers should count for capturing.
+
+
+Finishing up:
+	Snow houses artwork [KillingB]
+	Snow house overlay fixes [KillingB, Krom]
+
+
+After first RC:
+	Ask RC testers to make map from scratch in MapEd
+	Magic water in MapEd?
+	Check main menu / gameplay interfaces for text that needs to be added to the LIBX (e.g. lobby speed)
+	Add missing texts from MapEd to LIBX (maybe ignore some stuff in temporary interfaces that will be improved next release?)
+	Send text off to be translated (do this late in the RC testing so translators don't get 3 separate requests for each RC with changed text)
+	Ask translators to shorten up messages that we show in message log (empty house, feed troops, etc)
+	Performance test the replay of a full MP game to check for chokepoints in a real-world scenario
+	Press release?
+	Decided what to do about proportional/exact weapons production (hybrid solution?)
+	Dynamic script commands: Silent kill unit (no death animation, allows changing farmers to rebels), get/set ware distribution, get/set store/barracks delivery block flags, CoverCircle (opposite to reveal circle), ClosestUnit/House/Group(X,Y,Player), center screen, select unit/group/house in player's UI, SetWoodCutterMode, AI recruits in barracks (lets you disable/enable AI soldier equipping), equip rate
+	DAT script commands: Storehouse/barrack block flags, disable ally fog sharing
+	Write Lazarus network wrapper using base FPC sockets and see if it's more stable than LNet
+	TSK campaign fixes by BornFree (especially faster equip rate), if he fixes issues with food
+
+
+Maps:
+	Circus? (thunder)
+	Dead Rivers? (thunder)
+	Frozen waters? (sado)
+	Border Rivers fix by Thunder?
+
+
+================
+Fixed in 1st RC:
+================
+
 Features:
  +	MP game speed up slider (x1, x1.5, x2, x2.5, x3)
  +	Coop maps handled better in lobby (AI players hidden and automatic, AI map areas not revealed)
@@ -25,10 +70,7 @@ Finishing up:
  +	Indent messages after each line break so you can't fake system messages
  +	Before RC remove unused strings from LIBX and compact indexes [Lewin]
  +	Before RC search for all todos and @Lewin/@Krom comments to see if there's something important we forgot about
-
-	Snow houses artwork [KillingB]
-	Snow house overlay fixes [KillingB, Krom]
-	Press release for our site where we collect all the big features and improvements [Lewin]
+ +	Press release for our site where we collect all the big features and improvements [Lewin]
 
 
 Known issues to fix:
@@ -40,32 +82,10 @@ Known issues to fix:
  +	Copy data\sfx\knights\battle4.wav to Polish sfx (horse sound Pol is missing) [Lewin]
 
 
-After first RC:
-	Ask RC testers to make map from scratch in MapEd
-	Magic water in MapEd?
-	Check main menu / gameplay interfaces for text that needs to be added to the LIBX (e.g. lobby speed)
-	Add missing texts from MapEd to LIBX (maybe ignore some stuff in temporary interfaces that will be improved next release?)
-	Send text off to be translated (do this late in the RC testing so translators don't get 3 separate requests for each RC with changed text)
-	Ask translators to shorten up messages that we show in message log (empty house, feed troops, etc)
-	Performance test the replay of a full MP game to check for chokepoints in a real-world scenario
-	Press release?
-	Decided what to do about proportional/exact weapons production (hybrid solution?)
-	Dynamic script commands: Silent kill unit (no death animation, allows changing farmers to rebels), get/set ware distribution, get/set store/barracks delivery block flags, CoverCircle (opposite to reveal circle), ClosestUnit/House/Group(X,Y,Player), center screen, select unit/group/house in player's UI, SetWoodCutterMode, AI recruits in barracks (lets you disable/enable AI soldier equipping), equip rate
-	DAT script commands: Storehouse/barrack block flags, disable ally fog sharing
-	Write Lazarus network wrapper using base FPC sockets and see if it's more stable than LNet
-	TSK campaign fixes by BornFree (especially faster equip rate), if he fixes issues with food
-
-
 Balance/exploits:
  +	Increased market loss ratio to 2.2
  +	Tested: 4 farms (with unsown fields) + 2 stables beats 6 woodcutters (with 5 grown trees each) + 1 market in horse production by 16% (20 mins), 30% (30 mins), 45% (40 mins), 77% (60 mins)
  +	Stop builders emptying towers (builders refuse to walk into range of a tower and cancel the plan)
-
-
-Not for this release, maybe next time:
-	Pawel's flower
-	Increase player limit to 10?
-	File transfers
 
 
 Maps:
@@ -79,7 +99,9 @@ Maps:
  +	Shark Islands (andreus and vovets1)
  +	Pawel's fixes for campaign missions that he emailed to us
  +	New coop missions and fixes to coop missions (from andreus, pawel)
-	Circus? (thunder)
-	Dead Rivers? (thunder)
-	Frozen waters? (sado)
-	Border Rivers fix by Thunder?
+
+
+Not for this release, maybe next time:
+	Pawel's flower
+	Increase player limit to 10?
+	File transfers
