@@ -638,7 +638,7 @@ procedure TKMGame.AttachCrashReport(const ExceptIntf: IMEException; aZipFile:str
 
 var I: Integer;
 begin
-  fLog.AppendLog('Creating crash report...');
+  fLog.AddTime('Creating crash report...');
 
   //Attempt to save the game, but if the state is too messed up it might fail
   try
@@ -651,7 +651,7 @@ begin
     end;
   except
     on E : Exception do
-      fLog.AppendLog('Exception while trying to save game for crash report: '+E.ClassName+': '+E.Message);
+      fLog.AddTime('Exception while trying to save game for crash report: '+E.ClassName+': '+E.Message);
   end;
 
   AttachFile(ExeDir + fMissionFile);
@@ -664,7 +664,7 @@ begin
     AttachFile(SaveName('autosave' + Int2Fix(I, 2), 'sav', IsMultiplayer));
   end;
 
-  fLog.AppendLog('Crash report created');
+  fLog.AddTime('Crash report created');
 end;
 {$ENDIF}
 

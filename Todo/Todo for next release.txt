@@ -37,8 +37,7 @@ Known issues to fix:
  +	Fix "Vortamic" and "On the Way" texts (need to get texts 560..564) [Lewin]
  +	ALL MP maps need SET_USER_PLAYER set for them. Make a tool to fix this [Krom]
  +	Publish a memo about SET_USER_PLAYER "fixing" maps made in other editors [Lewin]
-	Copy data\sfx\knights\battle4.wav to Polish sfx (horse sound Pol is missing) [Lewin]
-	TSK campaign fixes by BornFree, check they all make sense [Lewin] (easy to do with Batcher.UnXOR all maps)
+ +	Copy data\sfx\knights\battle4.wav to Polish sfx (horse sound Pol is missing) [Lewin]
 
 
 After first RC:
@@ -54,6 +53,7 @@ After first RC:
 	Dynamic script commands: Silent kill unit (no death animation, allows changing farmers to rebels), get/set ware distribution, get/set store/barracks delivery block flags, CoverCircle (opposite to reveal circle), ClosestUnit/House/Group(X,Y,Player), center screen, select unit/group/house in player's UI, SetWoodCutterMode, AI recruits in barracks (lets you disable/enable AI soldier equipping), equip rate
 	DAT script commands: Storehouse/barrack block flags, disable ally fog sharing
 	Write Lazarus network wrapper using base FPC sockets and see if it's more stable than LNet
+	TSK campaign fixes by BornFree (especially faster equip rate), if he fixes issues with food
 
 
 Balance/exploits:
