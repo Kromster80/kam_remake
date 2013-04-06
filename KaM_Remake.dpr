@@ -144,8 +144,8 @@ uses
   KM_Viewport in 'KM_Viewport.pas';
 
 {$IFDEF WDC}
-  {$R KaM_Remake.RES} //Keeps the Icon
-  {$R KaM_Manifest.RES}
+  {$R KaM_Remake_Icon.res KaM_Remake_Icon.rc} //Keeps the Icon
+  {$R KaM_Manifest.res KaM_Manifest.rc}
 {$ENDIF}
 {$IFDEF MSWindows}
   {$IFDEF FPC}
