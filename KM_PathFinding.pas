@@ -185,11 +185,14 @@ end;
 
 //How much it costs to move From -> To
 function TPathFinding.MovementCost(aFromX, aFromY, aToX, aToY: Word): Word;
+var DX, DY: Word;
 begin
-  if Abs(aFromX-aToX) > Abs(aFromY-aToY) then
-    Result := Abs(aFromX-aToX) * 10 + Abs(aFromY-aToY) * 4
+  DX := Abs(aFromX-aToX);
+  DY := Abs(aFromY-aToY);
+  if DX > DY then
+    Result := DX * 10 + DY * 4
   else
-    Result := Abs(aFromY-aToY) * 10 + Abs(aFromX-aToX) * 4;
+    Result := DY * 10 + DX * 4;
 
   //Do not add extra cost if the tile is the target, as it can cause a longer route to be chosen
   if (aToX <> fLocB.X) or (aToY <> fLocB.Y) then
@@ -203,10 +206,16 @@ end;
 
 
 function TPathFinding.EstimateToFinish(aX, aY: Word): Word;
+var DX, DY: Word;
 begin
   //Use Estim even if destination is Passability, as it will make it faster.
   //Target should be in the right direction even though it's not our destination.
-  Result := (Abs(aX - fLocB.X) + Abs(aY - fLocB.Y)) * 10;
+  DX := Abs(fLocB.X-aX);
+  DY := Abs(fLocB.Y-aY);
+  if DX > DY then
+    Result := DX * 10 + DY * 4
+  else
+    Result := DY * 10 + DX * 4;
 end;
 
 

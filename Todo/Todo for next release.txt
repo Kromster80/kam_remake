@@ -3,12 +3,14 @@ Since 1st RC:
 =============
 
 Bugs:
+ +	Pathfinding bug causing units to zigzag a bit when they should be walking straight
 	Randomize locations within teams checkbox should only be enabled for host
 	Chat/allies/message log panels block clicks on map to the right of them (check in MapEd too)
 	Crash using terrain brush in sado's map (emailed to us)
 	Kicking also kicks the host (Linux server only?)
 	"Should match with HitTest that selected this group" when selecting a unit (MouseUp)
 	Annie's hill/garden can be won with labourers. Only soldiers should count for capturing.
+	Message log should be hidden until the 1st message arrives, looks odd to have a blank scroll
 
 
 Finishing up:
