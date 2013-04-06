@@ -184,7 +184,6 @@ var
   Alpha: Byte;
 begin
   for HT := HOUSE_MIN to HOUSE_MAX do
-  if aHouseDat[HT].IsValid then
   for Lay := 1 to 2 do //House is rendered in two layers since Stone does not covers Wood parts in e.g. Sawmill
   begin
     if Lay = 1 then begin
@@ -227,7 +226,6 @@ var
   A, B, C, D: Byte;
 begin
   for HT := HOUSE_MIN to HOUSE_MAX do
-  if aHouseDat[HT].IsValid then
   for Lay := 1 to 2 do //House is rendered in two layers since Stone does not covers Wood parts in e.g. Sawmill
   begin
     ID := IfThen(Lay = 1, aHouseDat[HT].WoodPic, aHouseDat[HT].StonePic) + 1;
