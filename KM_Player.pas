@@ -690,7 +690,7 @@ var
   HT: THouseType;
 begin
   HT := fBuildList.HousePlanList.GetPlan(Position);
-  if not fResource.HouseDat[HT].IsValid then exit; //Due to network delays house might not exist now
+  if HT = ht_None then Exit; //Due to network delays house might not exist now
   fBuildList.HousePlanList.RemPlan(Position);
   fStats.HousePlanRemoved(HT);
   if (PlayerIndex = MySpectator.PlayerIndex) and not fGame.IsReplay then fSoundLib.Play(sfx_Click);

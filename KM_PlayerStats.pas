@@ -300,10 +300,10 @@ begin
   end
   else
   for I := Low(aType) to High(aType) do
-    if fResource.HouseDat[aType[I]].IsValid then
-      Inc(Result, Houses[aType[I]].Initial + Houses[aType[I]].Built - Houses[aType[I]].SelfDestruct - Houses[aType[I]].Lost)
-    else
-      Assert(False, 'Quering wrong house type');
+  if aType[I] in [HOUSE_MIN..HOUSE_MAX] then
+    Inc(Result, Houses[aType[I]].Initial + Houses[aType[I]].Built - Houses[aType[I]].SelfDestruct - Houses[aType[I]].Lost)
+  else
+    Assert(False, 'Quering wrong house type');
 end;
 
 
@@ -345,10 +345,10 @@ begin
   end
   else
   for I := Low(aType) to High(aType) do
-    if fResource.HouseDat[aType[I]].IsValid then
-      Inc(Result, Houses[aType[I]].Started + Houses[aType[I]].Planned - Houses[aType[I]].Ended - Houses[aType[I]].PlanRemoved)
-    else
-      Assert(False, 'Quering wrong house type');
+  if aType[I] in [HOUSE_MIN..HOUSE_MAX] then
+    Inc(Result, Houses[aType[I]].Started + Houses[aType[I]].Planned - Houses[aType[I]].Ended - Houses[aType[I]].PlanRemoved)
+  else
+    Assert(False, 'Quering wrong house type');
 end;
 
 

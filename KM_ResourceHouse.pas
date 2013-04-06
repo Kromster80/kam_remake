@@ -92,7 +92,6 @@ type
     property SnowPic: SmallInt read GetSnowPic;
     //Functions
     function AcceptsWares: Boolean;
-    function IsValid: Boolean;
     function MaxHealth: Word;
     function ProducesWares: Boolean;
     procedure Outline(aList: TKMPointList);
@@ -107,11 +106,13 @@ type
     fBeastAnim: array[1..2,1..5,1..3] of TKMAnimLoop;
     fMarketBeastAnim: array[1..3] of TKMAnimLoop;
     function LoadHouseDat(aPath: string): Cardinal;
-    function GetHouseDat(aType:THouseType): TKMHouseDatClass;
-    function GetBeastAnim(aType:THouseType; aBeast, aAge:integer): TKMAnimLoop;
+    function GetHouseDat(aType: THouseType): TKMHouseDatClass;
+    function GetBeastAnim(aType: THouseType; aBeast, aAge:integer): TKMAnimLoop;
   public
     constructor Create;
     destructor Destroy; override;
+
+    function IsValid(aType: THouseType): Boolean;
 
     property HouseDat[aType: THouseType]: TKMHouseDatClass read GetHouseDat; default;
     property BeastAnim[aType: THouseType; aBeast, aAge: Integer]: TKMAnimLoop read GetBeastAnim;
@@ -542,10 +543,7 @@ end;
 
 function TKMHouseDatClass.GetHouseName: string;
 begin
-  if IsValid then
-    Result := fTextLibrary[fNameTextID]
-  else
-    Result := 'N/A';
+  Result := fTextLibrary[fNameTextID];
 end;
 
 
@@ -621,12 +619,6 @@ end;
 function TKMHouseDatClass.GetTabletIcon: word;
 begin
   Result := HouseDatX[fHouseType].TabletIcon;
-end;
-
-
-function TKMHouseDatClass.IsValid: boolean;
-begin
-  Result := fHouseType in [HOUSE_MIN..HOUSE_MAX];
 end;
 
 
@@ -740,6 +732,12 @@ end;
 function TKMHouseDatCollection.GetHouseDat(aType: THouseType): TKMHouseDatClass;
 begin
   Result := fItems[aType];
+end;
+
+
+function TKMHouseDatCollection.IsValid(aType: THouseType): Boolean;
+begin
+  Result := aType in [HOUSE_MIN..HOUSE_MAX];
 end;
 
 

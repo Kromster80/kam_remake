@@ -5,6 +5,7 @@ Since 1st RC:
 Bugs:
  +	Pathfinding bug causing units to zigzag a bit when they should be walking straight
  +	Annie's hill/garden can be won with labourers. Only soldiers should count for capturing.
+ +	Removing house plan in MP could rarely cause a crash
 	Randomize locations within teams checkbox should only be enabled for host
 	Chat/allies/message log panels block clicks on map to the right of them (check in MapEd too)
 	Crash using terrain brush in sado's map (emailed to us)
@@ -13,6 +14,7 @@ Bugs:
 	Message log should be hidden until the 1st message arrives, looks odd to have a blank scroll
 	Can only place buildings for one player in SP MapEd, for others its just red crosses.
 	You start a mission in TPR and you get everytime one empty message under Quill icon
+	Dragging brush in MapEd over minimap should not trigger minimap position change
 	
 
 Finishing up:
