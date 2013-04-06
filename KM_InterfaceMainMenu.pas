@@ -716,6 +716,7 @@ begin
     //List of available servers
     ColumnBox_Servers := TKMColumnBox.Create(Panel_MultiPlayer,45,240,620,465,fnt_Metal, bsMenu);
     ColumnBox_Servers.Anchors := [akLeft, akTop, akBottom];
+    ColumnBox_Servers.Focusable := True;
     ColumnBox_Servers.SetColumns(fnt_Outline, ['','',fTextLibrary[TX_MP_MENU_SERVERLIST_NAME],fTextLibrary[TX_MP_MENU_SERVERLIST_STATE],fTextLibrary[TX_MP_MENU_SERVERLIST_PLAYERS],fTextLibrary[TX_MP_MENU_SERVERLIST_PING]],[0,20,40,300,430,525]);
     ColumnBox_Servers.OnColumnClick := MP_ServersSort;
     ColumnBox_Servers.OnChange := MP_ServersClick;

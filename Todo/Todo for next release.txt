@@ -6,6 +6,7 @@ Bugs:
  +	Pathfinding bug causing units to zigzag a bit when they should be walking straight
  +	Annie's hill/garden can be won with labourers. Only soldiers should count for capturing.
  +	Removing house plan in MP could rarely cause a crash
+ +	Navigating with arrows in serverlist was not available (regress from r4179)
 	Randomize locations within teams checkbox should only be enabled for host
 	Chat/allies/message log panels block clicks on map to the right of them (check in MapEd too)
 	Crash using terrain brush in sado's map (emailed to us)
