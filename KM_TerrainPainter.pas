@@ -591,6 +591,7 @@ end;
 procedure TKMTerrainPainter.LoadFromFile(FileName: string);
 var
   I,K: Integer;
+  TerType: ShortInt; //Krom's editor saves terrain kind as ShortInt
   S: TKMemoryStream;
   NewX,NewY: Integer;
   ResHead: packed record x1:word; Allocated,Qty1,Qty2,x5,Len17:integer; end;
@@ -628,7 +629,14 @@ begin
           S.Read(I, 4); //Cypher - ommited
           for I := 1 to NewY do
           for K := 1 to NewX do
-            S.Read(Land2[I,K].TerType, 1);
+          begin
+            //Krom's editor saves negative numbers for tiles placed manually
+            S.Read(TerType, 1);
+            if InRange(TerType, ShortInt(Low(TTerrainKind)), ShortInt(High(TTerrainKind))) then
+              Land2[I,K].TerType := TTerrainKind(TerType)
+            else
+              Land2[I,K].TerType := tkCustom;
+          end;
           MapEdChunkFound := True; //Only set it once it's all loaded successfully
         end
         else
