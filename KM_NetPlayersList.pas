@@ -493,23 +493,24 @@ end;
 
 
 //Networking needs to convert Nikname to local index in players list
-function TKMNetPlayersList.NiknameToLocal(aNikname:string):integer;
+function TKMNetPlayersList.NiknameToLocal(aNikname: string): Integer;
 var I: Integer;
 begin
   Result := -1;
-  for i:=1 to fCount do
-    if fNetPlayers[i].fNikname = aNikname then
-      Result := i;
+  for I := 1 to fCount do
+    if fNetPlayers[I].fNikname = aNikname then
+      Result := I;
 end;
 
 
-function TKMNetPlayersList.StartingLocToLocal(aLoc:integer):integer;
+//Convert known starting location to local index in players list
+function TKMNetPlayersList.StartingLocToLocal(aLoc: Integer): Integer;
 var I: Integer;
 begin
   Result := -1;
-  for i:=1 to fCount do
-    if fNetPlayers[i].StartLocation = aLoc then
-      Result := i;
+  for I := 1 to fCount do
+    if fNetPlayers[I].StartLocation = aLoc then
+      Result := I;
 end;
 
 

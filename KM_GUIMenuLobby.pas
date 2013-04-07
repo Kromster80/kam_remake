@@ -947,7 +947,7 @@ begin
     begin
       ID := fNetworking.NetPlayers.StartingLocToLocal(I+1);
       if ID <> -1 then
-        fMinimap.PlayerTeam[I] := fNetworking.NetPlayers[I+1].Team
+        fMinimap.PlayerTeam[I] := fNetworking.NetPlayers[ID].Team
       else
         fMinimap.PlayerTeam[I] := 0;
     end;
