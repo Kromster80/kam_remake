@@ -1209,15 +1209,22 @@ function TKMScriptActions.UnitOrderWalk(aUnitID: Integer; X, Y: Word): Boolean;
 var U: TKMUnit;
 begin
   Result := False;
+
   if (aUnitID > 0) and fTerrain.TileInMapCoords(X, Y) then
   begin
     U := fIDCache.GetUnit(aUnitID);
-    //Can only make idle units walk so we don't mess up tasks and cause crashes
-    if (U <> nil) and U.IsIdle then
-    begin
-      Result := True;
-      U.SetActionWalk(KMPoint(X,Y), ua_Walk, 0, nil, nil);
-    end;
+    if U = nil then Exit; //Unit could have long died, or never existed
+
+    //Animals cant be ordered to walk, they use Steering instead
+    if (U.UnitType in [ANIMAL_MIN..ANIMAL_MAX]) then
+      LogError('Actions.UnitOrderWalk is not supported for animals', [aUnitID, X, Y])
+    else
+      //Can only make idle units walk so we don't mess up tasks and cause crashes
+      if U.IsIdle then
+      begin
+        Result := True;
+        U.SetActionWalk(KMPoint(X,Y), ua_Walk, 0, nil, nil);
+      end;
   end
   else
     LogError('Actions.UnitOrderWalk', [aUnitID, X, Y]);

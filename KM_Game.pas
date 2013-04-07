@@ -627,6 +627,7 @@ begin
   end;
 end;
 
+
 {$IFDEF USE_MAD_EXCEPT}
 procedure TKMGame.AttachCrashReport(const ExceptIntf: IMEException; aZipFile:string);
 
@@ -655,7 +656,8 @@ begin
   end;
 
   AttachFile(ExeDir + fMissionFile);
-  AttachFile(ExeDir + ChangeFileExt(fMissionFile, '.map')); //Try to attach the map too if it's named like that
+  AttachFile(ExeDir + ChangeFileExt(fMissionFile, '.map')); //Try to attach the map
+  AttachFile(ExeDir + ChangeFileExt(fMissionFile, '.script')); //Try to attach the script
 
   for I := 1 to AUTOSAVE_COUNT do //All autosaves
   begin
