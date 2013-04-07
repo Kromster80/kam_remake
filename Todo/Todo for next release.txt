@@ -8,7 +8,7 @@ Bugs:
  +	Removing house plan in MP could rarely cause a crash
  +	Navigating with arrows in serverlist was not available (regress from r4179)
  +	Chat/allies/message log panels block clicks on map to the right of them (check in MapEd too)
-	Randomize locations within teams checkbox should only be enabled for host
+ +	Randomize locations within teams checkbox should only be enabled for host ("Assertion failed: Only host can send player list")
 	Crash using terrain brush in sado's map (emailed to us)
 	Kicking also kicks the host (Linux server only?)
 	"Should match with HitTest that selected this group" when selecting a unit (MouseUp)
