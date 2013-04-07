@@ -1402,6 +1402,7 @@ begin
                     fScripting.UpdateState;
                     UpdatePeacetime; //Send warning messages about peacetime if required (peacetime sound should still be played in replays)
                     fTerrain.UpdateState;
+                    fAIFields.UpdateState(fGameTickCount);
                     fPlayers.UpdateState(fGameTickCount); //Quite slow
                     if fGame = nil then Exit; //Quit the update if game was stopped for some reason
                     MySpectator.UpdateState(fGameTickCount);

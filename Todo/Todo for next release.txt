@@ -13,6 +13,7 @@ Bugs:
  +	Ordering Animals to walk from script would cause a crash. Now it's silently ignored (allow in future?)
  +	Include script into crashreport
  +	Crash using terrain brush on tiles placed by hand in Krom's editor (sado's map emailed to us)
+ +	Replay inconsistencies in games with AIs (fAIFields.UpdateState wasn't run in replays)
 	Kicking also kicks the host (Linux server only?)
 	"Should match with HitTest that selected this group" when selecting a unit (MouseUp)
 	Message log should be hidden until the 1st message arrives, looks odd to have a blank scroll
