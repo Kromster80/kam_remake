@@ -1357,17 +1357,17 @@ end;
 
 procedure TKMapEdInterface.Create_Extra;
 begin
-  Panel_Extra := TKMPanel.Create(Panel_Main, TOOLBAR_WIDTH, Panel_Main.Height - 190, Panel_Main.Width - TOOLBAR_WIDTH, 190);
+  Panel_Extra := TKMPanel.Create(Panel_Main, TOOLBAR_WIDTH, Panel_Main.Height - 190, 600, 190);
   Panel_Extra.Anchors := [akLeft, akBottom];
   Panel_Extra.Hide;
 
-    with TKMImage.Create(Panel_Extra, 0, 0, 800, 190, 409) do
+    with TKMImage.Create(Panel_Extra, 0, 0, 600, 190, 409) do
     begin
       Anchors := [akLeft, akTop, akBottom];
       ImageAnchors := [akLeft, akRight, akTop];
     end;
 
-    Image_ExtraClose := TKMImage.Create(Panel_Extra, 800-97, 29, 32, 32, 52);
+    Image_ExtraClose := TKMImage.Create(Panel_Extra, 600 - 76, 24, 32, 32, 52);
     Image_ExtraClose.Anchors := [akTop, akRight];
     Image_ExtraClose.Hint := fTextLibrary[TX_MSG_CLOSE_HINT];
     Image_ExtraClose.OnClick := ExtraMessage_Switch;

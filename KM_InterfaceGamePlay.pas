@@ -1086,7 +1086,7 @@ end;
 procedure TKMGamePlayInterface.Create_Message;
 begin
   Panel_Message := TKMPanel.Create(Panel_Main, TOOLBAR_WIDTH, Panel_Main.Height - MESSAGE_AREA_HEIGHT, 600, MESSAGE_AREA_HEIGHT);
-  Panel_Message.Anchors := [akLeft, akRight, akBottom];
+  Panel_Message.Anchors := [akLeft, akBottom];
   Panel_Message.Hide; //Hide it now because it doesn't get hidden by SwitchPage
 
     TKMImage.Create(Panel_Message, 0, 0, 600, 500, 409);
@@ -1122,7 +1122,7 @@ var
 begin
   H := 20 * MAX_LOG_MSGS + 2; //+2 for some margin at the bottom
 
-  Panel_MessageLog := TKMPanel.Create(Panel_Main, TOOLBAR_WIDTH, Panel_Main.Height - (H + 65 + 20), Panel_Main.Width - TOOLBAR_WIDTH, H + 65 + 20);
+  Panel_MessageLog := TKMPanel.Create(Panel_Main, TOOLBAR_WIDTH, Panel_Main.Height - (H + 65 + 20), 600, H + 65 + 20);
   Panel_MessageLog.Anchors := [akLeft, akBottom];
   Panel_MessageLog.Hide; //Hide it now because it doesn't get hidden by SwitchPage
 
@@ -1151,7 +1151,7 @@ end;
 {Chat page}
 procedure TKMGamePlayInterface.Create_Chat;
 begin
-  Panel_Chat := TKMPanel.Create(Panel_Main, TOOLBAR_WIDTH, Panel_Main.Height - MESSAGE_AREA_HEIGHT, Panel_Main.Width - TOOLBAR_WIDTH, MESSAGE_AREA_HEIGHT);
+  Panel_Chat := TKMPanel.Create(Panel_Main, TOOLBAR_WIDTH, Panel_Main.Height - MESSAGE_AREA_HEIGHT, 600, MESSAGE_AREA_HEIGHT);
   Panel_Chat.Anchors := [akLeft, akBottom];
   Panel_Chat.Hide;
 
@@ -1257,8 +1257,8 @@ end;
 procedure TKMGamePlayInterface.Create_Allies;
 var I,K: Integer;
 begin
-  Panel_Allies := TKMPanel.Create(Panel_Main, TOOLBAR_WIDTH, Panel_Main.Height - MESSAGE_AREA_HEIGHT, Panel_Main.Width - TOOLBAR_WIDTH, MESSAGE_AREA_HEIGHT);
-  Panel_Allies.Anchors := [akLeft, akRight, akBottom];
+  Panel_Allies := TKMPanel.Create(Panel_Main, TOOLBAR_WIDTH, Panel_Main.Height - MESSAGE_AREA_HEIGHT, 800, MESSAGE_AREA_HEIGHT);
+  Panel_Allies.Anchors := [akLeft, akBottom];
   Panel_Allies.Hide;
 
     with TKMImage.Create(Panel_Allies,0,0,800,190,409) do ImageAnchors := [akLeft, akRight, akTop];
@@ -1285,7 +1285,7 @@ begin
       Label_AlliesPing[I]   := TKMLabel.Create(Panel_Allies,   350+(I div 4)*380, 80+(I mod 4)*24, '', fnt_Grey, taCenter);
     end;
 
-    Image_AlliesClose:=TKMImage.Create(Panel_Allies,800-97,29,32,32,52,rxGui);
+    Image_AlliesClose:=TKMImage.Create(Panel_Allies,800-97,24,32,32,52,rxGui);
     Image_AlliesClose.Hint := fTextLibrary[TX_MSG_CLOSE_HINT];
     Image_AlliesClose.OnClick := Allies_Close;
     Image_AlliesClose.HighlightOnMouseOver := True;
