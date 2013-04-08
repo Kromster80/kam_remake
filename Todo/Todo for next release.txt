@@ -15,6 +15,7 @@ Bugs:
  +	Crash using terrain brush on tiles placed by hand in Krom's editor (sado's map emailed to us)
  +	Replay inconsistencies in games with AIs (fAIFields.UpdateState wasn't run in replays)
  +	Teams show wrong in lobby (should use player locs instead of player slots)
+ +	Animals being pushed in the first 10 ticks (before getting an action) causes a crash (e.g. if you tell a warrior to move to an animals position) because the initial stay action was not locked
 	Kicking also kicks the host (Linux server only?)
 	"Should match with HitTest that selected this group" when selecting a unit (MouseUp)
 	Message log should be hidden until the 1st message arrives, looks odd to have a blank scroll
@@ -25,6 +26,8 @@ Bugs:
 	Archers are much less responsive in MP (due to finishing attack sequence to prevent exploit)
 	Map editor should have an option to hide roads/fields, so you can view just the terrain while you edit it
 	Trying to select a map during maplist being populated is impossible, selected item always changes to 1st
+	+ - edits in the MapEd are not practical for some things (AI attack delay in seconds, requires 3600 for 1 hour, that's a lot of clicks)
+	Results page for singleplayer replay should show the human player's stats, not the last selected player
 
 
 Finishing up:

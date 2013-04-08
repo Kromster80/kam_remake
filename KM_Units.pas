@@ -1034,7 +1034,7 @@ begin
   fHitPoints      := HitPointsMax;
   fHitPointCounter := 1;
 
-  SetActionStay(10, ua_Walk);
+  SetActionLockedStay(10, ua_Walk); //Must be locked for this initial pause so animals don't get pushed
   fTerrain.UnitAdd(NextPosition,Self);
 
   //The area around the unit should be visible at the start of the mission
