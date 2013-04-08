@@ -215,7 +215,7 @@ begin
 
   fGameApp.MusicLib.StopPlayingOtherFile; //Cancel briefing if it was playing
 
-  fOnPageChange(Self, gmCampSelect, '');
+  fOnPageChange(Self, gpCampSelect, '');
 end;
 
 

@@ -16,19 +16,6 @@ type
   private
     fGlobalTickCount: Cardinal;
 
-    //Story behind these seemingly superflous elements that
-    //we need to carry on from previous Game:
-    //- Mission scropt does not knows GameName
-    //- Mission does not knows to which CampaignName/Map it belongs
-    //- PathName to mission and savegame (incase mission is missing we can load .bas)
-    fRepeatGameName: string;
-    fRepeatMission: string;
-    fRepeatSave: string;
-    fRepeatCampName: AnsiString;
-    fRepeatCampMap: Byte;
-    fRepeatLocation: Byte;
-    fRepeatColor: Cardinal;
-
     fCampaigns: TKMCampaignsCollection;
     fGameSettings: TGameSettings;
     fMusicLib: TMusicLib;
@@ -67,7 +54,8 @@ type
     procedure NewSingleSave(aSaveName: string);
     procedure NewMultiplayerMap(const aFileName: string);
     procedure NewMultiplayerSave(const aSaveName: string);
-    procedure NewRestartLast;
+    procedure NewRestartLast(aGameName, aMission, aSave: string;
+  aCampName: AnsiString; aCampMap: Byte; aLocation: Byte; aColor: Cardinal);
     procedure NewEmptyMap(aSizeX, aSizeY: Integer);
     procedure NewMapEditor(const aFileName: string; aSizeX, aSizeY: Integer);
     procedure NewReplay(const aFilePath: string);
@@ -385,14 +373,6 @@ begin
     fNetworking.Disconnect;
   end;
 
-  fRepeatGameName := '';
-  fRepeatMission := '';
-  fRepeatSave := '';
-  fRepeatCampName := '';
-  fRepeatCampMap := 0;
-  fRepeatLocation := 0;
-  fRepeatColor := 0;
-
   case Msg of
     gr_Win, gr_Defeat, gr_Cancel, gr_ReplayEnd:
                     begin
@@ -403,19 +383,7 @@ begin
                       if (fGame.GameMode in [gmMulti, gmReplayMulti]) then
                         fMainMenuInterface.ShowResultsMP(Msg)
                       else
-                      begin
-                        //Remember which map we played so we could restart it
-                        fRepeatGameName := fGame.GameName;
-                        fRepeatMission := fGame.MissionFile;
-                        fRepeatSave := fGame.SaveFile;
-                        fRepeatCampName := fGame.CampaignName;
-                        fRepeatCampMap := fGame.CampaignMap;
-                        fRepeatLocation := fGame.PlayerLoc;
-                        fRepeatColor := fGame.PlayerColor;
-
-                        fMainMenuInterface.Results_Fill(Msg);
-                        fMainMenuInterface.ShowScreen(msResults, '', Msg);
-                      end;
+                        fMainMenuInterface.ShowResultsSP(Msg);
 
                       if (Msg = gr_Win) and (fCampaigns.ActiveCampaign <> nil) then
                         fCampaigns.UnlockNextMap;
@@ -574,13 +542,14 @@ begin
 end;
 
 
-procedure TKMGameApp.NewRestartLast;
+procedure TKMGameApp.NewRestartLast(aGameName, aMission, aSave: string;
+  aCampName: AnsiString; aCampMap: Byte; aLocation: Byte; aColor: Cardinal);
 begin
-  if FileExists(ExeDir + fRepeatMission) then
-    LoadGameFromScript(ExeDir + fRepeatMission, fRepeatGameName, fRepeatCampName, fRepeatCampMap, gmSingle, fRepeatLocation, fRepeatColor)
+  if FileExists(ExeDir + aMission) then
+    LoadGameFromScript(ExeDir + aMission, aGameName, aCampName, aCampMap, gmSingle, aLocation, aColor)
   else
-  if FileExists(ChangeFileExt(ExeDir + fRepeatSave, '.bas')) then
-    LoadGameFromSave(ChangeFileExt(ExeDir + fRepeatSave, '.bas'), gmSingle)
+  if FileExists(ChangeFileExt(ExeDir + aSave, '.bas')) then
+    LoadGameFromSave(ChangeFileExt(ExeDir + aSave, '.bas'), gmSingle)
   else
     fMainMenuInterface.ShowScreen(msError, 'Can not repeat last mission');
 end;

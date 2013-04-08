@@ -18,6 +18,7 @@ Bugs:
  +	Animals being pushed in the first 10 ticks (before getting an action) causes a crash (e.g. if you tell a warrior to move to an animals position) because the initial stay action was not locked
  +	"Should match with HitTest that selected this group" when selecting a moving warrior (MouseUp)
  +	Kicking or timing out causes the server to disconnect one other player as well (Linux server only)
+ +	Results page for singleplayer replay should show the human player's stats, not the last selected player
 	Message log should be hidden until the 1st message arrives, looks odd to have a blank scroll
 	Can only place buildings for one player in SP MapEd, for others its just red crosses.
 	Dragging brush in MapEd over minimap should not trigger minimap position change
@@ -27,7 +28,6 @@ Bugs:
 	Map editor should have an option to hide roads/fields, so you can view just the terrain while you edit it
 	Trying to select a map during maplist being populated is impossible, selected item always changes to 1st
 	+ - edits in the MapEd are not practical for some things (AI attack delay in seconds, requires 3600 for 1 hour, that's a lot of clicks)
-	Results page for singleplayer replay should show the human player's stats, not the last selected player
 
 
 Finishing up:

@@ -632,7 +632,7 @@ end;
 
 procedure TKMGUIMenuResultsMP.BackClick(Sender: TObject);
 begin
-  //Depending on where we were created we need to return to different place
+  //Depending on where we were created we need to return to a different place
   //Multiplayer game end -> ResultsMP -> Multiplayer
   //Multiplayer replay end -> ResultsMP -> Replays
 
