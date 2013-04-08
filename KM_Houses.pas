@@ -422,10 +422,10 @@ begin
     with fPlayers[fOwner].Deliveries.Queue do
     case Res of
       wt_None:    ;
-      wt_Warfare: AddDemand(Self, nil, Res, 1, dt_Always, di_Norm);
-      wt_All:     AddDemand(Self, nil, Res, 1, dt_Always, di_Norm);
+      wt_Warfare: AddDemand(Self, nil, Res, 1, dt_Always, diNorm);
+      wt_All:     AddDemand(Self, nil, Res, 1, dt_Always, diNorm);
       else        begin
-                    AddDemand(Self, nil, Res, GetResDistribution(I), dt_Once,   di_Norm); //Every new house needs 5 resourceunits
+                    AddDemand(Self, nil, Res, GetResDistribution(I), dt_Once,   diNorm); //Every new house needs 5 resourceunits
                     inc(fResourceDeliveryCount[I],GetResDistribution(I)); //Keep track of how many resources we have on order (for distribution of wares)
                   end;
     end;
@@ -1039,7 +1039,7 @@ begin
     for K := 1 to aCount do
       if fResourceDeliveryCount[I] < GetResDistribution(I) then
       begin
-        fPlayers[fOwner].Deliveries.Queue.AddDemand(Self, nil, aResource, 1, dt_Once, di_Norm);
+        fPlayers[fOwner].Deliveries.Queue.AddDemand(Self, nil, aResource, 1, dt_Once, diNorm);
         Inc(fResourceDeliveryCount[I]);
       end;
     Exit;
@@ -1215,7 +1215,7 @@ begin
       begin
         Count := GetResDistribution(I)-fResourceDeliveryCount[I];
         fPlayers[fOwner].Deliveries.Queue.AddDemand(
-          Self, nil, fResource.HouseDat[fHouseType].ResInput[I], Count, dt_Once, di_Norm);
+          Self, nil, fResource.HouseDat[fHouseType].ResInput[I], Count, dt_Once, diNorm);
 
         inc(fResourceDeliveryCount[I], Count);
       end;

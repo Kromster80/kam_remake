@@ -1,7 +1,7 @@
 unit KM_DeliverQueue;
 {$I KaM_Remake.inc}
 interface
-uses Classes, SysUtils, KromUtils,
+uses Classes, SysUtils, KromUtils, Math,
     KM_CommonClasses, KM_Defaults, KM_Points,
     KM_Houses, KM_Units;
 
@@ -477,11 +477,16 @@ begin
       Ware:=aResource;
       Importance:=aImp;
       assert((not IsDeleted) and (not BeingPerformed)); //Make sure this item has been closed properly, if not there is a flaw
-      if GOLD_TO_SCHOOLS_IMPORTANT then
-        if (Ware=wt_Gold)and(Loc_House<>nil)and(Loc_House.HouseType=ht_School) then Importance:=di_High;
-      if FOOD_TO_INN_IMPORTANT then
-        if (Ware in [wt_Bread,wt_Sausages,wt_Wine,wt_Fish])and
-        (Loc_House<>nil)and(Loc_House.HouseType=ht_Inn) then Importance:=di_High;
+
+      //Gold to Schools
+      if (Ware = wt_Gold)
+      and (Loc_House <> nil) and (Loc_House.HouseType = ht_School) then
+        Importance := diHigh1;
+
+      //Food to Inn
+      if (Ware in [wt_Bread, wt_Sausages, wt_Wine, wt_Fish])
+      and (Loc_House <> nil) and (Loc_House.HouseType = ht_Inn) then
+        Importance := diHigh3;
     end;
   end;
 end;
@@ -625,14 +630,14 @@ end;
 function TKMDeliverQueue.CalculateBid(iO,iD:Integer; aSerf: TKMUnitSerf):Single;
 begin
   //Basic Bid is length of route
-  if fDemand[iD].Loc_House<>nil then
+  if fDemand[iD].Loc_House <> nil then
   begin
-    Result := KMLength(fOffer[iO].Loc_House.GetEntrance,fDemand[iD].Loc_House.GetEntrance)
+    Result := KMLength(fOffer[iO].Loc_House.GetEntrance, fDemand[iD].Loc_House.GetEntrance)
     //Resource ratios are also considered
-    +fPlayers[fOffer[iO].Loc_House.Owner].Stats.Ratio[fDemand[iD].Ware, fDemand[iD].Loc_House.HouseType];
+    + fPlayers[fOffer[iO].Loc_House.Owner].Stats.Ratio[fDemand[iD].Ware, fDemand[iD].Loc_House.HouseType];
   end
   else
-    Result := KMLength(fOffer[iO].Loc_House.GetEntrance,fDemand[iD].Loc_Unit.GetPosition);
+    Result := KMLength(fOffer[iO].Loc_House.GetEntrance, fDemand[iD].Loc_Unit.GetPosition);
 
   //For weapons production in cases with little resources available, they should be distributed
   //evenly between places rather than caring about route length.
@@ -650,25 +655,27 @@ begin
   Result := Result + KaMRandom(5);
 
   //Modifications for bidding system
-  if (fDemand[iD].Ware=wt_All) //Always prefer deliveries House>House instead of House>Store
+  if (fDemand[iD].Ware = wt_All) //Always prefer deliveries House>House instead of House>Store
   or ((fOffer[iO].Loc_House.HouseType = ht_Store) //Prefer taking wares from House rather than Store...
   and (fDemand[iD].Ware <> wt_Warfare)) then    //...except weapons Store>Barracks, that is also prefered
     Result := Result + 1000;
 
-  if fDemand[iD].Loc_House<>nil then //Prefer delivering to houses with fewer supply
-  if (fDemand[iD].Ware <> wt_All)and(fDemand[iD].Ware <> wt_Warfare) then //Except Barracks and Store, where supply doesn't matter or matter less
+  if (fDemand[iD].Loc_House <> nil) //Prefer delivering to houses with fewer supply
+  and (fDemand[iD].Ware <> wt_All)
+  and (fDemand[iD].Ware <> wt_Warfare) then //Except Barracks and Store, where supply doesn't matter or matter less
     Result := Result + 20 * fDemand[iD].Loc_House.CheckResIn(fDemand[iD].Ware);
 
   //Delivering weapons from store to barracks, make it lowest priority when there are >50 of that weapon in the barracks.
   //In some missions the storehouse has vast amounts of weapons, and we don't want the serfs to spend the whole game moving these.
   //In KaM, if the barracks has >200 weapons the serfs will stop delivering from the storehouse. I think our solution is better.
-  if fDemand[iD].Loc_House<>nil then
-  if (fDemand[iD].Loc_House.HouseType = ht_Barracks)and(fOffer[iO].Loc_House.HouseType = ht_Store)and
-     (fDemand[iD].Loc_House.CheckResIn(fOffer[iO].Ware) > 50) then
-     Result := Result + 10000;
+  if (fDemand[iD].Loc_House <> nil)
+  and (fDemand[iD].Loc_House.HouseType in [ht_Barracks, ht_Store])
+  and (fDemand[iD].Loc_House.CheckResIn(fOffer[iO].Ware) > 50) then
+    Result := Result + 10000;
 
   //When delivering food to warriors, add a random amount to bid to ensure that a variety of food is taken. Also prefer food which is more abundant.
-  if (fDemand[iD].Loc_Unit<>nil) and (fDemand[iD].Ware = wt_Food) then
+  if (fDemand[iD].Loc_Unit <> nil)
+  and (fDemand[iD].Ware = wt_Food) then
     Result := Result + KaMRandom(5+(100 div fOffer[iO].Count)); //The more resource there is, the smaller Random can be. >100 we no longer care, it's just random 5.
 end;
 
@@ -677,49 +684,50 @@ end;
 //Serf may ask for a job from within a house after completing previous delivery
 procedure TKMDeliverQueue.AskForDelivery(aSerf: TKMUnitSerf; aHouse: TKMHouse=nil);
 var
-  iD, iO, FoundD, FoundO: Integer;
+  iD, iO, BestD, BestO: Integer;
   Bid, BestBid: Single;
-  BidIsPriority: boolean;
 begin
   //Find Offer matching Demand
   //TravelRoute Asker>Offer>Demand should be shortest
-  BestBid := -1;
-  FoundO := -1;
-  FoundD := -1;
-  BidIsPriority := false;
-  for iD:=1 to fDemandCount do
-  if BestBid=1 then break else //Quit loop when best bid is found
-  if fDemand[iD].Ware <> wt_None then
-  for iO:=1 to fOfferCount do
-   if BestBid=1 then break else //Quit loop when best bid is found
-    if (aHouse = nil) or (fOffer[iO].Loc_House = aHouse) then //Make sure from house is the one requested
-    if fOffer[iO].Ware <> wt_None then
+  BestBid := MaxSingle;
+  BestO := -1;
+  BestD := -1;
 
-    if PermitDelivery(iO,iD,aSerf) then
+  for iD := 1 to fDemandCount do
+  if BestBid = 0.01 then
+    //Quit loop when best bid is found
+    Break
+  else
+    if fDemand[iD].Ware <> wt_None then
+    for iO := 1 to fOfferCount do
+    if BestBid = 0.01 then
+      //Quit loop when best bid is found
+      Break
+    else
+    if ((aHouse = nil) or (fOffer[iO].Loc_House = aHouse))  //Make sure from house is the one requested
+    and (fOffer[iO].Ware <> wt_None)
+    and PermitDelivery(iO, iD, aSerf) then
     begin
-      Bid := CalculateBid(iO,iD,aSerf);
 
-      if fDemand[iD].Importance=di_High then //If Demand importance is high - make it done ASAP
-      begin
-        if not BidIsPriority then BestBid := 9999999; //Override previously chosen low priority delivery
-        BidIsPriority := true;
-      end
-      else
-        if BidIsPriority then continue; //Do not take any low priority bids once a high one is found
-
-      //Take first one incase there's nothing better to be found
-      //Do not take deliveries with Bid=0 (no route found)
-      if (Bid<>0)and((BestBid = -1)or(Bid<BestBid)) then
-      begin
-        FoundO := iO;
-        FoundD := iD;
-        BestBid := Bid;
+      //If Demand importance is high - make it done ASAP
+      case fDemand[iD].Importance of
+        diHigh1: Bid := 0.01;
+        diHigh2: Bid := 0.02;
+        diHigh3: Bid := 0.03;
+        diHigh4: Bid := 0.04;
+        else     Bid := CalculateBid(iO, iD, aSerf);
       end;
 
+      if Bid < BestBid then
+      begin
+        BestO := iO;
+        BestD := iD;
+        BestBid := Bid;
+      end;
     end;
 
-  if BestBid <> -1 then
-    AssignDelivery(FoundO,FoundD,aSerf);
+  if BestBid <> MaxSingle then
+    AssignDelivery(BestO, BestD, aSerf);
 end;
 
 
@@ -827,7 +835,7 @@ begin
   assert(not fDemand[aID].BeingPerformed);
   fDemand[aID].Ware := wt_None;
   fDemand[aID].DemandType := dt_Once;
-  fDemand[aID].Importance := di_Norm;
+  fDemand[aID].Importance := diNorm;
   fPlayers.CleanUpHousePointer(fDemand[aID].Loc_House);
   fPlayers.CleanUpUnitPointer(fDemand[aID].Loc_Unit);
   fDemand[aID].IsDeleted := false;
@@ -951,7 +959,7 @@ begin
     if fDemand[i].Loc_House<>nil then s:=s+fResource.HouseDat[fDemand[i].Loc_House.HouseType].HouseName+#9+#9;
     if fDemand[i].Loc_Unit<>nil then s:=s+fResource.UnitDat[fDemand[i].Loc_Unit.UnitType].UnitName+#9+#9;
     s:=s+fResource.Wares[fDemand[i].Ware].Title;
-    if fDemand[i].Importance=di_High then s:=s+'^';
+    if fDemand[i].Importance <> diNorm then s:=s+'^';
     s:=s+eol;
   end;
   s:=s+eol+'Offer:'+eol+'---------------------------------'+eol;

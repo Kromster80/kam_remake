@@ -19,6 +19,7 @@ Bugs:
  +	"Should match with HitTest that selected this group" when selecting a moving warrior (MouseUp)
  +	Kicking or timing out causes the server to disconnect one other player as well (Linux server only)
  +	Results page for singleplayer replay should show the human player's stats, not the last selected player
+ +	Feeding soldiers should be more important than bringing food to Inn
 	Message log should be hidden until the 1st message arrives, looks odd to have a blank scroll
 	Can only place buildings for one player in SP MapEd, for others its just red crosses.
 	Dragging brush in MapEd over minimap should not trigger minimap position change
@@ -28,7 +29,6 @@ Bugs:
 	Map editor should have an option to hide roads/fields, so you can view just the terrain while you edit it
 	Trying to select a map during maplist being populated is impossible, selected item always changes to 1st
 	+ - edits in the MapEd are not practical for some things (AI attack delay in seconds, requires 3600 for 1 hour, that's a lot of clicks)
-
 
 Finishing up:
 	Snow houses artwork [KillingB]

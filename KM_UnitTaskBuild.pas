@@ -219,7 +219,7 @@ begin
     3: begin
          fTerrain.IncDigState(fLoc);
          SetActionLockedStay(11,ua_Work1,false);
-         fPlayers[Owner].Deliveries.Queue.AddDemand(nil, fUnit, wt_Stone, 1, dt_Once, di_High);
+         fPlayers[Owner].Deliveries.Queue.AddDemand(nil, fUnit, wt_Stone, 1, dt_Once, diHigh4);
          DemandSet := true;
        end;
     4: begin //This step is repeated until Serf brings us some stone
@@ -348,7 +348,7 @@ begin
    3: begin
         fTerrain.IncDigState(fLoc);
         SetActionLockedStay(24,ua_Work1,false);
-        fPlayers[Owner].Deliveries.Queue.AddDemand(nil,fUnit,wt_Wood, 1, dt_Once, di_High);
+        fPlayers[Owner].Deliveries.Queue.AddDemand(nil,fUnit,wt_Wood, 1, dt_Once, diHigh4);
         DemandSet := true;
       end;
    4: begin
@@ -549,7 +549,7 @@ begin
     3: begin
         fTerrain.IncDigState(fLoc);
         SetActionLockedStay(22,ua_Work1,false);
-        fPlayers[Owner].Deliveries.Queue.AddDemand(nil, fUnit, wt_Wood, 1, dt_Once, di_High);
+        fPlayers[Owner].Deliveries.Queue.AddDemand(nil, fUnit, wt_Wood, 1, dt_Once, diHigh4);
       end;
     4: begin
         SetActionLockedStay(30,ua_Work1);
@@ -668,8 +668,8 @@ begin
   begin
     fHouse.BuildingState := hbs_Wood;
     fPlayers[fUnit.Owner].BuildList.HouseList.AddHouse(fHouse); //Add the house to JobList, so then all workers could take it
-    fPlayers[fUnit.Owner].Deliveries.Queue.AddDemand(fHouse, nil, wt_Wood, fResource.HouseDat[fHouse.HouseType].WoodCost, dt_Once, di_High);
-    fPlayers[fUnit.Owner].Deliveries.Queue.AddDemand(fHouse, nil, wt_Stone, fResource.HouseDat[fHouse.HouseType].StoneCost, dt_Once, di_High);
+    fPlayers[fUnit.Owner].Deliveries.Queue.AddDemand(fHouse, nil, wt_Wood, fResource.HouseDat[fHouse.HouseType].WoodCost, dt_Once, diHigh4);
+    fPlayers[fUnit.Owner].Deliveries.Queue.AddDemand(fHouse, nil, wt_Stone, fResource.HouseDat[fHouse.HouseType].StoneCost, dt_Once, diHigh4);
   end;
 
   fPlayers.CleanUpHousePointer(fHouse);

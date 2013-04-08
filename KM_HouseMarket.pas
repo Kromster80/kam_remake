@@ -132,7 +132,7 @@ begin
     if ResRequired > 0 then
     begin
       inc(fMarketDeliveryCount[aResource], Min(aCount, ResRequired));
-      fPlayers[fOwner].Deliveries.Queue.AddDemand(Self, nil, fResFrom, Min(aCount, ResRequired), dt_Once, di_Norm);
+      fPlayers[fOwner].Deliveries.Queue.AddDemand(Self, nil, fResFrom, Min(aCount, ResRequired), dt_Once, diNorm);
     end;
     AttemptExchange;
   end
@@ -255,7 +255,7 @@ begin
   if (ResRequired > 0) and (OrdersAllowed > 0) then
   begin
     inc(fMarketDeliveryCount[fResFrom], Min(ResRequired,OrdersAllowed));
-    fPlayers[fOwner].Deliveries.Queue.AddDemand(Self, nil, fResFrom, Min(ResRequired,OrdersAllowed), dt_Once, di_Norm)
+    fPlayers[fOwner].Deliveries.Queue.AddDemand(Self, nil, fResFrom, Min(ResRequired,OrdersAllowed), dt_Once, diNorm)
   end
   else
     //There are too many resources ordered, so remove as many as we can from the delivery list (some will be being performed)
