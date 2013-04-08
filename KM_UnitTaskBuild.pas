@@ -701,6 +701,9 @@ end;
 
 procedure TTaskBuildHouseArea.CancelThePlan;
 begin
+  //House plan could be canceled during initial walk or while walking within the house area so
+  //ignore it if it's already been canceled (occurs when trying to walk within range of an enemy tower during flattening)
+  if BuildID = -1 then Exit;
   fPlayers[fUnit.Owner].BuildList.HousePlanList.ClosePlan(BuildID);
   fPlayers[fUnit.Owner].Stats.HousePlanRemoved(fHouseType);
   BuildID := -1;
