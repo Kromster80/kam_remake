@@ -121,6 +121,7 @@ Improvements:
 	L	Maplist still takes too long to load, scrollbar moves irritatingly while maps are being added
 	L	Save last selected item in lists (load game, mp, maped list, savegames, etc)
 	L	Right-click on a unit in Schools queue to move that unit to the front of the queue (currently RMB is "remove to here")
+  L Make units turn around without skipping inbetween directions (instead of immediate direction change)
 
 	L	MapEd: Allow to toggle trees/objects opacity (make them partially visible) [Marcin]
 	L	MapEd: Allow to toggle AI defence positions display
