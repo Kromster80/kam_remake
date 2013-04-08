@@ -93,6 +93,7 @@ type
     function GetGroupPointer: TKMUnitGroup;
     procedure ReleaseGroupPointer;
     procedure AddMember(aWarrior: TKMUnitWarrior; aIndex: Integer = -1);
+    function MemberHitTest(X,Y: Integer): TKMUnitWarrior;
     function HitTest(X,Y: Integer): Boolean;
     procedure SelectHitTest(X,Y: Integer);
     procedure SelectFlagBearer;
@@ -811,17 +812,23 @@ begin
 end;
 
 
-function TKMUnitGroup.HitTest(X,Y: Integer): Boolean;
+function TKMUnitGroup.MemberHitTest(X,Y: Integer): TKMUnitWarrior;
 var I: Integer;
 begin
-  Result := False;
+  Result := nil;
 
   for I := 0 to Count - 1 do
   if Members[I].HitTest(X, Y) and not Members[I].IsDead then
   begin
-    Result := True;
+    Result := Members[I];
     Break;
   end;
+end;
+
+
+function TKMUnitGroup.HitTest(X,Y: Integer): Boolean;
+begin
+  Result := MemberHitTest(X, Y) <> nil;
 end;
 
 
@@ -829,7 +836,9 @@ procedure TKMUnitGroup.SelectHitTest(X,Y: Integer);
 var
   U: TKMUnit;
 begin
-  U := fTerrain.UnitsHitTest(X,Y);
+  //Don't use fTerrain.UnitHitTest because IsUnit doesn't always return the same
+  //results as TKMPlayersCollection.SelectHitTest when units are moving
+  U := MemberHitTest(X,Y);
   Assert((U <> nil) and (U is TKMUnitWarrior) and HasMember(TKMUnitWarrior(U)),
     'Should match with HitTest that selected this group in TKMPlayersCollection.SelectHitTest');
 
