@@ -17,7 +17,7 @@ Bugs:
  +	Teams show wrong in lobby (should use player locs instead of player slots)
  +	Animals being pushed in the first 10 ticks (before getting an action) causes a crash (e.g. if you tell a warrior to move to an animals position) because the initial stay action was not locked
  +	"Should match with HitTest that selected this group" when selecting a moving warrior (MouseUp)
-	Kicking also kicks the host (Linux server only?)
+ +	Kicking or timing out causes the server to disconnect one other player as well (Linux server only)
 	Message log should be hidden until the 1st message arrives, looks odd to have a blank scroll
 	Can only place buildings for one player in SP MapEd, for others its just red crosses.
 	Dragging brush in MapEd over minimap should not trigger minimap position change

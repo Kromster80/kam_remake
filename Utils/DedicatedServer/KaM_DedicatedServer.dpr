@@ -6,7 +6,11 @@ program KaM_DedicatedServer;
 {$ENDIF}
 
 uses
-  {$IFDEF UNIX} BaseUnix, cthreads, {$ENDIF} //We use a thread for deleting old log files
+  {$IFDEF UNIX}
+    {$DEFINE UseCThreads}
+    cthreads, //We use a thread for deleting old log files
+    BaseUnix,
+  {$ENDIF}
   SysUtils,
   {$IFDEF MSWindows} Windows, MMSystem, {$ENDIF}
   KM_Utils,
