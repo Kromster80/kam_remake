@@ -152,12 +152,12 @@ begin
     fSocketServer.IterReset;
     while fSocketServer.IterNext do
     begin
-      fSocketServer.Iterator.Disconnect(True);
       if fSocketServer.Iterator.UserData <> nil then
       begin
         TClientInfo(fSocketServer.Iterator.UserData).Free;
         fSocketServer.Iterator.UserData := nil;
       end;
+      fSocketServer.Iterator.Disconnect(True);
     end;
     fSocketServer.Disconnect(True);
   end;
@@ -250,17 +250,20 @@ end;
 
 
 procedure TKMNetServerLNet.Kick(aHandle:integer);
+var Iter: TLSocket;
 begin
   fSocketServer.IterReset;
   while fSocketServer.IterNext do
     if (fSocketServer.Iterator.UserData <> nil) and (TClientInfo(fSocketServer.Iterator.UserData).Tag = aHandle) then
     begin
       //Found the client that must be kicked
-      ClientDisconnect(fSocketServer.Iterator); //Seems to be a bug in LNet where ClientDisconnect is not called sometimes? So call it ourself just in case
-      if fSocketServer.Iterator.ConnectionStatus in [scConnected, scConnecting, scDisconnecting] then
+      Iter := fSocketServer.Iterator; //Calling ClientDisconnect can reset Iterator due to sending a message, so we must remember it (don't use it after this line)
+      //Seems to be a bug in LNet where ClientDisconnect is not called sometimes? So call it ourself just in case
+      ClientDisconnect(Iter);
+      if Iter.ConnectionStatus in [scConnected, scConnecting, scDisconnecting] then
         //We always use forceful disconnects otherwise sockets can be left in FIN_WAIT2 state forever. See:
         //http://stackoverflow.com/questions/9819745/how-tcp-stack-distinguish-close-and-shutdown
-        fSocketServer.Iterator.Disconnect(True)
+        Iter.Disconnect(True)
       else
         fOnError('Warning: Attempted to kick a client that is not connected');
       Exit; //Only one client should have this handle
