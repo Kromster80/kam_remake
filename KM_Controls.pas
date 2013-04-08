@@ -474,9 +474,17 @@ type
   TKMNumericEdit = class(TKMControl)
   private
     fButtonInc: TKMButton;
-    fLabelValue: TKMLabel;
     fButtonDec: TKMButton;
+    fFont: TKMFont;
+    fText: string;
+    fCursorPos: Integer;
+    fLeftIndex: Integer; //The position of the character shown left-most when text does not fit
     procedure ButtonClick(Sender: TObject; AButton: TMouseButton);
+    procedure SetCursorPos(aPos: Integer);
+    procedure SetText(aText: string);
+    function MaxLength: Byte;
+    procedure ValidateText;
+    function KeyEventHandled(Key: Word; Shift: TShiftState): Boolean;
     procedure SetSharedHint(aHint: string);
   protected
     procedure SetLeft(aValue: Integer); override;
@@ -488,8 +496,13 @@ type
     ValueMin: SmallInt;
     ValueMax: SmallInt;
     OnChange: TNotifyEvent;
-    property SharedHint: string read Hint write SetSharedHint;
     constructor Create(aParent: TKMPanel; aLeft,aTop: Integer; aValueMin, aValueMax: SmallInt);
+    property CursorPos: Integer read fCursorPos write SetCursorPos;
+    property SharedHint: string read Hint write SetSharedHint;
+    function KeyDown(Key: Word; Shift: TShiftState): Boolean; override;
+    procedure KeyPress(Key: Char); override;
+    function KeyUp(Key: Word; Shift: TShiftState): Boolean; override;
+    procedure MouseUp(X,Y: Integer; Shift: TShiftState; Button: TMouseButton); override;
     procedure Paint; override;
   end;
 
@@ -2424,14 +2437,95 @@ begin
 
   ValueMin := aValueMin;
   ValueMax := aValueMax;
+  Focusable := True;
+  fFont := fnt_Grey;
 
   fButtonDec := TKMButton.Create(aParent, aLeft,           aTop, 20, 20, '-', bsGame);
-  fLabelValue := TKMLabel.Create(aParent, aLeft + W div 2, aTop + 2, '', fnt_Grey, taCenter);
   fButtonInc := TKMButton.Create(aParent, aLeft + W - 20,  aTop, 20, 20, '+', bsGame);
   fButtonDec.OnClickEither := ButtonClick;
   fButtonInc.OnClickEither := ButtonClick;
 end;
 
+
+function TKMNumericEdit.KeyDown(Key: Word; Shift: TShiftState): Boolean;
+begin
+  Result := KeyEventHandled(Key, Shift);
+  if inherited KeyDown(Key, Shift) then Exit;
+
+  //Clipboard operations
+  if (Shift = [ssCtrl]) and (Key <> VK_CONTROL) then
+  begin
+    case Key of
+      Ord('C'): Clipboard.AsText := fText;
+      Ord('X'): Clipboard.AsText := fText; //Does the same as Copy because we can't cut whole text and leave field empty
+      Ord('V'): begin
+                  Insert(Clipboard.AsText, fText, CursorPos + 1);
+                  ValidateText;
+                  CursorPos := CursorPos + Length(Clipboard.AsText);
+                end;
+    end;
+  end;
+
+  case Key of
+    VK_BACK:    begin Delete(fText, CursorPos, 1); CursorPos := CursorPos-1; end;
+    VK_DELETE:  Delete(fText, CursorPos+1, 1);
+    VK_LEFT:    CursorPos := CursorPos-1;
+    VK_RIGHT:   CursorPos := CursorPos+1;
+    VK_HOME:    CursorPos := 0;
+    VK_END:     CursorPos := Length(fText);
+  end;
+end;
+
+function TKMNumericEdit.KeyEventHandled(Key: Word; Shift: TShiftState): Boolean;
+begin
+  Result := True;
+
+  //Don't include backspace/delete because edits should always handle those. Otherwise when you
+  //press backspace repeatedly to remove all characters it will apply other shortcuts like
+  //resetting the zoom if you press it once too many times.
+  case Key of
+    VK_UP,
+    VK_DOWN,
+    VK_LEFT,
+    VK_RIGHT,
+    VK_HOME,
+    VK_END: Result := (fText <> ''); //These keys have no effect when text is blank
+  end;
+
+  //We want these keys to be ignored by chat, so game shortcuts still work
+  if Key in [VK_F1..VK_F12, VK_ESCAPE] then Result := False;
+
+  //Ctrl can be used as an escape character, e.g. CTRL+B places beacon while chat is open
+  if ssCtrl in Shift then Result := (Key in [Ord('C'), Ord('X'), Ord('V')]);
+end;
+
+procedure TKMNumericEdit.KeyPress(Key: Char);
+begin
+  if Length(fText) >= MaxLength then Exit;
+
+  Insert(Key, fText, CursorPos + 1);
+  CursorPos := CursorPos + 1; //Before ValidateText so it moves the cursor back if the new char was invalid
+  ValidateText;
+end;
+
+function TKMNumericEdit.KeyUp(Key: Word; Shift: TShiftState): Boolean;
+begin
+  Result := KeyEventHandled(Key, Shift);
+  if inherited KeyUp(Key, Shift) then Exit;
+
+  if Assigned(OnChange) then OnChange(Self);
+end;
+
+function TKMNumericEdit.MaxLength: Byte;
+begin
+  Result := ValueMax div 10 + 1;
+end;
+
+procedure TKMNumericEdit.MouseUp(X, Y: Integer; Shift: TShiftState; Button: TMouseButton);
+begin
+  inherited;
+  CursorPos := Length(fText);
+end;
 
 procedure TKMNumericEdit.ButtonClick(Sender: TObject; AButton: TMouseButton);
 var
@@ -2460,12 +2554,22 @@ begin
 end;
 
 
+procedure TKMNumericEdit.SetText(aText: string);
+begin
+  fText := aText;
+  ValidateText; //Validate first since it could change fText
+  CursorPos := Math.Min(CursorPos, Length(fText));
+  //Setting the text should place cursor to the end
+  fLeftIndex := 0;
+  SetCursorPos(MaxLength);
+end;
+
+
 procedure TKMNumericEdit.SetTop(aValue: Integer);
 begin
   inherited;
 
   fButtonDec.Top := Top;
-  fLabelValue.Top := Top + 2;
   fButtonInc.Top := Top;
 end;
 
@@ -2475,16 +2579,33 @@ begin
   inherited;
 
   fButtonDec.Left := Left;
-  fLabelValue.Left := Left + Width div 2;
   fButtonInc.Top := Left + Width - 20;
 end;
 
+
+procedure TKMNumericEdit.SetCursorPos(aPos: Integer);
+var RText: string;
+begin
+  fCursorPos := EnsureRange(aPos, 0, Length(fText));
+  if fCursorPos < fLeftIndex then
+    fLeftIndex := fCursorPos
+  else
+  begin
+    //Remove characters to the left of fLeftIndex
+    RText := Copy(fText, fLeftIndex+1, Length(fText));
+    while fCursorPos-fLeftIndex > fResource.Fonts.CharsThatFit(RText, fFont, Width-8) do
+    begin
+      Inc(fLeftIndex);
+      //Remove characters to the left of fLeftIndex
+      RText := Copy(fText, fLeftIndex+1, Length(fText));
+    end;
+  end;
+end;
 
 procedure TKMNumericEdit.SetEnabled(aValue: Boolean);
 begin
   inherited;
   fButtonDec.Enabled := fEnabled;
-  fLabelValue.Enabled := fEnabled;
   fButtonInc.Enabled := fEnabled;
 end;
 
@@ -2493,17 +2614,51 @@ procedure TKMNumericEdit.SetVisible(aValue: Boolean);
 begin
   inherited;
   fButtonDec.Visible := fVisible;
-  fLabelValue.Visible := fVisible;
   fButtonInc.Visible := fVisible;
 end;
 
 
+procedure TKMNumericEdit.ValidateText;
+var
+  I: Integer;
+const
+  DigitChars: set of Char = ['1' .. '9', '0'];
+begin
+  //Validate contents
+  for I := Length(fText) downto 1 do
+  if not (fText[I] in DigitChars) then
+  begin
+    Delete(fText, I, 1);
+    if CursorPos >= I then //Keep cursor in place
+      CursorPos := CursorPos - 1;
+  end;
+
+  if fText = '' then
+    Value := 0
+  else
+    Value := StrToInt(fText);
+end;
+
+
 procedure TKMNumericEdit.Paint;
+var Col: TColor4; RText: string; OffX: Integer;
 begin
   inherited;
 
   TKMRenderUI.WriteBevel(AbsLeft + 20, AbsTop, Width - 40, Height);
-  fLabelValue.Caption := IntToStr(Value);
+  if fEnabled then Col:=$FFFFFFFF else Col:=$FF888888;
+
+  RText := Copy(fText, fLeftIndex+1, Length(fText)); //Remove characters to the left of fLeftIndex
+
+  TKMRenderUI.WriteText(AbsLeft+24, AbsTop+3, 0, fText, fFont, taLeft, Col); //Characters that do not fit are trimmed
+
+  //Render text cursor
+  if (csFocus in State) and ((TimeGet div 500) mod 2 = 0) then
+  begin
+    SetLength(RText, CursorPos - fLeftIndex);
+    OffX := AbsLeft + 22 + fResource.Fonts.GetTextSize(RText, fFont).X;
+    TKMRenderUI.WriteShape(OffX, AbsTop+2, 3, Height-4, Col, $FF000000);
+  end;
 end;
 
 
