@@ -116,7 +116,7 @@ begin
     rdIron:  Result := fTerrain.TileIsIron(X, Y);
     rdGold:  Result := fTerrain.TileIsGold(X, Y);
     rdFish:  begin
-               curUnit := fTerrain.Land[Y + 1, X + 1].IsUnit;
+               curUnit := fTerrain.Land[Y, X].IsUnit;
                if (curUnit <> nil) and (curUnit is TKMUnitAnimal) and (curUnit.UnitType = ut_Fish) then
                  Result := 2*TKMUnitAnimal(curUnit).FishCount //You get 2 fish from each trip
                else
