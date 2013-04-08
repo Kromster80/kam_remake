@@ -21,6 +21,7 @@ Bugs:
  +	Results page for singleplayer replay should show the human player's stats, not the last selected player
  +	Feeding soldiers should be more important than bringing food to Inn
  +	Crash when building a house plan partly within the range of a tower
+ +	Group members and flags are still visible when Show Units is unchecked in the map editor
 	Message log should be hidden until the 1st message arrives, looks odd to have a blank scroll
 	Can only place buildings for one player in SP MapEd, for others its just red crosses.
 	Dragging brush in MapEd over minimap should not trigger minimap position change

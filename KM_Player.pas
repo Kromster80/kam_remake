@@ -171,9 +171,8 @@ end;
 
 procedure TKMPlayerCommon.Paint;
 begin
-  if fGame.IsMapEditor and not (mlUnits in fGame.MapEditor.VisibleLayers) then Exit;
-
-  fUnits.Paint;
+  if not fGame.IsMapEditor or (mlUnits in fGame.MapEditor.VisibleLayers) then
+    fUnits.Paint;
 end;
 
 
@@ -1175,10 +1174,12 @@ begin
   if not Enabled then Exit;
 
   inherited;
-  if fGame.IsMapEditor and not(mlHouses in fGame.MapEditor.VisibleLayers) then exit;
 
-  fUnitGroups.Paint;
-  fHouses.Paint;
+  if not fGame.IsMapEditor or (mlUnits in fGame.MapEditor.VisibleLayers) then
+    fUnitGroups.Paint;
+
+  if not fGame.IsMapEditor or (mlHouses in fGame.MapEditor.VisibleLayers) then
+    fHouses.Paint;
 end;
 
 
