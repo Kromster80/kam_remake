@@ -669,7 +669,8 @@ begin
   //In some missions the storehouse has vast amounts of weapons, and we don't want the serfs to spend the whole game moving these.
   //In KaM, if the barracks has >200 weapons the serfs will stop delivering from the storehouse. I think our solution is better.
   if (fDemand[iD].Loc_House <> nil)
-  and (fDemand[iD].Loc_House.HouseType in [ht_Barracks, ht_Store])
+  and (fDemand[iD].Loc_House.HouseType = ht_Barracks)
+  and (fOffer[iO].Loc_House.HouseType = ht_Store)
   and (fDemand[iD].Loc_House.CheckResIn(fOffer[iO].Ware) > 50) then
     Result := Result + 10000;
 
@@ -682,7 +683,7 @@ end;
 
 //Should issue a job based on requesters location and job importance
 //Serf may ask for a job from within a house after completing previous delivery
-procedure TKMDeliverQueue.AskForDelivery(aSerf: TKMUnitSerf; aHouse: TKMHouse=nil);
+procedure TKMDeliverQueue.AskForDelivery(aSerf: TKMUnitSerf; aHouse: TKMHouse = nil);
 var
   iD, iO, BestD, BestO: Integer;
   Bid, BestBid: Single;
@@ -694,13 +695,13 @@ begin
   BestD := -1;
 
   for iD := 1 to fDemandCount do
-  if BestBid = 0.01 then
+  if BestBid < 0.015 then
     //Quit loop when best bid is found
     Break
   else
     if fDemand[iD].Ware <> wt_None then
     for iO := 1 to fOfferCount do
-    if BestBid = 0.01 then
+    if BestBid < 0.015 then
       //Quit loop when best bid is found
       Break
     else
@@ -726,7 +727,7 @@ begin
       end;
     end;
 
-  if BestBid <> MaxSingle then
+  if (BestO <> -1) and (BestD <> -1) then
     AssignDelivery(BestO, BestD, aSerf);
 end;
 
