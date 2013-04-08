@@ -1177,14 +1177,13 @@ procedure TKMMainMenuInterface.MP_ServersUpdateList(Sender: TObject);
 const
   GameStateTextIDs: array [TMPGameState] of Integer = (TX_MP_STATE_NONE, TX_MP_STATE_LOBBY, TX_MP_STATE_LOADING, TX_MP_STATE_GAME);
 var
-  I, OldTopIndex: Integer;
+  I, PrevTop: Integer;
   DisplayName: string;
   S: TKMServerInfo;
   R: TKMRoomInfo;
 begin
-  OldTopIndex := ColumnBox_Servers.TopIndex;
+  PrevTop := ColumnBox_Servers.TopIndex;
   ColumnBox_Servers.Clear;
-  ColumnBox_Servers.ItemIndex := -1;
 
   if fGameApp.Networking.ServerQuery.Rooms.Count = 0 then
   begin
@@ -1219,7 +1218,7 @@ begin
       end;
     end;
 
-    ColumnBox_Servers.TopIndex := OldTopIndex;
+    ColumnBox_Servers.TopIndex := PrevTop;
     if (ColumnBox_Servers.ItemIndex <> -1)
     and not InRange(ColumnBox_Servers.ItemIndex - ColumnBox_Servers.TopIndex, 0, ColumnBox_Servers.GetVisibleRows - 1) then
     begin
@@ -1523,12 +1522,13 @@ end;
 
 
 procedure TKMMainMenuInterface.Load_RefreshList(aJumpToSelected:Boolean);
-var I, OldTopIndex: Integer;
+var I, PrevTop: Integer;
 begin
-  fSaves.Lock;
-    OldTopIndex := ColumnBox_Load.TopIndex;
-    ColumnBox_Load.Clear;
+  PrevTop := ColumnBox_Load.TopIndex;
+  ColumnBox_Load.Clear;
 
+  fSaves.Lock;
+  try
     for I := 0 to fSaves.Count - 1 do
       ColumnBox_Load.AddItem(MakeListRow(
                         [fSaves[i].FileName, fSaves[I].Info.GetTitleWithTime],
@@ -1538,22 +1538,24 @@ begin
     for I := 0 to fSaves.Count - 1 do
       if (fSaves[I].CRC = fLastSaveCRC) then
         ColumnBox_Load.ItemIndex := I;
+  finally
+    fSaves.Unlock;
+  end;
 
-    ColumnBox_Load.TopIndex := OldTopIndex;
+  ColumnBox_Load.TopIndex := PrevTop;
 
-    if aJumpToSelected and (ColumnBox_Load.ItemIndex <> -1)
-    and not InRange(ColumnBox_Load.ItemIndex - ColumnBox_Load.TopIndex, 0, ColumnBox_Load.GetVisibleRows - 1)
-    then
-    begin
-      if ColumnBox_Load.ItemIndex < ColumnBox_Load.TopIndex + ColumnBox_Load.GetVisibleRows - 1 then
-        ColumnBox_Load.TopIndex := ColumnBox_Load.ItemIndex
-      else
-        if ColumnBox_Load.ItemIndex > ColumnBox_Load.TopIndex + ColumnBox_Load.GetVisibleRows - 1 then
-          ColumnBox_Load.TopIndex := ColumnBox_Load.ItemIndex - ColumnBox_Load.GetVisibleRows + 1;
-    end;
+  if aJumpToSelected and (ColumnBox_Load.ItemIndex <> -1)
+  and not InRange(ColumnBox_Load.ItemIndex - ColumnBox_Load.TopIndex, 0, ColumnBox_Load.GetVisibleRows - 1)
+  then
+  begin
+    if ColumnBox_Load.ItemIndex < ColumnBox_Load.TopIndex + ColumnBox_Load.GetVisibleRows - 1 then
+      ColumnBox_Load.TopIndex := ColumnBox_Load.ItemIndex
+    else
+      if ColumnBox_Load.ItemIndex > ColumnBox_Load.TopIndex + ColumnBox_Load.GetVisibleRows - 1 then
+        ColumnBox_Load.TopIndex := ColumnBox_Load.ItemIndex - ColumnBox_Load.GetVisibleRows + 1;
+  end;
 
-    Load_ListClick(nil);
-  fSaves.Unlock;
+  Load_ListClick(nil);
 end;
 
 
@@ -1632,14 +1634,15 @@ begin
 end;
 
 
-procedure TKMMainMenuInterface.Replays_RefreshList(aJumpToSelected:Boolean);
+procedure TKMMainMenuInterface.Replays_RefreshList(aJumpToSelected: Boolean);
 var
-  I, OldTopIndex: Integer;
+  I, PrevTop: Integer;
 begin
-  fSaves.Lock;
-    OldTopIndex := ColumnBox_Replays.TopIndex;
-    ColumnBox_Replays.Clear;
+  PrevTop := ColumnBox_Replays.TopIndex;
+  ColumnBox_Replays.Clear;
 
+  fSaves.Lock;
+  try
     for I := 0 to fSaves.Count - 1 do
       ColumnBox_Replays.AddItem(MakeListRow(
                            [fSaves[I].FileName, fSaves[I].Info.GetTitleWithTime],
@@ -1649,17 +1652,20 @@ begin
       if (fSaves[I].CRC = fLastSaveCRC) then
         ColumnBox_Replays.ItemIndex := I;
 
-    ColumnBox_Replays.TopIndex := OldTopIndex;
+  finally
+    fSaves.Unlock;
+  end;
 
-    if aJumpToSelected and (ColumnBox_Replays.ItemIndex <> -1)
-    and not InRange(ColumnBox_Replays.ItemIndex - ColumnBox_Replays.TopIndex, 0, ColumnBox_Replays.GetVisibleRows-1)
-    then
-      if ColumnBox_Replays.ItemIndex < ColumnBox_Replays.TopIndex then
-        ColumnBox_Replays.TopIndex := ColumnBox_Replays.ItemIndex
-      else
-      if ColumnBox_Replays.ItemIndex > ColumnBox_Replays.TopIndex + ColumnBox_Replays.GetVisibleRows - 1 then
-        ColumnBox_Replays.TopIndex := ColumnBox_Replays.ItemIndex - ColumnBox_Replays.GetVisibleRows + 1;
-  fSaves.Unlock;
+  ColumnBox_Replays.TopIndex := PrevTop;
+
+  if aJumpToSelected and (ColumnBox_Replays.ItemIndex <> -1)
+  and not InRange(ColumnBox_Replays.ItemIndex - ColumnBox_Replays.TopIndex, 0, ColumnBox_Replays.GetVisibleRows-1)
+  then
+    if ColumnBox_Replays.ItemIndex < ColumnBox_Replays.TopIndex then
+      ColumnBox_Replays.TopIndex := ColumnBox_Replays.ItemIndex
+    else
+    if ColumnBox_Replays.ItemIndex > ColumnBox_Replays.TopIndex + ColumnBox_Replays.GetVisibleRows - 1 then
+      ColumnBox_Replays.TopIndex := ColumnBox_Replays.ItemIndex - ColumnBox_Replays.GetVisibleRows + 1;
 end;
 
 
@@ -1769,10 +1775,10 @@ end;
 
 procedure TKMMainMenuInterface.MapEditor_RefreshList(aJumpToSelected:Boolean);
 var
-  I, OldTopIndex: Integer;
+  I, PrevTop: Integer;
   Maps: TKMapsCollection;
 begin
-  OldTopIndex := ColumnBox_MapEd.TopIndex;
+  PrevTop := ColumnBox_MapEd.TopIndex;
   ColumnBox_MapEd.Clear;
 
   if Radio_MapEd_MapType.ItemIndex = 0 then
@@ -1781,15 +1787,19 @@ begin
     Maps := fMapsMP;
 
   Maps.Lock;
+  try
     for I := 0 to Maps.Count - 1 do
+    begin
       ColumnBox_MapEd.AddItem(MakeListRow([Maps[I].FileName, IntToStr(Maps[I].PlayerCount), Maps[I].SizeText], I));
 
-    for I := 0 to Maps.Count - 1 do
       if (Maps[I].CRC = fLastMapCRC) then
         ColumnBox_MapEd.ItemIndex := I;
-  Maps.Unlock;
+    end;
+  finally
+    Maps.Unlock;
+  end;
 
-  ColumnBox_MapEd.TopIndex := OldTopIndex;
+  ColumnBox_MapEd.TopIndex := PrevTop;
 
   if aJumpToSelected and (ColumnBox_MapEd.ItemIndex <> -1)
   and not InRange(ColumnBox_MapEd.ItemIndex - ColumnBox_MapEd.TopIndex, 0, ColumnBox_MapEd.GetVisibleRows-1)

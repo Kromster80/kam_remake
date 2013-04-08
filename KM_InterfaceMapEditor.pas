@@ -2798,24 +2798,39 @@ end;
 
 
 procedure TKMapEdInterface.Menu_LoadUpdateDone(Sender: TObject);
-var M: TKMapsCollection; I: Integer;
+var
+  I: Integer;
+  PrevMap: string;
+  PrevTop: Integer;
+  M: TKMapsCollection;
 begin
   if Radio_Load_MapType.ItemIndex = 0 then
     M := fMaps
   else
     M := fMapsMP;
 
+  //Remember previous map
+  if ListBox_Load.ItemIndex <> -1 then
+    PrevMap := M.Maps[ListBox_Load.ItemIndex].FileName
+  else
+    PrevMap := '';
+  PrevTop := ListBox_Load.TopIndex;
+
   ListBox_Load.Clear;
-  ListBox_Load.ItemIndex := -1;
 
   M.Lock;
-  for I:=0 to M.Count-1 do
-    ListBox_Load.Add(M.Maps[I].FileName);
-  M.Unlock;
+  try
+    for I := 0 to M.Count - 1 do
+    begin
+      ListBox_Load.Add(M.Maps[I].FileName);
+      if M.Maps[I].FileName = PrevMap then
+        ListBox_Load.ItemIndex := I;
+    end;
+  finally
+    M.Unlock;
+  end;
 
-  //Try to select first map by default
-  if ListBox_Load.ItemIndex = -1 then
-    ListBox_Load.ItemIndex := 0;
+  ListBox_Load.TopIndex := PrevTop;
 end;
 
 

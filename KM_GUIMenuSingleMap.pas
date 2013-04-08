@@ -241,10 +241,10 @@ end;
 
 procedure TKMGUIMenuSingleMap.ListRefresh(aJumpToSelected: Boolean);
 var
-  I, OldTopIndex: Integer;
+  I, PrevTop: Integer;
   R: TKMListRow;
 begin
-  OldTopIndex := ColumnBox_SingleMaps.TopIndex;
+  PrevTop := ColumnBox_SingleMaps.TopIndex;
   ColumnBox_SingleMaps.Clear;
 
   fMaps.Lock;
@@ -255,17 +255,15 @@ begin
       R.Cells[2].Hint := fMaps[I].SmallDesc;
       R.Cells[0].Pic := MakePic(rxGui, 28 + Byte(fMaps[I].MissionMode <> mm_Tactic) * 14);
       ColumnBox_SingleMaps.AddItem(R);
-    end;
 
-    //IDs of maps could changed, so use CRC to check which one was selected
-    for I := 0 to fMaps.Count - 1 do
       if (fMaps[I].CRC = fLastMapCRC) then
         ColumnBox_SingleMaps.ItemIndex := I;
+    end;
   finally
     fMaps.Unlock;
   end;
 
-  ColumnBox_SingleMaps.TopIndex := OldTopIndex;
+  ColumnBox_SingleMaps.TopIndex := PrevTop;
   if aJumpToSelected
   and not InRange(ColumnBox_SingleMaps.ItemIndex - ColumnBox_SingleMaps.TopIndex, 0, ColumnBox_SingleMaps.GetVisibleRows - 1)
   then

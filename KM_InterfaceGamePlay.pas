@@ -513,9 +513,9 @@ end;
 
 
 procedure TKMGamePlayInterface.Menu_Save_RefreshList(Sender: TObject);
-var I, OldTopIndex: Integer;
+var I, PrevTop: Integer;
 begin
-  OldTopIndex := ListBox_Save.TopIndex;
+  PrevTop := ListBox_Save.TopIndex;
   ListBox_Save.Clear;
 
   if fSaves.ScanFinished then
@@ -540,7 +540,7 @@ begin
   end;
 
   ListBox_Save.ItemIndex := fSave_Selected;
-  ListBox_Save.TopIndex := OldTopIndex;
+  ListBox_Save.TopIndex := PrevTop;
 end;
 
 
@@ -584,20 +584,20 @@ end;
 
 
 procedure TKMGamePlayInterface.Menu_Load_RefreshList(Sender: TObject);
-var I, OldTopIndex: Integer;
+var I, PrevTop: Integer;
 begin
-  OldTopIndex := ListBox_Load.TopIndex;
+  PrevTop := ListBox_Load.TopIndex;
   ListBox_Load.Clear;
 
   if (Sender = fSaves) then
   begin
     fSaves.Lock;
-    for i:=0 to fSaves.Count-1 do
-      ListBox_Load.Add(fSaves[i].FileName);
+    for I := 0 to fSaves.Count - 1 do
+      ListBox_Load.Add(fSaves[I].FileName);
     fSaves.Unlock;
   end;
 
-  ListBox_Load.TopIndex := OldTopIndex;
+  ListBox_Load.TopIndex := PrevTop;
   ListBox_Load.ItemIndex := fSave_Selected;
 
   Menu_Load_ListClick(nil);

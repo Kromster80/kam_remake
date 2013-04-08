@@ -23,6 +23,7 @@ Bugs:
  +	Crash when building a house plan partly within the range of a tower
  +	Group members and flags are still visible when Show Units is unchecked in the map editor
  +	Fish deposits were counted incorrectly in the map editor
+ +	Trying to select a map during maplist being populated is impossible, selected item always changes to 1st
 	Message log should be hidden until the 1st message arrives, looks odd to have a blank scroll
 	Can only place buildings for one player in SP MapEd, for others its just red crosses.
 	Dragging brush in MapEd over minimap should not trigger minimap position change
@@ -30,7 +31,6 @@ Bugs:
 	Changing terrain in MapEd from snow to non-snow should update snowed houses placed there
 	Archers are much less responsive in MP (due to finishing attack sequence to prevent exploit)
 	Map editor should have an option to hide roads/fields, so you can view just the terrain while you edit it
-	Trying to select a map during maplist being populated is impossible, selected item always changes to 1st
 	+ - edits in the MapEd are not practical for some things (AI attack delay in seconds, requires 3600 for 1 hour, that's a lot of clicks)
 
 Finishing up:
