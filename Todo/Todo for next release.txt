@@ -25,6 +25,7 @@ Bugs:
  +	Fish deposits were counted incorrectly in the map editor
  +	Trying to select a map during maplist being populated is impossible, selected item always changes to 1st
  +	Lag/freezes when using multiplayer speed up because the delay was not compensated enough
+ +	Destroying a barracks with a soldier inside caused that soldier to not be assigned to a group or counted in stats (causes crashes in PlayerStats too)
 	Message log should be hidden until the 1st message arrives, looks odd to have a blank scroll
 	Can only place buildings for one player in SP MapEd, for others its just red crosses.
 	Dragging brush in MapEd over minimap should not trigger minimap position change

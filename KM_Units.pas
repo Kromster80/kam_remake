@@ -1663,6 +1663,10 @@ begin
         Result := true;
         exit;
       end;
+      //OnUnitTrained usually happens in TUnitActionGoInOut, otherwise the warrior doesn't get assigned a group
+      if (Self is TKMUnitWarrior) and Assigned(OnUnitTrained) then
+        OnUnitTrained(Self);
+
       //Make sure these are reset properly
       Assert(not fTerrain.HasUnit(fCurrPosition));
       IsExchanging := false;
