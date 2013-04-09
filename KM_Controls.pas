@@ -477,12 +477,14 @@ type
     fButtonDec: TKMButton;
     fFont: TKMFont;
     fText: string;
+    fValue: Integer;
     fCursorPos: Integer;
     fLeftIndex: Integer; //The position of the character shown left-most when text does not fit
     procedure ButtonClick(Sender: TObject; AButton: TMouseButton);
     procedure SetCursorPos(aPos: Integer);
     procedure SetText(aText: string);
     function MaxLength: Byte;
+    procedure SetValue(aValue: Integer);
     procedure ValidateText;
     function KeyEventHandled(Key: Word; Shift: TShiftState): Boolean;
     procedure SetSharedHint(aHint: string);
@@ -492,12 +494,12 @@ type
     procedure SetEnabled(aValue: Boolean); override;
     procedure SetVisible(aValue: Boolean); override;
   public
-    Value: SmallInt;
-    ValueMin: SmallInt;
-    ValueMax: SmallInt;
+    ValueMin: Integer;
+    ValueMax: Integer;
     OnChange: TNotifyEvent;
     constructor Create(aParent: TKMPanel; aLeft,aTop: Integer; aValueMin, aValueMax: SmallInt);
     property CursorPos: Integer read fCursorPos write SetCursorPos;
+    property Value: Integer read fValue write SetValue;
     property SharedHint: string read Hint write SetSharedHint;
     function KeyDown(Key: Word; Shift: TShiftState): Boolean; override;
     procedure KeyPress(Key: Char); override;
@@ -2437,6 +2439,7 @@ begin
 
   ValueMin := aValueMin;
   ValueMax := aValueMax;
+  Value := 0;
   Focusable := True;
   fFont := fnt_Grey;
 
@@ -2467,14 +2470,17 @@ begin
   end;
 
   case Key of
-    VK_BACK:    begin Delete(fText, CursorPos, 1); CursorPos := CursorPos-1; end;
-    VK_DELETE:  Delete(fText, CursorPos+1, 1);
-    VK_LEFT:    CursorPos := CursorPos-1;
-    VK_RIGHT:   CursorPos := CursorPos+1;
+    VK_BACK:    begin Delete(fText, CursorPos, 1); CursorPos := CursorPos - 1; end;
+    VK_DELETE:  Delete(fText, CursorPos + 1, 1);
+    VK_LEFT:    CursorPos := CursorPos - 1;
+    VK_RIGHT:   CursorPos := CursorPos + 1;
+    VK_UP:      Value := Value + 1;
+    VK_DOWN:    Value := Value - 1;
     VK_HOME:    CursorPos := 0;
     VK_END:     CursorPos := Length(fText);
   end;
 end;
+
 
 function TKMNumericEdit.KeyEventHandled(Key: Word; Shift: TShiftState): Boolean;
 begin
@@ -2484,8 +2490,6 @@ begin
   //press backspace repeatedly to remove all characters it will apply other shortcuts like
   //resetting the zoom if you press it once too many times.
   case Key of
-    VK_UP,
-    VK_DOWN,
     VK_LEFT,
     VK_RIGHT,
     VK_HOME,
@@ -2499,6 +2503,7 @@ begin
   if ssCtrl in Shift then Result := (Key in [Ord('C'), Ord('X'), Ord('V')]);
 end;
 
+
 procedure TKMNumericEdit.KeyPress(Key: Char);
 begin
   if Length(fText) >= MaxLength then Exit;
@@ -2508,6 +2513,7 @@ begin
   ValidateText;
 end;
 
+
 function TKMNumericEdit.KeyUp(Key: Word; Shift: TShiftState): Boolean;
 begin
   Result := KeyEventHandled(Key, Shift);
@@ -2516,33 +2522,30 @@ begin
   if Assigned(OnChange) then OnChange(Self);
 end;
 
+
 function TKMNumericEdit.MaxLength: Byte;
 begin
-  Result := ValueMax div 10 + 1;
+  Result := Trunc(Log10(Max(Abs(ValueMax), Abs(ValueMin)))) + 1;
 end;
+
 
 procedure TKMNumericEdit.MouseUp(X, Y: Integer; Shift: TShiftState; Button: TMouseButton);
 begin
   inherited;
+
   CursorPos := Length(fText);
 end;
 
+
 procedure TKMNumericEdit.ButtonClick(Sender: TObject; AButton: TMouseButton);
-var
-  NewValue: Integer; //Could be -1 or 65536
 begin
   if Sender = fButtonDec then
-    NewValue := Value - Byte(AButton = mbLeft) - Byte(AButton = mbRight) * 10
+    Value := Value - Byte(AButton = mbLeft) - Byte(AButton = mbRight) * 10
   else
   if Sender = fButtonInc then
-    NewValue := Value + Byte(AButton = mbLeft) + Byte(AButton = mbRight) * 10
+    Value := Value + Byte(AButton = mbLeft) + Byte(AButton = mbRight) * 10
   else
     Exit;
-
-  Value := EnsureRange(NewValue, ValueMin, ValueMax);
-
-  if Assigned(OnChange) then
-    OnChange(Self);
 end;
 
 
@@ -2602,6 +2605,7 @@ begin
   end;
 end;
 
+
 procedure TKMNumericEdit.SetEnabled(aValue: Boolean);
 begin
   inherited;
@@ -2615,6 +2619,20 @@ begin
   inherited;
   fButtonDec.Visible := fVisible;
   fButtonInc.Visible := fVisible;
+end;
+
+
+procedure TKMNumericEdit.SetValue(aValue: Integer);
+begin
+  fValue := EnsureRange(aValue, ValueMin, ValueMax);
+
+  //if aValue = fValue then Exit;
+
+  fText := IntToStr(fValue);
+  SetCursorPos(MaxLength);
+
+  if Assigned(OnChange) then
+    OnChange(Self);
 end;
 
 
@@ -2641,7 +2659,10 @@ end;
 
 
 procedure TKMNumericEdit.Paint;
-var Col: TColor4; RText: string; OffX: Integer;
+var
+  Col: TColor4;
+  RText: string;
+  OffX: Integer;
 begin
   inherited;
 
