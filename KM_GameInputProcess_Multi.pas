@@ -231,7 +231,7 @@ begin
   //Half of the maximum round trip is a good guess for delay. +1.2 is our safety net to account
   //for processing the packet and random variations in ping. It's always better for commands to
   //be slightly delayed than for the game to freeze/lag regularly.
-  SetDelay(Ceil(aGameSpeed * fNetworking.NetPlayers.GetMaxHighestRoundTripLatency / 200 + 1.2));
+  SetDelay(Ceil(aGameSpeed * (fNetworking.NetPlayers.GetMaxHighestRoundTripLatency / 200 + 1.2)));
 end;
 
 

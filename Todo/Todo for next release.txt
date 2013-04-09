@@ -24,6 +24,7 @@ Bugs:
  +	Group members and flags are still visible when Show Units is unchecked in the map editor
  +	Fish deposits were counted incorrectly in the map editor
  +	Trying to select a map during maplist being populated is impossible, selected item always changes to 1st
+ +	Lag/freezes when using multiplayer speed up because the delay was not compensated enough
 	Message log should be hidden until the 1st message arrives, looks odd to have a blank scroll
 	Can only place buildings for one player in SP MapEd, for others its just red crosses.
 	Dragging brush in MapEd over minimap should not trigger minimap position change
@@ -32,6 +33,11 @@ Bugs:
 	Archers are much less responsive in MP (due to finishing attack sequence to prevent exploit)
 	Map editor should have an option to hide roads/fields, so you can view just the terrain while you edit it
 	+ - edits in the MapEd are not practical for some things (AI attack delay in seconds, requires 3600 for 1 hour, that's a lot of clicks)
+	Some MP maps don't let you use AIs in certain locations (probably a legacy of Lewin's editor)
+	Locations list in the lobby should only show ones which can currently be selected, ones which are taken should be hidden
+	AI seems to build lots of armour smithies/workshops but no weapons smithies/workshops (e.g. Across the Desert)
+	Maybe we should still save out !SET_MAP so you can open maps with old editors?
+
 
 Finishing up:
 	Snow houses artwork [KillingB]
