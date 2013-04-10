@@ -136,6 +136,7 @@ begin
       RegisterMethod('function PeaceTime: Cardinal');
       RegisterMethod('function Text(aIndex: Word): AnsiString');
       RegisterMethod('function TextFormatted(aIndex: Word; const Args: array of const): AnsiString');
+      RegisterMethod('function FogRevealed(aPlayer: Byte; aX, aY: Word): Boolean');
 
       RegisterMethod('function GroupAt(aX, aY: Word): Integer');
       RegisterMethod('function GroupDead(aGroupID: Integer): Boolean');
@@ -191,6 +192,7 @@ begin
       RegisterMethod('function GiveAnimal(aType, X,Y: Word): Integer');
       RegisterMethod('function GiveGroup(aPlayer, aType, X, Y, aDir, aCount, aColumns: Word): Integer');
       RegisterMethod('function GiveUnit(aPlayer, aType, X,Y, aDir: Word): Integer');
+      RegisterMethod('function GiveHouse(aPlayer, aHouseType, X,Y: Integer): Integer');
       RegisterMethod('function SchoolAddToQueue(aHouseID: Integer; aUnitType: Integer; aCount: Integer): Integer');
       RegisterMethod('procedure GiveWares(aPlayer, aType, aCount: Word)');
 
@@ -219,8 +221,12 @@ begin
 
       RegisterMethod('procedure PlayerDefeat(aPlayer: Word)');
       RegisterMethod('procedure PlayerWin(const aVictors: array of Integer; aTeamVictory: Boolean)');
+      RegisterMethod('procedure PlayerAllianceChange(aPlayer1, aPlayer2: Byte; aCompliment, aAllied: Boolean)');
 
-      RegisterMethod('procedure RevealCircle(aPlayer, X, Y, aRadius: Word)');
+      RegisterMethod('procedure FogRevealCircle(aPlayer, X, Y, aRadius: Word)');
+      RegisterMethod('procedure FogCoverCircle(aPlayer, X, Y, aRadius: Word)');
+      RegisterMethod('procedure FogRevealAll(aPlayer: Byte)');
+      RegisterMethod('procedure FogCoverAll(aPlayer: Byte)');
       RegisterMethod('procedure SetOverlayText(aPlayer: Word; aText: AnsiString)');
       RegisterMethod('procedure SetTradeAllowed(aPlayer, aResType: Word; aAllowed: Boolean)');
       RegisterMethod('procedure ShowMsg(aPlayer: Word; aText: AnsiString)');
@@ -341,6 +347,7 @@ begin
       RegisterMethod(@TKMScriptStates.PeaceTime, 'PEACETIME');
       RegisterMethod(@TKMScriptStates.Text, 'TEXT');
       RegisterMethod(@TKMScriptStates.TextFormatted, 'TEXTFORMATTED');
+      RegisterMethod(@TKMScriptStates.FogRevealed, 'FOGREVEALED');
 
       RegisterMethod(@TKMScriptStates.GroupAt,          'GROUPAT');
       RegisterMethod(@TKMScriptStates.GroupDead,        'GROUPDEAD');
@@ -396,6 +403,7 @@ begin
       RegisterMethod(@TKMScriptActions.GiveAnimal, 'GIVEANIMAL');
       RegisterMethod(@TKMScriptActions.GiveGroup, 'GIVEGROUP');
       RegisterMethod(@TKMScriptActions.GiveUnit, 'GIVEUNIT');
+      RegisterMethod(@TKMScriptActions.GiveHouse, 'GIVEHOUSE');
       RegisterMethod(@TKMScriptActions.GiveWares, 'GIVEWARES');
 
       RegisterMethod(@TKMScriptActions.GroupOrderAttackHouse, 'GROUPORDERATTACKHOUSE');
@@ -423,8 +431,12 @@ begin
 
       RegisterMethod(@TKMScriptActions.PlayerDefeat, 'PLAYERDEFEAT');
       RegisterMethod(@TKMScriptActions.PlayerWin, 'PLAYERWIN');
+      RegisterMethod(@TKMScriptActions.PlayerAllianceChange, 'PLAYERALLIANCECHANGE');
 
-      RegisterMethod(@TKMScriptActions.RevealCircle, 'REVEALCIRCLE');
+      RegisterMethod(@TKMScriptActions.FogRevealCircle, 'FOGREVEALCIRCLE');
+      RegisterMethod(@TKMScriptActions.FogCoverCircle, 'FOGCOVERCIRCLE');
+      RegisterMethod(@TKMScriptActions.FogRevealAll, 'FOGREVEALALL');
+      RegisterMethod(@TKMScriptActions.FogCoverAll, 'FOGCOVERALL');
       RegisterMethod(@TKMScriptActions.SchoolAddToQueue, 'SCHOOLADDTOQUEUE');
 
       RegisterMethod(@TKMScriptActions.SetOverlayText, 'SETOVERLAYTEXT');

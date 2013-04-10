@@ -31,7 +31,9 @@ type
   public
     constructor Create(X,Y: Word);
     procedure RevealCircle(Pos: TKMPoint; Radius,Amount: Word);
+    procedure CoverCircle(Pos: TKMPoint; Radius: Word);
     procedure RevealEverything;
+    procedure CoverEverything;
     function CheckVerticeRevelation(const X,Y: Word): Byte; override;
     function CheckTileRevelation(const X,Y: Word): Byte; override;
     function CheckRevelation(const aPoint: TKMPointF): Byte; override;
@@ -87,6 +89,17 @@ begin
 end;
 
 
+procedure TKMFogOfWar.CoverCircle(Pos: TKMPoint; Radius: Word);
+var I,K: Integer;
+begin
+  //We inline maths here to gain performance
+  for I := max(Pos.Y-Radius, 0) to min(Pos.Y+Radius, MapY-1) do
+  for K := max(Pos.X-Radius, 0) to min(Pos.X+Radius, MapX-1) do
+  if (sqr(Pos.x-K) + sqr(Pos.y-I)) <= sqr(Radius) then
+    Revelation[I,K].Visibility := 0;
+end;
+
+
 {Reveal whole map to max value}
 procedure TKMFogOfWar.RevealEverything;
 var I,K: Word;
@@ -94,6 +107,15 @@ begin
   for I := 0 to MapY - 1 do
     for K := 0 to MapX - 1 do
       Revelation[I, K].Visibility := FOG_OF_WAR_MAX;
+end;
+
+
+procedure TKMFogOfWar.CoverEverything;
+var I,K: Word;
+begin
+  for I := 0 to MapY - 1 do
+    for K := 0 to MapX - 1 do
+      Revelation[I, K].Visibility := 0;
 end;
 
 
