@@ -482,7 +482,6 @@ type
     fLeftIndex: Integer; //The position of the character shown left-most when text does not fit
     procedure ButtonClick(Sender: TObject; AButton: TMouseButton);
     procedure SetCursorPos(aPos: Integer);
-    procedure SetText(aText: string);
     function MaxLength: Byte;
     procedure SetValue(aValue: Integer);
     procedure ValidateText;
@@ -2525,7 +2524,10 @@ end;
 
 function TKMNumericEdit.MaxLength: Byte;
 begin
-  Result := Trunc(Log10(Max(Abs(ValueMax), Abs(ValueMin)))) + 1;
+  if Max(Abs(ValueMax), Abs(ValueMin)) <> 0 then
+    Result := Trunc(Log10(Max(Abs(ValueMax), Abs(ValueMin)))) + 1
+  else
+    Result := 1;
 end;
 
 
@@ -2554,17 +2556,6 @@ begin
   Hint := aHint;
   fButtonInc.Hint := aHint;
   fButtonDec.Hint := aHint;
-end;
-
-
-procedure TKMNumericEdit.SetText(aText: string);
-begin
-  fText := aText;
-  ValidateText; //Validate first since it could change fText
-  CursorPos := Math.Min(CursorPos, Length(fText));
-  //Setting the text should place cursor to the end
-  fLeftIndex := 0;
-  SetCursorPos(MaxLength);
 end;
 
 
