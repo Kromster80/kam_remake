@@ -46,7 +46,8 @@ Finishing up:
 
 
 After first RC:
- +	Script commands: Actions.FogCoverCircle, Actions.GiveHouse, Actions.PlayerAllianceChange, States.FogRevealed
+ +	New script commands: Actions.FogCoverCircle, Actions.GiveHouse, Actions.PlayerAllianceChange, States.FogRevealed, States.HouseWareBlocked, Actions.HouseWareBlock, States.HouseWoodcutterChopOnly, Actions.HouseWoodcutterChopOnly
+ +	Changed script commands: Added Silent parameter to Actions.KillUnit
 	Ask RC testers to make map from scratch in MapEd
 	Magic water in MapEd?
 	Check main menu / gameplay interfaces for text that needs to be added to the LIBX (e.g. lobby speed)
@@ -56,7 +57,7 @@ After first RC:
 	Performance test the replay of a full MP game to check for chokepoints in a real-world scenario
 	Press release?
 	Decided what to do about proportional/exact weapons production (hybrid solution?)
-	Dynamic script commands: Silent kill unit (no death animation, allows changing farmers to rebels), get/set ware distribution, get/set store/barracks delivery block flags, ClosestUnit/House/Group(X,Y,Player), center screen, select unit/group/house in player's UI, SetWoodCutterMode, AI recruits in barracks (lets you disable/enable AI soldier equipping), equip rate, GiveWeapons (or way to get player's 1st barracks)
+	Dynamic script commands: get/set ware distribution, ClosestUnit/House/Group(X,Y,Player), center screen, select unit/group/house in player's UI, AI recruits in barracks (lets you disable/enable AI soldier equipping), equip rate, GiveWeapons (or way to get player's 1st barracks)
 	DAT script commands: Storehouse/barrack block flags, disable ally fog sharing
 	Write Lazarus network wrapper using base FPC sockets and see if it's more stable than LNet
 	TSK campaign fixes by BornFree (especially faster equip rate), if he fixes issues with food

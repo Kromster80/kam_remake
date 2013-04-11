@@ -59,6 +59,8 @@ type
     function HouseRepair(aHouseID: Integer): Boolean;
     function HouseResourceAmount(aHouseID, aResource: Integer): Integer;
     function HouseType(aHouseID: Integer): Integer;
+    function HouseWoodcutterChopOnly(aHouseID: Integer): Boolean;
+    function HouseWareBlocked(aHouseID, aWareType: Integer): Boolean;
 
     function PlayerAllianceCheck(aPlayer1, aPlayer2: Byte): Boolean;
     function PlayerDefeated(aPlayer: Byte): Boolean;
@@ -113,6 +115,8 @@ type
     procedure HouseDestroy(aHouseID: Integer);
     procedure HouseRepairEnable(aHouseID: Integer; aRepairEnabled: Boolean);
     procedure HouseDeliveryBlock(aHouseID: Integer; aDeliveryBlocked: Boolean);
+    procedure HouseWoodcutterChopOnly(aHouseID: Integer; aChopOnly: Boolean);
+    procedure HouseWareBlock(aHouseID, aWareType: Integer; aBlocked: Boolean);
     procedure HouseUnlock(aPlayer, aHouseType: Word);
     procedure PlayerDefeat(aPlayer: Word);
     procedure PlayerWin(const aVictors: array of Integer; aTeamVictory: Boolean);
@@ -126,7 +130,7 @@ type
     procedure SetOverlayText(aPlayer: Word; aText: AnsiString);
     function  UnitDirectionSet(aUnitID, aDirection: Integer): Boolean;
     procedure UnitHungerSet(aUnitID, aHungerLevel: Integer);
-    procedure UnitKill(aUnitID: Integer);
+    procedure UnitKill(aUnitID: Integer; aSilent: Boolean);
     function  UnitOrderWalk(aUnitID: Integer; X, Y: Word): Boolean;
   end;
 
@@ -451,6 +455,41 @@ begin
   end
   else
     LogError('States.HouseType', [aHouseID]);
+end;
+
+
+function TKMScriptStates.HouseWoodcutterChopOnly(aHouseID: Integer): Boolean;
+var H: TKMHouse;
+begin
+  Result := False;
+  if aHouseID > 0 then
+  begin
+    H := fIDCache.GetHouse(aHouseID);
+    if H is TKMHouseWoodcutters then
+      Result := TKMHouseWoodcutters(H).WoodcutterMode = wcm_Chop;
+  end
+  else
+    LogError('States.HouseWoodcutterChopOnly', [aHouseID]);
+end;
+
+
+function TKMScriptStates.HouseWareBlocked(aHouseID, aWareType: Integer): Boolean;
+var
+  H: TKMHouse;
+  Res: TWareType;
+begin
+  Result := False;
+  Res := WareIndexToType[aWareType];
+  if (aHouseID > 0) and (Res in [WARE_MIN..WARE_MAX]) then
+  begin
+    H := fIDCache.GetHouse(aHouseID);
+    if (H is TKMHouseStore) then
+      Result := TKMHouseStore(H).NotAcceptFlag[Res];
+    if (H is TKMHouseBarracks) then
+      Result := TKMHouseBarracks(H).NotAcceptFlag[Res];
+  end
+  else
+    LogError('States.HouseWareBlocked', [aHouseID, aWareType]);
 end;
 
 
@@ -1151,6 +1190,40 @@ begin
 end;
 
 
+procedure TKMScriptActions.HouseWoodcutterChopOnly(aHouseID: Integer; aChopOnly: Boolean);
+var H: TKMHouse;
+const CHOP_ONLY: array[Boolean] of TWoodcutterMode = (wcm_Chop, wcm_ChopAndPlant);
+begin
+  if aHouseID > 0 then
+  begin
+    H := fIDCache.GetHouse(aHouseID);
+    if H is TKMHouseWoodcutters then
+      TKMHouseWoodcutters(H).WoodcutterMode := CHOP_ONLY[aChopOnly];
+  end
+  else
+    LogError('Actions.HouseWoodcutterChopOnly', [aHouseID, Byte(aChopOnly)]);
+end;
+
+
+procedure TKMScriptActions.HouseWareBlock(aHouseID, aWareType: Integer; aBlocked: Boolean);
+var
+  H: TKMHouse;
+  Res: TWareType;
+begin
+  Res := WareIndexToType[aWareType];
+  if (aHouseID > 0) and (Res in [WARE_MIN..WARE_MAX]) then
+  begin
+    H := fIDCache.GetHouse(aHouseID);
+    if H is TKMHouseStore then
+      TKMHouseStore(H).NotAcceptFlag[Res] := aBlocked;
+    if H is TKMHouseBarracks then
+      TKMHouseBarracks(H).NotAcceptFlag[Res] := aBlocked;
+  end
+  else
+    LogError('Actions.HouseWareBlock', [aHouseID, aWareType, Byte(aBlocked)]);
+end;
+
+
 function TKMScriptActions.SchoolAddToQueue(aHouseID: Integer; aUnitType: Integer; aCount: Integer): Integer;
 var H: TKMHouse;
 begin
@@ -1323,14 +1396,14 @@ begin
 end;
 
 
-procedure TKMScriptActions.UnitKill(aUnitID: Integer);
+procedure TKMScriptActions.UnitKill(aUnitID: Integer; aSilent: Boolean);
 var U: TKMUnit;
 begin
   if (aUnitID > 0) then
   begin
     U := fIDCache.GetUnit(aUnitID);
     if U <> nil then
-      U.KillUnit(-1);
+      U.KillUnit(-1, not aSilent);
   end
   else
     LogError('Actions.UnitKill', [aUnitID]);

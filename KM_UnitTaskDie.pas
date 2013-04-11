@@ -1,14 +1,18 @@
 unit KM_UnitTaskDie;
 {$I KaM_Remake.inc}
 interface
-uses Classes, KM_Defaults, KM_Units, SysUtils;
+uses Classes, KM_CommonClasses, KM_Defaults, KM_Units, SysUtils;
 
 type
   {Yep, this is a Task}
   TTaskDie = class(TUnitTask)
+    private
+      fShowAnimation: Boolean;
     public
-      constructor Create(aUnit: TKMUnit);
+      constructor Create(aUnit: TKMUnit; aShowAnimation: Boolean);
+      constructor Load(LoadStream: TKMemoryStream); override;
       function Execute: TTaskResult; override;
+      procedure Save(SaveStream: TKMemoryStream); override;
     end;
 
 
@@ -17,10 +21,11 @@ uses KM_Sound, KM_PlayersCollection, KM_Resource, KM_Units_Warrior;
 
 
 { TTaskDie }
-constructor TTaskDie.Create(aUnit: TKMUnit);
+constructor TTaskDie.Create(aUnit: TKMUnit; aShowAnimation: Boolean);
 begin
   inherited Create(aUnit);
   fTaskName := utn_Die;
+  fShowAnimation := aShowAnimation;
   //Shortcut to remove the pause before the dying animation which makes fights look odd
   if aUnit.Visible then
   begin
@@ -30,9 +35,22 @@ begin
 end;
 
 
+constructor TTaskDie.Load(LoadStream: TKMemoryStream);
+begin
+  inherited;
+  LoadStream.Read(fShowAnimation);
+end;
+
+
+procedure TTaskDie.Save(SaveStream: TKMemoryStream);
+begin
+  inherited;
+  SaveStream.Write(fShowAnimation);
+end;
+
+
 function TTaskDie.Execute: TTaskResult;
-var
-  SequenceLength: SmallInt;
+var SequenceLength: SmallInt;
 begin
   Result := TaskContinues;
   with fUnit do
@@ -49,19 +67,21 @@ begin
             SetActionGoIn(ua_Walk, gd_GoOutside, fPlayers.HousesHitTest(fUnit.NextPosition.X, fUnit.NextPosition.Y));
           end;
     1:    begin
-            SequenceLength := fResource.UnitDat[UnitType].UnitAnim[ua_Die, Direction].Count;
-            if fUnit is TKMUnitAnimal then //Animals don't have a dying sequence. Can be changed later.
+            if not fShowAnimation or (fUnit is TKMUnitAnimal) then //Animals don't have a dying sequence. Can be changed later.
               SetActionLockedStay(0, ua_Walk, False)
             else
-              SetActionLockedStay(SequenceLength, ua_Die, False);
-            //Do not play sounds if unit is invisible to MySpectator
-            //We should not use KaMRandom below this line because sound playback depends on FOW and is individual for each player
-            if MySpectator.FogOfWar.CheckTileRevelation(fUnit.GetPosition.X, fUnit.GetPosition.Y) >= 255 then
             begin
-              if fUnit is TKMUnitWarrior then
-                fSoundLib.PlayWarrior(fUnit.UnitType, sp_Death, fUnit.PositionF)
-              else
-                fSoundLib.PlayCitizen(fUnit.UnitType, sp_Death, fUnit.PositionF);
+              SequenceLength := fResource.UnitDat[UnitType].UnitAnim[ua_Die, Direction].Count;
+              SetActionLockedStay(SequenceLength, ua_Die, False);
+              //Do not play sounds if unit is invisible to MySpectator
+              //We should not use KaMRandom below this line because sound playback depends on FOW and is individual for each player
+              if MySpectator.FogOfWar.CheckTileRevelation(fUnit.GetPosition.X, fUnit.GetPosition.Y) >= 255 then
+              begin
+                if fUnit is TKMUnitWarrior then
+                  fSoundLib.PlayWarrior(fUnit.UnitType, sp_Death, fUnit.PositionF)
+                else
+                  fSoundLib.PlayCitizen(fUnit.UnitType, sp_Death, fUnit.PositionF);
+              end;
             end;
           end;
     else  begin

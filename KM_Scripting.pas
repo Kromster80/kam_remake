@@ -155,6 +155,8 @@ begin
       RegisterMethod('function HouseRepair(aHouseID: Integer): Boolean');
       RegisterMethod('function HouseResourceAmount(aHouseID, aResource: Integer): Integer');
       RegisterMethod('function HouseType(aHouseID: Integer): Integer');
+      RegisterMethod('function HouseWoodcutterChopOnly(aHouseID: Integer): Boolean');
+      RegisterMethod('function HouseWareBlocked(aHouseID, aWareType: Integer): Boolean');
 
       RegisterMethod('function PlayerAllianceCheck(aPlayer1, aPlayer2: Byte): Boolean');
       RegisterMethod('function PlayerColorText(aPlayer: Byte): AnsiString');
@@ -213,6 +215,8 @@ begin
       RegisterMethod('procedure HouseDestroy(aHouseID: Integer)');
       RegisterMethod('procedure HouseRepairEnable(aHouseID: Integer; aRepairEnabled: Boolean)');
       RegisterMethod('procedure HouseUnlock(aPlayer, aHouseType: Word)');
+      RegisterMethod('procedure HouseWoodcutterChopOnly(aHouseID: Integer; aChopOnly: Boolean)');
+      RegisterMethod('procedure HouseWareBlock(aHouseID, aWareType: Integer; aBlocked: Boolean)');
 
       RegisterMethod('function  PlanAddField(aPlayer, X, Y: Word): Boolean');
       RegisterMethod('function  PlanAddHouse(aPlayer, aHouseType, X, Y: Word): Boolean');
@@ -233,7 +237,7 @@ begin
 
       RegisterMethod('function  UnitDirectionSet(aUnitID, aDirection: Integer): Boolean');
       RegisterMethod('procedure UnitHungerSet(aUnitID, aHungerLevel: Integer)');
-      RegisterMethod('procedure UnitKill(aUnitID: Integer)');
+      RegisterMethod('procedure UnitKill(aUnitID: Integer; aSilent: Boolean)');
       RegisterMethod('function  UnitOrderWalk(aUnitID: Integer; X, Y: Word): Boolean');
     end;
 
@@ -366,6 +370,8 @@ begin
       RegisterMethod(@TKMScriptStates.HouseRepair,          'HOUSEREPAIR');
       RegisterMethod(@TKMScriptStates.HouseResourceAmount,  'HOUSERESOURCEAMOUNT');
       RegisterMethod(@TKMScriptStates.HouseType,            'HOUSETYPE');
+      RegisterMethod(@TKMScriptStates.HouseWoodcutterChopOnly, 'HOUSEWOODCUTTERCHOPONLY');
+      RegisterMethod(@TKMScriptStates.HouseWareBlocked,     'HOUSEWAREBLOCK');
 
       RegisterMethod(@TKMScriptStates.PlayerAllianceCheck,  'PLAYERALLIANCECHECK');
       RegisterMethod(@TKMScriptStates.PlayerColorText,      'PLAYERCOLORTEXT');
@@ -423,6 +429,8 @@ begin
       RegisterMethod(@TKMScriptActions.HouseDestroy, 'HOUSEDESTROY');
       RegisterMethod(@TKMScriptActions.HouseRepairEnable, 'HOUSEREPAIRENABLE');
       RegisterMethod(@TKMScriptActions.HouseUnlock, 'HOUSEUNLOCK');
+      RegisterMethod(@TKMScriptActions.HouseWoodcutterChopOnly, 'HOUSEWOODCUTTERCHOPONLY');
+      RegisterMethod(@TKMScriptActions.HouseWareBlock, 'HOUSEWAREBLOCK');
 
       RegisterMethod(@TKMScriptActions.PlanAddField, 'PLANADDFIELD');
       RegisterMethod(@TKMScriptActions.PlanAddHouse, 'PLANADDHOUSE');
