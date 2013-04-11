@@ -571,7 +571,7 @@ begin
 
   with fDemandCore do
   begin
-    //Balance = Available - Required
+    //Balance = Available - Required + Reserve
     StoreBalance    := HouseCount(ht_Store)       - HouseCount(ht_Any) / 35;
     SchoolBalance   := HouseCount(ht_School)      - 1;
     InnBalance      := HouseCount(ht_Inn)         - P.Stats.GetCitizensCount / 80;
