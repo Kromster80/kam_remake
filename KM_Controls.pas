@@ -811,6 +811,7 @@ type
     procedure ButtonClick(Sender: TObject);
     procedure ListShow(Sender: TObject); virtual;
     procedure ListClick(Sender: TObject); virtual;
+    procedure ListChange(Sender: TObject); virtual;
     procedure ListHide(Sender: TObject); virtual;
     function ListVisible: Boolean; virtual; abstract;
     function GetItemIndex: SmallInt; virtual; abstract;
@@ -844,6 +845,7 @@ type
     procedure UpdateDropPosition; override;
     procedure ListShow(Sender: TObject); override;
     procedure ListClick(Sender: TObject); override;
+    procedure ListChange(Sender: TObject); override;
     procedure ListHide(Sender: TObject); override;
     function ListVisible: Boolean; override;
     function GetItem(aIndex: Integer): string;
@@ -877,6 +879,7 @@ type
     procedure UpdateDropPosition; override;
     procedure ListShow(Sender: TObject); override;
     procedure ListClick(Sender: TObject); override;
+    procedure ListChange(Sender: TObject); override;
     procedure ListHide(Sender: TObject); override;
     function ListVisible: Boolean; override;
     function GetItem(aIndex: Integer): TKMListRow;
@@ -1440,10 +1443,13 @@ end;
 
 
 procedure TKMControl.SetVisible(aValue: Boolean);
+var OldVisible: Boolean;
 begin
+  OldVisible := fVisible;
   fVisible := aValue;
 
-  if Focusable or (Self is TKMPanel) then
+  //Only swap focus if visibility is now different
+  if (OldVisible <> fVisible) and (Focusable or (Self is TKMPanel)) then
     MasterParent.GetCollection.UpdateFocus(Self);
 end;
 
@@ -3336,6 +3342,7 @@ begin
   case Key of
     VK_UP:    NewIndex := fItemIndex - 1;
     VK_DOWN:  NewIndex := fItemIndex + 1;
+    VK_RETURN:if Assigned(fOnClick) then fOnClick(Self); //Trigger click to hide drop downs
     else      Exit;
   end;
 
@@ -3570,6 +3577,7 @@ begin
   fItemIndex  := -1;
   fShowHeader := True;
   SearchColumn := -1; //Disabled by default
+  Focusable := True; //For up/down keys
 
   fHeader := TKMListHeader.Create(aParent, aLeft, aTop, aWidth - fItemHeight, DEF_HEADER_HEIGHT);
 
@@ -3591,9 +3599,6 @@ end;
 procedure TKMColumnBox.SetSearchColumn(aValue: ShortInt);
 begin
   fSearchColumn := aValue;
-
-  //If search is disabled the we obviously dont need a focus
-  Focusable := fSearchColumn <> -1;
 end;
 
 
@@ -3821,6 +3826,7 @@ begin
   case Key of
     VK_UP:    NewIndex := fItemIndex - 1;
     VK_DOWN:  NewIndex := fItemIndex + 1;
+    VK_RETURN:if Assigned(fOnClick) then fOnClick(Self); //Trigger click to hide drop downs
     else      Exit;
   end;
 
@@ -4150,6 +4156,13 @@ begin
 end;
 
 
+procedure TKMDropCommon.ListChange(Sender: TObject);
+begin
+  if (ItemIndex <> -1) then
+    if Assigned(fOnChange) then fOnChange(Self);
+end;
+
+
 procedure TKMDropCommon.ListHide(Sender: TObject);
 begin
   fShape.Hide;
@@ -4202,6 +4215,7 @@ begin
   fList.AutoHideScrollBar := True; //A drop box should only have a scrollbar if required
   fList.BackAlpha := 0.85;
   fList.fOnClick := ListClick;
+  fList.fOnChange := ListChange;
 
   ListHide(nil);
 end;
@@ -4218,6 +4232,14 @@ end;
 
 
 procedure TKMDropList.ListClick(Sender: TObject);
+begin
+  fCaption := fList.Item[ItemIndex];
+
+  inherited;
+end;
+
+
+procedure TKMDropList.ListChange(Sender: TObject);
 begin
   fCaption := fList.Item[ItemIndex];
 
@@ -4363,6 +4385,7 @@ begin
   fList := TKMColumnBox.Create(P, AbsLeft-P.AbsLeft, AbsTop+aHeight-P.AbsTop, aWidth, 0, fFont, aStyle);
   fList.BackAlpha := 0.85;
   fList.OnClick := ListClick;
+  fList.OnChange := ListChange;
 
   DropWidth := aWidth;
 
@@ -4386,6 +4409,12 @@ end;
 
 
 procedure TKMDropColumns.ListClick(Sender: TObject);
+begin
+  inherited;
+end;
+
+
+procedure TKMDropColumns.ListChange(Sender: TObject);
 begin
   inherited;
 end;
