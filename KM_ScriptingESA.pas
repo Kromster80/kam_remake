@@ -997,10 +997,10 @@ var U: TKMUnit;
 begin
   Result := -1;
   //Verify all input parameters
-  if (aType in [UnitTypeToOldIndex[ANIMAL_MIN]..UnitTypeToOldIndex[ANIMAL_MAX]])
+  if (aType in [UnitTypeToIndex[ANIMAL_MIN]..UnitTypeToIndex[ANIMAL_MAX]])
   and fTerrain.TileInMapCoords(X,Y) then
   begin
-    U := fPlayers.PlayerAnimals.AddUnit(UnitOldIndexToType[aType], KMPoint(X,Y));
+    U := fPlayers.PlayerAnimals.AddUnit(UnitIndexToType[aType], KMPoint(X,Y));
     if U <> nil then
       Result := U.ID;
   end
@@ -1093,7 +1093,7 @@ begin
   //Verify all input parameters
   if InRange(aPlayer, 0, fPlayers.Count - 1)
   and (aHouseType in [Low(HouseIndexToType) .. High(HouseIndexToType)]) then
-    fPlayers[aPlayer].Stats.HouseBlocked[HouseIndexToType[aHouseType]] := aAllowed
+    fPlayers[aPlayer].Stats.HouseBlocked[HouseIndexToType[aHouseType]] := not aAllowed
   else
     LogError('Actions.HouseAllow', [aPlayer, aHouseType, Byte(aAllowed)]);
 end;
