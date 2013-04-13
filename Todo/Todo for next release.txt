@@ -28,6 +28,7 @@ Bugs:
  +	Destroying a barracks with a soldier inside caused that soldier to not be assigned to a group or counted in stats (causes crashes in PlayerStats too)
  +	+ - edits in the MapEd are not practical for some things (AI attack delay in seconds, requires 3600 for 1 hour, that's a lot of clicks)
  +	Save out !SET_MAP so that old editors can still open maps saved by MapEd
+ +	Nodes in the campaign builder would jump after moving them
 	Message log should be hidden until the 1st message arrives, looks odd to have a blank scroll
 	Can only place buildings for one player in SP MapEd, for others its just red crosses.
 	Dragging brush in MapEd over minimap should not trigger minimap position change
@@ -62,6 +63,7 @@ After first RC:
 	Write Lazarus network wrapper using base FPC sockets and see if it's more stable than LNet
 	TSK campaign fixes by BornFree (especially faster equip rate), if he fixes issues with food
 	Reminder message if you forget to build the inn?
+	Simple tool to validate a script and list any errors
 
 
 Maps:
