@@ -59,7 +59,7 @@ After first RC:
 	Performance test the replay of a full MP game to check for chokepoints in a real-world scenario
 	Press release?
 	Decided what to do about proportional/exact weapons production (hybrid solution?)
-	Dynamic script commands: get/set ware distribution, ClosestUnit/House/Group(X,Y,Player), center screen, select unit/group/house in player's UI, AI recruits in barracks (lets you disable/enable AI soldier equipping), equip rate, GiveWeapons (or way to get player's 1st barracks)
+	Dynamic script commands in script suggestions
 	DAT script commands: Storehouse/barrack block flags, disable ally fog sharing
 	Write Lazarus network wrapper using base FPC sockets and see if it's more stable than LNet
 	TSK campaign fixes by BornFree (especially faster equip rate), if he fixes issues with food

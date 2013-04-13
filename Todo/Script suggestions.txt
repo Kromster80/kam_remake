@@ -1,0 +1,19 @@
+Accepted:
+	Closest house/unit/group to given XY of certain player and type
+	Change house/unit/group owner
+	Get/set ware distribution
+	AI recruits in barracks (lets you disable/enable AI soldier equipping)
+	GiveWeapons (or way to get player's 1st barracks easily)
+	AI equip rate
+
+
+Proposed:
+	Get units/houses/groups of a certain player (return array of IDs)
+	PlayWAV
+	Change position/alignment/font of overlay text
+	Render sprite onto map (from provided RXX file)
+	Render sprite overlaid on the screen like TKMImage (from provided RXX file)
+	Change which player MySpectator is viewing/controlling
+	Center player screen
+	Block player from moving the viewport or selecting anything (cutscene mode)
+	Select unit/house/group in the player's UI
