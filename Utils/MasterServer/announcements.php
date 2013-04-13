@@ -5,9 +5,14 @@ global $MAIN_VERSION;
 $Lang = $_REQUEST["lang"];
 $Rev = $_REQUEST["rev"];
 
+if($Rev == "r5116")
+{
+  die("Welcome to the scripting demo 2nd RC! Have fun and give us feedback / bug reports! :)");
+}
+
 if($Rev == "r5057")
 {
-  die("Welcome to the scripting demo! Have fun and give us feedback / bug reports! :)");
+  die("The 2nd release candidate is now out! You should have received it by email");
 }
 
 if($Rev == "r4297")
