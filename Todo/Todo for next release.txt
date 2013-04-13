@@ -49,6 +49,7 @@ Finishing up:
 After first RC:
  +	New script commands: Actions.FogCoverCircle, Actions.FogCoverAll, Actions.GiveHouse, Actions.PlayerAllianceChange, States.FogRevealed, States.HouseWareBlocked, Actions.HouseWareBlock, States.HouseWoodcutterChopOnly, Actions.HouseWoodcutterChopOnly
  +	Changed script commands: Added Silent parameter to Actions.KillUnit
+ +	Script Validator: Simple tool to validate a script and list any errors
 	Ask RC testers to make map from scratch in MapEd
 	Magic water in MapEd?
 	Check main menu / gameplay interfaces for text that needs to be added to the LIBX (e.g. lobby speed)
@@ -63,7 +64,6 @@ After first RC:
 	Write Lazarus network wrapper using base FPC sockets and see if it's more stable than LNet
 	TSK campaign fixes by BornFree (especially faster equip rate), if he fixes issues with food
 	Reminder message if you forget to build the inn?
-	Simple tool to validate a script and list any errors
 
 
 Maps:
