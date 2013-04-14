@@ -32,6 +32,7 @@ type
     fDatCRC: Cardinal; //Used to speed up scanning
     fVersion: AnsiString; //Savegame version, yet unused in maps, they always have actual version
     fInfoAmount: TKMMapInfoAmount;
+    procedure ResetInfo;
     procedure LoadFromFile(const aPath: string);
     procedure SaveToFile(const aPath: string);
   public
@@ -176,6 +177,9 @@ begin
     fDatCRC := DatCRC;
     fVersion := GAME_REVISION;
 
+    //First reset everything because e.g. CanBeHuman is assumed false by default and set true when we encounter SET_USER_PLAYER
+    ResetInfo;
+
     fMissionParser := TMissionParserInfo.Create(False);
     try
       //Fill Self properties with MissionParser
@@ -288,6 +292,9 @@ begin
   //Do not append Extra info twice
   if fInfoAmount = iaExtra then Exit;
 
+  //First reset everything because e.g. CanBeHuman is assumed false by default and set true when we encounter SET_USER_PLAYER
+  ResetInfo;
+
   DatFile := fPath + fFileName + '.dat';
   MapFile := fPath + fFileName + '.map';
 
@@ -316,6 +323,31 @@ begin
   end;
 
   fInfoAmount := iaExtra;
+end;
+
+
+procedure TKMapInfo.ResetInfo;
+var I, K: Integer;
+begin
+  IsCoop := False;
+  IsSpecial := False;
+  MissionMode := mm_Normal;
+  DefaultHuman := 0;
+  Author := '';
+  SmallDesc := '';
+  BigDesc := '';
+  for I:=0 to MAX_PLAYERS-1 do
+  begin
+    FlagColors[I] := DefaultTeamColors[I];
+    CanBeHuman[I] := False;
+    CanBeAI[I] := False;
+    GoalsVictoryCount[I] := 0;
+    SetLength(GoalsVictory[I], 0);
+    GoalsSurviveCount[I] := 0;
+    SetLength(GoalsSurvive[I], 0);
+    for K:=0 to MAX_PLAYERS-1 do
+      Alliances[I,K] := at_Enemy;
+  end;
 end;
 
 

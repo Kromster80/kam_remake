@@ -13,15 +13,6 @@ type
     pmExtra //Load extra map info to be displayed when map is selected (goals, alliances, etc)
     );
 
-  TKMMissionInfo = class
-  public
-    MissionMode: TKMissionMode;
-    PlayerCount: ShortInt;
-    DefaultHuman: ShortInt;
-    PlayerHuman: array [0..MAX_PLAYERS-1] of Boolean;
-    PlayerAI: array [0..MAX_PLAYERS-1] of Boolean;
-  end;
-
 
   TMissionParserInfo = class(TMissionParserCommon)
   private

@@ -3,6 +3,7 @@ Since 1st RC:
 =============
 
 Bugs:
+ +	Map info was not reset properly before updating it, meaning CanBeHuman and CanBeAI wouldn't update until you deleted the .mi file
 	Message log should be hidden until the 1st message arrives, looks odd to have a blank scroll
 	Can only place buildings for one player in SP MapEd, for others its just red crosses.
 	Dragging brush in MapEd over minimap should not trigger minimap position change
