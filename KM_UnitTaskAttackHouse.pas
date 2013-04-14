@@ -116,6 +116,13 @@ begin
     1: begin
          if IsRanged then
          begin
+           //Check if the walk failed
+           if (fHouse.GetDistance(GetPosition) < GetFightMinRange) or (fHouse.GetDistance(GetPosition) > GetFightMaxRange) then
+           begin
+             SetActionStay(0, ua_Walk);
+             Result := TaskDone;
+             Exit;
+           end;
            if UnitType = ut_Arbaletman then
              SetActionLockedStay(CROSSBOWMEN_AIMING_DELAY_MIN+KaMRandom(CROSSBOWMEN_AIMING_DELAY_ADD),ua_Work,true) //Pretend to aim
            else
@@ -132,6 +139,13 @@ begin
          end
          else
          begin
+           //Check if the walk failed
+           if fHouse.GetDistance(GetPosition) > GetFightMaxRange then
+           begin
+             SetActionStay(0, ua_Walk);
+             Result := TaskDone;
+             Exit;
+           end;
            SetActionLockedStay(0,ua_Work,false); //Melee units pause after the hit
            if not KMSamePoint(GetPosition, fHouse.GetClosestCell(GetPosition)) then //Unbuilt houses can be attacked from within
              Direction := KMGetDirection(GetPosition, fHouse.GetClosestCell(GetPosition)); //Look at house
