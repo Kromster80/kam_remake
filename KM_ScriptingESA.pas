@@ -1192,7 +1192,7 @@ end;
 
 procedure TKMScriptActions.HouseWoodcutterChopOnly(aHouseID: Integer; aChopOnly: Boolean);
 var H: TKMHouse;
-const CHOP_ONLY: array[Boolean] of TWoodcutterMode = (wcm_Chop, wcm_ChopAndPlant);
+const CHOP_ONLY: array[Boolean] of TWoodcutterMode = (wcm_ChopAndPlant, wcm_Chop);
 begin
   if aHouseID > 0 then
   begin
