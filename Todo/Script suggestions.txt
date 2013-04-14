@@ -17,3 +17,4 @@ Proposed:
 	Center player screen
 	Block player from moving the viewport or selecting anything (cutscene mode)
 	Select unit/house/group in the player's UI
+	Removing wares from houses (only if serfs haven't reserved them)
