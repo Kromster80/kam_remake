@@ -5,7 +5,7 @@ Accepted:
 	AI recruits in barracks (lets you disable/enable AI soldier equipping)
 	GiveWeapons (or way to get player's 1st barracks easily)
 	AI equip rate
-
+  Allow to query count of placed house plans
 
 Proposed:
 	Get units/houses/groups of a certain player (return array of IDs)
