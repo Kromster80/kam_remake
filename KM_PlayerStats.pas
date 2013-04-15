@@ -382,6 +382,7 @@ begin
 end;
 
 
+//How many wares player has
 function TKMPlayerStats.GetWareBalance(aRT: TWareType): Integer;
 var RT: TWareType;
 begin

@@ -760,6 +760,15 @@ begin
     Result := fAdvice[0]
   else
     Result := ht_None;
+
+  //Do not build extra houses if we are low on Stone
+  if (fPlayers[fOwner].Stats.GetHouseQty(ht_Quary) = 0) and
+  (fPlayers[fOwner].Stats.GetWareBalance(wt_Stone) < 40) then
+  while not (Result in [ht_None, ht_School, ht_Quary]) do
+  begin
+    Take;
+    Result := Peek;
+  end;
 end;
 
 
