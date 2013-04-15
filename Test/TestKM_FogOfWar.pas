@@ -59,11 +59,10 @@ var
   aSkipForReplay: Boolean;
 begin
   FKMFogOfWar.RevealEverything;
-  aSkipForReplay := False;
   for I := 0 to 7 do
   for K := 0 to 7 do
   begin
-    ReturnValue := FKMFogOfWar.CheckVerticeRevelation(I, K, aSkipForReplay);
+    ReturnValue := FKMFogOfWar.CheckVerticeRevelation(I, K);
     Check(ReturnValue = 255, IntToStr(I)+IntToStr(K));
   end;
 end;
@@ -76,12 +75,11 @@ var
   aSkipForReplay: Boolean;
 begin
   FKMFogOfWar.RevealEverything;
-  aSkipForReplay := False;
 
   for I := 0 to 8 do
   for K := 0 to 8 do
   begin
-    ReturnValue := FKMFogOfWar.CheckTileRevelation(I, K, aSkipForReplay);
+    ReturnValue := FKMFogOfWar.CheckTileRevelation(I, K);
     if InRange(I, 1, 7) and InRange(K, 1, 7) then
       Check(ReturnValue = 255, IntToStr(I)+IntToStr(K))
     else
@@ -97,11 +95,10 @@ var
   aPoint: TKMPointF;
 begin
   FKMFogOfWar.RevealEverything;
-  aSkipForReplay := False;
   for I := -10 to 800 do
   for K := -10 to 800 do
   begin
-    ReturnValue := FKMFogOfWar.CheckRevelation(KMPointF(I/100, K/100), aSkipForReplay);
+    ReturnValue := FKMFogOfWar.CheckRevelation(KMPointF(I/100, K/100));
     if InRange(I/100, 0.001, 6.999) and InRange(K/100, 0.001, 6.999) then
       Check(ReturnValue = 255, IntToStr(I)+IntToStr(K))
     else

@@ -41,6 +41,7 @@ type
 
 
 implementation
+uses KM_PlayerSpectator;
 
 
 procedure TKMRunnerStone.SetUp;
@@ -160,7 +161,7 @@ end;
 procedure TKMRunnerAIBuild.SetUp;
 begin
   inherited;
-  fResults.ValueCount := 5;
+  fResults.ValueCount := 6;
   fResults.TimesCount := 60*60*10;
 end;
 
@@ -176,20 +177,18 @@ procedure TKMRunnerAIBuild.Execute(aRun: Integer);
 begin
   fGameApp.NewSingleMap(ExtractFilePath(ParamStr(0)) + '..\..\Maps\AcrossDesert\AcrossDesert.dat', 'Across the Desert');
 
-  fPlayers.RemovePlayer(0);
-  MyPlayer := fPlayers[0];
-
   SetKaMSeed(aRun + 1);
 
   SimulateGame;
 
   fGameApp.Game.Save('AI Build #' + IntToStr(aRun));
 
-  fResults.Value[aRun, 0] := fPlayers[0].Stats.GetWarriorsTrained;
+  {fResults.Value[aRun, 0] := fPlayers[0].Stats.GetWarriorsTrained;
   fResults.Value[aRun, 1] := fPlayers[1].Stats.GetWarriorsTrained;
   fResults.Value[aRun, 2] := fPlayers[2].Stats.GetWarriorsTrained;
   fResults.Value[aRun, 3] := fPlayers[3].Stats.GetWarriorsTrained;
   fResults.Value[aRun, 4] := fPlayers[4].Stats.GetWarriorsTrained;
+  fResults.Value[aRun, 5] := fPlayers[5].Stats.GetWarriorsTrained;}
 
   {fResults.Value[aRun, 0] := fPlayers[0].Stats.GetGoodsProduced(rt_Stone);
   fResults.Value[aRun, 1] := fPlayers[1].Stats.GetGoodsProduced(rt_Stone);
@@ -197,11 +196,12 @@ begin
   fResults.Value[aRun, 3] := fPlayers[3].Stats.GetGoodsProduced(rt_Stone);
   fResults.Value[aRun, 4] := fPlayers[4].Stats.GetGoodsProduced(rt_Stone);}
 
-  {fResults.Value[aRun, 0] := fPlayers[0].Stats.GetHousesBuilt;
-  fResults.Value[aRun, 1] := fPlayers[0].Stats.GetHousesBuilt;
-  fResults.Value[aRun, 2] := fPlayers[0].Stats.GetHousesBuilt;
-  fResults.Value[aRun, 3] := fPlayers[0].Stats.GetHousesBuilt;
-  fResults.Value[aRun, 4] := fPlayers[0].Stats.GetHousesBuilt;}
+  fResults.Value[aRun, 0] := fPlayers[0].Stats.GetHousesBuilt;
+  fResults.Value[aRun, 1] := fPlayers[1].Stats.GetHousesBuilt;
+  fResults.Value[aRun, 2] := fPlayers[2].Stats.GetHousesBuilt;
+  fResults.Value[aRun, 3] := fPlayers[3].Stats.GetHousesBuilt;
+  fResults.Value[aRun, 4] := fPlayers[4].Stats.GetHousesBuilt;
+  fResults.Value[aRun, 5] := fPlayers[5].Stats.GetHousesBuilt;
 
   fGameApp.Stop(gr_Silent);
 end;

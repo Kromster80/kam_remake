@@ -62,7 +62,8 @@ end;
 
 function TKMSpectator.FogOfWar: TKMFogOfWarCommon;
 begin
-  if fGame.IsReplay or fGame.IsMapEditor then
+  //fGame = nil in Tests
+  if (fGame <> nil) and (fGame.IsReplay or fGame.IsMapEditor) then
     if FOWIndex = -1 then
       Result := fFogOfWar
     else

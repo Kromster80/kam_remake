@@ -21,7 +21,7 @@ type
 
 
 implementation
-uses KM_Log, KM_PlayersCollection, KM_Resource, KM_Sound, KM_Terrain, KM_Utils;
+uses KM_Log, KM_PlayersCollection, KM_PlayerSpectator, KM_Resource, KM_Sound, KM_Terrain, KM_Utils;
 
 
 procedure TestTUnitActionGoInOut.SetUp;
@@ -38,7 +38,7 @@ begin
   fTerrain.MakeNewMap(32, 32, False);
   fPlayers := TKMPlayersCollection.Create;
   fPlayers.AddPlayers(1);
-  MyPlayer := fPlayers[0];
+  MySpectator := TKMSpectator.Create(0);
 
   fUnit := TKMUnit.Create(0, ut_Serf, KMPoint(8, 10), 0);
   fHouse := TKMHouse.Create(0, ht_Store, 9, 9, 0, hbs_Done);
