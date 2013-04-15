@@ -1,15 +1,21 @@
 Accepted:
+	States.UnitDirection
 	Closest house/unit/group to given XY of certain player and type
 	Change house/unit/group owner
 	Get/set ware distribution
 	AI recruits in barracks (lets you disable/enable AI soldier equipping)
 	GiveWeapons (or way to get player's 1st barracks easily)
 	AI equip rate
-  Allow to query count of placed house plans
+	Allow to query count of placed house plans
+	Command to add default economic or fighting goals (e.g. for multiplayer because teams are not fixed to locations)
+	Get all units/houses/groups as an array of integer of a certain player and certain type (set of unit/house types)
+	Query school queue
+	Query amount of weapons ordered
+
 
 Proposed:
 	Get units/houses/groups of a certain player (return array of IDs)
-	PlayWAV
+	PlayWAV (and option to disable normal sound for messages?)
 	Change position/alignment/font of overlay text
 	Render sprite onto map (from provided RXX file)
 	Render sprite overlaid on the screen like TKMImage (from provided RXX file)
@@ -18,3 +24,4 @@ Proposed:
 	Block player from moving the viewport or selecting anything (cutscene mode)
 	Select unit/house/group in the player's UI
 	Removing wares from houses (only if serfs haven't reserved them)
+	Disable "house not occupied" messages for a specific house (needed for tower defence)

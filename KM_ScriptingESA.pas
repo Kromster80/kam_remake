@@ -485,7 +485,7 @@ begin
     H := fIDCache.GetHouse(aHouseID);
     if (H is TKMHouseStore) then
       Result := TKMHouseStore(H).NotAcceptFlag[Res];
-    if (H is TKMHouseBarracks) then
+    if (H is TKMHouseBarracks) and (Res in [WARFARE_MIN..WARFARE_MAX]) then
       Result := TKMHouseBarracks(H).NotAcceptFlag[Res];
   end
   else
@@ -1216,7 +1216,7 @@ begin
     H := fIDCache.GetHouse(aHouseID);
     if H is TKMHouseStore then
       TKMHouseStore(H).NotAcceptFlag[Res] := aBlocked;
-    if H is TKMHouseBarracks then
+    if (H is TKMHouseBarracks) and (Res in [WARFARE_MIN..WARFARE_MAX]) then
       TKMHouseBarracks(H).NotAcceptFlag[Res] := aBlocked;
   end
   else

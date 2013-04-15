@@ -16,6 +16,7 @@ Bugs:
 	Locations list in the lobby should only show ones which can currently be selected, ones which are taken should be hidden
 	AI seems to build lots of armour smithies/workshops but no weapons smithies/workshops (e.g. Across the Desert)
 	When you select a warrior you always play his individual sound. But when you select another warrior from the same squad the sound is not playing
+	AIs in MP maps won't defend because they don't have AutoDefence enabled
 
 
 Finishing up:
