@@ -198,12 +198,12 @@ begin
   //Find and hide old chart
   for I := Low(TWareType) to High(TWareType) do
   begin
-    Chart_MPWares[I].Visible := False;
-
     //Remember which lines were visible
     if Chart_MPWares[I].Visible then
     for K := 0 to Chart_MPWares[I].LineCount - 1 do
       fPlayersVisible[Chart_MPWares[I].Lines[K].Tag] := Chart_MPWares[I].Lines[K].Visible;
+
+    Chart_MPWares[I].Visible := False;
   end;
 
   Chart_MPWares[R].Visible := True;
