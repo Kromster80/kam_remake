@@ -1182,12 +1182,22 @@ procedure TKMHouse.IncAnimStep;
 const
   //How much ticks it takes for a house to become completely covered in snow
   SNOW_TIME = 300;
+var
+  WasOnSnow: Boolean;
 begin
   Inc(FlagAnimStep);
   Inc(WorkAnimStep);
 
+  if (FlagAnimStep mod 10 = 0) and fGame.IsMapEditor then
+  begin
+    WasOnSnow := fIsOnSnow;
+    CheckOnSnow;
+    if not WasOnSnow or not fIsOnSnow then
+      fSnowStep := 0;
+  end;
+
   if fIsOnSnow and (fSnowStep < 1) then
-    fSnowStep := Min(fSnowStep + (1 + Byte(fGame.IsMapEditor) * 2) / SNOW_TIME, 1);
+    fSnowStep := Min(fSnowStep + (1 + Byte(fGame.IsMapEditor) * 10) / SNOW_TIME, 1);
 
   //FlagAnimStep is a sort of counter to reveal terrain once a sec
   if FOG_OF_WAR_ENABLE then
