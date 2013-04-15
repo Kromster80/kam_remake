@@ -1219,7 +1219,7 @@ end;
 
 procedure TKMControl.MouseMove(X,Y: Integer; Shift: TShiftState);
 begin
-  //if Assigned(fOnMouseOver) then fOnMouseOver(Self);
+  //if Assigned(fOnMouseOver) then fOnMouseOver(Self); { Unused }
 end;
 
 
@@ -1976,7 +1976,7 @@ begin
   StateSet := [];
   if (csOver in State) and fEnabled then
     StateSet := StateSet + [bsOver];
-  if (csDown in State) then
+  if (csOver in State) and (csDown in State) then
     StateSet := StateSet + [bsDown];
   if not fEnabled then
     StateSet := StateSet + [bsDisabled];
@@ -2023,8 +2023,8 @@ begin
 
   if TexID <> 0 then
     TKMRenderUI.WritePicture(AbsLeft + TexOffsetX,
-                           AbsTop + TexOffsetY - 6 * Byte(Caption <> ''),
-                           Width, Height, [], RX, TexID, fEnabled, FlagColor);
+                             AbsTop + TexOffsetY - 6 * Byte(Caption <> ''),
+                             Width, Height, [], RX, TexID, fEnabled, FlagColor);
 
   if (csOver in State) and fEnabled and not HideHighlight then
     TKMRenderUI.WriteShape(AbsLeft+1, AbsTop+1, Width-2, Height-2, $40FFFFFF);
@@ -4682,6 +4682,7 @@ end;
 procedure TKMMinimapView.MouseDown(X,Y: Integer; Shift: TShiftState; Button: TMouseButton);
 begin
   inherited;
+
   MouseMove(X,Y,Shift);
 end;
 
@@ -4707,6 +4708,7 @@ var
   T: TKMPoint;
 begin
   inherited;
+
   if fClickableOnce then
   begin
     fClickableOnce := False; //Not clickable anymore
@@ -5291,16 +5293,19 @@ end;
 procedure TKMMasterControl.MouseDown(X,Y: Integer; Shift: TShiftState; Button: TMouseButton);
 begin
   CtrlDown := HitControl(X,Y);
-  if CtrlDown <> nil then CtrlDown.MouseDown(X,Y,Shift,Button);
+  if CtrlDown <> nil then
+    CtrlDown.MouseDown(X, Y, Shift, Button);
 end;
 
 
 procedure TKMMasterControl.MouseMove(X,Y: Integer; Shift: TShiftState);
 var HintControl: TKMControl;
 begin
-  if CtrlDown = nil then CtrlOver := HitControl(X,Y); //User is dragging some Ctrl (e.g. scrollbar) and went away from Ctrl bounds
-  if CtrlOver <> nil then
-    CtrlOver.MouseMove(X,Y,Shift);
+  CtrlOver := HitControl(X,Y);
+
+  //User is dragging some Ctrl (e.g. scrollbar) and went away from Ctrl bounds
+  if CtrlDown <> nil then
+    CtrlDown.MouseMove(X, Y, Shift);
 
   //The Game hides cursor when using DirectionSelector, don't spoil it
   if fResource.Cursors.Cursor <> kmc_Invisible then
@@ -5310,12 +5315,12 @@ begin
     if CtrlOver is TKMDragger then
       fResource.Cursors.Cursor := kmc_DragUp
     else
-      if fResource.Cursors.Cursor in [kmc_Edit,kmc_DragUp] then
+      if fResource.Cursors.Cursor in [kmc_Edit, kmc_DragUp] then
         fResource.Cursors.Cursor := kmc_Default; //Reset the cursor from these two special cursors
 
-  HintControl := HitControl(X,Y,true); //Include disabled controls
-  if (HintControl <> nil) and Assigned(fOnHint) then fOnHint(HintControl);
-  if (CtrlDown <> nil) and (CtrlOver <> CtrlDown) then CtrlDown := nil;
+  HintControl := HitControl(X, Y, True); //Include disabled controls
+  if (CtrlDown = nil) and (HintControl <> nil) and Assigned(fOnHint) then
+    fOnHint(HintControl);
 end;
 
 
@@ -5333,15 +5338,18 @@ begin
   else
     fCtrlDown := nil;
 
-  if CtrlUp <> nil then CtrlUp.MouseUp(X,Y,Shift,Button);
+  if CtrlUp <> nil then
+    CtrlUp.MouseUp(X, Y, Shift, Button);
+
+  //Do not place any code here, we could have Exited in OnClick event
 end;
 
 
 procedure TKMMasterControl.MouseWheel(X,Y: Integer; WheelDelta: Integer);
 var C: TKMControl;
 begin
-  C := HitControl(X,Y);
-  if C <> nil then C.MouseWheel(C,WheelDelta);
+  C := HitControl(X, Y);
+  if C <> nil then C.MouseWheel(C, WheelDelta);
 end;
 
 
