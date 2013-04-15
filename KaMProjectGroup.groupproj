@@ -48,6 +48,9 @@
 			<Projects Include="Utils\TileResampler\TilesetResampler.dproj">
 				<Dependencies/>
 			</Projects>
+			<Projects Include="Utils\ScriptValidator\ScriptValidator.dproj">
+				<Dependencies/>
+			</Projects>
 		</ItemGroup>
 		<ProjectExtensions>
 			<Borland.Personality>Default.Personality.12</Borland.Personality>
@@ -191,14 +194,23 @@
 		<Target Name="TilesetResampler:Make">
 			<MSBuild Projects="Utils\TileResampler\TilesetResampler.dproj" Targets="Make"/>
 		</Target>
+		<Target Name="ScriptValidator">
+			<MSBuild Projects="Utils\ScriptValidator\ScriptValidator.dproj"/>
+		</Target>
+		<Target Name="ScriptValidator:Clean">
+			<MSBuild Projects="Utils\ScriptValidator\ScriptValidator.dproj" Targets="Clean"/>
+		</Target>
+		<Target Name="ScriptValidator:Make">
+			<MSBuild Projects="Utils\ScriptValidator\ScriptValidator.dproj" Targets="Make"/>
+		</Target>
 		<Target Name="Build">
-			<CallTarget Targets="KaM_Remake;KaM_RemakeTests;KaM_RemakeTestFunc;Runner;CampaignBuilder;RXXEditor;RXXPacker;TranslationManager;Batcher;KaM_DedicatedServer;KaM_DedicatedServerGUI;FontEditor;KM_Editor;TileEditor;TilesetResampler"/>
+			<CallTarget Targets="KaM_Remake;KaM_RemakeTests;KaM_RemakeTestFunc;Runner;CampaignBuilder;RXXEditor;RXXPacker;TranslationManager;Batcher;KaM_DedicatedServer;KaM_DedicatedServerGUI;FontEditor;KM_Editor;TileEditor;TilesetResampler;ScriptValidator"/>
 		</Target>
 		<Target Name="Clean">
-			<CallTarget Targets="KaM_Remake:Clean;KaM_RemakeTests:Clean;KaM_RemakeTestFunc:Clean;Runner:Clean;CampaignBuilder:Clean;RXXEditor:Clean;RXXPacker:Clean;TranslationManager:Clean;Batcher:Clean;KaM_DedicatedServer:Clean;KaM_DedicatedServerGUI:Clean;FontEditor:Clean;KM_Editor:Clean;TileEditor:Clean;TilesetResampler:Clean"/>
+			<CallTarget Targets="KaM_Remake:Clean;KaM_RemakeTests:Clean;KaM_RemakeTestFunc:Clean;Runner:Clean;CampaignBuilder:Clean;RXXEditor:Clean;RXXPacker:Clean;TranslationManager:Clean;Batcher:Clean;KaM_DedicatedServer:Clean;KaM_DedicatedServerGUI:Clean;FontEditor:Clean;KM_Editor:Clean;TileEditor:Clean;TilesetResampler:Clean;ScriptValidator:Clean"/>
 		</Target>
 		<Target Name="Make">
-			<CallTarget Targets="KaM_Remake:Make;KaM_RemakeTests:Make;KaM_RemakeTestFunc:Make;Runner:Make;CampaignBuilder:Make;RXXEditor:Make;RXXPacker:Make;TranslationManager:Make;Batcher:Make;KaM_DedicatedServer:Make;KaM_DedicatedServerGUI:Make;FontEditor:Make;KM_Editor:Make;TileEditor:Make;TilesetResampler:Make"/>
+			<CallTarget Targets="KaM_Remake:Make;KaM_RemakeTests:Make;KaM_RemakeTestFunc:Make;Runner:Make;CampaignBuilder:Make;RXXEditor:Make;RXXPacker:Make;TranslationManager:Make;Batcher:Make;KaM_DedicatedServer:Make;KaM_DedicatedServerGUI:Make;FontEditor:Make;KM_Editor:Make;TileEditor:Make;TilesetResampler:Make;ScriptValidator:Make"/>
 		</Target>
 		<Import Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')" Project="$(BDS)\Bin\CodeGear.Group.Targets"/>
 	</Project>
