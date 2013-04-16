@@ -119,12 +119,6 @@ end;
 procedure TRVOSimulator.SetNumWorkers(numWorkers: Integer);
 begin
   _numWorkers := numWorkers;
-  {if (_numWorkers <= 0) then
-  begin
-      int completionPorts;
-      ThreadPool.GetMinThreads(out _numWorkers, out completionPorts);
-  end;
-  _workers := nil;}
 end;
 
 

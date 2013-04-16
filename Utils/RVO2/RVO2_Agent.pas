@@ -39,7 +39,7 @@
  *)
 unit RVO2_Agent;
 interface
-uses Classes,
+uses Classes, Math,
   RVO2_Vector2, RVO2_Obstacle;
 
 type
@@ -57,12 +57,12 @@ type
 
   TRVOAgent = class
   public
-    agentNeighbors_: TList;
+    agentNeighbors_: array of TRVOKeyValueAgent;
     maxNeighbors_: Integer;
     maxSpeed_: Single;
     neighborDist_: Single;
     newVelocity_: TRVOVector2;
-    obstacleNeighbors_: TList;
+    obstacleNeighbors_: array of TRVOKeyValueObstacle;
     orcaLines_: TList;
     position_: TRVOVector2;
     prefVelocity_: TRVOVector2;
@@ -77,6 +77,9 @@ type
     procedure insertAgentNeighbor(agent: TRVOAgent; rangeSq: Single);
     procedure insertObstacleNeighbor(obstacle: TRVOObstacle; rangeSq: Single);
     procedure update;
+    function linearProgram1(lines: TList; lineNo: Integer; radius: Single; optVelocity: TRVOVector2; directionOpt: Boolean; var result_1: TRVOVector2): Boolean;
+    function linearProgram2(lines: TList; radius: Single; optVelocity: TRVOVector2; directionOpt: Boolean; var result_1: TRVOVector2): Integer;
+    procedure linearProgram3(lines: TList; numObstLines, beginLine: Integer; radius: Single; var result_1: TRVOVector2);
   end;
 
 
@@ -88,8 +91,6 @@ uses RVO2_Line, RVO2_Math, RVO2_Simulator;
 constructor TRVOAgent.Create;
 begin
 
-  agentNeighbors_ := TList.Create;
-  obstacleNeighbors_ := TList.Create;
   orcaLines_ := TList.Create;
 end;
 
@@ -98,11 +99,11 @@ procedure TRVOAgent.computeNeighbors;
 var
   rangeSq: Single;
 begin
-  obstacleNeighbors_.Clear;
+  SetLength(obstacleNeighbors_, 0);
   rangeSq := Sqr(timeHorizonObst_ * maxSpeed_ + radius_);
   gSimulator.kdTree_.computeObstacleNeighbors(Self, rangeSq);
 
-  agentNeighbors_.Clear;
+  SetLength(agentNeighbors_, 0);
   if (maxNeighbors_ > 0) then
   begin
     rangeSq := Sqr(neighborDist_);
@@ -127,13 +128,30 @@ var
   leg1, leg2: Single;
   leftNeighbor: TRVOObstacle;
   isLeftLegForeign, isRightLegForeign: Boolean;
+  leftCutoff, rightCutoff, cutoffVec: TRVOVector2;
+  t, tLeft, tRight: Single;
+  unitW: TRVOVector2;
+  distSqCutoff, distSqLeft, distSqRight: Single;
+  numObstLines: Integer;
+  invTimeHorizon: Single;
+
+  other: TRVOAgent;
+  relativePosition, relativeVelocity:TRVOVector2;
+  distSq, combinedRadius, combinedRadiusSq: Single;
+  u,w: TRVOVector2;
+  wLengthSq, dotProduct1: Single;
+  wLength: Single;
+  leg: Single;
+  dotProduct2: Single;
+  invTimeStep: Single;
+  lineFail: Integer;
 begin
   orcaLines_.Clear;
 
   invTimeHorizonObst := 1 / timeHorizonObst_;
 
   //Create obstacle ORCA lines.
-  for i := 0 to obstacleNeighbors_.Count - 1 do
+  for i := 0 to Length(obstacleNeighbors_) - 1 do
   begin
 
     obstacle1 := TRVOKeyValueObstacle(obstacleNeighbors_[i]).Value;
@@ -305,404 +323,433 @@ begin
     end;
 
     // Compute cut-off centers. */
-    Vector2 leftCutoff = invTimeHorizonObst * (obstacle1.point_ - position_);
-    Vector2 rightCutoff = invTimeHorizonObst * (obstacle2.point_ - position_);
-    Vector2 cutoffVec = rightCutoff - leftCutoff;
+    leftCutoff := Vector2Scale(Vector2Sub(obstacle1.point_, position_), invTimeHorizonObst);
+    rightCutoff := Vector2Scale(Vector2Sub(obstacle2.point_, position_), invTimeHorizonObst);
+    cutoffVec := Vector2Sub(rightCutoff, leftCutoff);
 
-    /* Project current velocity on velocity obstacle. */
+    // Project current velocity on velocity obstacle.
 
-    /* Check if current velocity is projected on cutoff circles. */
-    float t = (obstacle1 == obstacle2 ? 0.5f : ((velocity_ - leftCutoff) * cutoffVec) / RVOMath.absSq(cutoffVec));
-    float tLeft = ((velocity_ - leftCutoff) * leftLegDirection);
-    float tRight = ((velocity_ - rightCutoff) * rightLegDirection);
+    // Check if current velocity is projected on cutoff circles.
+    t := IfThen(obstacle1 = obstacle2, 0.5, Vector2Mul(Vector2Sub(velocity_, leftCutoff), cutoffVec) / absSq(cutoffVec));
+    tLeft := Vector2Mul(Vector2Sub(velocity_, leftCutoff), leftLegDirection);
+    tRight := Vector2Mul(Vector2Sub(velocity_, rightCutoff), rightLegDirection);
 
-    if ((t < 0.0f && tLeft < 0.0f) || (obstacle1 == obstacle2 && tLeft < 0.0f && tRight < 0.0f))
+    if ((t < 0) and (tLeft < 0) or (obstacle1 = obstacle2) and (tLeft < 0) and (tRight < 0)) then
     begin
-        /* Project on left cut-off circle. */
-        Vector2 unitW = RVOMath.normalize(velocity_ - leftCutoff);
+        // Project on left cut-off circle.
+        unitW := normalize(Vector2Sub(velocity_, leftCutoff));
 
-        line.direction = new Vector2(unitW.y(), -unitW.x());
-        line.point = leftCutoff + radius_ * invTimeHorizonObst * unitW;
+        line.direction.X := unitW.y;
+        line.direction.Y := -unitW.x;
+        line.point := Vector2Add(leftCutoff, Vector2Scale(unitW, radius_ * invTimeHorizonObst));
+        orcaLines_.Add(line);
+        continue;
+    end
+    else if (t > 1) and (tRight < 0) then
+    begin
+        // Project on right cut-off circle.
+        unitW := normalize(Vector2Sub(velocity_, rightCutoff));
+
+        line.direction.X := unitW.y;
+        line.direction.Y := -unitW.x;
+        line.point := Vector2Add(rightCutoff, Vector2Scale(unitW, radius_ * invTimeHorizonObst));
         orcaLines_.Add(line);
         continue;
     end;
-    else if (t > 1.0f && tRight < 0.0f)
+
+    //Project on left leg, right leg, or cut-off line, whichever is closest
+    //to velocity.
+
+    distSqCutoff := IfThen((t < 0) or (t > 1) or (obstacle1 = obstacle2), MaxSingle, absSq(Vector2Sub(velocity_, Vector2Add(leftCutoff, Vector2Scale(t, cutoffVec)))));
+    distSqLeft := IfThen(tLeft < 0, MaxSingle, absSq(Vector2Sub(velocity_, Vector2Add(leftCutoff, Vector2Scale(tLeft, leftLegDirection)))));
+    distSqRight := IfThen(tRight < 0, MaxSingle, absSq(Vector2Sub(velocity_, Vector2Add(rightCutoff, Vector2Scale(tRight, rightLegDirection)))));
+
+    if (distSqCutoff <= distSqLeft) and (distSqCutoff <= distSqRight) then
     begin
-        /* Project on right cut-off circle. */
-        Vector2 unitW = RVOMath.normalize(velocity_ - rightCutoff);
-
-        line.direction = new Vector2(unitW.y(), -unitW.x());
-        line.point = rightCutoff + radius_ * invTimeHorizonObst * unitW;
-        orcaLines_.Add(line);
-        continue;
-    end;
-
-    /*
-     * Project on left leg, right leg, or cut-off line, whichever is closest
-     * to velocity.
-     */
-    float distSqCutoff = ((t < 0.0f || t > 1.0f || obstacle1 == obstacle2) ? float.PositiveInfinity : RVOMath.absSq(velocity_ - (leftCutoff + t * cutoffVec)));
-    float distSqLeft = ((tLeft < 0.0f) ? float.PositiveInfinity : RVOMath.absSq(velocity_ - (leftCutoff + tLeft * leftLegDirection)));
-    float distSqRight = ((tRight < 0.0f) ? float.PositiveInfinity : RVOMath.absSq(velocity_ - (rightCutoff + tRight * rightLegDirection)));
-
-    if (distSqCutoff <= distSqLeft && distSqCutoff <= distSqRight)
+      // Project on cut-off line.
+      line.direction := Vector2Neg(obstacle1.unitDir_);
+      line.point := Vector2Add(leftCutoff, Vector2Scale(radius_ * invTimeHorizonObst, Vector2(-line.direction.y, line.direction.x)));
+      orcaLines_.Add(line);
+      continue;
+    end
+    else if (distSqLeft <= distSqRight) then
     begin
-        /* Project on cut-off line. */
-        line.direction = -obstacle1.unitDir_;
-        line.point = leftCutoff + radius_ * invTimeHorizonObst * new Vector2(-line.direction.y(), line.direction.x());
-        orcaLines_.Add(line);
+      // Project on left leg.
+      if (isLeftLegForeign) then
+      begin
         continue;
-    end;
-    else if (distSqLeft <= distSqRight)
-    begin
-        /* Project on left leg. */
-        if (isLeftLegForeign)
-        begin
-            continue;
-        end;
+      end;
 
-        line.direction = leftLegDirection;
-        line.point = leftCutoff + radius_ * invTimeHorizonObst * new Vector2(-line.direction.y(), line.direction.x());
-        orcaLines_.Add(line);
-        continue;
-    end;
+      line.direction := leftLegDirection;
+      line.point := Vector2Add(leftCutoff, Vector2Scale(radius_ * invTimeHorizonObst, Vector2(-line.direction.y, line.direction.x)));
+      orcaLines_.Add(line);
+      continue;
+    end
     else
     begin
-        /* Project on right leg. */
-        if (isRightLegForeign)
-        begin
-            continue;
-        end;
-
-        line.direction = -rightLegDirection;
-        line.point = rightCutoff + radius_ * invTimeHorizonObst * new Vector2(-line.direction.y(), line.direction.x());
-        orcaLines_.Add(line);
+      //Project on right leg.
+      if (isRightLegForeign) then
+      begin
         continue;
+      end;
+
+      line.direction := Vector2Neg(rightLegDirection);
+      line.point := Vector2Add(rightCutoff, Vector2Scale(radius_ * invTimeHorizonObst, Vector2(-line.direction.y, line.direction.x)));
+      orcaLines_.Add(line);
+      continue;
     end;
   end;
 
-  int numObstLines = orcaLines_.Count;
+  numObstLines := orcaLines_.Count;
 
-  float invTimeHorizon = 1.0f / timeHorizon_;
+  invTimeHorizon := 1 / timeHorizon_;
 
-  /* Create agent ORCA lines. */
-  for (int i = 0; i < agentNeighbors_.Count; ++i)
+  // Create agent ORCA lines.
+  for i := 0 to Length(agentNeighbors_) - 1 do
   begin
-      Agent other = agentNeighbors_[i].Value;
+      other := agentNeighbors_[i].Value;
 
-      Vector2 relativePosition = other.position_ - position_;
-      Vector2 relativeVelocity = velocity_ - other.velocity_;
-      float distSq = RVOMath.absSq(relativePosition);
-      float combinedRadius = radius_ + other.radius_;
-      float combinedRadiusSq = RVOMath.sqr(combinedRadius);
+      relativePosition := Vector2Sub(other.position_, position_);
+      relativeVelocity := Vector2Sub(velocity_, other.velocity_);
+      distSq := absSq(relativePosition);
+      combinedRadius := radius_ + other.radius_;
+      combinedRadiusSq := sqr(combinedRadius);
 
-      Line line;
-      Vector2 u;
-
-      if (distSq > combinedRadiusSq)
+      if (distSq > combinedRadiusSq) then
       begin
-          /* No collision. */
-          Vector2 w = relativeVelocity - invTimeHorizon * relativePosition;
-          /* Vector from cutoff center to relative velocity. */
-          float wLengthSq = RVOMath.absSq(w);
+          // No collision
+          w := Vector2Sub(relativeVelocity, Vector2Scale(invTimeHorizon, relativePosition));
+          //Vector from cutoff center to relative velocity.
+          wLengthSq := absSq(w);
 
-          float dotProduct1 = w * relativePosition;
+          dotProduct1 := Vector2Mul(w, relativePosition);
 
-          if (dotProduct1 < 0.0f && RVOMath.sqr(dotProduct1) > combinedRadiusSq * wLengthSq)
+          if (dotProduct1 < 0) and (sqr(dotProduct1) > combinedRadiusSq * wLengthSq) then
           begin
-              /* Project on cut-off circle. */
-              float wLength = RVOMath.sqrt(wLengthSq);
-              Vector2 unitW = w / wLength;
+              // Project on cut-off circle.
+              wLength := sqrt(wLengthSq);
+              unitW := Vector2Scale(w, 1 / wLength);
 
-              line.direction = new Vector2(unitW.y(), -unitW.x());
-              u = (combinedRadius * invTimeHorizon - wLength) * unitW;
-          end;
+              line.direction := Vector2(unitW.y, -unitW.x);
+              u := Vector2Scale(combinedRadius * invTimeHorizon - wLength, unitW);
+          end
           else
           begin
-              /* Project on legs. */
-              float leg = RVOMath.sqrt(distSq - combinedRadiusSq);
+              // Project on legs.
+              leg := sqrt(distSq - combinedRadiusSq);
 
-              if (RVOMath.det(relativePosition, w) > 0.0f)
+              if (det(relativePosition, w) > 0) then
               begin
-                  /* Project on left leg. */
-                  line.direction = new Vector2(relativePosition.x() * leg - relativePosition.y() * combinedRadius, relativePosition.x() * combinedRadius + relativePosition.y() * leg) / distSq;
-              end;
+                  // Project on left leg. */
+                  line.direction := Vector2Scale(Vector2(relativePosition.x * leg - relativePosition.y * combinedRadius, relativePosition.x * combinedRadius + relativePosition.y * leg), 1 / distSq);
+              end
               else
               begin
-                  /* Project on right leg. */
-                  line.direction = -new Vector2(relativePosition.x() * leg + relativePosition.y() * combinedRadius, -relativePosition.x() * combinedRadius + relativePosition.y() * leg) / distSq;
+                  // Project on right leg. */
+                  line.direction := Vector2Scale(Vector2(relativePosition.x * leg + relativePosition.y * combinedRadius, -relativePosition.x * combinedRadius + relativePosition.y * leg), -1 / distSq);
               end;
 
-              float dotProduct2 = relativeVelocity * line.direction;
+              dotProduct2 := Vector2Mul(relativeVelocity, line.direction);
 
-              u = dotProduct2 * line.direction - relativeVelocity;
+              u := Vector2Sub(Vector2Scale(dotProduct2, line.direction), relativeVelocity);
           end;
-      end;
+      end
       else
       begin
-          /* Collision. Project on cut-off circle of time timeStep. */
-          float invTimeStep = 1.0f / Simulator.Instance.timeStep_;
+          // Collision. Project on cut-off circle of time timeStep. */
+          invTimeStep := 1 / gSimulator.timeStep_;
 
-          /* Vector from cutoff center to relative velocity. */
-          Vector2 w = relativeVelocity - invTimeStep * relativePosition;
+          // Vector from cutoff center to relative velocity. */
+          w := Vector2Sub(relativeVelocity, Vector2Scale(invTimeStep, relativePosition));
 
-          float wLength = RVOMath.abs(w);
-          Vector2 unitW = w / wLength;
+          wLength := abs(w);
+          unitW := Vector2Scale(w, 1 / wLength);
 
-          line.direction = new Vector2(unitW.y(), -unitW.x());
-          u = (combinedRadius * invTimeStep - wLength) * unitW;
+          line.direction := Vector2(unitW.y, -unitW.x);
+          u := Vector2Scale(combinedRadius * invTimeStep - wLength, unitW);
       end;
 
-      line.point = velocity_ + 0.5f * u;
+      line.point := Vector2Add(velocity_, Vector2Scale(0.5, u));
       orcaLines_.Add(line);
   end;
 
-  int lineFail = linearProgram2(orcaLines_, maxSpeed_, prefVelocity_, false, ref newVelocity_);
+  lineFail := linearProgram2(orcaLines_, maxSpeed_, prefVelocity_, false, newVelocity_);
 
-  if (lineFail < orcaLines_.Count)
+  if (lineFail < orcaLines_.Count) then
   begin
-      linearProgram3(orcaLines_, numObstLines, lineFail, maxSpeed_, ref newVelocity_);
+    linearProgram3(orcaLines_, numObstLines, lineFail, maxSpeed_, newVelocity_);
   end;
 end;
 
 procedure TRVOAgent.insertAgentNeighbor(agent: TRVOAgent; rangeSq: Single);
+var
+  distSq: Single;
+  i: Integer;
 begin
   if (Self <> agent) then
   begin
-      float distSq := absSq(position_ - agent.position_);
+    distSq := absSq(Vector2Sub(position_, agent.position_));
 
-      if (distSq < rangeSq) then
+    if (distSq < rangeSq) then
+    begin
+      if (Length(agentNeighbors_) < maxNeighbors_) then
       begin
-          if (agentNeighbors_.Count < maxNeighbors_) then
-          begin
-              agentNeighbors_.Add(new KeyValuePair<float, Agent>(distSq, agent));
-          end;
-          int i = agentNeighbors_.Count - 1;
-          while (i != 0 && distSq < agentNeighbors_[i - 1].Key) do
-          begin
-              agentNeighbors_[i] = agentNeighbors_[i - 1];
-              Dec(i);
-          end;
-          agentNeighbors_[i] = new KeyValuePair<float, Agent>(distSq, agent);
-
-          if (agentNeighbors_.Count == maxNeighbors_) then
-          begin
-              rangeSq = agentNeighbors_[agentNeighbors_.Count-1].Key;
-          end;
+        SetLength(agentNeighbors_, Length(agentNeighbors_) + 1);
+        agentNeighbors_[Length(agentNeighbors_)-1].Key := distSq;
+        agentNeighbors_[Length(agentNeighbors_)-1].Value := agent;
       end;
+      i := Length(agentNeighbors_) - 1;
+      while (i <> 0) and (distSq < agentNeighbors_[i - 1].Key) do
+      begin
+        agentNeighbors_[i] := agentNeighbors_[i - 1];
+        Dec(i);
+      end;
+      agentNeighbors_[i].Key := distSq;
+      agentNeighbors_[i].Value := agent;
+
+      if (Length(agentNeighbors_) = maxNeighbors_) then
+      begin
+        rangeSq := agentNeighbors_[Length(agentNeighbors_)-1].Key;
+      end;
+    end;
   end;
 end;
 
 procedure TRVOAgent.insertObstacleNeighbor(obstacle: TRVOObstacle; rangeSq: Single);
+var
+  nextObstacle: TRVOObstacle;
+  distSq: Single;
+  i: Integer;
 begin
-  Obstacle nextObstacle = obstacle.nextObstacle;
+  nextObstacle := obstacle.nextObstacle;
 
-  float distSq = RVOMath.distSqPointLineSegment(obstacle.point_, nextObstacle.point_, position_);
+  distSq := distSqPointLineSegment(obstacle.point_, nextObstacle.point_, position_);
 
-  if (distSq < rangeSq)
+  if (distSq < rangeSq) then
   begin
-      obstacleNeighbors_.Add(new KeyValuePair<float, Obstacle>(distSq, obstacle));
+    SetLength(obstacleNeighbors_, Length(obstacleNeighbors_) + 1);
+    obstacleNeighbors_[Length(obstacleNeighbors_) - 1].Key := distSq;
+    obstacleNeighbors_[Length(obstacleNeighbors_) - 1].Value := obstacle;
 
-      int i = obstacleNeighbors_.Count - 1;
-      while (i != 0 && distSq < obstacleNeighbors_[i - 1].Key)
+      i := Length(obstacleNeighbors_) - 1;
+      while (i <> 0) and (distSq < obstacleNeighbors_[i - 1].Key) do
       begin
-          obstacleNeighbors_[i] = obstacleNeighbors_[i - 1];
-          --i;
+          obstacleNeighbors_[i] := obstacleNeighbors_[i - 1];
+          Dec(i);
       end;
-      obstacleNeighbors_[i] = new KeyValuePair<float, Obstacle>(distSq, obstacle);
+      obstacleNeighbors_[i].Key := distSq;
+      obstacleNeighbors_[i].Value := obstacle;
   end;
 end;
 
 procedure TRVOAgent.update;
 begin
-  velocity_ = newVelocity_;
-  position_ += velocity_ * Simulator.Instance.timeStep_;
+  velocity_ := newVelocity_;
+  position_ := Vector2Add(position_, Vector2Scale(velocity_, gSimulator.timeStep_));
 end;
 
-bool linearProgram1(IList<Line> lines, int lineNo, float radius, Vector2 optVelocity, bool directionOpt, ref Vector2 result)
+function TRVOAgent.linearProgram1(lines: TList; lineNo: Integer; radius: Single; optVelocity: TRVOVector2; directionOpt: Boolean; var result_1: TRVOVector2): Boolean;
+var
+  dotProduct, discriminant: Single;
+  sqrtDiscriminant, tLeft, tRight: Single;
+  i: Integer;
+  denominator, numerator: Single;
+  t: Single;
 begin
-  float dotProduct = lines[lineNo].point * lines[lineNo].direction;
-  float discriminant = RVOMath.sqr(dotProduct) + RVOMath.sqr(radius) - RVOMath.absSq(lines[lineNo].point);
+  dotProduct := Vector2Mul(TRVOLine(lines[lineNo]).point, TRVOLine(lines[lineNo]).direction);
+  discriminant := sqr(dotProduct) + sqr(radius) - absSq(TRVOLine(lines[lineNo]).point);
 
-  if (discriminant < 0.0f)
+  if (discriminant < 0) then
   begin
-      /* Max speed circle fully invalidates line lineNo. */
-      return false;
+    //Max speed circle fully invalidates line lineNo
+    Result := False;
+    Exit;
   end;
 
-  float sqrtDiscriminant = RVOMath.sqrt(discriminant);
-  float tLeft = -dotProduct - sqrtDiscriminant;
-  float tRight = -dotProduct + sqrtDiscriminant;
+  sqrtDiscriminant := sqrt(discriminant);
+  tLeft := -dotProduct - sqrtDiscriminant;
+  tRight := -dotProduct + sqrtDiscriminant;
 
-  for (int i = 0; i < lineNo; ++i)
+  for i := 0 to lineNo - 1 do
   begin
-      float denominator = RVOMath.det(lines[lineNo].direction, lines[i].direction);
-      float numerator = RVOMath.det(lines[i].direction, lines[lineNo].point - lines[i].point);
+    denominator := det(TRVOLine(lines[lineNo]).direction, TRVOLine(lines[i]).direction);
+    numerator := det(TRVOLine(lines[i]).direction, Vector2Sub(TRVOLine(lines[lineNo]).point, TRVOLine(lines[i]).point));
 
-      if (RVOMath.fabs(denominator) <= RVOMath.RVO_EPSILON)
+    if (System.Abs(denominator) <= RVO_EPSILON) then
+    begin
+      // Lines lineNo and i are (almost) parallel. */
+      if (numerator < 0) then
       begin
-          /* Lines lineNo and i are (almost) parallel. */
-          if (numerator < 0.0f)
+        Result := False;
+        Exit;
+      end
+      else
+      begin
+        continue;
+      end;
+    end;
+
+    t := numerator / denominator;
+
+    if (denominator >= 0) then
+    begin
+      // Line i bounds line lineNo on the right. */
+      tRight := Min(tRight, t);
+    end
+    else
+    begin
+      // Line i bounds line lineNo on the left. */
+      tLeft := Max(tLeft, t);
+    end;
+
+    if (tLeft > tRight) then
+    begin
+      Result := False;
+      Exit;
+    end;
+  end;
+
+  if (directionOpt) then
+  begin
+    // Optimize direction. */
+    if Vector2Mul(optVelocity, TRVOLine(lines[lineNo]).direction) > 0 then
+    begin
+      // Take right extreme. */
+      result_1 := Vector2Add(TRVOLine(lines[lineNo]).point, Vector2Scale(tRight, TRVOLine(lines[lineNo]).direction));
+    end
+    else
+    begin
+      // Take left extreme. */
+      result_1 := Vector2Add(TRVOLine(lines[lineNo]).point, Vector2Scale(tLeft, TRVOLine(lines[lineNo]).direction));
+    end;
+  end
+  else
+  begin
+    // Optimize closest point. */
+    t := Vector2Mul(TRVOLine(lines[lineNo]).direction, Vector2Sub(optVelocity, TRVOLine(lines[lineNo]).point));
+
+    if (t < tLeft) then
+    begin
+      result_1 := Vector2Add(TRVOLine(lines[lineNo]).point, Vector2Scale(tLeft, TRVOLine(lines[lineNo]).direction));
+    end
+    else if (t > tRight) then
+    begin
+      result_1 := Vector2Add(TRVOLine(lines[lineNo]).point, Vector2Scale(tRight, TRVOLine(lines[lineNo]).direction));
+    end
+    else
+    begin
+      result_1 := Vector2Add(TRVOLine(lines[lineNo]).point, Vector2Scale(t, TRVOLine(lines[lineNo]).direction));
+    end;
+  end;
+
+  Result := True;
+end;
+
+function TRVOAgent.linearProgram2(lines: TList; radius: Single; optVelocity: TRVOVector2; directionOpt: Boolean; var result_1: TRVOVector2): Integer;
+var
+  i: Integer;
+  tempResult: TRVOVector2;
+begin
+  if (directionOpt) then
+  begin
+      //Optimize direction. Note that the optimization velocity is of unit
+      //length in this case.
+      result_1 := Vector2Scale(optVelocity, radius);
+  end
+  else if (absSq(optVelocity) > sqr(radius)) then
+  begin
+      // Optimize closest point and outside circle. */
+      result_1 := Vector2Scale(normalize(optVelocity), radius);
+  end
+  else
+  begin
+      // Optimize closest point and inside circle. */
+      result_1 := optVelocity;
+  end;
+
+  for i := 0 to lines.Count - 1 do
+  begin
+      if (det(TRVOLine(lines[i]).direction, Vector2Sub(TRVOLine(lines[i]).point, result_1)) > 0) then
+      begin
+          // Result does not satisfy constraint i. Compute new optimal result. */
+          tempResult := result_1;
+          if ( not linearProgram1(lines, i, radius, optVelocity, directionOpt, result_1)) then
           begin
-              return false;
+              result_1 := tempResult;
+              Result := i;
+              Exit;
           end;
+      end;
+  end;
+
+  Result := lines.Count;
+end;
+
+procedure TRVOAgent.linearProgram3(lines: TList; numObstLines, beginLine: Integer; radius: Single; var result_1: TRVOVector2);
+var
+  distance: Single;
+  i,ii,j: Integer;
+  line: TRVOLine;
+  determinant: Single;
+  projLines: TList;
+  tempResult: TRVOVector2;
+begin
+  distance := 0;
+
+  for i := beginLine to lines.Count - 1 do
+  begin
+    if (det(TRVOLine(lines[i]).direction, Vector2Sub(TRVOLine(lines[i]).point, result_1)) > distance) then
+    begin
+      // Result does not satisfy constraint of line i. */
+      //std::vector<Line> projLines(lines.begin(), lines.begin() + numObstLines);
+      projLines := TList.Create;
+      for ii := 0 to numObstLines - 1 do
+      begin
+        projLines.Add(lines[ii]);
+      end;
+
+      for j := numObstLines to i - 1 do
+      begin
+        determinant := det(TRVOLine(lines[i]).direction, TRVOLine(lines[j]).direction);
+
+        if (System.Abs(determinant) <= RVO_EPSILON) then
+        begin
+          // Line i and line j are parallel. */
+          if Vector2Mul(TRVOLine(lines[i]).direction, TRVOLine(lines[j]).direction) > 0 then
+          begin
+            // Line i and line j point in the same direction. */
+            continue;
+          end
           else
           begin
-              continue;
+            // Line i and line j point in opposite direction. */
+            line.point := Vector2Scale(0.5, Vector2Add(TRVOLine(lines[i]).point, TRVOLine(lines[j]).point));
           end;
+        end
+        else
+        begin
+          line.point := Vector2Add(TRVOLine(lines[i]).point,
+            Vector2Scale(det(TRVOLine(lines[j]).direction, Vector2Sub(TRVOLine(lines[i]).point, TRVOLine(lines[j]).point)) / determinant,
+            TRVOLine(lines[i]).direction));
+        end;
+
+        line.direction := normalize(Vector2Sub(TRVOLine(lines[j]).direction, TRVOLine(lines[i]).direction));
+        projLines.Add(line);
       end;
 
-      float t = numerator / denominator;
-
-      if (denominator >= 0.0f)
+      tempResult := result_1;
+      if (linearProgram2(projLines, radius, Vector2(-TRVOLine(lines[i]).direction.y, TRVOLine(lines[i]).direction.x), true, result_1) < projLines.Count) then
       begin
-          /* Line i bounds line lineNo on the right. */
-          tRight = Math.Min(tRight, t);
+        (* This should in principle not happen.  The result is by definition
+         * already in the feasible region of this linear program. If it fails,
+         * it is due to small floating point error, and the current result is
+         * kept.
+         *)
+        result_1 := tempResult;
       end;
-      else
-      begin
-          /* Line i bounds line lineNo on the left. */
-          tLeft = Math.Max(tLeft, t);
-      end;
 
-      if (tLeft > tRight)
-      begin
-          return false;
-      end;
-  end;
-
-  if (directionOpt)
-  begin
-      /* Optimize direction. */
-      if (optVelocity * lines[lineNo].direction > 0.0f)
-      begin
-          /* Take right extreme. */
-          result = lines[lineNo].point + tRight * lines[lineNo].direction;
-      end;
-      else
-      begin
-          /* Take left extreme. */
-          result = lines[lineNo].point + tLeft * lines[lineNo].direction;
-      end;
-  end;
-  else
-  begin
-      /* Optimize closest point. */
-      float t = lines[lineNo].direction * (optVelocity - lines[lineNo].point);
-
-      if (t < tLeft)
-      begin
-          result = lines[lineNo].point + tLeft * lines[lineNo].direction;
-      end;
-      else if (t > tRight)
-      begin
-          result = lines[lineNo].point + tRight * lines[lineNo].direction;
-      end;
-      else
-      begin
-          result = lines[lineNo].point + t * lines[lineNo].direction;
-      end;
-  end;
-
-  return true;
-end;
-
-int linearProgram2(IList<Line> lines, float radius, Vector2 optVelocity, bool directionOpt, ref Vector2 result)
-begin
-  if (directionOpt)
-  begin
-      /*
-       * Optimize direction. Note that the optimization velocity is of unit
-       * length in this case.
-       */
-      result = optVelocity * radius;
-  end;
-  else if (RVOMath.absSq(optVelocity) > RVOMath.sqr(radius))
-  begin
-      /* Optimize closest point and outside circle. */
-      result = RVOMath.normalize(optVelocity) * radius;
-  end;
-  else
-  begin
-      /* Optimize closest point and inside circle. */
-      result = optVelocity;
-  end;
-
-  for (int i = 0; i < lines.Count; ++i)
-  begin
-      if (RVOMath.det(lines[i].direction, lines[i].point - result) > 0.0f)
-      begin
-          /* Result does not satisfy constraint i. Compute new optimal result. */
-          Vector2 tempResult = result;
-          if (!linearProgram1(lines, i, radius, optVelocity, directionOpt, ref result))
-          begin
-              result = tempResult;
-              return i;
-          end;
-      end;
-  end;
-
-  return lines.Count;
-end;
-
-void linearProgram3(IList<Line> lines, int numObstLines, int beginLine, float radius, ref Vector2 result)
-begin
-  float distance = 0.0f;
-
-  for (int i = beginLine; i < lines.Count; ++i)
-  begin
-      if (RVOMath.det(lines[i].direction, lines[i].point - result) > distance)
-      begin
-          /* Result does not satisfy constraint of line i. */
-          //std::vector<Line> projLines(lines.begin(), lines.begin() + numObstLines);
-          IList<Line> projLines = new List<Line>();
-          for (int ii = 0; ii < numObstLines; ++ii)
-          begin
-              projLines.Add(lines[ii]);
-          end;
-
-          for (int j = numObstLines; j < i; ++j)
-          begin
-              Line line;
-
-              float determinant = RVOMath.det(lines[i].direction, lines[j].direction);
-
-              if (RVOMath.fabs(determinant) <= RVOMath.RVO_EPSILON)
-              begin
-                  /* Line i and line j are parallel. */
-                  if (lines[i].direction * lines[j].direction > 0.0f)
-                  begin
-                      /* Line i and line j point in the same direction. */
-                      continue;
-                  end;
-                  else
-                  begin
-                      /* Line i and line j point in opposite direction. */
-                      line.point = 0.5f * (lines[i].point + lines[j].point);
-                  end;
-              end;
-              else
-              begin
-                  line.point = lines[i].point + (RVOMath.det(lines[j].direction, lines[i].point - lines[j].point) / determinant) * lines[i].direction;
-              end;
-
-              line.direction = RVOMath.normalize(lines[j].direction - lines[i].direction);
-              projLines.Add(line);
-          end;
-
-          Vector2 tempResult = result;
-          if (linearProgram2(projLines, radius, new Vector2(-lines[i].direction.y(), lines[i].direction.x()), true, ref result) < projLines.Count)
-          begin
-              (* This should in principle not happen.  The result is by definition
-               * already in the feasible region of this linear program. If it fails,
-               * it is due to small floating point error, and the current result is
-               * kept.
-               *)
-              result = tempResult;
-          end;
-
-          distance = det(lines[i].direction, lines[i].point - result);
-      end;
+      distance := det(TRVOLine(lines[i]).direction, Vector2Sub(TRVOLine(lines[i]).point, result_1));
+    end;
   end;
 end;
 

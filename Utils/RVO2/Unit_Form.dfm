@@ -20,15 +20,13 @@ object Form1: TForm1
     Top = 8
     Width = 512
     Height = 512
-    OnMouseDown = Image1MouseDown
-    OnMouseUp = Image1MouseUp
   end
-  object Button1: TButton
+  object Button2: TButton
     Left = 8
     Top = 8
     Width = 137
     Height = 33
-    Caption = 'New maze'
+    Caption = 'RVOSimulator.Create'
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText
     Font.Height = -15
@@ -36,14 +34,14 @@ object Form1: TForm1
     Font.Style = []
     ParentFont = False
     TabOrder = 0
-    OnClick = Button1Click
+    OnClick = Button2Click
   end
-  object Button2: TButton
+  object Button3: TButton
     Left = 8
-    Top = 40
+    Top = 144
     Width = 137
     Height = 33
-    Caption = '100 Random | routes'
+    Caption = 'Step'
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText
     Font.Height = -15
@@ -51,65 +49,13 @@ object Form1: TForm1
     Font.Style = []
     ParentFont = False
     TabOrder = 1
-    OnClick = Button2Click
-  end
-  object CheckBox1: TCheckBox
-    Left = 8
-    Top = 104
-    Width = 129
-    Height = 17
-    Caption = 'A* old'
-    Font.Charset = DEFAULT_CHARSET
-    Font.Color = clWindowText
-    Font.Height = -15
-    Font.Name = 'Tahoma'
-    Font.Style = []
-    ParentFont = False
-    TabOrder = 2
-  end
-  object CheckBox2: TCheckBox
-    Left = 8
-    Top = 128
-    Width = 129
-    Height = 17
-    Caption = 'A* new'
-    Font.Charset = DEFAULT_CHARSET
-    Font.Color = clWindowText
-    Font.Height = -15
-    Font.Name = 'Tahoma'
-    Font.Style = []
-    ParentFont = False
-    TabOrder = 3
-  end
-  object CheckBox3: TCheckBox
-    Left = 8
-    Top = 152
-    Width = 129
-    Height = 17
-    Caption = 'A* JPS'
-    Checked = True
-    Font.Charset = DEFAULT_CHARSET
-    Font.Color = clWindowText
-    Font.Height = -15
-    Font.Name = 'Tahoma'
-    Font.Style = []
-    ParentFont = False
-    State = cbChecked
-    TabOrder = 4
-  end
-  object Button3: TButton
-    Left = 8
-    Top = 184
-    Width = 137
-    Height = 33
-    Caption = 'Repeat'
-    Font.Charset = DEFAULT_CHARSET
-    Font.Color = clWindowText
-    Font.Height = -15
-    Font.Name = 'Tahoma'
-    Font.Style = []
-    ParentFont = False
-    TabOrder = 5
     OnClick = Button3Click
+  end
+  object Timer1: TTimer
+    Enabled = False
+    Interval = 1
+    OnTimer = Button3Click
+    Left = 168
+    Top = 24
   end
 end

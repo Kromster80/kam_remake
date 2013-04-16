@@ -2,27 +2,19 @@ unit Unit_Form;
 interface
 uses
   Windows,SysUtils, Classes, Graphics, Types, Controls, Forms, ExtCtrls, StdCtrls, Math, MMSystem,
-  KM_Defaults, KM_Points, KM_CommonClasses, KM_Terrain,
-  RVO2_Simulator;
+  RVO2_Math, RVO2_Simulator, RVO2_Vector2;
 
 type
   TForm1 = class(TForm)
-    Button1: TButton;
     Image1: TImage;
     Button2: TButton;
-    CheckBox1: TCheckBox;
-    CheckBox2: TCheckBox;
-    CheckBox3: TCheckBox;
     Button3: TButton;
-    procedure Image1MouseDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+    Timer1: TTimer;
     procedure FormCreate(Sender: TObject);
-    procedure Image1MouseUp(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
-    procedure Button1Click(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure Button2Click(Sender: TObject);
     procedure Button3Click(Sender: TObject);
   private
-    Times: array [0..2] of Integer;
     procedure DisplayMap;
   end;
 
@@ -30,8 +22,8 @@ type
 
 var
   Form1: TForm1;
-  LocA, LocB: TKMPoint;
-  Route: TPointArray;
+  NUM_AGENTS: Byte = 4;
+  goals: array of TRVOVector2;
 
 
 implementation
@@ -40,14 +32,6 @@ implementation
 
 procedure TForm1.FormCreate(Sender: TObject);
 begin
-  RandSeed := 4;
-
-  fTerrain := TTerrain.Create;
-  fTerrain.MapX := MAX_SIZE;
-  fTerrain.MapY := MAX_SIZE;
-
-  Button1Click(Self);
-
   timeBeginPeriod(1);
 end;
 
@@ -58,57 +42,66 @@ begin
 end;
 
 
-procedure TForm1.Button1Click(Sender: TObject);
-var
-  I, J, K: Integer;
-  L, T, W, H: Byte;
-begin
-  FillChar(fTerrain.Land[1,1], SizeOf(fTerrain.Land), #0);
-
-  for I := 0 to 100 do
-  begin
-    L := Random(MAX_SIZE)+1;
-    T := Random(MAX_SIZE)+1;
-    W := Random(4) + 2;
-    H := Random(4) + 2;
-    for J := T to Min(T + H - 1, MAX_SIZE) do
-    for K := L to Min(L + W - 1, MAX_SIZE) do
-      fTerrain.Land[J, K].Passability := [CanWalk];
-  end;
-
-  DisplayMap;
-end;
-
-
 procedure TForm1.Button2Click(Sender: TObject);
 var
-  I: Integer;
-  T: Single;
+  i: Integer;
+  vertices: array of TRVOVector2;
 begin
-  Times[0] := 0;
-  Times[1] := 0;
-  Times[2] := 0;
+  gSimulator := TRVOSimulator.Create;
+  gSimulator.Clear;
 
-  for I := 0 to 99 do
+  gSimulator.setTimeStep(0.1);
+  gSimulator.SetNumWorkers(1);
+  gSimulator.setAgentDefaults(15, 10, 10, 5, 2, 2, Vector2(0, 0));
+
+  // Add agents, specifying their start position.
+  gSimulator.addAgent(Vector2(0, 0));
+  gSimulator.addAgent(Vector2(100, 0));
+  gSimulator.addAgent(Vector2(100, 100));
+  gSimulator.addAgent(Vector2(0, 100));
+
+  // Create goals (simulator is unaware of these).
+  SetLength(goals, gSimulator.getNumAgents);
+  for i := 0 to gSimulator.getNumAgents - 1 do
   begin
-    LocA.X := Random(MAX_SIZE);
-    LocA.Y := Random(MAX_SIZE);
-
-    T := Random; //Prefer shorter paths
-    LocB.X := LocA.X + Round((Sqr(T) * Sign(T) * MAX_SIZE / 2));
-    T := Random;
-    LocB.Y := LocA.Y + Round((Sqr(T) * Sign(T) * MAX_SIZE / 2));
-
-    DisplayMap;
+    goals[i].X := 100 - gSimulator.getAgentPosition(i).X;
+    goals[i].Y := 100 - gSimulator.getAgentPosition(i).Y;
   end;
+
+  // Add (polygonal) obstacle(s), specifying vertices in counterclockwise order.
+  SetLength(vertices, 4);
+  vertices[0] := Vector2(43, 30);
+  vertices[1] := Vector2(57, 30);
+  vertices[2] := Vector2(57, 70);
+  vertices[3] := Vector2(43, 70);
+
+  gSimulator.addObstacle(vertices);
+
+  // Process obstacles so that they are accounted for in the simulation.
+  gSimulator.processObstacles;
+
+  Timer1.Enabled := True;
 end;
 
 
 procedure TForm1.Button3Click(Sender: TObject);
+  procedure setPreferredVelocities;
+  var i: Integer;
+  begin
+    // Set the preferred velocity for each agent.
+    for i := 0 to gSimulator.getNumAgents - 1 do
+    begin
+      if absSq(Vector2Sub(goals[i], gSimulator.getAgentPosition(i))) < Sqr(gSimulator.getAgentRadius(i)) then
+        // Agent is within one radius of its goal, set preferred velocity to zero
+        gSimulator.setAgentPrefVelocity(i, Vector2(0, 0))
+      else
+        // Agent is far away from its goal, set preferred velocity as unit vector towards agent's goal.
+        gSimulator.setAgentPrefVelocity(i, normalize(Vector2Sub(goals[i], gSimulator.getAgentPosition(i))))
+    end;
+  end;
 begin
-  Times[0] := 0;
-  Times[1] := 0;
-  Times[2] := 0;
+  setPreferredVelocities;
+  gSimulator.doStep;
 
   DisplayMap;
 end;
@@ -122,31 +115,19 @@ begin
   bmp := TBitmap.Create;
   try
     bmp.PixelFormat := pf24bit;
-    bmp.Height := MAX_SIZE;
-    bmp.Width := MAX_SIZE;
+    bmp.Height := 101;
+    bmp.Width := 101;
 
     bmp.Canvas.Brush.Color := clBlack;
     bmp.Canvas.FillRect(bmp.Canvas.ClipRect);
 
-    //Obstacles
-    for I := 1 to MAX_SIZE  do
-      for K := 1 to MAX_SIZE do
-        if (fTerrain.Land[I, K].Passability = [CanWalk]) then
-          bmp.Canvas.Pixels[K-1, I-1] := clGray;
+    //Obstacle
+    bmp.Canvas.Brush.Color := clGray;
+    bmp.Canvas.Rectangle(43, 30, 57, 70);
 
-    //Draw route
-    bmp.Canvas.Pen.Color := clSilver;
-    bmp.Canvas.MoveTo(LocA.X-1, LocA.Y-1);
-    for I := 0 to High(Route) do
-      bmp.Canvas.LineTo(Route[I].X-1, Route[I].Y-1);
-
-    //Route nodes
-    for I := 0 to High(Route) do
-      bmp.Canvas.Pixels[Route[I].X-1, Route[I].Y-1] := clYellow;
-
-    //Start/End
-    bmp.Canvas.Pixels[LocA.X-1, LocA.Y-1] := clRed;
-    bmp.Canvas.Pixels[LocB.X-1, LocB.Y-1] := clLime;
+    //Agents
+    for I := 0 to gSimulator.getNumAgents - 1 do
+      bmp.Canvas.Pixels[Round(gSimulator.getAgentPosition(I).X), Round(gSimulator.getAgentPosition(I).Y)] := clYellow;
 
     Image1.Canvas.StretchDraw(Image1.Canvas.ClipRect, bmp);
   finally
@@ -154,28 +135,6 @@ begin
   end;
 
   Image1.Repaint;
-end;
-
-
-procedure TForm1.Image1MouseDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
-begin
-  LocA.X := Ceil(X / Image1.Width * MAX_SIZE);
-  LocA.Y := Ceil(Y / Image1.Height * MAX_SIZE);
-
-  SetLength(Route, 0);
-end;
-
-
-procedure TForm1.Image1MouseUp(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
-begin
-  LocB.X := Ceil(X / Image1.Width * MAX_SIZE);
-  LocB.Y := Ceil(Y / Image1.Height * MAX_SIZE);
-
-  Times[0] := 0;
-  Times[1] := 0;
-  Times[2] := 0;
-
-  DisplayMap;
 end;
 
 

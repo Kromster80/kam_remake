@@ -47,16 +47,24 @@ type
     X,Y: Single;
   end;
 
+  function Vector2(X, Y: Single): TRVOVector2;
   function Vector2ToString(A: TRVOVector2): string;
   function Vector2Add(A,B: TRVOVector2): TRVOVector2;
   function Vector2Sub(A,B: TRVOVector2): TRVOVector2;
   function Vector2Mul(A,B: TRVOVector2): Single;
-  function Vector2Scale(A: TRVOVector2; B: Single): TRVOVector2;
+  function Vector2Scale(A: TRVOVector2; B: Single): TRVOVector2; overload;
+  function Vector2Scale(A: Single; B: TRVOVector2): TRVOVector2; overload;
   function Vector2Neg(A: TRVOVector2): TRVOVector2;
 
 
 implementation
 
+
+function Vector2(X, Y: Single): TRVOVector2;
+begin
+  Result.X := X;
+  Result.Y := Y;
+end;
 
 function Vector2ToString(A: TRVOVector2): string;
 begin
@@ -88,6 +96,12 @@ function Vector2Scale(A: TRVOVector2; B: Single): TRVOVector2;
 begin
   Result.X := A.X * B;
   Result.Y := A.Y * B;
+end;
+
+function Vector2Scale(A: Single; B: TRVOVector2): TRVOVector2;
+begin
+  Result.X := B.X * A;
+  Result.Y := B.Y * A;
 end;
 
 //public static Vector2 operator -(Vector2 v)

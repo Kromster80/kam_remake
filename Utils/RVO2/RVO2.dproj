@@ -74,6 +74,7 @@
 			<DCC_RemoteDebug>true</DCC_RemoteDebug>
 		</PropertyGroup>
 		<PropertyGroup Condition="'$(Cfg_1_Win32)'!=''">
+			<DCC_DebugDCUs>true</DCC_DebugDCUs>
 			<DCC_UnitSearchPath>..\..\Common\;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
 			<DCC_IntegerOverflowCheck>true</DCC_IntegerOverflowCheck>
 			<DCC_RangeChecking>true</DCC_RangeChecking>
@@ -99,7 +100,12 @@
 				<Form>Form1</Form>
 			</DCCReference>
 			<DCCReference Include="RVO2_Agent.pas"/>
-			<DCCReference Include="KM_Terrain.pas"/>
+			<DCCReference Include="RVO2_KdTree.pas"/>
+			<DCCReference Include="RVO2_Line.pas"/>
+			<DCCReference Include="RVO2_Math.pas"/>
+			<DCCReference Include="RVO2_Obstacle.pas"/>
+			<DCCReference Include="RVO2_Simulator.pas"/>
+			<DCCReference Include="RVO2_Vector2.pas"/>
 			<None Include="Profiling\AQtimeModule1.aqt"/>
 			<BuildConfiguration Include="Release">
 				<Key>Cfg_2</Key>

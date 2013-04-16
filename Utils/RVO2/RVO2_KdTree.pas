@@ -362,13 +362,13 @@ begin
 
           if (j1LeftOfI >= -RVO_EPSILON) and (j2LeftOfI >= -RVO_EPSILON) then
           begin
-            Inc(leftCounter);
             leftObstacles[leftCounter] := obstacles[j];
+            Inc(leftCounter);
           end
           else if (j1LeftOfI <= RVO_EPSILON) and (j2LeftOfI <= RVO_EPSILON) then
           begin
-            Inc(rightCounter);
             rightObstacles[rightCounter] := obstacles[j];
+            Inc(rightCounter);
           end
           else
           begin
