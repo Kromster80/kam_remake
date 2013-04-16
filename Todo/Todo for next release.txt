@@ -7,6 +7,7 @@ Bugs:
  +	Player checkbox selections in MP wares results display should remain the same when switching between wares
  +	Dragging brush in MapEd over minimap should not trigger minimap position change
  +	Changing terrain in MapEd from snow to non-snow should update snowed houses placed there
+ +	Crash when exiting a mission with a house area being dug and a script using OnHouseLost
 	Message log should be hidden until the 1st message arrives, looks odd to have a blank scroll
 	Can only place buildings for one player in SP MapEd, for others its just red crosses.
 	we had a match on "Coastal Encounter Score" with 2 humans and 1 AI. One human lost all of his troops first. The moment his last fighter died, the server disconnected him.
