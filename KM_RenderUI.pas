@@ -461,9 +461,11 @@ begin
     begin
       SetLength(Colors, Length(Colors) + 1);
       Colors[High(Colors)].FirstChar := I;
-      if aShowMarkup then inc(Colors[High(Colors)].FirstChar, 9); //Don't color the markup itself
+      if aShowMarkup then
+        Inc(Colors[High(Colors)].FirstChar, 9); //Don't color the markup itself
       Colors[High(Colors)].Color := Abs(TmpColor) or $FF000000;
-      if not aShowMarkup then Delete(aText, I, 9);
+      if not aShowMarkup then
+        Delete(aText, I, 9);
     end;
   until(I = 0);
 
@@ -472,26 +474,27 @@ begin
 
   //Calculate line count and each lines width to be able to properly aAlign them
   LineCount := 1;
-  for I:=1 to length(aText) do
-    if aText[I]=#124 then inc(LineCount);
+  for I := 1 to Length(aText) do
+    if aText[I] = #124 then
+      Inc(LineCount);
 
   SetLength(LineWidth, LineCount+2); //1..n+1 (for last line)
 
   LineCount := 1;
 
-  for I:=1 to length(aText) do
+  for I := 1 to Length(aText) do
   begin
-    if aText[I]<>#124 then
-      if aText[I]=#32 then
-        inc(LineWidth[LineCount], FontData.WordSpacing)
+    if aText[I] <> #124 then
+      if aText[I] = #32 then
+        Inc(LineWidth[LineCount], FontData.WordSpacing)
       else
-        inc(LineWidth[LineCount], FontData.Letters[byte(aText[I])].Width + FontData.CharSpacing);
+        Inc(LineWidth[LineCount], FontData.Letters[byte(aText[I])].Width + FontData.CharSpacing);
 
     //If EOL or aText end
     if (aText[I]=#124)or(I=length(aText)) then
     begin
       LineWidth[LineCount] := Math.max(0, LineWidth[LineCount] - FontData.CharSpacing); //Remove last interletter space and negate double EOLs
-      inc(LineCount);
+      Inc(LineCount);
     end;
   end;
 
@@ -506,6 +509,7 @@ begin
     taLeft:   AdvX := X;
     taCenter: AdvX := X + (W - LineWidth[1]) div 2;
     taRight:  AdvX := X + W - LineWidth[1];
+    else      AdvX := X;
   end;
   AdvY := Y;
   LineCount := 1;
@@ -529,28 +533,27 @@ begin
           Inc(K);
         end;
 
-        if aText[I] = #32 then
-          Inc(AdvX, FontData.WordSpacing)
-        else
-        if aText[I] = #124 then
-        begin
-          //KaM uses #124 or vertical bar (|) for new lines in the LIB files,
-          //so lets do the same here. Saves complex conversions...
-          Inc(AdvY, LineHeight);
-          Inc(LineCount);
-          case aAlign of
-            taLeft:   AdvX := X;
-            taCenter: AdvX := X + (W - LineWidth[LineCount]) div 2;
-            taRight:  AdvX := X + W - LineWidth[LineCount];
-          end;
-        end else
-        with FontData.Letters[Byte(aText[I])] do
-        begin
-          glTexCoord2f(u1,v1); glVertex2f(AdvX       , AdvY       +YOffset);
-          glTexCoord2f(u2,v1); glVertex2f(AdvX+Width , AdvY       +YOffset);
-          glTexCoord2f(u2,v2); glVertex2f(AdvX+Width , AdvY+Height+YOffset);
-          glTexCoord2f(u1,v2); glVertex2f(AdvX       , AdvY+Height+YOffset);
-          Inc(AdvX, Width + FontData.CharSpacing);
+        case aText[I] of
+          #32:  Inc(AdvX, FontData.WordSpacing);
+          #124: begin
+                  //KaM uses #124 or vertical bar (|) for new lines in the LIB files,
+                  //so lets do the same here. Saves complex conversions...
+                  Inc(AdvY, LineHeight);
+                  Inc(LineCount);
+                  case aAlign of
+                    taLeft:   AdvX := X;
+                    taCenter: AdvX := X + (W - LineWidth[LineCount]) div 2;
+                    taRight:  AdvX := X + W - LineWidth[LineCount];
+                  end;
+                end;
+          else  with FontData.Letters[Byte(aText[I])] do
+                begin
+                  glTexCoord2f(u1, v1); glVertex2f(AdvX       , AdvY       +YOffset);
+                  glTexCoord2f(u2, v1); glVertex2f(AdvX+Width , AdvY       +YOffset);
+                  glTexCoord2f(u2, v2); glVertex2f(AdvX+Width , AdvY+Height+YOffset);
+                  glTexCoord2f(u1, v2); glVertex2f(AdvX       , AdvY+Height+YOffset);
+                  Inc(AdvX, Width + FontData.CharSpacing);
+                end;
         end;
       end;
     glEnd;

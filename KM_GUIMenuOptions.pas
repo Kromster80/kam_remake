@@ -264,7 +264,6 @@ begin
   if Sender = DropBox_Options_Resolution then
   begin
     ResID := DropBox_Options_Resolution.ItemIndex;
-    RefID := DropBox_Options_RefreshRate.ItemIndex;
 
     //Reset refresh rates, because they are different for each resolution
     DropBox_Options_RefreshRate.Clear;

@@ -200,6 +200,8 @@ begin
 
       //A-B
       //C-D
+      Ter1 := tkCustom;
+      Ter2 := tkCustom;
 
       if (A=B)or(C=D)  then begin Ter1:=A; Ter2:=C; Nodes:=2; if A<C then Rot:=2 else Rot:=0; end;
       if (A=C)or(B=D)  then begin Ter1:=A; Ter2:=B; Nodes:=2; if A<B then Rot:=1 else Rot:=3; end;
@@ -241,6 +243,7 @@ begin
           Rot := (Rot + 1) mod 4;
       end;
 
+      T := 0;
       if Nodes < 4 then T := Abs(Combo[Ter1, Ter2, Nodes]);     //transition tiles
       if Nodes = 4 then T := Abs(Combo[Ter1, Ter2, 1]);         //no transition
       if Nodes > 4 then T := Abs(Combo[Ter1, Ter2, 3]);         //transition use 1 or 3

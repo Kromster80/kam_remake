@@ -1634,6 +1634,7 @@ begin
     taLeft:   Result := AbsLeft;
     taCenter: Result := AbsLeft + Round((Width - fTextSize.X) / 2);
     taRight:  Result := AbsLeft + (Width - fTextSize.X);
+    else      Result := AbsLeft;
   end;
 end;
 
@@ -3340,10 +3341,15 @@ begin
   if inherited KeyDown(Key, Shift) then Exit;
 
   case Key of
-    VK_UP:    NewIndex := fItemIndex - 1;
-    VK_DOWN:  NewIndex := fItemIndex + 1;
-    VK_RETURN:if Assigned(fOnClick) then fOnClick(Self); //Trigger click to hide drop downs
-    else      Exit;
+    VK_UP:      NewIndex := fItemIndex - 1;
+    VK_DOWN:    NewIndex := fItemIndex + 1;
+    VK_RETURN:  begin
+                  //Trigger click to hide drop downs
+                  if Assigned(fOnClick) then
+                    fOnClick(Self);
+                  Exit;
+                end;
+    else        Exit;
   end;
 
   if InRange(NewIndex, 0, Count - 1) then
@@ -3355,7 +3361,9 @@ begin
     if TopIndex > fItemIndex then //Moving up
       TopIndex := fItemIndex;
   end;
-  if Assigned(fOnChange) then fOnChange(Self);
+
+  if Assigned(fOnChange) then
+    fOnChange(Self);
 end;
 
 
@@ -3824,10 +3832,15 @@ begin
   if inherited KeyDown(Key, Shift) then Exit;
 
   case Key of
-    VK_UP:    NewIndex := fItemIndex - 1;
-    VK_DOWN:  NewIndex := fItemIndex + 1;
-    VK_RETURN:if Assigned(fOnClick) then fOnClick(Self); //Trigger click to hide drop downs
-    else      Exit;
+    VK_UP:      NewIndex := fItemIndex - 1;
+    VK_DOWN:    NewIndex := fItemIndex + 1;
+    VK_RETURN:  begin
+                  //Trigger click to hide drop downs
+                  if Assigned(fOnClick) then
+                    fOnClick(Self);
+                  Exit;
+                end;
+    else        Exit;
   end;
 
   if InRange(NewIndex, 0, fRowCount - 1) then
