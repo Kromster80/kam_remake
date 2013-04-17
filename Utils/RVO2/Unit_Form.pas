@@ -2,7 +2,7 @@ unit Unit_Form;
 interface
 uses
   SysUtils, Classes, Graphics, Types, Controls, Forms, ExtCtrls, StdCtrls, MMSystem,
-  RVO2_Math, RVO2_Simulator, RVO2_Vector2;
+  RVO2_Math, RVO2_Simulator, RVO2_Vector2, RVO2_Interface;
 
 type
   TForm1 = class(TForm)
@@ -10,24 +10,31 @@ type
     Button2: TButton;
     Timer1: TTimer;
     Button1: TButton;
-    Timer2: TTimer;
+    Button3: TButton;
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure Button2Click(Sender: TObject);
     procedure Timer1Click(Sender: TObject);
-    procedure Timer2Timer(Sender: TObject);
     procedure Button1Click(Sender: TObject);
+    procedure Button3Click(Sender: TObject);
   private
     procedure DisplayMap;
   end;
 
   TPointArray = array of TPoint;
 
+  TRVORoadmapVertex = class
+    position: TRVOVector2;
+    //neighbors
+    //distToGoal
+  end;
+
 var
   Form1: TForm1;
   bmp: TBitmap;
-  NUM_AGENTS: Byte = 4;
+  rvo2: TRVO2;
   goals: array of TRVOVector2;
+  roadmap: TList;
 
 
 implementation
@@ -55,119 +62,99 @@ end;
 procedure TForm1.Button1Click(Sender: TObject);
 var
   i: Integer;
-  vertices: array of TRVOVector2;
+  A: TRVO2Agent;
 begin
-  bmp.Height := 100;
-  bmp.Width := 100;
+  bmp.Height := 400;
+  bmp.Width := 400;
 
-  gSimulator := TRVOSimulator.Create;
-  gSimulator.Clear;
-
-  gSimulator.setTimeStep(0.25);
-  gSimulator.setAgentDefaults(15, 10, 10, 5, 2, 2, Vector2(0, 0));
+  rvo2 := TRVO2.Create;
 
   // Add agents, specifying their start position.
   for I := 0 to 49 do
-    gSimulator.addAgent(Vector2(Cos(I/50*2*pi)*50+50, Sin(I/50*2*pi)*50+50));
-
-  // Create goals (simulator is unaware of these).
-  SetLength(goals, gSimulator.getNumAgents);
-  for i := 0 to gSimulator.getNumAgents - 1 do
   begin
-    goals[i].x := 100 - gSimulator.getAgentPosition(i).X;
-    goals[i].y := 100 - gSimulator.getAgentPosition(i).Y;
+    A := TRVO2Agent.Create;
+    A.Position := Vector2(Cos(I/50*2*pi)*50+50, Sin(I/50*2*pi)*50+50);
+    A.Radius := 2;
+    SetLength(A.Route, 1);
+    A.Route[0] := Vector2(-Cos(I/50*2*pi)*50+50, -Sin(I/50*2*pi)*50+50);
+    rvo2.AddAgent(A);
   end;
 
-  Timer2.Enabled := True;
+  Timer1.Enabled := True;
 end;
 
 procedure TForm1.Button2Click(Sender: TObject);
 var
   i: Integer;
-  vertices: array of TRVOVector2;
+  A: TRVO2Agent;
 begin
-  bmp.Height := 100;
-  bmp.Width := 100;
+  bmp.Height := 400;
+  bmp.Width := 400;
 
-  gSimulator := TRVOSimulator.Create;
-  gSimulator.Clear;
-
-  gSimulator.setTimeStep(0.25);
-  gSimulator.setAgentDefaults(15, 10, 10, 5, 2, 2, Vector2(0, 0));
+  rvo2 := TRVO2.Create;
 
   // Add agents, specifying their start position.
-  gSimulator.addAgent(Vector2(  0,   0));
-  gSimulator.addAgent(Vector2(100,   0));
-  gSimulator.addAgent(Vector2(100, 100));
-  gSimulator.addAgent(Vector2(  0, 100));
-
-  // Create goals (simulator is unaware of these).
-  SetLength(goals, gSimulator.getNumAgents);
-  for i := 0 to gSimulator.getNumAgents - 1 do
+  for I := 0 to 3 do
   begin
-    goals[i].x := 100 - gSimulator.getAgentPosition(i).X;
-    goals[i].y := 100 - gSimulator.getAgentPosition(i).Y;
+    A := TRVO2Agent.Create;
+    A.Position := Vector2((I mod 2) * 100, (I div 2) * 100);
+    A.Radius := 2;
+    SetLength(A.Route, 1);
+    A.Route[0] := Vector2(100 - A.Position.X, 100 - A.Position.Y);
+    rvo2.AddAgent(A);
   end;
 
-  // Add (polygonal) obstacle(s), specifying vertices in counterclockwise order.
-  SetLength(vertices, 4);
-  vertices[0] := Vector2(40, 30);
-  vertices[1] := Vector2(60, 30);
-  vertices[2] := Vector2(60, 70);
-  vertices[3] := Vector2(40, 70);
+  rvo2.AddObstacleRect(40, 30, 20, 40);
 
-  gSimulator.addObstacle(vertices);
+  Timer1.Enabled := True;
+end;
 
-  // Process obstacles so that they are accounted for in the simulation.
-  gSimulator.processObstacles;
+
+procedure TForm1.Button3Click(Sender: TObject);
+var
+  i: Integer;
+  A: TRVO2Agent;
+begin
+  bmp.Height := 400;
+  bmp.Width := 400;
+
+  rvo2 := TRVO2.Create();
+
+  // Add agents, specifying their start position.
+  for I := 0 to 5 do
+  begin
+    A := TRVO2Agent.Create;
+    A.Position := Vector2(10 + Random*20-5, 10 + Random*10-5);
+    A.Radius := 2.5;
+    SetLength(A.Route, 3);
+    A.Route[0] := Vector2(10, 50);
+    A.Route[1] := Vector2(90, 50);
+    A.Route[2] := Vector2(90, 90);
+    rvo2.AddAgent(A);
+  end;
+
+  for I := 0 to 5 do
+  begin
+    A := TRVO2Agent.Create;
+    A.Position := Vector2(90 + Random*20-5, 90 + Random*10-5);
+    A.Radius := 2.5;
+    SetLength(A.Route, 3);
+    A.Route[0] := Vector2(90, 50);
+    A.Route[1] := Vector2(10, 50);
+    A.Route[2] := Vector2(10, 10);
+    rvo2.AddAgent(A);
+  end;
+
+  rvo2.AddObstacleRect(20, 0, 60, 42);
+  rvo2.AddObstacleRect(20, 58, 60, 42);
 
   Timer1.Enabled := True;
 end;
 
 
 procedure TForm1.Timer1Click(Sender: TObject);
-  procedure setPreferredVelocities;
-  var
-    i: Integer;
-  begin
-    // Set the preferred velocity for each agent.
-    for i := 0 to gSimulator.getNumAgents - 1 do
-    begin
-      if absSq(Vector2Sub(goals[i], gSimulator.getAgentPosition(i))) < Sqr(gSimulator.getAgentRadius(i)) then
-        // Agent is within one radius of its goal, set preferred velocity to zero
-        gSimulator.setAgentPrefVelocity(i, Vector2(0, 0))
-      else
-        // Agent is far away from its goal, set preferred velocity as unit vector towards agent's goal.
-        gSimulator.setAgentPrefVelocity(i, normalize(Vector2Sub(goals[i], gSimulator.getAgentPosition(i))));
-    end;
-  end;
 begin
-  setPreferredVelocities;
-  gSimulator.doStep;
-
-  DisplayMap;
-end;
-
-
-procedure TForm1.Timer2Timer(Sender: TObject);
-  procedure setPreferredVelocities;
-  var
-    i: Integer;
-  begin
-    // Set the preferred velocity for each agent.
-    for i := 0 to gSimulator.getNumAgents - 1 do
-    begin
-      if absSq(Vector2Sub(goals[i], gSimulator.getAgentPosition(i))) < Sqr(gSimulator.getAgentRadius(i)) then
-        // Agent is within one radius of its goal, set preferred velocity to zero
-        gSimulator.setAgentPrefVelocity(i, Vector2(0, 0))
-      else
-        // Agent is far away from its goal, set preferred velocity as unit vector towards agent's goal.
-        gSimulator.setAgentPrefVelocity(i, normalize(Vector2Sub(goals[i], gSimulator.getAgentPosition(i))));
-    end;
-  end;
-begin
-  setPreferredVelocities;
-  gSimulator.doStep;
+  rvo2.Step;
 
   DisplayMap;
 end;
@@ -175,37 +162,40 @@ end;
 
 procedure TForm1.DisplayMap;
 var
-  I: Integer;
+  I,K: Integer;
   ObstacleStart: Integer;
   V: TRVOVector2;
+  R: Single;
 begin
   bmp.Canvas.Brush.Color := clBlack;
   bmp.Canvas.FillRect(bmp.Canvas.ClipRect);
 
   //Obstacle
-  bmp.Canvas.Pen.Color := clLime;
-  ObstacleStart := 0;
-
-  while ObstacleStart <= gSimulator.getNumObstacleVertices - 1 do
+  bmp.Canvas.Pen.Color := clGray;
+  for I := 0 to rvo2.ObstacleCount - 1 do
   begin
-    I := ObstacleStart;
-    V := gSimulator.getObstacleVertex(I);
+    V := Vector2Scale(rvo2.Obstacles[I].Vertices[Length(rvo2.Obstacles[I].Vertices) - 1], 4);
     bmp.Canvas.MoveTo(Round(V.x), Round(V.y));
-    repeat
-      I := gSimulator.getNextObstacleVertexNo(I);
-      V := gSimulator.getObstacleVertex(I);
+    for K := 0 to Length(rvo2.Obstacles[I].Vertices) - 1 do
+    begin
+      V := Vector2Scale(rvo2.Obstacles[I].Vertices[K], 4);
       bmp.Canvas.LineTo(Round(V.x), Round(V.y));
-    until (I = ObstacleStart);
-
-    ObstacleStart := gSimulator.getPrevObstacleVertexNo(I) + 1;
+    end;
   end;
 
   //bmp.Canvas.Brush.Color := clGray;
   //bmp.Canvas.Rectangle(43, 30, 57, 70);
 
   //Agents
-  for I := 0 to gSimulator.getNumAgents - 1 do
-    bmp.Canvas.Pixels[Round(gSimulator.getAgentPosition(I).x), Round(gSimulator.getAgentPosition(I).y)] := clYellow;
+  bmp.Canvas.Pen.Color := clNone;
+  bmp.Canvas.Brush.Color := clGreen;
+  for I := 0 to rvo2.AgentCount - 1 do
+  begin
+    V := Vector2Scale(rvo2.Agents[I].Position, 4);
+    R := rvo2.Agents[I].Radius * 4;
+    bmp.Canvas.Ellipse(Round(V.x-R), Round(V.y-R), Round(V.x+R), Round(V.y+R));
+    bmp.Canvas.Pixels[Round(V.x), Round(V.y)] := clYellow;
+  end;
 
   Image1.Canvas.StretchDraw(Image1.Canvas.ClipRect, bmp);
   Image1.Repaint;

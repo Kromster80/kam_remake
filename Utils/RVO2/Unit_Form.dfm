@@ -23,10 +23,10 @@ object Form1: TForm1
   end
   object Button2: TButton
     Left = 8
-    Top = 8
+    Top = 48
     Width = 137
     Height = 33
-    Caption = 'Block test'
+    Caption = 'Block'
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText
     Font.Height = -15
@@ -38,10 +38,10 @@ object Form1: TForm1
   end
   object Button1: TButton
     Left = 8
-    Top = 48
+    Top = 8
     Width = 137
     Height = 33
-    Caption = 'Circle test'
+    Caption = 'Circle'
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText
     Font.Height = -15
@@ -51,18 +51,26 @@ object Form1: TForm1
     TabOrder = 1
     OnClick = Button1Click
   end
+  object Button3: TButton
+    Left = 8
+    Top = 88
+    Width = 137
+    Height = 33
+    Caption = 'Passage'
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -15
+    Font.Name = 'Tahoma'
+    Font.Style = []
+    ParentFont = False
+    TabOrder = 2
+    OnClick = Button3Click
+  end
   object Timer1: TTimer
     Enabled = False
     Interval = 1
     OnTimer = Timer1Click
     Left = 168
-    Top = 24
-  end
-  object Timer2: TTimer
-    Enabled = False
-    Interval = 1
-    OnTimer = Timer2Timer
-    Left = 208
     Top = 24
   end
 end
