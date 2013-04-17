@@ -333,6 +333,24 @@ end;
 
 //Link the ByteCode with used functions and load it into Executioner
 procedure TKMScripting.LinkRuntime;
+
+  function ValidateVarType(aType: TPSTypeRec): string;
+  var
+    ArrayCount: Integer;
+    I: Integer;
+    Offset: Cardinal;
+  begin
+    //See uPSRuntime line 1630 for algo idea
+    case aType.BaseType of
+      btU8,
+      btS32,
+      btSingle: ; //Valid types
+      btArray,
+      btStaticArray: Result := ValidateVarType(TPSTypeRec_Array(aType).ArrayType);
+      else           Result := 'Unsupported global variable type ' + IntToStr(aType.BaseType) + ': ' + aType.ExportName + '|';
+    end;
+  end;
+
 var
   ClassImp: TPSRuntimeClassImporter;
   I: Integer;
@@ -472,12 +490,10 @@ begin
     for I := 0 to fExec.GetVarCount - 1 do
     begin
       V := fExec.GetVarNo(I);
-      Allowed := (V.FType.BaseType in [btU8, btS32, btSingle])
-                 or ((V.FType.BaseType = btStaticArray) and (TPSTypeRec_StaticArray(V.FType).ArrayType.BaseType in [btU8, btS32, btSingle]))
-                 or SameText(V.FType.ExportName, 'TKMScriptStates')
-                 or SameText(V.FType.ExportName, 'TKMScriptActions');
-      if not Allowed then
-        fErrorString := fErrorString + 'Unsupported global variable type ' + IntToStr(V.FType.BaseType) + ': ' + V.FType.ExportName + '|';
+      if SameText(V.FType.ExportName, 'TKMScriptStates')
+      or SameText(V.FType.ExportName, 'TKMScriptActions') then
+        Continue;
+      fErrorString := fErrorString + ValidateVarType(V.FType);
     end;
 
     //Link script objects with objects
@@ -657,14 +673,44 @@ end;
 
 
 procedure TKMScripting.Load(LoadStream: TKMemoryStream);
+
+  procedure LoadVar(Src: Pointer; aType: TPSTypeRec);
+  var
+    ArrayCount: Integer;
+    I: Integer;
+    Offset: Cardinal;
+  begin
+    //See uPSRuntime line 1630 for algo idea
+    case aType.BaseType of
+      btU8:  LoadStream.Read(tbtu8(Src^)); //Byte, Boolean
+      btS32: LoadStream.Read(tbts32(Src^)); //Integer
+      btSingle: LoadStream.Read(tbtsingle(Src^));
+      btStaticArray:begin
+                      LoadStream.Read(ArrayCount);
+                      Assert(ArrayCount = TPSTypeRec_StaticArray(aType).Size, 'Script array element count mismatches saved count');
+                      for I:=0 to ArrayCount-1 do
+                      begin
+                        Offset := TPSTypeRec_Array(aType).ArrayType.RealSize * I;
+                        LoadVar(Pointer(IPointer(Src) + Offset), TPSTypeRec_Array(aType).ArrayType);
+                      end;
+                    end;
+      btArray:      begin
+                      LoadStream.Read(ArrayCount);
+                      PSDynArraySetLength(Pointer(Src^), aType, ArrayCount);
+                      for I:=0 to ArrayCount-1 do
+                      begin
+                        Offset := TPSTypeRec_Array(aType).ArrayType.RealSize * I;
+                        LoadVar(Pointer(IPointer(Src^) + Offset), TPSTypeRec_Array(aType).ArrayType);
+                      end;
+                    end;
+      //Already checked and reported as an error in LinkRuntime, no need to crash it here
+      //else Assert(False);
+    end;
+  end;
+
 var
-  I,K: Integer;
+  I: Integer;
   V: PIFVariant;
-  ArrayCount: Integer;
-  ArrayType: TPSTypeRec;
-  ArrayVar: TPSVariantIFC;
-  TmpInt: Integer;
-  TmpSingle: Single;
   //Do not save PS global variables strings
   //TmpString: AnsiString;
 begin
@@ -681,116 +727,62 @@ begin
   for I := 0 to fExec.GetVarCount - 1 do
   begin
     V := fExec.GetVarNo(I);
-    case V.FType.BaseType of
-      btU8, btS32:  begin
-                      LoadStream.Read(TmpInt);
-                      VSetInt(V, TmpInt);
-                    end;
-      btSingle:     begin
-                      LoadStream.Read(TmpSingle);
-                      VSetReal(V, TmpSingle);
-                    end;
-      {btString:     begin
-                      LoadStream.Read(TmpString);
-                      VSetString(V, TmpString);
-                    end;}
-      btStaticArray:begin
-                      //See uPSRuntime line 1630 for algo idea
-                      LoadStream.Read(ArrayCount);
-                      Assert(ArrayCount = TPSTypeRec_StaticArray(V.FType).Size, 'Elements in array mismatch');
-
-                      ArrayType := TPSTypeRec_StaticArray(V.FType).ArrayType; //Type of elements of array
-
-                      case ArrayType.BaseType of
-                        btU8, btS32:  for K := 0 to ArrayCount - 1 do
-                                      begin
-                                        ArrayVar := PSGetArrayField(NewTPSVariantIFC(V, False), K);
-                                        LoadStream.Read(TmpInt);  //Byte, Boolean, Integer
-                                        VNSetInt(ArrayVar, TmpInt);
-                                      end;
-                        btSingle:     for K := 0 to ArrayCount - 1 do
-                                      begin
-                                        ArrayVar := PSGetArrayField(NewTPSVariantIFC(V, False), K);
-                                        LoadStream.Read(TmpSingle);  //Byte, Boolean, Integer
-                                        VNSetReal(ArrayVar, TmpSingle);
-                                      end;
-                        {btString:     for K := 0 to ArrayCount - 1 do
-                                      begin
-                                        ArrayVar := PSGetArrayField(NewTPSVariantIFC(V, False), K);
-                                        LoadStream.Read(TmpString);
-                                        VNSetString(ArrayVar, TmpString);
-                                      end;}
-                      end;
-                    end;
-    end;
+    LoadVar(@PPSVariantData(V).Data, V.FType);
   end;
 end;
 
 
 procedure TKMScripting.Save(SaveStream: TKMemoryStream);
+
+  procedure SaveVar(Src: Pointer; aType: TPSTypeRec);
+  var
+    ArrayCount: Integer;
+    I: Integer;
+    Offset: Cardinal;
+  begin
+    //See uPSRuntime line 1630 for algo idea
+    case aType.BaseType of
+      btU8:  SaveStream.Write(tbtu8(Src^)); //Byte, Boolean
+      btS32: SaveStream.Write(tbts32(Src^)); //Integer
+      btSingle: SaveStream.Write(tbtsingle(Src^));
+      btStaticArray:begin
+                      ArrayCount := TPSTypeRec_StaticArray(aType).Size;
+                      SaveStream.Write(ArrayCount);
+                      for I:=0 to ArrayCount-1 do
+                      begin
+                        Offset := TPSTypeRec_Array(aType).ArrayType.RealSize * I;
+                        SaveVar(Pointer(IPointer(Src) + Offset), TPSTypeRec_Array(aType).ArrayType);
+                      end;
+                    end;
+      btArray:      begin
+                      ArrayCount := PSDynArrayGetLength(Pointer(Src^), aType);
+                      SaveStream.Write(ArrayCount);
+                      for I:=0 to ArrayCount-1 do
+                      begin
+                        Offset := TPSTypeRec_Array(aType).ArrayType.RealSize * I;
+                        SaveVar(Pointer(IPointer(Src^) + Offset), TPSTypeRec_Array(aType).ArrayType);
+                      end;
+                    end;
+      //Already checked and reported as an error in LinkRuntime, no need to crash it here
+      //else Assert(False);
+    end;
+  end;
+
 var
-  I,K: Integer;
+  I: Integer;
   V: PIFVariant;
-  ArrayCount: Integer;
-  ArrayType: TPSTypeRec;
-  ArrayVar: TPSVariantIFC;
-  TmpInt: Integer;
-  TmpSingle: Single;
-  //TmpString: AnsiString;
 begin
   SaveStream.Write('Script');
 
   //Write script code
   SaveStream.Write(fScriptCode);
 
-  //Write script variables
+  //Write script global variables
   SaveStream.Write(fExec.GetVarCount);
   for I := 0 to fExec.GetVarCount - 1 do
   begin
     V := fExec.GetVarNo(I);
-    case V.FType.BaseType of
-      btU8, btS32:  SaveStream.Write(Integer(VGetInt(V)));   //Byte, Boolean, Integer
-      btSingle:     begin                                    //Single
-                      TmpSingle := VGetReal(V);
-                      SaveStream.Write(TmpSingle);
-                    end;
-      {btString:     begin
-                      TmpString := VGetString(V);
-                      SaveStream.Write(TmpString);
-                    end;}
-      btStaticArray:begin
-                      //See uPSRuntime line 1630 for algo idea
-                      ArrayCount := TPSTypeRec_StaticArray(V.FType).Size; //Elements in array
-                      SaveStream.Write(ArrayCount);
-
-                      ArrayType := TPSTypeRec_StaticArray(V.FType).ArrayType; //Type of elements of array
-
-                      case ArrayType.BaseType of
-                        btU8, btS32:  for K := 0 to ArrayCount - 1 do
-                                      begin
-                                        ArrayVar := PSGetArrayField(NewTPSVariantIFC(V, False), K);
-                                        TmpInt := Integer(VNGetInt(ArrayVar));
-                                        SaveStream.Write(TmpInt);  //Byte, Boolean, Integer
-                                      end;
-                        btSingle:     for K := 0 to ArrayCount - 1 do
-                                      begin
-                                        ArrayVar := PSGetArrayField(NewTPSVariantIFC(V, False), K);
-                                        TmpSingle := VNGetReal(ArrayVar);
-                                        SaveStream.Write(TmpSingle);
-                                      end;
-                        {btString:     for K := 0 to ArrayCount - 1 do
-                                      begin
-                                        ArrayVar := PSGetArrayField(NewTPSVariantIFC(V, False), K);
-                                        TmpString := VNGetString(ArrayVar);
-                                        SaveStream.Write(TmpSingle);
-                                      end;}
-                        //Already checked and reported as an error in LinkRuntime, no need to crash it here
-                        //else Assert(False);
-                      end;
-                    end;
-      //Already checked and reported as an error in LinkRuntime, no need to crash it here
-      //else Assert(False);
-    end;
+    SaveVar(@PPSVariantData(V).Data, V.FType);
   end;
 end;
 
