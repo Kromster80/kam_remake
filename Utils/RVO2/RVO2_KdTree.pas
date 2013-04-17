@@ -77,15 +77,14 @@ type
     agents_: array of TRVOAgent;
     agentTree_: array of TRVOAgentTreeNode;
     obstacleTree_: TRVOObstacleTreeNode;
-    constructor Create;
     procedure buildAgentTree;
     procedure buildAgentTreeRecursive(abegin, aend, node: Integer);
     procedure buildObstacleTree;
     function buildObstacleTreeRecursive(obstacles: TList): TRVOObstacleTreeNode;
     procedure queryObstacleTreeRecursive(agent: TRVOAgent; rangeSq: Single; node: TRVOObstacleTreeNode);
-    procedure computeAgentNeighbors(agent: TRVOAgent; rangeSq: Single);
+    procedure computeAgentNeighbors(agent: TRVOAgent; var rangeSq: Single);
     procedure computeObstacleNeighbors(agent: TRVOAgent; rangeSq: Single);
-    procedure queryAgentTreeRecursive(agent: TRVOAgent; rangeSq: Single; node: Integer);
+    procedure queryAgentTreeRecursive(agent: TRVOAgent; var rangeSq: Single; node: Integer);
     function queryVisibility(q1, q2: TRVOVector2; radius: Single): Boolean;
     function queryVisibilityRecursive(q1, q2: TRVOVector2; radius: Single; node: TRVOObstacleTreeNode): Boolean;
   end;
@@ -120,12 +119,6 @@ begin
 end;
 
 { TRVOKdTree }
-constructor TRVOKdTree.Create;
-begin
-
-end;
-
-
 procedure TRVOKdTree.buildAgentTree;
 var
   I: Integer;
@@ -177,7 +170,7 @@ begin
 
   if (aend - abegin > MAX_LEAF_SIZE) then
   begin
-    //No leaf node.
+    (* No leaf node. *)
     isVertical := (agentTree_[node].maxX - agentTree_[node].minX > agentTree_[node].maxY - agentTree_[node].minY);
     splitValue := IfThen(isVertical, 0.5 * (agentTree_[node].maxX + agentTree_[node].minX), 0.5 * (agentTree_[node].maxY + agentTree_[node].minY));
 
@@ -222,6 +215,7 @@ begin
     buildAgentTreeRecursive(left, aend, agentTree_[node].right);
   end;
 end;
+
 
 //internal void buildObstacleTree()
 procedure TRVOKdTree.buildObstacleTree;
@@ -288,7 +282,7 @@ begin
       begin
           if (i = j) then
           begin
-              continue;
+            continue;
           end;
 
           obstacleJ1 := obstacles[j];
@@ -332,7 +326,7 @@ begin
         optimalSplit := i;
       end;
     end;
-//Part2
+
     begin
         //Build split node.
         leftObstacles := TList.Create;
@@ -351,7 +345,7 @@ begin
         begin
           if (i = j) then
           begin
-              continue;
+            continue;
           end;
 
           obstacleJ1 := obstacles[j];
@@ -379,7 +373,7 @@ begin
                  det(Vector2Sub(obstacleI2.point_, obstacleI1.point_),
                      Vector2Sub(obstacleJ1.point_, obstacleJ2.point_));
 
-            splitpoint := Vector2Add(obstacleJ1.point_, Vector2Scale(Vector2Sub(obstacleJ2.point_, obstacleJ1.point_), t));
+            splitpoint := Vector2Add(obstacleJ1.point_, Vector2Scale(t, Vector2Sub(obstacleJ2.point_, obstacleJ1.point_)));
 
             newObstacle := TRVOObstacle.Create;
             newObstacle.point_ := splitpoint;
@@ -397,19 +391,17 @@ begin
 
             if (j1LeftOfI > 0) then
             begin
-                Inc(leftCounter);
-                Inc(rightCounter);
-
                 leftObstacles[leftCounter] := obstacleJ1;
                 rightObstacles[rightCounter] := newObstacle;
+                Inc(leftCounter);
+                Inc(rightCounter);
             end
             else
             begin
-                Inc(leftCounter);
-                Inc(rightCounter);
-
                 rightObstacles[rightCounter] := obstacleJ1;
                 leftObstacles[leftCounter] := newObstacle;
+                Inc(leftCounter);
+                Inc(rightCounter);
             end;
           end;
         end;
@@ -422,7 +414,7 @@ begin
   end;
 end;
 
-procedure TRVOKdTree.computeAgentNeighbors(agent: TRVOAgent; rangeSq: Single);
+procedure TRVOKdTree.computeAgentNeighbors(agent: TRVOAgent; var rangeSq: Single);
 begin
   queryAgentTreeRecursive(agent, rangeSq, 0);
 end;
@@ -433,22 +425,22 @@ begin
 end;
 
 
-procedure TRVOKdTree.queryAgentTreeRecursive(agent: TRVOAgent; rangeSq: Single; node: Integer);
+procedure TRVOKdTree.queryAgentTreeRecursive(agent: TRVOAgent; var rangeSq: Single; node: Integer);
 var
   i: Integer;
   distSqLeft, distSqRight: Single;
 begin
   if (agentTree_[node].end_ - agentTree_[node].begin_ <= MAX_LEAF_SIZE) then
   begin
-      for i := agentTree_[node].begin_ to agentTree_[node].end_ - 1 do
-      begin
-          agent.insertAgentNeighbor(agents_[i], rangeSq);
-      end;
+    for i := agentTree_[node].begin_ to agentTree_[node].end_ - 1 do
+    begin
+      agent.insertAgentNeighbor(agents_[i], rangeSq);
+    end;
   end
   else
   begin
-      distSqLeft := Sqr(Max(0, agentTree_[agentTree_[node].left].minX - agent.position_.x)
-      ) + Sqr(Max(0, agent.position_.x - agentTree_[agentTree_[node].left].maxX)) +
+    distSqLeft := Sqr(Max(0, agentTree_[agentTree_[node].left].minX - agent.position_.x))
+      + Sqr(Max(0, agent.position_.x - agentTree_[agentTree_[node].left].maxX)) +
       Sqr(Math.Max(0, agentTree_[agentTree_[node].left].minY - agent.position_.y)) +
       Sqr(Max(0, agent.position_.y - agentTree_[agentTree_[node].left].maxY));
 
@@ -457,30 +449,30 @@ begin
       Sqr(Math.Max(0, agentTree_[agentTree_[node].right].minY - agent.position_.y)) +
       Sqr(Max(0, agent.position_.y - agentTree_[agentTree_[node].right].maxY));
 
-      if (distSqLeft < distSqRight) then
+    if (distSqLeft < distSqRight) then
+    begin
+      if (distSqLeft < rangeSq) then
       begin
-          if (distSqLeft < rangeSq) then
-          begin
-              queryAgentTreeRecursive(agent, rangeSq, agentTree_[node].left);
+        queryAgentTreeRecursive(agent, rangeSq, agentTree_[node].left);
 
-              if (distSqRight < rangeSq) then
-              begin
-                  queryAgentTreeRecursive(agent, rangeSq, agentTree_[node].right);
-              end;
-          end;
-      end
-      else
-      begin
-          if (distSqRight < rangeSq) then
-          begin
-              queryAgentTreeRecursive(agent, rangeSq, agentTree_[node].right);
-
-              if (distSqLeft < rangeSq) then
-              begin
-                  queryAgentTreeRecursive(agent, rangeSq, agentTree_[node].left);
-              end;
-          end;
+        if (distSqRight < rangeSq) then
+        begin
+          queryAgentTreeRecursive(agent, rangeSq, agentTree_[node].right);
+        end;
       end;
+    end
+    else
+    begin
+      if (distSqRight < rangeSq) then
+      begin
+        queryAgentTreeRecursive(agent, rangeSq, agentTree_[node].right);
+
+        if (distSqLeft < rangeSq) then
+        begin
+          queryAgentTreeRecursive(agent, rangeSq, agentTree_[node].left);
+        end;
+      end;
+    end;
   end;
 end;
 
@@ -512,8 +504,10 @@ begin
       begin
           if (agentLeftOfLine < 0) then
           begin
-              //Try obstacle at this node only if agent is on right side of
-              //obstacle (and can see obstacle).
+             (* 
+              * Try obstacle at this node only if agent is on right side of
+              * obstacle (and can see obstacle).
+              *)
               agent.insertObstacleNeighbor(node.obstacle, rangeSq);
           end;
 
@@ -522,7 +516,6 @@ begin
             queryObstacleTreeRecursive(agent, rangeSq, node.right)
           else
             queryObstacleTreeRecursive(agent, rangeSq, node.left);
-
       end;
   end;
 end;
@@ -554,9 +547,9 @@ begin
     if (q1LeftOfI >= 0) and (q2LeftOfI >= 0) then
     begin
         Result := queryVisibilityRecursive(q1, q2, radius, node.left)
-                  and (((sqr(q1LeftOfI) * invLengthI >= sqr(radius))
-                       and (sqr(q2LeftOfI) * invLengthI >= sqr(radius)))
-                       or queryVisibilityRecursive(q1, q2, radius, node.right));
+        and (((sqr(q1LeftOfI) * invLengthI >= sqr(radius))
+        and (sqr(q2LeftOfI) * invLengthI >= sqr(radius)))
+        or queryVisibilityRecursive(q1, q2, radius, node.right));
     end
     else if (q1LeftOfI <= 0) and (q2LeftOfI <= 0) then
     begin
@@ -584,5 +577,6 @@ begin
       end;
   end;
 end;
+
 
 end.

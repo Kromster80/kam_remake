@@ -22,6 +22,7 @@ type
 
 var
   Form1: TForm1;
+  bmp: TBitmap;
   NUM_AGENTS: Byte = 4;
   goals: array of TRVOVector2;
 
@@ -32,12 +33,18 @@ implementation
 
 procedure TForm1.FormCreate(Sender: TObject);
 begin
+  bmp := TBitmap.Create;
+  bmp.PixelFormat := pf24bit;
+  bmp.Height := 101;
+  bmp.Width := 101;
+
   timeBeginPeriod(1);
 end;
 
 
 procedure TForm1.FormDestroy(Sender: TObject);
 begin
+  bmp.Free;
   TimeEndPeriod(1);
 end;
 
@@ -50,15 +57,14 @@ begin
   gSimulator := TRVOSimulator.Create;
   gSimulator.Clear;
 
-  gSimulator.setTimeStep(0.1);
-  gSimulator.SetNumWorkers(1);
+  gSimulator.setTimeStep(0.2);
   gSimulator.setAgentDefaults(15, 10, 10, 5, 2, 2, Vector2(0, 0));
 
   // Add agents, specifying their start position.
-  gSimulator.addAgent(Vector2(0, 0));
-  gSimulator.addAgent(Vector2(100, 0));
+  gSimulator.addAgent(Vector2(  0,   0));
+  gSimulator.addAgent(Vector2(100,   0));
   gSimulator.addAgent(Vector2(100, 100));
-  gSimulator.addAgent(Vector2(0, 100));
+  gSimulator.addAgent(Vector2(  0, 100));
 
   // Create goals (simulator is unaware of these).
   SetLength(goals, gSimulator.getNumAgents);
@@ -75,7 +81,7 @@ begin
   vertices[2] := Vector2(57, 70);
   vertices[3] := Vector2(43, 70);
 
-  gSimulator.addObstacle(vertices);
+  //gSimulator.addObstacle(vertices);
 
   // Process obstacles so that they are accounted for in the simulation.
   gSimulator.processObstacles;
@@ -109,31 +115,20 @@ end;
 
 procedure TForm1.DisplayMap;
 var
-  I,K: Integer;
-  bmp: TBitmap;
+  I: Integer;
 begin
-  bmp := TBitmap.Create;
-  try
-    bmp.PixelFormat := pf24bit;
-    bmp.Height := 101;
-    bmp.Width := 101;
+  bmp.Canvas.Brush.Color := clBlack;
+  bmp.Canvas.FillRect(bmp.Canvas.ClipRect);
 
-    bmp.Canvas.Brush.Color := clBlack;
-    bmp.Canvas.FillRect(bmp.Canvas.ClipRect);
+  //Obstacle
+  bmp.Canvas.Brush.Color := clGray;
+  bmp.Canvas.Rectangle(43, 30, 57, 70);
 
-    //Obstacle
-    bmp.Canvas.Brush.Color := clGray;
-    bmp.Canvas.Rectangle(43, 30, 57, 70);
+  //Agents
+  for I := 0 to gSimulator.getNumAgents - 1 do
+    bmp.Canvas.Pixels[Round(gSimulator.getAgentPosition(I).X), Round(gSimulator.getAgentPosition(I).Y)] := clYellow;
 
-    //Agents
-    for I := 0 to gSimulator.getNumAgents - 1 do
-      bmp.Canvas.Pixels[Round(gSimulator.getAgentPosition(I).X), Round(gSimulator.getAgentPosition(I).Y)] := clYellow;
-
-    Image1.Canvas.StretchDraw(Image1.Canvas.ClipRect, bmp);
-  finally
-    bmp.Free;
-  end;
-
+  Image1.Canvas.StretchDraw(Image1.Canvas.ClipRect, bmp);
   Image1.Repaint;
 end;
 

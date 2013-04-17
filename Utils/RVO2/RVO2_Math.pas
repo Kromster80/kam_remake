@@ -61,7 +61,7 @@ end;
 
 function normalize(v: TRVOVector2): TRVOVector2;
 begin
-  Result := Vector2Scale(v, 1/abs(v));
+  Result := Vector2Scale(v, 1 / abs(v));
 end;
 
 function distSqPointLineSegment(a, b, c: TRVOVector2): Single;

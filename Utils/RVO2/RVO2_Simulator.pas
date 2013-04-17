@@ -43,15 +43,6 @@ uses Classes, SysUtils, Math,
   RVO2_Agent, RVO2_KdTree, RVO2_Vector2;
 
 type
-  TRVOWorker = class
-    _start: Integer;
-    _end: Integer;
-
-    constructor Create(astart, aend: Single);
-    procedure step;
-    procedure update;
-  end;
-
   TRVOSimulator = class
   public
     defaultAgent_: TRVOAgent;
@@ -61,12 +52,7 @@ type
     kdTree_: TRVOKdTree;
     timeStep_: Single;
 
-    _numWorkers: Integer;
-    _workers: array of TRVOWorker;
-
     procedure Clear;
-    function GetNumWorkers: Integer;
-    procedure SetNumWorkers(numWorkers: Integer);
     function getGlobalTime: Single;
     function getNumAgents: Integer;
     function getTimeStep: Single;
@@ -106,19 +92,6 @@ begin
   defaultAgent_ := nil;
   kdTree_ := TRVOKdTree.Create;
   timeStep_ := 0.1;
-
-  SetNumWorkers(0);
-end;
-
-
-function TRVOSimulator.GetNumWorkers: Integer;
-begin
-  Result := _numWorkers;
-end;
-
-procedure TRVOSimulator.SetNumWorkers(numWorkers: Integer);
-begin
-  _numWorkers := numWorkers;
 end;
 
 
@@ -219,57 +192,21 @@ begin
 end;
 
 { TRVOWorker }
-constructor TRVOWorker.Create(astart, aend: Single);
-begin
-  _start := Trunc(astart);
-  _end := Trunc(aend);
-end;
-
-procedure TRVOWorker.step;
-var
-  I: Integer;
-begin
-  for I := _start to _end - 1 do
-  begin
-    TRVOAgent(gSimulator.agents_[i]).computeNeighbors;
-    TRVOAgent(gSimulator.agents_[i]).computeNewVelocity;
-  end;
-end;
-
-procedure TRVOWorker.update;
-var
-  I: Integer;
-begin
-  for I := _start to _end - 1 do
-  begin
-    TRVOAgent(gSimulator.agents_[i]).update;
-  end;
-end;
-
 function TRVOSimulator.doStep: Single;
 var
   I: Integer;
-  block: Integer;
 begin
-  if Length(_workers) = 0 then
-  begin
-    SetLength(_workers, _numWorkers);
-    for block := 0 to Length(_workers) - 1 do
-    begin
-      _workers[block] := TRVOWorker.Create(block * getNumAgents() / Length(_workers), (block + 1) * getNumAgents() / Length(_workers));
-    end;
-  end;
-
   kdTree_.buildAgentTree;
 
-  for block := 0 to Length(_workers) - 1 do
+  for i := 0 to getNumAgents - 1 do
   begin
-    _workers[block].step;
+    TRVOAgent(agents_[i]).computeNeighbors;
+    TRVOAgent(agents_[i]).computeNewVelocity;
   end;
 
-  for block := 0 to Length(_workers) - 1 do
+  for i := 0 to getNumAgents - 1 do
   begin
-    _workers[block].update;
+    TRVOAgent(agents_[i]).update;
   end;
 
   time_ := time + timeStep_;
