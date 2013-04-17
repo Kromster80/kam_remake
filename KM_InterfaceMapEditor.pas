@@ -1281,12 +1281,12 @@ end;
 procedure TKMapEdInterface.Create_Menu;
 begin
   Panel_Menu := TKMPanel.Create(Panel_Common, 0, 45, TB_WIDTH, 400);
-    Button_Menu_Save := TKMButton.Create(Panel_Menu, 0, 20, TB_WIDTH, 30, fTextLibrary[TX_MENU_SAVE_GAME], bsGame);
-    Button_Menu_Save.OnClick := SwitchPage;
-    Button_Menu_Save.Hint := fTextLibrary[TX_MENU_SAVE_GAME];
-    Button_Menu_Load := TKMButton.Create(Panel_Menu, 0, 60, TB_WIDTH, 30, fTextLibrary[TX_MENU_LOAD_GAME], bsGame);
+    Button_Menu_Load := TKMButton.Create(Panel_Menu, 0, 20, TB_WIDTH, 30, fTextLibrary[TX_MENU_LOAD_GAME], bsGame);
     Button_Menu_Load.OnClick := SwitchPage;
     Button_Menu_Load.Hint := fTextLibrary[TX_MENU_LOAD_GAME];
+    Button_Menu_Save := TKMButton.Create(Panel_Menu, 0, 60, TB_WIDTH, 30, fTextLibrary[TX_MENU_SAVE_GAME], bsGame);
+    Button_Menu_Save.OnClick := SwitchPage;
+    Button_Menu_Save.Hint := fTextLibrary[TX_MENU_SAVE_GAME];
     Button_Menu_Settings := TKMButton.Create(Panel_Menu, 0, 100, TB_WIDTH, 30, fTextLibrary[TX_MENU_SETTINGS], bsGame);
     Button_Menu_Settings.Hint := fTextLibrary[TX_MENU_SETTINGS];
     Button_Menu_Settings.Disable;

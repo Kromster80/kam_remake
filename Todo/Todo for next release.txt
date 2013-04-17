@@ -8,6 +8,7 @@ Bugs:
  +	Dragging brush in MapEd over minimap should not trigger minimap position change
  +	Changing terrain in MapEd from snow to non-snow should update snowed houses placed there
  +	Crash when exiting a mission with a house area being dug and a script using OnHouseLost
+ +	Load/save buttons were reversed in the map editor compared to the game
 	Message log should be hidden until the 1st message arrives, looks odd to have a blank scroll
 	Can only place buildings for one player in SP MapEd, for others its just red crosses.
 	we had a match on "Coastal Encounter Score" with 2 humans and 1 AI. One human lost all of his troops first. The moment his last fighter died, the server disconnected him.
@@ -18,6 +19,7 @@ Bugs:
 	AI seems to build lots of armour smithies/workshops but no weapons smithies/workshops (e.g. Across the Desert)
 	When you select a warrior you always play his individual sound. But when you select another warrior from the same squad the sound is not playing
 	AIs in MP maps won't defend because they don't have AutoDefence enabled
+	Description box for campaigns shown on selection screen, so authors can put their name and contact
 
 
 Finishing up:
