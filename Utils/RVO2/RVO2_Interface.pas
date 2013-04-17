@@ -3,6 +3,12 @@ interface
 uses Classes, Math, SysUtils, RVO2_Math, RVO2_Simulator, RVO2_Vector2;
 
 type
+  TRVORoadmapVertex = class
+  	position: TRVOVector2;
+	  neighbors: TList;
+  	//std::vector<float> distToGoal;
+  end;
+
   TRVO2Agent = class
     MaxSpeed: Single;
     Position: TRVOVector2;
@@ -21,25 +27,34 @@ type
 
   TRVO2 = class
   private
+    //Agents defaults
     fneighborDist: Single;
     fmaxNeighbors: Integer;
     ftimeHorizon: Single;
     ftimeHorizonObst: Single;
     fradius: Single;
     fmaxSpeed: Single;
+
     fAgents: TList;
     fObstacles: TList;
+
+    fRoadmap: TList;
+
     function GetAgents(I: Integer): TRVO2Agent;
     function GetObstacles(I: Integer): TRVO2Obstacle;
+    function GetRoadmap(I: Integer): TRVORoadmapVertex;
   public
     constructor Create;
     destructor Destroy; override;
     procedure AddAgent(aAgent: TRVO2Agent);
     procedure AddObstacleRect(x,y,w,h: Single);
+    procedure AddRoadVertice(x,y: Single);
     function AgentCount: Integer;
     property Agents[I: Integer]: TRVO2Agent read GetAgents;
+    procedure buildRoadmap;
     function ObstacleCount: Integer;
     property Obstacles[I: Integer]: TRVO2Obstacle read GetObstacles;
+    property Roadmap[I: Integer]: TRVORoadmapVertex read GetRoadmap;
 
     procedure Step;
   end;
@@ -90,6 +105,7 @@ begin
 
   fAgents := TList.Create;
   fObstacles := TList.Create;
+  fRoadmap := TList.Create;
 
   gSimulator := TRVOSimulator.Create;
   gSimulator.Clear;
@@ -102,6 +118,7 @@ begin
   FreeAndNil(gSimulator);
   fAgents.Free;
   fObstacles.Free;
+  fRoadmap.Free;
 
   inherited;
 end;
@@ -136,9 +153,83 @@ begin
 end;
 
 
+procedure TRVO2.AddRoadVertice(x, y: Single);
+var
+  v: TRVORoadmapVertex;
+begin
+  v := TRVORoadmapVertex.Create;
+  v.position.x := x;
+  v.position.y := y;
+  fRoadmap.Add(v);
+end;
+
+
 function TRVO2.AgentCount: Integer;
 begin
   Result := gSimulator.getNumAgents;
+end;
+
+
+procedure TRVO2.buildRoadmap;
+var
+  i,j: Integer;
+begin
+	// Connect the roadmap vertices by edges if mutually visible
+	for i := 0 to fRoadmap.Count - 1 do
+  begin
+		for j := 0 to fRoadmap.Count - 1 do
+    begin
+			if (gSimulator.queryVisibility(Roadmap[i].position, Roadmap[j].position, gSimulator.getAgentRadius(0))) then
+      begin
+				roadmap[i].neighbors.Add(Pointer(j));
+			end;
+		end;
+
+		// Initialize the distance to each of the four goal vertices at infinity
+		// (9e9f).
+		roadmap[i].distToGoal.resize(4, 9e9f);
+	end;
+
+	(*
+	 * Compute the distance to each of the four goals (the first four vertices)
+	 * for all vertices using Dijkstra's algorithm.
+	 *)
+	for i := 0 to 3 do
+  begin
+		std::multimap<float, int> Q;
+		std::vector<std::multimap<float, int>::iterator> posInQ(roadmap.size(), Q.end());
+
+		roadmap[i].distToGoal[i] = 0.0f;
+		posInQ[i] = Q.insert(std::make_pair(0.0f, i));
+
+		while (!Q.empty()) do
+    begin
+			const int u = Q.begin()->second;
+			Q.erase(Q.begin());
+			posInQ[u] = Q.end();
+
+			for (int j = 0; j < static_cast<int>(roadmap[u].neighbors.size()); ++j) do
+      begin
+				const int v = roadmap[u].neighbors[j];
+				const float dist_uv = RVO::abs(roadmap[v].position - roadmap[u].position);
+
+				if (roadmap[v].distToGoal[i] > roadmap[u].distToGoal[i] + dist_uv) then
+        begin
+					roadmap[v].distToGoal[i] := roadmap[u].distToGoal[i] + dist_uv;
+
+					if (posInQ[v] = Q.end()) then
+          begin
+						posInQ[v] := Q.insert(std::make_pair(roadmap[v].distToGoal[i], v));
+					end
+					else
+          begin
+						Q.erase(posInQ[v]);
+						posInQ[v] := Q.insert(std::make_pair(roadmap[v].distToGoal[i], v));
+					end;
+				end;
+			end;
+		end;
+	end;
 end;
 
 
@@ -153,6 +244,11 @@ begin
   Result := fObstacles[I];
 end;
 
+
+function TRVO2.GetRoadmap(I: Integer): TRVORoadmapVertex;
+begin
+  Result := fRoadmap[I];
+end;
 
 function TRVO2.ObstacleCount: Integer;
 begin

@@ -11,12 +11,14 @@ type
     Timer1: TTimer;
     Button1: TButton;
     Button3: TButton;
+    Button4: TButton;
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure Button2Click(Sender: TObject);
     procedure Timer1Click(Sender: TObject);
     procedure Button1Click(Sender: TObject);
     procedure Button3Click(Sender: TObject);
+    procedure Button4Click(Sender: TObject);
   private
     procedure DisplayMap;
   end;
@@ -145,6 +147,65 @@ begin
 
   rvo2.AddObstacleRect(20, 0, 60, 42);
   rvo2.AddObstacleRect(20, 58, 60, 42);
+
+  Timer1.Enabled := True;
+end;
+
+
+procedure TForm1.Button4Click(Sender: TObject);
+var
+  i,J: Integer;
+  A: TRVO2Agent;
+begin
+  Z := 4;
+
+  rvo2 := TRVO2.Create();
+
+  rvo2.AddObstacleRect(10, 10, 30, 30);
+  rvo2.AddObstacleRect(60, 10, 30, 30);
+  rvo2.AddObstacleRect(60, 60, 30, 30);
+  rvo2.AddObstacleRect(10, 60, 30, 30);
+
+	// Add the goal positions of agents.
+	rvo2.AddRoadVertice(-75+50, -75+50);
+	rvo2.AddRoadVertice(75+50, -75+50);
+	rvo2.AddRoadVertice(-75+50, 75+50);
+	rvo2.AddRoadVertice(75+50, 75+50);
+
+	//Add roadmap vertices around the obstacles.
+	rvo2.AddRoadVertice(-42+50, -42+50);
+	rvo2.AddRoadVertice(-42+50, -8+50);
+	rvo2.AddRoadVertice(-42+50, 8+50);
+	rvo2.AddRoadVertice(-42+50, 42+50);
+	rvo2.AddRoadVertice(-8+50, -42+50);
+	rvo2.AddRoadVertice(-8+50, -8+50);
+	rvo2.AddRoadVertice(-8+50, 8+50);
+	rvo2.AddRoadVertice(-8+50, 42+50);
+	rvo2.AddRoadVertice(8+50, -42+50);
+	rvo2.AddRoadVertice(8+50, -8+50);
+	rvo2.AddRoadVertice(8+50, 8+50);
+	rvo2.AddRoadVertice(8+50, 42+50);
+	rvo2.AddRoadVertice(42+50, -42+50);
+	rvo2.AddRoadVertice(42+50, -8+50);
+	rvo2.AddRoadVertice(42+50, 8+50);
+	rvo2.AddRoadVertice(42+50, 42+50);
+
+	for i := 0 to 4 do
+		for j := 0 to 4 do
+    begin
+      A := TRVO2Agent.Create;
+      A.Position := Vector2(55+50 + i * 10,  55+50 + j * 10);
+      rvo2.AddAgent(A);
+
+			A.Position := Vector2(-55+50 - i * 10,  55+50 + j * 10);
+      rvo2.AddAgent(A);
+
+			A.Position := Vector2(55+50 + i * 10, -55+50 - j * 10);
+      rvo2.AddAgent(A);
+
+			A.Position := Vector2(-55+50 - i * 10, -55+50 - j * 10);
+      rvo2.AddAgent(A);
+		end;
 
   Timer1.Enabled := True;
 end;
