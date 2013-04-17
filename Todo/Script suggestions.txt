@@ -11,6 +11,8 @@ Accepted:
 	Get all units/houses/groups as an array of integer of a certain player and certain type (set of unit/house types)
 	Query school queue
 	Query amount of weapons ordered
+	PlanCancel (road/field/house)
+	Parameter for DestroyHouse "LeavesRubble" (allows scripters to do a primative "ChangeHouseOwner")
 
 
 Proposed:
