@@ -137,3 +137,10 @@ jpn.NoKaM=インストールウィザードが"Knights and Merchants: The Peasan
 jpn.CantUpdate=インストールウィザードは既存のKAMリメイクバージョンが見つかりませんでした。その代わりに全部のインストーラはダウンロートしてインストールしてください。インストールは中止されました。
 jpn.OpenAL=インストールウィザードがOpenALをインストールしたいですか「強い推奨」。KAM リメイクの音楽などを聞くと必要です。
 jpn.ViewReadme=Readmeが表示されます。
+
+;Turkish
+tur.CreateStartShortcut=Başlat menüsü kısayolu oluştur.
+tur.NoKaM=Kurulum sihirbazı orijinal Knights and Merchants: The Peasants Rebellion oyununun kurulu olmadığını tespit etti. KaM Remake modunu oynayabilmek için orijinal oyuna sahip olmanız gerekmektedir. Kurulum sihirbazı kapanacaktır.
+tur.CantUpdate=Kurulum sihirbazı herhangi bir kurulu KaM Remake versiyonu bulamadı. Lütfen complete installer indirerek kurulum yapınız. Kurulum sihirbazı kapanacaktır.
+tur.OpenAL=Kurulum sihirbazının OpenAL kurmasını ister misiniz? (Tavsiye edilir) Seslerin oyun içinde çalışması için gereklidir.
+tur.ViewReadme=Beni oku dosyasını aç

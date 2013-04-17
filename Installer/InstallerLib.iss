@@ -49,7 +49,7 @@ Name: "chn"; MessagesFile: "ExtraLanguages\ChineseSimp.isl";
 Name: "nor"; MessagesFile: "compiler:Languages\Norwegian.isl"; LicenseFile: "License.nor.txt"
 Name: "bel"; MessagesFile: "ExtraLanguages\Belarusian.isl"; LicenseFile: "License.bel.txt"
 Name: "jpn"; MessagesFile: "ExtraLanguages\Japanese.isl"; LicenseFile: "License.jpn.txt"
-Name: "tur"; MessagesFile: "ExtraLanguages\Turkish.isl";
+Name: "tur"; MessagesFile: "ExtraLanguages\Turkish.isl"; LicenseFile: "License.tur.txt"
 
 [CustomMessages]  
 #include "Translations.iss"
