@@ -26,7 +26,7 @@ object Form1: TForm1
     Top = 8
     Width = 137
     Height = 33
-    Caption = 'RVOSimulator.Create'
+    Caption = 'Block test'
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText
     Font.Height = -15
@@ -36,12 +36,12 @@ object Form1: TForm1
     TabOrder = 0
     OnClick = Button2Click
   end
-  object Button3: TButton
+  object Button1: TButton
     Left = 8
-    Top = 144
+    Top = 48
     Width = 137
     Height = 33
-    Caption = 'Step'
+    Caption = 'Circle test'
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText
     Font.Height = -15
@@ -49,13 +49,20 @@ object Form1: TForm1
     Font.Style = []
     ParentFont = False
     TabOrder = 1
-    OnClick = Button3Click
+    OnClick = Button1Click
   end
   object Timer1: TTimer
     Enabled = False
     Interval = 1
-    OnTimer = Button3Click
+    OnTimer = Timer1Click
     Left = 168
+    Top = 24
+  end
+  object Timer2: TTimer
+    Enabled = False
+    Interval = 1
+    OnTimer = Timer2Timer
+    Left = 208
     Top = 24
   end
 end

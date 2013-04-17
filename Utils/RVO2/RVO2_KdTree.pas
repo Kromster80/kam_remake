@@ -45,7 +45,7 @@ uses Classes, Math,
 
 type
   TRVOFloatPair = record
-    A, B: Single;
+    a, b: Single;
   end;
 
   function FloatPairLess(lhs, rhs: TRVOFloatPair): Boolean;
@@ -302,20 +302,20 @@ begin
           Inc(rightSize);
         end;
 
-        FP1.A := Max(leftSize, rightSize);
-        FP1.B := Min(leftSize, rightSize);
-        FP2.A := Max(minLeft, minRight);
-        FP2.B := Min(minLeft, minRight);
+        FP1.a := Max(leftSize, rightSize);
+        FP1.b := Min(leftSize, rightSize);
+        FP2.a := Max(minLeft, minRight);
+        FP2.b := Min(minLeft, minRight);
         if FloatPairGequal(FP1, FP2) then
         begin
           break;
         end;
       end;
 
-      FP1.A := Max(leftSize, rightSize);
-      FP1.B := Min(leftSize, rightSize);
-      FP2.A := Max(minLeft, minRight);
-      FP2.B := Min(minLeft, minRight);
+      FP1.a := Max(leftSize, rightSize);
+      FP1.b := Min(leftSize, rightSize);
+      FP2.a := Max(minLeft, minRight);
+      FP2.b := Min(minLeft, minRight);
       if FloatPairLess(FP1, FP2) then
       begin
         minLeft := leftSize;

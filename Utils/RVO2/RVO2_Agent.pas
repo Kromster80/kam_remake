@@ -40,7 +40,7 @@
 unit RVO2_Agent;
 interface
 uses Classes, Math,
-  RVO2_Vector2, RVO2_Obstacle;
+  RVO2_Vector2, RVO2_Obstacle, RVO2_Line;
 
 type
   TRVOAgent = class;
@@ -63,7 +63,7 @@ type
     neighborDist_: Single;
     newVelocity_: TRVOVector2;
     obstacleNeighbors_: array of TRVOKeyValueObstacle;
-    orcaLines_: TList;
+    orcaLines_: TListOrca;
     position_: TRVOVector2;
     prefVelocity_: TRVOVector2;
     radius_: Single;
@@ -77,14 +77,14 @@ type
     procedure insertAgentNeighbor(agent: TRVOAgent; var rangeSq: Single);
     procedure insertObstacleNeighbor(obstacle: TRVOObstacle; rangeSq: Single);
     procedure update;
-    function linearProgram1(lines: TList; lineNo: Integer; radius: Single; optVelocity: TRVOVector2; directionOpt: Boolean; var result_1: TRVOVector2): Boolean;
-    function linearProgram2(lines: TList; radius: Single; optVelocity: TRVOVector2; directionOpt: Boolean; var result_1: TRVOVector2): Integer;
-    procedure linearProgram3(lines: TList; numObstLines, beginLine: Integer; radius: Single; var result_1: TRVOVector2);
+    function linearProgram1(lines: TListOrca; lineNo: Integer; radius: Single; optVelocity: TRVOVector2; directionOpt: Boolean; var result_1: TRVOVector2): Boolean;
+    function linearProgram2(lines: TListOrca; radius: Single; optVelocity: TRVOVector2; directionOpt: Boolean; var result_1: TRVOVector2): Integer;
+    procedure linearProgram3(lines: TListOrca; numObstLines, beginLine: Integer; radius: Single; var result_1: TRVOVector2);
   end;
 
 
 implementation
-uses RVO2_Line, RVO2_Math, RVO2_Simulator;
+uses RVO2_Math, RVO2_Simulator;
 
 
 { TRVOAgent }
@@ -92,7 +92,7 @@ constructor TRVOAgent.Create;
 begin
   inherited;
 
-  orcaLines_ := TList.Create;
+  orcaLines_ := TListOrca.Create;
 end;
 
 
@@ -169,11 +169,11 @@ begin
 
     for j := 0 to orcaLines_.Count - 1 do
     begin
-      if (det(Vector2Sub(Vector2Scale(relativePosition1, invTimeHorizonObst), TRVOLine(orcaLines_[j]).point),
-        TRVOLine(orcaLines_[j]).direction) - invTimeHorizonObst * radius_ >= -RVO_EPSILON)
+      if (det(Vector2Sub(Vector2Scale(relativePosition1, invTimeHorizonObst), orcaLines_[j].point),
+        orcaLines_[j].direction) - invTimeHorizonObst * radius_ >= -RVO_EPSILON)
       and
-         (det(Vector2Sub(Vector2Scale(relativePosition2, invTimeHorizonObst), TRVOLine(orcaLines_[j]).point),
-         TRVOLine(orcaLines_[j]).direction) - invTimeHorizonObst * radius_ >= -RVO_EPSILON) then
+         (det(Vector2Sub(Vector2Scale(relativePosition2, invTimeHorizonObst), orcaLines_[j].point),
+         orcaLines_[j].direction) - invTimeHorizonObst * radius_ >= -RVO_EPSILON) then
       begin
         alreadyCovered := true;
         break;
@@ -247,10 +247,10 @@ begin
       obstacle2 := obstacle1;
 
       leg1 := sqrt(distSq1 - radiusSq);
-      leftLegDirection.X := (relativePosition1.x * leg1 - relativePosition1.y * radius_) / distSq1;
-      leftLegDirection.Y := (relativePosition1.x * radius_ + relativePosition1.y * leg1) / distSq1;
-      rightLegDirection.X := (relativePosition1.x * leg1 + relativePosition1.y * radius_) / distSq1;
-      rightLegDirection.Y := (-relativePosition1.x * radius_ + relativePosition1.y * leg1) / distSq1;
+      leftLegDirection.x := (relativePosition1.x * leg1 - relativePosition1.y * radius_) / distSq1;
+      leftLegDirection.y := (relativePosition1.x * radius_ + relativePosition1.y * leg1) / distSq1;
+      rightLegDirection.x := (relativePosition1.x * leg1 + relativePosition1.y * radius_) / distSq1;
+      rightLegDirection.y := (-relativePosition1.x * radius_ + relativePosition1.y * leg1) / distSq1;
     end
     else if (s > 1) and (distSqLine <= radiusSq) then
     begin
@@ -265,10 +265,10 @@ begin
       obstacle1 := obstacle2;
 
       leg2 := sqrt(distSq2 - radiusSq);
-      leftLegDirection.X := (relativePosition2.x * leg2 - relativePosition2.y * radius_) / distSq2;
-      leftLegDirection.Y := (relativePosition2.x * radius_ + relativePosition2.y * leg2) / distSq2;
-      rightLegDirection.X := (relativePosition2.x * leg2 + relativePosition2.y * radius_) / distSq2;
-      rightLegDirection.Y := (-relativePosition2.x * radius_ + relativePosition2.y * leg2) / distSq2;
+      leftLegDirection.x := (relativePosition2.x * leg2 - relativePosition2.y * radius_) / distSq2;
+      leftLegDirection.y := (relativePosition2.x * radius_ + relativePosition2.y * leg2) / distSq2;
+      rightLegDirection.x := (relativePosition2.x * leg2 + relativePosition2.y * radius_) / distSq2;
+      rightLegDirection.y := (-relativePosition2.x * radius_ + relativePosition2.y * leg2) / distSq2;
     end
     else
     begin
@@ -276,8 +276,8 @@ begin
       if (obstacle1.isConvex_) then
       begin
         leg1 := sqrt(distSq1 - radiusSq);
-        leftLegDirection.X := (relativePosition1.x * leg1 - relativePosition1.y * radius_) / distSq1;
-        leftLegDirection.Y := (relativePosition1.x * radius_ + relativePosition1.y * leg1) / distSq1;
+        leftLegDirection.x := (relativePosition1.x * leg1 - relativePosition1.y * radius_) / distSq1;
+        leftLegDirection.y := (relativePosition1.x * radius_ + relativePosition1.y * leg1) / distSq1;
       end
       else
       begin
@@ -288,8 +288,8 @@ begin
       if (obstacle2.isConvex_) then
       begin
         leg2 := sqrt(distSq2 - radiusSq);
-        rightLegDirection.X := (relativePosition2.x * leg2 + relativePosition2.y * radius_) / distSq2;
-        rightLegDirection.Y := (-relativePosition2.x * radius_ + relativePosition2.y * leg2) / distSq2;
+        rightLegDirection.x := (relativePosition2.x * leg2 + relativePosition2.y * radius_) / distSq2;
+        rightLegDirection.y := (-relativePosition2.x * radius_ + relativePosition2.y * leg2) / distSq2;
       end
       else
       begin
@@ -447,15 +447,15 @@ begin
         begin
           // Project on left leg. */
           line.direction := Vector2Scale(
-            Vector2(relativePosition.X * leg - relativePosition.y * combinedRadius,
-                    relativePosition.X * combinedRadius + relativePosition.y * leg), 1 / distSq);
+            Vector2(relativePosition.x * leg - relativePosition.y * combinedRadius,
+                    relativePosition.x * combinedRadius + relativePosition.y * leg), 1 / distSq);
         end
         else
         begin
           // Project on right leg. */
           line.direction := Vector2Neg(Vector2Scale(
-            Vector2(relativePosition.X * leg + relativePosition.y * combinedRadius,
-                    -relativePosition.X * combinedRadius + relativePosition.y * leg), 1 / distSq));
+            Vector2(relativePosition.x * leg + relativePosition.y * combinedRadius,
+                    -relativePosition.x * combinedRadius + relativePosition.y * leg), 1 / distSq));
         end;
 
         dotProduct2 := Vector2Mul(relativeVelocity, line.direction);
@@ -557,7 +557,7 @@ begin
   position_ := Vector2Add(position_, Vector2Scale(velocity_, gSimulator.timeStep_));
 end;
 
-function TRVOAgent.linearProgram1(lines: TList; lineNo: Integer; radius: Single; optVelocity: TRVOVector2; directionOpt: Boolean; var result_1: TRVOVector2): Boolean;
+function TRVOAgent.linearProgram1(lines: TListOrca; lineNo: Integer; radius: Single; optVelocity: TRVOVector2; directionOpt: Boolean; var result_1: TRVOVector2): Boolean;
 var
   dotProduct, discriminant: Single;
   sqrtDiscriminant, tLeft, tRight: Single;
@@ -565,8 +565,8 @@ var
   denominator, numerator: Single;
   t: Single;
 begin
-  dotProduct := Vector2Mul(TRVOLine(lines[lineNo]).point, TRVOLine(lines[lineNo]).direction);
-  discriminant := sqr(dotProduct) + sqr(radius) - absSq(TRVOLine(lines[lineNo]).point);
+  dotProduct := Vector2Mul(lines[lineNo].point, lines[lineNo].direction);
+  discriminant := sqr(dotProduct) + sqr(radius) - absSq(lines[lineNo].point);
 
   if (discriminant < 0) then
   begin
@@ -581,8 +581,8 @@ begin
 
   for i := 0 to lineNo - 1 do
   begin
-    denominator := det(TRVOLine(lines[lineNo]).direction, TRVOLine(lines[i]).direction);
-    numerator := det(TRVOLine(lines[i]).direction, Vector2Sub(TRVOLine(lines[lineNo]).point, TRVOLine(lines[i]).point));
+    denominator := det(lines[lineNo].direction, lines[i].direction);
+    numerator := det(lines[i].direction, Vector2Sub(lines[lineNo].point, lines[i].point));
 
     if (System.Abs(denominator) <= RVO_EPSILON) then
     begin
@@ -621,40 +621,40 @@ begin
   if (directionOpt) then
   begin
     // Optimize direction. */
-    if Vector2Mul(optVelocity, TRVOLine(lines[lineNo]).direction) > 0 then
+    if Vector2Mul(optVelocity, lines[lineNo].direction) > 0 then
     begin
       // Take right extreme. */
-      result_1 := Vector2Add(TRVOLine(lines[lineNo]).point, Vector2Scale(tRight, TRVOLine(lines[lineNo]).direction));
+      result_1 := Vector2Add(lines[lineNo].point, Vector2Scale(tRight, lines[lineNo].direction));
     end
     else
     begin
       // Take left extreme. */
-      result_1 := Vector2Add(TRVOLine(lines[lineNo]).point, Vector2Scale(tLeft, TRVOLine(lines[lineNo]).direction));
+      result_1 := Vector2Add(lines[lineNo].point, Vector2Scale(tLeft, lines[lineNo].direction));
     end;
   end
   else
   begin
     // Optimize closest point. */
-    t := Vector2Mul(TRVOLine(lines[lineNo]).direction, Vector2Sub(optVelocity, TRVOLine(lines[lineNo]).point));
+    t := Vector2Mul(lines[lineNo].direction, Vector2Sub(optVelocity, lines[lineNo].point));
 
     if (t < tLeft) then
     begin
-      result_1 := Vector2Add(TRVOLine(lines[lineNo]).point, Vector2Scale(tLeft, TRVOLine(lines[lineNo]).direction));
+      result_1 := Vector2Add(lines[lineNo].point, Vector2Scale(tLeft, lines[lineNo].direction));
     end
     else if (t > tRight) then
     begin
-      result_1 := Vector2Add(TRVOLine(lines[lineNo]).point, Vector2Scale(tRight, TRVOLine(lines[lineNo]).direction));
+      result_1 := Vector2Add(lines[lineNo].point, Vector2Scale(tRight, lines[lineNo].direction));
     end
     else
     begin
-      result_1 := Vector2Add(TRVOLine(lines[lineNo]).point, Vector2Scale(t, TRVOLine(lines[lineNo]).direction));
+      result_1 := Vector2Add(lines[lineNo].point, Vector2Scale(t, lines[lineNo].direction));
     end;
   end;
 
   Result := True;
 end;
 
-function TRVOAgent.linearProgram2(lines: TList; radius: Single; optVelocity: TRVOVector2; directionOpt: Boolean; var result_1: TRVOVector2): Integer;
+function TRVOAgent.linearProgram2(lines: TListOrca; radius: Single; optVelocity: TRVOVector2; directionOpt: Boolean; var result_1: TRVOVector2): Integer;
 var
   i: Integer;
   tempResult: TRVOVector2;
@@ -678,7 +678,7 @@ begin
 
   for i := 0 to lines.Count - 1 do
   begin
-    if (det(TRVOLine(lines[i]).direction, Vector2Sub(TRVOLine(lines[i]).point, result_1)) > 0) then
+    if (det(lines[i].direction, Vector2Sub(lines[i].point, result_1)) > 0) then
     begin
       // Result does not satisfy constraint i. Compute new optimal result. */
       tempResult := result_1;
@@ -694,24 +694,24 @@ begin
   Result := lines.Count;
 end;
 
-procedure TRVOAgent.linearProgram3(lines: TList; numObstLines, beginLine: Integer; radius: Single; var result_1: TRVOVector2);
+procedure TRVOAgent.linearProgram3(lines: TListOrca; numObstLines, beginLine: Integer; radius: Single; var result_1: TRVOVector2);
 var
   distance: Single;
   i,ii,j: Integer;
   line: TRVOLine;
   determinant: Single;
-  projLines: TList;
+  projLines: TListOrca;
   tempResult: TRVOVector2;
 begin
   distance := 0;
 
   for i := beginLine to lines.Count - 1 do
   begin
-    if (det(TRVOLine(lines[i]).direction, Vector2Sub(TRVOLine(lines[i]).point, result_1)) > distance) then
+    if (det(lines[i].direction, Vector2Sub(lines[i].point, result_1)) > distance) then
     begin
       // Result does not satisfy constraint of line i. */
       //std::vector<Line> projLines(lines.begin(), lines.begin() + numObstLines);
-      projLines := TList.Create;
+      projLines := TListOrca.Create;
       for ii := 0 to numObstLines - 1 do
       begin
         projLines.Add(lines[ii]);
@@ -721,12 +721,12 @@ begin
       begin
         line := TRVOLine.Create;
 
-        determinant := det(TRVOLine(lines[i]).direction, TRVOLine(lines[j]).direction);
+        determinant := det(lines[i].direction, lines[j].direction);
 
         if (System.Abs(determinant) <= RVO_EPSILON) then
         begin
           // Line i and line j are parallel. */
-          if Vector2Mul(TRVOLine(lines[i]).direction, TRVOLine(lines[j]).direction) > 0 then
+          if Vector2Mul(lines[i].direction, lines[j].direction) > 0 then
           begin
             // Line i and line j point in the same direction. */
             continue;
@@ -734,22 +734,22 @@ begin
           else
           begin
             // Line i and line j point in opposite direction. */
-            line.point := Vector2Scale(0.5, Vector2Add(TRVOLine(lines[i]).point, TRVOLine(lines[j]).point));
+            line.point := Vector2Scale(0.5, Vector2Add(lines[i].point, lines[j].point));
           end;
         end
         else
         begin
-          line.point := Vector2Add(TRVOLine(lines[i]).point,
-            Vector2Scale(det(TRVOLine(lines[j]).direction, Vector2Sub(TRVOLine(lines[i]).point, TRVOLine(lines[j]).point)) / determinant,
-            TRVOLine(lines[i]).direction));
+          line.point := Vector2Add(lines[i].point,
+            Vector2Scale(det(lines[j].direction, Vector2Sub(lines[i].point, lines[j].point)) / determinant,
+            lines[i].direction));
         end;
 
-        line.direction := normalize(Vector2Sub(TRVOLine(lines[j]).direction, TRVOLine(lines[i]).direction));
+        line.direction := normalize(Vector2Sub(lines[j].direction, lines[i].direction));
         projLines.Add(line);
       end;
 
       tempResult := result_1;
-      if (linearProgram2(projLines, radius, Vector2(-TRVOLine(lines[i]).direction.y, TRVOLine(lines[i]).direction.x), true, result_1) < projLines.Count) then
+      if (linearProgram2(projLines, radius, Vector2(-lines[i].direction.y, lines[i].direction.x), true, result_1) < projLines.Count) then
       begin
         (* This should in principle not happen.  The result is by definition
          * already in the feasible region of this linear program. If it fails,
@@ -759,7 +759,7 @@ begin
         result_1 := tempResult;
       end;
 
-      distance := det(TRVOLine(lines[i]).direction, Vector2Sub(TRVOLine(lines[i]).point, result_1));
+      distance := det(lines[i].direction, Vector2Sub(lines[i].point, result_1));
     end;
   end;
 end;

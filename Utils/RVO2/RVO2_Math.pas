@@ -1,7 +1,7 @@
-(*
+﻿(*
  * RVO Library / RVO2 Library
  * 
- * Copyright � 2008-10 University of North Carolina at Chapel Hill. All rights 
+ * Copyright © 2008-10 University of North Carolina at Chapel Hill. All rights 
  * reserved.
  * 
  * Permission to use, copy, modify, and distribute this software and its 
@@ -66,7 +66,7 @@ end;
 
 function distSqPointLineSegment(a, b, c: TRVOVector2): Single;
 var
-  R: Single;
+  r: Single;
 begin
   r := Vector2Mul(Vector2Sub(c, a), Vector2Sub(b, a)) / absSq(Vector2Sub(b, a));
 

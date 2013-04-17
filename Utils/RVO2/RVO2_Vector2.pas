@@ -44,11 +44,10 @@ uses SysUtils;
 
 type
   TRVOVector2 = record
-    X,Y: Single;
+    x,y: Single;
   end;
 
-  function Vector2(X, Y: Single): TRVOVector2;
-  function Vector2ToString(A: TRVOVector2): string;
+  function Vector2(x, y: Single): TRVOVector2;
   function Vector2Add(A,B: TRVOVector2): TRVOVector2;
   function Vector2Sub(A,B: TRVOVector2): TRVOVector2;
   function Vector2Mul(A,B: TRVOVector2): Single;
@@ -60,33 +59,28 @@ type
 implementation
 
 
-function Vector2(X, Y: Single): TRVOVector2;
+function Vector2(x, y: Single): TRVOVector2;
 begin
-  Result.X := X;
-  Result.Y := Y;
-end;
-
-function Vector2ToString(A: TRVOVector2): string;
-begin
-  Result := Format('( %.2f, %.2f)', [A.X, A.Y]);
+  Result.x := x;
+  Result.y := y;
 end;
 
 function Vector2Add(A,B: TRVOVector2): TRVOVector2;
 begin
-  Result.X := A.X + B.X;
-  Result.Y := A.Y + B.Y;
+  Result.x := A.x + B.x;
+  Result.y := A.y + B.y;
 end;
 
 function Vector2Sub(A,B: TRVOVector2): TRVOVector2;
 begin
-  Result.X := A.X - B.X;
-  Result.Y := A.Y - B.Y;
+  Result.x := A.x - B.x;
+  Result.y := A.y - B.y;
 end;
 
 //public static float operator *(Vector2 lhs, Vector2 rhs)
 function Vector2Mul(A,B: TRVOVector2): Single;
 begin
-  Result := A.X * B.X + A.Y * B.Y;
+  Result := A.x * B.x + A.y * B.y;
 end;
 
 //public static Vector2 operator *(float k, Vector2 u)
@@ -94,21 +88,21 @@ end;
 //public static Vector2 operator /(Vector2 u, float k)
 function Vector2Scale(A: TRVOVector2; B: Single): TRVOVector2;
 begin
-  Result.X := A.X * B;
-  Result.Y := A.Y * B;
+  Result.x := A.x * B;
+  Result.y := A.y * B;
 end;
 
 function Vector2Scale(A: Single; B: TRVOVector2): TRVOVector2;
 begin
-  Result.X := B.X * A;
-  Result.Y := B.Y * A;
+  Result.x := B.x * A;
+  Result.y := B.y * A;
 end;
 
 //public static Vector2 operator -(Vector2 v)
 function Vector2Neg(A: TRVOVector2): TRVOVector2;
 begin
-  Result.X := -A.X;
-  Result.Y := -A.Y;
+  Result.x := -A.x;
+  Result.y := -A.y;
 end;
 
 end.

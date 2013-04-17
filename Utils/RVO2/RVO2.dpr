@@ -1,6 +1,14 @@
 program RVO2;
 
+{$IFDEF FPC}
+  {$MODE Delphi}
+{$ENDIF}
+
 uses
+{$IFNDEF FPC}
+{$ELSE}
+  Interfaces,
+{$ENDIF}
   Forms,
   Unit_Form in 'Unit_Form.pas' {Form1},
   RVO2_Agent in 'RVO2_Agent.pas',

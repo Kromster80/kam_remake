@@ -1,7 +1,7 @@
-(*
+﻿(*
  * RVO Library / RVO2 Library
  *
- * Copyright � 2008-10 University of North Carolina at Chapel Hill. All rights
+ * Copyright © 2008-10 University of North Carolina at Chapel Hill. All rights
  * reserved.
  *
  * Permission to use, copy, modify, and distribute this software and its
@@ -194,7 +194,7 @@ end;
 { TRVOWorker }
 function TRVOSimulator.doStep: Single;
 var
-  I: Integer;
+  i: Integer;
 begin
   kdTree_.buildAgentTree;
 
@@ -215,7 +215,7 @@ end;
 
 function TRVOSimulator.addObstacle(vertices: array of TRVOVector2): Integer;
 var
-  I: Integer;
+  i: Integer;
   obstacleNo: Integer;
   obstacle: TRVOObstacle;
 begin

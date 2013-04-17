@@ -39,14 +39,32 @@
  *)
 unit RVO2_Line;
 interface
-uses RVO2_Vector2;
+uses Classes, RVO2_Vector2;
 
 type
   TRVOLine = class
     point, direction: TRVOVector2;
   end;
 
+  TListOrca = class(TList)
+  private
+    function GetItem(I: Integer): TRVOLine;
+  public
+    property Items[I: Integer]: TRVOLine read GetItem; default;
+    procedure Add(aLine: TRVOLine);
+  end;
 
 implementation
+
+{ TListOrca }
+procedure TListOrca.Add(aLine: TRVOLine);
+begin
+  inherited Add(aLine);
+end;
+
+function TListOrca.GetItem(I: Integer): TRVOLine;
+begin
+  Result := inherited Items[I];
+end;
 
 end.

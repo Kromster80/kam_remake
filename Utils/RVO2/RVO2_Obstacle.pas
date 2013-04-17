@@ -1,4 +1,4 @@
-﻿(*
+(*
  * RVO Library / RVO2 Library
  * 
  * Copyright © 2008-10 University of North Carolina at Chapel Hill. All rights 
@@ -38,6 +38,11 @@
  * ENHANCEMENTS, OR MODIFICATIONS.
  *)
 unit RVO2_Obstacle;
+
+{$IFDEF FPC}
+  {$MODE Delphi}
+{$ENDIF}
+
 interface
 uses RVO2_Vector2;
 
