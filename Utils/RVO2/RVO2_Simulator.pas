@@ -1,4 +1,4 @@
-﻿(*
+(*
  * RVO Library / RVO2 Library
  *
  * Copyright © 2008-10 University of North Carolina at Chapel Hill. All rights

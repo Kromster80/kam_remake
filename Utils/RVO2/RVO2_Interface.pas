@@ -1,4 +1,4 @@
-﻿unit RVO2_Interface;
+unit RVO2_Interface;
 interface
 uses Classes, SysUtils, RVO2_Math, RVO2_Simulator, RVO2_Vector2;
 
