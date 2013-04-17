@@ -1,13 +1,15 @@
 unit RVO2_Interface;
 interface
-uses Classes, SysUtils, RVO2_Math, RVO2_Simulator, RVO2_Vector2;
+uses Classes, Math, SysUtils, RVO2_Math, RVO2_Simulator, RVO2_Vector2;
 
 type
   TRVO2Agent = class
+    MaxSpeed: Single;
     Position: TRVOVector2;
     Radius: Single;
     RoutePos: Integer;
     Route: array of TRVOVector2;
+    constructor Create;
     function CurrentGoal: TRVOVector2;
     procedure StepNext;
     function NearGoal: Boolean;
@@ -19,6 +21,12 @@ type
 
   TRVO2 = class
   private
+    fneighborDist: Single;
+    fmaxNeighbors: Integer;
+    ftimeHorizon: Single;
+    ftimeHorizonObst: Single;
+    fradius: Single;
+    fmaxSpeed: Single;
     fAgents: TList;
     fObstacles: TList;
     function GetAgents(I: Integer): TRVO2Agent;
@@ -38,6 +46,13 @@ type
 
 
 implementation
+
+
+constructor TRVO2Agent.Create;
+begin
+  MaxSpeed := 2;
+  Radius := 2.5;
+end;
 
 
 function TRVO2Agent.CurrentGoal: TRVOVector2;
@@ -66,13 +81,19 @@ constructor TRVO2.Create();
 begin
   inherited;
 
+  fneighborDist := 15;
+  fmaxNeighbors := 10;
+  ftimeHorizon := 10;
+  ftimeHorizonObst := 5;
+  fradius := 2;
+  fmaxSpeed := 2;
+
   fAgents := TList.Create;
   fObstacles := TList.Create;
 
   gSimulator := TRVOSimulator.Create;
   gSimulator.Clear;
-  gSimulator.setTimeStep(0.25);
-  gSimulator.setAgentDefaults(15, 10, 10, 5, 2.5, 2, Vector2(0,0));
+  gSimulator.setTimeStep(0.2);
 end;
 
 
@@ -88,7 +109,7 @@ end;
 
 procedure TRVO2.AddAgent(aAgent: TRVO2Agent);
 begin
-  gSimulator.setAgentDefaults(15, 10, 10, 5, aAgent.Radius, 2, Vector2(0,0));
+  gSimulator.setAgentDefaults(fneighborDist, fmaxNeighbors, ftimeHorizon, ftimeHorizonObst, aAgent.Radius, aAgent.MaxSpeed, Vector2(0,0));
   gSimulator.addAgent(aAgent.Position);
   fAgents.Add(aAgent);
 end;
@@ -148,7 +169,6 @@ procedure TRVO2.Step;
     for i := 0 to gSimulator.getNumAgents - 1 do
     begin
       Agents[I].Position := gSimulator.getAgentPosition(i);
-
       if Agents[I].NearGoal then
       begin
         // Agent is within one radius of its goal, set preferred velocity to zero
@@ -156,9 +176,12 @@ procedure TRVO2.Step;
         Agents[I].StepNext;
       end
       else
-        // Agent is far away from its goal, set preferred velocity as unit vector towards agent's goal.
-        gSimulator.setAgentPrefVelocity(i, normalize(Vector2Sub(Agents[i].CurrentGoal, gSimulator.getAgentPosition(i))));
 
+        if InRange(absSq(gSimulator.getAgentVelocity(i)), 0.0001, 0.1) then
+          gSimulator.setAgentPrefVelocity(i, Vector2(Random, Random))
+        else
+          // Agent is far away from its goal, set preferred velocity as unit vector towards agent's goal.
+          gSimulator.setAgentPrefVelocity(i, normalize(Vector2Sub(Agents[i].CurrentGoal, gSimulator.getAgentPosition(i))));
     end;
   end;
 begin

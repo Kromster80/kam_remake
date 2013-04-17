@@ -33,8 +33,7 @@ var
   Form1: TForm1;
   bmp: TBitmap;
   rvo2: TRVO2;
-  goals: array of TRVOVector2;
-  roadmap: TList;
+  Z: Single;
 
 
 implementation
@@ -45,8 +44,10 @@ procedure TForm1.FormCreate(Sender: TObject);
 begin
   bmp := TBitmap.Create;
   bmp.PixelFormat := pf24bit;
-  bmp.Height := 101;
-  bmp.Width := 101;
+  bmp.Height := 400;
+  bmp.Width := 400;
+
+  Z := 1;
 
   timeBeginPeriod(1);
 end;
@@ -64,8 +65,7 @@ var
   i: Integer;
   A: TRVO2Agent;
 begin
-  bmp.Height := 400;
-  bmp.Width := 400;
+  Z := 4;
 
   rvo2 := TRVO2.Create;
 
@@ -88,8 +88,7 @@ var
   i: Integer;
   A: TRVO2Agent;
 begin
-  bmp.Height := 400;
-  bmp.Width := 400;
+  Z := 4;
 
   rvo2 := TRVO2.Create;
 
@@ -98,7 +97,7 @@ begin
   begin
     A := TRVO2Agent.Create;
     A.Position := Vector2((I mod 2) * 100, (I div 2) * 100);
-    A.Radius := 2;
+    A.Radius := 2.5;
     SetLength(A.Route, 1);
     A.Route[0] := Vector2(100 - A.Position.X, 100 - A.Position.Y);
     rvo2.AddAgent(A);
@@ -115,8 +114,7 @@ var
   i: Integer;
   A: TRVO2Agent;
 begin
-  bmp.Height := 400;
-  bmp.Width := 400;
+  Z := 4;
 
   rvo2 := TRVO2.Create();
 
@@ -124,7 +122,7 @@ begin
   for I := 0 to 5 do
   begin
     A := TRVO2Agent.Create;
-    A.Position := Vector2(10 + Random*20-5, 10 + Random*10-5);
+    A.Position := Vector2(10 + Random*10-5, 10 + Random*10-5);
     A.Radius := 2.5;
     SetLength(A.Route, 3);
     A.Route[0] := Vector2(10, 50);
@@ -136,7 +134,7 @@ begin
   for I := 0 to 5 do
   begin
     A := TRVO2Agent.Create;
-    A.Position := Vector2(90 + Random*20-5, 90 + Random*10-5);
+    A.Position := Vector2(90 + Random*10-5, 90 + Random*10-5);
     A.Radius := 2.5;
     SetLength(A.Route, 3);
     A.Route[0] := Vector2(90, 50);
@@ -174,25 +172,22 @@ begin
   bmp.Canvas.Pen.Color := clGray;
   for I := 0 to rvo2.ObstacleCount - 1 do
   begin
-    V := Vector2Scale(rvo2.Obstacles[I].Vertices[Length(rvo2.Obstacles[I].Vertices) - 1], 4);
+    V := Vector2Scale(rvo2.Obstacles[I].Vertices[Length(rvo2.Obstacles[I].Vertices) - 1], Z);
     bmp.Canvas.MoveTo(Round(V.x), Round(V.y));
     for K := 0 to Length(rvo2.Obstacles[I].Vertices) - 1 do
     begin
-      V := Vector2Scale(rvo2.Obstacles[I].Vertices[K], 4);
+      V := Vector2Scale(rvo2.Obstacles[I].Vertices[K], Z);
       bmp.Canvas.LineTo(Round(V.x), Round(V.y));
     end;
   end;
-
-  //bmp.Canvas.Brush.Color := clGray;
-  //bmp.Canvas.Rectangle(43, 30, 57, 70);
 
   //Agents
   bmp.Canvas.Pen.Color := clNone;
   bmp.Canvas.Brush.Color := clGreen;
   for I := 0 to rvo2.AgentCount - 1 do
   begin
-    V := Vector2Scale(rvo2.Agents[I].Position, 4);
-    R := rvo2.Agents[I].Radius * 4;
+    V := Vector2Scale(rvo2.Agents[I].Position, Z);
+    R := rvo2.Agents[I].Radius * Z;
     bmp.Canvas.Ellipse(Round(V.x-R), Round(V.y-R), Round(V.x+R), Round(V.y+R));
     bmp.Canvas.Pixels[Round(V.x), Round(V.y)] := clYellow;
   end;
