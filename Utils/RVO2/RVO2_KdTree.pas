@@ -78,7 +78,7 @@ type
     agentTree_: array of TRVOAgentTreeNode;
     obstacleTree_: TRVOObstacleTreeNode;
     procedure buildAgentTree;
-    procedure buildAgentTreeRecursive(abegin, aend, node: Integer);
+    procedure buildAgentTreeRecursive(begin_, end_, node: Integer);
     procedure buildObstacleTree;
     function buildObstacleTreeRecursive(obstacles: TList): TRVOObstacleTreeNode;
     procedure queryObstacleTreeRecursive(agent: TRVOAgent; rangeSq: Single; node: TRVOObstacleTreeNode);
@@ -121,18 +121,18 @@ end;
 { TRVOKdTree }
 procedure TRVOKdTree.buildAgentTree;
 var
-  I: Integer;
+  i: Integer;
 begin
   if (agents_ = nil) or (Length(agents_) <> gSimulator.agents_.Count) then
   begin
     SetLength(agents_, gSimulator.agents_.Count);
-    for I := 0 to Length(agents_) - 1 do
+    for i := 0 to Length(agents_) - 1 do
     begin
       agents_[i] := gSimulator.agents_[i];
     end;
 
     SetLength(agentTree_, 2 * Length(agents_));
-    for I := 0 to Length(agentTree_) - 1 do
+    for i := 0 to Length(agentTree_) - 1 do
     begin
       agentTree_[i] := TRVOAgentTreeNode.Create;
     end;
@@ -144,7 +144,7 @@ begin
   end;
 end;
 
-procedure TRVOKdTree.buildAgentTreeRecursive(abegin, aend, node: Integer);
+procedure TRVOKdTree.buildAgentTreeRecursive(begin_, end_, node: Integer);
 var
   i: Integer;
   isVertical: Boolean;
@@ -153,14 +153,14 @@ var
   tmp: TRVOAgent;
   leftSize: Integer;
 begin
-  agentTree_[node].begin_ := abegin;
-  agentTree_[node].end_ := aend;
-  agentTree_[node].maxX := agents_[abegin].position_.x;
-  agentTree_[node].maxY := agents_[abegin].position_.y;
+  agentTree_[node].begin_ := begin_;
+  agentTree_[node].end_ := end_;
+  agentTree_[node].maxX := agents_[begin_].position_.x;
+  agentTree_[node].maxY := agents_[begin_].position_.y;
   agentTree_[node].minX := agentTree_[node].maxX;
   agentTree_[node].minY := agentTree_[node].maxY;
 
-  for i := abegin + 1 to aend - 1 do
+  for i := begin_ + 1 to end_ - 1 do
   begin
     agentTree_[node].maxX := Max(agentTree_[node].maxX, agents_[i].position_.x);
     agentTree_[node].minX := Min(agentTree_[node].minX, agents_[i].position_.x);
@@ -168,38 +168,38 @@ begin
     agentTree_[node].minY := Min(agentTree_[node].minY, agents_[i].position_.y);
   end;
 
-  if (aend - abegin > MAX_LEAF_SIZE) then
+  if (end_ - begin_ > MAX_LEAF_SIZE) then
   begin
     (* No leaf node. *)
     isVertical := (agentTree_[node].maxX - agentTree_[node].minX > agentTree_[node].maxY - agentTree_[node].minY);
     splitValue := IfThen(isVertical, 0.5 * (agentTree_[node].maxX + agentTree_[node].minX), 0.5 * (agentTree_[node].maxY + agentTree_[node].minY));
 
-    left := abegin;
-    right := aend;
+    left := begin_;
+    right := end_;
 
     while (left < right) do
     begin
-        while (left < right) and (IfThen(isVertical, agents_[left].position_.x, agents_[left].position_.y) < splitValue) do
-        begin
-          Inc(left);
-        end;
+      while (left < right) and (IfThen(isVertical, agents_[left].position_.x, agents_[left].position_.y) < splitValue) do
+      begin
+        Inc(left);
+      end;
 
-        while (right > left) and (IfThen(isVertical, agents_[right - 1].position_.x, agents_[right - 1].position_.y) >= splitValue) do
-        begin
-          Dec(right);
-        end;
+      while (right > left) and (IfThen(isVertical, agents_[right - 1].position_.x, agents_[right - 1].position_.y) >= splitValue) do
+      begin
+        Dec(right);
+      end;
 
-        if (left < right) then
-        begin
-            tmp := agents_[left];
-            agents_[left] := agents_[right - 1];
-            agents_[right - 1] := tmp;
-            Inc(left);
-            Dec(right);
-        end;
+      if (left < right) then
+      begin
+        tmp := agents_[left];
+        agents_[left] := agents_[right - 1];
+        agents_[right - 1] := tmp;
+        Inc(left);
+        Dec(right);
+      end;
     end;
 
-    leftSize := left - abegin;
+    leftSize := left - begin_;
 
     if (leftSize = 0) then
     begin
@@ -211,13 +211,11 @@ begin
     agentTree_[node].left := node + 1;
     agentTree_[node].right := node + 1 + (2 * leftSize - 1);
 
-    buildAgentTreeRecursive(abegin, left, agentTree_[node].left);
-    buildAgentTreeRecursive(left, aend, agentTree_[node].right);
+    buildAgentTreeRecursive(begin_, left, agentTree_[node].left);
+    buildAgentTreeRecursive(left, end_, agentTree_[node].right);
   end;
 end;
 
-
-//internal void buildObstacleTree()
 procedure TRVOKdTree.buildObstacleTree;
 var
   i: Integer;
@@ -226,7 +224,6 @@ begin
   obstacleTree_ := TRVOObstacleTreeNode.Create;
 
   obstacles := TList.Create;
-  obstacles.Capacity := gSimulator.obstacles_.Count;
 
   for i := 0 to gSimulator.obstacles_.Count - 1 do
   begin
@@ -280,39 +277,39 @@ begin
       //Compute optimal split node.
       for j := 0 to obstacles.Count - 1 do
       begin
-          if (i = j) then
-          begin
-            continue;
-          end;
+        if (i = j) then
+        begin
+          continue;
+        end;
 
-          obstacleJ1 := obstacles[j];
-          obstacleJ2 := obstacleJ1.nextObstacle;
+        obstacleJ1 := obstacles[j];
+        obstacleJ2 := obstacleJ1.nextObstacle;
 
-          j1LeftOfI := leftOf(obstacleI1.point_, obstacleI2.point_, obstacleJ1.point_);
-          j2LeftOfI := leftOf(obstacleI1.point_, obstacleI2.point_, obstacleJ2.point_);
+        j1LeftOfI := leftOf(obstacleI1.point_, obstacleI2.point_, obstacleJ1.point_);
+        j2LeftOfI := leftOf(obstacleI1.point_, obstacleI2.point_, obstacleJ2.point_);
 
-          if (j1LeftOfI >= -RVO_EPSILON) and (j2LeftOfI >= -RVO_EPSILON) then
-          begin
-              Inc(leftSize);
-          end
-          else if (j1LeftOfI <= RVO_EPSILON) and (j2LeftOfI <= RVO_EPSILON) then
-          begin
-              Inc(rightSize);
-          end
-          else
-          begin
-              Inc(leftSize);
-              Inc(rightSize);
-          end;
+        if (j1LeftOfI >= -RVO_EPSILON) and (j2LeftOfI >= -RVO_EPSILON) then
+        begin
+          Inc(leftSize);
+        end
+        else if (j1LeftOfI <= RVO_EPSILON) and (j2LeftOfI <= RVO_EPSILON) then
+        begin
+          Inc(rightSize);
+        end
+        else
+        begin
+          Inc(leftSize);
+          Inc(rightSize);
+        end;
 
-          FP1.A := Max(leftSize, rightSize);
-          FP1.B := Min(leftSize, rightSize);
-          FP2.A := Max(minLeft, minRight);
-          FP2.B := Min(minLeft, minRight);
-          if FloatPairGequal(FP1, FP2) then
-          begin
-            break;
-          end;
+        FP1.A := Max(leftSize, rightSize);
+        FP1.B := Min(leftSize, rightSize);
+        FP2.A := Max(minLeft, minRight);
+        FP2.B := Min(minLeft, minRight);
+        if FloatPairGequal(FP1, FP2) then
+        begin
+          break;
+        end;
       end;
 
       FP1.A := Max(leftSize, rightSize);
@@ -328,88 +325,88 @@ begin
     end;
 
     begin
-        //Build split node.
-        leftObstacles := TList.Create;
-        for n := 0 to minLeft - 1 do leftObstacles.Add(nil);
-        rightObstacles := TList.Create;
-        for n := 0 to minRight - 1 do rightObstacles.Add(nil);
+      //Build split node.
+      leftObstacles := TList.Create;
+      for n := 0 to minLeft - 1 do leftObstacles.Add(nil);
+      rightObstacles := TList.Create;
+      for n := 0 to minRight - 1 do rightObstacles.Add(nil);
 
-        leftCounter := 0;
-        rightCounter := 0;
-        i := optimalSplit;
+      leftCounter := 0;
+      rightCounter := 0;
+      i := optimalSplit;
 
-        obstacleI1 := obstacles[i];
-        obstacleI2 := obstacleI1.nextObstacle;
+      obstacleI1 := obstacles[i];
+      obstacleI2 := obstacleI1.nextObstacle;
 
-        for j := 0 to obstacles.Count - 1 do
+      for j := 0 to obstacles.Count - 1 do
+      begin
+        if (i = j) then
         begin
-          if (i = j) then
+          continue;
+        end;
+
+        obstacleJ1 := obstacles[j];
+        obstacleJ2 := obstacleJ1.nextObstacle;
+
+        j1LeftOfI := leftOf(obstacleI1.point_, obstacleI2.point_, obstacleJ1.point_);
+        j2LeftOfI := leftOf(obstacleI1.point_, obstacleI2.point_, obstacleJ2.point_);
+
+        if (j1LeftOfI >= -RVO_EPSILON) and (j2LeftOfI >= -RVO_EPSILON) then
+        begin
+          leftObstacles[leftCounter] := obstacles[j];
+          Inc(leftCounter);
+        end
+        else if (j1LeftOfI <= RVO_EPSILON) and (j2LeftOfI <= RVO_EPSILON) then
+        begin
+          rightObstacles[rightCounter] := obstacles[j];
+          Inc(rightCounter);
+        end
+        else
+        begin
+          //Split obstacle j.
+          t := det(Vector2Sub(obstacleI2.point_, obstacleI1.point_),
+                   Vector2Sub(obstacleJ1.point_, obstacleI1.point_))
+               /
+               det(Vector2Sub(obstacleI2.point_, obstacleI1.point_),
+                   Vector2Sub(obstacleJ1.point_, obstacleJ2.point_));
+
+          splitpoint := Vector2Add(obstacleJ1.point_, Vector2Scale(t, Vector2Sub(obstacleJ2.point_, obstacleJ1.point_)));
+
+          newObstacle := TRVOObstacle.Create;
+          newObstacle.point_ := splitpoint;
+          newObstacle.prevObstacle := obstacleJ1;
+          newObstacle.nextObstacle := obstacleJ2;
+          newObstacle.isConvex_ := True;
+          newObstacle.unitDir_ := obstacleJ1.unitDir_;
+
+          newObstacle.id_ := gSimulator.obstacles_.Count;
+
+          gSimulator.obstacles_.Add(newObstacle);
+
+          obstacleJ1.nextObstacle := newObstacle;
+          obstacleJ2.prevObstacle := newObstacle;
+
+          if (j1LeftOfI > 0) then
           begin
-            continue;
-          end;
-
-          obstacleJ1 := obstacles[j];
-          obstacleJ2 := obstacleJ1.nextObstacle;
-
-          j1LeftOfI := leftOf(obstacleI1.point_, obstacleI2.point_, obstacleJ1.point_);
-          j2LeftOfI := leftOf(obstacleI1.point_, obstacleI2.point_, obstacleJ2.point_);
-
-          if (j1LeftOfI >= -RVO_EPSILON) and (j2LeftOfI >= -RVO_EPSILON) then
-          begin
-            leftObstacles[leftCounter] := obstacles[j];
+            leftObstacles[leftCounter] := obstacleJ1;
+            rightObstacles[rightCounter] := newObstacle;
             Inc(leftCounter);
-          end
-          else if (j1LeftOfI <= RVO_EPSILON) and (j2LeftOfI <= RVO_EPSILON) then
-          begin
-            rightObstacles[rightCounter] := obstacles[j];
             Inc(rightCounter);
           end
           else
           begin
-            //Split obstacle j.
-            t := det(Vector2Sub(obstacleI2.point_, obstacleI1.point_),
-                     Vector2Sub(obstacleJ1.point_, obstacleI1.point_))
-                 /
-                 det(Vector2Sub(obstacleI2.point_, obstacleI1.point_),
-                     Vector2Sub(obstacleJ1.point_, obstacleJ2.point_));
-
-            splitpoint := Vector2Add(obstacleJ1.point_, Vector2Scale(t, Vector2Sub(obstacleJ2.point_, obstacleJ1.point_)));
-
-            newObstacle := TRVOObstacle.Create;
-            newObstacle.point_ := splitpoint;
-            newObstacle.prevObstacle := obstacleJ1;
-            newObstacle.nextObstacle := obstacleJ2;
-            newObstacle.isConvex_ := True;
-            newObstacle.unitDir_ := obstacleJ1.unitDir_;
-
-            newObstacle.id_ := gSimulator.obstacles_.Count;
-
-            gSimulator.obstacles_.Add(newObstacle);
-
-            obstacleJ1.nextObstacle := newObstacle;
-            obstacleJ2.prevObstacle := newObstacle;
-
-            if (j1LeftOfI > 0) then
-            begin
-                leftObstacles[leftCounter] := obstacleJ1;
-                rightObstacles[rightCounter] := newObstacle;
-                Inc(leftCounter);
-                Inc(rightCounter);
-            end
-            else
-            begin
-                rightObstacles[rightCounter] := obstacleJ1;
-                leftObstacles[leftCounter] := newObstacle;
-                Inc(leftCounter);
-                Inc(rightCounter);
-            end;
+            rightObstacles[rightCounter] := obstacleJ1;
+            leftObstacles[leftCounter] := newObstacle;
+            Inc(leftCounter);
+            Inc(rightCounter);
           end;
         end;
+      end;
 
-        node.obstacle := obstacleI1;
-        node.left := buildObstacleTreeRecursive(leftObstacles);
-        node.right := buildObstacleTreeRecursive(rightObstacles);
-        Result := node;
+      node.obstacle := obstacleI1;
+      node.left := buildObstacleTreeRecursive(leftObstacles);
+      node.right := buildObstacleTreeRecursive(rightObstacles);
+      Result := node;
     end;
   end;
 end;

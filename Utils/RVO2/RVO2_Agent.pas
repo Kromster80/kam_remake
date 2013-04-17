@@ -323,15 +323,19 @@ begin
       isRightLegForeign := true;
     end;
 
-    // Compute cut-off centers. */
+    //Compute cut-off centers. */
     leftCutoff := Vector2Scale(invTimeHorizonObst, Vector2Sub(obstacle1.point_, position_));
     rightCutoff := Vector2Scale(invTimeHorizonObst, Vector2Sub(obstacle2.point_, position_));
     cutoffVec := Vector2Sub(rightCutoff, leftCutoff);
 
-    // Project current velocity on velocity obstacle.
+    //Project current velocity on velocity obstacle.
 
-    // Check if current velocity is projected on cutoff circles.
-    t := IfThen(obstacle1 = obstacle2, 0.5, Vector2Mul(Vector2Sub(velocity_, leftCutoff), cutoffVec) / absSq(cutoffVec));
+    //Check if current velocity is projected on cutoff circles.
+    if obstacle1 = obstacle2 then
+      t := 0.5
+    else
+      t := Vector2Mul(Vector2Sub(velocity_, leftCutoff), cutoffVec) / absSq(cutoffVec);
+
     tLeft := Vector2Mul(Vector2Sub(velocity_, leftCutoff), leftLegDirection);
     tRight := Vector2Mul(Vector2Sub(velocity_, rightCutoff), rightLegDirection);
 
