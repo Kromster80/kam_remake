@@ -132,7 +132,7 @@ type
 
 
 implementation
-uses KM_PlayersCollection, KM_Resource, KM_ResourceHouse, KM_ResourceMapElements;
+uses KM_PlayersCollection, KM_Resource, KM_ResourceHouse, KM_ResourceMapElements, KM_Game;
 
 
 { TTaskBuildRoad }
