@@ -1,0 +1,12 @@
+
+MaxID:9
+
+1:Nobody is in the castle
+2:[$%s]%s[] has been searching in the castle for %.2d:%.2d
+3:[$%s]%s[] found %d %s in the castle ruins!
+4:gold
+5:shields
+6:iron armour
+7:swords
+8:pikes
+9:crossbows
