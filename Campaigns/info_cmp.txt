@@ -1,7 +1,8 @@
 
 //This is a planned layout, feel free to update and improve it
 
-1 - Campaign name
-2 - Mission name template
+1 - Campaign name as displayed in main menu
+2 - Mission name template, usually "Mission %s"
+3 - Campaign description in main menu, as well credits
 
-10..29 - Briefing texts
+10..73 - Briefing texts //campaign can have upto 64 maps

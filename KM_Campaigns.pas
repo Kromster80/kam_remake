@@ -46,6 +46,7 @@ type
     property UnlockedMap: Byte read fUnlockedMap write SetUnlockedMap;
 
     function CampaignTitle: string;
+    function CampaignDescription: string;
     function MissionFile(aIndex: Byte): string;
     function MissionTitle(aIndex: Byte): AnsiString;
     function MissionText(aIndex: Byte): AnsiString;
@@ -379,6 +380,12 @@ end;
 function TKMCampaign.CampaignTitle: string;
 begin
   Result := fTextLibrary[fFirstTextIndex];
+end;
+
+
+function TKMCampaign.CampaignDescription: string;
+begin
+  Result := fTextLibrary[fFirstTextIndex + 2];
 end;
 
 

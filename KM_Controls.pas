@@ -3592,6 +3592,7 @@ begin
   fScrollBar := TKMScrollBar.Create(aParent, aLeft+aWidth-fItemHeight, aTop, fItemHeight, aHeight, sa_Vertical, aStyle);
   UpdateScrollBar; //Initialise the scrollbar
 
+  SetEdgeAlpha(1);
   SetBackAlpha(0.5);
 end;
 
