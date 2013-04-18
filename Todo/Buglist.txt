@@ -133,6 +133,7 @@ Improvements:
 	L	MapEd: Flat terrain checkbox on Extras popup
 	L	MapEd: Allow to set troops order destination with mouse on map
 	L	MapEd: Add size to Object delete brush (possibly in a new tab where artistic brushes will be)
+	L MapEd: An option to hide roads/fields, so you can view just the terrain while you edit it
  
  -	Unexpectedly high ping values (not our problem usually)
  -	One type of pine tree cannot be cut (same as KaM, there are not even sprites for it falling down)
