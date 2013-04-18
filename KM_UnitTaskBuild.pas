@@ -818,7 +818,7 @@ end;
 
 
 { TTaskBuildHouse }
-constructor TTaskBuildHouse.Create(aWorker:TKMUnitWorker; aHouse:TKMHouse; aID:integer);
+constructor TTaskBuildHouse.Create(aWorker: TKMUnitWorker; aHouse: TKMHouse; aID: Integer);
 begin
   inherited Create(aWorker);
   fTaskName := utn_BuildHouse;
@@ -830,7 +830,7 @@ begin
 end;
 
 
-constructor TTaskBuildHouse.Load(LoadStream:TKMemoryStream);
+constructor TTaskBuildHouse.Load(LoadStream: TKMemoryStream);
 begin
   inherited;
   LoadStream.Read(fHouse, 4);
@@ -844,7 +844,7 @@ end;
 procedure TTaskBuildHouse.SyncLoad;
 begin
   inherited;
-  fHouse := fPlayers.GetHouseByID(cardinal(fHouse));
+  fHouse := fPlayers.GetHouseByID(Cardinal(fHouse));
 end;
 
 
@@ -882,46 +882,49 @@ begin
   end;
 
   with TKMUnitWorker(fUnit) do
-    case fPhase of
-      0: if PickRandomSpot(Cells, BuildFrom) then
-         begin
-           Thought := th_Build;
-           SetActionWalkToSpot(BuildFrom.Loc);
-         end
-         else
-           Result := TaskDone;
-      1: begin
-           Direction := BuildFrom.Dir;
-           SetActionLockedStay(0, ua_Walk);
-         end;
-      2: begin
-           SetActionLockedStay(5,ua_Work,false,0,0); //Start animation
-           Direction := BuildFrom.Dir;
-           //Remove house plan when we start the stone phase (it is still required for wood)
-           //But don't do it every time we hit if it's already done!
-           if fHouse.IsStone and (fTerrain.Land[fHouse.GetPosition.Y, fHouse.GetPosition.X].TileLock <> tlHouse) then
-             fTerrain.SetHouse(fHouse.GetPosition, fHouse.HouseType, hsBuilt, Owner);
-         end;
-      3: begin
-           fHouse.IncBuildingProgress;
-           SetActionLockedStay(6,ua_Work,false,0,5); //Do building and end animation
-           inc(fPhase2);
-         end;
-      4: begin
-           SetActionStay(1,ua_Walk);
-           Thought := th_None;
-         end;
-      else Result := TaskDone;
-    end;
-  inc(fPhase);
+  case fPhase of
+    0:  if PickRandomSpot(Cells, BuildFrom) then
+        begin
+          Thought := th_Build;
+          SetActionWalkToSpot(BuildFrom.Loc);
+        end
+        else
+          Result := TaskDone;
+    1:  begin
+          //Face the building
+          Direction := BuildFrom.Dir;
+          SetActionLockedStay(0, ua_Walk);
+        end;
+    2:  begin
+          //Start animation
+          SetActionLockedStay(5, ua_Work, False);
+          Direction := BuildFrom.Dir;
+          //Remove house plan when we start the stone phase (it is still required for wood)
+          //But don't do it every time we hit if it's already done!
+          if fHouse.IsStone and (fTerrain.Land[fHouse.GetPosition.Y, fHouse.GetPosition.X].TileLock <> tlHouse) then
+            fTerrain.SetHouse(fHouse.GetPosition, fHouse.HouseType, hsBuilt, Owner);
+        end;
+    3:  begin
+          //Update house on hummer hit
+          fHouse.IncBuildingProgress;
+          SetActionLockedStay(6, ua_Work, False, 0, 5); //Do building and end animation
+          Inc(fPhase2);
+        end;
+    4:  begin
+          SetActionStay(1, ua_Walk);
+          Thought := th_None;
+        end;
+    else Result := TaskDone;
+  end;
+  Inc(fPhase);
 
   {Worker does 5 hits from any spot around the house and then goes to new spot,
    but if the house is done worker should stop activity immediately}
-  if (fPhase=4) and (not fHouse.IsComplete) then //If animation cycle is done
+  if (fPhase = 4) and (not fHouse.IsComplete) then //If animation cycle is done
     if fPhase2 mod 5 = 0 then //if worker did [5] hits from same spot
-      fPhase:=0 //Then goto new spot
+      fPhase := 0 //Then goto new spot
     else
-      fPhase:=2; //else do more hits
+      fPhase := 2; //else do more hits
 end;
 
 
