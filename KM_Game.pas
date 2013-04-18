@@ -861,6 +861,7 @@ end;
 //aPathName - full path to DAT file
 procedure TKMGame.SaveMapEditor(const aPathName: string);
 var
+  I: Integer;
   fMissionParser: TMissionParserStandard;
 begin
   if aPathName = '' then exit;
@@ -878,7 +879,11 @@ begin
   FreeAndNil(fMissionParser);
 
   fGameName := TruncateExt(ExtractFileName(aPathName));
-  fPlayers.AddPlayers(MAX_PLAYERS - fPlayers.Count); // Activate all players
+
+  //Append empty players in place of removed ones
+  fPlayers.AddPlayers(MAX_PLAYERS - fPlayers.Count);
+  for I := 0 to fPlayers.Count - 1 do
+    fPlayers[I].FogOfWar.RevealEverything;
 end;
 
 

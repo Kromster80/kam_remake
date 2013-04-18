@@ -9,8 +9,8 @@ Bugs:
  +	Changing terrain in MapEd from snow to non-snow should update snowed houses placed there
  +	Crash when exiting a mission with a house area being dug and a script using OnHouseLost
  +	Load/save buttons were reversed in the map editor compared to the game
+ +	Can only place buildings for one player in SP MapEd, for others its just red crosses.
 	Message log should be hidden until the 1st message arrives, looks odd to have a blank scroll
-	Can only place buildings for one player in SP MapEd, for others its just red crosses.
 	we had a match on "Coastal Encounter Score" with 2 humans and 1 AI. One human lost all of his troops first. The moment his last fighter died, the server disconnected him.
 	Archers are much less responsive in MP (due to finishing attack sequence to prevent exploit) [Lewin]
 	Map editor should have an option to hide roads/fields, so you can view just the terrain while you edit it
