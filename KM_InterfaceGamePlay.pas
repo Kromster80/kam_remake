@@ -1184,7 +1184,7 @@ begin
     Button_ChatRecipient.OnClick := Chat_MenuShow;
     Button_ChatRecipient.Anchors := [akRight, akBottom];
 
-    Image_ChatClose := TKMImage.Create(Panel_Chat, 600-76, 24, 32, 32, 52);
+    Image_ChatClose := TKMImage.Create(Panel_Chat, 600-80, 18, 32, 32, 52);
     Image_ChatClose.Anchors := [akTop, akRight];
     Image_ChatClose.Hint := fTextLibrary[TX_MSG_CLOSE_HINT];
     Image_ChatClose.OnClick := Chat_Close;
@@ -3899,6 +3899,7 @@ begin
                             or Image_MessageClose.Click
                             or Image_ChatClose.Click
                             or Image_AlliesClose.Click
+                            or Image_MessageLogClose.Click
                             or Button_Back.Click then ;
     //Menu shortcuts
     SC_MENU_BUILD:  Button_Main[tbBuild].Click;

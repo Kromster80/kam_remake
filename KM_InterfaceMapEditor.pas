@@ -3401,6 +3401,14 @@ begin
   //if Key in [49..53] then
   //  Button_Main[Key-48].DoPress;
 
+  //For now enter can open up Extra panel
+  if Key = VK_RETURN then
+    ExtraMessage_Switch(Image_Extra);
+
+  if Key = VK_ESCAPE then
+    if Image_MessageClose.Click
+    or Image_ExtraClose.Click then ;
+
   //Scrolling
   if Key = VK_LEFT  then fGame.Viewport.ScrollKeyLeft  := True;
   if Key = VK_RIGHT then fGame.Viewport.ScrollKeyRight := True;

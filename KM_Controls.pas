@@ -3829,9 +3829,10 @@ function TKMColumnBox.KeyDown(Key: Word; Shift: TShiftState): Boolean;
 var
   NewIndex: Integer;
 begin
-  Result := (Key = VK_UP) or (Key = VK_DOWN);
+  Result := ((Key = VK_UP) or (Key = VK_DOWN)) and not HideSelection;
   if inherited KeyDown(Key, Shift) then Exit;
 
+  if not HideSelection then Exit; //Can't change selection if it's hidden
   case Key of
     VK_UP:      NewIndex := fItemIndex - 1;
     VK_DOWN:    NewIndex := fItemIndex + 1;
