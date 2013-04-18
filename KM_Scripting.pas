@@ -66,6 +66,12 @@ var
   fScripting: TKMScripting;
 
 
+const VALID_GLOBAL_VAR_TYPES: set of TPSBaseType = [
+  btU8, btS32, btSingle,
+  btStaticArray, btArray,
+  btRecord];
+
+
 implementation
 uses KM_Log;
 
@@ -340,14 +346,23 @@ procedure TKMScripting.LinkRuntime;
     I: Integer;
     Offset: Cardinal;
   begin
-    //See uPSRuntime line 1630 for algo idea
+    //Check against our set of allowed types
+    if not (aType.BaseType in VALID_GLOBAL_VAR_TYPES) then
+    begin
+      Result := 'Unsupported global variable type ' + IntToStr(aType.BaseType) + ': ' + aType.ExportName + '|';
+      Exit;
+    end;
+    //Check elements of arrays/records are valid too
     case aType.BaseType of
-      btU8,
-      btS32,
-      btSingle: ; //Valid types
       btArray,
       btStaticArray: Result := ValidateVarType(TPSTypeRec_Array(aType).ArrayType);
-      else           Result := 'Unsupported global variable type ' + IntToStr(aType.BaseType) + ': ' + aType.ExportName + '|';
+      btRecord: begin
+                  Result := '';
+                  for I:=0 to TPSTypeRec_Record(aType).FieldTypes.Count-1 do
+                  begin
+                    Result := Result + ValidateVarType(TPSTypeRec_Record(aType).FieldTypes[I]);
+                  end;
+                end;
     end;
   end;
 
@@ -676,7 +691,7 @@ procedure TKMScripting.Load(LoadStream: TKMemoryStream);
 
   procedure LoadVar(Src: Pointer; aType: TPSTypeRec);
   var
-    ArrayCount: Integer;
+    ElemCount: Integer;
     I: Integer;
     Offset: Cardinal;
   begin
@@ -686,21 +701,30 @@ procedure TKMScripting.Load(LoadStream: TKMemoryStream);
       btS32: LoadStream.Read(tbts32(Src^)); //Integer
       btSingle: LoadStream.Read(tbtsingle(Src^));
       btStaticArray:begin
-                      LoadStream.Read(ArrayCount);
-                      Assert(ArrayCount = TPSTypeRec_StaticArray(aType).Size, 'Script array element count mismatches saved count');
-                      for I:=0 to ArrayCount-1 do
+                      LoadStream.Read(ElemCount);
+                      Assert(ElemCount = TPSTypeRec_StaticArray(aType).Size, 'Script array element count mismatches saved count');
+                      for I:=0 to ElemCount-1 do
                       begin
                         Offset := TPSTypeRec_Array(aType).ArrayType.RealSize * I;
                         LoadVar(Pointer(IPointer(Src) + Offset), TPSTypeRec_Array(aType).ArrayType);
                       end;
                     end;
       btArray:      begin
-                      LoadStream.Read(ArrayCount);
-                      PSDynArraySetLength(Pointer(Src^), aType, ArrayCount);
-                      for I:=0 to ArrayCount-1 do
+                      LoadStream.Read(ElemCount);
+                      PSDynArraySetLength(Pointer(Src^), aType, ElemCount);
+                      for I:=0 to ElemCount-1 do
                       begin
                         Offset := TPSTypeRec_Array(aType).ArrayType.RealSize * I;
                         LoadVar(Pointer(IPointer(Src^) + Offset), TPSTypeRec_Array(aType).ArrayType);
+                      end;
+                    end;
+      btRecord:     begin
+                      LoadStream.Read(ElemCount);
+                      Assert(ElemCount = TPSTypeRec_Record(aType).FieldTypes.Count, 'Script record element count mismatches saved count');
+                      for I := 0 to ElemCount-1 do
+                      begin
+                        Offset := Cardinal(TPSTypeRec_Record(aType).RealFieldOffsets[I]);
+                        LoadVar(Pointer(IPointer(Src) + Offset), TPSTypeRec_Record(aType).FieldTypes[I]);
                       end;
                     end;
       //Already checked and reported as an error in LinkRuntime, no need to crash it here
@@ -736,7 +760,7 @@ procedure TKMScripting.Save(SaveStream: TKMemoryStream);
 
   procedure SaveVar(Src: Pointer; aType: TPSTypeRec);
   var
-    ArrayCount: Integer;
+    ElemCount: Integer;
     I: Integer;
     Offset: Cardinal;
   begin
@@ -746,21 +770,30 @@ procedure TKMScripting.Save(SaveStream: TKMemoryStream);
       btS32: SaveStream.Write(tbts32(Src^)); //Integer
       btSingle: SaveStream.Write(tbtsingle(Src^));
       btStaticArray:begin
-                      ArrayCount := TPSTypeRec_StaticArray(aType).Size;
-                      SaveStream.Write(ArrayCount);
-                      for I:=0 to ArrayCount-1 do
+                      ElemCount := TPSTypeRec_StaticArray(aType).Size;
+                      SaveStream.Write(ElemCount);
+                      for I:=0 to ElemCount-1 do
                       begin
                         Offset := TPSTypeRec_Array(aType).ArrayType.RealSize * I;
                         SaveVar(Pointer(IPointer(Src) + Offset), TPSTypeRec_Array(aType).ArrayType);
                       end;
                     end;
       btArray:      begin
-                      ArrayCount := PSDynArrayGetLength(Pointer(Src^), aType);
-                      SaveStream.Write(ArrayCount);
-                      for I:=0 to ArrayCount-1 do
+                      ElemCount := PSDynArrayGetLength(Pointer(Src^), aType);
+                      SaveStream.Write(ElemCount);
+                      for I:=0 to ElemCount-1 do
                       begin
                         Offset := TPSTypeRec_Array(aType).ArrayType.RealSize * I;
                         SaveVar(Pointer(IPointer(Src^) + Offset), TPSTypeRec_Array(aType).ArrayType);
+                      end;
+                    end;
+      btRecord:     begin
+                      ElemCount := TPSTypeRec_Record(aType).FieldTypes.Count;
+                      SaveStream.Write(ElemCount);
+                      for I := 0 to ElemCount-1 do
+                      begin
+                        Offset := Cardinal(TPSTypeRec_Record(aType).RealFieldOffsets[I]);
+                        SaveVar(Pointer(IPointer(Src) + Offset), TPSTypeRec_Record(aType).FieldTypes[I]);
                       end;
                     end;
       //Already checked and reported as an error in LinkRuntime, no need to crash it here
