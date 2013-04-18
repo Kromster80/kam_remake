@@ -32,21 +32,11 @@ type
     function TextFormatted(aIndex: Word; const Args: array of const): AnsiString;
     function FogRevealed(aPlayer: Byte; aX, aY: Word): Boolean;
 
-    function StatArmyCount(aPlayer: Byte): Integer;
-    function StatCitizenCount(aPlayer: Byte): Integer;
-    function StatHouseTypeCount(aPlayer, aHouseType: Byte): Integer;
-    function StatPlayerCount: Integer;
-    function StatResourceProducedCount(aPlayer, aResType: Byte): Integer;
-    function StatUnitCount(aPlayer: Byte): Integer;
-    function StatUnitKilledCount(aPlayer, aUnitType: Byte): Integer;
-    function StatUnitLostCount(aPlayer, aUnitType: Byte): Integer;
-    function StatUnitTypeCount(aPlayer, aUnitType: Byte): Integer;
-
     function GroupAt(aX, aY: Word): Integer;
     function GroupDead(aGroupID: Integer): Boolean;
-    function GroupOwner(aGroupID: Integer): Integer;
-    function GroupMemberCount(aGroupID: Integer): Integer;
     function GroupMember(aGroupID, aMemberIndex: Integer): Integer;
+    function GroupMemberCount(aGroupID: Integer): Integer;
+    function GroupOwner(aGroupID: Integer): Integer;
 
     function HouseAt(aX, aY: Word): Integer;
     function HouseDamage(aHouseID: Integer): Integer;
@@ -58,29 +48,38 @@ type
     function HousePositionY(aHouseID: Integer): Integer;
     function HouseRepair(aHouseID: Integer): Boolean;
     function HouseResourceAmount(aHouseID, aResource: Integer): Integer;
-    function HouseType(aHouseID: Integer): Integer;
     function HouseSchoolQueue(aHouseID, QueueIndex: Integer): Integer;
+    function HouseType(aHouseID: Integer): Integer;
+    function HouseWareBlocked(aHouseID, aWareType: Integer): Boolean;
     function HouseWeaponsOrdered(aHouseID, aWareType: Integer): Integer;
     function HouseWoodcutterChopOnly(aHouseID: Integer): Boolean;
-    function HouseWareBlocked(aHouseID, aWareType: Integer): Boolean;
 
     function PlayerAllianceCheck(aPlayer1, aPlayer2: Byte): Boolean;
     function PlayerDefeated(aPlayer: Byte): Boolean;
     function PlayerEnabled(aPlayer: Byte): Boolean;
+    function PlayerGetAllUnits(aPlayer: Byte): TIntegerArray;
     function PlayerName(aPlayer: Byte): AnsiString;
     function PlayerColorText(aPlayer: Byte): AnsiString;
     function PlayerVictorious(aPlayer: Byte): Boolean;
 
-    function PlayerGetAllUnits(aPlayer: Byte): TIntegerArray;
+    function StatArmyCount(aPlayer: Byte): Integer;
+    function StatCitizenCount(aPlayer: Byte): Integer;
+    function StatHouseTypeCount(aPlayer, aHouseType: Byte): Integer;
+    function StatPlayerCount: Integer;
+    function StatResourceProducedCount(aPlayer, aResType: Byte): Integer;
+    function StatUnitCount(aPlayer: Byte): Integer;
+    function StatUnitKilledCount(aPlayer, aUnitType: Byte): Integer;
+    function StatUnitLostCount(aPlayer, aUnitType: Byte): Integer;
+    function StatUnitTypeCount(aPlayer, aUnitType: Byte): Integer;
 
     function UnitAt(aX, aY: Word): Integer;
     function UnitDead(aUnitID: Integer): Boolean;
+    function UnitDirection(aUnitID: Integer): Integer;
     function UnitHunger(aUnitID: Integer): Integer;
     function UnitCarrying(aUnitID: Integer): Integer;
     function UnitLowHunger: Integer;
     function UnitMaxHunger: Integer;
     function UnitOwner(aUnitID: Integer): Integer;
-    function UnitDirection(aUnitID: Integer): Integer;
     function UnitPositionX(aUnitID: Integer): Integer;
     function UnitPositionY(aUnitID: Integer): Integer;
     function UnitType(aUnitID: Integer): Integer;
@@ -105,6 +104,10 @@ type
     function PlanAddRoad(aPlayer, X, Y: Word): Boolean;
     function PlanAddWinefield(aPlayer, X, Y: Word): Boolean;
     function SchoolAddToQueue(aHouseID: Integer; aUnitType: Integer; aCount: Integer): Integer;
+    procedure FogCoverAll(aPlayer: Byte);
+    procedure FogCoverCircle(aPlayer, X, Y, aRadius: Word);
+    procedure FogRevealAll(aPlayer: Byte);
+    procedure FogRevealCircle(aPlayer, X, Y, aRadius: Word);
     procedure GiveWares(aPlayer, aType, aCount: Word);
     procedure GiveWeapons(aPlayer, aType, aCount: Word);
     procedure GroupOrderAttackHouse(aGroupID, aHouseID: Integer);
@@ -126,14 +129,10 @@ type
     procedure HouseWeaponsOrderSet(aHouseID, aWareType, aAmount: Integer);
     procedure HouseSchoolQueueRemove(aHouseID, QueueIndex: Integer);
     procedure HouseUnlock(aPlayer, aHouseType: Word);
-    procedure PlayerDefeat(aPlayer: Word);
-    procedure PlayerWin(const aVictors: array of Integer; aTeamVictory: Boolean);
     procedure PlayerAllianceChange(aPlayer1, aPlayer2: Byte; aCompliment, aAllied: Boolean);
     procedure PlayerAddDefaultGoals(aPlayer: Byte; aBuildings: Boolean);
-    procedure FogRevealCircle(aPlayer, X, Y, aRadius: Word);
-    procedure FogCoverCircle(aPlayer, X, Y, aRadius: Word);
-    procedure FogRevealAll(aPlayer: Byte);
-    procedure FogCoverAll(aPlayer: Byte);
+    procedure PlayerDefeat(aPlayer: Word);
+    procedure PlayerWin(const aVictors: array of Integer; aTeamVictory: Boolean);
     procedure SetTradeAllowed(aPlayer, aResType: Word; aAllowed: Boolean);
     procedure ShowMsg(aPlayer: Word; aText: AnsiString);
     procedure SetOverlayText(aPlayer: Word; aText: AnsiString);
