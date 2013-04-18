@@ -21,7 +21,7 @@ type
     fSubAction: THouseActionSet;
     procedure SetHouseState(aHouseState: THouseState);
   public
-    constructor Create(aHouse:TKMHouse; aHouseState: THouseState);
+    constructor Create(aHouse: TKMHouse; aHouseState: THouseState);
     procedure SubActionWork(aActionSet: THouseActionType);
     procedure SubActionAdd(aActionSet: THouseActionSet);
     procedure SubActionRem(aActionSet: THouseActionSet);
@@ -108,7 +108,7 @@ type
     property BuildingRepair: Boolean read fBuildingRepair write SetBuildingRepair;
     property WareDelivery:boolean read fWareDelivery write fWareDelivery;
     property GetHasOwner:boolean read fHasOwner write fHasOwner;
-    property Owner:TPlayerIndex read fOwner;
+    property Owner: TPlayerIndex read fOwner;
     function GetHealth:word;
     function GetBuildWoodDelivered: Byte;
     function GetBuildStoneDelivered: Byte;
@@ -129,20 +129,20 @@ type
     procedure SetState(aState: THouseState);
     function GetState: THouseState;
 
-    function CheckResIn(aResource:TWareType):word; virtual;
-    function CheckResOut(aResource:TWareType):byte;
-    function PickOrder:byte;
+    function CheckResIn(aWare: TWareType):word; virtual;
+    function CheckResOut(aWare: TWareType): Byte;
+    function PickOrder: Byte;
     function CheckResToBuild:boolean;
     function GetMaxInRes: Word;
-    procedure ResAddToIn(aResource:TWareType; aCount:word=1; aFromScript:boolean=false); virtual; //override for School and etc..
-    procedure ResAddToOut(aResource:TWareType; const aCount:integer=1);
-    procedure ResAddToBuild(aResource:TWareType);
-    procedure ResTakeFromIn(aResource:TWareType; aCount:byte=1);
-    procedure ResTakeFromOut(aResource:TWareType; const aCount: Word=1); virtual;
+    procedure ResAddToIn(aWare: TWareType; aCount:word=1; aFromScript:boolean=false); virtual; //override for School and etc..
+    procedure ResAddToOut(aWare: TWareType; const aCount:integer=1);
+    procedure ResAddToBuild(aWare: TWareType);
+    procedure ResTakeFromIn(aWare: TWareType; aCount: Byte=1);
+    procedure ResTakeFromOut(aWare: TWareType; const aCount: Word=1); virtual;
     function ResCanAddToIn(aRes: TWareType): Boolean; virtual;
     property ResOrder[aId: Byte]: Integer read GetResOrder write SetResOrder;
 
-    procedure Save(SaveStream:TKMemoryStream); virtual;
+    procedure Save(SaveStream: TKMemoryStream); virtual;
 
     procedure IncAnimStep;
     procedure UpdateResRequest;
@@ -155,11 +155,11 @@ type
   private
     BeastAge:array[1..5]of byte; //Each beasts "age". Once Best reaches age 3+1 it's ready
   public
-    constructor Load(LoadStream:TKMemoryStream); override;
-    function FeedBeasts:byte;
-    procedure TakeBeast(aID:byte);
+    constructor Load(LoadStream: TKMemoryStream); override;
+    function FeedBeasts: Byte;
+    procedure TakeBeast(aID: Byte);
     procedure MakeSound; override;
-    procedure Save(SaveStream:TKMemoryStream); override;
+    procedure Save(SaveStream: TKMemoryStream); override;
     procedure Paint; override;
   end;
 
@@ -172,13 +172,13 @@ type
     end;
   public
     constructor Create(aID: Cardinal; aHouseType: THouseType; PosX, PosY: Integer; aOwner: TPlayerIndex; aBuildState: THouseBuildState);
-    constructor Load(LoadStream:TKMemoryStream); override;
-    function EaterGetsInside(aUnitType:TUnitType):byte;
-    procedure UpdateEater(aID:byte; aFoodKind: TWareType);
-    procedure EatersGoesOut(aID:byte);
+    constructor Load(LoadStream: TKMemoryStream); override;
+    function EaterGetsInside(aUnitType: TUnitType): Byte;
+    procedure UpdateEater(aID: Byte; aFoodKind: TWareType);
+    procedure EatersGoesOut(aID: Byte);
     function HasFood:boolean;
     function HasSpace:boolean;
-    procedure Save(SaveStream:TKMemoryStream); override;
+    procedure Save(SaveStream: TKMemoryStream); override;
     procedure Paint; override; //Render all eaters
   end;
 
@@ -195,7 +195,7 @@ type
     constructor Load(LoadStream: TKMemoryStream); override;
     procedure SyncLoad; override;
     procedure DemolishHouse(aFrom: TPlayerIndex; IsEditor: Boolean = False); override;
-    procedure ResAddToIn(aResource: TWareType; aCount: Word = 1; aFromScript: Boolean = False); override;
+    procedure ResAddToIn(aWare: TWareType; aCount: Word = 1; aFromScript: Boolean = False); override;
     function AddUnitToQueue(aUnit: TUnitType; aCount: Byte): Byte; //Should add unit to queue if there's a place
     procedure RemUnitFromQueue(aID: Byte); //Should remove unit from queue and shift rest up
     procedure StartTrainingUnit; //This should Create new unit and start training cycle
@@ -220,10 +220,10 @@ type
 
     procedure Activate(aWasBuilt: Boolean); override;
     procedure DemolishHouse(aFrom: TPlayerIndex; IsEditor: Boolean = False); override;
-    procedure ResAddToIn(aResource: TWareType; aCount: Word = 1; aFromScript: Boolean = False); override;
-    procedure ResTakeFromOut(aResource: TWareType; const aCount: Word = 1); override;
-    function CheckResIn(aResource: TWareType): Word; override;
-    function CanTakeResOut(aResource: TWareType): Boolean;
+    procedure ResAddToIn(aWare: TWareType; aCount: Word = 1; aFromScript: Boolean = False); override;
+    procedure ResTakeFromOut(aWare: TWareType; const aCount: Word = 1); override;
+    function CheckResIn(aWare: TWareType): Word; override;
+    function CanTakeResOut(aWare: TWareType): Boolean;
     function ResCanAddToIn(aRes: TWareType): Boolean; override;
     function CanEquip(aUnitType: TUnitType): Boolean;
     procedure ToggleAcceptFlag(aRes: TWareType);
@@ -241,9 +241,9 @@ type
     constructor Load(LoadStream: TKMemoryStream); override;
     procedure DemolishHouse(aFrom: TPlayerIndex; IsEditor: Boolean = False); override;
     procedure ToggleAcceptFlag(aRes: TWareType);
-    procedure ResAddToIn(aResource: TWareType; aCount: Word = 1; aFromScript: Boolean = False); override;
-    function CheckResIn(aResource: TWareType): Word; override;
-    procedure ResTakeFromOut(aResource: TWareType; const aCount: Word = 1); override;
+    procedure ResAddToIn(aWare: TWareType; aCount: Word = 1; aFromScript: Boolean = False); override;
+    function CheckResIn(aWare: TWareType): Word; override;
+    procedure ResTakeFromOut(aWare: TWareType; const aCount: Word = 1); override;
     function ResCanAddToIn(aRes: TWareType): Boolean; override;
     procedure Save(SaveStream: TKMemoryStream); override;
     end;
@@ -806,7 +806,7 @@ begin
 end;
 
 
-function TKMHouse.GetState:THouseState;
+function TKMHouse.GetState: THouseState;
 begin
   Result := fCurrentAction.State;
 end;
@@ -834,23 +834,23 @@ end;
 
 
 {How much resources house has in Input}
-function TKMHouse.CheckResIn(aResource: TWareType): Word;
+function TKMHouse.CheckResIn(aWare: TWareType): Word;
 var i:integer;
 begin
   Result := 0;
   for i:=1 to 4 do
-  if (aResource = fResource.HouseDat[fHouseType].ResInput[i]) or (aResource = wt_All) then
+  if (aWare = fResource.HouseDat[fHouseType].ResInput[i]) or (aWare = wt_All) then
     inc(Result, fResourceIn[i]);
 end;
 
 
 {How much resources house has in Output}
-function TKMHouse.CheckResOut(aResource: TWareType): Byte;
+function TKMHouse.CheckResOut(aWare: TWareType): Byte;
 var I: Integer;
 begin
   Result := 0;
   for I := 1 to 4 do
-  if (aResource = fResource.HouseDat[fHouseType].ResOutput[I]) or (aResource = wt_All) then
+  if (aWare = fResource.HouseDat[fHouseType].ResOutput[I]) or (aWare = wt_All) then
     Inc(Result, fResourceOut[I]);
 end;
 
@@ -968,13 +968,13 @@ end;
 
 //Maybe it's better to rule out In/Out? No, it is required to separate what can be taken out of the house and what not.
 //But.. if we add "Evacuate" button to all house the separation becomes artificial..
-procedure TKMHouse.ResAddToIn(aResource:TWareType; aCount:word=1; aFromScript:boolean=false);
+procedure TKMHouse.ResAddToIn(aWare: TWareType; aCount:word=1; aFromScript:boolean=false);
 var I,OrdersRemoved: Integer;
 begin
-  Assert(aResource <> wt_None);
+  Assert(aWare <> wt_None);
 
   for I := 1 to 4 do
-  if aResource = fResource.HouseDat[fHouseType].ResInput[I] then
+  if aWare = fResource.HouseDat[fHouseType].ResInput[I] then
   begin
     //Don't allow the script to overfill houses
     if aFromScript then aCount := Min(aCount, GetMaxInRes - fResourceIn[I]);
@@ -982,33 +982,33 @@ begin
     if aFromScript then
     begin
       Inc(fResourceDeliveryCount[I], aCount);
-      OrdersRemoved := fPlayers[fOwner].Deliveries.Queue.TryRemoveDemand(Self, aResource, aCount);
+      OrdersRemoved := fPlayers[fOwner].Deliveries.Queue.TryRemoveDemand(Self, aWare, aCount);
       Dec(fResourceDeliveryCount[I], OrdersRemoved);
     end;
   end;
 end;
 
 
-procedure TKMHouse.ResAddToOut(aResource:TWareType; const aCount:integer=1);
+procedure TKMHouse.ResAddToOut(aWare: TWareType; const aCount:integer=1);
 var I: Integer;
 begin
-  if aResource = wt_None then exit;
+  if aWare = wt_None then exit;
   for I := 1 to 4 do
-  if aResource = fResource.HouseDat[fHouseType].ResOutput[I] then
+  if aWare = fResource.HouseDat[fHouseType].ResOutput[I] then
     begin
       inc(fResourceOut[I], aCount);
-      fPlayers[fOwner].Deliveries.Queue.AddOffer(Self, aResource, aCount);
+      fPlayers[fOwner].Deliveries.Queue.AddOffer(Self, aWare, aCount);
     end;
 end;
 
 
 {Add resources to building process}
-procedure TKMHouse.ResAddToBuild(aResource:TWareType);
+procedure TKMHouse.ResAddToBuild(aWare: TWareType);
 begin
-  case aResource of
+  case aWare of
     wt_Wood: Inc(fBuildSupplyWood);
     wt_Stone: Inc(fBuildSupplyStone);
-  else raise ELocError.Create('WIP house is not supposed to recieve '+fResource.Wares[aResource].Title+', right?', fPosition);
+  else raise ELocError.Create('WIP house is not supposed to recieve '+fResource.Wares[aWare].Title+', right?', fPosition);
   end;
 end;
 
@@ -1024,13 +1024,13 @@ end;
 
 
 //Take resource from Input and order more of that kind if DistributionRatios allow
-procedure TKMHouse.ResTakeFromIn(aResource:TWareType; aCount:byte=1);
+procedure TKMHouse.ResTakeFromIn(aWare: TWareType; aCount: Byte=1);
 var I,K: Integer;
 begin
-  Assert(aResource <> wt_None);
+  Assert(aWare <> wt_None);
 
   for I := 1 to 4 do
-  if aResource = fResource.HouseDat[fHouseType].ResInput[I] then
+  if aWare = fResource.HouseDat[fHouseType].ResInput[I] then
   begin
     Assert(fResourceIn[I] >= aCount, 'fResourceIn[i] < 0');
     Dec(fResourceIn[I], aCount);
@@ -1039,7 +1039,7 @@ begin
     for K := 1 to aCount do
       if fResourceDeliveryCount[I] < GetResDistribution(I) then
       begin
-        fPlayers[fOwner].Deliveries.Queue.AddDemand(Self, nil, aResource, 1, dt_Once, diNorm);
+        fPlayers[fOwner].Deliveries.Queue.AddDemand(Self, nil, aWare, 1, dt_Once, diNorm);
         Inc(fResourceDeliveryCount[I]);
       end;
     Exit;
@@ -1047,13 +1047,13 @@ begin
 end;
 
 
-procedure TKMHouse.ResTakeFromOut(aResource:TWareType; const aCount: Word=1);
+procedure TKMHouse.ResTakeFromOut(aWare: TWareType; const aCount: Word=1);
 var i:integer;
 begin
-  Assert(aResource<>wt_None);
+  Assert(aWare<>wt_None);
   Assert(not(fHouseType in [ht_Store,ht_Barracks]));
   for i:=1 to 4 do
-  if aResource = fResource.HouseDat[fHouseType].ResOutput[i] then
+  if aWare = fResource.HouseDat[fHouseType].ResOutput[i] then
   begin
     Assert(aCount <= fResourceOut[i]);
     dec(fResourceOut[i], aCount);
@@ -1062,7 +1062,7 @@ begin
 end;
 
 
-function TKMHouse.GetResDistribution(aID:byte):byte;
+function TKMHouse.GetResDistribution(aID: Byte): Byte;
 begin
   Result := fPlayers[fOwner].Stats.Ratio[fResource.HouseDat[fHouseType].ResInput[aID],fHouseType];
 end;
@@ -1318,7 +1318,7 @@ end;
 
 
 {TKMHouseSwineStable}
-constructor TKMHouseSwineStable.Load(LoadStream:TKMemoryStream);
+constructor TKMHouseSwineStable.Load(LoadStream: TKMemoryStream);
 begin
   inherited;
   LoadStream.Read(BeastAge, SizeOf(BeastAge));
@@ -1326,7 +1326,7 @@ end;
 
 
 //Return ID of beast that has grown up
-function TKMHouseSwineStable.FeedBeasts:byte;
+function TKMHouseSwineStable.FeedBeasts: Byte;
 var i:integer;
 begin
   Result:=0;
@@ -1337,7 +1337,7 @@ begin
 end;
 
 
-procedure TKMHouseSwineStable.TakeBeast(aID:byte);
+procedure TKMHouseSwineStable.TakeBeast(aID: Byte);
 begin
   if (aID<>0) and (BeastAge[aID]>3) then
     BeastAge[aID] := 0;
@@ -1363,7 +1363,7 @@ begin
 end;
 
 
-procedure TKMHouseSwineStable.Save(SaveStream:TKMemoryStream);
+procedure TKMHouseSwineStable.Save(SaveStream: TKMemoryStream);
 begin
   inherited;
   SaveStream.Write(BeastAge, SizeOf(BeastAge));
@@ -1400,7 +1400,7 @@ begin
 end;
 
 
-constructor TKMHouseInn.Load(LoadStream:TKMemoryStream);
+constructor TKMHouseInn.Load(LoadStream: TKMemoryStream);
 begin
   inherited;
   LoadStream.Read(Eater, SizeOf(Eater));
@@ -1408,7 +1408,7 @@ end;
 
 
 //EatStep := FlagAnimStep, cos increases it each frame, we don't need to increase all 6 AnimSteps manually
-function TKMHouseInn.EaterGetsInside(aUnitType:TUnitType):byte;
+function TKMHouseInn.EaterGetsInside(aUnitType: TUnitType): Byte;
 var i:integer;
 begin
   Result:=0;
@@ -1456,7 +1456,7 @@ begin
 end;
 
 
-procedure TKMHouseInn.Save(SaveStream:TKMemoryStream);
+procedure TKMHouseInn.Save(SaveStream: TKMemoryStream);
 begin
   inherited;
   SaveStream.Write(Eater, SizeOf(Eater));
@@ -1541,7 +1541,7 @@ end;
 
 
 //Add resource as usual and initiate unit training
-procedure TKMHouseSchool.ResAddToIn(aResource: TWareType; aCount: Word = 1; aFromScript: Boolean = False);
+procedure TKMHouseSchool.ResAddToIn(aWare: TWareType; aCount: Word = 1; aFromScript: Boolean = False);
 begin
   inherited;
 
@@ -1696,20 +1696,20 @@ begin
 end;
 
 
-procedure TKMHouseStore.ResAddToIn(aResource: TWareType; aCount: Word = 1; aFromScript: Boolean = False);
+procedure TKMHouseStore.ResAddToIn(aWare: TWareType; aCount: Word = 1; aFromScript: Boolean = False);
 var R: TWareType;
 begin
-  case aResource of
+  case aWare of
     wt_All:     for R := Low(ResourceCount) to High(ResourceCount) do begin
                   ResourceCount[R] := EnsureRange(ResourceCount[R]+aCount, 0, High(Word));
                   fPlayers[fOwner].Deliveries.Queue.AddOffer(Self, R, aCount);
                 end;
     WARE_MIN..
     WARE_MAX:   begin
-                  ResourceCount[aResource]:=EnsureRange(ResourceCount[aResource]+aCount, 0, High(Word));
-                  fPlayers[fOwner].Deliveries.Queue.AddOffer(Self,aResource,aCount);
+                  ResourceCount[aWare]:=EnsureRange(ResourceCount[aWare]+aCount, 0, High(Word));
+                  fPlayers[fOwner].Deliveries.Queue.AddOffer(Self,aWare,aCount);
                 end;
-    else        raise ELocError.Create('Cant''t add '+fResource.Wares[aResource].Title, GetPosition);
+    else        raise ELocError.Create('Cant''t add '+fResource.Wares[aWare].Title, GetPosition);
   end;
 end;
 
@@ -1720,10 +1720,10 @@ begin
 end;
 
 
-function TKMHouseStore.CheckResIn(aResource: TWareType): Word;
+function TKMHouseStore.CheckResIn(aWare: TWareType): Word;
 begin
-  if aResource in [WARE_MIN..WARE_MAX] then
-    Result := ResourceCount[aResource]
+  if aWare in [WARE_MIN..WARE_MAX] then
+    Result := ResourceCount[aWare]
   else
   begin
     Result := 0;
@@ -1743,11 +1743,11 @@ begin
 end;
 
 
-procedure TKMHouseStore.ResTakeFromOut(aResource:TWareType; const aCount: Word=1);
+procedure TKMHouseStore.ResTakeFromOut(aWare: TWareType; const aCount: Word=1);
 begin
-  Assert(aCount <= ResourceCount[aResource]);
+  Assert(aCount <= ResourceCount[aWare]);
 
-  dec(ResourceCount[aResource], aCount);
+  dec(ResourceCount[aWare], aCount);
 end;
 
 
@@ -1875,12 +1875,12 @@ begin
 end;
 
 
-procedure TKMHouseBarracks.ResAddToIn(aResource:TWareType; aCount:word=1; aFromScript:boolean=false);
+procedure TKMHouseBarracks.ResAddToIn(aWare: TWareType; aCount:word=1; aFromScript:boolean=false);
 begin
-  Assert(aResource in [WARFARE_MIN..WARFARE_MAX], 'Invalid resource added to barracks');
+  Assert(aWare in [WARFARE_MIN..WARFARE_MAX], 'Invalid resource added to barracks');
 
-  ResourceCount[aResource] := EnsureRange(ResourceCount[aResource]+aCount, 0, High(Word));
-  fPlayers[fOwner].Deliveries.Queue.AddOffer(Self,aResource,aCount);
+  ResourceCount[aWare] := EnsureRange(ResourceCount[aWare]+aCount, 0, High(Word));
+  fPlayers[fOwner].Deliveries.Queue.AddOffer(Self,aWare,aCount);
 end;
 
 
@@ -1890,26 +1890,26 @@ begin
 end;
 
 
-function TKMHouseBarracks.CheckResIn(aResource:TWareType):word;
+function TKMHouseBarracks.CheckResIn(aWare: TWareType):word;
 begin
-  if aResource in [WARFARE_MIN..WARFARE_MAX] then
-    Result := ResourceCount[aResource]
+  if aWare in [WARFARE_MIN..WARFARE_MAX] then
+    Result := ResourceCount[aWare]
   else
     Result := 0; //Including Wood/stone in building stage
 end;
 
 
-procedure TKMHouseBarracks.ResTakeFromOut(aResource:TWareType; const aCount: Word=1);
+procedure TKMHouseBarracks.ResTakeFromOut(aWare: TWareType; const aCount: Word=1);
 begin
-  Assert(aCount <= ResourceCount[aResource]);
-  dec(ResourceCount[aResource], aCount);
+  Assert(aCount <= ResourceCount[aWare]);
+  dec(ResourceCount[aWare], aCount);
 end;
 
 
-function TKMHouseBarracks.CanTakeResOut(aResource: TWareType): Boolean;
+function TKMHouseBarracks.CanTakeResOut(aWare: TWareType): Boolean;
 begin
-  Assert(aResource in [WARFARE_MIN .. WARFARE_MAX]);
-  Result := (ResourceCount[aResource] > 0);
+  Assert(aWare in [WARFARE_MIN .. WARFARE_MAX]);
+  Result := (ResourceCount[aWare] > 0);
 end;
 
 
@@ -1992,14 +1992,14 @@ begin
 end;
 
 
-constructor TKMHouseWoodcutters.Load(LoadStream:TKMemoryStream);
+constructor TKMHouseWoodcutters.Load(LoadStream: TKMemoryStream);
 begin
   inherited;
   LoadStream.Read(fWoodcutterMode, SizeOf(fWoodcutterMode));
 end;
 
 
-procedure TKMHouseWoodcutters.Save(SaveStream:TKMemoryStream);
+procedure TKMHouseWoodcutters.Save(SaveStream: TKMemoryStream);
 begin
   inherited;
   SaveStream.Write(fWoodcutterMode, SizeOf(fWoodcutterMode));
@@ -2016,7 +2016,7 @@ end;
 
 
 { THouseAction }
-constructor THouseAction.Create(aHouse:TKMHouse; aHouseState: THouseState);
+constructor THouseAction.Create(aHouse: TKMHouse; aHouseState: THouseState);
 begin
   inherited Create;
   fHouse := aHouse;
@@ -2058,7 +2058,7 @@ begin
 end;
 
 
-procedure THouseAction.Save(SaveStream:TKMemoryStream);
+procedure THouseAction.Save(SaveStream: TKMemoryStream);
 begin
   if fHouse <> nil then
     SaveStream.Write(fHouse.ID)
@@ -2069,7 +2069,7 @@ begin
 end;
 
 
-procedure THouseAction.Load(LoadStream:TKMemoryStream);
+procedure THouseAction.Load(LoadStream: TKMemoryStream);
 begin
   LoadStream.Read(fHouse, 4);
   LoadStream.Read(fHouseState, SizeOf(fHouseState));
