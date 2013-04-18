@@ -584,33 +584,32 @@ begin
   Panel_CampSelect := TKMPanel.Create(Panel_Main, 0, 0, Panel_Main.Width, Panel_Main.Height);
   Panel_CampSelect.Stretch;
 
-    L := TKMLabel.Create(Panel_CampSelect, 80, 180, 600, 20, fTextLibrary[TX_MENU_CAMP_HEADER], fnt_Outline, taCenter);
+    L := TKMLabel.Create(Panel_CampSelect, 80, 150, 575, 20, fTextLibrary[TX_MENU_CAMP_HEADER], fnt_Outline, taCenter);
     L.Anchors := [];
-    ColumnBox_Camps := TKMColumnBox.Create(Panel_CampSelect, 80, 210, 600, 300, fnt_Grey, bsMenu);
+    ColumnBox_Camps := TKMColumnBox.Create(Panel_CampSelect, 80, 180, 575, 360, fnt_Grey, bsMenu);
     ColumnBox_Camps.SetColumns(fnt_Outline, [fTextLibrary[TX_MENU_CAMPAIGNS_TITLE],
                                              fTextLibrary[TX_MENU_CAMPAIGNS_MAPS_COUNT],
                                              fTextLibrary[TX_MENU_CAMPAIGNS_MAPS_UNLOCKED], ''],
-                                             [0, 320, 460, 600]);
+                                             [0, 305, 440, 575]);
     ColumnBox_Camps.Anchors := [];
-    ColumnBox_Camps.Header.Anchors := [];
     ColumnBox_Camps.SearchColumn := 0;
     ColumnBox_Camps.OnChange := Campaign_ListChange;
     ColumnBox_Camps.OnDoubleClick := SwitchMenuPage;
 
-    with TKMBevel.Create(Panel_CampSelect, 696, 210, 275, 208) do Anchors := [];
-    Image_CampsPreview := TKMImage.Create(Panel_CampSelect, 700, 214, 267, 200, 0, rxGuiMain);
+    with TKMBevel.Create(Panel_CampSelect, 669, 180, 275, 208) do Anchors := [];
+    Image_CampsPreview := TKMImage.Create(Panel_CampSelect, 673, 184, 267, 200, 0, rxGuiMain);
     Image_CampsPreview.ImageStretch;
     Image_CampsPreview.Anchors := [];
 
-    Memo_CampDesc := TKMMemo.Create(Panel_CampSelect, 696, 430, 275, 80, fnt_Game, bsMenu);
+    Memo_CampDesc := TKMMemo.Create(Panel_CampSelect, 669, 400, 275, 140, fnt_Game, bsMenu);
     Memo_CampDesc.Anchors := [];
     Memo_CampDesc.AutoWrap := True;
 
-    Button_Camp_Start := TKMButton.Create(Panel_CampSelect, 362, 520, 300, 30, fTextLibrary[TX_MENU_CAMP_START], bsMenu);
+    Button_Camp_Start := TKMButton.Create(Panel_CampSelect, 362, 550, 300, 30, fTextLibrary[TX_MENU_CAMP_START], bsMenu);
     Button_Camp_Start.Anchors := [];
     Button_Camp_Start.OnClick := SwitchMenuPage;
 
-    Button_Camp_Back := TKMButton.Create(Panel_CampSelect, 362, 565, 300, 30, fTextLibrary[TX_MENU_BACK], bsMenu);
+    Button_Camp_Back := TKMButton.Create(Panel_CampSelect, 362, 595, 300, 30, fTextLibrary[TX_MENU_BACK], bsMenu);
     Button_Camp_Back.Anchors := [];
     Button_Camp_Back.OnClick := SwitchMenuPage;
 end;
