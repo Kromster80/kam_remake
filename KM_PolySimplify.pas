@@ -579,7 +579,6 @@ var
     for L := 0 to LoopCount - 1 do
       V[L] := aTriMesh.Vertices[Loop[L]];
 
-    //KMTriangulate(LoopCount, V, PCount, Pols);
     Triangulate(V, LoopCount, Pols, PCount);
 
     for L := 0 to PCount - 1 do

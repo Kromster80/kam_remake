@@ -403,7 +403,7 @@ type
 implementation
 uses KM_Main, KM_GameInputProcess, KM_GameInputProcess_Multi, KM_AI, KM_RenderUI,
   KM_PlayersCollection, KM_Player, KM_RenderPool, KM_TextLibrary, KM_Game,  KM_GameApp, KM_Utils, KM_Locales,
-  KM_Sound, KM_Resource, KM_Log, KM_ResourceCursors, KM_ResourceSprites;
+  KM_Sound, KM_Resource, KM_Log, KM_ResourceCursors, KM_ResourceSprites, KM_FogOfWar;
 
 
 const

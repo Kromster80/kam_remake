@@ -454,7 +454,6 @@ function TKMUnitWarrior.FindEnemy: TKMUnit;
 var TestDir: TKMDirection;
 begin
   Result := nil; //No one to fight
-  if not ENABLE_FIGHTING then exit;
   if not CanInterruptAction then exit;
 
   if IsRanged then

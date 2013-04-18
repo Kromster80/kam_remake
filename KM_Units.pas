@@ -286,7 +286,7 @@ type
 implementation
 uses
   KM_CommonTypes, KM_Game, KM_RenderPool, KM_RenderAux, KM_TextLibrary, KM_Scripting,
-  KM_PlayersCollection,
+  KM_PlayersCollection, KM_FogOfWar,
   KM_Units_Warrior, KM_Resource, KM_Log,
 
   KM_UnitActionAbandonWalk,
@@ -507,8 +507,8 @@ begin
   if TM.WorkPlan.IsIssued
   and ((TM.WorkPlan.Resource1 = wt_None) or (fHome.CheckResIn(TM.WorkPlan.Resource1) >= TM.WorkPlan.Count1))
   and ((TM.WorkPlan.Resource2 = wt_None) or (fHome.CheckResIn(TM.WorkPlan.Resource2) >= TM.WorkPlan.Count2))
-  and (fHome.CheckResOut(TM.WorkPlan.Product1) < MAX_RES_IN_HOUSE)
-  and (fHome.CheckResOut(TM.WorkPlan.Product2) < MAX_RES_IN_HOUSE) then
+  and (fHome.CheckResOut(TM.WorkPlan.Product1) < MAX_WARES_IN_HOUSE)
+  and (fHome.CheckResOut(TM.WorkPlan.Product2) < MAX_WARES_IN_HOUSE) then
   begin
     //if fResource.HouseDat[fHome.HouseType].DoesOrders then
       //Take order to production
@@ -646,7 +646,7 @@ begin
   Result := nil;
 
   //See if we are in a tower and have something to throw
-  if (not (fHome is TKMHouseTower)) or ((not FREE_ROCK_THROWING) and (fHome.CheckResIn(wt_Stone) <= 0)) then
+  if not (fHome is TKMHouseTower) or (fHome.CheckResIn(wt_Stone) <= 0) then
     Exit;
 
   Enemy := fTerrain.UnitsHitTestWithinRad(fCurrPosition, RANGE_WATCHTOWER_MIN, RANGE_WATCHTOWER_MAX, fOwner, at_Enemy, dir_NA, not RANDOM_TARGETS);

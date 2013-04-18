@@ -361,7 +361,7 @@ begin
   if (X < 0) or (Y < 0) then Exit; //This occours when you use the mouse wheel on the window frame
 
   //Allow to zoom only when curor is over map. Controls handle zoom on their own
-  if MOUSEWHEEL_ZOOM_ENABLE and (fActiveInterface.MyControls.CtrlOver = nil) then
+  if (fActiveInterface.MyControls.CtrlOver = nil) then
   begin
     UpdateGameCursor(X, Y, Shift); //Make sure we have the correct cursor position to begin with
     PrevCursor := GameCursor.Float;

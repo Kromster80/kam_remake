@@ -380,7 +380,7 @@ begin
                       //so we know which menu to show next and unlock next map
                       fCampaigns.SetActive(fCampaigns.CampaignByTitle(fGame.CampaignName), fGame.CampaignMap);
 
-                      if (fGame.GameMode in [gmMulti, gmReplayMulti]) then
+                      if (fGame.GameMode in [gmMulti, gmReplayMulti]) or MP_RESULTS_IN_SP then
                         fMainMenuInterface.ShowResultsMP(Msg)
                       else
                         fMainMenuInterface.ShowResultsSP(Msg);

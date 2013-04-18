@@ -136,7 +136,7 @@ type
 
 
 implementation
-uses KM_AI, KM_Terrain, KM_Game, KM_CommonTypes, KM_PlayersCollection, KM_Units_Warrior,
+uses KM_AI, KM_Terrain, KM_Game, KM_CommonTypes, KM_FogOfWar, KM_PlayersCollection, KM_Units_Warrior,
   KM_TextLibrary, KM_ResourceUnit, KM_ResourceWares, KM_ResourceHouse, KM_Log, KM_Utils;
 
 

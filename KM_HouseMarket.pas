@@ -225,7 +225,7 @@ var
 begin
   if (fResFrom = wt_None) or (fResTo = wt_None) or (fResFrom = fResTo) then Exit;
 
-  fTradeAmount := EnsureRange(aValue, 0, MAX_ORDER);
+  fTradeAmount := EnsureRange(aValue, 0, MAX_WARES_ORDER);
 
   //Try to make an exchange from existing resources
   AttemptExchange;

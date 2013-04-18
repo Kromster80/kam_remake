@@ -14,12 +14,6 @@ const
   TERRAIN_PACE          = 200;          //Each tile gets updated once per ** ticks (100 by default), Warning, it affects field/tree growth rate
   FOW_PACE              = 10;           //Each tile gets updated once per ** ticks (10 by default)
 
-  FOG_OF_WAR_MIN        = 80;           //Minimum value for explored but FOW terrain, MIN/ACT determines FOW darkness
-  FOG_OF_WAR_ACT        = 160;          //Until this value FOW is not rendered at all
-  FOG_OF_WAR_MAX        = 255;          //This is max value that FOW can be, MAX-ACT determines how long until FOW appears
-  FOG_OF_WAR_INC        = 128;          //Increment for FOW
-  FOG_OF_WAR_DEC        = 12;           //Decrement for FOW
-
   FPS_LAG               = 16;           //Allowed lag between frames, 1000/FPSLag = max allowed FPS, 1 means unlimited
   FPS_INTERVAL          = 1000;         //Time in ms between FPS measurements, bigger value = more accurate result
   SCROLLSPEED           = 1;            //This is the speed that the viewport will scroll every 100 ms, in cells
@@ -37,10 +31,11 @@ const
   DEL_LOGS_OLDER_THAN   = 14;           //in days
 
 var
-  //These should be True
+  //These should be True (we can occasionallt turn them Off to speed up the debug)
   MAKE_ANIM_TERRAIN     :Boolean = True;  //Should we animate water and swamps
   MAKE_TEAM_COLORS      :Boolean = True;  //Whenever to make team colors or not, saves RAM for debug
   DYNAMIC_TERRAIN       :Boolean = True;  //Update terrain each tick to grow things
+  KAM_WATER_DRAW        :Boolean = True;  //Render underwater sand
   CHEATS_ENABLED        :Boolean = True;  //Enable cheats in game (add_resource, instant_win, etc)
   FREE_POINTERS         :Boolean = True;  //If True, units/houses will be freed and removed from the list once they are no longer needed
   CAP_MAX_FPS           :Boolean = True;  //Should limit rendering performance to avoid GPU overheating (disable to measure debug performance)
@@ -48,13 +43,9 @@ var
   BLOCK_DUPLICATE_APP   :Boolean = True;  //Do not allow to run multiple games at once (to prevent MP cheating)
 
   //Implemented
-  MOUSEWHEEL_ZOOM_ENABLE:Boolean = True; //Should we allow to zoom in game or not
   DO_UNIT_INTERACTION   :Boolean = True; //Debug for unit interaction
-  SMOOTH_SCROLLING      :Boolean = True; //Smooth viewport scrolling
-  ENABLE_FIGHTING       :Boolean = True; //Allow fighting
   DO_WEIGHT_ROUTES      :Boolean = True; //Add additional cost to tiles in A* if they are occupied by other units (IsUnit=1)
   CUSTOM_RANDOM         :Boolean = True; //Use our custom random number generator or the built in "Random()"
-  KAM_WATER_DRAW        :Boolean = True; //Render underwater sand
   USE_WALKING_DISTANCE  :Boolean = True; //Use the walking distance for deciding place to mine rather than direct distance
   RANDOM_TARGETS        :Boolean = True; //Archers use random targets instead of closest
   DISPLAY_CHARTS_RESULT :Boolean = True; //Show charts in game results screen
@@ -115,9 +106,9 @@ var
   SLOW_MAP_SCAN         :Boolean = False; //Scan maps with a pause to emulate uncached file access
   SLOW_SAVE_SCAN        :Boolean = False; //Scan saves with a pause to emulate uncached file access
   DO_PERF_LOGGING       :Boolean = False; //Write each ticks time to log
+  MP_RESULTS_IN_SP      :Boolean = True; //Display each players stats in SP
   {Gameplay cheats}
   UNLOCK_CAMPAIGN_MAPS  :Boolean = False; //Unlock more maps for debug
-  FREE_ROCK_THROWING    :Boolean = False; //Throwing a rock from Tower costs nothing. To debug throw algoritm
   REDUCE_SHOOTING_RANGE :Boolean = False; //Reduce shooting range for debug
   MULTIPLAYER_CHEATS    :Boolean = True; //Allow cheats and debug overlays (e.g. CanWalk) in Multiplayer
   DEBUG_CHEATS          :Boolean = True; //Cheats for debug (place scout and reveal map) which can be turned On from menu
@@ -138,8 +129,8 @@ var
 
 
 const
-  MAX_RES_IN_HOUSE    = 5;     //Maximum resource items allowed to be in house
-  MAX_ORDER           = 999;          //Number of max allowed items to be ordered in production houses (Weapon/Armor/etc)
+  MAX_WARES_IN_HOUSE  = 5;    //Maximum resource items allowed to be in house
+  MAX_WARES_ORDER     = 999;  //Number of max allowed items to be ordered in production houses (Weapon/Armor/etc)
 
 const
   MAX_PLAYERS       = 8;    //Maximum players per map

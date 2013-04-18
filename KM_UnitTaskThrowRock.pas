@@ -77,11 +77,8 @@ begin
           SetActionStay(2, ua_Walk); //pretend to be taking the stone
         end;
     1:  begin
-          if not FREE_ROCK_THROWING then
-          begin
-            GetHome.ResTakeFromIn(wt_Stone, 1);
-            fPlayers[Owner].Stats.WareConsumed(wt_Stone);
-          end;
+          GetHome.ResTakeFromIn(wt_Stone, 1);
+          fPlayers[Owner].Stats.WareConsumed(wt_Stone);
           fFlightTime := fProjectiles.AimTarget(PositionF, fTarget, pt_TowerRock, Owner, RANGE_WATCHTOWER_MAX, RANGE_WATCHTOWER_MIN);
           fPlayers.CleanUpUnitPointer(fTarget); //We don't need it anymore
           SetActionLockedStay(1, ua_Walk);

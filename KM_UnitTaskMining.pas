@@ -78,12 +78,12 @@ begin
   case fUnit.GetHome.HouseType of
     ht_Woodcutters: case TKMHouseWoodcutters(fUnit.GetHome).WoodcutterMode of
                       wcm_Chop:         Result := taCut;
-                      wcm_ChopAndPlant: if fUnit.GetHome.CheckResOut(wt_Trunk) >= MAX_RES_IN_HOUSE then
+                      wcm_ChopAndPlant: if fUnit.GetHome.CheckResOut(wt_Trunk) >= MAX_WARES_IN_HOUSE then
                                           Result := taPlant
                                         else
                                           Result := taAny;
                     end;
-    ht_Farm:        if fUnit.GetHome.CheckResOut(wt_Corn) >= MAX_RES_IN_HOUSE then
+    ht_Farm:        if fUnit.GetHome.CheckResOut(wt_Corn) >= MAX_WARES_IN_HOUSE then
                       Result := taPlant
                     else
                       Result := taAny;

@@ -271,7 +271,7 @@ implementation
 uses
   KM_CommonTypes, KM_RenderPool, KM_RenderAux, KM_Units, KM_Scripting,
   KM_Units_Warrior, KM_PlayersCollection, KM_Sound, KM_Game, KM_TextLibrary,
-  KM_Resource, KM_ResourceHouse, KM_Utils;
+  KM_Resource, KM_ResourceHouse, KM_Utils, KM_FogOfWar;
 
 
 { TKMHouse }
@@ -869,7 +869,7 @@ var
   I: Integer;
   TotalDesired: Integer;
 begin
-  fResourceOrder[aID] := EnsureRange(aValue, 0, MAX_ORDER);
+  fResourceOrder[aID] := EnsureRange(aValue, 0, MAX_WARES_ORDER);
 
   //Calculate desired production ratio (so that we are not affected by fResourceOrder which decreases till 0)
   TotalDesired := fResourceOrder[1] + fResourceOrder[2] + fResourceOrder[3] + fResourceOrder[4];
