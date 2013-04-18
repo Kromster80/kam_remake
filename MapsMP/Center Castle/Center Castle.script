@@ -1,18 +1,20 @@
+type TFoundNotification = record
+                            Player: Integer;
+                            Ware: Integer;
+                            Amount: Integer;
+                            TimeToHide: Integer;
+                          end;
 const
   CASTLE_LEFT = 121;
   CASTLE_RIGHT = 135;
   CASTLE_TOP = 139;
   CASTLE_BOTTOM = 149;
   LOC_COUNT = 8; //Total number of locations on this map
+  NOTIFICATION_TIME = 100; //Time to show notifications
 var
   King: Integer; //Current king of the castle
   TimeStartedSearch: Integer; //The time at which the current king became king
-
-//Initialise variables here
-procedure OnMissionStart;
-begin
-  King := -1;
-end;
+  FoundNotification: TFoundNotification;
 
 function GetWareText(aWare: Integer): AnsiString;
 begin
@@ -28,19 +30,22 @@ begin
 end;
 
 procedure GiveReward(aWare, aAmount: Integer);
-var
-  I: Integer;
-  Msg: AnsiString;
+var I: Integer;
 begin
-  Msg := States.TextFormatted(3, [States.PlayerColorText(King), States.PlayerName(King), aAmount, GetWareText(aWare)]);
+  //Setup notification
+  FoundNotification.Player := King;
+  FoundNotification.Ware := aWare;
+  FoundNotification.Amount := aAmount;
+  FoundNotification.TimeToHide := States.GameTime + NOTIFICATION_TIME;
+  //Give players wares
   for I:=0 to LOC_COUNT-1 do
     if States.PlayerEnabled(I) then
-    begin
-      Actions.ShowMsg(I, Msg);
-      //Allies of the king get the wares
-      if States.PlayerAllianceCheck(King, I) then
-        Actions.GiveWares(I, aWare, aAmount);
-    end;
+      if (King = I) or States.PlayerAllianceCheck(King, I) then //Allies of the king also get the wares
+        if ((aWare >= 16) and (aWare <= 26)) //Is a weapon
+        and (States.StatHouseTypeCount(I, 21) > 0) then //Player has a barracks
+          Actions.GiveWeapons(I, aWare, aAmount) //Put into 1st barracks
+        else
+          Actions.GiveWares(I, aWare, aAmount); //Put into 1st store
 end;
 
 procedure UpdateRewards(aTime: Integer);
@@ -60,7 +65,9 @@ begin
 end;
 
 procedure ShowDisplay;
-var I, Time, Mins, Secs: Integer;
+var
+  I, Time, Mins, Secs: Integer;
+  Msg: AnsiString;
 begin
   if King = -1 then
     for I:=0 to LOC_COUNT-1 do
@@ -75,9 +82,14 @@ begin
     //Show the time they have been searching for
     Mins := Time div 600;
     Secs := (Time div 10) mod 60;
+
+    Msg := States.TextFormatted(2, [States.PlayerColorText(King), States.PlayerName(King), Mins, Secs]);
     
+    if FoundNotification.TimeToHide > States.GameTime then
+      Msg := Msg + '||' + States.TextFormatted(3, [States.PlayerColorText(FoundNotification.Player), States.PlayerName(FoundNotification.Player), FoundNotification.Amount, GetWareText(FoundNotification.Ware)]);
+
     for I:=0 to LOC_COUNT-1 do
-      Actions.SetOverlayText(I, States.TextFormatted(2, [States.PlayerColorText(King), States.PlayerName(King), Mins, Secs]));
+      Actions.SetOverlayText(I, Msg);
   end;
 end;
 
@@ -126,6 +138,17 @@ begin
         end;
       end;
     end;
+end;
+
+//Initialise variables here
+procedure OnMissionStart;
+var I: Integer;
+begin
+  King := -1;
+  FoundNotification.TimeToHide := 0;
+  for I:=0 to LOC_COUNT-1 do
+    Actions.PlayerAddDefaultGoals(I, True); //Add default goals for each player (destroy enemy houses, protect own)
+  ShowDisplay; //So the text is there from the first tick rather than appearing after tick 1
 end;
 
 procedure OnTick;

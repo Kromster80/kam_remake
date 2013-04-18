@@ -1,0 +1,13 @@
+procedure OnMissionStart;
+var
+  Warriors: array of Integer;
+  I, K: Integer;
+begin
+  for I:=0 to 7 do
+      if States.PlayerEnabled(I) then
+      begin
+        Warriors := States.GetAllUnits(I);
+        for K := 0 to Length(Warriors)-1 do
+            Actions.UnitHungerSet(Warriors[K], 6000); //10 minutes to win (10*60*10 ticks)
+      end;
+end; 
