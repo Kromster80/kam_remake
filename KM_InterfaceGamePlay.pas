@@ -109,6 +109,7 @@ type
     procedure Chat_Show(Sender: TObject);
     procedure Allies_Click(Sender: TObject);
     procedure Allies_Show(Sender: TObject);
+    procedure MessageStack_UpdatePositions;
     procedure Message_Click(Sender: TObject);
     procedure Message_Close(Sender: TObject);
     procedure Message_Delete(Sender: TObject);
@@ -1031,16 +1032,17 @@ begin
   Image_MPAllies.Hint := fTextLibrary[TX_GAMEPLAY_PLAYERS_HINT];
   Image_MPAllies.OnClick := Allies_Click;
 
-  Image_MessageLog := TKMImage.Create(Panel_Main,TOOLBAR_WIDTH,Panel_Main.Height-48 - IfThen(fMultiplayer, 48*2),30,48,495);
+  Image_MessageLog := TKMImage.Create(Panel_Main,TOOLBAR_WIDTH,Panel_Main.Height - 48 - IfThen(fMultiplayer, 48*2),30,48,495);
   Image_MessageLog.Anchors := [akLeft, akBottom];
   Image_MessageLog.HighlightOnMouseOver := true;
   Image_MessageLog.Hint := fTextLibrary[TX_GAME_MESSAGE_LOG];
   Image_MessageLog.OnClick := MessageLog_Click;
+  Image_MessageLog.Hide; //Will be shows on first message
 
   for I := 0 to MAX_VISIBLE_MSGS do
   begin
     Image_Message[I] := TKMImage.Create(Panel_Main, TOOLBAR_WIDTH, 0, 30, 48, 495);
-    Image_Message[I].Top := Panel_Main.Height - (I+2)*48 - IfThen(fMultiplayer and not fReplay, 48*2) + IfThen(fReplay, 48);
+    Image_Message[I].Top := Panel_Main.Height - 48 - I * 48 - IfThen(fMultiplayer and not fReplay, 48 * 2);
     Image_Message[I].Anchors := [akLeft, akBottom];
     Image_Message[I].Disable;
     Image_Message[I].Hide;
@@ -3125,6 +3127,19 @@ begin
 end;
 
 
+//Update message stack when first log message arrives
+procedure TKMGamePlayInterface.MessageStack_UpdatePositions;
+var
+  I: Integer;
+  Pad: Integer;
+begin
+  Pad := Byte(fMultiplayer and not fReplay) * 2 +
+         Byte(Image_MessageLog.Visible);
+  for I := 0 to MAX_VISIBLE_MSGS do
+    Image_Message[I].Top := Panel_Main.Height - 48 - (I + Pad) * 48;
+end;
+
+
 procedure TKMGamePlayInterface.House_MarketFill(aMarket: TKMHouseMarket);
 var
   R: TWareType;
@@ -3376,7 +3391,6 @@ begin
   Image_MPChat.Visible       := fMultiplayer and not fReplay;
   Label_MPChatUnread.Visible := fMultiplayer and not fReplay;
   Image_MPAllies.Visible     := fMultiplayer and not fReplay;
-  Image_MessageLog.Visible   := not fReplay;
 
   //Message stack is visible in Replay as it shows which messages player got
   //and does not affect replay consistency
@@ -4422,7 +4436,8 @@ begin
   if fGame.GameOptions.Peacetime <> 0 then
     Label_PeacetimeRemaining.Caption := Format(fTextLibrary[TX_MP_PEACETIME_REMAINING],
                                                [TimeToString(fGame.GetPeacetimeRemaining)])
-  else Label_PeacetimeRemaining.Caption := '';
+  else
+    Label_PeacetimeRemaining.Caption := '';
 
   //Update replay counters
   if fReplay then
@@ -4435,7 +4450,8 @@ begin
   end;
 
   //Update speedup clocks
-  if Image_Clock.Visible then begin
+  if Image_Clock.Visible then
+  begin
     Image_Clock.TexID := ((Image_Clock.TexID - 556) + 1) mod 16 + 556;
     Label_Clock.Caption := TimeToString(fGame.MissionTime);
   end;
@@ -4445,15 +4461,17 @@ begin
   if Panel_Stats.Visible then Stats_Update;
   if Panel_Menu.Visible then Menu_Update;
 
+  //Update message stack
   //Flash unread message display
   Label_MPChatUnread.Visible := fMultiplayer and (Label_MPChatUnread.Caption <> '') and not (aTickCount mod 10 < 5);
   Image_MPChat.Highlight := Panel_Chat.Visible or (Label_MPChatUnread.Visible and (Label_MPChatUnread.Caption <> ''));
   Image_MPAllies.Highlight := Panel_Allies.Visible;
-
-  //Flash the icon if there are unread messages
-  Image_MessageLog.Highlight := not Panel_MessageLog.Visible
-                                and (fLastSyncedMessage <> fMessageList.CountLog)
-                                and not (aTickCount mod 10 < 5);
+  if not fReplay and not Image_MessageLog.Visible and (fMessageList.CountLog > 0) then
+  begin
+    Image_MessageLog.Show;
+    MessageStack_UpdatePositions;
+  end;
+  Image_MessageLog.Highlight := not Panel_MessageLog.Visible and (fLastSyncedMessage <> fMessageList.CountLog) and not (aTickCount mod 10 < 5);
 
   if Panel_MessageLog.Visible then
     MessageLog_Update(False);
