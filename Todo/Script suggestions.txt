@@ -35,3 +35,4 @@ Proposed:
 	States.Road/field/winefield At(x,y)
 	DelayedExecution(delay, function, params)
 	Forbiden areas where players can't move their troops
+	GroupKillAll, GroupSetHunder (both can be implemented in script fairly easily, do we still provide them?)

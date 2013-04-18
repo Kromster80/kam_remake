@@ -11,6 +11,7 @@ Bugs:
  +	Load/save buttons were reversed in the map editor compared to the game
  +	Can only place buildings for one player in SP MapEd, for others its just red crosses.
  +	Message log should be hidden until the 1st message arrives, looks odd to have a blank scroll
+ +	Strikethrough effect on text with color markup was wrong (ping/FPS after player quits)
 	we had a match on "Coastal Encounter Score" with 2 humans and 1 AI. One human lost all of his troops first. The moment his last fighter died, the server disconnected him.
 	Archers are much less responsive in MP (due to finishing attack sequence to prevent exploit) [Lewin]
 	Some MP maps don't let you use AIs in certain locations (probably a legacy of Lewin's editor)
@@ -18,6 +19,11 @@ Bugs:
 	AI seems to build lots of armour smithies/workshops but no weapons smithies/workshops (e.g. Across the Desert)
 	When you select a warrior you always play his individual sound. But when you select another warrior from the same squad the sound is not playing
 	AIs in MP maps won't defend because they don't have AutoDefence enabled
+	AI doesn't behave right: http://www.knightsandmerchants.net/forum/viewtopic.php?f=5&t=1254&p=24960#p24960
+	
+
+Features:
+ +	Records, sets, enums, dynamic arrays and multidimensional arrays now supported by script as global variables
 	Description box for campaigns shown on selection screen, so authors can put their name and contact
 
 
@@ -41,6 +47,7 @@ After first RC:
 	Write Lazarus network wrapper using base FPC sockets and see if it's more stable than LNet
 	TSK campaign fixes by BornFree (especially faster equip rate), if he fixes issues with food
 	Reminder message if you forget to build the inn?
+	Test performance difference with using static arrays in Terrain and AI Fields rather than dynamic
 
 
 Maps:

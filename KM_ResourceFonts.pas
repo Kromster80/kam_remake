@@ -309,7 +309,7 @@ end;
 function TKMResourceFont.GetTextSize(const aText: AnsiString; Fnt: TKMFont): TKMPoint;
 var
   I: Integer;
-  CharSpacing, LineCount: Integer;
+  CharSpacing, LineCount, TmpColor: Integer;
   LineWidth: array of Integer; // Some fonts may have negative CharSpacing
 begin
   Result.X := 0;
@@ -325,19 +325,31 @@ begin
 
   LineCount := 1;
   CharSpacing := fFontData[Fnt].CharSpacing; //Spacing between letters varies between fonts
-  for I := 1 to Length(aText) do
+  I:=1;
+  while I <= length(aText) do
   begin
-    if aText[I] <> #124 then
-      if aText[I] = #32 then
-        Inc(LineWidth[LineCount], fFontData[Fnt].WordSpacing)
+    //Ignore color markups [$FFFFFF][]
+    if (aText[I]='[') and (I+1 <= Length(aText)) and (aText[I+1]=']') then
+      inc(I) //Skip past this markup
+    else
+      if (aText[I]='[') and (I+8 <= Length(aText))
+      and (aText[I+1] = '$') and (aText[I+8]=']')
+      and TryStrToInt(Copy(aText, I+1, 7), TmpColor) then
+        inc(I,8) //Skip past this markup
       else
-        Inc(LineWidth[LineCount], fFontData[Fnt].Letters[byte(aText[I])].Width + CharSpacing);
+        if aText[I] <> #124 then
+          if aText[I] = #32 then
+            Inc(LineWidth[LineCount], fFontData[Fnt].WordSpacing)
+          else
+            Inc(LineWidth[LineCount], fFontData[Fnt].Letters[byte(aText[I])].Width + CharSpacing);
+
     if (aText[I] = #124) or (I = Length(aText)) then
     begin // If EOL or aText end
       LineWidth[LineCount] := Math.max(0, LineWidth[LineCount] - CharSpacing);
       // Remove last interletter space and negate double EOLs
       Inc(LineCount);
     end;
+    Inc(I);
   end;
 
   dec(LineCount);
