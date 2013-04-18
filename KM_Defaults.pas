@@ -336,7 +336,7 @@ const
   0,0,0);
 
 const {Aligned to right to use them in GUI costs display as well}
-  WarfareCosts: array[WEAPON_MIN..WEAPON_MAX, 1..2]of TWareType = (
+  WarfareCosts: array [WEAPON_MIN..WEAPON_MAX, 1..2] of TWareType = (
     (wt_None,   wt_Wood), //rt_Shield
     (wt_Coal,  wt_Steel), //rt_MetalShield
     (wt_None,wt_Leather), //rt_Armor
@@ -529,10 +529,10 @@ type
 
 //These are only for debug
 const
-  TInteractionStatusNames: array[TInteractionStatus] of string = ('None', 'Pushing', 'Pushed', 'Trying', 'Waiting');
+  TInteractionStatusNames: array [TInteractionStatus] of string = ('None', 'Pushing', 'Pushed', 'Trying', 'Waiting');
 
 const {Actions names}
-  UnitAct:array[TUnitActionType]of string = ('ua_Walk', 'ua_Work', 'ua_Spec', 'ua_Die', 'ua_Work1',
+  UnitAct: array [TUnitActionType] of string = ('ua_Walk', 'ua_Work', 'ua_Spec', 'ua_Die', 'ua_Work1',
              'ua_Work2', 'ua_WorkEnd', 'ua_Eat', 'ua_WalkArm', 'ua_WalkTool',
              'ua_WalkBooty', 'ua_WalkTool2', 'ua_WalkBooty2', 'ua_Unknown');
 
@@ -591,7 +591,7 @@ const
 
 
   //Number means ResourceType as it is stored in Barracks, hence it's not rt_Something
-  TroopCost:array[ut_Militia..ut_Cavalry,1..4] of TWareType = (
+  TroopCost: array [ut_Militia..ut_Cavalry, 1..4] of TWareType = (
   (wt_Axe,          wt_None,        wt_None,  wt_None ), //Militia
   (wt_Shield,       wt_Armor,       wt_Axe,   wt_None ), //Axefighter
   (wt_MetalShield,  wt_MetalArmor,  wt_Sword, wt_None ), //Swordfighter

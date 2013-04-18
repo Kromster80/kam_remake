@@ -646,6 +646,10 @@ end;
 { We need to revert all changes made }
 destructor TTaskBuildHouseArea.Destroy;
 begin
+  //Don't demolish the house when the game is exiting (causes wrong stats and errors in script)
+  if (fGame = nil) or fGame.IsExiting then
+	  Exit;
+
   //Yet unstarted
   if (BuildID <> -1) then
     if fTerrain.CanPlaceHouse(GetHouseEntranceLoc,fHouseType) then

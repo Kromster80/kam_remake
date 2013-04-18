@@ -2,8 +2,8 @@ object Form1: TForm1
   Left = 282
   Top = 194
   Caption = 'Form1'
-  ClientHeight = 529
-  ClientWidth = 673
+  ClientHeight = 417
+  ClientWidth = 561
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -65,21 +65,6 @@ object Form1: TForm1
     ParentFont = False
     TabOrder = 2
     OnClick = Button3Click
-  end
-  object Button4: TButton
-    Left = 8
-    Top = 136
-    Width = 137
-    Height = 33
-    Caption = 'Roadmap'
-    Font.Charset = DEFAULT_CHARSET
-    Font.Color = clWindowText
-    Font.Height = -15
-    Font.Name = 'Tahoma'
-    Font.Style = []
-    ParentFont = False
-    TabOrder = 3
-    OnClick = Button4Click
   end
   object Timer1: TTimer
     Enabled = False
