@@ -552,7 +552,7 @@ begin
   //Multiplayer missions don't have goals yet, so add the defaults (except for special/coop missions)
   if (fNetworking.SelectGameKind = ngk_Map)
   and not fNetworking.MapInfo.IsSpecial and not fNetworking.MapInfo.IsCoop then
-    fPlayers.AddDefaultMPGoals(fMissionMode);
+    fPlayers.AddDefaultGoalsToAll(fMissionMode);
 
   fNetworking.OnPlay           := GameMPPlay;
   fNetworking.OnReadyToPlay    := GameMPReadyToPlay;

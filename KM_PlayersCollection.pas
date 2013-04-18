@@ -53,7 +53,7 @@ type
     procedure RemAnyUnit(Position: TKMPoint);
     procedure RevealForTeam(aPlayer: TPlayerIndex; Pos: TKMPoint; Radius,Amount:word);
     procedure SyncFogOfWar;
-    procedure AddDefaultMPGoals(aMissionMode: TKMissionMode);
+    procedure AddDefaultGoalsToAll(aMissionMode: TKMissionMode);
 
     procedure Save(SaveStream: TKMemoryStream; aMultiplayer: Boolean);
     procedure Load(LoadStream: TKMemoryStream);
@@ -472,24 +472,11 @@ begin
 end;
 
 
-procedure TKMPlayersCollection.AddDefaultMPGoals(aMissionMode: TKMissionMode);
-var
-  I,K: Integer;
-  Enemies: array of array of TPlayerIndex;
+procedure TKMPlayersCollection.AddDefaultGoalsToAll(aMissionMode: TKMissionMode);
+var I: Integer;
 begin
-  SetLength(Enemies, fCount);
-
   for I := 0 to fCount - 1 do
-  begin
-    SetLength(Enemies[I], 0);
-    for K := 0 to fCount - 1 do
-    if (I <> K) and (fPlayerList[I].Alliances[K] = at_Enemy) then
-    begin
-      SetLength(Enemies[I], Length(Enemies[I])+1);
-      Enemies[I, Length(Enemies[I])-1] := K;
-    end;
-    fPlayerList[I].Goals.AddDefaultMPGoals(aMissionMode <> mm_Tactic, I, Enemies[I]);
-  end;
+    fPlayerList[I].AddDefaultGoals(aMissionMode <> mm_Tactic);
 end;
 
 

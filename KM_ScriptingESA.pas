@@ -59,6 +59,8 @@ type
     function HouseRepair(aHouseID: Integer): Boolean;
     function HouseResourceAmount(aHouseID, aResource: Integer): Integer;
     function HouseType(aHouseID: Integer): Integer;
+    function HouseSchoolQueue(aHouseID, QueueIndex: Integer): Integer;
+    function HouseWeaponsOrdered(aHouseID, aWareType: Integer): Integer;
     function HouseWoodcutterChopOnly(aHouseID: Integer): Boolean;
     function HouseWareBlocked(aHouseID, aWareType: Integer): Boolean;
 
@@ -69,6 +71,8 @@ type
     function PlayerColorText(aPlayer: Byte): AnsiString;
     function PlayerVictorious(aPlayer: Byte): Boolean;
 
+    function GetAllUnits(aPlayer: Byte): TIntegerArray;
+
     function UnitAt(aX, aY: Word): Integer;
     function UnitDead(aUnitID: Integer): Boolean;
     function UnitHunger(aUnitID: Integer): Integer;
@@ -76,6 +80,7 @@ type
     function UnitLowHunger: Integer;
     function UnitMaxHunger: Integer;
     function UnitOwner(aUnitID: Integer): Integer;
+    function UnitDirection(aUnitID: Integer): Integer;
     function UnitPositionX(aUnitID: Integer): Integer;
     function UnitPositionY(aUnitID: Integer): Integer;
     function UnitType(aUnitID: Integer): Integer;
@@ -101,6 +106,7 @@ type
     function PlanAddWinefield(aPlayer, X, Y: Word): Boolean;
     function SchoolAddToQueue(aHouseID: Integer; aUnitType: Integer; aCount: Integer): Integer;
     procedure GiveWares(aPlayer, aType, aCount: Word);
+    procedure GiveWeapons(aPlayer, aType, aCount: Word);
     procedure GroupOrderAttackHouse(aGroupID, aHouseID: Integer);
     procedure GroupOrderAttackUnit(aGroupID, aUnitID: Integer);
     procedure GroupOrderFood(aGroupID: Integer);
@@ -117,10 +123,13 @@ type
     procedure HouseDeliveryBlock(aHouseID: Integer; aDeliveryBlocked: Boolean);
     procedure HouseWoodcutterChopOnly(aHouseID: Integer; aChopOnly: Boolean);
     procedure HouseWareBlock(aHouseID, aWareType: Integer; aBlocked: Boolean);
+    procedure HouseWeaponsOrderSet(aHouseID, aWareType, aAmount: Integer);
+    procedure HouseSchoolQueueRemove(aHouseID, QueueIndex: Integer);
     procedure HouseUnlock(aPlayer, aHouseType: Word);
     procedure PlayerDefeat(aPlayer: Word);
     procedure PlayerWin(const aVictors: array of Integer; aTeamVictory: Boolean);
     procedure PlayerAllianceChange(aPlayer1, aPlayer2: Byte; aCompliment, aAllied: Boolean);
+    procedure PlayerAddDefaultGoals(aPlayer: Byte; aBuildings: Boolean);
     procedure FogRevealCircle(aPlayer, X, Y, aRadius: Word);
     procedure FogCoverCircle(aPlayer, X, Y, aRadius: Word);
     procedure FogRevealAll(aPlayer: Byte);
@@ -137,7 +146,8 @@ type
 
 implementation
 uses KM_AI, KM_Terrain, KM_Game, KM_CommonTypes, KM_FogOfWar, KM_PlayersCollection, KM_Units_Warrior,
-  KM_TextLibrary, KM_ResourceUnit, KM_ResourceWares, KM_ResourceHouse, KM_Log, KM_Utils;
+  KM_TextLibrary, KM_ResourceUnit, KM_ResourceWares, KM_ResourceHouse, KM_Log, KM_Utils, KM_Resource,
+  KM_Player;
 
 
   //We need to check all input parameters as could be wildly off range due to
@@ -257,6 +267,33 @@ begin
   begin
     Result := False;
     LogError('States.PlayerVictorious', [aPlayer]);
+  end;
+end;
+
+
+function TKMScriptStates.GetAllUnits(aPlayer: Byte): TIntegerArray;
+var
+  I, UnitCount: Integer;
+  U: TKMUnit;
+begin
+  SetLength(Result, 0);
+  if InRange(aPlayer, 0, fPlayers.Count - 1) then
+  begin
+    UnitCount := 0;
+    for I:=0 to fPlayers[aPlayer].Units.Count-1 do
+    begin
+      U := fPlayers[aPlayer].Units[I];
+      if U.IsDead then Continue;
+      Inc(UnitCount);
+      if Length(Result) < UnitCount then
+        SetLength(Result, UnitCount+64);
+      Result[UnitCount-1] := fPlayers[aPlayer].Units[I].ID;
+    end;
+    SetLength(Result, UnitCount);
+  end
+  else
+  begin
+    LogError('States.GetAllUnits', [aPlayer]);
   end;
 end;
 
@@ -455,6 +492,45 @@ begin
   end
   else
     LogError('States.HouseType', [aHouseID]);
+end;
+
+
+function TKMScriptStates.HouseSchoolQueue(aHouseID, QueueIndex: Integer): Integer;
+var H: TKMHouse;
+begin
+  Result := -1;
+  if (aHouseID > 0) and InRange(QueueIndex, 0, 5) then
+  begin
+    H := fIDCache.GetHouse(aHouseID);
+    if (H <> nil) and (H is TKMHouseSchool) then
+      Result := UnitTypeToIndex[TKMHouseSchool(H).Queue[QueueIndex]];
+  end
+  else
+    LogError('States.HouseSchoolQueue', [aHouseID, QueueIndex]);
+end;
+
+
+function TKMScriptStates.HouseWeaponsOrdered(aHouseID, aWareType: Integer): Integer;
+var
+  H: TKMHouse;
+  Res: TWareType;
+  I: Integer;
+begin
+  Result := 0;
+  Res := WareIndexToType[aWareType];
+  if (aHouseID > 0) and (Res in [WARE_MIN..WARE_MAX]) then
+  begin
+    H := fIDCache.GetHouse(aHouseID);
+    if (H <> nil) then
+      for I := 1 to 4 do
+        if fResource.HouseDat[H.HouseType].ResOutput[I] = Res then
+        begin
+          Result := H.ResOrder[I];
+          Exit;
+        end;
+  end
+  else
+    LogError('States.HouseWeaponsOrdered', [aHouseID, aWareType]);
 end;
 
 
@@ -682,6 +758,21 @@ begin
   end
   else
     LogError('States.UnitOwner', [aUnitID]);
+end;
+
+
+function TKMScriptStates.UnitDirection(aUnitID: Integer): Integer;
+var U: TKMUnit;
+begin
+  Result := -1;
+  if aUnitID > 0 then
+  begin
+    U := fIDCache.GetUnit(aUnitID);
+    if U <> nil then
+      Result := Byte(U.Direction)-1;
+  end
+  else
+    LogError('States.UnitDirection', [aUnitID]);
 end;
 
 
@@ -928,6 +1019,18 @@ begin
 end;
 
 
+procedure TKMScriptActions.PlayerAddDefaultGoals(aPlayer: Byte; aBuildings: Boolean);
+begin
+  //Verify all input parameters
+  if InRange(aPlayer, 0, fPlayers.Count - 1) then
+  begin
+    fPlayers[aPlayer].AddDefaultGoals(aBuildings);
+  end
+  else
+    LogError('Actions.PlayerAddDefaultGoals', [aPlayer, Byte(aBuildings)]);
+end;
+
+
 function TKMScriptActions.GiveGroup(aPlayer, aType, X,Y, aDir, aCount, aColumns: Word): Integer;
 var G: TKMUnitGroup;
 begin
@@ -1027,6 +1130,27 @@ begin
   end
   else
     LogError('Actions.GiveWares', [aPlayer, aType, aCount]);
+end;
+
+
+procedure TKMScriptActions.GiveWeapons(aPlayer, aType, aCount: Word);
+var
+  H: TKMHouse;
+begin
+  //Verify all input parameters
+  if InRange(aPlayer, 0, fPlayers.Count - 1)
+  and InRange(aCount, 0, High(Word))
+  and (WareIndexToType[aType] in [WARFARE_MIN..WARFARE_MAX]) then
+  begin
+    H := fPlayers[aPlayer].FindHouse(ht_Barracks, 1);
+    if H <> nil then
+    begin
+      H.ResAddToIn(WareIndexToType[aType], aCount);
+      fPlayers[aPlayer].Stats.WareProduced(WareIndexToType[aType], aCount);
+    end;
+  end
+  else
+    LogError('Actions.GiveWeapons', [aPlayer, aType, aCount]);
 end;
 
 
@@ -1224,6 +1348,46 @@ begin
 end;
 
 
+procedure TKMScriptActions.HouseWeaponsOrderSet(aHouseID, aWareType, aAmount: Integer);
+var
+  H: TKMHouse;
+  Res: TWareType;
+  I: Integer;
+begin
+  Res := WareIndexToType[aWareType];
+  if (aHouseID > 0) and (Res in [WARE_MIN..WARE_MAX]) and InRange(aAmount, 0, MAX_WARES_ORDER) then
+  begin
+    H := fIDCache.GetHouse(aHouseID);
+    if (H <> nil) then
+      for I := 1 to 4 do
+        if fResource.HouseDat[H.HouseType].ResOutput[I] = Res then
+        begin
+          H.ResOrder[I] := aAmount;
+          Exit;
+        end;
+  end
+  else
+    LogError('Actions.HouseWeaponsOrderSet', [aHouseID, aWareType, aAmount]);
+end;
+
+
+
+procedure TKMScriptActions.HouseSchoolQueueRemove(aHouseID, QueueIndex: Integer);
+var
+  H: TKMHouse;
+  I: Integer;
+begin
+  if (aHouseID > 0) and InRange(QueueIndex, 0, 5) then
+  begin
+    H := fIDCache.GetHouse(aHouseID);
+    if (H <> nil) and (H is TKMHouseSchool) then
+      TKMHouseSchool(H).RemUnitFromQueue(QueueIndex);
+  end
+  else
+    LogError('Actions.HouseSchoolQueueRemove', [aHouseID, QueueIndex]);
+end;
+
+
 function TKMScriptActions.SchoolAddToQueue(aHouseID: Integer; aUnitType: Integer; aCount: Integer): Integer;
 var H: TKMHouse;
 begin
@@ -1358,8 +1522,8 @@ begin
   if (aUnitID > 0) and (TKMDirection(aDirection+1) in [dir_N..dir_NW]) then
   begin
     U := fIDCache.GetUnit(aUnitID);
-    //Can only make idle units change direction so we don't mess up tasks and cause crashes
-    if (U <> nil) and U.IsIdle then
+    //Can only make idle units outside houses change direction so we don't mess up tasks and cause crashes
+    if (U <> nil) and U.IsIdle and U.Visible then
     begin
       Result := True;
       U.Direction := TKMDirection(aDirection+1);
@@ -1384,8 +1548,8 @@ begin
     if (U.UnitType in [ANIMAL_MIN..ANIMAL_MAX]) then
       LogError('Actions.UnitOrderWalk is not supported for animals', [aUnitID, X, Y])
     else
-      //Can only make idle units walk so we don't mess up tasks and cause crashes
-      if U.IsIdle then
+      //Can only make idle or units in houses walk so we don't mess up tasks and cause crashes
+      if U.IsIdle and U.Visible then
       begin
         Result := True;
         U.SetActionWalk(KMPoint(X,Y), ua_Walk, 0, nil, nil);

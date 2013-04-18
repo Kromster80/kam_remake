@@ -164,6 +164,8 @@ begin
       RegisterMethod('function HouseType(aHouseID: Integer): Integer');
       RegisterMethod('function HouseWoodcutterChopOnly(aHouseID: Integer): Boolean');
       RegisterMethod('function HouseWareBlocked(aHouseID, aWareType: Integer): Boolean');
+      RegisterMethod('function HouseSchoolQueue(aHouseID, QueueIndex: Integer): Integer');
+      RegisterMethod('function HouseWeaponsOrdered(aHouseID, aWareType: Integer): Integer');
 
       RegisterMethod('function PlayerAllianceCheck(aPlayer1, aPlayer2: Byte): Boolean');
       RegisterMethod('function PlayerColorText(aPlayer: Byte): AnsiString');
@@ -181,6 +183,9 @@ begin
       RegisterMethod('function StatUnitKilledCount(aPlayer, aUnitType: Byte): Integer');
       RegisterMethod('function StatUnitLostCount(aPlayer, aUnitType: Byte): Integer');
       RegisterMethod('function StatUnitTypeCount(aPlayer, aUnitType: Byte): Integer');
+
+      Sender.AddTypeS('TIntegerArray', 'array of Integer'); //Needed for GetAllUnits
+      RegisterMethod('function GetAllUnits(aPlayer: Byte): TIntegerArray');
 	  
       RegisterMethod('function UnitAt(aX, aY: Word): Integer');
       RegisterMethod('function UnitDead(aUnitID: Integer): Boolean');
@@ -192,6 +197,7 @@ begin
       RegisterMethod('function UnitPositionX(aHouseID: Integer): Integer');
       RegisterMethod('function UnitPositionY(aHouseID: Integer): Integer');
       RegisterMethod('function UnitType(aUnitID: Integer): Integer');
+      RegisterMethod('function UnitDirection(aUnitID: Integer): Integer');
       RegisterMethod('function UnitsGroup(aUnitID: Integer): Integer');
     end;
 
@@ -204,6 +210,7 @@ begin
       RegisterMethod('function GiveHouse(aPlayer, aHouseType, X,Y: Integer): Integer');
       RegisterMethod('function SchoolAddToQueue(aHouseID: Integer; aUnitType: Integer; aCount: Integer): Integer');
       RegisterMethod('procedure GiveWares(aPlayer, aType, aCount: Word)');
+      RegisterMethod('procedure GiveWeapons(aPlayer, aType, aCount: Word)');
 
 	    RegisterMethod('procedure GroupOrderAttackHouse(aGroupID, aHouseID: Integer)');
       RegisterMethod('procedure GroupOrderAttackUnit(aGroupID, aUnitID: Integer)');
@@ -224,6 +231,8 @@ begin
       RegisterMethod('procedure HouseUnlock(aPlayer, aHouseType: Word)');
       RegisterMethod('procedure HouseWoodcutterChopOnly(aHouseID: Integer; aChopOnly: Boolean)');
       RegisterMethod('procedure HouseWareBlock(aHouseID, aWareType: Integer; aBlocked: Boolean)');
+      RegisterMethod('procedure HouseWeaponsOrderSet(aHouseID, aWareType, aAmount: Integer)');
+      RegisterMethod('procedure HouseSchoolQueueRemove(aHouseID, QueueIndex: Integer)');
 
       RegisterMethod('function  PlanAddField(aPlayer, X, Y: Word): Boolean');
       RegisterMethod('function  PlanAddHouse(aPlayer, aHouseType, X, Y: Word): Boolean');
@@ -233,6 +242,7 @@ begin
       RegisterMethod('procedure PlayerDefeat(aPlayer: Word)');
       RegisterMethod('procedure PlayerWin(const aVictors: array of Integer; aTeamVictory: Boolean)');
       RegisterMethod('procedure PlayerAllianceChange(aPlayer1, aPlayer2: Byte; aCompliment, aAllied: Boolean)');
+      RegisterMethod('procedure PlayerAddDefaultGoals(aPlayer: Byte; aBuildings: Boolean)');
 
       RegisterMethod('procedure FogRevealCircle(aPlayer, X, Y, aRadius: Word)');
       RegisterMethod('procedure FogCoverCircle(aPlayer, X, Y, aRadius: Word)');
@@ -406,6 +416,8 @@ begin
       RegisterMethod(@TKMScriptStates.HouseType,            'HOUSETYPE');
       RegisterMethod(@TKMScriptStates.HouseWoodcutterChopOnly, 'HOUSEWOODCUTTERCHOPONLY');
       RegisterMethod(@TKMScriptStates.HouseWareBlocked,     'HOUSEWAREBLOCK');
+      RegisterMethod(@TKMScriptStates.HouseSchoolQueue,     'HOUSESCHOOLQUEUE');
+      RegisterMethod(@TKMScriptStates.HouseWeaponsOrdered,  'HOUSEWEAPONSORDERED');
 
       RegisterMethod(@TKMScriptStates.PlayerAllianceCheck,  'PLAYERALLIANCECHECK');
       RegisterMethod(@TKMScriptStates.PlayerColorText,      'PLAYERCOLORTEXT');
@@ -424,6 +436,9 @@ begin
       RegisterMethod(@TKMScriptStates.StatUnitLostCount,          'STATUNITLOSTCOUNT');
       RegisterMethod(@TKMScriptStates.StatUnitTypeCount,          'STATUNITTYPECOUNT');
 
+
+      RegisterMethod(@TKMScriptStates.GetAllUnits,                'GETALLUNITS');
+
       RegisterMethod(@TKMScriptStates.UnitAt,         'UNITAT');
       RegisterMethod(@TKMScriptStates.UnitDead,       'UNITDEAD');
       RegisterMethod(@TKMScriptStates.UnitHunger,     'UNITHUNGER');
@@ -434,6 +449,7 @@ begin
       RegisterMethod(@TKMScriptStates.UnitPositionX,  'UNITPOSITIONX');
       RegisterMethod(@TKMScriptStates.UnitPositionY,  'UNITPOSITIONY');
       RegisterMethod(@TKMScriptStates.UnitType,       'UNITTYPE');
+      RegisterMethod(@TKMScriptStates.UnitDirection,  'UNITDIRECTION');
       RegisterMethod(@TKMScriptStates.UnitsGroup,     'UNITSGROUP');
     end;
 
@@ -445,6 +461,7 @@ begin
       RegisterMethod(@TKMScriptActions.GiveUnit, 'GIVEUNIT');
       RegisterMethod(@TKMScriptActions.GiveHouse, 'GIVEHOUSE');
       RegisterMethod(@TKMScriptActions.GiveWares, 'GIVEWARES');
+      RegisterMethod(@TKMScriptActions.GiveWeapons, 'GIVEWEAPONS');
 
       RegisterMethod(@TKMScriptActions.GroupOrderAttackHouse, 'GROUPORDERATTACKHOUSE');
       RegisterMethod(@TKMScriptActions.GroupOrderAttackUnit, 'GROUPORDERATTACKUNIT');
@@ -465,6 +482,8 @@ begin
       RegisterMethod(@TKMScriptActions.HouseUnlock, 'HOUSEUNLOCK');
       RegisterMethod(@TKMScriptActions.HouseWoodcutterChopOnly, 'HOUSEWOODCUTTERCHOPONLY');
       RegisterMethod(@TKMScriptActions.HouseWareBlock, 'HOUSEWAREBLOCK');
+      RegisterMethod(@TKMScriptActions.HouseWeaponsOrderSet, 'HOUSEWEAPONSORDERSET');
+      RegisterMethod(@TKMScriptActions.HouseSchoolQueueRemove, 'HOUSESCHOOLQUEUEREMOVE');
 
       RegisterMethod(@TKMScriptActions.PlanAddField, 'PLANADDFIELD');
       RegisterMethod(@TKMScriptActions.PlanAddHouse, 'PLANADDHOUSE');
@@ -474,6 +493,7 @@ begin
       RegisterMethod(@TKMScriptActions.PlayerDefeat, 'PLAYERDEFEAT');
       RegisterMethod(@TKMScriptActions.PlayerWin, 'PLAYERWIN');
       RegisterMethod(@TKMScriptActions.PlayerAllianceChange, 'PLAYERALLIANCECHANGE');
+      RegisterMethod(@TKMScriptActions.PlayerAddDefaultGoals, 'PLAYERADDDEFAULTGOALS');
 
       RegisterMethod(@TKMScriptActions.FogRevealCircle, 'FOGREVEALCIRCLE');
       RegisterMethod(@TKMScriptActions.FogCoverCircle, 'FOGCOVERCIRCLE');

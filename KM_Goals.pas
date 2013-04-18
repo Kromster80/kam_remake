@@ -66,7 +66,7 @@ type
     procedure Delete(aIndex: Integer);
     procedure RemoveReference(aPlayerIndex: TPlayerIndex);
     procedure SetMessageHasShown(aIndex: Integer);
-    procedure AddDefaultMPGoals(aBuildings: Boolean; aOurPlayerIndex: TPlayerIndex; const aEnemyIndexes: array of TPlayerIndex);
+    procedure AddDefaultGoals(aBuildings: Boolean; aOurPlayerIndex: TPlayerIndex; const aEnemyIndexes: array of TPlayerIndex);
 
     procedure Save(SaveStream: TKMemoryStream);
     procedure Load(LoadStream: TKMemoryStream);
@@ -152,7 +152,7 @@ begin
 end;
 
 
-procedure TKMGoals.AddDefaultMPGoals(aBuildings: Boolean; aOurPlayerIndex: TPlayerIndex; const aEnemyIndexes: array of TPlayerIndex);
+procedure TKMGoals.AddDefaultGoals(aBuildings: Boolean; aOurPlayerIndex: TPlayerIndex; const aEnemyIndexes: array of TPlayerIndex);
 var
   I: Integer;
   GoalCondition: TGoalCondition;

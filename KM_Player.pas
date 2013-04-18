@@ -120,6 +120,7 @@ type
     function HousesHitTest(X, Y: Integer): TKMHouse;
     function GroupsHitTest(X, Y: Integer): TKMUnitGroup;
     procedure GetHouseMarks(aLoc: TKMPoint; aHouseType: THouseType; aList: TKMPointTagList);
+    procedure AddDefaultGoals(aBuildings: Boolean);
 
     function GetFieldsCount: Integer;
     procedure GetFieldPlans(aList: TKMPointTagList; aRect: TKMRect; aIncludeFake: Boolean);
@@ -945,6 +946,22 @@ begin
   for I := 0 to fPlayers.Count - 1 do
     if (I <> fPlayerIndex) and (fPlayers.CheckAlliance(fPlayerIndex, I) = at_Ally) then
       fPlayers[I].BuildList.HousePlanList.GetTablets(aList, aRect);
+end;
+
+
+procedure TKMPlayer.AddDefaultGoals(aBuildings: Boolean);
+var
+  I: Integer;
+  Enemies: array of TPlayerIndex;
+begin
+  SetLength(Enemies, 0);
+  for I := 0 to fPlayers.Count - 1 do
+    if (I <> fPlayerIndex) and (Alliances[I] = at_Enemy) then
+    begin
+      SetLength(Enemies, Length(Enemies)+1);
+      Enemies[Length(Enemies)-1] := I;
+    end;
+  Goals.AddDefaultGoals(aBuildings, fPlayerIndex, Enemies);
 end;
 
 
