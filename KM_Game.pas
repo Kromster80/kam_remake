@@ -1002,8 +1002,13 @@ end;
 
 
 function TKMGame.GetNewID: Cardinal;
+const
+  //Prime numbers let us generate sequence of non-repeating values of max_value length
+  //Keep within positive Integer, since we return -1 for no value in scripts
+  max_value = 795028841;
+  step = 360287471;
 begin
-  Inc(fIDTracker);
+  fIDTracker := (fIDTracker + step) mod max_value;
   Result := fIDTracker;
 end;
 
