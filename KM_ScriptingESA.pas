@@ -3,7 +3,7 @@ unit KM_ScriptingESA;
 interface
 uses
   Classes, Math, SysUtils, StrUtils,
-  KM_Defaults, KM_Points, KM_Houses, KM_ScriptingIdCache, KM_Units, KM_UnitGroups;
+  KM_CommonTypes, KM_Defaults, KM_Points, KM_Houses, KM_ScriptingIdCache, KM_Units, KM_UnitGroups;
 
 
   //Two classes exposed to scripting States and Actions
@@ -71,7 +71,7 @@ type
     function PlayerColorText(aPlayer: Byte): AnsiString;
     function PlayerVictorious(aPlayer: Byte): Boolean;
 
-    function GetAllUnits(aPlayer: Byte): TIntegerArray;
+    function PlayerGetAllUnits(aPlayer: Byte): TIntegerArray;
 
     function UnitAt(aX, aY: Word): Integer;
     function UnitDead(aUnitID: Integer): Boolean;
@@ -145,7 +145,7 @@ type
 
 
 implementation
-uses KM_AI, KM_Terrain, KM_Game, KM_CommonTypes, KM_FogOfWar, KM_PlayersCollection, KM_Units_Warrior,
+uses KM_AI, KM_Terrain, KM_Game, KM_FogOfWar, KM_PlayersCollection, KM_Units_Warrior,
   KM_TextLibrary, KM_ResourceUnit, KM_ResourceWares, KM_ResourceHouse, KM_Log, KM_Utils, KM_Resource,
   KM_Player;
 
@@ -271,29 +271,33 @@ begin
 end;
 
 
-function TKMScriptStates.GetAllUnits(aPlayer: Byte): TIntegerArray;
+function TKMScriptStates.PlayerGetAllUnits(aPlayer: Byte): TIntegerArray;
 var
   I, UnitCount: Integer;
   U: TKMUnit;
 begin
   SetLength(Result, 0);
+
   if InRange(aPlayer, 0, fPlayers.Count - 1) then
   begin
     UnitCount := 0;
-    for I:=0 to fPlayers[aPlayer].Units.Count-1 do
+
+    //Allocate max required space
+    SetLength(Result, fPlayers[aPlayer].Units.Count);
+    for I := 0 to fPlayers[aPlayer].Units.Count - 1 do
     begin
       U := fPlayers[aPlayer].Units[I];
       if U.IsDead then Continue;
+      Result[UnitCount] := U.ID;
       Inc(UnitCount);
-      if Length(Result) < UnitCount then
-        SetLength(Result, UnitCount+64);
-      Result[UnitCount-1] := fPlayers[aPlayer].Units[I].ID;
     end;
+
+    //Trim to length
     SetLength(Result, UnitCount);
   end
   else
   begin
-    LogError('States.GetAllUnits', [aPlayer]);
+    LogError('States.PlayerGetAllUnits', [aPlayer]);
   end;
 end;
 

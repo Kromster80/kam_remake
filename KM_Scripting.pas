@@ -137,6 +137,8 @@ begin
     //After that they can be used from within the script.
     with Sender.AddClassN(nil, fStates.ClassName) do
     begin
+      Sender.AddTypeS('TIntegerArray', 'array of Integer'); //Needed for PlayerGetAllUnits
+
       RegisterMethod('function GameTime: Cardinal');
       RegisterMethod('function KaMRandom: Single');
       RegisterMethod('function KaMRandomI(aMax:Integer): Integer');
@@ -171,9 +173,10 @@ begin
       RegisterMethod('function PlayerColorText(aPlayer: Byte): AnsiString');
       RegisterMethod('function PlayerDefeated(aPlayer: Byte): Boolean');
       RegisterMethod('function PlayerEnabled(aPlayer: Byte): Boolean');
+      RegisterMethod('function PlayerGetAllUnits(aPlayer: Byte): TIntegerArray');
       RegisterMethod('function PlayerName(aPlayer: Byte): AnsiString');
       RegisterMethod('function PlayerVictorious(aPlayer: Byte): Boolean');
-	  
+
       RegisterMethod('function StatArmyCount(aPlayer: Byte): Integer');
       RegisterMethod('function StatCitizenCount(aPlayer: Byte): Integer');
       RegisterMethod('function StatHouseTypeCount(aPlayer, aHouseType: Byte): Integer');
@@ -184,9 +187,6 @@ begin
       RegisterMethod('function StatUnitLostCount(aPlayer, aUnitType: Byte): Integer');
       RegisterMethod('function StatUnitTypeCount(aPlayer, aUnitType: Byte): Integer');
 
-      Sender.AddTypeS('TIntegerArray', 'array of Integer'); //Needed for GetAllUnits
-      RegisterMethod('function GetAllUnits(aPlayer: Byte): TIntegerArray');
-	  
       RegisterMethod('function UnitAt(aX, aY: Word): Integer');
       RegisterMethod('function UnitDead(aUnitID: Integer): Boolean');
       RegisterMethod('function UnitHunger(aUnitID: Integer): Integer');
@@ -423,6 +423,7 @@ begin
       RegisterMethod(@TKMScriptStates.PlayerColorText,      'PLAYERCOLORTEXT');
       RegisterMethod(@TKMScriptStates.PlayerDefeated,       'PLAYERDEFEATED');
       RegisterMethod(@TKMScriptStates.PlayerEnabled,        'PLAYERENABLED');
+      RegisterMethod(@TKMScriptStates.PlayerGetAllUnits,    'PLAYERGETALLUNITS');
       RegisterMethod(@TKMScriptStates.PlayerName,           'PLAYERNAME');
       RegisterMethod(@TKMScriptStates.PlayerVictorious,     'PLAYERVICTORIOUS');
 
@@ -435,9 +436,6 @@ begin
       RegisterMethod(@TKMScriptStates.StatUnitKilledCount,        'STATUNITKILLEDCOUNT');
       RegisterMethod(@TKMScriptStates.StatUnitLostCount,          'STATUNITLOSTCOUNT');
       RegisterMethod(@TKMScriptStates.StatUnitTypeCount,          'STATUNITTYPECOUNT');
-
-
-      RegisterMethod(@TKMScriptStates.GetAllUnits,                'GETALLUNITS');
 
       RegisterMethod(@TKMScriptStates.UnitAt,         'UNITAT');
       RegisterMethod(@TKMScriptStates.UnitDead,       'UNITDEAD');
