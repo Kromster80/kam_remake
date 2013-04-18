@@ -67,9 +67,10 @@ var
 
 
 const VALID_GLOBAL_VAR_TYPES: set of TPSBaseType = [
-  btU8, btS32, btSingle,
+  btU8, //Byte, Boolean, Enums
+  btS32, btSingle,
   btStaticArray, btArray,
-  btRecord];
+  btRecord, btSet];
 
 
 implementation
@@ -727,6 +728,11 @@ procedure TKMScripting.Load(LoadStream: TKMemoryStream);
                         LoadVar(Pointer(IPointer(Src) + Offset), TPSTypeRec_Record(aType).FieldTypes[I]);
                       end;
                     end;
+      btSet:        begin
+                      LoadStream.Read(ElemCount);
+                      Assert(ElemCount = TPSTypeRec_Set(aType).RealSize, 'Script set element count mismatches saved count');
+                      LoadStream.Read(Src^, ElemCount);
+                    end;
       //Already checked and reported as an error in LinkRuntime, no need to crash it here
       //else Assert(False);
     end;
@@ -795,6 +801,11 @@ procedure TKMScripting.Save(SaveStream: TKMemoryStream);
                         Offset := Cardinal(TPSTypeRec_Record(aType).RealFieldOffsets[I]);
                         SaveVar(Pointer(IPointer(Src) + Offset), TPSTypeRec_Record(aType).FieldTypes[I]);
                       end;
+                    end;
+      btSet:        begin
+                      ElemCount := TPSTypeRec_Set(aType).RealSize;
+                      SaveStream.Write(ElemCount);
+                      SaveStream.Write(Src^, ElemCount);
                     end;
       //Already checked and reported as an error in LinkRuntime, no need to crash it here
       //else Assert(False);
