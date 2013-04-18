@@ -20,7 +20,7 @@ type
     fTargetHouse:TKMHouse; //Go to this House
     fPass:TPassability; //Desired passability set once on Create
     fDoesWalking, fWaitingOnStep: Boolean;
-    fDestBlocked: Boolean; //Our route is blocked by busy units, so we must wait for them to clear. Give way to all other units (who might be carrying stone for the worker blocking us) 
+    fDestBlocked: Boolean; //Our route is blocked by busy units, so we must wait for them to clear. Give way to all other units (who might be carrying stone for the worker blocking us)
     fDoExchange: Boolean; //Command to make exchange maneuver with other unit, should use MakeExchange when vertex use needs to be set
     fInteractionCount, fLastSideStepNodePos: integer;
     fInteractionStatus: TInteractionStatus;
@@ -712,10 +712,17 @@ begin
   //Route_MakeAvoid is very CPU intensive, so don't run it every time
   if CheckInteractionFreq(fInteractionCount, AVOID_TIMEOUT, AVOID_FREQ) then
   begin
-
     //Can't go around our target position unless it's a house
-    if ((not KMSamePoint(fOpponent.GetPosition, fWalkTo)) or (fTargetHouse <> nil))
-    and (fDestBlocked or fOpponent.GetUnitAction.Locked) then
+    if KMSamePoint(fOpponent.GetPosition, fWalkTo) and (fTargetHouse = nil) and fOpponent.GetUnitAction.Locked then
+    begin
+      fDestBlocked := True; //When in this mode we are zero priority as we cannot reach our destination. This allows serfs with stone to get through and clear our path.
+      fInteractionStatus := kis_Waiting; //If route cannot be made it means our destination is currently not available (workers in the way) So allow us to be pushed.
+      Explanation := 'Our destination is blocked by busy units';
+      ExplanationLogAdd;
+      Exit;
+    end;
+    //We should try to make a new route if we're blocked by a locked opponent, or if we were blocked in the past (to clear fDestBlocked)
+    if fDestBlocked or fOpponent.GetUnitAction.Locked then
     begin
       NewNodeList := TKMPointList.Create;
       //Make a new route avoiding tiles with busy units
