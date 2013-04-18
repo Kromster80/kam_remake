@@ -897,7 +897,7 @@ begin
       Res := ((fLastOrderProduced + I) mod 4) + 1; //1..4
       Ware := fResource.HouseDat[fHouseType].ResOutput[Res];
       if (ResOrder[Res] > 0) //Player has ordered some of this
-      and (CheckResOut(Ware) < MAX_RES_IN_HOUSE) //Output of this is not full
+      and (CheckResOut(Ware) < MAX_WARES_IN_HOUSE) //Output of this is not full
       //Check we have wares to produce this weapon. If both are the same type check > 1 not > 0
       and ((WarfareCosts[Ware,1] <> WarfareCosts[Ware,2]) or (CheckResIn(WarfareCosts[Ware,1]) > 1))
       and ((WarfareCosts[Ware,1] = wt_None) or (CheckResIn(WarfareCosts[Ware,1]) > 0))
@@ -928,7 +928,7 @@ begin
     begin
       Ware := fResource.HouseDat[fHouseType].ResOutput[I];
 
-      if (CheckResOut(Ware) < MAX_RES_IN_HOUSE) //Output of this is not full
+      if (CheckResOut(Ware) < MAX_WARES_IN_HOUSE) //Output of this is not full
       //Check we have enough wares to produce this weapon. If both are the same type check > 1 not > 0
       and ((WarfareCosts[Ware,1] <> WarfareCosts[Ware,2]) or (CheckResIn(WarfareCosts[Ware,1]) > 1))
       and ((WarfareCosts[Ware,1] = wt_None) or (CheckResIn(WarfareCosts[Ware,1]) > 0))
@@ -962,7 +962,7 @@ begin
   if fHouseType in [ht_Store, ht_Barracks, ht_Marketplace] then
     Result := High(Word)
   else
-    Result := MAX_RES_IN_HOUSE; //All other houses can only stock 5 for now
+    Result := MAX_WARES_IN_HOUSE; //All other houses can only stock 5 for now
 end;
 
 

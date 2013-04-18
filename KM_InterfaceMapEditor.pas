@@ -2946,7 +2946,7 @@ begin
 
     if Sender = ResRow_Resource[I].OrderAdd then
     begin
-      NewCount := Math.Min(ORDER_CLICK_AMOUNT[aButton], MAX_RES_IN_HOUSE - H.CheckResIn(Res));
+      NewCount := Math.Min(ORDER_CLICK_AMOUNT[aButton], MAX_WARES_IN_HOUSE - H.CheckResIn(Res));
       H.ResAddToIn(Res, NewCount);
     end;
 
