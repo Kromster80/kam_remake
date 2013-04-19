@@ -30,6 +30,7 @@ type
     function KaMRandomI(aMax:Integer): Integer;
     function Text(aIndex: Word): AnsiString;
     function TextFormatted(aIndex: Word; const Args: array of const): AnsiString;
+
     function FogRevealed(aPlayer: Byte; aX, aY: Word): Boolean;
 
     function GroupAt(aX, aY: Word): Integer;
@@ -93,49 +94,56 @@ type
   public
     constructor Create(aIDCache: TKMScriptingIdCache);
 
-    function BarracksEquip(aHouseID: Integer; aUnitType: Integer; aCount: Integer): Integer;
-    function GiveAnimal(aType, X,Y: Word): Integer;
-    function GiveGroup(aPlayer, aType, X,Y, aDir, aCount, aColumns: Word): Integer;
-    function GiveUnit(aPlayer, aType, X,Y, aDir: Word): Integer;
-    function GiveHouse(aPlayer, aHouseType, X,Y: Integer): Integer;
-    function GroupOrderSplit(aGroupID: Integer): Integer;
-    function PlanAddField(aPlayer, X, Y: Word): Boolean;
-    function PlanAddHouse(aPlayer, aHouseType, X, Y: Word): Boolean;
-    function PlanAddRoad(aPlayer, X, Y: Word): Boolean;
-    function PlanAddWinefield(aPlayer, X, Y: Word): Boolean;
-    function SchoolAddToQueue(aHouseID: Integer; aUnitType: Integer; aCount: Integer): Integer;
+    function  GiveAnimal(aType, X,Y: Word): Integer;
+    function  GiveGroup(aPlayer, aType, X,Y, aDir, aCount, aColumns: Word): Integer;
+    function  GiveHouse(aPlayer, aHouseType, X,Y: Integer): Integer;
+    function  GiveUnit(aPlayer, aType, X,Y, aDir: Word): Integer;
+    procedure GiveWares(aPlayer, aType, aCount: Word);
+    procedure GiveWeapons(aPlayer, aType, aCount: Word);
+
     procedure FogCoverAll(aPlayer: Byte);
     procedure FogCoverCircle(aPlayer, X, Y, aRadius: Word);
     procedure FogRevealAll(aPlayer: Byte);
     procedure FogRevealCircle(aPlayer, X, Y, aRadius: Word);
-    procedure GiveWares(aPlayer, aType, aCount: Word);
-    procedure GiveWeapons(aPlayer, aType, aCount: Word);
+
     procedure GroupOrderAttackHouse(aGroupID, aHouseID: Integer);
     procedure GroupOrderAttackUnit(aGroupID, aUnitID: Integer);
     procedure GroupOrderFood(aGroupID: Integer);
     procedure GroupOrderHalt(aGroupID: Integer);
     procedure GroupOrderLink(aGroupID, aDestGroupID: Integer);
+    function  GroupOrderSplit(aGroupID: Integer): Integer;
     procedure GroupOrderStorm(aGroupID: Integer);
     procedure GroupOrderWalk(aGroupID: Integer; X, Y, aDirection: Word);
     procedure GroupSetFormation(aGroupID: Integer; aNumColumns: Byte);
+
     procedure HouseAddDamage(aHouseID: Integer; aDamage: Word);
     procedure HouseAddWaresTo(aHouseID: Integer; aType, aCount: Word);
     procedure HouseAllow(aPlayer, aHouseType: Word; aAllowed: Boolean);
+    function  HouseBarracksEquip(aHouseID: Integer; aUnitType: Integer; aCount: Integer): Integer;
     procedure HouseDestroy(aHouseID: Integer);
-    procedure HouseRepairEnable(aHouseID: Integer; aRepairEnabled: Boolean);
     procedure HouseDeliveryBlock(aHouseID: Integer; aDeliveryBlocked: Boolean);
+    procedure HouseRepairEnable(aHouseID: Integer; aRepairEnabled: Boolean);
+    function  HouseSchoolQueueAdd(aHouseID: Integer; aUnitType: Integer; aCount: Integer): Integer;
+    procedure HouseSchoolQueueRemove(aHouseID, QueueIndex: Integer);
+    procedure HouseUnlock(aPlayer, aHouseType: Word);
     procedure HouseWoodcutterChopOnly(aHouseID: Integer; aChopOnly: Boolean);
     procedure HouseWareBlock(aHouseID, aWareType: Integer; aBlocked: Boolean);
     procedure HouseWeaponsOrderSet(aHouseID, aWareType, aAmount: Integer);
-    procedure HouseSchoolQueueRemove(aHouseID, QueueIndex: Integer);
-    procedure HouseUnlock(aPlayer, aHouseType: Word);
+
+    function PlanAddField(aPlayer, X, Y: Word): Boolean;
+    function PlanAddHouse(aPlayer, aHouseType, X, Y: Word): Boolean;
+    function PlanAddRoad(aPlayer, X, Y: Word): Boolean;
+    function PlanAddWinefield(aPlayer, X, Y: Word): Boolean;
+
     procedure PlayerAllianceChange(aPlayer1, aPlayer2: Byte; aCompliment, aAllied: Boolean);
     procedure PlayerAddDefaultGoals(aPlayer: Byte; aBuildings: Boolean);
     procedure PlayerDefeat(aPlayer: Word);
     procedure PlayerWin(const aVictors: array of Integer; aTeamVictory: Boolean);
+
+    procedure SetOverlayText(aPlayer: Word; aText: AnsiString);
     procedure SetTradeAllowed(aPlayer, aResType: Word; aAllowed: Boolean);
     procedure ShowMsg(aPlayer: Word; aText: AnsiString);
-    procedure SetOverlayText(aPlayer: Word; aText: AnsiString);
+
     function  UnitDirectionSet(aUnitID, aDirection: Integer): Boolean;
     procedure UnitHungerSet(aUnitID, aHungerLevel: Integer);
     procedure UnitKill(aUnitID: Integer; aSilent: Boolean);
@@ -1374,7 +1382,6 @@ begin
 end;
 
 
-
 procedure TKMScriptActions.HouseSchoolQueueRemove(aHouseID, QueueIndex: Integer);
 var
   H: TKMHouse;
@@ -1391,7 +1398,7 @@ begin
 end;
 
 
-function TKMScriptActions.SchoolAddToQueue(aHouseID: Integer; aUnitType: Integer; aCount: Integer): Integer;
+function TKMScriptActions.HouseSchoolQueueAdd(aHouseID: Integer; aUnitType: Integer; aCount: Integer): Integer;
 var H: TKMHouse;
 begin
   Result := 0;
@@ -1403,11 +1410,11 @@ begin
       Result := TKMHouseSchool(H).AddUnitToQueue(UnitIndexToType[aUnitType], aCount);
   end
   else
-    LogError('Actions.SchoolAddToQueue', [aHouseID, aUnitType]);
+    LogError('Actions.HouseSchoolQueueAdd', [aHouseID, aUnitType]);
 end;
 
 
-function TKMScriptActions.BarracksEquip(aHouseID: Integer; aUnitType: Integer; aCount: Integer): Integer;
+function TKMScriptActions.HouseBarracksEquip(aHouseID: Integer; aUnitType: Integer; aCount: Integer): Integer;
 var H: TKMHouse;
 begin
   Result := 0;
@@ -1419,7 +1426,7 @@ begin
       Result := TKMHouseBarracks(H).Equip(UnitIndexToType[aUnitType], aCount);
   end
   else
-    LogError('Actions.BarracksEquip', [aHouseID, aUnitType]);
+    LogError('Actions.HouseBarracksEquip', [aHouseID, aUnitType]);
 end;
 
 
