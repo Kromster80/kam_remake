@@ -343,12 +343,33 @@ end;
 procedure TKMayorBalance.DistributeCoal;
 var
   CoalProductionRate, CoalConsumptionRate: Single;
+  GoldPerMin, SteelPerMin, WeaponsPerMin, ArmorPerMin: Single;
 begin
   CoalProductionRate := HouseCount(ht_CoalMine) * ProductionRate[wt_Coal];
-  CoalConsumptionRate := HouseCount(ht_ArmorSmithy) * ProductionRate[wt_Shield] //Each operations uses 1 Coal per product
-                       + HouseCount(ht_IronSmithy) * ProductionRate[wt_Steel]
-                       + HouseCount(ht_Metallurgists) * ProductionRate[wt_Gold]
-                       + HouseCount(ht_WeaponSmithy) * ProductionRate[wt_Sword];
+
+  with fWarfare do
+  begin
+    //Theoretical steel production
+    GoldPerMin := Min(HouseCount(ht_GoldMine) * ProductionRate[wt_GoldOre],
+                      HouseCount(ht_Metallurgists) * ProductionRate[wt_Gold]);
+
+    //Theoretical steel production
+    SteelPerMin := Min(HouseCount(ht_IronMine) * ProductionRate[wt_IronOre],
+                       HouseCount(ht_IronSmithy) * ProductionRate[wt_Steel]);
+
+    //Theoretical weapon production
+    WeaponsPerMin := Min(HouseCount(ht_WeaponSmithy) * ProductionRate[wt_Sword],
+                         Warfare[wt_Sword].Demand
+                         + Warfare[wt_Hallebard].Demand
+                         + Warfare[wt_Arbalet].Demand);
+
+    //Theoretical armor production
+    ArmorPerMin := Min(HouseCount(ht_ArmorSmithy) * ProductionRate[wt_MetalArmor],
+                       Warfare[wt_MetalShield].Demand + Warfare[wt_MetalArmor].Demand);
+
+    //Current coal consumption
+    CoalConsumptionRate := GoldPerMin + SteelPerMin + WeaponsPerMin + ArmorPerMin;
+  end;
 
   if CoalProductionRate >= CoalConsumptionRate then
   begin
