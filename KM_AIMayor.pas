@@ -28,6 +28,7 @@ type
     BowNeed: Single;
     HorseNeed: Single;
 
+    procedure SetArmyDemand(aFootmen, aPikemen, aHorsemen, aArchers: Single);
     procedure SetAutoRepair(const Value: Boolean);
 
     function TryBuildHouse(aHouse: THouseType): Boolean;
@@ -51,7 +52,6 @@ type
     procedure AfterMissionInit;
     property AutoRepair: Boolean read fAutoRepair write SetAutoRepair;
     procedure OwnerUpdate(aPlayer: TPlayerIndex);
-    procedure SetArmyDemand(FootmenDemand, PikemenDemand, HorsemenDemand, ArchersDemand: Single);
     function BalanceText: string;
 
     procedure UpdateState(aTick: Cardinal);
@@ -535,7 +535,7 @@ begin
 
   //For now make equal amounts of each troop type (that's how it works in KaM with weapons production)
   //todo: Calculate these based on amount needed for each defence position
-  SetArmyDemand(0.5, 0.5, 0.5, 0.5);
+  SetArmyDemand(1, 1, 1, 1);
 end;
 
 
@@ -549,19 +549,36 @@ end;
 
 
 //Tell Mayor what proportions of army is needed
-procedure TKMayor.SetArmyDemand(FootmenDemand, PikemenDemand, HorsemenDemand, ArchersDemand: Single);
+//Input values are normalized
+procedure TKMayor.SetArmyDemand(aFootmen, aPikemen, aHorsemen, aArchers: Single);
 var
+  Summ: Single;
+  Footmen, Pikemen, Horsemen, Archers: Single;
   WarPerMin: Single;
 begin
-  //todo: normalize input values to sum = 1
+  Summ := aFootmen + aPikemen + aHorsemen + aArchers;
+  if Summ = 0 then
+  begin
+    Footmen := 0;
+    Pikemen := 0;
+    Horsemen := 0;
+    Archers := 0;
+  end
+  else
+  begin
+    Footmen := aFootmen / Summ;
+    Pikemen := aPikemen / Summ;
+    Horsemen := aHorsemen / Summ;
+    Archers := aArchers / Summ;
+  end;
 
   //Store localy in Mayor to place weapon orders
-  ShieldNeed := FootmenDemand + HorsemenDemand;
-  ArmorNeed := FootmenDemand + PikemenDemand + HorsemenDemand + ArchersDemand;
-  AxeNeed := FootmenDemand * 2 + HorsemenDemand;
-  PikeNeed := PikemenDemand;
-  BowNeed := ArchersDemand;
-  HorseNeed := HorsemenDemand;
+  ShieldNeed := Footmen + Horsemen;
+  ArmorNeed := Footmen + Pikemen + Horsemen + Archers;
+  AxeNeed := Footmen * 2 + Horsemen;
+  PikeNeed := Pikemen;
+  BowNeed := Archers;
+  HorseNeed := Horsemen;
 
   //How many warriors we would need to equip per-minute
   WarPerMin := fSetup.WarriorsPerMinute(fArmyType);
