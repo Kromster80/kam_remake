@@ -262,7 +262,31 @@ end;
 //(must be checked before running this procedure)
 //See comments in TKMTerrainWalkConnect.DoUpdate for a full explanation of the logic.
 class procedure TKMTerrainWalkConnect.LocalUpdate(aRect:TKMRect; aWC: TWalkConnect; aPass: TPassability; aAllowDiag: Boolean);
+var
+  AreaID: Byte;
+  X, Y: Word;
 begin
+  with fTerrain do
+  begin
+    //First find out the AreaID for this rect area BEFORE the change (must only be one!)
+    AreaID := 0;
+    for X := aRect.Left to aRect.Right do
+      for Y := aRect.Top to aRect.Bottom do
+        if Land[Y,X].WalkConnect[aWC] <> 0 then
+        begin
+          Assert(AreaID = 0, 'Must not do local walk connect update with multiple AreaIDs in Rect');
+          AreaID := Land[Y,X].WalkConnect[aWC];
+        end;
+    Assert(AreaID <> 0, 'Must not do local walk connect update with zero AreaIDs in Rect');
+
+    //Now update WalkConnect based on passability, setting it to either AreaID or 0
+    for X := aRect.Left to aRect.Right do
+      for Y := aRect.Top to aRect.Bottom do
+        if aPass in Land[Y,X].Passability then
+          Land[Y,X].WalkConnect[aWC] := AreaID //Walkable
+        else
+          Land[Y,X].WalkConnect[aWC] := 0; //Unwalkable
+  end;
 end;
 
 
