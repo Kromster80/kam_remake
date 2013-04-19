@@ -344,90 +344,97 @@ end;
 
 //Save (export) map in KaM .map format with additional tile information on the end?
 procedure TKMTerrain.SaveToFile(aFile: string);
-var f:file; i,k:integer; c0,cF:cardinal; light,b205: Byte; SizeX,SizeY:Integer;
+var
+  S: TKMemoryStream; i,k:integer; c0,cF:cardinal; light,b205: Byte; SizeX,SizeY:Integer;
     ResHead: packed record x1:word; Allocated,Qty1,Qty2,x5,Len17:integer; end;
     Res:array[1..MAX_MAP_SIZE*2]of packed record X1,Y1,X2,Y2:integer; Typ: Byte; end;
 begin
+  Assert(fMapEditor, 'Can save terrain to file only in MapEd');
   ForceDirectories(ExtractFilePath(aFile));
 
-  AssignFile(f,aFile); rewrite(f,1);
+  S := TKMemoryStream.Create;
+  try
+    //Dimensions must be stored as 4 byte integers
+    SizeX := fMapX;
+    SizeY := fMapY;
+    S.Write(SizeX);
+    S.Write(SizeY);
 
-  //Dimensions must be stored as 4 byte integers
-  SizeX := fMapX;
-  SizeY := fMapY;
-  blockwrite(f,SizeX,4);
-  blockwrite(f,SizeY,4);
-
-  c0 := 0;
-  cF := $FFFFFFFF;
-  b205 := 205;
-  for i:=1 to fMapY do for k:=1 to fMapX do
-  begin
-    //Map file stores terrain, not the fields placed over it, so save OldTerrain rather than Terrain
-    if TileIsCornField(KMPoint(k,i)) or TileIsWineField(KMPoint(k,i)) then
-      blockwrite(f,Land[i,k].OldTerrain,1)
-    else
-      blockwrite(f,Land[i,k].Terrain,1);
-
-    light := round((Land[i,k].Light+1)*16);
-    blockwrite(f,light,1); //Light
-    blockwrite(f,Land[i,k].Height,1);
-
-    //Map file stores terrain, not the fields placed over it, so save OldRotation rather than Rotation
-    if TileIsCornField(KMPoint(k,i)) or TileIsWineField(KMPoint(k,i)) then
-      blockwrite(f,Land[i,k].OldRotation,1)
-    else
-      blockwrite(f,Land[i,k].Rotation,1);
-
-    blockwrite(f,c0,1); //unknown
-
-    //Don't save winefield objects as they are part of the DAT not map
-    if TileIsWineField(KMPoint(k,i)) then
-      blockwrite(f,cF,1)
-    else
-      blockwrite(f,Land[i,k].Obj,1);
-
-    blockwrite(f,cF,1); //Passability?
-
-    blockwrite(f,cF,4); //unknown
-    blockwrite(f,c0,3); //unknown
-    //Border
-    if (i=fMapY) or (k=fMapX) then
-      blockwrite(f,b205,1) //Bottom/right = 205
-    else
-      if (i=1) or (k=1) then
-        blockwrite(f,c0,1) //Top/left = 0
+    c0 := 0;
+    cF := $FFFFFFFF;
+    b205 := 205;
+    for i:=1 to fMapY do for k:=1 to fMapX do
+    begin
+      //Map file stores terrain, not the fields placed over it, so save OldTerrain rather than Terrain
+      if TileIsCornField(KMPoint(k,i)) or TileIsWineField(KMPoint(k,i)) then
+        S.Write(Land[i,k].OldTerrain)
       else
-        blockwrite(f,cF,1); //Rest of the screen = 255
-    blockwrite(f,cF,1); //unknown - always 255
-    blockwrite(f,b205,1); //unknown - always 205
-    blockwrite(f,c0,2); //unknown - always 0
-    blockwrite(f,c0,4); //unknown - always 0
+        S.Write(Land[i,k].Terrain);
+
+      light := round((Land[i,k].Light+1)*16);
+      S.Write(light); //Light
+      S.Write(Land[i,k].Height);
+
+      //Map file stores terrain, not the fields placed over it, so save OldRotation rather than Rotation
+      if TileIsCornField(KMPoint(k,i)) or TileIsWineField(KMPoint(k,i)) then
+        S.Write(Land[i,k].OldRotation)
+      else
+        S.Write(Land[i,k].Rotation);
+
+      S.Write(c0,1); //unknown
+
+      //Don't save winefield objects as they are part of the DAT not map
+      if TileIsWineField(KMPoint(k,i)) then
+        S.Write(cF,1)
+      else
+        S.Write(Land[i,k].Obj);
+
+      S.Write(cF,1); //Passability?
+
+      S.Write(cF,4); //unknown
+      S.Write(c0,3); //unknown
+      //Border
+      if (i=fMapY) or (k=fMapX) then
+        S.Write(b205) //Bottom/right = 205
+      else
+        if (i=1) or (k=1) then
+          S.Write(c0,1) //Top/left = 0
+        else
+          S.Write(cF,1); //Rest of the screen = 255
+
+      S.Write(cF,1); //unknown - always 255
+      S.Write(b205,1); //unknown - always 205
+      S.Write(c0,2); //unknown - always 0
+      S.Write(c0,4); //unknown - always 0
+    end;
+
+    //Resource footer: Temporary hack to make the maps compatible with KaM. If we learn how resource footers
+    //are formatted we can implement it, but for now it appears to work fine like this.
+    ResHead.x1:=0;
+    ResHead.Allocated := fMapX+fMapY;
+    ResHead.Qty1:=0;
+    ResHead.Qty2:=ResHead.Qty1;
+    if ResHead.Qty1>0 then
+      ResHead.x5:=ResHead.Qty1-1
+    else
+      ResHead.x5:=0;
+    ResHead.Len17:=17;
+
+    for i:=1 to ResHead.Allocated do
+    begin
+      Res[i].X1:=-842150451; Res[i].Y1:=-842150451;
+      Res[i].X2:=-842150451; Res[i].Y2:=-842150451;
+      Res[i].Typ:=255;
+    end;
+
+    S.Write(ResHead, SizeOf(ResHead));
+    for i := 1 to ResHead.Allocated do
+      S.Write(Res[i], SizeOf(Res[i]));
+
+    S.SaveToFile(aFile);
+  finally
+    S.Free;
   end;
-
-  //Resource footer: Temporary hack to make the maps compatible with KaM. If we learn how resource footers
-  //are formatted we can implement it, but for now it appears to work fine like this.
-  ResHead.x1:=0;
-  ResHead.Allocated := fMapX+fMapY;
-  ResHead.Qty1:=0;
-  ResHead.Qty2:=ResHead.Qty1;
-  if ResHead.Qty1>0 then
-    ResHead.x5:=ResHead.Qty1-1
-  else
-    ResHead.x5:=0;
-  ResHead.Len17:=17;
-
-  for i:=1 to ResHead.Allocated do
-  begin
-    Res[i].X1:=-842150451; Res[i].Y1:=-842150451;
-    Res[i].X2:=-842150451; Res[i].Y2:=-842150451;
-    Res[i].Typ:=255;
-  end;
-
-  blockwrite(f,ResHead,22);
-  for i:=1 to ResHead.Allocated do blockwrite(f,Res[i],17);
-
-  closefile(f);
 end;
 
 
