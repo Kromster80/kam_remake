@@ -523,11 +523,15 @@ function TKMHouse.GetClosestCell(aPos: TKMPoint): TKMPoint;
 var
   C: TKMPointList;
 begin
+  Result := KMPoint(0,0);
   C := TKMPointList.Create;
-  GetListOfCellsWithin(C);
-  if not C.GetClosest(aPos, Result) then
-    Assert(false, 'Could not find closest house cell');
-  C.Free;
+  try
+    GetListOfCellsWithin(C);
+    if not C.GetClosest(aPos, Result) then
+      Assert(false, 'Could not find closest house cell');
+  finally
+    C.Free;
+  end;
 end;
 
 

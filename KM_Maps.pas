@@ -247,8 +247,10 @@ end;
 
 
 function TKMapInfo.HumanUsableLocations: TPlayerIndexArray;
-var I: Integer;
+var
+  I: Integer;
 begin
+  SetLength(Result, 0);
   for I := 0 to MAX_PLAYERS - 1 do
     if CanBeHuman[I] then
     begin
@@ -259,8 +261,10 @@ end;
 
 
 function TKMapInfo.AIUsableLocations: TPlayerIndexArray;
-var I: Integer;
+var
+  I: Integer;
 begin
+  SetLength(Result, 0);
   for I := 0 to MAX_PLAYERS - 1 do
     if CanBeAI[I] then
     begin

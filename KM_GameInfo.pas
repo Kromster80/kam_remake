@@ -129,7 +129,8 @@ end;
 //How many AI players are in this game,
 //so that Lobby could automatically create this much AIs when the save is selected
 function TKMGameInfo.AICount: Byte;
-var I: Integer;
+var
+  I: Integer;
 begin
   Result := 0;
   for I := 0 to PlayerCount - 1 do
@@ -139,7 +140,8 @@ end;
 
 
 function TKMGameInfo.HumanCount: Byte;
-var I: Integer;
+var
+  I: Integer;
 begin
   Result := 0;
   for I := 0 to PlayerCount - 1 do
@@ -149,8 +151,10 @@ end;
 
 
 function TKMGameInfo.HumanUsableLocations: TPlayerIndexArray;
-var I: Integer;
+var
+  I: Integer;
 begin
+  SetLength(Result, 0);
   for I := 0 to MAX_PLAYERS - 1 do
     if CanBeHuman[I] then
     begin
