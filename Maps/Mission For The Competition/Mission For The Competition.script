@@ -1,0 +1,71 @@
+var Warriors01: Integer;
+var Knights01: Integer;
+var Crossbows01: Integer;
+var Barbarians01: Integer;
+
+
+procedure OnMissionStart;
+begin
+Warriors01 := States.GroupAt(47, 77);
+Knights01 := States.GroupAt(50, 77);
+Crossbows01 := States.GroupAt (55, 77);
+Actions.ShowMsg(0, 'Hello Player, I hope you will have fun while playing my Singleplayer Mission :)');
+Barbarians01 := Actions.GiveGroup(0, 23, 44, 73, 3, 9, 3);
+Actions.PlanAddHouse(1, 21, 25, 101);
+Actions.PlanAddHouse(1, 20, 29, 101);
+Actions.GiveUnit(1, 9, 1, 108, 4);
+Actions.GiveUnit(1, 9, 1, 109, 4);
+Actions.GiveUnit(1, 9, 1, 110, 4);
+Actions.PlanAddHouse(1, 13, 28, 105);
+end;
+
+procedure OnHouseLost(aHouseID: Integer; aFullyBuilt: Boolean);
+var Tower01: Integer;
+begin
+Tower01 := States.HouseAt(49, 78);
+ if States.HouseDestroyed(Tower01) then
+  Actions.GroupOrderWalk(Knights01, 111, 55, 5);
+  Actions.GroupOrderWalk(Crossbows01, 113, 55, 6);
+end;
+
+procedure OnTick;
+begin
+if States.GameTime = 450 then
+Actions.GroupOrderAttackUnit(Barbarians01, Warriors01);
+end;
+begin
+if States.GameTime = 6000 then
+Actions.PlanAddRoad(1, 21, 103);
+Actions.PlanAddRoad(1, 22, 103);
+Actions.PlanAddRoad(1, 23, 103);
+end.
+begin
+if States.GameTime = 12000 then
+Actions.PlanAddRoad(1, 23, 106);
+Actions.PlanAddRoad(1, 24, 106);
+Actions.PlanAddRoad(1, 25, 106);
+end.
+begin
+if States.GameTime = 18000 then
+Actions.PlanAddRoad(1, 23, 102);
+Actions.PlanAddRoad(1, 26, 106);
+Actions.PlanAddRoad(1, 27, 106);
+end.
+begin
+if States.GameTime = 24000 then
+Actions.PlanAddRoad(1, 24, 103);
+Actions.PlanAddRoad(1, 25, 103);
+Actions.PlanAddRoad(1, 26, 103);
+Actions.PlanAddRoad(1, 28, 106);
+Actions.PlanAddRoad(1, 29, 106);
+Actions.PlanAddRoad(1, 30, 106);
+Actions.PlanAddRoad(1, 30, 105);
+Actions.PlanAddRoad(1, 30, 104);
+Actions.PlanAddRoad(1, 30, 103);
+Actions.PlanAddRoad(1, 29, 103);
+Actions.PlanAddRoad(1, 28, 103);
+end;
+begin
+if States.GameTime < 24000 then
+Actions.FogCoverCircle(0, 26, 102, 6);
+end;

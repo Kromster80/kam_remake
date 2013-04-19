@@ -551,7 +551,7 @@ var
   LoopCount: Integer;
   Nedge: LongInt;
 
-  procedure AssembleLoop(aStart, aEnd: Word);
+  function AssembleLoop(aStart, aEnd: Word): Boolean;
   var I, H: Integer;
   begin
     Loop[0] := aStart;
@@ -565,10 +565,10 @@ var
         Inc(LoopCount);
         Break; //We break to check = aEnd condition (otherwise we could skip it)
       end;
-      Assert(LoopCount <= Nedge, 'End is missing?');
       Inc(I);
-      Assert(I <= 100, 'End is missing2?');
-    until(Loop[LoopCount - 1] = aEnd);
+    until (Loop[LoopCount - 1] = aEnd) or (I > 100) or (LoopCount > Nedge);
+
+    Result := (Loop[LoopCount - 1] = aEnd);
   end;
 
   procedure TriangulateLoop;
@@ -676,10 +676,10 @@ begin
     if Nedge > 0 then
     begin
       SetLength(Loop, Nedge*2);
-      AssembleLoop(Vertice1, Vertice2);
-      TriangulateLoop;
-      AssembleLoop(Vertice2, Vertice1);
-      TriangulateLoop;
+      if AssembleLoop(Vertice1, Vertice2) then
+        TriangulateLoop;
+      if AssembleLoop(Vertice2, Vertice1) then
+        TriangulateLoop;
     end;
   end;
 end;

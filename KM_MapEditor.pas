@@ -72,7 +72,8 @@ type
 
 
 implementation
-uses KM_Game, KM_PlayersCollection, KM_RenderAux, KM_RenderUI, KM_AIDefensePos, KM_UnitGroups;
+uses KM_Game, KM_PlayersCollection, KM_RenderAux, KM_RenderUI, KM_AIDefensePos, KM_UnitGroups,
+KM_AIFields;
 
 
 { TKMDeposits }
@@ -326,6 +327,9 @@ procedure TKMMapEditor.Update;
 begin
   if mlDeposits in VisibleLayers then
     fDeposits.UpdateAreas([rdStone, rdCoal, rdIron, rdGold, rdFish]);
+
+  //todo: if mlNavMesh in VisibleLayers then
+    //fAIFields.NavMesh.Init;
 end;
 
 
