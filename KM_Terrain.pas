@@ -35,8 +35,6 @@ type
     procedure UpdateFences(Loc: TKMPoint; CheckSurrounding: Boolean = True);
 
     procedure UpdateWalkConnect(const aSet: array of TWalkConnect; aRect: TKMRect; aDiagObjectsEffected:Boolean);
-
-    procedure CCLFind(aWC: TWalkConnect; aPass: TPassability; aAllowDiag: Boolean);
   public
     Land: array [1..MAX_MAP_SIZE, 1..MAX_MAP_SIZE] of record
       Terrain: Byte;
@@ -213,7 +211,7 @@ var
 
 
 implementation
-uses KM_Log, KM_PlayersCollection,
+uses KM_Log, KM_PlayersCollection, KM_TerrainWalkConnect,
   KM_Resource, KM_Units, KM_ResourceHouse, KM_ResourceMapElements, KM_Sound, KM_UnitActionStay, KM_Units_Warrior;
 
 
@@ -2262,128 +2260,22 @@ end;
 
 //Rebuilds connected areas using flood fill algorithm
 procedure TKMTerrain.UpdateWalkConnect(const aSet: array of TWalkConnect; aRect: TKMRect; aDiagObjectsEffected:Boolean);
-  procedure FloodFill(aWC: TWalkConnect; aPass: TPassability; aAllowDiag: Boolean);
-  var
-    AreaID: Byte;
-    Count: Integer;
-
-    procedure FillArea(X,Y: Word);
-    begin
-      if (Land[Y,X].WalkConnect[aWC] = 0) //Untested area
-      and (aPass in Land[Y,X].Passability) then //Matches passability
-      begin
-        Land[Y,X].WalkConnect[aWC] := AreaID;
-        Inc(Count);
-        //Using custom TileInMapCoords replacement gives ~40% speed improvement
-        //Using custom CanWalkDiagonally is also much faster
-        if X-1 >= 1 then
-        begin
-          if aAllowDiag and (Y-1 >= 1) and not MapElem[Land[Y,X].Obj].DiagonalBlocked then
-            FillArea(X-1, Y-1);
-          FillArea(X-1, Y);
-          if aAllowDiag and (Y+1 <= fMapY) and not MapElem[Land[Y+1,X].Obj].DiagonalBlocked then
-            FillArea(X-1,Y+1);
-        end;
-
-        if Y-1 >= 1 then     FillArea(X, Y-1);
-        if Y+1 <= fMapY then FillArea(X, Y+1);
-
-        if X+1 <= fMapX then
-        begin
-          if aAllowDiag and (Y-1 >= 1) and not MapElem[Land[Y,X+1].Obj].DiagonalBlocked then
-            FillArea(X+1, Y-1);
-          FillArea(X+1, Y);
-          if aAllowDiag and (Y+1 <= fMapY) and not MapElem[Land[Y+1,X+1].Obj].DiagonalBlocked then
-            FillArea(X+1, Y+1);
-        end;
-      end;
-    end;
-  //const MinSize = 1; //Minimum size that is treated as new area
-  var I,K: Integer;
-  begin
-    //Reset everything
-    for I := 1 to fMapY do for K := 1 to fMapX do
-      Land[I,K].WalkConnect[aWC] := 0;
-
-    AreaID := 0;
-    for I := 1 to fMapY do for K := 1 to fMapX do
-    if (Land[I,K].WalkConnect[aWC] = 0)
-    and (aPass in Land[I,K].Passability) then
-    begin
-      Inc(AreaID);
-      Count := 0;
-      FillArea(K,I);
-
-      if Count <= 1 then //Revert
-      begin
-        Dec(AreaID);
-        Count := 0;
-        Land[I,K].WalkConnect[aWC] := 0;
-      end;
-
-      Assert(AreaID < 255, 'UpdateWalkConnect failed due too many unconnected areas');
-    end;
-  end;
-
-  function CheckCanSkip(aWorkRect:TKMRect; aWC:TWalkConnect; aPass:TPassability):Boolean;
-  var I,K: Integer; AllPass, AllFail: Boolean;
-  begin
-    //If objects were effected we must reprocess because a tree could block the connection
-    //between two areas. Also skip this check if the area is too large because it takes too long
-    if (KMRectArea(aWorkRect) > 100) then
-    begin
-      Result := False;
-      Exit;
-    end;
-    Result := True;
-    AllPass := True;
-    AllFail := True;
-    for I := aWorkRect.Top to aWorkRect.Bottom do
-      for K := aWorkRect.Left to aWorkRect.Right do
-      begin
-        if aDiagObjectsEffected then
-        begin
-          AllPass := AllPass and ((Land[I,K].WalkConnect[aWC] <> 0) and (aPass in Land[I,K].Passability));
-          AllFail := AllFail and ((Land[I,K].WalkConnect[aWC] = 0) and not (aPass in Land[I,K].Passability));
-          //If all tiles that changed are walkable or not walkable currently and in our last UpdateWalkConnect, it's safe to skip
-          Result := AllPass or AllFail;
-        end else begin
-          Result := Result and
-                    //First case: Last time we did WalkConnect the tile WASN'T walkable,
-                    //and Passability confirms this has not changed (tile still not walkable)
-                   (((Land[I,K].WalkConnect[aWC] = 0) and not (aPass in Land[I,K].Passability)) or
-                    //Second case: Last time we did WalkConnect the tile WAS walkable,
-                    //and Passability confirms this has not changed (tile still walkable)
-                    ((Land[I,K].WalkConnect[aWC] <> 0) and (aPass in Land[I,K].Passability)));
-        end;
-        if not Result then Exit; //If one tile has changed, we need to do the whole thing
-      end;
-  end;
-
 const
-  WCSet: array [TWalkConnect] of TPassability = (
+  WC_PASS: array [TWalkConnect] of TPassability = (
     CanWalk, CanWalkRoad, CanFish, CanWorker);
 var
   J: Integer;
   WC: TWalkConnect;
   AllowDiag: Boolean;
-  Pass: TPassability;
-  WorkRect: TKMRect;
 begin
-  WorkRect := KMClipRect(aRect, 1, 1, fMapX-1, fMapY-1);
+  aRect := KMClipRect(aRect, 1, 1, fMapX-1, fMapY-1);
 
   //Process all items from set
   for J := Low(aSet) to High(aSet) do
   begin
     WC := aSet[J];
-    Pass := WCSet[WC];
     AllowDiag := (WC <> wcRoad); //Do not consider diagonals "connected" for roads
-
-    if not CheckCanSkip(WorkRect, WC, Pass) then
-      if USE_CCL_WALKCONNECT then
-        CCLFind(WC, Pass, AllowDiag)
-      else
-        FloodFill(WC, Pass, AllowDiag);
+    TKMTerrainWalkConnect.DoUpdate(aRect, WC, WC_PASS[WC], AllowDiag, aDiagObjectsEffected);
   end;
 end;
 
@@ -2963,94 +2855,6 @@ begin
       end;
     end;
   end;
-end;
-
-
-procedure TKMTerrain.CCLFind(aWC: TWalkConnect; aPass: TPassability; aAllowDiag: Boolean);
-var
-  Parent: array [0..512] of Word;
-
-  function TopParent(const Area: Word): Word;
-  begin
-    Result := Area;
-    while Parent[Result] <> Result do
-      Result := Parent[Result];
-  end;
-
-  procedure AddAlias(const Area1, Area2: Word);
-  begin
-    //See if there are common parents
-    if Area2 <> Area1 then
-      Parent[Area2] := Area1;
-  end;
-const Samples: array [0..3, 0..1] of ShortInt = ((-1,-1),(0,-1),(1,-1),(-1,0));
-var
-  I,K,H: Word;
-  X,Y: Smallint;
-  AreaID: Word;
-  NCount: Byte;
-begin
-  //Reset everything
-  for I := 1 to fMapY do for K := 1 to fMapX do
-    Land[I,K].WalkConnect[aWC] := 0;
-
-  FillChar(Parent, SizeOf(Parent), #0);
-
-  AreaID := 1;
-  for I := 1 to fMapY do
-  for K := 1 to fMapX do
-  if (aPass in Land[I,K].Passability) then
-  begin
-
-    //Check 4 preceeding neighbors, if there is ID we will take it
-    NCount := 0;
-    for H := 0 to 3 do
-    begin
-      X := K + Samples[H,0];
-      Y := I + Samples[H,1];
-
-      if (Y >= 1) and InRange(X, 1, fMapX) and (aPass in Land[Y,X].Passability) then
-      if (H = 1) or (H = 3) or (aAllowDiag and (
-                                 ((H = 0) and not MapElem[Land[I,K].Obj].DiagonalBlocked) or
-                                 ((H = 2) and not MapElem[Land[I,K+1].Obj].DiagonalBlocked)))
-      then
-      begin
-        if (NCount = 0) then
-          Land[I,K].WalkConnect[aWC] := Land[Y,X].WalkConnect[aWC]
-        else
-          //Remember alias
-          if (Parent[Land[Y,X].WalkConnect[aWC]] <> Parent[Land[I,K].WalkConnect[aWC]]) then
-            AddAlias(TopParent(Land[Y,X].WalkConnect[aWC]), TopParent(Land[I,K].WalkConnect[aWC]));
-
-        Inc(NCount);
-      end;
-    end;
-
-    //If there's no Area we create new one
-    if NCount = 0 then
-    begin
-      Land[I,K].WalkConnect[aWC] := AreaID;
-      Parent[AreaID] := AreaID;
-      Inc(AreaID);
-      Assert(AreaID < 32767, 'UpdateWalkConnect failed due too many unconnected areas');
-    end;
-  end;
-
-  //1 -> 2    1 -> 2
-  //2 -> 2    2 -> 2
-  //3 -> 4    3 -> 5
-  //4 -> 5    4 -> 5
-  //5 -> 5    5 -> 5
-  //Merge parents
-  for I := 1 to AreaID - 1 do
-    while Parent[I] <> Parent[Parent[I]] do
-      Parent[I] := Parent[Parent[I]];
-
-  //Merge areas
-  for I := 1 to fMapY do
-  for K := 1 to fMapX do
-  if (Land[I,K].WalkConnect[aWC] <> 0) then
-    Land[I,K].WalkConnect[aWC] := Parent[Land[I,K].WalkConnect[aWC]];
 end;
 
 

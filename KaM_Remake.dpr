@@ -119,6 +119,7 @@ uses
   KM_Terrain in 'KM_Terrain.pas',
   KM_TerrainFinder in 'KM_TerrainFinder.pas',
   KM_TerrainPainter in 'KM_TerrainPainter.pas',
+  KM_TerrainWalkConnect in 'KM_TerrainWalkConnect.pas',
   KM_TextLibrary in 'KM_TextLibrary.pas',
   KM_UnitActionAbandonWalk in 'KM_UnitActionAbandonWalk.pas',
   KM_UnitActionFight in 'KM_UnitActionFight.pas',
