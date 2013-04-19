@@ -24,9 +24,9 @@ type
 
 
 implementation
-{$IFDEF WDC}
+//{$IFDEF WDC}
   {$R *.dfm}
-{$ENDIF}
+//{$ENDIF}
 
 
 { TFormLoading }

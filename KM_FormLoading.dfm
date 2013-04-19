@@ -4,8 +4,8 @@ object FormLoading: TFormLoading
   HelpType = htKeyword
   BorderStyle = bsDialog
   Caption = 'KaM Remake'
-  ClientHeight = 155
-  ClientWidth = 257
+  ClientHeight = 171
+  ClientWidth = 329
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -16,13 +16,13 @@ object FormLoading: TFormLoading
   OldCreateOrder = False
   Position = poScreenCenter
   DesignSize = (
-    257
-    155)
+    329
+    171)
   PixelsPerInch = 96
   TextHeight = 13
   object Image1: TImage
-    Left = 16
-    Top = 8
+    Left = 24
+    Top = 12
     Width = 60
     Height = 60
     AutoSize = True
@@ -153,7 +153,7 @@ object FormLoading: TFormLoading
     Transparent = True
   end
   object Label3: TLabel
-    Left = 100
+    Left = 116
     Top = 8
     Width = 93
     Height = 16
@@ -166,61 +166,62 @@ object FormLoading: TFormLoading
     ParentFont = False
   end
   object Bevel1: TBevel
-    Left = 92
+    Left = 108
     Top = 8
     Width = 2
-    Height = 121
+    Height = 137
   end
   object Label4: TLabel
-    Left = 100
-    Top = 64
+    Left = 116
+    Top = 72
     Width = 146
     Height = 13
     Caption = 'Krom  (kromster80@gmail.com)'
   end
   object Label5: TLabel
-    Left = 100
+    Left = 116
     Top = 28
     Width = 34
     Height = 13
     Caption = 'version'
   end
   object Label6: TLabel
-    Left = 100
-    Top = 48
-    Width = 48
+    Left = 116
+    Top = 56
+    Width = 76
     Height = 13
-    Caption = 'Coded by:'
+    Caption = 'Programmed by:'
   end
   object Label7: TLabel
-    Left = 100
-    Top = 96
+    Left = 116
+    Top = 104
     Width = 20
     Height = 13
     Caption = 'Alex'
   end
   object Label1: TLabel
-    Left = 100
-    Top = 120
+    Left = 116
+    Top = 136
     Width = 50
     Height = 13
     Caption = 'Loading ...'
   end
   object Label2: TLabel
-    Left = 100
-    Top = 80
+    Left = 116
+    Top = 88
     Width = 130
     Height = 13
     Caption = 'Lewin  (lewinjh@gmail.com)'
   end
   object Bar1: TProgressBar
     Left = 0
-    Top = 137
-    Width = 257
+    Top = 153
+    Width = 329
     Height = 18
-    Anchors = [akLeft, akBottom]
+    Anchors = [akLeft, akRight, akBottom]
     Max = 8
     Step = 1
     TabOrder = 0
+    ExplicitTop = 137
   end
 end
