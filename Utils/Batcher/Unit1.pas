@@ -15,15 +15,15 @@ type
     Button2: TButton;
     Memo1: TMemo;
     Button4: TButton;
-    Button5: TButton;
-    Button6: TButton;
+    btnUnXorAll: TButton;
+    btnXorAll: TButton;
     Button7: TButton;
     Button8: TButton;
     procedure Button3Click(Sender: TObject);
     procedure Button1Click(Sender: TObject);
     procedure Button2Click(Sender: TObject);
     procedure Button4Click(Sender: TObject);
-    procedure Button5Click(Sender: TObject);
+    procedure btnXorAllClick(Sender: TObject);
     procedure Button7Click(Sender: TObject);
     procedure Button8Click(Sender: TObject);
   private
@@ -475,7 +475,7 @@ begin
 end;
 
 
-procedure TForm1.Button5Click(Sender: TObject);
+procedure TForm1.btnXorAllClick(Sender: TObject);
 var
   I, K: Integer;
   PathToMaps: TStringList;
@@ -488,7 +488,7 @@ begin
   ControlsEnable(False);
   SetUp;
 
-  UnXOR := (Sender = Button5);
+  UnXOR := (Sender = btnUnXorAll);
 
   PathToMaps := TStringList.Create;
   try

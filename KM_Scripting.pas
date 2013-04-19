@@ -4,12 +4,10 @@ interface
 uses
   Classes, SysUtils,
   uPSCompiler, uPSRuntime, uPSUtils, uPSDisassembly,
-  KM_CommonClasses, KM_Defaults, KM_ScriptingESA, KM_ScriptingIdCache, KM_Houses, KM_Units, KM_UnitGroups;
+  KM_CommonClasses, KM_Defaults,
+  KM_ScriptingESA, KM_ScriptingIdCache, KM_Houses, KM_Units, KM_UnitGroups;
 
   //Dynamic scripts allow mapmakers to control the mission flow
-
-  //In TSK, there are no enemies and you win when you build the tannery.
-  //In TPR, you must defeat the enemies AND build the tannery.
 
 type
   TKMScripting = class
@@ -66,11 +64,13 @@ var
   fScripting: TKMScripting;
 
 
-const VALID_GLOBAL_VAR_TYPES: set of TPSBaseType = [
-  btU8, //Byte, Boolean, Enums
-  btS32, btSingle,
-  btStaticArray, btArray,
-  btRecord, btSet];
+const
+  VALID_GLOBAL_VAR_TYPES: set of TPSBaseType = [
+    btU8, //Byte, Boolean, Enums
+    btS32, //Integer
+    btSingle, //Single
+    btStaticArray, btArray, //Static and Dynamic Arrays
+    btRecord, btSet];
 
 
 implementation
@@ -265,7 +265,8 @@ begin
     AddImportedClassVariable(Sender, 'Actions', fActions.ClassName);
 
     Result := True;
-  end else
+  end
+  else
     Result := False;
 end;
 
@@ -289,8 +290,8 @@ const
   Procs: array [0..10] of record
     Names: string;
     ParamCount: Byte;
-    Typ: array[0..3] of Byte;
-    Dir: array[0..2] of TPSParameterMode;
+    Typ: array [0..3] of Byte;
+    Dir: array [0..2] of TPSParameterMode;
   end =
   (
   (Names: 'ONHOUSEBUILT';      ParamCount: 1; Typ: (0, btS32, 0,      0);      Dir: (pmIn, pmIn, pmIn)),
@@ -308,7 +309,7 @@ const
 var I: Integer;
 begin
   Result := True;
-  for I:=Low(Procs) to High(Procs) do
+  for I := Low(Procs) to High(Procs) do
     if (Proc.Name = Procs[I].Names) then
       if not ExportCheck(Sender, Proc, Slice(Procs[I].Typ, Procs[I].ParamCount+1), Slice(Procs[I].Dir, Procs[I].ParamCount)) then
       begin
@@ -355,9 +356,7 @@ procedure TKMScripting.LinkRuntime;
 
   function ValidateVarType(aType: TPSTypeRec): string;
   var
-    ArrayCount: Integer;
     I: Integer;
-    Offset: Cardinal;
   begin
     //Check against our set of allowed types
     if not (aType.BaseType in VALID_GLOBAL_VAR_TYPES) then
@@ -365,17 +364,18 @@ procedure TKMScripting.LinkRuntime;
       Result := 'Unsupported global variable type ' + IntToStr(aType.BaseType) + ': ' + aType.ExportName + '|';
       Exit;
     end;
+
     //Check elements of arrays/records are valid too
     case aType.BaseType of
       btArray,
-      btStaticArray: Result := ValidateVarType(TPSTypeRec_Array(aType).ArrayType);
-      btRecord: begin
-                  Result := '';
-                  for I:=0 to TPSTypeRec_Record(aType).FieldTypes.Count-1 do
-                  begin
-                    Result := Result + ValidateVarType(TPSTypeRec_Record(aType).FieldTypes[I]);
-                  end;
-                end;
+      btStaticArray:
+        Result := ValidateVarType(TPSTypeRec_Array(aType).ArrayType);
+      btRecord:
+        begin
+          Result := '';
+          for I := 0 to TPSTypeRec_Record(aType).FieldTypes.Count - 1 do
+            Result := Result + ValidateVarType(TPSTypeRec_Record(aType).FieldTypes[I]);
+        end;
     end;
   end;
 
@@ -724,7 +724,7 @@ procedure TKMScripting.Load(LoadStream: TKMemoryStream);
       btStaticArray:begin
                       LoadStream.Read(ElemCount);
                       Assert(ElemCount = TPSTypeRec_StaticArray(aType).Size, 'Script array element count mismatches saved count');
-                      for I:=0 to ElemCount-1 do
+                      for I := 0 to ElemCount - 1 do
                       begin
                         Offset := TPSTypeRec_Array(aType).ArrayType.RealSize * I;
                         LoadVar(Pointer(IPointer(Src) + Offset), TPSTypeRec_Array(aType).ArrayType);
@@ -733,7 +733,7 @@ procedure TKMScripting.Load(LoadStream: TKMemoryStream);
       btArray:      begin
                       LoadStream.Read(ElemCount);
                       PSDynArraySetLength(Pointer(Src^), aType, ElemCount);
-                      for I:=0 to ElemCount-1 do
+                      for I := 0 to ElemCount - 1 do
                       begin
                         Offset := TPSTypeRec_Array(aType).ArrayType.RealSize * I;
                         LoadVar(Pointer(IPointer(Src^) + Offset), TPSTypeRec_Array(aType).ArrayType);
@@ -792,9 +792,9 @@ procedure TKMScripting.Save(SaveStream: TKMemoryStream);
   begin
     //See uPSRuntime line 1630 for algo idea
     case aType.BaseType of
-      btU8:  SaveStream.Write(tbtu8(Src^)); //Byte, Boolean
-      btS32: SaveStream.Write(tbts32(Src^)); //Integer
-      btSingle: SaveStream.Write(tbtsingle(Src^));
+      btU8:         SaveStream.Write(tbtu8(Src^)); //Byte, Boolean
+      btS32:        SaveStream.Write(tbts32(Src^)); //Integer
+      btSingle:     SaveStream.Write(tbtsingle(Src^));
       btStaticArray:begin
                       ElemCount := TPSTypeRec_StaticArray(aType).Size;
                       SaveStream.Write(ElemCount);

@@ -577,10 +577,8 @@ end;
 
 
 procedure TKMMainMenuInterface.Create_CampSelect;
-var L: TKMLabel; W: Integer;
+var L: TKMLabel;
 begin
-  W := Panel_Main.Width;
-
   Panel_CampSelect := TKMPanel.Create(Panel_Main, 0, 0, Panel_Main.Width, Panel_Main.Height);
   Panel_CampSelect.Stretch;
 

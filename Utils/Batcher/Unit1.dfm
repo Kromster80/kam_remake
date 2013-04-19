@@ -69,23 +69,23 @@ object Form1: TForm1
     TabOrder = 4
     OnClick = Button4Click
   end
-  object Button5: TButton
+  object btnUnXorAll: TButton
     Left = 24
     Top = 232
     Width = 121
     Height = 25
     Caption = 'unXOR all maps'
     TabOrder = 5
-    OnClick = Button5Click
+    OnClick = btnXorAllClick
   end
-  object Button6: TButton
+  object btnXorAll: TButton
     Left = 24
     Top = 256
     Width = 121
     Height = 25
     Caption = 'XOR all maps'
     TabOrder = 6
-    OnClick = Button5Click
+    OnClick = btnXorAllClick
   end
   object Button7: TButton
     Left = 24

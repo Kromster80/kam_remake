@@ -27,7 +27,7 @@ type
     function GameTime: Cardinal;
     function PeaceTime: Cardinal;
     function KaMRandom: Single;
-    function KaMRandomI(aMax:Integer): Integer;
+    function KaMRandomI(aMax: Integer): Integer;
     function Text(aIndex: Word): AnsiString;
     function TextFormatted(aIndex: Word; const Args: array of const): AnsiString;
 
@@ -1385,7 +1385,6 @@ end;
 procedure TKMScriptActions.HouseSchoolQueueRemove(aHouseID, QueueIndex: Integer);
 var
   H: TKMHouse;
-  I: Integer;
 begin
   if (aHouseID > 0) and InRange(QueueIndex, 0, 5) then
   begin
