@@ -294,7 +294,7 @@ begin
   //When leaving the game we should always reset the cursor in case the user had beacon or linking selected
   fResource.Cursors.Cursor := kmc_Default;
 
-  if MySpectator <> nil then FreeAndNil(MySpectator);
+  FreeAndNil(MySpectator);
 
   inherited;
 end;

@@ -66,7 +66,7 @@ type
 
 var
   fPlayers: TKMPlayersCollection;
-  MySpectator: TKMSpectator = nil; //Wrap to acces player/fow separately. Init to nil so we know whether to free it.
+  MySpectator: TKMSpectator; //Wrap to access player/fow separately
 
 
 implementation
