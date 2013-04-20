@@ -443,7 +443,7 @@ begin
       Result := oc_NoObstacle
     else
     //Completely re-route if no simple side step solution is available
-    if CanWalkToTarget(fWalkTo, GetEffectivePassability) then
+    if CanWalkToTarget(fUnit.GetPosition, GetEffectivePassability) then
     begin
       fUnit.SetActionWalk(fWalkTo, fActionType, fDistance, fTargetUnit, fTargetHouse);
       Result := oc_ReRouteMade;
