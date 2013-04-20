@@ -222,6 +222,5 @@ object FormLoading: TFormLoading
     Max = 8
     Step = 1
     TabOrder = 0
-    ExplicitTop = 137
   end
 end
