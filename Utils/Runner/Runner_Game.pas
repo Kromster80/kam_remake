@@ -39,6 +39,13 @@ type
     procedure TearDown; override;
   end;
 
+  TKMReplay = class(TKMRunnerCommon)
+  protected
+    procedure SetUp; override;
+    procedure Execute(aRun: Integer); override;
+    procedure TearDown; override;
+  end;
+
 
 implementation
 uses KM_PlayerSpectator;
@@ -242,11 +249,49 @@ begin
   fGameApp.Stop(gr_Silent);
 end;
 
+
+{ TKMReplay }
+procedure TKMReplay.SetUp;
+begin
+  inherited;
+  fResults.ValueCount := 1;
+  fResults.TimesCount := 2*60*60*10;
+end;
+
+procedure TKMReplay.TearDown;
+begin
+  inherited;
+
+end;
+
+procedure TKMReplay.Execute(aRun: Integer);
+var
+  T: Cardinal;
+begin
+  inherited;
+
+  //Intended to be run multiple of 4 times to compare different PF algorithms
+//  PathFinderToUse := (aRun mod 4) div 2; //01230123 > 00110011
+//  CACHE_PATHFINDING := Boolean(aRun mod 2);  //0101
+
+  fGameApp.NewReplay(ExtractFilePath(ParamStr(0)) + '\runner_replay.bas');
+
+  //Don't set random seed or the replay won't work
+  //SetKaMSeed(aRun div 4 + 1); //11112222
+
+  T := TimeGet;
+  SimulateGame;
+  fResults.Value[aRun, 0] := TimeGet - T;
+
+  fGameApp.Stop(gr_Silent);
+end;
+
 initialization
   RegisterRunner(TKMRunnerStone);
   RegisterRunner(TKMRunnerFight95);
   RegisterRunner(TKMRunnerAIBuild);
   RegisterRunner(TKMVortamicPF);
+  RegisterRunner(TKMReplay);
 
 
 end.
