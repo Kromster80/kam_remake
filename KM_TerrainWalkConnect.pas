@@ -15,6 +15,10 @@ type
     //Check whether passability was unchanged, if so we can completely skip the update
     class function CheckCanSkip(aWorkRect:TKMRect; aWC:TWalkConnect; aPass:TPassability; aDiagObjectsEffected: Boolean): Boolean;
 
+    //Helpful functions used to determine when it's ok to use LocalUpdate instead of slower GlobalUpdate
+    class function ExactlyOneAreaIDInRect_Current(aRect:TKMRect; aWC: TWalkConnect): Boolean;
+    class function ExactlyOneAreaIDInRect_New(aRect:TKMRect; aWC: TWalkConnect; aPass: TPassability; aAllowDiag: Boolean): Boolean;
+
     //GlobalUpdate rebuilds the entire map
     class procedure GlobalUpdate(aWC: TWalkConnect; aPass: TPassability; aAllowDiag: Boolean);
     //LocalUpdate just updates changes in aRect for much better performance, used under special conditions
@@ -45,7 +49,8 @@ begin
   //local area based on current passabilities (doing global update is a waste of time).
   //NOTE: This logic works because we grew aAreaAffected by 1.
   if (KMRectArea(LocalArea) < 64) //If the area is large the test takes too long, better to just do global update
-  and False then //todo
+  and ExactlyOneAreaIDInRect_Current(LocalArea, aWC)
+  and ExactlyOneAreaIDInRect_New(LocalArea, aWC, aPass, aAllowDiag) then
     LocalUpdate(LocalArea, aWC, aPass, aAllowDiag)
   else
     GlobalUpdate(aWC, aPass, aAllowDiag);
@@ -86,6 +91,99 @@ begin
       end;
       if not Result then Exit; //If one tile has changed, we need to do the whole thing
     end;
+end;
+
+
+//Returns true if there is exactly one walkable area within Rect in Land.WalkConnect (from last time we updated WalkConnect)
+class function TKMTerrainWalkConnect.ExactlyOneAreaIDInRect_Current(aRect:TKMRect; aWC: TWalkConnect): Boolean;
+var
+  AreaID: Byte;
+  X, Y: Word;
+begin
+  with fTerrain do
+  begin
+    //First find out the AreaID for this rect area BEFORE the change (must only be one!)
+    AreaID := 0;
+    for X := aRect.Left to aRect.Right do
+      for Y := aRect.Top to aRect.Bottom do
+        if (Land[Y,X].WalkConnect[aWC] <> 0) and (Land[Y,X].WalkConnect[aWC] <> AreaID) then
+        begin
+          //If we already found a different AreaID then there's more than one, so we can exit immediately
+          if (AreaID <> 0) then
+          begin
+            Result := False;
+            Exit;
+          end;
+          AreaID := Land[Y,X].WalkConnect[aWC];
+        end;
+    Result := (AreaID <> 0); //If we haven't exited yet and AreaID <> 0 then there's exactly one
+  end;
+end;
+
+
+//Do a local floodfill and check that there's exactly one area that matches passability
+class function TKMTerrainWalkConnect.ExactlyOneAreaIDInRect_New(aRect:TKMRect; aWC: TWalkConnect; aPass: TPassability; aAllowDiag: Boolean): Boolean;
+var
+  LocalWalkConnect: array of array of Boolean; //We can use Boolean instead of byte since we're only looking for one area
+
+  procedure LocalFillArea(X,Y: Word);
+  begin
+    with fTerrain do
+      if KMInRect(KMPoint(X,Y), aRect) //Within rectangle
+      and (not LocalWalkConnect[Y - aRect.Top, X - aRect.Left]) //Untested area
+      and (aPass in Land[Y,X].Passability) then //Matches passability
+      begin
+        LocalWalkConnect[Y - aRect.Top, X - aRect.Left] := True;
+        //Using custom TileInMapCoords replacement gives ~40% speed improvement
+        //Using custom CanWalkDiagonally is also much faster
+        if X-1 >= 1 then
+        begin
+          if aAllowDiag and (Y-1 >= 1) and not MapElem[Land[Y,X].Obj].DiagonalBlocked then
+            LocalFillArea(X-1, Y-1);
+          LocalFillArea(X-1, Y);
+          if aAllowDiag and (Y+1 <= MapY) and not MapElem[Land[Y+1,X].Obj].DiagonalBlocked then
+            LocalFillArea(X-1,Y+1);
+        end;
+
+        if Y-1 >= 1 then    LocalFillArea(X, Y-1);
+        if Y+1 <= MapY then LocalFillArea(X, Y+1);
+
+        if X+1 <= MapX then
+        begin
+          if aAllowDiag and (Y-1 >= 1) and not MapElem[Land[Y,X+1].Obj].DiagonalBlocked then
+            LocalFillArea(X+1, Y-1);
+          LocalFillArea(X+1, Y);
+          if aAllowDiag and (Y+1 <= MapY) and not MapElem[Land[Y+1,X+1].Obj].DiagonalBlocked then
+            LocalFillArea(X+1, Y+1);
+        end;
+      end;
+  end;
+
+var
+  X,Y: Word;
+  FoundAnArea: Boolean;
+begin
+  SetLength(LocalWalkConnect, (aRect.Bottom-aRect.Top)+1, (aRect.Right-aRect.Left)+1);
+
+  FoundAnArea := False;
+  for X := aRect.Left to aRect.Right do
+    for Y := aRect.Top to aRect.Bottom do
+      if not LocalWalkConnect[Y - aRect.Top, X - aRect.Left] //Untested area
+      and (aPass in fTerrain.Land[Y,X].Passability) then //Passability matches
+      begin
+        if FoundAnArea then
+        begin
+          Result := False; //We've found two walkable areas
+          Exit;
+        end
+        else
+        begin
+          LocalFillArea(X,Y); //Floodfill this area
+          FoundAnArea := True; //We have now found an area
+        end;
+      end;
+
+  Result := FoundAnArea; //If we haven't exited yet and we found an area then there's exactly one
 end;
 
 
@@ -272,7 +370,7 @@ begin
     AreaID := 0;
     for X := aRect.Left to aRect.Right do
       for Y := aRect.Top to aRect.Bottom do
-        if Land[Y,X].WalkConnect[aWC] <> 0 then
+        if (Land[Y,X].WalkConnect[aWC] <> 0) and (Land[Y,X].WalkConnect[aWC] <> AreaID) then
         begin
           Assert(AreaID = 0, 'Must not do local walk connect update with multiple AreaIDs in Rect');
           AreaID := Land[Y,X].WalkConnect[aWC];
