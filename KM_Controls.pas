@@ -2485,6 +2485,9 @@ begin
     VK_HOME:    CursorPos := 0;
     VK_END:     CursorPos := Length(fText);
   end;
+
+  if Assigned(OnChange) then
+    OnChange(Self);
 end;
 
 
@@ -2506,7 +2509,8 @@ begin
   if Key in [VK_F1..VK_F12, VK_ESCAPE] then Result := False;
 
   //Ctrl can be used as an escape character, e.g. CTRL+B places beacon while chat is open
-  if ssCtrl in Shift then Result := (Key in [Ord('C'), Ord('X'), Ord('V')]);
+  if ssCtrl in Shift then
+    Result := (Key in [Ord('C'), Ord('X'), Ord('V')]);
 end;
 
 
@@ -2524,8 +2528,6 @@ function TKMNumericEdit.KeyUp(Key: Word; Shift: TShiftState): Boolean;
 begin
   Result := KeyEventHandled(Key, Shift);
   if inherited KeyUp(Key, Shift) then Exit;
-
-  if Assigned(OnChange) then OnChange(Self);
 end;
 
 
@@ -2555,6 +2557,9 @@ begin
     Value := Value + Byte(AButton = mbLeft) + Byte(AButton = mbRight) * 10
   else
     Exit;
+
+  if Assigned(OnChange) then
+    OnChange(Self);
 end;
 
 
@@ -2623,22 +2628,18 @@ end;
 procedure TKMNumericEdit.SetValue(aValue: Integer);
 begin
   fValue := EnsureRange(aValue, ValueMin, ValueMax);
-
-  //if aValue = fValue then Exit;
-
   fText := IntToStr(fValue);
   SetCursorPos(MaxLength);
 
-  if Assigned(OnChange) then
-    OnChange(Self);
+  //External Value assignment should not generate OnChange event
 end;
 
 
 procedure TKMNumericEdit.ValidateText;
-var
-  I: Integer;
 const
   DigitChars: set of Char = ['1' .. '9', '0'];
+var
+  I: Integer;
 begin
   //Validate contents
   for I := Length(fText) downto 1 do
@@ -2653,6 +2654,9 @@ begin
     Value := 0
   else
     Value := StrToInt(fText);
+
+  if Assigned(OnChange) then
+    OnChange(Self);
 end;
 
 
