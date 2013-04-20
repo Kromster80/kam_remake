@@ -37,6 +37,7 @@ begin
   inherited Create(aUnit);
   fTaskName := utn_Mining;
   fWorkPlan := TUnitWorkPlan.Create;
+  fWorkPlan.OnWorkplanAllowed := TKMUnitCitizen(aUnit).WorkPlanProductValid;
   fBeastID  := 0;
 
   fWorkPlan.FindPlan( fUnit,

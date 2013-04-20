@@ -25,7 +25,8 @@ Bugs:
 
 Features:
  +	Records, sets, enums, dynamic arrays and multidimensional arrays now supported by script as global variables
-	Description box for campaigns shown on selection screen, so authors can put their name and contact
+ +	Description box for campaigns shown on selection screen, so authors can put their name and contact
+ +	Various optimisations to improve performance
 
 
 Finishing up:

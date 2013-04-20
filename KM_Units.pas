@@ -189,6 +189,7 @@ type
     function InitiateMining: TUnitTask;
     procedure IssueResourceDepletedMessage;
   public
+    function WorkPlanProductValid(aProduct: TWareType): Boolean;
     function CanWorkAt(aLoc: TKMPoint; aGatheringScript: TGatheringScript): Boolean;
     function GetActivityText: string; override;
     function UpdateState: Boolean; override;
@@ -321,6 +322,13 @@ begin
     fHome  := H.GetHousePointer;
     Result := true;
   end;
+end;
+
+
+//Used to improve efficiency of finding work plan
+function TKMUnitCitizen.WorkPlanProductValid(aProduct: TWareType): Boolean;
+begin
+  Result := (fHome.CheckResOut(aProduct) < MAX_WARES_IN_HOUSE);
 end;
 
 
