@@ -48,6 +48,48 @@ begin
   //the map (by blocking or allowing access to some other area), so we can just update the
   //local area based on current passabilities (doing global update is a waste of time).
   //NOTE: This logic works because we grew aAreaAffected by 1.
+
+  //Here are some examples: Lets say 1 tile was changed, so we get a 3x3 area for LocalArea.
+
+  //   EXAMPLE 1
+  //Say current Land.WalkConnect (out of date) shows this for our area:
+  //  101
+  //  111
+  //  101
+  //So ExactlyOneAreaIDInRect_Current returns True (there is exactly 1 area).
+  //ExactlyOneAreaIDInRect_New does a local floodfill just on LocalArea, and we get this result:
+  //  102
+  //  102
+  //  102
+  //So we can see now that the affected tile (in the middle) became unwalkable.
+  //This means ExactlyOneAreaIDInRect_New returns false (there are exactly 2 areas, not 1)
+  //and we do a global update.
+
+  //   EXAMPLE 2
+  //Say current Land.WalkConnect (out of date) shows this for our area:
+  //  102
+  //  102
+  //  102
+  //And the new walk connect should look like this: (middle tile became walkable)
+  //  101
+  //  111
+  //  101
+  //In this case ExactlyOneAreaIDInRect_Current returns False (there are exactly 2 areas, not 1)
+  //and we do a global update.
+
+  //   EXAMPLE 3
+  //Say current Land.WalkConnect (out of date) shows this for our area:
+  //  111
+  //  101
+  //  101
+  //And the new walk connect should look like this: (middle tile became walkable)
+  //  111
+  //  111
+  //  101
+  //In this case ExactlyOneAreaIDInRect_Current returns True (there is exactly 1 area)
+  //and ExactlyOneAreaIDInRect_New returns True (there is exactly 1 area there too)
+  //This means we do a local update, which updates Land.WalkConnect within this area
+
   if (KMRectArea(LocalArea) < 64) //If the area is large the test takes too long, better to just do global update
   and ExactlyOneAreaIDInRect_Current(LocalArea, aWC)
   and ExactlyOneAreaIDInRect_New(LocalArea, aWC, aPass, aAllowDiag) then
