@@ -76,8 +76,6 @@ begin
     fOpenGL_Version  := glGetString(GL_VERSION);  fLog.AddNoTime('OpenGL Version: '  + string(fOpenGL_Version));
 
     SetupVSync(aVSync);
-    //todo: Is this needed? Make it multiplatform
-    //BuildFont(h_DC, 16, FW_BOLD);
 
     Resize(ScreenX, ScreenY);
   end;
