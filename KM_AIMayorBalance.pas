@@ -174,6 +174,7 @@ procedure TKMayorBalance.Append(aHouse: THouseType; aCount: Byte = 1);
 var
   I: Integer;
 begin
+  //ArmorWorkshop is needed to produce Shields before Tannery is made
   if (aHouse = ht_ArmorWorkshop)
   and not fPlayers[fOwner].Stats.GetCanBuild(ht_ArmorWorkshop)
   and (fPlayers[fOwner].Stats.GetHouseTotal(ht_Tannery) = 0) then
@@ -223,6 +224,22 @@ begin
             List[2] := List[2] + ProductionRate[wt_Wood];
           end;
     end;
+
+
+    //Do not build extra houses if we are low on building materials
+    if (fPlayers[fOwner].Stats.GetWareBalance(wt_Stone) < 40)
+    and (fPlayers[fOwner].Stats.GetHouseQty(ht_Quary) = 0) 
+    and (fPlayers[fOwner].Stats.GetHouseWip(ht_Quary) > 1) then
+      Break;
+
+{  if (fPlayers[fOwner].Stats.GetHouseQty(ht_Quary) = 0)
+  and (fPlayers[fOwner].Stats.GetWareBalance(wt_Stone) < 40) then
+  while not (Result in [ht_None, ht_School, ht_Quary]) do
+  begin
+    Take;
+    Result := Peek;
+  end;}
+  
   until False;
 end;
 
@@ -831,15 +848,6 @@ begin
     Result := fAdvice[0]
   else
     Result := ht_None;
-
-  //Do not build extra houses if we are low on Stone
-  if (fPlayers[fOwner].Stats.GetHouseQty(ht_Quary) = 0) and
-  (fPlayers[fOwner].Stats.GetWareBalance(wt_Stone) < 40) then
-  while not (Result in [ht_None, ht_School, ht_Quary]) do
-  begin
-    Take;
-    Result := Peek;
-  end;
 end;
 
 
