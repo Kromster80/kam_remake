@@ -2481,10 +2481,10 @@ function TKMTerrain.CheckHeightPass(aLoc:TKMPoint; aPass:THeightPass): Boolean;
     // 1 2
     // 3 4
     //Local map boundaries test is faster
-    Points[1] := Land[aLoc.Y,                 aLoc.X].Height;
-    Points[2] := Land[aLoc.Y,                 Min(aLoc.X+1, fMapX-1)].Height;
-    Points[3] := Land[Min(aLoc.Y+1, fMapY-1), aLoc.X].Height;
-    Points[4] := Land[Min(aLoc.Y+1, fMapY-1), Min(aLoc.X+1, fMapX-1)].Height;
+    Points[1] := Land[aLoc.Y,               aLoc.X].Height;
+    Points[2] := Land[aLoc.Y,               Min(aLoc.X+1, fMapX)].Height;
+    Points[3] := Land[Min(aLoc.Y+1, fMapY), aLoc.X].Height;
+    Points[4] := Land[Min(aLoc.Y+1, fMapY), Min(aLoc.X+1, fMapX)].Height;
 
     {KaM method checks the differences between the 4 verticies around the tile.
     There is a special case that means it is more (twice) as tolerant to bottom-left to top right (2-3) and
@@ -2512,9 +2512,9 @@ begin
   Result := true;
   if not TileInMapCoords(aLoc.X,aLoc.Y) then exit;
   case aPass of
-    hpWalking: Result := TestHeight(25);
-    hpBuilding: Result := TestHeight(18);
-    hpBuildingMines: Result := TestHeight(25);
+    hpWalking:        Result := TestHeight(25);
+    hpBuilding:       Result := TestHeight(18);
+    hpBuildingMines:  Result := TestHeight(25);
   end;
 end;
 

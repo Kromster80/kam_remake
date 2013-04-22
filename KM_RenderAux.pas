@@ -365,15 +365,16 @@ end;
 
 
 procedure TRenderAux.Wires(aRect: TKMRect);
-var i,k:integer;
+var
+  I, K: Integer;
 begin
-  for I := aRect.Top to aRect.Bottom do
+  for I := aRect.Top to aRect.Bottom + 1 do
   begin
     glBegin(GL_LINE_STRIP);
-    for K := aRect.Left to aRect.Right do
+    for K := aRect.Left to aRect.Right + 1 do
     begin
-      glColor4f(0.8,1,0.6,1);
-      glvertex2f(k-1,i-1-fTerrain.Land[i,k].Height/CELL_HEIGHT_DIV);
+      glColor3f(0.8, 1, 0.6);
+      glVertex2d(K - 1, I - 1 - fTerrain.Land[I, K].Height / CELL_HEIGHT_DIV);
     end;
     glEnd;
   end;
@@ -381,12 +382,12 @@ begin
   glPushAttrib(GL_POINT_BIT);
     glPointSize(3);
     glBegin(GL_POINTS);
-    for I := aRect.Top to aRect.Bottom do
-    for K := aRect.Left to aRect.Right do
+    for I := aRect.Top to aRect.Bottom + 1 do
+    for K := aRect.Left to aRect.Right + 1 do
     begin
-      //glColor4f(fTerrain.Land[i,k].Height/100,0,0,1.2-sqrt(sqr(i-MapYc)+sqr(k-MapXc))/10);
-      glColor4f(byte(fTerrain.Land[i,k].Fence=fncHousePlan),byte(fTerrain.Land[i,k].Fence=fncHousePlan),0,1);
-      glvertex2f(k-1,i-1-fTerrain.Land[i,k].Height/CELL_HEIGHT_DIV);
+      //glColor4f(fTerrain.Land[I,K].Height/100,0,0,1.2-sqrt(sqr(I-MapYc)+sqr(K-MapXc))/10);
+      glColor3f(Byte(fTerrain.Land[I,K].Fence = fncHousePlan), Byte(fTerrain.Land[I,K].Fence = fncHousePlan), 0);
+      glVertex2d(K - 1, I - 1 - fTerrain.Land[I, K].Height / CELL_HEIGHT_DIV);
     end;
     glEnd;
   glPopAttrib;
