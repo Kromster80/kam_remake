@@ -18,6 +18,7 @@ Accepted:
 	PlanCancel (road/field/house)
 	Parameter for DestroyHouse "LeavesRubble" (allows scripters to do a primative "ChangeHouseOwner")
 	States.HouseUnderAttack or OnHouseUnderAttack or similar (needed for Tower Defence)
+  DisplayText(text, player_id, timeout) to show announcements that will be gone after timeout (for TD and etc.)
 
 
 Proposed:
