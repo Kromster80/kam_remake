@@ -529,7 +529,14 @@ begin
       if SameText(V.FType.ExportName, 'TKMScriptStates')
       or SameText(V.FType.ExportName, 'TKMScriptActions') then
         Continue;
+
       fErrorString := fErrorString + ValidateVarType(V.FType);
+      if fErrorString <> '' then
+      begin
+        //Don't allow the script to run
+        fExec.Clear;
+        Exit;
+      end;
     end;
 
     //Link script objects with objects
