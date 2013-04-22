@@ -218,6 +218,7 @@
 			<DCCReference Include="KM_Terrain.pas"/>
 			<DCCReference Include="KM_TerrainFinder.pas"/>
 			<DCCReference Include="KM_TerrainPainter.pas"/>
+			<DCCReference Include="KM_TerrainWalkConnect.pas"/>
 			<DCCReference Include="KM_TextLibrary.pas"/>
 			<DCCReference Include="KM_UnitActionAbandonWalk.pas"/>
 			<DCCReference Include="KM_UnitActionFight.pas"/>
