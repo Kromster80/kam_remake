@@ -13,6 +13,7 @@ Bugs:
  +	Message log should be hidden until the 1st message arrives, looks odd to have a blank scroll
  +	Strikethrough effect on text with color markup was wrong (ping/FPS after player quits)
  +  Saving map in MapEd takes a lot of time
+ +	Access violation crash in GetGroupPointer when ordering a warrior to attack a warrior that is dying or walking out of the barracks
 	we had a match on "Coastal Encounter Score" with 2 humans and 1 AI. One human lost all of his troops first. The moment his last fighter died, the server disconnected him.
 	Archers are much less responsive in MP (due to finishing attack sequence to prevent exploit) [Lewin]
 	Some MP maps don't let you use AIs in certain locations (probably a legacy of Lewin's editor)

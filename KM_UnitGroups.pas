@@ -1315,14 +1315,20 @@ end;
 
 
 procedure TKMUnitGroup.SetOrderTargetUnit(aUnit: TKMUnit);
+var G: TKMUnitGroup;
 begin
   //Remove previous value
   ClearOrderTarget;
-  if aUnit <> nil then
+  if (aUnit <> nil) and not (aUnit.IsDeadOrDying) then
   begin
     fOrderTargetUnit := aUnit.GetUnitPointer; //Else it will be nil from ClearOrderTarget
     if (aUnit is TKMUnitWarrior) and not IsRanged then
-      fOrderTargetGroup := fPlayers[aUnit.Owner].UnitGroups.GetGroupByMember(TKMUnitWarrior(aUnit)).GetGroupPointer;
+    begin
+      G := fPlayers[aUnit.Owner].UnitGroups.GetGroupByMember(TKMUnitWarrior(aUnit));
+      //Target warrior won't have a group while he's walking out of the barracks
+      if G <> nil then
+        fOrderTargetGroup := G.GetGroupPointer;
+    end;
   end;
 end;
 
@@ -1331,7 +1337,7 @@ procedure TKMUnitGroup.SetOrderTargetHouse(aHouse: TKMHouse);
 begin
   //Remove previous value
   ClearOrderTarget;
-  if aHouse <> nil then
+  if (aHouse <> nil) and not aHouse.IsDestroyed then
     fOrderTargetHouse := aHouse.GetHousePointer; //Else it will be nil from ClearOrderTarget
 end;
 
