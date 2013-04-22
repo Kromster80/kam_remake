@@ -283,6 +283,7 @@ begin
       fLocale := DEFAULT_LOCALE; //Use English voices when no language specific voices exist
 
   fIsSoundInitialized := InitOpenAL;
+  Set8087CW($133F); //Above OpenAL call messes up FPU settings
   if not fIsSoundInitialized then begin
     fLog.AddNoTime('OpenAL warning. OpenAL could not be initialized.');
     if aShowWarningDlg then
@@ -294,6 +295,7 @@ begin
 
   //Open device
   fALDevice := alcOpenDevice(nil); // this is supposed to select the "preferred device"
+  Set8087CW($133F); //Above OpenAL call messes up FPU settings
   if fALDevice = nil then begin
     fLog.AddNoTime('OpenAL warning. Device could not be opened.');
     //MessageDlg works better than Application.MessageBox or others, it stays on top and pauses here until the user clicks ok.
@@ -304,6 +306,7 @@ begin
 
   //Create context(s)
   Context := alcCreateContext(fALDevice, nil);
+  Set8087CW($133F); //Above OpenAL call messes up FPU settings
   if Context = nil then begin
     fLog.AddNoTime('OpenAL warning. Context could not be created.');
     //MessageDlg works better than Application.MessageBox or others, it stays on top and pauses here until the user clicks ok.
@@ -313,7 +316,9 @@ begin
   end;
 
   //Set active context
-  if alcMakeContextCurrent(Context) > 1 then begin //valid returns are AL_NO_ERROR=0 and AL_TRUE=1
+  I := alcMakeContextCurrent(Context);
+  Set8087CW($133F); //Above OpenAL call messes up FPU settings
+  if I > 1 then begin //valid returns are AL_NO_ERROR=0 and AL_TRUE=1
     fLog.AddNoTime('OpenAL warning. Context could not be made current.');
     //MessageDlg works better than Application.MessageBox or others, it stays on top and pauses here until the user clicks ok.
     MessageDlg('OpenAL context could not be made current. Please refer to Readme.html for solution', mtWarning, [mbOk], 0);
@@ -334,7 +339,7 @@ begin
   fLog.AddTime('ALC_MONO_SOURCES',NumMono);
   fLog.AddTime('ALC_STEREO_SOURCES',NumStereo);
 
-  for i:=1 to MAX_SOUNDS do begin
+  for I:=1 to MAX_SOUNDS do begin
     AlGenBuffers(1, @fSound[i].ALBuffer);
     AlGenSources(1, @fSound[i].ALSource);
   end;

@@ -224,6 +224,10 @@ procedure TKMMain.DoIdle(Sender: TObject; var Done: Boolean);
 var
   FrameTime: Cardinal;
 begin
+  if CHECK_8087CW then
+    //$1F3F is used to mask out reserved/undefined bits
+    Assert((Get8087CW and $1F3F = $133F), '8087CW is wrong');
+
   //if not Form1.Active then exit;
 
   //Counting FPS
