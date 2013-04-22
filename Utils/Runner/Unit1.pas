@@ -92,6 +92,15 @@ end;
 
 
 procedure TForm2.RadioGroup1Click(Sender: TObject);
+
+{$IFDEF FPC}
+  function Point(X,Y: Integer): TPoint;
+  begin
+    Result.X := X;
+    Result.Y := Y;
+  end;
+{$ENDIF}
+
 const
   COLORS_COUNT = 8;
   LineCol: array [0..COLORS_COUNT - 1] of TColor =
