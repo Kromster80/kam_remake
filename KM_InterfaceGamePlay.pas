@@ -4185,6 +4185,7 @@ var
   H: TKMHouse;
   Group, Group2: TKMUnitGroup;
   OldSelected: TObject;
+  OldSelectedUnit: TKMUnitWarrior;
 begin
   if fDragScrolling then
   begin
@@ -4216,163 +4217,179 @@ begin
   P := GameCursor.Cell; //It's used in many places here
 
   case Button of
-    mbLeft:   begin
-                //Process groups joining
-                if fJoiningGroups and (MySpectator.Selected is TKMUnitGroup) then
+    mbLeft:
+      begin
+        //Process groups joining
+        if fJoiningGroups and (MySpectator.Selected is TKMUnitGroup) then
+        begin
+          Group := TKMUnitGroup(MySpectator.Selected);
+          U := fPlayers[MySpectator.PlayerIndex].UnitsHitTest(P.X, P.Y); //Scan only teammates
+          if (U is TKMUnitWarrior)
+          and not U.IsDeadOrDying
+          and not Group.HasMember(U)
+          and (Group.GroupType = UnitGroups[U.UnitType]) then
+          begin
+            Group2 := fPlayers[MySpectator.PlayerIndex].UnitGroups.GetGroupByMember(TKMUnitWarrior(U));
+            fSoundLib.PlayWarrior(Group.UnitType, sp_Join); //In SP joining is instant, Group does not exist after that
+            fGame.GameInputProcess.CmdArmy(gic_ArmyLink, Group, Group2);
+            Army_HideJoinMenu(nil);
+          end;
+          Exit;
+        end;
+
+        if fPlacingBeacon then
+        begin
+          fGame.GameInputProcess.CmdGame(gic_GameAlertBeacon, GameCursor.Float, MySpectator.PlayerIndex);
+          Beacon_Cancel;
+          Exit;
+        end;
+
+        //Only allow placing of roads etc. with the left mouse button
+        if MySpectator.FogOfWar.CheckTileRevelation(P.X, P.Y) = 0 then
+        begin
+          if GameCursor.Mode in [cmErase, cmRoad, cmField, cmWine, cmWall, cmHouses] then
+            //Can't place noise when clicking on unexplored areas
+            fSoundLib.Play(sfx_CantPlace, P, False, 4.0);
+        end
+        else
+          case GameCursor.Mode of
+            cmNone:
+              begin
+                //Remember previous selection to play sound if it changes
+                OldSelected := MySpectator.Selected;
+                if OldSelected is TKMUnitGroup then
+                  OldSelectedUnit := TKMUnitGroup(MySpectator.Selected).SelectedUnit;
+
+                //Allow to select any players assets in replay
+                MySpectator.SelectHitTest(P.X, P.Y);
+
+                //In a replay we want in-game statistics (and other things) to be shown for the owner of the last select object
+                if fReplay then
+                begin
+                  if MySpectator.Selected is TKMHouse then MySpectator.PlayerIndex := TKMHouse(MySpectator.Selected).Owner;
+                  if MySpectator.Selected is TKMUnit  then MySpectator.PlayerIndex := TKMUnit (MySpectator.Selected).Owner;
+                end;
+
+                if (MySpectator.Selected is TKMHouse) then
+                  ShowHouseInfo(TKMHouse(MySpectator.Selected));
+
+                if (MySpectator.Selected is TKMUnit) then
+                begin
+                  ShowUnitInfo(TKMUnit(MySpectator.Selected));
+                  if not fReplay and not HasLostMPGame
+                  and (OldSelected <> MySpectator.Selected) then
+                    fSoundLib.PlayCitizen(TKMUnit(MySpectator.Selected).UnitType, sp_Select);
+                end;
+
+                if (MySpectator.Selected is TKMUnitGroup) then
                 begin
                   Group := TKMUnitGroup(MySpectator.Selected);
-                  U := fPlayers[MySpectator.PlayerIndex].UnitsHitTest(P.X, P.Y); //Scan only teammates
-                  if (U is TKMUnitWarrior)
-                  and not U.IsDeadOrDying
-                  and not Group.HasMember(U)
-                  and (Group.GroupType = UnitGroups[U.UnitType]) then
-                  begin
-                    Group2 := fPlayers[MySpectator.PlayerIndex].UnitGroups.GetGroupByMember(TKMUnitWarrior(U));
-                    fSoundLib.PlayWarrior(Group.UnitType, sp_Join); //In SP joining is instant, Group does not exist after that
-                    fGame.GameInputProcess.CmdArmy(gic_ArmyLink, Group, Group2);
-                    Army_HideJoinMenu(nil);
-                  end;
-                  Exit;
+                  ShowGroupInfo(Group);
+                  if not fReplay and not HasLostMPGame
+                  and ((OldSelected <> Group) or (OldSelectedUnit <> Group.SelectedUnit)) then
+                    fSoundLib.PlayWarrior(Group.SelectedUnit.UnitType, sp_Select);
                 end;
+              end;
 
-                if fPlacingBeacon then
-                begin
-                  fGame.GameInputProcess.CmdGame(gic_GameAlertBeacon, GameCursor.Float, MySpectator.PlayerIndex);
-                  Beacon_Cancel;
-                  Exit;
-                end;
+            cmRoad:
+              if KMSamePoint(LastDragPoint,KMPoint(0,0)) then fGame.GameInputProcess.CmdBuild(gic_BuildAddFieldPlan, P, ft_Road);
 
-                //Only allow placing of roads etc. with the left mouse button
-                if MySpectator.FogOfWar.CheckTileRevelation(P.X, P.Y) = 0 then
+            cmField:
+              if KMSamePoint(LastDragPoint,KMPoint(0,0)) then fGame.GameInputProcess.CmdBuild(gic_BuildAddFieldPlan, P, ft_Corn);
+
+            cmWine:
+              if KMSamePoint(LastDragPoint,KMPoint(0,0)) then fGame.GameInputProcess.CmdBuild(gic_BuildAddFieldPlan, P, ft_Wine);
+
+            cmWall:
+              fGame.GameInputProcess.CmdBuild(gic_BuildAddFieldPlan, P, ft_Wall);
+
+            cmHouses:
+              if fPlayers[MySpectator.PlayerIndex].CanAddHousePlan(P, THouseType(GameCursor.Tag1)) then
+              begin
+                fGame.GameInputProcess.CmdBuild(gic_BuildHousePlan, P,
+                  THouseType(GameCursor.Tag1));
+                if not (ssShift in Shift) then Build_ButtonClick(Button_BuildRoad); //If shift pressed do not reset cursor(keep selected building)
+              end
+              else
+                fSoundLib.Play(sfx_CantPlace,P,false,4.0);
+            cmErase:
+              if KMSamePoint(LastDragPoint,KMPoint(0,0)) then
+              begin
+                H := fPlayers[MySpectator.PlayerIndex].HousesHitTest(P.X, P.Y);
+                //Ask wherever player wants to destroy own house (don't ask about houses that are not started, they are removed below)
+                if H <> nil then
                 begin
-                  if GameCursor.Mode in [cmErase, cmRoad, cmField, cmWine, cmWall, cmHouses] then
-                    fSoundLib.Play(sfx_CantPlace,P,false,4.0); //Can't place noise when clicking on unexplored areas
+                  MySpectator.Selected := H; //Select the house irregardless of unit below/above
+                  ShowHouseInfo(H, True);
+                  fSoundLib.Play(sfx_Click);
                 end
                 else
-                  case GameCursor.Mode of
-                    cmNone:  begin
-                                //Remember previous selection to play sound if it changes
-                                OldSelected := MySpectator.Selected;
-
-                                //Allow to select any players assets in replay
-                                MySpectator.SelectHitTest(P.X, P.Y);
-
-                                //In a replay we want in-game statistics (and other things) to be shown for the owner of the last select object
-                                if fReplay then
-                                begin
-                                  if MySpectator.Selected is TKMHouse then MySpectator.PlayerIndex := TKMHouse(MySpectator.Selected).Owner;
-                                  if MySpectator.Selected is TKMUnit  then MySpectator.PlayerIndex := TKMUnit (MySpectator.Selected).Owner;
-                                end;
-
-                                if (MySpectator.Selected is TKMHouse) then
-                                  ShowHouseInfo(TKMHouse(MySpectator.Selected));
-
-                                if (MySpectator.Selected is TKMUnit) then
-                                begin
-                                  ShowUnitInfo(TKMUnit(MySpectator.Selected));
-                                  if (OldSelected <> MySpectator.Selected) and not fReplay and not HasLostMPGame then
-                                    fSoundLib.PlayCitizen(TKMUnit(MySpectator.Selected).UnitType, sp_Select);
-                                end;
-
-                                if (MySpectator.Selected is TKMUnitGroup) then
-                                begin
-                                  Group := TKMUnitGroup(MySpectator.Selected);
-                                  ShowGroupInfo(Group);
-                                  if (OldSelected <> MySpectator.Selected) and not fReplay and not HasLostMPGame then
-                                    fSoundLib.PlayWarrior(Group.SelectedUnit.UnitType, sp_Select);
-                                end;
-                              end;
-                    cmRoad:  if KMSamePoint(LastDragPoint,KMPoint(0,0)) then fGame.GameInputProcess.CmdBuild(gic_BuildAddFieldPlan, P, ft_Road);
-                    cmField: if KMSamePoint(LastDragPoint,KMPoint(0,0)) then fGame.GameInputProcess.CmdBuild(gic_BuildAddFieldPlan, P, ft_Corn);
-                    cmWine:  if KMSamePoint(LastDragPoint,KMPoint(0,0)) then fGame.GameInputProcess.CmdBuild(gic_BuildAddFieldPlan, P, ft_Wine);
-                    cmWall:  fGame.GameInputProcess.CmdBuild(gic_BuildAddFieldPlan, P, ft_Wall);
-                    cmHouses:if fPlayers[MySpectator.PlayerIndex].CanAddHousePlan(P, THouseType(GameCursor.Tag1)) then
-                      begin
-                        fGame.GameInputProcess.CmdBuild(gic_BuildHousePlan, P,
-                          THouseType(GameCursor.Tag1));
-                        if not (ssShift in Shift) then Build_ButtonClick(Button_BuildRoad); //If shift pressed do not reset cursor(keep selected building)
-                      end
-                      else
-                        fSoundLib.Play(sfx_CantPlace,P,false,4.0);
-                    cmErase: if KMSamePoint(LastDragPoint,KMPoint(0,0)) then
-                              begin
-                                H := fPlayers[MySpectator.PlayerIndex].HousesHitTest(P.X, P.Y);
-                                //Ask wherever player wants to destroy own house (don't ask about houses that are not started, they are removed below)
-                                if H <> nil then
-                                begin
-                                  MySpectator.Selected := H; //Select the house irregardless of unit below/above
-                                  ShowHouseInfo(H, True);
-                                  fSoundLib.Play(sfx_Click);
-                                end
-                                else
-                                begin
-                                  //Now remove houses that are not started
-                                  if fPlayers[MySpectator.PlayerIndex].BuildList.HousePlanList.HasPlan(P) then
-                                    fGame.GameInputProcess.CmdBuild(gic_BuildRemoveHousePlan, P)
-                                  else
-                                    if fPlayers[MySpectator.PlayerIndex].BuildList.FieldworksList.HasFakeField(P) <> ft_None then
-                                      fGame.GameInputProcess.CmdBuild(gic_BuildRemoveFieldPlan, P) //Remove plans
-                                    else
-                                      fSoundLib.Play(sfx_CantPlace,P,false,4.0); //Otherwise there is nothing to erase
-                                end;
-                              end;
-                  end
-              end;
-    mbRight:  begin
-                //Cancel build/join
-                if Panel_Build.Visible then
-                  SwitchPage(Button_Back);
-                if fJoiningGroups then
                 begin
-                  Army_HideJoinMenu(nil);
-                  Exit; //Don't order troops too
-                end;
-
-                //Process warrior commands
-                if not fReplay
-                and not HasLostMPGame
-                and not fJoiningGroups
-                and not fPlacingBeacon
-                and (MySpectator.Selected is TKMUnitGroup) then
-                begin
-                  Group := TKMUnitGroup(MySpectator.Selected);
-
-                  //Attack or Walk
-                  if Group.CanTakeOrders and (Group.Owner = MySpectator.PlayerIndex) then
-                  begin
-                    //Try to Attack unit
-                    U := fTerrain.UnitsHitTest(P.X, P.Y);
-                    if (U <> nil) and not U.IsDeadOrDying
-                    and (fPlayers.CheckAlliance(MySpectator.PlayerIndex, U.Owner) = at_Enemy) then
-                    begin
-                      fGame.GameInputProcess.CmdArmy(gic_ArmyAttackUnit, Group, U);
-                      fSoundLib.PlayWarrior(Group.UnitType, sp_Attack);
-                    end
+                  //Now remove houses that are not started
+                  if fPlayers[MySpectator.PlayerIndex].BuildList.HousePlanList.HasPlan(P) then
+                    fGame.GameInputProcess.CmdBuild(gic_BuildRemoveHousePlan, P)
+                  else
+                    if fPlayers[MySpectator.PlayerIndex].BuildList.FieldworksList.HasFakeField(P) <> ft_None then
+                      fGame.GameInputProcess.CmdBuild(gic_BuildRemoveFieldPlan, P) //Remove plans
                     else
-                    begin //If there's no unit - try to Attack house
-                      H := fPlayers.HousesHitTest(P.X, P.Y);
-                      if (H <> nil) and not H.IsDestroyed
-                      and (fPlayers.CheckAlliance(MySpectator.PlayerIndex, H.Owner) = at_Enemy) then
-                      begin
-                        fGame.GameInputProcess.CmdArmy(gic_ArmyAttackHouse, Group, H);
-                        fSoundLib.PlayWarrior(Group.UnitType, sp_Attack);
-                      end
-                      else //If there's no house - Walk to spot
-                        //Ensure down click was successful (could have been over a mountain, then dragged to a walkable location)
-                        if SelectingTroopDirection and Group.CanWalkTo(P, 0) then
-                        begin
-                          fGame.GameInputProcess.CmdArmy(gic_ArmyWalk, Group, P, SelectedDirection);
-                          fSoundLib.PlayWarrior(Group.UnitType, sp_Move);
-                        end;
-                    end;
-                  end;
+                      fSoundLib.Play(sfx_CantPlace,P,false,4.0); //Otherwise there is nothing to erase
                 end;
-                //Not selecting direction now (must do it at the end because SelectingTroopDirection is used for Walk above)
-                ReleaseDirectionSelector;
               end;
-    //Placing scouts with middle click is disabled now we have middle click scrolling. Use Q key instead.
-    {mbMiddle: if DEBUG_CHEATS and (MULTIPLAYER_CHEATS or not fMultiplayer) then
-                fGame.GameInputProcess.CmdTemp(gic_TempAddScout, P);}
+          end
+      end;
+    mbRight:
+      begin
+        //Cancel build/join
+        if Panel_Build.Visible then
+          SwitchPage(Button_Back);
+        if fJoiningGroups then
+        begin
+          Army_HideJoinMenu(nil);
+          Exit; //Don't order troops too
+        end;
+
+        //Process warrior commands
+        if not fReplay
+        and not HasLostMPGame
+        and not fJoiningGroups
+        and not fPlacingBeacon
+        and (MySpectator.Selected is TKMUnitGroup) then
+        begin
+          Group := TKMUnitGroup(MySpectator.Selected);
+
+          //Attack or Walk
+          if Group.CanTakeOrders and (Group.Owner = MySpectator.PlayerIndex) then
+          begin
+            //Try to Attack unit
+            U := fTerrain.UnitsHitTest(P.X, P.Y);
+            if (U <> nil) and not U.IsDeadOrDying
+            and (fPlayers.CheckAlliance(MySpectator.PlayerIndex, U.Owner) = at_Enemy) then
+            begin
+              fGame.GameInputProcess.CmdArmy(gic_ArmyAttackUnit, Group, U);
+              fSoundLib.PlayWarrior(Group.UnitType, sp_Attack);
+            end
+            else
+            begin //If there's no unit - try to Attack house
+              H := fPlayers.HousesHitTest(P.X, P.Y);
+              if (H <> nil) and not H.IsDestroyed
+              and (fPlayers.CheckAlliance(MySpectator.PlayerIndex, H.Owner) = at_Enemy) then
+              begin
+                fGame.GameInputProcess.CmdArmy(gic_ArmyAttackHouse, Group, H);
+                fSoundLib.PlayWarrior(Group.UnitType, sp_Attack);
+              end
+              else //If there's no house - Walk to spot
+                //Ensure down click was successful (could have been over a mountain, then dragged to a walkable location)
+                if SelectingTroopDirection and Group.CanWalkTo(P, 0) then
+                begin
+                  fGame.GameInputProcess.CmdArmy(gic_ArmyWalk, Group, P, SelectedDirection);
+                  fSoundLib.PlayWarrior(Group.UnitType, sp_Move);
+                end;
+            end;
+          end;
+        end;
+        //Not selecting direction now (must do it at the end because SelectingTroopDirection is used for Walk above)
+        ReleaseDirectionSelector;
+      end;
   end;
 
   LastDragPoint := KMPoint(0,0);
