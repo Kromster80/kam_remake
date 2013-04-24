@@ -3836,7 +3836,7 @@ begin
   Result := ((Key = VK_UP) or (Key = VK_DOWN)) and not HideSelection;
   if inherited KeyDown(Key, Shift) then Exit;
 
-  if not HideSelection then Exit; //Can't change selection if it's hidden
+  if HideSelection then Exit; //Can't change selection if it's hidden
   case Key of
     VK_UP:      NewIndex := fItemIndex - 1;
     VK_DOWN:    NewIndex := fItemIndex + 1;
