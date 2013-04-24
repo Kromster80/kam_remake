@@ -9,6 +9,7 @@ Backgrounds to remove from house overlays
  - Corn in swine farm cover some bits of snow
  - Recruit idle and throwing animation in tower covers snow on roof
  - Mill working animation covers snow on roof
+ - Mill, snow on roof is clipped
  - Carpenter in armour workshop covers snow on wall behind his head in both working and idle animations (shadows on wall to be kept)
  - Bread in bakery covers snow on table legs
  - Sawmill logs hides snow on fence
@@ -19,5 +20,6 @@ Backgrounds to remove from house overlays
 
 Other things to fix:
  - Pigs in swine farm cover some bits of snow. Makes Z order look wrong since snow now extends beyond original fence boundaries. Fix by clipping snow on fences to original fence pixels, so pig animations fit around it.
+ - Pigs in swines yard probably should not have snow below (add some dirt like in Stables)
  - Shadow of mill blades on roof look odd (convert shadows to pixel chessboard like other shadows)
 
