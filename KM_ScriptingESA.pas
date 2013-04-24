@@ -59,6 +59,8 @@ type
     function PlayerDefeated(aPlayer: Byte): Boolean;
     function PlayerEnabled(aPlayer: Byte): Boolean;
     function PlayerGetAllUnits(aPlayer: Byte): TIntegerArray;
+    function PlayerGetAllHouses(aPlayer: Byte): TIntegerArray;
+    function PlayerGetAllGroups(aPlayer: Byte): TIntegerArray;
     function PlayerName(aPlayer: Byte): AnsiString;
     function PlayerColorText(aPlayer: Byte): AnsiString;
     function PlayerVictorious(aPlayer: Byte): Boolean;
@@ -305,6 +307,68 @@ begin
   else
   begin
     LogError('States.PlayerGetAllUnits', [aPlayer]);
+  end;
+end;
+
+
+function TKMScriptStates.PlayerGetAllHouses(aPlayer: Byte): TIntegerArray;
+var
+  I, HouseCount: Integer;
+  H: TKMHouse;
+begin
+  SetLength(Result, 0);
+
+  if InRange(aPlayer, 0, fPlayers.Count - 1) then
+  begin
+    HouseCount := 0;
+
+    //Allocate max required space
+    SetLength(Result, fPlayers[aPlayer].Houses.Count);
+    for I := 0 to fPlayers[aPlayer].Units.Count - 1 do
+    begin
+      H := fPlayers[aPlayer].Houses[I];
+      if H.IsDestroyed then Continue;
+      Result[HouseCount] := H.ID;
+      Inc(HouseCount);
+    end;
+
+    //Trim to length
+    SetLength(Result, HouseCount);
+  end
+  else
+  begin
+    LogError('States.PlayerGetAllHouses', [aPlayer]);
+  end;
+end;
+
+
+function TKMScriptStates.PlayerGetAllGroups(aPlayer: Byte): TIntegerArray;
+var
+  I, GroupCount: Integer;
+  G: TKMUnitGroup;
+begin
+  SetLength(Result, 0);
+
+  if InRange(aPlayer, 0, fPlayers.Count - 1) then
+  begin
+    GroupCount := 0;
+
+    //Allocate max required space
+    SetLength(Result, fPlayers[aPlayer].UnitGroups.Count);
+    for I := 0 to fPlayers[aPlayer].UnitGroups.Count - 1 do
+    begin
+      G := fPlayers[aPlayer].UnitGroups[I];
+      if G.IsDead then Continue;
+      Result[GroupCount] := G.ID;
+      Inc(GroupCount);
+    end;
+
+    //Trim to length
+    SetLength(Result, GroupCount);
+  end
+  else
+  begin
+    LogError('States.PlayerGetAllGroups', [aPlayer]);
   end;
 end;
 

@@ -175,6 +175,8 @@ begin
       RegisterMethod('function PlayerDefeated(aPlayer: Byte): Boolean');
       RegisterMethod('function PlayerEnabled(aPlayer: Byte): Boolean');
       RegisterMethod('function PlayerGetAllUnits(aPlayer: Byte): TIntegerArray');
+      RegisterMethod('function PlayerGetAllHouses(aPlayer: Byte): TIntegerArray');
+      RegisterMethod('function PlayerGetAllGroups(aPlayer: Byte): TIntegerArray');
       RegisterMethod('function PlayerName(aPlayer: Byte): AnsiString');
       RegisterMethod('function PlayerVictorious(aPlayer: Byte): Boolean');
 
@@ -426,6 +428,8 @@ begin
       RegisterMethod(@TKMScriptStates.PlayerDefeated,       'PLAYERDEFEATED');
       RegisterMethod(@TKMScriptStates.PlayerEnabled,        'PLAYERENABLED');
       RegisterMethod(@TKMScriptStates.PlayerGetAllUnits,    'PLAYERGETALLUNITS');
+      RegisterMethod(@TKMScriptStates.PlayerGetAllHouses,   'PLAYERGETALLHOUSES');
+      RegisterMethod(@TKMScriptStates.PlayerGetAllGroups,   'PLAYERGETALLGROUPS');
       RegisterMethod(@TKMScriptStates.PlayerName,           'PLAYERNAME');
       RegisterMethod(@TKMScriptStates.PlayerVictorious,     'PLAYERVICTORIOUS');
 

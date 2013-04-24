@@ -3,6 +3,8 @@ Accepted:
  +	States.HouseSchoolQueue
  +	States.HouseWeaponsOrdered
  +	States.GetAllUnits
+ +	States.GetAllHouses
+ +	States.GetAllGroups
  +	Actions.HouseWeaponsOrderSet
  +	Actions.HouseSchoolQueueRemove
  +	Actions.GiveWeapons
