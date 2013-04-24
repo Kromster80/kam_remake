@@ -481,7 +481,7 @@ function TKMScriptStates.HouseAt(aX, aY: Word): Integer;
 var H: TKMHouse;
 begin
   Result := -1;
-  if fTerrain.TileInMapCoords(aX,aY) then
+  if gTerrain.TileInMapCoords(aX,aY) then
   begin
     H := fPlayers.HousesHitTest(aX, aY);
     if (H <> nil) and not H.IsDestroyed then
@@ -750,7 +750,7 @@ end;
 function TKMScriptStates.FogRevealed(aPlayer: Byte; aX, aY: Word): Boolean;
 begin
   Result := False;
-  if fTerrain.TileInMapCoords(aX,aY)
+  if gTerrain.TileInMapCoords(aX,aY)
   and InRange(aPlayer, 0, fPlayers.Count - 1) then
     Result := fPlayers[aPlayer].FogOfWar.CheckTileRevelation(aX, aY) > 0
   else
@@ -762,9 +762,9 @@ function TKMScriptStates.UnitAt(aX, aY: Word): Integer;
 var U: TKMUnit;
 begin
   Result := -1;
-  if fTerrain.TileInMapCoords(aX,aY) then
+  if gTerrain.TileInMapCoords(aX,aY) then
   begin
-    U := fTerrain.UnitsHitTest(aX, aY);
+    U := gTerrain.UnitsHitTest(aX, aY);
     if (U <> nil) and not U.IsDead then
     begin
       Result := U.ID;
@@ -1113,7 +1113,7 @@ begin
   //Verify all input parameters
   if InRange(aPlayer, 0, fPlayers.Count - 1)
   and (aType in [UnitTypeToIndex[WARRIOR_MIN]..UnitTypeToIndex[WARRIOR_MAX]])
-  and fTerrain.TileInMapCoords(X,Y)
+  and gTerrain.TileInMapCoords(X,Y)
   and (TKMDirection(aDir+1) in [dir_N..dir_NW]) then
   begin
     G := fPlayers[aPlayer].AddUnitGroup(UnitIndexToType[aType],
@@ -1136,7 +1136,7 @@ begin
   //Verify all input parameters
   if InRange(aPlayer, 0, fPlayers.Count - 1)
   and (aType in [UnitTypeToIndex[CITIZEN_MIN]..UnitTypeToIndex[CITIZEN_MAX]])
-  and fTerrain.TileInMapCoords(X,Y)
+  and gTerrain.TileInMapCoords(X,Y)
   and (TKMDirection(aDir+1) in [dir_N..dir_NW]) then
   begin
     U := fPlayers[aPlayer].AddUnit(UnitIndexToType[aType], KMPoint(X,Y));
@@ -1156,9 +1156,9 @@ begin
   //Verify all input parameters
   if InRange(aPlayer, 0, fPlayers.Count - 1)
   and (aHouseType in [Low(HouseIndexToType)..High(HouseIndexToType)])
-  and fTerrain.TileInMapCoords(X,Y) then
+  and gTerrain.TileInMapCoords(X,Y) then
   begin
-    if fTerrain.CanPlaceHouseFromScript(HouseIndexToType[aHouseType], KMPoint(X, Y)) then
+    if gTerrain.CanPlaceHouseFromScript(HouseIndexToType[aHouseType], KMPoint(X, Y)) then
     begin
       H := fPlayers[aPlayer].AddHouse(HouseIndexToType[aHouseType], X, Y, True);
       if H = nil then Exit;
@@ -1176,7 +1176,7 @@ begin
   Result := -1;
   //Verify all input parameters
   if (aType in [UnitTypeToIndex[ANIMAL_MIN]..UnitTypeToIndex[ANIMAL_MAX]])
-  and fTerrain.TileInMapCoords(X,Y) then
+  and gTerrain.TileInMapCoords(X,Y) then
   begin
     U := fPlayers.PlayerAnimals.AddUnit(UnitIndexToType[aType], KMPoint(X,Y));
     if U <> nil then
@@ -1232,7 +1232,7 @@ end;
 procedure TKMScriptActions.FogRevealCircle(aPlayer, X, Y, aRadius: Word);
 begin
   if InRange(aPlayer, 0, fPlayers.Count - 1)
-  and fTerrain.TileInMapCoords(X,Y)
+  and gTerrain.TileInMapCoords(X,Y)
   and InRange(aRadius, 0, 255) then
     fPlayers[aPlayer].FogOfWar.RevealCircle(KMPoint(X, Y), aRadius, FOG_OF_WAR_MAX)
   else
@@ -1243,7 +1243,7 @@ end;
 procedure TKMScriptActions.FogCoverCircle(aPlayer, X, Y, aRadius: Word);
 begin
   if InRange(aPlayer, 0, fPlayers.Count - 1)
-  and fTerrain.TileInMapCoords(X,Y)
+  and gTerrain.TileInMapCoords(X,Y)
   and InRange(aRadius, 0, 255) then
     fPlayers[aPlayer].FogOfWar.CoverCircle(KMPoint(X, Y), aRadius)
   else
@@ -1505,7 +1505,7 @@ begin
   Result := False;
   //Verify all input parameters
   if InRange(aPlayer, 0, fPlayers.Count - 1)
-  and fTerrain.TileInMapCoords(X,Y) then
+  and gTerrain.TileInMapCoords(X,Y) then
   begin
     if fPlayers[aPlayer].CanAddFieldPlan(KMPoint(X, Y), ft_Road) then
     begin
@@ -1523,7 +1523,7 @@ begin
   Result := False;
   //Verify all input parameters
   if InRange(aPlayer, 0, fPlayers.Count - 1)
-  and fTerrain.TileInMapCoords(X,Y) then
+  and gTerrain.TileInMapCoords(X,Y) then
   begin
     if fPlayers[aPlayer].CanAddFieldPlan(KMPoint(X, Y), ft_Corn) then
     begin
@@ -1541,7 +1541,7 @@ begin
   Result := False;
   //Verify all input parameters
   if InRange(aPlayer, 0, fPlayers.Count - 1)
-  and fTerrain.TileInMapCoords(X,Y) then
+  and gTerrain.TileInMapCoords(X,Y) then
   begin
     if fPlayers[aPlayer].CanAddFieldPlan(KMPoint(X, Y), ft_Wine) then
     begin
@@ -1560,7 +1560,7 @@ begin
   //Verify all input parameters
   if InRange(aPlayer, 0, fPlayers.Count - 1)
   and (aHouseType in [Low(HouseIndexToType)..High(HouseIndexToType)])
-  and fTerrain.TileInMapCoords(X,Y) then
+  and gTerrain.TileInMapCoords(X,Y) then
   begin
     if fPlayers[aPlayer].CanAddHousePlan(KMPoint(X, Y), HouseIndexToType[aHouseType]) then
     begin
@@ -1612,7 +1612,7 @@ var U: TKMUnit;
 begin
   Result := False;
 
-  if (aUnitID > 0) and fTerrain.TileInMapCoords(X, Y) then
+  if (aUnitID > 0) and gTerrain.TileInMapCoords(X, Y) then
   begin
     U := fIDCache.GetUnit(aUnitID);
     if U = nil then Exit; //Unit could have long died, or never existed
@@ -1651,7 +1651,7 @@ procedure TKMScriptActions.GroupOrderWalk(aGroupID: Integer; X, Y, aDirection: W
 var G: TKMUnitGroup;
 begin
   if (aGroupID > 0)
-  and fTerrain.TileInMapCoords(X,Y)
+  and gTerrain.TileInMapCoords(X,Y)
   and (TKMDirection(aDirection+1) in [dir_N..dir_NW]) then
   begin
     G := fIDCache.GetGroup(aGroupID);

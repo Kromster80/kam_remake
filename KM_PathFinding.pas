@@ -172,14 +172,14 @@ end;
 
 function TPathFinding.CanWalkTo(const aFrom: TKMPoint; bX, bY: SmallInt): Boolean;
 begin
-  Result := fTerrain.CanWalkDiagonaly(aFrom, bX, bY);
+  Result := gTerrain.CanWalkDiagonaly(aFrom, bX, bY);
 end;
 
 
 function TPathFinding.IsWalkableTile(aX, aY: Word): Boolean;
 begin
   //If cell meets Passability then estimate it
-  Result := (fPass * fTerrain.Land[aY,aX].Passability) <> [];
+  Result := (fPass * gTerrain.Land[aY,aX].Passability) <> [];
 end;
 
 
@@ -197,9 +197,9 @@ begin
   //Do not add extra cost if the tile is the target, as it can cause a longer route to be chosen
   if (aToX <> fLocB.X) or (aToY <> fLocB.Y) then
   begin
-    if DO_WEIGHT_ROUTES and (fTerrain.Land[aToY,aToX].IsUnit <> nil) then
+    if DO_WEIGHT_ROUTES and (gTerrain.Land[aToY,aToX].IsUnit <> nil) then
       Inc(Result, 10); //Unit = 1 extra tile
-    if fIsInteractionAvoid and fTerrain.TileIsLocked(KMPoint(aToX,aToY)) then
+    if fIsInteractionAvoid and gTerrain.TileIsLocked(KMPoint(aToX,aToY)) then
       Inc(Result, 500); //In interaction avoid mode, working unit = 50 tiles
   end;
 end;
@@ -223,7 +223,7 @@ function TPathFinding.DestinationReached(aX, aY: Word): Boolean;
 begin
   case fDestination of
     pdLocation:    Result := KMLengthDiag(KMPoint(aX, aY), fLocB) <= fDistance;
-    pdPassability: Result := fTerrain.GetConnectID(fTargetWalkConnect, KMPoint(aX, aY)) = fTargetNetwork;
+    pdPassability: Result := gTerrain.GetConnectID(fTargetWalkConnect, KMPoint(aX, aY)) = fTargetNetwork;
     pdHouse:       Result := fTargetHouse.InReach(KMPoint(aX, aY), fDistance);
     else            Result := true;
   end;

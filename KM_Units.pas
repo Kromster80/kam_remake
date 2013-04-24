@@ -474,7 +474,7 @@ begin
     ht_IronMine:    Msg := TX_MSG_IRON_DEPLETED;
     ht_GoldMine:    Msg := TX_MSG_GOLD_DEPLETED;
     ht_Woodcutters: Msg := TX_MSG_WOODCUTTER_DEPLETED;
-    ht_FisherHut:   if not fTerrain.CanFindFishingWater(KMPointBelow(fHome.GetEntrance), fResource.UnitDat[fUnitType].MiningRange) then
+    ht_FisherHut:   if not gTerrain.CanFindFishingWater(KMPointBelow(fHome.GetEntrance), fResource.UnitDat[fUnitType].MiningRange) then
                       Msg := TX_MSG_FISHERMAN_TOO_FAR
                     else
                       Msg := TX_MSG_FISHERMAN_CANNOT_CATCH;
@@ -657,7 +657,7 @@ begin
   if not (fHome is TKMHouseTower) or (fHome.CheckResIn(wt_Stone) <= 0) then
     Exit;
 
-  Enemy := fTerrain.UnitsHitTestWithinRad(fCurrPosition, RANGE_WATCHTOWER_MIN, RANGE_WATCHTOWER_MAX, fOwner, at_Enemy, dir_NA, not RANDOM_TARGETS);
+  Enemy := gTerrain.UnitsHitTestWithinRad(fCurrPosition, RANGE_WATCHTOWER_MIN, RANGE_WATCHTOWER_MAX, fOwner, at_Enemy, dir_NA, not RANDOM_TARGETS);
 
   //Note: In actual game there might be two Towers nearby,
   //both throwing a stone into the same enemy. We should not
@@ -898,7 +898,7 @@ begin
     fThought := th_None; //Remove build thought if we are no longer doing anything
 
   //If we are still stuck on a house for some reason, get off it ASAP
-  Assert(fTerrain.Land[fCurrPosition.Y, fCurrPosition.X].TileLock <> tlHouse);
+  Assert(gTerrain.Land[fCurrPosition.Y, fCurrPosition.X].TileLock <> tlHouse);
 
   if (fUnitTask = nil) and (fCurrentAction = nil) then SetActionStay(20, ua_Walk);
 
@@ -969,8 +969,8 @@ begin
 
 
   //First make sure the animal isn't stuck (check passibility of our position)
-  if (not fTerrain.CheckPassability(fCurrPosition, DesiredPassability))
-  or fTerrain.CheckAnimalIsStuck(fCurrPosition, DesiredPassability) then
+  if (not gTerrain.CheckPassability(fCurrPosition, DesiredPassability))
+  or gTerrain.CheckAnimalIsStuck(fCurrPosition, DesiredPassability) then
   begin
     KillUnit(-1, True); //Animal is stuck so it dies
     Exit;
@@ -1002,7 +1002,7 @@ begin
   //Make fish/watersnakes to be more visible in the MapEd
   if (fGame.GameMode = gmMapEd) and (fUnitType in [ut_Fish, ut_Watersnake, ut_Seastar]) then
     fRenderAux.Circle(fPosition.X - 0.5,
-                      fTerrain.FlatToHeight(fPosition.X - 0.5, fPosition.Y - 0.5),
+                      gTerrain.FlatToHeight(fPosition.X - 0.5, fPosition.Y - 0.5),
                       0.5, $30FF8000, $60FF8000);
 
   //Animals share the same WalkTo logic as other units and they exchange places if necessary
@@ -1043,7 +1043,7 @@ begin
   fHitPointCounter := 1;
 
   SetActionLockedStay(10, ua_Walk); //Must be locked for this initial pause so animals don't get pushed
-  fTerrain.UnitAdd(NextPosition,Self);
+  gTerrain.UnitAdd(NextPosition,Self);
 
   //The area around the unit should be visible at the start of the mission
   if InRange(fOwner, 0, MAX_PLAYERS-1) then //Not animals
@@ -1053,7 +1053,7 @@ end;
 
 destructor TKMUnit.Destroy;
 begin
-  if not IsDead then fTerrain.UnitRem(NextPosition); //Happens only when removing player from map on GameStart (network)
+  if not IsDead then gTerrain.UnitRem(NextPosition); //Happens only when removing player from map on GameStart (network)
   FreeAndNil(fCurrentAction);
   FreeAndNil(fUnitTask);
   SetInHouse(nil); //Free pointer
@@ -1181,7 +1181,7 @@ begin
     fPlayers.CleanUpHousePointer(fHome);
   end;
 
-  if aRemoveTileUsage then fTerrain.UnitRem(fNextPosition); //Must happen before we nil NextPosition
+  if aRemoveTileUsage then gTerrain.UnitRem(fNextPosition); //Must happen before we nil NextPosition
 
   fIsDead       := true;
   fThought      := th_None;
@@ -1240,14 +1240,14 @@ procedure TKMUnit.SetPosition(aPos: TKMPoint);
 begin
   //This is only used by the map editor, set all positions to aPos
   Assert(fGame.GameMode = gmMapEd);
-  if not fTerrain.CanPlaceUnit(aPos, UnitType) then Exit;
+  if not gTerrain.CanPlaceUnit(aPos, UnitType) then Exit;
 
-  fTerrain.UnitRem(fCurrPosition);
+  gTerrain.UnitRem(fCurrPosition);
   fCurrPosition := aPos;
   fNextPosition := aPos;
   fPrevPosition := aPos;
   fPosition := KMPointF(aPos);
-  fTerrain.UnitAdd(fCurrPosition, Self);
+  gTerrain.UnitAdd(fCurrPosition, Self);
 end;
 
 
@@ -1573,31 +1573,31 @@ end;
 
 function TKMUnit.CanWalkDiagonaly(aFrom, aTo: TKMPoint): Boolean;
 begin
-  Result := fTerrain.CanWalkDiagonaly(aFrom, aTo.X, aTo.Y);
+  Result := gTerrain.CanWalkDiagonaly(aFrom, aTo.X, aTo.Y);
 end;
 
 
 function TKMUnit.CanWalkTo(aTo: TKMPoint; aDistance: Single): Boolean;
 begin
-  Result := fTerrain.Route_CanBeMade(GetPosition, aTo, DesiredPassability, aDistance);
+  Result := gTerrain.Route_CanBeMade(GetPosition, aTo, DesiredPassability, aDistance);
 end;
 
 
 function TKMUnit.CanWalkTo(aTo: TKMPoint; aPass: TPassability; aDistance: Single): Boolean;
 begin
-  Result := fTerrain.Route_CanBeMade(GetPosition, aTo, aPass, aDistance);
+  Result := gTerrain.Route_CanBeMade(GetPosition, aTo, aPass, aDistance);
 end;
 
 
 function TKMUnit.CanWalkTo(aFrom, aTo: TKMPoint; aDistance: Single): Boolean;
 begin
-  Result := fTerrain.Route_CanBeMade(aFrom, aTo, DesiredPassability, aDistance);
+  Result := gTerrain.Route_CanBeMade(aFrom, aTo, DesiredPassability, aDistance);
 end;
 
 
 function TKMUnit.CanWalkTo(aFrom, aTo: TKMPoint; aPass: TPassability; aDistance: Single): Boolean;
 begin
-  Result := fTerrain.Route_CanBeMade(aFrom, aTo, aPass, aDistance);
+  Result := gTerrain.Route_CanBeMade(aFrom, aTo, aPass, aDistance);
 end;
 
 
@@ -1612,7 +1612,7 @@ begin
   try
     aHouse.GetListOfCellsWithin(Cells);
     for I := 0 to Cells.Count - 1 do
-      Result := Result or fTerrain.Route_CanBeMade(aFrom, Cells[I], aPass, aDistance);
+      Result := Result or gTerrain.Route_CanBeMade(aFrom, Cells[I], aPass, aDistance);
   finally
     Cells.Free;
   end;
@@ -1621,12 +1621,12 @@ end;
 
 function TKMUnit.CanStepTo(X,Y: Integer): Boolean;
 begin
-  Result := fTerrain.TileInMapCoords(X,Y)
-        and (fTerrain.Land[Y,X].IsUnit = nil)
-        and (fTerrain.CheckPassability(KMPoint(X,Y), DesiredPassability))
+  Result := gTerrain.TileInMapCoords(X,Y)
+        and (gTerrain.Land[Y,X].IsUnit = nil)
+        and (gTerrain.CheckPassability(KMPoint(X,Y), DesiredPassability))
         and (not KMStepIsDiag(GetPosition, KMPoint(X,Y)) //Only check vertex usage if the step is diagonal
-             or (not fTerrain.HasVertexUnit(KMGetDiagVertex(GetPosition, KMPoint(X,Y)))))
-        and (fTerrain.CanWalkDiagonaly(GetPosition, X, Y));
+             or (not gTerrain.HasVertexUnit(KMGetDiagVertex(GetPosition, KMPoint(X,Y)))))
+        and (gTerrain.CanWalkDiagonaly(GetPosition, X, Y));
 end;
 
 
@@ -1658,7 +1658,7 @@ begin
     or (TUnitActionGoInOut(GetUnitAction).GetWaitingForPush) then
     begin
       //Position in a spiral nearest to entrance of house, updating IsUnit.
-      if not fPlayers.FindPlaceForUnit(fInHouse.GetEntrance.X, fInHouse.GetEntrance.Y, UnitType, fCurrPosition, fTerrain.GetWalkConnectID(fInHouse.GetEntrance)) then
+      if not fPlayers.FindPlaceForUnit(fInHouse.GetEntrance.X, fInHouse.GetEntrance.Y, UnitType, fCurrPosition, gTerrain.GetWalkConnectID(fInHouse.GetEntrance)) then
       begin
         //There is no space for this unit so it must be destroyed
         //todo: rerote to KillUnit and let it sort out that unit is invisible and cant be placed
@@ -1676,12 +1676,12 @@ begin
         OnUnitTrained(Self);
 
       //Make sure these are reset properly
-      Assert(not fTerrain.HasUnit(fCurrPosition));
+      Assert(not gTerrain.HasUnit(fCurrPosition));
       IsExchanging := false;
       fPosition := KMPointF(fCurrPosition);
       fPrevPosition := fCurrPosition;
       fNextPosition := fCurrPosition;
-      fTerrain.UnitAdd(fCurrPosition, Self); //Unit was not occupying tile while inside the house, hence just add do not remove
+      gTerrain.UnitAdd(fCurrPosition, Self); //Unit was not occupying tile while inside the house, hence just add do not remove
       if GetUnitAction is TUnitActionGoInOut then
         SetActionLockedStay(0, ua_Walk); //Abandon the walk out in this case
 
@@ -1701,24 +1701,24 @@ end;
 
 procedure TKMUnit.VertexAdd(aFrom, aTo: TKMPoint);
 begin
-  fTerrain.UnitVertexAdd(aFrom, aTo);
+  gTerrain.UnitVertexAdd(aFrom, aTo);
 end;
 
 procedure TKMUnit.VertexRem(aLoc: TKMPoint);
 begin
-  fTerrain.UnitVertexRem(aLoc); //Unoccupy vertex
+  gTerrain.UnitVertexRem(aLoc); //Unoccupy vertex
 end;
 
 
 function TKMUnit.VertexUsageCompatible(aFrom, aTo: TKMPoint): Boolean;
 begin
-  Result := fTerrain.VertexUsageCompatible(aFrom, aTo);
+  Result := gTerrain.VertexUsageCompatible(aFrom, aTo);
 end;
 
 
 procedure TKMUnit.Walk(aFrom, aTo: TKMPoint);
 begin
-  fTerrain.UnitWalk(aFrom, aTo, Self)
+  gTerrain.UnitWalk(aFrom, aTo, Self)
 end;
 
 
@@ -1932,10 +1932,10 @@ begin
   if fCurrentAction is TUnitActionWalkTo then
     if DesiredPassability = CanWalkRoad then
     begin
-      if not fTerrain.CheckPassability(fNextPosition, CanWalk) then
+      if not gTerrain.CheckPassability(fNextPosition, CanWalk) then
         raise ELocError.Create(fResource.UnitDat[UnitType].UnitName+' on unwalkable tile at '+KM_Points.TypeToString(fNextPosition)+' pass CanWalk',fNextPosition);
     end else
-    if not fTerrain.CheckPassability(fNextPosition, DesiredPassability) then
+    if not gTerrain.CheckPassability(fNextPosition, DesiredPassability) then
       raise ELocError.Create(fResource.UnitDat[UnitType].UnitName+' on unwalkable tile at '+KM_Points.TypeToString(fNextPosition)+' pass '+GetEnumName(TypeInfo(TPassability), Byte(DesiredPassability)),fNextPosition);
 
 
@@ -2123,24 +2123,24 @@ begin
   begin
     PlaceTo := KMPoint(0,0); // Will have 0:0 if no place found
     if aRequiredWalkConnect = 0 then
-      aRequiredWalkConnect := fTerrain.GetWalkConnectID(aLoc);
+      aRequiredWalkConnect := gTerrain.GetWalkConnectID(aLoc);
     fPlayers.FindPlaceForUnit(aLoc.X, aLoc.Y, aUnitType, PlaceTo, aRequiredWalkConnect);
   end
   else
     PlaceTo := aLoc;
 
   //Check if Pos is within map coords first, as other checks rely on this
-  if not fTerrain.TileInMapCoords(PlaceTo.X, PlaceTo.Y) then
+  if not gTerrain.TileInMapCoords(PlaceTo.X, PlaceTo.Y) then
   begin
     fLog.AddTime('Unable to add unit to ' + KM_Points.TypeToString(PlaceTo));
     Result := nil;
     Exit;
   end;
 
-  if fTerrain.HasUnit(PlaceTo) then
+  if gTerrain.HasUnit(PlaceTo) then
     raise ELocError.Create('No space for ' + fResource.UnitDat[aUnitType].UnitName +
                            ' at ' + TypeToString(aLoc) +
-                           ', tile is already occupied by ' + fResource.UnitDat[TKMUnit(fTerrain.Land[PlaceTo.Y,PlaceTo.X].IsUnit).UnitType].UnitName,
+                           ', tile is already occupied by ' + fResource.UnitDat[TKMUnit(gTerrain.Land[PlaceTo.Y,PlaceTo.X].IsUnit).UnitType].UnitName,
                            PlaceTo);
 
   ID := fGame.GetNewID;

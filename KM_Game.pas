@@ -227,7 +227,7 @@ begin
 
   //Here comes terrain/mission init
   SetKaMSeed(4); //Every time the game will be the same as previous. Good for debug.
-  fTerrain := TKMTerrain.Create;
+  gTerrain := TKMTerrain.Create;
   fPlayers := TKMPlayersCollection.Create;
   fAIFields := TKMAIFields.Create;
 
@@ -273,7 +273,7 @@ begin
   FreeThenNil(fMapEditor);
   FreeThenNil(fPlayers);
   FreeThenNil(fTerrainPainter);
-  FreeThenNil(fTerrain);
+  FreeThenNil(gTerrain);
   FreeAndNil(fAIFields);
   FreeAndNil(fProjectiles);
   FreeAndNil(fPathfinding);
@@ -310,13 +310,13 @@ end;
 
 function TKMGame.MapX: Word;
 begin
-  Result := fTerrain.MapX;
+  Result := gTerrain.MapX;
 end;
 
 
 function TKMGame.MapY: Word;
 begin
-  Result := fTerrain.MapY;
+  Result := gTerrain.MapY;
 end;
 
 
@@ -813,7 +813,7 @@ begin
   fMissionFile := '';
   fSaveFile := '';
 
-  fTerrain.MakeNewMap(aSizeX, aSizeY, True);
+  gTerrain.MakeNewMap(aSizeX, aSizeY, True);
   fTerrainPainter := TKMTerrainPainter.Create;
 
   fMapEditor := TKMMapEditor.Create;
@@ -874,7 +874,7 @@ begin
   ForceDirectories(ExtractFilePath(aPathName));
   fLog.AddTime('Saving from map editor: ' + aPathName);
 
-  fTerrain.SaveToFile(ChangeFileExt(aPathName, '.map'));
+  gTerrain.SaveToFile(ChangeFileExt(aPathName, '.map'));
   fTerrainPainter.SaveToFile(ChangeFileExt(aPathName, '.map'));
   fMissionParser := TMissionParserStandard.Create(mpm_Editor, false);
   fMissionParser.SaveDATFile(ChangeFileExt(aPathName, '.dat'));
@@ -975,11 +975,11 @@ begin
   begin
     Float.X := fViewport.Position.X + (X-fViewport.ViewRect.Right/2-TOOLBAR_WIDTH/2)/CELL_SIZE_PX/fViewport.Zoom;
     Float.Y := fViewport.Position.Y + (Y-fViewport.ViewRect.Bottom/2)/CELL_SIZE_PX/fViewport.Zoom;
-    Float.Y := fTerrain.ConvertCursorToMapCoord(Float.X,Float.Y);
+    Float.Y := gTerrain.ConvertCursorToMapCoord(Float.X,Float.Y);
 
     //Cursor cannot reach row MapY or column MapX, they're not part of the map (only used for vertex height)
-    Cell.X := EnsureRange(round(Float.X+0.5), 1, fTerrain.MapX-1); //Cell below cursor in map bounds
-    Cell.Y := EnsureRange(round(Float.Y+0.5), 1, fTerrain.MapY-1);
+    Cell.X := EnsureRange(round(Float.X+0.5), 1, gTerrain.MapX-1); //Cell below cursor in map bounds
+    Cell.Y := EnsureRange(round(Float.Y+0.5), 1, gTerrain.MapY-1);
 
     SState := Shift;
   end;
@@ -1088,8 +1088,8 @@ begin
     fGameInfo.Title := fGameName;
     fGameInfo.TickCount := fGameTickCount;
     fGameInfo.MissionMode := fMissionMode;
-    fGameInfo.MapSizeX := fTerrain.MapX;
-    fGameInfo.MapSizeY := fTerrain.MapY;
+    fGameInfo.MapSizeX := gTerrain.MapX;
+    fGameInfo.MapSizeY := gTerrain.MapY;
     fGameInfo.VictoryCondition := 'Win';
     fGameInfo.DefeatCondition := 'Lose';
     fGameInfo.PlayerCount := fPlayers.Count;
@@ -1146,7 +1146,7 @@ begin
     if fGameMode <> gmMulti then
       SaveStream.Write(PlayOnState, SizeOf(PlayOnState));
 
-    fTerrain.Save(SaveStream); //Saves the map
+    gTerrain.Save(SaveStream); //Saves the map
     fPlayers.Save(SaveStream, fGameMode = gmMulti); //Saves all players properties individually
     if fGameMode <> gmMulti then
       MySpectator.Save(SaveStream);
@@ -1231,7 +1231,7 @@ begin
 
   LoadStream.LoadFromFile(aPathName);
 
-  //We need only few essential parts from GameInfo, the rest is duplicate from fTerrain and fPlayers
+  //We need only few essential parts from GameInfo, the rest is duplicate from gTerrain and fPlayers
   GameInfo := TKMGameInfo.Create;
   try
     GameInfo.Load(LoadStream);
@@ -1278,7 +1278,7 @@ begin
     LoadStream.Read(PlayOnState, SizeOf(PlayOnState));
 
   //Load the data into the game
-  fTerrain.Load(LoadStream);
+  gTerrain.Load(LoadStream);
 
   fPlayers.Load(LoadStream);
   MySpectator := TKMSpectator.Create(0);
@@ -1318,7 +1318,7 @@ begin
   fGameInputProcess.LoadFromFile(ChangeFileExt(aPathName, '.rpl'));
 
   fPlayers.SyncLoad; //Should parse all Unit-House ID references and replace them with actual pointers
-  fTerrain.SyncLoad; //IsUnit values should be replaced with actual pointers
+  gTerrain.SyncLoad; //IsUnit values should be replaced with actual pointers
 
   if fGameMode = gmMulti then
     MultiplayerRig;
@@ -1373,7 +1373,7 @@ begin
 
                       fScripting.UpdateState;
                       UpdatePeacetime; //Send warning messages about peacetime if required
-                      fTerrain.UpdateState;
+                      gTerrain.UpdateState;
                       fAIFields.UpdateState(fGameTickCount);
                       fPlayers.UpdateState(fGameTickCount); //Quite slow
                       if fGame = nil then Exit; //Quit the update if game was stopped for some reason
@@ -1413,7 +1413,7 @@ begin
                     Inc(fGameTickCount); //Thats our tick counter for gameplay events
                     fScripting.UpdateState;
                     UpdatePeacetime; //Send warning messages about peacetime if required (peacetime sound should still be played in replays)
-                    fTerrain.UpdateState;
+                    gTerrain.UpdateState;
                     fAIFields.UpdateState(fGameTickCount);
                     fPlayers.UpdateState(fGameTickCount); //Quite slow
                     if fGame = nil then Exit; //Quit the update if game was stopped for some reason
@@ -1437,7 +1437,7 @@ begin
                     if DoGameHold then break;
                   end;
     gmMapEd:   begin
-                  fTerrain.IncAnimStep;
+                  gTerrain.IncAnimStep;
                   fPlayers.IncAnimStep;
                 end;
   end;
@@ -1481,15 +1481,15 @@ begin
 
   if fGameMode = gmMapEd then
   begin
-    fViewport.ResizeMap(fTerrain.MapX, fTerrain.MapY, 100 / CELL_SIZE_PX);
+    fViewport.ResizeMap(gTerrain.MapX, gTerrain.MapY, 100 / CELL_SIZE_PX);
     fViewport.ResetZoom;
-    fViewport.Position := KMPointF(fTerrain.MapX / 2, fTerrain.MapY / 2);
+    fViewport.Position := KMPointF(gTerrain.MapX / 2, gTerrain.MapY / 2);
 
     fMapEditorInterface.SyncUI;
   end
   else
   begin
-    fViewport.ResizeMap(fTerrain.MapX, fTerrain.MapY, fTerrain.TopHill / CELL_SIZE_PX);
+    fViewport.ResizeMap(gTerrain.MapX, gTerrain.MapY, gTerrain.TopHill / CELL_SIZE_PX);
     fViewport.ResetZoom;
 
     fGamePlayInterface.SetMinimap;

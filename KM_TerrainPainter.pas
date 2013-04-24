@@ -145,7 +145,7 @@ end;
 
 procedure TKMTerrainPainter.BrushTerrainTile(X, Y: SmallInt; aTerrainKind: TTerrainKind);
 begin
-  if not fTerrain.TileInMapCoords(X, Y) then
+  if not gTerrain.TileInMapCoords(X, Y) then
     Exit;
 
   Land2[Y, X].TerType := aTerrainKind;
@@ -153,8 +153,8 @@ begin
   Land2[Y + 1, X + 1].TerType := aTerrainKind;
   Land2[Y + 1, X].TerType := aTerrainKind;
 
-  fTerrain.Land[Y, X].Terrain := PickRandomTile(TTerrainKind(GameCursor.Tag1));
-  fTerrain.Land[Y, X].Rotation := Random(4); //Random direction for all plain tiles
+  gTerrain.Land[Y, X].Terrain := PickRandomTile(TTerrainKind(GameCursor.Tag1));
+  gTerrain.Land[Y, X].Rotation := Random(4); //Random direction for all plain tiles
 end;
 
 
@@ -182,8 +182,8 @@ begin
   for K := -Rad to Rad do
   if aSquare or (Sqr(I) + Sqr(K) < Sqr(Rad)) then
   begin
-    pX := EnsureRange(X+K, 1, fTerrain.MapX - 1);
-    pY := EnsureRange(Y+I, 1, fTerrain.MapY - 1);
+    pX := EnsureRange(X+K, 1, gTerrain.MapX - 1);
+    pY := EnsureRange(Y+I, 1, gTerrain.MapY - 1);
 
     //don't touch custom placed tiles (tkCustom type)
     if (Land2[pY  ,pX].TerType <> tkCustom)
@@ -260,8 +260,8 @@ begin
       if Land2[pY,pX].Tiles <> Byte(Ter1)*Byte(Ter2)*(4-Nodes) then
       begin
         Land2[pY,pX].Tiles := Byte(Ter1)*Byte(Ter2)*(4-Nodes);//store not only nodes info, but also terrain type used
-        fTerrain.Land[pY,pX].Terrain := T;
-        fTerrain.Land[pY,pX].Rotation := Rot mod 4;
+        gTerrain.Land[pY,pX].Terrain := T;
+        gTerrain.Land[pY,pX].Rotation := Rot mod 4;
       end;
     end;
   end;
@@ -273,12 +273,12 @@ var
   I,K,Size,Rad: Integer;
 begin
   //Cell below cursor
-  MapXc := EnsureRange(round(GameCursor.Float.X+0.5),1,fTerrain.MapX);
-  MapYc := EnsureRange(round(GameCursor.Float.Y+0.5),1,fTerrain.MapY);
+  MapXc := EnsureRange(round(GameCursor.Float.X+0.5),1,gTerrain.MapX);
+  MapYc := EnsureRange(round(GameCursor.Float.Y+0.5),1,gTerrain.MapY);
 
   //Node below cursor
-  MapXn := EnsureRange(round(GameCursor.Float.X+1),1,fTerrain.MapX);
-  MapYn := EnsureRange(round(GameCursor.Float.Y+1),1,fTerrain.MapY);
+  MapXn := EnsureRange(round(GameCursor.Float.X+1),1,gTerrain.MapX);
+  MapYn := EnsureRange(round(GameCursor.Float.Y+1),1,gTerrain.MapY);
 
   Size := GameCursor.MapEdSize;
   Rad := Size div 2;
@@ -314,7 +314,7 @@ begin
   MapXc2 := MapXc;
   MapYc2 := MapYc;
 
-  fTerrain.UpdatePassability(KMRectGrow(KMRect(aLoc), Rad+1));
+  gTerrain.UpdatePassability(KMRectGrow(KMRect(aLoc), Rad+1));
 end;
 
 
@@ -332,8 +332,8 @@ begin
   Rad     := GameCursor.MapEdSize;                // Radius basing on brush size
   Slope   := GameCursor.MapEdSlope;               // Elevation slope
   Speed   := GameCursor.MapEdSpeed;               // Elvation speed
-  for I := Max((round(aLoc.Y) - Rad), 1) to Min((round(aLoc.Y) + Rad), fTerrain.MapY) do
-  for K := Max((round(aLoc.X) - Rad), 1) to Min((round(aLoc.X) + Rad), fTerrain.MapX) do
+  for I := Max((round(aLoc.Y) - Rad), 1) to Min((round(aLoc.Y) + Rad), gTerrain.MapY) do
+  for K := Max((round(aLoc.X) - Rad), 1) to Min((round(aLoc.X) + Rad), gTerrain.MapX) do
   begin
 
     // We have square area basing on mouse point +/- radius
@@ -350,14 +350,14 @@ begin
     begin // START Unequalize
       if aRaise then
       begin
-        if (i > 1) and (k >1) and (i < fTerrain.MapY - 1) and (k < fTerrain.MapX - 1) then
+        if (i > 1) and (k >1) and (i < gTerrain.MapY - 1) and (k < gTerrain.MapX - 1) then
         begin
         // Unequalize compares heights of adjacent tiles and increases differences
-          if (fTerrain.Land[I,K].Height < fTerrain.Land[I-1,K+1].Height) then
-            Tmp := -Min(fTerrain.Land[I-1,K+1].Height - fTerrain.Land[I,K].Height, Tmp)
+          if (gTerrain.Land[I,K].Height < gTerrain.Land[I-1,K+1].Height) then
+            Tmp := -Min(gTerrain.Land[I-1,K+1].Height - gTerrain.Land[I,K].Height, Tmp)
           else
-          if (fTerrain.Land[I,K].Height > fTerrain.Land[I-1,K+1].Height) then
-            Tmp := Min(fTerrain.Land[I,K].Height - fTerrain.Land[I-1,K+1].Height, Tmp)
+          if (gTerrain.Land[I,K].Height > gTerrain.Land[I-1,K+1].Height) then
+            Tmp := Min(gTerrain.Land[I,K].Height - gTerrain.Land[I-1,K+1].Height, Tmp)
           else
             Tmp := 0;
         end
@@ -368,11 +368,11 @@ begin
       // START Flatten
       begin
       //Flatten compares heights of mouse click and active tile then it increases/decreases height of active tile
-        if (fTerrain.Land[I,K].Height < fTerrain.Land[Max(trunc(aLoc.Y), 1), Max(trunc(aLoc.X), 1)].Height) then
-          Tmp := - Min(fTerrain.Land[Max(trunc(aLoc.Y), 1), Max(trunc(aLoc.X), 1)].Height - fTerrain.Land[I,K].Height, Tmp)
+        if (gTerrain.Land[I,K].Height < gTerrain.Land[Max(trunc(aLoc.Y), 1), Max(trunc(aLoc.X), 1)].Height) then
+          Tmp := - Min(gTerrain.Land[Max(trunc(aLoc.Y), 1), Max(trunc(aLoc.X), 1)].Height - gTerrain.Land[I,K].Height, Tmp)
         else
-          if (fTerrain.Land[I,K].Height > fTerrain.Land[Max(trunc(aLoc.Y), 1), Max(trunc(aLoc.X), 1)].Height) then
-            Tmp := Min(fTerrain.Land[I,K].Height - fTerrain.Land[Max(trunc(aLoc.Y), 1), Max(trunc(aLoc.X), 1)].Height, Tmp)
+          if (gTerrain.Land[I,K].Height > gTerrain.Land[Max(trunc(aLoc.Y), 1), Max(trunc(aLoc.X), 1)].Height) then
+            Tmp := Min(gTerrain.Land[I,K].Height - gTerrain.Land[Max(trunc(aLoc.Y), 1), Max(trunc(aLoc.X), 1)].Height, Tmp)
           else
             Tmp := 0;
       end;
@@ -382,25 +382,25 @@ begin
     //Compute resulting floating-point height
     Tmp := power(abs(Tmp),(Slope+1)/6)*sign(Tmp); //Modify slopes curve
     Tmp := Tmp * (4.75/14*(Speed - 1) + 0.25);
-    Tmp := EnsureRange(fTerrain.Land[I,K].Height + HeightAdd[I,K]/255 + Tmp * (Byte(aRaise)*2 - 1), 0, 100); // (Byte(aRaise)*2 - 1) - LeftButton pressed it equals 1, otherwise equals -1
-    fTerrain.Land[I,K].Height := trunc(Tmp);
+    Tmp := EnsureRange(gTerrain.Land[I,K].Height + HeightAdd[I,K]/255 + Tmp * (Byte(aRaise)*2 - 1), 0, 100); // (Byte(aRaise)*2 - 1) - LeftButton pressed it equals 1, otherwise equals -1
+    gTerrain.Land[I,K].Height := trunc(Tmp);
     HeightAdd[I,K] := round(frac(Tmp)*255); //write fractional part in 0..255 range (1Byte) to save us mem
   end;
 
   R := KMRectGrow(KMRect(aLoc), Rad);
-  fTerrain.UpdateLighting(R);
-  fTerrain.UpdatePassability(R);
+  gTerrain.UpdateLighting(R);
+  gTerrain.UpdatePassability(R);
 end;
 
 
 procedure TKMTerrainPainter.EditTile(aLoc: TKMPoint; aTile, aRotation: Byte);
 begin
-  if fTerrain.TileInMapCoords(aLoc.X, aLoc.Y) then
+  if gTerrain.TileInMapCoords(aLoc.X, aLoc.Y) then
   begin
     Land2[aLoc.Y, aLoc.X].TerType := tkCustom;
-    fTerrain.Land[aLoc.Y, aLoc.X].Terrain := aTile;
-    fTerrain.Land[aLoc.Y, aLoc.X].Rotation := aRotation;
-    fTerrain.UpdatePassability(aLoc);
+    gTerrain.Land[aLoc.Y, aLoc.X].Terrain := aTile;
+    gTerrain.Land[aLoc.Y, aLoc.X].Rotation := aRotation;
+    gTerrain.UpdatePassability(aLoc);
   end;
 end;
 
@@ -421,7 +421,7 @@ var
 
   procedure SetTerrainKindVertex(X,Y: Integer; T:TTerrainKind; aAccuracy:Byte);
   begin
-    if not fTerrain.TileInMapCoords(X,Y) then Exit;
+    if not gTerrain.TileInMapCoords(X,Y) then Exit;
 
     //Special rules to fix stone hill corners:
     // - Never overwrite tkStoneMount with tkGrass
@@ -459,18 +459,18 @@ begin
   for I := 1 to MAX_MAP_SIZE do
   for K := 1 to MAX_MAP_SIZE do
     //Special tiles such as bridges should remain as tkCustom
-    if fTerrain.Land[I,K].Terrain in SPECIAL_TILES then
+    if gTerrain.Land[I,K].Terrain in SPECIAL_TILES then
       SetTerrainKindTile(K, I, tkCustom, ACC_MAX) //Maximum accuracy
     else
       //Water tiles not used in painting (fast, straight, etc.)
-      if fTerrain.Land[I,K].Terrain in OTHER_WATER_TILES then
+      if gTerrain.Land[I,K].Terrain in OTHER_WATER_TILES then
         SetTerrainKindTile(K, I, tkWater, ACC_MED) //Same accuracy as random tiling (see below)
       else
         for T := Low(TTerrainKind) to High(TTerrainKind) do
           if T <> tkCustom then
           begin
             //METHOD 1: Terrain type is the primary tile for this terrain
-            if fTerrain.Land[I,K].Terrain = Abs(Combo[T,T,1]) then
+            if gTerrain.Land[I,K].Terrain = Abs(Combo[T,T,1]) then
             begin
               SetTerrainKindTile(K, I, T, ACC_HIGH);
               Break; //Neither of the methods below can beat this one, so save time and don't check more TerrainKinds
@@ -478,7 +478,7 @@ begin
 
             //METHOD 2: Terrain type is in RandomTiling
             for J := 1 to RandomTiling[T,0] do
-              if fTerrain.Land[I,K].Terrain = RandomTiling[T,J] then
+              if gTerrain.Land[I,K].Terrain = RandomTiling[T,J] then
               begin
                 A := ACC_MED; //Random tiling is fairly accurate
                 if T = tkCoal then A := ACC_MIN; //Random coal tiles are also used for edges, so edges are more accurate
@@ -490,9 +490,9 @@ begin
             for T2 := Low(TTerrainKind) to High(TTerrainKind) do
             begin
               //1 vertex is T, 3 vertexes are T2
-              if fTerrain.Land[I,K].Terrain = Abs(Combo[T,T2,1]) then
+              if gTerrain.Land[I,K].Terrain = Abs(Combo[T,T2,1]) then
               begin
-                Rot := fTerrain.Land[I,K].Rotation mod 4;
+                Rot := gTerrain.Land[I,K].Rotation mod 4;
                 if Combo[T,T2,1] < 0 then Rot := (Rot+2) mod 4; //Flip
                 case Rot of
                   0: begin
@@ -522,9 +522,9 @@ begin
                 end;
               end;
               //Half T, half T2
-              if fTerrain.Land[I,K].Terrain = Abs(Combo[T,T2,2]) then
+              if gTerrain.Land[I,K].Terrain = Abs(Combo[T,T2,2]) then
               begin
-                Rot := fTerrain.Land[I,K].Rotation mod 4;
+                Rot := gTerrain.Land[I,K].Rotation mod 4;
                 if Combo[T,T2,2] < 0 then Rot := (Rot+2) mod 4; //Flip
                 case Rot of
                   0: begin
@@ -554,9 +554,9 @@ begin
                 end;
               end;
               //3 vertex are T, 1 vertexes is T2
-              if fTerrain.Land[I,K].Terrain = Abs(Combo[T,T2,3]) then
+              if gTerrain.Land[I,K].Terrain = Abs(Combo[T,T2,3]) then
               begin
-                Rot := fTerrain.Land[I,K].Rotation mod 4;
+                Rot := gTerrain.Land[I,K].Rotation mod 4;
                 if Combo[T,T2,3] < 0 then Rot := (Rot+2) mod 4; //Flip
                 case Rot of
                   0: begin
@@ -608,7 +608,7 @@ begin
     S.LoadFromFile(FileName);
     S.Read(NewX); //We read header to new variables to avoid damage to existing map if header is wrong
     S.Read(NewY);
-    Assert((NewX = fTerrain.MapX) and (NewY = fTerrain.MapY), 'Map size does not match map size');
+    Assert((NewX = gTerrain.MapX) and (NewY = gTerrain.MapY), 'Map size does not match map size');
 
     //Skip terrain data
     S.Seek(23 * NewX * NewY, soFromCurrent);
@@ -676,7 +676,7 @@ begin
     S.LoadFromFile(FileName);
     S.Read(NewX); //We read header to new variables to avoid damage to existing map if header is wrong
     S.Read(NewY);
-    Assert((NewX = fTerrain.MapX) and (NewY = fTerrain.MapY), 'Map size does not match map size');
+    Assert((NewX = gTerrain.MapX) and (NewY = gTerrain.MapY), 'Map size does not match map size');
 
     //Skip terrain data
     S.Seek(23 * NewX * NewY, soFromCurrent);

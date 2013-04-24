@@ -34,8 +34,8 @@ begin
   fResource := TResource.Create(nil, nil, nil);
   fResource.LoadMenuResources('');
   fSoundLib := TSoundLib.Create('', 0, False);
-  fTerrain := TKMTerrain.Create;
-  fTerrain.MakeNewMap(32, 32, False);
+  gTerrain := TKMTerrain.Create;
+  gTerrain.MakeNewMap(32, 32, False);
   fPlayers := TKMPlayersCollection.Create;
   fPlayers.AddPlayers(1);
   MySpectator := TKMSpectator.Create(0);
@@ -50,7 +50,7 @@ procedure TestTUnitActionGoInOut.TearDown;
 begin
   FUnitActionGoInOut.Free;
   fPlayers.Free;
-  fTerrain.Free;
+  gTerrain.Free;
   fSoundLib.Free;
   fResource.Free;
   fLog.Free;

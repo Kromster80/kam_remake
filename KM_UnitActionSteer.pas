@@ -70,7 +70,7 @@ end;
 
 procedure TUnitActionSteer.IncVertex(aFrom, aTo: TKMPoint);
 begin
-  //Tell fTerrain that this vertex is being used so no other unit walks over the top of us
+  //Tell gTerrain that this vertex is being used so no other unit walks over the top of us
   Assert(KMSamePoint(fVertexOccupied, KMPoint(0,0)), 'Steer vertex in use');
 
   fUnit.VertexAdd(aFrom,aTo);
@@ -80,7 +80,7 @@ end;
 
 procedure TUnitActionSteer.DecVertex;
 begin
-  //Tell fTerrain that this vertex is not being used anymore
+  //Tell gTerrain that this vertex is not being used anymore
   Assert(not KMSamePoint(fVertexOccupied, KMPoint(0,0)), 'DecVertex 0:0 Steer');
 
   fUnit.VertexRem(fVertexOccupied);

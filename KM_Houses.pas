@@ -308,7 +308,7 @@ begin
   end;
 
   fIsDestroyed      := false;
-  RemoveRoadWhenDemolish := fTerrain.Land[GetEntrance.Y, GetEntrance.X].TileOverlay <> to_Road;
+  RemoveRoadWhenDemolish := gTerrain.Land[GetEntrance.Y, GetEntrance.X].TileOverlay <> to_Road;
   fPointerCount     := 0;
   fTimeSinceUnoccupiedReminder   := TIME_BETWEEN_MESSAGES;
 
@@ -319,10 +319,10 @@ begin
   begin
     Activate(False);
     fBuildingProgress := fResource.HouseDat[fHouseType].MaxHealth;
-    fTerrain.SetHouse(fPosition, fHouseType, hsBuilt, fOwner, (fGame <> nil) and (fGame.GameMode <> gmMapEd)); //Sets passability and flattens terrain if we're not in the map editor
+    gTerrain.SetHouse(fPosition, fHouseType, hsBuilt, fOwner, (fGame <> nil) and (fGame.GameMode <> gmMapEd)); //Sets passability and flattens terrain if we're not in the map editor
   end
   else
-    fTerrain.SetHouse(fPosition, fHouseType, hsFence, fOwner); //Terrain remains neutral yet
+    gTerrain.SetHouse(fPosition, fHouseType, hsFence, fOwner); //Terrain remains neutral yet
 
   //Built houses accumulate snow slowly, pre-placed houses are already covered
   CheckOnSnow;
@@ -461,20 +461,20 @@ begin
       fPlayers[fOwner].Stats.WareConsumed(R, fResourceOut[I]);
   end;
 
-  fTerrain.SetHouse(fPosition, fHouseType, hsNone, -1);
+  gTerrain.SetHouse(fPosition, fHouseType, hsNone, -1);
 
   //Leave rubble
   if not IsEditor then
-    fTerrain.AddHouseRemainder(fPosition, fHouseType, fBuildState);
+    gTerrain.AddHouseRemainder(fPosition, fHouseType, fBuildState);
 
   BuildingRepair := False; //Otherwise labourers will take task to repair when the house is destroyed
   if RemoveRoadWhenDemolish and (not (BuildingState in [hbs_Stone, hbs_Done]) or IsEditor) then
   begin
-    if fTerrain.Land[GetEntrance.Y, GetEntrance.X].TileOverlay = to_Road then
+    if gTerrain.Land[GetEntrance.Y, GetEntrance.X].TileOverlay = to_Road then
     begin
-      fTerrain.RemRoad(GetEntrance);
+      gTerrain.RemRoad(GetEntrance);
       if not IsEditor then
-        fTerrain.Land[GetEntrance.Y, GetEntrance.X].TileOverlay := to_Dig3; //Remove road and leave dug earth behind
+        gTerrain.Land[GetEntrance.Y, GetEntrance.X].TileOverlay := to_Dig3; //Remove road and leave dug earth behind
     end;
   end;
 
@@ -491,15 +491,15 @@ var
 begin
   Assert(fGame.GameMode = gmMapEd);
   //We have to remove the house THEN check to see if we can place it again so we can put it on the old position
-  fTerrain.SetHouse(fPosition, fHouseType, hsNone, -1);
-  fTerrain.RemRoad(GetEntrance);
+  gTerrain.SetHouse(fPosition, fHouseType, hsNone, -1);
+  gTerrain.RemRoad(GetEntrance);
   if fPlayers[MySpectator.PlayerIndex].CanAddHousePlan(aPos, HouseType) then
   begin
     fPosition.X := aPos.X - fResource.HouseDat[fHouseType].EntranceOffsetX;
     fPosition.Y := aPos.Y;
   end;
-  fTerrain.SetHouse(fPosition, fHouseType, hsBuilt, fOwner);
-  fTerrain.SetField(GetEntrance, fOwner, ft_Road);
+  gTerrain.SetHouse(fPosition, fHouseType, hsBuilt, fOwner);
+  gTerrain.SetField(GetEntrance, fOwner, ft_Road);
 
   //Do not remove all snow if house is moved from snow to snow
   WasOnSnow := fIsOnSnow;
@@ -548,7 +548,7 @@ begin
   HouseArea := fResource.HouseDat[fHouseType].BuildArea;
 
   for I := max(Loc.Y - 3, 1) to Loc.Y do
-    for K := max(Loc.X - 2, 1) to min(Loc.X + 1, fTerrain.MapX) do
+    for K := max(Loc.X - 2, 1) to min(Loc.X + 1, gTerrain.MapX) do
       if HouseArea[I - Loc.Y + 4, K - Loc.X + 3] <> 0 then
       begin
         Test := KMLength(aPos, KMPoint(K, I));
@@ -580,7 +580,7 @@ var
   procedure AddLoc(X,Y: Word; Dir: TKMDirection);
   begin
     //Check that the passabilty is correct, as the house may be placed against blocked terrain
-    if fTerrain.CheckPassability(KMPoint(X,Y), aPassability) then
+    if gTerrain.CheckPassability(KMPoint(X,Y), aPassability) then
       Cells.AddItem(KMPointDir(X, Y, Dir));
   end;
 
@@ -615,7 +615,7 @@ begin
   HouseArea := fResource.HouseDat[fHouseType].BuildArea;
 
   for i := max(Loc.Y - 3, 1) to Loc.Y do
-    for K := max(Loc.X - 2, 1) to min(Loc.X + 1, fTerrain.MapX) do
+    for K := max(Loc.X - 2, 1) to min(Loc.X + 1, gTerrain.MapX) do
       if HouseArea[i - Loc.Y + 4, K - Loc.X + 3] <> 0 then
         Cells.AddEntry(KMPoint(K, i));
 end;
@@ -829,7 +829,7 @@ begin
 
   SnowTiles := 0;
   for I := 0 to Cells.Count - 1 do
-    SnowTiles := SnowTiles + Byte(fTerrain.TileIsSnow(Cells[I].X, Cells[I].Y));
+    SnowTiles := SnowTiles + Byte(gTerrain.TileIsSnow(Cells[I].X, Cells[I].Y));
 
   fIsOnSnow := SnowTiles > (Cells.Count div 2);
 
@@ -2090,7 +2090,7 @@ begin
     for I := -Round(RANGE_WATCHTOWER_MAX)-1 to Round(RANGE_WATCHTOWER_MAX) do
     for K := -Round(RANGE_WATCHTOWER_MAX)-1 to Round(RANGE_WATCHTOWER_MAX) do
     if InRange(GetLength(I, K), RANGE_WATCHTOWER_MIN, RANGE_WATCHTOWER_MAX) then
-    if fTerrain.TileInMapCoords(GetPosition.X+K, GetPosition.Y+I) then
+    if gTerrain.TileInMapCoords(GetPosition.X+K, GetPosition.Y+I) then
       fRenderAux.Quad(GetPosition.X+K, GetPosition.Y+I, $40FFFFFF);
 end;
 

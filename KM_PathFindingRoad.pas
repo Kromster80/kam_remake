@@ -73,8 +73,8 @@ begin
   Result := 10;
 
   //Building roads over fields is discouraged unless unavoidable
-  if fTerrain.TileIsCornField(KMPoint(aToX, aToY))
-  or fTerrain.TileIsWineField(KMPoint(aToX, aToY)) then
+  if gTerrain.TileIsCornField(KMPoint(aToX, aToY))
+  or gTerrain.TileIsWineField(KMPoint(aToX, aToY)) then
     Inc(Result, 60); //60 points equals to 6 tiles penalty
 end;
 
@@ -94,7 +94,7 @@ end;
 
 function TPathFindingRoad.IsWalkableTile(aX, aY: Word): Boolean;
 begin
-  Result := ([CanMakeRoads, CanWalkRoad] * fTerrain.Land[aY,aX].Passability <> [])
+  Result := ([CanMakeRoads, CanWalkRoad] * gTerrain.Land[aY,aX].Passability <> [])
             and (fPlayers[fOwner].BuildList.FieldworksList.HasField(KMPoint(aX, aY)) in [ft_None, ft_Road])
             and not fPlayers[fOwner].BuildList.HousePlanList.HasPlan(KMPoint(aX, aY));
 end;
@@ -105,13 +105,13 @@ var
   RoadWorkNear: Boolean;
 begin
   //Since we can't step on to WIP tiles we check for them nearby
-  RoadWorkNear := ((aX > 1) and (fTerrain.Land[aY, aX-1].TileLock = tlRoadWork) and (TKMUnit(fTerrain.Land[aY, aX-1].IsUnit).Owner = fOwner))
-  or ((aX < fTerrain.MapX - 1) and (fTerrain.Land[aY, aX+1].TileLock = tlRoadWork) and (TKMUnit(fTerrain.Land[aY, aX+1].IsUnit).Owner = fOwner))
-  or ((aY > 1) and (fTerrain.Land[aY-1, aX].TileLock = tlRoadWork) and (TKMUnit(fTerrain.Land[aY-1, aX].IsUnit).Owner = fOwner))
-  or ((aY < fTerrain.MapY - 1) and (fTerrain.Land[aY+1, aX].TileLock = tlRoadWork) and (TKMUnit(fTerrain.Land[aY+1, aX].IsUnit).Owner = fOwner));
+  RoadWorkNear := ((aX > 1) and (gTerrain.Land[aY, aX-1].TileLock = tlRoadWork) and (TKMUnit(gTerrain.Land[aY, aX-1].IsUnit).Owner = fOwner))
+  or ((aX < gTerrain.MapX - 1) and (gTerrain.Land[aY, aX+1].TileLock = tlRoadWork) and (TKMUnit(gTerrain.Land[aY, aX+1].IsUnit).Owner = fOwner))
+  or ((aY > 1) and (gTerrain.Land[aY-1, aX].TileLock = tlRoadWork) and (TKMUnit(gTerrain.Land[aY-1, aX].IsUnit).Owner = fOwner))
+  or ((aY < gTerrain.MapY - 1) and (gTerrain.Land[aY+1, aX].TileLock = tlRoadWork) and (TKMUnit(gTerrain.Land[aY+1, aX].IsUnit).Owner = fOwner));
 
   Result := ((aX = fLocB.X) and (aY = fLocB.Y)) //We reached destination point
-            or ((fTerrain.Land[aY, aX].TileOverlay = to_Road) and (fTerrain.Land[aY, aX].TileOwner = fOwner)) //We reached own road
+            or ((gTerrain.Land[aY, aX].TileOverlay = to_Road) and (gTerrain.Land[aY, aX].TileOwner = fOwner)) //We reached own road
             or RoadWorkNear //We reached our roadplan being constructed
             or (fPlayers[fOwner].BuildList.FieldworksList.HasField(KMPoint(aX, aY)) = ft_Road);
 end;

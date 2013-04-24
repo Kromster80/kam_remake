@@ -86,14 +86,14 @@ var
 begin
   inherited LoadMission(aFileName);
 
-  Assert((fTerrain <> nil) and (fPlayers <> nil));
+  Assert((gTerrain <> nil) and (fPlayers <> nil));
 
   Result := False;
 
   //Load the terrain since we know where it is beforehand
   if FileExists(ChangeFileExt(fMissionFileName, '.map')) then
   begin
-    fTerrain.LoadFromFile(ChangeFileExt(fMissionFileName, '.map'), fParsingMode = mpm_Editor);
+    gTerrain.LoadFromFile(ChangeFileExt(fMissionFileName, '.map'), fParsingMode = mpm_Editor);
     if fParsingMode = mpm_Editor then
       fTerrainPainter.LoadFromFile(ChangeFileExt(fMissionFileName, '.map'));
   end
@@ -204,7 +204,7 @@ begin
                         end;
     ct_SetHouse:        if fLastPlayer >= 0 then
                           if InRange(P[0], Low(HouseIndexToType), High(HouseIndexToType)) then
-                            if fTerrain.CanPlaceHouseFromScript(HouseIndexToType[P[0]], KMPoint(P[1]+1, P[2]+1)) then
+                            if gTerrain.CanPlaceHouseFromScript(HouseIndexToType[P[0]], KMPoint(P[1]+1, P[2]+1)) then
                               fLastHouse := fPlayers[fLastPlayer].AddHouse(
                                 HouseIndexToType[P[0]], P[1]+1, P[2]+1, false)
                             else
@@ -525,7 +525,7 @@ begin
         Group.OrderAttackHouse(H, True)
       else
       begin
-        U := fTerrain.UnitsHitTest(Target.X, Target.Y); //Chase/attack unit
+        U := gTerrain.UnitsHitTest(Target.X, Target.Y); //Chase/attack unit
         if (U <> nil) and (not U.IsDeadOrDying) and (fPlayers.CheckAlliance(Group.Owner, U.Owner) = at_Enemy) then
           Group.OrderAttackUnit(U, True)
         else
@@ -780,15 +780,15 @@ begin
 
     //Roads and fields. We must check EVERY terrain tile
     CommandLayerCount := 0; //Enable command layering
-    for iY := 1 to fTerrain.MapY do
-      for iX := 1 to fTerrain.MapX do
-        if fTerrain.Land[iY,iX].TileOwner = fPlayers[I].PlayerIndex then
+    for iY := 1 to gTerrain.MapY do
+      for iX := 1 to gTerrain.MapX do
+        if gTerrain.Land[iY,iX].TileOwner = fPlayers[I].PlayerIndex then
         begin
-          if fTerrain.Land[iY,iX].TileOverlay = to_Road then
+          if gTerrain.Land[iY,iX].TileOverlay = to_Road then
             AddCommand(ct_SetRoad, [iX-1,iY-1]);
-          if fTerrain.TileIsCornField(KMPoint(iX,iY)) then
+          if gTerrain.TileIsCornField(KMPoint(iX,iY)) then
             AddCommand(ct_SetField, [iX-1,iY-1]);
-          if fTerrain.TileIsWineField(KMPoint(iX,iY)) then
+          if gTerrain.TileIsWineField(KMPoint(iX,iY)) then
             AddCommand(ct_SetWinefield, [iX-1,iY-1]);
         end;
     CommandLayerCount := -1; //Disable command layering

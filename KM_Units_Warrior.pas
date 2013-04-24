@@ -477,7 +477,7 @@ begin
     TestDir := dir_NA;
 
   //This function should not be run too often, as it will take some time to execute (e.g. with lots of warriors in the range area to check)
-  Result := fTerrain.UnitsHitTestWithinRad(GetPosition, GetFightMinRange, GetFightMaxRange(true), Owner, at_Enemy, TestDir, not RANDOM_TARGETS);
+  Result := gTerrain.UnitsHitTestWithinRad(GetPosition, GetFightMinRange, GetFightMaxRange(true), Owner, at_Enemy, TestDir, not RANDOM_TARGETS);
 
   //Only stop attacking a house if it's a warrior
   if (fUnitTask <> nil) and (fUnitTask is TTaskAttackHouse) and (GetUnitAction is TUnitActionStay) and not (Result is TKMUnitWarrior) then
@@ -710,7 +710,7 @@ begin
     for I := -Round(GetFightMaxRange) - 1 to Round(GetFightMaxRange) do
     for K := -Round(GetFightMaxRange) - 1 to Round(GetFightMaxRange) do
     if InRange(GetLength(I, K), GetFightMinRange, GetFightMaxRange) then
-    if fTerrain.TileInMapCoords(GetPosition.X + K, GetPosition.Y + I) then
+    if gTerrain.TileInMapCoords(GetPosition.X + K, GetPosition.Y + I) then
       fRenderAux.Quad(GetPosition.X + K, GetPosition.Y + I, $40FFFFFF);
 end;
 

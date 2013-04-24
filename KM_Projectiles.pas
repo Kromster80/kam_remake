@@ -162,9 +162,9 @@ begin
     Arc := ((DistanceInRange-aMinRange)/(aMaxRange-aMinRange))*(ProjectileArcs[aProjType, 1] + KaMRandomS(ProjectileArcs[aProjType, 2]));
 
     //Check whether this predicted target will hit a friendly unit
-    if fTerrain.TileInMapCoords(Round(Target.X), Round(Target.Y)) then //Arrows may fly off map, UnitsHitTest doesn't like negative coordinates
+    if gTerrain.TileInMapCoords(Round(Target.X), Round(Target.Y)) then //Arrows may fly off map, UnitsHitTest doesn't like negative coordinates
     begin
-      U := fTerrain.UnitsHitTest(Round(Target.X), Round(Target.Y));
+      U := gTerrain.UnitsHitTest(Round(Target.X), Round(Target.Y));
       if (U <> nil) and (fPlayers.CheckAlliance(aOwner,U.Owner) = at_Ally) then
         Target := aTarget.PositionF; //Shoot at the target's current position instead
     end;
@@ -218,14 +218,14 @@ begin
   fItems[I].fOwner  := aOwner;
   fItems[I].fAim    := aAim;
   //Don't allow projectile to land off map, (we use fTaret for hit tests, FOW, etc.) but on borders is fine
-  fItems[I].fTarget.X := EnsureRange(aEnd.X, 0, fTerrain.MapX-0.01);
-  fItems[I].fTarget.Y := EnsureRange(aEnd.Y, 0, fTerrain.MapY-0.01);
+  fItems[I].fTarget.X := EnsureRange(aEnd.X, 0, gTerrain.MapX-0.01);
+  fItems[I].fTarget.Y := EnsureRange(aEnd.Y, 0, gTerrain.MapY-0.01);
   fItems[I].fShotFrom := aStart;
 
   fItems[I].fScreenStart.X := aStart.X + OffsetX[aProjType];
-  fItems[I].fScreenStart.Y := fTerrain.FlatToHeight(aStart).Y + OffsetY[aProjType];
+  fItems[I].fScreenStart.Y := gTerrain.FlatToHeight(aStart).Y + OffsetY[aProjType];
   fItems[I].fScreenEnd.X := fItems[I].fTarget.X + 0.5; //projectile hits on Unit's chest height
-  fItems[I].fScreenEnd.Y := fTerrain.FlatToHeight(fItems[I].fTarget).Y + 0.5;
+  fItems[I].fScreenEnd.Y := gTerrain.FlatToHeight(fItems[I].fTarget).Y + 0.5;
 
   fItems[I].fPosition := 0; //projectile position on its route
   fItems[I].fLength   := KMLength(fItems[I].fScreenStart, fItems[I].fScreenEnd); //route length
@@ -262,7 +262,7 @@ begin
 
         if fPosition >= fLength then
         begin
-          U := fTerrain.UnitsHitTestF(fTarget);
+          U := gTerrain.UnitsHitTestF(fTarget);
           //Projectile can miss depending on the distance to the unit
           if (U = nil) or ((1 - Math.min(KMLength(U.PositionF, fTarget), 1)) > KaMRandom) then
           begin

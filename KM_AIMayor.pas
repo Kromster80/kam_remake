@@ -353,8 +353,8 @@ begin
   begin
     NodeTagList := TKMPointTagList.Create;
     try
-      for I := Min(Loc.Y + 2, fTerrain.MapY - 1) to Min(Loc.Y + 2 + AI_FIELD_HEIGHT - 1, fTerrain.MapY - 1) do
-      for K := Max(Loc.X - AI_FIELD_WIDTH, 1) to Min(Loc.X + AI_FIELD_WIDTH, fTerrain.MapX - 1) do
+      for I := Min(Loc.Y + 2, gTerrain.MapY - 1) to Min(Loc.Y + 2 + AI_FIELD_HEIGHT - 1, gTerrain.MapY - 1) do
+      for K := Max(Loc.X - AI_FIELD_WIDTH, 1) to Min(Loc.X + AI_FIELD_WIDTH, gTerrain.MapX - 1) do
         if P.CanAddFieldPlan(KMPoint(K,I), ft_Corn) then
           NodeTagList.AddEntry(KMPoint(K, I), Abs(K - Loc.X)*3 + Abs(I - 2 - Loc.Y));
 
@@ -371,8 +371,8 @@ begin
   begin
     NodeTagList := TKMPointTagList.Create;
     try
-      for I := Min(Loc.Y + 1, fTerrain.MapY - 1) to Min(Loc.Y + 2 + AI_FIELD_HEIGHT - 1, fTerrain.MapY - 1) do
-      for K := Max(Loc.X - AI_FIELD_WIDTH, 1) to Min(Loc.X + AI_FIELD_WIDTH, fTerrain.MapX - 1) do
+      for I := Min(Loc.Y + 1, gTerrain.MapY - 1) to Min(Loc.Y + 2 + AI_FIELD_HEIGHT - 1, gTerrain.MapY - 1) do
+      for K := Max(Loc.X - AI_FIELD_WIDTH, 1) to Min(Loc.X + AI_FIELD_WIDTH, gTerrain.MapX - 1) do
         if P.CanAddFieldPlan(KMPoint(K,I), ft_Wine) then
           NodeTagList.AddEntry(KMPoint(K, I), Abs(K - Loc.X)*3 + Abs(I - 2 - Loc.Y));
 
@@ -390,8 +390,8 @@ begin
 
   //Build more roads around 2nd Store
   if aHouse = ht_Store then
-    for I := Max(Loc.Y - 3, 1) to Min(Loc.Y + 2, fTerrain.MapY - 1) do
-    for K := Max(Loc.X - 2, 1) to Min(Loc.X + 2, fTerrain.MapY - 1) do
+    for I := Max(Loc.Y - 3, 1) to Min(Loc.Y + 2, gTerrain.MapY - 1) do
+    for K := Max(Loc.X - 2, 1) to Min(Loc.X + 2, gTerrain.MapY - 1) do
     if P.CanAddFieldPlan(KMPoint(K, I), ft_Road) then
       P.BuildList.FieldworksList.AddField(KMPoint(K, I), ft_Road);
 
@@ -494,7 +494,7 @@ begin
     if Store = nil then Exit;
     StoreLoc := Store.GetEntrance;
 
-    for I := Max(StoreLoc.Y - 3, 1) to Min(StoreLoc.Y + 2, fTerrain.MapY - 1) do
+    for I := Max(StoreLoc.Y - 3, 1) to Min(StoreLoc.Y + 2, gTerrain.MapY - 1) do
     for K := StoreLoc.X - 2 to StoreLoc.X + 2 do
     if P.CanAddFieldPlan(KMPoint(K, I), ft_Road) then
       P.BuildList.FieldworksList.AddField(KMPoint(K, I), ft_Road);

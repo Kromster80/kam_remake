@@ -229,7 +229,7 @@ begin
   Enabled := True;
 
   fAI           := TKMPlayerAI.Create(fPlayerIndex);
-  fFogOfWar     := TKMFogOfWar.Create(fTerrain.MapX, fTerrain.MapY);
+  fFogOfWar     := TKMFogOfWar.Create(gTerrain.MapX, gTerrain.MapY);
   fGoals        := TKMGoals.Create;
   fStats        := TKMPlayerStats.Create;
   fRoadsList    := TKMPointList.Create;
@@ -322,9 +322,9 @@ begin
   Result.OnUnitDied := UnitDied;
   Result.OnUnitTrained := UnitTrained;
 
-  //Adding a unit automatically sets fTerrain.IsUnit, but since the unit was trained
+  //Adding a unit automatically sets gTerrain.IsUnit, but since the unit was trained
   //inside School/Barracks we don't need that
-  fTerrain.UnitRem(Position);
+  gTerrain.UnitRem(Position);
 
   //Do not add unit to statistic just yet, wait till it's training complete
 end;
@@ -382,7 +382,7 @@ begin
 
   //Sometimes maps can have roads placed outside of map bounds - ignore them
   //(on 80x80 map Loc range is 1..79, which is not obvious when placing roads manually in script)
-  if fTerrain.TileInMapCoords(aLoc.X, aLoc.Y) then
+  if gTerrain.TileInMapCoords(aLoc.X, aLoc.Y) then
     fRoadsList.AddEntry(aLoc);
 end;
 
@@ -392,9 +392,9 @@ procedure TKMPlayer.AfterMissionInit(aFlattenRoads: Boolean);
 begin
   if fRoadsList <> nil then
   begin
-    fTerrain.SetRoads(fRoadsList, fPlayerIndex, not aFlattenRoads); //If we are flattening roads that will update WalkConnect anyway
+    gTerrain.SetRoads(fRoadsList, fPlayerIndex, not aFlattenRoads); //If we are flattening roads that will update WalkConnect anyway
     if aFlattenRoads then
-      fTerrain.FlattenTerrain(fRoadsList);
+      gTerrain.FlattenTerrain(fRoadsList);
     FreeAndNil(fRoadsList);
   end;
 
@@ -413,7 +413,7 @@ end;
 
 procedure TKMPlayer.AddField(aLoc: TKMPoint; aFieldType: TFieldType);
 begin
-  fTerrain.SetField(aLoc, fPlayerIndex, aFieldType);
+  gTerrain.SetField(aLoc, fPlayerIndex, aFieldType);
 end;
 
 
@@ -421,7 +421,7 @@ end;
 function TKMPlayer.CanAddFieldPlan(aLoc: TKMPoint; aFieldType: TFieldType): Boolean;
 var I: Integer;
 begin
-  Result := fTerrain.CanAddField(aLoc.X, aLoc.Y, aFieldType)
+  Result := gTerrain.CanAddField(aLoc.X, aLoc.Y, aFieldType)
             and (fBuildList.FieldworksList.HasField(aLoc) = ft_None)
             and not fBuildList.HousePlanList.HasPlan(aLoc);
   //Don't allow placing on allies plans either
@@ -439,7 +439,7 @@ end;
 function TKMPlayer.CanAddFakeFieldPlan(aLoc: TKMPoint; aFieldType: TFieldType): Boolean;
 var I: Integer;
 begin
-  Result := fTerrain.CanAddField(aLoc.X, aLoc.Y, aFieldType)
+  Result := gTerrain.CanAddField(aLoc.X, aLoc.Y, aFieldType)
             and (fBuildList.FieldworksList.HasFakeField(aLoc) = ft_None)
             and not fBuildList.HousePlanList.HasPlan(aLoc);
   //Don't allow placing on allies plans either
@@ -454,7 +454,7 @@ end;
 function TKMPlayer.CanAddHousePlan(aLoc: TKMPoint; aHouseType: THouseType): Boolean;
 var I,K,J,S,T,Tx,Ty: Integer; HA: THouseArea;
 begin
-  Result := fTerrain.CanPlaceHouse(aLoc, aHouseType);
+  Result := gTerrain.CanPlaceHouse(aLoc, aHouseType);
   if not Result then Exit;
 
   HA := fResource.HouseDat[aHouseType].BuildArea;
@@ -464,7 +464,7 @@ begin
   begin
     Tx := aLoc.X - fResource.HouseDat[aHouseType].EntranceOffsetX + K - 3;
     Ty := aLoc.Y + I - 4;
-    Result := Result and fTerrain.TileInMapCoords(Tx, Ty, 1)
+    Result := Result and gTerrain.TileInMapCoords(Tx, Ty, 1)
                      and (fFogOfWar.CheckTileRevelation(Tx, Ty) > 0);
     //This checks below require Tx;Ty to be within the map so exit immediately if they are not
     if not Result then exit;
@@ -494,7 +494,7 @@ begin
 
   //Check if we can place house on terrain, this also makes sure the house is
   //at least 1 tile away from map border (skip that below)
-  if not fTerrain.CanPlaceHouse(KMPoint(aX, aY), aHouseType) then
+  if not gTerrain.CanPlaceHouse(KMPoint(aX, aY), aHouseType) then
     Exit;
 
   //Perform additional cheks for AI
@@ -508,7 +508,7 @@ begin
     Ty := aY + I - 4;
 
     //Make sure tile in map coords and we don't block some road
-    if fTerrain.CheckPassability(KMPoint(Tx, Ty), CanWalkRoad) then
+    if gTerrain.CheckPassability(KMPoint(Tx, Ty), CanWalkRoad) then
       Exit;
 
     //Check with influence maps
@@ -529,9 +529,9 @@ begin
 
     //Make sure we can add road below house, full width + 1 on each side
     if (I = 4) then
-      if not fTerrain.CheckPassability(KMPoint(Tx - 1, Ty + 1), CanMakeRoads)
-      or not fTerrain.CheckPassability(KMPoint(Tx    , Ty + 1), CanMakeRoads)
-      or not fTerrain.CheckPassability(KMPoint(Tx + 1, Ty + 1), CanMakeRoads)
+      if not gTerrain.CheckPassability(KMPoint(Tx - 1, Ty + 1), CanMakeRoads)
+      or not gTerrain.CheckPassability(KMPoint(Tx    , Ty + 1), CanMakeRoads)
+      or not gTerrain.CheckPassability(KMPoint(Tx + 1, Ty + 1), CanMakeRoads)
     then
       Exit;
 
@@ -906,9 +906,9 @@ function TKMPlayer.GetFieldsCount: Integer;
 var i,k: Integer;
 begin
   Result := 0;
-  for i := 1 to fTerrain.MapY do
-  for k := 1 to fTerrain.MapX do
-    if fTerrain.Land[i,k].TileOwner = fPlayerIndex then
+  for i := 1 to gTerrain.MapY do
+  for k := 1 to gTerrain.MapX do
+    if gTerrain.Land[i,k].TileOwner = fPlayerIndex then
       inc(Result);
 end;
 
@@ -985,14 +985,14 @@ var
   HA: THouseArea;
 begin
   //Get basic Marks
-  fTerrain.GetHouseMarks(aLoc, aHouseType, aList);
+  gTerrain.GetHouseMarks(aLoc, aHouseType, aList);
 
   //Override marks if there are House/FieldPlans (only we know about our plans) and or FogOfWar
   HA := fResource.HouseDat[aHouseType].BuildArea;
 
   for I := 1 to 4 do for K := 1 to 4 do
   if (HA[I,K] <> 0)
-  and fTerrain.TileInMapCoords(aLoc.X+K-3-fResource.HouseDat[aHouseType].EntranceOffsetX, aLoc.Y+I-4, 1) then
+  and gTerrain.TileInMapCoords(aLoc.X+K-3-fResource.HouseDat[aHouseType].EntranceOffsetX, aLoc.Y+I-4, 1) then
   begin
     //This can't be done earlier since values can be off-map
     P2 := KMPoint(aLoc.X+K-3-fResource.HouseDat[aHouseType].EntranceOffsetX, aLoc.Y+I-4);
@@ -1217,7 +1217,7 @@ begin
     if (U <> nil)
     and (U.UnitType = ut_Fish)
     and (not U.IsDeadOrDying) //Fish are killed when they are caught or become stuck
-    and (fTerrain.Land[U.GetPosition.Y, U.GetPosition.X].WalkConnect[wcFish] = aWaterID)
+    and (gTerrain.Land[U.GetPosition.Y, U.GetPosition.X].WalkConnect[wcFish] = aWaterID)
     and (TKMUnitAnimal(U).FishCount > HighestGroupCount) then
     begin
       Result := TKMUnitAnimal(U);

@@ -89,10 +89,10 @@ begin
   GenerateTileOutline(TileOutlines);
 
   //Remove extra points on straights
-  SimplifyStraights(TileOutlines, KMRect(0, 0, fTerrain.MapX-1, fTerrain.MapY-1), fRawOutlines);
+  SimplifyStraights(TileOutlines, KMRect(0, 0, gTerrain.MapX-1, gTerrain.MapY-1), fRawOutlines);
 
   //Perform outlines simplification
-  with TKMSimplifyShapes.Create(2, KMRect(0, 0, fTerrain.MapX-1, fTerrain.MapY-1)) do
+  with TKMSimplifyShapes.Create(2, KMRect(0, 0, gTerrain.MapX-1, gTerrain.MapY-1)) do
   begin
     Execute(fRawOutlines, fSimpleOutlines);
     Free;
@@ -102,7 +102,7 @@ begin
   TriangulateOutlines;
 
   //Force mesh triangulation to be along outlines
-  ForceOutlines(fRawMesh, KMRect(0, 0, fTerrain.MapX-1, fTerrain.MapY-1), fSimpleOutlines);
+  ForceOutlines(fRawMesh, KMRect(0, 0, gTerrain.MapX-1, gTerrain.MapY-1), fSimpleOutlines);
 
   //Remove polygons within obstacles
   RemoveObstaclePolies(fRawMesh, fSimpleOutlines);
@@ -125,14 +125,14 @@ var
   I, K: Integer;
   Tmp: TKMByte2Array;
 begin
-  SetLength(Tmp, fTerrain.MapY-1, fTerrain.MapX-1);
+  SetLength(Tmp, gTerrain.MapY-1, gTerrain.MapX-1);
 
   //Copy map to temp array as 0/1 (generator uses other byte values for its needs)
   //0 - no obstacle
   //1 - obstacle
-  for I := 0 to fTerrain.MapY - 2 do
-  for K := 0 to fTerrain.MapX - 2 do
-    Tmp[I,K] := 1 - Byte(CanOwn in fTerrain.Land[I+1,K+1].Passability);
+  for I := 0 to gTerrain.MapY - 2 do
+  for K := 0 to gTerrain.MapX - 2 do
+    Tmp[I,K] := 1 - Byte(CanOwn in gTerrain.Land[I+1,K+1].Passability);
 
   GenerateOutline(Tmp, 12, aTileOutlines);
 
@@ -157,7 +157,7 @@ var
   Skip: Boolean;
 begin
   //Fill area with Delaunay triangles
-  fDelaunay := TDelaunay.Create(-1, -1, fTerrain.MapX, fTerrain.MapY);
+  fDelaunay := TDelaunay.Create(-1, -1, gTerrain.MapX, gTerrain.MapY);
   try
     //Points that are closer than that will be skipped
     fDelaunay.Tolerance := 1;
@@ -167,8 +167,8 @@ begin
         fDelaunay.AddPoint(Nodes[K].X, Nodes[K].Y);
 
     //Add more points along edges to get even density
-    SizeX := fTerrain.MapX-1;
-    SizeY := fTerrain.MapY-1;
+    SizeX := gTerrain.MapX-1;
+    SizeY := gTerrain.MapY-1;
     MeshDensityX := SizeX div 15; //once per 15 tiles
     MeshDensityY := SizeY div 15;
     for I := 0 to MeshDensityY do
@@ -325,9 +325,9 @@ begin
     for K := 0 to fPlayers.Count - 1 do
       fNodes[I].Owner[K] := Min(255, Max(
         Max(fInfluences.Ownership[K, Max(fNodes[I].Loc.Y, 1), Max(fNodes[I].Loc.X, 1)],
-            fInfluences.Ownership[K, Max(fNodes[I].Loc.Y, 1), Min(fNodes[I].Loc.X+1, fTerrain.MapX - 1)]),
-        Max(fInfluences.Ownership[K, Min(fNodes[I].Loc.Y+1, fTerrain.MapY - 1), Max(fNodes[I].Loc.X, 1)],
-            fInfluences.Ownership[K, Min(fNodes[I].Loc.Y+1, fTerrain.MapY - 1), Min(fNodes[I].Loc.X+1, fTerrain.MapX - 1)])
+            fInfluences.Ownership[K, Max(fNodes[I].Loc.Y, 1), Min(fNodes[I].Loc.X+1, gTerrain.MapX - 1)]),
+        Max(fInfluences.Ownership[K, Min(fNodes[I].Loc.Y+1, gTerrain.MapY - 1), Max(fNodes[I].Loc.X, 1)],
+            fInfluences.Ownership[K, Min(fNodes[I].Loc.Y+1, gTerrain.MapY - 1), Min(fNodes[I].Loc.X+1, gTerrain.MapX - 1)])
             ));
 end;
 

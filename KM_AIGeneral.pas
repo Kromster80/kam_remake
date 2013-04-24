@@ -377,11 +377,11 @@ begin
     for I := Locs.Count - 1 downto 0 do
     begin
       LocI := KMGetPointInDir(Locs[I].Loc, KMAddDirection(Locs[I].Dir, 4), 1);
-      Loc := fTerrain.EnsureTileInMapCoords(LocI.X, LocI.Y, 3);
+      Loc := gTerrain.EnsureTileInMapCoords(LocI.X, LocI.Y, 3);
       fDefencePositions.Add(KMPointDir(Loc, Locs[I].Dir), gt_Melee, 25, adt_FrontLine);
 
       LocI := KMGetPointInDir(Locs[I].Loc, KMAddDirection(Locs[I].Dir, 4), 4);
-      Loc := fTerrain.EnsureTileInMapCoords(LocI.X, LocI.Y, 3);
+      Loc := gTerrain.EnsureTileInMapCoords(LocI.X, LocI.Y, 3);
       fDefencePositions.Add(KMPointDir(Loc, Locs[I].Dir), gt_Ranged, 25, adt_FrontLine);
     end;
   finally
@@ -413,7 +413,7 @@ begin
                                         if (TargetHouse <> nil) and
                                            (fPlayers.CheckAlliance(fOwner, TargetHouse.Owner) = at_Ally) then
                                           TargetHouse := nil;
-                                        TargetUnit := fTerrain.UnitsHitTest(aCustomPos.X, aCustomPos.Y);
+                                        TargetUnit := gTerrain.UnitsHitTest(aCustomPos.X, aCustomPos.Y);
                                         if (TargetUnit <> nil) and
                                            (fPlayers.CheckAlliance(fOwner, TargetUnit.Owner) = at_Ally) then
                                           TargetUnit := nil;

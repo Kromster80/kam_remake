@@ -760,7 +760,7 @@ var
   Group: TKMUnitGroup;
 begin
   Loc := MinimapView.LocalToMapCoords(X, Y, -1); //Inset by 1 pixel to catch cases "outside of map"
-  if not fTerrain.TileInMapCoords(Loc.X, Loc.Y) then Exit; //Must be inside map
+  if not gTerrain.TileInMapCoords(Loc.X, Loc.Y) then Exit; //Must be inside map
 
   //Send move order, if applicable
   if (MySpectator.Selected is TKMUnitGroup) and not fJoiningGroups and not fPlacingBeacon and not fReplay and not HasLostMPGame then
@@ -3989,7 +3989,7 @@ begin
     Group := TKMUnitGroup(MySpectator.Selected);
     if Group.Owner = MySpectator.PlayerIndex then
     begin
-      U := fTerrain.UnitsHitTest(GameCursor.Cell.X, GameCursor.Cell.Y);
+      U := gTerrain.UnitsHitTest(GameCursor.Cell.X, GameCursor.Cell.Y);
       H := fPlayers.HousesHitTest(GameCursor.Cell.X, GameCursor.Cell.Y);
       if ((U = nil) or U.IsDeadOrDying or (fPlayers.CheckAlliance(MySpectator.PlayerIndex, U.Owner) = at_Ally)) and
          ((H = nil) or (fPlayers.CheckAlliance(MySpectator.PlayerIndex, H.Owner) = at_Ally)) then
@@ -4139,7 +4139,7 @@ begin
   if fJoiningGroups and (MySpectator.Selected is TKMUnitGroup) then
   begin
     Group := TKMUnitGroup(MySpectator.Selected);
-    U := fTerrain.UnitsHitTest(GameCursor.Cell.X, GameCursor.Cell.Y);
+    U := gTerrain.UnitsHitTest(GameCursor.Cell.X, GameCursor.Cell.Y);
     if (U <> nil)
     and (U is TKMUnitWarrior)
     and (U.Owner = MySpectator.PlayerIndex)
@@ -4162,7 +4162,7 @@ begin
   and not fReplay and not HasLostMPGame
   and (MySpectator.FogOfWar.CheckTileRevelation(GameCursor.Cell.X, GameCursor.Cell.Y) > 0) then
   begin
-    U := fTerrain.UnitsHitTest (GameCursor.Cell.X, GameCursor.Cell.Y);
+    U := gTerrain.UnitsHitTest (GameCursor.Cell.X, GameCursor.Cell.Y);
     H := fPlayers.HousesHitTest(GameCursor.Cell.X, GameCursor.Cell.Y);
     if ((U <> nil) and (not U.IsDeadOrDying) and (fPlayers.CheckAlliance(MySpectator.PlayerIndex, U.Owner) = at_Enemy)) or
        ((H <> nil) and (fPlayers.CheckAlliance(MySpectator.PlayerIndex, H.Owner) = at_Enemy)) then
@@ -4361,7 +4361,7 @@ begin
           if Group.CanTakeOrders and (Group.Owner = MySpectator.PlayerIndex) then
           begin
             //Try to Attack unit
-            U := fTerrain.UnitsHitTest(P.X, P.Y);
+            U := gTerrain.UnitsHitTest(P.X, P.Y);
             if (U <> nil) and not U.IsDeadOrDying
             and (fPlayers.CheckAlliance(MySpectator.PlayerIndex, U.Owner) = at_Enemy) then
             begin
@@ -4587,7 +4587,7 @@ begin
         UnitLoc := U.PositionF;
         UnitLoc.X := UnitLoc.X - 0.5;
         UnitLoc.Y := UnitLoc.Y - 1;
-        MapLoc := fTerrain.FlatToHeight(UnitLoc);
+        MapLoc := gTerrain.FlatToHeight(UnitLoc);
         ScreenLoc := fGame.Viewport.MapToScreen(MapLoc);
 
         if KMInRect(ScreenLoc, KMRect(0, 0, Panel_Main.Width, Panel_Main.Height)) then

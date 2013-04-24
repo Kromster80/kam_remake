@@ -244,10 +244,10 @@ begin
   else
   begin
     //We want all of the Group memmbers to be placed in one area
-    DesiredArea := fTerrain.GetWalkConnectID(KMPoint(PosX, PosY));
+    DesiredArea := gTerrain.GetWalkConnectID(KMPoint(PosX, PosY));
     for I := 0 to aCount - 1 do
     begin
-      UnitLoc := GetPositionInGroup2(PosX, PosY, aDir, I, aUnitPerRow, fTerrain.MapX, fTerrain.MapY, DoesFit);
+      UnitLoc := GetPositionInGroup2(PosX, PosY, aDir, I, aUnitPerRow, gTerrain.MapX, gTerrain.MapY, DoesFit);
       if not DoesFit then Continue;
 
       Warrior := TKMUnitWarrior(fPlayers[aOwner].AddUnit(aUnitType, UnitLoc, True, DesiredArea));
@@ -422,10 +422,10 @@ begin
   //Allow off map positions so GetClosestTile works properly
   Result.Loc := GetPositionInGroup2(fOrderLoc.Loc.X, fOrderLoc.Loc.Y,
                                     fOrderLoc.Dir, aIndex, fUnitsPerRow,
-                                    fTerrain.MapX, fTerrain.MapY,
+                                    gTerrain.MapX, gTerrain.MapY,
                                     Result.Exact);
   //Fits on map and is on passable terrain
-  Result.Exact := Result.Exact and fTerrain.CheckPassability(Result.Loc, CanWalk);
+  Result.Exact := Result.Exact and gTerrain.CheckPassability(Result.Loc, CanWalk);
 end;
 
 
@@ -836,7 +836,7 @@ procedure TKMUnitGroup.SelectHitTest(X,Y: Integer);
 var
   U: TKMUnit;
 begin
-  //Don't use fTerrain.UnitHitTest because IsUnit doesn't always return the same
+  //Don't use gTerrain.UnitHitTest because IsUnit doesn't always return the same
   //results as TKMPlayersCollection.SelectHitTest when units are moving
   U := MemberHitTest(X,Y);
   Assert((U <> nil) and (U is TKMUnitWarrior) and HasMember(TKMUnitWarrior(U)),
@@ -1388,7 +1388,7 @@ begin
       FlagColor := $FFFFFFFF;
 
   //In MapEd units fTicker always the same, use Terrain instead
-  FlagStep := IfThen(fGame.GameMode = gmMapEd, fTerrain.AnimStep, fTicker);
+  FlagStep := IfThen(fGame.GameMode = gmMapEd, gTerrain.AnimStep, fTicker);
 
   //Flag needs to be rendered above or below unit depending on direction (see AddUnitFlag)
 
@@ -1404,7 +1404,7 @@ begin
   //Paint virtual members in MapEd mode
   for I := 1 to fMapEdCount - 1 do
   begin
-    NewPos := GetPositionInGroup2(fOrderLoc.Loc.X, fOrderLoc.Loc.Y, fOrderLoc.Dir, I, fUnitsPerRow, fTerrain.MapX, fTerrain.MapY, DoesFit);
+    NewPos := GetPositionInGroup2(fOrderLoc.Loc.X, fOrderLoc.Loc.Y, fOrderLoc.Dir, I, fUnitsPerRow, gTerrain.MapX, gTerrain.MapY, DoesFit);
     if not DoesFit then Continue; //Don't render units that are off the map in the map editor
     UnitPos.X := NewPos.X + UNIT_OFF_X; //MapEd units don't have sliding
     UnitPos.Y := NewPos.Y + UNIT_OFF_Y;
@@ -1532,7 +1532,7 @@ var
   U: TKMUnit;
 begin
   Result := nil;
-  U := fTerrain.UnitsHitTest(X,Y);
+  U := gTerrain.UnitsHitTest(X,Y);
   if (U <> nil) and (U is TKMUnitWarrior) then
   for I := 0 to Count - 1 do
     if Groups[I].HitTest(X,Y) then

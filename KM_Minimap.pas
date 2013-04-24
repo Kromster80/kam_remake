@@ -103,7 +103,7 @@ end;
 procedure TKMMinimap.LoadFromTerrain(aAlerts: TKMAlerts);
 var I: Integer;
 begin
-  fMyTerrain := fTerrain;
+  fMyTerrain := gTerrain;
   fMapX := fMyTerrain.MapX - 1;
   fMapY := fMyTerrain.MapY - 1;
   SetLength(fBase, fMapX * fMapY);

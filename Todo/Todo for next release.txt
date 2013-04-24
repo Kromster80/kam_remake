@@ -17,7 +17,7 @@ Bugs:
  +	Scripts with unsupported global variable types should not be allowed to run (causes inconsistencies/errors)
  +	When you select a warrior you always play his individual sound. But when you select another warrior from the same squad the sound is not playing
 	we had a match on "Coastal Encounter Score" with 2 humans and 1 AI. One human lost all of his troops first. The moment his last fighter died, the server disconnected him.
-	Archers are much less responsive in MP (due to finishing attack sequence to prevent exploit) [Lewin]
+	Archers became much less responsive (due to finishing attack sequence to prevent exploit) [Lewin]
 	Some MP maps don't let you use AIs in certain locations (probably a legacy of Lewin's editor)
 	Locations list in the lobby should only show ones which can currently be selected, ones which are taken should be hidden
 	AI seems to build lots of armour smithies/workshops but no weapons smithies/workshops (e.g. Across the Desert)

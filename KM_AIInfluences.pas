@@ -12,7 +12,7 @@ type
     fMapX: Word;
     fMapY: Word;
     fUpdatePlayerId: TPlayerIndex; //Player we will be updating next
-    //This is cache for CanOwn in fTerrain.Land
+    //This is cache for CanOwn in gTerrain.Land
     Ownable: array of array of Boolean;
 
     //Stored in 1D arrays for optimisation, accessed through property
@@ -97,8 +97,8 @@ procedure TKMInfluences.Init;
 var
   I: Integer;
 begin
-  fMapX := fTerrain.MapX;
-  fMapY := fTerrain.MapY;
+  fMapX := gTerrain.MapX;
+  fMapY := gTerrain.MapY;
   SetLength(AvoidBuilding, fMapY, fMapX);
   SetLength(Ownable, fMapY, fMapX);
   SetLength(fInfluence, fPlayers.Count * fMapY * fMapX);
@@ -151,7 +151,7 @@ begin
   //Avoid areas where Gold/Iron mines should be
   for I := 1 to fMapY - 1 do
   for K := 1 to fMapX - 1 do
-  if (fTerrain.TileIsIron(K, I) > 1) or (fTerrain.TileIsGold(K, I) > 1) then
+  if (gTerrain.TileIsIron(K, I) > 1) or (gTerrain.TileIsGold(K, I) > 1) then
     for M := I to Min(I + 2, fMapY - 1) do
     for N := Max(K - 1, 1) to Min(K + 1, fMapX - 1) do
       AvoidBuilding[M, N] := 255;
@@ -159,7 +159,7 @@ begin
   //Avoid Coal fields
   for I := 1 to fMapY - 1 do
   for K := 1 to fMapX - 1 do
-   AvoidBuilding[I,K] := AvoidBuilding[I,K] or (Byte(fTerrain.TileIsCoal(K, I) > 1) * $FF);
+   AvoidBuilding[I,K] := AvoidBuilding[I,K] or (Byte(gTerrain.TileIsCoal(K, I) > 1) * $FF);
 
   //Leave free space around all players Stores
   for J := 0 to fPlayers.Count - 1 do
@@ -181,7 +181,7 @@ begin
 
   for I := 1 to fMapY - 1 do
   for K := 1 to fMapX - 1 do
-    Ownable[I,K] := (CanOwn in fTerrain.Land[I,K].Passability);
+    Ownable[I,K] := (CanOwn in gTerrain.Land[I,K].Passability);
 end;
 
 
@@ -214,7 +214,7 @@ var
   PlayerHouses: TKMHousesCollection;
 begin
   if not AI_GEN_INFLUENCE_MAPS then Exit;
-  Assert(fTerrain <> nil);
+  Assert(gTerrain <> nil);
 
   //Clear
   for I := 1 to fMapY - 1 do
@@ -239,7 +239,7 @@ var
   T: Integer;
 begin
   if not AI_GEN_INFLUENCE_MAPS then Exit;
-  Assert(fTerrain <> nil);
+  Assert(gTerrain <> nil);
 
   //Fill Ownership map
   //Ownerhip = influence of player - influences of his enemies

@@ -39,7 +39,7 @@ begin
     Exit;
 
   LocalArea := KMRectGrow(aAreaAffected, 1);
-  LocalArea := KMClipRect(LocalArea, 1, 1, fTerrain.MapX-1, fTerrain.MapY-1);
+  LocalArea := KMClipRect(LocalArea, 1, 1, gTerrain.MapX-1, gTerrain.MapY-1);
 
   //If the Rect area grown by 1 contains exactly one unique WalkConnect ID both:
   // - Before the the update (current values in Land.WalkConnect leftover from last update)
@@ -112,7 +112,7 @@ begin
   Result := True;
   AllPass := True;
   AllFail := True;
-  with fTerrain do
+  with gTerrain do
   for I := aWorkRect.Top to aWorkRect.Bottom do
     for K := aWorkRect.Left to aWorkRect.Right do
     begin
@@ -142,7 +142,7 @@ var
   AreaID: Byte;
   X, Y: Word;
 begin
-  with fTerrain do
+  with gTerrain do
   begin
     //First find out the AreaID for this rect area BEFORE the change (must only be one!)
     AreaID := 0;
@@ -170,7 +170,7 @@ var
 
   procedure LocalFillArea(X,Y: Word);
   begin
-    with fTerrain do
+    with gTerrain do
       if KMInRect(KMPoint(X,Y), aRect) //Within rectangle
       and (not LocalWalkConnect[Y - aRect.Top, X - aRect.Left]) //Untested area
       and (aPass in Land[Y,X].Passability) then //Matches passability
@@ -211,7 +211,7 @@ begin
   for X := aRect.Left to aRect.Right do
     for Y := aRect.Top to aRect.Bottom do
       if not LocalWalkConnect[Y - aRect.Top, X - aRect.Left] //Untested area
-      and (aPass in fTerrain.Land[Y,X].Passability) then //Passability matches
+      and (aPass in gTerrain.Land[Y,X].Passability) then //Passability matches
       begin
         if FoundAnArea then
         begin
@@ -236,7 +236,7 @@ var
 
   procedure FillArea(X,Y: Word);
   begin
-    with fTerrain do
+    with gTerrain do
       if (Land[Y,X].WalkConnect[aWC] = 0) //Untested area
       and (aPass in Land[Y,X].Passability) then //Matches passability
       begin
@@ -269,7 +269,7 @@ var
 //const MinSize = 1; //Minimum size that is treated as new area
 var I,K: Integer;
 begin
-  with fTerrain do
+  with gTerrain do
   begin
     //Reset everything
     for I := 1 to MapY do for K := 1 to MapX do
@@ -321,7 +321,7 @@ var
   AreaID: Word;
   NCount: Byte;
 begin
-  with fTerrain do
+  with gTerrain do
   begin
     //Reset everything
     for I := 1 to MapY do for K := 1 to MapX do
@@ -406,7 +406,7 @@ var
   AreaID: Byte;
   X, Y: Word;
 begin
-  with fTerrain do
+  with gTerrain do
   begin
     //First find out the AreaID for this rect area BEFORE the change (must only be one!)
     AreaID := 0;

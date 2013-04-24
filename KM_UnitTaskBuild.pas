@@ -161,7 +161,7 @@ destructor TTaskBuildRoad.Destroy;
 begin
   //Yet unstarted
   if BuildID <> -1 then
-    if fTerrain.CanAddField(fLoc.X, fLoc.Y, ft_Road) then
+    if gTerrain.CanAddField(fLoc.X, fLoc.Y, ft_Road) then
       //Allow other workers to take this task
       fPlayers[fUnit.Owner].BuildList.FieldworksList.ReOpenField(BuildID)
     else
@@ -169,7 +169,7 @@ begin
       fPlayers[fUnit.Owner].BuildList.FieldworksList.CloseField(BuildID);
 
   if DemandSet   then fPlayers[fUnit.Owner].Deliveries.Queue.RemDemand(fUnit);
-  if TileLockSet then fTerrain.UnlockTile(fLoc);
+  if TileLockSet then gTerrain.UnlockTile(fLoc);
   inherited;
 end;
 
@@ -177,7 +177,7 @@ end;
 function TTaskBuildRoad.WalkShouldAbandon: Boolean;
 begin
   //Walk should abandon if other player has built something there before we arrived
-  Result := (BuildID <> -1) and not fTerrain.CanAddField(fLoc.X, fLoc.Y, ft_Road);
+  Result := (BuildID <> -1) and not gTerrain.CanAddField(fLoc.X, fLoc.Y, ft_Road);
 end;
 
 
@@ -206,18 +206,18 @@ begin
        end;
     1: begin
          Thought := th_None;
-         fTerrain.SetTileLock(fLoc, tlRoadWork);
+         gTerrain.SetTileLock(fLoc, tlRoadWork);
          TileLockSet := True;
          CancelThePlan;
          SetActionLockedStay(11,ua_Work1,false);
        end;
     2: begin
-         fTerrain.ResetDigState(fLoc); //Remove any dig over that might have been there (e.g. destroyed house) after first dig
-         fTerrain.IncDigState(fLoc);
+         gTerrain.ResetDigState(fLoc); //Remove any dig over that might have been there (e.g. destroyed house) after first dig
+         gTerrain.IncDigState(fLoc);
          SetActionLockedStay(11,ua_Work1,false);
        end;
     3: begin
-         fTerrain.IncDigState(fLoc);
+         gTerrain.IncDigState(fLoc);
          SetActionLockedStay(11,ua_Work1,false);
          fPlayers[Owner].Deliveries.Queue.AddDemand(nil, fUnit, wt_Stone, 1, dt_Once, diHigh4);
          DemandSet := true;
@@ -232,20 +232,20 @@ begin
          Thought := th_None;
        end;
     6: begin
-         fTerrain.IncDigState(fLoc);
+         gTerrain.IncDigState(fLoc);
          SetActionLockedStay(11,ua_Work2,false);
        end;
     7: begin
-         fTerrain.IncDigState(fLoc);
-         fTerrain.FlattenTerrain(fLoc); //Flatten the terrain slightly on and around the road
-         if MapElem[fTerrain.Land[fLoc.Y,fLoc.X].Obj].WineOrCorn then
-           fTerrain.RemoveObject(fLoc); //Remove corn/wine/grass as they won't fit with road
+         gTerrain.IncDigState(fLoc);
+         gTerrain.FlattenTerrain(fLoc); //Flatten the terrain slightly on and around the road
+         if MapElem[gTerrain.Land[fLoc.Y,fLoc.X].Obj].WineOrCorn then
+           gTerrain.RemoveObject(fLoc); //Remove corn/wine/grass as they won't fit with road
          SetActionLockedStay(11,ua_Work2,false);
        end;
     8: begin
-         fTerrain.SetField(fLoc, Owner, ft_Road);
+         gTerrain.SetField(fLoc, Owner, ft_Road);
          SetActionStay(5, ua_Walk);
-         fTerrain.UnlockTile(fLoc);
+         gTerrain.UnlockTile(fLoc);
          TileLockSet := False;
        end;
     else Result := TaskDone;
@@ -290,7 +290,7 @@ destructor TTaskBuildWine.Destroy;
 begin
   //Yet unstarted
   if BuildID <> -1 then
-    if fTerrain.CanAddField(fLoc.X, fLoc.Y, ft_Wine) then
+    if gTerrain.CanAddField(fLoc.X, fLoc.Y, ft_Wine) then
       //Allow other workers to take this task
       fPlayers[fUnit.Owner].BuildList.FieldworksList.ReOpenField(BuildID)
     else
@@ -298,7 +298,7 @@ begin
       fPlayers[fUnit.Owner].BuildList.FieldworksList.CloseField(BuildID);
 
   if DemandSet   then fPlayers[fUnit.Owner].Deliveries.Queue.RemDemand(fUnit);
-  if TileLockSet then fTerrain.UnlockTile(fLoc);
+  if TileLockSet then gTerrain.UnlockTile(fLoc);
   inherited;
 end;
 
@@ -306,7 +306,7 @@ end;
 function TTaskBuildWine.WalkShouldAbandon: Boolean;
 begin
   //Walk should abandon if other player has built something there before we arrived
-  Result := (BuildID <> -1) and not fTerrain.CanAddField(fLoc.X, fLoc.Y, ft_Wine);
+  Result := (BuildID <> -1) and not gTerrain.CanAddField(fLoc.X, fLoc.Y, ft_Wine);
 end;
 
 
@@ -335,25 +335,25 @@ begin
       end;
    1: begin
         Thought := th_None;
-        fTerrain.SetTileLock(fLoc, tlFieldWork);
-        fTerrain.ResetDigState(fLoc); //Remove any dig over that might have been there (e.g. destroyed house)
+        gTerrain.SetTileLock(fLoc, tlFieldWork);
+        gTerrain.ResetDigState(fLoc); //Remove any dig over that might have been there (e.g. destroyed house)
         CancelThePlan;
         TileLockSet := True;
         SetActionLockedStay(12*4,ua_Work1,false);
       end;
    2: begin
-        fTerrain.IncDigState(fLoc);
+        gTerrain.IncDigState(fLoc);
         SetActionLockedStay(24,ua_Work1,false);
       end;
    3: begin
-        fTerrain.IncDigState(fLoc);
+        gTerrain.IncDigState(fLoc);
         SetActionLockedStay(24,ua_Work1,false);
         fPlayers[Owner].Deliveries.Queue.AddDemand(nil,fUnit,wt_Wood, 1, dt_Once, diHigh4);
         DemandSet := true;
       end;
    4: begin
-        fTerrain.ResetDigState(fLoc);
-        fTerrain.SetField(fLoc, Owner, ft_InitWine); //Replace the terrain, but don't seed grapes yet
+        gTerrain.ResetDigState(fLoc);
+        gTerrain.SetField(fLoc, Owner, ft_InitWine); //Replace the terrain, but don't seed grapes yet
         SetActionLockedStay(30, ua_Work1);
         Thought := th_Wood;
       end;
@@ -367,9 +367,9 @@ begin
         Thought := th_None;
       end;
    7: begin
-        fTerrain.SetField(fLoc, Owner, ft_Wine);
+        gTerrain.SetField(fLoc, Owner, ft_Wine);
         SetActionStay(5, ua_Walk);
-        fTerrain.UnlockTile(fLoc);
+        gTerrain.UnlockTile(fLoc);
         TileLockSet := False;
       end;
    else Result := TaskDone;
@@ -412,14 +412,14 @@ destructor TTaskBuildField.Destroy;
 begin
   //Yet unstarted
   if BuildID <> -1 then
-    if fTerrain.CanAddField(fLoc.X, fLoc.Y, ft_Corn) then
+    if gTerrain.CanAddField(fLoc.X, fLoc.Y, ft_Corn) then
       //Allow other workers to take this task
       fPlayers[fUnit.Owner].BuildList.FieldworksList.ReOpenField(BuildID)
     else
       //This plan is not valid anymore
       fPlayers[fUnit.Owner].BuildList.FieldworksList.CloseField(BuildID);
 
-  if TileLockSet then fTerrain.UnlockTile(fLoc);
+  if TileLockSet then gTerrain.UnlockTile(fLoc);
   inherited;
 end;
 
@@ -427,7 +427,7 @@ end;
 function TTaskBuildField.WalkShouldAbandon: Boolean;
 begin
   //Walk should abandon if other player has built something there before we arrived
-  Result := (BuildID <> -1) and not fTerrain.CanAddField(fLoc.X, fLoc.Y, ft_Corn);
+  Result := (BuildID <> -1) and not gTerrain.CanAddField(fLoc.X, fLoc.Y, ft_Corn);
 end;
 
 
@@ -455,7 +455,7 @@ begin
          Thought := th_Build;
        end;
     1: begin
-        fTerrain.SetTileLock(fLoc, tlFieldWork);
+        gTerrain.SetTileLock(fLoc, tlFieldWork);
         TileLockSet := True;
         CancelThePlan;
         SetActionLockedStay(0,ua_Walk);
@@ -463,16 +463,16 @@ begin
     2: begin
         SetActionLockedStay(11,ua_Work1,false);
         inc(fPhase2);
-        if fPhase2 = 2 then fTerrain.ResetDigState(fLoc); //Remove any dig over that might have been there (e.g. destroyed house)
-        if (fPhase2 = 6) and MapElem[fTerrain.Land[fLoc.Y,fLoc.X].Obj].WineOrCorn then
-          fTerrain.RemoveObject(fLoc); //Remove grass/corn/wine as they take up most of the tile
-        if fPhase2 in [6,8] then fTerrain.IncDigState(fLoc);
+        if fPhase2 = 2 then gTerrain.ResetDigState(fLoc); //Remove any dig over that might have been there (e.g. destroyed house)
+        if (fPhase2 = 6) and MapElem[gTerrain.Land[fLoc.Y,fLoc.X].Obj].WineOrCorn then
+          gTerrain.RemoveObject(fLoc); //Remove grass/corn/wine as they take up most of the tile
+        if fPhase2 in [6,8] then gTerrain.IncDigState(fLoc);
        end;
     3: begin
         Thought := th_None; //Keep thinking build until it's done
-        fTerrain.SetField(fLoc,Owner,ft_Corn);
+        gTerrain.SetField(fLoc,Owner,ft_Corn);
         SetActionStay(5,ua_Walk);
-        fTerrain.UnlockTile(fLoc);
+        gTerrain.UnlockTile(fLoc);
         TileLockSet := False;
        end;
     else Result := TaskDone;
@@ -512,7 +512,7 @@ destructor TTaskBuildWall.Destroy;
 begin
   fPlayers[fUnit.Owner].Deliveries.Queue.RemDemand(fUnit);
   if fPhase > 1 then
-    fTerrain.UnlockTile(fLoc)
+    gTerrain.UnlockTile(fLoc)
   else
     fPlayers[fUnit.Owner].BuildList.FieldworksList.ReOpenField(BuildID); //Allow other workers to take this task
   inherited;
@@ -537,17 +537,17 @@ begin
          Thought := th_Build;
        end;
     1: begin
-        fTerrain.SetTileLock(fLoc, tlFieldWork);
-        fTerrain.ResetDigState(fLoc); //Remove any dig over that might have been there (e.g. destroyed house)
+        gTerrain.SetTileLock(fLoc, tlFieldWork);
+        gTerrain.ResetDigState(fLoc); //Remove any dig over that might have been there (e.g. destroyed house)
         CancelThePlan;
         SetActionLockedStay(0,ua_Walk);
        end;
     2: begin
-        fTerrain.IncDigState(fLoc);
+        gTerrain.IncDigState(fLoc);
         SetActionLockedStay(22,ua_Work1,false);
       end;
     3: begin
-        fTerrain.IncDigState(fLoc);
+        gTerrain.IncDigState(fLoc);
         SetActionLockedStay(22,ua_Work1,false);
         fPlayers[Owner].Deliveries.Queue.AddDemand(nil, fUnit, wt_Wood, 1, dt_Once, diHigh4);
       end;
@@ -560,8 +560,8 @@ begin
         SetActionLockedStay(22,ua_Work2,false);
       end;
     6: begin
-        fTerrain.ResetDigState(fLoc);
-        fTerrain.IncDigState(fLoc);
+        gTerrain.ResetDigState(fLoc);
+        gTerrain.IncDigState(fLoc);
         SetActionLockedStay(22,ua_Work2,false);
       end;
       //Ask for 2 more wood now
@@ -574,9 +574,9 @@ begin
         SetActionLockedStay(11,ua_Work,false);
       end;
     9: begin
-        fTerrain.SetWall(fLoc,Owner);
+        gTerrain.SetWall(fLoc,Owner);
         SetActionStay(1,ua_Work);
-        fTerrain.UnlockTile(fLoc);
+        gTerrain.UnlockTile(fLoc);
        end;
     else Result := TaskDone;
   end;
@@ -652,7 +652,7 @@ begin
 
   //Yet unstarted
   if (BuildID <> -1) then
-    if fTerrain.CanPlaceHouse(GetHouseEntranceLoc,fHouseType) then
+    if gTerrain.CanPlaceHouse(GetHouseEntranceLoc,fHouseType) then
       //Allow other workers to take this task
       fPlayers[fUnit.Owner].BuildList.HousePlanList.ReOpenPlan(BuildID)
     else
@@ -684,7 +684,7 @@ end;
 function TTaskBuildHouseArea.WalkShouldAbandon: Boolean;
 begin
   //Walk should abandon if other player has built something there before we arrived
-  Result := (BuildID <> -1) and not fTerrain.CanPlaceHouse(GetHouseEntranceLoc, fHouseType);
+  Result := (BuildID <> -1) and not gTerrain.CanPlaceHouse(GetHouseEntranceLoc, fHouseType);
 end;
 
 
@@ -765,25 +765,25 @@ begin
         end;
     4:  begin
           SetActionLockedStay(11,ua_Work1,false);
-          fTerrain.FlattenTerrain(Cells[Step]);
+          gTerrain.FlattenTerrain(Cells[Step]);
         end;
     5:  begin
           SetActionLockedStay(11,ua_Work1,false);
-          fTerrain.FlattenTerrain(Cells[Step]);
+          gTerrain.FlattenTerrain(Cells[Step]);
         end;
     6:  begin
           SetActionLockedStay(11,ua_Work1,false);
-          fTerrain.FlattenTerrain(Cells[Step]);
-          fTerrain.FlattenTerrain(Cells[Step]); //Flatten the terrain twice now to ensure it really is flat
-          fTerrain.SetTileLock(Cells[Step], tlDigged); //Block passability on tile
+          gTerrain.FlattenTerrain(Cells[Step]);
+          gTerrain.FlattenTerrain(Cells[Step]); //Flatten the terrain twice now to ensure it really is flat
+          gTerrain.SetTileLock(Cells[Step], tlDigged); //Block passability on tile
           if KMSamePoint(fHouse.GetEntrance, Cells[Step]) then
-            fTerrain.SetField(fHouse.GetEntrance, Owner, ft_Road);
-          fTerrain.RemoveObject(Cells[Step]); //All objects are removed
+            gTerrain.SetField(fHouse.GetEntrance, Owner, ft_Road);
+          gTerrain.RemoveObject(Cells[Step]); //All objects are removed
           dec(Step);
         end;
     7:  begin
           //Walk away from building site, before we get trapped when house becomes stoned
-          OutOfWay := fTerrain.GetOutOfTheWay(fUnit, KMPoint(0,0), CanWalk);
+          OutOfWay := gTerrain.GetOutOfTheWay(fUnit, KMPoint(0,0), CanWalk);
           //GetOutOfTheWay can return the input position (GetPosition in this case) if no others are possible
           if KMSamePoint(OutOfWay, KMPoint(0,0)) or KMSamePoint(OutOfWay, GetPosition) then
             OutOfWay := KMPointBelow(fHouse.GetEntrance); //Don't get stuck in corners
@@ -905,8 +905,8 @@ begin
           Direction := BuildFrom.Dir;
           //Remove house plan when we start the stone phase (it is still required for wood)
           //But don't do it every time we hit if it's already done!
-          if fHouse.IsStone and (fTerrain.Land[fHouse.GetPosition.Y, fHouse.GetPosition.X].TileLock <> tlHouse) then
-            fTerrain.SetHouse(fHouse.GetPosition, fHouse.HouseType, hsBuilt, Owner);
+          if fHouse.IsStone and (gTerrain.Land[fHouse.GetPosition.Y, fHouse.GetPosition.X].TileLock <> tlHouse) then
+            gTerrain.SetHouse(fHouse.GetPosition, fHouse.HouseType, hsBuilt, Owner);
         end;
     3:  begin
           //Update house on hummer hit

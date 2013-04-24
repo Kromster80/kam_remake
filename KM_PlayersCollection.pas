@@ -162,7 +162,7 @@ begin
     for k:=aIndex to fCount-1 do
       fPlayerList[i].Alliances[k] := fPlayerList[i].Alliances[k+1];
 
-  fTerrain.RemovePlayer(aIndex);
+  gTerrain.RemovePlayer(aIndex);
 end;
 
 
@@ -372,11 +372,11 @@ begin
   for I := 0 to 255 do
   begin
     P := GetPositionFromIndex(KMPoint(PosX,PosY), I);
-    if fTerrain.TileInMapCoords(P.X,P.Y) then
+    if gTerrain.TileInMapCoords(P.X,P.Y) then
     begin
       T := KMPoint(P);
-      if fTerrain.CheckPassability(T, Pass) and (fTerrain.GetWalkConnectID(T) = RequiredWalkConnect)
-      and not fTerrain.HasUnit(T) then
+      if gTerrain.CheckPassability(T, Pass) and (gTerrain.GetWalkConnectID(T) = RequiredWalkConnect)
+      and not gTerrain.HasUnit(T) then
       begin
         PlacePoint := T; // Assign if all test are passed
         Result := True;

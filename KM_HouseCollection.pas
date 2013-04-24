@@ -157,7 +157,7 @@ begin
     begin
       //Recruits should not go to a barracks with ware delivery switched off
       if (Houses[i].HouseType = ht_Barracks) and (not Houses[i].WareDelivery) then Continue;
-      if not fTerrain.Route_CanBeMade(Loc, KMPointBelow(Houses[i].GetEntrance), canWalk, 0) then Continue;
+      if not gTerrain.Route_CanBeMade(Loc, KMPointBelow(Houses[i].GetEntrance), canWalk, 0) then Continue;
 
       Dist := KMLengthSqr(Loc, Houses[i].GetPosition);
 

@@ -100,7 +100,7 @@ end;
 function TKMDeposits.TileDepositExists(aMat: TRawDeposit; X,Y: Word) : Boolean;
 begin
   if aMat = rdFish then
-    Result := fTerrain.TileIsWater(KMPoint(X,Y))
+    Result := gTerrain.TileIsWater(KMPoint(X,Y))
   else
     Result := TileDeposit(aMat,X,Y) > 0;
 end;
@@ -112,12 +112,12 @@ var
 curUnit : TKMUnit;
 begin
   case aMat of
-    rdStone: Result := 3*fTerrain.TileIsStone(X, Y); //3 stone produced by each time
-    rdCoal:  Result := fTerrain.TileIsCoal(X, Y);
-    rdIron:  Result := fTerrain.TileIsIron(X, Y);
-    rdGold:  Result := fTerrain.TileIsGold(X, Y);
+    rdStone: Result := 3*gTerrain.TileIsStone(X, Y); //3 stone produced by each time
+    rdCoal:  Result := gTerrain.TileIsCoal(X, Y);
+    rdIron:  Result := gTerrain.TileIsIron(X, Y);
+    rdGold:  Result := gTerrain.TileIsGold(X, Y);
     rdFish:  begin
-               curUnit := fTerrain.Land[Y, X].IsUnit;
+               curUnit := gTerrain.Land[Y, X].IsUnit;
                if (curUnit <> nil) and (curUnit is TKMUnitAnimal) and (curUnit.UnitType = ut_Fish) then
                  Result := 2*TKMUnitAnimal(curUnit).FishCount //You get 2 fish from each trip
                else
@@ -147,34 +147,34 @@ var
       begin
         if Y-1 >= 1 then               FillArea(X-1, Y-1);
                                        FillArea(X-1, Y);
-        if Y+1 <= fTerrain.MapY-1 then FillArea(X-1, Y+1);
+        if Y+1 <= gTerrain.MapY-1 then FillArea(X-1, Y+1);
       end;
 
       if Y-1 >= 1 then                 FillArea(X, Y-1);
-      if Y+1 <= fTerrain.MapY-1 then   FillArea(X, Y+1);
+      if Y+1 <= gTerrain.MapY-1 then   FillArea(X, Y+1);
 
-      if X+1 <= fTerrain.MapX-1 then
+      if X+1 <= gTerrain.MapX-1 then
       begin
         if Y-1 >= 1 then               FillArea(X+1, Y-1);
                                        FillArea(X+1, Y);
-        if Y+1 <= fTerrain.MapY-1 then FillArea(X+1, Y+1);
+        if Y+1 <= gTerrain.MapY-1 then FillArea(X+1, Y+1);
       end;
     end;
   end;
 var
   I,K,J: Integer;
 begin
-  Assert(fTerrain <> nil);
+  Assert(gTerrain <> nil);
   for J := Low(aMat) to High(aMat) do
   begin
     R := aMat[J];
 
     SetLength(fArea[R], 0, 0);
-    SetLength(fArea[R], fTerrain.MapY, fTerrain.MapX);
+    SetLength(fArea[R], gTerrain.MapY, gTerrain.MapX);
 
     AreaID := 0;
-    for I := 1 to fTerrain.MapY - 1 do
-    for K := 1 to fTerrain.MapX - 1 do
+    for I := 1 to gTerrain.MapY - 1 do
+    for K := 1 to gTerrain.MapX - 1 do
     if (fArea[R,I,K] = 0) and TileDepositExists(R,K,I) then
     begin
       Inc(AreaID);
@@ -216,8 +216,8 @@ begin
     SetLength(AreaPos, fAreaCount[R]);
 
     //Fill array of resource amounts per area
-    for I := 1 to fTerrain.MapY - 1 do
-    for K := 1 to fTerrain.MapX - 1 do
+    for I := 1 to gTerrain.MapY - 1 do
+    for K := 1 to gTerrain.MapX - 1 do
     if fArea[R, I, K] <> 0 then
     begin
       //Do -1 to make the lists 0 based
@@ -362,7 +362,7 @@ begin
       //Ignore water areas with 0 fish in them
       if fDeposits.Amount[R, I] > 0 then
       begin
-        LocF := fTerrain.FlatToHeight(fDeposits.Location[R, I]);
+        LocF := gTerrain.FlatToHeight(fDeposits.Location[R, I]);
         ScreenLoc := fGame.Viewport.MapToScreen(LocF);
 
         //At extreme zoom coords may become out of range of SmallInt used in controls painting
@@ -377,7 +377,7 @@ begin
       for K := 0 to fPlayers[I].AI.General.DefencePositions.Count - 1 do
       begin
         DP := fPlayers[I].AI.General.DefencePositions[K];
-        LocF := fTerrain.FlatToHeight(KMPointF(DP.Position.Loc));
+        LocF := gTerrain.FlatToHeight(KMPointF(DP.Position.Loc));
         ScreenLoc := fGame.Viewport.MapToScreen(LocF);
 
         if KMInRect(ScreenLoc, fGame.Viewport.ViewRect) then

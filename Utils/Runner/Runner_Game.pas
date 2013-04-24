@@ -79,8 +79,8 @@ var
   P: TKMPoint;
 begin
   //Total amount of stone = 4140
-  fTerrain := TKMTerrain.Create;
-  fTerrain.LoadFromFile(ExeDir + 'Maps\StoneMines\StoneMines.map', False);
+  gTerrain := TKMTerrain.Create;
+  gTerrain.LoadFromFile(ExeDir + 'Maps\StoneMines\StoneMines.map', False);
 
   SetKaMSeed(aRun+1);
 
@@ -88,9 +88,9 @@ begin
   //and mining them if conditions are right (like Stonemasons would do)
 
   L := TKMPointList.Create;
-  for I := 1 to fTerrain.MapY - 2 do
-  for K := 1 to fTerrain.MapX - 1 do
-  if fTerrain.TileIsStone(K,I) > 0 then
+  for I := 1 to gTerrain.MapY - 2 do
+  for K := 1 to gTerrain.MapX - 1 do
+  if gTerrain.TileIsStone(K,I) > 0 then
     L.AddEntry(KMPoint(K,I));
 
   I := 0;
@@ -98,11 +98,11 @@ begin
   repeat
     L.GetRandom(P);
 
-    if fTerrain.TileIsStone(P.X,P.Y) > 0 then
+    if gTerrain.TileIsStone(P.X,P.Y) > 0 then
     begin
-      if fTerrain.CheckPassability(KMPointBelow(P), CanWalk) then
+      if gTerrain.CheckPassability(KMPointBelow(P), CanWalk) then
       begin
-        fTerrain.DecStoneDeposit(P);
+        gTerrain.DecStoneDeposit(P);
         fResults.Value[aRun, 0] := fResults.Value[aRun, 0] + 3;
         I := 0;
       end;
@@ -115,7 +115,7 @@ begin
       Break;
   until (L.Count = 0);
 
-  FreeAndNil(fTerrain);
+  FreeAndNil(gTerrain);
 end;
 
 

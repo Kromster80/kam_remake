@@ -558,12 +558,12 @@ begin
   Result := Result and (
             ( //House-House delivery should be performed only if there's a connecting road
             (fDemand[iD].Loc_House <> nil) and
-            (fTerrain.Route_CanBeMade(KMPointBelow(fOffer[iO].Loc_House.GetEntrance), KMPointBelow(fDemand[iD].Loc_House.GetEntrance), CanWalkRoad, 0))
+            (gTerrain.Route_CanBeMade(KMPointBelow(fOffer[iO].Loc_House.GetEntrance), KMPointBelow(fDemand[iD].Loc_House.GetEntrance), CanWalkRoad, 0))
             )
             or
             ( //House-Unit delivery can be performed without connecting road
             (fDemand[iD].Loc_Unit <> nil) and
-            (fTerrain.Route_CanBeMade(KMPointBelow(fOffer[iO].Loc_House.GetEntrance), fDemand[iD].Loc_Unit.GetPosition, CanWalk, 1))
+            (gTerrain.Route_CanBeMade(KMPointBelow(fOffer[iO].Loc_House.GetEntrance), fDemand[iD].Loc_Unit.GetPosition, CanWalk, 1))
             ));
 end;
 

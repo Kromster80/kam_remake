@@ -148,7 +148,7 @@ begin
   SizeY := fRect.Bottom - fRect.Top;
   H := 0;
   SetLength(fPos, (SizeX + 2) * 2 * (SizeY + 1));
-  with fTerrain do
+  with gTerrain do
   if (MapX > 0) and (MapY > 0) then
   for I := 0 to SizeY do
   for K := 0 to SizeX+1 do
@@ -210,7 +210,7 @@ begin
   //First we render base layer, then we do animated layers for Water/Swamps/Waterfalls
   //They all run at different speeds so we can't adjoin them in one layer
 
-  with fTerrain do
+  with gTerrain do
   for I := fRect.Top to fRect.Bottom do
   for K := fRect.Left to fRect.Right do
   begin
@@ -258,7 +258,7 @@ begin
       else     TexOffset := 0;
     end;
 
-    with fTerrain do
+    with gTerrain do
     for I := fRect.Top to fRect.Bottom do
     for K := fRect.Left to fRect.Right do
     if (TexOffset + Land[I,K].Terrain + 1 <= High(GFXData[rxTiles]))
@@ -308,7 +308,7 @@ begin
 
   for I := fRect.Top to fRect.Bottom do
   for K := fRect.Left to fRect.Right do
-  case fTerrain.Land[I, K].TileOverlay of
+  case gTerrain.Land[I, K].TileOverlay of
     to_Dig1:  RenderTile(249, K, I, 0);
     to_Dig2:  RenderTile(251, K, I, 0);
     to_Dig3:  RenderTile(253, K, I, 0);
@@ -317,13 +317,13 @@ begin
     to_Road:  begin
                 Road := 0;
                 if (I - 1 >= 1) then
-                  Road := Road + byte(fTerrain.Land[I - 1, K].TileOverlay = to_Road) shl 0;
-                if (K + 1 <= fTerrain.MapX - 1) then
-                  Road := Road + byte(fTerrain.Land[I, K + 1].TileOverlay = to_Road) shl 1;
-                if (I + 1 <= fTerrain.MapY - 1) then
-                  Road := Road + byte(fTerrain.Land[I + 1, K].TileOverlay = to_Road) shl 2;
+                  Road := Road + byte(gTerrain.Land[I - 1, K].TileOverlay = to_Road) shl 0;
+                if (K + 1 <= gTerrain.MapX - 1) then
+                  Road := Road + byte(gTerrain.Land[I, K + 1].TileOverlay = to_Road) shl 1;
+                if (I + 1 <= gTerrain.MapY - 1) then
+                  Road := Road + byte(gTerrain.Land[I + 1, K].TileOverlay = to_Road) shl 2;
                 if (K - 1 >= 1) then
-                  Road := Road + byte(fTerrain.Land[I, K - 1].TileOverlay = to_Road) shl 3;
+                  Road := Road + byte(gTerrain.Land[I, K - 1].TileOverlay = to_Road) shl 3;
                 ID := RoadsConnectivity[Road, 1];
                 Rot := RoadsConnectivity[Road, 2];
                 RenderTile(ID, K, I, Rot);
@@ -341,7 +341,7 @@ begin
   glDepthMask(False);
   glDisable(GL_DEPTH_TEST);
 
-  with fTerrain do
+  with gTerrain do
   for I := fRect.Top to fRect.Bottom do
   for K := fRect.Left to fRect.Right do
   begin
@@ -407,7 +407,7 @@ begin
   end
   else
   begin
-    with fTerrain do
+    with gTerrain do
     if RENDER_3D then
       for I := fRect.Top to fRect.Bottom do
       for K := fRect.Left to fRect.Right do
@@ -459,7 +459,7 @@ begin
   end
   else
   begin
-    with fTerrain do
+    with gTerrain do
     if RENDER_3D then
       for I := fRect.Top to fRect.Bottom do
       for K := fRect.Left to fRect.Right do
@@ -538,7 +538,7 @@ begin
 
         for I := aRect.Top to aRect.Bottom do
         for K := aRect.Left to aRect.Right do
-          fRenderAux.Text(K, I, IntToStr(fTerrain.Land[I,K].WalkConnect[wcWalk]), $FFFFFFFF);
+          fRenderAux.Text(K, I, IntToStr(gTerrain.Land[I,K].WalkConnect[wcWalk]), $FFFFFFFF);
 
       glPopAttrib;
     end;
@@ -553,7 +553,7 @@ var
   K, I: Integer;
   TexC: TUVRect; // Texture UV coordinates
 begin
-  if not fTerrain.TileInMapCoords(pX,pY) then Exit;
+  if not gTerrain.TileInMapCoords(pX,pY) then Exit;
 
   K := pX;
   I := pY;
@@ -563,7 +563,7 @@ begin
   TexC := GetTileUV(Index, Rot);
 
   glBegin(GL_TRIANGLE_FAN);
-    with fTerrain do
+    with gTerrain do
     if RENDER_3D then
     begin
       glTexCoord2fv(@TexC[1]); glVertex3f(k-1,i-1,-Land[i,k].Height/CELL_HEIGHT_DIV);
@@ -613,8 +613,8 @@ begin
     UVb.X := GFXData[rxGui, TexID].Tex.u2;
     UVb.Y := GFXData[rxGui, TexID].Tex.v2;
 
-    y1 := pY - 1 - (fTerrain.Land[pY, pX].Height + VO) / CELL_HEIGHT_DIV;
-    y2 := pY - 1 - (fTerrain.Land[pY, pX + 1].Height + VO) / CELL_HEIGHT_DIV;
+    y1 := pY - 1 - (gTerrain.Land[pY, pX].Height + VO) / CELL_HEIGHT_DIV;
+    y2 := pY - 1 - (gTerrain.Land[pY, pX + 1].Height + VO) / CELL_HEIGHT_DIV;
 
     FenceY := GFXData[rxGui,TexID].PxWidth / CELL_SIZE_PX;
     glBegin(GL_QUADS);
@@ -627,14 +627,14 @@ begin
   else
   begin //Vertical
     glBindTexture(GL_TEXTURE_2D, GFXData[rxGui,TexID].Tex.ID);
-    HeightInPx := Round(CELL_SIZE_PX * (1 + (fTerrain.Land[pY,pX].Height - fTerrain.Land[pY+1,pX].Height)/CELL_HEIGHT_DIV)+FO);
+    HeightInPx := Round(CELL_SIZE_PX * (1 + (gTerrain.Land[pY,pX].Height - gTerrain.Land[pY+1,pX].Height)/CELL_HEIGHT_DIV)+FO);
     UVa.X := GFXData[rxGui, TexID].Tex.u1;
     UVa.Y := GFXData[rxGui, TexID].Tex.v1;
     UVb.X := GFXData[rxGui, TexID].Tex.u2;
     UVb.Y := Mix(GFXData[rxGui, TexID].Tex.v2, GFXData[rxGui, TexID].Tex.v1, HeightInPx / GFXData[rxGui, TexID].pxHeight);
 
-    y1 := pY - 1 - (fTerrain.Land[pY, pX].Height + FO + VO) / CELL_HEIGHT_DIV;
-    y2 := pY - (fTerrain.Land[pY + 1, pX].Height + VO) / CELL_HEIGHT_DIV;
+    y1 := pY - 1 - (gTerrain.Land[pY, pX].Height + FO + VO) / CELL_HEIGHT_DIV;
+    y2 := pY - (gTerrain.Land[pY + 1, pX].Height + VO) / CELL_HEIGHT_DIV;
 
     FenceX := GFXData[rxGui,TexID].PxWidth / CELL_SIZE_PX;
 
@@ -672,15 +672,15 @@ begin
   UVb.Y := GFXData[rxGui, ID].Tex.v2;
 
   glBegin(GL_QUADS);
-    glTexCoord2f(UVb.x, UVa.y); glVertex2f(pX-1, pY-1 - fTerrain.Land[pY  ,pX  ].Height/CELL_HEIGHT_DIV+0.10);
-    glTexCoord2f(UVa.x, UVa.y); glVertex2f(pX-1, pY-1 - fTerrain.Land[pY  ,pX  ].Height/CELL_HEIGHT_DIV-0.15);
-    glTexCoord2f(UVa.x, UVb.y); glVertex2f(pX  , pY   - fTerrain.Land[pY+1,pX+1].Height/CELL_HEIGHT_DIV-0.25);
-    glTexCoord2f(UVb.x, UVb.y); glVertex2f(pX  , pY   - fTerrain.Land[pY+1,pX+1].Height/CELL_HEIGHT_DIV);
+    glTexCoord2f(UVb.x, UVa.y); glVertex2f(pX-1, pY-1 - gTerrain.Land[pY  ,pX  ].Height/CELL_HEIGHT_DIV+0.10);
+    glTexCoord2f(UVa.x, UVa.y); glVertex2f(pX-1, pY-1 - gTerrain.Land[pY  ,pX  ].Height/CELL_HEIGHT_DIV-0.15);
+    glTexCoord2f(UVa.x, UVb.y); glVertex2f(pX  , pY   - gTerrain.Land[pY+1,pX+1].Height/CELL_HEIGHT_DIV-0.25);
+    glTexCoord2f(UVb.x, UVb.y); glVertex2f(pX  , pY   - gTerrain.Land[pY+1,pX+1].Height/CELL_HEIGHT_DIV);
 
-    glTexCoord2f(UVb.x, UVa.y); glVertex2f(pX-1, pY   - fTerrain.Land[pY+1,pX  ].Height/CELL_HEIGHT_DIV);
-    glTexCoord2f(UVa.x, UVa.y); glVertex2f(pX-1, pY   - fTerrain.Land[pY+1,pX  ].Height/CELL_HEIGHT_DIV-0.25);
-    glTexCoord2f(UVa.x, UVb.y); glVertex2f(pX  , pY-1 - fTerrain.Land[pY  ,pX+1].Height/CELL_HEIGHT_DIV-0.15);
-    glTexCoord2f(UVb.x, UVb.y); glVertex2f(pX  , pY-1 - fTerrain.Land[pY  ,pX+1].Height/CELL_HEIGHT_DIV+0.10);
+    glTexCoord2f(UVb.x, UVa.y); glVertex2f(pX-1, pY   - gTerrain.Land[pY+1,pX  ].Height/CELL_HEIGHT_DIV);
+    glTexCoord2f(UVa.x, UVa.y); glVertex2f(pX-1, pY   - gTerrain.Land[pY+1,pX  ].Height/CELL_HEIGHT_DIV-0.25);
+    glTexCoord2f(UVa.x, UVb.y); glVertex2f(pX  , pY-1 - gTerrain.Land[pY  ,pX+1].Height/CELL_HEIGHT_DIV-0.15);
+    glTexCoord2f(UVb.x, UVb.y); glVertex2f(pX  , pY-1 - gTerrain.Land[pY  ,pX+1].Height/CELL_HEIGHT_DIV+0.10);
   glEnd;
 
   glBindTexture(GL_TEXTURE_2D, 0);

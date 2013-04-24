@@ -3515,23 +3515,23 @@ begin
       cmRoad:      if fPlayers[MySpectator.PlayerIndex].CanAddFieldPlan(P, ft_Road) then
                    begin
                      //If there's a field remove it first so we don't get road on top of the field tile (undesired in MapEd)
-                     if fTerrain.TileIsCornField(P) or fTerrain.TileIsWineField(P) then
-                       fTerrain.RemField(P);
+                     if gTerrain.TileIsCornField(P) or gTerrain.TileIsWineField(P) then
+                       gTerrain.RemField(P);
                      fPlayers[MySpectator.PlayerIndex].AddField(P, ft_Road);
                    end;
       cmField:     if fPlayers[MySpectator.PlayerIndex].CanAddFieldPlan(P, ft_Corn) then fPlayers[MySpectator.PlayerIndex].AddField(P, ft_Corn);
       cmWine:      if fPlayers[MySpectator.PlayerIndex].CanAddFieldPlan(P, ft_Wine) then fPlayers[MySpectator.PlayerIndex].AddField(P, ft_Wine);
       //cm_Wall:  if fPlayers[MySpectator.PlayerIndex].CanAddFieldPlan(P, ft_Wall) then fPlayers[MySpectator.PlayerIndex].AddField(P, ft_Wine);
-      cmObjects:   if GameCursor.Tag1 = 255 then fTerrain.SetTree(P, 255); //Allow many objects to be deleted at once
+      cmObjects:   if GameCursor.Tag1 = 255 then gTerrain.SetTree(P, 255); //Allow many objects to be deleted at once
       cmUnits:     if GameCursor.Tag1 = 255 then fPlayers.RemAnyUnit(P);
       cmErase:     case GetShownPage of
-                      esp_Terrain:    fTerrain.Land[P.Y,P.X].Obj := 255;
+                      esp_Terrain:    gTerrain.Land[P.Y,P.X].Obj := 255;
                       esp_Buildings:  begin
                                         fPlayers.RemAnyHouse(P);
-                                        if fTerrain.Land[P.Y,P.X].TileOverlay = to_Road then
-                                          fTerrain.RemRoad(P);
-                                        if fTerrain.TileIsCornField(P) or fTerrain.TileIsWineField(P) then
-                                          fTerrain.RemField(P);
+                                        if gTerrain.Land[P.Y,P.X].TileOverlay = to_Road then
+                                          gTerrain.RemRoad(P);
+                                        if gTerrain.TileIsCornField(P) or gTerrain.TileIsWineField(P) then
+                                          gTerrain.RemField(P);
                                       end;
                     end;
     end;
@@ -3574,7 +3574,7 @@ begin
                     SetTileDirection(GameCursor.MapEdDir+1); //Rotate tile direction
                     TilesRandom.Checked := false; //Reset
                   end;
-      cmObjects:  fTerrain.Land[P.Y,P.X].Obj := 255; //Delete object
+      cmObjects:  gTerrain.Land[P.Y,P.X].Obj := 255; //Delete object
     end;
     //Move the selected object to the cursor location
     if MySpectator.Selected is TKMHouse then
@@ -3619,8 +3619,8 @@ begin
       cmRoad:     if fPlayers[MySpectator.PlayerIndex].CanAddFieldPlan(P, ft_Road) then
                   begin
                     //If there's a field remove it first so we don't get road on top of the field tile (undesired in MapEd)
-                    if fTerrain.TileIsCornField(P) or fTerrain.TileIsWineField(P) then
-                      fTerrain.RemField(P);
+                    if gTerrain.TileIsCornField(P) or gTerrain.TileIsWineField(P) then
+                      gTerrain.RemField(P);
                     fPlayers[MySpectator.PlayerIndex].AddField(P, ft_Road);
                   end;
       cmField:    if fPlayers[MySpectator.PlayerIndex].CanAddFieldPlan(P, ft_Corn) then fPlayers[MySpectator.PlayerIndex].AddField(P, ft_Corn);
@@ -3633,11 +3633,11 @@ begin
                   end;
       cmElevate,
       cmEqualize:; //handled in UpdateStateIdle
-      cmObjects:  fTerrain.SetTree(P, GameCursor.Tag1);
+      cmObjects:  gTerrain.SetTree(P, GameCursor.Tag1);
       cmUnits:    if GameCursor.Tag1 = 255 then
                     fPlayers.RemAnyUnit(P)
                   else
-                  if fTerrain.CanPlaceUnit(P, TUnitType(GameCursor.Tag1)) then
+                  if gTerrain.CanPlaceUnit(P, TUnitType(GameCursor.Tag1)) then
                   begin
                     //Check if we can really add a unit
                     if TUnitType(GameCursor.Tag1) in [CITIZEN_MIN..CITIZEN_MAX] then
@@ -3657,13 +3657,13 @@ begin
                                           end;
                   end;
       cmErase:    case GetShownPage of
-                    esp_Terrain:    fTerrain.Land[P.Y,P.X].Obj := 255;
+                    esp_Terrain:    gTerrain.Land[P.Y,P.X].Obj := 255;
                     esp_Buildings:  begin
                                       fPlayers.RemAnyHouse(P);
-                                      if fTerrain.Land[P.Y,P.X].TileOverlay = to_Road then
-                                        fTerrain.RemRoad(P);
-                                      if fTerrain.TileIsCornField(P) or fTerrain.TileIsWineField(P) then
-                                        fTerrain.RemField(P);
+                                      if gTerrain.Land[P.Y,P.X].TileOverlay = to_Road then
+                                        gTerrain.RemRoad(P);
+                                      if gTerrain.TileIsCornField(P) or gTerrain.TileIsWineField(P) then
+                                        gTerrain.RemField(P);
                                     end;
                   end;
     end;
