@@ -2132,11 +2132,10 @@ begin
 end;
 
 
+//todo: Rewrite into controlled recursion to avoid StackOverflows
 //Interpolate between 12 vertices surrounding this tile (X and Y, no diagonals)
 //Also it is FlattenTerrain duty to preserve walkability if there are units standing
 procedure TKMTerrain.FlattenTerrain(Loc: TKMPoint; aUpdateWalkConnects: Boolean = True);
-var TilesFactored: Integer;
-
   //If tiles with units standing on them become unwalkable we should try to fix them
   procedure EnsureWalkable(aX,aY: Word);
   begin
@@ -2151,12 +2150,16 @@ var TilesFactored: Integer;
       FlattenTerrain(KMPoint(aX,aY), False); //WalkConnect should be done at the end
   end;
 
+var
+  VertsFactored: Integer;
+
+  //Note that we need to access vertices, not tiles
   function GetHeight(aX,aY: Word; Neighbour: Boolean): Byte;
   begin
-    if TileInMapCoords(aX,aY) and (not Neighbour or (canFactor in Land[aY,aX].Passability)) then
+    if VerticeInMapCoords(aX,aY) and (not Neighbour or (canFactor in Land[aY,aX].Passability)) then
     begin
       Result := Land[aY,aX].Height;
-      Inc(TilesFactored);
+      Inc(VertsFactored);
     end
     else
       Result := 0;
@@ -2177,13 +2180,13 @@ begin
   if fBoundsWC.Right < Loc.X + 1 then fBoundsWC.Right := Loc.X + 1;
   if fBoundsWC.Bottom < Loc.Y + 1 then fBoundsWC.Bottom := Loc.Y + 1;
 
-  TilesFactored := 0; //GetHeight will add to this
+  VertsFactored := 0; //GetHeight will add to this
   Avg :=                                   GetHeight(Loc.X,Loc.Y-1,True ) + GetHeight(Loc.X+1,Loc.Y-1,True ) +
          GetHeight(Loc.X-1,Loc.Y  ,True) + GetHeight(Loc.X,Loc.Y  ,False) + GetHeight(Loc.X+1,Loc.Y  ,False) + GetHeight(Loc.X+2,Loc.Y  ,True) +
          GetHeight(Loc.X-1,Loc.Y+1,True) + GetHeight(Loc.X,Loc.Y+1,False) + GetHeight(Loc.X+1,Loc.Y+1,False) + GetHeight(Loc.X+2,Loc.Y+1,True) +
                                            GetHeight(Loc.X,Loc.Y+2,True ) + GetHeight(Loc.X+1,Loc.Y+2,True );
-  Assert(TilesFactored <> 0); //Non-neighbour tiles will always be factored
-  Avg := Round(Avg / TilesFactored);
+  Assert(VertsFactored <> 0); //Non-neighbour verts will always be factored
+  Avg := Round(Avg / VertsFactored);
 
   if CanElevate in Land[Loc.Y  ,Loc.X  ].Passability then Land[Loc.Y  ,Loc.X  ].Height := Mix(Avg, Land[Loc.Y  ,Loc.X  ].Height, 0.5);
   if CanElevate in Land[Loc.Y  ,Loc.X+1].Passability then Land[Loc.Y  ,Loc.X+1].Height := Mix(Avg, Land[Loc.Y  ,Loc.X+1].Height, 0.5);
@@ -2394,9 +2397,12 @@ begin
 end;
 
 
-{Check if house can be placed in that place}
+//Check that house can be placed on Terrain
+//Other checks are performed on Players level. Of course Terrain is not aware of that
 function TKMTerrain.CanPlaceHouse(Loc: TKMPoint; aHouseType: THouseType): Boolean;
-var I,K,X,Y: Integer; HA: THouseArea;
+var
+  I,K,X,Y: Integer;
+  HA: THouseArea;
 begin
   Result := True;
   HA := fResource.HouseDat[aHouseType].BuildArea;

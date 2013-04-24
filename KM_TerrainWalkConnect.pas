@@ -1,5 +1,5 @@
 unit KM_TerrainWalkConnect;
-
+{$I KaM_Remake.inc}
 interface
 uses KM_Terrain, KM_Points, KM_Defaults;
 

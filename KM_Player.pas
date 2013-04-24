@@ -507,7 +507,7 @@ begin
     Tx := aX + K - 3 - EnterOff;
     Ty := aY + I - 4;
 
-    //Make sure tile in map coords and we don't block some road
+    //Make sure we don't block existing roads
     if gTerrain.CheckPassability(KMPoint(Tx, Ty), CanWalkRoad) then
       Exit;
 
@@ -527,15 +527,23 @@ begin
       end;
     end;
 
-    //Make sure we can add road below house, full width + 1 on each side
-    if (I = 4) then
-      if not gTerrain.CheckPassability(KMPoint(Tx - 1, Ty + 1), CanMakeRoads)
-      or not gTerrain.CheckPassability(KMPoint(Tx    , Ty + 1), CanMakeRoads)
-      or not gTerrain.CheckPassability(KMPoint(Tx + 1, Ty + 1), CanMakeRoads)
-    then
-      Exit;
+    //Avoid placing houses in choke-points _/house\_ by checking upper corners
+    if not (aHouseType in [ht_GoldMine, ht_IronMine]) then
+      if (gTerrain.Land[Ty-1, Tx - 1].Passability * [CanMakeRoads, CanWalkRoad] = [])
+      or (gTerrain.Land[Ty-1, Tx + 1].Passability * [CanMakeRoads, CanWalkRoad] = [])
+      then
+        Exit;
 
-    //This tile must not contain fields/houses of allied players or self
+    //Make sure we can add road below house, full width + 1 on each side
+    //Terrain already checked we are 1 tile away from map edge
+    if (I = 4) then
+      if (gTerrain.Land[Ty+1, Tx - 1].Passability * [CanMakeRoads, CanWalkRoad] = [])
+      or (gTerrain.Land[Ty+1, Tx    ].Passability * [CanMakeRoads, CanWalkRoad] = [])
+      or (gTerrain.Land[Ty+1, Tx + 1].Passability * [CanMakeRoads, CanWalkRoad] = [])
+      then
+        Exit;
+
+    //This tile must not contain fields/houseplans of allied players or self
     for J := 0 to fPlayers.Count - 1 do
       if (J = fPlayerIndex) or (fAlliances[J] = at_Ally) then
       begin
