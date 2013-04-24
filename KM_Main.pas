@@ -97,8 +97,8 @@ begin
   ExeDir := ExtractFilePath(Application.ExeName);
 
   CreateDir(ExeDir + 'Logs' + PathDelim);
-  fLog := TKMLog.Create(ExeDir + 'Logs' + PathDelim + 'KaM_' + FormatDateTime('yyyy-mm-dd_hh-nn-ss-zzz', Now) + '.log'); //First thing - create a log
-  fLog.DeleteOldLogs;
+  gLog := TKMLog.Create(ExeDir + 'Logs' + PathDelim + 'KaM_' + FormatDateTime('yyyy-mm-dd_hh-nn-ss-zzz', Now) + '.log'); //First thing - create a log
+  gLog.DeleteOldLogs;
 
   //Resolutions are created first so that we could check Settings against them
   fResolutions := TKMResolutions.Create;
@@ -183,7 +183,7 @@ begin
   if fResolutions<>nil then FreeThenNil(fResolutions);
   if fMainSettings<>nil then FreeThenNil(fMainSettings);
   FreeThenNil(fGameApp);
-  if fLog<>nil then FreeThenNil(fLog);
+  if gLog<>nil then FreeThenNil(gLog);
   {$IFDEF MSWindows}
   TimeEndPeriod(1);
   ClipCursor(nil); //Release the cursor restriction
@@ -288,9 +288,9 @@ begin
                                 StatusBarText);
   fGameApp.AfterConstruction(aReturnToOptions);
 
-  fLog.AddTime('ToggleFullscreen');
-  fLog.AddTime('Form Width/Height: '+inttostr(fFormMain.Width)+':'+inttostr(fFormMain.Height));
-  fLog.AddTime('Panel Width/Height: '+inttostr(fFormMain.RenderArea.Width)+':'+inttostr(fFormMain.RenderArea.Height));
+  gLog.AddTime('ToggleFullscreen');
+  gLog.AddTime('Form Width/Height: '+inttostr(fFormMain.Width)+':'+inttostr(fFormMain.Height));
+  gLog.AddTime('Panel Width/Height: '+inttostr(fFormMain.RenderArea.Width)+':'+inttostr(fFormMain.RenderArea.Height));
 
   //Hide'n'show will make form go ontop of taskbar
   fFormMain.Hide;
@@ -410,11 +410,6 @@ end;
 
 procedure TKMMain.Resize(X, Y: Integer);
 begin
-  //Don't log this by default, resizing can happen lots of times per second (~30ms between log entries)
-  //when dragging the screen edge and that means lots of file open-write-close which is slow.
-  //if fLog <> nil then
-  //  fLog.AppendLog('FormResize X/Y: '+inttostr(X)+':'+inttostr(Y));
-
   if fGameApp <> nil then
     fGameApp.Resize(X, Y);
 end;

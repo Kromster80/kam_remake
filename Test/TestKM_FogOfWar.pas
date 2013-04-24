@@ -56,7 +56,6 @@ procedure TestTKMFogOfWar.TestCheckVerticeRevelation;
 var
   I,K: Word;
   ReturnValue: Byte;
-  aSkipForReplay: Boolean;
 begin
   FKMFogOfWar.RevealEverything;
   for I := 0 to 7 do
@@ -72,7 +71,6 @@ procedure TestTKMFogOfWar.TestCheckTileRevelation;
 var
   I,K: Word;
   ReturnValue: Byte;
-  aSkipForReplay: Boolean;
 begin
   FKMFogOfWar.RevealEverything;
 
@@ -91,7 +89,6 @@ procedure TestTKMFogOfWar.TestCheckRevelation;
 var
   I,K: Integer;
   ReturnValue: Byte;
-  aSkipForReplay: Boolean;
   aPoint: TKMPointF;
 begin
   FKMFogOfWar.RevealEverything;

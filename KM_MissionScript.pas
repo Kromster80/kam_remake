@@ -100,7 +100,7 @@ begin
   end;
 
   //Commented out because it slows down mission scanning
-  //if Result = ct_Unknown then fLog.AddToLog(String(ACommandText));
+  //if Result = ct_Unknown then gLog.AddToLog(String(ACommandText));
 end;
 
 

@@ -30,7 +30,7 @@ begin
   SKIP_SOUND := True;
   ExeDir := ExtractFilePath(ParamStr(0)) + '..\';
   SetKaMSeed(4);
-  fLog := TKMLog.Create(ExtractFilePath(ParamStr(0)) + 'log.log');
+  gLog := TKMLog.Create(ExtractFilePath(ParamStr(0)) + 'log.log');
   fResource := TResource.Create(nil, nil, nil);
   fResource.LoadMenuResources('');
   fSoundLib := TSoundLib.Create('', 0, False);
@@ -53,7 +53,7 @@ begin
   gTerrain.Free;
   fSoundLib.Free;
   fResource.Free;
-  fLog.Free;
+  gLog.Free;
   FUnitActionGoInOut := nil;
 end;
 

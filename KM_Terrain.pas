@@ -287,7 +287,7 @@ begin
 
   fMapEditor := aMapEditor;
 
-  fLog.AddTime('Loading map file: ' + FileName);
+  gLog.AddTime('Loading map file: ' + FileName);
 
   S := TKMemoryStream.Create;
   try
@@ -336,7 +336,7 @@ begin
 
   //Everything except roads
   UpdateWalkConnect([wcWalk, wcFish, wcWork], KMRect(1, 1, fMapX, fMapY), True);
-  fLog.AddTime('Map file loaded');
+  gLog.AddTime('Map file loaded');
 end;
 
 
@@ -2623,7 +2623,7 @@ begin
       break;
     end;
 
-  //fLog.AssertToLog(false,'TTerrain.ConvertCursorToMapCoord - couldn''t convert')
+  //gLog.AssertToLog(false,'TTerrain.ConvertCursorToMapCoord - couldn''t convert')
 end;
 
 
@@ -2760,7 +2760,7 @@ begin
 
   UpdateWalkConnect([wcWalk, wcRoad, wcFish, wcWork], KMRect(1, 1, fMapX, fMapY), True);
 
-  fLog.AddTime('Terrain loaded');
+  gLog.AddTime('Terrain loaded');
 end;
 
 

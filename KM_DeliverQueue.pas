@@ -753,7 +753,7 @@ begin
   //Store never has enough demand performed
   if (fDemand[iD].Loc_House<>nil)and(fDemand[iD].DemandType = dt_Always) then fDemand[iD].BeingPerformed:=false;
 
-  if WRITE_DELIVERY_LOG then fLog.AddTime('Creating delivery ID', i);
+  if WRITE_DELIVERY_LOG then gLog.AddTime('Creating delivery ID', i);
 
   //Now we have best job and can perform it
   if fDemand[iD].Loc_House <> nil then
@@ -767,7 +767,7 @@ end;
 procedure TKMDeliverQueue.TakenOffer(aID:integer);
 var iO:integer;
 begin
-  if WRITE_DELIVERY_LOG then fLog.AddTime('Taken offer from delivery ID', aID);
+  if WRITE_DELIVERY_LOG then gLog.AddTime('Taken offer from delivery ID', aID);
 
   iO:=fQueue[aID].OfferID;
   fQueue[aID].OfferID:=0; //We don't need it any more
@@ -784,7 +784,7 @@ end;
 procedure TKMDeliverQueue.GaveDemand(aID:integer);
 var iD:integer;
 begin
-  if WRITE_DELIVERY_LOG then fLog.AddTime('Gave demand from delivery ID', aID);
+  if WRITE_DELIVERY_LOG then gLog.AddTime('Gave demand from delivery ID', aID);
   iD:=fQueue[aID].DemandID;
   fQueue[aID].DemandID:=0; //We don't need it any more
 
@@ -798,7 +798,7 @@ end;
 //AbandonDelivery
 procedure TKMDeliverQueue.AbandonDelivery(aID:integer);
 begin
-  if WRITE_DELIVERY_LOG then fLog.AddTime('Abandoned delivery ID', aID);
+  if WRITE_DELIVERY_LOG then gLog.AddTime('Abandoned delivery ID', aID);
 
   //Remove reservations without removing items from lists
   if fQueue[aID].OfferID <> 0 then
@@ -823,7 +823,7 @@ end;
 //Job successfully done and we ommit it
 procedure TKMDeliverQueue.CloseDelivery(aID:integer);
 begin
-  if WRITE_DELIVERY_LOG then fLog.AddTime('Closed delivery ID', aID);
+  if WRITE_DELIVERY_LOG then gLog.AddTime('Closed delivery ID', aID);
 
   fQueue[aID].OfferID:=0;
   fQueue[aID].DemandID:=0;

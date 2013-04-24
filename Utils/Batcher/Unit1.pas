@@ -119,7 +119,7 @@ begin
   SKIP_RENDER := True;
   SKIP_SOUND := True;
   ExeDir := ExtractFilePath(ParamStr(0)) + '..\..\';
-  fLog := TKMLog.Create(ExtractFilePath(ParamStr(0)) + 'temp.log');
+  gLog := TKMLog.Create(ExtractFilePath(ParamStr(0)) + 'temp.log');
   fLocales := TKMLocales.Create(ExeDir+'data\locales.txt');
   fTextLibrary := TTextLibrary.Create(ExeDir + 'data\text\', 'eng');
   fGameApp := TKMGameApp.Create(nil, 1024, 768, False, nil, nil, nil, True);
@@ -133,7 +133,7 @@ begin
   FreeAndNil(fGameApp);
   FreeAndNil(fTextLibrary);
   FreeAndNil(fLocales);
-  FreeAndNil(fLog);
+  FreeAndNil(gLog);
 end;
 
 

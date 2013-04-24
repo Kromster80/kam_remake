@@ -24,7 +24,7 @@ begin
   SKIP_RENDER := True;
   ExeDir := ExtractFilePath(ParamStr(0)) + '..\';
 
-  fLog := TKMLog.Create(ExtractFilePath(ParamStr(0)) + 'Temp\temp.log');
+  gLog := TKMLog.Create(ExtractFilePath(ParamStr(0)) + 'Temp\temp.log');
   fResource := TResource.Create(nil, nil, nil);
   fResource.LoadMenuResources('');
   gTerrain := TKMTerrain.Create;
@@ -36,7 +36,7 @@ begin
   fAIFields.Free;
   gTerrain.Free;
   fResource.Free;
-  fLog.Free;
+  gLog.Free;
 end;
 
 procedure TestTKMAIFields.TestUpdateNavMesh;

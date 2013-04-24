@@ -643,20 +643,20 @@ begin
           MapEdChunkFound := True; //Only set it once it's all loaded successfully
         end
         else
-          fLog.AddNoTime(FileName + ' has no MapEd.TILE chunk');
+          gLog.AddNoTime(FileName + ' has no MapEd.TILE chunk');
       end
       else
-        fLog.AddNoTime(FileName + ' has no MapEd.ADDN chunk');
+        gLog.AddNoTime(FileName + ' has no MapEd.ADDN chunk');
     end
     else
-      fLog.AddNoTime(FileName + ' has no MapEd chunk');
+      gLog.AddNoTime(FileName + ' has no MapEd chunk');
   finally
     S.Free;
   end;
   //We can regenerate the MapEd data if it's missing (won't be as good as the original)
   if not MapEdChunkFound then
   begin
-    fLog.AddNoTime('Regenerating missing MapEd data as best as we can');
+    gLog.AddNoTime('Regenerating missing MapEd data as best as we can');
     GenerateAddnData;
   end;
 end;

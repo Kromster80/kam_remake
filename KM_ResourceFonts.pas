@@ -91,7 +91,7 @@ begin
       MaxHeight := Math.max(MaxHeight, Letters[i].Height);
 
       if Letters[i].Width * Letters[i].Height = 0 then
-        fLog.AddAssert('Font data Width * Height = 0'); //Font01.fnt seems to be damaged..
+        gLog.AddAssert('Font data Width * Height = 0'); //Font01.fnt seems to be damaged..
 
       SetLength(Letters[i].Data, Letters[i].Width*Letters[i].Height);
       S.Read(Letters[i].Data[0], Letters[i].Width*Letters[i].Height);
@@ -119,7 +119,7 @@ begin
       begin
 
         if Pal[i] <> 1 then
-          fLog.AddAssert('FontData palette <> 1');
+          gLog.AddAssert('FontData palette <> 1');
 
         //Switch to new line
         if AdvX+Width+2>TexWidth then

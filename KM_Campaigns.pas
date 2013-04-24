@@ -208,7 +208,7 @@ begin
     M.Free;
   end;
 
-  fLog.AddTime('Campaigns.dat saved');
+  gLog.AddTime('Campaigns.dat saved');
 end;
 
 

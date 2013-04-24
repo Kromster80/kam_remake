@@ -24,7 +24,7 @@ procedure TestKMScripting.SetUp;
 begin
   ExeDir := ExtractFilePath(ParamStr(0)) + '..\';
 
-  fLog := TKMLog.Create(ExtractFilePath(ParamStr(0)) + 'Temp\temp.log');
+  gLog := TKMLog.Create(ExtractFilePath(ParamStr(0)) + 'Temp\temp.log');
   fScripting := TKMScripting.Create;
 end;
 
@@ -32,7 +32,7 @@ end;
 procedure TestKMScripting.TearDown;
 begin
   fScripting.Free;
-  fLog.Free;
+  gLog.Free;
 end;
 
 

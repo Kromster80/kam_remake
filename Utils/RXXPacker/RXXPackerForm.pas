@@ -40,7 +40,7 @@ begin
   Caption := 'RXX Packer (' + GAME_REVISION + ')';
 
   //Although we don't need them in this tool, these are required to load sprites
-  fLog := TKMLog.Create(ExeDir + 'RXXPacker.log');
+  gLog := TKMLog.Create(ExeDir + 'RXXPacker.log');
 
   fPalettes := TKMPalettes.Create;
   fPalettes.LoadPalettes;
@@ -55,7 +55,7 @@ end;
 procedure TRXXForm1.FormDestroy(Sender: TObject);
 begin
   FreeAndNil(fPalettes);
-  FreeAndNil(fLog);
+  FreeAndNil(gLog);
 end;
 
 
@@ -117,7 +117,7 @@ begin
 
       //Tiles must stay the same size as they can't use pivots
       if RT <> rxTiles then
-        fLog.AddTime('Trimmed ' + IntToStr(SpritePack.TrimSprites));
+        gLog.AddTime('Trimmed ' + IntToStr(SpritePack.TrimSprites));
 
       //Houses need some special treatment to adapt to GL_ALPHA_TEST that we use for construction steps
       if RT = rxHouses then

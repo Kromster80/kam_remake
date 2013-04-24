@@ -130,7 +130,6 @@ end;
 //Check if requested vertice is revealed for given player
 //Return value of revelation is 0..255
 //0 unrevealed, 255 revealed completely
-//aSkipForReplay should be true in cases where replay should always return revealed (e.g. sounds, render)
 //but false in cases where it will effect the gameplay (e.g. unit hit test)
 function TKMFogOfWar.CheckVerticeRevelation(const X,Y: Word): Byte;
 begin
@@ -152,7 +151,6 @@ end;
 //Check if requested tile is revealed for given player
 //Input values for tiles (X,Y) are in 1..N range
 //Return value of revelation within 0..255 (0 unrevealed, 255 fully revealed)
-//aSkipForReplay should be true in cases where replay should always return revealed (e.g. sounds, render)
 //but false in cases where it will effect the gameplay (e.g. unit hit test)
 function TKMFogOfWar.CheckTileRevelation(const X,Y: Word): Byte;
 begin

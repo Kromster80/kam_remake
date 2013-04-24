@@ -106,7 +106,7 @@ begin
 
   if not FileExists(aFileName) then
   begin
-    fLog.AddNoTime(aFileName + ' was not found. It is okay for mission to have no dynamic scripts.');
+    gLog.AddNoTime(aFileName + ' was not found. It is okay for mission to have no dynamic scripts.');
     Exit;
   end;
 

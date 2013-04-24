@@ -34,7 +34,7 @@ type
   end;
 
   var
-    fLog: TKMLog;
+    gLog: TKMLog;
 
 
 implementation

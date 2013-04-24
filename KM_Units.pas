@@ -2132,7 +2132,7 @@ begin
   //Check if Pos is within map coords first, as other checks rely on this
   if not gTerrain.TileInMapCoords(PlaceTo.X, PlaceTo.Y) then
   begin
-    fLog.AddTime('Unable to add unit to ' + KM_Points.TypeToString(PlaceTo));
+    gLog.AddTime('Unable to add unit to ' + KM_Points.TypeToString(PlaceTo));
     Result := nil;
     Exit;
   end;
@@ -2279,7 +2279,7 @@ begin
     if U <> nil then
       fUnits.Add(U)
     else
-      fLog.AddAssert('Unknown unit type in Savegame');
+      gLog.AddAssert('Unknown unit type in Savegame');
   end;
 end;
 

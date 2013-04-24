@@ -104,14 +104,14 @@ begin
 
   ExeDir := ExtractFilePath(ParamStr(0));
   CreateDir(ExeDir + 'Logs');
-  fLog := TKMLog.Create(ExeDir + 'Logs' + PathDelim + 'KaM_Server_' + FormatDateTime('yyyy-mm-d_hh-nn-ss-zzz', Now) + '.log');
+  gLog := TKMLog.Create(ExeDir + 'Logs' + PathDelim + 'KaM_Server_' + FormatDateTime('yyyy-mm-d_hh-nn-ss-zzz', Now) + '.log');
 
   //this is shown only at application start (tip. check the strange -. in morse code translator ;)
   ServerStatusMessageNoTime('-.- .- -- / .-. . -- .- -.- . / .. ... / - .... . / -... . ... -');
   ServerStatusMessage      ('== KaM Remake ' + GAME_VERSION + ' Dedicated Server ==');
   ServerStatusMessageNoTime('');
   ServerStatusMessage      ('Settings file: ' + ExeDir + SETTINGS_FILE);
-  ServerStatusMessage      ('Log file: ' + fLog.LogPath);
+  ServerStatusMessage      ('Log file: ' + gLog.LogPath);
   ServerStatusMessageNoTime('-.- .- -- / .-. . -- .- -.- . / .. ... / - .... . / -... . ... -');
   ServerStatusMessageNoTime('');
 
@@ -132,7 +132,7 @@ begin
   if fServerStatus = ssOnline then
     ChangeServerStatus(ssOffline);
 
-  FreeAndNil(fLog);
+  FreeAndNil(gLog);
   fSettings.Free;
 end;
 
@@ -140,14 +140,14 @@ end;
 procedure TFormMain.ServerStatusMessage(const aData: string);
 begin
   LogsMemo.Lines.Add(FormatDateTime('yyyy-mm-dd hh-nn-ss ', Now) + aData);
-  fLog.AddNoTime(aData);
+  gLog.AddNoTime(aData);
 end;
 
 
 procedure TFormMain.ServerStatusMessageNoTime(const aData: string);
 begin
   LogsMemo.Lines.Add(aData);
-  fLog.AddNoTime(aData);
+  gLog.AddNoTime(aData);
 end;
 
 

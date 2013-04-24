@@ -374,8 +374,8 @@ begin
 
   try
     DecompressionStream.Read(RXXCount, 4);
-    if fLog <> nil then
-      fLog.AddTime(RXInfo[fRT].FileName + ' -', RXXCount);
+    if gLog <> nil then
+      gLog.AddTime(RXInfo[fRT].FileName + ' -', RXXCount);
 
     if RXXCount = 0 then
       Exit;
@@ -611,10 +611,10 @@ begin
     if fRXData.Flag[I] <> 0 then
       Inc(IdealRAM, fRXData.Size[I].X * fRXData.Size[I].Y * TexFormatSize[TexType]);
 
-    fLog.AddTime(IntToStr(TexCount) + ' Textures created');
-    fLog.AddNoTime(Format('%d/%d', [BaseRAM div 1024, IdealRAM div 1024]) +
+    gLog.AddTime(IntToStr(TexCount) + ' Textures created');
+    gLog.AddNoTime(Format('%d/%d', [BaseRAM div 1024, IdealRAM div 1024]) +
                   ' Kbytes allocated/ideal for ' + RXInfo[fRT].FileName + ' GFX when using Packing');
-    fLog.AddNoTime(IntToStr(ColorRAM div 1024) + ' KBytes for team colors');
+    gLog.AddNoTime(IntToStr(ColorRAM div 1024) + ' KBytes for team colors');
   end;
 end;
 
@@ -892,7 +892,7 @@ begin
   if RXInfo[RT].Usage = ruGame then
   begin
     fStepCaption(fTextLibrary[RXInfo[RT].LoadingTextID]);
-    fLog.AddTime('Reading ' + RXInfo[RT].FileName + '.rx');
+    gLog.AddTime('Reading ' + RXInfo[RT].FileName + '.rx');
     LoadSprites(RT, fAlphaShadows);
     fSprites[RT].MakeGFX(fAlphaShadows);
   end;
