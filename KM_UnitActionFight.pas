@@ -211,7 +211,6 @@ end;
 function TUnitActionFight.ExecuteProcessRanged(Step:byte):boolean;
 begin
   Result := false;
-  Locked := True; //Can't abandoned while archer is reloading (halt exploit)
   if Step = FIRING_DELAY then
   begin
     if fFightDelay=-1 then //Initialize
@@ -227,10 +226,10 @@ begin
     begin
       dec(fFightDelay);
       Result := true; //do not increment AnimStep, just exit;
-      Locked := False; //Allowed to abandon while we are aiming
       exit;
     end;
     if fUnit.UnitType = ut_Slingshot then MakeSound(false);
+    TKMUnitWarrior(fUnit).SetLastShootTime; //Record last time the warrior shot
 
     //Fire the arrow
     case fUnit.UnitType of
@@ -244,7 +243,10 @@ begin
   end;
   if Step = SLINGSHOT_FIRING_DELAY then
     if fUnit.UnitType = ut_Slingshot then
+    begin
       fProjectiles.AimTarget(fUnit.PositionF, fOpponent, pt_SlingRock, fUnit.Owner, RANGE_SLINGSHOT_MAX, RANGE_SLINGSHOT_MIN);
+      TKMUnitWarrior(fUnit).SetLastShootTime; //Record last time the warrior shot
+    end;
 end;
 
 

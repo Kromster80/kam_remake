@@ -19,6 +19,7 @@ type
     fOrderTargetUnit: TKMUnit; //Unit we are ordered to attack. This property should never be accessed, use public OrderTarget instead.
     fOrderTargetHouse: TKMHouse; //House we are ordered to attack. This property should never be accessed, use public OrderHouseTarget instead.
     fUseExactTarget: Boolean; //Do we try to reach exact position or is it e.g. unwalkable
+    fLastShootTime: Cardinal; //Used to prevent archer rate of fire exploit
 
     fRequestedFood: Boolean;
     fStormDelay: Word;
@@ -61,9 +62,12 @@ type
     function WithinFightRange(Value: TKMPoint): Boolean;
     function OrderDone: Boolean;
     property RequestedFood: Boolean read fRequestedFood write fRequestedFood; //Cleared by Serf delivering food
+    property LastShootTime: Cardinal read fLastShootTime;
     function IsRanged: Boolean;
     function InFight: Boolean;
     function InAGroup: Boolean;
+    function NeedsToReload(aFightAnimLength: Byte): Boolean;
+    procedure SetLastShootTime;
     function FindLinkUnit(aLoc: TKMPoint): TKMUnitWarrior;
     function CheckForEnemy: Boolean;
     function FindEnemy: TKMUnit;
@@ -79,7 +83,7 @@ type
 implementation
 uses KM_TextLibrary, KM_PlayersCollection, KM_RenderPool, KM_RenderAux, KM_UnitTaskAttackHouse,
   KM_UnitActionAbandonWalk, KM_UnitActionFight, KM_UnitActionGoInOut, KM_UnitActionWalkTo, KM_UnitActionStay,
-  KM_UnitActionStormAttack, KM_Resource, KM_ResourceUnit;
+  KM_UnitActionStormAttack, KM_Resource, KM_ResourceUnit, KM_Game;
 
 
 { TKMUnitWarrior }
@@ -107,6 +111,7 @@ begin
   LoadStream.Read(fStormDelay);
   LoadStream.Read(fUseExactTarget);
   LoadStream.Read(FaceDir);
+  LoadStream.Read(fLastShootTime);
 end;
 
 
@@ -263,6 +268,20 @@ function TKMUnitWarrior.InAGroup: Boolean;
 begin
   //Event is assigned when unit is added to a group, so we can use it as a marker
   Result := Assigned(OnWarriorDied);
+end;
+
+
+//Used to prevent rate of fire exploit
+function TKMUnitWarrior.NeedsToReload(aFightAnimLength: Byte): Boolean;
+begin
+  Result := (fLastShootTime <> 0) and ((fGame.GameTickCount - fLastShootTime) < aFightAnimLength);
+end;
+
+
+//Used to prevent rate of fire exploit
+procedure TKMUnitWarrior.SetLastShootTime;
+begin
+  fLastShootTime := fGame.GameTickCount;
 end;
 
 
@@ -428,6 +447,7 @@ begin
   SaveStream.Write(fStormDelay);
   SaveStream.Write(fUseExactTarget);
   SaveStream.Write(FaceDir);
+  SaveStream.Write(fLastShootTime);
 end;
 
 
@@ -509,12 +529,12 @@ function TKMUnitWarrior.CanInterruptAction: Boolean;
 begin
   if GetUnitAction is TUnitActionWalkTo      then Result := TUnitActionWalkTo(GetUnitAction).CanAbandonExternal and GetUnitAction.StepDone else //Only when unit is idling during Interaction pauses
   if(GetUnitAction is TUnitActionStay) and
-    (UnitTask      is TTaskAttackHouse)      then Result := TTaskAttackHouse(UnitTask).CanAbandon else //We can abandon attack house if the action is stay and CanAbandon is true
+    (UnitTask      is TTaskAttackHouse)      then Result := True else //We can abandon attack house if the action is stay
   if GetUnitAction is TUnitActionStay        then Result := not GetUnitAction.Locked else //Initial pause before leaving barracks is locked
   if GetUnitAction is TUnitActionAbandonWalk then Result := GetUnitAction.StepDone and not GetUnitAction.Locked else //Abandon walk should never be abandoned, it will exit within 1 step anyway
   if GetUnitAction is TUnitActionGoInOut     then Result := not GetUnitAction.Locked else //Never interupt leaving barracks
   if GetUnitAction is TUnitActionStormAttack then Result := not GetUnitAction.Locked else //Never interupt storm attack
-  if GetUnitAction is TUnitActionFight       then Result := not GetUnitAction.Locked //Only allowed to interupt when action tells us so
+  if GetUnitAction is TUnitActionFight       then Result := IsRanged or not GetUnitAction.Locked //Only allowed to interupt ranged fights
   else Result := true;
 end;
 
