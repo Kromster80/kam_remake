@@ -71,7 +71,7 @@ object Form1: TForm1
   end
   object btnUnXorAll: TButton
     Left = 24
-    Top = 232
+    Top = 240
     Width = 121
     Height = 25
     Caption = 'unXOR all maps'
@@ -80,7 +80,7 @@ object Form1: TForm1
   end
   object btnXorAll: TButton
     Left = 24
-    Top = 256
+    Top = 264
     Width = 121
     Height = 25
     Caption = 'XOR all maps'
@@ -104,5 +104,14 @@ object Form1: TForm1
     Caption = 'Append user players to MP maps'
     TabOrder = 8
     OnClick = Button8Click
+  end
+  object Button5: TButton
+    Left = 24
+    Top = 200
+    Width = 185
+    Height = 25
+    Caption = 'Check AI players on MP maps'
+    TabOrder = 9
+    OnClick = Button5Click
   end
 end

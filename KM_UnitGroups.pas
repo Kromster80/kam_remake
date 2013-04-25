@@ -58,7 +58,7 @@ type
     procedure SetPosition(aValue: TKMPoint);
     procedure ClearOrderTarget;
     procedure ClearOffenders;
-    procedure HungarianReorderMemebers;
+    procedure HungarianReorderMembers;
 
     function GetOrderTargetUnit: TKMUnit;
     function GetOrderTargetGroup: TKMUnitGroup;
@@ -948,7 +948,9 @@ end;
 //Forcefull termination of any activity
 procedure TKMUnitGroup.OrderHalt(aClearOffenders: Boolean);
 begin
-  if aClearOffenders and CanTakeOrders then ClearOffenders;
+  if aClearOffenders and CanTakeOrders then
+    ClearOffenders;
+
   //Halt is not a true order, it is just OrderWalk
   //hose target depends on previous activity
   case fOrder of
@@ -1151,7 +1153,9 @@ var
   P: TKMPointExact;
 begin
   if IsDead then Exit;
-  if aClearOffenders and CanTakeOrders then ClearOffenders;
+
+  if aClearOffenders and CanTakeOrders then
+    ClearOffenders;
 
   if aDir = dir_NA then
     if fOrderLoc.Dir = dir_NA then
@@ -1165,7 +1169,7 @@ begin
   fOrderLoc := KMPointDir(aLoc, NewDir);
   ClearOrderTarget;
 
-  HungarianReorderMemebers;
+  HungarianReorderMembers;
 
   for I := 0 to Count - 1 do
   begin
@@ -1248,7 +1252,7 @@ begin
 end;
 
 
-procedure TKMUnitGroup.HungarianReorderMemebers;
+procedure TKMUnitGroup.HungarianReorderMembers;
 var
   Agents, Tasks: TKMPointList;
   I: Integer;

@@ -19,6 +19,7 @@ type
     btnXorAll: TButton;
     Button7: TButton;
     Button8: TButton;
+    Button5: TButton;
     procedure Button3Click(Sender: TObject);
     procedure Button1Click(Sender: TObject);
     procedure Button2Click(Sender: TObject);
@@ -26,6 +27,7 @@ type
     procedure btnXorAllClick(Sender: TObject);
     procedure Button7Click(Sender: TObject);
     procedure Button8Click(Sender: TObject);
+    procedure Button5Click(Sender: TObject);
   private
     procedure SetUp;
     procedure TearDown;
@@ -79,7 +81,7 @@ begin
     for I := 0 to F.Size - 1 do
       PByte(Cardinal(F.Memory)+I)^ := PByte(Cardinal(F.Memory)+I)^ xor 239;
 
-    SetString(Result, PChar(F.Memory), F.Size div SizeOf(AnsiChar));
+    SetString(Result, PAnsiChar(F.Memory), F.Size div SizeOf(AnsiChar));
   finally
     F.Free;
   end;
@@ -309,6 +311,100 @@ begin
         GoalLog.SaveToFile(ChangeFileExt(PathToMaps[I], '.goals.log'));
 
       MP.SaveToFile(Txt, PathToMaps[I]);
+    end;
+  finally
+    PathToMaps.Free;
+  end;
+
+  Memo1.Lines.Append(IntToStr(Memo1.Lines.Count));
+
+  TearDown;
+  ControlsEnable(True);
+end;
+
+
+procedure TForm1.Button5Click(Sender: TObject);
+var
+  I, K: Integer;
+  PathToMaps: TStringList;
+  CurrLoc, CurrEnd, NextCurrLoc, AILoc, AIEnd: Integer;
+  Txt: AnsiString;
+  PlayerId, AiId: Integer;
+  MP: TMissionParserPatcher;
+  PlayersSet: array [0 .. MAX_PLAYERS - 1] of Boolean;
+  s: string;
+begin
+  Memo1.Clear;
+  ControlsEnable(False);
+  SetUp;
+
+  //Intent of this design is to rip the specified lines with least impact
+  MP := TMissionParserPatcher.Create(False);
+
+  PathToMaps := TStringList.Create;
+  try
+    TKMapsCollection.GetAllMapPaths(ExeDir, PathToMaps);
+
+    //Parse only MP maps
+    for I := 0 to PathToMaps.Count - 1 do
+    if Pos('\MapsMP\', PathToMaps[I]) <> 0 then
+    begin
+      Txt := MP.ReadMissionFile(PathToMaps[I]);
+
+      CurrLoc := 1;
+      FillChar(PlayersSet, SizeOf(PlayersSet), #0);
+      repeat
+        //SET_CURR_PLAYER player_id
+        CurrLoc := PosEx('!SET_CURR_PLAYER ', Txt, CurrLoc);
+        if CurrLoc <> 0 then
+        begin
+          //Many maps have letters aligned in columns, meaning that
+          //command length is varying cos of spaces between arguments
+          //Look for command end marker (!, eol, /)
+          CurrEnd := CurrLoc + 16;
+          while (CurrEnd < Length(Txt)) and not (Txt[CurrEnd] in ['!', #13, '/']) do
+            Inc(CurrEnd);
+          s := Trim(Copy(Txt, CurrLoc + 16, CurrEnd - (CurrLoc + 16)));
+          PlayerId := StrToInt(s);
+
+          NextCurrLoc := PosEx('!SET_CURR_PLAYER ', Txt, CurrLoc+1);
+          AILoc := PosEx('!SET_AI_PLAYER', Txt, CurrLoc+1);
+          AiId := -1;
+          if AILoc <> 0 then
+          begin
+            //Many maps have letters aligned in columns, meaning that
+            //command length is varying cos of spaces between arguments
+            //Look for command end marker (!, eol, /)
+            AIEnd := AILoc + 14;
+            while (AIEnd < Length(Txt)) and not (Txt[AIEnd] in ['!', #13, '/']) do
+              Inc(AIEnd);
+            s := Trim(Copy(Txt, AILoc + 14, AIEnd - (AILoc + 14)));
+            AiId := StrToIntDef(s, -1);
+          end;
+
+          //Many times MP maps change CURR player to adjoin similar stuff in sections
+          if not PlayersSet[PlayerId] then
+            if (AILoc = 0) or ((AILoc > NextCurrLoc) and (NextCurrLoc <> 0)) then
+            begin
+              //Add from new line
+              Insert(eol + '!SET_AI_PLAYER', Txt, CurrEnd);
+              if AiId <> -1 then
+                PlayersSet[AiId] := True
+              else
+                PlayersSet[PlayerId] := True;
+            end;
+
+          CurrLoc := CurrEnd;
+        end;
+      until (CurrLoc = 0);
+
+      MP.SaveToFile(Txt, PathToMaps[I]);
+
+      s := '';
+      for K := 0 to MAX_PLAYERS - 1 do
+        s := s + IfThen(PlayersSet[K], '1', '0');
+
+      Memo1.Lines.Append(s + ' ' + TruncateExt(ExtractFileName(PathToMaps[I])));
     end;
   finally
     PathToMaps.Free;

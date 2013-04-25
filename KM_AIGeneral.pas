@@ -207,7 +207,7 @@ begin
     NeedsLinkingTo[G] := nil;
 
 //Vas (15:07:16 6/03/2013)
-//todo: if AI attacks with a troop and the toop is hungry, he cant decide if he wants to attack or go back to feed the troop
+//todo: if AI attacks with a troop and the troop is hungry, he cant decide if he wants to attack or go back to feed the troop
 
   //Check: Hunger, (feed) formation, (units per row) position (from defence positions)
   for I := 0 to fPlayers[fOwner].UnitGroups.Count - 1 do
@@ -216,7 +216,7 @@ begin
 
     if not Group.IsDead
     and not Group.InFight
-    and not (Group.Order in [goAttackHouse, goAttackUnit, goStorm]) then
+    and (Group.Order = goNone) then
     begin
 
       //Check hunger and order food
