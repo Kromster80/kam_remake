@@ -20,6 +20,7 @@ type
     Button7: TButton;
     Button8: TButton;
     Button5: TButton;
+    Button6: TButton;
     procedure Button3Click(Sender: TObject);
     procedure Button1Click(Sender: TObject);
     procedure Button2Click(Sender: TObject);
@@ -28,6 +29,7 @@ type
     procedure Button7Click(Sender: TObject);
     procedure Button8Click(Sender: TObject);
     procedure Button5Click(Sender: TObject);
+    procedure Button6Click(Sender: TObject);
   private
     procedure SetUp;
     procedure TearDown;
@@ -405,6 +407,67 @@ begin
         s := s + IfThen(PlayersSet[K], '1', '0');
 
       Memo1.Lines.Append(s + ' ' + TruncateExt(ExtractFileName(PathToMaps[I])));
+    end;
+  finally
+    PathToMaps.Free;
+  end;
+
+  Memo1.Lines.Append(IntToStr(Memo1.Lines.Count));
+
+  TearDown;
+  ControlsEnable(True);
+end;
+
+
+procedure TForm1.Button6Click(Sender: TObject);
+var
+  I, K: Integer;
+  PathToMaps: TStringList;
+  CurrLoc, CurrEnd: Integer;
+  Txt: AnsiString;
+  MP: TMissionParserPatcher;
+  s: string;
+begin
+  Memo1.Clear;
+  ControlsEnable(False);
+  SetUp;
+
+  //Intent of this design is to rip the specified lines with least impact
+  MP := TMissionParserPatcher.Create(False);
+
+  PathToMaps := TStringList.Create;
+  try
+    TKMapsCollection.GetAllMapPaths(ExeDir, PathToMaps);
+
+    //Parse only MP maps
+    for I := 0 to PathToMaps.Count - 1 do
+    if Pos('\MapsMP\', PathToMaps[I]) <> 0 then
+    begin
+      Txt := MP.ReadMissionFile(PathToMaps[I]);
+
+      //Show goals which have messages in them
+      CurrLoc := 1;
+      repeat
+        //SET_CURR_PLAYER player_id
+        CurrLoc := PosEx('!SET_AI_PLAYER', Txt, CurrLoc);
+        if CurrLoc <> 0 then
+        begin
+          //Many maps have letters aligned in columns, meaning that
+          //command length is varying cos of spaces between arguments
+          //Look for command end marker (!, eol, /)
+          CurrEnd := CurrLoc + 14;
+          while (CurrEnd < Length(Txt)) and not (Txt[CurrEnd] in ['!', #13, '/']) do
+            Inc(CurrEnd);
+
+            Insert(eol + '!SET_AI_AUTO_DEFENCE', Txt, CurrEnd);
+
+          CurrLoc := CurrEnd;
+        end;
+      until (CurrLoc = 0);
+
+      MP.SaveToFile(Txt, PathToMaps[I]);
+
+      Memo1.Lines.Append(TruncateExt(ExtractFileName(PathToMaps[I])));
     end;
   finally
     PathToMaps.Free;

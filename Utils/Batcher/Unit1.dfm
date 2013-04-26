@@ -2,7 +2,7 @@ object Form1: TForm1
   Left = 0
   Top = 0
   Caption = 'Form1'
-  ClientHeight = 313
+  ClientHeight = 329
   ClientWidth = 665
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -13,7 +13,7 @@ object Form1: TForm1
   OldCreateOrder = False
   DesignSize = (
     665
-    313)
+    329)
   PixelsPerInch = 96
   TextHeight = 13
   object Button3: TButton
@@ -47,7 +47,7 @@ object Form1: TForm1
     Left = 248
     Top = 24
     Width = 393
-    Height = 265
+    Height = 281
     Anchors = [akLeft, akTop, akRight, akBottom]
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText
@@ -59,6 +59,7 @@ object Form1: TForm1
     ParentFont = False
     ScrollBars = ssVertical
     TabOrder = 3
+    ExplicitHeight = 265
   end
   object Button4: TButton
     Left = 24
@@ -71,7 +72,7 @@ object Form1: TForm1
   end
   object btnUnXorAll: TButton
     Left = 24
-    Top = 240
+    Top = 264
     Width = 121
     Height = 25
     Caption = 'unXOR all maps'
@@ -80,7 +81,7 @@ object Form1: TForm1
   end
   object btnXorAll: TButton
     Left = 24
-    Top = 264
+    Top = 288
     Width = 121
     Height = 25
     Caption = 'XOR all maps'
@@ -110,8 +111,17 @@ object Form1: TForm1
     Top = 200
     Width = 185
     Height = 25
-    Caption = 'Check AI players on MP maps'
+    Caption = 'Add AI players to MP maps'
     TabOrder = 9
     OnClick = Button5Click
+  end
+  object Button6: TButton
+    Left = 24
+    Top = 224
+    Width = 185
+    Height = 25
+    Caption = 'Add AI defence'
+    TabOrder = 10
+    OnClick = Button6Click
   end
 end
