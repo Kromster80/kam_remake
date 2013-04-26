@@ -2,17 +2,12 @@ unit KM_MissionScript_Standard;
 {$I KaM_Remake.inc}
 interface
 uses
-  Classes, KromUtils, SysUtils, Math,
-  KM_CommonClasses, KM_Defaults, KM_Points, KM_MissionScript,
-  KM_AIAttacks, KM_Houses, KM_Units, KM_Terrain, KM_UnitGroups, KM_Units_Warrior;
+  Classes, KromUtils, Math, SysUtils,
+  KM_CommonClasses, KM_Defaults, KM_Points,
+  KM_MissionScript, KM_AIAttacks, KM_Houses, KM_Units, KM_Terrain, KM_UnitGroups;
 
 
 type
-  TKMCommandParamType = (cpt_Unknown=0,cpt_Recruits,cpt_Constructors,cpt_WorkerFactor,cpt_RecruitCount,cpt_TownDefence,
-                         cpt_MaxSoldier,cpt_EquipRate,cpt_EquipRateIron,cpt_EquipRateLeather,cpt_AttackFactor,cpt_TroopParam);
-
-  TAIAttackParamType = (cpt_Type, cpt_TotalAmount, cpt_Counter, cpt_Range, cpt_TroopAmount, cpt_Target, cpt_Position, cpt_TakeAll);
-
   TKMAttackPosition = record
     Group: TKMUnitGroup;
     Target: TKMPoint;
@@ -43,8 +38,14 @@ type
 
 implementation
 uses KM_PlayersCollection, KM_Player, KM_AI, KM_AIDefensePos, KM_TerrainPainter,
-  KM_Resource, KM_ResourceHouse, KM_ResourceUnit, KM_ResourceWares, KM_Game;
+  KM_Resource, KM_ResourceHouse, KM_ResourceUnit, KM_ResourceWares, KM_Game, KM_Units_Warrior;
 
+
+type
+  TKMCommandParamType = (cpt_Unknown=0, cpt_Recruits, cpt_Constructors, cpt_WorkerFactor, cpt_RecruitCount, cpt_TownDefence,
+                         cpt_MaxSoldier, cpt_EquipRate, cpt_EquipRateIron, cpt_EquipRateLeather, cpt_AttackFactor, cpt_TroopParam);
+
+  TAIAttackParamType = (cpt_Type, cpt_TotalAmount, cpt_Counter, cpt_Range, cpt_TroopAmount, cpt_Target, cpt_Position, cpt_TakeAll);
 
 const
   PARAMVALUES: array [TKMCommandParamType] of AnsiString = (

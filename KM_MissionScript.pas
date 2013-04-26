@@ -67,7 +67,7 @@ type
 implementation
 
 
-{ TMissionParserGeneric }
+{ TMissionParserCommon }
 constructor TMissionParserCommon.Create(aStrictParsing: boolean);
 begin
   inherited Create;
