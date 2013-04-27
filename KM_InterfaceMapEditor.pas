@@ -1281,12 +1281,12 @@ end;
 procedure TKMapEdInterface.Create_Menu;
 begin
   Panel_Menu := TKMPanel.Create(Panel_Common, 0, 45, TB_WIDTH, 400);
-    Button_Menu_Load := TKMButton.Create(Panel_Menu, 0, 20, TB_WIDTH, 30, fTextLibrary[TX_MENU_LOAD_GAME], bsGame);
+    Button_Menu_Load := TKMButton.Create(Panel_Menu, 0, 20, TB_WIDTH, 30, fTextLibrary[TX_MAPED_LOAD_TITLE], bsGame);
     Button_Menu_Load.OnClick := SwitchPage;
-    Button_Menu_Load.Hint := fTextLibrary[TX_MENU_LOAD_GAME];
-    Button_Menu_Save := TKMButton.Create(Panel_Menu, 0, 60, TB_WIDTH, 30, fTextLibrary[TX_MENU_SAVE_GAME], bsGame);
+    Button_Menu_Load.Hint := fTextLibrary[TX_MAPED_LOAD_TITLE];
+    Button_Menu_Save := TKMButton.Create(Panel_Menu, 0, 60, TB_WIDTH, 30, fTextLibrary[TX_MAPED_SAVE_TITLE], bsGame);
     Button_Menu_Save.OnClick := SwitchPage;
-    Button_Menu_Save.Hint := fTextLibrary[TX_MENU_SAVE_GAME];
+    Button_Menu_Save.Hint := fTextLibrary[TX_MAPED_SAVE_TITLE];
     Button_Menu_Settings := TKMButton.Create(Panel_Menu, 0, 100, TB_WIDTH, 30, fTextLibrary[TX_MENU_SETTINGS], bsGame);
     Button_Menu_Settings.Hint := fTextLibrary[TX_MENU_SETTINGS];
     Button_Menu_Settings.Disable;
@@ -1306,7 +1306,7 @@ begin
     Radio_Save_MapType.Add(fTextLibrary[TX_MENU_MAPED_SPMAPS]);
     Radio_Save_MapType.Add(fTextLibrary[TX_MENU_MAPED_MPMAPS]);
     Radio_Save_MapType.OnChange := Menu_SaveClick;
-    TKMLabel.Create(Panel_Save,0,90,TB_WIDTH,20,'Save map',fnt_Outline,taCenter);
+    TKMLabel.Create(Panel_Save,0,90,TB_WIDTH,20,fTextLibrary[TX_MAPED_SAVE_TITLE],fnt_Outline,taCenter);
     Edit_SaveName       := TKMEdit.Create(Panel_Save,0,110,TB_WIDTH,20, fnt_Grey);
     Edit_SaveName.AllowedChars := acFileName;
     Label_SaveExists    := TKMLabel.Create(Panel_Save,0,140,TB_WIDTH,0,fTextLibrary[TX_MAPED_SAVE_EXISTS],fnt_Outline,taCenter);
@@ -1346,9 +1346,9 @@ procedure TKMapEdInterface.Create_MenuQuit;
 begin
   Panel_Quit := TKMPanel.Create(Panel_Common, 0, 45, TB_WIDTH, 400);
     TKMLabel.Create(Panel_Quit, 0, 40, TB_WIDTH, 60, fTextLibrary[TX_MAPED_LOAD_UNSAVED], fnt_Outline, taCenter);
-    Button_Quit_Yes := TKMButton.Create(Panel_Quit, 0, 100, TB_WIDTH, 30, fTextLibrary[TX_MENU_QUIT_MISSION], bsGame);
+    Button_Quit_Yes := TKMButton.Create(Panel_Quit, 0, 100, TB_WIDTH, 30, fTextLibrary[TX_MENU_QUIT_MAPED], bsGame);
     Button_Quit_No  := TKMButton.Create(Panel_Quit, 0, 140, TB_WIDTH, 30, fTextLibrary[TX_MENU_DONT_QUIT_MISSION], bsGame);
-    Button_Quit_Yes.Hint    := fTextLibrary[TX_MENU_QUIT_MISSION];
+    Button_Quit_Yes.Hint    := fTextLibrary[TX_MENU_QUIT_MAPED];
     Button_Quit_No.Hint     := fTextLibrary[TX_MENU_DONT_QUIT_MISSION];
     Button_Quit_Yes.OnClick := Menu_QuitClick;
     Button_Quit_No.OnClick  := SwitchPage;

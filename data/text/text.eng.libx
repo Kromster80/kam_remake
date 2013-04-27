@@ -1,5 +1,5 @@
 
-MaxID:667
+MaxID:668
 
 0:Sawmill
 1:Iron smithy
@@ -118,7 +118,7 @@ MaxID:667
 114:Quit Mission
 115:Go Back
 116:Settings
-117:Quit Mission
+117:Quit Editor
 118:SFX
 119:Change volume
 120:Change volume
@@ -408,7 +408,7 @@ MaxID:667
 404:Any unsaved|changes will be lost
 405:Cancel
 406:Load
-407:Load map
+407:Load Map
 408:Cancel
 409:Save
 410:Overwrite
@@ -669,3 +669,4 @@ MaxID:667
 665:Sending the crash report failed! Our server might be busy, please try sending it again.
 666:Information
 667:Please wait a moment...
+668:Save Map
