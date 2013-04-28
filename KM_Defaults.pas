@@ -215,7 +215,15 @@ var
 type
   TKMCursorMode = (
     cmNone, cmErase, cmRoad, cmField, cmWine, cmWall, cmHouses, // Gameplay
-    cmElevate, cmEqualize, cmBrush, cmTiles, cmObjects, cmUnits, cmMarkers // MapEditor
+    //Map Editor
+    cmElevate, //Height elevation
+    cmEqualize, //Height equalization
+    cmBrush, //Terrain brush
+    cmTiles, // Individual tiles
+    cmObjects, //Terrain objects
+    cmSelection, //Selection manipulations
+    cmUnits, //Units
+    cmMarkers //CenterScreen, Defence, FOW markers
     );
 
 const
@@ -769,7 +777,7 @@ const
 
 
 type
-  TMapEdLayer = (mlObjects, mlHouses, mlUnits, mlDeposits, mlDefences, mlRevealFOW, mlCenterScreen);  //Enum representing mapEditor visible layers
+  TMapEdLayer = (mlObjects, mlHouses, mlUnits, mlDeposits, mlDefences, mlRevealFOW, mlCenterScreen, mlSelection);  //Enum representing mapEditor visible layers
   TMapEdLayerSet = set of TMapEdLayer;                                   //Set of above enum
 
   TPaintLayer = (plTerrain, plObjects, plCursors);

@@ -13,6 +13,7 @@ type
   TKMTownTab = (ttHouses, ttUnits, ttScript, ttDefences, ttOffence);
   TKMPlayerTab = (ptGoals, ptColor, ptBlockHouse, ptBlockTrade, ptMarkers);
 
+  TSelectionManipulation = (smNewRect, smResizeX1, smResizeY1, smResizeX2, smResizeY2);
 
   TKMapEdInterface = class (TKMUserInterface)
   private
@@ -27,6 +28,8 @@ type
     fDragScrolling: Boolean;
     fDragScrollingCursorPos: TPoint;
     fDragScrollingViewportPos: TKMPointF;
+
+    fSelection: TSelectionManipulation;
 
     fMaps: TKMapsCollection;
     fMapsMP: TKMapsCollection;
@@ -106,6 +109,8 @@ type
     procedure Player_ChangeActive(Sender: TObject);
     procedure Player_ColorClick(Sender: TObject);
     procedure Player_MarkerClick(Sender: TObject);
+    procedure Selection_Start(X,Y: Integer);
+    procedure Selection_Move(X,Y: Integer);
     procedure Terrain_BrushChange(Sender: TObject);
     procedure Terrain_BrushRefresh;
     procedure Terrain_HeightChange(Sender: TObject);
@@ -1928,6 +1933,46 @@ begin
 end;
 
 
+procedure TKMapEdInterface.Selection_Move(X, Y: Integer);
+begin
+  case fSelection of
+    smNewRect:    begin
+                    fGame.MapEditor.SelX2 := GameCursor.Cell.X;
+                    fGame.MapEditor.SelY2 := GameCursor.Cell.Y;
+                  end;
+    smResizeX1:   fGame.MapEditor.SelX1 := GameCursor.Cell.X;
+    smResizeY1:   fGame.MapEditor.SelY1 := GameCursor.Cell.Y;
+    smResizeX2:   fGame.MapEditor.SelX2 := GameCursor.Cell.X;
+    smResizeY2:   fGame.MapEditor.SelY2 := GameCursor.Cell.Y;
+  end;
+
+end;
+
+
+procedure TKMapEdInterface.Selection_Start(X, Y: Integer);
+begin
+  if Abs(GameCursor.Float.X - fGame.MapEditor.SelX1) < 0.25 then
+    fSelection := smResizeX1
+  else
+  if Abs(GameCursor.Float.Y - fGame.MapEditor.SelY1) < 0.25 then
+    fSelection := smResizeY1
+  else
+  if Abs(GameCursor.Float.X - fGame.MapEditor.SelX2) < 0.25 then
+    fSelection := smResizeX2
+  else
+  if Abs(GameCursor.Float.Y - fGame.MapEditor.SelY2) < 0.25 then
+    fSelection := smResizeY2
+  else
+  begin
+    fSelection := smNewRect;
+    fGame.MapEditor.SelX1 := GameCursor.Cell.X-1;
+    fGame.MapEditor.SelY1 := GameCursor.Cell.Y-1;
+    fGame.MapEditor.SelX2 := GameCursor.Cell.X;
+    fGame.MapEditor.SelY2 := GameCursor.Cell.Y;
+  end;
+end;
+
+
 procedure TKMapEdInterface.SetActivePlayer(aIndex: TPlayerIndex);
 var I: Integer;
 begin
@@ -2123,10 +2168,22 @@ end;
 
 procedure TKMapEdInterface.Terrain_ClipboardChange(Sender: TObject);
 begin
+  GameCursor.Mode := cmSelection;
+  GameCursor.Tag1 := 0;
+
+  //Copy selection into cursor
   if Sender = Button_SelectCopy then
   begin
 
   end;
+
+  //Paste selection
+  if Sender = Button_SelectPaste then
+  begin
+
+  end;
+
+  //Flip selected
 end;
 
 
@@ -2517,6 +2574,9 @@ begin
 
   if CheckBox_ShowDeposits.Checked then
     fGame.MapEditor.VisibleLayers := fGame.MapEditor.VisibleLayers + [mlDeposits];
+
+  if Panel_Selection.Visible then
+    fGame.MapEditor.VisibleLayers := fGame.MapEditor.VisibleLayers + [mlSelection];
 end;
 
 
@@ -3442,6 +3502,9 @@ var MyRect: TRect;
 begin
   fMyControls.MouseDown(X,Y,Shift,Button);
 
+  if (Button = mbLeft) and (GameCursor.Mode = cmSelection) then
+    Selection_Start(X,Y);
+
   if (Button = mbMiddle) and (fMyControls.CtrlOver = nil) then
   begin
      fDragScrolling := True;
@@ -3534,6 +3597,7 @@ begin
                                           gTerrain.RemField(P);
                                       end;
                     end;
+      cmSelection:  Selection_Move(X,Y);
     end;
   end;
 end;

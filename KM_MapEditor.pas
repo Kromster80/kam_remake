@@ -55,10 +55,19 @@ type
     fVisibleLayers: TMapEdLayerSet;
     function GetRevealer(aIndex: Byte): TKMPointTagList;
   public
+    SelX1, SelY1, SelX2, SelY2: Integer;
+    {Selection: array of array of record
+      Terrain: Byte;
+      Height: Byte;
+      Rotation: Byte;
+      Obj: Byte;
+      OldTerrain, OldRotation: Byte; //Only used for map editor
+    end;}
+
+    RevealAll: array [0..MAX_PLAYERS-1] of Boolean;
     DefaultHuman: TPlayerIndex;
     PlayerHuman: array [0..MAX_PLAYERS - 1] of Boolean;
     PlayerAI: array [0..MAX_PLAYERS - 1] of Boolean;
-    RevealAll: array [0..MAX_PLAYERS-1] of Boolean;
     constructor Create;
     destructor Destroy; override;
     property Deposits: TKMDeposits read fDeposits;
@@ -439,6 +448,9 @@ begin
                       391, fPlayers[I].FlagColor);
     end;
   end;
+
+  if mlSelection in fVisibleLayers then
+    fRenderAux.SquareOnTerrain(SelX1, SelY1, SelX2, SelY2, $FFFFFF00);
 
   //Show selected group order target
   if MySpectator.Selected is TKMUnitGroup then
