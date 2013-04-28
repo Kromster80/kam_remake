@@ -342,7 +342,7 @@ begin
 		end	else begin
 		  iFarmersX[iLoop] := States.UnitPositionX(iFarmers[iLoop]);
 		  iFarmersY[iLoop] := States.UnitPositionY(iFarmers[iLoop]);
-		  //iFarmersD[iLoop] := States.UnitDirection(iFarmers[iLoop]);
+		  iFarmersD[iLoop] := States.UnitDirection(iFarmers[iLoop]);
 		end;
 	  end;
 	// Bauern
@@ -358,7 +358,7 @@ begin
 		end	else begin
 		  iPeasantsX[iLoop] := States.UnitPositionX(iPeasants[iLoop]);
 		  iPeasantsY[iLoop] := States.UnitPositionY(iPeasants[iLoop]);
-		  //iPeasantsD[iLoop] := States.UnitDirection[iPeasants[iLoop]);
+		  iPeasantsD[iLoop] := States.UnitDirection(iPeasants[iLoop]);
 		end;
 	  end;
 	  

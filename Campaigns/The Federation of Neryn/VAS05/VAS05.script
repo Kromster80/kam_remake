@@ -29,9 +29,10 @@ begin
 			// Wird unwahrscheinlicher
 			iRandom := iRandom + 1;
 			if iRandom > 5 then iRandom := 5;
+			// Koordinaten und Richtung speichern
 			iX := States.UnitPositionX(States.GroupMember(aGroupID, 0));
 			iY := States.UnitPositionY(States.GroupMember(aGroupID, 0));
-			//direction
+			iD := States.UnitDirection(States.GroupMember(aGroupID, 0));
 			Actions.UnitKill(States.GroupMember(aGroupID, 0), true);
 			iGive := aGroupID;	
 				
@@ -148,7 +149,7 @@ begin
   AND(States.GroupDead(iGive)))
   then begin
 	iGive := -1;
-	Actions.GiveGroup(1, 23, iX, iY, 4, 1, 1);
+	Actions.GiveGroup(1, 23, iX, iY, iD, 1, 1);
   end;
   
   // Runter zählen

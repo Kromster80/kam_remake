@@ -1,4 +1,3 @@
-var iWin: array[1..1] of Integer;
 // Niederlage
 procedure OnHouseDestroyed(aHouseID: Integer; aDestroyerIndex: Integer; aFullyBuilt: Boolean);
 begin
@@ -31,7 +30,7 @@ begin
   AND(States.StatArmyCount(5) = 0)
   AND(States.StatArmyCount(6) = 0)
   AND(States.StatArmyCount(7) = 0))
-	then Actions.PlayerWin(iWin, false);
+	then Actions.PlayerWin([0], false);
   // Reiter bei 15 Minuten
   if States.GameTime = 8900 then
 	begin

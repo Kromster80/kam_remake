@@ -4,10 +4,7 @@ var iVer, iSec, iKnights, iScouts, iPatrol1, iPatrol2, iFood, iAdd, iScout, iInt
 // Schlussnachricht an die Spieler
 procedure OnPlayerVictory(iIndex: Integer);
 begin
-	Actions.SetOverlayText(iIndex, States.Text(3) + '|'
-					+ States.Text(4) + '|'
-					+ States.Text(5) + '|'
-					+ States.Text(6));
+	Actions.SetOverlayText(iIndex, States.Text(3));
 end;
 
 procedure OnTick;
@@ -36,7 +33,7 @@ begin
 	Actions.GroupOrderWalk(iScouts, 180, 30, 6);
   end;
   for iSec := 1 to 6 do
-    if States.GameTime = iVer + (iSec * 12) then
+    if States.GameTime = iVer + (iSec * 15) then
     begin	  
       iAdd := Actions.GiveGroup(3, 22, 191, 25, 6, 3, 3);
       Actions.GroupOrderLink(iAdd, iKnights);

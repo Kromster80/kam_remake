@@ -1,5 +1,3 @@
-var iWin: array[1..1] of Integer;
-
 procedure OnMissionStart;
 begin
   // Waren
@@ -73,6 +71,6 @@ begin
   end;
   if States.GameTime = 1800 then 
 	begin
-		Actions.PlayerWin(iWin, false);
+		Actions.PlayerWin([0], false);
 	end;
 end;

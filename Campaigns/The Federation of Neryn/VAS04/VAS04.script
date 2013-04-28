@@ -1,5 +1,5 @@
-var iMain, iAdd: Integer; 
 procedure OnMissionStart;
+var iMain, iAdd: Integer;
 begin
   iMain := Actions.GiveGroup(0, 16, 33, 49, 2, 4, 3);
   iAdd := Actions.GiveGroup(0, 15, 32, 50, 2, 2, 2);

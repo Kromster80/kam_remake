@@ -1,7 +1,6 @@
-var iStore, iCoal, iGold, iIron, iTicks, iHours, iMinutes, iSecs: Integer;
+var iStore, iCoal, iGold, iIron, iTicks: Integer;
 var iBarbar, iMilita, iScout, iVaga, iKnight: Integer;
 var bStarted: Boolean;
-var iWin: array[1..1] of Integer;
 
 procedure OnPlayerDefeated(aIndex: Integer);
 begin
@@ -14,6 +13,7 @@ end;
 
 procedure OnTick;
 var sTime: AnsiString;
+var iHours, iMinutes, iSecs: Integer;
 begin
   // Mission Verloren wenn Lagerhaus abgerisesn
   if(States.HouseDestroyed(iStore))
@@ -74,7 +74,7 @@ begin
   AND(States.HouseResourceAmount(iStore, 6) >= iIron)
   AND(States.HouseResourceAmount(iStore, 5) >= iCoal)
   then begin
-	Actions.PlayerWin(iWin, false);
+	Actions.PlayerWin([0], false);
   end;
 
 
@@ -92,7 +92,6 @@ begin
   // Maximale Zeit
   iTicks := 51300;
   bStarted := false;
-  iWin[1] := 0;
 
 
   // H‰use abreiﬂen (damit Straﬂen auch abgerissen sind)
