@@ -2,9 +2,10 @@ unit Runner_Game;
 {$I KaM_Remake.inc}
 interface
 uses
-  Forms, Unit_Runner, Windows,
-  SysUtils, KM_Points, KM_Defaults, KM_CommonClasses, Classes, KromUtils,
-  KM_GameApp, KM_Locales, KM_Log, KM_PlayersCollection, KM_TextLibrary, KM_Terrain, KM_Units_Warrior, KM_Utils, Math;
+  Forms, Unit_Runner, Windows, SysUtils, Classes, KromUtils, Math,
+  KM_CommonClasses, KM_Defaults, KM_Points, KM_Utils,
+  KM_GameApp, KM_Locales, KM_Log, KM_PlayersCollection, KM_TextLibrary,
+  KM_Terrain, KM_Units_Warrior, KM_Campaigns;
 
 
 type
@@ -40,6 +41,13 @@ type
   end;
 
   TKMReplay = class(TKMRunnerCommon)
+  protected
+    procedure SetUp; override;
+    procedure Execute(aRun: Integer); override;
+    procedure TearDown; override;
+  end;
+
+  TKMVas01 = class(TKMRunnerCommon)
   protected
     procedure SetUp; override;
     procedure Execute(aRun: Integer); override;
@@ -270,14 +278,43 @@ var
 begin
   inherited;
 
-  //Intended to be run multiple of 4 times to compare different PF algorithms
-//  PathFinderToUse := (aRun mod 4) div 2; //01230123 > 00110011
-//  CACHE_PATHFINDING := Boolean(aRun mod 2);  //0101
-
   fGameApp.NewReplay(ExtractFilePath(ParamStr(0)) + '\runner_replay.bas');
 
   //Don't set random seed or the replay won't work
-  //SetKaMSeed(aRun div 4 + 1); //11112222
+
+  T := TimeGet;
+  SimulateGame;
+  fResults.Value[aRun, 0] := TimeGet - T;
+
+  fGameApp.Stop(gr_Silent);
+end;
+
+
+{ TKMVas01 }
+procedure TKMVas01.SetUp;
+begin
+  inherited;
+  fResults.ValueCount := 1;
+  fResults.TimesCount := 20*60*10;
+end;
+
+procedure TKMVas01.TearDown;
+begin
+  inherited;
+
+end;
+
+procedure TKMVas01.Execute(aRun: Integer);
+var
+  C: TKMCampaign;
+  T: Cardinal;
+begin
+  inherited;
+
+  C := fGameApp.Campaigns.CampaignByTitle('VAS');
+  fGameApp.NewCampaignMap(C, 1);
+
+  //Don't set random seed or the replay won't work
 
   T := TimeGet;
   SimulateGame;
@@ -292,6 +329,7 @@ initialization
   RegisterRunner(TKMRunnerAIBuild);
   RegisterRunner(TKMVortamicPF);
   RegisterRunner(TKMReplay);
+  RegisterRunner(TKMVas01);
 
 
 end.
