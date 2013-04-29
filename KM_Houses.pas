@@ -540,21 +540,16 @@ function TKMHouse.GetDistance(aPos: TKMPoint): Single;
 var
   I, K: Integer;
   Loc: TKMPoint;
-  Test: Single;
-  HouseArea: THouseArea;
+  HA: THouseArea;
 begin
-  Result := -1;
+  Result := MaxSingle;
   Loc := fPosition;
-  HouseArea := fResource.HouseDat[fHouseType].BuildArea;
+  HA := fResource.HouseDat[fHouseType].BuildArea;
 
   for I := max(Loc.Y - 3, 1) to Loc.Y do
-    for K := max(Loc.X - 2, 1) to min(Loc.X + 1, gTerrain.MapX) do
-      if HouseArea[I - Loc.Y + 4, K - Loc.X + 3] <> 0 then
-      begin
-        Test := KMLength(aPos, KMPoint(K, I));
-        if (Result < 0) or (Test < Result) then
-          Result := Test;
-      end;
+  for K := max(Loc.X - 2, 1) to min(Loc.X + 1, gTerrain.MapX) do
+  if HA[I - Loc.Y + 4, K - Loc.X + 3] <> 0 then
+    Result := Min(Result, KMLength(aPos, KMPoint(K, I)));
 end;
 
 
