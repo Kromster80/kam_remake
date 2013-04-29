@@ -468,7 +468,7 @@ begin
     gTerrain.AddHouseRemainder(fPosition, fHouseType, fBuildState);
 
   BuildingRepair := False; //Otherwise labourers will take task to repair when the house is destroyed
-  if RemoveRoadWhenDemolish and (not (BuildingState in [hbs_Stone, hbs_Done]) or IsEditor) then
+  if RemoveRoadWhenDemolish and ((BuildingState in [hbs_NoGlyph, hbs_Wood]) or IsEditor) then
   begin
     if gTerrain.Land[GetEntrance.Y, GetEntrance.X].TileOverlay = to_Road then
     begin
