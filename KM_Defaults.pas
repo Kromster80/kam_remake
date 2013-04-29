@@ -693,25 +693,25 @@ const
   ( 167, 168, 169, 170, 171,  33));
 
   //Ages at which trees/fields grow up/change sprite multiplied by TERRAIN_PACE
-  TREE_AGE_1 = 12;
-  TREE_AGE_2 = 25;
-  TREE_AGE_FULL = 40; //Tree is old enough to be chopped
+  TREE_AGE_1 = 2400 div TERRAIN_PACE;
+  TREE_AGE_2 = 5000 div TERRAIN_PACE;
+  TREE_AGE_FULL = 8000 div TERRAIN_PACE; //Tree is old enough to be chopped
 
-  CORN_AGE_1 = 7;    //Measured from KaM ~150sec
-  CORN_AGE_2 = 11;   //Number measured from KaM ~195sec
-  CORN_AGE_3 = 22;
-  CORN_AGE_FULL = 32; //Corn ready to be cut
-  CORN_AGE_MAX = 255; //We set it to this once it's fully grown
+  CORN_AGE_1 = 1400 div TERRAIN_PACE;    //Measured from KaM ~150sec
+  CORN_AGE_2 = 2200 div TERRAIN_PACE;   //Number measured from KaM ~195sec
+  CORN_AGE_3 = 4400 div TERRAIN_PACE;
+  CORN_AGE_FULL = 6400 div TERRAIN_PACE; //Corn ready to be cut
+  CORN_AGE_MAX = 255; //todo: Remove. We set it to this once it's fully grown
 
   //Wine values have been tweaked for balance. In KaM they matched corn.
-  WINE_AGE_1 = 8;
-  WINE_AGE_2 = 17;
-  WINE_AGE_FULL = 25; //Wine ready to be harvested
+  WINE_AGE_1 = 1600 div TERRAIN_PACE;
+  WINE_AGE_2 = 3400 div TERRAIN_PACE;
+  WINE_AGE_FULL = 5000 div TERRAIN_PACE; //Wine ready to be harvested
 
 
 //The frame shown when a unit is standing still in ua_Walk. Same for all units!
 const
-  UnitStillFrames: array [TKMDirection] of byte = (0,3,2,2,1,6,7,6,6);
+  UnitStillFrames: array [TKMDirection] of Byte = (0,3,2,2,1,6,7,6,6);
 
 
 type
