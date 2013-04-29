@@ -187,8 +187,8 @@ end;
 function TPathFinding.MovementCost(aFromX, aFromY, aToX, aToY: Word): Word;
 var DX, DY: Word;
 begin
-  DX := Abs(aFromX-aToX);
-  DY := Abs(aFromY-aToY);
+  DX := Abs(aFromX - aToX);
+  DY := Abs(aFromY - aToY);
   if DX > DY then
     Result := DX * 10 + DY * 4
   else
@@ -206,12 +206,13 @@ end;
 
 
 function TPathFinding.EstimateToFinish(aX, aY: Word): Word;
-var DX, DY: Word;
+var
+  DX, DY: Word;
 begin
   //Use Estim even if destination is Passability, as it will make it faster.
   //Target should be in the right direction even though it's not our destination.
-  DX := Abs(fLocB.X-aX);
-  DY := Abs(fLocB.Y-aY);
+  DX := Abs(fLocB.X - aX);
+  DY := Abs(fLocB.Y - aY);
   if DX > DY then
     Result := DX * 10 + DY * 4
   else
@@ -222,10 +223,10 @@ end;
 function TPathFinding.DestinationReached(aX, aY: Word): Boolean;
 begin
   case fDestination of
-    pdLocation:    Result := KMLengthDiag(KMPoint(aX, aY), fLocB) <= fDistance;
+    pdLocation:    Result := KMLengthDiag(aX, aY, fLocB) <= fDistance;
     pdPassability: Result := gTerrain.GetConnectID(fTargetWalkConnect, KMPoint(aX, aY)) = fTargetNetwork;
     pdHouse:       Result := fTargetHouse.InReach(KMPoint(aX, aY), fDistance);
-    else            Result := true;
+    else           Result := True;
   end;
 end;
 

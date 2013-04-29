@@ -93,7 +93,8 @@ type
 
   function KMLength(A, B: TKMPoint): Single; overload;
   function KMLength(A, B: TKMPointF): Single; overload;
-  function KMLengthDiag(A, B: TKMPoint): Single;
+  function KMLengthDiag(A, B: TKMPoint): Single; overload;
+  function KMLengthDiag(X,Y: Word; B: TKMPoint): Single; overload;
   function KMLengthSqr(A, B: TKMPoint): Integer; overload;
   function KMLengthSqr(A, B: TKMPointI): Integer; overload;
   function KMLengthSqr(A, B: TKMPointF): Single; overload;
@@ -566,10 +567,19 @@ end;
 //Rough and faster Length as combination of straight and diagonal
 function KMLengthDiag(A, B: TKMPoint): Single;
 begin
-  if Abs(A.X-B.X) > Abs(A.Y-B.Y) then
-    Result := Abs(A.X-B.X) + Abs(A.Y-B.Y) * 0.41
+  if Abs(A.X - B.X) > Abs(A.Y - B.Y) then
+    Result := Abs(A.X - B.X) + Abs(A.Y - B.Y) * 0.41
   else
-    Result := Abs(A.Y-B.Y) + Abs(A.X-B.X) * 0.41;
+    Result := Abs(A.Y - B.Y) + Abs(A.X - B.X) * 0.41;
+end;
+
+
+function KMLengthDiag(X,Y: Word; B: TKMPoint): Single;
+begin
+  if Abs(X - B.X) > Abs(Y - B.Y) then
+    Result := Abs(X - B.X) + Abs(Y - B.Y) * 0.41
+  else
+    Result := Abs(Y - B.Y) + Abs(X - B.X) * 0.41;
 end;
 
 
