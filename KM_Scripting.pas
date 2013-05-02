@@ -336,6 +336,7 @@ begin
     Compiler.OnExportCheck := ScriptOnExportCheck; // Assign the onExportCheck event
 
     Compiler.AllowNoEnd := True; //Scripts only use event handlers now, main section is unused
+    Compiler.BooleanShortCircuit := True; //Like unchecking "Complete booolean evaluation" in Delphi compiler options
 
     if not Compiler.Compile(fScriptCode) then  // Compile the Pascal script into bytecode
     begin

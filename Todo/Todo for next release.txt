@@ -22,10 +22,12 @@ Bugs:
  +	AI seems to build lots of armour smithies/workshops but no weapons smithies/workshops (e.g. Across the Desert)
  +	AIs in MP maps won't defend because they don't have AutoDefence enabled
 	Locations list in the lobby should only show ones which can currently be selected, ones which are taken should be hidden
+	When host is reassigned, lobby password/description should be cleared or transfered to new host (otherwise the server still remembers them but the new host doesn't)
 	
 
 Features:
  +	Records, sets, enums, dynamic arrays and multidimensional arrays now supported by script as global variables
+ +	Dynamic scripts now use short circuit boolean evaluation, allowing e.g. "if (GroupID <> -1) and (States.GroupOwner(GroupID) = PlayerID) then"
  +	Description box for campaigns shown on selection screen, so authors can put their name and contact
  +	Various optimisations to improve performance
 
