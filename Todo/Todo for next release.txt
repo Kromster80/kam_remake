@@ -21,6 +21,7 @@ Bugs:
  +	Some MP maps don't let you use AIs in certain locations (probably a legacy of Lewin's editor)
  +	AI seems to build lots of armour smithies/workshops but no weapons smithies/workshops (e.g. Across the Desert)
  +	AIs in MP maps won't defend because they don't have AutoDefence enabled
+ +	Group rearranging uses a simpler algorithm for group sizes >25 (fixes lag when moving very large groups)
 	Locations list in the lobby should only show ones which can currently be selected, ones which are taken should be hidden
 	When host is reassigned, lobby password/description should be cleared or transfered to new host (otherwise the server still remembers them but the new host doesn't)
 	
