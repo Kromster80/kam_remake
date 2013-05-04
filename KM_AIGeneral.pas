@@ -30,6 +30,7 @@ type
     property Attacks: TAIAttacks read fAttacks;
     property DefencePositions: TAIDefencePositions read fDefencePositions;
     procedure RetaliateAgainstThreat(aAttacker: TKMUnitWarrior);
+    procedure WarriorEquipped(aGroup: TKMUnitGroup);
 
     procedure UpdateState(aTick: Cardinal);
     procedure Save(SaveStream: TKMemoryStream);
@@ -198,7 +199,6 @@ procedure TKMGeneral.CheckArmy;
 var
   I: Integer;
   G: TGroupType;
-  Positioned: Boolean;
   Group: TKMUnitGroup;
   GroupType: TGroupType;
   NeedsLinkingTo: array [TGroupType] of TKMUnitGroup;
@@ -216,9 +216,8 @@ begin
 
     if not Group.IsDead
     and not Group.InFight
-    and (Group.Order = goNone) then
+    and Group.IsIdleToAI then
     begin
-
       //Check hunger and order food
       if (Group.Condition < UNIT_MIN_CONDITION) then
         Group.OrderFood(True);
@@ -226,42 +225,31 @@ begin
       if fGame.IsPeaceTime then Continue; //Do not process attack or defence during peacetime
 
       //We already have a position, finished with this group
-      Positioned := fDefencePositions.FindPositionOf(Group) <> nil;
-
-      if Positioned then
-      begin
-        //If this group doesn't have enough members
-        if (Group.Count < fDefencePositions.TroopFormations[Group.GroupType].NumUnits) then
-          if NeedsLinkingTo[Group.GroupType] = nil then
-            NeedsLinkingTo[Group.GroupType] := Group; //Flag us as needing to be added to
-
-        Continue;
-      end;
-
-      //Look for group that needs additional members
-      GroupType := Group.GroupType; //Remember it because Group might get emptied
-      if NeedsLinkingTo[GroupType] <> nil then
-      begin
-        fDefencePositions.RestockPositionWith(NeedsLinkingTo[GroupType], Group);
-        if NeedsLinkingTo[GroupType].Count >= fDefencePositions.TroopFormations[GroupType].NumUnits then
-          NeedsLinkingTo[GroupType] := nil; //Group is now full
-
-        Continue;
-      end;
+      if fDefencePositions.FindPositionOf(Group) <> nil then Continue;
 
       //Look for a new position to defend
       //In this case we choose the closest group, then move to a higher priority one later (see above)
       //This means at the start of the mission troops will take the position they are placed at rather than swapping around
-      Positioned := fDefencePositions.FindPlaceForGroup(Group, AI_LINK_IDLE, AI_FILL_CLOSEST);
-
-      if Positioned then Continue;
+      if fDefencePositions.FindPlaceForGroup(Group, AI_LINK_IDLE, AI_FILL_CLOSEST) then Continue;
 
       //Just chill and link with other idle groups
       if AI_LINK_IDLE then
-        //If this group doesn't have enough members
-        if (Group.Count < fDefencePositions.TroopFormations[Group.GroupType].NumUnits) then
-          if NeedsLinkingTo[Group.GroupType] = nil then
-            NeedsLinkingTo[Group.GroupType] := Group; //Flag us as needing to be added to
+      begin
+        GroupType := Group.GroupType; //Remember it because Group might get emptied
+        if NeedsLinkingTo[GroupType] = nil then
+        begin
+          //If this group doesn't have enough members
+          if (Group.Count < fDefencePositions.TroopFormations[GroupType].NumUnits) then
+            NeedsLinkingTo[GroupType] := Group //Flag us as needing to be added to
+        end
+        else
+        begin
+          //Look for group that needs additional members
+          fDefencePositions.RestockPositionWith(NeedsLinkingTo[GroupType], Group);
+          if NeedsLinkingTo[GroupType].Count >= fDefencePositions.TroopFormations[GroupType].NumUnits then
+            NeedsLinkingTo[GroupType] := nil; //Group is now full
+        end;
+      end;
     end;
   end;
 end;
@@ -445,10 +433,16 @@ begin
     if (Group <> nil)
     and not Group.IsDead
     and not Group.InFight
-    and not (Group.Order in [goAttackHouse, goAttackUnit, goStorm])
+    and Group.IsIdleToAI
     and (KMLengthDiag(Group.Position, aAttacker.GetPosition) <= fDefencePositions[I].Radius) then
       Group.OrderAttackUnit(aAttacker, True);
   end;
+end;
+
+
+procedure TKMGeneral.WarriorEquipped(aGroup: TKMUnitGroup);
+begin
+  fDefencePositions.FindPlaceForGroup(aGroup, True, AI_FILL_CLOSEST);
 end;
 
 

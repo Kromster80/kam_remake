@@ -102,6 +102,8 @@ type
     function InFight: Boolean; //Fighting and can't take any orders from player
     function IsAttackingHouse: Boolean; //Attacking house
     function IsAttackingUnit: Boolean;
+    function IsIdleToAI: Boolean;
+    function IsPositioned(aLoc: TKMPoint; Dir: TKMDirection): Boolean;
     function CanTakeOrders: Boolean;
     function CanWalkTo(aTo: TKMPoint; aDistance: Single): Boolean;
     function FightMaxRange: Single;
@@ -815,6 +817,31 @@ begin
 end;
 
 
+function TKMUnitGroup.IsIdleToAI: Boolean;
+begin
+  if fOrder = goWalkTo then
+    Result := (KMLengthDiag(Position, fOrderLoc.Loc) < 2)
+  else
+    Result := (fOrder = goNone);
+end;
+
+
+function TKMUnitGroup.IsPositioned(aLoc:TKMPoint; Dir: TKMDirection): Boolean;
+var I: Integer; P: TKMPointExact; U: TKMUnitWarrior;
+begin
+  Result := True;
+  for I := 0 to Count - 1 do
+  begin
+    P.Loc := GetPositionInGroup2(aLoc.X, aLoc.Y, Dir, I, fUnitsPerRow,
+                                 gTerrain.MapX, gTerrain.MapY,
+                                 P.Exact);
+    U := Members[I];
+    Result := U.IsIdle and KMSamePoint(U.GetPosition, P.Loc) and (U.Direction = Dir);
+    if not Result then Exit;
+  end;
+end;
+
+
 function TKMUnitGroup.MemberHitTest(X,Y: Integer): TKMUnitWarrior;
 var I: Integer;
 begin
@@ -957,7 +984,10 @@ begin
   //Halt is not a true order, it is just OrderWalk
   //hose target depends on previous activity
   case fOrder of
-    goNone:         OrderWalk(fOrderLoc.Loc, False);
+    goNone:         if not KMSamePoint(fOrderLoc.Loc, KMPoint(0,0)) then
+                      OrderWalk(fOrderLoc.Loc, False)
+                    else
+                      OrderWalk(Members[0].NextPosition, False);
     goWalkTo:       OrderWalk(Members[0].NextPosition, False);
     goAttackHouse:  OrderWalk(Members[0].NextPosition, False);
     goAttackUnit:   OrderWalk(Members[0].NextPosition, False);
@@ -1168,10 +1198,13 @@ begin
   else
     NewDir := aDir;
 
-  fOrder := goWalkTo;
   fOrderLoc := KMPointDir(aLoc, NewDir);
   ClearOrderTarget;
 
+  if IsPositioned(aLoc, NewDir) then
+    Exit; //No need to actually walk, all members are at the correct location and direction
+
+  fOrder := goWalkTo;
   HungarianReorderMembers;
 
   for I := 0 to Count - 1 do

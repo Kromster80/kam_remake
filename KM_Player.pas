@@ -343,6 +343,11 @@ begin
     G := fUnitGroups.WarriorTrained(TKMUnitWarrior(aUnit));
     Assert(G <> nil, 'It is certain that equipped warrior creates or finds some group to join to');
     G.OnGroupDied := GroupDied;
+    if PlayerType = pt_Computer then
+    begin
+      AI.General.WarriorEquipped(G);
+      G := UnitGroups.GetGroupByMember(TKMUnitWarrior(aUnit)); //AI might assign warrior to different group
+    end;
     fScripting.ProcWarriorEquipped(aUnit, G);
   end
   else
