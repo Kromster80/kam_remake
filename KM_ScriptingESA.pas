@@ -156,7 +156,7 @@ type
 implementation
 uses KM_AI, KM_Terrain, KM_Game, KM_FogOfWar, KM_PlayersCollection, KM_Units_Warrior,
   KM_TextLibrary, KM_ResourceUnit, KM_ResourceWares, KM_ResourceHouse, KM_Log, KM_Utils, KM_Resource,
-  KM_Player;
+  KM_Player, KM_UnitTaskSelfTrain;
 
 
   //We need to check all input parameters as could be wildly off range due to
@@ -296,7 +296,8 @@ begin
     for I := 0 to fPlayers[aPlayer].Units.Count - 1 do
     begin
       U := fPlayers[aPlayer].Units[I];
-      if U.IsDead then Continue;
+      //Skip units in training, they can't be disturbed until they are finished training
+      if U.IsDead or (U.UnitTask is TTaskSelfTrain) then Continue;
       Result[UnitCount] := U.ID;
       Inc(UnitCount);
     end;
