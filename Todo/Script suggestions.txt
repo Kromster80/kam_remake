@@ -16,11 +16,13 @@ Accepted:
 	AI equip rate
 	Allow to query count of placed house plans
 	Command to add default economic or fighting goals (e.g. for multiplayer because teams are not fixed to locations)
-	Get all units/houses/groups as an array of integer of a certain player and certain type (set of unit/house types)
 	PlanCancel (road/field/house)
 	Parameter for DestroyHouse "LeavesRubble" (allows scripters to do a primative "ChangeHouseOwner")
 	States.HouseUnderAttack or OnHouseUnderAttack or similar (needed for Tower Defence)
-  DisplayText(text, player_id, timeout) to show announcements that will be gone after timeout (for TD and etc.)
+	DisplayText(text, player_id, timeout) to show announcements that will be gone after timeout (for TD and etc.)
+	Disable "house not occupied" messages (and resource depleted?) for a specific house (needed for tower defence)
+	States.HouseIsComplete
+	Split a specific warrior out of a group
 
 
 Proposed:
@@ -34,8 +36,9 @@ Proposed:
 	Block player from moving the viewport or selecting anything (cutscene mode)
 	Select unit/house/group in the player's UI
 	Removing wares from houses (only if serfs haven't reserved them)
-	Disable "house not occupied" messages for a specific house (needed for tower defence)
 	States.Road/field/winefield At(x,y)
 	DelayedExecution(delay, function, params)
 	Forbiden areas where players can't move their troops
 	GroupKillAll, GroupSetHunder (both can be implemented in script fairly easily, do we still provide them?)
+	Way to add/remove recruits directly from barracks
+	ChangeMapTile

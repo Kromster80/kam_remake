@@ -1,2 +1,2 @@
 BigDesc
-For 2v2 game teams should be:|1,2 vs 3,4|For 1v1 games:|1v4|or|2v3||NOTE: Locations 5 and 6 are only spectacors. You can viev entire map but you can't play||Made by Certus
+For 2v2 teams should be:|1,2 vs 3,4|For 1v1 games:|1v4|or|2v3||NOTE: Locations 5 and 6 are spectators who can view the entire map but are not able to play.||Made by Certus
