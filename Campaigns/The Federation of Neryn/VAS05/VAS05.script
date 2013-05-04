@@ -1,5 +1,5 @@
 var iMain, iAdd, iMessage, iRandom: Integer;
-var iX, iY, iD, iGive: Integer;
+var iX, iY, iD, iGiveG, iGiveU: Integer;
 var bBarracks, bAttack: Boolean;
 var iAttack: array[1..8] of Integer;
 
@@ -30,11 +30,12 @@ begin
 			iRandom := iRandom + 1;
 			if iRandom > 5 then iRandom := 5;
 			// Koordinaten und Richtung speichern
-			iX := States.UnitPositionX(States.GroupMember(aGroupID, 0));
-			iY := States.UnitPositionY(States.GroupMember(aGroupID, 0));
-			iD := States.UnitDirection(States.GroupMember(aGroupID, 0));
-			Actions.UnitKill(States.GroupMember(aGroupID, 0), true);
-			iGive := aGroupID;	
+			iX := States.UnitPositionX(aUnitID);
+			iY := States.UnitPositionY(aUnitID);
+			iD := States.UnitDirection(aUnitID);
+			Actions.UnitKill(aUnitID, true);
+			iGiveG := aGroupID;	
+			iGiveU := aUnitID;	
 				
 		end else begin
 			// Wird wahrscheinlicher
@@ -71,7 +72,7 @@ begin
   bAttack := false;
   iMessage := 0;
   iRandom := 5;
-  iGive := -1;
+  iGiveU := -1;
   
   // Letzte Angriffstruppen
   iAttack[1] := States.GroupAt(60, 123);
@@ -142,14 +143,16 @@ begin
 end;
 
 procedure OnTick;
-var i: Integer;
+var i, G: Integer;
 begin
   // Barbaren hinstellen
-  if((iGive <> -1) 
-  AND(States.GroupDead(iGive)))
+  if((iGiveU <> -1) 
+  AND(States.UnitDead(iGiveU)))
   then begin
-	iGive := -1;
-	Actions.GiveGroup(1, 23, iX, iY, iD, 1, 1);
+	iGiveU := -1;
+	G := Actions.GiveGroup(1, 23, iX, iY, iD, 1, 1);
+    if not States.GroupDead(iGiveG) then
+      Actions.GroupOrderLink(G, iGiveG);
   end;
   
   // Runter zählen

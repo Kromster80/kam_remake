@@ -198,16 +198,12 @@ end;
 procedure TKMGeneral.CheckArmy;
 var
   I: Integer;
-  G: TGroupType;
-  Group: TKMUnitGroup;
   GroupType: TGroupType;
+  Group: TKMUnitGroup;
   NeedsLinkingTo: array [TGroupType] of TKMUnitGroup;
 begin
-  for G := Low(TGroupType) to High(TGroupType) do
-    NeedsLinkingTo[G] := nil;
-
-//Vas (15:07:16 6/03/2013)
-//todo: if AI attacks with a troop and the troop is hungry, he cant decide if he wants to attack or go back to feed the troop
+  for GroupType := Low(TGroupType) to High(TGroupType) do
+    NeedsLinkingTo[GroupType] := nil;
 
   //Check: Hunger, (feed) formation, (units per row) position (from defence positions)
   for I := 0 to fPlayers[fOwner].UnitGroups.Count - 1 do
