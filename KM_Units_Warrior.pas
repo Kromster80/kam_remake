@@ -71,6 +71,7 @@ type
     function FindLinkUnit(aLoc: TKMPoint): TKMUnitWarrior;
     function CheckForEnemy: Boolean;
     function FindEnemy: TKMUnit;
+    function PathfindingShouldAvoid: Boolean; override;
 
     procedure SetActionGoIn(aAction: TUnitActionType; aGoDir: TGoInDirection; aHouse: TKMHouse); override;
 
@@ -448,6 +449,13 @@ begin
   SaveStream.Write(fUseExactTarget);
   SaveStream.Write(FaceDir);
   SaveStream.Write(fLastShootTime);
+end;
+
+
+function TKMUnitWarrior.PathfindingShouldAvoid: Boolean;
+begin
+  Result := Inherited PathfindingShouldAvoid;
+  Result := Result and (fNextOrder = woNone); //If we have been given an order we're about to move somewhere 
 end;
 
 

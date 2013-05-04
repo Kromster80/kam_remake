@@ -176,6 +176,7 @@ type
     procedure Walk(aFrom, aTo: TKMPoint);
     function GetActivityText: string; virtual;
     function GetSlide(aCheck: TCheckAxis): Single;
+    function PathfindingShouldAvoid: Boolean; virtual;
 
     procedure Save(SaveStream: TKMemoryStream); virtual;
     function UpdateState: Boolean; virtual;
@@ -1813,6 +1814,12 @@ begin
     PixelPos := Round(abs(fPosition.X-PrevPosition.X)*CELL_SIZE_PX*sqrt(LookupDiagonal)); //Diagonal movement *sqrt(2)
     Result := Result-(DX*SlideLookup[LookupDiagonal,PixelPos])/CELL_SIZE_PX;
   end;
+end;
+
+
+function TKMUnit.PathfindingShouldAvoid: Boolean;
+begin
+  Result := not (fCurrentAction is TUnitActionWalkTo); //If we're walking, pathfinding should not route around us
 end;
 
 

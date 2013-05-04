@@ -61,6 +61,7 @@ type
 
 
 implementation
+uses KM_Units;
 
 
 { TPathFinding }
@@ -185,7 +186,7 @@ end;
 
 //How much it costs to move From -> To
 function TPathFinding.MovementCost(aFromX, aFromY, aToX, aToY: Word): Word;
-var DX, DY: Word;
+var DX, DY: Word; U: TKMUnit;
 begin
   DX := Abs(aFromX - aToX);
   DY := Abs(aFromY - aToY);
@@ -197,7 +198,9 @@ begin
   //Do not add extra cost if the tile is the target, as it can cause a longer route to be chosen
   if (aToX <> fLocB.X) or (aToY <> fLocB.Y) then
   begin
-    if DO_WEIGHT_ROUTES and (gTerrain.Land[aToY,aToX].IsUnit <> nil) then
+    U := gTerrain.Land[aToY,aToX].IsUnit;
+    //Always avoid congested areas on roads
+    if DO_WEIGHT_ROUTES and (U <> nil) and ((CanWalkRoad in fPass) or U.PathfindingShouldAvoid) then
       Inc(Result, 10); //Unit = 1 extra tile
     if fIsInteractionAvoid and gTerrain.TileIsLocked(KMPoint(aToX,aToY)) then
       Inc(Result, 500); //In interaction avoid mode, working unit = 50 tiles
