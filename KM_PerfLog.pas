@@ -5,7 +5,7 @@ uses Classes, KromUtils, SysUtils;
 
 
 type
-  TPerfSection = (psTick);
+  TPerfSection = (psTick, psHungarian);
 
   //Log how much time each section takes and write results to a log file
 
@@ -26,7 +26,7 @@ implementation
 
 
 const
-  SectionName: array [TPerfSection] of string = ('Tick');
+  SectionName: array [TPerfSection] of string = ('Tick', 'Hungarian');
 
 
 { TKMPerfLog }
@@ -46,11 +46,13 @@ end;
 
 
 procedure TKMPerfLog.LeaveSection(aSection: TPerfSection);
+var T: Cardinal;
 begin
+  T := TimeGet - fTimeEnter[aSection]; //Measure it ASAP
   if fCount[aSection] >= Length(fTimes[aSection]) then
     SetLength(fTimes[aSection], fCount[aSection] + 1024);
 
-  fTimes[aSection, fCount[aSection]] := TimeGet - fTimeEnter[aSection];
+  fTimes[aSection, fCount[aSection]] := T;
   Inc(fCount[aSection]);
 end;
 

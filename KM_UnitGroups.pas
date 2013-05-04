@@ -176,7 +176,7 @@ type
 
 
 implementation
-uses KM_Game, KM_Player, KM_PlayersCollection, KM_Terrain, KM_Utils, KM_TextLibrary, KM_RenderPool, KM_Hungarian;
+uses KM_Game, KM_Player, KM_PlayersCollection, KM_Terrain, KM_Utils, KM_TextLibrary, KM_RenderPool, KM_Hungarian, KM_UnitActionWalkTo, KM_PerfLog;
 
 
 const
@@ -699,17 +699,20 @@ begin
                       begin
                         OrderExecuted := OrderExecuted and Members[I].IsIdle and Members[I].OrderDone;
 
-                        //Guide Idle units to their places
-                        if Members[I].IsIdle then
-                          if Members[I].OrderDone then
+                        if Members[I].OrderDone then
+                        begin
+                          //If the unit is idle make them face the right direction
+                          if Members[I].IsIdle
+                          and (fOrderLoc.Dir <> dir_NA) and (Members[I].Direction <> fOrderLoc.Dir) then
                           begin
-                            if (fOrderLoc.Dir <> dir_NA) and (Members[I].Direction <> fOrderLoc.Dir) then
-                            begin
-                              Members[I].Direction := fOrderLoc.Dir;
-                              Members[I].SetActionStay(50, ua_Walk); //Make sure the animation still frame is updated
-                            end;
-                          end
-                          else
+                            Members[I].Direction := fOrderLoc.Dir;
+                            Members[I].SetActionStay(50, ua_Walk); //Make sure the animation still frame is updated
+                          end;
+                        end
+                        else
+                          //Guide Idle and pushed units back to their places
+                          if Members[I].IsIdle
+                          or ((Members[I].GetUnitAction is TUnitActionWalkTo) and TUnitActionWalkTo(Members[I].GetUnitAction).WasPushed) then
                           begin
                             P := GetMemberLoc(I);
                             Members[I].OrderWalk(P.Loc, P.Exact);
@@ -1259,6 +1262,7 @@ var
   NewOrder: TKMCardinalArray;
   NewMembers: TList;
 begin
+  if DO_PERF_LOGGING then fGame.PerfLog.EnterSection(psHungarian);
   if not HUNGARIAN_GROUP_ORDER then Exit;
   if fMembers.Count <= 1 then Exit; //If it's just the leader we can't rearrange
   Agents := TKMPointList.Create;
@@ -1287,6 +1291,7 @@ begin
 
   Agents.Free;
   Tasks.Free;
+  if DO_PERF_LOGGING then fGame.PerfLog.LeaveSection(psHungarian);
 end;
 
 
