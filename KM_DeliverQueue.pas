@@ -687,45 +687,32 @@ procedure TKMDeliverQueue.AskForDelivery(aSerf: TKMUnitSerf; aHouse: TKMHouse = 
 var
   iD, iO, BestD, BestO: Integer;
   Bid, BestBid: Single;
+  BestImportance: TDemandImportance;
 begin
   //Find Offer matching Demand
   //TravelRoute Asker>Offer>Demand should be shortest
   BestBid := MaxSingle;
   BestO := -1;
   BestD := -1;
+  BestImportance := diNorm;
 
   for iD := 1 to fDemandCount do
-  if BestBid < 0.015 then
-    //Quit loop when best bid is found
-    Break
-  else
-    if fDemand[iD].Ware <> wt_None then
-    for iO := 1 to fOfferCount do
-    if BestBid < 0.015 then
-      //Quit loop when best bid is found
-      Break
-    else
-    if ((aHouse = nil) or (fOffer[iO].Loc_House = aHouse))  //Make sure from house is the one requested
-    and (fOffer[iO].Ware <> wt_None)
-    and PermitDelivery(iO, iD, aSerf) then
-    begin
-
-      //If Demand importance is high - make it done ASAP
-      case fDemand[iD].Importance of
-        diHigh1: Bid := 0.01;
-        diHigh2: Bid := 0.02;
-        diHigh3: Bid := 0.03;
-        diHigh4: Bid := 0.04;
-        else     Bid := CalculateBid(iO, iD, aSerf);
-      end;
-
-      if Bid < BestBid then
-      begin
-        BestO := iO;
-        BestD := iD;
-        BestBid := Bid;
-      end;
-    end;
+    if (fDemand[iD].Ware <> wt_None)
+    and (fDemand[iD].Importance >= BestImportance) then //Skip any less important than the best we found
+      for iO := 1 to fOfferCount do
+        if ((aHouse = nil) or (fOffer[iO].Loc_House = aHouse))  //Make sure from house is the one requested
+        and (fOffer[iO].Ware <> wt_None)
+        and PermitDelivery(iO, iD, aSerf) then
+        begin
+          Bid := CalculateBid(iO, iD, aSerf);
+          if (Bid < BestBid) or (fDemand[iD].Importance > BestImportance) then
+          begin
+            BestO := iO;
+            BestD := iD;
+            BestBid := Bid;
+            BestImportance := fDemand[iD].Importance;
+          end;
+        end;
 
   if (BestO <> -1) and (BestD <> -1) then
     AssignDelivery(BestO, BestD, aSerf);

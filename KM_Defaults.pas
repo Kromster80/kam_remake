@@ -580,12 +580,13 @@ type
   THouseActionSet = set of THouseActionType;
 
   TDemandType = (dt_Once, dt_Always); //Is this one-time demand like usual, or constant (storehouse, barracks)
+  //Must be sorted from lowest to highest importance
   TDemandImportance = (
-    diNorm, //Everything
-    diHigh1, //Gold to School
+    diNorm,  //Everything (lowest importance)
+    diHigh4, //Materials to workers
+    diHigh3, //Food to Inn
     diHigh2, //Food to soldiers
-    diHigh3, //Food to Inn 
-    diHigh4  //Materials to workers
+    diHigh1  //Gold to School (highest importance)
     );
 
 const
