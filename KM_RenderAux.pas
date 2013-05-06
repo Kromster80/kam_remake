@@ -373,7 +373,7 @@ begin
     glBegin(GL_LINE_STRIP);
     for K := aRect.Left to aRect.Right + 1 do
     begin
-      glColor3f(0.8, 1, 0.6);
+      glColor4f(0.8, 1, 0.6, 1);
       glVertex2d(K - 1, I - 1 - gTerrain.Land[I, K].Height / CELL_HEIGHT_DIV);
     end;
     glEnd;
@@ -386,7 +386,7 @@ begin
     for K := aRect.Left to aRect.Right + 1 do
     begin
       //glColor4f(gTerrain.Land[I,K].Height/100,0,0,1.2-sqrt(sqr(I-MapYc)+sqr(K-MapXc))/10);
-      glColor3f(Byte(gTerrain.Land[I,K].Fence = fncHousePlan), Byte(gTerrain.Land[I,K].Fence = fncHousePlan), 0);
+      glColor4f(Byte(gTerrain.Land[I,K].Fence = fncHousePlan), Byte(gTerrain.Land[I,K].Fence = fncHousePlan), 0, 1);
       glVertex2d(K - 1, I - 1 - gTerrain.Land[I, K].Height / CELL_HEIGHT_DIV);
     end;
     glEnd;
