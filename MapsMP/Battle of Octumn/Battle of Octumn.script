@@ -27,12 +27,25 @@ begin
 	end;
 end;
 
-procedure OnPlayerDefeated(aIndex: Integer);
+function PlayerIsDefeated(aIndex: Integer): Boolean;
 begin
-  CheckForWinner; //Every time a player gets defeated that might cause the game to end
+  //Player is defeated if he has no barracks and no army
+  Result := (States.StatHouseTypeCount(aIndex, 21) = 0) and (States.StatArmyCount(aIndex) = 0);
 end;
 
 procedure OnMissionStart;
 begin
   CheckForWinner; //In case they started the map with no enemies, we should say everybody wins at the start
+end;
+
+procedure OnTick;
+var I: Integer;
+begin
+  for I:=0 to 7 do
+    if States.PlayerEnabled(I) and not States.PlayerDefeated(I) then
+      if PlayerIsDefeated(I) then
+      begin
+        Actions.PlayerDefeat(I);
+        CheckForWinner; //Might cause another player to win
+      end;
 end;
