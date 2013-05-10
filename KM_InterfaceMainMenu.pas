@@ -602,6 +602,7 @@ begin
     Memo_CampDesc := TKMMemo.Create(Panel_CampSelect, 669, 400, 275, 140, fnt_Game, bsMenu);
     Memo_CampDesc.Anchors := [];
     Memo_CampDesc.AutoWrap := True;
+    Memo_CampDesc.ItemHeight := 16;
 
     Button_Camp_Start := TKMButton.Create(Panel_CampSelect, 362, 550, 300, 30, fTextLibrary[TX_MENU_CAMP_START], bsMenu);
     Button_Camp_Start.Anchors := [];
@@ -1009,6 +1010,7 @@ begin
 
   Image_CampsPreview.TexID := 0; //Clear preview image
   ColumnBox_Camps.Clear;
+  Memo_CampDesc.Clear;
   for I := 0 to Camps.Count - 1 do
   with Camps[I] do
     ColumnBox_Camps.AddItem(MakeListRow(

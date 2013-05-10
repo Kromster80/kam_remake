@@ -1944,7 +1944,8 @@ begin
     Image_Message[I].Highlight := (ShownMessage = I);
 
   Label_MessageText.Caption := fMessageList.MessagesStack[ShownMessage].Text;
-  Button_MessageGoTo.Enabled := not KMSamePoint(fMessageList.MessagesStack[ShownMessage].Loc, KMPoint(0,0));
+  Button_MessageGoTo.Visible := not KMSamePoint(fMessageList.MessagesStack[ShownMessage].Loc, KMPoint(0,0));
+  Button_MessageDelete.Top := IfThen(Button_MessageGoTo.Visible, 104, 74);
 
   Allies_Close(nil);
   Chat_Close(nil); //Removes focus from Edit_Text
