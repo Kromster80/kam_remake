@@ -1141,6 +1141,7 @@ begin
     ColumnBox_MessageLog.SetColumns(fnt_Outline, ['Icon', 'Message'], [0, 25]);
     ColumnBox_MessageLog.ShowHeader := False;
     ColumnBox_MessageLog.HideSelection := True;
+    ColumnBox_MessageLog.HighlightOnMouseOver := True;
     ColumnBox_MessageLog.ItemHeight := 20;
     ColumnBox_MessageLog.BackAlpha := 0;
     ColumnBox_MessageLog.EdgeAlpha := 0;
@@ -3107,17 +3108,29 @@ begin
     begin
       R.Cells[0].Pic := MakePic(rxGui, 588);
       if fMessageList.MessagesLog[I].IsRead then
-        R.Cells[1].Color := $FF0080B0
+      begin
+        R.Cells[1].Color := $FF0080B0;
+        R.Cells[1].HighlightColor := $FF006797;
+      end
       else
-        R.Cells[1].Color := $FF00B0FF
+      begin
+        R.Cells[1].Color := $FF00B0FF;
+        R.Cells[1].HighlightColor := $FF4AC7FF;
+      end;
     end
     else
     begin
       R.Cells[0].Pic := MakePic(rxGui, 587);
       if fMessageList.MessagesLog[I].IsRead then
-        R.Cells[1].Color := $FFB0B0B0
+      begin
+        R.Cells[1].Color := $FFA0A0A0;
+        R.Cells[1].HighlightColor := $FF808080;
+      end
       else
+      begin
         R.Cells[1].Color := $FFFFFFFF;
+        R.Cells[1].HighlightColor := $FFC7C7C7;
+      end;
     end;
 
     ColumnBox_MessageLog.Rows[K] := R;

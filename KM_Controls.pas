@@ -706,6 +706,7 @@ type
       Caption: string;
       Hint: string;
       Color: TColor4;
+      HighlightColor: TColor4;
       Pic: TKMPic;
     end;
     Tag: Integer;
@@ -732,6 +733,7 @@ type
     fHeader: TKMListHeader;
     fShowHeader: Boolean;
     fShowLines: Boolean;
+    fMouseOverRow: Smallint;
     fScrollBar: TKMScrollBar;
     fOnChange: TNotifyEvent;
     function GetTopIndex: Integer;
@@ -760,6 +762,7 @@ type
     procedure DoPaintLine(aIndex: Integer; X,Y: Integer; PaintWidth: Integer);
   public
     HideSelection: Boolean;
+    HighlightOnMouseOver: Boolean;
     Rows: array of TKMListRow; //Exposed to public since we need to edit sub-fields
 
     constructor Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight: Integer; aFont: TKMFont; aStyle: TButtonStyle);
@@ -3903,13 +3906,15 @@ procedure TKMColumnBox.MouseMove(X,Y: Integer; Shift: TShiftState);
 var NewIndex: Integer;
 begin
   inherited;
+  if  InRange(X, AbsLeft, AbsLeft + Width - fScrollBar.Width * Byte(fScrollBar.Visible))
+  and InRange(Y, AbsTop + fHeader.Height*Byte(fHeader.Visible), AbsTop + fHeader.Height*Byte(fHeader.Visible) + Floor(GetVisibleRowsExact * fItemHeight) - 1) then
+    fMouseOverRow := TopIndex + (Y - AbsTop - fHeader.Height * Byte(fShowHeader)) div fItemHeight
+  else
+    fMouseOverRow := -1;
 
-  if (ssLeft in Shift)
-  and InRange(X, AbsLeft, AbsLeft + Width - fScrollBar.Width * Byte(fScrollBar.Visible))
-  and InRange(Y, AbsTop + fHeader.Height*Byte(fHeader.Visible), AbsTop + fHeader.Height*Byte(fHeader.Visible) + Floor(GetVisibleRowsExact * fItemHeight) - 1)
-  then
+  if (ssLeft in Shift) and (fMouseOverRow <> -1) then
   begin
-    NewIndex := TopIndex + (Y - AbsTop - fHeader.Height * Byte(fShowHeader)) div fItemHeight;
+    NewIndex := fMouseOverRow;
 
     if NewIndex >= fRowCount then
     begin
@@ -3942,6 +3947,7 @@ var
   I: Integer;
   AvailWidth: Integer;
   TextSize: TKMPoint;
+  Color: Cardinal;
 begin
   for I := 0 to fHeader.ColumnCount - 1 do
   begin
@@ -3980,11 +3986,15 @@ begin
       end else
       begin
         TextSize := fResource.Fonts.GetTextSize(Rows[aIndex].Cells[I].Caption, fFont);
+        if HighlightOnMouseOver and (csOver in State) and (fMouseOverRow = aIndex) then
+          Color := Rows[aIndex].Cells[I].HighlightColor //Brighten(Rows[aIndex].Cells[I].Color)
+        else
+          Color := Rows[aIndex].Cells[I].Color;
         TKMRenderUI.WriteText(X + 4 + fHeader.Columns[I].Offset,
                             Y + (fItemHeight - TextSize.Y) div 2 + 2,
                             AvailWidth,
                             Rows[aIndex].Cells[I].Caption,
-                            fColumns[I].Font, fColumns[I].TextAlign, Rows[aIndex].Cells[I].Color);
+                            fColumns[I].Font, fColumns[I].TextAlign, Color);
       end;
   end;
 end;
