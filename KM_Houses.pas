@@ -271,7 +271,7 @@ implementation
 uses
   KM_CommonTypes, KM_RenderPool, KM_RenderAux, KM_Units, KM_Scripting,
   KM_Units_Warrior, KM_PlayersCollection, KM_Sound, KM_Game, KM_TextLibrary,
-  KM_Resource, KM_ResourceHouse, KM_Utils, KM_FogOfWar;
+  KM_Resource, KM_ResourceHouse, KM_Utils, KM_FogOfWar, KM_AI;
 
 
 { TKMHouse }
@@ -1255,7 +1255,8 @@ begin
     Dec(fTimeSinceUnoccupiedReminder);
     if fTimeSinceUnoccupiedReminder = 0 then
     begin
-      if (fOwner = MySpectator.PlayerIndex) and not fGame.IsReplay then
+      //Hide messages for wrong player, in replays, and if we have lost
+      if (fOwner = MySpectator.PlayerIndex) and not fGame.IsReplay and (fPlayers[fOwner].AI.WonOrLost <> wol_Lost) then
       begin
         HouseName := fResource.HouseDat[HouseType].HouseName;
         //We can't paste houses name instead of %s like that because of plurals and feminine/masculine attrib

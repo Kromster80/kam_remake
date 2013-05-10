@@ -178,7 +178,7 @@ type
 
 
 implementation
-uses KM_Game, KM_Player, KM_PlayersCollection, KM_Terrain, KM_Utils, KM_TextLibrary, KM_RenderPool, KM_Hungarian, KM_UnitActionWalkTo, KM_PerfLog;
+uses KM_Game, KM_Player, KM_PlayersCollection, KM_Terrain, KM_Utils, KM_TextLibrary, KM_RenderPool, KM_Hungarian, KM_UnitActionWalkTo, KM_PerfLog, KM_AI;
 
 
 const
@@ -1257,7 +1257,8 @@ begin
     dec(fTimeSinceHungryReminder, HUNGER_CHECK_FREQ);
     if fTimeSinceHungryReminder < 1 then
     begin
-      if (Owner = MySpectator.PlayerIndex) and not fGame.IsReplay then
+      //Hide messages for wrong player, in replays, and if we have lost
+      if (Owner = MySpectator.PlayerIndex) and not fGame.IsReplay and (fPlayers[fOwner].AI.WonOrLost <> wol_Lost) then
         fGame.ShowMessage(mkUnit, fTextLibrary[TX_MSG_TROOP_HUNGRY], Position);
       fTimeSinceHungryReminder := TIME_BETWEEN_MESSAGES; //Don't show one again until it is time
     end;
