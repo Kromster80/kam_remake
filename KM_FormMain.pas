@@ -500,9 +500,7 @@ begin
   //You could possibly cheat in multiplayer by seeing debug render info
   AllowDebugChange := (fGameApp.Game = nil)
                    or (not fGameApp.Game.IsMultiplayer or MULTIPLAYER_CHEATS)
-                   or ((Sender is TCheckBox) and not TCheckBox(Sender).Checked)
-                   or ((Sender is TTrackBar) and (TTrackBar(Sender).Position = 0))
-                   or (Sender = nil);
+                   or (Sender = nil); //Happens in ControlsReset only (using this anywhere else could allow MP cheating)
 
   //Debug render
   if AllowDebugChange then
