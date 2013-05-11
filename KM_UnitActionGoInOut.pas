@@ -45,7 +45,7 @@ type
 
 
 implementation
-uses KM_PlayersCollection, KM_Resource, KM_Terrain, KM_UnitActionStay;
+uses KM_PlayersCollection, KM_Resource, KM_Terrain, KM_UnitActionStay, KM_UnitActionWalkTo;
 
 
 { TUnitActionGoInOut }
@@ -310,7 +310,9 @@ begin
     end
     else
     begin //There's still some unit - we can't go outside
-      if (U <> fPushedUnit) then //The unit has switched places with another one, so we must start again
+      if (U <> fPushedUnit) //The unit has switched places with another one, so we must start again
+      or not (U.GetUnitAction is TUnitActionWalkTo) //Unit was interupted (no longer pushed), so start again
+      or not TUnitActionWalkTo(U.GetUnitAction).WasPushed then
       begin
         fHasStarted := False;
         fWaitingForPush := False;
