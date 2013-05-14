@@ -38,6 +38,7 @@ type
   public
     OnWarriorDied: TKMWarriorEvent; //Separate event from OnUnitDied to report to Group
     OnPickedFight: TKMWarrior2Event;
+    OnWarriorWalkOut: TKMWarriorEvent;
     FaceDir: TKMDirection; //Direction we should face after walking. Only check for enemies in this direction.
 
     constructor Create(aID: Cardinal; aUnitType: TUnitType; aLoc: TKMPoint; aOwner: TPlayerIndex);
@@ -631,8 +632,8 @@ end;
 procedure TKMUnitWarrior.WalkedOut;
 begin
   //Report for duty (Groups will link us or create a new group)
-  if Assigned(OnUnitTrained) then
-    OnUnitTrained(Self);
+  if Assigned(OnWarriorWalkOut) then
+    OnWarriorWalkOut(Self);
 end;
 
 

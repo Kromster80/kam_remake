@@ -1686,9 +1686,9 @@ begin
         Result := true;
         exit;
       end;
-      //OnUnitTrained usually happens in TUnitActionGoInOut, otherwise the warrior doesn't get assigned a group
-      if (Self is TKMUnitWarrior) and Assigned(OnUnitTrained) then
-        OnUnitTrained(Self);
+      //OnWarriorWalkOut usually happens in TUnitActionGoInOut, otherwise the warrior doesn't get assigned a group
+      if (Self is TKMUnitWarrior) and Assigned(TKMUnitWarrior(Self).OnWarriorWalkOut) then
+        TKMUnitWarrior(Self).OnWarriorWalkOut(TKMUnitWarrior(Self));
 
       //Make sure these are reset properly
       Assert(not gTerrain.HasUnit(fCurrPosition));

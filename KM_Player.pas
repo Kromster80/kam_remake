@@ -4,7 +4,7 @@ interface
 uses Classes, KromUtils, SysUtils, Math,
   KM_CommonClasses, KM_Defaults, KM_Points,
   KM_ArmyEvaluation, KM_BuildList, KM_DeliverQueue, KM_FogOfWar,
-  KM_Goals, KM_HouseCollection, KM_Houses, KM_Terrain, KM_AI, KM_PlayerStats, KM_Units, KM_UnitGroups;
+  KM_Goals, KM_HouseCollection, KM_Houses, KM_Terrain, KM_AI, KM_PlayerStats, KM_Units, KM_Units_Warrior, KM_UnitGroups;
 
 
 type
@@ -62,6 +62,7 @@ type
     procedure HouseDestroyed(aHouse: TKMHouse; aFrom: TPlayerIndex);
     procedure UnitDied(aUnit: TKMUnit; aFrom: TPlayerIndex);
     procedure UnitTrained(aUnit: TKMUnit);
+    procedure WarriorWalkedOut(aUnit: TKMUnitWarrior);
   public
     Enabled: Boolean;
 
@@ -143,7 +144,7 @@ type
 
 
 implementation
-uses KM_PlayersCollection, KM_Resource, KM_ResourceHouse, KM_Sound, KM_Game, KM_Units_Warrior,
+uses KM_PlayersCollection, KM_Resource, KM_ResourceHouse, KM_Sound, KM_Game,
    KM_TextLibrary, KM_AIFields, KM_Scripting;
 
 
@@ -286,6 +287,9 @@ begin
   Result.OnUnitDied := UnitDied;
   Result.OnUnitTrained := UnitTrained; //Used for debug Scout placed by a cheat
 
+  if Result is TKMUnitWarrior then
+    TKMUnitWarrior(Result).OnWarriorWalkOut := WarriorWalkedOut;
+
   if Result is TKMUnitWorker then
     fBuildList.AddWorker(TKMUnitWorker(Result));
   if Result is TKMUnitSerf then
@@ -322,6 +326,9 @@ begin
   Result.OnUnitDied := UnitDied;
   Result.OnUnitTrained := UnitTrained;
 
+  if Result is TKMUnitWarrior then
+    TKMUnitWarrior(Result).OnWarriorWalkOut := WarriorWalkedOut;
+
   //Adding a unit automatically sets gTerrain.IsUnit, but since the unit was trained
   //inside School/Barracks we don't need that
   gTerrain.UnitRem(Position);
@@ -331,29 +338,32 @@ end;
 
 
 procedure TKMPlayer.UnitTrained(aUnit: TKMUnit);
-var G: TKMUnitGroup;
 begin
   if aUnit.UnitType = ut_Worker then
     fBuildList.AddWorker(TKMUnitWorker(aUnit));
   if aUnit.UnitType = ut_Serf then
     fDeliveries.AddSerf(TKMUnitSerf(aUnit));
 
-  if aUnit is TKMUnitWarrior then
-  begin
-    G := fUnitGroups.WarriorTrained(TKMUnitWarrior(aUnit));
-    Assert(G <> nil, 'It is certain that equipped warrior creates or finds some group to join to');
-    G.OnGroupDied := GroupDied;
-    if PlayerType = pt_Computer then
-    begin
-      AI.General.WarriorEquipped(G);
-      G := UnitGroups.GetGroupByMember(TKMUnitWarrior(aUnit)); //AI might assign warrior to different group
-    end;
-    fScripting.ProcWarriorEquipped(aUnit, G);
-  end
-  else
-    fScripting.ProcUnitTrained(aUnit); //Warriors don't trigger "OnTrained" event
+  //Warriors don't trigger "OnTrained" event, they trigger "WarriorEquipped" in WarriorWalkedOut below
+  if not (aUnit is TKMUnitWarrior) then
+    fScripting.ProcUnitTrained(aUnit);
 
   fStats.UnitCreated(aUnit.UnitType, True);
+end;
+
+
+procedure TKMPlayer.WarriorWalkedOut(aUnit: TKMUnitWarrior);
+var G: TKMUnitGroup;
+begin
+  G := fUnitGroups.WarriorTrained(aUnit);
+  Assert(G <> nil, 'It is certain that equipped warrior creates or finds some group to join to');
+  G.OnGroupDied := GroupDied;
+  if PlayerType = pt_Computer then
+  begin
+    AI.General.WarriorEquipped(G);
+    G := UnitGroups.GetGroupByMember(aUnit); //AI might assign warrior to different group
+  end;
+  fScripting.ProcWarriorEquipped(aUnit, G);
 end;
 
 
@@ -1107,6 +1117,8 @@ begin
   begin
     fUnits[I].OnUnitDied := UnitDied;
     fUnits[I].OnUnitTrained := UnitTrained;
+    if fUnits[I] is TKMUnitWarrior then
+      TKMUnitWarrior(fUnits[I]).OnWarriorWalkOut := WarriorWalkedOut;
   end;
 
   fUnitGroups.SyncLoad;

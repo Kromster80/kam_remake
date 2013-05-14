@@ -26,6 +26,7 @@ Bugs:
  +	Don't show "house unoccupied" or "group hungry" messages after you have lost (and continued watching)
  +	Graph lines don't highlight due to changes in  r5130 (OnMouseMove doesn't trigger now)
  +	Don't show AIs in SP graphs which give away important info about enemies unless the mission is won [Lewin]
+ +	Crash relating to warriors dying while walking out of the barracks (caused crashes in Stats and rendering graph lines)
 	Locations list in the lobby should only show ones which can currently be selected, ones which are taken should be hidden
 	When host is reassigned, lobby password/description should be cleared or transfered to new host (otherwise the server still remembers them but the new host doesn't)
 	

@@ -1967,6 +1967,8 @@ begin
     Soldier.Condition := Round(TROOPS_TRAINED_CONDITION * UNIT_MAX_CONDITION); //All soldiers start with 3/4, so groups get hungry at the same time
     //Soldier.OrderLoc := KMPointBelow(GetEntrance); //Position in front of the barracks facing north
     Soldier.SetActionGoIn(ua_Walk, gd_GoOutside, Self);
+    if Assigned(Soldier.OnUnitTrained) then
+      Soldier.OnUnitTrained(Soldier);
     Inc(Result);
   end;
 end;
