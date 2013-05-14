@@ -107,7 +107,12 @@ var
   R: TWareType;
   G: TKMCardinalArray;
   HumanId: TPlayerIndex;
+  ShowAIResults: Boolean;
 begin
+  //If the player canceled mission, hide the AI graph lines so he doesn't see secret info about enemy (e.g. army size)
+  //That info should only be visible if the mission was won or a replay
+  ShowAIResults := (fGameResultMsg in [gr_Win, gr_ReplayEnd]);
+
   //Restart button is hidden if you won or if it is a replay
   Button_ResultsRepeat.Visible := not (fGameResultMsg in [gr_ReplayEnd, gr_Win]);
 
@@ -173,8 +178,9 @@ begin
       else
         Chart_Army.AddLine(GetFormattedPlayerName, FlagColor, Stats.ChartArmy);
 
-    for I := 0 to TempGraphCount - 1 do
-      Chart_Army.AddLine(Format(fTextLibrary[TX_PLAYER_X], [I+1]), TempGraphs[I].Color, TempGraphs[I].G);
+    if ShowAIResults then
+      for I := 0 to TempGraphCount - 1 do
+        Chart_Army.AddLine(Format(fTextLibrary[TX_PLAYER_X], [I+1]), TempGraphs[I].Color, TempGraphs[I].G);
 
     //Citizens
     TempGraphCount := 0; //Reset
@@ -189,8 +195,9 @@ begin
         //Chart_Citizens.AddAltLine(Stats.ChartRecruits);
       end;
 
-    for I := 0 to TempGraphCount - 1 do
-      Chart_Citizens.AddLine(Format(fTextLibrary[TX_PLAYER_X], [I+1]), TempGraphs[I].Color, TempGraphs[I].G);
+    if ShowAIResults then
+      for I := 0 to TempGraphCount - 1 do
+        Chart_Citizens.AddLine(Format(fTextLibrary[TX_PLAYER_X], [I+1]), TempGraphs[I].Color, TempGraphs[I].G);
 
     //Houses
     TempGraphCount := 0; //Reset
@@ -201,8 +208,9 @@ begin
       else
         Chart_Houses.AddLine(GetFormattedPlayerName, FlagColor, Stats.ChartHouses);
 
-    for I := 0 to TempGraphCount - 1 do
-      Chart_Houses.AddLine(Format(fTextLibrary[TX_PLAYER_X], [I+1]), TempGraphs[I].Color, TempGraphs[I].G);
+    if ShowAIResults then
+      for I := 0 to TempGraphCount - 1 do
+        Chart_Houses.AddLine(Format(fTextLibrary[TX_PLAYER_X], [I+1]), TempGraphs[I].Color, TempGraphs[I].G);
 
     //Wares
     for R := WARE_MIN to WARE_MAX do
