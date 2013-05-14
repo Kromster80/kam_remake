@@ -5334,7 +5334,10 @@ begin
 
   //User is dragging some Ctrl (e.g. scrollbar) and went away from Ctrl bounds
   if CtrlDown <> nil then
-    CtrlDown.MouseMove(X, Y, Shift);
+    CtrlDown.MouseMove(X, Y, Shift)
+  else
+  if CtrlOver <> nil then
+    CtrlOver.MouseMove(X, Y, Shift);
 
   //The Game hides cursor when using DirectionSelector, don't spoil it
   if fResource.Cursors.Cursor <> kmc_Invisible then
