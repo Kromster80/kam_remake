@@ -703,11 +703,11 @@ begin
   //Units feet
   Ground := pY + (R.Pivot[Id0].Y + R.Size[Id0].Y) / CELL_SIZE_PX;
   //The thought should be slightly lower than the unit so it goes OVER warrior flags
-  Ground := Ground+0.1;
+  Ground := Ground + THOUGHT_X_OFFSET;
 
   //Thought bubbles are animated in reverse
   Id := ThoughtBounds[Thought, 2] + 1 -
-       (fGame.GameTickCount mod word(ThoughtBounds[Thought, 2] - ThoughtBounds[Thought, 1]));
+       (fGame.GameTickCount mod Word(ThoughtBounds[Thought, 2] - ThoughtBounds[Thought, 1]));
 
   CornerX := pX + R.Pivot[Id].X / CELL_SIZE_PX;
   CornerY := gTerrain.FlatToHeight(pX, pY) + (R.Pivot[Id].Y + R.Size[Id].Y) / CELL_SIZE_PX - 1.5;

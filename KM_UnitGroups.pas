@@ -1436,9 +1436,9 @@ begin
   //Flag needs to be rendered above or below unit depending on direction (see AddUnitFlag)
 
   if FlagCarrier.Direction in [dir_SE, dir_S, dir_SW, dir_W] then
-    UnitPos.Y := UnitPos.Y - 0.01
+    UnitPos.Y := UnitPos.Y - FLAG_X_OFFSET
   else
-    UnitPos.Y := UnitPos.Y + 0.01;
+    UnitPos.Y := UnitPos.Y + FLAG_X_OFFSET;
 
   fRenderPool.AddUnitFlag(FlagCarrier.UnitType, FlagCarrier.GetUnitAction.ActionType,
     FlagCarrier.Direction, FlagCarrier.AnimStep, FlagStep, UnitPos.X, UnitPos.Y,

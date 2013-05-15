@@ -832,6 +832,7 @@ begin
   end;
 end;
 
+
 //Which house whas destroyed and by whom
 procedure TKMPlayer.HouseDestroyed(aHouse: TKMHouse; aFrom: TPlayerIndex);
 begin
@@ -843,7 +844,7 @@ begin
   end;
 
   //Only Done houses are treated as Self-Destruct, Lost, Destroyed
-  if aHouse.BuildingState in [hbs_NoGlyph..hbs_Stone] then
+  if aHouse.BuildingState in [hbs_NoGlyph .. hbs_Stone] then
     fStats.HouseEnded(aHouse.HouseType)
   else
     //Distribute honors
@@ -858,9 +859,9 @@ begin
     end;
 
   //Scripting events happen AFTER updating statistics
-  fScripting.ProcHouseLost(aHouse, aHouse.BuildingState=hbs_Done);
+  fScripting.ProcHouseLost(aHouse, aHouse.BuildingState = hbs_Done);
   if (aFrom <> -1) and (aFrom <> fPlayerIndex) then
-    fScripting.ProcHouseDestroyed(aHouse, aFrom, aHouse.BuildingState=hbs_Done);
+    fScripting.ProcHouseDestroyed(aHouse, aFrom, aHouse.BuildingState = hbs_Done);
 
   //MySpectator is nil during loading, when houses can be destroyed at the start
   if MySpectator <> nil then
