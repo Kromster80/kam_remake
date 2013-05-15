@@ -22,7 +22,6 @@ type
     fLastMapCRC: Cardinal; //CRC of selected map
 
     fSingleLoc: Integer;
-    fSingleLocations: array [0..MAX_PLAYERS - 1] of Byte; //Lookup
     fSingleColor: Cardinal;
 
     procedure Create_SingleMap(aParent: TKMPanel);
@@ -278,7 +277,7 @@ end;
 procedure TKMGUIMenuSingleMap.ListClick(Sender: TObject);
 var
   MapId: Integer;
-  I, K: Integer;
+  I: Integer;
 begin
   fMaps.Lock;
   try
@@ -308,19 +307,12 @@ begin
       MinimapView_Single.Show;
 
       //Location
-      K := 0;
       DropBox_SingleLoc.Clear;
       for I := 0 to fMaps[MapId].PlayerCount - 1 do
       if fMaps[MapId].CanBeHuman[I] or ALLOW_TAKE_AI_PLAYERS then
-      begin
-        DropBox_SingleLoc.Add(fMaps[MapId].LocationName(I));
-        fSingleLocations[K] := I;
+        DropBox_SingleLoc.Add(fMaps[MapId].LocationName(I), I);
 
-        if I = fMaps[MapId].DefaultHuman then
-          DropBox_SingleLoc.ItemIndex := K;
-
-        Inc(K);
-      end;
+      DropBox_SingleLoc.SelectByTag(fMaps[MapId].DefaultHuman);
 
       //Color
       //Fill in colors for each map individually
@@ -345,8 +337,8 @@ end;
 
 procedure TKMGUIMenuSingleMap.OptionsChange(Sender: TObject);
 begin
-  if InRange(DropBox_SingleLoc.ItemIndex, Low(fSingleLocations), High(fSingleLocations)) then
-    fSingleLoc := fSingleLocations[DropBox_SingleLoc.ItemIndex]
+  if DropBox_SingleLoc.ItemIndex <> -1 then
+    fSingleLoc := DropBox_SingleLoc.GetSelectedTag
   else
     fSingleLoc := -1;
 
@@ -498,6 +490,9 @@ end;
 procedure TKMGUIMenuSingleMap.MinimapLocClick(aValue: Integer);
 begin
   fSingleLoc := aValue;
+
+  DropBox_SingleLoc.SelectByTag(fSingleLoc);
+
   Update;
 end;
 

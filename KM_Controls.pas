@@ -4347,22 +4347,22 @@ end;
 
 
 procedure TKMDropList.SelectByName(aText: string);
-var i: Integer;
+var I: Integer;
 begin
   fList.ItemIndex := -1;
-  for i:=0 to fList.Count-1 do
-    if fList.Item[i] = aText then
-      SetItemIndex(i);
+  for I := 0 to fList.Count - 1 do
+    if fList.Item[I] = aText then
+      SetItemIndex(I);
 end;
 
 
 procedure TKMDropList.SelectByTag(aTag: Integer);
-var i: Integer;
+var I: Integer;
 begin
   fList.ItemIndex := -1;
-  for i:=0 to fList.Count-1 do
-    if fList.ItemTags[i] = aTag then
-      SetItemIndex(i);
+  for I := 0 to fList.Count - 1 do
+    if fList.ItemTags[I] = aTag then
+      SetItemIndex(I);
 end;
 
 
