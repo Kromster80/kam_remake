@@ -1476,7 +1476,7 @@ procedure TKMHouseInn.Paint;
     end;
   end;
 const
-  OffX: array [0..2] of single = (-0.5, 0.0, 0.5);
+  OffX: array [0..2] of single = ( -0.5, 0, 0.5);
   OffY: array [0..2] of single = (-0.05, 0, 0.05);
 var
   i: Integer;
@@ -1634,7 +1634,7 @@ begin
 end;
 
 
-//Return training progress of a unit in 0.0 - 1.0 range
+//Return training progress of a unit in 0 - 1 range
 function TKMHouseSchool.GetTrainingProgress: Single;
 begin
   if UnitWIP = nil then

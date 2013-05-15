@@ -714,8 +714,8 @@ begin
   fDragScrolling := False;
   fDragScrollingCursorPos.X := 0;
   fDragScrollingCursorPos.Y := 0;
-  fDragScrollingViewportPos.X := 0.0;
-  fDragScrollingViewportPos.Y := 0.0;
+  fDragScrollingViewportPos.X := 0;
+  fDragScrollingViewportPos.Y := 0;
   fMaps := TKMapsCollection.Create(False);
   fMapsMP := TKMapsCollection.Create(True);
 

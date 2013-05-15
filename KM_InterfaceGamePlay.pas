@@ -797,8 +797,8 @@ begin
   fDragScrolling := False;
   fDragScrollingCursorPos.X := 0;
   fDragScrollingCursorPos.Y := 0;
-  fDragScrollingViewportPos.X := 0.0;
-  fDragScrollingViewportPos.Y := 0.0;
+  fDragScrollingViewportPos.X := 0;
+  fDragScrollingViewportPos.Y := 0;
   SelectingTroopDirection := False;
   SelectingDirPosition.X := 0;
   SelectingDirPosition.Y := 0;
@@ -4024,7 +4024,7 @@ begin
           fResource.Cursors.Cursor := kmc_Invisible;
         end
         else
-          fSoundLib.Play(sfx_CantPlace, GameCursor.Cell, False, 4.0);
+          fSoundLib.Play(sfx_CantPlace, GameCursor.Cell, False, 4);
       end;
     end;
   end;
@@ -4263,7 +4263,7 @@ begin
         begin
           if GameCursor.Mode in [cmErase, cmRoad, cmField, cmWine, cmWall, cmHouses] then
             //Can't place noise when clicking on unexplored areas
-            fSoundLib.Play(sfx_CantPlace, P, False, 4.0);
+            fSoundLib.Play(sfx_CantPlace, P, False, 4);
         end
         else
           case GameCursor.Mode of
@@ -4271,6 +4271,8 @@ begin
               begin
                 //Remember previous selection to play sound if it changes
                 OldSelected := MySpectator.Selected;
+                OldSelectedUnit := nil;
+
                 if OldSelected is TKMUnitGroup then
                   OldSelectedUnit := TKMUnitGroup(MySpectator.Selected).SelectedUnit;
 
@@ -4306,13 +4308,13 @@ begin
               end;
 
             cmRoad:
-              if KMSamePoint(LastDragPoint,KMPoint(0,0)) then fGame.GameInputProcess.CmdBuild(gic_BuildAddFieldPlan, P, ft_Road);
+              if KMSamePoint(LastDragPoint, KMPoint(0,0)) then fGame.GameInputProcess.CmdBuild(gic_BuildAddFieldPlan, P, ft_Road);
 
             cmField:
-              if KMSamePoint(LastDragPoint,KMPoint(0,0)) then fGame.GameInputProcess.CmdBuild(gic_BuildAddFieldPlan, P, ft_Corn);
+              if KMSamePoint(LastDragPoint, KMPoint(0,0)) then fGame.GameInputProcess.CmdBuild(gic_BuildAddFieldPlan, P, ft_Corn);
 
             cmWine:
-              if KMSamePoint(LastDragPoint,KMPoint(0,0)) then fGame.GameInputProcess.CmdBuild(gic_BuildAddFieldPlan, P, ft_Wine);
+              if KMSamePoint(LastDragPoint, KMPoint(0,0)) then fGame.GameInputProcess.CmdBuild(gic_BuildAddFieldPlan, P, ft_Wine);
 
             cmWall:
               fGame.GameInputProcess.CmdBuild(gic_BuildAddFieldPlan, P, ft_Wall);
@@ -4325,9 +4327,9 @@ begin
                 if not (ssShift in Shift) then Build_ButtonClick(Button_BuildRoad); //If shift pressed do not reset cursor(keep selected building)
               end
               else
-                fSoundLib.Play(sfx_CantPlace,P,false,4.0);
+                fSoundLib.Play(sfx_CantPlace, P, False, 4);
             cmErase:
-              if KMSamePoint(LastDragPoint,KMPoint(0,0)) then
+              if KMSamePoint(LastDragPoint, KMPoint(0,0)) then
               begin
                 H := fPlayers[MySpectator.PlayerIndex].HousesHitTest(P.X, P.Y);
                 //Ask wherever player wants to destroy own house (don't ask about houses that are not started, they are removed below)
@@ -4346,7 +4348,7 @@ begin
                     if fPlayers[MySpectator.PlayerIndex].BuildList.FieldworksList.HasFakeField(P) <> ft_None then
                       fGame.GameInputProcess.CmdBuild(gic_BuildRemoveFieldPlan, P) //Remove plans
                     else
-                      fSoundLib.Play(sfx_CantPlace,P,false,4.0); //Otherwise there is nothing to erase
+                      fSoundLib.Play(sfx_CantPlace, P, False, 4); //Otherwise there is nothing to erase
                 end;
               end;
           end

@@ -160,8 +160,8 @@ type
     procedure SaveWarriorSoundsToFile(const aFile: String);
     function WarriorSoundFile(aUnitType:TUnitType; aSound:TWarriorSpeech; aNumber:byte):string;
     function NotificationSoundFile(aSound:TAttackNotification; aNumber:byte):string;
-    procedure PlayWave(const aFile:string; Loc:TKMPointF; Attenuated:boolean=true; Volume:single=1.0; FadeMusic:boolean=false); overload;
-    procedure PlaySound(SoundID:TSoundFX; const aFile:string; Loc:TKMPointF; Attenuated:boolean=true; Volume:single=1.0; FadeMusic:boolean=false);
+    procedure PlayWave(const aFile:string; Loc:TKMPointF; Attenuated:boolean=true; Volume:single=1; FadeMusic:boolean=false); overload;
+    procedure PlaySound(SoundID:TSoundFX; const aFile:string; Loc:TKMPointF; Attenuated:boolean=true; Volume:single=1; FadeMusic:boolean=false);
   public
     constructor Create(aLocale:string; aVolume:single; aShowWarningDlg: Boolean);
     destructor Destroy; override;
@@ -181,12 +181,12 @@ type
     procedure PlayCitizen(aUnitType:TUnitType; aSound:TWarriorSpeech; aLoc:TKMPointF); overload;
     procedure PlayWarrior(aUnitType:TUnitType; aSound:TWarriorSpeech); overload;
     procedure PlayWarrior(aUnitType:TUnitType; aSound:TWarriorSpeech; aLoc:TKMPointF); overload;
-    procedure Play(SoundID:TSoundFX; Volume:single=1.0); overload;
-    procedure Play(SoundID:TSoundFX; Loc:TKMPoint; Attenuated:boolean=true; Volume:single=1.0); overload;
-    procedure Play(SoundID:TSoundFX; Loc:TKMPointF; Attenuated:boolean=true; Volume:single=1.0); overload;
+    procedure Play(SoundID:TSoundFX; Volume: Single = 1); overload;
+    procedure Play(SoundID:TSoundFX; Loc:TKMPoint; Attenuated:boolean=true; Volume:single=1); overload;
+    procedure Play(SoundID:TSoundFX; Loc:TKMPointF; Attenuated:boolean=true; Volume:single=1); overload;
 
-    procedure Play(SoundID:TSoundFXNew; Volume:single=1.0; FadeMusic:boolean=false); overload;
-    procedure Play(SoundID:TSoundFXNew; Loc:TKMPoint; Attenuated:boolean=true; Volume:single=1.0; FadeMusic:boolean=false); overload;
+    procedure Play(SoundID:TSoundFXNew; Volume:Single = 1; FadeMusic:boolean=false); overload;
+    procedure Play(SoundID:TSoundFXNew; Loc:TKMPoint; Attenuated:boolean=true; Volume:single=1; FadeMusic:boolean=false); overload;
 
     procedure Paint;
     procedure UpdateStateIdle;
@@ -487,34 +487,34 @@ end;
 
 
 {Wrapper with fewer options for non-attenuated sounds}
-procedure TSoundLib.Play(SoundID:TSoundFX; Volume:single=1.0);
+procedure TSoundLib.Play(SoundID:TSoundFX; Volume:single=1);
 begin
   if not fIsSoundInitialized then Exit;
   Play(SoundID, KMPointF(0,0), false, Volume); //Redirect
 end;
 
 
-procedure TSoundLib.Play(SoundID:TSoundFXNew; Volume:single=1.0; FadeMusic:boolean=false);
+procedure TSoundLib.Play(SoundID:TSoundFXNew; Volume:single=1; FadeMusic:boolean=false);
 begin
   Play(SoundID, KMPoint(0,0), false, Volume, FadeMusic);
 end;
 
 
-procedure TSoundLib.Play(SoundID:TSoundFXNew; Loc:TKMPoint; Attenuated:boolean=true; Volume:single=1.0; FadeMusic:boolean=false);
+procedure TSoundLib.Play(SoundID:TSoundFXNew; Loc:TKMPoint; Attenuated:boolean=true; Volume:single=1; FadeMusic:boolean=false);
 begin
   PlayWave(ExeDir+NewSFXFolder+NewSFXFile[SoundID], KMPointF(Loc), Attenuated, Volume, FadeMusic);
 end;
 
 
 {Wrapper for TSoundFX}
-procedure TSoundLib.Play(SoundID:TSoundFX; Loc:TKMPoint; Attenuated:boolean=true; Volume:single=1.0);
+procedure TSoundLib.Play(SoundID:TSoundFX; Loc:TKMPoint; Attenuated:boolean=true; Volume:single=1);
 begin
   if not fIsSoundInitialized then Exit;
   PlaySound(SoundID, '', KMPointF(Loc), Attenuated, Volume); //Redirect
 end;
 
 
-procedure TSoundLib.Play(SoundID:TSoundFX; Loc:TKMPointF; Attenuated:boolean=true; Volume:single=1.0);
+procedure TSoundLib.Play(SoundID:TSoundFX; Loc:TKMPointF; Attenuated:boolean=true; Volume:single=1);
 begin
   if not fIsSoundInitialized then Exit;
   PlaySound(SoundID, '', Loc, Attenuated, Volume); //Redirect
@@ -522,7 +522,7 @@ end;
 
 
 {Wrapper WAV files}
-procedure TSoundLib.PlayWave(const aFile:string; Loc:TKMPointF; Attenuated:boolean=true; Volume:single=1.0; FadeMusic:boolean=false);
+procedure TSoundLib.PlayWave(const aFile:string; Loc:TKMPointF; Attenuated:boolean=true; Volume:single=1; FadeMusic:boolean=false);
 begin
   if not fIsSoundInitialized then Exit;
   PlaySound(sfx_None, aFile, Loc, Attenuated, Volume, FadeMusic); //Redirect
@@ -532,7 +532,7 @@ end;
 {Call to this procedure will find free spot and start to play sound immediately}
 {Will need to make another one for unit sounds, which will take WAV file path as parameter}
 {Attenuated means if sound should fade over distance or not}
-procedure TSoundLib.PlaySound(SoundID:TSoundFX; const aFile:string; Loc:TKMPointF; Attenuated:boolean=true; Volume:single=1.0; FadeMusic:boolean=false);
+procedure TSoundLib.PlaySound(SoundID:TSoundFX; const aFile:string; Loc:TKMPointF; Attenuated:boolean=true; Volume:single=1; FadeMusic:boolean=false);
 var Dif:array[1..3]of single;
   FreeBuf{,FreeSrc}:integer;
   i,ID:integer;
@@ -624,8 +624,8 @@ begin
 
   //Set source properties
   AlSourcei(fSound[FreeBuf].ALSource, AL_BUFFER, fSound[FreeBuf].ALBuffer);
-  AlSourcef(fSound[FreeBuf].ALSource, AL_PITCH, 1.0);
-  AlSourcef(fSound[FreeBuf].ALSource, AL_GAIN, 1.0 * Volume * fSoundGain);
+  AlSourcef(fSound[FreeBuf].ALSource, AL_PITCH, 1);
+  AlSourcef(fSound[FreeBuf].ALSource, AL_GAIN, 1 * Volume * fSoundGain);
   if Attenuated then begin
     Dif[1]:=Loc.X; Dif[2]:=Loc.Y; Dif[3]:=0;
     AlSourcefv(fSound[FreeBuf].ALSource, AL_POSITION, @Dif[1]);
@@ -638,9 +638,9 @@ begin
     AlSourcefv(fSound[FreeBuf].ALSource, AL_POSITION, @Dif[1]);
     AlSourcei(fSound[FreeBuf].ALSource, AL_SOURCE_RELATIVE, AL_TRUE); //Relative to the listener, meaning it follows us
   end;
-  AlSourcef(fSound[FreeBuf].ALSource, AL_REFERENCE_DISTANCE, 4.0);
+  AlSourcef(fSound[FreeBuf].ALSource, AL_REFERENCE_DISTANCE, 4);
   AlSourcef(fSound[FreeBuf].ALSource, AL_MAX_DISTANCE, MAX_DISTANCE);
-  AlSourcef(fSound[FreeBuf].ALSource, AL_ROLLOFF_FACTOR, 1.0);
+  AlSourcef(fSound[FreeBuf].ALSource, AL_ROLLOFF_FACTOR, 1);
   AlSourcei(fSound[FreeBuf].ALSource, AL_LOOPING, AL_FALSE);
 
   //Start playing
@@ -716,7 +716,7 @@ begin
 
   Wave := NotificationSoundFile(aSound, Random(Count));
   if FileExists(Wave) then
-    PlayWave(Wave, KMPointF(0,0), false, 1.0);
+    PlayWave(Wave, KMPointF(0,0), False, 1);
 end;
 
 

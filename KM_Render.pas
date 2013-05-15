@@ -111,7 +111,7 @@ begin
   //1 unit for each tile strip. 512 means we can handle up to 512x512 maps
   case aRenderMode of
     rm2D: glOrtho(0, fScreenX, fScreenY, 0, 512, 0);
-    rm3D: gluPerspective(80, -fScreenX/fScreenY, 0.1, 5000.0);
+    rm3D: gluPerspective(80, -fScreenX/fScreenY, 0.1, 5000);
   end;
   glMatrixMode(GL_MODELVIEW); //Return to the modelview matrix
   glLoadIdentity; //Reset View

@@ -600,7 +600,7 @@ begin
     begin
       if aMakeSound and not fGame.IsReplay
       and (PlayerIndex = MySpectator.PlayerIndex) then
-        fSoundLib.Play(sfx_CantPlace, 4.0);
+        fSoundLib.Play(sfx_CantPlace, 4);
       if Plan = ft_None then //If we can't build because there's some other plan, that's ok
       begin
         //Can't build here anymore because something changed between click and command processing, so remove any fake plans
@@ -634,7 +634,7 @@ begin
     end
     else
       if PlayerIndex = MySpectator.PlayerIndex then
-        fSoundLib.Play(sfx_CantPlace, 4.0);
+        fSoundLib.Play(sfx_CantPlace, 4);
 end;
 
 

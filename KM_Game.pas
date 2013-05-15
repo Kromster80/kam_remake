@@ -714,7 +714,7 @@ end;
 procedure TKMGame.PlayerVictory(aPlayerIndex: TPlayerIndex);
 begin
   if aPlayerIndex = MySpectator.PlayerIndex then
-    fSoundLib.Play(sfxn_Victory, 1.0, True); //Fade music
+    fSoundLib.Play(sfxn_Victory, 1, True); //Fade music
 
   if fGameMode = gmMulti then
   begin
@@ -739,7 +739,7 @@ end;
 procedure TKMGame.PlayerDefeat(aPlayerIndex: TPlayerIndex);
 begin
   if aPlayerIndex = MySpectator.PlayerIndex then
-    fSoundLib.Play(sfxn_Defeat, 1.0, True); //Fade music
+    fSoundLib.Play(sfxn_Defeat, 1, True); //Fade music
 
   if fGameMode = gmMulti then
   begin
@@ -993,7 +993,7 @@ begin
   PeaceTicksRemaining := Max(0, Int64((fGameOptions.Peacetime * 600)) - fGameTickCount);
   if (PeaceTicksRemaining = 1) and (fGameMode in [gmMulti,gmReplayMulti]) then
   begin
-    fSoundLib.Play(sfxn_Peacetime, 1.0, True); //Fades music
+    fSoundLib.Play(sfxn_Peacetime, 1, True); //Fades music
     if fGameMode = gmMulti then
     begin
       SetGameSpeed(fGameOptions.SpeedAfterPT, False);
