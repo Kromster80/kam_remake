@@ -1131,19 +1131,21 @@ end;
 
 
 function TKMScriptActions.GiveUnit(aPlayer, aType, X, Y, aDir: Word): Integer;
-var U: TKMUnit;
+var
+  U: TKMUnit;
 begin
   Result := -1;
+
   //Verify all input parameters
   if InRange(aPlayer, 0, fPlayers.Count - 1)
-  and (aType in [UnitTypeToIndex[CITIZEN_MIN]..UnitTypeToIndex[CITIZEN_MAX]])
-  and gTerrain.TileInMapCoords(X,Y)
-  and (TKMDirection(aDir+1) in [dir_N..dir_NW]) then
+  and (aType in [UnitTypeToIndex[CITIZEN_MIN] .. UnitTypeToIndex[CITIZEN_MAX]])
+  and gTerrain.TileInMapCoords(X, Y)
+  and (TKMDirection(aDir + 1) in [dir_N .. dir_NW]) then
   begin
     U := fPlayers[aPlayer].AddUnit(UnitIndexToType[aType], KMPoint(X,Y));
     if U = nil then Exit;
     Result := U.ID;
-    U.Direction := TKMDirection(aDir+1);
+    U.Direction := TKMDirection(aDir + 1);
   end
   else
     LogError('Actions.GiveUnit', [aPlayer, aType, X, Y, aDir]);
@@ -1151,13 +1153,15 @@ end;
 
 
 function TKMScriptActions.GiveHouse(aPlayer, aHouseType, X,Y: Integer): Integer;
-var H: TKMHouse;
+var
+  H: TKMHouse;
 begin
   Result := -1;
+
   //Verify all input parameters
   if InRange(aPlayer, 0, fPlayers.Count - 1)
-  and (aHouseType in [Low(HouseIndexToType)..High(HouseIndexToType)])
-  and gTerrain.TileInMapCoords(X,Y) then
+  and (aHouseType in [Low(HouseIndexToType) .. High(HouseIndexToType)])
+  and gTerrain.TileInMapCoords(X, Y) then
   begin
     if gTerrain.CanPlaceHouseFromScript(HouseIndexToType[aHouseType], KMPoint(X, Y)) then
     begin
@@ -1172,12 +1176,14 @@ end;
 
 
 function TKMScriptActions.GiveAnimal(aType, X, Y: Word): Integer;
-var U: TKMUnit;
+var
+  U: TKMUnit;
 begin
   Result := -1;
+
   //Verify all input parameters
-  if (aType in [UnitTypeToIndex[ANIMAL_MIN]..UnitTypeToIndex[ANIMAL_MAX]])
-  and gTerrain.TileInMapCoords(X,Y) then
+  if (aType in [UnitTypeToIndex[ANIMAL_MIN] .. UnitTypeToIndex[ANIMAL_MAX]])
+  and gTerrain.TileInMapCoords(X, Y) then
   begin
     U := fPlayers.PlayerAnimals.AddUnit(UnitIndexToType[aType], KMPoint(X,Y));
     if U <> nil then
@@ -1188,6 +1194,7 @@ begin
 end;
 
 
+//Wares are added to first Store
 procedure TKMScriptActions.GiveWares(aPlayer, aType, aCount: Word);
 var
   H: TKMHouse;
@@ -1195,7 +1202,7 @@ begin
   //Verify all input parameters
   if InRange(aPlayer, 0, fPlayers.Count - 1)
   and InRange(aCount, 0, High(Word))
-  and (aType in [Low(WareIndexToType)..High(WareIndexToType)]) then
+  and (aType in [Low(WareIndexToType) .. High(WareIndexToType)]) then
   begin
     H := fPlayers[aPlayer].FindHouse(ht_Store, 1);
     if H <> nil then
@@ -1209,6 +1216,7 @@ begin
 end;
 
 
+//Weapons are added to first Barracks
 procedure TKMScriptActions.GiveWeapons(aPlayer, aType, aCount: Word);
 var
   H: TKMHouse;
@@ -1216,7 +1224,7 @@ begin
   //Verify all input parameters
   if InRange(aPlayer, 0, fPlayers.Count - 1)
   and InRange(aCount, 0, High(Word))
-  and (WareIndexToType[aType] in [WARFARE_MIN..WARFARE_MAX]) then
+  and (WareIndexToType[aType] in [WARFARE_MIN .. WARFARE_MAX]) then
   begin
     H := fPlayers[aPlayer].FindHouse(ht_Barracks, 1);
     if H <> nil then
