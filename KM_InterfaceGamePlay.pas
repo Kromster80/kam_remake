@@ -550,6 +550,11 @@ var
   SaveName: string;
 begin
   SaveName := Trim(Edit_Save.Text);
+  //Edit.OnChange event happens on key up, so it's still possible for the user to click save button
+  //with an invalid file name entered, if the click while still holding down a key.
+  //In general it's bad to rely on events like that to ensure validity, doing check here is a good idea
+  if SaveName = '' then Exit;
+
   LastSaveName := SaveName; //Do this before saving so it is included in the save
   if fMultiplayer then
     //Don't tell everyone in the game that we are saving yet, as the command hasn't been processed
