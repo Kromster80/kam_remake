@@ -504,7 +504,7 @@ begin
   begin
     H := fIDCache.GetHouse(aHouseID);
     if H <> nil then
-      Result := H.GetPosition.X;
+      Result := H.GetEntrance.X;
   end
   else
     LogError('States.HouseX', [aHouseID]);
@@ -519,7 +519,7 @@ begin
   begin
     H := fIDCache.GetHouse(aHouseID);
     if H <> nil then
-      Result := H.GetPosition.Y;
+      Result := H.GetEntrance.Y;
   end
   else
     LogError('States.HouseY', [aHouseID]);
@@ -1163,7 +1163,7 @@ begin
   and (aHouseType in [Low(HouseIndexToType) .. High(HouseIndexToType)])
   and gTerrain.TileInMapCoords(X, Y) then
   begin
-    if gTerrain.CanPlaceHouseFromScript(HouseIndexToType[aHouseType], KMPoint(X, Y)) then
+    if gTerrain.CanPlaceHouseFromScript(HouseIndexToType[aHouseType], KMPoint(X - fResource.HouseDat[HouseIndexToType[aHouseType]].EntranceOffsetX, Y)) then
     begin
       H := fPlayers[aPlayer].AddHouse(HouseIndexToType[aHouseType], X, Y, True);
       if H = nil then Exit;

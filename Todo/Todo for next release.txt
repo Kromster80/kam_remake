@@ -28,6 +28,8 @@ Bugs:
  +	Don't show AIs in SP graphs which give away important info about enemies unless the mission is won [Lewin]
  +	Crash relating to warriors dying while walking out of the barracks (caused crashes in Stats and rendering graph lines)
  +  Workers thoughts near bottom map edge, when facing down, are dark grey. Should be white as always
+ +	Actions.GiveHouse was checking if it could place the house at the wrong spot in some cases
+ +	States.HousePosition* now returns the entrance of the house, not the position (which is different for some houses)
 	Locations list in the lobby should only show ones which can currently be selected, ones which are taken should be hidden
 	When host is reassigned, lobby password/description should be cleared or transfered to new host (otherwise the server still remembers them but the new host doesn't)
 	
