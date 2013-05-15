@@ -28,7 +28,7 @@ type
     procedure WalkIn;
     procedure WalkOut;
   public
-    OnWalkedOut: TEvent;
+    OnWalkedOut: TEvent; //NOTE: Caller must sync these events after loading, used with caution
     OnWalkedIn: TEvent;
     constructor Create(aUnit: TKMUnit; aAction: TUnitActionType; aDirection: TGoInDirection; aHouse: TKMHouse);
     constructor Load(LoadStream: TKMemoryStream); override;

@@ -122,6 +122,8 @@ begin
   inherited;
   fOrderTargetUnit := TKMUnitWarrior(fPlayers.GetUnitByID(cardinal(fOrderTargetUnit)));
   fOrderTargetHouse := fPlayers.GetHouseByID(cardinal(fOrderTargetHouse));
+  if GetUnitAction is TUnitActionGoInOut then
+    TUnitActionGoInOut(GetUnitAction).OnWalkedOut := WalkedOut;
 end;
 
 

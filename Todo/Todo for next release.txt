@@ -30,6 +30,7 @@ Bugs:
  +  Workers thoughts near bottom map edge, when facing down, are dark grey. Should be white as always
  +	Actions.GiveHouse was checking if it could place the house at the wrong spot in some cases
  +	States.HousePosition* now returns the entrance of the house, not the position (which is different for some houses)
+ +	Access violation in TKMUnitWarrior.CheckForEnemy caused by not syncing TUnitActionGoInOut.OnWalkedOut after load
 	Locations list in the lobby should only show ones which can currently be selected, ones which are taken should be hidden
 	When host is reassigned, lobby password/description should be cleared or transfered to new host (otherwise the server still remembers them but the new host doesn't)
 	
