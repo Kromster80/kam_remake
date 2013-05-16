@@ -250,6 +250,7 @@ procedure TKMNetworking.Host(aUserName, aServerName, aPort: string; aAnnounceSer
 begin
   fWelcomeMessage := '';
   fPassword := '';
+  fDescription := '';
   fIgnorePings := 0; //Accept pings
   fNetServer.Stop;
 
@@ -275,6 +276,7 @@ begin
 
   fWelcomeMessage := '';
   fPassword := '';
+  fDescription := '';
   fIgnorePings := 0; //Accept pings
   fJoinTimeout := TimeGet;
   fMyIndex := -1; //Host will send us PlayerList and we will get our index from there
@@ -1246,6 +1248,9 @@ begin
                              end;
               end;
 
+              fPassword := '';
+              fDescription := '';
+              fOnMPGameInfoChanged(Self);
               SendPlayerListAndRefreshPlayersSetup;
               PostMessage('Hosting rights reassigned to '+fMyNikname);
               if WRITE_RECONNECT_LOG then gLog.AddTime('Hosting rights reassigned to us ('+fMyNikname+')');
