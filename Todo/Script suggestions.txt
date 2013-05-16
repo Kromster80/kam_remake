@@ -26,7 +26,6 @@ Accepted:
 
 
 Proposed:
-	Get units/houses/groups of a certain player (return array of IDs)
 	PlayWAV (and option to disable normal sound for messages?)
 	Change position/alignment/font of overlay text
 	Render sprite onto map (from provided RXX file)
@@ -42,3 +41,4 @@ Proposed:
 	GroupKillAll, GroupSetHunder (both can be implemented in script fairly easily, do we still provide them?)
 	Way to add/remove recruits directly from barracks
 	ChangeMapTile
+	SetAIName

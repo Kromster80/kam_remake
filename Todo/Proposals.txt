@@ -52,6 +52,7 @@ We can discuss them in dialog-style and maybe move to GC issues later on
       Lewin: IMO it won't in almost all cases, it allows serfs to be more efficiently allocated. Remember that only 1 item is locked per serf bringing an item there, so only a few items will get locked. Right now it's very annoying when a serf drops something off and doesn't take an item out, and a serf from a long way away is made to walk there and take it instead. It also reduces overall traffic on the road networks. I think we could test it on Rayzel's map and see whether it's more efficient (compare overall productivity and average number of idle serfs?).
 	L	Pressing tab should cycle to next edit box (needs TabOrder like Delphi controls?)
 		Placing beacons in replays for educational purposes (e.g. while making a video for youtube)
+		Limit rate of the message notification sound to avoid sound spam when you lost many villagers
 
 
 REJECTED:
