@@ -325,7 +325,7 @@ begin
 
     //Allocate max required space
     SetLength(Result, fPlayers[aPlayer].Houses.Count);
-    for I := 0 to fPlayers[aPlayer].Units.Count - 1 do
+    for I := 0 to fPlayers[aPlayer].Houses.Count - 1 do
     begin
       H := fPlayers[aPlayer].Houses[I];
       if H.IsDestroyed then Continue;
