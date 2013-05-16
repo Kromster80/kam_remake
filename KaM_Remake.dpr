@@ -151,8 +151,8 @@ uses
 {$ENDIF}
 {$IFDEF MSWindows}
   {$IFDEF FPC}
-    {$R KaM_Remake_Icon.rc}
-    {$R KaM_Manifest.rc}
+    {$R KaM_Remake_Icon.res}
+    {$R KaM_Manifest.res}
   {$ENDIF}
 {$ENDIF}
 
