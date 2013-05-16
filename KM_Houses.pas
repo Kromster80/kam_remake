@@ -90,7 +90,7 @@ type
     procedure ReleaseHousePointer; //Decreases the pointer counter
     property PointerCount: Cardinal read fPointerCount;
 
-    procedure DemolishHouse(aFrom: TPlayerIndex; IsEditor: Boolean = False); virtual;
+    procedure DemolishHouse(aFrom: TPlayerIndex; IsSilent: Boolean = False); virtual;
     property ID: Integer read fID;
 
     property GetPosition: TKMPoint read fPosition;
@@ -194,7 +194,7 @@ type
     constructor Create(aID: Cardinal; aHouseType: THouseType; PosX, PosY: Integer; aOwner: TPlayerIndex; aBuildState: THouseBuildState);
     constructor Load(LoadStream: TKMemoryStream); override;
     procedure SyncLoad; override;
-    procedure DemolishHouse(aFrom: TPlayerIndex; IsEditor: Boolean = False); override;
+    procedure DemolishHouse(aFrom: TPlayerIndex; IsSilent: Boolean = False); override;
     procedure ResAddToIn(aWare: TWareType; aCount: Word = 1; aFromScript: Boolean = False); override;
     function AddUnitToQueue(aUnit: TUnitType; aCount: Byte): Byte; //Should add unit to queue if there's a place
     procedure RemUnitFromQueue(aID: Byte); //Should remove unit from queue and shift rest up
@@ -219,7 +219,7 @@ type
     destructor Destroy; override;
 
     procedure Activate(aWasBuilt: Boolean); override;
-    procedure DemolishHouse(aFrom: TPlayerIndex; IsEditor: Boolean = False); override;
+    procedure DemolishHouse(aFrom: TPlayerIndex; IsSilent: Boolean = False); override;
     procedure ResAddToIn(aWare: TWareType; aCount: Word = 1; aFromScript: Boolean = False); override;
     procedure ResTakeFromOut(aWare: TWareType; const aCount: Word = 1); override;
     function CheckResIn(aWare: TWareType): Word; override;
@@ -239,7 +239,7 @@ type
   public
     NotAcceptFlag: array [WARE_MIN .. WARE_MAX] of Boolean;
     constructor Load(LoadStream: TKMemoryStream); override;
-    procedure DemolishHouse(aFrom: TPlayerIndex; IsEditor: Boolean = False); override;
+    procedure DemolishHouse(aFrom: TPlayerIndex; IsSilent: Boolean = False); override;
     procedure ToggleAcceptFlag(aRes: TWareType);
     procedure ResAddToIn(aWare: TWareType; aCount: Word = 1; aFromScript: Boolean = False); override;
     function CheckResIn(aWare: TWareType): Word; override;
@@ -433,7 +433,8 @@ begin
 end;
 
 
-procedure TKMHouse.DemolishHouse(aFrom: TPlayerIndex; IsEditor: Boolean = False);
+//IsSilent parameter is used by Editor and scripts
+procedure TKMHouse.DemolishHouse(aFrom: TPlayerIndex; IsSilent: Boolean = False);
 var I: Integer; R: TWareType;
 begin
   if IsDestroyed then Exit;
@@ -445,7 +446,7 @@ begin
   fIsDestroyed := True;
 
   //Play sound
-  if (fBuildState > hbs_NoGlyph) and not IsEditor then
+  if (fBuildState > hbs_NoGlyph) and not IsSilent then
     fSoundLib.Play(sfx_HouseDestroy, fPosition);
 
   fPlayers[fOwner].Stats.WareConsumed(wt_Wood, fBuildSupplyWood);
@@ -464,16 +465,16 @@ begin
   gTerrain.SetHouse(fPosition, fHouseType, hsNone, -1);
 
   //Leave rubble
-  if not IsEditor then
+  if not IsSilent then
     gTerrain.AddHouseRemainder(fPosition, fHouseType, fBuildState);
 
   BuildingRepair := False; //Otherwise labourers will take task to repair when the house is destroyed
-  if RemoveRoadWhenDemolish and ((BuildingState in [hbs_NoGlyph, hbs_Wood]) or IsEditor) then
+  if RemoveRoadWhenDemolish and ((BuildingState in [hbs_NoGlyph, hbs_Wood]) or IsSilent) then
   begin
     if gTerrain.Land[GetEntrance.Y, GetEntrance.X].TileOverlay = to_Road then
     begin
       gTerrain.RemRoad(GetEntrance);
-      if not IsEditor then
+      if not IsSilent then
         gTerrain.Land[GetEntrance.Y, GetEntrance.X].TileOverlay := to_Dig3; //Remove road and leave dug earth behind
     end;
   end;
@@ -1528,7 +1529,7 @@ end;
 
 
 //Remove all queued units first, to avoid unnecessary shifts in queue
-procedure TKMHouseSchool.DemolishHouse(aFrom: TPlayerIndex; IsEditor: Boolean = False);
+procedure TKMHouseSchool.DemolishHouse(aFrom: TPlayerIndex; IsSilent: Boolean = False);
 var
   I: Integer;
 begin
@@ -1732,7 +1733,7 @@ begin
 end;
 
 
-procedure TKMHouseStore.DemolishHouse(aFrom: TPlayerIndex; IsEditor: Boolean = False);
+procedure TKMHouseStore.DemolishHouse(aFrom: TPlayerIndex; IsSilent: Boolean = False);
 var
   R: TWareType;
 begin
@@ -1860,7 +1861,7 @@ begin
 end;
 
 
-procedure TKMHouseBarracks.DemolishHouse(aFrom: TPlayerIndex; IsEditor: Boolean = False);
+procedure TKMHouseBarracks.DemolishHouse(aFrom: TPlayerIndex; IsSilent: Boolean = False);
 var
   R: TWareType;
 begin

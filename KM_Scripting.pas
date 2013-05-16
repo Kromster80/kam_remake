@@ -233,7 +233,7 @@ begin
       RegisterMethod('procedure HouseAllow(aPlayer, aHouseType: Word; aAllowed: Boolean)');
       RegisterMethod('function  HouseBarracksEquip(aHouseID: Integer; aUnitType: Integer; aCount: Integer): Integer');
       RegisterMethod('procedure HouseDeliveryBlock(aHouseID: Integer; aDeliveryBlocked: Boolean)');
-      RegisterMethod('procedure HouseDestroy(aHouseID: Integer)');
+      RegisterMethod('procedure HouseDestroy(aHouseID: Integer; aSilent: Boolean)');
       RegisterMethod('procedure HouseRepairEnable(aHouseID: Integer; aRepairEnabled: Boolean)');
       RegisterMethod('function  HouseSchoolQueueAdd(aHouseID: Integer; aUnitType: Integer; aCount: Integer): Integer');
       RegisterMethod('procedure HouseSchoolQueueRemove(aHouseID, QueueIndex: Integer)');

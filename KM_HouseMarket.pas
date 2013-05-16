@@ -24,7 +24,7 @@ type
     constructor Create(aID: Cardinal; aHouseType: THouseType; PosX, PosY: Integer; aOwner: TPlayerIndex; aBuildState: THouseBuildState);
     constructor Load(LoadStream: TKMemoryStream); override;
 
-    procedure DemolishHouse(aFrom: TPlayerIndex; IsEditor: Boolean = False); override;
+    procedure DemolishHouse(aFrom: TPlayerIndex; IsSilent: Boolean = False); override;
     property ResFrom: TWareType read fResFrom write SetResFrom;
     property ResTo: TWareType read fResTo write SetResTo;
     function RatioFrom: Byte;
@@ -58,7 +58,7 @@ begin
 end;
 
 
-procedure TKMHouseMarket.DemolishHouse(aFrom: TPlayerIndex; IsEditor: Boolean = False);
+procedure TKMHouseMarket.DemolishHouse(aFrom: TPlayerIndex; IsSilent: Boolean = False);
 var
   R: TWareType;
 begin

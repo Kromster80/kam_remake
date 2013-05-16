@@ -122,7 +122,7 @@ type
     procedure HouseAddWaresTo(aHouseID: Integer; aType, aCount: Word);
     procedure HouseAllow(aPlayer, aHouseType: Word; aAllowed: Boolean);
     function  HouseBarracksEquip(aHouseID: Integer; aUnitType: Integer; aCount: Integer): Integer;
-    procedure HouseDestroy(aHouseID: Integer);
+    procedure HouseDestroy(aHouseID: Integer; aSilent: Boolean);
     procedure HouseDeliveryBlock(aHouseID: Integer; aDeliveryBlocked: Boolean);
     procedure HouseRepairEnable(aHouseID: Integer; aRepairEnabled: Boolean);
     function  HouseSchoolQueueAdd(aHouseID: Integer; aUnitType: Integer; aCount: Integer): Integer;
@@ -1332,14 +1332,14 @@ begin
 end;
 
 
-procedure TKMScriptActions.HouseDestroy(aHouseID: Integer);
+procedure TKMScriptActions.HouseDestroy(aHouseID: Integer; aSilent: Boolean);
 var H: TKMHouse;
 begin
   if aHouseID > 0 then
   begin
     H := fIDCache.GetHouse(aHouseID);
     if H <> nil then
-      H.DemolishHouse(-1, False);
+      H.DemolishHouse(-1, aSilent);
   end
   else
     LogError('Actions.HouseDestroy', [aHouseID]);

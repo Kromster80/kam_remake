@@ -9,6 +9,7 @@ Accepted:
  +	Actions.HouseSchoolQueueRemove
  +	Actions.GiveWeapons
  +	Actions.PlayerAddDefaultGoals
+ +	Added parameter "Silent" to Actions.HouseDestroy
 	Closest house/unit/group to given XY of certain player and type
 	Change house/unit/group owner
 	Get/set ware distribution
@@ -17,7 +18,6 @@ Accepted:
 	Allow to query count of placed house plans
 	Command to add default economic or fighting goals (e.g. for multiplayer because teams are not fixed to locations)
 	PlanCancel (road/field/house)
-	Parameter for DestroyHouse "LeavesRubble" (allows scripters to do a primative "ChangeHouseOwner")
 	States.HouseUnderAttack or OnHouseUnderAttack or similar (needed for Tower Defence)
 	DisplayText(text, player_id, timeout) to show announcements that will be gone after timeout (for TD and etc.)
 	Disable "house not occupied" messages (and resource depleted?) for a specific house (needed for tower defence)
