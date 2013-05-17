@@ -19,12 +19,12 @@ type
     fAnimStep: Cardinal;
     MapX: Word;
     MapY: Word;
-    Revelation: array of array of record
+    Revelation: array of array of packed record
       //Lies within range 0, TERRAIN_FOG_OF_WAR_MIN..TERRAIN_FOG_OF_WAR_MAX.
       Visibility: Byte;
       {LastTerrain: Byte;
       LastHeight: Byte;
-      LastTree: Byte;
+      LastObj: Byte;
       LastHouse: THouseType;}
     end;
     procedure SetMapSize(X,Y: Word);
@@ -64,7 +64,7 @@ const
 
 
 implementation
-uses KM_Defaults, KM_Game;
+uses KM_Defaults, KM_Game, KM_Terrain;
 
 
 { TKMFogOfWar }
@@ -243,10 +243,19 @@ begin
   Inc(fAnimStep);
 
   for I := 0 to MapY - 1 do
-    for K := 0 to MapX - 1 do
-      if (Revelation[I, K].Visibility > FOG_OF_WAR_MIN)
-      and ((I * MapX + K + fAnimStep) mod FOW_PACE = 0) then
-          Dec(Revelation[I, K].Visibility, FOG_OF_WAR_DEC);
+  for K := 0 to MapX - 1 do
+  if (Revelation[I, K].Visibility > FOG_OF_WAR_MIN)
+  and ((I * MapX + K + fAnimStep) mod FOW_PACE = 0) then
+  begin
+    Dec(Revelation[I, K].Visibility, FOG_OF_WAR_DEC);
+
+    {//Remember waht we have seen last
+    if Revelation[I, K].Visibility <= FOG_OF_WAR_MIN then
+    begin
+      Revelation[I, K].LastTerrain := gTerrain.Land[I, K].Terrain;
+
+    end;}
+  end;
 end;
 
 

@@ -530,7 +530,6 @@ begin
       DoMarks(aFieldsList, aHousePlansList);
     EndVBO;
 
-    //@Krom: This doesn't seem to be working, no text is rendered on the map. Can you take a look please?
     if SHOW_WALK_CONNECT then
     begin
       glPushAttrib(GL_DEPTH_BUFFER_BIT);
