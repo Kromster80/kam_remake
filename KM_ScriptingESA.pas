@@ -37,6 +37,7 @@ type
     function GroupDead(aGroupID: Integer): Boolean;
     function GroupMember(aGroupID, aMemberIndex: Integer): Integer;
     function GroupMemberCount(aGroupID: Integer): Integer;
+    function GroupColumnCount(aGroupID: Integer): Integer;
     function GroupOwner(aGroupID: Integer): Integer;
 
     function HouseAt(aX, aY: Word): Integer;
@@ -987,6 +988,21 @@ begin
   end
   else
     LogError('States.GroupMemberCount', [aGroupID]);
+end;
+
+
+function TKMScriptStates.GroupColumnCount(aGroupID: Integer): Integer;
+var G: TKMUnitGroup;
+begin
+  Result := 0;
+  if aGroupID > 0 then
+  begin
+    G := fIDCache.GetGroup(aGroupID);
+    if G <> nil then
+      Result := G.UnitsPerRow;
+  end
+  else
+    LogError('States.GroupColumnCount', [aGroupID]);
 end;
 
 

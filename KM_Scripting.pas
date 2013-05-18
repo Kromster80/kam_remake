@@ -152,6 +152,7 @@ begin
       RegisterMethod('function GroupDead(aGroupID: Integer): Boolean');
       RegisterMethod('function GroupMember(aGroupID, aMemberIndex: Integer): Integer');
       RegisterMethod('function GroupMemberCount(aGroupID: Integer): Integer');
+      RegisterMethod('function GroupColumnCount(aGroupID: Integer): Integer');
       RegisterMethod('function GroupOwner(aGroupID: Integer): Integer');
 
       RegisterMethod('function HouseAt(aX, aY: Word): Integer');
@@ -406,6 +407,7 @@ begin
       RegisterMethod(@TKMScriptStates.GroupDead,        'GROUPDEAD');
       RegisterMethod(@TKMScriptStates.GroupMember,      'GROUPMEMBER');
       RegisterMethod(@TKMScriptStates.GroupMemberCount, 'GROUPMEMBERCOUNT');
+      RegisterMethod(@TKMScriptStates.GroupColumnCount, 'GROUPCOLUMNCOUNT');
       RegisterMethod(@TKMScriptStates.GroupOwner,       'GROUPOWNER');
 
       RegisterMethod(@TKMScriptStates.HouseAt,              'HOUSEAT');

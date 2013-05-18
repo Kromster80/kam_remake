@@ -5,6 +5,7 @@ Accepted:
  +	States.GetAllUnits
  +	States.GetAllHouses
  +	States.GetAllGroups
+ +	States.GroupColumnCount
  +	Actions.HouseWeaponsOrderSet
  +	Actions.HouseSchoolQueueRemove
  +	Actions.GiveWeapons
@@ -23,10 +24,11 @@ Accepted:
 	Disable "house not occupied" messages (and resource depleted?) for a specific house (needed for tower defence)
 	States.HouseIsComplete
 	Split a specific warrior out of a group
+	PlayWAV (and option to disable normal sound for messages?)
+	Use markup to get LIBX strings instead of a function to prevent inconsitencies
 
 
 Proposed:
-	PlayWAV (and option to disable normal sound for messages?)
 	Change position/alignment/font of overlay text
 	Render sprite onto map (from provided RXX file)
 	Render sprite overlaid on the screen like TKMImage (from provided RXX file)
