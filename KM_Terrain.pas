@@ -716,23 +716,30 @@ end;
   Should be optimized versus usual UnitsHitTest
   Prefer Warriors over Citizens}
 function TKMTerrain.UnitsHitTestWithinRad(aLoc: TKMPoint; MinRad, MaxRad: Single; aPlayer: TPlayerIndex; aAlliance: TAllianceType; Dir: TKMDirection; const aClosest: Boolean): Pointer;
+type
+  TKMUnitArray = array of TKMUnit;
+  procedure Append(var aArray: TKMUnitArray; var aCount: Integer; const aUnit: TKMUnit);
+  begin
+    if aCount >= Length(aArray) then
+      SetLength(aArray, aCount + 32);
+
+    aArray[aCount] := aUnit;
+    Inc(aCount);
+  end;
 var
   I,K: Integer; //Counters
   LowX,LowY,HighX,HighY: Integer; //Ranges
   dX,dY: Integer;
   RequiredMaxRad: Single;
-  U,C,W: TKMUnit; //CurrentUnit, BestWarrior, BestCitizen
-  Warriors, Citizens: TList;
+  U: TKMUnit;
   P: TKMPoint;
+  WCount, CCount: Integer;
+  W, C: TKMUnitArray;
 begin
-  W := nil;
-  C := nil;
-
-  if not aClosest then
-  begin
-    Warriors := TList.Create;
-    Citizens := TList.Create;
-  end;
+  WCount := 0;
+  CCount := 0;
+  SetLength(W, 1 + Byte(aClosest) * 32);
+  SetLength(C, 1 + Byte(aClosest) * 32);
 
   //Scan one tile further than the maximum radius due to rounding
   LowX := Max(Round(aLoc.X-(MaxRad+1)), 1); //1.42 gets rounded to 1
@@ -768,8 +775,8 @@ begin
       Continue;
 
     //Don't check tiles farther than closest Warrior
-    if aClosest and (W <> nil)
-    and (KMLengthSqr(aLoc, KMPoint(K,I)) >= KMLengthSqr(aLoc, W.GetPosition)) then
+    if aClosest and (W[0] <> nil)
+    and (KMLengthSqr(aLoc, KMPoint(K,I)) >= KMLengthSqr(aLoc, W[0].GetPosition)) then
       Continue; //Since we check left-to-right we can't exit just yet (there are possible better enemies below)
 
     //In KaM archers can shoot further than sight radius (shoot further into explored areas)
@@ -797,38 +804,35 @@ begin
       if aClosest then
       begin
         if U is TKMUnitWarrior then
-          W := U
+          W[0] := U
         else
-          C := U;
+          C[0] := U;
       end
       else
       begin
         if U is TKMUnitWarrior then
-          Warriors.Add(U)
+          Append(W, WCount, U)
         else
-          Citizens.Add(U);
+          Append(C, CCount, U);
       end;
   end;
 
   if aClosest then
   begin
-    if W <> nil then
-      Result := W
+    if W[0] <> nil then
+      Result := W[0]
     else
-      Result := C;
+      Result := C[0];
   end
   else
   begin
-    if Warriors.Count > 0 then
-      Result := Warriors[KaMRandom(Warriors.Count)]
+    if WCount > 0 then
+      Result := W[KaMRandom(WCount)]
     else
-      if Citizens.Count > 0 then
-        Result := Citizens[KaMRandom(Citizens.Count)]
+      if CCount > 0 then
+        Result := C[KaMRandom(CCount)]
       else
         Result := nil;
-
-    Warriors.Free;
-    Citizens.Free;
   end;
 end;
 
