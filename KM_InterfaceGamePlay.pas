@@ -4249,9 +4249,13 @@ begin
           and (Group.GroupType = UnitGroups[U.UnitType]) then
           begin
             Group2 := fPlayers[MySpectator.PlayerIndex].UnitGroups.GetGroupByMember(TKMUnitWarrior(U));
-            fSoundLib.PlayWarrior(Group.UnitType, sp_Join); //In SP joining is instant, Group does not exist after that
-            fGame.GameInputProcess.CmdArmy(gic_ArmyLink, Group, Group2);
-            Army_HideJoinMenu(nil);
+            //Warrior might not have a group yet if he's still walking out of the barracks
+            if Group2 <> nil then
+            begin
+              fSoundLib.PlayWarrior(Group.UnitType, sp_Join); //In SP joining is instant, Group does not exist after that
+              fGame.GameInputProcess.CmdArmy(gic_ArmyLink, Group, Group2);
+              Army_HideJoinMenu(nil);
+            end;
           end;
           Exit;
         end;
