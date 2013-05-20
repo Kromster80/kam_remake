@@ -121,7 +121,7 @@ Improvements:
 	L	Maplist still takes too long to load, scrollbar moves irritatingly while maps are being added
 	L	Save last selected item in lists (load game, mp, maped list, savegames, etc)
 	L	Right-click on a unit in Schools queue to move that unit to the front of the queue (currently RMB is "remove to here")
-  L Make units turn around without skipping inbetween directions (instead of immediate direction change)
+  M Archers should not change formations when group members get killed while under attack
 
 	L	MapEd: Allow to toggle trees/objects opacity (make them partially visible) [Marcin]
 	L	MapEd: Allow to toggle AI defence positions display
@@ -135,7 +135,8 @@ Improvements:
 	L	MapEd: Add size to Object delete brush (possibly in a new tab where artistic brushes will be)
 	L MapEd: An option to hide roads/fields, so you can view just the terrain while you edit it
  
- -	Unexpectedly high ping values (not our problem usually)
+-       Make units turn around without skipping inbetween directions (instead of immediate direction change)
+-	Unexpectedly high ping values (not our problem usually)
  -	One type of pine tree cannot be cut (same as KaM, there are not even sprites for it falling down)
  -	The ingame briefing texture is too short, see attached picture
  -	Serfs should take wares back or to suitable house if destination is destroyed
