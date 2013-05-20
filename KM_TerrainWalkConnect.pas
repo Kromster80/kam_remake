@@ -13,18 +13,18 @@ type
     class procedure CCLFind(aWC: TWalkConnect; aPass: TPassability; aAllowDiag: Boolean);
 
     //Check whether passability was unchanged, if so we can completely skip the update
-    class function CheckCanSkip(aWorkRect:TKMRect; aWC:TWalkConnect; aPass:TPassability; aDiagObjectsEffected: Boolean): Boolean;
+    class function CheckCanSkip(aWorkRect: TKMRect; aWC: TWalkConnect; aPass: TPassability; aDiagObjectsEffected: Boolean): Boolean;
 
     //Helpful functions used to determine when it's ok to use LocalUpdate instead of slower GlobalUpdate
-    class function ExactlyOneAreaIDInRect_Current(aRect:TKMRect; aWC: TWalkConnect): Boolean;
-    class function ExactlyOneAreaIDInRect_New(aRect:TKMRect; aWC: TWalkConnect; aPass: TPassability; aAllowDiag: Boolean): Boolean;
+    class function ExactlyOneAreaIDInRect_Current(aRect: TKMRect; aWC: TWalkConnect): Boolean;
+    class function ExactlyOneAreaIDInRect_New(aRect: TKMRect; aPass: TPassability; aAllowDiag: Boolean): Boolean;
 
     //GlobalUpdate rebuilds the entire map
     class procedure GlobalUpdate(aWC: TWalkConnect; aPass: TPassability; aAllowDiag: Boolean);
     //LocalUpdate just updates changes in aRect for much better performance, used under special conditions
-    class procedure LocalUpdate(aRect:TKMRect; aWC: TWalkConnect; aPass: TPassability; aAllowDiag: Boolean);
+    class procedure LocalUpdate(aRect: TKMRect; aWC: TWalkConnect; aPass: TPassability; aAllowDiag: Boolean);
   public
-    class procedure DoUpdate(aAreaAffected:TKMRect; aWC:TWalkConnect; aPass:TPassability; aAllowDiag: Boolean; aDiagObjectsEffected: Boolean);
+    class procedure DoUpdate(aAreaAffected: TKMRect; aWC:TWalkConnect; aPass: TPassability; aAllowDiag: Boolean; aDiagObjectsEffected: Boolean);
   end;
 
 implementation
@@ -92,7 +92,7 @@ begin
 
   if (KMRectArea(LocalArea) < 64) //If the area is large the test takes too long, better to just do global update
   and ExactlyOneAreaIDInRect_Current(LocalArea, aWC)
-  and ExactlyOneAreaIDInRect_New(LocalArea, aWC, aPass, aAllowDiag) then
+  and ExactlyOneAreaIDInRect_New(LocalArea, aPass, aAllowDiag) then
     LocalUpdate(LocalArea, aWC, aPass, aAllowDiag)
   else
     GlobalUpdate(aWC, aPass, aAllowDiag);
@@ -164,7 +164,7 @@ end;
 
 
 //Do a local floodfill and check that there's exactly one area that matches passability
-class function TKMTerrainWalkConnect.ExactlyOneAreaIDInRect_New(aRect:TKMRect; aWC: TWalkConnect; aPass: TPassability; aAllowDiag: Boolean): Boolean;
+class function TKMTerrainWalkConnect.ExactlyOneAreaIDInRect_New(aRect:TKMRect; aPass: TPassability; aAllowDiag: Boolean): Boolean;
 var
   LocalWalkConnect: array of array of Boolean; //We can use Boolean instead of byte since we're only looking for one area
 

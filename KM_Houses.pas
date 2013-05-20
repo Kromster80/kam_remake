@@ -1245,8 +1245,7 @@ end;
 
 
 procedure TKMHouse.UpdateState;
-var
-  HouseName: string;
+//var HouseName: string;
 begin
   if not IsComplete then Exit; //Don't update unbuilt houses
 
@@ -1259,7 +1258,7 @@ begin
       //Hide messages for wrong player, in replays, and if we have lost
       if (fOwner = MySpectator.PlayerIndex) and not fGame.IsReplay and (fPlayers[fOwner].AI.WonOrLost <> wol_Lost) then
       begin
-        HouseName := fResource.HouseDat[HouseType].HouseName;
+        //HouseName := fResource.HouseDat[HouseType].HouseName;
         //We can't paste houses name instead of %s like that because of plurals and feminine/masculine attrib
         fGame.ShowMessage(mkHouse, fTextLibrary[TX_MSG_HOUSE_UNOCCUPIED], GetEntrance);
       end;
@@ -1881,7 +1880,7 @@ begin
   Assert(aWare in [WARFARE_MIN..WARFARE_MAX], 'Invalid resource added to barracks');
 
   ResourceCount[aWare] := EnsureRange(ResourceCount[aWare]+aCount, 0, High(Word));
-  fPlayers[fOwner].Deliveries.Queue.AddOffer(Self,aWare,aCount);
+  fPlayers[fOwner].Deliveries.Queue.AddOffer(Self, aWare, aCount);
 end;
 
 
