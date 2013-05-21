@@ -1963,20 +1963,24 @@ var
 begin
   Rect := fGame.MapEditor.Selection.Rect;
 
-  if Abs(GameCursor.Float.X - Rect.Left) < EDGE then
+  if InRange(GameCursor.Float.Y, Rect.Top, Rect.Bottom)
+  and (Abs(GameCursor.Float.X - Rect.Left) < EDGE) then
     fSelection := smResizeX1
   else
-  if Abs(GameCursor.Float.X - Rect.Right) < EDGE then
+  if InRange(GameCursor.Float.Y, Rect.Top, Rect.Bottom)
+  and (Abs(GameCursor.Float.X - Rect.Right) < EDGE) then
     fSelection := smResizeX2
   else
-  if Abs(GameCursor.Float.Y - Rect.Top) < EDGE then
+  if InRange(GameCursor.Float.X, Rect.Left, Rect.Right)
+  and (Abs(GameCursor.Float.Y - Rect.Top) < EDGE) then
     fSelection := smResizeY1
   else
-  if Abs(GameCursor.Float.Y - Rect.Bottom) < EDGE then
+  if InRange(GameCursor.Float.X, Rect.Left, Rect.Right)
+  and (Abs(GameCursor.Float.Y - Rect.Bottom) < EDGE) then
     fSelection := smResizeY2
   else
   if KMInRect(GameCursor.Float, Rect) then
-    //todo: Clicking inside the rect should move whole rect
+    //todo: Clicking inside the rect should move whole rect?
   else
   begin
     fSelection := smNewRect;
