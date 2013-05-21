@@ -26,6 +26,7 @@ type
   //We have our own TKMRect that consistently matches TKMPoint range
   //Rects are often used without range checking and include negative off-map coords
   TKMRect = packed record Left, Top, Right, Bottom: SmallInt end;
+  TKMRectF = packed record Left, Top, Right, Bottom: Single end;
 
   TKMPointFunction = function(aPoint: TKMPoint): Boolean of object;
 

@@ -1,7 +1,7 @@
 unit KM_MapEditor;
 {$I KaM_Remake.inc}
 interface
-uses Classes, SysUtils,
+uses Classes, Math, SysUtils,
   KM_CommonClasses, KM_Defaults, KM_Points, KM_Terrain, KM_Units, KM_RenderPool;
 
 
@@ -47,15 +47,14 @@ type
     procedure UpdateAreas(const aMat: array of TRawDeposit);
   end;
 
-  //Designed to store MapEd specific data and methods
-  TKMMapEditor = class
+  TKMSelection = class
   private
-    fDeposits: TKMDeposits;
-    fRevealers: array [0..MAX_PLAYERS-1] of TKMPointTagList;
-    fVisibleLayers: TMapEdLayerSet;
-    function GetRevealer(aIndex: Byte): TKMPointTagList;
+    fRawRect: TKMRectF; //Cursor selection bounds (can have inverted bounds)
+    fRect: TKMRect; //Tile-space selection, at least 1 tile
+    procedure SetRawRect(const aValue: TKMRectF);
   public
-    SelX1, SelY1, SelX2, SelY2: Integer;
+    property RawRect: TKMRectF read fRawRect write SetRawRect;
+    property Rect: TKMRect read fRect;
     {Selection: array of array of record
       Terrain: Byte;
       Height: Byte;
@@ -63,7 +62,17 @@ type
       Obj: Byte;
       OldTerrain, OldRotation: Byte; //Only used for map editor
     end;}
+  end;
 
+  //Designed to store MapEd specific data and methods
+  TKMMapEditor = class
+  private
+    fDeposits: TKMDeposits;
+    fSelection: TKMSelection;
+    fRevealers: array [0..MAX_PLAYERS-1] of TKMPointTagList;
+    fVisibleLayers: TMapEdLayerSet;
+    function GetRevealer(aIndex: Byte): TKMPointTagList;
+  public
     RevealAll: array [0..MAX_PLAYERS-1] of Boolean;
     DefaultHuman: TPlayerIndex;
     PlayerHuman: array [0..MAX_PLAYERS - 1] of Boolean;
@@ -71,6 +80,7 @@ type
     constructor Create;
     destructor Destroy; override;
     property Deposits: TKMDeposits read fDeposits;
+    property Selection: TKMSelection read fSelection;
     property Revealers[aIndex: Byte]: TKMPointTagList read GetRevealer;
     property VisibleLayers: TMapEdLayerSet read fVisibleLayers write fVisibleLayers;
     function HitTest(X,Y: Integer): TKMMapEdMarker;
@@ -81,8 +91,8 @@ type
 
 
 implementation
-uses KM_Game, KM_PlayersCollection, KM_RenderAux, KM_RenderUI, KM_AIDefensePos, KM_UnitGroups,
-KM_AIFields;
+uses KM_Game, KM_PlayersCollection, KM_RenderAux, KM_RenderUI, KM_AIDefensePos,
+  KM_UnitGroups, KM_AIFields;
 
 
 { TKMDeposits }
@@ -260,6 +270,19 @@ begin
 end;
 
 
+{ TKMSelection }
+procedure TKMSelection.SetRawRect(const aValue: TKMRectF);
+begin
+  fRawRect := aValue;
+
+  //Convert RawRect values that can be inverted to tilespace Rect
+  fRect.Left := Trunc(Min(fRawRect.Left, fRawRect.Right));
+  fRect.Top := Trunc(Min(fRawRect.Top, fRawRect.Bottom));
+  fRect.Right := Ceil(Max(fRawRect.Left, fRawRect.Right));
+  fRect.Bottom := Ceil(Max(fRawRect.Top, fRawRect.Bottom));
+end;
+
+
 { TKMMapEditor }
 constructor TKMMapEditor.Create;
 var
@@ -268,6 +291,7 @@ begin
   inherited Create;
 
   fDeposits := TKMDeposits.Create;
+  fSelection := TKMSelection.Create;
 
   fVisibleLayers := [mlObjects, mlHouses, mlUnits, mlDeposits];
 
@@ -281,6 +305,7 @@ var
   I: Integer;
 begin
   FreeAndNil(fDeposits);
+  FreeAndNil(fSelection);
 
   for I := Low(fRevealers) to High(fRevealers) do
     fRevealers[I].Free;
@@ -450,7 +475,8 @@ begin
   end;
 
   if mlSelection in fVisibleLayers then
-    fRenderAux.SquareOnTerrain(SelX1, SelY1, SelX2, SelY2, $FFFFFF00);
+  with fSelection do
+    fRenderAux.SquareOnTerrain(Rect.Left, Rect.Top, Rect.Right, Rect.Bottom, $FFFFFF00);
 
   //Show selected group order target
   if MySpectator.Selected is TKMUnitGroup then

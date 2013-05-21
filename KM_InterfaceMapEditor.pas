@@ -1934,47 +1934,65 @@ end;
 
 
 procedure TKMapEdInterface.Selection_Move(X, Y: Integer);
+var
+  Rect: TKMRectF;
 begin
+  Rect := fGame.MapEditor.Selection.RawRect;
+
   case fSelection of
     smNewRect:    begin
-                    fGame.MapEditor.SelX2 := GameCursor.Cell.X;
-                    fGame.MapEditor.SelY2 := GameCursor.Cell.Y;
+                    Rect.Right := GameCursor.Float.X;
+                    Rect.Bottom := GameCursor.Float.Y;
                   end;
-    smResizeX1:   fGame.MapEditor.SelX1 := GameCursor.Cell.X;
-    smResizeY1:   fGame.MapEditor.SelY1 := GameCursor.Cell.Y;
-    smResizeX2:   fGame.MapEditor.SelX2 := GameCursor.Cell.X;
-    smResizeY2:   fGame.MapEditor.SelY2 := GameCursor.Cell.Y;
+    smResizeX1:   Rect.Left := GameCursor.Float.X;
+    smResizeY1:   Rect.Top := GameCursor.Float.Y;
+    smResizeX2:   Rect.Right := GameCursor.Float.X;
+    smResizeY2:   Rect.Bottom := GameCursor.Float.Y;
   end;
 
+  fGame.MapEditor.Selection.RawRect := Rect;
 end;
 
 
 procedure TKMapEdInterface.Selection_Start(X, Y: Integer);
+const
+  EDGE = 0.25;
+var
+  Rect: TKMRect;
+  RawRect: TKMRectF;
 begin
-  if Abs(GameCursor.Float.X - fGame.MapEditor.SelX1) < 0.25 then
+  Rect := fGame.MapEditor.Selection.Rect;
+
+  if Abs(GameCursor.Float.X - Rect.Left) < EDGE then
     fSelection := smResizeX1
   else
-  if Abs(GameCursor.Float.Y - fGame.MapEditor.SelY1) < 0.25 then
-    fSelection := smResizeY1
-  else
-  if Abs(GameCursor.Float.X - fGame.MapEditor.SelX2) < 0.25 then
+  if Abs(GameCursor.Float.X - Rect.Right) < EDGE then
     fSelection := smResizeX2
   else
-  if Abs(GameCursor.Float.Y - fGame.MapEditor.SelY2) < 0.25 then
+  if Abs(GameCursor.Float.Y - Rect.Top) < EDGE then
+    fSelection := smResizeY1
+  else
+  if Abs(GameCursor.Float.Y - Rect.Bottom) < EDGE then
     fSelection := smResizeY2
+  else
+  if KMInRect(GameCursor.Float, Rect) then
+    //todo: Clicking inside the rect should move whole rect
   else
   begin
     fSelection := smNewRect;
-    fGame.MapEditor.SelX1 := GameCursor.Cell.X-1;
-    fGame.MapEditor.SelY1 := GameCursor.Cell.Y-1;
-    fGame.MapEditor.SelX2 := GameCursor.Cell.X;
-    fGame.MapEditor.SelY2 := GameCursor.Cell.Y;
+    RawRect := fGame.MapEditor.Selection.RawRect;
+    RawRect.Left := GameCursor.Float.X;
+    RawRect.Top := GameCursor.Float.Y;
+    RawRect.Right := GameCursor.Float.X;
+    RawRect.Bottom := GameCursor.Float.Y;
+    fGame.MapEditor.Selection.RawRect := RawRect;
   end;
 end;
 
 
 procedure TKMapEdInterface.SetActivePlayer(aIndex: TPlayerIndex);
-var I: Integer;
+var
+  I: Integer;
 begin
   MySpectator.PlayerIndex := aIndex;
 
