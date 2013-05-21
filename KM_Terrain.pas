@@ -2787,7 +2787,7 @@ end;
 { This whole thing is very CPU intesive, think of it - to update whole (192*192) tiles map }
 //Don't use any advanced math here, only simpliest operations - + div *
 procedure TKMTerrain.UpdateState;
-  procedure SetLand(X, Y, aTile, aObj: Byte);
+  procedure SetLand(const X, Y, aTile, aObj: Byte);
   var FloodfillNeeded: Boolean;
   begin
     Land[Y,X].Terrain := aTile;

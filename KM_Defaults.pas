@@ -38,7 +38,7 @@ var
   KAM_WATER_DRAW        :Boolean = True;  //Render underwater sand
   CHEATS_ENABLED        :Boolean = True;  //Enable cheats in game (add_resource, instant_win, etc)
   FREE_POINTERS         :Boolean = True;  //If True, units/houses will be freed and removed from the list once they are no longer needed
-  CAP_MAX_FPS           :Boolean = True;  //Should limit rendering performance to avoid GPU overheating (disable to measure debug performance)
+  CAP_MAX_FPS           :Boolean = False;  //Should limit rendering performance to avoid GPU overheating (disable to measure debug performance)
   CRASH_ON_REPLAY       :Boolean = True;  //Crash as soon as replay consistency fails (random numbers mismatch)
   BLOCK_DUPLICATE_APP   :Boolean = False;  //Do not allow to run multiple games at once (to prevent MP cheating)
   CHECK_8087CW          :Boolean = True; //Check that 8087CW (FPU flags) are set correctly each frame, in case some lib/API changed them
