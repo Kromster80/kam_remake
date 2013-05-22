@@ -22,7 +22,7 @@ type
 
 
 implementation
-uses KM_PlayersCollection;
+uses KM_PlayersCollection, KM_ResourceWares;
 
 
 { TTaskGoEat }

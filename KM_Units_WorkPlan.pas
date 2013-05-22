@@ -1,7 +1,8 @@
 unit KM_Units_WorkPlan;
 {$I KaM_Remake.inc}
 interface
-uses KM_Defaults, KM_CommonClasses, KM_Points, KM_Terrain, KM_Units;
+uses KM_Defaults, KM_CommonClasses, KM_Points, KM_Terrain, KM_Units,
+  KM_ResourceWares;
 
 
 type

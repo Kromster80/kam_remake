@@ -2,7 +2,8 @@ unit KM_PlayerStats;
 {$I KaM_Remake.inc}
 interface
 uses Classes, SysUtils,
-  KM_CommonClasses, KM_CommonTypes, KM_Defaults;
+  KM_CommonClasses, KM_CommonTypes, KM_Defaults,
+  KM_ResourceWares;
 
 
 //These are stats for each player

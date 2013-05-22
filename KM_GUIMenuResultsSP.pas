@@ -58,7 +58,8 @@ type
 
 implementation
 uses KM_TextLibrary, KM_Game, KM_GameApp, KM_PlayersCollection,
-  KM_Utils, KM_Resource, KM_Player, KM_CommonTypes, KM_RenderUI;
+  KM_Utils, KM_Resource, KM_Player, KM_CommonTypes, KM_RenderUI,
+  KM_ResourceWares;
 
 
 { TKMGUIMenuResultsSP }
@@ -219,7 +220,7 @@ begin
       for I := 0 to High(G) do
         if G[I] <> 0 then
         begin
-          Chart_Wares.AddLine(fResource.Wares[R].Title, ResourceColor[R] or $FF000000, G);
+          Chart_Wares.AddLine(fResource.Wares[R].Title, fResource.Wares[R].GUIColor or $FF000000, G);
           Break;
         end;
     end;

@@ -5,8 +5,9 @@ uses
   {$IFDEF Unix} LCLIntf, LCLType, {$ENDIF}
   Classes, Graphics,
   dglOpenGL, SysUtils, KromOGLUtils, KromUtils, Math,
-  KM_Defaults, KM_CommonClasses, KM_Pics, KM_Render,
-  KM_RenderTerrain, KM_ResourceSprites, KM_Points, KM_Houses, KM_Terrain;
+  KM_Defaults, KM_CommonClasses, KM_Pics, KM_Points, KM_Render,
+  KM_RenderTerrain, KM_ResourceSprites, KM_ResourceWares,
+  KM_Houses, KM_Terrain;
 
 type
   //List of sprites prepared to be rendered

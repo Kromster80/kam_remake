@@ -3,7 +3,8 @@ unit KM_GUIMenuResultsMP;
 interface
 uses
   Controls, Math, StrUtils, SysUtils,
-  KM_CommonTypes, KM_Controls, KM_Defaults, KM_Pics, KM_InterfaceDefaults;
+  KM_CommonTypes, KM_Controls, KM_Defaults, KM_Pics,
+  KM_InterfaceDefaults, KM_ResourceWares;
 
 
 type

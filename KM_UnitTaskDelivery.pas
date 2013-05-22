@@ -1,8 +1,9 @@
 unit KM_UnitTaskDelivery;
 {$I KaM_Remake.inc}
 interface
-uses Classes,
-  KM_CommonClasses, KM_Defaults, KM_Houses, KM_Units, SysUtils, KM_Points;
+uses Classes, SysUtils,
+  KM_CommonClasses, KM_Defaults, KM_Points,
+  KM_Houses, KM_Units, KM_ResourceWares;
 
 
 type

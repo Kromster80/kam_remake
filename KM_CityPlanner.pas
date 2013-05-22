@@ -3,7 +3,8 @@ unit KM_CityPlanner;
 interface
 uses
   Classes, Graphics, KromUtils, Math, SysUtils, TypInfo,
-  KM_Defaults, KM_Points, KM_CommonClasses, KM_TerrainFinder, KM_PerfLog;
+  KM_Defaults, KM_Points, KM_CommonClasses,
+  KM_TerrainFinder, KM_PerfLog, KM_ResourceWares;
 
 
 type

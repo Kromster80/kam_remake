@@ -277,87 +277,6 @@ type
 
   TAllianceType = (at_Enemy=0, at_Ally=1); //Must match KaM script IDs for now
 
-{Wares}
-type
-  TWareType = (
-    wt_None,
-    wt_Trunk,   wt_Stone,   wt_Wood,        wt_IronOre,   wt_GoldOre,
-    wt_Coal,    wt_Steel,   wt_Gold,        wt_Wine,      wt_Corn,
-    wt_Bread,   wt_Flour,   wt_Leather,     wt_Sausages,  wt_Pig,
-    wt_Skin,    wt_Shield,  wt_MetalShield, wt_Armor,     wt_MetalArmor,
-    wt_Axe,     wt_Sword,   wt_Pike,        wt_Hallebard, wt_Bow,
-    wt_Arbalet, wt_Horse,   wt_Fish,
-    wt_All,     wt_Warfare, wt_Food); //Special ware types
-
-const
-  WARE_MIN = wt_Trunk;
-  WARE_MAX = wt_Fish;
-  WARFARE_MIN = wt_Shield;
-  WEAPON_MIN = wt_Shield;
-  WEAPON_MAX = wt_Arbalet;
-  WARFARE_MAX = wt_Horse;
-
-  //Resources colors for Results charts
-  //Made by naospor from kamclub.ru
-  ResourceColor: array [WARE_MIN..WARE_MAX] of Cardinal = (
-    $004080, $BFBFBF, $0080BF, $BF4040, $00FFFF,
-    $606060, $BF0000, $00BFFF, $000080, $80FFFF,
-    $80BFFF, $FFFFFF, $4040BF, $0000FF, $0040BF,
-    $008080, $00BF00, $00FF7F, $FFBF00, $BF0080,
-    $FF0040, $00FF40, $FFFF40, $FF0080, $FFFF80,
-    $101080, $0080FF, $FFBF00);
-
-  //How many of resource gets produced per minute on AVERAGE
-  //Measured on a test map RES_COUNT / TIME in minutes
-  ProductionRate: array [WARE_MIN..WARE_MAX] of Single = (
-     88/120, 414/120, 390/120, 160/120, 160/120,
-    155/120, 218/120, 330/120, 120/120, 138/120,
-    336/120, 162/120, 324/120, 510/120,  84/180,
-     84/180, 190/120, 155/120, 170/120, 155/120,
-    200/120, 195/120, 195/120, 195/120, 200/120,
-    190/120,  69/120, 122/120);
-
-  //How much time it takes from owner taking a house till stable production
-  //1 minute on average for the time it takes to process input into output
-  //Some wares need extra time to grow (e.g. Horses) and some
-  //depend on environment supply (e.g. Trunks)
-  //Trunks 1-15
-  //Wine 1-8
-  //Corn 1-11
-  //Pigs 6
-  //Skins 6
-  //Horses 6
-  ProductionLag: array [WARE_MIN..WARE_MAX] of Byte = (
-     6, 1, 1, 1, 1,
-     1, 1, 1, 4, 5,
-     1, 1, 1, 1, 6,
-     6, 1, 1, 1, 1,
-     1, 1, 1, 1, 1,
-     1, 6, 1);
-
-  //Using shortints instead of bools makes it look much neater in code-view
-  CheatStorePattern: array [WARE_MIN..WARE_MAX] of Byte = (
-  0,0,1,0,0,
-  0,1,0,1,0,
-  1,0,0,0,1,
-  1,0,0,0,1,
-  1,1,1,1,1,
-  0,0,0);
-
-const {Aligned to right to use them in GUI costs display as well}
-  WarfareCosts: array [WEAPON_MIN..WEAPON_MAX, 1..2] of TWareType = (
-    (wt_None,   wt_Wood), //rt_Shield
-    (wt_Coal,  wt_Steel), //rt_MetalShield
-    (wt_None,wt_Leather), //rt_Armor
-    (wt_Coal,  wt_Steel), //rt_MetalArmor
-    (wt_Wood,   wt_Wood), //rt_Axe
-    (wt_Coal,  wt_Steel), //rt_Sword
-    (wt_Wood,   wt_Wood), //rt_Pike
-    (wt_Coal,  wt_Steel), //rt_Hallebard
-    (wt_Wood,   wt_Wood), //rt_Bow
-    (wt_Coal,  wt_Steel)  //rt_Arbalet
-  );
-
 { Terrain }
 type
   TPassability = (
@@ -603,20 +522,6 @@ const
   'ha_Smoke', 'ha_FlagShtok', 'ha_Idle',
   'ha_Flag1', 'ha_Flag2', 'ha_Flag3',
   'ha_Fire1', 'ha_Fire2', 'ha_Fire3', 'ha_Fire4', 'ha_Fire5', 'ha_Fire6', 'ha_Fire7', 'ha_Fire8');
-
-
-  //Number means ResourceType as it is stored in Barracks, hence it's not rt_Something
-  TroopCost: array [ut_Militia..ut_Cavalry, 1..4] of TWareType = (
-  (wt_Axe,          wt_None,        wt_None,  wt_None ), //Militia
-  (wt_Shield,       wt_Armor,       wt_Axe,   wt_None ), //Axefighter
-  (wt_MetalShield,  wt_MetalArmor,  wt_Sword, wt_None ), //Swordfighter
-  (wt_Armor,        wt_Bow,         wt_None,  wt_None ), //Bowman
-  (wt_MetalArmor,   wt_Arbalet,     wt_None,  wt_None ), //Crossbowman
-  (wt_Armor,        wt_Pike,        wt_None,  wt_None ), //Lance Carrier
-  (wt_MetalArmor,   wt_Hallebard,   wt_None,  wt_None ), //Pikeman
-  (wt_Shield,       wt_Armor,       wt_Axe,   wt_Horse), //Scout
-  (wt_MetalShield,  wt_MetalArmor,  wt_Sword, wt_Horse)  //Knight
-  );
 
 
 const

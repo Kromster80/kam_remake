@@ -232,8 +232,8 @@ type
 
 
 implementation
-uses KM_Main, KM_NetworkTypes, KM_TextLibrary, KM_Game, KM_GameApp, KM_PlayersCollection, KM_Locales,
-  KM_Utils, KM_Log, KM_Sound, KM_Networking, KM_Resource, KM_Player, KM_CommonTypes, KM_RenderUI;
+uses KM_Main, KM_NetworkTypes, KM_TextLibrary, KM_Game, KM_GameApp,  KM_Locales,
+  KM_Utils, KM_Log, KM_Sound, KM_Networking, KM_RenderUI;
 
 const
   MAPSIZES_COUNT = 15;

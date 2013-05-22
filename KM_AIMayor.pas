@@ -61,7 +61,8 @@ type
 
 
 implementation
-uses KM_Game, KM_Houses, KM_PlayersCollection, KM_Player, KM_Terrain, KM_Resource, KM_AIFields;
+uses KM_Game, KM_Houses, KM_PlayersCollection, KM_Player, KM_Terrain, KM_Resource,
+  KM_ResourceWares, KM_AIFields;
 
 
 const //Sample list made by AntonP
@@ -91,11 +92,6 @@ const //Sample list made by AntonP
   //Hiring_Army2 (School, CoalMine x2, GoldMine)
 
   WOOD_BLOCK_RAD = 5.8;
-
-  //How much building materials do we need for city development
-  TOWN_STONE_NEED = 10;
-  TOWN_WOOD_NEED = 4.5;
-  TOWN_GOLD_NEED = 1;
 
 
 { TKMayor }

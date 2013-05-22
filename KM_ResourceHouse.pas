@@ -3,7 +3,8 @@ unit KM_ResourceHouse;
 interface
 uses
   Classes, Math, SysUtils,
-  KM_CommonClasses, KM_CommonTypes, KM_Defaults;
+  KM_CommonClasses, KM_CommonTypes, KM_Defaults,
+  KM_ResourceWares;
 
 
 type

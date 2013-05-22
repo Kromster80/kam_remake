@@ -2,9 +2,9 @@ unit KM_Houses;
 {$I KaM_Remake.inc}
 interface
 uses
-   Classes, KromUtils, Math, SysUtils,
-   KM_CommonClasses, KM_Defaults, KM_Points,
-   KM_Terrain;
+  Classes, KromUtils, Math, SysUtils,
+  KM_CommonClasses, KM_Defaults, KM_Points,
+  KM_Terrain, KM_ResourceWares;
 
 {Everything related to houses is here}
 type
@@ -271,12 +271,12 @@ implementation
 uses
   KM_CommonTypes, KM_RenderPool, KM_RenderAux, KM_Units, KM_Scripting,
   KM_Units_Warrior, KM_PlayersCollection, KM_Sound, KM_Game, KM_TextLibrary,
-  KM_Resource, KM_ResourceHouse, KM_Utils, KM_FogOfWar, KM_AI;
+  KM_Resource, KM_ResourceHouse, KM_ResourceUnit, KM_Utils, KM_FogOfWar, KM_AI;
 
 
 { TKMHouse }
 constructor TKMHouse.Create(aID: Cardinal; aHouseType: THouseType; PosX, PosY: Integer; aOwner: TPlayerIndex; aBuildState: THouseBuildState);
-var i: Byte;
+var I: Byte;
 begin
   Assert((PosX <> 0) and (PosY <> 0)); // Can create only on map
 
@@ -1747,11 +1747,20 @@ procedure TKMHouseStore.ResTakeFromOut(aWare: TWareType; const aCount: Word=1);
 begin
   Assert(aCount <= ResourceCount[aWare]);
 
-  dec(ResourceCount[aWare], aCount);
+  Dec(ResourceCount[aWare], aCount);
 end;
 
 
 procedure TKMHouseStore.ToggleAcceptFlag(aRes: TWareType);
+const
+  //Using shortints instead of bools makes it look much neater in code-view
+  CheatPattern: array [WARE_MIN..WARE_MAX] of Byte = (
+    0,0,1,0,0,
+    0,1,0,1,0,
+    1,0,0,0,1,
+    1,0,0,0,1,
+    1,1,1,1,1,
+    0,0,0);
 var
   R: TWareType;
   ApplyCheat: Boolean;
@@ -1765,7 +1774,7 @@ begin
 
     //Check the cheat pattern
     for R := Low(ResourceCount) to High(ResourceCount) do
-      ApplyCheat := ApplyCheat and (NotAcceptFlag[R] = boolean(CheatStorePattern[R]));
+      ApplyCheat := ApplyCheat and (NotAcceptFlag[R] = boolean(CheatPattern[R]));
 
     if ApplyCheat then
     case aRes of

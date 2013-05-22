@@ -22,7 +22,7 @@ type
 
 
 implementation
-uses KM_PlayersCollection, KM_Projectiles;
+uses KM_PlayersCollection, KM_Projectiles, KM_ResourceWares;
 
 
 { TTaskThrowRock }
