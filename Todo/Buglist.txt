@@ -20,6 +20,7 @@
  +	AI attack scripts carried uninitialized values (e.g. delay) over from previous attacks
  +	Limit chat messgae to some sane amount of characters (256) to avoid spam
  +	Clicking on the splash screen registers the click on the main menu once it is loaded
+ +	XML status output from the server sometimes contained invalid characters in player names (now they are escaped correctly)
 	Armour smithy has shields as 2nd ouput, armour workshop has shields as 1st output. Would make sense to match them (note: simply swapping in KM_ResourceHouses causes game logic to be swapped with GUI)
 	Armour smithy has iron as 1st input, weapon smithy has iron as 2nd input (iron/coal swapped). Would make sense to match them (note: simpply swapping in KM_ResourceHouses causes game logic to be swapped with GUI)
 	Deliveries should use the actual walking route length (opposed to Radius)

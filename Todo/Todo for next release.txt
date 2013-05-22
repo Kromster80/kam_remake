@@ -33,6 +33,7 @@ Bugs:
  +	Access violation in TKMUnitWarrior.CheckForEnemy caused by not syncing TUnitActionGoInOut.OnWalkedOut after load
  +	When host is reassigned, lobby password/description should be cleared (otherwise the server still remembers them but the new host doesn't)
 	Locations list in the lobby should only show ones which can currently be selected, ones which are taken should be hidden (there's a problem with ListBox we need to discuss)
+	Debug and fix crashes in delivery queue (see crash reports)
 	
 
 Features:

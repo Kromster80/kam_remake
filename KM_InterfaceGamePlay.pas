@@ -1835,7 +1835,6 @@ begin
       Button_Barracks[I].TexOffsetX := 1;
       Button_Barracks[I].TexOffsetY := 1;
       Button_Barracks[I].CapOffsetY := 2;
-      Button_Barracks[I].HideHighlight := True;
       Button_Barracks[I].Tag := I;
       Button_Barracks[I].TexID := fResource.Wares[BarracksResType[I]].GUIIcon;
       Button_Barracks[I].Hint := fResource.Wares[BarracksResType[I]].Title;
@@ -1852,6 +1851,7 @@ begin
     Button_BarracksRecruit.TexOffsetY := 1;
     Button_BarracksRecruit.CapOffsetY := 2;
     Button_BarracksRecruit.HideHighlight := True;
+    Button_BarracksRecruit.Clickable := False;
     Button_BarracksRecruit.TexID := fResource.UnitDat[ut_Recruit].GUIIcon;
     Button_BarracksRecruit.Hint := fResource.UnitDat[ut_Recruit].UnitName;
 

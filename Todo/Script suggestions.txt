@@ -44,3 +44,4 @@ Proposed:
 	Way to add/remove recruits directly from barracks
 	ChangeMapTile
 	SetAIName
+	More options for on-screen text (background color, alignment, font, size, etc.)
