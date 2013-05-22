@@ -38,7 +38,7 @@ type
   public
     MapSizeX, MapSizeY: Integer;
     MissionMode: TKMissionMode;
-    PlayerCount: Byte;
+    LocCount: Byte;
     CanBeHuman: array [0..MAX_PLAYERS-1] of Boolean;
     CanBeAI: array [0..MAX_PLAYERS-1] of Boolean;
     DefaultHuman: TPlayerIndex;
@@ -373,7 +373,7 @@ begin
   S.Read(MapSizeX);
   S.Read(MapSizeY);
   S.Read(MissionMode, SizeOf(TKMissionMode));
-  S.Read(PlayerCount);
+  S.Read(LocCount);
   S.Read(SmallDesc);
   S.Read(IsCoop);
   S.Read(IsSpecial);
@@ -399,7 +399,7 @@ begin
     S.Write(MapSizeX);
     S.Write(MapSizeY);
     S.Write(MissionMode, SizeOf(TKMissionMode));
-    S.Write(PlayerCount);
+    S.Write(LocCount);
     S.Write(SmallDesc);
     S.Write(IsCoop);
     S.Write(IsSpecial);
@@ -415,7 +415,7 @@ end;
 
 function TKMapInfo.IsValid: Boolean;
 begin
-  Result := (PlayerCount > 0) and
+  Result := (LocCount > 0) and
             FileExists(fPath + fFileName + '.dat') and
             FileExists(fPath + fFileName + '.map');
 end;
@@ -524,8 +524,8 @@ procedure TKMapsCollection.DoSort;
       smByNameDesc:     Result := CompareText(A.FileName, B.FileName) > 0;
       smBySizeAsc:      Result := (A.MapSizeX * A.MapSizeY) < (B.MapSizeX * B.MapSizeY);
       smBySizeDesc:     Result := (A.MapSizeX * A.MapSizeY) > (B.MapSizeX * B.MapSizeY);
-      smByPlayersAsc:   Result := A.PlayerCount < B.PlayerCount;
-      smByPlayersDesc:  Result := A.PlayerCount > B.PlayerCount;
+      smByPlayersAsc:   Result := A.LocCount < B.LocCount;
+      smByPlayersDesc:  Result := A.LocCount > B.LocCount;
       smByHumanPlayersAsc:   Result := A.HumanPlayerCount < B.HumanPlayerCount;
       smByHumanPlayersDesc:  Result := A.HumanPlayerCount > B.HumanPlayerCount;
       smByModeAsc:      Result := A.MissionMode < B.MissionMode;

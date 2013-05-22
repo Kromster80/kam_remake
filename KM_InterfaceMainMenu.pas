@@ -1798,7 +1798,7 @@ begin
   try
     for I := 0 to Maps.Count - 1 do
     begin
-      ColumnBox_MapEd.AddItem(MakeListRow([Maps[I].FileName, IntToStr(Maps[I].PlayerCount), Maps[I].SizeText], I));
+      ColumnBox_MapEd.AddItem(MakeListRow([Maps[I].FileName, IntToStr(Maps[I].LocCount), Maps[I].SizeText], I));
 
       if (Maps[I].CRC = fLastMapCRC) then
         ColumnBox_MapEd.ItemIndex := I;

@@ -67,7 +67,7 @@ end;
 function TMissionParserInfo.ProcessCommand(CommandType: TKMCommandType; P: array of Integer; TextParam: AnsiString = ''): Boolean;
 begin
   case CommandType of
-    ct_SetMaxPlayer:    fMapInfo.PlayerCount      := P[0];
+    ct_SetMaxPlayer:    fMapInfo.LocCount      := P[0];
     ct_SetTactic:       fMapInfo.MissionMode      := mm_Tactic;
     ct_SetCurrPlayer:   fLastPlayer      := P[0];
     ct_HumanPlayer:     begin

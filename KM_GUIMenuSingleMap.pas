@@ -250,7 +250,7 @@ begin
   try
     for I := 0 to fMaps.Count - 1 do
     begin
-      R := MakeListRow(['', IntToStr(fMaps[I].PlayerCount), fMaps[I].FileName, MapSizeText(fMaps[I].MapSizeX, fMaps[I].MapSizeY)]);
+      R := MakeListRow(['', IntToStr(fMaps[I].LocCount), fMaps[I].FileName, MapSizeText(fMaps[I].MapSizeX, fMaps[I].MapSizeY)]);
       R.Cells[2].Hint := fMaps[I].SmallDesc;
       R.Cells[0].Pic := MakePic(rxGui, 28 + Byte(fMaps[I].MissionMode <> mm_Tactic) * 14);
       ColumnBox_SingleMaps.AddItem(R);
@@ -308,7 +308,7 @@ begin
 
       //Location
       DropBox_SingleLoc.Clear;
-      for I := 0 to fMaps[MapId].PlayerCount - 1 do
+      for I := 0 to fMaps[MapId].LocCount - 1 do
       if fMaps[MapId].CanBeHuman[I] or ALLOW_TAKE_AI_PLAYERS then
         DropBox_SingleLoc.Add(fMaps[MapId].LocationName(I), I);
 
@@ -409,7 +409,7 @@ begin
 
     //Populate alliances section
     J := 0; K := 0;
-    for I := 0 to M.PlayerCount - 1 do
+    for I := 0 to M.LocCount - 1 do
     if I <> fSingleLoc then
     begin
       case M.Alliances[fSingleLoc, I] of

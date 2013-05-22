@@ -559,29 +559,29 @@ begin
 end;
 
 
-function TKMNetPlayersList.LocAvailable(aIndex:integer):boolean;
+function TKMNetPlayersList.LocAvailable(aIndex: Integer): Boolean;
 var I: Integer;
 begin
-  Result := true;
-  if aIndex=0 then exit;
+  Result := True;
+  if aIndex = 0 then Exit;
 
-  for i:=1 to fCount do
-    Result := Result and not (fNetPlayers[i].StartLocation = aIndex);
+  for I := 1 to fCount do
+    Result := Result and (aIndex <> fNetPlayers[I].StartLocation);
 end;
 
 
-function TKMNetPlayersList.ColorAvailable(aIndex:integer):boolean;
+function TKMNetPlayersList.ColorAvailable(aIndex: Integer): Boolean;
 var I: Integer;
 begin
-  Result := true;
-  if aIndex=0 then exit;
+  Result := True;
+  if aIndex = 0 then Exit;
 
-  for i:=1 to fCount do
-    Result := Result and not (fNetPlayers[i].FlagColorID = aIndex);
+  for I := 1 to fCount do
+    Result := Result and (aIndex <> fNetPlayers[I].FlagColorID);
 end;
 
 
-function TKMNetPlayersList.AllReady:boolean;
+function TKMNetPlayersList.AllReady: Boolean;
 var I: Integer;
 begin
   Result := true;

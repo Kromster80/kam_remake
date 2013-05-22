@@ -123,7 +123,7 @@ type
 
 
 implementation
-uses KM_TextLibrary, KM_Locales, KM_Utils, KM_Sound, KM_RenderUI, KM_Resource;
+uses KM_TextLibrary, KM_Locales, KM_Utils, KM_Sound, KM_RenderUI, KM_Resource, KM_NetPlayersList;
 
 
 { TKMGUIMenuLobby }
@@ -791,6 +791,7 @@ begin
             fNetworking.MatchPlayersToSave(fNetworking.NetPlayers.Count); //Match new AI player in save
         end;
       end;
+
       fNetworking.SendPlayerListAndRefreshPlayersSetup;
     end;
   end;
@@ -803,106 +804,111 @@ procedure TKMGUIMenuLobby.Lobby_OnPlayersSetup(Sender: TObject);
 var
   I,K,ID,LocaleID: Integer;
   MyNik, CanEdit, HostCanEdit, IsSave, IsCoop, IsValid: Boolean;
+  CurPlayer: TKMNetPlayerInfo;
 begin
   IsSave := fNetworking.SelectGameKind = ngk_Save;
   IsCoop := (fNetworking.SelectGameKind = ngk_Map) and (fNetworking.MapInfo.IsCoop);
 
   //Go through active players first
-  for I:=0 to fNetworking.NetPlayers.Count - 1 do
+  for I := 0 to fNetworking.NetPlayers.Count - 1 do
   begin
+    CurPlayer := fNetworking.NetPlayers[I+1];
+
     //Flag icon
-    LocaleID := fLocales.GetIDFromCode(fNetworking.NetPlayers[I+1].LangCode);
+    LocaleID := fLocales.GetIDFromCode(CurPlayer.LangCode);
     if LocaleID <> -1 then
       Image_LobbyFlag[I].TexID := fLocales[LocaleID].FlagSpriteID
     else
-      if fNetworking.NetPlayers[I+1].IsComputer then
+      if CurPlayer.IsComputer then
         Image_LobbyFlag[I].TexID := 62 //PC icon
       else
         Image_LobbyFlag[I].TexID := 0;
 
     //Players list
-    if fNetworking.IsHost and (not fNetworking.NetPlayers[I+1].IsHuman) then
+    if fNetworking.IsHost and (not CurPlayer.IsHuman) then
     begin
       Label_LobbyPlayer[I].Hide;
       DropBox_LobbyPlayerSlot[I].Enable;
       DropBox_LobbyPlayerSlot[I].Show;
-      if fNetworking.NetPlayers[I+1].IsComputer then
+      if CurPlayer.IsComputer then
         DropBox_LobbyPlayerSlot[I].ItemIndex := 2 //AI
       else
         DropBox_LobbyPlayerSlot[I].ItemIndex := 1; //Closed
     end
     else
     begin
-      Label_LobbyPlayer[I].Caption := fNetworking.NetPlayers[I+1].GetNickname;
-      if fNetworking.NetPlayers[I+1].FlagColorID = 0 then
+      Label_LobbyPlayer[I].Caption := CurPlayer.GetNickname;
+      if CurPlayer.FlagColorID = 0 then
         Label_LobbyPlayer[I].FontColor := $FFFFFFFF
       else
-        Label_LobbyPlayer[I].FontColor := FlagColorToTextColor(fNetworking.NetPlayers[I+1].FlagColor);
+        Label_LobbyPlayer[I].FontColor := FlagColorToTextColor(CurPlayer.FlagColor);
       Label_LobbyPlayer[I].Show;
       DropBox_LobbyPlayerSlot[I].Disable;
       DropBox_LobbyPlayerSlot[I].Hide;
       DropBox_LobbyPlayerSlot[I].ItemIndex := 0; //Open
     end;
 
+    //Starting locations
     //If we can't load the map, don't attempt to show starting locations
-    IsValid := false;
+    IsValid := False;
     DropBox_LobbyLoc[I].Clear;
-    if fNetworking.SelectGameKind = ngk_None then
-      DropBox_LobbyLoc[I].Add(fTextLibrary[TX_LOBBY_RANDOM], 0);
+    case fNetworking.SelectGameKind of
+      ngk_None: DropBox_LobbyLoc[I].Add(fTextLibrary[TX_LOBBY_RANDOM], 0);
+      ngk_Save: begin
+                  IsValid := fNetworking.SaveInfo.IsValid;
+                  DropBox_LobbyLoc[I].Add(fTextLibrary[TX_LOBBY_SELECT], 0);
+                  if CurPlayer.IsHuman then //Cannot add AIs to MP save, they are filled automatically
+                    for K := 0 to fNetworking.SaveInfo.Info.PlayerCount - 1 do
+                      if fNetworking.SaveInfo.Info.Enabled[K]
+                      and (fNetworking.SaveInfo.Info.CanBeHuman[K] or ALLOW_TAKE_AI_PLAYERS) then
+                        DropBox_LobbyLoc[I].Add(fNetworking.SaveInfo.Info.LocationName[K], K+1);
+                end;
+      ngk_Map:  begin
+                  IsValid := fNetworking.MapInfo.IsValid;
+                  DropBox_LobbyLoc[I].Add(fTextLibrary[TX_LOBBY_RANDOM], 0);
 
-    if fNetworking.SelectGameKind = ngk_Save then
-    begin
-      IsValid := fNetworking.SaveInfo.IsValid;
-      DropBox_LobbyLoc[I].Add(fTextLibrary[TX_LOBBY_SELECT], 0);
-      if fNetworking.NetPlayers[I+1].IsHuman then //Cannot add AIs to MP save, they are filled automatically
-        for K := 0 to fNetworking.SaveInfo.Info.PlayerCount - 1 do
-          if fNetworking.SaveInfo.Info.Enabled[K]
-          and (fNetworking.SaveInfo.Info.CanBeHuman[K] or ALLOW_TAKE_AI_PLAYERS) then
-            DropBox_LobbyLoc[I].Add(fNetworking.SaveInfo.Info.LocationName[K], K+1);
+
+                  for K := 0 to fNetworking.MapInfo.LocCount - 1 do
+                    if (CurPlayer.IsHuman and (fNetworking.MapInfo.CanBeHuman[K] or ALLOW_TAKE_AI_PLAYERS))
+                    or (CurPlayer.IsComputer and fNetworking.MapInfo.CanBeAI[K]) then
+                      {if fNetworking.NetPlayers.LocAvailable(K+1)
+                      or (fNetworking.NetPlayers[fNetworking.MyIndex].StartLocation = K+1) then}
+                        DropBox_LobbyLoc[I].Add(fNetworking.MapInfo.LocationName(K), K+1);
+                end;
     end;
-    if fNetworking.SelectGameKind = ngk_Map then
-    begin
-      IsValid := fNetworking.MapInfo.IsValid;
-      DropBox_LobbyLoc[I].Add(fTextLibrary[TX_LOBBY_RANDOM], 0);
-      for K := 0 to fNetworking.MapInfo.PlayerCount - 1 do
-        if fNetworking.MapInfo.CanBeHuman[K] or ALLOW_TAKE_AI_PLAYERS then
-        begin
-          if fNetworking.NetPlayers[I+1].IsHuman
-          or (fNetworking.NetPlayers[I+1].IsComputer and fNetworking.MapInfo.CanBeAI[K]) then
-            DropBox_LobbyLoc[I].Add(fNetworking.MapInfo.LocationName(K), K+1);
-        end;
-    end;
+
     if IsValid then
-      DropBox_LobbyLoc[I].SelectByTag(fNetworking.NetPlayers[I+1].StartLocation)
+      DropBox_LobbyLoc[I].SelectByTag(CurPlayer.StartLocation)
     else
       DropBox_LobbyLoc[I].ItemIndex := 0;
 
+    //Teams
     if IsCoop then
       DropBox_LobbyTeam[I].ItemIndex := 0 //No teams in coop maps, it's done for you
     else
-      DropBox_LobbyTeam[I].ItemIndex := fNetworking.NetPlayers[I+1].Team;
+      DropBox_LobbyTeam[I].ItemIndex := CurPlayer.Team;
 
-    DropBox_LobbyColors[I].ItemIndex := fNetworking.NetPlayers[I+1].FlagColorID;
-    if fNetworking.NetPlayers[I+1].IsClosed then
+    DropBox_LobbyColors[I].ItemIndex := CurPlayer.FlagColorID;
+    if CurPlayer.IsClosed then
       Image_LobbyReady[I].TexID := 0
     else
-      Image_LobbyReady[I].TexID := 32+Byte(fNetworking.NetPlayers[I+1].ReadyToStart);
+      Image_LobbyReady[I].TexID := 32+Byte(CurPlayer.ReadyToStart);
 
     MyNik := (I+1 = fNetworking.MyIndex); //Our index
     //We are allowed to edit if it is our nickname and we are set as NOT ready,
     //or we are the host and this player is an AI
     CanEdit := (MyNik and (fNetworking.IsHost or not fNetworking.NetPlayers.HostDoesSetup) and
-                          (fNetworking.IsHost or not fNetworking.NetPlayers[I+1].ReadyToStart)) or
-               (fNetworking.IsHost and fNetworking.NetPlayers[I+1].IsComputer);
+                          (fNetworking.IsHost or not CurPlayer.ReadyToStart)) or
+               (fNetworking.IsHost and CurPlayer.IsComputer);
     HostCanEdit := (fNetworking.IsHost and fNetworking.NetPlayers.HostDoesSetup and
-                    not fNetworking.NetPlayers[I+1].IsClosed);
+                    not CurPlayer.IsClosed);
     DropBox_LobbyLoc[I].Enabled := (CanEdit or HostCanEdit);
     //Can't change color or teams in a loaded save
     DropBox_LobbyTeam[I].Enabled := (CanEdit or HostCanEdit) and not IsSave and not IsCoop;
-    DropBox_LobbyColors[I].Enabled := (CanEdit or (MyNik and not fNetworking.NetPlayers[I+1].ReadyToStart)) and not IsSave;
+    DropBox_LobbyColors[I].Enabled := (CanEdit or (MyNik and not CurPlayer.ReadyToStart)) and not IsSave;
     if MyNik and not fNetworking.IsHost then
     begin
-      if fNetworking.NetPlayers[I+1].ReadyToStart then
+      if CurPlayer.ReadyToStart then
         Button_LobbyStart.Caption := fTextLibrary[TX_LOBBY_NOT_READY]
       else
         Button_LobbyStart.Caption := fTextLibrary[TX_LOBBY_READY];

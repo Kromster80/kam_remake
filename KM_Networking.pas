@@ -560,7 +560,7 @@ var LocAvailable:Boolean; NetPlayerIndex: Integer;
 begin
   //Check if position can be taken before sending
   LocAvailable := fNetPlayers.LocAvailable(aIndex);
-  if ((fSelectGameKind = ngk_Map) and ((not fMapInfo.IsValid) or (aIndex > fMapInfo.PlayerCount))) or
+  if ((fSelectGameKind = ngk_Map) and ((not fMapInfo.IsValid) or (aIndex > fMapInfo.LocCount))) or
      ((fSelectGameKind = ngk_Save) and ((not fSaveInfo.IsValid) or (aIndex > fSaveInfo.Info.PlayerCount))) or
      (fSelectGameKind = ngk_None) or
      (not LocAvailable and (not IsHost or not fNetPlayers.HostDoesSetup)) then
@@ -1370,7 +1370,7 @@ begin
             begin
               LocID := Param;
               if (
-                  ((fSelectGameKind = ngk_Map) and (fMapInfo <> nil) and fMapInfo.IsValid and (LocID <= fMapInfo.PlayerCount))
+                  ((fSelectGameKind = ngk_Map) and (fMapInfo <> nil) and fMapInfo.IsValid and (LocID <= fMapInfo.LocCount))
                or ((fSelectGameKind = ngk_Save) and (fSaveInfo <> nil) and fSaveInfo.IsValid and (LocID <= fSaveInfo.Info.PlayerCount))
                  )
               and fNetPlayers.LocAvailable(LocID) then
