@@ -867,7 +867,6 @@ begin
                   IsValid := fNetworking.MapInfo.IsValid;
                   DropBox_LobbyLoc[I].Add(fTextLibrary[TX_LOBBY_RANDOM], 0);
 
-
                   for K := 0 to fNetworking.MapInfo.LocCount - 1 do
                     if (CurPlayer.IsHuman and (fNetworking.MapInfo.CanBeHuman[K] or ALLOW_TAKE_AI_PLAYERS))
                     or (CurPlayer.IsComputer and fNetworking.MapInfo.CanBeAI[K]) then
