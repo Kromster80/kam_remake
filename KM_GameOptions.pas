@@ -29,6 +29,9 @@ implementation
 { TKMGameOptions }
 constructor TKMGameOptions.Create;
 begin
+  inherited;
+
+  //Default values are not always 0
   Reset;
 end;
 

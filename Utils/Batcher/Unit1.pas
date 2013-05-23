@@ -209,7 +209,7 @@ begin
     begin
       MapInfo := TKMapInfo.Create(TruncateExt(ExtractFileName(PathToMaps[I])), False, Pos('MapsMP', PathToMaps[I]) > 0);
       MapInfo.LoadExtra;
-      for J := 0 to MapInfo.PlayerCount - 1 do
+      for J := 0 to MapInfo.LocCount - 1 do
       begin
         for K := 0 to MapInfo.GoalsVictoryCount[J] - 1 do
           Inc(WinCond[MapInfo.GoalsVictory[J,K].Cond]);
