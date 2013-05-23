@@ -217,6 +217,7 @@ type
         TrackBar_RecruitCount: TKMTrackBar;
         TrackBar_MaxSoldiers: TKMTrackBar;
         CheckBox_MaxSoldiers: TKMCheckBox;
+        TrackBar_RecruitDelay: TKMTrackBar;
         Button_EditFormations: TKMButton;
       Panel_Offence: TKMPanel;
         CheckBox_AutoAttack: TKMCheckBox;
@@ -1097,16 +1098,22 @@ begin
       TrackBar_RecruitCount.Hint := fTextLibrary[TX_MAPED_AI_RECRUITS_HINT];
       TrackBar_RecruitCount.OnChange := Town_DefenceChange;
 
-      CheckBox_MaxSoldiers := TKMCheckBox.Create(Panel_Defence, 0, 252, TB_WIDTH, 20, fTextLibrary[TX_MAPED_AI_MAX_SOLDIERS], fnt_Metal);
+      TrackBar_RecruitDelay := TKMTrackBar.Create(Panel_Defence, 0, 252, TB_WIDTH, 0, 500);
+      TrackBar_RecruitDelay.Caption := fTextLibrary[TX_MAPED_AI_RECRUIT_DELAY];
+      TrackBar_RecruitDelay.Hint := fTextLibrary[TX_MAPED_AI_RECRUIT_DELAY_HINT];
+      TrackBar_RecruitDelay.Step := 5;
+      TrackBar_RecruitDelay.OnChange := Town_DefenceChange;
+
+      CheckBox_MaxSoldiers := TKMCheckBox.Create(Panel_Defence, 0, 296, TB_WIDTH, 20, fTextLibrary[TX_MAPED_AI_MAX_SOLDIERS], fnt_Metal);
       CheckBox_MaxSoldiers.Hint := fTextLibrary[TX_MAPED_AI_MAX_SOLDIERS_ENABLE_HINT];
       CheckBox_MaxSoldiers.OnClick := Town_DefenceChange;
-      TrackBar_MaxSoldiers := TKMTrackBar.Create(Panel_Defence, 20, 270, TB_WIDTH - 20, 0, 500);
+      TrackBar_MaxSoldiers := TKMTrackBar.Create(Panel_Defence, 20, 314, TB_WIDTH - 20, 0, 500);
       TrackBar_MaxSoldiers.Caption := '';
       TrackBar_MaxSoldiers.Hint := fTextLibrary[TX_MAPED_AI_MAX_SOLDIERS_HINT];
       TrackBar_MaxSoldiers.Step := 5;
       TrackBar_MaxSoldiers.OnChange := Town_DefenceChange;
 
-      Button_EditFormations := TKMButton.Create(Panel_Defence, 0, 300, TB_WIDTH, 25, fTextLibrary[TX_MAPED_AI_FORMATIONS], bsGame);
+      Button_EditFormations := TKMButton.Create(Panel_Defence, 0, 344, TB_WIDTH, 25, fTextLibrary[TX_MAPED_AI_FORMATIONS], bsGame);
       Button_EditFormations.OnClick := Formations_Show;
 
     //Offence settings
@@ -1848,8 +1855,9 @@ begin
   fPlayers[MySpectator.PlayerIndex].AI.Setup.EquipRateLeather := TrackBar_EquipRateLeather.Position * 10;
   fPlayers[MySpectator.PlayerIndex].AI.Setup.EquipRateIron := TrackBar_EquipRateIron.Position * 10;
   fPlayers[MySpectator.PlayerIndex].AI.Setup.RecruitCount := TrackBar_RecruitCount.Position;
+  fPlayers[MySpectator.PlayerIndex].AI.Setup.RecruitDelay := TrackBar_RecruitDelay.Position * 600;
 
-  if CheckBox_MaxSoldiers.Checked then
+  if not CheckBox_MaxSoldiers.Checked then
     fPlayers[MySpectator.PlayerIndex].AI.Setup.MaxSoldiers := -1
   else
     fPlayers[MySpectator.PlayerIndex].AI.Setup.MaxSoldiers := TrackBar_MaxSoldiers.Position;
@@ -1864,9 +1872,10 @@ begin
   TrackBar_EquipRateLeather.Position := fPlayers[MySpectator.PlayerIndex].AI.Setup.EquipRateLeather div 10;
   TrackBar_EquipRateIron.Position := fPlayers[MySpectator.PlayerIndex].AI.Setup.EquipRateIron div 10;
   TrackBar_RecruitCount.Position := fPlayers[MySpectator.PlayerIndex].AI.Setup.RecruitCount;
+  TrackBar_RecruitDelay.Position := Round(fPlayers[MySpectator.PlayerIndex].AI.Setup.RecruitDelay / 600);
 
-  CheckBox_MaxSoldiers.Checked := (fPlayers[MySpectator.PlayerIndex].AI.Setup.MaxSoldiers < 0);
-  TrackBar_MaxSoldiers.Enabled := not CheckBox_MaxSoldiers.Checked;
+  CheckBox_MaxSoldiers.Checked := (fPlayers[MySpectator.PlayerIndex].AI.Setup.MaxSoldiers >= 0);
+  TrackBar_MaxSoldiers.Enabled := CheckBox_MaxSoldiers.Checked;
   TrackBar_MaxSoldiers.Position := Max(fPlayers[MySpectator.PlayerIndex].AI.Setup.MaxSoldiers, 0);
 end;
 

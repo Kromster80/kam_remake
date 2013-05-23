@@ -33,6 +33,8 @@ Bugs:
  +	Access violation in TKMUnitWarrior.CheckForEnemy caused by not syncing TUnitActionGoInOut.OnWalkedOut after load
  +	When host is reassigned, lobby password/description should be cleared (otherwise the server still remembers them but the new host doesn't)
  +	Locations list in the lobby should only show ones which can currently be selected, ones which are taken should be disabled
+ +	AI recruit delay was missing from the MapEd
+	AI defence position radius should only highlight for selected position? (overlapping defence positions cause map to be completely covered, check e.g. TPR 7)
 	Debug and fix crashes in delivery queue (see crash reports)
 	
 

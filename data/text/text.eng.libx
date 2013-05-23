@@ -1,5 +1,5 @@
 
-MaxID:668
+MaxID:670
 
 0:Sawmill
 1:Iron smithy
@@ -455,7 +455,7 @@ MaxID:668
 451:Count
 452:Troop Formations
 453:Edit formations
-454:Remove limit on how many soldiers AI can have
+454:Set a limit on how many soldiers the AI can have
 455:How many soldiers AI can have at once
 456:Set max. soldiers
 457:How many recruits AI should have in barracks
@@ -670,3 +670,5 @@ MaxID:668
 666:Information
 667:Please wait a moment...
 668:Save Map
+669:Delay in minutes before the AI starts training recruits
+670:Recruit delay (mins)
