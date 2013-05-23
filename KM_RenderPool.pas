@@ -444,7 +444,8 @@ begin
   end;
 
   //Snow
-  if (aSnowStep > 0)
+  if SNOW_HOUSES
+  and (aSnowStep > 0)
   and (PicSnow <> 0) then
   begin
     CornerX := aLoc.X + R.Pivot[PicSnow].X / CELL_SIZE_PX;
