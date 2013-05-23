@@ -32,7 +32,7 @@ Bugs:
  +	States.HousePosition* now returns the entrance of the house, not the position (which is different for some houses)
  +	Access violation in TKMUnitWarrior.CheckForEnemy caused by not syncing TUnitActionGoInOut.OnWalkedOut after load
  +	When host is reassigned, lobby password/description should be cleared (otherwise the server still remembers them but the new host doesn't)
-	Locations list in the lobby should only show ones which can currently be selected, ones which are taken should be hidden (there's a problem with ListBox we need to discuss)
+ +	Locations list in the lobby should only show ones which can currently be selected, ones which are taken should be disabled
 	Debug and fix crashes in delivery queue (see crash reports)
 	
 
@@ -44,15 +44,16 @@ Features:
 
 
 Finishing up:
-	Snow houses artwork [KillingB]
-	Snow house overlay fixes [KillingB, Krom]
+ +	Disable snow houses for this release, we can include them next release when they're finished
+ -	Snow houses artwork (for next release) [KillingB]
+ -	Snow house overlay fixes (for next release) [KillingB, Krom]
 
 
 After first RC:
  +	Performance test the replay of a full MP game to check for chokepoints in a real-world scenario
 	Ask RC testers to make map from scratch in MapEd
 	Magic water in MapEd?
-  CanIron CanGold in MapEd
+	CanIron CanGold in MapEd
 	Check main menu / gameplay interfaces for text that needs to be added to the LIBX (e.g. lobby speed)
 	Add missing texts from MapEd to LIBX (maybe ignore some stuff in temporary interfaces that will be improved next release?)
 	Send text off to be translated (do this late in the RC testing so translators don't get 3 separate requests for each RC with changed text)
@@ -69,7 +70,6 @@ After first RC:
 Maps:
 	Circus? (thunder)
 	Dead Rivers? (thunder)
-	Frozen waters? (sado)
 	Border Rivers fix by Thunder?
 
 

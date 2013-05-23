@@ -805,6 +805,7 @@ var
   I,K,ID,LocaleID: Integer;
   MyNik, CanEdit, HostCanEdit, IsSave, IsCoop, IsValid: Boolean;
   CurPlayer: TKMNetPlayerInfo;
+  LocationName: string;
 begin
   IsSave := fNetworking.SelectGameKind = ngk_Save;
   IsCoop := (fNetworking.SelectGameKind = ngk_Map) and (fNetworking.MapInfo.IsCoop);
@@ -870,9 +871,14 @@ begin
                   for K := 0 to fNetworking.MapInfo.LocCount - 1 do
                     if (CurPlayer.IsHuman and (fNetworking.MapInfo.CanBeHuman[K] or ALLOW_TAKE_AI_PLAYERS))
                     or (CurPlayer.IsComputer and fNetworking.MapInfo.CanBeAI[K]) then
-                      {if fNetworking.NetPlayers.LocAvailable(K+1)
-                      or (fNetworking.NetPlayers[fNetworking.MyIndex].StartLocation = K+1) then}
-                        DropBox_LobbyLoc[I].Add(fNetworking.MapInfo.LocationName(K), K+1);
+                    begin
+                      LocationName := fNetworking.MapInfo.LocationName(K);
+                      //Disable taken locations
+                      if not fNetworking.NetPlayers.LocAvailable(K+1)
+                      and (fNetworking.NetPlayers[I+1].StartLocation <> K+1) then
+                        LocationName := '[$707070]'+LocationName+'[]';
+                      DropBox_LobbyLoc[I].Add(LocationName, K+1);
+                    end;
                 end;
     end;
 
