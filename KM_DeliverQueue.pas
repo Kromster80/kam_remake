@@ -17,7 +17,8 @@ type
     Count: Cardinal; //How many items are offered
     Loc_House: TKMHouse;
     BeingPerformed: Cardinal; //How many items are being delivered atm from total Count offered
-    IsDeleted: Boolean; //So we don't get pointer issues
+    //Keep offer until serfs that do it abandons it
+    IsDeleted: Boolean;
   end;
 
   TKMDeliveryDemand =  record
@@ -321,11 +322,21 @@ begin
   //Add Count of resource to old offer
   for I := 1 to fOfferCount do
     if (fOffer[I].Loc_House = aHouse)
-    and (fOffer[I].Ware = aWare)
-    and not fOffer[I].IsDeleted then
+    and (fOffer[I].Ware = aWare) then
     begin
-      Inc(fOffer[I].Count, aCount);
-      Exit; //Count added, thats all
+      if fOffer[I].IsDeleted then
+      begin
+        //Revive old offer because some serfs are still walking to perform it
+        Assert(fOffer[I].BeingPerformed > 0);
+        fOffer[I].Count :=  aCount;
+        fOffer[I].IsDeleted := False;
+        Exit; //Count added, thats all
+      end
+      else
+      begin
+        Inc(fOffer[I].Count, aCount);
+        Exit; //Count added, thats all
+      end;
     end;
 
   //Find empty place or allocate new one
@@ -751,19 +762,22 @@ end;
 
 
 //Resource has been taken from Offer
-procedure TKMDeliverQueue.TakenOffer(aID:integer);
-var iO:integer;
+procedure TKMDeliverQueue.TakenOffer(aID: Integer);
+var iO: Integer;
 begin
   if WRITE_DELIVERY_LOG then gLog.AddTime('Taken offer from delivery ID', aID);
 
-  iO:=fQueue[aID].OfferID;
-  fQueue[aID].OfferID:=0; //We don't need it any more
+  iO := fQueue[aID].OfferID;
+  fQueue[aID].OfferID := 0; //We don't need it any more
 
-  dec(fOffer[iO].BeingPerformed); //Remove reservation
-  dec(fOffer[iO].Count); //Remove resource from Offer list
+  Dec(fOffer[iO].BeingPerformed); //Remove reservation
+  Dec(fOffer[iO].Count); //Remove resource from Offer list
 
-  if fOffer[iO].Count=0 then
-    CloseOffer(iO);
+  if fOffer[iO].Count = 0 then
+    if fOffer[iO].BeingPerformed > 0 then
+      fOffer[iO].IsDeleted := True
+    else
+      CloseOffer(iO);
 end;
 
 
@@ -798,7 +812,7 @@ begin
 
   if fQueue[aID].DemandID <> 0 then
   begin
-    fDemand[fQueue[aID].DemandID].BeingPerformed:=false;
+    fDemand[fQueue[aID].DemandID].BeingPerformed := False;
     if fDemand[fQueue[aID].DemandID].IsDeleted then
       CloseDemand(fQueue[aID].DemandID);
   end;
