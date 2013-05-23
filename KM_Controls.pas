@@ -114,6 +114,7 @@ type
     procedure SetWidth(aValue: Integer); virtual;
     procedure SetVisible(aValue: Boolean); virtual;
     procedure SetEnabled(aValue: Boolean); virtual;
+    procedure SetAnchors(aValue: TAnchors); virtual;
   public
     Hitable: Boolean; //Can this control be hit with the cursor?
     Focusable: Boolean; //Can this control have focus (e.g. TKMEdit sets this true)
@@ -134,7 +135,7 @@ type
     property Top: Integer read GetTop write SetTop;
     property Width: Integer read GetWidth write SetWidth;
     property Height: Integer read GetHeight write SetHeight;
-    property Anchors: TAnchors read fAnchors write fAnchors;
+    property Anchors: TAnchors read fAnchors write SetAnchors;
     property Enabled: Boolean read fEnabled write SetEnabled;
     property Visible: Boolean read GetVisible write SetVisible;
     procedure Enable;
@@ -954,6 +955,7 @@ type
   protected
     procedure SetHeight(aValue: Integer); override;
     procedure SetWidth(aValue: Integer); override;
+    procedure SetAnchors(aValue: TAnchors); override;
     procedure SetVisible(aValue: Boolean); override;
     procedure SetEnabled(aValue: Boolean); override;
   public
@@ -1442,6 +1444,12 @@ end;
 procedure TKMControl.SetEnabled(aValue: Boolean);
 begin
   fEnabled := aValue;
+end;
+
+
+procedure TKMControl.SetAnchors(aValue: TAnchors);
+begin
+  fAnchors := aValue;
 end;
 
 
@@ -3088,6 +3096,15 @@ begin
   inherited;
   fScrollBar.Left := Left + Width - fScrollBar.Width;
   ReformatText; //Repositions the scroll bar as well
+end;
+
+
+procedure TKMMemo.SetAnchors(aValue: TAnchors);
+begin
+  inherited;
+  //Scrollbar is nil during TKMControl.Create
+  if fScrollBar <> nil then
+    fScrollBar.Anchors := aValue;
 end;
 
 
