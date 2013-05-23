@@ -46,6 +46,8 @@ rd /s /q "MapsMP\Heroes of Might & Axe II"
 rd /s /q "MapsMP\Heroes of Might & Axe I"
 rd /s /q "MapsMP\Dark Rock 4P"
 rd /s /q "MapsMP\Dark Rock 6P"
+rd /s /q "MapsMP\Center Castle 4P"
+rd /s /q "MapsMP\Center Castle 8P"
 
 rd /s /q "MapsMP\TPR 5"
 rd /s /q "MapsMP\TPR 6"
