@@ -1407,7 +1407,7 @@ begin
     begin
       UT := StatPlan[I].UnitType[K];
       Stat_UnitPic[UT] := TKMImage.Create(Panel_StatBlock[I], OffX, 0, Unit_Width, 30, fResource.UnitDat[UT].GUIIcon);
-      Stat_UnitPic[UT].Hint := fResource.UnitDat[UT].UnitName;
+      Stat_UnitPic[UT].Hint := fResource.UnitDat[UT].GUIName;
       Stat_UnitPic[UT].ImageCenter;
       Stat_UnitWip[UT] := TKMLabel.Create(Panel_StatBlock[I], OffX + Unit_Width  ,  0,  '', fnt_Grey, taRight);
       Stat_UnitWip[UT].Hitable := False;
@@ -1853,7 +1853,7 @@ begin
     Button_BarracksRecruit.HideHighlight := True;
     Button_BarracksRecruit.Clickable := False;
     Button_BarracksRecruit.TexID := fResource.UnitDat[ut_Recruit].GUIIcon;
-    Button_BarracksRecruit.Hint := fResource.UnitDat[ut_Recruit].UnitName;
+    Button_BarracksRecruit.Hint := fResource.UnitDat[ut_Recruit].GUIName;
 
     Label_Barracks_Unit := TKMLabel.Create(Panel_HouseBarracks, 0, 96, TB_WIDTH, 0, '', fnt_Outline, taCenter);
 
@@ -2099,7 +2099,7 @@ begin
   Label_House.Caption       := fResource.HouseDat[Sender.HouseType].HouseName;
   Image_House_Logo.TexID    := fResource.HouseDat[Sender.HouseType].GUIIcon;
   Image_House_Worker.TexID  := fResource.UnitDat[fResource.HouseDat[Sender.HouseType].OwnerType].GUIIcon;
-  Image_House_Worker.Hint   := fResource.UnitDat[fResource.HouseDat[Sender.HouseType].OwnerType].UnitName;
+  Image_House_Worker.Hint   := fResource.UnitDat[fResource.HouseDat[Sender.HouseType].OwnerType].GUIName;
   Image_House_Worker.FlagColor := fPlayers[Sender.Owner].FlagColor;
   HealthBar_House.Caption   := inttostr(round(Sender.GetHealth))+'/'+inttostr(fResource.HouseDat[Sender.HouseType].MaxHealth);
   HealthBar_House.Position  := Sender.GetHealth / fResource.HouseDat[Sender.HouseType].MaxHealth;
@@ -2332,7 +2332,7 @@ begin
   SwitchPage(Panel_Unit);
 
   //Common properties
-  Label_UnitName.Caption      := fResource.UnitDat[Sender.UnitType].UnitName;
+  Label_UnitName.Caption      := fResource.UnitDat[Sender.UnitType].GUIName;
   Image_UnitPic.TexID         := fResource.UnitDat[Sender.UnitType].GUIScroll;
   Image_UnitPic.FlagColor     := fPlayers[Sender.Owner].FlagColor;
   ConditionBar_Unit.Position  := Sender.Condition / UNIT_MAX_CONDITION;
@@ -2364,7 +2364,7 @@ begin
   SwitchPage(Panel_Unit);
 
   //Common properties
-  Label_UnitName.Caption      := fResource.UnitDat[W.UnitType].UnitName;
+  Label_UnitName.Caption      := fResource.UnitDat[W.UnitType].GUIName;
   Image_UnitPic.TexID         := fResource.UnitDat[W.UnitType].GUIScroll;
   Image_UnitPic.FlagColor     := fPlayers[W.Owner].FlagColor;
   ConditionBar_Unit.Position  := W.Condition / UNIT_MAX_CONDITION;
@@ -2553,7 +2553,7 @@ begin
   if LastBarracksUnit > 0 then
     Image_Barracks_Left.TexID := fResource.UnitDat[Barracks_Order[LastBarracksUnit-1]].GUIScroll;
 
-  Label_Barracks_Unit.Caption := fResource.UnitDat[Barracks_Order[LastBarracksUnit]].UnitName;
+  Label_Barracks_Unit.Caption := fResource.UnitDat[Barracks_Order[LastBarracksUnit]].GUIName;
   Image_Barracks_Train.TexID := fResource.UnitDat[Barracks_Order[LastBarracksUnit]].GUIScroll;
 
   if LastBarracksUnit < High(Barracks_Order) then
@@ -2594,7 +2594,7 @@ begin
     if School.Queue[I] <> ut_None then
     begin
       Button_School_UnitPlan[I].TexID := fResource.UnitDat[School.Queue[I]].GUIIcon;
-      Button_School_UnitPlan[I].Hint := fResource.UnitDat[School.Queue[I]].UnitName;
+      Button_School_UnitPlan[I].Hint := fResource.UnitDat[School.Queue[I]].GUIName;
     end
     else
     begin
@@ -2611,7 +2611,7 @@ begin
   if LastSchoolUnit > 0 then
     Image_School_Left.TexID:= fResource.UnitDat[School_Order[LastSchoolUnit-1]].GUIScroll;
 
-  Label_School_Unit.Caption:=fResource.UnitDat[School_Order[LastSchoolUnit]].UnitName;
+  Label_School_Unit.Caption:=fResource.UnitDat[School_Order[LastSchoolUnit]].GUIName;
   Image_School_Train.TexID:=fResource.UnitDat[School_Order[LastSchoolUnit]].GUIScroll;
 
   if LastSchoolUnit < High(School_Order) then
@@ -3357,7 +3357,7 @@ begin
     Tmp2 := 0;//fPlayers[MySpectator.PlayerIndex].Stats.GetUnitWip(UT);
     Stat_UnitQty[UT].Caption := IfThen(Tmp  = 0, '-', IntToStr(Tmp));
     Stat_UnitWip[UT].Caption := IfThen(Tmp2 = 0, '', '+' + IntToStr(Tmp2));
-    Stat_UnitPic[UT].Hint := fResource.UnitDat[UT].UnitName;
+    Stat_UnitPic[UT].Hint := fResource.UnitDat[UT].GUIName;
     Stat_UnitPic[UT].FlagColor := fPlayers[MySpectator.PlayerIndex].FlagColor;
   end;
 end;

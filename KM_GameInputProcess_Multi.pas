@@ -289,7 +289,7 @@ var
 begin
   M := TKMemoryStream.Create;
   try
-    M.WriteAsText(aData);
+    M.SetAsText(aData);
     M.Read(D, 1); //Decode header
     M.Read(Tick); //Target tick
     M.Read(PlayerIndex, SizeOf(PlayerIndex)); //Message sender

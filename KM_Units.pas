@@ -398,7 +398,7 @@ var
   H: TKMHouseInn;
 begin
   Result := True; //Required for override compatibility
-  if fCurrentAction=nil then raise ELocError.Create(fResource.UnitDat[UnitType].UnitName+' has no action at start of TKMUnitCitizen.UpdateState',fCurrPosition);
+  if fCurrentAction=nil then raise ELocError.Create(fResource.UnitDat[UnitType].GUIName+' has no action at start of TKMUnitCitizen.UpdateState',fCurrPosition);
 
   //Reset unit activity if home was destroyed, except when unit is dying or eating (finish eating/dying first)
   if (fHome <> nil)
@@ -462,7 +462,7 @@ begin
       end;
 
   if fCurrentAction = nil then
-    raise ELocError.Create(fResource.UnitDat[UnitType].UnitName+' has no action at end of TKMUnitCitizen.UpdateState', fCurrPosition);
+    raise ELocError.Create(fResource.UnitDat[UnitType].GUIName+' has no action at end of TKMUnitCitizen.UpdateState', fCurrPosition);
 end;
 
 
@@ -594,7 +594,7 @@ function TKMUnitRecruit.UpdateState: Boolean;
 var H: TKMHouseInn;
 begin
   Result := True; //Required for override compatibility
-  if fCurrentAction=nil then raise ELocError.Create(fResource.UnitDat[UnitType].UnitName+' has no action at start of TKMUnitRecruit.UpdateState',fCurrPosition);
+  if fCurrentAction=nil then raise ELocError.Create(fResource.UnitDat[UnitType].GUIName+' has no action at start of TKMUnitRecruit.UpdateState',fCurrPosition);
 
   //Reset unit activity if home was destroyed, except when unit is dying or eating (finish eating/dying first)
   if (fHome <> nil)
@@ -645,7 +645,7 @@ begin
           SetActionStay(Max(fResource.HouseDat[fHome.HouseType].WorkerRest,1)*10, ua_Walk); //By default it's 0, don't scan that often
       end;
 
-  if fCurrentAction=nil then raise ELocError.Create(fResource.UnitDat[UnitType].UnitName+' has no action at end of TKMUnitRecruit.UpdateState',fCurrPosition);
+  if fCurrentAction=nil then raise ELocError.Create(fResource.UnitDat[UnitType].GUIName+' has no action at end of TKMUnitRecruit.UpdateState',fCurrPosition);
 end;
 
 
@@ -756,7 +756,7 @@ var
 begin
   Result := True; //Required for override compatibility
   WasIdle := IsIdle;
-  if fCurrentAction = nil then raise ELocError.Create(fResource.UnitDat[UnitType].UnitName+' has no action at start of TKMUnitSerf.UpdateState',fCurrPosition);
+  if fCurrentAction = nil then raise ELocError.Create(fResource.UnitDat[UnitType].GUIName+' has no action at start of TKMUnitSerf.UpdateState',fCurrPosition);
   if inherited UpdateState then exit;
 
   OldThought := fThought;
@@ -779,7 +779,7 @@ begin
   end;
 
   if fCurrentAction = nil then
-    raise ELocError.Create(fResource.UnitDat[UnitType].UnitName+' has no action at end of TKMUnitSerf.UpdateState', fCurrPosition);
+    raise ELocError.Create(fResource.UnitDat[UnitType].GUIName+' has no action at end of TKMUnitSerf.UpdateState', fCurrPosition);
 end;
 
 
@@ -886,7 +886,7 @@ var
   H: TKMHouseInn;
 begin
   Result := True; //Required for override compatibility
-  if fCurrentAction=nil then raise ELocError.Create(fResource.UnitDat[UnitType].UnitName+' has no action at start of TKMUnitWorker.UpdateState',fCurrPosition);
+  if fCurrentAction=nil then raise ELocError.Create(fResource.UnitDat[UnitType].GUIName+' has no action at start of TKMUnitWorker.UpdateState',fCurrPosition);
   if inherited UpdateState then exit;
 
   if fCondition < UNIT_MIN_CONDITION then
@@ -904,7 +904,7 @@ begin
 
   if (fUnitTask = nil) and (fCurrentAction = nil) then SetActionStay(20, ua_Walk);
 
-  if fCurrentAction=nil then raise ELocError.Create(fResource.UnitDat[UnitType].UnitName+' has no action at end of TKMUnitWorker.UpdateState',fCurrPosition);
+  if fCurrentAction=nil then raise ELocError.Create(fResource.UnitDat[UnitType].GUIName+' has no action at end of TKMUnitWorker.UpdateState',fCurrPosition);
 end;
 
 
@@ -952,7 +952,7 @@ begin
   fCurrPosition := KMPointRound(fPosition);
 
   if fCurrentAction=nil then
-    raise ELocError.Create(fResource.UnitDat[UnitType].UnitName + ' has no action at start of TKMUnitAnimal.UpdateState', fCurrPosition);
+    raise ELocError.Create(fResource.UnitDat[UnitType].GUIName + ' has no action at start of TKMUnitAnimal.UpdateState', fCurrPosition);
 
   case fCurrentAction.Execute of
     ActContinues: exit;
@@ -981,7 +981,7 @@ begin
   SetActionSteer;
 
   if fCurrentAction = nil then
-    raise ELocError.Create(fResource.UnitDat[UnitType].UnitName + ' has no action at end of TKMUnitAnimal.UpdateState', fCurrPosition);
+    raise ELocError.Create(fResource.UnitDat[UnitType].GUIName + ' has no action at end of TKMUnitAnimal.UpdateState', fCurrPosition);
 end;
 
 
@@ -1350,7 +1350,7 @@ begin
   end;
   if not fResource.UnitDat[fUnitType].SupportsAction(aAction.ActionType) then
   begin
-    Assert(false, 'Unit '+fResource.UnitDat[UnitType].UnitName+' was asked to do unsupported action');
+    Assert(false, 'Unit '+fResource.UnitDat[UnitType].GUIName+' was asked to do unsupported action');
     FreeAndNil(aAction);
     exit;
   end;
@@ -1917,7 +1917,7 @@ begin
 
   Result := true;
 
-  if fCurrentAction=nil then raise ELocError.Create(fResource.UnitDat[UnitType].UnitName+' has no action at start of TKMUnit.UpdateState',fCurrPosition);
+  if fCurrentAction=nil then raise ELocError.Create(fResource.UnitDat[UnitType].GUIName+' has no action at start of TKMUnit.UpdateState',fCurrPosition);
 
   //UpdateState can happen right after unit gets killed (Exchange still in progress)
   if fKillASAP
@@ -1955,17 +1955,17 @@ begin
     if DesiredPassability = CanWalkRoad then
     begin
       if not gTerrain.CheckPassability(fNextPosition, CanWalk) then
-        raise ELocError.Create(fResource.UnitDat[UnitType].UnitName+' on unwalkable tile at '+KM_Points.TypeToString(fNextPosition)+' pass CanWalk',fNextPosition);
+        raise ELocError.Create(fResource.UnitDat[UnitType].GUIName+' on unwalkable tile at '+KM_Points.TypeToString(fNextPosition)+' pass CanWalk',fNextPosition);
     end else
     if not gTerrain.CheckPassability(fNextPosition, DesiredPassability) then
-      raise ELocError.Create(fResource.UnitDat[UnitType].UnitName+' on unwalkable tile at '+KM_Points.TypeToString(fNextPosition)+' pass '+GetEnumName(TypeInfo(TPassability), Byte(DesiredPassability)),fNextPosition);
+      raise ELocError.Create(fResource.UnitDat[UnitType].GUIName+' on unwalkable tile at '+KM_Points.TypeToString(fNextPosition)+' pass '+GetEnumName(TypeInfo(TPassability), Byte(DesiredPassability)),fNextPosition);
 
 
   //
   //Performing Tasks and Actions now
   //------------------------------------------------------------------------------------------------
   if fCurrentAction = nil then
-    raise ELocError.Create(fResource.UnitDat[UnitType].UnitName+' has no action in TKMUnit.UpdateState',fCurrPosition);
+    raise ELocError.Create(fResource.UnitDat[UnitType].GUIName+' has no action in TKMUnit.UpdateState',fCurrPosition);
 
   fCurrPosition := KMPointRound(fPosition);
   case fCurrentAction.Execute of
@@ -2160,9 +2160,9 @@ begin
   end;
 
   if gTerrain.HasUnit(PlaceTo) then
-    raise ELocError.Create('No space for ' + fResource.UnitDat[aUnitType].UnitName +
+    raise ELocError.Create('No space for ' + fResource.UnitDat[aUnitType].GUIName +
                            ' at ' + TypeToString(aLoc) +
-                           ', tile is already occupied by ' + fResource.UnitDat[TKMUnit(gTerrain.Land[PlaceTo.Y,PlaceTo.X].IsUnit).UnitType].UnitName,
+                           ', tile is already occupied by ' + fResource.UnitDat[TKMUnit(gTerrain.Land[PlaceTo.Y,PlaceTo.X].IsUnit).UnitType].GUIName,
                            PlaceTo);
 
   ID := fGame.GetNewID;
@@ -2175,7 +2175,7 @@ begin
     ut_Recruit:                       Result := TKMUnitRecruit.Create(ID, aUnitType, PlaceTo, aOwner);
     WARRIOR_MIN..WARRIOR_MAX:         Result := TKMUnitWarrior.Create(ID, aUnitType, PlaceTo, aOwner);
     ANIMAL_MIN..ANIMAL_MAX:           Result := TKMUnitAnimal.Create(ID, aUnitType, PlaceTo, aOwner);
-    else                              raise ELocError.Create('Add ' + fResource.UnitDat[aUnitType].UnitName, PlaceTo);
+    else                              raise ELocError.Create('Add ' + fResource.UnitDat[aUnitType].GUIName, PlaceTo);
   end;
 
   if Result <> nil then

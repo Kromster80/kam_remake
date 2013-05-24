@@ -212,7 +212,7 @@ begin
   if fUnitDat[U].UnitAnim[A,D].Step[1] <> -1 then
   for i := 1 to fUnitDat[U].UnitAnim[A, D].Count do
   begin
-    ForceDirectories(Folder + fUnitDat[U].UnitName + PathDelim + UnitAct[A] + PathDelim);
+    ForceDirectories(Folder + fUnitDat[U].GUIName + PathDelim + UnitAct[A] + PathDelim);
 
     if fUnitDat[U].UnitAnim[A,D].Step[i] + 1 <> 0 then
     begin
@@ -229,7 +229,7 @@ begin
 
       if sy > 0 then
         Bmp.SaveToFile(Folder +
-          fUnitDat[U].UnitName + PathDelim + UnitAct[A] + PathDelim +
+          fUnitDat[U].GUIName + PathDelim + UnitAct[A] + PathDelim +
           'Dir' + IntToStr(Byte(D)) + '_' + int2fix(i, 2) + '.bmp');
     end;
   end;

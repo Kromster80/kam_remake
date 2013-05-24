@@ -176,8 +176,8 @@ type
     function EaterGetsInside(aUnitType: TUnitType): Byte;
     procedure UpdateEater(aID: Byte; aFoodKind: TWareType);
     procedure EatersGoesOut(aID: Byte);
-    function HasFood:boolean;
-    function HasSpace:boolean;
+    function HasFood: Boolean;
+    function HasSpace: Boolean;
     procedure Save(SaveStream: TKMemoryStream); override;
     procedure Paint; override; //Render all eaters
   end;
@@ -210,6 +210,7 @@ type
   TKMHouseStore = class(TKMHouse)
   private
     ResourceCount: array [WARE_MIN .. WARE_MAX] of Word;
+  protected
     procedure Activate(aWasBuilt: Boolean); override;
   public
     NotAcceptFlag: array [WARE_MIN .. WARE_MAX] of Boolean;

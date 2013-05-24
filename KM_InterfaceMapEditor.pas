@@ -1032,7 +1032,7 @@ begin
       for I := 0 to High(Button_Citizen) do
       begin
         Button_Citizen[I] := TKMButtonFlat.Create(Panel_Units,(I mod 5)*37,8+(I div 5)*37,33,33,fResource.UnitDat[School_Order[I]].GUIIcon); //List of tiles 5x5
-        Button_Citizen[I].Hint := fResource.UnitDat[School_Order[I]].UnitName;
+        Button_Citizen[I].Hint := fResource.UnitDat[School_Order[I]].GUIName;
         Button_Citizen[I].Tag := Byte(School_Order[I]); //Returns unit ID
         Button_Citizen[I].OnClick := Town_UnitChange;
       end;
@@ -1044,7 +1044,7 @@ begin
       for I := 0 to High(Button_Warriors) do
       begin
         Button_Warriors[I] := TKMButtonFlat.Create(Panel_Units,(I mod 5)*37,124+(I div 5)*37,33,33, MapEd_Icon[I], rxGui);
-        Button_Warriors[I].Hint := fResource.UnitDat[MapEd_Order[I]].UnitName;
+        Button_Warriors[I].Hint := fResource.UnitDat[MapEd_Order[I]].GUIName;
         Button_Warriors[I].Tag := Byte(MapEd_Order[I]); //Returns unit ID
         Button_Warriors[I].OnClick := Town_UnitChange;
       end;
@@ -1052,7 +1052,7 @@ begin
       for I := 0 to High(Button_Animals) do
       begin
         Button_Animals[I] := TKMButtonFlat.Create(Panel_Units,(I mod 5)*37,240+(I div 5)*37,33,33, Animal_Icon[I], rxGui);
-        Button_Animals[I].Hint := fResource.UnitDat[Animal_Order[I]].UnitName;
+        Button_Animals[I].Hint := fResource.UnitDat[Animal_Order[I]].GUIName;
         Button_Animals[I].Tag := Byte(Animal_Order[I]); //Returns animal ID
         Button_Animals[I].OnClick := Town_UnitChange;
       end;
@@ -2633,7 +2633,7 @@ begin
   Image_House_Logo.TexID := HouseDat.GUIIcon;
   Image_House_Worker.TexID := fResource.UnitDat[HouseDat.OwnerType].GUIIcon;
   Image_House_Worker.FlagColor := fPlayers[Sender.Owner].FlagColor;
-  Image_House_Worker.Hint := fResource.UnitDat[HouseDat.OwnerType].UnitName;
+  Image_House_Worker.Hint := fResource.UnitDat[HouseDat.OwnerType].GUIName;
   Image_House_Worker.Visible := HouseDat.OwnerType <> ut_None;
   KMHealthBar_House.Caption := IntToStr(Round(Sender.GetHealth)) + '/' + IntToStr(HouseDat.MaxHealth);
   KMHealthBar_House.Position := Sender.GetHealth / HouseDat.MaxHealth;
@@ -2688,7 +2688,7 @@ begin
   SetActivePlayer(Sender.Owner);
 
   DisplayPage(Panel_Unit);
-  Label_UnitName.Caption := fResource.UnitDat[Sender.UnitType].UnitName;
+  Label_UnitName.Caption := fResource.UnitDat[Sender.UnitType].GUIName;
   Image_UnitPic.TexID := fResource.UnitDat[Sender.UnitType].GUIScroll;
   Image_UnitPic.FlagColor := fPlayers[Sender.Owner].FlagColor;
   KMConditionBar_Unit.Position := Sender.Condition / UNIT_MAX_CONDITION;
@@ -2709,7 +2709,7 @@ begin
   SetActivePlayer(Sender.Owner);
 
   DisplayPage(Panel_Unit);
-  Label_UnitName.Caption := fResource.UnitDat[Sender.UnitType].UnitName;
+  Label_UnitName.Caption := fResource.UnitDat[Sender.UnitType].GUIName;
   Image_UnitPic.TexID := fResource.UnitDat[Sender.UnitType].GUIScroll;
   Image_UnitPic.FlagColor := fPlayers[Sender.Owner].FlagColor;
   KMConditionBar_Unit.Position := Sender.Condition / UNIT_MAX_CONDITION;

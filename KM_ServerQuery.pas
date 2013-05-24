@@ -437,7 +437,7 @@ procedure TKMServerQuery.ServerDataReceive(aServerID: Integer; aData: string; aP
 var M: TKMemoryStream;
 begin
   M := TKMemoryStream.Create;
-  M.WriteAsText(aData);
+  M.SetAsText(aData);
   fRoomList.LoadData(aServerID, M); //Tell RoomsList to load data about rooms
   fServerList.SetPing(aServerID, GetTimeSince(aPingStarted)); //Tell ServersList ping
   M.Free;

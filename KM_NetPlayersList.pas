@@ -852,7 +852,7 @@ begin
   for i:=1 to fCount do
     fNetPlayers[i].Save(M);
 
-  Result := M.ReadAsText;
+  Result := M.GetAsText;
   M.Free;
 end;
 
@@ -862,7 +862,7 @@ var I: Integer; M: TKMemoryStream;
 begin
   M := TKMemoryStream.Create;
   try
-    M.WriteAsText(aText);
+    M.SetAsText(aText);
     M.Read(HostDoesSetup);
     M.Read(RandomizeTeamLocations);
     M.Read(fCount);

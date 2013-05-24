@@ -569,7 +569,7 @@ begin
                       end;
   else
     Assert(false, 'No work plan for ' +
-                  fResource.UnitDat[aUnit.UnitType].UnitName + ' in ' +
+                  fResource.UnitDat[aUnit.UnitType].GUIName + ' in ' +
                   fResource.HouseDat[aHome].HouseName);
   end;
 end;

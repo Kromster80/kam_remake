@@ -272,6 +272,9 @@ var
   BestStart, BestEnd: Word;
   NewL, BestL: Single;
 begin
+  //Makes compiler happy
+  BestStart := 0;
+  BestEnd := 0;
   Result := False;
 
   for I := 0 to PATH_CACHE_MAX - 1 do

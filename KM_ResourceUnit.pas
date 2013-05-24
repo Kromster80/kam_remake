@@ -66,7 +66,7 @@ type
     property Speed:single read GetSpeed;
     function SupportsAction(aAct: TUnitActionType):boolean;
     property UnitAnim[aAction:TUnitActionType; aDir:TKMDirection]: TKMAnimLoop read GetUnitAnim;
-    property UnitName:string read GetUnitName;
+    property GUIName:string read GetUnitName;
   end;
 
 
@@ -306,7 +306,7 @@ begin
     ut_Fisher:      Result := 14;
     else            begin
                       Result := 0;
-                      Assert(false, UnitName + ' has no mining range');
+                      Assert(false, GUIName + ' has no mining range');
                     end;
   end;
 end;
@@ -387,7 +387,7 @@ begin
     for ii:=Low(TUnitType) to High(TUnitType) do
     if UnitsDat[ii].IsValid then
     begin
-      write(ft,UnitsDat[ii].UnitName+';');
+      write(ft,UnitsDat[ii].GUIName+';');
       write(ft,inttostr(UnitsDat[ii].HitPoints)+';');
       write(ft,inttostr(UnitsDat[ii].Attack)+';');
       write(ft,inttostr(UnitsDat[ii].AttackHorse)+';');

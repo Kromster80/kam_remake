@@ -285,7 +285,7 @@ begin
     M.Write(fClientList[i].Handle);
     M.Write(fClientList[i].Ping);
   end;
-  SendMessage(NET_ADDRESS_ALL, mk_PingInfo, 0, M.ReadAsText);
+  SendMessage(NET_ADDRESS_ALL, mk_PingInfo, 0, M.GetAsText);
   M.Free;
   //Measure pings. Iterate backwards so the indexes are maintained after kicking clients
   for i:=fClientList.Count-1 downto 0 do
@@ -533,7 +533,7 @@ begin
             begin
               M := TKMemoryStream.Create;
               SaveServerInfo(M);
-              SendMessage(aSenderHandle, mk_ServerInfo, 0, M.ReadAsText);
+              SendMessage(aSenderHandle, mk_ServerInfo, 0, M.GetAsText);
               M.Free;
             end;
     mk_Pong:

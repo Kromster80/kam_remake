@@ -403,7 +403,7 @@ begin
   end;
   if fIgnorePings <> 0 then exit; //-1 means ignore all pings
   M := TKMemoryStream.Create;
-  M.WriteAsText(aInfo);
+  M.SetAsText(aInfo);
   M.Position := 0;
   M.Read(PingCount);
   for i:=1 to PingCount do
@@ -632,7 +632,7 @@ begin
   M := TKMemoryStream.Create;
   M.Write(aPassword);
   M.Write(fMyNikname);
-  PacketSend(NET_ADDRESS_HOST, mk_Password, M.ReadAsText, 0);
+  PacketSend(NET_ADDRESS_HOST, mk_Password, M.GetAsText, 0);
   M.Free;
   fEnteringPassword := False;
   fJoinTimeout := TimeGet; //Wait another X seconds for host to reply before timing out
@@ -877,11 +877,11 @@ procedure TKMNetworking.SendCommands(aStream:TKMemoryStream; aPlayerIndex:TPlaye
 var i:integer;
 begin
   if aPlayerIndex = -1 then
-    PacketSend(NET_ADDRESS_OTHERS, mk_Commands, aStream.ReadAsText, 0) //Send commands to all players
+    PacketSend(NET_ADDRESS_OTHERS, mk_Commands, aStream.GetAsText, 0) //Send commands to all players
   else
   for i:=1 to fNetPlayers.Count do
     if fNetPlayers[i].StartLocation - 1 = aPlayerIndex then
-      PacketSend(fNetPlayers[i].IndexOnServer, mk_Commands, aStream.ReadAsText, 0);
+      PacketSend(fNetPlayers[i].IndexOnServer, mk_Commands, aStream.GetAsText, 0);
 end;
 
 
@@ -1106,7 +1106,7 @@ begin
             if IsHost then
             begin
               M := TKMemoryStream.Create;
-              M.WriteAsText(Msg);
+              M.SetAsText(Msg);
               M.Read(ReMsg); //Password
               if ReMsg = fPassword then
               begin

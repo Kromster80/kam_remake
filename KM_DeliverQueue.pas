@@ -959,7 +959,7 @@ begin
   begin
     s:=s+#9;
     if fDemand[i].Loc_House<>nil then s:=s+fResource.HouseDat[fDemand[i].Loc_House.HouseType].HouseName+#9+#9;
-    if fDemand[i].Loc_Unit<>nil then s:=s+fResource.UnitDat[fDemand[i].Loc_Unit.UnitType].UnitName+#9+#9;
+    if fDemand[i].Loc_Unit<>nil then s:=s+fResource.UnitDat[fDemand[i].Loc_Unit.UnitType].GUIName+#9+#9;
     s:=s+fResource.Wares[fDemand[i].Ware].Title;
     if fDemand[i].Importance <> diNorm then s:=s+'^';
     s:=s+eol;

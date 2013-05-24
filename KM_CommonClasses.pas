@@ -24,7 +24,7 @@ type
     function Write(const Value:Boolean  ): Longint; reintroduce; overload;
     function Write(const Value:Word     ): Longint; reintroduce; overload;
     function Write(const Value:ShortInt ): Longint; reintroduce; overload;
-    procedure WriteAsText(const aText: AnsiString); deprecated; //todo: Using text for data exchange is flawed idea. remove
+    procedure SetAsText(const aText: AnsiString); deprecated; //todo: Using text for data exchange is flawed idea. remove
 
     procedure Read(out Value: AnsiString); reintroduce; overload;
     {$IFDEF UNICODE}
@@ -42,7 +42,7 @@ type
     function Read(out Value:Word        ): Longint; reintroduce; overload;
     function Read(out Value:ShortInt    ): Longint; reintroduce; overload;
     procedure ReadAssert(const Value: string);
-    function ReadAsText: AnsiString; deprecated; //todo: Using text for data exchange is flawed idea. remove
+    function GetAsText: AnsiString; deprecated; //todo: Using text for data exchange is flawed idea. remove
   end;
 
   TStreamEvent = procedure (aData: TKMemoryStream) of object;
@@ -166,7 +166,7 @@ var M: TKMemoryStream;
 begin
   M := TKMemoryStream.Create;
   try
-    M.WriteAsText(aText);
+    M.SetAsText(aText);
   M.Read(GameState, SizeOf(GameState));
   M.Read(PasswordLocked);
   M.Read(PlayerCount);
@@ -203,7 +203,7 @@ begin
   M.Write(Map);
   M.Write(GameTime, SizeOf(GameTime));
 
-  Result := M.ReadAsText;
+  Result := M.GetAsText;
   M.Free;
 end;
 
@@ -275,7 +275,7 @@ function TKMemoryStream.Write(const Value:shortint): Longint;
 begin Result := inherited Write(Value, SizeOf(Value)); end;
 
 
-procedure TKMemoryStream.WriteAsText(const aText: AnsiString);
+procedure TKMemoryStream.SetAsText(const aText: AnsiString);
 begin
   Position := 0;
   Write(Pointer(aText)^, Length(aText) * SizeOf(AnsiChar));
@@ -339,7 +339,7 @@ begin
   Assert(s = Value, 'TKMemoryStream.Read <> Value: '+Value);
 end;
 
-function TKMemoryStream.ReadAsText: AnsiString;
+function TKMemoryStream.GetAsText: AnsiString;
 begin
   SetString(Result, PChar(Memory), Size div SizeOf(AnsiChar));
 end;
