@@ -401,7 +401,7 @@ uses
   KM_CommonClasses, KM_PlayersCollection, KM_TextLibrary, KM_Game, KM_Main,
   KM_GameApp, KM_Resource, KM_TerrainPainter, KM_ResourceCursors, KM_Utils,
   KM_ResourceMapElements, KM_AIDefensePos, KM_ResourceHouse, KM_RenderUI, KM_Sound,
-  KM_ResourceWares;
+  KM_ResourceWares, KM_HouseBarracks;
 
 
 const

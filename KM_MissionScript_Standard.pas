@@ -311,7 +311,7 @@ begin
                         begin
                           Qty := EnsureRange(P[1], -1, High(Word)); //Sometimes user can define it to be 999999
                           if Qty = -1 then Qty := High(Word); //-1 means maximum weapons
-                          H := TKMHouseBarracks(fPlayers[fLastPlayer].FindHouse(ht_Barracks, 1));
+                          H := fPlayers[fLastPlayer].FindHouse(ht_Barracks, 1);
                           if (H <> nil) and H.ResCanAddToIn(WareIndexToType[P[0]]) then
                           begin
                             H.ResAddToIn(WareIndexToType[P[0]], Qty, True);
