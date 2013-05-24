@@ -488,6 +488,8 @@ end;
 
 
 //Used in JPS pathfinding
+//Take the sparse walk route with nodes in corners (A------B)
+//and add all the missing nodes inbetween like so: (A123456B)
 procedure TKMPointList.SparseToDense;
 var
   I,K,J: Integer;
