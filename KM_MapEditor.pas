@@ -47,21 +47,25 @@ type
     procedure UpdateAreas(const aMat: array of TRawDeposit);
   end;
 
+  TKMSelectionMode = (smSelecting, smPasting);
   TKMSelection = class
   private
-    fRawRect: TKMRectF; //Cursor selection bounds (can have inverted bounds)
     fRect: TKMRect; //Tile-space selection, at least 1 tile
-    procedure SetRawRect(const aValue: TKMRectF);
   public
-    property RawRect: TKMRectF read fRawRect write SetRawRect;
-    property Rect: TKMRect read fRect;
-    {Selection: array of array of record
+    SelectionMode: TKMSelectionMode;
+    Buffer: array of array of record
       Terrain: Byte;
       Height: Byte;
       Rotation: Byte;
       Obj: Byte;
       OldTerrain, OldRotation: Byte; //Only used for map editor
-    end;}
+    end;
+    property Rect: TKMRect read fRect write fRect;
+    procedure Copy; //Copies the selected are into buffer
+    procedure Paste; //Pastes the area from buffer and lets move it with cursor
+    procedure PasteApply; //Do the actual paste from buffer to terrain
+    procedure PasteCancel;
+    //procedure Transform; //Transforms the buffer data ?
   end;
 
   //Designed to store MapEd specific data and methods
@@ -271,15 +275,45 @@ end;
 
 
 { TKMSelection }
-procedure TKMSelection.SetRawRect(const aValue: TKMRectF);
+//Copy terrain section into buffer
+procedure TKMSelection.Copy;
+var
+  Sx, Sy: Word;
+  I, K: Integer;
 begin
-  fRawRect := aValue;
+  Sx := fRect.Right - fRect.Left + 1;
+  Sy := fRect.Bottom - fRect.Top + 1;
 
-  //Convert RawRect values that can be inverted to tilespace Rect
-  fRect.Left := Trunc(Min(fRawRect.Left, fRawRect.Right));
-  fRect.Top := Trunc(Min(fRawRect.Top, fRawRect.Bottom));
-  fRect.Right := Ceil(Max(fRawRect.Left, fRawRect.Right));
-  fRect.Bottom := Ceil(Max(fRawRect.Top, fRawRect.Bottom));
+  SetLength(Buffer, Sy, Sx);
+
+  for I := 0 to Sy - 1 do
+  for K := 0 to Sx - 1 do
+  begin
+    Buffer[I,K].Terrain     := gTerrain.Land[Sy+I, Sx+K].Terrain;
+    Buffer[I,K].Height      := gTerrain.Land[Sy+I, Sx+K].Height;
+    Buffer[I,K].Rotation    := gTerrain.Land[Sy+I, Sx+K].Rotation;
+    Buffer[I,K].Obj         := gTerrain.Land[Sy+I, Sx+K].Obj;
+    Buffer[I,K].OldTerrain  := gTerrain.Land[Sy+I, Sx+K].OldTerrain;
+    Buffer[I,K].OldRotation := gTerrain.Land[Sy+I, Sx+K].OldRotation;
+  end;
+end;
+
+
+procedure TKMSelection.Paste;
+begin
+  SelectionMode := smPasting;
+end;
+
+
+procedure TKMSelection.PasteApply;
+begin
+  SelectionMode := smSelecting;
+end;
+
+
+procedure TKMSelection.PasteCancel;
+begin
+  SelectionMode := smSelecting;
 end;
 
 
@@ -476,7 +510,9 @@ begin
 
   if mlSelection in fVisibleLayers then
   with fSelection do
+  begin
     fRenderAux.SquareOnTerrain(Rect.Left, Rect.Top, Rect.Right, Rect.Bottom, $FFFFFF00);
+  end;
 
   //Show selected group order target
   if MySpectator.Selected is TKMUnitGroup then

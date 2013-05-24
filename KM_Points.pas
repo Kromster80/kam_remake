@@ -60,6 +60,7 @@ type
   function KMInRect(aPoint: TKMPointF; aRect: TKMRect): Boolean; overload;
   function KMInRect(aPoint: TKMPointI; aRect: TKMRect): Boolean; overload;
   function KMRectArea(aRect: TKMRect): Integer;
+  function KMRectMove(aRect: TKMRect; X,Y: Integer): TKMRect;
 
   function KMGetDirection(X,Y: Integer): TKMDirection; overload;
   function KMGetDirection(X,Y: Single): TKMDirection; overload;
@@ -316,6 +317,15 @@ end;
 function KMRectArea(aRect: TKMRect):Integer;
 begin
   Result := (aRect.Right - aRect.Left) * (aRect.Bottom  - aRect.Top);
+end;
+
+
+function KMRectMove(aRect: TKMRect; X,Y: Integer): TKMRect;
+begin
+  Result.Left   := aRect.Left + X;
+  Result.Right  := aRect.Right + X;
+  Result.Top    := aRect.Top + Y;
+  Result.Bottom := aRect.Bottom + Y;
 end;
 
 

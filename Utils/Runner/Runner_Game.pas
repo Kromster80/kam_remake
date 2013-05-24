@@ -99,7 +99,7 @@ begin
   for I := 1 to gTerrain.MapY - 2 do
   for K := 1 to gTerrain.MapX - 1 do
   if gTerrain.TileIsStone(K,I) > 0 then
-    L.AddEntry(KMPoint(K,I));
+    L.Add(KMPoint(K,I));
 
   I := 0;
   fResults.Value[aRun, 0] := 0;
@@ -116,7 +116,7 @@ begin
       end;
     end
     else
-      L.RemoveEntry(P);
+      L.Remove(P);
 
     Inc(I);
     if I > 200 then

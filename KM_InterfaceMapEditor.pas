@@ -13,7 +13,7 @@ type
   TKMTownTab = (ttHouses, ttUnits, ttScript, ttDefences, ttOffence);
   TKMPlayerTab = (ptGoals, ptColor, ptBlockHouse, ptBlockTrade, ptMarkers);
 
-  TSelectionManipulation = (smNewRect, smResizeX1, smResizeY1, smResizeX2, smResizeY2);
+  TSelectionManipulation = (smNone, smNewRect, smResizeX1, smResizeY1, smResizeX2, smResizeY2, smMove);
 
   TKMapEdInterface = class (TKMUserInterface)
   private
@@ -30,6 +30,7 @@ type
     fDragScrollingViewportPos: TKMPointF;
 
     fSelection: TSelectionManipulation;
+    fPrevX, fPrevY: Integer;
 
     fMaps: TKMapsCollection;
     fMapsMP: TKMapsCollection;
@@ -110,7 +111,8 @@ type
     procedure Player_ColorClick(Sender: TObject);
     procedure Player_MarkerClick(Sender: TObject);
     procedure Selection_Start(X,Y: Integer);
-    procedure Selection_Move(X,Y: Integer);
+    procedure Selection_Resize(X,Y: Integer);
+    procedure Selection_MouseUp(X,Y: Integer);
     procedure Terrain_BrushChange(Sender: TObject);
     procedure Terrain_BrushRefresh;
     procedure Terrain_HeightChange(Sender: TObject);
@@ -1943,24 +1945,30 @@ begin
 end;
 
 
-procedure TKMapEdInterface.Selection_Move(X, Y: Integer);
+procedure TKMapEdInterface.Selection_Resize(X, Y: Integer);
 var
-  Rect: TKMRectF;
+  Rect: TKMRect;
 begin
-  Rect := fGame.MapEditor.Selection.RawRect;
+  Rect := fGame.MapEditor.Selection.Rect;
 
   case fSelection of
+    smNone:       ;
     smNewRect:    begin
-                    Rect.Right := GameCursor.Float.X;
-                    Rect.Bottom := GameCursor.Float.Y;
+                    Rect.Right := Ceil(GameCursor.Float.X);
+                    Rect.Bottom := Ceil(GameCursor.Float.Y);
                   end;
-    smResizeX1:   Rect.Left := GameCursor.Float.X;
-    smResizeY1:   Rect.Top := GameCursor.Float.Y;
-    smResizeX2:   Rect.Right := GameCursor.Float.X;
-    smResizeY2:   Rect.Bottom := GameCursor.Float.Y;
+    smResizeX1:   Rect.Left := Round(GameCursor.Float.X);
+    smResizeY1:   Rect.Top := Round(GameCursor.Float.Y);
+    smResizeX2:   Rect.Right := Round(GameCursor.Float.X);
+    smResizeY2:   Rect.Bottom := Round(GameCursor.Float.Y);
+    smMove:       begin
+                    Rect := KMRectMove(Rect, GameCursor.Cell.X - fPrevX, GameCursor.Cell.Y - fPrevY);
+                    fPrevX := GameCursor.Cell.X;
+                    fPrevY := GameCursor.Cell.Y;
+                  end;
   end;
 
-  fGame.MapEditor.Selection.RawRect := Rect;
+  fGame.MapEditor.Selection.Rect := Rect;
 end;
 
 
@@ -1969,38 +1977,60 @@ const
   EDGE = 0.25;
 var
   Rect: TKMRect;
-  RawRect: TKMRectF;
 begin
   Rect := fGame.MapEditor.Selection.Rect;
 
-  if InRange(GameCursor.Float.Y, Rect.Top, Rect.Bottom)
-  and (Abs(GameCursor.Float.X - Rect.Left) < EDGE) then
-    fSelection := smResizeX1
-  else
-  if InRange(GameCursor.Float.Y, Rect.Top, Rect.Bottom)
-  and (Abs(GameCursor.Float.X - Rect.Right) < EDGE) then
-    fSelection := smResizeX2
-  else
-  if InRange(GameCursor.Float.X, Rect.Left, Rect.Right)
-  and (Abs(GameCursor.Float.Y - Rect.Top) < EDGE) then
-    fSelection := smResizeY1
-  else
-  if InRange(GameCursor.Float.X, Rect.Left, Rect.Right)
-  and (Abs(GameCursor.Float.Y - Rect.Bottom) < EDGE) then
-    fSelection := smResizeY2
-  else
-  if KMInRect(GameCursor.Float, Rect) then
-    //todo: Clicking inside the rect should move whole rect?
+  if fGame.MapEditor.Selection.SelectionMode = smSelecting then
+  begin
+    if InRange(GameCursor.Float.Y, Rect.Top, Rect.Bottom)
+    and (Abs(GameCursor.Float.X - Rect.Left) < EDGE) then
+      fSelection := smResizeX1
+    else
+    if InRange(GameCursor.Float.Y, Rect.Top, Rect.Bottom)
+    and (Abs(GameCursor.Float.X - Rect.Right) < EDGE) then
+      fSelection := smResizeX2
+    else
+    if InRange(GameCursor.Float.X, Rect.Left, Rect.Right)
+    and (Abs(GameCursor.Float.Y - Rect.Top) < EDGE) then
+      fSelection := smResizeY1
+    else
+    if InRange(GameCursor.Float.X, Rect.Left, Rect.Right)
+    and (Abs(GameCursor.Float.Y - Rect.Bottom) < EDGE) then
+      fSelection := smResizeY2
+    else
+    if KMInRect(GameCursor.Float, Rect) then
+    begin
+      fSelection := smMove;
+      fPrevX := GameCursor.Cell.X;
+      fPrevY := GameCursor.Cell.Y;
+    end
+    else
+    begin
+      fSelection := smNewRect;
+      Rect.Left := Trunc(GameCursor.Float.X);
+      Rect.Top := Trunc(GameCursor.Float.Y);
+      Rect.Right := Ceil(GameCursor.Float.X);
+      Rect.Bottom := Ceil(GameCursor.Float.Y);
+      fGame.MapEditor.Selection.Rect := Rect;
+    end;
+  end
   else
   begin
-    fSelection := smNewRect;
-    RawRect := fGame.MapEditor.Selection.RawRect;
-    RawRect.Left := GameCursor.Float.X;
-    RawRect.Top := GameCursor.Float.Y;
-    RawRect.Right := GameCursor.Float.X;
-    RawRect.Bottom := GameCursor.Float.Y;
-    fGame.MapEditor.Selection.RawRect := RawRect;
+    if KMInRect(GameCursor.Float, Rect) then
+    begin
+      fSelection := smMove;
+      fPrevX := GameCursor.Cell.X;
+      fPrevY := GameCursor.Cell.Y;
+    end
+    else
+      fSelection := smNone;
   end;
+end;
+
+
+procedure TKMapEdInterface.Selection_MouseUp(X, Y: Integer);
+begin
+  //
 end;
 
 
@@ -3629,7 +3659,7 @@ begin
                                           gTerrain.RemField(P);
                                       end;
                     end;
-      cmSelection:  Selection_Move(X,Y);
+      cmSelection:  Selection_Resize(X,Y);
     end;
   end;
 end;
@@ -3762,6 +3792,7 @@ begin
                                         gTerrain.RemField(P);
                                     end;
                   end;
+      cmSelection:  Selection_MouseUp(X,Y);
     end;
 end;
 
