@@ -6,7 +6,7 @@ uses
   KM_CommonClasses, KM_Defaults,
   KM_Houses, KM_ResourceWares;
 
-{Everything related to houses is here}
+
 type
   //Barracks has 11 resources and Recruits
   TKMHouseBarracks = class(TKMHouse)
@@ -36,9 +36,7 @@ type
 
 implementation
 uses
-  KM_Units,
-  KM_Units_Warrior, KM_PlayersCollection,
-  KM_Resource, KM_ResourceHouse, KM_ResourceUnit, KM_Utils, KM_FogOfWar, KM_AI;
+  KM_Units, KM_Units_Warrior, KM_PlayersCollection, KM_ResourceUnit;
 
 
 { TKMHouseBarracks }
@@ -89,8 +87,8 @@ var
   RT: TWareType;
 begin
   inherited;
-  //A new Barracks should inherit the accept properies of the first Barracksof that player,
-  //which stops a sudden flow of unwanted resources to it as soon as it is create.
+  //A new Barracks should inherit the accept properies of the first Barracks of that player,
+  //which stops a sudden flow of unwanted wares to it as soon as it is created.
   FirstBarracks := TKMHouseBarracks(fPlayers[fOwner].FindHouse(ht_Barracks, 1));
   if (FirstBarracks <> nil) and not FirstBarracks.IsDestroyed then
     for RT := WARFARE_MIN to WARFARE_MAX do
@@ -128,7 +126,7 @@ begin
 end;
 
 
-function TKMHouseBarracks.CheckResIn(aWare: TWareType):word;
+function TKMHouseBarracks.CheckResIn(aWare: TWareType): Word;
 begin
   if aWare in [WARFARE_MIN..WARFARE_MAX] then
     Result := ResourceCount[aWare]
