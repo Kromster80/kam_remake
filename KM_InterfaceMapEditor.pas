@@ -2831,7 +2831,7 @@ begin
 
                     if Sender = Button_RevealDelete then
                     begin
-                      Rev.DeleteEntry(fActiveMarker.Index);
+                      Rev.Delete(fActiveMarker.Index);
                       SwitchPage(Button_Player[ptMarkers]);
                     end;
 
@@ -3745,7 +3745,7 @@ begin
                       fPlayers.PlayerAnimals.AddUnit(TUnitType(GameCursor.Tag1), P);
                   end;
       cmMarkers:  case GameCursor.Tag1 of
-                    MARKER_REVEAL:        fGame.MapEditor.Revealers[MySpectator.PlayerIndex].AddEntry(P, TrackBar_RevealNewSize.Position);
+                    MARKER_REVEAL:        fGame.MapEditor.Revealers[MySpectator.PlayerIndex].Add(P, TrackBar_RevealNewSize.Position);
                     MARKER_DEFENCE:       fPlayers[MySpectator.PlayerIndex].AI.General.DefencePositions.Add(KMPointDir(P, dir_N), gt_Melee, 10, adt_FrontLine);
                     MARKER_CENTERSCREEN:  begin
                                             fPlayers[MySpectator.PlayerIndex].CenterScreen := P;

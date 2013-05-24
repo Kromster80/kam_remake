@@ -19,7 +19,7 @@ object Form2: TForm2
   TextHeight = 13
   object Label1: TLabel
     Left = 8
-    Top = 464
+    Top = 128
     Width = 31
     Height = 13
     Anchors = [akLeft, akBottom]
@@ -27,7 +27,7 @@ object Form2: TForm2
   end
   object Label2: TLabel
     Left = 124
-    Top = 464
+    Top = 128
     Width = 3
     Height = 13
     Alignment = taRightJustify
@@ -35,7 +35,7 @@ object Form2: TForm2
   end
   object Button1: TButton
     Left = 136
-    Top = 464
+    Top = 128
     Width = 57
     Height = 41
     Anchors = [akLeft, akBottom]
@@ -45,7 +45,7 @@ object Form2: TForm2
   end
   object Memo1: TMemo
     Left = 200
-    Top = 344
+    Top = 8
     Width = 249
     Height = 161
     Anchors = [akLeft, akBottom]
@@ -53,7 +53,7 @@ object Form2: TForm2
   end
   object seCycles: TSpinEdit
     Left = 8
-    Top = 480
+    Top = 144
     Width = 121
     Height = 22
     Anchors = [akLeft, akBottom]
@@ -64,7 +64,7 @@ object Form2: TForm2
   end
   object ListBox1: TListBox
     Left = 8
-    Top = 344
+    Top = 8
     Width = 185
     Height = 113
     Anchors = [akLeft, akBottom]
@@ -73,7 +73,7 @@ object Form2: TForm2
   end
   object Memo2: TMemo
     Left = 456
-    Top = 344
+    Top = 8
     Width = 241
     Height = 121
     Anchors = [akLeft, akBottom]
@@ -94,28 +94,24 @@ object Form2: TForm2
   end
   object PageControl1: TPageControl
     Left = 8
-    Top = 8
+    Top = 176
     Width = 689
-    Height = 321
-    ActivePage = TabSheet3
+    Height = 329
+    ActivePage = TabSheet1
     Anchors = [akLeft, akTop, akRight, akBottom]
     TabOrder = 5
     OnChange = PageControl1Change
     object TabSheet1: TTabSheet
       Caption = 'Results'
       OnResize = TabSheetResize
-      ExplicitLeft = 20
-      ExplicitTop = 64
-      ExplicitWidth = 281
-      ExplicitHeight = 165
       DesignSize = (
         681
-        293)
+        301)
       object Image1: TImage
         Left = 40
         Top = 0
         Width = 633
-        Height = 273
+        Height = 281
         Anchors = [akLeft, akTop, akRight, akBottom]
         ExplicitHeight = 265
       end
@@ -124,16 +120,18 @@ object Form2: TForm2
       Caption = 'Distribution'
       ImageIndex = 1
       OnResize = TabSheetResize
-      ExplicitWidth = 281
-      ExplicitHeight = 165
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 293
       DesignSize = (
         681
-        293)
+        301)
       object Image2: TImage
         Left = 40
         Top = 0
         Width = 633
-        Height = 265
+        Height = 273
         Anchors = [akLeft, akTop, akRight, akBottom]
         ExplicitHeight = 257
       end
@@ -142,16 +140,18 @@ object Form2: TForm2
       Caption = 'Times'
       ImageIndex = 2
       OnResize = TabSheetResize
-      ExplicitWidth = 281
-      ExplicitHeight = 165
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 293
       DesignSize = (
         681
-        293)
+        301)
       object Image3: TImage
         Left = 40
         Top = 0
         Width = 633
-        Height = 273
+        Height = 281
         Anchors = [akLeft, akTop, akRight, akBottom]
         ExplicitHeight = 265
       end

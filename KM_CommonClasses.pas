@@ -86,9 +86,9 @@ type
 
     procedure Clear; virtual;
     procedure Copy(aSrc: TKMPointList);
-    procedure AddEntry(aLoc: TKMPoint);
-    function  RemoveEntry(aLoc: TKMPoint): Integer; virtual;
-    procedure DeleteEntry(aIndex: Integer);
+    procedure Add(aLoc: TKMPoint);
+    function  Remove(aLoc: TKMPoint): Integer; virtual;
+    procedure Delete(aIndex: Integer);
     procedure Insert(ID: Integer; aLoc: TKMPoint);
     function  GetRandom(out Point: TKMPoint): Boolean;
     function  GetClosest(aLoc: TKMPoint; out Point: TKMPoint): Boolean;
@@ -106,10 +106,10 @@ type
   public
     Tag, Tag2: array of Cardinal; //0..Count-1
     procedure Clear; override;
-    procedure AddEntry(aLoc: TKMPoint; aTag: Cardinal; aTag2: Cardinal = 0); reintroduce;
+    procedure Add(aLoc: TKMPoint; aTag: Cardinal; aTag2: Cardinal = 0); reintroduce;
     function IndexOf(const aLoc: TKMPoint; aTag: Cardinal; aTag2: Cardinal): Integer;
     procedure SortByTag;
-    function RemoveEntry(aLoc: TKMPoint): Integer; override;
+    function Remove(aLoc: TKMPoint): Integer; override;
     procedure SaveToStream(SaveStream: TKMemoryStream); override;
     procedure LoadFromStream(LoadStream: TKMemoryStream); override;
   end;
@@ -122,7 +122,7 @@ type
     function GetItem(aIndex: Integer): TKMPointDir;
   public
     procedure Clear;
-    procedure AddItem(aLoc: TKMPointDir);
+    procedure Add(aLoc: TKMPointDir);
     property Count: Integer read fCount;
     property Items[aIndex: Integer]: TKMPointDir read GetItem; default;
     function GetRandom(out Point: TKMPointDir):Boolean;
@@ -133,8 +133,8 @@ type
 
   TKMPointDirTagList = class(TKMPointDirList)
   public
-    Tag, Tag2: array of Cardinal; //0..Count-1
-    procedure AddItem(aLoc: TKMPointDir; aTag,aTag2: Cardinal); reintroduce;
+    Tag: array of Cardinal; //0..Count-1
+    procedure Add(aLoc: TKMPointDir; aTag: Cardinal); reintroduce;
     procedure SortByTag;
     procedure SaveToStream(SaveStream: TKMemoryStream); override;
     procedure LoadFromStream(LoadStream: TKMemoryStream); override;
@@ -358,7 +358,7 @@ begin
 end;
 
 
-procedure TKMPointList.AddEntry(aLoc: TKMPoint);
+procedure TKMPointList.Add(aLoc: TKMPoint);
 begin
   if fCount >= Length(fItems) then
     SetLength(fItems, fCount + 32);
@@ -368,7 +368,7 @@ end;
 
 
 //Remove point from the list if is there. Return index of removed entry or -1 on failure
-function TKMPointList.RemoveEntry(aLoc: TKMPoint): Integer;
+function TKMPointList.Remove(aLoc: TKMPoint): Integer;
 var
   I: Integer;
 begin
@@ -381,11 +381,11 @@ begin
 
   //Remove found entry
   if (Result <> -1) then
-    DeleteEntry(Result);
+    Delete(Result);
 end;
 
 
-procedure TKMPointList.DeleteEntry(aIndex:Integer);
+procedure TKMPointList.Delete(aIndex:Integer);
 begin
   if not InRange(aIndex, 0, Count-1) then Exit;
   if (aIndex <> fCount - 1) then
@@ -569,9 +569,9 @@ begin
 end;
 
 
-procedure TKMPointTagList.AddEntry(aLoc: TKMPoint; aTag: Cardinal; aTag2: Cardinal = 0);
+procedure TKMPointTagList.Add(aLoc: TKMPoint; aTag: Cardinal; aTag2: Cardinal = 0);
 begin
-  inherited AddEntry(aLoc);
+  inherited Add(aLoc);
 
   if fCount >= Length(Tag) then  SetLength(Tag, fCount + 32); //Expand the list
   if fCount >= Length(Tag2) then SetLength(Tag2, fCount + 32); //+32 is just a way to avoid further expansions
@@ -594,9 +594,9 @@ begin
 end;
 
 
-function TKMPointTagList.RemoveEntry(aLoc: TKMPoint): Integer;
+function TKMPointTagList.Remove(aLoc: TKMPoint): Integer;
 begin
-  Result := inherited RemoveEntry(aLoc);
+  Result := inherited Remove(aLoc);
 
   //Note that fCount is already decreased by 1
   if (Result <> -1) and (Result <> fCount) then
@@ -654,7 +654,7 @@ begin
 end;
 
 
-procedure TKMPointDirList.AddItem(aLoc: TKMPointDir);
+procedure TKMPointDirList.Add(aLoc: TKMPointDir);
 begin
   if fCount >= Length(fItems) then
     SetLength(fItems, fCount + 32);
@@ -698,19 +698,18 @@ begin
 end;
 
 
-procedure TKMPointDirTagList.AddItem(aLoc: TKMPointDir; aTag,aTag2: Cardinal);
+procedure TKMPointDirTagList.Add(aLoc: TKMPointDir; aTag: Cardinal);
 begin
-  inherited AddItem(aLoc);
+  inherited Add(aLoc);
 
-  if fCount >= Length(Tag) then  SetLength(Tag, fCount + 32); //Expand the list
-  if fCount >= Length(Tag2) then SetLength(Tag2, fCount + 32); //+32 is just a way to avoid further expansions
-  Tag[fCount-1]  := aTag;
-  Tag2[fCount-1] := aTag2;
+  if fCount >= Length(Tag) then SetLength(Tag, fCount + 32); //Expand the list
+  Tag[fCount-1] := aTag;
 end;
 
 
 procedure TKMPointDirTagList.SortByTag;
-var I,K: Integer;
+var
+  I, K: Integer;
 begin
   for I := 0 to fCount - 1 do
   for K := I + 1 to fCount - 1 do
@@ -718,7 +717,6 @@ begin
   begin
     KMSwapPointDir(fItems[I], fItems[K]);
     KMSwapInt(Tag[I], Tag[K]);
-    KMSwapInt(Tag2[I], Tag2[K]);
   end;
 end;
 
@@ -728,10 +726,7 @@ begin
   inherited; //Writes Count
 
   if fCount > 0 then
-  begin
     SaveStream.Write(Tag[0], SizeOf(Tag[0]) * fCount);
-    SaveStream.Write(Tag2[0], SizeOf(Tag2[0]) * fCount);
-  end;
 end;
 
 
@@ -740,12 +735,8 @@ begin
   inherited; //Reads Count
 
   SetLength(Tag, fCount);
-  SetLength(Tag2, fCount);
   if fCount > 0 then
-  begin
     LoadStream.Read(Tag[0], SizeOf(Tag[0]) * fCount);
-    LoadStream.Read(Tag2[0], SizeOf(Tag2[0]) * fCount);
-  end;
 end;
 
 

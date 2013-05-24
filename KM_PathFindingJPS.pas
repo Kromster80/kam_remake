@@ -141,7 +141,7 @@ begin
 
   while Node <> nil do
   begin
-    NodeList.AddEntry(KMPoint(Node.X, Node.Y));
+    NodeList.Add(KMPoint(Node.X, Node.Y));
     Node := Node.parent;
   end;
 

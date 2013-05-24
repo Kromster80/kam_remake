@@ -577,7 +577,7 @@ var
   begin
     //Check that the passabilty is correct, as the house may be placed against blocked terrain
     if gTerrain.CheckPassability(KMPoint(X,Y), aPassability) then
-      Cells.AddItem(KMPointDir(X, Y, Dir));
+      Cells.Add(KMPointDir(X, Y, Dir));
   end;
 
 begin
@@ -613,7 +613,7 @@ begin
   for i := max(Loc.Y - 3, 1) to Loc.Y do
     for K := max(Loc.X - 2, 1) to min(Loc.X + 1, gTerrain.MapX) do
       if HouseArea[i - Loc.Y + 4, K - Loc.X + 3] <> 0 then
-        Cells.AddEntry(KMPoint(K, i));
+        Cells.Add(KMPoint(K, i));
 end;
 
 

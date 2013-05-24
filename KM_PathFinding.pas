@@ -309,10 +309,10 @@ begin
 
     //Assemble the route
     NodeList.Clear;
-    NodeList.AddEntry(fLocA);
+    NodeList.Add(fLocA);
     for K := BestStart to BestEnd do
-      NodeList.AddEntry(fCache[I].Route[K]);
-    NodeList.AddEntry(fLocB);
+      NodeList.Add(fCache[I].Route[K]);
+    NodeList.Add(fLocB);
 
     //Mark the cached route as more useful
     Inc(fCache[I].Weight);

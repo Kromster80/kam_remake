@@ -1101,9 +1101,9 @@ begin
             if Route_CanBeMade(aLoc, P, CanWalk, 0) then
             begin
               if KMLengthSqr(aLoc, P) <= Sqr(aRadius div 2) then
-                NearTiles.AddItem(KMPointDir(P, dir_NA))
+                NearTiles.Add(KMPointDir(P, dir_NA))
               else
-                FarTiles.AddItem(KMPointDir(P, dir_NA));
+                FarTiles.Add(KMPointDir(P, dir_NA));
             end;
   end;
 
@@ -1141,9 +1141,9 @@ begin
             if Route_CanBeMade(aLoc, P, CanWalk, 0) then
             begin
               if KMLengthSqr(aLoc, P) <= Sqr(aRadius div 2) then
-                NearTiles.AddEntry(P)
+                NearTiles.Add(P)
               else
-                FarTiles.AddEntry(P);
+                FarTiles.Add(P);
             end;
   end;
 
@@ -1187,7 +1187,7 @@ begin
     and (TileIsStone(P.X, P.Y - 1) > 0)
     and (aIgnoreWorkingUnits or not TileIsLocked(P)) //Already taken by another stonemason
     and Route_CanBeMade(aLoc, P, CanWalk, 0) then
-      ChosenTiles.AddEntry(P);
+      ChosenTiles.Add(P);
   end;
 
   Result := ChosenTiles.GetRandom(P);
@@ -1228,22 +1228,22 @@ begin
       //Poorest ore gets mined in range - 2
       if InRange(I - aLoc.Y, - RadTop + 2, RadBottom - 2) then
         if InRange(K - aLoc.X, - RadLeft + 2, RadRight - 2) then
-          L[1].AddEntry(KMPoint(K, I))
+          L[1].Add(KMPoint(K, I))
     end
     else if Land[I, K].Terrain = R2 then
     begin
       //Second poorest ore gets mined in range - 1
       if InRange(I - aLoc.Y, - RadTop + 1, RadBottom - 1) then
         if InRange(K - aLoc.X, - RadLeft + 1, RadRight - 1) then
-          L[2].AddEntry(KMPoint(K, I))
+          L[2].Add(KMPoint(K, I))
     end
     else if Land[I, K].Terrain = R3 then
       //Always mine second richest ore
-      L[3].AddEntry(KMPoint(K, I))
+      L[3].Add(KMPoint(K, I))
     else
       if Land[I, K].Terrain = R4 then
         // Always mine richest ore
-        L[4].AddEntry(KMPoint(K, I));
+        L[4].Add(KMPoint(K, I));
   end;
 
   //Equation elements will be evalueated one by one until True is found
@@ -1349,16 +1349,16 @@ begin
       and ((T.X = 1) or (T.Y = 1) or not TileIsLocked(KMPoint(T.X-1, T.Y-1)))
       and Route_CanBeMadeToVertex(aLoc, T, CanWalk) then
         if ChooseCuttingDirection(aLoc, T, CuttingPoint) then
-          Trees.AddItem(CuttingPoint); //Tree
+          Trees.Add(CuttingPoint); //Tree
 
       if (aPlantAct in [taPlant, taAny])
       and TileGoodForTree(T.X, T.Y)
       and Route_CanBeMade(aLoc, T, CanWalk, 0)
       and not TileIsLocked(T) then //Taken by another woodcutter
         if ObjectIsChopableTree(T, caAgeStump) then
-          BestToPlant.AddEntry(T) //Prefer to dig out and plant on stumps to avoid cluttering whole area with em
+          BestToPlant.Add(T) //Prefer to dig out and plant on stumps to avoid cluttering whole area with em
         else
-          SecondBestToPlant.AddEntry(T); //Empty space and other objects that can be dug out (e.g. mushrooms) if no other options available
+          SecondBestToPlant.Add(T); //Empty space and other objects that can be dug out (e.g. mushrooms) if no other options available
     end;
   end;
   ValidTiles.Free;
@@ -1391,7 +1391,7 @@ begin
           and TileInMapCoords(P.X+J, P.Y+K)
           and TileIsWater(P.X+J, P.Y+K)
           and WaterHasFish(KMPoint(P.X+J, P.Y+K)) then //Limit to only tiles which are water and have fish
-            ChosenTiles.AddItem(KMPointDir(P, KMGetDirection(J, K)));
+            ChosenTiles.Add(KMPointDir(P, KMGetDirection(J, K)));
   end;
 
   Result := ChosenTiles.GetRandom(FishPoint);
@@ -1434,7 +1434,7 @@ procedure TKMTerrain.GetHouseMarks(aLoc: TKMPoint; aHouseType: THouseType; aList
     for I := 0 to aList.Count - 1 do //Skip wires from comparison
       if (aList.Tag[I] <> TC_OUTLINE) and KMSamePoint(aList[I], aPoint) then
         Exit;
-    aList.AddEntry(aPoint, aID);
+    aList.Add(aPoint, aID);
   end;
 
 var
@@ -1537,7 +1537,7 @@ begin
     if ChopableTrees[I, caAgeFull] = Land[Loc.Y,Loc.X].Obj then
     begin
       Land[Loc.Y,Loc.X].Obj := ChopableTrees[I, caAgeStump];             //Set stump object
-      FallingTrees.AddEntry(Loc,ChopableTrees[I, caAgeFall], fAnimStep); //along with falling tree
+      FallingTrees.Add(Loc,ChopableTrees[I, caAgeFall], fAnimStep); //along with falling tree
       fSoundLib.Play(sfx_TreeDown, Loc, True);
       Exit;
     end;
@@ -1548,7 +1548,7 @@ end;
 procedure TKMTerrain.ChopTree(Loc: TKMPoint);
 begin
   Land[Loc.Y,Loc.X].TreeAge := 0;
-  FallingTrees.RemoveEntry(Loc);
+  FallingTrees.Remove(Loc);
   UpdatePassability(KMRectGrow(KMRect(Loc), 1));
 
   //WalkConnect takes diagonal passability into account
@@ -1869,13 +1869,13 @@ begin
     and (Land[Loc.Y+I,Loc.X+K].TileLock in [tlNone, tlFenced])
     and (aPass in Land[Loc.Y+I,Loc.X+K].Passability)
     and (not (U is TKMUnitWorker) or GoodForWorker(Loc.X+K, Loc.Y+I)) then
-      L1.AddEntry(KMPoint(Loc.X+K, Loc.Y+I));
+      L1.Add(KMPoint(Loc.X+K, Loc.Y+I));
 
   //List 2 holds the best positions, ones which are not occupied
   L2 := TKMPointList.Create;
   for I := 0 to L1.Count - 1 do
     if Land[L1[I].Y, L1[I].X].IsUnit = nil then
-      L2.AddEntry(L1[I]);
+      L2.Add(L1[I]);
 
   //List 3 holds the second best positions, ones which are occupied with an idle units
   L3 := TKMPointList.Create;
@@ -1887,7 +1887,7 @@ begin
       if KMSamePoint(L1[I],PusherLoc)
       or ((TempUnit <> nil) and (TempUnit.GetUnitAction is TUnitActionStay)
           and (not TUnitActionStay(TempUnit.GetUnitAction).Locked)) then
-        L3.AddEntry(L1[I]);
+        L3.Add(L1[I]);
     end;
 
   if not(L2.GetRandom(Result)) then
@@ -1918,14 +1918,14 @@ begin
     and (Land[Loc.Y+I,Loc.X+K].TileLock in [tlNone, tlFenced])
     and (KMLengthDiag(Loc.X+K, Loc.Y+I, Loc2) <= 1) //Right next to Loc2 (not diagonal)
     and not HasUnit(KMPoint(Loc.X+K,Loc.Y+I)) then //Doesn't have a unit
-      L1.AddEntry(KMPoint(Loc.X+K,Loc.Y+I));
+      L1.Add(KMPoint(Loc.X+K,Loc.Y+I));
 
   //List 2 holds the best positions, ones which are also next to Loc3 (next position)
   L2 := TKMPointList.Create;
   if not KMSamePoint(Loc3, KMPoint(0,0)) then //No Loc3 was given
   for I := 0 to L1.Count - 1 do
     if KMLengthDiag(L1[I], Loc3) < 1.5 then //Next to Loc3 (diagonal is ok)
-      L2.AddEntry(L1[I]);
+      L2.Add(L1[I]);
 
   Result := True;
   if not(L2.GetRandom(SidePoint)) then
@@ -2337,7 +2337,7 @@ begin
                                 Land[y,x].Obj := 255;
                               end;
                               //If house was set e.g. in mission file we must flatten the terrain as no one else has
-                              ToFlatten.AddEntry(KMPoint(x,y));
+                              ToFlatten.Add(KMPoint(x,y));
                             end;
                           end;
         end;

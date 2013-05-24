@@ -192,7 +192,7 @@ begin
   N := fMinN;
   while N <> nil do
   begin
-    NodeList.AddEntry(KMPoint(N.X, N.Y));
+    NodeList.Add(KMPoint(N.X, N.Y));
     N := N.Parent;
   end;
 

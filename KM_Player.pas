@@ -398,7 +398,7 @@ begin
   //Sometimes maps can have roads placed outside of map bounds - ignore them
   //(on 80x80 map Loc range is 1..79, which is not obvious when placing roads manually in script)
   if gTerrain.TileInMapCoords(aLoc.X, aLoc.Y) then
-    fRoadsList.AddEntry(aLoc);
+    fRoadsList.Add(aLoc);
 end;
 
 
@@ -997,9 +997,9 @@ procedure TKMPlayer.GetHouseMarks(aLoc: TKMPoint; aHouseType: THouseType; aList:
     //Remove all existing marks on this tile (entrance can have 2 entries)
     for I := aList.Count - 1 downto 0 do
       if KMSamePoint(aList[I], aPoint) then
-        aList.RemoveEntry(aPoint);
+        aList.Remove(aPoint);
 
-    aList.AddEntry(aPoint, aID);
+    aList.Add(aPoint, aID);
   end;
 
 var

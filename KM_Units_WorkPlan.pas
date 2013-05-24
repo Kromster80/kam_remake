@@ -198,7 +198,7 @@ begin
     //First try stumps list
     for I := BestToPlant.Count - 1 downto 0 do
       if not TKMUnitCitizen(aUnit).CanWorkAt(BestToPlant[I], gs_WoodCutterPlant) then
-        BestToPlant.DeleteEntry(I);
+        BestToPlant.Delete(I);
     Result := BestToPlant.GetRandom(T);
     //Trees must always be planted facing north as that is the direction the animation uses
     if Result then
@@ -208,7 +208,7 @@ begin
       //Try empty places list
       for I := SecondBestToPlant.Count - 1 downto 0 do
         if not TKMUnitCitizen(aUnit).CanWorkAt(SecondBestToPlant[I], gs_WoodCutterPlant) then
-          SecondBestToPlant.DeleteEntry(I);
+          SecondBestToPlant.Delete(I);
       Result := SecondBestToPlant.GetRandom(T);
       //Trees must always be planted facing north as that is the direction the animation uses
       if Result then

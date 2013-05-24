@@ -379,7 +379,7 @@ begin
       //At minimum Route_Make returns Count = 1 (fWalkTo)
       if NodeList2.Count > 0 then
         for I := 1 to NodeList2.Count - 1 do
-          NodeList.AddEntry(NodeList2[I])
+          NodeList.Add(NodeList2[I])
       else
         NodeList.Clear; //Clear NodeList so we return false
     finally

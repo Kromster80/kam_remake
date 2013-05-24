@@ -394,7 +394,7 @@ var I: Integer;
 begin
   for I := 0 to fFieldsCount - 1 do
   if (fFields[I].FieldType <> ft_None) and KMInRect(fFields[I].Loc, aRect) then
-    aList.AddEntry(fFields[I].Loc, Byte(fFields[I].FieldType));
+    aList.Add(fFields[I].Loc, Byte(fFields[I].FieldType));
 
   if aIncludeFake then
   begin
@@ -402,11 +402,11 @@ begin
       //It is possible to have a fake fieldplans at the position of a real fieldplan temporarily when
       //clicking on one tile repeatly due to network delay. Don't add duplicate points to the list.
       if fFakeFields[I].Active and not aList.Contains(fFakeFields[I].Loc) then
-        aList.AddEntry(fFakeFields[I].Loc, Byte(fFakeFields[I].FieldType));
+        aList.Add(fFakeFields[I].Loc, Byte(fFakeFields[I].FieldType));
     //Fields that have been deleted should not be painted
     for I := 0 to Length(fFakeDeletedFields) - 1 do
       if fFakeDeletedFields[I].Active then
-        aList.RemoveEntry(fFakeDeletedFields[I].Loc);
+        aList.Remove(fFakeDeletedFields[I].Loc);
   end;
 end;
 
@@ -802,16 +802,16 @@ begin
       if HA[J,K] <> 0 then
       begin
         if (J = 1) or (HA[J-1, K] = 0) then
-          aList.AddItem(KMPointDir(fPlans[I].Loc.X + K - 3, fPlans[I].Loc.Y + J - 4, dir_N));
+          aList.Add(KMPointDir(fPlans[I].Loc.X + K - 3, fPlans[I].Loc.Y + J - 4, dir_N));
 
         if (K = 1) or (HA[J, K-1] = 0) then
-          aList.AddItem(KMPointDir(fPlans[I].Loc.X + K - 3, fPlans[I].Loc.Y + J - 4, dir_E));
+          aList.Add(KMPointDir(fPlans[I].Loc.X + K - 3, fPlans[I].Loc.Y + J - 4, dir_E));
 
         if (J = 4) or (HA[J+1, K] = 0) then
-          aList.AddItem(KMPointDir(fPlans[I].Loc.X + K - 3, fPlans[I].Loc.Y + J - 4, dir_S));
+          aList.Add(KMPointDir(fPlans[I].Loc.X + K - 3, fPlans[I].Loc.Y + J - 4, dir_S));
 
         if (K = 4) or (HA[J, K+1] = 0) then
-          aList.AddItem(KMPointDir(fPlans[I].Loc.X + K - 3, fPlans[I].Loc.Y + J - 4, dir_W));
+          aList.Add(KMPointDir(fPlans[I].Loc.X + K - 3, fPlans[I].Loc.Y + J - 4, dir_W));
       end;
     end;
 end;
@@ -829,7 +829,7 @@ begin
   if (fPlans[I].HouseType <> ht_None)
   and InRange(fPlans[I].Loc.X - 2, Rect.Left, Rect.Right)
   and InRange(fPlans[I].Loc.Y - 2, Rect.Top, Rect.Bottom) then
-    aList.AddEntry(KMPoint(fPlans[I].Loc.X + fResource.HouseDat[fPlans[I].HouseType].EntranceOffsetX, fPlans[I].Loc.Y), Byte(fPlans[I].HouseType));
+    aList.Add(KMPoint(fPlans[I].Loc.X + fResource.HouseDat[fPlans[I].HouseType].EntranceOffsetX, fPlans[I].Loc.Y), Byte(fPlans[I].HouseType));
 end;
 
 

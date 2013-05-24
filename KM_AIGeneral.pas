@@ -350,7 +350,7 @@ begin
       begin
         Ratio := (K + 1) / (DefCount + 1);
         Loc := KMPointRound(KMLerp(Outline2[I].A, Outline2[I].B, Ratio));
-        Locs.AddItem(KMPointDir(Loc, FaceDir), Round(Outline2[I].Weight * 100), 0);
+        Locs.Add(KMPointDir(Loc, FaceDir), Round(Outline2[I].Weight * 100));
       end;
     end;
 

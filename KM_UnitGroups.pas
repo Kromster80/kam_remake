@@ -1308,8 +1308,8 @@ begin
   //(tossing flag around is quite complicated and looks unnatural in KaM)
   for I := 1 to fMembers.Count - 1 do
   begin
-    Agents.AddEntry(Members[I].GetPosition);
-    Tasks.AddEntry(GetMemberLoc(I).Loc);
+    Agents.Add(Members[I].GetPosition);
+    Tasks.Add(GetMemberLoc(I).Loc);
   end;
 
   //hu_Individual as we'd prefer 20 members to take 1 step than 1 member to take 10 steps (minimize individual work rather than total work)

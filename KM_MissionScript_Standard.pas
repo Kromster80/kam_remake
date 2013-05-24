@@ -196,7 +196,7 @@ begin
                             if P[0] = 255 then
                               fGame.MapEditor.RevealAll[fLastPlayer] := True
                             else
-                              fGame.MapEditor.Revealers[fLastPlayer].AddEntry(KMPoint(P[0]+1,P[1]+1), P[2])
+                              fGame.MapEditor.Revealers[fLastPlayer].Add(KMPoint(P[0]+1,P[1]+1), P[2])
                           else
                             if P[0] = 255 then
                               fPlayers[fLastPlayer].FogOfWar.RevealEverything

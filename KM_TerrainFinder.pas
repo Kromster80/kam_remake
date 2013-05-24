@@ -114,7 +114,7 @@ begin
     if I <> -1 then
       fLocs.Tag[I] := aWalkDistance //New is always smaller
     else
-      fLocs.AddEntry(KMPoint(X,Y), aWalkDistance);
+      fLocs.Add(KMPoint(X,Y), aWalkDistance);
 
     //If we have enough points we can be picky and take only better distances
     if fLocs.Count >= fMaxCount then
@@ -201,7 +201,7 @@ const
 
     //Only add to results once (255 is the intial value)
     if Visited[Yt,Xt] = 255 then
-      aList.AddEntry(KMPoint(X,Y));
+      aList.Add(KMPoint(X,Y));
 
     //Mark this tile as visited
     Visited[Yt,Xt] := aWalkDistance;
@@ -249,7 +249,7 @@ begin
     for I := max(aStart.Y-aRadius, 1) to min(aStart.Y+aRadius, MapY-1) do
       for K := max(aStart.X-aRadius, 1) to min(aStart.X+aRadius, MapX-1) do
         if (aPass in gTerrain.Land[I,K].Passability) and (KMLengthDiag(aStart, KMPoint(K,I)) <= aRadius) then
-          aList.AddEntry(KMPoint(K,I));
+          aList.Add(KMPoint(K,I));
   end;
 end;
 

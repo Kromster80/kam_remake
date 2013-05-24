@@ -130,7 +130,7 @@ begin
   //Assemble the route
   I := fMinCost.ID;
   repeat
-    NodeList.AddEntry(OList[I].Pos);
+    NodeList.Add(OList[I].Pos);
     I := OList[I].Parent;
   until I = 0;
 

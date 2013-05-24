@@ -165,7 +165,7 @@ begin
   for I := 1 to gTerrain.MapY - 2 do
   for K := 1 to gTerrain.MapX - 2 do
   if gTerrain.TileGoodForGoldmine(K,I) then
-    fListGold.AddEntry(KMPoint(K,I));
+    fListGold.Add(KMPoint(K,I));
 end;
 
 
