@@ -50,7 +50,9 @@ type
   TKMSelectionMode = (smSelecting, smPasting);
   TKMSelection = class
   private
+    fRawRect: TKMRectF; //Cursor selection bounds (can have inverted bounds)
     fRect: TKMRect; //Tile-space selection, at least 1 tile
+    procedure SetRawRect(const aValue: TKMRectF);
   public
     SelectionMode: TKMSelectionMode;
     Buffer: array of array of record
@@ -60,6 +62,7 @@ type
       Obj: Byte;
       OldTerrain, OldRotation: Byte; //Only used for map editor
     end;
+    property RawRect: TKMRectF read fRawRect write SetRawRect;
     property Rect: TKMRect read fRect write fRect;
     procedure Copy; //Copies the selected are into buffer
     procedure Paste; //Pastes the area from buffer and lets move it with cursor
@@ -275,6 +278,18 @@ end;
 
 
 { TKMSelection }
+procedure TKMSelection.SetRawRect(const aValue: TKMRectF);
+begin
+  fRawRect := aValue;
+
+  //Convert RawRect values that can be inverted to tilespace Rect
+  fRect.Left   := Trunc(Min(fRawRect.Left, fRawRect.Right));
+  fRect.Top    := Trunc(Min(fRawRect.Top, fRawRect.Bottom));
+  fRect.Right  := Ceil(Max(fRawRect.Left, fRawRect.Right));
+  fRect.Bottom := Ceil(Max(fRawRect.Top, fRawRect.Bottom));
+end;
+
+
 //Copy terrain section into buffer
 procedure TKMSelection.Copy;
 var
@@ -511,6 +526,7 @@ begin
   if mlSelection in fVisibleLayers then
   with fSelection do
   begin
+    fRenderAux.SquareOnTerrain(RawRect.Left, RawRect.Top, RawRect.Right, RawRect.Bottom, $40FFFF00);
     fRenderAux.SquareOnTerrain(Rect.Left, Rect.Top, Rect.Right, Rect.Bottom, $FFFFFF00);
   end;
 

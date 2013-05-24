@@ -1948,27 +1948,31 @@ end;
 procedure TKMapEdInterface.Selection_Resize(X, Y: Integer);
 var
   Rect: TKMRect;
+  RectF: TKMRectF;
 begin
-  Rect := fGame.MapEditor.Selection.Rect;
+  RectF := fGame.MapEditor.Selection.RawRect;
 
   case fSelection of
     smNone:       ;
     smNewRect:    begin
-                    Rect.Right := Ceil(GameCursor.Float.X);
-                    Rect.Bottom := Ceil(GameCursor.Float.Y);
+                    RectF.Right := GameCursor.Float.X;
+                    RectF.Bottom := GameCursor.Float.Y;
                   end;
-    smResizeX1:   Rect.Left := Round(GameCursor.Float.X);
-    smResizeY1:   Rect.Top := Round(GameCursor.Float.Y);
-    smResizeX2:   Rect.Right := Round(GameCursor.Float.X);
-    smResizeY2:   Rect.Bottom := Round(GameCursor.Float.Y);
+    smResizeX1:   RectF.Left := GameCursor.Float.X;
+    smResizeY1:   RectF.Top := GameCursor.Float.Y;
+    smResizeX2:   RectF.Right := GameCursor.Float.X;
+    smResizeY2:   RectF.Bottom := GameCursor.Float.Y;
     smMove:       begin
+                    Rect := fGame.MapEditor.Selection.Rect;
                     Rect := KMRectMove(Rect, GameCursor.Cell.X - fPrevX, GameCursor.Cell.Y - fPrevY);
+                    RectF := KMRectF(Rect);
+
                     fPrevX := GameCursor.Cell.X;
                     fPrevY := GameCursor.Cell.Y;
                   end;
   end;
 
-  fGame.MapEditor.Selection.Rect := Rect;
+  fGame.MapEditor.Selection.RawRect := RectF;
 end;
 
 
@@ -1977,6 +1981,7 @@ const
   EDGE = 0.25;
 var
   Rect: TKMRect;
+  RawRect: TKMRectF;
 begin
   Rect := fGame.MapEditor.Selection.Rect;
 
@@ -2007,11 +2012,12 @@ begin
     else
     begin
       fSelection := smNewRect;
-      Rect.Left := Trunc(GameCursor.Float.X);
-      Rect.Top := Trunc(GameCursor.Float.Y);
-      Rect.Right := Ceil(GameCursor.Float.X);
-      Rect.Bottom := Ceil(GameCursor.Float.Y);
-      fGame.MapEditor.Selection.Rect := Rect;
+      RawRect := fGame.MapEditor.Selection.RawRect;
+      RawRect.Left := GameCursor.Float.X;
+      RawRect.Top := GameCursor.Float.Y;
+      RawRect.Right := GameCursor.Float.X;
+      RawRect.Bottom := GameCursor.Float.Y;
+      fGame.MapEditor.Selection.RawRect := RawRect;
     end;
   end
   else
