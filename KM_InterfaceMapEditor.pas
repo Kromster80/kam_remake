@@ -112,7 +112,6 @@ type
     procedure Player_MarkerClick(Sender: TObject);
     procedure Selection_Start(X,Y: Integer);
     procedure Selection_Resize(X,Y: Integer);
-    procedure Selection_MouseUp(X,Y: Integer);
     procedure Terrain_BrushChange(Sender: TObject);
     procedure Terrain_BrushRefresh;
     procedure Terrain_HeightChange(Sender: TObject);
@@ -122,7 +121,7 @@ type
     procedure Terrain_TilesRefresh(Sender: TObject);
     procedure Terrain_ObjectsChange(Sender: TObject);
     procedure Terrain_ObjectsRefresh(Sender: TObject);
-    procedure Terrain_ClipboardChange(Sender: TObject);
+    procedure Terrain_SelectionClick(Sender: TObject);
     procedure Town_BuildChange(Sender: TObject);
     procedure Town_BuildRefresh;
     procedure Town_DefenceAddClick(Sender: TObject);
@@ -185,8 +184,8 @@ type
         ObjectsTable: array [0..8] of TKMButtonFlat;
         ObjectsScroll: TKMScrollBar;
       Panel_Selection: TKMPanel;
-        Button_SelectCopy, Button_SelectPaste: TKMButtonFlat;
-        Button_SelectFlipH, Button_SelectFlipV: TKMButtonFlat;
+        Button_SelectCopy, Button_SelectPaste: TKMButton;
+        Button_SelectFlipH, Button_SelectFlipV: TKMButton;
 
 
     //How to know where certain page should be?
@@ -468,7 +467,7 @@ begin
   end else
   if (Sender = Button_Terrain[ttSelection]) then
   begin
-    Terrain_ClipboardChange(Button_SelectCopy);
+    Terrain_SelectionClick(Button_SelectCopy);
     DisplayPage(Panel_Selection);
   end else
 
@@ -972,18 +971,18 @@ begin
 
     Panel_Selection := TKMPanel.Create(Panel_Terrain,0,28,TB_WIDTH,400);
       TKMLabel.Create(Panel_Selection, 0, PAGE_TITLE_Y, TB_WIDTH, 0, fTextLibrary[TX_MAPED_COPY_TITLE], fnt_Outline, taCenter);
-        Button_SelectCopy := TKMButtonFlat.Create(Panel_Selection, 24, 28, 24, 24, 384);
+        Button_SelectCopy := TKMButton.Create(Panel_Selection, 20, 30, TB_WIDTH - 40, 20, 'Copy', bsGame);
         Button_SelectCopy.Hint := fTextLibrary[TX_MAPED_COPY_COPY_HINT];
-        Button_SelectCopy.OnClick := Terrain_ClipboardChange;
-        Button_SelectPaste := TKMButtonFlat.Create(Panel_Selection, 52, 28, 24, 24, 384);
+        Button_SelectCopy.OnClick := Terrain_SelectionClick;
+        Button_SelectPaste := TKMButton.Create(Panel_Selection, 20, 60, TB_WIDTH - 40, 20, 'Paste', bsGame);
         Button_SelectPaste.Hint := fTextLibrary[TX_MAPED_COPY_PASTE_HINT];
-        Button_SelectPaste.OnClick := Terrain_ClipboardChange;
-        Button_SelectFlipH := TKMButtonFlat.Create(Panel_Selection, 80, 28, 24, 24, 384);
+        Button_SelectPaste.OnClick := Terrain_SelectionClick;
+        Button_SelectFlipH := TKMButton.Create(Panel_Selection, 20, 90, TB_WIDTH - 40, 20, 'Flip H', bsGame);
         Button_SelectFlipH.Hint := fTextLibrary[TX_MAPED_COPY_PASTE_HFLIP_HINT];
-        Button_SelectFlipH.OnClick := Terrain_ClipboardChange;
-        Button_SelectFlipV := TKMButtonFlat.Create(Panel_Selection, 108, 28, 24, 24, 384);
+        Button_SelectFlipH.OnClick := Terrain_SelectionClick;
+        Button_SelectFlipV := TKMButton.Create(Panel_Selection, 20, 120, TB_WIDTH - 40, 20, 'Flip V', bsGame);
         Button_SelectFlipV.Hint := fTextLibrary[TX_MAPED_COPY_PASTE_VFLIP_HINT];
-        Button_SelectFlipV.OnClick := Terrain_ClipboardChange;
+        Button_SelectFlipV.OnClick := Terrain_SelectionClick;
 end;
 
 
@@ -2034,12 +2033,6 @@ begin
 end;
 
 
-procedure TKMapEdInterface.Selection_MouseUp(X, Y: Integer);
-begin
-  //
-end;
-
-
 procedure TKMapEdInterface.SetActivePlayer(aIndex: TPlayerIndex);
 var
   I: Integer;
@@ -2234,7 +2227,7 @@ begin
 end;
 
 
-procedure TKMapEdInterface.Terrain_ClipboardChange(Sender: TObject);
+procedure TKMapEdInterface.Terrain_SelectionClick(Sender: TObject);
 begin
   GameCursor.Mode := cmSelection;
   GameCursor.Tag1 := 0;
@@ -3570,6 +3563,9 @@ var MyRect: TRect;
 begin
   fMyControls.MouseDown(X,Y,Shift,Button);
 
+  if fMyControls.CtrlOver <> nil then
+    Exit;
+
   if (Button = mbLeft) and (GameCursor.Mode = cmSelection) then
     Selection_Start(X,Y);
 
@@ -3591,8 +3587,7 @@ begin
   end;
 
   //So terrain brushes start on mouse down not mouse move
-  if fMyControls.CtrlOver = nil then
-    fGame.UpdateGameCursor(X, Y, Shift);
+  fGame.UpdateGameCursor(X, Y, Shift);
 end;
 
 
@@ -3798,7 +3793,6 @@ begin
                                         gTerrain.RemField(P);
                                     end;
                   end;
-      cmSelection:  Selection_MouseUp(X,Y);
     end;
 end;
 
