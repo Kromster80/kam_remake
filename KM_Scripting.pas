@@ -104,6 +104,8 @@ var
 begin
   fErrorString := '';
 
+  //SFX files go in the same folder as the .script file
+  fActions.SFXPath := ChangeFileExt(ExtractRelativePath(ExeDir, aFileName), '.%s.wav');
   if not FileExists(aFileName) then
   begin
     gLog.AddNoTime(aFileName + ' was not found. It is okay for mission to have no dynamic scripts.');
@@ -252,6 +254,9 @@ begin
       RegisterMethod('procedure PlayerAllianceChange(aPlayer1, aPlayer2: Byte; aCompliment, aAllied: Boolean)');
       RegisterMethod('procedure PlayerDefeat(aPlayer: Word)');
       RegisterMethod('procedure PlayerWin(const aVictors: array of Integer; aTeamVictory: Boolean)');
+
+      RegisterMethod('procedure PlayWAV(const aFileName: AnsiString; Volume: Single)');
+      RegisterMethod('procedure PlayWAVAtLocation(const aFileName: AnsiString; Volume: Single; X, Y: Word)');
 
       RegisterMethod('procedure SetOverlayText(aPlayer: Word; aText: AnsiString)');
       RegisterMethod('procedure SetTradeAllowed(aPlayer, aResType: Word; aAllowed: Boolean)');
@@ -406,8 +411,8 @@ begin
       RegisterMethod(@TKMScriptStates.GroupAt,          'GROUPAT');
       RegisterMethod(@TKMScriptStates.GroupDead,        'GROUPDEAD');
       RegisterMethod(@TKMScriptStates.GroupMember,      'GROUPMEMBER');
-      RegisterMethod(@TKMScriptStates.GroupMemberCount, 'GROUPMEMBERCOUNT');
       RegisterMethod(@TKMScriptStates.GroupColumnCount, 'GROUPCOLUMNCOUNT');
+      RegisterMethod(@TKMScriptStates.GroupMemberCount, 'GROUPMEMBERCOUNT');
       RegisterMethod(@TKMScriptStates.GroupOwner,       'GROUPOWNER');
 
       RegisterMethod(@TKMScriptStates.HouseAt,              'HOUSEAT');
@@ -507,6 +512,9 @@ begin
       RegisterMethod(@TKMScriptActions.PlayerWin,             'PLAYERWIN');
       RegisterMethod(@TKMScriptActions.PlayerAllianceChange,  'PLAYERALLIANCECHANGE');
       RegisterMethod(@TKMScriptActions.PlayerAddDefaultGoals, 'PLAYERADDDEFAULTGOALS');
+
+      RegisterMethod(@TKMScriptActions.PlayWAV, 'PLAYWAV');
+      RegisterMethod(@TKMScriptActions.PlayWAVAtLocation, 'PLAYWAVATLOCATION');
 
       RegisterMethod(@TKMScriptActions.SetOverlayText,  'SETOVERLAYTEXT');
       RegisterMethod(@TKMScriptActions.SetTradeAllowed, 'SETTRADEALLOWED');
@@ -780,6 +788,8 @@ var
 begin
   LoadStream.ReadAssert('Script');
 
+  LoadStream.Read(fActions.SFXPath);
+
   LoadStream.Read(fScriptCode);
 
   if fScriptCode <> '' then
@@ -851,6 +861,9 @@ var
   V: PIFVariant;
 begin
   SaveStream.Write('Script');
+
+  //Write folder where SFX is stored
+  SaveStream.Write(fActions.SFXPath);
 
   //Write script code
   SaveStream.Write(fScriptCode);

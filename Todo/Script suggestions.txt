@@ -10,6 +10,8 @@ Accepted:
  +	Actions.HouseSchoolQueueRemove
  +	Actions.GiveWeapons
  +	Actions.PlayerAddDefaultGoals
+ +	Actions.PlayWAV
+ +	Actions.PlayWAVAtLocation
  +	Added parameter "Silent" to Actions.HouseDestroy
 	Closest house/unit/group to given XY of certain player and type
 	Change house/unit/group owner
@@ -24,7 +26,7 @@ Accepted:
 	Disable "house not occupied" messages (and resource depleted?) for a specific house (needed for tower defence)
 	States.HouseIsComplete
 	Split a specific warrior out of a group
-	PlayWAV (and option to disable normal sound for messages?)
+	Looping option for PlayWAV (useful for ambient sounds at a location) 
 	Use markup to get LIBX strings instead of a function to prevent inconsitencies
 
 

@@ -176,6 +176,7 @@ type
     procedure UpdateSoundVolume(Value:single);
 
     procedure PlayNotification(aSound:TAttackNotification);
+    procedure PlayWAVFromScript(aFileName: AnsiString; Loc:TKMPoint; Attenuated:Boolean; Volume:Single);
 
     procedure PlayCitizen(aUnitType:TUnitType; aSound:TWarriorSpeech); overload;
     procedure PlayCitizen(aUnitType:TUnitType; aSound:TWarriorSpeech; aLoc:TKMPointF); overload;
@@ -717,6 +718,12 @@ begin
   Wave := NotificationSoundFile(aSound, Random(Count));
   if FileExists(Wave) then
     PlayWave(Wave, KMPointF(0,0), False, 1);
+end;
+
+
+procedure TSoundLib.PlayWAVFromScript(aFileName: AnsiString; Loc:TKMPoint; Attenuated:Boolean; Volume:Single);
+begin
+  PlayWave(aFileName, KMPointF(Loc), Attenuated, Volume);
 end;
 
 

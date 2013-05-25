@@ -34,10 +34,10 @@ type
     function FogRevealed(aPlayer: Byte; aX, aY: Word): Boolean;
 
     function GroupAt(aX, aY: Word): Integer;
+    function GroupColumnCount(aGroupID: Integer): Integer;
     function GroupDead(aGroupID: Integer): Boolean;
     function GroupMember(aGroupID, aMemberIndex: Integer): Integer;
     function GroupMemberCount(aGroupID: Integer): Integer;
-    function GroupColumnCount(aGroupID: Integer): Integer;
     function GroupOwner(aGroupID: Integer): Integer;
 
     function HouseAt(aX, aY: Word): Integer;
@@ -93,8 +93,11 @@ type
   TKMScriptActions = class
   private
     fIDCache: TKMScriptingIdCache;
+    function ValidSoundFileName(aFileName: AnsiString): Boolean;
+    function ParseTextMarkup(const aText: AnsiString): AnsiString;
     procedure LogError(aFuncName: string; const aValues: array of Integer);
   public
+    SFXPath: string;
     constructor Create(aIDCache: TKMScriptingIdCache);
 
     function  GiveAnimal(aType, X,Y: Word): Integer;
@@ -142,6 +145,9 @@ type
     procedure PlayerAddDefaultGoals(aPlayer: Byte; aBuildings: Boolean);
     procedure PlayerDefeat(aPlayer: Word);
     procedure PlayerWin(const aVictors: array of Integer; aTeamVictory: Boolean);
+    
+    procedure PlayWAV(const aFileName: AnsiString; Volume: Single);
+    procedure PlayWAVAtLocation(const aFileName: AnsiString; Volume: Single; X, Y: Word);
 
     procedure SetOverlayText(aPlayer: Word; aText: AnsiString);
     procedure SetTradeAllowed(aPlayer, aResType: Word; aAllowed: Boolean);
@@ -157,7 +163,7 @@ type
 implementation
 uses KM_AI, KM_Terrain, KM_Game, KM_FogOfWar, KM_PlayersCollection, KM_Units_Warrior,
   KM_HouseBarracks, KM_TextLibrary, KM_ResourceUnit, KM_ResourceWares, KM_ResourceHouse,
-  KM_Log, KM_Utils, KM_Resource, KM_UnitTaskSelfTrain;
+  KM_Log, KM_Utils, KM_Resource, KM_UnitTaskSelfTrain, KM_Sound;
 
 
   //We need to check all input parameters as could be wildly off range due to
@@ -1038,6 +1044,39 @@ begin
 end;
 
 
+function TKMScriptActions.ValidSoundFileName(aFileName: AnsiString): Boolean;
+var I: Integer;
+begin
+  for I:=1 to Length(aFileName) do
+    if not (aFileName[I] in ['a'..'z', '1'..'9', '0']) then
+    begin
+      Result := False;
+      Exit;
+    end;
+  Result := Length(aFileName) > 0;
+end;
+
+
+function TKMScriptActions.ParseTextMarkup(const aText: AnsiString): AnsiString;
+var I: Integer;
+begin
+  Result := '';
+  I := 1;
+  while I <= Length(aText) do
+  begin
+    if aText[I] = '$' then
+    begin
+      inc(I);
+    end
+    else
+    begin
+      Result := Result + aText[I];
+      inc(I);
+    end;
+  end;
+end;
+
+
 procedure TKMScriptActions.LogError(aFuncName: string; const aValues: array of Integer);
 var
   I: Integer;
@@ -1120,6 +1159,32 @@ begin
   end
   else
     LogError('Actions.PlayerAddDefaultGoals', [aPlayer, Byte(aBuildings)]);
+end;
+
+
+procedure TKMScriptActions.PlayWAV(const aFileName: AnsiString; Volume: Single);
+var FullFileName: string;
+begin
+  FullFileName := ExeDir + Format(SFXPath, [aFileName]);
+  //Silently ignore missing files (player might choose to delete annoying sounds from scripts if he likes)
+  if not FileExists(FullFileName) then Exit;
+  if ValidSoundFileName(aFileName) and InRange(Volume, 0, 1) then
+    fSoundLib.PlayWAVFromScript(FullFileName, KMPoint(0,0), False, Volume)
+  else
+    LogError('Actions.PlayWAV: '+aFileName, []);
+end;
+
+
+procedure TKMScriptActions.PlayWAVAtLocation(const aFileName: AnsiString; Volume: Single; X, Y: Word);
+var FullFileName: string;
+begin
+  FullFileName := ExeDir + Format(SFXPath, [aFileName]);
+  //Silently ignore missing files (player might choose to delete annoying sounds from scripts if he likes)
+  if not FileExists(FullFileName) then Exit;
+  if ValidSoundFileName(aFileName) and InRange(Volume, 0, 1) and gTerrain.TileInMapCoords(X,Y) then
+    fSoundLib.PlayWAVFromScript(FullFileName, KMPoint(X,Y), True, Volume)
+  else
+    LogError('Actions.PlayWAVAtLocation: '+aFileName, [X, Y]);
 end;
 
 
