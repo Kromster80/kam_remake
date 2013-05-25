@@ -1536,8 +1536,9 @@ begin
   for I := 1 to Length(ChopableTrees) do
     if ChopableTrees[I, caAgeFull] = Land[Loc.Y,Loc.X].Obj then
     begin
-      Land[Loc.Y,Loc.X].Obj := ChopableTrees[I, caAgeStump];             //Set stump object
-      FallingTrees.Add(Loc,ChopableTrees[I, caAgeFall], fAnimStep); //along with falling tree
+      Land[Loc.Y,Loc.X].Obj := ChopableTrees[I, caAgeStump];
+      //Remember tick when tree was chopped to calc the snim length
+      FallingTrees.Add(Loc, ChopableTrees[I, caAgeFall], fAnimStep);
       fSoundLib.Play(sfx_TreeDown, Loc, True);
       Exit;
     end;

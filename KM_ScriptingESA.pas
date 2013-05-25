@@ -97,7 +97,7 @@ type
     function ParseTextMarkup(const aText: AnsiString): AnsiString;
     procedure LogError(aFuncName: string; const aValues: array of Integer);
   public
-    SFXPath: string;
+    SFXPath: string;  //Relative to EXE (safe to use in Save, cos it is the same for all MP players)
     constructor Create(aIDCache: TKMScriptingIdCache);
 
     function  GiveAnimal(aType, X,Y: Word): Integer;

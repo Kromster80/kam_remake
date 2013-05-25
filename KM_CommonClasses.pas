@@ -288,8 +288,8 @@ var I: Word;
 begin
   Read(I, SizeOf(I));
   SetLength(Value, I);
-  if I=0 then exit;
-  Read(Pointer(Value)^, I);
+  if I > 0 then
+    Read(Pointer(Value)^, I);
 end;
 
 {$IFDEF UNICODE}
@@ -298,8 +298,8 @@ var I: Word;
 begin
   Read(I, SizeOf(I));
   SetLength(Value, I);
-  if I=0 then exit;
-  Read(Pointer(Value)^, I * SizeOf(Char));
+  if I > 0 then
+    Read(Pointer(Value)^, I * SizeOf(Char));
 end;}
 {$ENDIF}
 

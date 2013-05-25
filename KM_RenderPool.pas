@@ -59,7 +59,7 @@ type
 
     //Terrain rendering sub-class
     procedure CollectTerrain;
-    procedure CollectTerrainObjects(aRect: TKMRect; AnimStep: Cardinal);
+    procedure CollectTerrainObjects(aRect: TKMRect; aAnimStep: Cardinal);
 
     procedure CollectSprites;
 
@@ -184,7 +184,7 @@ begin
 end;
 
 
-procedure TRenderPool.CollectTerrainObjects(aRect: TKMRect; AnimStep: Cardinal);
+procedure TRenderPool.CollectTerrainObjects(aRect: TKMRect; aAnimStep: Cardinal);
 var
   I, K: Integer;
   TabletsList: TKMPointTagList;
@@ -202,7 +202,7 @@ begin
   with gTerrain do
   for I := 0 to FallingTrees.Count - 1 do
   begin
-    RenderObject(FallingTrees.Tag[I], AnimStep - FallingTrees.Tag2[I], FallingTrees[I].X, FallingTrees[I].Y);
+    RenderObject(FallingTrees.Tag[I], aAnimStep - FallingTrees.Tag2[I], FallingTrees[I].X, FallingTrees[I].Y);
     Assert(AnimStep - FallingTrees.Tag2[I] <= 100, 'Falling tree overrun?');
   end;
 
