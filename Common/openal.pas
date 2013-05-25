@@ -2281,7 +2281,7 @@ procedure alutLoadWAVFile(fname: string; var format: TALenum; var data: TALvoid;
 var
   Stream : TFileStream;
 begin
-  Stream:=TFileStream.Create(fname,$0000);
+  Stream:=TFileStream.Create(fname, fmOpenRead or fmShareDenyWrite);
   LoadWavStream(Stream, format, data, size, freq, loop);
   Stream.Free;
 end;
