@@ -255,8 +255,8 @@ begin
       RegisterMethod('procedure PlayerDefeat(aPlayer: Word)');
       RegisterMethod('procedure PlayerWin(const aVictors: array of Integer; aTeamVictory: Boolean)');
 
-      RegisterMethod('procedure PlayWAV(const aFileName: AnsiString; Volume: Single)');
-      RegisterMethod('procedure PlayWAVAtLocation(const aFileName: AnsiString; Volume: Single; X, Y: Word)');
+      RegisterMethod('procedure PlayWAV(aPlayer: Word; const aFileName: AnsiString; Volume: Single)');
+      RegisterMethod('procedure PlayWAVAtLocation(aPlayer: Word; const aFileName: AnsiString; Volume: Single; X, Y: Word)');
 
       RegisterMethod('procedure SetOverlayText(aPlayer: Word; aText: AnsiString)');
       RegisterMethod('procedure SetTradeAllowed(aPlayer, aResType: Word; aAllowed: Boolean)');

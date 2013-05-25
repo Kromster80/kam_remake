@@ -146,8 +146,8 @@ type
     procedure PlayerDefeat(aPlayer: Word);
     procedure PlayerWin(const aVictors: array of Integer; aTeamVictory: Boolean);
     
-    procedure PlayWAV(const aFileName: AnsiString; Volume: Single);
-    procedure PlayWAVAtLocation(const aFileName: AnsiString; Volume: Single; X, Y: Word);
+    procedure PlayWAV(aPlayer: Word; const aFileName: AnsiString; Volume: Single);
+    procedure PlayWAVAtLocation(aPlayer: Word; const aFileName: AnsiString; Volume: Single; X, Y: Word);
 
     procedure SetOverlayText(aPlayer: Word; aText: AnsiString);
     procedure SetTradeAllowed(aPlayer, aResType: Word; aAllowed: Boolean);
@@ -1162,9 +1162,11 @@ begin
 end;
 
 
-procedure TKMScriptActions.PlayWAV(const aFileName: AnsiString; Volume: Single);
+procedure TKMScriptActions.PlayWAV(aPlayer: Word; const aFileName: AnsiString; Volume: Single);
 var FullFileName: string;
 begin
+  if aPlayer <> MySpectator.PlayerIndex then Exit;
+
   FullFileName := ExeDir + Format(SFXPath, [aFileName]);
   //Silently ignore missing files (player might choose to delete annoying sounds from scripts if he likes)
   if not FileExists(FullFileName) then Exit;
@@ -1175,9 +1177,11 @@ begin
 end;
 
 
-procedure TKMScriptActions.PlayWAVAtLocation(const aFileName: AnsiString; Volume: Single; X, Y: Word);
+procedure TKMScriptActions.PlayWAVAtLocation(aPlayer: Word; const aFileName: AnsiString; Volume: Single; X, Y: Word);
 var FullFileName: string;
 begin
+  if aPlayer <> MySpectator.PlayerIndex then Exit;
+
   FullFileName := ExeDir + Format(SFXPath, [aFileName]);
   //Silently ignore missing files (player might choose to delete annoying sounds from scripts if he likes)
   if not FileExists(FullFileName) then Exit;
