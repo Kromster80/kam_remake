@@ -94,6 +94,7 @@ type
     procedure RenderObjectOrQuad(aIndex: Byte; AnimStep,pX,pY: Integer; DoImmediateRender: Boolean = False; Deleting: Boolean = False);
 
     property RenderList: TRenderList read fRenderList;
+    property RenderTerrain: TRenderTerrain read fRenderTerrain;
     procedure SetRotation(aH,aP,aB: Integer);
 
     procedure Render;
@@ -106,7 +107,7 @@ var
 
 implementation
 uses KM_CommonTypes, KM_RenderAux, KM_PlayersCollection, KM_Projectiles, KM_Game, KM_Sound, KM_Resource,
-  KM_ResourceHouse, KM_ResourceMapElements, KM_Units, KM_AIFields, KM_TerrainPainter;
+  KM_ResourceHouse, KM_ResourceMapElements, KM_Units, KM_AIFields, KM_TerrainPainter, KM_MapEditor;
 
 
 constructor TRenderPool.Create(aRender: TRender);
@@ -1068,6 +1069,9 @@ var
   I,K: Integer;
   Tmp: Single;
   Rad, Slope: Byte;
+  Rect: TKMRect;
+  Sel: TKMSelection;
+  Sx, Sy: Integer;
 begin
   if GameCursor.Cell.Y*GameCursor.Cell.X = 0 then Exit; //Caused a rare crash
 
@@ -1084,132 +1088,154 @@ begin
 
   with gTerrain do
   case GameCursor.Mode of
-    cmNone:     ;
-    cmErase:    case fGame.GameMode of
-                  gmMapEd:
-                    begin
-                      //With Buildings tab see if we can remove Fields or Houses
-                      if (fGame.MapEditorInterface.GetShownPage = esp_Buildings)
-                         and (    TileIsCornField(P)
-                               or TileIsWineField(P)
-                               or (Land[P.Y,P.X].TileOverlay=to_Road)
-                               or (fPlayers.HousesHitTest(P.X, P.Y) <> nil))
-                      then
-                        RenderWire(P, $FFFFFF00) //Cyan quad
-                      else
-                        RenderSpriteOnTile(P, TC_BLOCK); //Red X
-                    end;
+    cmNone:       ;
+    cmErase:      case fGame.GameMode of
+                    gmMapEd:
+                      begin
+                        //With Buildings tab see if we can remove Fields or Houses
+                        if (fGame.MapEditorInterface.GetShownPage = esp_Buildings)
+                           and (    TileIsCornField(P)
+                                 or TileIsWineField(P)
+                                 or (Land[P.Y,P.X].TileOverlay=to_Road)
+                                 or (fPlayers.HousesHitTest(P.X, P.Y) <> nil))
+                        then
+                          RenderWire(P, $FFFFFF00) //Cyan quad
+                        else
+                          RenderSpriteOnTile(P, TC_BLOCK); //Red X
+                      end;
 
-                  gmSingle, gmMulti, gmReplaySingle, gmReplayMulti:
+                    gmSingle, gmMulti, gmReplaySingle, gmReplayMulti:
+                      begin
+                        if ((fPlayers[MySpectator.PlayerIndex].BuildList.FieldworksList.HasFakeField(P) <> ft_None)
+                            or fPlayers[MySpectator.PlayerIndex].BuildList.HousePlanList.HasPlan(P)
+                            or (fPlayers[MySpectator.PlayerIndex].HousesHitTest(P.X, P.Y) <> nil))
+                        then
+                          RenderWire(P, $FFFFFF00) //Cyan quad
+                        else
+                          RenderSpriteOnTile(P, TC_BLOCK); //Red X
+                      end;
+                  end;
+    cmRoad:       if fPlayers[MySpectator.PlayerIndex].CanAddFakeFieldPlan(P, ft_Road) then
+                    RenderWire(P, $FFFFFF00) //Cyan quad
+                  else
+                  RenderSpriteOnTile(P, TC_BLOCK);       //Red X
+    cmField:      if fPlayers[MySpectator.PlayerIndex].CanAddFakeFieldPlan(P, ft_Corn) then
+                    RenderWire(P, $FFFFFF00) //Cyan quad
+                  else
+                    RenderSpriteOnTile(P, TC_BLOCK);       //Red X
+    cmWine:       if fPlayers[MySpectator.PlayerIndex].CanAddFakeFieldPlan(P, ft_Wine) then
+                    RenderWire(P, $FFFFFF00) //Cyan quad
+                  else
+                    RenderSpriteOnTile(P, TC_BLOCK);       //Red X
+    cmWall:       if fPlayers[MySpectator.PlayerIndex].CanAddFakeFieldPlan(P, ft_Wall) then
+                    RenderWire(P, $FFFFFF00) //Cyan quad
+                  else
+                    RenderSpriteOnTile(P, TC_BLOCK);       //Red X
+    cmHouses:     RenderWireHousePlan(P, THouseType(GameCursor.Tag1)); //Cyan quads and red Xs
+    cmBrush:      if GameCursor.Tag1 <> 0 then
+                  begin
+                    Rad := GameCursor.MapEdSize;
+                    if Rad = 0 then
+                      //brush size smaller than one cell
+                      fRenderAux.DotOnTerrain(Round(F.X), Round(F.Y), $FF80FF80)
+                    else
+                    //There are two brush types here, even and odd size
+                    if Rad mod 2 = 1 then
                     begin
-                      if ((fPlayers[MySpectator.PlayerIndex].BuildList.FieldworksList.HasFakeField(P) <> ft_None)
-                          or fPlayers[MySpectator.PlayerIndex].BuildList.HousePlanList.HasPlan(P)
-                          or (fPlayers[MySpectator.PlayerIndex].HousesHitTest(P.X, P.Y) <> nil))
-                      then
-                        RenderWire(P, $FFFFFF00) //Cyan quad
-                      else
-                        RenderSpriteOnTile(P, TC_BLOCK); //Red X
+                      //first comes odd sizes 1,3,5..
+                      Rad := Rad div 2;
+                      for I := -Rad to Rad do
+                      for K := -Rad to Rad do
+                      //Rounding corners in a nice way
+                      if (GameCursor.MapEdShape = hsSquare)
+                      or (Sqr(I) + Sqr(K) < Sqr(Rad+0.5)) then
+                        RenderTile(Combo[TTerrainKind(GameCursor.Tag1), TTerrainKind(GameCursor.Tag1),1],P.X+K,P.Y+I,0);
+                    end
+                    else
+                    begin
+                      //even sizes 2,4,6..
+                      Rad := Rad div 2;
+                      for I := -Rad to Rad - 1 do
+                      for K := -Rad to Rad - 1 do
+                      //Rounding corners in a nice way
+                      if (GameCursor.MapEdShape = hsSquare)
+                      or (Sqr(I+0.5)+Sqr(K+0.5) < Sqr(Rad)) then
+                        RenderTile(Combo[TTerrainKind(GameCursor.Tag1), TTerrainKind(GameCursor.Tag1),1],P.X+K,P.Y+I,0);
                     end;
-                end;
-    cmRoad:     if fPlayers[MySpectator.PlayerIndex].CanAddFakeFieldPlan(P, ft_Road) then
-                  RenderWire(P, $FFFFFF00) //Cyan quad
-                else
-                  RenderSpriteOnTile(P, TC_BLOCK);       //Red X
-    cmField:    if fPlayers[MySpectator.PlayerIndex].CanAddFakeFieldPlan(P, ft_Corn) then
-                  RenderWire(P, $FFFFFF00) //Cyan quad
-                else
-                  RenderSpriteOnTile(P, TC_BLOCK);       //Red X
-    cmWine:     if fPlayers[MySpectator.PlayerIndex].CanAddFakeFieldPlan(P, ft_Wine) then
-                  RenderWire(P, $FFFFFF00) //Cyan quad
-                else
-                  RenderSpriteOnTile(P, TC_BLOCK);       //Red X
-    cmWall:     if fPlayers[MySpectator.PlayerIndex].CanAddFakeFieldPlan(P, ft_Wall) then
-                  RenderWire(P, $FFFFFF00) //Cyan quad
-                else
-                  RenderSpriteOnTile(P, TC_BLOCK);       //Red X
-    cmHouses:   RenderWireHousePlan(P, THouseType(GameCursor.Tag1)); //Cyan quads and red Xs
-    cmBrush:    if GameCursor.Tag1 <> 0 then
-                begin
-                  Rad := GameCursor.MapEdSize;
-                  if Rad = 0 then
-                    //brush size smaller than one cell
-                    fRenderAux.DotOnTerrain(Round(F.X), Round(F.Y), $FF80FF80)
-                  else
-                  //There are two brush types here, even and odd size
-                  if Rad mod 2 = 1 then
-                  begin
-                    //first comes odd sizes 1,3,5..
-                    Rad := Rad div 2;
-                    for I := -Rad to Rad do
-                    for K := -Rad to Rad do
-                    //Rounding corners in a nice way
-                    if (GameCursor.MapEdShape = hsSquare)
-                    or (Sqr(I) + Sqr(K) < Sqr(Rad+0.5)) then
-                      RenderTile(Combo[TTerrainKind(GameCursor.Tag1), TTerrainKind(GameCursor.Tag1),1],P.X+K,P.Y+I,0);
-                  end
-                  else
-                  begin
-                    //even sizes 2,4,6..
-                    Rad := Rad div 2;
-                    for I := -Rad to Rad - 1 do
-                    for K := -Rad to Rad - 1 do
-                    //Rounding corners in a nice way
-                    if (GameCursor.MapEdShape = hsSquare)
-                    or (Sqr(I+0.5)+Sqr(K+0.5) < Sqr(Rad)) then
-                      RenderTile(Combo[TTerrainKind(GameCursor.Tag1), TTerrainKind(GameCursor.Tag1),1],P.X+K,P.Y+I,0);
                   end;
-                end;
-    cmTiles:    if GameCursor.MapEdDir in [0..3] then
-                  fRenderTerrain.RenderTile(GameCursor.Tag1, P.X, P.Y, GameCursor.MapEdDir)
-                else
-                  fRenderTerrain.RenderTile(GameCursor.Tag1, P.X, P.Y, (gTerrain.AnimStep div 5) mod 4); //Spin it slowly so player remembers it is on randomized
-    cmObjects:  begin
-                  //If there's object below - paint it in Red
-                  RenderObjectOrQuad(gTerrain.Land[P.Y,P.X].Obj, gTerrain.AnimStep, P.X, P.Y, true, true);
-                  RenderObjectOrQuad(GameCursor.Tag1, gTerrain.AnimStep, P.X, P.Y, true);
-                end;
+    cmTiles:      if GameCursor.MapEdDir in [0..3] then
+                    fRenderTerrain.RenderTile(GameCursor.Tag1, P.X, P.Y, GameCursor.MapEdDir)
+                  else
+                    fRenderTerrain.RenderTile(GameCursor.Tag1, P.X, P.Y, (gTerrain.AnimStep div 5) mod 4); //Spin it slowly so player remembers it is on randomized
+    cmObjects:    begin
+                    //If there's object below - paint it in Red
+                    RenderObjectOrQuad(gTerrain.Land[P.Y,P.X].Obj, gTerrain.AnimStep, P.X, P.Y, true, true);
+                    RenderObjectOrQuad(GameCursor.Tag1, gTerrain.AnimStep, P.X, P.Y, true);
+                  end;
     cmElevate,
-    cmEqualize: begin
-                  Rad := GameCursor.MapEdSize;
-                  Slope := GameCursor.MapEdSlope;
-                  for I := Max((Round(F.Y) - Rad), 1) to Min((Round(F.Y) + Rad), gTerrain.MapY -1) do
-                  for K := Max((Round(F.X) - Rad), 1) to Min((Round(F.X) + Rad), gTerrain.MapX - 1) do
-                  begin
-                    case GameCursor.MapEdShape of
-                      hsCircle: Tmp := 1 - GetLength(I-Round(F.Y), K-Round(F.X)) / Rad;
-                      hsSquare: Tmp := 1 - Math.max(abs(I-Round(F.Y)), abs(K-Round(F.X))) / Rad;
-                      else                 Tmp := 0;
+    cmEqualize:   begin
+                    Rad := GameCursor.MapEdSize;
+                    Slope := GameCursor.MapEdSlope;
+                    for I := Max((Round(F.Y) - Rad), 1) to Min((Round(F.Y) + Rad), gTerrain.MapY -1) do
+                    for K := Max((Round(F.X) - Rad), 1) to Min((Round(F.X) + Rad), gTerrain.MapX - 1) do
+                    begin
+                      case GameCursor.MapEdShape of
+                        hsCircle: Tmp := 1 - GetLength(I-Round(F.Y), K-Round(F.X)) / Rad;
+                        hsSquare: Tmp := 1 - Math.max(abs(I-Round(F.Y)), abs(K-Round(F.X))) / Rad;
+                        else                 Tmp := 0;
+                      end;
+                      Tmp := Power(Abs(Tmp), (Slope + 1) / 6) * Sign(Tmp); //Modify slopes curve
+                      Tmp := EnsureRange(Tmp * 2.5, 0, 1); //*2.5 makes dots more visible
+                      fRenderAux.DotOnTerrain(K, I, $FF or (Round(Tmp*255) shl 24));
                     end;
-                    Tmp := Power(Abs(Tmp), (Slope + 1) / 6) * Sign(Tmp); //Modify slopes curve
-                    Tmp := EnsureRange(Tmp * 2.5, 0, 1); //*2.5 makes dots more visible
-                    fRenderAux.DotOnTerrain(K, I, $FF or (Round(Tmp*255) shl 24));
+                    case GameCursor.MapEdShape of
+                      hsCircle: fRenderAux.CircleOnTerrain(round(F.X), round(F.Y), Rad, $00000000,  $FFFFFFFF);
+                      hsSquare: fRenderAux.SquareOnTerrain(round(F.X) - Rad, round(F.Y) - Rad, round(F.X + Rad), round(F.Y) + Rad, $FFFFFFFF);
+                    end;
                   end;
-                  case GameCursor.MapEdShape of
-                    hsCircle: fRenderAux.CircleOnTerrain(round(F.X), round(F.Y), Rad, $00000000,  $FFFFFFFF);
-                    hsSquare: fRenderAux.SquareOnTerrain(round(F.X) - Rad, round(F.Y) - Rad, round(F.X + Rad), round(F.Y) + Rad, $FFFFFFFF);
+    cmUnits:      if (GameCursor.Mode = cmUnits) and (GameCursor.Tag1 = 255) then
+                  begin
+                    U := gTerrain.UnitsHitTest(P.X, P.Y);
+                    if U <> nil then
+                      AddUnitWithDefaultArm(U.UnitType,ua_Walk,U.Direction,U.AnimStep,P.X+UNIT_OFF_X,P.Y+UNIT_OFF_Y,fPlayers[MySpectator.PlayerIndex].FlagColor,true,true);
+                  end else
+                  if CanPlaceUnit(P, TUnitType(GameCursor.Tag1)) then
+                    AddUnitWithDefaultArm(TUnitType(GameCursor.Tag1), ua_Walk, dir_S, UnitStillFrames[dir_S], P.X+UNIT_OFF_X, P.Y+UNIT_OFF_Y, fPlayers[MySpectator.PlayerIndex].FlagColor, True)
+                  else
+                    RenderSpriteOnTile(P, TC_BLOCK); //Red X
+    cmMarkers:    case GameCursor.Tag1 of
+                    MARKER_REVEAL:        begin
+                                            RenderSpriteOnTile(P, 394, fPlayers[MySpectator.PlayerIndex].FlagColor);
+                                            fRenderAux.CircleOnTerrain(P.X, P.Y,
+                                             GameCursor.MapEdSize,
+                                             fPlayers[MySpectator.PlayerIndex].FlagColor AND $10FFFFFF,
+                                             fPlayers[MySpectator.PlayerIndex].FlagColor);
+                                          end;
+                    MARKER_DEFENCE:       RenderSpriteOnTile(P, 519, fPlayers[MySpectator.PlayerIndex].FlagColor);
+                    MARKER_CENTERSCREEN:  RenderSpriteOnTile(P, 391, fPlayers[MySpectator.PlayerIndex].FlagColor);
                   end;
-                end;
-    cmUnits:    if (GameCursor.Mode = cmUnits) and (GameCursor.Tag1 = 255) then
-                begin
-                  U := gTerrain.UnitsHitTest(P.X, P.Y);
-                  if U <> nil then
-                    AddUnitWithDefaultArm(U.UnitType,ua_Walk,U.Direction,U.AnimStep,P.X+UNIT_OFF_X,P.Y+UNIT_OFF_Y,fPlayers[MySpectator.PlayerIndex].FlagColor,true,true);
-                end else
-                if CanPlaceUnit(P, TUnitType(GameCursor.Tag1)) then
-                  AddUnitWithDefaultArm(TUnitType(GameCursor.Tag1), ua_Walk, dir_S, UnitStillFrames[dir_S], P.X+UNIT_OFF_X, P.Y+UNIT_OFF_Y, fPlayers[MySpectator.PlayerIndex].FlagColor, True)
-                else
-                  RenderSpriteOnTile(P, TC_BLOCK); //Red X
-    cmMarkers:  case GameCursor.Tag1 of
-                  MARKER_REVEAL:        begin
-                                          RenderSpriteOnTile(P, 394, fPlayers[MySpectator.PlayerIndex].FlagColor);
-                                          fRenderAux.CircleOnTerrain(P.X, P.Y,
-                                           GameCursor.MapEdSize,
-                                           fPlayers[MySpectator.PlayerIndex].FlagColor AND $10FFFFFF,
-                                           fPlayers[MySpectator.PlayerIndex].FlagColor);
-                                        end;
-                  MARKER_DEFENCE:       RenderSpriteOnTile(P, 519, fPlayers[MySpectator.PlayerIndex].FlagColor);
-                  MARKER_CENTERSCREEN:  RenderSpriteOnTile(P, 391, fPlayers[MySpectator.PlayerIndex].FlagColor);
-                end;
+    cmSelection:  begin
+                    Sel := fGame.MapEditor.Selection;
+                    Rect := Sel.Rect;
+                    Sx := Rect.Right - Rect.Left + 1;
+                    Sy := Rect.Bottom - Rect.Top + 1;
+
+                    case Sel.SelectionMode of
+                      smSelecting:  begin
+                                      //fRenderAux.SquareOnTerrain(RawRect.Left, RawRect.Top, RawRect.Right, RawRect.Bottom, $40FFFF00);
+                                      fRenderAux.SquareOnTerrain(Rect.Left, Rect.Top, Rect.Right, Rect.Bottom, $FFFFFF00);
+                                    end;
+                      smPasting:    begin
+                                      for I := 0 to Sy - 1 do
+                                      for K := 0 to Sx - 1 do
+                                      begin
+                                        fRenderPool.RenderTerrain.RenderTile(Sel.Buffer[I,K].Terrain, Rect.Left+K, Rect.Top+I, Sel.Buffer[I,K].Rotation);
+                                      end;
+                                      fRenderAux.SquareOnTerrain(Rect.Left, Rect.Top, Rect.Right, Rect.Bottom, $FFFFFF00);
+                                    end;
+                    end;
+                  end;
+
   end;
 end;
 

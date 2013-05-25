@@ -2235,13 +2235,13 @@ begin
   //Copy selection into cursor
   if Sender = Button_SelectCopy then
   begin
-
+    fGame.MapEditor.Selection.Copy;
   end;
 
   //Paste selection
   if Sender = Button_SelectPaste then
   begin
-
+    fGame.MapEditor.Selection.PasteBegin;
   end;
 
   //Flip selected

@@ -52,9 +52,9 @@ type
   private
     fRawRect: TKMRectF; //Cursor selection bounds (can have inverted bounds)
     fRect: TKMRect; //Tile-space selection, at least 1 tile
+    fSelectionMode: TKMSelectionMode;
     procedure SetRawRect(const aValue: TKMRectF);
   public
-    SelectionMode: TKMSelectionMode;
     Buffer: array of array of record
       Terrain: Byte;
       Height: Byte;
@@ -64,11 +64,13 @@ type
     end;
     property RawRect: TKMRectF read fRawRect write SetRawRect;
     property Rect: TKMRect read fRect write fRect;
+    property SelectionMode: TKMSelectionMode read fSelectionMode;
     procedure Copy; //Copies the selected are into buffer
-    procedure Paste; //Pastes the area from buffer and lets move it with cursor
+    procedure PasteBegin; //Pastes the area from buffer and lets move it with cursor
     procedure PasteApply; //Do the actual paste from buffer to terrain
     procedure PasteCancel;
     //procedure Transform; //Transforms the buffer data ?
+    procedure Paint(aLayer: TPaintLayer);
   end;
 
   //Designed to store MapEd specific data and methods
@@ -314,21 +316,46 @@ begin
 end;
 
 
-procedure TKMSelection.Paste;
+procedure TKMSelection.PasteBegin;
 begin
-  SelectionMode := smPasting;
+  fSelectionMode := smPasting;
 end;
 
 
 procedure TKMSelection.PasteApply;
 begin
-  SelectionMode := smSelecting;
+  fSelectionMode := smSelecting;
 end;
 
 
 procedure TKMSelection.PasteCancel;
 begin
-  SelectionMode := smSelecting;
+  fSelectionMode := smSelecting;
+end;
+
+
+procedure TKMSelection.Paint(aLayer: TPaintLayer);
+var
+  Sx, Sy: Word;
+  I, K: Integer;
+begin
+  {Sx := fRect.Right - fRect.Left + 1;
+  Sy := fRect.Bottom - fRect.Top + 1;
+
+  case fSelectionMode of
+    smSelecting:  begin
+                    //fRenderAux.SquareOnTerrain(RawRect.Left, RawRect.Top, RawRect.Right, RawRect.Bottom, $40FFFF00);
+                    fRenderAux.SquareOnTerrain(Rect.Left, Rect.Top, Rect.Right, Rect.Bottom, $FFFFFF00);
+                  end;
+    smPasting:    begin
+                    for I := 0 to Sy - 1 do
+                    for K := 0 to Sx - 1 do
+                    begin
+                      fRenderPool.RenderTerrain.RenderTile(Buffer[I,K].Terrain, Sx+K, Sy+I, Buffer[I,K].Rotation);
+                    end;
+                    fRenderAux.SquareOnTerrain(Rect.Left, Rect.Top, Rect.Right, Rect.Bottom, $FFFFFF00);
+                  end;
+  end; }
 end;
 
 
@@ -524,11 +551,7 @@ begin
   end;
 
   if mlSelection in fVisibleLayers then
-  with fSelection do
-  begin
-    //fRenderAux.SquareOnTerrain(RawRect.Left, RawRect.Top, RawRect.Right, RawRect.Bottom, $40FFFF00);
-    fRenderAux.SquareOnTerrain(Rect.Left, Rect.Top, Rect.Right, Rect.Bottom, $FFFFFF00);
-  end;
+    fSelection.Paint(aLayer);
 
   //Show selected group order target
   if MySpectator.Selected is TKMUnitGroup then
