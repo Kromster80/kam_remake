@@ -1,23 +1,22 @@
 Distant future
 	Fog of war
 	Networking in separate thread to minimize lags
+	Unicode
 
 Future
-	Bugfixes
-	Defensive AI
 	Lookout tower [Krom]
-	Select units by shape
+	Select objects by shape
 	Futureproof and update MP protocol
 	Multiplayer trading (from a new building "Trading Post"?)
+	File transfer in multiplayer for missions and saves [Lewin]
+	Improved MapEd
+	Checkpoints in replays for fast fwd/rwd
 
 Next release
-	Bugfixes
-	Defensive AI
+ +	Defensive AI
  +	Refactor warriors into TGroups
  +	Scripting
  +	Map Editor
-	File transfer in multiplayer for missions and saves [Lewin]
-	Change versioning system and drop Demo tag (suggest we'd keep it)
 
 
 
