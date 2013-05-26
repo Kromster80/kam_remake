@@ -222,6 +222,7 @@ type
     cmBrush, //Terrain brush
     cmTiles, // Individual tiles
     cmObjects, //Terrain objects
+    cmMagicWater, //Magic water
     cmSelection, //Selection manipulations
     cmUnits, //Units
     cmMarkers //CenterScreen, Defence, FOW markers

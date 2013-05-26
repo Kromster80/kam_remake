@@ -45,6 +45,7 @@ type
     procedure LoadFromFile(FileName: string);
     procedure SaveToFile(FileName: string);
     procedure UpdateStateIdle;
+    procedure MagicWater(aLoc: TKMPoint);
   end;
 
 
@@ -402,6 +403,72 @@ begin
     gTerrain.Land[aLoc.Y, aLoc.X].Rotation := aRotation;
     gTerrain.UpdatePassability(aLoc);
   end;
+end;
+
+
+procedure TKMTerrainPainter.MagicWater(aLoc: TKMPoint);
+var FilledTiles:array of array of byte;
+
+  procedure MagicFillArea(x,y:word);
+  begin
+    if (gTerrain.Land[y,x].Terrain in [126, 127])and(FilledTiles[y,x]=0) then //Shores
+      FilledTiles[y,x] := 2; //Filled
+
+    if (gTerrain.Land[y,x].Terrain in [192, 196])and(FilledTiles[y,x]=0) then //Water, weeds
+    begin
+      FilledTiles[y,x] := 1; //Filled
+
+      if x-1>=1 then begin
+        if y-1>=1 then             MagicFillArea(x-1,y-1);
+                                   MagicFillArea(x-1,y  );
+        if y+1<=gTerrain.MapY then MagicFillArea(x-1,y+1);
+      end;
+
+      if y-1>=1 then               MagicFillArea(x,y-1);
+      if y+1<=gTerrain.MapY then   MagicFillArea(x,y+1);
+
+      if x+1<=gTerrain.MapX then begin
+        if y-1>=1 then             MagicFillArea(x+1,y-1);
+                                   MagicFillArea(x+1,y  );
+        if y+1<=gTerrain.MapY then MagicFillArea(x+1,y+1);
+      end;
+    end;
+  end;
+
+var
+  I,K:Integer;
+  Rot: Byte;
+begin
+  SetLength(FilledTiles, gTerrain.MapY+1, gTerrain.MapX+1);
+
+  if not (gTerrain.Land[aLoc.Y,aLoc.X].Terrain in [192, 196]) then
+    Exit;
+
+  MagicFillArea(aLoc.X,aLoc.Y);
+
+  Rot := (gTerrain.Land[aLoc.Y,aLoc.X].Rotation+1) mod 4;
+  for I:=1 to gTerrain.MapX do
+    for K:=1 to gTerrain.MapY do
+      case FilledTiles[I,K] of
+        1:begin
+            gTerrain.Land[I,K].Rotation := Rot;
+          end;
+        2:begin
+            case gTerrain.Land[I,K].Rotation of
+              0: if Rot = 3 then gTerrain.Land[I,K].Terrain := 126 else
+                 if Rot = 1 then gTerrain.Land[I,K].Terrain := 127;
+
+              1: if Rot = 0 then gTerrain.Land[I,K].Terrain := 126 else
+                 if Rot = 2 then gTerrain.Land[I,K].Terrain := 127;
+
+              2: if Rot = 1 then gTerrain.Land[I,K].Terrain := 126 else
+                 if Rot = 3 then gTerrain.Land[I,K].Terrain := 127;
+
+              3: if Rot = 2 then gTerrain.Land[I,K].Terrain := 126 else
+                 if Rot = 0 then gTerrain.Land[I,K].Terrain := 127;
+            end;
+          end;
+      end;
 end;
 
 

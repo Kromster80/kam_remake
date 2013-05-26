@@ -178,6 +178,7 @@ type
         TilesTable: array [0 .. MAPED_TILES_X * MAPED_TILES_Y - 1] of TKMButtonFlat; //how many are visible?
         TilesScroll: TKMScrollBar;
         TilesRandom: TKMCheckBox;
+        TilesMagicWater: TKMButton;
       Panel_Objects: TKMPanel;
         ObjectErase: TKMButtonFlat;
         ObjectBlock: TKMButtonFlat;
@@ -944,6 +945,10 @@ begin
         TilesTable[J * MAPED_TILES_X + K].OnMouseWheel := TilesScroll.MouseWheel;
         TilesTable[J * MAPED_TILES_X + K].Hint := fTextLibrary[TX_MAPED_TERRAIN_TILES_MAIN_HINT];
       end;
+
+      TilesMagicWater := TKMButton.Create(Panel_Tiles, 2, 336, TB_WIDTH - 4, 20, 'Magic water', bsGame);
+      TilesMagicWater.Hint := 'Sets the direction for all tiles in a body of water';
+      TilesMagicWater.OnClick := Terrain_TilesChange;
 
     Panel_Objects := TKMPanel.Create(Panel_Terrain,0,28,TB_WIDTH,400);
       TKMLabel.Create(Panel_Objects, 0, PAGE_TITLE_Y, TB_WIDTH, 0, fTextLibrary[TX_MAPED_OBJECTS], fnt_Outline, taCenter);
@@ -2114,6 +2119,9 @@ end;
 
 procedure TKMapEdInterface.Terrain_TilesChange(Sender: TObject);
 begin
+  if Sender = TilesMagicWater then
+    GameCursor.Mode := cmMagicWater;
+
   if Sender = TilesRandom then
     GameCursor.MapEdDir := 4 * Byte(TilesRandom.Checked); //Defined=0..3 or Random=4
 
@@ -3760,6 +3768,7 @@ begin
                   end;
       cmElevate,
       cmEqualize:; //handled in UpdateStateIdle
+      cmMagicWater:fTerrainPainter.MagicWater(P);
       cmObjects:  gTerrain.SetTree(P, GameCursor.Tag1);
       cmUnits:    if GameCursor.Tag1 = 255 then
                     fPlayers.RemAnyUnit(P)

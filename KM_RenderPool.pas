@@ -1172,6 +1172,7 @@ begin
                     RenderObjectOrQuad(gTerrain.Land[P.Y,P.X].Obj, gTerrain.AnimStep, P.X, P.Y, true, true);
                     RenderObjectOrQuad(GameCursor.Tag1, gTerrain.AnimStep, P.X, P.Y, true);
                   end;
+    cmMagicWater: ; //TODO: Render some effect to show magic water is selected
     cmElevate,
     cmEqualize:   begin
                     Rad := GameCursor.MapEdSize;
