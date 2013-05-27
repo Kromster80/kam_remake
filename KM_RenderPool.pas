@@ -1069,9 +1069,6 @@ var
   I,K: Integer;
   Tmp: Single;
   Rad, Slope: Byte;
-  Rect: TKMRect;
-  Sel: TKMSelection;
-  Sx, Sy: Integer;
 begin
   if GameCursor.Cell.Y*GameCursor.Cell.X = 0 then Exit; //Caused a rare crash
 
@@ -1215,28 +1212,6 @@ begin
                     MARKER_DEFENCE:       RenderSpriteOnTile(P, 519, fPlayers[MySpectator.PlayerIndex].FlagColor);
                     MARKER_CENTERSCREEN:  RenderSpriteOnTile(P, 391, fPlayers[MySpectator.PlayerIndex].FlagColor);
                   end;
-    cmSelection:  begin
-                    Sel := fGame.MapEditor.Selection;
-                    Rect := Sel.Rect;
-                    Sx := Rect.Right - Rect.Left + 1;
-                    Sy := Rect.Bottom - Rect.Top + 1;
-
-                    case Sel.SelectionMode of
-                      smSelecting:  begin
-                                      //fRenderAux.SquareOnTerrain(RawRect.Left, RawRect.Top, RawRect.Right, RawRect.Bottom, $40FFFF00);
-                                      fRenderAux.SquareOnTerrain(Rect.Left, Rect.Top, Rect.Right, Rect.Bottom, $FFFFFF00);
-                                    end;
-                      smPasting:    begin
-                                      for I := 0 to Sy - 1 do
-                                      for K := 0 to Sx - 1 do
-                                      begin
-                                        fRenderPool.RenderTerrain.RenderTile(Sel.Buffer[I,K].Terrain, Rect.Left+K, Rect.Top+I, Sel.Buffer[I,K].Rotation);
-                                      end;
-                                      fRenderAux.SquareOnTerrain(Rect.Left, Rect.Top, Rect.Right, Rect.Bottom, $FFFFFF00);
-                                    end;
-                    end;
-                  end;
-
   end;
 end;
 

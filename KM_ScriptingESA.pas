@@ -1057,6 +1057,9 @@ begin
 end;
 
 
+//@Lewin: What is this function intended to do and why is it unused?
+//Judging from current implementation it just removes $ symbols
+//(which is equivalent to StringReplace(aText, '$', '', [rfReplaceAll]);
 function TKMScriptActions.ParseTextMarkup(const aText: AnsiString): AnsiString;
 var I: Integer;
 begin

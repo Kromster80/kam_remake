@@ -295,23 +295,26 @@ end;
 //Copy terrain section into buffer
 procedure TKMSelection.Copy;
 var
-  Sx, Sy: Word;
   I, K: Integer;
+  Sx, Sy: Word;
+  Tx, Ty: Word;
 begin
-  Sx := fRect.Right - fRect.Left + 1;
-  Sy := fRect.Bottom - fRect.Top + 1;
+  Sx := fRect.Right - fRect.Left;
+  Sy := fRect.Bottom - fRect.Top;
 
   SetLength(Buffer, Sy, Sx);
 
   for I := 0 to Sy - 1 do
   for K := 0 to Sx - 1 do
   begin
-    Buffer[I,K].Terrain     := gTerrain.Land[Sy+I, Sx+K].Terrain;
-    Buffer[I,K].Height      := gTerrain.Land[Sy+I, Sx+K].Height;
-    Buffer[I,K].Rotation    := gTerrain.Land[Sy+I, Sx+K].Rotation;
-    Buffer[I,K].Obj         := gTerrain.Land[Sy+I, Sx+K].Obj;
-    Buffer[I,K].OldTerrain  := gTerrain.Land[Sy+I, Sx+K].OldTerrain;
-    Buffer[I,K].OldRotation := gTerrain.Land[Sy+I, Sx+K].OldRotation;
+    Tx := fRect.Left + K + 1;
+    Ty := fRect.Top + I + 1;
+    Buffer[I,K].Terrain     := gTerrain.Land[Ty, Tx].Terrain;
+    Buffer[I,K].Height      := gTerrain.Land[Ty, Tx].Height;
+    Buffer[I,K].Rotation    := gTerrain.Land[Ty, Tx].Rotation;
+    Buffer[I,K].Obj         := gTerrain.Land[Ty, Tx].Obj;
+    Buffer[I,K].OldTerrain  := gTerrain.Land[Ty, Tx].OldTerrain;
+    Buffer[I,K].OldRotation := gTerrain.Land[Ty, Tx].OldRotation;
   end;
 end;
 
@@ -339,8 +342,8 @@ var
   Sx, Sy: Word;
   I, K: Integer;
 begin
-  {Sx := fRect.Right - fRect.Left + 1;
-  Sy := fRect.Bottom - fRect.Top + 1;
+  Sx := Rect.Right - Rect.Left;
+  Sy := Rect.Bottom - Rect.Top;
 
   case fSelectionMode of
     smSelecting:  begin
@@ -351,11 +354,11 @@ begin
                     for I := 0 to Sy - 1 do
                     for K := 0 to Sx - 1 do
                     begin
-                      fRenderPool.RenderTerrain.RenderTile(Buffer[I,K].Terrain, Sx+K, Sy+I, Buffer[I,K].Rotation);
+                      fRenderPool.RenderTerrain.RenderTile(Buffer[I,K].Terrain, Rect.Left+K+1, Rect.Top+I+1, Buffer[I,K].Rotation);
                     end;
                     fRenderAux.SquareOnTerrain(Rect.Left, Rect.Top, Rect.Right, Rect.Bottom, $FFFFFF00);
                   end;
-  end; }
+  end;
 end;
 
 
