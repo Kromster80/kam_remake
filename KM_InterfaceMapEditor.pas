@@ -185,7 +185,10 @@ type
         ObjectsTable: array [0..8] of TKMButtonFlat;
         ObjectsScroll: TKMScrollBar;
       Panel_Selection: TKMPanel;
-        Button_SelectCopy, Button_SelectPaste: TKMButton;
+        Button_SelectCopy: TKMButton;
+        Button_SelectPaste: TKMButton;
+        Button_SelectPasteApply: TKMButton;
+        Button_SelectPasteCancel: TKMButton;
         Button_SelectFlipH, Button_SelectFlipV: TKMButton;
 
 
@@ -2250,6 +2253,18 @@ begin
   if Sender = Button_SelectPaste then
   begin
     fGame.MapEditor.Selection.PasteBegin;
+  end;
+
+  //Apply paste
+  if Sender = Button_SelectPasteApply then
+  begin
+    fGame.MapEditor.Selection.PasteApply;
+  end;
+
+  //Cancel pasting
+  if Sender = Button_SelectPaste then
+  begin
+    fGame.MapEditor.Selection.PasteCancel;
   end;
 
   //Flip selected

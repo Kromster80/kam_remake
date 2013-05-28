@@ -53,15 +53,15 @@ type
     fRawRect: TKMRectF; //Cursor selection bounds (can have inverted bounds)
     fRect: TKMRect; //Tile-space selection, at least 1 tile
     fSelectionMode: TKMSelectionMode;
-    procedure SetRawRect(const aValue: TKMRectF);
-  public
-    Buffer: array of array of record
+    fBuffer: array of array of record
       Terrain: Byte;
       Height: Byte;
       Rotation: Byte;
       Obj: Byte;
       OldTerrain, OldRotation: Byte; //Only used for map editor
     end;
+    procedure SetRawRect(const aValue: TKMRectF);
+  public
     property RawRect: TKMRectF read fRawRect write SetRawRect;
     property Rect: TKMRect read fRect write fRect;
     property SelectionMode: TKMSelectionMode read fSelectionMode;
@@ -302,19 +302,19 @@ begin
   Sx := fRect.Right - fRect.Left;
   Sy := fRect.Bottom - fRect.Top;
 
-  SetLength(Buffer, Sy, Sx);
+  SetLength(fBuffer, Sy, Sx);
 
   for I := 0 to Sy - 1 do
   for K := 0 to Sx - 1 do
   begin
     Tx := fRect.Left + K + 1;
     Ty := fRect.Top + I + 1;
-    Buffer[I,K].Terrain     := gTerrain.Land[Ty, Tx].Terrain;
-    Buffer[I,K].Height      := gTerrain.Land[Ty, Tx].Height;
-    Buffer[I,K].Rotation    := gTerrain.Land[Ty, Tx].Rotation;
-    Buffer[I,K].Obj         := gTerrain.Land[Ty, Tx].Obj;
-    Buffer[I,K].OldTerrain  := gTerrain.Land[Ty, Tx].OldTerrain;
-    Buffer[I,K].OldRotation := gTerrain.Land[Ty, Tx].OldRotation;
+    fBuffer[I,K].Terrain     := gTerrain.Land[Ty, Tx].Terrain;
+    fBuffer[I,K].Height      := gTerrain.Land[Ty, Tx].Height;
+    fBuffer[I,K].Rotation    := gTerrain.Land[Ty, Tx].Rotation;
+    fBuffer[I,K].Obj         := gTerrain.Land[Ty, Tx].Obj;
+    fBuffer[I,K].OldTerrain  := gTerrain.Land[Ty, Tx].OldTerrain;
+    fBuffer[I,K].OldRotation := gTerrain.Land[Ty, Tx].OldRotation;
   end;
 end;
 
@@ -326,13 +326,39 @@ end;
 
 
 procedure TKMSelection.PasteApply;
+var
+  I, K: Integer;
+  Sx, Sy: Word;
+  Tx, Ty: Word;
 begin
+  Sx := fRect.Right - fRect.Left;
+  Sy := fRect.Bottom - fRect.Top;
+
+  for I := 0 to Sy - 1 do
+  for K := 0 to Sx - 1 do
+  begin
+    Tx := fRect.Left + K + 1;
+    Ty := fRect.Top + I + 1;
+    gTerrain.Land[Ty, Tx].Terrain     := fBuffer[I,K].Terrain;
+    gTerrain.Land[Ty, Tx].Height      := fBuffer[I,K].Height;
+    gTerrain.Land[Ty, Tx].Rotation    := fBuffer[I,K].Rotation;
+    gTerrain.Land[Ty, Tx].Obj         := fBuffer[I,K].Obj;
+    gTerrain.Land[Ty, Tx].OldTerrain  := fBuffer[I,K].OldTerrain;
+    gTerrain.Land[Ty, Tx].OldRotation := fBuffer[I,K].OldRotation;
+  end;
+
+  gTerrain.UpdateLighting(fRect);
+  gTerrain.UpdatePassability(fRect);
+
   fSelectionMode := smSelecting;
 end;
 
 
 procedure TKMSelection.PasteCancel;
 begin
+  Rect := KMRect(0,0,0,0);
+  SetLength(fBuffer, 0, 0);
+
   fSelectionMode := smSelecting;
 end;
 
@@ -354,7 +380,7 @@ begin
                     for I := 0 to Sy - 1 do
                     for K := 0 to Sx - 1 do
                     begin
-                      fRenderPool.RenderTerrain.RenderTile(Buffer[I,K].Terrain, Rect.Left+K+1, Rect.Top+I+1, Buffer[I,K].Rotation);
+                      fRenderPool.RenderTerrain.RenderTile(fBuffer[I,K].Terrain, Rect.Left+K+1, Rect.Top+I+1, fBuffer[I,K].Rotation);
                     end;
                     fRenderAux.SquareOnTerrain(Rect.Left, Rect.Top, Rect.Right, Rect.Bottom, $FFFFFF00);
                   end;

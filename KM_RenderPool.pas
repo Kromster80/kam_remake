@@ -1115,7 +1115,7 @@ begin
     cmRoad:       if fPlayers[MySpectator.PlayerIndex].CanAddFakeFieldPlan(P, ft_Road) then
                     RenderWire(P, $FFFFFF00) //Cyan quad
                   else
-                  RenderSpriteOnTile(P, TC_BLOCK);       //Red X
+                    RenderSpriteOnTile(P, TC_BLOCK);       //Red X
     cmField:      if fPlayers[MySpectator.PlayerIndex].CanAddFakeFieldPlan(P, ft_Corn) then
                     RenderWire(P, $FFFFFF00) //Cyan quad
                   else
