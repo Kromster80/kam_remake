@@ -439,17 +439,17 @@ end;
 
 {Check if requested tile (X,Y) is within Map boundaries}
 {X,Y are unsigned int, usually called from loops, hence no TKMPoint can be used}
-function TKMTerrain.TileInMapCoords(X,Y:integer; Inset: Byte=0): Boolean;
+function TKMTerrain.TileInMapCoords(X,Y: Integer; Inset: Byte = 0): Boolean;
 begin
-  Result := InRange(X,1+Inset,fMapX-1-Inset) and InRange(Y,1+Inset,fMapY-1-Inset);
+  Result := InRange(X, 1 + Inset, fMapX - 1 - Inset) and InRange(Y, 1 + Inset, fMapY - 1 - Inset);
 end;
 
 
 {Check if requested vertice is within Map boundaries}
 {X,Y are unsigned int, usually called from loops, hence no TKMPoint can be used}
-function TKMTerrain.VerticeInMapCoords(X,Y:integer; Inset: Byte=0): Boolean;
+function TKMTerrain.VerticeInMapCoords(X,Y: Integer; Inset: Byte = 0): Boolean;
 begin
-  Result := InRange(X,1+Inset,fMapX-Inset) and InRange(Y,1+Inset,fMapY-Inset);
+  Result := InRange(X, 1 + Inset, fMapX - Inset) and InRange(Y, 1 + Inset, fMapY - Inset);
 end;
 
 
@@ -457,8 +457,8 @@ end;
 {X,Y are unsigned int, usually called from loops, hence no TKMPoint can be used}
 function TKMTerrain.EnsureTileInMapCoords(X,Y: Integer; Inset: Byte = 0):TKMPoint;
 begin
-  Result.X := EnsureRange(X,1+Inset,fMapX-1-Inset);
-  Result.Y := EnsureRange(Y,1+Inset,fMapY-1-Inset);
+  Result.X := EnsureRange(X, 1 + Inset, fMapX - 1 - Inset);
+  Result.Y := EnsureRange(Y, 1 + Inset, fMapY - 1 - Inset);
 end;
 
 

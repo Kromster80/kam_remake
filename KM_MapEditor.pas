@@ -305,6 +305,7 @@ begin
 
   for I := fRect.Top to fRect.Bottom - 1 do
   for K := fRect.Left to fRect.Right - 1 do
+  if gTerrain.TileInMapCoords(K, I, 0) then
   begin
     Bx := K - fRect.Left;
     By := I - fRect.Top;
@@ -320,6 +321,10 @@ end;
 
 procedure TKMSelection.PasteBegin;
 begin
+  //PMapmaker could have changed selection rect, sync it with Buffer size
+  fRect.Right := fRect.Left + Length(fBuffer[0]);
+  fRect.Bottom := fRect.Top + Length(fBuffer);
+
   fSelectionMode := smPasting;
 end;
 
@@ -331,6 +336,7 @@ var
 begin
   for I := fRect.Top to fRect.Bottom - 1 do
   for K := fRect.Left to fRect.Right - 1 do
+  if gTerrain.TileInMapCoords(K, I, 0) then
   begin
     Bx := K - fRect.Left;
     By := I - fRect.Top;
