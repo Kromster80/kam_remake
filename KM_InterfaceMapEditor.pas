@@ -471,6 +471,9 @@ begin
   end else
   if (Sender = Button_Terrain[ttSelection]) then
   begin
+    Button_SelectPaste.Enabled := fGame.MapEditor.Selection.IsBufferHasData;
+    Button_SelectPasteApply.Disable;
+    Button_SelectPasteCancel.Disable;
     Terrain_SelectionClick(Button_SelectCopy);
     DisplayPage(Panel_Selection);
   end else
@@ -2259,24 +2262,30 @@ begin
   begin
     //Copy selection into cursor
     fGame.MapEditor.Selection.Copy;
+    Button_SelectPaste.Enabled := fGame.MapEditor.Selection.IsBufferHasData;
   end
   else
   if Sender = Button_SelectPaste then
   begin
     //Paste selection
     fGame.MapEditor.Selection.PasteBegin;
+    Button_SelectPasteApply.Enable;
+    Button_SelectPasteCancel.Enable;
   end
   else
   if Sender = Button_SelectPasteApply then
   begin
     //Apply paste
     fGame.MapEditor.Selection.PasteApply;
+    Button_SelectPasteApply.Disable;
+    Button_SelectPasteCancel.Disable;
   end
   else
   if Sender = Button_SelectPasteCancel then
   begin
     //Cancel pasting
     fGame.MapEditor.Selection.PasteCancel;
+    Button_SelectPasteApply.Disable;
   end;
 
   //Flip selected

@@ -65,6 +65,7 @@ type
     property RawRect: TKMRectF read fRawRect write SetRawRect;
     property Rect: TKMRect read fRect write fRect;
     property SelectionMode: TKMSelectionMode read fSelectionMode;
+    function IsBufferHasData: Boolean;
     procedure Copy; //Copies the selected are into buffer
     procedure PasteBegin; //Pastes the area from buffer and lets move it with cursor
     procedure PasteApply; //Do the actual paste from buffer to terrain
@@ -292,6 +293,12 @@ begin
 end;
 
 
+function TKMSelection.IsBufferHasData: Boolean;
+begin
+  Result := Length(fBuffer) > 0;
+end;
+
+
 //Copy terrain section into buffer
 procedure TKMSelection.Copy;
 var
@@ -321,7 +328,7 @@ end;
 
 procedure TKMSelection.PasteBegin;
 begin
-  //PMapmaker could have changed selection rect, sync it with Buffer size
+  //Mapmaker could have changed selection rect, sync it with Buffer size
   fRect.Right := fRect.Left + Length(fBuffer[0]);
   fRect.Bottom := fRect.Top + Length(fBuffer);
 
