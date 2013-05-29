@@ -985,10 +985,16 @@ begin
         Button_SelectPaste := TKMButton.Create(Panel_Selection, 20, 60, TB_WIDTH - 40, 20, 'Paste', bsGame);
         Button_SelectPaste.Hint := fTextLibrary[TX_MAPED_COPY_PASTE_HINT];
         Button_SelectPaste.OnClick := Terrain_SelectionClick;
-        Button_SelectFlipH := TKMButton.Create(Panel_Selection, 20, 90, TB_WIDTH - 40, 20, 'Flip H', bsGame);
+        Button_SelectPasteApply := TKMButton.Create(Panel_Selection, 20, 90, TB_WIDTH - 40, 20, 'Paste apply', bsGame);
+        Button_SelectPasteApply.Hint := fTextLibrary[TX_MAPED_COPY_PASTE_HINT];
+        Button_SelectPasteApply.OnClick := Terrain_SelectionClick;
+        Button_SelectPasteCancel := TKMButton.Create(Panel_Selection, 20, 120, TB_WIDTH - 40, 20, 'Paste cancel', bsGame);
+        Button_SelectPasteCancel.Hint := fTextLibrary[TX_MAPED_COPY_PASTE_HINT];
+        Button_SelectPasteCancel.OnClick := Terrain_SelectionClick;
+        Button_SelectFlipH := TKMButton.Create(Panel_Selection, 20, 150, TB_WIDTH - 40, 20, 'Flip H', bsGame);
         Button_SelectFlipH.Hint := fTextLibrary[TX_MAPED_COPY_PASTE_HFLIP_HINT];
         Button_SelectFlipH.OnClick := Terrain_SelectionClick;
-        Button_SelectFlipV := TKMButton.Create(Panel_Selection, 20, 120, TB_WIDTH - 40, 20, 'Flip V', bsGame);
+        Button_SelectFlipV := TKMButton.Create(Panel_Selection, 20, 180, TB_WIDTH - 40, 20, 'Flip V', bsGame);
         Button_SelectFlipV.Hint := fTextLibrary[TX_MAPED_COPY_PASTE_VFLIP_HINT];
         Button_SelectFlipV.OnClick := Terrain_SelectionClick;
 end;
@@ -2032,11 +2038,17 @@ begin
     if KMInRect(GameCursor.Float, Rect) then
     begin
       fSelection := smMove;
+      //Grab and move
       fPrevX := GameCursor.Cell.X;
       fPrevY := GameCursor.Cell.Y;
     end
     else
-      fSelection := smNone;
+    begin
+      fSelection := smMove;
+      //Selection edge will jump to under cursor
+      fPrevX := EnsureRange(GameCursor.Cell.X, Rect.Left + 1, Rect.Right);
+      fPrevY := EnsureRange(GameCursor.Cell.Y, Rect.Top + 1, Rect.Bottom);
+    end;
   end;
 end;
 
@@ -2243,27 +2255,27 @@ begin
   GameCursor.Mode := cmSelection;
   GameCursor.Tag1 := 0;
 
-  //Copy selection into cursor
   if Sender = Button_SelectCopy then
   begin
+    //Copy selection into cursor
     fGame.MapEditor.Selection.Copy;
-  end;
-
-  //Paste selection
+  end
+  else
   if Sender = Button_SelectPaste then
   begin
+    //Paste selection
     fGame.MapEditor.Selection.PasteBegin;
-  end;
-
-  //Apply paste
+  end
+  else
   if Sender = Button_SelectPasteApply then
   begin
+    //Apply paste
     fGame.MapEditor.Selection.PasteApply;
-  end;
-
-  //Cancel pasting
-  if Sender = Button_SelectPaste then
+  end
+  else
+  if Sender = Button_SelectPasteCancel then
   begin
+    //Cancel pasting
     fGame.MapEditor.Selection.PasteCancel;
   end;
 

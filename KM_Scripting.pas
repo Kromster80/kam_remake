@@ -788,7 +788,7 @@ var
 begin
   LoadStream.ReadAssert('Script');
 
-  LoadStream.Read(fActions.SFXPath);
+  //LoadStream.Read(fActions.SFXPath);
 
   LoadStream.Read(fScriptCode);
 
