@@ -45,6 +45,7 @@
 	Keep road bends when neighbour road is destroyed (e.g. house entrances)
 	Woodcutter would cut tree on a corn field that is gone (replaced with corn) shortly before he arrived
 	Look into translating texts returned from Net status and others that are hardcoded in 3rd party libs we use (pas files)
+  Towers attack range is uneven (should be mesured from towers middle, not the recruit location in BR corner)
 
 	Water looks ugly brown when you zoom out too far due to water tiles having brown checkerboard pattern (anti-aliasing won't help)
 	Wooden house frames flicking on Onboard Intel HD Family Chipset (see images "Hidden House Frame Intel Onboard 1.jpg")
@@ -123,6 +124,7 @@ Improvements:
 	L	Save last selected item in lists (load game, mp, maped list, savegames, etc)
 	L	Right-click on a unit in Schools queue to move that unit to the front of the queue (currently RMB is "remove to here")
   M Archers should not change formations when group members get killed while under attack
+  L Allow to block wares delivery into armory, so that player could focus each on certain task (shields or armors)
 
 	L	MapEd: Allow to toggle trees/objects opacity (make them partially visible) [Marcin]
 	L	MapEd: Allow to toggle AI defence positions display
