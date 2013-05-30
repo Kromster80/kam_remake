@@ -28,6 +28,8 @@ Accepted:
 	Split a specific warrior out of a group
 	Looping option for PlayWAV (useful for ambient sounds at a location) 
 	Use markup to get LIBX strings instead of a function to prevent inconsitencies
+	XY for "GoTo" button in ShowMsg
+	Disable ally fog sharing for specific players
 
 
 Proposed:
