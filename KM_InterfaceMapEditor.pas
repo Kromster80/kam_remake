@@ -24,7 +24,6 @@ type
     fStorehouseItem: Byte; //Selected ware in storehouse
     fBarracksItem: Byte; //Selected ware in barracks
     fTileDirection: Byte;
-    fActiveMarker: TKMMapEdMarker;
     fDragScrolling: Boolean;
     fDragScrollingCursorPos: TPoint;
     fDragScrollingViewportPos: TKMPointF;
@@ -2824,7 +2823,7 @@ end;
 
 procedure TKMapEdInterface.ShowMarkerInfo(aMarker: TKMMapEdMarker);
 begin
-  fActiveMarker := aMarker;
+  fGame.MapEditor.ActiveMarker := aMarker;
 
   if (aMarker.MarkerType = mtNone) or (aMarker.Owner = PLAYER_NONE) or (aMarker.Index = -1) then
   begin
@@ -2893,12 +2892,15 @@ end;
 
 procedure TKMapEdInterface.Marker_Change(Sender: TObject);
 var
+  Marker: TKMMapEdMarker;
   DP: TAIDefencePosition;
   Rev: TKMPointTagList;
 begin
-  case fActiveMarker.MarkerType of
+  Marker := fGame.MapEditor.ActiveMarker;
+
+  case Marker.MarkerType of
     mtDefence:    begin
-                    DP := fPlayers[fActiveMarker.Owner].AI.General.DefencePositions[fActiveMarker.Index];
+                    DP := fPlayers[Marker.Owner].AI.General.DefencePositions[Marker.Index];
                     DP.Radius := TrackBar_DefenceRad.Position;
                     DP.DefenceType := TAIDefencePosType(DropList_DefenceType.ItemIndex);
                     DP.GroupType := TGroupType(DropList_DefenceGroup.ItemIndex);
@@ -2910,7 +2912,7 @@ begin
 
                     if Sender = Button_DefenceDelete then
                     begin
-                      fPlayers[fActiveMarker.Owner].AI.General.DefencePositions.Delete(fActiveMarker.Index);
+                      fPlayers[Marker.Owner].AI.General.DefencePositions.Delete(Marker.Index);
                       SwitchPage(Button_Town[ttDefences]);
                     end;
 
@@ -2919,14 +2921,14 @@ begin
                   end;
     mtRevealFOW:  begin
                     //Shortcut to structure we update
-                    Rev := fGame.MapEditor.Revealers[fActiveMarker.Owner];
+                    Rev := fGame.MapEditor.Revealers[Marker.Owner];
 
                     if Sender = TrackBar_RevealSize then
-                      Rev.Tag[fActiveMarker.Index] := TrackBar_RevealSize.Position;
+                      Rev.Tag[Marker.Index] := TrackBar_RevealSize.Position;
 
                     if Sender = Button_RevealDelete then
                     begin
-                      Rev.Delete(fActiveMarker.Index);
+                      Rev.Delete(Marker.Index);
                       SwitchPage(Button_Player[ptMarkers]);
                     end;
 
@@ -3736,7 +3738,7 @@ procedure TKMapEdInterface.MouseUp(Button: TMouseButton; Shift: TShiftState; X,Y
 var
   P: TKMPoint;
   DP: TAIDefencePosition;
-  SelMarker: TKMMapEdMarker;
+  Marker: TKMMapEdMarker;
 begin
   if fDragScrolling then
   begin
@@ -3780,13 +3782,16 @@ begin
       TKMUnitGroup(MySpectator.Selected).Position := P;
 
     if Panel_Marker.Visible then
-      case fActiveMarker.MarkerType of
+    begin
+      Marker := fGame.MapEditor.ActiveMarker;
+      case Marker.MarkerType of
         mtDefence:   begin
-                       DP := fPlayers[fActiveMarker.Owner].AI.General.DefencePositions[fActiveMarker.Index];
+                       DP := fPlayers[Marker.Owner].AI.General.DefencePositions[Marker.Index];
                        DP.Position := KMPointDir(P, DP.Position.Dir);
                      end;
-        mtRevealFOW: fGame.MapEditor.Revealers[fActiveMarker.Owner][fActiveMarker.Index] := P;
+        mtRevealFOW: fGame.MapEditor.Revealers[Marker.Owner][Marker.Index] := P;
       end;
+    end;
   end
   else
   if Button = mbLeft then //Only allow placing of roads etc. with the left mouse button
@@ -3794,9 +3799,9 @@ begin
       cmNone:     begin
                     //If there are some additional layers we first HitTest them
                     //as they are rendered ontop of Houses/Objects
-                    SelMarker := fGame.MapEditor.HitTest(GameCursor.Cell.X, GameCursor.Cell.Y);
-                    if SelMarker.MarkerType <> mtNone then
-                      ShowMarkerInfo(SelMarker)
+                    Marker := fGame.MapEditor.HitTest(GameCursor.Cell.X, GameCursor.Cell.Y);
+                    if Marker.MarkerType <> mtNone then
+                      ShowMarkerInfo(Marker)
                     else
                     begin
                       MySpectator.SelectHitTest(GameCursor.Cell.X, GameCursor.Cell.Y);

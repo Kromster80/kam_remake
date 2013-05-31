@@ -95,7 +95,7 @@ var
   OVERLAY_NAVMESH       :Boolean = False; //Show navmesh
   OVERLAY_DEFENCES      :Boolean = False; //Show AI defence perimeters
   OVERLAY_INFLUENCE     :Boolean = False; //Show influence map
-  OVERLAY_OWNERSHIP     :Boolean = False; //Show ownerhip map
+  OVERLAY_OWNERSHIP     :Boolean = False; //Show ownership map
   OVERLAY_AVOID         :Boolean = False; //Show avoidance map
   {Stats}
   SHOW_SPRITE_COUNT     :Boolean = False; //display rendered controls/sprites count

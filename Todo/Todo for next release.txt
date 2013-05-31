@@ -36,7 +36,7 @@ Bugs:
  +	AI recruit delay was missing from the MapEd
  +  Crash happening when taking out warfare from Barracks to Market and equipping soldiers at the same time
  +	Actions.UnitOrderWalk would not work on newly created units
-	AI defence position radius should only highlight for selected position? (overlapping defence positions cause map to be completely covered, check e.g. TPR 7)
+ +	AI defence position radius should only highlight for selected position? (overlapping defence positions cause map to be completely covered, check e.g. TPR 7)
 
 
 Features:

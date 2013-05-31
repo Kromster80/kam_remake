@@ -83,6 +83,8 @@ type
     fVisibleLayers: TMapEdLayerSet;
     function GetRevealer(aIndex: Byte): TKMPointTagList;
   public
+    ActiveMarker: TKMMapEdMarker;
+
     RevealAll: array [0..MAX_PLAYERS-1] of Boolean;
     DefaultHuman: TPlayerIndex;
     PlayerHuman: array [0..MAX_PLAYERS - 1] of Boolean;
@@ -537,21 +539,25 @@ procedure TKMMapEditor.Paint(aLayer: TPaintLayer);
 var
   I, K: Integer;
   Loc: TKMPoint;
-  LocDir: TKMPointDir;
   G: TKMUnitGroup;
+  DP: TAIDefencePosition;
 begin
   if mlDefences in fVisibleLayers then
-  for I := 0 to fPlayers.Count - 1 do
-  for K := 0 to fPlayers[I].AI.General.DefencePositions.Count - 1 do
   begin
-    LocDir := fPlayers[I].AI.General.DefencePositions[K].Position;
-    case aLayer of
-      plTerrain:  fRenderAux.CircleOnTerrain(LocDir.Loc.X, LocDir.Loc.Y,
-                               fPlayers[I].AI.General.DefencePositions[K].Radius,
-                               fPlayers[I].FlagColor AND $20FFFF80,
-                               fPlayers[I].FlagColor);
-      plCursors:  fRenderPool.RenderSpriteOnTile(LocDir.Loc,
-                      510 + Byte(LocDir.Dir), fPlayers[I].FlagColor);
+    if aLayer = plCursors then
+      for I := 0 to fPlayers.Count - 1 do
+      for K := 0 to fPlayers[I].AI.General.DefencePositions.Count - 1 do
+      begin
+        DP := fPlayers[I].AI.General.DefencePositions[K];
+        fRenderPool.RenderSpriteOnTile(DP.Position.Loc, 510 + Byte(DP.Position.Dir), fPlayers[I].FlagColor);
+      end;
+
+    if ActiveMarker.MarkerType = mtDefence then
+    begin
+      DP := fPlayers[ActiveMarker.Owner].AI.General.DefencePositions[ActiveMarker.Index];
+      fRenderAux.CircleOnTerrain(DP.Position.Loc.X, DP.Position.Loc.Y, DP.Radius,
+                                 fPlayers[ActiveMarker.Owner].FlagColor AND $20FFFF80,
+                                 fPlayers[ActiveMarker.Owner].FlagColor);
     end;
   end;
 
