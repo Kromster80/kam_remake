@@ -1061,21 +1061,25 @@ end;
 //Judging from current implementation it just removes $ symbols
 //(which is equivalent to StringReplace(aText, '$', '', [rfReplaceAll]);
 function TKMScriptActions.ParseTextMarkup(const aText: AnsiString): AnsiString;
-var I: Integer;
+var I, ID, Last: Integer;
 begin
   Result := '';
   I := 1;
   while I <= Length(aText) do
   begin
-    if aText[I] = '$' then
+    if (I+3 <= Length(aText)) and (aText[I] = '<') and (aText[I+1] = '$') then
     begin
-      inc(I);
-    end
-    else
-    begin
-      Result := Result + aText[I];
-      inc(I);
+      Last := PosEx('>', aText, I);
+      ID := StrToIntDef(Copy(aText, I+2, Last-(I+2)), -1);
+      if ID >= 0 then
+      begin
+        Result := Result + fTextLibrary.GetMissionString(ID);
+        I := Last+1;
+        Continue;
+      end;
     end;
+    Result := Result + aText[I];
+    inc(I);
   end;
 end;
 
@@ -1372,7 +1376,7 @@ end;
 procedure TKMScriptActions.ShowMsg(aPlayer: Word; aText: AnsiString);
 begin
   if aPlayer = MySpectator.PlayerIndex then
-    fGame.ShowMessage(mkText, aText, KMPoint(0,0))
+    fGame.ShowMessage(mkText, ParseTextMarkup(aText), KMPoint(0,0))
 end;
 
 
@@ -1596,7 +1600,7 @@ end;
 procedure TKMScriptActions.SetOverlayText(aPlayer: Word; aText: AnsiString);
 begin
   if aPlayer = MySpectator.PlayerIndex then
-    fGame.GamePlayInterface.SetScriptedOverlay(aText);
+    fGame.GamePlayInterface.SetScriptedOverlay(ParseTextMarkup(aText));
 end;
 
 
