@@ -115,7 +115,7 @@ begin
   gLog := TKMLog.Create(ExtractFilePath(ParamStr(0)) + 'Temp\log.tmp');
   fLocales := TKMLocales.Create(ExeDir+'data\locales.txt');
   fResource := TResource.Create(nil, nil, nil);
-  fTextLibrary := TTextLibrary.Create(ExeDir + 'data\text\', 'eng');
+  fTextLibrary := TKMTextLibrary.Create(ExeDir + 'data\text\', 'eng');
   fCampaigns := TKMCampaignsCollection.Create;
 end;
 

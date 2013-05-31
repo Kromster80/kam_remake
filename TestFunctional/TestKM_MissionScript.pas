@@ -28,7 +28,7 @@ begin
   ExeDir := ExtractFilePath(ParamStr(0)) + '..\';
   gLog := TKMLog.Create(ExtractFilePath(ParamStr(0)) + 'Temp\temp.log');
   fLocales := TKMLocales.Create(ExeDir+'data\locales.txt');
-  fTextLibrary := TTextLibrary.Create(ExeDir + 'data\text\', 'eng');
+  fTextLibrary := TKMTextLibrary.Create(ExeDir + 'data\text\', 'eng');
   fGameApp := TKMGameApp.Create(nil, 1024, 768, False, nil, nil, nil, True);
   fGameApp.GameSettings.Autosave := False;
 end;

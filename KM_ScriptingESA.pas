@@ -94,7 +94,6 @@ type
   private
     fIDCache: TKMScriptingIdCache;
     function ValidSoundFileName(aFileName: AnsiString): Boolean;
-    function ParseTextMarkup(const aText: AnsiString): AnsiString;
     procedure LogError(aFuncName: string; const aValues: array of Integer);
   public
     SFXPath: string;  //Relative to EXE (safe to use in Save, cos it is the same for all MP players)
@@ -1057,33 +1056,6 @@ begin
 end;
 
 
-//@Lewin: What is this function intended to do and why is it unused?
-//Judging from current implementation it just removes $ symbols
-//(which is equivalent to StringReplace(aText, '$', '', [rfReplaceAll]);
-function TKMScriptActions.ParseTextMarkup(const aText: AnsiString): AnsiString;
-var I, ID, Last: Integer;
-begin
-  Result := '';
-  I := 1;
-  while I <= Length(aText) do
-  begin
-    if (I+3 <= Length(aText)) and (aText[I] = '<') and (aText[I+1] = '$') then
-    begin
-      Last := PosEx('>', aText, I);
-      ID := StrToIntDef(Copy(aText, I+2, Last-(I+2)), -1);
-      if ID >= 0 then
-      begin
-        Result := Result + fTextLibrary.GetMissionString(ID);
-        I := Last+1;
-        Continue;
-      end;
-    end;
-    Result := Result + aText[I];
-    inc(I);
-  end;
-end;
-
-
 procedure TKMScriptActions.LogError(aFuncName: string; const aValues: array of Integer);
 var
   I: Integer;
@@ -1376,7 +1348,7 @@ end;
 procedure TKMScriptActions.ShowMsg(aPlayer: Word; aText: AnsiString);
 begin
   if aPlayer = MySpectator.PlayerIndex then
-    fGame.ShowMessage(mkText, ParseTextMarkup(aText), KMPoint(0,0))
+    fGame.ShowMessage(mkText, fTextLibrary.ParseTextMarkup(aText), KMPoint(0,0))
 end;
 
 
@@ -1600,7 +1572,7 @@ end;
 procedure TKMScriptActions.SetOverlayText(aPlayer: Word; aText: AnsiString);
 begin
   if aPlayer = MySpectator.PlayerIndex then
-    fGame.GamePlayInterface.SetScriptedOverlay(ParseTextMarkup(aText));
+    fGame.GamePlayInterface.SetScriptedOverlay(fTextLibrary.ParseTextMarkup(aText));
 end;
 
 

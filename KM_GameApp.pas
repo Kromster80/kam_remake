@@ -102,7 +102,7 @@ begin
 
   fLocales      := TKMLocales.Create(ExeDir + 'data' + PathDelim + 'locales.txt');
   fGameSettings := TGameSettings.Create;
-  fTextLibrary  := TTextLibrary.Create(ExeDir + 'data' + PathDelim + 'text' + PathDelim, fGameSettings.Locale);
+  fTextLibrary  := TKMTextLibrary.Create(ExeDir + 'data' + PathDelim + 'text' + PathDelim, fGameSettings.Locale);
   {$IFDEF USE_MAD_EXCEPT}fExceptions.LoadTranslation;{$ENDIF}
 
   fRender       := TRender.Create(aRenderControl, aScreenX, aScreenY, aVSync);
@@ -207,7 +207,7 @@ begin
   FreeAndNil(fTextLibrary);
 
   //Recreate resources that use Locale info
-  fTextLibrary := TTextLibrary.Create(ExeDir + 'data' + PathDelim + 'text' + PathDelim + '', fGameSettings.Locale);
+  fTextLibrary := TKMTextLibrary.Create(ExeDir + 'data' + PathDelim + 'text' + PathDelim + '', fGameSettings.Locale);
   {$IFDEF USE_MAD_EXCEPT}fExceptions.LoadTranslation;{$ENDIF}
   //Don't reshow the warning dialog when initing sounds, it gets stuck behind in full screen
   //and the user already saw it when starting the game.

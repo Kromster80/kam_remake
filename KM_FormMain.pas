@@ -372,12 +372,12 @@ end;
 procedure TFormMain.Export_TextClick(Sender: TObject);
 var
   I: Integer;
-  MyTextLibrary: TTextLibrary;
+  MyTextLibrary: TKMTextLibrary;
 begin
   for I := 0 to fLocales.Count-1 do
   begin
     //Don't mess up the actual text library by loading other locales
-    MyTextLibrary := TTextLibrary.Create(ExeDir+'data' + PathDelim + 'text' + PathDelim, fLocales[i].Code);
+    MyTextLibrary := TKMTextLibrary.Create(ExeDir+'data' + PathDelim + 'text' + PathDelim, fLocales[i].Code);
     MyTextLibrary.ExportTextLibraries;
     MyTextLibrary.Free;
   end;
