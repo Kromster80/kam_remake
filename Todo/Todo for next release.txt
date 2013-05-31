@@ -37,7 +37,6 @@ Bugs:
  +  Crash happening when taking out warfare from Barracks to Market and equipping soldiers at the same time
  +	Actions.UnitOrderWalk would not work on newly created units
 	AI defence position radius should only highlight for selected position? (overlapping defence positions cause map to be completely covered, check e.g. TPR 7)
-	Thunder reported that UnitOrderWalk doesn't work, see email
 
 
 Features:
@@ -45,6 +44,7 @@ Features:
  +	Dynamic scripts now use short circuit boolean evaluation, allowing e.g. "if (GroupID <> -1) and (States.GroupOwner(GroupID) = PlayerID) then"
  +	Description box for campaigns shown on selection screen, so authors can put their name and contact
  +	Various optimisations to improve performance
+ +	Copy and paste in MapEd
 
 
 Before RC3:
@@ -52,7 +52,6 @@ Before RC3:
  +	Performance test the replay of a full MP game to check for chokepoints in a real-world scenario
  +	Check main menu / gameplay interfaces for text that needs to be added to the LIBX (e.g. lobby speed)
 	Magic water in MapEd (finish or disable)
-	Finish or disable copy/paste
 	Add missing texts from MapEd to LIBX (maybe ignore some stuff in temporary interfaces that will be improved next release?)
 	Send text off to be translated (do this late in the RC testing so translators don't get 3 separate requests for each RC with changed text)
 	Ask translators to shorten up messages that we show in message log (empty house, feed troops, etc)
@@ -80,6 +79,7 @@ Postponed for a later release: (TODO: move these to bugslist later)
 	TSK campaign fixes by BornFree (especially faster equip rate), if he fixes issues with food
 	Reminder message if you forget to build the inn?
 	CanIron CanGold in MapEd
+	Flip selection in MapEd [Lewin]
 
 
 ================

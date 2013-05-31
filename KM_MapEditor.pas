@@ -312,7 +312,7 @@ begin
 
   for I := fRect.Top to fRect.Bottom - 1 do
   for K := fRect.Left to fRect.Right - 1 do
-  if gTerrain.TileInMapCoords(K, I, 0) then
+  if gTerrain.TileInMapCoords(K+1, I+1, 0) then
   begin
     Bx := K - fRect.Left;
     By := I - fRect.Top;
@@ -343,7 +343,7 @@ var
 begin
   for I := fRect.Top to fRect.Bottom - 1 do
   for K := fRect.Left to fRect.Right - 1 do
-  if gTerrain.TileInMapCoords(K, I, 0) then
+  if gTerrain.TileInMapCoords(K+1, I+1, 0) then
   begin
     Bx := K - fRect.Left;
     By := I - fRect.Top;
