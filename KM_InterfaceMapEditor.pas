@@ -474,6 +474,8 @@ begin
     Button_SelectPaste.Enabled := fGame.MapEditor.Selection.IsBufferHasData;
     Button_SelectPasteApply.Disable;
     Button_SelectPasteCancel.Disable;
+    Button_SelectFlipH.Disable;
+    Button_SelectFlipV.Disable;
     Terrain_SelectionClick(Button_SelectCopy);
     DisplayPage(Panel_Selection);
   end else
@@ -997,9 +999,11 @@ begin
         Button_SelectFlipH := TKMButton.Create(Panel_Selection, 20, 150, TB_WIDTH - 40, 20, 'Flip H', bsGame);
         Button_SelectFlipH.Hint := fTextLibrary[TX_MAPED_COPY_PASTE_HFLIP_HINT];
         Button_SelectFlipH.OnClick := Terrain_SelectionClick;
+        Button_SelectFlipH.Hide; //Not implemented yet
         Button_SelectFlipV := TKMButton.Create(Panel_Selection, 20, 180, TB_WIDTH - 40, 20, 'Flip V', bsGame);
         Button_SelectFlipV.Hint := fTextLibrary[TX_MAPED_COPY_PASTE_VFLIP_HINT];
         Button_SelectFlipV.OnClick := Terrain_SelectionClick;
+        Button_SelectFlipV.Hide; //Not implemented yet
 end;
 
 
@@ -2271,6 +2275,10 @@ begin
     fGame.MapEditor.Selection.PasteBegin;
     Button_SelectPasteApply.Enable;
     Button_SelectPasteCancel.Enable;
+    Button_SelectFlipH.Enable;
+    Button_SelectFlipV.Enable;
+    Button_SelectCopy.Disable;
+    Button_SelectPaste.Disable;
   end
   else
   if Sender = Button_SelectPasteApply then
@@ -2279,6 +2287,10 @@ begin
     fGame.MapEditor.Selection.PasteApply;
     Button_SelectPasteApply.Disable;
     Button_SelectPasteCancel.Disable;
+    Button_SelectFlipH.Disable;
+    Button_SelectFlipV.Disable;
+    Button_SelectCopy.Enable;
+    Button_SelectPaste.Enable;
   end
   else
   if Sender = Button_SelectPasteCancel then
@@ -2286,6 +2298,11 @@ begin
     //Cancel pasting
     fGame.MapEditor.Selection.PasteCancel;
     Button_SelectPasteApply.Disable;
+    Button_SelectPasteCancel.Disable;
+    Button_SelectFlipH.Disable;
+    Button_SelectFlipV.Disable;
+    Button_SelectCopy.Enable;
+    Button_SelectPaste.Enable;
   end;
 
   //Flip selected
