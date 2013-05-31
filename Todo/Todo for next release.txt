@@ -34,7 +34,8 @@ Bugs:
  +	When host is reassigned, lobby password/description should be cleared (otherwise the server still remembers them but the new host doesn't)
  +	Locations list in the lobby should only show ones which can currently be selected, ones which are taken should be disabled
  +	AI recruit delay was missing from the MapEd
- +  Crash happening when taking out warfare from Barracks to Market and equipping soldiers at the same time	
+ +  Crash happening when taking out warfare from Barracks to Market and equipping soldiers at the same time
+ +	Actions.UnitOrderWalk would not work on newly created units
 	AI defence position radius should only highlight for selected position? (overlapping defence positions cause map to be completely covered, check e.g. TPR 7)
 	Thunder reported that UnitOrderWalk doesn't work, see email
 
