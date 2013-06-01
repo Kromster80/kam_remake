@@ -133,6 +133,11 @@ type
     procedure HouseWareBlock(aHouseID, aWareType: Integer; aBlocked: Boolean);
     procedure HouseWeaponsOrderSet(aHouseID, aWareType, aAmount: Integer);
 
+    procedure OverlayTextSet(aPlayer: Shortint; aText: AnsiString);
+    procedure OverlayTextSetFormatted(aPlayer: Shortint; aText: AnsiString; Params: array of const);
+    procedure OverlayTextAppend(aPlayer: Shortint; aText: AnsiString);
+    procedure OverlayTextAppendFormatted(aPlayer: Shortint; aText: AnsiString; Params: array of const);
+
     function PlanAddField(aPlayer, X, Y: Word): Boolean;
     function PlanAddHouse(aPlayer, aHouseType, X, Y: Word): Boolean;
     function PlanAddRoad(aPlayer, X, Y: Word): Boolean;
@@ -143,12 +148,12 @@ type
     procedure PlayerDefeat(aPlayer: Word);
     procedure PlayerWin(const aVictors: array of Integer; aTeamVictory: Boolean);
     
-    procedure PlayWAV(aPlayer: Word; const aFileName: AnsiString; Volume: Single);
-    procedure PlayWAVAtLocation(aPlayer: Word; const aFileName: AnsiString; Volume: Single; X, Y: Word);
+    procedure PlayWAV(aPlayer: ShortInt; const aFileName: AnsiString; Volume: Single);
+    procedure PlayWAVAtLocation(aPlayer: ShortInt; const aFileName: AnsiString; Volume: Single; X, Y: Word);
 
-    procedure SetOverlayText(aPlayer: Word; aText: AnsiString);
     procedure SetTradeAllowed(aPlayer, aResType: Word; aAllowed: Boolean);
-    procedure ShowMsg(aPlayer: Word; aText: AnsiString);
+    procedure ShowMsg(aPlayer: Shortint; aText: AnsiString);
+    procedure ShowMsgFormatted(aPlayer: Shortint; aText: AnsiString; Params: array of const);
 
     function  UnitDirectionSet(aUnitID, aDirection: Integer): Boolean;
     procedure UnitHungerSet(aUnitID, aHungerLevel: Integer);
@@ -1127,10 +1132,10 @@ begin
 end;
 
 
-procedure TKMScriptActions.PlayWAV(aPlayer: Word; const aFileName: AnsiString; Volume: Single);
+procedure TKMScriptActions.PlayWAV(aPlayer: ShortInt; const aFileName: AnsiString; Volume: Single);
 var FullFileName: string;
 begin
-  if aPlayer <> MySpectator.PlayerIndex then Exit;
+  if (aPlayer <> MySpectator.PlayerIndex) and (aPlayer <> -1) then Exit;
 
   FullFileName := ExeDir + Format(SFXPath, [aFileName]);
   //Silently ignore missing files (player might choose to delete annoying sounds from scripts if he likes)
@@ -1142,10 +1147,10 @@ begin
 end;
 
 
-procedure TKMScriptActions.PlayWAVAtLocation(aPlayer: Word; const aFileName: AnsiString; Volume: Single; X, Y: Word);
+procedure TKMScriptActions.PlayWAVAtLocation(aPlayer: ShortInt; const aFileName: AnsiString; Volume: Single; X, Y: Word);
 var FullFileName: string;
 begin
-  if aPlayer <> MySpectator.PlayerIndex then Exit;
+  if (aPlayer <> MySpectator.PlayerIndex) and (aPlayer <> -1) then Exit;
 
   FullFileName := ExeDir + Format(SFXPath, [aFileName]);
   //Silently ignore missing files (player might choose to delete annoying sounds from scripts if he likes)
@@ -1331,10 +1336,17 @@ begin
 end;
 
 
-procedure TKMScriptActions.ShowMsg(aPlayer: Word; aText: AnsiString);
+procedure TKMScriptActions.ShowMsg(aPlayer: Shortint; aText: AnsiString);
 begin
-  if aPlayer = MySpectator.PlayerIndex then
+  if (aPlayer = MySpectator.PlayerIndex) or (aPlayer = -1) then
     fGame.ShowMessage(mkText, fTextLibrary.ParseTextMarkup(aText), KMPoint(0,0))
+end;
+
+
+procedure TKMScriptActions.ShowMsgFormatted(aPlayer: Shortint; aText: AnsiString; Params: array of const);
+begin
+  if (aPlayer = MySpectator.PlayerIndex) or (aPlayer = -1) then
+    fGame.ShowMessage(mkText, Format(fTextLibrary.ParseTextMarkup(aText), Params), KMPoint(0,0))
 end;
 
 
@@ -1555,10 +1567,31 @@ begin
 end;
 
 
-procedure TKMScriptActions.SetOverlayText(aPlayer: Word; aText: AnsiString);
+procedure TKMScriptActions.OverlayTextSet(aPlayer: Shortint; aText: AnsiString);
 begin
-  if aPlayer = MySpectator.PlayerIndex then
+  if (aPlayer = MySpectator.PlayerIndex) or (aPlayer = -1) then
     fGame.GamePlayInterface.SetScriptedOverlay(fTextLibrary.ParseTextMarkup(aText));
+end;
+
+
+procedure TKMScriptActions.OverlayTextSetFormatted(aPlayer: Shortint; aText: AnsiString; Params: array of const);
+begin
+  if (aPlayer = MySpectator.PlayerIndex) or (aPlayer = -1) then
+    fGame.GamePlayInterface.SetScriptedOverlay(Format(fTextLibrary.ParseTextMarkup(aText), Params));
+end;
+
+
+procedure TKMScriptActions.OverlayTextAppend(aPlayer: Shortint; aText: AnsiString);
+begin
+  if (aPlayer = MySpectator.PlayerIndex) or (aPlayer = -1) then
+    fGame.GamePlayInterface.AppendScriptedOverlay(fTextLibrary.ParseTextMarkup(aText));
+end;
+
+
+procedure TKMScriptActions.OverlayTextAppendFormatted(aPlayer: Shortint; aText: AnsiString; Params: array of const);
+begin
+  if (aPlayer = MySpectator.PlayerIndex) or (aPlayer = -1) then
+    fGame.GamePlayInterface.AppendScriptedOverlay(Format(fTextLibrary.ParseTextMarkup(aText), Params));
 end;
 
 

@@ -244,6 +244,11 @@ begin
       RegisterMethod('procedure HouseWareBlock(aHouseID, aWareType: Integer; aBlocked: Boolean)');
       RegisterMethod('procedure HouseWeaponsOrderSet(aHouseID, aWareType, aAmount: Integer)');
 
+      RegisterMethod('procedure OverlayTextSet(aPlayer: Shortint; aText: AnsiString)');
+      RegisterMethod('procedure OverlayTextSetFormatted(aPlayer: Shortint; aText: AnsiString; Params: array of const)');
+      RegisterMethod('procedure OverlayTextAppend(aPlayer: Shortint; aText: AnsiString)');
+      RegisterMethod('procedure OverlayTextAppendFormatted(aPlayer: Shortint; aText: AnsiString; Params: array of const)');
+
       RegisterMethod('function  PlanAddField(aPlayer, X, Y: Word): Boolean');
       RegisterMethod('function  PlanAddHouse(aPlayer, aHouseType, X, Y: Word): Boolean');
       RegisterMethod('function  PlanAddRoad(aPlayer, X, Y: Word): Boolean');
@@ -254,12 +259,12 @@ begin
       RegisterMethod('procedure PlayerDefeat(aPlayer: Word)');
       RegisterMethod('procedure PlayerWin(const aVictors: array of Integer; aTeamVictory: Boolean)');
 
-      RegisterMethod('procedure PlayWAV(aPlayer: Word; const aFileName: AnsiString; Volume: Single)');
-      RegisterMethod('procedure PlayWAVAtLocation(aPlayer: Word; const aFileName: AnsiString; Volume: Single; X, Y: Word)');
+      RegisterMethod('procedure PlayWAV(aPlayer: ShortInt; const aFileName: AnsiString; Volume: Single)');
+      RegisterMethod('procedure PlayWAVAtLocation(aPlayer: ShortInt; const aFileName: AnsiString; Volume: Single; X, Y: Word)');
 
-      RegisterMethod('procedure SetOverlayText(aPlayer: Word; aText: AnsiString)');
       RegisterMethod('procedure SetTradeAllowed(aPlayer, aResType: Word; aAllowed: Boolean)');
-      RegisterMethod('procedure ShowMsg(aPlayer: Word; aText: AnsiString)');
+      RegisterMethod('procedure ShowMsg(aPlayer: ShortInt; aText: AnsiString)');
+      RegisterMethod('procedure ShowMsgFormatted(aPlayer: Shortint; aText: AnsiString; Params: array of const)');
 
       RegisterMethod('function  UnitDirectionSet(aUnitID, aDirection: Integer): Boolean');
       RegisterMethod('procedure UnitHungerSet(aUnitID, aHungerLevel: Integer)');
@@ -500,6 +505,11 @@ begin
       RegisterMethod(@TKMScriptActions.HouseWareBlock,          'HOUSEWAREBLOCK');
       RegisterMethod(@TKMScriptActions.HouseWeaponsOrderSet,    'HOUSEWEAPONSORDERSET');
 
+      RegisterMethod(@TKMScriptActions.OverlayTextSet,             'OVERLAYTEXTSET');
+      RegisterMethod(@TKMScriptActions.OverlayTextSetFormatted,    'OVERLAYTEXTSETFORMATTED');
+      RegisterMethod(@TKMScriptActions.OverlayTextAppend,          'OVERLAYTEXTAPPEND');
+      RegisterMethod(@TKMScriptActions.OverlayTextAppendFormatted, 'OVERLAYTEXTAPPENDFORMATTED');
+
       RegisterMethod(@TKMScriptActions.PlanAddField,      'PLANADDFIELD');
       RegisterMethod(@TKMScriptActions.PlanAddHouse,      'PLANADDHOUSE');
       RegisterMethod(@TKMScriptActions.PlanAddRoad,       'PLANADDROAD');
@@ -513,7 +523,6 @@ begin
       RegisterMethod(@TKMScriptActions.PlayWAV, 'PLAYWAV');
       RegisterMethod(@TKMScriptActions.PlayWAVAtLocation, 'PLAYWAVATLOCATION');
 
-      RegisterMethod(@TKMScriptActions.SetOverlayText,  'SETOVERLAYTEXT');
       RegisterMethod(@TKMScriptActions.SetTradeAllowed, 'SETTRADEALLOWED');
       RegisterMethod(@TKMScriptActions.ShowMsg,         'SHOWMSG');
 

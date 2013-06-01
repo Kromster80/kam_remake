@@ -376,6 +376,7 @@ type
     procedure ShowMPPlayMore(Msg:TGameResultMsg);
     procedure ShowNetworkLag(DoShow:boolean; aPlayers:TStringList; IsHost:boolean);
     procedure SetScriptedOverlay(aText:AnsiString);
+    procedure AppendScriptedOverlay(aText:AnsiString);
     property LastSaveName: AnsiString read fLastSaveName write fLastSaveName;
     procedure ReleaseDirectionSelector;
     procedure SetChatText(const aString: string);
@@ -3580,6 +3581,12 @@ end;
 procedure TKMGamePlayInterface.SetScriptedOverlay(aText:AnsiString);
 begin
   Label_ScriptedOverlay.Caption := aText;
+end;
+
+
+procedure TKMGamePlayInterface.AppendScriptedOverlay(aText:AnsiString);
+begin
+  Label_ScriptedOverlay.Caption := Label_ScriptedOverlay.Caption + aText;
 end;
 
 
