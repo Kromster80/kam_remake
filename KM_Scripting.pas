@@ -69,6 +69,7 @@ const
     btU8, //Byte, Boolean, Enums
     btS32, //Integer
     btSingle, //Single
+    btString, //string
     btStaticArray, btArray, //Static and Dynamic Arrays
     btRecord, btSet];
 
@@ -145,8 +146,6 @@ begin
       RegisterMethod('function KaMRandom: Single');
       RegisterMethod('function KaMRandomI(aMax:Integer): Integer');
       RegisterMethod('function PeaceTime: Cardinal');
-      RegisterMethod('function Text(aIndex: Word): AnsiString');
-      RegisterMethod('function TextFormatted(aIndex: Word; const Args: array of const): AnsiString');
 
       RegisterMethod('function FogRevealed(aPlayer: Byte; aX, aY: Word): Boolean');
 
@@ -403,8 +402,6 @@ begin
       RegisterMethod(@TKMScriptStates.KaMRandom,      'KAMRANDOM');
       RegisterMethod(@TKMScriptStates.KaMRandomI,     'KAMRANDOMI');
       RegisterMethod(@TKMScriptStates.PeaceTime,      'PEACETIME');
-      RegisterMethod(@TKMScriptStates.Text,           'TEXT');
-      RegisterMethod(@TKMScriptStates.TextFormatted,  'TEXTFORMATTED');
 
       RegisterMethod(@TKMScriptStates.FogRevealed,    'FOGREVEALED');
 
@@ -743,6 +740,7 @@ procedure TKMScripting.Load(LoadStream: TKMemoryStream);
       btU8:  LoadStream.Read(tbtu8(Src^)); //Byte, Boolean
       btS32: LoadStream.Read(tbts32(Src^)); //Integer
       btSingle: LoadStream.Read(tbtsingle(Src^));
+      btString: LoadStream.Read(tbtString(Src^));
       btStaticArray:begin
                       LoadStream.Read(ElemCount);
                       Assert(ElemCount = TPSTypeRec_StaticArray(aType).Size, 'Script array element count mismatches saved count');
@@ -819,6 +817,7 @@ procedure TKMScripting.Save(SaveStream: TKMemoryStream);
       btU8:         SaveStream.Write(tbtu8(Src^)); //Byte, Boolean
       btS32:        SaveStream.Write(tbts32(Src^)); //Integer
       btSingle:     SaveStream.Write(tbtsingle(Src^));
+      btString:     SaveStream.Write(tbtString(Src^));
       btStaticArray:begin
                       ElemCount := TPSTypeRec_StaticArray(aType).Size;
                       SaveStream.Write(ElemCount);

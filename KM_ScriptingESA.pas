@@ -28,8 +28,6 @@ type
     function PeaceTime: Cardinal;
     function KaMRandom: Single;
     function KaMRandomI(aMax: Integer): Integer;
-    function Text(aIndex: Word): AnsiString;
-    function TextFormatted(aIndex: Word; const Args: array of const): AnsiString;
 
     function FogRevealed(aPlayer: Byte; aX, aY: Word): Boolean;
 
@@ -739,18 +737,6 @@ function TKMScriptStates.KaMRandomI(aMax:Integer): Integer;
 begin
   //No parameters to check, any integer is fine (even negative)
   Result := KM_Utils.KaMRandom(aMax);
-end;
-
-
-function TKMScriptStates.Text(aIndex: Word): AnsiString;
-begin
-  Result := fTextLibrary.GetMissionString(aIndex);
-end;
-
-
-function TKMScriptStates.TextFormatted(aIndex: Word; const Args: array of const): AnsiString;
-begin
-  Result := Format(fTextLibrary.GetMissionString(aIndex), Args);
 end;
 
 

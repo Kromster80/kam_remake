@@ -180,7 +180,7 @@ begin
       ID := StrToIntDef(Copy(aText, I+2, Last-(I+2)), -1);
       if ID >= 0 then
       begin
-        Result := Result + fTextLibrary.GetMissionString(ID);
+        Result := Result + GetMissionString(ID);
         I := Last + 1;
         Continue;
       end;
