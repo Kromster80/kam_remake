@@ -26,7 +26,7 @@ begin
 		Actions.FogRevealCircle(0, 35, 67, 10);
 		Actions.FogRevealCircle(0, 17, 55, 10);
 		Actions.FogRevealCircle(0, 30, 70, 10);
-		Actions.ShowMsg(0, States.Text(0));
+		Actions.ShowMsg(0, '<$0>');
 	end;
   // mit Nebel bedecken
   if States.GameTime = 1500

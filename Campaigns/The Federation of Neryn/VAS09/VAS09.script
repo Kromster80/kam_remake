@@ -1,4 +1,4 @@
-﻿var iKnights, iLances, iPikes, iRein, iMilitia, iBow, iAdd: Integer;
+var iKnights, iLances, iPikes, iRein, iMilitia, iBow, iAdd: Integer;
 var bVictory: Boolean;
 
 procedure OnMissionStart;

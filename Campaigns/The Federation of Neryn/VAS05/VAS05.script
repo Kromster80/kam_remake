@@ -17,7 +17,7 @@ begin
 	AND((States.StatArmyCount(2) = 170) OR (States.StatArmyCount(3) = 70))
 	AND(iMessage <= 0)
 	then begin
-		Actions.ShowMsg(0, States.Text(2));
+		Actions.ShowMsg(0, '<$2>');
 		iMessage := 6000;
 	end;
 	
@@ -52,7 +52,7 @@ begin
   AND (bBarracks = false) 
   AND ((States.HouseType(iIndex) = 2) OR (States.HouseType(iIndex) = 19)) then
   begin
-	Actions.ShowMsg(0, States.Text(1));
+	Actions.ShowMsg(0, '<$1>');
 	bBarracks := true;
   end;
 
@@ -161,7 +161,7 @@ begin
   // Nachricht und Verbündeter
   if States.GameTime = 100 then
   begin
-    Actions.ShowMsg(0, States.Text(0));
+    Actions.ShowMsg(0, '<$0>');
 	Actions.PlayerAllianceChange(0, 1, true, true);
   end;
   // Angriff überstanden

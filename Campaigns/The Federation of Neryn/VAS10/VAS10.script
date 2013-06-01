@@ -4,7 +4,7 @@ var iVer, iSec, iKnights, iScouts, iPatrol1, iPatrol2, iFood, iAdd, iScout, iInt
 // Schlussnachricht an die Spieler
 procedure OnPlayerVictory(iIndex: Integer);
 begin
-	Actions.SetOverlayText(iIndex, States.Text(3));
+	Actions.OverlayTextSet(iIndex, '<$3>');
 end;
 
 procedure OnTick;
@@ -45,7 +45,7 @@ begin
   // Nachrichten
   if States.GameTime = 9000 then 
 	begin
-		Actions.ShowMsg(0, States.Text(0));
+		Actions.ShowMsg(0, '<$0>');
 		Actions.GroupOrderHalt(iPatrol1);
 		Actions.GroupOrderHalt(iPatrol2);
 		Actions.GroupOrderFood(iPatrol1);
@@ -53,7 +53,7 @@ begin
 	end;
   if States.GameTime = 31800 then
   begin
-	Actions.ShowMsg(0, States.Text(1));
+	Actions.ShowMsg(0, '<$1>');
   end;
 
   // Reiter
@@ -137,7 +137,7 @@ begin
 	if iAttack = 1 then
 	begin
 		// Verstärkung
-		Actions.ShowMsg(0, States.Text(2));
+		Actions.ShowMsg(0, '<$2>');
 		iVer := States.GameTime + 10;
 		iCount := iCount + 1000;
 	end;

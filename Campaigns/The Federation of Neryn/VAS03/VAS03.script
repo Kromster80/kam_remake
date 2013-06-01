@@ -108,7 +108,7 @@ begin
   // Späher Nachricht
   if (States.GroupDead(iScout) = true) AND (iScout <> -1) then
 	begin
-		Actions.ShowMsg(0, States.Text(1));
+		Actions.ShowMsg(0, '<$1>');
 		iScout := -1;
 	end;
 
@@ -265,7 +265,7 @@ begin
 	end;
   // Nachrichten
   if States.GameTime = 300 then 
-    Actions.ShowMsg(0, States.Text(0));
+    Actions.ShowMsg(0, '<$0>');
   if States.GameTime = 33000 then 
-    Actions.ShowMsg(0, States.Text(2));
+    Actions.ShowMsg(0, '<$2>');
 end;

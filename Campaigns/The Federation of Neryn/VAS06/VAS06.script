@@ -7,7 +7,7 @@ var iPeasants, iPeasantsX, iPeasantsY, iPeasantsD: array[1..5] of Integer;
 
 procedure ErrorMessage;
 begin
-	Actions.SetOverlayText(0, States.Text(0));
+	Actions.OverlayTextSet(0, '<$0>');
 	iMessageTick := 600;
 end;
 
@@ -137,7 +137,7 @@ begin
 	// Kohlemine -> Schmelzhütte
 	if States.HouseType(iIndex) = 3 then
 	begin
-		Actions.ShowMsg(0, States.Text(4));
+		Actions.ShowMsg(0, '<$4>');
 		BuildHouse(17, 127, 40);
 		BuildHouse(17, 151, 51);
 		BuildHouse(15, 154, 51);
@@ -211,8 +211,8 @@ begin
 	if iWeapon = 2 then
 	begin
 		iWeapon := -1;
-		Actions.HouseDestroy(States.HouseAt(168 ,55));
-		Actions.HouseDestroy(States.HouseAt(163 ,54));
+		Actions.HouseDestroy(States.HouseAt(168 ,55), False);
+		Actions.HouseDestroy(States.HouseAt(163 ,54), False);
 		BuildHouse(16, 164, 54);
 		BuildHouse(16, 169, 55);
 		Actions.PlanAddRoad(1, 169, 56);
@@ -326,7 +326,7 @@ begin
 	if iMessageTick = 0
 	then begin
 		iMessageTick := -1
-		Actions.SetOverlayText(0, '');
+		Actions.OverlayTextSet(0, '');
 	end;
 
 	// Farmer
@@ -475,14 +475,14 @@ begin
 	Actions.FogRevealCircle(0, 162, 25, 30);
 	Actions.FogRevealCircle(0, 185, 6, 30);
 	Actions.FogRevealCircle(0, 188, 45, 30);
-	Actions.ShowMsg(0, States.Text(1));
+	Actions.ShowMsg(0, '<$1>');
   end;
 
 
   // Patroulliennachricht
   if (States.GameTime = 10700) 
   AND (States.GroupDead(iPatrol) = false) then 
-    Actions.ShowMsg(0, States.Text(2));
+    Actions.ShowMsg(0, '<$2>');
 
 
   if States.GroupDead(iPatrol) = false then
@@ -559,7 +559,7 @@ begin
 		if bDead = false then
 		begin
 			// Nachricht
-			Actions.ShowMsg(0, States.Text(3));
+			Actions.ShowMsg(0, '<$3>');
 			bDead := true;
 
 			// Waffen für AI_03
@@ -567,17 +567,17 @@ begin
 			Actions.HouseAddWaresTo(States.HouseAt(69, 53), 20, 3000);
 
 			// Sicherheitsdestruction
-			Actions.HouseDestroy(States.HouseAt(142, 57));
-			Actions.HouseDestroy(States.HouseAt(152, 50));
-			Actions.HouseDestroy(States.HouseAt(162, 56));
-			Actions.HouseDestroy(States.HouseAt(144, 77));
-			Actions.HouseDestroy(States.HouseAt(145, 80));
-			Actions.HouseDestroy(States.HouseAt(144, 83));
-			Actions.HouseDestroy(States.HouseAt(160, 76));
-			Actions.HouseDestroy(States.HouseAt(171, 62));
-			Actions.HouseDestroy(States.HouseAt(178, 69));
-			Actions.HouseDestroy(States.HouseAt(163, 59));
-			Actions.HouseDestroy(States.HouseAt(154, 75));
+			Actions.HouseDestroy(States.HouseAt(142, 57), False);
+			Actions.HouseDestroy(States.HouseAt(152, 50), False);
+			Actions.HouseDestroy(States.HouseAt(162, 56), False);
+			Actions.HouseDestroy(States.HouseAt(144, 77), False);
+			Actions.HouseDestroy(States.HouseAt(145, 80), False);
+			Actions.HouseDestroy(States.HouseAt(144, 83), False);
+			Actions.HouseDestroy(States.HouseAt(160, 76), False);
+			Actions.HouseDestroy(States.HouseAt(171, 62), False);
+			Actions.HouseDestroy(States.HouseAt(178, 69), False);
+			Actions.HouseDestroy(States.HouseAt(163, 59), False);
+			Actions.HouseDestroy(States.HouseAt(154, 75), False);
 
 			// Schulhaus
 			BuildHouse(13, 162, 59);

@@ -6,7 +6,7 @@ procedure OnPlayerDefeated(aIndex: Integer);
 begin
 	if aIndex = 0
 	then begin
-		Actions.SetOverlayText(0, '');
+		Actions.OverlayTextSet(0, '');
 		bStarted := false;				
 	end;
 end;
@@ -31,7 +31,7 @@ begin
   AND(States.HouseDestroyed(iStore) = false))
   then begin
 	bStarted := true;
-	Actions.ShowMsg(0, States.Text(0));
+	Actions.ShowMsg(0, '<$0>');
   end;
 
   // Wenn die Zeit l‰uft
@@ -46,22 +46,22 @@ begin
 		iSecs := (iTicks / 10) - (iMinutes * 60);
 	// Ausgabe string
 		if iHours > 0 then begin
-			sTime := States.Text(5) + ': ' + IntToStr(iHours) + ' ' + States.Text(6);
-			if iMinutes <> 0 then sTime := sTime + ', ' + IntToStr(iMinutes) + ' ' + States.Text(7)
+			sTime := '<$5>: ' + IntToStr(iHours) + ' <$6>';
+			if iMinutes <> 0 then sTime := sTime + ', ' + IntToStr(iMinutes) + ' <$7>'
 		end else begin
-			sTime := States.Text(5) + ': ' + IntToStr(iMinutes) + ' ' + States.Text(7);
+			sTime := '<$5>: ' + IntToStr(iMinutes) + ' <$7>';
 		end;
 		// Ab den letzten 10 Minuten mit Sekunden
 		if (iMinutes <= 10)
 		AND(iHours <= 0) 
 		then begin
-			sTime := sTime + ', ' + IntToStr(iSecs) + ' ' + States.Text(8);
+			sTime := sTime + ', ' + IntToStr(iSecs) + ' <$8>';
 		end;
 	// Anzeige
-	Actions.SetOverlayText(0, States.Text(1) + ': ' + '|' 
-	+ States.Text(2) + ': ' + IntToStr(States.HouseResourceAmount(iStore, 7)) + '/' + IntToStr(iGold) + '|'
-	+ States.Text(3) + ': ' + IntToStr(States.HouseResourceAmount(iStore, 6)) + '/' + IntToStr(iIron) + '|'
-	+ States.Text(4) + ': ' + IntToStr(States.HouseResourceAmount(iStore, 5)) + '/' + IntToStr(iCoal) + '|'
+	Actions.OverlayTextSet(0, '<$1>: |' 
+	+ '<$2>: ' + IntToStr(States.HouseResourceAmount(iStore, 7)) + '/' + IntToStr(iGold) + '|'
+	+ '<$3>: ' + IntToStr(States.HouseResourceAmount(iStore, 6)) + '/' + IntToStr(iIron) + '|'
+	+ '<$4>: ' + IntToStr(States.HouseResourceAmount(iStore, 5)) + '/' + IntToStr(iCoal) + '|'
 	+ '|' + sTime);
   end;
   
@@ -95,13 +95,13 @@ begin
 
 
   // H‰use abreiﬂen (damit Straﬂen auch abgerissen sind)
-  Actions.HouseDestroy(States.HouseAt(73, 46));
-  Actions.HouseDestroy(States.HouseAt(70, 48));
-  Actions.HouseDestroy(States.HouseAt(52, 43));
-  Actions.HouseDestroy(States.HouseAt(48, 42));
-  Actions.HouseDestroy(States.HouseAt(66, 28));
-  Actions.HouseDestroy(States.HouseAt(65, 47));
-  Actions.HouseDestroy(States.HouseAt(70, 36));
+  Actions.HouseDestroy(States.HouseAt(73, 46), False);
+  Actions.HouseDestroy(States.HouseAt(70, 48), False);
+  Actions.HouseDestroy(States.HouseAt(52, 43), False);
+  Actions.HouseDestroy(States.HouseAt(48, 42), False);
+  Actions.HouseDestroy(States.HouseAt(66, 28), False);
+  Actions.HouseDestroy(States.HouseAt(65, 47), False);
+  Actions.HouseDestroy(States.HouseAt(70, 36), False);
 
   // Waren
   Actions.HouseAddWaresTo(States.HouseAt(69, 41), 8, 5);

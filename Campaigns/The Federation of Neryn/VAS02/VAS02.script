@@ -71,9 +71,9 @@ begin
 
   // Nachrichten
   if States.GameTime = 300 then 
-    Actions.ShowMsg(0, States.Text(0));
+    Actions.ShowMsg(0, '<$0>');
   if States.GameTime = 9300 then 
-    Actions.ShowMsg(0, States.Text(1));
+    Actions.ShowMsg(0, '<$1>');
   if States.GameTime = 13200 then 
-    Actions.ShowMsg(0, States.Text(2));
+    Actions.ShowMsg(0, '<$2>');
 end;
