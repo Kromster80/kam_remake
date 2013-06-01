@@ -1,11 +1,13 @@
 procedure OnTick;
 begin
   if States.GameTime = 18000 then
-    Actions.ShowMsg(0, States.Text(0));
-  if States.GameTime = 18000 then
-    Actions.ShowMsg(4, States.Text(0));
+  begin
+    Actions.ShowMsg(0, '<$0>');
+    Actions.ShowMsg(4, '<$0>');
+  end;
   if States.GameTime = 72000 then
-    Actions.ShowMsg(0, States.Text(1));
-  if States.GameTime = 72000 then
-    Actions.ShowMsg(4, States.Text(1));
+  begin
+    Actions.ShowMsg(0, '<$1>');
+    Actions.ShowMsg(4, '<$1>');
+  end;
 end;
