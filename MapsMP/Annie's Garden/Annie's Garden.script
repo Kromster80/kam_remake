@@ -23,8 +23,8 @@ begin
     Result := Copy(Result, 1, Length(Result)-2); //Remove two characters from the end
 end;
 
-//Processes the fact that aPlayer and his team are winning, returning something like: '3 locations are held by [$BBGGRR]Lewin[], [$BBGGRR]Krom[]!|Time until victory: 03:45'
-function ProcessWinningPlayer(aPlayer, aLocsHeld: Integer): AnsiString;
+//Processes the fact that aPlayer and his team are winning, append to overlay something like: '3 locations are held by [$BBGGRR]Lewin[], [$BBGGRR]Krom[]!|Time until victory: 03:45'
+procedure ProcessWinningPlayer(aPlayer, aLocsHeld: Integer);
 var Time, Mins, Secs: Integer;
 begin
 	//If this is a different WinningPlayer from last time, reset the counter
@@ -52,27 +52,26 @@ begin
 	//Show the countdown
 	Mins := Time div 600;
 	Secs := (Time div 10) mod 60;
-	Result := States.TextFormatted(8, [aLocsHeld, GetTeamMembers(aPlayer), Mins, Secs]);
+	Actions.OverlayTextAppendFormatted(-1, '<$8>', [aLocsHeld, GetTeamMembers(aPlayer), Mins, Secs]);
 end;
 
 //Updates the status display which is overlaid on the screen
 procedure ShowStatusDisplay;
 var
   I, K: Integer;
-  Text: AnsiString;
   LocsHeld: Integer;
   FoundWinningPlayer: Boolean;
 begin
-  Text := '';
+  Actions.OverlayTextSet(-1, ''); //Clear
   FoundWinningPlayer := False;
   //Firstly write out who owns each location
   for I := 1 to 5 do
     if Owner[I] = -1 then
-      Text := Text + States.TextFormatted(6, [States.Text(I)]) + '|'
+      Actions.OverlayTextAppendFormatted(-1, '<$6>|', ['<$'+IntToStr(I)+'>'])
 	else
-      Text := Text + States.TextFormatted(7, [States.Text(I), States.PlayerColorText(Owner[I]), States.PlayerName(Owner[I])]) + '|';
+      Actions.OverlayTextAppendFormatted(-1, '<$7>|', ['<$'+IntToStr(I)+'>', States.PlayerColorText(Owner[I]), States.PlayerName(Owner[I])]);
 
-  Text := Text + '|'; //Blank line
+  Actions.OverlayTextAppend(-1, '|'); //Blank line
 
   //Now see if a team holds 3 locations
   for I := 1 to 5 do
@@ -90,17 +89,13 @@ begin
 	  if LocsHeld >= 3 then
 	  begin
 	    FoundWinningPlayer := True;
-    	Text := Text + ProcessWinningPlayer(Owner[I], LocsHeld);
+    	ProcessWinningPlayer(Owner[I], LocsHeld);
 		Break; //No need to check further locations, only one team can hold 3 locations at once
 	  end;
     end;
 	
   if not FoundWinningPlayer then
     WinningPlayer := -1; //Nobody is winning
-
-  //Now show the message we made to the players
-  for I:=0 to LOC_COUNT-1 do
-    Actions.SetOverlayText(I, Text);
 end;
 
 function IsSoldier(UnitID: Integer): Boolean;

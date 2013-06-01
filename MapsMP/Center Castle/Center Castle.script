@@ -19,12 +19,12 @@ var
 function GetWareText(aWare: Integer): AnsiString;
 begin
   case aWare of
-    7:    Result := States.Text(4);
-    17:   Result := States.Text(5);
-    19:   Result := States.Text(6);
-    21:   Result := States.Text(7);
-    23:   Result := States.Text(8);
-    25:   Result := States.Text(9);
+    7:    Result := '<$4>';
+    17:   Result := '<$5>';
+    19:   Result := '<$6>';
+    21:   Result := '<$7>';
+    23:   Result := '<$8>';
+    25:   Result := '<$9>';
     else  Result := '';
   end;
 end;
@@ -65,13 +65,10 @@ begin
 end;
 
 procedure ShowDisplay;
-var
-  I, Time, Mins, Secs: Integer;
-  Msg: AnsiString;
+var Time, Mins, Secs: Integer;
 begin
   if King = -1 then
-    for I:=0 to LOC_COUNT-1 do
-      Actions.SetOverlayText(I, States.Text(1)) //Nobody is king
+    Actions.OverlayTextSet(-1, '<$1>') //Nobody is king
   else
   begin
     //Calculate the time left before the king wins
@@ -83,13 +80,10 @@ begin
     Mins := Time div 600;
     Secs := (Time div 10) mod 60;
 
-    Msg := States.TextFormatted(2, [States.PlayerColorText(King), States.PlayerName(King), Mins, Secs]);
+    Actions.OverlayTextSetFormatted(-1, '<$2>', [States.PlayerColorText(King), States.PlayerName(King), Mins, Secs]);
     
     if FoundNotification.TimeToHide > States.GameTime then
-      Msg := Msg + '||' + States.TextFormatted(3, [States.PlayerColorText(FoundNotification.Player), States.PlayerName(FoundNotification.Player), FoundNotification.Amount, GetWareText(FoundNotification.Ware)]);
-
-    for I:=0 to LOC_COUNT-1 do
-      Actions.SetOverlayText(I, Msg);
+      Actions.OverlayTextAppendFormatted(-1, '||<$3>', [States.PlayerColorText(FoundNotification.Player), States.PlayerName(FoundNotification.Player), FoundNotification.Amount, GetWareText(FoundNotification.Ware)]);
   end;
 end;
 

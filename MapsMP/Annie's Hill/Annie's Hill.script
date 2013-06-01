@@ -3,7 +3,6 @@ const
   MAX_TIME_AWAY = 2*10; //2 seconds
   HILL_X = 122;
   HILL_Y = 119;
-  LOC_COUNT = 8; //Total number of locations on this map
 var
   King: Integer; //Current king of the hill
   TimeBecameKing: Integer; //The time at which the current king became king
@@ -19,11 +18,10 @@ begin
 end;
 
 procedure ShowKingDisplay;
-var I, Time, Mins, Secs: Integer;
+var Time, Mins, Secs: Integer;
 begin
   if King = -1 then
-    for I:=0 to LOC_COUNT-1 do
-      Actions.SetOverlayText(I, States.Text(1)) //Nobody is king
+    Actions.OverlayTextSet(-1, '<$1>') //Nobody is king
   else
   begin
     //Calculate the time left before the king wins
@@ -40,8 +38,7 @@ begin
 	//Show the countdown
     Mins := Time div 600;
     Secs := (Time div 10) mod 60;
-    for I:=0 to LOC_COUNT-1 do
-      Actions.SetOverlayText(I, States.TextFormatted(2, [States.PlayerColorText(King), States.PlayerName(King), Mins, Secs]));
+    Actions.OverlayTextSetFormatted(-1, '<$2>', [States.PlayerColorText(King), States.PlayerName(King), Mins, Secs]);
   end;
 end;
 

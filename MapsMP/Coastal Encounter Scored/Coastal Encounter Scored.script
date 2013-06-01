@@ -76,17 +76,12 @@ begin
 end;
 
 procedure ShowScores;
-var
-  I: Integer;
-  ScoreText: string;
+var I: Integer;
 begin
-  ScoreText := States.Text(1);
+  Actions.OverlayTextSet(-1, '<$1>');
   for I:=0 to LOC_COUNT-1 do
     if States.PlayerEnabled(I) then
-      ScoreText := ScoreText + '|' + States.TextFormatted(2 ,[States.PlayerColorText(I), States.PlayerName(I), PlayerScore[I]]);
-
-  for I:=0 to LOC_COUNT-1 do
-    Actions.SetOverlayText(I, ScoreText);
+      Actions.OverlayTextAppendFormatted(-1, '|<$2>', [States.PlayerColorText(I), States.PlayerName(I), PlayerScore[I]]);
 end;
 
 procedure OnMissionStart;
