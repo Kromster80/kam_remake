@@ -21,6 +21,7 @@ type
     Button8: TButton;
     Button5: TButton;
     Button6: TButton;
+    Button9: TButton;
     procedure Button3Click(Sender: TObject);
     procedure Button1Click(Sender: TObject);
     procedure Button2Click(Sender: TObject);
@@ -30,6 +31,7 @@ type
     procedure Button8Click(Sender: TObject);
     procedure Button5Click(Sender: TObject);
     procedure Button6Click(Sender: TObject);
+    procedure Button9Click(Sender: TObject);
   private
     procedure SetUp;
     procedure TearDown;
@@ -697,5 +699,62 @@ begin
   ControlsEnable(True);
 end;
 
+
+procedure TForm1.Button9Click(Sender: TObject);
+var
+  I: Integer;
+  PathToMaps: TStringList;
+  CurrLoc, CurrEnd, Replaced: Integer;
+  ScriptFile, Txt: AnsiString;
+  F: TMemoryStream;
+begin
+  Memo1.Clear;
+  ControlsEnable(False);
+  SetUp;
+
+  PathToMaps := TStringList.Create;
+  try
+    TKMapsCollection.GetAllMapPaths(ExeDir, PathToMaps);
+
+    //Parse only MP maps
+    for I := 0 to PathToMaps.Count - 1 do
+    begin
+      ScriptFile := ChangeFileExt(PathToMaps[I], '.script');
+      if FileExists(ScriptFile) then
+      begin
+        F := TMemoryStream.Create;
+        F.LoadFromFile(ScriptFile);
+        SetLength(Txt, F.Size);
+        F.Read(Txt[1], F.Size);
+
+        Replaced := 0;
+        CurrLoc := PosEx('States.Text(', Txt, 1);
+        if CurrLoc = 0 then Continue;
+        while CurrLoc <> 0 do
+        begin
+          Inc(Replaced);
+          Txt := StuffString(Txt, CurrLoc, Length('States.Text('), '''<$');
+          CurrEnd := PosEx(')', Txt, CurrLoc);
+          Txt := StuffString(Txt, CurrEnd, Length('>'''), '>''');
+
+          CurrLoc := PosEx('States.Text(', Txt, CurrLoc);
+        end;
+
+        F.Clear;
+        F.Write(Txt[1], Length(Txt));
+        F.SaveToFile(ScriptFile);
+
+        Memo1.Lines.Append(ScriptFile + ' - ' + IntToStr(Replaced));
+      end;
+    end;
+  finally
+    PathToMaps.Free;
+  end;
+
+  Memo1.Lines.Append(IntToStr(Memo1.Lines.Count));
+
+  TearDown;
+  ControlsEnable(True);
+end;
 
 end.
