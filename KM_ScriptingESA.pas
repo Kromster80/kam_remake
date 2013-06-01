@@ -1344,9 +1344,15 @@ end;
 
 
 procedure TKMScriptActions.ShowMsgFormatted(aPlayer: Shortint; aText: AnsiString; Params: array of const);
+var S: AnsiString;
 begin
   if (aPlayer = MySpectator.PlayerIndex) or (aPlayer = -1) then
-    fGame.ShowMessage(mkText, Format(fTextLibrary.ParseTextMarkup(aText), Params), KMPoint(0,0))
+  begin
+    //We must parse for text markup before AND after running Format, since individual format
+    //parameters can contain strings that need parsing (see Annie's Garden for an example)
+    S := fTextLibrary.ParseTextMarkup(Format(fTextLibrary.ParseTextMarkup(aText), Params));
+    fGame.ShowMessage(mkText, S, KMPoint(0,0));
+  end;
 end;
 
 
@@ -1575,9 +1581,15 @@ end;
 
 
 procedure TKMScriptActions.OverlayTextSetFormatted(aPlayer: Shortint; aText: AnsiString; Params: array of const);
+var S: AnsiString;
 begin
   if (aPlayer = MySpectator.PlayerIndex) or (aPlayer = -1) then
-    fGame.GamePlayInterface.SetScriptedOverlay(Format(fTextLibrary.ParseTextMarkup(aText), Params));
+  begin
+    //We must parse for text markup before AND after running Format, since individual format
+    //parameters can contain strings that need parsing (see Annie's Garden for an example)
+    S := fTextLibrary.ParseTextMarkup(Format(fTextLibrary.ParseTextMarkup(aText), Params));
+    fGame.GamePlayInterface.SetScriptedOverlay(S);
+  end;
 end;
 
 
@@ -1589,9 +1601,15 @@ end;
 
 
 procedure TKMScriptActions.OverlayTextAppendFormatted(aPlayer: Shortint; aText: AnsiString; Params: array of const);
+var S: AnsiString;
 begin
   if (aPlayer = MySpectator.PlayerIndex) or (aPlayer = -1) then
-    fGame.GamePlayInterface.AppendScriptedOverlay(Format(fTextLibrary.ParseTextMarkup(aText), Params));
+  begin
+    //We must parse for text markup before AND after running Format, since individual format
+    //parameters can contain strings that need parsing (see Annie's Garden for an example)
+    S := fTextLibrary.ParseTextMarkup(Format(fTextLibrary.ParseTextMarkup(aText), Params));
+    fGame.GamePlayInterface.AppendScriptedOverlay(S);
+  end;
 end;
 
 

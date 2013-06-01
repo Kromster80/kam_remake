@@ -1361,7 +1361,7 @@ begin
     MP_Update(Format(fTextLibrary[TX_GAME_ERROR_LONG_PLAYERNAME], [MAX_NAME_LENGTH]), icYellow, false);
     fSoundLib.Play(sfxn_Error);
   end
-  else if (Pos('|', aName) <> 0) or (Pos('[$', aName) <> 0) or (Pos('[]', aName) <> 0) then
+  else if (Pos('|', aName) <> 0) or (Pos('[$', aName) <> 0) or (Pos('[]', aName) <> 0) or (Pos('<$', aName) <> 0) then
   begin
     MP_Update(fTextLibrary[TX_GAME_ERROR_ILLEGAL_PLAYERNAME], icYellow, false);
     fSoundLib.Play(sfxn_Error);
