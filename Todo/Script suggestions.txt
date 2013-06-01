@@ -19,7 +19,6 @@ Accepted:
 	AI recruits in barracks (lets you disable/enable AI soldier equipping)
 	AI equip rate
 	Allow to query count of placed house plans
-	Command to add default economic or fighting goals (e.g. for multiplayer because teams are not fixed to locations)
 	PlanCancel (road/field/house)
 	States.HouseUnderAttack or OnHouseUnderAttack or similar (needed for Tower Defence)
 	DisplayText(text, player_id, timeout) to show announcements that will be gone after timeout (for TD and etc.)
