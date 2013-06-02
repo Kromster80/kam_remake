@@ -932,12 +932,12 @@ begin
       HeightUnequalize.Hint      := fTextLibrary[TX_MAPED_TERRAIN_HEIGHTS_UNEQUALIZE_HINT];
 
     Panel_Tiles := TKMPanel.Create(Panel_Terrain, 0, 28, TB_WIDTH, 400);
-      TKMLabel.Create(Panel_Tiles, 0, PAGE_TITLE_Y, TB_WIDTH, 0, 'Tiles', fnt_Outline, taCenter);
+      TKMLabel.Create(Panel_Tiles, 0, PAGE_TITLE_Y, TB_WIDTH, 0, fTextLibrary[TX_MAPED_TERRAIN_HINTS_TILES], fnt_Outline, taCenter);
 
       TilesMagicWater := TKMButtonFlat.Create(Panel_Tiles, 2, 24, TB_WIDTH - 4, 20, 0);
-      TilesMagicWater.Caption := 'Magic water';
+      TilesMagicWater.Caption := fTextLibrary[TX_MAPED_TERRAIN_MAGIC_WATER];
       TilesMagicWater.CapOffsetY := -12;
-      TilesMagicWater.Hint := 'Sets the direction for all tiles in a body of water';
+      TilesMagicWater.Hint := fTextLibrary[TX_MAPED_TERRAIN_MAGIC_WATER_HINT];
       TilesMagicWater.OnClick := Terrain_TilesChange;
 
       TilesRandom := TKMCheckBox.Create(Panel_Tiles, 0, 60, TB_WIDTH, 20, fTextLibrary[TX_MAPED_TERRAIN_TILES_RANDOM], fnt_Metal);
@@ -986,26 +986,28 @@ begin
 
     Panel_Selection := TKMPanel.Create(Panel_Terrain,0,28,TB_WIDTH,400);
       TKMLabel.Create(Panel_Selection, 0, PAGE_TITLE_Y, TB_WIDTH, 0, fTextLibrary[TX_MAPED_COPY_TITLE], fnt_Outline, taCenter);
-        Button_SelectCopy := TKMButton.Create(Panel_Selection, 20, 30, TB_WIDTH - 40, 20, 'Copy', bsGame);
+        Button_SelectCopy := TKMButton.Create(Panel_Selection, 20, 30, TB_WIDTH - 40, 20, fTextLibrary[TX_MAPED_COPY], bsGame);
         Button_SelectCopy.Hint := fTextLibrary[TX_MAPED_COPY_COPY_HINT];
         Button_SelectCopy.OnClick := Terrain_SelectionClick;
-        Button_SelectPaste := TKMButton.Create(Panel_Selection, 20, 60, TB_WIDTH - 40, 20, 'Paste', bsGame);
+        Button_SelectPaste := TKMButton.Create(Panel_Selection, 20, 60, TB_WIDTH - 40, 20, fTextLibrary[TX_MAPED_PASTE], bsGame);
         Button_SelectPaste.Hint := fTextLibrary[TX_MAPED_COPY_PASTE_HINT];
         Button_SelectPaste.OnClick := Terrain_SelectionClick;
-        Button_SelectPasteApply := TKMButton.Create(Panel_Selection, 20, 90, TB_WIDTH - 40, 20, 'Paste apply', bsGame);
+        Button_SelectPasteApply := TKMButton.Create(Panel_Selection, 20, 90, TB_WIDTH - 40, 20, fTextLibrary[TX_MAPED_PASTE_APPLY], bsGame);
         Button_SelectPasteApply.Hint := fTextLibrary[TX_MAPED_COPY_PASTE_HINT];
         Button_SelectPasteApply.OnClick := Terrain_SelectionClick;
-        Button_SelectPasteCancel := TKMButton.Create(Panel_Selection, 20, 120, TB_WIDTH - 40, 20, 'Paste cancel', bsGame);
+        Button_SelectPasteCancel := TKMButton.Create(Panel_Selection, 20, 120, TB_WIDTH - 40, 20, fTextLibrary[TX_MAPED_PASTE_CANCEL], bsGame);
         Button_SelectPasteCancel.Hint := fTextLibrary[TX_MAPED_COPY_PASTE_HINT];
         Button_SelectPasteCancel.OnClick := Terrain_SelectionClick;
-        Button_SelectFlipH := TKMButton.Create(Panel_Selection, 20, 150, TB_WIDTH - 40, 20, 'Flip H', bsGame);
+        Button_SelectFlipH := TKMButton.Create(Panel_Selection, 20, 150, TB_WIDTH - 40, 20, fTextLibrary[TX_MAPED_COPY_PASTE_HFLIP], bsGame);
         Button_SelectFlipH.Hint := fTextLibrary[TX_MAPED_COPY_PASTE_HFLIP_HINT];
         Button_SelectFlipH.OnClick := Terrain_SelectionClick;
         Button_SelectFlipH.Hide; //Not implemented yet
-        Button_SelectFlipV := TKMButton.Create(Panel_Selection, 20, 180, TB_WIDTH - 40, 20, 'Flip V', bsGame);
+        Button_SelectFlipV := TKMButton.Create(Panel_Selection, 20, 180, TB_WIDTH - 40, 20, fTextLibrary[TX_MAPED_COPY_PASTE_VFLIP], bsGame);
         Button_SelectFlipV.Hint := fTextLibrary[TX_MAPED_COPY_PASTE_VFLIP_HINT];
         Button_SelectFlipV.OnClick := Terrain_SelectionClick;
         Button_SelectFlipV.Hide; //Not implemented yet
+        with TKMLabel.Create(Panel_Selection, 8, 190, TB_WIDTH-16, 80, fTextLibrary[TX_MAPED_COPY_SELECT_HINT], fnt_Grey, taLeft) do
+          AutoWrap := True;
 end;
 
 
@@ -1014,6 +1016,12 @@ procedure TKMapEdInterface.Create_Town;
 const
   TabGlyph: array [TKMTownTab] of Word    = (391,   141,   62,        43,    53);
   TabRXX  : array [TKMTownTab] of TRXType = (rxGui, rxGui, rxGuiMain, rxGui, rxGui);
+  TabHint : array [TKMTownTab] of Word = (
+    TX_MAPED_VILLAGE,
+    TX_MAPED_UNITS,
+    TX_MAPED_AI_TITLE,
+    TX_MAPED_AI_DEFENSE_OPTIONS,
+    TX_MAPED_AI_ATTACK);
 var
   I: Integer;
   VT: TKMTownTab;
@@ -1023,6 +1031,7 @@ begin
     for VT := Low(TKMTownTab) to High(TKMTownTab) do
     begin
       Button_Town[VT] := TKMButton.Create(Panel_Town, SMALL_PAD_W * Byte(VT), 0, SMALL_TAB_W, SMALL_TAB_H, TabGlyph[VT], TabRXX[VT], bsGame);
+      Button_Town[VT].Hint := fTextLibrary[TabHint[VT]];
       Button_Town[VT].OnClick := SwitchPage;
     end;
 
@@ -1102,7 +1111,7 @@ begin
       Button_DefencePosAdd.OnClick := Town_DefenceAddClick;
       Button_DefencePosAdd.Hint    := fTextLibrary[TX_MAPED_AI_DEFENSE_HINT];
 
-      TKMLabel.Create(Panel_Defence, 0, 65, TB_WIDTH, 0, 'AI defence', fnt_Outline, taCenter);
+      TKMLabel.Create(Panel_Defence, 0, 65, TB_WIDTH, 0, fTextLibrary[TX_MAPED_AI_DEFENSE_OPTIONS], fnt_Outline, taCenter);
       CheckBox_AutoDefence := TKMCheckBox.Create(Panel_Defence, 0, 90, TB_WIDTH, 20, fTextLibrary[TX_MAPED_AI_DEFENSE_AUTO], fnt_Metal);
       CheckBox_AutoDefence.Hint := fTextLibrary[TX_MAPED_AI_DEFENSE_AUTO_HINT];
       CheckBox_AutoDefence.OnClick := Town_DefenceChange;
@@ -1168,6 +1177,12 @@ procedure TKMapEdInterface.Create_Player;
 const
   TabGlyph: array [TKMPlayerTab] of Word    = (8,         1159,     38,    327,   393);
   TabRXX  : array [TKMPlayerTab] of TRXType = (rxGuiMain, rxHouses, rxGui, rxGui, rxGui);
+  TabHint : array [TKMPlayerTab] of Word = (
+    TX_MAPED_GOALS,
+    TX_MAPED_PLAYER_COLORS,
+    TX_MAPED_BLOCK_HOUSES,
+    TX_MAPED_BLOCK_TRADE,
+    TX_MAPED_FOG);
 var
   I: Integer;
   Col: array [0..255] of TColor4;
@@ -1178,6 +1193,7 @@ begin
     for PT := Low(TKMPlayerTab) to High(TKMPlayerTab) do
     begin
       Button_Player[PT] := TKMButton.Create(Panel_Player, SMALL_PAD_W * Byte(PT), 0, SMALL_TAB_W, SMALL_TAB_H,  TabGlyph[PT], TabRXX[PT], bsGame);
+      Button_Player[PT].Hint := fTextLibrary[TabHint[PT]];
       Button_Player[PT].OnClick := SwitchPage;
     end;
 
@@ -1264,8 +1280,11 @@ var I,K: Integer;
 begin
   Panel_Mission := TKMPanel.Create(Panel_Common, 0, 45, TB_WIDTH, 28);
     Button_Mission[1] := TKMButton.Create(Panel_Mission, SMALL_PAD_W * 0, 0, SMALL_TAB_W, SMALL_TAB_H, 41, rxGui, bsGame);
+    Button_Mission[1].Hint := fTextLibrary[TX_MAPED_MISSION_MODE];
     Button_Mission[2] := TKMButton.Create(Panel_Mission, SMALL_PAD_W * 1, 0, SMALL_TAB_W, SMALL_TAB_H, 386, rxGui, bsGame);
+    Button_Mission[2].Hint := fTextLibrary[TX_MAPED_ALLIANCE];
     Button_Mission[3] := TKMButton.Create(Panel_Mission, SMALL_PAD_W * 2, 0, SMALL_TAB_W, SMALL_TAB_H, 656, rxGui, bsGame);
+    Button_Mission[3].Hint := fTextLibrary[TX_MAPED_PLAYERS_TYPE];
     for I := 1 to 3 do Button_Mission[I].OnClick := SwitchPage;
 
     Panel_Mode := TKMPanel.Create(Panel_Mission,0,28,TB_WIDTH,400);
@@ -1415,7 +1434,7 @@ begin
     TrackBar_Passability.Caption := fTextLibrary[TX_MAPED_VIEW_PASSABILITY];
     TrackBar_Passability.Position := 0; //Disabled by default
     TrackBar_Passability.OnChange := Extra_Change;
-    Label_Passability := TKMLabel.Create(Panel_Extra, 50, 114, 180, 0, 'Off', fnt_Antiqua, taLeft);
+    Label_Passability := TKMLabel.Create(Panel_Extra, 50, 114, 180, 0, fTextLibrary[TX_MAPED_PASSABILITY_OFF], fnt_Antiqua, taLeft);
 
     CheckBox_ShowObjects := TKMCheckBox.Create(Panel_Extra, 250, 70, 180, 20, fTextLibrary[TX_MAPED_VIEW_OBJECTS], fnt_Antiqua);
     CheckBox_ShowObjects.Checked := True; //Enabled by default
@@ -1660,11 +1679,11 @@ begin
 
     //Group order
     //todo: Orders should be placed with a cursor (but keep numeric input as well?)
-    TKMLabel.Create(Panel_Army, 0, 140, TB_WIDTH, 0, 'Group order', fnt_Outline, taLeft);
+    TKMLabel.Create(Panel_Army, 0, 140, TB_WIDTH, 0, fTextLibrary[TX_MAPED_GROUP_ORDER], fnt_Outline, taLeft);
     DropBox_ArmyOrder   := TKMDropList.Create(Panel_Army, 0, 160, TB_WIDTH, 20, fnt_Metal, '', bsGame);
-    DropBox_ArmyOrder.Add('None');
-    DropBox_ArmyOrder.Add('Walk to');
-    DropBox_ArmyOrder.Add('Attack position');
+    DropBox_ArmyOrder.Add(fTextLibrary[TX_MAPED_GROUP_ORDER_NONE]);
+    DropBox_ArmyOrder.Add(fTextLibrary[TX_MAPED_GROUP_ORDER_WALK]);
+    DropBox_ArmyOrder.Add(fTextLibrary[TX_MAPED_GROUP_ORDER_ATTACK]);
     DropBox_ArmyOrder.OnChange := Unit_ArmyChange1;
     TKMLabel.Create(Panel_Army, 0, 185, 'X:', fnt_Grey, taLeft);
     Edit_ArmyOrderX := TKMNumericEdit.Create(Panel_Army, 20, 185, 0, 255);
@@ -1672,7 +1691,7 @@ begin
     TKMLabel.Create(Panel_Army, 0, 205, 'Y:', fnt_Grey, taLeft);
     Edit_ArmyOrderY := TKMNumericEdit.Create(Panel_Army, 20, 205, 0, 255);
     Edit_ArmyOrderY.OnChange := Unit_ArmyChange1;
-    TKMLabel.Create(Panel_Army, 110, 185, 'Direction', fnt_Grey, taLeft);
+    TKMLabel.Create(Panel_Army, 110, 185, fTextLibrary[TX_MAPED_GROUP_ORDER_DIRECTION], fnt_Grey, taLeft);
     Edit_ArmyOrderDir := TKMNumericEdit.Create(Panel_Army, 110, 205, 0, 7);
     Edit_ArmyOrderDir.OnChange := Unit_ArmyChange1;
 end;
@@ -1781,13 +1800,13 @@ begin
 
     Panel_MarkerReveal := TKMPanel.Create(Panel_Marker, 0, 46, TB_WIDTH, 400);
       TrackBar_RevealSize := TKMTrackBar.Create(Panel_MarkerReveal, 0, 0, TB_WIDTH, 1, 64);
-      TrackBar_RevealSize.Caption := 'Radius';
+      TrackBar_RevealSize.Caption := fTextLibrary[TX_MAPED_FOG_RADIUS];
       TrackBar_RevealSize.OnChange := Marker_Change;
       Button_RevealDelete := TKMButton.Create(Panel_MarkerReveal, 0, 55, 25, 25, 340, rxGui, bsGame);
-      Button_RevealDelete.Hint := 'Delete current marker';
+      Button_RevealDelete.Hint := fTextLibrary[TX_MAPED_DELETE_REVEALER_HINT];
       Button_RevealDelete.OnClick := Marker_Change;
-      Button_RevealClose := TKMButton.Create(Panel_MarkerReveal, TB_WIDTH-100, 55, 100, 25, 'Close', bsGame);
-      Button_RevealClose.Hint := 'Return to the markers page';
+      Button_RevealClose := TKMButton.Create(Panel_MarkerReveal, TB_WIDTH-100, 55, 100, 25, fTextLibrary[TX_MAPED_CLOSE], bsGame);
+      Button_RevealClose.Hint := fTextLibrary[TX_MAPED_CLOSE_REVEALER_HINT];
       Button_RevealClose.OnClick := Marker_Change;
 
     Panel_MarkerDefence := TKMPanel.Create(Panel_Marker, 0, 46, TB_WIDTH, 400);
@@ -1798,21 +1817,21 @@ begin
       DropList_DefenceGroup.Add(fTextLibrary[TX_MAPED_AI_ATTACK_TYPE_MOUNTED]);
       DropList_DefenceGroup.OnChange := Marker_Change;
       DropList_DefenceType := TKMDropList.Create(Panel_MarkerDefence, 0, 40, TB_WIDTH, 20, fnt_Game, '', bsGame);
-      DropList_DefenceType.Add('FrontLine');
-      DropList_DefenceType.Add('BackLine');
+      DropList_DefenceType.Add(fTextLibrary[TX_MAPED_AI_DEFENCE_FRONTLINE]);
+      DropList_DefenceType.Add(fTextLibrary[TX_MAPED_AI_DEFENCE_BACKLINE]);
       DropList_DefenceType.OnChange := Marker_Change;
       TrackBar_DefenceRad := TKMTrackBar.Create(Panel_MarkerDefence, 0, 70, TB_WIDTH, 1, 128);
-      TrackBar_DefenceRad.Caption := 'Defence radius';
+      TrackBar_DefenceRad.Caption := fTextLibrary[TX_MAPED_AI_DEFENCE_RADIUS];
       TrackBar_DefenceRad.OnChange := Marker_Change;
       Button_DefenceCCW  := TKMButton.Create(Panel_MarkerDefence, 0, 120, 50, 35, 23, rxGui, bsGame);
       Button_DefenceCCW.OnClick := Marker_Change;
       Button_DefenceCW := TKMButton.Create(Panel_MarkerDefence, 130, 120, 50, 35, 24, rxGui, bsGame);
       Button_DefenceCW.OnClick := Marker_Change;
       Button_DefenceDelete := TKMButton.Create(Panel_MarkerDefence, 0, 165, 25, 25, 340, rxGui, bsGame);
-      Button_DefenceDelete.Hint := 'Delete current marker';
+      Button_DefenceDelete.Hint := fTextLibrary[TX_MAPED_AI_DEFENCE_DELETE_HINT];
       Button_DefenceDelete.OnClick := Marker_Change;
-      Button_DefenceClose := TKMButton.Create(Panel_MarkerDefence, TB_WIDTH-100, 165, 100, 25, 'Close', bsGame);
-      Button_DefenceClose.Hint := 'Return to the defence page';
+      Button_DefenceClose := TKMButton.Create(Panel_MarkerDefence, TB_WIDTH-100, 165, 100, 25, fTextLibrary[TX_MAPED_CLOSE], bsGame);
+      Button_DefenceClose.Hint := fTextLibrary[TX_MAPED_AI_DEFENCE_CLOSE_HINT];
       Button_DefenceClose.OnClick := Marker_Change;
 end;
 
@@ -2669,7 +2688,7 @@ begin
   if TrackBar_Passability.Position <> 0 then
     Label_Passability.Caption := GetEnumName(TypeInfo(TPassability), SHOW_TERRAIN_PASS)
   else
-    Label_Passability.Caption := 'Off';
+    Label_Passability.Caption := fTextLibrary[TX_MAPED_PASSABILITY_OFF];
 
   Layers_UpdateVisibility;
 end;
@@ -2836,7 +2855,7 @@ begin
 
   case aMarker.MarkerType of
     mtDefence:    begin
-                    Label_MarkerType.Caption := 'Defence position';
+                    Label_MarkerType.Caption := fTextLibrary[TX_MAPED_AI_DEFENCE_POSITION];
                     Image_MarkerPic.TexID := 338;
                     DropList_DefenceGroup.ItemIndex := Byte(fPlayers[aMarker.Owner].AI.General.DefencePositions[aMarker.Index].GroupType);
                     DropList_DefenceType.ItemIndex := Byte(fPlayers[aMarker.Owner].AI.General.DefencePositions[aMarker.Index].DefenceType);
@@ -2844,7 +2863,7 @@ begin
                     DisplayPage(Panel_MarkerDefence);
                   end;
     mtRevealFOW:  begin
-                    Label_MarkerType.Caption := 'Reveal fog';
+                    Label_MarkerType.Caption := fTextLibrary[TX_MAPED_FOG];
                     Image_MarkerPic.TexID := 393;
                     TrackBar_RevealSize.Position := fGame.MapEditor.Revealers[aMarker.Owner].Tag[aMarker.Index];
                     DisplayPage(Panel_MarkerReveal);

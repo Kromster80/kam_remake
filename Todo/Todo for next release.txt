@@ -53,7 +53,7 @@ Before RC3:
  +	Check main menu / gameplay interfaces for text that needs to be added to the LIBX (e.g. lobby speed)
  +	Magic water in MapEd
  +	Dynamic scripts to use text markup instead of string from LIBX
-	Add missing texts from MapEd to LIBX (maybe ignore some stuff in temporary interfaces that will be improved next release?)
+ +	Add missing texts from MapEd to LIBX (maybe ignore some stuff in temporary interfaces that will be improved next release?)
 	Send text off to be translated (do this late in the RC testing so translators don't get 3 separate requests for each RC with changed text)
 	Ask translators to shorten up messages that we show in message log (empty house, feed troops, etc)
 	Dynamic script commands in script suggestions (decide which ones we include and ignore)

@@ -1,5 +1,5 @@
 
-MaxID:670
+MaxID:697
 
 0:Sawmill
 1:Iron smithy
@@ -420,7 +420,7 @@ MaxID:670
 416:Alliances
 417:Tactic
 418:Normal
-419:Mode
+419:Mission mode
 420:Jump to location
 421:Center screen on mission start
 422:Center screen
@@ -495,8 +495,8 @@ MaxID:670
 491:AI settings
 492:Houses
 493:Roadworks
-494:Paste vertically flipped terrain
-495:Paste horizontally flipped terrain
+494:Vertically flip selection
+495:Horizontally flip selection
 496:Paste terrain
 497:Copy terrain
 498:Copy/paste
@@ -672,3 +672,30 @@ MaxID:670
 668:Save Map
 669:Delay in minutes before the AI starts training recruits
 670:Recruit delay (mins)
+671:Sets the direction for all tiles in a body of water
+672:Magic water
+673:Copy
+674:Paste
+675:Paste apply
+676:Paste cancel
+677:Flip vertically
+678:Flip horizontally
+679:Drag to select an area on the map
+680:AI defence options
+681:Off
+682:Radius
+683:Delete current revealer
+684:Return to the reveal fog page
+685:Close
+686:Group order
+687:None
+688:Attack position
+689:Walk to
+690:Direction
+691:Back line
+692:Front line
+693:Defence radius
+694:Delete current defence position
+695:Return to the defence page
+696:Defence position
+697:Units

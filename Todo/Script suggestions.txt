@@ -25,8 +25,7 @@ Accepted:
 	Disable "house not occupied" messages (and resource depleted?) for a specific house (needed for tower defence)
 	States.HouseIsComplete
 	Split a specific warrior out of a group
-	Looping option for PlayWAV (useful for ambient sounds at a location) 
-	Use markup to get LIBX strings instead of a function to prevent inconsitencies
+	Looping option for PlayWAV (useful for ambient sounds at a location)
 	XY for "GoTo" button in ShowMsg
 	Disable ally fog sharing for specific players
 
