@@ -161,6 +161,7 @@ begin
       RegisterMethod('function HouseDeliveryBlocked(aHouseID: Integer): Boolean');
       RegisterMethod('function HouseDestroyed(aHouseID: Integer): Boolean');
       RegisterMethod('function HouseHasOccupant(aHouseID: Integer): Boolean');
+      RegisterMethod('function HouseIsComplete(aHouseID: Integer): Boolean');
       RegisterMethod('function HouseOwner(aHouseID: Integer): Integer');
       RegisterMethod('function HousePositionX(aHouseID: Integer): Integer');
       RegisterMethod('function HousePositionY(aHouseID: Integer): Integer');
@@ -171,6 +172,10 @@ begin
       RegisterMethod('function HouseWoodcutterChopOnly(aHouseID: Integer): Boolean');
       RegisterMethod('function HouseWareBlocked(aHouseID, aWareType: Integer): Boolean');
       RegisterMethod('function HouseWeaponsOrdered(aHouseID, aWareType: Integer): Integer');
+      
+      RegisterMethod('function IsFieldAt(aPlayer: ShortInt; X, Y: Word): Boolean');
+      RegisterMethod('function IsWinefieldAt(aPlayer: ShortInt; X, Y: Word): Boolean');
+      RegisterMethod('function IsRoadAt(aPlayer: ShortInt; X, Y: Word): Boolean');
 
       RegisterMethod('function PlayerAllianceCheck(aPlayer1, aPlayer2: Byte): Boolean');
       RegisterMethod('function PlayerColorText(aPlayer: Byte): AnsiString');
@@ -181,6 +186,7 @@ begin
       RegisterMethod('function PlayerGetAllGroups(aPlayer: Byte): TIntegerArray');
       RegisterMethod('function PlayerName(aPlayer: Byte): AnsiString');
       RegisterMethod('function PlayerVictorious(aPlayer: Byte): Boolean');
+      RegisterMethod('function PlayerWareDistribution(aPlayer, aWareType, aHouseType: Byte): Byte');
 
       RegisterMethod('function StatArmyCount(aPlayer: Byte): Integer');
       RegisterMethod('function StatCitizenCount(aPlayer: Byte): Integer');
@@ -208,6 +214,8 @@ begin
 
     with Sender.AddClassN(nil, fActions.ClassName) do
     begin
+      RegisterMethod('procedure AIRecruitLimit(aPlayer, aLimit: Byte)');
+
       RegisterMethod('procedure FogCoverAll(aPlayer: Byte)');
       RegisterMethod('procedure FogCoverCircle(aPlayer, X, Y, aRadius: Word)');
       RegisterMethod('procedure FogRevealAll(aPlayer: Byte)');
@@ -236,6 +244,7 @@ begin
       RegisterMethod('function  HouseBarracksEquip(aHouseID: Integer; aUnitType: Integer; aCount: Integer): Integer');
       RegisterMethod('procedure HouseDeliveryBlock(aHouseID: Integer; aDeliveryBlocked: Boolean)');
       RegisterMethod('procedure HouseDestroy(aHouseID: Integer; aSilent: Boolean)');
+      RegisterMethod('procedure HouseDisableUnoccupiedMessage(aHouseID: Integer; aDisabled: Boolean)');
       RegisterMethod('procedure HouseRepairEnable(aHouseID: Integer; aRepairEnabled: Boolean)');
       RegisterMethod('function  HouseSchoolQueueAdd(aHouseID: Integer; aUnitType: Integer; aCount: Integer): Integer');
       RegisterMethod('procedure HouseSchoolQueueRemove(aHouseID, QueueIndex: Integer)');
@@ -253,10 +262,13 @@ begin
       RegisterMethod('function  PlanAddHouse(aPlayer, aHouseType, X, Y: Word): Boolean');
       RegisterMethod('function  PlanAddRoad(aPlayer, X, Y: Word): Boolean');
       RegisterMethod('function  PlanAddWinefield(aPlayer, X, Y: Word): Boolean');
+      RegisterMethod('function  PlanRemove(aPlayer, X, Y: Word): Boolean');
 
       RegisterMethod('procedure PlayerAddDefaultGoals(aPlayer: Byte; aBuildings: Boolean)');
       RegisterMethod('procedure PlayerAllianceChange(aPlayer1, aPlayer2: Byte; aCompliment, aAllied: Boolean)');
       RegisterMethod('procedure PlayerDefeat(aPlayer: Word)');
+      RegisterMethod('procedure PlayerShareFog(aPlayer1, aPlayer2: Word; aShare: Boolean)');
+      RegisterMethod('procedure PlayerWareDistribution(aPlayer, aWareType, aHouseType, aAmount: Byte)');
       RegisterMethod('procedure PlayerWin(const aVictors: array of Integer; aTeamVictory: Boolean)');
 
       RegisterMethod('procedure PlayWAV(aPlayer: ShortInt; const aFileName: AnsiString; Volume: Single)');
@@ -265,6 +277,8 @@ begin
       RegisterMethod('procedure SetTradeAllowed(aPlayer, aResType: Word; aAllowed: Boolean)');
       RegisterMethod('procedure ShowMsg(aPlayer: ShortInt; aText: AnsiString)');
       RegisterMethod('procedure ShowMsgFormatted(aPlayer: Shortint; aText: AnsiString; Params: array of const)');
+      RegisterMethod('procedure ShowMsgGoto(aPlayer: Shortint; aX, aY: Word; aText: AnsiString)');
+      RegisterMethod('procedure ShowMsgGotoFormatted(aPlayer: Shortint; aX, aY: Word; aText: AnsiString; Params: array of const)');
 
       RegisterMethod('function  UnitDirectionSet(aUnitID, aDirection: Integer): Boolean');
       RegisterMethod('procedure UnitHungerSet(aUnitID, aHungerLevel: Integer)');
@@ -422,6 +436,7 @@ begin
       RegisterMethod(@TKMScriptStates.HouseDeliveryBlocked, 'HOUSEDELIVERYBLOCKED');
       RegisterMethod(@TKMScriptStates.HouseDestroyed,       'HOUSEDESTROYED');
       RegisterMethod(@TKMScriptStates.HouseHasOccupant,     'HOUSEHASOCCUPANT');
+      RegisterMethod(@TKMScriptStates.HouseIsComplete,      'HOUSEISCOMPLETE');
       RegisterMethod(@TKMScriptStates.HouseOwner,           'HOUSEOWNER');
       RegisterMethod(@TKMScriptStates.HousePositionX,       'HOUSEPOSITIONX');
       RegisterMethod(@TKMScriptStates.HousePositionY,       'HOUSEPOSITIONY');
@@ -433,6 +448,10 @@ begin
       RegisterMethod(@TKMScriptStates.HouseSchoolQueue,     'HOUSESCHOOLQUEUE');
       RegisterMethod(@TKMScriptStates.HouseWeaponsOrdered,  'HOUSEWEAPONSORDERED');
 
+      RegisterMethod(@TKMScriptStates.IsFieldAt,            'ISFIELDAT');
+      RegisterMethod(@TKMScriptStates.IsWinefieldAt,        'ISWINEFIELDAT');
+      RegisterMethod(@TKMScriptStates.IsRoadAt,             'ISROADAT');
+
       RegisterMethod(@TKMScriptStates.PlayerAllianceCheck,  'PLAYERALLIANCECHECK');
       RegisterMethod(@TKMScriptStates.PlayerColorText,      'PLAYERCOLORTEXT');
       RegisterMethod(@TKMScriptStates.PlayerDefeated,       'PLAYERDEFEATED');
@@ -442,6 +461,7 @@ begin
       RegisterMethod(@TKMScriptStates.PlayerGetAllGroups,   'PLAYERGETALLGROUPS');
       RegisterMethod(@TKMScriptStates.PlayerName,           'PLAYERNAME');
       RegisterMethod(@TKMScriptStates.PlayerVictorious,     'PLAYERVICTORIOUS');
+      RegisterMethod(@TKMScriptStates.PlayerWareDistribution,'PLAYERWAREDISTRIBUTION');
 
       RegisterMethod(@TKMScriptStates.StatArmyCount,              'STATARMYCOUNT');
       RegisterMethod(@TKMScriptStates.StatCitizenCount,           'STATCITIZENCOUNT');
@@ -469,6 +489,8 @@ begin
 
     with ClassImp.Add(TKMScriptActions) do
     begin
+      RegisterMethod(@TKMScriptActions.AIRecruitLimit,    'AIRECRUITLIMIT');
+
       RegisterMethod(@TKMScriptActions.FogRevealCircle,   'FOGREVEALCIRCLE');
       RegisterMethod(@TKMScriptActions.FogCoverCircle,    'FOGCOVERCIRCLE');
       RegisterMethod(@TKMScriptActions.FogRevealAll,      'FOGREVEALALL');
@@ -496,6 +518,7 @@ begin
       RegisterMethod(@TKMScriptActions.HouseAddWaresTo,         'HOUSEADDWARESTO');
       RegisterMethod(@TKMScriptActions.HouseBarracksEquip,      'HOUSEBARRACKSEQUIP');
       RegisterMethod(@TKMScriptActions.HouseDeliveryBlock,      'HOUSEDELIVERYBLOCK');
+      RegisterMethod(@TKMScriptActions.HouseDisableUnoccupiedMessage, 'HOUSEDISABLEUNOCCUPIEDMESSAGE');
       RegisterMethod(@TKMScriptActions.HouseDestroy,            'HOUSEDESTROY');
       RegisterMethod(@TKMScriptActions.HouseRepairEnable,       'HOUSEREPAIRENABLE');
       RegisterMethod(@TKMScriptActions.HouseSchoolQueueAdd,     'HOUSESCHOOLQUEUEADD');
@@ -514,17 +537,23 @@ begin
       RegisterMethod(@TKMScriptActions.PlanAddHouse,      'PLANADDHOUSE');
       RegisterMethod(@TKMScriptActions.PlanAddRoad,       'PLANADDROAD');
       RegisterMethod(@TKMScriptActions.PlanAddWinefield,  'PLANADDWINEFIELD');
+      RegisterMethod(@TKMScriptActions.PlanRemove,        'PLANREMOVE');
 
-      RegisterMethod(@TKMScriptActions.PlayerDefeat,          'PLAYERDEFEAT');
-      RegisterMethod(@TKMScriptActions.PlayerWin,             'PLAYERWIN');
       RegisterMethod(@TKMScriptActions.PlayerAllianceChange,  'PLAYERALLIANCECHANGE');
       RegisterMethod(@TKMScriptActions.PlayerAddDefaultGoals, 'PLAYERADDDEFAULTGOALS');
+      RegisterMethod(@TKMScriptActions.PlayerDefeat,          'PLAYERDEFEAT');
+      RegisterMethod(@TKMScriptActions.PlayerShareFog,        'PLAYERSHAREFOG');
+      RegisterMethod(@TKMScriptActions.PlayerWareDistribution,'PLAYERWAREDISTRIBUTION');
+      RegisterMethod(@TKMScriptActions.PlayerWin,             'PLAYERWIN');
 
-      RegisterMethod(@TKMScriptActions.PlayWAV, 'PLAYWAV');
+      RegisterMethod(@TKMScriptActions.PlayWAV,           'PLAYWAV');
       RegisterMethod(@TKMScriptActions.PlayWAVAtLocation, 'PLAYWAVATLOCATION');
 
       RegisterMethod(@TKMScriptActions.SetTradeAllowed, 'SETTRADEALLOWED');
       RegisterMethod(@TKMScriptActions.ShowMsg,         'SHOWMSG');
+      RegisterMethod(@TKMScriptActions.ShowMsgFormatted,'SHOWMSGFORMATTED');
+      RegisterMethod(@TKMScriptActions.ShowMsgGoto,     'SHOWMSGGOTO');
+      RegisterMethod(@TKMScriptActions.ShowMsgGotoFormatted,'SHOWMSGGOTOFORMATTED');
 
       RegisterMethod(@TKMScriptActions.UnitDirectionSet,  'UNITDIRECTIONSET');
       RegisterMethod(@TKMScriptActions.UnitHungerSet,     'UNITHUNGERSET');
@@ -539,7 +568,7 @@ begin
     begin
       { For some reason the script could not be loaded. This is usually the case when a
         library that has been used at compile time isn't registered at runtime. }
-      fErrorString := fErrorString + 'Uknown error in loading bytecode to Exec|';
+      fErrorString := fErrorString + 'Unknown error in loading bytecode to Exec|';
       Exit;
     end;
 

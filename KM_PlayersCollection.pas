@@ -449,14 +449,13 @@ end;
 
 //Reveal portion of terrain for said player and his allies (if they share vision)
 //In singleplayer KaM sometimes you should not see your allies till some time
-//todo: Add ShareVision: array [0.. MAX_PLAYERS-1] of Boolean alongside Alliances array
 procedure TKMPlayersCollection.RevealForTeam(aPlayer: TPlayerIndex; Pos: TKMPoint; Radius, Amount: Word);
 var I: Integer;
 begin
   fPlayerList[aPlayer].FogOfWar.RevealCircle(Pos,Radius,Amount);
 
   for I := 0 to fCount - 1 do
-  if (I <> aPlayer) and (fPlayerList[aPlayer].Alliances[I] = at_Ally) then
+  if (I <> aPlayer) and (fPlayerList[aPlayer].Alliances[I] = at_Ally) and fPlayerList[aPlayer].ShareFOW[I] then
     fPlayerList[I].FogOfWar.RevealCircle(Pos, Radius, Amount);
 end;
 
@@ -467,7 +466,7 @@ var I,K: Integer;
 begin
   for I := 0 to fCount - 1 do
   for K := 0 to fCount - 1 do
-  if (I <> K) and (fPlayerList[I].Alliances[K] = at_Ally) then
+  if (I <> K) and (fPlayerList[I].Alliances[K] = at_Ally) and fPlayerList[I].ShareFOW[K] then
     fPlayerList[K].FogOfWar.SyncFOW(fPlayerList[I].FogOfWar);
 end;
 

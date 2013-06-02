@@ -6,28 +6,33 @@ Accepted:
  +	States.GetAllHouses
  +	States.GetAllGroups
  +	States.GroupColumnCount
+ +	States.HouseIsComplete
+ +	States.IsFieldAt
+ +	States.IsWinefieldAt
+ +	States.IsRoadAt
+ +	States.PlayerWareDistribution
  +	Actions.HouseWeaponsOrderSet
  +	Actions.HouseSchoolQueueRemove
  +	Actions.GiveWeapons
  +	Actions.PlayerAddDefaultGoals
  +	Actions.PlayWAV
  +	Actions.PlayWAVAtLocation
+ +	Actions.ShowMsgGoto
+ +	Actions.ShowMsgGotoFormatted
+ +	Actions.PlayerWareDistribution
+ +	Actions.PlayerShareFog
+ +	Actions.PlanRemove
+ +	Actions.HouseDisableUnoccupiedMessage
+ +	Actions.AIRecruitLimit
  +	Added parameter "Silent" to Actions.HouseDestroy
 	Closest house/unit/group to given XY of certain player and type
 	Change house/unit/group owner
-	Get/set ware distribution
-	AI recruits in barracks (lets you disable/enable AI soldier equipping)
 	AI equip rate
 	Allow to query count of placed house plans
-	PlanCancel (road/field/house)
 	States.HouseUnderAttack or OnHouseUnderAttack or similar (needed for Tower Defence)
 	DisplayText(text, player_id, timeout) to show announcements that will be gone after timeout (for TD and etc.)
-	Disable "house not occupied" messages (and resource depleted?) for a specific house (needed for tower defence)
-	States.HouseIsComplete
 	Split a specific warrior out of a group
 	Looping option for PlayWAV (useful for ambient sounds at a location)
-	XY for "GoTo" button in ShowMsg
-	Disable ally fog sharing for specific players
 
 
 Proposed:
@@ -39,7 +44,6 @@ Proposed:
 	Block player from moving the viewport or selecting anything (cutscene mode)
 	Select unit/house/group in the player's UI
 	Removing wares from houses (only if serfs haven't reserved them)
-	States.Road/field/winefield At(x,y)
 	DelayedExecution(delay, function, params)
 	Forbiden areas where players can't move their troops
 	GroupKillAll, GroupSetHunder (both can be implemented in script fairly easily, do we still provide them?)

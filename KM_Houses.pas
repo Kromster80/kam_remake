@@ -62,6 +62,7 @@ type
     RemoveRoadWhenDemolish: Boolean;
     fPointerCount: Cardinal;
     fTimeSinceUnoccupiedReminder: Integer;
+    fDisableUnoccupiedMessage: Boolean;
 
     procedure CheckOnSnow;
 
@@ -109,6 +110,7 @@ type
     property WareDelivery:boolean read fWareDelivery write fWareDelivery;
     property GetHasOwner:boolean read fHasOwner write fHasOwner;
     property Owner: TPlayerIndex read fOwner;
+    property DisableUnoccupiedMessage: Boolean read fDisableUnoccupiedMessage write fDisableUnoccupiedMessage;
     function GetHealth:word;
     function GetBuildWoodDelivered: Byte;
     function GetBuildStoneDelivered: Byte;
@@ -338,6 +340,7 @@ begin
   LoadStream.Read(RemoveRoadWhenDemolish);
   LoadStream.Read(fPointerCount);
   LoadStream.Read(fTimeSinceUnoccupiedReminder);
+  LoadStream.Read(fDisableUnoccupiedMessage);
   LoadStream.Read(fID);
   LoadStream.Read(HasAct);
   if HasAct then
@@ -1145,6 +1148,7 @@ begin
   SaveStream.Write(RemoveRoadWhenDemolish);
   SaveStream.Write(fPointerCount);
   SaveStream.Write(fTimeSinceUnoccupiedReminder);
+  SaveStream.Write(fDisableUnoccupiedMessage);
   SaveStream.Write(fID);
   HasAct := fCurrentAction <> nil;
   SaveStream.Write(HasAct);
@@ -1226,7 +1230,8 @@ begin
   if not IsComplete then Exit; //Don't update unbuilt houses
 
   //Show unoccupied message if needed and house belongs to human player and can have owner at all and not a barracks
-  if not fHasOwner and (fResource.HouseDat[fHouseType].OwnerType <> ut_None) and (fHouseType <> ht_Barracks) then
+  if not fDisableUnoccupiedMessage and not fHasOwner
+  and (fResource.HouseDat[fHouseType].OwnerType <> ut_None) and (fHouseType <> ht_Barracks) then
   begin
     Dec(fTimeSinceUnoccupiedReminder);
     if fTimeSinceUnoccupiedReminder = 0 then

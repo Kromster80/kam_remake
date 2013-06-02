@@ -53,11 +53,14 @@ type
     fFlagColor: Cardinal;
     fCenterScreen: TKMPoint;
     fAlliances: array [0..MAX_PLAYERS-1] of TAllianceType;
+    fShareFOW: array [0..MAX_PLAYERS-1] of Boolean;
 
     function GetColorIndex: Byte;
 
     function  GetAlliances(aIndex: Integer): TAllianceType;
     procedure SetAlliances(aIndex: Integer; aValue: TAllianceType);
+    function  GetShareFOW(aIndex: Integer): Boolean;
+    procedure SetShareFOW(aIndex: Integer; aValue: Boolean);
     procedure GroupDied(aGroup: TKMUnitGroup);
     procedure HouseDestroyed(aHouse: TKMHouse; aFrom: TPlayerIndex);
     procedure UnitDied(aUnit: TKMUnit; aFrom: TPlayerIndex);
@@ -87,6 +90,7 @@ type
     property FlagColor: Cardinal read fFlagColor write fFlagColor;
     property FlagColorIndex: Byte read GetColorIndex;
     property Alliances[aIndex: Integer]: TAllianceType read GetAlliances write SetAlliances;
+    property ShareFOW[aIndex: Integer]: Boolean read GetShareFOW write SetShareFOW;
     property CenterScreen: TKMPoint read fCenterScreen write fCenterScreen;
 
     procedure AfterMissionInit(aFlattenRoads: Boolean);
@@ -243,7 +247,10 @@ begin
   fPlayerName   := '';
   fPlayerType   := pt_Computer;
   for I := 0 to MAX_PLAYERS - 1 do
+  begin
     fAlliances[I] := at_Enemy; //Everyone is enemy by default
+    fShareFOW[I] := True; //Share FOW between allies by default (it only affects allied players)
+  end;
 
   fFlagColor := DefaultTeamColors[fPlayerIndex]; //Init with default color, later replaced by Script
 end;
@@ -922,6 +929,18 @@ begin
 end;
 
 
+function  TKMPlayer.GetShareFOW(aIndex: Integer): Boolean;
+begin
+  Result := fShareFOW[aIndex];
+end;
+
+
+procedure TKMPlayer.SetShareFOW(aIndex: Integer; aValue: Boolean);
+begin
+  fShareFOW[aIndex] := aValue;
+end;
+
+
 { See if player owns any Fields/Roads/Walls (has any assets on Terrain)
   Queried by MapEditor>SaveDAT;
   Might also be used to show Players strength (or builder/warrior balance) in Tavern
@@ -1076,6 +1095,7 @@ begin
   SaveStream.Write(fPlayerName);
   SaveStream.Write(fPlayerType, SizeOf(fPlayerType));
   SaveStream.Write(fAlliances, SizeOf(fAlliances));
+  SaveStream.Write(fShareFOW, SizeOf(fShareFOW));
   SaveStream.Write(fCenterScreen);
   SaveStream.Write(fFlagColor);
 end;
@@ -1101,6 +1121,7 @@ begin
   LoadStream.Read(s); fPlayerName := s;
   LoadStream.Read(fPlayerType, SizeOf(fPlayerType));
   LoadStream.Read(fAlliances, SizeOf(fAlliances));
+  LoadStream.Read(fShareFOW, SizeOf(fShareFOW));
   LoadStream.Read(fCenterScreen);
   LoadStream.Read(fFlagColor);
 end;

@@ -43,6 +43,7 @@ type
     function HouseDeliveryBlocked(aHouseID: Integer): Boolean;
     function HouseDestroyed(aHouseID: Integer): Boolean;
     function HouseHasOccupant(aHouseID: Integer): Boolean;
+    function HouseIsComplete(aHouseID: Integer): Boolean;
     function HouseOwner(aHouseID: Integer): Integer;
     function HousePositionX(aHouseID: Integer): Integer;
     function HousePositionY(aHouseID: Integer): Integer;
@@ -54,6 +55,10 @@ type
     function HouseWeaponsOrdered(aHouseID, aWareType: Integer): Integer;
     function HouseWoodcutterChopOnly(aHouseID: Integer): Boolean;
 
+    function IsFieldAt(aPlayer: ShortInt; X, Y: Word): Boolean;
+    function IsWinefieldAt(aPlayer: ShortInt; X, Y: Word): Boolean;
+    function IsRoadAt(aPlayer: ShortInt; X, Y: Word): Boolean;
+
     function PlayerAllianceCheck(aPlayer1, aPlayer2: Byte): Boolean;
     function PlayerDefeated(aPlayer: Byte): Boolean;
     function PlayerEnabled(aPlayer: Byte): Boolean;
@@ -63,6 +68,7 @@ type
     function PlayerName(aPlayer: Byte): AnsiString;
     function PlayerColorText(aPlayer: Byte): AnsiString;
     function PlayerVictorious(aPlayer: Byte): Boolean;
+    function PlayerWareDistribution(aPlayer, aWareType, aHouseType: Byte): Byte;
 
     function StatArmyCount(aPlayer: Byte): Integer;
     function StatCitizenCount(aPlayer: Byte): Integer;
@@ -97,6 +103,8 @@ type
     SFXPath: string;  //Relative to EXE (safe to use in Save, cos it is the same for all MP players)
     constructor Create(aIDCache: TKMScriptingIdCache);
 
+    procedure AIRecruitLimit(aPlayer, aLimit: Byte);
+
     function  GiveAnimal(aType, X,Y: Word): Integer;
     function  GiveGroup(aPlayer, aType, X,Y, aDir, aCount, aColumns: Word): Integer;
     function  GiveHouse(aPlayer, aHouseType, X,Y: Integer): Integer;
@@ -125,6 +133,7 @@ type
     function  HouseBarracksEquip(aHouseID: Integer; aUnitType: Integer; aCount: Integer): Integer;
     procedure HouseDestroy(aHouseID: Integer; aSilent: Boolean);
     procedure HouseDeliveryBlock(aHouseID: Integer; aDeliveryBlocked: Boolean);
+    procedure HouseDisableUnoccupiedMessage(aHouseID: Integer; aDisabled: Boolean);
     procedure HouseRepairEnable(aHouseID: Integer; aRepairEnabled: Boolean);
     function  HouseSchoolQueueAdd(aHouseID: Integer; aUnitType: Integer; aCount: Integer): Integer;
     procedure HouseSchoolQueueRemove(aHouseID, QueueIndex: Integer);
@@ -142,10 +151,13 @@ type
     function PlanAddHouse(aPlayer, aHouseType, X, Y: Word): Boolean;
     function PlanAddRoad(aPlayer, X, Y: Word): Boolean;
     function PlanAddWinefield(aPlayer, X, Y: Word): Boolean;
+    function PlanRemove(aPlayer, X, Y: Word): Boolean;
 
     procedure PlayerAllianceChange(aPlayer1, aPlayer2: Byte; aCompliment, aAllied: Boolean);
     procedure PlayerAddDefaultGoals(aPlayer: Byte; aBuildings: Boolean);
     procedure PlayerDefeat(aPlayer: Word);
+    procedure PlayerShareFog(aPlayer1, aPlayer2: Word; aShare: Boolean);
+    procedure PlayerWareDistribution(aPlayer, aWareType, aHouseType, aAmount: Byte);
     procedure PlayerWin(const aVictors: array of Integer; aTeamVictory: Boolean);
     
     procedure PlayWAV(aPlayer: ShortInt; const aFileName: AnsiString; Volume: Single);
@@ -154,6 +166,8 @@ type
     procedure SetTradeAllowed(aPlayer, aResType: Word; aAllowed: Boolean);
     procedure ShowMsg(aPlayer: Shortint; aText: AnsiString);
     procedure ShowMsgFormatted(aPlayer: Shortint; aText: AnsiString; Params: array of const);
+    procedure ShowMsgGoto(aPlayer: Shortint; aX, aY: Word; aText: AnsiString);
+    procedure ShowMsgGotoFormatted(aPlayer: Shortint; aX, aY: Word; aText: AnsiString; Params: array of const);
 
     function  UnitDirectionSet(aUnitID, aDirection: Integer): Boolean;
     procedure UnitHungerSet(aUnitID, aHungerLevel: Integer);
@@ -285,6 +299,22 @@ begin
   begin
     Result := False;
     LogError('States.PlayerVictorious', [aPlayer]);
+  end;
+end;
+
+
+function TKMScriptStates.PlayerWareDistribution(aPlayer, aWareType, aHouseType: Byte): Byte;
+var
+  Res: TWareType;
+begin
+  Res := WareIndexToType[aWareType];
+  if InRange(aPlayer, 0, fPlayers.Count - 1) and (Res in [WARE_MIN..WARE_MAX])
+  and (aHouseType in [Low(HouseIndexToType) .. High(HouseIndexToType)]) then
+    Result := fPlayers[aPlayer].Stats.Ratio[Res, HouseIndexToType[aHouseType]]
+  else
+  begin
+    Result := 0;
+    LogError('States.PlayerWareDistribution', [aPlayer, aWareType, aHouseType]);
   end;
 end;
 
@@ -634,6 +664,39 @@ begin
 end;
 
 
+function TKMScriptStates.IsFieldAt(aPlayer: ShortInt; X, Y: Word): Boolean;
+begin
+  Result := False;
+  if InRange(aPlayer, 0, fPlayers.Count - 1) and gTerrain.TileInMapCoords(X, Y) then
+    Result := gTerrain.TileIsWineField(KMPoint(X,Y))
+              and ((aPlayer = -1) or (gTerrain.Land[Y, X].TileOwner = aPlayer))
+  else
+    LogError('States.IsFieldAt', [aPlayer, X, Y]);
+end;
+
+
+function TKMScriptStates.IsWinefieldAt(aPlayer: ShortInt; X, Y: Word): Boolean;
+begin
+  Result := False;
+  if InRange(aPlayer, 0, fPlayers.Count - 1) and gTerrain.TileInMapCoords(X, Y) then
+    Result := gTerrain.TileIsWineField(KMPoint(X,Y))
+              and ((aPlayer = -1) or (gTerrain.Land[Y, X].TileOwner = aPlayer))
+  else
+    LogError('States.IsWinefieldAt', [aPlayer, X, Y]);
+end;
+
+
+function TKMScriptStates.IsRoadAt(aPlayer: ShortInt; X, Y: Word): Boolean;
+begin
+  Result := False;
+  if InRange(aPlayer, 0, fPlayers.Count - 1) and gTerrain.TileInMapCoords(X, Y) then
+    Result := (gTerrain.Land[Y,X].TileOverlay = to_Road)
+              and ((aPlayer = -1) or (gTerrain.Land[Y, X].TileOwner = aPlayer))
+  else
+    LogError('States.IsRoadAt', [aPlayer, X, Y]);
+end;
+
+
 function TKMScriptStates.HouseWareBlocked(aHouseID, aWareType: Integer): Boolean;
 var
   H: TKMHouse;
@@ -729,6 +792,21 @@ begin
   end
   else
     LogError('States.HouseHasOccupant', [aHouseID]);
+end;
+
+
+function TKMScriptStates.HouseIsComplete(aHouseID: Integer): Boolean;
+var H: TKMHouse;
+begin
+  Result := False;
+  if aHouseID > 0 then
+  begin
+    H := fIDCache.GetHouse(aHouseID);
+    if H <> nil then
+      Result := H.IsComplete;
+  end
+  else
+    LogError('States.HouseIsComplete', [aHouseID]);
 end;
 
 
@@ -1068,6 +1146,16 @@ begin
 end;
 
 
+procedure TKMScriptActions.PlayerShareFog(aPlayer1, aPlayer2: Word; aShare: Boolean);
+begin
+  if  InRange(aPlayer1, 0, fPlayers.Count - 1)
+  and InRange(aPlayer2, 0, fPlayers.Count - 1) then
+    fPlayers[aPlayer1].ShareFOW[aPlayer2] := aShare
+  else
+    LogError('Actions.PlayerShareFog', [aPlayer1, aPlayer2, Byte(aShare)]);
+end;
+
+
 //Sets all player IDs in aVictors to victorious, and all their team members if aTeamVictory is true.
 //All other players are set to defeated.
 procedure TKMScriptActions.PlayerWin(const aVictors: array of Integer; aTeamVictory: Boolean);
@@ -1095,6 +1183,19 @@ begin
   for I := 0 to fPlayers.Count - 1 do
     if fPlayers[I].Enabled and (fPlayers[I].AI.WonOrLost = wol_None) then
       fPlayers[I].AI.Defeat;
+end;
+
+
+procedure TKMScriptActions.PlayerWareDistribution(aPlayer, aWareType, aHouseType, aAmount: Byte);
+var Res: TWareType;
+begin
+  Res := WareIndexToType[aWareType];
+  if InRange(aPlayer, 0, fPlayers.Count - 1) and (Res in [wt_Steel, wt_Coal, wt_Wood, wt_Corn])
+  and (aHouseType in [Low(HouseIndexToType) .. High(HouseIndexToType)])
+  and InRange(aAmount, 0, 5) then
+    fPlayers[aPlayer].Stats.Ratio[Res, HouseIndexToType[aHouseType]] := aAmount
+  else
+    LogError('Actions.PlayerWareDistribution', [aPlayer, aWareType, aHouseType, aAmount]);
 end;
 
 
@@ -1233,6 +1334,15 @@ begin
 end;
 
 
+procedure TKMScriptActions.AIRecruitLimit(aPlayer, aLimit: Byte);
+begin
+  if InRange(aPlayer, 0, fPlayers.Count - 1) then
+    fPlayers[aPlayer].AI.Setup.RecruitCount := aLimit
+  else
+    LogError('Actions.AIRecruitLimit', [aPlayer, aLimit]);
+end;
+
+
 function TKMScriptActions.GiveAnimal(aType, X, Y: Word): Integer;
 var
   U: TKMUnit;
@@ -1356,6 +1466,36 @@ begin
 end;
 
 
+procedure TKMScriptActions.ShowMsgGoto(aPlayer: Shortint; aX, aY: Word; aText: AnsiString);
+begin
+  if gTerrain.TileInMapCoords(aX, aY) then
+  begin
+    if (aPlayer = MySpectator.PlayerIndex) or (aPlayer = -1) then
+      fGame.ShowMessage(mkText, fTextLibrary.ParseTextMarkup(aText), KMPoint(aX,aY));
+  end
+  else
+    LogError('Actions.ShowMsgGoto', [aPlayer, aX, aY]);
+end;
+
+
+procedure TKMScriptActions.ShowMsgGotoFormatted(aPlayer: Shortint; aX, aY: Word; aText: AnsiString; Params: array of const);
+var S: AnsiString;
+begin
+  if gTerrain.TileInMapCoords(aX, aY) then
+  begin
+    if (aPlayer = MySpectator.PlayerIndex) or (aPlayer = -1) then
+    begin
+      //We must parse for text markup before AND after running Format, since individual format
+      //parameters can contain strings that need parsing (see Annie's Garden for an example)
+      S := fTextLibrary.ParseTextMarkup(Format(fTextLibrary.ParseTextMarkup(aText), Params));
+      fGame.ShowMessage(mkText, S, KMPoint(aX,aY));
+    end;
+  end
+  else
+    LogError('Actions.ShowMsgGotoFormatted', [aPlayer, aX, aY]);
+end;
+
+
 procedure TKMScriptActions.HouseUnlock(aPlayer, aHouseType: Word);
 begin
   //Verify all input parameters
@@ -1466,6 +1606,20 @@ begin
   end
   else
     LogError('Actions.HouseDeliveryBlock', [aHouseID, Byte(aDeliveryBlocked)]);
+end;
+
+
+procedure TKMScriptActions.HouseDisableUnoccupiedMessage(aHouseID: Integer; aDisabled: Boolean);
+var H: TKMHouse;
+begin
+  if aHouseID > 0 then
+  begin
+    H := fIDCache.GetHouse(aHouseID);
+    if (H <> nil) then
+      H.DisableUnoccupiedMessage := aDisabled;
+  end
+  else
+    LogError('Actions.HouseDisableUnoccupiedMessage', [aHouseID, Byte(aDisabled)]);
 end;
 
 
@@ -1664,6 +1818,33 @@ begin
   end
   else
     LogError('Actions.PlanAddWinefield', [aPlayer, X, Y]);
+end;
+
+
+function TKMScriptActions.PlanRemove(aPlayer, X, Y: Word): Boolean;
+var
+  HT: THouseType;
+begin
+  Result := False;
+  //Verify all input parameters
+  if InRange(aPlayer, 0, fPlayers.Count - 1)
+  and gTerrain.TileInMapCoords(X,Y) then
+  begin
+    HT := fPlayers[aPlayer].BuildList.HousePlanList.GetPlan(KMPoint(X, Y));
+    if HT <> ht_None then
+    begin
+      fPlayers[aPlayer].BuildList.HousePlanList.RemPlan(KMPoint(X, Y));
+      fPlayers[aPlayer].Stats.HousePlanRemoved(HT);
+      Result := True;
+    end;
+    if fPlayers[aPlayer].BuildList.FieldworksList.HasField(KMPoint(X, Y)) <> ft_None then
+    begin
+      fPlayers[aPlayer].BuildList.FieldworksList.RemFieldPlan(KMPoint(X, Y));
+      Result := True;
+    end;
+  end
+  else
+    LogError('Actions.PlanRemove', [aPlayer, X, Y]);
 end;
 
 
