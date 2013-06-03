@@ -735,7 +735,7 @@ begin
           Inc(Replaced);
           Txt := StuffString(Txt, CurrLoc, Length('States.Text('), '''<$');
           CurrEnd := PosEx(')', Txt, CurrLoc);
-          Txt := StuffString(Txt, CurrEnd, Length('>'''), '>''');
+          Txt := StuffString(Txt, CurrEnd, Length(')'), '>''');
 
           CurrLoc := PosEx('States.Text(', Txt, CurrLoc);
         end;
