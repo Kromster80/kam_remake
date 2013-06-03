@@ -439,16 +439,16 @@ var
   I,K:Integer;
   Rot: Byte;
 begin
-  SetLength(FilledTiles, gTerrain.MapY+1, gTerrain.MapX+1);
-
   if not (gTerrain.Land[aLoc.Y,aLoc.X].Terrain in [192, 196]) then
     Exit;
+
+  SetLength(FilledTiles, gTerrain.MapY+1, gTerrain.MapX+1);
 
   MagicFillArea(aLoc.X,aLoc.Y);
 
   Rot := (gTerrain.Land[aLoc.Y,aLoc.X].Rotation+1) mod 4;
-  for I:=1 to gTerrain.MapX do
-    for K:=1 to gTerrain.MapY do
+  for I:=1 to gTerrain.MapY do
+    for K:=1 to gTerrain.MapX do
       case FilledTiles[I,K] of
         1:begin
             gTerrain.Land[I,K].Rotation := Rot;

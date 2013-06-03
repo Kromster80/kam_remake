@@ -3,7 +3,7 @@ Since 3rd RC:
 =============
 
 Bugs:
-
+ +	Crash when using magic water tool on non-square maps
 
 After RC3:
 	Map updates
