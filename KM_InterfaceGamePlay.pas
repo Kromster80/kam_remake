@@ -1953,12 +1953,13 @@ begin
 
   Label_MessageText.Caption := fMessageList.MessagesStack[ShownMessage].Text;
   Button_MessageGoTo.Visible := not KMSamePoint(fMessageList.MessagesStack[ShownMessage].Loc, KMPoint(0,0));
-  Button_MessageDelete.Top := IfThen(Button_MessageGoTo.Visible, 104, 74);
 
   Allies_Close(nil);
   Chat_Close(nil); //Removes focus from Edit_Text
   MessageLog_Close(nil);
   Panel_Message.Show;
+  //Must update top AFTER showing panel, otherwise Button_MessageGoTo.Visible will always return false
+  Button_MessageDelete.Top := IfThen(Button_MessageGoTo.Visible, 104, 74);
   fSoundLib.Play(sfx_MessageOpen); //Play parchment sound when they open the message
 end;
 

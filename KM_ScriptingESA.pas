@@ -667,7 +667,7 @@ end;
 function TKMScriptStates.IsFieldAt(aPlayer: ShortInt; X, Y: Word): Boolean;
 begin
   Result := False;
-  if InRange(aPlayer, 0, fPlayers.Count - 1) and gTerrain.TileInMapCoords(X, Y) then
+  if InRange(aPlayer, -1, fPlayers.Count - 1) and gTerrain.TileInMapCoords(X, Y) then
     Result := gTerrain.TileIsWineField(KMPoint(X,Y))
               and ((aPlayer = -1) or (gTerrain.Land[Y, X].TileOwner = aPlayer))
   else
@@ -678,7 +678,7 @@ end;
 function TKMScriptStates.IsWinefieldAt(aPlayer: ShortInt; X, Y: Word): Boolean;
 begin
   Result := False;
-  if InRange(aPlayer, 0, fPlayers.Count - 1) and gTerrain.TileInMapCoords(X, Y) then
+  if InRange(aPlayer, -1, fPlayers.Count - 1) and gTerrain.TileInMapCoords(X, Y) then
     Result := gTerrain.TileIsWineField(KMPoint(X,Y))
               and ((aPlayer = -1) or (gTerrain.Land[Y, X].TileOwner = aPlayer))
   else
@@ -689,7 +689,7 @@ end;
 function TKMScriptStates.IsRoadAt(aPlayer: ShortInt; X, Y: Word): Boolean;
 begin
   Result := False;
-  if InRange(aPlayer, 0, fPlayers.Count - 1) and gTerrain.TileInMapCoords(X, Y) then
+  if InRange(aPlayer, -1, fPlayers.Count - 1) and gTerrain.TileInMapCoords(X, Y) then
     Result := (gTerrain.Land[Y,X].TileOverlay = to_Road)
               and ((aPlayer = -1) or (gTerrain.Land[Y, X].TileOwner = aPlayer))
   else
