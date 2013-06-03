@@ -118,6 +118,7 @@ MaxID:697
 114:Avslutt oppdrag
 115:Tilbake
 116:Innstillinger
+117:Avslutt redigering
 118:SFX
 119:Endre volum
 120:Endre volum
@@ -138,6 +139,7 @@ MaxID:697
 135:Avbryt
 136:Avbryt gjeldende trening
 137:Behøver:
+138:Forsyninger:
 139:Tilstand:
 140:Leverer
 141:Hus under oppbygging
@@ -177,6 +179,7 @@ MaxID:697
 175:En kullåre er tømt.
 176:En jernåre er tømt.
 177:En gullåre er tømt.
+178:Tømmerhoggeren din kan ikke finne flere trær å felle
 179:Dette huset er ikke bebodd.
 180:Denne troppen er utsultet, de burde virkelig få seg noe å spise snart!
 181:PAUSE
@@ -226,6 +229,7 @@ MaxID:697
 225:Ved havnen
 226:Ferd
 227:Kampanjer
+228:Kampanjer
 229:Start kampanje!
 230:Spill ett enkelt kart
 231:Start kart
@@ -268,8 +272,14 @@ MaxID:697
 268:Hus
 269:Ressurser
 270:Ressurser produsert
+271:Ingen data
 272:Du
 273:Spiller %d
+274:Tilbake til flerspiller
+275:Tilbake til gjenvisninger
+276:Alt
+277:Krigføring
+278:Mat
 279:JOYMANIA ENTERTAINMENT||PROGRAMMERING:|Peter Ohlmann||SPILLGRAFIKK:|Adam Sprys||BANE-DESIGN:|Adam Sprys|André Quaß||LYDREDIGERING OG MIKSING:|Tonstudio Mannheim||MUSIKK:|Gerd Hofmann|Joachim Schäfer|Jürgen Rebhann|Klaus Staendike|Steffen Schüngel||ILLUSTRASJONER:|Boleslaw Kasza|Christoph Werner||OVERSETTELSER:|Ronnie Shankland|Patricia Bellantuono|Andrea Rumpelt|||ZUXXEZ ENTERTAINMENT AG||PRODUSENT:|Uwe Schäfer||HÅNDBOK:|Peter Ohlmann|Uwe Schäfer||BETA-TESTING:|Peter Ohlmann|Adam Sprys|Alexandra Constandache|Dirk P. Hassinger|Achim Heidelauf|Uwe Schäfer|Ingrid Schäfer|Dirk U. Jantz|Ion Constandache|Yaman Egeli|Roman Eich|Iris Mocsnek|Anke Jantz|Paul Hassinger|Liza Hassinger||SPILLREGISSØR:|Achim Heidelauf||UTGITT AV:|TopWare Interactive||MELLOMSEKVENSER:||REGISSØR:|Slawomir Jedrzejewski||Kajetan Czarnecki|Wojciech Drazek|Daniel Duplaga|Rafal Januszkiewicz|Andrzej Rams|Piotr Rulka|Krzysztof Rybczynski|Grzegorz Wisniewski||STEMMER:|Claus Boyen (Fortelleren)||Tim Timmermann|Peter Houska|Dirk Mühlbach|Ralf Ditze|Gerhard Piske|Gernot Wassmann||KUNSTVERK:|Boleslaw Kasza|Adam Sprys||ÅPNINGSANIMASJON:|Uwe Schäfer|Christian Bigalk|Ytterligere 3D-Modellering:|Niels Horstmann||SPESIELL TAKK TIL:|Tadeusz Zuber|Dieter Ohlmann|Alexandra Constandache|Ingrid Schäfer
 280:Oppdrag avbrutt
 281:Gjenvisning avsluttet
@@ -291,12 +301,14 @@ MaxID:697
 297:Lag nytt kart
 298:Tilgjengelige kart
 299:Last eksisterende kart
+300:Plassering
 301:Kontroller:
 302:Spillinnstillinger:
 303:Lyd:
 304:Slå av musikk
 305:Grafikk:
 306:Lysstyrke
+307:Vertikal synkronisering
 308:Fullskjerm
 309:Bruk
 310:Språk:
@@ -343,6 +355,7 @@ MaxID:697
 351:Tilkobling mislyktes: %s
 352:Du har blitt frakoblet
 353:Oppdrag %d
+354:Meldingslogg
 355:Fiskerhytten din er for langt unna vannet.
 356:Fiskeren din kan ikke fange mer fisk i de nærliggende vassdragene.
 357:Start gjenvisning på nytt
@@ -350,15 +363,143 @@ MaxID:697
 359:Gå 1 tikk framover
 360:Fortsett pauset gjenvisning
 361:Avslutt gjenvisning
+362:Skru på/av individuell spillerperspektiv
+363:Vis alle
 364:Bruk den venstre museknappen for å velge en vare å handle med
 365:Bruk den høyre museknappen for å velge en vare å handle med
 366:Fra x%d
 367:Til x%d
 368:Terrengredigering
+369:Pensler
+370:Høyder
+371:Felt
+372:Objekter
+373:Høyder
+374:Penselform
+375:Størrelse
+376:Dra for å endre penselstørrelse
+377:Skråning
+378:Dra får å endre skråningshøyde: 1 = platå ... 15 = topp
+379:Hastighet
+380:Dra for å endre høydehastighet: 1 = sakte ... 15 = veldig rask
+381:Sirkel-formet pensel
+382:Firkant-formet pensel
+383:Hev / Senk
+384:Gjør ujevn / Gjør flat
+385:Hev (venstreklikk) / Senk (høyreklikk)
+386:Gjør ujevn (venstreklikk) / Gjør flat (høyreklikk)
+387:Pensel
+388:Tilfeldige elementer
+389:Tilfeldig retning
+390:Kryss av for tilfeldig feltretning eller bruk høyreklikk for å rotere det valgte feltet
+391:Bruk høyreklikk for å rotere det valgte feltet
+392:Blokker ferdsel
+393:Fjern et objekt
 394:Byplanlegging
 395:Visuelle script
 396:Global scripting
 397:Meny
+398:Objekter
+399:Vis innskudd
+400:Vis enheter
+401:Vis hus
+402:Vis objekter
+403:Vis fremkommelighet
+404:Alle ulagrede|endringer går tapt
+405:Avbryt
+406:Last
+407:Last kart
+408:Avbryt
+409:Lagre
+410:Overskriv
+411:Kart finnes allerede
+412:Spillere:
+413:Standard
+414:Spillertyper
+415:Symmetrisk
+416:Allianser
+417:Taktikk
+418:Normal
+419:Oppdragsmodus
+420:Hopp til plassering
+421:Midtstill skjermen ved oppdragsstart
+422:Midtstill skjermen
+423:Avdekk alt
+424:Avdekk en del av kartet
+425:Avdekk tåke
+426:Blokker bytte
+427:Blokker/frigjør hus
+428:Farger
+429:Mål
+430:Mld.
+431:Tid
+432:Spiller
+433:Økonomibygninger
+434:Treller og skoler
+435:Militære driftsmidler
+436:Ukjent
+437:Tropper
+438:Bygninger
+439:Tid
+440:Byggeopplæring
+441:Ingen
+442:Betingelse
+443:Overlev
+444:Seier
+445:Ingen
+446:Type
+447:Mål
+448:OK
+449:Avbryt
+450:Kolonner
+451:Antall
+452:Troppformasjoner
+453:Endre formasjoner
+454:Sett en grense for hvor mange soldater AI'en kan ha
+455:Hvor mange soldater AI'en kan ha samtidig
+456:Sett maks. soldater
+457:Hvor mange rekrutter burde AI'en ha i festninger
+458:Rekrutter per festning
+459:Plassering
+460:Egendefinert plassering
+461:Nærmeste hus 2
+462:Nærmeste hus 1
+463:Nærmeste enhet
+464:Ta alle
+465:Gruppeantall
+466:Angrepsinfo
+467:Forsinkelse, s
+468:Gjentas
+469:Én gang
+470:Ryttere
+471:Avstandsangrep
+472:Anti-hest
+473:Nærkamp
+474:Sted
+475:Mål
+476:Menn
+477:Forsinkelse
+478:Type
+479:Auto-angrip
+480:AI angrep
+481:Frekvens for lærutstyr
+482:Frekvens for jernutstyr
+483:Auto-forsvar
+484:AI lager og forvalter forsvarsposisjoner automatisk
+485:Plasser forsvarsposisjon for AI
+486:AI forsvarsposisjoner
+487:Arbeidere
+488:Treller per 10 hus
+489:Auto-reparasjon
+490:Auto-bygg
+491:AI-innstillinger
+492:Hus
+493:Veiarbeid
+494:Flipp valget vertikalt
+495:Flipp utvalget horisontalt
+496:Lim inn terreng
+497:Kopier terreng
+498:Kopier/lim inn
 499:Nytt oppdrag
 500:Spillernavn
 501:Status:
@@ -376,6 +517,8 @@ MaxID:697
 513:Rom
 514:Finn
 515:Avbryt
+516:Passordbeskyttet rom
+517:Passord
 518:Servernavn
 519:Tilstand
 520:Spillere
@@ -393,6 +536,7 @@ MaxID:697
 532:Farge
 533:Klar
 534:Ping
+535:Ping / FPS
 536:Åpen
 537:AI-spiller
 538:Velg...
@@ -405,21 +549,38 @@ MaxID:697
 545:Klar
 546:Ikke klar
 547:Start!
+548:Spillhastighet (fredstid)
+549:Spillhastighet
+550:OK
+551:Avbryt
+552:Beskrivelse
+553:Passord
+554:Rominnstillinger
+555:Gjør til vert
+556:Utesteng
+557:Kast ut
+558:Gjør plasseringer tilfeldige innenfor lagene
+559:Beskrivelse
+560:Innstillinger
 561:Sted %d
 562:Feil: Vennligst velg en spiller fra det lagrede spillet å kontrollere
 563:Feil: Kartet mislyktes i å laste, ellers er intet kart valgt
 564:Kan ikke starte: %s
 565:Ikke alle er klar til å starte
+566:Ikke i stand til å tildele tilfeldige plasseringer
 567:Serveren har gitt vertsrettigheter til oss
 568:Spill startet
 569:Byggekart
 570:Stridskart
 571:Samarbeidskart
+572:Spesielt kart
 573:Spillinnstillinger:
 574:Fredstid (minutter)
 575:Stengt
 576:Verten ordner spilleroppsettet
 577:Venter på spillere:
+578:Alle
+579:Lag
 580:Skapere av KaM Remake
 581:Skapere av det originale Knights & Merchants
 582:PROGRAMMERING:
@@ -469,6 +630,7 @@ MaxID:697
 626:Se gjenvisning
 627:Ingen støtte for format %s
 628:Feilaktig versjon %s
+629:Modifikasjoner som ikke støttes
 630:En feil oppstod når filen %s skulle behandles
 631:initierer
 632:script
@@ -483,6 +645,7 @@ MaxID:697
 641:Lagringsfilen samsvarer ikke vertens for det lagrede spillet: %s
 642:Gjenvisningen feilet en samsvarssjekk. Dette er en kjent feil som påvirker avspilling av noen gjenvisninger. Vil du fortsette å se på?
 643:Du kan kun ha en instans av spillet i flerspillermodus samtidig
+644:Modifikasjoner i spillfilene er ikke tillatt i flerspillermodus.|Vennligst installer på nytt for å gjenopprette de opprinnelige filene.
 645:En feil oppstod i programmet. Vennligst klikk Send feilrapport slik at vi kan undersøke problemet. Takk for hjelpen!
 646:Send feilrapport
 647:Vis rådata
@@ -506,3 +669,33 @@ MaxID:697
 665:Sending av feilrapporten feilet! Serveren vår kan være opptatt, vennligst forsøk å sende den på nytt.
 666:Informasjon
 667:Vennligst vent et øyeblikk...
+668:Lagre kart
+669:Forsinkelse i minutter før AI'en begynner å trene rekrutter
+670:Rekrutteringsforsinkelse (min)
+671:Velger retning for alle felt i en vannmasse
+672:Magisk vann
+673:Kopier
+674:Lim inn
+675:Gjennomfør innliming
+676:Avbryt innliming
+677:Flipp vertikalt
+678:Flipp horisontalt
+679:Dra for å vele et område på kartet
+680:AI forsvarsinnstillinger
+681:Av
+682:Radius
+683:Slett gjeldende avdekker
+684:Gå tilbake til side for tåkeavdekking
+685:Lukk
+686:Gruppeordre
+687:Ingen
+688:Angrepsposisjon
+689:Gå til
+690:Retning
+691:Bakrekke
+692:Frontlinje
+693:Forsvarsradius
+694:Slett gjeldende forsvarsposisjon
+695:Tilbake til forsvarssiden
+696:Forsvarsposisjon
+697:Enheter
