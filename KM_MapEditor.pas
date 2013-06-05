@@ -553,6 +553,7 @@ begin
       end;
 
     if ActiveMarker.MarkerType = mtDefence then
+    if InRange(ActiveMarker.Index, 0, fPlayers[ActiveMarker.Owner].AI.General.DefencePositions.Count - 1) then
     begin
       DP := fPlayers[ActiveMarker.Owner].AI.General.DefencePositions[ActiveMarker.Index];
       fRenderAux.CircleOnTerrain(DP.Position.Loc.X, DP.Position.Loc.Y, DP.Radius,
@@ -569,7 +570,7 @@ begin
     case aLayer of
       plTerrain:  fRenderAux.CircleOnTerrain(Loc.X, Loc.Y,
                                            fRevealers[I].Tag[K],
-                                           fPlayers[I].FlagColor AND $20FFFFFF,
+                                           fPlayers[I].FlagColor and $20FFFFFF,
                                            fPlayers[I].FlagColor);
       plCursors:  fRenderPool.RenderSpriteOnTile(Loc,
                       394, fPlayers[I].FlagColor);
