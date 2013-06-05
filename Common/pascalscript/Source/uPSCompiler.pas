@@ -880,11 +880,11 @@ type
 
   TPSUnOperatorType = (otNot, otMinus, otCast);
 
-  TPSOnUseVariable = procedure (Sender: TPSPascalCompiler; VarType: TPSVariableType; VarNo: Longint; ProcNo, Position: Cardinal; const PropData: tbtString) of object;
+  TPSOnUseVariable = procedure (Sender: TPSPascalCompiler; VarType: TPSVariableType; VarNo: Longint; ProcNo, Position: Cardinal; const PropData: tbtString);
 
-  TPSOnUses = function(Sender: TPSPascalCompiler; const Name: tbtString): Boolean of object;
+  TPSOnUses = function(Sender: TPSPascalCompiler; const Name: tbtString): Boolean;
 
-  TPSOnExportCheck = function(Sender: TPSPascalCompiler; Proc: TPSInternalProcedure; const ProcDecl: tbtString): Boolean of object;
+  TPSOnExportCheck = function(Sender: TPSPascalCompiler; Proc: TPSInternalProcedure; const ProcDecl: tbtString): Boolean;
 
   {$IFNDEF PS_USESSUPPORT}
   TPSOnWriteLineEvent = function (Sender: TPSPascalCompiler; Position: Cardinal): Boolean;
@@ -1504,18 +1504,18 @@ type
     function CastToType(IntoType: TPSType; var ProcNo: Cardinal): Boolean;
 
 
-    function Property_Find(const Name: tbtString; var Index: IPointer): Boolean;
+    function Property_Find(const Name: tbtString; var Index: TPSDelphiClassItem): Boolean;
 
-    function Property_Get(Index: IPointer; var ProcNo: Cardinal): Boolean;
+    function Property_Get(Index: TPSDelphiClassItem; var ProcNo: Cardinal): Boolean;
 
-    function Property_Set(Index: IPointer; var ProcNo: Cardinal): Boolean;
+    function Property_Set(Index: TPSDelphiClassItem; var ProcNo: Cardinal): Boolean;
 
-    function Property_GetHeader(Index: IPointer; Dest: TPSParametersDecl): Boolean;
+    function Property_GetHeader(Index: TPSDelphiClassItem; Dest: TPSParametersDecl): Boolean;
 
 
-    function Func_Find(const Name: tbtString; var Index: IPointer): Boolean;
+    function Func_Find(const Name: tbtString; var Index: TPSDelphiClassItem): Boolean;
 
-    function Func_Call(Index: IPointer; var ProcNo: Cardinal): Boolean;
+    function Func_Call(Index: TPSDelphiClassItem; var ProcNo: Cardinal): Boolean;
 
 
     function ClassFunc_Find(const Name: tbtString; var Index: IPointer): Boolean;
@@ -1576,6 +1576,8 @@ type
 
 {$IFNDEF PS_NOINTERFACES}
 
+  TPSInterfaceMethod = class;
+
   TPSInterface = class(TObject)
   private
     FOwner: TPSPascalCompiler;
@@ -1617,9 +1619,9 @@ type
 
     function CastToType(IntoType: TPSType; var ProcNo: Cardinal): Boolean;
 
-    function Func_Find(const Name: tbtString; var Index: Cardinal): Boolean;
+    function Func_Find(const Name: tbtString; var Index: TPSInterfaceMethod): Boolean;
 
-    function Func_Call(Index: Cardinal; var ProcNo: Cardinal): Boolean;
+    function Func_Call(Index: TPSInterfaceMethod; var ProcNo: Cardinal): Boolean;
   end;
 
 
@@ -6793,7 +6795,7 @@ function TPSPascalCompiler.ProcessSub(BlockInfo: TPSBlockInfo): Boolean;
       Tempp: TPSValue;
       aType: TPSClassType;
       procno: Cardinal;
-      Idx: IPointer;
+      Idx: TPSDelphiClassItem;
       Decl: TPSParametersDecl;
     begin
       if p = nil then exit;
@@ -6929,7 +6931,7 @@ function TPSPascalCompiler.ProcessSub(BlockInfo: TPSBlockInfo): Boolean;
     procedure CheckClass(var P: TPSValue; const VarType: TPSVariableType; VarNo: Cardinal; ImplicitPeriod: Boolean);
     var
       Procno: Cardinal;
-      Idx: IPointer;
+      Idx: TPSDelphiClassItem;
       FType: TPSType;
       TempP: TPSValue;
       Decl: TPSParametersDecl;
@@ -7070,7 +7072,8 @@ function TPSPascalCompiler.ProcessSub(BlockInfo: TPSBlockInfo): Boolean;
 {$IFNDEF PS_NOIDISPATCH}
     procedure CheckIntf(var P: TPSValue; const VarType: TPSVariableType; VarNo: Cardinal; ImplicitPeriod: Boolean);
     var
-      Procno, Idx: Cardinal;
+      Procno: Cardinal;
+      Idx: TPSInterfaceMethod;
       FType: TPSType;
       s: tbtString;
 
@@ -12960,6 +12963,11 @@ procedure TPSPascalCompiler.DefineStandardProcedures;
 var
   p: TPSRegProc;
 begin
+  { The following needs to be in synch in these 3 functions:
+    -UPSCompiler.TPSPascalCompiler.DefineStandardProcedures
+    -UPSRuntime.DefProc
+    -UPSRuntime.TPSExec.RegisterStandardProcs
+  }
   {$IFNDEF PS_NOINT64}
   AddFunction('function IntToStr(i: Int64): String;');
   {$ELSE}
@@ -13105,6 +13113,7 @@ begin
   {$IFNDEF PS_NOINT64}
   AddFunction('function StrToInt64(s: String): int64;');
   AddFunction('function Int64ToStr(i: Int64): String;');
+  AddFunction('function StrToInt64Def(s: String; def: int64): int64;');
   {$ENDIF}
 
   with AddFunction('function SizeOf: Longint;').Decl.AddParam do
@@ -14575,7 +14584,7 @@ begin
 end;
 
 
-function TPSCompileTimeClass.Func_Call(Index: IPointer;
+function TPSCompileTimeClass.Func_Call(Index: TPSDelphiClassItem;
   var ProcNo: Cardinal): Boolean;
 var
   C: TPSDelphiClassItemMethod;
@@ -14584,7 +14593,7 @@ var
   s: tbtString;
 
 begin
-  C := Pointer(Index);
+  C := Index as TPSDelphiClassItemMethod;
   if c.MethodNo = InvalidVal then
   begin
     ProcNo := FOwner.AddUsedFunction2(P);
@@ -14612,7 +14621,7 @@ begin
 end;
 
 function TPSCompileTimeClass.Func_Find(const Name: tbtString;
-  var Index: IPointer): Boolean;
+  var Index: TPSDelphiClassItem): Boolean;
 var
   H: Longint;
   I: Longint;
@@ -14628,7 +14637,7 @@ begin
       C := CurrClass.FClassItems[I];
       if (c is TPSDelphiClassItemMethod) and (C.NameHash = H) and (C.Name = Name) then
       begin
-        Index := Cardinal(C);
+        Index := C;
         Result := True;
         exit;
       end;
@@ -14671,7 +14680,7 @@ begin
 end;
 
 function TPSCompileTimeClass.Property_Find(const Name: tbtString;
-  var Index: IPointer): Boolean;
+  var Index: TPSDelphiClassItem): Boolean;
 var
   H: Longint;
   I: Longint;
@@ -14685,7 +14694,7 @@ begin
     begin
       if CurrClass.FDefaultProperty <> InvalidVal then
       begin
-        Index := Cardinal(CurrClass.FClassItems[Currclass.FDefaultProperty]);
+        Index := TPSDelphiClassItem(CurrClass.FClassItems[Currclass.FDefaultProperty]);
         result := True;
         exit;
       end;
@@ -14703,7 +14712,7 @@ begin
       C := CurrClass.FClassItems[I];
       if (c is TPSDelphiClassItemProperty) and (C.NameHash = H) and (C.Name = Name) then
       begin
-        Index := Cardinal(C);
+        Index := C;
         Result := True;
         exit;
       end;
@@ -14713,7 +14722,7 @@ begin
   Result := False;
 end;
 
-function TPSCompileTimeClass.Property_Get(Index: IPointer;
+function TPSCompileTimeClass.Property_Get(Index: TPSDelphiClassItem;
   var ProcNo: Cardinal): Boolean;
 var
   C: TPSDelphiClassItemProperty;
@@ -14721,7 +14730,7 @@ var
   s: tbtString;
 
 begin
-  C := Pointer(Index);
+  C := Index as TPSDelphiClassItemProperty;
   if c.AccessType = iptW then
   begin
     Result := False;
@@ -14743,18 +14752,18 @@ begin
   Result := True;
 end;
 
-function TPSCompileTimeClass.Property_GetHeader(Index: IPointer;
+function TPSCompileTimeClass.Property_GetHeader(Index: TPSDelphiClassItem;
   Dest: TPSParametersDecl): Boolean;
 var
   c: TPSDelphiClassItemProperty;
 begin
-  C := Pointer(Index);
+  C := Index as TPSDelphiClassItemProperty;
   FOwner.UseProc(c.Decl);
   Dest.Assign(c.Decl);
   Result := True;
 end;
 
-function TPSCompileTimeClass.Property_Set(Index: IPointer;
+function TPSCompileTimeClass.Property_Set(Index: TPSDelphiClassItem;
   var ProcNo: Cardinal): Boolean;
 var
   C: TPSDelphiClassItemProperty;
@@ -14762,7 +14771,7 @@ var
   s: tbtString;
 
 begin
-  C := Pointer(Index);
+  C := Index as TPSDelphiClassItemProperty;
   if c.AccessType = iptR then
   begin
     Result := False;
@@ -15424,7 +15433,7 @@ begin
   inherited Destroy;
 end;
 
-function TPSInterface.Func_Call(Index: Cardinal;
+function TPSInterface.Func_Call(Index: TPSInterfaceMethod;
   var ProcNo: Cardinal): Boolean;
 var
   c: TPSInterfaceMethod;
@@ -15462,7 +15471,7 @@ begin
 end;
 
 function TPSInterface.Func_Find(const Name: tbtString;
-  var Index: Cardinal): Boolean;
+  var Index: TPSInterfaceMethod): Boolean;
 var
   H: Longint;
   I: Longint;
@@ -15478,7 +15487,7 @@ begin
       C := CurrClass.FItems[I];
       if (C.NameHash = H) and (C.Name = Name) then
       begin
-        Index := Cardinal(c);
+        Index := c;
         Result := True;
         exit;
       end;
