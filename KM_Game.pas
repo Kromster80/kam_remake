@@ -529,7 +529,8 @@ begin
   //First give all AI players a name so fixed AIs (not added in lobby) still have a name
   for I := 0 to fPlayers.Count-1 do
     if fPlayers[I].PlayerType = pt_Computer then
-      fPlayers[I].PlayerName := fTextLibrary[TX_LOBBY_SLOT_AI_PLAYER];
+      //Can't be translated yet because PlayerName is written into save (solve this when we make network messages translated?)
+      fPlayers[I].PlayerName := 'AI Player';
 
 
   //Assign existing NetPlayers(1..N) to map players(0..N-1)
