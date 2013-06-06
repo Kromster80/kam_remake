@@ -2090,14 +2090,14 @@ begin
   fFont := aFont;
   fAllowedChars := acText; //Set to the widest by default
   CursorPos := 0;
-  MaxLen := 256; //Default max length is 256
+  MaxLen := 160; //Default max length as in one SMS
 
   //Text input fields are focusable by concept
   Focusable := True;
 end;
 
 
-function TKMEdit.HitTest(X, Y: Integer; aIncludeDisabled: Boolean=false): Boolean;
+function TKMEdit.HitTest(X, Y: Integer; aIncludeDisabled: Boolean = False): Boolean;
 begin
   //When control is read-only we don't want to recieve Focus event
   Result := inherited HitTest(X,Y) and not ReadOnly;
