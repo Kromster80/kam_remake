@@ -88,7 +88,7 @@ procedure TKMLocales.LoadLocales(const aFile: string);
 var
   SL: TStringList;
   I: Integer;
-  MyLocale: TKMLocaleInfo;
+  NewLocale: TKMLocaleInfo;
 begin
   Assert(FileExists(aFile), 'Locales file could not be found: ' + aFile);
 
@@ -96,11 +96,12 @@ begin
   SL.LoadFromFile(aFile);
 
   for I := 0 to SL.Count - 1 do
-    if ParseLine(SL[I], MyLocale) then
+    if ParseLine(SL[I], NewLocale) then
     begin
-      inc(fCount);
-      if fCount > Length(fLocaleList) then SetLength(fLocaleList, fCount + 8);
-      fLocaleList[fCount-1] := MyLocale;
+      if fCount >= Length(fLocaleList) then
+        SetLength(fLocaleList, fCount + 8);
+      fLocaleList[fCount] := NewLocale;
+      Inc(fCount);
     end;
 
   SL.Free;
@@ -119,9 +120,9 @@ var
   I: Integer;
 begin
   for I := 0 to fCount - 1 do
-    if fLocaleList[i].Code = aCode then
+    if fLocaleList[I].Code = aCode then
     begin
-      Result := fLocaleList[i];
+      Result := fLocaleList[I];
       Exit;
     end;
   Assert(False, aCode + ' is not a valid Locale');
@@ -134,9 +135,9 @@ var
 begin
   Result := -1;
   for I := 0 to fCount - 1 do
-    if fLocaleList[i].Code = aLocaleCode then
+    if fLocaleList[I].Code = aLocaleCode then
     begin
-      Result := i;
+      Result := I;
       Exit;
     end;
 end;
@@ -148,8 +149,8 @@ var
 begin
   Result := '';
   for I := 0 to fCount - 1 do
-    if fLocaleList[i].TranslatorCredit <> '' then //e.g. English has no credits
-      Result := Result + fLocaleList[i].Title + ' - ' + fLocaleList[i].TranslatorCredit + '|';
+    if fLocaleList[I].TranslatorCredit <> '' then //e.g. English has no credits
+      Result := Result + fLocaleList[I].Title + ' - ' + fLocaleList[I].TranslatorCredit + '|';
 end;
 
 
