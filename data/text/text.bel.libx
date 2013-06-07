@@ -118,6 +118,7 @@ MaxID:697
 114:Завяршыць місію
 115:Вярнуцца назад
 116:Усталёўкі
+117:Выйсці з рэдактара
 118:Эфекты
 119:Змяніць гучнасць
 120:Змяніць гучнасць
@@ -178,9 +179,9 @@ MaxID:697
 175:Ваша вугальная шахта спустошана.
 176:Ваша жалезная рудня спустошана.
 177:Ваша залатая рудня спустошана.
-178:Ваш лесаруб не можа знайсці дрэў і не атрымаў задання садзіць новыя.
+178:Ваш лесаруб не можа знайсці дрэў.
 179:Хата не занята.
-180:Гэты ваяр вельмі галодны, дастаўце яму правіянт хутчэй!
+180:Гэты ваяр галодны, дастаўце яму правіянт хутчэй!
 181:Паўза
 182:Дастаўляю тавар
 183:Ладу дарогу
@@ -228,6 +229,7 @@ MaxID:697
 225:Ў гавані
 226:Падарожжа
 227:Кампаніі
+228:Кампаніі
 229:Пачаць Кампанію!
 230:Адзінкавая бітва
 231:Пачаць бітву
@@ -278,6 +280,7 @@ MaxID:697
 276:Ўсе
 277:Ваенныя
 278:Ежа
+279:JOYMANIA ENTERTAINMENT||PROGRAMMING:|Peter Ohlmann||GAME GRAPHICS:|Adam Sprys||LEVEL DESIGN:|Adam Sprys|Andrй QuaЯ||SOUND EDITING AND MIXING:|Tonstudio Mannheim||MUSIC:|Gerd Hofmann|Joachim Schдfer|Jьrgen Rebhann|Klaus Staendike|Steffen Schьngel||ILLUSTRATIONS:|Boleslaw Kasza|Christoph Werner||TRANSLATION:|Ronnie Shankland|Patricia Bellantuono|Andrea Rumpelt|||ZUXXEZ ENTERTAINMENT AG||PRODUCER:|Uwe Schдfer||MANUAL:|Peter Ohlmann|Uwe Schдfer||BETA TESTING:|Peter Ohlmann|Adam Sprys|Alexandra Constandache|Dirk P. Hassinger|Achim Heidelauf|Uwe Schдfer|Ingrid Schдfer|Dirk U. Jantz|Ion Constandache|Yaman Egeli|Roman Eich|Iris Mocsnek|Anke Jantz|Paul Hassinger|Liza Hassinger||GAMES DIRECTOR:|Achim Heidelauf||PUBLISHED BY:|TopWare Interactive||CUTSCENES:||DIRECTION:|Slawomir Jedrzejewski||Kajetan Czarnecki|Wojciech Drazek|Daniel Duplaga|Rafal Januszkiewicz|Andrzej Rams|Piotr Rulka|Krzysztof Rybczynski|Grzegorz Wisniewski||VOICES:|Claus Boyen (Storyteller)||Tim Timmermann|Peter Houska|Dirk Mьhlbach|Ralf Ditze|Gerhard Piske|Gernot Wassmann||ARTWORK:|Boleslaw Kasza|Adam Sprys||OPENING ANIMATION:|Uwe Schдfer|Christian Bigalk|Additional 3D-Modelling:|Niels Horstmann||SPECIAL THANKS TO:|Tadeusz Zuber|Dieter Ohlmann|Alexandra Constandache|Ingrid Schдfer
 280:Місія скасавана
 281:Рэплей скончыўся
 282:Вучэбны Горад
@@ -417,7 +420,9 @@ MaxID:697
 416:Альянсы
 417:Бітва
 418:Развіццё
+419:Тып миссii
 420:Пераход на месца
+421:Цэнтр экрана ў пачатку місіі
 422:Цэнтр экрана
 423:Адкрыць ўсю карту
 424:Адкрыць частку карты
@@ -450,6 +455,7 @@ MaxID:697
 451:Колькасць
 452:Фармацыі атрада
 453:Змяніць фармацыі абароны
+454:Максімальная колькасць салдат AI
 455:Колькі салдат можа быць у АІ адначасова
 456:Максімальная колькасць салдат
 457:Колькі можа быць рэкрутаў ў казарме AI
@@ -553,7 +559,7 @@ MaxID:697
 555:Зрабіць хастом
 556:Бан
 557:Кік
-558:Размеркаваць пазіцыі выпадкова паміж камандамі
+558:Размеркаваць пазіцыі выпадкова між камандамі
 559:Апісанне
 560:Опцыі
 561:Палажэнне %d
@@ -657,9 +663,39 @@ MaxID:697
 659:(пстрыкніце для рэдагавання выявы)
 660:Адаслаць справаздачу
 661:Адмена
-662:Адпраўка справаздачы аб памылцы...
+662:Адпраўка справаздачы пра памылку...
 663:Злучэнне з сэрвэрам...
 664:Адпраўка дадзеных...
 665:Адпраўка справаздачы пра памылку не атрымалася. Магчыма наш сэрвэр занят, калі ласка паспрабуйце пазней.
 666:Інфармацыя
 667:Калі ласка чакайце...
+668:Захаваць Карту
+669:Затрымка ў хвілінах, пакуль АІ не пачне навучаць рэкрутаў
+670:Затрымка рэкрутаў
+671:Задае кірунак плыні вады ва ўсім вадаёме
+672:Магічная вада
+673:Капіяваць
+674:Ўставіць
+675:Пацвердзіць ўстаўку
+676:Адмяниць ўстаўку
+677:Павярнуць па гарызанталі
+678:Павярнуць па вертыкалі
+679:Перацягнiце, каб выбраць вобласць на карце
+680:Опцыі абароны AI
+681:Выкл.
+682:Радыус
+683:Выдаліць радыус
+684:Вярнуцца на старонку туману вайны
+685:Закрыць
+686:Дзеянні атрада
+687:Няма
+688:Атакаваць пазіцыю
+689:Iсцi
+690:Накіраванне
+691:Задняя лінія
+692:Пярэдняя лінія
+693:Радыус абароны
+694:Выдаліць пазіцыю абароны
+695:Вярнуцца на старонку абароны AI
+696:Пазіцыя абароны
+697:Юніты
