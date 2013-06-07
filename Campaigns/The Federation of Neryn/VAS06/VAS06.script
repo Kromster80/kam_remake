@@ -1,7 +1,5 @@
-var iStone, iWood, iWeapon, iSwine, iMain, iAdd, iPatrol, iCount, iPosition, iInterval, iFood, iRandom, iFail, iMessageTick, iRebuild: Integer; 
+var iStone, iWood, iWeapon, iSwine, iMain, iAdd, iPatrol, iCount, iPosition, iInterval, iFood, iRandom, iFail, iMessageTick, iRebuild, iFarmGroup, iPeasGroup: Integer; 
 var bDead, bKill, bDiscovered: Boolean;
-var iRebel1, iRebel2, iRebel3, iRebel4, iRebel5: Integer;
-var iRogue1, iRogue2, iRogue3, iRogue4, iRogue5: Integer;
 var iFarmers, iFarmersX, iFarmersY, iFarmersD: array[1..5] of Integer;
 var iPeasants, iPeasantsX, iPeasantsY, iPeasantsD: array[1..5] of Integer;
 
@@ -108,6 +106,7 @@ begin
 	// Goldmine -> Kohlemine
 	if States.HouseType(iIndex) = 5 then
 	begin
+		Actions.ShowMsg(0, '<$4>');
 		BuildHouse(3, 130, 41);
 		BuildHouse(17, 132, 52);
 		BuildRoad(132, 53);
@@ -137,7 +136,6 @@ begin
 	// Kohlemine -> Schmelzhütte
 	if States.HouseType(iIndex) = 3 then
 	begin
-		Actions.ShowMsg(0, '<$4>');
 		BuildHouse(17, 127, 40);
 		BuildHouse(17, 151, 51);
 		BuildHouse(15, 154, 51);
@@ -339,6 +337,16 @@ begin
 		  if(iFail = -1) then
 			iFail := Actions.GiveGroup(1, 24, iFarmersX[iLoop], iFarmersY[iLoop] + 1, iFarmersD[iLoop], 1, 1);		  
 		  iFarmers[iLoop] := -1;
+		  
+		  // Truppen verbinden
+		  if iFarmGroup <> -1 then begin
+			Actions.GroupOrderLink(iFail, iFarmGroup);
+			Actions.GroupSetFormation(iFarmGroup, 4);
+		  end else begin
+		    iFarmGroup := iFail;
+		  end;
+		  
+		  
 		end	else begin
 		  iFarmersX[iLoop] := States.UnitPositionX(iFarmers[iLoop]);
 		  iFarmersY[iLoop] := States.UnitPositionY(iFarmers[iLoop]);
@@ -355,6 +363,15 @@ begin
 		  if(iFail = -1) then
 			iFail := Actions.GiveGroup(1, 25, iPeasantsX[iLoop], iPeasantsY[iLoop] + 1, iPeasantsD[iLoop], 1, 1);
 		  iPeasants[iLoop] := -1;
+		  
+		  // Truppen verbinden
+		  if iPeasGroup <> -1 then begin
+			Actions.GroupOrderLink(iFail, iPeasGroup);
+			Actions.GroupSetFormation(iPeasGroup, 4);
+		  end else begin
+		    iPeasGroup := iFail;
+		  end;
+		 
 		end	else begin
 		  iPeasantsX[iLoop] := States.UnitPositionX(iPeasants[iLoop]);
 		  iPeasantsY[iLoop] := States.UnitPositionY(iPeasants[iLoop]);
@@ -608,6 +625,8 @@ procedure OnMissionStart;
 var iLoop: Integer;
 begin
   // Bauern und Pferzüchter
+  iFarmGroup := -1;
+  iPeasGroup := -1;  
   for iLoop := 1 to 5 do begin
     iFarmers[iLoop] := -1;
     iPeasants[iLoop] := -1;
