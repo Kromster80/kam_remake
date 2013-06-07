@@ -20,7 +20,7 @@ procedure GenerateOutline(aMap: TKMByte2Array; aTrim: Byte; out aOutlines: TKMSh
 type
   TStepDirection = (sdNone, sdUp, sdRight, sdDown, sdLeft);
 var
-  PrevStep, NextStep: TStepDirection;
+  NextStep: TStepDirection;
   SizeX, SizeY: Word;
 
   procedure Step(X,Y: SmallInt);
@@ -34,9 +34,11 @@ var
         aMap[aY,aX] := 255; //Mark unpassable but visited
     end;
   var
+    PrevStep: TStepDirection;
     State: Byte;
   begin
-    prevStep := nextStep;
+    //Remember previous step for convenience of use
+    PrevStep := NextStep;
 
     //Assemble bitmask
     State :=  Byte(IsTilePassable(X  ,Y  )) +
@@ -46,27 +48,27 @@ var
 
     //Where do we go from here
     case State of
-      1:  nextStep := sdUp;
-      2:  nextStep := sdRight;
-      3:  nextStep := sdRight;
-      4:  nextStep := sdLeft;
-      5:  nextStep := sdUp;
-      6:  if (prevStep = sdUp) then
-            nextStep := sdLeft
+      1:  NextStep := sdUp;
+      2:  NextStep := sdRight;
+      3:  NextStep := sdRight;
+      4:  NextStep := sdLeft;
+      5:  NextStep := sdUp;
+      6:  if (PrevStep = sdUp) then
+            NextStep := sdLeft
           else
-            nextStep := sdRight;
-      7:  nextStep := sdRight;
-      8:  nextStep := sdDown;
-      9:  if (prevStep = sdRight) then
-            nextStep := sdUp
+            NextStep := sdRight;
+      7:  NextStep := sdRight;
+      8:  NextStep := sdDown;
+      9:  if (PrevStep = sdRight) then
+            NextStep := sdUp
           else
-            nextStep := sdDown;
-      10: nextStep := sdDown;
-      11: nextStep := sdDown;
-      12: nextStep := sdLeft;
-      13: nextStep := sdUp;
-      14: nextStep := sdLeft;
-      else nextStep := sdNone;
+            NextStep := sdDown;
+      10: NextStep := sdDown;
+      11: NextStep := sdDown;
+      12: NextStep := sdLeft;
+      13: NextStep := sdUp;
+      14: NextStep := sdLeft;
+      else NextStep := sdNone;
     end;
   end;
 
@@ -76,7 +78,7 @@ var
   begin
     X := aStartX;
     Y := aStartY;
-    nextStep := sdNone;
+    NextStep := sdNone;
 
     SetLength(aOutlines.Shape, aOutlines.Count + 1);
     aOutlines.Shape[aOutlines.Count].Count := 0;
