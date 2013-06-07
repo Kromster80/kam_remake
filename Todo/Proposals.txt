@@ -33,6 +33,7 @@ We can discuss them in dialog-style and maybe move to GC issues later on
 	L	Add a way to feed only <30% hungry units
 		Switch beacon from B to more convenient Alt+Click as in other RTS?
 		Waypoint for the barracks. So that warriors go to a specific point instead of crowding in front of the barracks
+		Using TAB to toggle between houses of same kind
 
 		In-game player list should show who is defeated (shown seperately to who is disconnected which is already shown by strikethrough)
 		Allow to build fields over winefields, allow to destruct own fields and roads by workers.
