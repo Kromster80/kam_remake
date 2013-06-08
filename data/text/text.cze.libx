@@ -118,6 +118,7 @@ MaxID:697
 114:Opustit Misi
 115:Zpìt
 116:Nastavení
+117:Ukonèit editor
 118:SFX
 119:Zmìnit hlasitost
 120:Zmìnit hlasitost
@@ -138,6 +139,7 @@ MaxID:697
 135:Zpìt
 136:Zrušit souèasný výcvik
 137:Potøeby:
+138:Zásoby:
 139:Stav:
 140:Dodávka
 141:Budova ve|výstavbì
@@ -177,6 +179,7 @@ MaxID:697
 175:Váš uhelný dùl se zdá být vyèerpaný.
 176:Váš železný dùl se zdá být vyèerpaný.
 177:Váš zlatý dùl se zdá být vyèerpaný.
+178:Váš døevorubec nemùže najít žádné další stromy k pokácení
 179:Tato budova není obydlena.
 180:Tito vojáci jsou hladoví, mìli by dostat co nejrychleji nìco k jídlu!
 181:PAUZE
@@ -226,6 +229,7 @@ MaxID:697
 225:V pøístavu
 226:Na cestì
 227:Kampanì
+228:Kampanì
 229:Zaèít kampaò!
 230:Hrát samostatnou mapu
 231:Start
@@ -268,8 +272,14 @@ MaxID:697
 268:Stavby
 269:Zdroje
 270:Vyprodukováno zdrojù
+271:Žádná data
 272:Ty
 273:Hráè %d
+274:Zpìt do Multiplayeru
+275:Zpìt k Záznamùm
+276:Vše
+277:Vojenství
+278:Jídlo
 279:JOYMANIA ENTERTAINMENT||PROGRAMOVÁNÍ:|Peter Ohlmann||GRAFIKA HRY:|Adam Sprys||NÁVRH MISÍ:|Adam Sprys|Andre Quaß||EDITACE ZVUKU A MIXOVÁNÍ:|Tonstudio Mannheim||HUDBA:|Gerd Hofmann|Joachim Schäfer|Jürgen Rebhann|Klaus Staendike|Steffen Schüngel||ILUSTRACE:|Boleslaw Kasza|Christoph Werner||ZUXXEZ ENTERTAINMENT AG||PRODUCENT:|Uwe Schäfer||MANUAL:|Peter Ohlmann|Uwe Schäfer||BETA TESTOVÁNÍ:|Peter Ohlmann|Adam Sprys|Alexandra Constandache|Dirk P. Hassinger|Achim Heidelauf|Uwe Schäfer|Ingrid Schäfer|Dirk U. Jantz|Ion Constandache|Yaman Egeli|Roman Eich|Iris Mocsnek|Anke Jantz|Paul Hassinger|Liza Hassinger||HERNÍ REŽISÉR:|Achim Heidelauf||PUBLIKOVÁNO:|TopWare Interactive||VIDEA:||REŽIE:|Slawomir Jedrzejewski||Kajetan Czarnecki|Wojciech Drazek|Daniel Duplaga|Rafal Januszkiewicz|Andrzej Rams|Piotr Rulka|Krzysztof Rybczynski|Grzegorz Wisniwski||DABING:|Claus Boyen (Vypravìè)||Tim Timmermann|Peter Houska|Dirk Mühlbach|Ralf Ditze|Gerhard Piske|Gernot Wassmann||ARTWORK:|Boleslaw Kasza|Adam Sprys||ÚVODNÍ VIDEO:|Uwe Schäfer|Christian Bigalk|Additional 3D-Modelling:|Niels Horstmann||PODÌKOVÁNÍ:|Tadeusz Zuber|Dieter Ohlmann|Alexandra Constandache|Ingrid Schäfer|Andrea Rumpelt||1.60 PATCH|'SERVICE RELEASE 3'||KOORDINACE:|Tommi Räsänen (Litude)||PROGRAMOVÁNÍ:|Lewin Hodgman|Stephen Hodgman|Tommi Räsänen (Litude)||ÚPRAVA MISÍ:|Joost Bandsma (The Dark Lord)|Lewin Hodgman|Tommi Räsänen (Litude)||ÚPRAVA GRAFIKY:|Harold Aptroot||ZVUKOVÉ EFEKTY:|Lewin Hodgman|Mitchell Hodgman||OPRAVY TEXTÙ:|Jakub Z. (kuba11100)|Jeroen Bos (JBSnorro)|Joost Bandsma (The Dark Lord)|Lars Stienen (Thunderwolf)|Lewin Hodgman|Tommi Räsänen (Litude)||PØEKLAD:|Alexander B. (AZA)|Attila Arnold (The Knight)|Jakub Z. (kuba11100)|Joost Bandsma (The Dark Lord)|Lars Stienen (Thunderwolf)|'Merchator'|'Nick'|'M4RC0'||BETA TESTOVÁNÍ:|Attila Arnold (The Knight)|Jakub Z. (kuba11100)|Lars Stienen (Thunderwolf)|'Michailoff'
 280:Mise ukonèena
 281:Pøehrávání zkonèilo
@@ -291,12 +301,14 @@ MaxID:697
 297:Vytvoøit novou mapu
 298:Dostupné mapy
 299:Naèíst existující mapu
+300:Pozice
 301:Ovládání:
 302:Hra:
 303:Zvuk:
 304:Vypnout hudbu
 305:Grafika:
 306:Jas
+307:Vertikální synchronizace
 308:Celá obrazovka
 309:Použít
 310:Jazyk:
@@ -343,6 +355,7 @@ MaxID:697
 351:Spojení se nezdaøilo: %s
 352:Byl jste odpojen
 353:Mise %d
+354:Zpráva
 355:Váš rybáø je pøíliš daleko od vody.
 356:Váš rybáø nemùže chytit žádné další ryby ve vodì, kterou má poblíž.
 357:Restartovat pøehrávání
@@ -350,15 +363,143 @@ MaxID:697
 359:Pøehrávat po krocích
 360:pokraèovat v pøehrávání
 361:Ukonèit pøehrávání
+362:Pøepnout perspektivu hráèe
+363:Ukázat vše
 364:Použijte levé tlaèítko myši pro výbìr zboží
 365:Použijte pravé tlaèítko myši k výbìru zboží
 366:Dám x%d
 367:Chci x%d
 368:Editace terénu
+369:Štetce
+370:Výšky
+371:Dlaždice
+372:Objekty
+373:Výšky
+374:Ostrost štìtce
+375:Velikost
+376:Posunutím zmìníte ostrost štetce
+377:Sklon
+378:Posunutím zmìníte sklon: 1 = ploché ... 15 = špièaté
+379:Rychlost
+380:Posuòte pro zmìnu rychlosti soupání: 1 = pomalé ... 15 = velmi rychlé
+381:Kruhový štìtec
+382:Ètvercový štìtec
+383:Zvýšit / snížit
+384:Rozbrázdit / Zarovnat
+385:Zvýšit (levé tlaèítko) / Snížit (pravé tlaèítko)
+386:Rozbrázdit (levé tlaèítko) / Zarovnat (pravé tlaèítko)
+387:Štìtec
+388:Náhodné elementy
+389:Náhodný smìr
+390:Zaškrtni pro náhodný smìr dlaždice nebo klikni pravým tlaèítkem myši k otáèení vybrané dlaždice
+391:Klikni pravým tlaèítkem pro otoèení vybrané dlaždice
+392:Zakázat chùzi
+393:Odstranit objekt
 394:Plánování vesnice
 395:Vizualní skripty
 396:Všeobecné skriptování
 397:Menu
+398:Objekty
+399:Zobrazit nalezištì
+400:Zobrazit jednotky
+401:Zobrazit budovy
+402:Zobrazit objekty
+403:Zobrazit prùchodnost
+404:Neuložené zmìny|zmìny budou ztraceny
+405:Storno
+406:Naèíst
+407:Naèíst mapu
+408:Storno
+409:Uložit
+410:Pøepsat
+411:Mapa už existuje
+412:Hráèi:
+413:Výchozí
+414:Typy hráèù
+415:Symetrická
+416:Aliance
+417:Taktika
+418:Normální
+419:Mód mise
+420:Pøejít na pozici
+421:Vycentrovat obrazovku na poèátku mise
+422:Vycentrovat obrazovku
+423:Odhalit vše
+424:Odhalit èást mapy
+425:Prozkoumat mlhu
+426:Zablokovat ochod
+427:Zablokovat/odblokovat domy
+428:Barvy
+429:Cíl
+430:Zpr.
+431:Èas
+432:Hráè
+433:Ekonomické stavby
+434:Nevolníci a školy
+435:Vojenské vìci
+436:Neznámé
+437:Vojsko
+438:Budovy
+439:Èas
+440:Udìlej Tutoriál
+441:Žádná
+442:Podmínka
+443:Pøežít
+444:Vítìzství
+445:Nic
+446:Typ
+447:Cíle
+448:OK
+449:Storno
+450:Sloupce
+451:Poèet
+452:Formace oddílu
+453:Upravit formace
+454:Nastavit limit poètu vojákù pro poèítaè
+455:Kolik vojákù mùže mít poèítaè najednou
+456:Nastavit max. vojákù
+457:Kolik rekrutù má mít poèítaè ve hradu
+458:Rekruti na Hrad
+459:Pozice
+460:Specifická pozice
+461:Nejbližší budova 2
+462:Nejbližší budova 1
+463:Nejbližší jednotka
+464:Vzít vše
+465:Poèet skupin
+466:Info o útoku
+467:Prodlení, s
+468:Opakování
+469:Jednorázový
+470:Jízda
+471:Støelectvo
+472:Proti jízdì
+473:Na blízko
+474:Poz.
+475:Cíl
+476:Lidé
+477:Prodlení
+478:Typ
+479:Aoto útok
+480:Utoky poèítaèe
+481:Rychlost výroby kožených
+482:Rychlost výroby železných
+483:Autoobrana
+484:Poèítaè vytváøí a spravuje obranné pozice automaticky
+485:Umístit obrannou pozici pro poèítaè
+486:Obranné pozice poèítaèe
+487:Pracanti
+488:Nevolníci na 10 domù
+489:Autooprava
+490:Autostavìní
+491:Nastavení poèítaèe
+492:Domy
+493:Práce na cestì
+494:Výbìr vertikálního pøevrácení
+495:Výbìr horizontálního pøevrácení
+496:Vložit terén
+497:Kopírovat terén
+498:Kopírovat/vložit
 499:Nová mise
 500:Jméno hráèe
 501:Status:
@@ -376,6 +517,8 @@ MaxID:697
 513:Místnost:
 514:Pøipojit se
 515:Cancel
+516:Místnost chránìna heslem
+517:Heslo
 518:Jméno serveru
 519:Stav
 520:Hráèi
@@ -393,6 +536,7 @@ MaxID:697
 532:Barva
 533:Pøipraven
 534:Ping
+535:Ping / FPS
 536:Otevøeno
 537:Poèítaè
 538:Vybrat...
@@ -405,21 +549,38 @@ MaxID:697
 545:Pøipraven
 546:Není pøipraven
 547:Zaèít!
+548:Rychlost hry (v dobì míru)
+549:Rychlost hry
+550:OK
+551:Storno
+552:Popis
+553:Heslo
+554:Nastavení místnosti
+555:Urèit jako hostitele
+556:Ban
+557:Vykopnout
+558:Náhodné lokace s ohledem na týmy
+559:Popis
+560:Nastavení
 561:Pozice %d
 562:Chyba: Vyberte, prosím, hráèe z uložené hry
 563:Chyba: Mapa nelze naèíst nebo nebyla vybrána
 564:Nelze zaèít: %s
 565:Nìkdo není pøipraven ke startu
+566:Nemlze pøiøadit náhodné pozice
 567:Server vám pøiøadil hostovací práva
 568:Hra již zaèala
 569:Stavìní
 570:Bojování
 571:Kooperace
+572:Speciální mapy
 573:Nastavení hry:
 574:Doba míru (minuty)
 575:Zavøeno
 576:Hostitel urèuje nastavení hráèe
 577:Èekám na ostatní hráèe:
+578:Všem
+579:Týmu
 580:KaM Remake Autoøi
 581:Autoøi Knights & Merchants
 582:PROGRAMOVÁNÍ:
@@ -469,6 +630,7 @@ MaxID:697
 626:Ukázat záznam
 627:Nepodporovaný formát %s
 628:Nepodporovaná verze %s
+629:Nepodporované modifikace
 630:Nastala chyba pøi analýze souboru %s
 631:inicializuje se
 632:skript
@@ -483,6 +645,7 @@ MaxID:697
 641:Uložená hra se neshoduje s hostitelem: %s
 642:Záznam ze hry neprošel testem celistvosti. Toto je známá chyba, která mùže ovlivnit pøehrávání nìkterých záznamù. Chcete pokraèovat v pøehrávání?
 643:KaM Remake mùžete mít v multplayeru spuštìný jen jednou.
+644:Modifikace hry nejsou povoleny v multiplayeru.|Prosím pøeinstalujte hru k obnovení pùvodních souborù.
 645:Nastala chyba. Prosím kliknìte na tlaèítko Poslat zprávu o chybì abychom zjistili, co se stalo
 646:Poslat zprávu o chybì
 647:Ukázat nezpracovaná data
@@ -506,3 +669,33 @@ MaxID:697
 665:Odesílání hlášení o chybì bylo neúspìšné! Náš server mùže být zaneprázdnìn, prosím zkuste to odeslat znovu.
 666:Informace
 667:Prosím èekejte...
+668:Uložit mapu
+669:Prodlení v minutách než poèítaè zaène vyrábìt rekruty
+670:Prodlení rekrutù (min)
+671:Nastaví smìr pro všechny dlaždice ze kterých se skládá voda
+672:Èarovná voda
+673:Kopírovat
+674:Vložit
+675:Použít vložení
+676:Zrušit vložení
+677:Pøevrátit vertikálnì
+678:Pøevrátit horizontálnì
+679:Táhnout pro vybrání místa na mapì
+680:Nastavení obrany poèítaèe
+681:Vyp
+682:Rádius
+683:Smazat aktuálního prùzkumníka
+684:Návrat na stránku prozkoumání mlhy
+685:Zavøít
+686:Rozkaz skupinì
+687:Žádný
+688:Utoèná pozice
+689:Jít
+690:Smìr
+691:Zadní linie
+692:Pøední linie
+693:Obranný rádius
+694:Smazat tuto obrannou pozici
+695:Návrat na stránku obrana
+696:Obranná pozice
+697:Jednotky
