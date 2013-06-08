@@ -852,7 +852,7 @@ const
     TX_MAPED_TERRAIN_HINTS_HEIGHTS,
     TX_MAPED_TERRAIN_HINTS_TILES,
     TX_MAPED_TERRAIN_HINTS_OBJECTS,
-    TX_MAPED_TERRAIN_HINTS_OBJECTS);
+    TX_MAPED_COPY_TITLE);
   Surfaces: array [0 .. 6, 0 .. 4] of TTerrainKind = (
     (tkGrass,       tkMoss,         tkRustyGrass1,  tkRustyGrass2,  tkCustom),
     (tkDirtGrass,   tkDirt,         tkGravel,       tkCobbleStone,  tkCustom),
