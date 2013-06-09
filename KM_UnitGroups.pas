@@ -99,7 +99,7 @@ type
     procedure SelectFlagBearer;
     function HasMember(aWarrior: TKMUnit): Boolean;
     procedure ResetAnimStep;
-    function InFight: Boolean; //Fighting and can't take any orders from player
+    function InFight(aCountCitizens: Boolean = False): Boolean; //Fighting and can't take any orders from player
     function IsAttackingHouse: Boolean; //Attacking house
     function IsAttackingUnit: Boolean;
     function IsIdleToAI: Boolean;
@@ -782,14 +782,14 @@ begin
 end;
 
 
-//Fighting with citizens does not count
-function TKMUnitGroup.InFight: Boolean;
+//Fighting with citizens does not count by default
+function TKMUnitGroup.InFight(aCountCitizens: Boolean = False): Boolean;
 var I: Integer;
 begin
   Result := False;
 
   for I := 0 to Count - 1 do
-  if Members[I].InFight then
+  if Members[I].InFight(aCountCitizens) then
   begin
     Result := True;
     Exit;

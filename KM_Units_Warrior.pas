@@ -65,7 +65,7 @@ type
     property RequestedFood: Boolean read fRequestedFood write fRequestedFood; //Cleared by Serf delivering food
     property LastShootTime: Cardinal read fLastShootTime;
     function IsRanged: Boolean;
-    function InFight: Boolean;
+    function InFight(aCountCitizens: Boolean = False): Boolean;
     function InAGroup: Boolean;
     function NeedsToReload(aFightAnimLength: Byte): Boolean;
     procedure SetLastShootTime;
@@ -291,10 +291,10 @@ end;
 
 
 //We are actively fighting with an enemy
-function TKMUnitWarrior.InFight: Boolean;
+function TKMUnitWarrior.InFight(aCountCitizens: Boolean = False): Boolean;
 begin
   Result := (GetUnitAction is TUnitActionFight)
-            and (TUnitActionFight(GetUnitAction).GetOpponent is TKMUnitWarrior)
+            and (aCountCitizens or (TUnitActionFight(GetUnitAction).GetOpponent is TKMUnitWarrior))
             and not TUnitActionFight(GetUnitAction).GetOpponent.IsDeadOrDying;
 end;
 
