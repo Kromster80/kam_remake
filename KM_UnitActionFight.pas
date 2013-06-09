@@ -251,8 +251,10 @@ end;
 
 
 //A result of true means exit from Execute
-function TUnitActionFight.ExecuteProcessMelee(Step:byte):boolean;
-var IsHit: boolean; Damage: word;
+function TUnitActionFight.ExecuteProcessMelee(Step: Byte): Boolean;
+var
+  IsHit: Boolean;
+  Damage: Word;
 begin
   Result := false;
   //Melee units place hit on this step
@@ -284,8 +286,8 @@ begin
     if fFightDelay > 0 then
     begin
       dec(fFightDelay);
-      Result := true; //Means exit from Execute
-      exit;
+      Result := True; //Means exit from Execute
+      Exit;
     end;
 
     fFightDelay := -1; //Reset
@@ -330,16 +332,16 @@ begin
   if TKMUnitWarrior(fUnit).IsRanged then
   begin
     if ExecuteProcessRanged(Step) then
-      exit;
+      Exit;
   end
   else
     if ExecuteProcessMelee(Step) then
-      exit;
+      Exit;
 
   //Aiming Archers and pausing melee may miss a few ticks, (exited above) so don't put anything critical below!
 
   StepDone := (fUnit.AnimStep mod Cycle = 0) or TKMUnitWarrior(fUnit).IsRanged; //Archers may abandon at any time as they need to walk off imediantly
-  inc(fUnit.AnimStep);
+  Inc(fUnit.AnimStep);
 end;
 
 
