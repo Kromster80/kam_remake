@@ -1,0 +1,12 @@
+
+MaxID:9
+
+1:Nessuno è nel castello
+2:[$%s]%s[] sta cercando nel castello da %.2d:%.2d
+3:[$%s]%s[] ha trovato %d %s nelle rovine del castello!
+4:oro
+5:scudi
+6:armature di ferro
+7:spade
+8:picche
+9:balestre

@@ -118,6 +118,7 @@ MaxID:697
 114:Abbandona
 115:Indietro
 116:Impostazioni
+117:Esci dall'editor
 118:Effetti Sonori
 119:Cambia il volume
 120:Cambia il volume
@@ -138,6 +139,7 @@ MaxID:697
 135:Annulla
 136:Annulla l'addestramento in corso
 137:Utilizza:
+138:Scorte:
 139:Condizioni:
 140:Produce
 141:Edificio in|costruzione.
@@ -177,6 +179,7 @@ MaxID:697
 175:I filoni della tua miniera di carbone sono esauriti.
 176:I filoni della tua miniera di ferro sono esauriti.
 177:I filoni della tua miniera d'oro sono esauriti.
+178:Il tuo taglialegna non riesce a trovare altri alberi da abbattere
 179:Questo edificio non è occupato.
 180:Questi soldati sono molto affamati, hanno bisogno di mangiare al più presto!
 181:PAUSA
@@ -226,6 +229,7 @@ MaxID:697
 225:Al Porto
 226:Viaggio
 227:Campagne
+228:Campagne
 229:Avvia la Campagna!
 230:Giocatore Singolo
 231:Inizia
@@ -268,8 +272,14 @@ MaxID:697
 268:Edifici
 269:Risorse
 270:Risorse prodotte
+271:Nessun dato
 272:Tu
 273:Giocatore %d
+274:Torna a Multigiocatore
+275:Torna ai Replay
+276:Tutto
+277:Militare
+278:Cibo
 279:JOYMANIA ENTERTAINMENT||PROGRAMMAZIONE:|Peter Ohlmann||GRAFICA:|Adam Sprys||LIVELLI:|Adam Sprys|Andre Quaß||EDITING E MIXING AUDIO:|Tonstudio Mannheim||MUSICHE:|Gerd Hofmann|Joachim Schäfer|Jürgen Rebhann|Klaus Staendike|Steffen Schüngel||ILLUSTRAZIONI:|Boleslaw Kasza|Christoph Werner||ZUXXEZ ENTERTAINMENT AG||PRODUCER:|Uwe Schäfer||MANUALE:|Peter Ohlmann|Uwe Schäfer||BETA TESTING:|Peter Ohlmann|Adam Sprys|Alexandra Constandache|Dirk P. Hassinger|Achim Heidelauf|Uwe Schäfer|Ingrid Schäfer|Dirk U. Jantz|Ion Constandache|Yaman Egeli|Roman Eich|Iris Mocsnek|Anke Jantz|Paul Hassinger|Liza Hassinger||GAMES DIRECTOR:|Achim Heidelauf||PUBBLICATO DA:|TopWare Interactive||CUTSCENES:||DIREZIONE:|Slawomir Jedrzejewski||Kajetan Czarnecki|Wojciech Drazek|Daniel Duplaga|Rafal Januszkiewicz|Andrzej Rams|Piotr Rulka|Krzysztof Rybczynski|Grzegorz Wisniwski||VOCE:|Claus Boyen (Narratore)||Tim Timmermann|Peter Houska|Dirk Mühlbach|Ralf Ditze|Gerhard Piske|Gernot Wassmann||ARTWORK:|Boleslaw Kasza|Adam Sprys||ANIMAZIONE D'APERTURA:|Uwe Schäfer|Christian Bigalk|Additional 3D-Modelling:|Niels Horstmann||RINGRAZIAMENTI SPECIALI:|Tadeusz Zuber|Dieter Ohlmann|Alexandra Constandache|Ingrid Schäfer|Andrea Rumpelt
 280:Missione annullata
 281:Replay terminato
@@ -291,12 +301,14 @@ MaxID:697
 297:Crea nuova mappa
 298:Mappe disponibili
 299:Carica mappa esistente
+300:Posizione
 301:Controlli:
 302:Impostazioni di gioco:
 303:Opzioni Audio:
-304:Disattiva musica
+304:Niente musica
 305:Opzioni Grafiche:
 306:Luminosità
+307:Sincronia Verticale
 308:Schermo intero
 309:Applica
 310:Lingua:
@@ -343,6 +355,7 @@ MaxID:697
 351:Connessione fallita: %s
 352:Sei stato disconnesso
 353:Missione %d
+354:Registro dei messaggi
 355:La tua capanna del pescatore è troppo lontana dalla riva.
 356:Il tuo pescatore non riesce a trovare altri pesci nelle vicinanze.
 357:Riavvia replay
@@ -350,15 +363,143 @@ MaxID:697
 359:Avanza di un fotogramma
 360:Riprendi replay
 361:Termina replay
+362:Prospettiva individuale del giocatore
+363:Mostra tutto
 364:Usa il tasto sinistro del mouse per scegliere il prodotto da scambiare
 365:Usa il tasto destro del mouse per scegliere il prodotto da scambiare
 366:Da x%d
 367:A x%d
 368:Editor del terreno
+369:Pennello
+370:Altitudine
+371:Tasselli
+372:Oggetti
+373:Altitudine
+374:Forma
+375:Dimensione
+376:Scorri per cambiare le dimensioni del pennello
+377:Pendenza
+378:Scorri per cambiare la pendenza: 1 = plateau ... 15 = picco
+379:Velocità
+380:Scorri per cambiare la velocità 1 = lenta... 15 = molto veloce
+381:Pennello circolare
+382:Pennello quadrato
+383:Alza / Abbassa
+384:Erodi / Appiattisci
+385:Alza (click sinistro) / Abbassa (click destro)
+386:Erodi (click sinistro) / Appiattisci (click destro)
+387:Pennello
+388:Elementi casuali
+389:Direzione Casuale
+390:Spunta per avere direzione casuale o fai click destro per ruotare il tassello
+391:Usa il click destro per ruotare il tassello selezionato
+392:Accesso vietato alle unità
+393:Rimuovi un oggetto
 394:Pianificazione del villaggio
 395:Impostazioni giocatore
 396:Impostazioni globali
 397:Menu
+398:Oggetti
+399:Mostra depositi
+400:Mostra unità
+401:Mostra edifici
+402:Mostra oggetti
+403:Mostra accessibilità
+404:Le modifiche non|salvate saranno|perdute
+405:Annulla
+406:Carica
+407:Carica Mappa
+408:Annulla
+409:Salva
+410:Sovrascrivi
+411:La mappa esiste già
+412:Giocatori:
+413:Predef.
+414:Tipi di giocatore
+415:Simmetriche
+416:Alleanze
+417:Tattica
+418:Normale
+419:Modo missione
+420:Vai alla posizione
+421:Posizione dello schermo ad inizio missione
+422:Centra schermo
+423:Rivela tutto
+424:Rivela una porzione della mappa
+425:Nebbia di guerra
+426:Blocca merci
+427:Blocca/permetti edifici
+428:Colori
+429:Obiettivo
+430:Msg.
+431:Tempo
+432:Giocatore
+433:Edifici civili
+434:Servi e scuole
+435:Risorse militari
+436:Sconosciuta
+437:Truppe
+438:Edifici
+439:Tempo
+440:Tutorial costruz.
+441:Nessuna
+442:Condizione
+443:Resisti
+444:Vittoria
+445:Nessuno
+446:Tipo
+447:Obiettivi
+448:OK
+449:Annulla
+450:Colonne
+451:Conta
+452:Formazioni
+453:Modifica formazioni
+454:Imposta un limite al numero di soldati dell'IA
+455:Quanti soldati l'IA può avere in un dato momento
+456:Massimo di soldati
+457:Quante reclute l'IA dovrebbe mantenere in caserma
+458:Reclute per caserma
+459:Posizione
+460:Posizione
+461:Edificio vicino 2
+462:Edificio vicino 1
+463:Unità vicina
+464:Tutti
+465:Dimensioni del gruppo
+466:Informazioni sull'attacco
+467:Attesa, s
+468:Ripeti
+469:Unico
+470:Cavalleria
+471:A distanza
+472:Ad asta
+473:Mischia
+474:Pos.
+475:Obiettivo
+476:Uomini
+477:Attesa
+478:Tipo
+479:Attacco automatico
+480:IA - Offensive
+481:Unità con cuoio
+482:Unità con ferro
+483:Difesa automatica
+484:L'IA crea e gestisce autonomamente le posizioni da difendere
+485:Seleziona una posizione per l'IA da difendere
+486:Posizioni da difendere
+487:Lavoratori
+488:Servi ogni 10 edifici
+489:Riparazione
+490:Costruzione
+491:Impostazioni IA
+492:Edifici
+493:Lavori
+494:Inverti verticalmente la selezione
+495:Inverti orizzontalmente la selezione
+496:Incolla terreno
+497:Copia terreno
+498:Copia/incolla
 499:Nuova Missione
 500:Nome giocatore
 501:Stato:
@@ -376,6 +517,8 @@ MaxID:697
 513:Spazio
 514:Connetti
 515:Annulla
+516:Stanza protetta da password
+517:Password
 518:Nome del Server
 519:Stato
 520:Giocatori
@@ -393,6 +536,7 @@ MaxID:697
 532:Colore
 533:Pronto
 534:Ping
+535:Ping / FPS
 536:Aperto
 537:Giocatore IA
 538:Seleziona...
@@ -405,21 +549,38 @@ MaxID:697
 545:Pronto
 546:Non pronto
 547:Inizia!
+548:Velocità di gioco (tempo di pace)
+549:Velocità di gioco
+550:OK
+551:Annulla
+552:Descrizione
+553:Password
+554:Impostazioni stanza
+555:Imposta come host
+556:Bandisci
+557:Caccia
+558:Posizioni casuali all'interno delle squadre
+559:Descrizione
+560:Opzioni
 561:Posizione %d
 562:Errore: Scegli una fazione da controllare.
 563:Errore: Caricamento della mappa fallito o mappa non selezionata
 564:Impossibile iniziare: %s
 565:Non tutti i giocatori sono pronti per iniziare
+566:Impossibile assegnare posizioni casuali
 567:Il server ci ha assegato il ruolo di host
 568:Partita iniziata
 569:Costruzione
 570:Battaglia
 571:Cooperativa
+572:Mappa speciale
 573:Opzioni di gioco:
 574:Tempo di pace (min.)
 575:Chiuso
 576:L'host configura i giocatori
 577:In attesa dei giocatori:
+578:Tutti
+579:Squadra
 580:Crediti di KaM Remake
 581:Crediti del Knights & Merchants originale
 582:PROGRAMMAZIONE:
@@ -433,7 +594,7 @@ MaxID:697
 590:Giocatore singolo
 591:Vel. scorrimento
 592:Nessun server trovato
-593:Riproduci a caso
+593:Ordine casuale
 594:Informazioni di gioco:
 595:-
 596:Lobby
@@ -469,6 +630,7 @@ MaxID:697
 626:Guarda Replay
 627:Formato %s non supportato
 628:Versione %s non supportata
+629:Modificazioni non supportate
 630:Si è verificato un errore durante l'analisi del file %s
 631:inizializzazione
 632:script
@@ -476,13 +638,14 @@ MaxID:697
 634:edifici
 635:alberi
 636:definizioni
-637:tileset
+637:tasselli
 638:Mappa non trovata: %s
 639:Salvataggio non trovato: %s
 640:File non compatibili con l'host per la mappa: %s
 641:File non compatibile con l'host per il salvataggio: %s
 642:Il replay ha fallito un controllo di coerenza. Questo è un problema noto che affligge alcuni replay. Vuoi continuare a guardarlo?
 643:Una sola sessione di gioco per volta può essere avviata in modalità multiplayer
+644:Modifiche al gioco non sono permesse in multigiocatore.|Si prega di reinstallare per ripristinare i file originali.
 645:Si è verificato un errore. Per favore, clicca su "Invia segnalazione" per permetterci di sapere del problema e risolverlo. Grazie per l'aiuto!
 646:Invia segnalazione
 647:Mostra dati grezzi
@@ -506,3 +669,33 @@ MaxID:697
 665:Invio della segnalazione fallito! Il nostro server potrebbe essere occupato; per favore, prova ad inviarla nuovamente.
 666:Informazioni
 667:Per favore, attendi un momento...
+668:Salva Mappa
+669:Il ritardo prima che l'IA inizi ad addestrare le reclute
+670:Reclutam. (minuti)
+671:Uniforma la direzione dei tasselli in uno specchio d'acqua
+672:Acqua magica
+673:Copia
+674:Incolla
+675:Applica
+676:Annulla
+677:Inverti verticalmente
+678:Inverti orizzontalmente
+679:Trascina per selezionare un'area sulla mappa
+680:IA - Opzioni difensive
+681:Off
+682:Raggio
+683:Cancella rivelatore
+684:Torna alle opzioni della nebbia di guerra
+685:Chiudi
+686:Ordini
+687:Nessuno
+688:Attacca posizione
+689:Vai a
+690:Direzione
+691:Retrovie
+692:Prima linea
+693:Raggio di difesa
+694:Cancella questa posizione da difendere
+695:Torna alla pagina di difesa IA
+696:Posizione da difendere
+697:Unità
