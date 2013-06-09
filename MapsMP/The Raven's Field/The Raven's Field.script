@@ -1,0 +1,98 @@
+var i : Integer;
+var j : Integer;
+var playerNames : Array[0..7] of String; 
+var playerColors : Array[0..7] of String;
+var playerKills : Array[0..7] of Integer;
+
+procedure OnMissionStart;
+begin
+	for i := 0 to 3 do
+	begin
+		for j := 4 to 7 do
+		begin
+			Actions.PlayerAllianceChange(i,j,True,False);
+		end;
+		for j := 0 to 3 do
+		begin
+			Actions.PlayerAllianceChange(i,j,True,True);
+		end;
+	end;
+	
+	for i := 4 to 7 do
+	begin
+		for j := 4 to 7 do
+		begin
+			Actions.PlayerAllianceChange(i,j,True,True);
+		end;
+	end;
+	
+	for i := 0 to 3 do
+	begin
+		Actions.FogCoverCircle(i,1,93,40)
+		Actions.FogCoverCircle(i,77,93,40)
+		Actions.FogCoverCircle(i,38,94,40)
+	end;
+	for i := 4 to 7 do
+	begin
+		Actions.FogCoverCircle(i,12,14,40)
+		Actions.FogCoverCircle(i,36,15,40)
+		Actions.FogCoverCircle(i,70,18,40)
+	end;
+	
+	for i := 0 to 7 do
+	begin
+		playerNames[i] := States.PlayerName(i);
+		playerColors[i] := States.PlayerColorText(i);
+		playerKills[i] := 0;
+	end;
+end;
+
+procedure OnUnitKilled(aUnitID: Integer; aKillerIndex: Integer);
+begin
+	playerKills[aKillerIndex] := playerKills[aKillerIndex] + 1;
+end;
+
+procedure OnTick;
+begin
+    if (States.StatArmyCount(0) = 0)
+	and (States.StatCitizenCount(0) = 0)
+	and (States.StatArmyCount(1) = 0)
+	and (States.StatCitizenCount(1) = 0)
+	and (States.StatArmyCount(2) = 0)
+	and (States.StatCitizenCount(2) = 0)
+	and (States.StatArmyCount(3) = 0)
+	and (States.StatCitizenCount(3) = 0) then
+	begin
+		Actions.PlayerWin([4,5,6,7],False);
+	end;
+		
+    if (States.StatCitizenCount(4) = 0)
+	and (States.StatArmyCount(4) = 0)
+	and (States.StatCitizenCount(5) = 0)
+	and (States.StatArmyCount(5) = 0)
+	and (States.StatCitizenCount(6) = 0)
+	and (States.StatArmyCount(6) = 0)
+	and (States.StatCitizenCount(7) = 0)
+	and (States.StatArmyCount(7) = 0) then
+	begin
+		Actions.PlayerWin([0,1,2,3],False);
+	end;
+	
+	Actions.OverlayTextSet(-1, '<$0> :|');
+	for i:=0 to 3 do
+	begin
+		if States.PlayerEnabled(i) then
+		begin
+			Actions.OverlayTextAppendFormatted(-1, '[$%s]%s[] : %d <$2>.|',[playerColors[i], playerNames[i], playerKills[i]]);
+		end;
+	end;
+	
+	Actions.OverlayTextAppend(-1, '|<$1> :|');
+	for i:=4 to 7 do
+	begin
+		if States.PlayerEnabled(i) then
+		begin
+			Actions.OverlayTextAppendFormatted(-1, '[$%s]%s[] : %d <$2>.|',[playerColors[i], playerNames[i], playerKills[i]]);
+		end;
+	end;
+end;
