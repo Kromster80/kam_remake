@@ -9,8 +9,8 @@ Bugs:
  +	Some users couldn't start the game, getting an error "8087CW is wrong"
  +	Archers would stop shooting and reposition themselves if a member of the group died (should ignore it and keep firing)
  +	Archers in an AI defence position would be continuously interrupted while trying to shoot enemy citizens
-	Abusers can spam into chat with long messages (Chatspam.jpg), that makes the game lag and finally to stop responding
 
+ 
 Features:
  +	Dynamic scripts now support iteration over enumerations and Include/Exclude commands for adding variables to sets
 

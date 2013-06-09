@@ -2090,7 +2090,7 @@ begin
   fFont := aFont;
   fAllowedChars := acText; //Set to the widest by default
   CursorPos := 0;
-  MaxLen := 160; //Default max length as in one SMS
+  MaxLen := 256; //Default max length to prevent chat spam
 
   //Text input fields are focusable by concept
   Focusable := True;
