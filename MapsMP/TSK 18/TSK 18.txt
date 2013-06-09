@@ -1,0 +1,4 @@
+SetCoop
+
+BigDesc
+Mission 18 from The Shattered Kingdom campaign converted for co-operative by andreus.
