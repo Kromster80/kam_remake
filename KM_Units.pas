@@ -1179,7 +1179,7 @@ begin
 
   if fHome <> nil then
   begin
-    fHome.GetHasOwner := false;
+    fHome.GetHasOwner := False;
     fPlayers.CleanUpHousePointer(fHome);
   end;
 

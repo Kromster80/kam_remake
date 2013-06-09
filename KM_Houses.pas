@@ -79,8 +79,8 @@ type
     procedure SetResOrder(aId: Byte; aValue: Integer); virtual;
   public
     fCurrentAction: THouseAction; //Current action, withing HouseTask or idle
-    ResourceDepletedMsgIssued: boolean;
-    DoorwayUse: byte; //number of units using our door way. Used for sliding.
+    ResourceDepletedMsgIssued: Boolean;
+    DoorwayUse: Byte; //number of units using our door way. Used for sliding.
     OnDestroyed: TKMHouseFromEvent;
 
     constructor Create(aID: Cardinal; aHouseType: THouseType; PosX, PosY: Integer; aOwner: TPlayerIndex; aBuildState: THouseBuildState);
@@ -107,40 +107,40 @@ type
     function HitTest(X, Y: Integer): Boolean;
     property HouseType: THouseType read fHouseType;
     property BuildingRepair: Boolean read fBuildingRepair write SetBuildingRepair;
-    property WareDelivery:boolean read fWareDelivery write fWareDelivery;
-    property GetHasOwner:boolean read fHasOwner write fHasOwner;
+    property WareDelivery: Boolean read fWareDelivery write fWareDelivery;
+    property GetHasOwner: Boolean read fHasOwner write fHasOwner; //There's a citizen who runs this house
     property Owner: TPlayerIndex read fOwner;
     property DisableUnoccupiedMessage: Boolean read fDisableUnoccupiedMessage write fDisableUnoccupiedMessage;
-    function GetHealth:word;
+    function GetHealth: Word;
     function GetBuildWoodDelivered: Byte;
     function GetBuildStoneDelivered: Byte;
 
     property BuildingState: THouseBuildState read fBuildState write fBuildState;
     procedure IncBuildingProgress;
-    function MaxHealth:word;
+    function MaxHealth: Word;
     procedure AddDamage(aFrom: TPlayerIndex; aAmount: Word; aIsEditor: Boolean = False);
-    procedure AddRepair(aAmount:word=5);
+    procedure AddRepair(aAmount: Word = 5);
     procedure UpdateDamage;
 
-    function IsStone:boolean;
-    function IsComplete:boolean;
-    function IsDamaged:boolean;
-    property IsDestroyed:boolean read fIsDestroyed;
-    property GetDamage:word read fDamage;
+    function IsStone: Boolean;
+    function IsComplete: Boolean;
+    function IsDamaged: Boolean;
+    property IsDestroyed: Boolean read fIsDestroyed;
+    property GetDamage: Word read fDamage;
 
     procedure SetState(aState: THouseState);
     function GetState: THouseState;
 
-    function CheckResIn(aWare: TWareType):word; virtual;
+    function CheckResIn(aWare: TWareType): Word; virtual;
     function CheckResOut(aWare: TWareType): Byte;
     function PickOrder: Byte;
-    function CheckResToBuild:boolean;
+    function CheckResToBuild: Boolean;
     function GetMaxInRes: Word;
-    procedure ResAddToIn(aWare: TWareType; aCount:word=1; aFromScript:boolean=false); virtual; //override for School and etc..
-    procedure ResAddToOut(aWare: TWareType; const aCount:integer=1);
+    procedure ResAddToIn(aWare: TWareType; aCount: Word = 1; aFromScript: Boolean = False); virtual; //override for School and etc..
+    procedure ResAddToOut(aWare: TWareType; const aCount: Integer = 1);
     procedure ResAddToBuild(aWare: TWareType);
-    procedure ResTakeFromIn(aWare: TWareType; aCount: Byte=1);
-    procedure ResTakeFromOut(aWare: TWareType; const aCount: Word=1); virtual;
+    procedure ResTakeFromIn(aWare: TWareType; aCount: Byte = 1);
+    procedure ResTakeFromOut(aWare: TWareType; const aCount: Word = 1); virtual;
     function ResCanAddToIn(aRes: TWareType): Boolean; virtual;
     property ResOrder[aId: Byte]: Integer read GetResOrder write SetResOrder;
 
@@ -271,11 +271,11 @@ begin
   fBuildingProgress := 0;
   fDamage           := 0; //Undamaged yet
 
-  fHasOwner         := false;
+  fHasOwner         := False;
   //Initially repair is [off]. But for AI it's controlled by a command in DAT script
-  fBuildingRepair   := false; //Don't set it yet because we don't always know who are AIs yet (in multiplayer) It is set in first UpdateState
+  fBuildingRepair   := False; //Don't set it yet because we don't always know who are AIs yet (in multiplayer) It is set in first UpdateState
   DoorwayUse        := 0;
-  fWareDelivery     := true;
+  fWareDelivery     := True;
 
   for i:=1 to 4 do
   begin

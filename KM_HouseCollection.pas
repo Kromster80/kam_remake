@@ -150,26 +150,26 @@ begin
   BestBid := MaxSingle;
 
   for I := 0 to Count - 1 do
-    if (fResource.HouseDat[Houses[i].HouseType].OwnerType = aUnitType) and //If Unit can work in here
-       (not Houses[i].GetHasOwner) and                              //If there's yet no owner
-       (not Houses[i].IsDestroyed) and
-       (Houses[i].IsComplete) then                               //If house is built
+    if (fResource.HouseDat[Houses[I].HouseType].OwnerType = aUnitType) and //If Unit can work in here
+       (not Houses[I].GetHasOwner) and                              //If there's yet no owner
+       (not Houses[I].IsDestroyed) and
+       (Houses[I].IsComplete) then                               //If house is built
     begin
       //Recruits should not go to a barracks with ware delivery switched off
-      if (Houses[i].HouseType = ht_Barracks) and (not Houses[i].WareDelivery) then Continue;
-      if not gTerrain.Route_CanBeMade(Loc, KMPointBelow(Houses[i].GetEntrance), canWalk, 0) then Continue;
+      if (Houses[I].HouseType = ht_Barracks) and (not Houses[I].WareDelivery) then Continue;
+      if not gTerrain.Route_CanBeMade(Loc, KMPointBelow(Houses[I].GetEntrance), canWalk, 0) then Continue;
 
-      Dist := KMLengthSqr(Loc, Houses[i].GetPosition);
+      Dist := KMLengthSqr(Loc, Houses[I].GetPosition);
 
       //Always prefer Towers to Barracks by making Barracks Bid much less attractive
       //In case of multiple barracks, prefer the closer one (players should make multiple schools or use WareDelivery to control it)
-      if Houses[i].HouseType = ht_Barracks then
+      if Houses[I].HouseType = ht_Barracks then
         Dist := Dist * 1000;
 
       if Dist < BestBid then
       begin
         BestBid := Dist;
-        Result := Houses[i];
+        Result := Houses[I];
       end;
 
     end;
@@ -182,7 +182,7 @@ end;
 //Find closest house to given position
 //or
 //Find house by index (1st, 2nd)
-function TKMHousesCollection.FindHouse(aType:THouseType; X,Y:word; const aIndex:byte=1; aOnlyCompleted:boolean=true): TKMHouse;
+function TKMHousesCollection.FindHouse(aType: THouseType; X, Y: word; const aIndex: Byte = 1; aOnlyCompleted: Boolean = True): TKMHouse;
 var
   I,ID: Integer;
   UsePosition: Boolean;

@@ -9,6 +9,7 @@ Bugs:
  +	Some users couldn't start the game, getting an error "8087CW is wrong"
  +	Archers would stop shooting and reposition themselves if a member of the group died (should ignore it and keep firing)
  +	Archers in an AI defence position would be continuously interrupted while trying to shoot enemy citizens
+ +	Workers will refuse to walk past empty enemy towers, now they refuse only past occupied towers
 
  
 Features:
