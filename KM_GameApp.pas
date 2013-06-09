@@ -666,6 +666,10 @@ end;
 
 procedure TKMGameApp.UpdateState(Sender: TObject);
 begin
+  //Some PCs seem to change 8087CW randomly between events like Timers and OnMouse*,
+  //so we need to set it right before we do game logic processing
+  Set8087CW($133F);
+
   Inc(fGlobalTickCount);
   //Always update networking for auto reconnection and query timeouts
   if fNetworking <> nil then fNetworking.UpdateState(fGlobalTickCount);

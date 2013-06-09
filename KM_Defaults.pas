@@ -41,7 +41,6 @@ var
   CAP_MAX_FPS           :Boolean = True;  //Should limit rendering performance to avoid GPU overheating (disable to measure debug performance)
   CRASH_ON_REPLAY       :Boolean = True;  //Crash as soon as replay consistency fails (random numbers mismatch)
   BLOCK_DUPLICATE_APP   :Boolean = True;  //Do not allow to run multiple games at once (to prevent MP cheating)
-  CHECK_8087CW          :Boolean = True;  //Check that 8087CW (FPU flags) are set correctly each frame, in case some lib/API changed them
 
   //Implemented
   DO_UNIT_INTERACTION   :Boolean = True; //Debug for unit interaction
@@ -59,6 +58,7 @@ var
   SHOW_DISMISS_BUTTON   :Boolean = False; //The button to order citizens go back to school
   CACHE_PATHFINDING     :Boolean = False; //Cache routes incase they are needed soon (Vortamic PF runs x4 faster even with lame approach)
   SNOW_HOUSES           :Boolean = False; //Draw snow on houses
+  CHECK_8087CW          :Boolean = False; //Check that 8087CW (FPU flags) are set correctly each frame, in case some lib/API changed them
   PathFinderToUse       :Byte = 1;
 
   WARFARE_ORDER_SEQUENTIAL    :Boolean = True; //Pick weapon orders like KaM did

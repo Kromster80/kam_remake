@@ -254,6 +254,9 @@ begin
   end;
   //FPS calculation complete
 
+  //Some PCs seem to change 8087CW randomly between events like Timers and OnMouse*,
+  //so we need to set it right before we do game logic processing
+  Set8087CW($133F);
   if fGameApp <> nil then
   begin
     fGameApp.UpdateStateIdle(FrameTime);

@@ -6,10 +6,12 @@ Bugs:
  +	Crash when using magic water tool on non-square maps
  +	Multiplayer saves in games with AI players would mismatch between players with different locales ("AI Player" was translated)
  +	Crash in MapEd when deleting last defense position
+ +	Some users couldn't start the game, getting an error "8087CW is wrong"
 	Abusers can spam into chat with long messages (Chatspam.jpg), that makes the game lag and finally to stop responding
 
 Features:
  +	Dynamic scripts now support iteration over enumerations and Include/Exclude commands for adding variables to sets
+
 
 After RC3:
 	Map updates
