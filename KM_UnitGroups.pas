@@ -623,7 +623,8 @@ begin
   if IsDead and Assigned(OnGroupDied) then
     OnGroupDied(Self);
 
-  if not IsDead and CanTakeOrders then
+  //Only repeat the order if we are not in a fight (since bowmen can still take orders when fighting)
+  if not IsDead and CanTakeOrders and not InFight then
     OrderRepeat;
 end;
 
