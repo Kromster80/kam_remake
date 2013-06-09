@@ -838,7 +838,7 @@ begin
     Label_ClockSpeedup := TKMLabel.Create(Panel_Main,265,48,'x1',fnt_Metal,taCenter);
     Label_ClockSpeedup.Hide;
 
-    Label_ScriptedOverlay := TKMLabel.Create(Panel_Main,240,110,'',fnt_Metal,taLeft);
+    Label_ScriptedOverlay := TKMLabel.Create(Panel_Main,260,110,'',fnt_Metal,taLeft);
 
     Image_DirectionCursor := TKMImage.Create(Panel_Main,0,0,35,36,519);
     Image_DirectionCursor.Hide;
