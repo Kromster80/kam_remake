@@ -139,7 +139,7 @@ object Form1: TForm1
     Width = 145
     Height = 24
     Style = csDropDownList
-    DropDownCount = 0
+    DropDownCount = 127
     TabOrder = 7
     OnChange = cbShowMissingChange
   end
@@ -206,7 +206,7 @@ object Form1: TForm1
     Width = 145
     Height = 24
     Style = csDropDownList
-    DropDownCount = 0
+    DropDownCount = 127
     TabOrder = 14
     OnChange = cbShowLangChange
   end

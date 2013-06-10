@@ -266,7 +266,6 @@ end;
 
 
 procedure TForm1.RefreshLocales;
-
   function GetCharset(aLang: string): TFontCharset;
   begin
     Result := DEFAULT_CHARSET;
@@ -277,8 +276,9 @@ procedure TForm1.RefreshLocales;
     if aLang = 'cze' then Result := EASTEUROPE_CHARSET;
     if aLang = 'svk' then Result := EASTEUROPE_CHARSET;
   end;
-
-var I, K, SelectedLang, SelectedShowMissing: Integer;
+var
+  I, K, SelectedLang, SelectedShowMissing: Integer;
+  TextHeight: Word;
 begin
   for I := 0 to High(TransLabels) do
   begin
@@ -299,6 +299,12 @@ begin
   cbShowLang.Items.Clear;
   cbShowLang.Items.Add('All');
   cbShowLang.ItemIndex := 0; //All by default
+
+  if (SelectedLang = 0) then
+    TextHeight := 80
+  else
+    TextHeight := 200;
+
   K := 0;
   for I := 0 to fLocales.Count - 1 do
   begin
@@ -309,22 +315,23 @@ begin
     cbShowMissing.Items.Add(fLocales[I].Code);
     cbShowLang.Items.Add(fLocales[I].Code);
     if SelectedLang = I+1 then cbShowLang.ItemIndex := I+1;
+
     if (SelectedLang = 0) or (SelectedLang = I+1)
     or (fLocales[I].Code = 'eng') then //Always show ENG
     begin
       TransLabels[I] := TLabel.Create(Form1);
       TransLabels[I].Parent := ScrollBox1;
-      TransLabels[I].SetBounds(8, 4 + K * 80, 30, 30);
+      TransLabels[I].SetBounds(8, 4 + K * TextHeight, 100, 20);
       TransLabels[I].Caption := fLocales[I].Title + ' (' + fLocales[I].Code + ')';
 
       TransMemos[I].Parent := ScrollBox1;
-      TransMemos[I].SetBounds(8, 22 + K * 80, ScrollBox1.Width - 16, 60);
+      TransMemos[I].SetBounds(8, 22 + K * TextHeight, ScrollBox1.Width - 16, TextHeight - 20);
       TransMemos[I].Anchors := [akLeft, akRight, akTop];
       TransMemos[I].Font.Charset := GetCharset(fLocales[I].Code);
       TransMemos[I].OnChange := MemoChange;
       TransMemos[I].Show;
 
-      inc(K);
+      Inc(K);
     end;
   end;
   if SelectedShowMissing = -1 then
