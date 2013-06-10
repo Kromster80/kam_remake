@@ -37,7 +37,7 @@ type
     procedure CheckStrategy;
 
     procedure CheckUnitCount;
-    procedure CheckDeliveriesBalance;
+    procedure CheckWareFlow;
     procedure CheckHouseCount;
     procedure CheckHousePlans;
     procedure CheckRoadsCount;
@@ -61,7 +61,7 @@ type
 
 
 implementation
-uses KM_Game, KM_Houses, KM_PlayersCollection, KM_Player, KM_Terrain, KM_Resource,
+uses KM_Game, KM_Houses, KM_HouseCollection, KM_PlayersCollection, KM_Player, KM_Terrain, KM_Resource,
   KM_ResourceWares, KM_AIFields;
 
 
@@ -401,31 +401,36 @@ begin
 end;
 
 
-procedure TKMayor.CheckDeliveriesBalance;
+//Manage ware distribution
+procedure TKMayor.CheckWareFlow;
 var
   I: Integer;
   S: TKMHouseStore;
+  Houses: TKMHousesCollection;
 begin
-  //Block stone to store to reduce serf usage
-  I := 1;
-  S := TKMHouseStore(fPlayers[fOwner].FindHouse(ht_Store, I));
-  while S <> nil do
-  begin
-    S.NotAcceptFlag[wt_Trunk] := S.CheckResIn(wt_Trunk) > 50;
-    S.NotAcceptFlag[wt_Stone] := S.CheckResIn(wt_Stone) > 50;
+  Houses := fPlayers[fOwner].Houses;
 
-    //Look for next Store
-    Inc(I);
-    S := TKMHouseStore(fPlayers[fOwner].FindHouse(ht_Store, I));
-  end;
+  //Iterate through all Stores and block stone/trunks to reduce serf usage
+  for I := 0 to Houses.Count - 1 do
+    if (Houses[I].HouseType = ht_Store)
+    and Houses[I].IsComplete
+    and not Houses[I].IsDestroyed then
+    begin
+      S := TKMHouseStore(Houses[I]);
+
+      S.NotAcceptFlag[wt_Trunk] := S.CheckResIn(wt_Trunk) > 50;
+      S.NotAcceptFlag[wt_Stone] := S.CheckResIn(wt_Stone) > 50;
+    end;
 end;
 
 
 procedure TKMayor.CheckExhaustedMines;
 var
   I: Integer;
+  Houses: TKMHousesCollection;
 begin
-  with fPlayers[fOwner] do
+  Houses := fPlayers[fOwner].Houses;
+
   for I := 0 to Houses.Count - 1 do
   if not Houses[I].IsDestroyed
   and Houses[I].ResourceDepletedMsgIssued then
@@ -616,7 +621,7 @@ begin
     CheckHouseCount;
 
     //Manage wares ratios and block stone to Store
-    CheckDeliveriesBalance;
+    CheckWareFlow;
 
     //Build more roads if necessary
     CheckRoadsCount;

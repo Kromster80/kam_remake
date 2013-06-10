@@ -447,7 +447,7 @@ begin
 end;
 
 
-function GetKaMSeed:integer;
+function GetKaMSeed: Integer;
 begin
   if CUSTOM_RANDOM then
     Result := fKaMSeed
