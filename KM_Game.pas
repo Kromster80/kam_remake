@@ -739,6 +739,10 @@ end;
 
 procedure TKMGame.PlayerDefeat(aPlayerIndex: TPlayerIndex);
 begin
+  //We have not thought of anything to display on players defeat in Replay
+  if IsReplay then
+    Exit;
+
   if aPlayerIndex = MySpectator.PlayerIndex then
     fSoundLib.Play(sfxn_Defeat, 1, True); //Fade music
 

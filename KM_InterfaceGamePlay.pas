@@ -3909,7 +3909,8 @@ begin
     VK_F8:    fGame.SetGameSpeed(fGameApp.GameSettings.SpeedVeryFast, True);
   end;
 
-  //All the following keys don't work in Replay,
+  //All the following keys don't work in Replay, because they alter game state
+  //which is nonsense
   //thus the easy way to make that is to exit now
   if fReplay then Exit;
 
