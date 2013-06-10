@@ -5,4 +5,6 @@ SmallDesc
 A single mission by andreus
 
 BigDesc
-Additional Translations by:||  Belarusian - Mik0|  German - Tui|  Hungarian - Bence|  Swedish - Gsfer
+Defend the kingdom against mercenary invasion. Don't let the enemy go south!||I hope you will enjoy this mission.||Made by andreus||Special thanks to: Bence, Tui, Mik0, Gsfer, Vatrix, Kamykos.
+
+

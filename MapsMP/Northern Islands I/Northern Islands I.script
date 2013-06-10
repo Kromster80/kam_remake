@@ -1,0 +1,41 @@
+var sw1, sw2, sw3, sw4, axe1, axe2 : Integer; 
+ procedure OnMissionStart;
+  //Build schools and inns
+  begin
+   Actions.PlanAddHouse(0,13,67,141);
+   Actions.PlanAddHouse(1,13,128,140);
+   Actions.PlanAddHouse(0,27,59,146);
+   Actions.PlanAddHouse(1,27,136,144);
+   Actions.PlanAddRoad(0,62,144);
+   Actions.PlanAddRoad(0,62,145);
+   Actions.PlanAddRoad(0,62,146);
+   Actions.PlanAddRoad(0,62,147);
+   Actions.PlanAddRoad(0,61,147);
+   Actions.PlanAddRoad(0,60,147);
+   Actions.PlanAddRoad(0,59,147);
+   Actions.PlanAddRoad(1,134,142);
+   Actions.PlanAddRoad(1,134,143);
+   Actions.PlanAddRoad(1,134,144);
+   Actions.PlanAddRoad(1,134,145);
+   Actions.PlanAddRoad(1,135,145);
+   Actions.PlanAddRoad(1,136,145);
+  end;
+
+ procedure OnTick;
+  //Reinforcements
+  begin
+   if States.GameTime = 300 then begin
+   axe1 := Actions.GiveGroup(2,15,17,91,4,8,5);
+   axe2 := Actions.GiveGroup(2,15,177,87,4,8,5);
+   sw1 := Actions.GiveGroup(2,16,15,89,4,7,5);
+   sw2 := Actions.GiveGroup(2,16,175,85,4,7,5);
+   Actions.GroupOrderLink(axe1, sw1);
+   Actions.GroupOrderLink(axe2, sw2);
+  end;
+   
+   if States.GameTime = 900 then begin
+    sw3 := Actions.GiveGroup(2,16,138,88,5,9,3);
+    sw4 := Actions.GiveGroup(2,16,60,93,5,9,3);
+   end;
+  end;
+
