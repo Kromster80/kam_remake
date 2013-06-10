@@ -80,9 +80,8 @@ begin
   begin
     fWonOrLost := wol_Lost;
 
-    //Let everyone know in MP mode
-    if fGame.IsMultiplayer or (MySpectator.PlayerIndex = fOwner) then
-      fGame.PlayerDefeat(fOwner);
+    //Let the game know
+    fGame.PlayerDefeat(fOwner);
 
     //Script may have additional event processors
     fScripting.ProcPlayerDefeated(fOwner);

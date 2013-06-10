@@ -757,6 +757,7 @@ begin
     end;
   end
   else
+  if aPlayerIndex = MySpectator.PlayerIndex then
     RequestGameHold(gr_Defeat);
 end;
 
