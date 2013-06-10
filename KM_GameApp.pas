@@ -366,7 +366,7 @@ procedure TKMGameApp.Stop(Msg: TGameResultMsg; TextMsg: string='');
 begin
   if fGame = nil then Exit;
 
-  if fGame.GameMode = gmMulti then
+  if fGame.IsMultiplayer then
   begin
     if fNetworking.Connected then
       fNetworking.AnnounceDisconnect;
@@ -676,7 +676,7 @@ begin
   if fGame <> nil then
   begin
     fGame.UpdateState(fGlobalTickCount);
-    if (fGame.GameMode = gmMulti) and (fGlobalTickCount mod 100 = 0) then
+    if fGame.IsMultiplayer and (fGlobalTickCount mod 100 = 0) then
       SendMPGameInfo(Self); //Send status to the server every 10 seconds
   end
   else
