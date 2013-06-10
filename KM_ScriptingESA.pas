@@ -1934,7 +1934,7 @@ begin
   begin
     U := fIDCache.GetUnit(aUnitID);
     if U <> nil then
-      U.KillUnit(-1, not aSilent);
+      U.KillUnitFromScript(-1, not aSilent);
   end
   else
     LogError('Actions.UnitKill', [aUnitID]);

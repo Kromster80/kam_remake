@@ -79,6 +79,7 @@ type
     fIsDead: Boolean;
     fKillASAP: Boolean;
     fKillASAPFrom: TPlayerIndex;
+    fKillASAPShowAnimation: Boolean;
     fPointerCount: Word;
     fInHouse: TKMHouse; //House we are currently in
     fCurrPosition: TKMPoint; //Where we are now
@@ -111,6 +112,8 @@ type
     procedure ReleaseUnitPointer;  //Decreases the pointer counter
     property GetPointerCount: Word read fPointerCount;
 
+
+    procedure KillUnitFromScript(aFrom: TPlayerIndex; aShowAnimation: Boolean); //Kills unit safely from script (using fKillASAP)
     procedure KillUnit(aFrom: TPlayerIndex; aShowAnimation: Boolean); virtual; //Creates TTaskDie which then will Close the unit from further access
     procedure CloseUnit(aRemoveTileUsage: Boolean = True); dynamic;
 
@@ -1127,6 +1130,7 @@ begin
   LoadStream.Read(fIsDead);
   LoadStream.Read(fKillASAP);
   LoadStream.Read(fKillASAPFrom);
+  LoadStream.Read(fKillASAPShowAnimation);
   LoadStream.Read(IsExchanging);
   LoadStream.Read(fPointerCount);
   LoadStream.Read(fID);
@@ -1206,6 +1210,19 @@ begin
 end;
 
 
+//Kills unit safely from script (using fKillASAP)
+procedure TKMUnit.KillUnitFromScript(aFrom: TPlayerIndex; aShowAnimation: Boolean);
+begin
+  //Don't kill unit if it's already dying
+  if IsDeadOrDying then
+    Exit;
+
+  fKillASAP := True; //Unit will be killed ASAP
+  fKillASAPFrom := aFrom;
+  fKillASAPShowAnimation := aShowAnimation;
+end;
+
+
 {Call this procedure to properly kill a unit}
 //killing a unit is done in 3 steps
 // Kill - release all unit-specific tasks
@@ -1214,7 +1231,7 @@ end;
 procedure TKMUnit.KillUnit(aFrom: TPlayerIndex; aShowAnimation: Boolean);
 begin
   //Don't kill unit if it's already dying
-  if fUnitTask is TTaskDie then
+  if IsDeadOrDying then
     Exit;
 
   //Wait till units exchange (1 tick) and then do the killing
@@ -1223,6 +1240,7 @@ begin
   begin
     fKillASAP := True; //Unit will be killed ASAP
     fKillASAPFrom := aFrom;
+    fKillASAPShowAnimation := aShowAnimation;
     Exit;
   end;
 
@@ -1895,6 +1913,7 @@ begin
   SaveStream.Write(fIsDead);
   SaveStream.Write(fKillASAP);
   SaveStream.Write(fKillASAPFrom);
+  SaveStream.Write(fKillASAPShowAnimation);
   SaveStream.Write(IsExchanging);
   SaveStream.Write(fPointerCount);
 
@@ -1915,7 +1934,7 @@ begin
   // - Task (Action creating layer)
   // - specific UpdateState (Task creating layer)
 
-  Result := true;
+  Result := True;
 
   if fCurrentAction=nil then raise ELocError.Create(fResource.UnitDat[UnitType].GUIName+' has no action at start of TKMUnit.UpdateState',fCurrPosition);
 
@@ -1923,8 +1942,8 @@ begin
   if fKillASAP
   and not ((fCurrentAction is TUnitActionWalkTo) and TUnitActionWalkTo(fCurrentAction).DoingExchange) then
   begin
-    KillUnit(fKillASAPFrom, True);
-    fKillASAP := false;
+    fKillASAP := False; //Parts of KillUnit care that it's false, since otherwise IsDeadOrDying returns true
+    KillUnit(fKillASAPFrom, fKillASAPShowAnimation);
     Assert(IsDeadOrDying); //Just in case KillUnit failed
   end;
 
