@@ -400,6 +400,8 @@ begin
                           fPlayers[fLastPlayer].AI.Setup.AutoBuild := False;
     ct_AIAutoRepair:    if fLastPlayer >= 0 then
                           fPlayers[fLastPlayer].AI.Mayor.AutoRepair := True;
+    ct_AIAutoAttack:    if fLastPlayer >= 0 then
+                          fPlayers[fLastPlayer].AI.Setup.AutoAttack := True;
     ct_AIAutoDefend:    if fLastPlayer >= 0 then
                           fPlayers[fLastPlayer].AI.Setup.AutoDefend := True;
     ct_AIStartPosition: if fLastPlayer >= 0 then
@@ -661,6 +663,7 @@ begin
     AddCommand(ct_AIStartPosition, [fPlayers[I].AI.Setup.StartPosition.X-1,fPlayers[I].AI.Setup.StartPosition.Y-1]);
     if not fPlayers[I].AI.Setup.AutoBuild then AddCommand(ct_AINoBuild, []);
     if fPlayers[I].AI.Mayor.AutoRepair then    AddCommand(ct_AIAutoRepair, []);
+    if fPlayers[I].AI.Setup.AutoAttack then    AddCommand(ct_AIAutoAttack, []);
     if fPlayers[I].AI.Setup.AutoDefend then    AddCommand(ct_AIAutoDefend, []);
     AddCommand(ct_AICharacter,cpt_Recruits, [fPlayers[I].AI.Setup.RecruitCount]);
     AddCommand(ct_AICharacter,cpt_WorkerFactor, [Round(10 / fPlayers[I].AI.Setup.SerfsPerHouse)]);

@@ -9,6 +9,7 @@ type
   TKMPlayerAISetup = class
   public
     Aggressiveness: Integer; //-1 means not used or default
+    AutoAttack: Boolean;
     AutoBuild: Boolean;
     AutoDefend: Boolean;
     EquipRateLeather, EquipRateIron: Word; //Number of ticks between soldiers being equipped. Seperated into Leather/Iron to keep KaM compatibility.
@@ -40,6 +41,7 @@ begin
   //TSK/TPR properties
   Aggressiveness := 100; //No idea what the default for this is, it's barely used
   AutoBuild := True; //In KaM it is On by default, and most missions turn it off
+  AutoAttack := False; //It did not exist in KaM, we add it, Off by default
   AutoDefend := False; //It did not exist in KaM, we add it, Off by default
 
   EquipRateIron := 500; //Measured in KaM: AI equips 1 iron soldier every ~50 seconds
@@ -82,6 +84,7 @@ end;
 procedure TKMPlayerAISetup.Save(SaveStream: TKMemoryStream);
 begin
   SaveStream.Write(Aggressiveness);
+  SaveStream.Write(AutoAttack);
   SaveStream.Write(AutoBuild);
   SaveStream.Write(AutoDefend);
   SaveStream.Write(EquipRateLeather);
@@ -99,6 +102,7 @@ end;
 procedure TKMPlayerAISetup.Load(LoadStream: TKMemoryStream);
 begin
   LoadStream.Read(Aggressiveness);
+  LoadStream.Read(AutoAttack);
   LoadStream.Read(AutoBuild);
   LoadStream.Read(AutoDefend);
   LoadStream.Read(EquipRateLeather);

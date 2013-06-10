@@ -16,10 +16,11 @@ type
     fAttacks: TAIAttacks;
     fDefencePositions: TAIDefencePositions;
 
-    procedure CheckArmiesCount;
     procedure CheckArmy;
-    procedure CheckCanAttack;
-    procedure CheckDefences;
+    procedure CheckArmyCount;
+    procedure CheckAttacks;
+    procedure CheckAutoAttack;
+    procedure CheckAutoDefend;
     procedure OrderAttack(aGroup: TKMUnitGroup; aTarget: TAIAttackTarget; aCustomPos: TKMPoint);
   public
     constructor Create(aPlayer: TPlayerIndex; aSetup: TKMPlayerAISetup);
@@ -109,7 +110,7 @@ begin
 end;
 
 
-procedure TKMGeneral.CheckArmiesCount;
+procedure TKMGeneral.CheckArmyCount;
 var
   Barracks: array of TKMHouseBarracks;
   HB: TKMHouseBarracks;
@@ -251,7 +252,7 @@ begin
 end;
 
 
-procedure TKMGeneral.CheckCanAttack;
+procedure TKMGeneral.CheckAttacks;
 var
   AttackTotalAvailable: Word; //Total number of warriors available to attack the enemy
   AttackGroupsCount: TGroupTypeArray;
@@ -319,7 +320,21 @@ begin
 end;
 
 
-procedure TKMGeneral.CheckDefences;
+procedure TKMGeneral.CheckAutoAttack;
+begin
+  //See how many soldiers we need to launch an attack
+
+  //Check if we have enough troops we can take into attack (Backline formations)
+
+  //todo: Check if we can train more soldiers (ignoring EquipRate?)
+
+  //Make decision about attack
+
+  //Choose place to attack
+end;
+
+
+procedure TKMGeneral.CheckAutoDefend;
 var
   Outline1, Outline2: TKMWeightSegments;
   I, K: Integer;
@@ -379,6 +394,7 @@ begin
 end;
 
 
+//See if we can attack our enemies
 procedure TKMGeneral.OrderAttack(aGroup: TKMUnitGroup; aTarget: TAIAttackTarget; aCustomPos: TKMPoint);
 var
   TargetHouse: TKMHouse;
@@ -447,14 +463,19 @@ begin
   //Update defence positions locations
   if fSetup.AutoDefend then
     if (aTick + Byte(fOwner)) mod (MAX_PLAYERS * 120) = 0 then
-      CheckDefences;
+      CheckAutoDefend;
+
+  //See if we can launch an attack
+  if fSetup.AutoAttack then
+    if (aTick + Byte(fOwner)) mod (MAX_PLAYERS * 120) = 1 then
+      CheckAutoAttack;
 
   if (aTick + Byte(fOwner)) mod MAX_PLAYERS = 0 then
   begin
     fDefencePositions.UpdateState;
     CheckArmy; //Feed army, position defence, arrange/organise groups
-    CheckCanAttack;
-    CheckArmiesCount; //Train new soldiers if needed
+    CheckAttacks;
+    CheckArmyCount; //Train new soldiers if needed
 
     //CheckEnemyPresence; //Check enemy threat in close range and issue defensive attacks (or flee?)
     //CheckAndIssueAttack; //Attack enemy
