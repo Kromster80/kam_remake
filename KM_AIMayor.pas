@@ -395,6 +395,8 @@ begin
 end;
 
 
+//todo: Check if planned houses are being connected with roads
+//(worker could die while digging a road piece or elevation changed to impassable)
 procedure TKMayor.CheckHousePlans;
 begin
   //
@@ -424,6 +426,7 @@ begin
 end;
 
 
+//Demolish any exhausted mines, they will be rebuilt if needed
 procedure TKMayor.CheckExhaustedMines;
 var
   I: Integer;
@@ -470,8 +473,7 @@ begin
   //Check if we need to demolish depleted mining houses
   CheckExhaustedMines;
 
-  //todo: Check if planned houses are not building
-  //(e.g. worker died while digging or elevation changed to impassable)
+  //Verify all plans are being connected with roads
   CheckHousePlans;
 end;
 
