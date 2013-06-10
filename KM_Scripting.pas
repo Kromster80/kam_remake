@@ -172,7 +172,7 @@ begin
       RegisterMethod('function HouseWoodcutterChopOnly(aHouseID: Integer): Boolean');
       RegisterMethod('function HouseWareBlocked(aHouseID, aWareType: Integer): Boolean');
       RegisterMethod('function HouseWeaponsOrdered(aHouseID, aWareType: Integer): Integer');
-      
+
       RegisterMethod('function IsFieldAt(aPlayer: ShortInt; X, Y: Word): Boolean');
       RegisterMethod('function IsWinefieldAt(aPlayer: ShortInt; X, Y: Word): Boolean');
       RegisterMethod('function IsRoadAt(aPlayer: ShortInt; X, Y: Word): Boolean');
@@ -757,8 +757,8 @@ begin
   try
     IFPS3DataToText(fByteCode, s);
     SL.Text := s;
-    ForceDirectories(ExeDir  + 'Export\');
-    SL.SaveToFile(ExeDir  + 'Export\script_DataText.txt');
+    ForceDirectories(ExeDir  + 'Export' + PathDelim);
+    SL.SaveToFile(ExeDir + 'Export' + PathDelim + 'script_DataText.txt');
   finally
     SL.Free;
   end;

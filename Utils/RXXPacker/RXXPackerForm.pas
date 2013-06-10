@@ -150,9 +150,9 @@ begin
           fUnitDat := TKMUnitDatCollection.Create;
           DeathAnimCount := 0; //We need to remember which ones we've done because units reuse them
           SetLength(DeathAnimProcessed, 1000); //Hopefully more than enough
-          for UT:=HUMANS_MIN to HUMANS_MAX do
-            for Dir:=dir_N to dir_NW do
-              for Step:=1 to 30 do
+          for UT := HUMANS_MIN to HUMANS_MAX do
+            for Dir := dir_N to dir_NW do
+              for Step := 1 to 30 do
               begin
                 SpriteID := fUnitDat.UnitsDat[UT].UnitAnim[ua_Die,Dir].Step[Step]+1; //Sprites in units.dat are 0 indexed
                 if (SpriteID > 0)

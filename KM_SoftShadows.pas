@@ -64,7 +64,7 @@ begin
   Result := not IsTransparent(Color) and not IsBlack(Color);
 end;
 
-function TKMSoftShadowConverter.IsTransparentOrObject(Color:Cardinal):Boolean;
+function TKMSoftShadowConverter.IsTransparentOrObject(Color: Cardinal): Boolean;
 begin
   Result := IsTransparent(Color) or not IsBlack(Color);
 end;
@@ -105,7 +105,7 @@ begin
     end;
 end;
 
-procedure TKMSoftShadowConverter.ConvertShadows(ID: Word; aOnlyShadows:Boolean);
+procedure TKMSoftShadowConverter.ConvertShadows(ID: Word; aOnlyShadows: Boolean);
 var
   TempShadowMap: array of array of Boolean;
   ShadowMap: array of array of Boolean;
@@ -149,8 +149,8 @@ var
     Ret := 0;
     Divisor := 0;
     BlurCeil := Ceil(BLUR_RADIUS);
-    for aX := X-BlurCeil to X+BlurCeil do
-      for aY := Y-BlurCeil to Y+BlurCeil do
+    for aX := X - BlurCeil to X + BlurCeil do
+      for aY := Y - BlurCeil to Y + BlurCeil do
       begin
         XDiff := aX-X;
         YDiff := aY-Y;
@@ -174,14 +174,15 @@ var
       Result := Ret/Divisor;
   end;
 
-  function MixColors(colors:array of Cardinal):cardinal;
-  var i, R,G,B, Count:Cardinal;
+  function MixColors(colors: array of Cardinal): Cardinal;
+  var
+    i, R, G, B, Count: Cardinal;
   begin
     R := 0;
     B := 0;
     G := 0;
     count := 0;
-    for i:=0 to Length(colors)-1 do
+    for i := 0 to Length(colors) - 1 do
       if colors[i] and $FF000000 <> 0 then
       begin
         R := R+(colors[i] and $FF);
@@ -209,12 +210,12 @@ begin
   SetLength(TempShadowMap, fRXData.Size[ID].X, fRXData.Size[ID].Y);
   SetLength(ShadowMap,     fRXData.Size[ID].X, fRXData.Size[ID].Y);
 
-  for X:=0 to fRXData.Size[ID].X-1 do
-    for Y:=0 to fRXData.Size[ID].Y-1 do
+  for X := 0 to fRXData.Size[ID].X - 1 do
+    for Y := 0 to fRXData.Size[ID].Y - 1 do
       TempShadowMap[X, Y] := IsShadow(ID,X,Y);
 
-  for X:=0 to fRXData.Size[ID].X-1 do
-    for Y:=0 to fRXData.Size[ID].Y-1 do
+  for X := 0 to fRXData.Size[ID].X - 1 do
+    for Y := 0 to fRXData.Size[ID].Y - 1 do
     begin
       Shadow := TempShadowMap[X, Y];
 
@@ -226,17 +227,17 @@ begin
     end;
 
   OriginalColor := 0;
-  for X:=0 to fRXData.Size[ID].X-1 do
-    for Y:=0 to fRXData.Size[ID].Y-1 do
+  for X := 0 to fRXData.Size[ID].X - 1 do
+    for Y := 0 to fRXData.Size[ID].Y - 1 do
     begin
       Color := ReadPixelSafe(ID, X, Y);
       if (TempShadowMap[X, Y] or ShadowMap[X, Y] or IsTransparent(Color)) and not IsObject(Color) then
       begin
-        RealShadow := Min(Round(GetBlurredShadow(X, Y)*SHADING_LEVEL), 255);
+        RealShadow := Min(Round(GetBlurredShadow(X, Y) * SHADING_LEVEL), 255);
         //If we're doing the entire sprite consider the original color, else use black
         if not fOnlyShadows then
         begin
-          OriginalColor := fRXData.RGBA[ID, Y*fRXData.Size[ID].X + X];
+          OriginalColor := fRXData.RGBA[ID, Y * fRXData.Size[ID].X + X];
           if (OriginalColor and $FF000000) = 0 then
           begin
             //Take a blend of all the surrounding colors and use that to fill in gaps
