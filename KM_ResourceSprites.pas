@@ -306,7 +306,9 @@ begin
                       //Map brightness from 0..1 to 0..255..0
                       T := Trunc((0.5 - Abs(Tbri - 0.5)) * 510);
                       fRXData.Mask[aIndex, K*po.Width+I] := T;
-                    end;
+                    end
+                    else
+                      fRXData.Mask[aIndex, K*po.Width+I] := 0;
                  end;
         end;
       {$ENDIF}
@@ -339,7 +341,9 @@ begin
                       //Map brightness from 0..1 to 0..255..0
                       T := Trunc((0.5 - Abs(Tbri - 0.5)) * 510);
                       fRXData.Mask[aIndex, K*po.Width+I] := T;
-                    end;
+                    end
+                    else
+                      fRXData.Mask[aIndex, K*po.Width+I] := 0;
                  end;
         end;
       {$ENDIF}
