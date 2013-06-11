@@ -22,12 +22,6 @@ begin
   end;
 end;
 
-procedure OnUnitKilled(aUnitID: Integer; aKillerIndex: Integer);
-begin
-  //Score each kill
-  PlayerScore[aKillerIndex] := PlayerScore[aKillerIndex] + ScoreForUnit(aUnitID);
-end;
-
 function CalculateHighestScore: Integer;
 var I: Integer;
 begin
@@ -69,8 +63,12 @@ begin
   end;
 end;
 
-procedure OnUnitLost(aUnitID: Integer);
+procedure OnUnitDied(aUnitID: Integer; aKillerIndex: Integer);
 begin
+  //Score each kill (ignore units dying of starvation)
+  if aKillerIndex <> -1 then
+    PlayerScore[aKillerIndex] := PlayerScore[aKillerIndex] + ScoreForUnit(aUnitID);
+
   //See if this caused another player to win
   CheckVictoryConditions;
 end;

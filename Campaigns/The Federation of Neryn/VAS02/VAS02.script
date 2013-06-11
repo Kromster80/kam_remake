@@ -1,5 +1,5 @@
 // Niederlage
-procedure OnHouseDestroyed(aHouseID: Integer; aDestroyerIndex: Integer; aFullyBuilt: Boolean);
+procedure OnHouseDestroyed(aHouseID: Integer; aDestroyerIndex: Integer);
 begin
 	if((States.HouseOwner(aHouseID) = 0)
 	AND(States.HouseType(aHouseID) <> 3)

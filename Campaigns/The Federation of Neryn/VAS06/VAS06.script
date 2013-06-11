@@ -28,7 +28,7 @@ begin
     Actions.UnitHungerSet(States.GroupMember(aGroup, I), States.UnitMaxHunger);
 end;
 
-procedure OnHouseDestroyed(aHouseID: Integer; aDestroyerIndex: Integer; aFullyBuilt: Boolean);
+procedure OnHouseDestroyed(aHouseID: Integer; aDestroyerIndex: Integer);
 begin
   // Verloren wenn Hafengebäude zerstört
   if ((aHouseID = States.HouseAt(160, 72))
@@ -38,7 +38,7 @@ begin
   
   // Script fehlgeschlagen
   if ((States.HouseOwner(aHouseID) = 1)
-  AND(aFullyBuilt = false)
+  AND(not States.HouseIsComplete(aHouseID))
   AND(States.HouseType(aHouseID) <> 3)
   AND(States.HouseType(aHouseID) <> 17))
   then ErrorMessage();

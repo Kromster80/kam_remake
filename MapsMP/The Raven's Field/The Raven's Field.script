@@ -47,9 +47,10 @@ begin
 	end;
 end;
 
-procedure OnUnitKilled(aUnitID: Integer; aKillerIndex: Integer);
+procedure OnUnitDied(aUnitID: Integer; aKillerIndex: Integer);
 begin
-	playerKills[aKillerIndex] := playerKills[aKillerIndex] + 1;
+    if aKillerIndex <> -1 then
+        playerKills[aKillerIndex] := playerKills[aKillerIndex] + 1;
 end;
 
 procedure OnTick;
