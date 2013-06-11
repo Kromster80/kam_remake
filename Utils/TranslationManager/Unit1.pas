@@ -268,13 +268,36 @@ end;
 procedure TForm1.RefreshLocales;
   function GetCharset(aLang: string): TFontCharset;
   begin
-    Result := DEFAULT_CHARSET;
-    if aLang = 'rus' then Result := RUSSIAN_CHARSET;
-    if aLang = 'bul' then Result := RUSSIAN_CHARSET;
-    if aLang = 'pol' then Result := EASTEUROPE_CHARSET;
-    if aLang = 'hun' then Result := EASTEUROPE_CHARSET;
-    if aLang = 'cze' then Result := EASTEUROPE_CHARSET;
-    if aLang = 'svk' then Result := EASTEUROPE_CHARSET;
+    if (aLang = 'bel')
+    or (aLang = 'rus')
+    or (aLang = 'bul')
+    or (aLang = 'ukr') then Result := RUSSIAN_CHARSET else
+
+    if (aLang = 'pol')
+    or (aLang = 'hun')
+    or (aLang = 'cze')
+    or (aLang = 'svk')
+    or (aLang = 'rom') then Result := EASTEUROPE_CHARSET else
+
+    if (aLang = 'tur') then Result := TURKISH_CHARSET else
+
+    if (aLang = 'lit')
+    or (aLang = 'lat') then Result := BALTIC_CHARSET else
+    
+    if (aLang = 'eng')
+    or (aLang = 'spa')
+    or (aLang = 'ita')
+    or (aLang = 'nor')
+    or (aLang = 'chn')
+    or (aLang = 'dut')
+    or (aLang = 'est')
+    or (aLang = 'ptb')
+    or (aLang = 'fre')
+    or (aLang = 'ger')
+    or (aLang = 'jpn')
+    or (aLang = 'swe') then Result := ANSI_CHARSET
+    
+                       else Result := DEFAULT_CHARSET;
   end;
 var
   I, K, SelectedLang, SelectedShowMissing: Integer;
