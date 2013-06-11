@@ -4,8 +4,8 @@ interface
 uses
   Classes, Controls, Dialogs, ExtCtrls, Forms, Graphics, Math, Menus,
   {$IFDEF MSWINDOWS} ComCtrls, FileCtrl, {$ENDIF}
-  StdCtrls, StrUtils, Windows, SysUtils,
-  KM_Defaults, KM_Locales, Unit_Text, Unit_PathManager, CheckLst;
+  StdCtrls, StrUtils, Windows, SysUtils, CheckLst, INIFiles,
+  KM_Defaults, KM_Locales, Unit_Text, Unit_PathManager;
 
 const
   USER_MODE = False; //Disables insert, delete, compact, sort, etc. functions so translators don't click them by mistake
@@ -69,6 +69,7 @@ type
   private
     fPathManager: TPathManager;
     fTextManager: TTextManager;
+    fExeDir: string;
     fWorkDir: string;
     fBuffer: array of string;
 
@@ -83,6 +84,8 @@ type
     procedure RefreshFolders;
     procedure RefreshLocales;
     procedure RefreshList;
+    procedure LoadSettings(aPath: string);
+    procedure SaveSettings(aPath: string);
   end;
 
 
@@ -104,7 +107,8 @@ procedure TForm1.FormCreate(Sender: TObject);
 begin
   Caption := 'KaM Remake Translation Manager (' + GAME_REVISION + ')';
 
-  fWorkDir := ExtractFilePath((ParamStr(0))) + '..\..\';
+  fExeDir := ExtractFilePath(ParamStr(0));
+  fWorkDir := fExeDir + '..\..\';
   fLocales := TKMLocales.Create(fWorkDir + 'data\locales.txt');
 
   InitLocalesList;
@@ -130,11 +134,14 @@ begin
   btnCopy.Visible := not USER_MODE;
   btnPaste.Visible := not USER_MODE;
   mnuListUnused.Visible := not USER_MODE;
+
+  LoadSettings(fExeDir + 'TranslationManager.ini');
 end;
 
 
 procedure TForm1.FormDestroy(Sender: TObject);
 begin
+  SaveSettings(fExeDir + 'TranslationManager.ini');
   fTextManager.Free;
 end;
 
@@ -361,6 +368,47 @@ begin
   end;
 
   FormResize(Self);
+end;
+
+
+procedure TForm1.LoadSettings(aPath: string);
+var
+  I: Integer;
+  F: TIniFile;
+  Locs: string;
+begin
+  F := TIniFile.Create(aPath);
+  try
+    Locs := F.ReadString('Root', 'Selected_Locales', 'eng');
+  finally
+    F.Free;
+  end;
+
+  for I := 0 to fLocales.Count - 1 do
+  if Pos(fLocales[I].Code, Locs) <> 0 then
+    clbShowLang.Checked[I+1] := True;
+
+  RefreshLocales;
+end;
+
+
+procedure TForm1.SaveSettings(aPath: string);
+var
+  I: Integer;
+  F: TIniFile;
+  Locs: string;
+begin
+  Locs := '';
+  for I := 0 to fLocales.Count - 1 do
+  if clbShowLang.Checked[I+1] then
+    Locs := Locs + fLocales[I].Code + ',';
+
+  F := TIniFile.Create(aPath);
+  try
+    F.WriteString('Root', 'Selected_Locales', Locs);
+  finally
+    F.Free;
+  end;
 end;
 
 
