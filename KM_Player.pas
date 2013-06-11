@@ -866,9 +866,7 @@ begin
     end;
 
   //Scripting events happen AFTER updating statistics
-  fScripting.ProcHouseLost(aHouse, aHouse.BuildingState = hbs_Done);
-  if (aFrom <> -1) and (aFrom <> fPlayerIndex) then
-    fScripting.ProcHouseDestroyed(aHouse, aFrom, aHouse.BuildingState = hbs_Done);
+  fScripting.ProcHouseDestroyed(aHouse, aFrom);
 
   //MySpectator is nil during loading, when houses can be destroyed at the start
   if MySpectator <> nil then
@@ -1171,14 +1169,12 @@ end;
 
 procedure TKMPlayer.UnitDied(aUnit: TKMUnit; aFrom: TPlayerIndex);
 begin
-  //Update statistics before calling script events
   Stats.UnitLost(aUnit.UnitType);
   if aFrom <> -1 then
-  begin
     fPlayers[aFrom].Stats.UnitKilled(aUnit.UnitType);
-    fScripting.ProcUnitKilled(aUnit, aFrom);
-  end;
-  fScripting.ProcUnitLost(aUnit);
+
+  //Call script event after updating statistics
+  fScripting.ProcUnitDied(aUnit, aFrom);
 
   //MySpectator is nil during loading
   if MySpectator <> nil then

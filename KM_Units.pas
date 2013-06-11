@@ -1699,7 +1699,7 @@ begin
         if (fPlayers <> nil) and (fOwner <> PLAYER_NONE) then
         begin
           fPlayers[fOwner].Stats.UnitLost(fUnitType);
-          fScripting.ProcUnitLost(Self);
+          fScripting.ProcUnitDied(Self, -1);
         end;
         CloseUnit(False); //Close the unit without removing tile usage (because this unit was in a house it has none)
         Result := true;

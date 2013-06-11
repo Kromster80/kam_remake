@@ -35,14 +35,12 @@ type
     procedure ExportDataToText;
 
     procedure ProcHouseBuilt(aHouse: TKMHouse);
-    procedure ProcHouseDestroyed(aHouse: TKMHouse; aDestroyerOwner: TPlayerIndex; aFullyBuilt:Boolean);
-    procedure ProcHouseLost(aHouse: TKMHouse; aFullyBuilt: Boolean);
+    procedure ProcHouseDestroyed(aHouse: TKMHouse; aDestroyerIndex: TPlayerIndex);
     procedure ProcMissionStart;
     procedure ProcPlayerDefeated(aPlayer: TPlayerIndex);
     procedure ProcPlayerVictory(aPlayer: TPlayerIndex);
     procedure ProcTick;
-    procedure ProcUnitKilled(aUnit: TKMUnit; aKillerOwner: TPlayerIndex);
-    procedure ProcUnitLost(aUnit: TKMUnit);
+    procedure ProcUnitDied(aUnit: TKMUnit; aKillerOwner: TPlayerIndex);
     procedure ProcUnitTrained(aUnit: TKMUnit);
     procedure ProcWarriorEquipped(aUnit: TKMUnit; aGroup: TKMUnitGroup);
 
@@ -56,9 +54,6 @@ type
   TKMEvent = procedure of object;
   TKMEvent1I = procedure (aIndex: Integer) of object;
   TKMEvent2I = procedure (aIndex, aParam: Integer) of object;
-  TKMEvent3I = procedure (aIndex, aParam, aParam2: Integer) of object;
-  TKMEvent2I1B = procedure (aIndex, aParam: Integer; aParam2: Boolean) of object;
-  TKMEvent1I1B = procedure (aIndex: Integer; aParam2: Boolean) of object;
 
 var
   fScripting: TKMScripting;
@@ -313,7 +308,7 @@ end;
   A result type of 0 means no result}
 function TKMScripting.ScriptOnExportCheck(Sender: TPSPascalCompiler; Proc: TPSInternalProcedure; const ProcDecl: AnsiString): Boolean;
 const
-  Procs: array [0..10] of record
+  Procs: array [0..8] of record
     Names: string;
     ParamCount: Byte;
     Typ: array [0..3] of Byte;
@@ -321,14 +316,12 @@ const
   end =
   (
   (Names: 'ONHOUSEBUILT';      ParamCount: 1; Typ: (0, btS32, 0,      0);      Dir: (pmIn, pmIn, pmIn)),
-  (Names: 'ONHOUSEDESTROYED';  ParamCount: 3; Typ: (0, btS32, btS32,  btEnum); Dir: (pmIn, pmIn, pmIn)),
-  (Names: 'ONHOUSELOST';       ParamCount: 2; Typ: (0, btS32, btEnum, 0);      Dir: (pmIn, pmIn, pmIn)),
+  (Names: 'ONHOUSEDESTROYED';  ParamCount: 2; Typ: (0, btS32, btS32,  0);      Dir: (pmIn, pmIn, pmIn)),
   (Names: 'ONMISSIONSTART';    ParamCount: 0; Typ: (0, 0,     0,      0);      Dir: (pmIn, pmIn, pmIn)),
   (Names: 'ONPLAYERDEFEATED';  ParamCount: 1; Typ: (0, btS32, 0,      0);      Dir: (pmIn, pmIn, pmIn)),
   (Names: 'ONPLAYERVICTORY';   ParamCount: 1; Typ: (0, btS32, 0,      0);      Dir: (pmIn, pmIn, pmIn)),
   (Names: 'ONTICK';            ParamCount: 0; Typ: (0, 0,     0,      0);      Dir: (pmIn, pmIn, pmIn)),
-  (Names: 'ONUNITKILLED';      ParamCount: 2; Typ: (0, btS32, btS32,  0);      Dir: (pmIn, pmIn, pmIn)),
-  (Names: 'ONUNITLOST';        ParamCount: 1; Typ: (0, btS32, 0,      0);      Dir: (pmIn, pmIn, pmIn)),
+  (Names: 'ONUNITDIED';        ParamCount: 2; Typ: (0, btS32, btS32,  0);      Dir: (pmIn, pmIn, pmIn)),
   (Names: 'ONUNITTRAINED';     ParamCount: 1; Typ: (0, btS32, 0,      0);      Dir: (pmIn, pmIn, pmIn)),
   (Names: 'ONWARRIOREQUIPPED'; ParamCount: 2; Typ: (0, btS32, btS32,  0);      Dir: (pmIn, pmIn, pmIn))
   );
@@ -635,32 +628,17 @@ begin
 end;
 
 
-procedure TKMScripting.ProcHouseLost(aHouse: TKMHouse; aFullyBuilt: Boolean);
+procedure TKMScripting.ProcHouseDestroyed(aHouse: TKMHouse; aDestroyerIndex: TPlayerIndex);
 var
-  TestFunc: TKMEvent1I1B;
+  TestFunc: TKMEvent2I;
 begin
   //Check if event handler (procedure) exists and run it
   //Store house by its KaM index to keep it consistent with DAT scripts
-  TestFunc := TKMEvent1I1B(fExec.GetProcAsMethodN('ONHOUSELOST'));
+  TestFunc := TKMEvent2I(fExec.GetProcAsMethodN('ONHOUSEDESTROYED'));
   if @TestFunc <> nil then
   begin
     fIDCache.CacheHouse(aHouse, aHouse.ID); //Improves cache efficiency since aHouse will probably be accessed soon
-    TestFunc(aHouse.ID, aFullyBuilt);
-  end;
-end;
-
-
-procedure TKMScripting.ProcHouseDestroyed(aHouse: TKMHouse; aDestroyerOwner: TPlayerIndex; aFullyBuilt:Boolean);
-var
-  TestFunc: TKMEvent2I1B;
-begin
-  //Check if event handler (procedure) exists and run it
-  //Store house by its KaM index to keep it consistent with DAT scripts
-  TestFunc := TKMEvent2I1B(fExec.GetProcAsMethodN('ONHOUSEDESTROYED'));
-  if @TestFunc <> nil then
-  begin
-    fIDCache.CacheHouse(aHouse, aHouse.ID); //Improves cache efficiency since aHouse will probably be accessed soon
-    TestFunc(aHouse.ID, aDestroyerOwner, aFullyBuilt);
+    TestFunc(aHouse.ID, aDestroyerIndex);
   end;
 end;
 
@@ -680,28 +658,13 @@ begin
 end;
 
 
-procedure TKMScripting.ProcUnitLost(aUnit: TKMUnit);
-var
-  TestFunc: TKMEvent1I;
-begin
-  //Check if event handler (procedure) exists and run it
-  //Store unit by its KaM index to keep it consistent with DAT scripts
-  TestFunc := TKMEvent1I(fExec.GetProcAsMethodN('ONUNITLOST'));
-  if @TestFunc <> nil then
-  begin
-    fIDCache.CacheUnit(aUnit, aUnit.ID); //Improves cache efficiency since aUnit will probably be accessed soon
-    TestFunc(aUnit.ID);
-  end;
-end;
-
-
-procedure TKMScripting.ProcUnitKilled(aUnit: TKMUnit; aKillerOwner: TPlayerIndex);
+procedure TKMScripting.ProcUnitDied(aUnit: TKMUnit; aKillerOwner: TPlayerIndex);
 var
   TestFunc: TKMEvent2I;
 begin
   //Check if event handler (procedure) exists and run it
   //Store unit by its KaM index to keep it consistent with DAT scripts
-  TestFunc := TKMEvent2I(fExec.GetProcAsMethodN('ONUNITKILLED'));
+  TestFunc := TKMEvent2I(fExec.GetProcAsMethodN('ONUNITDIED'));
   if @TestFunc <> nil then
   begin
     fIDCache.CacheUnit(aUnit, aUnit.ID); //Improves cache efficiency since aUnit will probably be accessed soon
