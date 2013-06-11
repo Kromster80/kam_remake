@@ -12,6 +12,7 @@ Bugs:
  +	Workers will refuse to walk past empty enemy towers, now they refuse only past occupied towers
  +	Crashes when using Actions.UnitKill in certain events (OnUnitDied) under some circumstances
  +  Fixed overriding masks not properly overwriting
+ +	Magic water only worked on the default kind of water tiles
 
  
 Features:

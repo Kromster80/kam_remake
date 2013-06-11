@@ -415,7 +415,7 @@ var
   function CanRotate(aTileID: Byte): Boolean;
   begin
     Result := fResource.Tileset.TileIsWater(aTileID)
-              and not (aTileID in [200, 210, 211, 235, 236]);
+              and not (aTileID in [114, 115, 119, 194, 200, 210, 211, 235, 236]);
   end;
 
   procedure MagicFillArea(X, Y: Word);
