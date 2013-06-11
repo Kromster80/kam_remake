@@ -153,6 +153,7 @@ var
 begin
   SelCount := 0;
   for I := 0 to fLocales.Count - 1 do
+  if (I+1 < clbShowLang.Count) then
   if clbShowLang.Checked[I+1] then
     Inc(SelCount);
 
@@ -247,9 +248,8 @@ end;
 
 procedure TForm1.RefreshList;
   function ShowConst(aIndex: Integer): Boolean;
-  var TextID: Integer; DefLoc: Integer;
-    I: Integer;
-    HasMissing, HasSame: Boolean;
+  var
+    I, TextID, DefLoc: Integer;
   begin
     Result := True;
     TextID := fTextManager.Consts[aIndex].TextID;
@@ -332,6 +332,7 @@ var
   I: Integer;
 begin
   clbShowLang.Clear;
+
   clbShowLang.Items.Add('All');
 
   for I := 0 to fLocales.Count - 1 do
@@ -669,10 +670,12 @@ var
 begin
   if clbShowLang.Selected[0] then
     if clbShowLang.State[0] = cbChecked then
-      clbShowLang.CheckAll(cbChecked, False, False)
+      for I := 1 to clbShowLang.Count - 1 do
+        clbShowLang.Checked[I] := True
     else
     if clbShowLang.State[0] = cbUnchecked then
-      clbShowLang.CheckAll(cbUnchecked, False, False);
+      for I := 1 to clbShowLang.Count - 1 do
+        clbShowLang.Checked[I] := False;
 
   K := 0;
   for I := 1 to clbShowLang.Count - 1 do
