@@ -129,7 +129,7 @@ const
 
 
 implementation
-uses KM_Log, KM_Utils;
+uses KM_Resource,  KM_Log, KM_Utils;
 
 
 constructor TKMTerrainPainter.Create;
@@ -407,18 +407,33 @@ end;
 
 
 procedure TKMTerrainPainter.MagicWater(aLoc: TKMPoint);
-var FilledTiles:array of array of byte;
+type
+  TMagicType = (mtNone, mtWater, mtShore);
+var
+  FilledTiles: array of array of TMagicType;
 
-  procedure MagicFillArea(x,y:word);
+  function CanRotate(aTileID: Byte): Boolean;
   begin
-    if (gTerrain.Land[y,x].Terrain in [126, 127])and(FilledTiles[y,x]=0) then //Shores
-      FilledTiles[y,x] := 2; //Filled
+    Result := fResource.Tileset.TileIsWater(aTileID)
+              and not (aTileID in [200, 210, 211, 235, 236]);
+  end;
 
-    if (gTerrain.Land[y,x].Terrain in [192, 196])and(FilledTiles[y,x]=0) then //Water, weeds
+  procedure MagicFillArea(X, Y: Word);
+  begin
+    if FilledTiles[Y, X] <> mtNone then
+      Exit;
+
+    //Detect rotateable shores
+    if (gTerrain.Land[y,x].Terrain in [126, 127]) then
+      FilledTiles[y,x] := mtShore;
+
+    //Detect water
+    if CanRotate(gTerrain.Land[y,x].Terrain) then
     begin
-      FilledTiles[y,x] := 1; //Filled
+      FilledTiles[y,x] := mtWater;
 
-      if x-1>=1 then begin
+      if x-1>=1 then
+      begin
         if y-1>=1 then             MagicFillArea(x-1,y-1);
                                    MagicFillArea(x-1,y  );
         if y+1<=gTerrain.MapY then MagicFillArea(x-1,y+1);
@@ -427,7 +442,8 @@ var FilledTiles:array of array of byte;
       if y-1>=1 then               MagicFillArea(x,y-1);
       if y+1<=gTerrain.MapY then   MagicFillArea(x,y+1);
 
-      if x+1<=gTerrain.MapX then begin
+      if x+1<=gTerrain.MapX then
+      begin
         if y-1>=1 then             MagicFillArea(x+1,y-1);
                                    MagicFillArea(x+1,y  );
         if y+1<=gTerrain.MapY then MagicFillArea(x+1,y+1);
@@ -437,37 +453,39 @@ var FilledTiles:array of array of byte;
 
 var
   I,K:Integer;
-  Rot: Byte;
+  NewRot: Byte;
 begin
-  if not (gTerrain.Land[aLoc.Y,aLoc.X].Terrain in [192, 196]) then
+  if not CanRotate(gTerrain.Land[aLoc.Y, aLoc.X].Terrain) then
     Exit;
 
   SetLength(FilledTiles, gTerrain.MapY+1, gTerrain.MapX+1);
 
   MagicFillArea(aLoc.X,aLoc.Y);
 
-  Rot := (gTerrain.Land[aLoc.Y,aLoc.X].Rotation+1) mod 4;
-  for I:=1 to gTerrain.MapY do
-    for K:=1 to gTerrain.MapX do
+  NewRot := (gTerrain.Land[aLoc.Y,aLoc.X].Rotation + 1) mod 4;
+  for I := 1 to gTerrain.MapY do
+    for K := 1 to gTerrain.MapX do
       case FilledTiles[I,K] of
-        1:begin
-            gTerrain.Land[I,K].Rotation := Rot;
-          end;
-        2:begin
-            case gTerrain.Land[I,K].Rotation of
-              0: if Rot = 3 then gTerrain.Land[I,K].Terrain := 126 else
-                 if Rot = 1 then gTerrain.Land[I,K].Terrain := 127;
+        mtWater:  begin
+                    gTerrain.Land[I,K].Rotation := NewRot;
+                  end;
+        mtShore:  begin
+                    //These shores can be flipped
+                    if (gTerrain.Land[I,K].Terrain in [126, 127]) then
+                      case gTerrain.Land[I,K].Rotation of
+                        0: if NewRot = 3 then gTerrain.Land[I,K].Terrain := 126 else
+                           if NewRot = 1 then gTerrain.Land[I,K].Terrain := 127;
 
-              1: if Rot = 0 then gTerrain.Land[I,K].Terrain := 126 else
-                 if Rot = 2 then gTerrain.Land[I,K].Terrain := 127;
+                        1: if NewRot = 0 then gTerrain.Land[I,K].Terrain := 126 else
+                           if NewRot = 2 then gTerrain.Land[I,K].Terrain := 127;
 
-              2: if Rot = 1 then gTerrain.Land[I,K].Terrain := 126 else
-                 if Rot = 3 then gTerrain.Land[I,K].Terrain := 127;
+                        2: if NewRot = 1 then gTerrain.Land[I,K].Terrain := 126 else
+                           if NewRot = 3 then gTerrain.Land[I,K].Terrain := 127;
 
-              3: if Rot = 2 then gTerrain.Land[I,K].Terrain := 126 else
-                 if Rot = 0 then gTerrain.Land[I,K].Terrain := 127;
-            end;
-          end;
+                        3: if NewRot = 2 then gTerrain.Land[I,K].Terrain := 126 else
+                           if NewRot = 0 then gTerrain.Land[I,K].Terrain := 127;
+                      end;
+                  end;
       end;
 end;
 

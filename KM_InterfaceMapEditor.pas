@@ -957,7 +957,6 @@ begin
         TilesTable[J * MAPED_TILES_X + K].Tag :=  J * MAPED_TILES_X + K; //Store ID
         TilesTable[J * MAPED_TILES_X + K].OnClick := Terrain_TilesChange;
         TilesTable[J * MAPED_TILES_X + K].OnMouseWheel := TilesScroll.MouseWheel;
-        TilesTable[J * MAPED_TILES_X + K].Hint := fTextLibrary[TX_MAPED_TERRAIN_TILES_MAIN_HINT];
       end;
 
     Panel_Objects := TKMPanel.Create(Panel_Terrain,0,28,TB_WIDTH,400);
@@ -2215,6 +2214,7 @@ begin
     TileID := GetTileIDFromTag(L);
     TilesTable[L].TexID := TileID;
     TilesTable[L].Enabled := TileID <> 0;
+    TilesTable[L].Hint := IntToStr(TileID);
     //If cursor has a tile then make sure its properly selected in table as well
     TilesTable[L].Down := (GameCursor.Mode = cmTiles) and (GameCursor.Tag1 = TileID - 1);
   end;
