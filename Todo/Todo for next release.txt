@@ -11,8 +11,9 @@ Bugs:
  +	Archers in an AI defence position would be continuously interrupted while trying to shoot enemy citizens
  +	Workers will refuse to walk past empty enemy towers, now they refuse only past occupied towers
  +	Crashes when using Actions.UnitKill in certain events (OnUnitDied) under some circumstances
- +  Fixed overriding masks not properly overwriting
+ +	Fixed overriding masks not properly overwriting
  +	Magic water only worked on the default kind of water tiles
+	Player commands in lobby (kick) are displayed for empty slots, they should be disabled
 
  
 Features:
