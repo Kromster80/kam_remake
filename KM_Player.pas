@@ -486,8 +486,9 @@ begin
   begin
     Tx := aLoc.X - fResource.HouseDat[aHouseType].EntranceOffsetX + K - 3;
     Ty := aLoc.Y + I - 4;
+    //AI ignores FOW (this function is used from scripting)
     Result := Result and gTerrain.TileInMapCoords(Tx, Ty, 1)
-                     and (fFogOfWar.CheckTileRevelation(Tx, Ty) > 0);
+                     and ((fPlayerType = pt_Computer) or (fFogOfWar.CheckTileRevelation(Tx, Ty) > 0));
     //This checks below require Tx;Ty to be within the map so exit immediately if they are not
     if not Result then exit;
 
