@@ -872,8 +872,10 @@ begin
                   DropBox_LobbyLoc[I].Add(fTextLibrary[TX_LOBBY_RANDOM], 0);
 
                   for K := 0 to fNetworking.MapInfo.LocCount - 1 do
+                    //AI-only locations should not be listed for AIs in lobby, since those ones are
+                    //automatically added when the game starts (so AI checks CanBeHuman too)
                     if (CurPlayer.IsHuman and (fNetworking.MapInfo.CanBeHuman[K] or ALLOW_TAKE_AI_PLAYERS))
-                    or (CurPlayer.IsComputer and fNetworking.MapInfo.CanBeAI[K]) then
+                    or (CurPlayer.IsComputer and fNetworking.MapInfo.CanBeHuman[K] and fNetworking.MapInfo.CanBeAI[K]) then
                     begin
                       LocationName := fNetworking.MapInfo.LocationName(K);
                       //Disable taken locations
