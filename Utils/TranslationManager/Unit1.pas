@@ -249,7 +249,7 @@ end;
 procedure TForm1.RefreshList;
   function ShowConst(aIndex: Integer): Boolean;
   var
-    I, TextID, DefLoc: Integer;
+    I,K, TextID, DefLoc: Integer;
   begin
     Result := True;
     TextID := fTextManager.Consts[aIndex].TextID;
@@ -265,14 +265,16 @@ procedure TForm1.RefreshList;
             Result := Result or (fTextManager.Texts[TextID][I] = '');
     end;
 
-    //Hide lines that are different from Eng
+    //Show lines that are the same in selected locales
     if Result and cbShowDup.Checked then
     begin
       Result := False;
       if (TextID <> -1) then
         for I := 0 to fLocales.Count - 1 do
           if clbShowLang.Checked[I+1] then
-            Result := Result or (fTextManager.Texts[TextID][I] = fTextManager.Texts[TextID][DefLoc]);
+          for K := 0 to fLocales.Count - 1 do
+            if (K <> I) and clbShowLang.Checked[K+1] then
+              Result := Result or (fTextManager.Texts[TextID][I] = fTextManager.Texts[TextID][K]);
     end;
 
     if Result and (Edit1.Text <> '') then
@@ -690,6 +692,7 @@ begin
   else
     clbShowLang.State[0] := cbGrayed;
 
+  RefreshList;
   RefreshLocales;
 end;
 
