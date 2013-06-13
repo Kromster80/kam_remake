@@ -82,6 +82,7 @@ type
 
     procedure InitLocalesList;
     procedure RefreshFolders;
+    procedure RefreshFilter;
     procedure RefreshLocales;
     procedure RefreshList;
     procedure LoadSettings(aPath: string);
@@ -502,6 +503,7 @@ end;
 
 procedure TForm1.Edit1Change(Sender: TObject);
 begin
+  RefreshFilter;
   RefreshList;
 end;
 
@@ -643,11 +645,21 @@ end;
 
 
 procedure TForm1.cbShowMisClick(Sender: TObject);
+begin
+  RefreshFilter;
+  RefreshList;
+
+  //Select the first item
+  ListBox1.ItemIndex := 0;
+  ListBox1Click(ListBox1);
+end;
+
+
+procedure TForm1.RefreshFilter;
 var
   Filter: Boolean;
 begin
-  RefreshList;
-  Filter := cbShowMis.Checked;
+  Filter := cbShowMis.Checked or cbShowDup.Checked or (Edit1.Text <> '');
 
   //Disable buttons
   mnuSortByIndex.Enabled := not Filter;
@@ -658,11 +670,6 @@ begin
   btnInsertSeparator.Enabled := not Filter;
   btnMoveUp.Enabled := not Filter;
   btnMoveDown.Enabled := not Filter;
-  //cbShowDup.Enabled := Filter;
-
-  //Select the first item
-  ListBox1.ItemIndex := 0;
-  ListBox1Click(ListBox1);
 end;
 
 
