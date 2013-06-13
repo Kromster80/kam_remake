@@ -8,7 +8,9 @@ uses
   KM_Defaults, KM_Locales, Unit_Text, Unit_PathManager;
 
 const
-  USER_MODE = False; //Disables insert, delete, compact, sort, etc. functions so translators don't click them by mistake
+  //Disables insert, delete, compact, sort, etc. functions
+  //so translators don't click them by mistake
+  USER_MODE = True;
 
 type
   TForm1 = class(TForm)
@@ -20,7 +22,6 @@ type
     btnInsertSeparator: TButton;
     btnMoveUp: TButton;
     btnMoveDown: TButton;
-    Label3: TLabel;
     Button1: TButton;
     lbFolders: TListBox;
     btnCopy: TButton;
@@ -41,6 +42,8 @@ type
     clbShowLang: TCheckListBox;
     cbShowMis: TCheckBox;
     cbShowDup: TCheckBox;
+    StatusBar1: TStatusBar;
+    Bevel1: TBevel;
     procedure FormCreate(Sender: TObject);
     procedure ListBox1Click(Sender: TObject);
     procedure btnSortByIndexClick(Sender: TObject);
@@ -121,20 +124,23 @@ begin
 
   fTextManager := TTextManager.Create;
 
+  //Hide menu entries that Users should not access
   mnuSave.Enabled := False;
-
-  btnInsert.Visible := not USER_MODE;
-  btnRename.Enabled := not USER_MODE; //Users can't change constants names
-  btnDelete.Visible := not USER_MODE;
-  btnInsertSeparator.Visible := not USER_MODE;
+  MainMenu1.Items[1].Visible := not USER_MODE;
   mnuSortByIndex.Visible := not USER_MODE;
-  btnMoveUp.Visible := not USER_MODE;
-  btnMoveDown.Visible := not USER_MODE;
   mnuSortByName.Visible := not USER_MODE;
   mnuCompactIndexes.Visible := not USER_MODE;
+  mnuListUnused.Visible := not USER_MODE;
+
+  //Hide edit butotns that Users should not access
+  btnInsert.Visible := not USER_MODE;
+  btnRename.Visible := not USER_MODE;
+  btnDelete.Visible := not USER_MODE;
+  btnInsertSeparator.Visible := not USER_MODE;
+  btnMoveUp.Visible := not USER_MODE;
+  btnMoveDown.Visible := not USER_MODE;
   btnCopy.Visible := not USER_MODE;
   btnPaste.Visible := not USER_MODE;
-  mnuListUnused.Visible := not USER_MODE;
 
   LoadSettings(fExeDir + 'TranslationManager.ini');
 end;
@@ -205,28 +211,11 @@ begin
 
   //Special case for ingame text library
   if SameText(lbFolders.Items[ID], 'data\text\text.%s.libx') then
-  begin
-    fTextManager.Load(fWorkDir + lbFolders.Items[ID], fWorkDir + 'KM_TextIDs.inc');
-    btnInsertSeparator.Enabled := True;
-    btnRename.Enabled := not USER_MODE;
-    btnMoveUp.Enabled := True;
-    btnMoveDown.Enabled := True;
-    mnuSortByName.Enabled := True;
-    mnuSortByIndex.Enabled := True;
-    mnuCompactIndexes.Enabled := True;
-  end
+    fTextManager.Load(fWorkDir + lbFolders.Items[ID], fWorkDir + 'KM_TextIDs.inc')
   else
-  begin
     fTextManager.Load(fWorkDir + lbFolders.Items[ID], '');
-    btnInsertSeparator.Enabled := False;
-    btnRename.Enabled := False;
-    btnMoveUp.Enabled := False;
-    btnMoveDown.Enabled := False;
-    mnuSortByName.Enabled := False;
-    mnuSortByIndex.Enabled := False;
-    mnuCompactIndexes.Enabled := False;
-  end;
 
+  RefreshFilter;
   RefreshList;
   mnuSave.Enabled := False;
 end;
@@ -310,7 +299,7 @@ begin
   ListBox1.TopIndex := TopIdx;
   ListBox1Click(ListBox1);
 
-  Label3.Caption := 'Count ' + IntToStr(ListBox1.Count);
+  StatusBar1.Panels[0].Text := 'Count ' + IntToStr(ListBox1.Count);
 end;
 
 
@@ -387,6 +376,10 @@ begin
   finally
     F.Free;
   end;
+
+  //If there are any items "All" should be greyed
+  if Locs <> '' then
+    clbShowLang.State[0] := cbGrayed;
 
   for I := 0 to fLocales.Count - 1 do
   if Pos(fLocales[I].Code, Locs) <> 0 then
@@ -657,19 +650,25 @@ end;
 
 procedure TForm1.RefreshFilter;
 var
-  Filter: Boolean;
+  Id: Integer;
+  Filter, MainFile: Boolean;
 begin
+  Id := lbFolders.ItemIndex;
+  if Id = -1 then Exit;
+
+  MainFile := SameText(lbFolders.Items[ID], 'data\text\text.%s.libx');
   Filter := cbShowMis.Checked or cbShowDup.Checked or (Edit1.Text <> '');
 
   //Disable buttons
-  mnuSortByIndex.Enabled := not Filter;
-  mnuSortByName.Enabled := not Filter;
-  mnuCompactIndexes.Enabled := not Filter;
+  mnuSortByIndex.Enabled := MainFile and not Filter;
+  mnuSortByName.Enabled := MainFile and not Filter;
+  mnuCompactIndexes.Enabled := MainFile and not Filter;
   btnInsert.Enabled := not Filter;
+  btnRename.Enabled := MainFile;
   btnDelete.Enabled := not Filter;
-  btnInsertSeparator.Enabled := not Filter;
-  btnMoveUp.Enabled := not Filter;
-  btnMoveDown.Enabled := not Filter;
+  btnInsertSeparator.Enabled := MainFile and not Filter;
+  btnMoveUp.Enabled := MainFile and not Filter;
+  btnMoveDown.Enabled := MainFile and not Filter;
 end;
 
 

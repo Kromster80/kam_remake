@@ -1,6 +1,6 @@
 object Form1: TForm1
-  Left = 40
-  Top = 87
+  Left = 0
+  Top = 0
   Caption = 'KaM Remake Translation Manager'
   ClientHeight = 569
   ClientWidth = 825
@@ -12,7 +12,7 @@ object Form1: TForm1
   Font.Style = []
   Menu = MainMenu1
   OldCreateOrder = True
-  Position = poDesktopCenter
+  Position = poDesigned
   Scaled = False
   WindowState = wsMaximized
   OnCloseQuery = FormCloseQuery
@@ -31,19 +31,18 @@ object Form1: TForm1
     Height = 16
     Caption = 'Constant name'
   end
-  object Label3: TLabel
-    Left = 336
-    Top = 280
-    Width = 34
-    Height = 16
-    Caption = 'Count'
-  end
   object Label4: TLabel
     Left = 336
     Top = 224
-    Width = 32
+    Width = 56
     Height = 16
-    Caption = 'Filter:'
+    Caption = 'Text filter:'
+  end
+  object Bevel1: TBevel
+    Left = 336
+    Top = 272
+    Width = 145
+    Height = 2
   end
   object lbFolders: TListBox
     Left = 8
@@ -57,14 +56,14 @@ object Form1: TForm1
     Left = 8
     Top = 264
     Width = 321
-    Height = 297
+    Height = 281
     Anchors = [akLeft, akTop, akBottom]
     TabOrder = 0
     OnClick = ListBox1Click
   end
   object btnInsert: TButton
     Left = 336
-    Top = 304
+    Top = 288
     Width = 145
     Height = 25
     Caption = 'Insert New'
@@ -75,7 +74,7 @@ object Form1: TForm1
     Left = 488
     Top = 24
     Width = 329
-    Height = 505
+    Height = 489
     HorzScrollBar.Visible = False
     VertScrollBar.Smooth = True
     VertScrollBar.Tracking = True
@@ -84,7 +83,7 @@ object Form1: TForm1
   end
   object btnInsertSeparator: TButton
     Left = 336
-    Top = 328
+    Top = 312
     Width = 145
     Height = 25
     Caption = 'Insert Separator'
@@ -93,7 +92,7 @@ object Form1: TForm1
   end
   object btnMoveUp: TButton
     Left = 336
-    Top = 432
+    Top = 416
     Width = 145
     Height = 25
     Caption = 'Move Up'
@@ -102,7 +101,7 @@ object Form1: TForm1
   end
   object btnMoveDown: TButton
     Left = 336
-    Top = 456
+    Top = 440
     Width = 145
     Height = 25
     Caption = 'Move Down'
@@ -121,7 +120,7 @@ object Form1: TForm1
   end
   object btnCopy: TButton
     Left = 488
-    Top = 536
+    Top = 520
     Width = 121
     Height = 25
     Anchors = [akLeft, akBottom]
@@ -131,7 +130,7 @@ object Form1: TForm1
   end
   object btnPaste: TButton
     Left = 616
-    Top = 536
+    Top = 520
     Width = 121
     Height = 25
     Anchors = [akLeft, akBottom]
@@ -150,7 +149,7 @@ object Form1: TForm1
   end
   object btnRename: TButton
     Left = 336
-    Top = 368
+    Top = 352
     Width = 145
     Height = 25
     Caption = 'Rename'
@@ -172,7 +171,7 @@ object Form1: TForm1
     Top = 184
     Width = 105
     Height = 17
-    Caption = 'Show missing'
+    Caption = 'Only missing'
     TabOrder = 14
     OnClick = cbShowMisClick
   end
@@ -181,18 +180,34 @@ object Form1: TForm1
     Top = 200
     Width = 113
     Height = 17
-    Caption = 'Show duplicate'
+    Caption = 'Only duplicate'
     TabOrder = 15
     OnClick = cbShowMisClick
   end
   object btnDelete: TButton
     Left = 336
-    Top = 392
+    Top = 376
     Width = 145
     Height = 25
     Caption = 'Delete'
     TabOrder = 3
     OnClick = btnDeleteClick
+  end
+  object StatusBar1: TStatusBar
+    Left = 0
+    Top = 550
+    Width = 825
+    Height = 19
+    Panels = <
+      item
+        Width = 100
+      end
+      item
+        Width = 50
+      end>
+    ExplicitLeft = 416
+    ExplicitTop = 296
+    ExplicitWidth = 0
   end
   object MainMenu1: TMainMenu
     Left = 32
