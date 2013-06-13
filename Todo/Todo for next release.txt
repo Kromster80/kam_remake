@@ -14,9 +14,9 @@ Bugs:
  +	Fixed overriding masks not properly overwriting
  +	Magic water only worked on the default kind of water tiles
  +	Actions.PlanAddHouse works in unexpored areas for AIs
-	Player commands in lobby (kick) are displayed for empty slots, they should be disabled
+ +	Player commands in lobby (kick) are displayed for empty slots, they should be disabled
 
- 
+
 Features:
  +	Dynamic scripts now support iteration over enumerations and Include/Exclude commands for adding variables to sets
  +	Merged script events OnHouseLost into OnHouseDestroyed

@@ -700,13 +700,16 @@ end;
 
 
 procedure TKMGUIMenuLobby.PlayerMenuShow(Sender: TObject);
-var C: TKMControl;
+var
+  C: TKMControl;
 begin
   C := TKMControl(Sender);
+
   //Only human players (excluding ourselves) have the player menu
   if not fNetworking.NetPlayers[C.Tag].IsHuman //No menu for AI players
   or (fNetworking.MyIndex = C.Tag) //No menu for ourselves
-  or not fNetworking.IsHost then //Only host gets to use the menu (for now)
+  or not fNetworking.IsHost //Only host gets to use the menu (for now)
+  or not fNetworking.NetPlayers[C.Tag].Connected then //Don't show menu for empty slots
     Exit;
 
   //Remember which player it is by their server index (order of players can change)
