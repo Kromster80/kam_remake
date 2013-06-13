@@ -10,7 +10,7 @@ uses
 const
   //Disables insert, delete, compact, sort, etc. functions
   //so translators don't click them by mistake
-  USER_MODE = True;
+  USER_MODE = False;
 
 type
   TForm1 = class(TForm)
@@ -143,6 +143,8 @@ begin
   btnPaste.Visible := not USER_MODE;
 
   LoadSettings(fExeDir + 'TranslationManager.ini');
+
+  WindowState := wsMaximized;
 end;
 
 

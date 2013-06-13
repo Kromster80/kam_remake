@@ -1,10 +1,12 @@
 object Form1: TForm1
-  Left = 0
-  Top = 0
+  Left = 230
+  Top = 140
   Caption = 'KaM Remake Translation Manager'
-  ClientHeight = 569
-  ClientWidth = 825
+  ClientHeight = 580
+  ClientWidth = 857
   Color = clBtnFace
+  Constraints.MinHeight = 600
+  Constraints.MinWidth = 800
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
   Font.Height = -13
@@ -12,16 +14,15 @@ object Form1: TForm1
   Font.Style = []
   Menu = MainMenu1
   OldCreateOrder = True
-  Position = poDesigned
+  Position = poScreenCenter
   Scaled = False
-  WindowState = wsMaximized
   OnCloseQuery = FormCloseQuery
   OnCreate = FormCreate
   OnDestroy = FormDestroy
   OnResize = FormResize
   DesignSize = (
-    825
-    569)
+    857
+    580)
   PixelsPerInch = 96
   TextHeight = 16
   object lblConstName: TLabel
@@ -56,7 +57,7 @@ object Form1: TForm1
     Left = 8
     Top = 264
     Width = 321
-    Height = 281
+    Height = 289
     Anchors = [akLeft, akTop, akBottom]
     TabOrder = 0
     OnClick = ListBox1Click
@@ -73,8 +74,8 @@ object Form1: TForm1
   object ScrollBox1: TScrollBox
     Left = 488
     Top = 24
-    Width = 329
-    Height = 489
+    Width = 361
+    Height = 497
     HorzScrollBar.Visible = False
     VertScrollBar.Smooth = True
     VertScrollBar.Tracking = True
@@ -120,7 +121,7 @@ object Form1: TForm1
   end
   object btnCopy: TButton
     Left = 488
-    Top = 520
+    Top = 533
     Width = 121
     Height = 25
     Anchors = [akLeft, akBottom]
@@ -130,7 +131,7 @@ object Form1: TForm1
   end
   object btnPaste: TButton
     Left = 616
-    Top = 520
+    Top = 533
     Width = 121
     Height = 25
     Anchors = [akLeft, akBottom]
@@ -195,8 +196,8 @@ object Form1: TForm1
   end
   object StatusBar1: TStatusBar
     Left = 0
-    Top = 550
-    Width = 825
+    Top = 561
+    Width = 857
     Height = 19
     Panels = <
       item
@@ -205,9 +206,6 @@ object Form1: TForm1
       item
         Width = 50
       end>
-    ExplicitLeft = 416
-    ExplicitTop = 296
-    ExplicitWidth = 0
   end
   object MainMenu1: TMainMenu
     Left = 32
