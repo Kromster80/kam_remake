@@ -97,7 +97,7 @@ object Form2: TForm2
     Top = 176
     Width = 689
     Height = 329
-    ActivePage = TabSheet1
+    ActivePage = TabSheet2
     Anchors = [akLeft, akTop, akRight, akBottom]
     TabOrder = 5
     OnChange = PageControl1Change
@@ -109,51 +109,40 @@ object Form2: TForm2
         301)
       object Image1: TImage
         Left = 40
-        Top = 0
+        Top = 8
         Width = 633
-        Height = 281
+        Height = 273
         Anchors = [akLeft, akTop, akRight, akBottom]
-        ExplicitHeight = 265
       end
     end
     object TabSheet2: TTabSheet
       Caption = 'Distribution'
       ImageIndex = 1
       OnResize = TabSheetResize
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 293
       DesignSize = (
         681
         301)
       object Image2: TImage
         Left = 40
-        Top = 0
+        Top = 8
         Width = 633
         Height = 273
         Anchors = [akLeft, akTop, akRight, akBottom]
-        ExplicitHeight = 257
       end
     end
     object TabSheet3: TTabSheet
       Caption = 'Times'
       ImageIndex = 2
       OnResize = TabSheetResize
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 293
       DesignSize = (
         681
         301)
       object Image3: TImage
         Left = 40
-        Top = 0
+        Top = 8
         Width = 633
-        Height = 281
+        Height = 273
         Anchors = [akLeft, akTop, akRight, akBottom]
-        ExplicitHeight = 265
       end
       object Label3: TLabel
         Left = 528

@@ -136,6 +136,7 @@ procedure TForm2.RefreshAxisLabels(aImg: TImage; aTopX, aTopY: Integer);
 var
   I: Integer;
   Steps: Integer;
+  Step: Word;
 begin
   for I := 0 to High(fX) do
     FreeAndNil(fX[I]);
@@ -143,17 +144,20 @@ begin
   for I := 0 to High(fY) do
     FreeAndNil(fY[I]);
 
-  Steps := Min(aTopY, aImg.Height div 36);
-  SetLength(fY, Steps);
-  if Steps > 1 then
-  for I := 0 to High(fY) do
+  Step := Max(Round(aTopY / aImg.Height / 20), 1);
+
+  Steps := Min(aTopY, aImg.Height div 20 div Step);
+  SetLength(fY, Steps+1);
+  if Steps > 0 then
+  for I := 0 to Steps do
   begin
     fY[I] := TLabel.Create(aImg.Parent);
     fY[I].Parent := aImg.Parent;
     fY[I].Alignment := taRightJustify;
-    fY[I].Left := aImg.Left - 6;
-    fY[I].Top := aImg.Top + aImg.Height - Round(aImg.Height / High(fY) * I) - fY[I].Height;
-    fY[I].Caption := IntToStr(Round(aTopY / High(fY) * I));
+    fY[I].Transparent := True;
+    fY[I].Left := aImg.Left - 1;
+    fY[I].Top := aImg.Top + aImg.Height - Round(aImg.Height / Steps * I) - fY[I].Height + 6;
+    fY[I].Caption := IntToStr(Round(aTopY * I / Steps))+'-';
   end;
 
   Steps := Min(aTopX, aImg.Width div 40);
@@ -166,7 +170,7 @@ begin
     fX[I].Alignment := taRightJustify;
     fX[I].Left := aImg.Left + Round(aImg.Width / High(fX) * I);
     fX[I].Top := aImg.Top + aImg.Height + 4;
-    fX[I].Caption := FloatToStr(Round(aTopX / High(fX) * I*10)/10);
+    fX[I].Caption := FloatToStr(Round(aTopX * I * 10 / High(fX)) / 10);
   end;
 end;
 
@@ -184,6 +188,16 @@ begin
   aImg.Canvas.FillRect(aImg.Canvas.ClipRect);
 
   StatMax := 0;
+  for I := 0 to fResults.ValueCount - 1 do
+  begin
+    SetLength(Stats, 0); //Erase
+    SetLength(Stats, Round(fResults.ValueMax) - Round(fResults.ValueMin) + 1);
+    for J := 0 to fResults.ChartsCount - 1 do
+      Inc(Stats[Round(fResults.Value[J,I]) - Round(fResults.ValueMin)]);
+
+    for J := 0 to High(Stats) do
+      StatMax := Max(StatMax, Stats[J]);
+  end;
 
   for I := 0 to fResults.ValueCount - 1 do
   begin
@@ -194,18 +208,14 @@ begin
     for J := 0 to fResults.ChartsCount - 1 do
       Inc(Stats[Round(fResults.Value[J,I]) - Round(fResults.ValueMin)]);
 
-    StatMax := Stats[Low(Stats)];
-    for J := Low(Stats)+1 to High(Stats) do
-      StatMax := Max(StatMax, Stats[J]);
-
     for J := Low(Stats) to High(Stats) do
     begin
       if Length(Stats) > 1 then
-        DotX := Round((J - Low(Stats)) / (Length(Stats) - 1) * aImg.Width)
+        DotX := Round((J - Low(Stats)) * aImg.Width / (Length(Stats) - 1))
       else
         DotX := aImg.Width div 2;
 
-      DotY := aImg.Height - Round(Stats[J] / StatMax * aImg.Height);
+      DotY := aImg.Height - Round(aImg.Height * Stats[J] / StatMax);
 
       if DotY <> aImg.Height then
         aImg.Canvas.Ellipse(DotX-2, DotY-2, DotX+2, DotY+2);
