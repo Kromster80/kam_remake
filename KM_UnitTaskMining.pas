@@ -29,7 +29,7 @@ type
 
 
 implementation
-uses KM_Houses, KM_PlayersCollection, KM_Resource, KM_TextLibrary;
+uses KM_Houses, KM_PlayersCollection, KM_Resource, KM_TextLibrary, KM_ResourceHouse;
 
 
 { TTaskMining }

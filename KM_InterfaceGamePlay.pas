@@ -7,7 +7,8 @@ uses
   StrUtils, SysUtils, KromUtils, Math, Classes, Controls,
   KM_CommonTypes,
   KM_InterfaceDefaults, KM_Terrain, KM_Pics,
-  KM_Controls, KM_Houses, KM_HouseMarket, KM_Units, KM_UnitGroups, KM_Units_Warrior, KM_Saves, KM_Defaults, KM_MessageStack, KM_CommonClasses, KM_Points;
+  KM_Controls, KM_Houses, KM_HouseMarket, KM_Units, KM_UnitGroups, KM_Units_Warrior, KM_Saves, KM_Defaults, KM_MessageStack, KM_CommonClasses, KM_Points,
+  KM_ResourceHouse;
 
 
 const

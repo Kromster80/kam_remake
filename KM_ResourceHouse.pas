@@ -8,6 +8,19 @@ uses
 
 
 type
+  THouseType = (ht_None, ht_Any,
+    ht_ArmorSmithy,     ht_ArmorWorkshop,   ht_Bakery,        ht_Barracks,      ht_Butchers,
+    ht_CoalMine,        ht_Farm,            ht_FisherHut,     ht_GoldMine,      ht_Inn,
+    ht_IronMine,        ht_IronSmithy,      ht_Marketplace,   ht_Metallurgists, ht_Mill,
+    ht_Quary,           ht_Sawmill,         ht_School,        ht_SiegeWorkshop, ht_Stables,
+    ht_Store,           ht_Swine,           ht_Tannery,       ht_TownHall,      ht_WatchTower,
+    ht_WeaponSmithy,    ht_WeaponWorkshop,  ht_Wineyard,      ht_Woodcutters    );
+
+const
+  HOUSE_MIN = ht_ArmorSmithy;
+  HOUSE_MAX = ht_Woodcutters;
+
+type
   THouseAnim = array [THouseActionType] of TKMAnimLoop;
 
   THouseBuildSupply = array [1..2,1..6] of packed record MoveX, MoveY: Integer; end;

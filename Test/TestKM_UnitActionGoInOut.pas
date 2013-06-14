@@ -21,7 +21,7 @@ type
 
 
 implementation
-uses KM_Log, KM_PlayersCollection, KM_PlayerSpectator, KM_Resource, KM_Sound, KM_Terrain, KM_Utils;
+uses KM_Log, KM_PlayersCollection, KM_PlayerSpectator, KM_Resource, KM_Sound, KM_Terrain, KM_Utils, KM_ResourceHouse;
 
 
 procedure TestTUnitActionGoInOut.SetUp;

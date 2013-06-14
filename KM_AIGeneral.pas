@@ -42,7 +42,7 @@ type
 
 implementation
 uses KM_PlayersCollection, KM_Player, KM_Terrain, KM_Game, KM_HouseBarracks,
-  KM_AIFields, KM_NavMesh, KM_Houses, KM_Units, KM_Utils;
+  KM_AIFields, KM_NavMesh, KM_Houses, KM_Units, KM_Utils, KM_ResourceHouse;
 
 
 const

@@ -4,7 +4,7 @@ interface
 uses
    Math,
    KM_CommonClasses, KM_Defaults, KM_Points,
-   KM_Houses, KM_Terrain;
+   KM_ResourceHouse, KM_Houses, KM_Terrain;
 
 type
   TKMHousesCollection = class
@@ -24,7 +24,7 @@ type
     function HitTest(X, Y: Integer): TKMHouse;
     function GetHouseByID(aID: Integer): TKMHouse;
     function FindEmptyHouse(aUnitType: TUnitType; Loc: TKMPoint): TKMHouse;
-    function FindHouse(aType: THouseType; X,Y:word; const aIndex: Byte = 1; aOnlyCompleted: Boolean = True): TKMHouse;
+    function FindHouse(aType: THouseType; X,Y: Word; const aIndex: Byte = 1; aOnlyCompleted: Boolean = True): TKMHouse;
     function GetTotalPointers: Cardinal;
     procedure Save(SaveStream: TKMemoryStream);
     procedure Load(LoadStream: TKMemoryStream);

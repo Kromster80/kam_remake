@@ -3,7 +3,7 @@ unit KM_Terrain;
 interface
 uses Classes, KromUtils, Math, SysUtils, Graphics,
   KM_CommonClasses, KM_Defaults, KM_Points, KM_Utils, KM_ResourceTileset,
-  KM_ResourceWares, KM_TerrainFinder;
+  KM_ResourceHouse, KM_ResourceWares, KM_TerrainFinder;
 
 
 type
@@ -213,7 +213,7 @@ var
 
 implementation
 uses KM_Log, KM_PlayersCollection, KM_TerrainWalkConnect,
-  KM_Resource, KM_Units, KM_ResourceHouse, KM_ResourceMapElements, KM_Sound, KM_UnitActionStay, KM_Units_Warrior;
+  KM_Resource, KM_Units, KM_ResourceMapElements, KM_Sound, KM_UnitActionStay, KM_Units_Warrior;
 
 
 { TKMTerrain }

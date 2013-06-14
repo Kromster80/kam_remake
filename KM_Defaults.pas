@@ -431,45 +431,14 @@ type
                      ua_WalkBooty, ua_WalkTool2, ua_WalkBooty2, ua_Unknown);
   TUnitActionTypeSet = set of TUnitActionType;
 
-  //What player has ordered us to do
-  TWarriorOrder = (
-    woNone, //No orders
-    woWalk, //Walk somewhere
-    woWalkOut, //Walk out of Barracks
-    woAttackUnit, //Attack someone
-    woAttackHouse, //Attack house
-    woStorm //Do Storm attack
-  );
-
-  //What we are doing at the moment
-  TWarriorState = (
-    ws_None, //Warrior is idle
-    ws_Walking, //Warrior is in the process of walking by player instruction (could have been ordered to attack too because there is no difference)
-    ws_RepositionPause, //Warrior has just finished walking and is pausing breifly before repositioning (i.e. rotating to the final facing direction) Without this pause it looks too quick odd.
-    ws_Engage //One or more of our group members are in combat and we are on our way to help them.
-  );
-
 const
-  FishCountAct: array [1..5] of TUnitActionType = (ua_Walk, ua_Work, ua_Spec, ua_Die, ua_Work1);
-
-{Walk to somewhere}
-type
-  //Status of interaction
-  TInteractionStatus = (kis_None,       //We have not yet encountered an interaction (we are just walking)
-                        kis_Pushing,    //We are pushing an idle unit out of the way
-                        kis_Pushed,     //We were pushed (idle then asked to move)
-                        kis_Trying,     //We are or have been stuck (difference between this and kis_None is only for debug)
-                        kis_Waiting     //We have been stuck for a while so allow other units to swap with us
-  );
-
-//These are only for debug
-const
-  TInteractionStatusNames: array [TInteractionStatus] of string = ('None', 'Pushing', 'Pushed', 'Trying', 'Waiting');
-
-const {Actions names}
   UnitAct: array [TUnitActionType] of string = ('ua_Walk', 'ua_Work', 'ua_Spec', 'ua_Die', 'ua_Work1',
              'ua_Work2', 'ua_WorkEnd', 'ua_Eat', 'ua_WalkArm', 'ua_WalkTool',
              'ua_WalkBooty', 'ua_WalkTool2', 'ua_WalkBooty2', 'ua_Unknown');
+
+
+const
+  FishCountAct: array [1..5] of TUnitActionType = (ua_Walk, ua_Work, ua_Spec, ua_Die, ua_Work1);
 
 
 type
@@ -484,14 +453,6 @@ type
 
 {Houses in game}
 type
-  //I've removed values, enums don't need them by intent
-  THouseType = ( ht_None, ht_Any,
-    ht_ArmorSmithy,     ht_ArmorWorkshop,   ht_Bakery,        ht_Barracks,      ht_Butchers,
-    ht_CoalMine,        ht_Farm,            ht_FisherHut,     ht_GoldMine,      ht_Inn,
-    ht_IronMine,        ht_IronSmithy,      ht_Marketplace,   ht_Metallurgists, ht_Mill,
-    ht_Quary,           ht_Sawmill,         ht_School,        ht_SiegeWorkshop, ht_Stables,
-    ht_Store,           ht_Swine,           ht_Tannery,       ht_TownHall,      ht_WatchTower,
-    ht_WeaponSmithy,    ht_WeaponWorkshop,  ht_Wineyard,      ht_Woodcutters    );
 
   //House has 3 basic states: no owner inside, owner inside, owner working inside
   THouseState = (hst_Empty, hst_Idle, hst_Work);
@@ -516,8 +477,6 @@ type
     );
 
 const
-  HOUSE_MIN = ht_ArmorSmithy;
-  HOUSE_MAX = ht_Woodcutters;
 
   HouseAction: array [THouseActionType] of string = (
   'ha_Work1', 'ha_Work2', 'ha_Work3', 'ha_Work4', 'ha_Work5', //Start, InProgress, .., .., Finish

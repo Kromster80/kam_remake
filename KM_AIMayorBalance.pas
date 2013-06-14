@@ -4,7 +4,7 @@ interface
 uses
   Classes, KromUtils, Math, SysUtils, StrUtils,
   KM_Defaults, KM_CommonClasses,
-  KM_ResourceWares;
+  KM_ResourceHouse, KM_ResourceWares;
 
 type
   //MayorBalance is a cluster of functions that choose optimal houses to build

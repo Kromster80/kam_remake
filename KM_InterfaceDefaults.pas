@@ -5,7 +5,7 @@ uses
   {$IFDEF MSWindows} Windows, {$ENDIF}
   {$IFDEF Unix} LCLType, {$ENDIF}
   Controls, Classes, KM_Defaults, KM_Controls,
-  KM_ResourceWares;
+  KM_ResourceHouse, KM_ResourceWares;
 
 
 type

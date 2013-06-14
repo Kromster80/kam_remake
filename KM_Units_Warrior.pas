@@ -11,10 +11,20 @@ type
   TKMWarriorEvent = procedure(aWarrior: TKMUnitWarrior) of object;
   TKMWarrior2Event = procedure(aWarrior: TKMUnitWarrior; aUnit: TKMUnit) of object;
 
+  //What player has ordered us to do
+  TKMWarriorOrder = (
+    woNone, //No orders
+    woWalk, //Walk somewhere
+    woWalkOut, //Walk out of Barracks
+    woAttackUnit, //Attack someone
+    woAttackHouse, //Attack house
+    woStorm //Do Storm attack
+  );
+
   TKMUnitWarrior = class(TKMUnit)
   private
-    fNextOrder: TWarriorOrder; //New order we should perform as soon as we can change tasks
-    fOrder: TWarriorOrder; //Order we are performing
+    fNextOrder: TKMWarriorOrder; //New order we should perform as soon as we can change tasks
+    fOrder: TKMWarriorOrder; //Order we are performing
     fOrderLoc: TKMPoint; //Dir is the direction to face after order
     fOrderTargetUnit: TKMUnit; //Unit we are ordered to attack. This property should never be accessed, use public OrderTarget instead.
     fOrderTargetHouse: TKMHouse; //House we are ordered to attack. This property should never be accessed, use public OrderHouseTarget instead.
@@ -86,7 +96,7 @@ implementation
 uses KM_TextLibrary, KM_PlayersCollection, KM_RenderPool, KM_RenderAux, KM_UnitTaskAttackHouse,
   KM_UnitActionAbandonWalk, KM_UnitActionFight, KM_UnitActionGoInOut, KM_UnitActionWalkTo, KM_UnitActionStay,
   KM_UnitActionStormAttack, KM_Resource, KM_ResourceUnit,
-  KM_ResourceWares, KM_Game;
+  KM_ResourceWares, KM_Game, KM_ResourceHouse;
 
 
 { TKMUnitWarrior }

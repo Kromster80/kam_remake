@@ -4,7 +4,7 @@ interface
 uses
   Classes, KromUtils, Math, SysUtils,
   KM_CommonClasses, KM_Defaults, KM_Points,
-  KM_Terrain, KM_ResourceWares;
+  KM_Terrain, KM_ResourceHouse, KM_ResourceWares;
 
 {Everything related to houses is here}
 type
@@ -249,7 +249,7 @@ implementation
 uses
   KM_CommonTypes, KM_RenderPool, KM_RenderAux, KM_Units, KM_Scripting,
   KM_Units_Warrior, KM_PlayersCollection, KM_Sound, KM_Game, KM_TextLibrary,
-  KM_Resource, KM_ResourceHouse, KM_ResourceUnit, KM_Utils, KM_FogOfWar, KM_AI;
+  KM_Resource, KM_ResourceUnit, KM_Utils, KM_FogOfWar, KM_AI;
 
 
 { TKMHouse }

@@ -6,7 +6,7 @@ uses
   Classes, Graphics,
   dglOpenGL, SysUtils, KromOGLUtils, KromUtils, Math,
   KM_Defaults, KM_CommonClasses, KM_Pics, KM_Points, KM_Render,
-  KM_RenderTerrain, KM_ResourceSprites, KM_ResourceWares,
+  KM_RenderTerrain, KM_ResourceHouse, KM_ResourceSprites, KM_ResourceWares,
   KM_Houses, KM_Terrain;
 
 type
@@ -107,7 +107,7 @@ var
 
 implementation
 uses KM_CommonTypes, KM_RenderAux, KM_PlayersCollection, KM_Projectiles, KM_Game, KM_Sound, KM_Resource,
-  KM_ResourceHouse, KM_ResourceMapElements, KM_Units, KM_AIFields, KM_TerrainPainter, KM_MapEditor;
+  KM_ResourceMapElements, KM_Units, KM_AIFields, KM_TerrainPainter, KM_MapEditor;
 
 
 constructor TRenderPool.Create(aRender: TRender);
