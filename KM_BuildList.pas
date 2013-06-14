@@ -11,6 +11,7 @@ type
         js_Open,    //Open - job is free to take by anyone
         js_Taken);  //Taken - job is taken by some worker
 
+  //List of houses ready to build
   TKMHouseList = class
   private
     fHousesCount: Integer;
@@ -36,7 +37,8 @@ type
   end;
 
 
-  TKMHousePlanList = class //Workers, Houseplans
+  //List of house plans and workers assigned to them
+  TKMHousePlanList = class
   private
     fPlansCount: Integer;
     fPlans: array of record
@@ -69,7 +71,7 @@ type
   end;
 
 
-  TKMFieldworksList = class //Workers, Fields
+  TKMFieldworksList = class
   private
     fFieldsCount: Integer;
     fFields: array of record
@@ -143,6 +145,7 @@ type
   end;
 
 
+  //Matchmaking service of workers to building sites, fields, repairs, etc
   TKMBuildList = class
   private
     fFieldworksList: TKMFieldworksList;
@@ -188,14 +191,16 @@ uses KM_PlayersCollection, KM_Resource, KM_ResourceHouse;
 const
   LENGTH_INC = 32; //Increment array lengths by this value
   BID_MODIF = 5; //Modificator for every next assigned worker
+
+  //Limit number of workers building each house, so they all fit in around
   MAX_WORKERS: array[THouseType] of Byte = (
-  0,0, //ht_None, ht_Any
-  8, {ht_ArmorSmithy}  8,{ht_ArmorWorkshop}  8, {ht_Bakery}      12,{ht_Barracks}      8, {ht_Butchers}
-  6, {ht_CoalMine}     8,{ht_Farm}           7, {ht_FisherHut}   3, {ht_GoldMine}      10,{ht_Inn}
-  4, {ht_IronMine}     8,{ht_IronSmithy}     10,{ht_Marketplace} 8, {ht_Metallurgists} 8, {ht_Mill}
-  6, {ht_Quary}        8,{ht_Sawmill}        10,{ht_School}      8, {ht_SiegeWorkshop} 10,{ht_Stables}
-  10,{ht_Store}        8,{ht_Swine}          8, {ht_Tannery}     10,{ht_TownHall}      6, {ht_WatchTower}
-  8, {ht_WeaponSmithy} 8,{ht_WeaponWorkshop} 8, {ht_Wineyard}    6  {ht_Woodcutters}
+    0,0, //ht_None, ht_Any
+    8, {ht_ArmorSmithy}  8,{ht_ArmorWorkshop}  8, {ht_Bakery}      12,{ht_Barracks}      8, {ht_Butchers}
+    6, {ht_CoalMine}     8,{ht_Farm}           7, {ht_FisherHut}   3, {ht_GoldMine}      10,{ht_Inn}
+    4, {ht_IronMine}     8,{ht_IronSmithy}     10,{ht_Marketplace} 8, {ht_Metallurgists} 8, {ht_Mill}
+    6, {ht_Quary}        8,{ht_Sawmill}        10,{ht_School}      8, {ht_SiegeWorkshop} 10,{ht_Stables}
+    10,{ht_Store}        8,{ht_Swine}          8, {ht_Tannery}     10,{ht_TownHall}      6, {ht_WatchTower}
+    8, {ht_WeaponSmithy} 8,{ht_WeaponWorkshop} 8, {ht_Wineyard}    6  {ht_Woodcutters}
   );
 
 

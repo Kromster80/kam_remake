@@ -960,7 +960,7 @@ begin
   CollectTerrainObjects(Rect, gTerrain.AnimStep);
 
   fPlayers.Paint; //Quite slow           //Units and houses
-  fProjectiles.Paint;
+  gProjectiles.Paint;
   fGame.Alerts.Paint(0);
 
   fRenderList.Render;

@@ -171,9 +171,9 @@ begin
            //Shooting range is not important now, houses don't walk (except Howl's Moving Castle perhaps)
            //todo: Slingers (rogues) should launch rock part on SLINGSHOT_FIRING_DELAY like they do in ActionFight (animation looks wrong now)
            case UnitType of
-             ut_Arbaletman: fProjectiles.AimTarget(PositionF, fHouse, pt_Bolt, Owner, RANGE_ARBALETMAN_MAX, RANGE_ARBALETMAN_MIN);
-             ut_Bowman:     fProjectiles.AimTarget(PositionF, fHouse, pt_Arrow, Owner, RANGE_BOWMAN_MAX, RANGE_BOWMAN_MIN);
-             ut_Slingshot:  fProjectiles.AimTarget(PositionF, fHouse, pt_SlingRock, Owner, RANGE_SLINGSHOT_MAX, RANGE_SLINGSHOT_MIN);
+             ut_Arbaletman: gProjectiles.AimTarget(PositionF, fHouse, pt_Bolt, Owner, RANGE_ARBALETMAN_MAX, RANGE_ARBALETMAN_MIN);
+             ut_Bowman:     gProjectiles.AimTarget(PositionF, fHouse, pt_Arrow, Owner, RANGE_BOWMAN_MAX, RANGE_BOWMAN_MIN);
+             ut_Slingshot:  gProjectiles.AimTarget(PositionF, fHouse, pt_SlingRock, Owner, RANGE_SLINGSHOT_MAX, RANGE_SLINGSHOT_MIN);
              else Assert(false, 'Unknown shooter');
            end;
            SetLastShootTime; //Record last time the warrior shot

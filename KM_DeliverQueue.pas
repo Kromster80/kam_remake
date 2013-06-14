@@ -32,7 +32,6 @@ type
   end;
 
 type
-  //Most complicated class
   //We need to combine 2 approaches for wares > serfs and wares < serfs
   //Houses signal when they have new wares/needs
   //Serfs signal when they are free to perform actions

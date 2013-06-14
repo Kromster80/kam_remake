@@ -5,7 +5,6 @@ uses
   Math, SysUtils, KM_CommonClasses, KM_CommonTypes, KM_Points;
 
 
-{Messages}
 type
   //Individual message
   TKMMessage = class

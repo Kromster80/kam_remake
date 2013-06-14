@@ -10,6 +10,7 @@ uses
 type
   TFindNearest = (fnHouse, fnStone, fnTrees, fnSoil, fnWater, fnCoal, fnIron, fnGold);
 
+  //Terrain finder optimized for CityPlanner demands of finding resources and houses
   TKMTerrainFinderCity = class(TKMTerrainFinderCommon)
   protected
     fOwner: TPlayerIndex;

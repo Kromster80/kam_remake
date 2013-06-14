@@ -318,7 +318,7 @@ procedure TForm1.rgBriefingPosClick(Sender: TObject);
 begin
   if fUpdating or (fSelectedMap = -1) then Exit;
 
-  C.Maps[fSelectedMap].TextPos := TCorner(rgBriefingPos.ItemIndex);
+  C.Maps[fSelectedMap].TextPos := TBriefingCorner(rgBriefingPos.ItemIndex);
 
   RefreshFlags;
 end;
@@ -361,7 +361,7 @@ begin
   end;
 
   shpBriefing.Top := Image1.Height - shpBriefing.Height;
-  shpBriefing.Left := IfThen(C.Maps[fSelectedMap].TextPos = cBottomRight, Image1.Width - shpBriefing.Width, 0);
+  shpBriefing.Left := IfThen(C.Maps[fSelectedMap].TextPos = bcBottomRight, Image1.Width - shpBriefing.Width, 0);
 end;
 
 

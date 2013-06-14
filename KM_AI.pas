@@ -11,6 +11,8 @@ uses
 type
   TWonOrLost = (wol_None, wol_Won, wol_Lost);
 
+  //Things that player does automatically
+  //Player AI exists both for AI and Human players
   TKMPlayerAI = class
   private
     fOwner: TPlayerIndex;

@@ -125,7 +125,7 @@ begin
 
   //When opening campaign screen set the scroll initial position properly
   //Player can move it later (to allow to select previous maps and look at camp map)
-  Panel_CampScroll.Left := IfThen(fCampaign.Maps[fMapIndex].TextPos = cBottomRight, Panel_Campaign.Width - Panel_CampScroll.Width, 0);
+  Panel_CampScroll.Left := IfThen(fCampaign.Maps[fMapIndex].TextPos = bcBottomRight, Panel_Campaign.Width - Panel_CampScroll.Width, 0);
 end;
 
 

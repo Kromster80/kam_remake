@@ -233,8 +233,8 @@ begin
 
     //Fire the arrow
     case fUnit.UnitType of
-      ut_Arbaletman: fProjectiles.AimTarget(fUnit.PositionF, fOpponent, pt_Bolt, fUnit.Owner, RANGE_ARBALETMAN_MAX, RANGE_ARBALETMAN_MIN);
-      ut_Bowman:     fProjectiles.AimTarget(fUnit.PositionF, fOpponent, pt_Arrow, fUnit.Owner, RANGE_BOWMAN_MAX, RANGE_BOWMAN_MIN);
+      ut_Arbaletman: gProjectiles.AimTarget(fUnit.PositionF, fOpponent, pt_Bolt, fUnit.Owner, RANGE_ARBALETMAN_MAX, RANGE_ARBALETMAN_MIN);
+      ut_Bowman:     gProjectiles.AimTarget(fUnit.PositionF, fOpponent, pt_Arrow, fUnit.Owner, RANGE_BOWMAN_MAX, RANGE_BOWMAN_MIN);
       ut_Slingshot:  ;
       else Assert(false, 'Unknown shooter');
     end;
@@ -244,7 +244,7 @@ begin
   if Step = SLINGSHOT_FIRING_DELAY then
     if fUnit.UnitType = ut_Slingshot then
     begin
-      fProjectiles.AimTarget(fUnit.PositionF, fOpponent, pt_SlingRock, fUnit.Owner, RANGE_SLINGSHOT_MAX, RANGE_SLINGSHOT_MIN);
+      gProjectiles.AimTarget(fUnit.PositionF, fOpponent, pt_SlingRock, fUnit.Owner, RANGE_SLINGSHOT_MAX, RANGE_SLINGSHOT_MIN);
       TKMUnitWarrior(fUnit).SetLastShootTime; //Record last time the warrior shot
     end;
 end;

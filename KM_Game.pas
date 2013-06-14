@@ -245,7 +245,7 @@ begin
   else  fPathfinding := TPathfindingAStarOld.Create;
 
   end;
-  fProjectiles := TKMProjectiles.Create;
+  gProjectiles := TKMProjectiles.Create;
 
   fRenderPool := TRenderPool.Create(aRender);
 
@@ -275,7 +275,7 @@ begin
   FreeThenNil(fTerrainPainter);
   FreeThenNil(gTerrain);
   FreeAndNil(fAIFields);
-  FreeAndNil(fProjectiles);
+  FreeAndNil(gProjectiles);
   FreeAndNil(fPathfinding);
   FreeAndNil(fScripting);
   FreeAndNil(fAlerts);
@@ -1159,7 +1159,7 @@ begin
       MySpectator.Save(SaveStream);
     fAIFields.Save(SaveStream);
     fPathfinding.Save(SaveStream);
-    fProjectiles.Save(SaveStream);
+    gProjectiles.Save(SaveStream);
     fScripting.Save(SaveStream);
 
     //Relative path to strings will be the same for all MP players
@@ -1293,7 +1293,7 @@ begin
     MySpectator.Load(LoadStream);
   fAIFields.Load(LoadStream);
   fPathfinding.Load(LoadStream);
-  fProjectiles.Load(LoadStream);
+  gProjectiles.Load(LoadStream);
   fScripting.Load(LoadStream);
 
   //Load LIBX strings used in a mission by their relative path to ExeDir
@@ -1390,7 +1390,7 @@ begin
                       if fGame = nil then Exit; //Quit the update if game was stopped for some reason
                       MySpectator.UpdateState(fGameTickCount);
                       fPathfinding.UpdateState;
-                      fProjectiles.UpdateState; //If game has stopped it's NIL
+                      gProjectiles.UpdateState; //If game has stopped it's NIL
 
                       fGameInputProcess.RunningTimer(fGameTickCount); //GIP_Multi issues all commands for this tick
                       //In aggressive mode store a command every tick so we can find exactly when a replay mismatch occurs
@@ -1430,7 +1430,7 @@ begin
                     if fGame = nil then Exit; //Quit the update if game was stopped for some reason
                     MySpectator.UpdateState(fGameTickCount);
                     fPathfinding.UpdateState;
-                    fProjectiles.UpdateState; //If game has stopped it's NIL
+                    gProjectiles.UpdateState; //If game has stopped it's NIL
 
                     //Issue stored commands
                     fGameInputProcess.ReplayTimer(fGameTickCount);
