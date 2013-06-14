@@ -47,7 +47,7 @@ type
     Houses: array [THouseType] of THouseStats;
     Units: array [HUMANS_MIN..HUMANS_MAX] of TUnitStats;
     Wares: array [WARE_MIN..WARE_MAX] of TWareStats;
-    fResourceRatios: array [1..4, 1..4]of Byte;
+    fResourceRatios: array [1..4, 1..4] of Byte;
     function GetChartWares(aWare: TWareType): TKMCardinalArray;
     function GetRatio(aRes: TWareType; aHouse: THouseType): Byte;
     procedure SetRatio(aRes: TWareType; aHouse: THouseType; aValue: Byte);
@@ -163,20 +163,20 @@ end;
 
 procedure TKMPlayerStats.HousePlanned(aType: THouseType);
 begin
-  inc(Houses[aType].Planned);
+  Inc(Houses[aType].Planned);
 end;
 
 
 procedure TKMPlayerStats.HousePlanRemoved(aType: THouseType);
 begin
-  inc(Houses[aType].PlanRemoved);
+  Inc(Houses[aType].PlanRemoved);
 end;
 
 
 //New house in progress
 procedure TKMPlayerStats.HouseStarted(aType: THouseType);
 begin
-  inc(Houses[aType].Started);
+  Inc(Houses[aType].Started);
 end;
 
 
@@ -184,7 +184,7 @@ end;
 //Other House** methods will handle that
 procedure TKMPlayerStats.HouseEnded(aType: THouseType);
 begin
-  inc(Houses[aType].Ended);
+  Inc(Houses[aType].Ended);
 end;
 
 
@@ -192,9 +192,9 @@ end;
 procedure TKMPlayerStats.HouseCreated(aType: THouseType; aWasBuilt:boolean);
 begin
   if aWasBuilt then
-    inc(Houses[aType].Built)
+    Inc(Houses[aType].Built)
   else
-    inc(Houses[aType].Initial);
+    Inc(Houses[aType].Initial);
   UpdateReqDone(aType);
 end;
 
@@ -202,41 +202,41 @@ end;
 //Destroyed by enemy
 procedure TKMPlayerStats.HouseLost(aType: THouseType);
 begin
-  inc(Houses[aType].Lost);
+  Inc(Houses[aType].Lost);
 end;
 
 
 procedure TKMPlayerStats.HouseSelfDestruct(aType: THouseType);
 begin
-  inc(Houses[aType].SelfDestruct);
+  Inc(Houses[aType].SelfDestruct);
 end;
 
 
 //Player has destroyed an enemy house
 procedure TKMPlayerStats.HouseDestroyed(aType: THouseType);
 begin
-  inc(Houses[aType].Destroyed);
+  Inc(Houses[aType].Destroyed);
 end;
 
 
 procedure TKMPlayerStats.UnitCreated(aType: TUnitType; aWasTrained:boolean);
 begin
   if aWasTrained then
-    inc(Units[aType].Trained)
+    Inc(Units[aType].Trained)
   else
-    inc(Units[aType].Initial);
+    Inc(Units[aType].Initial);
 end;
 
 
 procedure TKMPlayerStats.UnitLost(aType: TUnitType);
 begin
-  inc(Units[aType].Lost);
+  Inc(Units[aType].Lost);
 end;
 
 
 procedure TKMPlayerStats.UnitKilled(aType: TUnitType);
 begin
-  inc(Units[aType].Killed);
+  Inc(Units[aType].Killed);
 end;
 
 
@@ -469,7 +469,7 @@ var UT: TUnitType;
 begin
   Result := 0;
   for UT := CITIZEN_MIN to CITIZEN_MAX do
-    inc(Result, Units[UT].Trained);
+    Inc(Result, Units[UT].Trained);
 end;
 
 
@@ -478,7 +478,7 @@ var UT: TUnitType;
 begin
   Result := 0;
   for UT := CITIZEN_MIN to CITIZEN_MAX do
-    inc(Result, Units[UT].Lost);
+    Inc(Result, Units[UT].Lost);
 end;
 
 
@@ -487,7 +487,7 @@ var UT: TUnitType;
 begin
   Result := 0;
   for UT := CITIZEN_MIN to CITIZEN_MAX do
-    inc(Result, Units[UT].Killed);
+    Inc(Result, Units[UT].Killed);
 end;
 
 

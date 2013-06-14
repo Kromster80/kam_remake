@@ -7,6 +7,8 @@ uses KromUtils,
 
 
 type
+  //Wrap to let choose FOW player sees (and let 1 player control several towns
+  //or several players to control 1 town in future)
   TKMSpectator = class
   private
     fPlayerIndex: TPlayerIndex;
@@ -14,7 +16,7 @@ type
     fHighlightEnd: Cardinal; //Highlight has a short time to live
     fSelected: TObject;
     fFOWIndex: TPlayerIndex; //Unit/House/Group selected by player and shown in UI
-    fFogOfWar: TKMFogOfWarOpen;
+    fFogOfWar: TKMFogOfWarOpen; //Stub for MapEd
     procedure SetHighlight(Value: TObject);
     procedure SetSelected(Value: TObject);
     procedure SetPlayerIndex(const Value: TPlayerIndex);
