@@ -17,6 +17,7 @@ Bugs:
  +	Player commands in lobby (kick) are displayed for empty slots, they should be disabled
  +	AI-only locations should not be listed for AIs in lobby, since those AIs are always added when the game starts
  +	MapEd copy should include terrain painter tiling data
+ +	Market prices were slightly inconsistent between weapons of the same value
 
 
 Features:
