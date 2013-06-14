@@ -36,6 +36,11 @@ type
     procedure UpdateState(aTick: Cardinal);
   end;
 
+  //todo: Spectator for Replays and MapEd that sees everything and allows to toggle FOW
+  TKMSpectatorReplay = class(TKMSpectator)
+
+  end;
+
 
 implementation
 uses KM_PlayersCollection, KM_Game, KM_Units_Warrior, KM_Terrain, KM_UnitGroups;
@@ -155,6 +160,9 @@ begin
   if TimeGet > fHighlightEnd then
     fHighlight := nil;
 end;
+
+
+{ TKMSpectatorEverything }
 
 
 end.
