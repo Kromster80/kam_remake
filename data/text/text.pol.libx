@@ -118,6 +118,7 @@ MaxID:697
 114:ZakoÒcz grÍ
 115:PowrÛt
 116:Ustawienia
+117:Zamknij Edytor
 118:Odg≥osy
 119:Zmiana g≥oúnoúci
 120:Zmiana g≥oúnoúci
@@ -138,6 +139,7 @@ MaxID:697
 135:Anuluj
 136:Anuluj aktualne przyuczanie
 137:W zapasie:
+138:Zasoby:
 139:Stan:
 140:Dostarcza
 141:Budynek w budowie
@@ -177,32 +179,33 @@ MaxID:697
 175:Zasoby Twojej Kopalni WÍgla sπ wyczerpane.
 176:Zasoby Twojej Kopalni Øelaza sπ wyczerpane.
 177:Zasoby Twojej Kopalni Z≥ota sπ wyczerpane.
+178:TwÛj drwal nie moøe znaleüÊ øadnych drzew do úciÍcia
 179:Ten budynek nie ma gospodarza.
 180:Ten oddzia≥ jest bardzo g≥odny!|Musisz jak najszybciej dostarczyÊ im øywnoúÊ!
 181:PAUZA
-182:Dostarczanie
-183:Budowanie drogi
-184:Kopanie pola
-185:Konstruowanie winnicy
-186:WyrÛwnywanie terenu pod dom
-187:Budowanie domu
-188:Naprawianie domu
+182:Dostarcza towary
+183:Buduje drogÍ
+184:Orze pole
+185:Konstruuje winnice
+186:WyrÛwnuje teren pod dom
+187:Buduje dom
+188:Naprawia budynek
 189:Idzie do domu
 190:Idzie do gospody
-191:Atakowanie domu
-192:Strzelanie
-193:Walczenie
-194:Szturmowanie
-195:Atakowanie
+191:Atakuje budynek
+192:Strzela
+193:Walczy
+194:Szturmuje
+195:Atakuje
 196:Idzie
-197:Odpoczynek
-198:Wydobywanie kamienia
-199:Sianie zboøa
-200:Zbieranie zboøa
-201:Zbieranie winogron
-202:£owienie
-203:åcinanie drzewa
-204:Sadzienie drzewa
+197:Odpoczywa
+198:Wydobywa kamieÒ
+199:Sieje zboøe
+200:Zbiera zboøe
+201:Zbiera winogrona
+202:£owi ryby
+203:åcina drzewa
+204:Sadzi drzewa
 205:Spirit
 206:Busy
 207:Middle Ages Horn
@@ -226,6 +229,7 @@ MaxID:697
 225:At the Harbor
 226:Journey
 227:Kampanie
+228:Kampanie
 229:Zacznij KampaniÍ
 230:Rozegraj jednπ misjÍ
 231:Zacznij misjÍ
@@ -268,8 +272,14 @@ MaxID:697
 268:Domy
 269:Surowce
 270:Wyprodukowane surowce
+271:Brak danych
 272:Ty
 273:Gracz %d
+274:WrÛÊ do Gry wieloosobowej
+275:WrÛÊ do PowtÛrek
+276:Wszystko
+277:Wojenne
+278:Jedzenie
 279:JOYMANIA ENTERTAINMENT||PROGRAMOWANIE:|Peter Ohlmann||GRAFIKA:|Adam Sprys||MISJE:|Adam Sprys|AndrÈ Quaﬂ||DèWI KI:|Tonstudio Mannheim||MUZYKA:|Gerd Hofmann|Joachim Sch‰fer|J¸rgen Rebhann|Klaus Staendike|Steffen Sch¸ngel||ILUSTRACJE:|Boles≥aw Kasza|Christoph Werner||ZUXXEZ ENTERTAINMENT AG||PRODUCENT:|Uwe Sch‰fer||INSTRUKCJA:|Peter Ohlmann|Uwe Sch‰fer||BETA-TESTERZY:|Peter Ohlmann|Adam Sprys|Alexandra Constandache|Dirk P. Hassinger|Achim Heidelauf|Uwe Sch‰fer|Ingrid Sch‰fer|Dirk U. Jantz|Ion Constandache|Yaman Egeli|Roman Eich|Iris Mocsnek|Anke Jantz|Paul Hassinger|Liza Hassinger||NADZ”R PRODUKCJI:|Achim Heidelauf||WYDAWCA:|TopWare Poland||FILMY:||NADZ”R PRODUKCJI:|S≥awomir JÍdrzejewski||Kajetan Czarnecki|Wojciech Drazek|Daniel Duplaga|Rafa≥ Januszkiewicz|Andrzej Rams|Piotr Rulka|Krzysztof RybczyÒski|Grzegorz Wiúniewski||G£OS”W UØYCZYLI:|Zbigniew Abrachamowicz|W≥adys≥aw Aniszewski|Jerzy Batycki|Kazimierz Czapla|Bartosz Dziedzic|Ireneusz OgrodziÒski|Grzegorz Sikora|Janusz Siwy|Tomasz Sylwestrzak|Piotr Tomaszewski|Robert Wdaniec||PROJEKT INSTRUKCJI:|Uwe Sch‰fer|Alexandra Constandache||TREå∆ INSTRUKCJI:|Peter Ohlmann|Uwe Sch‰fer||ILUSTRACJE:|Boles≥aw Kasza|Adam Sprys||INTRO:|Uwe Sch‰fer|Christian Bigalk|Dodatkowe Modelowanie 3D:|Niels Horstmann||SPECJALNE|PODZI KOWANIA DLA:|Tadeusz Zuber|Dieter Ohlmann|Alexandra Constandache|Ingrid Sch‰fer|Andrea Rumpelt
 280:Misja anulowana
 281:PowtÛrka zakoÒczona
@@ -291,12 +301,14 @@ MaxID:697
 297:StwÛrz Nowπ MapÍ
 298:DostÍpne mapy
 299:Za≥aduj Istniejπcπ MapÍ
+300:Po≥oøenie
 301:Kontrola:
 302:Rozgrywka:
 303:DüwiÍk
 304:Wy≥πcz muzykÍ
 305:Grafika:
 306:JasnoúÊ:
+307:Synchronizacja Pionowa
 308:Pe≥ny Ekran:
 309:Zastosuj
 310:JÍzyk:
@@ -343,6 +355,7 @@ MaxID:697
 351:Po≥πczenie nie powiod≥o siÍ: %s
 352:Zosta≥eú roz≥πczony
 353:Misja %d
+354:Dziennik wiadomoúci
 355:Twoja Chata rybaka jest zbyt daleko od wody.
 356:TwÛj rybak nie moøe z≥owiÊ wiÍcej ryb w pobliskich zbiornikach wodnych.
 357:Uruchom ponownie powtÛrkÍ
@@ -350,15 +363,143 @@ MaxID:697
 359:Jeden krok do przodu
 360:WznÛw wstrzymanπ powtÛrkÍ
 361:Zamknij powtÛrkÍ
+362:Prze≥πcz na perspektywÍ gracza
+363:Pokaø wszystko
 364:Uøyj lewego przycisku myszy, aby wybraÊ towar do handlu
 365:Uøyj prawego przycisku myszy, aby wybraÊ towar do handlu
 366:Z x%d
 367:Na x%d
 368:Edycja terenu
+369:PÍdzle
+370:Wysokoúci
+371:P≥ytki
+372:Obiekty
+373:Wysokoúci
+374:Kszta≥t pÍdzla
+375:Rozmiar
+376:PrzesuÒ, aby zmieniÊ rozmiar pÍdzla
+377:Zbocze
+378:PrzesuÒ, aby zmieniÊ wysokoúÊ zbocza: 1 = p≥aski ... 15 = szczyt
+379:SzybkoúÊ
+380:PrzesuÒ, aby zmieniÊ prÍdkoúÊ podnoszenia: 1 = wolno ... 15 = bardzo szybko
+381:Okrπg≥y pÍdzel
+382:Kwadratowy pÍdzel
+383:Podniesienie / Obniøenie
+384:Pofa≥dowanie / WyrÛwnanie
+385:Podnieú (lewy przycisk) /Obniø (prawy przycisk)
+386:Pofa≥duj (lewy przycisk)/WyrÛwnaj (prawy przycisk)
+387:PÍdzel
+388:Losowe elementy
+389:Losowy kierunek
+390:Zaznacz dla losowego kierunku p≥ytki lub kliknij prawym przyciskiem myszy, aby obrÛciÊ wybrany p≥ytkÍ
+391:Uøyj prawego przycisku, aby obrÛciÊ wybranπ p≥ytkÍ
+392:Zablokuj przejúcie
+393:UsuÒ obiekt
 394:Planowanie osady
 395:Skrypty wizualne
 396:Skryptowanie globalne
 397:Menu
+398:Obiekty
+399:Pokaø magazyny
+400:Pokaø jednostki
+401:Pokaø budynki
+402:Pokaø obiekty
+403:Pokaø przejúcia
+404:Wszystkie niezapisane|zmiany zostanπ utracone
+405:Anuluj
+406:Wczytaj
+407:Wczytaj mapÍ
+408:Anuluj
+409:Zapisz
+410:Nadpisz
+411:Mapa juø istnieje
+412:Gracze:
+413:Domyúlnie
+414:Rodzaj gracza
+415:Symetrycznie
+416:Sojusze
+417:Taktyczna
+418:Normalny
+419:Tryb misji
+420:Przejdü do lokalizacji
+421:årodek ekranu na poczπtku misji
+422:årodek ekranu
+423:Ods≥oÒ wszystko
+424:Ods≥oÒ czÍúÊ mapy
+425:Ods≥oÒ mg≥Í
+426:Zablokuj handel
+427:Zablokuj/odblokuj budynki
+428:Kolory
+429:Cel
+430:WiadomoúÊ
+431:Czas
+432:Gracz
+433:Budynki ekonomiczne
+434:Pomocnicy i szko≥y
+435:Cele wojskowe
+436:Nieznany
+437:Wojsko
+438:Budynki
+439:Czas
+440:Samouczek Budowania
+441:Øaden
+442:Warunek
+443:Przetrwanie
+444:ZwyciÍstwo
+445:Øaden
+446:Typ
+447:Cele
+448:OK
+449:Anuluj
+450:Kolumny
+451:Liczba
+452:Formacje Wojsk
+453:Edytuj formacje
+454:Ustaw limit liczby øo≥nierzy ktÛrych moøe mieÊ AI
+455:Ilu øo≥nierzy AI moøe mieÊ jednoczeúnie
+456:Ustaw maksymalnπ liczbÍ øo≥nierzy
+457:Ile rekrutÛw AI powinien mieÊ w Warowni
+458:RekrutÛw na WarowniÍ
+459:Pozycja
+460:Niestandardowa pozycja
+461:Najbliøszy dom 2
+462:Najbliøszy dom 1
+463:Najbliøsza jednostka
+464:Zabierz wszystkich
+465:Liczba oddzia≥Ûw
+466:Informacje o ataku
+467:OpÛünienie, s
+468:Powtarzany
+469:Raz
+470:Jazda
+471:Walczπcy na dystans
+472:Anty-jazda
+473:Walczπcy wrÍcz
+474:Loc.
+475:Cel
+476:Ludzi
+477:OpÛünienie
+478:typ
+479:Automatyczny atak
+480:Ataki AI
+481:WyposaøyÊ w orÍø skÛrzany
+482:WyposaøyÊ w orÍø øalazny
+483:Automatyczna obrona
+484:AI tworzy i zarzπdza pozycjami obrony automatycznie
+485:UmieúÊ pozycje obrony dla AI
+486:Pozycje obrony AI
+487:Robotnicy
+488:PomocnikÛw na 10 budynkÛw
+489:Automatyczne naprawianie
+490:Automatyczne bydowanie
+491:Ustawienia AI
+492:Budynki
+493:Prace drogowe
+494:OdwrÛÊ zaznaczone w pionie
+495:OdwrÛÊ zaznaczone w poziomie
+496:Wklej teren
+497:Skopiuj teren
+498:Kopiuj/wklej
 499:Nowa Misja
 500:ImiÍ gracza
 501:Status:
@@ -376,6 +517,8 @@ MaxID:697
 513:PokÛj
 514:Po≥πcz
 515:Anuluj
+516:PokÛj chroniony has≥em
+517:Has≥o
 518:Nazwa Serwera
 519:Stan
 520:Gracze
@@ -393,6 +536,7 @@ MaxID:697
 532:Kolor
 533:Gotowy
 534:Ping
+535:Ping / FPS
 536:Wolne
 537:Komputer
 538:Wybierz...
@@ -405,21 +549,38 @@ MaxID:697
 545:Gotowy
 546:Nie gotowy
 547:Start!
+548:PrÍdkoúÊ gry (czas pokoju)
+549:PrÍdkoúÊ gry
+550:OK
+551:Anuluj
+552:Opis
+553:Has≥o
+554:Ustawienia pokoju
+555:Oddaj hosta
+556:Zbanuj
+557:WyrzuÊ
+558:Przydziel losowo lokalizacje w druøynach
+559:Opis
+560:Opcje
 561:Lokacja %d
 562:B≥πd: Wybierz gracza z zapisu do kontrolowania
 563:B≥πd: Nie uda≥o siÍ za≥adowaÊ mapy lub nie wybrano mapy
 564:Nie moøna rozpoczπÊ: %s
 565:Nie wszyscy sπ gotowi do rozpoczÍcia
+566:Nie moøna przydzieliÊ losowej lokalizacji
 567:Serwer przypisa≥ prawa hosta do nas
 568:Gra rozpoczÍta
 569:Mapa Ekonomiczna
 570:Mapa Taktyczna
 571:Mapa Kooperacyjna
+572:Mapa specjalna
 573:Opcje gry:
 574:Okres pokojowy (minuty)
 575:ZamkniÍte
 576:Host konfiguruje gracza
 577:Oczekiwanie na graczy:
+578:Wszyscy
+579:Druøyna
 580:Autorzy KaM Remake
 581:Autorzy Oryginalnego Knights & Merchants
 582:PROGRAMOWANIE:
@@ -469,6 +630,7 @@ MaxID:697
 626:Zobacz powtÛrkÍ
 627:Niewspierany format %s
 628:Niewspierana wersja %s
+629:Niewspierana modyfikacja
 630:Wystπpi≥ b≥πd podczas przetwarzania pliku %s
 631:inicjowanie
 632:skrypt
@@ -483,6 +645,7 @@ MaxID:697
 641:Plik zapisu nie zgadza siÍ z zapisem hosta: %s
 642:PowtÛrka wykaza≥a niespÛjnoúÊ podczas sprawdzania. Jest to znany b≥πd, ktÛry wp≥ywa na odtwarzanie niektÛrych powtÛrek. Czy chcesz kontynuowaÊ oglπdanie?
 643:Moøesz mieÊ tylko jednπ otwartπ grÍ w trybie wieloosobowym naraz.
+644:Modyfikacje gry nie sπ dozwolone w trybie wieloosobowym. | Zainstaluj ponownie, aby przywrÛciÊ oryginalne pliki.
 645:Wystπpi≥ b≥πd w aplikacji. ProszÍ kliknπÊ Wyúlij Raport o B≥Ídach, abyúmy mogli zbadaÊ ten problem. DziÍkujemy za pomoc!
 646:Wyúlij Raport o B≥Ídach
 647:Pokaø Dane Pierwotne
@@ -506,3 +669,33 @@ MaxID:697
 665:Wysy≥anie raportu o awarii nie powiod≥o siÍ! Nasz serwer moøe byÊ zajÍty, proszÍ sprÛbowaÊ wys≥aÊ go ponownie.
 666:Informacja
 667:ProszÍ czekaÊ...
+668:Zapisz mapÍ
+669:OpÛünienie w minutach zanim AI zacznie szkolenie rekrutÛw
+670:OpÛünienie rekrutacji (min)
+671:Ustawia kierunek dla wszystkich p≥ytek w zbiorniku wodnym
+672:Magiczna woda
+673:Kopiuj
+674:Wklej
+675:Potwierdü wklejenie
+676:Anuluj wklejenie
+677:OdwrÛÊ w pionie
+678:OdwrÛÊ w poziomie
+679:Przeciπgnij, aby zaznaczyÊ obszar na mapie
+680:Opcje obrony AI
+681:Wy≥.
+682:PromieÒ
+683:UsuÒ bieøπcy ods≥aniacz
+684:PowrÛt do widoku odkrytej mg≥y
+685:Zamknij
+686:KolejnoúÊ oddzia≥Ûw
+687:Øaden
+688:Pozycja ataku
+689:Idü do
+690:Kierunek
+691:OdwÛd
+692:Linia frontu
+693:PromieÒ obrony
+694:UsuÒ aktualnπ pozycjÍ obrony
+695:PowrÛt do widoku obrony
+696:Pozycja obrony
+697:Jednostki
