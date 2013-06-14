@@ -2,7 +2,7 @@ unit KM_MapEditor;
 {$I KaM_Remake.inc}
 interface
 uses Classes, Math, SysUtils,
-  KM_CommonClasses, KM_Defaults, KM_Points, KM_Terrain, KM_Units, KM_RenderPool;
+  KM_CommonClasses, KM_Defaults, KM_Points, KM_Terrain, KM_Units, KM_RenderPool, KM_TerrainPainter;
 
 
 type
@@ -59,6 +59,7 @@ type
       Rotation: Byte;
       Obj: Byte;
       OldTerrain, OldRotation: Byte; //Only used for map editor
+      TerrainKind: TTerrainKind; //Used for brushes
     end;
     procedure SetRawRect(const aValue: TKMRectF);
   public
@@ -324,6 +325,7 @@ begin
     fBuffer[By,Bx].Obj         := gTerrain.Land[I+1, K+1].Obj;
     fBuffer[By,Bx].OldTerrain  := gTerrain.Land[I+1, K+1].OldTerrain;
     fBuffer[By,Bx].OldRotation := gTerrain.Land[I+1, K+1].OldRotation;
+    fBuffer[By,Bx].TerrainKind := fTerrainPainter.TerrainKind[I+1, K+1];
   end;
 end;
 
@@ -355,6 +357,7 @@ begin
     gTerrain.Land[I+1, K+1].Obj         := fBuffer[By,Bx].Obj;
     gTerrain.Land[I+1, K+1].OldTerrain  := fBuffer[By,Bx].OldTerrain;
     gTerrain.Land[I+1, K+1].OldRotation := fBuffer[By,Bx].OldRotation;
+    fTerrainPainter.TerrainKind[I+1, K+1] := fBuffer[By,Bx].TerrainKind;
   end;
 
   gTerrain.UpdateLighting(fRect);

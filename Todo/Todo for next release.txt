@@ -16,6 +16,7 @@ Bugs:
  +	Actions.PlanAddHouse works in unexpored areas for AIs
  +	Player commands in lobby (kick) are displayed for empty slots, they should be disabled
  +	AI-only locations should not be listed for AIs in lobby, since those AIs are always added when the game starts
+ +	MapEd copy should include terrain painter tiling data
 
 
 Features:
@@ -45,7 +46,6 @@ Postponed for a later release: (TODO: move these to bugslist later)
 	CanIron CanGold in MapEd
 	Flip/rotate selection in MapEd [Lewin]
 	MapEd copy buffer should be kept when opening a new map so you can copy between maps (or use binary data in Windows clipboard so it works between multiple KaM Remake processes?)
-	MapEd copy should include terrain painter tiling data
 
 
 ================

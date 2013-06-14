@@ -39,6 +39,8 @@ type
     procedure EditHeight;
     procedure EditTile(aLoc: TKMPoint; aTile,aRotation: Byte);
     procedure GenerateAddnData;
+    function GetTerrainKind(Y, X: Integer): TTerrainKind;
+    procedure SetTerrainKind(Y, X: Integer; Kind: TTerrainKind);
   public
     RandomizeTiling: Boolean;
     constructor Create;
@@ -46,6 +48,7 @@ type
     procedure SaveToFile(FileName: string);
     procedure UpdateStateIdle;
     procedure MagicWater(aLoc: TKMPoint);
+    property TerrainKind[Y,X: Integer]: TTerrainKind read GetTerrainKind write SetTerrainKind;
   end;
 
 
@@ -487,6 +490,18 @@ begin
                       end;
                   end;
       end;
+end;
+
+
+function TKMTerrainPainter.GetTerrainKind(Y, X: Integer): TTerrainKind;
+begin
+  Result := Land2[Y, X].TerType;
+end;
+
+
+procedure TKMTerrainPainter.SetTerrainKind(Y, X: Integer; Kind: TTerrainKind);
+begin
+  Land2[Y, X].TerType := Kind;
 end;
 
 
