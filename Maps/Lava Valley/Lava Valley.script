@@ -1,36 +1,32 @@
-var Melee1, Scout1, Rebel1, Melee2, Rebel2, Vagabond2, 
-Warrior1, Warrior2, Warrior3, Barbarian1, Barbarian2, 
-Barbarian3, Barbarian4 : Integer;
-
 procedure OnTick;
  begin
    if States.GameTime = 300 then
     begin
-     Scout1 := Actions.GiveGroup(5,21,64,66,4,24,6);
-     Melee1 := Actions.GiveGroup(5,14,69,66,4,15,5);
-     Rebel1 := Actions.GiveGroup(5,24,75,66,4,25,5);
+     Actions.GiveGroup(5,21,64,66,4,24,6);
+     Actions.GiveGroup(5,14,69,66,4,15,5);
+     Actions.GiveGroup(5,24,75,66,4,25,5);
     end;
 
    if States.GameTime = 600 then
     begin
-     Melee2 := Actions.GiveGroup(4,14,27,80,4,12,4);
-     Vagabond2 := Actions.GiveGroup(4,27,41,74,4,15,5);
-     Rebel2 := Actions.GiveGroup(4,24,47,75,5,15,5);
+     Actions.GiveGroup(4,14,27,80,4,12,4);
+     Actions.GiveGroup(4,27,41,74,4,15,5);
+     Actions.GiveGroup(4,24,47,75,5,15,5);
     end;
 
    if States.GameTime = 3000 then
     begin
-     Warrior1 := Actions.GiveGroup(7,26,107,78,5,15,5);
-     Warrior2 := Actions.GiveGroup(7,26,115,80,5,18,6);
-     Warrior3 := Actions.GiveGroup(7,26,69,62,4,15,5);
-     Barbarian1 := Actions.GiveGroup(7,23,115,72,5,18,6);
+     Actions.GiveGroup(7,26,107,78,5,15,5);
+     Actions.GiveGroup(7,26,115,80,5,18,6);
+     Actions.GiveGroup(7,26,69,62,4,15,5);
+     Actions.GiveGroup(7,23,115,72,5,18,6);
     end;
 
    if States.GameTime = 6000 then
     begin
-     Barbarian2 := Actions.GiveGroup(6,23,35,71,4,15,5);
-     Barbarian3 := Actions.GiveGroup(6,23,57,63,4,16,4);
-     Barbarian4 := Actions.GiveGroup(6,23,63,63,4,16,4);
+     Actions.GiveGroup(6,23,35,71,4,15,5);
+     Actions.GiveGroup(6,23,57,63,4,16,4);
+     Actions.GiveGroup(6,23,63,63,4,16,4);
     end;
 
    if States.GameTime = 250 then
