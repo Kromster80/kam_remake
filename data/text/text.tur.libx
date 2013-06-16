@@ -118,6 +118,7 @@ MaxID:697
 114:Çýkýþ
 115:Geri
 116:Ayarlar
+117:Düzenleyiciden Çýk
 118:SFX
 119:Sesi deðiþtir
 120:Sesi deðiþtir
@@ -174,13 +175,13 @@ MaxID:697
 171:Seçili mesaj konumuna git
 172:Kapat
 173:Pencereyi kapat
-174:|Taþçýnýz daha fazla taþ kaynaðýna ulaþamýyor.
-175:|Kömür madeniniz tükenmiþ.
-176:|Demir madeniniz tükenmiþ.
-177:|Altýn madeniniz tükenmiþ.
-178:|Oduncunuz aðaç dikip kesecek yer bulamýyor.
-179:|Bu ev kullanýlmýyor.
-180:|Askerleriniz acýktý, beslemeniz gerekiyor.
+174:Taþçýnýz daha fazla taþ kaynaðýna ulaþamýyor.
+175:Kömür madeniniz tükenmiþ.
+176:Demir madeniniz tükenmiþ.
+177:Altýn madeniniz tükenmiþ.
+178:Oduncunuz aðaç dikip kesecek yer bulamýyor.
+179:Bu ev kullanýlmýyor.
+180:Askerleriniz acýktý, beslemeniz gerekiyor.
 181:Bekle
 182:Taþýyor
 183:Yol yapýyor
@@ -328,7 +329,7 @@ MaxID:697
 325:Baþlýk
 326:Haritalar
 327:Kilitli deðil
-328:Hazandýnýz!
+328:Kazandýnýz!
 329:Oynamaya devam et
 330:Zafer!
 331:Kaybettiniz!
@@ -419,6 +420,7 @@ MaxID:697
 416:Dostlar
 417:Taktik
 418:Normal
+419:Görev modu
 420:Konuma git
 421:Oyun baþlangýcýndaki merkez ekran
 422:Merkez ekran
@@ -453,6 +455,7 @@ MaxID:697
 451:Sayý
 452:Asker Düzeni
 453:Asker düzenini düzenle
+454:YZ'nin sahip olabileceði asker sayýsýný sýnýrla
 455:YZ ayný zamanda kaç tane askere sahip olsun
 456:En fazla asker sayýsýný ayarla
 457:YZ kalede ne kadar asker bulundursun
@@ -666,3 +669,33 @@ MaxID:697
 665:Hata raporu gönderimi baþarýsýz! Sunucularýmýz meþgul olabilir, lütfen tekrar deneyiniz.
 666:Bilgi
 667:Lütfen bekleyiniz...
+668:Haritayý Kaydet
+669:YZ'nin asker yetiþtirmeye baþlama süresi (dakika)
+670:Asker gecikmesi (dakika)
+671:Sudaki döþemelerin yönlerini düzenler
+672:Sihirli Su
+673:Kopyala
+674:Yapýþtýr
+675:Yapýþtýrý uygula
+676:Yapýþtýrý iptal et
+677:Dikey olarak çevir
+678:Yatay olarak çevir
+679:Haritadan bir bölge seçmek için fareyi sürükle
+680:YZ savunma seçenekleri
+681:Kapalý
+682:Yarýçap
+683:Mevcut görünürlüðü sil
+684:Görünürlük sayfasýna geri dön
+685:Kapat
+686:Grup sýrasý
+687:Yok
+688:Saldýrý pozisyonu
+689:Yürü
+690:Yön
+691:Arka sýra
+692:Ön sýra
+693:Savunma yarýçapý
+694:Mevcut savunma pozisyonunu sil
+695:Savunma sayfasýna geri dön
+696:Savunma pozisyonu
+697:Birimler
