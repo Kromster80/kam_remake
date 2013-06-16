@@ -128,6 +128,7 @@ type
     procedure GroupSetFormation(aGroupID: Integer; aNumColumns: Byte);
 
     procedure HouseAddDamage(aHouseID: Integer; aDamage: Word);
+    procedure HouseAddRepair(aHouseID: Integer; aRepair: Word);
     procedure HouseAddWaresTo(aHouseID: Integer; aType, aCount: Word);
     procedure HouseAllow(aPlayer, aHouseType: Word; aAllowed: Boolean);
     function  HouseBarracksEquip(aHouseID: Integer; aUnitType: Integer; aCount: Integer): Integer;
@@ -1540,6 +1541,20 @@ begin
   end
   else
     LogError('Actions.HouseAddDamage', [aHouseID, aDamage]);
+end;
+
+
+procedure TKMScriptActions.HouseAddRepair(aHouseID: Integer; aRepair: Word);
+var H: TKMHouse;
+begin
+  if aHouseID > 0 then
+  begin
+    H := fIDCache.GetHouse(aHouseID);
+    if H <> nil then
+      H.AddRepair(aRepair);
+  end
+  else
+    LogError('Actions.HouseAddRepair', [aHouseID, aRepair]);
 end;
 
 

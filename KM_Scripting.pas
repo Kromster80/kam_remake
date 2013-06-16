@@ -234,6 +234,7 @@ begin
       RegisterMethod('procedure GroupSetFormation(aGroupID: Integer; aNumColumns: Byte)');
 
   	  RegisterMethod('procedure HouseAddDamage(aHouseID: Integer; aDamage: Word)');
+  	  RegisterMethod('procedure HouseAddRepair(aHouseID: Integer; aRepair: Word)');
       RegisterMethod('procedure HouseAddWaresTo(aHouseID: Integer; aType, aCount: Word)');
       RegisterMethod('procedure HouseAllow(aPlayer, aHouseType: Word; aAllowed: Boolean)');
       RegisterMethod('function  HouseBarracksEquip(aHouseID: Integer; aUnitType: Integer; aCount: Integer): Integer');
@@ -508,6 +509,7 @@ begin
 
       RegisterMethod(@TKMScriptActions.HouseAllow,              'HOUSEALLOW');
       RegisterMethod(@TKMScriptActions.HouseAddDamage,          'HOUSEADDDAMAGE');
+      RegisterMethod(@TKMScriptActions.HouseAddRepair,          'HOUSEADDREPAIR');
       RegisterMethod(@TKMScriptActions.HouseAddWaresTo,         'HOUSEADDWARESTO');
       RegisterMethod(@TKMScriptActions.HouseBarracksEquip,      'HOUSEBARRACKSEQUIP');
       RegisterMethod(@TKMScriptActions.HouseDeliveryBlock,      'HOUSEDELIVERYBLOCK');

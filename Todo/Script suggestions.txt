@@ -24,6 +24,7 @@ Accepted:
  +	Actions.PlanRemove
  +	Actions.HouseDisableUnoccupiedMessage
  +	Actions.AIRecruitLimit
+ +	Actions.HouseAddRepair
  +	Added parameter "Silent" to Actions.HouseDestroy
 	Closest house/unit/group to given XY of certain player and type
 	Change house/unit/group owner
