@@ -692,7 +692,8 @@ begin
   end;
   for i := 1 to LOCATIONS_TOTAL do if SCORES[i][flg] = highscore then
   begin
-	Inc(num_leaders);
+    //Team members shouldn't cause flag to be unclaimed when they have the same score
+    if (num_leaders = 0) OR (TEAM_OF_PLAYER[i] = 0) OR (TEAM_OF_PLAYER[i] <> TEAM_OF_PLAYER[leader_id]) then Inc(num_leaders);
 	leader_id := i;
   end
 end;
