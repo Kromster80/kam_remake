@@ -1,0 +1,4 @@
+SetSpecial
+
+BigDesc
+The enemy has increased the required tribute for occupied regions such as ours. One of our villages has openly opposed and was cruelly looted... |Your troops have arrived to the place of events. A military base was built near the village. |But the enemy is stronger than we thought! Now enemy troops besiege our defences and continue to destroy the village... |According to our scouts, allied reinforcements are already on the way. They will come in approximately 15 minutes. |Don't let the enemy destroy the village and keep your General alive at all costs!||Made by andreus, woloszek and vovets1

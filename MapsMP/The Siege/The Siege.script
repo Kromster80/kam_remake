@@ -1,0 +1,128 @@
+var General: Integer;
+
+ procedure OnMissionStart;
+  begin
+   General := States.GroupAt(32,117);
+  end;
+
+ procedure OnTick;
+ var ID, axe1, sw1, lan1, pik1, pik2, lan2, sc1, kn1, cr1, bow1: Integer;
+  begin
+
+   if States.GameTime = 20 then begin
+   for ID := 0 to 2 do 
+   if States.PlayerEnabled(ID) = true then
+   Actions.ShowMsgGoTo(ID,32,117,'<$0>');
+  end;
+
+   if States.GameTime = 2480 then begin
+   for ID := 0 to 2 do 
+   if States.PlayerEnabled(ID) = true then
+   Actions.ShowMsg(ID,'<$1>');
+  end;
+   
+   if States.GameTime = 2700 then begin
+   Actions.GiveGroup(5,16,146,73,6,9,3);
+   sw1 := Actions.GiveGroup(6,16,91,102,5,8,6);
+   axe1 := Actions.GiveGroup(6,15,92,102,5,10,6);
+   Actions.GroupOrderLink(axe1,sw1);
+   Actions.GiveGroup(5,20,143,77,6,12,4);
+   pik1 := Actions.GiveGroup(6,20,50,73,5,8,5);
+   lan1 := Actions.GiveGroup(6,19,51,72,5,7,5);
+   Actions.GroupOrderLink(lan1,pik1);
+   pik2 := Actions.GiveGroup(6,20,20,53,4,15,7);
+   lan2 := Actions.GiveGroup(6,19,22,54,4,6,7);
+   Actions.GroupOrderLink(lan2,pik2);
+   Actions.GiveGroup(6,22,57,74,4,12,4);
+   Actions.GiveGroup(6,22,31,55,4,12,3);
+   kn1 := Actions.GiveGroup(6,22,24,56,4,9,6);
+   sc1 := Actions.GiveGroup(6,21,25,55,4,9,6);
+   Actions.GroupOrderLink(sc1, kn1);
+   cr1 := Actions.GiveGroup(5,18,151,73,6,6,3);
+   bow1 := Actions.GiveGroup(5,17,152,72,6,6,3);
+   Actions.GroupOrderLink(bow1,cr1);
+   Actions.GiveGroup(6,18,90,103,5,9,3);
+   Actions.GiveGroup(5,16,81,39,4,12,4);
+   Actions.GiveGroup(5,20,104,28,2,12,3);
+   Actions.GiveGroup(5,20,126,84,0,10,5);
+  end;
+
+   if States.GameTime = 5730 then begin
+   for ID := 0 to 2 do 
+   if States.PlayerEnabled(ID) = true then
+   Actions.ShowMsg(ID,'<$2>');
+   end;
+
+   if States.GameTime = 6000 then begin
+   Actions.GiveGroup(5,16,144,75,6,18,6);
+   Actions.GiveGroup(5,22,148,75,6,20,5);
+   Actions.GiveGroup(6,16,45,73,4,15,5);
+   Actions.GiveGroup(6,16,31,55,4,28,7);
+   Actions.GiveGroup(6,22,34,50,4,20,5);
+   Actions.GiveGroup(6,22,52,72,4,20,5);
+   Actions.GiveGroup(5,22,81,38,4,15,5);
+   Actions.GiveGroup(6,22,77,106,6,8,4);
+   Actions.GiveGroup(6,20,22,52,4,8,4);
+  end;
+  
+   if States.GameTime = 8500 then begin
+   Actions.GiveGroup(6,20,22,52,4,25,5);
+   Actions.GiveGroup(5,22,148,75,6,21,7);
+   Actions.GiveGroup(6,22,57,73,4,15,5);
+   Actions.GiveGroup(6,16,92,100,6,20,4);
+   Actions.GiveGroup(6,16,24,56,4,18,6);
+   Actions.GiveGroup(6,15,23,55,4,18,6);
+   Actions.GiveGroup(5,15,80,38,4,18,6);
+   Actions.GiveGroup(5,16,143,75,6,20,5);
+   Actions.GiveGroup(5,22,103,27,2,6,3);
+  end;
+   
+   if States.GameTime = 8740 then begin
+   for ID := 0 to 2 do 
+   if States.PlayerEnabled(ID) = true then
+   Actions.ShowMsg(ID,'<$3>');
+  end;
+
+   if States.GameTime = 9000 then begin
+   Actions.GiveGroup(7,15,3,102,2,15,5);
+   Actions.GiveGroup(7,19,3,108,2,9,3);
+   Actions.GiveGroup(7,20,3,111,2,9,3);
+   Actions.GiveGroup(7,17,3,115,2,6,3);
+   Actions.GiveGroup(7,18,3,118,2,6,3);
+   Actions.GiveGroup(7,20,36,141,0,12,4);
+   Actions.GiveGroup(7,15,42,143,0,12,3);
+   Actions.GiveGroup(7,17,40,149,0,15,5);
+   Actions.GiveGroup(7,21,41,153,0,8,4);
+   Actions.GiveGroup(7,22,41,156,0,8,4);
+  end;
+
+   if ((States.HouseAt(91,58) = -1) or States.HouseDestroyed(States.HouseAt(91,58)))
+   and ((States.HouseAt(92,51) = -1) or States.HouseDestroyed(States.HouseAt(92,51)))
+   and ((States.HouseAt(97,52) = -1) or States.HouseDestroyed(States.HouseAt(97,52)))
+   then begin
+   Actions.PlayerDefeat(4);
+   for ID := 0 to 2 do 
+   if States.PlayerEnabled(ID) = true then 
+   Actions.PlayerDefeat(ID);
+  end;
+
+   if States.GroupDead(General) = true 
+   then begin
+   Actions.PlayerDefeat(3);
+   for ID := 0 to 2 do 
+   if States.PlayerEnabled(ID) = true then 
+   Actions.PlayerDefeat(ID);
+  end;
+
+   if (States.GameTime > 9000) 
+   and (States.StatArmyCount(5) = 0) 
+   and (States.StatArmyCount(6) = 0)
+   and (States.PlayerDefeated(4) = false)
+   and (States.PlayerDefeated(3) = false)
+   then begin
+   for ID := 0 to 2 do 
+   if States.PlayerEnabled(ID) = true then
+   Actions.PlayerWin([ID], true);
+  end;
+ end;
+
