@@ -118,6 +118,7 @@ MaxID:697
 114:Ninmu o haki shimasu
 115:Modorimasu
 116:Settei
+117:Henshuusha ga saremasu
 118:Tokusatsu
 119:Onryou o henkou shimasu
 120:Onryou o henkou shimasu
@@ -138,6 +139,7 @@ MaxID:697
 135:Torikeshi
 136:Genzai kenshuu o teishi shimasu
 137:Hitsuyou:
+138:Kyoukyuu:
 139:Joutai:
 140:Todokemasu
 141:Kouji chuu|tatemono
@@ -174,12 +176,12 @@ MaxID:697
 172:Tojimasu
 173:Uindou o shimemasu
 174:Sekkou wa soreijou ishi shigen o todokimasen.
-175:Anata no kouzan no sekitansou wa tsukaikirarete imasu.
-176:Anata no tetsu kouzan no koumyaku wa tsukaikirarete imasu.
-177:Anata no kin kouzan no koumyaku wa tsukaikirarete imasu.
-178:Anata no kikori wa ochiru tame ni ki o mitsukemasen. Kare wa ki o uemasen.
-179:Kaoku ni daremo sumimasen.
-180:Kono guntai wa hijou ni uete imasu. Taberu tame ni, imasugu karera ni nanika o morau hou ga ii!
+175:Kouzan no sekitansou wa tsukaikirarete iru.
+176:Tetsu kouzan no koumyaku wa tsukaikirarete iru.
+177:Kin kouzan no koumyaku wa tsukaikirarete iru.
+178:Kikori wa ki o ochiru tame ni mitsukete inai
+179:Kaoku ni daremo suminai.
+180:Kono guntai wa hijou ni uete imasu. 
 181:Ge-mu o yamete imasu
 182:Todokete imasu
 183:Douro o kumitate imasu
@@ -227,6 +229,7 @@ MaxID:697
 225:Minato e
 226:Ryokou
 227:Juugun
+228:Juugun
 229:Ensei o hajimeru!
 230:Tandoku no chizu ni hairu
 231:Chizu o hajimeru
@@ -269,9 +272,15 @@ MaxID:697
 268:Tatemono
 269:Shigen
 270:Tsukutta shigen
+271:Jouhou nashi
 272:Anata
 273:Kokuou %d
-279:1000:1000:JOYMANIA ENTERTAINMENT||PUROGURAMINGU:|Peter Ohlmann||GE-MU GURAFIKUSU:|Adam Sprys||REBERU NO SEKKEI:|Adam Sprys|AndrÅEQuaﬂ||OTO NO HENKOU MATAWA MIKKUSU:|Tonstudio Mannheim||ONGAKU:|Gerd Hofmann|Joachim Sch‰fer|JÅEgen Rebhann|Klaus Staendike|Steffen SchÅEgel||SHASHIN:|Boleslaw Kasza|Christoph Werner||HON YAKU:|Ronnie Shankland|Patricia Bellantuono|Andrea Rumpelt|||ZUXXEZ ENTERTAINMENT AG||SEISANSHA:|Uwe Sch‰fer||SETSUMEISHO:|Peter Ohlmann|Uwe Sch‰fer||BE-TA SHIREN:|Peter Ohlmann|Adam Sprys|Alexandra Constandache|Dirk P. Hassinger|Achim Heidelauf|Uwe Sch‰fer|Ingrid Sch‰fer|Dirk U. Jantz|Ion Constandache|Yaman Egeli|Roman Eich|Iris Mocsnek|Anke Jantz|Paul Hassinger|Liza Hassinger||GE-MU NO SHOCHOU:|Achim Heidelauf||HOKKOUSHA:|TopWare Interactive||DOUGA:||KANRI:|Slawomir Jedrzejewski||Kajetan Czarnecki|Wojciech Drazek|Daniel Duplaga|Rafal Januszkiewicz|Andrzej Rams|Piotr Rulka|Krzysztof Rybczynski|Grzegorz Wisniewski||ONSEI:|Claus Boyen (Kataribe)||Tim Timmermann|Peter Houska|Dirk MÅElbach|Ralf Ditze|Gerhard Piske|Gernot Wassmann||GEIJUTSUSAKUHIN:|Boleslaw Kasza|Adam Sprys||KAISHI NO DOUGA:|Uwe Sch‰fer|Christian Bigalk|Tuika no 3D zoukei:|Niels Horstmann||TOKUBETSU NA KANSHA:|Tadeusz Zuber|Dieter Ohlmann|Alexandra Constandache|Ingrid Sch‰fer
+274:"Ikutsa no oukoku" ni modoru
+275:"Saien shichousha" ni modoru
+276:Subete
+277:Sensou
+278:Shokuhin
+279:JOYMANIA ENTERTAINMENT||PUROGURAMINGU:|Peter Ohlmann||GE-MU GURAFIKUSU:|Adam Sprys||REBERU NO SEKKEI:|Adam Sprys|AndrÅEQuaﬂ||OTO NO HENKOU MATAWA MIKKUSU:|Tonstudio Mannheim||ONGAKU:|Gerd Hofmann|Joachim Sch‰fer|JÅEgen Rebhann|Klaus Staendike|Steffen SchÅEgel||SHASHIN:|Boleslaw Kasza|Christoph Werner||HON YAKU:|Ronnie Shankland|Patricia Bellantuono|Andrea Rumpelt|||ZUXXEZ ENTERTAINMENT AG||SEISANSHA:|Uwe Sch‰fer||SETSUMEISHO:|Peter Ohlmann|Uwe Sch‰fer||BE-TA SHIREN:|Peter Ohlmann|Adam Sprys|Alexandra Constandache|Dirk P. Hassinger|Achim Heidelauf|Uwe Sch‰fer|Ingrid Sch‰fer|Dirk U. Jantz|Ion Constandache|Yaman Egeli|Roman Eich|Iris Mocsnek|Anke Jantz|Paul Hassinger|Liza Hassinger||GE-MU NO SHOCHOU:|Achim Heidelauf||HOKKOUSHA:|TopWare Interactive||DOUGA:||KANRI:|Slawomir Jedrzejewski||Kajetan Czarnecki|Wojciech Drazek|Daniel Duplaga|Rafal Januszkiewicz|Andrzej Rams|Piotr Rulka|Krzysztof Rybczynski|Grzegorz Wisniewski||ONSEI:|Claus Boyen (Kataribe)||Tim Timmermann|Peter Houska|Dirk MÅElbach|Ralf Ditze|Gerhard Piske|Gernot Wassmann||GEIJUTSUSAKUHIN:|Boleslaw Kasza|Adam Sprys||KAISHI NO DOUGA:|Uwe Sch‰fer|Christian Bigalk|Tuika no 3D zoukei:|Niels Horstmann||TOKUBETSU NA KANSHA:|Tadeusz Zuber|Dieter Ohlmann|Alexandra Constandache|Ingrid Sch‰fer
 280:Ninmu o haki mashita
 281:Saien o oeta
 282:Machi gakushuuyou
@@ -292,12 +301,14 @@ MaxID:697
 297:Shinki na chizu o tsukuru
 298:Shiyoukanou  na chizu
 299:Kison no chizu o ro-do shimasu
+300:Basho
 301:Chousetsu:
 302:Ge-mu pure-:
 303:Oto:
 304:Ongaku o mukou |ni naru
 305:Gurafikosu:
 306:Akarusa
+307:Suichoku na douki
 308:Zengamen
 309:Tekiyou
 310:Gengo
@@ -344,6 +355,7 @@ MaxID:697
 351:Setsuzoku o kakashita: %s
 352:Anata no setsuzoku o setsudan saremashita
 353:Ninmu %d
+354:Rogu no dengon
 355:Anata no ryoushi no koya wa kawa kara, hijou ni tooku desu.
 356:Ryoushi wa moyori no kawa ni soreijou sakana o tsurimasen.
 357:Saien o saikaishi shimasu
@@ -351,6 +363,8 @@ MaxID:697
 359:Sukoshi susumimasu
 360:Saien o tsudzukemasu
 361:Saien o yoshimasu
+362:Koko no kokuou no shiten o yorimasu
+363:Subete o miseru
 364:Akinau koto ga dekimasu, hidari no botan o kurikku suru to shouhin o yorimasu.
 365:Akinau koto ga dekimasu, migi no botan o kurikku suru to shouhin o yorimasu.
 366:%d ko no shouhin kara
@@ -360,6 +374,7 @@ MaxID:697
 370:Oka
 371:Kawara
 372:Mono
+373:Takasa
 374:Hake no keijou
 375:Sunpou
 376:Zureru to hake no ookisa o henkou shimasu.
@@ -370,17 +385,121 @@ MaxID:697
 381:Marugata hake
 382:Seihoukei hake
 383:Agaru / sagaru
-384:Dekoboko / taira ni narimasu
+384:Dekoboko / taira ni naru
 385:Agaru (hidari no kurikko) / Sagaru (migi no kurikko)
 386:Dekoboko (hidari no kurikko) / taira (migi no kurikko) ni narimasu
+387:Efude
+388:Detarame na|youso
 389:Detarame na houkou
 390:Ma-ku suru to detarame na kawara no houkou matawa, yotte iru kawara o mawaraseru tame ni, migi no kurikku shimasu.
 391:Migi no kurikku shimasu to yotte iru kawara o mawarasemasu.
+392:Toho ga habamerasu
 393:Mono o torinozokimasu
 394:Mura no kikaku
 395:Bijuaru yakuwari
 396:Sekaiteki na yakuwari
 397:Ichiran
+398:Mono
+399:Genbutsu o miseru
+400:Butai o miseru
+401:Kaoku o miseru
+402:Mono o miseru
+403:Tsuuka o miseru
+404:Hozon shite inai |henkou ga ushinawaremasu
+405:Torikeshi
+406:Ro-do
+407:Chizu ga ro-do saremasu
+408:Torikeshi
+409:Hozon
+410:Uwagaki
+411:Chizu ga sude ni arimasu
+412:Kokuou:
+413:Kitei
+414:Koukuou no shurui
+415:Taishousei
+416:Doumei
+417:Senjutsu
+418:Seijou
+419:Ninmu no mo-do
+420:Basho e ikimasu
+421:Ninmu no kaishi gamen o chuushin ni okimasu
+422:Gamen no shouten
+423:Subete o arawashimasu
+424:Chizu no bubun o arawashimasu
+425:Kiri ga arawareru
+426:Baibai ga kinshi saremasu
+427:Kaoku ga kinshi saremasu/yurusaremasu
+428:Iro
+429:Mokuhyou
+430:Dengon
+431:Jikan
+432:Kokuou
+433:Keizai no kenzou
+434:Noudo to gakkou
+435:Gun no shisan
+436:Fumei
+437:Guntai
+438:Tatemono
+439:Jikan
+440:Machi gakushuuyou
+441:Nashi
+442:Joutai
+443:Seizon
+444:Shouri
+445:Nashi
+446:Shurui
+447:Mokuhyou
+448:Hai
+449:Torikeshi
+450:Retsu
+451:Kazoeru
+452:Gun you
+453:Gun you o henkou shimasu
+454:Ikura jinkoushi no heishi wa  iru koto ga dekimasu nowa kettei
+455:Ikura heishi wa iru koto ga dekimasu
+456:Heishi no saidaigen
+457:Ikura shinkaiin wa jinkoushin no heisha ni iru koto ga dekimasu
+458:Heisha goto ni gun no shinkaiin
+459:Basho
+460:Jishin no basho
+461:Ichiban chikai kaoku 2
+462:Ichiban chikai kaoku 1
+463:Ichiban chikai butai
+464:Subete ga toremasu
+465:Butai goukei
+466:Kougeki setsumei
+467:Okure, byou
+468:Kurikaeshite imasu
+469:Ichido
+470:Kishu
+471:Shageki jin
+472:Uma han heishi
+473:Hohei
+474:Basho
+475:Taishou
+476:Hito
+477:Chien
+478:Shurui
+479:Jidou no kougeki
+480:Jinkouchinou no kougeki
+481:Kawa no soubi shimasu ritsu
+482:Tetsu no soubi shimasu ritsu
+483:Jidou no bouei
+484:Jinkouchinou wa shubi no basho ga jidouteki ni tsukawarete kanri saremasu
+485:Jinkouchinou no tame no shubi no basho o okimasu
+486:Jinkouchinou no shubi no basho
+487:Shokunin
+488:Jyuu ya atari noudo
+489:Jidou no shuufuku
+490:Jidou no kouchiku
+491:Jinkouchinou no settei
+492:Kaoku
+493:Douro kouji
+494:Suichou na kaiten no sentou
+495:Suihei na kaiten no sentou
+496:Chikei o haritsuke
+497:Chikei o copi-
+498:Copi- /haritsuke
 499:Shinki na ninmu
 500:Kokuou no namae
 501:Joutai:
@@ -398,6 +517,8 @@ MaxID:697
 513:Heya
 514:Setsuzoku shimasu
 515:Torikeshimasu
+516:Pasuwa-do de hogo shiteru machiaishitsu
+517:Pasuwa-do
 518:Se-ba no namae
 519:Joutai
 520:Kokuou
@@ -415,6 +536,7 @@ MaxID:697
 532:Iro
 533:Junbi
 534:Pingu
+535:Pingu/FPS
 536:Hiraite iru
 537:Jinkouchinou kokuou
 538:Yorimasu..
@@ -427,21 +549,38 @@ MaxID:697
 545:Totonotte iru
 546:Junbi shite imasen
 547:Hajimaru!
+548:Ge-mu no sokudo(heiji)
+549:Ge-mu no sokudo
+550:Hai
+551:Torikeshi
+552:Setsumei
+553:Pasuwa-do
+554:Machiaishitsu no settei
+555:Hosuto no kettei
+556:Tsuihou
+557:Jomei
+558:Basho ga chi-mu inai detarame ni naru
+559:Setsumei
+560:Settei
 561:Basho %d
 562:Mondai: oukoku o seigyo suru tame ni, hozon shite iru ge-mu no kokuou o yotte kudasai
 563:Mondai: Chizu wa yoraremasen soretomo ro-do o kakashimashita
 564:Kaishi dekimasen: %s
 565:Daremoja arimasen wa kaishi no tame ni junbishite imasu
+566:Detarame basho ga kubareru dekimasen
 567:Seba wa wareware ni hosuto kenri o yuzurimashita
 568:Ge-mu o hajimemashita
 569:Tatsukoto chizu
 570:Kougeki chizu
 571:Kyouryoku no chizu
+572:Tokubetsu na chizu
 573:Ge-mu no settei:
 574:Heiji (fun)
 575:Tojite iru
 576:Hosuto dake wa oukoku o kamaemasu
 577:Kokuou o matte imasu:
+578:Subete
+579:Chi-mu
 580:Tsukurinaoshita "Kishi ya chounin" no guntai
 581:Dokuji no "Kishi ya chounin" no guntai
 582:PUROGURAMINGU:
@@ -530,3 +669,33 @@ MaxID:697
 665:Kurasshu houkoku soushin o kakashimashita! Wareware no se-ba wa hyotto suru to isogashii desu, soushin o futatabi tameshite kudasai.
 666:Jouhou
 667:Chotto matte kudasai...
+668:Chizu ga hozon saremasu
+669:Ikura hun ato ni jinkouchinou wa shinkaiin o shikomihajimeru
+670:Shinkaiin okure (hun)
+671:Suiiki ni subete no kawara houkou o kettei shimasu
+672:Mahou no mizu
+673:Copi-
+674:Haritsuke
+675:Haritsuke no tekiyou
+676:Haritsuke no torikeshi
+677:Suichou ni mawasu
+678:Suihei ni mawasu
+679:Doraggu suru to chizu no ryouiki ga yorimasu
+680:Jinkouchinou no shubi settei
+681:Nashi
+682:Hankei
+683:Genzai no keiji ga sakujo saremasu
+684:Kiri no kougai pe-gi e modorimasu
+685:Tojimasu
+686:Butai no chuumon
+687:Nashi
+688:Basho ga osoimasu
+689:E aruimasu
+690:Houkou
+691:Ushiro no sen
+692:Zensen
+693:Shubi no hankei
+694:Kono shubi no basho o sakujo shimasu
+695:Shubi no pe-ji he modorimasu
+696:Shubi no basho
+697:Butai
