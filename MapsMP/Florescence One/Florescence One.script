@@ -284,7 +284,7 @@ begin
   FLAGS[11].Tflagtype := first;
   FLAGS[11].unlocked_at := 150;
   FLAGS[12].Tflagtype := first;
-  FLAGS[12].unlocked_at := 39; // 41 if you include fisherman + hut
+  FLAGS[12].unlocked_at := 38; // 41 if you include fisherman + hut + market
   FLAGS[13].Tflagtype := first;
   FLAGS[13].unlocked_at := 5;
   FLAGS[14].Tflagtype := final;
@@ -847,7 +847,7 @@ begin
   end;
   for k := 29 downto 0 do
   begin
-    if (k = 26) OR (k = 23) OR (k = 18) OR (k = 6) then continue; // 26 unused; 23 vehicle workshop; 18 town hall; id 6 fisherman, but no sea on map
+    if (k = 26) OR (k = 23) OR (k = 18) OR (k = 29) OR (k = 6) then continue; // 26 unused; 23 vehicle workshop; 18 town hall; 29 market; id 6 fisherman, but no sea on map
     if States.StatHouseTypeCount(loc - 1, k) > 0 then Inc(RESULT);
   end
 end;
