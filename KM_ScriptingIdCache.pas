@@ -111,6 +111,8 @@ begin
   if fUnitCache[I].ID = aID then
   begin
     Result := fUnitCache[I].U;
+    if (Result <> nil) and Result.IsDeadOrDying then
+      Result := nil;
     Exit;
   end;
 

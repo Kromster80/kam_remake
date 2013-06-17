@@ -78,7 +78,6 @@ type
     fVisible: Boolean;
     fIsDead: Boolean;
     fKillASAP: Boolean;
-    fKillASAPFrom: TPlayerIndex;
     fKillASAPShowAnimation: Boolean;
     fPointerCount: Word;
     fInHouse: TKMHouse; //House we are currently in
@@ -97,6 +96,7 @@ type
     procedure UpdateThoughts;
     function UpdateVisibility: Boolean;
     procedure UpdateHitPoints;
+    procedure DoKill(aShowAnimation: Boolean);
   public
     AnimStep: Integer;
     IsExchanging: Boolean; //Current walk is an exchange, used for sliding
@@ -112,9 +112,7 @@ type
     procedure ReleaseUnitPointer;  //Decreases the pointer counter
     property GetPointerCount: Word read fPointerCount;
 
-
-    procedure KillUnitFromScript(aFrom: TPlayerIndex; aShowAnimation: Boolean); //Kills unit safely from script (using fKillASAP)
-    procedure KillUnit(aFrom: TPlayerIndex; aShowAnimation: Boolean); virtual; //Creates TTaskDie which then will Close the unit from further access
+    procedure KillUnit(aFrom: TPlayerIndex; aShowAnimation, aForceDelay: Boolean); virtual; //Creates TTaskDie which then will Close the unit from further access
     procedure CloseUnit(aRemoveTileUsage: Boolean = True); dynamic;
 
     property ID: Integer read fID;
@@ -937,7 +935,7 @@ begin
   if fFishCount > 1 then
     Dec(fFishCount)
   else
-    KillUnit(-1, True);
+    KillUnit(-1, True, False);
 end;
 
 
@@ -977,7 +975,7 @@ begin
   if (not gTerrain.CheckPassability(fCurrPosition, DesiredPassability))
   or gTerrain.CheckAnimalIsStuck(fCurrPosition, DesiredPassability) then
   begin
-    KillUnit(-1, True); //Animal is stuck so it dies
+    KillUnit(-1, True, False); //Animal is stuck so it dies
     Exit;
   end;
 
@@ -1024,7 +1022,6 @@ begin
   fPointerCount := 0;
   fIsDead       := false;
   fKillASAP     := false;
-  fKillASAPFrom := -1;
   fThought      := th_None;
   fHome         := nil;
   fInHouse      := nil;
@@ -1129,7 +1126,6 @@ begin
   LoadStream.Read(fVisible);
   LoadStream.Read(fIsDead);
   LoadStream.Read(fKillASAP);
-  LoadStream.Read(fKillASAPFrom);
   LoadStream.Read(fKillASAPShowAnimation);
   LoadStream.Read(IsExchanging);
   LoadStream.Read(fPointerCount);
@@ -1210,45 +1206,40 @@ begin
 end;
 
 
-//Kills unit safely from script (using fKillASAP)
-procedure TKMUnit.KillUnitFromScript(aFrom: TPlayerIndex; aShowAnimation: Boolean);
-begin
-  //Don't kill unit if it's already dying
-  if IsDeadOrDying then
-    Exit;
-
-  fKillASAP := True; //Unit will be killed ASAP
-  fKillASAPFrom := aFrom;
-  fKillASAPShowAnimation := aShowAnimation;
-end;
-
-
-{Call this procedure to properly kill a unit}
+{Call this procedure to properly kill a unit. ForceDelay means we always use KillASAP}
 //killing a unit is done in 3 steps
 // Kill - release all unit-specific tasks
 // TTaskDie - perform dying animation
 // CloseUnit - erase all unit data and hide it from further access
-procedure TKMUnit.KillUnit(aFrom: TPlayerIndex; aShowAnimation: Boolean);
+procedure TKMUnit.KillUnit(aFrom: TPlayerIndex; aShowAnimation, aForceDelay: Boolean);
 begin
   //Don't kill unit if it's already dying
   if IsDeadOrDying then
     Exit;
 
+  //From this moment onwards the unit is guaranteed to die (no way to avoid it even with KillASAP), so
+  //signal to our owner that we have died (doesn't have to be assigned since f.e. animals don't use it)
+  //This must be called before actually killing the unit because fScripting uses it
+  //and script is not allowed to touch dead/dying/KillASAP units
+  if Assigned(OnUnitDied) then
+    OnUnitDied(Self, aFrom);
+
   //Wait till units exchange (1 tick) and then do the killing
-  if (fCurrentAction is TUnitActionWalkTo)
-  and TUnitActionWalkTo(fCurrentAction).DoingExchange then
+  if aForceDelay
+  or ((fCurrentAction is TUnitActionWalkTo) and TUnitActionWalkTo(fCurrentAction).DoingExchange) then
   begin
-    fKillASAP := True; //Unit will be killed ASAP
-    fKillASAPFrom := aFrom;
+    fKillASAP := True; //Unit will be killed ASAP, when unit is ready for it
     fKillASAPShowAnimation := aShowAnimation;
     Exit;
   end;
 
-  //Signal to our owner that we have died (doesn't have to be assigned since f.e. animals don't use it)
-  //This must be called before actually killing the unit because fScripting uses it
-  if Assigned(OnUnitDied) then
-    OnUnitDied(Self, aFrom);
+  //If we didn't exit above, we are safe to do the kill now (no delay from KillASAP required)
+  DoKill(aShowAnimation);
+end;
 
+
+procedure TKMUnit.DoKill(aShowAnimation: Boolean);
+begin
   fThought := th_None; //Reset thought
   SetAction(nil); //Dispose of current action (TTaskDie will set it to LockedStay)
   FreeAndNil(fUnitTask); //Should be overriden to dispose of Task-specific items
@@ -1296,7 +1287,7 @@ begin
   fHitPoints := Max(fHitPoints - aAmount, 0);
   if (fHitPoints = 0) and not IsDeadOrDying then
     //Make sure to kill only once
-    KillUnit(aFrom, True);
+    KillUnit(aFrom, True, False);
 end;
 
 
@@ -1912,7 +1903,6 @@ begin
   SaveStream.Write(fVisible);
   SaveStream.Write(fIsDead);
   SaveStream.Write(fKillASAP);
-  SaveStream.Write(fKillASAPFrom);
   SaveStream.Write(fKillASAPShowAnimation);
   SaveStream.Write(IsExchanging);
   SaveStream.Write(fPointerCount);
@@ -1942,8 +1932,8 @@ begin
   if fKillASAP
   and not ((fCurrentAction is TUnitActionWalkTo) and TUnitActionWalkTo(fCurrentAction).DoingExchange) then
   begin
-    fKillASAP := False; //Parts of KillUnit care that it's false, since otherwise IsDeadOrDying returns true
-    KillUnit(fKillASAPFrom, fKillASAPShowAnimation);
+    DoKill(fKillASAPShowAnimation);
+    fKillASAP := False;
     Assert(IsDeadOrDying); //Just in case KillUnit failed
   end;
 
@@ -1958,7 +1948,7 @@ begin
 
   //Unit killing could be postponed by few ticks, hence fCondition could be <0
   if fCondition <= 0 then
-    KillUnit(-1, True);
+    KillUnit(-1, True, False);
 
   //We only need to update fog of war regularly if we're using dynamic fog of war, otherwise only update it when the unit moves
   if FOG_OF_WAR_ENABLE and (fTicker mod 10 = 0) then

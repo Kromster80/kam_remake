@@ -337,7 +337,7 @@ begin
     begin
       U := fPlayers[aPlayer].Units[I];
       //Skip units in training, they can't be disturbed until they are finished training
-      if U.IsDead or (U.UnitTask is TTaskSelfTrain) then Continue;
+      if U.IsDeadOrDying or (U.UnitTask is TTaskSelfTrain) then Continue;
       Result[UnitCount] := U.ID;
       Inc(UnitCount);
     end;
@@ -842,7 +842,7 @@ begin
   if gTerrain.TileInMapCoords(aX,aY) then
   begin
     U := gTerrain.UnitsHitTest(aX, aY);
-    if (U <> nil) and not U.IsDead then
+    if (U <> nil) and not U.IsDeadOrDying then
     begin
       Result := U.ID;
       fIDCache.CacheUnit(U, U.ID); //Improves cache efficiency since U will probably be accessed soon
@@ -891,7 +891,7 @@ begin
   begin
     U := fIDCache.GetUnit(aUnitID);
     if U <> nil then
-      Result := U.IsDead;
+      Result := U.IsDeadOrDying;
   end
   else
     LogError('States.UnitDead', [aUnitID]);
@@ -1949,7 +1949,8 @@ begin
   begin
     U := fIDCache.GetUnit(aUnitID);
     if U <> nil then
-      U.KillUnitFromScript(-1, not aSilent);
+      //Force delay to let the unit choose when to die, because this could be called in the middle of an event
+      U.KillUnit(-1, not aSilent, True);
   end
   else
     LogError('Actions.UnitKill', [aUnitID]);
