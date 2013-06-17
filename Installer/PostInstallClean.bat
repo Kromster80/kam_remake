@@ -57,4 +57,11 @@ rd /s /q "MapsMP\TPR 9"
 rd /s /q "MapsMP\TSK 7"
 rd /s /q "MapsMP\TSK 8"
 
+del "data\gfx\fonts\antiqua.LITH.fnt"
+del "data\gfx\fonts\game.LITH.fnt"
+del "data\gfx\fonts\grey.LITH.fnt"
+del "data\gfx\fonts\metal.LITH.fnt"
+del "data\gfx\fonts\mini.LITH.fnt"
+del "data\gfx\fonts\outline.LITH.fnt"
+
 del PostInstallClean.bat

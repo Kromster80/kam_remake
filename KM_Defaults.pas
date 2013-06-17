@@ -21,8 +21,8 @@ const
   MENU_DESIGN_X         = 1024;         //Thats the size menu was designed for. All elements are placed in this size
   MENU_DESIGN_Y         = 768;          //Thats the size menu was designed for. All elements are placed in this size
 
-  GAME_REVISION         = 'r5393';       //Should be updated for every release (each time save format is changed)
-  GAME_VERSION          = 'Scripting Demo Release Candidate 3 ' + GAME_REVISION;       //Game version string displayed in menu corner
+  GAME_REVISION         = 'r5459';       //Should be updated for every release (each time save format is changed)
+  GAME_VERSION          = 'Scripting Demo Release Candidate 4 ' + GAME_REVISION;       //Game version string displayed in menu corner
   NET_PROTOCOL_REVISON  = GAME_REVISION;     //Clients of this version may connect to the dedicated server
 
   SETTINGS_FILE         = 'KaM_Remake_Settings.ini';
@@ -112,12 +112,12 @@ var
   {Gameplay cheats}
   UNLOCK_CAMPAIGN_MAPS  :Boolean = False; //Unlock more maps for debug
   REDUCE_SHOOTING_RANGE :Boolean = False; //Reduce shooting range for debug
-  MULTIPLAYER_CHEATS    :Boolean = True; //Allow cheats and debug overlays (e.g. CanWalk) in Multiplayer
-  DEBUG_CHEATS          :Boolean = True; //Cheats for debug (place scout and reveal map) which can be turned On from menu
-  MULTIPLAYER_SPEEDUP   :Boolean = True; //Allow you to use F8 to speed up multiplayer for debugging (only effects local client)
-  SKIP_EXE_CRC          :Boolean = True; //Don't check KaM_Remake.exe CRC before MP game (useful for testing with different versions)
-  ALLOW_MP_MODS         :Boolean = True; //Don't let people enter MP mode if they are using mods (unit.dat, house.dat, etc.)
-  ALLOW_TAKE_AI_PLAYERS :Boolean = True; //Allow to load SP maps without Human player (usefull for AI testing)
+  MULTIPLAYER_CHEATS    :Boolean = False; //Allow cheats and debug overlays (e.g. CanWalk) in Multiplayer
+  DEBUG_CHEATS          :Boolean = False; //Cheats for debug (place scout and reveal map) which can be turned On from menu
+  MULTIPLAYER_SPEEDUP   :Boolean = False; //Allow you to use F8 to speed up multiplayer for debugging (only effects local client)
+  SKIP_EXE_CRC          :Boolean = False; //Don't check KaM_Remake.exe CRC before MP game (useful for testing with different versions)
+  ALLOW_MP_MODS         :Boolean = False; //Don't let people enter MP mode if they are using mods (unit.dat, house.dat, etc.)
+  ALLOW_TAKE_AI_PLAYERS :Boolean = False; //Allow to load SP maps without Human player (usefull for AI testing)
   {Data output}
   WRITE_DECODED_MISSION :Boolean = False; //Save decoded mission as txt file
   WRITE_DELIVERY_LOG    :Boolean = False; //Write even more output into log + slows down game noticably
