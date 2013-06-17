@@ -4986,7 +4986,11 @@ begin
           Break;
         end;
     end;
-  if FirstVarSample = -1 then Exit; //No variation at all, so don't trim it
+  if FirstVarSample = -1 then
+  begin
+    fMinTime := 0; //No variation at all, so don't trim it (but clear previous value)
+    Exit;
+  end;
   //Take 5% before the first varied sample
   FirstVarSample := Max(0, FirstVarSample - Round(0.05*fMaxLength));
   //Trim all fLines[I].Values to start at FirstVarSample

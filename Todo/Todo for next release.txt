@@ -19,6 +19,7 @@ Bugs:
  +	MapEd copy should include terrain painter tiling data
  +	Market prices were slightly inconsistent between weapons of the same value
  +	Crash if you quit before the first tick (due to waiting for player)
+ +	Crash when opening army graph in certain rare conditions
 
 
 Features:
