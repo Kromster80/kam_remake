@@ -3,7 +3,7 @@ var
   Warriors: array of Integer;
   I, K: Integer;
 begin
-  for I:=0 to 7 do
+  for I:=0 to 5 do
       if States.PlayerEnabled(I) then
       begin
         Warriors := States.PlayerGetAllUnits(I);
