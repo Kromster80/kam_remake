@@ -1,4 +1,5 @@
 unit KM_PathFindingJPS;
+{$I KaM_Remake.inc}
 interface
 uses Types, Math, SysUtils, KM_PathFinding, BinaryHeap, KM_Points, KM_CommonClasses, KM_Terrain;
 

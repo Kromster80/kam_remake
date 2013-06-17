@@ -1,6 +1,5 @@
 unit KM_RenderControl;
 {$I KaM_Remake.inc}
-
 interface
 uses Classes, Controls, ExtCtrls, Forms, KromOGLUtils
 {$IFDEF MSWindows} , Windows {$ENDIF}

@@ -6,15 +6,16 @@ uses
    KM_CommonClasses,  KM_Points;
 
 type
+  //Stub for Pathfinder
   TKMHouse = class
   public
     function InReach(aPos: TKMPoint; aDistance: Single): Boolean;
   end;
 
+  TKMHouseSchool = class(TKMHouse);
+
 
 implementation
-uses
-  KM_CommonTypes, KM_Resource, KM_ResourceWares, KM_ResourceHouse, KM_Utils;
 
 
 { TKMHouse }

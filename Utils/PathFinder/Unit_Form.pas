@@ -48,9 +48,9 @@ begin
 
   LocA := KMPoint(10, 10);
   LocB := KMPoint(50, 50);
-  fTerrain := TTerrain.Create;
-  fTerrain.MapX := MAX_SIZE;
-  fTerrain.MapY := MAX_SIZE;
+  gTerrain := TKMTerrain.Create;
+  gTerrain.MapX := MAX_SIZE;
+  gTerrain.MapY := MAX_SIZE;
 
   FinderOld := TPathFindingAStarOld.Create;
   FinderNew := TPathFindingAStarNew.Create;
@@ -71,9 +71,9 @@ end;
 procedure TForm1.Button1Click(Sender: TObject);
 var
   I, J, K: Integer;
-  L, T, W, H: Byte;
+  L, T, W, H: Word;
 begin
-  FillChar(fTerrain.Land[1,1], SizeOf(fTerrain.Land), #0);
+  FillChar(gTerrain.Land[1,1], SizeOf(gTerrain.Land), #0);
 
   for I := 0 to 200 do
   begin
@@ -83,7 +83,7 @@ begin
     H := Random(40) + 3;
     for J := T to Min(T + H - 1, MAX_SIZE) do
     for K := L to Min(L + W - 1, MAX_SIZE) do
-      fTerrain.Land[J, K].Passability := [CanWalk];
+      gTerrain.Land[J, K].Passability := [CanWalk];
   end;
 
   DisplayMap;
@@ -143,7 +143,7 @@ begin
     //Obstacles
     for I := 1 to MAX_SIZE  do
       for K := 1 to MAX_SIZE do
-        if (fTerrain.Land[I, K].Passability = [CanWalk]) then
+        if (gTerrain.Land[I, K].Passability = [CanWalk]) then
           bmp.Canvas.Pixels[K-1, I-1] := clGray;
 
     //Draw route
@@ -200,7 +200,7 @@ var
 begin
   SetLength(Route, 0);
 
-  if fTerrain.CheckPassability(LocA, CanWalk) and fTerrain.CheckPassability(LocB, CanWalk) then
+  if gTerrain.CheckPassability(LocA, CanWalk) and gTerrain.CheckPassability(LocB, CanWalk) then
   begin
 
     if CheckBox1.Checked then
