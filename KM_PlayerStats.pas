@@ -628,23 +628,26 @@ var
   RT: TWareType;
 begin
   case aWare of
-    WARE_MIN..WARE_MAX: Result := ChartWares[aWare][fChartCount-1] = 0;
+    WARE_MIN..WARE_MAX: Result := (fChartCount = 0) or (ChartWares[aWare][fChartCount-1] = 0);
     wt_All:             begin
                           Result := True;
-                          for RT := WARE_MIN to WARE_MAX do
-                          if ChartWares[RT][fChartCount-1] <> 0 then
-                            Result := False;
+                          if fChartCount > 0 then
+                            for RT := WARE_MIN to WARE_MAX do
+                              if ChartWares[RT][fChartCount-1] <> 0 then
+                                Result := False;
                         end;
     wt_Warfare:         begin
                           Result := True;
-                          for RT := WARFARE_MIN to WARFARE_MAX do
-                          if ChartWares[RT][fChartCount-1] <> 0 then
-                            Result := False;
+                          if fChartCount > 0 then
+                            for RT := WARFARE_MIN to WARFARE_MAX do
+                              if ChartWares[RT][fChartCount-1] <> 0 then
+                                Result := False;
                         end;
-    wt_Food:            Result := ChartWares[wt_Wine][fChartCount-1] +
-                                  ChartWares[wt_Bread][fChartCount-1] +
-                                  ChartWares[wt_Sausages][fChartCount-1] +
-                                  ChartWares[wt_Fish][fChartCount-1] = 0;
+    wt_Food:            Result := (fChartCount = 0) or
+                                  (ChartWares[wt_Wine][fChartCount-1] +
+                                   ChartWares[wt_Bread][fChartCount-1] +
+                                   ChartWares[wt_Sausages][fChartCount-1] +
+                                   ChartWares[wt_Fish][fChartCount-1] = 0);
     else                Result := True;
   end;
 end;
