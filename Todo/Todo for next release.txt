@@ -3,6 +3,39 @@ Since 3rd RC:
 =============
 
 Bugs:
+
+
+Features:
+
+
+After RC4:
+	Map updates
+	Bugs
+	Received translations
+	Press release?
+
+
+Maps:
+	Circus? (thunder)?
+	Border Rivers fix by Thunder?
+
+
+Postponed for a later release: (TODO: move these to bugslist later)
+	Snow houses artwork [KillingB]
+	Snow house overlay fixes [KillingB, Krom]
+	Decided what to do about proportional/exact weapons production (hybrid solution?)
+	TSK campaign fixes by BornFree (especially faster equip rate), if he fixes issues with food
+	Reminder message if you forget to build the inn?
+	CanIron CanGold in MapEd
+	Flip/rotate selection in MapEd [Lewin]
+	MapEd copy buffer should be kept when opening a new map so you can copy between maps (or use binary data in Windows clipboard so it works between multiple KaM Remake processes?)
+
+
+================
+Fixed in 4th RC:
+================
+
+Bugs:
  +	Crash when using magic water tool on non-square maps
  +	Multiplayer saves in games with AI players would mismatch between players with different locales ("AI Player" was translated)
  +	Crash in MapEd when deleting last defense position
@@ -24,31 +57,8 @@ Bugs:
 
 Features:
  +	Dynamic scripts now support iteration over enumerations and Include/Exclude commands for adding variables to sets
- +	Merged script events OnHouseLost into OnHouseDestroyed
+ +	Merged script event OnHouseLost into OnHouseDestroyed
  +	Merged script events OnUnitKilled and OnUnitLost into OnUnitDied
-
-
-After RC3:
-	Map updates
-	Bugs
-	Received translations
-	Press release?
-
-
-Maps:
-	Circus? (thunder)?
-	Border Rivers fix by Thunder?
-
-
-Postponed for a later release: (TODO: move these to bugslist later)
-	Snow houses artwork [KillingB]
-	Snow house overlay fixes [KillingB, Krom]
-	Decided what to do about proportional/exact weapons production (hybrid solution?)
-	TSK campaign fixes by BornFree (especially faster equip rate), if he fixes issues with food
-	Reminder message if you forget to build the inn?
-	CanIron CanGold in MapEd
-	Flip/rotate selection in MapEd [Lewin]
-	MapEd copy buffer should be kept when opening a new map so you can copy between maps (or use binary data in Windows clipboard so it works between multiple KaM Remake processes?)
 
 
 ================

@@ -5,14 +5,14 @@ global $MAIN_VERSION;
 $Lang = $_REQUEST["lang"];
 $Rev = $_REQUEST["rev"];
 
-if($Rev == "r5349")
+if($Rev == "r5459")
 {
-  die("Welcome to the scripting demo 3rd and hopefully last RC! Have fun and give us feedback / bug reports! :)");
+  die("Welcome to the scripting demo 4th and once again hopefully last RC! Have fun and give us feedback / bug reports! :)");
 }
 
-if(($Rev == "r5057") || ($Rev == "r5116"))
+if(($Rev == "r5057") || ($Rev == "r5116") || ($Rev == "r5349"))
 {
-  die("[$0000FF]The 3rd release candidate is now out! You should have received it by email[]");
+  die("[$0000FF]The 4th release candidate is now out! You should have received it by email[]");
 }
 
 if($Rev == "r4297")
