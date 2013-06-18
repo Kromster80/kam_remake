@@ -15,6 +15,10 @@ var General: Integer;
    Actions.ShowMsgGoTo(ID,32,117,'<$0>');
   end;
 
+   if States.GameTime = 2000 then begin
+   Actions.GiveGroup(3,21,91,60,4,1,1);
+   end;
+
    if States.GameTime = 2480 then begin
    for ID := 0 to 2 do 
    if States.PlayerEnabled(ID) = true then
