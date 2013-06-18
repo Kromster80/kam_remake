@@ -6,7 +6,6 @@ Bugs:
 	TaleOfTwoLands has no gold in Stores
 	LandOfTheQuickRiver has no human nor AI selectable locations (TestFunc has tests to load all maps)
 	MajesticWaters does not have human selectable locations
-  Ask Norwegian translator about which dialect he used and append that name to locale (slike Brazilian-Portugueze)
 
 
 Features:
@@ -79,7 +78,7 @@ Bugs:
  +	Can only place buildings for one player in SP MapEd, for others its just red crosses.
  +	Message log should be hidden until the 1st message arrives, looks odd to have a blank scroll
  +	Strikethrough effect on text with color markup was wrong (ping/FPS after player quits)
- +  Saving map in MapEd takes a lot of time
+ +      Saving map in MapEd takes a lot of time
  +	Access violation crash in GetGroupPointer when ordering a warrior to attack a warrior that is dying or walking out of the barracks
  +	Scripts with unsupported global variable types should not be allowed to run (causes inconsistencies/errors)
  +	When you select a warrior you always play his individual sound. But when you select another warrior from the same squad the sound is not playing
@@ -93,15 +92,15 @@ Bugs:
  +	Don't show "house unoccupied" or "group hungry" messages after you have lost (and continued watching)
  +	Graph lines don't highlight due to changes in  r5130 (OnMouseMove doesn't trigger now)
  +	Don't show AIs in SP graphs which give away important info about enemies unless the mission is won [Lewin]
- +	Crash relating to warriors dying while walking out of the barracks (caused crashes in Stats and rendering graph lines)
- +  Workers thoughts near bottom map edge, when facing down, are dark grey. Should be white as always
+ + 	Crash relating to warriors dying while walking out of the barracks (caused crashes in Stats and rendering graph lines)
+ +      Workers thoughts near bottom map edge, when facing down, are dark grey. Should be white as always
  +	Actions.GiveHouse was checking if it could place the house at the wrong spot in some cases
  +	States.HousePosition* now returns the entrance of the house, not the position (which is different for some houses)
  +	Access violation in TKMUnitWarrior.CheckForEnemy caused by not syncing TUnitActionGoInOut.OnWalkedOut after load
  +	When host is reassigned, lobby password/description should be cleared (otherwise the server still remembers them but the new host doesn't)
  +	Locations list in the lobby should only show ones which can currently be selected, ones which are taken should be disabled
  +	AI recruit delay was missing from the MapEd
- +  Crash happening when taking out warfare from Barracks to Market and equipping soldiers at the same time
+ +      Crash happening when taking out warfare from Barracks to Market and equipping soldiers at the same time
  +	Actions.UnitOrderWalk would not work on newly created units
  +	AI defence position radius should only highlight for selected position? (overlapping defence positions cause map to be completely covered, check e.g. TPR 7)
 
