@@ -1,0 +1,9 @@
+Split the rest of MainMenu unit into GUI pages units
+Implement real fog of war by combining layers and fow mask
+Rework render layers so that cursor logic is in corresponding UI modules
+Unicode fonts support and unicode font generator
+Switch completely to Unicode compilation? (means dropping Delphi 7)
+Smooth shadows generator for user override sprites in Sprites folder
+Redesign gameplay UI into units similar to main menu pages
+Introduce free-movement forms into MapEd interface (-> next item)
+Redesign interface with focus on moveable forms instead of static left-side menu (so we can add more info)
