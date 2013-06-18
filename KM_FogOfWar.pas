@@ -56,11 +56,11 @@ type
 
 
 const
-  FOG_OF_WAR_MIN        = 80;           //Minimum value for explored but FOW terrain, MIN/ACT determines FOW darkness
-  FOG_OF_WAR_ACT        = 160;          //Until this value FOW is not rendered at all
-  FOG_OF_WAR_MAX        = 255;          //This is max value that FOW can be, MAX-ACT determines how long until FOW appears
-  FOG_OF_WAR_INC        = 128;          //Increment for FOW
-  FOG_OF_WAR_DEC        = 12;           //Decrement for FOW
+  FOG_OF_WAR_MIN  = 80;           //Minimum value for explored but FOW terrain, MIN/ACT determines FOW darkness
+  FOG_OF_WAR_ACT  = 160;          //Until this value FOW is not rendered at all
+  FOG_OF_WAR_MAX  = 255;          //This is max value that FOW can be, MAX-ACT determines how long until FOW appears
+  FOG_OF_WAR_INC  = 128;          //Increment for FOW
+  FOG_OF_WAR_DEC  = 12;           //Decrement for FOW
 
 
 implementation
@@ -135,7 +135,7 @@ function TKMFogOfWar.CheckVerticeRevelation(const X,Y: Word): Byte;
 begin
   //I like how "alive" the fog looks with some tweaks
   //pulsating around units and slowly thickening when they leave :)
-  if FOG_OF_WAR_ENABLE then
+  if DYNAMIC_FOG_OF_WAR then
     if (Revelation[Y,X].Visibility >= FOG_OF_WAR_ACT) then
       Result := 255
     else
@@ -238,7 +238,7 @@ procedure TKMFogOfWar.UpdateState;
 var
   I, K: Word;
 begin
-  if not FOG_OF_WAR_ENABLE then Exit;
+  if not DYNAMIC_FOG_OF_WAR then Exit;
 
   Inc(fAnimStep);
 

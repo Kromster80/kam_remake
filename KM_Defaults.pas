@@ -54,7 +54,7 @@ var
   AI_GEN_INFLUENCE_MAPS :Boolean = True; //Generate influence maps for AI to plan attacks/defenses
   //Not fully implemented yet
   USE_CCL_WALKCONNECT   :Boolean = False; //Use CCL instead of FloodFill for walk-connect (CCL is generaly worse. It's a bit slower, counts 1 tile areas and needs more AreaIDs to work / makes sparsed IDs)
-  FOG_OF_WAR_ENABLE     :Boolean = False; //Whenever dynamic fog of war is enabled or not
+  DYNAMIC_FOG_OF_WAR    :Boolean = False; //Whenever dynamic fog of war is enabled or not
   SHOW_DISMISS_BUTTON   :Boolean = False; //The button to order citizens go back to school
   CACHE_PATHFINDING     :Boolean = False; //Cache routes incase they are needed soon (Vortamic PF runs x4 faster even with lame approach)
   SNOW_HOUSES           :Boolean = False; //Draw snow on houses

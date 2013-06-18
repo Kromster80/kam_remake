@@ -1180,7 +1180,7 @@ begin
     fSnowStep := Min(fSnowStep + (1 + Byte(fGame.IsMapEditor) * 10) / SNOW_TIME, 1);
 
   //FlagAnimStep is a sort of counter to reveal terrain once a sec
-  if FOG_OF_WAR_ENABLE then
+  if DYNAMIC_FOG_OF_WAR then
   if FlagAnimStep mod 10 = 0 then
     fPlayers.RevealForTeam(fOwner, fPosition, fResource.HouseDat[fHouseType].Sight, FOG_OF_WAR_INC);
 end;

@@ -2738,7 +2738,7 @@ end;
 
 
 procedure TKMTerrain.Load(LoadStream: TKMemoryStream);
-var i,k:integer;
+var I,K: Integer;
 begin
   LoadStream.ReadAssert('Terrain');
   LoadStream.Read(fMapX);
@@ -2747,23 +2747,23 @@ begin
 
   FallingTrees.LoadFromStream(LoadStream);
 
-  for i:=1 to fMapY do for k:=1 to fMapX do
+  for I:=1 to fMapY do for K:=1 to fMapX do
   begin
-    LoadStream.Read(Land[i,k].Terrain);
-    LoadStream.Read(Land[i,k].Height);
-    LoadStream.Read(Land[i,k].Rotation);
-    LoadStream.Read(Land[i,k].Obj);
-    LoadStream.Read(Land[i,k].TreeAge);
-    LoadStream.Read(Land[i,k].FieldAge);
-    LoadStream.Read(Land[i,k].TileLock,SizeOf(Land[i,k].TileLock));
-    LoadStream.Read(Land[i,k].TileOverlay,SizeOf(Land[i,k].TileOverlay));
-    LoadStream.Read(Land[i,k].TileOwner,SizeOf(Land[i,k].TileOwner));
-    LoadStream.Read(Land[i,k].IsUnit, 4);
-    LoadStream.Read(Land[i,k].IsVertexUnit,SizeOf(Land[i,k].IsVertexUnit));
+    LoadStream.Read(Land[I,K].Terrain);
+    LoadStream.Read(Land[I,K].Height);
+    LoadStream.Read(Land[I,K].Rotation);
+    LoadStream.Read(Land[I,K].Obj);
+    LoadStream.Read(Land[I,K].TreeAge);
+    LoadStream.Read(Land[I,K].FieldAge);
+    LoadStream.Read(Land[I,K].TileLock,SizeOf(Land[I,K].TileLock));
+    LoadStream.Read(Land[I,K].TileOverlay,SizeOf(Land[I,K].TileOverlay));
+    LoadStream.Read(Land[I,K].TileOwner,SizeOf(Land[I,K].TileOwner));
+    LoadStream.Read(Land[I,K].IsUnit, 4);
+    LoadStream.Read(Land[I,K].IsVertexUnit,SizeOf(Land[I,K].IsVertexUnit));
   end;
 
-  for i:=1 to fMapY do for k:=1 to fMapX do
-    UpdateFences(KMPoint(k,i), False);
+  for I:=1 to fMapY do for K:=1 to fMapX do
+    UpdateFences(KMPoint(K,I), False);
 
   fFinder := TKMTerrainFinder.Create;
 
@@ -2786,7 +2786,7 @@ begin
 end;
 
 
-{ This whole thing is very CPU intesive, think of it - to update whole (192*192) tiles map }
+//This whole thing is very CPU intesive, updating whole (256*256) tiles map
 //Don't use any advanced math here, only simpliest operations - + div *
 procedure TKMTerrain.UpdateState;
   procedure SetLand(const X, Y, aTile, aObj: Byte);

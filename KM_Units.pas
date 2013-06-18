@@ -1333,7 +1333,7 @@ begin
   fPrevPosition := NextPosition;
   fNextPosition := aLoc;
   //If we're not using dynamic fog of war we only need to update it when the unit steps on a new tile
-  if not FOG_OF_WAR_ENABLE and (fOwner <> PLAYER_ANIMAL) then
+  if not DYNAMIC_FOG_OF_WAR and (fOwner <> PLAYER_ANIMAL) then
     fPlayers.RevealForTeam(fOwner, fCurrPosition, fResource.UnitDat[fUnitType].Sight, FOG_OF_WAR_INC);
 end;
 
@@ -1952,7 +1952,7 @@ begin
     KillUnit(-1, True, False);
 
   //We only need to update fog of war regularly if we're using dynamic fog of war, otherwise only update it when the unit moves
-  if FOG_OF_WAR_ENABLE and (fTicker mod 10 = 0) then
+  if DYNAMIC_FOG_OF_WAR and (fTicker mod 10 = 0) then
     fPlayers.RevealForTeam(fOwner, fCurrPosition, fResource.UnitDat[fUnitType].Sight, FOG_OF_WAR_INC);
 
   UpdateThoughts;
