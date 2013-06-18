@@ -1,4 +1,5 @@
 Add seperate folder for SP maps that do not go into releases (MapsTest)
+Tool that generates the Release folder and a Diff with new or modified files from the previous release folder
 Split the rest of MainMenu unit into GUI pages units
 Implement real fog of war by combining layers and fow mask
 Rework render layers so that cursor logic is in corresponding UI modules
