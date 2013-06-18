@@ -16,13 +16,14 @@ object frmMain: TfrmMain
   OnDestroy = FormDestroy
   PixelsPerInch = 96
   TextHeight = 13
-  object Image1: TImage
+  object PaintBox1: TPaintBox
     Left = 160
     Top = 16
     Width = 512
     Height = 512
-    OnMouseMove = Image1MouseMove
-    OnMouseUp = Image1MouseUp
+    OnMouseMove = PaintBox1MouseMove
+    OnMouseUp = PaintBox1MouseUp
+    OnPaint = PaintBox1Paint
   end
   object Image3: TImage
     Left = 696

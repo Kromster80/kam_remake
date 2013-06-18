@@ -51,7 +51,6 @@ type
     SpinEdit4: TSpinEdit;
     SpinEdit5: TSpinEdit;
     StatusBar1: TStatusBar;
-    Image1: TImage;
     Image3: TImage;
     Image4: TImage;
     Image5: TImage;
@@ -63,13 +62,14 @@ type
     btnImportBig: TBitBtn;
     btnExportBig: TBitBtn;
     ScrollBar1: TScrollBar;
+    PaintBox1: TPaintBox;
     procedure BitBtn1Click(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure RefreshDataClick(Sender: TObject);
     procedure ListBox1Click(Sender: TObject);
     procedure btnExportBigClick(Sender: TObject);
-    procedure Image1MouseMove(Sender: TObject; Shift: TShiftState; X,Y: Integer);
-    procedure Image1MouseUp(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+    procedure PaintBox1MouseMove(Sender: TObject; Shift: TShiftState; X,Y: Integer);
+    procedure PaintBox1MouseUp(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
     procedure Edit1Change(Sender: TObject);
     procedure CheckCellsClick(Sender: TObject);
     procedure btnImportBigClick(Sender: TObject);
@@ -78,15 +78,14 @@ type
     procedure SpinEdit5Change(Sender: TObject);
     procedure ScrollBar1Change(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
+    procedure PaintBox1Paint(Sender: TObject);
   private
     fCharCount: Word;
     fBmp: TBitmap;
-    fPaintBox: TPaintBox;
     function GetFontFromFileName(const aFile: string):TKMFont;
     procedure ScanDataForPalettesAndFonts(const aPath: string);
     function LoadFont(const aFilename: string; aFont:TKMFont):boolean;
     function LoadPalette(const aFilename: string; PalID: Byte): Boolean;
-    procedure PaintBox(Sender: TObject);
   public
     procedure ShowBigImage(ShowCells, WriteFontToBMP: Boolean);
     procedure ShowPalette(aPal:integer);
@@ -122,17 +121,7 @@ begin
   fBmp.Width := TexWidth;
   fBmp.Height := TexWidth;
 
-  //Using PaintBox and doing OnPaint event is faster than direct approach
-  fPaintBox := TPaintBox.Create(Self);
-  fPaintBox.Parent  := Self;
-  fPaintBox.Left    := Image1.Left;
-  fPaintBox.Top     := Image1.Top;
-  fPaintBox.Width   := Image1.Width;
-  fPaintBox.Height  := Image1.Height;
-  fPaintBox.OnPaint := PaintBox;
-
   DoubleBuffered := True;
-  Image1.Hide;
 end;
 
 
@@ -183,7 +172,9 @@ end;
 
 
 procedure TfrmMain.ScanDataForPalettesAndFonts(const aPath: string);
-var I: Integer; SearchRec: TSearchRec;
+var
+  I: Integer;
+  SearchRec: TSearchRec;
 begin
   //0. Clear old list
   ListBox1.Items.Clear;
@@ -208,7 +199,7 @@ begin
   LoadFont(DataDir+'data\gfx\fonts\'+ListBox1.Items[ListBox1.ItemIndex], GetFontFromFileName(ListBox1.Items[ListBox1.ItemIndex]));
   RGPalette.ItemIndex := FontPal[FontData.Title] - 1;
   ShowBigImage(CheckCells.Checked, false);
-  fPaintBox.Repaint;
+  PaintBox1.Repaint;
   ShowPalette(FontPal[FontData.Title]);
   Edit1Change(nil);
   StatusBar1.Panels.Items[0].Text := 'Font: '+ListBox1.Items[ListBox1.ItemIndex]+'  Palette: '+PalFiles[FontPal[FontData.Title]];
@@ -255,7 +246,8 @@ begin
   //Read font data
   for I := 0 to fCharCount - 1 do
     if FontData.Pal[I] <> 0 then
-      with FontData.Letters[I] do begin
+      with FontData.Letters[I] do
+      begin
         blockread(f, Width, 4);
         blockread(f, Add1, 8);
 
@@ -326,7 +318,8 @@ begin
 
     //Append used palette to ease up editing, with color samples 16x16px
     fBmp.Height := fBmp.Height + 8*16; //32x8 cells
-    for I:=1 to 128 do for k:=1 to TexWidth do begin
+    for I:=1 to 128 do for k:=1 to TexWidth do
+    begin
       t := ((i-1) div 16)*32 + ((k-1) div 16 mod 32) + 1;
       fBmp.Canvas.Pixels[k-1,TexWidth+i-1] := PalData[Pal, t, 1] + PalData[Pal, t, 2] shl 8 + PalData[Pal, t, 3] shl 16;
     end;
@@ -352,7 +345,8 @@ begin
   closefile(f);
 
   if PalID = pal_lin then //Make greyscale linear Pal
-    for I := 0 to 255 do begin
+    for I := 0 to 255 do
+    begin
       PalData[pal_lin,i+1,1] := i;
       PalData[pal_lin,i+1,2] := i;
       PalData[pal_lin,i+1,3] := i;
@@ -362,9 +356,9 @@ begin
 end;
 
 
-procedure TfrmMain.PaintBox(Sender: TObject);
+procedure TfrmMain.PaintBox1Paint(Sender: TObject);
 begin
-  fPaintBox.Canvas.Draw(0, 0, fBmp);
+  PaintBox1.Canvas.Draw(0, 0, fBmp);
 end;
 
 
@@ -372,11 +366,11 @@ procedure TfrmMain.btnExportBigClick(Sender: TObject);
 begin
   Assert(fCharCount = 256);
   ShowBigImage(CheckCells.Checked, true);
-  fPaintBox.Repaint;
+  PaintBox1.Repaint;
 end;
 
 
-procedure TfrmMain.Image1MouseMove(Sender: TObject; Shift: TShiftState; X,Y: Integer);
+procedure TfrmMain.PaintBox1MouseMove(Sender: TObject; Shift: TShiftState; X,Y: Integer);
 begin
   StatusBar1.Panels.Items[1].Text := 'Character: ' + IntToStr((Y div 32) *16 + X div 32) + ' ('+
                                      IntToHex( (((Y div 32)*16)+(X div 32)) ,2)+'h)';
@@ -390,10 +384,10 @@ begin
 end;
 
 
-procedure TfrmMain.Image1MouseUp(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+procedure TfrmMain.PaintBox1MouseUp(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
 begin
-  Shape1.Left := Image1.Left + (X div 32) * 32;
-  Shape1.Top := Image1.Top + (Y div 32) * 32;
+  Shape1.Left := PaintBox1.Left + (X div 32) * 32;
+  Shape1.Top := PaintBox1.Top + (Y div 32) * 32;
   SelectedLetter := (Y div 32) *16 + X div 32;
 
   SpinEdit5.Value := FontData.Letters[SelectedLetter].YOffset;
@@ -447,7 +441,8 @@ begin
   for I:=1 to length(Text) do
   if Text[i]<>' ' then
   begin
-    for ci:=0 to FontData.Letters[ord(Text[i])].Height-1 do for ck:=0 to FontData.Letters[ord(Text[i])].Width-1 do begin
+    for ci:=0 to FontData.Letters[ord(Text[i])].Height-1 do for ck:=0 to FontData.Letters[ord(Text[i])].Width-1 do
+    begin
       t := FontData.Letters[ord(Text[i])].Data[ci*FontData.Letters[ord(Text[i])].Width+ck+1]+1;
       if t<>1 then //don't bother for clear pixels, speed-up
       Bmp.Canvas.Pixels[ck+AdvX,ci+FontData.Letters[ord(Text[i])].YOffset] := PalData[Pal,t,1] + PalData[Pal,t,2] shl 8 + PalData[Pal,t,3] shl 16;
@@ -493,7 +488,7 @@ end;
 procedure TfrmMain.CheckCellsClick(Sender: TObject);
 begin
   ShowBigImage(CheckCells.Checked, false);
-  fPaintBox.Repaint;
+  PaintBox1.Repaint;
 end;
 
 
@@ -507,9 +502,11 @@ procedure TfrmMain.btnImportBigClick(Sender: TObject);
     RMS := MaxInt;
     Result := 0;
     usePal := FontPal[FontData.Title]; //Use palette from current font
-    for I := 1 to 256 do begin
+    for I := 1 to 256 do
+    begin
       tRMS := GetLengthSQR(PalData[usePal, I, 1] - (aCol and $FF), PalData[usePal, I, 2] - ((aCol shr 8) and $FF), PalData[usePal, I, 3] - (aCol shr 16) and $FF);
-      if (I = 1) or (tRMS < RMS) then begin
+      if (I = 1) or (tRMS < RMS) then
+      begin
         Result := I-1; //Byte = 0..255
         RMS := tRMS;
         if RMS = 0 then Exit;
@@ -526,14 +523,16 @@ var
 begin
   Assert(fCharCount = 256);
 
-  if FontData.Title = fnt_Nil then begin
+  if FontData.Title = fnt_Nil then
+  begin
     ErrS := 'Please select editing font first';
     MessageBox(Handle, @ErrS[1], 'Error', MB_OK);
     Exit;
   end;
 
   RunOpenDialog(OpenDialog1, '', ExeDir, 'Bitmaps|*.bmp');
-  if not FileExists(OpenDialog1.FileName) then begin
+  if not FileExists(OpenDialog1.FileName) then
+  begin
     ErrS := OpenDialog1.FileName + ' couldn''t be found';
     MessageBox(Handle, @ErrS[1], 'Error', MB_OK);
     Exit;
@@ -543,7 +542,8 @@ begin
   MyBitmap.LoadFromFile(OpenDialog1.FileName);
   MyBitmap.PixelFormat := pf24bit;
 
-  if MyBitmap.Width <> TexWidth then begin
+  if MyBitmap.Width <> TexWidth then
+  begin
     MessageBox(Handle, PWideChar(Format('Image should be %d pixels wide', [TexWidth])),'Error',MB_OK);
     MyBitmap.Free;
     Exit;
@@ -569,7 +569,8 @@ begin
       x := (k-1)*32 + ck; //Pixel coords
       y := (i-1)*32 + ci;
 
-      if Pixels[y,x] <> 0 then begin
+      if Pixels[y,x] <> 0 then
+      begin
         LetterW := math.max(LetterW, ck);
         LetterH := math.max(LetterH, ci);
       end;
@@ -582,7 +583,8 @@ begin
 
     FontData.Pal[LetterID] := byte(LetterW*LetterH<>0); //switch
 
-    with FontData.Letters[LetterID] do begin
+    with FontData.Letters[LetterID] do
+    begin
       Width  := LetterW;
       Height := LetterH;
       for ci:=1 to LetterH do for ck:=1 to LetterW do
@@ -606,7 +608,7 @@ procedure TfrmMain.RGPaletteClick(Sender: TObject);
 begin
   FontPal[FontData.Title] := RGPalette.ItemIndex + 1;
   ShowBigImage(CheckCells.Checked, false);
-  fPaintBox.Repaint;
+  PaintBox1.Repaint;
   ShowPalette(FontPal[FontData.Title]);
   Edit1Change(nil);
   if ListBox1.ItemIndex <> -1 then
@@ -625,7 +627,8 @@ begin
   FontData.CharOffset  := SpinEdit3.Value;
   FontData.Unk3        := SpinEdit4.Value;
 
-  if Sender = SpinEdit5 then begin
+  if Sender = SpinEdit5 then
+  begin
     FontData.Letters[127].Height := 10;
     FontData.Letters[127].Width := SpinEdit5.Value;
     FillChar(FontData.Letters[127].Data[1], 4096, #0);
@@ -647,7 +650,7 @@ end;
 procedure TfrmMain.ScrollBar1Change(Sender: TObject);
 begin
   ShowBigImage(CheckCells.Checked, False);
-  fPaintBox.Repaint;
+  PaintBox1.Repaint;
 end;
 
 
