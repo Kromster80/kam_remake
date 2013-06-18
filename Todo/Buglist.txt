@@ -81,6 +81,7 @@ Improvements:
  +	L	It is impossible to identify selected group if player flag color is white. Use dark-grey instead.
  +	L	Clicking a location on the lobby minimap selects that location if it's available
  +	L	Minimap preview in lobby could indicate teams somehow as well (border around the color circle?)
+ +	L	MapEd: Magic water brush to allow to change waterflow direction on whole area
 
 	Dismiss button to make units walk into the school and disappear (gold is not refunded)
 	L	Simple dedicated server form which lets you set the properties of the INI for the server and start it [gemGreg]
@@ -120,19 +121,18 @@ Improvements:
 	L	Allow dedicated servers to optionally specify their IP in the INI file (some servers have multiple IP addresses, the external one the master server sees might not be the correct one)
 	L	Icon before the server name: Swords/house/floppy for battle/build/save (save icon only shown while in lobby)
 	L	Shift+3 joins the selected warrior group to the group assigned to hotkey 3 (Starcraft style)
-	L	Maplist still takes too long to load, scrollbar moves irritatingly while maps are being added
+	L	Maplist takes too long to load on first run, scrollbar moves irritatingly while maps are being added
 	L	Save last selected item in lists (load game, mp, maped list, savegames, etc)
 	L	Right-click on a unit in Schools queue to move that unit to the front of the queue (currently RMB is "remove to here")
   M Archers should not change formations when group members get killed while under attack
-  L Allow to block wares delivery into armory, so that player could focus each on certain task (shields or armors)
-	Keep road bends when neighbour road is destroyed (e.g. house entrances)
+  L Allow to block wares delivery into armor workshop, so that player could focus each on certain task (shields or armors)
+  L Keep road bends when neighbour road is destroyed (e.g. house entrances)
 
 	L	MapEd: Allow to toggle trees/objects opacity (make them partially visible) [Marcin]
 	L	MapEd: Allow to toggle AI defence positions display
 	L	MapEd: Random objects brush
 	L	MapEd: Allow to Undo/Redo actions (implement a queue)
 	L	MapEd: Artistic brushes (those that place random types of trees and/or decorations)
-	L	MapEd: Magic water brush to allow to change waterflow direction on whole area
 	L	MapEd: Make houses highlight red when about to erase them as trees/units do
 	L	MapEd: Flat terrain checkbox on Extras popup
 	L	MapEd: Allow to set troops order destination with mouse on map
@@ -140,8 +140,8 @@ Improvements:
 	L	MapEd: An option to hide roads/fields, so you can view just the terrain while you edit it
 	M	MapEd: "Sync all" checkbox when adding wares to a house which makes it the same for all houses of that type
  
--       Make units turn around without skipping inbetween directions (instead of immediate direction change)
--	Unexpectedly high ping values (not our problem usually)
+ -  Make units turn around without skipping inbetween directions (instead of immediate direction change)
+ -	Unexpectedly high ping values (not our problem usually)
  -	One type of pine tree cannot be cut (same as KaM, there are not even sprites for it falling down)
  -	The ingame briefing texture is too short, see attached picture
  -	Serfs should take wares back or to suitable house if destination is destroyed
