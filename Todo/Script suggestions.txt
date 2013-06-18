@@ -1,31 +1,4 @@
 Accepted:
- +	States.UnitDirection
- +	States.HouseSchoolQueue
- +	States.HouseWeaponsOrdered
- +	States.GetAllUnits
- +	States.GetAllHouses
- +	States.GetAllGroups
- +	States.GroupColumnCount
- +	States.HouseIsComplete
- +	States.IsFieldAt
- +	States.IsWinefieldAt
- +	States.IsRoadAt
- +	States.PlayerWareDistribution
- +	Actions.HouseWeaponsOrderSet
- +	Actions.HouseSchoolQueueRemove
- +	Actions.GiveWeapons
- +	Actions.PlayerAddDefaultGoals
- +	Actions.PlayWAV
- +	Actions.PlayWAVAtLocation
- +	Actions.ShowMsgGoto
- +	Actions.ShowMsgGotoFormatted
- +	Actions.PlayerWareDistribution
- +	Actions.PlayerShareFog
- +	Actions.PlanRemove
- +	Actions.HouseDisableUnoccupiedMessage
- +	Actions.AIRecruitLimit
- +	Actions.HouseAddRepair
- +	Added parameter "Silent" to Actions.HouseDestroy
 	Closest house/unit/group to given XY of certain player and type
 	Change house/unit/group owner
 	AI equip rate
