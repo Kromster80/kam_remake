@@ -257,16 +257,22 @@ begin
     6: begin
          StillFrame := 0;
          case WorkPlan.GatheringScript of //Perform special tasks if required
-           gs_StoneCutter:     gTerrain.DecStoneDeposit(KMPoint(WorkPlan.Loc.X,WorkPlan.Loc.Y-1));
-           gs_FarmerSow:       gTerrain.SowCorn(WorkPlan.Loc);
-           gs_FarmerCorn:      gTerrain.CutCorn(WorkPlan.Loc);
-           gs_FarmerWine:      gTerrain.CutGrapes(WorkPlan.Loc);
-           gs_FisherCatch:     begin gTerrain.CatchFish(KMPointDir(WorkPlan.Loc,WorkPlan.WorkDir)); WorkPlan.ActionWorkType := ua_WalkTool; end;
-           gs_WoodCutterPlant: //If the player placed a house plan here while we were digging don't place the
-                               //tree so the house plan isn't canceled. This is actually the same as TSK/TPR IIRC
-                               if TKMUnitCitizen(fUnit).CanWorkAt(WorkPlan.Loc, gs_WoodCutterPlant) then
-                                 gTerrain.SetTree(WorkPlan.Loc,gTerrain.ChooseTreeToPlant(WorkPlan.Loc));
-           gs_WoodCutterCut:   begin gTerrain.FallTree(KMGetVertexTile(WorkPlan.Loc, WorkPlan.WorkDir)); StillFrame := 5; end;
+           gs_StoneCutter:      gTerrain.DecStoneDeposit(KMPoint(WorkPlan.Loc.X,WorkPlan.Loc.Y-1));
+           gs_FarmerSow:        gTerrain.SowCorn(WorkPlan.Loc);
+           gs_FarmerCorn:       gTerrain.CutCorn(WorkPlan.Loc);
+           gs_FarmerWine:       gTerrain.CutGrapes(WorkPlan.Loc);
+           gs_FisherCatch:      begin
+                                  gTerrain.CatchFish(KMPointDir(WorkPlan.Loc,WorkPlan.WorkDir));
+                                  WorkPlan.ActionWorkType := ua_WalkTool;
+                                end;
+           gs_WoodCutterPlant:  //If the player placed a house plan here while we were digging don't place the
+                                //tree so the house plan isn't canceled. This is actually the same as TSK/TPR IIRC
+                                if TKMUnitCitizen(fUnit).CanWorkAt(WorkPlan.Loc, gs_WoodCutterPlant) then
+                                  gTerrain.SetTree(WorkPlan.Loc, gTerrain.ChooseTreeToPlant(WorkPlan.Loc));
+           gs_WoodCutterCut:    begin
+                                  gTerrain.FallTree(KMGetVertexTile(WorkPlan.Loc, WorkPlan.WorkDir));
+                                  StillFrame := 5;
+                                end;
          end;
          SetActionLockedStay(WorkPlan.AfterWorkDelay, WorkPlan.ActionWorkType, True, StillFrame, StillFrame);
        end;

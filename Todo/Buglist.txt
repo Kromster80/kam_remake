@@ -42,7 +42,7 @@
 	There's no message in MP when you defeat AI opponent (if you defeat human opponent it shows one)
 	TSK15 - AI does not build because stone is too far away (AI builder is incomplete)
 	Terrain brushes in MapEd erase corn/wine fields (should try to preserve them)
-	Woodcutter would cut a missing tree on a corn field (replaced with corn shortly before he arrived)
+	Woodcutter would cut a missing tree on a corn field (replaced with corn while he is chopping)
 	Look into translating texts returned from Net status and others that are hardcoded in 3rd party libs we use (pas files)
 	Towers attack range is uneven (should be measured from towers middle, not the recruit location in BR corner)
 	Set random seed randomly on fGame.Create (for MP it needs to be decided by host and synced before the game starts)
