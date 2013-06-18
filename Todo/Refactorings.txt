@@ -9,3 +9,4 @@ Smooth shadows generator for user override sprites in Sprites folder
 Redesign gameplay UI into units similar to main menu pages
 Introduce free-movement forms into MapEd interface (-> next item)
 Redesign interface with focus on moveable forms instead of static left-side menu (so we can add more info)
+Rework the way wares are stored in houses, allowing to evacuate and removing segregation to In and Out

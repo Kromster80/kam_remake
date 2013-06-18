@@ -370,9 +370,13 @@ end;
 
 
 function TKMUnitCitizen.CanWorkAt(aLoc: TKMPoint; aGatheringScript:TGatheringScript): Boolean;
-var I: Integer;
+var
+  I: Integer;
 begin
   case aGatheringScript of
+    gs_WoodCutterCut:   begin
+                          //todo: Check once again the tree is in place (could have been replaced by grown corn)
+                        end;
     gs_WoodCutterPlant: begin
                           //Woodcutters should not plant trees on our own or our ally's house plans
                           //(it's very annoying if they do)
