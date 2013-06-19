@@ -14,3 +14,4 @@ Networking needs refactoring, maybe we can split it into common, lobby and gamep
 Replace indexing of terrain and net parts from 1..N to a convenient 0..N-1
 Tryout displaying 3D objects on terrain
 See about adding achievements to the game
+Try out making roadfinder aware of houses it connects (to prefer relevant houses)

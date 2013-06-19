@@ -7,6 +7,8 @@ uses SysUtils, KromUtils,
 
 type
   //Pathfinding that finds a route for a road to be built
+  //todo: Maybe it is worth trying to make Roadfinder a house-aware algo,
+  //to prefer connecting to supply/demand houses
   TPathFindingRoad = class(TPathFindingAStarNew)
   private
     fOwner: TPlayerIndex;
