@@ -1272,7 +1272,9 @@ begin
   if InRange(aPlayer, 0, fPlayers.Count - 1)
   and (aType in [UnitTypeToIndex[WARRIOR_MIN]..UnitTypeToIndex[WARRIOR_MAX]])
   and gTerrain.TileInMapCoords(X,Y)
-  and (TKMDirection(aDir+1) in [dir_N..dir_NW]) then
+  and (TKMDirection(aDir+1) in [dir_N..dir_NW])
+  and (aCount > 0)
+  and (aColumns > 0) then
   begin
     G := fPlayers[aPlayer].AddUnitGroup(UnitIndexToType[aType],
                                         KMPoint(X,Y),
