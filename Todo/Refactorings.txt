@@ -12,3 +12,5 @@ Redesign interface with focus on moveable forms instead of static left-side menu
 Rework the way wares are stored in houses, allowing to evacuate and removing segregation to In and Out
 Networking needs refactoring, maybe we can split it into common, lobby and gameplay parts
 Replace indexing of terrain and net parts from 1..N to a convenient 0..N-1
+Tryout displaying 3D objects on terrain
+See about adding achievements to the game

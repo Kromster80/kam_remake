@@ -65,15 +65,16 @@ procedure TKMFontData.LoadFont(const aFileName: string; aRender: TRender; aFont:
 const
   TexWidth = 256; //Connected to TexData, don't change
 var
-  S:TKMemoryStream;
-  i,k,ci,ck:integer;
-  MaxHeight:integer;
-  AdvX,AdvY:integer;
-  TD:array of cardinal;
-  Bmp:TBitMap;
+  S: TKMemoryStream;
+  i, k, ci, ck: Integer;
+  MaxHeight: Integer;
+  AdvX, AdvY: Integer;
+  TD: array of Cardinal;
+  Bmp: TBitMap;
 begin
   MaxHeight := 0;
-  if not FileExists(aFileName) then exit;
+  if not FileExists(aFileName) then
+    Exit;
 
   S := TKMemoryStream.Create;
   S.LoadFromFile(aFileName);

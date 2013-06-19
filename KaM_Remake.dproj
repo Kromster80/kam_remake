@@ -113,6 +113,7 @@
 			<DCCReference Include="KM_FormLoading.pas">
 				<Form>FormLoading</Form>
 			</DCCReference>
+			<DCCReference Include="KM_Achievements.pas"/>
 			<DCCReference Include="KM_AI.pas"/>
 			<DCCReference Include="KM_AIAttacks.pas"/>
 			<DCCReference Include="KM_AIDefensePos.pas"/>
