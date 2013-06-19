@@ -8,11 +8,11 @@ uses
 
 type
   //Achievements represent the behavior we want to encourage, they are to
-  //help player to explore the game and try out all its possibilities. E.g.:
-  // - encourage beating the game (beat campaigns, play MP, use all troops, focus on different town specializations)
-  // - player controlled (good: train 200 knights in one game. bad: have single archer kill 10 militia with 10 shots)
-  // - could be proud of (good: win without losses. bad: get defeated 10 times)
-  // - special (meet some rare event and feeling good about it, e.g. ???)
+  //help player to explore the game and try out all its possibilities.
+  //These are the points we need to ask ourselves before adding an achievement:
+  // - Does it encourages advancing into the game (beat campaigns, play MP, use all troops, focus on different town specializations)
+  // - Is it player controlled (good: train 100 knights in one game. bad: have single archer kill 10 militia with 10 shots)
+  // - Could it be proud of (good: win without losses. bad: get defeated 10 times)
 
   //Can be split into basic mechanic types:
   // A. during single mission
