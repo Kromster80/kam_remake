@@ -1,6 +1,6 @@
 var iMain, iAdd, iMessage, iRandom: Integer;
 var iX, iY, iD, iGiveG, iGiveU: Integer;
-var bBarracks, bAttack: Boolean;
+var bBarracks, bAttack, bGiveNext: Boolean;
 var iAttack: array[1..8] of Integer;
 
 procedure GroupSetHungerLevel(aGroup:Integer);
@@ -70,6 +70,7 @@ begin
   // Standartwerte
   bBarracks := false;
   bAttack := false;
+  bGiveNext := false;
   iMessage := 0;
   iRandom := 5;
   iGiveU := -1;
@@ -149,10 +150,17 @@ begin
   if((iGiveU <> -1) 
   AND(States.UnitDead(iGiveU)))
   then begin
-	iGiveU := -1;
-	G := Actions.GiveGroup(1, 23, iX, iY, iD, 1, 1);
-    if not States.GroupDead(iGiveG) then
-      Actions.GroupOrderLink(G, iGiveG);
+    //Fix by Lewin: Delay placement of new unit by 1 tick to give the old unit time to die
+    if bGiveNext then
+    begin
+        bGiveNext := false;
+        iGiveU := -1;
+        G := Actions.GiveGroup(1, 23, iX, iY, iD, 1, 1);
+        if not States.GroupDead(iGiveG) then
+          Actions.GroupOrderLink(G, iGiveG);
+    end
+    else
+      bGiveNext := true;
   end;
   
   // Runter zählen
