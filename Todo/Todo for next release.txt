@@ -5,9 +5,9 @@ Since 4th RC:
 Bugs:
  +	TaleOfTwoLands has no gold in Stores
  +	Crash when using a script file larger than 65kb
+ +	Multiland location 4, the fish in the pond are killed automatically because they have no space to move
 	LandOfTheQuickRiver has no human nor AI selectable locations (TestFunc has tests to load all maps)
 	MajesticWaters does not have human selectable locations
-	Multiland location 4, the fish in the pond are killed automatically because they have no space to move
 
 
 Features:
