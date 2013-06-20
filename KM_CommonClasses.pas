@@ -10,6 +10,7 @@ type
   TKMemoryStream = class(TMemoryStream)
   public
     procedure Write(const Value: AnsiString); reintroduce; overload;
+    procedure WriteHugeString(const Value: AnsiString);
     {$IFDEF UNICODE}
     //procedure Write(const Value: UnicodeString); reintroduce; overload;
     {$ENDIF}
@@ -27,6 +28,7 @@ type
     procedure SetAsText(const aText: AnsiString); deprecated; //todo: Using text for data exchange is flawed idea. remove
 
     procedure Read(out Value: AnsiString); reintroduce; overload;
+    procedure ReadHugeString(out Value: AnsiString);
     {$IFDEF UNICODE}
     //procedure Read(out Value: UnicodeString); reintroduce; overload;
     {$ENDIF}
@@ -236,6 +238,16 @@ begin
   inherited Write(Pointer(Value)^, I);
 end;
 
+
+procedure TKMemoryStream.WriteHugeString(const Value: AnsiString);
+var I: Cardinal;
+begin
+  I := Length(Value);
+  inherited Write(I, SizeOf(I));
+  if I = 0 then Exit;
+  inherited Write(Pointer(Value)^, I);
+end;
+
 {$IFDEF UNICODE}
 {procedure TKMemoryStream.Write(const Value: UnicodeString);
 var I: Word;
@@ -285,6 +297,16 @@ end;
 
 procedure TKMemoryStream.Read(out Value: AnsiString);
 var I: Word;
+begin
+  Read(I, SizeOf(I));
+  SetLength(Value, I);
+  if I > 0 then
+    Read(Pointer(Value)^, I);
+end;
+
+
+procedure TKMemoryStream.ReadHugeString(out Value: AnsiString);
+var I: Cardinal;
 begin
   Read(I, SizeOf(I));
   SetLength(Value, I);

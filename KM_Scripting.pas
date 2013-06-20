@@ -791,7 +791,7 @@ begin
 
   LoadStream.Read(fActions.SFXPath);
 
-  LoadStream.Read(fScriptCode);
+  LoadStream.ReadHugeString(fScriptCode);
 
   if fScriptCode <> '' then
     CompileScript;
@@ -868,7 +868,7 @@ begin
   SaveStream.Write(fActions.SFXPath);
 
   //Write script code
-  SaveStream.Write(fScriptCode);
+  SaveStream.WriteHugeString(fScriptCode);
 
   //Write script global variables
   SaveStream.Write(fExec.GetVarCount);
