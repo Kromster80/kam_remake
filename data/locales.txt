@@ -8,7 +8,7 @@ cze,    Czech,                1250,     49,           svk,             Jolinar_C
 dut,    Dutch,                1252,     55,           ,                xzaz & Tom
 eng,    English,              1252,     45,           ,
 est,    Estonian,             1252,     59,           ,                Ingvar & Eva
-fre,    French,               1252,     51,           ,                Sylvain Domange
+fre,    French,               1252,     51,           ,                Sylvain Domange & Shadaoe
 ger,    German,               1252,     46,           ,                The Knight
 hun,    Hungarian,            1250,     57,           ,                Osi Attila (Jecy)
 ita,    Italian,              1252,     50,           ,                Paolo Castelvetere

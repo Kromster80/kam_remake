@@ -118,6 +118,7 @@ MaxID:697
 114:Quitter la Mission
 115:Annuler
 116:Paramètres
+117:Quitter l'Éditeur
 118:Effets Sonores
 119:Régler le volume
 120:Régler le volume
@@ -138,14 +139,15 @@ MaxID:697
 135:Annuler
 136:Annuler l'apprentissage en cours
 137:Besoins :
+138:Production :
 139:État :
 140:Produits
 141:Bâtiment en|construction
 142:Démolir
 143:Voulez-vous vraiment|démolir ce bâtiment ?
 144:Démolir le bâtiment sélectionné
-145:Réduire le volume de la commande
-146:Augmenter le volume de la commande
+145:Réduire la commande
+146:Augmenter la commande
 147:Unité précédente
 148:Unité suivante
 149:Équiper l'unité sélectionnée
@@ -177,12 +179,13 @@ MaxID:697
 175:Vos gisements de charbon sont épuisés.
 176:Vos gisements de fer sont épuisés.
 177:Vos gisements d'or sont épuisés.
+178:Votre bûcheron ne peut plus trouver d'arbres à couper.
 179:Ce bâtiment est inoccupé.
-180:Ces troupes sont affamées, vous devriez les nourrir très rapidement !
-181:Pause
+180:Ces troupes sont affamées, vous devriez les nourrir !
+181:PAUSE
 182:Délivre
 183:Construit une route
-184:Labour un champ
+184:Laboure un champ
 185:Plante une vigne
 186:Aplatit l'emplacement
 187:Construit un bâtiment
@@ -199,7 +202,7 @@ MaxID:697
 198:Extrait de la pierre
 199:Sème du blé
 200:Récolte du blé
-201:Récolte des vignes
+201:Récolte des raisins
 202:Pêche du poisson
 203:Abat un arbre
 204:Plante un arbre
@@ -226,6 +229,7 @@ MaxID:697
 225:At the Harbor
 226:Journey
 227:Campagnes
+228:Campagnes
 229:Débuter !
 230:Sélectionner une Mission
 231:Débuter !
@@ -240,8 +244,8 @@ MaxID:697
 240:Résolution :
 241:Non supportée
 242:Non supporté
-243:Victoire !
-244:Défaite !
+243:VICTOIRE !
+244:DEFAITE !
 245:Unités perdues :
 246:Unités éliminées :
 247:Bâtiments perdus :
@@ -264,18 +268,24 @@ MaxID:697
 264:Marchandises|produites
 265:Armes|fabriquées
 266:Armée
-267:Unités
+267:Citoyens
 268:Bâtiments
 269:Ressources
 270:Ressources produites
+271:Pas de données
 272:Vous
 273:Joueur %d
+274:Retour au Multijoueur
+275:Retour aux Replays
+276:Toutes
+277:Militaire
+278:Nourriture
 279:JOYMANIA ENTERTAINMENT||PROGRAMMATION :|Peter Ohlmann||GRAPHISMES :|Adam Sprys||CONCEPTION DES NIVEAUX :|Adam Sprys|Andre Quaß||MIXAGE ET ÉDITION AUDIO :|Tonstudio Mannheim||MUSIQUE D'AMBIANCE :|Gerd Hofmann|Joachim Schäfer|Jürgen Rebhann|Klaus Staendike|Steffen Schüngel||ILLUSTRATIONS :|Boleslaw Kasza|Christoph Werner||ZUXXEZ ENTERTAINMENT AG||PRODUCTEUR :|Uwe Schäfer||MANUEL :|Peter Ohlmann|Uwe Schäfer||BÊTA TEST :|Peter Ohlmann|Adam Sprys|Alexandra Constandache|Dirk P. Hassinger|Achim Heidelauf|Uwe Schäfer|Ingrid Schäfer|Dirk U. Jantz|Ion Constandache|Yaman Egeli|Roman Eich|Iris Mocsnek|Anke Jantz|Paul Hassinger|Liza Hassinger||RESPONSABLE DU DÉVELOPPEMENT :|Achim Heidelauf||PUBLICATION :|TopWare Interactive||CINÉMATIQUES :||DIRECTION :|Slawomir Jedrzejewski||Kajetan Czarnecki|Wojciech Drazek|Daniel Duplaga|Rafal Januszkiewicz|Andrzej Rams|Piotr Rulka|Krzysztof Rybczynski|Grzegorz Wisniwski||VOIX :|Claus Boyen (Narrateur)||Tim Timmermann|Peter Houska|Dirk Mühlbach|Ralf Ditze|Gerhard Piske|Gernot Wassmann||ARTWORK :|Boleslaw Kasza|Adam Sprys||ANIMATION :|Uwe Schäfer|Christian Bigalk|Modélisation 3D Additionnelle :|Niels Horstmann||REMERCIEMENTS PARTICULIERS À :|Tadeusz Zuber|Dieter Ohlmann|Alexandra Constandache|Ingrid Schäfer|Andrea Rumpelt
 280:Mission Annulée
-281:Replay Terminé
+281:Replay terminé
 282:Tutoriel de Construction
 283:Tutoriel de Bataille
-284:Joueur Solo
+284:Jouer en Solo
 285:Éditeur de Cartes
 286:Débuter !
 287:Titre
@@ -291,12 +301,14 @@ MaxID:697
 297:Créer une Carte
 298:Cartes Existantes :
 299:Charger une Carte Existante
+300:Position
 301:Contrôles :
 302:Jouabilité :
 303:Effets Sonores :
-304:Désactiver
-305:Graphisme :
+304:Désactiver la musique
+305:Graphismes :
 306:Luminosité
+307:Synchronisation verticale
 308:Plein Écran
 309:Appliquer
 310:Langage :
@@ -305,7 +317,7 @@ MaxID:697
 313:Haute
 314:Chargement... Veuillez patienter
 315:Une Erreur S'est Produite !
-316:Chargement du nouveau local
+316:Chargement du nouveau langage
 317:Liste des Sauvegardes :
 318:Nom du Fichier
 319:Description
@@ -339,35 +351,164 @@ MaxID:697
 347:Erreur réseau :
 348:Erreur : Le nom du joueur doit contenir au moins un caractère.
 349:Erreur : Le nom du joueur ne peut pas contenir plus de %d caractères.
-350:Erreur : Le nom du joueur ne peut pas contenir de caractères illégaux.
+350:Erreur : Le nom du joueur ne peut pas contenir de caractères interdits.
 351:Connexion échouée : %s.
 352:Vous vous êtes déconnecté.
 353:Mission %d
-355:|La hutte de votre pêcheur est trop éloignée de l'eau.
-356:|Votre pêcheur ne peut plus pêcher de poissons dans les eaux environnantes.
-357:Répétition
+354:Liste des messages
+355:La hutte de votre pêcheur est trop éloignée de l'eau.
+356:Votre pêcheur ne peut plus trouver de poissons à pêcher.
+357:Relancer le replay
 358:Suspendre
 359:Avancer d"une frame
-360:Reprendre
-361:Stopper
+360:Reprendre le replay
+361:Stopper le replay
+362:Activer la vue par joueur
+363:Montrer tout le monde
 364:Utilisez le bouton gauche de la souris pour sélectionner une marchandise à échanger
 365:Utilisez le bouton droit de la souris pour sélectionner une marchandise à échanger
-366:de x%d
-367:à x%d
+366:De : %dx
+367:à : %dx
 368:Édition du Terrain
+369:Brosses
+370:Reliefs
+371:Tiles
+372:Objets
+373:Reliefs
+374:Forme de la brosse
+375:Taille
+376:Glisser pour changer la taille de la brosse
+377:Variation
+378:Glisser pour changer la variation de hauteur : 1 = plateau ... 15 = pic
+379:Vitesse
+380:Glisser pour changer la vitesse de l'élévation : 1 = lent ... 15 = très rapide
+381:Brosse en cercle
+382:Brosse en carré
+383:Élever / Baisser
+384:Inégaliser / Aplatir
+385:Élever (clic gauche) / Baisser (clic droit)
+386:Inégaliser (clic gauche) / Aplatir (clic droit)
+387:Brosse
+388:Élements aléatoires
+389:Orientation aléatoire
+390:Cocher pour une direction aléatoire des cases ou utiliser le clic droit pour effectuer une rotation de la case selectionnée
+391:Utiliser le clic droit pour effectuer une rotation de la case selectionnée
+392:Bloquer les mouvements
+393:Enlever un objet
 394:Planification du Village
 395:Scripts Visuels
 396:Scripts Globaux
 397:Menu
+398:Objets
+399:Montrer les gisements
+400:Montrer les unités
+401:Montrer les maisons
+402:Montrer les objets
+403:Montrer la passabilité
+404:Tout changement|non sauvegardé sera perdu
+405:Annuler
+406:Charger
+407:Charger Carte
+408:Annuler
+409:Sauvegarder
+410:Écraser
+411:La carte existe déjà
+412:Joueurs :
+413:Défaut
+414:Type de joueur
+415:Symétrique
+416:Alliances
+417:Tactique
+418:Normale
+419:Mode de mission
+420:Aller à la position
+421:Centrer l'écran au début de la mission
+422:Centrer l'écran
+423:Tout révéler
+424:Révèle une portion de la carte
+425:Réveler brouillard
+426:Bloquer le commerce
+427:Bloquer/Déverouiller des maisons
+428:Couleurs
+429:Buts
+430:Msg.
+431:Temps
+432:Joueur
+433:Batiments économiques
+434:Serfs et écoles
+435:Possessions militaires
+436:Inconnu
+437:Troupes
+438:Batiments
+439:Temps
+440:Tutoriel de construction
+441:Aucun
+442:Condition
+443:Survivre
+444:Victoire
+445:Aucun
+446:Type
+447:Buts
+448:OK
+449:Annuler
+450:Colonnes
+451:Nombre
+452:Formation de la troupe
+453:Éditer les formations
+454:Limiter le nombre de soldats que l'IA peut avoir
+455:Combien de soldats l'IA peut avoir en même temps
+456:Max. de soldats
+457:Combien de recrues l'IA doit avoir au château
+458:Recrues par Château
+459:Positions
+460:Position perso.
+461:Bât. le + proche 2
+462:Bât. le + proche 1
+463:Unit. la + proche
+464:Tout prendre
+465:Nombre de groupes
+466:Infos d'attaque
+467:Délai (s)
+468:Répét.
+469:1 fois
+470:Cavalerie
+471:Distance
+472:Anticavalerie
+473:Mélée
+474:Pos.
+475:Cible
+476:Hommes
+477:Délai
+478:Type
+479:Attaque auto
+480:Attaques IA
+481:Taux d'équip. cuir
+482:Taux d'équip. fer
+483:Autodéfense
+484:L'IA crée et gère les positions de défense automatiquement
+485:Placer une position de défense IA
+486:Positions de défense IA
+487:Maçons
+488:Serfs par 10 maisons
+489:Autoréparer
+490:Auto construction
+491:Paramètres IA
+492:Maisons
+493:Routes
+494:Tourne la sélection verticalement
+495:Tourne la sélection horizontalement
+496:Copier terrain
+497:Copie le terrain
+498:Copier/Coller
 499:Nouvelle Mission
 500:Nom du Joueur :
-501:Status :
+501:Statut :
 502:Créer un Serveur
 503:CRÉER UN SERVEUR
 504:Nom :
 505:Port :
 506:Créer un Serveur Local
-507:Créer un Serveur Réseau
+507:Créer un Serveur Internet
 508:Annuler
 509:Trouver un Serveur par IP
 510:TROUVER UN SERVEUR
@@ -376,6 +517,8 @@ MaxID:697
 513:Salle :
 514:Connexion
 515:Annuler
+516:Salle protégée par Mot de Passe
+517:Mot de Passe
 518:Nom du Serveur
 519:État
 520:Joueurs
@@ -393,6 +536,7 @@ MaxID:697
 532:Couleur
 533:Prêt
 534:Ping
+535:Ping / FPS
 536:Libre
 537:Joueur IA
 538:Sélect...
@@ -405,21 +549,38 @@ MaxID:697
 545:Prêt
 546:Non Prêt
 547:Débuter !
+548:Vitesse du jeu (temps de paix)
+549:Vitesse du jeu
+550:OK
+551:Annuler
+552:Description
+553:Mot de Passe
+554:Paramètres de la Salle
+555:Définir comme hôte
+556:Bannir
+557:Exclure
+558:Positions aléatoire dans chaque équipe
+559:Description
+560:Options
 561:Position %d
 562:Erreur : Veuillez sélectionner un joueur de la sauvegarde pour le contrôler.
 563:Erreur : Le chargement de la carte a échoué ou aucune carte n'a été sélectionnée.
 564:Impossible de débuter : %s.
 565:Tout le monde n'est pas prêt pour débuter.
+566:Impossible d'assigner une position aléatoire.
 567:Le Serveur vous a attribué les droits d'hébergement.
 568:La partie a débuté !
 569:Développement
 570:Bataille
 571:Carte Coopérative
+572:Carte Spéciale
 573:Options de Jeu :
 574:Temps de Paix (minutes)
 575:Fermé
 576:L'hôte configure les joueurs
 577:Attente des Joueurs :
+578:Tous
+579:Équipe
 580:Crédits de KaM Remake
 581:Crédits Originaux de Knights & Merchants
 582:PROGRAMMATION :
@@ -431,7 +592,7 @@ MaxID:697
 588:REMERCIMENTS SPÉCIAUX À :
 589:Cartes Multijoueur
 590:Cartes Solo
-591:Vitesse du Scroll.
+591:Vitesse de défilement
 592:Aucun serveur n'a été trouvé
 593:Lecture aléatoire
 594:Informations sur la Partie :
@@ -508,3 +669,33 @@ MaxID:697
 665:L'envoi du rapport de crash a échoué ! Notre serveur était peut-être occupé, veuillez réessayer l'envoi à nouveau.
 666:Information
 667:Veuillez patienter un moment...
+668:Sauvegarder Carte
+669:Délai en minutes avant que l'IA ne commence à entraîner des recrues
+670:Delai recrues (mins)
+671:Permet de choisir une direction commune à un corps de cases d'eau connectées
+672:Eau magique
+673:Copier
+674:Coller
+675:Appliquer coller
+676:Annuler coller
+677:Tourner verticalement
+678:Tourner horizontalement
+679:Glissez pour sélectionner une zone de la carte
+680:Options défense IA
+681:Off
+682:Rayon
+683:Détruire le révélateur actuel
+684:Retourner à la page pour révéler le brouillard
+685:Fermer
+686:Ordre de groupe
+687:Aucun
+688:Attaquer position
+689:Marcher vers
+690:Direction
+691:Ligne arrière
+692:Ligne de front
+693:Rayon de défense
+694:Supprimer la position de défense actuelle
+695:Retourner à la page défense
+696:Positions de défense
+697:Unités

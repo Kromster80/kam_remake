@@ -1,0 +1,12 @@
+
+MaxID:9
+
+1:Personne n'est dans le château
+2:[$%s]%s[] a cherché pendant %.2d:%.2d dans le château
+3:[$%s]%s[] a trouvé %d %s dans les ruines du château !
+4:caisses d'or
+5:boucliers de fer
+6:armures de fer
+7:épées
+8:hallebardes
+9:arbalètes
