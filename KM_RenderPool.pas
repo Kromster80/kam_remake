@@ -7,7 +7,7 @@ uses
   dglOpenGL, SysUtils, KromOGLUtils, KromUtils, Math,
   KM_Defaults, KM_CommonClasses, KM_Pics, KM_Points, KM_Render,
   KM_RenderTerrain, KM_ResourceHouse, KM_ResourceSprites, KM_ResourceWares,
-  KM_Houses, KM_Terrain;
+  KM_Houses, KM_Terrain, OBJLoader;
 
 type
   //List of sprites prepared to be rendered
@@ -48,9 +48,11 @@ type
   private
     fRXData: array [TRXType] of TRXData; //Shortcuts
     fRender: TRender;
+    //fSampleHouse: TOBJModel;
     rPitch,rHeading,rBank: Integer;
     fRenderList: TRenderList;
     fRenderTerrain: TRenderTerrain;
+    //procedure RenderObject(aRX: TRXType; aId: Word; pX,pY: Single);
     procedure RenderSprite(aRX: TRXType; aId: Word; pX,pY: Single; Col: TColor4; aFOW: Byte; HighlightRed: Boolean = False);
     procedure RenderSpriteAlphaTest(aRX: TRXType; aId: Word; Param: Single; pX, pY: Single; aFOW: Byte; aId2: Word = 0; Param2: Single = 0; X2: Single = 0; Y2: Single = 0);
     procedure RenderObject(aIndex: Byte; AnimStep: Cardinal; LocX,LocY: Integer; DoImmediateRender: Boolean = False; Deleting: Boolean = False);
@@ -122,11 +124,15 @@ begin
   fRenderList     := TRenderList.Create;
   fRenderTerrain  := TRenderTerrain.Create;
   fRenderAux      := TRenderAux.Create;
+
+  //fSampleHouse := TOBJModel.Create;
+  //fSampleHouse.LoadFromFile(ExeDir + 'Store.obj');
 end;
 
 
 destructor TRenderPool.Destroy;
 begin
+  //fSampleHouse.Free;
   fRenderList.Free;
   fRenderTerrain.Free;
   FreeThenNil(fRenderAux);
@@ -758,6 +764,40 @@ begin
 end;
 
 
+{procedure TRenderPool.RenderObject(aRX: TRXType; aId: Word; pX,pY: Single);
+type
+    TVector4f = record X,Y,Z,W: Single; end;
+    TColor4f = record R,G,B,A: Single; end;
+const
+    LightPos: TVector4f = (X:-1; Y:0; Z:-2; W:0);
+    LightAmb: TColor4f = (R:0.1; G:0.1; B:0.1; A:0);
+    LightDiff: TColor4f = (R:0.9; G:0.9; B:0.9; A:0);
+    LightSpec: TColor4f = (R:1.0; G:1.0; B:1.0; A:0);
+begin
+  glPushMatrix;
+  glPushAttrib(GL_LIGHTING_BIT or GL_DEPTH_BUFFER_BIT);
+    glScalef(1, 1, CELL_SIZE_PX);
+    glEnable(GL_DEPTH_TEST);
+    glEnable(GL_LIGHTING);
+    glEnable(GL_LIGHT0);
+    glLightfv(GL_LIGHT0, GL_AMBIENT, @LightAmb);
+    glLightfv(GL_LIGHT0, GL_DIFFUSE, @LightDiff);
+    glLightfv(GL_LIGHT0, GL_SPECULAR, @LightSpec);
+    glLightfv(GL_LIGHT0, GL_POSITION, @LightPos);
+
+    glLightModelf(GL_LIGHT_MODEL_LOCAL_VIEWER, 0.0); //Directional lighting
+    glLightModeli(GL_LIGHT_MODEL_COLOR_CONTROL, GL_SEPARATE_SPECULAR_COLOR); //Specular does not depend on material color
+
+    glTranslatef(pX, pY, -1);
+    glRotatef(32.5, 1, 0, 0);
+    glColor4f(0.8, 0.8, 0.8, 1);
+
+    fSampleHouse.DrawModel;
+  glPopAttrib;
+  glPopMatrix;
+end;}
+
+
 procedure TRenderPool.RenderSprite(aRX: TRXType; aId: Word; pX,pY: Single; Col: TColor4; aFOW: Byte; HighlightRed: Boolean = False);
 var
   Lay, TopLay: Byte;
@@ -1356,11 +1396,11 @@ begin
             end
             else
               fRenderPool.RenderSpriteAlphaTest(RX, Id, AlphaStep, Loc.X, Loc.Y, FOWvalue);
-
           end;
 
-          if SHOW_GROUND_LINES and NewInst then //Don't render child (not NewInst) ground lines, since they are unused
+          if SHOW_GROUND_LINES and NewInst then
           begin
+            //Child ground lines are useless
             glBegin(GL_LINES);
               glColor3f(1,1,0.5);
               glVertex2f(Feet.X + 0.15, gTerrain.FlatToHeight(Feet).Y);
