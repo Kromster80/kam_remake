@@ -438,7 +438,7 @@ begin
       RegisterMethod(@TKMScriptStates.HouseResourceAmount,  'HOUSERESOURCEAMOUNT');
       RegisterMethod(@TKMScriptStates.HouseType,            'HOUSETYPE');
       RegisterMethod(@TKMScriptStates.HouseWoodcutterChopOnly, 'HOUSEWOODCUTTERCHOPONLY');
-      RegisterMethod(@TKMScriptStates.HouseWareBlocked,     'HOUSEWAREBLOCK');
+      RegisterMethod(@TKMScriptStates.HouseWareBlocked,     'HOUSEWAREBLOCKED');
       RegisterMethod(@TKMScriptStates.HouseSchoolQueue,     'HOUSESCHOOLQUEUE');
       RegisterMethod(@TKMScriptStates.HouseWeaponsOrdered,  'HOUSEWEAPONSORDERED');
 
