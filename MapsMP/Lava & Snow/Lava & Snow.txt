@@ -1,2 +1,2 @@
 BigDesc
-The king's army (location 1) is about to be ambushed by rebels! (location 2 & 3) Will the highly trained soldiers of the king be able to defeat the rebel's larger force?||Made by andreus.
+The king's army (location 1) is about to be ambushed by rebels! (location 2 & 3) Will the highly trained soldiers of the king be able to defeat the rebel's larger force?||The king will receive reinforcements after 3 minutes.||Made by andreus.
