@@ -498,7 +498,7 @@ begin
     end;
   end;
 
-  LineHeight := FontData.Unk1 + FontData.LineSpacing;
+  LineHeight := FontData.BaseHeight + FontData.LineSpacing;
 
   dec(LineCount);
   BlockWidth := 0;

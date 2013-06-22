@@ -2058,7 +2058,7 @@ begin
   fCaption    := aCaption;
   ShapeColor  := aShapeColor;
   fFont       := aFont;
-  fFontHeight := fResource.Fonts.FontData[fFont].Unk1 + 2;
+  fFontHeight := fResource.Fonts.FontData[fFont].BaseHeight + 2;
   FontColor   := $FFFFFFFF;
 end;
 

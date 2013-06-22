@@ -2,24 +2,32 @@ unit KM_ResourceFonts;
 {$I KaM_Remake.inc}
 interface
 uses
-  Graphics, Math, SysUtils,
+  Graphics, Math, SysUtils, Types,
   KM_CommonClasses, KM_Defaults, KM_Points, KM_Render;
 
 
 type
   TKMFontData = class
+  private
+    fTexID: Cardinal;
+    fBaseHeight, fWordSpacing, fCharSpacing, Unk3: SmallInt; //BaseCharHeight?, Unknown, CharSpacingX, LineOffset?
+    Pal: array [0..High(Word)] of Byte;
+    fLineSpacing: Byte; //Not in KaM files, we use custom value that fits well
   public
-    TexID: Cardinal;
-    Unk1, WordSpacing, CharSpacing, Unk3: SmallInt; //BaseCharHeight?, Unknown, CharSpacingX, LineOffset?
-    Pal: array [0..255] of Byte;
-    Letters: array [0..255] of record
+    Letters: array [0..High(Word)] of record
       Width, Height: Word;
       Add1, Add2, YOffset, Add4: Word; //Add1-4 always 0
-      Data: array of Byte;
       u1,v1,u2,v2: Single;
     end;
-    LineSpacing: Byte; //Not in KaM files, we use custom value that fits well
+
+    procedure CreateFont(aFont: TKMFont; const aChars: array of Char; const aFontName: string; aRender: TRender; ExportToBMP: Boolean);
     procedure LoadFont(const aFileName: string; aRender: TRender; aFont: TKMFont; ExportToBMP: Boolean);
+
+    property CharSpacing: SmallInt read fCharSpacing;
+    property LineSpacing: Byte read fLineSpacing;
+    property BaseHeight: SmallInt read fBaseHeight;
+    property WordSpacing: SmallInt read fWordSpacing;
+    property TexID: Cardinal read fTexID;
   end;
 
 
@@ -61,16 +69,133 @@ const //Font01.fnt seems to be damaged..
 
 
 { TKMFontData }
+procedure TKMFontData.CreateFont(aFont: TKMFont; const aChars: array of Char; const aFontName: string; aRender: TRender; ExportToBMP: Boolean);
+const
+  TEX_SIZE = 2048;
+  PAD = 1;
+  Ins = 0.05;
+var
+  bitmap: TBitmap;
+  I, K, pX, pY, chWidth: Integer;
+  chRect: TRect;
+  p: PByteArray;
+  TD: array of Byte;
+  exportBmp: TBitmap;
+  exportPath: string;
+  txtHeight: Integer;
+begin
+  bitmap := TBitmap.Create;
+  try
+    bitmap.PixelFormat := pf32bit;
+    bitmap.Width := TEX_SIZE;
+    bitmap.Height := TEX_SIZE;
+    bitmap.Canvas.Font.Color := clWhite;
+    bitmap.Canvas.Font.Size := 12;
+    bitmap.Canvas.Font.Name := 'Arial MS Uni';
+    bitmap.Canvas.Font.Style := [fsBold];
+
+    txtHeight := bitmap.Canvas.TextHeight('"_pI|,') + PAD * 2;
+    fLineSpacing := FONT_INTERLINE;
+    fWordSpacing := 4;
+
+    FillChar(Pal, SizeOf(Pal), #0);
+
+    //Characters we gonna use
+    for I := Low(aChars) to High(aChars) do
+      Pal[Word(aChars[I])] := 1;
+
+    //Obtain each characters dimensions (KaM char heights are per-char, so we do the same)
+    for I := 0 to High(Word) do
+    if Pal[I] <> 0 then
+    begin
+      Letters[I].Width := bitmap.Canvas.TextWidth(Char(I));
+      Letters[I].Height := txtHeight;
+    end;
+
+    bitmap.Canvas.Brush.Style := bsSolid;
+    bitmap.Canvas.Brush.Color := clBlack;
+    bitmap.Canvas.FillRect(Rect(0, 0, TEX_SIZE, TEX_SIZE));
+
+    pX := 0;
+    pY := 0;
+    for I := 0 to High(Word) do
+    if Pal[I] <> 0 then
+    begin
+      chWidth := Letters[I].Width;
+
+      if chWidth = 0 then
+        Continue;
+
+      Inc(chWidth, PAD * 2);
+
+      if pX + chWidth >= TEX_SIZE then
+      begin
+        pX := 1;
+        Inc(pY, txtHeight);
+        if pY + txtHeight > TEX_SIZE then
+          Break;
+      end;
+
+      Letters[I].u1 := (pX + PAD + Ins) / TEX_SIZE;
+      Letters[I].v1 := (TEX_SIZE - (pY + Ins)) / TEX_SIZE;
+      Letters[I].u2 := (pX + chWidth - PAD - Ins) / TEX_SIZE;
+      Letters[I].v2 := (TEX_SIZE - (pY + txtHeight - Ins)) / TEX_SIZE;
+
+      chRect.Left := pX;
+      chRect.Top := pY;
+      chRect.Right := pX + chWidth;
+      chRect.Bottom := pY + txtHeight;
+      bitmap.Canvas.TextRect(chRect, pX + PAD, pY + PAD, Char(I));
+
+      Inc(pX, chWidth);
+    end;
+
+    SetLength(TD, TEX_SIZE * TEX_SIZE * 4);
+    for I := 0 to bitmap.Height - 1 do
+    begin
+      p := bitmap.ScanLine[bitmap.Height - I - 1];
+      for K := 0 to bitmap.Width - 1 do
+        TD[(I * bitmap.Width + K) * 4 + 3] := p[K * 4 + 1]; //Only Alpha will be used to generate the texture
+    end;
+
+    fTexID := aRender.GenTexture(TEX_SIZE, TEX_SIZE, @TD[0], tf_Alpha8);
+
+    if ExportToBMP then
+    begin
+      exportBmp := TBitMap.Create;
+      exportBmp.PixelFormat := pf24bit;
+      exportBmp.Width  := TEX_SIZE;
+      exportBmp.Height := TEX_SIZE;
+
+      for I := 0 to TEX_SIZE - 1 do
+      for K := 0 to TEX_SIZE - 1 do
+        exportBmp.Canvas.Pixels[K, I] := TD[(I * TEX_SIZE + K) * 4 + 3] * 65793;
+
+      exportPath := ExeDir + 'Export' + PathDelim + 'Fonts' + PathDelim;
+      ForceDirectories(exportPath);
+      exportBmp.SaveToFile(exportPath + aFontName + '.bmp');
+      exportBmp.Free;
+    end;
+
+    SetLength(TD, 0);
+  finally
+    bitmap.Free;
+  end;
+end;
+
+
 procedure TKMFontData.LoadFont(const aFileName: string; aRender: TRender; aFont: TKMFont; ExportToBMP: Boolean);
 const
   TexWidth = 256; //Connected to TexData, don't change
 var
   S: TKMemoryStream;
-  i, k, ci, ck: Integer;
+  I, K: Integer;
+  pX, pY: Integer;
   MaxHeight: Integer;
   AdvX, AdvY: Integer;
+  rawData: array [0..255] of array of Byte;
   TD: array of Cardinal;
-  Bmp: TBitMap;
+  Bmp: TBitmap;
 begin
   MaxHeight := 0;
   if not FileExists(aFileName) then
@@ -79,79 +204,78 @@ begin
   S := TKMemoryStream.Create;
   S.LoadFromFile(aFileName);
 
-  S.Read(Unk1, 8);
+  S.Read(fBaseHeight, 8);
   S.Read(Pal[0], 256);
 
   //Read font data
-  for i:=0 to 255 do
-    if Pal[i] <> 0 then
+  for I := 0 to 255 do
+    if Pal[I] <> 0 then
     begin
-      S.Read(Letters[i].Width, 4);
-      S.Read(Letters[i].Add1, 8);
+      S.Read(Letters[I].Width, 4);
+      S.Read(Letters[I].Add1, 8);
 
-      MaxHeight := Math.max(MaxHeight, Letters[i].Height);
+      MaxHeight := Math.max(MaxHeight, Letters[I].Height);
 
-      if Letters[i].Width * Letters[i].Height = 0 then
+      if Letters[I].Width * Letters[I].Height = 0 then
         gLog.AddAssert('Font data Width * Height = 0'); //Font01.fnt seems to be damaged..
 
-      SetLength(Letters[i].Data, Letters[i].Width*Letters[i].Height);
-      S.Read(Letters[i].Data[0], Letters[i].Width*Letters[i].Height);
+      SetLength(rawData[I], Letters[I].Width*Letters[I].Height);
+      S.Read(rawData[I,0], Letters[I].Width*Letters[I].Height);
     end;
   S.Free;
 
-  LineSpacing := FONT_INTERLINE;
+  fLineSpacing := FONT_INTERLINE;
 
   //Special fix for monochrome fonts
   if FontPal[aFont] = pal_lin then
     for i:=0 to 255 do
       if Pal[i]<>0 then //see if letterspace is used
-        for k:=0 to Length(Letters[i].Data)-1 do
-          if Letters[i].Data[k]<>0 then
-            Letters[i].Data[k] := 255; //Full white
+        for k:=0 to Length(rawData[i]) - 1 do
+          if rawData[i,k] <> 0 then
+            rawData[i,k] := 255; //Full white
 
 
   //Compile texture
   AdvX := 0; AdvY := 0;
   SetLength(TD, TexWidth*TexWidth);
 
-  for i:=0 to 255 do
-    if Pal[i] <> 0 then
-      with Letters[i] do
-      begin
+  for I:=0 to 255 do
+  if Pal[I] <> 0 then
+  begin
+    if Pal[I] <> 1 then
+      gLog.AddAssert('FontData palette <> 1');
 
-        if Pal[i] <> 1 then
-          gLog.AddAssert('FontData palette <> 1');
+    //Switch to new line
+    if AdvX+Letters[I].Width+2>TexWidth then
+    begin
+      AdvX := 0;
+      inc(AdvY, MaxHeight);
+    end;
 
-        //Switch to new line
-        if AdvX+Width+2>TexWidth then
-        begin
-          AdvX := 0;
-          inc(AdvY, MaxHeight);
-        end;
+    //Fill in colors
+    for pY:=0 to Letters[I].Height-1 do for pX:=0 to Letters[I].Width-1 do
+      TD[(AdvY+pY)*TexWidth+AdvX+1+pX] := fResource.Palettes[FontPal[aFont]].Color32(rawData[I, pY*Letters[I].Width+pX]);
 
-        //Fill in colors
-        for ci:=0 to Height-1 do for ck:=0 to Width-1 do
-          TD[(AdvY+ci)*TexWidth+AdvX+1+ck] := fResource.Palettes[FontPal[aFont]].Color32(Data[ci*Width+ck]);
+    Letters[I].u1 := (AdvX+1)/TexWidth;
+    Letters[I].v1 := AdvY/TexWidth;
+    Letters[I].u2 := (AdvX+1+Letters[I].Width)/TexWidth;
+    Letters[I].v2 := (AdvY+Letters[I].Height)/TexWidth;
 
-        u1 := (AdvX+1)/TexWidth;
-        v1 := AdvY/TexWidth;
-        u2 := (AdvX+1+Width)/TexWidth;
-        v2 := (AdvY+Height)/TexWidth;
+    inc(AdvX, 1+Letters[I].Width+1);
+  end;
 
-        inc(AdvX, 1+Width+1);
-      end;
-
-  TexID := aRender.GenTexture(TexWidth, TexWidth, @TD[0], tf_RGB5A1);
+  fTexID := aRender.GenTexture(TexWidth, TexWidth, @TD[0], tf_RGB5A1);
 
   if ExportToBMP then
   begin
-    Bmp := TBitMap.Create;
+    Bmp := TBitmap.Create;
     Bmp.PixelFormat := pf24bit;
     Bmp.Width  := TexWidth;
     Bmp.Height := TexWidth;
 
-    for ci:=0 to TexWidth-1 do for ck:=0 to TexWidth-1 do
-      Bmp.Canvas.Pixels[ck,ci]:= TD[ci*TexWidth+ck] AND $FFFFFF;
+    for I := 0 to TexWidth - 1 do
+    for K := 0 to TexWidth - 1 do
+      Bmp.Canvas.Pixels[K,I]:= TD[I*TexWidth+K] AND $FFFFFF;
 
     ForceDirectories(ExeDir + 'Export'+PathDelim+'Fonts'+PathDelim);
     Bmp.SaveToFile(ExeDir + 'Export'+PathDelim+'Fonts'+PathDelim+ExtractFileName(aFileName)+fResource.Palettes.PalFile(FontPal[aFont])+'.bmp');
@@ -353,8 +477,8 @@ begin
     Inc(I);
   end;
 
-  dec(LineCount);
-  Result.Y := (fFontData[Fnt].Unk1 + FONT_INTERLINE) * LineCount;
+  Dec(LineCount);
+  Result.Y := (fFontData[Fnt].BaseHeight + fFontData[Fnt].LineSpacing) * LineCount;
   for I := 1 to LineCount do
     Result.X := Math.max(Result.X, LineWidth[I]);
 end;
