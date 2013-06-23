@@ -96,7 +96,7 @@ if($Rev != $MAIN_VERSION)
 }
 else
 {
-	echo 'A new KaM Remake release is coming, read about the most significant changes at [$F8A070]www.kamremake.com[]||Enjoy playing KaM Remake? Please consider [$00EEFF]donating[] to support future development. Visit [$F8A070]www.kamremake.com/donations[]';
+	echo 'Welcome to the new release! Don\'t forget to try out some of the special multiplayer missions which use dynamic scripts to create new game modes and objectives.||Enjoy playing KaM Remake? Please consider [$00EEFF]donating[] to support future development. Visit [$F8A070]www.kamremake.com/donations[]';
 	//echo 'The 2 vs 2 Powah Tournament has begun! Go to [$F8A070]www.kamremake.com[] to find out more!||Can you help translate our website [$F8A070]www.kamremake.com[]? We need volunteers to help translate it into any language. Please contact us through our website.';
 	//echo 'Powah Tour (Florek, Mulberry, To) are organising a tournament! Go to [$F8A070]www.kamremake.com[] to find out more!||Can you help translate our website [$F8A070]www.kamremake.com[]? We need volunteers to help translate it into any language. Please contact us through our website.';
 	//echo '[$FF6EAF]Welcome to the 4th multiplayer demo[] :)|Please report any issues.';
