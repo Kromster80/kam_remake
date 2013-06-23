@@ -5,24 +5,10 @@ global $MAIN_VERSION;
 $Lang = $_REQUEST["lang"];
 $Rev = $_REQUEST["rev"];
 
-if($Rev == "r5459")
-{
-  die("Welcome to the scripting demo 4th and once again hopefully last RC! Have fun and give us feedback / bug reports! :)");
-}
 
-if(($Rev == "r5057") || ($Rev == "r5116") || ($Rev == "r5349"))
+if(($Rev == "r3374") || ($Rev == "r3252") || ($Rev == "r3311") || ($Rev == "r3812") || ($Rev == "r3870") || ($Rev == "r3967") || ($Rev == "r3985") || ($Rev == "r4125") || ($Rev == "r4297") || ($Rev == "r5057") || ($Rev == "r5116") || ($Rev == "r5349") || ($Rev == "r5459"))
 {
-  die("[$0000FF]The 4th release candidate is now out! You should have received it by email[]");
-}
-
-if($Rev == "r4297")
-{
-  die("[$0000FF]The scripting demo release candidate is now out![]||This balance test release is outdated. Please check your email for the release candidate or email contact@kamremake.com if you want to be added to the mailing list.");
-}
-
-if(($Rev == "r3374") || ($Rev == "r3252") || ($Rev == "r3311") || ($Rev == "r3812") || ($Rev == "r3870") || ($Rev == "r3967") || ($Rev == "r3985") || ($Rev == "r4125"))
-{
-  die('[$0000FF]THE 5TH MULTIPLAYER DEMO UPDATE 1 IS OUT![]||This release candidate is now redundant. Please download the release from www.kamremake.com||Thanks again for your help testing!');
+  die('[$0000FF]THE SCRIPTING DEMO IS OUT![]||This release candidate is now redundant. Please download the release from www.kamremake.com||Thanks again for your help testing!');
 }
 
 //First see if they are up to date

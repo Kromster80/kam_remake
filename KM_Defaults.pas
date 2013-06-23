@@ -21,8 +21,8 @@ const
   MENU_DESIGN_X         = 1024;         //Thats the size menu was designed for. All elements are placed in this size
   MENU_DESIGN_Y         = 768;          //Thats the size menu was designed for. All elements are placed in this size
 
-  GAME_REVISION         = 'r5459';       //Should be updated for every release (each time save format is changed)
-  GAME_VERSION          = 'Scripting Demo Release Candidate 4 ' + GAME_REVISION;       //Game version string displayed in menu corner
+  GAME_REVISION         = 'r5503';       //Should be updated for every release (each time save format is changed)
+  GAME_VERSION          = 'Scripting Demo ' + GAME_REVISION;       //Game version string displayed in menu corner
   NET_PROTOCOL_REVISON  = GAME_REVISION;     //Clients of this version may connect to the dedicated server
 
   SETTINGS_FILE         = 'KaM_Remake_Settings.ini';
@@ -333,7 +333,7 @@ const
   WARRIOR_MIN = ut_Militia;
   WARRIOR_MAX = ut_Horseman;
   WARRIOR_EQUIPABLE_MIN = ut_Militia; //Available from barracks
-  WARRIOR_EQUIPABLE_MAX = ut_Barbarian; //@Lewin: Should be ut_Cavalry?
+  WARRIOR_EQUIPABLE_MAX = ut_Cavalry;
   HUMANS_MIN = ut_Serf;
   HUMANS_MAX = ut_Horseman;
   ANIMAL_MIN = ut_Wolf;

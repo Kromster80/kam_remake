@@ -7,6 +7,8 @@ Bugs:
  +	Crash when using a script file larger than 65kb
  +	Multiland location 4, the fish in the pond are killed automatically because they have no space to move
  +	MajesticWaters does not have human selectable locations
+ +	States.HouseWareBlocked caused an error when used in a script
+ +	Issues in Vas' campaign scripts with changing unit types (UnitKill no longer instant)
 	LandOfTheQuickRiver has no human nor AI selectable locations (TestFunc has tests to load all maps)
 
 

@@ -12,12 +12,13 @@ Future
 	Improved MapEd
 	Checkpoints in replays for fast fwd/rwd
 
-Next release
+
+
+Scripting Demo (r5503) - 2013-06-23
  +	Defensive AI
  +	Refactor warriors into TGroups
  +	Scripting
  +	Map Editor
-
 
 
 5th Multiplayer Demo Balance-testing closed beta (r4297) - 
