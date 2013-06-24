@@ -3,12 +3,12 @@ unit KM_ResourceFonts;
 interface
 uses
   Classes, Graphics, Math, SysUtils, Types,
-  KM_CommonClasses, KM_Defaults, KM_Points, KM_Render;
+  KM_Defaults, KM_Points, KM_Render, KM_ResourcePalettes;
 
 
 type
   TKMFont = (fnt_Antiqua, fnt_Briefing, fnt_Game, fnt_Grey, fnt_MainB, fnt_MainMapGold,
-    fnt_Metal, fnt_Mini, fnt_Outline, fnt_Won, fnt_ArialUni);
+    fnt_Metal, fnt_Mini, fnt_Outline, fnt_Won);
   {
   Removed fonts that were in KaM:
   Adam (unused)
@@ -20,22 +20,31 @@ type
   System (unused)
   }
 
-  TKMFontData = class
-  private
-    fTexID: Cardinal;
-    fBaseHeight, fWordSpacing, fCharSpacing, Unk3: SmallInt; //BaseCharHeight?, Unknown, CharSpacingX, LineOffset?
-    Pal: array [0..High(Word)] of Byte;
-    fLineSpacing: Byte; //Not in KaM files, we use custom value that fits well
-  public
-    Letters: array [0..High(Word)] of record
-      Width, Height: Word;
-      Add1, Add2, YOffset, Add4: Word; //Add1-4 always 0
+  TKMLetter = packed record
+      Width, Height, YOffset: Word;
       u1,v1,u2,v2: Single; //Location within texture atlas
     end;
 
-    procedure CreateFont(aFont: TKMFont; const aChars: array of Char; const aFontName: string; aRender: TRender; ExportToBMP: Boolean);
-    procedure LoadFont(const aFileName: string; aRender: TRender; aFont: TKMFont; ExportToBMP: Boolean);
-    procedure SaveToFntX(aFilename: string);
+  TKMFontData = class
+  private
+    fTexID: Cardinal;
+    fTexData: array of Cardinal;
+    fTexSizeX, fTexSizeY: Word;
+    fBaseHeight, fWordSpacing, fCharSpacing: SmallInt; //BaseCharHeight?, Unknown, CharSpacingX, LineOffset?
+    Pal: array [0..High(Word)] of Byte;
+    fLineSpacing: Byte; //Not in KaM files, we use custom value that fits well
+  public
+    Letters: array [0..High(Word)] of TKMLetter;
+
+    procedure CreateFont(aFontName: string; aFontSize: Byte; aFontStyle: TFontStyles; const aChars: array of Char);
+    procedure LoadFont(const aFileName: string; aPal: TKMPal);
+    procedure LoadFontX(const aFileName: string);
+    procedure GenerateTexture(aRender: TRender);
+    procedure GenerateTextureA(aRender: TRender);
+    procedure Compact;
+    procedure ExportBimap(aBitmap: TBitmap; aOnlyAlpha: Boolean); overload;
+    procedure ExportBimap(const aPath: string; aOnlyAlpha: Boolean); overload;
+    procedure SaveToFontX(aFilename: string);
 
     property CharSpacing: SmallInt read fCharSpacing;
     property LineSpacing: Byte read fLineSpacing;
@@ -61,13 +70,13 @@ type
     function CharsThatFit(const aText: AnsiString; aFont: TKMFont; aMaxPxWidth: integer): integer;
     function GetTextSize(const aText: AnsiString; Fnt: TKMFont): TKMPoint;
 
-    procedure LoadFonts(aLocale: AnsiString);
-    procedure ExportFonts(aLocale: AnsiString);
+    procedure LoadFonts(aCodePage: AnsiString);
+    procedure ExportFonts(aCodePage: AnsiString);
   end;
 
 
 implementation
-uses KromUtils, KM_Log, KM_Resource, KM_ResourcePalettes, KM_Locales;
+uses KM_Resource;
 
 
 type
@@ -84,45 +93,48 @@ const
     (FontFile: 'grey';        Pal: pal_0),
     (FontFile: 'mainb';       Pal: pal_lin),
     (FontFile: 'mainmapgold'; Pal: pal2_mapgold),
-    (FontFile: 'mini';        Pal: pal_0),
-    (FontFile: 'metal';       Pal: pal_lin),
-    (FontFile: 'mini';        Pal: pal_0),
-    (FontFile: 'won';         Pal: pal_set2),
-    ()
+    (FontFile: 'metal';       Pal: pal_0),
+    (FontFile: 'mini';        Pal: pal_lin),
+    (FontFile: 'outline';     Pal: pal_0),
+    (FontFile: 'won';         Pal: pal_set2)
   );
 
   FONT_INTERLINE = 5; //Spacing between lines of text
 
 
 { TKMFontData }
-procedure TKMFontData.CreateFont(aFont: TKMFont; const aChars: array of Char; const aFontName: string; aRender: TRender; ExportToBMP: Boolean);
+procedure TKMFontData.CreateFont(aFontName: string; aFontSize: Byte; aFontStyle: TFontStyles; const aChars: array of Char);
 const
-  TEX_SIZE = 2048;
+  TEX_SIZE = 512;
   PAD = 1;
   Ins = 0.05;
 var
   bitmap: TBitmap;
   I, K, pX, pY, chWidth: Integer;
   chRect: TRect;
-  p: PByteArray;
-  TD: array of Byte;
-  exportBmp: TBitmap;
-  exportPath: string;
+  byteArray: PByteArray;
   txtHeight: Integer;
 begin
   bitmap := TBitmap.Create;
   try
+    fTexSizeX := TEX_SIZE;
+    fTexSizeY := TEX_SIZE;
+
     bitmap.PixelFormat := pf32bit;
     bitmap.Width := TEX_SIZE;
     bitmap.Height := TEX_SIZE;
     bitmap.Canvas.Font.Color := clWhite;
-    bitmap.Canvas.Font.Size := 12;
-    bitmap.Canvas.Font.Name := 'Arial MS Uni';
-    bitmap.Canvas.Font.Style := [fsBold];
+    bitmap.Canvas.Font.Size := aFontSize;
+    bitmap.Canvas.Font.Name := aFontName;
+    bitmap.Canvas.Font.Style := aFontStyle;
+
+    //Common font props
+    fBaseHeight := aFontSize;
+    fWordSpacing := 4;
+    fCharSpacing := 0;
+    fLineSpacing := FONT_INTERLINE;
 
     txtHeight := bitmap.Canvas.TextHeight('"_pI|,') + PAD * 2;
-    fLineSpacing := FONT_INTERLINE;
-    fWordSpacing := 4;
 
     FillChar(Pal, SizeOf(Pal), #0);
 
@@ -176,150 +188,232 @@ begin
       Inc(pX, chWidth);
     end;
 
-    SetLength(TD, TEX_SIZE * TEX_SIZE * 4);
+    SetLength(fTexData, TEX_SIZE * TEX_SIZE);
     for I := 0 to bitmap.Height - 1 do
     begin
-      p := bitmap.ScanLine[bitmap.Height - I - 1];
+      //Only Alpha will be used to generate the texture
+      byteArray := bitmap.ScanLine[I];
       for K := 0 to bitmap.Width - 1 do
-        TD[(I * bitmap.Width + K) * 4 + 3] := p[K * 4 + 1]; //Only Alpha will be used to generate the texture
+        fTexData[(I * bitmap.Width + K)] := byteArray[K * 4 + 1] shl 24;
     end;
-
-    fTexID := aRender.GenTexture(TEX_SIZE, TEX_SIZE, @TD[0], tf_Alpha8);
-
-    if ExportToBMP then
-    begin
-      exportBmp := TBitMap.Create;
-      exportBmp.PixelFormat := pf24bit;
-      exportBmp.Width  := TEX_SIZE;
-      exportBmp.Height := TEX_SIZE;
-
-      for I := 0 to TEX_SIZE - 1 do
-      for K := 0 to TEX_SIZE - 1 do
-        exportBmp.Canvas.Pixels[K, I] := TD[(I * TEX_SIZE + K) * 4 + 3] * 65793;
-
-      exportPath := ExeDir + 'Export' + PathDelim + 'Fonts' + PathDelim;
-      ForceDirectories(exportPath);
-      exportBmp.SaveToFile(exportPath + aFontName + '.bmp');
-      exportBmp.Free;
-    end;
-
-    SetLength(TD, 0);
   finally
     bitmap.Free;
   end;
 end;
 
 
-procedure TKMFontData.LoadFont(const aFileName: string; aRender: TRender; aFont: TKMFont; ExportToBMP: Boolean);
-const
-  TexWidth = 256; //Connected to TexData, don't change
+procedure TKMFontData.LoadFont(const aFileName: string; aPal: TKMPal);
+const TEX_SIZE = 256;
 var
-  S: TKMemoryStream;
+  S: TMemoryStream;
   I, K: Integer;
   pX, pY: Integer;
   MaxHeight: Integer;
   AdvX, AdvY: Integer;
   rawData: array [0..255] of array of Byte;
-  TD: array of Cardinal;
-  Bmp: TBitmap;
 begin
   MaxHeight := 0;
   if not FileExists(aFileName) then
     Exit;
 
-  S := TKMemoryStream.Create;
+  S := TMemoryStream.Create;
   S.LoadFromFile(aFileName);
 
-  S.Read(fBaseHeight, 8);
+  S.Read(fBaseHeight, 2);
+  S.Read(fWordSpacing, 2);
+  S.Read(fCharSpacing, 2);
+  S.Seek(2, soFromCurrent); //Skip Unknown field
   S.Read(Pal[0], 256);
 
   //Read font data
   for I := 0 to 255 do
-    if Pal[I] <> 0 then
-    begin
-      S.Read(Letters[I].Width, 4);
-      S.Read(Letters[I].Add1, 8);
+  if Pal[I] <> 0 then
+  begin
+    S.Read(Letters[I].Width, 2);
+    S.Read(Letters[I].Height, 2);
+    S.Seek(2, soFromCurrent); //Skip Unknown field
+    S.Seek(2, soFromCurrent); //Skip Unknown field
+    S.Read(Letters[I].YOffset, 2);
+    S.Seek(2, soFromCurrent); //Skip Unknown field
 
-      MaxHeight := Math.max(MaxHeight, Letters[I].Height);
+    MaxHeight := Math.max(MaxHeight, Letters[I].Height);
 
-      if Letters[I].Width * Letters[I].Height = 0 then
-        gLog.AddAssert('Font data Width * Height = 0'); //Font01.fnt seems to be damaged..
+    if Letters[I].Width * Letters[I].Height = 0 then
+      Assert('Font data Width * Height = 0'); //Font01.fnt seems to be damaged..
 
-      SetLength(rawData[I], Letters[I].Width*Letters[I].Height);
-      S.Read(rawData[I,0], Letters[I].Width*Letters[I].Height);
-    end;
+    SetLength(rawData[I], Letters[I].Width*Letters[I].Height);
+    S.Read(rawData[I,0], Letters[I].Width*Letters[I].Height);
+  end;
   S.Free;
 
   fLineSpacing := FONT_INTERLINE;
 
   //Special fix for monochrome fonts
-  if FontInfo[aFont].Pal = pal_lin then
+  if aPal = pal_lin then
     for I := 0 to 255 do
-      if Pal[I]<>0 then //see if letterspace is used
-        for K:=0 to Length(rawData[I]) - 1 do
+      if Pal[I] <> 0 then //see if letterspace is used
+        for K := 0 to Length(rawData[I]) - 1 do
           if rawData[I,K] <> 0 then
             rawData[I,K] := 255; //Full white
 
-
   //Compile texture
-  AdvX := 0; AdvY := 0;
-  SetLength(TD, TexWidth*TexWidth);
+  AdvX := 0;
+  AdvY := 0;
+  fTexSizeX := TEX_SIZE;
+  fTexSizeY := TEX_SIZE;
+  SetLength(fTexData, fTexSizeX * fTexSizeY);
 
-  for I:=0 to 255 do
+  for I := 0 to 255 do
   if Pal[I] <> 0 then
   begin
-    if Pal[I] <> 1 then
-      gLog.AddAssert('FontData palette <> 1');
-
     //Switch to new line
-    if AdvX+Letters[I].Width+2>TexWidth then
+    if AdvX+Letters[I].Width+2 > fTexSizeX then
     begin
       AdvX := 0;
-      inc(AdvY, MaxHeight);
+      Inc(AdvY, MaxHeight);
     end;
 
     //Fill in colors
-    for pY:=0 to Letters[I].Height-1 do for pX:=0 to Letters[I].Width-1 do
-      TD[(AdvY+pY)*TexWidth+AdvX+1+pX] := fResource.Palettes[FontInfo[aFont].Pal].Color32(rawData[I, pY*Letters[I].Width+pX]);
+    for pY := 0 to Letters[I].Height - 1 do
+    for pX := 0 to Letters[I].Width - 1 do
+      fTexData[(AdvY+pY)*fTexSizeX+AdvX+1+pX] := fResource.Palettes[aPal].Color32(rawData[I, pY*Letters[I].Width+pX]);
 
-    Letters[I].u1 := (AdvX+1)/TexWidth;
-    Letters[I].v1 := AdvY/TexWidth;
-    Letters[I].u2 := (AdvX+1+Letters[I].Width)/TexWidth;
-    Letters[I].v2 := (AdvY+Letters[I].Height)/TexWidth;
+    Letters[I].u1 := (AdvX + 1) / fTexSizeX;
+    Letters[I].v1 := AdvY / fTexSizeY;
+    Letters[I].u2 := (AdvX + 1 + Letters[I].Width) / fTexSizeX;
+    Letters[I].v2 := (AdvY + Letters[I].Height) / fTexSizeY;
 
-    inc(AdvX, 1+Letters[I].Width+1);
+    Inc(AdvX, 1 + Letters[I].Width + 1);
   end;
+end;
 
-  fTexID := aRender.GenTexture(TexWidth, TexWidth, @TD[0], tf_RGB5A1);
 
-  if ExportToBMP then
-  begin
-    Bmp := TBitmap.Create;
-    Bmp.PixelFormat := pf24bit;
-    Bmp.Width  := TexWidth;
-    Bmp.Height := TexWidth;
+procedure TKMFontData.LoadFontX(const aFileName: string);
+var
+  S: TMemoryStream;
+  Head: AnsiString;
+begin
+  S := TMemoryStream.Create;
+  try
+    SetLength(Head, 4);
+    S.Read(Head[1], 4);
 
-    for I := 0 to TexWidth - 1 do
-    for K := 0 to TexWidth - 1 do
-      Bmp.Canvas.Pixels[K,I]:= TD[I*TexWidth+K] AND $FFFFFF;
+    Assert(Head = 'FNTX');
 
-    ForceDirectories(ExeDir + 'Export'+PathDelim+'Fonts'+PathDelim);
-    Bmp.SaveToFile(ExeDir + 'Export'+PathDelim+'Fonts'+PathDelim+ExtractFileName(aFileName)+fResource.Palettes.PalFile(FontInfo[aFont].Pal)+'.bmp');
-    Bmp.Free;
+    S.Read(fBaseHeight, 1);
+    S.Read(fWordSpacing, 1);
+    S.Read(fCharSpacing, 1);
+    S.Read(fLineSpacing, 1);
+
+    S.Read(Pal[0], Length(Pal) * SizeOf(Pal[0]));
+    S.Read(Letters[0], Length(Letters) * SizeOf(Letters[0]));
+
+    S.Read(fTexSizeX, 2);
+    S.Read(fTexSizeY, 2);
+    SetLength(fTexData, fTexSizeX * fTexSizeY);
+    S.Read(fTexData[0], fTexSizeX * fTexSizeY * SizeOf(Cardinal));
+  finally
+    S.Free;
   end;
+end;
 
-  SetLength(TD, 0);
+
+//After font has been loaded and texture generated we can flush temp data
+procedure TKMFontData.Compact;
+begin
+  //Discard texture data to save mem
+  SetLength(fTexData, 0);
+  fTexSizeX := 0;
+  fTexSizeY := 0;
+end;
+
+
+//Generate color texture from prepared data
+procedure TKMFontData.GenerateTexture(aRender: TRender);
+begin
+  fTexID := aRender.GenTexture(fTexSizeX, fTexSizeY, @fTexData[0], tf_RGB5A1);
+end;
+
+
+//Generate colorless texture from prepared data
+procedure TKMFontData.GenerateTextureA(aRender: TRender);
+begin
+  fTexID := aRender.GenTexture(fTexSizeX, fTexSizeY, @fTexData[0], tf_Alpha8);
+end;
+
+
+//Export texture data into bitmap
+procedure TKMFontData.ExportBimap(aBitmap: TBitmap; aOnlyAlpha: Boolean);
+var
+  I, K: Integer;
+begin
+  Assert(Length(fTexData) > 0, 'There is no font data in memory');
+
+  aBitmap.PixelFormat := pf32bit;
+  aBitmap.Width  := fTexSizeX;
+  aBitmap.Height := fTexSizeY;
+
+  if aOnlyAlpha then
+    for I := 0 to fTexSizeY - 1 do
+    for K := 0 to fTexSizeX - 1 do
+      aBitmap.Canvas.Pixels[K, I] := (fTexData[(I * fTexSizeX + K)] shr 24) * 65793
+  else
+    for I := 0 to fTexSizeY - 1 do
+    for K := 0 to fTexSizeX - 1 do
+      aBitmap.Canvas.Pixels[K,I]:= fTexData[I * fTexSizeX + K] and $FFFFFF;
+end;
+
+
+//Export texture data into a bitmap file
+procedure TKMFontData.ExportBimap(const aPath: string; aOnlyAlpha: Boolean);
+var
+  exportBmp: TBitmap;
+begin
+  Assert(Length(fTexData) > 0, 'There is no font data in memory');
+
+  exportBmp := TBitMap.Create;
+  try
+    ExportBimap(exportBmp, aOnlyAlpha);
+
+    ForceDirectories(ExtractFilePath(aPath));
+    exportBmp.SaveToFile(aPath);
+  finally
+    exportBmp.Free;
+  end;
 end;
 
 
 //Save font in extended format (with unicode and 32bit support)
-procedure TKMFontData.SaveToFntX(aFilename: string);
+procedure TKMFontData.SaveToFontX(aFilename: string);
+const
+  Head: AnsiString = 'FNTX';
 var
   S: TMemoryStream;
+  I: Integer;
 begin
   S := TMemoryStream.Create;
   try
+    //Header
+    S.Write(Head[1], 4);
 
+    //Base font properties
+    S.Write(fBaseHeight, 1);
+    S.Write(fWordSpacing, 1);
+    S.Write(fCharSpacing, 1);
+    S.Write(fLineSpacing, 1);
+
+    //Letters data
+    S.Write(Pal[0], Length(Pal) * SizeOf(Pal[0]));
+    for I := 0 to High(Word) do
+    if Pal[I] <> 0 then
+      S.Write(Letters[I], SizeOf(TKMLetter));
+
+    //Texture data
+    S.Write(fTexSizeX, 2);
+    S.Write(fTexSizeY, 2);
+    S.Write(fTexData[0], fTexSizeX * fTexSizeY * 4);
+
+    S.SaveToFile(aFilename);
   finally
     S.Free;
   end;
@@ -354,33 +448,44 @@ begin
 end;
 
 
-procedure TKMResourceFont.LoadFonts(aLocale: AnsiString);
+procedure TKMResourceFont.LoadFonts(aCodePage: AnsiString);
 var
   F: TKMFont;
-  CodePage: AnsiString;
+  FntFront: string;
 begin
-  if fLocales = nil then Exit;
-
-  CodePage := fLocales.GetLocale(aLocale).FontCodepage;
   for F := Low(TKMFont) to High(TKMFont) do
-    if FileExists(ExeDir+FONTS_FOLDER+FontInfo[F].FontFile+'.'+CodePage+'.fnt') then
-      fFontData[F].LoadFont(ExeDir+FONTS_FOLDER+FontInfo[F].FontFile+'.'+CodePage+'.fnt', fRender, F, false)
+  begin
+    FntFront := ExeDir + FONTS_FOLDER + FontInfo[F].FontFile;
+
+    if FileExists(FntFront + '.' + aCodePage + '.fnt') then
+      fFontData[F].LoadFont(FntFront + '.' + aCodePage + '.fnt', FontInfo[F].Pal)
     else
-      fFontData[F].LoadFont(ExeDir+FONTS_FOLDER+FontInfo[F].FontFile+'.fnt', fRender, F, False);
+      fFontData[F].LoadFont(FntFront + '.fnt', FontInfo[F].Pal);
+
+    fFontData[F].GenerateTexture(fRender);
+    fFontData[F].Compact;
+  end;
 end;
 
 
-procedure TKMResourceFont.ExportFonts(aLocale: AnsiString);
+procedure TKMResourceFont.ExportFonts(aCodePage: AnsiString);
 var
   F: TKMFont;
-  CodePage: AnsiString;
+  FntFront: string;
 begin
-  CodePage := fLocales.GetLocale(aLocale).FontCodepage;
+  //We need to reload fonts to regenerate TexData
   for F := Low(TKMFont) to High(TKMFont) do
-    if FileExists(ExeDir+FONTS_FOLDER+FontInfo[F].FontFile+'.'+CodePage+'.fnt') then
-      fFontData[F].LoadFont(ExeDir+FONTS_FOLDER+FontInfo[F].FontFile+'.'+CodePage+'.fnt', fRender, F, true)
+  begin
+    FntFront := ExeDir + FONTS_FOLDER + FontInfo[F].FontFile;
+
+    if FileExists(FntFront + '.' + aCodePage + '.fnt') then
+      fFontData[F].LoadFont(FntFront + '.' + aCodePage + '.fnt', FontInfo[F].Pal)
     else
-      fFontData[F].LoadFont(ExeDir+FONTS_FOLDER+FontInfo[F].FontFile+'.fnt', fRender, F, True);
+      fFontData[F].LoadFont(FntFront + '.fnt', FontInfo[F].Pal);
+
+    fFontData[F].ExportBimap(ExeDir + 'Export' + PathDelim + 'Fonts' + PathDelim + FontInfo[F].FontFile + '.bmp', False);
+    fFontData[F].Compact;
+  end;
 end;
 
 

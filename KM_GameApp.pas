@@ -114,7 +114,7 @@ begin
     MessageDlg(fTextLibrary[TX_GAME_ERROR_OLD_OPENGL]+eol+eol+fTextLibrary[TX_GAME_ERROR_OLD_OPENGL_2], mtWarning, [mbOk], 0);
 
   fResource     := TResource.Create(fRender, aLS, aLT);
-  fResource.LoadMenuResources(fGameSettings.Locale);
+  fResource.LoadMenuResources(fLocales.GetLocale(fGameSettings.Locale).FontCodepage);
 
   fSoundLib     := TSoundLib.Create(fGameSettings.Locale, fGameSettings.SoundFXVolume, True); //Required for button click sounds
   fMusicLib     := TMusicLib.Create(fGameSettings.MusicVolume);
@@ -214,7 +214,7 @@ begin
   fSoundLib := TSoundLib.Create(fGameSettings.Locale, fGameSettings.SoundFXVolume, False);
   fSoundLib.OnRequestFade := fMusicLib.FadeMusic;
   fSoundLib.OnRequestUnfade := fMusicLib.UnfadeMusic;
-  fResource.Fonts.LoadFonts(fGameSettings.Locale);
+  fResource.Fonts.LoadFonts(fLocales.GetLocale(fGameSettings.Locale).FontCodepage);
   fCampaigns := TKMCampaignsCollection.Create; //Campaigns load text into TextLibrary
   fCampaigns.ScanFolder(ExeDir + 'Campaigns' + PathDelim);
   fCampaigns.LoadProgress(ExeDir + 'Saves' + PathDelim + 'Campaigns.dat');
