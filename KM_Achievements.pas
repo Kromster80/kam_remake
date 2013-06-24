@@ -19,10 +19,18 @@ type
   // B. accumulating all the time
   // 1. statistical (collect some stats, e.g. build 5 Inns)
   // 2. conditional (have something combined with something else)
+  TKMAchievements = class;
+
+  TKMAchievementEvent = (aeHouseBuilt, aeMissionEnd, aeMissionStart, aeUnitTrained);
+
   TKMAchievement = class
-    IsAwarded: Boolean;
+  private
+    fIsAwarded: Boolean;
+  public
+    procedure Process(aEvent: TKMAchievementEvent; aParams: array of const); virtual; abstract;
 
     //Progress towards receiving the achievement
+    property IsAwarded: Boolean read fIsAwarded;
     function Progress: Single; virtual;
 
     //Save load
@@ -37,7 +45,7 @@ type
     fCitizenTrained: array [CITIZEN_MIN..CITIZEN_MAX] of Boolean;
     fWarriorsTrained: array [WARRIOR_EQUIPABLE_MIN..WARRIOR_EQUIPABLE_MAX] of Boolean;
   public
-    procedure Subscribe(); //Attach self to relevant events
+    procedure Process(aEvent: TKMAchievementEvent; aParams: array of const); override;
     function Progress: Single; override;
     procedure LoadFromStream(aStream: TKMemoryStream); override;
     procedure SaveToStream(aStream: TKMemoryStream); override;
@@ -59,13 +67,14 @@ type
   private
     fList: TList;
     fOwner: TPlayerIndex;
+    procedure ProcessEvent(aEvent: TKMAchievementEvent; aParams: array of const);
   public
     constructor Create(aOwner: TPlayerIndex);
     destructor Destroy; override;
 
     //Just like Stats or GIP or Scripting we receive a handful of events from the game
     procedure HouseBuilt(aHouseType: THouseType);
-
+    procedure MissionEnd(aGameResult: TGameResultMsg; aMissionName: string);
   end;
 
 
@@ -77,7 +86,7 @@ uses Math, KM_PlayersCollection, KM_Resource;
 function TKMAchievement.Progress: Single;
 begin
   //As simple as that incase child class does not implements Progress
-  Result := Byte(IsAwarded);
+  Result := Byte(fIsAwarded);
 end;
 
 
@@ -94,15 +103,38 @@ end;
 
 
 { TKMAchievementVariety }
-function TKMAchievementVariety.Progress: Single;
+procedure TKMAchievementVariety.Process(aEvent: TKMAchievementEvent; aParams: array of const);
+var
+  ut: TUnitType;
 begin
-  //Result :=
+  if aEvent = aeMissionStart then
+  begin
+    //Reset achievement on each new mission
+    FillChar(fHousesBuilt, SizeOf(fHousesBuilt), #0);
+    FillChar(fCitizenTrained, SizeOf(fHousesBuilt), #0);
+    FillChar(fWarriorsTrained, SizeOf(fHousesBuilt), #0);
+  end;
+  if aEvent = aeHouseBuilt then
+  begin
+    Assert((Length(aParams) = 1) and (aParams[0].VType = vtInteger));
+    fHousesBuilt[THouseType(aParams[0].VInteger)] := True;
+  end;
+  if aEvent = aeUnitTrained then
+  begin
+    Assert((Length(aParams) = 1) and (aParams[0].VType = vtInteger));
+    ut := TUnitType(aParams[0].VInteger);
+    if ut in [CITIZEN_MIN..CITIZEN_MAX] then
+      fCitizenTrained[ut] := True
+    else
+    if ut in [WARRIOR_EQUIPABLE_MIN..WARRIOR_EQUIPABLE_MAX] then
+      fWarriorsTrained[ut] := True;
+  end;
 end;
 
 
-procedure TKMAchievementVariety.Subscribe;
+function TKMAchievementVariety.Progress: Single;
 begin
-  //fParent.Subscribe()
+  //Result :=
 end;
 
 
@@ -144,6 +176,21 @@ begin
   //Inform all interested achievements
 end;
 
+
+
+procedure TKMAchievements.MissionEnd(aGameResult: TGameResultMsg; aMissionName: string);
+begin
+  ProcessEvent(aeMissionEnd, [Byte(aGameResult), aMissionName]);
+end;
+
+
+procedure TKMAchievements.ProcessEvent(aEvent: TKMAchievementEvent; aParams: array of const);
+var
+  I: Integer;
+begin
+  for I := 0 to fList.Count - 1 do
+    TKMAchievement(fList[I]).Process(aEvent, aParams);
+end;
 
 
 end.

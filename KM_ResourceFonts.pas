@@ -17,7 +17,7 @@ type
     Letters: array [0..High(Word)] of record
       Width, Height: Word;
       Add1, Add2, YOffset, Add4: Word; //Add1-4 always 0
-      u1,v1,u2,v2: Single;
+      u1,v1,u2,v2: Single; //Location within texture atlas
     end;
 
     procedure CreateFont(aFont: TKMFont; const aChars: array of Char; const aFontName: string; aRender: TRender; ExportToBMP: Boolean);
