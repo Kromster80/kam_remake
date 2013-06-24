@@ -2,13 +2,13 @@ unit KM_ResourceFonts;
 {$I KaM_Remake.inc}
 interface
 uses
-  Classes, Graphics, Math, SysUtils, Types,
+  Classes, Graphics, Math, SysUtils, Types, PngImage,
   KM_Defaults, KM_Points, KM_Render, KM_ResourcePalettes;
 
 
 type
   TKMFont = (fnt_Antiqua, fnt_Briefing, fnt_Game, fnt_Grey, fnt_MainB, fnt_MainMapGold,
-    fnt_Metal, fnt_Mini, fnt_Outline, fnt_Won);
+    fnt_Metal, fnt_Mini, fnt_Outline, fnt_Won, fntx_ArialUni);
   {
   Removed fonts that were in KaM:
   Adam (unused)
@@ -30,6 +30,7 @@ type
     fTexID: Cardinal;
     fTexData: array of Cardinal;
     fTexSizeX, fTexSizeY: Word;
+    fTexPadding: Byte;
     fBaseHeight, fWordSpacing, fCharSpacing: SmallInt; //BaseCharHeight?, Unknown, CharSpacingX, LineOffset?
     Pal: array [0..High(Word)] of Byte;
     fLineSpacing: Byte; //Not in KaM files, we use custom value that fits well
@@ -39,12 +40,15 @@ type
     procedure CreateFont(aFontName: string; aFontSize: Byte; aFontStyle: TFontStyles; const aChars: array of Char);
     procedure LoadFont(const aFileName: string; aPal: TKMPal);
     procedure LoadFontX(const aFileName: string);
-    procedure GenerateTexture(aRender: TRender);
-    procedure GenerateTextureA(aRender: TRender);
+    procedure GenerateTexture(aRender: TRender; aTexMode: TTexFormat);
     procedure Compact;
     procedure ExportBimap(aBitmap: TBitmap; aOnlyAlpha: Boolean); overload;
     procedure ExportBimap(const aPath: string; aOnlyAlpha: Boolean); overload;
-    procedure SaveToFontX(aFilename: string);
+    procedure ExportPng(const aPath: string);
+    procedure ImportPng(const aPath: string);
+    procedure SaveToFontX(const aFilename: string);
+
+    property TexPadding: Byte read fTexPadding write fTexPadding;
 
     property CharSpacing: SmallInt read fCharSpacing;
     property LineSpacing: Byte read fLineSpacing;
@@ -82,21 +86,24 @@ uses KM_Resource;
 type
   TKMFontInfo = record
     FontFile: string;
-    Pal: TKMPal;
+    Pal: TKMPal; //Palette fnt needs
+    Ext: Boolean;
+    TexMode: TTexFormat; //Format font texture needs to be in
   end;
 
 const
   FontInfo: array [TKMFont] of TKMFontInfo = (
-    (FontFile: 'antiqua';     Pal: pal_0),
-    (FontFile: 'briefing';    Pal: pal_map),
-    (FontFile: 'game';        Pal: pal_lin),
-    (FontFile: 'grey';        Pal: pal_0),
-    (FontFile: 'mainb';       Pal: pal_lin),
-    (FontFile: 'mainmapgold'; Pal: pal2_mapgold),
-    (FontFile: 'metal';       Pal: pal_0),
-    (FontFile: 'mini';        Pal: pal_lin),
-    (FontFile: 'outline';     Pal: pal_0),
-    (FontFile: 'won';         Pal: pal_set2)
+    (FontFile: 'antiqua';     Pal: pal_0;         TexMode: tf_RGB5A1),
+    (FontFile: 'briefing';    Pal: pal_map;       TexMode: tf_RGB5A1),
+    (FontFile: 'game';        Pal: pal_lin;       TexMode: tf_RGB5A1),
+    (FontFile: 'grey';        Pal: pal_0;         TexMode: tf_RGB5A1),
+    (FontFile: 'mainb';       Pal: pal_lin;       TexMode: tf_RGB5A1),
+    (FontFile: 'mainmapgold'; Pal: pal2_mapgold;  TexMode: tf_RGB5A1),
+    (FontFile: 'metal';       Pal: pal_0;         TexMode: tf_RGB5A1),
+    (FontFile: 'mini';        Pal: pal_lin;       TexMode: tf_RGB5A1),
+    (FontFile: 'outline';     Pal: pal_0;         TexMode: tf_RGB5A1),
+    (FontFile: 'won';         Pal: pal_set2;      TexMode: tf_RGB5A1),
+    (FontFile: 'arialuni';    Pal: pal_0;         Ext: True; TexMode: tf_Alpha8)
   );
 
   FONT_INTERLINE = 5; //Spacing between lines of text
@@ -106,8 +113,7 @@ const
 procedure TKMFontData.CreateFont(aFontName: string; aFontSize: Byte; aFontStyle: TFontStyles; const aChars: array of Char);
 const
   TEX_SIZE = 512;
-  PAD = 1;
-  Ins = 0.05;
+  INS = 0;
 var
   bitmap: TBitmap;
   I, K, pX, pY, chWidth: Integer;
@@ -134,7 +140,7 @@ begin
     fCharSpacing := 0;
     fLineSpacing := FONT_INTERLINE;
 
-    txtHeight := bitmap.Canvas.TextHeight('"_pI|,') + PAD * 2;
+    txtHeight := bitmap.Canvas.TextHeight('"_pI|,') + fTexPadding * 2;
 
     FillChar(Pal, SizeOf(Pal), #0);
 
@@ -164,7 +170,7 @@ begin
       if chWidth = 0 then
         Continue;
 
-      Inc(chWidth, PAD * 2);
+      Inc(chWidth, fTexPadding * 2);
 
       if pX + chWidth >= TEX_SIZE then
       begin
@@ -174,16 +180,16 @@ begin
           Break;
       end;
 
-      Letters[I].u1 := (pX + PAD + Ins) / TEX_SIZE;
-      Letters[I].v1 := (TEX_SIZE - (pY + Ins)) / TEX_SIZE;
-      Letters[I].u2 := (pX + chWidth - PAD - Ins) / TEX_SIZE;
-      Letters[I].v2 := (TEX_SIZE - (pY + txtHeight - Ins)) / TEX_SIZE;
+      Letters[I].u1 := (pX + fTexPadding + INS) / TEX_SIZE;
+      Letters[I].v1 := (pY + fTexPadding + INS) / TEX_SIZE;
+      Letters[I].u2 := (pX + chWidth - fTexPadding - INS) / TEX_SIZE;
+      Letters[I].v2 := (pY + txtHeight - fTexPadding - INS) / TEX_SIZE;
 
       chRect.Left := pX;
       chRect.Top := pY;
       chRect.Right := pX + chWidth;
       chRect.Bottom := pY + txtHeight;
-      bitmap.Canvas.TextRect(chRect, pX + PAD, pY + PAD, Char(I));
+      bitmap.Canvas.TextRect(chRect, pX + fTexPadding, pY + fTexPadding, Char(I));
 
       Inc(pX, chWidth);
     end;
@@ -194,7 +200,7 @@ begin
       //Only Alpha will be used to generate the texture
       byteArray := bitmap.ScanLine[I];
       for K := 0 to bitmap.Width - 1 do
-        fTexData[(I * bitmap.Width + K)] := byteArray[K * 4 + 1] shl 24;
+        fTexData[(I * bitmap.Width + K)] := byteArray[K * 4 + 1] shl 24 or $FFFFFF;
     end;
   finally
     bitmap.Free;
@@ -292,9 +298,12 @@ procedure TKMFontData.LoadFontX(const aFileName: string);
 var
   S: TMemoryStream;
   Head: AnsiString;
+  I: Integer;
 begin
   S := TMemoryStream.Create;
   try
+    S.LoadFromFile(aFileName);
+
     SetLength(Head, 4);
     S.Read(Head[1], 4);
 
@@ -306,12 +315,14 @@ begin
     S.Read(fLineSpacing, 1);
 
     S.Read(Pal[0], Length(Pal) * SizeOf(Pal[0]));
-    S.Read(Letters[0], Length(Letters) * SizeOf(Letters[0]));
+    for I := 0 to High(Word) do
+    if Pal[I] <> 0 then
+      S.Read(Letters[I], SizeOf(TKMLetter));
 
     S.Read(fTexSizeX, 2);
     S.Read(fTexSizeY, 2);
     SetLength(fTexData, fTexSizeX * fTexSizeY);
-    S.Read(fTexData[0], fTexSizeX * fTexSizeY * SizeOf(Cardinal));
+    S.Read(fTexData[0], fTexSizeX * fTexSizeY * 4);
   finally
     S.Free;
   end;
@@ -329,16 +340,9 @@ end;
 
 
 //Generate color texture from prepared data
-procedure TKMFontData.GenerateTexture(aRender: TRender);
+procedure TKMFontData.GenerateTexture(aRender: TRender; aTexMode: TTexFormat);
 begin
-  fTexID := aRender.GenTexture(fTexSizeX, fTexSizeY, @fTexData[0], tf_RGB5A1);
-end;
-
-
-//Generate colorless texture from prepared data
-procedure TKMFontData.GenerateTextureA(aRender: TRender);
-begin
-  fTexID := aRender.GenTexture(fTexSizeX, fTexSizeY, @fTexData[0], tf_Alpha8);
+  fTexID := aRender.GenTexture(fTexSizeX, fTexSizeY, @fTexData[0], aTexMode);
 end;
 
 
@@ -383,8 +387,39 @@ begin
 end;
 
 
+procedure TKMFontData.ExportPng(const aPath: string);
+var
+  png: TPngObject;
+  I, K: Integer;
+  T: Cardinal;
+begin
+  Assert(Length(fTexData) > 0, 'There is no font data in memory');
+
+  Png := TPNGObject.CreateBlank(COLOR_RGBALPHA, 8, fTexSizeX, fTexSizeY);
+  try
+    for I := 0 to fTexSizeY - 1 do
+    for K := 0 to fTexSizeX - 1 do
+    begin
+      T := (PCardinal(Cardinal(@fTexData[0]) + (I * fTexSizeX + K) * 4))^;
+      Png.Canvas.Pixels[K, I] := T and $FFFFFF; //Ignore alpha
+      Png.AlphaScanline[I]^[K] := T shr 24; //Alpha
+    end;
+
+    Png.SaveToFile(aPath);
+  finally
+    Png.Free;
+  end;
+end;
+
+
+procedure TKMFontData.ImportPng(const aPath: string);
+begin
+
+end;
+
+
 //Save font in extended format (with unicode and 32bit support)
-procedure TKMFontData.SaveToFontX(aFilename: string);
+procedure TKMFontData.SaveToFontX(const aFilename: string);
 const
   Head: AnsiString = 'FNTX';
 var
@@ -451,18 +486,22 @@ end;
 procedure TKMResourceFont.LoadFonts(aCodePage: AnsiString);
 var
   F: TKMFont;
-  FntFront: string;
+  FntPath: string;
 begin
   for F := Low(TKMFont) to High(TKMFont) do
   begin
-    FntFront := ExeDir + FONTS_FOLDER + FontInfo[F].FontFile;
+    if not FontInfo[F].Ext then
+    begin
+      FntPath := ExeDir + FONTS_FOLDER + FontInfo[F].FontFile + '.' + aCodePage + '.fnt';
+      if not FileExists(FntPath) then
+        FntPath := ExeDir + FONTS_FOLDER + FontInfo[F].FontFile + '.fnt';
 
-    if FileExists(FntFront + '.' + aCodePage + '.fnt') then
-      fFontData[F].LoadFont(FntFront + '.' + aCodePage + '.fnt', FontInfo[F].Pal)
+      fFontData[F].LoadFont(FntPath, FontInfo[F].Pal);
+    end
     else
-      fFontData[F].LoadFont(FntFront + '.fnt', FontInfo[F].Pal);
+      fFontData[F].LoadFontX(ExeDir + FONTS_FOLDER + FontInfo[F].FontFile + '.fntx');
 
-    fFontData[F].GenerateTexture(fRender);
+    fFontData[F].GenerateTexture(fRender, FontInfo[F].TexMode);
     fFontData[F].Compact;
   end;
 end;

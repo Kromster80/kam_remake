@@ -22,9 +22,16 @@ type
     CheckBox1: TCheckBox;
     CheckBox2: TCheckBox;
     SaveDialog1: TSaveDialog;
+    SpinEdit2: TSpinEdit;
+    Label5: TLabel;
+    Button3: TButton;
+    OpenDialog1: TOpenDialog;
+    Button4: TButton;
     procedure FormCreate(Sender: TObject);
     procedure Button1Click(Sender: TObject);
     procedure Button2Click(Sender: TObject);
+    procedure Button3Click(Sender: TObject);
+    procedure Button4Click(Sender: TObject);
   private
     Fnt: TKMFontData;
   end;
@@ -67,6 +74,7 @@ begin
   if CheckBox2.Checked then
     fntStyle := fntStyle + [fsItalic];
 
+  Fnt.TexPadding := SpinEdit2.Value;
   Fnt.CreateFont(Edit1.Text, SpinEdit1.Value, fntStyle, useChars);
 
   Bmp := TBitmap.Create;
@@ -77,9 +85,27 @@ end;
 
 procedure TForm1.Button2Click(Sender: TObject);
 begin
+  SaveDialog1.DefaultExt := 'fntx';
   if not SaveDialog1.Execute then Exit;
 
   Fnt.SaveToFontX(SaveDialog1.FileName);
+end;
+
+
+procedure TForm1.Button3Click(Sender: TObject);
+begin
+  SaveDialog1.DefaultExt := 'png';
+  if not SaveDialog1.Execute then Exit;
+
+  Fnt.ExportPng(SaveDialog1.FileName);
+end;
+
+
+procedure TForm1.Button4Click(Sender: TObject);
+begin
+  if not OpenDialog1.Execute then Exit;
+
+  Fnt.ImportPng(OpenDialog1.FileName);
 end;
 
 

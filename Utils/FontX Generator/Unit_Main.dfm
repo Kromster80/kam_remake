@@ -2,7 +2,7 @@ object Form1: TForm1
   Left = 0
   Top = 0
   Caption = 'Form1'
-  ClientHeight = 297
+  ClientHeight = 329
   ClientWidth = 545
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -14,7 +14,7 @@ object Form1: TForm1
   OnCreate = FormCreate
   DesignSize = (
     545
-    297)
+    329)
   PixelsPerInch = 96
   TextHeight = 16
   object Label1: TLabel
@@ -49,15 +49,24 @@ object Form1: TForm1
     Left = 280
     Top = 32
     Width = 256
-    Height = 256
+    Height = 288
     Anchors = [akLeft, akTop, akRight, akBottom]
+    ExplicitHeight = 256
+  end
+  object Label5: TLabel
+    Left = 8
+    Top = 216
+    Width = 45
+    Height = 16
+    Anchors = [akLeft, akBottom]
+    Caption = 'Padding'
   end
   object Button1: TButton
     Left = 8
     Top = 264
     Width = 129
     Height = 25
-    Anchors = [akLeft, akTop, akBottom]
+    Anchors = [akLeft, akBottom]
     Caption = 'Generate font'
     TabOrder = 0
     OnClick = Button1Click
@@ -66,7 +75,7 @@ object Form1: TForm1
     Left = 8
     Top = 80
     Width = 265
-    Height = 177
+    Height = 129
     Anchors = [akLeft, akTop, akBottom]
     TabOrder = 1
   end
@@ -89,11 +98,11 @@ object Form1: TForm1
     Value = 11
   end
   object Button2: TButton
-    Left = 144
-    Top = 264
+    Left = 8
+    Top = 296
     Width = 129
     Height = 25
-    Anchors = [akLeft, akTop, akBottom]
+    Anchors = [akLeft, akBottom]
     Caption = 'Save font ...'
     TabOrder = 4
     OnClick = Button2Click
@@ -114,9 +123,44 @@ object Form1: TForm1
     Caption = 'Italic'
     TabOrder = 6
   end
+  object SpinEdit2: TSpinEdit
+    Left = 8
+    Top = 232
+    Width = 49
+    Height = 26
+    Anchors = [akLeft, akBottom]
+    MaxValue = 8
+    MinValue = 0
+    TabOrder = 7
+    Value = 1
+  end
+  object Button3: TButton
+    Left = 144
+    Top = 264
+    Width = 129
+    Height = 25
+    Anchors = [akLeft, akBottom]
+    Caption = 'Export texture ...'
+    TabOrder = 8
+    OnClick = Button3Click
+  end
+  object Button4: TButton
+    Left = 152
+    Top = 272
+    Width = 129
+    Height = 25
+    Anchors = [akLeft, akBottom]
+    Caption = 'Import texture ...'
+    TabOrder = 9
+    OnClick = Button4Click
+  end
   object SaveDialog1: TSaveDialog
     DefaultExt = 'fntx'
     Left = 288
+    Top = 40
+  end
+  object OpenDialog1: TOpenDialog
+    Left = 352
     Top = 40
   end
 end
