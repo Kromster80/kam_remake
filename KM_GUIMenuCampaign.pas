@@ -40,7 +40,7 @@ type
 
 
 implementation
-uses KM_GameApp, KM_TextLibrary, KM_RenderUI;
+uses KM_GameApp, KM_TextLibrary, KM_RenderUI, KM_ResourceFonts;
 
 
 { TKMGUIMainCampaign }

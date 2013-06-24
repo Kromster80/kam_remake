@@ -2,11 +2,24 @@ unit KM_ResourceFonts;
 {$I KaM_Remake.inc}
 interface
 uses
-  Graphics, Math, SysUtils, Types,
+  Classes, Graphics, Math, SysUtils, Types,
   KM_CommonClasses, KM_Defaults, KM_Points, KM_Render;
 
 
 type
+  TKMFont = (fnt_Antiqua, fnt_Briefing, fnt_Game, fnt_Grey, fnt_MainB, fnt_MainMapGold,
+    fnt_Metal, fnt_Mini, fnt_Outline, fnt_Won, fnt_ArialUni);
+  {
+  Removed fonts that were in KaM:
+  Adam (unused)
+  Font01 (damaged)
+  KMLobby (used for internet lobby in TPR)
+  MainA (identical to MainMapGold in all game versions)
+  MainA.old (probably never meant to be included in the release anyway)
+  Minimum (same as mini but with less characters)
+  System (unused)
+  }
+
   TKMFontData = class
   private
     fTexID: Cardinal;
@@ -22,6 +35,7 @@ type
 
     procedure CreateFont(aFont: TKMFont; const aChars: array of Char; const aFontName: string; aRender: TRender; ExportToBMP: Boolean);
     procedure LoadFont(const aFileName: string; aRender: TRender; aFont: TKMFont; ExportToBMP: Boolean);
+    procedure SaveToFntX(aFilename: string);
 
     property CharSpacing: SmallInt read fCharSpacing;
     property LineSpacing: Byte read fLineSpacing;
@@ -49,23 +63,35 @@ type
 
     procedure LoadFonts(aLocale: AnsiString);
     procedure ExportFonts(aLocale: AnsiString);
-    end;
+  end;
 
 
 implementation
 uses KromUtils, KM_Log, KM_Resource, KM_ResourcePalettes, KM_Locales;
 
 
-const //Font01.fnt seems to be damaged..
-  FontFiles: array [TKMFont] of AnsiString = (
-    'antiqua', 'briefing', 'game', 'grey', 'mainb', 'mainmapgold', 'metal', 'mini', 'outline', 'won');
+type
+  TKMFontInfo = record
+    FontFile: string;
+    Pal: TKMPal;
+  end;
 
-  //Note: Fonts with palette 0 are using custom coloring,
-  //since no existing palette matches them well and they are monochrome
-  FontPal: array [TKMFont] of TKMPal =
-  (pal_0, pal_map, pal_lin, pal_0, pal_lin, pal2_mapgold, pal_0, pal_lin, pal_0, pal_set2);
+const
+  FontInfo: array [TKMFont] of TKMFontInfo = (
+    (FontFile: 'antiqua';     Pal: pal_0),
+    (FontFile: 'briefing';    Pal: pal_map),
+    (FontFile: 'game';        Pal: pal_lin),
+    (FontFile: 'grey';        Pal: pal_0),
+    (FontFile: 'mainb';       Pal: pal_lin),
+    (FontFile: 'mainmapgold'; Pal: pal2_mapgold),
+    (FontFile: 'mini';        Pal: pal_0),
+    (FontFile: 'metal';       Pal: pal_lin),
+    (FontFile: 'mini';        Pal: pal_0),
+    (FontFile: 'won';         Pal: pal_set2),
+    ()
+  );
 
-   FONT_INTERLINE = 5; //Spacing between lines of text
+  FONT_INTERLINE = 5; //Spacing between lines of text
 
 
 { TKMFontData }
@@ -227,12 +253,12 @@ begin
   fLineSpacing := FONT_INTERLINE;
 
   //Special fix for monochrome fonts
-  if FontPal[aFont] = pal_lin then
-    for i:=0 to 255 do
-      if Pal[i]<>0 then //see if letterspace is used
-        for k:=0 to Length(rawData[i]) - 1 do
-          if rawData[i,k] <> 0 then
-            rawData[i,k] := 255; //Full white
+  if FontInfo[aFont].Pal = pal_lin then
+    for I := 0 to 255 do
+      if Pal[I]<>0 then //see if letterspace is used
+        for K:=0 to Length(rawData[I]) - 1 do
+          if rawData[I,K] <> 0 then
+            rawData[I,K] := 255; //Full white
 
 
   //Compile texture
@@ -254,7 +280,7 @@ begin
 
     //Fill in colors
     for pY:=0 to Letters[I].Height-1 do for pX:=0 to Letters[I].Width-1 do
-      TD[(AdvY+pY)*TexWidth+AdvX+1+pX] := fResource.Palettes[FontPal[aFont]].Color32(rawData[I, pY*Letters[I].Width+pX]);
+      TD[(AdvY+pY)*TexWidth+AdvX+1+pX] := fResource.Palettes[FontInfo[aFont].Pal].Color32(rawData[I, pY*Letters[I].Width+pX]);
 
     Letters[I].u1 := (AdvX+1)/TexWidth;
     Letters[I].v1 := AdvY/TexWidth;
@@ -278,11 +304,25 @@ begin
       Bmp.Canvas.Pixels[K,I]:= TD[I*TexWidth+K] AND $FFFFFF;
 
     ForceDirectories(ExeDir + 'Export'+PathDelim+'Fonts'+PathDelim);
-    Bmp.SaveToFile(ExeDir + 'Export'+PathDelim+'Fonts'+PathDelim+ExtractFileName(aFileName)+fResource.Palettes.PalFile(FontPal[aFont])+'.bmp');
+    Bmp.SaveToFile(ExeDir + 'Export'+PathDelim+'Fonts'+PathDelim+ExtractFileName(aFileName)+fResource.Palettes.PalFile(FontInfo[aFont].Pal)+'.bmp');
     Bmp.Free;
   end;
 
   SetLength(TD, 0);
+end;
+
+
+//Save font in extended format (with unicode and 32bit support)
+procedure TKMFontData.SaveToFntX(aFilename: string);
+var
+  S: TMemoryStream;
+begin
+  S := TMemoryStream.Create;
+  try
+
+  finally
+    S.Free;
+  end;
 end;
 
 
@@ -323,10 +363,10 @@ begin
 
   CodePage := fLocales.GetLocale(aLocale).FontCodepage;
   for F := Low(TKMFont) to High(TKMFont) do
-    if FileExists(ExeDir+FONTS_FOLDER+FontFiles[F]+'.'+CodePage+'.fnt') then
-      fFontData[F].LoadFont(ExeDir+FONTS_FOLDER+FontFiles[F]+'.'+CodePage+'.fnt', fRender, F, false)
+    if FileExists(ExeDir+FONTS_FOLDER+FontInfo[F].FontFile+'.'+CodePage+'.fnt') then
+      fFontData[F].LoadFont(ExeDir+FONTS_FOLDER+FontInfo[F].FontFile+'.'+CodePage+'.fnt', fRender, F, false)
     else
-      fFontData[F].LoadFont(ExeDir+FONTS_FOLDER+FontFiles[F]+'.fnt', fRender, F, False);
+      fFontData[F].LoadFont(ExeDir+FONTS_FOLDER+FontInfo[F].FontFile+'.fnt', fRender, F, False);
 end;
 
 
@@ -337,10 +377,10 @@ var
 begin
   CodePage := fLocales.GetLocale(aLocale).FontCodepage;
   for F := Low(TKMFont) to High(TKMFont) do
-    if FileExists(ExeDir+FONTS_FOLDER+FontFiles[F]+'.'+CodePage+'.fnt') then
-      fFontData[F].LoadFont(ExeDir+FONTS_FOLDER+FontFiles[F]+'.'+CodePage+'.fnt', fRender, F, true)
+    if FileExists(ExeDir+FONTS_FOLDER+FontInfo[F].FontFile+'.'+CodePage+'.fnt') then
+      fFontData[F].LoadFont(ExeDir+FONTS_FOLDER+FontInfo[F].FontFile+'.'+CodePage+'.fnt', fRender, F, true)
     else
-      fFontData[F].LoadFont(ExeDir+FONTS_FOLDER+FontFiles[F]+'.fnt', fRender, F, True);
+      fFontData[F].LoadFont(ExeDir+FONTS_FOLDER+FontInfo[F].FontFile+'.fnt', fRender, F, True);
 end;
 
 

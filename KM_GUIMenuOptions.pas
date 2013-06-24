@@ -61,7 +61,7 @@ type
 
 
 implementation
-uses KM_Main, KM_TextLibrary, KM_GameApp, KM_Locales, KM_Sound, KM_RenderUI;
+uses KM_Main, KM_TextLibrary, KM_GameApp, KM_Locales, KM_Sound, KM_RenderUI, KM_ResourceFonts;
 
 
 { TKMGUIMainOptions }

@@ -2,7 +2,8 @@ unit KM_RenderUI;
 {$I KaM_Remake.inc}
 interface
 uses dglOpenGL, Controls, Graphics, Math, KromOGLUtils, StrUtils, SysUtils,
-  KM_Defaults, KM_CommonTypes, KM_Points, KM_Pics, KM_ResourceSprites;
+  KM_Defaults, KM_CommonTypes, KM_Points, KM_Pics,
+  KM_ResourceFonts, KM_ResourceSprites;
 
 type
   TTextAlign = (taLeft, taCenter, taRight);
@@ -32,7 +33,7 @@ type
 
 
 implementation
-uses KM_Resource, KM_ResourceFonts;
+uses KM_Resource;
 
 
 //X axis uses planes 0,1 and Y axis uses planes 2,3, so that they don't interfere when both axis are

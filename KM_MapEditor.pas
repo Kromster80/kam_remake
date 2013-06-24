@@ -105,7 +105,7 @@ type
 
 implementation
 uses KM_Game, KM_PlayersCollection, KM_RenderAux, KM_RenderUI, KM_AIDefensePos,
-  KM_UnitGroups, KM_AIFields;
+  KM_UnitGroups, KM_AIFields, KM_ResourceFonts;
 
 
 { TKMDeposits }

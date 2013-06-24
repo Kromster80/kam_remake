@@ -243,7 +243,8 @@ const
   DirCursorNARadius = 15;  //Radius of centeral part that has no direction
 
 
-type TGameResultMsg = ( //Game result
+type
+  TGameResultMsg = ( //Game result
         gr_Win,         //Player has won the game
         gr_Defeat,      //Player was defeated
         gr_Cancel,      //Game was cancelled (unfinished)
@@ -252,23 +253,6 @@ type TGameResultMsg = ( //Game result
         gr_Silent,      //Used when loading savegame from running game (show no screens)
         gr_ReplayEnd,   //Replay was cancelled - return to menu without screens
         gr_MapEdEnd);   //Map Editor was closed - return to menu without screens
-
-
-{Fonts}
-type //Indexing should start from 1.
-  TKMFont = (fnt_Antiqua,  fnt_Briefing,    fnt_Game,     fnt_Grey,
-             fnt_MainB,    fnt_MainMapGold, fnt_Metal,    fnt_Mini,
-             fnt_Outline,  fnt_Won);
-
-{Removed fonts that were in KaM:
-  Adam (unused)
-  Font01 (damaged)
-  KMLobby (used for internet lobby in TPR)
-  MainA (identical to MainMapGold in all game versions)
-  MainA.old (probably never meant to be included in the release anyway)
-  Minimum (same as mini but with less characters)
-  System (unused)
-}
 
 
 type

@@ -58,7 +58,7 @@ type
 
 implementation
 uses KM_TextLibrary, KM_Game, KM_GameApp, KM_PlayersCollection,
-  KM_Utils, KM_Resource, KM_Player, KM_CommonTypes, KM_RenderUI,
+  KM_Utils, KM_Resource, KM_Player, KM_CommonTypes, KM_RenderUI, KM_ResourceFonts,
   KM_ResourceWares;
 
 

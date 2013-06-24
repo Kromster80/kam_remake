@@ -233,7 +233,7 @@ type
 
 implementation
 uses KM_Main, KM_NetworkTypes, KM_TextLibrary, KM_Game, KM_GameApp,  KM_Locales,
-  KM_Utils, KM_Log, KM_Sound, KM_Networking, KM_RenderUI;
+  KM_Utils, KM_Log, KM_Sound, KM_Networking, KM_RenderUI, KM_ResourceFonts;
 
 const
   MAPSIZES_COUNT = 15;

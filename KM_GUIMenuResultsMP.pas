@@ -57,7 +57,7 @@ type
 
 
 implementation
-uses KM_TextLibrary, KM_Game, KM_PlayersCollection, KM_Utils, KM_Resource, KM_RenderUI;
+uses KM_TextLibrary, KM_Game, KM_PlayersCollection, KM_Utils, KM_Resource, KM_ResourceFonts, KM_RenderUI;
 
 
 const

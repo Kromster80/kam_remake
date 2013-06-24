@@ -6,7 +6,7 @@ uses
     {$IFDEF Unix} LCLIntf, LCLType, {$ENDIF}
     Classes, Controls,  Math, SysUtils, StrUtils, Clipbrd,
     KromUtils, KromOGLUtils, KM_Defaults, KM_Points, KM_CommonTypes, KM_Pics,
-    KM_RenderUI, KM_ResourceSprites, KM_Minimap, KM_Viewport;
+    KM_RenderUI, KM_ResourceFonts, KM_ResourceSprites, KM_Minimap, KM_Viewport;
 
 type
   TNotifyEventMB = procedure(Sender: TObject; AButton: TMouseButton) of object;
