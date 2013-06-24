@@ -300,6 +300,8 @@ var
   Head: AnsiString;
   I: Integer;
 begin
+  if not FileExists(aFileName) then Exit;
+
   S := TMemoryStream.Create;
   try
     S.LoadFromFile(aFileName);
@@ -342,6 +344,8 @@ end;
 //Generate color texture from prepared data
 procedure TKMFontData.GenerateTexture(aRender: TRender; aTexMode: TTexFormat);
 begin
+  if Length(fTexData) = 0 then Exit;
+
   fTexID := aRender.GenTexture(fTexSizeX, fTexSizeY, @fTexData[0], aTexMode);
 end;
 
