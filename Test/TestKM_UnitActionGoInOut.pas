@@ -21,7 +21,7 @@ type
 
 
 implementation
-uses KM_Log, KM_PlayersCollection, KM_Resource, KM_Sound, KM_Terrain, KM_Utils;
+uses KM_Log, KM_PlayersCollection, KM_PlayerSpectator, KM_Resource, KM_Sound, KM_Terrain, KM_Utils, KM_ResourceHouse;
 
 
 procedure TestTUnitActionGoInOut.SetUp;
@@ -30,15 +30,15 @@ begin
   SKIP_SOUND := True;
   ExeDir := ExtractFilePath(ParamStr(0)) + '..\';
   SetKaMSeed(4);
-  fLog := TKMLog.Create(ExtractFilePath(ParamStr(0)) + 'log.log');
+  gLog := TKMLog.Create(ExtractFilePath(ParamStr(0)) + 'log.log');
   fResource := TResource.Create(nil, nil, nil);
   fResource.LoadMenuResources('');
   fSoundLib := TSoundLib.Create('', 0, False);
-  fTerrain := TKMTerrain.Create;
-  fTerrain.MakeNewMap(32, 32, False);
+  gTerrain := TKMTerrain.Create;
+  gTerrain.MakeNewMap(32, 32, False);
   fPlayers := TKMPlayersCollection.Create;
   fPlayers.AddPlayers(1);
-  MyPlayer := fPlayers[0];
+  MySpectator := TKMSpectator.Create(0);
 
   fUnit := TKMUnit.Create(0, ut_Serf, KMPoint(8, 10), 0);
   fHouse := TKMHouse.Create(0, ht_Store, 9, 9, 0, hbs_Done);
@@ -50,10 +50,10 @@ procedure TestTUnitActionGoInOut.TearDown;
 begin
   FUnitActionGoInOut.Free;
   fPlayers.Free;
-  fTerrain.Free;
+  gTerrain.Free;
   fSoundLib.Free;
   fResource.Free;
-  fLog.Free;
+  gLog.Free;
   FUnitActionGoInOut := nil;
 end;
 

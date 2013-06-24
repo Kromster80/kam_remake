@@ -14,6 +14,7 @@ uses
   {$IFDEF FPC} Interfaces, {$ENDIF}
   KM_FormMain in 'KM_FormMain.pas' {FormMain},
   KM_FormLoading in 'KM_FormLoading.pas' {FormLoading},
+  KM_Achievements in 'KM_Achievements.pas',
   KM_AI in 'KM_AI.pas',
   KM_AIAttacks in 'KM_AIAttacks.pas',
   KM_AIDefensePos in 'KM_AIDefensePos.pas',
@@ -54,7 +55,9 @@ uses
   KM_GUIMenuLobby in 'KM_GUIMenuLobby.pas',
   KM_GUIMenuOptions in 'KM_GUIMenuOptions.pas',
   KM_GUIMenuResultsMP in 'KM_GUIMenuResultsMP.pas',
+  KM_GUIMenuResultsSP in 'KM_GUIMenuResultsSP.pas',
   KM_GUIMenuSingleMap in 'KM_GUIMenuSingleMap.pas',
+  KM_HouseBarracks in 'KM_HouseBarracks.pas',
   KM_HouseCollection in 'KM_HouseCollection.pas',
   KM_HouseMarket in 'KM_HouseMarket.pas',
   KM_Houses in 'KM_Houses.pas',
@@ -118,6 +121,7 @@ uses
   KM_Terrain in 'KM_Terrain.pas',
   KM_TerrainFinder in 'KM_TerrainFinder.pas',
   KM_TerrainPainter in 'KM_TerrainPainter.pas',
+  KM_TerrainWalkConnect in 'KM_TerrainWalkConnect.pas',
   KM_TextLibrary in 'KM_TextLibrary.pas',
   KM_UnitActionAbandonWalk in 'KM_UnitActionAbandonWalk.pas',
   KM_UnitActionFight in 'KM_UnitActionFight.pas',
@@ -149,8 +153,8 @@ uses
 {$ENDIF}
 {$IFDEF MSWindows}
   {$IFDEF FPC}
-    {$R KaM_Remake_Icon.rc}
-    {$R KaM_Manifest.rc}
+    {$R KaM_Remake_Icon.res}
+    {$R KaM_Manifest.res}
   {$ENDIF}
 {$ENDIF}
 

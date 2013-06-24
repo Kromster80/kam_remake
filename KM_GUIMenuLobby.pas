@@ -123,7 +123,7 @@ type
 
 
 implementation
-uses KM_TextLibrary, KM_Locales, KM_Utils, KM_Sound, KM_RenderUI, KM_Resource;
+uses KM_TextLibrary, KM_Locales, KM_Utils, KM_Sound, KM_RenderUI, KM_Resource, KM_ResourceFonts, KM_NetPlayersList;
 
 
 { TKMGUIMenuLobby }
@@ -700,13 +700,16 @@ end;
 
 
 procedure TKMGUIMenuLobby.PlayerMenuShow(Sender: TObject);
-var C: TKMControl;
+var
+  C: TKMControl;
 begin
   C := TKMControl(Sender);
+
   //Only human players (excluding ourselves) have the player menu
   if not fNetworking.NetPlayers[C.Tag].IsHuman //No menu for AI players
   or (fNetworking.MyIndex = C.Tag) //No menu for ourselves
-  or not fNetworking.IsHost then //Only host gets to use the menu (for now)
+  or not fNetworking.IsHost //Only host gets to use the menu (for now)
+  or not fNetworking.NetPlayers[C.Tag].Connected then //Don't show menu for empty slots
     Exit;
 
   //Remember which player it is by their server index (order of players can change)
@@ -791,6 +794,7 @@ begin
             fNetworking.MatchPlayersToSave(fNetworking.NetPlayers.Count); //Match new AI player in save
         end;
       end;
+
       fNetworking.SendPlayerListAndRefreshPlayersSetup;
     end;
   end;
@@ -803,106 +807,118 @@ procedure TKMGUIMenuLobby.Lobby_OnPlayersSetup(Sender: TObject);
 var
   I,K,ID,LocaleID: Integer;
   MyNik, CanEdit, HostCanEdit, IsSave, IsCoop, IsValid: Boolean;
+  CurPlayer: TKMNetPlayerInfo;
+  LocationName: string;
 begin
   IsSave := fNetworking.SelectGameKind = ngk_Save;
   IsCoop := (fNetworking.SelectGameKind = ngk_Map) and (fNetworking.MapInfo.IsCoop);
 
   //Go through active players first
-  for I:=0 to fNetworking.NetPlayers.Count - 1 do
+  for I := 0 to fNetworking.NetPlayers.Count - 1 do
   begin
+    CurPlayer := fNetworking.NetPlayers[I+1];
+
     //Flag icon
-    LocaleID := fLocales.GetIDFromCode(fNetworking.NetPlayers[I+1].LangCode);
+    LocaleID := fLocales.GetIDFromCode(CurPlayer.LangCode);
     if LocaleID <> -1 then
       Image_LobbyFlag[I].TexID := fLocales[LocaleID].FlagSpriteID
     else
-      if fNetworking.NetPlayers[I+1].IsComputer then
+      if CurPlayer.IsComputer then
         Image_LobbyFlag[I].TexID := 62 //PC icon
       else
         Image_LobbyFlag[I].TexID := 0;
 
     //Players list
-    if fNetworking.IsHost and (not fNetworking.NetPlayers[I+1].IsHuman) then
+    if fNetworking.IsHost and (not CurPlayer.IsHuman) then
     begin
       Label_LobbyPlayer[I].Hide;
       DropBox_LobbyPlayerSlot[I].Enable;
       DropBox_LobbyPlayerSlot[I].Show;
-      if fNetworking.NetPlayers[I+1].IsComputer then
+      if CurPlayer.IsComputer then
         DropBox_LobbyPlayerSlot[I].ItemIndex := 2 //AI
       else
         DropBox_LobbyPlayerSlot[I].ItemIndex := 1; //Closed
     end
     else
     begin
-      Label_LobbyPlayer[I].Caption := fNetworking.NetPlayers[I+1].GetNickname;
-      if fNetworking.NetPlayers[I+1].FlagColorID = 0 then
+      Label_LobbyPlayer[I].Caption := CurPlayer.GetNickname;
+      if CurPlayer.FlagColorID = 0 then
         Label_LobbyPlayer[I].FontColor := $FFFFFFFF
       else
-        Label_LobbyPlayer[I].FontColor := FlagColorToTextColor(fNetworking.NetPlayers[I+1].FlagColor);
+        Label_LobbyPlayer[I].FontColor := FlagColorToTextColor(CurPlayer.FlagColor);
       Label_LobbyPlayer[I].Show;
       DropBox_LobbyPlayerSlot[I].Disable;
       DropBox_LobbyPlayerSlot[I].Hide;
       DropBox_LobbyPlayerSlot[I].ItemIndex := 0; //Open
     end;
 
+    //Starting locations
     //If we can't load the map, don't attempt to show starting locations
-    IsValid := false;
+    IsValid := False;
     DropBox_LobbyLoc[I].Clear;
-    if fNetworking.SelectGameKind = ngk_None then
-      DropBox_LobbyLoc[I].Add(fTextLibrary[TX_LOBBY_RANDOM], 0);
+    case fNetworking.SelectGameKind of
+      ngk_None: DropBox_LobbyLoc[I].Add(fTextLibrary[TX_LOBBY_RANDOM], 0);
+      ngk_Save: begin
+                  IsValid := fNetworking.SaveInfo.IsValid;
+                  DropBox_LobbyLoc[I].Add(fTextLibrary[TX_LOBBY_SELECT], 0);
+                  if CurPlayer.IsHuman then //Cannot add AIs to MP save, they are filled automatically
+                    for K := 0 to fNetworking.SaveInfo.Info.PlayerCount - 1 do
+                      if fNetworking.SaveInfo.Info.Enabled[K]
+                      and (fNetworking.SaveInfo.Info.CanBeHuman[K] or ALLOW_TAKE_AI_PLAYERS) then
+                        DropBox_LobbyLoc[I].Add(fNetworking.SaveInfo.Info.LocationName[K], K+1);
+                end;
+      ngk_Map:  begin
+                  IsValid := fNetworking.MapInfo.IsValid;
+                  DropBox_LobbyLoc[I].Add(fTextLibrary[TX_LOBBY_RANDOM], 0);
 
-    if fNetworking.SelectGameKind = ngk_Save then
-    begin
-      IsValid := fNetworking.SaveInfo.IsValid;
-      DropBox_LobbyLoc[I].Add(fTextLibrary[TX_LOBBY_SELECT], 0);
-      if fNetworking.NetPlayers[I+1].IsHuman then //Cannot add AIs to MP save, they are filled automatically
-        for K := 0 to fNetworking.SaveInfo.Info.PlayerCount - 1 do
-          if fNetworking.SaveInfo.Info.Enabled[K]
-          and (fNetworking.SaveInfo.Info.CanBeHuman[K] or ALLOW_TAKE_AI_PLAYERS) then
-            DropBox_LobbyLoc[I].Add(fNetworking.SaveInfo.Info.LocationName[K], K+1);
+                  for K := 0 to fNetworking.MapInfo.LocCount - 1 do
+                    //AI-only locations should not be listed for AIs in lobby, since those ones are
+                    //automatically added when the game starts (so AI checks CanBeHuman too)
+                    if (CurPlayer.IsHuman and (fNetworking.MapInfo.CanBeHuman[K] or ALLOW_TAKE_AI_PLAYERS))
+                    or (CurPlayer.IsComputer and fNetworking.MapInfo.CanBeHuman[K] and fNetworking.MapInfo.CanBeAI[K]) then
+                    begin
+                      LocationName := fNetworking.MapInfo.LocationName(K);
+                      //Disable taken locations
+                      if not fNetworking.NetPlayers.LocAvailable(K+1)
+                      and (fNetworking.NetPlayers[I+1].StartLocation <> K+1) then
+                        LocationName := '[$707070]'+LocationName+'[]';
+                      DropBox_LobbyLoc[I].Add(LocationName, K+1);
+                    end;
+                end;
     end;
-    if fNetworking.SelectGameKind = ngk_Map then
-    begin
-      IsValid := fNetworking.MapInfo.IsValid;
-      DropBox_LobbyLoc[I].Add(fTextLibrary[TX_LOBBY_RANDOM], 0);
-      for K := 0 to fNetworking.MapInfo.PlayerCount - 1 do
-        if fNetworking.MapInfo.CanBeHuman[K] or ALLOW_TAKE_AI_PLAYERS then
-        begin
-          if fNetworking.NetPlayers[I+1].IsHuman
-          or (fNetworking.NetPlayers[I+1].IsComputer and fNetworking.MapInfo.CanBeAI[K]) then
-            DropBox_LobbyLoc[I].Add(fNetworking.MapInfo.LocationName(K), K+1);
-        end;
-    end;
+
     if IsValid then
-      DropBox_LobbyLoc[I].SelectByTag(fNetworking.NetPlayers[I+1].StartLocation)
+      DropBox_LobbyLoc[I].SelectByTag(CurPlayer.StartLocation)
     else
       DropBox_LobbyLoc[I].ItemIndex := 0;
 
+    //Teams
     if IsCoop then
       DropBox_LobbyTeam[I].ItemIndex := 0 //No teams in coop maps, it's done for you
     else
-      DropBox_LobbyTeam[I].ItemIndex := fNetworking.NetPlayers[I+1].Team;
+      DropBox_LobbyTeam[I].ItemIndex := CurPlayer.Team;
 
-    DropBox_LobbyColors[I].ItemIndex := fNetworking.NetPlayers[I+1].FlagColorID;
-    if fNetworking.NetPlayers[I+1].IsClosed then
+    DropBox_LobbyColors[I].ItemIndex := CurPlayer.FlagColorID;
+    if CurPlayer.IsClosed then
       Image_LobbyReady[I].TexID := 0
     else
-      Image_LobbyReady[I].TexID := 32+Byte(fNetworking.NetPlayers[I+1].ReadyToStart);
+      Image_LobbyReady[I].TexID := 32+Byte(CurPlayer.ReadyToStart);
 
     MyNik := (I+1 = fNetworking.MyIndex); //Our index
     //We are allowed to edit if it is our nickname and we are set as NOT ready,
     //or we are the host and this player is an AI
     CanEdit := (MyNik and (fNetworking.IsHost or not fNetworking.NetPlayers.HostDoesSetup) and
-                          (fNetworking.IsHost or not fNetworking.NetPlayers[I+1].ReadyToStart)) or
-               (fNetworking.IsHost and fNetworking.NetPlayers[I+1].IsComputer);
+                          (fNetworking.IsHost or not CurPlayer.ReadyToStart)) or
+               (fNetworking.IsHost and CurPlayer.IsComputer);
     HostCanEdit := (fNetworking.IsHost and fNetworking.NetPlayers.HostDoesSetup and
-                    not fNetworking.NetPlayers[I+1].IsClosed);
+                    not CurPlayer.IsClosed);
     DropBox_LobbyLoc[I].Enabled := (CanEdit or HostCanEdit);
     //Can't change color or teams in a loaded save
     DropBox_LobbyTeam[I].Enabled := (CanEdit or HostCanEdit) and not IsSave and not IsCoop;
-    DropBox_LobbyColors[I].Enabled := (CanEdit or (MyNik and not fNetworking.NetPlayers[I+1].ReadyToStart)) and not IsSave;
+    DropBox_LobbyColors[I].Enabled := (CanEdit or (MyNik and not CurPlayer.ReadyToStart)) and not IsSave;
     if MyNik and not fNetworking.IsHost then
     begin
-      if fNetworking.NetPlayers[I+1].ReadyToStart then
+      if CurPlayer.ReadyToStart then
         Button_LobbyStart.Caption := fTextLibrary[TX_LOBBY_NOT_READY]
       else
         Button_LobbyStart.Caption := fTextLibrary[TX_LOBBY_READY];
@@ -947,7 +963,7 @@ begin
     begin
       ID := fNetworking.NetPlayers.StartingLocToLocal(I+1);
       if ID <> -1 then
-        fMinimap.PlayerTeam[I] := fNetworking.NetPlayers[I+1].Team
+        fMinimap.PlayerTeam[I] := fNetworking.NetPlayers[ID].Team
       else
         fMinimap.PlayerTeam[I] := 0;
     end;
@@ -1071,20 +1087,21 @@ end;
 
 procedure TKMGUIMenuLobby.RefreshMapList(aJumpToSelected:Boolean);
 var
-  I, OldTopIndex: Integer;
+  I, PrevTop: Integer;
   PrevMap: string;
   AddMap: Boolean;
 begin
+  //Remember previous map selected
+  if DropCol_LobbyMaps.ItemIndex <> -1 then
+    PrevMap := DropCol_LobbyMaps.Item[DropCol_LobbyMaps.ItemIndex].Cells[0].Caption
+  else
+    PrevMap := '';
+
+  PrevTop := DropCol_LobbyMaps.List.TopIndex;
+  DropCol_LobbyMaps.Clear;
+
   fMapsMP.Lock;
-    //Remember previous map selected
-    if DropCol_LobbyMaps.ItemIndex <> -1 then
-      PrevMap := DropCol_LobbyMaps.Item[DropCol_LobbyMaps.ItemIndex].Cells[0].Caption
-    else
-      PrevMap := '';
-
-    OldTopIndex := DropCol_LobbyMaps.List.TopIndex;
-    DropCol_LobbyMaps.Clear;
-
+  try
     for I := 0 to fMapsMP.Count - 1 do
     begin
       //Different modes allow different maps
@@ -1101,68 +1118,75 @@ begin
                                            IntToStr(fMapsMP[I].HumanPlayerCount),
                                            fMapsMP[I].SizeText], I));
     end;
+  finally
+    fMapsMP.Unlock;
+  end;
 
-    //Restore previously selected map
-    if PrevMap <> '' then
-      for I := 0 to DropCol_LobbyMaps.Count - 1 do
-        if DropCol_LobbyMaps.Item[I].Cells[0].Caption = PrevMap then
-          DropCol_LobbyMaps.ItemIndex := I;
+  //Restore previously selected map
+  if PrevMap <> '' then
+  for I := 0 to DropCol_LobbyMaps.Count - 1 do
+  if DropCol_LobbyMaps.Item[I].Cells[0].Caption = PrevMap then
+    DropCol_LobbyMaps.ItemIndex := I;
 
-    //Restore the top index
-    DropCol_LobbyMaps.List.TopIndex := OldTopIndex;
-    if aJumpToSelected and (DropCol_LobbyMaps.List.ItemIndex <> -1)
-    and not InRange(DropCol_LobbyMaps.List.ItemIndex - DropCol_LobbyMaps.List.TopIndex, 0, DropCol_LobbyMaps.List.GetVisibleRows - 1) then
-    begin
-      if DropCol_LobbyMaps.List.ItemIndex < DropCol_LobbyMaps.List.TopIndex + DropCol_LobbyMaps.List.GetVisibleRows - 1 then
-        DropCol_LobbyMaps.List.TopIndex := DropCol_LobbyMaps.List.ItemIndex
-      else
-      if DropCol_LobbyMaps.List.ItemIndex > DropCol_LobbyMaps.List.TopIndex + DropCol_LobbyMaps.List.GetVisibleRows - 1 then
-        DropCol_LobbyMaps.List.TopIndex := DropCol_LobbyMaps.List.ItemIndex - DropCol_LobbyMaps.List.GetVisibleRows + 1;
-    end;
-  fMapsMP.Unlock;
+  //Restore the top index
+  DropCol_LobbyMaps.List.TopIndex := PrevTop;
+  if aJumpToSelected and (DropCol_LobbyMaps.List.ItemIndex <> -1)
+  and not InRange(DropCol_LobbyMaps.List.ItemIndex - DropCol_LobbyMaps.List.TopIndex, 0, DropCol_LobbyMaps.List.GetVisibleRows - 1) then
+  begin
+    if DropCol_LobbyMaps.List.ItemIndex < DropCol_LobbyMaps.List.TopIndex + DropCol_LobbyMaps.List.GetVisibleRows - 1 then
+      DropCol_LobbyMaps.List.TopIndex := DropCol_LobbyMaps.List.ItemIndex
+    else
+    if DropCol_LobbyMaps.List.ItemIndex > DropCol_LobbyMaps.List.TopIndex + DropCol_LobbyMaps.List.GetVisibleRows - 1 then
+      DropCol_LobbyMaps.List.TopIndex := DropCol_LobbyMaps.List.ItemIndex - DropCol_LobbyMaps.List.GetVisibleRows + 1;
+  end;
 end;
 
 
-procedure TKMGUIMenuLobby.RefreshSaveList(aJumpToSelected:Boolean);
+procedure TKMGUIMenuLobby.RefreshSaveList(aJumpToSelected: Boolean);
 var
-  I, OldTopIndex: Integer;
+  I, PrevTop: Integer;
   PrevSave: string;
 begin
-  fSavesMP.Lock;
-    //Remember previous save selected
-    if DropCol_LobbyMaps.ItemIndex <> -1 then
-      PrevSave := DropCol_LobbyMaps.Item[DropCol_LobbyMaps.ItemIndex].Cells[0].Caption
-    else
-      PrevSave := '';
+  //Remember previous save selected
+  if DropCol_LobbyMaps.ItemIndex <> -1 then
+    PrevSave := DropCol_LobbyMaps.Item[DropCol_LobbyMaps.ItemIndex].Cells[0].Caption
+  else
+    PrevSave := '';
 
-    OldTopIndex := DropCol_LobbyMaps.List.TopIndex;
-    DropCol_LobbyMaps.Clear;
+  PrevTop := DropCol_LobbyMaps.List.TopIndex;
+
+  DropCol_LobbyMaps.Clear;
+
+  fSavesMP.Lock;
+  try
     for I := 0 to fSavesMP.Count - 1 do
-      if fSavesMP[I].IsValid then
-        DropCol_LobbyMaps.Add(MakeListRow([fSavesMP[I].FileName,
-                                           IntToStr(fSavesMP[I].Info.PlayerCount),
-                                           fSavesMP[I].Info.GetTimeText], I))
-      else
-        DropCol_LobbyMaps.Add(MakeListRow([fSavesMP[I].FileName, '', ''], I));
+    if fSavesMP[I].IsValid then
+      DropCol_LobbyMaps.Add(MakeListRow([fSavesMP[I].FileName,
+                                         IntToStr(fSavesMP[I].Info.PlayerCount),
+                                         fSavesMP[I].Info.GetTimeText], I))
+    else
+      DropCol_LobbyMaps.Add(MakeListRow([fSavesMP[I].FileName, '', ''], I));
 
     //Restore previously selected save
     if PrevSave <> '' then
-      for I := 0 to DropCol_LobbyMaps.Count - 1 do
-        if DropCol_LobbyMaps.Item[I].Cells[0].Caption = PrevSave then
-          DropCol_LobbyMaps.ItemIndex := I;
+    for I := 0 to DropCol_LobbyMaps.Count - 1 do
+    if DropCol_LobbyMaps.Item[I].Cells[0].Caption = PrevSave then
+      DropCol_LobbyMaps.ItemIndex := I;
+  finally
+    fSavesMP.Unlock;
+  end;
 
-    //Restore the top index
-    DropCol_LobbyMaps.List.TopIndex := OldTopIndex;
-    if aJumpToSelected and (DropCol_LobbyMaps.List.ItemIndex <> -1)
-    and not InRange(DropCol_LobbyMaps.List.ItemIndex - DropCol_LobbyMaps.List.TopIndex, 0, DropCol_LobbyMaps.List.GetVisibleRows - 1) then
-    begin
-      if DropCol_LobbyMaps.List.ItemIndex < DropCol_LobbyMaps.List.TopIndex + DropCol_LobbyMaps.List.GetVisibleRows - 1 then
-        DropCol_LobbyMaps.List.TopIndex := DropCol_LobbyMaps.List.ItemIndex
-      else
-      if DropCol_LobbyMaps.List.ItemIndex > DropCol_LobbyMaps.List.TopIndex + DropCol_LobbyMaps.List.GetVisibleRows - 1 then
-        DropCol_LobbyMaps.List.TopIndex := DropCol_LobbyMaps.List.ItemIndex - DropCol_LobbyMaps.List.GetVisibleRows + 1;
-    end;
-  fSavesMP.Unlock;
+  //Restore the top index
+  DropCol_LobbyMaps.List.TopIndex := PrevTop;
+  if aJumpToSelected and (DropCol_LobbyMaps.List.ItemIndex <> -1)
+  and not InRange(DropCol_LobbyMaps.List.ItemIndex - DropCol_LobbyMaps.List.TopIndex, 0, DropCol_LobbyMaps.List.GetVisibleRows - 1) then
+  begin
+    if DropCol_LobbyMaps.List.ItemIndex < DropCol_LobbyMaps.List.TopIndex + DropCol_LobbyMaps.List.GetVisibleRows - 1 then
+      DropCol_LobbyMaps.List.TopIndex := DropCol_LobbyMaps.List.ItemIndex
+    else
+    if DropCol_LobbyMaps.List.ItemIndex > DropCol_LobbyMaps.List.TopIndex + DropCol_LobbyMaps.List.GetVisibleRows - 1 then
+      DropCol_LobbyMaps.List.TopIndex := DropCol_LobbyMaps.List.ItemIndex - DropCol_LobbyMaps.List.GetVisibleRows + 1;
+  end;
 end;
 
 
@@ -1244,9 +1268,9 @@ begin
   //Common settings
   MinimapView_Lobby.Visible := (fNetworking.SelectGameKind = ngk_Map) and fNetworking.MapInfo.IsValid;
   TrackBar_LobbyPeacetime.Enabled := fNetworking.IsHost and (fNetworking.SelectGameKind = ngk_Map) and fNetworking.MapInfo.IsValid and not fNetworking.MapInfo.IsCoop;
-  TrackBar_LobbySpeedPT.Enabled := TrackBar_LobbyPeacetime.Enabled and (TrackBar_LobbyPeacetime.Position > 0);
-  TrackBar_LobbySpeedAfterPT.Enabled := TrackBar_LobbyPeacetime.Enabled;
-  CheckBox_LobbyRandomizeTeamLocations.Enabled := (fNetworking.SelectGameKind <> ngk_Save);
+  TrackBar_LobbySpeedPT.Enabled := (TrackBar_LobbyPeacetime.Position > 0) and fNetworking.IsHost and (fNetworking.SelectGameKind = ngk_Map) and fNetworking.MapInfo.IsValid;
+  TrackBar_LobbySpeedAfterPT.Enabled := fNetworking.IsHost and (fNetworking.SelectGameKind = ngk_Map) and fNetworking.MapInfo.IsValid;
+  CheckBox_LobbyRandomizeTeamLocations.Enabled := fNetworking.IsHost and (fNetworking.SelectGameKind <> ngk_Save);
 
   //Don't reset the selection if no map is selected
   if ((fNetworking.SelectGameKind = ngk_Map) and fNetworking.MapInfo.IsValid)

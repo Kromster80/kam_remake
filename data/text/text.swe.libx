@@ -1,5 +1,5 @@
 
-MaxID:667
+MaxID:697
 
 0:Sågverk
 1:Järnsmedja
@@ -118,7 +118,7 @@ MaxID:667
 114:Avsluta uppdrag
 115:Tillbaka
 116:Inställningar
-117:Avsluta uppdrag
+117:Avsluta
 118:SFX
 119:Ändra volym
 120:Ändra volym
@@ -139,6 +139,7 @@ MaxID:667
 135:Avbryt
 136:Avbryt nuvarande träning
 137:Behöver:
+138:Tillgångar:
 139:Skick:
 140:Levererar
 141:Hus under|konstruktion
@@ -178,6 +179,7 @@ MaxID:667
 175:En kolådra är tömd.
 176:En järnådra är tömd.
 177:En guldådra är tömd.
+178:Skogshuggaren kan inte hitta fler träd att fälla
 179:Detta hus har ingen ägare.
 180:Den här truppen är utsvulten, det är bäst att de får nåt att äta snart!
 181:PAUS
@@ -227,6 +229,7 @@ MaxID:667
 225:At the Harbor
 226:Journey
 227:Kampanjer
+228:Kampanjer
 229:Starta kampanj!
 230:Spela enskild karta
 231:Starta spelet
@@ -269,8 +272,14 @@ MaxID:667
 268:Hus
 269:Resurser
 270:Producerade resurser
+271:Ingen data
 272:Du
 273:Spelare %d
+274:Tillbaka till förra menyn
+275:Tillbaka till återspelningar
+276:Alla
+277:Krigföring
+278:Mat
 279:JOYMANIA ENTERTAINMENT||PROGRAMMING:|Peter Ohlmann||GAME GRAPHICS:|Adam Sprys||LEVEL DESIGN:|Adam Sprys|Andre Quaß||SOUND EDITING AND MIXING:|Tonstudio Mannheim||MUSIC:|Gerd Hofmann|Joachim Schäfer|Jürgen Rebhann|Klaus Staendike|Steffen Schüngel||ILLUSTRATIONS:|Boleslaw Kasza|Christoph Werner||ZUXXEZ ENTERTAINMENT AG||PRODUCER:|Uwe Schäfer||MANUAL:|Peter Ohlmann|Uwe Schäfer||BETA TESTING:|Peter Ohlmann|Adam Sprys|Alexandra Constandache|Dirk P. Hassinger|Achim Heidelauf|Uwe Schäfer|Ingrid Schäfer|Dirk U. Jantz|Ion Constandache|Yaman Egeli|Roman Eich|Iris Mocsnek|Anke Jantz|Paul Hassinger|Liza Hassinger||GAMES DIRECTOR:|Achim Heidelauf||PUBLISHED BY:|TopWare Interactive||CUTSCENES:||DIRECTION:|Slawomir Jedrzejewski||Kajetan Czarnecki|Wojciech Drazek|Daniel Duplaga|Rafal Januszkiewicz|Andrzej Rams|Piotr Rulka|Krzysztof Rybczynski|Grzegorz Wisniwski||VOICES:|Claus Boyen (Storyteller)||Tim Timmermann|Peter Houska|Dirk Mühlbach|Ralf Ditze|Gerhard Piske|Gernot Wassmann||ARTWORK:|Boleslaw Kasza|Adam Sprys||OPENING ANIMATION:|Uwe Schäfer|Christian Bigalk|Additional 3D-Modelling:|Niels Horstmann||SPECIAL THANKS TO:|Tadeusz Zuber|Dieter Ohlmann|Alexandra Constandache|Ingrid Schäfer|Andrea Rumpelt
 280:Uppdrag avbrutet
 281:Slut på repris
@@ -292,12 +301,14 @@ MaxID:667
 297:Skapa ny karta
 298:Tillgängliga kartor
 299:Ladda existerande karta
+300:Plats
 301:Kontroller:
 302:Spelinställningar:
 303:Ljud:
 304:Ingen musik
 305:Grafik:
 306:Ljusstyrka
+307:Vertikal synk
 308:Helskärm
 309:Bekräfta
 310:Språk:
@@ -344,6 +355,7 @@ MaxID:667
 351:Uppkoppling misslyckades: %s
 352:Du har kopplats ner
 353:Uppdrag %d
+354:Meddelandelogg
 355:Din fiskares stuga är för långt från vattnet.
 356:Din fiskare kan inte hitta nån mer fisk i de närliggande vattendragen.
 357:Starta om reprisen
@@ -351,15 +363,143 @@ MaxID:667
 359:Gå 1 steg framåt
 360:Återuppta reprisen
 361:Avsluta reprisen
+362:Växla spelarperspektiv
+363:Visa alla
 364:Använd vänster musknapp för att välja en vara att handla med
 365:Använd höger musknapp för att välja en vara att handla med
 366:Från x%d
 367:Till x%d
 368:Terrängeditering
+369:Penslar
+370:Höjder
+371:Rutor
+372:Objekt
+373:Höjder
+374:Penselform
+375:Storlek
+376:Dra för att ändra penselstorlek
+377:Lutning
+378:Dra för att ändra förhöjningssluttning: 1 = platå ... 15 = topp
+379:Hastighet
+380:Dra för att ändra höjdförändring: 1 = sakta ... 15 = mycket snabbt
+381:Cirkelformad pensel
+382:Kvadratisk pensel
+383:Höj / sänk
+384:Puckla / släta ut
+385:Höj (vänsterklick) / Sänk (högerklick)
+386:Puckla (vänsterklick) / Släta ut (högerklick)
+387:Pensel
+388:Slumpade element
+389:Slumpad riktning
+390:Bocka för så slumpas rutriktningen, eller högerklicka för att rotera den valda rutan
+391:Högerklicka för att rotera den valda rutan
+392:Förhindra gång
+393:Ta bort ett objekt
 394:Byplanering
 395:Visuella script
 396:Globala script
 397:Meny
+398:Objekt
+399:Visa fyndigheter
+400:Visa enheter
+401:Visa hus
+402:Visa objekt
+403:Visa framkomlighet
+404:Osparade ändringar|kommer att gå förlorade
+405:Avbryt
+406:Ladda
+407:Ladda karta
+408:Avbryt
+409:Spara
+410:Skriv över
+411:Kartan finns redan
+412:Spelare:
+413:Standard
+414:Spelartyper
+415:Symmetrisk
+416:Allianser
+417:Taktik
+418:Normal
+419:Uppdragsläge
+420:Hoppa till plats
+421:Centrera skärmen när uppdraget startar
+422:Centrera skärmen
+423:Full synlighet
+424:Visa en del av kartan
+425:Visa dimma
+426:Blockera handel
+427:Blockera/släpp hus
+428:Färger
+429:Mål
+430:Medd.
+431:Tid
+432:Spelare
+433:Ekonomibyggnader
+434:Nybyggare och skolor
+435:Militärtillgångar
+436:Okänt
+437:Trupper
+438:Byggnader
+439:Tid
+440:Byggnadshandledning
+441:Inga
+442:Villkor
+443:Överlevnad
+444:Vinst
+445:Inga
+446:Typ
+447:Mål
+448:OK
+449:Avbryt
+450:Kolumner
+451:Antal
+452:Truppformationer
+453:Ändra formationer
+454:Sätt en övre gräns för hur många soldater datorn kan ha
+455:Hur många soldater datorn kan ha på en gång
+456:Sätt max soldater
+457:Hur många rekryter datorn bör ha i kasernen
+458:Rekryter per kasern
+459:Plats
+460:Egen plats
+461:Närmsta hus 2
+462:Närmsta hus 1
+463:Närmsta enhet
+464:Ta alla
+465:Gruppantal
+466:Attack info
+467:Fördröjning, s
+468:Repeterande
+469:En gång
+470:Till häst
+471:Skyttar
+472:Antihäst
+473:Närstrid
+474:Pl.
+475:Mål
+476:Män
+477:Fördröjning
+478:Typ
+479:Autoattack
+480:Datorattacker
+481:Utrustningshastighet läder
+482:Utrustningshastighet järn
+483:Autoförsvar
+484:AI:n skapar och hanterar försvarsplatser automatiskt
+485:Välj försvarsplats för AI
+486:Försvarsplatser för AI
+487:Arbetare
+488:Nybyggare per 10 hus
+489:Autoreparera
+490:Autobygg
+491:AI-inställningar
+492:Hus
+493:Vägarbeten
+494:Spegla valet vertikalt
+495:Spegla val horisontellt
+496:Klistra in terräng
+497:Kopiera terräng
+498:Kopiera/klistra in
 499:Nytt uppdrag
 500:Spelarnamn:
 501:Status:
@@ -377,6 +517,8 @@ MaxID:667
 513:Rum
 514:Anslut
 515:Avbryt
+516:Lösenordsskyddat rum
+517:Lösenord
 518:Servernamn
 519:Status
 520:Spelare
@@ -394,6 +536,7 @@ MaxID:667
 532:Färg
 533:Redo
 534:Ping
+535:Ping / FPS
 536:Öppen
 537:AI-spelare
 538:Välj...
@@ -406,21 +549,38 @@ MaxID:667
 545:Redo
 546:Inte redo
 547:Börja!
+548:Spelhastighet (fredstid)
+549:Spelhastighet
+550:OK
+551:Avbryt
+552:Beskrivning
+553:Lösenord
+554:Rumalternativ
+555:Sätt som värd
+556:Bannlys
+557:Släng ut
+558:Slumpa platser inom team
+559:Beskrivning
+560:Alternativ
 561:Plats %d
 562:Fel: Sälj en spelare från sparningen att kontrollera
 563:Fel: Kartan kunde inte laddas eller ingen karta vald
 564:Kan inte börja: %s
 565:Alla är inte redo att börja
+566:Kan inte välja slumpade platser
 567:Servern har tilldelat dig värdrättigheter
 568:Spel startat
 569:Byggkarta
 570:Stridskarta
 571:Samarbetskarta
+572:Specialkarta
 573:Spelinställningar:
 574:Fredstid (minuter)
 575:Stängd
 576:Värden gör spelaruppställningen
 577:Väntar på spelare:
+578:Alla
+579:Team
 580:KaM Remakes skapare
 581:Original Knights & Merchants skapare
 582:PROGRAMMERING:
@@ -470,6 +630,7 @@ MaxID:667
 626:Visa repris
 627:Inget stöd för format %s
 628:Felaktig version %s
+629:Modifieringar som inte stöds
 630:Ett fel uppstod när filen %s skulle behandlas
 631:initierar
 632:script
@@ -484,6 +645,7 @@ MaxID:667
 641:Sparfilen stämmer inte överens med värdens fil: %s
 642:Reprisen misslyckades vid en konsistenskontroll. Detta är en känd bugg som påverkar återspelande av vissa repriser. Vill du titta vidare?
 643:Du kan bara ha en instans av spelet igång i flerspelarläge i taget
+644:Modifieringar av spelet är inte tillåtna i flerspelarläge.|Var god ominstallera spelet för att återskapa originalfilerna.
 645:Ett fel uppstod i programmet. Var vänlig klicka på Skicka Buggrapport så att vi kan undersöka saken. Tack för hjälpen!
 646:Skicka Buggrapport
 647:Visa Rå Data
@@ -507,3 +669,33 @@ MaxID:667
 665:Lyckades inte skicka kraschrapporten! Vår server kan eventuellt vara upptagen, försök igen.
 666:Information
 667:Var god dröj ett ögonblick...
+668:Spara karta
+669:Fördröjning i minuter innan datorn börjar träna rekryter
+670:Rekrytfördröjning (min)
+671:Sätter riktning för alla rutor i en vattensamling
+672:Magiskt vatten
+673:Kopiera
+674:Klistra in
+675:Bekräfta inklipp
+676:Avbryt inklipp
+677:Spegla vertikalt
+678:Spegla horisontellt
+679:Dra för att välja ett område på kartan
+680:Försvarsalternativ för AI
+681:Av
+682:Radie
+683:Ta bort nuvarande visare
+684:Återvänd till föregående skärm
+685:Stäng
+686:Gruppordning
+687:Ingen
+688:Attackera plats
+689:Gå till
+690:Riktning
+691:Backlinje
+692:Frontlinje
+693:Försvarsradie
+694:Ta bort den här försvarsplatsen
+695:Tillbaka en sida
+696:Försvarsplats
+697:Enheter

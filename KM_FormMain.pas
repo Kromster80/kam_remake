@@ -372,12 +372,12 @@ end;
 procedure TFormMain.Export_TextClick(Sender: TObject);
 var
   I: Integer;
-  MyTextLibrary: TTextLibrary;
+  MyTextLibrary: TKMTextLibrary;
 begin
   for I := 0 to fLocales.Count-1 do
   begin
     //Don't mess up the actual text library by loading other locales
-    MyTextLibrary := TTextLibrary.Create(ExeDir+'data' + PathDelim + 'text' + PathDelim, fLocales[i].Code);
+    MyTextLibrary := TKMTextLibrary.Create(ExeDir+'data' + PathDelim + 'text' + PathDelim, fLocales[i].Code);
     MyTextLibrary.ExportTextLibraries;
     MyTextLibrary.Free;
   end;
@@ -387,7 +387,7 @@ end;
 procedure TFormMain.Export_Fonts1Click(Sender: TObject);
 begin
   Assert(fResource <> nil, 'Can''t export Fonts cos they aren''t loaded yet');
-  fResource.Fonts.ExportFonts(fGameApp.GameSettings.Locale);
+  fResource.Fonts.ExportFonts(fLocales.GetLocale(fGameApp.GameSettings.Locale).FontCodepage);
 end;
 
 
@@ -500,9 +500,7 @@ begin
   //You could possibly cheat in multiplayer by seeing debug render info
   AllowDebugChange := (fGameApp.Game = nil)
                    or (not fGameApp.Game.IsMultiplayer or MULTIPLAYER_CHEATS)
-                   or ((Sender is TCheckBox) and not TCheckBox(Sender).Checked)
-                   or ((Sender is TTrackBar) and (TTrackBar(Sender).Position = 0))
-                   or (Sender = nil);
+                   or (Sender = nil); //Happens in ControlsReset only (using this anywhere else could allow MP cheating)
 
   //Debug render
   if AllowDebugChange then

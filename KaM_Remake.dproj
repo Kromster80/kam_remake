@@ -96,7 +96,6 @@
 		</PropertyGroup>
 		<PropertyGroup Condition="'$(Cfg_2_Win32)'!=''">
 			<DCC_DebugInfoInExe>true</DCC_DebugInfoInExe>
-			<Manifest_File>$(BDS)\bin\default_app.manifest</Manifest_File>
 			<BCC_SourceDebuggingOn>true</BCC_SourceDebuggingOn>
 			<BCC_DebugLineNumbers>true</BCC_DebugLineNumbers>
 			<ILINK_FullDebugInfo>true</ILINK_FullDebugInfo>
@@ -114,6 +113,7 @@
 			<DCCReference Include="KM_FormLoading.pas">
 				<Form>FormLoading</Form>
 			</DCCReference>
+			<DCCReference Include="KM_Achievements.pas"/>
 			<DCCReference Include="KM_AI.pas"/>
 			<DCCReference Include="KM_AIAttacks.pas"/>
 			<DCCReference Include="KM_AIDefensePos.pas"/>
@@ -153,7 +153,9 @@
 			<DCCReference Include="KM_GUIMenuLobby.pas"/>
 			<DCCReference Include="KM_GUIMenuOptions.pas"/>
 			<DCCReference Include="KM_GUIMenuResultsMP.pas"/>
+			<DCCReference Include="KM_GUIMenuResultsSP.pas"/>
 			<DCCReference Include="KM_GUIMenuSingleMap.pas"/>
+			<DCCReference Include="KM_HouseBarracks.pas"/>
 			<DCCReference Include="KM_HouseCollection.pas"/>
 			<DCCReference Include="KM_HouseMarket.pas"/>
 			<DCCReference Include="KM_Houses.pas"/>
@@ -217,6 +219,7 @@
 			<DCCReference Include="KM_Terrain.pas"/>
 			<DCCReference Include="KM_TerrainFinder.pas"/>
 			<DCCReference Include="KM_TerrainPainter.pas"/>
+			<DCCReference Include="KM_TerrainWalkConnect.pas"/>
 			<DCCReference Include="KM_TextLibrary.pas"/>
 			<DCCReference Include="KM_UnitActionAbandonWalk.pas"/>
 			<DCCReference Include="KM_UnitActionFight.pas"/>
@@ -284,6 +287,7 @@
 						<VersionInfoKeys Name="FileVersion">1.0.0.0</VersionInfoKeys>
 					</VersionInfoKeys>
 					<Excluded_Packages>
+						<Excluded_Packages Name="C:\Program Files (x86)\RemObjects Software\Everwood\Bin\RemObjects_Everwood_D16.bpl">File C:\Program Files (x86)\RemObjects Software\Everwood\Bin\RemObjects_Everwood_D16.bpl not found</Excluded_Packages>
 						<Excluded_Packages Name="$(BDSBIN)\dcloffice2k160.bpl">Microsoft Office 2000 Sample Automation Server Wrapper Components</Excluded_Packages>
 						<Excluded_Packages Name="$(BDSBIN)\dclofficexp160.bpl">Microsoft Office XP Sample Automation Server Wrapper Components</Excluded_Packages>
 					</Excluded_Packages>

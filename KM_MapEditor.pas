@@ -1,8 +1,8 @@
 unit KM_MapEditor;
 {$I KaM_Remake.inc}
 interface
-uses Classes, SysUtils,
-  KM_CommonClasses, KM_Defaults, KM_Points, KM_Terrain, KM_Units, KM_RenderPool;
+uses Classes, Math, SysUtils,
+  KM_CommonClasses, KM_Defaults, KM_Points, KM_Terrain, KM_Units, KM_RenderPool, KM_TerrainPainter;
 
 
 type
@@ -47,21 +47,53 @@ type
     procedure UpdateAreas(const aMat: array of TRawDeposit);
   end;
 
+  TKMSelectionMode = (smSelecting, smPasting);
+  TKMSelection = class
+  private
+    fRawRect: TKMRectF; //Cursor selection bounds (can have inverted bounds)
+    fRect: TKMRect; //Tile-space selection, at least 1 tile
+    fSelectionMode: TKMSelectionMode;
+    fBuffer: array of array of record
+      Terrain: Byte;
+      Height: Byte;
+      Rotation: Byte;
+      Obj: Byte;
+      OldTerrain, OldRotation: Byte; //Only used for map editor
+      TerrainKind: TTerrainKind; //Used for brushes
+    end;
+    procedure SetRawRect(const aValue: TKMRectF);
+  public
+    property RawRect: TKMRectF read fRawRect write SetRawRect;
+    property Rect: TKMRect read fRect write fRect;
+    property SelectionMode: TKMSelectionMode read fSelectionMode;
+    function IsBufferHasData: Boolean;
+    procedure Copy; //Copies the selected are into buffer
+    procedure PasteBegin; //Pastes the area from buffer and lets move it with cursor
+    procedure PasteApply; //Do the actual paste from buffer to terrain
+    procedure PasteCancel;
+    //procedure Transform; //Transforms the buffer data ?
+    procedure Paint(aLayer: TPaintLayer);
+  end;
+
   //Designed to store MapEd specific data and methods
   TKMMapEditor = class
   private
     fDeposits: TKMDeposits;
+    fSelection: TKMSelection;
     fRevealers: array [0..MAX_PLAYERS-1] of TKMPointTagList;
     fVisibleLayers: TMapEdLayerSet;
     function GetRevealer(aIndex: Byte): TKMPointTagList;
   public
+    ActiveMarker: TKMMapEdMarker;
+
+    RevealAll: array [0..MAX_PLAYERS-1] of Boolean;
     DefaultHuman: TPlayerIndex;
     PlayerHuman: array [0..MAX_PLAYERS - 1] of Boolean;
     PlayerAI: array [0..MAX_PLAYERS - 1] of Boolean;
-    RevealAll: array [0..MAX_PLAYERS-1] of Boolean;
     constructor Create;
     destructor Destroy; override;
     property Deposits: TKMDeposits read fDeposits;
+    property Selection: TKMSelection read fSelection;
     property Revealers[aIndex: Byte]: TKMPointTagList read GetRevealer;
     property VisibleLayers: TMapEdLayerSet read fVisibleLayers write fVisibleLayers;
     function HitTest(X,Y: Integer): TKMMapEdMarker;
@@ -72,7 +104,8 @@ type
 
 
 implementation
-uses KM_Game, KM_PlayersCollection, KM_RenderAux, KM_RenderUI, KM_AIDefensePos, KM_UnitGroups;
+uses KM_Game, KM_PlayersCollection, KM_RenderAux, KM_RenderUI, KM_AIDefensePos,
+  KM_UnitGroups, KM_AIFields, KM_ResourceFonts;
 
 
 { TKMDeposits }
@@ -99,7 +132,7 @@ end;
 function TKMDeposits.TileDepositExists(aMat: TRawDeposit; X,Y: Word) : Boolean;
 begin
   if aMat = rdFish then
-    Result := fTerrain.TileIsWater(KMPoint(X,Y))
+    Result := gTerrain.TileIsWater(KMPoint(X,Y))
   else
     Result := TileDeposit(aMat,X,Y) > 0;
 end;
@@ -111,12 +144,12 @@ var
 curUnit : TKMUnit;
 begin
   case aMat of
-    rdStone: Result := 3*fTerrain.TileIsStone(X, Y); //3 stone produced by each time
-    rdCoal:  Result := fTerrain.TileIsCoal(X, Y);
-    rdIron:  Result := fTerrain.TileIsIron(X, Y);
-    rdGold:  Result := fTerrain.TileIsGold(X, Y);
+    rdStone: Result := 3*gTerrain.TileIsStone(X, Y); //3 stone produced by each time
+    rdCoal:  Result := gTerrain.TileIsCoal(X, Y);
+    rdIron:  Result := gTerrain.TileIsIron(X, Y);
+    rdGold:  Result := gTerrain.TileIsGold(X, Y);
     rdFish:  begin
-               curUnit := fTerrain.Land[Y + 1, X + 1].IsUnit;
+               curUnit := gTerrain.Land[Y, X].IsUnit;
                if (curUnit <> nil) and (curUnit is TKMUnitAnimal) and (curUnit.UnitType = ut_Fish) then
                  Result := 2*TKMUnitAnimal(curUnit).FishCount //You get 2 fish from each trip
                else
@@ -146,34 +179,34 @@ var
       begin
         if Y-1 >= 1 then               FillArea(X-1, Y-1);
                                        FillArea(X-1, Y);
-        if Y+1 <= fTerrain.MapY-1 then FillArea(X-1, Y+1);
+        if Y+1 <= gTerrain.MapY-1 then FillArea(X-1, Y+1);
       end;
 
       if Y-1 >= 1 then                 FillArea(X, Y-1);
-      if Y+1 <= fTerrain.MapY-1 then   FillArea(X, Y+1);
+      if Y+1 <= gTerrain.MapY-1 then   FillArea(X, Y+1);
 
-      if X+1 <= fTerrain.MapX-1 then
+      if X+1 <= gTerrain.MapX-1 then
       begin
         if Y-1 >= 1 then               FillArea(X+1, Y-1);
                                        FillArea(X+1, Y);
-        if Y+1 <= fTerrain.MapY-1 then FillArea(X+1, Y+1);
+        if Y+1 <= gTerrain.MapY-1 then FillArea(X+1, Y+1);
       end;
     end;
   end;
 var
   I,K,J: Integer;
 begin
-  Assert(fTerrain <> nil);
+  Assert(gTerrain <> nil);
   for J := Low(aMat) to High(aMat) do
   begin
     R := aMat[J];
 
     SetLength(fArea[R], 0, 0);
-    SetLength(fArea[R], fTerrain.MapY, fTerrain.MapX);
+    SetLength(fArea[R], gTerrain.MapY, gTerrain.MapX);
 
     AreaID := 0;
-    for I := 1 to fTerrain.MapY - 1 do
-    for K := 1 to fTerrain.MapX - 1 do
+    for I := 1 to gTerrain.MapY - 1 do
+    for K := 1 to gTerrain.MapX - 1 do
     if (fArea[R,I,K] = 0) and TileDepositExists(R,K,I) then
     begin
       Inc(AreaID);
@@ -215,8 +248,8 @@ begin
     SetLength(AreaPos, fAreaCount[R]);
 
     //Fill array of resource amounts per area
-    for I := 1 to fTerrain.MapY - 1 do
-    for K := 1 to fTerrain.MapX - 1 do
+    for I := 1 to gTerrain.MapY - 1 do
+    for K := 1 to gTerrain.MapX - 1 do
     if fArea[R, I, K] <> 0 then
     begin
       //Do -1 to make the lists 0 based
@@ -250,6 +283,120 @@ begin
 end;
 
 
+{ TKMSelection }
+procedure TKMSelection.SetRawRect(const aValue: TKMRectF);
+begin
+  fRawRect := aValue;
+
+  //Convert RawRect values that can be inverted to tilespace Rect
+  fRect.Left   := Trunc(Min(fRawRect.Left, fRawRect.Right));
+  fRect.Top    := Trunc(Min(fRawRect.Top, fRawRect.Bottom));
+  fRect.Right  := Ceil(Max(fRawRect.Left, fRawRect.Right));
+  fRect.Bottom := Ceil(Max(fRawRect.Top, fRawRect.Bottom));
+end;
+
+
+function TKMSelection.IsBufferHasData: Boolean;
+begin
+  Result := Length(fBuffer) > 0;
+end;
+
+
+//Copy terrain section into buffer
+procedure TKMSelection.Copy;
+var
+  I, K: Integer;
+  Sx, Sy: Word;
+  Bx, By: Word;
+begin
+  Sx := fRect.Right - fRect.Left;
+  Sy := fRect.Bottom - fRect.Top;
+  SetLength(fBuffer, Sy, Sx);
+
+  for I := fRect.Top to fRect.Bottom - 1 do
+  for K := fRect.Left to fRect.Right - 1 do
+  if gTerrain.TileInMapCoords(K+1, I+1, 0) then
+  begin
+    Bx := K - fRect.Left;
+    By := I - fRect.Top;
+    fBuffer[By,Bx].Terrain     := gTerrain.Land[I+1, K+1].Terrain;
+    fBuffer[By,Bx].Height      := gTerrain.Land[I+1, K+1].Height;
+    fBuffer[By,Bx].Rotation    := gTerrain.Land[I+1, K+1].Rotation;
+    fBuffer[By,Bx].Obj         := gTerrain.Land[I+1, K+1].Obj;
+    fBuffer[By,Bx].OldTerrain  := gTerrain.Land[I+1, K+1].OldTerrain;
+    fBuffer[By,Bx].OldRotation := gTerrain.Land[I+1, K+1].OldRotation;
+    fBuffer[By,Bx].TerrainKind := fTerrainPainter.TerrainKind[I+1, K+1];
+  end;
+end;
+
+
+procedure TKMSelection.PasteBegin;
+begin
+  //Mapmaker could have changed selection rect, sync it with Buffer size
+  fRect.Right := fRect.Left + Length(fBuffer[0]);
+  fRect.Bottom := fRect.Top + Length(fBuffer);
+
+  fSelectionMode := smPasting;
+end;
+
+
+procedure TKMSelection.PasteApply;
+var
+  I, K: Integer;
+  Bx, By: Word;
+begin
+  for I := fRect.Top to fRect.Bottom - 1 do
+  for K := fRect.Left to fRect.Right - 1 do
+  if gTerrain.TileInMapCoords(K+1, I+1, 0) then
+  begin
+    Bx := K - fRect.Left;
+    By := I - fRect.Top;
+    gTerrain.Land[I+1, K+1].Terrain     := fBuffer[By,Bx].Terrain;
+    gTerrain.Land[I+1, K+1].Height      := fBuffer[By,Bx].Height;
+    gTerrain.Land[I+1, K+1].Rotation    := fBuffer[By,Bx].Rotation;
+    gTerrain.Land[I+1, K+1].Obj         := fBuffer[By,Bx].Obj;
+    gTerrain.Land[I+1, K+1].OldTerrain  := fBuffer[By,Bx].OldTerrain;
+    gTerrain.Land[I+1, K+1].OldRotation := fBuffer[By,Bx].OldRotation;
+    fTerrainPainter.TerrainKind[I+1, K+1] := fBuffer[By,Bx].TerrainKind;
+  end;
+
+  gTerrain.UpdateLighting(fRect);
+  gTerrain.UpdatePassability(fRect);
+
+  fSelectionMode := smSelecting;
+end;
+
+
+procedure TKMSelection.PasteCancel;
+begin
+  fSelectionMode := smSelecting;
+end;
+
+
+procedure TKMSelection.Paint(aLayer: TPaintLayer);
+var
+  Sx, Sy: Word;
+  I, K: Integer;
+begin
+  Sx := Rect.Right - Rect.Left;
+  Sy := Rect.Bottom - Rect.Top;
+
+  case fSelectionMode of
+    smSelecting:  begin
+                    //fRenderAux.SquareOnTerrain(RawRect.Left, RawRect.Top, RawRect.Right, RawRect.Bottom, $40FFFF00);
+                    fRenderAux.SquareOnTerrain(Rect.Left, Rect.Top, Rect.Right, Rect.Bottom, $FFFFFF00);
+                  end;
+    smPasting:    begin
+                    for I := 0 to Sy - 1 do
+                    for K := 0 to Sx - 1 do
+                      fRenderPool.RenderTerrain.RenderTile(fBuffer[I,K].Terrain, Rect.Left+K+1, Rect.Top+I+1, fBuffer[I,K].Rotation);
+
+                    fRenderAux.SquareOnTerrain(Rect.Left, Rect.Top, Rect.Right, Rect.Bottom, $FF0000FF);
+                  end;
+  end;
+end;
+
+
 { TKMMapEditor }
 constructor TKMMapEditor.Create;
 var
@@ -258,6 +405,7 @@ begin
   inherited Create;
 
   fDeposits := TKMDeposits.Create;
+  fSelection := TKMSelection.Create;
 
   fVisibleLayers := [mlObjects, mlHouses, mlUnits, mlDeposits];
 
@@ -271,6 +419,7 @@ var
   I: Integer;
 begin
   FreeAndNil(fDeposits);
+  FreeAndNil(fSelection);
 
   for I := Low(fRevealers) to High(fRevealers) do
     fRevealers[I].Free;
@@ -326,6 +475,9 @@ procedure TKMMapEditor.Update;
 begin
   if mlDeposits in VisibleLayers then
     fDeposits.UpdateAreas([rdStone, rdCoal, rdIron, rdGold, rdFish]);
+
+  //todo: if mlNavMesh in VisibleLayers then
+    //fAIFields.NavMesh.Init;
 end;
 
 
@@ -358,7 +510,7 @@ begin
       //Ignore water areas with 0 fish in them
       if fDeposits.Amount[R, I] > 0 then
       begin
-        LocF := fTerrain.FlatToHeight(fDeposits.Location[R, I]);
+        LocF := gTerrain.FlatToHeight(fDeposits.Location[R, I]);
         ScreenLoc := fGame.Viewport.MapToScreen(LocF);
 
         //At extreme zoom coords may become out of range of SmallInt used in controls painting
@@ -373,7 +525,7 @@ begin
       for K := 0 to fPlayers[I].AI.General.DefencePositions.Count - 1 do
       begin
         DP := fPlayers[I].AI.General.DefencePositions[K];
-        LocF := fTerrain.FlatToHeight(KMPointF(DP.Position.Loc));
+        LocF := gTerrain.FlatToHeight(KMPointF(DP.Position.Loc));
         ScreenLoc := fGame.Viewport.MapToScreen(LocF);
 
         if KMInRect(ScreenLoc, fGame.Viewport.ViewRect) then
@@ -390,21 +542,26 @@ procedure TKMMapEditor.Paint(aLayer: TPaintLayer);
 var
   I, K: Integer;
   Loc: TKMPoint;
-  LocDir: TKMPointDir;
   G: TKMUnitGroup;
+  DP: TAIDefencePosition;
 begin
   if mlDefences in fVisibleLayers then
-  for I := 0 to fPlayers.Count - 1 do
-  for K := 0 to fPlayers[I].AI.General.DefencePositions.Count - 1 do
   begin
-    LocDir := fPlayers[I].AI.General.DefencePositions[K].Position;
-    case aLayer of
-      plTerrain:  fRenderAux.CircleOnTerrain(LocDir.Loc.X, LocDir.Loc.Y,
-                               fPlayers[I].AI.General.DefencePositions[K].Radius,
-                               fPlayers[I].FlagColor AND $20FFFF80,
-                               fPlayers[I].FlagColor);
-      plCursors:  fRenderPool.RenderSpriteOnTile(LocDir.Loc,
-                      510 + Byte(LocDir.Dir), fPlayers[I].FlagColor);
+    if aLayer = plCursors then
+      for I := 0 to fPlayers.Count - 1 do
+      for K := 0 to fPlayers[I].AI.General.DefencePositions.Count - 1 do
+      begin
+        DP := fPlayers[I].AI.General.DefencePositions[K];
+        fRenderPool.RenderSpriteOnTile(DP.Position.Loc, 510 + Byte(DP.Position.Dir), fPlayers[I].FlagColor);
+      end;
+
+    if ActiveMarker.MarkerType = mtDefence then
+    if InRange(ActiveMarker.Index, 0, fPlayers[ActiveMarker.Owner].AI.General.DefencePositions.Count - 1) then
+    begin
+      DP := fPlayers[ActiveMarker.Owner].AI.General.DefencePositions[ActiveMarker.Index];
+      fRenderAux.CircleOnTerrain(DP.Position.Loc.X, DP.Position.Loc.Y, DP.Radius,
+                                 fPlayers[ActiveMarker.Owner].FlagColor AND $20FFFF80,
+                                 fPlayers[ActiveMarker.Owner].FlagColor);
     end;
   end;
 
@@ -416,7 +573,7 @@ begin
     case aLayer of
       plTerrain:  fRenderAux.CircleOnTerrain(Loc.X, Loc.Y,
                                            fRevealers[I].Tag[K],
-                                           fPlayers[I].FlagColor AND $20FFFFFF,
+                                           fPlayers[I].FlagColor and $20FFFFFF,
                                            fPlayers[I].FlagColor);
       plCursors:  fRenderPool.RenderSpriteOnTile(Loc,
                       394, fPlayers[I].FlagColor);
@@ -435,6 +592,9 @@ begin
                       391, fPlayers[I].FlagColor);
     end;
   end;
+
+  if mlSelection in fVisibleLayers then
+    fSelection.Paint(aLayer);
 
   //Show selected group order target
   if MySpectator.Selected is TKMUnitGroup then

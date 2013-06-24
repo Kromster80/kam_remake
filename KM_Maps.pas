@@ -32,12 +32,13 @@ type
     fDatCRC: Cardinal; //Used to speed up scanning
     fVersion: AnsiString; //Savegame version, yet unused in maps, they always have actual version
     fInfoAmount: TKMMapInfoAmount;
+    procedure ResetInfo;
     procedure LoadFromFile(const aPath: string);
     procedure SaveToFile(const aPath: string);
   public
     MapSizeX, MapSizeY: Integer;
     MissionMode: TKMissionMode;
-    PlayerCount: Byte;
+    LocCount: Byte;
     CanBeHuman: array [0..MAX_PLAYERS-1] of Boolean;
     CanBeAI: array [0..MAX_PLAYERS-1] of Boolean;
     DefaultHuman: TPlayerIndex;
@@ -176,6 +177,9 @@ begin
     fDatCRC := DatCRC;
     fVersion := GAME_REVISION;
 
+    //First reset everything because e.g. CanBeHuman is assumed false by default and set true when we encounter SET_USER_PLAYER
+    ResetInfo;
+
     fMissionParser := TMissionParserInfo.Create(False);
     try
       //Fill Self properties with MissionParser
@@ -243,8 +247,10 @@ end;
 
 
 function TKMapInfo.HumanUsableLocations: TPlayerIndexArray;
-var I: Integer;
+var
+  I: Integer;
 begin
+  SetLength(Result, 0);
   for I := 0 to MAX_PLAYERS - 1 do
     if CanBeHuman[I] then
     begin
@@ -255,8 +261,10 @@ end;
 
 
 function TKMapInfo.AIUsableLocations: TPlayerIndexArray;
-var I: Integer;
+var
+  I: Integer;
 begin
+  SetLength(Result, 0);
   for I := 0 to MAX_PLAYERS - 1 do
     if CanBeAI[I] then
     begin
@@ -287,6 +295,9 @@ var
 begin
   //Do not append Extra info twice
   if fInfoAmount = iaExtra then Exit;
+
+  //First reset everything because e.g. CanBeHuman is assumed false by default and set true when we encounter SET_USER_PLAYER
+  ResetInfo;
 
   DatFile := fPath + fFileName + '.dat';
   MapFile := fPath + fFileName + '.map';
@@ -319,6 +330,31 @@ begin
 end;
 
 
+procedure TKMapInfo.ResetInfo;
+var I, K: Integer;
+begin
+  IsCoop := False;
+  IsSpecial := False;
+  MissionMode := mm_Normal;
+  DefaultHuman := 0;
+  Author := '';
+  SmallDesc := '';
+  BigDesc := '';
+  for I:=0 to MAX_PLAYERS-1 do
+  begin
+    FlagColors[I] := DefaultTeamColors[I];
+    CanBeHuman[I] := False;
+    CanBeAI[I] := False;
+    GoalsVictoryCount[I] := 0;
+    SetLength(GoalsVictory[I], 0);
+    GoalsSurviveCount[I] := 0;
+    SetLength(GoalsSurvive[I], 0);
+    for K:=0 to MAX_PLAYERS-1 do
+      Alliances[I,K] := at_Enemy;
+  end;
+end;
+
+
 procedure TKMapInfo.LoadFromFile(const aPath: string);
 var
   S: TKMemoryStream;
@@ -337,7 +373,7 @@ begin
   S.Read(MapSizeX);
   S.Read(MapSizeY);
   S.Read(MissionMode, SizeOf(TKMissionMode));
-  S.Read(PlayerCount);
+  S.Read(LocCount);
   S.Read(SmallDesc);
   S.Read(IsCoop);
   S.Read(IsSpecial);
@@ -363,7 +399,7 @@ begin
     S.Write(MapSizeX);
     S.Write(MapSizeY);
     S.Write(MissionMode, SizeOf(TKMissionMode));
-    S.Write(PlayerCount);
+    S.Write(LocCount);
     S.Write(SmallDesc);
     S.Write(IsCoop);
     S.Write(IsSpecial);
@@ -379,7 +415,7 @@ end;
 
 function TKMapInfo.IsValid: Boolean;
 begin
-  Result := (PlayerCount > 0) and
+  Result := (LocCount > 0) and
             FileExists(fPath + fFileName + '.dat') and
             FileExists(fPath + fFileName + '.map');
 end;
@@ -488,8 +524,8 @@ procedure TKMapsCollection.DoSort;
       smByNameDesc:     Result := CompareText(A.FileName, B.FileName) > 0;
       smBySizeAsc:      Result := (A.MapSizeX * A.MapSizeY) < (B.MapSizeX * B.MapSizeY);
       smBySizeDesc:     Result := (A.MapSizeX * A.MapSizeY) > (B.MapSizeX * B.MapSizeY);
-      smByPlayersAsc:   Result := A.PlayerCount < B.PlayerCount;
-      smByPlayersDesc:  Result := A.PlayerCount > B.PlayerCount;
+      smByPlayersAsc:   Result := A.LocCount < B.LocCount;
+      smByPlayersDesc:  Result := A.LocCount > B.LocCount;
       smByHumanPlayersAsc:   Result := A.HumanPlayerCount < B.HumanPlayerCount;
       smByHumanPlayersDesc:  Result := A.HumanPlayerCount > B.HumanPlayerCount;
       smByModeAsc:      Result := A.MissionMode < B.MissionMode;

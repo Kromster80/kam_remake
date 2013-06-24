@@ -11,14 +11,25 @@ type
   TKMWarriorEvent = procedure(aWarrior: TKMUnitWarrior) of object;
   TKMWarrior2Event = procedure(aWarrior: TKMUnitWarrior; aUnit: TKMUnit) of object;
 
+  //What player has ordered us to do
+  TKMWarriorOrder = (
+    woNone, //No orders
+    woWalk, //Walk somewhere
+    woWalkOut, //Walk out of Barracks
+    woAttackUnit, //Attack someone
+    woAttackHouse, //Attack house
+    woStorm //Do Storm attack
+  );
+
   TKMUnitWarrior = class(TKMUnit)
   private
-    fNextOrder: TWarriorOrder; //New order we should perform as soon as we can change tasks
-    fOrder: TWarriorOrder; //Order we are performing
+    fNextOrder: TKMWarriorOrder; //New order we should perform as soon as we can change tasks
+    fOrder: TKMWarriorOrder; //Order we are performing
     fOrderLoc: TKMPoint; //Dir is the direction to face after order
     fOrderTargetUnit: TKMUnit; //Unit we are ordered to attack. This property should never be accessed, use public OrderTarget instead.
     fOrderTargetHouse: TKMHouse; //House we are ordered to attack. This property should never be accessed, use public OrderHouseTarget instead.
     fUseExactTarget: Boolean; //Do we try to reach exact position or is it e.g. unwalkable
+    fLastShootTime: Cardinal; //Used to prevent archer rate of fire exploit
 
     fRequestedFood: Boolean;
     fStormDelay: Word;
@@ -37,6 +48,7 @@ type
   public
     OnWarriorDied: TKMWarriorEvent; //Separate event from OnUnitDied to report to Group
     OnPickedFight: TKMWarrior2Event;
+    OnWarriorWalkOut: TKMWarriorEvent;
     FaceDir: TKMDirection; //Direction we should face after walking. Only check for enemies in this direction.
 
     constructor Create(aID: Cardinal; aUnitType: TUnitType; aLoc: TKMPoint; aOwner: TPlayerIndex);
@@ -46,7 +58,7 @@ type
     destructor Destroy; override;
 
     function GetWarriorActivityText(aIsAttackingUnit: Boolean): string;
-    procedure KillUnit(aFrom: TPlayerIndex); override;
+    procedure KillUnit(aFrom: TPlayerIndex; aShowAnimation, aForceDelay: Boolean); override;
 
     //Commands from TKMUnitGroup
     procedure OrderFood;
@@ -61,12 +73,16 @@ type
     function WithinFightRange(Value: TKMPoint): Boolean;
     function OrderDone: Boolean;
     property RequestedFood: Boolean read fRequestedFood write fRequestedFood; //Cleared by Serf delivering food
+    property LastShootTime: Cardinal read fLastShootTime;
     function IsRanged: Boolean;
-    function InFight: Boolean;
+    function InFight(aCountCitizens: Boolean = False): Boolean;
     function InAGroup: Boolean;
+    function NeedsToReload(aFightAnimLength: Byte): Boolean;
+    procedure SetLastShootTime;
     function FindLinkUnit(aLoc: TKMPoint): TKMUnitWarrior;
     function CheckForEnemy: Boolean;
     function FindEnemy: TKMUnit;
+    function PathfindingShouldAvoid: Boolean; override;
 
     procedure SetActionGoIn(aAction: TUnitActionType; aGoDir: TGoInDirection; aHouse: TKMHouse); override;
 
@@ -79,7 +95,8 @@ type
 implementation
 uses KM_TextLibrary, KM_PlayersCollection, KM_RenderPool, KM_RenderAux, KM_UnitTaskAttackHouse,
   KM_UnitActionAbandonWalk, KM_UnitActionFight, KM_UnitActionGoInOut, KM_UnitActionWalkTo, KM_UnitActionStay,
-  KM_UnitActionStormAttack, KM_Resource, KM_ResourceUnit;
+  KM_UnitActionStormAttack, KM_Resource, KM_ResourceUnit,
+  KM_ResourceWares, KM_Game, KM_ResourceHouse;
 
 
 { TKMUnitWarrior }
@@ -107,6 +124,7 @@ begin
   LoadStream.Read(fStormDelay);
   LoadStream.Read(fUseExactTarget);
   LoadStream.Read(FaceDir);
+  LoadStream.Read(fLastShootTime);
 end;
 
 
@@ -115,6 +133,8 @@ begin
   inherited;
   fOrderTargetUnit := TKMUnitWarrior(fPlayers.GetUnitByID(cardinal(fOrderTargetUnit)));
   fOrderTargetHouse := fPlayers.GetHouseByID(cardinal(fOrderTargetHouse));
+  if GetUnitAction is TUnitActionGoInOut then
+    TUnitActionGoInOut(GetUnitAction).OnWalkedOut := WalkedOut;
 end;
 
 
@@ -137,7 +157,7 @@ begin
 end;
 
 
-procedure TKMUnitWarrior.KillUnit(aFrom: TPlayerIndex);
+procedure TKMUnitWarrior.KillUnit(aFrom: TPlayerIndex; aShowAnimation, aForceDelay: Boolean);
 begin
   if not IsDeadOrDying then
   begin
@@ -157,7 +177,7 @@ procedure TKMUnitWarrior.OrderFood;
 begin
   if (fCondition < (UNIT_MAX_CONDITION * TROOPS_FEED_MAX)) and not fRequestedFood then
   begin
-    fPlayers[fOwner].Deliveries.Queue.AddDemand(nil, Self, wt_Food, 1, dt_Once, di_High);
+    fPlayers[fOwner].Deliveries.Queue.AddDemand(nil, Self, wt_Food, 1, dt_Once, diHigh2);
     fRequestedFood := True;
   end;
 end;
@@ -266,11 +286,25 @@ begin
 end;
 
 
+//Used to prevent rate of fire exploit
+function TKMUnitWarrior.NeedsToReload(aFightAnimLength: Byte): Boolean;
+begin
+  Result := (fLastShootTime <> 0) and ((fGame.GameTickCount - fLastShootTime) < aFightAnimLength);
+end;
+
+
+//Used to prevent rate of fire exploit
+procedure TKMUnitWarrior.SetLastShootTime;
+begin
+  fLastShootTime := fGame.GameTickCount;
+end;
+
+
 //We are actively fighting with an enemy
-function TKMUnitWarrior.InFight: Boolean;
+function TKMUnitWarrior.InFight(aCountCitizens: Boolean = False): Boolean;
 begin
   Result := (GetUnitAction is TUnitActionFight)
-            and (TUnitActionFight(GetUnitAction).GetOpponent is TKMUnitWarrior)
+            and (aCountCitizens or (TUnitActionFight(GetUnitAction).GetOpponent is TKMUnitWarrior))
             and not TUnitActionFight(GetUnitAction).GetOpponent.IsDeadOrDying;
 end;
 
@@ -428,6 +462,14 @@ begin
   SaveStream.Write(fStormDelay);
   SaveStream.Write(fUseExactTarget);
   SaveStream.Write(FaceDir);
+  SaveStream.Write(fLastShootTime);
+end;
+
+
+function TKMUnitWarrior.PathfindingShouldAvoid: Boolean;
+begin
+  Result := Inherited PathfindingShouldAvoid;
+  Result := Result and (fNextOrder = woNone); //If we have been given an order we're about to move somewhere 
 end;
 
 
@@ -454,7 +496,6 @@ function TKMUnitWarrior.FindEnemy: TKMUnit;
 var TestDir: TKMDirection;
 begin
   Result := nil; //No one to fight
-  if not ENABLE_FIGHTING then exit;
   if not CanInterruptAction then exit;
 
   if IsRanged then
@@ -478,7 +519,7 @@ begin
     TestDir := dir_NA;
 
   //This function should not be run too often, as it will take some time to execute (e.g. with lots of warriors in the range area to check)
-  Result := fTerrain.UnitsHitTestWithinRad(GetPosition, GetFightMinRange, GetFightMaxRange(true), Owner, at_Enemy, TestDir, not RANDOM_TARGETS);
+  Result := gTerrain.UnitsHitTestWithinRad(GetPosition, GetFightMinRange, GetFightMaxRange(true), Owner, at_Enemy, TestDir, not RANDOM_TARGETS);
 
   //Only stop attacking a house if it's a warrior
   if (fUnitTask <> nil) and (fUnitTask is TTaskAttackHouse) and (GetUnitAction is TUnitActionStay) and not (Result is TKMUnitWarrior) then
@@ -510,12 +551,12 @@ function TKMUnitWarrior.CanInterruptAction: Boolean;
 begin
   if GetUnitAction is TUnitActionWalkTo      then Result := TUnitActionWalkTo(GetUnitAction).CanAbandonExternal and GetUnitAction.StepDone else //Only when unit is idling during Interaction pauses
   if(GetUnitAction is TUnitActionStay) and
-    (UnitTask      is TTaskAttackHouse)      then Result := TTaskAttackHouse(UnitTask).CanAbandon else //We can abandon attack house if the action is stay and CanAbandon is true
+    (UnitTask      is TTaskAttackHouse)      then Result := True else //We can abandon attack house if the action is stay
   if GetUnitAction is TUnitActionStay        then Result := not GetUnitAction.Locked else //Initial pause before leaving barracks is locked
   if GetUnitAction is TUnitActionAbandonWalk then Result := GetUnitAction.StepDone and not GetUnitAction.Locked else //Abandon walk should never be abandoned, it will exit within 1 step anyway
   if GetUnitAction is TUnitActionGoInOut     then Result := not GetUnitAction.Locked else //Never interupt leaving barracks
   if GetUnitAction is TUnitActionStormAttack then Result := not GetUnitAction.Locked else //Never interupt storm attack
-  if GetUnitAction is TUnitActionFight       then Result := not GetUnitAction.Locked //Only allowed to interupt when action tells us so
+  if GetUnitAction is TUnitActionFight       then Result := IsRanged or not GetUnitAction.Locked //Only allowed to interupt ranged fights
   else Result := true;
 end;
 
@@ -604,8 +645,8 @@ end;
 procedure TKMUnitWarrior.WalkedOut;
 begin
   //Report for duty (Groups will link us or create a new group)
-  if Assigned(OnUnitTrained) then
-    OnUnitTrained(Self);
+  if Assigned(OnWarriorWalkOut) then
+    OnWarriorWalkOut(Self);
 end;
 
 
@@ -655,7 +696,7 @@ end;}
 function TKMUnitWarrior.UpdateState: Boolean;
 begin
   if fCurrentAction = nil then
-    raise ELocError.Create(fResource.UnitDat[UnitType].UnitName+' has no action at start of TKMUnitWarrior.UpdateState',fCurrPosition);
+    raise ELocError.Create(fResource.UnitDat[UnitType].GUIName+' has no action at start of TKMUnitWarrior.UpdateState',fCurrPosition);
 
   if IsDeadOrDying then
   begin
@@ -711,7 +752,7 @@ begin
     for I := -Round(GetFightMaxRange) - 1 to Round(GetFightMaxRange) do
     for K := -Round(GetFightMaxRange) - 1 to Round(GetFightMaxRange) do
     if InRange(GetLength(I, K), GetFightMinRange, GetFightMaxRange) then
-    if fTerrain.TileInMapCoords(GetPosition.X + K, GetPosition.Y + I) then
+    if gTerrain.TileInMapCoords(GetPosition.X + K, GetPosition.Y + I) then
       fRenderAux.Quad(GetPosition.X + K, GetPosition.Y + I, $40FFFFFF);
 end;
 

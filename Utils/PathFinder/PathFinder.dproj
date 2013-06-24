@@ -1,7 +1,7 @@
 ﻿	<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 		<PropertyGroup>
 			<ProjectGuid>{D8185BB1-39D3-49AE-A9C6-A5F7732D78B2}</ProjectGuid>
-			<ProjectVersion>13.4</ProjectVersion>
+			<ProjectVersion>14.6</ProjectVersion>
 			<FrameworkType>VCL</FrameworkType>
 			<MainSource>PathFinder.dpr</MainSource>
 			<Base>True</Base>
@@ -62,7 +62,6 @@
 			<DCC_Namespace>Winapi;System.Win;Data.Win;Datasnap.Win;Web.Win;Soap.Win;Xml.Win;Bde;$(DCC_Namespace)</DCC_Namespace>
 			<VerInfo_Locale>1033</VerInfo_Locale>
 			<Manifest_File>$(BDS)\bin\default_app.manifest</Manifest_File>
-			<VerInfo_Keys>CompanyName=;FileDescription=;FileVersion=1.0.0.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductName=;ProductVersion=1.0.0.0;Comments=</VerInfo_Keys>
 		</PropertyGroup>
 		<PropertyGroup Condition="'$(Cfg_1)'!=''">
 			<DCC_IntegerOverflowCheck>true</DCC_IntegerOverflowCheck>
@@ -102,7 +101,9 @@
 			<DCCReference Include="..\..\KM_PathFindingAStarNew.pas"/>
 			<DCCReference Include="..\..\KM_PathFindingAStarOld.pas"/>
 			<DCCReference Include="..\..\KM_PathFindingJPS.pas"/>
-			<DCCReference Include="KM_Terrain.pas"/>
+			<DCCReference Include="KM_Terrain.pas">
+				<Form>$R *.res</Form>
+			</DCCReference>
 			<None Include="Profiling\AQtimeModule1.aqt"/>
 			<BuildConfiguration Include="Release">
 				<Key>Cfg_2</Key>

@@ -1,7 +1,7 @@
 unit KM_UnitTaskAttackHouse;
 {$I KaM_Remake.inc}
 interface
-uses Classes, SysUtils,
+uses Classes, SysUtils, Math,
   KM_CommonClasses, KM_Defaults, KM_Utils, KM_Houses, KM_Units, KM_Units_Warrior, KM_Points;
 
   {Attack a house}
@@ -12,7 +12,6 @@ type
     fDestroyingHouse: Boolean; //House destruction in progress
     LocID: Byte; //Current attack location
   public
-    CanAbandon: Boolean;
     constructor Create(aWarrior: TKMUnitWarrior; aHouse: TKMHouse);
     constructor Load(LoadStream: TKMemoryStream); override;
     procedure SyncLoad; override;
@@ -25,7 +24,7 @@ type
 
 
 implementation
-uses KM_PlayersCollection, KM_Sound, KM_Resource, KM_Projectiles;
+uses KM_PlayersCollection, KM_Sound, KM_Resource, KM_Projectiles, KM_Game;
 
 
 const
@@ -53,7 +52,6 @@ begin
   fHouse := aHouse.GetHousePointer;
   fDestroyingHouse := false;
   LocID  := 0;
-  CanAbandon := True;
 end;
 
 
@@ -63,7 +61,6 @@ begin
   LoadStream.Read(fHouse, 4);
   LoadStream.Read(fDestroyingHouse);
   LoadStream.Read(LocID);
-  LoadStream.Read(CanAbandon);
 end;
 
 
@@ -88,10 +85,9 @@ end;
 
 
 function TTaskAttackHouse.Execute: TTaskResult;
-var AnimLength:integer;
+var AnimLength:integer; Delay, Cycle: Byte;
 begin
   Result := TaskContinues;
-  CanAbandon := True; //Default
 
   //If the house is destroyed drop the task
   if WalkShouldAbandon then
@@ -116,10 +112,25 @@ begin
     1: begin
          if IsRanged then
          begin
+           //Check if the walk failed
+           if (fHouse.GetDistance(GetPosition) < GetFightMinRange) or (fHouse.GetDistance(GetPosition) > GetFightMaxRange) then
+           begin
+             SetActionStay(0, ua_Walk);
+             Result := TaskDone;
+             Exit;
+           end;
+           //Calculate base aiming delay
            if UnitType = ut_Arbaletman then
-             SetActionLockedStay(CROSSBOWMEN_AIMING_DELAY_MIN+KaMRandom(CROSSBOWMEN_AIMING_DELAY_ADD),ua_Work,true) //Pretend to aim
+             Delay := CROSSBOWMEN_AIMING_DELAY_MIN+KaMRandom(CROSSBOWMEN_AIMING_DELAY_ADD)
            else
-             SetActionLockedStay(BOWMEN_AIMING_DELAY_MIN+KaMRandom(BOWMEN_AIMING_DELAY_ADD),ua_Work,true); //Pretend to aim
+             Delay := BOWMEN_AIMING_DELAY_MIN+KaMRandom(BOWMEN_AIMING_DELAY_ADD);
+
+           //Prevent rate of fire exploit by making archers pause for longer if they shot recently
+           Cycle := max(fResource.UnitDat[UnitType].UnitAnim[ua_Work, Direction].Count, 1);
+           if NeedsToReload(Cycle) then
+             Delay := Delay + Cycle-(fGame.GameTickCount-LastShootTime);
+
+           SetActionLockedStay(Delay,ua_Work,true); //Pretend to aim
            if not KMSamePoint(GetPosition, fHouse.GetClosestCell(GetPosition)) then //Unbuilt houses can be attacked from within
              Direction := KMGetDirection(GetPosition, fHouse.GetEntrance); //Look at house
            if MySpectator.FogOfWar.CheckTileRevelation(Round(PositionF.X), Round(PositionF.Y)) >= 255 then
@@ -132,6 +143,13 @@ begin
          end
          else
          begin
+           //Check if the walk failed
+           if fHouse.GetDistance(GetPosition) > GetFightMaxRange then
+           begin
+             SetActionStay(0, ua_Walk);
+             Result := TaskDone;
+             Exit;
+           end;
            SetActionLockedStay(0,ua_Work,false); //Melee units pause after the hit
            if not KMSamePoint(GetPosition, fHouse.GetClosestCell(GetPosition)) then //Unbuilt houses can be attacked from within
              Direction := KMGetDirection(GetPosition, fHouse.GetClosestCell(GetPosition)); //Look at house
@@ -151,16 +169,17 @@ begin
          begin
            //Launch the missile and forget about it
            //Shooting range is not important now, houses don't walk (except Howl's Moving Castle perhaps)
+           //todo: Slingers (rogues) should launch rock part on SLINGSHOT_FIRING_DELAY like they do in ActionFight (animation looks wrong now)
            case UnitType of
-             ut_Arbaletman: fProjectiles.AimTarget(PositionF, fHouse, pt_Bolt, Owner, RANGE_ARBALETMAN_MAX, RANGE_ARBALETMAN_MIN);
-             ut_Bowman:     fProjectiles.AimTarget(PositionF, fHouse, pt_Arrow, Owner, RANGE_BOWMAN_MAX, RANGE_BOWMAN_MIN);
-             ut_Slingshot:  fProjectiles.AimTarget(PositionF, fHouse, pt_SlingRock, Owner, RANGE_SLINGSHOT_MAX, RANGE_SLINGSHOT_MIN);
+             ut_Arbaletman: gProjectiles.AimTarget(PositionF, fHouse, pt_Bolt, Owner, RANGE_ARBALETMAN_MAX, RANGE_ARBALETMAN_MIN);
+             ut_Bowman:     gProjectiles.AimTarget(PositionF, fHouse, pt_Arrow, Owner, RANGE_BOWMAN_MAX, RANGE_BOWMAN_MIN);
+             ut_Slingshot:  gProjectiles.AimTarget(PositionF, fHouse, pt_SlingRock, Owner, RANGE_SLINGSHOT_MAX, RANGE_SLINGSHOT_MIN);
              else Assert(false, 'Unknown shooter');
            end;
+           SetLastShootTime; //Record last time the warrior shot
            AnimLength := fResource.UnitDat[UnitType].UnitAnim[ua_Work, Direction].Count;
-           SetActionLockedStay(AnimLength-FIRING_DELAY-1,ua_Work,false,0,FIRING_DELAY); //Reload for next attack
+           SetActionLockedStay(AnimLength-FIRING_DELAY,ua_Work,false,0,FIRING_DELAY); //Reload for next attack
            fPhase := 0; //Go for another shot (will be 1 after inc below)
-           CanAbandon := False; //Can't abandoned while archer is reloading (halt exploit)
          end
          else
          begin
@@ -174,7 +193,6 @@ begin
              fSoundLib.Play(MeleeSoundsHouse[Random(Length(MeleeSoundsHouse))], PositionF);
 
            fPhase := 1; //Go for another hit (will be 2 after inc below)
-           CanAbandon := False; //Can't abandoned while withdrawing weapon (halt exploit)
          end;
        end;
   end;
@@ -192,7 +210,6 @@ begin
     SaveStream.Write(Integer(0));
   SaveStream.Write(fDestroyingHouse);
   SaveStream.Write(LocID);
-  SaveStream.Write(CanAbandon);
 end;
 
 

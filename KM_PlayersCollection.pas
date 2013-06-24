@@ -53,7 +53,7 @@ type
     procedure RemAnyUnit(Position: TKMPoint);
     procedure RevealForTeam(aPlayer: TPlayerIndex; Pos: TKMPoint; Radius,Amount:word);
     procedure SyncFogOfWar;
-    procedure AddDefaultMPGoals(aMissionMode: TKMissionMode);
+    procedure AddDefaultGoalsToAll(aMissionMode: TKMissionMode);
 
     procedure Save(SaveStream: TKMemoryStream; aMultiplayer: Boolean);
     procedure Load(LoadStream: TKMemoryStream);
@@ -66,11 +66,11 @@ type
 
 var
   fPlayers: TKMPlayersCollection;
-  MySpectator: TKMSpectator; //Wrap to acces player/fow separately
+  MySpectator: TKMSpectator; //Wrap to access player/fow separately
 
 
 implementation
-uses KM_Game, KM_Log, KM_Resource, KM_AIFields, KM_Units_Warrior;
+uses KM_Game, KM_Log, KM_Resource, KM_ResourceHouse, KM_AIFields, KM_Units_Warrior;
 
 
 { TKMPlayersCollection }
@@ -162,7 +162,7 @@ begin
     for k:=aIndex to fCount-1 do
       fPlayerList[i].Alliances[k] := fPlayerList[i].Alliances[k+1];
 
-  fTerrain.RemovePlayer(aIndex);
+  gTerrain.RemovePlayer(aIndex);
 end;
 
 
@@ -258,8 +258,10 @@ begin
     for K := fPlayerList[I].Houses.Count - 1 downto 0 do
     begin
       H := fPlayerList[I].Houses[K];
-      if (H is TKMHouseTower) and H.IsComplete and not H.IsDestroyed then
-        //Don't use H.GetDistance (any tile within house) as that's not how tower range works
+      if (H is TKMHouseTower) and H.IsComplete
+      and not H.IsDestroyed and H.GetHasOwner
+      and (H.fCurrentAction.State <> hst_Empty) then
+        //Don't use H.GetDistance (dist to any tile within house) as that's not how tower range works
         Result := Min(Result, KMLength(H.GetPosition, aLoc));
     end;
   end;
@@ -372,11 +374,11 @@ begin
   for I := 0 to 255 do
   begin
     P := GetPositionFromIndex(KMPoint(PosX,PosY), I);
-    if fTerrain.TileInMapCoords(P.X,P.Y) then
+    if gTerrain.TileInMapCoords(P.X,P.Y) then
     begin
       T := KMPoint(P);
-      if fTerrain.CheckPassability(T, Pass) and (fTerrain.GetWalkConnectID(T) = RequiredWalkConnect)
-      and not fTerrain.HasUnit(T) then
+      if gTerrain.CheckPassability(T, Pass) and (gTerrain.GetWalkConnectID(T) = RequiredWalkConnect)
+      and not gTerrain.HasUnit(T) then
       begin
         PlacePoint := T; // Assign if all test are passed
         Result := True;
@@ -449,14 +451,13 @@ end;
 
 //Reveal portion of terrain for said player and his allies (if they share vision)
 //In singleplayer KaM sometimes you should not see your allies till some time
-//todo: Add ShareVision: array [0.. MAX_PLAYERS-1] of Boolean alongside Alliances array
 procedure TKMPlayersCollection.RevealForTeam(aPlayer: TPlayerIndex; Pos: TKMPoint; Radius, Amount: Word);
 var I: Integer;
 begin
   fPlayerList[aPlayer].FogOfWar.RevealCircle(Pos,Radius,Amount);
 
   for I := 0 to fCount - 1 do
-  if (I <> aPlayer) and (fPlayerList[aPlayer].Alliances[I] = at_Ally) then
+  if (I <> aPlayer) and (fPlayerList[aPlayer].Alliances[I] = at_Ally) and fPlayerList[aPlayer].ShareFOW[I] then
     fPlayerList[I].FogOfWar.RevealCircle(Pos, Radius, Amount);
 end;
 
@@ -467,29 +468,16 @@ var I,K: Integer;
 begin
   for I := 0 to fCount - 1 do
   for K := 0 to fCount - 1 do
-  if (I <> K) and (fPlayerList[I].Alliances[K] = at_Ally) then
+  if (I <> K) and (fPlayerList[I].Alliances[K] = at_Ally) and fPlayerList[I].ShareFOW[K] then
     fPlayerList[K].FogOfWar.SyncFOW(fPlayerList[I].FogOfWar);
 end;
 
 
-procedure TKMPlayersCollection.AddDefaultMPGoals(aMissionMode: TKMissionMode);
-var
-  I,K: Integer;
-  Enemies: array of array of TPlayerIndex;
+procedure TKMPlayersCollection.AddDefaultGoalsToAll(aMissionMode: TKMissionMode);
+var I: Integer;
 begin
-  SetLength(Enemies, fCount);
-
   for I := 0 to fCount - 1 do
-  begin
-    SetLength(Enemies[I], 0);
-    for K := 0 to fCount - 1 do
-    if (I <> K) and (fPlayerList[I].Alliances[K] = at_Enemy) then
-    begin
-      SetLength(Enemies[I], Length(Enemies[I])+1);
-      Enemies[I, Length(Enemies[I])-1] := K;
-    end;
-    fPlayerList[I].Goals.AddDefaultMPGoals(aMissionMode <> mm_Tactic, I, Enemies[I]);
-  end;
+    fPlayerList[I].AddDefaultGoals(aMissionMode <> mm_Tactic);
 end;
 
 
@@ -514,7 +502,7 @@ begin
   LoadStream.Read(fCount);
 
   if fCount > MAX_PLAYERS then
-    fLog.AddAssert('Player count in savegame exceeds MAX_PLAYERS allowed by Remake');
+    gLog.AddAssert('Player count in savegame exceeds MAX_PLAYERS allowed by Remake');
 
   SetLength(fPlayerList, fCount);
 

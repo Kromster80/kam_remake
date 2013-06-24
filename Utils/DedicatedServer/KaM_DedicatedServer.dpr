@@ -149,7 +149,7 @@ begin
   fEventHandler := TKMServerEventHandler.Create;
   Writeln('=========== KaM Remake '+GAME_VERSION+' Dedicated Server ===========');
   Writeln('');
-  Writeln('Log file: '+fLog.LogPath);
+  Writeln('Log file: ' + gLog.LogPath);
   Writeln('Settings file: '+ExeDir+SETTINGS_FILE);
   Writeln('');
 

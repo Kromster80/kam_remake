@@ -5,14 +5,10 @@ global $MAIN_VERSION;
 $Lang = $_REQUEST["lang"];
 $Rev = $_REQUEST["rev"];
 
-if($Rev == "r4297")
-{
-  die("Welcome to the balance test release. Please send us your feedback on the changes.");
-}
 
-if(($Rev == "r3374") || ($Rev == "r3252") || ($Rev == "r3311") || ($Rev == "r3812") || ($Rev == "r3870") || ($Rev == "r3967") || ($Rev == "r3985") || ($Rev == "r4125"))
+if(($Rev == "r3374") || ($Rev == "r3252") || ($Rev == "r3311") || ($Rev == "r3812") || ($Rev == "r3870") || ($Rev == "r3967") || ($Rev == "r3985") || ($Rev == "r4125") || ($Rev == "r4297") || ($Rev == "r5057") || ($Rev == "r5116") || ($Rev == "r5349") || ($Rev == "r5459"))
 {
-  die('[$0000FF]THE 5TH MULTIPLAYER DEMO UPDATE 1 IS OUT![]||This release candidate is now redundant. Please download the release from www.kamremake.com||Thanks again for your help testing!');
+  die('[$0000FF]THE SCRIPTING DEMO IS OUT![]||This release candidate is now redundant. Please download the release from www.kamremake.com||Thanks again for your help testing!');
 }
 
 //First see if they are up to date
@@ -21,6 +17,12 @@ if($Rev != $MAIN_VERSION)
 	echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!|~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~|";
 	switch($Lang)
 	{
+		case 'tur':
+			echo "Eski bir KaM Remake versiyonu kullanэyorsunuz! ".$Rev." versiyonunu kullanэyorsunuz fakat ".$MAIN_VERSION." versiyonu kullanэlabilir durumda.||Lьtfen www.kamremake.com adresinden gьncellemeyi indiriniz.";
+			break;
+		case 'jpn':
+			echo "Anata no KAM Remake no ba-jon wa jidaiokure desu yo!Ѓ@".$Rev." ga jikkou saremashite iru, shikashi ".$MAIN_VERSION." ba-jon wa yori saikin desu. Kono rinku (www.kamremake.com) kara appude-to ga daunro-do saremashite kudasai.";
+			break;
 		case 'bel':
 			echo "Ваша версія KaM Remake ўстарэла! Вы выкарыстоўваеце ".$Rev.", а самая апошняя версія ".$MAIN_VERSION.". ||Калі ласка загрузіце абнаўленне па адрасе: www.kamremake.com";
 			break;
@@ -94,7 +96,7 @@ if($Rev != $MAIN_VERSION)
 }
 else
 {
-	echo 'The recent bugs with the servers causing games to fail to start should be all fixed! If you experience any further problems please contact us at our website.||Enjoy playing KaM Remake? Please consider [$00EEFF]donating[] to support future development. Visit [$F8A070]www.kamremake.com/donations[]||Use [$F23A40]TeamSpeak[] to talk with your allies while playing KaM. There are instructions at [$F8A070]www.kamremake.com[]';
+	echo 'Welcome to the new release! Don\'t forget to try out some of the special multiplayer missions which use dynamic scripts to create new game modes and objectives.||Enjoy playing KaM Remake? Please consider [$00EEFF]donating[] to support future development. Visit [$F8A070]www.kamremake.com/donations[]';
 	//echo 'The 2 vs 2 Powah Tournament has begun! Go to [$F8A070]www.kamremake.com[] to find out more!||Can you help translate our website [$F8A070]www.kamremake.com[]? We need volunteers to help translate it into any language. Please contact us through our website.';
 	//echo 'Powah Tour (Florek, Mulberry, To) are organising a tournament! Go to [$F8A070]www.kamremake.com[] to find out more!||Can you help translate our website [$F8A070]www.kamremake.com[]? We need volunteers to help translate it into any language. Please contact us through our website.';
 	//echo '[$FF6EAF]Welcome to the 4th multiplayer demo[] :)|Please report any issues.';

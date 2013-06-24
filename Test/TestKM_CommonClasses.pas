@@ -16,8 +16,8 @@ type
     procedure TearDown; override;
   published
     procedure TestClear;
-    procedure TestAddEntry;
-    procedure TestRemoveEntry;
+    procedure TestAdd;
+    procedure TestRemove;
     procedure TestInsert;
     procedure TestGetRandom;
     procedure TestGetClosest;
@@ -38,8 +38,8 @@ type
     procedure TearDown; override;
   published
     procedure TestClear;
-    procedure TestAddEntry;
-    procedure TestRemoveEntry;
+    procedure TestAdd;
+    procedure TestRemove;
     procedure TestSaveToStream;
     procedure TestLoadFromStream;
   end;
@@ -55,7 +55,7 @@ type
     procedure TearDown; override;
   published
     procedure TestClear;
-    procedure TestAddItem;
+    procedure TestAdd;
     procedure TestGetRandom;
     procedure TestLoadFromStream;
     procedure TestSaveToStream;
@@ -80,7 +80,7 @@ procedure TestTKMPointList.FillDefaults;
 var I: Integer;
 begin
   for I := 0 to 255 do
-    FKMPointList.AddEntry(KMPoint(I, I));
+    FKMPointList.Add(KMPoint(I, I));
 end;
 
 procedure TestTKMPointList.TestClear;
@@ -93,7 +93,7 @@ begin
   Check(FKMPointList.Count = 0);
 end;
 
-procedure TestTKMPointList.TestAddEntry;
+procedure TestTKMPointList.TestAdd;
 var
   I: Integer;
   aLoc: TKMPoint;
@@ -101,28 +101,28 @@ begin
   for I := 0 to 255 do
   begin
     aLoc := KMPoint(Random(65535), Random(65535));
-    FKMPointList.AddEntry(aLoc);
+    FKMPointList.Add(aLoc);
     CheckEquals(I + 1, FKMPointList.Count);
     CheckEquals(aLoc.X, FKMPointList[I].X);
     CheckEquals(aLoc.Y, FKMPointList[I].Y);
   end;
 end;
 
-procedure TestTKMPointList.TestRemoveEntry;
+procedure TestTKMPointList.TestRemove;
 var
   OldCount: Integer;
   ReturnValue: Integer;
   aLoc: TKMPoint;
 begin
   //Test with no values
-  ReturnValue := FKMPointList.RemoveEntry(KMPoint(7,8));
+  ReturnValue := FKMPointList.Remove(KMPoint(7,8));
   Check(ReturnValue = -1);
   Check(FKMPointList.Count = 0);
 
   //Test single value
   aLoc := KMPoint(7,8);
-  FKMPointList.AddEntry(aLoc);
-  ReturnValue := FKMPointList.RemoveEntry(aLoc);
+  FKMPointList.Add(aLoc);
+  ReturnValue := FKMPointList.Remove(aLoc);
   Check(ReturnValue = 0);
   Check(FKMPointList.Count = 0);
 
@@ -130,7 +130,7 @@ begin
   FKMPointList.Clear;
   FillDefaults;
   OldCount := FKMPointList.Count;
-  ReturnValue := FKMPointList.RemoveEntry(KMPoint(7,8));
+  ReturnValue := FKMPointList.Remove(KMPoint(7,8));
   Check(ReturnValue = -1);
   Check(FKMPointList.Count = OldCount);
 end;
@@ -193,7 +193,7 @@ begin
   begin
     ReturnValue := FKMPointList.GetRandom(Point);
     Check(ReturnValue);
-    K := FKMPointList.RemoveEntry(Point);
+    K := FKMPointList.Remove(Point);
     Check(K <> -1);
   end;
   Check(FKMPointList.Count = 0);
@@ -222,9 +222,9 @@ begin
   Check(FKMPointList.Count = 0, 'Empty fail');
 
   //Odd list
-  FKMPointList.AddEntry(KMPoint(1,1));
-  FKMPointList.AddEntry(KMPoint(2,2));
-  FKMPointList.AddEntry(KMPoint(3,3));
+  FKMPointList.Add(KMPoint(1,1));
+  FKMPointList.Add(KMPoint(2,2));
+  FKMPointList.Add(KMPoint(3,3));
   FKMPointList.Inverse;
   Check(KMSamePoint(FKMPointList[0], KMPoint(3,3)));
   Check(KMSamePoint(FKMPointList[1], KMPoint(2,2)));
@@ -232,10 +232,10 @@ begin
 
   //Even list
   FKMPointList.Clear;
-  FKMPointList.AddEntry(KMPoint(1,1));
-  FKMPointList.AddEntry(KMPoint(2,2));
-  FKMPointList.AddEntry(KMPoint(3,3));
-  FKMPointList.AddEntry(KMPoint(4,4));
+  FKMPointList.Add(KMPoint(1,1));
+  FKMPointList.Add(KMPoint(2,2));
+  FKMPointList.Add(KMPoint(3,3));
+  FKMPointList.Add(KMPoint(4,4));
   FKMPointList.Inverse;
   Check(KMSamePoint(FKMPointList[0], KMPoint(4,4)));
   Check(KMSamePoint(FKMPointList[1], KMPoint(3,3)));
@@ -270,7 +270,7 @@ begin
   SaveStream.Free;
 
   //Single entry list
-  FKMPointList.AddEntry(KMPoint(7,8));
+  FKMPointList.Add(KMPoint(7,8));
   SaveStream := TKMemoryStream.Create;
   FKMPointList.SaveToStream(SaveStream);
   SaveStream.Position := 0;
@@ -314,7 +314,7 @@ procedure TestTKMPointTagList.FillDefaults;
 var I: Integer;
 begin
   for I := 0 to 255 do
-    FKMPointTagList.AddEntry(KMPoint(I, I), I, 255-I);
+    FKMPointTagList.Add(KMPoint(I, I), I, 255-I);
 end;
 
 procedure TestTKMPointTagList.TestClear;
@@ -329,7 +329,7 @@ begin
   Check(FKMPointTagList.Count = 0);
 end;
 
-procedure TestTKMPointTagList.TestAddEntry;
+procedure TestTKMPointTagList.TestAdd;
 var
   I: Integer;
   aLoc: TKMPoint;
@@ -342,7 +342,7 @@ begin
     aLoc := KMPoint(Random(65535), Random(65535));
     aTag := I;
     aTag2 := 255-I;
-    FKMPointTagList.AddEntry(aLoc, aTag, aTag2);
+    FKMPointTagList.Add(aLoc, aTag, aTag2);
     CheckEquals(I + 1, FKMPointTagList.Count);
     Check(KMSamePoint(FKMPointTagList[I], aLoc));
     Check(FKMPointTagList.Tag[I] = aTag);
@@ -350,21 +350,21 @@ begin
   end;
 end;
 
-procedure TestTKMPointTagList.TestRemoveEntry;
+procedure TestTKMPointTagList.TestRemove;
 var
   OldCount: Integer;
   ReturnValue: Integer;
   aLoc: TKMPoint;
 begin
   //Test with no values
-  ReturnValue := FKMPointTagList.RemoveEntry(KMPoint(7,8));
+  ReturnValue := FKMPointTagList.Remove(KMPoint(7,8));
   Check(ReturnValue = -1);
   Check(FKMPointTagList.Count = 0);
 
   //Test single value
   aLoc := KMPoint(7,8);
-  FKMPointTagList.AddEntry(aLoc, 1, 1);
-  ReturnValue := FKMPointTagList.RemoveEntry(aLoc);
+  FKMPointTagList.Add(aLoc, 1, 1);
+  ReturnValue := FKMPointTagList.Remove(aLoc);
   Check(ReturnValue = 0);
   Check(FKMPointTagList.Count = 0);
 
@@ -372,17 +372,17 @@ begin
   FKMPointTagList.Clear;
   FillDefaults;
   OldCount := FKMPointTagList.Count;
-  ReturnValue := FKMPointTagList.RemoveEntry(KMPoint(7,8));
+  ReturnValue := FKMPointTagList.Remove(KMPoint(7,8));
   Check(ReturnValue = -1);
   Check(FKMPointTagList.Count = OldCount);
 
   //Test removed second to last
   FKMPointTagList.Clear;
-  FKMPointTagList.AddEntry(KMPoint(0,0), 0, 0);
-  FKMPointTagList.AddEntry(KMPoint(1,1), 1, 1);
-  FKMPointTagList.AddEntry(KMPoint(2,2), 2, 2);
-  FKMPointTagList.AddEntry(KMPoint(3,3), 3, 3);
-  ReturnValue := FKMPointTagList.RemoveEntry(KMPoint(2,2));
+  FKMPointTagList.Add(KMPoint(0,0), 0, 0);
+  FKMPointTagList.Add(KMPoint(1,1), 1, 1);
+  FKMPointTagList.Add(KMPoint(2,2), 2, 2);
+  FKMPointTagList.Add(KMPoint(3,3), 3, 3);
+  ReturnValue := FKMPointTagList.Remove(KMPoint(2,2));
   Check(ReturnValue = 2);
   Check(FKMPointTagList.Count = 3);
   Check(FKMPointTagList.Tag[2] = 3);
@@ -401,7 +401,7 @@ begin
   SaveStream.Free;
 
   //Single entry list
-  FKMPointTagList.AddEntry(KMPoint(7,8), 1, 2);
+  FKMPointTagList.Add(KMPoint(7,8), 1, 2);
   SaveStream := TKMemoryStream.Create;
   FKMPointTagList.SaveToStream(SaveStream);
   SaveStream.Position := 0;
@@ -451,7 +451,7 @@ procedure TestTKMPointDirList.FillDefaults;
 var I: Integer;
 begin
   for I := 0 to 255 do
-    FKMPointDirList.AddItem(KMPointDir(I, I, dir_N));
+    FKMPointDirList.Add(KMPointDir(I, I, dir_N));
 end;
 
 procedure TestTKMPointDirList.TestClear;
@@ -464,7 +464,7 @@ begin
   Check(FKMPointDirList.Count = 0);
 end;
 
-procedure TestTKMPointDirList.TestAddItem;
+procedure TestTKMPointDirList.TestAdd;
 var
   I: Integer;
   aLoc: TKMPointDir;
@@ -473,7 +473,7 @@ begin
   for I := 0 to 255 do
   begin
     aLoc := KMPointDir(Random(65535), Random(65535), TKMDirection(Random(9)));
-    FKMPointDirList.AddItem(aLoc);
+    FKMPointDirList.Add(aLoc);
     Check(FKMPointDirList.Count = I + 1);
     Check(KMSamePointDir(FKMPointDirList[I], aLoc));
   end;
@@ -490,7 +490,7 @@ begin
 
   //Single value
   aLoc := KMPointDir(Random(65535), Random(65535), TKMDirection(Random(9)));
-  FKMPointDirList.AddItem(aLoc);
+  FKMPointDirList.Add(aLoc);
   ReturnValue := FKMPointDirList.GetRandom(Point);
   Check(ReturnValue);
   Check(KMSamePointDir(aLoc, Point));
@@ -509,7 +509,7 @@ begin
   SaveStream.Free;
 
   //Single entry list
-  FKMPointDirList.AddItem(KMPointDir(7, 8, dir_SW));
+  FKMPointDirList.Add(KMPointDir(7, 8, dir_SW));
   SaveStream := TKMemoryStream.Create;
   FKMPointDirList.SaveToStream(SaveStream);
   SaveStream.Position := 0;

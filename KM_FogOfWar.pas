@@ -19,19 +19,21 @@ type
     fAnimStep: Cardinal;
     MapX: Word;
     MapY: Word;
-    Revelation: array of array of record
+    Revelation: array of array of packed record
       //Lies within range 0, TERRAIN_FOG_OF_WAR_MIN..TERRAIN_FOG_OF_WAR_MAX.
       Visibility: Byte;
       {LastTerrain: Byte;
       LastHeight: Byte;
-      LastTree: Byte;
+      LastObj: Byte;
       LastHouse: THouseType;}
     end;
     procedure SetMapSize(X,Y: Word);
   public
     constructor Create(X,Y: Word);
     procedure RevealCircle(Pos: TKMPoint; Radius,Amount: Word);
+    procedure CoverCircle(Pos: TKMPoint; Radius: Word);
     procedure RevealEverything;
+    procedure CoverEverything;
     function CheckVerticeRevelation(const X,Y: Word): Byte; override;
     function CheckTileRevelation(const X,Y: Word): Byte; override;
     function CheckRevelation(const aPoint: TKMPointF): Byte; override;
@@ -53,8 +55,16 @@ type
   end;
 
 
+const
+  FOG_OF_WAR_MIN  = 80;           //Minimum value for explored but FOW terrain, MIN/ACT determines FOW darkness
+  FOG_OF_WAR_ACT  = 160;          //Until this value FOW is not rendered at all
+  FOG_OF_WAR_MAX  = 255;          //This is max value that FOW can be, MAX-ACT determines how long until FOW appears
+  FOG_OF_WAR_INC  = 128;          //Increment for FOW
+  FOG_OF_WAR_DEC  = 12;           //Decrement for FOW
+
+
 implementation
-uses KM_Defaults, KM_Game;
+uses KM_Defaults, KM_Game, KM_Terrain;
 
 
 { TKMFogOfWar }
@@ -87,6 +97,17 @@ begin
 end;
 
 
+procedure TKMFogOfWar.CoverCircle(Pos: TKMPoint; Radius: Word);
+var I,K: Integer;
+begin
+  //We inline maths here to gain performance
+  for I := max(Pos.Y-Radius, 0) to min(Pos.Y+Radius, MapY-1) do
+  for K := max(Pos.X-Radius, 0) to min(Pos.X+Radius, MapX-1) do
+  if (sqr(Pos.x-K) + sqr(Pos.y-I)) <= sqr(Radius) then
+    Revelation[I,K].Visibility := 0;
+end;
+
+
 {Reveal whole map to max value}
 procedure TKMFogOfWar.RevealEverything;
 var I,K: Word;
@@ -97,16 +118,24 @@ begin
 end;
 
 
+procedure TKMFogOfWar.CoverEverything;
+var I,K: Word;
+begin
+  for I := 0 to MapY - 1 do
+    for K := 0 to MapX - 1 do
+      Revelation[I, K].Visibility := 0;
+end;
+
+
 //Check if requested vertice is revealed for given player
 //Return value of revelation is 0..255
 //0 unrevealed, 255 revealed completely
-//aSkipForReplay should be true in cases where replay should always return revealed (e.g. sounds, render)
 //but false in cases where it will effect the gameplay (e.g. unit hit test)
 function TKMFogOfWar.CheckVerticeRevelation(const X,Y: Word): Byte;
 begin
   //I like how "alive" the fog looks with some tweaks
   //pulsating around units and slowly thickening when they leave :)
-  if FOG_OF_WAR_ENABLE then
+  if DYNAMIC_FOG_OF_WAR then
     if (Revelation[Y,X].Visibility >= FOG_OF_WAR_ACT) then
       Result := 255
     else
@@ -122,7 +151,6 @@ end;
 //Check if requested tile is revealed for given player
 //Input values for tiles (X,Y) are in 1..N range
 //Return value of revelation within 0..255 (0 unrevealed, 255 fully revealed)
-//aSkipForReplay should be true in cases where replay should always return revealed (e.g. sounds, render)
 //but false in cases where it will effect the gameplay (e.g. unit hit test)
 function TKMFogOfWar.CheckTileRevelation(const X,Y: Word): Byte;
 begin
@@ -210,15 +238,24 @@ procedure TKMFogOfWar.UpdateState;
 var
   I, K: Word;
 begin
-  if not FOG_OF_WAR_ENABLE then Exit;
+  if not DYNAMIC_FOG_OF_WAR then Exit;
 
   Inc(fAnimStep);
 
   for I := 0 to MapY - 1 do
-    for K := 0 to MapX - 1 do
-      if (Revelation[I, K].Visibility > FOG_OF_WAR_MIN)
-      and ((I * MapX + K + fAnimStep) mod FOW_PACE = 0) then
-          Dec(Revelation[I, K].Visibility, FOG_OF_WAR_DEC);
+  for K := 0 to MapX - 1 do
+  if (Revelation[I, K].Visibility > FOG_OF_WAR_MIN)
+  and ((I * MapX + K + fAnimStep) mod FOW_PACE = 0) then
+  begin
+    Dec(Revelation[I, K].Visibility, FOG_OF_WAR_DEC);
+
+    {//Remember waht we have seen last
+    if Revelation[I, K].Visibility <= FOG_OF_WAR_MIN then
+    begin
+      Revelation[I, K].LastTerrain := gTerrain.Land[I, K].Terrain;
+
+    end;}
+  end;
 end;
 
 

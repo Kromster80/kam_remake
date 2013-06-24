@@ -1,0 +1,271 @@
+// Globale Variablen
+var iMain, iAdd, iScout, iPatrol1, iPatrol2, iPatrol3, iPatrol4, iPatrol5, iPatrol6, iCount, iPosition, iInterval, iFood: Integer;
+var bDiscovered: Boolean;
+
+procedure OnMissionStart;
+begin
+	
+  // Spähertruppe
+  iScout := States.GroupAt(51, 3);
+  // Wachtürme bauen
+  Actions.PlanAddHouse(2, 17, 87, 27);
+  Actions.PlanAddHouse(2, 17, 91, 31);
+  Actions.PlanAddRoad(2, 88, 28);
+  Actions.PlanAddRoad(2, 89, 31);
+  Actions.PlanAddRoad(2, 89, 30);
+  Actions.PlanAddRoad(2, 91, 32);
+
+  Actions.PlanAddHouse(3, 17, 83, 53);
+  Actions.PlanAddRoad(3, 83, 54);
+  Actions.PlanAddRoad(3, 82, 54);
+  Actions.PlanAddRoad(3, 81, 54);
+
+  // Waren
+  Actions.HouseAddWaresTo(States.HouseAt(171, 18), 7, 5);
+  Actions.HouseAddWaresTo(States.HouseAt(175, 17), 7, 5);
+  Actions.HouseAddWaresTo(States.HouseAt(163, 21), 8, 5);
+  Actions.HouseAddWaresTo(States.HouseAt(163, 21), 10, 5);
+  Actions.HouseAddWaresTo(States.HouseAt(163, 21), 13, 2);
+  Actions.HouseAddWaresTo(States.HouseAt(177, 34), 8, 5);
+  Actions.HouseAddWaresTo(States.HouseAt(177, 34), 10, 5);
+  Actions.HouseAddWaresTo(States.HouseAt(177, 34), 13, 5);
+
+  Actions.HouseAddWaresTo(States.HouseAt(61, 4), 1, 5);
+  Actions.HouseAddWaresTo(States.HouseAt(45, 6), 1, 5);
+  Actions.HouseAddWaresTo(States.HouseAt(67, 18), 1, 5);
+  Actions.HouseAddWaresTo(States.HouseAt(42, 14), 1, 5);
+  Actions.HouseAddWaresTo(States.HouseAt(53, 22), 1, 5);
+  Actions.HouseDeliveryBlock(States.HouseAt(52, 14), true);
+
+  Actions.HouseAddWaresTo(States.HouseAt(65, 69), 1, 3000);
+  Actions.HouseAddWaresTo(States.HouseAt(74, 57), 1, 5);
+  
+  // Lagerhäuser blockieren
+  Actions.HouseWareBlock(States.HouseAt(41, 67), 0, true);
+  Actions.HouseWareBlock(States.HouseAt(41, 67), 9, true);
+  Actions.HouseWareBlock(States.HouseAt(41, 67), 11, true);
+  Actions.HouseWareBlock(States.HouseAt(41, 67), 14, true);
+  Actions.HouseWareBlock(States.HouseAt(41, 67), 15, true);
+  
+  Actions.HouseWareBlock(States.HouseAt(47, 64), 0, true);
+  Actions.HouseWareBlock(States.HouseAt(47, 64), 9, true);
+  Actions.HouseWareBlock(States.HouseAt(47, 64), 11, true);
+  Actions.HouseWareBlock(States.HouseAt(47, 64), 14, true);
+  Actions.HouseWareBlock(States.HouseAt(47, 64), 15, true);
+  
+  Actions.HouseWareBlock(States.HouseAt(64, 69), 0, true);
+  Actions.HouseWareBlock(States.HouseAt(64, 69), 9, true);
+  Actions.HouseWareBlock(States.HouseAt(64, 69), 11, true);
+  Actions.HouseWareBlock(States.HouseAt(64, 69), 14, true);
+  Actions.HouseWareBlock(States.HouseAt(64, 69), 15, true);
+
+  // Gemischte Truppen AI5
+  iMain := Actions.GiveGroup(3, 15, 83, 57, 2, 5, 4);
+  iAdd := Actions.GiveGroup(3, 14, 82, 57, 2, 3, 3);
+  Actions.GroupOrderLink(iAdd, iMain);
+
+  // Patrolierende Reiter
+  iPatrol1 := Actions.GiveGroup(4, 27, 33, 10, 4, 4, 3);
+  iAdd := Actions.GiveGroup(4, 21, 31, 9, 4, 2, 2);
+  Actions.GroupOrderLink(iAdd, iPatrol1);
+  iPatrol2 := Actions.GiveGroup(4, 21, 33, 7, 4, 5, 3);
+  iAdd := Actions.GiveGroup(4, 27, 31, 6, 4, 1, 1);
+  Actions.GroupOrderLink(iAdd, iPatrol2);
+  iPatrol3 := Actions.GiveGroup(4, 27, 33, 4, 4, 6, 3);
+
+  iPatrol4 := Actions.GiveGroup(4, 27, 4, 34, 4, 2, 2);
+  iAdd := Actions.GiveGroup(4, 21, 4, 33, 4, 4, 3);
+  Actions.GroupOrderLink(iAdd, iPatrol4);
+  Actions.GroupSetFormation(iPatrol4, 3);
+  iPatrol5 := Actions.GiveGroup(4, 27, 4, 31, 4, 6, 3);
+  iPatrol6 := Actions.GiveGroup(4, 21, 4, 28, 4, 6, 3);
+
+  iCount := 500;
+  iPosition := 0;
+  iInterval := 400;
+  iFood := 0;
+  bDiscovered := false;
+
+end;
+
+procedure OnTick;
+var iLoop1, iLoop2: Integer;
+begin
+  // Spieler 05 fängt an abzubauen sobald die Kohleminen erkundet sind
+  if bDiscovered = false then
+  for iLoop1 := 54 to 65 do begin
+	for iLoop2 := 8 to 18 do begin
+		if States.FogRevealed(0, iLoop1, iLoop2)
+		then begin
+			Actions.HouseDeliveryBlock(States.HouseAt(52, 14), false);
+			bDiscovered := true;
+			break;
+		end;		
+	end;
+  end;
+
+
+  // Späher Nachricht
+  if (States.GroupDead(iScout) = true) AND (iScout <> -1) then
+	begin
+		Actions.ShowMsg(0, '<$1>');
+		iScout := -1;
+	end;
+
+
+  // Patrolierende Reiter
+  if (States.GroupDead(iPatrol1) = false) 
+  OR (States.GroupDead(iPatrol2) = false) 
+  OR (States.GroupDead(iPatrol3) = false)
+  OR (States.GroupDead(iPatrol4) = false)
+  OR (States.GroupDead(iPatrol5) = false)
+  OR (States.GroupDead(iPatrol6) = false)
+	then begin
+
+
+ 		if States.GameTime = iCount + iInterval then
+		begin
+			if iPosition = 0 then
+			begin
+				Actions.GroupOrderWalk(iPatrol1, 7, 19, 5);
+				Actions.GroupOrderWalk(iPatrol2, 11, 22, 4);
+				Actions.GroupOrderWalk(iPatrol3, 15, 20, 3);
+
+				Actions.GroupOrderWalk(iPatrol4, 102, 24, 7);
+				Actions.GroupOrderWalk(iPatrol5, 109, 26, 2);
+				Actions.GroupOrderWalk(iPatrol6, 107, 31, 3);
+			end;
+			if iPosition = 1 then
+			begin
+				Actions.GroupOrderWalk(iPatrol1, 9, 40, 1);
+				Actions.GroupOrderWalk(iPatrol2, 13, 42, 1);
+				Actions.GroupOrderWalk(iPatrol3, 11, 48, 3);
+
+				Actions.GroupOrderWalk(iPatrol4, 86, 7, 5);
+				Actions.GroupOrderWalk(iPatrol5, 90, 11, 4);
+				Actions.GroupOrderWalk(iPatrol6, 95, 9, 3);
+			end;
+			if iPosition = 2 then
+			begin
+				Actions.GroupOrderWalk(iPatrol1, 33, 44, 7);
+				Actions.GroupOrderWalk(iPatrol2, 39, 44, 2);
+				Actions.GroupOrderWalk(iPatrol3, 36, 48, 3);
+
+				Actions.GroupOrderWalk(iPatrol4, 34, 14, 4);
+				Actions.GroupOrderWalk(iPatrol5, 38, 12, 4);
+				Actions.GroupOrderWalk(iPatrol6, 38, 16, 5);
+			end;
+			if iPosition = 3 then
+			begin
+				iFood := iFood + 1;
+				if iFood = 2 then begin
+					Actions.GroupOrderHalt(iPatrol1);
+					Actions.GroupOrderHalt(iPatrol2);
+					Actions.GroupOrderHalt(iPatrol3);
+					Actions.GroupOrderHalt(iPatrol4);
+					Actions.GroupOrderHalt(iPatrol5);
+					Actions.GroupOrderHalt(iPatrol6);
+					Actions.GroupOrderFood(iPatrol4);
+					Actions.GroupOrderFood(iPatrol5);
+					Actions.GroupOrderFood(iPatrol6);
+					iCount := iCount + 600;
+				end else begin iCount := iCount - iInterval + 1; end;
+			end;
+			if iPosition = 4 then
+			begin
+				Actions.GroupOrderWalk(iPatrol1, 56, 35, 0);
+				Actions.GroupOrderWalk(iPatrol2, 61, 35, 0);
+				Actions.GroupOrderWalk(iPatrol3, 66, 37, 1);
+
+				Actions.GroupOrderWalk(iPatrol4, 7, 19, 5);
+				Actions.GroupOrderWalk(iPatrol5, 11, 22, 4);
+				Actions.GroupOrderWalk(iPatrol6, 15, 20, 3);
+			end;
+			if iPosition = 5 then
+			begin
+				Actions.GroupOrderWalk(iPatrol1, 73, 46, 7);
+				Actions.GroupOrderWalk(iPatrol2, 79, 46, 2);
+				Actions.GroupOrderWalk(iPatrol3, 77, 51, 3);
+
+				Actions.GroupOrderWalk(iPatrol4, 9, 40, 1);
+				Actions.GroupOrderWalk(iPatrol5, 13, 42, 1);
+				Actions.GroupOrderWalk(iPatrol6, 11, 48, 3);
+			end;
+			if iPosition = 6 then
+			begin
+				Actions.GroupOrderWalk(iPatrol1, 100, 48, 3);
+				Actions.GroupOrderWalk(iPatrol2, 102, 44, 3);
+				Actions.GroupOrderWalk(iPatrol3, 95, 46, 7);
+
+				Actions.GroupOrderWalk(iPatrol4, 33, 44, 7);
+				Actions.GroupOrderWalk(iPatrol5, 39, 44, 2);
+				Actions.GroupOrderWalk(iPatrol6, 36, 48, 3);
+			end;
+			if iPosition = 7 then
+			begin
+				Actions.GroupOrderWalk(iPatrol1, 102, 24, 7);
+				Actions.GroupOrderWalk(iPatrol2, 109, 26, 2);
+				Actions.GroupOrderWalk(iPatrol3, 107, 31, 3);
+
+				Actions.GroupOrderWalk(iPatrol4, 56, 35, 0);
+				Actions.GroupOrderWalk(iPatrol5, 61, 35, 0);
+				Actions.GroupOrderWalk(iPatrol6, 66, 37, 1);
+			end;
+			if iPosition = 8 then
+			begin
+				Actions.GroupOrderWalk(iPatrol1, 86, 7, 5);
+				Actions.GroupOrderWalk(iPatrol2, 90, 11, 4);
+				Actions.GroupOrderWalk(iPatrol3, 95, 9, 3);
+
+				Actions.GroupOrderWalk(iPatrol4, 73, 46, 7);
+				Actions.GroupOrderWalk(iPatrol5, 79, 46, 2);
+				Actions.GroupOrderWalk(iPatrol6, 77, 51, 3);
+			end;
+			if iPosition = 9 then
+			begin
+				Actions.GroupOrderWalk(iPatrol1, 34, 14, 4);
+				Actions.GroupOrderWalk(iPatrol2, 38, 12, 4);
+				Actions.GroupOrderWalk(iPatrol3, 38, 16, 5);
+
+				Actions.GroupOrderWalk(iPatrol4, 100, 48, 3);
+				Actions.GroupOrderWalk(iPatrol5, 102, 44, 3);
+				Actions.GroupOrderWalk(iPatrol6, 95, 46, 7);
+			end;
+
+			if iPosition = 10 then
+			begin
+				if iFood = 2 then begin
+					Actions.GroupOrderHalt(iPatrol1);
+					Actions.GroupOrderHalt(iPatrol2);
+					Actions.GroupOrderHalt(iPatrol3);
+					Actions.GroupOrderFood(iPatrol1);
+					Actions.GroupOrderFood(iPatrol2);
+					Actions.GroupOrderFood(iPatrol3);
+					Actions.GroupOrderHalt(iPatrol4);
+					Actions.GroupOrderHalt(iPatrol5);
+					Actions.GroupOrderHalt(iPatrol6);
+					iCount := iCount + 600;
+					iFood := 0;
+				end else begin iCount := iCount - iInterval + 1; end;
+			end;
+			// Aufzählen
+			iCount := iCount + iInterval;
+			iPosition := iPosition + 1;
+			if iPosition = 11 then
+			begin iPosition := 0; end;		
+		end;
+	end;
+  // Nochmal Wachturm bauen
+  if States.GameTime = 3000 then
+	begin
+	Actions.PlanAddHouse(3, 17, 83, 53);
+	Actions.PlanAddRoad(3, 83, 54);
+	Actions.PlanAddRoad(3, 82, 54);
+	Actions.PlanAddRoad(3, 81, 54);
+	end;
+  // Nachrichten
+  if States.GameTime = 300 then 
+    Actions.ShowMsg(0, '<$0>');
+  if States.GameTime = 33000 then 
+    Actions.ShowMsg(0, '<$2>');
+end;

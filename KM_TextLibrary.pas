@@ -17,7 +17,7 @@ const
   NO_TEXT = '<<<LEER>>>';
 
 type
-  TTextLibrary = class
+  TKMTextLibrary = class
   private
     fLocale: AnsiString;
     fFallbackLocale: AnsiString;
@@ -33,6 +33,7 @@ type
     procedure LoadMissionStrings(aFileName: string);
 
     function GetMissionString(aIndex: Word): AnsiString;
+    function ParseTextMarkup(const aText: AnsiString): AnsiString;
 
     property Texts[aIndex: Word]: AnsiString read GetTexts; default;
 
@@ -41,7 +42,7 @@ type
 
 
 var
-  fTextLibrary: TTextLibrary;
+  fTextLibrary: TKMTextLibrary;
 
 
 implementation
@@ -49,7 +50,7 @@ uses KM_Log, KM_Locales;
 
 
 { TTextLibrary }
-constructor TTextLibrary.Create(aLibPath: string; aLocale: AnsiString);
+constructor TKMTextLibrary.Create(aLibPath: string; aLocale: AnsiString);
 begin
   inherited Create;
 
@@ -66,12 +67,12 @@ begin
   if (fLocale <> DEFAULT_LOCALE) and FileExists(aLibPath+'text.'+fLocale+'.libx') then
     LoadLIBXFile(aLibPath+'text.'+fLocale+'.libx', 0, GameStrings, True); //Overwrite with selected locale
 
-  fLog.AddTime('TextLib init done');
+  gLog.AddTime('TextLib init done');
 end;
 
 
 {LIBX files consist of lines. Each line has an index and a text. Lines without index are skipped}
-procedure TTextLibrary.LoadLIBXFile(FilePath: string; aFirstIndex: Word; var aArray: TAnsiStringArray; aOverwrite: Boolean);
+procedure TKMTextLibrary.LoadLIBXFile(FilePath: string; aFirstIndex: Word; var aArray: TAnsiStringArray; aOverwrite: Boolean);
 var
   aStringList: TStringList;
   I: Integer;
@@ -117,7 +118,7 @@ end;
 
 //Campaign description and briefings get appended to main list
 //as they are used in Main Menu right away
-function TTextLibrary.AppendCampaign(aFileName: string): Word;
+function TKMTextLibrary.AppendCampaign(aFileName: string): Word;
 begin
   Assert(Pos('%s', aFileName) <> 0, 'Input string must be formatted properly with an %s');
 
@@ -134,7 +135,7 @@ end;
 
 //Load mission strings into separate array, as they get reloaded for each mission
 //Only one set of mission strings is required at a time
-procedure TTextLibrary.LoadMissionStrings(aFileName: string);
+procedure TKMTextLibrary.LoadMissionStrings(aFileName: string);
 begin
   LoadLIBXFile(Format(aFileName, [DEFAULT_LOCALE]), 0, MissionStrings, False);
 
@@ -146,7 +147,7 @@ begin
 end;
 
 
-function TTextLibrary.GetTexts(aIndex: word): AnsiString;
+function TKMTextLibrary.GetTexts(aIndex: word): AnsiString;
 begin
   if aIndex < Length(GameStrings) then
     Result := GameStrings[aIndex]
@@ -155,7 +156,7 @@ begin
 end;
 
 
-function TTextLibrary.GetMissionString(aIndex: word): AnsiString;
+function TKMTextLibrary.GetMissionString(aIndex: word): AnsiString;
 begin
   if aIndex < Length(MissionStrings) then
     Result := MissionStrings[aIndex]
@@ -164,7 +165,33 @@ begin
 end;
 
 
-procedure TTextLibrary.ExportTextLibrary(aLibrary: array of AnsiString; aFileName: string);
+//Take the string and replace every occurence of <$tag> with corresponding text from LibX
+function TKMTextLibrary.ParseTextMarkup(const aText: AnsiString): AnsiString;
+var
+  I, ID, Last: Integer;
+begin
+  Result := '';
+  I := 1;
+  while I <= Length(aText) do
+  begin
+    if (I + 3 <= Length(aText)) and (aText[I] = '<') and (aText[I+1] = '$') then
+    begin
+      Last := PosEx('>', aText, I);
+      ID := StrToIntDef(Copy(aText, I+2, Last-(I+2)), -1);
+      if ID >= 0 then
+      begin
+        Result := Result + GetMissionString(ID);
+        I := Last + 1;
+        Continue;
+      end;
+    end;
+    Result := Result + aText[I];
+    Inc(I);
+  end;
+end;
+
+
+procedure TKMTextLibrary.ExportTextLibrary(aLibrary: array of AnsiString; aFileName: string);
 var
   i: integer;
   FileData: TStringList;
@@ -185,7 +212,7 @@ begin
 end;
 
 
-procedure TTextLibrary.ExportTextLibraries;
+procedure TKMTextLibrary.ExportTextLibraries;
 begin
   CreateDir(ExeDir + 'Export' + PathDelim);
   ExportTextLibrary(GameStrings, ExeDir + 'Export' + PathDelim + 'text.'+fLocale+'.libx');

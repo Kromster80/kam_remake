@@ -2,6 +2,7 @@ program Runner;
 {$I KaM_Remake.inc}
 uses
   Forms,
+  {$IFDEF FPC} Interfaces, {$ENDIF}
   Unit1 in 'Unit1.pas' {Form2},
   Unit_Runner in 'Unit_Runner.pas',
   Runner_Game in 'Runner_Game.pas',

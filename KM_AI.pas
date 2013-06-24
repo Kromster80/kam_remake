@@ -11,6 +11,8 @@ uses
 type
   TWonOrLost = (wol_None, wol_Won, wol_Lost);
 
+  //Things that player does automatically
+  //Player AI exists both for AI and Human players
   TKMPlayerAI = class
   private
     fOwner: TPlayerIndex;
@@ -46,7 +48,7 @@ type
 implementation
 uses
   KM_Game, KM_PlayersCollection, KM_Goals, KM_Player, KM_PlayerStats,
-  KM_Sound, KM_Scripting;
+  KM_Sound, KM_Scripting, KM_ResourceHouse;
 
 
 { TKMPlayerAI }
@@ -80,9 +82,8 @@ begin
   begin
     fWonOrLost := wol_Lost;
 
-    //Let everyone know in MP mode
-    if not fGame.IsReplay and (fGame.IsMultiplayer or (MySpectator.PlayerIndex = fOwner)) then
-      fGame.PlayerDefeat(fOwner);
+    //Let the game know
+    fGame.PlayerDefeat(fOwner);
 
     //Script may have additional event processors
     fScripting.ProcPlayerDefeated(fOwner);
@@ -286,13 +287,15 @@ end;
 procedure TKMPlayerAI.UpdateState(aTick: Cardinal);
 begin
   //Check goals for all players to maintain multiplayer consistency
-  //AI does not care if it won or lost and Human dont need Mayor and Army management
+  //AI victory/defeat is used in scripts (e.g. OnPlayerDefeated in battle tutorial)
+  if (aTick + Byte(fOwner)) mod MAX_PLAYERS = 0 then
+    CheckGoals; //This procedure manages victory and loss
+
   case fPlayers[fOwner].PlayerType of
     pt_Human:     begin
-                    if (aTick + Byte(fOwner)) mod MAX_PLAYERS = 0 then
-                      CheckGoals; //This procedure manages victory and loss
                   end;
     pt_Computer:  begin
+                    //Human dont need Mayor and Army management
                     fMayor.UpdateState(aTick);
                     fGeneral.UpdateState(aTick);
                   end;

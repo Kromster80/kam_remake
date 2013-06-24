@@ -61,6 +61,7 @@ type
 
 
 implementation
+uses KM_Units;
 
 
 { TPathFinding }
@@ -172,51 +173,63 @@ end;
 
 function TPathFinding.CanWalkTo(const aFrom: TKMPoint; bX, bY: SmallInt): Boolean;
 begin
-  Result := fTerrain.CanWalkDiagonaly(aFrom, bX, bY);
+  Result := gTerrain.CanWalkDiagonaly(aFrom, bX, bY);
 end;
 
 
 function TPathFinding.IsWalkableTile(aX, aY: Word): Boolean;
 begin
   //If cell meets Passability then estimate it
-  Result := (fPass * fTerrain.Land[aY,aX].Passability) <> [];
+  Result := (fPass * gTerrain.Land[aY,aX].Passability) <> [];
 end;
 
 
 //How much it costs to move From -> To
 function TPathFinding.MovementCost(aFromX, aFromY, aToX, aToY: Word): Word;
+var DX, DY: Word; U: TKMUnit;
 begin
-  if Abs(aFromX-aToX) > Abs(aFromY-aToY) then
-    Result := Abs(aFromX-aToX) * 10 + Abs(aFromY-aToY) * 4
+  DX := Abs(aFromX - aToX);
+  DY := Abs(aFromY - aToY);
+  if DX > DY then
+    Result := DX * 10 + DY * 4
   else
-    Result := Abs(aFromY-aToY) * 10 + Abs(aFromX-aToX) * 4;
+    Result := DY * 10 + DX * 4;
 
   //Do not add extra cost if the tile is the target, as it can cause a longer route to be chosen
   if (aToX <> fLocB.X) or (aToY <> fLocB.Y) then
   begin
-    if DO_WEIGHT_ROUTES and (fTerrain.Land[aToY,aToX].IsUnit <> nil) then
+    U := gTerrain.Land[aToY,aToX].IsUnit;
+    //Always avoid congested areas on roads
+    if DO_WEIGHT_ROUTES and (U <> nil) and ((CanWalkRoad in fPass) or U.PathfindingShouldAvoid) then
       Inc(Result, 10); //Unit = 1 extra tile
-    if fIsInteractionAvoid and fTerrain.TileIsLocked(KMPoint(aToX,aToY)) then
+    if fIsInteractionAvoid and gTerrain.TileIsLocked(KMPoint(aToX,aToY)) then
       Inc(Result, 500); //In interaction avoid mode, working unit = 50 tiles
   end;
 end;
 
 
 function TPathFinding.EstimateToFinish(aX, aY: Word): Word;
+var
+  DX, DY: Word;
 begin
   //Use Estim even if destination is Passability, as it will make it faster.
   //Target should be in the right direction even though it's not our destination.
-  Result := (Abs(aX - fLocB.X) + Abs(aY - fLocB.Y)) * 10;
+  DX := Abs(fLocB.X - aX);
+  DY := Abs(fLocB.Y - aY);
+  if DX > DY then
+    Result := DX * 10 + DY * 4
+  else
+    Result := DY * 10 + DX * 4;
 end;
 
 
 function TPathFinding.DestinationReached(aX, aY: Word): Boolean;
 begin
   case fDestination of
-    pdLocation:    Result := KMLengthDiag(KMPoint(aX, aY), fLocB) <= fDistance;
-    pdPassability: Result := fTerrain.GetConnectID(fTargetWalkConnect, KMPoint(aX, aY)) = fTargetNetwork;
+    pdLocation:    Result := KMLengthDiag(aX, aY, fLocB) <= fDistance;
+    pdPassability: Result := gTerrain.GetConnectID(fTargetWalkConnect, KMPoint(aX, aY)) = fTargetNetwork;
     pdHouse:       Result := fTargetHouse.InReach(KMPoint(aX, aY), fDistance);
-    else            Result := true;
+    else           Result := True;
   end;
 end;
 
@@ -259,6 +272,9 @@ var
   BestStart, BestEnd: Word;
   NewL, BestL: Single;
 begin
+  //Makes compiler happy
+  BestStart := 0;
+  BestEnd := 0;
   Result := False;
 
   for I := 0 to PATH_CACHE_MAX - 1 do
@@ -296,10 +312,10 @@ begin
 
     //Assemble the route
     NodeList.Clear;
-    NodeList.AddEntry(fLocA);
+    NodeList.Add(fLocA);
     for K := BestStart to BestEnd do
-      NodeList.AddEntry(fCache[I].Route[K]);
-    NodeList.AddEntry(fLocB);
+      NodeList.Add(fCache[I].Route[K]);
+    NodeList.Add(fLocB);
 
     //Mark the cached route as more useful
     Inc(fCache[I].Weight);

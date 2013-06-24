@@ -1,7 +1,8 @@
 procedure OnTick;
 begin
   if States.GameTime = 50 then
-    Actions.ShowMsg(0, States.Text(0));
-  if States.GameTime = 50 then
-    Actions.ShowMsg(5, States.Text(0));
+  begin
+    Actions.ShowMsg(0, '<$0>');
+    Actions.ShowMsg(5, '<$0>');
+  end;
 end;

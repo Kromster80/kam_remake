@@ -160,8 +160,8 @@ type
     procedure SaveWarriorSoundsToFile(const aFile: String);
     function WarriorSoundFile(aUnitType:TUnitType; aSound:TWarriorSpeech; aNumber:byte):string;
     function NotificationSoundFile(aSound:TAttackNotification; aNumber:byte):string;
-    procedure PlayWave(const aFile:string; Loc:TKMPointF; Attenuated:boolean=true; Volume:single=1.0; FadeMusic:boolean=false); overload;
-    procedure PlaySound(SoundID:TSoundFX; const aFile:string; Loc:TKMPointF; Attenuated:boolean=true; Volume:single=1.0; FadeMusic:boolean=false);
+    procedure PlayWave(const aFile:string; Loc:TKMPointF; Attenuated:boolean=true; Volume:single=1; FadeMusic:boolean=false); overload;
+    procedure PlaySound(SoundID:TSoundFX; const aFile:string; Loc:TKMPointF; Attenuated:boolean=true; Volume:single=1; FadeMusic:boolean=false);
   public
     constructor Create(aLocale:string; aVolume:single; aShowWarningDlg: Boolean);
     destructor Destroy; override;
@@ -176,17 +176,18 @@ type
     procedure UpdateSoundVolume(Value:single);
 
     procedure PlayNotification(aSound:TAttackNotification);
+    procedure PlayWAVFromScript(aFileName: AnsiString; Loc:TKMPoint; Attenuated:Boolean; Volume:Single);
 
     procedure PlayCitizen(aUnitType:TUnitType; aSound:TWarriorSpeech); overload;
     procedure PlayCitizen(aUnitType:TUnitType; aSound:TWarriorSpeech; aLoc:TKMPointF); overload;
     procedure PlayWarrior(aUnitType:TUnitType; aSound:TWarriorSpeech); overload;
     procedure PlayWarrior(aUnitType:TUnitType; aSound:TWarriorSpeech; aLoc:TKMPointF); overload;
-    procedure Play(SoundID:TSoundFX; Volume:single=1.0); overload;
-    procedure Play(SoundID:TSoundFX; Loc:TKMPoint; Attenuated:boolean=true; Volume:single=1.0); overload;
-    procedure Play(SoundID:TSoundFX; Loc:TKMPointF; Attenuated:boolean=true; Volume:single=1.0); overload;
+    procedure Play(SoundID:TSoundFX; Volume: Single = 1); overload;
+    procedure Play(SoundID:TSoundFX; Loc:TKMPoint; Attenuated:boolean=true; Volume:single=1); overload;
+    procedure Play(SoundID:TSoundFX; Loc:TKMPointF; Attenuated:boolean=true; Volume:single=1); overload;
 
-    procedure Play(SoundID:TSoundFXNew; Volume:single=1.0; FadeMusic:boolean=false); overload;
-    procedure Play(SoundID:TSoundFXNew; Loc:TKMPoint; Attenuated:boolean=true; Volume:single=1.0; FadeMusic:boolean=false); overload;
+    procedure Play(SoundID:TSoundFXNew; Volume:Single = 1; FadeMusic:boolean=false); overload;
+    procedure Play(SoundID:TSoundFXNew; Loc:TKMPoint; Attenuated:boolean=true; Volume:single=1; FadeMusic:boolean=false); overload;
 
     procedure Paint;
     procedure UpdateStateIdle;
@@ -283,8 +284,9 @@ begin
       fLocale := DEFAULT_LOCALE; //Use English voices when no language specific voices exist
 
   fIsSoundInitialized := InitOpenAL;
+  Set8087CW($133F); //Above OpenAL call messes up FPU settings
   if not fIsSoundInitialized then begin
-    fLog.AddNoTime('OpenAL warning. OpenAL could not be initialized.');
+    gLog.AddNoTime('OpenAL warning. OpenAL could not be initialized.');
     if aShowWarningDlg then
       //MessageDlg works better than Application.MessageBox or others, it stays on top and pauses here until the user clicks ok.
       MessageDlg('OpenAL could not be initialized. Please refer to Readme.html for solution', mtWarning, [mbOk], 0);
@@ -294,8 +296,9 @@ begin
 
   //Open device
   fALDevice := alcOpenDevice(nil); // this is supposed to select the "preferred device"
+  Set8087CW($133F); //Above OpenAL call messes up FPU settings
   if fALDevice = nil then begin
-    fLog.AddNoTime('OpenAL warning. Device could not be opened.');
+    gLog.AddNoTime('OpenAL warning. Device could not be opened.');
     //MessageDlg works better than Application.MessageBox or others, it stays on top and pauses here until the user clicks ok.
     MessageDlg('OpenAL device could not be opened. Please refer to Readme.html for solution', mtWarning, [mbOk], 0);
     fIsSoundInitialized := false;
@@ -304,8 +307,9 @@ begin
 
   //Create context(s)
   Context := alcCreateContext(fALDevice, nil);
+  Set8087CW($133F); //Above OpenAL call messes up FPU settings
   if Context = nil then begin
-    fLog.AddNoTime('OpenAL warning. Context could not be created.');
+    gLog.AddNoTime('OpenAL warning. Context could not be created.');
     //MessageDlg works better than Application.MessageBox or others, it stays on top and pauses here until the user clicks ok.
     MessageDlg('OpenAL context could not be created. Please refer to Readme.html for solution', mtWarning, [mbOk], 0);
     fIsSoundInitialized := false;
@@ -313,8 +317,10 @@ begin
   end;
 
   //Set active context
-  if alcMakeContextCurrent(Context) > 1 then begin //valid returns are AL_NO_ERROR=0 and AL_TRUE=1
-    fLog.AddNoTime('OpenAL warning. Context could not be made current.');
+  I := alcMakeContextCurrent(Context);
+  Set8087CW($133F); //Above OpenAL call messes up FPU settings
+  if I > 1 then begin //valid returns are AL_NO_ERROR=0 and AL_TRUE=1
+    gLog.AddNoTime('OpenAL warning. Context could not be made current.');
     //MessageDlg works better than Application.MessageBox or others, it stays on top and pauses here until the user clicks ok.
     MessageDlg('OpenAL context could not be made current. Please refer to Readme.html for solution', mtWarning, [mbOk], 0);
     fIsSoundInitialized := false;
@@ -326,15 +332,15 @@ begin
 
   //Set attenuation model
   alDistanceModel(AL_LINEAR_DISTANCE_CLAMPED);
-  fLog.AddTime('Pre-LoadSFX init', True);
+  gLog.AddTime('Pre-LoadSFX init', True);
 
   alcGetIntegerv(fALDevice, ALC_MONO_SOURCES, 4, @NumMono);
   alcGetIntegerv(fALDevice, ALC_STEREO_SOURCES, 4, @NumStereo);
 
-  fLog.AddTime('ALC_MONO_SOURCES',NumMono);
-  fLog.AddTime('ALC_STEREO_SOURCES',NumStereo);
+  gLog.AddTime('ALC_MONO_SOURCES',NumMono);
+  gLog.AddTime('ALC_STEREO_SOURCES',NumStereo);
 
-  for i:=1 to MAX_SOUNDS do begin
+  for I:=1 to MAX_SOUNDS do begin
     AlGenBuffers(1, @fSound[i].ALBuffer);
     AlGenSources(1, @fSound[i].ALSource);
   end;
@@ -348,13 +354,13 @@ begin
   AlListenerfv(AL_ORIENTATION, @fListener.Ori);
   fSoundGain := aVolume;
 
-  fLog.AddTime('OpenAL init done');
+  gLog.AddTime('OpenAL init done');
 
   LoadSoundsDAT;
-  fLog.AddTime('Load Sounds.dat',true);
+  gLog.AddTime('Load Sounds.dat',true);
 
   ScanWarriorSounds;
-  fLog.AddTime('Warrior sounds scanned',true);
+  gLog.AddTime('Warrior sounds scanned',true);
 end;
 
 
@@ -378,7 +384,7 @@ var ErrCode: Integer;
 begin
   ErrCode := alcGetError(fALDevice);
   if ErrCode <> ALC_NO_ERROR then begin
-    fLog.AddNoTime('OpenAL warning. There is OpenAL error '+inttostr(ErrCode)+' raised. Sound will be disabled.');
+    gLog.AddNoTime('OpenAL warning. There is OpenAL error '+inttostr(ErrCode)+' raised. Sound will be disabled.');
     //MessageDlg works better than Application.MessageBox or others, it stays on top and pauses here until the user clicks ok.
     MessageDlg('There is OpenAL error '+IntToStr(ErrCode)+' raised. Sound will be disabled.', mtWarning, [mbOk], 0);
     fIsSoundInitialized := False;
@@ -482,34 +488,34 @@ end;
 
 
 {Wrapper with fewer options for non-attenuated sounds}
-procedure TSoundLib.Play(SoundID:TSoundFX; Volume:single=1.0);
+procedure TSoundLib.Play(SoundID:TSoundFX; Volume:single=1);
 begin
   if not fIsSoundInitialized then Exit;
   Play(SoundID, KMPointF(0,0), false, Volume); //Redirect
 end;
 
 
-procedure TSoundLib.Play(SoundID:TSoundFXNew; Volume:single=1.0; FadeMusic:boolean=false);
+procedure TSoundLib.Play(SoundID:TSoundFXNew; Volume:single=1; FadeMusic:boolean=false);
 begin
   Play(SoundID, KMPoint(0,0), false, Volume, FadeMusic);
 end;
 
 
-procedure TSoundLib.Play(SoundID:TSoundFXNew; Loc:TKMPoint; Attenuated:boolean=true; Volume:single=1.0; FadeMusic:boolean=false);
+procedure TSoundLib.Play(SoundID:TSoundFXNew; Loc:TKMPoint; Attenuated:boolean=true; Volume:single=1; FadeMusic:boolean=false);
 begin
   PlayWave(ExeDir+NewSFXFolder+NewSFXFile[SoundID], KMPointF(Loc), Attenuated, Volume, FadeMusic);
 end;
 
 
 {Wrapper for TSoundFX}
-procedure TSoundLib.Play(SoundID:TSoundFX; Loc:TKMPoint; Attenuated:boolean=true; Volume:single=1.0);
+procedure TSoundLib.Play(SoundID:TSoundFX; Loc:TKMPoint; Attenuated:boolean=true; Volume:single=1);
 begin
   if not fIsSoundInitialized then Exit;
   PlaySound(SoundID, '', KMPointF(Loc), Attenuated, Volume); //Redirect
 end;
 
 
-procedure TSoundLib.Play(SoundID:TSoundFX; Loc:TKMPointF; Attenuated:boolean=true; Volume:single=1.0);
+procedure TSoundLib.Play(SoundID:TSoundFX; Loc:TKMPointF; Attenuated:boolean=true; Volume:single=1);
 begin
   if not fIsSoundInitialized then Exit;
   PlaySound(SoundID, '', Loc, Attenuated, Volume); //Redirect
@@ -517,7 +523,7 @@ end;
 
 
 {Wrapper WAV files}
-procedure TSoundLib.PlayWave(const aFile:string; Loc:TKMPointF; Attenuated:boolean=true; Volume:single=1.0; FadeMusic:boolean=false);
+procedure TSoundLib.PlayWave(const aFile:string; Loc:TKMPointF; Attenuated:boolean=true; Volume:single=1; FadeMusic:boolean=false);
 begin
   if not fIsSoundInitialized then Exit;
   PlaySound(sfx_None, aFile, Loc, Attenuated, Volume, FadeMusic); //Redirect
@@ -527,7 +533,7 @@ end;
 {Call to this procedure will find free spot and start to play sound immediately}
 {Will need to make another one for unit sounds, which will take WAV file path as parameter}
 {Attenuated means if sound should fade over distance or not}
-procedure TSoundLib.PlaySound(SoundID:TSoundFX; const aFile:string; Loc:TKMPointF; Attenuated:boolean=true; Volume:single=1.0; FadeMusic:boolean=false);
+procedure TSoundLib.PlaySound(SoundID:TSoundFX; const aFile:string; Loc:TKMPointF; Attenuated:boolean=true; Volume:single=1; FadeMusic:boolean=false);
 var Dif:array[1..3]of single;
   FreeBuf{,FreeSrc}:integer;
   i,ID:integer;
@@ -596,7 +602,7 @@ begin
       //continual clashes over sound files.
       on E: EFOpenError do
       begin
-        fLog.AddTime('Error loading sound file: '+E.Message);
+        gLog.AddTime('Error loading sound file: '+E.Message);
         Exit;
       end;
     end;
@@ -619,8 +625,8 @@ begin
 
   //Set source properties
   AlSourcei(fSound[FreeBuf].ALSource, AL_BUFFER, fSound[FreeBuf].ALBuffer);
-  AlSourcef(fSound[FreeBuf].ALSource, AL_PITCH, 1.0);
-  AlSourcef(fSound[FreeBuf].ALSource, AL_GAIN, 1.0 * Volume * fSoundGain);
+  AlSourcef(fSound[FreeBuf].ALSource, AL_PITCH, 1);
+  AlSourcef(fSound[FreeBuf].ALSource, AL_GAIN, 1 * Volume * fSoundGain);
   if Attenuated then begin
     Dif[1]:=Loc.X; Dif[2]:=Loc.Y; Dif[3]:=0;
     AlSourcefv(fSound[FreeBuf].ALSource, AL_POSITION, @Dif[1]);
@@ -633,9 +639,9 @@ begin
     AlSourcefv(fSound[FreeBuf].ALSource, AL_POSITION, @Dif[1]);
     AlSourcei(fSound[FreeBuf].ALSource, AL_SOURCE_RELATIVE, AL_TRUE); //Relative to the listener, meaning it follows us
   end;
-  AlSourcef(fSound[FreeBuf].ALSource, AL_REFERENCE_DISTANCE, 4.0);
+  AlSourcef(fSound[FreeBuf].ALSource, AL_REFERENCE_DISTANCE, 4);
   AlSourcef(fSound[FreeBuf].ALSource, AL_MAX_DISTANCE, MAX_DISTANCE);
-  AlSourcef(fSound[FreeBuf].ALSource, AL_ROLLOFF_FACTOR, 1.0);
+  AlSourcef(fSound[FreeBuf].ALSource, AL_ROLLOFF_FACTOR, 1);
   AlSourcei(fSound[FreeBuf].ALSource, AL_LOOPING, AL_FALSE);
 
   //Start playing
@@ -711,7 +717,13 @@ begin
 
   Wave := NotificationSoundFile(aSound, Random(Count));
   if FileExists(Wave) then
-    PlayWave(Wave, KMPointF(0,0), false, 1.0);
+    PlayWave(Wave, KMPointF(0,0), False, 1);
+end;
+
+
+procedure TSoundLib.PlayWAVFromScript(aFileName: AnsiString; Loc:TKMPoint; Attenuated:Boolean; Volume:Single);
+begin
+  PlayWave(aFileName, KMPointF(Loc), Attenuated, Volume);
 end;
 
 

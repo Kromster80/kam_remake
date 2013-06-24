@@ -22,21 +22,21 @@ begin
   inherited Create;
   ExeDir := ExtractFilePath(ParamStr(0));
   CreateDir(ExeDir + 'Logs');
-  fLog := TKMLog.Create(ExeDir+'Logs'+PathDelim+'KaM_Server_'+FormatDateTime('yyyy-mm-d_hh-nn-ss-zzz',Now)+'.log'); //Don't delete old logs
-  fLog.AddTime('Dedicated server event handler created');
+  gLog := TKMLog.Create(ExeDir+'Logs'+PathDelim+'KaM_Server_'+FormatDateTime('yyyy-mm-d_hh-nn-ss-zzz',Now)+'.log'); //Don't delete old logs
+  gLog.AddTime('Dedicated server event handler created');
 end;
 
 
 destructor TKMServerEventHandler.Destroy;
 begin
-  FreeAndNil(fLog);
+  FreeAndNil(gLog);
 end;
 
 
 procedure TKMServerEventHandler.ServerStatusMessage(const aData: string);
 begin
   Writeln(FormatDateTime('yyyy-mm-dd hh-nn-ss ', Now) + aData);
-  fLog.AddTime(aData);
+  gLog.AddTime(aData);
 end;
 
 

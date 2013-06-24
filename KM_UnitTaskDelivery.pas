@@ -1,8 +1,9 @@
 unit KM_UnitTaskDelivery;
 {$I KaM_Remake.inc}
 interface
-uses Classes,
-  KM_CommonClasses, KM_Defaults, KM_Houses, KM_Units, SysUtils, KM_Points;
+uses Classes, SysUtils,
+  KM_CommonClasses, KM_Defaults, KM_Points,
+  KM_Houses, KM_Units, KM_ResourceWares;
 
 
 type
@@ -30,7 +31,7 @@ type
 
 
 implementation
-uses KM_PlayersCollection, KM_Units_Warrior, KM_Log;
+uses KM_PlayersCollection, KM_Units_Warrior, KM_Log, KM_HouseBarracks;
 
 
 { TTaskDeliver }
@@ -42,7 +43,7 @@ begin
   Assert((aFrom <> nil) and (toHouse <> nil) and (Res <> wt_None), 'Serf ' + IntToStr(fUnit.ID) + ': invalid delivery task');
 
   if WRITE_DELIVERY_LOG then
-    fLog.AddTime('Serf ' + IntToStr(fUnit.ID) + ' created delivery task ' + IntToStr(fDeliverID));
+    gLog.AddTime('Serf ' + IntToStr(fUnit.ID) + ' created delivery task ' + IntToStr(fDeliverID));
 
   fFrom    := aFrom.GetHousePointer;
   fToHouse := toHouse.GetHousePointer;
@@ -64,7 +65,7 @@ begin
   fTaskName := utn_Deliver;
 
   Assert((aFrom<>nil) and (toUnit<>nil) and ((toUnit is TKMUnitWarrior) or (toUnit is TKMUnitWorker)) and (Res <> wt_None), 'Serf '+inttostr(fUnit.ID)+': invalid delivery task');
-  if WRITE_DELIVERY_LOG then fLog.AddTime('Serf '+inttostr(fUnit.ID)+' created delivery task '+inttostr(fDeliverID));
+  if WRITE_DELIVERY_LOG then gLog.AddTime('Serf '+inttostr(fUnit.ID)+' created delivery task '+inttostr(fDeliverID));
 
   fFrom    := aFrom.GetHousePointer;
   fToUnit  := toUnit.GetUnitPointer;
@@ -97,7 +98,7 @@ end;
 
 destructor TTaskDeliver.Destroy;
 begin
-  if WRITE_DELIVERY_LOG then fLog.AddTime('Serf '+inttostr(fUnit.ID)+' abandoned delivery task '+inttostr(fDeliverID)+' at phase ' + inttostr(fPhase));
+  if WRITE_DELIVERY_LOG then gLog.AddTime('Serf '+inttostr(fUnit.ID)+' abandoned delivery task '+inttostr(fDeliverID)+' at phase ' + inttostr(fPhase));
 
   if fDeliverID <> 0 then
     fPlayers[fUnit.Owner].Deliveries.Queue.AbandonDelivery(fDeliverID);

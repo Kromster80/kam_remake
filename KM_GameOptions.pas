@@ -29,6 +29,9 @@ implementation
 { TKMGameOptions }
 constructor TKMGameOptions.Create;
 begin
+  inherited;
+
+  //Default values are not always 0
   Reset;
 end;
 
@@ -63,7 +66,7 @@ var M: TKMemoryStream;
 begin
   M := TKMemoryStream.Create;
   try
-    M.WriteAsText(aText);
+    M.SetAsText(aText);
     Load(M);
   finally
     M.Free;
@@ -76,7 +79,7 @@ var M: TKMemoryStream;
 begin
   M := TKMemoryStream.Create;
   Save(M);
-  Result := M.ReadAsText;
+  Result := M.GetAsText;
   M.Free;
 end;
 

@@ -1,0 +1,192 @@
+var iMain, iAdd, iMessage, iRandom: Integer;
+var iX, iY, iD, iGiveG, iGiveU: Integer;
+var bBarracks, bAttack, bGiveNext: Boolean;
+var iAttack: array[1..8] of Integer;
+
+procedure GroupSetHungerLevel(aGroup:Integer);
+var i: Integer;
+begin
+  for i := 0 to States.GroupMemberCount(aGroup) -1 do
+    Actions.UnitHungerSet(States.GroupMember(aGroup, I), States.UnitMaxHunger - States.UnitMaxHunger / 4 );
+end;
+
+procedure OnWarriorEquipped(aUnitID: Integer; aGroupID: Integer);
+begin
+	// vor Angriffen warnen // 5 Minuten sperre!
+	if((States.GroupOwner(aGroupID) = 2) OR (States.GroupOwner(aGroupID) = 3))
+	AND((States.StatArmyCount(2) = 170) OR (States.StatArmyCount(3) = 70))
+	AND(iMessage <= 0)
+	then begin
+		Actions.ShowMsg(0, '<$2>');
+		iMessage := 6000;
+	end;
+	
+	// Bei jedem Milizen besteht die Chance, dass es ein Barbar wird
+	if States.GroupOwner(aGroupID) = 1
+	then begin
+		if States.KaMRandomI(iRandom) = 0
+		then begin		
+			// Wird unwahrscheinlicher
+			iRandom := iRandom + 1;
+			if iRandom > 5 then iRandom := 5;
+			// Koordinaten und Richtung speichern
+			iX := States.UnitPositionX(aUnitID);
+			iY := States.UnitPositionY(aUnitID);
+			iD := States.UnitDirection(aUnitID);
+			Actions.UnitKill(aUnitID, true);
+			iGiveG := aGroupID;	
+			iGiveU := aUnitID;	
+				
+		end else begin
+			// Wird wahrscheinlicher
+			iRandom := iRandom - 1;
+			if iRandom < 4 then iRandom := 4;
+		end;
+	end;
+	
+end;
+
+procedure OnHouseBuilt(iIndex: Integer);
+begin
+  if (States.HouseOwner(iIndex) = 0)
+  AND (bBarracks = false) 
+  AND ((States.HouseType(iIndex) = 2) OR (States.HouseType(iIndex) = 19)) then
+  begin
+	Actions.ShowMsg(0, '<$1>');
+	bBarracks := true;
+  end;
+
+end;
+
+procedure OnMissionStart;
+begin
+  // Waren blockieren (Standart)
+  Actions.HouseWareBlock(States.HouseAt(31, 116), 0, true);
+  Actions.HouseWareBlock(States.HouseAt(31, 116), 9, true);
+  Actions.HouseWareBlock(States.HouseAt(31, 116), 11, true);
+  Actions.HouseWareBlock(States.HouseAt(31, 116), 14, true);
+  Actions.HouseWareBlock(States.HouseAt(31, 116), 15, true);
+
+  // Standartwerte
+  bBarracks := false;
+  bAttack := false;
+  bGiveNext := false;
+  iMessage := 0;
+  iRandom := 5;
+  iGiveU := -1;
+  
+  // Letzte Angriffstruppen
+  iAttack[1] := States.GroupAt(60, 123);
+  iAttack[2] := States.GroupAt(58, 123);
+  iAttack[3] := States.GroupAt(59, 120);
+  iAttack[4] := States.GroupAt(60, 115);
+  iAttack[5] := States.GroupAt(60, 111);
+  iAttack[6] := States.GroupAt(42, 121);
+  iAttack[7] := States.GroupAt(45, 131);
+  iAttack[8] := States.GroupAt(16, 115);
+
+  // Spieler: Gemischte Truppen
+  iMain := Actions.GiveGroup(0, 15, 121, 147, 6, 5, 4);
+  iAdd := Actions.GiveGroup(0, 14, 122, 147, 6, 3, 3);
+  Actions.GroupOrderLink(iAdd, iMain);
+  iAdd := Actions.GiveGroup(0, 14, 123, 149, 6, 1, 1);
+  Actions.GroupOrderLink(iAdd, iMain);
+  iAdd := Actions.GiveGroup(0, 15, 123, 148, 6, 1, 1);
+  Actions.GroupOrderLink(iAdd, iMain);
+  iAdd := Actions.GiveGroup(0, 14, 123, 146, 6, 2, 2);
+  Actions.GroupOrderLink(iAdd, iMain);
+
+  iMain := Actions.GiveGroup(0, 21, 116, 141, 5, 2, 3);
+  iAdd := Actions.GiveGroup(0, 27, 115, 140, 5, 1, 1);
+  Actions.GroupOrderLink(iAdd, iMain);
+  Actions.GroupSetFormation(iMain, 3);
+  iAdd := Actions.GiveGroup(0, 27, 117, 140, 5, 6, 3);
+  Actions.GroupOrderLink(iAdd, iMain);
+  
+  GroupSetHungerLevel(iMain);
+
+  // Verbündeter: Gemischte Truppen
+  iMain := Actions.GiveGroup(1, 14, 51, 159, 7, 5, 4);
+  iAdd := Actions.GiveGroup(1, 23, 51, 161, 7, 1, 1);
+  Actions.GroupOrderLink(iAdd, iMain);
+  iAdd := Actions.GiveGroup(1, 14, 53, 159, 7, 2, 2);
+  Actions.GroupOrderLink(iAdd, iMain);
+  iAdd := Actions.GiveGroup(1, 14, 52, 162, 7, 2, 2);
+  Actions.GroupOrderLink(iAdd, iMain);
+  iAdd := Actions.GiveGroup(1, 23, 54, 160, 7, 2, 2);
+  Actions.GroupOrderLink(iAdd, iMain);
+
+  iMain := Actions.GiveGroup(1, 14, 52, 166, 7, 9, 4);
+  iAdd := Actions.GiveGroup(1, 23, 53, 169, 7, 1, 1);
+  Actions.GroupOrderLink(iAdd, iMain);
+  iAdd := Actions.GiveGroup(1, 14, 55, 167, 7, 2, 2);
+  Actions.GroupOrderLink(iAdd, iMain);
+
+  iMain := Actions.GiveGroup(1, 14, 57, 161, 7, 11, 4);
+  iAdd := Actions.GiveGroup(1, 23, 60, 162, 7, 1, 1);
+  Actions.GroupOrderLink(iAdd, iMain);
+
+  iMain := Actions.GiveGroup(1, 23, 55, 172, 0, 5, 4);
+  iAdd := Actions.GiveGroup(1, 14, 55, 173, 0, 3, 3);
+  Actions.GroupOrderLink(iAdd, iMain);
+  iAdd := Actions.GiveGroup(1, 14, 53, 174, 0, 1, 1);
+  Actions.GroupOrderLink(iAdd, iMain);
+
+  // Verbündeter: Gasthof, Schulhaus
+  Actions.HouseAddWaresTo(States.HouseAt(79, 168), 8, 5);
+  Actions.HouseAddWaresTo(States.HouseAt(79, 168), 10, 5);
+  Actions.HouseAddWaresTo(States.HouseAt(68, 171), 7, 5);
+  // Eisenminen
+  Actions.HouseDeliveryBlock(States.HouseAt(40, 130), true);
+  Actions.HouseAddWaresTo(States.HouseAt(50, 149), 1, 5);
+  Actions.HouseAddWaresTo(States.HouseAt(39, 150), 1, 5);
+
+end;
+
+procedure OnTick;
+var i, G: Integer;
+begin
+  // Barbaren hinstellen
+  if((iGiveU <> -1) 
+  AND(States.UnitDead(iGiveU)))
+  then begin
+    //Fix by Lewin: Delay placement of new unit by 1 tick to give the old unit time to die
+    if bGiveNext then
+    begin
+        bGiveNext := false;
+        iGiveU := -1;
+        G := Actions.GiveGroup(1, 23, iX, iY, iD, 1, 1);
+        if not States.GroupDead(iGiveG) then
+          Actions.GroupOrderLink(G, iGiveG);
+    end
+    else
+      bGiveNext := true;
+  end;
+  
+  // Runter zählen
+  iMessage := iMessage -1;
+
+  // Nachricht und Verbündeter
+  if States.GameTime = 100 then
+  begin
+    Actions.ShowMsg(0, '<$0>');
+	Actions.PlayerAllianceChange(0, 1, true, true);
+  end;
+  // Angriff überstanden
+  if bAttack = false then
+  for i := 1 to 8 do
+  begin
+	if States.GroupDead(iAttack[i]) = false
+		then break;
+	if i = 8 then
+	begin
+		bAttack := true;
+		Actions.GiveGroup(2, 19, 44, 129, 4, 21, 7);
+		Actions.GiveGroup(2, 19, 40, 118, 4, 21, 7);
+		Actions.GiveGroup(2, 19, 38, 115, 4, 14, 7);
+		
+		
+	end;
+  end;    
+  
+end;

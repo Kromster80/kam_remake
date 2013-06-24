@@ -181,8 +181,8 @@ begin
   //Tell group to walk to its position
   //It's easier to repeat the order than check that all members are in place
   if (CurrentGroup <> nil)
-  and not CurrentGroup.InFight
-  and (CurrentGroup.Order = goNone)
+  and not CurrentGroup.InFight(True) //Fighting citizens should also stop us repositioning the group
+  and CurrentGroup.IsIdleToAI
   and CurrentGroup.CanWalkTo(Position.Loc, 0) then
     CurrentGroup.OrderWalk(Position.Loc, True, Position.Dir);
 end;

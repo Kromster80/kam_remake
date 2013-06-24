@@ -1,10 +1,12 @@
 object Form1: TForm1
-  Left = 40
-  Top = 87
+  Left = 230
+  Top = 140
   Caption = 'KaM Remake Translation Manager'
-  ClientHeight = 569
-  ClientWidth = 825
+  ClientHeight = 580
+  ClientWidth = 857
   Color = clBtnFace
+  Constraints.MinHeight = 600
+  Constraints.MinWidth = 800
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
   Font.Height = -13
@@ -12,15 +14,15 @@ object Form1: TForm1
   Font.Style = []
   Menu = MainMenu1
   OldCreateOrder = True
-  Position = poDesktopCenter
+  Position = poScreenCenter
   Scaled = False
-  WindowState = wsMaximized
   OnCloseQuery = FormCloseQuery
   OnCreate = FormCreate
   OnDestroy = FormDestroy
+  OnResize = FormResize
   DesignSize = (
-    825
-    569)
+    857
+    580)
   PixelsPerInch = 96
   TextHeight = 16
   object lblConstName: TLabel
@@ -30,58 +32,32 @@ object Form1: TForm1
     Height = 16
     Caption = 'Constant name'
   end
-  object Label2: TLabel
-    Left = 336
-    Top = 94
-    Width = 85
-    Height = 16
-    Caption = 'Show Missing:'
-  end
-  object LabelIncludeSameAsEnglish: TLabel
-    Left = 357
-    Top = 144
-    Width = 116
-    Height = 49
-    AutoSize = False
-    Caption = 'Include strings that are the same in English'
-    Enabled = False
-    WordWrap = True
-    OnClick = LabelIncludeSameAsEnglishClick
-  end
-  object Label3: TLabel
-    Left = 336
-    Top = 264
-    Width = 34
-    Height = 16
-    Caption = 'Count'
-  end
   object Label4: TLabel
     Left = 336
-    Top = 208
-    Width = 32
+    Top = 224
+    Width = 56
     Height = 16
-    Caption = 'Filter:'
+    Caption = 'Text filter:'
   end
-  object Label5: TLabel
+  object Bevel1: TBevel
     Left = 336
-    Top = 34
-    Width = 100
-    Height = 16
-    Caption = 'Show Language:'
+    Top = 272
+    Width = 145
+    Height = 2
   end
   object lbFolders: TListBox
     Left = 8
     Top = 8
     Width = 321
     Height = 249
-    TabOrder = 10
+    TabOrder = 8
     OnClick = lbFoldersClick
   end
   object ListBox1: TListBox
     Left = 8
     Top = 264
     Width = 321
-    Height = 297
+    Height = 289
     Anchors = [akLeft, akTop, akBottom]
     TabOrder = 0
     OnClick = ListBox1Click
@@ -98,8 +74,8 @@ object Form1: TForm1
   object ScrollBox1: TScrollBox
     Left = 488
     Top = 24
-    Width = 329
-    Height = 505
+    Width = 361
+    Height = 497
     HorzScrollBar.Visible = False
     VertScrollBar.Smooth = True
     VertScrollBar.Tracking = True
@@ -133,34 +109,81 @@ object Form1: TForm1
     TabOrder = 6
     OnClick = btnMoveDownClick
   end
-  object cbShowMissing: TComboBox
-    Left = 336
-    Top = 112
-    Width = 145
-    Height = 24
-    Style = csDropDownList
-    DropDownCount = 16
-    TabOrder = 7
-    OnChange = cbShowMissingChange
-  end
-  object cbIncludeSameAsEnglish: TCheckBox
-    Left = 336
-    Top = 144
-    Width = 17
-    Height = 17
-    Enabled = False
-    TabOrder = 8
-    OnClick = cbIncludeSameAsEnglishClick
-  end
   object Button1: TButton
     Left = 16
     Top = 16
     Width = 75
     Height = 25
     Caption = 'Export TSK'
-    TabOrder = 9
+    TabOrder = 7
     Visible = False
     OnClick = Button1Click
+  end
+  object btnCopy: TButton
+    Left = 488
+    Top = 533
+    Width = 121
+    Height = 25
+    Anchors = [akLeft, akBottom]
+    Caption = 'Copy all strings'
+    TabOrder = 9
+    OnClick = btnCopyClick
+  end
+  object btnPaste: TButton
+    Left = 616
+    Top = 533
+    Width = 121
+    Height = 25
+    Anchors = [akLeft, akBottom]
+    Caption = 'Paste all strings'
+    Enabled = False
+    TabOrder = 10
+    OnClick = btnPasteClick
+  end
+  object Edit1: TEdit
+    Left = 336
+    Top = 240
+    Width = 145
+    Height = 24
+    TabOrder = 11
+    OnChange = Edit1Change
+  end
+  object btnRename: TButton
+    Left = 336
+    Top = 352
+    Width = 145
+    Height = 25
+    Caption = 'Rename'
+    TabOrder = 12
+    OnClick = btnRenameClick
+  end
+  object clbShowLang: TCheckListBox
+    Left = 336
+    Top = 8
+    Width = 145
+    Height = 169
+    OnClickCheck = clbShowLangClickCheck
+    AutoComplete = False
+    Columns = 3
+    TabOrder = 13
+  end
+  object cbShowMis: TCheckBox
+    Left = 336
+    Top = 184
+    Width = 105
+    Height = 17
+    Caption = 'Only missing'
+    TabOrder = 14
+    OnClick = cbShowMisClick
+  end
+  object cbShowDup: TCheckBox
+    Left = 336
+    Top = 200
+    Width = 113
+    Height = 17
+    Caption = 'Only duplicate'
+    TabOrder = 15
+    OnClick = cbShowMisClick
   end
   object btnDelete: TButton
     Left = 336
@@ -171,53 +194,18 @@ object Form1: TForm1
     TabOrder = 3
     OnClick = btnDeleteClick
   end
-  object btnCopy: TButton
-    Left = 488
-    Top = 536
-    Width = 121
-    Height = 25
-    Anchors = [akLeft, akBottom]
-    Caption = 'Copy all strings'
-    TabOrder = 11
-    OnClick = btnCopyClick
-  end
-  object btnPaste: TButton
-    Left = 616
-    Top = 536
-    Width = 121
-    Height = 25
-    Anchors = [akLeft, akBottom]
-    Caption = 'Paste all strings'
-    Enabled = False
-    TabOrder = 12
-    OnClick = btnPasteClick
-  end
-  object Edit1: TEdit
-    Left = 336
-    Top = 224
-    Width = 145
-    Height = 24
-    TabOrder = 13
-    OnChange = Edit1Change
-  end
-  object cbShowLang: TComboBox
-    Left = 336
-    Top = 50
-    Width = 145
-    Height = 24
-    Style = csDropDownList
-    DropDownCount = 16
-    TabOrder = 14
-    OnChange = cbShowLangChange
-  end
-  object btnRename: TButton
-    Left = 336
-    Top = 352
-    Width = 145
-    Height = 25
-    Caption = 'Rename'
-    TabOrder = 15
-    OnClick = btnRenameClick
+  object StatusBar1: TStatusBar
+    Left = 0
+    Top = 561
+    Width = 857
+    Height = 19
+    Panels = <
+      item
+        Width = 100
+      end
+      item
+        Width = 50
+      end>
   end
   object MainMenu1: TMainMenu
     Left = 32

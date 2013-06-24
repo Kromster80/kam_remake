@@ -114,8 +114,8 @@ begin
   //Check that fOpenRef has been initialised (running SetLength when it's already correct size
   //is inefficient with such a large array, SetLength doesn't seem to test for that condition
   //because the CPU debugger runs through all of SetLength anyway on both dimensions)
-  if (Length(fOpenRef) <> fTerrain.MapY+1) or (Length(fOpenRef[0]) <> fTerrain.MapX+1) then
-    SetLength(fOpenRef, fTerrain.MapY+1, fTerrain.MapX+1);
+  if (Length(fOpenRef) <> gTerrain.MapY+1) or (Length(fOpenRef[0]) <> gTerrain.MapX+1) then
+    SetLength(fOpenRef, gTerrain.MapY+1, gTerrain.MapX+1);
 
   //Initialize first element
   N := GetNodeAt(fLocA.X, fLocA.Y);
@@ -131,8 +131,8 @@ begin
     fMinN.Estim := c_closed;
 
     //Check all surrounding cells and issue costs to them
-    for Y := Math.max(fMinN.Y-1,1) to Math.min(fMinN.Y+1, fTerrain.MapY-1) do
-    for X := Math.max(fMinN.X-1,1) to Math.min(fMinN.X+1, fTerrain.MapX-1) do
+    for Y := Math.max(fMinN.Y-1,1) to Math.min(fMinN.Y+1, gTerrain.MapY-1) do
+    for X := Math.max(fMinN.X-1,1) to Math.min(fMinN.X+1, gTerrain.MapX-1) do
     if fOpenRef[Y,X] = nil then //Cell is new
     begin
       if CanWalkTo(KMPoint(fMinN.X, fMinN.Y), X, Y) then
@@ -192,7 +192,7 @@ begin
   N := fMinN;
   while N <> nil do
   begin
-    NodeList.AddEntry(KMPoint(N.X, N.Y));
+    NodeList.Add(KMPoint(N.X, N.Y));
     N := N.Parent;
   end;
 

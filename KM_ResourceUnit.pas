@@ -3,7 +3,8 @@ unit KM_ResourceUnit;
 interface
 uses
   Classes, SysUtils, TypInfo,
-  KM_CommonClasses, KM_CommonTypes, KM_Defaults, KM_Points;
+  KM_CommonClasses, KM_CommonTypes, KM_Defaults, KM_Points,
+  KM_ResourceWares;
 
 
 //Used to separate close-combat units from archers (they use different fighting logic)
@@ -11,9 +12,9 @@ type
   TFightType = (ft_Melee, ft_Ranged);
 
   TKMUnitDat = packed record
-    HitPoints,Attack,AttackHorse,x4,Defence,Speed,x7,Sight:smallint;
-    x9,x10:shortint;
-    CanWalkOut,x11:smallint;
+    HitPoints, Attack, AttackHorse, x4, Defence, Speed, x7, Sight: SmallInt;
+    x9, x10: ShortInt;
+    CanWalkOut, x11: SmallInt;
   end;
 
   TKMUnitSprite = packed record
@@ -22,31 +23,31 @@ type
     end;
   end;
 
-  TKMUnitSprite2 = array[1..18]of smallint; //Sound indices vs sprite ID
+  TKMUnitSprite2 = array [1..18] of SmallInt; //Sound indices vs sprite ID
 
   TKMUnitDatClass = class
   private
     fUnitType: TUnitType;
     fUnitDat: TKMUnitDat;
-    fUnitSprite:TKMUnitSprite;
-    fUnitSprite2:TKMUnitSprite2;
+    fUnitSprite: TKMUnitSprite;
+    fUnitSprite2: TKMUnitSprite2;
     function GetAllowedPassability: TPassability;
     function GetDescription: string;
     function GetDesiredPassability: TPassability;
     function GetFightType: TFightType;
-    function GetGUIIcon:word;
-    function GetGUIScroll:word;
+    function GetGUIIcon: Word;
+    function GetGUIScroll: Word;
     function GetMinimapColor: Cardinal;
-    function GetMiningRange: byte;
-    function GetSpeed:single;
+    function GetMiningRange: Byte;
+    function GetSpeed: Single;
     function GetUnitAnim(aAction: TUnitActionType; aDir: TKMDirection): TKMAnimLoop;
     function GetUnitName: string;
   public
-    constructor Create(aType:TUnitType);
-    function IsValid:boolean;
-    function IsAnimal: boolean;
-    function GetDefenceVsProjectiles: smallint;
-    procedure LoadFromStream(Stream:TMemoryStream);
+    constructor Create(aType: TUnitType);
+    function IsValid: Boolean;
+    function IsAnimal: Boolean;
+    function GetDefenceVsProjectiles: SmallInt;
+    procedure LoadFromStream(Stream: TMemoryStream);
     //Derived from KaM
     property HitPoints:smallint read fUnitDat.HitPoints;
     property Attack:smallint read fUnitDat.Attack;
@@ -65,7 +66,7 @@ type
     property Speed:single read GetSpeed;
     function SupportsAction(aAct: TUnitActionType):boolean;
     property UnitAnim[aAction:TUnitActionType; aDir:TKMDirection]: TKMAnimLoop read GetUnitAnim;
-    property UnitName:string read GetUnitName;
+    property GUIName:string read GetUnitName;
   end;
 
 
@@ -128,6 +129,20 @@ const
   14,15,16,17,18,19,20,21,22,23, //Warriors
   24,25,26,27, {28,29,} //TPR warriors
   30,31,32,33,34,35,36,37); //Animals
+
+
+  //Number means ResourceType as it is stored in Barracks, hence it's not rt_Something
+  TroopCost: array [ut_Militia..ut_Cavalry, 1..4] of TWareType = (
+    (wt_Axe,          wt_None,        wt_None,  wt_None ), //Militia
+    (wt_Shield,       wt_Armor,       wt_Axe,   wt_None ), //Axefighter
+    (wt_MetalShield,  wt_MetalArmor,  wt_Sword, wt_None ), //Swordfighter
+    (wt_Armor,        wt_Bow,         wt_None,  wt_None ), //Bowman
+    (wt_MetalArmor,   wt_Arbalet,     wt_None,  wt_None ), //Crossbowman
+    (wt_Armor,        wt_Pike,        wt_None,  wt_None ), //Lance Carrier
+    (wt_MetalArmor,   wt_Hallebard,   wt_None,  wt_None ), //Pikeman
+    (wt_Shield,       wt_Armor,       wt_Axe,   wt_Horse), //Scout
+    (wt_MetalShield,  wt_MetalArmor,  wt_Sword, wt_Horse)  //Knight
+  );
 
 
 implementation
@@ -291,7 +306,7 @@ begin
     ut_Fisher:      Result := 14;
     else            begin
                       Result := 0;
-                      Assert(false, UnitName + ' has no mining range');
+                      Assert(false, GUIName + ' has no mining range');
                     end;
   end;
 end;
@@ -372,7 +387,7 @@ begin
     for ii:=Low(TUnitType) to High(TUnitType) do
     if UnitsDat[ii].IsValid then
     begin
-      write(ft,UnitsDat[ii].UnitName+';');
+      write(ft,UnitsDat[ii].GUIName+';');
       write(ft,inttostr(UnitsDat[ii].HitPoints)+';');
       write(ft,inttostr(UnitsDat[ii].Attack)+';');
       write(ft,inttostr(UnitsDat[ii].AttackHorse)+';');

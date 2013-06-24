@@ -84,9 +84,9 @@ end;
 
 procedure TUnitActionStormAttack.IncVertex(aFrom, aTo: TKMPoint);
 begin
-  //Tell fTerrain that this vertex is being used so no other unit walks over the top of us
+  //Tell gTerrain that this vertex is being used so no other unit walks over the top of us
   Assert(KMSamePoint(fVertexOccupied, KMPoint(0,0)), 'Storm vertex in use');
-  //Assert(not fTerrain.HasVertexUnit(KMGetDiagVertex(aFrom,aTo)), 'Storm vertex blocked');
+  //Assert(not gTerrain.HasVertexUnit(KMGetDiagVertex(aFrom,aTo)), 'Storm vertex blocked');
 
   fUnit.VertexAdd(aFrom,aTo); //Running counts as walking
   fVertexOccupied := KMGetDiagVertex(aFrom,aTo);
@@ -95,7 +95,7 @@ end;
 
 procedure TUnitActionStormAttack.DecVertex;
 begin
-  //Tell fTerrain that this vertex is not being used anymore
+  //Tell gTerrain that this vertex is not being used anymore
   Assert(not KMSamePoint(fVertexOccupied, KMPoint(0,0)), 'DecVertex 0:0 Storm');
 
   fUnit.VertexRem(fVertexOccupied);

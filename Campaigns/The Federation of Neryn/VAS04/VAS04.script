@@ -1,0 +1,31 @@
+procedure OnMissionStart;
+var iMain, iAdd: Integer;
+begin
+  iMain := Actions.GiveGroup(0, 16, 33, 49, 2, 4, 3);
+  iAdd := Actions.GiveGroup(0, 15, 32, 50, 2, 2, 2);
+  Actions.GroupOrderLink(iAdd, iMain);
+  iAdd := Actions.GiveGroup(0, 15, 31, 48, 2, 1, 1);
+  Actions.GroupOrderLink(iAdd, iMain);
+  iAdd := Actions.GiveGroup(0, 16, 31, 50, 2, 2, 2);
+  Actions.GroupOrderLink(iAdd, iMain);
+ // Actions.GroupHungerSet(iMain);
+
+  iMain := Actions.GiveGroup(0, 20, 40, 55, 7, 5, 3);
+  iAdd := Actions.GiveGroup(0, 19, 42, 55, 7, 1, 1);
+  Actions.GroupOrderLink(iAdd, iMain);
+  iAdd := Actions.GiveGroup(0, 19, 42, 57, 7, 2, 2);
+  Actions.GroupOrderLink(iAdd, iMain);
+  iAdd := Actions.GiveGroup(0, 20, 43, 56, 7, 1, 1);
+  Actions.GroupOrderLink(iAdd, iMain);
+ // Actions.GroupHungerSet(iMain);
+
+  iMain := Actions.GiveGroup(0, 21, 46, 57, 7, 4, 4);
+  iAdd := Actions.GiveGroup(0, 22, 46, 59, 7, 2, 2);
+  Actions.GroupOrderLink(iAdd, iMain);
+  iAdd := Actions.GiveGroup(0, 21, 47, 58, 7, 1, 1);
+  Actions.GroupOrderLink(iAdd, iMain);
+  iAdd := Actions.GiveGroup(0, 22, 48, 57, 7, 1, 1);
+  Actions.GroupOrderLink(iAdd, iMain);
+ // Actions.GroupHungerSet(iMain);
+
+end;

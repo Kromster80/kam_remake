@@ -46,14 +46,14 @@ procedure TestTKMCampaign.SetUp;
 begin
   ExeDir := ExtractFilePath(ParamStr(0)) + '..\';
   FKMCampaign := TKMCampaign.Create;
-  fLog := TKMLog.Create(ExtractFilePath(ParamStr(0)) + 'Temp\temp.log');
+  gLog := TKMLog.Create(ExtractFilePath(ParamStr(0)) + 'Temp\temp.log');
   fResource := TResource.Create(nil, nil, nil);
 end;
 
 procedure TestTKMCampaign.TearDown;
 begin
   fResource.Free;
-  fLog.Free;
+  gLog.Free;
   FKMCampaign.Free;
   FKMCampaign := nil;
 end;
@@ -112,10 +112,10 @@ end;
 procedure TestTKMCampaignsCollection.SetUp;
 begin
   ExeDir := ExtractFilePath(ParamStr(0)) + '..\';
-  fLog := TKMLog.Create(ExtractFilePath(ParamStr(0)) + 'Temp\log.tmp');
+  gLog := TKMLog.Create(ExtractFilePath(ParamStr(0)) + 'Temp\log.tmp');
   fLocales := TKMLocales.Create(ExeDir+'data\locales.txt');
   fResource := TResource.Create(nil, nil, nil);
-  fTextLibrary := TTextLibrary.Create(ExeDir + 'data\text\', 'eng');
+  fTextLibrary := TKMTextLibrary.Create(ExeDir + 'data\text\', 'eng');
   fCampaigns := TKMCampaignsCollection.Create;
 end;
 
@@ -124,7 +124,7 @@ begin
   FreeAndNil(fTextLibrary);
   FreeAndNil(fResource);
   FreeAndNil(fLocales);
-  FreeAndNil(fLog);
+  FreeAndNil(gLog);
   FreeAndNil(fCampaigns);
 end;
 

@@ -1,4 +1,5 @@
 unit KM_PathFindingJPS;
+{$I KaM_Remake.inc}
 interface
 uses Types, Math, SysUtils, KM_PathFinding, BinaryHeap, KM_Points, KM_CommonClasses, KM_Terrain;
 
@@ -98,7 +99,7 @@ function TPathFindingJPS.MakeRoute: Boolean;
 var
   Node: TJPSPoint;
 begin
-  SetLength(Nodes, fTerrain.MapY+1, fTerrain.MapX+1);
+  SetLength(Nodes, gTerrain.MapY+1, gTerrain.MapX+1);
 
   startNode := getNodeAt(fLocA.X, fLocA.Y);
   endNode := getNodeAt(fLocB.X, fLocB.Y);
@@ -141,7 +142,7 @@ begin
 
   while Node <> nil do
   begin
-    NodeList.AddEntry(KMPoint(Node.X, Node.Y));
+    NodeList.Add(KMPoint(Node.X, Node.Y));
     Node := Node.parent;
   end;
 
@@ -218,7 +219,7 @@ end;
 
 function TPathFindingJPS.IsWalkableTile(aX, aY: SmallInt): Boolean;
 begin
-  Result := fTerrain.TileInMapCoords(aX, aY) and (inherited IsWalkableTile(aX, aY));
+  Result := gTerrain.TileInMapCoords(aX, aY) and (inherited IsWalkableTile(aX, aY));
 end;
 
 

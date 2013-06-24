@@ -5,7 +5,7 @@ uses
   Classes, Math, SysUtils;
 
 type
-  TKMDirection = (dir_NA=0, dir_N=1, dir_NE=2, dir_E=3, dir_SE=4, dir_S=5, dir_SW=6, dir_W=7, dir_NW=8);
+  TKMDirection = (dir_NA, dir_N, dir_NE, dir_E, dir_SE, dir_S, dir_SW, dir_W, dir_NW);
 
 type
   //Records must be packed so they are stored identically in MP saves (padding bytes are unknown values)
@@ -26,6 +26,7 @@ type
   //We have our own TKMRect that consistently matches TKMPoint range
   //Rects are often used without range checking and include negative off-map coords
   TKMRect = packed record Left, Top, Right, Bottom: SmallInt end;
+  TKMRectF = packed record Left, Top, Right, Bottom: Single end;
 
   TKMPointFunction = function(aPoint: TKMPoint): Boolean of object;
 
@@ -51,6 +52,8 @@ type
   function KMRect(aLeft, aTop, aRight, aBottom: SmallInt): TKMRect; overload;
   function KMRect(aPoint: TKMPoint): TKMRect; overload;
   function KMRect(aPoint: TKMPointF): TKMRect; overload;
+  function KMRectF(aRect: TKMRect): TKMRectF;
+  function KMRectRound(aRect: TKMRectF): TKMRect;
   function KMRectGrow(aRect: TKMRect; aInset: Integer): TKMRect;
   function KMRectGrowTopLeft(aRect: TKMRect): TKMRect;
   function KMRectGrowBottomRight(aRect: TKMRect): TKMRect;
@@ -58,17 +61,18 @@ type
   function KMInRect(aPoint: TKMPoint; aRect: TKMRect): Boolean; overload;
   function KMInRect(aPoint: TKMPointF; aRect: TKMRect): Boolean; overload;
   function KMInRect(aPoint: TKMPointI; aRect: TKMRect): Boolean; overload;
-  function KMRectArea(aRect: TKMRect):Integer;
+  function KMRectArea(aRect: TKMRect): Integer;
+  function KMRectMove(aRect: TKMRect; X,Y: Integer): TKMRect;
 
   function KMGetDirection(X,Y: Integer): TKMDirection; overload;
   function KMGetDirection(X,Y: Single): TKMDirection; overload;
   function KMGetDirection(P: TKMPointF): TKMDirection; overload;
   function KMGetDirection(FromPos, ToPos: TKMPoint): TKMDirection; overload;
   function KMGetDirection(FromPos, ToPos: TKMPointF): TKMDirection; overload;
-  function GetDirModifier(Dir1,Dir2:TKMDirection): byte;
-  function KMGetVertexDir(X,Y: integer):TKMDirection;
-  function KMGetVertexTile(P: TKMPoint; Dir: TKMDirection):TKMPoint;
-  function KMGetVertex(Dir: TKMDirection):TKMPointF;
+  function GetDirModifier(Dir1,Dir2:TKMDirection): Byte;
+  function KMGetVertexDir(X,Y: integer): TKMDirection;
+  function KMGetVertexTile(P: TKMPoint; Dir: TKMDirection): TKMPoint;
+  function KMGetVertex(Dir: TKMDirection): TKMPointF;
   function KMGetPointInDir(aPoint: TKMPoint; aDir: TKMDirection; aDist: Byte = 1): TKMPointI;
 
   function KMAddDirection(aDir: TKMDirection; aAdd: Byte): TKMDirection;
@@ -76,7 +80,7 @@ type
   function KMPrevDirection(aDir: TKMDirection): TKMDirection;
 
   function KMGetDiagVertex(P1,P2:TKMPoint): TKMPoint;
-  function KMStepIsDiag(const P1,P2:TKMPoint):boolean;
+  function KMStepIsDiag(const P1,P2:TKMPoint): Boolean;
 
   function KMVectorDiff(const A, B: TKMPointI): TKMPointI;
   function KMDotProduct(const A, B: TKMPointI): Single;
@@ -90,11 +94,11 @@ type
   function KMPointInTriangle(const P, A, B, C: TKMPoint): Boolean;
   function KMSegmentsIntersect(A, B, C, D: TKMPointI): Boolean;
   function KMSegmentsIntersectOrTouch(A, B, C, D: TKMPointI): Boolean;
-  //procedure KMTriangulate(VerticeCount: Integer; Vertice: TKMPointArray; var PolyCount: Integer; var Polys: array of Word);
 
   function KMLength(A, B: TKMPoint): Single; overload;
   function KMLength(A, B: TKMPointF): Single; overload;
-  function KMLengthDiag(A, B: TKMPoint): Single;
+  function KMLengthDiag(A, B: TKMPoint): Single; overload;
+  function KMLengthDiag(X,Y: Word; B: TKMPoint): Single; overload;
   function KMLengthSqr(A, B: TKMPoint): Integer; overload;
   function KMLengthSqr(A, B: TKMPointI): Integer; overload;
   function KMLengthSqr(A, B: TKMPointF): Single; overload;
@@ -258,6 +262,24 @@ begin
 end;
 
 
+function KMRectF(aRect: TKMRect): TKMRectF;
+begin
+  Result.Left   := aRect.Left;
+  Result.Right  := aRect.Right;
+  Result.Top    := aRect.Top;
+  Result.Bottom := aRect.Bottom;
+end;
+
+
+function KMRectRound(aRect: TKMRectF): TKMRect;
+begin
+  Result.Left   := Round(aRect.Left);
+  Result.Right  := Round(aRect.Right);
+  Result.Top    := Round(aRect.Top);
+  Result.Bottom := Round(aRect.Bottom);
+end;
+
+
 function KMRectGrow(aRect: TKMRect; aInset: Integer): TKMRect;
 begin
   Result.Left   := Math.Max(aRect.Left   - aInset, 0);
@@ -318,6 +340,15 @@ begin
 end;
 
 
+function KMRectMove(aRect: TKMRect; X,Y: Integer): TKMRect;
+begin
+  Result.Left   := aRect.Left + X;
+  Result.Right  := aRect.Right + X;
+  Result.Top    := aRect.Top + Y;
+  Result.Bottom := aRect.Bottom + Y;
+end;
+
+
 function KMGetDirection(X,Y: Integer): TKMDirection;
 const
   DirectionsBitfield: array [-1..1, -1..1] of TKMDirection =
@@ -374,7 +405,7 @@ end;
 //  1 0 1
 //  2   2
 //  3 4 3
-function GetDirModifier(Dir1,Dir2:TKMDirection): byte;
+function GetDirModifier(Dir1,Dir2: TKMDirection): Byte;
 begin
   Result := Abs(Byte(Dir1) - ((Byte(Dir2) + 4) mod 8));
 
@@ -383,15 +414,15 @@ begin
 end;
 
 
-function KMGetVertexDir(X,Y: integer):TKMDirection;
-const DirectionsBitfield:array[-1..0,-1..0]of TKMDirection =
-        ((dir_SE,dir_NE),(dir_SW,dir_NW));
+function KMGetVertexDir(X,Y: Integer): TKMDirection;
+const DirectionsBitfield: array [-1..0, -1..0] of TKMDirection =
+        ((dir_SE, dir_NE), (dir_SW, dir_NW));
 begin
   Result := DirectionsBitfield[X,Y];
 end;
 
 
-function KMGetVertexTile(P:TKMPoint; Dir: TKMDirection):TKMPoint;
+function KMGetVertexTile(P: TKMPoint; Dir: TKMDirection): TKMPoint;
 const
   XBitField: array[TKMDirection] of smallint = (0,0,1,0,1,0,0,0,0);
   YBitField: array[TKMDirection] of smallint = (0,0,0,0,1,0,1,0,0);
@@ -400,7 +431,7 @@ begin
 end;
 
 
-function KMGetVertex(Dir: TKMDirection):TKMPointF;
+function KMGetVertex(Dir: TKMDirection): TKMPointF;
 const
   XBitField: array[TKMDirection] of single = (0, 0, 0.7,1,0.7,0,-0.7,-1,-0.7);
   YBitField: array[TKMDirection] of single = (0,-1,-0.7,0,0.7,1, 0.7, 0,-0.7);
@@ -551,84 +582,6 @@ begin
 end;
 
 
-//This function has a bug, it fails to triangulate W-shaped polygon
-procedure KMTriangulate(VerticeCount: Integer; Vertice: TKMPointIArray; var PolyCount: Integer; var Polys: array of Word);
-var
-  LoopCount: Integer;
-  n0,n1,n2:integer;
-  Skip: array of Byte;
-  ValidPoly:boolean;
-  I, K, L: Integer;
-  LastVtx: Integer;
-  TripletFound: Boolean;
-begin
-  SetLength(Skip, VerticeCount);
-
-  LastVtx := 0;
-  PolyCount := 0;
-  LoopCount := 1;
-  repeat
-
-    //Find 3 aligned unused vertices starting from LastVtx
-    TripletFound := False;
-    n0 := -1;  n1 := -1;  n2 := -1;
-    for I := LastVtx to LastVtx + VerticeCount - 1 - 2 do //Keep last 2 points for n1/n2
-    if Skip[I mod VerticeCount] = 0 then
-    begin
-      n0 := I mod VerticeCount;
-      for K := I + 1 to LastVtx + VerticeCount - 1 - 1 do //Keep last 1 point for n2
-      if Skip[K mod VerticeCount] = 0 then
-      begin
-        n1 := K mod VerticeCount;
-        for L := K + 1 to LastVtx + VerticeCount - 1 do
-        if Skip[L mod VerticeCount] = 0 then
-        begin
-          n2 := L mod VerticeCount;
-          TripletFound := True;
-          Break;
-        end;
-        Break;
-      end;
-      Break;
-    end;
-
-    //There are no triplets left, our task is done
-    if not TripletFound then
-      Break;
-
-    //Check which direction poly is facing, should be Down (depends on vertice order and coords system)
-    ValidPoly := KMNormal2Poly(Vertice[n0], Vertice[n1], Vertice[n2]) > 0;
-
-    //Take n0 and n2 as basis and test all remaining vertices to be on one side
-    if ValidPoly then
-      for I := 0 to VerticeCount - 1 do
-      if (Skip[I] = 0) and (I <> n0) and (I <> n1) and (I <> n2) then
-      if KMNormal2Poly(Vertice[n0], Vertice[n2], Vertice[I]) < 0 then
-      begin
-        ValidPoly := False;
-        Break;
-      end;
-
-    if ValidPoly then
-    begin
-      Polys[PolyCount * 3]     := n0;
-      Polys[PolyCount * 3 + 1] := n1;
-      Polys[PolyCount * 3 + 2] := n2;
-      Inc(PolyCount);
-      Skip[n1] := 1;
-      LastVtx := n2;
-    end
-    else
-      LastVtx := n1;
-
-    Inc(LoopCount);
-  until(LoopCount=1500); //How long to keep looking for more polys
-
-  Assert(LoopCount < 1500, 'Triangulation failed');
-  Assert(PolyCount = VerticeCount - 2, 'Triangulation failed');
-end;
-
-
 //True length between 2 points
 function KMLength(A,B: TKMPoint): Single;
 begin
@@ -645,10 +598,19 @@ end;
 //Rough and faster Length as combination of straight and diagonal
 function KMLengthDiag(A, B: TKMPoint): Single;
 begin
-  if Abs(A.X-B.X) > Abs(A.Y-B.Y) then
-    Result := Abs(A.X-B.X) + Abs(A.Y-B.Y) * 0.41
+  if Abs(A.X - B.X) > Abs(A.Y - B.Y) then
+    Result := Abs(A.X - B.X) + Abs(A.Y - B.Y) * 0.41
   else
-    Result := Abs(A.Y-B.Y) + Abs(A.X-B.X) * 0.41;
+    Result := Abs(A.Y - B.Y) + Abs(A.X - B.X) * 0.41;
+end;
+
+
+function KMLengthDiag(X,Y: Word; B: TKMPoint): Single;
+begin
+  if Abs(X - B.X) > Abs(Y - B.Y) then
+    Result := Abs(X - B.X) + Abs(Y - B.Y) * 0.41
+  else
+    Result := Abs(Y - B.Y) + Abs(X - B.X) * 0.41;
 end;
 
 

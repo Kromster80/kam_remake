@@ -4,7 +4,8 @@ interface
 uses
   Classes, KromUtils, Math, SysUtils,
   KM_Defaults, KM_CommonClasses, KM_Utils, KM_Points,
-  KM_CityPlanner, KM_PathfindingRoad, KM_AISetup, KM_AIMayorBalance;
+  KM_CityPlanner, KM_PathfindingRoad, KM_AISetup, KM_AIMayorBalance,
+  KM_ResourceHouse;
 
 type
   //Mayor is the one who manages the town
@@ -28,6 +29,7 @@ type
     BowNeed: Single;
     HorseNeed: Single;
 
+    procedure SetArmyDemand(aFootmen, aPikemen, aHorsemen, aArchers: Single);
     procedure SetAutoRepair(const Value: Boolean);
 
     function TryBuildHouse(aHouse: THouseType): Boolean;
@@ -36,7 +38,7 @@ type
     procedure CheckStrategy;
 
     procedure CheckUnitCount;
-    procedure CheckDeliveriesBalance;
+    procedure CheckWareFlow;
     procedure CheckHouseCount;
     procedure CheckHousePlans;
     procedure CheckRoadsCount;
@@ -51,7 +53,6 @@ type
     procedure AfterMissionInit;
     property AutoRepair: Boolean read fAutoRepair write SetAutoRepair;
     procedure OwnerUpdate(aPlayer: TPlayerIndex);
-    procedure SetArmyDemand(FootmenDemand, PikemenDemand, HorsemenDemand, ArchersDemand: Single);
     function BalanceText: string;
 
     procedure UpdateState(aTick: Cardinal);
@@ -61,7 +62,8 @@ type
 
 
 implementation
-uses KM_Game, KM_Houses, KM_PlayersCollection, KM_Player, KM_Terrain, KM_Resource, KM_AIFields;
+uses KM_Game, KM_Houses, KM_HouseCollection, KM_PlayersCollection, KM_Player, KM_Terrain, KM_Resource,
+  KM_ResourceWares, KM_AIFields;
 
 
 const //Sample list made by AntonP
@@ -91,11 +93,6 @@ const //Sample list made by AntonP
   //Hiring_Army2 (School, CoalMine x2, GoldMine)
 
   WOOD_BLOCK_RAD = 5.8;
-
-  //How much building materials do we need for city development
-  TOWN_STONE_NEED = 10;
-  TOWN_WOOD_NEED = 4.5;
-  TOWN_GOLD_NEED = 1;
 
 
 { TKMayor }
@@ -353,10 +350,10 @@ begin
   begin
     NodeTagList := TKMPointTagList.Create;
     try
-      for I := Min(Loc.Y + 2, fTerrain.MapY - 1) to Min(Loc.Y + 2 + AI_FIELD_HEIGHT - 1, fTerrain.MapY - 1) do
-      for K := Max(Loc.X - AI_FIELD_WIDTH, 1) to Min(Loc.X + AI_FIELD_WIDTH, fTerrain.MapX - 1) do
+      for I := Min(Loc.Y + 2, gTerrain.MapY - 1) to Min(Loc.Y + 2 + AI_FIELD_HEIGHT - 1, gTerrain.MapY - 1) do
+      for K := Max(Loc.X - AI_FIELD_WIDTH, 1) to Min(Loc.X + AI_FIELD_WIDTH, gTerrain.MapX - 1) do
         if P.CanAddFieldPlan(KMPoint(K,I), ft_Corn) then
-          NodeTagList.AddEntry(KMPoint(K, I), Abs(K - Loc.X)*3 + Abs(I - 2 - Loc.Y));
+          NodeTagList.Add(KMPoint(K, I), Abs(K - Loc.X)*3 + Abs(I - 2 - Loc.Y));
 
       NodeTagList.SortByTag;
       for I := 0 to Min(NodeTagList.Count, 16) - 1 do
@@ -371,10 +368,10 @@ begin
   begin
     NodeTagList := TKMPointTagList.Create;
     try
-      for I := Min(Loc.Y + 1, fTerrain.MapY - 1) to Min(Loc.Y + 2 + AI_FIELD_HEIGHT - 1, fTerrain.MapY - 1) do
-      for K := Max(Loc.X - AI_FIELD_WIDTH, 1) to Min(Loc.X + AI_FIELD_WIDTH, fTerrain.MapX - 1) do
+      for I := Min(Loc.Y + 1, gTerrain.MapY - 1) to Min(Loc.Y + 2 + AI_FIELD_HEIGHT - 1, gTerrain.MapY - 1) do
+      for K := Max(Loc.X - AI_FIELD_WIDTH, 1) to Min(Loc.X + AI_FIELD_WIDTH, gTerrain.MapX - 1) do
         if P.CanAddFieldPlan(KMPoint(K,I), ft_Wine) then
-          NodeTagList.AddEntry(KMPoint(K, I), Abs(K - Loc.X)*3 + Abs(I - 2 - Loc.Y));
+          NodeTagList.Add(KMPoint(K, I), Abs(K - Loc.X)*3 + Abs(I - 2 - Loc.Y));
 
       NodeTagList.SortByTag;
       for I := 0 to Min(NodeTagList.Count, 10) - 1 do
@@ -390,8 +387,8 @@ begin
 
   //Build more roads around 2nd Store
   if aHouse = ht_Store then
-    for I := Max(Loc.Y - 3, 1) to Min(Loc.Y + 2, fTerrain.MapY - 1) do
-    for K := Max(Loc.X - 2, 1) to Min(Loc.X + 2, fTerrain.MapY - 1) do
+    for I := Max(Loc.Y - 3, 1) to Min(Loc.Y + 2, gTerrain.MapY - 1) do
+    for K := Max(Loc.X - 2, 1) to Min(Loc.X + 2, gTerrain.MapY - 1) do
     if P.CanAddFieldPlan(KMPoint(K, I), ft_Road) then
       P.BuildList.FieldworksList.AddField(KMPoint(K, I), ft_Road);
 
@@ -399,37 +396,45 @@ begin
 end;
 
 
+//todo: Check if planned houses are being connected with roads
+//(worker could die while digging a road piece or elevation changed to impassable)
 procedure TKMayor.CheckHousePlans;
 begin
   //
 end;
 
 
-procedure TKMayor.CheckDeliveriesBalance;
+//Manage ware distribution
+procedure TKMayor.CheckWareFlow;
 var
   I: Integer;
   S: TKMHouseStore;
+  Houses: TKMHousesCollection;
 begin
-  //Block stone to store to reduce serf usage
-  I := 1;
-  S := TKMHouseStore(fPlayers[fOwner].FindHouse(ht_Store, I));
-  while S <> nil do
-  begin
-    S.NotAcceptFlag[wt_Trunk] := S.CheckResIn(wt_Trunk) > 50;
-    S.NotAcceptFlag[wt_Stone] := S.CheckResIn(wt_Stone) > 50;
+  Houses := fPlayers[fOwner].Houses;
 
-    //Look for next Store
-    Inc(I);
-    S := TKMHouseStore(fPlayers[fOwner].FindHouse(ht_Store, I));
-  end;
+  //Iterate through all Stores and block stone/trunks to reduce serf usage
+  for I := 0 to Houses.Count - 1 do
+    if (Houses[I].HouseType = ht_Store)
+    and Houses[I].IsComplete
+    and not Houses[I].IsDestroyed then
+    begin
+      S := TKMHouseStore(Houses[I]);
+
+      S.NotAcceptFlag[wt_Trunk] := S.CheckResIn(wt_Trunk) > 50;
+      S.NotAcceptFlag[wt_Stone] := S.CheckResIn(wt_Stone) > 50;
+    end;
 end;
 
 
+//Demolish any exhausted mines, they will be rebuilt if needed
 procedure TKMayor.CheckExhaustedMines;
 var
   I: Integer;
+  Houses: TKMHousesCollection;
 begin
-  with fPlayers[fOwner] do
+  Houses := fPlayers[fOwner].Houses;
+
   for I := 0 to Houses.Count - 1 do
   if not Houses[I].IsDestroyed
   and Houses[I].ResourceDepletedMsgIssued then
@@ -469,8 +474,7 @@ begin
   //Check if we need to demolish depleted mining houses
   CheckExhaustedMines;
 
-  //todo: Check if planned houses are not building
-  //(e.g. worker died while digging or elevation changed to impassable)
+  //Verify all plans are being connected with roads
   CheckHousePlans;
 end;
 
@@ -494,7 +498,7 @@ begin
     if Store = nil then Exit;
     StoreLoc := Store.GetEntrance;
 
-    for I := Max(StoreLoc.Y - 3, 1) to Min(StoreLoc.Y + 2, fTerrain.MapY - 1) do
+    for I := Max(StoreLoc.Y - 3, 1) to Min(StoreLoc.Y + 2, gTerrain.MapY - 1) do
     for K := StoreLoc.X - 2 to StoreLoc.X + 2 do
     if P.CanAddFieldPlan(KMPoint(K, I), ft_Road) then
       P.BuildList.FieldworksList.AddField(KMPoint(K, I), ft_Road);
@@ -535,7 +539,7 @@ begin
 
   //For now make equal amounts of each troop type (that's how it works in KaM with weapons production)
   //todo: Calculate these based on amount needed for each defence position
-  SetArmyDemand(0.5, 0.5, 0.5, 0.5);
+  SetArmyDemand(1, 1, 1, 1);
 end;
 
 
@@ -549,19 +553,36 @@ end;
 
 
 //Tell Mayor what proportions of army is needed
-procedure TKMayor.SetArmyDemand(FootmenDemand, PikemenDemand, HorsemenDemand, ArchersDemand: Single);
+//Input values are normalized
+procedure TKMayor.SetArmyDemand(aFootmen, aPikemen, aHorsemen, aArchers: Single);
 var
+  Summ: Single;
+  Footmen, Pikemen, Horsemen, Archers: Single;
   WarPerMin: Single;
 begin
-  //todo: normalize input values to sum = 1
+  Summ := aFootmen + aPikemen + aHorsemen + aArchers;
+  if Summ = 0 then
+  begin
+    Footmen := 0;
+    Pikemen := 0;
+    Horsemen := 0;
+    Archers := 0;
+  end
+  else
+  begin
+    Footmen := aFootmen / Summ;
+    Pikemen := aPikemen / Summ;
+    Horsemen := aHorsemen / Summ;
+    Archers := aArchers / Summ;
+  end;
 
   //Store localy in Mayor to place weapon orders
-  ShieldNeed := FootmenDemand + HorsemenDemand;
-  ArmorNeed := FootmenDemand + PikemenDemand + HorsemenDemand + ArchersDemand;
-  AxeNeed := FootmenDemand * 2 + HorsemenDemand;
-  PikeNeed := PikemenDemand;
-  BowNeed := ArchersDemand;
-  HorseNeed := HorsemenDemand;
+  ShieldNeed := Footmen + Horsemen;
+  ArmorNeed := Footmen + Pikemen + Horsemen + Archers;
+  AxeNeed := Footmen * 2 + Horsemen;
+  PikeNeed := Pikemen;
+  BowNeed := Archers;
+  HorseNeed := Horsemen;
 
   //How many warriors we would need to equip per-minute
   WarPerMin := fSetup.WarriorsPerMinute(fArmyType);
@@ -603,7 +624,7 @@ begin
     CheckHouseCount;
 
     //Manage wares ratios and block stone to Store
-    CheckDeliveriesBalance;
+    CheckWareFlow;
 
     //Build more roads if necessary
     CheckRoadsCount;

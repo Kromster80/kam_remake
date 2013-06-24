@@ -2,7 +2,8 @@ unit KM_BuildList;
 {$I KaM_Remake.inc}
 interface
 uses Classes, SysUtils, KromUtils, Math,
-    KM_CommonClasses, KM_Defaults, KM_Houses, KM_Units, KM_Points;
+    KM_CommonClasses, KM_Defaults, KM_Houses, KM_Units, KM_Points,
+    KM_ResourceHouse;
 
 
 type
@@ -11,6 +12,7 @@ type
         js_Open,    //Open - job is free to take by anyone
         js_Taken);  //Taken - job is taken by some worker
 
+  //List of houses ready to build
   TKMHouseList = class
   private
     fHousesCount: Integer;
@@ -36,7 +38,8 @@ type
   end;
 
 
-  TKMHousePlanList = class //Workers, Houseplans
+  //List of house plans and workers assigned to them
+  TKMHousePlanList = class
   private
     fPlansCount: Integer;
     fPlans: array of record
@@ -69,7 +72,7 @@ type
   end;
 
 
-  TKMFieldworksList = class //Workers, Fields
+  TKMFieldworksList = class
   private
     fFieldsCount: Integer;
     fFields: array of record
@@ -143,6 +146,7 @@ type
   end;
 
 
+  //Matchmaking service of workers to building sites, fields, repairs, etc
   TKMBuildList = class
   private
     fFieldworksList: TKMFieldworksList;
@@ -182,20 +186,22 @@ type
 
 
 implementation
-uses KM_PlayersCollection, KM_Resource, KM_ResourceHouse;
+uses KM_PlayersCollection, KM_Resource;
 
 
 const
   LENGTH_INC = 32; //Increment array lengths by this value
   BID_MODIF = 5; //Modificator for every next assigned worker
+
+  //Limit number of workers building each house, so they all fit in around
   MAX_WORKERS: array[THouseType] of Byte = (
-  0,0, //ht_None, ht_Any
-  8, {ht_ArmorSmithy}  8,{ht_ArmorWorkshop}  8, {ht_Bakery}      12,{ht_Barracks}      8, {ht_Butchers}
-  6, {ht_CoalMine}     8,{ht_Farm}           7, {ht_FisherHut}   3, {ht_GoldMine}      10,{ht_Inn}
-  4, {ht_IronMine}     8,{ht_IronSmithy}     10,{ht_Marketplace} 8, {ht_Metallurgists} 8, {ht_Mill}
-  6, {ht_Quary}        8,{ht_Sawmill}        10,{ht_School}      8, {ht_SiegeWorkshop} 10,{ht_Stables}
-  10,{ht_Store}        8,{ht_Swine}          8, {ht_Tannery}     10,{ht_TownHall}      6, {ht_WatchTower}
-  8, {ht_WeaponSmithy} 8,{ht_WeaponWorkshop} 8, {ht_Wineyard}    6  {ht_Woodcutters}
+    0,0, //ht_None, ht_Any
+    8, {ht_ArmorSmithy}  8,{ht_ArmorWorkshop}  8, {ht_Bakery}      12,{ht_Barracks}      8, {ht_Butchers}
+    6, {ht_CoalMine}     8,{ht_Farm}           7, {ht_FisherHut}   3, {ht_GoldMine}      10,{ht_Inn}
+    4, {ht_IronMine}     8,{ht_IronSmithy}     10,{ht_Marketplace} 8, {ht_Metallurgists} 8, {ht_Mill}
+    6, {ht_Quary}        8,{ht_Sawmill}        10,{ht_School}      8, {ht_SiegeWorkshop} 10,{ht_Stables}
+    10,{ht_Store}        8,{ht_Swine}          8, {ht_Tannery}     10,{ht_TownHall}      6, {ht_WatchTower}
+    8, {ht_WeaponSmithy} 8,{ht_WeaponWorkshop} 8, {ht_Wineyard}    6  {ht_Woodcutters}
   );
 
 
@@ -394,7 +400,7 @@ var I: Integer;
 begin
   for I := 0 to fFieldsCount - 1 do
   if (fFields[I].FieldType <> ft_None) and KMInRect(fFields[I].Loc, aRect) then
-    aList.AddEntry(fFields[I].Loc, Byte(fFields[I].FieldType));
+    aList.Add(fFields[I].Loc, Byte(fFields[I].FieldType));
 
   if aIncludeFake then
   begin
@@ -402,11 +408,11 @@ begin
       //It is possible to have a fake fieldplans at the position of a real fieldplan temporarily when
       //clicking on one tile repeatly due to network delay. Don't add duplicate points to the list.
       if fFakeFields[I].Active and not aList.Contains(fFakeFields[I].Loc) then
-        aList.AddEntry(fFakeFields[I].Loc, Byte(fFakeFields[I].FieldType));
+        aList.Add(fFakeFields[I].Loc, Byte(fFakeFields[I].FieldType));
     //Fields that have been deleted should not be painted
     for I := 0 to Length(fFakeDeletedFields) - 1 do
       if fFakeDeletedFields[I].Active then
-        aList.RemoveEntry(fFakeDeletedFields[I].Loc);
+        aList.Remove(fFakeDeletedFields[I].Loc);
   end;
 end;
 
@@ -802,16 +808,16 @@ begin
       if HA[J,K] <> 0 then
       begin
         if (J = 1) or (HA[J-1, K] = 0) then
-          aList.AddItem(KMPointDir(fPlans[I].Loc.X + K - 3, fPlans[I].Loc.Y + J - 4, dir_N));
+          aList.Add(KMPointDir(fPlans[I].Loc.X + K - 3, fPlans[I].Loc.Y + J - 4, dir_N));
 
         if (K = 1) or (HA[J, K-1] = 0) then
-          aList.AddItem(KMPointDir(fPlans[I].Loc.X + K - 3, fPlans[I].Loc.Y + J - 4, dir_E));
+          aList.Add(KMPointDir(fPlans[I].Loc.X + K - 3, fPlans[I].Loc.Y + J - 4, dir_E));
 
         if (J = 4) or (HA[J+1, K] = 0) then
-          aList.AddItem(KMPointDir(fPlans[I].Loc.X + K - 3, fPlans[I].Loc.Y + J - 4, dir_S));
+          aList.Add(KMPointDir(fPlans[I].Loc.X + K - 3, fPlans[I].Loc.Y + J - 4, dir_S));
 
         if (K = 4) or (HA[J, K+1] = 0) then
-          aList.AddItem(KMPointDir(fPlans[I].Loc.X + K - 3, fPlans[I].Loc.Y + J - 4, dir_W));
+          aList.Add(KMPointDir(fPlans[I].Loc.X + K - 3, fPlans[I].Loc.Y + J - 4, dir_W));
       end;
     end;
 end;
@@ -829,7 +835,7 @@ begin
   if (fPlans[I].HouseType <> ht_None)
   and InRange(fPlans[I].Loc.X - 2, Rect.Left, Rect.Right)
   and InRange(fPlans[I].Loc.Y - 2, Rect.Top, Rect.Bottom) then
-    aList.AddEntry(KMPoint(fPlans[I].Loc.X + fResource.HouseDat[fPlans[I].HouseType].EntranceOffsetX, fPlans[I].Loc.Y), Byte(fPlans[I].HouseType));
+    aList.Add(KMPoint(fPlans[I].Loc.X + fResource.HouseDat[fPlans[I].HouseType].EntranceOffsetX, fPlans[I].Loc.Y), Byte(fPlans[I].HouseType));
 end;
 
 

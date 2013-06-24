@@ -1,7 +1,8 @@
 program FontEditor;
 uses
   Forms,
-  umain in 'umain.pas' {frmMain};
+  umain in 'umain.pas', {frmMain}
+  Constants in 'Constants.pas';
 
 
   var

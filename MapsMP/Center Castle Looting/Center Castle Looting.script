@@ -1,0 +1,156 @@
+type TFoundNotification = record
+                            Player: Integer;
+                            Ware: Integer;
+                            Amount: Integer;
+                            TimeToHide: Integer;
+                          end;
+const
+  CASTLE_LEFT = 121;
+  CASTLE_RIGHT = 135;
+  CASTLE_TOP = 139;
+  CASTLE_BOTTOM = 149;
+  LOC_COUNT = 8; //Total number of locations on this map
+  NOTIFICATION_TIME = 100; //Time to show notifications
+var
+  King: Integer; //Current king of the castle
+  TimeStartedSearch: Integer; //The time at which the current king became king
+  FoundNotification: TFoundNotification;
+
+function GetWareText(aWare: Integer): AnsiString;
+begin
+  case aWare of
+    7:    Result := '<$4>';
+    17:   Result := '<$5>';
+    19:   Result := '<$6>';
+    21:   Result := '<$7>';
+    23:   Result := '<$8>';
+    25:   Result := '<$9>';
+    else  Result := '';
+  end;
+end;
+
+procedure GiveReward(aWare, aAmount: Integer);
+var I: Integer;
+begin
+  //Setup notification
+  FoundNotification.Player := King;
+  FoundNotification.Ware := aWare;
+  FoundNotification.Amount := aAmount;
+  FoundNotification.TimeToHide := States.GameTime + NOTIFICATION_TIME;
+  //Give players wares
+  for I:=0 to LOC_COUNT-1 do
+    if States.PlayerEnabled(I) then
+      if (King = I) or States.PlayerAllianceCheck(King, I) then //Allies of the king also get the wares
+        if ((aWare >= 16) and (aWare <= 26)) //Is a weapon
+        and (States.StatHouseTypeCount(I, 21) > 0) then //Player has a barracks
+          Actions.GiveWeapons(I, aWare, aAmount) //Put into 1st barracks
+        else
+          Actions.GiveWares(I, aWare, aAmount); //Put into 1st store
+end;
+
+procedure UpdateRewards(aTime: Integer);
+begin
+  if King = -1 then Exit;
+
+  //Small reward every 45 seconds
+  if aTime mod 450 = 0 then
+    case States.KaMRandomI(14) of
+      0,1,2,3: GiveReward(7,  5 + 2*States.KaMRandomI(5)); //Gold
+      4:       GiveReward(17, 5 + 2*States.KaMRandomI(3)); //Iron shield
+      5,6,7:   GiveReward(19, 5 + 2*States.KaMRandomI(3)); //Iron armour
+      8,9:     GiveReward(25, 5 + 2*States.KaMRandomI(3)); //Crossbows
+      10,11:   GiveReward(21, 5 + 2*States.KaMRandomI(3)); //Swords
+      12,13:   GiveReward(23, 5 + 2*States.KaMRandomI(3)); //Pikes
+    end;
+end;
+
+procedure ShowDisplay;
+var Time, Mins, Secs: Integer;
+begin
+  if King = -1 then
+    Actions.OverlayTextSet(-1, '<$1>') //Nobody is king
+  else
+  begin
+    //Calculate the time left before the king wins
+    Time := States.GameTime - TimeStartedSearch;
+  
+    UpdateRewards(Time);
+
+    //Show the time they have been searching for
+    Mins := Time div 600;
+    Secs := (Time div 10) mod 60;
+
+    Actions.OverlayTextSetFormatted(-1, '<$2>', [States.PlayerColorText(King), States.PlayerName(King), Mins, Secs]);
+    
+    if FoundNotification.TimeToHide > States.GameTime then
+      Actions.OverlayTextAppendFormatted(-1, '||<$3>', [States.PlayerColorText(FoundNotification.Player), States.PlayerName(FoundNotification.Player), FoundNotification.Amount, GetWareText(FoundNotification.Ware)]);
+  end;
+end;
+
+function IsSoldier(UnitID: Integer): Boolean;
+var UnitType: Integer;
+begin
+  if UnitID = -1 then
+    Result := False
+  else
+  begin
+    UnitType := States.UnitType(UnitID);
+    Result := (UnitType >= 14) and (UnitType <= 27); //valid range of soldiers
+  end;
+end;
+
+//Returns the owner of the unit currently in the castle, or -1 if nobody is
+function GetCurrentCastleOwner(aOldKing: Integer): Integer;
+var
+  UnitOwner, X, Y: Integer;
+  U: Integer;
+begin
+  Result := -1;
+  //Check castle area
+  for X := CASTLE_LEFT to CASTLE_RIGHT do
+    for Y := CASTLE_TOP to CASTLE_BOTTOM do
+    begin
+      U := States.UnitAt(X, Y);
+      if IsSoldier(U) then
+      begin
+        UnitOwner := States.UnitOwner(U);
+        //Owner = -1 means invalid, -2 means animals
+        if (UnitOwner <> -1) and (UnitOwner <> -2) then
+        begin
+          //If we haven't found anybody else in the castle yet, this player is the owner for now
+          if (Result = -1) or (aOldKing = UnitOwner) then
+          begin
+            Result := UnitOwner
+          end
+          else
+            if (Result <> UnitOwner) and not States.PlayerAllianceCheck(Result, UnitOwner) then
+            begin
+              //The castle has more than one player in it (not allies), so nobody owns it
+              Result := -1;
+              Exit;
+            end;
+        end;
+      end;
+    end;
+end;
+
+//Initialise variables here
+procedure OnMissionStart;
+var I: Integer;
+begin
+  King := -1;
+  FoundNotification.TimeToHide := 0;
+  for I:=0 to LOC_COUNT-1 do
+    Actions.PlayerAddDefaultGoals(I, True); //Add default goals for each player (destroy enemy houses, protect own)
+  ShowDisplay; //So the text is there from the first tick rather than appearing after tick 1
+end;
+
+procedure OnTick;
+var OldKing: Integer;
+begin
+  ShowDisplay;
+  OldKing := King;
+  King := GetCurrentCastleOwner(King);
+  if King <> OldKing then
+    TimeStartedSearch := States.GameTime;
+end;

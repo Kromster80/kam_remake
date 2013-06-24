@@ -22,6 +22,8 @@ We can discuss them in dialog-style and maybe move to GC issues later on
 	L	Change army counts in charts and statistics to army power (e.g. knights worth more than militia)
 	L	Allow dedicated server host to do announcements (e.g. server will be closed in 5min, plz save and quit)
 	L	Add shortcut keys to common messsages in MP (defend here, attack, check ur base, etc.)
+		Allow to cancel builders tasks (e.g. roadbuilding)
+    Sound notification when MP game starts (some players join the lobby, hit ready and alt-tab waiting for game to start)
 
 		Warriors should resume their last attack order after a fight "ends", so if you ask cavalry to attack archers they do not stop and stand still as soon as the first one dies because the others are not within direct reach. Probably all orders should be remembered and resumed after a fight, so if you ask a warrior to move somewhere and he bumps into a bowman, after killing him he should continue on his way.
       Krom: Is it requested only for Attack orders, or Walk too?
@@ -30,6 +32,8 @@ We can discuss them in dialog-style and maybe move to GC issues later on
 	L	Add a "seperate one unit from the group" button for scouting etc. (we can rearrange interface due to unused move/attack buttons)
 	L	Add a way to feed only <30% hungry units
 		Switch beacon from B to more convenient Alt+Click as in other RTS?
+		Waypoint for the barracks. So that warriors go to a specific point instead of crowding in front of the barracks
+		Using TAB to toggle between houses of same kind
 
 		In-game player list should show who is defeated (shown seperately to who is disconnected which is already shown by strikethrough)
 		Allow to build fields over winefields, allow to destruct own fields and roads by workers.
@@ -49,6 +53,8 @@ We can discuss them in dialog-style and maybe move to GC issues later on
       Krom: I dont think this is a good idea, that could slow deliveries down
       Lewin: IMO it won't in almost all cases, it allows serfs to be more efficiently allocated. Remember that only 1 item is locked per serf bringing an item there, so only a few items will get locked. Right now it's very annoying when a serf drops something off and doesn't take an item out, and a serf from a long way away is made to walk there and take it instead. It also reduces overall traffic on the road networks. I think we could test it on Rayzel's map and see whether it's more efficient (compare overall productivity and average number of idle serfs?).
 	L	Pressing tab should cycle to next edit box (needs TabOrder like Delphi controls?)
+		Placing beacons in replays for educational purposes (e.g. while making a video for youtube)
+		Limit rate of the message notification sound to avoid sound spam when you lost many villagers
 
 
 REJECTED:

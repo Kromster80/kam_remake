@@ -22,7 +22,6 @@ type
     fLastMapCRC: Cardinal; //CRC of selected map
 
     fSingleLoc: Integer;
-    fSingleLocations: array [0..MAX_PLAYERS - 1] of Byte; //Lookup
     fSingleColor: Cardinal;
 
     procedure Create_SingleMap(aParent: TKMPanel);
@@ -67,7 +66,7 @@ type
 
 
 implementation
-uses KM_TextLibrary, KM_GameApp, KM_Utils, KM_RenderUI;
+uses KM_TextLibrary, KM_GameApp, KM_Utils, KM_RenderUI, KM_ResourceFonts;
 
 
 { TKMGUIMenuSingleMap }
@@ -241,31 +240,29 @@ end;
 
 procedure TKMGUIMenuSingleMap.ListRefresh(aJumpToSelected: Boolean);
 var
-  I, OldTopIndex: Integer;
+  I, PrevTop: Integer;
   R: TKMListRow;
 begin
-  OldTopIndex := ColumnBox_SingleMaps.TopIndex;
+  PrevTop := ColumnBox_SingleMaps.TopIndex;
   ColumnBox_SingleMaps.Clear;
 
   fMaps.Lock;
   try
     for I := 0 to fMaps.Count - 1 do
     begin
-      R := MakeListRow(['', IntToStr(fMaps[I].PlayerCount), fMaps[I].FileName, MapSizeText(fMaps[I].MapSizeX, fMaps[I].MapSizeY)]);
+      R := MakeListRow(['', IntToStr(fMaps[I].LocCount), fMaps[I].FileName, MapSizeText(fMaps[I].MapSizeX, fMaps[I].MapSizeY)]);
       R.Cells[2].Hint := fMaps[I].SmallDesc;
       R.Cells[0].Pic := MakePic(rxGui, 28 + Byte(fMaps[I].MissionMode <> mm_Tactic) * 14);
       ColumnBox_SingleMaps.AddItem(R);
-    end;
 
-    //IDs of maps could changed, so use CRC to check which one was selected
-    for I := 0 to fMaps.Count - 1 do
       if (fMaps[I].CRC = fLastMapCRC) then
         ColumnBox_SingleMaps.ItemIndex := I;
+    end;
   finally
     fMaps.Unlock;
   end;
 
-  ColumnBox_SingleMaps.TopIndex := OldTopIndex;
+  ColumnBox_SingleMaps.TopIndex := PrevTop;
   if aJumpToSelected
   and not InRange(ColumnBox_SingleMaps.ItemIndex - ColumnBox_SingleMaps.TopIndex, 0, ColumnBox_SingleMaps.GetVisibleRows - 1)
   then
@@ -280,7 +277,7 @@ end;
 procedure TKMGUIMenuSingleMap.ListClick(Sender: TObject);
 var
   MapId: Integer;
-  I, K: Integer;
+  I: Integer;
 begin
   fMaps.Lock;
   try
@@ -310,19 +307,12 @@ begin
       MinimapView_Single.Show;
 
       //Location
-      K := 0;
       DropBox_SingleLoc.Clear;
-      for I := 0 to fMaps[MapId].PlayerCount - 1 do
+      for I := 0 to fMaps[MapId].LocCount - 1 do
       if fMaps[MapId].CanBeHuman[I] or ALLOW_TAKE_AI_PLAYERS then
-      begin
-        DropBox_SingleLoc.Add(fMaps[MapId].LocationName(I));
-        fSingleLocations[K] := I;
+        DropBox_SingleLoc.Add(fMaps[MapId].LocationName(I), I);
 
-        if I = fMaps[MapId].DefaultHuman then
-          DropBox_SingleLoc.ItemIndex := K;
-
-        Inc(K);
-      end;
+      DropBox_SingleLoc.SelectByTag(fMaps[MapId].DefaultHuman);
 
       //Color
       //Fill in colors for each map individually
@@ -347,8 +337,8 @@ end;
 
 procedure TKMGUIMenuSingleMap.OptionsChange(Sender: TObject);
 begin
-  if InRange(DropBox_SingleLoc.ItemIndex, Low(fSingleLocations), High(fSingleLocations)) then
-    fSingleLoc := fSingleLocations[DropBox_SingleLoc.ItemIndex]
+  if DropBox_SingleLoc.ItemIndex <> -1 then
+    fSingleLoc := DropBox_SingleLoc.GetSelectedTag
   else
     fSingleLoc := -1;
 
@@ -419,7 +409,7 @@ begin
 
     //Populate alliances section
     J := 0; K := 0;
-    for I := 0 to M.PlayerCount - 1 do
+    for I := 0 to M.LocCount - 1 do
     if I <> fSingleLoc then
     begin
       case M.Alliances[fSingleLoc, I] of
@@ -500,6 +490,9 @@ end;
 procedure TKMGUIMenuSingleMap.MinimapLocClick(aValue: Integer);
 begin
   fSingleLoc := aValue;
+
+  DropBox_SingleLoc.SelectByTag(fSingleLoc);
+
   Update;
 end;
 

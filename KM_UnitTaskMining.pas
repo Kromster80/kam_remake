@@ -3,7 +3,8 @@ unit KM_UnitTaskMining;
 interface
 uses Math, SysUtils,
   KM_CommonClasses, KM_Defaults, KM_Points,
-  KM_Units, KM_Units_Workplan, KM_Terrain;
+  KM_Units, KM_Units_Workplan, KM_Terrain,
+  KM_ResourceWares;
 
 
 {Perform resource mining}
@@ -28,7 +29,7 @@ type
 
 
 implementation
-uses KM_Houses, KM_PlayersCollection, KM_Resource, KM_TextLibrary;
+uses KM_Houses, KM_PlayersCollection, KM_Resource, KM_TextLibrary, KM_ResourceHouse;
 
 
 { TTaskMining }
@@ -37,6 +38,7 @@ begin
   inherited Create(aUnit);
   fTaskName := utn_Mining;
   fWorkPlan := TUnitWorkPlan.Create;
+  fWorkPlan.OnWorkplanAllowed := TKMUnitCitizen(aUnit).WorkPlanProductValid;
   fBeastID  := 0;
 
   fWorkPlan.FindPlan( fUnit,
@@ -63,7 +65,7 @@ begin
   Result := false;
   Assert(fUnit is TKMUnitCitizen);
   if fPhase = 2 then //Unit is walking to mine-position
-    Result := fTerrain.TileIsLocked(WorkPlan.Loc) or //If someone takes our place
+    Result := gTerrain.TileIsLocked(WorkPlan.Loc) or //If someone takes our place
               not ResourceExists or //Resource has gone
               not TKMUnitCitizen(fUnit).CanWorkAt(WorkPlan.Loc, WorkPlan.GatheringScript);
 end;
@@ -78,12 +80,12 @@ begin
   case fUnit.GetHome.HouseType of
     ht_Woodcutters: case TKMHouseWoodcutters(fUnit.GetHome).WoodcutterMode of
                       wcm_Chop:         Result := taCut;
-                      wcm_ChopAndPlant: if fUnit.GetHome.CheckResOut(wt_Trunk) >= MAX_RES_IN_HOUSE then
+                      wcm_ChopAndPlant: if fUnit.GetHome.CheckResOut(wt_Trunk) >= MAX_WARES_IN_HOUSE then
                                           Result := taPlant
                                         else
                                           Result := taAny;
                     end;
-    ht_Farm:        if fUnit.GetHome.CheckResOut(wt_Corn) >= MAX_RES_IN_HOUSE then
+    ht_Farm:        if fUnit.GetHome.CheckResOut(wt_Corn) >= MAX_WARES_IN_HOUSE then
                       Result := taPlant
                     else
                       Result := taAny;
@@ -143,7 +145,7 @@ end;
 function TTaskMining.ResourceExists: Boolean;
 var P: TKMPoint;
 begin
-  with fTerrain do
+  with gTerrain do
   case WorkPlan.GatheringScript of
     gs_StoneCutter:     Result := TileIsStone(WorkPlan.Loc.X, WorkPlan.Loc.Y-1) > 0; //Check stone deposit above Loc, which is walkable tile
     gs_FarmerSow:       Result := TileIsCornField(WorkPlan.Loc) and (Land[WorkPlan.Loc.Y, WorkPlan.Loc.X].FieldAge = 0);
@@ -255,23 +257,27 @@ begin
     6: begin
          StillFrame := 0;
          case WorkPlan.GatheringScript of //Perform special tasks if required
-           gs_StoneCutter:     fTerrain.DecStoneDeposit(KMPoint(WorkPlan.Loc.X,WorkPlan.Loc.Y-1));
-           gs_FarmerSow:       fTerrain.SowCorn(WorkPlan.Loc);
-           gs_FarmerCorn:      fTerrain.CutCorn(WorkPlan.Loc);
-           gs_FarmerWine:      fTerrain.CutGrapes(WorkPlan.Loc);
-           gs_FisherCatch:     begin fTerrain.CatchFish(KMPointDir(WorkPlan.Loc,WorkPlan.WorkDir)); WorkPlan.ActionWorkType := ua_WalkTool; end;
-           gs_WoodCutterPlant: //If the player placed a house plan here while we were digging don't place the
-                               //tree so the house plan isn't canceled. This is actually the same as TSK/TPR IIRC
-                               if TKMUnitCitizen(fUnit).CanWorkAt(WorkPlan.Loc, gs_WoodCutterPlant) then
-                                 fTerrain.SetTree(WorkPlan.Loc,fTerrain.ChooseTreeToPlant(WorkPlan.Loc));
-           gs_WoodCutterCut:   begin fTerrain.FallTree(KMGetVertexTile(WorkPlan.Loc, WorkPlan.WorkDir)); StillFrame := 5; end;
+           gs_StoneCutter:      gTerrain.DecStoneDeposit(KMPoint(WorkPlan.Loc.X,WorkPlan.Loc.Y-1));
+           gs_FarmerSow:        gTerrain.SowCorn(WorkPlan.Loc);
+           gs_FarmerCorn:       gTerrain.CutCorn(WorkPlan.Loc);
+           gs_FarmerWine:       gTerrain.CutGrapes(WorkPlan.Loc);
+           gs_FisherCatch:      begin
+                                  gTerrain.CatchFish(KMPointDir(WorkPlan.Loc,WorkPlan.WorkDir));
+                                  WorkPlan.ActionWorkType := ua_WalkTool;
+                                end;
+           gs_WoodCutterPlant:  //If the player placed a house plan here while we were digging don't place the
+                                //tree so the house plan isn't canceled. This is actually the same as TSK/TPR IIRC
+                                if TKMUnitCitizen(fUnit).CanWorkAt(WorkPlan.Loc, gs_WoodCutterPlant) then
+                                  gTerrain.SetTree(WorkPlan.Loc, gTerrain.ChooseTreeToPlant(WorkPlan.Loc));
+           gs_WoodCutterCut:    begin
+                                  gTerrain.FallTree(KMGetVertexTile(WorkPlan.Loc, WorkPlan.WorkDir));
+                                  StillFrame := 5;
+                                end;
          end;
          SetActionLockedStay(WorkPlan.AfterWorkDelay, WorkPlan.ActionWorkType, True, StillFrame, StillFrame);
        end;
     7: begin
-         //Removing the tree and putting a stump is now handled in fTerrain.UpdateState from FallingTrees list
-         //if WorkPlan.GatheringScript = gs_WoodCutterCut then
-         //  fTerrain.ChopTree(KMGetVertexTile(WorkPlan.Loc,WorkPlan.WorkDir)); //Make the tree turn into a stump
+         //Removing the tree and putting a stump is handled in gTerrain.UpdateState from FallingTrees list
          SetActionWalkToSpot(KMPointBelow(GetHome.GetEntrance), WorkPlan.ActionWalkFrom); //Go home
          Thought := th_Home;
        end;
@@ -329,9 +335,9 @@ begin
             TKMHouseSwineStable(GetHome).TakeBeast(fBeastID); //Take the horse after feeding
 
           case WorkPlan.GatheringScript of
-            gs_CoalMiner:    ResAcquired := fTerrain.DecOreDeposit(WorkPlan.Loc, wt_Coal);
-            gs_GoldMiner:    ResAcquired := fTerrain.DecOreDeposit(WorkPlan.Loc, wt_GoldOre);
-            gs_IronMiner:    ResAcquired := fTerrain.DecOreDeposit(WorkPlan.Loc, wt_IronOre);
+            gs_CoalMiner:    ResAcquired := gTerrain.DecOreDeposit(WorkPlan.Loc, wt_Coal);
+            gs_GoldMiner:    ResAcquired := gTerrain.DecOreDeposit(WorkPlan.Loc, wt_GoldOre);
+            gs_IronMiner:    ResAcquired := gTerrain.DecOreDeposit(WorkPlan.Loc, wt_IronOre);
             gs_SwineBreeder: ResAcquired := fBeastID<>0;
             gs_HorseBreeder: ResAcquired := fBeastID<>0;
             else             ResAcquired := true;

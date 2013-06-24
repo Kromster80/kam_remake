@@ -26,18 +26,18 @@ begin
   SKIP_SOUND := True;
   ExeDir := ExtractFilePath(ParamStr(0)) + '..\';
 
-  fLog := TKMLog.Create(ExtractFilePath(ParamStr(0)) + 'Temp\temp.log');
+  gLog := TKMLog.Create(ExtractFilePath(ParamStr(0)) + 'Temp\temp.log');
   fResource := TResource.Create(nil, nil, nil);
   fResource.LoadMenuResources('');
-  fTerrain := TKMTerrain.Create;
+  gTerrain := TKMTerrain.Create;
 end;
 
 
 procedure TestKMTerrain.TearDown;
 begin
-  fTerrain.Free;
+  gTerrain.Free;
   fResource.Free;
-  fLog.Free;
+  gLog.Free;
 end;
 
 
@@ -57,7 +57,7 @@ begin
     for I := 0 to PathToMaps.Count - 1 do
     begin
       try
-        fTerrain.LoadFromFile(ChangeFileExt(PathToMaps[I], '.map'), False);
+        gTerrain.LoadFromFile(ChangeFileExt(PathToMaps[I], '.map'), False);
         Inc(GoodMaps);
       except
         //Report and swallow asserts
@@ -65,7 +65,7 @@ begin
           Status('Map did not load: ' + PathToMaps[I] + '. '+ E.Message);
       end;
 
-      Check(fTerrain.MapX * fTerrain.MapY <> 0, 'Map did not load: ' + PathToMaps[I]);
+      Check(gTerrain.MapX * gTerrain.MapY <> 0, 'Map did not load: ' + PathToMaps[I]);
     end;
 
     Status(IntToStr(PathToMaps.Count - GoodMaps) + ' of ' + IntToStr(PathToMaps.Count) + ' maps failed');

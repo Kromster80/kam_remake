@@ -111,12 +111,14 @@ begin
   if fUnitCache[I].ID = aID then
   begin
     Result := fUnitCache[I].U;
+    if (Result <> nil) and Result.IsDeadOrDying then
+      Result := nil;
     Exit;
   end;
 
   //Not found so do lookup and add it to the cache
   Result := fPlayers.GetUnitByID(aID);
-  if (Result <> nil) and Result.IsDead then
+  if (Result <> nil) and Result.IsDeadOrDying then
     Result := nil;
 
   CacheUnit(Result, aID);
@@ -170,7 +172,7 @@ begin
   if fGame.GameTickCount mod 11 = 0 then
   begin
     for I := Low(fUnitCache) to High(fUnitCache) do
-      if (fUnitCache[I].U <> nil) and fUnitCache[I].U.IsDead then
+      if (fUnitCache[I].U <> nil) and fUnitCache[I].U.IsDeadOrDying then
         fPlayers.CleanUpUnitPointer(fUnitCache[I].U);
 
     for I := Low(fHouseCache) to High(fHouseCache) do

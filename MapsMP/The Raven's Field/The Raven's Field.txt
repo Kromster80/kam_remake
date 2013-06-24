@@ -1,0 +1,4 @@
+SetSpecial
+
+BigDesc
+You start with barracks and 50 recruits per player (maximum 20 iron units), choose your army well to defeat the opponents !|Two enemy kings during the civil war sent four of their generals to gain control over The Raven's Field, a major strategic area. They all have a good amount of equipments, but only a limited number of men. Who will gain control over the field ? This ancient area was once the trading node of the kingdom, but now abandonned since hundreds of years. The first step to reuniting the old kingdom is to control this field and rebuild an outpost.|Made by Shadaoe.

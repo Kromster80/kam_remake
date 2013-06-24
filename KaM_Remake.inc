@@ -14,5 +14,5 @@
 
 {$IFDEF WDC}
   //Project can be compiled without madExcept features (if you dont have madExcept installed)
-  {.$DEFINE USE_MAD_EXCEPT}
+  {$DEFINE USE_MAD_EXCEPT}
 {$ENDIF}

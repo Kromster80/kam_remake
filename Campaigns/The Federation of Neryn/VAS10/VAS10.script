@@ -1,0 +1,195 @@
+// Globale Variablen
+var iVer, iSec, iKnights, iScouts, iPatrol1, iPatrol2, iFood, iAdd, iScout, iInterval, iCount, iPosition, iAttack: Integer;
+
+// Schlussnachricht an die Spieler
+procedure OnPlayerVictory(iIndex: Integer);
+begin
+	Actions.OverlayTextSet(iIndex, '<$3>');
+end;
+
+procedure OnTick;
+begin
+  // Verbündeten setzen, Karte aufdecken
+  if States.GameTime = 200 then begin
+	Actions.PlayerAllianceChange(0, 7, true, true);
+	
+	Actions.FogRevealCircle(0, 127, 23, 5);
+	Actions.FogRevealCircle(0, 122, 23, 5);
+	Actions.FogRevealCircle(0, 116, 19, 5);
+	Actions.FogRevealCircle(0, 138, 61, 5);
+	Actions.FogRevealCircle(0, 147, 55, 10);
+	Actions.FogRevealCircle(0, 133, 56, 10);
+	Actions.FogRevealCircle(0, 158, 48, 10);
+	Actions.FogRevealCircle(0, 147, 40, 10);
+  
+  end;
+
+  // Verstärkung aus dem Bildschirmrand
+  if States.GameTime = iVer then
+  begin
+    iKnights := Actions.GiveGroup(3, 22, 191, 25, 6, 3, 3);
+    Actions.GroupOrderWalk(iKnights, 180, 25, 6);
+	iScouts := Actions.GiveGroup(3, 21, 191, 30, 6, 3, 3);
+	Actions.GroupOrderWalk(iScouts, 180, 30, 6);
+  end;
+  for iSec := 1 to 6 do
+    if States.GameTime = iVer + (iSec * 15) then
+    begin	  
+      iAdd := Actions.GiveGroup(3, 22, 191, 25, 6, 3, 3);
+      Actions.GroupOrderLink(iAdd, iKnights);
+	  
+	  iAdd := Actions.GiveGroup(3, 21, 191, 30, 6, 3, 3);
+      Actions.GroupOrderLink(iAdd, iScouts);
+    end;
+
+  // Nachrichten
+  if States.GameTime = 9000 then 
+	begin
+		Actions.ShowMsg(0, '<$0>');
+		Actions.GroupOrderHalt(iPatrol1);
+		Actions.GroupOrderHalt(iPatrol2);
+		Actions.GroupOrderFood(iPatrol1);
+		Actions.GroupOrderFood(iPatrol2);
+	end;
+  if States.GameTime = 31800 then
+  begin
+	Actions.ShowMsg(0, '<$1>');
+  end;
+
+  // Reiter
+  if ((States.GroupDead(iPatrol1) = false) OR (States.GroupDead(iPatrol2) = false))
+	AND (States.GameTime = iCount + iInterval) 
+  then begin
+	if iPosition = 0 then
+	begin
+		Actions.GroupOrderWalk(iPatrol1, 76, 37, 2);
+		Actions.GroupOrderWalk(iPatrol2, 77, 33, 3);
+		iCount := iCount + 400;
+	end;
+	if iPosition = 1 then
+	begin
+		iCount := iCount + 30;
+		Actions.GroupOrderWalk(iPatrol1, 103, 42, 5);
+		Actions.GroupOrderWalk(iPatrol2, 110, 39, 2);
+	end;
+	if iPosition = 2 then
+	begin
+		iCount := iCount - 320;
+		Actions.GroupOrderWalk(iPatrol1, 97, 53, 4);
+		Actions.GroupOrderWalk(iPatrol2, 122, 37, 2);
+	end;
+	if iPosition = 3 then
+	begin
+		iCount := iCount - 290;
+		Actions.GroupOrderWalk(iPatrol1, 115, 67, 2);
+		Actions.GroupOrderWalk(iPatrol2, 141, 33, 2);
+	end;
+	if iPosition = 4 then
+	begin
+		iCount := iCount - 200;
+		Actions.GroupOrderWalk(iPatrol1, 94, 70, 5);
+		Actions.GroupOrderWalk(iPatrol2, 152, 34, 1);
+
+	end;
+	if iPosition = 5 then
+	begin
+		Actions.GroupOrderWalk(iPatrol1, 15, 61, 2);
+		Actions.GroupOrderWalk(iPatrol2, 115, 68, 5);
+	end;
+	if iPosition = 6 then
+	begin
+		Actions.GroupOrderWalk(iPatrol1, 15, 61, 2);
+		Actions.GroupOrderWalk(iPatrol2, 11, 61, 2);
+		iCount := iCount + 600;
+	end;
+	if iPosition = 7 then
+	begin
+		iFood := iFood + 1;
+		if iFood = 5 then
+		begin
+			Actions.GroupOrderHalt(iPatrol1);
+			Actions.GroupOrderHalt(iPatrol2);
+			Actions.GroupOrderFood(iPatrol1);
+			Actions.GroupOrderFood(iPatrol2);
+			iInterval := iPatrol1;
+			iPatrol1 := iPatrol2;
+			iPatrol2 := iInterval;
+			iInterval := 400;
+			iCount := iCount + 600;
+			iFood := 0;
+		end;
+	end;
+
+	// Aufzählen
+	iCount := iCount + iInterval;
+	iPosition := iPosition + 1;
+	if iPosition = 8 then
+	begin iPosition := 0; end;		
+
+
+  end else if States.GameTime = iCount + iInterval then
+  begin
+	if iAttack = 0 then
+	begin
+		// Verzögerung um 2 Minuten
+		iCount := iCount + 1000;
+	end;
+	if iAttack = 1 then
+	begin
+		// Verstärkung
+		Actions.ShowMsg(0, '<$2>');
+		iVer := States.GameTime + 10;
+		iCount := iCount + 1000;
+	end;
+	if iAttack = 2 then
+	begin
+		// Barbaren Angriff
+		Actions.GiveGroup(1, 23, 31, 37, 3, 45, 5);
+		iCount := iCount + 1200;
+	end;
+	iAttack := iAttack + 1;
+  end;
+
+end;
+
+procedure OnMissionStart;
+begin
+  // Patrolierende Reiter
+  iPatrol1 := Actions.GiveGroup(1, 27, 15, 61, 2, 5, 3);
+  iAdd := Actions.GiveGroup(1, 21, 14, 60, 2, 4, 3);
+  Actions.GroupOrderLink(iAdd, iPatrol1);
+
+  iPatrol2 := Actions.GiveGroup(1, 22, 11, 61, 2, 5, 3);
+  iAdd := Actions.GiveGroup(1, 21, 9, 61, 2, 4, 3);
+  Actions.GroupOrderLink(iAdd, iPatrol2);
+
+  Actions.GroupOrderFood(iPatrol1);
+  Actions.GroupOrderFood(iPatrol2);
+
+  iCount := 12000;
+  iPosition := 0;
+  iInterval := 400;
+  iAttack := 0;
+  iFood := 0;
+  iVer := -1000;
+  iScout := -1;
+
+  // Häuser reparieren
+  Actions.HouseRepairEnable(States.HouseAt(160, 58), true);
+  Actions.HouseRepairEnable(States.HouseAt(158, 62), true);
+  Actions.HouseRepairEnable(States.HouseAt(164, 63), true);
+  Actions.HouseRepairEnable(States.HouseAt(168, 66), true);
+  Actions.HouseRepairEnable(States.HouseAt(164, 67), true);
+  Actions.HouseRepairEnable(States.HouseAt(171, 69), true);
+  Actions.HouseRepairEnable(States.HouseAt(170, 74), true);
+  Actions.HouseRepairEnable(States.HouseAt(156, 78), true);
+  // Waren
+  Actions.HouseAddWaresTo(States.HouseAt(171, 69), 8, 3);
+  Actions.HouseAddWaresTo(States.HouseAt(171, 69), 10, 2);
+  Actions.HouseAddWaresTo(States.HouseAt(171, 69), 13, 1);
+  Actions.HouseAddWaresTo(States.HouseAt(171, 69), 27, 4);
+  Actions.HouseAddWaresTo(States.HouseAt(124, 66), 27, 4);
+  // Block
+  Actions.HouseDeliveryBlock(States.HouseAt(15, 53), true);
+
+end;

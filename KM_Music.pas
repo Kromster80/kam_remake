@@ -91,7 +91,7 @@ begin
   // Setup output - default device, 44100hz, stereo, 16 bits
   if not BASS_Init(-1, 44100, 0, 0, nil) then
   begin
-    fLog.AddTime('Failed to initialize the music playback device');
+    gLog.AddTime('Failed to initialize the music playback device');
     IsMusicInitialized := False;
   end;
   {$ENDIF}
@@ -102,7 +102,7 @@ begin
   for I := 1 to MusicCount do
     TrackOrder[I] := I;
 
-  fLog.AddTime('Music init done, ' + IntToStr(MusicCount) + ' tracks found');
+  gLog.AddTime('Music init done, ' + IntToStr(MusicCount) + ' tracks found');
 end;
 
 

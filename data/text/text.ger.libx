@@ -1,5 +1,5 @@
 
-MaxID:667
+MaxID:697
 
 0:Sägewerk
 1:Eisenschmelze
@@ -118,7 +118,7 @@ MaxID:667
 114:Mission beenden
 115:Zurück
 116:Einstellungen
-117:Mission beenden
+117:Editor beenden
 118:Geräusche
 119:Lautstärke ändern
 120:Lautstärke ändern
@@ -139,6 +139,7 @@ MaxID:667
 135:Abbrechen
 136:Derzeitige Ausbildung abbrechen
 137:Vorrätig:
+138:Vorräte:
 139:Zustand:
 140:Liefert
 141:Das Gebäude wird|derzeit noch errichtet
@@ -178,32 +179,33 @@ MaxID:667
 175:Euer Kohlebergwerk ist erschöpft.
 176:Euer Eisenbergwerk ist erschöpft.
 177:Euer Goldbergwerk ist erschöpft.
+178:Der Holzfäller erreicht keine weiteren Baumbestände.
 179:Dieses Haus ist nicht bewohnt.
 180:Diese Truppe ist sehr hungrig, sie sollte sehr bald Nahrung bekommen!
 181:PAUSE
-182:Beliefert.
-183:Baut Straße.
-184:Pflügt Acker.
-185:Legt Weinfeld an.
-186:Ebnet Baustelle.
-187:Errichtet Gebäude.
-188:Repariert Gebäude.
-189:Geht nach Hause.
-190:Geht ins Wirtshaus.
-191:Attackiert Gebäude.
-192:Beschießt Gegner.
+182:Beliefert
+183:Baut Straße
+184:Pflügt Acker
+185:Legt Weinfeld an
+186:Planiert Baustelle
+187:Errichtet Gebäude
+188:Repariert Gebäude
+189:Geht nach Hause
+190:Geht ins Wirtshaus
+191:Attackiert Gebäude
+192:Beschießt Gegner
 193:Im Gefecht.
 194:Sturmangriff!
-195:Im Gefecht.
-196:Unterwegs.
-197:Keine Aufgabe.
-198:Baut Granit ab.
-199:Säet Korn.
-200:Erntet Weizen.
-201:Erntet Weinbeeren.
-202:Angelt Fisch.
-203:Fällt Baum.
-204:Pflanzt Baum.
+195:Im Gefecht
+196:Unterwegs
+197:Keine Aufgabe
+198:Baut Granit ab
+199:Säet Korn
+200:Erntet Weizen
+201:Erntet Weinbeeren
+202:Angelt Fisch
+203:Fällt Baum
+204:Pflanzt Baum
 205:Spirit
 206:Busy
 207:Middleage Horn
@@ -227,7 +229,8 @@ MaxID:667
 225:Am Hafen
 226:Reise
 227:Kampagnen
-229:Starte Kampagne!
+228:Kampagnen
+229:Kampagne starten
 230:Einzelmission spielen
 231:Mission starten
 232:Zurück zum Hauptmenü
@@ -271,6 +274,10 @@ MaxID:667
 270:Produzierte Ressourcen
 272:Du
 273:Spieler %d
+274:Zurück zum Multiplayer
+275:Zurück zu den Replays
+276:Alles
+278:Nahrung
 279:JOYMANIA ENTERTAINMENT||PROGRAMMIERUNG:|Peter Ohlmann||SPIELGRAFIK:|Adam Sprys||LEVELDESIGN:|Adam Sprys|Andre Quaß||TONSCHNITT UND -MISCHUNG:|Tonstudio Mannheim||MUSIK:|Gerd Hofmann|Joachim Schäfer|Jürgen Rebhann|Klaus Staendike|Steffen Schüngel||ILLUSTRATIONEN:|Boleslaw Kasza|Christoph Werner||ZUXXEZ ENTERTAINMENT AG||PRODUCER:|Uwe Schäfer||HANDBUCH:|Peter Ohlmann|Uwe Schäfer||BETA TESTING:|Peter Ohlmann|Adam Sprys|Alexandra Constandache|Dirk P. Hassinger|Achim Heidelauf|Uwe Schäfer|Ingrid Schäfer|Dirk U. Jantz|Ion Constandache|Yaman Egeli|Roman Eich|Iris Mocsnek|Anke Jantz|Paul Hassinger|Liza Hassinger||GAMES DIRECTOR:|Achim Heidelauf||PUBLISHED BY:|BlackStar Interactive||CUTSCENES:||LEITUNG:|Slawomir Jedrzejewski||Kajetan Czarnecki|Wojciech Drazek|Daniel Duplaga|Rafal Januszkiewicz|Andrzej Rams|Piotr Rulka|Krzysztof Rybczynski|Grzegorz Wisniwski||SPRECHER:|Claus Boyen (Erzähler)||Tim Timmermann|Peter Houska|Dirk Mühlbach|Ralf Ditze|Gerhard Piske|Gernot Wassmann||HANDBUCH SATZ+DESIGN:|Uwe Schäfer|Alexandra Constandache||HANDBUCH TEXTE:|Peter Ohlmann|Uwe Schäfer||ARTWORK:|Boleslaw Kasza|Adam Sprys||ERÖFFNUNGSANIMATION:|Uwe Schäfer|Christian Bigalk|Zusätzliches 3D-Modelling:|Niels Horstmann||BESONDEREN DANK AN:|Tadeusz Zuber|Dieter Ohlmann|Alexandra Constandache|Ingrid Schäfer
 280:Mission abgebrochen
 281:Replay beendet
@@ -279,18 +286,18 @@ MaxID:667
 284:Einzelspieler
 285:Karteneditor
 286:Mission starten
-287:Bezeichnung
+287:Szenario
 288:Größe
 289:Siegbedingung:
 290:Niederlagebedingung:
 291:Verbündete:
 292:Gegner:
 293:Zeit
-294:Neue Kartengröße
+294:Kartengröße
 295:Breite
 296:Höhe
 297:Neue Karte erstellen
-298:Verfügbare Karten
+298:Vorhandene Karten
 299:Vorhandene Karte öffnen
 301:Steuerung:
 302:Spieleinstellungen:
@@ -298,6 +305,7 @@ MaxID:667
 304:Keine Musik
 305:Grafik:
 306:Helligkeit
+307:Vertical Sync
 308:Vollbild
 309:Übernehmen
 310:Sprache:
@@ -344,21 +352,147 @@ MaxID:667
 351:Verbindung fehlgeschlagen: %s
 352:Du bist nicht verbunden.
 353:Mission %d
+354:Nachrichten
 355:Diese Fischerhütte ist zu weit vom Wasser entfernt!
 356:Dieser Fischer erreicht keine weiteren Fischbestände mehr!
 357:Starte Replay neu
 358:Replay pausieren
+359:1 Schritt vorwärts
 360:Replay fortsetzen
 361:Replay beenden
+363:Alles anzeigen
 364:Benutze die linke Maustaste um die Ware auszuwählen, die getauscht werden soll.
 365:Benutze die rechte Maustaste um die Ware auszuwählen, die getauscht werden soll.
 366:Von x%d
 367:Zu x%d
 368:Gelände bearbeiten
+369:Kacheln
+370:Höhen
+371:Kacheln
+372:Objekte
+373:Höhen
+374:Pinsel Form
+375:Größe
+376:Verschieben um die Pinselgröße zu ändern
+377:Anstieg
+378:Verschieben um Steigung zu ändern: 1 = Plateau ... 15 = Spitze
+379:Geschwindigkeit
+380:Verschieben um Geschwindigkeit der Steigung zu ändern: 1 = langsam ... 15 = sehr schnell
+381:Runder Pinsel
+382:Eckiger Pinsel
+383:Anheben / Absenken
+384:Ansteigen / Ebnen
+385:Anheben (Linksklick) / Absenken (Rechtsklick)
+386:Ansteigen (Linksklick) / Ebnen (Rechtsklick)
+387:Pinsel
+388:Elemente zufällig
+389:Ausrichtung zufällig
+390:Anklicken für eine zufällige Ausrichtung der Kacheln. Mit Rechtsklick wird die Kachel gedreht.
+391:Rechte Maustaste um die ausgewählte Kachel zu drehen
+392:Gehen blockieren
+393:Entferne Objekte
 394:Häuser bearbeiten
 395:Optische Skripte
 396:Globale Skripte
 397:Menü
+398:Objekte
+399:Vorkommen anzeigen
+400:Einheiten anzeigen
+401:Gebäude anzeigen
+402:Objekte anzeigen
+403:Begehbarkeit anzeigen
+404:Alle nicht gespeicherten|Änderungen gehen verloren!
+405:Abbrechen
+406:Laden
+407:Lade Karte
+408:Abbrechen
+409:Speichern
+410:Überschreiben
+411:Karte existiert bereits
+412:Spieler:
+413:Standard
+414:Spieler Typ
+415:Symmetrisch
+416:Bündnisse
+417:Taktik
+418:Normal
+419:Art der Mission
+420:Springe zu Gebiet
+421:Startbildschirm zu Beginn der Mission
+422:Startbildschirm
+423:Alles sichtbar machen
+424:Einen Teil der Karte sichtbar machen.
+425:Nebel/Sichtbarkeit
+426:Handelserlaubnis
+427:Gebäude Bauerlaubnis
+428:Farben
+429:Siegbedingung
+430:Nachricht
+431:Zeit
+432:Spieler
+433:Wirt. Gebäude
+434:Gehilfen & Schulen
+435:Militär
+436:Unbekannt
+437:Truppen
+438:Gebäude
+439:Zeit
+440:Aufbau Tutorial
+441:Keine
+442:Bedingung
+443:Überleben
+444:Sieger
+445:Keine
+446:Typ
+447:Siegbedingungen
+448:OK
+449:Abbrechen
+450:Reihen
+451:Menge
+452:Truppen Formationen
+453:Ändere Formation
+454:Setze ein Limit wie viele Soldaten die KI haben darf.
+455:Wie viele Soldaten die KI auf einmal haben kann.
+456:Soldatenlimit
+457:Anzahl Rekruten in der Kaserne.
+458:Rekruten in Kaserne
+459:Position
+460:Spez. Position
+461:Nähestes Haus 2
+462:Nähestes Haus 1
+463:Näheste Einheit
+464:Nimm alle
+465:Gruppen Anzahl
+466:Angriff Einstellungen
+467:Verzug, s
+468:Wiederholt
+469:Einmalig
+470:Reiter
+471:Schützen
+472:Lanzer
+473:Infanterie
+475:Ziel
+476:Menge
+477:Verz.
+478:Typ
+479:Autom. Angriff
+480:KI Angriffe
+481:Intervall Lederrek.
+482:Intervall Eisenrekrut.
+483:Autoverteidigung
+484:KI erstellt und verwaltet Verteidigungsposition automatisch.
+485:Platziere die Verteidigungsposition der KI.
+486:KI Verteidigung
+487:Arbeiter
+488:Gehilfen pro 10 Häuser
+489:Repariert Gebäude
+490:Errichtet Gebäude
+491:KI Einstellungen
+492:Gebäude
+493:Felder
+496:Terrain einfügen
+497:Terrain kopieren
+498:Kopieren / Einfügen
 499:Neue Mission
 500:Spielername
 501:Status:
@@ -376,6 +510,8 @@ MaxID:667
 513:Raum
 514:Verbinde
 515:Abbrechen
+516:Passwortgeschützter Raum
+517:Passwort
 518:Servername
 519:Status
 520:Spieler
@@ -393,7 +529,8 @@ MaxID:667
 532:Farbe
 533:Bereit
 534:Ping
-536:Anzeigen
+535:Ping / FPS
+536:Aufklappen
 537:Computer
 538:Wähle...
 539:Zufällig
@@ -405,6 +542,18 @@ MaxID:667
 545:Bereit!
 546:Nicht bereit
 547:Start!
+548:Spiel Tempo (Friedenszeit):
+549:Spiel Tempo:
+550:OK
+551:Abbrechen
+552:Beschreibung
+553:Passwort
+554:Raum Einstellungen
+556:Gebannt
+557:Kicken
+558:Zufällige Vergabe der Locations innerhalb der Teams
+559:Beschreibung
+560:Optionen
 561:Standort %d
 562:Fehler: Bitte übernimm einen Spieler aus dem Spielstand!
 563:Fehler: Karte konnte nicht geladen werden oder keine Karte ausgewählt!
@@ -415,11 +564,14 @@ MaxID:667
 569:Aufbau
 570:Gefecht
 571:Koop-Modus
-573:Optionen:
+572:Spezial Karte
+573:Einstellungen:
 574:Friedenszeit (in Minuten):
 575:Leer
 576:Host übernimmt Spieler Setup.
 577:Warte auf Spieler:
+578:Alle
+579:Team
 580:KaM Remake Credits
 581:Original Knights & Merchants Credits
 582:PROGRAMMIERUNG:
@@ -469,6 +621,7 @@ MaxID:667
 626:Replay anzeigen
 627:Nicht unterstütztes Format %s!
 628:Nicht unterstützte Version %s!
+629:Nicht unterstützte Modifikationen
 630:Ein Fehler trat während der Syntaxanalyse in Datei %s auf.
 631:Initialisierung
 632:Skript
@@ -483,6 +636,7 @@ MaxID:667
 641:Spielstanddatei stimmt nicht mit der des Hosts überein: %s
 642:Das Replay läuft instabil wegen einem Konsistenz Check. Das ist ein bekannter Fehler, der sich auf die Wiedergabe von Replays auswirkt. Möchtest du dennoch weiterhin zuschauen?
 643:Du kannst nur eine Instanz des Spiels im Multiplayer starten.
+644:Modifikationen am Spiel sind nicht erlaubt im Multiplayer.|Bitte Spiel neuinstallieren um original Dateien wiederherzustellen.
 645:Ein Fehler trat innerhalb des Programms auf. Bitte klicke auf "Bug Report senden", damit wir das Problem näher betrachten können. Danke für Deine Hilfe!
 646:Bug Report senden
 647:Zeige unbearbeite Daten
@@ -506,3 +660,29 @@ MaxID:667
 665:Der Bug Report konnte nicht gesendet werden! Unsere Server scheinen alle überlastet zu sein. Bitte versuche es später erneut.
 666:Information
 667:Bitte gedulde Dich einen Augenblick...
+668:Karte speichern
+669:Stellt Verzögerung ein, wann KI mit der Ausbildung von Rekruten beginnt.
+670:Start Rekrut. (Min.)
+673:Kopieren
+674:Einfügen
+675:Bestätigen
+676:Abbrechen
+679:Ziehe einen Rahmen um ein Gebiet auf der Karte.
+680:KI Verteidigung
+681:Aus
+682:Radius
+683:Entferne aktuelles Sichtfeld
+684:Zurück zur Nebel Übersichtsseite
+685:Schließen
+686:Befehl
+687:Keiner
+688:Angriffspunkt
+689:Gehe zu
+690:Richtung
+691:Deckung
+692:Front
+693:Radius / Größe
+694:Entferne die aktuelle Verteidigungsposition.
+695:Zurück zur Verteidigungsübersicht.
+696:Verteid. Position
+697:Einheiten

@@ -1,0 +1,202 @@
+const
+  UPDATE_RATE = 5; //Every X ticks we count the soldiers in the castle (slow part)
+  TIME_TO_HOLD_CASTLE = 25*60*10; //25 minutes
+  MIN_SOLDIERS_IN_CASTLE = 30; //Number of soldiers you must have in the castle to own it
+  //Castle bounds
+  CASTLE_LEFT = 131;
+  CASTLE_RIGHT = 146;
+  CASTLE_TOP = 113;
+  CASTLE_BOTTOM = 128;
+var
+  King: Integer; //Current team who is king of the castle
+  GameEnded: Boolean; //Has somebody won the game yet?
+  TeamCount: Integer; //Number of teams
+  PlayersTeam: array[0..7] of Integer; //Which team does each player belong to?
+  TeamCountDown: array of Integer; //How much time each team has left until victory
+  TeamSoldiersInCastle: array of Integer;
+  
+procedure DetectTeams;
+var I,K: Integer;
+begin
+  for I:=0 to 7 do
+    PlayersTeam[I] := -1;
+
+  TeamCount := 0;
+  for I:=0 to 7 do
+    if States.PlayerEnabled(I) then
+    begin
+      for K:=0 to 7 do
+        if States.PlayerEnabled(K) and States.PlayerAllianceCheck(I,K) then
+        begin
+          if PlayersTeam[K] <> -1 then
+            //Our ally already made a team for us, so join it
+            PlayersTeam[I] := PlayersTeam[K]
+          else
+          begin
+            //Our ally hasn't made a team, so create a new team and join it (ally will join it during his turn in outer loop)
+            PlayersTeam[I] := TeamCount;
+            Inc(TeamCount);
+          end;
+          Break; //Finished with this player, so exit the inner loop
+        end;
+      if PlayersTeam[I] = -1 then
+      begin
+        //Didn't find any allies, so we get our own team
+        PlayersTeam[I] := TeamCount;
+        Inc(TeamCount);
+      end;
+    end;
+end;
+
+//Initialise variables here
+procedure OnMissionStart;
+var I: Integer;
+begin
+  King := -1;
+  GameEnded := False;
+  
+  DetectTeams;
+  SetLength(TeamCountDown, TeamCount);
+  SetLength(TeamSoldiersInCastle, TeamCount);
+  for I:=0 to TeamCount-1 do
+  begin
+    TeamCountDown[I] := TIME_TO_HOLD_CASTLE;
+    TeamSoldiersInCastle[I] := 0;
+  end;
+end;
+
+function GetTeamPlayers(aTeam: Byte): AnsiString;
+var I: Integer;
+begin
+  Result := '';
+  for I:=0 to 7 do
+    if States.PlayerEnabled(I) and (PlayersTeam[I] = aTeam) then
+    begin
+      if Result <> '' then
+        Result := Result + ', '; //Commas between team members
+      Result := Result + '[$' + States.PlayerColorText(I) + ']' + States.PlayerName(I) + '[]';
+    end;
+end;
+
+procedure ShowDisplay;
+var
+  I, Mins, Secs: Integer;
+  Text: AnsiString;
+begin
+  Actions.OverlayTextSet(-1, ''); //Clear it so we can append
+  for I:=0 to TeamCount-1 do
+  begin
+    Mins := TeamCountDown[I] div 600;
+    Secs := (TeamCountDown[I] div 10) mod 60;
+    //We start with the player names
+    Text := GetTeamPlayers(I)+':|';
+    //Different color depending on state
+    if King = I then
+      Text := Text + '[$78CBFF]' //Light orange
+    else
+      if TeamSoldiersInCastle[I] > 0 then
+        Text := Text + '[$FFD978]'; //Light cyan
+    //Add main lump of text from LIBX
+    Text := Text + '<$1>|';
+    //End color tag if required
+    if (King = I) or (TeamSoldiersInCastle[I] > 0) then
+      Text := Text + '[]';
+    //Display text to user
+    Actions.OverlayTextAppendFormatted(-1, Text, [TeamSoldiersInCastle[I], MIN_SOLDIERS_IN_CASTLE, Mins, Secs]);
+  end;
+end;
+
+procedure CheckForWinner;
+var I, K: Integer;
+begin
+  if (not GameEnded) and (King <> -1) then
+    for I:=0 to TeamCount-1 do
+      if TeamCountDown[King] <= 0 then
+      begin
+        //Set one of the players victorious with a team victory, that will set it for the entire team
+        for K:=0 to 7 do
+          if States.PlayerEnabled(I) and (PlayersTeam[K] = I) then
+          begin
+            Actions.PlayerWin([K], True);
+            Break;
+          end;
+        GameEnded := True;
+        Exit;
+      end;
+end;
+
+function IsSoldier(UnitID: Integer): Boolean;
+var UnitType: Integer;
+begin
+  if UnitID = -1 then
+    Result := False
+  else
+  begin
+    UnitType := States.UnitType(UnitID);
+    Result := (UnitType >= 14) and (UnitType <= 27); //valid range of soldiers
+  end;
+end;
+
+//Adds up the number of soldiers each team has in the castle
+procedure CalculateSoldiersInCastle;
+var
+  UnitOwner, X, Y, I: Integer;
+  U: Integer;
+begin
+  //Reset number of soldiers, we'll count them below
+  for I:=0 to TeamCount-1 do
+    TeamSoldiersInCastle[I] := 0;
+  
+  //Check 3 by 3 square around the hill
+  for X := CASTLE_LEFT to CASTLE_RIGHT do
+    for Y := CASTLE_TOP to CASTLE_BOTTOM do
+	begin
+      U := States.UnitAt(X, Y);
+      if IsSoldier(U) then
+      begin
+        UnitOwner := States.UnitOwner(U);
+        //Owner = -1 means invalid, -2 means animals
+        if (UnitOwner <> -1) and (UnitOwner <> -2) then
+          //Count number of soldiers this team has in the castle
+          Inc(TeamSoldiersInCastle[PlayersTeam[UnitOwner]]);
+      end;
+	end;
+end;
+
+procedure UpdateKing;
+var I: Integer;
+begin
+  if GameEnded then Exit; //Don't process anything if the game is over
+
+  //Don't count every tick because counting is slow
+  if States.GameTime mod UPDATE_RATE = 0 then
+    CalculateSoldiersInCastle;
+
+  //Now decide if one team is king
+  King := -1;
+  for I:=0 to TeamCount-1 do
+    if TeamSoldiersInCastle[I] > 0 then
+    begin
+      if King = -1 then
+        King := I
+      else
+      begin
+        //Multiple teams have soldiers in the castle, nobody is the winner
+        King := -1;
+        Break; //Finished
+      end;
+    end;
+  //If the king doesn't have enough soldiers in the castle, then they aren't actually king
+  if (King <> -1) and (TeamSoldiersInCastle[King] < MIN_SOLDIERS_IN_CASTLE) then
+    King := -1;
+    
+  if (King <> -1) and (TeamCountDown[King] > 0) then
+    Dec(TeamCountDown[King]);
+end;
+
+procedure OnTick;
+begin
+  UpdateKing;
+  CheckForWinner;
+  ShowDisplay;
+end;

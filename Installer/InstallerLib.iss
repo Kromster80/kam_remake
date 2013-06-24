@@ -39,7 +39,7 @@ Name: "ita"; MessagesFile: "compiler:Languages\Italian.isl"; LicenseFile: "Licen
 Name: "svk"; MessagesFile: "compiler:Languages\Slovak.isl"; LicenseFile: "License.svk.txt"
 Name: "spa"; MessagesFile: "compiler:Languages\Spanish.isl"; LicenseFile: "License.spa.txt"
 Name: "swe"; MessagesFile: "ExtraLanguages\Swedish.isl"; LicenseFile: "License.swe.txt"
-Name: "ptb"; MessagesFile: "ExtraLanguages\BrazilianPortuguese.isl"; LicenseFile: "License.ptb.txt"
+Name: "ptb"; MessagesFile: "compiler:Languages\BrazilianPortuguese.isl"; LicenseFile: "License.ptb.txt"
 Name: "bul"; MessagesFile: "ExtraLanguages\Bulgarian.isl"; LicenseFile: "License.bul.txt"
 Name: "est"; MessagesFile: "ExtraLanguages\Estonian.isl"; LicenseFile: "License.est.txt"
 Name: "rom"; MessagesFile: "ExtraLanguages\Romanian.isl"; LicenseFile: "License.rom.txt"
@@ -48,6 +48,8 @@ Name: "ukr"; MessagesFile: "compiler:Languages\Ukrainian.isl"; LicenseFile: "Lic
 Name: "chn"; MessagesFile: "ExtraLanguages\ChineseSimp.isl";
 Name: "nor"; MessagesFile: "compiler:Languages\Norwegian.isl"; LicenseFile: "License.nor.txt"
 Name: "bel"; MessagesFile: "ExtraLanguages\Belarusian.isl"; LicenseFile: "License.bel.txt"
+Name: "jpn"; MessagesFile: "ExtraLanguages\Japanese.isl"; LicenseFile: "License.jpn.txt"
+Name: "tur"; MessagesFile: "ExtraLanguages\Turkish.isl"; LicenseFile: "License.tur.txt"
 
 [CustomMessages]  
 #include "Translations.iss"

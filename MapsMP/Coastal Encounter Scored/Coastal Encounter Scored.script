@@ -22,12 +22,6 @@ begin
   end;
 end;
 
-procedure OnUnitKilled(aUnitID: Integer; aKillerIndex: Integer);
-begin
-  //Score each kill
-  PlayerScore[aKillerIndex] := PlayerScore[aKillerIndex] + ScoreForUnit(aUnitID);
-end;
-
 function CalculateHighestScore: Integer;
 var I: Integer;
 begin
@@ -69,28 +63,30 @@ begin
   end;
 end;
 
-procedure OnUnitLost(aUnitID: Integer);
-var Owner: Integer;
+procedure OnUnitDied(aUnitID: Integer; aKillerIndex: Integer);
 begin
-  //Find out which player owns this unit
-  Owner := States.UnitOwner(aUnitID);
+  //Score each kill (ignore units dying of starvation)
+  if aKillerIndex <> -1 then
+    PlayerScore[aKillerIndex] := PlayerScore[aKillerIndex] + ScoreForUnit(aUnitID);
 
   //See if this caused another player to win
   CheckVictoryConditions;
 end;
 
 procedure ShowScores;
-var
-  I: Integer;
-  ScoreText: string;
+var I: Integer;
 begin
-  ScoreText := States.Text(1);
+  Actions.OverlayTextSet(-1, '<$1>');
   for I:=0 to LOC_COUNT-1 do
     if States.PlayerEnabled(I) then
-      ScoreText := ScoreText + '|' + States.TextFormatted(2 ,[States.PlayerColorText(I), States.PlayerName(I), PlayerScore[I]]);
+      Actions.OverlayTextAppendFormatted(-1, '|<$2>', [States.PlayerColorText(I), States.PlayerName(I), PlayerScore[I]]);
+end;
 
-  for I:=0 to LOC_COUNT-1 do
-    Actions.SetOverlayText(I, ScoreText);
+procedure OnMissionStart;
+var I: Integer;
+begin
+  for I := 0 to LOC_COUNT-1 do
+    PlayerScore[I] := 0;
 end;
 
 procedure OnTick;

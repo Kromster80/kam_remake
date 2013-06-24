@@ -1,5 +1,5 @@
 
-MaxID:667
+MaxID:697
 
 0:Marangozhane
 1:Demir Dökümhanesi
@@ -80,7 +80,7 @@ MaxID:667
 76:Arbaletçi
 77:Tahta Mýzrakçý
 78:Demir Mýzrakçý
-79:Ýzci
+79:Süvari
 80:Þovalye
 81:Barbar
 82:Asi
@@ -118,7 +118,7 @@ MaxID:667
 114:Çýkýþ
 115:Geri
 116:Ayarlar
-117:Çýkýþ
+117:Düzenleyiciden Çýk
 118:SFX
 119:Sesi deðiþtir
 120:Sesi deðiþtir
@@ -139,6 +139,7 @@ MaxID:667
 135:Ýptal
 136:Eðitimi iptal et
 137:Ýhtiyaçlar:
+138:Saðlar:
 139:Durum:
 140:Üretim
 141:Bina yapým|aþamasýnda
@@ -174,13 +175,13 @@ MaxID:667
 171:Seçili mesaj konumuna git
 172:Kapat
 173:Pencereyi kapat
-174:|Taþçýnýz daha fazla taþ kaynaðýna ulaþamýyor.
-175:|Kömür madeniniz tükenmiþ.
-176:|Demir madeniniz tükenmiþ.
-177:|Altýn madeniniz tükenmiþ.
-178:|Oduncunuz aðaç dikip kesecek yer bulamýyor.
-179:|Bu ev kullanýlmýyor.
-180:|Askerleriniz acýktý, beslemeniz gerekiyor.
+174:Taþçýnýz daha fazla taþ kaynaðýna ulaþamýyor.
+175:Kömür madeniniz tükenmiþ.
+176:Demir madeniniz tükenmiþ.
+177:Altýn madeniniz tükenmiþ.
+178:Oduncunuz aðaç dikip kesecek yer bulamýyor.
+179:Bu ev kullanýlmýyor.
+180:Askerleriniz acýktý, beslemeniz gerekiyor.
 181:Bekle
 182:Taþýyor
 183:Yol yapýyor
@@ -271,8 +272,14 @@ MaxID:667
 268:Binalar
 269:Kaynaklar
 270:Üretilen malzemeler
+271:Bilgi yok
 272:Siz
 273:Oyuncu %d
+274:Çoklu Oyuncuya Geri Dön
+275:Kayýtlarý Geri Dön
+276:Hepsi
+277:Savaþ
+278:Yemek
 279:JOYMANIA ENTERTAINMENT||PROGRAMMING:|Peter Ohlmann||GAME GRAPHICS:|Adam Sprys||LEVEL DESIGN:|Adam Sprys|André Quaß||SOUND EDITING AND MIXING:|Tonstudio Mannheim||MUSIC:|Gerd Hofmann|Joachim Schäfer|Jürgen Rebhann|Klaus Staendike|Steffen Schüngel||ILLUSTRATIONS:|Boleslaw Kasza|Christoph Werner||TRANSLATION:|Ronnie Shankland|Patricia Bellantuono|Andrea Rumpelt|||ZUXXEZ ENTERTAINMENT AG||PRODUCER:|Uwe Schäfer||MANUAL:|Peter Ohlmann|Uwe Schäfer||BETA TESTING:|Peter Ohlmann|Adam Sprys|Alexandra Constandache|Dirk P. Hassinger|Achim Heidelauf|Uwe Schäfer|Ingrid Schäfer|Dirk U. Jantz|Ion Constandache|Yaman Egeli|Roman Eich|Iris Mocsnek|Anke Jantz|Paul Hassinger|Liza Hassinger||GAMES DIRECTOR:|Achim Heidelauf||PUBLISHED BY:|TopWare Interactive||CUTSCENES:||DIRECTION:|Slawomir Jedrzejewski||Kajetan Czarnecki|Wojciech Drazek|Daniel Duplaga|Rafal Januszkiewicz|Andrzej Rams|Piotr Rulka|Krzysztof Rybczynski|Grzegorz Wisniewski||VOICES:|Claus Boyen (Storyteller)||Tim Timmermann|Peter Houska|Dirk Mühlbach|Ralf Ditze|Gerhard Piske|Gernot Wassmann||ARTWORK:|Boleslaw Kasza|Adam Sprys||OPENING ANIMATION:|Uwe Schäfer|Christian Bigalk|Additional 3D-Modelling:|Niels Horstmann||SPECIAL THANKS TO:|Tadeusz Zuber|Dieter Ohlmann|Alexandra Constandache|Ingrid Schäfer
 280:Görev iptal edildi
 281:Kayýt bitti
@@ -294,12 +301,14 @@ MaxID:667
 297:Yeni Harita Oluþtur
 298:Uygun haritalar
 299:Var Olan Haritayý Yükle
+300:Konum
 301:Kontroller:
 302:Oynayýþ:
 303:Ses:
 304:Müziði kapat
 305:Grafikler:
 306:Parlaklýk
+307:Vertical Sync
 308:Tam Ekran
 309:Uygula
 310:Dil:
@@ -320,7 +329,7 @@ MaxID:667
 325:Baþlýk
 326:Haritalar
 327:Kilitli deðil
-328:Hazandýnýz!
+328:Kazandýnýz!
 329:Oynamaya devam et
 330:Zafer!
 331:Kaybettiniz!
@@ -346,6 +355,7 @@ MaxID:667
 351:Baðlantý baþarýsýz oldu: %s
 352:Baðlantýnýz koptu
 353:Görev %d
+354:Mesaj kaydý
 355:Balýkçýnýz suya çok uzak.
 356:Balýkçýnýz daha fazla balýða ulaþamýyor.
 357:Kaydý baþtan baþlat
@@ -353,6 +363,8 @@ MaxID:667
 359:Adým 1 ileri
 360:Kaydý oynatmaya devam et
 361:Kayýttan çýk
+362:Toggle individual player perspective
+363:Hepsini göster
 364:Vermek istediðiniz malzeme için sol týklayýnýz
 365:Almak istediðiniz malzeme için sað týklayýnýz
 366:From x%d
@@ -362,6 +374,7 @@ MaxID:667
 370:Yükseltiler
 371:Döþemeler
 372:Nesneler
+373:Yükseklikler
 374:Fýrça þekli
 375:Boyut
 376:Fýrça boyutunu deðiþtirmek için sürükleyiniz
@@ -375,14 +388,118 @@ MaxID:667
 384:Daðýt / Düzleþtir
 385:Yükselt (sol týk) / Alçalt (sað týk)
 386:Daðýt (sol týk) / Düzleþtir (sað týk)
+387:Fýrça
+388:Rastgele elementler
 389:Rastgele Yön
 390:Rastgele yönlendirme için iþaretle veya seçili döþemeyi çevirmek için sað týkla
 391:Seçili döþemeyi çevirmek için sað týklayýnýz
+392:Yürümeyi engelle
 393:Bir nesneyi kaldýr
 394:Köy planlama
 395:Görsel kodlama
 396:Global kodlama
 397:Menü
+398:Nesneler
+399:Kaynaklarý göster
+400:Birimleri göster
+401:Binalarý göster
+402:Nesneleri göster
+403:Geçilebilirliði gör
+404:Kaydedilmeyen deðiþiklikler|kaybedilecektir
+405:Ýptal
+406:Yükle
+407:Harita yükle
+408:Ýptal
+409:Kaydet
+410:Üzerine yaz
+411:Harita zaten var
+412:Oyuncular:
+413:Varsayýlan
+414:Oyuncu tipleri
+415:Simetrik
+416:Dostlar
+417:Taktik
+418:Normal
+419:Görev modu
+420:Konuma git
+421:Oyun baþlangýcýndaki merkez ekran
+422:Merkez ekran
+423:Tüm haritayý görünür yap
+424:Haritanýn bir kýsmýný görünür yap
+425:Görülebilir sýnýr
+426:Ticareti engelle
+427:Binalara engel/izin
+428:Renkler
+429:Hedef
+430:Mesaj
+431:Zaman
+432:Oyuncu
+433:Ekonomi binalarý
+434:Hamallar ve okullar
+435:Askeri varlýklar
+436:Bilinmiyor
+437:Askerler
+438:Binalar
+439:Zaman
+440:Yapým Eðitimi
+441:Yok
+442:Durum
+443:Hayatta Kalma
+444:Zafer
+445:Yok
+446:Tip
+447:Hedef
+448:Tamam
+449:Ýptal
+450:Sütun
+451:Sayý
+452:Asker Düzeni
+453:Asker düzenini düzenle
+454:YZ'nin sahip olabileceði asker sayýsýný sýnýrla
+455:YZ ayný zamanda kaç tane askere sahip olsun
+456:En fazla asker sayýsýný ayarla
+457:YZ kalede ne kadar asker bulundursun
+458:Kale baþýna asker
+459:Konum
+460:Özel konuma
+461:En yakýn bina 2
+462:En yakýn bina 1
+463:En yakýn ünite
+464:Hepsinden al
+465:Grup sayýsý
+466:Saldýrý bilgisi
+467:Gecikme, s
+468:Tekrarla
+469:Bir kere
+470:Atlý
+471:Menzilli
+472:Mýzraklý
+473:Yakýn dövüþ
+474:Konum
+475:Hedef
+476:Adam
+477:Gecikme
+478:Tip
+479:Otomatik Saldýrý
+480:YZ saldýrý
+481:Deri kullaným oraný
+482:Demir kullaným oraný
+483:Otomatik Savunma
+484:YZ savunma pozisyonlarýný otomatik olarak oluþturup yönetsin
+485:YZ için savunma pozisyonu ekle
+486:YZ savunma pozisyonlarý
+487:Ýþçiler
+488:Her 10 bina baþýna hamal sayýsý
+489:Otomatik Tamir
+490:Otomatik Yapýlanma
+491:YZ ayarlarý
+492:Binalar
+493:Yol çalýþmalarý
+494:Araziyi düþey olarak çevirerek yapýþtýr
+495:Araziyi yatay olarak çevirerek yapýþtýr
+496:Araziyi yapýþtýr
+497:Araziyi kopyala
+498:Kopyala/yapýþtýr
 499:Yeni Oyun
 500:Oyuncu adý
 501:Durum:
@@ -400,6 +517,8 @@ MaxID:667
 513:Oda
 514:Baðlan
 515:Ýptal
+516:Þifre korumalý oda
+517:Þifre
 518:Sunucu ismi
 519:Durum
 520:Oyuncular
@@ -417,6 +536,7 @@ MaxID:667
 532:Renk
 533:Hazýr
 534:Ping
+535:Ping / FPS
 536:Açýk
 537:YZ Oyuncu
 538:Seç...
@@ -429,21 +549,38 @@ MaxID:667
 545:Hazýr
 546:Hazýr deðil
 547:Baþla!
+548:Oyun hýzý (barýþ süresi)
+549:Oyun hýzý
+550:Tamam
+551:Ýptal
+552:Açýklama
+553:Þifre
+554:Oda ayarlarý
+555:Ev sahibi olarak ayarla
+556:Engelle
+557:Oyunda At
+558:Takým içinde konumlar rastgele ayarla
+559:Açýklama
+560:Seçenekler
 561:Pozisyon %d
 562:Hata: Lütfen kontrol etmek için kayýttan bir oyuncu seçiniz
 563:Hata: Harýta yüklenmesi baþarýsýz veya bir harita seçilmedi
 564:Baþlayamýyor: %s
 565:Herkes baþlamak için hazýr deðil
+566:Rastgele konumlandýrma yapýlamýyor
 567:Sunucu, ev sahibi haklarýný bize verdi
 568:Oyun baþladý
 569:Yapým Haritasý
 570:Savaþ Haritasý
 571:Ýþ Birliði Haritasý
+572:Özel Harita
 573:Oyun seçenekleri:
 574:Barýþ süresi (dakika)
 575:Kapalý
 576:Oyuncu ayarlarýný ev sahibi yapýyor
 577:Bu oyuncular için bekleniyor:
+578:Herkes
+579:Takým
 580:KaM Remake
 581:Orjinal Knights & Merchants
 582:PROGRAMLAMA:
@@ -532,3 +669,33 @@ MaxID:667
 665:Hata raporu gönderimi baþarýsýz! Sunucularýmýz meþgul olabilir, lütfen tekrar deneyiniz.
 666:Bilgi
 667:Lütfen bekleyiniz...
+668:Haritayý Kaydet
+669:YZ'nin asker yetiþtirmeye baþlama süresi (dakika)
+670:Asker gecikmesi (dakika)
+671:Sudaki döþemelerin yönlerini düzenler
+672:Sihirli Su
+673:Kopyala
+674:Yapýþtýr
+675:Yapýþtýrý uygula
+676:Yapýþtýrý iptal et
+677:Dikey olarak çevir
+678:Yatay olarak çevir
+679:Haritadan bir bölge seçmek için fareyi sürükle
+680:YZ savunma seçenekleri
+681:Kapalý
+682:Yarýçap
+683:Mevcut görünürlüðü sil
+684:Görünürlük sayfasýna geri dön
+685:Kapat
+686:Grup sýrasý
+687:Yok
+688:Saldýrý pozisyonu
+689:Yürü
+690:Yön
+691:Arka sýra
+692:Ön sýra
+693:Savunma yarýçapý
+694:Mevcut savunma pozisyonunu sil
+695:Savunma sayfasýna geri dön
+696:Savunma pozisyonu
+697:Birimler

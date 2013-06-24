@@ -1,0 +1,45 @@
+procedure OnTick;
+ begin
+   if States.GameTime = 300 then
+    begin
+     Actions.GiveGroup(5,21,64,66,4,24,6);
+     Actions.GiveGroup(5,14,69,66,4,15,5);
+     Actions.GiveGroup(5,24,75,66,4,25,5);
+    end;
+
+   if States.GameTime = 600 then
+    begin
+     Actions.GiveGroup(4,14,27,80,4,12,4);
+     Actions.GiveGroup(4,27,41,74,4,15,5);
+     Actions.GiveGroup(4,24,47,75,5,15,5);
+    end;
+
+   if States.GameTime = 3000 then
+    begin
+     Actions.GiveGroup(7,26,107,78,5,15,5);
+     Actions.GiveGroup(7,26,115,80,5,18,6);
+     Actions.GiveGroup(7,26,69,62,4,15,5);
+     Actions.GiveGroup(7,23,115,72,5,18,6);
+    end;
+
+   if States.GameTime = 6000 then
+    begin
+     Actions.GiveGroup(6,23,35,71,4,15,5);
+     Actions.GiveGroup(6,23,57,63,4,16,4);
+     Actions.GiveGroup(6,23,63,63,4,16,4);
+    end;
+
+   if States.GameTime = 250 then
+    Actions.ShowMsg(0, '<$0>');
+
+   if States.GameTime = 2700 then
+    Actions.ShowMsg(0, '<$1>');
+
+   if States.GameTime = 5400 then
+    Actions.ShowMsg(0, '<$2>');
+
+   if States.HouseDestroyed(States.HouseAt(33,102)) = true then
+    Actions.PlayerDefeat(0);
+
+ end;
+

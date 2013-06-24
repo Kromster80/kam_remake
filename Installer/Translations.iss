@@ -1,4 +1,4 @@
-;Defaults (English)
+ï»¿;Defaults (English)
 CreateStartShortcut=Create a Start Menu shortcut
 NoKaM=The installation wizard detected that you do not have Knights and Merchants: The Peasants Rebellion installed. You must have the original game installed in order to play the KaM Remake. The installation will be aborted.
 CantUpdate=The installation wizard was unable to find an existing version of the KaM Remake to be updated. Please download and install the complete installer instead. The installation will be aborted.
@@ -13,120 +13,134 @@ dut.OpenAL=Wil je dat de installatie wizard OpenAL installeerd? (Aan te raden) O
 dut.ViewReadme=Lees de Readme
 
 ;Swedish
-swe.CreateStartShortcut=Skapa en genväg i startmenyn
-swe.NoKaM=Det verkar som att du inte har Knights and Merchants: The Peasants Rebellion installerat på din dator. Installationen kommer att avbrytas.
-swe.CantUpdate=Kunde inte hitta en redan installerad version av KaM Remake att uppdatera. Ladda ner och installera den kompletta versionen istället. Installationen kommer att avbrytas.
-swe.OpenAL=Vill du även installera OpenAL? (Rekommenderas starkt) Det krävs för att ljud ska fungera i KaM Remake
+swe.CreateStartShortcut=Skapa en genvÃ¤g i startmenyn
+swe.NoKaM=Det verkar som att du inte har Knights and Merchants: The Peasants Rebellion installerat pÃ¥ din dator. Installationen kommer att avbrytas.
+swe.CantUpdate=Kunde inte hitta en redan installerad version av KaM Remake att uppdatera. Ladda ner och installera den kompletta versionen istÃ¤llet. Installationen kommer att avbrytas.
+swe.OpenAL=Vill du Ã¤ven installera OpenAL? (Rekommenderas starkt) Det krÃ¤vs fÃ¶r att ljud ska fungera i KaM Remake
 swe.ViewReadme=Visa Readme-filen
 
 ;German
-ger.CreateStartShortcut=Verknüpfung im Startmenü erstellen
+ger.CreateStartShortcut=VerknÃ¼pfung im StartmenÃ¼ erstellen
 ger.NoKaM=Setup hat ermittelt, dass Knights and Merchants: The Peasants Rebellion nicht installiert ist.
-ger.CantUpdate=Setup war nicht in der Lage eine installierte Version von KaM Remake zu aktualisieren. Bitte lade die Vollversion von KaM Remake herunter und führe das Setup erneut aus.
-ger.OpenAL=Soll Setup auch OpenAl installieren (empfohlen)? Es wird für die Soundwiedergabe von KaM Remake benötigt.
+ger.CantUpdate=Setup war nicht in der Lage eine installierte Version von KaM Remake zu aktualisieren. Bitte lade die Vollversion von KaM Remake herunter und fÃ¼hre das Setup erneut aus.
+ger.OpenAL=Soll Setup auch OpenAl installieren (empfohlen)? Es wird fÃ¼r die Soundwiedergabe von KaM Remake benÃ¶tigt.
 ger.ViewReadme=Readme anzeigen
 
 ;Polish
-pol.CreateStartShortcut=Stwórz skrót w Menu Start
-pol.NoKaM=Kreator instalacji wykry³ ¿e nie masz zainstalowanego Knights and Merchants: The Peasants Rebellion. Instalacja zostanie przerwana.
-pol.CantUpdate=Kreator instalacji nie by³ w stanie znaleŸæ istniej¹cej wersji KaM Remake do zaktualizowania. Proszê pobraæ i zainstalowaæ kompletny instalator. Instalacja zostanie przerwana.
-pol.OpenAL=Czy chcesz aby kreator instalacji zainstalowa³ OpenAL? (Zalecane) Jest on wymagany by dzia³a³y dŸwiêki w KaM Remake.
+pol.CreateStartShortcut=StwÃ³rz skrÃ³t w Menu Start
+pol.NoKaM=Kreator instalacji wykryÅ‚ Å¼e nie masz zainstalowanego Knights and Merchants: The Peasants Rebellion. Instalacja zostanie przerwana.
+pol.CantUpdate=Kreator instalacji nie byÅ‚ w stanie znaleÅºÄ‡ istniejÄ…cej wersji KaM Remake do zaktualizowania. ProszÄ™ pobraÄ‡ i zainstalowaÄ‡ kompletny instalator. Instalacja zostanie przerwana.
+pol.OpenAL=Czy chcesz aby kreator instalacji zainstalowaÅ‚ OpenAL? (Zalecane) Jest on wymagany by dziaÅ‚aÅ‚y dÅºwiÄ™ki w KaM Remake.
 pol.ViewReadme=Zobacz plik Readme
 
 ;Hungarian
-hun.CreateStartShortcut=Start Menü ikon létrehozása
-hun.NoKaM=A telepítõ nem észlelte a Knights and Merchants: A Parasztfelkelést telepítve. A telepítés megszakításra kerül.
-hun.CantUpdate=A telepítõ nem talált KaM Remake verziót a számítógépen, hogy frissítse. Kérem töltse le és használja a teljes telepítõt. A telepítés megszakításra kerül.
-hun.OpenAL=Szeretnéd, hogy a telepítõ telepítse az OpenAL-t? (Erõsen ajánlott) A hangok mûködéséhez szükséges a KaM Remake-ben
-hun.ViewReadme=Olvass el fájl megtekintése
+hun.CreateStartShortcut=Start MenÃ¼ ikon lÃ©trehozÃ¡sa
+hun.NoKaM=A telepÃ­tÅ‘ nem Ã©szlelte a Knights and Merchants: A ParasztfelkelÃ©st telepÃ­tve. A telepÃ­tÃ©s megszakÃ­tÃ¡sra kerÃ¼l.
+hun.CantUpdate=A telepÃ­tÅ‘ nem talÃ¡lt KaM Remake verziÃ³t a szÃ¡mÃ­tÃ³gÃ©pen, hogy frissÃ­tse. KÃ©rem tÃ¶ltse le Ã©s hasznÃ¡lja a teljes telepÃ­tÅ‘t. A telepÃ­tÃ©s megszakÃ­tÃ¡sra kerÃ¼l.
+hun.OpenAL=SzeretnÃ©d, hogy a telepÃ­tÅ‘ telepÃ­tse az OpenAL-t? (ErÅ‘sen ajÃ¡nlott) A hangok mÅ±kÃ¶dÃ©sÃ©hez szÃ¼ksÃ©ges a KaM Remake-ben
+hun.ViewReadme=Olvass el fÃ¡jl megtekintÃ©se
 
 ;French
-fre.CreateStartShortcut=Créer un raccourci dans le Menu Démarrer
-fre.NoKaM=L’assistant d’installation à détecter que vous n’avez pas installé Knights and Merchants : The Peasants Rebellion. L’installation va être interrompue.
-fre.CantUpdate=L’assistant d’installation n’a pas pu trouver de version existante de KaM Remake afin de la mettre à jour. Veuillez télécharger et installer l’installateur complet. L’installation va être interrompue.
-fre.OpenAL=Voulez-vous que l’assistant d’installation installe OpenAL ? (Fortement recommandée) Il est nécessaire pour le fonctionnement du son dans KaM Remake.
+fre.CreateStartShortcut=CrÃ©er un raccourci dans le Menu DÃ©marrer
+fre.NoKaM=Lâ€™assistant dâ€™installation Ã  dÃ©tecter que vous nâ€™avez pas installÃ© Knights and Merchants : The Peasants Rebellion. Lâ€™installation va Ãªtre interrompue.
+fre.CantUpdate=Lâ€™assistant dâ€™installation nâ€™a pas pu trouver de version existante de KaM Remake afin de la mettre Ã  jour. Veuillez tÃ©lÃ©charger et installer lâ€™installateur complet. Lâ€™installation va Ãªtre interrompue.
+fre.OpenAL=Voulez-vous que lâ€™assistant dâ€™installation installe OpenAL ? (Fortement recommandÃ©e) Il est nÃ©cessaire pour le fonctionnement du son dans KaM Remake.
 fre.ViewReadme=Voir le Readme
 
 ;Czech
-cze.CreateStartShortcut=Vytvoøit zástupce v nabídce Start
-cze.NoKaM=Instalátor zjistil, e hra Knights and Merchants: The Peasants Rebellion není nainstalována. Instalace bude nyní ukonèena.
-cze.CantUpdate=Instalátor nenalezl na vašem poèítaèi KaM Remake. Nejprve si stáhnìte kompletní KaM Remake, poté mùete aktualizovat. Instalace bude nyní ukonèena.
-cze.OpenAL=Chcete nainstalovat OpenAL? (Doporuèeno) OpenAL je vyadováno pro správnou funkci zvuku v KaM Remake
-cze.ViewReadme=Otevøít Readme
+cze.CreateStartShortcut=VytvoÅ™it zÃ¡stupce v nabÃ­dce Start
+cze.NoKaM=InstalÃ¡tor zjistil, Å¾e hra Knights and Merchants: The Peasants Rebellion nenÃ­ nainstalovÃ¡na. Instalace bude nynÃ­ ukonÄena.
+cze.CantUpdate=InstalÃ¡tor nenalezl na vaÅ¡em poÄÃ­taÄi KaM Remake. Nejprve si stÃ¡hnÄ›te kompletnÃ­ KaM Remake, potÃ© mÅ¯Å¾ete aktualizovat. Instalace bude nynÃ­ ukonÄena.
+cze.OpenAL=Chcete nainstalovat OpenAL? (DoporuÄeno) OpenAL je vyÅ¾adovÃ¡no pro sprÃ¡vnou funkci zvuku v KaM Remake
+cze.ViewReadme=OtevÅ™Ã­t Readme
 
 ;Russian
-rus.CreateStartShortcut=Ñîçäàòü ÿğëûê â ìåíş Ïóñê
-rus.NoKaM=Ìàñòåğ óñòàíîâêè íå îáíàğóæèë óñòàíîâëåííîé èãğû Knights and Merchants: The Peasants Rebellion. Îğèãèíàëüíàÿ èãğà íåîáõîäèìà äëÿ óñòàíîâêè ÊàÌ Ğåìåéê. Óñòàíîâêà áóäåò îòìåíåíà.
-rus.CantUpdate=Ìàñòåğ óñòàíîâêè íå ñìîã îáíàğóæèòü âåğñèş ÊàÌ Ğåìåéê äëÿ îáíîâëåíèÿ. Ïîæàëóéñòà ñêà÷àéòå è çàïóñòèòå ïîëíóş âåğñèş óñòàíîâùèêà. Óñòàíîâêà áóäåò îòìåíåíà.
-rus.OpenAL=Óñòàíîâèòü OpenAL? (ğåêîììåíäóåòñÿ) Íåîáõîäèìî äëÿ ğàáîòû çâóêà â ÊàÌ Ğåìåéê
-rus.ViewReadme=Ïîêàçàòü Readme
+rus.CreateStartShortcut=Ğ¡Ğ¾Ğ·Ğ´Ğ°Ñ‚ÑŒ ÑÑ€Ğ»Ñ‹Ğº Ğ² Ğ¼ĞµĞ½Ñ ĞŸÑƒÑĞº
+rus.NoKaM=ĞœĞ°ÑÑ‚ĞµÑ€ ÑƒÑÑ‚Ğ°Ğ½Ğ¾Ğ²ĞºĞ¸ Ğ½Ğµ Ğ¾Ğ±Ğ½Ğ°Ñ€ÑƒĞ¶Ğ¸Ğ» ÑƒÑÑ‚Ğ°Ğ½Ğ¾Ğ²Ğ»ĞµĞ½Ğ½Ğ¾Ğ¹ Ğ¸Ğ³Ñ€Ñ‹ Knights and Merchants: The Peasants Rebellion. ĞÑ€Ğ¸Ğ³Ğ¸Ğ½Ğ°Ğ»ÑŒĞ½Ğ°Ñ Ğ¸Ğ³Ñ€Ğ° Ğ½ĞµĞ¾Ğ±Ñ…Ğ¾Ğ´Ğ¸Ğ¼Ğ° Ğ´Ğ»Ñ ÑƒÑÑ‚Ğ°Ğ½Ğ¾Ğ²ĞºĞ¸ ĞšĞ°Ğœ Ğ ĞµĞ¼ĞµĞ¹Ğº. Ğ£ÑÑ‚Ğ°Ğ½Ğ¾Ğ²ĞºĞ° Ğ±ÑƒĞ´ĞµÑ‚ Ğ¾Ñ‚Ğ¼ĞµĞ½ĞµĞ½Ğ°.
+rus.CantUpdate=ĞœĞ°ÑÑ‚ĞµÑ€ ÑƒÑÑ‚Ğ°Ğ½Ğ¾Ğ²ĞºĞ¸ Ğ½Ğµ ÑĞ¼Ğ¾Ğ³ Ğ¾Ğ±Ğ½Ğ°Ñ€ÑƒĞ¶Ğ¸Ñ‚ÑŒ Ğ²ĞµÑ€ÑĞ¸Ñ ĞšĞ°Ğœ Ğ ĞµĞ¼ĞµĞ¹Ğº Ğ´Ğ»Ñ Ğ¾Ğ±Ğ½Ğ¾Ğ²Ğ»ĞµĞ½Ğ¸Ñ. ĞŸĞ¾Ğ¶Ğ°Ğ»ÑƒĞ¹ÑÑ‚Ğ° ÑĞºĞ°Ñ‡Ğ°Ğ¹Ñ‚Ğµ Ğ¸ Ğ·Ğ°Ğ¿ÑƒÑÑ‚Ğ¸Ñ‚Ğµ Ğ¿Ğ¾Ğ»Ğ½ÑƒÑ Ğ²ĞµÑ€ÑĞ¸Ñ ÑƒÑÑ‚Ğ°Ğ½Ğ¾Ğ²Ñ‰Ğ¸ĞºĞ°. Ğ£ÑÑ‚Ğ°Ğ½Ğ¾Ğ²ĞºĞ° Ğ±ÑƒĞ´ĞµÑ‚ Ğ¾Ñ‚Ğ¼ĞµĞ½ĞµĞ½Ğ°.
+rus.OpenAL=Ğ£ÑÑ‚Ğ°Ğ½Ğ¾Ğ²Ğ¸Ñ‚ÑŒ OpenAL? (Ñ€ĞµĞºĞ¾Ğ¼Ğ¼ĞµĞ½Ğ´ÑƒĞµÑ‚ÑÑ) ĞĞµĞ¾Ğ±Ñ…Ğ¾Ğ´Ğ¸Ğ¼Ğ¾ Ğ´Ğ»Ñ Ñ€Ğ°Ğ±Ğ¾Ñ‚Ñ‹ Ğ·Ğ²ÑƒĞºĞ° Ğ² ĞšĞ°Ğœ Ğ ĞµĞ¼ĞµĞ¹Ğº
+rus.ViewReadme=ĞŸĞ¾ĞºĞ°Ğ·Ğ°Ñ‚ÑŒ Readme
 
 ;Brazilian Portuguese 
 ptb.CreateStartShortcut=Criar um atalho no menu Iniciar
-ptb.NoKaM=O assistente de instalação detectou que você não tem Knights and Merchants: The Peasants Rebellion instalado. A instalação será abortada.
-ptb.CantUpdate=O assistente de instalação foi incapaz de encontrar uma versão existente do KaM Remake para atualizar. Por favor, baixe e instale através do instalador completo. A instalação será abortada.
-ptb.OpenAL=Você deseja que o assistente de instalação instale o OpenAL? (Altamente recomendado) É necessário para o funcionamento dos sons no KaM Remake
+ptb.NoKaM=O assistente de instalaÃ§Ã£o detectou que vocÃª nÃ£o tem Knights and Merchants: The Peasants Rebellion instalado. A instalaÃ§Ã£o serÃ¡ abortada.
+ptb.CantUpdate=O assistente de instalaÃ§Ã£o foi incapaz de encontrar uma versÃ£o existente do KaM Remake para atualizar. Por favor, baixe e instale atravÃ©s do instalador completo. A instalaÃ§Ã£o serÃ¡ abortada.
+ptb.OpenAL=VocÃª deseja que o assistente de instalaÃ§Ã£o instale o OpenAL? (Altamente recomendado) Ã‰ necessÃ¡rio para o funcionamento dos sons no KaM Remake
 ptb.ViewReadme=Ver o Readme
 
 ;Italian
 ita.CreateStartShortcut=Crea collegamento nel Menu Avvio
-ita.NoKaM=La procedura guidata di installazione non ha rilevato alcuna copia di "Knights and Merchants: The Peasants Rebellion". È necessaria l'installazione del gioco originale per poter utilizzare "KaM Remake". La procedura di installazione verrà ora annullata.
-ita.CantUpdate=La procedura guidata di installazione non ha rilevato alcuna versione di "KaM Remake" da aggiornare. Si prega di scaricare e utilizzare invece il programma di installazione completo. La procedura di installazione verrà ora annullata.
-ita.OpenAL=Vuoi procedere all'installazione di OpenAL? (Fortemente raccomandata) È necessaria per il corretto funzionamento dell'audio in "KaM Remake"
+ita.NoKaM=La procedura guidata di installazione non ha rilevato alcuna copia di "Knights and Merchants: The Peasants Rebellion". Ãˆ necessaria l'installazione del gioco originale per poter utilizzare "KaM Remake". La procedura di installazione verrÃ  ora annullata.
+ita.CantUpdate=La procedura guidata di installazione non ha rilevato alcuna versione di "KaM Remake" da aggiornare. Si prega di scaricare e utilizzare invece il programma di installazione completo. La procedura di installazione verrÃ  ora annullata.
+ita.OpenAL=Vuoi procedere all'installazione di OpenAL? (Fortemente raccomandata) Ãˆ necessaria per il corretto funzionamento dell'audio in "KaM Remake"
 ita.ViewReadme=Visualizza il file Readme
 
 ;Spanish
-spa.CreateStartShortcut=Crea un acceso directo en el menú de inicio
-spa.NoKaM=El asistente de instalación ha detectado que no tienes Knights and Merchants: The Peasants Rebellion instalado. Usted debe tener instalado el juego original para poder jugar el remake de Kam. La instalación se interrumpirá
-spa.CantUpdate=El asistente de instalación no ha podido encontrar la versión Kam Remake para poder actualizar. Por favor, descarga y instala la versión completa. La instalación se interrumpirá.
-spa.OpenAL=¿Quieres que el asistente de instalación instale OpenAL? (Muy recomendable) se requiere para el sonido del juego Kam Remake
+spa.CreateStartShortcut=Crea un acceso directo en el menÃº de inicio
+spa.NoKaM=El asistente de instalaciÃ³n ha detectado que no tienes Knights and Merchants: The Peasants Rebellion instalado. Usted debe tener instalado el juego original para poder jugar el remake de Kam. La instalaciÃ³n se interrumpirÃ¡
+spa.CantUpdate=El asistente de instalaciÃ³n no ha podido encontrar la versiÃ³n Kam Remake para poder actualizar. Por favor, descarga y instala la versiÃ³n completa. La instalaciÃ³n se interrumpirÃ¡.
+spa.OpenAL=Â¿Quieres que el asistente de instalaciÃ³n instale OpenAL? (Muy recomendable) se requiere para el sonido del juego Kam Remake
 spa.ViewReadme=Ver el archivo Readme
 
 ;Bulgarian
-bul.CreateStartShortcut=Ñúçäàé ïğÿê ïúò
-bul.NoKaM=Èíñòàëàöèÿòà îòêğè, ÷å íÿìàòå èíñòàëèğàíà Knights and Merchants: The Peasants Rebellion. Âèå òğÿáâà äà èìàòå Knights and Merchants: The Peasants Rebellion, çà äà èãğàåòå KaM Remake. Èíñòàëàöèÿòà ñå ïğåêğàòÿâà.
-bul.CantUpdate=Èíñòàëàöèÿòà íå óñïÿ äà íàìåğè ñúùåñòâóâàùà âåğñèÿ íà KaM Remake, çà äà áúäå ïîäîáğåíà. Ìîëÿ èçòåãëåòå è èíñòàëèğàéòå ïúëíèÿ èíñòàëàòîğ. Èíñòàëàöèÿòà ùå ñå ïğåêğàòè.
-bul.OpenAL=Èñêàòå ëè èíñòàëàöèÿòà äà èíñòàëèğà OpenAL? (Ñèëíî ñå ïğåïîğú÷âà) Íóæíî å, çà äà ğàáîòè çâóêà â èãğàòà.
-bul.ViewReadme=Âèæ "Ïğî÷åòè ìå"
+bul.CreateStartShortcut=Ğ¡ÑŠĞ·Ğ´Ğ°Ğ¹ Ğ¿Ñ€ÑĞº Ğ¿ÑŠÑ‚
+bul.NoKaM=Ğ˜Ğ½ÑÑ‚Ğ°Ğ»Ğ°Ñ†Ğ¸ÑÑ‚Ğ° Ğ¾Ñ‚ĞºÑ€Ğ¸, Ñ‡Ğµ Ğ½ÑĞ¼Ğ°Ñ‚Ğµ Ğ¸Ğ½ÑÑ‚Ğ°Ğ»Ğ¸Ñ€Ğ°Ğ½Ğ° Knights and Merchants: The Peasants Rebellion. Ğ’Ğ¸Ğµ Ñ‚Ñ€ÑĞ±Ğ²Ğ° Ğ´Ğ° Ğ¸Ğ¼Ğ°Ñ‚Ğµ Knights and Merchants: The Peasants Rebellion, Ğ·Ğ° Ğ´Ğ° Ğ¸Ğ³Ñ€Ğ°ĞµÑ‚Ğµ KaM Remake. Ğ˜Ğ½ÑÑ‚Ğ°Ğ»Ğ°Ñ†Ğ¸ÑÑ‚Ğ° ÑĞµ Ğ¿Ñ€ĞµĞºÑ€Ğ°Ñ‚ÑĞ²Ğ°.
+bul.CantUpdate=Ğ˜Ğ½ÑÑ‚Ğ°Ğ»Ğ°Ñ†Ğ¸ÑÑ‚Ğ° Ğ½Ğµ ÑƒÑĞ¿Ñ Ğ´Ğ° Ğ½Ğ°Ğ¼ĞµÑ€Ğ¸ ÑÑŠÑ‰ĞµÑÑ‚Ğ²ÑƒĞ²Ğ°Ñ‰Ğ° Ğ²ĞµÑ€ÑĞ¸Ñ Ğ½Ğ° KaM Remake, Ğ·Ğ° Ğ´Ğ° Ğ±ÑŠĞ´Ğµ Ğ¿Ğ¾Ğ´Ğ¾Ğ±Ñ€ĞµĞ½Ğ°. ĞœĞ¾Ğ»Ñ Ğ¸Ğ·Ñ‚ĞµĞ³Ğ»ĞµÑ‚Ğµ Ğ¸ Ğ¸Ğ½ÑÑ‚Ğ°Ğ»Ğ¸Ñ€Ğ°Ğ¹Ñ‚Ğµ Ğ¿ÑŠĞ»Ğ½Ğ¸Ñ Ğ¸Ğ½ÑÑ‚Ğ°Ğ»Ğ°Ñ‚Ğ¾Ñ€. Ğ˜Ğ½ÑÑ‚Ğ°Ğ»Ğ°Ñ†Ğ¸ÑÑ‚Ğ° Ñ‰Ğµ ÑĞµ Ğ¿Ñ€ĞµĞºÑ€Ğ°Ñ‚Ğ¸.
+bul.OpenAL=Ğ˜ÑĞºĞ°Ñ‚Ğµ Ğ»Ğ¸ Ğ¸Ğ½ÑÑ‚Ğ°Ğ»Ğ°Ñ†Ğ¸ÑÑ‚Ğ° Ğ´Ğ° Ğ¸Ğ½ÑÑ‚Ğ°Ğ»Ğ¸Ñ€Ğ° OpenAL? (Ğ¡Ğ¸Ğ»Ğ½Ğ¾ ÑĞµ Ğ¿Ñ€ĞµĞ¿Ğ¾Ñ€ÑŠÑ‡Ğ²Ğ°) ĞÑƒĞ¶Ğ½Ğ¾ Ğµ, Ğ·Ğ° Ğ´Ğ° Ñ€Ğ°Ğ±Ğ¾Ñ‚Ğ¸ Ğ·Ğ²ÑƒĞºĞ° Ğ² Ğ¸Ğ³Ñ€Ğ°Ñ‚Ğ°.
+bul.ViewReadme=Ğ’Ğ¸Ğ¶ "ĞŸÑ€Ğ¾Ñ‡ĞµÑ‚Ğ¸ Ğ¼Ğµ"
 
 ;Estonian
-est.CreateStartShortcut=Loo start menüü otsetee
-est.NoKaM=Paigaldamise programm on avastanud, et Teil ei ole paigaldatud Knights and Merchants: The Peasants Rebellion. Teil peab olema paigaldatud originaal mäng, et mängida mängu KaM Remake. Paigaldamine katkestakase. 
-est.CantUpdate=Paigaldamise programm ei leidnud olemas olevat KaM Remake versiooni, mida uuendada. Palun laadige internetist alla täis versioon mängust KaM Remake. Paigaldamine katkestatakse.
-est.OpenAL=Kas te soovite paigaldada programmi OpenAL? (Tungivalt soovitatav) See on vajalik, et helid töötaksid mängus KaM Remake.
+est.CreateStartShortcut=Loo start menÃ¼Ã¼ otsetee
+est.NoKaM=Paigaldamise programm on avastanud, et Teil ei ole paigaldatud Knights and Merchants: The Peasants Rebellion. Teil peab olema paigaldatud originaal mÃ¤ng, et mÃ¤ngida mÃ¤ngu KaM Remake. Paigaldamine katkestakase. 
+est.CantUpdate=Paigaldamise programm ei leidnud olemas olevat KaM Remake versiooni, mida uuendada. Palun laadige internetist alla tÃ¤is versioon mÃ¤ngust KaM Remake. Paigaldamine katkestatakse.
+est.OpenAL=Kas te soovite paigaldada programmi OpenAL? (Tungivalt soovitatav) See on vajalik, et helid tÃ¶Ã¶taksid mÃ¤ngus KaM Remake.
 est.ViewReadme=Vaadake faili Readme
 
 ;Slovak
-svk.CreateStartShortcut=Vytvori zástupcu v ponuke Štart
-svk.NoKaM=Sprievodca inštaláciou zistil, e nemáte nainštalovanı Knight & Merchants: The Peasants Rebellion. Musíte ma nainštalovanú originálnu hru, aby ste mohli hra KaM Remake. Inštalácia bude prerušená.
-svk.CantUpdate=Sprievodca inštaláciou nemohol nájs existujúcu verziu KaM Remake, je ju potrebné aktualizova. Prosím, stiahnite a nainštalujte kompletnú inštaláciu. Inštalácia bude prerušená.
-svk.OpenAL=Chcete poui spriveodcu na inštaláciu OpenAL? (Dôrazne odporúèané). Je to potrebné pre zvuky v hre v KAM Remake.
-svk.ViewReadme=Pozri súbor Readme
+svk.CreateStartShortcut=VytvoriÅ¥ zÃ¡stupcu v ponuke Å tart
+svk.NoKaM=Sprievodca inÅ¡talÃ¡ciou zistil, Å¾e nemÃ¡te nainÅ¡talovanÃ½ Knight & Merchants: The Peasants Rebellion. MusÃ­te maÅ¥ nainÅ¡talovanÃº originÃ¡lnu hru, aby ste mohli hraÅ¥ KaM Remake. InÅ¡talÃ¡cia bude preruÅ¡enÃ¡.
+svk.CantUpdate=Sprievodca inÅ¡talÃ¡ciou nemohol nÃ¡jsÅ¥ existujÃºcu verziu KaM Remake, je ju potrebnÃ© aktualizovaÅ¥. ProsÃ­m, stiahnite a nainÅ¡talujte kompletnÃº inÅ¡talÃ¡ciu. InÅ¡talÃ¡cia bude preruÅ¡enÃ¡.
+svk.OpenAL=Chcete pouÅ¾iÅ¥ spriveodcu na inÅ¡talÃ¡ciu OpenAL? (DÃ´razne odporÃºÄanÃ©). Je to potrebnÃ© pre zvuky v hre v KAM Remake.
+svk.ViewReadme=Pozri sÃºbor Readme
 
 ;Romanian
-rom.CreateStartShortcut=Creeazã o scurtãtura în meniul de Start
-rom.NoKaM=Instalarea a detectat ca nu ai instalat Knights and Merchants: The Peasants Rebellion. Trebuie sã ai instalat jocul original pentru a putea juca KaM Remake. Instalarea se va întrerupe.
-rom.CantUpdate=Instalarea nu a putut gãsi o versiune care va putea fi updatã. Te rog sã downloadezi fisierul de instalare complet. Instalarea se va întrerupe.
-rom.OpenAL=Vrei sã instalezi OpenAL?(Recomandat) Este necesar pentru sunetele din KaM Remake
+rom.CreateStartShortcut=CreeazÄƒ o scurtÄƒtura Ã®n meniul de Start
+rom.NoKaM=Instalarea a detectat ca nu ai instalat Knights and Merchants: The Peasants Rebellion. Trebuie sÄƒ ai instalat jocul original pentru a putea juca KaM Remake. Instalarea se va Ã®ntrerupe.
+rom.CantUpdate=Instalarea nu a putut gÄƒsi o versiune care va putea fi updatÄƒ. Te rog sÄƒ downloadezi fisierul de instalare complet. Instalarea se va Ã®ntrerupe.
+rom.OpenAL=Vrei sÄƒ instalezi OpenAL?(Recomandat) Este necesar pentru sunetele din KaM Remake
 rom.ViewReadme=Vizualizeazp fisierul Citeste-ma
 
 ;Ukrainian
-ukr.CreateStartShortcut=Ñòâîğèòè ÿğëèê ñòàğòîâîãî ìåíş
-ukr.NoKaM=Ìàéñòåğ âñòàíîâëåííÿ ïğîãğàììè íå çíàéøîâ îğèã³íàëó Knights and Merchants: The Peasants Rebellion íà âàøîìó êîìï`şòåğ³. Âè ìàºòå âñòàíîâèòè îğèã³íàë äëÿ òîãî , ùîá ãğàò â KaM Remake. ²íñòàëÿö³ş ñêàñîâàíî.
-ukr.CantUpdate=Ìàéñòåğ âñòàíîâëåííÿ ïğîãğàìè íå çì³ã çíàéòè KaM Remake íà êîìïşòåğ³ äëÿ òîãî, ùîá îíîâèòè éîãî. Áóäü ëàñêà , â ïåğøó ÷åğãó , çàâàíòàæòå ³ âñòàíîâ³òü ïîâíó âåğñ³ş ïåğø í³æ âñòàíîâëşâàòè àïäåéò . ²íñòàëÿö³ş ñêàñîâàíî.
-ukr.OpenAL=×è õî÷åòå âè ùîáè ìàéñòåğ âñòàíîâèâ OpenAL? (Äóæå ğåêîìåíäóºòüñÿ) Â³í íåîáõ³äíèé äëÿ ğîáîòè çâóêó ó KaM Remake
-ukr.ViewReadme=Â³äêğèòè Readme
+ukr.CreateStartShortcut=Ğ¡Ñ‚Ğ²Ğ¾Ñ€Ğ¸Ñ‚Ğ¸ ÑÑ€Ğ»Ğ¸Ğº ÑÑ‚Ğ°Ñ€Ñ‚Ğ¾Ğ²Ğ¾Ğ³Ğ¾ Ğ¼ĞµĞ½Ñ
+ukr.NoKaM=ĞœĞ°Ğ¹ÑÑ‚ĞµÑ€ Ğ²ÑÑ‚Ğ°Ğ½Ğ¾Ğ²Ğ»ĞµĞ½Ğ½Ñ Ğ¿Ñ€Ğ¾Ğ³Ñ€Ğ°Ğ¼Ğ¼Ğ¸ Ğ½Ğµ Ğ·Ğ½Ğ°Ğ¹ÑˆĞ¾Ğ² Ğ¾Ñ€Ğ¸Ğ³Ñ–Ğ½Ğ°Ğ»Ñƒ Knights and Merchants: The Peasants Rebellion Ğ½Ğ° Ğ²Ğ°ÑˆĞ¾Ğ¼Ñƒ ĞºĞ¾Ğ¼Ğ¿`ÑÑ‚ĞµÑ€Ñ–. Ğ’Ğ¸ Ğ¼Ğ°Ñ”Ñ‚Ğµ Ğ²ÑÑ‚Ğ°Ğ½Ğ¾Ğ²Ğ¸Ñ‚Ğ¸ Ğ¾Ñ€Ğ¸Ğ³Ñ–Ğ½Ğ°Ğ» Ğ´Ğ»Ñ Ñ‚Ğ¾Ğ³Ğ¾ , Ñ‰Ğ¾Ğ± Ğ³Ñ€Ğ°Ñ‚ Ğ² KaM Remake. Ğ†Ğ½ÑÑ‚Ğ°Ğ»ÑÑ†Ñ–Ñ ÑĞºĞ°ÑĞ¾Ğ²Ğ°Ğ½Ğ¾.
+ukr.CantUpdate=ĞœĞ°Ğ¹ÑÑ‚ĞµÑ€ Ğ²ÑÑ‚Ğ°Ğ½Ğ¾Ğ²Ğ»ĞµĞ½Ğ½Ñ Ğ¿Ñ€Ğ¾Ğ³Ñ€Ğ°Ğ¼Ğ¸ Ğ½Ğµ Ğ·Ğ¼Ñ–Ğ³ Ğ·Ğ½Ğ°Ğ¹Ñ‚Ğ¸ KaM Remake Ğ½Ğ° ĞºĞ¾Ğ¼Ğ¿ÑÑ‚ĞµÑ€Ñ– Ğ´Ğ»Ñ Ñ‚Ğ¾Ğ³Ğ¾, Ñ‰Ğ¾Ğ± Ğ¾Ğ½Ğ¾Ğ²Ğ¸Ñ‚Ğ¸ Ğ¹Ğ¾Ğ³Ğ¾. Ğ‘ÑƒĞ´ÑŒ Ğ»Ğ°ÑĞºĞ° , Ğ² Ğ¿ĞµÑ€ÑˆÑƒ Ñ‡ĞµÑ€Ğ³Ñƒ , Ğ·Ğ°Ğ²Ğ°Ğ½Ñ‚Ğ°Ğ¶Ñ‚Ğµ Ñ– Ğ²ÑÑ‚Ğ°Ğ½Ğ¾Ğ²Ñ–Ñ‚ÑŒ Ğ¿Ğ¾Ğ²Ğ½Ñƒ Ğ²ĞµÑ€ÑÑ–Ñ Ğ¿ĞµÑ€Ñˆ Ğ½Ñ–Ğ¶ Ğ²ÑÑ‚Ğ°Ğ½Ğ¾Ğ²Ğ»ÑĞ²Ğ°Ñ‚Ğ¸ Ğ°Ğ¿Ğ´ĞµĞ¹Ñ‚ . Ğ†Ğ½ÑÑ‚Ğ°Ğ»ÑÑ†Ñ–Ñ ÑĞºĞ°ÑĞ¾Ğ²Ğ°Ğ½Ğ¾.
+ukr.OpenAL=Ğ§Ğ¸ Ñ…Ğ¾Ñ‡ĞµÑ‚Ğµ Ğ²Ğ¸ Ñ‰Ğ¾Ğ±Ğ¸ Ğ¼Ğ°Ğ¹ÑÑ‚ĞµÑ€ Ğ²ÑÑ‚Ğ°Ğ½Ğ¾Ğ²Ğ¸Ğ² OpenAL? (Ğ”ÑƒĞ¶Ğµ Ñ€ĞµĞºĞ¾Ğ¼ĞµĞ½Ğ´ÑƒÑ”Ñ‚ÑŒÑÑ) Ğ’Ñ–Ğ½ Ğ½ĞµĞ¾Ğ±Ñ…Ñ–Ğ´Ğ½Ğ¸Ğ¹ Ğ´Ğ»Ñ Ñ€Ğ¾Ğ±Ğ¾Ñ‚Ğ¸ Ğ·Ğ²ÑƒĞºÑƒ Ñƒ KaM Remake
+ukr.ViewReadme=Ğ’Ñ–Ğ´ĞºÑ€Ğ¸Ñ‚Ğ¸ Readme
 
 ;Norwegian
 nor.CreateStartShortcut=Legg til snarvei i Start-menyen
-nor.NoKaM=Installasjonsveiviseren oppdaget at du ikke har Knights and Merchants: The Peasants Rebellion installert. Du må ha det originale spillet installert for å spille KaM Remake. Installasjonen vil bli avbrutt.
-nor.CantUpdate=Installasjonen kunne ikke finne en eksisterende versjon av KaM Remake å oppdatere. Vennligst last ned og installer det fullstendige installasjonsprogrammet i stedet. Installasjonen vil bli avbrutt.
-nor.OpenAL=Ønsker du at installasjonsveiviseren skal installere OpenAL? (Anbefales sterkt) Det er nødvendig for at lyder skal fungere i KaM Remake
+nor.NoKaM=Installasjonsveiviseren oppdaget at du ikke har Knights and Merchants: The Peasants Rebellion installert. Du mÃ¥ ha det originale spillet installert for Ã¥ spille KaM Remake. Installasjonen vil bli avbrutt.
+nor.CantUpdate=Installasjonen kunne ikke finne en eksisterende versjon av KaM Remake Ã¥ oppdatere. Vennligst last ned og installer det fullstendige installasjonsprogrammet i stedet. Installasjonen vil bli avbrutt.
+nor.OpenAL=Ã˜nsker du at installasjonsveiviseren skal installere OpenAL? (Anbefales sterkt) Det er nÃ¸dvendig for at lyder skal fungere i KaM Remake
 nor.ViewReadme=Vis Readme
 
 ;Belarusian
-bel.CreateStartShortcut=Ñòâàğûöü öıòë³ê ¢ ìåíş "Ïóñê"
-bel.NoKaM=Ìàéñòàğ ¢ñòàíî¢ê³ âûÿâ³¢ øòî ¢ âàñ íÿìà ¢ñòàëÿâàíàé iãğû Knights and Merchants: The Peasants Rebellion. Âû ïàâ³ííû ¢ñòàëÿâàöü àğûã³íàëüíóş iãğó êàá ³ãğàöü ¢ KaM Remake. Óñòàíî¢êà áóäçå ñïûíåíà.
-bel.CantUpdate=Ìàéñòğó ¢ñòàíî¢ê³ íå ¢äàåööà çíàéñö³ âåğñ³ş KaM Remake äëÿ àáíà¢ëåííÿ. Êàë³ ëàñêà çàãğóç³öå ïî¢íû ïàêåò ¢ñòàíî¢ê³. Óñòàíî¢êà áóäçå ñïûíåíà.
-bel.OpenAL=Âû õî÷àöå ¢ñòàëÿâàöü OpenAL? (íàñòîéë³âà ğıêàìåíäóåööà) Ãıòà íåàáõîäíà äëÿ ğàáîòû ãóêó ¢ KaM Remake
-bel.ViewReadme=Àäêğûöü Readme
+bel.CreateStartShortcut=Ğ¡Ñ‚Ğ²Ğ°Ñ€Ñ‹Ñ†ÑŒ Ñ†ÑÑ‚Ğ»Ñ–Ğº Ñ Ğ¼ĞµĞ½Ñ "ĞŸÑƒÑĞº"
+bel.NoKaM=ĞœĞ°Ğ¹ÑÑ‚Ğ°Ñ€ ÑÑÑ‚Ğ°Ğ½Ğ¾ÑĞºÑ– Ğ²Ñ‹ÑĞ²Ñ–Ñ ÑˆÑ‚Ğ¾ Ñ Ğ²Ğ°Ñ Ğ½ÑĞ¼Ğ° ÑÑÑ‚Ğ°Ğ»ÑĞ²Ğ°Ğ½Ğ°Ğ¹ iĞ³Ñ€Ñ‹ Knights and Merchants: The Peasants Rebellion. Ğ’Ñ‹ Ğ¿Ğ°Ğ²Ñ–Ğ½Ğ½Ñ‹ ÑÑÑ‚Ğ°Ğ»ÑĞ²Ğ°Ñ†ÑŒ Ğ°Ñ€Ñ‹Ğ³Ñ–Ğ½Ğ°Ğ»ÑŒĞ½ÑƒÑ iĞ³Ñ€Ñƒ ĞºĞ°Ğ± Ñ–Ğ³Ñ€Ğ°Ñ†ÑŒ Ñ KaM Remake. Ğ£ÑÑ‚Ğ°Ğ½Ğ¾ÑĞºĞ° Ğ±ÑƒĞ´Ğ·Ğµ ÑĞ¿Ñ‹Ğ½ĞµĞ½Ğ°.
+bel.CantUpdate=ĞœĞ°Ğ¹ÑÑ‚Ñ€Ñƒ ÑÑÑ‚Ğ°Ğ½Ğ¾ÑĞºÑ– Ğ½Ğµ ÑĞ´Ğ°ĞµÑ†Ñ†Ğ° Ğ·Ğ½Ğ°Ğ¹ÑÑ†Ñ– Ğ²ĞµÑ€ÑÑ–Ñ KaM Remake Ğ´Ğ»Ñ Ğ°Ğ±Ğ½Ğ°ÑĞ»ĞµĞ½Ğ½Ñ. ĞšĞ°Ğ»Ñ– Ğ»Ğ°ÑĞºĞ° Ğ·Ğ°Ğ³Ñ€ÑƒĞ·Ñ–Ñ†Ğµ Ğ¿Ğ¾ÑĞ½Ñ‹ Ğ¿Ğ°ĞºĞµÑ‚ ÑÑÑ‚Ğ°Ğ½Ğ¾ÑĞºÑ–. Ğ£ÑÑ‚Ğ°Ğ½Ğ¾ÑĞºĞ° Ğ±ÑƒĞ´Ğ·Ğµ ÑĞ¿Ñ‹Ğ½ĞµĞ½Ğ°.
+bel.OpenAL=Ğ’Ñ‹ Ñ…Ğ¾Ñ‡Ğ°Ñ†Ğµ ÑÑÑ‚Ğ°Ğ»ÑĞ²Ğ°Ñ†ÑŒ OpenAL? (Ğ½Ğ°ÑÑ‚Ğ¾Ğ¹Ğ»Ñ–Ğ²Ğ° Ñ€ÑĞºĞ°Ğ¼ĞµĞ½Ğ´ÑƒĞµÑ†Ñ†Ğ°) Ğ“ÑÑ‚Ğ° Ğ½ĞµĞ°Ğ±Ñ…Ğ¾Ğ´Ğ½Ğ° Ğ´Ğ»Ñ Ñ€Ğ°Ğ±Ğ¾Ñ‚Ñ‹ Ğ³ÑƒĞºÑƒ Ñ KaM Remake
+bel.ViewReadme=ĞĞ´ĞºÑ€Ñ‹Ñ†ÑŒ Readme
+
+;Japanese
+jpn.CreateStartShortcut=ã‚¹ã‚¿ãƒ¼ãƒˆãƒ¡ãƒ‹ãƒ¥ãƒ¼ã®ã‚·ãƒ§ãƒ¼ãƒˆã‚«ãƒƒãƒˆãŒä½œæˆã•ã‚Œã¾ã™ã€‚
+jpn.NoKaM=ã‚¤ãƒ³ã‚¹ãƒˆãƒ¼ãƒ«ã‚¦ã‚£ã‚¶ãƒ¼ãƒ‰ãŒ"Knights and Merchants: The Peasants Rebellion"ã‚’ã‚¤ãƒ³ã‚¹ãƒˆãƒ¼ãƒ«ã—ã¦ã„ãªã„ã®æ¤œå‡ºã•ã‚Œã¾ã—ãŸã€‚KAM ãƒªãƒ¡ã‚¤ã‚¯ãŒãƒ•ãƒ¬ãƒ¼ã•ã‚Œã‚‹ã«ã¯ã‚ªãƒªã‚¸ãƒŠãƒ«ã®ã‚²ãƒ¼ãƒ ã¯ã‚¤ãƒ³ã‚¹ãƒˆãƒ¼ãƒ«ã—ã¦ã¯ã„ã‘ã¾ã›ã‚“ã€‚ã‚¤ãƒ³ã‚¹ãƒˆãƒ¼ãƒ«ã¯ä¸­æ­¢ã•ã‚Œã¾ã—ãŸã€‚
+jpn.CantUpdate=ã‚¤ãƒ³ã‚¹ãƒˆãƒ¼ãƒ«ã‚¦ã‚£ã‚¶ãƒ¼ãƒ‰ã¯æ—¢å­˜ã®KAMãƒªãƒ¡ã‚¤ã‚¯ãƒãƒ¼ã‚¸ãƒ§ãƒ³ãŒè¦‹ã¤ã‹ã‚Šã¾ã›ã‚“ã§ã—ãŸã€‚ãã®ä»£ã‚ã‚Šã«å…¨éƒ¨ã®ã‚¤ãƒ³ã‚¹ãƒˆãƒ¼ãƒ©ã¯ãƒ€ã‚¦ãƒ³ãƒ­ãƒ¼ãƒˆã—ã¦ã‚¤ãƒ³ã‚¹ãƒˆãƒ¼ãƒ«ã—ã¦ãã ã•ã„ã€‚ã‚¤ãƒ³ã‚¹ãƒˆãƒ¼ãƒ«ã¯ä¸­æ­¢ã•ã‚Œã¾ã—ãŸã€‚
+jpn.OpenAL=ã‚¤ãƒ³ã‚¹ãƒˆãƒ¼ãƒ«ã‚¦ã‚£ã‚¶ãƒ¼ãƒ‰ãŒOpenALã‚’ã‚¤ãƒ³ã‚¹ãƒˆãƒ¼ãƒ«ã—ãŸã„ã§ã™ã‹ã€Œå¼·ã„æ¨å¥¨ã€ã€‚KAM ãƒªãƒ¡ã‚¤ã‚¯ã®éŸ³æ¥½ãªã©ã‚’èãã¨å¿…è¦ã§ã™ã€‚
+jpn.ViewReadme=ReadmeãŒè¡¨ç¤ºã•ã‚Œã¾ã™ã€‚
+
+;Turkish
+tur.CreateStartShortcut=BaÅŸlat menÃ¼sÃ¼ kÄ±sayolu oluÅŸtur.
+tur.NoKaM=Kurulum sihirbazÄ± orijinal Knights and Merchants: The Peasants Rebellion oyununun kurulu olmadÄ±ÄŸÄ±nÄ± tespit etti. KaM Remake modunu oynayabilmek iÃ§in orijinal oyuna sahip olmanÄ±z gerekmektedir. Kurulum sihirbazÄ± kapanacaktÄ±r.
+tur.CantUpdate=Kurulum sihirbazÄ± herhangi bir kurulu KaM Remake versiyonu bulamadÄ±. LÃ¼tfen complete installer indirerek kurulum yapÄ±nÄ±z. Kurulum sihirbazÄ± kapanacaktÄ±r.
+tur.OpenAL=Kurulum sihirbazÄ±nÄ±n OpenAL kurmasÄ±nÄ± ister misiniz? (Tavsiye edilir) Seslerin oyun iÃ§inde Ã§alÄ±ÅŸmasÄ± iÃ§in gereklidir.
+tur.ViewReadme=Beni oku dosyasÄ±nÄ± aÃ§

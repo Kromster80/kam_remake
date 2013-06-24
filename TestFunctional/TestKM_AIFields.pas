@@ -24,19 +24,19 @@ begin
   SKIP_RENDER := True;
   ExeDir := ExtractFilePath(ParamStr(0)) + '..\';
 
-  fLog := TKMLog.Create(ExtractFilePath(ParamStr(0)) + 'Temp\temp.log');
+  gLog := TKMLog.Create(ExtractFilePath(ParamStr(0)) + 'Temp\temp.log');
   fResource := TResource.Create(nil, nil, nil);
   fResource.LoadMenuResources('');
-  fTerrain := TKMTerrain.Create;
+  gTerrain := TKMTerrain.Create;
   fAIFields := TKMAIFields.Create;
 end;
 
 procedure TestTKMAIFields.TearDown;
 begin
   fAIFields.Free;
-  fTerrain.Free;
+  gTerrain.Free;
   fResource.Free;
-  fLog.Free;
+  gLog.Free;
 end;
 
 procedure TestTKMAIFields.TestUpdateNavMesh;
@@ -72,7 +72,7 @@ begin
           and FileExists(PathToMaps[I] + SearchRec.Name + '\' + SearchRec.Name + '.map') then
           begin
             try
-              fTerrain.LoadFromFile(PathToMaps[I] + SearchRec.Name + '\' + SearchRec.Name + '.map', False);
+              gTerrain.LoadFromFile(PathToMaps[I] + SearchRec.Name + '\' + SearchRec.Name + '.map', False);
               fAIFields.UpdateState(0);
               Inc(Count);
             except

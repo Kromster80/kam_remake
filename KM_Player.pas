@@ -4,7 +4,8 @@ interface
 uses Classes, KromUtils, SysUtils, Math,
   KM_CommonClasses, KM_Defaults, KM_Points,
   KM_ArmyEvaluation, KM_BuildList, KM_DeliverQueue, KM_FogOfWar,
-  KM_Goals, KM_HouseCollection, KM_Houses, KM_Terrain, KM_AI, KM_PlayerStats, KM_Units, KM_UnitGroups;
+  KM_Goals, KM_HouseCollection, KM_Houses, KM_Terrain, KM_AI, KM_PlayerStats, KM_Units, KM_Units_Warrior, KM_UnitGroups,
+  KM_ResourceHouse;
 
 
 type
@@ -53,15 +54,19 @@ type
     fFlagColor: Cardinal;
     fCenterScreen: TKMPoint;
     fAlliances: array [0..MAX_PLAYERS-1] of TAllianceType;
+    fShareFOW: array [0..MAX_PLAYERS-1] of Boolean;
 
     function GetColorIndex: Byte;
 
     function  GetAlliances(aIndex: Integer): TAllianceType;
     procedure SetAlliances(aIndex: Integer; aValue: TAllianceType);
+    function  GetShareFOW(aIndex: Integer): Boolean;
+    procedure SetShareFOW(aIndex: Integer; aValue: Boolean);
     procedure GroupDied(aGroup: TKMUnitGroup);
     procedure HouseDestroyed(aHouse: TKMHouse; aFrom: TPlayerIndex);
     procedure UnitDied(aUnit: TKMUnit; aFrom: TPlayerIndex);
     procedure UnitTrained(aUnit: TKMUnit);
+    procedure WarriorWalkedOut(aUnit: TKMUnitWarrior);
   public
     Enabled: Boolean;
 
@@ -86,6 +91,7 @@ type
     property FlagColor: Cardinal read fFlagColor write fFlagColor;
     property FlagColorIndex: Byte read GetColorIndex;
     property Alliances[aIndex: Integer]: TAllianceType read GetAlliances write SetAlliances;
+    property ShareFOW[aIndex: Integer]: Boolean read GetShareFOW write SetShareFOW;
     property CenterScreen: TKMPoint read fCenterScreen write fCenterScreen;
 
     procedure AfterMissionInit(aFlattenRoads: Boolean);
@@ -120,6 +126,7 @@ type
     function HousesHitTest(X, Y: Integer): TKMHouse;
     function GroupsHitTest(X, Y: Integer): TKMUnitGroup;
     procedure GetHouseMarks(aLoc: TKMPoint; aHouseType: THouseType; aList: TKMPointTagList);
+    procedure AddDefaultGoals(aBuildings: Boolean);
 
     function GetFieldsCount: Integer;
     procedure GetFieldPlans(aList: TKMPointTagList; aRect: TKMRect; aIncludeFake: Boolean);
@@ -142,7 +149,7 @@ type
 
 
 implementation
-uses KM_PlayersCollection, KM_Resource, KM_ResourceHouse, KM_Sound, KM_Game, KM_Units_Warrior,
+uses KM_PlayersCollection, KM_Resource, KM_Sound, KM_Game,
    KM_TextLibrary, KM_AIFields, KM_Scripting;
 
 
@@ -171,9 +178,8 @@ end;
 
 procedure TKMPlayerCommon.Paint;
 begin
-  if fGame.IsMapEditor and not (mlUnits in fGame.MapEditor.VisibleLayers) then Exit;
-
-  fUnits.Paint;
+  if not fGame.IsMapEditor or (mlUnits in fGame.MapEditor.VisibleLayers) then
+    fUnits.Paint;
 end;
 
 
@@ -229,7 +235,7 @@ begin
   Enabled := True;
 
   fAI           := TKMPlayerAI.Create(fPlayerIndex);
-  fFogOfWar     := TKMFogOfWar.Create(fTerrain.MapX, fTerrain.MapY);
+  fFogOfWar     := TKMFogOfWar.Create(gTerrain.MapX, gTerrain.MapY);
   fGoals        := TKMGoals.Create;
   fStats        := TKMPlayerStats.Create;
   fRoadsList    := TKMPointList.Create;
@@ -242,7 +248,10 @@ begin
   fPlayerName   := '';
   fPlayerType   := pt_Computer;
   for I := 0 to MAX_PLAYERS - 1 do
+  begin
     fAlliances[I] := at_Enemy; //Everyone is enemy by default
+    fShareFOW[I] := True; //Share FOW between allies by default (it only affects allied players)
+  end;
 
   fFlagColor := DefaultTeamColors[fPlayerIndex]; //Init with default color, later replaced by Script
 end;
@@ -286,6 +295,9 @@ begin
   Result.OnUnitDied := UnitDied;
   Result.OnUnitTrained := UnitTrained; //Used for debug Scout placed by a cheat
 
+  if Result is TKMUnitWarrior then
+    TKMUnitWarrior(Result).OnWarriorWalkOut := WarriorWalkedOut;
+
   if Result is TKMUnitWorker then
     fBuildList.AddWorker(TKMUnitWorker(Result));
   if Result is TKMUnitSerf then
@@ -322,33 +334,44 @@ begin
   Result.OnUnitDied := UnitDied;
   Result.OnUnitTrained := UnitTrained;
 
-  //Adding a unit automatically sets fTerrain.IsUnit, but since the unit was trained
+  if Result is TKMUnitWarrior then
+    TKMUnitWarrior(Result).OnWarriorWalkOut := WarriorWalkedOut;
+
+  //Adding a unit automatically sets gTerrain.IsUnit, but since the unit was trained
   //inside School/Barracks we don't need that
-  fTerrain.UnitRem(Position);
+  gTerrain.UnitRem(Position);
 
   //Do not add unit to statistic just yet, wait till it's training complete
 end;
 
 
 procedure TKMPlayer.UnitTrained(aUnit: TKMUnit);
-var G: TKMUnitGroup;
 begin
   if aUnit.UnitType = ut_Worker then
     fBuildList.AddWorker(TKMUnitWorker(aUnit));
   if aUnit.UnitType = ut_Serf then
     fDeliveries.AddSerf(TKMUnitSerf(aUnit));
 
-  if aUnit is TKMUnitWarrior then
-  begin
-    G := fUnitGroups.WarriorTrained(TKMUnitWarrior(aUnit));
-    Assert(G <> nil, 'It is certain that equipped warrior creates or finds some group to join to');
-    G.OnGroupDied := GroupDied;
-    fScripting.ProcWarriorEquipped(aUnit, G);
-  end
-  else
-    fScripting.ProcUnitTrained(aUnit); //Warriors don't trigger "OnTrained" event
+  //Warriors don't trigger "OnTrained" event, they trigger "WarriorEquipped" in WarriorWalkedOut below
+  if not (aUnit is TKMUnitWarrior) then
+    fScripting.ProcUnitTrained(aUnit);
 
   fStats.UnitCreated(aUnit.UnitType, True);
+end;
+
+
+procedure TKMPlayer.WarriorWalkedOut(aUnit: TKMUnitWarrior);
+var G: TKMUnitGroup;
+begin
+  G := fUnitGroups.WarriorTrained(aUnit);
+  Assert(G <> nil, 'It is certain that equipped warrior creates or finds some group to join to');
+  G.OnGroupDied := GroupDied;
+  if PlayerType = pt_Computer then
+  begin
+    AI.General.WarriorEquipped(G);
+    G := UnitGroups.GetGroupByMember(aUnit); //AI might assign warrior to different group
+  end;
+  fScripting.ProcWarriorEquipped(aUnit, G);
 end;
 
 
@@ -382,8 +405,8 @@ begin
 
   //Sometimes maps can have roads placed outside of map bounds - ignore them
   //(on 80x80 map Loc range is 1..79, which is not obvious when placing roads manually in script)
-  if fTerrain.TileInMapCoords(aLoc.X, aLoc.Y) then
-    fRoadsList.AddEntry(aLoc);
+  if gTerrain.TileInMapCoords(aLoc.X, aLoc.Y) then
+    fRoadsList.Add(aLoc);
 end;
 
 
@@ -392,9 +415,9 @@ procedure TKMPlayer.AfterMissionInit(aFlattenRoads: Boolean);
 begin
   if fRoadsList <> nil then
   begin
-    fTerrain.SetRoads(fRoadsList, fPlayerIndex, not aFlattenRoads); //If we are flattening roads that will update WalkConnect anyway
+    gTerrain.SetRoads(fRoadsList, fPlayerIndex, not aFlattenRoads); //If we are flattening roads that will update WalkConnect anyway
     if aFlattenRoads then
-      fTerrain.FlattenTerrain(fRoadsList);
+      gTerrain.FlattenTerrain(fRoadsList);
     FreeAndNil(fRoadsList);
   end;
 
@@ -413,7 +436,7 @@ end;
 
 procedure TKMPlayer.AddField(aLoc: TKMPoint; aFieldType: TFieldType);
 begin
-  fTerrain.SetField(aLoc, fPlayerIndex, aFieldType);
+  gTerrain.SetField(aLoc, fPlayerIndex, aFieldType);
 end;
 
 
@@ -421,7 +444,7 @@ end;
 function TKMPlayer.CanAddFieldPlan(aLoc: TKMPoint; aFieldType: TFieldType): Boolean;
 var I: Integer;
 begin
-  Result := fTerrain.CanAddField(aLoc.X, aLoc.Y, aFieldType)
+  Result := gTerrain.CanAddField(aLoc.X, aLoc.Y, aFieldType)
             and (fBuildList.FieldworksList.HasField(aLoc) = ft_None)
             and not fBuildList.HousePlanList.HasPlan(aLoc);
   //Don't allow placing on allies plans either
@@ -439,7 +462,7 @@ end;
 function TKMPlayer.CanAddFakeFieldPlan(aLoc: TKMPoint; aFieldType: TFieldType): Boolean;
 var I: Integer;
 begin
-  Result := fTerrain.CanAddField(aLoc.X, aLoc.Y, aFieldType)
+  Result := gTerrain.CanAddField(aLoc.X, aLoc.Y, aFieldType)
             and (fBuildList.FieldworksList.HasFakeField(aLoc) = ft_None)
             and not fBuildList.HousePlanList.HasPlan(aLoc);
   //Don't allow placing on allies plans either
@@ -454,7 +477,7 @@ end;
 function TKMPlayer.CanAddHousePlan(aLoc: TKMPoint; aHouseType: THouseType): Boolean;
 var I,K,J,S,T,Tx,Ty: Integer; HA: THouseArea;
 begin
-  Result := fTerrain.CanPlaceHouse(aLoc, aHouseType);
+  Result := gTerrain.CanPlaceHouse(aLoc, aHouseType);
   if not Result then Exit;
 
   HA := fResource.HouseDat[aHouseType].BuildArea;
@@ -464,8 +487,9 @@ begin
   begin
     Tx := aLoc.X - fResource.HouseDat[aHouseType].EntranceOffsetX + K - 3;
     Ty := aLoc.Y + I - 4;
-    Result := Result and fTerrain.TileInMapCoords(Tx, Ty, 1)
-                     and (fFogOfWar.CheckTileRevelation(Tx, Ty) > 0);
+    //AI ignores FOW (this function is used from scripting)
+    Result := Result and gTerrain.TileInMapCoords(Tx, Ty, 1)
+                     and ((fPlayerType = pt_Computer) or (fFogOfWar.CheckTileRevelation(Tx, Ty) > 0));
     //This checks below require Tx;Ty to be within the map so exit immediately if they are not
     if not Result then exit;
 
@@ -494,7 +518,7 @@ begin
 
   //Check if we can place house on terrain, this also makes sure the house is
   //at least 1 tile away from map border (skip that below)
-  if not fTerrain.CanPlaceHouse(KMPoint(aX, aY), aHouseType) then
+  if not gTerrain.CanPlaceHouse(KMPoint(aX, aY), aHouseType) then
     Exit;
 
   //Perform additional cheks for AI
@@ -507,8 +531,8 @@ begin
     Tx := aX + K - 3 - EnterOff;
     Ty := aY + I - 4;
 
-    //Make sure tile in map coords and we don't block some road
-    if fTerrain.CheckPassability(KMPoint(Tx, Ty), CanWalkRoad) then
+    //Make sure we don't block existing roads
+    if gTerrain.CheckPassability(KMPoint(Tx, Ty), CanWalkRoad) then
       Exit;
 
     //Check with influence maps
@@ -527,15 +551,23 @@ begin
       end;
     end;
 
-    //Make sure we can add road below house, full width + 1 on each side
-    if (I = 4) then
-      if not fTerrain.CheckPassability(KMPoint(Tx - 1, Ty + 1), CanMakeRoads)
-      or not fTerrain.CheckPassability(KMPoint(Tx    , Ty + 1), CanMakeRoads)
-      or not fTerrain.CheckPassability(KMPoint(Tx + 1, Ty + 1), CanMakeRoads)
-    then
-      Exit;
+    //Avoid placing houses in choke-points _/house\_ by checking upper corners
+    if not (aHouseType in [ht_GoldMine, ht_IronMine]) then
+      if (gTerrain.Land[Ty-1, Tx - 1].Passability * [CanMakeRoads, CanWalkRoad] = [])
+      or (gTerrain.Land[Ty-1, Tx + 1].Passability * [CanMakeRoads, CanWalkRoad] = [])
+      then
+        Exit;
 
-    //This tile must not contain fields/houses of allied players or self
+    //Make sure we can add road below house, full width + 1 on each side
+    //Terrain already checked we are 1 tile away from map edge
+    if (I = 4) then
+      if (gTerrain.Land[Ty+1, Tx - 1].Passability * [CanMakeRoads, CanWalkRoad] = [])
+      or (gTerrain.Land[Ty+1, Tx    ].Passability * [CanMakeRoads, CanWalkRoad] = [])
+      or (gTerrain.Land[Ty+1, Tx + 1].Passability * [CanMakeRoads, CanWalkRoad] = [])
+      then
+        Exit;
+
+    //This tile must not contain fields/houseplans of allied players or self
     for J := 0 to fPlayers.Count - 1 do
       if (J = fPlayerIndex) or (fAlliances[J] = at_Ally) then
       begin
@@ -577,7 +609,7 @@ begin
     begin
       if aMakeSound and not fGame.IsReplay
       and (PlayerIndex = MySpectator.PlayerIndex) then
-        fSoundLib.Play(sfx_CantPlace, 4.0);
+        fSoundLib.Play(sfx_CantPlace, 4);
       if Plan = ft_None then //If we can't build because there's some other plan, that's ok
       begin
         //Can't build here anymore because something changed between click and command processing, so remove any fake plans
@@ -611,7 +643,7 @@ begin
     end
     else
       if PlayerIndex = MySpectator.PlayerIndex then
-        fSoundLib.Play(sfx_CantPlace, 4.0);
+        fSoundLib.Play(sfx_CantPlace, 4);
 end;
 
 
@@ -690,7 +722,7 @@ var
   HT: THouseType;
 begin
   HT := fBuildList.HousePlanList.GetPlan(Position);
-  if not fResource.HouseDat[HT].IsValid then exit; //Due to network delays house might not exist now
+  if HT = ht_None then Exit; //Due to network delays house might not exist now
   fBuildList.HousePlanList.RemPlan(Position);
   fStats.HousePlanRemoved(HT);
   if (PlayerIndex = MySpectator.PlayerIndex) and not fGame.IsReplay then fSoundLib.Play(sfx_Click);
@@ -809,6 +841,7 @@ begin
   end;
 end;
 
+
 //Which house whas destroyed and by whom
 procedure TKMPlayer.HouseDestroyed(aHouse: TKMHouse; aFrom: TPlayerIndex);
 begin
@@ -820,7 +853,7 @@ begin
   end;
 
   //Only Done houses are treated as Self-Destruct, Lost, Destroyed
-  if aHouse.BuildingState in [hbs_NoGlyph..hbs_Stone] then
+  if aHouse.BuildingState in [hbs_NoGlyph .. hbs_Stone] then
     fStats.HouseEnded(aHouse.HouseType)
   else
     //Distribute honors
@@ -835,9 +868,7 @@ begin
     end;
 
   //Scripting events happen AFTER updating statistics
-  fScripting.ProcHouseLost(aHouse, aHouse.BuildingState=hbs_Done);
-  if (aFrom <> -1) and (aFrom <> fPlayerIndex) then
-    fScripting.ProcHouseDestroyed(aHouse, aFrom, aHouse.BuildingState=hbs_Done);
+  fScripting.ProcHouseDestroyed(aHouse, aFrom);
 
   //MySpectator is nil during loading, when houses can be destroyed at the start
   if MySpectator <> nil then
@@ -898,6 +929,18 @@ begin
 end;
 
 
+function  TKMPlayer.GetShareFOW(aIndex: Integer): Boolean;
+begin
+  Result := fShareFOW[aIndex];
+end;
+
+
+procedure TKMPlayer.SetShareFOW(aIndex: Integer; aValue: Boolean);
+begin
+  fShareFOW[aIndex] := aValue;
+end;
+
+
 { See if player owns any Fields/Roads/Walls (has any assets on Terrain)
   Queried by MapEditor>SaveDAT;
   Might also be used to show Players strength (or builder/warrior balance) in Tavern
@@ -906,9 +949,9 @@ function TKMPlayer.GetFieldsCount: Integer;
 var i,k: Integer;
 begin
   Result := 0;
-  for i := 1 to fTerrain.MapY do
-  for k := 1 to fTerrain.MapX do
-    if fTerrain.Land[i,k].TileOwner = fPlayerIndex then
+  for i := 1 to gTerrain.MapY do
+  for k := 1 to gTerrain.MapX do
+    if gTerrain.Land[i,k].TileOwner = fPlayerIndex then
       inc(Result);
 end;
 
@@ -949,6 +992,22 @@ begin
 end;
 
 
+procedure TKMPlayer.AddDefaultGoals(aBuildings: Boolean);
+var
+  I: Integer;
+  Enemies: array of TPlayerIndex;
+begin
+  SetLength(Enemies, 0);
+  for I := 0 to fPlayers.Count - 1 do
+    if (I <> fPlayerIndex) and (Alliances[I] = at_Enemy) then
+    begin
+      SetLength(Enemies, Length(Enemies)+1);
+      Enemies[Length(Enemies)-1] := I;
+    end;
+  Goals.AddDefaultGoals(aBuildings, fPlayerIndex, Enemies);
+end;
+
+
 procedure TKMPlayer.GetHouseMarks(aLoc: TKMPoint; aHouseType: THouseType; aList: TKMPointTagList);
   //Replace existing icon with a Block
   procedure BlockPoint(aPoint: TKMPoint; aID: Integer);
@@ -957,9 +1016,9 @@ procedure TKMPlayer.GetHouseMarks(aLoc: TKMPoint; aHouseType: THouseType; aList:
     //Remove all existing marks on this tile (entrance can have 2 entries)
     for I := aList.Count - 1 downto 0 do
       if KMSamePoint(aList[I], aPoint) then
-        aList.RemoveEntry(aPoint);
+        aList.Remove(aPoint);
 
-    aList.AddEntry(aPoint, aID);
+    aList.Add(aPoint, aID);
   end;
 
 var
@@ -969,14 +1028,14 @@ var
   HA: THouseArea;
 begin
   //Get basic Marks
-  fTerrain.GetHouseMarks(aLoc, aHouseType, aList);
+  gTerrain.GetHouseMarks(aLoc, aHouseType, aList);
 
   //Override marks if there are House/FieldPlans (only we know about our plans) and or FogOfWar
   HA := fResource.HouseDat[aHouseType].BuildArea;
 
   for I := 1 to 4 do for K := 1 to 4 do
   if (HA[I,K] <> 0)
-  and fTerrain.TileInMapCoords(aLoc.X+K-3-fResource.HouseDat[aHouseType].EntranceOffsetX, aLoc.Y+I-4, 1) then
+  and gTerrain.TileInMapCoords(aLoc.X+K-3-fResource.HouseDat[aHouseType].EntranceOffsetX, aLoc.Y+I-4, 1) then
   begin
     //This can't be done earlier since values can be off-map
     P2 := KMPoint(aLoc.X+K-3-fResource.HouseDat[aHouseType].EntranceOffsetX, aLoc.Y+I-4);
@@ -1036,6 +1095,7 @@ begin
   SaveStream.Write(fPlayerName);
   SaveStream.Write(fPlayerType, SizeOf(fPlayerType));
   SaveStream.Write(fAlliances, SizeOf(fAlliances));
+  SaveStream.Write(fShareFOW, SizeOf(fShareFOW));
   SaveStream.Write(fCenterScreen);
   SaveStream.Write(fFlagColor);
 end;
@@ -1061,6 +1121,7 @@ begin
   LoadStream.Read(s); fPlayerName := s;
   LoadStream.Read(fPlayerType, SizeOf(fPlayerType));
   LoadStream.Read(fAlliances, SizeOf(fAlliances));
+  LoadStream.Read(fShareFOW, SizeOf(fShareFOW));
   LoadStream.Read(fCenterScreen);
   LoadStream.Read(fFlagColor);
 end;
@@ -1078,6 +1139,8 @@ begin
   begin
     fUnits[I].OnUnitDied := UnitDied;
     fUnits[I].OnUnitTrained := UnitTrained;
+    if fUnits[I] is TKMUnitWarrior then
+      TKMUnitWarrior(fUnits[I]).OnWarriorWalkOut := WarriorWalkedOut;
   end;
 
   fUnitGroups.SyncLoad;
@@ -1108,14 +1171,12 @@ end;
 
 procedure TKMPlayer.UnitDied(aUnit: TKMUnit; aFrom: TPlayerIndex);
 begin
-  //Update statistics before calling script events
   Stats.UnitLost(aUnit.UnitType);
   if aFrom <> -1 then
-  begin
     fPlayers[aFrom].Stats.UnitKilled(aUnit.UnitType);
-    fScripting.ProcUnitKilled(aUnit, aFrom);
-  end;
-  fScripting.ProcUnitLost(aUnit);
+
+  //Call script event after updating statistics
+  fScripting.ProcUnitDied(aUnit, aFrom);
 
   //MySpectator is nil during loading
   if MySpectator <> nil then
@@ -1175,10 +1236,12 @@ begin
   if not Enabled then Exit;
 
   inherited;
-  if fGame.IsMapEditor and not(mlHouses in fGame.MapEditor.VisibleLayers) then exit;
 
-  fUnitGroups.Paint;
-  fHouses.Paint;
+  if not fGame.IsMapEditor or (mlUnits in fGame.MapEditor.VisibleLayers) then
+    fUnitGroups.Paint;
+
+  if not fGame.IsMapEditor or (mlHouses in fGame.MapEditor.VisibleLayers) then
+    fHouses.Paint;
 end;
 
 
@@ -1199,7 +1262,7 @@ begin
     if (U <> nil)
     and (U.UnitType = ut_Fish)
     and (not U.IsDeadOrDying) //Fish are killed when they are caught or become stuck
-    and (fTerrain.Land[U.GetPosition.Y, U.GetPosition.X].WalkConnect[wcFish] = aWaterID)
+    and (gTerrain.Land[U.GetPosition.Y, U.GetPosition.X].WalkConnect[wcFish] = aWaterID)
     and (TKMUnitAnimal(U).FishCount > HighestGroupCount) then
     begin
       Result := TKMUnitAnimal(U);

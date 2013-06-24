@@ -70,7 +70,7 @@ begin
   Caption := 'RXX Editor (' + GAME_REVISION + ')';
 
   //Although we don't need them in this tool, these are required to load sprites
-  fLog := TKMLog.Create(ExeDir + 'RXXEditor.log');
+  gLog := TKMLog.Create(ExeDir + 'RXXEditor.log');
 
   fPalettes := TKMPalettes.Create;
   fPalettes.LoadPalettes;
@@ -81,7 +81,7 @@ procedure TRXXForm1.FormDestroy(Sender: TObject);
 begin
   FreeAndNil(fSprites);
   FreeAndNil(fPalettes);
-  FreeAndNil(fLog);
+  FreeAndNil(gLog);
 end;
 
 
@@ -283,7 +283,7 @@ end;
 procedure TRXXForm1.btnSaveRXXClick(Sender: TObject);
 begin
   if not SaveDialog1.Execute then Exit;
-  fLog.AddTime('Trimmed ' + IntToStr(fSprites.TrimSprites));
+  gLog.AddTime('Trimmed ' + IntToStr(fSprites.TrimSprites));
   fSprites.SaveToRXXFile(SaveDialog1.FileName);
 end;
 

@@ -71,13 +71,11 @@ begin
     //glEnable(GL_CULL_FACE);
     //glCullFace(GL_FRONT);
 
-    fOpenGL_Vendor   := glGetString(GL_VENDOR);   fLog.AddNoTime('OpenGL Vendor: '   + string(fOpenGL_Vendor));
-    fOpenGL_Renderer := glGetString(GL_RENDERER); fLog.AddNoTime('OpenGL Renderer: ' + string(fOpenGL_Renderer));
-    fOpenGL_Version  := glGetString(GL_VERSION);  fLog.AddNoTime('OpenGL Version: '  + string(fOpenGL_Version));
+    fOpenGL_Vendor   := glGetString(GL_VENDOR);   gLog.AddNoTime('OpenGL Vendor: '   + string(fOpenGL_Vendor));
+    fOpenGL_Renderer := glGetString(GL_RENDERER); gLog.AddNoTime('OpenGL Renderer: ' + string(fOpenGL_Renderer));
+    fOpenGL_Version  := glGetString(GL_VERSION);  gLog.AddNoTime('OpenGL Version: '  + string(fOpenGL_Version));
 
     SetupVSync(aVSync);
-    //todo: Is this needed? Make it multiplatform
-    //BuildFont(h_DC, 16, FW_BOLD);
 
     Resize(ScreenX, ScreenY);
   end;
@@ -113,7 +111,7 @@ begin
   //1 unit for each tile strip. 512 means we can handle up to 512x512 maps
   case aRenderMode of
     rm2D: glOrtho(0, fScreenX, fScreenY, 0, 512, 0);
-    rm3D: gluPerspective(80, -fScreenX/fScreenY, 0.1, 5000.0);
+    rm3D: gluPerspective(80, -fScreenX/fScreenY, 0.1, 5000);
   end;
   glMatrixMode(GL_MODELVIEW); //Return to the modelview matrix
   glLoadIdentity; //Reset View

@@ -11,7 +11,7 @@ const
   MAX_CAMP_NODES = 64;
 
 type
-  TCorner = (cBottomRight, cBottomLeft);
+  TBriefingCorner = (bcBottomRight, bcBottomLeft);
 
   TKMCampaign = class
   private
@@ -31,7 +31,7 @@ type
       Flag: TKMPoint;
       NodeCount: Byte;
       Nodes: array [0 .. MAX_CAMP_NODES - 1] of TKMPoint;
-      TextPos: TCorner;
+      TextPos: TBriefingCorner;
     end;
     constructor Create;
     destructor Destroy; override;
@@ -46,6 +46,7 @@ type
     property UnlockedMap: Byte read fUnlockedMap write SetUnlockedMap;
 
     function CampaignTitle: string;
+    function CampaignDescription: string;
     function MissionFile(aIndex: Byte): string;
     function MissionTitle(aIndex: Byte): AnsiString;
     function MissionText(aIndex: Byte): AnsiString;
@@ -207,7 +208,7 @@ begin
     M.Free;
   end;
 
-  fLog.AddTime('Campaigns.dat saved');
+  gLog.AddTime('Campaigns.dat saved');
 end;
 
 
@@ -295,7 +296,7 @@ begin
     M.Read(Maps[I].NodeCount);
     for K := 0 to Maps[I].NodeCount - 1 do
       M.Read(Maps[I].Nodes[K]);
-    M.Read(Maps[I].TextPos, SizeOf(TCorner));
+    M.Read(Maps[I].TextPos, SizeOf(TBriefingCorner));
   end;
 
   M.Free;
@@ -324,7 +325,7 @@ begin
       //Inc(Maps[I].Nodes[K].Y, 5);
       M.Write(Maps[I].Nodes[K]);
     end;
-    M.Write(Maps[I].TextPos, SizeOf(TCorner));
+    M.Write(Maps[I].TextPos, SizeOf(TBriefingCorner));
   end;
 
   M.SaveToFile(aFileName);
@@ -379,6 +380,12 @@ end;
 function TKMCampaign.CampaignTitle: string;
 begin
   Result := fTextLibrary[fFirstTextIndex];
+end;
+
+
+function TKMCampaign.CampaignDescription: string;
+begin
+  Result := fTextLibrary[fFirstTextIndex + 2];
 end;
 
 

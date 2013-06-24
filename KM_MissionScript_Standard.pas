@@ -2,17 +2,12 @@ unit KM_MissionScript_Standard;
 {$I KaM_Remake.inc}
 interface
 uses
-  Classes, KromUtils, SysUtils, Math,
-  KM_CommonClasses, KM_Defaults, KM_Points, KM_MissionScript,
-  KM_AIAttacks, KM_Houses, KM_Units, KM_Terrain, KM_UnitGroups, KM_Units_Warrior;
+  Classes, KromUtils, Math, SysUtils,
+  KM_CommonClasses, KM_Defaults, KM_Points,
+  KM_MissionScript, KM_AIAttacks, KM_Houses, KM_Units, KM_Terrain, KM_UnitGroups;
 
 
 type
-  TKMCommandParamType = (cpt_Unknown=0,cpt_Recruits,cpt_Constructors,cpt_WorkerFactor,cpt_RecruitCount,cpt_TownDefence,
-                         cpt_MaxSoldier,cpt_EquipRate,cpt_EquipRateIron,cpt_EquipRateLeather,cpt_AttackFactor,cpt_TroopParam);
-
-  TAIAttackParamType = (cpt_Type, cpt_TotalAmount, cpt_Counter, cpt_Range, cpt_TroopAmount, cpt_Target, cpt_Position, cpt_TakeAll);
-
   TKMAttackPosition = record
     Group: TKMUnitGroup;
     Target: TKMPoint;
@@ -43,8 +38,14 @@ type
 
 implementation
 uses KM_PlayersCollection, KM_Player, KM_AI, KM_AIDefensePos, KM_TerrainPainter,
-  KM_Resource, KM_ResourceHouse, KM_ResourceUnit, KM_ResourceWares, KM_Game;
+  KM_Resource, KM_ResourceHouse, KM_ResourceUnit, KM_ResourceWares, KM_Game, KM_Units_Warrior;
 
+
+type
+  TKMCommandParamType = (cpt_Unknown=0, cpt_Recruits, cpt_Constructors, cpt_WorkerFactor, cpt_RecruitCount, cpt_TownDefence,
+                         cpt_MaxSoldier, cpt_EquipRate, cpt_EquipRateIron, cpt_EquipRateLeather, cpt_AttackFactor, cpt_TroopParam);
+
+  TAIAttackParamType = (cpt_Type, cpt_TotalAmount, cpt_Counter, cpt_Range, cpt_TroopAmount, cpt_Target, cpt_Position, cpt_TakeAll);
 
 const
   PARAMVALUES: array [TKMCommandParamType] of AnsiString = (
@@ -86,14 +87,14 @@ var
 begin
   inherited LoadMission(aFileName);
 
-  Assert((fTerrain <> nil) and (fPlayers <> nil));
+  Assert((gTerrain <> nil) and (fPlayers <> nil));
 
   Result := False;
 
   //Load the terrain since we know where it is beforehand
   if FileExists(ChangeFileExt(fMissionFileName, '.map')) then
   begin
-    fTerrain.LoadFromFile(ChangeFileExt(fMissionFileName, '.map'), fParsingMode = mpm_Editor);
+    gTerrain.LoadFromFile(ChangeFileExt(fMissionFileName, '.map'), fParsingMode = mpm_Editor);
     if fParsingMode = mpm_Editor then
       fTerrainPainter.LoadFromFile(ChangeFileExt(fMissionFileName, '.map'));
   end
@@ -195,7 +196,7 @@ begin
                             if P[0] = 255 then
                               fGame.MapEditor.RevealAll[fLastPlayer] := True
                             else
-                              fGame.MapEditor.Revealers[fLastPlayer].AddEntry(KMPoint(P[0]+1,P[1]+1), P[2])
+                              fGame.MapEditor.Revealers[fLastPlayer].Add(KMPoint(P[0]+1,P[1]+1), P[2])
                           else
                             if P[0] = 255 then
                               fPlayers[fLastPlayer].FogOfWar.RevealEverything
@@ -204,7 +205,7 @@ begin
                         end;
     ct_SetHouse:        if fLastPlayer >= 0 then
                           if InRange(P[0], Low(HouseIndexToType), High(HouseIndexToType)) then
-                            if fTerrain.CanPlaceHouseFromScript(HouseIndexToType[P[0]], KMPoint(P[1]+1, P[2]+1)) then
+                            if gTerrain.CanPlaceHouseFromScript(HouseIndexToType[P[0]], KMPoint(P[1]+1, P[2]+1)) then
                               fLastHouse := fPlayers[fLastPlayer].AddHouse(
                                 HouseIndexToType[P[0]], P[1]+1, P[2]+1, false)
                             else
@@ -310,7 +311,7 @@ begin
                         begin
                           Qty := EnsureRange(P[1], -1, High(Word)); //Sometimes user can define it to be 999999
                           if Qty = -1 then Qty := High(Word); //-1 means maximum weapons
-                          H := TKMHouseBarracks(fPlayers[fLastPlayer].FindHouse(ht_Barracks, 1));
+                          H := fPlayers[fLastPlayer].FindHouse(ht_Barracks, 1);
                           if (H <> nil) and H.ResCanAddToIn(WareIndexToType[P[0]]) then
                           begin
                             H.ResAddToIn(WareIndexToType[P[0]], Qty, True);
@@ -399,6 +400,8 @@ begin
                           fPlayers[fLastPlayer].AI.Setup.AutoBuild := False;
     ct_AIAutoRepair:    if fLastPlayer >= 0 then
                           fPlayers[fLastPlayer].AI.Mayor.AutoRepair := True;
+    ct_AIAutoAttack:    if fLastPlayer >= 0 then
+                          fPlayers[fLastPlayer].AI.Setup.AutoAttack := True;
     ct_AIAutoDefend:    if fLastPlayer >= 0 then
                           fPlayers[fLastPlayer].AI.Setup.AutoDefend := True;
     ct_AIStartPosition: if fLastPlayer >= 0 then
@@ -525,7 +528,7 @@ begin
         Group.OrderAttackHouse(H, True)
       else
       begin
-        U := fTerrain.UnitsHitTest(Target.X, Target.Y); //Chase/attack unit
+        U := gTerrain.UnitsHitTest(Target.X, Target.Y); //Chase/attack unit
         if (U <> nil) and (not U.IsDeadOrDying) and (fPlayers.CheckAlliance(Group.Owner, U.Owner) = at_Enemy) then
           Group.OrderAttackUnit(U, True)
         else
@@ -604,8 +607,11 @@ begin
   CommandLayerCount := -1; //Some commands (road/fields) are layered so the file is easier to read (not so many lines)
 
   //Main header, use same filename for MAP
-  //Discontinue KAM format, if mapmaker wants to use MapEd for KaM he needs to update/change other things too, might as well add this line
-  //AddData('!'+COMMANDVALUES[ct_SetMap] + ' "data\mission\smaps\' + AnsiString(ExtractFileName(TruncateExt(aFileName))) + '.map"');
+  //We will probably discontinue KAM format,
+  //if mapmaker wants to use MapEd for KaM he needs to update/change other things too
+  //however without this line old KMR versions just refuse to load, so we keep it
+  AddData('!' + COMMANDVALUES[ct_SetMap] + ' "data\mission\smaps\' +
+    ChangeFileExt(ExtractFileName(aFileName), '.map') + '"');
   if fGame.MissionMode = mm_Tactic then AddCommand(ct_SetTactic, []);
   AddCommand(ct_SetMaxPlayer, [fPlayers.Count]);
   AddCommand(ct_HumanPlayer, [fGame.MapEditor.DefaultHuman]);
@@ -657,6 +663,7 @@ begin
     AddCommand(ct_AIStartPosition, [fPlayers[I].AI.Setup.StartPosition.X-1,fPlayers[I].AI.Setup.StartPosition.Y-1]);
     if not fPlayers[I].AI.Setup.AutoBuild then AddCommand(ct_AINoBuild, []);
     if fPlayers[I].AI.Mayor.AutoRepair then    AddCommand(ct_AIAutoRepair, []);
+    if fPlayers[I].AI.Setup.AutoAttack then    AddCommand(ct_AIAutoAttack, []);
     if fPlayers[I].AI.Setup.AutoDefend then    AddCommand(ct_AIAutoDefend, []);
     AddCommand(ct_AICharacter,cpt_Recruits, [fPlayers[I].AI.Setup.RecruitCount]);
     AddCommand(ct_AICharacter,cpt_WorkerFactor, [Round(10 / fPlayers[I].AI.Setup.SerfsPerHouse)]);
@@ -777,15 +784,15 @@ begin
 
     //Roads and fields. We must check EVERY terrain tile
     CommandLayerCount := 0; //Enable command layering
-    for iY := 1 to fTerrain.MapY do
-      for iX := 1 to fTerrain.MapX do
-        if fTerrain.Land[iY,iX].TileOwner = fPlayers[I].PlayerIndex then
+    for iY := 1 to gTerrain.MapY do
+      for iX := 1 to gTerrain.MapX do
+        if gTerrain.Land[iY,iX].TileOwner = fPlayers[I].PlayerIndex then
         begin
-          if fTerrain.Land[iY,iX].TileOverlay = to_Road then
+          if gTerrain.Land[iY,iX].TileOverlay = to_Road then
             AddCommand(ct_SetRoad, [iX-1,iY-1]);
-          if fTerrain.TileIsCornField(KMPoint(iX,iY)) then
+          if gTerrain.TileIsCornField(KMPoint(iX,iY)) then
             AddCommand(ct_SetField, [iX-1,iY-1]);
-          if fTerrain.TileIsWineField(KMPoint(iX,iY)) then
+          if gTerrain.TileIsWineField(KMPoint(iX,iY)) then
             AddCommand(ct_SetWinefield, [iX-1,iY-1]);
         end;
     CommandLayerCount := -1; //Disable command layering

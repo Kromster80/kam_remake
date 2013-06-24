@@ -1,6 +1,5 @@
 unit KM_RenderControl;
 {$I KaM_Remake.inc}
-
 interface
 uses Classes, Controls, ExtCtrls, Forms, KromOGLUtils
 {$IFDEF MSWindows} , Windows {$ENDIF}
@@ -115,6 +114,8 @@ procedure TKMRenderControl.CreateRenderContext;
 begin
   {$IFDEF MSWindows}
     SetRenderFrame(Handle, h_DC, h_RC);
+    //Let us use glPrint to output OGL text
+    BuildFont(h_DC, 16, FW_BOLD);
   {$ENDIF}
   {$IFDEF Unix}
     MakeCurrent;

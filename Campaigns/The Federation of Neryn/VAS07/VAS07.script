@@ -1,0 +1,124 @@
+var iStore, iCoal, iGold, iIron, iTicks: Integer;
+var iBarbar, iMilita, iScout, iVaga, iKnight: Integer;
+var bStarted: Boolean;
+
+procedure OnPlayerDefeated(aIndex: Integer);
+begin
+	if aIndex = 0
+	then begin
+		Actions.OverlayTextSet(0, '');
+		bStarted := false;				
+	end;
+end;
+
+procedure OnTick;
+var sTime: AnsiString;
+var iHours, iMinutes, iSecs: Integer;
+begin
+  // Mission Verloren wenn Lagerhaus abgerisesn
+  if(States.HouseDestroyed(iStore))
+  then begin	
+	Actions.PlayerDefeat(0);  
+  end;
+
+  // Wenn alle Gegner vernichtet -> Abbaumission geht los
+  if((States.GroupDead(iBarbar))
+  AND(States.GroupDead(iMilita))
+  AND(States.GroupDead(iVaga))
+  AND(States.GroupDead(iScout))
+  AND(States.GroupDead(iKnight))
+  AND(bStarted = false)
+  AND(States.HouseDestroyed(iStore) = false))
+  then begin
+	bStarted := true;
+	Actions.ShowMsg(0, '<$0>');
+  end;
+
+  // Wenn die Zeit läuft
+  if bStarted = true
+  then begin
+	// Zeit abziehen
+	if(iTicks >= 0) then
+		iTicks := iTicks - 1;
+	// Stunden
+		iHours := (iTicks / 600) / 60;
+		iMinutes := (iTicks / 600) - (iHours * 60);	
+		iSecs := (iTicks / 10) - (iMinutes * 60);
+	// Ausgabe string
+		if iHours > 0 then begin
+			sTime := '<$5>: ' + IntToStr(iHours) + ' <$6>';
+			if iMinutes <> 0 then sTime := sTime + ', ' + IntToStr(iMinutes) + ' <$7>'
+		end else begin
+			sTime := '<$5>: ' + IntToStr(iMinutes) + ' <$7>';
+		end;
+		// Ab den letzten 10 Minuten mit Sekunden
+		if (iMinutes <= 10)
+		AND(iHours <= 0) 
+		then begin
+			sTime := sTime + ', ' + IntToStr(iSecs) + ' <$8>';
+		end;
+	// Anzeige
+	Actions.OverlayTextSet(0, '<$1>: |' 
+	+ '<$2>: ' + IntToStr(States.HouseResourceAmount(iStore, 7)) + '/' + IntToStr(iGold) + '|'
+	+ '<$3>: ' + IntToStr(States.HouseResourceAmount(iStore, 6)) + '/' + IntToStr(iIron) + '|'
+	+ '<$4>: ' + IntToStr(States.HouseResourceAmount(iStore, 5)) + '/' + IntToStr(iCoal) + '|'
+	+ '|' + sTime);
+  end;
+  
+  // Mission verloren
+  if iTicks <= 0
+	then Actions.PlayerDefeat(0);
+
+  // Mission gewonnen
+  if (States.HouseResourceAmount(iStore, 7) >= iGold)
+  AND(States.HouseResourceAmount(iStore, 6) >= iIron)
+  AND(States.HouseResourceAmount(iStore, 5) >= iCoal)
+  then begin
+	Actions.PlayerWin([0], false);
+  end;
+
+
+end;
+
+procedure OnMissionStart;
+begin
+  // Truppen definieren
+  iBarbar := States.GroupAt(62, 45);
+  iMilita := States.GroupAt(73, 71);
+  iVaga := States.GroupAt(71, 21);
+  iScout := States.GroupAt(30, 49);
+  iKnight := States.GroupAt(42, 32);
+
+  // Maximale Zeit
+  iTicks := 51300;
+  bStarted := false;
+
+
+  // Häuse abreißen (damit Straßen auch abgerissen sind)
+  Actions.HouseDestroy(States.HouseAt(73, 46), False);
+  Actions.HouseDestroy(States.HouseAt(70, 48), False);
+  Actions.HouseDestroy(States.HouseAt(52, 43), False);
+  Actions.HouseDestroy(States.HouseAt(48, 42), False);
+  Actions.HouseDestroy(States.HouseAt(66, 28), False);
+  Actions.HouseDestroy(States.HouseAt(65, 47), False);
+  Actions.HouseDestroy(States.HouseAt(70, 36), False);
+
+  // Waren
+  Actions.HouseAddWaresTo(States.HouseAt(69, 41), 8, 5);
+  Actions.HouseAddWaresTo(States.HouseAt(69, 41), 27, 5);
+
+  // Barbaren -> Sturmangriff!
+  Actions.GroupOrderStorm(iBarbar);
+
+
+  // benötigte Waren
+  iStore := States.HouseAt(75, 40);
+  iCoal := 110;
+  iGold := 150;
+  iIron := 190;
+
+  // Waren
+  Actions.HouseAddWaresTo(States.HouseAt(57, 23), 8, 1);
+  Actions.HouseAddWaresTo(States.HouseAt(57, 23), 27, 2);
+
+end;

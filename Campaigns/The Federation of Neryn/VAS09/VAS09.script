@@ -1,0 +1,47 @@
+var iKnights, iLances, iPikes, iRein, iMilitia, iBow, iAdd: Integer;
+var bVictory: Boolean;
+
+procedure OnMissionStart;
+begin
+	iRein := -1000;
+	iKnights := States.GroupAt(186, 13);
+	iLances := States.GroupAt(184, 6);
+	iPikes := States.GroupAt(189, 6);
+end;
+
+procedure OnTick;
+var iSec: Integer;
+begin
+	// Niederlage
+	if((States.GroupDead(iKnights))
+	AND(States.GroupDead(iLances))
+	AND(States.GroupDead(iPikes)))
+	then
+		Actions.PlayerDefeat(0);
+		// Verstärkung wenn alle Truppen tot:
+		if((States.StatArmyCount(1) = 0)
+		AND(States.StatArmyCount(2) = 0)
+		AND(States.StatArmyCount(3) = 0)
+		AND(States.StatArmyCount(4) = 0)
+		AND(iRein = -1000))
+		then begin
+			Actions.ShowMsg(0, '<$0>');
+			iRein := States.GameTime;
+			iMilitia := Actions.GiveGroup(5, 14, 44, 1, 4, 3, 3);
+			Actions.GroupOrderWalk(iMilitia, 44, 5, 4);
+			iBow := Actions.GiveGroup(5, 17, 48, 1, 4, 4, 4);
+			Actions.GroupOrderWalk(iBow, 48, 5, 4);
+		end;
+
+	for iSec := 1 to 2 do
+	if States.GameTime = iRein + (iSec * 12) then
+	begin
+		iAdd := Actions.GiveGroup(5, 14, 44, 1, 4, 3, 3);
+		Actions.GroupOrderLink(iAdd, iMilitia);
+		if iSec = 1
+		then begin
+			iAdd := Actions.GiveGroup(5, 17, 48, 1, 4, 4, 4);
+			Actions.GroupOrderLink(iAdd, iBow);
+		end;
+	end;
+end;

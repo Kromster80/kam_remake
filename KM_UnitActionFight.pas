@@ -122,7 +122,7 @@ end;
 
 procedure TUnitActionFight.IncVertex(aFrom, aTo: TKMPoint);
 begin
-  //Tell fTerrain that this vertex is being used so no other unit walks over the top of us
+  //Tell gTerrain that this vertex is being used so no other unit walks over the top of us
   Assert(KMSamePoint(fVertexOccupied, KMPoint(0,0)), 'Fight vertex in use');
 
   fUnit.VertexAdd(aFrom, aTo);
@@ -132,7 +132,7 @@ end;
 
 procedure TUnitActionFight.DecVertex;
 begin
-  //Tell fTerrain that this vertex is not being used anymore
+  //Tell gTerrain that this vertex is not being used anymore
   if KMSamePoint(fVertexOccupied, KMPoint(0,0)) then exit;
 
   fUnit.VertexRem(fVertexOccupied);
@@ -211,7 +211,6 @@ end;
 function TUnitActionFight.ExecuteProcessRanged(Step:byte):boolean;
 begin
   Result := false;
-  Locked := True; //Can't abandoned while archer is reloading (halt exploit)
   if Step = FIRING_DELAY then
   begin
     if fFightDelay=-1 then //Initialize
@@ -227,15 +226,15 @@ begin
     begin
       dec(fFightDelay);
       Result := true; //do not increment AnimStep, just exit;
-      Locked := False; //Allowed to abandon while we are aiming
       exit;
     end;
     if fUnit.UnitType = ut_Slingshot then MakeSound(false);
+    TKMUnitWarrior(fUnit).SetLastShootTime; //Record last time the warrior shot
 
     //Fire the arrow
     case fUnit.UnitType of
-      ut_Arbaletman: fProjectiles.AimTarget(fUnit.PositionF, fOpponent, pt_Bolt, fUnit.Owner, RANGE_ARBALETMAN_MAX, RANGE_ARBALETMAN_MIN);
-      ut_Bowman:     fProjectiles.AimTarget(fUnit.PositionF, fOpponent, pt_Arrow, fUnit.Owner, RANGE_BOWMAN_MAX, RANGE_BOWMAN_MIN);
+      ut_Arbaletman: gProjectiles.AimTarget(fUnit.PositionF, fOpponent, pt_Bolt, fUnit.Owner, RANGE_ARBALETMAN_MAX, RANGE_ARBALETMAN_MIN);
+      ut_Bowman:     gProjectiles.AimTarget(fUnit.PositionF, fOpponent, pt_Arrow, fUnit.Owner, RANGE_BOWMAN_MAX, RANGE_BOWMAN_MIN);
       ut_Slingshot:  ;
       else Assert(false, 'Unknown shooter');
     end;
@@ -244,13 +243,18 @@ begin
   end;
   if Step = SLINGSHOT_FIRING_DELAY then
     if fUnit.UnitType = ut_Slingshot then
-      fProjectiles.AimTarget(fUnit.PositionF, fOpponent, pt_SlingRock, fUnit.Owner, RANGE_SLINGSHOT_MAX, RANGE_SLINGSHOT_MIN);
+    begin
+      gProjectiles.AimTarget(fUnit.PositionF, fOpponent, pt_SlingRock, fUnit.Owner, RANGE_SLINGSHOT_MAX, RANGE_SLINGSHOT_MIN);
+      TKMUnitWarrior(fUnit).SetLastShootTime; //Record last time the warrior shot
+    end;
 end;
 
 
 //A result of true means exit from Execute
-function TUnitActionFight.ExecuteProcessMelee(Step:byte):boolean;
-var IsHit: boolean; Damage: word;
+function TUnitActionFight.ExecuteProcessMelee(Step: Byte): Boolean;
+var
+  IsHit: Boolean;
+  Damage: Word;
 begin
   Result := false;
   //Melee units place hit on this step
@@ -282,8 +286,8 @@ begin
     if fFightDelay > 0 then
     begin
       dec(fFightDelay);
-      Result := true; //Means exit from Execute
-      exit;
+      Result := True; //Means exit from Execute
+      Exit;
     end;
 
     fFightDelay := -1; //Reset
@@ -328,16 +332,16 @@ begin
   if TKMUnitWarrior(fUnit).IsRanged then
   begin
     if ExecuteProcessRanged(Step) then
-      exit;
+      Exit;
   end
   else
     if ExecuteProcessMelee(Step) then
-      exit;
+      Exit;
 
   //Aiming Archers and pausing melee may miss a few ticks, (exited above) so don't put anything critical below!
 
   StepDone := (fUnit.AnimStep mod Cycle = 0) or TKMUnitWarrior(fUnit).IsRanged; //Archers may abandon at any time as they need to walk off imediantly
-  inc(fUnit.AnimStep);
+  Inc(fUnit.AnimStep);
 end;
 
 

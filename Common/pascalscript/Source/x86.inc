@@ -253,6 +253,7 @@ var
   pp: ^Byte;
 {$IFDEF FPC}
   IsConstructor,IsVirtualCons: Boolean;
+  MethodData: TMethod;
 {$ENDIF}
 
   EAX, EDX, ECX: Longint;
@@ -464,9 +465,15 @@ var
 
         btProcPtr:
           begin
-            tempstr := StringOfChar(AnsiChar(#0),8);
+{$IFDEF FPC}
+            MethodData := MKMethod(Self, Longint(FVar.Dta^));
+            TempStr := StringOfChar(AnsiChar(#0),4);
+            Pointer((@TempStr[1])^) := @MethodData;
+{$ELSE}
+            TempStr := StringOfChar(AnsiChar(#0),8);
             TMethod((@TempStr[1])^) := MKMethod(Self, Longint(FVar.Dta^));
             UseReg := false;
+{$ENDIF}
           end;
 
         {$IFNDEF PS_NOINT64}bts64:
@@ -549,11 +556,6 @@ begin
             if not GetPtr(rp(Params[I])) then Exit;
           end;
 
-          {$IFDEF DARWIN}
-          if (length(Stack) mod 16) <> 0 then begin
-            Stack := Stack + StringOfChar(ansichar(#32), 16 - (Length(Stack) mod 16)) ;
-          end;
-          {$ENDIF}
           if assigned(res) then begin
             case res^.aType.BaseType of
               {$IFNDEF PS_NOWIDESTRING}btWideString, btUnicodeString, {$ENDIF}
@@ -563,6 +565,11 @@ begin
                   if TPSTypeRec_Set(res.aType).aByteSize >4 then GetPtr(res);
                 end;
             end;
+            {$IFDEF DARWIN}
+            if (length(Stack) mod 16) <> 0 then begin
+              Stack := Stack + StringOfChar(ansichar(#32), 16 - (Length(Stack) mod 16)) ;
+            end;
+            {$ENDIF} 			
             case res^.aType.BaseType of
               btSet:
                 begin
@@ -613,8 +620,14 @@ begin
             else
               exit;
             end;
-          end else
+          end else begin
+            {$IFDEF DARWIN}
+            if (length(Stack) mod 16) <> 0 then begin
+              Stack := Stack + StringOfChar(ansichar(#32), 16 - (Length(Stack) mod 16)) ;
+            end;
+            {$ENDIF} 		  
             RealCall_Register(Address, EAX, EDX, ECX, @Stack[Length(Stack)-3], Length(Stack) div 4, 0, nil);
+		  end;
           Result := True;
         end;
       cdPascal: begin
@@ -768,4 +781,3 @@ begin
   end;
 end;
 
-

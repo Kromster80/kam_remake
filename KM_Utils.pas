@@ -44,6 +44,7 @@ uses Classes, DateUtils, Math, SysUtils, KM_Defaults, KM_Points
   procedure KMSwapInt(var A,B:integer); overload;
   procedure KMSwapInt(var A,B:cardinal); overload;
 
+
 implementation
 
 
@@ -447,7 +448,7 @@ begin
 end;
 
 
-function GetKaMSeed:integer;
+function GetKaMSeed: Integer;
 begin
   if CUSTOM_RANDOM then
     Result := fKaMSeed

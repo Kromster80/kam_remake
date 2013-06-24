@@ -1,0 +1,5 @@
+procedure OnMissionStart;
+begin
+  Actions.PlanAddHouse(0, 13, 29, 9);
+  Actions.PlanAddWinefield(0, 13, 21);
+end;

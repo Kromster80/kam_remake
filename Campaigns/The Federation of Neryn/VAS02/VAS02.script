@@ -1,0 +1,79 @@
+// Niederlage
+procedure OnHouseDestroyed(aHouseID: Integer; aDestroyerIndex: Integer);
+begin
+	if((States.HouseOwner(aHouseID) = 0)
+	AND(States.HouseType(aHouseID) <> 3)
+	AND(States.HouseType(aHouseID) <> 4))
+	then Actions.PlayerDefeat(0);
+end;
+
+procedure OnMissionStart;
+begin
+  // Waren
+  Actions.HouseAddWaresTo(States.HouseAt(171, 18), 7, 4);
+  Actions.HouseAddWaresTo(States.HouseAt(175, 17), 7, 5);
+  Actions.HouseAddWaresTo(States.HouseAt(163, 21), 8, 5);
+  Actions.HouseAddWaresTo(States.HouseAt(163, 21), 10, 3);
+  Actions.HouseAddWaresTo(States.HouseAt(163, 21), 13, 1);
+  Actions.HouseAddWaresTo(States.HouseAt(177, 34), 8, 5);
+  Actions.HouseAddWaresTo(States.HouseAt(177, 34), 10, 4);
+  Actions.HouseAddWaresTo(States.HouseAt(177, 34), 13, 2);
+  Actions.HouseAddWaresTo(States.HouseAt(187, 39), 1, 5);
+end;
+
+procedure OnTick;
+begin
+  // Sieg
+  if((States.GameTime > 15000)
+  AND(States.StatArmyCount(3) = 0)
+  AND(States.StatArmyCount(4) = 0)
+  AND(States.StatArmyCount(5) = 0)
+  AND(States.StatArmyCount(6) = 0)
+  AND(States.StatArmyCount(7) = 0))
+	then Actions.PlayerWin([0], false);
+	
+  // Reiter bei 15 Minuten
+  if States.GameTime = 8900 then
+	Actions.GiveGroup(5, 21, 33, 8, 2, 48, 6);
+  if States.GameTime = 8920 then
+	Actions.GiveGroup(3, 27, 38, 29, 2, 21, 7);
+  if States.GameTime = 8940 then		
+	Actions.GiveGroup(6, 27, 50, 67, 2, 42, 7);
+  if States.GameTime = 8960 then
+	Actions.GiveGroup(4, 22, 9, 39, 2, 42, 7);
+	
+  // Infanterie bei 23,3 Minuten
+  if States.GameTime = 13000 then
+	Actions.GiveGroup(4, 16, 10, 46, 2, 20, 7);
+  if States.GameTime = 13020 then
+	Actions.GiveGroup(4, 18, 8, 51, 2, 9, 3);
+  if States.GameTime = 13040 then
+	Actions.GiveGroup(3, 14, 24, 68, 2, 24, 4);
+  if States.GameTime = 13060 then
+	Actions.GiveGroup(3, 23, 20, 63, 2, 24, 4);
+  if States.GameTime = 13080 then	
+	Actions.GiveGroup(5, 15, 5, 53, 2, 20, 4);	
+  if States.GameTime = 13100 then		
+	Actions.GiveGroup(5, 19, 11, 61, 2, 15, 5);
+  if States.GameTime = 13120 then		
+	Actions.GiveGroup(5, 17, 4, 59, 2, 4, 2);	
+  if States.GameTime = 13140 then
+	Actions.GiveGroup(5, 17, 16, 56, 2, 4, 2);				
+
+  if States.GameTime = 15000 then
+	Actions.GiveGroup(7, 14, 9, 20, 2, 20, 5);
+  if States.GameTime = 15020 then
+	Actions.GiveGroup(7, 27, 9, 25, 2, 9, 3);
+  if States.GameTime = 15040 then
+	Actions.GiveGroup(7, 24, 4, 24, 2, 16, 4);
+  if States.GameTime = 15060 then
+	Actions.GiveGroup(7, 25, 4, 20, 2, 12, 3);
+
+  // Nachrichten
+  if States.GameTime = 300 then 
+    Actions.ShowMsg(0, '<$0>');
+  if States.GameTime = 9300 then 
+    Actions.ShowMsg(0, '<$1>');
+  if States.GameTime = 13200 then 
+    Actions.ShowMsg(0, '<$2>');
+end;

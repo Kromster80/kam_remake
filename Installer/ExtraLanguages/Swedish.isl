@@ -1,14 +1,22 @@
-;Hans Eriksson
-[LangOptions]
+; *** Inno Setup version 5.5.3+ Swedish messages ***
+;
+; To download user-contributed translations of this file, go to:
+;   http://www.jrsoftware.org/files/istrans/
+;
+; Note: When translating this text, do not add periods (.) to the end of
+; messages that didn't have them already, because on those messages Inno
+; Setup adds the periods automatically (appending a period would result in
+; two periods being displayed).
+;
+; Translated by christer_1@hotmail.com (Christer Toivonen)
+;
 
-;*** Inno Setup version 5.1.12+ Swedish messages ***
-;
-; Translated by stefan@bodingh.se
-; Translated by hans.ericson@bredband.net
-;
-LanguageName=Svenska
+[LangOptions]
+; The following three entries are very important. Be sure to read and 
+; understand the '[LangOptions] section' topic in the help file.
+LanguageName=Svenska	
 LanguageID=$041D
-LanguageCodePage=0
+LanguageCodePage=1252
 ; If the language you are translating to requires special font faces or
 ; sizes, uncomment any of the following entries and change them accordingly.
 ;DialogFontName=
@@ -43,6 +51,10 @@ LastErrorMessage=%1.%n%nFel %2: %3
 SetupFileMissing=Filen %1 saknas i installationskatalogen. Rätta till problemet eller hämta en ny kopia av programmet.
 SetupFileCorrupt=Installationsfilerna är felaktiga. Hämta en ny kopia av programmet
 SetupFileCorruptOrWrongVer=Installationsfilerna är felaktiga, eller stämmer ej överens med denna version av installationsprogrammet. Rätta till felet eller hämta en ny programkopia.
+InvalidParameter=En ogiltig parameter angavs på kommandoraden:%n%n%1
+SetupAlreadyRunning=Setup körs redan.
+WindowsVersionNotSupported=Programmet stödjer inte den version av Windows som körs på datorn.
+WindowsServicePackRequired=Programmet kräver %1 Service Pack %2 eller nyare.
 NotOnThisPlatform=Detta program kan ej köras på %1.
 OnlyOnThisPlatform=Detta program måste ha %1.
 OnlyOnTheseArchitectures=Detta program kan bara installeras på Windows versioner med följande processorarkitekturer:%n%n%1
@@ -81,6 +93,8 @@ ButtonFinish=&Slutför
 ButtonBrowse=&Bläddra...
 ButtonWizardBrowse=&Bläddra...
 ButtonNewFolder=Skapa ny katalog
+
+; *** "Select Language" dialog messages
 SelectLanguageTitle=Välj språk för installationen
 SelectLanguageLabel=Välj språk som skall användas under installationen:
 
@@ -92,12 +106,10 @@ BrowseDialogLabel=Välj en katalog i listan nedan, klicka sedan på OK.
 NewFolderName=Ny katalog
 
 ; *** "Welcome" wizard page
-;WizardWelcome=Välkommen
-;WelcomeLabel1=Välkommen till installationsprogrammet för [name].
-;WelcomeLabel2=Detta kommer att installera [name/ver] på din dator.%n%nDet rekommenderas att du avslutar alla andra program innan du fortsätter. Det förebygger konflikter under installationens gång.
+WelcomeLabel1=Välkommen till installationsprogrammet för [name].
+WelcomeLabel2=Detta kommer att installera [name/ver] på din dator.%n%nDet rekommenderas att du avslutar alla andra program innan du fortsätter. Det förebygger konflikter under installationens gång.
+
 ; *** "Password" wizard page
-WelcomeLabel1=Välkommen till installationen av [name]
-WelcomeLabel2=Installationsprogrammet kommer att installera [name/ver] på din dator.
 WizardPassword=Lösenord
 PasswordLabel1=Denna installation är skyddad med lösenord.
 PasswordLabel3=Var god ange lösenordet, klicka sedan på Nästa för att fortsätta. Lösenord skiljer på versaler/gemener.
@@ -133,7 +145,8 @@ SelectDirDesc=Var skall [name] installeras?
 SelectDirLabel3=Installationsprogrammet kommer att installera [name] i följande katalog
 SelectDirBrowseLabel=För att fortsätta klickar du på Nästa. Om du vill välja en annan katalog klickar du på Bläddra.
 DiskSpaceMBLabel=Programmet kräver minst [mb] MB hårddiskutrymme.
-ToUNCPathname=Installationsprogrammet kan inte installera till UNC sökväg. Om du försöker installera via ett nätverk, ska du ange  nätverksenheten.
+CannotInstallToNetworkDrive=Setup kan inte installeras på nätverksdisk.
+CannotInstallToUNCPath=Setup kan inte installeras på UNC sökväg.
 InvalidPath=Du måste skriva en fullständig sökväg med enhetsbeteckning; till exempel:%n%nC:\Program%n%neller en UNC-sökväg i formatet:%n%n\\server\resurs
 InvalidDrive=Enheten du har valt finns inte eller är inte tillgänglig. Välj en annan.
 DiskSpaceWarningTitle=Ej tillräckligt med diskutrymme
@@ -151,7 +164,6 @@ WizardSelectComponents=Välj komponenter
 SelectComponentsDesc=Vilka komponenter skall installeras?
 SelectComponentsLabel2=Välj de komponenter som du vill ska installeras; avmarkera de komponenter som du inte vill ha. Klicka sedan på Nästa när du är klar att  fortsätta.
 FullInstallation=Fullständig installation
-
 ; if possible don't translate 'Compact' as 'Minimal' (I mean 'Minimal' in your language)
 CompactInstallation=Kompakt installation
 CustomInstallation=Anpassad installation
@@ -194,6 +206,11 @@ WizardPreparing=Förbereder installationen
 PreparingDesc=Installationsprogrammet förbereder installationen av [name] på din dator.
 PreviousInstallNotCompleted=Installationen/avinstallationen av ett tidigare program har inte slutförts. Du måste starta om datorn för att avsluta den installationen.%n%nEfter att ha startat om datorn kör du installationsprogrammet igen för att slutföra installationen av [name].
 CannotContinue=Installationsprogrammet kan inte fortsätta. Klicka på Avbryt för att avsluta.
+ApplicationsFound=Följande program använder filer som måste uppdateras av Setup. Vi rekommenderar att du låter Setup automatiskt stänga dessa program.
+ApplicationsFound2=Följande program använder filer som måste uppdateras av Setup. Vi rekommenderar att du låter Setup automatiskt stänga dessa program. Efter installationen kommer Setup att försöka starta programmen igen.
+CloseApplications=&Stäng programmen automatiskt
+DontCloseApplications=&Stäng inte programmen
+ErrorCloseApplications=Installationsprogrammet kunde inte stänga alla program. Innan installationen fortsätter rekommenderar vi att du stänger alla program som använder filer som Setup behöver uppdatera. 
 
 ; *** "Installing" wizard page
 WizardInstalling=Installerar
@@ -209,10 +226,8 @@ FinishedRestartMessage=För att slutföra installationen av [name], måste datorn s
 ShowReadmeCheck=Ja, jag vill se filen LÄS MIG
 YesRadio=&Ja, jag vill starta om datorn nu
 NoRadio=&Nej, jag startar själv om datorn senare
-
 ; used for example as 'Run MyProg.exe'
 RunEntryExec=Kör %1
-
 ; used for example as 'View Readme.txt'
 RunEntryShellExec=Läs %1
 
@@ -228,6 +243,7 @@ SetupAborted=Installationen slutfördes inte.%n%nVar god rätta till felet och kör
 EntryAbortRetryIgnore=Välj Försök igen eller Ignorera för att fortsätta ändå, eller välj Avbryt för att avbryta installationen.
 
 ; *** Installation status messages
+StatusClosingApplications=Stänger program...
 StatusCreateDirs=Skapar kataloger...
 StatusExtractFiles=Packar upp filer...
 StatusCreateIcons=Skapar programikoner...
@@ -236,6 +252,7 @@ StatusCreateRegistryEntries=Skriver register-värden...
 StatusRegisterFiles=Registrerar filer...
 StatusSavingUninstall=Sparar information för avinstallation...
 StatusRunProgram=Slutför installationen...
+StatusRestartingApplications=Startar om program...
 StatusRollback=Återställer ändringar...
 
 ; *** Misc. errors
@@ -298,7 +315,16 @@ SharedFileNameLabel=Filnamn:
 SharedFileLocationLabel=Plats:
 WizardUninstalling=Avinstallationsstatus
 StatusUninstalling=Avinstallerar %1...
+
+; *** Shutdown block reasons
+ShutdownBlockReasonInstallingApp=Installerar %1.
+ShutdownBlockReasonUninstallingApp=Avinstallerar %1.
+
+; The custom messages below aren't used by Setup itself, but if you make
+; use of them in your scripts, you'll want to translate them.
+
 [CustomMessages]
+
 NameAndVersion=%1 version %2
 AdditionalIcons=Återstående ikoner:
 CreateDesktopIcon=Skapa en ikon på skrivbordet
@@ -308,3 +334,6 @@ UninstallProgram=Avinstallera %1
 LaunchProgram=Starta %1
 AssocFileExtension=Associera %1 med %2 filnamnstillägg
 AssocingFileExtension=Associerar %1 med %2 filnamnstillägg...
+AutoStartProgramGroupDescription=Autostart:
+AutoStartProgram=Starta automatiskt %1
+AddonHostProgramNotFound=%1 kunde inte hittas i katalogen du valde.%n%nVill du fortsätta ändå?

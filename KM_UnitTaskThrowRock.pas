@@ -22,7 +22,7 @@ type
 
 
 implementation
-uses KM_PlayersCollection, KM_Projectiles;
+uses KM_PlayersCollection, KM_Projectiles, KM_ResourceWares;
 
 
 { TTaskThrowRock }
@@ -77,12 +77,9 @@ begin
           SetActionStay(2, ua_Walk); //pretend to be taking the stone
         end;
     1:  begin
-          if not FREE_ROCK_THROWING then
-          begin
-            GetHome.ResTakeFromIn(wt_Stone, 1);
-            fPlayers[Owner].Stats.WareConsumed(wt_Stone);
-          end;
-          fFlightTime := fProjectiles.AimTarget(PositionF, fTarget, pt_TowerRock, Owner, RANGE_WATCHTOWER_MAX, RANGE_WATCHTOWER_MIN);
+          GetHome.ResTakeFromIn(wt_Stone, 1);
+          fPlayers[Owner].Stats.WareConsumed(wt_Stone);
+          fFlightTime := gProjectiles.AimTarget(PositionF, fTarget, pt_TowerRock, Owner, RANGE_WATCHTOWER_MAX, RANGE_WATCHTOWER_MIN);
           fPlayers.CleanUpUnitPointer(fTarget); //We don't need it anymore
           SetActionLockedStay(1, ua_Walk);
         end;

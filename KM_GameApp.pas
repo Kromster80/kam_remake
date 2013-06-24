@@ -16,19 +16,6 @@ type
   private
     fGlobalTickCount: Cardinal;
 
-    //Story behind these seemingly superflous elements that
-    //we need to carry on from previous Game:
-    //- Mission scropt does not knows GameName
-    //- Mission does not knows to which CampaignName/Map it belongs
-    //- PathName to mission and savegame (incase mission is missing we can load .bas)
-    fRepeatGameName: string;
-    fRepeatMission: string;
-    fRepeatSave: string;
-    fRepeatCampName: AnsiString;
-    fRepeatCampMap: Byte;
-    fRepeatLocation: Byte;
-    fRepeatColor: Cardinal;
-
     fCampaigns: TKMCampaignsCollection;
     fGameSettings: TGameSettings;
     fMusicLib: TMusicLib;
@@ -67,7 +54,8 @@ type
     procedure NewSingleSave(aSaveName: string);
     procedure NewMultiplayerMap(const aFileName: string);
     procedure NewMultiplayerSave(const aSaveName: string);
-    procedure NewRestartLast;
+    procedure NewRestartLast(aGameName, aMission, aSave: string;
+  aCampName: AnsiString; aCampMap: Byte; aLocation: Byte; aColor: Cardinal);
     procedure NewEmptyMap(aSizeX, aSizeY: Integer);
     procedure NewMapEditor(const aFileName: string; aSizeX, aSizeY: Integer);
     procedure NewReplay(const aFilePath: string);
@@ -114,7 +102,7 @@ begin
 
   fLocales      := TKMLocales.Create(ExeDir + 'data' + PathDelim + 'locales.txt');
   fGameSettings := TGameSettings.Create;
-  fTextLibrary  := TTextLibrary.Create(ExeDir + 'data' + PathDelim + 'text' + PathDelim, fGameSettings.Locale);
+  fTextLibrary  := TKMTextLibrary.Create(ExeDir + 'data' + PathDelim + 'text' + PathDelim, fGameSettings.Locale);
   {$IFDEF USE_MAD_EXCEPT}fExceptions.LoadTranslation;{$ENDIF}
 
   fRender       := TRender.Create(aRenderControl, aScreenX, aScreenY, aVSync);
@@ -126,7 +114,7 @@ begin
     MessageDlg(fTextLibrary[TX_GAME_ERROR_OLD_OPENGL]+eol+eol+fTextLibrary[TX_GAME_ERROR_OLD_OPENGL_2], mtWarning, [mbOk], 0);
 
   fResource     := TResource.Create(fRender, aLS, aLT);
-  fResource.LoadMenuResources(fGameSettings.Locale);
+  fResource.LoadMenuResources(fLocales.GetLocale(fGameSettings.Locale).FontCodepage);
 
   fSoundLib     := TSoundLib.Create(fGameSettings.Locale, fGameSettings.SoundFXVolume, True); //Required for button click sounds
   fMusicLib     := TMusicLib.Create(fGameSettings.MusicVolume);
@@ -219,14 +207,14 @@ begin
   FreeAndNil(fTextLibrary);
 
   //Recreate resources that use Locale info
-  fTextLibrary := TTextLibrary.Create(ExeDir + 'data' + PathDelim + 'text' + PathDelim + '', fGameSettings.Locale);
+  fTextLibrary := TKMTextLibrary.Create(ExeDir + 'data' + PathDelim + 'text' + PathDelim + '', fGameSettings.Locale);
   {$IFDEF USE_MAD_EXCEPT}fExceptions.LoadTranslation;{$ENDIF}
   //Don't reshow the warning dialog when initing sounds, it gets stuck behind in full screen
   //and the user already saw it when starting the game.
   fSoundLib := TSoundLib.Create(fGameSettings.Locale, fGameSettings.SoundFXVolume, False);
   fSoundLib.OnRequestFade := fMusicLib.FadeMusic;
   fSoundLib.OnRequestUnfade := fMusicLib.UnfadeMusic;
-  fResource.Fonts.LoadFonts(fGameSettings.Locale);
+  fResource.Fonts.LoadFonts(fLocales.GetLocale(fGameSettings.Locale).FontCodepage);
   fCampaigns := TKMCampaignsCollection.Create; //Campaigns load text into TextLibrary
   fCampaigns.ScanFolder(ExeDir + 'Campaigns' + PathDelim);
   fCampaigns.LoadProgress(ExeDir + 'Saves' + PathDelim + 'Campaigns.dat');
@@ -378,20 +366,12 @@ procedure TKMGameApp.Stop(Msg: TGameResultMsg; TextMsg: string='');
 begin
   if fGame = nil then Exit;
 
-  if fGame.GameMode = gmMulti then
+  if fGame.IsMultiplayer then
   begin
     if fNetworking.Connected then
       fNetworking.AnnounceDisconnect;
     fNetworking.Disconnect;
   end;
-
-  fRepeatGameName := '';
-  fRepeatMission := '';
-  fRepeatSave := '';
-  fRepeatCampName := '';
-  fRepeatCampMap := 0;
-  fRepeatLocation := 0;
-  fRepeatColor := 0;
 
   case Msg of
     gr_Win, gr_Defeat, gr_Cancel, gr_ReplayEnd:
@@ -400,22 +380,10 @@ begin
                       //so we know which menu to show next and unlock next map
                       fCampaigns.SetActive(fCampaigns.CampaignByTitle(fGame.CampaignName), fGame.CampaignMap);
 
-                      if (fGame.GameMode in [gmMulti, gmReplayMulti]) then
+                      if (fGame.GameMode in [gmMulti, gmReplayMulti]) or MP_RESULTS_IN_SP then
                         fMainMenuInterface.ShowResultsMP(Msg)
                       else
-                      begin
-                        //Remember which map we played so we could restart it
-                        fRepeatGameName := fGame.GameName;
-                        fRepeatMission := fGame.MissionFile;
-                        fRepeatSave := fGame.SaveFile;
-                        fRepeatCampName := fGame.CampaignName;
-                        fRepeatCampMap := fGame.CampaignMap;
-                        fRepeatLocation := fGame.PlayerLoc;
-                        fRepeatColor := fGame.PlayerColor;
-
-                        fMainMenuInterface.Results_Fill(Msg);
-                        fMainMenuInterface.ShowScreen(msResults, '', Msg);
-                      end;
+                        fMainMenuInterface.ShowResultsSP(Msg);
 
                       if (Msg = gr_Win) and (fCampaigns.ActiveCampaign <> nil) then
                         fCampaigns.UnlockNextMap;
@@ -427,7 +395,7 @@ begin
   end;
 
   FreeThenNil(fGame);
-  fLog.AddTime('Gameplay ended - ' + GetEnumName(TypeInfo(TGameResultMsg), Integer(Msg)) + ' /' + TextMsg);
+  gLog.AddTime('Gameplay ended - ' + GetEnumName(TypeInfo(TGameResultMsg), Integer(Msg)) + ' /' + TextMsg);
 end;
 
 
@@ -454,7 +422,7 @@ begin
       //But to normal player the dialog won't show.
       LoadError := Format(fTextLibrary[TX_MENU_PARSE_ERROR], [aFilePath])+'||'+E.ClassName+': '+E.Message;
       Stop(gr_Error, LoadError);
-      fLog.AddTime('Game creation Exception: ' + LoadError);
+      gLog.AddTime('Game creation Exception: ' + LoadError);
       Exit;
     end;
   end;
@@ -487,7 +455,7 @@ begin
       //But to normal player the dialog won't show.
       LoadError := Format(fTextLibrary[TX_MENU_PARSE_ERROR], [aMissionFile])+'||'+E.ClassName+': '+E.Message;
       Stop(gr_Error, LoadError);
-      fLog.AddTime('Game creation Exception: ' + LoadError);
+      gLog.AddTime('Game creation Exception: ' + LoadError);
       Exit;
     end;
   end;
@@ -520,7 +488,7 @@ begin
       //But to normal player the dialog won't show.
       LoadError := Format(fTextLibrary[TX_MENU_PARSE_ERROR], ['-'])+'||'+E.ClassName+': '+E.Message;
       Stop(gr_Error, LoadError);
-      fLog.AddTime('Game creation Exception: ' + LoadError);
+      gLog.AddTime('Game creation Exception: ' + LoadError);
       Exit;
     end;
   end;
@@ -574,13 +542,14 @@ begin
 end;
 
 
-procedure TKMGameApp.NewRestartLast;
+procedure TKMGameApp.NewRestartLast(aGameName, aMission, aSave: string;
+  aCampName: AnsiString; aCampMap: Byte; aLocation: Byte; aColor: Cardinal);
 begin
-  if FileExists(ExeDir + fRepeatMission) then
-    LoadGameFromScript(ExeDir + fRepeatMission, fRepeatGameName, fRepeatCampName, fRepeatCampMap, gmSingle, fRepeatLocation, fRepeatColor)
+  if FileExists(ExeDir + aMission) then
+    LoadGameFromScript(ExeDir + aMission, aGameName, aCampName, aCampMap, gmSingle, aLocation, aColor)
   else
-  if FileExists(ChangeFileExt(ExeDir + fRepeatSave, '.bas')) then
-    LoadGameFromSave(ChangeFileExt(ExeDir + fRepeatSave, '.bas'), gmSingle)
+  if FileExists(ChangeFileExt(ExeDir + aSave, '.bas')) then
+    LoadGameFromSave(ChangeFileExt(ExeDir + aSave, '.bas'), gmSingle)
   else
     fMainMenuInterface.ShowScreen(msError, 'Can not repeat last mission');
 end;
@@ -697,13 +666,17 @@ end;
 
 procedure TKMGameApp.UpdateState(Sender: TObject);
 begin
+  //Some PCs seem to change 8087CW randomly between events like Timers and OnMouse*,
+  //so we need to set it right before we do game logic processing
+  Set8087CW($133F);
+
   Inc(fGlobalTickCount);
   //Always update networking for auto reconnection and query timeouts
   if fNetworking <> nil then fNetworking.UpdateState(fGlobalTickCount);
   if fGame <> nil then
   begin
     fGame.UpdateState(fGlobalTickCount);
-    if (fGame.GameMode = gmMulti) and (fGlobalTickCount mod 100 = 0) then
+    if fGame.IsMultiplayer and (fGlobalTickCount mod 100 = 0) then
       SendMPGameInfo(Self); //Send status to the server every 10 seconds
   end
   else

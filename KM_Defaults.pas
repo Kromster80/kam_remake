@@ -14,12 +14,6 @@ const
   TERRAIN_PACE          = 200;          //Each tile gets updated once per ** ticks (100 by default), Warning, it affects field/tree growth rate
   FOW_PACE              = 10;           //Each tile gets updated once per ** ticks (10 by default)
 
-  FOG_OF_WAR_MIN        = 80;           //Minimum value for explored but FOW terrain, MIN/ACT determines FOW darkness
-  FOG_OF_WAR_ACT        = 160;          //Until this value FOW is not rendered at all
-  FOG_OF_WAR_MAX        = 255;          //This is max value that FOW can be, MAX-ACT determines how long until FOW appears
-  FOG_OF_WAR_INC        = 128;          //Increment for FOW
-  FOG_OF_WAR_DEC        = 12;           //Decrement for FOW
-
   FPS_LAG               = 16;           //Allowed lag between frames, 1000/FPSLag = max allowed FPS, 1 means unlimited
   FPS_INTERVAL          = 1000;         //Time in ms between FPS measurements, bigger value = more accurate result
   SCROLLSPEED           = 1;            //This is the speed that the viewport will scroll every 100 ms, in cells
@@ -27,7 +21,7 @@ const
   MENU_DESIGN_X         = 1024;         //Thats the size menu was designed for. All elements are placed in this size
   MENU_DESIGN_Y         = 768;          //Thats the size menu was designed for. All elements are placed in this size
 
-  GAME_REVISION         = 'r4956';       //Should be updated for every release (each time save format is changed)
+  GAME_REVISION         = 'r5503';       //Should be updated for every release (each time save format is changed)
   GAME_VERSION          = 'Scripting Demo ' + GAME_REVISION;       //Game version string displayed in menu corner
   NET_PROTOCOL_REVISON  = GAME_REVISION;     //Clients of this version may connect to the dedicated server
 
@@ -37,24 +31,21 @@ const
   DEL_LOGS_OLDER_THAN   = 14;           //in days
 
 var
-  //These should be True
+  //These should be True (we can occasionallt turn them Off to speed up the debug)
   MAKE_ANIM_TERRAIN     :Boolean = True;  //Should we animate water and swamps
   MAKE_TEAM_COLORS      :Boolean = True;  //Whenever to make team colors or not, saves RAM for debug
   DYNAMIC_TERRAIN       :Boolean = True;  //Update terrain each tick to grow things
+  KAM_WATER_DRAW        :Boolean = True;  //Render underwater sand
   CHEATS_ENABLED        :Boolean = True;  //Enable cheats in game (add_resource, instant_win, etc)
   FREE_POINTERS         :Boolean = True;  //If True, units/houses will be freed and removed from the list once they are no longer needed
   CAP_MAX_FPS           :Boolean = True;  //Should limit rendering performance to avoid GPU overheating (disable to measure debug performance)
   CRASH_ON_REPLAY       :Boolean = True;  //Crash as soon as replay consistency fails (random numbers mismatch)
-  BLOCK_DUPLICATE_APP   :Boolean = False;  //Do not allow to run multiple games at once (to prevent MP cheating)
+  BLOCK_DUPLICATE_APP   :Boolean = True;  //Do not allow to run multiple games at once (to prevent MP cheating)
 
   //Implemented
-  MOUSEWHEEL_ZOOM_ENABLE:Boolean = True; //Should we allow to zoom in game or not
   DO_UNIT_INTERACTION   :Boolean = True; //Debug for unit interaction
-  SMOOTH_SCROLLING      :Boolean = True; //Smooth viewport scrolling
-  ENABLE_FIGHTING       :Boolean = True; //Allow fighting
   DO_WEIGHT_ROUTES      :Boolean = True; //Add additional cost to tiles in A* if they are occupied by other units (IsUnit=1)
   CUSTOM_RANDOM         :Boolean = True; //Use our custom random number generator or the built in "Random()"
-  KAM_WATER_DRAW        :Boolean = True; //Render underwater sand
   USE_WALKING_DISTANCE  :Boolean = True; //Use the walking distance for deciding place to mine rather than direct distance
   RANDOM_TARGETS        :Boolean = True; //Archers use random targets instead of closest
   DISPLAY_CHARTS_RESULT :Boolean = True; //Show charts in game results screen
@@ -63,9 +54,11 @@ var
   AI_GEN_INFLUENCE_MAPS :Boolean = True; //Generate influence maps for AI to plan attacks/defenses
   //Not fully implemented yet
   USE_CCL_WALKCONNECT   :Boolean = False; //Use CCL instead of FloodFill for walk-connect (CCL is generaly worse. It's a bit slower, counts 1 tile areas and needs more AreaIDs to work / makes sparsed IDs)
-  FOG_OF_WAR_ENABLE     :Boolean = False; //Whenever dynamic fog of war is enabled or not
+  DYNAMIC_FOG_OF_WAR    :Boolean = False; //Whenever dynamic fog of war is enabled or not
   SHOW_DISMISS_BUTTON   :Boolean = False; //The button to order citizens go back to school
   CACHE_PATHFINDING     :Boolean = False; //Cache routes incase they are needed soon (Vortamic PF runs x4 faster even with lame approach)
+  SNOW_HOUSES           :Boolean = False; //Draw snow on houses
+  CHECK_8087CW          :Boolean = False; //Check that 8087CW (FPU flags) are set correctly each frame, in case some lib/API changed them
   PathFinderToUse       :Byte = 1;
 
   WARFARE_ORDER_SEQUENTIAL    :Boolean = True; //Pick weapon orders like KaM did
@@ -102,7 +95,7 @@ var
   OVERLAY_NAVMESH       :Boolean = False; //Show navmesh
   OVERLAY_DEFENCES      :Boolean = False; //Show AI defence perimeters
   OVERLAY_INFLUENCE     :Boolean = False; //Show influence map
-  OVERLAY_OWNERSHIP     :Boolean = False; //Show ownerhip map
+  OVERLAY_OWNERSHIP     :Boolean = False; //Show ownership map
   OVERLAY_AVOID         :Boolean = False; //Show avoidance map
   {Stats}
   SHOW_SPRITE_COUNT     :Boolean = False; //display rendered controls/sprites count
@@ -115,18 +108,18 @@ var
   SLOW_MAP_SCAN         :Boolean = False; //Scan maps with a pause to emulate uncached file access
   SLOW_SAVE_SCAN        :Boolean = False; //Scan saves with a pause to emulate uncached file access
   DO_PERF_LOGGING       :Boolean = False; //Write each ticks time to log
+  MP_RESULTS_IN_SP      :Boolean = False; //Display each players stats in SP
   {Gameplay cheats}
   UNLOCK_CAMPAIGN_MAPS  :Boolean = False; //Unlock more maps for debug
-  FREE_ROCK_THROWING    :Boolean = False; //Throwing a rock from Tower costs nothing. To debug throw algoritm
   REDUCE_SHOOTING_RANGE :Boolean = False; //Reduce shooting range for debug
-  MULTIPLAYER_CHEATS    :Boolean = True; //Allow cheats and debug overlays (e.g. CanWalk) in Multiplayer
-  DEBUG_CHEATS          :Boolean = True; //Cheats for debug (place scout and reveal map) which can be turned On from menu
-  MULTIPLAYER_SPEEDUP   :Boolean = True; //Allow you to use F8 to speed up multiplayer for debugging (only effects local client)
+  MULTIPLAYER_CHEATS    :Boolean = False; //Allow cheats and debug overlays (e.g. CanWalk) in Multiplayer
+  DEBUG_CHEATS          :Boolean = False; //Cheats for debug (place scout and reveal map) which can be turned On from menu
+  MULTIPLAYER_SPEEDUP   :Boolean = False; //Allow you to use F8 to speed up multiplayer for debugging (only effects local client)
   SKIP_EXE_CRC          :Boolean = False; //Don't check KaM_Remake.exe CRC before MP game (useful for testing with different versions)
   ALLOW_MP_MODS         :Boolean = False; //Don't let people enter MP mode if they are using mods (unit.dat, house.dat, etc.)
   ALLOW_TAKE_AI_PLAYERS :Boolean = False; //Allow to load SP maps without Human player (usefull for AI testing)
   {Data output}
-  WRITE_DECODED_MISSION :Boolean = True; //Save decoded mission as txt file
+  WRITE_DECODED_MISSION :Boolean = False; //Save decoded mission as txt file
   WRITE_DELIVERY_LOG    :Boolean = False; //Write even more output into log + slows down game noticably
   WRITE_WALKTO_LOG      :Boolean = False; //Write even more output into log + slows down game noticably
   WRITE_RECONNECT_LOG   :Boolean = True;
@@ -138,8 +131,8 @@ var
 
 
 const
-  MAX_RES_IN_HOUSE    = 5;     //Maximum resource items allowed to be in house
-  MAX_ORDER           = 999;          //Number of max allowed items to be ordered in production houses (Weapon/Armor/etc)
+  MAX_WARES_IN_HOUSE  = 5;    //Maximum resource items allowed to be in house
+  MAX_WARES_ORDER     = 999;  //Number of max allowed items to be ordered in production houses (Weapon/Armor/etc)
 
 const
   MAX_PLAYERS       = 8;    //Maximum players per map
@@ -149,10 +142,8 @@ const
 var
   HITPOINT_RESTORE_PACE: Word = 100;         //1 hitpoint is restored to units every X ticks (using Humbelum's advice)
 
-const //Here we store options that are hidden somewhere in code
-  GOLD_TO_SCHOOLS_IMPORTANT = True;       //Whenever gold delivery to schools is highly important
-  FOOD_TO_INN_IMPORTANT = True;           //Whenever food delivery to inns is highly important
-
+const
+  //Here we store options that are hidden somewhere in code
   //Unit condition
   CONDITION_PACE            = 10;         //Check unit conditions only once per 10 ticks
   UNIT_MAX_CONDITION        = 45*60;      //Minutes of life. In KaM it's 45min
@@ -225,7 +216,16 @@ var
 type
   TKMCursorMode = (
     cmNone, cmErase, cmRoad, cmField, cmWine, cmWall, cmHouses, // Gameplay
-    cmElevate, cmEqualize, cmBrush, cmTiles, cmObjects, cmUnits, cmMarkers // MapEditor
+    //Map Editor
+    cmElevate, //Height elevation
+    cmEqualize, //Height equalization
+    cmBrush, //Terrain brush
+    cmTiles, // Individual tiles
+    cmObjects, //Terrain objects
+    cmMagicWater, //Magic water
+    cmSelection, //Selection manipulations
+    cmUnits, //Units
+    cmMarkers //CenterScreen, Defence, FOW markers
     );
 
 const
@@ -243,7 +243,8 @@ const
   DirCursorNARadius = 15;  //Radius of centeral part that has no direction
 
 
-type TGameResultMsg = ( //Game result
+type
+  TGameResultMsg = ( //Game result
         gr_Win,         //Player has won the game
         gr_Defeat,      //Player was defeated
         gr_Cancel,      //Game was cancelled (unfinished)
@@ -254,23 +255,6 @@ type TGameResultMsg = ( //Game result
         gr_MapEdEnd);   //Map Editor was closed - return to menu without screens
 
 
-{Fonts}
-type //Indexing should start from 1.
-  TKMFont = (fnt_Antiqua,  fnt_Briefing,    fnt_Game,     fnt_Grey,
-             fnt_MainB,    fnt_MainMapGold, fnt_Metal,    fnt_Mini,
-             fnt_Outline,  fnt_Won);
-
-{Removed fonts that were in KaM:
-  Adam (unused)
-  Font01 (damaged)
-  KMLobby (used for internet lobby in TPR)
-  MainA (identical to MainMapGold in all game versions)
-  MainA.old (probably never meant to be included in the release anyway)
-  Minimum (same as mini but with less characters)
-  System (unused)
-}
-
-
 type
   //Which MapEditor page is being shown
   TKMMapEdShownPage = (esp_Unknown, esp_Terrain, esp_Buildings, esp_Reveal);
@@ -278,87 +262,6 @@ type
   TKMissionMode = (mm_Normal, mm_Tactic);
 
   TAllianceType = (at_Enemy=0, at_Ally=1); //Must match KaM script IDs for now
-
-{Wares}
-type
-  TWareType = (
-    wt_None,
-    wt_Trunk,   wt_Stone,   wt_Wood,        wt_IronOre,   wt_GoldOre,
-    wt_Coal,    wt_Steel,   wt_Gold,        wt_Wine,      wt_Corn,
-    wt_Bread,   wt_Flour,   wt_Leather,     wt_Sausages,  wt_Pig,
-    wt_Skin,    wt_Shield,  wt_MetalShield, wt_Armor,     wt_MetalArmor,
-    wt_Axe,     wt_Sword,   wt_Pike,        wt_Hallebard, wt_Bow,
-    wt_Arbalet, wt_Horse,   wt_Fish,
-    wt_All,     wt_Warfare, wt_Food); //Special ware types
-
-const
-  WARE_MIN = wt_Trunk;
-  WARE_MAX = wt_Fish;
-  WARFARE_MIN = wt_Shield;
-  WEAPON_MIN = wt_Shield;
-  WEAPON_MAX = wt_Arbalet;
-  WARFARE_MAX = wt_Horse;
-
-  //Resources colors for Results charts
-  //Made by naospor from kamclub.ru
-  ResourceColor: array [WARE_MIN..WARE_MAX] of Cardinal = (
-    $004080, $BFBFBF, $0080BF, $BF4040, $00FFFF,
-    $606060, $BF0000, $00BFFF, $000080, $80FFFF,
-    $80BFFF, $FFFFFF, $4040BF, $0000FF, $0040BF,
-    $008080, $00BF00, $00FF7F, $FFBF00, $BF0080,
-    $FF0040, $00FF40, $FFFF40, $FF0080, $FFFF80,
-    $101080, $0080FF, $FFBF00);
-
-  //How many of resource gets produced per minute on AVERAGE
-  //Measured on a test map RES_COUNT / TIME in minutes
-  ProductionRate: array [WARE_MIN..WARE_MAX] of Single = (
-     88/120, 414/120, 390/120, 160/120, 160/120,
-    155/120, 218/120, 330/120, 120/120, 138/120,
-    336/120, 162/120, 324/120, 510/120,  84/180,
-     84/180, 190/120, 155/120, 170/120, 155/120,
-    200/120, 195/120, 195/120, 195/120, 200/120,
-    190/120,  69/120, 122/120);
-
-  //How much time it takes from owner taking a house till stable production
-  //1 minute on average for the time it takes to process input into output
-  //Some wares need extra time to grow (e.g. Horses) and some
-  //depend on environment supply (e.g. Trunks)
-  //Trunks 1-15
-  //Wine 1-8
-  //Corn 1-11
-  //Pigs 6
-  //Skins 6
-  //Horses 6
-  ProductionLag: array [WARE_MIN..WARE_MAX] of Byte = (
-     6, 1, 1, 1, 1,
-     1, 1, 1, 4, 5,
-     1, 1, 1, 1, 6,
-     6, 1, 1, 1, 1,
-     1, 1, 1, 1, 1,
-     1, 6, 1);
-
-  //Using shortints instead of bools makes it look much neater in code-view
-  CheatStorePattern: array [WARE_MIN..WARE_MAX] of Byte = (
-  0,0,1,0,0,
-  0,1,0,1,0,
-  1,0,0,0,1,
-  1,0,0,0,1,
-  1,1,1,1,1,
-  0,0,0);
-
-const {Aligned to right to use them in GUI costs display as well}
-  WarfareCosts: array[WEAPON_MIN..WEAPON_MAX, 1..2]of TWareType = (
-    (wt_None,   wt_Wood), //rt_Shield
-    (wt_Coal,  wt_Steel), //rt_MetalShield
-    (wt_None,wt_Leather), //rt_Armor
-    (wt_Coal,  wt_Steel), //rt_MetalArmor
-    (wt_Wood,   wt_Wood), //rt_Axe
-    (wt_Coal,  wt_Steel), //rt_Sword
-    (wt_Wood,   wt_Wood), //rt_Pike
-    (wt_Coal,  wt_Steel), //rt_Hallebard
-    (wt_Wood,   wt_Wood), //rt_Bow
-    (wt_Coal,  wt_Steel)  //rt_Arbalet
-  );
 
 { Terrain }
 type
@@ -414,7 +317,7 @@ const
   WARRIOR_MIN = ut_Militia;
   WARRIOR_MAX = ut_Horseman;
   WARRIOR_EQUIPABLE_MIN = ut_Militia; //Available from barracks
-  WARRIOR_EQUIPABLE_MAX = ut_Barbarian;
+  WARRIOR_EQUIPABLE_MAX = ut_Cavalry;
   HUMANS_MIN = ut_Serf;
   HUMANS_MAX = ut_Horseman;
   ANIMAL_MIN = ut_Wolf;
@@ -486,6 +389,11 @@ const //Corresponding indices in units.rx
   UNIT_OFF_X = -0.5;
   UNIT_OFF_Y = -0.4;
 
+  //Offsetting layers of units we control what goes above or below
+  //using smaller values to minimize impact on other objects and keeping withing map bounds
+  FLAG_X_OFFSET = 0.01; //Flag is offset to be rendered above/below the flag carrier
+  THOUGHT_X_OFFSET = 0.02; //Thought is offset to be rendered always above the flag
+
   //TileCursors
   TC_OUTLINE = 0;
   TC_BLOCK = 479;
@@ -507,45 +415,14 @@ type
                      ua_WalkBooty, ua_WalkTool2, ua_WalkBooty2, ua_Unknown);
   TUnitActionTypeSet = set of TUnitActionType;
 
-  //What player has ordered us to do
-  TWarriorOrder = (
-    woNone, //No orders
-    woWalk, //Walk somewhere
-    woWalkOut, //Walk out of Barracks
-    woAttackUnit, //Attack someone
-    woAttackHouse, //Attack house
-    woStorm //Do Storm attack
-  );
+const
+  UnitAct: array [TUnitActionType] of string = ('ua_Walk', 'ua_Work', 'ua_Spec', 'ua_Die', 'ua_Work1',
+             'ua_Work2', 'ua_WorkEnd', 'ua_Eat', 'ua_WalkArm', 'ua_WalkTool',
+             'ua_WalkBooty', 'ua_WalkTool2', 'ua_WalkBooty2', 'ua_Unknown');
 
-  //What we are doing at the moment
-  TWarriorState = (
-    ws_None, //Warrior is idle
-    ws_Walking, //Warrior is in the process of walking by player instruction (could have been ordered to attack too because there is no difference)
-    ws_RepositionPause, //Warrior has just finished walking and is pausing breifly before repositioning (i.e. rotating to the final facing direction) Without this pause it looks too quick odd.
-    ws_Engage //One or more of our group members are in combat and we are on our way to help them.
-  );
 
 const
   FishCountAct: array [1..5] of TUnitActionType = (ua_Walk, ua_Work, ua_Spec, ua_Die, ua_Work1);
-
-{Walk to somewhere}
-type
-  //Status of interaction
-  TInteractionStatus = (kis_None,       //We have not yet encountered an interaction (we are just walking)
-                        kis_Pushing,    //We are pushing an idle unit out of the way
-                        kis_Pushed,     //We were pushed (idle then asked to move)
-                        kis_Trying,     //We are or have been stuck (difference between this and kis_None is only for debug)
-                        kis_Waiting     //We have been stuck for a while so allow other units to swap with us
-  );
-
-//These are only for debug
-const
-  TInteractionStatusNames: array[TInteractionStatus] of string = ('None', 'Pushing', 'Pushed', 'Trying', 'Waiting');
-
-const {Actions names}
-  UnitAct:array[TUnitActionType]of string = ('ua_Walk', 'ua_Work', 'ua_Spec', 'ua_Die', 'ua_Work1',
-             'ua_Work2', 'ua_WorkEnd', 'ua_Eat', 'ua_WalkArm', 'ua_WalkTool',
-             'ua_WalkBooty', 'ua_WalkTool2', 'ua_WalkBooty2', 'ua_Unknown');
 
 
 type
@@ -560,14 +437,6 @@ type
 
 {Houses in game}
 type
-  //I've removed values, enums don't need them by intent
-  THouseType = ( ht_None, ht_Any,
-    ht_ArmorSmithy,     ht_ArmorWorkshop,   ht_Bakery,        ht_Barracks,      ht_Butchers,
-    ht_CoalMine,        ht_Farm,            ht_FisherHut,     ht_GoldMine,      ht_Inn,
-    ht_IronMine,        ht_IronSmithy,      ht_Marketplace,   ht_Metallurgists, ht_Mill,
-    ht_Quary,           ht_Sawmill,         ht_School,        ht_SiegeWorkshop, ht_Stables,
-    ht_Store,           ht_Swine,           ht_Tannery,       ht_TownHall,      ht_WatchTower,
-    ht_WeaponSmithy,    ht_WeaponWorkshop,  ht_Wineyard,      ht_Woodcutters    );
 
   //House has 3 basic states: no owner inside, owner inside, owner working inside
   THouseState = (hst_Empty, hst_Idle, hst_Work);
@@ -582,31 +451,22 @@ type
   THouseActionSet = set of THouseActionType;
 
   TDemandType = (dt_Once, dt_Always); //Is this one-time demand like usual, or constant (storehouse, barracks)
-  TDemandImportance = (di_Norm, di_High);
+  //Must be sorted from lowest to highest importance
+  TDemandImportance = (
+    diNorm,  //Everything (lowest importance)
+    diHigh4, //Materials to workers
+    diHigh3, //Food to Inn
+    diHigh2, //Food to soldiers
+    diHigh1  //Gold to School (highest importance)
+    );
 
 const
-  HOUSE_MIN = ht_ArmorSmithy;
-  HOUSE_MAX = ht_Woodcutters;
 
   HouseAction: array [THouseActionType] of string = (
   'ha_Work1', 'ha_Work2', 'ha_Work3', 'ha_Work4', 'ha_Work5', //Start, InProgress, .., .., Finish
   'ha_Smoke', 'ha_FlagShtok', 'ha_Idle',
   'ha_Flag1', 'ha_Flag2', 'ha_Flag3',
   'ha_Fire1', 'ha_Fire2', 'ha_Fire3', 'ha_Fire4', 'ha_Fire5', 'ha_Fire6', 'ha_Fire7', 'ha_Fire8');
-
-
-  //Number means ResourceType as it is stored in Barracks, hence it's not rt_Something
-  TroopCost:array[ut_Militia..ut_Cavalry,1..4] of TWareType = (
-  (wt_Axe,          wt_None,        wt_None,  wt_None ), //Militia
-  (wt_Shield,       wt_Armor,       wt_Axe,   wt_None ), //Axefighter
-  (wt_MetalShield,  wt_MetalArmor,  wt_Sword, wt_None ), //Swordfighter
-  (wt_Armor,        wt_Bow,         wt_None,  wt_None ), //Bowman
-  (wt_MetalArmor,   wt_Arbalet,     wt_None,  wt_None ), //Crossbowman
-  (wt_Armor,        wt_Pike,        wt_None,  wt_None ), //Lance Carrier
-  (wt_MetalArmor,   wt_Hallebard,   wt_None,  wt_None ), //Pikeman
-  (wt_Shield,       wt_Armor,       wt_Axe,   wt_Horse), //Scout
-  (wt_MetalShield,  wt_MetalArmor,  wt_Sword, wt_Horse)  //Knight
-  );
 
 
 const
@@ -689,25 +549,25 @@ const
   ( 167, 168, 169, 170, 171,  33));
 
   //Ages at which trees/fields grow up/change sprite multiplied by TERRAIN_PACE
-  TREE_AGE_1 = 12;
-  TREE_AGE_2 = 25;
-  TREE_AGE_FULL = 40; //Tree is old enough to be chopped
+  TREE_AGE_1 = 2400 div TERRAIN_PACE;
+  TREE_AGE_2 = 5000 div TERRAIN_PACE;
+  TREE_AGE_FULL = 8000 div TERRAIN_PACE; //Tree is old enough to be chopped
 
-  CORN_AGE_1 = 7;    //Measured from KaM ~150sec
-  CORN_AGE_2 = 11;   //Number measured from KaM ~195sec
-  CORN_AGE_3 = 22;
-  CORN_AGE_FULL = 32; //Corn ready to be cut
-  CORN_AGE_MAX = 255; //We set it to this once it's fully grown
+  CORN_AGE_1 = 1400 div TERRAIN_PACE;    //Measured from KaM ~150sec
+  CORN_AGE_2 = 2200 div TERRAIN_PACE;   //Number measured from KaM ~195sec
+  CORN_AGE_3 = 4400 div TERRAIN_PACE;
+  CORN_AGE_FULL = 6400 div TERRAIN_PACE; //Corn ready to be cut
+  CORN_AGE_MAX = 255; //todo: Remove. We set it to this once it's fully grown
 
   //Wine values have been tweaked for balance. In KaM they matched corn.
-  WINE_AGE_1 = 8;
-  WINE_AGE_2 = 17;
-  WINE_AGE_FULL = 25; //Wine ready to be harvested
+  WINE_AGE_1 = 1600 div TERRAIN_PACE;
+  WINE_AGE_2 = 3400 div TERRAIN_PACE;
+  WINE_AGE_FULL = 5000 div TERRAIN_PACE; //Wine ready to be harvested
 
 
 //The frame shown when a unit is standing still in ua_Walk. Same for all units!
 const
-  UnitStillFrames: array [TKMDirection] of byte = (0,3,2,2,1,6,7,6,6);
+  UnitStillFrames: array [TKMDirection] of Byte = (0,3,2,2,1,6,7,6,6);
 
 
 type
@@ -773,7 +633,7 @@ const
 
 
 type
-  TMapEdLayer = (mlObjects, mlHouses, mlUnits, mlDeposits, mlDefences, mlRevealFOW, mlCenterScreen);  //Enum representing mapEditor visible layers
+  TMapEdLayer = (mlObjects, mlHouses, mlUnits, mlDeposits, mlDefences, mlRevealFOW, mlCenterScreen, mlSelection);  //Enum representing mapEditor visible layers
   TMapEdLayerSet = set of TMapEdLayer;                                   //Set of above enum
 
   TPaintLayer = (plTerrain, plObjects, plCursors);

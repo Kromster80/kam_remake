@@ -1,0 +1,76 @@
+procedure OnMissionStart;
+begin
+  // Waren
+  Actions.HouseAddWaresTo(States.HouseAt(73, 46), 1, 5);
+  Actions.HouseAddWaresTo(States.HouseAt(69, 41), 8, 5);
+  Actions.HouseAddWaresTo(States.HouseAt(69, 41), 27, 5);
+  Actions.HouseAddWaresTo(States.HouseAt(65, 47), 8, 5);
+  Actions.HouseAddWaresTo(States.HouseAt(65, 47), 27, 5);
+  Actions.HouseAddWaresTo(States.HouseAt(57, 23), 8, 5);
+  Actions.HouseAddWaresTo(States.HouseAt(57, 23), 27, 5);
+  // Neue Mine
+  Actions.PlanAddHouse(1, 4, 19, 33);
+  Actions.PlanAddRoad(1, 19, 34);
+  Actions.PlanAddRoad(1, 20, 34);
+
+end;
+
+procedure OnTick;
+begin
+  if States.GameTime = 300 then 
+	begin
+		Actions.GiveGroup(7, 22, 21, 63, 5, 1, 1);
+		Actions.FogRevealCircle(0, 18, 66, 10);
+		Actions.FogRevealCircle(0, 22, 73, 10);
+		Actions.FogRevealCircle(0, 27, 76, 10);
+		Actions.FogRevealCircle(0, 35, 67, 10);
+		Actions.FogRevealCircle(0, 17, 55, 10);
+		Actions.FogRevealCircle(0, 30, 70, 10);
+		Actions.ShowMsg(0, '<$0>');
+	end;
+  // mit Nebel bedecken
+  if States.GameTime = 1500
+  then begin
+	Actions.PlayerAllianceChange(0, 1, true, false);
+	Actions.PlayerAllianceChange(0, 2, true, false);
+	Actions.FogCoverCircle(0, 27, 80, 10);
+	Actions.FogCoverCircle(0, 16, 80, 10);
+	Actions.FogCoverCircle(0, 15, 68, 10);
+  end;
+  if States.GameTime = 1550
+  then begin
+	Actions.FogCoverCircle(0, 30, 65, 10);
+	Actions.FogCoverCircle(0, 40, 74, 10);
+	Actions.FogCoverCircle(0, 13, 54, 10);
+  end;
+  if States.GameTime = 1600
+  then begin
+	Actions.FogCoverCircle(0, 15, 41, 10);
+	Actions.FogCoverCircle(0, 29, 51, 10);
+	Actions.FogCoverCircle(0, 45, 60, 10);
+	Actions.FogCoverCircle(0, 54, 67, 10);
+  end;
+  if States.GameTime = 1650
+  then begin
+	Actions.FogCoverCircle(0, 17, 31, 10);
+	Actions.FogCoverCircle(0, 30, 38, 10);
+	Actions.FogCoverCircle(0, 44, 46, 10);
+	Actions.FogCoverCircle(0, 59, 53, 10);
+	Actions.FogCoverCircle(0, 69, 57, 10);
+	Actions.FogCoverCircle(0, 81, 56, 10);
+  end;
+  if States.GameTime = 1650
+  then begin
+	Actions.FogCoverCircle(0, 89, 46, 10);
+	Actions.FogCoverCircle(0, 24, 21, 10);
+	Actions.FogCoverCircle(0, 33, 23, 10);
+  end;
+  if States.GameTime = 1700
+  then begin
+	Actions.FogCoverAll(0);
+  end;
+  if States.GameTime = 1800 then 
+	begin
+		Actions.PlayerWin([0], false);
+	end;
+end;

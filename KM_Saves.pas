@@ -181,8 +181,6 @@ end;
 function TKMSaveInfo.IsValid: Boolean;
 begin
   Result := FileExists(fPath + fFileName + '.sav') and (fSaveError = '') and fInfo.IsValid(True);
-//  fLog.AppendLog(fPath + fFileName + '.sav');
-//  fLog.AppendLog(fSaveError);
 end;
 
 

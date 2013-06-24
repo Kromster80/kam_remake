@@ -7,6 +7,8 @@ uses KromUtils,
 
 
 type
+  //Wrap to let choose FOW player sees (and let 1 player control several towns
+  //or several players to control 1 town in future)
   TKMSpectator = class
   private
     fPlayerIndex: TPlayerIndex;
@@ -14,7 +16,7 @@ type
     fHighlightEnd: Cardinal; //Highlight has a short time to live
     fSelected: TObject;
     fFOWIndex: TPlayerIndex; //Unit/House/Group selected by player and shown in UI
-    fFogOfWar: TKMFogOfWarOpen;
+    fFogOfWar: TKMFogOfWarOpen; //Stub for MapEd
     procedure SetHighlight(Value: TObject);
     procedure SetSelected(Value: TObject);
     procedure SetPlayerIndex(const Value: TPlayerIndex);
@@ -32,6 +34,11 @@ type
     procedure Load(LoadStream: TKMemoryStream);
     procedure Save(SaveStream: TKMemoryStream);
     procedure UpdateState(aTick: Cardinal);
+  end;
+
+  //todo: Spectator for Replays and MapEd that sees everything and allows to toggle FOW
+  TKMSpectatorReplay = class(TKMSpectator)
+
   end;
 
 
@@ -62,7 +69,8 @@ end;
 
 function TKMSpectator.FogOfWar: TKMFogOfWarCommon;
 begin
-  if fGame.IsReplay or fGame.IsMapEditor then
+  //fGame = nil in Tests
+  if (fGame <> nil) and (fGame.IsReplay or fGame.IsMapEditor) then
     if FOWIndex = -1 then
       Result := fFogOfWar
     else
@@ -130,7 +138,7 @@ end;
 
 procedure TKMSpectator.SetPlayerIndex(const Value: TPlayerIndex);
 begin
-  Assert(DEBUG_CHEATS and (MULTIPLAYER_CHEATS or not fGame.IsMultiplayer) or fGame.IsReplay or fGame.IsMapEditor);
+  Assert((MULTIPLAYER_CHEATS or not fGame.IsMultiplayer) or fGame.IsReplay or fGame.IsMapEditor);
   fPlayerIndex := Value;
 
   if not fGame.IsReplay and not fGame.IsMapEditor then
@@ -152,6 +160,9 @@ begin
   if TimeGet > fHighlightEnd then
     fHighlight := nil;
 end;
+
+
+{ TKMSpectatorEverything }
 
 
 end.

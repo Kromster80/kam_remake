@@ -61,7 +61,7 @@ type
 
 
 implementation
-uses KM_Main, KM_TextLibrary, KM_GameApp, KM_Locales, KM_Sound, KM_RenderUI;
+uses KM_Main, KM_TextLibrary, KM_GameApp, KM_Locales, KM_Sound, KM_RenderUI, KM_ResourceFonts;
 
 
 { TKMGUIMainOptions }
@@ -264,7 +264,6 @@ begin
   if Sender = DropBox_Options_Resolution then
   begin
     ResID := DropBox_Options_Resolution.ItemIndex;
-    RefID := DropBox_Options_RefreshRate.ItemIndex;
 
     //Reset refresh rates, because they are different for each resolution
     DropBox_Options_RefreshRate.Clear;

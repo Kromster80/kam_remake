@@ -195,8 +195,8 @@ begin
     Img.Left := EnsureRange(Img.Left + (X - PrevX), Image1.Left, Image1.Left + 1024);
     Img.Top  := EnsureRange(Img.Top  + (Y - PrevY), Image1.Top, Image1.Top + 768);
 
-    C.Maps[fSelectedMap].Nodes[fSelectedNode].X := Img.Left - Image1.Left;
-    C.Maps[fSelectedMap].Nodes[fSelectedNode].Y := Img.Top  - Image1.Top;
+    C.Maps[fSelectedMap].Nodes[fSelectedNode].X := Img.Left + Img.Width div 2  - Image1.Left;
+    C.Maps[fSelectedMap].Nodes[fSelectedNode].Y := Img.Top  + Img.Height div 2 - Image1.Top;
 
     StatusBar1.Panels[1].Text := 'Position ' + IntToStr(Img.Left) + 'x' + IntToStr(Img.Top);
   end;
@@ -318,7 +318,7 @@ procedure TForm1.rgBriefingPosClick(Sender: TObject);
 begin
   if fUpdating or (fSelectedMap = -1) then Exit;
 
-  C.Maps[fSelectedMap].TextPos := TCorner(rgBriefingPos.ItemIndex);
+  C.Maps[fSelectedMap].TextPos := TBriefingCorner(rgBriefingPos.ItemIndex);
 
   RefreshFlags;
 end;
@@ -361,7 +361,7 @@ begin
   end;
 
   shpBriefing.Top := Image1.Height - shpBriefing.Height;
-  shpBriefing.Left := IfThen(C.Maps[fSelectedMap].TextPos = cBottomRight, Image1.Width - shpBriefing.Width, 0);
+  shpBriefing.Left := IfThen(C.Maps[fSelectedMap].TextPos = bcBottomRight, Image1.Width - shpBriefing.Width, 0);
 end;
 
 

@@ -1,5 +1,5 @@
 
-MaxID:667
+MaxID:697
 
 0:Aserradero
 1:Fundición de hierro
@@ -9,9 +9,9 @@ MaxID:667
 5:Mina de oro
 6:Casa del pescador
 7:Panadería
-8:Granja
+8:Granero
 9:Cabaña del lenador
-10:Herrería armaduras
+10:Herrería de armaduras
 11:Almacén
 12:Cuadras
 13:Escuela
@@ -118,14 +118,14 @@ MaxID:667
 114:Finalizar la misión
 115:Volver
 116:Ajustes
-117:Finalizar la misión
-118:Ruidos
+117:Quitar Editor
+118:Ambiente
 119:Modificar volumen
 120:Modificar volumen
 121:Música
 122:Música si/no.
 123:Autoalmacenar
-124:Canciones
+124:Canción:
 125:Canción anterior
 126:Próxima canción
 127:Derribar
@@ -139,6 +139,7 @@ MaxID:667
 135:Suspender
 136:Suspender formación actual.
 137:Reservas:
+138:Suministros:
 139:Estado:
 140:Suministra
 141:En construcción.
@@ -154,7 +155,7 @@ MaxID:667
 151:Anterior oficio.
 152:A la cola.
 153:ON/OFF Suministro de mercancías.
-154:Reclutas presentes:
+154:Coste de producción:
 155:ON/OFF Reparación del edificio.
 156:Edificio no disponible de momento.
 157:Aguante
@@ -167,7 +168,7 @@ MaxID:667
 164:Agregar fila.
 165:Retirar fila.
 166:Elegir|grupo
-167:Interrumpir
+167:Cancelar
 168:Borrar
 169:Borra el mensaje actual.
 170:Mostrar
@@ -178,9 +179,33 @@ MaxID:667
 175:La mina de carbón se ha agotado.
 176:La mina de hierro se ha agotado.
 177:La mina de oro se ha agotado.
+178:El leñador no puede encontrar mas árboles caidos
 179:Esta casa está desocupada.
-180:Esta tropa está hambrienta, debería comer algo|cuanto antes!
+180:¡Esta tropa está hambrienta, debería comer algo cuanto antes!
 181:PAUSA
+182:Entregando
+183:Construyendo carretera
+184:Labrando el campo
+185:Construyendo campo de vino
+186:Aplanando el lugar de la casa
+187:Construyendo casa
+188:Reparando casa
+189:Me voy a casa
+190:Yendo a la posada
+191:Atacando casa
+192:Disparando
+193:Luchando
+194:Ataque relámpago
+195:Atacando
+196:Moviendo
+197:Inactivo
+198:Minería de piedras
+199:Sembrando maiz
+200:Cosechando el maiz
+201:Cosechando uvas
+202:Pescando
+203:Cortando árbol
+204:Plantando árbol
 205:Espíritu
 206:Laboriosos
 207:Cuerno medieval
@@ -203,6 +228,9 @@ MaxID:667
 224:Aristocracia
 225:En el Puerto
 226:Viaje
+227:Campañas
+228:Campañas
+229:¡Empezar campaña!
 230:Jugar en un mapa simple
 231:Comenzar mapa
 232:Ir al menú
@@ -227,40 +255,60 @@ MaxID:667
 251:Armas producidas:
 252:Soldados equipados:
 253:Duración del juego:
+254:Estadisticas
+255:Economía
 256:Civiles|entrenados
 257:Civiles|Perdidos
 258:Soldados|equipados
 259:Soldados|perdidos
+260:Soldados | derrotados
 261:Edificios|construidos
 262:Edificios|perdidos
 263:Edificios|destruidos
 264:Materiales|producidos
 265:Armas|Produción
-279:JOYMANIA ENTERTAINMENT||PROGRAMMING:|Peter Ohlmann||INGAME GRAPHICS:|Adam Sprys||LEVELDESIGN:|Adam Sprys|Andre Quaß||INGAME MUSIC:|Gerd Hofmann|Joachim Schäfer|Jürgen Rebhann|Klaus Staendike|Steffen Schüngel||ILLUSTRATIONS:|Boleslaw Kasza|Christoph Werner||ZUXXEZ ENTERTAINMENT AG||PRODUCER:|Uwe Schäfer||MANUAL:|Peter Ohlmann|Uwe Schäfer||BETA TESTING:|Alexandra Constandache|Dirk P. Hassinger|Achim Heidelauf|Uwe Schäfer|Ingrid Schäfer|Dirk U. Jantz|Ion Constandache|Yaman Egeli|Roman Eich|Iris Mocsnek|Anke Jantz|Liza Hassinger|Paul Hassinger||GAMES DIRECTOR:|Achim Heidelauf||CUTSCENES:||Slawomir Jedrzejewski||Kajetan Czarnecki|Wojciech Drazek|Daniel Duplaga|Rafal Januszkiewicz|Andrzej Rams|Piotr Rulka|Krzysztof Rybczynski|Grzegorz Wisniwski||VOICES:|Claus Boyen (Storyteller)||Tim Timmermann|Peter Houska|Dirk Mühlbach|Ralf Ditze|Gerhard Piske|Gernot Wassmann||ARTWORK:|Boleslaw Kasza|Adam Sprys||OPENING ANIMATION:|Uwe Schäfer|Christian Bigalk|ADDITIONAL 3D-MODELLING:|Niels Horstmann||THANKS TO:|Tadeusz Zuber|Dieter Ohlmann|Alexandra Constandache|Ingrid Schäfer
+266:Ejército
+267:Ciudadanos
+268:Casas
+269:Recursos
+270:Recursos producidos
+271:Sin datos
+272:Tú
+273:Jugador %d
+274:Volver a Multijugador
+275:Volver a Repeticiones
+276:Todo
+277:Guerra
+278:Comida
+279:JOYMANIA ENTERTAINMENT||PROGRAMACIÓN:|Peter Ohlmann||GRAFICOS DEL JUEGO:|Adam Sprys||DISEÑO DE NIVEL:|Adam Sprys|Andre Quaß||MÚSICA DEL JUEGO:|Gerd Hofmann|Joachim Schäfer|Jürgen Rebhann|Klaus Staendike|Steffen Schüngel||ILUSTRACIONES:|Boleslaw Kasza|Christoph Werner||ZUXXEZ ENTERTAINMENT AG||PRODUCTOR:|Uwe Schäfer||MANUAL:|Peter Ohlmann|Uwe Schäfer||PRUEBAS BETA:|Alexandra Constandache|Dirk P. Hassinger|Achim Heidelauf|Uwe Schäfer|Ingrid Schäfer|Dirk U. Jantz|Ion Constandache|Yaman Egeli|Roman Eich|Iris Mocsnek|Anke Jantz|Liza Hassinger|Paul Hassinger||DIRECTOR:|Achim Heidelauf||ESCENAS CINEMÁTICAS:||Slawomir Jedrzejewski||Kajetan Czarnecki|Wojciech Drazek|Daniel Duplaga|Rafal Januszkiewicz|Andrzej Rams|Piotr Rulka|Krzysztof Rybczynski|Grzegorz Wisniwski||VOCES:|Claus Boyen (Storyteller)||Tim Timmermann|Peter Houska|Dirk Mühlbach|Ralf Ditze|Gerhard Piske|Gernot Wassmann||ILUSTRACIONES:|Boleslaw Kasza|Adam Sprys||ANIMACIÓN DE INTRUDUCCIÓN:|Uwe Schäfer|Christian Bigalk|MODELADO 3D ADICIONAL:|Niels Horstmann||GRACIAS A:|Tadeusz Zuber|Dieter Ohlmann|Alexandra Constandache|Ingrid Schäfer
 280:Misión Cancelada
+281:Repetición del final
 282:Tutorial de Construción
 283:Tutorial de Batalla
 284:Un Solo Jugador
 285:Editor de mapas
 286:Empezar misión
 287:Nombre
-288:Medida
+288:Med.
 289:Condiciones de Victoria:
 290:Condiciones de Derrota:
 291:Alidados:
 292:Enemigos:
+293:Tiempo
 294:Nueva medida de mapa
 295:Anchura
 296:Altura
 297:Crear nuevo mapa
 298:Mapa disponible
 299:Cargar mapa
+300:Localización
 301:Controles:
 302:Juego:
 303:Sonido:
 304:Desactivar música
 305:Gráficos:
 306:Brillo
+307:Sincronización|Vertical
 308:Pantalla completa
 309:Aplicar
 310:Lenguaje:
@@ -273,11 +321,14 @@ MaxID:667
 317:Lista de partidas guardadas
 318:Nombre de archivo
 319:Descripción
-320:Carga
+320:Cargar
 321:Borrar
 322:¿Estas seguro de que quieres eliminar la partida guardada?
 323:Eliminar
 324:Cancelar
+325:Título
+326:Mapas
+327:Desbloqueado
 328:¡ Victoria !
 329:Continuar Jugando
 330:¡Victoria!
@@ -304,17 +355,151 @@ MaxID:667
 351:Conexión fallida: %s
 352:Te has desconectado
 353:Misión %d
+354:Registro de mensajes
 355:El pescador no puede pescar tan lejos del agua.
 356:El pescador no puede pescar, no hay más peces en el agua.
+357:Reiniciar repetición
+358:Pausar repetición
+359:Paso 1 señar adelante
+360:Reanudar la reproducción en pausa
+361:Quitar repetición
+362:Alternar perspectiva del jugador
+363:Ver todo
 364:Usa el botón izquierdo para selecionar la mercancia a tratar
 365:Usa el botón derecho para selecionar la mercancia a tratar
 366:De x%d
 367:A x%d
 368:Editar terreno
+369:Pinceles
+370:Altura
+371:Titulos
+372:Objetivos
+373:Alturas
+374:Forma del pincel
+375:Tamaño
+376:Deslice para cambiar el tamaño del pincel
+377:Pendiente
+378:Deslice para cambiar la pendiente de elevación: 1 = meseta ... 15 = máximo
+379:Velocidad
+380:Deslice para cambiar la velocidad de elevación: 1 = lento ... 15 = muy rápido
+381:Pincel en forma de círculo
+382:Pincel forma cuadrada
+383:Elevar / Bajar
+384:Sin ecualizar / Acoplar
+385:Elevar (clic izquierdo) / Baja (clic derecho)
+386:Igualar (clic izquierdo) / Acoplar (clic derecho)
+387:Pincel
+388:Elementos aleatorios
+389:Dirección aleatoria
+390:Señal para direccionar las baldosas al azar o utilizar el botón derecho para girar la pieza seleccionada
+391:Use el botón derecho para girar la pieza seleccionada
+392:Bloquear caminar
+393:Eliminar un objeto
 394:Planificar el pueblo
-395:Códigos visuales
-396:Códigos globales
+395:Configuraciónes visuales
+396:Configuraciones globales
 397:Menú
+398:Objetos
+399:Mostrar depósitos
+400:Mostrar unidades
+401:Mostrar casas
+402:Mostrar objetos
+403:Ver transitabilidad
+404:Los datos no guardados|se perderán
+405:Cancelar
+406:Cargar
+407:Cargar Mapa
+408:Cancelar
+409:Salvar
+410:Sobrescribir
+411:El mapa ya existe
+412:Jugadores:
+413:Defecto
+414:Tipo de Jugadores
+415:Simetrico
+416:Alianzas
+417:Táctica
+418:Normal
+419:Modo Misión
+420:Saltar a la localización
+421:Centrar pantalla en el comienzo de la misión
+422:Centrar pantalla
+423:Revelar todo
+424:Revelar una parte del mapa
+425:Revelar niebla
+426:Bloquear comercio
+427:Boloquear/liberar casas
+428:Colores
+429:Objetivo
+430:Msg.
+431:Tiempo
+432:Jugador
+433:Economía de edificios
+434:Siervos y escuelas
+435:Recursos militares
+436:Desconocido
+437:Tropas
+438:Edificios
+439:Tiempo
+440:Tutorial de construcción
+441:Ninguno
+442:Condiciones
+443:Sobrevivir
+444:Victoria
+445:Ninguno
+446:Tipo
+447:Objetivos
+448:OK
+449:Cancelar
+450:Columnas
+451:Cuenta
+452:Formación de tropas
+453:Editar formaciones
+454:Establecer un límite en el número de soldados de la AI puede tener
+455:Cuántos soldados AI puede tener a la vez
+456:Ajuste máx. soldados
+457:Cuantos reclutas debe la Ai tener en los barracones
+458:Reclutas para Barracas
+459:Posición
+460:Posición personalizada
+461:Casa más cercana 2
+462:Casa más cercana 1
+463:Unidad más cercana
+464:Tomar todo
+465:Recuento de grupo
+466:Información de Ataque
+467:Retraso, s
+468:Repitiendo
+469:Una vez
+470:Montado
+471:A distancia
+472:Anticaballos
+473:Cuerpo a cuerpo
+474:Loc.
+475:Objetivo
+476:Hombres
+477:Retrasar
+478:Tipo
+479:Autoatacar
+480:Ataques AI
+481:Equipar tasa de cuero
+482:Equipar tasa de hierro
+483:Autodefensa
+484:La AI crea y gestiona la posición de defensa automaticamente
+485:Lugar de la posición de la defensa para la AI
+486:Defensa de posición AI
+487:Trabajadores
+488:Sirvientes por 10 casas
+489:Autoreparar
+490:Autoconstrucción
+491:AI Ajustes
+492:Casas
+493:Construcción terreno
+494:Voltear la selección verticalmente
+495:Voltear selección horizontalmente
+496:Pegar terreno
+497:Copiar terreno
+498:Copiar/pegar
 499:Nueva Misión
 500:Nombre de jugador
 501:Estado:
@@ -332,6 +517,8 @@ MaxID:667
 513:Sala
 514:Conectar
 515:Cancelar
+516:Sala protegida por contraseña
+517:Contraseña
 518:Nombre del servidor
 519:Estado
 520:Jugadores
@@ -344,11 +531,12 @@ MaxID:667
 527:Cargando Anuncios...
 528:Actualizando...
 529:Lista de jugadores
-530:Empezar localización
+530:Comenzar en:
 531:Equipo
 532:Color
 533:Listo
 534:Retraso
+535:Ping / FPS
 536:Abierto
 537:Jugador IA
 538:Seleccionar...
@@ -361,28 +549,45 @@ MaxID:667
 545:Listo
 546:No estoy listo
 547:¡Empezar!
+548:Velocidad de juego (tiempo de paz)
+549:Velocidad de juego
+550:OK
+551:Cancelar
+552:Descripción
+553:Contraseña
+554:Ajustes de la sala
+555:Ajuste para alojar
+556:Banear
+557:Expulsar
+558:Selección aleatoria de las ubicaciones en los equipos
+559:Descripción
+560:Opciones
 561:Localización %d
 562:Error: Por favor seleciona un jugador para tomar el control
 563:Error: El mapa no se puede cargar o no has seleccionado el mapa
 564:No se puede iniciar: %s
 565:Todos deben estar preparados para empezar
+566:No es posible asignar ubicaciones aleatorias
 567:El servidor te ha asignado como anfitrión
 568:El juego a comenzado
 569:Mapa de construcción
 570:Mapa de lucha
 571:Mapa cooperativo
+572:Mapa especial
 573:Opciones de juego:
 574:Tiempo de paz (en minutos)
-575:Closed
-576:Host does player setup
+575:Cerrado
+576:El Anfitrión hace la configuración
 577:Esperando a los jugadores:
+578:Todo
+579:Equipo
 580:KaM Remake Créditos
 581:Créditos originales Knights & Merchants
 582:PROGRAMADOR:
 583:PROGRAMADORES ADICIONALES:
 584:GRÁFICOS ADICIONALES:
 585:SONIDOS ADICIONALES:
-586:MÚSICA ADICIONALES:
+586:MÚSICA ADICIONAL:
 587:TRADUCIONES ADICIONALES:
 588:ESPECIALES GRACIAS A:
 589:Mapas Multijugador
@@ -425,17 +630,72 @@ MaxID:667
 626:Ver Repetición
 627:Formato no válido %s
 628:Versión no válida %s
+629:Modificaciones no admitidas
 630:Se ha producido un error al analizar el archivo %s
 631:iniciando
 632:guión
-633:units
-634:houses
-635:trees
-636:definitions
-637:tileset
+633:unidades
+634:casas
+635:árboles
+636:definiciones
+637:conjunto de baldosas
 638:Mapa no encontrado: %s
 639:Partida guardada no encontrada: %s
 640:El archivo del mapa no corresponde con el del Anfitrión: %s
 641:El archivo guardado no coincide con el archivo guardado del Anfitrión: %s
+642:La repetición ha fallado en una comprobación de coherencia. Este es un problema conocido que afecta la reproducción de algunas repeticiones. ¿Desea continuar viendo?
+643:Sólo puede tener una instancia del juego en el modo multijugador a la vez
+644:Las modificaciones en el juego no se permite en el modo multijugador |. Vuelva a instalar para restaurar los archivos originales.
+645:Se ha producido un error en la aplicación. Por favor, haga clic en Enviar informe de errores para que podamos investigar este asunto. ¡Gracias por su ayuda!
+646:Enviar informe de errores
+647:Mostrar datos sin procesar
+648:Reanudar aplicación
+649:Finalizar aplicación
+650:Siguiente
+651:Detalles del contacto
 652:Su nombre: (opcional)
 653:Su correo electrónico: (opcional)
+654:Recuérdame
+655:Detalles del error
+656:¿En qué situación se produjo el error? ¿Puede proporcionar alguna información adicional? (Inglés preferentemente)
+657:Captura de pantalla
+658:Adjuntar una imagen de pantalla al informe del fallo
+659:(click para editar imagen)
+660:Enviando informe
+661:Cancelar
+662:Enviando informe del fallo...
+663:Conectando al servidor...
+664:Enviando datos...
+665:El envío del informe del error ha fallado! El servidor puede estar ocupado, intente enviarlo de nuevo.
+666:Información
+667:Por favor espera un momento...
+668:Salvar Mapa
+669:Retraso en minutos antes de que la AI comienza a entrenar reclutas
+670:Retraso en reclutar (minutos)
+671:Establece la dirección de todas las baldosas en la superficie del agua
+672:Agua mágica
+673:Copiar
+674:Pegar
+675:Pegar aplicar
+676:Cancelar pegar
+677:Voltear verticalmente
+678:Voltear horizontalmente
+679:Arrastre para seleccionar un área en el mapa
+680:Opción de defensa AI
+681:Apagado
+682:Radio
+683:Eliminar revelador actual
+684:Volver a la página de la revelación de la niebla
+685:Cerrado
+686:Orden de grupo
+687:Ninguno
+688:Posición de Ataque
+689:Caminar a
+690:Dirección
+691:Regresar línea
+692:Primera línea
+693:Radio de defensa
+694:Eliminar la posición actual de defensa
+695:Volver a la página de defensa
+696:Posición defensiba
+697:Unidades

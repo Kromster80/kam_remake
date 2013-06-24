@@ -58,7 +58,7 @@ end;
 
 procedure TRenderAux.RenderDotOnTile(pX,pY: Single);
 begin
-  pY := fTerrain.FlatToHeight(pX,pY);
+  pY := gTerrain.FlatToHeight(pX,pY);
   glBegin(GL_QUADS);
     glkRect(pX,pY,pX+0.1,pY-0.1);
   glEnd;
@@ -68,8 +68,8 @@ end;
 procedure TRenderAux.RenderLine(x1,y1,x2,y2:single);
 begin
   glBegin(GL_LINES);
-    glVertex2f(x1, fTerrain.FlatToHeight(x1,y1));
-    glVertex2f(x2, fTerrain.FlatToHeight(x2,y2));
+    glVertex2f(x1, gTerrain.FlatToHeight(x1,y1));
+    glVertex2f(x2, gTerrain.FlatToHeight(x2,y2));
   glEnd;
 end;
 
@@ -77,10 +77,10 @@ end;
 {Used for internal things like overlays, etc..}
 procedure TRenderAux.RenderQuad(pX,pY:Integer);
 begin
-  if not fTerrain.TileInMapCoords(pX,pY) then exit;
+  if not gTerrain.TileInMapCoords(pX,pY) then exit;
 
   glBegin(GL_QUADS);
-    with fTerrain do
+    with gTerrain do
     glkQuad(pX-1,pY-1-Land[pY  ,pX  ].Height/CELL_HEIGHT_DIV,
             pX  ,pY-1-Land[pY  ,pX+1].Height/CELL_HEIGHT_DIV,
             pX  ,pY-  Land[pY+1,pX+1].Height/CELL_HEIGHT_DIV,
@@ -123,7 +123,7 @@ begin
     begin
       C := Cos(I / SEC_COUNT * Pi) * Rad;
       S := Sin(I / SEC_COUNT * Pi) * Rad;
-      glVertex2f(X + C, fTerrain.FlatToHeight(X + C, Y + S));
+      glVertex2f(X + C, gTerrain.FlatToHeight(X + C, Y + S));
     end;
   glEnd;
   glColor4ubv(@Line);
@@ -132,7 +132,7 @@ begin
     begin
       C := Cos(I / SEC_COUNT * Pi) * Rad;
       S := Sin(I / SEC_COUNT * Pi) * Rad;
-      glVertex2f(X + C, fTerrain.FlatToHeight(X + C, Y + S));
+      glVertex2f(X + C, gTerrain.FlatToHeight(X + C, Y + S));
     end;
   glEnd;
 end;
@@ -143,15 +143,15 @@ var I: Integer;
 begin
   glColor4ubv(@aLineColor);
   glBegin(GL_LINE_LOOP);
-    glVertex2f(X1, fTerrain.FlatToHeight(X1, Y1));
+    glVertex2f(X1, gTerrain.FlatToHeight(X1, Y1));
     for I := Ceil(X1) to Trunc(X2) do
-      glVertex2f(I, fTerrain.FlatToHeight(I, Y1));
-    glVertex2f(X2, fTerrain.FlatToHeight(X2, Y1));
+      glVertex2f(I, gTerrain.FlatToHeight(I, Y1));
+    glVertex2f(X2, gTerrain.FlatToHeight(X2, Y1));
 
-    glVertex2f(X2, fTerrain.FlatToHeight(X2, Y2));
+    glVertex2f(X2, gTerrain.FlatToHeight(X2, Y2));
     for I := Trunc(X2) downto Ceil(X1) do
-      glVertex2f(I, fTerrain.FlatToHeight(I, Y2));
-    glVertex2f(X1, fTerrain.FlatToHeight(X1, Y2));
+      glVertex2f(I, gTerrain.FlatToHeight(I, Y2));
+    glVertex2f(X1, gTerrain.FlatToHeight(X1, Y2));
   glEnd;
 end;
 
@@ -166,7 +166,7 @@ end;
 procedure TRenderAux.DotOnTerrain(X,Y:single; aCol:TColor4);
 begin
   glColor4ubv(@aCol);
-  RenderDot(X,fTerrain.FlatToHeight(X, Y));
+  RenderDot(X,gTerrain.FlatToHeight(X, Y));
 end;
 
 
@@ -177,8 +177,8 @@ begin
   glLineStipple(2, aPattern);
   RenderLine(X1,Y1,X2,Y2);
   glDisable(GL_LINE_STIPPLE);
-  RenderDot(X1, fTerrain.FlatToHeight(X1, Y1));
-  RenderDot(X2, fTerrain.FlatToHeight(X2, Y2));
+  RenderDot(X1, gTerrain.FlatToHeight(X1, Y1));
+  RenderDot(X2, gTerrain.FlatToHeight(X2, Y2));
 end;
 
 
@@ -253,9 +253,9 @@ begin
   glColor4ubv(@aCol);
 
   glBegin(GL_TRIANGLES);
-    glVertex2f(x1, fTerrain.FlatToHeight(x1, y1));
-    glVertex2f(x2, fTerrain.FlatToHeight(x2, y2));
-    glVertex2f(x3, fTerrain.FlatToHeight(x3, y3));
+    glVertex2f(x1, gTerrain.FlatToHeight(x1, y1));
+    glVertex2f(x2, gTerrain.FlatToHeight(x2, y2));
+    glVertex2f(x3, gTerrain.FlatToHeight(x3, y3));
   glEnd;
 end;
 
@@ -268,7 +268,7 @@ begin
     glColor4f(0,1,0,0.25);
     for I := aRect.Top to aRect.Bottom do
     for K := aRect.Left to aRect.Right do
-      if TPassability(aPass) in fTerrain.Land[I,K].Passability then
+      if TPassability(aPass) in gTerrain.Land[I,K].Passability then
         RenderQuad(K,I);
   end;
 end;
@@ -294,7 +294,7 @@ end;
 procedure TRenderAux.Text(pX, pY: Integer; const aText: string; aCol: TColor4);
 begin
   glColor4ubv(@aCol);
-  glRasterPos2f(pX - 0.5, fTerrain.FlatToHeight(pX-0.5, pY-0.5));
+  glRasterPos2f(pX - 0.5, gTerrain.FlatToHeight(pX-0.5, pY-0.5));
   glPrint(AnsiString(aText));
 end;
 
@@ -305,13 +305,13 @@ begin
   for I := aRect.Top to aRect.Bottom do
   for K := aRect.Left to aRect.Right do
   begin
-    if fTerrain.Land[I,K].IsVertexUnit <> vu_None then
+    if gTerrain.Land[I,K].IsVertexUnit <> vu_None then
     begin
-      VertexUsage := byte(fTerrain.Land[I,K].IsVertexUnit);
+      VertexUsage := byte(gTerrain.Land[I,K].IsVertexUnit);
       glColor4f(1-VertexUsage/3, VertexUsage/3, 0.6, 0.8);
-      RenderDot(K, fTerrain.FlatToHeight(K,I), 0.3);
+      RenderDot(K, gTerrain.FlatToHeight(K,I), 0.3);
     end;
-    if fTerrain.Land[I,K].IsUnit <> nil then
+    if gTerrain.Land[I,K].IsUnit <> nil then
     begin
       glColor4f(0.17, 0.83, 0, 0.8);
       RenderQuad(K,I);
@@ -324,7 +324,7 @@ procedure TRenderAux.UnitPointers(pX,pY: Single; Count: Integer);
 var I: Integer;
 begin
   for I := 1 to Count do
-    RenderDot(pX+I/5, fTerrain.FlatToHeight(pX,pY));
+    RenderDot(pX+I/5, gTerrain.FlatToHeight(pX,pY));
 end;
 
 
@@ -348,7 +348,7 @@ begin
 
   glBegin(GL_LINE_STRIP);
     for I := 0 to NodeList.Count - 1 do
-      glVertex2f(NodeList[I].X-0.5, fTerrain.FlatToHeight(NodeList[I].X-0.5, NodeList[I].Y-0.5));
+      glVertex2f(NodeList[I].X-0.5, gTerrain.FlatToHeight(NodeList[I].X-0.5, NodeList[I].Y-0.5));
   glEnd;
 
   glColor4f(1,1,1,1); //Vector where unit is going to
@@ -358,22 +358,23 @@ begin
   FaceY := Mix(NodeList[I].Y - 0.5, NodeList[K].Y - 0.5, 0.4) + 0.2; //0.2 to render vector a bit lower so it won't gets overdrawned by another route
   RenderDotOnTile(NodeList[I].X + 0.5, NodeList[I].Y + 0.5 + 0.2);
   glBegin(GL_LINES);
-    glVertex2f(NodeList[I].X-0.5, fTerrain.FlatToHeight(NodeList[I].X+0.5,NodeList[I].Y+0.5) + 0.2);
-    glVertex2f(FaceX, fTerrain.FlatToHeight(FaceX+1, FaceY+1));
+    glVertex2f(NodeList[I].X-0.5, gTerrain.FlatToHeight(NodeList[I].X+0.5,NodeList[I].Y+0.5) + 0.2);
+    glVertex2f(FaceX, gTerrain.FlatToHeight(FaceX+1, FaceY+1));
   glEnd;
 end;
 
 
 procedure TRenderAux.Wires(aRect: TKMRect);
-var i,k:integer;
+var
+  I, K: Integer;
 begin
-  for I := aRect.Top to aRect.Bottom do
+  for I := aRect.Top to aRect.Bottom + 1 do
   begin
     glBegin(GL_LINE_STRIP);
-    for K := aRect.Left to aRect.Right do
+    for K := aRect.Left to aRect.Right + 1 do
     begin
-      glColor4f(0.8,1,0.6,1);
-      glvertex2f(k-1,i-1-fTerrain.Land[i,k].Height/CELL_HEIGHT_DIV);
+      glColor4f(0.8, 1, 0.6, 1);
+      glVertex2d(K - 1, I - 1 - gTerrain.Land[I, K].Height / CELL_HEIGHT_DIV);
     end;
     glEnd;
   end;
@@ -381,12 +382,12 @@ begin
   glPushAttrib(GL_POINT_BIT);
     glPointSize(3);
     glBegin(GL_POINTS);
-    for I := aRect.Top to aRect.Bottom do
-    for K := aRect.Left to aRect.Right do
+    for I := aRect.Top to aRect.Bottom + 1 do
+    for K := aRect.Left to aRect.Right + 1 do
     begin
-      //glColor4f(fTerrain.Land[i,k].Height/100,0,0,1.2-sqrt(sqr(i-MapYc)+sqr(k-MapXc))/10);
-      glColor4f(byte(fTerrain.Land[i,k].Fence=fncHousePlan),byte(fTerrain.Land[i,k].Fence=fncHousePlan),0,1);
-      glvertex2f(k-1,i-1-fTerrain.Land[i,k].Height/CELL_HEIGHT_DIV);
+      //glColor4f(gTerrain.Land[I,K].Height/100,0,0,1.2-sqrt(sqr(I-MapYc)+sqr(K-MapXc))/10);
+      glColor4f(Byte(gTerrain.Land[I,K].Fence = fncHousePlan), Byte(gTerrain.Land[I,K].Fence = fncHousePlan), 0, 1);
+      glVertex2d(K - 1, I - 1 - gTerrain.Land[I, K].Height / CELL_HEIGHT_DIV);
     end;
     glEnd;
   glPopAttrib;

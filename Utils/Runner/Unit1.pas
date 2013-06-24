@@ -3,30 +3,42 @@ unit Unit1;
 interface
 uses
   Forms, Controls, StdCtrls, Spin, ExtCtrls, Classes, SysUtils, Graphics, Types, Math, Windows,
-  Unit_Runner;
+  Unit_Runner, Vcl.ComCtrls;
 
 
 type
   TForm2 = class(TForm)
     Button1: TButton;
-    Image1: TImage;
     Memo1: TMemo;
     seCycles: TSpinEdit;
     Label1: TLabel;
     ListBox1: TListBox;
     Memo2: TMemo;
-    RadioGroup1: TRadioGroup;
     Label2: TLabel;
+    PageControl1: TPageControl;
+    TabSheet1: TTabSheet;
+    TabSheet2: TTabSheet;
+    TabSheet3: TTabSheet;
+    TrackBar1: TTrackBar;
+    Image1: TImage;
+    Image2: TImage;
+    Image3: TImage;
+    Label3: TLabel;
     procedure FormCreate(Sender: TObject);
     procedure Button1Click(Sender: TObject);
-    procedure RadioGroup1Click(Sender: TObject);
-    procedure FormResize(Sender: TObject);
+    procedure PageControl1Change(Sender: TObject);
+    procedure TabSheetResize(Sender: TObject);
+    procedure TrackBar1Change(Sender: TObject);
   private
     fY: array of TLabel;
     fX: array of TLabel;
     fResults: TKMRunResults;
     fRunTime: string;
     procedure RunnerProgress(const aValue: string);
+    procedure RefreshResults(aImg: TImage);
+    procedure RefreshDistribution(aImg: TImage);
+    procedure RefreshTimes(aImg: TImage);
+    procedure RefreshAxisLabels(aImg: TImage; aTopX, aTopY: Integer);
   end;
 
 
@@ -38,6 +50,21 @@ implementation
 {$R *.dfm}
 
 
+const
+  COLORS_COUNT = 8;
+  LineCol: array [0..COLORS_COUNT - 1] of TColor =
+    (clRed, clBlue, clGreen, clPurple, clMaroon, clGray, clBlack, clOlive);
+
+
+{$IFDEF FPC}
+function Point(X,Y: Integer): TPoint;
+begin
+  Result.X := X;
+  Result.Y := Y;
+end;
+{$ENDIF}
+
+
 procedure TForm2.FormCreate(Sender: TObject);
 var
   I: Integer;
@@ -47,14 +74,28 @@ begin
 end;
 
 
-procedure TForm2.FormResize(Sender: TObject);
+procedure TForm2.PageControl1Change(Sender: TObject);
+var
+  I,J: Integer;
+  S: string;
 begin
-  if Image1.Picture.Graphic = nil then Exit;
+  case PageControl1.ActivePageIndex of
+    0: RefreshResults(Image1);
+    1: RefreshDistribution(Image2);
+    2: RefreshTimes(Image3);
+  end;
 
-  Image1.Picture.Graphic.Width := Image1.Width;
-  Image1.Picture.Graphic.Height := Image1.Height;
-
-  RadioGroup1Click(nil);
+  Memo1.Clear;
+  Memo1.Lines.BeginUpdate;
+  for I := 0 to fResults.ChartsCount - 1 do
+  begin
+    S := IntToStr(I) + '. ';
+    for J := 0 to fResults.ValueCount - 1 do
+      S := S + Format('%d-%d ', [J, fResults.Value[I,J]]);
+    Memo1.Lines.Append(S);
+  end;
+  Memo1.Lines.EndUpdate;
+  Memo1.Lines.Append(fRunTime);
 end;
 
 
@@ -84,149 +125,182 @@ begin
       Runner.Free;
     end;
 
-    RadioGroup1Click(nil);
+    PageControl1Change(nil);
   finally
     Button1.Enabled := True;
   end;
 end;
 
 
-procedure TForm2.RadioGroup1Click(Sender: TObject);
-const
-  COLORS_COUNT = 8;
-  LineCol: array [0..COLORS_COUNT - 1] of TColor =
-    (clRed, clBlue, clGreen, clPurple, clMaroon, clGray, clBlack, clOlive);
+procedure TForm2.RefreshAxisLabels(aImg: TImage; aTopX, aTopY: Integer);
 var
-  I,J: Integer;
+  I: Integer;
   Steps: Integer;
-  DotX, DotY: Word;
-  StatMax: Integer;
-  Stats: array of Integer;
-  S: string;
-  TopX, TopY: Integer;
+  Step: Word;
 begin
-  Image1.Canvas.FillRect(Image1.Canvas.ClipRect);
-
-  TopX := 0;
-  TopY := 0;
-
-  case RadioGroup1.ItemIndex of
-    0:  begin
-          for I := 0 to fResults.ValueCount - 1 do
-          begin
-            Image1.Canvas.Pen.Color := LineCol[I mod COLORS_COUNT];
-            for J := 0 to fResults.ChartsCount - 1 do
-            begin
-              if fResults.ChartsCount > 1 then
-                DotX := Round(J / (fResults.ChartsCount - 1) * Image1.Width)
-              else
-                DotX := Image1.Width div 2;
-              if fResults.ValueMax <> 0 then
-                DotY := Image1.Height - Round(fResults.Value[J,I] / fResults.ValueMax * Image1.Height)
-              else
-                DotY := Image1.Height;
-              Image1.Canvas.Ellipse(DotX-2, DotY-2, DotX+2, DotY+2);
-              if J = 0 then
-                Image1.Canvas.PenPos := Point(DotX, DotY)
-              else
-                Image1.Canvas.LineTo(DotX, DotY);
-            end;
-          end;
-          TopX := fResults.ChartsCount;
-          TopY := fResults.ValueMax;
-        end;
-    1:  begin
-          for I := 0 to fResults.ValueCount - 1 do
-          begin
-            Image1.Canvas.Pen.Color := LineCol[I mod COLORS_COUNT];
-
-            SetLength(Stats, 0); //Erase
-            SetLength(Stats, Round(fResults.ValueMax) - Round(fResults.ValueMin) + 1);
-            for J := 0 to fResults.ChartsCount - 1 do
-              Inc(Stats[Round(fResults.Value[J,I]) - Round(fResults.ValueMin)]);
-
-            StatMax := Stats[Low(Stats)];
-            for J := Low(Stats)+1 to High(Stats) do
-              StatMax := Max(StatMax, Stats[J]);
-
-            for J := Low(Stats) to High(Stats) do
-            begin
-              DotX := Round((J - Low(Stats)) / (Length(Stats) - 1) * Image1.Width);
-              DotY := Image1.Height - Round(Stats[J] / StatMax * Image1.Height);
-
-              if DotY <> Image1.Height then
-                Image1.Canvas.Ellipse(DotX-2, DotY-2, DotX+2, DotY+2);
-
-              if J = 0 then
-                Image1.Canvas.PenPos := Point(DotX, DotY)
-              else
-                Image1.Canvas.LineTo(DotX, DotY);
-            end;
-          end;
-          TopX := Length(Stats);
-          TopY := StatMax;
-        end;
-    2:  begin
-          for I := 0 to fResults.ChartsCount - 1 do
-          begin
-            Image1.Canvas.Pen.Color := LineCol[I mod COLORS_COUNT];
-
-            for J := 0 to fResults.TimesCount - 1 do
-            if fResults.Times[I,J] > 10 then
-            begin
-              DotX := Round(J / (fResults.TimesCount - 1) * Image1.Width);
-              DotY := Image1.Height - Round(fResults.Times[I,J] / fResults.TimeMax * Image1.Height);
-
-              Image1.Canvas.PenPos := Point(DotX, Image1.Height);
-              Image1.Canvas.LineTo(DotX, DotY);
-            end;
-          end;
-          TopX := fResults.TimesCount;
-          TopY := fResults.TimeMax;
-        end;
-  end;
-
   for I := 0 to High(fX) do
     FreeAndNil(fX[I]);
 
   for I := 0 to High(fY) do
     FreeAndNil(fY[I]);
 
-  Steps := Min(TopY, Image1.Height div 36);
-  SetLength(fY, Steps);
-  if Steps > 1 then
-  for I := 0 to High(fY) do
+  Step := Max(Round(aTopY / aImg.Height / 20), 1);
+
+  Steps := Min(aTopY, aImg.Height div 20 div Step);
+  SetLength(fY, Steps+1);
+  if Steps > 0 then
+  for I := 0 to Steps do
   begin
-    fY[I] := TLabel.Create(Self);
-    fY[I].Parent := Self;
+    fY[I] := TLabel.Create(aImg.Parent);
+    fY[I].Parent := aImg.Parent;
     fY[I].Alignment := taRightJustify;
-    fY[I].Left := Image1.Left - 6;
-    fY[I].Top := Image1.Top + Image1.Height - Round(Image1.Height / High(fY) * I) - fY[I].Height;
-    fY[I].Caption := IntToStr(Round(TopY / High(fY) * I));
+    fY[I].Transparent := True;
+    fY[I].Left := aImg.Left - 1;
+    fY[I].Top := aImg.Top + aImg.Height - Round(aImg.Height / Steps * I) - fY[I].Height + 6;
+    fY[I].Caption := IntToStr(Round(aTopY * I / Steps))+'-';
   end;
 
-  Steps := Min(TopX, Image1.Width div 40);
+  Steps := Min(aTopX, aImg.Width div 40);
   SetLength(fX, Steps);
   if Steps > 1 then
   for I := 0 to High(fX) do
   begin
-    fX[I] := TLabel.Create(Self);
-    fX[I].Parent := Self;
+    fX[I] := TLabel.Create(aImg.Parent);
+    fX[I].Parent := aImg.Parent;
     fX[I].Alignment := taRightJustify;
-    fX[I].Left := Image1.Left + Round(Image1.Width / High(fX) * I);
-    fX[I].Top := Image1.Top + Image1.Height + 4;
-    fX[I].Caption := FloatToStr(Round(TopX / High(fX) * I*10)/10);
+    fX[I].Left := aImg.Left + Round(aImg.Width / High(fX) * I);
+    fX[I].Top := aImg.Top + aImg.Height + 4;
+    fX[I].Caption := FloatToStr(Round(aTopX * I * 10 / High(fX)) / 10);
+  end;
+end;
+
+
+procedure TForm2.RefreshDistribution(aImg: TImage);
+var
+  I,J: Integer;
+  DotX, DotY: Word;
+  TopX, TopY: Integer;
+  StatMax: Integer;
+  Stats: array of Integer;
+begin
+  if aImg.Picture.Graphic <> nil then
+    aImg.Picture.Graphic.SetSize(aImg.Width, aImg.Height);
+  aImg.Canvas.FillRect(aImg.Canvas.ClipRect);
+
+  StatMax := 0;
+  for I := 0 to fResults.ValueCount - 1 do
+  begin
+    SetLength(Stats, 0); //Erase
+    SetLength(Stats, Round(fResults.ValueMax) - Round(fResults.ValueMin) + 1);
+    for J := 0 to fResults.ChartsCount - 1 do
+      Inc(Stats[Round(fResults.Value[J,I]) - Round(fResults.ValueMin)]);
+
+    for J := 0 to High(Stats) do
+      StatMax := Max(StatMax, Stats[J]);
   end;
 
-  Memo1.Clear;
+  for I := 0 to fResults.ValueCount - 1 do
+  begin
+    aImg.Canvas.Pen.Color := LineCol[I mod COLORS_COUNT];
+
+    SetLength(Stats, 0); //Erase
+    SetLength(Stats, Round(fResults.ValueMax) - Round(fResults.ValueMin) + 1);
+    for J := 0 to fResults.ChartsCount - 1 do
+      Inc(Stats[Round(fResults.Value[J,I]) - Round(fResults.ValueMin)]);
+
+    for J := Low(Stats) to High(Stats) do
+    begin
+      if Length(Stats) > 1 then
+        DotX := Round((J - Low(Stats)) * aImg.Width / (Length(Stats) - 1))
+      else
+        DotX := aImg.Width div 2;
+
+      DotY := aImg.Height - Round(aImg.Height * Stats[J] / StatMax);
+
+      if DotY <> aImg.Height then
+        aImg.Canvas.Ellipse(DotX-2, DotY-2, DotX+2, DotY+2);
+
+      if J = 0 then
+        aImg.Canvas.PenPos := Point(DotX, DotY)
+      else
+        aImg.Canvas.LineTo(DotX, DotY);
+    end;
+  end;
+  TopX := Length(Stats);
+  TopY := StatMax;
+
+  RefreshAxisLabels(aImg, TopX, TopY);
+end;
+
+
+procedure TForm2.RefreshResults(aImg: TImage);
+var
+  I,J: Integer;
+  DotX, DotY: Word;
+  TopX, TopY: Integer;
+begin
+  if aImg.Picture.Graphic <> nil then
+    aImg.Picture.Graphic.SetSize(aImg.Width, aImg.Height);
+  aImg.Canvas.FillRect(aImg.Canvas.ClipRect);
+
+  for I := 0 to fResults.ValueCount - 1 do
+  begin
+    aImg.Canvas.Pen.Color := LineCol[I mod COLORS_COUNT];
+    for J := 0 to fResults.ChartsCount - 1 do
+    begin
+      if fResults.ChartsCount > 1 then
+        DotX := Round(J / (fResults.ChartsCount - 1) * aImg.Width)
+      else
+        DotX := aImg.Width div 2;
+      if fResults.ValueMax <> 0 then
+        DotY := aImg.Height - Round(fResults.Value[J,I] / fResults.ValueMax * aImg.Height)
+      else
+        DotY := aImg.Height;
+      aImg.Canvas.Ellipse(DotX-2, DotY-2, DotX+2, DotY+2);
+      if J = 0 then
+        aImg.Canvas.PenPos := Point(DotX, DotY)
+      else
+        aImg.Canvas.LineTo(DotX, DotY);
+    end;
+  end;
+  TopX := fResults.ChartsCount;
+  TopY := fResults.ValueMax;
+
+  RefreshAxisLabels(aImg, TopX, TopY);
+end;
+
+
+procedure TForm2.RefreshTimes(aImg: TImage);
+var
+  I,J: Integer;
+  CutOff: Byte;
+  DotX, DotY: Word;
+  TopX, TopY: Integer;
+begin
+  if aImg.Picture.Graphic <> nil then
+    aImg.Picture.Graphic.SetSize(aImg.Width, aImg.Height);
+  aImg.Canvas.FillRect(aImg.Canvas.ClipRect);
+
+  CutOff := TrackBar1.Position;
+
   for I := 0 to fResults.ChartsCount - 1 do
   begin
-    S := IntToStr(I) + '. ';
-    for J := 0 to fResults.ValueCount - 1 do
-      S := S + Format('%d-%d ', [J, fResults.Value[I,J]]);
-    Memo1.Lines.Append(S);
+    aImg.Canvas.Pen.Color := LineCol[I mod COLORS_COUNT];
+
+    for J := 0 to fResults.TimesCount - 1 do
+    if fResults.Times[I,J] >= CutOff then
+    begin
+      DotX := Round(J / (fResults.TimesCount - 1) * aImg.Width);
+      DotY := aImg.Height - Round(fResults.Times[I,J] / fResults.TimeMax * aImg.Height);
+
+      aImg.Canvas.PenPos := Point(DotX, aImg.Height);
+      aImg.Canvas.LineTo(DotX, DotY);
+    end;
   end;
-  Memo1.Lines.Append(fRunTime);
+  TopX := fResults.TimesCount;
+  TopY := fResults.TimeMax;
+
+  RefreshAxisLabels(aImg, TopX, TopY);
 end;
 
 
@@ -237,5 +311,17 @@ begin
   Application.ProcessMessages;
 end;
 
+
+
+procedure TForm2.TabSheetResize(Sender: TObject);
+begin
+  PageControl1Change(nil);
+end;
+
+
+procedure TForm2.TrackBar1Change(Sender: TObject);
+begin
+  PageControl1Change(nil);
+end;
 
 end.

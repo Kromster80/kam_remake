@@ -2,7 +2,7 @@ unit KM_ArmyEvaluation;
 {$I KaM_Remake.inc}
 interface
 uses
-  Classes, Contnrs, KromUtils,
+  Classes, KromUtils,
   KM_Defaults, KM_PlayerStats;
 
 
@@ -37,7 +37,7 @@ procedure InitUnitStatEvals;
 
 
 implementation
-uses Math, KM_Player, KM_PlayersCollection, KM_Resource, KM_ResourceUnit;
+uses Math, KM_PlayersCollection, KM_Resource, KM_ResourceUnit;
 
 
 var

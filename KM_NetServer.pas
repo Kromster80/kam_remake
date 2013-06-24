@@ -1,7 +1,7 @@
 unit KM_NetServer;
 {$I KaM_Remake.inc}
 interface
-uses Classes, SysUtils, Math, KM_CommonClasses, KM_NetworkTypes, KM_Defaults, KM_Utils
+uses Classes, SysUtils, Math, KM_CommonClasses, KM_NetworkTypes, KM_Defaults, KM_Utils, VerySimpleXML
      {$IFDEF MSWindows} ,Windows {$ENDIF}
      {$IFDEF WDC} ,KM_NetServerOverbyte {$ENDIF}
      {$IFDEF FPC} ,KM_NetServerLNet {$ENDIF}
@@ -285,7 +285,7 @@ begin
     M.Write(fClientList[i].Handle);
     M.Write(fClientList[i].Ping);
   end;
-  SendMessage(NET_ADDRESS_ALL, mk_PingInfo, 0, M.ReadAsText);
+  SendMessage(NET_ADDRESS_ALL, mk_PingInfo, 0, M.GetAsText);
   M.Free;
   //Measure pings. Iterate backwards so the indexes are maintained after kicking clients
   for i:=fClientList.Count-1 downto 0 do
@@ -533,7 +533,7 @@ begin
             begin
               M := TKMemoryStream.Create;
               SaveServerInfo(M);
-              SendMessage(aSenderHandle, mk_ServerInfo, 0, M.ReadAsText);
+              SendMessage(aSenderHandle, mk_ServerInfo, 0, M.GetAsText);
               M.Free;
             end;
     mk_Pong:
@@ -719,16 +719,6 @@ end;
 
 procedure TKMNetServer.SaveHTMLStatus;
 
-  //Removes any characters that are not acceptable in UTF-8/XML/HTML
-  function CleanString(const aStr:string):string;
-  var i:integer;
-  begin
-    Result := '';
-    for i:=1 to Length(aStr) do
-      if (aStr[i] in [#32..#126,#160..#255]) and not (aStr[i] in ['<','&']) then
-        Result := Result + aStr[i];
-  end;
-
   function AddThousandSeparator(S: string; Chr: Char=','): string;
   var I: Integer;
   begin
@@ -743,72 +733,88 @@ procedure TKMNetServer.SaveHTMLStatus;
 
   function GetPlayersHTML(i:integer):string;
   begin
-    Result := CleanString(fRoomInfo[i].GameInfo.Players);
+    Result := XMLEscape(fRoomInfo[i].GameInfo.Players);
     Result := StringReplace(Result,'|',', ',[rfReplaceAll]);
-  end;
-  function GetPlayersXML(i:integer):string;
-  begin
-    Result := CleanString(fRoomInfo[i].GameInfo.Players);
-    Result := StringReplace(Result,'|','</player>'+sLineBreak+'      <player>',[rfReplaceAll]);
-    if Result <> '' then Result := sLineBreak+'      <player>'+Result+'</player>'+sLineBreak+'    ';
   end;
 
 var
-  i,PlayerCount,RoomCount:integer;
-  HTML,XML,RoomXML:string;
+  i,k,PlayerCount,RoomCount:integer;
+  XML: TXmlVerySimple;
+  HTML: string;
+  RoomCountNode, PlayerCountNode, Node: TXmlNode;
   MyFile:TextFile;
+  Players: TStringList;
 begin
   if fHTMLStatusFile = '' then exit; //Means do not write status
 
   RoomCount := 0;
   PlayerCount := 0;
-  HTML := '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">'+sLineBreak+
-          '<HTML>'+sLineBreak+'<HEAD>'+sLineBreak+'  <TITLE>KaM Remake Server Status</TITLE>'+sLineBreak+
-          '  <meta http-equiv="content-type" content="text/html; charset=utf-8">'+sLineBreak+'</HEAD>'+sLineBreak;
-  HTML := HTML + '<BODY>'+sLineBreak;
-  HTML := HTML + '<TABLE border="1">'+sLineBreak+'<TR><TD><b>Room ID</b></TD><TD><b>State</b><TD><b>Player Count</b></TD></TD><TD><b>Map</b></TD><TD><b>Game Time</b></TD><TD><b>Player Names</b></TD></TR>'+sLineBreak;
-  XML := '<?xml version="1.0" encoding="utf-8" ?>'+sLineBreak;
-  XML := XML + '<server>'+sLineBreak;
-  RoomXML := '';
-  for i:=0 to fRoomCount-1 do
-    if GetRoomClientsCount(i) > 0 then
-    begin
-      inc(RoomCount);
-      inc(PlayerCount,fRoomInfo[i].GameInfo.PlayerCount);
-      HTML := HTML + '<TR><TD>'+IntToStr(i)+'</TD><TD>'+CleanString(GameStateText[fRoomInfo[i].GameInfo.GameState])+
-                     '</TD><TD>'+IntToStr(fRoomInfo[i].GameInfo.PlayerCount)+
-                     '</TD><TD>'+CleanString(fRoomInfo[i].GameInfo.Map)+
-                     '&nbsp;</TD><TD>'+CleanString(fRoomInfo[i].GameInfo.GetFormattedTime)+
-                     '&nbsp;</TD><TD>'+GetPlayersHTML(i)+'</TD></TR>'+sLineBreak;
-      RoomXML := RoomXML + '  <room id="'+IntToStr(i)+'">'+sLineBreak+
-                           '    <state>'+CleanString(GameStateText[fRoomInfo[i].GameInfo.GameState])+'</state>'+sLineBreak+
-                           '    <roomplayercount>'+IntToStr(fRoomInfo[i].GameInfo.PlayerCount)+'</roomplayercount>'+sLineBreak+
-                           '    <map>'+CleanString(fRoomInfo[i].GameInfo.Map)+'</map>'+sLineBreak+
-                           '    <gametime>'+CleanString(fRoomInfo[i].GameInfo.GetFormattedTime)+'</gametime>'+sLineBreak+
-                           '    <players>'+GetPlayersXML(i)+'</players>'+sLineBreak+
-                           '  </room>'+sLineBreak;
-    end;
 
-  HTML := HTML + '</TABLE>'+sLineBreak+
-                 '<p>Total sent: '+AddThousandSeparator(IntToStr(BytesTX))+' bytes</p>'+sLineBreak+
-                 '<p>Total received: '+AddThousandSeparator(IntToStr(BytesRX))+' bytes</p>'+sLineBreak+
-                 '</BODY>'+sLineBreak+'</HTML>';
-  XML := XML + '  <roomcount>'+IntToStr(RoomCount)+'</roomcount>'+sLineBreak;
-  XML := XML + '  <playercount>'+IntToStr(PlayerCount)+'</playercount>'+sLineBreak;
-  XML := XML + '  <bytessent>'+IntToStr(BytesTX)+'</bytessent>'+sLineBreak;
-  XML := XML + '  <bytesreceived>'+IntToStr(BytesRX)+'</bytesreceived>'+sLineBreak;
-  XML := XML + RoomXML;
-  XML := XML + '</server>';
+  XML := TXmlVerySimple.Create;
+  Players := TStringList.Create;
 
-  AssignFile(MyFile, fHTMLStatusFile);
-  ReWrite(MyFile);
-  Write(MyFile,HTML);
-  CloseFile(MyFile);
+  try
+    //HTML header
+    HTML := '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">'+sLineBreak+
+            '<HTML>'+sLineBreak+'<HEAD>'+sLineBreak+'  <TITLE>KaM Remake Server Status</TITLE>'+sLineBreak+
+            '  <meta http-equiv="content-type" content="text/html; charset=utf-8">'+sLineBreak+'</HEAD>'+sLineBreak;
+    HTML := HTML + '<BODY>'+sLineBreak;
+    HTML := HTML + '<TABLE border="1">'+sLineBreak+'<TR><TD><b>Room ID</b></TD><TD><b>State</b><TD><b>Player Count</b></TD></TD><TD><b>Map</b></TD><TD><b>Game Time</b></TD><TD><b>Player Names</b></TD></TR>'+sLineBreak;
 
-  AssignFile(MyFile, ChangeFileExt(fHTMLStatusFile,'.xml'));
-  ReWrite(MyFile);
-  Write(MyFile,XML);
-  CloseFile(MyFile);
+    //XML header
+    XML.Root.NodeName := 'server';
+    RoomCountNode := XML.Root.AddChild('roomcount'); //Set it later
+    PlayerCountNode := XML.Root.AddChild('playercount');
+    XML.Root.AddChild('bytessent').Text := IntToStr(BytesTX);
+    XML.Root.AddChild('bytesreceived').Text := IntToStr(BytesRX);
+
+    for i:=0 to fRoomCount-1 do
+      if GetRoomClientsCount(i) > 0 then
+      begin
+        inc(RoomCount);
+        inc(PlayerCount,fRoomInfo[i].GameInfo.PlayerCount);
+        //HTML room info
+        HTML := HTML + '<TR><TD>'+IntToStr(i)+'</TD><TD>'+XMLEscape(GameStateText[fRoomInfo[i].GameInfo.GameState])+
+                       '</TD><TD>'+IntToStr(fRoomInfo[i].GameInfo.PlayerCount)+
+                       '</TD><TD>'+XMLEscape(fRoomInfo[i].GameInfo.Map)+
+                       '&nbsp;</TD><TD>'+XMLEscape(fRoomInfo[i].GameInfo.GetFormattedTime)+
+                       '&nbsp;</TD><TD>'+GetPlayersHTML(i)+'</TD></TR>'+sLineBreak;
+        //XML room info
+        Node := XML.Root.AddChild('room');
+        Node.Attribute['id'] := IntToStr(i);
+        Node.AddChild('state').Text := GameStateText[fRoomInfo[i].GameInfo.GameState];
+        Node.AddChild('roomplayercount').Text := IntToStr(fRoomInfo[i].GameInfo.PlayerCount);
+        Node.AddChild('map').Text := fRoomInfo[i].GameInfo.Map;
+        Node.AddChild('gametime').Text := fRoomInfo[i].GameInfo.GetFormattedTime;
+        with Node.AddChild('players') do
+        begin
+          Players.Clear;
+          ParseDelimited(Players, fRoomInfo[i].GameInfo.Players, '|');
+          for k:=0 to Players.Count-1 do
+            AddChild('player').Text := Players[k];
+        end;
+      end;
+    //Set counts in XML
+    RoomCountNode.Text := IntToStr(RoomCount);
+    PlayerCountNode.Text := IntToStr(PlayerCount);
+
+    //HTML footer
+    HTML := HTML + '</TABLE>'+sLineBreak+
+                   '<p>Total sent: '+AddThousandSeparator(IntToStr(BytesTX))+' bytes</p>'+sLineBreak+
+                   '<p>Total received: '+AddThousandSeparator(IntToStr(BytesRX))+' bytes</p>'+sLineBreak+
+                   '</BODY>'+sLineBreak+'</HTML>';
+
+    //Write HTML
+    AssignFile(MyFile, fHTMLStatusFile);
+    ReWrite(MyFile);
+    Write(MyFile,HTML);
+    CloseFile(MyFile);
+    //Write XML
+    XML.SaveToFile(ChangeFileExt(fHTMLStatusFile,'.xml'));
+  finally
+    Players.Free;
+    XML.Free;
+  end;
 end;
 
 

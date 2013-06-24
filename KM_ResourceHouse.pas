@@ -3,8 +3,22 @@ unit KM_ResourceHouse;
 interface
 uses
   Classes, Math, SysUtils,
-  KM_CommonClasses, KM_CommonTypes, KM_Defaults;
+  KM_CommonClasses, KM_CommonTypes, KM_Defaults,
+  KM_ResourceWares;
 
+
+type
+  THouseType = (ht_None, ht_Any,
+    ht_ArmorSmithy,     ht_ArmorWorkshop,   ht_Bakery,        ht_Barracks,      ht_Butchers,
+    ht_CoalMine,        ht_Farm,            ht_FisherHut,     ht_GoldMine,      ht_Inn,
+    ht_IronMine,        ht_IronSmithy,      ht_Marketplace,   ht_Metallurgists, ht_Mill,
+    ht_Quary,           ht_Sawmill,         ht_School,        ht_SiegeWorkshop, ht_Stables,
+    ht_Store,           ht_Swine,           ht_Tannery,       ht_TownHall,      ht_WatchTower,
+    ht_WeaponSmithy,    ht_WeaponWorkshop,  ht_Wineyard,      ht_Woodcutters    );
+
+const
+  HOUSE_MIN = ht_ArmorSmithy;
+  HOUSE_MAX = ht_Woodcutters;
 
 type
   THouseAnim = array [THouseActionType] of TKMAnimLoop;
@@ -92,7 +106,6 @@ type
     property SnowPic: SmallInt read GetSnowPic;
     //Functions
     function AcceptsWares: Boolean;
-    function IsValid: Boolean;
     function MaxHealth: Word;
     function ProducesWares: Boolean;
     procedure Outline(aList: TKMPointList);
@@ -107,11 +120,13 @@ type
     fBeastAnim: array[1..2,1..5,1..3] of TKMAnimLoop;
     fMarketBeastAnim: array[1..3] of TKMAnimLoop;
     function LoadHouseDat(aPath: string): Cardinal;
-    function GetHouseDat(aType:THouseType): TKMHouseDatClass;
-    function GetBeastAnim(aType:THouseType; aBeast, aAge:integer): TKMAnimLoop;
+    function GetHouseDat(aType: THouseType): TKMHouseDatClass;
+    function GetBeastAnim(aType: THouseType; aBeast, aAge:integer): TKMAnimLoop;
   public
     constructor Create;
     destructor Destroy; override;
+
+    function IsValid(aType: THouseType): Boolean;
 
     property HouseDat[aType: THouseType]: TKMHouseDatClass read GetHouseDat; default;
     property BeastAnim[aType: THouseType; aBeast, aAge: Integer]: TKMAnimLoop read GetBeastAnim;
@@ -179,7 +194,7 @@ const
   ht_Tannery, ht_None, ht_Inn, ht_Wineyard, ht_Marketplace);
 
   //THouseType corresponds to this index in KaM scripts and libs
-  //KaM scripts are 0 based, so we must use HouseKaMOrder[H]-1 in script usage. Other cases are 1 based.
+  //KaM scripts are 0 based, so we must use HouseTypeToIndex[H]-1 in script usage. Other cases are 1 based.
   HouseTypeToIndex: array [THouseType] of byte = (0, 0,
   11, 21, 8, 22, 25, 4, 9, 7, 6, 28,
   5, 2, 30, 16, 23, 15, 1, 14, 24, 13, 12,
@@ -542,10 +557,7 @@ end;
 
 function TKMHouseDatClass.GetHouseName: string;
 begin
-  if IsValid then
-    Result := fTextLibrary[fNameTextID]
-  else
-    Result := 'N/A';
+  Result := fTextLibrary[fNameTextID];
 end;
 
 
@@ -574,7 +586,7 @@ begin
   Assert(Outlines.Count = 1, 'Houses are expected to have single outline');
 
   for I := 0 to Outlines.Shape[0].Count - 1 do
-    aList.AddEntry(KMPoint(Outlines.Shape[0].Nodes[I].X, Outlines.Shape[0].Nodes[I].Y));
+    aList.Add(KMPoint(Outlines.Shape[0].Nodes[I].X, Outlines.Shape[0].Nodes[I].Y));
 end;
 
 
@@ -621,12 +633,6 @@ end;
 function TKMHouseDatClass.GetTabletIcon: word;
 begin
   Result := HouseDatX[fHouseType].TabletIcon;
-end;
-
-
-function TKMHouseDatClass.IsValid: boolean;
-begin
-  Result := fHouseType in [HOUSE_MIN..HOUSE_MAX];
 end;
 
 
@@ -740,6 +746,12 @@ end;
 function TKMHouseDatCollection.GetHouseDat(aType: THouseType): TKMHouseDatClass;
 begin
   Result := fItems[aType];
+end;
+
+
+function TKMHouseDatCollection.IsValid(aType: THouseType): Boolean;
+begin
+  Result := aType in [HOUSE_MIN..HOUSE_MAX];
 end;
 
 

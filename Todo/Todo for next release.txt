@@ -1,3 +1,179 @@
+=============
+Since 4th RC:
+=============
+
+Bugs:
+ +	TaleOfTwoLands has no gold in Stores
+ +	Crash when using a script file larger than 65kb
+ +	Multiland location 4, the fish in the pond are killed automatically because they have no space to move
+ +	MajesticWaters does not have human selectable locations
+ +	States.HouseWareBlocked caused an error when used in a script
+ +	Issues in Vas' campaign scripts with changing unit types (UnitKill no longer instant)
+	LandOfTheQuickRiver has no human nor AI selectable locations (TestFunc has tests to load all maps)
+
+
+Features:
+
+
+After RC4:
+	Map updates
+	Bugs
+	Received translations
+	Press release?
+
+
+Maps:
+	Circus? (thunder)?
+	Border Rivers fix by Thunder?
+
+
+Postponed for a later release: (TODO: move these to bugslist later)
+	Snow houses artwork [KillingB]
+	Snow house overlay fixes [KillingB, Krom]
+	Decided what to do about proportional/exact weapons production (hybrid solution?)
+	TSK campaign fixes by BornFree (especially faster equip rate), if he fixes issues with food
+	Reminder message if you forget to build the inn?
+	CanIron CanGold in MapEd
+	Flip/rotate selection in MapEd [Lewin]
+	MapEd copy buffer should be kept when opening a new map so you can copy between maps (or use binary data in Windows clipboard so it works between multiple KaM Remake processes?)
+
+
+================
+Fixed in 4th RC:
+================
+
+Bugs:
+ +	Crash when using magic water tool on non-square maps
+ +	Multiplayer saves in games with AI players would mismatch between players with different locales ("AI Player" was translated)
+ +	Crash in MapEd when deleting last defense position
+ +	Some users couldn't start the game, getting an error "8087CW is wrong"
+ +	Archers would stop shooting and reposition themselves if a member of the group died (should ignore it and keep firing)
+ +	Archers in an AI defence position would be continuously interrupted while trying to shoot enemy citizens
+ +	Workers will refuse to walk past empty enemy towers, now they refuse only past occupied towers
+ +	Crashes when using Actions.UnitKill in certain events (OnUnitDied) under some circumstances
+ +	Fixed overriding masks not properly overwriting
+ +	Magic water only worked on the default kind of water tiles
+ +	Actions.PlanAddHouse works in unexpored areas for AIs
+ +	Player commands in lobby (kick) are displayed for empty slots, they should be disabled
+ +	AI-only locations should not be listed for AIs in lobby, since those AIs are always added when the game starts
+ +	MapEd copy should include terrain painter tiling data
+ +	Market prices were slightly inconsistent between weapons of the same value
+ +	Crash if you quit before the first tick (due to waiting for player)
+ +	Crash when opening army graph in certain rare conditions
+
+
+Features:
+ +	Dynamic scripts now support iteration over enumerations and Include/Exclude commands for adding variables to sets
+ +	Merged script event OnHouseLost into OnHouseDestroyed
+ +	Merged script events OnUnitKilled and OnUnitLost into OnUnitDied
+
+
+================
+Fixed in 3rd RC:
+================
+
+Bugs:
+ +	Map info was not reset properly before updating it, meaning CanBeHuman and CanBeAI wouldn't update until you deleted the .mi file
+ +	Player checkbox selections in MP wares results display should remain the same when switching between wares
+ +	Dragging brush in MapEd over minimap should not trigger minimap position change
+ +	Changing terrain in MapEd from snow to non-snow should update snowed houses placed there
+ +	Crash when exiting a mission with a house area being dug and a script using OnHouseLost
+ +	Load/save buttons were reversed in the map editor compared to the game
+ +	Can only place buildings for one player in SP MapEd, for others its just red crosses.
+ +	Message log should be hidden until the 1st message arrives, looks odd to have a blank scroll
+ +	Strikethrough effect on text with color markup was wrong (ping/FPS after player quits)
+ +      Saving map in MapEd takes a lot of time
+ +	Access violation crash in GetGroupPointer when ordering a warrior to attack a warrior that is dying or walking out of the barracks
+ +	Scripts with unsupported global variable types should not be allowed to run (causes inconsistencies/errors)
+ +	When you select a warrior you always play his individual sound. But when you select another warrior from the same squad the sound is not playing
+ +	Archers became much less responsive (due to finishing attack sequence to prevent exploit) [Lewin]
+ +	AI doesn't behave right: http://www.knightsandmerchants.net/forum/viewtopic.php?f=5&t=1254&p=24960#p24960
+ +	Some MP maps don't let you use AIs in certain locations (probably a legacy of Lewin's editor)
+ +	AI seems to build lots of armour smithies/workshops but no weapons smithies/workshops (e.g. Across the Desert)
+ +	AIs in MP maps won't defend because they don't have AutoDefence enabled
+ +	Group rearranging uses a simpler algorithm for group sizes >25 (fixes lag when moving very large groups)
+ +	Units return to their places faster and more efficiently if they are pushed out while the group is still forming up
+ +	Don't show "house unoccupied" or "group hungry" messages after you have lost (and continued watching)
+ +	Graph lines don't highlight due to changes in  r5130 (OnMouseMove doesn't trigger now)
+ +	Don't show AIs in SP graphs which give away important info about enemies unless the mission is won [Lewin]
+ + 	Crash relating to warriors dying while walking out of the barracks (caused crashes in Stats and rendering graph lines)
+ +      Workers thoughts near bottom map edge, when facing down, are dark grey. Should be white as always
+ +	Actions.GiveHouse was checking if it could place the house at the wrong spot in some cases
+ +	States.HousePosition* now returns the entrance of the house, not the position (which is different for some houses)
+ +	Access violation in TKMUnitWarrior.CheckForEnemy caused by not syncing TUnitActionGoInOut.OnWalkedOut after load
+ +	When host is reassigned, lobby password/description should be cleared (otherwise the server still remembers them but the new host doesn't)
+ +	Locations list in the lobby should only show ones which can currently be selected, ones which are taken should be disabled
+ +	AI recruit delay was missing from the MapEd
+ +      Crash happening when taking out warfare from Barracks to Market and equipping soldiers at the same time
+ +	Actions.UnitOrderWalk would not work on newly created units
+ +	AI defence position radius should only highlight for selected position? (overlapping defence positions cause map to be completely covered, check e.g. TPR 7)
+
+
+Features:
+ +	Records, sets, enums, dynamic arrays and multidimensional arrays now supported by script as global variables
+ +	Dynamic scripts now use short circuit boolean evaluation, allowing e.g. "if (GroupID <> -1) and (States.GroupOwner(GroupID) = PlayerID) then"
+ +	Description box for campaigns shown on selection screen, so authors can put their name and contact
+ +	Various optimisations to improve performance
+ +	Copy and paste in MapEd
+
+
+Before RC3:
+ +	Disable snow houses for this release, we can include them next release when they're finished
+ +	Performance test the replay of a full MP game to check for chokepoints in a real-world scenario
+ +	Check main menu / gameplay interfaces for text that needs to be added to the LIBX (e.g. lobby speed)
+ +	Magic water in MapEd
+ +	Dynamic scripts to use text markup instead of string from LIBX
+ +	Add missing texts from MapEd to LIBX (maybe ignore some stuff in temporary interfaces that will be improved next release?)
+ +	Dynamic script commands in script suggestions (decide which ones we include and ignore)
+ +	Send text off to be translated (do this late in the RC testing so translators don't get 3 separate requests for each RC with changed text)
+ +	Ask translators to shorten up messages that we show in message log (empty house, feed troops, etc)
+
+
+
+================
+Fixed in 2nd RC:
+================
+
+Bugs:
+ +	Pathfinding bug causing units to zigzag a bit when they should be walking straight
+ +	Annie's hill/garden can be won with labourers. Only soldiers should count for capturing.
+ +	Removing house plan in MP could rarely cause a crash
+ +	Navigating with arrows in serverlist was not available (regress from r4179)
+ +	Chat/allies/message log panels block clicks on map to the right of them (check in MapEd too)
+ +	Randomize locations within teams checkbox should only be enabled for host ("Assertion failed: Only host can send player list")
+ +	Gamespeed can't be set anymore for coop games
+ +	Ordering Animals to walk from script would cause a crash. Now it's silently ignored (allow in future?)
+ +	Include script into crashreport
+ +	Crash using terrain brush on tiles placed by hand in Krom's editor (sado's map emailed to us)
+ +	Replay inconsistencies in games with AIs (fAIFields.UpdateState wasn't run in replays)
+ +	Teams show wrong in lobby (should use player locs instead of player slots)
+ +	Animals being pushed in the first 10 ticks (before getting an action) causes a crash (e.g. if you tell a warrior to move to an animals position) because the initial stay action was not locked
+ +	"Should match with HitTest that selected this group" when selecting a moving warrior (MouseUp)
+ +	Kicking or timing out causes the server to disconnect one other player as well (Linux server only)
+ +	Results page for singleplayer replay should show the human player's stats, not the last selected player
+ +	Feeding soldiers should be more important than bringing food to Inn
+ +	Crash when building a house plan partly within the range of a tower
+ +	Group members and flags are still visible when Show Units is unchecked in the map editor
+ +	Fish deposits were counted incorrectly in the map editor
+ +	Trying to select a map during maplist being populated is impossible, selected item always changes to 1st
+ +	Lag/freezes when using multiplayer speed up because the delay was not compensated enough
+ +	Destroying a barracks with a soldier inside caused that soldier to not be assigned to a group or counted in stats (causes crashes in PlayerStats too)
+ +	+ - edits in the MapEd are not practical for some things (AI attack delay in seconds, requires 3600 for 1 hour, that's a lot of clicks)
+ +	Save out !SET_MAP so that old editors can still open maps saved by MapEd
+ +	Nodes in the campaign builder would jump after moving them
+
+
+Features:
+ +	New script commands: Actions.FogCoverCircle, Actions.FogCoverAll, Actions.GiveHouse, Actions.PlayerAllianceChange, States.FogRevealed, States.HouseWareBlocked, Actions.HouseWareBlock, States.HouseWoodcutterChopOnly, Actions.HouseWoodcutterChopOnly
+ +	Changed script commands: Added Silent parameter to Actions.KillUnit
+ +	Script Validator: Simple tool to validate a script and list any errors
+
+
+
+================
+Fixed in 1st RC:
+================
+
 Features:
  +	MP game speed up slider (x1, x1.5, x2, x2.5, x3)
  +	Coop maps handled better in lobby (AI players hidden and automatic, AI map areas not revealed)
@@ -25,10 +201,7 @@ Finishing up:
  +	Indent messages after each line break so you can't fake system messages
  +	Before RC remove unused strings from LIBX and compact indexes [Lewin]
  +	Before RC search for all todos and @Lewin/@Krom comments to see if there's something important we forgot about
-
-	Snow houses artwork [KillingB]
-	Snow house overlay fixes [KillingB, Krom]
-	Press release for our site where we collect all the big features and improvements [Lewin]
+ +	Press release for our site where we collect all the big features and improvements [Lewin]
 
 
 Known issues to fix:
@@ -40,32 +213,10 @@ Known issues to fix:
  +	Copy data\sfx\knights\battle4.wav to Polish sfx (horse sound Pol is missing) [Lewin]
 
 
-After first RC:
-	Ask RC testers to make map from scratch in MapEd
-	Magic water in MapEd?
-	Check main menu / gameplay interfaces for text that needs to be added to the LIBX (e.g. lobby speed)
-	Add missing texts from MapEd to LIBX (maybe ignore some stuff in temporary interfaces that will be improved next release?)
-	Send text off to be translated (do this late in the RC testing so translators don't get 3 separate requests for each RC with changed text)
-	Ask translators to shorten up messages that we show in message log (empty house, feed troops, etc)
-	Performance test the replay of a full MP game to check for chokepoints in a real-world scenario
-	Press release?
-	Decided what to do about proportional/exact weapons production (hybrid solution?)
-	Dynamic script commands: Silent kill unit (no death animation, allows changing farmers to rebels), get/set ware distribution, get/set store/barracks delivery block flags, CoverCircle (opposite to reveal circle), ClosestUnit/House/Group(X,Y,Player), center screen, select unit/group/house in player's UI, SetWoodCutterMode, AI recruits in barracks (lets you disable/enable AI soldier equipping), equip rate
-	DAT script commands: Storehouse/barrack block flags, disable ally fog sharing
-	Write Lazarus network wrapper using base FPC sockets and see if it's more stable than LNet
-	TSK campaign fixes by BornFree (especially faster equip rate), if he fixes issues with food
-
-
 Balance/exploits:
  +	Increased market loss ratio to 2.2
  +	Tested: 4 farms (with unsown fields) + 2 stables beats 6 woodcutters (with 5 grown trees each) + 1 market in horse production by 16% (20 mins), 30% (30 mins), 45% (40 mins), 77% (60 mins)
  +	Stop builders emptying towers (builders refuse to walk into range of a tower and cancel the plan)
-
-
-Not for this release, maybe next time:
-	Pawel's flower
-	Increase player limit to 10?
-	File transfers
 
 
 Maps:
@@ -79,7 +230,9 @@ Maps:
  +	Shark Islands (andreus and vovets1)
  +	Pawel's fixes for campaign missions that he emailed to us
  +	New coop missions and fixes to coop missions (from andreus, pawel)
-	Circus? (thunder)
-	Dead Rivers? (thunder)
-	Frozen waters? (sado)
-	Border Rivers fix by Thunder?
+
+
+Not for this release, maybe next time:
+	Pawel's flower
+	Increase player limit to 10?
+	File transfers

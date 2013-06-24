@@ -4,11 +4,13 @@ interface
 uses
   Classes, Controls, Dialogs, ExtCtrls, Forms, Graphics, Math, Menus,
   {$IFDEF MSWINDOWS} ComCtrls, FileCtrl, {$ENDIF}
-  StdCtrls, StrUtils, Windows, SysUtils,
+  StdCtrls, StrUtils, Windows, SysUtils, CheckLst, INIFiles,
   KM_Defaults, KM_Locales, Unit_Text, Unit_PathManager;
 
 const
-  USER_MODE = False; //Disables insert, delete, compact, sort, etc. functions so translators don't click them by mistake
+  //Disables insert, delete, compact, sort, etc. functions
+  //so translators don't click them by mistake
+  USER_MODE = False;
 
 type
   TForm1 = class(TForm)
@@ -20,19 +22,12 @@ type
     btnInsertSeparator: TButton;
     btnMoveUp: TButton;
     btnMoveDown: TButton;
-    cbShowMissing: TComboBox;
-    Label2: TLabel;
-    cbIncludeSameAsEnglish: TCheckBox;
-    LabelIncludeSameAsEnglish: TLabel;
-    Label3: TLabel;
     Button1: TButton;
     lbFolders: TListBox;
     btnCopy: TButton;
     btnPaste: TButton;
     Label4: TLabel;
     Edit1: TEdit;
-    Label5: TLabel;
-    cbShowLang: TComboBox;
     MainMenu1: TMainMenu;
     File1: TMenuItem;
     Edit2: TMenuItem;
@@ -44,6 +39,11 @@ type
     N1: TMenuItem;
     mnuExit: TMenuItem;
     btnRename: TButton;
+    clbShowLang: TCheckListBox;
+    cbShowMis: TCheckBox;
+    cbShowDup: TCheckBox;
+    StatusBar1: TStatusBar;
+    Bevel1: TBevel;
     procedure FormCreate(Sender: TObject);
     procedure ListBox1Click(Sender: TObject);
     procedure btnSortByIndexClick(Sender: TObject);
@@ -54,9 +54,6 @@ type
     procedure btnInsertSeparatorClick(Sender: TObject);
     procedure btnMoveUpClick(Sender: TObject);
     procedure btnMoveDownClick(Sender: TObject);
-    procedure cbShowMissingChange(Sender: TObject);
-    procedure cbIncludeSameAsEnglishClick(Sender: TObject);
-    procedure LabelIncludeSameAsEnglishClick(Sender: TObject);
     procedure btnCompactIndexesClick(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure Button1Click(Sender: TObject);
@@ -65,13 +62,17 @@ type
     procedure btnPasteClick(Sender: TObject);
     procedure Edit1Change(Sender: TObject);
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
-    procedure cbShowLangChange(Sender: TObject);
+    procedure cbShowLang8888Change(Sender: TObject);
     procedure btnUnusedClick(Sender: TObject);
     procedure mnuExitClick(Sender: TObject);
     procedure btnRenameClick(Sender: TObject);
+    procedure clbShowLangClickCheck(Sender: TObject);
+    procedure FormResize(Sender: TObject);
+    procedure cbShowMisClick(Sender: TObject);
   private
     fPathManager: TPathManager;
     fTextManager: TTextManager;
+    fExeDir: string;
     fWorkDir: string;
     fBuffer: array of string;
 
@@ -79,12 +80,16 @@ type
     TransLabels: array of TLabel;
     ListboxLookup: array of Integer;
     IgnoreChanges: Boolean;
-    fPreviousFolder, fPreviousShowLang: Integer;
+    fPreviousFolder: Integer;
     procedure MemoChange(Sender: TObject);
 
+    procedure InitLocalesList;
     procedure RefreshFolders;
+    procedure RefreshFilter;
     procedure RefreshLocales;
     procedure RefreshList;
+    procedure LoadSettings(aPath: string);
+    procedure SaveSettings(aPath: string);
   end;
 
 
@@ -106,8 +111,12 @@ procedure TForm1.FormCreate(Sender: TObject);
 begin
   Caption := 'KaM Remake Translation Manager (' + GAME_REVISION + ')';
 
-  fWorkDir := ExtractFilePath((ParamStr(0))) + '..\..\';
+  fExeDir := ExtractFilePath(ParamStr(0));
+  fWorkDir := fExeDir + '..\..\';
   fLocales := TKMLocales.Create(fWorkDir + 'data\locales.txt');
+
+  InitLocalesList;
+
   RefreshLocales;
 
   fPathManager := TPathManager.Create;
@@ -115,26 +124,61 @@ begin
 
   fTextManager := TTextManager.Create;
 
+  //Hide menu entries that Users should not access
   mnuSave.Enabled := False;
-
-  btnInsert.Visible := not USER_MODE;
-  btnRename.Enabled := not USER_MODE; //Users can't change constants names
-  btnDelete.Visible := not USER_MODE;
-  btnInsertSeparator.Visible := not USER_MODE;
+  MainMenu1.Items[1].Visible := not USER_MODE;
   mnuSortByIndex.Visible := not USER_MODE;
-  btnMoveUp.Visible := not USER_MODE;
-  btnMoveDown.Visible := not USER_MODE;
   mnuSortByName.Visible := not USER_MODE;
   mnuCompactIndexes.Visible := not USER_MODE;
+  mnuListUnused.Visible := not USER_MODE;
+
+  //Hide edit butotns that Users should not access
+  btnInsert.Visible := not USER_MODE;
+  btnRename.Visible := not USER_MODE;
+  btnDelete.Visible := not USER_MODE;
+  btnInsertSeparator.Visible := not USER_MODE;
+  btnMoveUp.Visible := not USER_MODE;
+  btnMoveDown.Visible := not USER_MODE;
   btnCopy.Visible := not USER_MODE;
   btnPaste.Visible := not USER_MODE;
-  mnuListUnused.Visible := not USER_MODE;
+
+  LoadSettings(fExeDir + 'TranslationManager.ini');
+
+  WindowState := wsMaximized;
 end;
 
 
 procedure TForm1.FormDestroy(Sender: TObject);
 begin
+  SaveSettings(fExeDir + 'TranslationManager.ini');
   fTextManager.Free;
+end;
+
+
+procedure TForm1.FormResize(Sender: TObject);
+var
+  I,K: Integer;
+  SelCount, SecHeight: Word;
+begin
+  SelCount := 0;
+  for I := 0 to fLocales.Count - 1 do
+  if (I+1 < clbShowLang.Count) then
+  if clbShowLang.Checked[I+1] then
+    Inc(SelCount);
+
+  if SelCount = 0 then
+    Exit;
+
+  SecHeight := ScrollBox1.ClientHeight div SelCount;
+
+  K := 0;
+  for I := 0 to fLocales.Count - 1 do
+  if clbShowLang.Checked[I+1] then
+  begin
+    TransLabels[I].SetBounds(8, 4 + K * SecHeight, 100, 20);
+    TransMemos[I].SetBounds(8, 22 + K * SecHeight, ScrollBox1.Width - 16, SecHeight - 20);
+    Inc(K);
+  end;
 end;
 
 
@@ -169,28 +213,11 @@ begin
 
   //Special case for ingame text library
   if SameText(lbFolders.Items[ID], 'data\text\text.%s.libx') then
-  begin
-    fTextManager.Load(fWorkDir + lbFolders.Items[ID], fWorkDir + 'KM_TextIDs.inc');
-    btnInsertSeparator.Enabled := True;
-    btnRename.Enabled := not USER_MODE;
-    btnMoveUp.Enabled := True;
-    btnMoveDown.Enabled := True;
-    mnuSortByName.Enabled := True;
-    mnuSortByIndex.Enabled := True;
-    mnuCompactIndexes.Enabled := True;
-  end
+    fTextManager.Load(fWorkDir + lbFolders.Items[ID], fWorkDir + 'KM_TextIDs.inc')
   else
-  begin
     fTextManager.Load(fWorkDir + lbFolders.Items[ID], '');
-    btnInsertSeparator.Enabled := False;
-    btnRename.Enabled := False;
-    btnMoveUp.Enabled := False;
-    btnMoveDown.Enabled := False;
-    mnuSortByName.Enabled := False;
-    mnuSortByIndex.Enabled := False;
-    mnuCompactIndexes.Enabled := False;
-  end;
 
+  RefreshFilter;
   RefreshList;
   mnuSave.Enabled := False;
 end;
@@ -213,21 +240,34 @@ end;
 
 procedure TForm1.RefreshList;
   function ShowConst(aIndex: Integer): Boolean;
-  var TextID: Integer; DefLoc: Integer;
+  var
+    I,K, TextID, DefLoc: Integer;
   begin
     Result := True;
     TextID := fTextManager.Consts[aIndex].TextID;
     DefLoc := fLocales.GetIDFromCode(DEFAULT_LOCALE);
 
-    if Result and (cbShowMissing.ItemIndex <> 0) then
-      Result := (TextID <> -1) and
-                (
-                  (fTextManager.Texts[TextID][cbShowMissing.ItemIndex-1] = '') or
-                  (
-                    cbIncludeSameAsEnglish.Checked and
-                    (fTextManager.Texts[TextID][cbShowMissing.ItemIndex-1] = fTextManager.Texts[TextID][DefLoc])
-                  )
-                );
+    //Hide lines that have text
+    if cbShowMis.Checked then
+    begin
+      Result := False;
+      if (TextID <> -1) then
+        for I := 0 to fLocales.Count - 1 do
+          if clbShowLang.Checked[I+1] then
+            Result := Result or (fTextManager.Texts[TextID][I] = '');
+    end;
+
+    //Show lines that are the same in selected locales
+    if Result and cbShowDup.Checked then
+    begin
+      Result := False;
+      if (TextID <> -1) then
+        for I := 0 to fLocales.Count - 1 do
+          if clbShowLang.Checked[I+1] then
+          for K := 0 to fLocales.Count - 1 do
+            if (K <> I) and clbShowLang.Checked[K+1] then
+              Result := Result or (fTextManager.Texts[TextID][I] = fTextManager.Texts[TextID][K]);
+    end;
 
     if Result and (Edit1.Text <> '') then
         Result := (TextID <> -1) and (Pos(UpperCase(Edit1.Text), UpperCase(fTextManager.Texts[TextID][DefLoc])) <> 0);
@@ -261,77 +301,113 @@ begin
   ListBox1.TopIndex := TopIdx;
   ListBox1Click(ListBox1);
 
-  Label3.Caption := 'Count ' + IntToStr(ListBox1.Count);
+  StatusBar1.Panels[0].Text := 'Count ' + IntToStr(ListBox1.Count);
+end;
+
+
+procedure TForm1.InitLocalesList;
+  function GetCharset(aLang: string): TFontCharset;
+  begin
+    //Using slower but more compact comparisons
+    if Pos(aLang, 'bel,rus,bul,ukr') <> 0 then
+      Result := RUSSIAN_CHARSET
+    else if Pos(aLang, 'pol,hun,cze,svk,rom') <> 0 then
+      Result := EASTEUROPE_CHARSET
+    else if Pos(aLang, 'tur') <> 0 then
+      Result := TURKISH_CHARSET
+    else if Pos(aLang, 'lit,lat') <> 0 then
+      Result := BALTIC_CHARSET
+    else if Pos(aLang, 'eng,spa,ita,nor,chn,dut,est,ptb,fre,ger,jpn,swe') <> 0 then
+      Result := ANSI_CHARSET
+    else
+      Result := DEFAULT_CHARSET;
+  end;
+var
+  I: Integer;
+begin
+  clbShowLang.Clear;
+
+  clbShowLang.Items.Add('All');
+
+  for I := 0 to fLocales.Count - 1 do
+    clbShowLang.Items.Add(fLocales[I].Code);
+
+  SetLength(TransMemos, fLocales.Count);
+  SetLength(TransLabels, fLocales.Count);
+  for I := 0 to fLocales.Count - 1 do
+  begin
+    TransLabels[I] := TLabel.Create(Form1);
+    TransLabels[I].Parent := ScrollBox1;
+    TransLabels[I].Caption := fLocales[I].Title + ' (' + fLocales[I].Code + ')';
+    TransLabels[I].Hide;
+
+    TransMemos[I] := TMemo.Create(Form1);
+    TransMemos[I].Parent := ScrollBox1;
+    TransMemos[I].Anchors := [akLeft, akRight, akTop];
+    TransMemos[I].Font.Charset := GetCharset(fLocales[I].Code);
+    TransMemos[I].OnChange := MemoChange;
+    TransMemos[I].Tag := I;
+    TransMemos[I].Hide;
+  end;
 end;
 
 
 procedure TForm1.RefreshLocales;
-
-  function GetCharset(aLang: string): TFontCharset;
-  begin
-    Result := DEFAULT_CHARSET;
-    if aLang = 'rus' then Result := RUSSIAN_CHARSET;
-    if aLang = 'bul' then Result := RUSSIAN_CHARSET;
-    if aLang = 'pol' then Result := EASTEUROPE_CHARSET;
-    if aLang = 'hun' then Result := EASTEUROPE_CHARSET;
-    if aLang = 'cze' then Result := EASTEUROPE_CHARSET;
-    if aLang = 'svk' then Result := EASTEUROPE_CHARSET;
-  end;
-
-var I, K, SelectedLang, SelectedShowMissing: Integer;
+var
+  I: Integer;
 begin
-  for I := 0 to High(TransLabels) do
-  begin
-    FreeAndNil(TransLabels[I]);
-    FreeAndNil(TransMemos[I]);
-  end;
-  SelectedLang := cbShowLang.ItemIndex;
-  if SelectedLang = -1 then
-    SelectedLang := 0;
-
-  SetLength(TransMemos, fLocales.Count);
-  SetLength(TransLabels, fLocales.Count);
-
-  SelectedShowMissing := cbShowMissing.ItemIndex;
-  cbShowMissing.Items.Clear;
-  cbShowMissing.Items.Add('None');
-
-  cbShowLang.Items.Clear;
-  cbShowLang.Items.Add('All');
-  cbShowLang.ItemIndex := 0; //All by default
-  K := 0;
   for I := 0 to fLocales.Count - 1 do
   begin
-    TransMemos[I] := TMemo.Create(Form1);
-    TransMemos[I].Parent := ScrollBox1;
-    TransMemos[I].Tag := I;
-    TransMemos[I].Hide;
-    cbShowMissing.Items.Add(fLocales[I].Code);
-    cbShowLang.Items.Add(fLocales[I].Code);
-    if SelectedLang = I+1 then cbShowLang.ItemIndex := I+1;
-    if (SelectedLang = 0) or (SelectedLang = I+1)
-    or (fLocales[I].Code = 'eng') then //Always show ENG
-    begin
-      TransLabels[I] := TLabel.Create(Form1);
-      TransLabels[I].Parent := ScrollBox1;
-      TransLabels[I].SetBounds(8, 4 + K * 80, 30, 30);
-      TransLabels[I].Caption := fLocales[I].Title + ' (' + fLocales[I].Code + ')';
-
-      TransMemos[I].Parent := ScrollBox1;
-      TransMemos[I].SetBounds(8, 22 + K * 80, ScrollBox1.Width - 16, 60);
-      TransMemos[I].Anchors := [akLeft, akRight, akTop];
-      TransMemos[I].Font.Charset := GetCharset(fLocales[I].Code);
-      TransMemos[I].OnChange := MemoChange;
-      TransMemos[I].Show;
-
-      inc(K);
-    end;
+    TransMemos[I].Visible := clbShowLang.Checked[I+1];
+    TransLabels[I].Visible := clbShowLang.Checked[I+1];
   end;
-  if SelectedShowMissing = -1 then
-    cbShowMissing.ItemIndex := 0
-  else
-    cbShowMissing.ItemIndex := SelectedShowMissing;
-  ListBox1Click(nil);
+
+  FormResize(Self);
+end;
+
+
+procedure TForm1.LoadSettings(aPath: string);
+var
+  I: Integer;
+  F: TIniFile;
+  Locs: string;
+begin
+  F := TIniFile.Create(aPath);
+  try
+    Locs := F.ReadString('Root', 'Selected_Locales', 'eng');
+  finally
+    F.Free;
+  end;
+
+  //If there are any items "All" should be greyed
+  if Locs <> '' then
+    clbShowLang.State[0] := cbGrayed;
+
+  for I := 0 to fLocales.Count - 1 do
+  if Pos(fLocales[I].Code, Locs) <> 0 then
+    clbShowLang.Checked[I+1] := True;
+
+  RefreshLocales;
+end;
+
+
+procedure TForm1.SaveSettings(aPath: string);
+var
+  I: Integer;
+  F: TIniFile;
+  Locs: string;
+begin
+  Locs := '';
+  for I := 0 to fLocales.Count - 1 do
+  if clbShowLang.Checked[I+1] then
+    Locs := Locs + fLocales[I].Code + ',';
+
+  F := TIniFile.Create(aPath);
+  try
+    F.WriteString('Root', 'Selected_Locales', Locs);
+  finally
+    F.Free;
+  end;
 end;
 
 
@@ -422,6 +498,7 @@ end;
 
 procedure TForm1.Edit1Change(Sender: TObject);
 begin
+  RefreshFilter;
   RefreshList;
 end;
 
@@ -562,24 +639,10 @@ begin
 end;
 
 
-procedure TForm1.cbShowMissingChange(Sender: TObject);
-var
-  Filter: Boolean;
+procedure TForm1.cbShowMisClick(Sender: TObject);
 begin
+  RefreshFilter;
   RefreshList;
-  Filter := cbShowMissing.ItemIndex > 0;
-
-  //Disable buttons
-  mnuSortByIndex.Enabled := not Filter;
-  mnuSortByName.Enabled := not Filter;
-  mnuCompactIndexes.Enabled := not Filter;
-  btnInsert.Enabled := not Filter;
-  btnDelete.Enabled := not Filter;
-  btnInsertSeparator.Enabled := not Filter;
-  btnMoveUp.Enabled := not Filter;
-  btnMoveDown.Enabled := not Filter;
-  cbIncludeSameAsEnglish.Enabled := Filter;
-  LabelIncludeSameAsEnglish.Enabled := Filter;
 
   //Select the first item
   ListBox1.ItemIndex := 0;
@@ -587,16 +650,58 @@ begin
 end;
 
 
-procedure TForm1.cbIncludeSameAsEnglishClick(Sender: TObject);
+procedure TForm1.RefreshFilter;
+var
+  Id: Integer;
+  Filter, MainFile: Boolean;
 begin
-  cbShowMissingChange(cbIncludeSameAsEnglish);
+  Id := lbFolders.ItemIndex;
+  if Id = -1 then Exit;
+
+  MainFile := SameText(lbFolders.Items[ID], 'data\text\text.%s.libx');
+  Filter := cbShowMis.Checked or cbShowDup.Checked or (Edit1.Text <> '');
+
+  //Disable buttons
+  mnuSortByIndex.Enabled := MainFile and not Filter;
+  mnuSortByName.Enabled := MainFile and not Filter;
+  mnuCompactIndexes.Enabled := MainFile and not Filter;
+  btnInsert.Enabled := not Filter;
+  btnRename.Enabled := MainFile;
+  btnDelete.Enabled := not Filter;
+  btnInsertSeparator.Enabled := MainFile and not Filter;
+  btnMoveUp.Enabled := MainFile and not Filter;
+  btnMoveDown.Enabled := MainFile and not Filter;
 end;
 
 
-procedure TForm1.LabelIncludeSameAsEnglishClick(Sender: TObject);
+procedure TForm1.clbShowLangClickCheck(Sender: TObject);
+var
+  I,K: Integer;
 begin
-  cbIncludeSameAsEnglish.Checked := not cbIncludeSameAsEnglish.Checked;
-  cbIncludeSameAsEnglishClick(LabelIncludeSameAsEnglish);
+  if clbShowLang.Selected[0] then
+    if clbShowLang.State[0] = cbChecked then
+      for I := 1 to clbShowLang.Count - 1 do
+        clbShowLang.Checked[I] := True
+    else
+    if clbShowLang.State[0] = cbUnchecked then
+      for I := 1 to clbShowLang.Count - 1 do
+        clbShowLang.Checked[I] := False;
+
+  K := 0;
+  for I := 1 to clbShowLang.Count - 1 do
+  if clbShowLang.Checked[I] then
+    Inc(K);
+
+  if K = 0 then
+    clbShowLang.State[0] := cbUnchecked
+  else
+  if K = clbShowLang.Count - 1 then
+    clbShowLang.State[0] := cbChecked
+  else
+    clbShowLang.State[0] := cbGrayed;
+
+  RefreshList;
+  RefreshLocales;
 end;
 
 
@@ -606,9 +711,8 @@ begin
               (MessageDlg('You have unsaved changes that will be lost, are you sure you want to exit?', mtWarning, [mbYes,mbNo], 0) = mrYes);
 end;
 
-procedure TForm1.cbShowLangChange(Sender: TObject);
+procedure TForm1.cbShowLang8888Change(Sender: TObject);
 begin
-  fPreviousShowLang := cbShowLang.ItemIndex;
   FreeAndNil(fLocales);
   fLocales := TKMLocales.Create(fWorkDir + 'data\locales.txt');
   RefreshLocales;

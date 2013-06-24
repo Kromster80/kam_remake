@@ -40,7 +40,7 @@ begin
   Caption := 'RXX Packer (' + GAME_REVISION + ')';
 
   //Although we don't need them in this tool, these are required to load sprites
-  fLog := TKMLog.Create(ExeDir + 'RXXPacker.log');
+  gLog := TKMLog.Create(ExeDir + 'RXXPacker.log');
 
   fPalettes := TKMPalettes.Create;
   fPalettes.LoadPalettes;
@@ -55,7 +55,7 @@ end;
 procedure TRXXForm1.FormDestroy(Sender: TObject);
 begin
   FreeAndNil(fPalettes);
-  FreeAndNil(fLog);
+  FreeAndNil(gLog);
 end;
 
 
@@ -117,7 +117,7 @@ begin
 
       //Tiles must stay the same size as they can't use pivots
       if RT <> rxTiles then
-        fLog.AddTime('Trimmed ' + IntToStr(SpritePack.TrimSprites));
+        gLog.AddTime('Trimmed ' + IntToStr(SpritePack.TrimSprites));
 
       //Houses need some special treatment to adapt to GL_ALPHA_TEST that we use for construction steps
       if RT = rxHouses then
@@ -150,9 +150,9 @@ begin
           fUnitDat := TKMUnitDatCollection.Create;
           DeathAnimCount := 0; //We need to remember which ones we've done because units reuse them
           SetLength(DeathAnimProcessed, 1000); //Hopefully more than enough
-          for UT:=HUMANS_MIN to HUMANS_MAX do
-            for Dir:=dir_N to dir_NW do
-              for Step:=1 to 30 do
+          for UT := HUMANS_MIN to HUMANS_MAX do
+            for Dir := dir_N to dir_NW do
+              for Step := 1 to 30 do
               begin
                 SpriteID := fUnitDat.UnitsDat[UT].UnitAnim[ua_Die,Dir].Step[Step]+1; //Sprites in units.dat are 0 indexed
                 if (SpriteID > 0)

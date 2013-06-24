@@ -5,8 +5,8 @@ uses
   SysUtils, Classes, KM_Utils;
 
 
-//This is our custom logging system
 type
+  //Logging system
   TKMLog = class
   private
     fl: textfile;
@@ -34,7 +34,7 @@ type
   end;
 
   var
-    fLog: TKMLog;
+    gLog: TKMLog;
 
 
 implementation

@@ -1,0 +1,4 @@
+SetSpecial
+
+BigDesc
+FUN WITH FLAGS game mode|Map: Florescence One|Please check the readme file for a detailed description. The readme is in the folder:|MapsMP\Florescence One| |Map made by Shadaoe|Fun With Flags script made by Siegfried|For sound license, see readme

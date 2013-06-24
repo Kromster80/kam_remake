@@ -3,12 +3,14 @@ unit KM_CityPlanner;
 interface
 uses
   Classes, Graphics, KromUtils, Math, SysUtils, TypInfo,
-  KM_Defaults, KM_Points, KM_CommonClasses, KM_TerrainFinder, KM_PerfLog;
+  KM_Defaults, KM_Points, KM_CommonClasses,
+  KM_TerrainFinder, KM_PerfLog, KM_ResourceHouse, KM_ResourceWares;
 
 
 type
   TFindNearest = (fnHouse, fnStone, fnTrees, fnSoil, fnWater, fnCoal, fnIron, fnGold);
 
+  //Terrain finder optimized for CityPlanner demands of finding resources and houses
   TKMTerrainFinderCity = class(TKMTerrainFinderCommon)
   protected
     fOwner: TPlayerIndex;
@@ -161,10 +163,10 @@ var
 begin
   //Mark all spots where we could possibly place a goldmine
   //some smarter logic can clip left/right edges later on?
-  for I := 1 to fTerrain.MapY - 2 do
-  for K := 1 to fTerrain.MapX - 2 do
-  if fTerrain.TileGoodForGoldmine(K,I) then
-    fListGold.AddEntry(KMPoint(K,I));
+  for I := 1 to gTerrain.MapY - 2 do
+  for K := 1 to gTerrain.MapX - 2 do
+  if gTerrain.TileGoodForGoldmine(K,I) then
+    fListGold.Add(KMPoint(K,I));
 end;
 
 
@@ -178,8 +180,8 @@ function TKMCityPlanner.NextToGrass(aHouse: THouseType; aSeed: array of THouseTy
     if fPlayers[fOwner].CanAddHousePlanAI(aX, aY, aHouse, True) then
     begin
       FieldCount := 0;
-      for I := Min(aY + 2, fTerrain.MapY - 1) to Max(aY + 2 + AI_FIELD_HEIGHT - 1, 1) do
-      for K := Max(aX - AI_FIELD_WIDTH, 1) to Min(aX + AI_FIELD_WIDTH, fTerrain.MapX - 1) do
+      for I := Min(aY + 2, gTerrain.MapY - 1) to Max(aY + 2 + AI_FIELD_HEIGHT - 1, 1) do
+      for K := Max(aX - AI_FIELD_WIDTH, 1) to Min(aX + AI_FIELD_WIDTH, gTerrain.MapX - 1) do
       if fPlayers[fOwner].CanAddFieldPlan(KMPoint(K,I), ft_Corn) then
       begin
         Inc(FieldCount);
@@ -207,8 +209,8 @@ begin
   for J := Low(SeedLocs) to High(SeedLocs) do
   begin
     S := SeedLocs[J];
-    for I := Max(S.Y - 7, 1) to Min(S.Y + 6, fTerrain.MapY - 1) do
-    for K := Max(S.X - 7, 1) to Min(S.X + 7, fTerrain.MapX - 1) do
+    for I := Max(S.Y - 7, 1) to Min(S.Y + 6, gTerrain.MapY - 1) do
+    for K := Max(S.X - 7, 1) to Min(S.X + 7, gTerrain.MapX - 1) do
     if CanPlaceHouse(aHouse, K, I) then
     begin
       Bid := KMLength(KMPoint(K,I), S)
@@ -284,8 +286,8 @@ begin
     begin
       M := KaMRandom(Locs.Count);
       StoneLoc := Locs[M];
-      for I := StoneLoc.Y to Min(StoneLoc.Y + 6, fTerrain.MapY - 1) do
-      for K := Max(StoneLoc.X - 6, 1) to Min(StoneLoc.X + 6, fTerrain.MapX - 1) do
+      for I := StoneLoc.Y to Min(StoneLoc.Y + 6, gTerrain.MapY - 1) do
+      for K := Max(StoneLoc.X - 6, 1) to Min(StoneLoc.X + 6, gTerrain.MapX - 1) do
       if fPlayers[fOwner].CanAddHousePlanAI(K, I, aHouse, True) then
       begin
         Bid := Locs.Tag[M]
@@ -396,9 +398,9 @@ begin
     //todo: Rework through FindNearest to avoid roundabouts
   //Fill in MyForest map
   FillChar(MyForest[0,0], SizeOf(MyForest), #0);
-  for I := Max(TargetLoc.Y - SEARCH_RAD, 1) to Min(TargetLoc.Y + SEARCH_RAD, fTerrain.MapY - 1) do
-  for K := Max(TargetLoc.X - SEARCH_RAD, 1) to Min(TargetLoc.X + SEARCH_RAD, fTerrain.MapX - 1) do
-  if fTerrain.ObjectIsChopableTree(K, I) then
+  for I := Max(TargetLoc.Y - SEARCH_RAD, 1) to Min(TargetLoc.Y + SEARCH_RAD, gTerrain.MapY - 1) do
+  for K := Max(TargetLoc.X - SEARCH_RAD, 1) to Min(TargetLoc.X + SEARCH_RAD, gTerrain.MapX - 1) do
+  if gTerrain.ObjectIsChopableTree(K, I) then
   begin
     Mx := (K - TargetLoc.X + SEARCH_RAD) div SEARCH_DIV;
     My := (I - TargetLoc.Y + SEARCH_RAD) div SEARCH_DIV;
@@ -414,7 +416,7 @@ begin
   begin
     Mx := Round(TargetLoc.X - SEARCH_RAD + (K + 0.5) * SEARCH_DIV);
     My := Round(TargetLoc.Y - SEARCH_RAD + (I + 0.5) * SEARCH_DIV);
-    if InRange(Mx, 1, fTerrain.MapX - 1) and InRange(My, 1, fTerrain.MapY - 1)
+    if InRange(Mx, 1, gTerrain.MapX - 1) and InRange(My, 1, gTerrain.MapY - 1)
     and (fAIFields.Influences.AvoidBuilding[My, Mx] = 0) then
     begin
       Bid := MyForest[I, K] + KaMRandom * 2; //Add some noise for varied results
@@ -427,8 +429,8 @@ begin
   end;
 
   BestBid := MaxSingle;
-  for I := Max(TreeLoc.Y - HUT_RAD, 1) to Min(TreeLoc.Y + HUT_RAD, fTerrain.MapY - 1) do
-  for K := Max(TreeLoc.X - HUT_RAD, 1) to Min(TreeLoc.X + HUT_RAD, fTerrain.MapX - 1) do
+  for I := Max(TreeLoc.Y - HUT_RAD, 1) to Min(TreeLoc.Y + HUT_RAD, gTerrain.MapY - 1) do
+  for K := Max(TreeLoc.X - HUT_RAD, 1) to Min(TreeLoc.X + HUT_RAD, gTerrain.MapX - 1) do
     if fPlayers[fOwner].CanAddHousePlanAI(K, I, aHouse, True) then
     begin
       Bid := KMLength(KMPoint(K,I), TargetLoc) + KaMRandom * 5;
@@ -485,15 +487,15 @@ begin
   case FindType of
     fnHouse:  Result := fPlayers[fOwner].CanAddHousePlanAI(X, Y, HouseType, True);
 
-    fnStone:  Result := (fTerrain.TileIsStone(X, Max(Y-2, 1)) > 1);
+    fnStone:  Result := (gTerrain.TileIsStone(X, Max(Y-2, 1)) > 1);
 
-    fnCoal:   Result := (fTerrain.TileIsCoal(X, Y) > 1)
+    fnCoal:   Result := (gTerrain.TileIsCoal(X, Y) > 1)
                          and fPlayers[fOwner].CanAddHousePlanAI(X, Y, ht_CoalMine, False);
 
-    fnIron:   Result := (fTerrain.TileIsIron(X, Max(Y-1, 1)) > 0)
+    fnIron:   Result := (gTerrain.TileIsIron(X, Max(Y-1, 1)) > 0)
                          and fPlayers[fOwner].CanAddHousePlanAI(X, Y, ht_IronMine, False);
 
-    fnGold:   Result := (fTerrain.TileIsGold(X, Max(Y-1, 1)) > 0)
+    fnGold:   Result := (gTerrain.TileIsGold(X, Max(Y-1, 1)) > 0)
                          and fPlayers[fOwner].CanAddHousePlanAI(X, Y, ht_GoldMine, False);
 
     else      Result := False;
@@ -507,13 +509,13 @@ var
 begin
   //Check for specific passabilities
   case FindType of
-    fnIron:   Result := (fPassability * fTerrain.Land[Y,X].Passability <> [])
-                        or fTerrain.TileGoodForIron(X, Y);
+    fnIron:   Result := (fPassability * gTerrain.Land[Y,X].Passability <> [])
+                        or gTerrain.TileGoodForIron(X, Y);
 
-    fnGold:   Result := (fPassability * fTerrain.Land[Y,X].Passability <> [])
-                        or fTerrain.TileGoodForGoldmine(X, Y);
+    fnGold:   Result := (fPassability * gTerrain.Land[Y,X].Passability <> [])
+                        or gTerrain.TileGoodForGoldmine(X, Y);
 
-    else      Result := (fPassability * fTerrain.Land[Y,X].Passability <> []);
+    else      Result := (fPassability * gTerrain.Land[Y,X].Passability <> []);
   end;
 
   if not Result then Exit;

@@ -493,23 +493,24 @@ end;
 
 
 //Networking needs to convert Nikname to local index in players list
-function TKMNetPlayersList.NiknameToLocal(aNikname:string):integer;
+function TKMNetPlayersList.NiknameToLocal(aNikname: string): Integer;
 var I: Integer;
 begin
   Result := -1;
-  for i:=1 to fCount do
-    if fNetPlayers[i].fNikname = aNikname then
-      Result := i;
+  for I := 1 to fCount do
+    if fNetPlayers[I].fNikname = aNikname then
+      Result := I;
 end;
 
 
-function TKMNetPlayersList.StartingLocToLocal(aLoc:integer):integer;
+//Convert known starting location to local index in players list
+function TKMNetPlayersList.StartingLocToLocal(aLoc: Integer): Integer;
 var I: Integer;
 begin
   Result := -1;
-  for i:=1 to fCount do
-    if fNetPlayers[i].StartLocation = aLoc then
-      Result := i;
+  for I := 1 to fCount do
+    if fNetPlayers[I].StartLocation = aLoc then
+      Result := I;
 end;
 
 
@@ -558,29 +559,29 @@ begin
 end;
 
 
-function TKMNetPlayersList.LocAvailable(aIndex:integer):boolean;
+function TKMNetPlayersList.LocAvailable(aIndex: Integer): Boolean;
 var I: Integer;
 begin
-  Result := true;
-  if aIndex=0 then exit;
+  Result := True;
+  if aIndex = 0 then Exit;
 
-  for i:=1 to fCount do
-    Result := Result and not (fNetPlayers[i].StartLocation = aIndex);
+  for I := 1 to fCount do
+    Result := Result and (aIndex <> fNetPlayers[I].StartLocation);
 end;
 
 
-function TKMNetPlayersList.ColorAvailable(aIndex:integer):boolean;
+function TKMNetPlayersList.ColorAvailable(aIndex: Integer): Boolean;
 var I: Integer;
 begin
-  Result := true;
-  if aIndex=0 then exit;
+  Result := True;
+  if aIndex = 0 then Exit;
 
-  for i:=1 to fCount do
-    Result := Result and not (fNetPlayers[i].FlagColorID = aIndex);
+  for I := 1 to fCount do
+    Result := Result and (aIndex <> fNetPlayers[I].FlagColorID);
 end;
 
 
-function TKMNetPlayersList.AllReady:boolean;
+function TKMNetPlayersList.AllReady: Boolean;
 var I: Integer;
 begin
   Result := true;
@@ -851,7 +852,7 @@ begin
   for i:=1 to fCount do
     fNetPlayers[i].Save(M);
 
-  Result := M.ReadAsText;
+  Result := M.GetAsText;
   M.Free;
 end;
 
@@ -861,7 +862,7 @@ var I: Integer; M: TKMemoryStream;
 begin
   M := TKMemoryStream.Create;
   try
-    M.WriteAsText(aText);
+    M.SetAsText(aText);
     M.Read(HostDoesSetup);
     M.Read(RandomizeTeamLocations);
     M.Read(fCount);

@@ -54,8 +54,8 @@ constructor TKMTerrainFinderCommon.Create;
 begin
   inherited;
 
-  MapX := fTerrain.MapX;
-  MapY := fTerrain.MapY;
+  MapX := gTerrain.MapX;
+  MapY := gTerrain.MapY;
   SetLength(Visited, MapY+1, MapX+1);
 end;
 
@@ -114,7 +114,7 @@ begin
     if I <> -1 then
       fLocs.Tag[I] := aWalkDistance //New is always smaller
     else
-      fLocs.AddEntry(KMPoint(X,Y), aWalkDistance);
+      fLocs.Add(KMPoint(X,Y), aWalkDistance);
 
     //If we have enough points we can be picky and take only better distances
     if fLocs.Count >= fMaxCount then
@@ -194,14 +194,14 @@ const
     //Test whether this tile is valid and exit immediately if not
     //Multiply the radius by 10 because of diagonal approximation (straight=10, diagonal=14)
     if (aWalkDistance > aRadius * STRAIGHT_COST) or
-    not (aPass in fTerrain.Land[Y,X].Passability) then Exit;
+    not (aPass in gTerrain.Land[Y,X].Passability) then Exit;
     Xt := aStart.X - X + aRadius;
     Yt := aStart.Y - Y + aRadius;
     if (aWalkDistance >= Visited[Yt,Xt]) then Exit;
 
     //Only add to results once (255 is the intial value)
     if Visited[Yt,Xt] = 255 then
-      aList.AddEntry(KMPoint(X,Y));
+      aList.Add(KMPoint(X,Y));
 
     //Mark this tile as visited
     Visited[Yt,Xt] := aWalkDistance;
@@ -211,10 +211,10 @@ const
     //calculations so we can still store it as bytes to save space and time
     if X-1 >= 1 then
     begin
-      if (Y-1 >= 1) and not MapElem[fTerrain.Land[Y,X].Obj].DiagonalBlocked then
+      if (Y-1 >= 1) and not MapElem[gTerrain.Land[Y,X].Obj].DiagonalBlocked then
         Visit(X-1, Y-1, aWalkDistance + DIAG_COST);
       Visit(X-1, Y, aWalkDistance + STRAIGHT_COST);
-      if (Y+1 <= MapY) and not MapElem[fTerrain.Land[Y+1,X].Obj].DiagonalBlocked then
+      if (Y+1 <= MapY) and not MapElem[gTerrain.Land[Y+1,X].Obj].DiagonalBlocked then
         Visit(X-1,Y+1, aWalkDistance + DIAG_COST);
     end;
 
@@ -223,10 +223,10 @@ const
 
     if X+1 <= MapX then
     begin
-      if (Y-1 >= 1) and not MapElem[fTerrain.Land[Y,X+1].Obj].DiagonalBlocked then
+      if (Y-1 >= 1) and not MapElem[gTerrain.Land[Y,X+1].Obj].DiagonalBlocked then
         Visit(X+1, Y-1, aWalkDistance + DIAG_COST);
       Visit(X+1, Y, aWalkDistance + STRAIGHT_COST);
-      if (Y+1 <= MapY) and not MapElem[fTerrain.Land[Y+1,X+1].Obj].DiagonalBlocked then
+      if (Y+1 <= MapY) and not MapElem[gTerrain.Land[Y+1,X+1].Obj].DiagonalBlocked then
         Visit(X+1, Y+1, aWalkDistance + DIAG_COST);
     end;
   end;
@@ -248,8 +248,8 @@ begin
   begin
     for I := max(aStart.Y-aRadius, 1) to min(aStart.Y+aRadius, MapY-1) do
       for K := max(aStart.X-aRadius, 1) to min(aStart.X+aRadius, MapX-1) do
-        if (aPass in fTerrain.Land[I,K].Passability) and (KMLengthDiag(aStart, KMPoint(K,I)) <= aRadius) then
-          aList.AddEntry(KMPoint(K,I));
+        if (aPass in gTerrain.Land[I,K].Passability) and (KMLengthDiag(aStart, KMPoint(K,I)) <= aRadius) then
+          aList.Add(KMPoint(K,I));
   end;
 end;
 
@@ -276,7 +276,7 @@ end;
 
 function TKMTerrainFinder.CanWalkHere(const X, Y: Word): Boolean;
 begin
-  Result := (fPassability * fTerrain.Land[Y,X].Passability <> []);
+  Result := (fPassability * gTerrain.Land[Y,X].Passability <> []);
 end;
 
 

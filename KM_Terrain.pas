@@ -2,7 +2,8 @@ unit KM_Terrain;
 {$I KaM_Remake.inc}
 interface
 uses Classes, KromUtils, Math, SysUtils, Graphics,
-  KM_CommonClasses, KM_Defaults, KM_Points, KM_Utils, KM_ResourceTileset, KM_TerrainFinder;
+  KM_CommonClasses, KM_Defaults, KM_Points, KM_Utils, KM_ResourceTileset,
+  KM_ResourceHouse, KM_ResourceWares, KM_TerrainFinder;
 
 
 type
@@ -35,8 +36,6 @@ type
     procedure UpdateFences(Loc: TKMPoint; CheckSurrounding: Boolean = True);
 
     procedure UpdateWalkConnect(const aSet: array of TWalkConnect; aRect: TKMRect; aDiagObjectsEffected:Boolean);
-
-    procedure CCLFind(aWC: TWalkConnect; aPass: TPassability; aAllowDiag: Boolean);
   public
     Land: array [1..MAX_MAP_SIZE, 1..MAX_MAP_SIZE] of record
       Terrain: Byte;
@@ -209,12 +208,12 @@ type
 var
   //Terrain is a globally accessible resource by so many objects
   //In rare cases local terrain is used (e.g. main menu minimap)
-  fTerrain: TKMTerrain;
+  gTerrain: TKMTerrain;
 
 
 implementation
-uses KM_Log, KM_PlayersCollection,
-  KM_Resource, KM_Units, KM_ResourceHouse, KM_ResourceMapElements, KM_Sound, KM_UnitActionStay, KM_Units_Warrior;
+uses KM_Log, KM_PlayersCollection, KM_TerrainWalkConnect,
+  KM_Resource, KM_Units, KM_ResourceMapElements, KM_Sound, KM_UnitActionStay, KM_Units_Warrior;
 
 
 { TKMTerrain }
@@ -289,7 +288,7 @@ begin
 
   fMapEditor := aMapEditor;
 
-  fLog.AddTime('Loading map file: ' + FileName);
+  gLog.AddTime('Loading map file: ' + FileName);
 
   S := TKMemoryStream.Create;
   try
@@ -338,112 +337,119 @@ begin
 
   //Everything except roads
   UpdateWalkConnect([wcWalk, wcFish, wcWork], KMRect(1, 1, fMapX, fMapY), True);
-  fLog.AddTime('Map file loaded');
+  gLog.AddTime('Map file loaded');
 end;
 
 
 //Save (export) map in KaM .map format with additional tile information on the end?
 procedure TKMTerrain.SaveToFile(aFile: string);
-var f:file; i,k:integer; c0,cF:cardinal; light,b205: Byte; SizeX,SizeY:Integer;
+var
+  S: TKMemoryStream; i,k:integer; c0,cF:cardinal; light,b205: Byte; SizeX,SizeY:Integer;
     ResHead: packed record x1:word; Allocated,Qty1,Qty2,x5,Len17:integer; end;
     Res:array[1..MAX_MAP_SIZE*2]of packed record X1,Y1,X2,Y2:integer; Typ: Byte; end;
 begin
+  Assert(fMapEditor, 'Can save terrain to file only in MapEd');
   ForceDirectories(ExtractFilePath(aFile));
 
-  AssignFile(f,aFile); rewrite(f,1);
+  S := TKMemoryStream.Create;
+  try
+    //Dimensions must be stored as 4 byte integers
+    SizeX := fMapX;
+    SizeY := fMapY;
+    S.Write(SizeX);
+    S.Write(SizeY);
 
-  //Dimensions must be stored as 4 byte integers
-  SizeX := fMapX;
-  SizeY := fMapY;
-  blockwrite(f,SizeX,4);
-  blockwrite(f,SizeY,4);
-
-  c0 := 0;
-  cF := $FFFFFFFF;
-  b205 := 205;
-  for i:=1 to fMapY do for k:=1 to fMapX do
-  begin
-    //Map file stores terrain, not the fields placed over it, so save OldTerrain rather than Terrain
-    if TileIsCornField(KMPoint(k,i)) or TileIsWineField(KMPoint(k,i)) then
-      blockwrite(f,Land[i,k].OldTerrain,1)
-    else
-      blockwrite(f,Land[i,k].Terrain,1);
-
-    light := round((Land[i,k].Light+1)*16);
-    blockwrite(f,light,1); //Light
-    blockwrite(f,Land[i,k].Height,1);
-
-    //Map file stores terrain, not the fields placed over it, so save OldRotation rather than Rotation
-    if TileIsCornField(KMPoint(k,i)) or TileIsWineField(KMPoint(k,i)) then
-      blockwrite(f,Land[i,k].OldRotation,1)
-    else
-      blockwrite(f,Land[i,k].Rotation,1);
-
-    blockwrite(f,c0,1); //unknown
-
-    //Don't save winefield objects as they are part of the DAT not map
-    if TileIsWineField(KMPoint(k,i)) then
-      blockwrite(f,cF,1)
-    else
-      blockwrite(f,Land[i,k].Obj,1);
-
-    blockwrite(f,cF,1); //Passability?
-
-    blockwrite(f,cF,4); //unknown
-    blockwrite(f,c0,3); //unknown
-    //Border
-    if (i=fMapY) or (k=fMapX) then
-      blockwrite(f,b205,1) //Bottom/right = 205
-    else
-      if (i=1) or (k=1) then
-        blockwrite(f,c0,1) //Top/left = 0
+    c0 := 0;
+    cF := $FFFFFFFF;
+    b205 := 205;
+    for i:=1 to fMapY do for k:=1 to fMapX do
+    begin
+      //Map file stores terrain, not the fields placed over it, so save OldTerrain rather than Terrain
+      if TileIsCornField(KMPoint(k,i)) or TileIsWineField(KMPoint(k,i)) then
+        S.Write(Land[i,k].OldTerrain)
       else
-        blockwrite(f,cF,1); //Rest of the screen = 255
-    blockwrite(f,cF,1); //unknown - always 255
-    blockwrite(f,b205,1); //unknown - always 205
-    blockwrite(f,c0,2); //unknown - always 0
-    blockwrite(f,c0,4); //unknown - always 0
+        S.Write(Land[i,k].Terrain);
+
+      light := round((Land[i,k].Light+1)*16);
+      S.Write(light); //Light
+      S.Write(Land[i,k].Height);
+
+      //Map file stores terrain, not the fields placed over it, so save OldRotation rather than Rotation
+      if TileIsCornField(KMPoint(k,i)) or TileIsWineField(KMPoint(k,i)) then
+        S.Write(Land[i,k].OldRotation)
+      else
+        S.Write(Land[i,k].Rotation);
+
+      S.Write(c0,1); //unknown
+
+      //Don't save winefield objects as they are part of the DAT not map
+      if TileIsWineField(KMPoint(k,i)) then
+        S.Write(cF,1)
+      else
+        S.Write(Land[i,k].Obj);
+
+      S.Write(cF,1); //Passability?
+
+      S.Write(cF,4); //unknown
+      S.Write(c0,3); //unknown
+      //Border
+      if (i=fMapY) or (k=fMapX) then
+        S.Write(b205) //Bottom/right = 205
+      else
+        if (i=1) or (k=1) then
+          S.Write(c0,1) //Top/left = 0
+        else
+          S.Write(cF,1); //Rest of the screen = 255
+
+      S.Write(cF,1); //unknown - always 255
+      S.Write(b205,1); //unknown - always 205
+      S.Write(c0,2); //unknown - always 0
+      S.Write(c0,4); //unknown - always 0
+    end;
+
+    //Resource footer: Temporary hack to make the maps compatible with KaM. If we learn how resource footers
+    //are formatted we can implement it, but for now it appears to work fine like this.
+    ResHead.x1:=0;
+    ResHead.Allocated := fMapX+fMapY;
+    ResHead.Qty1:=0;
+    ResHead.Qty2:=ResHead.Qty1;
+    if ResHead.Qty1>0 then
+      ResHead.x5:=ResHead.Qty1-1
+    else
+      ResHead.x5:=0;
+    ResHead.Len17:=17;
+
+    for i:=1 to ResHead.Allocated do
+    begin
+      Res[i].X1:=-842150451; Res[i].Y1:=-842150451;
+      Res[i].X2:=-842150451; Res[i].Y2:=-842150451;
+      Res[i].Typ:=255;
+    end;
+
+    S.Write(ResHead, SizeOf(ResHead));
+    for i := 1 to ResHead.Allocated do
+      S.Write(Res[i], SizeOf(Res[i]));
+
+    S.SaveToFile(aFile);
+  finally
+    S.Free;
   end;
-
-  //Resource footer: Temporary hack to make the maps compatible with KaM. If we learn how resource footers
-  //are formatted we can implement it, but for now it appears to work fine like this.
-  ResHead.x1:=0;
-  ResHead.Allocated := fMapX+fMapY;
-  ResHead.Qty1:=0;
-  ResHead.Qty2:=ResHead.Qty1;
-  if ResHead.Qty1>0 then
-    ResHead.x5:=ResHead.Qty1-1
-  else
-    ResHead.x5:=0;
-  ResHead.Len17:=17;
-
-  for i:=1 to ResHead.Allocated do
-  begin
-    Res[i].X1:=-842150451; Res[i].Y1:=-842150451;
-    Res[i].X2:=-842150451; Res[i].Y2:=-842150451;
-    Res[i].Typ:=255;
-  end;
-
-  blockwrite(f,ResHead,22);
-  for i:=1 to ResHead.Allocated do blockwrite(f,Res[i],17);
-
-  closefile(f);
 end;
 
 
 {Check if requested tile (X,Y) is within Map boundaries}
 {X,Y are unsigned int, usually called from loops, hence no TKMPoint can be used}
-function TKMTerrain.TileInMapCoords(X,Y:integer; Inset: Byte=0): Boolean;
+function TKMTerrain.TileInMapCoords(X,Y: Integer; Inset: Byte = 0): Boolean;
 begin
-  Result := InRange(X,1+Inset,fMapX-1-Inset) and InRange(Y,1+Inset,fMapY-1-Inset);
+  Result := InRange(X, 1 + Inset, fMapX - 1 - Inset) and InRange(Y, 1 + Inset, fMapY - 1 - Inset);
 end;
 
 
 {Check if requested vertice is within Map boundaries}
 {X,Y are unsigned int, usually called from loops, hence no TKMPoint can be used}
-function TKMTerrain.VerticeInMapCoords(X,Y:integer; Inset: Byte=0): Boolean;
+function TKMTerrain.VerticeInMapCoords(X,Y: Integer; Inset: Byte = 0): Boolean;
 begin
-  Result := InRange(X,1+Inset,fMapX-Inset) and InRange(Y,1+Inset,fMapY-Inset);
+  Result := InRange(X, 1 + Inset, fMapX - Inset) and InRange(Y, 1 + Inset, fMapY - Inset);
 end;
 
 
@@ -451,8 +457,8 @@ end;
 {X,Y are unsigned int, usually called from loops, hence no TKMPoint can be used}
 function TKMTerrain.EnsureTileInMapCoords(X,Y: Integer; Inset: Byte = 0):TKMPoint;
 begin
-  Result.X := EnsureRange(X,1+Inset,fMapX-1-Inset);
-  Result.Y := EnsureRange(Y,1+Inset,fMapY-1-Inset);
+  Result.X := EnsureRange(X, 1 + Inset, fMapX - 1 - Inset);
+  Result.Y := EnsureRange(Y, 1 + Inset, fMapY - 1 - Inset);
 end;
 
 
@@ -711,23 +717,30 @@ end;
   Should be optimized versus usual UnitsHitTest
   Prefer Warriors over Citizens}
 function TKMTerrain.UnitsHitTestWithinRad(aLoc: TKMPoint; MinRad, MaxRad: Single; aPlayer: TPlayerIndex; aAlliance: TAllianceType; Dir: TKMDirection; const aClosest: Boolean): Pointer;
+type
+  TKMUnitArray = array of TKMUnit;
+  procedure Append(var aArray: TKMUnitArray; var aCount: Integer; const aUnit: TKMUnit);
+  begin
+    if aCount >= Length(aArray) then
+      SetLength(aArray, aCount + 32);
+
+    aArray[aCount] := aUnit;
+    Inc(aCount);
+  end;
 var
   I,K: Integer; //Counters
   LowX,LowY,HighX,HighY: Integer; //Ranges
   dX,dY: Integer;
   RequiredMaxRad: Single;
-  U,C,W: TKMUnit; //CurrentUnit, BestWarrior, BestCitizen
-  Warriors, Citizens: TList;
+  U: TKMUnit;
   P: TKMPoint;
+  WCount, CCount: Integer;
+  W, C: TKMUnitArray;
 begin
-  W := nil;
-  C := nil;
-
-  if not aClosest then
-  begin
-    Warriors := TList.Create;
-    Citizens := TList.Create;
-  end;
+  WCount := 0;
+  CCount := 0;
+  SetLength(W, 1 + Byte(aClosest) * 32);
+  SetLength(C, 1 + Byte(aClosest) * 32);
 
   //Scan one tile further than the maximum radius due to rounding
   LowX := Max(Round(aLoc.X-(MaxRad+1)), 1); //1.42 gets rounded to 1
@@ -763,8 +776,8 @@ begin
       Continue;
 
     //Don't check tiles farther than closest Warrior
-    if aClosest and (W <> nil)
-    and (KMLengthSqr(aLoc, KMPoint(K,I)) >= KMLengthSqr(aLoc, W.GetPosition)) then
+    if aClosest and (W[0] <> nil)
+    and (KMLengthSqr(aLoc, KMPoint(K,I)) >= KMLengthSqr(aLoc, W[0].GetPosition)) then
       Continue; //Since we check left-to-right we can't exit just yet (there are possible better enemies below)
 
     //In KaM archers can shoot further than sight radius (shoot further into explored areas)
@@ -792,38 +805,35 @@ begin
       if aClosest then
       begin
         if U is TKMUnitWarrior then
-          W := U
+          W[0] := U
         else
-          C := U;
+          C[0] := U;
       end
       else
       begin
         if U is TKMUnitWarrior then
-          Warriors.Add(U)
+          Append(W, WCount, U)
         else
-          Citizens.Add(U);
+          Append(C, CCount, U);
       end;
   end;
 
   if aClosest then
   begin
-    if W <> nil then
-      Result := W
+    if W[0] <> nil then
+      Result := W[0]
     else
-      Result := C;
+      Result := C[0];
   end
   else
   begin
-    if Warriors.Count > 0 then
-      Result := Warriors[KaMRandom(Warriors.Count)]
+    if WCount > 0 then
+      Result := W[KaMRandom(WCount)]
     else
-      if Citizens.Count > 0 then
-        Result := Citizens[KaMRandom(Citizens.Count)]
+      if CCount > 0 then
+        Result := C[KaMRandom(CCount)]
       else
         Result := nil;
-
-    Warriors.Free;
-    Citizens.Free;
   end;
 end;
 
@@ -1091,9 +1101,9 @@ begin
             if Route_CanBeMade(aLoc, P, CanWalk, 0) then
             begin
               if KMLengthSqr(aLoc, P) <= Sqr(aRadius div 2) then
-                NearTiles.AddItem(KMPointDir(P, dir_NA))
+                NearTiles.Add(KMPointDir(P, dir_NA))
               else
-                FarTiles.AddItem(KMPointDir(P, dir_NA));
+                FarTiles.Add(KMPointDir(P, dir_NA));
             end;
   end;
 
@@ -1131,9 +1141,9 @@ begin
             if Route_CanBeMade(aLoc, P, CanWalk, 0) then
             begin
               if KMLengthSqr(aLoc, P) <= Sqr(aRadius div 2) then
-                NearTiles.AddEntry(P)
+                NearTiles.Add(P)
               else
-                FarTiles.AddEntry(P);
+                FarTiles.Add(P);
             end;
   end;
 
@@ -1177,7 +1187,7 @@ begin
     and (TileIsStone(P.X, P.Y - 1) > 0)
     and (aIgnoreWorkingUnits or not TileIsLocked(P)) //Already taken by another stonemason
     and Route_CanBeMade(aLoc, P, CanWalk, 0) then
-      ChosenTiles.AddEntry(P);
+      ChosenTiles.Add(P);
   end;
 
   Result := ChosenTiles.GetRandom(P);
@@ -1218,22 +1228,22 @@ begin
       //Poorest ore gets mined in range - 2
       if InRange(I - aLoc.Y, - RadTop + 2, RadBottom - 2) then
         if InRange(K - aLoc.X, - RadLeft + 2, RadRight - 2) then
-          L[1].AddEntry(KMPoint(K, I))
+          L[1].Add(KMPoint(K, I))
     end
     else if Land[I, K].Terrain = R2 then
     begin
       //Second poorest ore gets mined in range - 1
       if InRange(I - aLoc.Y, - RadTop + 1, RadBottom - 1) then
         if InRange(K - aLoc.X, - RadLeft + 1, RadRight - 1) then
-          L[2].AddEntry(KMPoint(K, I))
+          L[2].Add(KMPoint(K, I))
     end
     else if Land[I, K].Terrain = R3 then
       //Always mine second richest ore
-      L[3].AddEntry(KMPoint(K, I))
+      L[3].Add(KMPoint(K, I))
     else
       if Land[I, K].Terrain = R4 then
         // Always mine richest ore
-        L[4].AddEntry(KMPoint(K, I));
+        L[4].Add(KMPoint(K, I));
   end;
 
   //Equation elements will be evalueated one by one until True is found
@@ -1339,16 +1349,16 @@ begin
       and ((T.X = 1) or (T.Y = 1) or not TileIsLocked(KMPoint(T.X-1, T.Y-1)))
       and Route_CanBeMadeToVertex(aLoc, T, CanWalk) then
         if ChooseCuttingDirection(aLoc, T, CuttingPoint) then
-          Trees.AddItem(CuttingPoint); //Tree
+          Trees.Add(CuttingPoint); //Tree
 
       if (aPlantAct in [taPlant, taAny])
       and TileGoodForTree(T.X, T.Y)
       and Route_CanBeMade(aLoc, T, CanWalk, 0)
       and not TileIsLocked(T) then //Taken by another woodcutter
         if ObjectIsChopableTree(T, caAgeStump) then
-          BestToPlant.AddEntry(T) //Prefer to dig out and plant on stumps to avoid cluttering whole area with em
+          BestToPlant.Add(T) //Prefer to dig out and plant on stumps to avoid cluttering whole area with em
         else
-          SecondBestToPlant.AddEntry(T); //Empty space and other objects that can be dug out (e.g. mushrooms) if no other options available
+          SecondBestToPlant.Add(T); //Empty space and other objects that can be dug out (e.g. mushrooms) if no other options available
     end;
   end;
   ValidTiles.Free;
@@ -1381,7 +1391,7 @@ begin
           and TileInMapCoords(P.X+J, P.Y+K)
           and TileIsWater(P.X+J, P.Y+K)
           and WaterHasFish(KMPoint(P.X+J, P.Y+K)) then //Limit to only tiles which are water and have fish
-            ChosenTiles.AddItem(KMPointDir(P, KMGetDirection(J, K)));
+            ChosenTiles.Add(KMPointDir(P, KMGetDirection(J, K)));
   end;
 
   Result := ChosenTiles.GetRandom(FishPoint);
@@ -1424,7 +1434,7 @@ procedure TKMTerrain.GetHouseMarks(aLoc: TKMPoint; aHouseType: THouseType; aList
     for I := 0 to aList.Count - 1 do //Skip wires from comparison
       if (aList.Tag[I] <> TC_OUTLINE) and KMSamePoint(aList[I], aPoint) then
         Exit;
-    aList.AddEntry(aPoint, aID);
+    aList.Add(aPoint, aID);
   end;
 
 var
@@ -1526,8 +1536,9 @@ begin
   for I := 1 to Length(ChopableTrees) do
     if ChopableTrees[I, caAgeFull] = Land[Loc.Y,Loc.X].Obj then
     begin
-      Land[Loc.Y,Loc.X].Obj := ChopableTrees[I, caAgeStump];             //Set stump object
-      FallingTrees.AddEntry(Loc,ChopableTrees[I, caAgeFall], fAnimStep); //along with falling tree
+      Land[Loc.Y,Loc.X].Obj := ChopableTrees[I, caAgeStump];
+      //Remember tick when tree was chopped to calc the snim length
+      FallingTrees.Add(Loc, ChopableTrees[I, caAgeFall], fAnimStep);
       fSoundLib.Play(sfx_TreeDown, Loc, True);
       Exit;
     end;
@@ -1538,7 +1549,7 @@ end;
 procedure TKMTerrain.ChopTree(Loc: TKMPoint);
 begin
   Land[Loc.Y,Loc.X].TreeAge := 0;
-  FallingTrees.RemoveEntry(Loc);
+  FallingTrees.Remove(Loc);
   UpdatePassability(KMRectGrow(KMRect(Loc), 1));
 
   //WalkConnect takes diagonal passability into account
@@ -1859,13 +1870,13 @@ begin
     and (Land[Loc.Y+I,Loc.X+K].TileLock in [tlNone, tlFenced])
     and (aPass in Land[Loc.Y+I,Loc.X+K].Passability)
     and (not (U is TKMUnitWorker) or GoodForWorker(Loc.X+K, Loc.Y+I)) then
-      L1.AddEntry(KMPoint(Loc.X+K, Loc.Y+I));
+      L1.Add(KMPoint(Loc.X+K, Loc.Y+I));
 
   //List 2 holds the best positions, ones which are not occupied
   L2 := TKMPointList.Create;
   for I := 0 to L1.Count - 1 do
     if Land[L1[I].Y, L1[I].X].IsUnit = nil then
-      L2.AddEntry(L1[I]);
+      L2.Add(L1[I]);
 
   //List 3 holds the second best positions, ones which are occupied with an idle units
   L3 := TKMPointList.Create;
@@ -1877,7 +1888,7 @@ begin
       if KMSamePoint(L1[I],PusherLoc)
       or ((TempUnit <> nil) and (TempUnit.GetUnitAction is TUnitActionStay)
           and (not TUnitActionStay(TempUnit.GetUnitAction).Locked)) then
-        L3.AddEntry(L1[I]);
+        L3.Add(L1[I]);
     end;
 
   if not(L2.GetRandom(Result)) then
@@ -1906,16 +1917,16 @@ begin
     and (aPass in Land[Loc.Y+I,Loc.X+K].Passability)
     and CanWalkDiagonaly(Loc, Loc.X+K, Loc.Y+I) //Check for trees that stop us walking on the diagonals!
     and (Land[Loc.Y+I,Loc.X+K].TileLock in [tlNone, tlFenced])
-    and (KMLengthDiag(KMPoint(Loc.X+K,Loc.Y+I),Loc2) <= 1) //Right next to Loc2 (not diagonal)
+    and (KMLengthDiag(Loc.X+K, Loc.Y+I, Loc2) <= 1) //Right next to Loc2 (not diagonal)
     and not HasUnit(KMPoint(Loc.X+K,Loc.Y+I)) then //Doesn't have a unit
-      L1.AddEntry(KMPoint(Loc.X+K,Loc.Y+I));
+      L1.Add(KMPoint(Loc.X+K,Loc.Y+I));
 
   //List 2 holds the best positions, ones which are also next to Loc3 (next position)
   L2 := TKMPointList.Create;
   if not KMSamePoint(Loc3, KMPoint(0,0)) then //No Loc3 was given
   for I := 0 to L1.Count - 1 do
     if KMLengthDiag(L1[I], Loc3) < 1.5 then //Next to Loc3 (diagonal is ok)
-      L2.AddEntry(L1[I]);
+      L2.Add(L1[I]);
 
   Result := True;
   if not(L2.GetRandom(SidePoint)) then
@@ -2127,11 +2138,10 @@ begin
 end;
 
 
+//todo: Rewrite into controlled recursion to avoid StackOverflows
 //Interpolate between 12 vertices surrounding this tile (X and Y, no diagonals)
 //Also it is FlattenTerrain duty to preserve walkability if there are units standing
 procedure TKMTerrain.FlattenTerrain(Loc: TKMPoint; aUpdateWalkConnects: Boolean = True);
-var TilesFactored: Integer;
-
   //If tiles with units standing on them become unwalkable we should try to fix them
   procedure EnsureWalkable(aX,aY: Word);
   begin
@@ -2146,12 +2156,16 @@ var TilesFactored: Integer;
       FlattenTerrain(KMPoint(aX,aY), False); //WalkConnect should be done at the end
   end;
 
+var
+  VertsFactored: Integer;
+
+  //Note that we need to access vertices, not tiles
   function GetHeight(aX,aY: Word; Neighbour: Boolean): Byte;
   begin
-    if TileInMapCoords(aX,aY) and (not Neighbour or (canFactor in Land[aY,aX].Passability)) then
+    if VerticeInMapCoords(aX,aY) and (not Neighbour or (canFactor in Land[aY,aX].Passability)) then
     begin
       Result := Land[aY,aX].Height;
-      Inc(TilesFactored);
+      Inc(VertsFactored);
     end
     else
       Result := 0;
@@ -2172,13 +2186,13 @@ begin
   if fBoundsWC.Right < Loc.X + 1 then fBoundsWC.Right := Loc.X + 1;
   if fBoundsWC.Bottom < Loc.Y + 1 then fBoundsWC.Bottom := Loc.Y + 1;
 
-  TilesFactored := 0; //GetHeight will add to this
+  VertsFactored := 0; //GetHeight will add to this
   Avg :=                                   GetHeight(Loc.X,Loc.Y-1,True ) + GetHeight(Loc.X+1,Loc.Y-1,True ) +
          GetHeight(Loc.X-1,Loc.Y  ,True) + GetHeight(Loc.X,Loc.Y  ,False) + GetHeight(Loc.X+1,Loc.Y  ,False) + GetHeight(Loc.X+2,Loc.Y  ,True) +
          GetHeight(Loc.X-1,Loc.Y+1,True) + GetHeight(Loc.X,Loc.Y+1,False) + GetHeight(Loc.X+1,Loc.Y+1,False) + GetHeight(Loc.X+2,Loc.Y+1,True) +
                                            GetHeight(Loc.X,Loc.Y+2,True ) + GetHeight(Loc.X+1,Loc.Y+2,True );
-  Assert(TilesFactored <> 0); //Non-neighbour tiles will always be factored
-  Avg := Round(Avg / TilesFactored);
+  Assert(VertsFactored <> 0); //Non-neighbour verts will always be factored
+  Avg := Round(Avg / VertsFactored);
 
   if CanElevate in Land[Loc.Y  ,Loc.X  ].Passability then Land[Loc.Y  ,Loc.X  ].Height := Mix(Avg, Land[Loc.Y  ,Loc.X  ].Height, 0.5);
   if CanElevate in Land[Loc.Y  ,Loc.X+1].Passability then Land[Loc.Y  ,Loc.X+1].Height := Mix(Avg, Land[Loc.Y  ,Loc.X+1].Height, 0.5);
@@ -2255,128 +2269,22 @@ end;
 
 //Rebuilds connected areas using flood fill algorithm
 procedure TKMTerrain.UpdateWalkConnect(const aSet: array of TWalkConnect; aRect: TKMRect; aDiagObjectsEffected:Boolean);
-  procedure FloodFill(aWC: TWalkConnect; aPass: TPassability; aAllowDiag: Boolean);
-  var
-    AreaID: Byte;
-    Count: Integer;
-
-    procedure FillArea(X,Y: Word);
-    begin
-      if (Land[Y,X].WalkConnect[aWC] = 0) //Untested area
-      and (aPass in Land[Y,X].Passability) then //Matches passability
-      begin
-        Land[Y,X].WalkConnect[aWC] := AreaID;
-        Inc(Count);
-        //Using custom TileInMapCoords replacement gives ~40% speed improvement
-        //Using custom CanWalkDiagonally is also much faster
-        if X-1 >= 1 then
-        begin
-          if aAllowDiag and (Y-1 >= 1) and not MapElem[Land[Y,X].Obj].DiagonalBlocked then
-            FillArea(X-1, Y-1);
-          FillArea(X-1, Y);
-          if aAllowDiag and (Y+1 <= fMapY) and not MapElem[Land[Y+1,X].Obj].DiagonalBlocked then
-            FillArea(X-1,Y+1);
-        end;
-
-        if Y-1 >= 1 then     FillArea(X, Y-1);
-        if Y+1 <= fMapY then FillArea(X, Y+1);
-
-        if X+1 <= fMapX then
-        begin
-          if aAllowDiag and (Y-1 >= 1) and not MapElem[Land[Y,X+1].Obj].DiagonalBlocked then
-            FillArea(X+1, Y-1);
-          FillArea(X+1, Y);
-          if aAllowDiag and (Y+1 <= fMapY) and not MapElem[Land[Y+1,X+1].Obj].DiagonalBlocked then
-            FillArea(X+1, Y+1);
-        end;
-      end;
-    end;
-  //const MinSize = 1; //Minimum size that is treated as new area
-  var I,K: Integer;
-  begin
-    //Reset everything
-    for I := 1 to fMapY do for K := 1 to fMapX do
-      Land[I,K].WalkConnect[aWC] := 0;
-
-    AreaID := 0;
-    for I := 1 to fMapY do for K := 1 to fMapX do
-    if (Land[I,K].WalkConnect[aWC] = 0)
-    and (aPass in Land[I,K].Passability) then
-    begin
-      Inc(AreaID);
-      Count := 0;
-      FillArea(K,I);
-
-      if Count <= 1 then //Revert
-      begin
-        Dec(AreaID);
-        Count := 0;
-        Land[I,K].WalkConnect[aWC] := 0;
-      end;
-
-      Assert(AreaID < 255, 'UpdateWalkConnect failed due too many unconnected areas');
-    end;
-  end;
-
-  function CheckCanSkip(aWorkRect:TKMRect; aWC:TWalkConnect; aPass:TPassability):Boolean;
-  var I,K: Integer; AllPass, AllFail: Boolean;
-  begin
-    //If objects were effected we must reprocess because a tree could block the connection
-    //between two areas. Also skip this check if the area is too large because it takes too long
-    if (KMRectArea(aWorkRect) > 100) then
-    begin
-      Result := False;
-      Exit;
-    end;
-    Result := True;
-    AllPass := True;
-    AllFail := True;
-    for I := aWorkRect.Top to aWorkRect.Bottom do
-      for K := aWorkRect.Left to aWorkRect.Right do
-      begin
-        if aDiagObjectsEffected then
-        begin
-          AllPass := AllPass and ((Land[I,K].WalkConnect[aWC] <> 0) and (aPass in Land[I,K].Passability));
-          AllFail := AllFail and ((Land[I,K].WalkConnect[aWC] = 0) and not (aPass in Land[I,K].Passability));
-          //If all tiles that changed are walkable or not walkable currently and in our last UpdateWalkConnect, it's safe to skip
-          Result := AllPass or AllFail;
-        end else begin
-          Result := Result and
-                    //First case: Last time we did WalkConnect the tile WASN'T walkable,
-                    //and Passability confirms this has not changed (tile still not walkable)
-                   (((Land[I,K].WalkConnect[aWC] = 0) and not (aPass in Land[I,K].Passability)) or
-                    //Second case: Last time we did WalkConnect the tile WAS walkable,
-                    //and Passability confirms this has not changed (tile still walkable)
-                    ((Land[I,K].WalkConnect[aWC] <> 0) and (aPass in Land[I,K].Passability)));
-        end;
-        if not Result then Exit; //If one tile has changed, we need to do the whole thing
-      end;
-  end;
-
 const
-  WCSet: array [TWalkConnect] of TPassability = (
+  WC_PASS: array [TWalkConnect] of TPassability = (
     CanWalk, CanWalkRoad, CanFish, CanWorker);
 var
   J: Integer;
   WC: TWalkConnect;
   AllowDiag: Boolean;
-  Pass: TPassability;
-  WorkRect: TKMRect;
 begin
-  WorkRect := KMClipRect(aRect, 1, 1, fMapX-1, fMapY-1);
+  aRect := KMClipRect(aRect, 1, 1, fMapX-1, fMapY-1);
 
   //Process all items from set
   for J := Low(aSet) to High(aSet) do
   begin
     WC := aSet[J];
-    Pass := WCSet[WC];
     AllowDiag := (WC <> wcRoad); //Do not consider diagonals "connected" for roads
-
-    if not CheckCanSkip(WorkRect, WC, Pass) then
-      if USE_CCL_WALKCONNECT then
-        CCLFind(WC, Pass, AllowDiag)
-      else
-        FloodFill(WC, Pass, AllowDiag);
+    TKMTerrainWalkConnect.DoUpdate(aRect, WC, WC_PASS[WC], AllowDiag, aDiagObjectsEffected);
   end;
 end;
 
@@ -2430,7 +2338,7 @@ begin
                                 Land[y,x].Obj := 255;
                               end;
                               //If house was set e.g. in mission file we must flatten the terrain as no one else has
-                              ToFlatten.AddEntry(KMPoint(x,y));
+                              ToFlatten.Add(KMPoint(x,y));
                             end;
                           end;
         end;
@@ -2495,9 +2403,12 @@ begin
 end;
 
 
-{Check if house can be placed in that place}
+//Check that house can be placed on Terrain
+//Other checks are performed on Players level. Of course Terrain is not aware of that
 function TKMTerrain.CanPlaceHouse(Loc: TKMPoint; aHouseType: THouseType): Boolean;
-var I,K,X,Y: Integer; HA: THouseArea;
+var
+  I,K,X,Y: Integer;
+  HA: THouseArea;
 begin
   Result := True;
   HA := fResource.HouseDat[aHouseType].BuildArea;
@@ -2582,10 +2493,10 @@ function TKMTerrain.CheckHeightPass(aLoc:TKMPoint; aPass:THeightPass): Boolean;
     // 1 2
     // 3 4
     //Local map boundaries test is faster
-    Points[1] := Land[aLoc.Y,                 aLoc.X].Height;
-    Points[2] := Land[aLoc.Y,                 Min(aLoc.X+1, fMapX-1)].Height;
-    Points[3] := Land[Min(aLoc.Y+1, fMapY-1), aLoc.X].Height;
-    Points[4] := Land[Min(aLoc.Y+1, fMapY-1), Min(aLoc.X+1, fMapX-1)].Height;
+    Points[1] := Land[aLoc.Y,               aLoc.X].Height;
+    Points[2] := Land[aLoc.Y,               Min(aLoc.X+1, fMapX)].Height;
+    Points[3] := Land[Min(aLoc.Y+1, fMapY), aLoc.X].Height;
+    Points[4] := Land[Min(aLoc.Y+1, fMapY), Min(aLoc.X+1, fMapX)].Height;
 
     {KaM method checks the differences between the 4 verticies around the tile.
     There is a special case that means it is more (twice) as tolerant to bottom-left to top right (2-3) and
@@ -2613,9 +2524,9 @@ begin
   Result := true;
   if not TileInMapCoords(aLoc.X,aLoc.Y) then exit;
   case aPass of
-    hpWalking: Result := TestHeight(25);
-    hpBuilding: Result := TestHeight(18);
-    hpBuildingMines: Result := TestHeight(25);
+    hpWalking:        Result := TestHeight(25);
+    hpBuilding:       Result := TestHeight(18);
+    hpBuildingMines:  Result := TestHeight(25);
   end;
 end;
 
@@ -2724,7 +2635,7 @@ begin
       break;
     end;
 
-  //fLog.AssertToLog(false,'TTerrain.ConvertCursorToMapCoord - couldn''t convert')
+  //gLog.AssertToLog(false,'TTerrain.ConvertCursorToMapCoord - couldn''t convert')
 end;
 
 
@@ -2827,7 +2738,7 @@ end;
 
 
 procedure TKMTerrain.Load(LoadStream: TKMemoryStream);
-var i,k:integer;
+var I,K: Integer;
 begin
   LoadStream.ReadAssert('Terrain');
   LoadStream.Read(fMapX);
@@ -2836,23 +2747,23 @@ begin
 
   FallingTrees.LoadFromStream(LoadStream);
 
-  for i:=1 to fMapY do for k:=1 to fMapX do
+  for I:=1 to fMapY do for K:=1 to fMapX do
   begin
-    LoadStream.Read(Land[i,k].Terrain);
-    LoadStream.Read(Land[i,k].Height);
-    LoadStream.Read(Land[i,k].Rotation);
-    LoadStream.Read(Land[i,k].Obj);
-    LoadStream.Read(Land[i,k].TreeAge);
-    LoadStream.Read(Land[i,k].FieldAge);
-    LoadStream.Read(Land[i,k].TileLock,SizeOf(Land[i,k].TileLock));
-    LoadStream.Read(Land[i,k].TileOverlay,SizeOf(Land[i,k].TileOverlay));
-    LoadStream.Read(Land[i,k].TileOwner,SizeOf(Land[i,k].TileOwner));
-    LoadStream.Read(Land[i,k].IsUnit, 4);
-    LoadStream.Read(Land[i,k].IsVertexUnit,SizeOf(Land[i,k].IsVertexUnit));
+    LoadStream.Read(Land[I,K].Terrain);
+    LoadStream.Read(Land[I,K].Height);
+    LoadStream.Read(Land[I,K].Rotation);
+    LoadStream.Read(Land[I,K].Obj);
+    LoadStream.Read(Land[I,K].TreeAge);
+    LoadStream.Read(Land[I,K].FieldAge);
+    LoadStream.Read(Land[I,K].TileLock,SizeOf(Land[I,K].TileLock));
+    LoadStream.Read(Land[I,K].TileOverlay,SizeOf(Land[I,K].TileOverlay));
+    LoadStream.Read(Land[I,K].TileOwner,SizeOf(Land[I,K].TileOwner));
+    LoadStream.Read(Land[I,K].IsUnit, 4);
+    LoadStream.Read(Land[I,K].IsVertexUnit,SizeOf(Land[I,K].IsVertexUnit));
   end;
 
-  for i:=1 to fMapY do for k:=1 to fMapX do
-    UpdateFences(KMPoint(k,i), False);
+  for I:=1 to fMapY do for K:=1 to fMapX do
+    UpdateFences(KMPoint(K,I), False);
 
   fFinder := TKMTerrainFinder.Create;
 
@@ -2861,7 +2772,7 @@ begin
 
   UpdateWalkConnect([wcWalk, wcRoad, wcFish, wcWork], KMRect(1, 1, fMapX, fMapY), True);
 
-  fLog.AddTime('Terrain loaded');
+  gLog.AddTime('Terrain loaded');
 end;
 
 
@@ -2875,10 +2786,10 @@ begin
 end;
 
 
-{ This whole thing is very CPU intesive, think of it - to update whole (192*192) tiles map }
+//This whole thing is very CPU intesive, updating whole (256*256) tiles map
 //Don't use any advanced math here, only simpliest operations - + div *
 procedure TKMTerrain.UpdateState;
-  procedure SetLand(X, Y, aTile, aObj: Byte);
+  procedure SetLand(const X, Y, aTile, aObj: Byte);
   var FloodfillNeeded: Boolean;
   begin
     Land[Y,X].Terrain := aTile;
@@ -2956,94 +2867,6 @@ begin
       end;
     end;
   end;
-end;
-
-
-procedure TKMTerrain.CCLFind(aWC: TWalkConnect; aPass: TPassability; aAllowDiag: Boolean);
-var
-  Parent: array [0..512] of Word;
-
-  function TopParent(const Area: Word): Word;
-  begin
-    Result := Area;
-    while Parent[Result] <> Result do
-      Result := Parent[Result];
-  end;
-
-  procedure AddAlias(const Area1, Area2: Word);
-  begin
-    //See if there are common parents
-    if Area2 <> Area1 then
-      Parent[Area2] := Area1;
-  end;
-const Samples: array [0..3, 0..1] of ShortInt = ((-1,-1),(0,-1),(1,-1),(-1,0));
-var
-  I,K,H: Word;
-  X,Y: Smallint;
-  AreaID: Word;
-  NCount: Byte;
-begin
-  //Reset everything
-  for I := 1 to fMapY do for K := 1 to fMapX do
-    Land[I,K].WalkConnect[aWC] := 0;
-
-  FillChar(Parent, SizeOf(Parent), #0);
-
-  AreaID := 1;
-  for I := 1 to fMapY do
-  for K := 1 to fMapX do
-  if (aPass in Land[I,K].Passability) then
-  begin
-
-    //Check 4 preceeding neighbors, if there is ID we will take it
-    NCount := 0;
-    for H := 0 to 3 do
-    begin
-      X := K + Samples[H,0];
-      Y := I + Samples[H,1];
-
-      if (Y >= 1) and InRange(X, 1, fMapX) and (aPass in Land[Y,X].Passability) then
-      if (H = 1) or (H = 3) or (aAllowDiag and (
-                                 ((H = 0) and not MapElem[Land[I,K].Obj].DiagonalBlocked) or
-                                 ((H = 2) and not MapElem[Land[I,K+1].Obj].DiagonalBlocked)))
-      then
-      begin
-        if (NCount = 0) then
-          Land[I,K].WalkConnect[aWC] := Land[Y,X].WalkConnect[aWC]
-        else
-          //Remember alias
-          if (Parent[Land[Y,X].WalkConnect[aWC]] <> Parent[Land[I,K].WalkConnect[aWC]]) then
-            AddAlias(TopParent(Land[Y,X].WalkConnect[aWC]), TopParent(Land[I,K].WalkConnect[aWC]));
-
-        Inc(NCount);
-      end;
-    end;
-
-    //If there's no Area we create new one
-    if NCount = 0 then
-    begin
-      Land[I,K].WalkConnect[aWC] := AreaID;
-      Parent[AreaID] := AreaID;
-      Inc(AreaID);
-      Assert(AreaID < 32767, 'UpdateWalkConnect failed due too many unconnected areas');
-    end;
-  end;
-
-  //1 -> 2    1 -> 2
-  //2 -> 2    2 -> 2
-  //3 -> 4    3 -> 5
-  //4 -> 5    4 -> 5
-  //5 -> 5    5 -> 5
-  //Merge parents
-  for I := 1 to AreaID - 1 do
-    while Parent[I] <> Parent[Parent[I]] do
-      Parent[I] := Parent[Parent[I]];
-
-  //Merge areas
-  for I := 1 to fMapY do
-  for K := 1 to fMapX do
-  if (Land[I,K].WalkConnect[aWC] <> 0) then
-    Land[I,K].WalkConnect[aWC] := Parent[Land[I,K].WalkConnect[aWC]];
 end;
 
 

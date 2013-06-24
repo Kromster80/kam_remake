@@ -1,0 +1,712 @@
+var iStone, iWood, iWeapon, iSwine, iMain, iAdd, iPatrol, iCount, iPosition, iInterval, iFood, iRandom, iFail, iMessageTick, iRebuild, iFarmGroup, iPeasGroup: Integer; 
+var bDead, bKill, bDiscovered: Boolean;
+var iFarmers, iFarmersX, iFarmersY, iFarmersD: array[1..5] of Integer;
+var iPeasants, iPeasantsX, iPeasantsY, iPeasantsD: array[1..5] of Integer;
+
+procedure ErrorMessage;
+begin
+	Actions.OverlayTextSet(0, '<$0>');
+	iMessageTick := 600;
+end;
+
+procedure BuildHouse(iType: Integer; iX: Integer; iY: Integer);
+begin
+	if Actions.PlanAddHouse(1, iType, iX, iY) = false
+	then ErrorMessage();
+end;
+
+procedure BuildRoad(iX: Integer; iY: Integer);
+begin
+	if Actions.PlanAddRoad(1, iX, iY) = false
+	then ErrorMessage();
+end;
+
+procedure GroupSetHungerLevel(aGroup:Integer);
+var i: Integer;
+begin
+  for i := 0 to States.GroupMemberCount(aGroup) -1 do
+    Actions.UnitHungerSet(States.GroupMember(aGroup, I), States.UnitMaxHunger);
+end;
+
+procedure OnHouseDestroyed(aHouseID: Integer; aDestroyerIndex: Integer);
+begin
+  // Verloren wenn Hafengebäude zerstört
+  if ((aHouseID = States.HouseAt(160, 72))
+    OR(aHouseID = States.HouseAt(167, 67))
+    OR(aHouseID = States.HouseAt(174, 71)))
+  then Actions.PlayerDefeat(0);
+  
+  // Script fehlgeschlagen
+  if ((States.HouseOwner(aHouseID) = 1)
+  AND(not States.HouseIsComplete(aHouseID))
+  AND(States.HouseType(aHouseID) <> 3)
+  AND(States.HouseType(aHouseID) <> 17))
+  then ErrorMessage();
+  
+  // Kohlemine neu bauen
+  if((States.HouseOwner(aHouseID) = 1)
+  AND(States.HouseType(aHouseID) = 3))
+  then iRebuild := States.GameTime + 10;
+
+end;
+
+procedure OnHouseBuilt(iIndex: Integer);
+begin
+  // Operation Bauaktion
+  if States.HouseOwner(iIndex) = 1 then
+  begin
+	// Schulhaus -> Holzfäller
+	if States.HouseType(iIndex) = 13 then
+	begin
+		BuildHouse(9, 156, 75);
+		BuildHouse(9, 145, 77);
+		BuildHouse(9, 145, 83);
+		BuildHouse(17, 140, 75);
+	end;
+	
+	// Holzfäller -> Steinbrüche
+	if States.HouseType(iIndex) = 9 then iWood := iWood + 1;
+	if iWood = 3 then  
+	begin
+		// Nur fällen
+		iWood := -1;
+		Actions.HouseWoodcutterChopOnly(States.HouseAt(156, 75), true);
+		Actions.HouseWoodcutterChopOnly(States.HouseAt(145, 77), true);
+		BuildHouse(14, 171, 51);
+		BuildHouse(14, 167, 50);
+		BuildHouse(14, 163, 49);
+		BuildRoad(169, 52);
+		BuildRoad(169, 51);
+		BuildRoad(168, 51);
+		BuildRoad(167, 51);
+		BuildRoad(166, 51);
+		BuildRoad(165, 51);
+		BuildRoad(165, 50);
+		BuildRoad(164, 50);
+		BuildRoad(163, 50);
+		BuildRoad(170, 52);
+		BuildRoad(170, 53);
+		BuildRoad(170, 54);
+		BuildRoad(170, 55);
+		BuildRoad(171, 52);
+	end;	
+	// Steinbrüche -> Goldmine
+	if States.HouseType(iIndex) = 14 then iStone := iStone + 1;
+	if iStone = 3 then
+	begin
+		BuildHouse(5, 176, 50);
+		BuildRoad(176, 51);
+		BuildRoad(175, 51);
+		BuildRoad(174, 51);
+		BuildRoad(173, 51);
+		BuildRoad(173, 52);
+		BuildRoad(172, 52);
+		iStone := -1;
+	end;
+	// Goldmine -> Kohlemine
+	if States.HouseType(iIndex) = 5 then
+	begin
+		Actions.ShowMsg(0, '<$4>');
+		BuildHouse(3, 130, 41);
+		BuildHouse(17, 132, 52);
+		BuildRoad(132, 53);
+		BuildRoad(132, 54);
+		BuildRoad(132, 55);
+		BuildRoad(133, 55);
+		BuildRoad(133, 56);
+		BuildRoad(134, 56);
+		BuildRoad(133, 53);
+		BuildRoad(133, 52);
+		BuildRoad(134, 52);
+		BuildRoad(135, 52);
+		BuildRoad(133, 51);
+		BuildRoad(133, 50);
+		BuildRoad(133, 49);
+		BuildRoad(133, 48);
+		BuildRoad(132, 48);
+		BuildRoad(132, 47);
+		BuildRoad(132, 46);
+		BuildRoad(132, 45);
+		BuildRoad(131, 45);
+		BuildRoad(131, 44);
+		BuildRoad(131, 43);
+		BuildRoad(131, 42);
+		BuildRoad(130, 42);
+	end;
+	// Kohlemine -> Schmelzhütte
+	if States.HouseType(iIndex) = 3 then
+	begin
+		BuildHouse(17, 127, 40);
+		BuildHouse(17, 151, 51);
+		BuildHouse(15, 154, 51);
+		Actions.PlanAddRoad(1, 128, 42);
+		Actions.PlanAddRoad(1, 129, 42);
+		Actions.PlanAddRoad(1, 128, 41);
+		Actions.PlanAddRoad(1, 127, 41);
+	end;
+
+	// Schmelzhütte -> Kaserne
+	if States.HouseType(iIndex) = 15 then
+	begin		
+		BuildHouse(21, 141, 57);
+		BuildHouse(17, 160, 76);
+		Actions.PlanAddRoad(1, 137, 57);
+		Actions.PlanAddRoad(1, 138, 58);
+		Actions.PlanAddRoad(1, 139, 59);
+		Actions.PlanAddRoad(1, 140, 59);
+		Actions.PlanAddRoad(1, 141, 59);
+		Actions.PlanAddRoad(1, 142, 59);
+		Actions.PlanAddRoad(1, 143, 59);
+		Actions.PlanAddRoad(1, 144, 59);
+		Actions.PlanAddRoad(1, 145, 58);
+		Actions.PlanAddRoad(1, 146, 58);
+		Actions.PlanAddRoad(1, 147, 58);
+		Actions.PlanAddRoad(1, 148, 58);
+		Actions.PlanAddRoad(1, 149, 58);
+		Actions.PlanAddRoad(1, 150, 59);
+		Actions.PlanAddRoad(1, 151, 59);
+		Actions.PlanAddRoad(1, 152, 59);
+		Actions.PlanAddRoad(1, 153, 59);
+		iStone := 0;
+	end;		
+	// Kaserne -> Waffenwerkstatt
+	if States.HouseType(iIndex) = 21 then
+	begin
+		BuildHouse(19, 172, 62);
+		BuildHouse(19, 177, 62);
+		Actions.PlanAddRoad(1, 170, 62);
+		Actions.PlanAddRoad(1, 170, 64);
+		Actions.PlanAddRoad(1, 171, 64);
+		Actions.PlanAddRoad(1, 172, 64);
+		Actions.PlanAddRoad(1, 173, 64);
+		Actions.PlanAddRoad(1, 174, 64);
+		Actions.PlanAddRoad(1, 175, 64);
+		Actions.PlanAddRoad(1, 176, 64);
+		Actions.PlanAddRoad(1, 177, 64);
+		Actions.PlanAddRoad(1, 178, 64);
+		Actions.PlanAddRoad(1, 178, 63);
+		Actions.PlanAddRoad(1, 177, 63);
+		Actions.PlanAddRoad(1, 176, 63);
+		Actions.PlanAddRoad(1, 175, 63);
+		Actions.PlanAddRoad(1, 174, 63);
+		Actions.PlanAddRoad(1, 173, 63);
+		Actions.PlanAddRoad(1, 172, 63);
+
+		Actions.PlanAddRoad(1, 172, 65);
+		Actions.PlanAddRoad(1, 172, 66);
+		Actions.PlanAddRoad(1, 172, 67);
+		Actions.PlanAddRoad(1, 171, 65);
+		Actions.PlanAddRoad(1, 171, 66);
+		Actions.PlanAddRoad(1, 171, 67);
+		Actions.PlanAddRoad(1, 171, 68);
+		Actions.PlanAddRoad(1, 170, 67);
+		Actions.PlanAddRoad(1, 173, 65);
+		Actions.PlanAddRoad(1, 172, 68);
+		Actions.PlanAddRoad(1, 170, 65);
+	end;
+	// Waffenwerkstatt -> Schweinezuchten
+	if States.HouseType(iIndex) = 19 then iWeapon := iWeapon + 1;
+	if iWeapon = 2 then
+	begin
+		iWeapon := -1;
+		Actions.HouseDestroy(States.HouseAt(168 ,55), False);
+		Actions.HouseDestroy(States.HouseAt(163 ,54), False);
+		BuildHouse(16, 164, 54);
+		BuildHouse(16, 169, 55);
+		Actions.PlanAddRoad(1, 169, 56);
+		Actions.PlanAddRoad(1, 168, 56);
+		Actions.PlanAddRoad(1, 167, 56);
+		Actions.PlanAddRoad(1, 166, 56);
+		Actions.PlanAddRoad(1, 164, 57);
+		Actions.PlanAddRoad(1, 165, 55);
+		Actions.PlanAddRoad(1, 163, 56);
+		Actions.PlanAddRoad(1, 162, 56);
+		Actions.PlanAddRoad(1, 161, 56);
+		Actions.PlanAddRoad(1, 160, 57);
+		// Waffen für AI_05
+		Actions.HouseAddWaresTo(States.HouseAt(64, 24), 18, 3000);
+	end;
+	// Schweinezuchten -> Metzger
+	if States.HouseType(iIndex) = 16 then iSwine := iSwine + 1;
+	if iSwine = 2 then
+	begin
+		BuildHouse(24, 163, 68);
+		Actions.PlanAddRoad(1, 162, 62);
+		Actions.PlanAddRoad(1, 161, 62);
+		Actions.PlanAddRoad(1, 160, 62);
+		iSwine := -1
+	end;
+	// Metzger -> Gerber
+	if States.HouseType(iIndex) = 24 then
+	begin
+		BuildHouse(25, 161, 63);
+		Actions.PlanAddRoad(1, 163, 63);
+		Actions.PlanAddRoad(1, 163, 64);
+		Actions.PlanAddRoad(1, 163, 65);
+		Actions.PlanAddRoad(1, 163, 66);
+
+		Actions.PlanAddRoad(1, 162, 64);
+		Actions.PlanAddRoad(1, 161, 64);
+		Actions.PlanAddRoad(1, 160, 64);
+		Actions.PlanAddRoad(1, 162, 65);
+		Actions.PlanAddRoad(1, 161, 65);
+		Actions.PlanAddRoad(1, 160, 65);
+		Actions.PlanAddRoad(1, 159, 65);
+		Actions.PlanAddRoad(1, 159, 66);
+		Actions.PlanAddRoad(1, 160, 66);
+	end;
+	// Gerber -> Rüstungswerkstatt
+	if States.HouseType(iIndex) = 25 then
+	begin
+		BuildHouse(20, 156, 65);
+		BuildHouse(20, 152, 62);
+		Actions.PlanAddRoad(1, 149, 59);
+		Actions.PlanAddRoad(1, 150, 60);
+		Actions.PlanAddRoad(1, 150, 61);
+		Actions.PlanAddRoad(1, 150, 62);
+		Actions.PlanAddRoad(1, 151, 60);
+		Actions.PlanAddRoad(1, 151, 61);
+		Actions.PlanAddRoad(1, 151, 62);
+		Actions.PlanAddRoad(1, 151, 63);
+		Actions.PlanAddRoad(1, 152, 63);
+		Actions.PlanAddRoad(1, 153, 63);
+		Actions.PlanAddRoad(1, 154, 63);
+		Actions.PlanAddRoad(1, 152, 64);
+		Actions.PlanAddRoad(1, 153, 64);
+		Actions.PlanAddRoad(1, 154, 64);
+		Actions.PlanAddRoad(1, 155, 64);
+		Actions.PlanAddRoad(1, 155, 65);
+		Actions.PlanAddRoad(1, 154, 65);
+		Actions.PlanAddRoad(1, 155, 66);
+		Actions.PlanAddRoad(1, 156, 66);
+		Actions.PlanAddRoad(1, 157, 66);
+		Actions.PlanAddRoad(1, 158, 66);
+		Actions.PlanAddRoad(1, 156, 67);
+		Actions.PlanAddRoad(1, 157, 67);
+		Actions.PlanAddRoad(1, 158, 67);
+		Actions.PlanAddRoad(1, 159, 67);
+	end;
+	// Rüstungswerkstatt -> Eisenwaffen für AI_05
+	if States.HouseType(iIndex) = 20 then
+	begin
+	Actions.HouseAddWaresTo(States.HouseAt(64, 24), 19, 16); // Eisenrüstungen
+	Actions.HouseAddWaresTo(States.HouseAt(64, 24), 23, 5); // Piken	
+	Actions.HouseAddWaresTo(States.HouseAt(64, 24), 17, 11); // Eisenschilder
+	Actions.HouseAddWaresTo(States.HouseAt(64, 24), 21, 11); // Schwerter
+	end;
+  end;
+end;
+
+procedure OnTick;
+var iLoop: Integer;
+begin
+  // Spieler 03 fängt an Gold zu produzieren sobald die erkundet ist 80 49
+  if bDiscovered = false then
+  for iLoop := 49 to 65 do begin
+		if States.FogRevealed(0, 80, iLoop)
+		then begin
+			Actions.HouseDeliveryBlock(States.HouseAt(79, 60), false);
+			Actions.HouseDeliveryBlock(States.HouseAt(77, 54), false);
+			bDiscovered := true;
+			break;
+		end;		
+  end;
+
+	// Kohlemine neu bauen
+	if States.GameTime = iRebuild
+	then begin
+		BuildHouse(3, 130, 41);
+		iRebuild := -1;
+	end;
+
+	// Fehlernachricht löschen
+	iMessageTick := iMessageTick - 1;
+	if iMessageTick = 0
+	then begin
+		iMessageTick := -1
+		Actions.OverlayTextSet(0, '');
+	end;
+
+	// Farmer
+	for iLoop := 1 to 5 do
+	  if iFarmers[iLoop] <> -1 then
+	  begin
+		if States.UnitDead(iFarmers[iLoop]) then
+		begin
+		  iFail := Actions.GiveGroup(1, 24, iFarmersX[iLoop], iFarmersY[iLoop], iFarmersD[iLoop], 1, 1);
+		  if(iFail = -1) then
+			iFail := Actions.GiveGroup(1, 24, iFarmersX[iLoop], iFarmersY[iLoop] + 1, iFarmersD[iLoop], 1, 1);		  
+		  iFarmers[iLoop] := -1;
+		  
+		  // Truppen verbinden
+		  if iFarmGroup <> -1 then begin
+			Actions.GroupOrderLink(iFail, iFarmGroup);
+			Actions.GroupSetFormation(iFarmGroup, 4);
+		  end else begin
+		    iFarmGroup := iFail;
+		  end;
+		  
+		  
+		end	else begin
+		  iFarmersX[iLoop] := States.UnitPositionX(iFarmers[iLoop]);
+		  iFarmersY[iLoop] := States.UnitPositionY(iFarmers[iLoop]);
+		  iFarmersD[iLoop] := States.UnitDirection(iFarmers[iLoop]);
+		end;
+	  end;
+	// Bauern
+	for iLoop := 1 to 5 do
+	  if iPeasants[iLoop] <> -1 then
+	  begin
+		if States.UnitDead(iPeasants[iLoop]) then
+		begin
+		  iFail := Actions.GiveGroup(1, 25, iPeasantsX[iLoop], iPeasantsY[iLoop], iPeasantsD[iLoop], 1, 1);
+		  if(iFail = -1) then
+			iFail := Actions.GiveGroup(1, 25, iPeasantsX[iLoop], iPeasantsY[iLoop] + 1, iPeasantsD[iLoop], 1, 1);
+		  iPeasants[iLoop] := -1;
+		  
+		  // Truppen verbinden
+		  if iPeasGroup <> -1 then begin
+			Actions.GroupOrderLink(iFail, iPeasGroup);
+			Actions.GroupSetFormation(iPeasGroup, 4);
+		  end else begin
+		    iPeasGroup := iFail;
+		  end;
+		 
+		end	else begin
+		  iPeasantsX[iLoop] := States.UnitPositionX(iPeasants[iLoop]);
+		  iPeasantsY[iLoop] := States.UnitPositionY(iPeasants[iLoop]);
+		  iPeasantsD[iLoop] := States.UnitDirection(iPeasants[iLoop]);
+		end;
+	  end;
+	  
+  // Farmer und Bauern töten, wenn sie im Haus sind
+  if bKill = true then begin
+
+	if (States.UnitPositionX(iFarmers[1]) = 136)
+	AND (States.UnitPositionY(iFarmers[1]) = 51) then
+		Actions.UnitKill(iFarmers[1], true);
+	if (States.UnitPositionX(iFarmers[2]) = 141)
+	AND (States.UnitPositionY(iFarmers[2]) = 52) then
+		Actions.UnitKill(iFarmers[2], true);
+	if (States.UnitPositionX(iFarmers[3]) = 146)
+	AND (States.UnitPositionY(iFarmers[3]) = 52) then
+		Actions.UnitKill(iFarmers[3], true);
+	if (States.UnitPositionX(iFarmers[4]) = 163)
+	AND (States.UnitPositionY(iFarmers[4]) = 54) then
+		Actions.UnitKill(iFarmers[4], true);
+	if (States.UnitPositionX(iFarmers[5]) = 168)
+	AND (States.UnitPositionY(iFarmers[5]) = 56) then
+		Actions.UnitKill(iFarmers[5], true);		
+			
+	if (States.UnitPositionX(iPeasants[1]) = 135)
+	AND (States.UnitPositionY(iPeasants[1]) = 55) then
+		Actions.UnitKill(iPeasants[1], true);		
+	if (States.UnitPositionX(iPeasants[2]) = 147)
+	AND (States.UnitPositionY(iPeasants[2]) = 56) then
+		Actions.UnitKill(iPeasants[2], true);	
+	if (States.UnitPositionX(iPeasants[3]) = 158)
+	AND (States.UnitPositionY(iPeasants[3]) = 58) then
+		Actions.UnitKill(iPeasants[3], true);	
+	if (States.UnitPositionX(iPeasants[4]) = 172)
+	AND (States.UnitPositionY(iPeasants[4]) = 55) then
+		Actions.UnitKill(iPeasants[4], true);	
+	if (States.UnitPositionX(iPeasants[5]) = 177)
+	AND (States.UnitPositionY(iPeasants[5]) = 56) then
+		Actions.UnitKill(iPeasants[5], true);	
+
+	// Vorgang abgeschlossen
+	if ((States.UnitDead(iPeasants[1]))
+	 AND(States.UnitDead(iPeasants[2]))
+	 AND(States.UnitDead(iPeasants[3]))
+	 AND(States.UnitDead(iPeasants[4]))
+	 AND(States.UnitDead(iPeasants[5]))
+	 AND(States.UnitDead(iFarmers[1]))
+	 AND(States.UnitDead(iFarmers[2]))
+	 AND(States.UnitDead(iFarmers[3]))
+	 AND(States.UnitDead(iFarmers[4]))
+	 AND(States.UnitDead(iFarmers[5]))) then
+		bKill := false;		
+  end;
+  // die Ankunft
+  if States.GameTime = 2000 then
+  begin
+	// Lagerhaus
+	iMain := Actions.GiveHouse(0, 11, 168, 16);
+	Actions.HouseAddWaresTo(iMain, 1, 90);
+	Actions.HouseAddWaresTo(iMain, 2, 105);
+	Actions.HouseAddWaresTo(iMain, 7, 50);
+	Actions.HouseAddWaresTo(iMain, 8, 90);
+	Actions.HouseAddWaresTo(iMain, 10, 80);
+
+	// Bauarbeiter und Gehilfen
+	Actions.GiveUnit(0, 0, 165, 15, 3);
+	Actions.GiveUnit(0, 0, 165, 16, 3);
+	Actions.GiveUnit(0, 0, 166, 16, 3);
+	Actions.GiveUnit(0, 0, 166, 17, 3);
+	Actions.GiveUnit(0, 0, 167, 17, 3);
+
+	Actions.GiveUnit(0, 9, 170, 15, 5);
+	Actions.GiveUnit(0, 9, 170, 16, 5);
+	Actions.GiveUnit(0, 9, 170, 17, 5);
+	Actions.GiveUnit(0, 9, 171, 16, 5);
+	Actions.GiveUnit(0, 9, 171, 17, 5);
+
+	// Scout
+	iMain := Actions.GiveGroup(0, 22, 170, 10, 3, 1, 1);
+	Actions.GroupOrderWalk(iMain, 173, 15, 3);
+	
+	// Armbrustschützen
+	iMain := Actions.GiveGroup(0, 18, 160, 9, 5, 8, 4);
+	Actions.GroupOrderWalk(iMain, 159, 10, 5);
+	GroupSetHungerLevel(iMain);
+	iMain := Actions.GiveGroup(0, 18, 165, 11, 4, 8, 4);
+	Actions.GroupOrderWalk(iMain, 165, 12, 4);
+	GroupSetHungerLevel(iMain);
+	
+	// Barbaren und Milizen
+	iMain := Actions.GiveGroup(6, 23, 172, 22, 4, 7, 4);
+	iAdd := Actions.GiveGroup(6, 14, 171, 21, 4, 1, 1);
+	Actions.GroupOrderLink(iAdd, iMain);
+	iAdd := Actions.GiveGroup(6, 23, 172, 20, 4, 4, 4);
+	Actions.GroupOrderLink(iAdd, iMain);
+	GroupSetHungerLevel(iMain);
+
+	iMain := Actions.GiveGroup(6, 23, 156, 14, 5, 7, 4);
+	iAdd := Actions.GiveGroup(6, 14, 156, 12, 5, 1, 1);
+	Actions.GroupOrderLink(iAdd, iMain);
+	iAdd := Actions.GiveGroup(6, 14, 160, 14, 5, 1, 1);
+	Actions.GroupOrderLink(iAdd, iMain);
+	iAdd := Actions.GiveGroup(6, 23, 158, 12, 5, 3, 3);
+	Actions.GroupOrderLink(iAdd, iMain);
+	GroupSetHungerLevel(iMain);
+
+	iMain := Actions.GiveGroup(6, 14, 161, 21, 6, 3, 3);
+	iAdd := Actions.GiveGroup(6, 23, 161, 19, 6, 1, 1);
+	Actions.GroupOrderLink(iAdd, iMain);
+	Actions.GroupSetFormation(iMain, 4);
+	iAdd := Actions.GiveGroup(6, 14, 162, 21, 6, 3, 3);
+	Actions.GroupOrderLink(iAdd, iMain);
+	GroupSetHungerLevel(iMain);
+
+	// Nachricht und Nebel aufdecken
+	Actions.FogRevealCircle(0, 162, 25, 30);
+	Actions.FogRevealCircle(0, 185, 6, 30);
+	Actions.FogRevealCircle(0, 188, 45, 30);
+	Actions.ShowMsg(0, '<$1>');
+  end;
+
+
+  // Patroulliennachricht
+  if (States.GameTime = 10700) 
+  AND (States.GroupDead(iPatrol) = false) then 
+    Actions.ShowMsg(0, '<$2>');
+
+
+  if States.GroupDead(iPatrol) = false then
+	begin
+ 		if (States.GameTime = iCount + iInterval) AND (bDead = false) then
+		begin
+			if iPosition = 0 then
+			begin
+			Actions.GroupOrderWalk(iPatrol, 141, 87, 2);
+
+			if States.GroupMemberCount(iPatrol) < 40 then
+			begin
+				iRandom := States.KamRandomI(2);
+				if iRandom = 0 then begin iRandom := 21;
+				end else begin iRandom := 27; end;
+				iAdd := Actions.GiveGroup(2, iRandom, 68, 55, 2, 1, 4);
+				Actions.GroupOrderLink(iAdd, iPatrol);
+				if States.GroupMemberCount(iPatrol) > 30 then
+				begin Actions.GroupSetFormation(iPatrol, 7); end;
+				if States.GroupMemberCount(iPatrol) > 35 then
+				begin Actions.GroupSetFormation(iPatrol, 8); end;
+
+
+			end else
+			begin
+			
+
+			end;			
+			end;
+
+			if iPosition = 1 then
+			begin
+			Actions.GroupOrderWalk(iPatrol, 142, 54, 0);
+			end;
+
+			if iPosition = 2 then
+			begin
+			Actions.GroupOrderWalk(iPatrol, 115, 54, 4);
+			end;
+
+			if iPosition = 3 then
+			begin
+			Actions.GroupOrderWalk(iPatrol, 144, 74, 2);
+			end;
+
+			if iPosition = 4 then
+			begin
+			Actions.GroupOrderWalk(iPatrol, 122, 39, 2);
+			end;
+
+			if iPosition = 5 then
+			begin
+			Actions.GroupOrderWalk(iPatrol, 98, 81, 2);
+			iCount := iCount + 200;
+			end;
+
+			if iPosition = 6 then
+			begin
+			iFood := iFood + 1;
+			if iFood = 3 then begin
+				Actions.GroupOrderHalt(iPatrol);
+				Actions.GroupOrderFood(iPatrol);
+				iCount := iCount + 600;
+				iFood := 0;
+			end else begin iCount := iCount - iInterval + 1; end;
+			end;
+
+			iCount := iCount + iInterval;
+			iPosition := iPosition + 1;
+			if iPosition = 7 then
+			begin iPosition := 0; end;
+		end;
+ 	end else begin
+		if bDead = false then
+		begin
+			// Nachricht
+			Actions.ShowMsg(0, '<$3>');
+			bDead := true;
+
+			// Waffen für AI_03
+			Actions.HouseAddWaresTo(States.HouseAt(69, 53), 18, 3000);
+			Actions.HouseAddWaresTo(States.HouseAt(69, 53), 20, 3000);
+
+			// Sicherheitsdestruction
+			Actions.HouseDestroy(States.HouseAt(142, 57), False);
+			Actions.HouseDestroy(States.HouseAt(152, 50), False);
+			Actions.HouseDestroy(States.HouseAt(162, 56), False);
+			Actions.HouseDestroy(States.HouseAt(144, 77), False);
+			Actions.HouseDestroy(States.HouseAt(145, 80), False);
+			Actions.HouseDestroy(States.HouseAt(144, 83), False);
+			Actions.HouseDestroy(States.HouseAt(160, 76), False);
+			Actions.HouseDestroy(States.HouseAt(171, 62), False);
+			Actions.HouseDestroy(States.HouseAt(178, 69), False);
+			Actions.HouseDestroy(States.HouseAt(163, 59), False);
+			Actions.HouseDestroy(States.HouseAt(154, 75), False);
+
+			// Schulhaus
+			BuildHouse(13, 162, 59);
+			BuildRoad(163, 62);
+			BuildRoad(162, 61);
+			BuildRoad(161, 61);
+			BuildRoad(160, 61);
+			BuildRoad(159, 60);
+			BuildRoad(158, 60);
+			BuildRoad(157, 60);
+			BuildRoad(156, 60);
+			BuildRoad(155, 60);
+			BuildRoad(154, 60);
+
+			// Farmer und Bauern töten, wenn sie in ihrem Haus sind
+			bKill := true;
+
+			// Allianzen ändern
+			Actions.PlayerAllianceChange(1, 2, true, false);
+			Actions.PlayerAllianceChange(1, 3, true, false);
+			Actions.PlayerAllianceChange(1, 4, true, false);
+
+		end;
+	end;
+end;
+
+procedure OnMissionStart;
+var iLoop: Integer;
+begin
+  // Bauern und Pferzüchter
+  iFarmGroup := -1;
+  iPeasGroup := -1;  
+  for iLoop := 1 to 5 do begin
+    iFarmers[iLoop] := -1;
+    iPeasants[iLoop] := -1;
+  end;
+  // Vagabunde verbinden
+  Actions.GroupOrderLink(States.GroupAt(159, 65), States.GroupAt(153, 61));
+  Actions.GroupOrderLink(States.GroupAt(144, 48), States.GroupAt(153, 61));
+  Actions.GroupOrderLink(States.GroupAt(156, 52), States.GroupAt(153, 61));
+  Actions.GroupOrderLink(States.GroupAt(167, 51), States.GroupAt(153, 61));
+  Actions.GroupOrderLink(States.GroupAt(173, 65), States.GroupAt(153, 61));
+  Actions.GroupOrderWalk(States.GroupAt(173, 65), 152, 67, 5);
+
+  bKill := false;
+  // Pferdezüchter
+  iFarmers[1] := Actions.GiveUnit(1, 3, 136, 52, 0);
+  iFarmers[2] := Actions.GiveUnit(1, 3, 141, 53, 0);
+  iFarmers[3] := Actions.GiveUnit(1, 3, 146, 53, 0);
+  iFarmers[4] := Actions.GiveUnit(1, 3, 163, 55, 0);
+  iFarmers[5] := Actions.GiveUnit(1, 3, 168, 57, 0);
+  // Bauern
+  iPeasants[1] := Actions.GiveUnit(1, 4, 135, 56, 0);
+  iPeasants[2] := Actions.GiveUnit(1, 4, 147, 57, 0);
+  iPeasants[3] := Actions.GiveUnit(1, 4, 158, 59, 0);
+  iPeasants[4] := Actions.GiveUnit(1, 4, 172, 56, 0);
+  iPeasants[5] := Actions.GiveUnit(1, 4, 177, 57, 0);
+
+  // Waren
+  Actions.HouseAddWaresTo(States.HouseAt(160, 71), 8, 923);
+  Actions.HouseAddWaresTo(States.HouseAt(160, 71), 1, 230);
+  Actions.HouseAddWaresTo(States.HouseAt(160, 71), 2, 564);
+  Actions.HouseAddWaresTo(States.HouseAt(160, 71), 0, 7);
+  Actions.HouseAddWaresTo(States.HouseAt(167, 66), 10, 598);
+  Actions.HouseAddWaresTo(States.HouseAt(167, 66), 9, 12);
+  Actions.HouseAddWaresTo(States.HouseAt(174, 70), 26, 35);
+  Actions.HouseAddWaresTo(States.HouseAt(174, 70), 7, 100);
+
+  Actions.HouseAddWaresTo(States.HouseAt(160, 76), 1, 5);
+  Actions.HouseAddWaresTo(States.HouseAt(171, 62), 1, 5);
+  Actions.HouseAddWaresTo(States.HouseAt(178, 69), 1, 5);
+
+  Actions.HouseAddWaresTo(States.HouseAt(152, 50), 8, 5);
+  Actions.HouseAddWaresTo(States.HouseAt(152, 50), 10, 5);
+  Actions.HouseAddWaresTo(States.HouseAt(167, 59), 8, 5);
+  Actions.HouseAddWaresTo(States.HouseAt(167, 59), 10, 5);
+
+  Actions.HouseDeliveryBlock(States.HouseAt(97, 40), true);
+  Actions.HouseDeliveryBlock(States.HouseAt(77, 54), true);
+  Actions.HouseDeliveryBlock(States.HouseAt(79, 60), true);
+  Actions.HouseWareBlock(States.HouseAt(160, 72), 4, true);
+  Actions.HouseWareBlock(States.HouseAt(160, 72), 5, true);
+  Actions.HouseWareBlock(States.HouseAt(167, 67), 4, true);
+  Actions.HouseWareBlock(States.HouseAt(167, 67), 5, true);
+  Actions.HouseWareBlock(States.HouseAt(174, 71), 4, true);
+  Actions.HouseWareBlock(States.HouseAt(174, 71), 5, true);
+
+  // Patrolierende Reiter
+  iPatrol := Actions.GiveGroup(2, 21, 98, 81, 2, 7, 6);
+  iAdd := Actions.GiveGroup(2, 27, 97, 80, 2, 3, 3);
+  Actions.GroupOrderLink(iAdd, iPatrol);
+  iAdd := Actions.GiveGroup(2, 21, 97, 83, 2, 2, 2);
+  Actions.GroupOrderLink(iAdd, iPatrol);
+  iAdd := Actions.GiveGroup(2, 27, 96, 80, 2, 4, 4);
+  Actions.GroupOrderLink(iAdd, iPatrol);
+  iAdd := Actions.GiveGroup(2, 21, 96, 83, 2, 2, 2);
+  Actions.GroupOrderLink(iAdd, iPatrol);
+  iAdd := Actions.GiveGroup(2, 21, 95, 81, 2, 6, 6);
+  Actions.GroupOrderLink(iAdd, iPatrol);
+  Actions.GroupOrderFood(iPatrol);
+
+  // Standartwerte
+  iCount := 6000;
+  iPosition := 0;
+  iInterval := 550;
+  iFood := 0;
+  bDead := false;
+  iStone := 0;
+  iWood := 0;
+  iWeapon := 0;
+  iSwine := 0;  
+  iMessageTick := -1;
+  iRebuild := -1;
+end;
+

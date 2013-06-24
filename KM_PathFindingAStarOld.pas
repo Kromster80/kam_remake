@@ -41,7 +41,7 @@ var I, X, Y: Integer;
 begin
   //Erase previous values
   SetLength(ORef, 0);
-  SetLength(ORef, fTerrain.MapY+1, fTerrain.MapX+1);
+  SetLength(ORef, gTerrain.MapY+1, gTerrain.MapX+1);
 
   //Initialize first element
   OCount := 1;
@@ -63,8 +63,8 @@ begin
     OList[fMinCost.ID].Estim := c_closed;
 
     //Check all surrounding cells and issue costs to them
-    for y := Math.max(fMinCost.Pos.Y-1,1) to Math.min(fMinCost.Pos.Y+1, fTerrain.MapY-1) do
-    for x := Math.max(fMinCost.Pos.X-1,1) to Math.min(fMinCost.Pos.X+1, fTerrain.MapX-1) do
+    for y := Math.max(fMinCost.Pos.Y-1,1) to Math.min(fMinCost.Pos.Y+1, gTerrain.MapY-1) do
+    for x := Math.max(fMinCost.Pos.X-1,1) to Math.min(fMinCost.Pos.X+1, gTerrain.MapX-1) do
     if ORef[y,x] = 0 then //Cell is new
     begin
       if CanWalkTo(fMinCost.Pos, x, y) then
@@ -130,7 +130,7 @@ begin
   //Assemble the route
   I := fMinCost.ID;
   repeat
-    NodeList.AddEntry(OList[I].Pos);
+    NodeList.Add(OList[I].Pos);
     I := OList[I].Parent;
   until I = 0;
 

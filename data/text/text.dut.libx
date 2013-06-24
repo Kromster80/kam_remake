@@ -1,5 +1,5 @@
 
-MaxID:667
+MaxID:697
 
 0:Houtzagerij
 1:IJzersmelterij
@@ -118,7 +118,7 @@ MaxID:667
 114:Missie beëindigen
 115:Terug
 116:Instellingen
-117:Missie beëindigen
+117:Kaartbewerker afsluiten
 118:Geluiden
 119:Volume wijzigen
 120:Volume wijzigen
@@ -139,6 +139,7 @@ MaxID:667
 135:Annuleren
 136:Huidige opleiding afbreken
 137:Voorradig:
+138:Voorzieningen:
 139:Toestand:
 140:Levert
 141:Huis in aanbouw
@@ -178,6 +179,7 @@ MaxID:667
 175:Je kolenmijn is uitgeput.
 176:Je ijzermijn is uitgeput.
 177:Je goudmijn is uitgeput.
+178:Je houthakker kan geen bomen meer vinden om te kappen
 179:Dit huis is niet bewoond.
 180:Deze eenheid heeft erg veel honger en moet zeer snel voedsel krijgen!
 181:PAUZE
@@ -227,6 +229,7 @@ MaxID:667
 225:Bij de Haven
 226:Reis
 227:Campagnes
+228:Campagnes
 229:Start Campagne!
 230:Speel enkelvoudige kaart
 231:Begin missie
@@ -269,8 +272,14 @@ MaxID:667
 268:Gebouwen
 269:Producten
 270:Producten geproduceerd
+271:Geen gegevens
 272:Jij
 273:Speler %d
+274:Terug naar Multiplayer
+275:Terug naar Herhalingen
+276:Alles
+277:Oorlogsvoering
+278:Voedsel
 279:JOYMANIA ENTERTAINMENT||PROGRAMMERING:|Peter Ohlmann||SPELGRAFIEK:|Adam Sprys||LEVELDESIGN:|Adam Sprys|Andre Quaß||GELUIDSMONTAGE:|Tonstudio Mannheim||MUZIEK:|Gerd Hofmann|Joachim Schäfer|Jürgen Rebhann|Klaus Staendike|Steffen Schüngel||ILLUSTRATIES:|Boleslaw Kasza|Christoph Werner|||ZUXXEZ ENTERTAINMENT AG||PRODUCER:|Uwe Schäfer||HANDBOEK:|Peter Ohlmann|Uwe Schäfer||BETA TESTING:|Alexandra Constandache|Dirk P. Hassinger|Achim Heidelauf|Uwe Schäfer|Ingrid Schäfer|Dirk U. Jantz|Ion Constandache|Yaman Egeli|Roman Eich|Iris Mocsnek|Anke Jantz|Liza Hassinger|Paul Hassinger||GAMES DIRECTOR:|Achim Heidelauf||PUBLISHED BY:|Best Buys Interactive||CUTSCENES:||DIRECTION:|Slawomir Jedrzejewski||Kajetan Czarnecki|Wojciech Drazek|Daniel Duplaga|Rafal Januszkiewicz|Andrzej Rams|Piotr Rulka|Krzysztof Rybczynski|Grzegorz Wisniwski||STEMMEN:|Claus Boyen (Verteller)||Tim Timmermann|Peter Houska|Dirk Mühlbach|Ralf Ditze|Gerhard Piske|Gernot Wassmann||HANDBOEK ONTWERP:|Uwe Schäfer|Alexandra Constandache||HANDBOEK TEKSTEN:|Peter Ohlmann|Uwe Schäfer||ARTWORK:|Boleslaw Kasza|Adam Sprys||OPENINGSANIMATIE:|Uwe Schäfer|Christian Bigalk|Aanvullende 3D-Modelling:|Niels Horstmann||SPECIALE DANK AAN:|Tadeusz Zuber|Dieter Ohlmann|Alexandra Constandache|Ingrid Schäfer|Andrea Rumpelt|Frits van Ens
 280:Missie geannuleerd
 281:Einde herhaling
@@ -292,12 +301,14 @@ MaxID:667
 297:Nieuwe kaart creëren
 298:Beschikbare kaarten
 299:Bestaande kaart inladen
+300:Locatie
 301:Besturing:
 302:Spelinstellingen:
 303:Geluid:
 304:Muziek uit
 305:Weergave:
 306:Helderheid
+307:Vertical Sync
 308:Volledig scherm
 309:Toepassen
 310:Taal:
@@ -344,6 +355,7 @@ MaxID:667
 351:Verbindingsfout: %s
 352:Je bent verbroken met het spel
 353:Missie %d
+354:Bericht log
 355:Je vissershut is te ver weg van het water.
 356:De visser kan geen vis meer vangen rondom zijn vissershut.
 357:Herhaling herstarten
@@ -351,15 +363,143 @@ MaxID:667
 359:1 Tick vooruit
 360:Herhaling hervatten
 361:Herhaling beëindigen
+362:Individueel spelersperspectief inschakelen
+363:Alles weergeven
 364:Gebruik de linkermuisknop om de goederen te selecteren
 365:Gebruik de rechtermuisknop om de goederen te selecteren
 366:Van x%d
 367:Naar x%d
 368:Terrein bewerken
+369:Borstels
+370:Hoogtes
+371:Tegels
+372:Voorwerpen
+373:Hoogtes
+374:Borstelvorm
+375:Grootte
+376:Slepen om borstelgrootte te wijzigen
+377:Helling
+378:Slepen om hellingshoogte te wijzigen: 1 = plateau ... 15 = piek
+379:Snelheid
+380:Slepen om verhogingssnelheid te wijzigen: 1 = traag ... 15 = heel snel
+381:Cirkelvormige borstel
+382:Vierkante borstel
+383:Verhogen / Verlagen
+384:Ongelijk maken / Plat maken
+385:Verhogen (linkermuisknop) / Verlagen (rechtermuisknop)
+386:Ongelijf maken (linkermuisknop) / Plat maken (rechtermuisknop)
+387:Borstel
+388:Willekeurige elementen
+389:Willekeurige richting
+390:Vink aan voor willekeurige tegelrichting of gebruik de rechtermuisknop om de geselecteerde tegel te draaien
+391:Gebruik de rechtermuisknop om de geselecteerde tegel te draaien
+392:Blokkeer lopen
+393:Voorwerp verwijderen
 394:Stadsplanning
 395:Visuele scripts
 396:Globale scripts
 397:Menu
+398:Voorwerpen
+399:Aantallen weergeven
+400:Eenheden weergeven
+401:Gebouwen weergeven
+402:Voorwerpen weergeven
+403:Doorgang weergeven
+404:Niet opgeslagen|wijzigingen zullen verloren gaan
+405:Annuleren
+406:Laden
+407:Kaart laden
+408:Annuleren
+409:Opslaan
+410:Overschrijven
+411:Kaart bestaat al
+412:Spelers:
+413:Standaard
+414:Spelertypes
+415:Symmetrisch
+416:Bondgenootschappen
+417:Tactiek
+418:Normaal
+419:Missiemodus
+420:Spring naar locatie
+421:Scherm centreren bij start missie
+422:Scherm centreren
+423:Alles onthullen
+424:Een deel van de kaart onthullen
+425:Mist onthullen
+426:Handelen blokkeren
+427:Gebouwen blokkeren/ontgrendelen
+428:Kleuren
+429:Doel
+430:Bericht
+431:Tijd
+432:Speler
+433:Economische gebouwen
+434:Bedienden en scholen
+435:Militaire eigendommen
+436:Onbekend
+437:Troepen
+438:Gebouwen
+439:Tijd
+440:Bouw Tutorial
+441:Geen
+442:Voorwaarde
+443:Overleven
+444:Overwinning
+445:Geen
+446:Type
+447:Doelen
+448:OK
+449:Annuleren
+450:Kolommen
+451:Aantal
+452:Troepformatie
+453:Formatie wijzigen
+454:Stel een limiet in op hoeveel soldaten de AI kan hebben
+455:Hoeveel soldaten de AI tegelijk kan hebben
+456:Zet max. soldaten
+457:Hoeveel recruten de AI in de Kazerne zou moeten hebben
+458:Recruten per Kazerne
+459:Positie
+460:Handmatige positie
+461:Dichtstbijzijnde gebouw 2
+462:Dichtstbijzijnde gebouw 1
+463:Dichtstbijzijnde eenheid
+464:Neem alles
+465:Aantal groepen
+466:Aanvalsinfo
+467:Vertraging, s
+468:Herhaling
+469:Eenmalig
+470:Ruiters
+471:Bogen
+472:Counter-cavalerie
+473:Infanterie
+474:Loc.
+475:Doelwit
+476:Manschappen
+477:Vertraging
+478:Type
+479:Autoaanvallen
+480:AI aanvallen
+481:Uitrustingsratio leer
+482:Uitrustingsratio ijzer
+483:Autoverdediging
+484:AI creëert en beheert verdedigingsposities automatisch
+485:Plaats verdedigingspositie voor AI
+486:AI verdedigingsposities
+487:Bouwvakkers
+488:Bedienden per 10 gebouwen
+489:Autorepareren
+490:Autobouwen
+491:AI instellingen
+492:Gebouwen
+493:Straten
+494:Selectie verticaal spiegelen
+495:Selectie horizontaal spiegelen
+496:Terrein plakken
+497:Terrein kopiëren
+498:Kopiëren/plakken
 499:Nieuwe missie
 500:Spelernaam
 501:Status:
@@ -377,6 +517,8 @@ MaxID:667
 513:Kamer
 514:Verbinden
 515:Annuleren
+516:Wachtwoordbeveiligde kamer
+517:Wachtwoord
 518:Servernaam
 519:Status
 520:Spelers
@@ -394,6 +536,7 @@ MaxID:667
 532:Kleur
 533:Gereed
 534:Ping
+535:Ping / FPS
 536:Open
 537:Computerspeler
 538:Selecteer...
@@ -406,21 +549,38 @@ MaxID:667
 545:Gereed
 546:Niet gereed
 547:Start!
+548:Spelsnelheid (vredestijd)
+549:Spelsnelheid
+550:OK
+551:Annuleren
+552:Omschrijving
+553:Wachtwoord
+554:Kamerinstellingen
+555:Host maken
+556:Ban
+557:Kick
+558:Willekeurige locaties binnen teams
+559:Omschrijving
+560:Opties
 561:Locatie %d
 562:Fout: kies a.u.b. een speler uit het opgeslagen spel om te besturen
 563:Fout: laden van de kaart mislukt of er is geen map geselecteerd.
 564:Kan niet starten: %s
 565:Niet iedereen is gereed om te starten
+566:Kan geen willekeurige locaties toewijzen
 567:Server heeft ons hostingrechten toegewezen
 568:Spel gestart
 569:Bouwkaart
 570:Gevechtskaart
 571:Co-op kaart
+572:Speciale kaart
 573:Spelopties:
 574:Vredestijd (minuten)
 575:Gesloten
 576:Host regelt spelerinstellingen
 577:Wachten op spelers:
+578:Iedereen
+579:Team
 580:KaM Remake Credits
 581:Orginele Knights & Merchants Credits
 582:PROGRAMMERING:
@@ -470,6 +630,7 @@ MaxID:667
 626:Herhaling weergeven
 627:Niet-ondersteund formaat %s
 628:Niet-ondersteunde versie %s
+629:Niet-ondersteunde aanpassingen
 630:Er is een fout opgetreden tijdens het ontleden van het %s bestand
 631:initialiseren
 632:script
@@ -484,6 +645,7 @@ MaxID:667
 641:Opgeslagen bestand is niet gelijk aan dat van de host: %s
 642:De herhaling is gefaald op een consistentie controle. Dit is een bekende fout die effect heeft op het afspelen van sommige herhalingen. Wil je doorgaan met het kijken van de herhaling?
 643:Je mag maar één instantie van het spel actief hebben tijdens multiplayer
+644:Aanpassingen aan het spel zijn niet toegestaan in multiplayer.|Herinstalleer het spel om de originele bestanden te herstellen.
 645:Er is een fout opgetreden in de applicatie. Klik op "Foutenrapport verzenden" zodat we de fout kunnen onderzoeken. Bedankt voor je hulp!
 646:Foutenrapport verzenden
 647:Ruwe data weergeven
@@ -507,3 +669,33 @@ MaxID:667
 665:Het versturen van het foutenrapport is mislukt! Het kan zijn dat onze server druk bezig is. Probeer het alstublieft opnieuw.
 666:Informatie
 667:Een ogenblik geduld...
+668:Kaart opslaan
+669:Vertraging in minuten voordat de AI rekruten gaat trainen
+670:Rekruteringsvertraging (min.)
+671:Zet de richting voor alle tegels in een waterlichaam
+672:Magisch water
+673:Kopiëren
+674:Plakken
+675:Plakken toepassen
+676:Plakken annuleren
+677:Verticaal spiegelen
+678:Horizontaal spiegelen
+679:Sleep om een gebied op de kaart te selecteren
+680:AI verdedigingsopties
+681:Uit
+682:Radius
+683:Huidige onthuller verwijderen
+684:Keer terug naar de onthul mist pagina
+685:Sluiten
+686:Groepvolgorde
+687:Geen
+688:Aanvalspositie
+689:Loop naar
+690:Richting
+691:Achterste linie
+692:Frontlinie
+693:Verdedigingsradius
+694:Huidige verdedigingspositie verwijderen
+695:Terug naar de verdedigingspagina
+696:Verdedigingspositie
+697:Eenheden

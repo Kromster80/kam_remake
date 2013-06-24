@@ -96,9 +96,11 @@
 			<DCC_DebugInformation>false</DCC_DebugInformation>
 		</PropertyGroup>
 		<PropertyGroup Condition="'$(Cfg_2_Win32)'!=''">
+			<VerInfo_Locale>1033</VerInfo_Locale>
+			<VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
+			<Manifest_File>$(BDS)\bin\default_app.manifest</Manifest_File>
 			<BCC_SourceDebuggingOn>true</BCC_SourceDebuggingOn>
 			<BCC_DebugLineNumbers>true</BCC_DebugLineNumbers>
-			<DCC_DebugInfoInExe>true</DCC_DebugInfoInExe>
 			<ILINK_FullDebugInfo>true</ILINK_FullDebugInfo>
 		</PropertyGroup>
 		<ItemGroup>
@@ -157,6 +159,7 @@
 						<VersionInfoKeys Name="Comments"/>
 					</VersionInfoKeys>
 					<Excluded_Packages>
+						<Excluded_Packages Name="C:\Program Files\FastReports\LibD16\dclfrxDB16.bpl">FastReport 4.0 DB Components</Excluded_Packages>
 						<Excluded_Packages Name="$(BDSBIN)\dcloffice2k160.bpl">Microsoft Office 2000 Sample Automation Server Wrapper Components</Excluded_Packages>
 						<Excluded_Packages Name="$(BDSBIN)\dclofficexp160.bpl">Microsoft Office XP Sample Automation Server Wrapper Components</Excluded_Packages>
 					</Excluded_Packages>
