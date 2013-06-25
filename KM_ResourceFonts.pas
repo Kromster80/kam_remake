@@ -31,6 +31,7 @@ type
     fTexData: array of Cardinal;
     fTexSizeX, fTexSizeY: Word;
     fTexPadding: Byte;
+    fTexSize: Word;
     fBaseHeight, fWordSpacing, fCharSpacing: SmallInt; //BaseCharHeight?, Unknown, CharSpacingX, LineOffset?
     Pal: array [0..High(Word)] of Byte;
     fLineSpacing: Byte; //Not in KaM files, we use custom value that fits well
@@ -49,6 +50,7 @@ type
     procedure SaveToFontX(const aFilename: string);
 
     property TexPadding: Byte read fTexPadding write fTexPadding;
+    property TexSize: Word read fTexSize write fTexSize;
 
     property CharSpacing: SmallInt read fCharSpacing;
     property LineSpacing: Byte read fLineSpacing;
@@ -112,7 +114,6 @@ const
 { TKMFontData }
 procedure TKMFontData.CreateFont(aFontName: string; aFontSize: Byte; aFontStyle: TFontStyles; const aChars: array of Char);
 const
-  TEX_SIZE = 512;
   INS = 0;
 var
   bitmap: TBitmap;
@@ -123,12 +124,12 @@ var
 begin
   bitmap := TBitmap.Create;
   try
-    fTexSizeX := TEX_SIZE;
-    fTexSizeY := TEX_SIZE;
+    fTexSizeX := fTexSize;
+    fTexSizeY := fTexSize;
 
     bitmap.PixelFormat := pf32bit;
-    bitmap.Width := TEX_SIZE;
-    bitmap.Height := TEX_SIZE;
+    bitmap.Width := fTexSizeX;
+    bitmap.Height := fTexSizeY;
     bitmap.Canvas.Font.Color := clWhite;
     bitmap.Canvas.Font.Size := aFontSize;
     bitmap.Canvas.Font.Name := aFontName;
@@ -158,7 +159,7 @@ begin
 
     bitmap.Canvas.Brush.Style := bsSolid;
     bitmap.Canvas.Brush.Color := clBlack;
-    bitmap.Canvas.FillRect(Rect(0, 0, TEX_SIZE, TEX_SIZE));
+    bitmap.Canvas.FillRect(Rect(0, 0, fTexSizeX, fTexSizeY));
 
     pX := 0;
     pY := 0;
@@ -172,18 +173,18 @@ begin
 
       Inc(chWidth, fTexPadding * 2);
 
-      if pX + chWidth >= TEX_SIZE then
+      if pX + chWidth >= fTexSizeX then
       begin
         pX := 1;
         Inc(pY, txtHeight);
-        if pY + txtHeight > TEX_SIZE then
+        if pY + txtHeight > fTexSizeY then
           Break;
       end;
 
-      Letters[I].u1 := (pX + fTexPadding + INS) / TEX_SIZE;
-      Letters[I].v1 := (pY + fTexPadding + INS) / TEX_SIZE;
-      Letters[I].u2 := (pX + chWidth - fTexPadding - INS) / TEX_SIZE;
-      Letters[I].v2 := (pY + txtHeight - fTexPadding - INS) / TEX_SIZE;
+      Letters[I].u1 := (pX + fTexPadding + INS) / fTexSizeX;
+      Letters[I].v1 := (pY + fTexPadding + INS) / fTexSizeY;
+      Letters[I].u2 := (pX + chWidth - fTexPadding - INS) / fTexSizeX;
+      Letters[I].v2 := (pY + txtHeight - fTexPadding - INS) / fTexSizeY;
 
       chRect.Left := pX;
       chRect.Top := pY;
@@ -194,7 +195,7 @@ begin
       Inc(pX, chWidth);
     end;
 
-    SetLength(fTexData, TEX_SIZE * TEX_SIZE);
+    SetLength(fTexData, fTexSizeX * fTexSizeY);
     for I := 0 to bitmap.Height - 1 do
     begin
       //Only Alpha will be used to generate the texture

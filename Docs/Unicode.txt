@@ -1,0 +1,7 @@
+Issues:
+ - Texts are stored in ANSI with a codepage deducted from file extension (*.locale.libx), means that if we open it with Notepad it won't detect locale
+ - Some files have text in UTF8 stored as ANSI (probably due to translators using text editors with poor Unicode support), leading to text corruption
+
+Suggestions:
+ - Convert all libx files into unicode (UTF8 ?)
+ - Keep code and internal error strings in ANSI-English

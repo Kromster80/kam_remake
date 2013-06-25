@@ -40,6 +40,8 @@
 			<Base>true</Base>
 		</PropertyGroup>
 		<PropertyGroup Condition="'$(Base)'!=''">
+			<BRCC_EnableMultiByte>true</BRCC_EnableMultiByte>
+			<BRCC_Language>*</BRCC_Language>
 			<DCC_UsePackage>bindcompfmx;fmx;rtl;dbrtl;IndySystem;DbxClientDriver;bindcomp;inetdb;DBXInterBaseDriver;DataSnapClient;DataSnapCommon;DataSnapServer;DataSnapProviderClient;xmlrtl;DbxCommonDriver;IndyProtocols;DBXMySQLDriver;dbxcds;bindengine;soaprtl;DBXOracleDriver;CustomIPTransport;dsnap;DBXInformixDriver;fmxase;IndyCore;DBXFirebirdDriver;inet;fmxobj;inetdbxpress;DBXSybaseASADriver;fmxdae;IPIndyImpl;dbexpress;DataSnapIndy10ServerTransport;$(DCC_UsePackage)</DCC_UsePackage>
 			<DCC_IntegerOverflowCheck>true</DCC_IntegerOverflowCheck>
 			<Manifest_File>None</Manifest_File>
@@ -77,7 +79,9 @@
 			<DCC_RemoteDebug>true</DCC_RemoteDebug>
 		</PropertyGroup>
 		<PropertyGroup Condition="'$(Cfg_1_Win32)'!=''">
+			<DCC_DebugDCUs>true</DCC_DebugDCUs>
 			<VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
+			<Manifest_File>$(BDS)\bin\default_app.manifest</Manifest_File>
 			<VerInfo_Locale>1033</VerInfo_Locale>
 			<DCC_RemoteDebug>false</DCC_RemoteDebug>
 		</PropertyGroup>
@@ -93,8 +97,12 @@
 			</DelphiCompile>
 			<DCCReference Include="Unit_Main.pas">
 				<Form>Form1</Form>
-				<FormType>dfm</FormType>
 			</DCCReference>
+			<RcItem Include="FontXGenerator.manifest">
+				<ContainerId>ResourceItem</ContainerId>
+				<ResourceType>RCDATA</ResourceType>
+				<ResourceId>Resource_1</ResourceId>
+			</RcItem>
 			<BuildConfiguration Include="Release">
 				<Key>Cfg_2</Key>
 				<CfgParent>Base</CfgParent>
