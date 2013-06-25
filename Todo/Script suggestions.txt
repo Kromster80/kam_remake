@@ -25,3 +25,5 @@ Proposed:
 	ChangeMapTile
 	SetAIName
 	More options for on-screen text (background color, alignment, font, size, etc.)
+	States.PlayerIsAI(Index): Boolean;
+	Actions.AddDefensePosition, RemDefensePosition
