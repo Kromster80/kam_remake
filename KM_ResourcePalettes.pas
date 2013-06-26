@@ -34,7 +34,7 @@ type
     constructor Create;
     destructor Destroy; override;
 
-    procedure LoadPalettes;
+    procedure LoadPalettes(aPath: string);
     property PalData[aIndex: TKMPal]: TKMPalData read GetPalData; default;
     function DefDal: TKMPalData; //Default palette for the game
     function PalFile(aIndex: TKMPal):string;
@@ -91,20 +91,22 @@ end;
 
 { TKMPalettes }
 constructor TKMPalettes.Create;
-var i:TKMPal;
+var
+  I: TKMPal;
 begin
   inherited Create;
 
-  for i:=Low(TKMPal) to High(TKMPal) do
-    fPalData[i] := TKMPalData.Create;
+  for I := Low(TKMPal) to High(TKMPal) do
+    fPalData[I] := TKMPalData.Create;
 end;
 
 
 destructor TKMPalettes.Destroy;
-var i:TKMPal;
+var
+  I: TKMPal;
 begin
-  for i:=Low(TKMPal) to High(TKMPal) do
-    fPalData[i].Free;
+  for I := Low(TKMPal) to High(TKMPal) do
+    fPalData[I].Free;
 
   inherited;
 end;
@@ -123,11 +125,12 @@ begin
 end;
 
 
-procedure TKMPalettes.LoadPalettes;
-var i:TKMPal;
+procedure TKMPalettes.LoadPalettes(aPath: string);
+var
+  I: TKMPal;
 begin
-  for i:=Low(TKMPal) to High(TKMPal) do
-    fPalData[i].LoadFromFile(ExeDir+'data' + PathDelim + 'gfx' + PathDelim +PalFiles[i]);
+  for I := Low(TKMPal) to High(TKMPal) do
+    fPalData[I].LoadFromFile(aPath{ExeDir + 'data' + PathDelim + 'gfx' + PathDelim} + PalFiles[I]);
 end;
 
 

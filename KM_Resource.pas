@@ -130,7 +130,7 @@ begin
 
   StepCaption('Reading palettes ...');
   fPalettes := TKMPalettes.Create;
-  fPalettes.LoadPalettes;
+  fPalettes.LoadPalettes(ExeDir + 'data' + PathDelim + 'gfx' + PathDelim);
   gLog.AddTime('Reading palettes', True);
 
   fSprites := TKMSprites.Create(StepRefresh, StepCaption);

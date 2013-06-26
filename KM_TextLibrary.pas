@@ -17,25 +17,32 @@ const
   NO_TEXT = '<<<LEER>>>';
 
 type
+  {$IFDEF UNICODE}
+    TKMStringArray = TStringArray;
+  {$ENDIF}
+  {$IFNDEF UNICODE}
+    TKMStringArray = TAnsiStringArray;
+  {$ENDIF}
+
   TKMTextLibrary = class
   private
     fLocale: AnsiString;
     fFallbackLocale: AnsiString;
-    GameStrings: TAnsiStringArray;
-    MissionStrings: TAnsiStringArray; //Strings used in a mission
-    procedure LoadLIBXFile(FilePath: string; aFirstIndex: Word; var aArray: TAnsiStringArray; aOverwrite: Boolean);
-    procedure ExportTextLibrary(aLibrary: array of AnsiString; aFileName: string);
-    function GetTexts(aIndex: Word): AnsiString;
+    GameStrings: TKMStringArray;
+    MissionStrings: TKMStringArray; //Strings used in a mission
+    procedure LoadLIBXFile(FilePath: string; aFirstIndex: Word; var aArray: TKMStringArray; aOverwrite: Boolean);
+    procedure ExportTextLibrary(aLibrary: TKMStringArray; aFileName: string);
+    function GetTexts(aIndex: Word): string;
   public
     constructor Create(aLibPath: string; aLocale: AnsiString);
 
     function AppendCampaign(aFileName: string): Word;
     procedure LoadMissionStrings(aFileName: string);
 
-    function GetMissionString(aIndex: Word): AnsiString;
-    function ParseTextMarkup(const aText: AnsiString): AnsiString;
+    function GetMissionString(aIndex: Word): string;
+    function ParseTextMarkup(const aText: string): string;
 
-    property Texts[aIndex: Word]: AnsiString read GetTexts; default;
+    property Texts[aIndex: Word]: string read GetTexts; default;
 
     procedure ExportTextLibraries;
   end;
@@ -72,17 +79,43 @@ end;
 
 
 {LIBX files consist of lines. Each line has an index and a text. Lines without index are skipped}
-procedure TKMTextLibrary.LoadLIBXFile(FilePath: string; aFirstIndex: Word; var aArray: TAnsiStringArray; aOverwrite: Boolean);
+procedure TKMTextLibrary.LoadLIBXFile(FilePath: string; aFirstIndex: Word; var aArray: TKMStringArray; aOverwrite: Boolean);
+  {$IFDEF UNICODE}
+  function GetCodepage(aLang: string): Word;
+  begin
+    //Using slower but more compact comparisons
+    if Pos(aLang, 'bel,rus,bul,ukr') <> 0 then
+      Result := 1251
+    else if Pos(aLang, 'pol,hun,cze,svk,rom') <> 0 then
+      Result := 1250
+    else if Pos(aLang, 'tur') <> 0 then
+      Result := 1254
+    else if Pos(aLang, 'lit,lat') <> 0 then
+      Result := 1257
+    else if Pos(aLang, 'eng,spa,ita,nor,chn,dut,est,ptb,fre,ger,jpn,swe') <> 0 then
+      Result := 1252
+    else
+      Result := 1252;
+  end;
+  {$ENDIF}
 var
   aStringList: TStringList;
+  {$IFDEF UNICODE}
+  lang: string;
+  {$ENDIF}
   I: Integer;
-  s: AnsiString;
+  s: string;
   firstDelimiter: Integer;
   ID, MaxID: Integer;
 begin
   if not FileExists(FilePath) then Exit;
 
   aStringList := TStringList.Create;
+  {$IFDEF UNICODE}
+    //Load in right encoding
+    lang := Copy(FilePath, Length(FilePath) - 7, 3);
+    aStringList.DefaultEncoding := TEncoding.GetEncoding(GetCodepage(fLocale));
+  {$ENDIF}
   aStringList.LoadFromFile(FilePath);
 
   //First line is empty or comment and could have first 3 bytes Unicode Byte-Order Mark (BOM)
@@ -112,7 +145,7 @@ begin
     if not aOverwrite or (s <> '') then aArray[aFirstIndex + ID] := s;
   end;
 
-  aStringList.Free; //Must free at last to avoid memory-leaks
+  aStringList.Free;
 end;
 
 
@@ -147,7 +180,7 @@ begin
 end;
 
 
-function TKMTextLibrary.GetTexts(aIndex: word): AnsiString;
+function TKMTextLibrary.GetTexts(aIndex: word): string;
 begin
   if aIndex < Length(GameStrings) then
     Result := GameStrings[aIndex]
@@ -156,7 +189,7 @@ begin
 end;
 
 
-function TKMTextLibrary.GetMissionString(aIndex: word): AnsiString;
+function TKMTextLibrary.GetMissionString(aIndex: Word): string;
 begin
   if aIndex < Length(MissionStrings) then
     Result := MissionStrings[aIndex]
@@ -166,7 +199,7 @@ end;
 
 
 //Take the string and replace every occurence of <$tag> with corresponding text from LibX
-function TKMTextLibrary.ParseTextMarkup(const aText: AnsiString): AnsiString;
+function TKMTextLibrary.ParseTextMarkup(const aText: string): string;
 var
   I, ID, Last: Integer;
 begin
@@ -191,7 +224,7 @@ begin
 end;
 
 
-procedure TKMTextLibrary.ExportTextLibrary(aLibrary: array of AnsiString; aFileName: string);
+procedure TKMTextLibrary.ExportTextLibrary(aLibrary: TKMStringArray; aFileName: string);
 var
   i: integer;
   FileData: TStringList;

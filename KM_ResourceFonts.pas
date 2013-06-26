@@ -20,6 +20,13 @@ type
   System (unused)
   }
 
+  TKMFontInfo = record
+      FontFile: string;
+      Pal: TKMPal; //Palette fnt needs
+      Ext: Boolean;
+      TexMode: TTexFormat; //Format font texture needs to be in
+    end;
+
   TKMLetter = packed record
       Width, Height, YOffset: Word;
       u1,v1,u2,v2: Single; //Location within texture atlas
@@ -31,7 +38,6 @@ type
     fTexData: array of Cardinal;
     fTexSizeX, fTexSizeY: Word;
     fTexPadding: Byte;
-    fTexSize: Word;
     fBaseHeight, fWordSpacing, fCharSpacing: SmallInt; //BaseCharHeight?, Unknown, CharSpacingX, LineOffset?
     Pal: array [0..High(Word)] of Byte;
     fLineSpacing: Byte; //Not in KaM files, we use custom value that fits well
@@ -39,6 +45,7 @@ type
     Letters: array [0..High(Word)] of TKMLetter;
 
     procedure CreateFont(aFontName: string; aFontSize: Byte; aFontStyle: TFontStyles; const aChars: array of Char);
+    procedure CollateFont(aFonts: array of TKMFontData);
     procedure LoadFont(const aFileName: string; aPal: TKMPal);
     procedure LoadFontX(const aFileName: string);
     procedure GenerateTexture(aRender: TRender; aTexMode: TTexFormat);
@@ -50,7 +57,8 @@ type
     procedure SaveToFontX(const aFilename: string);
 
     property TexPadding: Byte read fTexPadding write fTexPadding;
-    property TexSize: Word read fTexSize write fTexSize;
+    property TexSizeX: Word read fTexSizeX write fTexSizeX;
+    property TexSizeY: Word read fTexSizeY write fTexSizeY;
 
     property CharSpacing: SmallInt read fCharSpacing;
     property LineSpacing: Byte read fLineSpacing;
@@ -81,18 +89,6 @@ type
   end;
 
 
-implementation
-uses KM_Resource;
-
-
-type
-  TKMFontInfo = record
-    FontFile: string;
-    Pal: TKMPal; //Palette fnt needs
-    Ext: Boolean;
-    TexMode: TTexFormat; //Format font texture needs to be in
-  end;
-
 const
   FontInfo: array [TKMFont] of TKMFontInfo = (
     (FontFile: 'antiqua';     Pal: pal_0;         TexMode: tf_RGB5A1),
@@ -108,6 +104,12 @@ const
     (FontFile: 'arialuni';    Pal: pal_0;         Ext: True; TexMode: tf_Alpha8)
   );
 
+
+implementation
+uses KM_Resource;
+
+
+const
   FONT_INTERLINE = 5; //Spacing between lines of text
 
 
@@ -125,9 +127,6 @@ var
 begin
   bitmap := TBitmap.Create;
   try
-    fTexSizeX := fTexSize;
-    fTexSizeY := fTexSize;
-
     bitmap.PixelFormat := pf32bit;
     bitmap.Width := fTexSizeX;
     bitmap.Height := fTexSizeY;
@@ -202,6 +201,67 @@ begin
     end;
   finally
     bitmap.Free;
+  end;
+end;
+
+
+//Create font by collating several different codepages
+procedure TKMFontData.CollateFont(aFonts: array of TKMFontData);
+const
+  INS = 0;
+var
+  bitmap: TBitmap;
+  I, K, pX, pY: Integer;
+  chWidth: Byte;
+  chRect: TRect;
+  byteArray: PByteArray;
+  txtHeight: Integer;
+begin
+  //Common font props
+  fBaseHeight := aFonts[0].fBaseHeight;
+  fWordSpacing := 4;
+  fCharSpacing := 0;
+  fLineSpacing := FONT_INTERLINE;
+
+  pX := fTexPadding;
+  pY := fTexPadding;
+  for K := Low(aFonts) to High(aFonts) do
+  for I := 0 to 255 do
+  if aFonts[K].Pal[I] <> 0 then
+  begin
+    chWidth := aFonts[K].Letters[I].Width;
+
+    if chWidth = 0 then Continue;
+
+    if pX + chWidth + fTexPadding * 2 >= fTexSizeX then
+    begin
+      pX := fTexPadding;
+      Inc(pY, txtHeight + fTexPadding * 2);
+      if pY + txtHeight + fTexPadding * 2 > fTexSizeY then
+        Break;
+    end;
+
+    Letters[I].u1 := (pX + fTexPadding + INS) / fTexSizeX;
+    Letters[I].v1 := (pY + fTexPadding + INS) / fTexSizeY;
+    Letters[I].u2 := (pX + chWidth + fTexPadding - INS) / fTexSizeX;
+    Letters[I].v2 := (pY + txtHeight + fTexPadding - INS) / fTexSizeY;
+
+    chRect.Left := pX;
+    chRect.Top := pY;
+    chRect.Right := pX + chWidth + fTexPadding * 2;
+    chRect.Bottom := pY + txtHeight + fTexPadding * 2;
+    bitmap.Canvas.TextRect(chRect, pX + fTexPadding, pY + fTexPadding, Char(I));
+
+    Inc(pX, chWidth + fTexPadding * 2);
+  end;
+
+  SetLength(fTexData, fTexSizeX * fTexSizeY);
+  for I := 0 to bitmap.Height - 1 do
+  begin
+    //Only Alpha will be used to generate the texture
+    byteArray := bitmap.ScanLine[I];
+    for K := 0 to bitmap.Width - 1 do
+      fTexData[(I * bitmap.Width + K)] := byteArray[K * 4 + 1] shl 24 or $FFFFFF;
   end;
 end;
 

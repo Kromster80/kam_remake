@@ -26,7 +26,7 @@ type
     class procedure WriteOutline      (PosX,PosY,SizeX,SizeY,LineWidth:smallint; Col:TColor4);
     class procedure WriteShape        (PosX,PosY,SizeX,SizeY:smallint; Col:TColor4; Outline: TColor4 = $00000000);
     class procedure WriteLine         (X1,Y1,X2,Y2: Single; aCol: TColor4; aPattern: Word = $FFFF);
-    class procedure WriteText         (X,Y,W: smallint; aText: AnsiString; aFont: TKMFont; aAlign: TTextAlign; aColor: TColor4 = $FFFFFFFF; aIgnoreMarkup:Boolean = False; aShowMarkup:Boolean=False);
+    class procedure WriteText         (X,Y,W: smallint; aText: string; aFont: TKMFont; aAlign: TTextAlign; aColor: TColor4 = $FFFFFFFF; aIgnoreMarkup:Boolean = False; aShowMarkup:Boolean=False);
     class procedure WriteTexture      (PosX,PosY,SizeX,SizeY:smallint; aTexture: TTexture; aCol: TColor4);
     class procedure WriteCircle       (PosX,PosY: SmallInt; Rad: Byte; aFillCol: TColor4);
   end;
@@ -423,12 +423,13 @@ end;
 
 {Renders a line of text}
 {By default color must be non-transparent white}
-class procedure TKMRenderUI.WriteText(X,Y,W: smallint; aText: AnsiString; aFont: TKMFont; aAlign: TTextAlign; aColor: TColor4 = $FFFFFFFF; aIgnoreMarkup:Boolean = False; aShowMarkup:Boolean = False);
+class procedure TKMRenderUI.WriteText(X,Y,W: smallint; aText: string; aFont: TKMFont; aAlign: TTextAlign; aColor: TColor4 = $FFFFFFFF; aIgnoreMarkup:Boolean = False; aShowMarkup:Boolean = False);
 var
   I, K: Integer;
   LineCount,AdvX,AdvY,LineHeight,BlockWidth: Integer;
   LineWidth: array of Integer; //Use signed format since some fonts may have negative CharSpacing
   FontData: TKMFontData;
+  Let: TKMLetter;
   TmpColor: Integer;
   Colors: array of record
     FirstChar: Word;
@@ -492,7 +493,7 @@ begin
         Inc(LineWidth[LineCount], FontData.Letters[byte(aText[I])].Width + FontData.CharSpacing);
 
     //If EOL or aText end
-    if (aText[I]=#124)or(I=length(aText)) then
+    if (aText[I] = #124) or (I = Length(aText)) then
     begin
       LineWidth[LineCount] := Math.max(0, LineWidth[LineCount] - FontData.CharSpacing); //Remove last interletter space and negate double EOLs
       Inc(LineCount);
@@ -547,13 +548,19 @@ begin
                     taRight:  AdvX := X + W - LineWidth[LineCount];
                   end;
                 end;
-          else  with FontData.Letters[Byte(aText[I])] do
-                begin
-                  glTexCoord2f(u1, v1); glVertex2f(AdvX       , AdvY       +YOffset);
-                  glTexCoord2f(u2, v1); glVertex2f(AdvX+Width , AdvY       +YOffset);
-                  glTexCoord2f(u2, v2); glVertex2f(AdvX+Width , AdvY+Height+YOffset);
-                  glTexCoord2f(u1, v2); glVertex2f(AdvX       , AdvY+Height+YOffset);
-                  Inc(AdvX, Width + FontData.CharSpacing);
+          else  begin
+                  {$IFDEF UNICODE}
+                    Let := FontData.Letters[Word(aText[I])];
+                  {$ENDIF}
+                  {$IFNDEF UNICODE}
+                    Let := FontData.Letters[Byte(aText[I])];
+                  {$ENDIF}
+
+                  glTexCoord2f(Let.u1, Let.v1); glVertex2f(AdvX            , AdvY            + Let.YOffset);
+                  glTexCoord2f(Let.u2, Let.v1); glVertex2f(AdvX + Let.Width, AdvY            + Let.YOffset);
+                  glTexCoord2f(Let.u2, Let.v2); glVertex2f(AdvX + Let.Width, AdvY+Let.Height + Let.YOffset);
+                  glTexCoord2f(Let.u1, Let.v2); glVertex2f(AdvX            , AdvY+Let.Height + Let.YOffset);
+                  Inc(AdvX, Let.Width + FontData.CharSpacing);
                 end;
         end;
       end;

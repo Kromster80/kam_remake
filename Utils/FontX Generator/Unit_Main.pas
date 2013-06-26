@@ -4,38 +4,46 @@ interface
 uses
   Windows, //Declared first to get TBitmap overriden with VCL version
   SysUtils, Classes, Graphics, Controls, Forms, Dialogs, ExtCtrls, StdCtrls, Spin, StrUtils,
-  KM_ResourceFonts;
+  KM_Defaults, KM_ResourceFonts, KM_ResourcePalettes;
 
 
 type
   TForm1 = class(TForm)
-    btnGenerate: TButton;
-    Memo1: TMemo;
-    Label1: TLabel;
-    edtFontName: TEdit;
-    Label2: TLabel;
-    seFontSize: TSpinEdit;
-    Label3: TLabel;
     Label4: TLabel;
     Image1: TImage;
     btnSave: TButton;
-    cbBold: TCheckBox;
-    cbItalic: TCheckBox;
     dlgSave: TSaveDialog;
-    sePadding: TSpinEdit;
-    Label5: TLabel;
     btnExportTex: TButton;
     dlgOpen: TOpenDialog;
     btnImportTex: TButton;
-    btnCollectChars: TButton;
+    GroupBox1: TGroupBox;
+    sePadding: TSpinEdit;
     SpinEdit1: TSpinEdit;
     Label6: TLabel;
+    Label5: TLabel;
+    GroupBox2: TGroupBox;
+    Label1: TLabel;
+    Label2: TLabel;
+    Label3: TLabel;
+    btnGenerate: TButton;
+    Memo1: TMemo;
+    edtFontName: TEdit;
+    seFontSize: TSpinEdit;
+    cbBold: TCheckBox;
+    cbItalic: TCheckBox;
+    btnCollectChars: TButton;
+    GroupBox3: TGroupBox;
+    ListBox1: TListBox;
+    btnCollate: TButton;
     procedure btnGenerateClick(Sender: TObject);
     procedure btnSaveClick(Sender: TObject);
     procedure btnExportTexClick(Sender: TObject);
     procedure btnImportTexClick(Sender: TObject);
     procedure btnCollectCharsClick(Sender: TObject);
+    procedure FormCreate(Sender: TObject);
+    procedure btnCollateClick(Sender: TObject);
   private
+    Pals: TKMPalettes;
     Fnt: TKMFontData;
   end;
 
@@ -66,7 +74,8 @@ begin
     fntStyle := fntStyle + [fsItalic];
 
   Fnt.TexPadding := sePadding.Value;
-  Fnt.TexSize := SpinEdit1.Value;
+  Fnt.TexSizeX := SpinEdit1.Value;
+  Fnt.TexSizeY := SpinEdit1.Value;
   Fnt.CreateFont(edtFontName.Text, seFontSize.Value, fntStyle, useChars);
 
   Bmp := TBitmap.Create;
@@ -81,7 +90,51 @@ begin
   //if not dlgSave.Execute then Exit;
 
   //Fnt.SaveToFontX(dlgSave.FileName);
-  Fnt.SaveToFontX(ExtractFilePath(Application.ExeName) + '..\..\data\gfx\fonts\arialuni.fntx');
+  Fnt.SaveToFontX(ExeDir + '..\..\data\gfx\fonts\arialuni.fntx');
+end;
+
+
+procedure TForm1.FormCreate(Sender: TObject);
+var
+  fntId: TKMFont;
+begin
+  Caption := 'KaM Font Editor (' + GAME_REVISION + ')';
+  ExeDir := ExtractFilePath(Application.ExeName);
+
+  //Palettes
+  Pals := TKMPalettes.Create;
+  Pals.LoadPalettes(ExeDir + '..\..\data\gfx\');
+
+  //Available fonts
+  for fntId := Low(TKMFont) to High(TKMFont) do
+    ListBox1.Items.Add(FontInfo[fntId].FontFile);
+end;
+
+
+procedure TForm1.btnCollateClick(Sender: TObject);
+const
+  CODE_PAGES: array [0..3] of Word = (1250, 1251, 1254, 1257);
+var
+  fntId: TKMFont;
+  srcFont: array [0..3] of TKMFontData;
+  newFont: TKMFontData;
+  I: Integer;
+begin
+  if ListBox1.ItemIndex = -1 then Exit;
+
+  fntId := TKMFont(ListBox1.ItemIndex);
+
+  for I in CODE_PAGES do
+  begin
+    srcFont[I] := TKMFontData.Create;
+    srcFont[I].LoadFont(ExeDir + '..\..\data\gfx\fonts\' + FontInfo[fntId].FontFile + '.' + IntToStr(CODE_PAGES[I]) + '.fnt', FontInfo[fntId].Pal);
+  end;
+
+  newFont := TKMFontData.Create;
+  newFont.CollateFont(srcFont);
+
+  for I in CODE_PAGES do
+    srcFont[I].Free;
 end;
 
 
@@ -167,7 +220,7 @@ begin
   libx := TStringList.Create();//'', TEncoding.UTF8);
   lab := btnCollectChars.Caption;
   try
-    GetAllTextPaths(ExtractFilePath(Application.ExeName) + '..\..\', libxList);
+    GetAllTextPaths(ExeDir + '..\..\', libxList);
 
     //libxList.Append(ExtractFilePath(Application.ExeName) + 'ger.libx');
     //libxList.Append(ExtractFilePath(Application.ExeName) + 'uni.txt');
