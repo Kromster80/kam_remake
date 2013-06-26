@@ -78,9 +78,10 @@ end;
 procedure TForm1.btnSaveClick(Sender: TObject);
 begin
   dlgSave.DefaultExt := 'fntx';
-  if not dlgSave.Execute then Exit;
+  //if not dlgSave.Execute then Exit;
 
-  Fnt.SaveToFontX(dlgSave.FileName);
+  //Fnt.SaveToFontX(dlgSave.FileName);
+  Fnt.SaveToFontX(ExtractFilePath(Application.ExeName) + '..\..\data\gfx\fonts\arialuni.fntx');
 end;
 
 

@@ -117,7 +117,8 @@ const
   INS = 0;
 var
   bitmap: TBitmap;
-  I, K, pX, pY, chWidth: Integer;
+  I, K, pX, pY: Integer;
+  chWidth: Byte;
   chRect: TRect;
   byteArray: PByteArray;
   txtHeight: Integer;
@@ -141,11 +142,10 @@ begin
     fCharSpacing := 0;
     fLineSpacing := FONT_INTERLINE;
 
-    txtHeight := bitmap.Canvas.TextHeight('"_pI|,') + fTexPadding * 2;
-
-    FillChar(Pal, SizeOf(Pal), #0);
+    txtHeight := bitmap.Canvas.TextHeight('"_pI|,');
 
     //Characters we gonna use
+    FillChar(Pal, SizeOf(Pal), #0);
     for I := Low(aChars) to High(aChars) do
       Pal[Word(aChars[I])] := 1;
 
@@ -161,38 +161,35 @@ begin
     bitmap.Canvas.Brush.Color := clBlack;
     bitmap.Canvas.FillRect(Rect(0, 0, fTexSizeX, fTexSizeY));
 
-    pX := 0;
-    pY := 0;
+    pX := fTexPadding;
+    pY := fTexPadding;
     for I := 0 to High(Word) do
     if Pal[I] <> 0 then
     begin
       chWidth := Letters[I].Width;
 
-      if chWidth = 0 then
-        Continue;
+      if chWidth = 0 then Continue;
 
-      Inc(chWidth, fTexPadding * 2);
-
-      if pX + chWidth >= fTexSizeX then
+      if pX + chWidth + fTexPadding * 2 >= fTexSizeX then
       begin
-        pX := 1;
-        Inc(pY, txtHeight);
-        if pY + txtHeight > fTexSizeY then
+        pX := fTexPadding;
+        Inc(pY, txtHeight + fTexPadding * 2);
+        if pY + txtHeight + fTexPadding * 2 > fTexSizeY then
           Break;
       end;
 
       Letters[I].u1 := (pX + fTexPadding + INS) / fTexSizeX;
       Letters[I].v1 := (pY + fTexPadding + INS) / fTexSizeY;
-      Letters[I].u2 := (pX + chWidth - fTexPadding - INS) / fTexSizeX;
-      Letters[I].v2 := (pY + txtHeight - fTexPadding - INS) / fTexSizeY;
+      Letters[I].u2 := (pX + chWidth + fTexPadding - INS) / fTexSizeX;
+      Letters[I].v2 := (pY + txtHeight + fTexPadding - INS) / fTexSizeY;
 
       chRect.Left := pX;
       chRect.Top := pY;
-      chRect.Right := pX + chWidth;
-      chRect.Bottom := pY + txtHeight;
+      chRect.Right := pX + chWidth + fTexPadding * 2;
+      chRect.Bottom := pY + txtHeight + fTexPadding * 2;
       bitmap.Canvas.TextRect(chRect, pX + fTexPadding, pY + fTexPadding, Char(I));
 
-      Inc(pX, chWidth);
+      Inc(pX, chWidth + fTexPadding * 2);
     end;
 
     SetLength(fTexData, fTexSizeX * fTexSizeY);
