@@ -89,17 +89,17 @@ procedure TForm1.btnCollectCharsClick(Sender: TObject);
   begin
     //Using slower but more compact comparisons
     if Pos(aLang, 'bel,rus,bul,ukr') <> 0 then
-      Result := 1251
+      Result := 28595 //ISO 8859-5 (Cyrillic)
     else if Pos(aLang, 'pol,hun,cze,svk,rom') <> 0 then
-      Result := 1250
+      Result := 28592 //ISO 8859-2 (Central European)
     else if Pos(aLang, 'tur') <> 0 then
-      Result := 1254
+      Result := 28599 //ISO 8859-9 (Turkish)
     else if Pos(aLang, 'lit,lat') <> 0 then
-      Result := 1257
-    else if Pos(aLang, 'eng,spa,ita,nor,chn,dut,est,ptb,fre,ger,jpn,swe') <> 0 then
-      Result := 28591
+      Result := 28594 //ISO 8859-4 (Baltic)
+    else if Pos(aLang, 'eng,ger,spa,ita,nor,chn,dut,est,ptb,fre,jpn,swe') <> 0 then
+      Result := 28591  //ISO 8859-1 (Latin 1)
     else
-      Result := 1252;
+      Result := 28591;
   end;
 
   procedure GetAllTextPaths(aExeDir: string; aList: TStringList);
@@ -141,7 +141,7 @@ procedure TForm1.btnCollectCharsClick(Sender: TObject);
       for I := 0 to PathToMaps.Count - 1 do
       if DirectoryExists(PathToMaps[I]) then
       begin
-        FindFirst(PathToMaps[I] + '*ger.libx', faAnyFile - faDirectory, SearchRec);
+        FindFirst(PathToMaps[I] + '*.libx', faAnyFile - faDirectory, SearchRec);
         repeat
           if RightStr(SearchRec.Name, 4) = 'libx' then
             aList.Add(PathToMaps[I] + SearchRec.Name);
@@ -180,10 +180,9 @@ begin
       libx.DefaultEncoding := TEncoding.GetEncoding(GetCodepage(lang));
       libx.LoadFromFile(libxList[I]);
 
-//      libx.Encoding
       libTxt := libx.Text;
       for K := 0 to Length(libTxt) - 1 do
-      if Word(libTxt[K+1]) = 188 then
+      //if Word(libTxt[K+1]) = $9A then
         chars[Word(libTxt[K+1])] := libTxt[K+1];
     end;
 

@@ -75,7 +75,6 @@ object Form1: TForm1
     Caption = 'Generate font'
     TabOrder = 0
     OnClick = btnGenerateClick
-    ExplicitTop = 264
   end
   object Memo1: TMemo
     Left = 8
@@ -128,7 +127,6 @@ object Form1: TForm1
     Caption = 'Save font ...'
     TabOrder = 4
     OnClick = btnSaveClick
-    ExplicitTop = 296
   end
   object cbBold: TCheckBox
     Left = 200
@@ -166,7 +164,6 @@ object Form1: TForm1
     Caption = 'Export texture ...'
     TabOrder = 8
     OnClick = btnExportTexClick
-    ExplicitTop = 264
   end
   object btnImportTex: TButton
     Left = 144
@@ -177,7 +174,6 @@ object Form1: TForm1
     Caption = 'Import texture ...'
     TabOrder = 9
     OnClick = btnImportTexClick
-    ExplicitTop = 296
   end
   object btnCollectChars: TButton
     Left = 144
