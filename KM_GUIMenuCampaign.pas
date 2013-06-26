@@ -3,7 +3,7 @@ unit KM_GUIMenuCampaign;
 interface
 uses
   Classes, Controls, SysUtils, Math,
-  KM_Controls, KM_Defaults, KM_Pics,
+  KM_Controls, KM_Pics,
   KM_Campaigns, KM_InterfaceDefaults;
 
 

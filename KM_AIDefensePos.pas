@@ -34,7 +34,6 @@ type
 
     property CurrentGroup: TKMUnitGroup read fCurrentGroup write SetCurrentGroup;
     function IsFullyStocked(aAmount: Integer): Boolean;
-    function UITitle: string;
     procedure Save(SaveStream: TKMemoryStream);
     procedure SyncLoad;
     procedure UpdateState;
@@ -151,14 +150,6 @@ end;
 procedure TAIDefencePosition.SyncLoad;
 begin
   fCurrentGroup := fPlayers.GetGroupByID(Cardinal(fCurrentGroup));
-end;
-
-
-function TAIDefencePosition.UITitle: string;
-const
-  T: array [TGroupType] of string = ('Melee', 'AntiHorse', 'Ranged', 'Mounted');
-begin
-  Result := T[fGroupType];
 end;
 
 

@@ -418,6 +418,14 @@ const
   SMALL_TAB_H = 26;
   //SMALL_PAD_H = SMALL_TAB_H + 4;
 
+  GROUP_TEXT: array [TGroupType] of Integer = (
+    TX_MAPED_AI_ATTACK_TYPE_MELEE, TX_MAPED_AI_ATTACK_TYPE_ANTIHORSE,
+    TX_MAPED_AI_ATTACK_TYPE_RANGED, TX_MAPED_AI_ATTACK_TYPE_MOUNTED);
+
+  GROUP_IMG: array [TGroupType] of Word = (
+    371, 374,
+    376, 377);
+
 
 {Switch between pages}
 procedure TKMapEdInterface.SwitchPage(Sender: TObject);
@@ -1482,7 +1490,6 @@ end;
 
 procedure TKMapEdInterface.Create_AttackPopUp;
 const
-  T: array [TGroupType] of Integer = (TX_MAPED_AI_ATTACK_TYPE_MELEE, TX_MAPED_AI_ATTACK_TYPE_ANTIHORSE, TX_MAPED_AI_ATTACK_TYPE_RANGED, TX_MAPED_AI_ATTACK_TYPE_MOUNTED);
   SIZE_X = 570;
   SIZE_Y = 360;
 var
@@ -1514,7 +1521,7 @@ begin
     TKMLabel.Create(Panel_Attack, 340, 40, fTextLibrary[TX_MAPED_AI_ATTACK_COUNT], fnt_Metal, taLeft);
     for GT := Low(TGroupType) to High(TGroupType) do
     begin
-      TKMLabel.Create(Panel_Attack, 425, 60 + Byte(GT) * 20, 0, 0, fTextLibrary[T[GT]], fnt_Metal, taLeft);
+      TKMLabel.Create(Panel_Attack, 425, 60 + Byte(GT) * 20, 0, 0, fTextLibrary[GROUP_TEXT[GT]], fnt_Metal, taLeft);
       NumEdit_AttackAmount[GT] := TKMNumericEdit.Create(Panel_Attack, 340, 60 + Byte(GT) * 20, 0, 255);
       NumEdit_AttackAmount[GT].OnChange := Attack_Change;
     end;
@@ -1866,8 +1873,59 @@ end;
 
 
 procedure TKMapEdInterface.Paint;
+  procedure PaintTextInShape(aText: string; X,Y: SmallInt; aLineColor: Cardinal);
+  var
+    W: Integer;
+  begin
+    //Paint the background
+    W := 10 + 10 * Length(aText);
+    TKMRenderUI.WriteShape(X - W div 2, Y - 10, W, 20, $80000000);
+    TKMRenderUI.WriteOutline(X - W div 2, Y - 10, W, 20, 2, aLineColor);
+
+    //Paint the label on top of the background
+    TKMRenderUI.WriteText(X, Y - 7, 0, aText, fnt_Metal, taCenter, $FFFFFFFF);
+  end;
+const
+  DefenceLine: array [TAIDefencePosType] of Cardinal = ($FF80FF00, $FFFF8000);
+var
+  I, K: Integer;
+  R: TRawDeposit;
+  DP: TAIDefencePosition;
+  LocF: TKMPointF;
+  ScreenLoc: TKMPointI;
 begin
-  fGame.MapEditor.PaintUI;
+  if mlDeposits in fGame.MapEditor.VisibleLayers then
+  begin
+    for R := Low(TRawDeposit) to High(TRawDeposit) do
+      for I := 0 to fGame.MapEditor.Deposits.Count[R] - 1 do
+      //Ignore water areas with 0 fish in them
+      if fGame.MapEditor.Deposits.Amount[R, I] > 0 then
+      begin
+        LocF := gTerrain.FlatToHeight(fGame.MapEditor.Deposits.Location[R, I]);
+        ScreenLoc := fGame.Viewport.MapToScreen(LocF);
+
+        //At extreme zoom coords may become out of range of SmallInt used in controls painting
+        if KMInRect(ScreenLoc, fGame.Viewport.ViewRect) then
+          PaintTextInShape(IntToStr(fGame.MapEditor.Deposits.Amount[R, I]), ScreenLoc.X, ScreenLoc.Y, DEPOSIT_COLORS[R]);
+      end;
+  end;
+
+  if mlDefences in fGame.MapEditor.VisibleLayers then
+  begin
+    for I := 0 to fPlayers.Count - 1 do
+      for K := 0 to fPlayers[I].AI.General.DefencePositions.Count - 1 do
+      begin
+        DP := fPlayers[I].AI.General.DefencePositions[K];
+        LocF := gTerrain.FlatToHeight(KMPointF(DP.Position.Loc.X-0.5, DP.Position.Loc.Y-0.5));
+        ScreenLoc := fGame.Viewport.MapToScreen(LocF);
+
+        if KMInRect(ScreenLoc, fGame.Viewport.ViewRect) then
+        begin
+          PaintTextInShape(IntToStr(K+1), ScreenLoc.X, ScreenLoc.Y - 15, DefenceLine[DP.DefenceType]);
+          TKMRenderUI.WritePicture(ScreenLoc.X, ScreenLoc.Y, 0, 0, [], rxGui, GROUP_IMG[DP.GroupType]);
+        end;
+      end;
+  end;
 
   inherited;
 end;
@@ -3898,4 +3956,3 @@ end;
 
 
 end.
-

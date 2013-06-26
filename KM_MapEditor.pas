@@ -98,14 +98,12 @@ type
     property VisibleLayers: TMapEdLayerSet read fVisibleLayers write fVisibleLayers;
     function HitTest(X,Y: Integer): TKMMapEdMarker;
     procedure Update;
-    procedure PaintUI;
     procedure Paint(aLayer: TPaintLayer);
   end;
 
 
 implementation
-uses KM_Game, KM_PlayersCollection, KM_RenderAux, KM_RenderUI, KM_AIDefensePos,
-  KM_UnitGroups, KM_AIFields, KM_ResourceFonts;
+uses KM_PlayersCollection, KM_RenderAux, KM_AIDefensePos, KM_UnitGroups;
 
 
 { TKMDeposits }
@@ -478,63 +476,6 @@ begin
 
   //todo: if mlNavMesh in VisibleLayers then
     //fAIFields.NavMesh.Init;
-end;
-
-
-procedure TKMMapEditor.PaintUI;
-  procedure PaintTextInShape(aText: string; X,Y: SmallInt; aLineColor: Cardinal);
-  var
-    W: Integer;
-  begin
-    //Paint the background
-    W := 10 + 10 * Length(aText);
-    TKMRenderUI.WriteShape(X - W div 2, Y - 10, W, 20, $80000000);
-    TKMRenderUI.WriteOutline(X - W div 2, Y - 10, W, 20, 2, aLineColor);
-
-    //Paint the label on top of the background
-    TKMRenderUI.WriteText(X, Y - 7, 0, aText, fnt_Metal, taCenter, $FFFFFFFF);
-  end;
-const
-  DefenceLine: array [TAIDefencePosType] of Cardinal = ($FF80FF00, $FFFF8000);
-var
-  I, K: Integer;
-  R: TRawDeposit;
-  DP: TAIDefencePosition;
-  LocF: TKMPointF;
-  ScreenLoc: TKMPointI;
-begin
-  if mlDeposits in fVisibleLayers then
-  begin
-    for R := Low(TRawDeposit) to High(TRawDeposit) do
-      for I := 0 to fDeposits.Count[R] - 1 do
-      //Ignore water areas with 0 fish in them
-      if fDeposits.Amount[R, I] > 0 then
-      begin
-        LocF := gTerrain.FlatToHeight(fDeposits.Location[R, I]);
-        ScreenLoc := fGame.Viewport.MapToScreen(LocF);
-
-        //At extreme zoom coords may become out of range of SmallInt used in controls painting
-        if KMInRect(ScreenLoc, fGame.Viewport.ViewRect) then
-          PaintTextInShape(IntToStr(fDeposits.Amount[R, I]), ScreenLoc.X, ScreenLoc.Y, DEPOSIT_COLORS[R]);
-      end;
-  end;
-
-  if mlDefences in fGame.MapEditor.VisibleLayers then
-  begin
-    for I := 0 to fPlayers.Count - 1 do
-      for K := 0 to fPlayers[I].AI.General.DefencePositions.Count - 1 do
-      begin
-        DP := fPlayers[I].AI.General.DefencePositions[K];
-        LocF := gTerrain.FlatToHeight(KMPointF(DP.Position.Loc));
-        ScreenLoc := fGame.Viewport.MapToScreen(LocF);
-
-        if KMInRect(ScreenLoc, fGame.Viewport.ViewRect) then
-        begin
-          PaintTextInShape(IntToStr(K+1), ScreenLoc.X, ScreenLoc.Y - 15, DefenceLine[DP.DefenceType]);
-          PaintTextInShape(DP.UITitle, ScreenLoc.X, ScreenLoc.Y, DefenceLine[DP.DefenceType]);
-        end;
-      end;
-  end;
 end;
 
 

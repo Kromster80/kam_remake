@@ -2,7 +2,7 @@ unit KM_PlayerSpectator;
 {$I KaM_Remake.inc}
 interface
 uses KromUtils,
-  KM_CommonClasses, KM_Defaults, KM_Points,
+  KM_CommonClasses, KM_Defaults,
   KM_FogOfWar;
 
 
@@ -43,7 +43,7 @@ type
 
 
 implementation
-uses KM_PlayersCollection, KM_Game, KM_Units_Warrior, KM_Terrain, KM_UnitGroups;
+uses KM_PlayersCollection, KM_Game, KM_Units_Warrior, KM_UnitGroups;
 
 
 { TKMSpectator }
