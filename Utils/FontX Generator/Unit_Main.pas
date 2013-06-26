@@ -89,17 +89,17 @@ procedure TForm1.btnCollectCharsClick(Sender: TObject);
   begin
     //Using slower but more compact comparisons
     if Pos(aLang, 'bel,rus,bul,ukr') <> 0 then
-      Result := 28595 //ISO 8859-5 (Cyrillic)
+      Result := 1251
     else if Pos(aLang, 'pol,hun,cze,svk,rom') <> 0 then
-      Result := 28592 //ISO 8859-2 (Central European)
+      Result := 1250
     else if Pos(aLang, 'tur') <> 0 then
-      Result := 28599 //ISO 8859-9 (Turkish)
+      Result := 1254
     else if Pos(aLang, 'lit,lat') <> 0 then
-      Result := 28594 //ISO 8859-4 (Baltic)
-    else if Pos(aLang, 'eng,ger,spa,ita,nor,chn,dut,est,ptb,fre,jpn,swe') <> 0 then
-      Result := 28591  //ISO 8859-1 (Latin 1)
+      Result := 1257
+    else if Pos(aLang, 'eng,spa,ita,nor,chn,dut,est,ptb,fre,ger,jpn,swe') <> 0 then
+      Result := 1252
     else
-      Result := 28591;
+      Result := 1252;
   end;
 
   procedure GetAllTextPaths(aExeDir: string; aList: TStringList);
@@ -186,9 +186,10 @@ begin
         chars[Word(libTxt[K+1])] := libTxt[K+1];
     end;
 
-    //End of line chars are not needed
-    chars[10] := #0;
-    chars[13] := #0;
+    chars[10] := #0; //End of line chars are not needed
+    chars[13] := #0; //End of line chars are not needed
+    chars[32] := #0; // space symbol, KaM uses word spacing property instead
+    chars[124] := #0; // | symbol, end of line in KaM
 
     for I := 0 to High(Word) do
     if chars[I] <> #0 then
