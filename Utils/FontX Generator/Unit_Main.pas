@@ -57,6 +57,33 @@ var
 
 implementation
 {$R *.dfm}
+uses KM_Locales;
+
+
+procedure TForm1.FormCreate(Sender: TObject);
+var
+  fntId: TKMFont;
+begin
+  Caption := 'KaM FontX Generator (' + GAME_REVISION + ')';
+  ExeDir := ExtractFilePath(Application.ExeName);
+
+  //Palettes
+  Pals := TKMPalettes.Create;
+  Pals.LoadPalettes(ExeDir + '..\..\data\gfx\');
+
+  fLocales := TKMLocales.Create(ExeDir + '..\..\data\locales.txt');
+
+  //Available fonts
+  for fntId := Low(TKMFont) to High(TKMFont) do
+    ListBox1.Items.Add(FontInfo[fntId].FontFile);
+end;
+
+
+procedure TForm1.FormDestroy(Sender: TObject);
+begin
+  FreeAndNil(Fnt);
+  FreeAndNil(Pals);
+end;
 
 
 procedure TForm1.btnGenerateClick(Sender: TObject);
@@ -93,30 +120,6 @@ begin
 
   Fnt.SaveToFontX(dlgSave.FileName);
   //Fnt.SaveToFontX(ExeDir + '..\..\data\gfx\fonts\arialuni.fntx');
-end;
-
-
-procedure TForm1.FormCreate(Sender: TObject);
-var
-  fntId: TKMFont;
-begin
-  Caption := 'KaM FontX Generator (' + GAME_REVISION + ')';
-  ExeDir := ExtractFilePath(Application.ExeName);
-
-  //Palettes
-  Pals := TKMPalettes.Create;
-  Pals.LoadPalettes(ExeDir + '..\..\data\gfx\');
-
-  //Available fonts
-  for fntId := Low(TKMFont) to High(TKMFont) do
-    ListBox1.Items.Add(FontInfo[fntId].FontFile);
-end;
-
-
-procedure TForm1.FormDestroy(Sender: TObject);
-begin
-  FreeAndNil(Fnt);
-  FreeAndNil(Pals);
 end;
 
 
@@ -170,23 +173,6 @@ end;
 
 
 procedure TForm1.btnCollectCharsClick(Sender: TObject);
-  function GetCodepage(aLang: string): Word;
-  begin
-    //Using slower but more compact comparisons
-    if Pos(aLang, 'bel,rus,bul,ukr') <> 0 then
-      Result := 1251
-    else if Pos(aLang, 'pol,hun,cze,svk,rom') <> 0 then
-      Result := 1250
-    else if Pos(aLang, 'tur') <> 0 then
-      Result := 1254
-    else if Pos(aLang, 'lit,lat') <> 0 then
-      Result := 1257
-    else if Pos(aLang, 'eng,spa,ita,nor,chn,dut,est,ptb,fre,ger,jpn,swe') <> 0 then
-      Result := 1252
-    else
-      Result := 1252;
-  end;
-
   procedure GetAllTextPaths(aExeDir: string; aList: TStringList);
   var
     I: Integer;
@@ -262,7 +248,7 @@ begin
       btnCollectChars.Caption := IntToStr(I) + '/' + IntToStr(libxList.Count);
 
       lang := Copy(libxList[I], Length(libxList[I]) - 7, 3);
-      libx.DefaultEncoding := TEncoding.GetEncoding(GetCodepage(lang));
+      libx.DefaultEncoding := TEncoding.GetEncoding(fLocales.GetLocale(lang).FontCodepage);
       libx.LoadFromFile(libxList[I]);
 
       libTxt := libx.Text;

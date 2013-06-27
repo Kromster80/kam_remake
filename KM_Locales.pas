@@ -4,6 +4,7 @@ interface
 uses
   Classes, Math, SysUtils, StrUtils;
 
+
 type
   TKMLocaleInfo = record
     Code: string[3]; //3-letter code: 'eng', 'rus'
@@ -31,17 +32,23 @@ type
   end;
 
 
-  var fLocales: TKMLocales;
-  const DEFAULT_LOCALE = 'eng';
+var
+  fLocales: TKMLocales;
+
+
+const
+  DEFAULT_LOCALE = 'eng';
 
 
 implementation
 
 
 { TKMLocales }
+//Path to locales info file, usually \data\locales.txt
 constructor TKMLocales.Create(aPath: string);
 begin
   inherited Create;
+
   LoadLocales(aPath);
 end;
 

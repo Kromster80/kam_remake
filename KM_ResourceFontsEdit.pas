@@ -157,7 +157,7 @@ begin
 
       anChar := AnsiChar(I);
       Tmp := anChar;
-      SetCodePage(anChar, aCodepages[K], False);
+      SetCodePage(Tmp, aCodepages[K], False);
       uniChar := UnicodeString(Tmp)[1];
       uniCode := Word(uniChar);
 
