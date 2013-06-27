@@ -120,17 +120,17 @@ end;
 
 procedure TForm1.btnCollateClick(Sender: TObject);
 const
-  CODE_PAGES: array [0..3] of Word = (1250, 1251, 1254, 1257);
+  CODE_PAGES: array [0..4] of Word = (1250, 1251, 1252, 1254, 1257);
 var
   fntId: TKMFont;
-  srcFont: array [0..3] of TKMFontDataEdit;
+  srcFont: array [0..4] of TKMFontDataEdit;
   I: Integer;
 begin
   if ListBox1.ItemIndex = -1 then Exit;
 
   fntId := TKMFont(ListBox1.ItemIndex);
 
-  for I := 0 to 3 do
+  for I := 0 to 4 do
   begin
     srcFont[I] := TKMFontDataEdit.Create;
     srcFont[I].LoadFont(ExeDir + '..\..\data\gfx\fonts\' + FontInfo[fntId].FontFile + '.' + IntToStr(CODE_PAGES[I]) + '.fnt', Pals[FontInfo[fntId].Pal]);
@@ -143,7 +143,7 @@ begin
   Fnt.TexSizeY := StrToInt(rgSizeY.Items[rgSizeY.ItemIndex]);
   Fnt.CollateFont(srcFont, CODE_PAGES);
 
-  for I := 0 to 3 do
+  for I := 0 to 4 do
     srcFont[I].Free;
 
   Fnt.ExportBimap(Image1.Picture.Bitmap, False);

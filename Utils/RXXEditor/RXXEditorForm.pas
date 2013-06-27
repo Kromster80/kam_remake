@@ -73,7 +73,7 @@ begin
   gLog := TKMLog.Create(ExeDir + 'RXXEditor.log');
 
   fPalettes := TKMPalettes.Create;
-  fPalettes.LoadPalettes;
+  fPalettes.LoadPalettes(ExeDir + 'data\gfx\');
 end;
 
 

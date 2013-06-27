@@ -112,7 +112,7 @@ begin
                                                   PAD_VERT,
                                                   Half,
                                                   aParent.Height - PAD_VERT*2,
-                                                  fnt_MainMapGold, bsMenu);
+                                                  fnt_Metal, bsMenu);
     ColumnBox_SingleMaps.Anchors := [akTop, akBottom];
     ColumnBox_SingleMaps.SetColumns(fnt_Outline, ['', '', fTextLibrary[TX_MENU_MAP_TITLE], fTextLibrary[TX_MENU_MAP_SIZE]], [0, 50, 100, 380]);
     ColumnBox_SingleMaps.Columns[2].Font := fnt_Metal;

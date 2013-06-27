@@ -43,7 +43,7 @@ begin
   gLog := TKMLog.Create(ExeDir + 'RXXPacker.log');
 
   fPalettes := TKMPalettes.Create;
-  fPalettes.LoadPalettes;
+  fPalettes.LoadPalettes(ExeDir + 'data\gfx\');
 
   for RT := Low(TRXType) to High(TRXType) do
     ListBox1.Items.Add(GetEnumName(TypeInfo(TRXType), Integer(RT)));

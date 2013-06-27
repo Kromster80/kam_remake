@@ -7,17 +7,21 @@ uses
 
 
 type
-  TKMFont = (fnt_Antiqua, fnt_Briefing, fnt_Game, fnt_Grey, fnt_MainB, fnt_MainMapGold,
-    fnt_Metal, fnt_Mini, fnt_Outline, fnt_Won, fntx_ArialUni);
+  TKMFont = (fnt_Antiqua, fnt_Game, fnt_Grey,
+    fnt_Metal, fnt_Mini, fnt_Outline, fntx_ArialUni);
   {
   Removed fonts that were in KaM:
   Adam (unused)
+  Briefing (same typeface as Antiqua, just darker)
   Font01 (damaged)
   KMLobby (used for internet lobby in TPR)
   MainA (identical to MainMapGold in all game versions)
   MainA.old (probably never meant to be included in the release anyway)
+  MainB (identical to Game)
+  MainMapGold (same typeface as Metal, just with a goldish tint)
   Minimum (same as mini but with less characters)
   System (unused)
+  Won (same typeface as Metal, just with a blueish tint)
   }
 
   TKMFontInfo = record
@@ -83,15 +87,11 @@ type
 const
   FontInfo: array [TKMFont] of TKMFontInfo = (
     (FontFile: 'antiqua';     Pal: pal_0;         TexMode: tf_RGB5A1),
-    (FontFile: 'briefing';    Pal: pal_map;       TexMode: tf_RGB5A1),
     (FontFile: 'game';        Pal: pal_bw;        TexMode: tf_Alpha8),
     (FontFile: 'grey';        Pal: pal_0;         TexMode: tf_RGB5A1),
-    (FontFile: 'mainb';       Pal: pal_bw;        TexMode: tf_Alpha8),
-    (FontFile: 'mainmapgold'; Pal: pal2_mapgold;  TexMode: tf_RGB5A1),
     (FontFile: 'metal';       Pal: pal_0;         TexMode: tf_RGB5A1),
     (FontFile: 'mini';        Pal: pal_bw;        TexMode: tf_Alpha8),
     (FontFile: 'outline';     Pal: pal_0;         TexMode: tf_RGB5A1),
-    (FontFile: 'won';         Pal: pal_set2;      TexMode: tf_RGB5A1),
     (FontFile: 'arialuni';    Pal: pal_0;         Ext: True; TexMode: tf_Alpha8)
   );
 
