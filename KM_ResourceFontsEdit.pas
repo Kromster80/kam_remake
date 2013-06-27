@@ -211,7 +211,6 @@ const
 var
   S: TMemoryStream;
   I: Integer;
-  b: TBits;
 begin
   S := TMemoryStream.Create;
   try
