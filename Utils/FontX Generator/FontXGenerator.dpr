@@ -2,7 +2,8 @@ program FontXGenerator;
 uses
   //FastMM4,
   Forms,
-  Unit_Main in 'Unit_Main.pas' {Form1};
+  Unit_Main in 'Unit_Main.pas' {Form1},
+  KM_ResourceFontsEdit;
 
 {$R *.res}
 

@@ -4,7 +4,7 @@ interface
 uses
   Windows, //Declared first to get TBitmap overriden with VCL version
   SysUtils, Classes, Graphics, Controls, Forms, Dialogs, ExtCtrls, StdCtrls, Spin, StrUtils,
-  KM_Defaults, KM_ResourceFonts, KM_ResourcePalettes;
+  KM_Defaults, KM_ResourceFonts, KM_ResourceFontsEdit, KM_ResourcePalettes;
 
 
 type
@@ -45,7 +45,7 @@ type
     procedure FormDestroy(Sender: TObject);
   private
     Pals: TKMPalettes;
-    Fnt: TKMFontData;
+    Fnt: TKMFontDataEdit;
   end;
 
 
@@ -63,7 +63,7 @@ var
   fntStyle: TFontStyles;
 begin
   FreeAndNil(Fnt);
-  Fnt := TKMFontData.Create;
+  Fnt := TKMFontDataEdit.Create;
 
   SetLength(useChars, Length(Memo1.Text));
   Move(Memo1.Text[1], useChars[0], Length(Memo1.Text) * SizeOf(Char));
@@ -123,7 +123,7 @@ const
   CODE_PAGES: array [0..3] of Word = (1250, 1251, 1254, 1257);
 var
   fntId: TKMFont;
-  srcFont: array [0..3] of TKMFontData;
+  srcFont: array [0..3] of TKMFontDataEdit;
   I: Integer;
 begin
   if ListBox1.ItemIndex = -1 then Exit;
@@ -132,12 +132,12 @@ begin
 
   for I := 0 to 3 do
   begin
-    srcFont[I] := TKMFontData.Create;
+    srcFont[I] := TKMFontDataEdit.Create;
     srcFont[I].LoadFont(ExeDir + '..\..\data\gfx\fonts\' + FontInfo[fntId].FontFile + '.' + IntToStr(CODE_PAGES[I]) + '.fnt', Pals[FontInfo[fntId].Pal]);
   end;
 
   FreeAndNil(Fnt);
-  Fnt := TKMFontData.Create;
+  Fnt := TKMFontDataEdit.Create;
   Fnt.TexPadding := sePadding.Value;
   Fnt.TexSizeX := StrToInt(rgSizeX.Items[rgSizeX.ItemIndex]);
   Fnt.TexSizeY := StrToInt(rgSizeY.Items[rgSizeY.ItemIndex]);

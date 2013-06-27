@@ -33,19 +33,16 @@ type
     end;
 
   TKMFontData = class
-  private
+  protected
     fTexID: Cardinal;
     fTexData: array of Cardinal;
     fTexSizeX, fTexSizeY: Word;
-    fTexPadding: Byte;
     fBaseHeight, fWordSpacing, fCharSpacing: SmallInt; //BaseCharHeight?, Unknown, CharSpacingX, LineOffset?
-    Pal: array [0..High(Word)] of Byte;
+    Used: array [0..High(Word)] of Byte;
     fLineSpacing: Byte; //Not in KaM files, we use custom value that fits well
   public
     Letters: array [0..High(Word)] of TKMLetter;
 
-    procedure CreateFont(aFontName: string; aFontSize: Byte; aFontStyle: TFontStyles; const aChars: array of Char);
-    procedure CollateFont(aFonts: array of TKMFontData; aCodepages: array of Word);
     procedure LoadFont(const aFileName: string; aPal: TKMPalData);
     procedure LoadFontX(const aFileName: string);
     procedure GenerateTexture(aRender: TRender; aTexMode: TTexFormat);
@@ -53,12 +50,6 @@ type
     procedure ExportBimap(aBitmap: TBitmap; aOnlyAlpha: Boolean); overload;
     procedure ExportBimap(const aPath: string; aOnlyAlpha: Boolean); overload;
     procedure ExportPng(const aPath: string);
-    procedure ImportPng(const aPath: string);
-    procedure SaveToFontX(const aFilename: string);
-
-    property TexPadding: Byte read fTexPadding write fTexPadding;
-    property TexSizeX: Word read fTexSizeX write fTexSizeX;
-    property TexSizeY: Word read fTexSizeY write fTexSizeY;
 
     property CharSpacing: SmallInt read fCharSpacing;
     property LineSpacing: Byte read fLineSpacing;
@@ -109,183 +100,11 @@ implementation
 uses KM_Resource;
 
 
-const
-  FONT_INTERLINE = 5; //Spacing between lines of text
-
-
 { TKMFontData }
-procedure TKMFontData.CreateFont(aFontName: string; aFontSize: Byte; aFontStyle: TFontStyles; const aChars: array of Char);
-const
-  INS = 0;
-var
-  bitmap: TBitmap;
-  I, K, pX, pY: Integer;
-  chWidth: Byte;
-  chRect: TRect;
-  byteArray: PByteArray;
-  txtHeight: Integer;
-begin
-  bitmap := TBitmap.Create;
-  try
-    bitmap.PixelFormat := pf32bit;
-    bitmap.Width := fTexSizeX;
-    bitmap.Height := fTexSizeY;
-    bitmap.Canvas.Font.Color := clWhite;
-    bitmap.Canvas.Font.Size := aFontSize;
-    bitmap.Canvas.Font.Name := aFontName;
-    bitmap.Canvas.Font.Style := aFontStyle;
-
-    //Common font props
-    fBaseHeight := aFontSize;
-    fWordSpacing := 4;
-    fCharSpacing := 0;
-    fLineSpacing := FONT_INTERLINE;
-
-    txtHeight := bitmap.Canvas.TextHeight('"_pI|,');
-
-    //Characters we gonna use
-    FillChar(Pal, SizeOf(Pal), #0);
-    for I := Low(aChars) to High(aChars) do
-      Pal[Word(aChars[I])] := 1;
-
-    //Obtain each characters dimensions (KaM char heights are per-char, so we do the same)
-    for I := 0 to High(Word) do
-    if Pal[I] <> 0 then
-    begin
-      Letters[I].Width := bitmap.Canvas.TextWidth(Char(I));
-      Letters[I].Height := txtHeight;
-    end;
-
-    bitmap.Canvas.Brush.Style := bsSolid;
-    bitmap.Canvas.Brush.Color := clBlack;
-    bitmap.Canvas.FillRect(Rect(0, 0, fTexSizeX, fTexSizeY));
-
-    pX := fTexPadding;
-    pY := fTexPadding;
-    for I := 0 to High(Word) do
-    if Pal[I] <> 0 then
-    begin
-      chWidth := Letters[I].Width;
-
-      if chWidth = 0 then Continue;
-
-      if pX + chWidth + fTexPadding >= fTexSizeX then
-      begin
-        pX := fTexPadding;
-        Inc(pY, txtHeight + fTexPadding);
-        if pY + txtHeight + fTexPadding > fTexSizeY then
-          Break;
-      end;
-
-      Letters[I].u1 := (pX + INS) / fTexSizeX;
-      Letters[I].v1 := (pY + INS) / fTexSizeY;
-      Letters[I].u2 := (pX + chWidth - INS) / fTexSizeX;
-      Letters[I].v2 := (pY + txtHeight - INS) / fTexSizeY;
-
-      chRect.Left := pX;
-      chRect.Top := pY;
-      chRect.Right := pX + chWidth;
-      chRect.Bottom := pY + txtHeight;
-      bitmap.Canvas.TextRect(chRect, pX, pY, Char(I));
-
-      Inc(pX, chWidth + fTexPadding);
-    end;
-
-    SetLength(fTexData, fTexSizeX * fTexSizeY);
-    for I := 0 to bitmap.Height - 1 do
-    begin
-      //Only Alpha will be used to generate the texture
-      byteArray := bitmap.ScanLine[I];
-      for K := 0 to bitmap.Width - 1 do
-        fTexData[(I * bitmap.Width + K)] := byteArray[K * 4 + 1] shl 24 or $FFFFFF;
-    end;
-  finally
-    bitmap.Free;
-  end;
-end;
-
-
-//Create font by collating several different codepages
-procedure TKMFontData.CollateFont(aFonts: array of TKMFontData; aCodepages: array of Word);
-const
-  INS = 0;
-var
-  I, K, L, M, pX, pY: Integer;
-  chWidth, chHeight, MaxHeight: Byte;
-  srcX, srcY: Word;
-  dstPixel, srcPixel: Cardinal;
-  anChar: AnsiString;
-  uniChar: Char;
-  uniCode: Word;
-  Tmp: RawByteString;
-begin
-  //Common font props
-  fBaseHeight := aFonts[0].fBaseHeight;
-  fWordSpacing := aFonts[0].fWordSpacing;
-  fCharSpacing := aFonts[0].fCharSpacing;
-  fLineSpacing := aFonts[0].fLineSpacing;
-
-  MaxHeight := 0;
-  for I := 0 to 255 do
-  if aFonts[0].Pal[I] <> 0 then
-    MaxHeight := Math.max(MaxHeight, aFonts[0].Letters[I].Height);
-
-  SetLength(fTexData, fTexSizeX * fTexSizeY);
-
-  pX := fTexPadding;
-  pY := fTexPadding;
-  for K := Low(aFonts) to High(aFonts) do
-    for I := 0 to 255 do
-    begin
-      if aFonts[K].Pal[I] = 0 then Continue;
-
-      anChar := AnsiChar(I);
-      Tmp := anChar;
-      SetCodePage(Tmp, aCodepages[K], False);
-      uniChar := UnicodeString(Tmp)[1];
-      uniCode := Word(uniChar);
-
-      //We already have that letter
-      if Letters[uniCode].Width <> 0 then Continue;
-
-      chWidth := aFonts[K].Letters[I].Width;
-      chHeight := aFonts[K].Letters[I].Height;
-
-      if chWidth = 0 then Continue;
-
-      if pX + chWidth + fTexPadding >= fTexSizeX then
-      begin
-        pX := fTexPadding;
-        Inc(pY, MaxHeight + fTexPadding);
-        if pY + MaxHeight + fTexPadding >= fTexSizeY then
-          Exit;
-      end;
-
-      //Copy the character over
-      for M := 0 to chHeight - 1 do
-      for L := 0 to chWidth - 1 do
-      begin
-        srcX := Round(aFonts[K].Letters[I].u1 * aFonts[K].fTexSizeX);
-        srcY := Round(aFonts[K].Letters[I].v1 * aFonts[K].fTexSizeY);
-        srcPixel := (srcY + M) * aFonts[K].fTexSizeX + srcX + L;
-        dstPixel := (pY + fTexPadding + M) * fTexSizeX + pX + fTexPadding + L;
-        fTexData[dstPixel] := aFonts[K].fTexData[srcPixel];
-      end;
-
-      Letters[uniCode].Width := chWidth;
-      Letters[uniCode].Height := chHeight;
-      Letters[uniCode].u1 := (pX + INS) / fTexSizeX;
-      Letters[uniCode].v1 := (pY + INS) / fTexSizeY;
-      Letters[uniCode].u2 := (pX + chWidth - INS) / fTexSizeX;
-      Letters[uniCode].v2 := (pY + MaxHeight - INS) / fTexSizeY;
-
-      Inc(pX, chWidth + fTexPadding);
-    end;
-end;
-
-
 procedure TKMFontData.LoadFont(const aFileName: string; aPal: TKMPalData);
-const TEX_SIZE = 256;
+const
+  TEX_SIZE = 256; //Static texture size, all KaM fonts fit within 256^2 space
+  FONT_INTERLINE = 5; //Spacing between lines of text
 var
   S: TMemoryStream;
   I, K: Integer;
@@ -305,11 +124,13 @@ begin
   S.Read(fWordSpacing, 2);
   S.Read(fCharSpacing, 2);
   S.Seek(2, soFromCurrent); //Skip Unknown field
-  S.Read(Pal[0], 256);
+  fLineSpacing := FONT_INTERLINE;
+
+  S.Read(Used[0], 256);
 
   //Read font data
   for I := 0 to 255 do
-  if Pal[I] <> 0 then
+  if Used[I] <> 0 then
   begin
     S.Read(Letters[I].Width, 2);
     S.Read(Letters[I].Height, 2);
@@ -328,8 +149,6 @@ begin
   end;
   S.Free;
 
-  fLineSpacing := FONT_INTERLINE;
-
   //Compile texture
   AdvX := 0;
   AdvY := 0;
@@ -338,7 +157,7 @@ begin
   SetLength(fTexData, fTexSizeX * fTexSizeY);
 
   for I := 0 to 255 do
-  if Pal[I] <> 0 then
+  if Used[I] <> 0 then
   begin
     //Switch to new line
     if AdvX+Letters[I].Width+2 > fTexSizeX then
@@ -363,6 +182,8 @@ end;
 
 
 procedure TKMFontData.LoadFontX(const aFileName: string);
+const
+  FNTX_HEAD: AnsiString = 'FNTX';
 var
   S: TMemoryStream;
   Head: AnsiString;
@@ -377,16 +198,16 @@ begin
     SetLength(Head, 4);
     S.Read(Head[1], 4);
 
-    Assert(Head = 'FNTX');
+    Assert(Head = FNTX_HEAD);
 
     S.Read(fBaseHeight, 1);
     S.Read(fWordSpacing, 1);
     S.Read(fCharSpacing, 1);
     S.Read(fLineSpacing, 1);
 
-    S.Read(Pal[0], Length(Pal) * SizeOf(Pal[0]));
+    S.Read(Used[0], Length(Used) * SizeOf(Used[0]));
     for I := 0 to High(Word) do
-    if Pal[I] <> 0 then
+    if Used[I] <> 0 then
       S.Read(Letters[I], SizeOf(TKMLetter));
 
     S.Read(fTexSizeX, 2);
@@ -480,49 +301,6 @@ begin
     Png.SaveToFile(aPath);
   finally
     Png.Free;
-  end;
-end;
-
-
-procedure TKMFontData.ImportPng(const aPath: string);
-begin
-
-end;
-
-
-//Save font in extended format (with unicode and 32bit support)
-procedure TKMFontData.SaveToFontX(const aFilename: string);
-const
-  Head: AnsiString = 'FNTX';
-var
-  S: TMemoryStream;
-  I: Integer;
-begin
-  S := TMemoryStream.Create;
-  try
-    //Header
-    S.Write(Head[1], 4);
-
-    //Base font properties
-    S.Write(fBaseHeight, 1);
-    S.Write(fWordSpacing, 1);
-    S.Write(fCharSpacing, 1);
-    S.Write(fLineSpacing, 1);
-
-    //Letters data
-    S.Write(Pal[0], Length(Pal) * SizeOf(Pal[0]));
-    for I := 0 to High(Word) do
-    if Pal[I] <> 0 then
-      S.Write(Letters[I], SizeOf(TKMLetter));
-
-    //Texture data
-    S.Write(fTexSizeX, 2);
-    S.Write(fTexSizeY, 2);
-    S.Write(fTexData[0], fTexSizeX * fTexSizeY * 4);
-
-    S.SaveToFile(aFilename);
-  finally
-    S.Free;
   end;
 end;
 
