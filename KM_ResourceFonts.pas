@@ -78,8 +78,8 @@ type
     function CharsThatFit(const aText: AnsiString; aFont: TKMFont; aMaxPxWidth: integer): integer;
     function GetTextSize(const aText: string; Fnt: TKMFont): TKMPoint;
 
-    procedure LoadFonts(aCodePage: AnsiString);
-    procedure ExportFonts(aCodePage: AnsiString);
+    procedure LoadFonts(aCodePage: Word);
+    procedure ExportFonts(aCodePage: Word);
   end;
 
 
@@ -343,7 +343,7 @@ begin
 end;
 
 
-procedure TKMResourceFont.LoadFonts(aCodePage: AnsiString);
+procedure TKMResourceFont.LoadFonts(aCodePage: Word);
 var
   F: TKMFont;
   FntPath: string;
@@ -369,7 +369,7 @@ begin
 end;
 
 
-procedure TKMResourceFont.ExportFonts(aCodePage: AnsiString);
+procedure TKMResourceFont.ExportFonts(aCodePage: Word);
 var
   F: TKMFont;
   FntFront: string;
@@ -379,8 +379,8 @@ begin
   begin
     FntFront := ExeDir + FONTS_FOLDER + FontInfo[F].FontFile;
 
-    if FileExists(FntFront + '.' + aCodePage + '.fnt') then
-      fFontData[F].LoadFont(FntFront + '.' + aCodePage + '.fnt', fResource.Palettes[FontInfo[F].Pal])
+    if FileExists(FntFront + '.' + IntToStr(aCodePage) + '.fnt') then
+      fFontData[F].LoadFont(FntFront + '.' + IntToStr(aCodePage) + '.fnt', fResource.Palettes[FontInfo[F].Pal])
     else
       fFontData[F].LoadFont(FntFront + '.fnt', fResource.Palettes[FontInfo[F].Pal]);
 

@@ -21,5 +21,5 @@ rus,    Russian,              1251,     54,           ,                Krom
 svk,    Slovak,               1250,     52,           cze,             Robert Marko
 spa,    Spanish,              1252,     53,           ,                Oscar
 swe,    Swedish,              1252,     56,           ,                Edvin Linge
-tur,    Turkish,              TURK,     76,           ,                Ugur Yildirim
+tur,    Turkish,              1254,     76,           ,                Ugur Yildirim
 ukr,    Ukrainian,            1251,     68,           ,                Mulberry

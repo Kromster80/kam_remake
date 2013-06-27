@@ -46,7 +46,7 @@ type
 
     function GetDATCRC: Cardinal;
 
-    procedure LoadMenuResources(const aCodePage: AnsiString);
+    procedure LoadMenuResources(const aCodePage: Word);
     procedure LoadGameResources(aAlphaShadows: boolean);
 
     property DataState: TDataLoadingState read fDataState;
@@ -124,7 +124,7 @@ begin
 end;
 
 
-procedure TResource.LoadMenuResources(const aCodePage: AnsiString);
+procedure TResource.LoadMenuResources(const aCodePage: Word);
 begin
   Assert(SKIP_RENDER or (fRender <> nil), 'fRenderSetup should be init before ReadGFX to be able access OpenGL');
 

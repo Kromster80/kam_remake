@@ -8,7 +8,7 @@ type
   TKMLocaleInfo = record
     Code: string[3]; //3-letter code: 'eng', 'rus'
     Title: string; //Full name: 'English', 'Russian'
-    FontCodepage: string;
+    FontCodepage: Word;
     FlagSpriteID: Integer;
     FallbackLocale: string;
     TranslatorCredit: string;
@@ -72,7 +72,7 @@ begin
     case I of
       1: aLocale.Code             := Chunk;
       2: aLocale.Title            := Chunk;
-      3: aLocale.FontCodepage     := Chunk;
+      3: aLocale.FontCodepage     := StrToIntDef(Chunk, 0);
       4: aLocale.FlagSpriteID     := StrToIntDef(Chunk, 0);
       5: aLocale.FallbackLocale   := Chunk;
       6: aLocale.TranslatorCredit := Chunk;

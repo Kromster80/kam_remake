@@ -80,24 +80,6 @@ end;
 
 {LIBX files consist of lines. Each line has an index and a text. Lines without index are skipped}
 procedure TKMTextLibrary.LoadLIBXFile(FilePath: string; aFirstIndex: Word; var aArray: TKMStringArray; aOverwrite: Boolean);
-  {$IFDEF UNICODE}
-  function GetCodepage(aLang: string): Word;
-  begin
-    //Using slower but more compact comparisons
-    if Pos(aLang, 'bel,rus,bul,ukr') <> 0 then
-      Result := 1251
-    else if Pos(aLang, 'pol,hun,cze,svk,rom') <> 0 then
-      Result := 1250
-    else if Pos(aLang, 'tur') <> 0 then
-      Result := 1254
-    else if Pos(aLang, 'lit,lat') <> 0 then
-      Result := 1257
-    else if Pos(aLang, 'eng,spa,ita,nor,chn,dut,est,ptb,fre,ger,jpn,swe') <> 0 then
-      Result := 1252
-    else
-      Result := 1252;
-  end;
-  {$ENDIF}
 var
   aStringList: TStringList;
   {$IFDEF UNICODE}
@@ -114,7 +96,7 @@ begin
   {$IFDEF UNICODE}
     //Load in right encoding
     lang := Copy(FilePath, Length(FilePath) - 7, 3);
-    aStringList.DefaultEncoding := TEncoding.GetEncoding(GetCodepage(fLocale));
+    aStringList.DefaultEncoding := TEncoding.GetEncoding(fLocales.GetLocale(lang).FontCodepage);
   {$ENDIF}
   aStringList.LoadFromFile(FilePath);
 
@@ -155,9 +137,12 @@ function TKMTextLibrary.AppendCampaign(aFileName: string): Word;
 begin
   Assert(Pos('%s', aFileName) <> 0, 'Input string must be formatted properly with an %s');
 
+  //String get loaded ontop of each other, so that if something is missing base layer covered it
+  //Default > Fallback > Locale
+
   Result := Length(GameStrings);
   LoadLIBXFile(Format(aFileName, [DEFAULT_LOCALE]), Result, GameStrings, False);
-  
+
   if (fFallbackLocale <> '') and FileExists(Format(aFileName, [fFallbackLocale])) then
     LoadLIBXFile(Format(aFileName, [fFallbackLocale]), Result, GameStrings, True);
 
@@ -170,6 +155,9 @@ end;
 //Only one set of mission strings is required at a time
 procedure TKMTextLibrary.LoadMissionStrings(aFileName: string);
 begin
+  //String get loaded ontop of each other, so that if something is missing base layer covered it
+  //Default > Fallback > Locale
+
   LoadLIBXFile(Format(aFileName, [DEFAULT_LOCALE]), 0, MissionStrings, False);
 
   if (fFallbackLocale <> '') and FileExists(Format(aFileName, [fFallbackLocale])) then
@@ -185,7 +173,7 @@ begin
   if aIndex < Length(GameStrings) then
     Result := GameStrings[aIndex]
   else
-    Result := '~~~String '+IntToStr(aIndex)+' out of range!~~~';
+    Result := '~~~String ' + IntToStr(aIndex) + ' out of range!~~~';
 end;
 
 

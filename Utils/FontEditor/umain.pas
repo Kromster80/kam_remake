@@ -106,7 +106,7 @@ begin
   ExeDir := ExtractFilePath(ParamStr(0));
   DataDir := ExeDir;
   if DirectoryExists(ExeDir + '..\..\Data\gfx\Fonts\') then //Remake project location
-    DataDir := ExeDir + '..\..\';  //I wonder if it's correct syntax, but it works well [.\Utils\FontEd\..\..\]
+    DataDir := ExeDir + '..\..\';
   if DirectoryExists(ExeDir + 'Data\gfx\Fonts\') then //Default location
     DataDir := ExeDir;
 
