@@ -35,6 +35,7 @@ type
     btnCollate: TButton;
     rgSizeX: TRadioGroup;
     rgSizeY: TRadioGroup;
+    btnCollateAuto: TButton;
     procedure btnGenerateClick(Sender: TObject);
     procedure btnSaveClick(Sender: TObject);
     procedure btnExportTexClick(Sender: TObject);
@@ -43,6 +44,7 @@ type
     procedure FormCreate(Sender: TObject);
     procedure btnCollateClick(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
+    procedure btnCollateAutoClick(Sender: TObject);
   private
     Pals: TKMPalettes;
     Fnt: TKMFontDataEdit;
@@ -147,6 +149,23 @@ begin
     srcFont[I].Free;
 
   Fnt.ExportBimap(Image1.Picture.Bitmap, False);
+end;
+
+
+procedure TForm1.btnCollateAutoClick(Sender: TObject);
+var
+  I: TKMFont;
+begin
+  //256x512 - enough for any fonst yet
+  rgSizeX.ItemIndex := 1;
+  rgSizeY.ItemIndex := 2;
+
+  for I := Low(TKMFont) to High(TKMFont) do
+  begin
+    ListBox1.ItemIndex := Byte(I);
+    btnCollateClick(Self);
+    btnSaveClick(Self);
+  end;
 end;
 
 

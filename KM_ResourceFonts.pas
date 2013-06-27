@@ -27,7 +27,6 @@ type
   TKMFontInfo = record
       FontFile: string;
       Pal: TKMPal; //Palette fnt needs
-      Ext: Boolean;
       TexMode: TTexFormat; //Format font texture needs to be in
     end;
 
@@ -77,7 +76,7 @@ type
 
     function WordWrap(aText: AnsiString; aFont: TKMFont; aMaxPxWidth: Integer; aForced: Boolean; aIndentAfterNL: Boolean): AnsiString;
     function CharsThatFit(const aText: AnsiString; aFont: TKMFont; aMaxPxWidth: integer): integer;
-    function GetTextSize(const aText: AnsiString; Fnt: TKMFont): TKMPoint;
+    function GetTextSize(const aText: string; Fnt: TKMFont): TKMPoint;
 
     procedure LoadFonts(aCodePage: AnsiString);
     procedure ExportFonts(aCodePage: AnsiString);
@@ -92,7 +91,7 @@ const
     (FontFile: 'metal';       Pal: pal_0;         TexMode: tf_RGB5A1),
     (FontFile: 'mini';        Pal: pal_bw;        TexMode: tf_Alpha8),
     (FontFile: 'outline';     Pal: pal_0;         TexMode: tf_RGB5A1),
-    (FontFile: 'arialuni';    Pal: pal_0;         Ext: True; TexMode: tf_Alpha8)
+    (FontFile: 'arialuni';    Pal: pal_0;         TexMode: tf_Alpha8)
   );
 
 
@@ -105,12 +104,12 @@ procedure TKMFontData.LoadFont(const aFileName: string; aPal: TKMPalData);
 const
   TEX_SIZE = 256; //Static texture size, all KaM fonts fit within 256^2 space
   FONT_INTERLINE = 5; //Spacing between lines of text
+  PAD = 1;
 var
   S: TMemoryStream;
-  I, K: Integer;
-  pX, pY: Integer;
+  I, M, L: Integer;
   MaxHeight: Integer;
-  AdvX, AdvY: Integer;
+  pX, pY: Integer;
   rawData: array [0..255] of array of Byte;
 begin
   MaxHeight := 0;
@@ -150,8 +149,8 @@ begin
   S.Free;
 
   //Compile texture
-  AdvX := 0;
-  AdvY := 0;
+  pX := PAD;
+  pY := PAD;
   fTexSizeX := TEX_SIZE;
   fTexSizeY := TEX_SIZE;
   SetLength(fTexData, fTexSizeX * fTexSizeY);
@@ -160,23 +159,24 @@ begin
   if Used[I] <> 0 then
   begin
     //Switch to new line
-    if AdvX+Letters[I].Width+2 > fTexSizeX then
+    if pX + Letters[I].Width + PAD > fTexSizeX then
     begin
-      AdvX := 0;
-      Inc(AdvY, MaxHeight);
+      pX := PAD;
+      Inc(pY, MaxHeight + PAD);
     end;
 
     //Fill in colors
-    for pY := 0 to Letters[I].Height - 1 do
-    for pX := 0 to Letters[I].Width - 1 do
-      fTexData[(AdvY+pY)*fTexSizeX+AdvX+1+pX] := aPal.Color32(rawData[I, pY*Letters[I].Width+pX]);
+    for L := 0 to Letters[I].Height - 1 do
+    for M := 0 to Letters[I].Width - 1 do
+      fTexData[(pY + L) * fTexSizeX + pX + M] :=
+        aPal.Color32(rawData[I, L * Letters[I].Width + M]);
 
-    Letters[I].u1 := (AdvX + 1) / fTexSizeX;
-    Letters[I].v1 := AdvY / fTexSizeY;
-    Letters[I].u2 := (AdvX + 1 + Letters[I].Width) / fTexSizeX;
-    Letters[I].v2 := (AdvY + Letters[I].Height) / fTexSizeY;
+    Letters[I].u1 := pX / fTexSizeX;
+    Letters[I].v1 := pY / fTexSizeY;
+    Letters[I].u2 := (pX + Letters[I].Width) / fTexSizeX;
+    Letters[I].v2 := (pY + Letters[I].Height) / fTexSizeY;
 
-    Inc(AdvX, 1 + Letters[I].Width + 1);
+    Inc(pX, Letters[I].Width + PAD);
   end;
 end;
 
@@ -200,9 +200,9 @@ begin
 
     Assert(Head = FNTX_HEAD);
 
-    S.Read(fBaseHeight, 1);
-    S.Read(fWordSpacing, 1);
-    S.Read(fCharSpacing, 1);
+    S.Read(fBaseHeight, 2);
+    S.Read(fWordSpacing, 2);
+    S.Read(fCharSpacing, 2);
     S.Read(fLineSpacing, 1);
 
     S.Read(Used[0], Length(Used) * SizeOf(Used[0]));
@@ -258,6 +258,16 @@ begin
     for I := 0 to fTexSizeY - 1 do
     for K := 0 to fTexSizeX - 1 do
       aBitmap.Canvas.Pixels[K,I]:= fTexData[I * fTexSizeX + K] and $FFFFFF;
+
+  aBitmap.Canvas.Brush.Style := bsClear;
+  aBitmap.Canvas.Pen.Color := clAqua;
+  for I := 0 to High(Word) do
+  if Used[I] <> 0 then
+  begin
+      aBitmap.Canvas.Rectangle(Round(Letters[I].u1 * fTexSizeX),
+        Round(Letters[I].v1 * fTexSizeY), Round(Letters[I].u2 * fTexSizeX),
+        Round(Letters[I].v2 * fTexSizeY));
+  end;
 end;
 
 
@@ -340,16 +350,18 @@ var
 begin
   for F := Low(TKMFont) to High(TKMFont) do
   begin
-    if not FontInfo[F].Ext then
-    begin
+    {$IFDEF UNICODE}
+      FntPath := ExeDir + FONTS_FOLDER + FontInfo[F].FontFile + '.fntx';
+      fFontData[F].LoadFontX(FntPath);
+    {$ENDIF}
+
+    {$IFNDEF UNICODE}
       FntPath := ExeDir + FONTS_FOLDER + FontInfo[F].FontFile + '.' + aCodePage + '.fnt';
       if not FileExists(FntPath) then
         FntPath := ExeDir + FONTS_FOLDER + FontInfo[F].FontFile + '.fnt';
 
       fFontData[F].LoadFont(FntPath, fResource.Palettes[FontInfo[F].Pal]);
-    end
-    else
-      fFontData[F].LoadFontX(ExeDir + FONTS_FOLDER + FontInfo[F].FontFile + '.fntx');
+    {$ENDIF}
 
     fFontData[F].GenerateTexture(fRender, FontInfo[F].TexMode);
     fFontData[F].Compact;
@@ -465,7 +477,7 @@ begin
 end;
 
 
-function TKMResourceFont.GetTextSize(const aText: AnsiString; Fnt: TKMFont): TKMPoint;
+function TKMResourceFont.GetTextSize(const aText: string; Fnt: TKMFont): TKMPoint;
 var
   I: Integer;
   CharSpacing, LineCount, TmpColor: Integer;
@@ -485,22 +497,22 @@ begin
   LineCount := 1;
   CharSpacing := fFontData[Fnt].CharSpacing; //Spacing between letters varies between fonts
   I:=1;
-  while I <= length(aText) do
+  while I <= Length(aText) do
   begin
     //Ignore color markups [$FFFFFF][]
     if (aText[I]='[') and (I+1 <= Length(aText)) and (aText[I+1]=']') then
-      inc(I) //Skip past this markup
+      Inc(I) //Skip past this markup
     else
       if (aText[I]='[') and (I+8 <= Length(aText))
       and (aText[I+1] = '$') and (aText[I+8]=']')
       and TryStrToInt(Copy(aText, I+1, 7), TmpColor) then
-        inc(I,8) //Skip past this markup
+        Inc(I,8) //Skip past this markup
       else
         if aText[I] <> #124 then
           if aText[I] = #32 then
             Inc(LineWidth[LineCount], fFontData[Fnt].WordSpacing)
           else
-            Inc(LineWidth[LineCount], fFontData[Fnt].Letters[byte(aText[I])].Width + CharSpacing);
+            Inc(LineWidth[LineCount], fFontData[Fnt].Letters[Ord(aText[I])].Width + CharSpacing);
 
     if (aText[I] = #124) or (I = Length(aText)) then
     begin // If EOL or aText end

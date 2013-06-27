@@ -139,11 +139,13 @@ begin
   fCharSpacing := aFonts[0].CharSpacing;
   fLineSpacing := aFonts[0].LineSpacing;
 
+  //Atlas line height
   MaxHeight := 0;
   for I := 0 to 255 do
   if aFonts[0].Used[I] <> 0 then
     MaxHeight := Math.max(MaxHeight, aFonts[0].Letters[I].Height);
 
+  //Texture data
   SetLength(fTexData, fTexSizeX * fTexSizeY);
 
   pX := fTexPadding;
@@ -160,7 +162,7 @@ begin
       uniCode := Word(uniChar);
 
       //We already have that letter
-      if Letters[uniCode].Width <> 0 then Continue;
+      if Used[uniCode] <> 0 then Continue;
 
       chWidth := aFonts[K].Letters[I].Width;
       chHeight := aFonts[K].Letters[I].Height;
@@ -182,16 +184,18 @@ begin
         srcX := Round(aFonts[K].Letters[I].u1 * aFonts[K].fTexSizeX);
         srcY := Round(aFonts[K].Letters[I].v1 * aFonts[K].fTexSizeY);
         srcPixel := (srcY + M) * aFonts[K].fTexSizeX + srcX + L;
-        dstPixel := (pY + fTexPadding + M) * fTexSizeX + pX + fTexPadding + L;
+        dstPixel := (pY + M) * fTexSizeX + pX + L;
         fTexData[dstPixel] := aFonts[K].fTexData[srcPixel];
       end;
 
+      Used[uniCode] := 1;
       Letters[uniCode].Width := chWidth;
       Letters[uniCode].Height := chHeight;
+      Letters[uniCode].YOffset := aFonts[K].Letters[I].YOffset;
       Letters[uniCode].u1 := (pX + INS) / fTexSizeX;
       Letters[uniCode].v1 := (pY + INS) / fTexSizeY;
       Letters[uniCode].u2 := (pX + chWidth - INS) / fTexSizeX;
-      Letters[uniCode].v2 := (pY + MaxHeight - INS) / fTexSizeY;
+      Letters[uniCode].v2 := (pY + chHeight - INS) / fTexSizeY;
 
       Inc(pX, chWidth + fTexPadding);
     end;
@@ -218,9 +222,9 @@ begin
     S.Write(FNTX_HEAD[1], 4);
 
     //Base font properties
-    S.Write(fBaseHeight, 1);
-    S.Write(fWordSpacing, 1);
-    S.Write(fCharSpacing, 1);
+    S.Write(fBaseHeight, 2);
+    S.Write(fWordSpacing, 2);
+    S.Write(fCharSpacing, 2);
     S.Write(fLineSpacing, 1);
 
     //Letters data

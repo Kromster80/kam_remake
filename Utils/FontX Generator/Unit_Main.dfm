@@ -240,6 +240,16 @@ object Form1: TForm1
       TabOrder = 1
       OnClick = btnCollateClick
     end
+    object btnCollateAuto: TButton
+      Left = 136
+      Top = 56
+      Width = 121
+      Height = 25
+      Anchors = [akLeft, akBottom]
+      Caption = 'Collate auto'
+      TabOrder = 2
+      OnClick = btnCollateAutoClick
+    end
   end
   object dlgSave: TSaveDialog
     Left = 288
