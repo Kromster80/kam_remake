@@ -18,8 +18,6 @@ type
     btnImportTex: TButton;
     GroupBox1: TGroupBox;
     sePadding: TSpinEdit;
-    SpinEdit1: TSpinEdit;
-    Label6: TLabel;
     Label5: TLabel;
     GroupBox2: TGroupBox;
     Label1: TLabel;
@@ -35,6 +33,8 @@ type
     GroupBox3: TGroupBox;
     ListBox1: TListBox;
     btnCollate: TButton;
+    rgSizeX: TRadioGroup;
+    rgSizeY: TRadioGroup;
     procedure btnGenerateClick(Sender: TObject);
     procedure btnSaveClick(Sender: TObject);
     procedure btnExportTexClick(Sender: TObject);
@@ -42,6 +42,7 @@ type
     procedure btnCollectCharsClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure btnCollateClick(Sender: TObject);
+    procedure FormDestroy(Sender: TObject);
   private
     Pals: TKMPalettes;
     Fnt: TKMFontData;
@@ -60,8 +61,8 @@ procedure TForm1.btnGenerateClick(Sender: TObject);
 var
   useChars: array of Char;
   fntStyle: TFontStyles;
-  Bmp: TBitmap;
 begin
+  FreeAndNil(Fnt);
   Fnt := TKMFontData.Create;
 
   SetLength(useChars, Length(Memo1.Text));
@@ -74,23 +75,22 @@ begin
     fntStyle := fntStyle + [fsItalic];
 
   Fnt.TexPadding := sePadding.Value;
-  Fnt.TexSizeX := SpinEdit1.Value;
-  Fnt.TexSizeY := SpinEdit1.Value;
+  Fnt.TexSizeX := StrToInt(rgSizeX.Items[rgSizeX.ItemIndex]);
+  Fnt.TexSizeY := StrToInt(rgSizeY.Items[rgSizeY.ItemIndex]);
   Fnt.CreateFont(edtFontName.Text, seFontSize.Value, fntStyle, useChars);
 
-  Bmp := TBitmap.Create;
   Fnt.ExportBimap(Image1.Picture.Bitmap, True);
-  Bmp.Free;
 end;
 
 
 procedure TForm1.btnSaveClick(Sender: TObject);
 begin
   dlgSave.DefaultExt := 'fntx';
-  //if not dlgSave.Execute then Exit;
+  dlgSave.InitialDir := ExeDir + '..\..\data\gfx\fonts\';
+  if not dlgSave.Execute then Exit;
 
-  //Fnt.SaveToFontX(dlgSave.FileName);
-  Fnt.SaveToFontX(ExeDir + '..\..\data\gfx\fonts\arialuni.fntx');
+  Fnt.SaveToFontX(dlgSave.FileName);
+  //Fnt.SaveToFontX(ExeDir + '..\..\data\gfx\fonts\arialuni.fntx');
 end;
 
 
@@ -98,7 +98,7 @@ procedure TForm1.FormCreate(Sender: TObject);
 var
   fntId: TKMFont;
 begin
-  Caption := 'KaM Font Editor (' + GAME_REVISION + ')';
+  Caption := 'KaM FontX Generator (' + GAME_REVISION + ')';
   ExeDir := ExtractFilePath(Application.ExeName);
 
   //Palettes
@@ -111,30 +111,42 @@ begin
 end;
 
 
+procedure TForm1.FormDestroy(Sender: TObject);
+begin
+  FreeAndNil(Fnt);
+  FreeAndNil(Pals);
+end;
+
+
 procedure TForm1.btnCollateClick(Sender: TObject);
 const
   CODE_PAGES: array [0..3] of Word = (1250, 1251, 1254, 1257);
 var
   fntId: TKMFont;
   srcFont: array [0..3] of TKMFontData;
-  newFont: TKMFontData;
   I: Integer;
 begin
   if ListBox1.ItemIndex = -1 then Exit;
 
   fntId := TKMFont(ListBox1.ItemIndex);
 
-  for I in CODE_PAGES do
+  for I := 0 to 3 do
   begin
     srcFont[I] := TKMFontData.Create;
-    srcFont[I].LoadFont(ExeDir + '..\..\data\gfx\fonts\' + FontInfo[fntId].FontFile + '.' + IntToStr(CODE_PAGES[I]) + '.fnt', FontInfo[fntId].Pal);
+    srcFont[I].LoadFont(ExeDir + '..\..\data\gfx\fonts\' + FontInfo[fntId].FontFile + '.' + IntToStr(CODE_PAGES[I]) + '.fnt', Pals[FontInfo[fntId].Pal]);
   end;
 
-  newFont := TKMFontData.Create;
-  newFont.CollateFont(srcFont);
+  FreeAndNil(Fnt);
+  Fnt := TKMFontData.Create;
+  Fnt.TexPadding := sePadding.Value;
+  Fnt.TexSizeX := StrToInt(rgSizeX.Items[rgSizeX.ItemIndex]);
+  Fnt.TexSizeY := StrToInt(rgSizeY.Items[rgSizeY.ItemIndex]);
+  Fnt.CollateFont(srcFont, CODE_PAGES);
 
-  for I in CODE_PAGES do
+  for I := 0 to 3 do
     srcFont[I].Free;
+
+  Fnt.ExportBimap(Image1.Picture.Bitmap, False);
 end;
 
 
@@ -217,7 +229,7 @@ var
 begin
   //Collect list of library files
   libxList := TStringList.Create;
-  libx := TStringList.Create();//'', TEncoding.UTF8);
+  libx := TStringList.Create;
   lab := btnCollectChars.Caption;
   try
     GetAllTextPaths(ExeDir + '..\..\', libxList);
@@ -252,6 +264,7 @@ begin
     Memo1.Text := uniText;
   finally
     libxList.Free;
+    libx.Free;
     btnCollectChars.Caption := lab;
   end;
 end;

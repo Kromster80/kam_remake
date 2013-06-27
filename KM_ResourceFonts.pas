@@ -45,8 +45,8 @@ type
     Letters: array [0..High(Word)] of TKMLetter;
 
     procedure CreateFont(aFontName: string; aFontSize: Byte; aFontStyle: TFontStyles; const aChars: array of Char);
-    procedure CollateFont(aFonts: array of TKMFontData);
-    procedure LoadFont(const aFileName: string; aPal: TKMPal);
+    procedure CollateFont(aFonts: array of TKMFontData; aCodepages: array of Word);
+    procedure LoadFont(const aFileName: string; aPal: TKMPalData);
     procedure LoadFontX(const aFileName: string);
     procedure GenerateTexture(aRender: TRender; aTexMode: TTexFormat);
     procedure Compact;
@@ -93,12 +93,12 @@ const
   FontInfo: array [TKMFont] of TKMFontInfo = (
     (FontFile: 'antiqua';     Pal: pal_0;         TexMode: tf_RGB5A1),
     (FontFile: 'briefing';    Pal: pal_map;       TexMode: tf_RGB5A1),
-    (FontFile: 'game';        Pal: pal_lin;       TexMode: tf_RGB5A1),
+    (FontFile: 'game';        Pal: pal_bw;        TexMode: tf_Alpha8),
     (FontFile: 'grey';        Pal: pal_0;         TexMode: tf_RGB5A1),
-    (FontFile: 'mainb';       Pal: pal_lin;       TexMode: tf_RGB5A1),
+    (FontFile: 'mainb';       Pal: pal_bw;        TexMode: tf_Alpha8),
     (FontFile: 'mainmapgold'; Pal: pal2_mapgold;  TexMode: tf_RGB5A1),
     (FontFile: 'metal';       Pal: pal_0;         TexMode: tf_RGB5A1),
-    (FontFile: 'mini';        Pal: pal_lin;       TexMode: tf_RGB5A1),
+    (FontFile: 'mini';        Pal: pal_bw;        TexMode: tf_Alpha8),
     (FontFile: 'outline';     Pal: pal_0;         TexMode: tf_RGB5A1),
     (FontFile: 'won';         Pal: pal_set2;      TexMode: tf_RGB5A1),
     (FontFile: 'arialuni';    Pal: pal_0;         Ext: True; TexMode: tf_Alpha8)
@@ -169,26 +169,26 @@ begin
 
       if chWidth = 0 then Continue;
 
-      if pX + chWidth + fTexPadding * 2 >= fTexSizeX then
+      if pX + chWidth + fTexPadding >= fTexSizeX then
       begin
         pX := fTexPadding;
-        Inc(pY, txtHeight + fTexPadding * 2);
-        if pY + txtHeight + fTexPadding * 2 > fTexSizeY then
+        Inc(pY, txtHeight + fTexPadding);
+        if pY + txtHeight + fTexPadding > fTexSizeY then
           Break;
       end;
 
-      Letters[I].u1 := (pX + fTexPadding + INS) / fTexSizeX;
-      Letters[I].v1 := (pY + fTexPadding + INS) / fTexSizeY;
-      Letters[I].u2 := (pX + chWidth + fTexPadding - INS) / fTexSizeX;
-      Letters[I].v2 := (pY + txtHeight + fTexPadding - INS) / fTexSizeY;
+      Letters[I].u1 := (pX + INS) / fTexSizeX;
+      Letters[I].v1 := (pY + INS) / fTexSizeY;
+      Letters[I].u2 := (pX + chWidth - INS) / fTexSizeX;
+      Letters[I].v2 := (pY + txtHeight - INS) / fTexSizeY;
 
       chRect.Left := pX;
       chRect.Top := pY;
-      chRect.Right := pX + chWidth + fTexPadding * 2;
-      chRect.Bottom := pY + txtHeight + fTexPadding * 2;
-      bitmap.Canvas.TextRect(chRect, pX + fTexPadding, pY + fTexPadding, Char(I));
+      chRect.Right := pX + chWidth;
+      chRect.Bottom := pY + txtHeight;
+      bitmap.Canvas.TextRect(chRect, pX, pY, Char(I));
 
-      Inc(pX, chWidth + fTexPadding * 2);
+      Inc(pX, chWidth + fTexPadding);
     end;
 
     SetLength(fTexData, fTexSizeX * fTexSizeY);
@@ -206,67 +206,85 @@ end;
 
 
 //Create font by collating several different codepages
-procedure TKMFontData.CollateFont(aFonts: array of TKMFontData);
+procedure TKMFontData.CollateFont(aFonts: array of TKMFontData; aCodepages: array of Word);
 const
   INS = 0;
 var
-  bitmap: TBitmap;
-  I, K, pX, pY: Integer;
-  chWidth: Byte;
-  chRect: TRect;
-  byteArray: PByteArray;
-  txtHeight: Integer;
+  I, K, L, M, pX, pY: Integer;
+  chWidth, chHeight, MaxHeight: Byte;
+  srcX, srcY: Word;
+  dstPixel, srcPixel: Cardinal;
+  anChar: AnsiString;
+  uniChar: Char;
+  uniCode: Word;
+  Tmp: RawByteString;
 begin
   //Common font props
   fBaseHeight := aFonts[0].fBaseHeight;
-  fWordSpacing := 4;
-  fCharSpacing := 0;
-  fLineSpacing := FONT_INTERLINE;
+  fWordSpacing := aFonts[0].fWordSpacing;
+  fCharSpacing := aFonts[0].fCharSpacing;
+  fLineSpacing := aFonts[0].fLineSpacing;
+
+  MaxHeight := 0;
+  for I := 0 to 255 do
+  if aFonts[0].Pal[I] <> 0 then
+    MaxHeight := Math.max(MaxHeight, aFonts[0].Letters[I].Height);
+
+  SetLength(fTexData, fTexSizeX * fTexSizeY);
 
   pX := fTexPadding;
   pY := fTexPadding;
   for K := Low(aFonts) to High(aFonts) do
-  for I := 0 to 255 do
-  if aFonts[K].Pal[I] <> 0 then
-  begin
-    chWidth := aFonts[K].Letters[I].Width;
-
-    if chWidth = 0 then Continue;
-
-    if pX + chWidth + fTexPadding * 2 >= fTexSizeX then
+    for I := 0 to 255 do
     begin
-      pX := fTexPadding;
-      Inc(pY, txtHeight + fTexPadding * 2);
-      if pY + txtHeight + fTexPadding * 2 > fTexSizeY then
-        Break;
+      if aFonts[K].Pal[I] = 0 then Continue;
+
+      anChar := AnsiChar(I);
+      Tmp := anChar;
+      SetCodePage(Tmp, aCodepages[K], False);
+      uniChar := UnicodeString(Tmp)[1];
+      uniCode := Word(uniChar);
+
+      //We already have that letter
+      if Letters[uniCode].Width <> 0 then Continue;
+
+      chWidth := aFonts[K].Letters[I].Width;
+      chHeight := aFonts[K].Letters[I].Height;
+
+      if chWidth = 0 then Continue;
+
+      if pX + chWidth + fTexPadding >= fTexSizeX then
+      begin
+        pX := fTexPadding;
+        Inc(pY, MaxHeight + fTexPadding);
+        if pY + MaxHeight + fTexPadding >= fTexSizeY then
+          Exit;
+      end;
+
+      //Copy the character over
+      for M := 0 to chHeight - 1 do
+      for L := 0 to chWidth - 1 do
+      begin
+        srcX := Round(aFonts[K].Letters[I].u1 * aFonts[K].fTexSizeX);
+        srcY := Round(aFonts[K].Letters[I].v1 * aFonts[K].fTexSizeY);
+        srcPixel := (srcY + M) * aFonts[K].fTexSizeX + srcX + L;
+        dstPixel := (pY + fTexPadding + M) * fTexSizeX + pX + fTexPadding + L;
+        fTexData[dstPixel] := aFonts[K].fTexData[srcPixel];
+      end;
+
+      Letters[uniCode].Width := chWidth;
+      Letters[uniCode].Height := chHeight;
+      Letters[uniCode].u1 := (pX + INS) / fTexSizeX;
+      Letters[uniCode].v1 := (pY + INS) / fTexSizeY;
+      Letters[uniCode].u2 := (pX + chWidth - INS) / fTexSizeX;
+      Letters[uniCode].v2 := (pY + MaxHeight - INS) / fTexSizeY;
+
+      Inc(pX, chWidth + fTexPadding);
     end;
-
-    Letters[I].u1 := (pX + fTexPadding + INS) / fTexSizeX;
-    Letters[I].v1 := (pY + fTexPadding + INS) / fTexSizeY;
-    Letters[I].u2 := (pX + chWidth + fTexPadding - INS) / fTexSizeX;
-    Letters[I].v2 := (pY + txtHeight + fTexPadding - INS) / fTexSizeY;
-
-    chRect.Left := pX;
-    chRect.Top := pY;
-    chRect.Right := pX + chWidth + fTexPadding * 2;
-    chRect.Bottom := pY + txtHeight + fTexPadding * 2;
-    bitmap.Canvas.TextRect(chRect, pX + fTexPadding, pY + fTexPadding, Char(I));
-
-    Inc(pX, chWidth + fTexPadding * 2);
-  end;
-
-  SetLength(fTexData, fTexSizeX * fTexSizeY);
-  for I := 0 to bitmap.Height - 1 do
-  begin
-    //Only Alpha will be used to generate the texture
-    byteArray := bitmap.ScanLine[I];
-    for K := 0 to bitmap.Width - 1 do
-      fTexData[(I * bitmap.Width + K)] := byteArray[K * 4 + 1] shl 24 or $FFFFFF;
-  end;
 end;
 
 
-procedure TKMFontData.LoadFont(const aFileName: string; aPal: TKMPal);
+procedure TKMFontData.LoadFont(const aFileName: string; aPal: TKMPalData);
 const TEX_SIZE = 256;
 var
   S: TMemoryStream;
@@ -312,14 +330,6 @@ begin
 
   fLineSpacing := FONT_INTERLINE;
 
-  //Special fix for monochrome fonts
-  if aPal = pal_lin then
-    for I := 0 to 255 do
-      if Pal[I] <> 0 then //see if letterspace is used
-        for K := 0 to Length(rawData[I]) - 1 do
-          if rawData[I,K] <> 0 then
-            rawData[I,K] := 255; //Full white
-
   //Compile texture
   AdvX := 0;
   AdvY := 0;
@@ -340,7 +350,7 @@ begin
     //Fill in colors
     for pY := 0 to Letters[I].Height - 1 do
     for pX := 0 to Letters[I].Width - 1 do
-      fTexData[(AdvY+pY)*fTexSizeX+AdvX+1+pX] := fResource.Palettes[aPal].Color32(rawData[I, pY*Letters[I].Width+pX]);
+      fTexData[(AdvY+pY)*fTexSizeX+AdvX+1+pX] := aPal.Color32(rawData[I, pY*Letters[I].Width+pX]);
 
     Letters[I].u1 := (AdvX + 1) / fTexSizeX;
     Letters[I].v1 := AdvY / fTexSizeY;
@@ -558,7 +568,7 @@ begin
       if not FileExists(FntPath) then
         FntPath := ExeDir + FONTS_FOLDER + FontInfo[F].FontFile + '.fnt';
 
-      fFontData[F].LoadFont(FntPath, FontInfo[F].Pal);
+      fFontData[F].LoadFont(FntPath, fResource.Palettes[FontInfo[F].Pal]);
     end
     else
       fFontData[F].LoadFontX(ExeDir + FONTS_FOLDER + FontInfo[F].FontFile + '.fntx');
@@ -580,9 +590,9 @@ begin
     FntFront := ExeDir + FONTS_FOLDER + FontInfo[F].FontFile;
 
     if FileExists(FntFront + '.' + aCodePage + '.fnt') then
-      fFontData[F].LoadFont(FntFront + '.' + aCodePage + '.fnt', FontInfo[F].Pal)
+      fFontData[F].LoadFont(FntFront + '.' + aCodePage + '.fnt', fResource.Palettes[FontInfo[F].Pal])
     else
-      fFontData[F].LoadFont(FntFront + '.fnt', FontInfo[F].Pal);
+      fFontData[F].LoadFont(FntFront + '.fnt', fResource.Palettes[FontInfo[F].Pal]);
 
     fFontData[F].ExportBimap(ExeDir + 'Export' + PathDelim + 'Fonts' + PathDelim + FontInfo[F].FontFile + '.bmp', False);
     fFontData[F].Compact;

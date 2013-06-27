@@ -13,14 +13,17 @@ type
     pal_0, //pal_1, pal_2, pal_3, pal_4, pal_5, unused since we change brightness with OpenGL overlay
     pal_set,
     pal_set2,
+    pal_bw,
     pal_lin,
     pal2_mapgold,
     pal2_setup);
 
   //Individual palette
   TKMPalData = class
-    fData: array [0..255,1..3] of Byte;
+    fData: array [0..255, 1..3] of Byte;
   public
+    procedure GenerateBW;
+    procedure GenerateLinear;
     procedure LoadFromFile(const aFileName: string);
     function Color32(aIdx: Byte): Cardinal;
   end;
@@ -51,7 +54,8 @@ const
     'pal0.bbm', //'pal1.bbm', 'pal2.bbm', 'pal3.bbm', 'pal4.bbm', 'pal5.bbm', unused
     'setup.bbm',
     'setup2.bbm',
-    'linear',
+    '', //Black`n`white
+    '', //Linear
     'mapgold.lbm',
     'setup.lbm');
 
@@ -67,10 +71,33 @@ begin
 end;
 
 
+//Black-and-white palette for fonts
+procedure TKMPalData.GenerateBW;
+begin
+  FillChar(fData, SizeOf(fData), #255);
+  fData[0, 1] := 0;
+  fData[0, 2] := 0;
+  fData[0, 3] := 0;
+end;
+
+
+//Gradient palette for missing files (used by pal_lin)
+procedure TKMPalData.GenerateLinear;
+var
+  I: Byte;
+begin
+  for I := 0 to 255 do
+  begin
+    fData[I, 1] := I;
+    fData[I, 2] := I;
+    fData[I, 3] := I;
+  end;
+end;
+
+
 procedure TKMPalData.LoadFromFile(const aFileName: string);
 var
-  i:integer;
-  S:TKMemoryStream;
+  S: TKMemoryStream;
 begin
   if FileExists(aFileName) then
   begin
@@ -80,12 +107,7 @@ begin
     S.Read(fData, SizeOf(fData)); //768bytes
     S.Free;
   end else
-    for i:=0 to 255 do //Gradiant palette for missing files (used by pal_lin)
-    begin
-      fData[i,1] := i;
-      fData[i,2] := i;
-      fData[i,3] := i;
-    end;
+    GenerateLinear;
 end;
 
 
@@ -130,7 +152,11 @@ var
   I: TKMPal;
 begin
   for I := Low(TKMPal) to High(TKMPal) do
-    fPalData[I].LoadFromFile(aPath{ExeDir + 'data' + PathDelim + 'gfx' + PathDelim} + PalFiles[I]);
+  case I of
+    pal_bw:   fPalData[I].GenerateBW;
+    pal_lin:  fPalData[I].GenerateLinear;
+    else      fPalData[I].LoadFromFile(aPath + PalFiles[I]);
+  end;
 end;
 
 
