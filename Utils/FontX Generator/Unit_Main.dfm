@@ -246,9 +246,9 @@ object Form1: TForm1
       Width = 121
       Height = 25
       Anchors = [akLeft, akBottom]
-      Caption = 'Collate auto'
+      Caption = 'Collate all'
       TabOrder = 2
-      OnClick = btnCollateAutoClick
+      OnClick = btnCollateAllClick
     end
   end
   object dlgSave: TSaveDialog

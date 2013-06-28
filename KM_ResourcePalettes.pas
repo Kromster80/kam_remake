@@ -7,7 +7,6 @@ uses
 
 
 type
-  //There are 9 palette files: Map, Pal0-5, Setup, Setup2, gradient, 2lbm palettes
   TKMPal = (
     pal_map,
     pal_0, //pal_1, pal_2, pal_3, pal_4, pal_5, unused since we change brightness with OpenGL overlay
@@ -20,10 +19,11 @@ type
 
   //Individual palette
   TKMPalData = class
+  private
     fData: array [0..255, 1..3] of Byte;
-  public
     procedure GenerateBW;
     procedure GenerateLinear;
+  public
     procedure LoadFromFile(const aFileName: string);
     function Color32(aIdx: Byte): Cardinal;
   end;

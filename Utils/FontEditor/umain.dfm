@@ -97,14 +97,14 @@ object frmMain: TfrmMain
     Color = clBtnFace
     ParentColor = False
   end
-  object ListBox1: TListBox
+  object lbFonts: TListBox
     Left = 8
     Top = 40
     Width = 145
     Height = 257
     ItemHeight = 13
     TabOrder = 1
-    OnClick = ListBox1Click
+    OnClick = lbFontsClick
   end
   object RefreshData: TButton
     Left = 8
@@ -188,16 +188,13 @@ object frmMain: TfrmMain
     Height = 112
     Caption = ' Preview palette  '
     Columns = 2
+    ItemIndex = 0
     Items.Strings = (
       'map.bbm'
       'pal0.bbm'
-      'pal1.bbm'
-      'pal2.bbm'
-      'pal3.bbm'
-      'pal4.bbm'
-      'pal5.bbm'
       'setup.bbm'
       'setup2.bbm'
+      'b&&w'
       'linear'
       'mapgold.lbm'
       'setup.lbm')

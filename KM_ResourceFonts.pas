@@ -32,6 +32,7 @@ type
 
   TKMLetter = packed record
       Width, Height, YOffset: Word;
+      Unknown1, Unknown2, Unknown3: Word;
       u1,v1,u2,v2: Single; //Location within texture atlas
     end;
 
@@ -40,9 +41,10 @@ type
     fTexID: Cardinal;
     fTexData: array of Cardinal;
     fTexSizeX, fTexSizeY: Word;
-    fBaseHeight, fWordSpacing, fCharSpacing: SmallInt; //BaseCharHeight?, Unknown, CharSpacingX, LineOffset?
-    Used: array [0..High(Word)] of Byte;
+    fBaseHeight, fWordSpacing, fCharSpacing, fUnknown: SmallInt;
     fLineSpacing: Byte; //Not in KaM files, we use custom value that fits well
+    Used: array [0..High(Word)] of Byte;
+    rawData: array [0..255] of array of Byte; //Raw data for ANSI fonts
   public
     Letters: array [0..High(Word)] of TKMLetter;
 
@@ -110,7 +112,6 @@ var
   I, M, L: Integer;
   MaxHeight: Integer;
   pX, pY: Integer;
-  rawData: array [0..255] of array of Byte;
 begin
   MaxHeight := 0;
   if not FileExists(aFileName) then
@@ -122,7 +123,7 @@ begin
   S.Read(fBaseHeight, 2);
   S.Read(fWordSpacing, 2);
   S.Read(fCharSpacing, 2);
-  S.Seek(2, soFromCurrent); //Skip Unknown field
+  S.Read(fUnknown, 2); //Unknown field
   fLineSpacing := FONT_INTERLINE;
 
   S.Read(Used[0], 256);
@@ -133,10 +134,10 @@ begin
   begin
     S.Read(Letters[I].Width, 2);
     S.Read(Letters[I].Height, 2);
-    S.Seek(2, soFromCurrent); //Skip Unknown field
-    S.Seek(2, soFromCurrent); //Skip Unknown field
+    S.Read(Letters[I].Unknown1, 2); //Unknown field
+    S.Read(Letters[I].Unknown2, 2); //Unknown field
     S.Read(Letters[I].YOffset, 2);
-    S.Seek(2, soFromCurrent); //Skip Unknown field
+    S.Read(Letters[I].Unknown3, 2); //Unknown field
 
     MaxHeight := Math.max(MaxHeight, Letters[I].Height);
 

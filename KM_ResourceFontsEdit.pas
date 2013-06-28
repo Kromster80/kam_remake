@@ -11,10 +11,13 @@ type
   TKMFontDataEdit = class(TKMFontData)
   private
     fTexPadding: Byte;
+    fTexSizeX: Word;
+    fTexSizeY: Word;
   public
     procedure CreateFont(aFontName: string; aFontSize: Byte; aFontStyle: TFontStyles; const aChars: array of Char);
     procedure CollateFont(aFonts: array of TKMFontDataEdit; aCodepages: array of Word);
     procedure ImportPng(const aPath: string);
+    procedure SaveToFont(const aFilename: string);
     procedure SaveToFontX(const aFilename: string);
 
     property TexPadding: Byte read fTexPadding write fTexPadding;
@@ -205,6 +208,39 @@ end;
 procedure TKMFontDataEdit.ImportPng(const aPath: string);
 begin
 
+end;
+
+
+procedure TKMFontDataEdit.SaveToFont(const aFilename: string);
+var
+  I: Byte;
+  S: TMemoryStream;
+begin
+  S := TMemoryStream.Create;
+  try
+    S.Write(fBaseHeight, 2);
+    S.Write(fWordSpacing, 2);
+    S.Write(fCharSpacing, 2);
+    S.Write(fUnknown, 2); //Unknown field
+
+    S.Write(Used[0], 256);
+
+    //Write font data
+    for I := 0 to 255 do
+    if Used[I] <> 0 then
+    begin
+      S.Write(Letters[I].Width, 2);
+      S.Write(Letters[I].Height, 2);
+      S.Write(Letters[I].Unknown1, 2); //Unknown field
+      S.Write(Letters[I].Unknown2, 2); //Unknown field
+      S.Write(Letters[I].YOffset, 2);
+      S.Write(Letters[I].Unknown3, 2); //Unknown field
+
+      S.Write(rawData[I,0], Letters[I].Width * Letters[I].Height);
+    end;
+  finally
+    S.Free;
+  end;
 end;
 
 

@@ -44,7 +44,7 @@ type
     procedure FormCreate(Sender: TObject);
     procedure btnCollateClick(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
-    procedure btnCollateAutoClick(Sender: TObject);
+    procedure btnCollateAllClick(Sender: TObject);
   private
     Pals: TKMPalettes;
     Fnt: TKMFontDataEdit;
@@ -155,7 +155,7 @@ begin
 end;
 
 
-procedure TForm1.btnCollateAutoClick(Sender: TObject);
+procedure TForm1.btnCollateAllClick(Sender: TObject);
 var
   I: TKMFont;
 begin
