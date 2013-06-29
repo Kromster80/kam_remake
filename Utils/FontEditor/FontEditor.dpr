@@ -2,7 +2,6 @@ program FontEditor;
 uses
   Forms,
   umain in 'umain.pas' {frmMain},
-  Constants in 'Constants.pas',
   KM_ResourceFontsEdit in '..\..\KM_ResourceFontsEdit.pas',
   KM_ResourceFonts in '..\..\KM_ResourceFonts.pas';
 

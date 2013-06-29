@@ -94,7 +94,6 @@
 			<DCCReference Include="umain.pas">
 				<Form>frmMain</Form>
 			</DCCReference>
-			<DCCReference Include="Constants.pas"/>
 			<DCCReference Include="..\..\KM_ResourceFontsEdit.pas"/>
 			<DCCReference Include="..\..\KM_ResourceFonts.pas"/>
 			<BuildConfiguration Include="Debug">
