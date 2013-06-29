@@ -57,25 +57,21 @@ type
     procedure FormDestroy(Sender: TObject);
     procedure PaintBox1Paint(Sender: TObject);
   private
-    fCharCount: Word;
     fBmp: TBitmap;
     Pals: TKMPalettes;
     fActivePalette: TKMPal;
     fFnt: TKMFontDataEdit;
     function FontPreferredPalette(aName: string): TKMPal;
-    function GetFontFromFileName(const aFile: string):TKMFont;
     procedure ScanDataForPalettesAndFonts(const aPath: string);
-    function LoadFont(const aFilename: string):boolean;
+    procedure LoadFont(const aFilename: string);
   public
     procedure ShowBigImage(ShowCells, WriteFontToBMP: Boolean);
     procedure ShowPalette;
   end;
 
 
-{Globals}
 const
-  TexWidth = 512; //Connected to TexData, don't change
-
+  TEX_SIZE = 512;
 var
   ExeDir: string;
   DataDir: string;
@@ -133,8 +129,8 @@ begin
   //Off-screen bitmap which we draw OnPaint event
   fBmp := TBitmap.Create;
   fBmp.PixelFormat := pf24bit;
-  fBmp.Width := TexWidth;
-  fBmp.Height := TexWidth;
+  fBmp.Width := TEX_SIZE;
+  fBmp.Height := TEX_SIZE;
 
   DoubleBuffered := True;
 end;
@@ -170,7 +166,6 @@ end;
 
 procedure TfrmMain.ScanDataForPalettesAndFonts(const aPath: string);
 var
-  I: Integer;
   SearchRec: TSearchRec;
 begin
   //0. Clear old list
@@ -191,10 +186,8 @@ end;
 
 
 procedure TfrmMain.lbFontsClick(Sender: TObject);
-var
-  FontName: string;
 begin
-  LoadFont(DataDir+'data\gfx\fonts\'+lbFonts.Items[lbFonts.ItemIndex]);
+  LoadFont(DataDir + 'data\gfx\fonts\' + lbFonts.Items[lbFonts.ItemIndex]);
 
   fActivePalette := FontPreferredPalette(lbFonts.Items[lbFonts.ItemIndex]);
   RGPalette.ItemIndex := Byte(fActivePalette);
@@ -205,116 +198,74 @@ begin
   StatusBar1.Panels.Items[0].Text := 'Font: ' + lbFonts.Items[lbFonts.ItemIndex] +
                                    '  Palette: ' + Pals.PalFile(fActivePalette);
 
-  ScrollBar1.Max := (fCharCount - 256) div 32;
+  ScrollBar1.Max := (Byte(fFnt.IsUnicode) * (65000 - 256)) div 32;
   ScrollBar1.Enabled := ScrollBar1.Min <> ScrollBar1.Max;
 end;
 
 
-function TfrmMain.LoadFont(const aFilename: string):boolean;
-var
-  f: file;
-  I: Integer;
-  IsUnicode: Boolean;
-  MaxHeight, MaxWidth: Integer;
+procedure TfrmMain.LoadFont(const aFilename: string);
 begin
-  Result := false;
-  if not CheckFileExists(aFilename, true) then Exit;
+  if not FileExists(aFilename) then Exit;
 
   FreeAndNil(fFnt);
   fFnt := TKMFontDataEdit.Create;
 
   fFnt.LoadFont(aFilename, Pals[fActivePalette]);
 
-  MaxWidth  := 0;
-  MaxHeight := 0;
-
-  assignfile(f,aFilename); reset(f,1);
-
-  blockread(f,FontData.Unk1,8);
-  blockread(f,FontData.Pal[0], 65000, I);
-
-  IsUnicode := (I = 65000); //Unicode variant has exactly 65'000 characters
-
-  if IsUnicode then
-  begin
-    reset(f,1);
-    fCharCount := 65000;
-    blockread(f,FontData.Unk1, 8);
-    blockread(f,FontData.Pal[0], fCharCount);
-  end else
-  begin
-    reset(f,1);
-    fCharCount := 256;
-    blockread(f,FontData.Unk1,8);
-    blockread(f,FontData.Pal[0], fCharCount);
-  end;
-
-  //Read font data
-  for I := 0 to fCharCount - 1 do
-    if FontData.Pal[I] <> 0 then
-      with FontData.Letters[I] do
-      begin
-        blockread(f, Width, 4);
-        blockread(f, Add1, 8);
-
-        Width := Width and $FF;
-        Height := Height and $FF;
-
-        MaxHeight := Math.max(MaxHeight, Height);
-        MaxWidth := Math.max(MaxWidth, Height);
-        blockread(f, Data[1], Width*Height);
-      end
-    else
-      FillChar(FontData.Letters[I], SizeOf(FontData.Letters[I]), #0);
-
-  closefile(f);
-
-  SettingFromFont := true;
-  SpinEdit1.Value := FontData.Unk1;
-  SpinEdit2.Value := FontData.WordSpacing;
-  SpinEdit3.Value := FontData.CharOffset;
-  SpinEdit4.Value := FontData.Unk3;
-  SpinEdit5.Value := FontData.Letters[127].Width;
-  SettingFromFont := false;
+  SettingFromFont := True;
+  SpinEdit1.Value := fFnt.BaseHeight;
+  SpinEdit2.Value := fFnt.WordSpacing;
+  SpinEdit3.Value := fFnt.CharSpacing;
+  SpinEdit4.Value := fFnt.Unknown;
+  SettingFromFont := False;
 end;
 
 
 procedure TfrmMain.ShowBigImage(ShowCells, WriteFontToBMP: Boolean);
 var
-  i,k,ci,ck: integer;
-  CellX,CellY: integer;
-  t: Byte;
-  TD:array of byte;
+  I,K,L,M: Integer;
+  pX, pY: Word;
+  Let: TKMLetter;
 begin
-  //Compile texture
-  SetLength(TD, TexWidth*TexWidth + 1);
+  fBmp.Canvas.Brush.Color := Pals[fActivePalette].Color32(0) and $FFFFFF;
+  fBmp.Canvas.FillRect(fBmp.Canvas.ClipRect);
 
-  for I := 0 to 255 do
-  if I + ScrollBar1.Position * 32 < fCharCount then
-    if FontData.Pal[I + ScrollBar1.Position * 32] <> 0 then
-    begin
-      CellX := ((I mod 16) * 32) + 1;
-      CellY := ((I div 16) * 32) + 1;
-
-      with FontData.Letters[I + ScrollBar1.Position * 32] do
-      for ci := 0 to Height - 1 do
-      for ck := 0 to Width - 1 do
-        TD[Min((CellY + ci) * TexWidth + CellX + ck, High(TD))] := Data[ci * Width + ck + 1];
-    end;
-
-  for ci := 0 to TexWidth - 1 do
-  for ck := 0 to TexWidth - 1 do
+  for I := 0 to 15 do
+  for K := 0 to 15 do
+  if fFnt.Letters[I * 16 + K + ScrollBar1.Position * 32].Width <> 0 then
   begin
-    t := TD[ci*TexWidth+ck];
+    Let := fFnt.Letters[I * 16 + K + ScrollBar1.Position * 32];
 
-    //Draw grid lines
-    if ShowCells and ((ci mod 32 = 0) or (ck mod 32 = 0)) then
-      fBmp.Canvas.Pixels[ck,ci] := $FFFFFF - (Pals[fActivePalette].Color32(0) and $FFFFFF)
-    else
-      fBmp.Canvas.Pixels[ck,ci] := Pals[fActivePalette].Color32(t) and $FFFFFF;
+    for L := 0 to Let.Height - 1 do
+    for M := 0 to Let.Width - 1 do
+    begin
+      pX := Round(Let.u1 * fFnt.TexSizeX) + M;
+      pY := Round(Let.v1 * fFnt.TexSizeY) + L;
+      fBmp.Canvas.Pixels[K * 32 + M, I * 32 + L] := fFnt.TexData[pY * fFnt.TexSizeX + pX] and $FFFFFF;
+    end;
   end;
 
-  if WriteFontToBMP then
+  if ShowCells then
+  begin
+    fBmp.Canvas.Pen.Color := $AAAAAA;
+
+    for I := 0 to 14 do
+    begin
+      fBmp.Canvas.MoveTo(0, 31 + I * 32);
+      fBmp.Canvas.LineTo(511, 31 + I * 32);
+    end;
+
+    for K := 0 to 15 do
+    begin
+      fBmp.Canvas.MoveTo(31 + K * 32, 0);
+      fBmp.Canvas.LineTo(31 + K * 32, 511);
+    end;
+  end;
+
+  Image3.Canvas.Draw(0, 0, fBmp);
+  
+
+{  if WriteFontToBMP then
   begin
     if not RunSaveDialog(SaveDialog1, '', ExeDir, 'Bitmaps|*.bmp', 'bmp') then Exit;
 
@@ -327,9 +278,7 @@ begin
     end;
 
     fBmp.SaveToFile(SaveDialog1.FileName);
-  end;
-
-  SetLength(TD, 0);
+  end;       }
 end;
 
 
@@ -341,7 +290,6 @@ end;
 
 procedure TfrmMain.btnExportBigClick(Sender: TObject);
 begin
-  Assert(fCharCount = 256);
   ShowBigImage(CheckCells.Checked, true);
   PaintBox1.Repaint;
 end;
@@ -349,15 +297,17 @@ end;
 
 procedure TfrmMain.PaintBox1MouseMove(Sender: TObject; Shift: TShiftState; X,Y: Integer);
 begin
+  if fFnt = nil then Exit;
+  
   StatusBar1.Panels.Items[1].Text := 'Character: ' + IntToStr((Y div 32) *16 + X div 32) + ' ('+
                                      IntToHex( (((Y div 32)*16)+(X div 32)) ,2)+'h)';
   StatusBar1.Panels.Items[2].Text :=
-  'Width '+int2fix(FontData.Letters[(((Y div 32)*16)+(X div 32))].Width,2)+', '+
-  'Height '+int2fix(FontData.Letters[(((Y div 32)*16)+(X div 32))].Height,2)+', '+
-  inttostr(FontData.Letters[(((Y div 32)*16)+(X div 32))].Add1)+'? . '+
-  inttostr(FontData.Letters[(((Y div 32)*16)+(X div 32))].Add2)+'? . '+
-  inttostr(FontData.Letters[(((Y div 32)*16)+(X div 32))].YOffset)+'? . '+
-  inttostr(FontData.Letters[(((Y div 32)*16)+(X div 32))].Add4)+'?';
+  'Width '+int2fix(fFnt.Letters[(((Y div 32)*16)+(X div 32))].Width,2)+', '+
+  'Height '+int2fix(fFnt.Letters[(((Y div 32)*16)+(X div 32))].Height,2)+', '+
+  IntToStr(fFnt.Letters[(((Y div 32)*16)+(X div 32))].Unknown1)+'? . '+
+  IntToStr(fFnt.Letters[(((Y div 32)*16)+(X div 32))].Unknown2)+'? . '+
+  IntToStr(fFnt.Letters[(((Y div 32)*16)+(X div 32))].YOffset)+'? . '+
+  IntToStr(fFnt.Letters[(((Y div 32)*16)+(X div 32))].Unknown3)+'?';
 end;
 
 
@@ -367,7 +317,7 @@ begin
   Shape1.Top := PaintBox1.Top + (Y div 32) * 32;
   SelectedLetter := (Y div 32) *16 + X div 32;
 
-  SpinEdit5.Value := FontData.Letters[SelectedLetter].YOffset;
+  SpinEdit5.Value := fFnt.Letters[SelectedLetter].YOffset;
 end;
 
 
@@ -392,11 +342,13 @@ end;
 procedure TfrmMain.Edit1Change(Sender: TObject);
 var
   Bmp: TBitmap;
-  I, ci, ck: integer;
-  t: Byte;
+  I, L, M: integer;
+  T: Cardinal;
   AdvX: integer;
   MyRect: TRect;
   Text: string;
+  Let: TKMLetter;
+  pX, pY: Word;
 begin
   Bmp := TBitmap.Create;
   Bmp.PixelFormat := pf24bit;
@@ -406,28 +358,35 @@ begin
   AdvX := 0;
 
   {$IFDEF FPC} //FPC uses unicode strings in Edit1
-    Text := UTF8ToAnsi(Edit1.Text);
+    Text := Trim(UTF8ToAnsi(Edit1.Text));
   {$ENDIF}
   {$IFDEF WDC} //Delphi uses ansi strings
-    Text := Edit1.Text;
+    Text := Trim(Edit1.Text);
   {$ENDIF}
 
   //Fill area
   Bmp.Canvas.Brush.Color := Pals[fActivePalette].Color32(0);
   Bmp.Canvas.FillRect(Bmp.Canvas.ClipRect);
 
-  for I:=1 to length(Text) do
-  if Text[i]<>' ' then
+  for I := 1 to Length(Text) do
+  if Text[I] <> ' ' then
   begin
-    for ci:=0 to FontData.Letters[ord(Text[i])].Height-1 do for ck:=0 to FontData.Letters[ord(Text[i])].Width-1 do
-    begin
-      t := FontData.Letters[ord(Text[i])].Data[ci*FontData.Letters[ord(Text[i])].Width+ck+1];
-      if t <> 0 then //don't bother for clear pixels, speed-up
-        Bmp.Canvas.Pixels[ck+AdvX,ci+FontData.Letters[ord(Text[i])].YOffset] := Pals[fActivePalette].Color32(t) and $FFFFFF;
+    Let := fFnt.Letters[Ord(Text[I])];
+    
+    for L := 0 to Let.Height - 1 do 
+    for M := 0 to Let.Width - 1 do
+    begin                   
+      pX := Round(Let.u1 * fFnt.TexSizeX) + M;
+      pY := Round(Let.v1 * fFnt.TexSizeY) + L;
+
+      T := fFnt.TexData[pY * fFnt.TexSizeX + pX] and $FFFFFF;
+      if T <> 0 then
+        Bmp.Canvas.Pixels[AdvX + M, Let.YOffset + L] := T;
     end;
-    inc(AdvX,FontData.Letters[ord(Text[i])].Width+FontData.CharOffset);
+    
+    Inc(AdvX, Let.Width + fFnt.CharSpacing);
   end else
-    inc(AdvX,FontData.WordSpacing);
+    Inc(AdvX, fFnt.WordSpacing);
 
   //Match phrase bounds
   Bmp.Width := AdvX+1;
@@ -447,19 +406,6 @@ begin
   Image5.Canvas.StretchDraw(MyRect, Bmp); //Draw MyBitmap into Image1
 
   Bmp.Free;
-end;
-
-
-function TfrmMain.GetFontFromFileName(const aFile: string): TKMFont;
-var I: TKMFont;
-begin
-  Result := fnt_Nil; //Deliberate error
-  for I := High(TKMFont) downto Low(TKMFont) do
-    if LeftStr(aFile, Length(FontFileNames[I])) = FontFileNames[I] then
-    begin
-      Result := I;
-      Exit;
-    end;
 end;
 
 
@@ -500,15 +446,9 @@ var
   Pixels:array[1..512,1..512]of byte;
   ErrS:string;
 begin
-  Assert(fCharCount = 256);
-
-  if FontData.Title = fnt_Nil then
-  begin
-    ErrS := 'Please select editing font first';
-    MessageBox(Handle, @ErrS[1], 'Error', MB_OK);
-    Exit;
-  end;
-
+  FreeandNil(fFnt);
+  fFnt := TKMFontDataEdit.Create;
+  {
   RunOpenDialog(OpenDialog1, '', ExeDir, 'Bitmaps|*.bmp');
   if not FileExists(OpenDialog1.FileName) then
   begin
@@ -521,16 +461,16 @@ begin
   MyBitmap.LoadFromFile(OpenDialog1.FileName);
   MyBitmap.PixelFormat := pf24bit;
 
-  if MyBitmap.Width <> TexWidth then
+  if MyBitmap.Width <> TEX_SIZE then
   begin
-    MessageBox(Handle, PWideChar(Format('Image should be %d pixels wide', [TexWidth])),'Error',MB_OK);
+    MessageBox(Handle, PWideChar(Format('Image should be %d pixels wide', [TEX_SIZE])), 'Error', MB_OK);
     MyBitmap.Free;
     Exit;
   end;
 
   //Convert 24bit to palette colors
-  for I:=1 to TexWidth do for k:=1 to TexWidth do
-    Pixels[i,k] := FindBestPaletteColor(MyBitmap.Canvas.Pixels[k-1,i-1]); //Canvas uses [X:Y] addressing, while I prefer [Y:X] order
+  for I:=0 to TEX_SIZE - 1 do for k:=0 to TEX_SIZE - 1 do
+    Pixels[i+1,k+1] := FindBestPaletteColor(MyBitmap.Canvas.Pixels[k,i]);
 
   MyBitmap.Free;
 
@@ -578,7 +518,7 @@ begin
 
   //Special fixes:
   FontData.Letters[32].Width := 7; //"Space" width
-
+                      }
   ShowBigImage(CheckCells.Checked, false); //Show the result
 end;
 
@@ -603,19 +543,11 @@ begin
 
   if (Sender is TSpinEdit) and (TSpinEdit(Sender).Text = '') then Exit;
 
-  FontData.Unk1        := SpinEdit1.Value;
-  FontData.WordSpacing := SpinEdit2.Value;
-  FontData.CharOffset  := SpinEdit3.Value;
-  FontData.Unk3        := SpinEdit4.Value;
+  fFnt.BaseHeight  := SpinEdit1.Value;
+  fFnt.WordSpacing := SpinEdit2.Value;
+  fFnt.CharSpacing := SpinEdit3.Value;
+  fFnt.Unknown     := SpinEdit4.Value;
 
-  if Sender = SpinEdit5 then
-  begin
-    FontData.Letters[127].Height := 10;
-    FontData.Letters[127].Width := SpinEdit5.Value;
-    FillChar(FontData.Letters[127].Data[1], 4096, #0);
-    FontData.Letters[127].YOffset := 0;
-    ShowBigImage(CheckCells.Checked, false);
-  end;
   Edit1Change(nil);
 end;
 
@@ -623,7 +555,7 @@ end;
 procedure TfrmMain.SpinEdit5Change(Sender: TObject);
 begin
   if SelectedLetter = 0 then Exit;
-  FontData.Letters[SelectedLetter].YOffset := SpinEdit5.Value;
+  fFnt.Letters[SelectedLetter].YOffset := SpinEdit5.Value;
   Edit1Change(nil);
 end;
 

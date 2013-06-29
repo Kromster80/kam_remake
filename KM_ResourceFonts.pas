@@ -3,7 +3,7 @@ unit KM_ResourceFonts;
 interface
 uses
   Classes, Graphics, Math, SysUtils, Types, PngImage,
-  KM_Defaults, KM_Points, KM_Render, KM_ResourcePalettes;
+  KM_CommonTypes, KM_Defaults, KM_Points, KM_Render, KM_ResourcePalettes;
 
 
 type
@@ -39,12 +39,13 @@ type
   TKMFontData = class
   protected
     fTexID: Cardinal;
-    fTexData: array of Cardinal;
+    fTexData: TKMCardinalArray;
     fTexSizeX, fTexSizeY: Word;
     fBaseHeight, fWordSpacing, fCharSpacing, fUnknown: SmallInt;
     fLineSpacing: Byte; //Not in KaM files, we use custom value that fits well
+    fIsUnicode: Boolean;
     Used: array [0..High(Word)] of Byte;
-    rawData: array [0..255] of array of Byte; //Raw data for ANSI fonts
+    rawData: array [0..High(Word)] of array of Byte; //Raw data for ANSI fonts
   public
     Letters: array [0..High(Word)] of TKMLetter;
 
@@ -112,6 +113,7 @@ var
   I, M, L: Integer;
   MaxHeight: Integer;
   pX, pY: Integer;
+  charCount: Word;
 begin
   MaxHeight := 0;
   if not FileExists(aFileName) then
@@ -120,16 +122,21 @@ begin
   S := TMemoryStream.Create;
   S.LoadFromFile(aFileName);
 
+  //Fnt allows to store 256 or 65000 characters, but there's no flag inside, we can test only filesize
+  charCount := IfThen(S.Size <= 65000, 256, 65000);
+
+  fIsUnicode := S.Size > 65000;
+
   S.Read(fBaseHeight, 2);
   S.Read(fWordSpacing, 2);
   S.Read(fCharSpacing, 2);
   S.Read(fUnknown, 2); //Unknown field
   fLineSpacing := FONT_INTERLINE;
 
-  S.Read(Used[0], 256);
+  S.Read(Used[0], charCount);
 
   //Read font data
-  for I := 0 to 255 do
+  for I := 0 to charCount - 1 do
   if Used[I] <> 0 then
   begin
     S.Read(Letters[I].Width, 2);
@@ -156,7 +163,7 @@ begin
   fTexSizeY := TEX_SIZE;
   SetLength(fTexData, fTexSizeX * fTexSizeY);
 
-  for I := 0 to 255 do
+  for I := 0 to charCount - 1 do
   if Used[I] <> 0 then
   begin
     //Switch to new line
@@ -200,6 +207,8 @@ begin
     S.Read(Head[1], 4);
 
     Assert(Head = FNTX_HEAD);
+
+    fIsUnicode := False;
 
     S.Read(fBaseHeight, 2);
     S.Read(fWordSpacing, 2);

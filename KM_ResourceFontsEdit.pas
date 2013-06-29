@@ -3,7 +3,7 @@ unit KM_ResourceFontsEdit;
 interface
 uses
   Classes, Graphics, Math, SysUtils, Types, PngImage,
-  KM_ResourceFonts;
+  KM_CommonTypes, KM_ResourceFonts;
 
 
 type
@@ -11,8 +11,6 @@ type
   TKMFontDataEdit = class(TKMFontData)
   private
     fTexPadding: Byte;
-    fTexSizeX: Word;
-    fTexSizeY: Word;
   public
     procedure CreateFont(aFontName: string; aFontSize: Byte; aFontStyle: TFontStyles; const aChars: array of Char);
     procedure CollateFont(aFonts: array of TKMFontDataEdit; aCodepages: array of Word);
@@ -20,9 +18,17 @@ type
     procedure SaveToFont(const aFilename: string);
     procedure SaveToFontX(const aFilename: string);
 
+    property TexData: TKMCardinalArray read fTexData;
     property TexPadding: Byte read fTexPadding write fTexPadding;
     property TexSizeX: Word read fTexSizeX write fTexSizeX;
     property TexSizeY: Word read fTexSizeY write fTexSizeY;
+    property IsUnicode: Boolean read fIsUnicode;
+
+    property CharSpacing: SmallInt read fCharSpacing write fCharSpacing;
+    property LineSpacing: Byte read fLineSpacing write fLineSpacing;
+    property BaseHeight: SmallInt read fBaseHeight write fBaseHeight;
+    property WordSpacing: SmallInt read fWordSpacing write fWordSpacing;
+    property Unknown: SmallInt read fUnknown write fUnknown;
   end;
 
 

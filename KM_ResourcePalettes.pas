@@ -65,7 +65,7 @@ function TKMPalData.Color32(aIdx: Byte): Cardinal;
 begin
   //Index 0 means that pixel is transparent
   if aIdx = 0 then
-    Result := $00000000
+    Result := fData[aIdx,1] + fData[aIdx,2] shl 8 + fData[aIdx,3] shl 16 //$00000000
   else
     Result := fData[aIdx,1] + fData[aIdx,2] shl 8 + fData[aIdx,3] shl 16 or $FF000000;
 end;
