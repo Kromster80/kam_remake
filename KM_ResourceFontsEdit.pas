@@ -2,7 +2,7 @@ unit KM_ResourceFontsEdit;
 {$I KaM_Remake.inc}
 interface
 uses
-  Classes, Graphics, Math, SysUtils, Types, PngImage,
+  Windows, Classes, Graphics, Math, SysUtils, Types,
   KM_CommonTypes, KM_ResourceFonts;
 
 
@@ -45,7 +45,6 @@ var
   I, K, pX, pY: Integer;
   chWidth: Byte;
   chRect: TRect;
-  byteArray: PByteArray;
   txtHeight: Integer;
 begin
   bitmap := TBitmap.Create;
@@ -115,13 +114,12 @@ begin
     end;
 
     SetLength(fTexData, fTexSizeX * fTexSizeY);
+
+    //Only Alpha will be used to generate the texture to avoid rimming
     for I := 0 to bitmap.Height - 1 do
-    begin
-      //Only Alpha will be used to generate the texture
-      byteArray := bitmap.ScanLine[I];
-      for K := 0 to bitmap.Width - 1 do
-        fTexData[(I * bitmap.Width + K)] := byteArray[K * 4 + 1] shl 24 or $FFFFFF;
-    end;
+    for K := 0 to bitmap.Width - 1 do
+      fTexData[(I * bitmap.Width + K)] := Cardinal(bitmap.Canvas.Pixels[K, I] shl 24) or $FFFFFF;
+
   finally
     bitmap.Free;
   end;
@@ -130,6 +128,11 @@ end;
 
 //Create font by collating several different codepages
 procedure TKMFontDataEdit.CollateFont(aFonts: array of TKMFontDataEdit; aCodepages: array of Word);
+  function AnsiCharToWideChar(ac: AnsiChar; CodePage: Word): WideChar;
+  begin
+    if MultiByteToWideChar(CodePage, 0, @ac, 1, @Result, 1) <> 1 then
+      RaiseLastOSError;
+  end;
 const
   INS = 0;
 var
@@ -137,10 +140,8 @@ var
   chWidth, chHeight, MaxHeight: Byte;
   srcX, srcY: Word;
   dstPixel, srcPixel: Cardinal;
-  anChar: AnsiString;
   uniChar: Char;
   uniCode: Word;
-  Tmp: RawByteString;
 begin
   //Common font props
   fBaseHeight := aFonts[0].BaseHeight;
@@ -164,10 +165,7 @@ begin
     begin
       if aFonts[K].Used[I] = 0 then Continue;
 
-      anChar := AnsiChar(I);
-      Tmp := anChar;
-      SetCodePage(Tmp, aCodepages[K], False);
-      uniChar := UnicodeString(Tmp)[1];
+      uniChar := AnsiCharToWideChar(AnsiChar(I), aCodepages[K]);
       uniCode := Word(uniChar);
 
       //We already have that letter

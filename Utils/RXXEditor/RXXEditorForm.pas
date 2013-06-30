@@ -3,9 +3,9 @@ unit RXXEditorForm;
 interface
 uses
   Classes, Controls, Dialogs,
-  ExtCtrls, Forms, Graphics, Spin, StdCtrls, SysUtils, TypInfo, PNGImage,
+  ExtCtrls, Forms, Graphics, Spin, StdCtrls, SysUtils, TypInfo,
   {$IFDEF FPC} LResources, {$ENDIF}
-  KM_Defaults, KM_Log, KM_Pics, KM_ResourcePalettes, KM_ResourceSprites, KM_ResourceSpritesEdit;
+  KM_Defaults, KM_Log, KM_Pics, KM_PNG, KM_ResourcePalettes, KM_ResourceSprites, KM_ResourceSpritesEdit;
 
 
 type
@@ -99,8 +99,7 @@ procedure TRXXForm1.lbSpritesListClick(Sender: TObject);
   end;
 var
   ID: Integer;
-  PNGBase: TPNGObject;
-  PNGMask: TPNGObject;
+  bmpBase, bmpMask: TBitmap;
 begin
   ToggleImageButtons(False);
   Image1.Picture.Bitmap.Canvas.Brush.Color := 0;
@@ -113,16 +112,17 @@ begin
   if ID = 0 then Exit;
   if fSprites.RXData.Flag[ID] = 0 then Exit;
 
-  PNGBase := TPNGObject.CreateBlank(COLOR_RGBALPHA, 8, 0, 0);
-  PNGMask := TPNGObject.CreateBlank(COLOR_GRAYSCALE, 8, 0, 0);
+  bmpBase := TBitmap.Create;
+  bmpMask := TBitmap.Create;
   try
-    fSprites.GetImageToBitmap(ID, PNGBase, PNGMask);
-    Image1.Picture.Assign(PNGBase);
-    if PNGMask.Width * PNGMask.Height <> 0 then
-      Image2.Picture.Assign(PNGMask);
+    fSprites.GetImageToBitmap(ID, bmpBase, bmpMask);
+    Image1.Picture.Assign(bmpBase);
+
+    if bmpMask.Width * bmpMask.Height <> 0 then
+      Image2.Picture.Assign(bmpMask);
   finally
-    PNGBase.Free;
-    PNGMask.Free;
+    bmpBase.Free;
+    bmpMask.Free;
   end;
 
   edtPivotX.Value := fSprites.RXData.Pivot[ID].x;
@@ -250,8 +250,6 @@ end;
 procedure TRXXForm1.btnExportClick(Sender: TObject);
 var
   ID: Integer;
-  PNGBase: TPNGObject;
-  PNGMask: TPNGObject;
   FileName, FileNameA: string;
 begin
   ID := lbSpritesList.ItemIndex + 1;
@@ -265,18 +263,8 @@ begin
   FileName := SaveDialog1.FileName;
   FileNameA := StringReplace(FileName, '.png', 'a.png', [rfReplaceAll, rfIgnoreCase]);
 
-  PNGBase := TPNGObject.CreateBlank(COLOR_RGBALPHA, 8, 0, 0);
-  PNGMask := TPNGObject.CreateBlank(COLOR_GRAYSCALE, 8, 0, 0);
-  try
-    fSprites.GetImageToBitmap(ID, PNGBase, PNGMask);
-
-    PNGBase.SaveToFile(FileName);
-    if PNGMask.Width * PNGMask.Height <> 0 then
-      PNGMask.SaveToFile(FileNameA);
-  finally
-    PNGBase.Free;
-    PNGMask.Free;
-  end;
+  fSprites.ExportImage(FileName, ID);
+  fSprites.ExportMask(FileNameA, ID);
 end;
 
 

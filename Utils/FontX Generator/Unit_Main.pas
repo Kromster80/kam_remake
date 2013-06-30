@@ -36,6 +36,7 @@ type
     rgSizeX: TRadioGroup;
     rgSizeY: TRadioGroup;
     btnCollateAuto: TButton;
+    cbCells: TCheckBox;
     procedure btnGenerateClick(Sender: TObject);
     procedure btnSaveClick(Sender: TObject);
     procedure btnExportTexClick(Sender: TObject);
@@ -108,14 +109,15 @@ begin
   Fnt.TexSizeY := StrToInt(rgSizeY.Items[rgSizeY.ItemIndex]);
   Fnt.CreateFont(edtFontName.Text, seFontSize.Value, fntStyle, useChars);
 
-  Fnt.ExportBimap(Image1.Picture.Bitmap, True);
+  Fnt.ExportBimap(Image1.Picture.Bitmap, True, cbCells.Checked);
 end;
 
 
 procedure TForm1.btnSaveClick(Sender: TObject);
 begin
   dlgSave.DefaultExt := 'fntx';
-  dlgSave.InitialDir := ExeDir + '..\..\data\gfx\fonts\';
+  dlgSave.FileName := ListBox1.Items[ListBox1.ItemIndex];
+  dlgSave.InitialDir := ExpandFileName(ExeDir + '..\..\data\gfx\fonts\');
   if not dlgSave.Execute then Exit;
 
   Fnt.SaveToFontX(dlgSave.FileName);
@@ -151,7 +153,7 @@ begin
   for I := 0 to 4 do
     srcFont[I].Free;
 
-  Fnt.ExportBimap(Image1.Picture.Bitmap, False);
+  Fnt.ExportBimap(Image1.Picture.Bitmap, False, cbCells.Checked);
 end;
 
 
@@ -248,7 +250,9 @@ begin
       btnCollectChars.Caption := IntToStr(I) + '/' + IntToStr(libxList.Count);
 
       lang := Copy(libxList[I], Length(libxList[I]) - 7, 3);
+      {$IFDEF UNICODE}
       libx.DefaultEncoding := TEncoding.GetEncoding(fLocales.GetLocale(lang).FontCodepage);
+      {$ENDIF}
       libx.LoadFromFile(libxList[I]);
 
       libTxt := libx.Text;
@@ -266,7 +270,7 @@ begin
     if chars[I] <> #0 then
       uniText := uniText + chars[I];
 
-    Memo1.Text := uniText;
+    Memo1.Text := UTF8Encode(uniText);
   finally
     libxList.Free;
     libx.Free;

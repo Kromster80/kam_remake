@@ -98,6 +98,8 @@
 			<DCCReference Include="Unit_Main.pas">
 				<Form>Form1</Form>
 			</DCCReference>
+			<DCCReference Include="..\..\KM_ResourceFonts.pas"/>
+			<DCCReference Include="..\..\KM_ResourceFontsEdit.pas"/>
 			<BuildConfiguration Include="Release">
 				<Key>Cfg_2</Key>
 				<CfgParent>Base</CfgParent>

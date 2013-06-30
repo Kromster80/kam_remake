@@ -2,13 +2,13 @@ unit KM_ResourceFonts;
 {$I KaM_Remake.inc}
 interface
 uses
-  Classes, Graphics, Math, SysUtils, Types, PngImage,
+  Classes, Graphics, Math, SysUtils, Types,
   KM_CommonTypes, KM_Defaults, KM_Points, KM_Render, KM_ResourcePalettes;
 
 
 type
   TKMFont = (fnt_Antiqua, fnt_Game, fnt_Grey,
-    fnt_Metal, fnt_Mini, fnt_Outline, fntx_ArialUni);
+    fnt_Metal, fnt_Mini, fnt_Outline, fntx_Arial);
   {
   Removed fonts that were in KaM:
   Adam (unused)
@@ -53,7 +53,7 @@ type
     procedure LoadFontX(const aFileName: string);
     procedure GenerateTexture(aRender: TRender; aTexMode: TTexFormat);
     procedure Compact;
-    procedure ExportBimap(aBitmap: TBitmap; aOnlyAlpha: Boolean); overload;
+    procedure ExportBimap(aBitmap: TBitmap; aOnlyAlpha, aShowCells: Boolean); overload;
     procedure ExportBimap(const aPath: string; aOnlyAlpha: Boolean); overload;
     procedure ExportPng(const aPath: string);
 
@@ -94,7 +94,7 @@ const
     (FontFile: 'metal';       Pal: pal_0;         TexMode: tf_RGB5A1),
     (FontFile: 'mini';        Pal: pal_bw;        TexMode: tf_Alpha8),
     (FontFile: 'outline';     Pal: pal_0;         TexMode: tf_RGB5A1),
-    (FontFile: 'arialuni';    Pal: pal_0;         TexMode: tf_Alpha8)
+    (FontFile: 'arial';       Pal: pal_0;         TexMode: tf_Alpha8)
   );
 
 
@@ -149,7 +149,7 @@ begin
     MaxHeight := Math.max(MaxHeight, Letters[I].Height);
 
     if Letters[I].Width * Letters[I].Height = 0 then
-      Assert('Font data Width * Height = 0'); //Font01.fnt seems to be damaged..
+      Assert(False, 'Font data Width * Height = 0'); //Font01.fnt seems to be damaged..
 
     SetLength(rawData[I], Letters[I].Width*Letters[I].Height);
     S.Read(rawData[I,0], Letters[I].Width*Letters[I].Height);
@@ -250,7 +250,7 @@ end;
 
 
 //Export texture data into bitmap
-procedure TKMFontData.ExportBimap(aBitmap: TBitmap; aOnlyAlpha: Boolean);
+procedure TKMFontData.ExportBimap(aBitmap: TBitmap; aOnlyAlpha, aShowCells: Boolean);
 var
   I, K: Integer;
 begin
@@ -269,14 +269,17 @@ begin
     for K := 0 to fTexSizeX - 1 do
       aBitmap.Canvas.Pixels[K,I]:= fTexData[I * fTexSizeX + K] and $FFFFFF;
 
-  aBitmap.Canvas.Brush.Style := bsClear;
-  aBitmap.Canvas.Pen.Color := clAqua;
-  for I := 0 to High(Word) do
-  if Used[I] <> 0 then
+  if aShowCells then
   begin
-      aBitmap.Canvas.Rectangle(Round(Letters[I].u1 * fTexSizeX),
-        Round(Letters[I].v1 * fTexSizeY), Round(Letters[I].u2 * fTexSizeX),
-        Round(Letters[I].v2 * fTexSizeY));
+    aBitmap.Canvas.Brush.Style := bsClear;
+    aBitmap.Canvas.Pen.Color := clAqua;
+    for I := 0 to High(Word) do
+    if Used[I] <> 0 then
+    begin
+        aBitmap.Canvas.Rectangle(Round(Letters[I].u1 * fTexSizeX),
+          Round(Letters[I].v1 * fTexSizeY), Round(Letters[I].u2 * fTexSizeX),
+          Round(Letters[I].v2 * fTexSizeY));
+    end;
   end;
 end;
 
@@ -290,7 +293,7 @@ begin
 
   exportBmp := TBitMap.Create;
   try
-    ExportBimap(exportBmp, aOnlyAlpha);
+    ExportBimap(exportBmp, aOnlyAlpha, False);
 
     ForceDirectories(ExtractFilePath(aPath));
     exportBmp.SaveToFile(aPath);
@@ -302,26 +305,19 @@ end;
 
 procedure TKMFontData.ExportPng(const aPath: string);
 var
-  png: TPngObject;
   I, K: Integer;
-  T: Cardinal;
+  pngWidth, pngHeight: Word;
+  pngData: TKMCardinalArray;
 begin
   Assert(Length(fTexData) > 0, 'There is no font data in memory');
 
-  Png := TPNGObject.CreateBlank(COLOR_RGBALPHA, 8, fTexSizeX, fTexSizeY);
-  try
+  pngWidth := fTexSizeX;
+  pngHeight := fTexSizeY;
+  SetLength(pngData, pngWidth * pngHeight);
+
     for I := 0 to fTexSizeY - 1 do
     for K := 0 to fTexSizeX - 1 do
-    begin
-      T := (PCardinal(Cardinal(@fTexData[0]) + (I * fTexSizeX + K) * 4))^;
-      Png.Canvas.Pixels[K, I] := T and $FFFFFF; //Ignore alpha
-      Png.AlphaScanline[I]^[K] := T shr 24; //Alpha
-    end;
-
-    Png.SaveToFile(aPath);
-  finally
-    Png.Free;
-  end;
+      pngData[I * fTexSizeX + K] := (PCardinal(Cardinal(@fTexData[0]) + (I * fTexSizeX + K) * 4))^;
 end;
 
 
@@ -366,7 +362,7 @@ begin
     {$ENDIF}
 
     {$IFNDEF UNICODE}
-      FntPath := ExeDir + FONTS_FOLDER + FontInfo[F].FontFile + '.' + aCodePage + '.fnt';
+      FntPath := ExeDir + FONTS_FOLDER + FontInfo[F].FontFile + '.' + IntToStr(aCodePage) + '.fnt';
       if not FileExists(FntPath) then
         FntPath := ExeDir + FONTS_FOLDER + FontInfo[F].FontFile + '.fnt';
 

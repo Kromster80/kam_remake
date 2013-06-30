@@ -91,6 +91,7 @@ uses
   KM_PlayersCollection in 'KM_PlayersCollection.pas',
   KM_PlayerSpectator in 'KM_PlayerSpectator.pas',
   KM_PlayerStats in 'KM_PlayerStats.pas',
+  KM_PNG in 'KM_PNG.pas',
   KM_Points in 'KM_Points.pas',
   KM_PolySimplify in 'KM_PolySimplify.pas',
   KM_Projectiles in 'KM_Projectiles.pas',

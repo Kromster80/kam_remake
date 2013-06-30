@@ -2,13 +2,12 @@ unit KM_ResourceSprites;
 {$I KaM_Remake.inc}
 interface
 uses
-  {$IFDEF WDC} PNGImage, {$ENDIF}
+
   {$IFDEF Unix} LCLIntf, LCLType, {$ENDIF}
   Classes, Graphics, Math, SysUtils,
-  KM_CommonTypes, KM_Defaults, KM_Pics, KM_Render, KM_TextLibrary
+  KM_CommonTypes, KM_Defaults, KM_Pics, KM_PNG, KM_Render, KM_TextLibrary
   {$IFDEF FPC}, zstream {$ENDIF}
-  {$IFDEF WDC}, ZLib {$ENDIF}
-  {$IFDEF FPC}, BGRABitmap, BGRABitmapTypes {$ENDIF};
+  {$IFDEF WDC}, ZLib {$ENDIF};
 
 
 const
@@ -74,7 +73,9 @@ type
 
     function GetSpriteColors(aCount: Byte): TRGBArray;
 
-    procedure ExportToPNG(const aFolder: string);
+    procedure ExportAll(const aFolder: string);
+    procedure ExportImage(const aFile: string; aIndex: Integer);
+    procedure ExportMask(const aFile: string; aIndex: Integer);
 
     procedure ClearTemp; virtual;//Release non-required data
   end;
@@ -178,74 +179,29 @@ var
   Tr, Tg, Tb, T: Byte;
   Thue, Tsat, Tbri: Single;
   ft: TextFile;
-  {$IFDEF WDC}
-  p: Cardinal;
-  po: TPNGObject;
-  {$ENDIF}
-  {$IFDEF FPC}
-  po: TBGRABitmap;
-  {$ENDIF}
   MaskFile: array [TMaskType] of string;
   MaskTyp: TMaskType;
-  Transparent: Byte;
+  pngWidth, pngHeight: Word;
+  pngData: TKMCardinalArray;
 begin
   Assert(SameText(ExtractFileExt(aFilename), '.png'));
 
   if aIndex >= fRXData.Count then
     Allocate(aIndex);
 
-  {$IFDEF WDC}
-  po := TPNGObject.Create;
-  po.LoadFromFile(aFolder + aFilename);
-  {$ENDIF}
-  {$IFDEF FPC}
-  po := TBGRABitmap.Create(aFolder + aFilename);
-  {$ENDIF}
-  Assert((po.Width <= 1024) and (po.Height <= 1024), 'Image size should be less than 1024x1024 pixels');
+  LoadFromPng(aFolder + aFilename, pngWidth, pngHeight, pngData);
+  Assert((pngWidth <= 1024) and (pngHeight <= 1024), 'Image size should be less than 1024x1024 pixels');
 
-  try
-    fRXData.Flag[aIndex] := Byte(po.Width * po.Height <> 0); //Mark as used (required for saving RXX)
-    fRXData.Size[aIndex].X := po.Width;
-    fRXData.Size[aIndex].Y := po.Height;
+  fRXData.Flag[aIndex] := Byte(pngWidth * pngHeight <> 0); //Mark as used (required for saving RXX)
+  fRXData.Size[aIndex].X := pngWidth;
+  fRXData.Size[aIndex].Y := pngHeight;
 
-    SetLength(fRXData.RGBA[aIndex], po.Width * po.Height);
-    SetLength(fRXData.Mask[aIndex], po.Width * po.Height); //Should allocate space for it's always comes along
+  SetLength(fRXData.RGBA[aIndex], pngWidth * pngHeight);
+  SetLength(fRXData.Mask[aIndex], pngWidth * pngHeight); //Should allocate space for it's always comes along
 
-    {$IFDEF WDC}
-    //There are ways to process PNG transparency
-    case po.TransparencyMode of
-      ptmNone:
-        for K:=0 to po.Height-1 do for I:=0 to po.Width-1 do
-          fRXData.RGBA[aIndex, K*po.Width+I] := cardinal(po.Pixels[I,K]) or $FF000000;
-      ptmBit:
-        begin
-          Transparent := 0;
-          if TChunktRNS(po.Chunks.ItemFromClass(TChunktRNS)).DataSize > 0 then
-            Transparent := TChunktRNS(po.Chunks.ItemFromClass(TChunktRNS)).PaletteValues[0]; //We don't handle multi-transparent palettes yet
-          for K:=0 to po.Height-1 do for I:=0 to po.Width-1 do
-            if PByteArray(po.Scanline[K])^[I] = Transparent then
-              fRXData.RGBA[aIndex, K*po.Width+I] := cardinal(po.Pixels[I,K]) and $FFFFFF //avoid black edging
-            else
-              fRXData.RGBA[aIndex, K*po.Width+I] := cardinal(po.Pixels[I,K]) or $FF000000;
-        end;
-      ptmPartial:
-        for K:=0 to po.Height-1 do for I:=0 to po.Width-1 do
-        begin
-          p := po.AlphaScanline[K]^[I];
-          fRXData.RGBA[aIndex, K*po.Width+I] := cardinal(po.Pixels[I,K]) or (p shl 24);
-        end;
-      else
-        Assert(false, 'Unknown PNG transparency mode')
-    end;
-    {$ENDIF}
-    {$IFDEF FPC}
-    for K:=0 to po.Height-1 do for I:=0 to po.Width-1 do
-      fRXData.RGBA[aIndex, K*po.Width+I] := cardinal(po.GetPixel(I,K).red) or (cardinal(po.GetPixel(I,K).green) shl 8) or
-                                           (cardinal(po.GetPixel(I,K).blue) shl 16) or (cardinal(po.GetPixel(I,K).alpha) shl 24);
-    {$ENDIF}
-  finally
-    po.Free;
-  end;
+  for K := 0 to pngHeight - 1 do
+  for I := 0 to pngWidth - 1 do
+    fRXData.RGBA[aIndex, K * pngWidth + I] := pngData[K * pngWidth + I];
 
   MaskFile[mtPlain] := aFolder + StringReplace(aFilename, '.png', 'm.png', [rfReplaceAll, rfIgnoreCase]);
   MaskFile[mtSmart] := aFolder + StringReplace(aFilename, '.png', 'a.png', [rfReplaceAll, rfIgnoreCase]);
@@ -267,88 +223,44 @@ begin
     //Plain masks are used 'as is'
     //Smart masks are designed for the artist, they convert color brightness into a mask
 
-    {$IFDEF WDC}
-    po := TPNGObject.Create;
-    po.LoadFromFile(MaskFile[MaskTyp]);
-    {$ENDIF}
-    {$IFDEF FPC}
-    po := TBGRABitmap.Create(MaskFile[MaskTyp]);
-    {$ENDIF}
+    LoadFromPng(MaskFile[MaskTyp], pngWidth, pngHeight, pngData);
 
-    if (fRXData.Size[aIndex].X = po.Width)
-    and (fRXData.Size[aIndex].Y = po.Height) then
+    if (fRXData.Size[aIndex].X = pngWidth)
+    and (fRXData.Size[aIndex].Y = pngHeight) then
     begin
       //We don't handle transparency in Masks
-      {$IFDEF WDC}
-      for K := 0 to po.Height - 1 do
-      for I := 0 to po.Width - 1 do
+      for K := 0 to pngHeight - 1 do
+      for I := 0 to pngWidth - 1 do
       case MaskTyp of
         mtPlain:  begin
                     //For now process just red (assume pic is greyscale)
-                    fRXData.Mask[aIndex, K*po.Width+I] := po.Pixels[I,K] and $FF;
+                    fRXData.Mask[aIndex, K*pngWidth+I] := pngData[K*pngWidth+I] and $FF;
                   end;
         mtSmart:  begin
-                    if Cardinal(po.Pixels[I,K] and $FFFFFF) <> 0 then
+                    if Cardinal(pngData[K*pngWidth+I] and $FFFFFF) <> 0 then
                     begin
-                      Tr := fRXData.RGBA[aIndex, K*po.Width+I] and $FF;
-                      Tg := fRXData.RGBA[aIndex, K*po.Width+I] shr 8 and $FF;
-                      Tb := fRXData.RGBA[aIndex, K*po.Width+I] shr 16 and $FF;
+                      Tr := fRXData.RGBA[aIndex, K*pngWidth+I] and $FF;
+                      Tg := fRXData.RGBA[aIndex, K*pngWidth+I] shr 8 and $FF;
+                      Tb := fRXData.RGBA[aIndex, K*pngWidth+I] shr 16 and $FF;
 
                       //Determine color brightness
                       ConvertRGB2HSB(Tr, Tg, Tb, Thue, Tsat, Tbri);
 
                       //Make background RGBA black or white for more saturated colors
                       if Tbri < 0.5 then
-                        fRXData.RGBA[aIndex, K*po.Width+I] := FLAG_COLOR_DARK
+                        fRXData.RGBA[aIndex, K*pngWidth+I] := FLAG_COLOR_DARK
                       else
-                        fRXData.RGBA[aIndex, K*po.Width+I] := FLAG_COLOR_LITE;
+                        fRXData.RGBA[aIndex, K*pngWidth+I] := FLAG_COLOR_LITE;
 
                       //Map brightness from 0..1 to 0..255..0
                       T := Trunc((0.5 - Abs(Tbri - 0.5)) * 510);
-                      fRXData.Mask[aIndex, K*po.Width+I] := T;
+                      fRXData.Mask[aIndex, K*pngWidth+I] := T;
                     end
                     else
-                      fRXData.Mask[aIndex, K*po.Width+I] := 0;
+                      fRXData.Mask[aIndex, K*pngWidth+I] := 0;
                  end;
         end;
-      {$ENDIF}
-      {$IFDEF FPC}
-      for K := 0 to po.Height - 1 do
-      for I := 0 to po.Width - 1 do
-      case MaskTyp of
-        mtPlain:  begin
-                    //For now process just red (assume pic is greyscale)
-                    fRXData.Mask[aIndex, K*po.Width+I] := po.GetPixel(I,K).red;
-                  end;
-        mtSmart:  begin
-                    if Cardinal(po.GetPixel(I,K).red or
-                                po.GetPixel(I,K).green or
-                                po.GetPixel(I,K).blue) <> 0 then
-                    begin
-                      Tr := fRXData.RGBA[aIndex, K*po.Width+I] and $FF;
-                      Tg := fRXData.RGBA[aIndex, K*po.Width+I] shr 8 and $FF;
-                      Tb := fRXData.RGBA[aIndex, K*po.Width+I] shr 16 and $FF;
-
-                      //Determine color brightness
-                      ConvertRGB2HSB(Tr, Tg, Tb, Thue, Tsat, Tbri);
-
-                      //Make background RGBA black or white for more saturated colors
-                      if Tbri < 0.5 then
-                        fRXData.RGBA[aIndex, K*po.Width+I] := FLAG_COLOR_DARK
-                      else
-                        fRXData.RGBA[aIndex, K*po.Width+I] := FLAG_COLOR_LITE;
-
-                      //Map brightness from 0..1 to 0..255..0
-                      T := Trunc((0.5 - Abs(Tbri - 0.5)) * 510);
-                      fRXData.Mask[aIndex, K*po.Width+I] := T;
-                    end
-                    else
-                      fRXData.Mask[aIndex, K*po.Width+I] := 0;
-                 end;
-        end;
-      {$ENDIF}
     end;
-    po.Free;
   end;
 
   //Read pivot info
@@ -454,110 +366,103 @@ end;
 
 
 //Export RX to Bitmaps without need to have GraphicsEditor, also this way we preserve image indexes
-procedure TKMSpritePack.ExportToPNG(const aFolder: string);
+procedure TKMSpritePack.ExportAll(const aFolder: string);
 var
-  {$IFDEF WDC} Png: TPNGObject; {$ENDIF}
-  {$IFDEF FPC} po: TBGRABitmap; {$ENDIF}
+  I: Integer;
   SL: TStringList;
-  ID, I, K: Integer;
-  M: Byte;
-  SizeX, SizeY: Integer;
-  TreatMask: Boolean;
 begin
   ForceDirectories(aFolder);
 
-  {$IFDEF WDC} Png := TPNGObject.CreateBlank(COLOR_RGBALPHA, 8, 0, 0); {$ENDIF}
-  {$IFDEF FPC} po := TBGRABitmap.Create(0, 0, BGRABlack); {$ENDIF}
   SL := TStringList.Create;
 
-  for ID := 1 to fRXData.Count do
-  if fRXData.Flag[ID] = 1 then
+  for I := 1 to fRXData.Count do
+  if fRXData.Flag[I] = 1 then
   begin
-    SizeX := fRXData.Size[ID].X;
-    SizeY := fRXData.Size[ID].Y;
-    {$IFDEF WDC} Png.Resize(SizeX, SizeY); {$ENDIF}
-    {$IFDEF FPC} po.SetSize(SizeX, SizeY); {$ENDIF}
+    ExportImage(aFolder + Format('%d_%.4d.png', [Byte(fRT)+1, I]), I);
 
-    //Export RGB values
-    for I := 0 to SizeY - 1 do
-    for K := 0 to SizeX - 1 do
-    begin
-      TreatMask := fRXData.HasMask[ID] and (fRXData.Mask[ID, I*SizeX + K] > 0);
-      if (fRT = rxHouses) and ((ID < 680) or (ID = 1657) or (ID = 1659) or (ID = 1681) or (ID = 1683)) then
-        TreatMask := False;
-
-      {$IFDEF WDC}
-      if TreatMask then
-      begin
-        M := fRXData.Mask[ID, I*SizeX + K];
-
-        //Replace background with corresponding brightness of Red
-        if fRXData.RGBA[ID, I*SizeX + K] = FLAG_COLOR_DARK then
-          //Brightness < 0.5, mix with black
-          Png.Pixels[K,I] := M
-        else
-          //Brightness > 0.5, mix with white
-          Png.Pixels[K,I] := $FF + (255 - M) * $010100;
-      end
-      else
-        Png.Pixels[K,I] := fRXData.RGBA[ID, I*SizeX + K] and $FFFFFF;
-
-      Png.AlphaScanline[I]^[K] := fRXData.RGBA[ID, I*SizeX + K] shr 24;
-      {$ENDIF}
-
-      {$IFDEF FPC}
-      //I can't figure out how to get transparency to save in PNGs, so for now everything is opaque
-      if TreatMask then
-      begin
-        M := fRXData.Mask[ID, I*SizeX + K];
-        if fRXData.RGBA[ID, I*SizeX + K] = FLAG_COLOR_DARK then
-          po.CanvasBGRA.Pixels[K,I] := M
-        else
-          po.CanvasBGRA.Pixels[K,I] := $FF + (255 - M) * $010100;
-      end
-      else
-        po.CanvasBGRA.Pixels[K,I] := fRXData.RGBA[ID, I*SizeX + K] and $FFFFFF;
-      {$ENDIF}
-    end;
-
-    //Mark pivot location with a dot
-    {K := SizeX + fRXData.Pivot[ID].x;
-    I := SizeY + fRXData.Pivot[ID].y;
-    if InRange(I, 0, SizeY-1) and InRange(K, 0, SizeX-1) then
-      Png.Pixels[K,I] := $FF00FF;//}
-
-    {$IFDEF WDC} Png.SaveToFile(aFolder + Format('%d_%.4d.png', [Byte(fRT)+1, ID])); {$ENDIF}
-    {$IFDEF FPC} po.SaveToFile(aFolder + Format('%d_%.4d.png', [Byte(fRT)+1, ID])); {$ENDIF}
-
-    //Export Mask
-    if fRXData.HasMask[ID] then
-    begin
-      for I := 0 to SizeY - 1 do
-      for K := 0 to SizeX - 1 do
-      begin
-        {$IFDEF WDC}
-        Png.Pixels[K,I] := Byte(fRXData.Mask[ID, I*SizeX + K] > 0) * $FFFFFF;
-        Png.AlphaScanline[I]^[K] := $FF; //Always there
-        {$ENDIF}
-        {$IFDEF FPC}
-        po.CanvasBGRA.Pixels[K,I] := (Byte(fRXData.Mask[ID, I*SizeX + K] > 0) * $FFFFFF) or $FF000000;
-        {$ENDIF}
-      end;
-
-      {$IFDEF WDC} Png.SaveToFile(aFolder + Format('%d_%.4da.png', [Byte(fRT)+1, ID])); {$ENDIF}
-      {$IFDEF FPC} po.SaveToFile(aFolder + Format('%d_%.4da.png', [Byte(fRT)+1, ID])); {$ENDIF}
-    end;
+    if fRXData.HasMask[I] then
+      ExportMask(aFolder + Format('%d_%.4da.png', [Byte(fRT)+1, I]), I);
 
     //Export pivot
     SL.Clear;
-    SL.Append(IntToStr(fRXData.Pivot[ID].x));
-    SL.Append(IntToStr(fRXData.Pivot[ID].y));
-    SL.SaveToFile(aFolder + Format('%d_%.4d.txt', [Byte(fRT)+1, ID]));
+    SL.Append(IntToStr(fRXData.Pivot[I].x));
+    SL.Append(IntToStr(fRXData.Pivot[I].y));
+    SL.SaveToFile(aFolder + Format('%d_%.4d.txt', [Byte(fRT)+1, I]));
   end;
 
-  {$IFDEF WDC} Png.Free; {$ENDIF}
-  {$IFDEF FPC} po.Free; {$ENDIF}
   SL.Free;
+end;
+
+
+procedure TKMSpritePack.ExportImage(const aFile: string; aIndex: Integer);
+var
+  I, K: Integer;
+  M: Byte;
+  TreatMask: Boolean;
+  pngWidth, pngHeight: Word;
+  pngData: TKMCardinalArray;
+begin
+  pngWidth := fRXData.Size[aIndex].X;
+  pngHeight := fRXData.Size[aIndex].Y;
+
+  SetLength(pngData, pngWidth * pngHeight);
+
+  //Export RGB values
+  for I := 0 to pngHeight - 1 do
+  for K := 0 to pngWidth - 1 do
+  begin
+    TreatMask := fRXData.HasMask[aIndex] and (fRXData.Mask[aIndex, I*pngWidth + K] > 0);
+    if (fRT = rxHouses) and ((aIndex < 680) or (aIndex = 1657) or (aIndex = 1659) or (aIndex = 1681) or (aIndex = 1683)) then
+      TreatMask := False;
+
+    if TreatMask then
+    begin
+      M := fRXData.Mask[aIndex, I*pngWidth + K];
+
+      //Replace background with corresponding brightness of Red
+      if fRXData.RGBA[aIndex, I*pngWidth + K] = FLAG_COLOR_DARK then
+        //Brightness < 0.5, mix with black
+        pngData[I*pngWidth + K] := M
+      else
+        //Brightness > 0.5, mix with white
+        pngData[I*pngWidth + K] := $FF + (255 - M) * $010100;
+    end
+    else
+      pngData[I*pngWidth + K] := fRXData.RGBA[aIndex, I*pngWidth + K] and $FFFFFF;
+
+    pngData[I*pngWidth + K] := pngData[I*pngWidth + K] or (fRXData.RGBA[aIndex, I*pngWidth + K] and $FF000000);
+  end;
+
+  //Mark pivot location with a dot
+  K := pngWidth + fRXData.Pivot[aIndex].x;
+  I := pngHeight + fRXData.Pivot[aIndex].y;
+  if InRange(I, 0, pngHeight-1) and InRange(K, 0, pngWidth-1) then
+    pngData[I*pngWidth + K] := $FF00FF;//}
+
+  SaveToPng(pngWidth, pngHeight, pngData, aFile);
+end;
+
+
+procedure TKMSpritePack.ExportMask(const aFile: string; aIndex: Integer);
+var
+  I, K: Integer;
+  pngWidth, pngHeight: Word;
+  pngData: TKMCardinalArray;
+begin
+  pngWidth := fRXData.Size[aIndex].X;
+  pngHeight := fRXData.Size[aIndex].Y;
+
+  SetLength(pngData, pngWidth * pngHeight);
+
+  //Export Mask
+  if fRXData.HasMask[aIndex] then
+  begin
+    for I := 0 to pngHeight - 1 do
+    for K := 0 to pngWidth - 1 do
+      pngData[I * pngWidth + K] := (Byte(fRXData.Mask[aIndex, I * pngWidth + K] > 0) * $FFFFFF) or $FF000000;
+
+    SaveToPng(pngWidth, pngHeight, pngData, aFile);
+  end;
 end;
 
 
@@ -776,51 +681,24 @@ end;
 procedure TKMSpritePack.SaveTextureToPNG(aWidth, aHeight: Word; aFilename: string; const Data: TKMCardinalArray);
 var
   I, K: Word;
-  T: Cardinal;
-  {$IFDEF WDC} Png: TPNGObject; {$ENDIF}
-  {$IFDEF FPC} po: TBGRABitmap; {$ENDIF}
   Folder: string;
+  pngWidth, pngHeight: Word;
+  pngData: TKMCardinalArray;
 begin
-  if EXPORT_SPRITE_ATLASES then
-  begin
-    Folder := ExeDir + 'Export'+PathDelim+'GenTextures'+PathDelim;
-    ForceDirectories(Folder);
+  if not EXPORT_SPRITE_ATLASES then Exit;
 
-    {$IFDEF WDC}
-    Png := TPNGObject.CreateBlank(COLOR_RGBALPHA, 8, aWidth, aHeight);
-    try
-      for I := 0 to aHeight - 1 do
-      for K := 0 to aWidth - 1 do
-      begin
-        T := (PCardinal(Cardinal(@Data[0]) + (I * aWidth + K) * 4))^;
-        Png.Canvas.Pixels[K, I] := T and $FFFFFF; //Ignore alpha
-        Png.AlphaScanline[I]^[K] := T shr 24; //Alpha
-      end;
+  Folder := ExeDir + 'Export'+PathDelim+'GenTextures'+PathDelim;
+  ForceDirectories(Folder);
 
-      Png.SaveToFile(Folder + aFilename + '.png');
-    finally
-      Png.Free;
-    end;
-    {$ENDIF}
+  pngWidth := aWidth;
+  pngHeight := aHeight;
+  SetLength(pngData, pngWidth * pngHeight);
 
-    {$IFDEF FPC}
-    po := TBGRABitmap.Create(aWidth, aHeight, BGRABlack);
-    try
-      for I := 0 to aHeight - 1 do
-      for K := 0 to aWidth - 1 do
-      begin
-        T := (PCardinal(Cardinal(@Data[0]) + (I * aWidth + K) * 4))^;
-        //I can't figure out how to get transparency to save in PNGs, so for now everything is opaque
-        po.CanvasBGRA.Pixels[K,I] := T and $FFFFFF;
-        po.AlphaPixel(K,I,255);
-      end;
+  for I := 0 to aHeight - 1 do
+  for K := 0 to aWidth - 1 do
+    pngData[I * aWidth + K] := (PCardinal(Cardinal(@Data[0]) + (I * aWidth + K) * 4))^;
 
-      po.SaveToFile(Folder + aFilename + '.png');
-    finally
-      po.Free;
-    end;
-    {$ENDIF}
-  end;
+  SaveToPng(pngWidth, pngHeight, pngData, Folder + aFilename + '.png');
 end;
 
 
@@ -921,7 +799,7 @@ end;
 procedure TKMSprites.ExportToPNG(aRT: TRXType);
 begin
   LoadSprites(aRT, False);
-  fSprites[aRT].ExportToPNG(ExeDir + 'Export' + PathDelim + RXInfo[aRT].FileName + '.rx' + PathDelim);
+  fSprites[aRT].ExportAll(ExeDir + 'Export' + PathDelim + RXInfo[aRT].FileName + '.rx' + PathDelim);
   ClearTemp;
 end;
 

@@ -1,6 +1,6 @@
 object Form1: TForm1
-  Left = 0
-  Top = 0
+  Left = 438
+  Top = 169
   Caption = 'Form1'
   ClientHeight = 609
   ClientWidth = 801
@@ -10,7 +10,7 @@ object Form1: TForm1
   Font.Height = -13
   Font.Name = 'Tahoma'
   Font.Style = []
-  OldCreateOrder = False
+  OldCreateOrder = True
   OnCreate = FormCreate
   OnDestroy = FormDestroy
   PixelsPerInch = 96
@@ -21,6 +21,9 @@ object Form1: TForm1
     Width = 45
     Height = 16
     Caption = 'Preview'
+    Color = clBtnFace
+    ParentColor = False
+    Transparent = False
   end
   object Image1: TImage
     Left = 280
@@ -68,22 +71,25 @@ object Form1: TForm1
       Width = 45
       Height = 16
       Caption = 'Padding'
+      Color = clBtnFace
+      ParentColor = False
+      Transparent = False
     end
     object sePadding: TSpinEdit
       Left = 152
       Top = 40
       Width = 49
-      Height = 26
+      Height = 24
       MaxValue = 8
       MinValue = 0
       TabOrder = 0
       Value = 1
     end
     object rgSizeX: TRadioGroup
-      Left = 8
+      Left = 14
       Top = 24
-      Width = 65
-      Height = 65
+      Width = 59
+      Height = 64
       Caption = ' Size X '
       ItemIndex = 0
       Items.Strings = (
@@ -105,6 +111,14 @@ object Form1: TForm1
         '512')
       TabOrder = 2
     end
+    object cbCells: TCheckBox
+      Left = 152
+      Top = 72
+      Width = 47
+      Height = 20
+      Caption = 'Cells'
+      TabOrder = 3
+    end
   end
   object GroupBox2: TGroupBox
     Left = 8
@@ -119,6 +133,9 @@ object Form1: TForm1
       Width = 92
       Height = 16
       Caption = 'Used characters'
+      Color = clBtnFace
+      ParentColor = False
+      Transparent = False
     end
     object Label2: TLabel
       Left = 8
@@ -126,6 +143,9 @@ object Form1: TForm1
       Width = 61
       Height = 16
       Caption = 'Font name'
+      Color = clBtnFace
+      ParentColor = False
+      Transparent = False
     end
     object Label3: TLabel
       Left = 144
@@ -133,6 +153,9 @@ object Form1: TForm1
       Width = 51
       Height = 16
       Caption = 'Font size'
+      Color = clBtnFace
+      ParentColor = False
+      Transparent = False
     end
     object btnGenerate: TButton
       Left = 136
@@ -148,7 +171,7 @@ object Form1: TForm1
       Top = 88
       Width = 249
       Height = 185
-      Font.Charset = DEFAULT_CHARSET
+      Font.Charset = 4
       Font.Color = clWindowText
       Font.Height = -13
       Font.Name = 'Arial Unicode MS'
@@ -156,14 +179,15 @@ object Form1: TForm1
       Lines.Strings = (
         '!"$%&'#39'()*+,-./0123456789:;=?@ABCD'
         'EFGHIJKLMNOPQRSTUVWXYZ[\]`a'
-        'bcdefghijklmnopqrstuvwxyz'#161#191#192#193#194#195#196
-        #197#199#200#201#202#205#206#209#211#213#214#216#218#220#221#223#224#225#226#227#228#229#230#231#232#233#234
-        #235#236#237#238#239#241#242#243#244#245#246#248#249#250#251#252#253#258#259#261#262#263#268#269#270#271#278#279#280#281#282
-        #283#286#287#302#303#304#305#317#318#321#322#324#328#336#337#341#344#345#346#347#350#351#352#353#356#357#362#363#366#367#368#369
-        #370#371#377#378#379#380#381#382#1025#1030#1031#1038#1040#1041#1042#1043#1044#1045#1046#1047#1048#1049#1050#1051#1052#1053
-        #1054#1055#1056#1057#1058#1059#1060#1061#1062#1063#1064#1065#1066#1067#1068#1069#1070#1071#1072#1073#1074#1075#1076#1077
-        #1078#1079#1080#1081#1082#1083#1084#1085#1086#1087#1088#1089#1090#1091#1092#1093#1094#1095#1096#1097#1098#1099#1100#1101#1102#1103#1105#1108#1110
-        #1111#1118#8217)
+        'bcdefghijklmnopqrstuvwxyz???????'
+        '???????????????????????????'
+        '???????????????????????????????'
+        '???????????????????????????????'
+        '?'
+        '???????????????????????'
+        '????????????????????????'
+        '??????????????????????????'
+        '?')
       ParentFont = False
       ScrollBars = ssVertical
       TabOrder = 1
@@ -181,7 +205,7 @@ object Form1: TForm1
       Left = 144
       Top = 40
       Width = 49
-      Height = 26
+      Height = 24
       MaxValue = 24
       MinValue = 6
       TabOrder = 3
@@ -190,16 +214,16 @@ object Form1: TForm1
     object cbBold: TCheckBox
       Left = 200
       Top = 40
-      Width = 41
-      Height = 17
+      Width = 44
+      Height = 20
       Caption = 'Bold'
       TabOrder = 4
     end
     object cbItalic: TCheckBox
       Left = 200
       Top = 56
-      Width = 49
-      Height = 17
+      Width = 47
+      Height = 20
       Caption = 'Italic'
       TabOrder = 5
     end
@@ -232,7 +256,7 @@ object Form1: TForm1
     end
     object btnCollate: TButton
       Left = 136
-      Top = 24
+      Top = -14
       Width = 121
       Height = 25
       Anchors = [akLeft, akBottom]
@@ -242,7 +266,7 @@ object Form1: TForm1
     end
     object btnCollateAuto: TButton
       Left = 136
-      Top = 56
+      Top = 18
       Width = 121
       Height = 25
       Anchors = [akLeft, akBottom]

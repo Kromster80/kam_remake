@@ -2,14 +2,12 @@ unit KM_ResourceSpritesEdit;
 {$I KaM_Remake.inc}
 interface
 uses
-  {$IFDEF WDC} PNGImage, {$ENDIF}
   {$IFDEF Unix} LCLIntf, LCLType, {$ENDIF}
   Classes, Dialogs, Graphics, Math, Types, StrUtils, SysUtils,
   KM_Defaults, KM_Pics, KM_ResourceHouse, KM_ResourcePalettes, KM_ResourceSprites
   , KM_ResourceTileset
   {$IFDEF FPC}, zstream {$ENDIF}
-  {$IFDEF WDC}, ZLib {$ENDIF}
-  {$IFDEF FPC}, BGRABitmap {$ENDIF};
+  {$IFDEF WDC}, ZLib {$ENDIF};
 
 type
   //Class with additional editing properties
@@ -35,7 +33,7 @@ type
     procedure SoftenShadows(aID:Integer; aOnlyShadows:Boolean=True); overload;
     function TrimSprites: Cardinal; //For debug
     procedure ClearTemp; override;
-    procedure GetImageToBitmap(aIndex: Integer; aPNG, aMask: {$IFDEF WDC}TPNGObject{$ENDIF}{$IFDEF FPC}TBGRABitmap{$ENDIF});
+    procedure GetImageToBitmap(aIndex: Integer; aBmp, aMask: TBitmap);
   end;
 
 
@@ -530,7 +528,7 @@ begin
 end;
 
 
-procedure TKMSpritePackEdit.GetImageToBitmap(aIndex: Integer; aPNG, aMask: {$IFDEF WDC}TPNGObject{$ENDIF}{$IFDEF FPC}TBGRABitmap{$ENDIF});
+procedure TKMSpritePackEdit.GetImageToBitmap(aIndex: Integer; aBmp, aMask: TBitmap);
 var
   I, K, W, H: Integer;
   T: Cardinal;
@@ -540,32 +538,22 @@ begin
   W := fRXData.Size[aIndex].X;
   H := fRXData.Size[aIndex].Y;
 
-  {$IFDEF WDC} aPNG.Resize(W, H); {$ENDIF}
-  {$IFDEF FPC} aPNG.SetSize(W, H); {$ENDIF}
+  aBmp.SetSize(W, H);
   if aMask <> nil then
-    {$IFDEF WDC} aMask.Resize(W, H); {$ENDIF}
-    {$IFDEF FPC} aMask.SetSize(W, H); {$ENDIF}
+    aMask.SetSize(W, H);
 
   for I := 0 to H - 1 do
   for K := 0 to W - 1 do
   begin
     T := fRXData.RGBA[aIndex, I * W + K];
 
-    {$IFDEF WDC}
-    //RGB and Alpha components are stored in two separate places
-    aPNG.Pixels[K,I] := T and $FFFFFF;
-    aPNG.AlphaScanline[I]^[K] := T shr 24;
-    {$ENDIF}
-    {$IFDEF FPC}
-    aPNG.CanvasBGRA.Pixels[K,I] := T and $FFFFFF;
-    //I can't figure out how to get transparency to save in PNGs, so for now everything is opaque
-    {$ENDIF}
+    aBmp.Canvas.Pixels[K,I] := T and $FFFFFF;
 
     if (aMask <> nil) and fRXData.HasMask[aIndex] then
     begin
       T := fRXData.Mask[aIndex, I * W + K];
-      {$IFDEF WDC} aMask.Pixels[K,I] := T * 65793; {$ENDIF}
-      {$IFDEF FPC} aMask.CanvasBGRA.Pixels[K,I] := T * 65793; {$ENDIF}
+
+      aMask.Canvas.Pixels[K,I] := T * 65793;
     end;
   end;
 end;

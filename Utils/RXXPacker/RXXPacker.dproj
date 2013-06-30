@@ -84,6 +84,7 @@
 			<DCCReference Include="RXXPackerForm.pas">
 				<Form>RXXForm1</Form>
 			</DCCReference>
+			<DCCReference Include="..\..\Common\KM_PNG.pas"/>
 			<DCCReference Include="..\..\KM_ResourceSprites.pas"/>
 			<DCCReference Include="..\..\KM_ResourceSpritesEdit.pas"/>
 			<DCCReference Include="..\..\KM_SoftShadows.pas"/>

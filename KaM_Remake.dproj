@@ -189,6 +189,7 @@
 			<DCCReference Include="KM_PlayersCollection.pas"/>
 			<DCCReference Include="KM_PlayerSpectator.pas"/>
 			<DCCReference Include="KM_PlayerStats.pas"/>
+			<DCCReference Include="KM_PNG.pas"/>
 			<DCCReference Include="KM_Points.pas"/>
 			<DCCReference Include="KM_PolySimplify.pas"/>
 			<DCCReference Include="KM_Projectiles.pas"/>

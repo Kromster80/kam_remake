@@ -2,9 +2,8 @@ unit Unit1;
 {$I ..\..\KaM_Remake.inc}
 interface
 uses
-  Classes, ComCtrls, Controls, Dialogs, ExtCtrls, Forms,
-  Graphics, Mask, Math, Spin, StdCtrls, SysUtils, Windows,
-  {$IFDEF WDC} PNGImage, {$ENDIF}
+  Windows, Classes, ComCtrls, Controls, Dialogs, ExtCtrls, Forms,
+  Graphics, Mask, Math, Spin, StdCtrls, SysUtils,
   KM_Defaults, KM_Campaigns, KM_Pics, KM_ResourceSpritesEdit;
 
 
@@ -325,14 +324,15 @@ end;
 
 
 procedure TForm1.RefreshBackground;
-var PNG: TPNGObject;
+var
+  Bmp: TBitmap;
 begin
-  PNG := TPNGObject.CreateBlank(COLOR_RGBALPHA, 8, 0, 0);
+  Bmp := TBitmap.Create;
   try
-    fSprites.GetImageToBitmap(1, PNG, nil);
-    Image1.Picture.Assign(PNG);
+    fSprites.GetImageToBitmap(1, Bmp, nil);
+    Image1.Picture.Assign(Bmp);
   finally
-    PNG.Free;
+    Bmp.Free;
   end;
 end;
 

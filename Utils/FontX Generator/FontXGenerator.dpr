@@ -1,11 +1,18 @@
 program FontXGenerator;
+
+{$IFDEF FPC}
+  {$MODE Delphi}
+{$ENDIF}
+
 uses
-  //FastMM4,
+{$IFNDEF FPC}
+{$ELSE}
+  Interfaces,
+{$ENDIF}
   Forms,
   Unit_Main in 'Unit_Main.pas' {Form1},
-  KM_ResourceFontsEdit;
-
-{$R *.res}
+  KM_ResourceFonts in '..\..\KM_ResourceFonts.pas',
+  KM_ResourceFontsEdit in '..\..\KM_ResourceFontsEdit.pas';
 
 begin
   Application.Initialize;
