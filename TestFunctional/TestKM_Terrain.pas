@@ -28,7 +28,7 @@ begin
 
   gLog := TKMLog.Create(ExtractFilePath(ParamStr(0)) + 'Temp\temp.log');
   fResource := TResource.Create(nil, nil, nil);
-  fResource.LoadMenuResources('');
+  fResource.LoadMenuResources;
   gTerrain := TKMTerrain.Create;
 end;
 

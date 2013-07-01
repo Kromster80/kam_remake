@@ -1,9 +1,5 @@
 unit KromUtils;
-{$IFDEF VER140} {$DEFINE WDC} {$ENDIF}  // Delphi 6
-{$IFDEF VER150} {$DEFINE WDC} {$ENDIF}  // Delphi 7
-{$IFDEF VER220} {$DEFINE WDC} {$ENDIF}  // Delphi XE
-{$IFDEF VER230} {$DEFINE WDC} {$ENDIF}  // Delphi XE2
-{$IFDEF FPC} {$Mode Delphi} {$ENDIF}
+{$I ..\KaM_Remake.inc}
 interface
 uses
   Controls, Dialogs, ExtCtrls, Forms, SysUtils, Classes
@@ -47,6 +43,7 @@ function Max(const A,B,C: single):single; overload;
 
   function Mix(x1,x2,MixValue:single):single; overload;
   function Mix(x1,x2:integer; MixValue:single):integer; overload;
+  function Lerp(A,B: Single; MixValue: Single): Single;
 
 procedure decs(var AText:string; const Len:integer=1); overload;
 procedure decs(var AText:widestring; const Len:integer=1); overload;
@@ -343,6 +340,12 @@ end;
 function Mix(x1, x2: integer; MixValue: single): integer; overload;
 begin
   Result := round(x1 * MixValue + x2 * (1 - MixValue));
+end;
+
+
+function Lerp(A,B: Single; MixValue: Single): Single;
+begin
+  Result := A + (B - A) * MixValue;
 end;
 
 

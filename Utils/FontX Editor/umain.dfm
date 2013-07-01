@@ -3,7 +3,7 @@ object frmMain: TfrmMain
   Top = 94
   Caption = 'KaM Font Editor'
   ClientHeight = 650
-  ClientWidth = 833
+  ClientWidth = 697
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -25,27 +25,21 @@ object frmMain: TfrmMain
     OnMouseUp = PaintBox1MouseUp
     OnPaint = PaintBox1Paint
   end
-  object Image3: TImage
-    Left = 696
-    Top = 16
-    Width = 128
-    Height = 512
-  end
   object Image4: TImage
     Left = 312
     Top = 536
-    Width = 513
+    Width = 377
     Height = 30
   end
   object Image5: TImage
     Left = 160
     Top = 565
-    Width = 665
+    Width = 529
     Height = 60
   end
   object Label3: TLabel
     Left = 62
-    Top = 427
+    Top = 307
     Width = 83
     Height = 13
     Caption = 'BaseCharHeight?'
@@ -54,7 +48,7 @@ object frmMain: TfrmMain
   end
   object Label4: TLabel
     Left = 62
-    Top = 451
+    Top = 331
     Width = 72
     Height = 13
     Caption = 'Word spacing?'
@@ -63,7 +57,7 @@ object frmMain: TfrmMain
   end
   object Label5: TLabel
     Left = 62
-    Top = 475
+    Top = 355
     Width = 62
     Height = 13
     Caption = 'Char spacing'
@@ -72,7 +66,7 @@ object frmMain: TfrmMain
   end
   object Label6: TLabel
     Left = 62
-    Top = 499
+    Top = 379
     Width = 66
     Height = 13
     Caption = 'Line spacing?'
@@ -90,44 +84,44 @@ object frmMain: TfrmMain
   end
   object Label7: TLabel
     Left = 62
-    Top = 523
+    Top = 403
     Width = 107
     Height = 13
     Caption = 'Selected letter Y offset'
     Color = clBtnFace
     ParentColor = False
   end
-  object ListBox1: TListBox
+  object lbFonts: TListBox
     Left = 8
     Top = 40
     Width = 145
     Height = 257
     ItemHeight = 13
     TabOrder = 1
-    OnClick = ListBox1Click
+    OnClick = lbFontsClick
   end
-  object RefreshData: TButton
+  object btnRefresh: TButton
     Left = 8
     Top = 8
     Width = 97
     Height = 21
     Caption = 'Refresh list'
     TabOrder = 2
-    OnClick = RefreshDataClick
+    OnClick = btnRefreshClick
   end
-  object BitBtn1: TBitBtn
+  object btnSaveFont: TBitBtn
     Left = 8
-    Top = 600
+    Top = 480
     Width = 145
     Height = 25
     Caption = 'Save Font File ...'
     TabOrder = 0
-    OnClick = BitBtn1Click
+    OnClick = btnSaveFontClick
   end
   object StatusBar1: TStatusBar
     Left = 0
     Top = 630
-    Width = 833
+    Width = 697
     Height = 20
     Panels = <
       item
@@ -142,6 +136,7 @@ object frmMain: TfrmMain
         Text = 'Font Hex Code'
         Width = 50
       end>
+    ExplicitWidth = 833
   end
   object Edit1: TEdit
     Left = 160
@@ -154,7 +149,7 @@ object frmMain: TfrmMain
   end
   object CheckCells: TCheckBox
     Left = 8
-    Top = 549
+    Top = 429
     Width = 71
     Height = 17
     Caption = 'Show cells'
@@ -163,50 +158,38 @@ object frmMain: TfrmMain
     TabOrder = 6
     OnClick = CheckCellsClick
   end
-  object btnExportBig: TBitBtn
+  object btnExportBitmap: TBitBtn
     Left = 8
-    Top = 572
+    Top = 452
     Width = 73
     Height = 25
     Caption = 'Export BMP ...'
     TabOrder = 7
-    OnClick = btnExportBigClick
+    OnClick = btnExportBitmapClick
   end
-  object btnImportBig: TBitBtn
+  object btnImportBitmap: TBitBtn
     Left = 80
-    Top = 572
+    Top = 452
     Width = 73
     Height = 25
     Caption = 'Import BMP ...'
     TabOrder = 5
-    OnClick = btnImportBigClick
-  end
-  object RGPalette: TRadioGroup
-    Left = 8
-    Top = 304
-    Width = 145
-    Height = 112
-    Caption = ' Preview palette  '
-    Columns = 2
-    Items.Strings = (
-      'map.bbm'
-      'pal0.bbm'
-      'pal1.bbm'
-      'pal2.bbm'
-      'pal3.bbm'
-      'pal4.bbm'
-      'pal5.bbm'
-      'setup.bbm'
-      'setup2.bbm'
-      'linear'
-      'mapgold.lbm'
-      'setup.lbm')
-    TabOrder = 8
-    OnClick = RGPaletteClick
+    OnClick = btnImportBitmapClick
   end
   object SpinEdit1: TSpinEdit
     Left = 8
-    Top = 424
+    Top = 304
+    Width = 50
+    Height = 22
+    MaxValue = 65535
+    MinValue = -65535
+    TabOrder = 8
+    Value = 0
+    OnChange = SpinEdit1Change
+  end
+  object SpinEdit2: TSpinEdit
+    Left = 8
+    Top = 328
     Width = 50
     Height = 22
     MaxValue = 65535
@@ -215,9 +198,9 @@ object frmMain: TfrmMain
     Value = 0
     OnChange = SpinEdit1Change
   end
-  object SpinEdit2: TSpinEdit
+  object SpinEdit3: TSpinEdit
     Left = 8
-    Top = 448
+    Top = 352
     Width = 50
     Height = 22
     MaxValue = 65535
@@ -226,9 +209,9 @@ object frmMain: TfrmMain
     Value = 0
     OnChange = SpinEdit1Change
   end
-  object SpinEdit3: TSpinEdit
+  object SpinEdit4: TSpinEdit
     Left = 8
-    Top = 472
+    Top = 376
     Width = 50
     Height = 22
     MaxValue = 65535
@@ -237,25 +220,14 @@ object frmMain: TfrmMain
     Value = 0
     OnChange = SpinEdit1Change
   end
-  object SpinEdit4: TSpinEdit
+  object SpinEdit5: TSpinEdit
     Left = 8
-    Top = 496
+    Top = 400
     Width = 50
     Height = 22
     MaxValue = 65535
     MinValue = -65535
     TabOrder = 12
-    Value = 0
-    OnChange = SpinEdit1Change
-  end
-  object SpinEdit5: TSpinEdit
-    Left = 8
-    Top = 520
-    Width = 50
-    Height = 22
-    MaxValue = 65535
-    MinValue = -65535
-    TabOrder = 13
     Value = 0
     OnChange = SpinEdit5Change
   end
@@ -267,7 +239,7 @@ object frmMain: TfrmMain
     Kind = sbVertical
     Max = 2000
     PageSize = 0
-    TabOrder = 14
+    TabOrder = 13
     OnChange = ScrollBar1Change
   end
   object OpenDialog1: TOpenDialog

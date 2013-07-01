@@ -79,7 +79,7 @@ object Form1: TForm1
       Left = 152
       Top = 40
       Width = 49
-      Height = 24
+      Height = 26
       MaxValue = 8
       MinValue = 0
       TabOrder = 0
@@ -205,7 +205,7 @@ object Form1: TForm1
       Left = 144
       Top = 40
       Width = 49
-      Height = 24
+      Height = 26
       MaxValue = 24
       MinValue = 6
       TabOrder = 3
@@ -213,7 +213,7 @@ object Form1: TForm1
     end
     object cbBold: TCheckBox
       Left = 200
-      Top = 40
+      Top = 32
       Width = 44
       Height = 20
       Caption = 'Bold'
@@ -221,7 +221,7 @@ object Form1: TForm1
     end
     object cbItalic: TCheckBox
       Left = 200
-      Top = 56
+      Top = 48
       Width = 47
       Height = 20
       Caption = 'Italic'
@@ -256,7 +256,7 @@ object Form1: TForm1
     end
     object btnCollate: TButton
       Left = 136
-      Top = -14
+      Top = 18
       Width = 121
       Height = 25
       Anchors = [akLeft, akBottom]
@@ -266,7 +266,7 @@ object Form1: TForm1
     end
     object btnCollateAuto: TButton
       Left = 136
-      Top = 18
+      Top = 50
       Width = 121
       Height = 25
       Anchors = [akLeft, akBottom]

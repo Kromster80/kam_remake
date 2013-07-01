@@ -32,7 +32,7 @@ begin
   SetKaMSeed(4);
   gLog := TKMLog.Create(ExtractFilePath(ParamStr(0)) + 'log.log');
   fResource := TResource.Create(nil, nil, nil);
-  fResource.LoadMenuResources('');
+  fResource.LoadMenuResources;
   fSoundLib := TSoundLib.Create('', 0, False);
   gTerrain := TKMTerrain.Create;
   gTerrain.MakeNewMap(32, 32, False);

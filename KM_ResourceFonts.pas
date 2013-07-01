@@ -2,7 +2,7 @@ unit KM_ResourceFonts;
 {$I KaM_Remake.inc}
 interface
 uses
-  Classes, Graphics, Math, SysUtils, Types,
+  Classes, Graphics, Math, SysUtils, Types, KM_PNG,
   KM_CommonTypes, KM_Defaults, KM_Points, KM_Render, KM_ResourcePalettes;
 
 
@@ -55,7 +55,7 @@ type
     procedure Compact;
     procedure ExportBimap(aBitmap: TBitmap; aOnlyAlpha, aShowCells: Boolean); overload;
     procedure ExportBimap(const aPath: string; aOnlyAlpha: Boolean); overload;
-    procedure ExportPng(const aPath: string);
+    procedure ExportPng(const aFilename: string);
 
     property CharSpacing: SmallInt read fCharSpacing;
     property LineSpacing: Byte read fLineSpacing;
@@ -81,8 +81,8 @@ type
     function CharsThatFit(const aText: AnsiString; aFont: TKMFont; aMaxPxWidth: integer): integer;
     function GetTextSize(const aText: string; Fnt: TKMFont): TKMPoint;
 
-    procedure LoadFonts(aCodePage: Word);
-    procedure ExportFonts(aCodePage: Word);
+    procedure LoadFonts;
+    procedure ExportFonts;
   end;
 
 
@@ -303,7 +303,7 @@ begin
 end;
 
 
-procedure TKMFontData.ExportPng(const aPath: string);
+procedure TKMFontData.ExportPng(const aFilename: string);
 var
   I, K: Integer;
   pngWidth, pngHeight: Word;
@@ -315,9 +315,11 @@ begin
   pngHeight := fTexSizeY;
   SetLength(pngData, pngWidth * pngHeight);
 
-    for I := 0 to fTexSizeY - 1 do
-    for K := 0 to fTexSizeX - 1 do
-      pngData[I * fTexSizeX + K] := (PCardinal(Cardinal(@fTexData[0]) + (I * fTexSizeX + K) * 4))^;
+  for I := 0 to fTexSizeY - 1 do
+  for K := 0 to fTexSizeX - 1 do
+    pngData[I * fTexSizeX + K] := (PCardinal(Cardinal(@fTexData[0]) + (I * fTexSizeX + K) * 4))^;
+
+  SaveToPng(pngWidth,pngHeight, pngData, aFilename);
 end;
 
 
@@ -349,47 +351,31 @@ begin
 end;
 
 
-procedure TKMResourceFont.LoadFonts(aCodePage: Word);
+procedure TKMResourceFont.LoadFonts;
 var
   F: TKMFont;
   FntPath: string;
 begin
   for F := Low(TKMFont) to High(TKMFont) do
   begin
-    {$IFDEF UNICODE}
-      FntPath := ExeDir + FONTS_FOLDER + FontInfo[F].FontFile + '.fntx';
-      fFontData[F].LoadFontX(FntPath);
-    {$ENDIF}
-
-    {$IFNDEF UNICODE}
-      FntPath := ExeDir + FONTS_FOLDER + FontInfo[F].FontFile + '.' + IntToStr(aCodePage) + '.fnt';
-      if not FileExists(FntPath) then
-        FntPath := ExeDir + FONTS_FOLDER + FontInfo[F].FontFile + '.fnt';
-
-      fFontData[F].LoadFont(FntPath, fResource.Palettes[FontInfo[F].Pal]);
-    {$ENDIF}
-
+    FntPath := ExeDir + FONTS_FOLDER + FontInfo[F].FontFile + '.fntx';
+    fFontData[F].LoadFontX(FntPath);
     fFontData[F].GenerateTexture(fRender, FontInfo[F].TexMode);
     fFontData[F].Compact;
   end;
 end;
 
 
-procedure TKMResourceFont.ExportFonts(aCodePage: Word);
+procedure TKMResourceFont.ExportFonts;
 var
   F: TKMFont;
-  FntFront: string;
+  FntPath: string;
 begin
   //We need to reload fonts to regenerate TexData
   for F := Low(TKMFont) to High(TKMFont) do
   begin
-    FntFront := ExeDir + FONTS_FOLDER + FontInfo[F].FontFile;
-
-    if FileExists(FntFront + '.' + IntToStr(aCodePage) + '.fnt') then
-      fFontData[F].LoadFont(FntFront + '.' + IntToStr(aCodePage) + '.fnt', fResource.Palettes[FontInfo[F].Pal])
-    else
-      fFontData[F].LoadFont(FntFront + '.fnt', fResource.Palettes[FontInfo[F].Pal]);
-
+    FntPath := ExeDir + FONTS_FOLDER + FontInfo[F].FontFile + '.fntx';
+    fFontData[F].LoadFontX(FntPath);
     fFontData[F].ExportBimap(ExeDir + 'Export' + PathDelim + 'Fonts' + PathDelim + FontInfo[F].FontFile + '.bmp', False);
     fFontData[F].Compact;
   end;

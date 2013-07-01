@@ -94,7 +94,7 @@ begin
 
   aStringList := TStringList.Create;
   {$IFDEF UNICODE}
-    //Load in right encoding
+    //Load ANSI in right encoding
     lang := Copy(FilePath, Length(FilePath) - 7, 3);
     aStringList.DefaultEncoding := TEncoding.GetEncoding(fLocales.GetLocale(lang).FontCodepage);
   {$ENDIF}

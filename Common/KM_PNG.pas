@@ -1,5 +1,5 @@
 unit KM_PNG;
-{$I KaM_Remake.inc}
+{$I ..\KaM_Remake.inc}
 interface
 uses
   KM_CommonTypes,
@@ -16,13 +16,13 @@ implementation
 
 procedure SaveToPng(aWidth, aHeight: Word; const aPixelData: TKMCardinalArray; aFile: string);
 var
-  {$IFDEF WDC} Png: PNGImage.TPngImage; {$ENDIF}
+  {$IFDEF WDC} Png: PNGImage.TPngObject; {$ENDIF}
   {$IFDEF FPC} Png: TBGRABitmap; {$ENDIF}
   I, K: Integer;
   T: Cardinal;
 begin
   {$IFDEF WDC}
-    Png := TPngImage.CreateBlank(COLOR_RGBALPHA, 8, aWidth, aHeight);
+    Png := TPngObject.CreateBlank(COLOR_RGBALPHA, 8, aWidth, aHeight);
     try
       for I := 0 to aHeight - 1 do
       for K := 0 to aWidth - 1 do
@@ -59,13 +59,13 @@ end;
 
 procedure LoadFromPng(const aFile: string; var aWidth, aHeight: Word; var aPixelData: TKMCardinalArray);
 var
-  {$IFDEF WDC} Png: TPngImage; {$ENDIF}
+  {$IFDEF WDC} Png: TPngObject; {$ENDIF}
   {$IFDEF FPC} Png: TBGRABitmap; {$ENDIF}
   I, K: Integer;
   T: Byte;
 begin
   {$IFDEF WDC}
-    Png := TPNGObject.Create;
+    Png := TPngObject.Create;
     Png.LoadFromFile(aFile);
 
     aWidth := Png.Width;

@@ -2,7 +2,6 @@ unit KM_ResourceSprites;
 {$I KaM_Remake.inc}
 interface
 uses
-
   {$IFDEF Unix} LCLIntf, LCLType, {$ENDIF}
   Classes, Graphics, Math, SysUtils,
   KM_CommonTypes, KM_Defaults, KM_Pics, KM_PNG, KM_Render, KM_TextLibrary

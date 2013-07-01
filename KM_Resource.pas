@@ -46,7 +46,7 @@ type
 
     function GetDATCRC: Cardinal;
 
-    procedure LoadMenuResources(const aCodePage: Word);
+    procedure LoadMenuResources;
     procedure LoadGameResources(aAlphaShadows: boolean);
 
     property DataState: TDataLoadingState read fDataState;
@@ -124,7 +124,7 @@ begin
 end;
 
 
-procedure TResource.LoadMenuResources(const aCodePage: Word);
+procedure TResource.LoadMenuResources;
 begin
   Assert(SKIP_RENDER or (fRender <> nil), 'fRenderSetup should be init before ReadGFX to be able access OpenGL');
 
@@ -142,7 +142,7 @@ begin
 
   StepCaption('Reading fonts ...');
   fFonts := TKMResourceFont.Create(fRender);
-  fFonts.LoadFonts(aCodePage);
+  fFonts.LoadFonts;
   gLog.AddTime('Read fonts is done');
 
   fTileset := TKMTileset.Create(ExeDir + 'data'+PathDelim+'defines'+PathDelim+'pattern.dat');
