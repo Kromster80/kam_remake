@@ -1,12 +1,7 @@
 program FontXGenerator;
-
-{$IFDEF FPC}
-  {$MODE Delphi}
-{$ENDIF}
-
+{$I ..\..\KaM_Remake.inc}
 uses
-{$IFNDEF FPC}
-{$ELSE}
+{$IFDEF FPC}
   Interfaces,
 {$ENDIF}
   Forms,

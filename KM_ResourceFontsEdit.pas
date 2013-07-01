@@ -2,7 +2,9 @@ unit KM_ResourceFontsEdit;
 {$I KaM_Remake.inc}
 interface
 uses
-  Windows, Classes, Graphics, Math, SysUtils, Types,
+  Windows,
+  {$IFDEF FPC} lconvencoding, {$ENDIF}
+  Classes, Graphics, Math, SysUtils, Types,
   KM_CommonTypes, KM_ResourceFonts;
 
 
@@ -12,7 +14,7 @@ type
   private
     fTexPadding: Byte;
   public
-    procedure CreateFont(aFontName: string; aFontSize: Byte; aFontStyle: TFontStyles; const aChars: array of Char);
+    procedure CreateFont(aFontName: string; aFontSize: Byte; aFontStyle: TFontStyles; const aChars: array of WideChar);
     procedure CollateFont(aFonts: array of TKMFontDataEdit; aCodepages: array of Word);
     procedure ImportPng(const aPath: string);
     procedure SaveToFont(const aFilename: string);
@@ -36,7 +38,7 @@ implementation
 
 
 { TKMFontDataEdit }
-procedure TKMFontDataEdit.CreateFont(aFontName: string; aFontSize: Byte; aFontStyle: TFontStyles; const aChars: array of Char);
+procedure TKMFontDataEdit.CreateFont(aFontName: string; aFontSize: Byte; aFontStyle: TFontStyles; const aChars: array of WideChar);
 const
   INS = 0;
   FONT_INTERLINE = 5; //Spacing between lines of text
@@ -46,6 +48,7 @@ var
   chWidth: Byte;
   chRect: TRect;
   txtHeight: Integer;
+  ch: WideString;
 begin
   bitmap := TBitmap.Create;
   try
@@ -68,13 +71,14 @@ begin
     //Characters we gonna use
     FillChar(Used, SizeOf(Used), #0);
     for I := Low(aChars) to High(aChars) do
-      Used[Word(aChars[I])] := 1;
+      Used[Ord(aChars[I])] := 1;
 
     //Obtain each characters dimensions (KaM char heights are per-char, so we do the same)
     for I := 0 to High(Word) do
     if Used[I] <> 0 then
     begin
-      Letters[I].Width := bitmap.Canvas.TextWidth(Char(I));
+      ch := WideChar(I); //Lazarus needs extra verbose types
+      Letters[I].Width := bitmap.Canvas.TextWidth(UTF8Encode(ch));
       Letters[I].Height := txtHeight;
     end;
 
@@ -108,7 +112,8 @@ begin
       chRect.Top := pY;
       chRect.Right := pX + chWidth;
       chRect.Bottom := pY + txtHeight;
-      bitmap.Canvas.TextRect(chRect, pX, pY, Char(I));
+      ch := WideChar(I); //Lazarus needs extra verbose types
+      bitmap.Canvas.TextRect(chRect, pX, pY, UTF8Encode(ch));
 
       Inc(pX, chWidth + fTexPadding);
     end;

@@ -2,7 +2,8 @@ unit Unit_Main;
 {$I ..\..\KaM_Remake.inc}
 interface
 uses
-  Windows, //Declared first to get TBitmap overriden with VCL version
+  {$IFDEF WDC} Windows, {$ENDIF} //Declared first to get TBitmap overriden with VCL version
+  {$IFDEF FPC} lconvencoding, {$ENDIF}
   SysUtils, Classes, Graphics, Controls, Forms, Dialogs, ExtCtrls, StdCtrls, Spin, StrUtils,
   KM_Defaults, KM_ResourceFonts, KM_ResourceFontsEdit, KM_ResourcePalettes;
 
@@ -89,14 +90,21 @@ end;
 
 procedure TForm1.btnGenerateClick(Sender: TObject);
 var
-  useChars: array of Char;
+  chars: WideString;
+  useChars: array of WideChar;
   fntStyle: TFontStyles;
 begin
   FreeAndNil(Fnt);
   Fnt := TKMFontDataEdit.Create;
 
-  SetLength(useChars, Length(Memo1.Text));
-  Move(Memo1.Text[1], useChars[0], Length(Memo1.Text) * SizeOf(Char));
+  {$IFDEF WDC}
+  chars := Memo1.Text;
+  {$ENDIF}
+  {$IFDEF FPC}
+  chars := UTF8Decode(Memo1.Text);
+  {$ENDIF}
+  SetLength(useChars, Length(chars));
+  Move(chars[1], useChars[0], Length(chars) * SizeOf(WideChar));
 
   fntStyle := [];
   if cbBold.Checked then
@@ -121,23 +129,23 @@ begin
   if not dlgSave.Execute then Exit;
 
   Fnt.SaveToFontX(dlgSave.FileName);
-  //Fnt.SaveToFontX(ExeDir + '..\..\data\gfx\fonts\arialuni.fntx');
 end;
 
 
 procedure TForm1.btnCollateClick(Sender: TObject);
 const
-  CODE_PAGES: array [0..4] of Word = (1250, 1251, 1252, 1254, 1257);
+  CODE_COUNT = 5;
+  CODE_PAGES: array [0 .. CODE_COUNT - 1] of Word = (1250, 1251, 1252, 1254, 1257);
 var
   fntId: TKMFont;
-  srcFont: array [0..4] of TKMFontDataEdit;
+  srcFont: array [0 .. CODE_COUNT - 1] of TKMFontDataEdit;
   I: Integer;
 begin
   if ListBox1.ItemIndex = -1 then Exit;
 
   fntId := TKMFont(ListBox1.ItemIndex);
 
-  for I := 0 to 4 do
+  for I := 0 to CODE_COUNT - 1 do
   begin
     srcFont[I] := TKMFontDataEdit.Create;
     srcFont[I].LoadFont(ExeDir + '..\..\data\gfx\fonts\' + FontInfo[fntId].FontFile + '.' + IntToStr(CODE_PAGES[I]) + '.fnt', Pals[FontInfo[fntId].Pal]);
@@ -150,7 +158,7 @@ begin
   Fnt.TexSizeY := StrToInt(rgSizeY.Items[rgSizeY.ItemIndex]);
   Fnt.CollateFont(srcFont, CODE_PAGES);
 
-  for I := 0 to 4 do
+  for I := 0 to CODE_COUNT - 1 do
     srcFont[I].Free;
 
   Fnt.ExportBimap(Image1.Picture.Bitmap, False, cbCells.Checked);
@@ -161,7 +169,7 @@ procedure TForm1.btnCollateAllClick(Sender: TObject);
 var
   I: TKMFont;
 begin
-  //256x512 - enough for any fonst yet
+  //256x512 - enough for any fonts yet
   rgSizeX.ItemIndex := 1;
   rgSizeY.ItemIndex := 2;
 
@@ -227,17 +235,20 @@ procedure TForm1.btnCollectCharsClick(Sender: TObject);
   end;
 var
   libxList: TStringList;
-  lang: string;
-  libx: TStringList;//Stream;
-  chars: array [0..High(Word)] of Char;
+  langCode: string;
+  libx: TStringList;
+  chars: array [0..High(Word)] of WideChar;
   I, K: Integer;
-  libTxt, uniText: string;
+  libTxt: WideString;
+  uniText: WideString;
   lab: string;
 begin
   //Collect list of library files
   libxList := TStringList.Create;
   libx := TStringList.Create;
   lab := btnCollectChars.Caption;
+
+  FillChar(chars, SizeOf(chars), #0);
   try
     GetAllTextPaths(ExeDir + '..\..\', libxList);
 
@@ -249,16 +260,24 @@ begin
     begin
       btnCollectChars.Caption := IntToStr(I) + '/' + IntToStr(libxList.Count);
 
-      lang := Copy(libxList[I], Length(libxList[I]) - 7, 3);
-      {$IFDEF UNICODE}
-      libx.DefaultEncoding := TEncoding.GetEncoding(fLocales.GetLocale(lang).FontCodepage);
-      {$ENDIF}
-      libx.LoadFromFile(libxList[I]);
+      //Load ANSI file with codepage we say into unicode string
+      {$IFDEF WDC}
+        //Load the text file with default ANSI encoding. If file has embedded BOM it will be used
+        langCode := Copy(libxList[I], Length(libxList[I]) - 7, 3);
+        libx.DefaultEncoding := TEncoding.GetEncoding(fLocales.GetLocale(langCode).FontCodepage);
 
-      libTxt := libx.Text;
+        libx.LoadFromFile(libxList[I]);
+        libTxt := libx.Text;
+      {$ENDIF}
+      {$IFDEF FPC}
+        libx.LoadFromFile(libxList[I]);
+
+        langCode := Copy(libxList[I], Length(libxList[I]) - 7, 3);
+        libTxt := UTF8Decode(ConvertEncoding(libx.Text, 'cp' + IntToStr(fLocales.GetLocale(langCode).FontCodepage), EncodingUTF8));
+      {$ENDIF}
+
       for K := 0 to Length(libTxt) - 1 do
-      //if Word(libTxt[K+1]) = $9A then
-        chars[Word(libTxt[K+1])] := libTxt[K+1];
+        chars[Ord(libTxt[K+1])] := #1;
     end;
 
     chars[10] := #0; //End of line chars are not needed
@@ -268,9 +287,14 @@ begin
 
     for I := 0 to High(Word) do
     if chars[I] <> #0 then
-      uniText := uniText + chars[I];
+      uniText := uniText + WideChar(I);
 
-    Memo1.Text := UTF8Encode(uniText);
+    {$IFDEF WDC}
+      Memo1.Text := uniText;
+    {$ENDIF}
+    {$IFDEF FPC}
+      Memo1.Text := UTF8Encode(uniText);
+    {$ENDIF}
   finally
     libxList.Free;
     libx.Free;

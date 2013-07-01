@@ -383,10 +383,13 @@ end;
 
 
 function TKMResourceFont.WordWrap(aText: AnsiString; aFont: TKMFont; aMaxPxWidth: Integer; aForced: Boolean; aIndentAfterNL: Boolean): AnsiString;
-var
-  I, CharSpacing, AdvX, PrevX, LastSpace, TmpColor: Integer;
 const
   INDENT = '   ';
+var
+  I: Integer;
+  CharSpacing, LastSpace: Integer;
+  AdvX, PrevX: Integer;
+  TmpColor: Integer;
 begin
   Assert(aMaxPxWidth > 0);
 
