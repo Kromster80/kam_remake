@@ -79,7 +79,7 @@ object Form1: TForm1
       Left = 152
       Top = 40
       Width = 49
-      Height = 24
+      Height = 26
       MaxValue = 8
       MinValue = 0
       TabOrder = 0
@@ -205,7 +205,7 @@ object Form1: TForm1
       Left = 144
       Top = 40
       Width = 49
-      Height = 24
+      Height = 26
       MaxValue = 24
       MinValue = 6
       TabOrder = 3
@@ -256,7 +256,7 @@ object Form1: TForm1
     end
     object btnCollate: TButton
       Left = 136
-      Top = 0
+      Top = 24
       Width = 121
       Height = 25
       Anchors = [akLeft, akBottom]
@@ -266,7 +266,7 @@ object Form1: TForm1
     end
     object btnCollateAuto: TButton
       Left = 136
-      Top = 32
+      Top = 56
       Width = 121
       Height = 25
       Anchors = [akLeft, akBottom]

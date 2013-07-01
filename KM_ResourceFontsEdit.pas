@@ -16,7 +16,7 @@ type
   public
     procedure CreateFont(aFontName: string; aFontSize: Byte; aFontStyle: TFontStyles; const aChars: array of WideChar);
     procedure CollateFont(aFonts: array of TKMFontDataEdit; aCodepages: array of Word);
-    procedure ImportPng(const aPath: string);
+    procedure ImportPng(const aFilename: string);
     procedure SaveToFont(const aFilename: string);
     procedure SaveToFontX(const aFilename: string);
 
@@ -214,7 +214,7 @@ begin
 end;
 
 
-procedure TKMFontDataEdit.ImportPng(const aPath: string);
+procedure TKMFontDataEdit.ImportPng(const aFilename: string);
 begin
 
 end;
@@ -247,6 +247,8 @@ begin
 
       S.Write(rawData[I,0], Letters[I].Width * Letters[I].Height);
     end;
+
+    S.SaveToFile(aFilename);
   finally
     S.Free;
   end;

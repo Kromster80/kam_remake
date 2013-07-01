@@ -2,7 +2,7 @@ unit KM_ResourceFonts;
 {$I KaM_Remake.inc}
 interface
 uses
-  Classes, Graphics, Math, SysUtils, Types, KM_PNG,
+  Classes, Graphics, Math, SysUtils, KM_PNG,
   KM_CommonTypes, KM_Defaults, KM_Points, KM_Render, KM_ResourcePalettes;
 
 
@@ -99,7 +99,6 @@ const
 
 
 implementation
-uses KM_Resource;
 
 
 { TKMFontData }

@@ -285,6 +285,7 @@ begin
     chars[32] := #0; // space symbol, KaM uses word spacing property instead
     chars[124] := #0; // | symbol, end of line in KaM
 
+    uniText := '';
     for I := 0 to High(Word) do
     if chars[I] <> #0 then
       uniText := uniText + WideChar(I);
@@ -293,6 +294,7 @@ begin
       Memo1.Text := uniText;
     {$ENDIF}
     {$IFDEF FPC}
+      //FPC controls need utf8 strings
       Memo1.Text := UTF8Encode(uniText);
     {$ENDIF}
   finally
