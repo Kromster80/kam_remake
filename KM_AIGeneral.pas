@@ -446,6 +446,10 @@ begin
     and not Group.IsDead
     and not Group.InFight
     and Group.IsIdleToAI
+    //@Lewin: Is it right that Group defends against attackers within the Rad
+    //rather than defending property within the Rad?
+    //Think of archer, he attacks property in AI defense radius, but stands utself outside of the radius
+    //should AI retaliate against him or not?
     and (KMLengthDiag(Group.Position, aAttacker.GetPosition) <= fDefencePositions[I].Radius) then
       Group.OrderAttackUnit(aAttacker, True);
   end;
