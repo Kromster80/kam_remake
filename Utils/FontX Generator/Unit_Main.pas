@@ -5,7 +5,7 @@ uses
   {$IFDEF WDC} Windows, {$ENDIF} //Declared first to get TBitmap overriden with VCL version
   {$IFDEF FPC} lconvencoding, {$ENDIF}
   SysUtils, Classes, Graphics, Controls, Forms, Dialogs, ExtCtrls, StdCtrls, Spin, StrUtils,
-  KM_Defaults, KM_ResourceFonts, KM_ResourceFontsEdit, KM_ResourcePalettes;
+  KM_CommonTypes, KM_Defaults, KM_ResourceFonts, KM_ResourceFontsEdit, KM_ResourcePalettes;
 
 
 type
@@ -48,7 +48,6 @@ type
     procedure FormDestroy(Sender: TObject);
     procedure btnCollateAllClick(Sender: TObject);
   private
-    Pals: TKMPalettes;
     Fnt: TKMFontDataEdit;
   end;
 
@@ -69,10 +68,6 @@ begin
   Caption := 'KaM FontX Generator (' + GAME_REVISION + ')';
   ExeDir := ExtractFilePath(Application.ExeName);
 
-  //Palettes
-  Pals := TKMPalettes.Create;
-  Pals.LoadPalettes(ExeDir + '..\..\data\gfx\');
-
   fLocales := TKMLocales.Create(ExeDir + '..\..\data\locales.txt');
 
   //Available fonts
@@ -84,7 +79,6 @@ end;
 procedure TForm1.FormDestroy(Sender: TObject);
 begin
   FreeAndNil(Fnt);
-  FreeAndNil(Pals);
 end;
 
 
@@ -133,33 +127,48 @@ end;
 
 
 procedure TForm1.btnCollateClick(Sender: TObject);
-const
-  CODE_COUNT = 5;
-  CODE_PAGES: array [0 .. CODE_COUNT - 1] of Word = (1250, 1251, 1252, 1254, 1257);
 var
+  pals: TKMPalettes;
+  codePages: TKMWordArray;
   fntId: TKMFont;
-  srcFont: array [0 .. CODE_COUNT - 1] of TKMFontDataEdit;
   I: Integer;
+  srcFont: array of TKMFontDataEdit;
+  fntFile: string;
 begin
   if ListBox1.ItemIndex = -1 then Exit;
 
   fntId := TKMFont(ListBox1.ItemIndex);
 
-  for I := 0 to CODE_COUNT - 1 do
-  begin
-    srcFont[I] := TKMFontDataEdit.Create;
-    srcFont[I].LoadFont(ExeDir + '..\..\data\gfx\fonts\' + FontInfo[fntId].FontFile + '.' + IntToStr(CODE_PAGES[I]) + '.fnt', Pals[FontInfo[fntId].Pal]);
+  //We need palettes to properly load FNT files
+  pals := TKMPalettes.Create;
+  try
+    pals.LoadPalettes(ExeDir + '..\..\data\gfx\');
+
+    //List of codepages we need to collate
+    codePages := fLocales.CodePagesList;
+    SetLength(srcFont, Length(codePages));
+
+    for I := Low(codePages) to High(codePages) do
+    begin
+      srcFont[I] := TKMFontDataEdit.Create;
+      fntFile := ExeDir + '..\..\data\gfx\fonts\' + FontInfo[fntId].FontFile + '.' + IntToStr(codePages[I]) + '.fnt';
+      srcFont[I].LoadFont(fntFile, pals[FontInfo[fntId].Pal]);
+    end;
+
+    //Recreate clean Font
+    FreeAndNil(Fnt);
+    Fnt := TKMFontDataEdit.Create;
+
+    Fnt.TexPadding := sePadding.Value;
+    Fnt.TexSizeX := StrToInt(rgSizeX.Items[rgSizeX.ItemIndex]);
+    Fnt.TexSizeY := StrToInt(rgSizeY.Items[rgSizeY.ItemIndex]);
+    Fnt.CollateFont(srcFont, codePages);
+
+    for I := Low(codePages) to High(codePages) do
+      srcFont[I].Free;
+  finally
+    pals.Free;
   end;
-
-  FreeAndNil(Fnt);
-  Fnt := TKMFontDataEdit.Create;
-  Fnt.TexPadding := sePadding.Value;
-  Fnt.TexSizeX := StrToInt(rgSizeX.Items[rgSizeX.ItemIndex]);
-  Fnt.TexSizeY := StrToInt(rgSizeY.Items[rgSizeY.ItemIndex]);
-  Fnt.CollateFont(srcFont, CODE_PAGES);
-
-  for I := 0 to CODE_COUNT - 1 do
-    srcFont[I].Free;
 
   Fnt.ExportBimap(Image1.Picture.Bitmap, False, cbCells.Checked);
 end;

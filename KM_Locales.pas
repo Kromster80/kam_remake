@@ -2,7 +2,8 @@ unit KM_Locales;
 {$I KaM_Remake.inc}
 interface
 uses
-  Classes, Math, SysUtils, StrUtils;
+  Classes, Math, SysUtils, StrUtils,
+  KM_CommonTypes;
 
 
 type
@@ -24,11 +25,12 @@ type
     function GetLocaleByIndex(aIndex: Integer): TKMLocaleInfo;
   public
     constructor Create(aPath: string);
+    property Count: Integer read fCount;
+    property Locales[aIndex: Integer]: TKMLocaleInfo read GetLocaleByIndex; default;
     function GetIDFromCode(const aLocaleCode: string): Integer;
     function GetTranslatorCredits: string;
-    property Locales[aIndex: Integer]: TKMLocaleInfo read GetLocaleByIndex; default;
+    function CodePagesList: TKMWordArray;
     function GetLocale(const aCode: string): TKMLocaleInfo;
-    property Count: Integer read fCount;
   end;
 
 
@@ -158,6 +160,36 @@ begin
   for I := 0 to fCount - 1 do
     if fLocaleList[I].TranslatorCredit <> '' then //e.g. English has no credits
       Result := Result + fLocaleList[I].Title + ' - ' + fLocaleList[I].TranslatorCredit + '|';
+end;
+
+
+function TKMLocales.CodePagesList: TKMWordArray;
+var
+  I,K: Integer;
+  added: Boolean;
+  resCount: Word;
+begin
+  //Reserve maximum required space
+  SetLength(Result, Count);
+
+  resCount := 0;
+  for I := 0 to Count - 1 do
+  begin
+    //Check if we already have that element
+    added := False;
+    for K := 0 to Count - 1 do
+      added := added or (Locales[I].FontCodepage = Result[K]);
+
+    //Append element
+    if not added then
+    begin
+      Result[resCount] := Locales[I].FontCodepage;
+      Inc(resCount);
+    end;
+  end;
+
+  //Trim excess elements
+  SetLength(Result, resCount);
 end;
 
 

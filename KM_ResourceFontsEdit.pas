@@ -142,23 +142,23 @@ const
   INS = 0;
 var
   I, K, L, M, pX, pY: Integer;
-  chWidth, chHeight, MaxHeight: Byte;
+  chWidth, chHeight, lineHeight: Byte;
   srcX, srcY: Word;
   dstPixel, srcPixel: Cardinal;
   uniChar: Char;
   uniCode: Word;
 begin
-  //Common font props
+  //Common font props are presumably the same for all codepages
   fBaseHeight := aFonts[0].BaseHeight;
   fWordSpacing := aFonts[0].WordSpacing;
   fCharSpacing := aFonts[0].CharSpacing;
   fLineSpacing := aFonts[0].LineSpacing;
 
   //Atlas line height
-  MaxHeight := 0;
+  lineHeight := 0;
   for I := 0 to 255 do
   if aFonts[0].Used[I] <> 0 then
-    MaxHeight := Math.max(MaxHeight, aFonts[0].Letters[I].Height);
+    lineHeight := Math.max(lineHeight, aFonts[0].Letters[I].Height);
 
   //Texture data
   SetLength(fTexData, fTexSizeX * fTexSizeY);
@@ -171,7 +171,7 @@ begin
       if aFonts[K].Used[I] = 0 then Continue;
 
       uniChar := AnsiCharToWideChar(AnsiChar(I), aCodepages[K]);
-      uniCode := Word(uniChar);
+      uniCode := Ord(uniChar);
 
       //We already have that letter
       if Used[uniCode] <> 0 then Continue;
@@ -184,8 +184,8 @@ begin
       if pX + chWidth + fTexPadding >= fTexSizeX then
       begin
         pX := fTexPadding;
-        Inc(pY, MaxHeight + fTexPadding);
-        if pY + MaxHeight + fTexPadding >= fTexSizeY then
+        Inc(pY, lineHeight + fTexPadding);
+        if pY + lineHeight + fTexPadding >= fTexSizeY then
           Exit;
       end;
 
