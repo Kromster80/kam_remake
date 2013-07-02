@@ -140,7 +140,7 @@ end;
 
 procedure TKMNetPlayerInfo.SetLangCode(const aCode: AnsiString);
 begin
-  if fLocales.GetIDFromCode(aCode) <> -1 then
+  if fLocales.IndexByCode(aCode) <> -1 then
     fLangCode := aCode;
 end;
 

@@ -756,7 +756,7 @@ begin
     fTextLibrary[TX_CREDITS_ADDITIONAL_GRAPHICS]+'|StarGazer|Malin|H.A.H.||'+
     fTextLibrary[TX_CREDITS_ADDITIONAL_MUSIC]+'|Andre Sklenar - www.juicelab.cz||'+
     fTextLibrary[TX_CREDITS_ADDITIONAL_SOUNDS]+'|trb1914||'+
-    fTextLibrary[TX_CREDITS_ADDITIONAL_TRANSLATIONS]+'|'+fLocales.GetTranslatorCredits+'|'+
+    fTextLibrary[TX_CREDITS_ADDITIONAL_TRANSLATIONS]+'|'+fLocales.TranslatorCredits+'|'+
     fTextLibrary[TX_CREDITS_SPECIAL]+'|KaM Community members'
     ,fnt_Grey,taCenter);
     Label_Credits_Remake.Anchors := [akLeft,akTop,akBottom];

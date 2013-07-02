@@ -490,7 +490,7 @@ begin
 
   LineCount := 1;
   CharSpacing := fFontData[Fnt].CharSpacing; //Spacing between letters varies between fonts
-  I:=1;
+  I := 1;
   while I <= Length(aText) do
   begin
     //Ignore color markups [$FFFFFF][]

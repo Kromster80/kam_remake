@@ -3780,7 +3780,7 @@ begin
   for I := 0 to fGame.Networking.NetPlayers.Count - 1 do
   begin
     //Show players locale flag
-    LocaleID := fLocales.GetIDFromCode(fGame.Networking.NetPlayers[I+1].LangCode);
+    LocaleID := fLocales.IndexByCode(fGame.Networking.NetPlayers[I+1].LangCode);
     if LocaleID <> -1 then
       Image_AlliesLang[I].TexID := fLocales[LocaleID].FlagSpriteID
     else

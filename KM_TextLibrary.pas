@@ -82,9 +82,7 @@ end;
 procedure TKMTextLibrary.LoadLIBXFile(FilePath: string; aFirstIndex: Word; var aArray: TKMStringArray; aOverwrite: Boolean);
 var
   aStringList: TStringList;
-  {$IFDEF UNICODE}
-  lang: string;
-  {$ENDIF}
+  langCode: string;
   I: Integer;
   s: string;
   firstDelimiter: Integer;
@@ -93,12 +91,19 @@ begin
   if not FileExists(FilePath) then Exit;
 
   aStringList := TStringList.Create;
-  {$IFDEF UNICODE}
-    //Load ANSI in right encoding
-    lang := Copy(FilePath, Length(FilePath) - 7, 3);
-    aStringList.DefaultEncoding := TEncoding.GetEncoding(fLocales.GetLocale(lang).FontCodepage);
+
+  //Load ANSI file with codepage we say into unicode string
+  langCode := Copy(FilePath, Length(FilePath) - 7, 3);
+  {$IFDEF WDC}
+    //Load the text file with default ANSI encoding. If file has embedded BOM it will be used
+    aStringList.DefaultEncoding := TEncoding.GetEncoding(fLocales.GetLocale(langCode).FontCodepage);
+    aStringList.LoadFromFile(FilePath);
   {$ENDIF}
-  aStringList.LoadFromFile(FilePath);
+  {$IFDEF FPC}
+    aStringList.LoadFromFile(FilePath);
+    libTxt := UTF8Decode(ConvertEncoding(aStringList.Text, 'cp' + IntToStr(fLocales.GetLocale(langCode).FontCodepage), EncodingUTF8));
+    aStringList.Text := libTxt;
+  {$ENDIF}
 
   //First line is empty or comment and could have first 3 bytes Unicode Byte-Order Mark (BOM)
   s := aStringList[1];

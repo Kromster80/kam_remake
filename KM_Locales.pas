@@ -27,8 +27,8 @@ type
     constructor Create(aPath: string);
     property Count: Integer read fCount;
     property Locales[aIndex: Integer]: TKMLocaleInfo read GetLocaleByIndex; default;
-    function GetIDFromCode(const aLocaleCode: string): Integer;
-    function GetTranslatorCredits: string;
+    function IndexByCode(const aLocaleCode: string): Integer;
+    function TranslatorCredits: string;
     function CodePagesList: TKMWordArray;
     function GetLocale(const aCode: string): TKMLocaleInfo;
   end;
@@ -138,12 +138,12 @@ begin
 end;
 
 
-function TKMLocales.GetIDFromCode(const aLocaleCode: string): Integer;
+function TKMLocales.IndexByCode(const aLocaleCode: string): Integer;
 var
   I: Integer;
 begin
   Result := -1;
-  for I := 0 to fCount - 1 do
+  for I := 0 to Count - 1 do
     if fLocaleList[I].Code = aLocaleCode then
     begin
       Result := I;
@@ -152,12 +152,12 @@ begin
 end;
 
 
-function TKMLocales.GetTranslatorCredits: string;
+function TKMLocales.TranslatorCredits: string;
 var
   I: Integer;
 begin
   Result := '';
-  for I := 0 to fCount - 1 do
+  for I := 0 to Count - 1 do
     if fLocaleList[I].TranslatorCredit <> '' then //e.g. English has no credits
       Result := Result + fLocaleList[I].Title + ' - ' + fLocaleList[I].TranslatorCredit + '|';
 end;

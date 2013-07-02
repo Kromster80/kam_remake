@@ -270,18 +270,15 @@ begin
       btnCollectChars.Caption := IntToStr(I) + '/' + IntToStr(libxList.Count);
 
       //Load ANSI file with codepage we say into unicode string
+      langCode := Copy(libxList[I], Length(libxList[I]) - 7, 3);
       {$IFDEF WDC}
         //Load the text file with default ANSI encoding. If file has embedded BOM it will be used
-        langCode := Copy(libxList[I], Length(libxList[I]) - 7, 3);
         libx.DefaultEncoding := TEncoding.GetEncoding(fLocales.GetLocale(langCode).FontCodepage);
-
         libx.LoadFromFile(libxList[I]);
         libTxt := libx.Text;
       {$ENDIF}
       {$IFDEF FPC}
         libx.LoadFromFile(libxList[I]);
-
-        langCode := Copy(libxList[I], Length(libxList[I]) - 7, 3);
         libTxt := UTF8Decode(ConvertEncoding(libx.Text, 'cp' + IntToStr(fLocales.GetLocale(langCode).FontCodepage), EncodingUTF8));
       {$ENDIF}
 

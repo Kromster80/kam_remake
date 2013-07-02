@@ -201,7 +201,7 @@ begin
   CheckBox_Options_ShuffleOn.Checked    := fGameSettings.ShuffleOn;
   CheckBox_Options_ShuffleOn.Enabled    := not CheckBox_Options_MusicOff.Checked;
 
-  Radio_Options_Lang.ItemIndex := fLocales.GetIDFromCode(fGameSettings.Locale);
+  Radio_Options_Lang.ItemIndex := fLocales.IndexByCode(fGameSettings.Locale);
 
   //We need to reset dropboxes every time we enter Options page
   RefreshResolutions;

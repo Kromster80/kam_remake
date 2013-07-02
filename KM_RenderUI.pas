@@ -490,7 +490,7 @@ begin
       if aText[I] = #32 then
         Inc(LineWidth[LineCount], FontData.WordSpacing)
       else
-        Inc(LineWidth[LineCount], FontData.Letters[byte(aText[I])].Width + FontData.CharSpacing);
+        Inc(LineWidth[LineCount], FontData.Letters[Ord(aText[I])].Width + FontData.CharSpacing);
 
     //If EOL or aText end
     if (aText[I] = #124) or (I = Length(aText)) then
@@ -549,12 +549,7 @@ begin
                   end;
                 end;
           else  begin
-                  {$IFDEF UNICODE}
-                    Let := FontData.Letters[Word(aText[I])];
-                  {$ENDIF}
-                  {$IFNDEF UNICODE}
-                    Let := FontData.Letters[Byte(aText[I])];
-                  {$ENDIF}
+                  Let := FontData.Letters[Ord(aText[I])];
 
                   glTexCoord2f(Let.u1, Let.v1); glVertex2f(AdvX            , AdvY            + Let.YOffset);
                   glTexCoord2f(Let.u2, Let.v1); glVertex2f(AdvX + Let.Width, AdvY            + Let.YOffset);

@@ -819,7 +819,7 @@ begin
     CurPlayer := fNetworking.NetPlayers[I+1];
 
     //Flag icon
-    LocaleID := fLocales.GetIDFromCode(CurPlayer.LangCode);
+    LocaleID := fLocales.IndexByCode(CurPlayer.LangCode);
     if LocaleID <> -1 then
       Image_LobbyFlag[I].TexID := fLocales[LocaleID].FlagSpriteID
     else
