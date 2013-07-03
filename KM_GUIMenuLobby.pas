@@ -1360,7 +1360,7 @@ procedure TKMGUIMenuLobby.PostKeyDown(Sender: TObject; Key: Word);
 var
   ChatMessage: string;
 begin
-  if (Key <> VK_RETURN) or (Trim(Edit_LobbyPost.Text) = '') then exit;
+  if (Key <> VK_RETURN) or (Trim(Edit_LobbyPost.Text) = '') then Exit;
   ChatMessage := Edit_LobbyPost.Text;
   //Console commands are disabled for now, maybe we'll reuse them later
   //Check for console commands

@@ -84,7 +84,7 @@ end;
 
 procedure TForm1.btnGenerateClick(Sender: TObject);
 var
-  chars: WideString;
+  chars: UnicodeString;
   useChars: array of WideChar;
   fntStyle: TFontStyles;
 begin
@@ -248,8 +248,8 @@ var
   libx: TStringList;
   chars: array [0..High(Word)] of WideChar;
   I, K: Integer;
-  libTxt: WideString;
-  uniText: WideString;
+  libTxt: UnicodeString;
+  uniText: UnicodeString;
   lab: string;
 begin
   //Collect list of library files

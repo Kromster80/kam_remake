@@ -48,7 +48,7 @@ var
   chWidth: Byte;
   chRect: TRect;
   txtHeight: Integer;
-  ch: WideString;
+  ch: UnicodeString;
 begin
   bitmap := TBitmap.Create;
   try

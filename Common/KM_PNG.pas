@@ -109,7 +109,7 @@ begin
 
     for K:=0 to Png.Height-1 do for I:=0 to Png.Width-1 do
       aPixelData[K * Png.Width + I] := cardinal(Png.GetPixel(I,K).red) or (cardinal(Png.GetPixel(I,K).green) shl 8) or
-                                           (cardinal(Png.GetPixel(I,K).blue) shl 16) or (cardinal(Png.GetPixel(I,K).alpha) shl 24);
+                                      (cardinal(Png.GetPixel(I,K).blue) shl 16) or (cardinal(Png.GetPixel(I,K).alpha) shl 24);
 
     Png.Free;
   {$ENDIF}
