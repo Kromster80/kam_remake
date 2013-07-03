@@ -3173,7 +3173,7 @@ begin
     NewText := fText;
 
   //KaM uses | for new line, fItems.Text:= uses standard eol to parse each item from the string
-  fItems.Text := StringReplace(NewText,'|',eol,[rfReplaceAll]);
+  fItems.Text := StringReplace(NewText, '|', eol, [rfReplaceAll]);
   UpdateScrollBar;
 end;
 

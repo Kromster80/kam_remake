@@ -85,11 +85,11 @@ type
     pfNoData, //Packet contains no data
     pfBinary, //Packet contains binary data (Stream)
     pfNumber, //Packet contains an integer
-    pfString //Packet contains a string
+    pfString  //Packet contains a string
     );
 
 const
-  NetPacketType:array[TKMessageKind] of TKMPacketFormat =
+  NetPacketType: array [TKMessageKind] of TKMPacketFormat =
   ( pfString,   //mk_AskToJoin
     pfNoData,   //mk_AllowToJoin
     pfString,   //mk_RefuseToJoin

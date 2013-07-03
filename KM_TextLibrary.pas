@@ -26,14 +26,14 @@ type
     fFallbackLocale: AnsiString;
     GameStrings: TKMStringArray;
     MissionStrings: TKMStringArray; //Strings used in a mission
-    procedure LoadLIBXFile(FilePath: UnicodeString; aFirstIndex: Word; var aArray: TKMStringArray; aOverwrite: Boolean);
+    procedure LoadLIBXFile(FilePath: string; aFirstIndex: Word; var aArray: TKMStringArray; aOverwrite: Boolean);
     procedure ExportTextLibrary(aLibrary: TKMStringArray; aFileName: UnicodeString);
     function GetTexts(aIndex: Word): UnicodeString;
   public
     constructor Create(aLibPath: UnicodeString; aLocale: AnsiString);
 
-    function AppendCampaign(aFileName: UnicodeString): Word;
-    procedure LoadMissionStrings(aFileName: UnicodeString);
+    function AppendCampaign(aFileName: string): Word;
+    procedure LoadMissionStrings(aFileName: string);
 
     function GetMissionString(aIndex: Word): UnicodeString;
     function ParseTextMarkup(const aText: UnicodeString): UnicodeString;
@@ -53,7 +53,7 @@ uses KM_Log, KM_Locales;
 
 
 { TTextLibrary }
-constructor TKMTextLibrary.Create(aLibPath: UnicodeString; aLocale: AnsiString);
+constructor TKMTextLibrary.Create(aLibPath: string; aLocale: AnsiString);
 begin
   inherited Create;
 
@@ -75,7 +75,7 @@ end;
 
 
 {LIBX files consist of lines. Each line has an index and a text. Lines without index are skipped}
-procedure TKMTextLibrary.LoadLIBXFile(FilePath: UnicodeString; aFirstIndex: Word; var aArray: TKMStringArray; aOverwrite: Boolean);
+procedure TKMTextLibrary.LoadLIBXFile(FilePath: string; aFirstIndex: Word; var aArray: TKMStringArray; aOverwrite: Boolean);
   function TextToArray(const Value: UnicodeString): TKMStringArray;
   var
     P, Start: PWideChar;
@@ -163,7 +163,7 @@ end;
 
 //Campaign description and briefings get appended to main list
 //as they are used in Main Menu right away
-function TKMTextLibrary.AppendCampaign(aFileName: UnicodeString): Word;
+function TKMTextLibrary.AppendCampaign(aFileName: string): Word;
 begin
   Assert(Pos('%s', aFileName) <> 0, 'Input string must be formatted properly with an %s');
 
@@ -183,7 +183,7 @@ end;
 
 //Load mission strings into separate array, as they get reloaded for each mission
 //Only one set of mission strings is required at a time
-procedure TKMTextLibrary.LoadMissionStrings(aFileName: UnicodeString);
+procedure TKMTextLibrary.LoadMissionStrings(aFileName: string);
 begin
   //String get loaded ontop of each other, so that if something is missing base layer covered it
   //Default > Fallback > Locale
