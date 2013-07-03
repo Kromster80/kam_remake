@@ -56,7 +56,7 @@ type
     procedure Lobby_OnDisconnect(const aData:string);
     procedure Lobby_OnGameOptions(Sender: TObject);
     procedure Lobby_OnMapName(const aData:string);
-    procedure Lobby_OnMessage(const aData:string);
+    procedure Lobby_OnMessage(const aText: UnicodeString);
     procedure Lobby_OnPingInfo(Sender: TObject);
     procedure Lobby_OnPlayersSetup(Sender: TObject);
     procedure Lobby_OnReassignedToHost(Sender: TObject);
@@ -1381,9 +1381,9 @@ begin
 end;
 
 
-procedure TKMGUIMenuLobby.Lobby_OnMessage(const aData: string);
+procedure TKMGUIMenuLobby.Lobby_OnMessage(const aText: UnicodeString);
 begin
-  Memo_LobbyPosts.Add(aData);
+  Memo_LobbyPosts.Add(aText);
 end;
 
 

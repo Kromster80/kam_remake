@@ -85,13 +85,15 @@ implementation
 
 
 function Min(const A,B,C: integer): integer; overload;
-begin if A < B then if A < C then Result := A else Result := C
-               else if B < C then Result := B else Result := C;
+begin
+  if A < B then if A < C then Result := A else Result := C
+           else if B < C then Result := B else Result := C;
 end;
 
 function Min(const A,B,C: single): single; overload;
-begin if A < B then if A < C then Result := A else Result := C
-               else if B < C then Result := B else Result := C;
+begin
+  if A < B then if A < C then Result := A else Result := C
+           else if B < C then Result := B else Result := C;
 end;
 
 

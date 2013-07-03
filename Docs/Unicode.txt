@@ -3,5 +3,5 @@ Issues:
  - Some files have text in UTF8 stored as ANSI (probably due to translators using text editors with poor Unicode support), leading to text corruption
 
 Suggestions:
- - Convert all libx files into unicode (UTF8 ?)
+ - Convert all libx files into unicode (UTF8 with BOM?)
  - Keep code and internal error strings in ANSI-English

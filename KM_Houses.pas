@@ -985,9 +985,9 @@ end;
 procedure TKMHouse.ResAddToBuild(aWare: TWareType);
 begin
   case aWare of
-    wt_Wood: Inc(fBuildSupplyWood);
+    wt_Wood:  Inc(fBuildSupplyWood);
     wt_Stone: Inc(fBuildSupplyStone);
-  else raise ELocError.Create('WIP house is not supposed to recieve '+fResource.Wares[aWare].Title+', right?', fPosition);
+    else      raise ELocError.Create('WIP house is not supposed to recieve ' + fResource.Wares[aWare].Title + ', right?', fPosition);
   end;
 end;
 

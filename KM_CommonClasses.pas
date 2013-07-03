@@ -11,9 +11,7 @@ type
   public
     procedure Write(const Value: AnsiString); reintroduce; overload;
     procedure WriteHugeString(const Value: AnsiString);
-    {$IFDEF UNICODE}
-    //procedure Write(const Value: UnicodeString); reintroduce; overload;
-    {$ENDIF}
+    procedure Write(const Value: UnicodeString); reintroduce; overload;
     procedure Write(const Value:TKMPointDir ); reintroduce; overload;
     function Write(const Value:TKMDirection): Longint; reintroduce; overload;
     function Write(const Value:TKMPoint ): Longint; reintroduce; overload;
@@ -29,9 +27,7 @@ type
 
     procedure Read(out Value: AnsiString); reintroduce; overload;
     procedure ReadHugeString(out Value: AnsiString);
-    {$IFDEF UNICODE}
-    //procedure Read(out Value: UnicodeString); reintroduce; overload;
-    {$ENDIF}
+    procedure Read(out Value: UnicodeString); reintroduce; overload;
     procedure Read(out Value:TKMPointDir); reintroduce; overload;
     function Read(out Value:TKMDirection): Longint; reintroduce; overload;
     function Read(out Value:TKMPoint    ): Longint; reintroduce; overload;
@@ -61,8 +57,8 @@ type
     Map: AnsiString;
     GameTime: TDateTime;
     function GetFormattedTime: string;
-    procedure LoadFromText(aText: string);
-    function GetAsText: string;
+    procedure LoadFromStream(aStream: TKMemoryStream);
+    procedure SaveToStream(aStream: TKMemoryStream);
     function GetAsHTML: string;
   end;
 
@@ -146,7 +142,7 @@ type
   //Custom Exception that includes a TKMPoint
   ELocError = class(Exception)
     Loc: TKMPoint;
-    constructor Create(const Msg: string; aLoc: TKMPoint);
+    constructor Create(const aMsg: string; aLoc: TKMPoint);
   end;
 
 
@@ -155,30 +151,23 @@ uses KM_Utils;
 
 
 { ELocError }
-constructor ELocError.Create(const Msg: string; aLoc: TKMPoint);
+constructor ELocError.Create(const aMsg: string; aLoc: TKMPoint);
 begin
-  inherited Create(Msg);
+  inherited Create(aMsg);
   Loc := aLoc;
 end;
 
 
 { TMPGameInfo }
-procedure TMPGameInfo.LoadFromText(aText: string);
-var M: TKMemoryStream;
+procedure TMPGameInfo.LoadFromStream(aStream: TKMemoryStream);
 begin
-  M := TKMemoryStream.Create;
-  try
-    M.SetAsText(aText);
-  M.Read(GameState, SizeOf(GameState));
-  M.Read(PasswordLocked);
-  M.Read(PlayerCount);
-  M.Read(Players);
-  M.Read(Description);
-  M.Read(Map);
-  M.Read(GameTime, SizeOf(GameTime));
-  finally
-    M.Free;
-  end;
+  aStream.Read(GameState, SizeOf(GameState));
+  aStream.Read(PasswordLocked);
+  aStream.Read(PlayerCount);
+  aStream.Read(Players);
+  aStream.Read(Description);
+  aStream.Read(Map);
+  aStream.Read(GameTime, SizeOf(GameTime));
 end;
 
 
@@ -192,21 +181,15 @@ begin
 end;
 
 
-function TMPGameInfo.GetAsText: string;
-var M: TKMemoryStream;
+procedure TMPGameInfo.SaveToStream(aStream: TKMemoryStream);
 begin
-  M := TKMemoryStream.Create;
-
-  M.Write(GameState, SizeOf(GameState));
-  M.Write(PasswordLocked);
-  M.Write(PlayerCount);
-  M.Write(Players);
-  M.Write(Description);
-  M.Write(Map);
-  M.Write(GameTime, SizeOf(GameTime));
-
-  Result := M.GetAsText;
-  M.Free;
+  aStream.Write(GameState, SizeOf(GameState));
+  aStream.Write(PasswordLocked);
+  aStream.Write(PlayerCount);
+  aStream.Write(Players);
+  aStream.Write(Description);
+  aStream.Write(Map);
+  aStream.Write(GameTime, SizeOf(GameTime));
 end;
 
 
@@ -248,24 +231,24 @@ begin
   inherited Write(Pointer(Value)^, I);
 end;
 
-{$IFDEF UNICODE}
-{procedure TKMemoryStream.Write(const Value: UnicodeString);
+
+procedure TKMemoryStream.Write(const Value: UnicodeString);
 var I: Word;
 begin
   I := Length(Value);
   inherited Write(I, SizeOf(I));
   if I = 0 then Exit;
-  inherited Write(Pointer(Value)^, I * SizeOf(Char));
-end;}
-{$ENDIF}
+  inherited Write(Pointer(Value)^, I * SizeOf(WideChar));
+end;
 
-procedure TKMemoryStream.Write(const Value:TKMPointDir);
+
+procedure TKMemoryStream.Write(const Value: TKMPointDir);
 begin
   Write(Value.Loc);
   inherited Write(Value.Dir, SizeOf(Value.Dir));
 end;
 
-function TKMemoryStream.Write(const Value:TKMDirection): Longint;
+function TKMemoryStream.Write(const Value: TKMDirection): Longint;
 begin Result := inherited Write(Value, SizeOf(Value)); end;
 function TKMemoryStream.Write(const Value:TKMPoint): Longint;
 begin Result := inherited Write(Value, SizeOf(Value)); end;
@@ -314,16 +297,14 @@ begin
     Read(Pointer(Value)^, I);
 end;
 
-{$IFDEF UNICODE}
-{procedure TKMemoryStream.Read(out Value: UnicodeString);
+procedure TKMemoryStream.Read(out Value: UnicodeString);
 var I: Word;
 begin
   Read(I, SizeOf(I));
   SetLength(Value, I);
   if I > 0 then
-    Read(Pointer(Value)^, I * SizeOf(Char));
-end;}
-{$ENDIF}
+    Read(Pointer(Value)^, I * SizeOf(WideChar));
+end;
 
 
 procedure TKMemoryStream.Read(out Value: TKMPointDir);

@@ -71,7 +71,7 @@ type
     function GetNetworkDelay:word;
     property GetNumberConsecutiveWaits:word read fNumberConsecutiveWaits;
     procedure GetWaitingPlayers(aTick:cardinal; aPlayersList:TStringList);
-    procedure RecieveCommands(const aData:string); //Called by TKMNetwork when it has data for us
+    procedure RecieveCommands(aStream: TKMemoryStream); //Called by TKMNetwork when it has data for us
     procedure ResyncFromTick(aSender:Integer; aTick:cardinal);
     function CommandsConfirmed(aTick:cardinal):boolean; override;
     procedure RunningTimer(aTick:cardinal); override;
@@ -125,14 +125,14 @@ begin
 end;
 
 
-procedure TCommandsPack.Load(aStream:TKMemoryStream);
-var i:integer;
+procedure TCommandsPack.Load(aStream: TKMemoryStream);
+var I: Integer;
 begin
   aStream.Read(fCount);
-  SetLength(fItems, fCount+1);
+  SetLength(fItems, fCount + 1);
 
-  for i:=1 to fCount do
-    LoadCommandFromMemoryStream(fItems[i], aStream);
+  for I := 1 to fCount do
+    LoadCommandFromMemoryStream(fItems[I], aStream);
 end;
 
 
@@ -279,43 +279,36 @@ end;
 
 
 //Decode recieved messages (Commands from other players, Confirmations, Errors)
-procedure TGameInputProcess_Multi.RecieveCommands(const aData: string);
+procedure TGameInputProcess_Multi.RecieveCommands(aStream: TKMemoryStream);
 var
-  M: TKMemoryStream;
-  D: TKMDataType;
-  Tick: cardinal;
+  dataType: TKMDataType;
+  Tick: Cardinal;
   PlayerIndex: TPlayerIndex;
-  CRC: cardinal;
+  CRC: Cardinal;
 begin
-  M := TKMemoryStream.Create;
-  try
-    M.SetAsText(aData);
-    M.Read(D, 1); //Decode header
-    M.Read(Tick); //Target tick
-    M.Read(PlayerIndex, SizeOf(PlayerIndex)); //Message sender
+  aStream.Read(dataType, 1); //Decode header
+  aStream.Read(Tick); //Target tick
+  aStream.Read(PlayerIndex, SizeOf(PlayerIndex)); //Message sender
 
-    case D of
-      kdp_Commands:
+  case dataType of
+    kdp_Commands:
+        begin
+          //Recieving commands too late will happen during reconnections, so just ignore it
+          if Tick > fGame.GameTickCount then
           begin
-            //Recieving commands too late will happen during reconnections, so just ignore it
-            if Tick > fGame.GameTickCount then
-            begin
-              fSchedule[Tick mod MAX_SCHEDULE, PlayerIndex].Load(M);
-              fRecievedData[Tick mod MAX_SCHEDULE, PlayerIndex] := true;
-            end;
+            fSchedule[Tick mod MAX_SCHEDULE, PlayerIndex].Load(aStream);
+            fRecievedData[Tick mod MAX_SCHEDULE, PlayerIndex] := true;
           end;
-      kdp_RandomCheck: //Other player is confirming that random seeds matched at a tick in the past
-          begin
-            M.Read(CRC); //Read the random check from the message
-            fRandomCheck[Tick mod MAX_SCHEDULE].PlayerCheck[PlayerIndex] := CRC; //Store it for this player
-            fRandomCheck[Tick mod MAX_SCHEDULE].PlayerCheckPending[PlayerIndex] := true;
-            //If we have processed this tick already, check now
-            if Tick <= fGame.GameTickCount then
-              DoRandomCheck(Tick, PlayerIndex);
-          end;
-    end;
-  finally
-    M.Free;
+        end;
+    kdp_RandomCheck: //Other player is confirming that random seeds matched at a tick in the past
+        begin
+          aStream.Read(CRC); //Read the random check from the message
+          fRandomCheck[Tick mod MAX_SCHEDULE].PlayerCheck[PlayerIndex] := CRC; //Store it for this player
+          fRandomCheck[Tick mod MAX_SCHEDULE].PlayerCheckPending[PlayerIndex] := true;
+          //If we have processed this tick already, check now
+          if Tick <= fGame.GameTickCount then
+            DoRandomCheck(Tick, PlayerIndex);
+        end;
   end;
 end;
 

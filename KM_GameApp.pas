@@ -33,11 +33,11 @@ type
     procedure LoadGameFromScratch(aSizeX, aSizeY: Integer; aGameMode: TGameMode);
     function SaveName(const aName, aExt: string; aMultiPlayer: Boolean): string;
   public
-    constructor Create(aRenderControl: TKMRenderControl; aScreenX, aScreenY: Word; aVSync: Boolean; aLS: TEvent; aLT: TStringEvent; aOnCursorUpdate: TIntegerStringEvent; NoMusic: Boolean = False);
+    constructor Create(aRenderControl: TKMRenderControl; aScreenX, aScreenY: Word; aVSync: Boolean; aLS: TEvent; aLT: TUnicodeStringEvent; aOnCursorUpdate: TIntegerStringEvent; NoMusic: Boolean = False);
     destructor Destroy; override;
     procedure AfterConstruction(aReturnToOptions: Boolean); reintroduce;
 
-    procedure Stop(Msg: TGameResultMsg; TextMsg: string = '');
+    procedure Stop(aMsg: TGameResultMsg; aTextMsg: string = '');
     function CanClose: Boolean;
     procedure Resize(X,Y: Integer);
     procedure ToggleLocale(aLocale: ShortString);
@@ -94,7 +94,7 @@ uses
 
 
 { Creating everything needed for MainMenu, game stuff is created on StartGame }
-constructor TKMGameApp.Create(aRenderControl: TKMRenderControl; aScreenX, aScreenY: Word; aVSync: Boolean; aLS: TEvent; aLT: TStringEvent; aOnCursorUpdate: TIntegerStringEvent; NoMusic: Boolean = False);
+constructor TKMGameApp.Create(aRenderControl: TKMRenderControl; aScreenX, aScreenY: Word; aVSync: Boolean; aLS: TEvent; aLT: TUnicodeStringEvent; aOnCursorUpdate: TIntegerStringEvent; NoMusic: Boolean = False);
 begin
   inherited Create;
 
@@ -362,7 +362,7 @@ end;
 //4. Fill in menu message if needed
 //5. Free the game object
 //6. Switch to MainMenu
-procedure TKMGameApp.Stop(Msg: TGameResultMsg; TextMsg: string='');
+procedure TKMGameApp.Stop(aMsg: TGameResultMsg; aTextMsg: string='');
 begin
   if fGame = nil then Exit;
 
@@ -373,7 +373,7 @@ begin
     fNetworking.Disconnect;
   end;
 
-  case Msg of
+  case aMsg of
     gr_Win, gr_Defeat, gr_Cancel, gr_ReplayEnd:
                     begin
                       //If the game was a part of a campaign, select that campaign,
@@ -381,21 +381,21 @@ begin
                       fCampaigns.SetActive(fCampaigns.CampaignByTitle(fGame.CampaignName), fGame.CampaignMap);
 
                       if (fGame.GameMode in [gmMulti, gmReplayMulti]) or MP_RESULTS_IN_SP then
-                        fMainMenuInterface.ShowResultsMP(Msg)
+                        fMainMenuInterface.ShowResultsMP(aMsg)
                       else
-                        fMainMenuInterface.ShowResultsSP(Msg);
+                        fMainMenuInterface.ShowResultsSP(aMsg);
 
-                      if (Msg = gr_Win) and (fCampaigns.ActiveCampaign <> nil) then
+                      if (aMsg = gr_Win) and (fCampaigns.ActiveCampaign <> nil) then
                         fCampaigns.UnlockNextMap;
                     end;
     gr_Error, gr_Disconnect:
-                    fMainMenuInterface.ShowScreen(msError, TextMsg);
+                    fMainMenuInterface.ShowScreen(msError, aTextMsg);
     gr_Silent:      ;//Used when loading new savegame from gameplay UI
     gr_MapEdEnd:    fMainMenuInterface.ShowScreen(msMain);
   end;
 
   FreeThenNil(fGame);
-  gLog.AddTime('Gameplay ended - ' + GetEnumName(TypeInfo(TGameResultMsg), Integer(Msg)) + ' /' + TextMsg);
+  gLog.AddTime('Gameplay ended - ' + GetEnumName(TypeInfo(TGameResultMsg), Integer(aMsg)) + ' /' + aTextMsg);
 end;
 
 

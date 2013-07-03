@@ -940,16 +940,16 @@ type
     fItems: TStringList;
     fAutoWrap: Boolean;
     fIndentAfterNL: Boolean;
-    fText: string;
+    fText: UnicodeString;
     fScrollDown: Boolean;
     fScrollBar: TKMScrollBar;
     fOnChange: TNotifyEvent;
 
-    procedure SetAutoWrap(const Value: boolean);
-    function GetText: string;
-    procedure SetText(const aText: string);
+    procedure SetAutoWrap(const Value: Boolean);
+    function GetText: UnicodeString;
+    procedure SetText(const aText: UnicodeString);
     function GetTopIndex: smallint;
-    procedure SetTopIndex(aIndex: smallint);
+    procedure SetTopIndex(aIndex: SmallInt);
     procedure ReformatText;
     procedure UpdateScrollBar;
   protected
@@ -962,12 +962,12 @@ type
     constructor Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight: Integer; aFont: TKMFont; aStyle: TButtonStyle);
     destructor Destroy; override;
 
-    procedure Add(const aItem: string);
+    procedure Add(const aItem: UnicodeString);
     procedure Clear;
     procedure ScrollToBottom;
     property AutoWrap: Boolean read fAutoWrap write SetAutoWrap; //Whether to automatically wrap text within given text area width
     property IndentAfterNL: Boolean read fIndentAfterNL write fIndentAfterNL;
-    property Text: string read GetText write SetText;
+    property Text: UnicodeString read GetText write SetText;
     property ItemHeight: Byte read fItemHeight write fItemHeight;
     property TopIndex: Smallint read GetTopIndex write SetTopIndex;
     property ScrollDown: Boolean read fScrollDown write fScrollDown;
@@ -3151,13 +3151,13 @@ begin
 end;
 
 
-function TKMMemo.GetText: string;
+function TKMMemo.GetText: UnicodeString;
 begin
   Result := fText;
 end;
 
 
-procedure TKMMemo.SetText(const aText: string);
+procedure TKMMemo.SetText(const aText: UnicodeString);
 begin
   fText := aText;
   ReformatText;
@@ -3165,7 +3165,7 @@ end;
 
 
 procedure TKMMemo.ReformatText;
-var NewText: string;
+var NewText: UnicodeString;
 begin
   if fAutoWrap then
     NewText := fResource.Fonts.WordWrap(fText, fFont, fWidth - fScrollBar.Width - 8, True, IndentAfterNL)
@@ -3196,7 +3196,7 @@ begin
 end;
 
 
-procedure TKMMemo.Add(const aItem: string);
+procedure TKMMemo.Add(const aItem: UnicodeString);
 begin
   if fText <> '' then
     fText := fText + '|';

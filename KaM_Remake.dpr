@@ -14,7 +14,7 @@ uses
   {$IFDEF FPC} Interfaces, {$ENDIF}
   KM_FormMain in 'KM_FormMain.pas' {FormMain},
   KM_FormLoading in 'KM_FormLoading.pas' {FormLoading},
-  KM_Achievements in 'KM_Achievements.pas',
+  //KM_Achievements in 'KM_Achievements.pas',
   KM_AI in 'KM_AI.pas',
   KM_AIAttacks in 'KM_AIAttacks.pas',
   KM_AIDefensePos in 'KM_AIDefensePos.pas',

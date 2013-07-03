@@ -39,9 +39,9 @@ type
     procedure StepCaption(const aCaption: string);
   public
     OnLoadingStep: TEvent;
-    OnLoadingText: TStringEvent;
+    OnLoadingText: TUnicodeStringEvent;
 
-    constructor Create(aRender: TRender; aLS: TEvent; aLT: TStringEvent);
+    constructor Create(aRender: TRender; aLS: TEvent; aLT: TUnicodeStringEvent);
     destructor Destroy; override;
 
     function GetDATCRC: Cardinal;
@@ -75,7 +75,7 @@ uses KromUtils, KM_Log, KM_Points;
 
 
 { TResource }
-constructor TResource.Create(aRender: TRender; aLS: TEvent; aLT: TStringEvent);
+constructor TResource.Create(aRender: TRender; aLS: TEvent; aLT: TUnicodeStringEvent);
 begin
   inherited Create;
   fDataState := dls_None;

@@ -22,7 +22,7 @@ type
     fType: TWareType;
     fMarketPrice: Single;
     function GetGUIIcon: Word;
-    function GetTitle: AnsiString;
+    function GetTitle: UnicodeString;
     function GetGUIColor: Cardinal;
   public
     constructor Create(aType: TWareType);
@@ -30,7 +30,7 @@ type
     property GUIColor: Cardinal read GetGUIColor;
     property GUIIcon: Word read GetGUIIcon;
     property MarketPrice: Single read fMarketPrice;
-    property Title: AnsiString read GetTitle;
+    property Title: UnicodeString read GetTitle;
   end;
 
   TKMWaresList = class
@@ -244,7 +244,7 @@ begin
 end;
 
 
-function TKMWare.GetTitle: AnsiString;
+function TKMWare.GetTitle: UnicodeString;
 begin
   case fType of
     WARE_MIN..WARE_MAX: Result := fTextLibrary[TX_RESOURCES_NAMES__27 + WareTypeToIndex[fType]];

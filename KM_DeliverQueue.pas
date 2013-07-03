@@ -948,8 +948,11 @@ begin
 end;
 
 
-procedure TKMDeliverQueue.ExportToFile(aFileName:string);
-var i:integer; f:textfile; s:string;
+procedure TKMDeliverQueue.ExportToFile(aFileName: string);
+var
+  I: Integer;
+  f: textfile;
+  s: string;
 begin
   assignfile(f,aFileName); Rewrite(f);
 

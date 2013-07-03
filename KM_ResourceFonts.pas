@@ -77,7 +77,7 @@ type
 
     property FontData[aIndex: TKMFont]: TKMFontData read GetFontData;
 
-    function WordWrap(aText: AnsiString; aFont: TKMFont; aMaxPxWidth: Integer; aForced: Boolean; aIndentAfterNL: Boolean): AnsiString;
+    function WordWrap(aText: UnicodeString; aFont: TKMFont; aMaxPxWidth: Integer; aForced: Boolean; aIndentAfterNL: Boolean): UnicodeString;
     function CharsThatFit(const aText: AnsiString; aFont: TKMFont; aMaxPxWidth: integer): integer;
     function GetTextSize(const aText: string; Fnt: TKMFont): TKMPoint;
 
@@ -381,7 +381,7 @@ begin
 end;
 
 
-function TKMResourceFont.WordWrap(aText: AnsiString; aFont: TKMFont; aMaxPxWidth: Integer; aForced: Boolean; aIndentAfterNL: Boolean): AnsiString;
+function TKMResourceFont.WordWrap(aText: UnicodeString; aFont: TKMFont; aMaxPxWidth: Integer; aForced: Boolean; aIndentAfterNL: Boolean): UnicodeString;
 const
   INDENT = '   ';
 var
@@ -397,8 +397,8 @@ begin
   LastSpace := -1;
   CharSpacing := fFontData[aFont].CharSpacing; //Spacing between letters, this varies between fonts
 
-  I:=1;
-  while I <= length(aText) do
+  I := 1;
+  while I <= Length(aText) do
   begin
     //Ignore color markups [$FFFFFF][]
     if (aText[I]='[') and (I+1 <= Length(aText)) and (aText[I+1]=']') then
@@ -407,10 +407,10 @@ begin
       if (aText[I]='[') and (I+8 <= Length(aText))
       and (aText[I+1] = '$') and (aText[I+8]=']')
       and TryStrToInt(Copy(aText, I+1, 7), TmpColor) then
-        inc(I,8) //Skip past this markup
+        Inc(I,8) //Skip past this markup
       else
-        if aText[I]=#32 then inc(AdvX, fFontData[aFont].WordSpacing)
-                        else inc(AdvX, fFontData[aFont].Letters[byte(aText[I])].Width + CharSpacing);
+        if aText[I]=#32 then Inc(AdvX, fFontData[aFont].WordSpacing)
+                        else Inc(AdvX, fFontData[aFont].Letters[Ord(aText[I])].Width + CharSpacing);
 
     if (aText[I]=#32) or (aText[I]=#124) then
     begin
@@ -434,7 +434,7 @@ begin
     //Force an EOL part way through a word
     if aForced and (AdvX > aMaxPxWidth) and (LastSpace = -1) then
     begin
-      Insert(#124,aText,I); //Insert an EOL before this character
+      Insert(#124, aText, I); //Insert an EOL before this character
       AdvX := 0;
       LastSpace := -1;
       if aIndentAfterNL then
@@ -444,7 +444,7 @@ begin
         Inc(AdvX, Length(INDENT)*fFontData[aFont].WordSpacing);
       end;
     end;
-    inc(I);
+    Inc(I);
   end;
   Result := aText;
 end;

@@ -611,7 +611,8 @@ begin
   //if mapmaker wants to use MapEd for KaM he needs to update/change other things too
   //however without this line old KMR versions just refuse to load, so we keep it
   AddData('!' + COMMANDVALUES[ct_SetMap] + ' "data\mission\smaps\' +
-    ChangeFileExt(ExtractFileName(aFileName), '.map') + '"');
+    AnsiString(ChangeFileExt(ExtractFileName(aFileName), '.map')) + '"');
+
   if fGame.MissionMode = mm_Tactic then AddCommand(ct_SetTactic, []);
   AddCommand(ct_SetMaxPlayer, [fPlayers.Count]);
   AddCommand(ct_HumanPlayer, [fGame.MapEditor.DefaultHuman]);

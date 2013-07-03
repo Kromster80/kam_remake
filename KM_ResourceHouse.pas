@@ -98,7 +98,7 @@ type
     property BuildArea:THouseArea read GetArea;
     property DoesOrders:boolean read GetDoesOrders;
     property GUIIcon:word read GetGUIIcon;
-    property HouseName:string read GetHouseName;
+    property HouseName: UnicodeString read GetHouseName;
     property ReleasedBy:THouseType read GetReleasedBy;
     property ResInput:THouseRes read GetResInput;
     property ResOutput:THouseRes read GetResOutput;
@@ -555,14 +555,14 @@ begin
 end;
 
 
-function TKMHouseDatClass.GetHouseName: string;
+function TKMHouseDatClass.GetHouseName: UnicodeString;
 begin
   Result := fTextLibrary[fNameTextID];
 end;
 
 
 //MaxHealth is always a cost of construction * 50
-function TKMHouseDatClass.MaxHealth: word;
+function TKMHouseDatClass.MaxHealth: Word;
 begin
   Result := (fHouseDat.WoodCost + fHouseDat.StoneCost) * 50;
 end;

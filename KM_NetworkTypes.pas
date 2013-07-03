@@ -83,28 +83,29 @@ type
 
   TKMPacketFormat = (
     pfNoData, //Packet contains no data
+    pfBinary, //Packet contains binary data (Stream)
     pfNumber, //Packet contains an integer
-    pfBinary   //Packet contains binary data (text or serialized data)
+    pfString //Packet contains a string
     );
 
 const
   NetPacketType:array[TKMessageKind] of TKMPacketFormat =
-  ( pfBinary,   //mk_AskToJoin
+  ( pfString,   //mk_AskToJoin
     pfNoData,   //mk_AllowToJoin
-    pfBinary,   //mk_RefuseToJoin
+    pfString,   //mk_RefuseToJoin
     pfNoData,   //mk_HostingRights
     pfNumber,   //mk_IndexOnServer
     pfNumber,   //mk_ClientLost
     pfNumber,   //mk_ReassignHost
-    pfBinary,   //mk_GameVersion
-    pfBinary,   //mk_WelcomeMessage
-    pfBinary,   //mk_ServerName
+    pfString,   //mk_GameVersion
+    pfString,   //mk_WelcomeMessage
+    pfString,   //mk_ServerName
     pfNumber,   //mk_JoinRoom
     pfNumber,   //mk_ConnectedToRoom
     pfBinary,   //mk_SetGameInfo
     pfNumber,   //mk_KickPlayer
-    pfBinary,   //mk_Kicked
-    pfBinary,   //mk_LangCode
+    pfString,   //mk_Kicked
+    pfString,   //mk_LangCode
     pfNumber,   //mk_GameCRC
     pfNoData,   //mk_GetServerInfo
     pfBinary,   //mk_ServerInfo
@@ -119,21 +120,21 @@ const
     pfNumber,   //mk_SetTeam
     pfNumber,   //mk_FlagColorQuery
     pfNoData,   //mk_ResetMap
-    pfBinary,   //mk_MapSelect
+    pfString,   //mk_MapSelect
     pfNumber,   //mk_MapCRC
-    pfBinary,   //mk_SaveSelect
+    pfString,   //mk_SaveSelect
     pfNumber,   //mk_SaveCRC
     pfNoData,   //mk_ReadyToStart
     pfBinary,   //mk_Start
     pfNoData,   //mk_ReadyToPlay
     pfNoData,   //mk_Play
-    pfBinary,   //mk_AskToReconnect
-    pfBinary,   //mk_RefuseReconnect
+    pfString,   //mk_AskToReconnect
+    pfString,   //mk_RefuseReconnect
     pfNumber,   //mk_ResyncFromTick
     pfNoData,   //mk_ReconnectionAccepted
     pfNumber,   //mk_ClientReconnected
     pfBinary,   //mk_Commands
-    pfBinary,   //mk_Text
+    pfString,   //mk_Text
     pfNoData,   //mk_ReqPassword
     pfBinary    //mk_Password
   );

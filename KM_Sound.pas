@@ -156,11 +156,11 @@ type
     procedure CheckOpenALError;
     procedure LoadSoundsDAT;
     procedure ScanWarriorSounds;
-    function LoadWarriorSoundsFromFile(const aFile: String): Boolean;
-    procedure SaveWarriorSoundsToFile(const aFile: String);
+    function LoadWarriorSoundsFromFile(const aFile: string): Boolean;
+    procedure SaveWarriorSoundsToFile(const aFile: string);
     function WarriorSoundFile(aUnitType:TUnitType; aSound:TWarriorSpeech; aNumber:byte):string;
     function NotificationSoundFile(aSound:TAttackNotification; aNumber:byte):string;
-    procedure PlayWave(const aFile:string; Loc:TKMPointF; Attenuated:boolean=true; Volume:single=1; FadeMusic:boolean=false); overload;
+    procedure PlayWave(const aFile: string; Loc:TKMPointF; Attenuated:boolean=true; Volume:single=1; FadeMusic:boolean=false); overload;
     procedure PlaySound(SoundID:TSoundFX; const aFile:string; Loc:TKMPointF; Attenuated:boolean=true; Volume:single=1; FadeMusic:boolean=false);
   public
     constructor Create(aLocale:string; aVolume:single; aShowWarningDlg: Boolean);
@@ -176,7 +176,7 @@ type
     procedure UpdateSoundVolume(Value:single);
 
     procedure PlayNotification(aSound:TAttackNotification);
-    procedure PlayWAVFromScript(aFileName: AnsiString; Loc:TKMPoint; Attenuated:Boolean; Volume:Single);
+    procedure PlayWAVFromScript(aFileName: string; Loc:TKMPoint; Attenuated:Boolean; Volume:Single);
 
     procedure PlayCitizen(aUnitType:TUnitType; aSound:TWarriorSpeech); overload;
     procedure PlayCitizen(aUnitType:TUnitType; aSound:TWarriorSpeech; aLoc:TKMPointF); overload;
@@ -523,7 +523,7 @@ end;
 
 
 {Wrapper WAV files}
-procedure TSoundLib.PlayWave(const aFile:string; Loc:TKMPointF; Attenuated:boolean=true; Volume:single=1; FadeMusic:boolean=false);
+procedure TSoundLib.PlayWave(const aFile: string; Loc:TKMPointF; Attenuated:boolean=true; Volume:single=1; FadeMusic:boolean=false);
 begin
   if not fIsSoundInitialized then Exit;
   PlaySound(sfx_None, aFile, Loc, Attenuated, Volume, FadeMusic); //Redirect
@@ -721,7 +721,7 @@ begin
 end;
 
 
-procedure TSoundLib.PlayWAVFromScript(aFileName: AnsiString; Loc:TKMPoint; Attenuated:Boolean; Volume:Single);
+procedure TSoundLib.PlayWAVFromScript(aFileName: string; Loc:TKMPoint; Attenuated:Boolean; Volume:Single);
 begin
   PlayWave(aFileName, KMPointF(Loc), Attenuated, Volume);
 end;
@@ -851,7 +851,7 @@ begin
 end;
 
 
-function TSoundLib.LoadWarriorSoundsFromFile(const aFile: String): Boolean;
+function TSoundLib.LoadWarriorSoundsFromFile(const aFile: string): Boolean;
 var
   S: AnsiString;
   MS: TKMemoryStream;
@@ -876,7 +876,7 @@ begin
 end;
 
 
-procedure TSoundLib.SaveWarriorSoundsToFile(const aFile: String);
+procedure TSoundLib.SaveWarriorSoundsToFile(const aFile: string);
 var
   MS: TKMemoryStream;
 begin

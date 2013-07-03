@@ -103,8 +103,8 @@ type
     function ValidateSetup(aHumanUsableLocs, aAIUsableLocs: TPlayerIndexArray; out ErrorMsg: string): Boolean;
 
     //Import/Export
-    function GetAsText: string; //Gets all relevant information as text string
-    procedure SetAsText(const aText:string); //Sets all relevant information from text string
+    procedure SaveToStream(aStream: TKMemoryStream); //Gets all relevant information as text string
+    procedure LoadFromStream(aStream: TKMemoryStream); //Sets all relevant information
     function GetSimpleAsText: string; //Gets just names as a text string seperated by |
     function GetPlayersWithIDs: string;
   end;
@@ -544,7 +544,7 @@ end;
 
 
 //See if player can join our game
-function TKMNetPlayersList.CheckCanReconnect(aLocalIndex:integer):string;
+function TKMNetPlayersList.CheckCanReconnect(aLocalIndex: Integer): string;
 begin
   if aLocalIndex = -1 then
     Result := 'Unknown nickname'
@@ -841,46 +841,37 @@ end;
 //Save whole amount of data as string to be sent across network to other players
 //I estimate it ~50bytes per player at max
 //later it will be byte array?
-function TKMNetPlayersList.GetAsText:string;
-var I: Integer; M:TKMemoryStream;
+procedure TKMNetPlayersList.SaveToStream(aStream: TKMemoryStream);
+var
+  I: Integer;
 begin
-  M := TKMemoryStream.Create;
-
-  M.Write(HostDoesSetup);
-  M.Write(RandomizeTeamLocations);
-  M.Write(fCount);
-  for i:=1 to fCount do
-    fNetPlayers[i].Save(M);
-
-  Result := M.GetAsText;
-  M.Free;
+  aStream.Write(HostDoesSetup);
+  aStream.Write(RandomizeTeamLocations);
+  aStream.Write(fCount);
+  for I := 1 to fCount do
+    fNetPlayers[I].Save(aStream);
 end;
 
 
-procedure TKMNetPlayersList.SetAsText(const aText:string);
-var I: Integer; M: TKMemoryStream;
+procedure TKMNetPlayersList.LoadFromStream(aStream: TKMemoryStream);
+var
+  I: Integer;
 begin
-  M := TKMemoryStream.Create;
-  try
-    M.SetAsText(aText);
-    M.Read(HostDoesSetup);
-    M.Read(RandomizeTeamLocations);
-    M.Read(fCount);
-    for i:=1 to fCount do
-      fNetPlayers[i].Load(M);
-  finally
-    M.Free;
-  end;
+  aStream.Read(HostDoesSetup);
+  aStream.Read(RandomizeTeamLocations);
+  aStream.Read(fCount);
+  for I := 1 to fCount do
+    fNetPlayers[I].Load(aStream);
 end;
 
 
-function TKMNetPlayersList.GetSimpleAsText:string;
+function TKMNetPlayersList.GetSimpleAsText: string;
 var I: Integer;
 begin
-  for i:=1 to fCount do
+  for I := 1 to fCount do
   begin
-    Result := Result + StringReplace(fNetPlayers[i].Nikname,'|','',[rfReplaceAll]);
-    if i < fCount then Result := Result + '|';
+    Result := Result + StringReplace(fNetPlayers[I].Nikname, '|', '', [rfReplaceAll]);
+    if I < fCount then Result := Result + '|';
   end;
 end;
 
@@ -888,7 +879,7 @@ end;
 function TKMNetPlayersList.GetPlayersWithIDs:string;
 var I: Integer;
 begin
-  for i:=1 to fCount do
+  for I := 1 to fCount do
   begin
     Result := Result + '   ' +IntToStr(i) + ': ' + fNetPlayers[i].Nikname;
     if i < fCount then Result := Result + '|';

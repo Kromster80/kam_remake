@@ -53,7 +53,7 @@ type
     fMinorErrors: string; //Minor error descriptions accumulate here
     function TextToCommandType(const ACommandText: AnsiString): TKMCommandType;
     function ReadMissionFile(const aFileName: string): AnsiString;
-    function TokenizeScript(const aText: string; aMaxCmd: Byte; aCommands: array of AnsiString): Boolean;
+    function TokenizeScript(const aText: AnsiString; aMaxCmd: Byte; aCommands: array of AnsiString): Boolean;
     function ProcessCommand(CommandType: TKMCommandType; P: array of Integer; TextParam: AnsiString = ''): Boolean; virtual; abstract;
     procedure AddError(const ErrorMsg: string; aFatal: Boolean = False);
   public
@@ -170,11 +170,11 @@ begin
 end;
 
 
-function TMissionParserCommon.TokenizeScript(const aText: string; aMaxCmd: Byte; aCommands: array of AnsiString): Boolean;
+function TMissionParserCommon.TokenizeScript(const aText: AnsiString; aMaxCmd: Byte; aCommands: array of AnsiString): Boolean;
 var
   CommandText, Param, TextParam: AnsiString;
   ParamList: array of Integer;
-  I, K, IntParam: integer;
+  I, K, IntParam: Integer;
   CommandType: TKMCommandType;
   J: Integer;
   DoProcess: Boolean;

@@ -1079,7 +1079,7 @@ var
   SaveStream: TKMemoryStream;
   fGameInfo: TKMGameInfo;
   i, NetIndex: integer;
-  s: string;
+  libxPath: AnsiString;
 begin
   gLog.AddTime('Saving game: ' + aPathName);
 
@@ -1163,8 +1163,8 @@ begin
     fScripting.Save(SaveStream);
 
     //Relative path to strings will be the same for all MP players
-    s := ExtractRelativePath(ExeDir, ChangeFileExt(fMissionFile, '.%s.libx'));
-    SaveStream.Write(s);
+    libxPath := ExtractRelativePath(ExeDir, ChangeFileExt(fMissionFile, '.%s.libx'));
+    SaveStream.Write(libxPath);
 
     //Parameters that are not identical for all players should not be saved as we need saves to be
     //created identically on all player's computers. Eventually these things can go through the GIP
@@ -1298,7 +1298,8 @@ begin
 
   //Load LIBX strings used in a mission by their relative path to ExeDir
   //Relative path should be the same across all MP players,
-  //locale info shuold not be a problem as it is represented by %s
+  //locale info should not be a problem as it is represented by %s
+  //TODO: Remove since we should store them within savefile (savegame should be self-sufficient!)
   LoadStream.Read(LibxPath);
   fTextLibrary.LoadMissionStrings(ExeDir + LibxPath);
 

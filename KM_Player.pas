@@ -49,7 +49,7 @@ type
     fStats: TKMPlayerStats;
     fUnitGroups: TKMUnitGroups;
 
-    fPlayerName: string;
+    fPlayerName: UnicodeString;
     fPlayerType: TPlayerType;
     fFlagColor: Cardinal;
     fCenterScreen: TKMPoint;
@@ -84,8 +84,8 @@ type
     property UnitGroups: TKMUnitGroups read fUnitGroups;
 
     procedure SetPlayerID(aNewIndex: TPlayerIndex);
-    property PlayerName: string read fPlayerName write fPlayerName;
-    function GetFormattedPlayerName: string;
+    property PlayerName: UnicodeString read fPlayerName write fPlayerName;
+    function GetFormattedPlayerName: UnicodeString;
     function HasAssets: Boolean;
     property PlayerType: TPlayerType read fPlayerType write fPlayerType; //Is it Human or AI
     property FlagColor: Cardinal read fFlagColor write fFlagColor;
@@ -903,7 +903,7 @@ begin
 end;
 
 
-function TKMPlayer.GetFormattedPlayerName: string;
+function TKMPlayer.GetFormattedPlayerName: UnicodeString;
 begin
   if fPlayerName <> '' then
     Result := fPlayerName
@@ -1102,7 +1102,6 @@ end;
 
 
 procedure TKMPlayer.Load(LoadStream: TKMemoryStream);
-var s: AnsiString;
 begin
   LoadStream.Read(Enabled);
   if not Enabled then Exit;
@@ -1118,7 +1117,7 @@ begin
   fUnitGroups.Load(LoadStream);
 
   LoadStream.Read(fPlayerIndex);
-  LoadStream.Read(s); fPlayerName := s;
+  LoadStream.Read(fPlayerName);
   LoadStream.Read(fPlayerType, SizeOf(fPlayerType));
   LoadStream.Read(fAlliances, SizeOf(fAlliances));
   LoadStream.Read(fShareFOW, SizeOf(fShareFOW));

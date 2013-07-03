@@ -24,7 +24,7 @@ type
     GameInfo: TMPGameInfo;
   end;
 
-  TServerDataEvent = procedure(aServerID:integer; aData:string; aPingStarted:cardinal) of object;
+  TServerDataEvent = procedure(aServerID: Integer; aStream: TKMemoryStream; aPingStarted: Cardinal) of object;
 
   TServerSortMethod = (
     ssmByTypeAsc, ssmByTypeDesc, //Client or dedicated
@@ -46,7 +46,7 @@ type
     fOnServerData: TServerDataEvent;
     fOnQueryDone: TNotifyEvent;
     procedure NetClientReceive(aNetClient:TKMNetClient; aSenderIndex:integer; aData:pointer; aLength:cardinal);
-    procedure PacketSend(aRecipient: Integer; aKind: TKMessageKind; const aText: AnsiString; aParam:integer);
+    procedure PacketSend(aRecipient: Integer; aKind: TKMessageKind); overload;
   public
     constructor Create;
     destructor Destroy; override;
@@ -61,14 +61,14 @@ type
   private
     fCount:integer;
     fRooms:array of TKMRoomInfo;
-    procedure AddRoom(aServerIndex, aRoomID: Integer; aOnlyRoom:Boolean; aGameInfoText: string);
+    procedure AddRoom(aServerIndex, aRoomID: Integer; aOnlyRoom:Boolean; aGameInfoStream: TKMemoryStream);
     function GetRoom(aIndex: Integer): TKMRoomInfo;
     procedure Clear;
   public
     destructor Destroy; override;
     property Rooms[aIndex: Integer]: TKMRoomInfo read GetRoom; default;
     property Count: Integer read fCount;
-    procedure LoadData(aServerID:integer; M:TKMemoryStream);
+    procedure LoadData(aServerID:integer; aStream: TKMemoryStream);
     procedure SwapRooms(A,B:Integer);
   end;
 
@@ -99,12 +99,12 @@ type
     fSortMethod: TServerSortMethod;
 
     fOnListUpdated: TNotifyEvent;
-    fOnAnnouncements: TStringEvent;
+    fOnAnnouncements: TUnicodeStringEvent;
 
     procedure ReceiveServerList(const S: string);
     procedure ReceiveAnnouncements(const S: string);
 
-    procedure ServerDataReceive(aServerID: Integer; aData: string; aPingStarted: Cardinal);
+    procedure ServerDataReceive(aServerID: Integer; aStream: TKMemoryStream; aPingStarted: Cardinal);
     procedure QueryDone(Sender:TObject);
 
     procedure Sort;
@@ -114,7 +114,7 @@ type
     destructor Destroy; override;
 
     property OnListUpdated: TNotifyEvent read fOnListUpdated write fOnListUpdated;
-    property OnAnnouncements: TStringEvent read fOnAnnouncements write fOnAnnouncements;
+    property OnAnnouncements: TUnicodeStringEvent read fOnAnnouncements write fOnAnnouncements;
     property Servers: TKMServerList read fServerList;
     property Rooms: TKMRoomList read fRoomList;
 
@@ -138,14 +138,14 @@ begin
 end;
 
 
-procedure TKMRoomList.AddRoom(aServerIndex, aRoomID: Integer; aOnlyRoom:Boolean; aGameInfoText: string);
+procedure TKMRoomList.AddRoom(aServerIndex, aRoomID: Integer; aOnlyRoom:Boolean; aGameInfoStream: TKMemoryStream);
 begin
   if Length(fRooms) <= fCount then SetLength(fRooms, fCount+16);
   fRooms[fCount].ServerIndex := aServerIndex;
   fRooms[fCount].RoomID := aRoomID;
   fRooms[fCount].OnlyRoom := aOnlyRoom;
   fRooms[fCount].GameInfo := TMPGameInfo.Create;
-  fRooms[fCount].GameInfo.LoadFromText(aGameInfoText);
+  fRooms[fCount].GameInfo.LoadFromStream(aGameInfoStream);
   inc(fCount);
 end;
 
@@ -166,21 +166,20 @@ begin
 end;
 
 
-procedure TKMRoomList.LoadData(aServerID:integer; M: TKMemoryStream);
-var i, RoomCount, RoomID: Integer; GameInfoText: AnsiString;
+procedure TKMRoomList.LoadData(aServerID:integer; aStream: TKMemoryStream);
+var
+  i, RoomCount, RoomID: Integer;
 begin
-  M.Position := 0;
-  M.Read(RoomCount);
-  for i:=0 to RoomCount-1 do //We don't actually use i as the server sends us RoomID (rooms might not be in order)
+  aStream.Read(RoomCount);
+  for i := 0 to RoomCount - 1 do //We don't actually use i as the server sends us RoomID (rooms might not be in order)
   begin
-    M.Read(RoomID);
-    M.Read(GameInfoText);
-    AddRoom(aServerID, RoomID, (RoomCount = 1), GameInfoText);
+    aStream.Read(RoomID);
+    AddRoom(aServerID, RoomID, (RoomCount = 1), aStream);
   end;
 end;
 
 
-procedure TKMRoomList.SwapRooms(A,B:Integer);
+procedure TKMRoomList.SwapRooms(A,B: Integer);
 var TempRoomInfo: TKMRoomInfo;
 begin
   TempRoomInfo := fRooms[A];
@@ -316,10 +315,10 @@ end;
 
 procedure TKMQuery.NetClientReceive(aNetClient: TKMNetClient; aSenderIndex: Integer; aData: Pointer; aLength: Cardinal);
 var
-  Kind:TKMessageKind;
   M: TKMemoryStream;
-  Param: Integer;
-  Msg: AnsiString;
+  Kind: TKMessageKind;
+  tmpInteger: Integer;
+  tmpString: UnicodeString;
 begin
   Assert(aLength >= 1, 'Unexpectedly short message'); //Kind, Message
 
@@ -327,43 +326,42 @@ begin
   M.WriteBuffer(aData^, aLength);
   M.Position := 0;
   M.Read(Kind, SizeOf(TKMessageKind)); //Depending on kind message contains either Text or a Number
-  case NetPacketType[Kind] of
-    pfNumber: M.Read(Param);
-    pfBinary:   M.Read(Msg);
-  end;
-  M.Free;
 
   case Kind of
     mk_GameVersion:
-      if Msg <> NET_PROTOCOL_REVISON then
-        fQueryIsDone := true;
+      begin
+        M.Read(tmpString);
+        if tmpString <> NET_PROTOCOL_REVISON then
+          fQueryIsDone := True;
+      end;
 
     mk_IndexOnServer:
-    begin
-      fIndexOnServer := Param;
-      fPingStarted := TimeGet;
-      PacketSend(NET_ADDRESS_SERVER, mk_GetServerInfo, '', 0);
-    end;
+      begin
+        M.Read(tmpInteger);
+        fIndexOnServer := tmpInteger;
+        fPingStarted := TimeGet;
+        PacketSend(NET_ADDRESS_SERVER, mk_GetServerInfo);
+      end;
 
     mk_ServerInfo:
-    begin
-      fOnServerData(fServerID, Msg, fPingStarted);
-      fQueryIsDone := true; //We cannot call fOnQueryDone now because that would disconnect the socket halfway through the receive procedure (crashes)
-    end;
+      begin
+        fOnServerData(fServerID, M, fPingStarted);
+        fQueryIsDone := true; //We cannot call fOnQueryDone now because that would disconnect the socket halfway through the receive procedure (crashes)
+      end;
   end;
+
+  M.Free;
 end;
 
 
-procedure TKMQuery.PacketSend(aRecipient: Integer; aKind: TKMessageKind; const aText: AnsiString; aParam: Integer);
-var M:TKMemoryStream;
+procedure TKMQuery.PacketSend(aRecipient: Integer; aKind: TKMessageKind);
+var
+  M: TKMemoryStream;
 begin
+  Assert(NetPacketType[aKind] = pfNoData);
+
   M := TKMemoryStream.Create;
   M.Write(aKind, SizeOf(TKMessageKind));
-
-  case NetPacketType[aKind] of
-    pfNumber: M.Write(aParam);
-    pfBinary: M.Write(aText);
-  end;
 
   fNetClient.SendData(fIndexOnServer, aRecipient, M.Memory, M.Size);
   M.Free;
@@ -433,14 +431,11 @@ begin
 end;
 
 
-procedure TKMServerQuery.ServerDataReceive(aServerID: Integer; aData: string; aPingStarted: Cardinal);
-var M: TKMemoryStream;
+procedure TKMServerQuery.ServerDataReceive(aServerID: Integer; aStream: TKMemoryStream; aPingStarted: Cardinal);
 begin
-  M := TKMemoryStream.Create;
-  M.SetAsText(aData);
-  fRoomList.LoadData(aServerID, M); //Tell RoomsList to load data about rooms
+  fRoomList.LoadData(aServerID, aStream); //Tell RoomsList to load data about rooms
   fServerList.SetPing(aServerID, GetTimeSince(aPingStarted)); //Tell ServersList ping
-  M.Free;
+
   Sort; //Apply sorting
   if Assigned(fOnListUpdated) then fOnListUpdated(Self);
 end;

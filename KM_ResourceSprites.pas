@@ -87,12 +87,12 @@ type
     fAlphaShadows: Boolean; //Remember which state we loaded
     fSprites: array[TRXType] of TKMSpritePack;
     fStepProgress: TEvent;
-    fStepCaption: TStringEvent;
+    fStepCaption: TUnicodeStringEvent;
 
     function GetRXFileName(aRX: TRXType): string;
     function GetSprites(aRT: TRXType): TKMSpritePack;
   public
-    constructor Create(aStepProgress: TEvent; aStepCaption: TStringEvent);
+    constructor Create(aStepProgress: TEvent; aStepCaption: TUnicodeStringEvent);
     destructor Destroy; override;
 
     procedure LoadMenuResources;
@@ -702,7 +702,7 @@ end;
 
 
 { TKMSprites }
-constructor TKMSprites.Create(aStepProgress: TEvent; aStepCaption: TStringEvent);
+constructor TKMSprites.Create(aStepProgress: TEvent; aStepCaption: TUnicodeStringEvent);
 var
   RT: TRXType;
 begin

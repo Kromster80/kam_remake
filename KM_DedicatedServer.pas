@@ -12,7 +12,7 @@ type
     fLastPing, fLastAnnounce: cardinal;
     fNetServer: TKMNetServer;
     fMasterServer: TKMMasterServer;
-    fOnMessage: TStringEvent;
+    fOnMessage: TUnicodeStringEvent;
     fPublishServer: boolean;
     fAnnounceInterval: word;
     fPingInterval: word;
@@ -31,7 +31,7 @@ type
     procedure UpdateState;
     procedure UpdateSettings(const aServerName:string; aPublishServer:boolean; aKickTimeout, aPingInterval, aAnnounceInterval:word;
                              const aMasterServerAddress:string; const aHTMLStatusFile:string; const aWelcomeMessage:string);
-    property OnMessage: TStringEvent write fOnMessage;
+    property OnMessage: TUnicodeStringEvent write fOnMessage;
     
     procedure GetServerInfo(var aList: TList);
   end;

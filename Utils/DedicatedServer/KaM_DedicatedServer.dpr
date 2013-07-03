@@ -24,18 +24,18 @@ var
   fEventHandler: TKMServerEventHandler;
   fDedicatedServer: TKMDedicatedServer;
   fSettings: TGameSettings;
-  fSettingsLastModified: integer;
+  fSettingsLastModified: Integer;
   fLastSettingsFileCheck: Cardinal;
 
 {$IFDEF WDC}
 procedure MyProcessMessages;
-var Msg: TMsg;
+var myMsg: TMsg;
 begin
-  while PeekMessage(Msg, 0, 0, 0, 0) do
+  while PeekMessage(myMsg, 0, 0, 0, 0) do
   begin
-    GetMessage(Msg, 0, 0, 0);
-    TranslateMessage(Msg);
-    DispatchMessage(Msg);
+    GetMessage(myMsg, 0, 0, 0);
+    TranslateMessage(myMsg);
+    DispatchMessage(myMsg);
   end;
 end;
 {$ENDIF}
@@ -85,15 +85,17 @@ begin
 end;
 
 {$IFDEF FPC}
-function GetExceptionCallStack:string;
-var I: Integer; p: pointer;
+function GetExceptionCallStack: string;
+var
+  I: Integer;
+  P: Pointer;
 begin
   Result := '*** STACKTRACE ***' + LineEnding;
   Result := Result + BackTraceStrFunc(ExceptAddr);
   for I := 0 to ExceptFrameCount - 1 do
   begin
-    p:=(ExceptFrames+i)^;
-    Result := Result + LineEnding + BackTraceStrFunc(p);
+    P := (ExceptFrames + I)^;
+    Result := Result + LineEnding + BackTraceStrFunc(P);
   end;
   Result := Result + LineEnding + '*** END STACKTRACE ***';
 end;
@@ -180,6 +182,7 @@ begin
   fDedicatedServer.Stop;
   fDedicatedServer.Free;
   fEventHandler.Free;
+
   {$IFDEF MSWindows}
   TimeEndPeriod(1);
   {$ENDIF}
