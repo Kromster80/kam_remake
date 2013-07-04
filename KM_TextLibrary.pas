@@ -22,60 +22,48 @@ type
 
   TKMTextLibrary = class
   private
-    fLocale: AnsiString;
-    fFallbackLocale: AnsiString;
-    GameStrings: TKMStringArray;
-    MissionStrings: TKMStringArray; //Strings used in a mission
-    procedure LoadLIBXFile(FilePath: string; aFirstIndex: Word; var aArray: TKMStringArray; aOverwrite: Boolean);
-    procedure ExportTextLibrary(aLibrary: TKMStringArray; aFileName: UnicodeString);
+    procedure LoadLIBXFile(FilePath: string; var aArray: TKMStringArray);
+  end;
+
+
+  TKMTextLibrarySingle = class(TKMTextLibrary)
+  private
+    fTexts: TKMStringArray;
     function GetTexts(aIndex: Word): UnicodeString;
   public
-    constructor Create(aLibPath: UnicodeString; aLocale: AnsiString);
-
-    function AppendCampaign(aFileName: string): Word;
-    procedure LoadMissionStrings(aFileName: string);
-
-    function GetMissionString(aIndex: Word): UnicodeString;
-    function ParseTextMarkup(const aText: UnicodeString): UnicodeString;
-
+    procedure LoadLocale(aPathTemplate: string; aLocale: AnsiString); //initial locale for UI strings
     property Texts[aIndex: Word]: UnicodeString read GetTexts; default;
+  end;
 
-    procedure ExportTextLibraries;
+
+  TKMTextLibraryMulti = class(TKMTextLibrary)
+  private
+    //Dynamic, depends on constructor
+    fLocale: AnsiString;
+    fFallbackLocale: AnsiString;
+    fPref: array [0..2] of Integer;
+
+    fTexts: array of TKMStringArray;
+    function GetTexts(aIndex: Word): UnicodeString;
+  public
+    constructor Create(aLocale: AnsiString);
+    procedure LoadLocale(aPathTemplate: string); //All locales for Mission strings
+    function ParseTextMarkup(const aText: UnicodeString): UnicodeString;
+    property Texts[aIndex: Word]: UnicodeString read GetTexts; default;
   end;
 
 
 var
-  fTextLibrary: TKMTextLibrary;
+  //All games texts accessible from everywhere
+  fTextLibrary: TKMTextLibrarySingle;
 
 
 implementation
 uses KM_Log, KM_Locales;
 
 
-{ TTextLibrary }
-constructor TKMTextLibrary.Create(aLibPath: string; aLocale: AnsiString);
-begin
-  inherited Create;
-
-  //Remember preferred locale, it will remain constant until reinit
-  fLocale := aLocale;
-  fFallbackLocale := fLocales.GetLocale(aLocale).FallbackLocale;
-
-  //We load the English LIBX by default, then overwrite it with the selected language (this way missing strings are in English)
-  LoadLIBXFile(aLibPath+'text.'+DEFAULT_LOCALE+'.libx', 0, GameStrings, False); //Initialize with English strings
-
-  if (fFallbackLocale <> '') and FileExists(aLibPath+'text.'+fFallbackLocale+'.libx') then
-    LoadLIBXFile(aLibPath+'text.'+fFallbackLocale+'.libx', 0, GameStrings, True);
-
-  if (fLocale <> DEFAULT_LOCALE) and FileExists(aLibPath+'text.'+fLocale+'.libx') then
-    LoadLIBXFile(aLibPath+'text.'+fLocale+'.libx', 0, GameStrings, True); //Overwrite with selected locale
-
-  gLog.AddTime('TextLib init done');
-end;
-
-
 {LIBX files consist of lines. Each line has an index and a text. Lines without index are skipped}
-procedure TKMTextLibrary.LoadLIBXFile(FilePath: string; aFirstIndex: Word; var aArray: TKMStringArray; aOverwrite: Boolean);
+procedure TKMTextLibrary.LoadLIBXFile(FilePath: string; var aArray: TKMStringArray);
   function TextToArray(const Value: UnicodeString): TKMStringArray;
   var
     P, Start: PWideChar;
@@ -139,8 +127,7 @@ begin
   firstDelimiter := Pos(':', s);
   if not TryStrToInt(RightStr(s, Length(s) - firstDelimiter), MaxID) then Exit;
 
-  if not aOverwrite then
-    SetLength(aArray, aFirstIndex + MaxID + 1);
+  SetLength(aArray, MaxID + 1);
 
   for I := 2 to High(Tmp) do
   begin
@@ -156,68 +143,85 @@ begin
     //Required characters that can't be stored in plain text
     s := StringReplace(s, '\n', eol, [rfReplaceAll, rfIgnoreCase]); //EOL
     s := StringReplace(s, '\\', '\', [rfReplaceAll, rfIgnoreCase]); //Slash
-    if not aOverwrite or (s <> '') then aArray[aFirstIndex + ID] := s;
+    aArray[ID] := s;
   end;
 end;
 
 
-//Campaign description and briefings get appended to main list
-//as they are used in Main Menu right away
-function TKMTextLibrary.AppendCampaign(aFileName: string): Word;
+function TKMTextLibrarySingle.GetTexts(aIndex: Word): UnicodeString;
 begin
-  Assert(Pos('%s', aFileName) <> 0, 'Input string must be formatted properly with an %s');
-
-  //String get loaded ontop of each other, so that if something is missing base layer covered it
-  //Default > Fallback > Locale
-
-  Result := Length(GameStrings);
-  LoadLIBXFile(Format(aFileName, [DEFAULT_LOCALE]), Result, GameStrings, False);
-
-  if (fFallbackLocale <> '') and FileExists(Format(aFileName, [fFallbackLocale])) then
-    LoadLIBXFile(Format(aFileName, [fFallbackLocale]), Result, GameStrings, True);
-
-  if (fLocale <> DEFAULT_LOCALE) and FileExists(Format(aFileName, [fLocale])) then
-    LoadLIBXFile(Format(aFileName, [fLocale]), Result, GameStrings, True);
-end;
-
-
-//Load mission strings into separate array, as they get reloaded for each mission
-//Only one set of mission strings is required at a time
-procedure TKMTextLibrary.LoadMissionStrings(aFileName: string);
-begin
-  //String get loaded ontop of each other, so that if something is missing base layer covered it
-  //Default > Fallback > Locale
-
-  LoadLIBXFile(Format(aFileName, [DEFAULT_LOCALE]), 0, MissionStrings, False);
-
-  if (fFallbackLocale <> '') and FileExists(Format(aFileName, [fFallbackLocale])) then
-    LoadLIBXFile(Format(aFileName, [fFallbackLocale]), 0, MissionStrings, True);
-
-  if (fLocale <> DEFAULT_LOCALE) and FileExists(Format(aFileName, [fLocale])) then
-    LoadLIBXFile(Format(aFileName, [fLocale]), 0, MissionStrings, True);
-end;
-
-
-function TKMTextLibrary.GetTexts(aIndex: Word): UnicodeString;
-begin
-  if aIndex < Length(GameStrings) then
-    Result := GameStrings[aIndex]
+  if aIndex < Length(fTexts) then
+    Result := fTexts[aIndex]
   else
     Result := '~~~String ' + IntToStr(aIndex) + ' out of range!~~~';
 end;
 
 
-function TKMTextLibrary.GetMissionString(aIndex: Word): UnicodeString;
+//Text file template, e.g.: ExeDir\text.%s.libx
+procedure TKMTextLibrarySingle.LoadLocale(aPathTemplate: string; aLocale: AnsiString);
+var
+  fallbackLocale: AnsiString;
 begin
-  if aIndex < Length(MissionStrings) then
-    Result := MissionStrings[aIndex]
-  else
-    Result := '~~~MissionString '+IntToStr(aIndex)+' out of range!~~~';
+  fallbackLocale := fLocales.GetLocale(aLocale).FallbackLocale;
+
+  //We load the English LIBX by default, then overwrite it with the selected language
+  //(this way missing strings are in English)
+  LoadLIBXFile(Format(aPathTemplate, [DEFAULT_LOCALE]), fTexts);
+
+  if fallbackLocale <> '' then
+    LoadLIBXFile(Format(aPathTemplate, [fallbackLocale]), fTexts);
+
+  LoadLIBXFile(Format(aPathTemplate, [aLocale]), fTexts);
 end;
 
 
+{ TKMTextLibraryMulti }
+constructor TKMTextLibraryMulti.Create(aLocale: AnsiString);
+begin
+  inherited Create;
+
+  //Remember preferred locale, it will remain constant until reinit
+  fLocale := aLocale;
+  fFallbackLocale := fLocales.GetLocale(fLocale).FallbackLocale;
+
+  //Order of preferences of locales
+  fPref[0] := fLocales.IndexByCode(fLocale);
+  fPref[1] := fLocales.IndexByCode(fFallbackLocale);
+  fPref[2] := fLocales.IndexByCode(DEFAULT_LOCALE);
+end;
+
+
+//Order of preference: Locale > Fallback > Default(Eng)
+//Some locales may have no strings at all, just skip them
+function TKMTextLibraryMulti.GetTexts(aIndex: Word): UnicodeString;
+begin
+  if (aIndex < Length(fTexts[fPref[0]])) and (fTexts[fPref[0], aIndex] <> '') then
+    Result := fTexts[fPref[0], aIndex]
+  else
+  if (aIndex < Length(fTexts[fPref[1]])) and (fTexts[fPref[1], aIndex] <> '') then
+    Result := fTexts[fPref[1], aIndex]
+  else
+  if (aIndex < Length(fTexts[fPref[2]])) and (fTexts[fPref[2], aIndex] <> '') then
+    Result := fTexts[fPref[2], aIndex]
+  else
+    Result := '~~~String ' + IntToStr(aIndex) + ' out of range!~~~';
+end;
+
+
+procedure TKMTextLibraryMulti.LoadLocale(aPathTemplate: string);
+var
+  I: Integer;
+begin
+  SetLength(fTexts, fLocales.Count);
+
+  for I := 0 to fLocales.Count - 1 do
+    LoadLIBXFile(Format(aPathTemplate, [fLocales[I].Code]), fTexts[I]);
+end;
+
+
+//Dynamic Scripts should not have access to the actual strings (script variables should be identical for all MP players)
 //Take the string and replace every occurence of <$tag> with corresponding text from LibX
-function TKMTextLibrary.ParseTextMarkup(const aText: UnicodeString): UnicodeString;
+function TKMTextLibraryMulti.ParseTextMarkup(const aText: UnicodeString): UnicodeString;
 var
   I, ID, Last: Integer;
 begin
@@ -231,7 +235,7 @@ begin
       ID := StrToIntDef(Copy(aText, I+2, Last-(I+2)), -1);
       if ID >= 0 then
       begin
-        Result := Result + GetMissionString(ID);
+        Result := Result + Texts[ID];
         I := Last + 1;
         Continue;
       end;
@@ -239,34 +243,6 @@ begin
     Result := Result + aText[I];
     Inc(I);
   end;
-end;
-
-
-procedure TKMTextLibrary.ExportTextLibrary(aLibrary: TKMStringArray; aFileName: UnicodeString);
-var
-  i: Integer;
-  FileData: TStringList;
-begin
-  //Here we will export all of the text to a file
-  FileData := TStringList.Create;
-  try
-    if FileExists(aFileName) then
-      DeleteFile(aFileName);
-
-    for i := Low(GameStrings) to High(GameStrings) do
-      FileData.Add(IntToStr(i) + ':' + aLibrary[i]);
-
-    FileData.SaveToFile(aFileName);
-  finally
-    FileData.Free;
-  end;
-end;
-
-
-procedure TKMTextLibrary.ExportTextLibraries;
-begin
-  CreateDir(ExeDir + 'Export' + PathDelim);
-  ExportTextLibrary(GameStrings, ExeDir + 'Export' + PathDelim + 'text.'+fLocale+'.libx');
 end;
 
 

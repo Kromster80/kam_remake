@@ -102,7 +102,10 @@ begin
 
   fLocales      := TKMLocales.Create(ExeDir + 'data' + PathDelim + 'locales.txt');
   fGameSettings := TGameSettings.Create;
-  fTextLibrary  := TKMTextLibrary.Create(ExeDir + 'data' + PathDelim + 'text' + PathDelim, fGameSettings.Locale);
+
+  fTextLibrary  := TKMTextLibrarySingle.Create;
+  fTextLibrary.LoadLocale(ExeDir + 'data' + PathDelim + 'text' + PathDelim + 'text.%s.libx', fGameSettings.Locale);
+
   {$IFDEF USE_MAD_EXCEPT}fExceptions.LoadTranslation;{$ENDIF}
 
   fRender       := TRender.Create(aRenderControl, aScreenX, aScreenY, aVSync);
@@ -121,7 +124,7 @@ begin
   fSoundLib.OnRequestFade   := fMusicLib.FadeMusic;
   fSoundLib.OnRequestUnfade := fMusicLib.UnfadeMusic;
 
-  fCampaigns    := TKMCampaignsCollection.Create;
+  fCampaigns    := TKMCampaignsCollection.Create(fGameSettings.Locale);
   fCampaigns.ScanFolder(ExeDir + 'Campaigns' + PathDelim);
   fCampaigns.LoadProgress(ExeDir + 'Saves' + PathDelim + 'Campaigns.dat');
 
@@ -207,7 +210,7 @@ begin
   FreeAndNil(fTextLibrary);
 
   //Recreate resources that use Locale info
-  fTextLibrary := TKMTextLibrary.Create(ExeDir + 'data' + PathDelim + 'text' + PathDelim + '', fGameSettings.Locale);
+  fTextLibrary.LoadLocale(ExeDir + 'data' + PathDelim + 'text' + PathDelim + 'text.%s.libx', fGameSettings.Locale);
   {$IFDEF USE_MAD_EXCEPT}fExceptions.LoadTranslation;{$ENDIF}
   //Don't reshow the warning dialog when initing sounds, it gets stuck behind in full screen
   //and the user already saw it when starting the game.
@@ -215,7 +218,9 @@ begin
   fSoundLib.OnRequestFade := fMusicLib.FadeMusic;
   fSoundLib.OnRequestUnfade := fMusicLib.UnfadeMusic;
   fResource.Fonts.LoadFonts;
-  fCampaigns := TKMCampaignsCollection.Create; //Campaigns load text into TextLibrary
+
+  //Campaigns use single locale
+  fCampaigns := TKMCampaignsCollection.Create(fGameSettings.Locale);
   fCampaigns.ScanFolder(ExeDir + 'Campaigns' + PathDelim);
   fCampaigns.LoadProgress(ExeDir + 'Saves' + PathDelim + 'Campaigns.dat');
   fMainMenuInterface := TKMMainMenuInterface.Create(fRender.ScreenX, fRender.ScreenY);

@@ -1175,13 +1175,13 @@ begin
     Dragger_Chat.SetBounds(0, -MESSAGE_AREA_RESIZE_Y, 0, 0);
     Dragger_Chat.OnMove := Chat_Resize;
 
-    Memo_ChatText := TKMMemo.Create(Panel_Chat,45,50,600-85,101, fnt_Metal, bsGame);
-    Memo_ChatText.ScrollDown := True;
+    Memo_ChatText := TKMMemo.Create(Panel_Chat,45,50,600-85,101, fnt_Arial, bsGame);
+    Memo_ChatText.Anchors := [akLeft, akTop, akRight, akBottom];
     Memo_ChatText.AutoWrap := True;
     Memo_ChatText.IndentAfterNL := True; //Don't let players fake system messages
-    Memo_ChatText.Anchors := [akLeft, akTop, akRight, akBottom];
+    Memo_ChatText.ScrollDown := True;
 
-    Edit_ChatMsg := TKMEdit.Create(Panel_Chat, 75, 154, 380, 20, fnt_Metal);
+    Edit_ChatMsg := TKMEdit.Create(Panel_Chat, 75, 154, 380, 20, fnt_Arial);
     Edit_ChatMsg.Anchors := [akLeft, akRight, akBottom];
     Edit_ChatMsg.OnKeyDown := Chat_Post;
     Edit_ChatMsg.Text := '';

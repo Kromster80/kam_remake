@@ -3,7 +3,7 @@ unit KM_Campaigns;
 interface
 uses
   Classes, KromUtils, Math, SysUtils,
-  KM_CommonClasses, KM_Pics, KM_Points;
+  KM_CommonClasses, KM_Pics, KM_Points, KM_TextLibrary;
 
 
 const
@@ -17,7 +17,7 @@ type
   private
     //Runtime variables
     fPath: string;
-    fFirstTextIndex: Word;
+    fTextLib: TKMTextLibrarySingle;
     fUnlockedMap: Byte;
 
     //Saved in CMP
@@ -38,7 +38,7 @@ type
 
     procedure LoadFromFile(aFileName: string);
     procedure SaveToFile(aFileName: string);
-    procedure LoadFromPath(aPath: string);
+    procedure LoadFromPath(aPath: string; aLocale: AnsiString);
 
     property BackGroundPic: TKMPic read fBackGroundPic write fBackGroundPic;
     property MapCount: Byte read fMapCount write SetMapCount;
@@ -56,13 +56,14 @@ type
 
   TKMCampaignsCollection = class
   private
+    fLocale: AnsiString;
     fActiveCampaign: TKMCampaign; //Campaign we are playing
     fActiveCampaignMap: Byte; //Map of campaign we are playing, could be different than UnlockedMaps
     fList: TList;
     function GetCampaign(aIndex: Integer): TKMCampaign;
     procedure AddCampaign(const aPath: string);
   public
-    constructor Create;
+    constructor Create(aLocale: AnsiString);
     destructor Destroy; override;
 
     //Initialization
@@ -83,17 +84,19 @@ type
 
 
 implementation
-uses KM_Defaults, KM_Resource, KM_ResourceSprites, KM_Log, KM_TextLibrary;
+uses KM_Defaults, KM_Resource, KM_ResourceSprites, KM_Log;
 
 
 const
   CAMP_HEADER = $FEED; //Just some header to separate right progress files from wrong
 
 
-{ TCampaignCollection }
-constructor TKMCampaignsCollection.Create;
+{ TCampaignsCollection }
+constructor TKMCampaignsCollection.Create(aLocale: AnsiString);
 begin
-  inherited;
+  inherited Create;
+
+  fLocale := aLocale;
   fList := TList.Create;
 end;
 
@@ -116,7 +119,7 @@ var
   C: TKMCampaign;
 begin
   C := TKMCampaign.Create;
-  C.LoadFromPath(aPath);
+  C.LoadFromPath(aPath, fLocale);
   fList.Add(C);
 end;
 
@@ -269,6 +272,7 @@ end;
 
 destructor TKMCampaign.Destroy;
 begin
+  FreeAndNil(fTextLib);
 
   inherited;
 end;
@@ -333,7 +337,7 @@ begin
 end;
 
 
-procedure TKMCampaign.LoadFromPath(aPath: string);
+procedure TKMCampaign.LoadFromPath(aPath: string; aLocale: AnsiString);
 var
   SP: TKMSpritePack;
   FirstSpriteIndex: Word;
@@ -342,7 +346,9 @@ begin
 
   LoadFromFile(fPath + 'info.cmp');
 
-  fFirstTextIndex := fTextLibrary.AppendCampaign(fPath + 'text.%s.libx');
+  FreeAndNil(fTextLib);
+  fTextLib := TKMTextLibrarySingle.Create;
+  fTextLib.LoadLocale(fPath + 'text.%s.libx', aLocale);
 
   if fResource.Sprites <> nil then
   begin
@@ -379,13 +385,13 @@ end;
 
 function TKMCampaign.CampaignTitle: string;
 begin
-  Result := fTextLibrary[fFirstTextIndex];
+  Result := fTextLib[0];
 end;
 
 
 function TKMCampaign.CampaignDescription: string;
 begin
-  Result := fTextLibrary[fFirstTextIndex + 2];
+  Result := fTextLib[2];
 end;
 
 
@@ -398,7 +404,7 @@ end;
 
 function TKMCampaign.MissionTitle(aIndex: Byte): AnsiString;
 begin
-  Result := Format(fTextLibrary[fFirstTextIndex + 1], [aIndex+1]);
+  Result := Format(fTextLib[1], [aIndex+1]);
 end;
 
 
@@ -406,7 +412,7 @@ end;
 //custom campaigns are unlikely to have more texts in more than 1-2 languages
 function TKMCampaign.MissionText(aIndex: Byte): AnsiString;
 begin
-  Result := fTextLibrary[fFirstTextIndex + 10 + aIndex];
+  Result := fTextLib[10 + aIndex];
 end;
 
 

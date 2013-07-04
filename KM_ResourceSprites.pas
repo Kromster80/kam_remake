@@ -764,7 +764,8 @@ end;
 
 
 procedure TKMSprites.LoadGameResources(aAlphaShadows: Boolean);
-var RT: TRXType;
+var
+  RT: TRXType;
 begin
   //Remember which version we load, so if it changes inbetween games we reload it
   fAlphaShadows := aAlphaShadows;

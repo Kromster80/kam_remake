@@ -8,7 +8,7 @@ type
   //Settings that are irrelevant to the game (game does not cares about them)
   TMainSettings = class
   private
-    fNeedsSave: boolean;
+    fNeedsSave: Boolean;
 
     fFullScreen: Boolean;
     fResolution: TScreenRes;
@@ -41,7 +41,7 @@ type
     fBrightness: Byte;
     fScrollSpeed: Byte;
     fAlphaShadows: Boolean;
-    fLocale: shortstring;
+    fLocale: AnsiString;
     fMusicOff: Boolean;
     fShuffleOn: Boolean;
     fMusicVolume: Single;
@@ -50,7 +50,7 @@ type
     fSpeedMedium: Word;
     fSpeedFast: Word;
     fSpeedVeryFast: Word;
-    fMultiplayerName: string;
+    fMultiplayerName: UnicodeString;
     fLastIP: string;
     fLastPort: string;
     fLastRoom: string;
@@ -71,7 +71,7 @@ type
     procedure SetBrightness(aValue: Byte);
     procedure SetScrollSpeed(aValue: Byte);
     procedure SetAlphaShadows(aValue: Boolean);
-    procedure SetLocale(aLocale: shortstring);
+    procedure SetLocale(aLocale: AnsiString);
     procedure SetMusicOff(aValue: Boolean);
     procedure SetShuffleOn(aValue: Boolean);
     procedure SetMusicVolume(aValue: Single);
@@ -100,7 +100,7 @@ type
     property Brightness: Byte read fBrightness write SetBrightness;
     property ScrollSpeed: Byte read fScrollSpeed write SetScrollSpeed;
     property AlphaShadows: Boolean read fAlphaShadows write SetAlphaShadows;
-    property Locale: shortstring read fLocale write SetLocale;
+    property Locale: AnsiString read fLocale write SetLocale;
     property MusicOff: Boolean read fMusicOff write SetMusicOff;
     property ShuffleOn: Boolean read fShuffleOn write SetShuffleOn;
     property MusicVolume: Single read fMusicVolume write SetMusicVolume;
@@ -109,7 +109,7 @@ type
     property SpeedMedium: Word read fSpeedMedium;
     property SpeedFast: Word read fSpeedFast;
     property SpeedVeryFast: Word read fSpeedVeryFast;
-    property MultiplayerName: string read fMultiplayerName write SetMultiplayerName;
+    property MultiplayerName: UnicodeString read fMultiplayerName write SetMultiplayerName;
     property LastIP: string read fLastIP write SetLastIP;
     property LastPort: string read fLastPort write SetLastPort;
     property LastRoom: string read fLastRoom write SetLastRoom;
@@ -393,7 +393,7 @@ end;
 
 
 //Scan list of available locales and pick existing one, or ignore
-procedure TGameSettings.SetLocale(aLocale: ShortString);
+procedure TGameSettings.SetLocale(aLocale: AnsiString);
 begin
   //We don't know if Locales are initialized (e.g. in dedicated server)
   if (fLocales <> nil) and (fLocales.IndexByCode(aLocale) <> -1) then
@@ -438,7 +438,7 @@ begin
 end;
 
 
-procedure TGameSettings.SetMultiplayerName(aValue: string);
+procedure TGameSettings.SetMultiplayerName(aValue: UnicodeString);
 begin
   fMultiplayerName := aValue;
   fNeedsSave := True;

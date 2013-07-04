@@ -228,18 +228,18 @@ begin
       end;
 
     //Chat area
-    Memo_LobbyPosts := TKMMemo.Create(Panel_Lobby, 30, 338, CW, 342, fnt_Metal, bsMenu);
+    Memo_LobbyPosts := TKMMemo.Create(Panel_Lobby, 30, 338, CW, 342, fnt_Arial, bsMenu);
+    Memo_LobbyPosts.Anchors := [akLeft, akTop, akBottom];
     Memo_LobbyPosts.AutoWrap := True;
     Memo_LobbyPosts.IndentAfterNL := True; //Don't let players fake system messages
     Memo_LobbyPosts.ScrollDown := True;
-    Memo_LobbyPosts.Anchors := [akLeft, akTop, akBottom];
     Button_LobbyPost := TKMButtonFlat.Create(Panel_Lobby, 30, 683, 30, 20, 0);
     Button_LobbyPost.CapOffsetY := -11;
     Button_LobbyPost.Font := fnt_Grey;
     Button_LobbyPost.OnClick := ChatMenuShow;
     Button_LobbyPost.Anchors := [akLeft, akBottom];
 
-    Edit_LobbyPost := TKMEdit.Create(Panel_Lobby, 60, 683, CW, 20, fnt_Metal);
+    Edit_LobbyPost := TKMEdit.Create(Panel_Lobby, 60, 683, CW, 20, fnt_Arial);
     Edit_LobbyPost.OnKeyDown := PostKeyDown;
     Edit_LobbyPost.Anchors := [akLeft, akBottom];
     Edit_LobbyPost.ShowColors := True;

@@ -8,7 +8,7 @@ uses
 
 type
   TKMFont = (fnt_Antiqua, fnt_Game, fnt_Grey,
-    fnt_Metal, fnt_Mini, fnt_Outline, fntx_Arial);
+    fnt_Metal, fnt_Mini, fnt_Outline, fnt_Arial);
   {
   Removed fonts that were in KaM:
   Adam (unused)
