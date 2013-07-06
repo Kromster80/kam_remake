@@ -200,8 +200,8 @@ function TKMNetPlayerInfo.GetNickname: string;
 begin
   case PlayerNetType of
     nptHuman:     Result := Nikname;
-    nptComputer:  Result := fTextLibrary[TX_LOBBY_SLOT_AI_PLAYER];
-    nptClosed:    Result := fTextLibrary[TX_LOBBY_SLOT_CLOSED];
+    nptComputer:  Result := fTextMain[TX_LOBBY_SLOT_AI_PLAYER];
+    nptClosed:    Result := fTextMain[TX_LOBBY_SLOT_CLOSED];
     else          Result := NO_TEXT;
   end;
 end;
@@ -721,7 +721,7 @@ var
 begin
   if not AllReady then
   begin
-    ErrorMsg := fTextLibrary[TX_LOBBY_EVERYONE_NOT_READY];
+    ErrorMsg := fTextMain[TX_LOBBY_EVERYONE_NOT_READY];
     Result := False;
     Exit;
   end;
@@ -774,7 +774,7 @@ begin
           Dec(TmpLocBothCount)
         else
         begin
-          ErrorMsg := fTextLibrary[TX_LOBBY_UNABLE_RANDOM_LOCS];
+          ErrorMsg := fTextMain[TX_LOBBY_UNABLE_RANDOM_LOCS];
           Result := False;
           Exit;
         end;

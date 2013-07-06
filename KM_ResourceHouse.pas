@@ -557,7 +557,7 @@ end;
 
 function TKMHouseDatClass.GetHouseName: UnicodeString;
 begin
-  Result := fTextLibrary[fNameTextID];
+  Result := fTextMain[fNameTextID];
 end;
 
 

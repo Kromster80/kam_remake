@@ -114,7 +114,7 @@ begin
                                                   aParent.Height - PAD_VERT*2,
                                                   fnt_Metal, bsMenu);
     ColumnBox_SingleMaps.Anchors := [akTop, akBottom];
-    ColumnBox_SingleMaps.SetColumns(fnt_Outline, ['', '', fTextLibrary[TX_MENU_MAP_TITLE], fTextLibrary[TX_MENU_MAP_SIZE]], [0, 50, 100, 380]);
+    ColumnBox_SingleMaps.SetColumns(fnt_Outline, ['', '', fTextMain[TX_MENU_MAP_TITLE], fTextMain[TX_MENU_MAP_SIZE]], [0, 50, 100, 380]);
     ColumnBox_SingleMaps.Columns[2].Font := fnt_Metal;
     ColumnBox_SingleMaps.Columns[2].HintFont := fnt_Grey;
     ColumnBox_SingleMaps.Columns[1].TextAlign := taCenter;
@@ -148,13 +148,13 @@ begin
 
       //Setup (loc and flag placed alongside just like in MP lobby)
       //Other setup settings can go below
-      L := TKMLabel.Create(Panel_SingleDesc, 200, 330, 150, 20, fTextLibrary[TX_LOBBY_HEADER_STARTLOCATION], fnt_Metal, taLeft);
+      L := TKMLabel.Create(Panel_SingleDesc, 200, 330, 150, 20, fTextMain[TX_LOBBY_HEADER_STARTLOCATION], fnt_Metal, taLeft);
       L.Anchors := [akLeft, akBottom];
-      DropBox_SingleLoc := TKMDropList.Create(Panel_SingleDesc, 200, 350, 150, 20, fnt_Metal, fTextLibrary[TX_MENU_MAP_LOCATION], bsMenu);
+      DropBox_SingleLoc := TKMDropList.Create(Panel_SingleDesc, 200, 350, 150, 20, fnt_Metal, fTextMain[TX_MENU_MAP_LOCATION], bsMenu);
       DropBox_SingleLoc.Anchors := [akLeft, akBottom];
       DropBox_SingleLoc.OnChange := OptionsChange;
 
-      L := TKMLabel.Create(Panel_SingleDesc, 360, 330, 80, 20, fTextLibrary[TX_LOBBY_HEADER_FLAGCOLOR], fnt_Metal, taLeft);
+      L := TKMLabel.Create(Panel_SingleDesc, 360, 330, 80, 20, fTextMain[TX_LOBBY_HEADER_FLAGCOLOR], fnt_Metal, taLeft);
       L.Anchors := [akLeft, akBottom];
       DropBox_SingleColor := TKMDropColumns.Create(Panel_SingleDesc, 360, 350, 80, 20, fnt_Grey, '', bsMenu);
       DropBox_SingleColor.Anchors := [akLeft, akBottom];
@@ -167,11 +167,11 @@ begin
       //Goals
       B := TKMBevel.Create(Panel_SingleDesc, 0, 530, Half, 30);
       B.Anchors := [akLeft, akBottom];
-      L := TKMLabel.Create(Panel_SingleDesc, 4, 538, 190, 30, fTextLibrary[TX_MENU_WIN_CONDITION], fnt_Metal, taLeft);
+      L := TKMLabel.Create(Panel_SingleDesc, 4, 538, 190, 30, fTextMain[TX_MENU_WIN_CONDITION], fnt_Metal, taLeft);
       L.Anchors := [akLeft, akBottom];
       B := TKMBevel.Create(Panel_SingleDesc, 0, 560, Half, 30);
       B.Anchors := [akLeft, akBottom];
-      L := TKMLabel.Create(Panel_SingleDesc, 4, 568, 190, 30, fTextLibrary[TX_MENU_DEFEAT_CONDITION], fnt_Metal, taLeft);
+      L := TKMLabel.Create(Panel_SingleDesc, 4, 568, 190, 30, fTextMain[TX_MENU_DEFEAT_CONDITION], fnt_Metal, taLeft);
       L.Anchors := [akLeft, akBottom];
       for I := 0 to MAX_UI_GOALS - 1 do
       begin
@@ -195,11 +195,11 @@ begin
       //Alliances
       B := TKMBevel.Create(Panel_SingleDesc, 0, 590, Half, 20);
       B.Anchors := [akLeft, akBottom];
-      L := TKMLabel.Create(Panel_SingleDesc, 4, 594, 190, 20, fTextLibrary[TX_MENU_ALLIES], fnt_Metal, taLeft);
+      L := TKMLabel.Create(Panel_SingleDesc, 4, 594, 190, 20, fTextMain[TX_MENU_ALLIES], fnt_Metal, taLeft);
       L.Anchors := [akLeft, akBottom];
       B := TKMBevel.Create(Panel_SingleDesc, 0, 610, Half, 20);
       B.Anchors := [akLeft, akBottom];
-      L := TKMLabel.Create(Panel_SingleDesc, 4, 614, 190, 20, fTextLibrary[TX_MENU_ENEMIES], fnt_Metal, taLeft);
+      L := TKMLabel.Create(Panel_SingleDesc, 4, 614, 190, 20, fTextMain[TX_MENU_ENEMIES], fnt_Metal, taLeft);
       L.Anchors := [akLeft, akBottom];
       for I := 0 to MAX_PLAYERS - 1 do
       begin
@@ -209,10 +209,10 @@ begin
         Image_SingleEnemies[I].Anchors := [akLeft, akBottom];
       end;
 
-    Button_SingleBack := TKMButton.Create(Panel_Single, 45, aParent.Height - PAD_VERT - 30, 220, 30, fTextLibrary[TX_MENU_BACK], bsMenu);
+    Button_SingleBack := TKMButton.Create(Panel_Single, 45, aParent.Height - PAD_VERT - 30, 220, 30, fTextMain[TX_MENU_BACK], bsMenu);
     Button_SingleBack.Anchors := [akLeft, akBottom];
     Button_SingleBack.OnClick := BackClick;
-    Button_SingleStart := TKMButton.Create(Panel_Single, 270, aParent.Height - PAD_VERT - 30, 220, 30, fTextLibrary[TX_MENU_SINGLE_START_MAP], bsMenu);
+    Button_SingleStart := TKMButton.Create(Panel_Single, 270, aParent.Height - PAD_VERT - 30, 220, 30, fTextMain[TX_MENU_SINGLE_START_MAP], bsMenu);
     Button_SingleStart.Anchors := [akLeft, akBottom];
     Button_SingleStart.OnClick := StartClick;
 end;

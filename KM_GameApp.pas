@@ -103,8 +103,8 @@ begin
   fLocales      := TKMLocales.Create(ExeDir + 'data' + PathDelim + 'locales.txt');
   fGameSettings := TGameSettings.Create;
 
-  fTextLibrary  := TKMTextLibrarySingle.Create;
-  fTextLibrary.LoadLocale(ExeDir + 'data' + PathDelim + 'text' + PathDelim + 'text.%s.libx', fGameSettings.Locale);
+  fTextMain  := TKMTextLibrarySingle.Create;
+  fTextMain.LoadLocale(ExeDir + 'data' + PathDelim + 'text' + PathDelim + 'text.%s.libx', fGameSettings.Locale);
 
   {$IFDEF USE_MAD_EXCEPT}fExceptions.LoadTranslation;{$ENDIF}
 
@@ -114,7 +114,7 @@ begin
   if fRender.IsOldGLVersion then
     //MessageDlg works better than Application.MessageBox or others, it stays on top and
     //pauses here until the user clicks ok.
-    MessageDlg(fTextLibrary[TX_GAME_ERROR_OLD_OPENGL]+eol+eol+fTextLibrary[TX_GAME_ERROR_OLD_OPENGL_2], mtWarning, [mbOk], 0);
+    MessageDlg(fTextMain[TX_GAME_ERROR_OLD_OPENGL]+eol+eol+fTextMain[TX_GAME_ERROR_OLD_OPENGL_2], mtWarning, [mbOk], 0);
 
   fResource     := TResource.Create(fRender, aLS, aLT);
   fResource.LoadMenuResources;
@@ -174,7 +174,7 @@ begin
   FreeThenNil(fResource);
   FreeThenNil(fSoundLib);
   FreeThenNil(fMusicLib);
-  FreeThenNil(fTextLibrary);
+  FreeThenNil(fTextMain);
   FreeAndNil(fNetworking);
 
   FreeThenNil(fRender);
@@ -196,7 +196,7 @@ procedure TKMGameApp.ToggleLocale(aLocale: ShortString);
 begin
   Assert(fGame = nil, 'We don''t want to recreate whole fGame for that. Let''s limit it only to MainMenu');
 
-  fMainMenuInterface.ShowScreen(msLoading, fTextLibrary[TX_MENU_NEW_LOCALE]);
+  fMainMenuInterface.ShowScreen(msLoading, fTextMain[TX_MENU_NEW_LOCALE]);
   Render; //Force to repaint information screen
 
   fTimerUI.Enabled := False; //Disable it while switching, if an OpenAL error appears the timer should be disabled
@@ -207,10 +207,10 @@ begin
   FreeAndNil(fCampaigns);
   FreeAndNil(fMainMenuInterface);
   FreeAndNil(fSoundLib);
-  FreeAndNil(fTextLibrary);
+  FreeAndNil(fTextMain);
 
   //Recreate resources that use Locale info
-  fTextLibrary.LoadLocale(ExeDir + 'data' + PathDelim + 'text' + PathDelim + 'text.%s.libx', fGameSettings.Locale);
+  fTextMain.LoadLocale(ExeDir + 'data' + PathDelim + 'text' + PathDelim + 'text.%s.libx', fGameSettings.Locale);
   {$IFDEF USE_MAD_EXCEPT}fExceptions.LoadTranslation;{$ENDIF}
   //Don't reshow the warning dialog when initing sounds, it gets stuck behind in full screen
   //and the user already saw it when starting the game.
@@ -350,13 +350,13 @@ begin
   fMainMenuInterface.ShowScreen(msLoading, '');
   Render;
 
-  GameLoadingStep(fTextLibrary[TX_MENU_LOADING_DEFINITIONS]);
+  GameLoadingStep(fTextMain[TX_MENU_LOADING_DEFINITIONS]);
   fResource.OnLoadingText := GameLoadingStep;
   fResource.LoadGameResources(fGameSettings.AlphaShadows);
 
-  GameLoadingStep(fTextLibrary[TX_MENU_LOADING_INITIALIZING]);
+  GameLoadingStep(fTextMain[TX_MENU_LOADING_INITIALIZING]);
 
-  GameLoadingStep(fTextLibrary[TX_MENU_LOADING_SCRIPT]);
+  GameLoadingStep(fTextMain[TX_MENU_LOADING_SCRIPT]);
 end;
 
 
@@ -425,7 +425,7 @@ begin
       //Note: While debugging, Delphi will still stop execution for the exception,
       //unless Tools > Debugger > Exception > "Stop on Delphi Exceptions" is unchecked.
       //But to normal player the dialog won't show.
-      LoadError := Format(fTextLibrary[TX_MENU_PARSE_ERROR], [aFilePath])+'||'+E.ClassName+': '+E.Message;
+      LoadError := Format(fTextMain[TX_MENU_PARSE_ERROR], [aFilePath])+'||'+E.ClassName+': '+E.Message;
       Stop(gr_Error, LoadError);
       gLog.AddTime('Game creation Exception: ' + LoadError);
       Exit;
@@ -458,7 +458,7 @@ begin
       //Note: While debugging, Delphi will still stop execution for the exception,
       //unless Tools > Debugger > Exception > "Stop on Delphi Exceptions" is unchecked.
       //But to normal player the dialog won't show.
-      LoadError := Format(fTextLibrary[TX_MENU_PARSE_ERROR], [aMissionFile])+'||'+E.ClassName+': '+E.Message;
+      LoadError := Format(fTextMain[TX_MENU_PARSE_ERROR], [aMissionFile])+'||'+E.ClassName+': '+E.Message;
       Stop(gr_Error, LoadError);
       gLog.AddTime('Game creation Exception: ' + LoadError);
       Exit;
@@ -491,7 +491,7 @@ begin
       //Note: While debugging, Delphi will still stop execution for the exception,
       //unless Tools > Debugger > Exception > "Stop on Delphi Exceptions" is unchecked.
       //But to normal player the dialog won't show.
-      LoadError := Format(fTextLibrary[TX_MENU_PARSE_ERROR], ['-'])+'||'+E.ClassName+': '+E.Message;
+      LoadError := Format(fTextMain[TX_MENU_PARSE_ERROR], ['-'])+'||'+E.ClassName+': '+E.Message;
       Stop(gr_Error, LoadError);
       gLog.AddTime('Game creation Exception: ' + LoadError);
       Exit;

@@ -84,11 +84,11 @@ begin
     Label_CampaignText := TKMLabel.Create(Panel_CampScroll, 20, 70, 325, 310, NO_TEXT, fnt_Antiqua, taLeft);
     Label_CampaignText.AutoWrap := true;
 
-  Button_CampaignStart := TKMButton.Create(Panel_Campaign, aParent.Width-220-20, aParent.Height-50, 220, 30, fTextLibrary[TX_MENU_START_MISSION], bsMenu);
+  Button_CampaignStart := TKMButton.Create(Panel_Campaign, aParent.Width-220-20, aParent.Height-50, 220, 30, fTextMain[TX_MENU_START_MISSION], bsMenu);
   Button_CampaignStart.Anchors := [akLeft,akBottom];
   Button_CampaignStart.OnClick := StartClick;
 
-  Button_CampaignBack := TKMButton.Create(Panel_Campaign, 20, aParent.Height-50, 220, 30, fTextLibrary[TX_MENU_BACK], bsMenu);
+  Button_CampaignBack := TKMButton.Create(Panel_Campaign, 20, aParent.Height-50, 220, 30, fTextMain[TX_MENU_BACK], bsMenu);
   Button_CampaignBack.Anchors := [akLeft,akBottom];
   Button_CampaignBack.OnClick := BackClick;
 end;
@@ -149,7 +149,7 @@ begin
     Image_CampaignSubNode[I].Top  := fCampaign.Maps[fMapIndex].Nodes[I].Y;
   end;
 
-  Label_CampaignTitle.Caption := Format(fTextLibrary[TX_GAME_MISSION], [fMapIndex+1]);
+  Label_CampaignTitle.Caption := Format(fTextMain[TX_GAME_MISSION], [fMapIndex+1]);
   Label_CampaignText.Caption := fCampaign.MissionText(fMapIndex);
 
   //Add offset from top and space on bottom to fit buttons

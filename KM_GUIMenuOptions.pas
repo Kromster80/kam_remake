@@ -86,50 +86,50 @@ begin
     //Controls section
     Panel_Options_Ctrl:=TKMPanel.Create(Panel_Options,120,130,220,80);
     Panel_Options_Ctrl.Anchors := [akLeft];
-      TKMLabel.Create(Panel_Options_Ctrl,6,0,288,20,fTextLibrary[TX_MENU_OPTIONS_CONTROLS],fnt_Outline,taLeft);
+      TKMLabel.Create(Panel_Options_Ctrl,6,0,288,20,fTextMain[TX_MENU_OPTIONS_CONTROLS],fnt_Outline,taLeft);
       TKMBevel.Create(Panel_Options_Ctrl,0,20,220,60);
 
       TrackBar_Options_ScrollSpeed := TKMTrackBar.Create(Panel_Options_Ctrl,10,27,180,OPT_SLIDER_MIN,OPT_SLIDER_MAX);
-      TrackBar_Options_ScrollSpeed.Caption := fTextLibrary[TX_MENU_OPTIONS_SCROLL_SPEED];
+      TrackBar_Options_ScrollSpeed.Caption := fTextMain[TX_MENU_OPTIONS_SCROLL_SPEED];
       TrackBar_Options_ScrollSpeed.OnChange := Change;
 
     //Gameplay section
     Panel_Options_Game:=TKMPanel.Create(Panel_Options,120,230,220,50);
     Panel_Options_Game.Anchors := [akLeft];
-      TKMLabel.Create(Panel_Options_Game,6,0,188,20,fTextLibrary[TX_MENU_OPTIONS_GAMEPLAY],fnt_Outline,taLeft);
+      TKMLabel.Create(Panel_Options_Game,6,0,188,20,fTextMain[TX_MENU_OPTIONS_GAMEPLAY],fnt_Outline,taLeft);
       TKMBevel.Create(Panel_Options_Game,0,20,220,30);
 
-      CheckBox_Options_Autosave := TKMCheckBox.Create(Panel_Options_Game,12,27,196,20,fTextLibrary[TX_MENU_OPTIONS_AUTOSAVE], fnt_Metal);
+      CheckBox_Options_Autosave := TKMCheckBox.Create(Panel_Options_Game,12,27,196,20,fTextMain[TX_MENU_OPTIONS_AUTOSAVE], fnt_Metal);
       CheckBox_Options_Autosave.OnClick := Change;
 
     //Graphics section
     Panel_Options_GFX:=TKMPanel.Create(Panel_Options,360,300,220,178);
     Panel_Options_GFX.Anchors := [akLeft];
-      TKMLabel.Create(Panel_Options_GFX,6,0,188,20,fTextLibrary[TX_MENU_OPTIONS_GRAPHICS],fnt_Outline,taLeft);
+      TKMLabel.Create(Panel_Options_GFX,6,0,188,20,fTextMain[TX_MENU_OPTIONS_GRAPHICS],fnt_Outline,taLeft);
       TKMBevel.Create(Panel_Options_GFX,0,20,220,158);
       TrackBar_Options_Brightness:=TKMTrackBar.Create(Panel_Options_GFX,10,27,180,OPT_SLIDER_MIN,OPT_SLIDER_MAX);
-      TrackBar_Options_Brightness.Caption := fTextLibrary[TX_MENU_OPTIONS_BRIGHTNESS];
+      TrackBar_Options_Brightness.Caption := fTextMain[TX_MENU_OPTIONS_BRIGHTNESS];
       TrackBar_Options_Brightness.OnChange:=Change;
-      CheckBox_Options_VSync := TKMCheckBox.Create(Panel_Options_GFX, 10, 90, 200, 20, fTextLibrary[TX_MENU_OPTIONS_VSYNC], fnt_Metal);
+      CheckBox_Options_VSync := TKMCheckBox.Create(Panel_Options_GFX, 10, 90, 200, 20, fTextMain[TX_MENU_OPTIONS_VSYNC], fnt_Metal);
       CheckBox_Options_VSync.OnClick := Change;
-      TKMLabel.Create(Panel_Options_GFX,10,120,200,20,fTextLibrary[TX_MENU_OPTIONS_SHADOW_QUALITY],fnt_Metal,taLeft);
+      TKMLabel.Create(Panel_Options_GFX,10,120,200,20,fTextMain[TX_MENU_OPTIONS_SHADOW_QUALITY],fnt_Metal,taLeft);
       RadioGroup_Options_Shadows := TKMRadioGroup.Create(Panel_Options_GFX,10,138,200,32, fnt_Metal);
-      RadioGroup_Options_Shadows.Add(fTextLibrary[TX_MENU_OPTIONS_SHADOW_QUALITY_LOW]);
-      RadioGroup_Options_Shadows.Add(fTextLibrary[TX_MENU_OPTIONS_SHADOW_QUALITY_HIGH]);
+      RadioGroup_Options_Shadows.Add(fTextMain[TX_MENU_OPTIONS_SHADOW_QUALITY_LOW]);
+      RadioGroup_Options_Shadows.Add(fTextMain[TX_MENU_OPTIONS_SHADOW_QUALITY_HIGH]);
       RadioGroup_Options_Shadows.OnChange := Change;
 
     //SFX section
     Panel_Options_Sound:=TKMPanel.Create(Panel_Options,120,300,220,167);
     Panel_Options_Sound.Anchors := [akLeft];
-      TKMLabel.Create(Panel_Options_Sound,6,0,188,20,fTextLibrary[TX_MENU_OPTIONS_SOUND],fnt_Outline,taLeft);
+      TKMLabel.Create(Panel_Options_Sound,6,0,188,20,fTextMain[TX_MENU_OPTIONS_SOUND],fnt_Outline,taLeft);
       TKMBevel.Create(Panel_Options_Sound,0,20,220,147);
 
       TrackBar_Options_SFX       := TKMTrackBar.Create(Panel_Options_Sound, 10, 27, 180, OPT_SLIDER_MIN, OPT_SLIDER_MAX);
       TrackBar_Options_Music     := TKMTrackBar.Create(Panel_Options_Sound, 10, 77, 180, OPT_SLIDER_MIN, OPT_SLIDER_MAX);
-      CheckBox_Options_MusicOff  := TKMCheckBox.Create(Panel_Options_Sound, 12, 127, 196, 20, fTextLibrary[TX_MENU_OPTIONS_MUSIC_DISABLE], fnt_Metal);
-      CheckBox_Options_ShuffleOn := TKMCheckBox.Create(Panel_Options_Sound, 12, 147, 196, 20, fTextLibrary[TX_MENU_OPTIONS_MUSIC_SHUFFLE], fnt_Metal);
-      TrackBar_Options_SFX.Caption   := fTextLibrary[TX_MENU_SFX_VOLUME];
-      TrackBar_Options_Music.Caption := fTextLibrary[TX_MENU_MUSIC_VOLUME];
+      CheckBox_Options_MusicOff  := TKMCheckBox.Create(Panel_Options_Sound, 12, 127, 196, 20, fTextMain[TX_MENU_OPTIONS_MUSIC_DISABLE], fnt_Metal);
+      CheckBox_Options_ShuffleOn := TKMCheckBox.Create(Panel_Options_Sound, 12, 147, 196, 20, fTextMain[TX_MENU_OPTIONS_MUSIC_SHUFFLE], fnt_Metal);
+      TrackBar_Options_SFX.Caption   := fTextMain[TX_MENU_SFX_VOLUME];
+      TrackBar_Options_Music.Caption := fTextMain[TX_MENU_MUSIC_VOLUME];
       TrackBar_Options_SFX.OnChange      := Change;
       TrackBar_Options_Music.OnChange    := Change;
       CheckBox_Options_MusicOff.OnClick  := Change;
@@ -138,10 +138,10 @@ begin
     //Resolutions section
     Panel_Options_Res := TKMPanel.Create(Panel_Options, 360, 130, 210, 160);
     Panel_Options_Res.Anchors := [akLeft];
-      TKMLabel.Create(Panel_Options_Res, 6, 0, 188, 20, fTextLibrary[TX_MENU_OPTIONS_RESOLUTION], fnt_Outline, taLeft);
+      TKMLabel.Create(Panel_Options_Res, 6, 0, 188, 20, fTextMain[TX_MENU_OPTIONS_RESOLUTION], fnt_Outline, taLeft);
       TKMBevel.Create(Panel_Options_Res, 0, 20, 220, 140);
 
-      CheckBox_Options_FullScreen := TKMCheckBox.Create(Panel_Options_Res, 12, 30, 176, 20, fTextLibrary[TX_MENU_OPTIONS_FULLSCREEN], fnt_Metal);
+      CheckBox_Options_FullScreen := TKMCheckBox.Create(Panel_Options_Res, 12, 30, 176, 20, fTextMain[TX_MENU_OPTIONS_FULLSCREEN], fnt_Metal);
       CheckBox_Options_FullScreen.OnClick := ChangeResolution;
 
       DropBox_Options_Resolution := TKMDropList.Create(Panel_Options_Res, 10, 50, 180, 20, fnt_Metal, '', bsMenu);
@@ -150,13 +150,13 @@ begin
       DropBox_Options_RefreshRate := TKMDropList.Create(Panel_Options_Res, 10, 85, 180, 20, fnt_Metal, '', bsMenu);
       DropBox_Options_RefreshRate.OnChange := ChangeResolution;
 
-      Button_Options_ResApply := TKMButton.Create(Panel_Options_Res, 10, 120, 180, 30, fTextLibrary[TX_MENU_OPTIONS_APPLY], bsMenu);
+      Button_Options_ResApply := TKMButton.Create(Panel_Options_Res, 10, 120, 180, 30, fTextMain[TX_MENU_OPTIONS_APPLY], bsMenu);
       Button_Options_ResApply.OnClick := ApplyResolution;
 
     //Language section
     Panel_Options_Lang:=TKMPanel.Create(Panel_Options,600,130,240,30+fLocales.Count*20);
     Panel_Options_Lang.Anchors := [akLeft];
-      TKMLabel.Create(Panel_Options_Lang,6,0,242,20,fTextLibrary[TX_MENU_OPTIONS_LANGUAGE],fnt_Outline,taLeft);
+      TKMLabel.Create(Panel_Options_Lang,6,0,242,20,fTextMain[TX_MENU_OPTIONS_LANGUAGE],fnt_Outline,taLeft);
       TKMBevel.Create(Panel_Options_Lang,0,20,260,10+fLocales.Count*20);
 
       Radio_Options_Lang := TKMRadioGroup.Create(Panel_Options_Lang, 28, 27, 220, 20*fLocales.Count, fnt_Metal);
@@ -171,7 +171,7 @@ begin
       Radio_Options_Lang.OnChange := Change;
 
     //Back button
-    Button_Options_Back:=TKMButton.Create(Panel_Options,120,630,220,30,fTextLibrary[TX_MENU_BACK],bsMenu);
+    Button_Options_Back:=TKMButton.Create(Panel_Options,120,630,220,30,fTextMain[TX_MENU_BACK],bsMenu);
     Button_Options_Back.Anchors := [akLeft];
     Button_Options_Back.OnClick := BackClick;
 end;
@@ -347,8 +347,8 @@ begin
   else
   begin
     //no supported resolutions
-    DropBox_Options_Resolution.Add(fTextLibrary[TX_MENU_OPTIONS_RESOLUTION_NOT_SUPPORTED]);
-    DropBox_Options_RefreshRate.Add(fTextLibrary[TX_MENU_OPTIONS_REFRESH_RATE_NOT_SUPPORTED]);
+    DropBox_Options_Resolution.Add(fTextMain[TX_MENU_OPTIONS_RESOLUTION_NOT_SUPPORTED]);
+    DropBox_Options_RefreshRate.Add(fTextMain[TX_MENU_OPTIONS_REFRESH_RATE_NOT_SUPPORTED]);
     DropBox_Options_Resolution.ItemIndex := 0;
     DropBox_Options_RefreshRate.ItemIndex := 0;
   end;

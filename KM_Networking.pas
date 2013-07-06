@@ -652,7 +652,7 @@ function TKMNetworking.ReadyToStart:boolean;
 begin
   if (fSelectGameKind = ngk_Save) and (fNetPlayers[fMyIndex].StartLocation = 0) then
   begin
-    PostLocalMessage(fTextLibrary[TX_LOBBY_ERROR_SELECT_PLAYER]);
+    PostLocalMessage(fTextMain[TX_LOBBY_ERROR_SELECT_PLAYER]);
     Result := false;
     Exit;
   end;
@@ -666,7 +666,7 @@ begin
   end
   else
   begin
-    PostLocalMessage(fTextLibrary[TX_LOBBY_ERROR_NO_MAP]);
+    PostLocalMessage(fTextMain[TX_LOBBY_ERROR_NO_MAP]);
     Result := false;
   end;
 end;
@@ -716,7 +716,7 @@ begin
   end;
   if not fNetPlayers.ValidateSetup(HumanUsableLocs, AIUsableLocs, ErrorMessage) then
   begin
-    PostLocalMessage(Format(fTextLibrary[TX_LOBBY_CANNOT_START], [ErrorMessage]));
+    PostLocalMessage(Format(fTextMain[TX_LOBBY_CANNOT_START], [ErrorMessage]));
     Exit;
   end;
 
@@ -1002,7 +1002,7 @@ begin
                 if tmpString <> NET_PROTOCOL_REVISON then
                 begin
                   Assert(not IsHost);
-                  fOnJoinFail(Format(fTextLibrary[TX_MP_MENU_WRONG_VERSION], [NET_PROTOCOL_REVISON, tmpString]));
+                  fOnJoinFail(Format(fTextMain[TX_MP_MENU_WRONG_VERSION], [NET_PROTOCOL_REVISON, tmpString]));
                   fNetClient.Disconnect;
                   Exit;
                 end;
@@ -1028,7 +1028,7 @@ begin
                 if Assigned(fOnJoinAssignedHost) then
                   fOnJoinAssignedHost(Self);
 
-                PostLocalMessage(fTextLibrary[TX_LOBBY_HOST_RIGHTS], False);
+                PostLocalMessage(fTextMain[TX_LOBBY_HOST_RIGHTS], False);
               end;
 
       mk_IndexOnServer:
@@ -1252,7 +1252,7 @@ begin
                     begin
                       PlayerIndex := fNetPlayers.ServerToLocal(aSenderIndex);
                       if PlayerIndex = -1 then exit; //Has already disconnected
-                      PostLocalMessage(Format(fTextLibrary[TX_MULTIPLAYER_HOST_DISCONNECTED], [fNetPlayers[PlayerIndex].Nikname]));
+                      PostLocalMessage(Format(fTextMain[TX_MULTIPLAYER_HOST_DISCONNECTED], [fNetPlayers[PlayerIndex].Nikname]));
                       if fNetGameState in [lgs_Loading, lgs_Game] then
                         fNetPlayers.DropPlayer(aSenderIndex)
                       else
@@ -1330,7 +1330,7 @@ begin
                 FreeAndNil(fMapInfo);
                 FreeAndNil(fSaveInfo);
                 fNetPlayers.ResetLocAndReady;
-                if Assigned(fOnMapName) then fOnMapName(fTextLibrary[TX_LOBBY_MAP_NONE]);
+                if Assigned(fOnMapName) then fOnMapName(fTextMain[TX_LOBBY_MAP_NONE]);
               end;
 
       mk_MapSelect:
@@ -1356,12 +1356,12 @@ begin
                   if fMapInfo.IsValid then
                   begin
                     PostMessage('Error: '+fMyNikname+' has a different version of the map '+fMapInfo.FileName);
-                    tmpString := Format(fTextLibrary[TX_MAP_WRONG_VERSION], [fMapInfo.FileName]);
+                    tmpString := Format(fTextMain[TX_MAP_WRONG_VERSION], [fMapInfo.FileName]);
                   end
                   else
                   begin
                     PostMessage('Error: '+fMyNikname+' does not have the map '+fMapInfo.FileName);
-                    tmpString := Format(fTextLibrary[TX_MAP_DOESNT_EXIST], [fMapInfo.FileName]);
+                    tmpString := Format(fTextMain[TX_MAP_DOESNT_EXIST], [fMapInfo.FileName]);
                   end;
                   FreeAndNil(fMapInfo);
                   fSelectGameKind := ngk_None;
@@ -1392,12 +1392,12 @@ begin
                   if fSaveInfo.IsValid then
                   begin
                     PostMessage('Error: '+fMyNikname+' has a different version of the save '+fSaveInfo.FileName);
-                    tmpString := Format(fTextLibrary[TX_SAVE_WRONG_VERSION],[fSaveInfo.FileName]);
+                    tmpString := Format(fTextMain[TX_SAVE_WRONG_VERSION],[fSaveInfo.FileName]);
                   end
                   else
                   begin
                     PostMessage('Error: '+fMyNikname+' does not have the save '+fSaveInfo.FileName);
-                    tmpString := Format(fTextLibrary[TX_SAVE_DOESNT_EXIST],[fSaveInfo.FileName]);
+                    tmpString := Format(fTextMain[TX_SAVE_DOESNT_EXIST],[fSaveInfo.FileName]);
                   end;
                   FreeAndNil(fSaveInfo);
                   fSelectGameKind := ngk_None;
@@ -1593,7 +1593,7 @@ end;
 
 procedure TKMNetworking.StartGame;
 begin
-  PostLocalMessage(fTextLibrary[TX_LOBBY_GAME_STARTED],false);
+  PostLocalMessage(fTextMain[TX_LOBBY_GAME_STARTED],false);
   SetGameState(lgs_Loading); //Loading has begun (no further players allowed to join)
   fIgnorePings := -1; //Ignore all pings until we have finished loading
 

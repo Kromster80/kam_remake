@@ -1747,7 +1747,7 @@ end;
 procedure TKMScriptActions.OverlayTextSet(aPlayer: Shortint; aText: AnsiString);
 begin
   if (aPlayer = MySpectator.PlayerIndex) or (aPlayer = -1) then
-    fGame.GamePlayInterface.SetScriptedOverlay(fTextLibrary.ParseTextMarkup(aText));
+    fGame.ShowOverlay(aText);//GamePlayInterface.SetScriptedOverlay(fTextLibrary.ParseTextMarkup(aText));
 end;
 
 

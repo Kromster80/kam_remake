@@ -11,7 +11,7 @@ uses
   KM_InterfaceDefaults, KM_InterfaceMapEditor, KM_InterfaceGamePlay,
   KM_MapEditor, KM_Minimap, KM_Networking,
   KM_PathFinding, KM_PathFindingAStarOld, KM_PathFindingAStarNew, KM_PathFindingJPS,
-  KM_PerfLog, KM_Projectiles, KM_Render, KM_Viewport;
+  KM_PerfLog, KM_Projectiles, KM_Render, KM_Viewport, KM_TextLibrary;
 
 type
   TGameMode = (
@@ -32,6 +32,7 @@ type
     fGameOptions: TKMGameOptions;
     fNetworking: TKMNetworking;
     fGameInputProcess: TGameInputProcess;
+    fTextMission: TKMTextLibraryMulti;
     fMinimap: TKMMinimap;
     fPathfinding: TPathFinding;
     fViewport: TViewport;
@@ -120,6 +121,7 @@ type
     function IsMultiplayer: Boolean;
     function IsReplay: Boolean;
     procedure ShowMessage(aKind: TKMMessageKind; aText: string; aLoc: TKMPoint);
+    procedure ShowOverlay(aText: string);
     property GameTickCount:cardinal read fGameTickCount;
     property GameName: string read fGameName;
     property CampaignName: AnsiString read fCampaignName;
@@ -178,7 +180,7 @@ uses
   KM_CommonClasses, KM_Log, KM_Utils,
   KM_ArmyEvaluation, KM_GameApp, KM_GameInfo, KM_MissionScript, KM_MissionScript_Standard,
   KM_Player, KM_PlayerSpectator, KM_PlayersCollection, KM_RenderPool, KM_Resource, KM_ResourceCursors,
-  KM_Sound, KM_Terrain, KM_TerrainPainter, KM_TextLibrary, KM_AIFields, KM_Maps,
+  KM_Sound, KM_Terrain, KM_TerrainPainter, KM_AIFields, KM_Maps,
   KM_Scripting, KM_GameInputProcess_Single, KM_GameInputProcess_Multi, KM_Main;
 
 
@@ -377,6 +379,7 @@ begin
 end;
 
 
+//New mission
 procedure TKMGame.GameStart(aMissionFile, aGameName, aCampName: string; aCampMap: Byte; aLocation: ShortInt; aColor: Cardinal);
 var
   I: Integer;
@@ -422,7 +425,7 @@ begin
     gmMulti:  ParseMode := mpm_Multi;
     gmMapEd:  ParseMode := mpm_Editor;
     gmSingle: ParseMode := mpm_Single;
-    else      ParseMode := mpm_Single; //To make compiler happy
+    else      Assert(False, 'Unexpected');
   end;
 
   if fGameMode = gmMapEd then
@@ -478,12 +481,21 @@ begin
       fGamePlayInterface.MessageIssue(mkQuill, 'Warnings in script:|' + fScripting.ErrorString);
   end;
 
-  fTextLibrary.LoadMissionStrings(ChangeFileExt(aMissionFile, '.%s.libx'));
 
-  if fGameMode = gmMulti then
-    fGameInputProcess := TGameInputProcess_Multi.Create(gipRecording, fNetworking)
-  else
-    fGameInputProcess := TGameInputProcess_Single.Create(gipRecording);
+  case fGameMode of
+    gmMulti:  begin
+                fGameInputProcess := TGameInputProcess_Multi.Create(gipRecording, fNetworking)
+                fTextMission := TKMTextLibraryMulti.Create(fGameApp.GameSettings.Locale);
+                fTextMission.L
+                 .LoadMissionStrings(ChangeFileExt(aMissionFile, '.%s.libx'));
+              end;
+    gmSingle: begin
+                fGameInputProcess := TGameInputProcess_Single.Create(gipRecording);
+                fTextLibrary.LoadMissionStrings(ChangeFileExt(aMissionFile, '.%s.libx'));
+              end;
+    gmMapEd:  ;
+  end;
+
   gLog.AddTime('Gameplay recording initialized', True);
 
   if fGameMode = gmMulti then
@@ -810,6 +822,7 @@ begin
 end;
 
 
+//Start MapEditor (empty map)
 procedure TKMGame.GameStart(aSizeX, aSizeY: Integer);
 var
   I: Integer;
@@ -966,6 +979,12 @@ end;
 procedure TKMGame.ShowMessage(aKind: TKMMessageKind; aText: string; aLoc: TKMPoint);
 begin
   fGamePlayInterface.MessageIssue(aKind, aText, aLoc);
+end;
+
+
+procedure TKMGame.ShowOverlay(aText: string);
+begin
+  fGamePlayInterface.SetScriptedOverlay(aText);
 end;
 
 

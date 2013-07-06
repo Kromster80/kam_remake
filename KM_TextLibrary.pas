@@ -55,7 +55,7 @@ type
 
 var
   //All games texts accessible from everywhere
-  fTextLibrary: TKMTextLibrarySingle;
+  fTextMain: TKMTextLibrarySingle;
 
 
 implementation

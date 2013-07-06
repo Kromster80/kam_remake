@@ -136,7 +136,7 @@ begin
   fSaveError := fInfo.ParseError;
 
   if (fSaveError = '') and (fInfo.DATCRC <> fResource.GetDATCRC) then
-    fSaveError := fTextLibrary[TX_SAVE_UNSUPPORTED_MODS];
+    fSaveError := fTextMain[TX_SAVE_UNSUPPORTED_MODS];
 
   if fSaveError <> '' then
     fInfo.Title := fSaveError;
