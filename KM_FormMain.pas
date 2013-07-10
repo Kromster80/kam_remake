@@ -33,7 +33,6 @@ type
     Export_Fonts1: TMenuItem;
     GroupBox1: TGroupBox;
     chkSuperSpeed: TCheckBox;
-    Export_Text: TMenuItem;
     Export_Deliverlists1: TMenuItem;
     Export_Sounds1: TMenuItem;
     Export_HouseAnim1: TMenuItem;
@@ -100,7 +99,6 @@ type
     procedure Export_Sounds1Click(Sender: TObject);
     procedure Export_HouseAnim1Click(Sender: TObject);
     procedure Export_UnitAnim1Click(Sender: TObject);
-    procedure Export_TextClick(Sender: TObject);
     procedure Export_Fonts1Click(Sender: TObject);
     procedure Export_DeliverLists1Click(Sender: TObject);
     procedure Button_StopClick(Sender: TObject);
@@ -366,21 +364,6 @@ end;
 procedure TFormMain.HousesDat1Click(Sender: TObject);
 begin
   fResource.HouseDat.ExportCSV(ExeDir + 'Export' + PathDelim + 'houses.dat.csv')
-end;
-
-
-procedure TFormMain.Export_TextClick(Sender: TObject);
-var
-  I: Integer;
-  MyTextLibrary: TKMTextLibrary;
-begin
-  for I := 0 to fLocales.Count-1 do
-  begin
-    //Don't mess up the actual text library by loading other locales
-    MyTextLibrary := TKMTextLibrary.Create(ExeDir+'data' + PathDelim + 'text' + PathDelim, fLocales[i].Code);
-    MyTextLibrary.ExportTextLibraries;
-    MyTextLibrary.Free;
-  end;
 end;
 
 

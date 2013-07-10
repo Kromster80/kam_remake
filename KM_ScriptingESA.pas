@@ -1452,20 +1452,14 @@ end;
 procedure TKMScriptActions.ShowMsg(aPlayer: Shortint; aText: AnsiString);
 begin
   if (aPlayer = MySpectator.PlayerIndex) or (aPlayer = -1) then
-    fGame.ShowMessage(mkText, fTextLibrary.ParseTextMarkup(aText), KMPoint(0,0))
+    fGame.ShowMessage(mkText, aText, KMPoint(0,0));
 end;
 
 
 procedure TKMScriptActions.ShowMsgFormatted(aPlayer: Shortint; aText: AnsiString; Params: array of const);
-var S: AnsiString;
 begin
   if (aPlayer = MySpectator.PlayerIndex) or (aPlayer = -1) then
-  begin
-    //We must parse for text markup before AND after running Format, since individual format
-    //parameters can contain strings that need parsing (see Annie's Garden for an example)
-    S := fTextLibrary.ParseTextMarkup(Format(fTextLibrary.ParseTextMarkup(aText), Params));
-    fGame.ShowMessage(mkText, S, KMPoint(0,0));
-  end;
+    fGame.ShowMessageFormatted(mkText, aText, KMPoint(0,0), Params);
 end;
 
 
@@ -1474,7 +1468,7 @@ begin
   if gTerrain.TileInMapCoords(aX, aY) then
   begin
     if (aPlayer = MySpectator.PlayerIndex) or (aPlayer = -1) then
-      fGame.ShowMessage(mkText, fTextLibrary.ParseTextMarkup(aText), KMPoint(aX,aY));
+      fGame.ShowMessage(mkText, aText, KMPoint(aX,aY));
   end
   else
     LogError('Actions.ShowMsgGoto', [aPlayer, aX, aY]);
@@ -1482,17 +1476,11 @@ end;
 
 
 procedure TKMScriptActions.ShowMsgGotoFormatted(aPlayer: Shortint; aX, aY: Word; aText: AnsiString; Params: array of const);
-var S: AnsiString;
 begin
   if gTerrain.TileInMapCoords(aX, aY) then
   begin
     if (aPlayer = MySpectator.PlayerIndex) or (aPlayer = -1) then
-    begin
-      //We must parse for text markup before AND after running Format, since individual format
-      //parameters can contain strings that need parsing (see Annie's Garden for an example)
-      S := fTextLibrary.ParseTextMarkup(Format(fTextLibrary.ParseTextMarkup(aText), Params));
-      fGame.ShowMessage(mkText, S, KMPoint(aX,aY));
-    end;
+      fGame.ShowMessageFormatted(mkText, aText, KMPoint(aX,aY), Params);
   end
   else
     LogError('Actions.ShowMsgGotoFormatted', [aPlayer, aX, aY]);
@@ -1747,40 +1735,28 @@ end;
 procedure TKMScriptActions.OverlayTextSet(aPlayer: Shortint; aText: AnsiString);
 begin
   if (aPlayer = MySpectator.PlayerIndex) or (aPlayer = -1) then
-    fGame.ShowOverlay(aText);//GamePlayInterface.SetScriptedOverlay(fTextLibrary.ParseTextMarkup(aText));
+    fGame.ShowOverlay(aText);
 end;
 
 
 procedure TKMScriptActions.OverlayTextSetFormatted(aPlayer: Shortint; aText: AnsiString; Params: array of const);
-var S: AnsiString;
 begin
   if (aPlayer = MySpectator.PlayerIndex) or (aPlayer = -1) then
-  begin
-    //We must parse for text markup before AND after running Format, since individual format
-    //parameters can contain strings that need parsing (see Annie's Garden for an example)
-    S := fTextLibrary.ParseTextMarkup(Format(fTextLibrary.ParseTextMarkup(aText), Params));
-    fGame.GamePlayInterface.SetScriptedOverlay(S);
-  end;
+    fGame.ShowOverlayFormatted(aText, Params);
 end;
 
 
 procedure TKMScriptActions.OverlayTextAppend(aPlayer: Shortint; aText: AnsiString);
 begin
   if (aPlayer = MySpectator.PlayerIndex) or (aPlayer = -1) then
-    fGame.GamePlayInterface.AppendScriptedOverlay(fTextLibrary.ParseTextMarkup(aText));
+    fGame.OverlayAppend(aText);
 end;
 
 
 procedure TKMScriptActions.OverlayTextAppendFormatted(aPlayer: Shortint; aText: AnsiString; Params: array of const);
-var S: AnsiString;
 begin
   if (aPlayer = MySpectator.PlayerIndex) or (aPlayer = -1) then
-  begin
-    //We must parse for text markup before AND after running Format, since individual format
-    //parameters can contain strings that need parsing (see Annie's Garden for an example)
-    S := fTextLibrary.ParseTextMarkup(Format(fTextLibrary.ParseTextMarkup(aText), Params));
-    fGame.GamePlayInterface.AppendScriptedOverlay(S);
-  end;
+    fGame.OverlayAppendFormatted(aText, Params);
 end;
 
 

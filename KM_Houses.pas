@@ -1241,7 +1241,7 @@ begin
       begin
         //HouseName := fResource.HouseDat[HouseType].HouseName;
         //We can't paste houses name instead of %s like that because of plurals and feminine/masculine attrib
-        fGame.ShowMessage(mkHouse, fTextLibrary[TX_MSG_HOUSE_UNOCCUPIED], GetEntrance);
+        fGame.ShowMessage(mkHouse, fTextMain[TX_MSG_HOUSE_UNOCCUPIED], GetEntrance);
       end;
       fTimeSinceUnoccupiedReminder := TIME_BETWEEN_MESSAGES; //Don't show one again until it is time
     end;

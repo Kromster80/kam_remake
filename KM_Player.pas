@@ -910,9 +910,9 @@ begin
   else
   begin
     if PlayerType = pt_Human then
-      Result := fTextLibrary[TX_PLAYER_YOU]
+      Result := fTextMain[TX_PLAYER_YOU]
     else
-      Result := Format(fTextLibrary[TX_PLAYER_X], [fPlayerIndex + 1]);
+      Result := Format(fTextMain[TX_PLAYER_X], [fPlayerIndex + 1]);
   end;
 end;
 

@@ -146,7 +146,7 @@ type
 
     fSoundGain:single; //aka "Global volume"
     fMusicIsFaded:boolean;
-    fLocale:string; //Locale used to access warrior sounds
+    fLocale: AnsiString; //Locale used to access warrior sounds
     fNotificationSoundCount: array[TAttackNotification] of byte;
     fWarriorSoundCount: array[WARRIOR_MIN..WARRIOR_MAX, TWarriorSpeech] of byte;
     fWarriorUseBackup: array[WARRIOR_MIN..WARRIOR_MAX] of boolean;
@@ -163,7 +163,7 @@ type
     procedure PlayWave(const aFile: string; Loc:TKMPointF; Attenuated:boolean=true; Volume:single=1; FadeMusic:boolean=false); overload;
     procedure PlaySound(SoundID:TSoundFX; const aFile:string; Loc:TKMPointF; Attenuated:boolean=true; Volume:single=1; FadeMusic:boolean=false);
   public
-    constructor Create(aLocale:string; aVolume:single; aShowWarningDlg: Boolean);
+    constructor Create(aLocale: AnsiString; aVolume:single; aShowWarningDlg: Boolean);
     destructor Destroy; override;
     function ActiveCount:byte;
 
@@ -265,7 +265,7 @@ const
 
 
 { TSoundLib }
-constructor TSoundLib.Create(aLocale:string; aVolume:single; aShowWarningDlg: Boolean);
+constructor TSoundLib.Create(aLocale: AnsiString; aVolume:single; aShowWarningDlg: Boolean);
 var
   Context: PALCcontext;
   I: Integer;

@@ -454,7 +454,7 @@ begin
       TrackBar_RatioRat[i].Enable;
     end else begin
       Image_RatioPic[i].TexID := 41; //Question mark
-      TrackBar_RatioRat[i].Caption := fTextLibrary[TX_GAMEPLAY_NOT_AVAILABLE];
+      TrackBar_RatioRat[i].Caption := fTextMain[TX_GAMEPLAY_NOT_AVAILABLE];
       TrackBar_RatioRat[i].Position := 0;
       TrackBar_RatioRat[i].Disable;
     end;
@@ -665,7 +665,7 @@ begin
   begin
     Build_Update;
     Panel_Build.Show;
-    Label_MenuTitle.Caption := fTextLibrary[TX_MENU_TAB_BUILD];
+    Label_MenuTitle.Caption := fTextMain[TX_MENU_TAB_BUILD];
     Build_ButtonClick(Button_BuildRoad);
   end else
 
@@ -673,7 +673,7 @@ begin
   begin
     Panel_Ratios.Show;
     SwitchPage_Ratios(Button_Ratios[1]); //Open 1st tab
-    Label_MenuTitle.Caption := fTextLibrary[TX_MENU_TAB_DISTRIBUTE];
+    Label_MenuTitle.Caption := fTextMain[TX_MENU_TAB_DISTRIBUTE];
   end else
 
   if Sender = Button_Main[tbStats] then
@@ -681,7 +681,7 @@ begin
     Stats_Resize;
     Stats_Update;
     Panel_Stats.Show;
-    Label_MenuTitle.Caption := fTextLibrary[TX_MENU_TAB_STATISTICS];
+    Label_MenuTitle.Caption := fTextMain[TX_MENU_TAB_STATISTICS];
   end else
 
   if (Sender = Button_Main[tbMenu])
@@ -690,7 +690,7 @@ begin
                                or (LastVisiblePage = Panel_Load)
                                or (LastVisiblePage = Panel_Save))) then begin
     Menu_Update; //Make sure updating happens before it is shown
-    Label_MenuTitle.Caption := fTextLibrary[TX_MENU_TAB_OPTIONS];
+    Label_MenuTitle.Caption := fTextMain[TX_MENU_TAB_OPTIONS];
     Panel_Menu.Show;
   end else
 
@@ -703,7 +703,7 @@ begin
     //Initiate refresh and process each new save added
     fSaves.Refresh(Menu_Save_RefreshList, fMultiplayer);
     Panel_Save.Show;
-    Label_MenuTitle.Caption := fTextLibrary[TX_MENU_SAVE_GAME];
+    Label_MenuTitle.Caption := fTextMain[TX_MENU_SAVE_GAME];
   end else
 
   if Sender = Button_Menu_Load then begin
@@ -714,13 +714,13 @@ begin
     //Initiate refresh and process each new save added
     fSaves.Refresh(Menu_Load_RefreshList, fMultiplayer);
     Panel_Load.Show;
-    Label_MenuTitle.Caption := fTextLibrary[TX_MENU_LOAD_GAME];
+    Label_MenuTitle.Caption := fTextMain[TX_MENU_LOAD_GAME];
   end else
 
   if Sender = Button_Menu_Settings then begin
     Menu_Settings_Fill;
     Panel_Settings.Show;
-    Label_MenuTitle.Caption := fTextLibrary[TX_MENU_SETTINGS];
+    Label_MenuTitle.Caption := fTextMain[TX_MENU_SETTINGS];
   end else
 
   if Sender = Button_Menu_Quit then
@@ -932,9 +932,9 @@ begin
   Bevel_Pause := TKMBevel.Create(Panel_Pause, -1, -1, Panel_Main.Width + 2, Panel_Main.Height + 2);
   Image_Pause := TKMImage.Create(Panel_Pause, (Panel_Main.Width div 2), (Panel_Main.Height div 2) - 40, 0, 0, 556);
   Label_Pause1 := TKMLabel.Create(Panel_Pause, (Panel_Main.Width div 2), (Panel_Main.Height div 2),
-    fTextLibrary[TX_POPUP_PAUSE], fnt_Antiqua, taCenter);
+    fTextMain[TX_POPUP_PAUSE], fnt_Antiqua, taCenter);
   Label_Pause2 := TKMLabel.Create(Panel_Pause, (Panel_Main.Width div 2), (Panel_Main.Height div 2) + 20,
-    Format(fTextLibrary[TX_GAMEPLAY_PAUSE_INFO], ['"P"']), fnt_Grey, taCenter);
+    Format(fTextMain[TX_GAMEPLAY_PAUSE_INFO], ['"P"']), fnt_Grey, taCenter);
   Bevel_Pause.Stretch; //Anchor to all sides
   Image_Pause.ImageCenter;
   Label_Pause1.Center;
@@ -1003,16 +1003,16 @@ begin
       Label_NetWait  := TKMLabel.Create(Panel_NetWaitMsg,Panel_Main.Width div 2,80,NO_TEXT,fnt_Outline,taCenter);
       Label_NetDropPlayersDelay := TKMLabel.Create(Panel_NetWaitMsg,Panel_Main.Width div 2,110,NO_TEXT,fnt_Outline,taCenter);
       Panel_NetWaitButtons := TKMPanel.Create(Panel_NetWaitMsg,0,140,Panel_Main.Width,80);
-        Button_NetQuit := TKMButton.Create(Panel_NetWaitButtons,(Panel_Main.Width div 2)-150,0,300,30,fTextLibrary[TX_GAMEPLAY_QUIT_TO_MENU],bsGame);
+        Button_NetQuit := TKMButton.Create(Panel_NetWaitButtons,(Panel_Main.Width div 2)-150,0,300,30,fTextMain[TX_GAMEPLAY_QUIT_TO_MENU],bsGame);
         Button_NetQuit.OnClick := NetWaitClick;
-        Button_NetDropPlayers := TKMButton.Create(Panel_NetWaitButtons,(Panel_Main.Width div 2)-150,40,300,30,fTextLibrary[TX_GAMEPLAY_DROP_PLAYERS],bsGame);
+        Button_NetDropPlayers := TKMButton.Create(Panel_NetWaitButtons,(Panel_Main.Width div 2)-150,40,300,30,fTextMain[TX_GAMEPLAY_DROP_PLAYERS],bsGame);
         Button_NetDropPlayers.OnClick := NetWaitClick;
 
       Panel_NetWaitConfirm := TKMPanel.Create(Panel_NetWaitMsg,0,180,Panel_Main.Width,140);
         Label_NetWaitConfirm := TKMLabel.Create(Panel_NetWaitConfirm,(Panel_Main.Width div 2),10,NO_TEXT,fnt_Outline,taCenter);
         Button_NetConfirmYes := TKMButton.Create(Panel_NetWaitConfirm,(Panel_Main.Width div 2)-150,40,300,30,NO_TEXT,bsGame);
         Button_NetConfirmYes.OnClick := NetWaitClick;
-        Button_NetConfirmNo := TKMButton.Create(Panel_NetWaitConfirm,(Panel_Main.Width div 2)-150,80,300,30,fTextLibrary[TX_GAMEPLAY_CONFIRM_CANCEL],bsGame);
+        Button_NetConfirmNo := TKMButton.Create(Panel_NetWaitConfirm,(Panel_Main.Width div 2)-150,80,300,30,fTextMain[TX_GAMEPLAY_CONFIRM_CANCEL],bsGame);
         Button_NetConfirmNo.OnClick := NetWaitClick;
       Panel_NetWaitConfirm.Hide;
     Panel_NetWait.Hide; //Initially hidden
@@ -1026,7 +1026,7 @@ begin
   Image_MPChat := TKMImage.Create(Panel_Main,TOOLBAR_WIDTH,Panel_Main.Height-48,30,48,494);
   Image_MPChat.Anchors := [akLeft, akBottom];
   Image_MPChat.HighlightOnMouseOver := true;
-  Image_MPChat.Hint := fTextLibrary[TX_GAMEPLAY_CHAT_HINT];
+  Image_MPChat.Hint := fTextMain[TX_GAMEPLAY_CHAT_HINT];
   Image_MPChat.OnClick := Chat_Click;
   Label_MPChatUnread := TKMLabel.Create(Panel_Main,TOOLBAR_WIDTH,Panel_Main.Height-30,30,36,'',fnt_Outline,taCenter);
   Label_MPChatUnread.FontColor := $FF0000FF; //Red
@@ -1037,13 +1037,13 @@ begin
   Image_MPAllies := TKMImage.Create(Panel_Main,TOOLBAR_WIDTH,Panel_Main.Height-48*2,30,48,496);
   Image_MPAllies.Anchors := [akLeft, akBottom];
   Image_MPAllies.HighlightOnMouseOver := True;
-  Image_MPAllies.Hint := fTextLibrary[TX_GAMEPLAY_PLAYERS_HINT];
+  Image_MPAllies.Hint := fTextMain[TX_GAMEPLAY_PLAYERS_HINT];
   Image_MPAllies.OnClick := Allies_Click;
 
   Image_MessageLog := TKMImage.Create(Panel_Main,TOOLBAR_WIDTH,Panel_Main.Height - 48 - IfThen(fMultiplayer, 48*2),30,48,495);
   Image_MessageLog.Anchors := [akLeft, akBottom];
   Image_MessageLog.HighlightOnMouseOver := true;
-  Image_MessageLog.Hint := fTextLibrary[TX_GAME_MESSAGE_LOG];
+  Image_MessageLog.Hint := fTextMain[TX_GAME_MESSAGE_LOG];
   Image_MessageLog.OnClick := MessageLog_Click;
   Image_MessageLog.Hide; //Will be shows on first message
 
@@ -1077,17 +1077,17 @@ begin
     Button_ReplayStep.OnClick    := ReplayClick;
     Button_ReplayResume.OnClick  := ReplayClick;
     Button_ReplayExit.OnClick    := ReplayClick;
-    Button_ReplayRestart.Hint := fTextLibrary[TX_REPLAY_RESTART];
-    Button_ReplayPause.Hint   := fTextLibrary[TX_REPLAY_PAUSE];
-    Button_ReplayStep.Hint    := fTextLibrary[TX_REPLAY_STEP];
-    Button_ReplayResume.Hint  := fTextLibrary[TX_REPLAY_RESUME];
-    Button_ReplayExit.Hint    := fTextLibrary[TX_REPLAY_QUIT];
+    Button_ReplayRestart.Hint := fTextMain[TX_REPLAY_RESTART];
+    Button_ReplayPause.Hint   := fTextMain[TX_REPLAY_PAUSE];
+    Button_ReplayStep.Hint    := fTextMain[TX_REPLAY_STEP];
+    Button_ReplayResume.Hint  := fTextMain[TX_REPLAY_RESUME];
+    Button_ReplayExit.Hint    := fTextMain[TX_REPLAY_QUIT];
 
     Button_ReplayStep.Disable; //Initial state
     Button_ReplayResume.Disable; //Initial state
 
     Dropbox_ReplayFOW := TKMDropList.Create(Panel_ReplayCtrl, 0, 50, 160, 20, fnt_Metal, '', bsGame);
-    Dropbox_ReplayFOW.Hint := fTextLibrary[TX_REPLAY_PLAYER_PERSPECTIVE];
+    Dropbox_ReplayFOW.Hint := fTextMain[TX_REPLAY_PLAYER_PERSPECTIVE];
     Dropbox_ReplayFOW.OnChange := ReplayClick;
 end;
 
@@ -1104,20 +1104,20 @@ begin
     Label_MessageText := TKMLabel.Create(Panel_Message, 47, 58, 432, 112, '', fnt_Antiqua, taLeft);
     Label_MessageText.AutoWrap := True;
 
-    Button_MessageGoTo := TKMButton.Create(Panel_Message, 490, 74, 100, 24, fTextLibrary[TX_MSG_GOTO], bsGame);
+    Button_MessageGoTo := TKMButton.Create(Panel_Message, 490, 74, 100, 24, fTextMain[TX_MSG_GOTO], bsGame);
     Button_MessageGoTo.Font := fnt_Antiqua;
-    Button_MessageGoTo.Hint := fTextLibrary[TX_MSG_GOTO_HINT];
+    Button_MessageGoTo.Hint := fTextMain[TX_MSG_GOTO_HINT];
     Button_MessageGoTo.OnClick := Message_GoTo;
 
-    Button_MessageDelete := TKMButton.Create(Panel_Message, 490, 104, 100, 24, fTextLibrary[TX_MSG_DELETE], bsGame);
+    Button_MessageDelete := TKMButton.Create(Panel_Message, 490, 104, 100, 24, fTextMain[TX_MSG_DELETE], bsGame);
     Button_MessageDelete.Font := fnt_Antiqua;
-    Button_MessageDelete.Hint := fTextLibrary[TX_MSG_DELETE_HINT];
+    Button_MessageDelete.Hint := fTextMain[TX_MSG_DELETE_HINT];
     Button_MessageDelete.OnClick := Message_Delete;
     Button_MessageDelete.MakesSound := False; //Don't play default Click as these buttons use sfx_MessageClose
 
     Image_MessageClose := TKMImage.Create(Panel_Message, 600 - 76, 24, 32, 32, 52);
     Image_MessageClose.Anchors := [akTop, akLeft];
-    Image_MessageClose.Hint := fTextLibrary[TX_MSG_CLOSE_HINT];
+    Image_MessageClose.Hint := fTextMain[TX_MSG_CLOSE_HINT];
     Image_MessageClose.OnClick := Message_Close;
     Image_MessageClose.HighlightOnMouseOver := True;
 end;
@@ -1140,7 +1140,7 @@ begin
 
     Image_MessageLogClose := TKMImage.Create(Panel_MessageLog, 600 - 76, 24, 32, 32, 52);
     Image_MessageLogClose.Anchors := [akTop, akLeft];
-    Image_MessageLogClose.Hint := fTextLibrary[TX_MSG_CLOSE_HINT];
+    Image_MessageLogClose.Hint := fTextMain[TX_MSG_CLOSE_HINT];
     Image_MessageLogClose.OnClick := MessageLog_Close;
     Image_MessageLogClose.HighlightOnMouseOver := True;
 
@@ -1195,7 +1195,7 @@ begin
 
     Image_ChatClose := TKMImage.Create(Panel_Chat, 600-80, 18, 32, 32, 52);
     Image_ChatClose.Anchors := [akTop, akRight];
-    Image_ChatClose.Hint := fTextLibrary[TX_MSG_CLOSE_HINT];
+    Image_ChatClose.Hint := fTextMain[TX_MSG_CLOSE_HINT];
     Image_ChatClose.OnClick := Chat_Close;
     Image_ChatClose.HighlightOnMouseOver := True;
 end;
@@ -1233,12 +1233,12 @@ begin
     //Main 4 buttons
     for T := Low(TKMTabButtons) to High(TKMTabButtons) do begin
       Button_Main[T] := TKMButton.Create(Panel_Controls,  TB_PAD + 46 * Byte(T), 4, 42, 36, 439 + Byte(T), rxGui, bsGame);
-      Button_Main[T].Hint := fTextLibrary[MainHint[T]];
+      Button_Main[T].Hint := fTextMain[MainHint[T]];
       Button_Main[T].OnClick := SwitchPage;
     end;
     Button_Back := TKMButton.Create(Panel_Controls, TB_PAD, 4, 42, 36, 443, rxGui, bsGame);
     Button_Back.OnClick := SwitchPage;
-    Button_Back.Hint := fTextLibrary[TX_MENU_TAB_HINT_GO_BACK];
+    Button_Back.Hint := fTextMain[TX_MENU_TAB_HINT_GO_BACK];
 
     Label_MenuTitle := TKMLabel.Create(Panel_Controls, 54, 4, 138, 0, '', fnt_Metal, taLeft);
     Label_MenuTitle.AutoWrap := True;
@@ -1280,9 +1280,9 @@ begin
     begin
       if (I mod 4) = 0 then //Header for each column
       begin
-        TKMLabel.Create(Panel_Allies,  70+(I div 4)*380, 60, 140, 20, fTextLibrary[TX_LOBBY_HEADER_PLAYERS], fnt_Outline, taLeft);
-        TKMLabel.Create(Panel_Allies, 220+(I div 4)*380, 60, 140, 20, fTextLibrary[TX_LOBBY_HEADER_TEAM], fnt_Outline, taLeft);
-        TKMLabel.Create(Panel_Allies, 350+(I div 4)*380, 60, fTextLibrary[TX_LOBBY_HEADER_PINGFPS], fnt_Outline, taCenter);
+        TKMLabel.Create(Panel_Allies,  70+(I div 4)*380, 60, 140, 20, fTextMain[TX_LOBBY_HEADER_PLAYERS], fnt_Outline, taLeft);
+        TKMLabel.Create(Panel_Allies, 220+(I div 4)*380, 60, 140, 20, fTextMain[TX_LOBBY_HEADER_TEAM], fnt_Outline, taLeft);
+        TKMLabel.Create(Panel_Allies, 350+(I div 4)*380, 60, fTextMain[TX_LOBBY_HEADER_PINGFPS], fnt_Outline, taCenter);
       end;
       Image_AlliesLang[I] := TKMImage.Create(Panel_Allies,       50+(I div 4)*380, 82+(I mod 4)*24, 16,  11,  0, rxGuiMain);
       Label_AlliesPlayer[I] := TKMLabel.Create(Panel_Allies,     70+(I div 4)*380, 80+(I mod 4)*24, 140, 20, '', fnt_Grey, taLeft);
@@ -1297,7 +1297,7 @@ begin
     end;
 
     Image_AlliesClose:=TKMImage.Create(Panel_Allies,800-97,24,32,32,52,rxGui);
-    Image_AlliesClose.Hint := fTextLibrary[TX_MSG_CLOSE_HINT];
+    Image_AlliesClose.Hint := fTextMain[TX_MSG_CLOSE_HINT];
     Image_AlliesClose.OnClick := Allies_Close;
     Image_AlliesClose.HighlightOnMouseOver := True;
 end;
@@ -1326,10 +1326,10 @@ begin
     Button_BuildField.OnClick   := Build_ButtonClick;
     Button_BuildWine.OnClick    := Build_ButtonClick;
     Button_BuildCancel.OnClick  := Build_ButtonClick;
-    Button_BuildRoad.Hint   := fTextLibrary[TX_BUILD_ROAD_HINT];
-    Button_BuildField.Hint  := fTextLibrary[TX_BUILD_FIELD_HINT];
-    Button_BuildWine.Hint   := fTextLibrary[TX_BUILD_WINE_HINT];
-    Button_BuildCancel.Hint := fTextLibrary[TX_BUILD_CANCEL_HINT];
+    Button_BuildRoad.Hint   := fTextMain[TX_BUILD_ROAD_HINT];
+    Button_BuildField.Hint  := fTextMain[TX_BUILD_FIELD_HINT];
+    Button_BuildWine.Hint   := fTextMain[TX_BUILD_WINE_HINT];
+    Button_BuildCancel.Hint := fTextMain[TX_BUILD_CANCEL_HINT];
 
     for i:=1 to GUI_HOUSE_COUNT do
     if GUIHouseOrder[i] <> ht_None then
@@ -1426,25 +1426,25 @@ end;
 procedure TKMGamePlayInterface.Create_Menu;
 begin
   Panel_Menu := TKMPanel.Create(Panel_Controls, TB_PAD, 44, TB_WIDTH, 332);
-  Button_Menu_Load := TKMButton.Create(Panel_Menu, 0, 20, TB_WIDTH, 30, fTextLibrary[TX_MENU_LOAD_GAME], bsGame);
+  Button_Menu_Load := TKMButton.Create(Panel_Menu, 0, 20, TB_WIDTH, 30, fTextMain[TX_MENU_LOAD_GAME], bsGame);
   Button_Menu_Load.OnClick := SwitchPage;
-  Button_Menu_Load.Hint := fTextLibrary[TX_MENU_LOAD_GAME];
-  Button_Menu_Save := TKMButton.Create(Panel_Menu, 0, 60, TB_WIDTH, 30, fTextLibrary[TX_MENU_SAVE_GAME], bsGame);
+  Button_Menu_Load.Hint := fTextMain[TX_MENU_LOAD_GAME];
+  Button_Menu_Save := TKMButton.Create(Panel_Menu, 0, 60, TB_WIDTH, 30, fTextMain[TX_MENU_SAVE_GAME], bsGame);
   Button_Menu_Save.OnClick := SwitchPage;
-  Button_Menu_Save.Hint := fTextLibrary[TX_MENU_SAVE_GAME];
-  Button_Menu_Settings := TKMButton.Create(Panel_Menu, 0, 100, TB_WIDTH, 30, fTextLibrary[TX_MENU_SETTINGS], bsGame);
+  Button_Menu_Save.Hint := fTextMain[TX_MENU_SAVE_GAME];
+  Button_Menu_Settings := TKMButton.Create(Panel_Menu, 0, 100, TB_WIDTH, 30, fTextMain[TX_MENU_SETTINGS], bsGame);
   Button_Menu_Settings.OnClick := SwitchPage;
-  Button_Menu_Settings.Hint := fTextLibrary[TX_MENU_SETTINGS];
-  Button_Menu_Quit := TKMButton.Create(Panel_Menu, 0, 170, TB_WIDTH, 30, fTextLibrary[TX_MENU_QUIT_MISSION], bsGame);
-  Button_Menu_Quit.Hint := fTextLibrary[TX_MENU_QUIT_MISSION];
+  Button_Menu_Settings.Hint := fTextMain[TX_MENU_SETTINGS];
+  Button_Menu_Quit := TKMButton.Create(Panel_Menu, 0, 170, TB_WIDTH, 30, fTextMain[TX_MENU_QUIT_MISSION], bsGame);
+  Button_Menu_Quit.Hint := fTextMain[TX_MENU_QUIT_MISSION];
   Button_Menu_Quit.OnClick := SwitchPage;
   Button_Menu_TrackUp := TKMButton.Create(Panel_Menu, 150, 300, 30, 30, '>', bsGame);
   Button_Menu_TrackDown := TKMButton.Create(Panel_Menu, 0, 300, 30, 30, '<', bsGame);
-  Button_Menu_TrackUp.Hint := fTextLibrary[TX_MUSIC_NEXT_HINT];
-  Button_Menu_TrackDown.Hint := fTextLibrary[TX_MUSIC_PREV_HINT];
+  Button_Menu_TrackUp.Hint := fTextMain[TX_MUSIC_NEXT_HINT];
+  Button_Menu_TrackDown.Hint := fTextMain[TX_MUSIC_PREV_HINT];
   Button_Menu_TrackUp.OnClick := Menu_NextTrack;
   Button_Menu_TrackDown.OnClick := Menu_PreviousTrack;
-  TKMLabel.Create(Panel_Menu, 0, 260, TB_WIDTH, 30, fTextLibrary[TX_MUSIC_PLAYER], fnt_Metal, taCenter);
+  TKMLabel.Create(Panel_Menu, 0, 260, TB_WIDTH, 30, fTextMain[TX_MUSIC_PLAYER], fnt_Metal, taCenter);
   Label_Menu_Track := TKMLabel.Create(Panel_Menu, 0, 276, TB_WIDTH, 30, '', fnt_Grey, taCenter);
   Label_Menu_Track.Hitable := False; //It can block hits for the track Up/Down buttons as they overlap
   Label_GameTime := TKMLabel.Create(Panel_Menu, 0, 214, TB_WIDTH, 20, '', fnt_Outline, taCenter);
@@ -1465,11 +1465,11 @@ begin
     ListBox_Save.AutoHideScrollBar := True;
     ListBox_Save.OnChange := Menu_Save_ListChange;
 
-    Label_SaveExists := TKMLabel.Create(Panel_Save,0,260,TB_WIDTH,30,fTextLibrary[TX_GAMEPLAY_SAVE_EXISTS],fnt_Outline,taLeft);
-    CheckBox_SaveExists := TKMCheckBox.Create(Panel_Save,0,280,TB_WIDTH,20,fTextLibrary[TX_GAMEPLAY_SAVE_OVERWRITE], fnt_Metal);
+    Label_SaveExists := TKMLabel.Create(Panel_Save,0,260,TB_WIDTH,30,fTextMain[TX_GAMEPLAY_SAVE_EXISTS],fnt_Outline,taLeft);
+    CheckBox_SaveExists := TKMCheckBox.Create(Panel_Save,0,280,TB_WIDTH,20,fTextMain[TX_GAMEPLAY_SAVE_OVERWRITE], fnt_Metal);
     CheckBox_SaveExists.OnClick := Menu_Save_CheckboxChange;
 
-    Button_Save := TKMButton.Create(Panel_Save,0,300,TB_WIDTH,30,fTextLibrary[TX_GAMEPLAY_SAVE_SAVE], bsGame);
+    Button_Save := TKMButton.Create(Panel_Save,0,300,TB_WIDTH,30,fTextMain[TX_GAMEPLAY_SAVE_SAVE], bsGame);
     Button_Save.OnClick := Menu_Save_Click;
 end;
 
@@ -1486,7 +1486,7 @@ begin
     Label_LoadDescription := TKMLabel.Create(Panel_Load,0,265,TB_WIDTH,0,'',fnt_Grey,taLeft);
     Label_LoadDescription.AutoWrap := true;
 
-    Button_Load := TKMButton.Create(Panel_Load,0,300,TB_WIDTH,30,fTextLibrary[TX_GAMEPLAY_LOAD], bsGame);
+    Button_Load := TKMButton.Create(Panel_Load,0,300,TB_WIDTH,30,fTextMain[TX_GAMEPLAY_LOAD], bsGame);
     Button_Load.OnClick := Menu_Load_Click;
 end;
 
@@ -1498,26 +1498,26 @@ const
   WID = TB_WIDTH - PAD * 2;
 begin
   Panel_Settings := TKMPanel.Create(Panel_Controls, TB_PAD, 44, TB_WIDTH, 332);
-    CheckBox_Settings_Autosave := TKMCheckBox.Create(Panel_Settings,PAD,15,WID,20,fTextLibrary[TX_MENU_OPTIONS_AUTOSAVE],fnt_Metal);
+    CheckBox_Settings_Autosave := TKMCheckBox.Create(Panel_Settings,PAD,15,WID,20,fTextMain[TX_MENU_OPTIONS_AUTOSAVE],fnt_Metal);
     CheckBox_Settings_Autosave.OnClick := Menu_Settings_Change;
     TrackBar_Settings_Brightness := TKMTrackBar.Create(Panel_Settings,PAD,40,WID,0,20);
-    TrackBar_Settings_Brightness.Caption := fTextLibrary[TX_MENU_OPTIONS_BRIGHTNESS];
+    TrackBar_Settings_Brightness.Caption := fTextMain[TX_MENU_OPTIONS_BRIGHTNESS];
     TrackBar_Settings_Brightness.OnChange := Menu_Settings_Change;
     TrackBar_Settings_ScrollSpeed := TKMTrackBar.Create(Panel_Settings,PAD,95,WID,0,20);
-    TrackBar_Settings_ScrollSpeed.Caption := fTextLibrary[TX_MENU_OPTIONS_SCROLL_SPEED];
+    TrackBar_Settings_ScrollSpeed.Caption := fTextMain[TX_MENU_OPTIONS_SCROLL_SPEED];
     TrackBar_Settings_ScrollSpeed.OnChange := Menu_Settings_Change;
     TrackBar_Settings_SFX := TKMTrackBar.Create(Panel_Settings,PAD,150,WID,0,20);
-    TrackBar_Settings_SFX.Caption := fTextLibrary[TX_MENU_SFX_VOLUME];
-    TrackBar_Settings_SFX.Hint := fTextLibrary[TX_MENU_SFX_VOLUME_HINT];
+    TrackBar_Settings_SFX.Caption := fTextMain[TX_MENU_SFX_VOLUME];
+    TrackBar_Settings_SFX.Hint := fTextMain[TX_MENU_SFX_VOLUME_HINT];
     TrackBar_Settings_SFX.OnChange := Menu_Settings_Change;
     TrackBar_Settings_Music := TKMTrackBar.Create(Panel_Settings,PAD,205,WID,0,20);
-    TrackBar_Settings_Music.Caption := fTextLibrary[TX_MENU_MUSIC_VOLUME];
-    TrackBar_Settings_Music.Hint := fTextLibrary[TX_MENU_MUSIC_VOLUME_HINT];
+    TrackBar_Settings_Music.Caption := fTextMain[TX_MENU_MUSIC_VOLUME];
+    TrackBar_Settings_Music.Hint := fTextMain[TX_MENU_MUSIC_VOLUME_HINT];
     TrackBar_Settings_Music.OnChange := Menu_Settings_Change;
-    CheckBox_Settings_MusicOff := TKMCheckBox.Create(Panel_Settings,PAD,260,WID,20,fTextLibrary[TX_MENU_OPTIONS_MUSIC_DISABLE],fnt_Metal);
-    CheckBox_Settings_MusicOff.Hint := fTextLibrary[TX_MENU_OPTIONS_MUSIC_DISABLE_HINT];
+    CheckBox_Settings_MusicOff := TKMCheckBox.Create(Panel_Settings,PAD,260,WID,20,fTextMain[TX_MENU_OPTIONS_MUSIC_DISABLE],fnt_Metal);
+    CheckBox_Settings_MusicOff.Hint := fTextMain[TX_MENU_OPTIONS_MUSIC_DISABLE_HINT];
     CheckBox_Settings_MusicOff.OnClick := Menu_Settings_Change;
-    CheckBox_Settings_ShuffleOn := TKMCheckBox.Create(Panel_Settings,PAD,285,WID,20,fTextLibrary[TX_MENU_OPTIONS_MUSIC_SHUFFLE],fnt_Metal);
+    CheckBox_Settings_ShuffleOn := TKMCheckBox.Create(Panel_Settings,PAD,285,WID,20,fTextMain[TX_MENU_OPTIONS_MUSIC_SHUFFLE],fnt_Metal);
     CheckBox_Settings_ShuffleOn.OnClick := Menu_Settings_Change;
 end;
 
@@ -1526,12 +1526,12 @@ end;
 procedure TKMGamePlayInterface.Create_Quit;
 begin
   Panel_Quit := TKMPanel.Create(Panel_Controls, TB_PAD, 44, TB_WIDTH, 332);
-    with TKMLabel.Create(Panel_Quit, 0, 30, TB_WIDTH, 70, fTextLibrary[TX_MENU_QUIT_QUESTION], fnt_Outline, taCenter) do
+    with TKMLabel.Create(Panel_Quit, 0, 30, TB_WIDTH, 70, fTextMain[TX_MENU_QUIT_QUESTION], fnt_Outline, taCenter) do
       AutoWrap := True;
-    Button_Quit_Yes := TKMButton.Create(Panel_Quit, 0, 100, TB_WIDTH, 30, fTextLibrary[TX_MENU_QUIT_MISSION], bsGame);
-    Button_Quit_No := TKMButton.Create(Panel_Quit, 0, 140, TB_WIDTH, 30, fTextLibrary[TX_MENU_DONT_QUIT_MISSION], bsGame);
-    Button_Quit_Yes.Hint := fTextLibrary[TX_MENU_QUIT_MISSION];
-    Button_Quit_No.Hint := fTextLibrary[TX_MENU_DONT_QUIT_MISSION];
+    Button_Quit_Yes := TKMButton.Create(Panel_Quit, 0, 100, TB_WIDTH, 30, fTextMain[TX_MENU_QUIT_MISSION], bsGame);
+    Button_Quit_No := TKMButton.Create(Panel_Quit, 0, 140, TB_WIDTH, 30, fTextMain[TX_MENU_DONT_QUIT_MISSION], bsGame);
+    Button_Quit_Yes.Hint := fTextMain[TX_MENU_QUIT_MISSION];
+    Button_Quit_No.Hint := fTextMain[TX_MENU_DONT_QUIT_MISSION];
     Button_Quit_Yes.OnClick := Menu_QuitMission;
     Button_Quit_No.OnClick := SwitchPage;
 end;
@@ -1543,7 +1543,7 @@ begin
   Panel_Unit := TKMPanel.Create(Panel_Controls, TB_PAD, 44, TB_WIDTH, 332);
     Label_UnitName        := TKMLabel.Create(Panel_Unit,0,16,TB_WIDTH,30,'',fnt_Outline,taCenter);
     Image_UnitPic         := TKMImage.Create(Panel_Unit,0,38,54,100,521);
-    Label_UnitCondition   := TKMLabel.Create(Panel_Unit,65,40,116,30,fTextLibrary[TX_UNIT_CONDITION],fnt_Grey,taCenter);
+    Label_UnitCondition   := TKMLabel.Create(Panel_Unit,65,40,116,30,fTextMain[TX_UNIT_CONDITION],fnt_Grey,taCenter);
     ConditionBar_Unit     := TKMPercentBar.Create(Panel_Unit,65,55,116,15);
     Label_UnitTask        := TKMLabel.Create(Panel_Unit,65,80,116,60,'',fnt_Grey,taLeft);
     Label_UnitTask.AutoWrap := True;
@@ -1592,17 +1592,17 @@ begin
     Button_Army_Attack.Disable;
 
     //Hints
-    Button_Army_GoTo.Hint     := fTextLibrary[TX_ARMY_GOTO_HINT];
-    Button_Army_Stop.Hint     := Format(fTextLibrary[TX_TROOP_HALT_HINT], [SC_ARMY_HALT]);
-    Button_Army_Attack.Hint   := fTextLibrary[TX_ARMY_ATTACK_HINT];
-    Button_Army_RotCW.Hint    := fTextLibrary[TX_ARMY_ROTATE_CW_HINT];
-    Button_Army_Storm.Hint    := fTextLibrary[TX_ARMY_STORM_HINT];
-    Button_Army_RotCCW.Hint   := fTextLibrary[TX_ARMY_ROTATE_CCW_HINT];
-    Button_Army_ForDown.Hint  := fTextLibrary[TX_ARMY_LINE_ADD_HINT];
-    Button_Army_ForUp.Hint    := fTextLibrary[TX_ARMY_LINE_REM_HINT];
-    Button_Army_Split.Hint    := Format(fTextLibrary[TX_TROOP_SPLIT_HINT], [SC_ARMY_SPLIT]);
-    Button_Army_Join.Hint     := Format(fTextLibrary[TX_TROOP_LINK_HINT], [SC_ARMY_LINK]);
-    Button_Army_Feed.Hint     := fTextLibrary[TX_ARMY_FEED_HINT];
+    Button_Army_GoTo.Hint     := fTextMain[TX_ARMY_GOTO_HINT];
+    Button_Army_Stop.Hint     := Format(fTextMain[TX_TROOP_HALT_HINT], [SC_ARMY_HALT]);
+    Button_Army_Attack.Hint   := fTextMain[TX_ARMY_ATTACK_HINT];
+    Button_Army_RotCW.Hint    := fTextMain[TX_ARMY_ROTATE_CW_HINT];
+    Button_Army_Storm.Hint    := fTextMain[TX_ARMY_STORM_HINT];
+    Button_Army_RotCCW.Hint   := fTextMain[TX_ARMY_ROTATE_CCW_HINT];
+    Button_Army_ForDown.Hint  := fTextMain[TX_ARMY_LINE_ADD_HINT];
+    Button_Army_ForUp.Hint    := fTextMain[TX_ARMY_LINE_REM_HINT];
+    Button_Army_Split.Hint    := Format(fTextMain[TX_TROOP_SPLIT_HINT], [SC_ARMY_SPLIT]);
+    Button_Army_Join.Hint     := Format(fTextMain[TX_TROOP_LINK_HINT], [SC_ARMY_LINK]);
+    Button_Army_Feed.Hint     := fTextMain[TX_ARMY_FEED_HINT];
     Button_Unit_Dismiss.Hint  := 'Dismiss unit';
 
     {Army controls...
@@ -1612,8 +1612,8 @@ begin
     Split     Join      Feed}
 
     Panel_Army_JoinGroups := TKMPanel.Create(Panel_Unit, 0, 160, TB_WIDTH, 182);
-    Label_Army_Join_Message := TKMLabel.Create(Panel_Army_JoinGroups, 0, 30, TB_WIDTH, 65, fTextLibrary[TX_ARMY_JOIN_SELECT], fnt_Outline, taCenter);
-    Button_Army_Join_Cancel := TKMButton.Create(Panel_Army_JoinGroups, 0, 95, TB_WIDTH, 30, fTextLibrary[TX_ARMY_JOIN_CANCEL], bsGame);
+    Label_Army_Join_Message := TKMLabel.Create(Panel_Army_JoinGroups, 0, 30, TB_WIDTH, 65, fTextMain[TX_ARMY_JOIN_SELECT], fnt_Outline, taCenter);
+    Button_Army_Join_Cancel := TKMButton.Create(Panel_Army_JoinGroups, 0, 95, TB_WIDTH, 30, fTextMain[TX_ARMY_JOIN_CANCEL], bsGame);
 
   Button_Army_Join_Cancel.OnClick := Army_HideJoinMenu;
 end;
@@ -1628,20 +1628,20 @@ begin
     //Custom things come in fixed size blocks (more smaller Panels?), and to be shown upon need
     Label_House := TKMLabel.Create(Panel_House, 0, 14, TB_WIDTH, 0, '', fnt_Outline, taCenter);
     Button_HouseWaresBlock := TKMButton.Create(Panel_House,0,42,30,30,37, rxGui, bsGame);
-    Button_HouseWaresBlock.Hint := fTextLibrary[TX_HOUSE_TOGGLE_DELIVERS_HINT];
+    Button_HouseWaresBlock.Hint := fTextMain[TX_HOUSE_TOGGLE_DELIVERS_HINT];
     Button_HouseWaresBlock.OnClick := House_WareDeliveryToggle;
     Button_HouseRepair := TKMButton.Create(Panel_House,30,42,30,30,40, rxGui, bsGame);
-    Button_HouseRepair.Hint := fTextLibrary[TX_HOUSE_TOGGLE_REPAIR_HINT];
+    Button_HouseRepair.Hint := fTextMain[TX_HOUSE_TOGGLE_REPAIR_HINT];
     Button_HouseRepair.OnClick := House_RepairToggle;
     Image_House_Logo := TKMImage.Create(Panel_House,60,41,32,32,338);
     Image_House_Logo.ImageCenter;
     Image_House_Worker := TKMImage.Create(Panel_House,90,41,32,32,141);
     Image_House_Worker.ImageCenter;
-    Label_HouseHealth := TKMLabel.Create(Panel_House,120,45,55,15,fTextLibrary[TX_HOUSE_CONDITION],fnt_Mini,taCenter);
+    Label_HouseHealth := TKMLabel.Create(Panel_House,120,45,55,15,fTextMain[TX_HOUSE_CONDITION],fnt_Mini,taCenter);
     Label_HouseHealth.FontColor := $FFE0E0E0;
 
     HealthBar_House := TKMPercentBar.Create(Panel_House,120,57,55,15);
-    Label_House_UnderConstruction := TKMLabel.Create(Panel_House,0,110,TB_WIDTH,0,fTextLibrary[TX_HOUSE_UNDER_CONSTRUCTION],fnt_Grey,taCenter);
+    Label_House_UnderConstruction := TKMLabel.Create(Panel_House,0,110,TB_WIDTH,0,fTextMain[TX_HOUSE_UNDER_CONSTRUCTION],fnt_Grey,taCenter);
 
     Image_HouseConstructionWood  := TKMImage.Create(Panel_House,40,170,40,40,655);
     Image_HouseConstructionWood.ImageCenter;
@@ -1650,19 +1650,19 @@ begin
     Label_HouseConstructionWood  := TKMLabel.Create(Panel_House,60,210,fResource.Wares[wt_Wood].Title,fnt_Grey,taCenter);
     Label_HouseConstructionStone := TKMLabel.Create(Panel_House,120,210,fResource.Wares[wt_Stone].Title,fnt_Grey,taCenter);
 
-    Label_House_Demolish := TKMLabel.Create(Panel_House,0,130,TB_WIDTH,0,fTextLibrary[TX_HOUSE_DEMOLISH],fnt_Grey,taCenter);
+    Label_House_Demolish := TKMLabel.Create(Panel_House,0,130,TB_WIDTH,0,fTextMain[TX_HOUSE_DEMOLISH],fnt_Grey,taCenter);
     Label_House_Demolish.AutoWrap := True;
-    Button_House_DemolishYes := TKMButton.Create(Panel_House,0,185,TB_WIDTH,30,fTextLibrary[TX_HOUSE_DEMOLISH_YES],bsGame);
-    Button_House_DemolishNo  := TKMButton.Create(Panel_House,0,220,TB_WIDTH,30,fTextLibrary[TX_HOUSE_DEMOLISH_NO],bsGame);
-    Button_House_DemolishYes.Hint := fTextLibrary[TX_HOUSE_DEMOLISH_YES_HINT];
-    Button_House_DemolishNo.Hint  := fTextLibrary[TX_HOUSE_DEMOLISH_NO];
+    Button_House_DemolishYes := TKMButton.Create(Panel_House,0,185,TB_WIDTH,30,fTextMain[TX_HOUSE_DEMOLISH_YES],bsGame);
+    Button_House_DemolishNo  := TKMButton.Create(Panel_House,0,220,TB_WIDTH,30,fTextMain[TX_HOUSE_DEMOLISH_NO],bsGame);
+    Button_House_DemolishYes.Hint := fTextMain[TX_HOUSE_DEMOLISH_YES_HINT];
+    Button_House_DemolishNo.Hint  := fTextMain[TX_HOUSE_DEMOLISH_NO];
     Button_House_DemolishYes.OnClick := House_Demolish;
     Button_House_DemolishNo.OnClick  := House_Demolish;
 
     Panel_House_Common := TKMPanel.Create(Panel_House,0,76,200,310);
-      Label_Common_Demand := TKMLabel.Create(Panel_House_Common,0,2,TB_WIDTH,0,fTextLibrary[TX_HOUSE_NEEDS],fnt_Grey,taCenter);
+      Label_Common_Demand := TKMLabel.Create(Panel_House_Common,0,2,TB_WIDTH,0,fTextMain[TX_HOUSE_NEEDS],fnt_Grey,taCenter);
       Label_Common_Offer  := TKMLabel.Create(Panel_House_Common,0,2,TB_WIDTH,0,'',fnt_Grey,taCenter);
-      Label_Common_Costs  := TKMLabel.Create(Panel_House_Common,0,2,TB_WIDTH,0,fTextLibrary[TX_HOUSE_WARE_COSTS],fnt_Grey,taCenter);
+      Label_Common_Costs  := TKMLabel.Create(Panel_House_Common,0,2,TB_WIDTH,0,fTextMain[TX_HOUSE_WARE_COSTS],fnt_Grey,taCenter);
 
       //They get repositioned on display
       for I := 1 to 4 do
@@ -1674,8 +1674,8 @@ begin
         ResRow_Order[I].RX := rxGui;
         ResRow_Order[I].OrderRem.OnClickEither := House_OrderClick;
         ResRow_Order[I].OrderAdd.OnClickEither := House_OrderClick;
-        ResRow_Order[I].OrderRem.Hint          := fTextLibrary[TX_HOUSE_ORDER_DEC_HINT];
-        ResRow_Order[I].OrderAdd.Hint          := fTextLibrary[TX_HOUSE_ORDER_INC_HINT];
+        ResRow_Order[I].OrderRem.Hint          := fTextMain[TX_HOUSE_ORDER_DEC_HINT];
+        ResRow_Order[I].OrderAdd.Hint          := fTextMain[TX_HOUSE_ORDER_INC_HINT];
         ResRow_Order[I].OrderRem.OnMouseWheel := House_OrderWheel;
         ResRow_Order[I].OrderAdd.OnMouseWheel := House_OrderWheel;
         ResRow_Order[I].OnMouseWheel          := House_OrderWheel;
@@ -1723,11 +1723,11 @@ begin
   Button_Market_In  := TKMButtonFlat.Create(Panel_HouseMarket,  0, LineH, 36, 40, 0);
   Button_Market_In.HideHighlight := True;
   Button_Market_In.Clickable := False;
-  Button_Market_In.Hint := fTextLibrary[TX_HOUSES_MARKET_SELECT_LEFT];
+  Button_Market_In.Hint := fTextMain[TX_HOUSES_MARKET_SELECT_LEFT];
   Button_Market_Out := TKMButtonFlat.Create(Panel_HouseMarket, TB_WIDTH - 36, LineH, 36, 40, 0);
   Button_Market_Out.HideHighlight := True;
   Button_Market_Out.Clickable := False;
-  Button_Market_Out.Hint := fTextLibrary[TX_HOUSES_MARKET_SELECT_RIGHT];
+  Button_Market_Out.Hint := fTextMain[TX_HOUSES_MARKET_SELECT_RIGHT];
 
   with TKMShape.Create(Panel_HouseMarket,  0, LineH, 36, 40) do
   begin
@@ -1747,9 +1747,9 @@ begin
   Label_Market_FromAmount := TKMLabel.Create(Panel_HouseMarket, 53, LineH, '', fnt_Grey, taCenter);
   Button_Market_Remove := TKMButton.Create(Panel_HouseMarket, TB_WIDTH div 2 - 20, LineH, 20, 20, '-', bsGame);
   Button_Market_Remove.OnClickEither := House_MarketOrderClick;
-  Button_Market_Remove.Hint := fTextLibrary[TX_HOUSES_MARKET_HINT_REM];
+  Button_Market_Remove.Hint := fTextMain[TX_HOUSES_MARKET_HINT_REM];
   Button_Market_Add := TKMButton.Create(Panel_HouseMarket, TB_WIDTH div 2, LineH, 20, 20, '+', bsGame);
-  Button_Market_Add.Hint := fTextLibrary[TX_HOUSES_MARKET_HINT_ADD];
+  Button_Market_Add.Hint := fTextMain[TX_HOUSES_MARKET_HINT_ADD];
   Button_Market_Add.OnClickEither := House_MarketOrderClick;
   Label_Market_ToAmount := TKMLabel.Create(Panel_HouseMarket, 127, LineH, '', fnt_Grey, taCenter);
 end;
@@ -1784,7 +1784,7 @@ var I: Integer;
 begin
   Panel_House_School := TKMPanel.Create(Panel_House, 0, 76, TB_WIDTH, 266);
 
-    TKMLabel.Create(Panel_House_School,0,2,TB_WIDTH,30,fTextLibrary[TX_HOUSE_NEEDS],fnt_Grey,taCenter);
+    TKMLabel.Create(Panel_House_School,0,2,TB_WIDTH,30,fTextMain[TX_HOUSE_NEEDS],fnt_Grey,taCenter);
 
     ResRow_School_Resource := TKMResourceRow.Create(Panel_House_School, 0,22,TB_WIDTH,20);
     ResRow_School_Resource.RX := rxGui;
@@ -1793,7 +1793,7 @@ begin
     ResRow_School_Resource.Hint := fResource.Wares[wt_Gold].Title;
 
     Button_School_UnitWIP := TKMButton.Create(Panel_House_School,  0,48,32,32,0, rxGui, bsGame);
-    Button_School_UnitWIP.Hint := fTextLibrary[TX_HOUSE_SCHOOL_WIP_HINT];
+    Button_School_UnitWIP.Hint := fTextMain[TX_HOUSE_SCHOOL_WIP_HINT];
     Button_School_UnitWIP.Tag := 0;
     Button_School_UnitWIP.OnClickEither := House_SchoolUnitRemove;
     Button_School_UnitWIPBar := TKMPercentBar.Create(Panel_House_School,34,54,146,20);
@@ -1816,9 +1816,9 @@ begin
     Button_School_Left.OnClickEither:=House_SchoolUnitChange;
     Button_School_Train.OnClickEither:=House_SchoolUnitChange;
     Button_School_Right.OnClickEither:=House_SchoolUnitChange;
-    Button_School_Left.Hint :=fTextLibrary[TX_HOUSE_SCHOOL_PREV_HINT];
-    Button_School_Train.Hint:=fTextLibrary[TX_HOUSE_SCHOOL_TRAIN_HINT];
-    Button_School_Right.Hint:=fTextLibrary[TX_HOUSE_SCHOOL_NEXT_HINT];
+    Button_School_Left.Hint :=fTextMain[TX_HOUSE_SCHOOL_PREV_HINT];
+    Button_School_Train.Hint:=fTextMain[TX_HOUSE_SCHOOL_TRAIN_HINT];
+    Button_School_Right.Hint:=fTextMain[TX_HOUSE_SCHOOL_NEXT_HINT];
 end;
 
 
@@ -1871,9 +1871,9 @@ begin
     Button_Barracks_Left.OnClickEither := House_BarracksUnitChange;
     Button_Barracks_Train.OnClickEither := House_BarracksUnitChange;
     Button_Barracks_Right.OnClickEither := House_BarracksUnitChange;
-    Button_Barracks_Left.Hint := fTextLibrary[TX_HOUSE_BARRACKS_PREV_HINT];
-    Button_Barracks_Train.Hint := fTextLibrary[TX_HOUSE_BARRACKS_TRAIN_HINT];
-    Button_Barracks_Right.Hint := fTextLibrary[TX_HOUSE_BARRACKS_NEXT_HINT];
+    Button_Barracks_Left.Hint := fTextMain[TX_HOUSE_BARRACKS_PREV_HINT];
+    Button_Barracks_Train.Hint := fTextMain[TX_HOUSE_BARRACKS_TRAIN_HINT];
+    Button_Barracks_Right.Hint := fTextMain[TX_HOUSE_BARRACKS_NEXT_HINT];
     Button_Barracks_Train.Disable;
 end;
 
@@ -1887,8 +1887,8 @@ begin
 
     Radio_Woodcutter := TKMRadioGroup.Create(Panel_HouseWoodcutter,38,64,TB_WIDTH-38,32,fnt_Grey);
     Radio_Woodcutter.ItemIndex := 0;
-    Radio_Woodcutter.Add(fTextLibrary[TX_HOUSES_WOODCUTTER_PLANT_CHOP]);
-    Radio_Woodcutter.Add(fTextLibrary[TX_HOUSES_WOODCUTTER_CHOP_ONLY]);
+    Radio_Woodcutter.Add(fTextMain[TX_HOUSES_WOODCUTTER_PLANT_CHOP]);
+    Radio_Woodcutter.Add(fTextMain[TX_HOUSES_WOODCUTTER_CHOP_ONLY]);
     Radio_Woodcutter.OnChange := House_WoodcutterChange;
 end;
 
@@ -2052,24 +2052,24 @@ begin
   if Button_BuildCancel.Down then begin
     GameCursor.Mode:=cmErase;
     Image_Build_Selected.TexID := 340;
-    Label_Build.Caption := fTextLibrary[TX_BUILD_DEMOLISH];
+    Label_Build.Caption := fTextMain[TX_BUILD_DEMOLISH];
   end;
   if Button_BuildRoad.Down then begin
     GameCursor.Mode:=cmRoad;
     Image_Build_Selected.TexID := 335;
     Label_BuildCost_Stone.Caption:='1';
-    Label_Build.Caption := fTextLibrary[TX_BUILD_ROAD];
+    Label_Build.Caption := fTextMain[TX_BUILD_ROAD];
   end;
   if Button_BuildField.Down then begin
     GameCursor.Mode:=cmField;
     Image_Build_Selected.TexID := 337;
-    Label_Build.Caption := fTextLibrary[TX_BUILD_FIELD];
+    Label_Build.Caption := fTextMain[TX_BUILD_FIELD];
   end;
   if Button_BuildWine.Down then begin
     GameCursor.Mode:=cmWine;
     Image_Build_Selected.TexID := 336;
     Label_BuildCost_Wood.Caption:='1';
-    Label_Build.Caption := fTextLibrary[TX_BUILD_WINE];
+    Label_Build.Caption := fTextMain[TX_BUILD_WINE];
   end;
 
   for i:=1 to GUI_HOUSE_COUNT do
@@ -2206,7 +2206,7 @@ begin
             Panel_House_Common.Childs[I].Hide;
 
           Label_Common_Offer.Show;
-          Label_Common_Offer.Caption := fTextLibrary[TX_HOUSE_DELIVERS]+'(x'+inttostr(fResource.HouseDat[Sender.HouseType].ResProductionX)+'):';
+          Label_Common_Offer.Caption := fTextMain[TX_HOUSE_DELIVERS]+'(x'+inttostr(fResource.HouseDat[Sender.HouseType].ResProductionX)+'):';
           Label_Common_Offer.Top := 8;
 
           ResRow_Common_Resource[1].TexID := fResource.Wares[fResource.HouseDat[Sender.HouseType].ResOutput[1]].GUIIcon;
@@ -2252,7 +2252,7 @@ begin
           if fResource.HouseDat[Sender.HouseType].ProducesWares then
           begin
             Label_Common_Offer.Show;
-            Label_Common_Offer.Caption := fTextLibrary[TX_HOUSE_DELIVERS]+'(x'+inttostr(fResource.HouseDat[Sender.HouseType].ResProductionX)+'):';
+            Label_Common_Offer.Caption := fTextMain[TX_HOUSE_DELIVERS]+'(x'+inttostr(fResource.HouseDat[Sender.HouseType].ResProductionX)+'):';
             Label_Common_Offer.Top := Base+Line*LineAdv+6;
             inc(Line);
 
@@ -2274,7 +2274,7 @@ begin
           if fResource.HouseDat[Sender.HouseType].DoesOrders then
           begin
             Label_Common_Offer.Show;
-            Label_Common_Offer.Caption:=fTextLibrary[TX_HOUSE_DELIVERS]+'(x'+inttostr(fResource.HouseDat[Sender.HouseType].ResProductionX)+'):';
+            Label_Common_Offer.Caption:=fTextMain[TX_HOUSE_DELIVERS]+'(x'+inttostr(fResource.HouseDat[Sender.HouseType].ResProductionX)+'):';
             Label_Common_Offer.Top:=Base+Line*LineAdv+6;
             inc(Line);
             for I := 1 to 4 do //Orders
@@ -2845,7 +2845,7 @@ begin
   begin
     Button_Build[I].OnClick := nil;
     Button_Build[I].TexID := 41;
-    Button_Build[I].Hint := fTextLibrary[TX_HOUSE_NOT_AVAIABLE]; //Building not available
+    Button_Build[I].Hint := fTextMain[TX_HOUSE_NOT_AVAIABLE]; //Building not available
   end;
 end;
 
@@ -2910,7 +2910,7 @@ begin
   if aItem = -1 then
   begin
     fChatMode := cmAll;
-    UpdateButtonCaption(fTextLibrary[TX_CHAT_ALL]);
+    UpdateButtonCaption(fTextMain[TX_CHAT_ALL]);
     Edit_ChatMsg.DrawOutline := False; //No outline for All
   end
   else
@@ -2918,7 +2918,7 @@ begin
     if aItem = -2 then
     begin
       fChatMode := cmTeam;
-      UpdateButtonCaption(fTextLibrary[TX_CHAT_TEAM], $FF66FF66);
+      UpdateButtonCaption(fTextMain[TX_CHAT_TEAM], $FF66FF66);
       Edit_ChatMsg.DrawOutline := True;
       Edit_ChatMsg.OutlineColor := $FF66FF66;
     end
@@ -2953,10 +2953,10 @@ var C: TKMControl; I: Integer;
 begin
   //First populate the list
   Menu_Chat.Clear;
-  Menu_Chat.AddItem(fTextLibrary[TX_CHAT_ALL], -1);
+  Menu_Chat.AddItem(fTextMain[TX_CHAT_ALL], -1);
   //Only show "Team" if the player is on a team
   if fGame.Networking.NetPlayers[fGame.Networking.MyIndex].Team <> 0 then
-    Menu_Chat.AddItem('[$66FF66]'+fTextLibrary[TX_CHAT_TEAM], -2);
+    Menu_Chat.AddItem('[$66FF66]'+fTextMain[TX_CHAT_TEAM], -2);
 
   for I := 1 to fGame.Networking.NetPlayers.Count do
     if I <> fGame.Networking.MyIndex then //Can't whisper to yourself
@@ -3181,7 +3181,7 @@ begin
     else
     begin
       Button_Market[I].TexID := 41;
-      Button_Market[I].Hint := fTextLibrary[TX_HOUSES_MARKET_HINT_BLOCKED];
+      Button_Market[I].Hint := fTextMain[TX_HOUSES_MARKET_HINT_BLOCKED];
       Button_Market[I].Caption := '-';
     end;
 
@@ -3195,11 +3195,11 @@ begin
   begin
     Shape_Market_From.Left := ((Byte(aMarket.ResFrom)-1) mod 6) * 31;
     Shape_Market_From.Top := 12 + ((Byte(aMarket.ResFrom)-1) div 6) * MARKET_RES_HEIGHT;
-    Label_Market_In.Caption := Format(fTextLibrary[TX_HOUSES_MARKET_FROM], [aMarket.RatioFrom]) + ':';
+    Label_Market_In.Caption := Format(fTextMain[TX_HOUSES_MARKET_FROM], [aMarket.RatioFrom]) + ':';
     Button_Market_In.TexID := fResource.Wares[aMarket.ResFrom].GUIIcon;
     Button_Market_In.Caption := IntToStr(aMarket.GetResTotal(aMarket.ResFrom));
   end else begin
-    Label_Market_In.Caption := Format(fTextLibrary[TX_HOUSES_MARKET_FROM],[0]) + ':';
+    Label_Market_In.Caption := Format(fTextMain[TX_HOUSES_MARKET_FROM],[0]) + ':';
     Button_Market_In.TexID := fResource.Wares[wt_None].GUIIcon;
     Button_Market_In.Caption := '-';
   end;
@@ -3210,11 +3210,11 @@ begin
   begin
     Shape_Market_To.Left := ((Byte(aMarket.ResTo)-1) mod 6) * 31;
     Shape_Market_To.Top := 12 + ((Byte(aMarket.ResTo)-1) div 6) * MARKET_RES_HEIGHT;
-    Label_Market_Out.Caption := Format(fTextLibrary[TX_HOUSES_MARKET_TO], [aMarket.RatioTo]) + ':';
+    Label_Market_Out.Caption := Format(fTextMain[TX_HOUSES_MARKET_TO], [aMarket.RatioTo]) + ':';
     Button_Market_Out.Caption := IntToStr(aMarket.GetResTotal(aMarket.ResTo));
     Button_Market_Out.TexID := fResource.Wares[aMarket.ResTo].GUIIcon;
   end else begin
-    Label_Market_Out.Caption := Format(fTextLibrary[TX_HOUSES_MARKET_TO], [0]) + ':';
+    Label_Market_Out.Caption := Format(fTextMain[TX_HOUSES_MARKET_TO], [0]) + ':';
     Button_Market_Out.TexID := fResource.Wares[wt_None].GUIIcon;
     Button_Market_Out.Caption := '-';
   end;
@@ -3278,7 +3278,7 @@ begin
   else
     Label_Menu_Track.Caption := fGameApp.MusicLib.GetTrackTitle;
 
-  Label_GameTime.Caption := Format(fTextLibrary[TX_GAME_TIME], [TimeToString(fGame.MissionTime)]);
+  Label_GameTime.Caption := Format(fTextMain[TX_GAME_TIME], [TimeToString(fGame.MissionTime)]);
 
   Label_Menu_Track.Enabled      := not fGameApp.GameSettings.MusicOff;
   Button_Menu_TrackUp.Enabled   := not fGameApp.GameSettings.MusicOff;
@@ -3350,7 +3350,7 @@ begin
     else
     begin
       Stat_HousePic[HT].TexID := 41;
-      Stat_HousePic[HT].Hint := fTextLibrary[TX_HOUSE_NOT_AVAIABLE]; //Building not available
+      Stat_HousePic[HT].Hint := fTextMain[TX_HOUSE_NOT_AVAIABLE]; //Building not available
     end;
   end;
 
@@ -3422,7 +3422,7 @@ begin
   if fReplay then
   begin
     Dropbox_ReplayFOW.Clear;
-    Dropbox_ReplayFOW.Add(fTextLibrary[TX_REPLAY_SHOW_ALL], -1);
+    Dropbox_ReplayFOW.Add(fTextMain[TX_REPLAY_SHOW_ALL], -1);
     for I := 0 to fPlayers.Count - 1 do
     if fPlayers[I].Enabled and (fPlayers[I].PlayerType = pt_Human) then
         Dropbox_ReplayFOW.Add('[$' + IntToHex(FlagColorToTextColor(fPlayers[I].FlagColor) and $00FFFFFF, 6) + ']' + fPlayers[I].GetFormattedPlayerName, I);
@@ -3460,19 +3460,19 @@ begin
   PlayMoreMsg := Msg;
   case Msg of
     gr_Win:       begin
-                    Label_PlayMore.Caption := fTextLibrary[TX_GAMEPLAY_WON];
-                    Button_PlayMore.Caption := fTextLibrary[TX_GAMEPLAY_CONTINUE_PLAYING];
-                    Button_PlayQuit.Caption := fTextLibrary[TX_GAMEPLAY_VICTORY];
+                    Label_PlayMore.Caption := fTextMain[TX_GAMEPLAY_WON];
+                    Button_PlayMore.Caption := fTextMain[TX_GAMEPLAY_CONTINUE_PLAYING];
+                    Button_PlayQuit.Caption := fTextMain[TX_GAMEPLAY_VICTORY];
                   end;
     gr_Defeat:    begin
-                    Label_PlayMore.Caption := fTextLibrary[TX_GAMEPLAY_LOST];
-                    Button_PlayMore.Caption := fTextLibrary[TX_GAMEPLAY_DEFEAT_CONTINUEWATCHING];
-                    Button_PlayQuit.Caption := fTextLibrary[TX_GAMEPLAY_DEFEAT];
+                    Label_PlayMore.Caption := fTextMain[TX_GAMEPLAY_LOST];
+                    Button_PlayMore.Caption := fTextMain[TX_GAMEPLAY_DEFEAT_CONTINUEWATCHING];
+                    Button_PlayQuit.Caption := fTextMain[TX_GAMEPLAY_DEFEAT];
                   end;
     gr_ReplayEnd: begin
-                    Label_PlayMore.Caption := fTextLibrary[TX_GAMEPLAY_REPLAY_ENDED];
-                    Button_PlayMore.Caption := fTextLibrary[TX_GAMEPLAY_REPLAY_CONTINUEWATCHING];
-                    Button_PlayQuit.Caption := fTextLibrary[TX_GAMEPLAY_QUIT_TO_MENU];
+                    Label_PlayMore.Caption := fTextMain[TX_GAMEPLAY_REPLAY_ENDED];
+                    Button_PlayMore.Caption := fTextMain[TX_GAMEPLAY_REPLAY_CONTINUEWATCHING];
+                    Button_PlayQuit.Caption := fTextMain[TX_GAMEPLAY_QUIT_TO_MENU];
                   end;
     else if DoShow then Assert(false,'Wrong message in ShowPlayMore'); //Can become hidden with any message
   end;
@@ -3486,9 +3486,9 @@ begin
   PlayMoreMsg := Msg;
   case Msg of
     gr_Win:       begin
-                    Label_MPPlayMore.Caption := fTextLibrary[TX_GAMEPLAY_WON];
-                    Button_MPPlayMore.Caption := fTextLibrary[TX_GAMEPLAY_CONTINUE_PLAYING];
-                    Button_MPPlayQuit.Caption := fTextLibrary[TX_GAMEPLAY_VICTORY];
+                    Label_MPPlayMore.Caption := fTextMain[TX_GAMEPLAY_WON];
+                    Button_MPPlayMore.Caption := fTextMain[TX_GAMEPLAY_CONTINUE_PLAYING];
+                    Button_MPPlayQuit.Caption := fTextMain[TX_GAMEPLAY_VICTORY];
                   end;
     gr_Defeat:    begin
                     //Refresh it so that menu buttons become disabled
@@ -3496,9 +3496,9 @@ begin
                     //Close e.g. the build menu if it was open
                     SwitchPage(Button_Back);
 
-                    Label_MPPlayMore.Caption := fTextLibrary[TX_GAMEPLAY_LOST];
-                    Button_MPPlayMore.Caption := fTextLibrary[TX_GAMEPLAY_DEFEAT_CONTINUEWATCHING];
-                    Button_MPPlayQuit.Caption := fTextLibrary[TX_GAMEPLAY_DEFEAT];
+                    Label_MPPlayMore.Caption := fTextMain[TX_GAMEPLAY_LOST];
+                    Button_MPPlayMore.Caption := fTextMain[TX_GAMEPLAY_DEFEAT_CONTINUEWATCHING];
+                    Button_MPPlayQuit.Caption := fTextMain[TX_GAMEPLAY_DEFEAT];
                   end;
     else Assert(false,'Wrong message in ShowMPPlayMore');
   end;
@@ -3551,14 +3551,14 @@ begin
   end;
   if fGame.Networking.IsReconnecting then
   begin
-    S := fTextLibrary[TX_MULTIPLAYER_ATTEMPT_RECONNECTING];
+    S := fTextMain[TX_MULTIPLAYER_ATTEMPT_RECONNECTING];
     Button_NetDropPlayers.Visible := false;
     fNetWaitDropPlayersDelayStarted := 0;
     Label_NetDropPlayersDelay.Caption := '';
   end
   else
   begin
-    S := fTextLibrary[TX_MULTIPLAYER_WAITING]+' ';
+    S := fTextMain[TX_MULTIPLAYER_WAITING]+' ';
     for i:=0 to aPlayers.Count-1 do
       S := S + aPlayers.Strings[i] + IfThen(i<>aPlayers.Count-1, ', ');
 
@@ -3597,15 +3597,15 @@ begin
   if Sender = Button_NetQuit then
   begin
     Panel_NetWaitButtons.Hide;
-    Label_NetWaitConfirm.Caption := fTextLibrary[TX_GAMEPLAY_CONFIRM_QUIT];
-    Button_NetConfirmYes.Caption := fTextLibrary[TX_GAMEPLAY_QUIT_TO_MENU];
+    Label_NetWaitConfirm.Caption := fTextMain[TX_GAMEPLAY_CONFIRM_QUIT];
+    Button_NetConfirmYes.Caption := fTextMain[TX_GAMEPLAY_QUIT_TO_MENU];
     Panel_NetWaitConfirm.Show;
   end else
   if Sender = Button_NetDropPlayers then
   begin
     Panel_NetWaitButtons.Hide;
-    Label_NetWaitConfirm.Caption := fTextLibrary[TX_GAMEPLAY_CONFIRM_DROP];
-    Button_NetConfirmYes.Caption := fTextLibrary[TX_GAMEPLAY_DROP_PLAYERS];
+    Label_NetWaitConfirm.Caption := fTextMain[TX_GAMEPLAY_CONFIRM_DROP];
+    Button_NetConfirmYes.Caption := fTextMain[TX_GAMEPLAY_DROP_PLAYERS];
     Panel_NetWaitConfirm.Show;
   end else
   if Sender = Button_NetConfirmNo then
@@ -3616,9 +3616,9 @@ begin
   if Sender = Button_NetConfirmYes then
   begin
     Panel_NetWaitConfirm.Hide;
-    if Button_NetConfirmYes.Caption = fTextLibrary[TX_GAMEPLAY_DROP_PLAYERS] then
+    if Button_NetConfirmYes.Caption = fTextMain[TX_GAMEPLAY_DROP_PLAYERS] then
       fGame.GameDropWaitingPlayers else
-    if Button_NetConfirmYes.Caption = fTextLibrary[TX_GAMEPLAY_QUIT_TO_MENU] then
+    if Button_NetConfirmYes.Caption = fTextMain[TX_GAMEPLAY_QUIT_TO_MENU] then
       fGameApp.Stop(gr_Cancel);
   end
   else Assert(false, 'Wrong Sender in NetWaitClick');
@@ -4488,7 +4488,7 @@ begin
 
   //Update peacetime counter
   if fGame.GameOptions.Peacetime <> 0 then
-    Label_PeacetimeRemaining.Caption := Format(fTextLibrary[TX_MP_PEACETIME_REMAINING],
+    Label_PeacetimeRemaining.Caption := Format(fTextMain[TX_MP_PEACETIME_REMAINING],
                                                [TimeToString(fGame.GetPeacetimeRemaining)])
   else
     Label_PeacetimeRemaining.Caption := '';
@@ -4539,9 +4539,9 @@ begin
     begin
       i := NET_DROP_PLAYER_MIN_WAIT - EnsureRange(GetTimeSince(fNetWaitDropPlayersDelayStarted) div 1000, 0, NET_DROP_PLAYER_MIN_WAIT);
       if i > 0 then
-        Label_NetDropPlayersDelay.Caption := Format(fTextLibrary[TX_GAMEPLAY_DROP_PLAYERS_DELAY], [i])
+        Label_NetDropPlayersDelay.Caption := Format(fTextMain[TX_GAMEPLAY_DROP_PLAYERS_DELAY], [i])
       else
-        Label_NetDropPlayersDelay.Caption := fTextLibrary[TX_GAMEPLAY_DROP_PLAYERS_ALLOWED];
+        Label_NetDropPlayersDelay.Caption := fTextMain[TX_GAMEPLAY_DROP_PLAYERS_ALLOWED];
       Button_NetDropPlayers.Enabled := i = 0;
     end;
   end;

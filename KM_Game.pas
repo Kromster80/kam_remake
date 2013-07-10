@@ -121,7 +121,11 @@ type
     function IsMultiplayer: Boolean;
     function IsReplay: Boolean;
     procedure ShowMessage(aKind: TKMMessageKind; aText: string; aLoc: TKMPoint);
+    procedure ShowMessageFormatted(aKind: TKMMessageKind; aText: string; aLoc: TKMPoint; aParams: array of const);
     procedure ShowOverlay(aText: string);
+    procedure ShowOverlayFormatted(aText: string; aParams: array of const);
+    procedure OverlayAppend(aText: string);
+    procedure OverlayAppendFormatted(aText: string; aParams: array of const);
     property GameTickCount:cardinal read fGameTickCount;
     property GameName: string read fGameName;
     property CampaignName: AnsiString read fCampaignName;
@@ -484,14 +488,14 @@ begin
 
   case fGameMode of
     gmMulti:  begin
-                fGameInputProcess := TGameInputProcess_Multi.Create(gipRecording, fNetworking)
+                fGameInputProcess := TGameInputProcess_Multi.Create(gipRecording, fNetworking);
                 fTextMission := TKMTextLibraryMulti.Create(fGameApp.GameSettings.Locale);
-                fTextMission.L
-                 .LoadMissionStrings(ChangeFileExt(aMissionFile, '.%s.libx'));
+                fTextMission.LoadLocale(ChangeFileExt(aMissionFile, '.%s.libx'));
               end;
     gmSingle: begin
                 fGameInputProcess := TGameInputProcess_Single.Create(gipRecording);
-                fTextLibrary.LoadMissionStrings(ChangeFileExt(aMissionFile, '.%s.libx'));
+                fTextMission := TKMTextLibraryMulti.Create(fGameApp.GameSettings.Locale);
+                fTextMission.LoadLocale(ChangeFileExt(aMissionFile, '.%s.libx'));
               end;
     gmMapEd:  ;
   end;
@@ -638,7 +642,7 @@ begin
   else
   begin
     fNetworking.Disconnect;
-    fGameApp.Stop(gr_Disconnect, fTextLibrary[TX_GAME_ERROR_NETWORK]+' '+aData)
+    fGameApp.Stop(gr_Disconnect, fTextMain[TX_GAME_ERROR_NETWORK] + ' ' + aData)
   end;
 end;
 
@@ -692,7 +696,7 @@ begin
   //Stop game from executing while the user views the message
   fIsPaused := True;
   gLog.AddTime('Replay failed a consistency check at tick '+IntToStr(fGameTickCount));
-  if MessageDlg(fTextLibrary[TX_REPLAY_FAILED], mtWarning, [mbYes, mbNo], 0) <> mrYes then
+  if MessageDlg(fTextMain[TX_REPLAY_FAILED], mtWarning, [mbYes, mbNo], 0) <> mrYes then
     fGameApp.Stop(gr_Error, '')
   else
     fIsPaused := False;
@@ -760,7 +764,7 @@ begin
 
   if fGameMode = gmMulti then
   begin
-    fNetworking.PostLocalMessage(Format(fTextLibrary[TX_MULTIPLAYER_PLAYER_DEFEATED],
+    fNetworking.PostLocalMessage(Format(fTextMain[TX_MULTIPLAYER_PLAYER_DEFEATED],
                                         [fPlayers[aPlayerIndex].PlayerName]));
     if aPlayerIndex = MySpectator.PlayerIndex then
     begin
@@ -827,7 +831,7 @@ procedure TKMGame.GameStart(aSizeX, aSizeY: Integer);
 var
   I: Integer;
 begin
-  fGameName := fTextLibrary[TX_MAPED_NEW_MISSION];
+  fGameName := fTextMain[TX_MAPED_NEW_MISSION];
 
   fMissionFile := '';
   fSaveFile := '';
@@ -978,13 +982,49 @@ end;
 
 procedure TKMGame.ShowMessage(aKind: TKMMessageKind; aText: string; aLoc: TKMPoint);
 begin
-  fGamePlayInterface.MessageIssue(aKind, aText, aLoc);
+  fGamePlayInterface.MessageIssue(aKind, fTextMission.ParseTextMarkup(aText), aLoc);
+end;
+
+
+procedure TKMGame.ShowMessageFormatted(aKind: TKMMessageKind; aText: string; aLoc: TKMPoint; aParams: array of const);
+var S: UnicodeString;
+begin
+  //We must parse for text markup before AND after running Format, since individual format
+  //parameters can contain strings that need parsing (see Annie's Garden for an example)
+  S := fTextMission.ParseTextMarkup(Format(fTextMission.ParseTextMarkup(aText), aParams));
+  fGamePlayInterface.MessageIssue(aKind, S, aLoc);
 end;
 
 
 procedure TKMGame.ShowOverlay(aText: string);
 begin
-  fGamePlayInterface.SetScriptedOverlay(aText);
+  fGamePlayInterface.SetScriptedOverlay(fTextMission.ParseTextMarkup(aText));
+end;
+
+
+procedure TKMGame.ShowOverlayFormatted(aText: string; aParams: array of const);
+var S: UnicodeString;
+begin
+  //We must parse for text markup before AND after running Format, since individual format
+  //parameters can contain strings that need parsing (see Annie's Garden for an example)
+  S := fTextMission.ParseTextMarkup(Format(fTextMission.ParseTextMarkup(aText), aParams));
+  fGamePlayInterface.SetScriptedOverlay(S);
+end;
+
+
+procedure TKMGame.OverlayAppend(aText: string);
+begin
+  fGamePlayInterface.AppendScriptedOverlay(fTextMission.ParseTextMarkup(aText));
+end;
+
+
+procedure TKMGame.OverlayAppendFormatted(aText: string; aParams: array of const);
+var S: UnicodeString;
+begin
+  //We must parse for text markup before AND after running Format, since individual format
+  //parameters can contain strings that need parsing (see Annie's Garden for an example)
+  S := fTextMission.ParseTextMarkup(Format(fTextMission.ParseTextMarkup(aText), aParams));
+  fGamePlayInterface.AppendScriptedOverlay(S);
 end;
 
 
@@ -1023,7 +1063,7 @@ begin
     if fGameMode = gmMulti then
     begin
       SetGameSpeed(fGameOptions.SpeedAfterPT, False);
-      fNetworking.PostLocalMessage(fTextLibrary[TX_MP_PEACETIME_OVER], false);
+      fNetworking.PostLocalMessage(fTextMain[TX_MP_PEACETIME_OVER], false);
     end;
   end;
 end;
@@ -1181,9 +1221,7 @@ begin
     gProjectiles.Save(SaveStream);
     fScripting.Save(SaveStream);
 
-    //Relative path to strings will be the same for all MP players
-    libxPath := ExtractRelativePath(ExeDir, ChangeFileExt(fMissionFile, '.%s.libx'));
-    SaveStream.Write(libxPath);
+    fTextMission.Save(SaveStream);
 
     //Parameters that are not identical for all players should not be saved as we need saves to be
     //created identically on all player's computers. Eventually these things can go through the GIP
@@ -1283,7 +1321,7 @@ begin
       fGameLockedMutex := True //Remember so we unlock it in Destroy
     else
       //Abort loading (exception will be caught in fGameApp and shown to the user)
-      raise Exception.Create(fTextLibrary[TX_MULTIPLE_INSTANCES]);
+      raise Exception.Create(fTextMain[TX_MULTIPLE_INSTANCES]);
 
   //Not used, (only stored for preview) but it's easiest way to skip past it
   if not SaveIsMultiplayer then
@@ -1315,12 +1353,7 @@ begin
   gProjectiles.Load(LoadStream);
   fScripting.Load(LoadStream);
 
-  //Load LIBX strings used in a mission by their relative path to ExeDir
-  //Relative path should be the same across all MP players,
-  //locale info should not be a problem as it is represented by %s
-  //TODO: Remove since we should store them within savefile (savegame should be self-sufficient!)
-  LoadStream.Read(LibxPath);
-  fTextLibrary.LoadMissionStrings(ExeDir + LibxPath);
+  fTextMission.Load(LoadStream);
 
   if IsReplay then
     MySpectator.FOWIndex := PLAYER_NONE; //Show all by default in replays

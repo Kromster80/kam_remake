@@ -401,10 +401,6 @@ object FormMain: TFormMain
           Caption = 'Fonts'
           OnClick = Export_Fonts1Click
         end
-        object Export_Text: TMenuItem
-          Caption = 'Texts'
-          OnClick = Export_TextClick
-        end
         object Export_Sounds1: TMenuItem
           Caption = 'Sounds'
           OnClick = Export_Sounds1Click

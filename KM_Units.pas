@@ -488,7 +488,7 @@ begin
   Assert(Msg <> 0, fResource.HouseDat[fHome.HouseType].HouseName+' resource cant possibly deplet');
 
   if (fOwner = MySpectator.PlayerIndex) and not fGame.IsReplay then //Don't show message for other players or during replays
-    fGame.ShowMessage(mkHouse, fTextLibrary[Msg], fHome.GetEntrance);
+    fGame.ShowMessage(mkHouse, fTextMain[Msg], fHome.GetEntrance);
 
   fHome.ResourceDepletedMsgIssued := True;
 end;
@@ -1770,9 +1770,9 @@ const
     );
 begin
   if (fUnitTask <> nil) and (TASK_TEXT[fUnitTask.TaskName] <> -1) then
-    Result := fTextLibrary[TASK_TEXT[fUnitTask.TaskName]]
+    Result := fTextMain[TASK_TEXT[fUnitTask.TaskName]]
   else
-    Result := fTextLibrary[TX_UNIT_TASK_IDLE];
+    Result := fTextMain[TX_UNIT_TASK_IDLE];
 end;
 
 

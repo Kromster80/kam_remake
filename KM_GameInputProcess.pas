@@ -358,7 +358,7 @@ begin
                                     fGame.Save(TextParam);
                                     if fGame.IsMultiplayer then
                                       //Tell the player we have saved the game
-                                      fGame.Networking.PostLocalMessage(fTextLibrary[TX_MULTIPLAYER_SAVING_GAME]);
+                                      fGame.Networking.PostLocalMessage(fTextMain[TX_MULTIPLAYER_SAVING_GAME]);
                                   end;
       gic_GameTeamChange:         begin
                                     //Currently unused, disabled to prevent potential exploitation

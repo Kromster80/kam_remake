@@ -8,11 +8,11 @@ uses
 
 type
   TKMLocaleInfo = record
-    Code: string[3]; //3-letter code: 'eng', 'rus'
+    Code: AnsiString; //3-letter code: 'eng', 'rus'
     Title: string; //Full name: 'English', 'Russian'
     FontCodepage: Word;
     FlagSpriteID: Integer;
-    FallbackLocale: string;
+    FallbackLocale: AnsiString;
     TranslatorCredit: string;
   end;
 
@@ -27,10 +27,10 @@ type
     constructor Create(aPath: string);
     property Count: Integer read fCount;
     property Locales[aIndex: Integer]: TKMLocaleInfo read GetLocaleByIndex; default;
-    function IndexByCode(const aLocaleCode: string): Integer;
+    function IndexByCode(const aLocaleCode: AnsiString): Integer;
     function TranslatorCredits: string;
     function CodePagesList: TKMWordArray;
-    function GetLocale(const aCode: string): TKMLocaleInfo;
+    function GetLocale(const aCode: AnsiString): TKMLocaleInfo;
   end;
 
 
@@ -124,7 +124,7 @@ begin
 end;
 
 
-function TKMLocales.GetLocale(const aCode: string): TKMLocaleInfo;
+function TKMLocales.GetLocale(const aCode: AnsiString): TKMLocaleInfo;
 var
   I: Integer;
 begin
@@ -138,7 +138,7 @@ begin
 end;
 
 
-function TKMLocales.IndexByCode(const aLocaleCode: string): Integer;
+function TKMLocales.IndexByCode(const aLocaleCode: AnsiString): Integer;
 var
   I: Integer;
 begin

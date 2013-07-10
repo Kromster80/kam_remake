@@ -40,7 +40,7 @@ type
     procedure Stop(aMsg: TGameResultMsg; aTextMsg: string = '');
     function CanClose: Boolean;
     procedure Resize(X,Y: Integer);
-    procedure ToggleLocale(aLocale: ShortString);
+    procedure ToggleLocale(aLocale: AnsiString);
     procedure NetworkInit;
     procedure SendMPGameInfo(Sender: TObject);
     function RenderVersion: string;
@@ -103,7 +103,7 @@ begin
   fLocales      := TKMLocales.Create(ExeDir + 'data' + PathDelim + 'locales.txt');
   fGameSettings := TGameSettings.Create;
 
-  fTextMain  := TKMTextLibrarySingle.Create;
+  fTextMain := TKMTextLibrarySingle.Create;
   fTextMain.LoadLocale(ExeDir + 'data' + PathDelim + 'text' + PathDelim + 'text.%s.libx', fGameSettings.Locale);
 
   {$IFDEF USE_MAD_EXCEPT}fExceptions.LoadTranslation;{$ENDIF}
@@ -192,7 +192,7 @@ begin
 end;
 
 
-procedure TKMGameApp.ToggleLocale(aLocale: ShortString);
+procedure TKMGameApp.ToggleLocale(aLocale: AnsiString);
 begin
   Assert(fGame = nil, 'We don''t want to recreate whole fGame for that. Let''s limit it only to MainMenu');
 
@@ -210,6 +210,7 @@ begin
   FreeAndNil(fTextMain);
 
   //Recreate resources that use Locale info
+  fTextMain := TKMTextLibrarySingle.Create;
   fTextMain.LoadLocale(ExeDir + 'data' + PathDelim + 'text' + PathDelim + 'text.%s.libx', fGameSettings.Locale);
   {$IFDEF USE_MAD_EXCEPT}fExceptions.LoadTranslation;{$ENDIF}
   //Don't reshow the warning dialog when initing sounds, it gets stuck behind in full screen

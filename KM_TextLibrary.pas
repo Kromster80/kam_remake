@@ -3,7 +3,8 @@ unit KM_TextLibrary;
 interface
 uses
   {$IFDEF FPC} lconvencoding, {$ENDIF}
-  Classes, SysUtils, StrUtils, KromUtils, KM_Defaults;
+  Classes, SysUtils, StrUtils, KromUtils,
+  KM_CommonClasses, KM_Defaults;
 
 
 const
@@ -50,6 +51,8 @@ type
     procedure LoadLocale(aPathTemplate: string); //All locales for Mission strings
     function ParseTextMarkup(const aText: UnicodeString): UnicodeString;
     property Texts[aIndex: Word]: UnicodeString read GetTexts; default;
+    procedure Save(aStream: TKMemoryStream);
+    procedure Load(aStream: TKMemoryStream);
   end;
 
 
@@ -158,6 +161,7 @@ end;
 
 
 //Text file template, e.g.: ExeDir\text.%s.libx
+//We need locale separate to assemble Fallback and Default locales paths
 procedure TKMTextLibrarySingle.LoadLocale(aPathTemplate: string; aLocale: AnsiString);
 var
   fallbackLocale: AnsiString;
@@ -195,19 +199,20 @@ end;
 //Some locales may have no strings at all, just skip them
 function TKMTextLibraryMulti.GetTexts(aIndex: Word): UnicodeString;
 begin
-  if (aIndex < Length(fTexts[fPref[0]])) and (fTexts[fPref[0], aIndex] <> '') then
+  if (fPref[0] <> -1) and (aIndex < Length(fTexts[fPref[0]])) and (fTexts[fPref[0], aIndex] <> '') then
     Result := fTexts[fPref[0], aIndex]
   else
-  if (aIndex < Length(fTexts[fPref[1]])) and (fTexts[fPref[1], aIndex] <> '') then
+  if (fPref[1] <> -1) and (aIndex < Length(fTexts[fPref[1]])) and (fTexts[fPref[1], aIndex] <> '') then
     Result := fTexts[fPref[1], aIndex]
   else
-  if (aIndex < Length(fTexts[fPref[2]])) and (fTexts[fPref[2], aIndex] <> '') then
+  if (fPref[2] <> -1) and (aIndex < Length(fTexts[fPref[2]])) and (fTexts[fPref[2], aIndex] <> '') then
     Result := fTexts[fPref[2], aIndex]
   else
     Result := '~~~String ' + IntToStr(aIndex) + ' out of range!~~~';
 end;
 
 
+//Path template with %s
 procedure TKMTextLibraryMulti.LoadLocale(aPathTemplate: string);
 var
   I: Integer;
@@ -243,6 +248,72 @@ begin
     Result := Result + aText[I];
     Inc(I);
   end;
+end;
+
+
+procedure TKMTextLibraryMulti.Save(aStream: TKMemoryStream);
+var
+  I,K: Integer;
+  TextCount: Integer;
+begin
+  aStream.Write(fLocale);
+  aStream.Write(fFallbackLocale);
+
+  aStream.Write(fLocales.Count);
+  for I := 0 to fLocales.Count - 1 do
+  begin
+    aStream.Write(fLocales[I].Code);
+
+    TextCount := Length(fTexts[I]);
+
+    aStream.Write(TextCount);
+    for K := 0 to TextCount - 1 do
+      aStream.Write(fTexts[I,K]);
+  end;
+end;
+
+
+procedure TKMTextLibraryMulti.Load(aStream: TKMemoryStream);
+var
+  I,K: Integer;
+  LocCount, TextCount: Integer;
+  curLoc: AnsiString;
+  Id: Integer;
+  Tmp: UnicodeString;
+begin
+  aStream.Read(fLocale);
+  aStream.Read(fFallbackLocale);
+
+  //Try to match savegame locales with players locales,
+  //cos some players might have non-native locales missing
+  //We might add locale selection to setup.exe
+
+  SetLength(fTexts, fLocales.Count);
+
+  aStream.Read(LocCount);
+  for I := 0 to LocCount - 1 do
+  begin
+    aStream.Read(curLoc);
+    Id := fLocales.IndexByCode(curLoc);
+
+    aStream.Read(TextCount);
+
+    if Id <> -1 then
+    begin
+      SetLength(fTexts[Id], TextCount);
+      for K := 0 to TextCount - 1 do
+        aStream.Read(fTexts[Id,K]);
+    end
+    else
+    begin
+      for K := 0 to TextCount - 1 do
+        aStream.Read(Tmp);
+    end;
+  end;
+
+  fPref[0] := fLocales.IndexByCode(fLocale);
+  fPref[1] := fLocales.IndexByCode(fFallbackLocale);
+  fPref[2] := fLocales.IndexByCode(DEFAULT_LOCALE);
 end;
 
 
