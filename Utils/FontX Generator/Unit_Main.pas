@@ -5,7 +5,7 @@ uses
   {$IFDEF WDC} Windows, {$ENDIF} //Declared first to get TBitmap overriden with VCL version
   {$IFDEF FPC} lconvencoding, {$ENDIF}
   SysUtils, Classes, Graphics, Controls, Forms, Dialogs, ExtCtrls, StdCtrls, Spin, StrUtils,
-  KM_CommonTypes, KM_Defaults, KM_ResourceFonts, KM_ResourceFontsEdit, KM_ResourcePalettes;
+  KM_CommonTypes, KM_Defaults, KM_FontCollator, KM_ResourceFonts, KM_ResourceFontsEdit, KM_ResourcePalettes;
 
 
 type
@@ -38,6 +38,7 @@ type
     rgSizeY: TRadioGroup;
     btnCollateAuto: TButton;
     cbCells: TCheckBox;
+    btnOneClick: TButton;
     procedure btnGenerateClick(Sender: TObject);
     procedure btnSaveClick(Sender: TObject);
     procedure btnExportTexClick(Sender: TObject);
@@ -47,8 +48,11 @@ type
     procedure btnCollateClick(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure btnCollateAllClick(Sender: TObject);
+    procedure btnOneClickClick(Sender: TObject);
+    procedure UpdateCaption(const aString: UnicodeString);
   private
     Fnt: TKMFontDataEdit;
+    Collator: TKMFontCollator;
   end;
 
 
@@ -58,7 +62,7 @@ var
 
 implementation
 {$R *.dfm}
-uses KM_Locales;
+
 
 
 procedure TForm1.FormCreate(Sender: TObject);
@@ -68,7 +72,8 @@ begin
   Caption := 'KaM FontX Generator (' + GAME_REVISION + ')';
   ExeDir := ExtractFilePath(Application.ExeName);
 
-  fLocales := TKMLocales.Create(ExeDir + '..\..\data\locales.txt');
+  Collator := TKMFontCollator.Create;
+
 
   //Available fonts
   for fntId := Low(TKMFont) to High(TKMFont) do
@@ -78,6 +83,7 @@ end;
 
 procedure TForm1.FormDestroy(Sender: TObject);
 begin
+  FreeAndNil(Collator);
   FreeAndNil(Fnt);
 end;
 
@@ -126,49 +132,39 @@ begin
 end;
 
 
+procedure TForm1.btnOneClickClick(Sender: TObject);
+var
+  I: TKMFont;
+begin
+  //256x512 - enough for any fonts yet
+  rgSizeX.ItemIndex := 1;
+  rgSizeY.ItemIndex := 2;
+
+  for I := Low(TKMFont) to High(TKMFont) do
+  begin
+    ListBox1.ItemIndex := Byte(I);
+    btnCollateClick(Self);
+    btnSaveClick(Self);
+  end;
+end;
+
+
 procedure TForm1.btnCollateClick(Sender: TObject);
 var
-  pals: TKMPalettes;
-  codePages: TKMWordArray;
   fntId: TKMFont;
-  I: Integer;
-  srcFont: array of TKMFontDataEdit;
-  fntFile: string;
 begin
   if ListBox1.ItemIndex = -1 then Exit;
 
   fntId := TKMFont(ListBox1.ItemIndex);
 
-  //We need palettes to properly load FNT files
-  pals := TKMPalettes.Create;
-  try
-    pals.LoadPalettes(ExeDir + '..\..\data\gfx\');
+  //Recreate clean Font
+  FreeAndNil(Fnt);
+  Fnt := TKMFontDataEdit.Create;
 
-    //List of codepages we need to collate
-    codePages := fLocales.CodePagesList;
-    SetLength(srcFont, Length(codePages));
-
-    for I := Low(codePages) to High(codePages) do
-    begin
-      srcFont[I] := TKMFontDataEdit.Create;
-      fntFile := ExeDir + '..\..\data\gfx\fonts\' + FontInfo[fntId].FontFile + '.' + IntToStr(codePages[I]) + '.fnt';
-      srcFont[I].LoadFont(fntFile, pals[FontInfo[fntId].Pal]);
-    end;
-
-    //Recreate clean Font
-    FreeAndNil(Fnt);
-    Fnt := TKMFontDataEdit.Create;
-
-    Fnt.TexPadding := sePadding.Value;
-    Fnt.TexSizeX := StrToInt(rgSizeX.Items[rgSizeX.ItemIndex]);
-    Fnt.TexSizeY := StrToInt(rgSizeY.Items[rgSizeY.ItemIndex]);
-    Fnt.CollateFont(srcFont, codePages);
-
-    for I := Low(codePages) to High(codePages) do
-      srcFont[I].Free;
-  finally
-    pals.Free;
-  end;
+  Collator.Collate(FontInfo[fntId].FontFile, FontInfo[fntId].Pal, sePadding.Value,
+                   StrToInt(rgSizeX.Items[rgSizeX.ItemIndex]),
+                   StrToInt(rgSizeY.Items[rgSizeY.ItemIndex]),
+                   Fnt);
 
   Fnt.ExportBimap(Image1.Picture.Bitmap, False, cbCells.Checked);
 end;
@@ -191,121 +187,20 @@ begin
 end;
 
 
+procedure TForm1.UpdateCaption(const aString: UnicodeString);
+begin
+  btnCollectChars.Caption := aString;
+end;
+
+
 procedure TForm1.btnCollectCharsClick(Sender: TObject);
-  procedure GetAllTextPaths(aExeDir: string; aList: TStringList);
-  var
-    I: Integer;
-    SearchRec: TSearchRec;
-    PathToMaps: TStringList;
-  begin
-    aList.Clear;
-
-    PathToMaps := TStringList.Create;
-    try
-      PathToMaps.Add(aExeDir + 'Maps' + PathDelim);
-      PathToMaps.Add(aExeDir + 'MapsMP' + PathDelim);
-      PathToMaps.Add(aExeDir + 'Tutorials' + PathDelim);
-      PathToMaps.Add(aExeDir + 'data' + PathDelim + 'text' + PathDelim);
-
-      //Include all campaigns maps
-      FindFirst(aExeDir + 'Campaigns' + PathDelim + '*', faDirectory, SearchRec);
-      repeat
-        if (SearchRec.Name <> '.') and (SearchRec.Name <> '..') then
-          PathToMaps.Add(aExeDir + 'Campaigns' + PathDelim + SearchRec.Name + PathDelim);
-      until (FindNext(SearchRec) <> 0);
-      FindClose(SearchRec);
-
-      //Use reversed loop because we want to append paths to the same list
-      for I := PathToMaps.Count - 1 downto 0 do
-      if DirectoryExists(PathToMaps[I]) then
-      begin
-        FindFirst(PathToMaps[I] + '*', faDirectory, SearchRec);
-        repeat
-          if (SearchRec.Name <> '.') and (SearchRec.Name <> '..') then
-            PathToMaps.Add(PathToMaps[I] + SearchRec.Name + PathDelim);
-        until (FindNext(SearchRec) <> 0);
-        FindClose(SearchRec);
-      end;
-
-      //Collect all libx files
-      for I := 0 to PathToMaps.Count - 1 do
-      if DirectoryExists(PathToMaps[I]) then
-      begin
-        FindFirst(PathToMaps[I] + '*.libx', faAnyFile - faDirectory, SearchRec);
-        repeat
-          if RightStr(SearchRec.Name, 4) = 'libx' then
-            aList.Add(PathToMaps[I] + SearchRec.Name);
-        until (FindNext(SearchRec) <> 0);
-        FindClose(SearchRec);
-      end;
-    finally
-      PathToMaps.Free;
-    end;
-  end;
 var
-  libxList: TStringList;
-  langCode: string;
-  libx: TStringList;
-  chars: array [0..High(Word)] of WideChar;
-  I, K: Integer;
-  libTxt: UnicodeString;
-  uniText: UnicodeString;
   lab: string;
 begin
-  //Collect list of library files
-  libxList := TStringList.Create;
-  libx := TStringList.Create;
   lab := btnCollectChars.Caption;
-
-  FillChar(chars, SizeOf(chars), #0);
   try
-    GetAllTextPaths(ExeDir + '..\..\', libxList);
-
-    //libxList.Append(ExtractFilePath(Application.ExeName) + 'ger.libx');
-    //libxList.Append(ExtractFilePath(Application.ExeName) + 'uni.txt');
-
-    for I := 0 to libxList.Count - 1 do
-    if FileExists(libxList[I]) then
-    begin
-      btnCollectChars.Caption := IntToStr(I) + '/' + IntToStr(libxList.Count);
-
-      //Load ANSI file with codepage we say into unicode string
-      langCode := Copy(libxList[I], Length(libxList[I]) - 7, 3);
-      {$IFDEF WDC}
-        //Load the text file with default ANSI encoding. If file has embedded BOM it will be used
-        libx.DefaultEncoding := TEncoding.GetEncoding(fLocales.GetLocale(langCode).FontCodepage);
-        libx.LoadFromFile(libxList[I]);
-        libTxt := libx.Text;
-      {$ENDIF}
-      {$IFDEF FPC}
-        libx.LoadFromFile(libxList[I]);
-        libTxt := UTF8Decode(ConvertEncoding(libx.Text, 'cp' + IntToStr(fLocales.GetLocale(langCode).FontCodepage), EncodingUTF8));
-      {$ENDIF}
-
-      for K := 0 to Length(libTxt) - 1 do
-        chars[Ord(libTxt[K+1])] := #1;
-    end;
-
-    chars[10] := #0; //End of line chars are not needed
-    chars[13] := #0; //End of line chars are not needed
-    chars[32] := #0; // space symbol, KaM uses word spacing property instead
-    chars[124] := #0; // | symbol, end of line in KaM
-
-    uniText := '';
-    for I := 0 to High(Word) do
-    if chars[I] <> #0 then
-      uniText := uniText + WideChar(I);
-
-    {$IFDEF WDC}
-      Memo1.Text := uniText;
-    {$ENDIF}
-    {$IFDEF FPC}
-      //FPC controls need utf8 strings
-      Memo1.Text := UTF8Encode(uniText);
-    {$ENDIF}
+    Collator.CollectChars(UpdateCaption);
   finally
-    libxList.Free;
-    libx.Free;
     btnCollectChars.Caption := lab;
   end;
 end;

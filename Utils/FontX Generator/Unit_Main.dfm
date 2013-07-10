@@ -79,7 +79,7 @@ object Form1: TForm1
       Left = 152
       Top = 40
       Width = 49
-      Height = 24
+      Height = 26
       MaxValue = 8
       MinValue = 0
       TabOrder = 0
@@ -205,7 +205,7 @@ object Form1: TForm1
       Left = 144
       Top = 40
       Width = 49
-      Height = 24
+      Height = 26
       MaxValue = 24
       MinValue = 6
       TabOrder = 3
@@ -256,7 +256,7 @@ object Form1: TForm1
     end
     object btnCollate: TButton
       Left = 136
-      Top = 6
+      Top = 22
       Width = 121
       Height = 25
       Anchors = [akLeft, akBottom]
@@ -266,7 +266,7 @@ object Form1: TForm1
     end
     object btnCollateAuto: TButton
       Left = 136
-      Top = 38
+      Top = 54
       Width = 121
       Height = 25
       Anchors = [akLeft, akBottom]
@@ -274,6 +274,21 @@ object Form1: TForm1
       TabOrder = 2
       OnClick = btnCollateAllClick
     end
+  end
+  object btnOneClick: TButton
+    Left = 552
+    Top = 544
+    Width = 129
+    Height = 57
+    Caption = 'One click generate'
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -13
+    Font.Name = 'Tahoma'
+    Font.Style = [fsBold]
+    ParentFont = False
+    TabOrder = 6
+    OnClick = btnOneClickClick
   end
   object dlgSave: TSaveDialog
     Left = 288

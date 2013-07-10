@@ -1,11 +1,11 @@
 program FontXGenerator;
 {$I ..\..\KaM_Remake.inc}
 uses
-  {$IFDEF FPC} Interfaces, {$ENDIF}
   Forms,
   Unit_Main in 'Unit_Main.pas' {Form1},
   KM_ResourceFonts in '..\..\KM_ResourceFonts.pas',
-  KM_ResourceFontsEdit in '..\..\KM_ResourceFontsEdit.pas';
+  KM_ResourceFontsEdit in '..\..\KM_ResourceFontsEdit.pas',
+  KM_FontCollator in 'KM_FontCollator.pas';
 
 begin
   Application.Initialize;
