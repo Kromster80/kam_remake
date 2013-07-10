@@ -45,12 +45,12 @@ type
     property ShortTitle: AnsiString read fShortTitle write fShortTitle;
     property UnlockedMap: Byte read fUnlockedMap write SetUnlockedMap;
 
-    function CampaignTitle: string;
-    function CampaignDescription: string;
-    function MissionFile(aIndex: Byte): string;
-    function MissionTitle(aIndex: Byte): AnsiString;
-    function MissionText(aIndex: Byte): AnsiString;
-    function BreifingAudioFile(aIndex: Byte; aLang: string): string;
+    function CampaignTitle: UnicodeString;
+    function CampaignDescription: UnicodeString;
+    function MissionFile(aIndex: Byte): UnicodeString;
+    function MissionTitle(aIndex: Byte): UnicodeString;
+    function MissionText(aIndex: Byte): UnicodeString;
+    function BreifingAudioFile(aIndex: Byte; aLang: AnsiString): string;
   end;
 
 
@@ -383,13 +383,13 @@ begin
 end;
 
 
-function TKMCampaign.CampaignTitle: string;
+function TKMCampaign.CampaignTitle: UnicodeString;
 begin
   Result := fTextLib[0];
 end;
 
 
-function TKMCampaign.CampaignDescription: string;
+function TKMCampaign.CampaignDescription: UnicodeString;
 begin
   Result := fTextLib[2];
 end;
@@ -402,7 +402,7 @@ begin
 end;
 
 
-function TKMCampaign.MissionTitle(aIndex: Byte): AnsiString;
+function TKMCampaign.MissionTitle(aIndex: Byte): UnicodeString;
 begin
   Result := Format(fTextLib[1], [aIndex+1]);
 end;
@@ -410,13 +410,13 @@ end;
 
 //Mission texts of original campaigns are available in all languages,
 //custom campaigns are unlikely to have more texts in more than 1-2 languages
-function TKMCampaign.MissionText(aIndex: Byte): AnsiString;
+function TKMCampaign.MissionText(aIndex: Byte): UnicodeString;
 begin
   Result := fTextLib[10 + aIndex];
 end;
 
 
-function TKMCampaign.BreifingAudioFile(aIndex: Byte; aLang: string): string;
+function TKMCampaign.BreifingAudioFile(aIndex: Byte; aLang: AnsiString): string;
 begin
   Result := fPath + fShortTitle + Format('%.2d', [aIndex+1]) + PathDelim +
             fShortTitle + Format('%.2d', [aIndex+1]) + '.' + aLang + '.mp3';
