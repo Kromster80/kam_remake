@@ -94,8 +94,8 @@ const
 type
   TGameInputCommand = record
     CommandType: TGameInputCommandType;
-    Params:array[1..MAX_PARAMS]of integer;
-    TextParam: AnsiString;
+    Params: array[1..MAX_PARAMS]of integer;
+    TextParam: string;
     PlayerIndex: TPlayerIndex; //Player for which the command is to be issued. (Needed for multiplayer and other reasons)
   end;
 
@@ -117,7 +117,7 @@ type
     end;
 
     function MakeCommand(aGIC: TGameInputCommandType; const aParam:array of integer): TGameInputCommand; overload;
-    function MakeCommand(aGIC: TGameInputCommandType; const aTextParam: AnsiString): TGameInputCommand; overload;
+    function MakeCommand(aGIC: TGameInputCommandType; const aTextParam: string): TGameInputCommand; overload;
     procedure TakeCommand(aCommand: TGameInputCommand); virtual; abstract;
     procedure ExecCommand(aCommand: TGameInputCommand);
     procedure StoreCommand(aCommand: TGameInputCommand);
@@ -146,7 +146,7 @@ type
     procedure CmdRatio(aCommandType: TGameInputCommandType; aRes: TWareType; aHouseType: THouseType; aValue:integer);
 
     procedure CmdGame(aCommandType: TGameInputCommandType; aValue:boolean); overload;
-    procedure CmdGame(aCommandType: TGameInputCommandType; aValue: AnsiString); overload;
+    procedure CmdGame(aCommandType: TGameInputCommandType; aValue: string); overload;
     procedure CmdGame(aCommandType: TGameInputCommandType; aPlayer, aTeam:integer); overload;
     procedure CmdGame(aCommandType: TGameInputCommandType; aLoc: TKMPointF; aPlayer: TPlayerIndex); overload;
 
@@ -230,14 +230,15 @@ begin
 end;
 
 
-function TGameInputProcess.MakeCommand(aGIC: TGameInputCommandType; const aTextParam: AnsiString): TGameInputCommand;
-var i:integer;
+function TGameInputProcess.MakeCommand(aGIC: TGameInputCommandType; const aTextParam: string): TGameInputCommand;
+var
+  I: Integer;
 begin
   Result.CommandType := aGIC;
   Result.PlayerIndex := MySpectator.PlayerIndex;
 
-  for i:=Low(Result.Params) to High(Result.Params) do
-    Result.Params[i] := maxint;
+  for I := Low(Result.Params) to High(Result.Params) do
+    Result.Params[I] := MaxInt;
 
   Result.TextParam := aTextParam;
 end;
@@ -512,7 +513,7 @@ begin
 end;
 
 
-procedure TGameInputProcess.CmdGame(aCommandType: TGameInputCommandType; aValue: AnsiString);
+procedure TGameInputProcess.CmdGame(aCommandType: TGameInputCommandType; aValue: string);
 begin
   Assert(aCommandType = gic_GameSave);
   TakeCommand(MakeCommand(aCommandType, aValue));

@@ -47,7 +47,7 @@ type
     fChatWhisperRecipient: Integer; //Server index of the player who will receive the whisper
 
     //Saved (in singleplayer only)
-    fLastSaveName: AnsiString; //The file name we last used to save this file (used as default in Save menu)
+    fLastSaveName: string; //The file name we last used to save this file (used as default in Save menu)
     LastSchoolUnit: Byte;  //Last unit that was selected in School, global for all schools player owns
     LastBarracksUnit: Byte; //Last unit that was selected in Barracks, global for all barracks player owns
     fMessageList: TKMMessageList;
@@ -376,9 +376,8 @@ type
     procedure ShowPlayMore(DoShow:boolean; Msg:TGameResultMsg);
     procedure ShowMPPlayMore(Msg:TGameResultMsg);
     procedure ShowNetworkLag(DoShow:boolean; aPlayers:TStringList; IsHost:boolean);
-    procedure SetScriptedOverlay(aText:AnsiString);
-    procedure AppendScriptedOverlay(aText:AnsiString);
-    property LastSaveName: AnsiString read fLastSaveName write fLastSaveName;
+    procedure SetScriptedOverlay(aText: string);
+    procedure AppendScriptedOverlay(aText: string);
     procedure ReleaseDirectionSelector;
     procedure SetChatText(const aString: string);
     procedure SetChatMessages(const aString: string);
@@ -524,10 +523,10 @@ begin
 
   if fSaves.ScanFinished then
   begin
-    if LastSaveName = '' then
+    if fLastSaveName = '' then
       Edit_Save.Text := fGame.GameName
     else
-      Edit_Save.Text := LastSaveName;
+      Edit_Save.Text := fLastSaveName;
   end;
 
   if (Sender = fSaves) then
@@ -558,7 +557,7 @@ begin
   //In general it's bad to rely on events like that to ensure validity, doing check here is a good idea
   if SaveName = '' then Exit;
 
-  LastSaveName := SaveName; //Do this before saving so it is included in the save
+  fLastSaveName := SaveName; //Do this before saving so it is included in the save
   if fMultiplayer then
     //Don't tell everyone in the game that we are saving yet, as the command hasn't been processed
     fGame.GameInputProcess.CmdGame(gic_GameSave, SaveName)
@@ -799,7 +798,7 @@ begin
   fMultiplayer := aMultiplayer;
   fReplay := aReplay;
   //Instruct to use global Terrain
-  LastSaveName := '';
+  fLastSaveName := '';
   fJoiningGroups := False;
   fPlacingBeacon := False;
   fDragScrolling := False;
@@ -2888,7 +2887,7 @@ end;
 
 procedure TKMGamePlayInterface.Chat_MenuSelect(aItem: Integer);
 
-  procedure UpdateButtonCaption(aCaption: AnsiString; aColor: Cardinal = 0);
+  procedure UpdateButtonCaption(aCaption: string; aColor: Cardinal = 0);
   var CapWidth: Integer;
   const MIN_SIZE = 80; //Minimum size for the button
   begin
@@ -3580,13 +3579,13 @@ begin
 end;
 
 
-procedure TKMGamePlayInterface.SetScriptedOverlay(aText:AnsiString);
+procedure TKMGamePlayInterface.SetScriptedOverlay(aText: string);
 begin
   Label_ScriptedOverlay.Caption := aText;
 end;
 
 
-procedure TKMGamePlayInterface.AppendScriptedOverlay(aText:AnsiString);
+procedure TKMGamePlayInterface.AppendScriptedOverlay(aText: string);
 begin
   Label_ScriptedOverlay.Caption := Label_ScriptedOverlay.Caption + aText;
 end;

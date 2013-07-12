@@ -4,7 +4,7 @@ interface
 uses
   {$IFDEF FPC} lconvencoding, {$ENDIF}
   Classes, SysUtils, StrUtils, KromUtils,
-  KM_CommonClasses, KM_Defaults;
+  KM_CommonClasses, KM_Defaults, KM_FileIO;
 
 
 const
@@ -62,7 +62,7 @@ var
 
 
 implementation
-uses KM_Log, KM_Locales;
+uses KM_Locales;
 
 
 {LIBX files consist of lines. Each line has an index and a text. Lines without index are skipped}
@@ -92,7 +92,6 @@ procedure TKMTextLibrary.LoadLIBXFile(FilePath: string; var aArray: TKMStringArr
     end;
   end;
 var
-  SL: TStringList;
   Tmp: TKMStringArray;
   langCode: AnsiString;
   libTxt: UnicodeString;
@@ -103,24 +102,9 @@ var
 begin
   if not FileExists(FilePath) then Exit;
 
-  SL := TStringList.Create;
-  try
-    //Load ANSI file with codepage we say into unicode string
-    langCode := Copy(FilePath, Length(FilePath) - 7, 3);
-    {$IFDEF WDC}
-      //Load the text file with default ANSI encoding. If file has embedded BOM it will be used
-      SL.DefaultEncoding := TEncoding.GetEncoding(fLocales.GetLocale(langCode).FontCodepage);
-      SL.LoadFromFile(FilePath);
-      libTxt := SL.Text;
-    {$ENDIF}
-    {$IFDEF FPC}
-      SL.LoadFromFile(FilePath);
-      libTxt := UTF8Decode(ConvertEncoding(SL.Text, 'cp' + IntToStr(fLocales.GetLocale(langCode).FontCodepage), EncodingUTF8));
-    {$ENDIF}
-  finally
-    SL.Free;
-  end;
-
+  //Load ANSI file with codepage we say into unicode string
+  langCode := Copy(FilePath, Length(FilePath) - 7, 3);
+  libTxt := ReadTextU(FilePath, fLocales.GetLocale(langCode).FontCodepage);
   Tmp := TextToArray(libTxt);
 
   //First line is empty or comment and could have first 3 bytes Unicode Byte-Order Mark (BOM)

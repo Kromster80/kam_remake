@@ -100,7 +100,7 @@ type
     function ValidSoundFileName(aFileName: AnsiString): Boolean;
     procedure LogError(aFuncName: string; const aValues: array of Integer);
   public
-    SFXPath: AnsiString;  //Relative to EXE (safe to use in Save, cos it is the same for all MP players)
+    SFXPath: string;  //Relative to EXE (safe to use in Save, cos it is the same for all MP players)
     constructor Create(aIDCache: TKMScriptingIdCache);
 
     procedure AIRecruitLimit(aPlayer, aLimit: Byte);

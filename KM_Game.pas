@@ -49,17 +49,17 @@ type
     fGameMode: TGameMode;
     fWaitingForNetwork: Boolean;
     fAdvanceFrame: Boolean; //Replay variable to advance 1 frame, afterwards set to false
-    fSaveFile: AnsiString;  //Relative pathname to savegame we are playing, so it gets saved to crashreport
+    fSaveFile: string;  //Relative pathname to savegame we are playing, so it gets saved to crashreport
     fShowTeamNames: Boolean;
     fGameLockedMutex: Boolean;
 
   //Should be saved
     fCampaignMap: Byte;         //Which campaign map it is, so we can unlock next one on victory
-    fCampaignName: AnsiString;  //Is this a game part of some campaign
+    fCampaignName: string;  //Is this a game part of some campaign
     fGameName: string;
     fGameTickCount: Cardinal;
     fIDTracker: Cardinal;       //Units-Houses tracker, to issue unique IDs
-    fMissionFile: AnsiString;   //Relative pathname to mission we are playing, so it gets saved to crashreport
+    fMissionFile: string;   //Relative pathname to mission we are playing, so it gets saved to crashreport
     fMissionMode: TKMissionMode;
 
     procedure GameMPDisconnect(const aData:string);
@@ -128,15 +128,15 @@ type
     procedure OverlayAppendFormatted(aText: string; aParams: array of const);
     property GameTickCount:cardinal read fGameTickCount;
     property GameName: string read fGameName;
-    property CampaignName: AnsiString read fCampaignName;
+    property CampaignName: string read fCampaignName;
     property CampaignMap: Byte read fCampaignMap;
     property GameSpeed: Single read fGameSpeed;
     function PlayerLoc: Byte;
     function PlayerColor: Cardinal;
 
     property GameMode: TGameMode read fGameMode;
-    property MissionFile: AnsiString read fMissionFile;
-    property SaveFile: AnsiString read fSaveFile;
+    property MissionFile: string read fMissionFile;
+    property SaveFile: string read fSaveFile;
     property ShowTeamNames: Boolean read fShowTeamNames write fShowTeamNames;
 
     property IsExiting: Boolean read fIsExiting;
@@ -385,6 +385,9 @@ end;
 
 //New mission
 procedure TKMGame.GameStart(aMissionFile, aGameName, aCampName: string; aCampMap: Byte; aLocation: ShortInt; aColor: Cardinal);
+const
+  GAME_PARSE: array [TGameMode] of TMissionParsingMode = (
+    mpm_Single, mpm_Multi, mpm_Editor, mpm_Single, mpm_Single);
 var
   I: Integer;
   ParseMode: TMissionParsingMode;
@@ -423,14 +426,8 @@ begin
     else      FillChar(PlayerEnabled, SizeOf(PlayerEnabled), #255);
   end;
 
-
   //Choose how we will parse the script
-  case fGameMode of
-    gmMulti:  ParseMode := mpm_Multi;
-    gmMapEd:  ParseMode := mpm_Editor;
-    gmSingle: ParseMode := mpm_Single;
-    else      Assert(False, 'Unexpected');
-  end;
+  ParseMode := GAME_PARSE[fGameMode];
 
   if fGameMode = gmMapEd then
   begin
@@ -1138,7 +1135,6 @@ var
   SaveStream: TKMemoryStream;
   fGameInfo: TKMGameInfo;
   i, NetIndex: integer;
-  libxPath: AnsiString;
 begin
   gLog.AddTime('Saving game: ' + aPathName);
 
@@ -1279,7 +1275,6 @@ procedure TKMGame.Load(const aPathName: string);
 var
   LoadStream: TKMemoryStream;
   GameInfo: TKMGameInfo;
-  LibxPath: AnsiString;
   LoadedSeed: Longint;
   SaveIsMultiplayer: Boolean;
 begin

@@ -2,19 +2,9 @@ program KaM_Remake;
 {$I KaM_Remake.inc}
 
 uses
-  {$IFDEF USE_MAD_EXCEPT}
-  madExcept,
-  madLinkDisAsm,
-  madListHardware,
-  madListModules,
-  {$ENDIF}
-  {$IFDEF UNIX} cthreads, {$ENDIF} //Required for thread support on Unix/Linux
-  //{$IFDEF WDC} FastMM4, {$ENDIF} //Can be used only in Delphi, not Lazarus
   Forms,
-  {$IFDEF FPC} Interfaces, {$ENDIF}
   KM_FormMain in 'KM_FormMain.pas' {FormMain},
   KM_FormLoading in 'KM_FormLoading.pas' {FormLoading},
-  //KM_Achievements in 'KM_Achievements.pas',
   KM_AI in 'KM_AI.pas',
   KM_AIAttacks in 'KM_AIAttacks.pas',
   KM_AIDefensePos in 'KM_AIDefensePos.pas',
@@ -36,7 +26,6 @@ uses
   KM_DedicatedServer in 'KM_DedicatedServer.pas',
   KM_Defaults in 'KM_Defaults.pas',
   KM_DeliverQueue in 'KM_DeliverQueue.pas',
-  {$IFDEF USE_MAD_EXCEPT}KM_Exceptions in 'KM_Exceptions.pas',{$ENDIF}
   KM_FogOfWar in 'KM_FogOfWar.pas',
   KM_InterfaceDefaults in 'KM_InterfaceDefaults.pas',
   KM_InterfaceGamePlay in 'KM_InterfaceGamePlay.pas',
@@ -146,7 +135,8 @@ uses
   KM_UnitTaskSelfTrain in 'KM_UnitTaskSelfTrain.pas',
   KM_UnitTaskThrowRock in 'KM_UnitTaskThrowRock.pas',
   KM_Utils in 'KM_Utils.pas',
-  KM_Viewport in 'KM_Viewport.pas';
+  KM_Viewport in 'KM_Viewport.pas',
+  KM_FileIO in 'KM_FileIO.pas';
 
 {$IFDEF WDC}
   {$R KaM_Remake_Icon.res KaM_Remake_Icon.rc} //Keeps the Icon

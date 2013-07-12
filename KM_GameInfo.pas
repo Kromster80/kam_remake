@@ -11,20 +11,20 @@ type
   private
     fParseError: string;
   public
-    Title: AnsiString; //Used for campaigns and to store in savegames
+    Title: string; //Used for campaigns and to store in savegames
     Version: AnsiString; //Savegame version, yet unused in maps, they always have actual version
     DATCRC: Cardinal; //CRC of defines .dat files
     TickCount: Cardinal;
     MissionMode: TKMissionMode; //Fighting or Build-a-City map
     MapSizeX, MapSizeY: Integer;
-    VictoryCondition: AnsiString;
-    DefeatCondition: AnsiString;
+    VictoryCondition: string;
+    DefeatCondition: string;
 
     PlayerCount: Byte;
     //Location name is string because for savegames we store players name there
     Enabled: array [0..MAX_PLAYERS-1] of Boolean;
     CanBeHuman: array [0..MAX_PLAYERS-1] of Boolean;
-    LocationName: array [0..MAX_PLAYERS-1] of AnsiString;
+    LocationName: array [0..MAX_PLAYERS-1] of string;
     PlayerTypes: array [0..MAX_PLAYERS-1] of TPlayerType;
     ColorID: array [0..MAX_PLAYERS-1] of Integer;
     Team: array [0..MAX_PLAYERS-1] of Integer;

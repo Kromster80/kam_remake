@@ -4,7 +4,7 @@ uses
   {$IFDEF WDC} Windows, {$ENDIF} //Declared first to get TBitmap overriden with VCL version
   {$IFDEF FPC} lconvencoding, {$ENDIF}
   Classes, StrUtils, SysUtils,
-  KM_CommonTypes, KM_Defaults,
+  KM_CommonTypes, KM_Defaults, KM_FileIO,
   KM_ResourceFontsEdit, KM_ResourcePalettes;
 
 
@@ -124,7 +124,6 @@ procedure TKMFontCollator.CollectChars(aProgress: TUnicodeStringEvent);
 var
   libxList: TStringList;
   langCode: string;
-  libx: TStringList;
   chars: array [0..High(Word)] of WideChar;
   I, K: Integer;
   libTxt: UnicodeString;
@@ -133,7 +132,6 @@ var
 begin
   //Collect list of library files
   libxList := TStringList.Create;
-  libx := TStringList.Create;
 
   FillChar(chars, SizeOf(chars), #0);
   try
@@ -149,16 +147,7 @@ begin
 
       //Load ANSI file with codepage we say into unicode string
       langCode := Copy(libxList[I], Length(libxList[I]) - 7, 3);
-      {$IFDEF WDC}
-        //Load the text file with default ANSI encoding. If file has embedded BOM it will be used
-        libx.DefaultEncoding := TEncoding.GetEncoding(fLocales.GetLocale(langCode).FontCodepage);
-        libx.LoadFromFile(libxList[I]);
-        libTxt := libx.Text;
-      {$ENDIF}
-      {$IFDEF FPC}
-        libx.LoadFromFile(libxList[I]);
-        libTxt := UTF8Decode(ConvertEncoding(libx.Text, 'cp' + IntToStr(fLocales.GetLocale(langCode).FontCodepage), EncodingUTF8));
-      {$ENDIF}
+      libTxt := ReadTextU(libxList[I], fLocales.GetLocale(langCode).FontCodepage);
 
       for K := 0 to Length(libTxt) - 1 do
         chars[Ord(libTxt[K+1])] := #1;
@@ -183,7 +172,6 @@ begin
     {$ENDIF}
   finally
     libxList.Free;
-    libx.Free;
   end;
 end;
 
