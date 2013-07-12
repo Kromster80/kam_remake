@@ -26,7 +26,7 @@ type
 
     fOnCursorUpdate: TIntegerStringEvent;
 
-    procedure GameLoadingStep(const aText: string);
+    procedure GameLoadingStep(const aText: UnicodeString);
     procedure LoadGameAssets;
     procedure LoadGameFromSave(aFilePath: string; aGameMode: TGameMode);
     procedure LoadGameFromScript(aMissionFile, aGameName, aCampaignName: string; aMap: Byte; aGameMode: TGameMode; aDesiredLoc: ShortInt; aDesiredColor: Cardinal);
@@ -40,22 +40,21 @@ type
     procedure Stop(aMsg: TGameResultMsg; aTextMsg: string = '');
     function CanClose: Boolean;
     procedure Resize(X,Y: Integer);
-    procedure ToggleLocale(aLocale: AnsiString);
+    procedure ToggleLocale(aLocale: TKMLocaleCode);
     procedure NetworkInit;
     procedure SendMPGameInfo(Sender: TObject);
     function RenderVersion: string;
     procedure PrintScreen(aFilename: string = '');
-    procedure PauseMusicToPlayFile(aFileName:string);
+    procedure PauseMusicToPlayFile(aFileName: string);
     function CheckDATConsistency: Boolean;
 
     //These are all different game kinds we can start
     procedure NewCampaignMap(aCampaign: TKMCampaign; aMap: Byte);
     procedure NewSingleMap(aMissionFile, aGameName: string; aDesiredLoc: ShortInt = -1; aDesiredColor: Cardinal = $00000000);
     procedure NewSingleSave(aSaveName: string);
-    procedure NewMultiplayerMap(const aFileName: string);
-    procedure NewMultiplayerSave(const aSaveName: string);
-    procedure NewRestartLast(aGameName, aMission, aSave: string;
-  aCampName: AnsiString; aCampMap: Byte; aLocation: Byte; aColor: Cardinal);
+    procedure NewMultiplayerMap(const aFileName: UnicodeString);
+    procedure NewMultiplayerSave(const aSaveName: UnicodeString);
+    procedure NewRestartLast(aGameName, aMission, aSave, aCampName: UnicodeString; aCampMap: Byte; aLocation: Byte; aColor: Cardinal);
     procedure NewEmptyMap(aSizeX, aSizeY: Integer);
     procedure NewMapEditor(const aFileName: string; aSizeX, aSizeY: Integer);
     procedure NewReplay(const aFilePath: string);
@@ -192,7 +191,7 @@ begin
 end;
 
 
-procedure TKMGameApp.ToggleLocale(aLocale: AnsiString);
+procedure TKMGameApp.ToggleLocale(aLocale: TKMLocaleCode);
 begin
   Assert(fGame = nil, 'We don''t want to recreate whole fGame for that. Let''s limit it only to MainMenu');
 
@@ -338,7 +337,7 @@ begin
 end;
 
 
-procedure TKMGameApp.GameLoadingStep(const aText: String);
+procedure TKMGameApp.GameLoadingStep(const aText: UnicodeString);
 begin
   fMainMenuInterface.AppendLoadingText(aText);
   Render;
@@ -523,7 +522,7 @@ begin
 end;
 
 
-procedure TKMGameApp.NewMultiplayerMap(const aFileName: string);
+procedure TKMGameApp.NewMultiplayerMap(const aFileName: UnicodeString);
 begin
   LoadGameFromScript(TKMapsCollection.FullPath(aFileName, '.dat', True), aFileName, '', 0, gmMulti, 0, 0);
 
@@ -536,7 +535,7 @@ begin
 end;
 
 
-procedure TKMGameApp.NewMultiplayerSave(const aSaveName: string);
+procedure TKMGameApp.NewMultiplayerSave(const aSaveName: UnicodeString);
 begin
   //Convert SaveName to local FilePath
   //aFileName is the same for all players, but Path to it is different
@@ -548,8 +547,7 @@ begin
 end;
 
 
-procedure TKMGameApp.NewRestartLast(aGameName, aMission, aSave: string;
-  aCampName: AnsiString; aCampMap: Byte; aLocation: Byte; aColor: Cardinal);
+procedure TKMGameApp.NewRestartLast(aGameName, aMission, aSave, aCampName: UnicodeString; aCampMap: Byte; aLocation: Byte; aColor: Cardinal);
 begin
   if FileExists(ExeDir + aMission) then
     LoadGameFromScript(ExeDir + aMission, aGameName, aCampName, aCampMap, gmSingle, aLocation, aColor)

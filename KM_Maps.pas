@@ -26,7 +26,7 @@ type
   TKMapInfo = class
   private
     fPath: string;
-    fFileName: string; //without extension
+    fFileName: UnicodeString; //without extension
     fStrictParsing: Boolean; //Use strict map checking, important for MP
     fCRC: Cardinal;
     fDatCRC: Cardinal; //Used to speed up scanning
@@ -59,7 +59,7 @@ type
 
     property InfoAmount: TKMMapInfoAmount read fInfoAmount;
     property Path: string read fPath;
-    property FileName: string read fFileName;
+    property FileName: UnicodeString read fFileName;
     function FullPath(const aExt: string): string;
     function HumanUsableLocations: TPlayerIndexArray;
     function AIUsableLocations: TPlayerIndexArray;

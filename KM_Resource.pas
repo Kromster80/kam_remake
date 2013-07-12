@@ -36,7 +36,7 @@ type
     fMapElements: TKMMapElements;
 
     procedure StepRefresh;
-    procedure StepCaption(const aCaption: string);
+    procedure StepCaption(const aCaption: UnicodeString);
   public
     OnLoadingStep: TEvent;
     OnLoadingText: TUnicodeStringEvent;
@@ -108,7 +108,7 @@ begin
 end;
 
 
-procedure TResource.StepCaption(const aCaption: string);
+procedure TResource.StepCaption(const aCaption: UnicodeString);
 begin
   if Assigned(OnLoadingText) then OnLoadingText(aCaption);
 end;

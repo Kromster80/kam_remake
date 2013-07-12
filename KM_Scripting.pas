@@ -4,7 +4,7 @@ interface
 uses
   Classes, SysUtils,
   uPSCompiler, uPSRuntime, uPSUtils, uPSDisassembly,
-  KM_CommonClasses, KM_Defaults,
+  KM_CommonClasses, KM_Defaults, KM_FileIO,
   KM_ScriptingESA, KM_ScriptingIdCache, KM_Houses, KM_Units, KM_UnitGroups;
 
   //Dynamic scripts allow mapmakers to control the mission flow
@@ -95,8 +95,6 @@ end;
 
 
 procedure TKMScripting.LoadFromFile(aFileName: string);
-var
-  SL: TStringList;
 begin
   fErrorString := '';
 
@@ -108,15 +106,8 @@ begin
     Exit;
   end;
 
-  //Read the file line by line and try to add valid events
-  SL := TStringList.Create;
-  try
-    SL.LoadFromFile(aFileName);
-    fScriptCode := SL.Text;
-    CompileScript;
-  finally
-    SL.Free;
-  end;
+  fScriptCode := ReadTextA(aFileName);
+  CompileScript;
 end;
 
 
@@ -133,7 +124,7 @@ begin
 
     //Register classes and methods to the script engine.
     //After that they can be used from within the script.
-    with Sender.AddClassN(nil, fStates.ClassName) do
+    with Sender.AddClassN(nil, AnsiString(fStates.ClassName)) do
     begin
       Sender.AddTypeS('TIntegerArray', 'array of Integer'); //Needed for PlayerGetAllUnits
 
@@ -173,13 +164,13 @@ begin
       RegisterMethod('function IsRoadAt(aPlayer: ShortInt; X, Y: Word): Boolean');
 
       RegisterMethod('function PlayerAllianceCheck(aPlayer1, aPlayer2: Byte): Boolean');
-      RegisterMethod('function PlayerColorText(aPlayer: Byte): AnsiString');
+      RegisterMethod('function PlayerColorText(aPlayer: Byte): UnicodeString');
       RegisterMethod('function PlayerDefeated(aPlayer: Byte): Boolean');
       RegisterMethod('function PlayerEnabled(aPlayer: Byte): Boolean');
       RegisterMethod('function PlayerGetAllUnits(aPlayer: Byte): TIntegerArray');
       RegisterMethod('function PlayerGetAllHouses(aPlayer: Byte): TIntegerArray');
       RegisterMethod('function PlayerGetAllGroups(aPlayer: Byte): TIntegerArray');
-      RegisterMethod('function PlayerName(aPlayer: Byte): AnsiString');
+      RegisterMethod('function PlayerName(aPlayer: Byte): UnicodeString');
       RegisterMethod('function PlayerVictorious(aPlayer: Byte): Boolean');
       RegisterMethod('function PlayerWareDistribution(aPlayer, aWareType, aHouseType: Byte): Byte');
 
@@ -207,7 +198,7 @@ begin
       RegisterMethod('function UnitsGroup(aUnitID: Integer): Integer');
     end;
 
-    with Sender.AddClassN(nil, fActions.ClassName) do
+    with Sender.AddClassN(nil, AnsiString(fActions.ClassName)) do
     begin
       RegisterMethod('procedure AIRecruitLimit(aPlayer, aLimit: Byte)');
 
@@ -283,8 +274,8 @@ begin
     end;
 
     //Register objects
-    AddImportedClassVariable(Sender, 'States', fStates.ClassName);
-    AddImportedClassVariable(Sender, 'Actions', fActions.ClassName);
+    AddImportedClassVariable(Sender, 'States', AnsiString(fStates.ClassName));
+    AddImportedClassVariable(Sender, 'Actions', AnsiString(fActions.ClassName));
 
     Result := True;
   end
@@ -310,7 +301,7 @@ end;
 function TKMScripting.ScriptOnExportCheck(Sender: TPSPascalCompiler; Proc: TPSInternalProcedure; const ProcDecl: AnsiString): Boolean;
 const
   Procs: array [0..8] of record
-    Names: string;
+    Names: AnsiString;
     ParamCount: Byte;
     Typ: array [0..3] of Byte;
     Dir: array [0..2] of TPSParameterMode;

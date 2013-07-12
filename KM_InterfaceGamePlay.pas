@@ -381,7 +381,7 @@ type
     procedure ReleaseDirectionSelector;
     procedure SetChatText(const aString: string);
     procedure SetChatMessages(const aString: string);
-    procedure ChatMessage(const aData: string);
+    procedure ChatMessage(const aData: UnicodeString);
     procedure WarriorCommanderDied(DeadID, NewID: Cardinal);
     procedure AlliesOnPlayerSetup(Sender: TObject);
     procedure AlliesOnPingInfo(Sender: TObject);
@@ -3754,7 +3754,7 @@ begin
 end;
 
 
-procedure TKMGamePlayInterface.ChatMessage(const aData: string);
+procedure TKMGamePlayInterface.ChatMessage(const aData: UnicodeString);
 begin
   Memo_ChatText.Add(aData);
 

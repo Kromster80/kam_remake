@@ -7,12 +7,23 @@ uses
 
 
 type
+  TKMLocaleCode = record
+  strict private
+    fValue: AnsiString;
+  public
+    class operator Equal(const A, B: TKMLocaleCode): Boolean;
+    class operator Explicit(const aValue: AnsiString): TKMLocaleCode;
+    class function Default: TKMLocaleCode; static;
+    function IsValid: Boolean;
+    function ToString: AnsiString;
+  end;
+
   TKMLocaleInfo = record
-    Code: AnsiString; //3-letter code: 'eng', 'rus'
+    Code: TKMLocaleCode; //3-letter code: 'eng', 'rus'
     Title: string; //Full name: 'English', 'Russian'
     FontCodepage: Word;
     FlagSpriteID: Integer;
-    FallbackLocale: AnsiString;
+    FallbackLocale: TKMLocaleCode;
     TranslatorCredit: string;
   end;
 
@@ -27,10 +38,10 @@ type
     constructor Create(aPath: string);
     property Count: Integer read fCount;
     property Locales[aIndex: Integer]: TKMLocaleInfo read GetLocaleByIndex; default;
-    function IndexByCode(const aLocaleCode: AnsiString): Integer;
+    function IndexByCode(const aLocaleCode: TKMLocaleCode): Integer;
     function TranslatorCredits: string;
     function CodePagesList: TKMWordArray;
-    function GetLocale(const aCode: AnsiString): TKMLocaleInfo;
+    function GetLocale(const aCode: TKMLocaleCode): TKMLocaleInfo;
   end;
 
 
@@ -38,11 +49,37 @@ var
   fLocales: TKMLocales;
 
 
-const
-  DEFAULT_LOCALE = 'eng';
-
-
 implementation
+
+
+class function TKMLocaleCode.Default: TKMLocaleCode;
+begin
+  Result := TKMLocaleCode('eng');
+end;
+
+
+class operator TKMLocaleCode.Equal(const A, B: TKMLocaleCode): Boolean;
+begin
+  Result := A.fValue = B.fValue;
+end;
+
+
+class operator TKMLocaleCode.Explicit(const aValue: AnsiString): TKMLocaleCode;
+begin
+  Result.fValue := aValue;
+end;
+
+
+function TKMLocaleCode.IsValid: Boolean;
+begin
+  Result := fValue <> '';
+end;
+
+
+function TKMLocaleCode.ToString: AnsiString;
+begin
+  Result := fValue;
+end;
 
 
 { TKMLocales }
@@ -79,11 +116,11 @@ begin
     end;
     Chunk := Trim(Chunk);
     case I of
-      1: aLocale.Code             := Chunk;
+      1: aLocale.Code             := TKMLocaleCode(Chunk);
       2: aLocale.Title            := Chunk;
       3: aLocale.FontCodepage     := StrToIntDef(Chunk, 0);
       4: aLocale.FlagSpriteID     := StrToIntDef(Chunk, 0);
-      5: aLocale.FallbackLocale   := Chunk;
+      5: aLocale.FallbackLocale   := TKMLocaleCode(Chunk);
       6: aLocale.TranslatorCredit := Chunk;
     end;
 
@@ -124,7 +161,7 @@ begin
 end;
 
 
-function TKMLocales.GetLocale(const aCode: AnsiString): TKMLocaleInfo;
+function TKMLocales.GetLocale(const aCode: TKMLocaleCode): TKMLocaleInfo;
 var
   I: Integer;
 begin
@@ -134,11 +171,11 @@ begin
       Result := fLocaleList[I];
       Exit;
     end;
-  Assert(False, aCode + ' is not a valid Locale');
+  Assert(False, String(aCode) + ' is not a valid Locale');
 end;
 
 
-function TKMLocales.IndexByCode(const aLocaleCode: AnsiString): Integer;
+function TKMLocales.IndexByCode(const aLocaleCode: TKMLocaleCode): Integer;
 var
   I: Integer;
 begin

@@ -14,14 +14,14 @@ type
   //Multiplayer info that is filled in Lobby before TKMPlayers are created (thats why it has many mirror fields)
   TKMNetPlayerInfo = class
   private
-    fNikname: AnsiString;
-    fLangCode: AnsiString;
+    fNikname: UnicodeString;
+    fLangCode: TKMLocaleCode;
     fIndexOnServer: Integer;
     fFlagColorID: Integer;    //Flag color, 0 means random
     fPings: array[0 .. PING_COUNT-1] of Word; //Ring buffer
     fPingPos: Byte;
     function GetFlagColor: Cardinal;
-    procedure SetLangCode(const aCode: AnsiString);
+    procedure SetLangCode(const aCode: TKMLocaleCode);
   public
     PlayerNetType: TNetPlayerType; //Human, Computer, Closed
     StartLocation: Integer;  //Start location, 0 means random
@@ -39,9 +39,9 @@ type
     function IsComputer: Boolean;
     function IsClosed: Boolean;
     function GetPlayerType: TPlayerType;
-    function GetNickname: string;
-    property Nikname: AnsiString read fNikname;
-    property LangCode: AnsiString read fLangCode write SetLangCode;
+    function GetNickname: UnicodeString;
+    property Nikname: UnicodeString read fNikname;
+    property LangCode: TKMLocaleCode read fLangCode write SetLangCode;
     property IndexOnServer: Integer read fIndexOnServer;
     property SetIndexOnServer: Integer write fIndexOnServer;
     property FlagColor: Cardinal read GetFlagColor;
@@ -69,7 +69,7 @@ type
     procedure Clear;
     property Count:integer read fCount;
 
-    procedure AddPlayer(aNik: string; aIndexOnServer: Integer; const aLang: string = '');
+    procedure AddPlayer(aNik: string; aIndexOnServer: Integer; const aLang: TKMLocaleCode);
     procedure AddAIPlayer(aSlot: Integer = -1);
     procedure AddClosedPlayer(aSlot: Integer = -1);
     procedure DisconnectPlayer(aIndexOnServer: Integer);
@@ -105,8 +105,8 @@ type
     //Import/Export
     procedure SaveToStream(aStream: TKMemoryStream); //Gets all relevant information as text string
     procedure LoadFromStream(aStream: TKMemoryStream); //Sets all relevant information
-    function GetSimpleAsText: string; //Gets just names as a text string seperated by |
-    function GetPlayersWithIDs: string;
+    function GetSimpleAsText: UnicodeString; //Gets just names as a text string seperated by |
+    function GetPlayersWithIDs: UnicodeString;
   end;
 
 
@@ -138,7 +138,7 @@ begin
 end;
 
 
-procedure TKMNetPlayerInfo.SetLangCode(const aCode: AnsiString);
+procedure TKMNetPlayerInfo.SetLangCode(const aCode: TKMLocaleCode);
 begin
   if fLocales.IndexByCode(aCode) <> -1 then
     fLangCode := aCode;
@@ -196,7 +196,7 @@ begin
 end;
 
 
-function TKMNetPlayerInfo.GetNickname: string;
+function TKMNetPlayerInfo.GetNickname: UnicodeString;
 begin
   case PlayerNetType of
     nptHuman:     Result := Nikname;
@@ -210,7 +210,7 @@ end;
 procedure TKMNetPlayerInfo.Load(LoadStream: TKMemoryStream);
 begin
   LoadStream.Read(fNikname);
-  LoadStream.Read(fLangCode);
+  LoadStream.Read(AnsiString(fLangCode));
   LoadStream.Read(fIndexOnServer);
   LoadStream.Read(PlayerNetType, SizeOf(PlayerNetType));
   LoadStream.Read(fFlagColorID);
@@ -226,7 +226,7 @@ end;
 procedure TKMNetPlayerInfo.Save(SaveStream: TKMemoryStream);
 begin
   SaveStream.Write(fNikname);
-  SaveStream.Write(fLangCode);
+  SaveStream.Write(AnsiString(fLangCode));
   SaveStream.Write(fIndexOnServer);
   SaveStream.Write(PlayerNetType, SizeOf(PlayerNetType));
   SaveStream.Write(fFlagColorID);
@@ -330,7 +330,7 @@ begin
 end;
 
 
-procedure TKMNetPlayersList.AddPlayer(aNik: string; aIndexOnServer: Integer; const aLang: string = '');
+procedure TKMNetPlayersList.AddPlayer(aNik: string; aIndexOnServer: Integer; const aLang: TKMLocaleCode);
 begin
   Assert(fCount <= MAX_PLAYERS, 'Can''t add player');
   Inc(fCount);
@@ -359,7 +359,7 @@ begin
     aSlot := fCount;
   end;
   fNetPlayers[aSlot].fNikname := 'AI Player';
-  fNetPlayers[aSlot].fLangCode := '';
+  fNetPlayers[aSlot].fLangCode := TKMLocaleCode.Default;
   fNetPlayers[aSlot].fIndexOnServer := -1;
   fNetPlayers[aSlot].PlayerNetType := nptComputer;
   fNetPlayers[aSlot].Team := 0;
@@ -383,7 +383,7 @@ begin
     aSlot := fCount;
   end;
   fNetPlayers[aSlot].fNikname := 'Closed';
-  fNetPlayers[aSlot].fLangCode := '';
+  fNetPlayers[aSlot].fLangCode := TKMLocaleCode.Default;
   fNetPlayers[aSlot].fIndexOnServer := -1;
   fNetPlayers[aSlot].PlayerNetType := nptClosed;
   fNetPlayers[aSlot].Team := 0;
@@ -865,7 +865,7 @@ begin
 end;
 
 
-function TKMNetPlayersList.GetSimpleAsText: string;
+function TKMNetPlayersList.GetSimpleAsText: UnicodeString;
 var I: Integer;
 begin
   for I := 1 to fCount do
@@ -876,13 +876,13 @@ begin
 end;
 
 
-function TKMNetPlayersList.GetPlayersWithIDs:string;
+function TKMNetPlayersList.GetPlayersWithIDs: UnicodeString;
 var I: Integer;
 begin
   for I := 1 to fCount do
   begin
-    Result := Result + '   ' +IntToStr(i) + ': ' + fNetPlayers[i].Nikname;
-    if i < fCount then Result := Result + '|';
+    Result := Result + '   ' + IntToStr(I) + ': ' + fNetPlayers[I].Nikname;
+    if I < fCount then Result := Result + '|';
   end;
 end;
 

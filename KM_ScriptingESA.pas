@@ -65,8 +65,8 @@ type
     function PlayerGetAllUnits(aPlayer: Byte): TIntegerArray;
     function PlayerGetAllHouses(aPlayer: Byte): TIntegerArray;
     function PlayerGetAllGroups(aPlayer: Byte): TIntegerArray;
-    function PlayerName(aPlayer: Byte): AnsiString;
-    function PlayerColorText(aPlayer: Byte): AnsiString;
+    function PlayerName(aPlayer: Byte): UnicodeString;
+    function PlayerColorText(aPlayer: Byte): UnicodeString;
     function PlayerVictorious(aPlayer: Byte): Boolean;
     function PlayerWareDistribution(aPlayer, aWareType, aHouseType: Byte): Byte;
 
@@ -482,7 +482,7 @@ begin
 end;
 
 
-function TKMScriptStates.PlayerName(aPlayer: Byte): AnsiString;
+function TKMScriptStates.PlayerName(aPlayer: Byte): UnicodeString;
 begin
   if InRange(aPlayer, 0, fPlayers.Count - 1) then
     Result := fPlayers[aPlayer].PlayerName
@@ -494,7 +494,7 @@ begin
 end;
 
 
-function TKMScriptStates.PlayerColorText(aPlayer: Byte): AnsiString;
+function TKMScriptStates.PlayerColorText(aPlayer: Byte): UnicodeString;
 begin
   if InRange(aPlayer, 0, fPlayers.Count - 1) then
     Result := Format('%.6x', [FlagColorToTextColor(fPlayers[aPlayer].FlagColor) and $FFFFFF])

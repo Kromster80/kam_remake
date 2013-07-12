@@ -18,10 +18,10 @@ type
     //- Mission script does not knows GameName
     //- Mission does not knows to which CampaignName/Map it belongs
     //- PathName to mission and savegame (incase mission is missing we can load .bas)
-    fRepeatGameName: string;
-    fRepeatMission: string;
-    fRepeatSave: string;
-    fRepeatCampName: AnsiString;
+    fRepeatGameName: UnicodeString;
+    fRepeatMission: UnicodeString;
+    fRepeatSave: UnicodeString;
+    fRepeatCampName: UnicodeString;
     fRepeatCampMap: Byte;
     fRepeatLocation: Byte;
     fRepeatColor: Cardinal;

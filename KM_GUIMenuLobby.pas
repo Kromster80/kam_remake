@@ -53,9 +53,9 @@ type
 
     procedure MinimapLocClick(aValue: Integer);
 
-    procedure Lobby_OnDisconnect(const aData:string);
+    procedure Lobby_OnDisconnect(const aData: UnicodeString);
     procedure Lobby_OnGameOptions(Sender: TObject);
-    procedure Lobby_OnMapName(const aData:string);
+    procedure Lobby_OnMapName(const aData: UnicodeString);
     procedure Lobby_OnMessage(const aText: UnicodeString);
     procedure Lobby_OnPingInfo(Sender: TObject);
     procedure Lobby_OnPlayersSetup(Sender: TObject);
@@ -366,7 +366,7 @@ end;
 
 procedure TKMGUIMenuLobby.ChatMenuSelect(aItem: Integer);
 
-  procedure UpdateButtonCaption(aCaption: AnsiString; aColor: Cardinal = 0);
+  procedure UpdateButtonCaption(aCaption: UnicodeString; aColor: Cardinal = 0);
   var CapWidth: Integer;
   const MIN_SIZE = 80; //Minimum size for the button
   begin
@@ -1260,7 +1260,7 @@ end;
 
 //We have received MapName
 //Update UI to show it
-procedure TKMGUIMenuLobby.Lobby_OnMapName(const aData: string);
+procedure TKMGUIMenuLobby.Lobby_OnMapName(const aData: UnicodeString);
 var
   M: TKMapInfo;
   S: TKMSaveInfo;
@@ -1388,7 +1388,7 @@ end;
 
 
 //We were disconnected from Server. Either we were kicked, or connection broke down
-procedure TKMGUIMenuLobby.Lobby_OnDisconnect(const aData: string);
+procedure TKMGUIMenuLobby.Lobby_OnDisconnect(const aData: UnicodeString);
 begin
   fNetworking.Disconnect;
   fSoundLib.Play(sfxn_Error);

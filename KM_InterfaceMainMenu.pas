@@ -66,7 +66,7 @@ type
     procedure MP_SaveSettings;
     procedure MP_Update(const aStatus: string; aColor: TColor4; aBusy: Boolean);
     procedure MP_ServersUpdateList(Sender: TObject);
-    procedure MP_AnnouncementsUpdated(const S: string);
+    procedure MP_AnnouncementsUpdated(const S: UnicodeString);
     procedure MP_CreateServerClick(Sender: TObject);
     procedure MP_FindServerClick(Sender: TObject);
     procedure MP_CreateServerCancelClick(Sender: TObject);
@@ -83,10 +83,10 @@ type
     procedure MP_Join(aServerAddress, aPort: string; aRoom: Integer);
     procedure MP_JoinPassword(Sender: TObject);
     procedure MP_JoinSuccess(Sender: TObject);
-    procedure MP_JoinFail(const aData: string);
+    procedure MP_JoinFail(const aData: UnicodeString);
     procedure MP_JoinAssignedHost(Sender: TObject);
     procedure MP_HostClick(Sender: TObject);
-    procedure MP_HostFail(const aData: string);
+    procedure MP_HostFail(const aData: UnicodeString);
     procedure MP_BackClick(Sender: TObject);
 
     procedure Load_Click(Sender: TObject);
@@ -1240,7 +1240,7 @@ begin
 end;
 
 
-procedure TKMMainMenuInterface.MP_AnnouncementsUpdated(const S: string);
+procedure TKMMainMenuInterface.MP_AnnouncementsUpdated(const S: UnicodeString);
 begin
   Memo_MP_Announcement.Clear;
   Memo_MP_Announcement.Add(S);
@@ -1418,7 +1418,7 @@ begin
 end;
 
 
-procedure TKMMainMenuInterface.MP_JoinFail(const aData: string);
+procedure TKMMainMenuInterface.MP_JoinFail(const aData: UnicodeString);
 begin
   fGameApp.Networking.Disconnect;
   MP_Update(Format(fTextMain[TX_GAME_ERROR_CONNECTION_FAILED],[aData]),icYellow,false);
@@ -1446,7 +1446,7 @@ begin
 end;
 
 
-procedure TKMMainMenuInterface.MP_HostFail(const aData: string);
+procedure TKMMainMenuInterface.MP_HostFail(const aData: UnicodeString);
 begin
   fGameApp.Networking.Disconnect;
   fSoundLib.Play(sfxn_Error);

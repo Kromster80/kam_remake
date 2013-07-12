@@ -52,11 +52,11 @@ type
     GameState: TMPGameState;
     PasswordLocked: Boolean;
     PlayerCount: Byte;
-    Players: AnsiString;
-    Description: AnsiString;
-    Map: AnsiString;
+    Players: UnicodeString;
+    Description: UnicodeString;
+    Map: UnicodeString;
     GameTime: TDateTime;
-    function GetFormattedTime: string;
+    function GetFormattedTime: UnicodeString;
     procedure LoadFromStream(aStream: TKMemoryStream);
     procedure SaveToStream(aStream: TKMemoryStream);
     function GetAsHTML: string;
@@ -172,7 +172,7 @@ end;
 
 
 //Return string representation of games length
-function TMPGameInfo.GetFormattedTime: string;
+function TMPGameInfo.GetFormattedTime: UnicodeString;
 begin
   if GameTime >= 0 then
     Result := TimeToString(GameTime)

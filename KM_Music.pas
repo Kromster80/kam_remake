@@ -41,8 +41,8 @@ type
     fToPlayAfterFade: string;
     fFadedToPlayOther: Boolean;
     fOtherVolume: Single;
-    function PlayMusicFile(FileName: string): Boolean;
-    function PlayOtherFile(FileName: string): Boolean;
+    function PlayMusicFile(FileName: UnicodeString): Boolean;
+    function PlayOtherFile(FileName: UnicodeString): Boolean;
     procedure ScanMusicTracks(Path: string);
     procedure ShuffleSongs; //should not be seen outside of this class
     procedure UnshuffleSongs;
@@ -125,7 +125,7 @@ begin
 end;
 
 
-function TMusicLib.PlayMusicFile(FileName:string):boolean;
+function TMusicLib.PlayMusicFile(FileName: UnicodeString): Boolean;
 {$IFDEF USEBASS} var ErrorCode: Integer; {$ENDIF}
 begin
   Result := False;
@@ -139,7 +139,7 @@ begin
   if not FileExists(FileName) then exit; //Make it silent
 
   {$IFDEF USELIBZPLAY}
-  Result := ZPlayer.OpenFile(FileName, sfAutodetect); //Detect file type automatically
+  Result := ZPlayer.OpenFile(AnsiString(FileName), sfAutodetect); //Detect file type automatically
   if not Result then exit; //File failed to load
   Result := ZPlayer.StartPlayback;
   if not Result then exit; //Playback failed to start
@@ -159,7 +159,7 @@ begin
 end;
 
 
-function TMusicLib.PlayOtherFile(FileName: string): Boolean;
+function TMusicLib.PlayOtherFile(FileName: UnicodeString): Boolean;
 {$IFDEF USEBASS} var ErrorCode: Integer; {$ENDIF}
 begin
   Result := False;
@@ -172,7 +172,7 @@ begin
   if not FileExists(FileName) then exit; //Make it silent
 
   {$IFDEF USELIBZPLAY}
-  Result := ZPlayerOther.OpenFile(FileName, sfAutodetect); //Detect file type automatically
+  Result := ZPlayerOther.OpenFile(AnsiString(FileName), sfAutodetect); //Detect file type automatically
   if not Result then exit; //File failed to load
   Result := ZPlayerOther.StartPlayback;
   if not Result then exit; //Playback failed to start

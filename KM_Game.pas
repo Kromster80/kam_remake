@@ -62,7 +62,7 @@ type
     fMissionFile: string;   //Relative pathname to mission we are playing, so it gets saved to crashreport
     fMissionMode: TKMissionMode;
 
-    procedure GameMPDisconnect(const aData:string);
+    procedure GameMPDisconnect(const aData: UnicodeString);
     procedure MultiplayerRig;
     procedure SaveGame(const aPathName: string);
     procedure UpdatePeaceTime;
@@ -625,7 +625,7 @@ begin
 end;
 
 
-procedure TKMGame.GameMPDisconnect(const aData:string);
+procedure TKMGame.GameMPDisconnect(const aData: UnicodeString);
 begin
   if fNetworking.NetGameState in [lgs_Game, lgs_Reconnecting] then
   begin

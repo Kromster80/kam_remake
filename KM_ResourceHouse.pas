@@ -63,7 +63,7 @@ type
     function GetArea:THouseArea;
     function GetDoesOrders:boolean;
     function GetGUIIcon:word;
-    function GetHouseName:string;
+    function GetHouseName: UnicodeString;
     function GetResInput:THouseRes;
     function GetResOutput:THouseRes;
     function GetOwnerType:TUnitType;

@@ -5,7 +5,7 @@ uses
   {$IFDEF Unix} LCLIntf, {$ENDIF}
   Classes, SysUtils, TypInfo, Forms, KromUtils,
   KM_CommonClasses, KM_CommonTypes, KM_NetworkTypes, KM_Defaults,
-  KM_Saves, KM_GameOptions,
+  KM_Saves, KM_GameOptions, KM_Locales,
   KM_Maps, KM_NetPlayersList, KM_DedicatedServer, KM_NetClient, KM_ServerQuery;
 
 type
@@ -56,7 +56,7 @@ type
     fRoomToJoin: integer; // The room we should join once we hear from the server
     fLastProcessedTick: cardinal;
     fReconnectRequested: cardinal; // TickCount at which a reconnection was requested
-    fMyLang: string;
+    fMyLang: TKMLocaleCode;
     fMyNikname: string;
     fWelcomeMessage: string;
     fServerName: string; // Name of the server we are currently in (shown in the lobby)
@@ -99,10 +99,10 @@ type
     procedure StartGame;
     procedure TryPlayGame;
     procedure PlayGame;
-    procedure SetGameState(aState:TNetGameState);
+    procedure SetGameState(aState: TNetGameState);
     procedure SendMapOrSave;
     procedure DoReconnection;
-    procedure PlayerJoined(aServerIndex: Integer; aPlayerName: AnsiString);
+    procedure PlayerJoined(aServerIndex: Integer; aPlayerName: UnicodeString);
     function CalculateGameCRC:Cardinal;
 
     procedure ConnectSucceed(Sender:TObject);
@@ -114,7 +114,7 @@ type
     procedure PacketSend(aRecipient: Integer; aKind: TKMessageKind; const aText: UnicodeString); overload;
     procedure SetDescription(const Value: string);
   public
-    constructor Create(const aMasterServerAddress:string; aKickTimeout, aPingInterval, aAnnounceInterval:word; aLang:string);
+    constructor Create(const aMasterServerAddress:string; aKickTimeout, aPingInterval, aAnnounceInterval:word; aLang: TKMLocaleCode);
     destructor Destroy; override;
 
     property MyIndex:integer read fMyIndex;
@@ -157,7 +157,7 @@ type
     procedure ConsoleCommand(aText:string);
     procedure PostMessage(aText: UnicodeString; aShowName:boolean=false; aTeamOnly:boolean=false; aRecipientServerIndex:Integer=-1);
     procedure PostLocalMessage(aText: UnicodeString; aMakeSound:boolean=true);
-    procedure AnnounceGameInfo(aGameTime: TDateTime; aMap: string);
+    procedure AnnounceGameInfo(aGameTime: TDateTime; aMap: UnicodeString);
 
     //Gameplay
     property MapInfo:TKMapInfo read fMapInfo;
@@ -204,7 +204,7 @@ uses KM_TextLibrary, KM_Sound, KM_Log, KM_Utils, StrUtils, Math, KM_Resource;
 
 
 { TKMNetworking }
-constructor TKMNetworking.Create(const aMasterServerAddress:string; aKickTimeout, aPingInterval, aAnnounceInterval:word; aLang:string);
+constructor TKMNetworking.Create(const aMasterServerAddress:string; aKickTimeout, aPingInterval, aAnnounceInterval:word; aLang: TKMLocaleCode);
 begin
   inherited Create;
   SetGameState(lgs_None);
@@ -922,10 +922,10 @@ begin
 end;
 
 
-procedure TKMNetworking.PlayerJoined(aServerIndex: Integer; aPlayerName: AnsiString);
+procedure TKMNetworking.PlayerJoined(aServerIndex: Integer; aPlayerName: UnicodeString);
 begin
   PacketSend(aServerIndex, mk_GameCRC, Integer(CalculateGameCRC));
-  fNetPlayers.AddPlayer(aPlayerName, aServerIndex);
+  fNetPlayers.AddPlayer(aPlayerName, aServerIndex, TKMLocaleCode.Default);
   PacketSend(aServerIndex, mk_AllowToJoin);
   SendMapOrSave; //Send the map first so it doesn't override starting locs
 
@@ -1153,7 +1153,7 @@ begin
                 M.Read(tmpString);
                 PlayerIndex := fNetPlayers.ServerToLocal(aSenderIndex);
                 if PlayerIndex <> -1 then
-                  fNetPlayers[PlayerIndex].LangCode := tmpString;
+                  fNetPlayers[PlayerIndex].LangCode := TKMLocaleCode(tmpString);
                 SendPlayerListAndRefreshPlayersSetup;
               end;
 
@@ -1164,7 +1164,7 @@ begin
                 SetGameState(lgs_Lobby);
                 fSoundLib.Play(sfxn_MPChatMessage); //Sound for joining the lobby
                 if fWelcomeMessage <> '' then PostLocalMessage(fWelcomeMessage,false);
-                PacketSend(NET_ADDRESS_HOST, mk_LangCode, fMyLang);
+                PacketSend(NET_ADDRESS_HOST, mk_LangCode, fMyLang.ToString);
               end;
 
       mk_RefuseToJoin:
@@ -1640,7 +1640,7 @@ end;
 
 
 //Tell the server what we know about the game
-procedure TKMNetworking.AnnounceGameInfo(aGameTime: TDateTime; aMap: string);
+procedure TKMNetworking.AnnounceGameInfo(aGameTime: TDateTime; aMap: UnicodeString);
 var
   MPGameInfo: TMPGameInfo;
   M: TKMemoryStream;

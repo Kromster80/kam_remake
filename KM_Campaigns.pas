@@ -3,7 +3,7 @@ unit KM_Campaigns;
 interface
 uses
   Classes, KromUtils, Math, SysUtils,
-  KM_CommonClasses, KM_Pics, KM_Points, KM_TextLibrary;
+  KM_CommonClasses, KM_Pics, KM_Points, KM_TextLibrary, KM_Locales;
 
 
 const
@@ -38,7 +38,7 @@ type
 
     procedure LoadFromFile(aFileName: string);
     procedure SaveToFile(aFileName: string);
-    procedure LoadFromPath(aPath: string; aLocale: AnsiString);
+    procedure LoadFromPath(aPath: string; aLocale: TKMLocaleCode);
 
     property BackGroundPic: TKMPic read fBackGroundPic write fBackGroundPic;
     property MapCount: Byte read fMapCount write SetMapCount;
@@ -50,20 +50,20 @@ type
     function MissionFile(aIndex: Byte): UnicodeString;
     function MissionTitle(aIndex: Byte): UnicodeString;
     function MissionText(aIndex: Byte): UnicodeString;
-    function BreifingAudioFile(aIndex: Byte; aLang: AnsiString): string;
+    function BreifingAudioFile(aIndex: Byte; aLang: TKMLocaleCode): string;
   end;
 
 
   TKMCampaignsCollection = class
   private
-    fLocale: AnsiString;
+    fLocale: TKMLocaleCode;
     fActiveCampaign: TKMCampaign; //Campaign we are playing
     fActiveCampaignMap: Byte; //Map of campaign we are playing, could be different than UnlockedMaps
     fList: TList;
     function GetCampaign(aIndex: Integer): TKMCampaign;
     procedure AddCampaign(const aPath: string);
   public
-    constructor Create(aLocale: AnsiString);
+    constructor Create(aLocale: TKMLocaleCode);
     destructor Destroy; override;
 
     //Initialization
@@ -77,7 +77,7 @@ type
     property ActiveCampaign: TKMCampaign read fActiveCampaign;// write fActiveCampaign;
     function Count: Integer;
     property Campaigns[aIndex: Integer]: TKMCampaign read GetCampaign; default;
-    function CampaignByTitle(const aShortTitle: AnsiString): TKMCampaign;
+    function CampaignByTitle(const aShortTitle: UnicodeString): TKMCampaign;
     procedure SetActive(aCampaign: TKMCampaign; aMap: Byte);
     procedure UnlockNextMap;
   end;
@@ -92,7 +92,7 @@ const
 
 
 { TCampaignsCollection }
-constructor TKMCampaignsCollection.Create(aLocale: AnsiString);
+constructor TKMCampaignsCollection.Create(aLocale: TKMLocaleCode);
 begin
   inherited Create;
 
@@ -221,7 +221,7 @@ begin
 end;
 
 
-function TKMCampaignsCollection.CampaignByTitle(const aShortTitle: AnsiString): TKMCampaign;
+function TKMCampaignsCollection.CampaignByTitle(const aShortTitle: UnicodeString): TKMCampaign;
 var I: Integer;
 begin
   Result := nil;
@@ -337,7 +337,7 @@ begin
 end;
 
 
-procedure TKMCampaign.LoadFromPath(aPath: string; aLocale: AnsiString);
+procedure TKMCampaign.LoadFromPath(aPath: string; aLocale: TKMLocaleCode);
 var
   SP: TKMSpritePack;
   FirstSpriteIndex: Word;
@@ -395,7 +395,7 @@ begin
 end;
 
 
-function TKMCampaign.MissionFile(aIndex: Byte): string;
+function TKMCampaign.MissionFile(aIndex: Byte): UnicodeString;
 begin
   Result := fPath + fShortTitle + Format('%.2d', [aIndex+1]) + PathDelim +
             fShortTitle + Format('%.2d', [aIndex+1]) + '.dat';
@@ -416,10 +416,10 @@ begin
 end;
 
 
-function TKMCampaign.BreifingAudioFile(aIndex: Byte; aLang: AnsiString): string;
+function TKMCampaign.BreifingAudioFile(aIndex: Byte; aLang: TKMLocaleCode): string;
 begin
   Result := fPath + fShortTitle + Format('%.2d', [aIndex+1]) + PathDelim +
-            fShortTitle + Format('%.2d', [aIndex+1]) + '.' + aLang + '.mp3';
+            fShortTitle + Format('%.2d', [aIndex+1]) + '.' + aLang.ToString + '.mp3';
 end;
 
 

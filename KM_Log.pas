@@ -14,16 +14,16 @@ type
     fFirstTick: cardinal;
     fPreviousTick: cardinal;
     fPreviousDate: TDateTime;
-    procedure AddLineTime(const aText: string);
-    procedure AddLineNoTime(const aText: string);
+    procedure AddLineTime(const aText: UnicodeString);
+    procedure AddLineNoTime(const aText: UnicodeString);
   public
     constructor Create(const aPath: string);
     // AppendLog adds the line to Log along with time passed since previous line added
-    procedure AddTime(const aText: string); overload;
-    procedure AddTime(const aText: string; num: Integer); overload;
-    procedure AddTime(const aText: string; num: Single); overload;
-    procedure AddTime(num: Integer; const aText: string); overload;
-    procedure AddTime(const aText: string; Res: boolean); overload;
+    procedure AddTime(const aText: UnicodeString); overload;
+    procedure AddTime(const aText: UnicodeString; num: Integer); overload;
+    procedure AddTime(const aText: UnicodeString; num: Single); overload;
+    procedure AddTime(num: Integer; const aText: UnicodeString); overload;
+    procedure AddTime(const aText: UnicodeString; Res: boolean); overload;
     procedure AddTime(a, b: integer); overload;
     // Add line if TestValue=false
     procedure AddAssert(const aMessageText: string);
@@ -109,7 +109,7 @@ end;
 
 //Lines are timestamped, each line invokes file open/close for writing,
 //meaning that no lines will be lost if Remake crashes
-procedure TKMLog.AddLineTime(const aText: string);
+procedure TKMLog.AddLineTime(const aText: UnicodeString);
 begin
   AssignFile(fl, fLogPath);
   Append(fl);
@@ -130,7 +130,7 @@ end;
 
 
 {Same line but without timestamp}
-procedure TKMLog.AddLineNoTime(const aText: string);
+procedure TKMLog.AddLineNoTime(const aText: UnicodeString);
 begin
   AssignFile(fl, fLogPath);
   Append(fl);
@@ -139,7 +139,7 @@ begin
 end;
 
 
-procedure TKMLog.AddTime(const aText: string);
+procedure TKMLog.AddTime(const aText: UnicodeString);
 begin
   if Self = nil then Exit;
 
@@ -147,7 +147,7 @@ begin
 end;
 
 
-procedure TKMLog.AddTime(const aText: string; num: integer);
+procedure TKMLog.AddTime(const aText: UnicodeString; num: integer);
 begin
   if Self = nil then Exit;
 
@@ -155,7 +155,7 @@ begin
 end;
 
 
-procedure TKMLog.AddTime(const aText: string; num: single);
+procedure TKMLog.AddTime(const aText: UnicodeString; num: single);
 begin
   if Self = nil then Exit;
 
@@ -163,7 +163,7 @@ begin
 end;
 
 
-procedure TKMLog.AddTime(num: integer; const aText: string);
+procedure TKMLog.AddTime(num: integer; const aText: UnicodeString);
 begin
   if Self = nil then Exit;
 
@@ -171,7 +171,7 @@ begin
 end;
 
 
-procedure TKMLog.AddTime(const aText: string; Res: boolean);
+procedure TKMLog.AddTime(const aText: UnicodeString; Res: boolean);
 var
   s: string;
 begin

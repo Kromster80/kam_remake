@@ -19,7 +19,7 @@ type
     Label2: TLabel;
   public
     procedure LoadingStep;
-    procedure LoadingText(const aData: string);
+    procedure LoadingText(const aData: UnicodeString);
   end;
 
 
@@ -38,7 +38,7 @@ begin
 end;
 
 
-procedure TFormLoading.LoadingText(const aData: string);
+procedure TFormLoading.LoadingText(const aData: UnicodeString);
 begin
   if not Visible then exit;
   Label1.Caption := aData;

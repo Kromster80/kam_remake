@@ -2,7 +2,8 @@ unit KM_ServerQuery;
 {$I KaM_Remake.inc}
 interface
 uses Classes, SysUtils,
-  KM_Defaults, KM_CommonClasses, KM_CommonTypes, KM_NetworkTypes, KM_Utils, KM_MasterServer, KM_NetClient;
+  KM_Defaults, KM_CommonClasses, KM_CommonTypes, KM_Locales,
+  KM_NetworkTypes, KM_Utils, KM_MasterServer, KM_NetClient;
 
 const
   MAX_QUERIES = 16; //The maximum number of individual server queries that can be happening at once
@@ -80,7 +81,7 @@ type
     procedure AddServer(aIP, aPort, aName: string; aType: TKMServerType; aPing: word);
     function GetServer(aIndex: Integer): TKMServerInfo;
     procedure Clear;
-    procedure LoadFromText(const aText: AnsiString);
+    procedure LoadFromText(const aText: UnicodeString);
   public
     property Servers[aIndex: Integer]: TKMServerInfo read GetServer; default;
     property Count: Integer read fCount;
@@ -121,7 +122,7 @@ type
     property SortMethod: TServerSortMethod read fSortMethod write SetSortMethod;
 
     procedure RefreshList;
-    procedure FetchAnnouncements(const aLang: string);
+    procedure FetchAnnouncements(const aLang: TKMLocaleCode);
     procedure SendMapInfo(const aMapName: string; aPlayerCount: Integer);
     procedure UpdateStateIdle;
   end;
@@ -214,9 +215,9 @@ begin
 end;
 
 
-procedure TKMServerList.LoadFromText(const aText: AnsiString);
+procedure TKMServerList.LoadFromText(const aText: UnicodeString);
 
-  function GetServerType(aDedicated, aOS: AnsiString): TKMServerType;
+  function GetServerType(aDedicated, aOS: UnicodeString): TKMServerType;
   begin
     if aDedicated = '0' then
       Result := st_Client
@@ -451,9 +452,9 @@ end;
 
 
 //Get the server announcements in specified language
-procedure TKMServerQuery.FetchAnnouncements(const aLang: string);
+procedure TKMServerQuery.FetchAnnouncements(const aLang: TKMLocaleCode);
 begin
-  fMasterServer.FetchAnnouncements(aLang);
+  fMasterServer.FetchAnnouncements(aLang.ToString);
 end;
 
 
