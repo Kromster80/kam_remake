@@ -164,7 +164,7 @@ begin
       for I := 0 to fLocales.Count - 1 do
       begin
         Radio_Options_Lang.Add(fLocales[I].Title);
-        Image_Options_Lang_Flags[I] := TKMImage.Create(Panel_Options_Lang,6,28+(I*20),16,11,fLocales[I].FlagSpriteID,rxGuiMain);
+        Image_Options_Lang_Flags[I] := TKMImage.Create(Panel_Options_Lang,6,28+(I*20),16,11, fLocales[I].FlagSpriteID, rxGuiMain);
         Image_Options_Lang_Flags[I].Tag := I;
         Image_Options_Lang_Flags[I].OnClick := FlagClick;
       end;

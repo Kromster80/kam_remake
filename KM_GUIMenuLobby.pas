@@ -819,14 +819,16 @@ begin
     CurPlayer := fNetworking.NetPlayers[I+1];
 
     //Flag icon
-    LocaleID := fLocales.IndexByCode(CurPlayer.LangCode);
-    if LocaleID <> -1 then
-      Image_LobbyFlag[I].TexID := fLocales[LocaleID].FlagSpriteID
+    if CurPlayer.IsComputer then
+      Image_LobbyFlag[I].TexID := 62 //PC icon
     else
-      if CurPlayer.IsComputer then
-        Image_LobbyFlag[I].TexID := 62 //PC icon
+    begin
+      LocaleID := fLocales.IndexByCode(CurPlayer.LangCode);
+      if LocaleID <> -1 then
+        Image_LobbyFlag[I].TexID := fLocales[LocaleID].FlagSpriteID
       else
         Image_LobbyFlag[I].TexID := 0;
+    end;
 
     //Players list
     if fNetworking.IsHost and (not CurPlayer.IsHuman) then

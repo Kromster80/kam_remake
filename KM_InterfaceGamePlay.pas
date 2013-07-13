@@ -194,7 +194,7 @@ type
       Dropbox_ReplayFOW: TKMDropList;
     Panel_Allies:TKMPanel;
       Label_PeacetimeRemaining: TKMLabel;
-      Image_AlliesLang:array [0..MAX_PLAYERS-1] of TKMImage;
+      Image_AlliesFlag:array [0..MAX_PLAYERS-1] of TKMImage;
       Label_AlliesPlayer:array [0..MAX_PLAYERS-1] of TKMLabel;
       DropBox_AlliesTeam:array [0..MAX_PLAYERS-1] of TKMDropList;
       Label_AlliesTeam:array [0..MAX_PLAYERS-1] of TKMLabel;
@@ -1283,7 +1283,7 @@ begin
         TKMLabel.Create(Panel_Allies, 220+(I div 4)*380, 60, 140, 20, fTextMain[TX_LOBBY_HEADER_TEAM], fnt_Outline, taLeft);
         TKMLabel.Create(Panel_Allies, 350+(I div 4)*380, 60, fTextMain[TX_LOBBY_HEADER_PINGFPS], fnt_Outline, taCenter);
       end;
-      Image_AlliesLang[I] := TKMImage.Create(Panel_Allies,       50+(I div 4)*380, 82+(I mod 4)*24, 16,  11,  0, rxGuiMain);
+      Image_AlliesFlag[I] := TKMImage.Create(Panel_Allies,       50+(I div 4)*380, 82+(I mod 4)*24, 16,  11,  0, rxGuiMain);
       Label_AlliesPlayer[I] := TKMLabel.Create(Panel_Allies,     70+(I div 4)*380, 80+(I mod 4)*24, 140, 20, '', fnt_Grey, taLeft);
       Label_AlliesTeam[I]   := TKMLabel.Create(Panel_Allies,    220+(I div 4)*380, 80+(I mod 4)*24, 120, 20, '', fnt_Grey, taLeft);
       DropBox_AlliesTeam[I] := TKMDropList.Create(Panel_Allies, 220+(I div 4)*380, 80+(I mod 4)*24, 120, 20, fnt_Grey, '', bsGame);
@@ -3779,20 +3779,22 @@ begin
   for I := 0 to fGame.Networking.NetPlayers.Count - 1 do
   begin
     //Show players locale flag
-    LocaleID := fLocales.IndexByCode(fGame.Networking.NetPlayers[I+1].LangCode);
-    if LocaleID <> -1 then
-      Image_AlliesLang[I].TexID := fLocales[LocaleID].FlagSpriteID
+    if fGame.Networking.NetPlayers[I+1].IsComputer then
+      Image_AlliesFlag[I].TexID := 62 //PC icon
     else
-      if fGame.Networking.NetPlayers[I+1].IsComputer then
-        Image_AlliesLang[I].TexID := 62 //PC icon
+    begin
+      LocaleID := fLocales.IndexByCode(fGame.Networking.NetPlayers[I+1].LangCode);
+      if LocaleID <> -1 then
+        Image_AlliesFlag[I].TexID := fLocales[LocaleID].FlagSpriteID
       else
-        Image_AlliesLang[I].TexID := 0;
+        Image_AlliesFlag[I].TexID := 0;
+    end;
 
     Label_AlliesPlayer[I].Caption := fGame.Networking.NetPlayers[I+1].Nikname;
     Label_AlliesPlayer[I].FontColor := fPlayers[fGame.Networking.NetPlayers[I+1].StartLocation - 1].FlagColor;
     DropBox_AlliesTeam[I].ItemIndex := fGame.Networking.NetPlayers[I+1].Team;
     //Strikethrough for disconnected players
-    Image_AlliesLang[I].Enabled := not fGame.Networking.NetPlayers[I+1].Dropped;
+    Image_AlliesFlag[I].Enabled := not fGame.Networking.NetPlayers[I+1].Dropped;
     Label_AlliesPlayer[I].Strikethrough := fGame.Networking.NetPlayers[I+1].Dropped;
     Label_AlliesTeam[I].Strikethrough := fGame.Networking.NetPlayers[I+1].Dropped;
     Label_AlliesPing[I].Strikethrough := fGame.Networking.NetPlayers[I+1].Dropped;
