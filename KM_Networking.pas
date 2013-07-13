@@ -56,7 +56,6 @@ type
     fRoomToJoin: integer; // The room we should join once we hear from the server
     fLastProcessedTick: cardinal;
     fReconnectRequested: cardinal; // TickCount at which a reconnection was requested
-    fMyLang: AnsiString;
     fMyNikname: string;
     fWelcomeMessage: string;
     fServerName: string; // Name of the server we are currently in (shown in the lobby)
@@ -114,7 +113,7 @@ type
     procedure PacketSend(aRecipient: Integer; aKind: TKMessageKind; const aText: UnicodeString); overload;
     procedure SetDescription(const Value: string);
   public
-    constructor Create(const aMasterServerAddress:string; aKickTimeout, aPingInterval, aAnnounceInterval:word; aLang: AnsiString);
+    constructor Create(const aMasterServerAddress:string; aKickTimeout, aPingInterval, aAnnounceInterval:word);
     destructor Destroy; override;
 
     property MyIndex:integer read fMyIndex;
@@ -204,11 +203,10 @@ uses KM_TextLibrary, KM_Sound, KM_Log, KM_Utils, StrUtils, Math, KM_Resource;
 
 
 { TKMNetworking }
-constructor TKMNetworking.Create(const aMasterServerAddress:string; aKickTimeout, aPingInterval, aAnnounceInterval:word; aLang: AnsiString);
+constructor TKMNetworking.Create(const aMasterServerAddress:string; aKickTimeout, aPingInterval, aAnnounceInterval:word);
 begin
   inherited Create;
   SetGameState(lgs_None);
-  fMyLang := aLang;
   fNetServer := TKMDedicatedServer.Create(1, aKickTimeout, aPingInterval, aAnnounceInterval, aMasterServerAddress, '', '', False);
   fNetClient := TKMNetClient.Create;
   fNetPlayers := TKMNetPlayersList.Create;
@@ -1066,7 +1064,7 @@ begin
                   case fNetPlayerKind of
                     lpk_Host:
                         begin
-                          fNetPlayers.AddPlayer(fMyNikname, fMyIndexOnServer, fMyLang);
+                          fNetPlayers.AddPlayer(fMyNikname, fMyIndexOnServer, fLocales.UserLocale);
                           fMyIndex := fNetPlayers.NiknameToLocal(fMyNikname);
                           fNetPlayers[fMyIndex].ReadyToStart := True;
                           if Assigned(fOnPlayersSetup) then fOnPlayersSetup(Self);
@@ -1164,7 +1162,7 @@ begin
                 SetGameState(lgs_Lobby);
                 fSoundLib.Play(sfxn_MPChatMessage); //Sound for joining the lobby
                 if fWelcomeMessage <> '' then PostLocalMessage(fWelcomeMessage,false);
-                PacketSend(NET_ADDRESS_HOST, mk_LangCode, fMyLang);
+                PacketSend(NET_ADDRESS_HOST, mk_LangCode, fLocales.UserLocale);
               end;
 
       mk_RefuseToJoin:

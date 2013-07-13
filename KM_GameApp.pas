@@ -597,8 +597,7 @@ begin
     fNetworking := TKMNetworking.Create(fGameSettings.MasterServerAddress,
                                         fGameSettings.AutoKickTimeout,
                                         fGameSettings.PingInterval,
-                                        fGameSettings.MasterAnnounceInterval,
-                                        fGameSettings.Locale);
+                                        fGameSettings.MasterAnnounceInterval);
   fNetworking.OnMPGameInfoChanged := SendMPGameInfo;
   fNetworking.OnStartMap := NewMultiplayerMap;
   fNetworking.OnStartSave := NewMultiplayerSave;
