@@ -486,12 +486,12 @@ begin
   case fGameMode of
     gmMulti:  begin
                 fGameInputProcess := TGameInputProcess_Multi.Create(gipRecording, fNetworking);
-                fTextMission := TKMTextLibraryMulti.Create(fGameApp.GameSettings.Locale);
+                fTextMission := TKMTextLibraryMulti.Create;
                 fTextMission.LoadLocale(ChangeFileExt(aMissionFile, '.%s.libx'));
               end;
     gmSingle: begin
                 fGameInputProcess := TGameInputProcess_Single.Create(gipRecording);
-                fTextMission := TKMTextLibraryMulti.Create(fGameApp.GameSettings.Locale);
+                fTextMission := TKMTextLibraryMulti.Create;
                 fTextMission.LoadLocale(ChangeFileExt(aMissionFile, '.%s.libx'));
               end;
     gmMapEd:  ;

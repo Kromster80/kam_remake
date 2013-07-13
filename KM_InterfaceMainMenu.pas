@@ -1073,7 +1073,7 @@ begin
 
   //Fetch the announcements display
   fGameApp.Networking.ServerQuery.OnAnnouncements := MP_AnnouncementsUpdated;
-  fGameApp.Networking.ServerQuery.FetchAnnouncements(fGameApp.GameSettings.Locale);
+  fGameApp.Networking.ServerQuery.FetchAnnouncements;
   Memo_MP_Announcement.Clear;
   Memo_MP_Announcement.Add(fTextMain[TX_MP_MENU_LOADING_ANNOUNCEMENTS]);
 end;

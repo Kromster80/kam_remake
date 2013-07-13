@@ -32,22 +32,20 @@ type
     fTexts: TKMStringArray;
     function GetTexts(aIndex: Word): UnicodeString;
   public
-    procedure LoadLocale(aPathTemplate: string; aLocale: TKMLocaleCode); //initial locale for UI strings
+    procedure LoadLocale(aPathTemplate: string); //initial locale for UI strings
     property Texts[aIndex: Word]: UnicodeString read GetTexts; default;
   end;
 
 
   TKMTextLibraryMulti = class(TKMTextLibrary)
   private
-    //Dynamic, depends on constructor
-    fLocale: TKMLocaleCode;
-    fFallbackLocale: TKMLocaleCode;
     fPref: array [0..2] of Integer;
 
     fTexts: array of TKMStringArray;
     function GetTexts(aIndex: Word): UnicodeString;
+    procedure InitLocaleIds;
   public
-    constructor Create(aLocale: TKMLocaleCode);
+    constructor Create;
     procedure LoadLocale(aPathTemplate: string); //All locales for Mission strings
     function ParseTextMarkup(const aText: UnicodeString): UnicodeString;
     property Texts[aIndex: Word]: UnicodeString read GetTexts; default;
@@ -92,7 +90,7 @@ procedure TKMTextLibrary.LoadLIBXFile(FilePath: string; var aArray: TKMStringArr
   end;
 var
   Tmp: TKMStringArray;
-  langCode: TKMLocaleCode;
+  langCode: AnsiString;
   libTxt: UnicodeString;
   I: Integer;
   s: UnicodeString;
@@ -102,8 +100,8 @@ begin
   if not FileExists(FilePath) then Exit;
 
   //Load ANSI file with codepage we say into unicode string
-  langCode := TKMLocaleCode(Copy(FilePath, Length(FilePath) - 7, 3));
-  libTxt := ReadTextU(FilePath, fLocales.GetLocale(langCode).FontCodepage);
+  langCode := Copy(FilePath, Length(FilePath) - 7, 3);
+  libTxt := ReadTextU(FilePath, fLocales.LocaleByCode(langCode).FontCodepage);
   Tmp := TextToArray(libTxt);
 
   //First line is empty or comment and could have first 3 bytes Unicode Byte-Order Mark (BOM)
@@ -145,36 +143,34 @@ end;
 
 //Text file template, e.g.: ExeDir\text.%s.libx
 //We need locale separate to assemble Fallback and Default locales paths
-procedure TKMTextLibrarySingle.LoadLocale(aPathTemplate: string; aLocale: TKMLocaleCode);
-var
-  fallbackLocale: TKMLocaleCode;
+procedure TKMTextLibrarySingle.LoadLocale(aPathTemplate: string);
 begin
-  fallbackLocale := fLocales.GetLocale(aLocale).FallbackLocale;
-
   //We load the English LIBX by default, then overwrite it with the selected language
   //(this way missing strings are in English)
-  LoadLIBXFile(Format(aPathTemplate, [TKMLocaleCode.Default.ToString]), fTexts);
+  LoadLIBXFile(Format(aPathTemplate, [fLocales.DefaultLocale]), fTexts);
 
-  if fallbackLocale.IsValid then
-    LoadLIBXFile(Format(aPathTemplate, [fallbackLocale.ToString]), fTexts);
+  if fLocales.FallbackLocale <> '' then
+    LoadLIBXFile(Format(aPathTemplate, [fLocales.FallbackLocale]), fTexts);
 
-  LoadLIBXFile(Format(aPathTemplate, [aLocale.ToString]), fTexts);
+  LoadLIBXFile(Format(aPathTemplate, [fLocales.UserLocale]), fTexts);
 end;
 
 
 { TKMTextLibraryMulti }
-constructor TKMTextLibraryMulti.Create(aLocale: TKMLocaleCode);
+constructor TKMTextLibraryMulti.Create;
 begin
   inherited Create;
 
-  //Remember preferred locale, it will remain constant until reinit
-  fLocale := aLocale;
-  fFallbackLocale := fLocales.GetLocale(fLocale).FallbackLocale;
+  InitLocaleIds;
+end;
 
-  //Order of preferences of locales
-  fPref[0] := fLocales.IndexByCode(fLocale);
-  fPref[1] := fLocales.IndexByCode(fFallbackLocale);
-  fPref[2] := fLocales.IndexByCode(TKMLocaleCode.Default);
+
+procedure TKMTextLibraryMulti.InitLocaleIds;
+begin
+  //Using indexes is fatsre than always looking them up for every string requested
+  fPref[0] := fLocales.IndexByCode(fLocales.UserLocale);
+  fPref[1] := fLocales.IndexByCode(fLocales.FallbackLocale);
+  fPref[2] := fLocales.IndexByCode(fLocales.DefaultLocale);
 end;
 
 
@@ -203,7 +199,7 @@ begin
   SetLength(fTexts, fLocales.Count);
 
   for I := 0 to fLocales.Count - 1 do
-    LoadLIBXFile(Format(aPathTemplate, [fLocales[I].Code.ToString]), fTexts[I]);
+    LoadLIBXFile(Format(aPathTemplate, [fLocales[I].Code]), fTexts[I]);
 end;
 
 
@@ -239,13 +235,10 @@ var
   I,K: Integer;
   TextCount: Integer;
 begin
-  aStream.Write(fLocale.ToString);
-  aStream.Write(fFallbackLocale.ToString);
-
   aStream.Write(fLocales.Count);
   for I := 0 to fLocales.Count - 1 do
   begin
-    aStream.Write(fLocales[I].Code.ToString);
+    aStream.Write(fLocales[I].Code);
 
     TextCount := Length(fTexts[I]);
 
@@ -260,13 +253,10 @@ procedure TKMTextLibraryMulti.Load(aStream: TKMemoryStream);
 var
   I,K: Integer;
   LocCount, TextCount: Integer;
-  curLoc: TKMLocaleCode;
+  curLoc: AnsiString;
   Id: Integer;
   Tmp: UnicodeString;
 begin
-  aStream.Read(AnsiString(fLocale));
-  aStream.Read(AnsiString(fFallbackLocale));
-
   //Try to match savegame locales with players locales,
   //cos some players might have non-native locales missing
   //We might add locale selection to setup.exe
@@ -276,7 +266,7 @@ begin
   aStream.Read(LocCount);
   for I := 0 to LocCount - 1 do
   begin
-    aStream.Read(AnsiString(curLoc));
+    aStream.Read(curLoc);
     Id := fLocales.IndexByCode(curLoc);
 
     aStream.Read(TextCount);
@@ -294,9 +284,7 @@ begin
     end;
   end;
 
-  fPref[0] := fLocales.IndexByCode(fLocale);
-  fPref[1] := fLocales.IndexByCode(fFallbackLocale);
-  fPref[2] := fLocales.IndexByCode(TKMLocaleCode.Default);
+  InitLocaleIds;
 end;
 
 

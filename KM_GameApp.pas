@@ -40,7 +40,7 @@ type
     procedure Stop(aMsg: TGameResultMsg; aTextMsg: string = '');
     function CanClose: Boolean;
     procedure Resize(X,Y: Integer);
-    procedure ToggleLocale(aLocale: TKMLocaleCode);
+    procedure ToggleLocale(aLocale: AnsiString);
     procedure NetworkInit;
     procedure SendMPGameInfo(Sender: TObject);
     function RenderVersion: string;
@@ -99,11 +99,11 @@ begin
 
   fOnCursorUpdate := aOnCursorUpdate;
 
-  fLocales      := TKMLocales.Create(ExeDir + 'data' + PathDelim + 'locales.txt');
   fGameSettings := TGameSettings.Create;
+  fLocales      := TKMLocales.Create(ExeDir + 'data' + PathDelim + 'locales.txt', fGameSettings.Locale);
 
   fTextMain := TKMTextLibrarySingle.Create;
-  fTextMain.LoadLocale(ExeDir + 'data' + PathDelim + 'text' + PathDelim + 'text.%s.libx', fGameSettings.Locale);
+  fTextMain.LoadLocale(ExeDir + 'data' + PathDelim + 'text' + PathDelim + 'text.%s.libx');
 
   {$IFDEF USE_MAD_EXCEPT}fExceptions.LoadTranslation;{$ENDIF}
 
@@ -118,12 +118,12 @@ begin
   fResource     := TResource.Create(fRender, aLS, aLT);
   fResource.LoadMenuResources;
 
-  fSoundLib     := TSoundLib.Create(fGameSettings.Locale, fGameSettings.SoundFXVolume, True); //Required for button click sounds
+  fSoundLib     := TSoundLib.Create(fGameSettings.SoundFXVolume, True); //Required for button click sounds
   fMusicLib     := TMusicLib.Create(fGameSettings.MusicVolume);
   fSoundLib.OnRequestFade   := fMusicLib.FadeMusic;
   fSoundLib.OnRequestUnfade := fMusicLib.UnfadeMusic;
 
-  fCampaigns    := TKMCampaignsCollection.Create(fGameSettings.Locale);
+  fCampaigns    := TKMCampaignsCollection.Create;
   fCampaigns.ScanFolder(ExeDir + 'Campaigns' + PathDelim);
   fCampaigns.LoadProgress(ExeDir + 'Saves' + PathDelim + 'Campaigns.dat');
 
@@ -191,7 +191,7 @@ begin
 end;
 
 
-procedure TKMGameApp.ToggleLocale(aLocale: TKMLocaleCode);
+procedure TKMGameApp.ToggleLocale(aLocale: AnsiString);
 begin
   Assert(fGame = nil, 'We don''t want to recreate whole fGame for that. Let''s limit it only to MainMenu');
 
@@ -200,6 +200,7 @@ begin
 
   fTimerUI.Enabled := False; //Disable it while switching, if an OpenAL error appears the timer should be disabled
   fGameSettings.Locale := aLocale; //Wrong Locale will be ignored
+  fLocales.UserLocale := aLocale;
 
   //Release resources that use Locale info
   FreeAndNil(fNetworking);
@@ -210,17 +211,17 @@ begin
 
   //Recreate resources that use Locale info
   fTextMain := TKMTextLibrarySingle.Create;
-  fTextMain.LoadLocale(ExeDir + 'data' + PathDelim + 'text' + PathDelim + 'text.%s.libx', fGameSettings.Locale);
+  fTextMain.LoadLocale(ExeDir + 'data' + PathDelim + 'text' + PathDelim + 'text.%s.libx');
   {$IFDEF USE_MAD_EXCEPT}fExceptions.LoadTranslation;{$ENDIF}
   //Don't reshow the warning dialog when initing sounds, it gets stuck behind in full screen
   //and the user already saw it when starting the game.
-  fSoundLib := TSoundLib.Create(fGameSettings.Locale, fGameSettings.SoundFXVolume, False);
+  fSoundLib := TSoundLib.Create(fGameSettings.SoundFXVolume, False);
   fSoundLib.OnRequestFade := fMusicLib.FadeMusic;
   fSoundLib.OnRequestUnfade := fMusicLib.UnfadeMusic;
   fResource.Fonts.LoadFonts;
 
   //Campaigns use single locale
-  fCampaigns := TKMCampaignsCollection.Create(fGameSettings.Locale);
+  fCampaigns := TKMCampaignsCollection.Create;
   fCampaigns.ScanFolder(ExeDir + 'Campaigns' + PathDelim);
   fCampaigns.LoadProgress(ExeDir + 'Saves' + PathDelim + 'Campaigns.dat');
   fMainMenuInterface := TKMMainMenuInterface.Create(fRender.ScreenX, fRender.ScreenY);

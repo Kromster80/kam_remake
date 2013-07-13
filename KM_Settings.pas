@@ -41,7 +41,7 @@ type
     fBrightness: Byte;
     fScrollSpeed: Byte;
     fAlphaShadows: Boolean;
-    fLocale: TKMLocaleCode;
+    fLocale: AnsiString;
     fMusicOff: Boolean;
     fShuffleOn: Boolean;
     fMusicVolume: Single;
@@ -71,7 +71,7 @@ type
     procedure SetBrightness(aValue: Byte);
     procedure SetScrollSpeed(aValue: Byte);
     procedure SetAlphaShadows(aValue: Boolean);
-    procedure SetLocale(aLocale: TKMLocaleCode);
+    procedure SetLocale(aLocale: AnsiString);
     procedure SetMusicOff(aValue: Boolean);
     procedure SetShuffleOn(aValue: Boolean);
     procedure SetMusicVolume(aValue: Single);
@@ -100,7 +100,7 @@ type
     property Brightness: Byte read fBrightness write SetBrightness;
     property ScrollSpeed: Byte read fScrollSpeed write SetScrollSpeed;
     property AlphaShadows: Boolean read fAlphaShadows write SetAlphaShadows;
-    property Locale: TKMLocaleCode read fLocale write SetLocale;
+    property Locale: AnsiString read fLocale write SetLocale;
     property MusicOff: Boolean read fMusicOff write SetMusicOff;
     property ShuffleOn: Boolean read fShuffleOn write SetShuffleOn;
     property MusicVolume: Single read fMusicVolume write SetMusicVolume;
@@ -301,7 +301,7 @@ begin
 
     fAutosave       := F.ReadBool   ('Game', 'Autosave',       True); //Should be ON by default
     fScrollSpeed    := F.ReadInteger('Game', 'ScrollSpeed',    10);
-    Locale          := TKMLocaleCode(F.ReadString ('Game', 'Locale', TKMLocaleCode.Default.ToString));
+    Locale          := F.ReadString ('Game', 'Locale',         DEFAULT_LOCALE);
     fSpeedPace      := F.ReadInteger('Game', 'SpeedPace',      100);
     fSpeedMedium    := F.ReadInteger('Game', 'SpeedMedium',    3);
     fSpeedFast      := F.ReadInteger('Game', 'SpeedFast',      6);
@@ -353,7 +353,7 @@ begin
 
     F.WriteBool   ('Game','Autosave',     fAutosave);
     F.WriteInteger('Game','ScrollSpeed',  fScrollSpeed);
-    F.WriteString ('Game','Locale',       fLocale.ToString);
+    F.WriteString ('Game','Locale',       fLocale);
     F.WriteInteger('Game','SpeedPace',    fSpeedPace);
     F.WriteInteger('Game','SpeedMedium',  fSpeedMedium);
     F.WriteInteger('Game','SpeedFast',    fSpeedFast);
@@ -393,13 +393,13 @@ end;
 
 
 //Scan list of available locales and pick existing one, or ignore
-procedure TGameSettings.SetLocale(aLocale: TKMLocaleCode);
+procedure TGameSettings.SetLocale(aLocale: AnsiString);
 begin
   //We don't know if Locales are initialized (e.g. in dedicated server)
   if (fLocales <> nil) and (fLocales.IndexByCode(aLocale) <> -1) then
     fLocale := aLocale
   else
-    fLocale := TKMLocaleCode.Default;
+    fLocale := DEFAULT_LOCALE;
 end;
 
 

@@ -146,7 +146,7 @@ type
 
     fSoundGain:single; //aka "Global volume"
     fMusicIsFaded:boolean;
-    fLocale: TKMLocaleCode; //Locale used to access warrior sounds
+    fLocaleString: AnsiString; //Locale used to access warrior sounds
     fNotificationSoundCount: array[TAttackNotification] of byte;
     fWarriorSoundCount: array[WARRIOR_MIN..WARRIOR_MAX, TWarriorSpeech] of byte;
     fWarriorUseBackup: array[WARRIOR_MIN..WARRIOR_MAX] of boolean;
@@ -163,7 +163,7 @@ type
     procedure PlayWave(const aFile: string; Loc:TKMPointF; Attenuated:boolean=true; Volume:single=1; FadeMusic:boolean=false); overload;
     procedure PlaySound(SoundID:TSoundFX; const aFile:string; Loc:TKMPointF; Attenuated:boolean=true; Volume:single=1; FadeMusic:boolean=false);
   public
-    constructor Create(aLocale: TKMLocaleCode; aVolume:single; aShowWarningDlg: Boolean);
+    constructor Create(aVolume: Single; aShowWarningDlg: Boolean);
     destructor Destroy; override;
     function ActiveCount:byte;
 
@@ -265,7 +265,7 @@ const
 
 
 { TSoundLib }
-constructor TSoundLib.Create(aLocale: TKMLocaleCode; aVolume:single; aShowWarningDlg: Boolean);
+constructor TSoundLib.Create(aVolume:single; aShowWarningDlg: Boolean);
 var
   Context: PALCcontext;
   I: Integer;
@@ -275,13 +275,13 @@ begin
 
   if SKIP_SOUND then Exit;
 
-  if DirectoryExists(ExeDir+'data'+PathDelim+'sfx'+PathDelim+'speech.'+aLocale.ToString+PathDelim) then
-    fLocale := aLocale
+  if DirectoryExists(ExeDir+'data'+PathDelim+'sfx'+PathDelim+'speech.'+fLocales.UserLocale+PathDelim) then
+    fLocaleString := fLocales.UserLocale
   else
-    if DirectoryExists(ExeDir+'data'+PathDelim+'sfx'+PathDelim+'speech.'+fLocales.GetLocale(aLocale).FallbackLocale.ToString+PathDelim) then
-      fLocale := fLocales.GetLocale(aLocale).FallbackLocale //Use fallback local when primary doesn't exist
+    if DirectoryExists(ExeDir+'data'+PathDelim+'sfx'+PathDelim+'speech.'+fLocales.FallbackLocale+PathDelim) then
+      fLocaleString := fLocales.FallbackLocale //Use fallback local when primary doesn't exist
     else
-      fLocale := TKMLocaleCode.Default; //Use English voices when no language specific voices exist
+      fLocaleString := fLocales.DefaultLocale; //Use English voices when no language specific voices exist
 
   fIsSoundInitialized := InitOpenAL;
   Set8087CW($133F); //Above OpenAL call messes up FPU settings
@@ -661,7 +661,7 @@ function TSoundLib.WarriorSoundFile(aUnitType:TUnitType; aSound:TWarriorSpeech; 
 var S:string;
 begin
   if not fIsSoundInitialized then Exit;
-  S := ExeDir + 'data'+PathDelim+'sfx'+PathDelim+'speech.'+fLocale.ToString+PathDelim;
+  S := ExeDir + 'data'+PathDelim+'sfx'+PathDelim+'speech.'+fLocaleString+PathDelim;
   if fWarriorUseBackup[aUnitType] then
     S := S + WarriorSFXFolderBackup[aUnitType]
   else
@@ -677,7 +677,7 @@ function TSoundLib.NotificationSoundFile(aSound:TAttackNotification; aNumber:byt
 var S:string;
 begin
   if not fIsSoundInitialized then Exit;
-  S := ExeDir + 'data'+PathDelim+'sfx'+PathDelim+'speech.'+fLocale.ToString+ PathDelim + AttackNotifications[aSound] + int2fix(aNumber,2);
+  S := ExeDir + 'data'+PathDelim+'sfx'+PathDelim+'speech.'+fLocaleString+ PathDelim + AttackNotifications[aSound] + int2fix(aNumber,2);
   Result := '';
   if FileExists(S+'.snd') then Result := S+'.snd';
   if FileExists(S+'.wav') then Result := S+'.wav'; //In Russian version there are WAVs
@@ -808,7 +808,7 @@ var
   AN: TAttackNotification;
   SpeechPath: string;
 begin
-  SpeechPath := ExeDir + 'data'+PathDelim+'sfx'+PathDelim+'speech.' + fLocale.ToString+ PathDelim;
+  SpeechPath := ExeDir + 'data'+PathDelim+'sfx'+PathDelim+'speech.' + fLocaleString+ PathDelim;
 
   //Reset counts from previous locale/unsuccessful load
   FillChar(fWarriorSoundCount, SizeOf(fWarriorSoundCount), #0);

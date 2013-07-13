@@ -122,7 +122,7 @@ type
     property SortMethod: TServerSortMethod read fSortMethod write SetSortMethod;
 
     procedure RefreshList;
-    procedure FetchAnnouncements(const aLang: TKMLocaleCode);
+    procedure FetchAnnouncements;
     procedure SendMapInfo(const aMapName: string; aPlayerCount: Integer);
     procedure UpdateStateIdle;
   end;
@@ -452,9 +452,9 @@ end;
 
 
 //Get the server announcements in specified language
-procedure TKMServerQuery.FetchAnnouncements(const aLang: TKMLocaleCode);
+procedure TKMServerQuery.FetchAnnouncements;
 begin
-  fMasterServer.FetchAnnouncements(aLang.ToString);
+  fMasterServer.FetchAnnouncements(fLocales.UserLocale);
 end;
 
 

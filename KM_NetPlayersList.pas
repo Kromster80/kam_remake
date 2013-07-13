@@ -15,13 +15,13 @@ type
   TKMNetPlayerInfo = class
   private
     fNikname: UnicodeString;
-    fLangCode: TKMLocaleCode;
+    fLangCode: AnsiString;
     fIndexOnServer: Integer;
     fFlagColorID: Integer;    //Flag color, 0 means random
     fPings: array[0 .. PING_COUNT-1] of Word; //Ring buffer
     fPingPos: Byte;
     function GetFlagColor: Cardinal;
-    procedure SetLangCode(const aCode: TKMLocaleCode);
+    procedure SetLangCode(const aCode: AnsiString);
   public
     PlayerNetType: TNetPlayerType; //Human, Computer, Closed
     StartLocation: Integer;  //Start location, 0 means random
@@ -41,7 +41,7 @@ type
     function GetPlayerType: TPlayerType;
     function GetNickname: UnicodeString;
     property Nikname: UnicodeString read fNikname;
-    property LangCode: TKMLocaleCode read fLangCode write SetLangCode;
+    property LangCode: AnsiString read fLangCode write SetLangCode;
     property IndexOnServer: Integer read fIndexOnServer;
     property SetIndexOnServer: Integer write fIndexOnServer;
     property FlagColor: Cardinal read GetFlagColor;
@@ -69,7 +69,7 @@ type
     procedure Clear;
     property Count:integer read fCount;
 
-    procedure AddPlayer(aNik: string; aIndexOnServer: Integer; const aLang: TKMLocaleCode);
+    procedure AddPlayer(aNik: string; aIndexOnServer: Integer; const aLang: AnsiString);
     procedure AddAIPlayer(aSlot: Integer = -1);
     procedure AddClosedPlayer(aSlot: Integer = -1);
     procedure DisconnectPlayer(aIndexOnServer: Integer);
@@ -138,7 +138,7 @@ begin
 end;
 
 
-procedure TKMNetPlayerInfo.SetLangCode(const aCode: TKMLocaleCode);
+procedure TKMNetPlayerInfo.SetLangCode(const aCode: AnsiString);
 begin
   if fLocales.IndexByCode(aCode) <> -1 then
     fLangCode := aCode;
@@ -330,7 +330,7 @@ begin
 end;
 
 
-procedure TKMNetPlayersList.AddPlayer(aNik: string; aIndexOnServer: Integer; const aLang: TKMLocaleCode);
+procedure TKMNetPlayersList.AddPlayer(aNik: string; aIndexOnServer: Integer; const aLang: AnsiString);
 begin
   Assert(fCount <= MAX_PLAYERS, 'Can''t add player');
   Inc(fCount);
@@ -359,7 +359,7 @@ begin
     aSlot := fCount;
   end;
   fNetPlayers[aSlot].fNikname := 'AI Player';
-  fNetPlayers[aSlot].fLangCode := TKMLocaleCode.Default;
+  fNetPlayers[aSlot].fLangCode := '';
   fNetPlayers[aSlot].fIndexOnServer := -1;
   fNetPlayers[aSlot].PlayerNetType := nptComputer;
   fNetPlayers[aSlot].Team := 0;
@@ -383,7 +383,7 @@ begin
     aSlot := fCount;
   end;
   fNetPlayers[aSlot].fNikname := 'Closed';
-  fNetPlayers[aSlot].fLangCode := TKMLocaleCode.Default;
+  fNetPlayers[aSlot].fLangCode := '';
   fNetPlayers[aSlot].fIndexOnServer := -1;
   fNetPlayers[aSlot].PlayerNetType := nptClosed;
   fNetPlayers[aSlot].Team := 0;

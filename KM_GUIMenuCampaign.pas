@@ -157,7 +157,7 @@ begin
   Panel_CampScroll.Top := Panel_Campaign.Height - Panel_CampScroll.Height;
 
   fGameApp.MusicLib.StopPlayingOtherFile; //Stop playing the previous breifing even if this one doesn't exist
-  fGameApp.PauseMusicToPlayFile(fCampaign.BreifingAudioFile(fMapIndex, fGameApp.GameSettings.Locale));
+  fGameApp.PauseMusicToPlayFile(fCampaign.BreifingAudioFile(fMapIndex));
 end;
 
 

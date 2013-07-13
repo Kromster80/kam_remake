@@ -38,7 +38,7 @@ type
 
     procedure LoadFromFile(aFileName: string);
     procedure SaveToFile(aFileName: string);
-    procedure LoadFromPath(aPath: string; aLocale: TKMLocaleCode);
+    procedure LoadFromPath(aPath: string);
 
     property BackGroundPic: TKMPic read fBackGroundPic write fBackGroundPic;
     property MapCount: Byte read fMapCount write SetMapCount;
@@ -50,20 +50,19 @@ type
     function MissionFile(aIndex: Byte): UnicodeString;
     function MissionTitle(aIndex: Byte): UnicodeString;
     function MissionText(aIndex: Byte): UnicodeString;
-    function BreifingAudioFile(aIndex: Byte; aLang: TKMLocaleCode): string;
+    function BreifingAudioFile(aIndex: Byte): string;
   end;
 
 
   TKMCampaignsCollection = class
   private
-    fLocale: TKMLocaleCode;
     fActiveCampaign: TKMCampaign; //Campaign we are playing
     fActiveCampaignMap: Byte; //Map of campaign we are playing, could be different than UnlockedMaps
     fList: TList;
     function GetCampaign(aIndex: Integer): TKMCampaign;
     procedure AddCampaign(const aPath: string);
   public
-    constructor Create(aLocale: TKMLocaleCode);
+    constructor Create;
     destructor Destroy; override;
 
     //Initialization
@@ -92,11 +91,10 @@ const
 
 
 { TCampaignsCollection }
-constructor TKMCampaignsCollection.Create(aLocale: TKMLocaleCode);
+constructor TKMCampaignsCollection.Create;
 begin
   inherited Create;
 
-  fLocale := aLocale;
   fList := TList.Create;
 end;
 
@@ -119,7 +117,7 @@ var
   C: TKMCampaign;
 begin
   C := TKMCampaign.Create;
-  C.LoadFromPath(aPath, fLocale);
+  C.LoadFromPath(aPath);
   fList.Add(C);
 end;
 
@@ -337,7 +335,7 @@ begin
 end;
 
 
-procedure TKMCampaign.LoadFromPath(aPath: string; aLocale: TKMLocaleCode);
+procedure TKMCampaign.LoadFromPath(aPath: string);
 var
   SP: TKMSpritePack;
   FirstSpriteIndex: Word;
@@ -348,14 +346,14 @@ begin
 
   FreeAndNil(fTextLib);
   fTextLib := TKMTextLibrarySingle.Create;
-  fTextLib.LoadLocale(fPath + 'text.%s.libx', aLocale);
+  fTextLib.LoadLocale(fPath + 'text.%s.libx');
 
   if fResource.Sprites <> nil then
   begin
     SP := fResource.Sprites[rxGuiMainH];
     FirstSpriteIndex := SP.RXData.Count;
     SP.LoadFromRXXFile(fPath + 'images.rxx', SP.RXData.Count);
-    
+
     if FirstSpriteIndex < SP.RXData.Count then
     begin
       //Images were successfuly loaded
@@ -416,15 +414,23 @@ begin
 end;
 
 
-function TKMCampaign.BreifingAudioFile(aIndex: Byte; aLang: TKMLocaleCode): string;
+function TKMCampaign.BreifingAudioFile(aIndex: Byte): string;
 begin
   Result := fPath + fShortTitle + Format('%.2d', [aIndex+1]) + PathDelim +
-            fShortTitle + Format('%.2d', [aIndex+1]) + '.' + aLang.ToString + '.mp3';
+            fShortTitle + Format('%.2d', [aIndex + 1]) + '.' + fLocales.UserLocale + '.mp3';
+
+  if not FileExists(Result) then
+    Result := fPath + fShortTitle + Format('%.2d', [aIndex+1]) + PathDelim +
+              fShortTitle + Format('%.2d', [aIndex + 1]) + '.' + fLocales.FallbackLocale + '.mp3';
+
+  if not FileExists(Result) then
+    Result := fPath + fShortTitle + Format('%.2d', [aIndex+1]) + PathDelim +
+              fShortTitle + Format('%.2d', [aIndex + 1]) + '.' + fLocales.DefaultLocale + '.mp3';
 end;
 
 
-{When player completes one map we allow to reveal the next one, note that
-player may be replaying previous maps, in that case his progress remains the same}
+//When player completes one map we allow to reveal the next one, note that
+//player may be replaying previous maps, in that case his progress remains the same
 procedure TKMCampaign.SetUnlockedMap(aValue: Byte);
 begin
   fUnlockedMap := EnsureRange(aValue, fUnlockedMap, fMapCount - 1);
