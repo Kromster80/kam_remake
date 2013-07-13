@@ -13,11 +13,11 @@ uses
   {$ENDIF}
   SysUtils,
   {$IFDEF MSWindows} Windows, MMSystem, {$ENDIF}
-  KM_Utils,
-  KM_Defaults,
-  KM_Log,
-  KM_Settings,
-  KM_DedicatedServer,
+  KM_Utils in '..\..\KM_Utils.pas',
+  KM_Defaults in '..\..\KM_Defaults.pas',
+  KM_Log in '..\..\KM_Log.pas',
+  KM_Settings in '..\..\KM_Settings.pas',
+  KM_DedicatedServer in '..\..\KM_DedicatedServer.pas',
   KM_ServerEventHandler in 'KM_ServerEventHandler.pas';
 
 var

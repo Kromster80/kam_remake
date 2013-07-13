@@ -75,6 +75,11 @@
 			<DelphiCompile Include="$(MainSource)">
 				<MainSource>MainSource</MainSource>
 			</DelphiCompile>
+			<DCCReference Include="..\..\KM_Utils.pas"/>
+			<DCCReference Include="..\..\KM_Defaults.pas"/>
+			<DCCReference Include="..\..\KM_Log.pas"/>
+			<DCCReference Include="..\..\KM_Settings.pas"/>
+			<DCCReference Include="..\..\KM_DedicatedServer.pas"/>
 			<DCCReference Include="KM_ServerEventHandler.pas"/>
 			<BuildConfiguration Include="Debug">
 				<Key>Cfg_2</Key>
