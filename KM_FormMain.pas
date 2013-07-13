@@ -151,7 +151,6 @@ uses
   KM_Sound,
   KM_Pics,
   KM_RenderPool,
-  KM_TextLibrary,
   KM_Locales;
 
 

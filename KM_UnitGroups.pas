@@ -1442,8 +1442,7 @@ begin
     UnitPos.Y := UnitPos.Y + FLAG_X_OFFSET;
 
   fRenderPool.AddUnitFlag(FlagCarrier.UnitType, FlagCarrier.GetUnitAction.ActionType,
-    FlagCarrier.Direction, FlagCarrier.AnimStep, FlagStep, UnitPos.X, UnitPos.Y,
-    FlagColor);
+    FlagCarrier.Direction, FlagStep, UnitPos.X, UnitPos.Y, FlagColor);
 
   //Paint virtual members in MapEd mode
   for I := 1 to fMapEdCount - 1 do

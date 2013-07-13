@@ -87,7 +87,7 @@ type
     procedure AddUnit(aUnit: TUnitType; aAct: TUnitActionType; aDir: TKMDirection; StepId: Integer; pX,pY: Single; FlagColor: TColor4; NewInst: Boolean; DoImmediateRender: Boolean = False; Deleting: Boolean = False);
     procedure AddUnitCarry(aCarry: TWareType; aDir: TKMDirection; StepId: Integer; pX,pY: Single);
     procedure AddUnitThought(aUnit: TUnitType; aAct: TUnitActionType; aDir: TKMDirection; Thought: TUnitThought; pX,pY: Single);
-    procedure AddUnitFlag(aUnit: TUnitType; aAct: TUnitActionType; aDir: TKMDirection; UnitAnim, FlagAnim: Integer; pX,pY: Single; FlagColor: TColor4);
+    procedure AddUnitFlag(aUnit: TUnitType; aAct: TUnitActionType; aDir: TKMDirection; FlagAnim: Integer; pX,pY: Single; FlagColor: TColor4);
     procedure AddUnitWithDefaultArm(aUnit: TUnitType; aAct: TUnitActionType; aDir: TKMDirection; StepId: Integer; pX,pY: Single; FlagColor: TColor4; DoImmediateRender: Boolean = False; Deleting: Boolean = False);
 
     procedure RenderSpriteOnTile(aLoc: TKMPoint; aId: Word; aFlagColor: TColor4 = $FFFFFFFF);
@@ -109,7 +109,7 @@ var
 
 implementation
 uses KM_CommonTypes, KM_RenderAux, KM_PlayersCollection, KM_Projectiles, KM_Game, KM_Sound, KM_Resource,
-  KM_ResourceMapElements, KM_Units, KM_AIFields, KM_TerrainPainter, KM_MapEditor;
+  KM_ResourceMapElements, KM_Units, KM_AIFields, KM_TerrainPainter;
 
 
 constructor TRenderPool.Create(aRender: TRender);
@@ -726,7 +726,7 @@ end;
 
 procedure TRenderPool.AddUnitFlag(
   aUnit: TUnitType; aAct: TUnitActionType;
-  aDir: TKMDirection; UnitAnim, FlagAnim: Integer;
+  aDir: TKMDirection; FlagAnim: Integer;
   pX, pY: Single; FlagColor: TColor4);
 var
   R: TRXData;

@@ -64,7 +64,7 @@ const
 
 
 implementation
-uses KM_Defaults, KM_Game, KM_Terrain;
+uses KM_Defaults;
 
 
 { TKMFogOfWar }
