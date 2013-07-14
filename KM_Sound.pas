@@ -3,7 +3,7 @@ unit KM_Sound;
 interface
 uses Classes, Dialogs, Forms, SysUtils, TypInfo,
   {$IFDEF Unix} LCLIntf, LCLType, {$ENDIF}
-  OpenAL, KromUtils, KM_Defaults, KM_Points, KM_Locales;
+  OpenAL, KromUtils, KM_Defaults, KM_Points, KM_ResLocales;
 
 
 const

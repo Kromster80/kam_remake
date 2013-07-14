@@ -3,7 +3,7 @@ unit Unit_Text;
 interface
 uses
   Classes, Controls, Dialogs, ExtCtrls, FileCtrl, Forms, Graphics, Math,
-  StdCtrls, StrUtils, SysUtils, Windows, KM_Locales;
+  StdCtrls, StrUtils, SysUtils, Windows, KM_ResLocales;
 
 
 type
@@ -114,7 +114,7 @@ begin
   for I := 0 to fTextMaxID do
     if not TextEmpty(I) and TextUnused(I) then
     begin
-      s := StringReplace(fTexts[I, fLocales.GetIDFromCode(DEFAULT_LOCALE)], ' ', '', [rfReplaceAll]);
+      s := StringReplace(fTexts[I, fLocales.IndexByCode(DEFAULT_LOCALE)], ' ', '', [rfReplaceAll]);
       s := UpperCase(LeftStr(s, 16));
 
       SetLength(fConsts, Length(fConsts) + 1);
@@ -153,7 +153,7 @@ begin
   AssignFile(myFile, aFileName);
   ReWrite(myFile);
 
-  DefLoc := fLocales.GetIDFromCode(DEFAULT_LOCALE);
+  DefLoc := fLocales.IndexByCode(DEFAULT_LOCALE);
 
   for I := 0 to High(fConsts) do
   if fConsts[I].TextID = -1 then
@@ -504,7 +504,7 @@ begin
     Result := fConsts[aIndex]
   else
   begin
-    Result.ConstName := StringReplace(fTexts[aIndex, fLocales.GetIDFromCode(DEFAULT_LOCALE)], ' ', '', [rfReplaceAll]);
+    Result.ConstName := StringReplace(fTexts[aIndex, fLocales.IndexByCode(DEFAULT_LOCALE)], ' ', '', [rfReplaceAll]);
     Result.ConstName := 'TX_' + IntToStr(aIndex) + '_' + UpperCase(LeftStr(Result.ConstName, 16));
     Result.TextID := aIndex;
   end;

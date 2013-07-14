@@ -1,7 +1,7 @@
 unit KM_Settings;
 {$I KaM_Remake.inc}
 interface
-uses Classes, SysUtils, Math, KM_Defaults, INIfiles, KM_Locales;
+uses Classes, SysUtils, Math, KM_Defaults, INIfiles, KM_ResLocales;
 
 
 type

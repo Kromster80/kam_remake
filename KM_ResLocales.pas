@@ -1,4 +1,4 @@
-unit KM_Locales;
+unit KM_ResLocales;
 {$I KaM_Remake.inc}
 interface
 uses

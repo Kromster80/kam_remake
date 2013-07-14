@@ -20,7 +20,7 @@ type
 
 
 implementation
-uses KM_Locales, KM_ResourceFonts;
+uses KM_ResLocales, KM_ResourceFonts;
 
 
 { TKMFontCollator }
@@ -28,7 +28,7 @@ constructor TKMFontCollator.Create;
 begin
   inherited;
 
-  fLocales := TKMLocales.Create(ExeDir + '..\..\data\locales.txt');
+  fLocales := TKMLocales.Create(ExeDir + '..\..\data\locales.txt', DEFAULT_LOCALE);
 end;
 
 
@@ -147,7 +147,7 @@ begin
 
       //Load ANSI file with codepage we say into unicode string
       langCode := Copy(libxList[I], Length(libxList[I]) - 7, 3);
-      libTxt := ReadTextU(libxList[I], fLocales.GetLocale(langCode).FontCodepage);
+      libTxt := ReadTextU(libxList[I], fLocales.LocaleByCode(langCode).FontCodepage);
 
       for K := 0 to Length(libTxt) - 1 do
         chars[Ord(libTxt[K+1])] := #1;

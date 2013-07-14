@@ -5,7 +5,7 @@ uses
   Classes, Controls, Dialogs, ExtCtrls, Forms, Graphics, Math, Menus,
   {$IFDEF MSWINDOWS} ComCtrls, FileCtrl, {$ENDIF}
   StdCtrls, StrUtils, Windows, SysUtils, CheckLst, INIFiles,
-  KM_Defaults, KM_Locales, Unit_Text, Unit_PathManager;
+  KM_Defaults, KM_ResLocales, Unit_Text, Unit_PathManager;
 
 const
   //Disables insert, delete, compact, sort, etc. functions
@@ -62,7 +62,6 @@ type
     procedure btnPasteClick(Sender: TObject);
     procedure Edit1Change(Sender: TObject);
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
-    procedure cbShowLang8888Change(Sender: TObject);
     procedure btnUnusedClick(Sender: TObject);
     procedure mnuExitClick(Sender: TObject);
     procedure btnRenameClick(Sender: TObject);
@@ -113,7 +112,7 @@ begin
 
   fExeDir := ExtractFilePath(ParamStr(0));
   fWorkDir := fExeDir + '..\..\';
-  fLocales := TKMLocales.Create(fWorkDir + 'data\locales.txt');
+  fLocales := TKMLocales.Create(fWorkDir + 'data\locales.txt', DEFAULT_LOCALE);
 
   InitLocalesList;
 
@@ -245,7 +244,7 @@ procedure TForm1.RefreshList;
   begin
     Result := True;
     TextID := fTextManager.Consts[aIndex].TextID;
-    DefLoc := fLocales.GetIDFromCode(DEFAULT_LOCALE);
+    DefLoc := fLocales.IndexByCode(DEFAULT_LOCALE);
 
     //Hide lines that have text
     if cbShowMis.Checked then
@@ -709,13 +708,6 @@ procedure TForm1.FormCloseQuery(Sender: TObject; var CanClose: Boolean);
 begin
   CanClose := (not mnuSave.Enabled) or
               (MessageDlg('You have unsaved changes that will be lost, are you sure you want to exit?', mtWarning, [mbYes,mbNo], 0) = mrYes);
-end;
-
-procedure TForm1.cbShowLang8888Change(Sender: TObject);
-begin
-  FreeAndNil(fLocales);
-  fLocales := TKMLocales.Create(fWorkDir + 'data\locales.txt');
-  RefreshLocales;
 end;
 
 

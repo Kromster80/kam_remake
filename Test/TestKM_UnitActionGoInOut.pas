@@ -33,7 +33,7 @@ begin
   gLog := TKMLog.Create(ExtractFilePath(ParamStr(0)) + 'log.log');
   fResource := TResource.Create(nil, nil, nil);
   fResource.LoadMenuResources;
-  fSoundLib := TSoundLib.Create('', 0, False);
+  fSoundLib := TSoundLib.Create(0, False);
   gTerrain := TKMTerrain.Create;
   gTerrain.MakeNewMap(32, 32, False);
   fPlayers := TKMPlayersCollection.Create;

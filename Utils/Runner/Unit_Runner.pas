@@ -3,7 +3,7 @@ unit Unit_Runner;
 interface
 uses Classes, Math, SysUtils,
   KM_Defaults, KM_CommonClasses, KM_CommonTypes, KromUtils,
-  KM_GameApp, KM_Locales, KM_Log, KM_TextLibrary, KM_Utils;
+  KM_GameApp, KM_ResLocales, KM_Log, KM_TextLibrary, KM_Utils;
 
 
 type
@@ -30,7 +30,7 @@ type
     procedure SimulateGame;
     procedure ProcessRunResults;
   public
-    OnProgress: TStringEvent;
+    OnProgress: TUnicodeStringEvent;
     function Run(aCount: Integer): TKMRunResults;
   end;
 

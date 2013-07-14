@@ -151,7 +151,7 @@ uses
   KM_Sound,
   KM_Pics,
   KM_RenderPool,
-  KM_Locales;
+  KM_ResLocales;
 
 
 //Remove VCL panel and use flicker-free TMyPanel instead

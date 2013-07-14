@@ -3,7 +3,7 @@ unit KM_Campaigns;
 interface
 uses
   Classes, KromUtils, Math, SysUtils,
-  KM_CommonClasses, KM_Pics, KM_Points, KM_TextLibrary, KM_Locales;
+  KM_CommonClasses, KM_Pics, KM_Points, KM_TextLibrary, KM_ResLocales;
 
 
 const

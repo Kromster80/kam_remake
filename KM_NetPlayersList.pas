@@ -2,7 +2,7 @@ unit KM_NetPlayersList;
 {$I KaM_Remake.inc}
 interface
 uses Classes, KromUtils, StrUtils, Math, SysUtils,
-  KM_CommonClasses, KM_Defaults, KM_Player, KM_Locales;
+  KM_CommonClasses, KM_Defaults, KM_Player, KM_ResLocales;
 
 const
   PING_COUNT = 20; //Number of pings to store and take the maximum over for latency calculation (pings are measured once per second)

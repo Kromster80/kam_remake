@@ -8,7 +8,7 @@ uses
   KM_CommonTypes, KM_Defaults, KM_RenderControl,
   KM_Campaigns, KM_Game,
   KM_InterfaceMainMenu,
-  KM_Locales, KM_Music, KM_Networking, KM_Settings, KM_TextLibrary, KM_Render;
+  KM_ResLocales, KM_Music, KM_Networking, KM_Settings, KM_TextLibrary, KM_Render;
 
 type
   //Methods relevant to gameplay
