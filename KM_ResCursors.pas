@@ -1,4 +1,4 @@
-unit KM_ResourceCursors;
+unit KM_ResCursors;
 {$I KaM_Remake.inc}
 interface
 uses

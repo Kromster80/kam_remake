@@ -199,7 +199,7 @@
 			<DCCReference Include="KM_RenderUI.pas"/>
 			<DCCReference Include="KM_Resolutions.pas"/>
 			<DCCReference Include="KM_Resource.pas"/>
-			<DCCReference Include="KM_ResourceCursors.pas"/>
+			<DCCReference Include="KM_ResCursors.pas"/>
 			<DCCReference Include="KM_ResourceFonts.pas"/>
 			<DCCReference Include="KM_ResourceHouse.pas"/>
 			<DCCReference Include="KM_ResLocales.pas"/>

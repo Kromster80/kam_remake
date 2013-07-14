@@ -1108,7 +1108,7 @@ type
 
 
 implementation
-uses KM_Resource, KM_ResourceCursors, KM_Sound, KM_Utils;
+uses KM_Resource, KM_ResCursors, KM_Sound, KM_Utils;
 
 
 function MakeListRow(const aCaption: array of string; aTag: Integer = 0): TKMListRow;

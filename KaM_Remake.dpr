@@ -92,7 +92,7 @@ uses
   KM_RenderUI in 'KM_RenderUI.pas',
   KM_Resolutions in 'KM_Resolutions.pas',
   KM_Resource in 'KM_Resource.pas',
-  KM_ResourceCursors in 'KM_ResourceCursors.pas',
+  KM_ResCursors in 'KM_ResCursors.pas',
   KM_ResourceFonts in 'KM_ResourceFonts.pas',
   KM_ResourceHouse in 'KM_ResourceHouse.pas',
   KM_ResLocales in 'KM_ResLocales.pas',

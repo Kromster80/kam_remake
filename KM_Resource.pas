@@ -6,7 +6,7 @@ uses
   Classes, Graphics, SysUtils,
   KM_CommonTypes, KM_Defaults, KM_Pics,
   KM_Render,
-  KM_ResourceCursors,
+  KM_ResCursors,
   KM_ResourceFonts,
   KM_ResourceHouse,
   KM_ResourceMapElements,
