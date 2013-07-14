@@ -4,7 +4,7 @@ interface
 uses
   {$IFDEF FPC} lconvencoding, {$ENDIF}
   Classes, SysUtils, StrUtils, KromUtils,
-  KM_CommonClasses, KM_Defaults, KM_FileIO, KM_ResLocales;
+  KM_CommonClasses, KM_FileIO, KM_ResLocales;
 
 
 const

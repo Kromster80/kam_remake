@@ -3,7 +3,7 @@ unit KM_ResPalettes;
 interface
 uses
   Classes, SysUtils,
-  KM_CommonClasses, KM_Defaults;
+  KM_CommonClasses;
 
 
 type

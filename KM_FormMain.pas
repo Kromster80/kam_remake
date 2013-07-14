@@ -150,8 +150,7 @@ uses
   KM_PlayersCollection,
   KM_Sound,
   KM_Pics,
-  KM_RenderPool,
-  KM_ResLocales;
+  KM_RenderPool;
 
 
 //Remove VCL panel and use flicker-free TMyPanel instead
