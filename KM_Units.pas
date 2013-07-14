@@ -289,9 +289,8 @@ type
 
 implementation
 uses
-  KM_CommonTypes, KM_Game, KM_RenderPool, KM_RenderAux, KM_TextLibrary, KM_Scripting,
-  KM_PlayersCollection, KM_FogOfWar,
-  KM_Units_Warrior, KM_Resource, KM_Log,
+  KM_CommonTypes, KM_Game, KM_RenderPool, KM_RenderAux, KM_ResTexts, KM_Scripting,
+  KM_PlayersCollection, KM_FogOfWar, KM_Units_Warrior, KM_Resource, KM_Log,
 
   KM_UnitActionAbandonWalk,
   KM_UnitActionFight,

@@ -11,7 +11,7 @@ uses
   KM_InterfaceDefaults, KM_InterfaceMapEditor, KM_InterfaceGamePlay,
   KM_MapEditor, KM_Minimap, KM_Networking,
   KM_PathFinding, KM_PathFindingAStarOld, KM_PathFindingAStarNew, KM_PathFindingJPS,
-  KM_PerfLog, KM_Projectiles, KM_Render, KM_Viewport, KM_TextLibrary;
+  KM_PerfLog, KM_Projectiles, KM_Render, KM_Viewport, KM_ResTexts;
 
 type
   TGameMode = (

@@ -150,7 +150,7 @@ type
 
 implementation
 uses KM_PlayersCollection, KM_Resource, KM_Sound, KM_Game,
-   KM_TextLibrary, KM_AIFields, KM_Scripting;
+   KM_ResTexts, KM_AIFields, KM_Scripting;
 
 
 { TKMPlayerCommon }

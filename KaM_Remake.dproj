@@ -160,7 +160,6 @@
 			<DCCReference Include="KM_Houses.pas"/>
 			<DCCReference Include="KM_HTTPClient.pas"/>
 			<DCCReference Include="KM_Hungarian.pas"/>
-			<DCCReference Include="KM_ResLocales.pas"/>
 			<DCCReference Include="KM_Log.pas"/>
 			<DCCReference Include="KM_Main.pas"/>
 			<DCCReference Include="KM_Maps.pas"/>
@@ -203,9 +202,11 @@
 			<DCCReference Include="KM_ResourceCursors.pas"/>
 			<DCCReference Include="KM_ResourceFonts.pas"/>
 			<DCCReference Include="KM_ResourceHouse.pas"/>
+			<DCCReference Include="KM_ResLocales.pas"/>
 			<DCCReference Include="KM_ResourceMapElements.pas"/>
 			<DCCReference Include="KM_ResourcePalettes.pas"/>
 			<DCCReference Include="KM_ResourceSprites.pas"/>
+			<DCCReference Include="KM_ResTexts.pas"/>
 			<DCCReference Include="KM_ResourceTileset.pas"/>
 			<DCCReference Include="KM_ResourceUnit.pas"/>
 			<DCCReference Include="KM_ResourceWares.pas"/>
@@ -220,7 +221,6 @@
 			<DCCReference Include="KM_TerrainFinder.pas"/>
 			<DCCReference Include="KM_TerrainPainter.pas"/>
 			<DCCReference Include="KM_TerrainWalkConnect.pas"/>
-			<DCCReference Include="KM_TextLibrary.pas"/>
 			<DCCReference Include="KM_UnitActionAbandonWalk.pas"/>
 			<DCCReference Include="KM_UnitActionFight.pas"/>
 			<DCCReference Include="KM_UnitActionGoInOut.pas"/>

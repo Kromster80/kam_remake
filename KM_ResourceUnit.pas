@@ -146,7 +146,7 @@ const
 
 
 implementation
-uses KromUtils, KM_TextLibrary;
+uses KromUtils, KM_ResTexts;
 
 
 { TKMUnitsDatClass }

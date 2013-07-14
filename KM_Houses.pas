@@ -248,7 +248,7 @@ type
 implementation
 uses
   KM_CommonTypes, KM_RenderPool, KM_RenderAux, KM_Units, KM_Scripting,
-  KM_PlayersCollection, KM_Sound, KM_Game, KM_TextLibrary,
+  KM_PlayersCollection, KM_Sound, KM_Game, KM_ResTexts,
   KM_Resource, KM_Utils, KM_FogOfWar, KM_AI;
 
 

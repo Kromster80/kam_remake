@@ -3,7 +3,7 @@ interface
 uses
   TestFramework, StrUtils, Classes, SysUtils,
   KM_Defaults, KM_Log, KM_Utils,
-  KM_GameApp, KM_ResLocales, KM_TextLibrary,
+  KM_GameApp, KM_ResLocales, KM_ResTexts,
   KM_MissionScript_Standard;
 
 

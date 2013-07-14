@@ -111,7 +111,7 @@ type
 
 
 implementation
-uses KM_TextLibrary;
+uses KM_ResTexts;
 
 
 { TKMNetPlayerInfo }

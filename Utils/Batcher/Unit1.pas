@@ -4,7 +4,7 @@ interface
 uses
   Windows, Classes, Controls, Forms, Math, StdCtrls, SysUtils, StrUtils,
   KM_Defaults, KM_CommonClasses, KM_Points, KromUtils,
-  KM_GameApp, KM_ResLocales, KM_Log, KM_PlayersCollection, KM_TextLibrary,
+  KM_GameApp, KM_ResLocales, KM_Log, KM_PlayersCollection, KM_ResTexts,
   KM_Maps, KM_MissionScript_Info, KM_Terrain, KM_Utils;
 
 

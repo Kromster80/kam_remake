@@ -202,7 +202,7 @@ const
 
 
 implementation
-uses KromUtils, KM_Outline, KM_Points, KM_PolySimplify, KM_TextLibrary, KM_ResourceUnit;
+uses KromUtils, KM_Outline, KM_Points, KM_PolySimplify, KM_ResTexts, KM_ResourceUnit;
 
 
 type

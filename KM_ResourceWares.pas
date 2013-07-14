@@ -116,7 +116,7 @@ const
 
 
 implementation
-uses KM_TextLibrary;
+uses KM_ResTexts;
 
 
 { TKMWaresList }

@@ -199,7 +199,7 @@ type
 
 
 implementation
-uses KM_TextLibrary, KM_Sound, KM_Log, KM_Utils, StrUtils, Math, KM_Resource;
+uses KM_ResTexts, KM_Sound, KM_Log, KM_Utils, StrUtils, Math, KM_Resource;
 
 
 { TKMNetworking }

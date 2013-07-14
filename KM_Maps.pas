@@ -121,7 +121,7 @@ type
 
 
 implementation
-uses KM_CommonClasses, KM_MissionScript_Info, KM_TextLibrary, KM_Utils;
+uses KM_CommonClasses, KM_MissionScript_Info, KM_ResTexts, KM_Utils;
 
 
 const

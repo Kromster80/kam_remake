@@ -66,7 +66,7 @@ type
 
 
 implementation
-uses KM_TextLibrary, KM_GameApp, KM_Utils, KM_RenderUI, KM_ResourceFonts;
+uses KM_ResTexts, KM_GameApp, KM_Utils, KM_RenderUI, KM_ResourceFonts;
 
 
 { TKMGUIMenuSingleMap }
