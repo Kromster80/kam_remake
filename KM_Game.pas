@@ -234,7 +234,7 @@ begin
   //Here comes terrain/mission init
   SetKaMSeed(4); //Every time the game will be the same as previous. Good for debug.
   gTerrain := TKMTerrain.Create;
-  fPlayers := TKMPlayersCollection.Create;
+  gPlayers := TKMPlayersCollection.Create;
   fAIFields := TKMAIFields.Create;
 
   InitUnitStatEvals; //Army
@@ -277,7 +277,7 @@ begin
   FreeAndNil(fTimerGame);
 
   FreeThenNil(fMapEditor);
-  FreeThenNil(fPlayers);
+  FreeThenNil(gPlayers);
   FreeThenNil(fTerrainPainter);
   FreeThenNil(gTerrain);
   FreeAndNil(fAIFields);
@@ -443,27 +443,27 @@ begin
 
     if fGameMode = gmMapEd then
     begin
-      fPlayers.AddPlayers(MAX_PLAYERS - fPlayers.Count); //Activate all players
-      for I := 0 to fPlayers.Count - 1 do
-        fPlayers[I].FogOfWar.RevealEverything;
+      gPlayers.AddPlayers(MAX_PLAYERS - gPlayers.Count); //Activate all players
+      for I := 0 to gPlayers.Count - 1 do
+        gPlayers[I].FogOfWar.RevealEverything;
       MySpectator := TKMSpectator.Create(0);
       MySpectator.FOWIndex := PLAYER_NONE;
     end
     else
     if fGameMode = gmSingle then
     begin
-      for I := 0 to fPlayers.Count - 1 do
-        fPlayers[I].PlayerType := pt_Computer;
+      for I := 0 to gPlayers.Count - 1 do
+        gPlayers[I].PlayerType := pt_Computer;
 
       //-1 means automatically detect the location (used for tutorials and campaigns)
       if aLocation = -1 then
         aLocation := Parser.DefaultLocation;
 
-      Assert(InRange(aLocation, 0, fPlayers.Count - 1), 'No human player detected');
-      fPlayers[aLocation].PlayerType := pt_Human;
+      Assert(InRange(aLocation, 0, gPlayers.Count - 1), 'No human player detected');
+      gPlayers[aLocation].PlayerType := pt_Human;
       MySpectator := TKMSpectator.Create(aLocation);
       if aColor <> $00000000 then //If no color specified use default from mission file (don't overwrite it)
-        fPlayers[MySpectator.PlayerIndex].FlagColor := aColor;
+        gPlayers[MySpectator.PlayerIndex].FlagColor := aColor;
     end;
 
     if (Parser.MinorErrors <> '') and (fGameMode <> gmMapEd) then
@@ -502,7 +502,7 @@ begin
   if fGameMode = gmMulti then
     MultiplayerRig;
 
-  fPlayers.AfterMissionInit(True);
+  gPlayers.AfterMissionInit(True);
 
   SetKaMSeed(4); //Random after StartGame and ViewReplay should match
 
@@ -517,7 +517,7 @@ begin
 
   //When everything is ready we can update UI
   SyncUI;
-  fViewport.Position := KMPointF(fPlayers[MySpectator.PlayerIndex].CenterScreen);
+  fViewport.Position := KMPointF(gPlayers[MySpectator.PlayerIndex].CenterScreen);
 
   gLog.AddTime('Gameplay initialized', true);
 end;
@@ -540,19 +540,19 @@ begin
     SetGameSpeed(fGameOptions.SpeedAfterPT, False);
 
   //First give all AI players a name so fixed AIs (not added in lobby) still have a name
-  for I := 0 to fPlayers.Count-1 do
-    if fPlayers[I].PlayerType = pt_Computer then
+  for I := 0 to gPlayers.Count-1 do
+    if gPlayers[I].PlayerType = pt_Computer then
       //Can't be translated yet because PlayerName is written into save (solve this when we make network messages translated?)
-      fPlayers[I].PlayerName := 'AI Player';
+      gPlayers[I].PlayerName := 'AI Player';
 
 
   //Assign existing NetPlayers(1..N) to map players(0..N-1)
   for I := 1 to fNetworking.NetPlayers.Count do
   begin
     PlayerIndex := fNetworking.NetPlayers[I].StartLocation - 1; //PlayerID is 0 based
-    fPlayers[PlayerIndex].PlayerType := fNetworking.NetPlayers[I].GetPlayerType;
-    fPlayers[PlayerIndex].PlayerName := fNetworking.NetPlayers[I].Nikname;
-    fPlayers[PlayerIndex].FlagColor := fNetworking.NetPlayers[I].FlagColor;
+    gPlayers[PlayerIndex].PlayerType := fNetworking.NetPlayers[I].GetPlayerType;
+    gPlayers[PlayerIndex].PlayerName := fNetworking.NetPlayers[I].Nikname;
+    gPlayers[PlayerIndex].FlagColor := fNetworking.NetPlayers[I].FlagColor;
   end;
 
   //Setup alliances
@@ -564,11 +564,11 @@ begin
 
   //We cannot remove a player from a save (as they might be interacting with other players)
 
-  fPlayers.SyncFogOfWar; //Syncs fog of war revelation between players AFTER alliances
+  gPlayers.SyncFogOfWar; //Syncs fog of war revelation between players AFTER alliances
   //Multiplayer missions don't have goals yet, so add the defaults (except for special/coop missions)
   if (fNetworking.SelectGameKind = ngk_Map)
   and not fNetworking.MapInfo.IsSpecial and not fNetworking.MapInfo.IsCoop then
-    fPlayers.AddDefaultGoalsToAll(fMissionMode);
+    gPlayers.AddDefaultGoalsToAll(fMissionMode);
 
   fNetworking.OnPlay           := GameMPPlay;
   fNetworking.OnReadyToPlay    := GameMPReadyToPlay;
@@ -592,7 +592,7 @@ var
 begin
   for I := 1 to fNetworking.NetPlayers.Count do
   begin
-    PlayerI := fPlayers[fNetworking.NetPlayers[I].StartLocation - 1]; //PlayerID is 0 based
+    PlayerI := gPlayers[fNetworking.NetPlayers[I].StartLocation - 1]; //PlayerID is 0 based
     for K := 1 to fNetworking.NetPlayers.Count do
     begin
       PlayerK := fNetworking.NetPlayers[K].StartLocation - 1; //PlayerID is 0 based
@@ -746,7 +746,7 @@ end;
 //Wrap for GameApp to access player color (needed for restart mission)
 function TKMGame.PlayerColor: Cardinal;
 begin
-  Result := fPlayers[MySpectator.PlayerIndex].FlagColor;
+  Result := gPlayers[MySpectator.PlayerIndex].FlagColor;
 end;
 
 
@@ -762,7 +762,7 @@ begin
   if fGameMode = gmMulti then
   begin
     fNetworking.PostLocalMessage(Format(fTextMain[TX_MULTIPLAYER_PLAYER_DEFEATED],
-                                        [fPlayers[aPlayerIndex].PlayerName]));
+                                        [gPlayers[aPlayerIndex].PlayerName]));
     if aPlayerIndex = MySpectator.PlayerIndex then
     begin
       PlayOnState := gr_Defeat;
@@ -837,15 +837,15 @@ begin
   fTerrainPainter := TKMTerrainPainter.Create;
 
   fMapEditor := TKMMapEditor.Create;
-  fPlayers.AddPlayers(MAX_PLAYERS); //Create MAX players
-  fPlayers[0].PlayerType := pt_Human; //Make Player1 human by default
-  for I := 0 to fPlayers.Count - 1 do
-    fPlayers[I].FogOfWar.RevealEverything;
+  gPlayers.AddPlayers(MAX_PLAYERS); //Create MAX players
+  gPlayers[0].PlayerType := pt_Human; //Make Player1 human by default
+  for I := 0 to gPlayers.Count - 1 do
+    gPlayers[I].FogOfWar.RevealEverything;
 
   MySpectator := TKMSpectator.Create(0);
   MySpectator.FOWIndex := PLAYER_NONE;
 
-  fPlayers.AfterMissionInit(false);
+  gPlayers.AfterMissionInit(false);
 
   if fGameMode = gmSingle then
     fGameInputProcess := TGameInputProcess_Single.Create(gipRecording);
@@ -890,7 +890,7 @@ begin
   if aPathName = '' then exit;
 
   //Prepare and save
-  fPlayers.RemoveEmptyPlayers;
+  gPlayers.RemoveEmptyPlayers;
 
   ForceDirectories(ExtractFilePath(aPathName));
   gLog.AddTime('Saving from map editor: ' + aPathName);
@@ -904,9 +904,9 @@ begin
   fGameName := TruncateExt(ExtractFileName(aPathName));
 
   //Append empty players in place of removed ones
-  fPlayers.AddPlayers(MAX_PLAYERS - fPlayers.Count);
-  for I := 0 to fPlayers.Count - 1 do
-    fPlayers[I].FogOfWar.RevealEverything;
+  gPlayers.AddPlayers(MAX_PLAYERS - gPlayers.Count);
+  for I := 0 to gPlayers.Count - 1 do
+    gPlayers[I].FogOfWar.RevealEverything;
 end;
 
 
@@ -1154,8 +1154,8 @@ begin
     fGameInfo.MapSizeY := gTerrain.MapY;
     fGameInfo.VictoryCondition := 'Win';
     fGameInfo.DefeatCondition := 'Lose';
-    fGameInfo.PlayerCount := fPlayers.Count;
-    for I := 0 to fPlayers.Count - 1 do
+    fGameInfo.PlayerCount := gPlayers.Count;
+    for I := 0 to gPlayers.Count - 1 do
     begin
       if fNetworking <> nil then
         NetIndex := fNetworking.NetPlayers.PlayerIndexToLocal(I)
@@ -1209,7 +1209,7 @@ begin
       SaveStream.Write(PlayOnState, SizeOf(PlayOnState));
 
     gTerrain.Save(SaveStream); //Saves the map
-    fPlayers.Save(SaveStream, fGameMode = gmMulti); //Saves all players properties individually
+    gPlayers.Save(SaveStream, fGameMode = gmMulti); //Saves all players properties individually
     if fGameMode <> gmMulti then
       MySpectator.Save(SaveStream);
     fAIFields.Save(SaveStream);
@@ -1339,7 +1339,7 @@ begin
   //Load the data into the game
   gTerrain.Load(LoadStream);
 
-  fPlayers.Load(LoadStream);
+  gPlayers.Load(LoadStream);
   MySpectator := TKMSpectator.Create(0);
   if not SaveIsMultiplayer then
     MySpectator.Load(LoadStream);
@@ -1372,7 +1372,7 @@ begin
 
   fGameInputProcess.LoadFromFile(ChangeFileExt(aPathName, '.rpl'));
 
-  fPlayers.SyncLoad; //Should parse all Unit-House ID references and replace them with actual pointers
+  gPlayers.SyncLoad; //Should parse all Unit-House ID references and replace them with actual pointers
   gTerrain.SyncLoad; //IsUnit values should be replaced with actual pointers
 
   if fGameMode = gmMulti then
@@ -1393,7 +1393,7 @@ begin
   //When everything is ready we can update UI
   SyncUI;
   if SaveIsMultiplayer then //MP does not saves view position cos of save identity for all players
-    fViewport.Position := KMPointF(fPlayers[MySpectator.PlayerIndex].CenterScreen);
+    fViewport.Position := KMPointF(gPlayers[MySpectator.PlayerIndex].CenterScreen);
 
   gLog.AddTime('Loading game', True);
 
@@ -1434,7 +1434,7 @@ begin
                       UpdatePeacetime; //Send warning messages about peacetime if required
                       gTerrain.UpdateState;
                       fAIFields.UpdateState(fGameTickCount);
-                      fPlayers.UpdateState(fGameTickCount); //Quite slow
+                      gPlayers.UpdateState(fGameTickCount); //Quite slow
                       if fGame = nil then Exit; //Quit the update if game was stopped for some reason
                       MySpectator.UpdateState(fGameTickCount);
                       fPathfinding.UpdateState;
@@ -1474,7 +1474,7 @@ begin
                     UpdatePeacetime; //Send warning messages about peacetime if required (peacetime sound should still be played in replays)
                     gTerrain.UpdateState;
                     fAIFields.UpdateState(fGameTickCount);
-                    fPlayers.UpdateState(fGameTickCount); //Quite slow
+                    gPlayers.UpdateState(fGameTickCount); //Quite slow
                     if fGame = nil then Exit; //Quit the update if game was stopped for some reason
                     MySpectator.UpdateState(fGameTickCount);
                     fPathfinding.UpdateState;
@@ -1497,7 +1497,7 @@ begin
                   end;
     gmMapEd:   begin
                   gTerrain.IncAnimStep;
-                  fPlayers.IncAnimStep;
+                  gPlayers.IncAnimStep;
                 end;
   end;
 

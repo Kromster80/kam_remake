@@ -135,12 +135,12 @@ begin
 
   //This is SP menu, we are dead sure there's only one Human player
   HumanId := -1;
-  for I := 0 to fPlayers.Count - 1 do
-  if fPlayers[I].PlayerType = pt_Human then
+  for I := 0 to gPlayers.Count - 1 do
+  if gPlayers[I].PlayerType = pt_Human then
     HumanId := I;
 
   //List values (like old KaM did)
-  with fPlayers[HumanId].Stats do
+  with gPlayers[HumanId].Stats do
   begin
     Label_Stat[1].Caption := IntToStr(GetCitizensLost + GetWarriorsLost);
     Label_Stat[2].Caption := IntToStr(GetCitizensKilled + GetWarriorsKilled);
@@ -160,10 +160,10 @@ begin
     Chart_Citizens.Clear;
     Chart_Houses.Clear;
     Chart_Wares.Clear;
-    Chart_Army.MaxLength      := fPlayers[HumanId].Stats.ChartCount;
-    Chart_Citizens.MaxLength  := fPlayers[HumanId].Stats.ChartCount;
-    Chart_Houses.MaxLength    := fPlayers[HumanId].Stats.ChartCount;
-    Chart_Wares.MaxLength     := fPlayers[HumanId].Stats.ChartCount;
+    Chart_Army.MaxLength      := gPlayers[HumanId].Stats.ChartCount;
+    Chart_Citizens.MaxLength  := gPlayers[HumanId].Stats.ChartCount;
+    Chart_Houses.MaxLength    := gPlayers[HumanId].Stats.ChartCount;
+    Chart_Wares.MaxLength     := gPlayers[HumanId].Stats.ChartCount;
 
     Chart_Army.MaxTime      := fGame.GameTickCount div 10;
     Chart_Citizens.MaxTime  := fGame.GameTickCount div 10;
@@ -172,8 +172,8 @@ begin
 
     //Army
     TempGraphCount := 0; //Reset
-    for I := 0 to fPlayers.Count - 1 do
-    with fPlayers[I] do
+    for I := 0 to gPlayers.Count - 1 do
+    with gPlayers[I] do
       if PlayerType = pt_Computer then
         AddToTempGraph(FlagColor, Stats.ChartArmy)
       else
@@ -185,8 +185,8 @@ begin
 
     //Citizens
     TempGraphCount := 0; //Reset
-    for I := 0 to fPlayers.Count - 1 do
-    with fPlayers[I] do
+    for I := 0 to gPlayers.Count - 1 do
+    with gPlayers[I] do
       if PlayerType = pt_Computer then
         AddToTempGraph(FlagColor, Stats.ChartCitizens)
       else
@@ -202,8 +202,8 @@ begin
 
     //Houses
     TempGraphCount := 0; //Reset
-    for I := 0 to fPlayers.Count - 1 do
-    with fPlayers[I] do
+    for I := 0 to gPlayers.Count - 1 do
+    with gPlayers[I] do
       if PlayerType = pt_Computer then
         AddToTempGraph(FlagColor, Stats.ChartHouses)
       else
@@ -216,7 +216,7 @@ begin
     //Wares
     for R := WARE_MIN to WARE_MAX do
     begin
-      G := fPlayers[HumanId].Stats.ChartWares[R];
+      G := gPlayers[HumanId].Stats.ChartWares[R];
       for I := 0 to High(G) do
         if G[I] <> 0 then
         begin

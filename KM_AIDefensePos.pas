@@ -94,7 +94,7 @@ end;
 procedure TAIDefencePosition.SetCurrentGroup(aGroup: TKMUnitGroup);
 begin
   //Release previous group
-  fPlayers.CleanUpGroupPointer(fCurrentGroup);
+  gPlayers.CleanUpGroupPointer(fCurrentGroup);
 
   //Take new one
   if aGroup <> nil then
@@ -149,7 +149,7 @@ end;
 
 procedure TAIDefencePosition.SyncLoad;
 begin
-  fCurrentGroup := fPlayers.GetGroupByID(Cardinal(fCurrentGroup));
+  fCurrentGroup := gPlayers.GetGroupByID(Cardinal(fCurrentGroup));
 end;
 
 

@@ -67,13 +67,13 @@ end;
 procedure TTaskAttackHouse.SyncLoad;
 begin
   inherited;
-  fHouse := fPlayers.GetHouseByID(cardinal(fHouse));
+  fHouse := gPlayers.GetHouseByID(cardinal(fHouse));
 end;
 
 
 destructor TTaskAttackHouse.Destroy;
 begin
-  fPlayers.CleanUpHousePointer(fHouse);
+  gPlayers.CleanUpHousePointer(fHouse);
   inherited;
 end;
 
@@ -157,7 +157,7 @@ begin
        end;
     2: begin
          //Let the house know it is being attacked
-         fPlayers[fHouse.Owner].AI.HouseAttackNotification(fHouse, TKMUnitWarrior(fUnit));
+         gPlayers[fHouse.Owner].AI.HouseAttackNotification(fHouse, TKMUnitWarrior(fUnit));
          fDestroyingHouse := True;
          if IsRanged then
            SetActionLockedStay(FIRING_DELAY, ua_Work, False, 0, 0) //Start shooting

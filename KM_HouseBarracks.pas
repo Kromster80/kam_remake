@@ -70,7 +70,7 @@ var I: Integer;
 begin
   Inherited;
   for I := 0 to RecruitsList.Count - 1 do
-    RecruitsList.Items[I] := fPlayers.GetUnitByID(Cardinal(RecruitsList.Items[I]));
+    RecruitsList.Items[I] := gPlayers.GetUnitByID(Cardinal(RecruitsList.Items[I]));
 end;
 
 
@@ -89,7 +89,7 @@ begin
   inherited;
   //A new Barracks should inherit the accept properies of the first Barracks of that player,
   //which stops a sudden flow of unwanted wares to it as soon as it is created.
-  FirstBarracks := TKMHouseBarracks(fPlayers[fOwner].FindHouse(ht_Barracks, 1));
+  FirstBarracks := TKMHouseBarracks(gPlayers[fOwner].FindHouse(ht_Barracks, 1));
   if (FirstBarracks <> nil) and not FirstBarracks.IsDestroyed then
     for RT := WARFARE_MIN to WARFARE_MAX do
       NotAcceptFlag[RT] := FirstBarracks.NotAcceptFlag[RT];
@@ -105,7 +105,7 @@ begin
   RecruitsList.Clear;
 
   for R := WARFARE_MIN to WARFARE_MAX do
-    fPlayers[fOwner].Stats.WareConsumed(R, ResourceCount[R]);
+    gPlayers[fOwner].Stats.WareConsumed(R, ResourceCount[R]);
 
   inherited;
 end;
@@ -116,7 +116,7 @@ begin
   Assert(aWare in [WARFARE_MIN..WARFARE_MAX], 'Invalid resource added to barracks');
 
   ResourceCount[aWare] := EnsureRange(ResourceCount[aWare]+aCount, 0, High(Word));
-  fPlayers[fOwner].Deliveries.Queue.AddOffer(Self, aWare, aCount);
+  gPlayers[fOwner].Deliveries.Queue.AddOffer(Self, aWare, aCount);
 end;
 
 
@@ -188,8 +188,8 @@ begin
     if TroopCost[aUnitType, I] <> wt_None then
     begin
       Dec(ResourceCount[TroopCost[aUnitType, I]]);
-      fPlayers[fOwner].Stats.WareConsumed(TroopCost[aUnitType, I]);
-      fPlayers[fOwner].Deliveries.Queue.RemOffer(Self, TroopCost[aUnitType, I], 1);
+      gPlayers[fOwner].Stats.WareConsumed(TroopCost[aUnitType, I]);
+      gPlayers[fOwner].Deliveries.Queue.RemOffer(Self, TroopCost[aUnitType, I], 1);
     end;
 
     //Special way to kill the Recruit because it is in a house
@@ -197,7 +197,7 @@ begin
     RecruitsList.Delete(0); //Delete first recruit in the list
 
     //Make new unit
-    Soldier := TKMUnitWarrior(fPlayers[fOwner].TrainUnit(aUnitType, GetEntrance));
+    Soldier := TKMUnitWarrior(gPlayers[fOwner].TrainUnit(aUnitType, GetEntrance));
     Soldier.SetInHouse(Self); //Put him in the barracks, so if it is destroyed while he is inside he is placed somewhere
     Soldier.Visible := False; //Make him invisible as he is inside the barracks
     Soldier.Condition := Round(TROOPS_TRAINED_CONDITION * UNIT_MAX_CONDITION); //All soldiers start with 3/4, so groups get hungry at the same time

@@ -131,8 +131,8 @@ end;
 procedure TKMUnitWarrior.SyncLoad;
 begin
   inherited;
-  fOrderTargetUnit := TKMUnitWarrior(fPlayers.GetUnitByID(cardinal(fOrderTargetUnit)));
-  fOrderTargetHouse := fPlayers.GetHouseByID(cardinal(fOrderTargetHouse));
+  fOrderTargetUnit := TKMUnitWarrior(gPlayers.GetUnitByID(cardinal(fOrderTargetUnit)));
+  fOrderTargetHouse := gPlayers.GetHouseByID(cardinal(fOrderTargetHouse));
   if GetUnitAction is TUnitActionGoInOut then
     TUnitActionGoInOut(GetUnitAction).OnWalkedOut := WalkedOut;
 end;
@@ -177,7 +177,7 @@ procedure TKMUnitWarrior.OrderFood;
 begin
   if (fCondition < (UNIT_MAX_CONDITION * TROOPS_FEED_MAX)) and not fRequestedFood then
   begin
-    fPlayers[fOwner].Deliveries.Queue.AddDemand(nil, Self, wt_Food, 1, dt_Once, diHigh2);
+    gPlayers[fOwner].Deliveries.Queue.AddDemand(nil, Self, wt_Food, 1, dt_Once, diHigh2);
     fRequestedFood := True;
   end;
 end;
@@ -204,8 +204,8 @@ end;
 procedure TKMUnitWarrior.ClearOrderTarget;
 begin
   //Set fOrderTargets to nil, removing pointer if it's still valid
-  fPlayers.CleanUpUnitPointer(fOrderTargetUnit);
-  fPlayers.CleanUpHousePointer(fOrderTargetHouse);
+  gPlayers.CleanUpUnitPointer(fOrderTargetUnit);
+  gPlayers.CleanUpHousePointer(fOrderTargetHouse);
 end;
 
 
@@ -326,7 +326,7 @@ begin
   Best := MaxSingle;
 
   FoundUnits := TList.Create;
-  fPlayers[fOwner].Units.GetUnitsInRect(KMRect(aLoc.X-LINK_RADIUS,
+  gPlayers[fOwner].Units.GetUnitsInRect(KMRect(aLoc.X-LINK_RADIUS,
                                                aLoc.Y-LINK_RADIUS,
                                                aLoc.X+LINK_RADIUS,
                                                aLoc.Y+LINK_RADIUS),
@@ -742,7 +742,7 @@ begin
   UnitPos.X := fPosition.X + UNIT_OFF_X + GetSlide(ax_X);
   UnitPos.Y := fPosition.Y + UNIT_OFF_Y + GetSlide(ax_Y);
 
-  fRenderPool.AddUnit(fUnitType, Act, Direction, AnimStep, UnitPos.X, UnitPos.Y, fPlayers[fOwner].FlagColor, True);
+  fRenderPool.AddUnit(fUnitType, Act, Direction, AnimStep, UnitPos.X, UnitPos.Y, gPlayers[fOwner].FlagColor, True);
 
   if fThought <> th_None then
     fRenderPool.AddUnitThought(fUnitType, Act, Direction, fThought, UnitPos.X, UnitPos.Y);

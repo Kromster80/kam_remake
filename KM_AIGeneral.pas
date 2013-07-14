@@ -123,7 +123,7 @@ begin
   if fGame.IsPeaceTime then Exit; //Do not train soldiers during peacetime
 
   //Don't train if we have reached our limit
-  if (fSetup.MaxSoldiers <> -1) and (fPlayers[fOwner].Stats.GetArmyCount >= fSetup.MaxSoldiers) then
+  if (fSetup.MaxSoldiers <> -1) and (gPlayers[fOwner].Stats.GetArmyCount >= fSetup.MaxSoldiers) then
     Exit;
 
   //Delay between equipping soldiers for KaM compatibility
@@ -148,14 +148,14 @@ begin
   if I = 0 then Exit;
 
   //Find barracks
-  SetLength(Barracks, fPlayers[fOwner].Stats.GetHouseQty(ht_Barracks));
+  SetLength(Barracks, gPlayers[fOwner].Stats.GetHouseQty(ht_Barracks));
   I := 0;
-  HB := TKMHouseBarracks(fPlayers[fOwner].FindHouse(ht_Barracks, I+1));
+  HB := TKMHouseBarracks(gPlayers[fOwner].FindHouse(ht_Barracks, I+1));
   while HB <> nil do
   begin
     Barracks[I] := HB;
     Inc(I);
-    HB := TKMHouseBarracks(fPlayers[fOwner].FindHouse(ht_Barracks, I+1));
+    HB := TKMHouseBarracks(gPlayers[fOwner].FindHouse(ht_Barracks, I+1));
   end;
 
   //Train troops where possible in each barracks
@@ -179,7 +179,7 @@ begin
       and ((CanEquipIron and (UT in WARRIORS_IRON)) or (CanEquipLeather and not (UT in WARRIORS_IRON))) then
         while HB.CanEquip(UT)
         and (GroupReq[GT] > 0)
-        and ((fSetup.MaxSoldiers = -1) or (fPlayers[fOwner].Stats.GetArmyCount < fSetup.MaxSoldiers)) do
+        and ((fSetup.MaxSoldiers = -1) or (gPlayers[fOwner].Stats.GetArmyCount < fSetup.MaxSoldiers)) do
         begin
           HB.Equip(UT, 1);
           Dec(GroupReq[GT]);
@@ -207,9 +207,9 @@ begin
     NeedsLinkingTo[GroupType] := nil;
 
   //Check: Hunger, (feed) formation, (units per row) position (from defence positions)
-  for I := 0 to fPlayers[fOwner].UnitGroups.Count - 1 do
+  for I := 0 to gPlayers[fOwner].UnitGroups.Count - 1 do
   begin
-    Group := fPlayers[fOwner].UnitGroups[I];
+    Group := gPlayers[fOwner].UnitGroups[I];
 
     if not Group.IsDead
     and not Group.InFight
@@ -285,9 +285,9 @@ begin
   //Take all idling Groups that are:
   // - not linked to any Defence positions
   // - are in backline defence positions
-  for I := 0 to fPlayers[fOwner].UnitGroups.Count - 1 do
+  for I := 0 to gPlayers[fOwner].UnitGroups.Count - 1 do
   begin
-    Group := fPlayers[fOwner].UnitGroups[I];
+    Group := gPlayers[fOwner].UnitGroups[I];
     if not Group.IsDead
     and not Group.InFight
     and not (Group.Order in [goAttackUnit, goAttackHouse, goStorm]) then
@@ -405,17 +405,17 @@ begin
 
   //Find target
   case aTarget of
-    att_ClosestUnit:                  TargetUnit := fPlayers.GetClosestUnit(aGroup.Position, fOwner, at_Enemy);
-    att_ClosestBuildingFromArmy:      TargetHouse := fPlayers.GetClosestHouse(aGroup.Position, fOwner, at_Enemy, false);
-    att_ClosestBuildingFromStartPos:  TargetHouse := fPlayers.GetClosestHouse(fSetup.StartPosition, fOwner, at_Enemy, false);
+    att_ClosestUnit:                  TargetUnit := gPlayers.GetClosestUnit(aGroup.Position, fOwner, at_Enemy);
+    att_ClosestBuildingFromArmy:      TargetHouse := gPlayers.GetClosestHouse(aGroup.Position, fOwner, at_Enemy, false);
+    att_ClosestBuildingFromStartPos:  TargetHouse := gPlayers.GetClosestHouse(fSetup.StartPosition, fOwner, at_Enemy, false);
     att_CustomPosition:               begin
-                                        TargetHouse := fPlayers.HousesHitTest(aCustomPos.X, aCustomPos.Y);
+                                        TargetHouse := gPlayers.HousesHitTest(aCustomPos.X, aCustomPos.Y);
                                         if (TargetHouse <> nil) and
-                                           (fPlayers.CheckAlliance(fOwner, TargetHouse.Owner) = at_Ally) then
+                                           (gPlayers.CheckAlliance(fOwner, TargetHouse.Owner) = at_Ally) then
                                           TargetHouse := nil;
                                         TargetUnit := gTerrain.UnitsHitTest(aCustomPos.X, aCustomPos.Y);
                                         if (TargetUnit <> nil) and
-                                           (fPlayers.CheckAlliance(fOwner, TargetUnit.Owner) = at_Ally) then
+                                           (gPlayers.CheckAlliance(fOwner, TargetUnit.Owner) = at_Ally) then
                                           TargetUnit := nil;
                                       end;
   end;
@@ -435,7 +435,7 @@ var
   I: Integer;
   Group: TKMUnitGroup;
 begin
-  if fPlayers[fOwner].PlayerType = pt_Human then Exit;
+  if gPlayers[fOwner].PlayerType = pt_Human then Exit;
 
   //todo: Right now "idle" troops (without an assigned defence position) will do nothing (no attacking, defending, etc.)
   //Any defence position that is within their defence radius of this threat will retaliate against it

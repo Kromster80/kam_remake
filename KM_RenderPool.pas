@@ -218,12 +218,12 @@ begin
   try
     if fGame.IsReplay then
       if MySpectator.FOWIndex = -1 then
-        for I := 0 to fPlayers.Count - 1 do
-          fPlayers[I].GetPlansTablets(TabletsList, aRect)
+        for I := 0 to gPlayers.Count - 1 do
+          gPlayers[I].GetPlansTablets(TabletsList, aRect)
       else
-        fPlayers[MySpectator.FOWIndex].GetPlansTablets(TabletsList, aRect)
+        gPlayers[MySpectator.FOWIndex].GetPlansTablets(TabletsList, aRect)
     else
-      fPlayers[MySpectator.PlayerIndex].GetPlansTablets(TabletsList, aRect);
+      gPlayers[MySpectator.PlayerIndex].GetPlansTablets(TabletsList, aRect);
 
     for I := 0 to TabletsList.Count - 1 do
       AddHouseTablet(THouseType(TabletsList.Tag[I]), TabletsList[I]);
@@ -949,16 +949,16 @@ begin
   if fGame.IsReplay then
   begin
     if MySpectator.FOWIndex = -1 then
-      for I := 0 to fPlayers.Count - 1 do
-        fPlayers[I].GetFieldPlans(FieldsList, Rect, False)
+      for I := 0 to gPlayers.Count - 1 do
+        gPlayers[I].GetFieldPlans(FieldsList, Rect, False)
     else
-      fPlayers[MySpectator.FOWIndex].GetFieldPlans(FieldsList, Rect, False)
+      gPlayers[MySpectator.FOWIndex].GetFieldPlans(FieldsList, Rect, False)
   end
   else
   begin
     //Field plans for self and allies
     //Include fake field plans for painting
-    fPlayers[MySpectator.PlayerIndex].GetFieldPlans(FieldsList, Rect, True);
+    gPlayers[MySpectator.PlayerIndex].GetFieldPlans(FieldsList, Rect, True);
   end;
 
   //House plans for self and allies
@@ -966,13 +966,13 @@ begin
   if fGame.IsReplay then
   begin
     if MySpectator.FOWIndex = -1 then
-      for I := 0 to fPlayers.Count - 1 do
-        fPlayers[I].GetHousePlans(HousePlansList, Rect)
+      for I := 0 to gPlayers.Count - 1 do
+        gPlayers[I].GetHousePlans(HousePlansList, Rect)
     else
-      fPlayers[MySpectator.FOWIndex].GetHousePlans(HousePlansList, Rect)
+      gPlayers[MySpectator.FOWIndex].GetHousePlans(HousePlansList, Rect)
   end
   else
-    fPlayers[MySpectator.PlayerIndex].GetHousePlans(HousePlansList, Rect);
+    gPlayers[MySpectator.PlayerIndex].GetHousePlans(HousePlansList, Rect);
 
 
   fRenderTerrain.Render(Rect, gTerrain.AnimStep, MySpectator.FogOfWar, FieldsList, HousePlansList);
@@ -1010,7 +1010,7 @@ begin
 
   CollectTerrainObjects(Rect, gTerrain.AnimStep);
 
-  fPlayers.Paint; //Quite slow           //Units and houses
+  gPlayers.Paint; //Quite slow           //Units and houses
   gProjectiles.Paint;
   fGame.Alerts.Paint(0);
 
@@ -1100,7 +1100,7 @@ var
   MarksList: TKMPointTagList;
 begin
   MarksList := TKMPointTagList.Create;
-  fPlayers[MySpectator.PlayerIndex].GetHouseMarks(P, aHouseType, MarksList);
+  gPlayers[MySpectator.PlayerIndex].GetHouseMarks(P, aHouseType, MarksList);
 
   for I := 0 to MarksList.Count - 1 do
   if MarksList.Tag[I] = TC_OUTLINE then
@@ -1145,7 +1145,7 @@ begin
                            and (    TileIsCornField(P)
                                  or TileIsWineField(P)
                                  or (Land[P.Y,P.X].TileOverlay=to_Road)
-                                 or (fPlayers.HousesHitTest(P.X, P.Y) <> nil))
+                                 or (gPlayers.HousesHitTest(P.X, P.Y) <> nil))
                         then
                           RenderWire(P, $FFFFFF00) //Cyan quad
                         else
@@ -1154,28 +1154,28 @@ begin
 
                     gmSingle, gmMulti, gmReplaySingle, gmReplayMulti:
                       begin
-                        if ((fPlayers[MySpectator.PlayerIndex].BuildList.FieldworksList.HasFakeField(P) <> ft_None)
-                            or fPlayers[MySpectator.PlayerIndex].BuildList.HousePlanList.HasPlan(P)
-                            or (fPlayers[MySpectator.PlayerIndex].HousesHitTest(P.X, P.Y) <> nil))
+                        if ((gPlayers[MySpectator.PlayerIndex].BuildList.FieldworksList.HasFakeField(P) <> ft_None)
+                            or gPlayers[MySpectator.PlayerIndex].BuildList.HousePlanList.HasPlan(P)
+                            or (gPlayers[MySpectator.PlayerIndex].HousesHitTest(P.X, P.Y) <> nil))
                         then
                           RenderWire(P, $FFFFFF00) //Cyan quad
                         else
                           RenderSpriteOnTile(P, TC_BLOCK); //Red X
                       end;
                   end;
-    cmRoad:       if fPlayers[MySpectator.PlayerIndex].CanAddFakeFieldPlan(P, ft_Road) then
+    cmRoad:       if gPlayers[MySpectator.PlayerIndex].CanAddFakeFieldPlan(P, ft_Road) then
                     RenderWire(P, $FFFFFF00) //Cyan quad
                   else
                     RenderSpriteOnTile(P, TC_BLOCK);       //Red X
-    cmField:      if fPlayers[MySpectator.PlayerIndex].CanAddFakeFieldPlan(P, ft_Corn) then
+    cmField:      if gPlayers[MySpectator.PlayerIndex].CanAddFakeFieldPlan(P, ft_Corn) then
                     RenderWire(P, $FFFFFF00) //Cyan quad
                   else
                     RenderSpriteOnTile(P, TC_BLOCK);       //Red X
-    cmWine:       if fPlayers[MySpectator.PlayerIndex].CanAddFakeFieldPlan(P, ft_Wine) then
+    cmWine:       if gPlayers[MySpectator.PlayerIndex].CanAddFakeFieldPlan(P, ft_Wine) then
                     RenderWire(P, $FFFFFF00) //Cyan quad
                   else
                     RenderSpriteOnTile(P, TC_BLOCK);       //Red X
-    cmWall:       if fPlayers[MySpectator.PlayerIndex].CanAddFakeFieldPlan(P, ft_Wall) then
+    cmWall:       if gPlayers[MySpectator.PlayerIndex].CanAddFakeFieldPlan(P, ft_Wall) then
                     RenderWire(P, $FFFFFF00) //Cyan quad
                   else
                     RenderSpriteOnTile(P, TC_BLOCK);       //Red X
@@ -1246,22 +1246,22 @@ begin
                   begin
                     U := gTerrain.UnitsHitTest(P.X, P.Y);
                     if U <> nil then
-                      AddUnitWithDefaultArm(U.UnitType,ua_Walk,U.Direction,U.AnimStep,P.X+UNIT_OFF_X,P.Y+UNIT_OFF_Y,fPlayers[MySpectator.PlayerIndex].FlagColor,true,true);
+                      AddUnitWithDefaultArm(U.UnitType,ua_Walk,U.Direction,U.AnimStep,P.X+UNIT_OFF_X,P.Y+UNIT_OFF_Y,gPlayers[MySpectator.PlayerIndex].FlagColor,true,true);
                   end else
                   if CanPlaceUnit(P, TUnitType(GameCursor.Tag1)) then
-                    AddUnitWithDefaultArm(TUnitType(GameCursor.Tag1), ua_Walk, dir_S, UnitStillFrames[dir_S], P.X+UNIT_OFF_X, P.Y+UNIT_OFF_Y, fPlayers[MySpectator.PlayerIndex].FlagColor, True)
+                    AddUnitWithDefaultArm(TUnitType(GameCursor.Tag1), ua_Walk, dir_S, UnitStillFrames[dir_S], P.X+UNIT_OFF_X, P.Y+UNIT_OFF_Y, gPlayers[MySpectator.PlayerIndex].FlagColor, True)
                   else
                     RenderSpriteOnTile(P, TC_BLOCK); //Red X
     cmMarkers:    case GameCursor.Tag1 of
                     MARKER_REVEAL:        begin
-                                            RenderSpriteOnTile(P, 394, fPlayers[MySpectator.PlayerIndex].FlagColor);
+                                            RenderSpriteOnTile(P, 394, gPlayers[MySpectator.PlayerIndex].FlagColor);
                                             fRenderAux.CircleOnTerrain(P.X, P.Y,
                                              GameCursor.MapEdSize,
-                                             fPlayers[MySpectator.PlayerIndex].FlagColor AND $10FFFFFF,
-                                             fPlayers[MySpectator.PlayerIndex].FlagColor);
+                                             gPlayers[MySpectator.PlayerIndex].FlagColor AND $10FFFFFF,
+                                             gPlayers[MySpectator.PlayerIndex].FlagColor);
                                           end;
-                    MARKER_DEFENCE:       RenderSpriteOnTile(P, 519, fPlayers[MySpectator.PlayerIndex].FlagColor);
-                    MARKER_CENTERSCREEN:  RenderSpriteOnTile(P, 391, fPlayers[MySpectator.PlayerIndex].FlagColor);
+                    MARKER_DEFENCE:       RenderSpriteOnTile(P, 519, gPlayers[MySpectator.PlayerIndex].FlagColor);
+                    MARKER_CENTERSCREEN:  RenderSpriteOnTile(P, 391, gPlayers[MySpectator.PlayerIndex].FlagColor);
                   end;
   end;
 end;

@@ -90,9 +90,9 @@ end;
 procedure TTaskDeliver.SyncLoad;
 begin
   inherited;
-  fFrom    := fPlayers.GetHouseByID(Cardinal(fFrom));
-  fToHouse := fPlayers.GetHouseByID(Cardinal(fToHouse));
-  fToUnit  := fPlayers.GetUnitByID(Cardinal(fToUnit));
+  fFrom    := gPlayers.GetHouseByID(Cardinal(fFrom));
+  fToHouse := gPlayers.GetHouseByID(Cardinal(fToHouse));
+  fToUnit  := gPlayers.GetUnitByID(Cardinal(fToUnit));
 end;
 
 
@@ -101,17 +101,17 @@ begin
   if WRITE_DELIVERY_LOG then gLog.AddTime('Serf '+inttostr(fUnit.ID)+' abandoned delivery task '+inttostr(fDeliverID)+' at phase ' + inttostr(fPhase));
 
   if fDeliverID <> 0 then
-    fPlayers[fUnit.Owner].Deliveries.Queue.AbandonDelivery(fDeliverID);
+    gPlayers[fUnit.Owner].Deliveries.Queue.AbandonDelivery(fDeliverID);
 
   if TKMUnitSerf(fUnit).Carry <> wt_None then
   begin
-    fPlayers[fUnit.Owner].Stats.WareConsumed(TKMUnitSerf(fUnit).Carry);
+    gPlayers[fUnit.Owner].Stats.WareConsumed(TKMUnitSerf(fUnit).Carry);
     TKMUnitSerf(fUnit).CarryTake; //empty hands
   end;
 
-  fPlayers.CleanUpHousePointer(fFrom);
-  fPlayers.CleanUpHousePointer(fToHouse);
-  fPlayers.CleanUpUnitPointer(fToUnit);
+  gPlayers.CleanUpHousePointer(fFrom);
+  gPlayers.CleanUpHousePointer(fToHouse);
+  gPlayers.CleanUpUnitPointer(fToUnit);
   inherited;
 end;
 
@@ -166,7 +166,7 @@ begin
           SetActionLockedStay(5,ua_Walk); //Wait a moment inside
           fFrom.ResTakeFromOut(fWareType);
           CarryGive(fWareType);
-          fPlayers[Owner].Deliveries.Queue.TakenOffer(fDeliverID);
+          gPlayers[Owner].Deliveries.Queue.TakenOffer(fDeliverID);
         end;
     3:  if fFrom.IsDestroyed then //We have the resource, so we don't care if house is destroyed
           SetActionLockedStay(0, ua_Walk)
@@ -187,8 +187,8 @@ begin
           fToHouse.ResAddToIn(Carry);
           CarryTake;
 
-          fPlayers[Owner].Deliveries.Queue.GaveDemand(fDeliverID);
-          fPlayers[Owner].Deliveries.Queue.AbandonDelivery(fDeliverID);
+          gPlayers[Owner].Deliveries.Queue.GaveDemand(fDeliverID);
+          gPlayers[Owner].Deliveries.Queue.AbandonDelivery(fDeliverID);
           fDeliverID := 0; //So that it can't be abandoned if unit dies while trying to GoOut
 
           //Now look for another delivery from inside this house
@@ -219,10 +219,10 @@ begin
     6:  begin
           Direction := KMGetDirection(GetPosition, fToHouse.GetEntrance);
           fToHouse.ResAddToBuild(Carry);
-          fPlayers[Owner].Stats.WareConsumed(Carry);
+          gPlayers[Owner].Stats.WareConsumed(Carry);
           CarryTake;
-          fPlayers[Owner].Deliveries.Queue.GaveDemand(fDeliverID);
-          fPlayers[Owner].Deliveries.Queue.AbandonDelivery(fDeliverID);
+          gPlayers[Owner].Deliveries.Queue.GaveDemand(fDeliverID);
+          gPlayers[Owner].Deliveries.Queue.AbandonDelivery(fDeliverID);
           fDeliverID := 0; //So that it can't be abandoned if unit dies while staying
           SetActionStay(1, ua_Walk);
         end;
@@ -255,10 +255,10 @@ begin
             fToUnit.Feed(UNIT_MAX_CONDITION); //Feed the warrior
             TKMUnitWarrior(fToUnit).RequestedFood := False;
           end;
-          fPlayers[Owner].Stats.WareConsumed(Carry);
+          gPlayers[Owner].Stats.WareConsumed(Carry);
           CarryTake;
-          fPlayers[Owner].Deliveries.Queue.GaveDemand(fDeliverID);
-          fPlayers[Owner].Deliveries.Queue.AbandonDelivery(fDeliverID);
+          gPlayers[Owner].Deliveries.Queue.GaveDemand(fDeliverID);
+          gPlayers[Owner].Deliveries.Queue.AbandonDelivery(fDeliverID);
           fDeliverID := 0; //So that it can't be abandoned if unit dies while staying
           SetActionLockedStay(5, ua_Walk); //Pause breifly (like we are handing over the ware/food)
         end;

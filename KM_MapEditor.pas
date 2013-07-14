@@ -437,10 +437,10 @@ var I,K: Integer;
 begin
   if mlDefences in fVisibleLayers then
   begin
-    for I := 0 to fPlayers.Count - 1 do
-      for K := 0 to fPlayers[I].AI.General.DefencePositions.Count - 1 do
-        if (fPlayers[I].AI.General.DefencePositions[K].Position.Loc.X = X)
-        and (fPlayers[I].AI.General.DefencePositions[K].Position.Loc.Y = Y) then
+    for I := 0 to gPlayers.Count - 1 do
+      for K := 0 to gPlayers[I].AI.General.DefencePositions.Count - 1 do
+        if (gPlayers[I].AI.General.DefencePositions[K].Position.Loc.X = X)
+        and (gPlayers[I].AI.General.DefencePositions[K].Position.Loc.Y = Y) then
         begin
           Result.MarkerType := mtDefence;
           Result.Owner := I;
@@ -451,7 +451,7 @@ begin
 
   if mlRevealFOW in fVisibleLayers then
   begin
-    for I := 0 to fPlayers.Count - 1 do
+    for I := 0 to gPlayers.Count - 1 do
       for K := 0 to fRevealers[I].Count - 1 do
         if (fRevealers[I][K].X = X) and (fRevealers[I][K].Y = Y) then
         begin
@@ -489,48 +489,48 @@ begin
   if mlDefences in fVisibleLayers then
   begin
     if aLayer = plCursors then
-      for I := 0 to fPlayers.Count - 1 do
-      for K := 0 to fPlayers[I].AI.General.DefencePositions.Count - 1 do
+      for I := 0 to gPlayers.Count - 1 do
+      for K := 0 to gPlayers[I].AI.General.DefencePositions.Count - 1 do
       begin
-        DP := fPlayers[I].AI.General.DefencePositions[K];
-        fRenderPool.RenderSpriteOnTile(DP.Position.Loc, 510 + Byte(DP.Position.Dir), fPlayers[I].FlagColor);
+        DP := gPlayers[I].AI.General.DefencePositions[K];
+        fRenderPool.RenderSpriteOnTile(DP.Position.Loc, 510 + Byte(DP.Position.Dir), gPlayers[I].FlagColor);
       end;
 
     if ActiveMarker.MarkerType = mtDefence then
-    if InRange(ActiveMarker.Index, 0, fPlayers[ActiveMarker.Owner].AI.General.DefencePositions.Count - 1) then
+    if InRange(ActiveMarker.Index, 0, gPlayers[ActiveMarker.Owner].AI.General.DefencePositions.Count - 1) then
     begin
-      DP := fPlayers[ActiveMarker.Owner].AI.General.DefencePositions[ActiveMarker.Index];
+      DP := gPlayers[ActiveMarker.Owner].AI.General.DefencePositions[ActiveMarker.Index];
       fRenderAux.CircleOnTerrain(DP.Position.Loc.X, DP.Position.Loc.Y, DP.Radius,
-                                 fPlayers[ActiveMarker.Owner].FlagColor AND $20FFFF80,
-                                 fPlayers[ActiveMarker.Owner].FlagColor);
+                                 gPlayers[ActiveMarker.Owner].FlagColor AND $20FFFF80,
+                                 gPlayers[ActiveMarker.Owner].FlagColor);
     end;
   end;
 
   if mlRevealFOW in fVisibleLayers then
-  for I := 0 to fPlayers.Count - 1 do
+  for I := 0 to gPlayers.Count - 1 do
   for K := 0 to fRevealers[I].Count - 1 do
   begin
     Loc := fRevealers[I][K];
     case aLayer of
       plTerrain:  fRenderAux.CircleOnTerrain(Loc.X, Loc.Y,
                                            fRevealers[I].Tag[K],
-                                           fPlayers[I].FlagColor and $20FFFFFF,
-                                           fPlayers[I].FlagColor);
+                                           gPlayers[I].FlagColor and $20FFFFFF,
+                                           gPlayers[I].FlagColor);
       plCursors:  fRenderPool.RenderSpriteOnTile(Loc,
-                      394, fPlayers[I].FlagColor);
+                      394, gPlayers[I].FlagColor);
     end;
   end;
 
   if mlCenterScreen in fVisibleLayers then
-  for I := 0 to fPlayers.Count - 1 do
+  for I := 0 to gPlayers.Count - 1 do
   begin
-    Loc := fPlayers[I].CenterScreen;
+    Loc := gPlayers[I].CenterScreen;
     case aLayer of
       plTerrain:  fRenderAux.SquareOnTerrain(Loc.X - 3, Loc.Y - 2.5,
                                              Loc.X + 2, Loc.Y + 1.5,
-                                             fPlayers[I].FlagColor);
+                                             gPlayers[I].FlagColor);
       plCursors:  fRenderPool.RenderSpriteOnTile(Loc,
-                      391, fPlayers[I].FlagColor);
+                      391, gPlayers[I].FlagColor);
     end;
   end;
 

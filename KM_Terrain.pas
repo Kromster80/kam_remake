@@ -770,7 +770,7 @@ begin
 
     //Alliance is the check that will invalidate most candidates, so do it early on
     if (U = nil)
-    or (fPlayers.CheckAlliance(aPlayer, U.Owner) <> aAlliance) //How do WE feel about enemy, not how they feel about us
+    or (gPlayers.CheckAlliance(aPlayer, U.Owner) <> aAlliance) //How do WE feel about enemy, not how they feel about us
     or U.IsDeadOrDying
     or not U.Visible then //Inside of house
       Continue;
@@ -783,7 +783,7 @@ begin
     //In KaM archers can shoot further than sight radius (shoot further into explored areas)
     //so CheckTileRevelation is required, we can't remove it to optimise.
     //But because it will not invalidate many candidates, check it late so other checks can do their work first
-    if (fPlayers[aPlayer].FogOfWar.CheckTileRevelation(K,I) <> 255) then Continue;
+    if (gPlayers[aPlayer].FogOfWar.CheckTileRevelation(K,I) <> 255) then Continue;
 
     //This unit could be on a different tile next to KMPoint(k,i), so we cannot use that anymore.
     //There was a crash caused by VertexUsageCompatible checking (k,i) instead of U.GetPosition.
@@ -1501,7 +1501,7 @@ end;
 
 function TKMTerrain.WaterHasFish(aLoc: TKMPoint): Boolean;
 begin
-  Result := (fPlayers.PlayerAnimals.GetFishInWaterBody(Land[aLoc.Y,aLoc.X].WalkConnect[wcFish],false) <> nil);
+  Result := (gPlayers.PlayerAnimals.GetFishInWaterBody(Land[aLoc.Y,aLoc.X].WalkConnect[wcFish],false) <> nil);
 end;
 
 
@@ -1510,7 +1510,7 @@ var MyFish: TKMUnitAnimal;
 begin
   //Here we are catching fish in the tile 1 in the direction
   aLoc.Loc := KMPoint(KMGetPointInDir(aLoc.Loc, aLoc.Dir));
-  MyFish := fPlayers.PlayerAnimals.GetFishInWaterBody(Land[aLoc.Loc.Y, aLoc.Loc.X].WalkConnect[wcFish], not TestOnly);
+  MyFish := gPlayers.PlayerAnimals.GetFishInWaterBody(Land[aLoc.Loc.Y, aLoc.Loc.X].WalkConnect[wcFish], not TestOnly);
   Result := (MyFish <> nil);
   if (not TestOnly) and (MyFish <> nil) then MyFish.ReduceFish; //This will reduce the count or kill it (if they're all gone)
 end;
@@ -1849,9 +1849,9 @@ var
   var
     DistNext: Single;
   begin
-    DistNext := fPlayers.DistanceToEnemyTowers(KMPoint(X,Y), U.Owner);
+    DistNext := gPlayers.DistanceToEnemyTowers(KMPoint(X,Y), U.Owner);
     Result := (DistNext > RANGE_WATCHTOWER_MAX)
-    or (DistNext >= fPlayers.DistanceToEnemyTowers(Loc, U.Owner));
+    or (DistNext >= gPlayers.DistanceToEnemyTowers(Loc, U.Owner));
   end;
 var
   I, K: Integer;
@@ -2782,7 +2782,7 @@ var
 begin
   for I := 1 to fMapY do
     for K := 1 to fMapX do
-      Land[I,K].IsUnit := fPlayers.GetUnitByID(Cardinal(Land[I,K].IsUnit));
+      Land[I,K].IsUnit := gPlayers.GetUnitByID(Cardinal(Land[I,K].IsUnit));
 end;
 
 

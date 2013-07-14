@@ -158,15 +158,15 @@ begin
   //fPlayers[0].AddUnitGroup(ut_Hallebardman, KMPoint(63, 64), dir_E, 8, 24);
   //fPlayers[1].AddUnitGroup(ut_Cavalry, KMPoint(65, 64), dir_W, 8, 24);
 
-  fPlayers[0].AddUnitGroup(ut_Swordsman, KMPoint(63, 64), dir_E, 8, 24);
-  fPlayers[1].AddUnitGroup(ut_Swordsman, KMPoint(65, 64), dir_W, 8, 24);
+  gPlayers[0].AddUnitGroup(ut_Swordsman, KMPoint(63, 64), dir_E, 8, 24);
+  gPlayers[1].AddUnitGroup(ut_Swordsman, KMPoint(65, 64), dir_W, 8, 24);
 
-  fPlayers[1].UnitGroups[0].OrderAttackUnit(fPlayers[0].Units[0], True);
+  gPlayers[1].UnitGroups[0].OrderAttackUnit(gPlayers[0].Units[0], True);
 
   SimulateGame;
 
-  fResults.Value[aRun, 0] := fPlayers[0].Stats.GetUnitQty(ut_Any);
-  fResults.Value[aRun, 1] := fPlayers[1].Stats.GetUnitQty(ut_Any);
+  fResults.Value[aRun, 0] := gPlayers[0].Stats.GetUnitQty(ut_Any);
+  fResults.Value[aRun, 1] := gPlayers[1].Stats.GetUnitQty(ut_Any);
 
   fGameApp.Stop(gr_Silent);
 end;
@@ -198,25 +198,25 @@ begin
 
   fGameApp.Game.Save('AI Build #' + IntToStr(aRun));
 
-  {fResults.Value[aRun, 0] := fPlayers[0].Stats.GetWarriorsTrained;
-  fResults.Value[aRun, 1] := fPlayers[1].Stats.GetWarriorsTrained;
-  fResults.Value[aRun, 2] := fPlayers[2].Stats.GetWarriorsTrained;
-  fResults.Value[aRun, 3] := fPlayers[3].Stats.GetWarriorsTrained;
-  fResults.Value[aRun, 4] := fPlayers[4].Stats.GetWarriorsTrained;
-  fResults.Value[aRun, 5] := fPlayers[5].Stats.GetWarriorsTrained;}
+  {fResults.Value[aRun, 0] := gPlayers[0].Stats.GetWarriorsTrained;
+  fResults.Value[aRun, 1] := gPlayers[1].Stats.GetWarriorsTrained;
+  fResults.Value[aRun, 2] := gPlayers[2].Stats.GetWarriorsTrained;
+  fResults.Value[aRun, 3] := gPlayers[3].Stats.GetWarriorsTrained;
+  fResults.Value[aRun, 4] := gPlayers[4].Stats.GetWarriorsTrained;
+  fResults.Value[aRun, 5] := gPlayers[5].Stats.GetWarriorsTrained;}
 
-  {fResults.Value[aRun, 0] := fPlayers[0].Stats.GetGoodsProduced(rt_Stone);
-  fResults.Value[aRun, 1] := fPlayers[1].Stats.GetGoodsProduced(rt_Stone);
-  fResults.Value[aRun, 2] := fPlayers[2].Stats.GetGoodsProduced(rt_Stone);
-  fResults.Value[aRun, 3] := fPlayers[3].Stats.GetGoodsProduced(rt_Stone);
-  fResults.Value[aRun, 4] := fPlayers[4].Stats.GetGoodsProduced(rt_Stone);}
+  {fResults.Value[aRun, 0] := gPlayers[0].Stats.GetGoodsProduced(rt_Stone);
+  fResults.Value[aRun, 1] := gPlayers[1].Stats.GetGoodsProduced(rt_Stone);
+  fResults.Value[aRun, 2] := gPlayers[2].Stats.GetGoodsProduced(rt_Stone);
+  fResults.Value[aRun, 3] := gPlayers[3].Stats.GetGoodsProduced(rt_Stone);
+  fResults.Value[aRun, 4] := gPlayers[4].Stats.GetGoodsProduced(rt_Stone);}
 
-  fResults.Value[aRun, 0] := fPlayers[0].Stats.GetHousesBuilt;
-  fResults.Value[aRun, 1] := fPlayers[1].Stats.GetHousesBuilt;
-  fResults.Value[aRun, 2] := fPlayers[2].Stats.GetHousesBuilt;
-  fResults.Value[aRun, 3] := fPlayers[3].Stats.GetHousesBuilt;
-  fResults.Value[aRun, 4] := fPlayers[4].Stats.GetHousesBuilt;
-  fResults.Value[aRun, 5] := fPlayers[5].Stats.GetHousesBuilt;
+  fResults.Value[aRun, 0] := gPlayers[0].Stats.GetHousesBuilt;
+  fResults.Value[aRun, 1] := gPlayers[1].Stats.GetHousesBuilt;
+  fResults.Value[aRun, 2] := gPlayers[2].Stats.GetHousesBuilt;
+  fResults.Value[aRun, 3] := gPlayers[3].Stats.GetHousesBuilt;
+  fResults.Value[aRun, 4] := gPlayers[4].Stats.GetHousesBuilt;
+  fResults.Value[aRun, 5] := gPlayers[5].Stats.GetHousesBuilt;
 
   fGameApp.Stop(gr_Silent);
 end;

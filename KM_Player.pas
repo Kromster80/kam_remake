@@ -449,10 +449,10 @@ begin
             and not fBuildList.HousePlanList.HasPlan(aLoc);
   //Don't allow placing on allies plans either
   if Result then
-    for I := 0 to fPlayers.Count - 1 do
+    for I := 0 to gPlayers.Count - 1 do
       if (I <> fPlayerIndex) and (fAlliances[I] = at_Ally) then
-        Result := Result and (fPlayers[i].fBuildList.FieldworksList.HasField(aLoc) = ft_None)
-                         and not fPlayers[i].fBuildList.HousePlanList.HasPlan(aLoc);
+        Result := Result and (gPlayers[i].fBuildList.FieldworksList.HasField(aLoc) = ft_None)
+                         and not gPlayers[i].fBuildList.HousePlanList.HasPlan(aLoc);
 end;
 
 
@@ -467,10 +467,10 @@ begin
             and not fBuildList.HousePlanList.HasPlan(aLoc);
   //Don't allow placing on allies plans either
   if Result then
-    for I := 0 to fPlayers.Count - 1 do
+    for I := 0 to gPlayers.Count - 1 do
       if (I <> fPlayerIndex) and (fAlliances[I] = at_Ally) then
-        Result := Result and (fPlayers[i].fBuildList.FieldworksList.HasField(aLoc) = ft_None)
-                         and not fPlayers[i].fBuildList.HousePlanList.HasPlan(aLoc);
+        Result := Result and (gPlayers[i].fBuildList.FieldworksList.HasField(aLoc) = ft_None)
+                         and not gPlayers[i].fBuildList.HousePlanList.HasPlan(aLoc);
 end;
 
 
@@ -494,14 +494,14 @@ begin
     if not Result then exit;
 
     //This tile must not contain fields/houses of allied players or self
-    for J := 0 to fPlayers.Count - 1 do
+    for J := 0 to gPlayers.Count - 1 do
       if (J = fPlayerIndex) or (fAlliances[J] = at_Ally) then
       begin
-        Result := Result and (fPlayers[J].fBuildList.FieldworksList.HasField(KMPoint(Tx,Ty)) = ft_None);
+        Result := Result and (gPlayers[J].fBuildList.FieldworksList.HasField(KMPoint(Tx,Ty)) = ft_None);
         //Surrounding tiles must not be a house
         for S:=-1 to 1 do
           for T:=-1 to 1 do
-            Result := Result and not fPlayers[J].fBuildList.HousePlanList.HasPlan(KMPoint(Tx+S,Ty+T));
+            Result := Result and not gPlayers[J].fBuildList.HousePlanList.HasPlan(KMPoint(Tx+S,Ty+T));
       end;
   end;
 end;
@@ -568,16 +568,16 @@ begin
         Exit;
 
     //This tile must not contain fields/houseplans of allied players or self
-    for J := 0 to fPlayers.Count - 1 do
+    for J := 0 to gPlayers.Count - 1 do
       if (J = fPlayerIndex) or (fAlliances[J] = at_Ally) then
       begin
-        if (fPlayers[J].fBuildList.FieldworksList.HasField(KMPoint(Tx,Ty)) <> ft_None) then
+        if (gPlayers[J].fBuildList.FieldworksList.HasField(KMPoint(Tx,Ty)) <> ft_None) then
           Exit;
 
         //Surrounding tiles must not be a house
         for S := -1 to 1 do
         for T := -1 to 1 do
-        if fPlayers[J].fBuildList.HousePlanList.HasPlan(KMPoint(Tx+S,Ty+T)) then
+        if gPlayers[J].fBuildList.HousePlanList.HasPlan(KMPoint(Tx+S,Ty+T)) then
           Exit;
       end;
   end;
@@ -864,7 +864,7 @@ begin
       Stats.HouseLost(aHouse.HouseType);
 
       if aFrom <> -1 then
-        fPlayers[aFrom].Stats.HouseDestroyed(aHouse.HouseType);
+        gPlayers[aFrom].Stats.HouseDestroyed(aHouse.HouseType);
     end;
 
   //Scripting events happen AFTER updating statistics
@@ -962,9 +962,9 @@ var
 begin
   fBuildList.FieldworksList.GetFields(aList, aRect, aIncludeFake);
 
-  for I := 0 to fPlayers.Count - 1 do
-    if (I <> fPlayerIndex) and (fPlayers.CheckAlliance(fPlayerIndex, I) = at_Ally) then
-      fPlayers[I].BuildList.FieldworksList.GetFields(aList, aRect, aIncludeFake);
+  for I := 0 to gPlayers.Count - 1 do
+    if (I <> fPlayerIndex) and (gPlayers.CheckAlliance(fPlayerIndex, I) = at_Ally) then
+      gPlayers[I].BuildList.FieldworksList.GetFields(aList, aRect, aIncludeFake);
 end;
 
 
@@ -974,9 +974,9 @@ var
 begin
   fBuildList.HousePlanList.GetOutlines(aList, aRect);
 
-  for I := 0 to fPlayers.Count - 1 do
-    if (I <> fPlayerIndex) and (fPlayers.CheckAlliance(fPlayerIndex, I) = at_Ally) then
-      fPlayers[I].BuildList.HousePlanList.GetOutlines(aList, aRect);
+  for I := 0 to gPlayers.Count - 1 do
+    if (I <> fPlayerIndex) and (gPlayers.CheckAlliance(fPlayerIndex, I) = at_Ally) then
+      gPlayers[I].BuildList.HousePlanList.GetOutlines(aList, aRect);
 end;
 
 
@@ -986,9 +986,9 @@ var
 begin
   fBuildList.HousePlanList.GetTablets(aList, aRect);
 
-  for I := 0 to fPlayers.Count - 1 do
-    if (I <> fPlayerIndex) and (fPlayers.CheckAlliance(fPlayerIndex, I) = at_Ally) then
-      fPlayers[I].BuildList.HousePlanList.GetTablets(aList, aRect);
+  for I := 0 to gPlayers.Count - 1 do
+    if (I <> fPlayerIndex) and (gPlayers.CheckAlliance(fPlayerIndex, I) = at_Ally) then
+      gPlayers[I].BuildList.HousePlanList.GetTablets(aList, aRect);
 end;
 
 
@@ -998,7 +998,7 @@ var
   Enemies: array of TPlayerIndex;
 begin
   SetLength(Enemies, 0);
-  for I := 0 to fPlayers.Count - 1 do
+  for I := 0 to gPlayers.Count - 1 do
     if (I <> fPlayerIndex) and (Alliances[I] = at_Enemy) then
     begin
       SetLength(Enemies, Length(Enemies)+1);
@@ -1045,19 +1045,19 @@ begin
 
     //This tile must not contain fields/houses of allied players or self
     if AllowBuild then
-    for J := 0 to fPlayers.Count - 1 do
-    if ((J = fPlayerIndex) or (fPlayers.CheckAlliance(fPlayerIndex, J) = at_Ally))
-    and ((fPlayers[J].fBuildList.FieldworksList.HasField(P2) <> ft_None)
-       or fPlayers[J].fBuildList.HousePlanList.HasPlan(P2)) then
+    for J := 0 to gPlayers.Count - 1 do
+    if ((J = fPlayerIndex) or (gPlayers.CheckAlliance(fPlayerIndex, J) = at_Ally))
+    and ((gPlayers[J].fBuildList.FieldworksList.HasField(P2) <> ft_None)
+       or gPlayers[J].fBuildList.HousePlanList.HasPlan(P2)) then
        AllowBuild := False;
 
     //Check surrounding tiles in +/- 1 range for other houses pressence
     if AllowBuild then
     for S := -1 to 1 do for T := -1 to 1 do
       if (S<>0) or (T<>0) then //This is a surrounding tile, not the actual tile
-        for J := 0 to fPlayers.Count - 1 do
-          if ((J = fPlayerIndex) or (fPlayers.CheckAlliance(fPlayerIndex, J) = at_Ally))
-          and fPlayers[J].fBuildList.HousePlanList.HasPlan(KMPoint(P2.X+S,P2.Y+T)) then
+        for J := 0 to gPlayers.Count - 1 do
+          if ((J = fPlayerIndex) or (gPlayers.CheckAlliance(fPlayerIndex, J) = at_Ally))
+          and gPlayers[J].fBuildList.HousePlanList.HasPlan(KMPoint(P2.X+S,P2.Y+T)) then
           begin
             BlockPoint(KMPoint(P2.X+S,P2.Y+T), TC_BLOCK); //Block surrounding points
             AllowBuild := False;
@@ -1172,7 +1172,7 @@ procedure TKMPlayer.UnitDied(aUnit: TKMUnit; aFrom: TPlayerIndex);
 begin
   Stats.UnitLost(aUnit.UnitType);
   if aFrom <> -1 then
-    fPlayers[aFrom].Stats.UnitKilled(aUnit.UnitType);
+    gPlayers[aFrom].Stats.UnitKilled(aUnit.UnitType);
 
   //Call script event after updating statistics
   fScripting.ProcUnitDied(aUnit, aFrom);

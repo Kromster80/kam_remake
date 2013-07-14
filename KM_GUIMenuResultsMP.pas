@@ -231,8 +231,8 @@ begin
 
   //Get player count to compact their data output
   fEnabledPlayers := 0;
-  for I := 0 to fPlayers.Count - 1 do
-    if fPlayers[I].Enabled then
+  for I := 0 to gPlayers.Count - 1 do
+    if gPlayers[I].Enabled then
       Inc(fEnabledPlayers);
 
   RefreshBars;
@@ -277,14 +277,14 @@ begin
   for I := 0 to MAX_PLAYERS - 1 do
     SetPlayerControls(I, False); //Disable them all to start
   Index := 0;
-  for I := 0 to fPlayers.Count - 1 do
-    if fPlayers[I].Enabled then
+  for I := 0 to gPlayers.Count - 1 do
+    if gPlayers[I].Enabled then
     begin
       SetPlayerControls(Index, True); //Enable used ones
-      Label_ResultsPlayerName1[Index].Caption   := fPlayers[I].PlayerName;
-      Label_ResultsPlayerName1[Index].FontColor := FlagColorToTextColor(fPlayers[I].FlagColor);
-      Label_ResultsPlayerName2[Index].Caption   := fPlayers[I].PlayerName;
-      Label_ResultsPlayerName2[Index].FontColor := FlagColorToTextColor(fPlayers[I].FlagColor);
+      Label_ResultsPlayerName1[Index].Caption   := gPlayers[I].PlayerName;
+      Label_ResultsPlayerName1[Index].FontColor := FlagColorToTextColor(gPlayers[I].FlagColor);
+      Label_ResultsPlayerName2[Index].Caption   := gPlayers[I].PlayerName;
+      Label_ResultsPlayerName2[Index].FontColor := FlagColorToTextColor(gPlayers[I].FlagColor);
       Inc(Index);
     end;
 
@@ -305,9 +305,9 @@ begin
   FillChar(Totals, SizeOf(Totals), #0);
 
   //Calculate bests for each "section"
-  for I := 0 to fPlayers.Count - 1 do
-    if fPlayers[I].Enabled then
-      with fPlayers[I].Stats do
+  for I := 0 to gPlayers.Count - 1 do
+    if gPlayers[I].Enabled then
+      with gPlayers[I].Stats do
       begin
         if Bests[0] < GetCitizensTrained then Bests[0] := GetCitizensTrained;
         if Bests[1] > GetCitizensLost    then Bests[1] := GetCitizensLost;
@@ -335,11 +335,11 @@ begin
 
   //Fill in raw values
   Index := 0;
-  for I := 0 to fPlayers.Count - 1 do
-    if fPlayers[I].Enabled then
+  for I := 0 to gPlayers.Count - 1 do
+    if gPlayers[I].Enabled then
     begin
 
-      with fPlayers[I].Stats do
+      with gPlayers[I].Stats do
       begin
         //Living things
         Bar_Results[Index,0].Tag := GetCitizensTrained;
@@ -423,8 +423,8 @@ begin
   Chart_MPCitizens.MaxTime  := fGame.GameTickCount div 10;
   Chart_MPHouses.MaxTime    := fGame.GameTickCount div 10;
 
-  for I := 0 to fPlayers.Count - 1 do
-  with fPlayers[I] do
+  for I := 0 to gPlayers.Count - 1 do
+  with gPlayers[I] do
     if Enabled then
     begin
       Chart_MPArmy.MaxLength := Max(Chart_MPArmy.MaxLength, Stats.ChartCount);
@@ -433,16 +433,16 @@ begin
 
   Chart_MPArmy.TrimToFirstVariation;
 
-  for I := 0 to fPlayers.Count - 1 do
-  with fPlayers[I] do
+  for I := 0 to gPlayers.Count - 1 do
+  with gPlayers[I] do
     if Enabled then
     begin
       Chart_MPCitizens.MaxLength := Max(Chart_MPCitizens.MaxLength, Stats.ChartCount);
       Chart_MPCitizens.AddLine(PlayerName, FlagColor, Stats.ChartCitizens);
     end;
 
-  for I := 0 to fPlayers.Count - 1 do
-  with fPlayers[I] do
+  for I := 0 to gPlayers.Count - 1 do
+  with gPlayers[I] do
     if Enabled then
     begin
       Chart_MPHouses.MaxLength := Max(Chart_MPHouses.MaxLength, Stats.ChartCount);
@@ -470,9 +470,9 @@ begin
   for I := Low(Wares) to High(Wares) do
   begin
     R := Wares[I];
-    for K := 0 to fPlayers.Count - 1 do
-    if fPlayers[K].Enabled
-    and not fPlayers[K].Stats.ChartWaresEmpty(R) then
+    for K := 0 to gPlayers.Count - 1 do
+    if gPlayers[K].Enabled
+    and not gPlayers[K].Stats.ChartWaresEmpty(R) then
     begin
       Columnbox_Wares.AddItem(MakeListRow(['', fResource.Wares[R].Title],
                                           [$FFFFFFFF, $FFFFFFFF],
@@ -491,8 +491,8 @@ begin
     Chart_MPWares[R].MaxTime := fGame.GameTickCount div 10;
     Chart_MPWares[R].Caption := fTextMain[TX_GRAPH_TITLE_RESOURCES] + ' - ' + fResource.Wares[R].Title;
 
-    for I := 0 to fPlayers.Count - 1 do
-    with fPlayers[I] do
+    for I := 0 to gPlayers.Count - 1 do
+    with gPlayers[I] do
     if Enabled then
     begin
       Chart_MPWares[R].MaxLength := Max(Chart_MPWares[R].MaxLength, Stats.ChartCount);
@@ -587,7 +587,7 @@ var
   RT: TWareType;
   I: Integer;
 begin
-  with fPlayers[aPlayer].Stats do
+  with gPlayers[aPlayer].Stats do
   case aWare of
     WARE_MIN..WARE_MAX: Result := ChartWares[aWare];
     wt_All:             begin

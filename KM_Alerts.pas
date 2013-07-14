@@ -149,7 +149,7 @@ end;
 
 function TKMAlertBeacon.GetTeamColor: Cardinal;
 begin
-  Result := fPlayers[fOwner].FlagColor;
+  Result := gPlayers[fOwner].FlagColor;
 end;
 
 
@@ -193,7 +193,7 @@ end;
 
 function TKMAlertAttacked.GetTeamColor: Cardinal;
 begin
-  Result := fPlayers[fOwner].FlagColor;
+  Result := gPlayers[fOwner].FlagColor;
 end;
 
 
@@ -349,9 +349,9 @@ begin
   begin
     case aPass of
       0:  if MySpectator.FogOfWar.CheckRevelation(Items[I].Loc) > 0 then
-            fRenderPool.AddAlert(Items[I].Loc, Items[I].TexTerrain.ID, fPlayers[Items[I].Owner].FlagColor);
+            fRenderPool.AddAlert(Items[I].Loc, Items[I].TexTerrain.ID, gPlayers[Items[I].Owner].FlagColor);
       1:  if MySpectator.FogOfWar.CheckRevelation(Items[I].Loc) = 0 then
-            fRenderPool.RenderSpriteOnTerrain(Items[I].Loc, Items[I].TexTerrain.ID, fPlayers[Items[I].Owner].FlagColor);
+            fRenderPool.RenderSpriteOnTerrain(Items[I].Loc, Items[I].TexTerrain.ID, gPlayers[Items[I].Owner].FlagColor);
     end;
   end;
 end;

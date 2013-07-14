@@ -38,7 +38,7 @@ destructor TTaskThrowRock.Destroy;
 begin
   if not fUnit.GetHome.IsDestroyed and (fUnit.GetHome.GetState = hst_Work) then
     fUnit.GetHome.SetState(hst_Idle); //Make sure we don't abandon and leave our tower with "working" animations
-  fPlayers.CleanUpUnitPointer(fTarget);
+  gPlayers.CleanUpUnitPointer(fTarget);
   inherited;
 end;
 
@@ -54,7 +54,7 @@ end;
 procedure TTaskThrowRock.SyncLoad;
 begin
   inherited;
-  fTarget := fPlayers.GetUnitByID(cardinal(fTarget));
+  fTarget := gPlayers.GetUnitByID(cardinal(fTarget));
 end;
 
 
@@ -78,9 +78,9 @@ begin
         end;
     1:  begin
           GetHome.ResTakeFromIn(wt_Stone, 1);
-          fPlayers[Owner].Stats.WareConsumed(wt_Stone);
+          gPlayers[Owner].Stats.WareConsumed(wt_Stone);
           fFlightTime := gProjectiles.AimTarget(PositionF, fTarget, pt_TowerRock, Owner, RANGE_WATCHTOWER_MAX, RANGE_WATCHTOWER_MIN);
-          fPlayers.CleanUpUnitPointer(fTarget); //We don't need it anymore
+          gPlayers.CleanUpUnitPointer(fTarget); //We don't need it anymore
           SetActionLockedStay(1, ua_Walk);
         end;
     2:  SetActionLockedStay(fFlightTime, ua_Walk); //Pretend to look how it goes

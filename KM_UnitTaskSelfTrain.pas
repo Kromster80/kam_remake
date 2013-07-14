@@ -43,14 +43,14 @@ end;
 procedure TTaskSelfTrain.SyncLoad;
 begin
   inherited;
-  fSchool := TKMHouseSchool(fPlayers.GetHouseByID(Cardinal(fSchool)));
+  fSchool := TKMHouseSchool(gPlayers.GetHouseByID(Cardinal(fSchool)));
 end;
 
 
 destructor TTaskSelfTrain.Destroy;
 begin
   if (fPhase <= 5) and not fSchool.IsDestroyed then fSchool.SetState(hst_Idle); //If we abandon for some reason, clear the school animation
-  fPlayers.CleanUpHousePointer(TKMHouse(fSchool));
+  gPlayers.CleanUpHousePointer(TKMHouse(fSchool));
   inherited;
 end;
 

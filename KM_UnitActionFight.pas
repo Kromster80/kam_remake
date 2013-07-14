@@ -65,7 +65,7 @@ end;
 
 destructor TUnitActionFight.Destroy;
 begin
-  fPlayers.CleanUpUnitPointer(fOpponent);
+  gPlayers.CleanUpUnitPointer(fOpponent);
   if not KMSamePoint(fVertexOccupied, KMPoint(0,0)) then
     DecVertex;
   inherited;
@@ -84,7 +84,7 @@ end;
 procedure TUnitActionFight.SyncLoad;
 begin
   inherited;
-  fOpponent := fPlayers.GetUnitByID(cardinal(fOpponent));
+  fOpponent := gPlayers.GetUnitByID(cardinal(fOpponent));
 end;
 
 
@@ -180,7 +180,7 @@ begin
     //After killing an opponent there is a very high chance that there is another enemy to be fought immediately
     //Try to start fighting that enemy by reusing this FightAction, rather than destroying it and making a new one
     Locked := false; //Fight can be interrupted by FindEnemy, otherwise it will always return nil!
-    fPlayers.CleanUpUnitPointer(fOpponent); //We are finished with the old opponent
+    gPlayers.CleanUpUnitPointer(fOpponent); //We are finished with the old opponent
     fOpponent := TKMUnitWarrior(fUnit).FindEnemy; //Find a new opponent
     if fOpponent <> nil then
     begin
@@ -322,11 +322,11 @@ begin
   if Step = 1 then
   begin
     //Tell the Opponent we are attacking him
-    fPlayers[fOpponent.Owner].AI.UnitAttackNotification(fOpponent, TKMUnitWarrior(fUnit));
+    gPlayers[fOpponent.Owner].AI.UnitAttackNotification(fOpponent, TKMUnitWarrior(fUnit));
 
     //Tell our AI that we are in a battle and might need assistance! (only for melee battles against warriors)
     if (fOpponent is TKMUnitWarrior) and not TKMUnitWarrior(fUnit).IsRanged then
-      fPlayers[fUnit.Owner].AI.UnitAttackNotification(fUnit, TKMUnitWarrior(fOpponent));
+      gPlayers[fUnit.Owner].AI.UnitAttackNotification(fUnit, TKMUnitWarrior(fOpponent));
   end;
 
   if TKMUnitWarrior(fUnit).IsRanged then

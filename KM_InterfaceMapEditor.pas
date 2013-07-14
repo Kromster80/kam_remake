@@ -669,11 +669,11 @@ var
   GT: TGroupType;
 begin
   //Fill UI
-  Image_FormationsFlag.FlagColor := fPlayers[MySpectator.PlayerIndex].FlagColor;
+  Image_FormationsFlag.FlagColor := gPlayers[MySpectator.PlayerIndex].FlagColor;
   for GT := Low(TGroupType) to High(TGroupType) do
   begin
-    NumEdit_FormationsCount[GT].Value := fPlayers[MySpectator.PlayerIndex].AI.General.DefencePositions.TroopFormations[GT].NumUnits;
-    NumEdit_FormationsColumns[GT].Value := fPlayers[MySpectator.PlayerIndex].AI.General.DefencePositions.TroopFormations[GT].UnitsPerRow;
+    NumEdit_FormationsCount[GT].Value := gPlayers[MySpectator.PlayerIndex].AI.General.DefencePositions.TroopFormations[GT].NumUnits;
+    NumEdit_FormationsColumns[GT].Value := gPlayers[MySpectator.PlayerIndex].AI.General.DefencePositions.TroopFormations[GT].UnitsPerRow;
   end;
 
   Panel_Formations.Show;
@@ -684,14 +684,14 @@ procedure TKMapEdInterface.Formations_Close(Sender: TObject);
 var
   GT: TGroupType;
 begin
-  Assert(Image_FormationsFlag.FlagColor = fPlayers[MySpectator.PlayerIndex].FlagColor, 'Cheap test to see if active player didn''t changed');
+  Assert(Image_FormationsFlag.FlagColor = gPlayers[MySpectator.PlayerIndex].FlagColor, 'Cheap test to see if active player didn''t changed');
 
   if Sender = Button_Formations_Ok then
     //Save settings
     for GT := Low(TGroupType) to High(TGroupType) do
     begin
-      fPlayers[MySpectator.PlayerIndex].AI.General.DefencePositions.TroopFormations[GT].NumUnits := NumEdit_FormationsCount[GT].Value;
-      fPlayers[MySpectator.PlayerIndex].AI.General.DefencePositions.TroopFormations[GT].UnitsPerRow := NumEdit_FormationsColumns[GT].Value;
+      gPlayers[MySpectator.PlayerIndex].AI.General.DefencePositions.TroopFormations[GT].NumUnits := NumEdit_FormationsCount[GT].Value;
+      gPlayers[MySpectator.PlayerIndex].AI.General.DefencePositions.TroopFormations[GT].UnitsPerRow := NumEdit_FormationsColumns[GT].Value;
     end;
 
   Panel_Formations.Hide;
@@ -1852,7 +1852,7 @@ begin
   //Show players without assets in grey
   if aTickCount mod 10 = 0 then
   for I := 0 to MAX_PLAYERS - 1 do
-    Button_PlayerSelect[I].FontColor := CAP_COLOR[fPlayers[I].HasAssets];
+    Button_PlayerSelect[I].FontColor := CAP_COLOR[gPlayers[I].HasAssets];
 
   if fMaps <> nil then fMaps.UpdateState;
   if fMapsMP <> nil then fMapsMP.UpdateState;
@@ -1912,10 +1912,10 @@ begin
 
   if mlDefences in fGame.MapEditor.VisibleLayers then
   begin
-    for I := 0 to fPlayers.Count - 1 do
-      for K := 0 to fPlayers[I].AI.General.DefencePositions.Count - 1 do
+    for I := 0 to gPlayers.Count - 1 do
+      for K := 0 to gPlayers[I].AI.General.DefencePositions.Count - 1 do
       begin
-        DP := fPlayers[I].AI.General.DefencePositions[K];
+        DP := gPlayers[I].AI.General.DefencePositions[K];
         LocF := gTerrain.FlatToHeight(KMPointF(DP.Position.Loc.X-0.5, DP.Position.Loc.Y-0.5));
         ScreenLoc := fGame.Viewport.MapToScreen(LocF);
 
@@ -1951,16 +1951,16 @@ end;
 
 procedure TKMapEdInterface.Town_DefenceChange(Sender: TObject);
 begin
-  fPlayers[MySpectator.PlayerIndex].AI.Setup.AutoDefend := CheckBox_AutoDefence.Checked;
-  fPlayers[MySpectator.PlayerIndex].AI.Setup.EquipRateLeather := TrackBar_EquipRateLeather.Position * 10;
-  fPlayers[MySpectator.PlayerIndex].AI.Setup.EquipRateIron := TrackBar_EquipRateIron.Position * 10;
-  fPlayers[MySpectator.PlayerIndex].AI.Setup.RecruitCount := TrackBar_RecruitCount.Position;
-  fPlayers[MySpectator.PlayerIndex].AI.Setup.RecruitDelay := TrackBar_RecruitDelay.Position * 600;
+  gPlayers[MySpectator.PlayerIndex].AI.Setup.AutoDefend := CheckBox_AutoDefence.Checked;
+  gPlayers[MySpectator.PlayerIndex].AI.Setup.EquipRateLeather := TrackBar_EquipRateLeather.Position * 10;
+  gPlayers[MySpectator.PlayerIndex].AI.Setup.EquipRateIron := TrackBar_EquipRateIron.Position * 10;
+  gPlayers[MySpectator.PlayerIndex].AI.Setup.RecruitCount := TrackBar_RecruitCount.Position;
+  gPlayers[MySpectator.PlayerIndex].AI.Setup.RecruitDelay := TrackBar_RecruitDelay.Position * 600;
 
   if not CheckBox_MaxSoldiers.Checked then
-    fPlayers[MySpectator.PlayerIndex].AI.Setup.MaxSoldiers := -1
+    gPlayers[MySpectator.PlayerIndex].AI.Setup.MaxSoldiers := -1
   else
-    fPlayers[MySpectator.PlayerIndex].AI.Setup.MaxSoldiers := TrackBar_MaxSoldiers.Position;
+    gPlayers[MySpectator.PlayerIndex].AI.Setup.MaxSoldiers := TrackBar_MaxSoldiers.Position;
 
   Town_DefenceRefresh;
 end;
@@ -1968,33 +1968,33 @@ end;
 
 procedure TKMapEdInterface.Town_DefenceRefresh;
 begin
-  CheckBox_AutoDefence.Checked := fPlayers[MySpectator.PlayerIndex].AI.Setup.AutoDefend;
-  TrackBar_EquipRateLeather.Position := fPlayers[MySpectator.PlayerIndex].AI.Setup.EquipRateLeather div 10;
-  TrackBar_EquipRateIron.Position := fPlayers[MySpectator.PlayerIndex].AI.Setup.EquipRateIron div 10;
-  TrackBar_RecruitCount.Position := fPlayers[MySpectator.PlayerIndex].AI.Setup.RecruitCount;
-  TrackBar_RecruitDelay.Position := Round(fPlayers[MySpectator.PlayerIndex].AI.Setup.RecruitDelay / 600);
+  CheckBox_AutoDefence.Checked := gPlayers[MySpectator.PlayerIndex].AI.Setup.AutoDefend;
+  TrackBar_EquipRateLeather.Position := gPlayers[MySpectator.PlayerIndex].AI.Setup.EquipRateLeather div 10;
+  TrackBar_EquipRateIron.Position := gPlayers[MySpectator.PlayerIndex].AI.Setup.EquipRateIron div 10;
+  TrackBar_RecruitCount.Position := gPlayers[MySpectator.PlayerIndex].AI.Setup.RecruitCount;
+  TrackBar_RecruitDelay.Position := Round(gPlayers[MySpectator.PlayerIndex].AI.Setup.RecruitDelay / 600);
 
-  CheckBox_MaxSoldiers.Checked := (fPlayers[MySpectator.PlayerIndex].AI.Setup.MaxSoldiers >= 0);
+  CheckBox_MaxSoldiers.Checked := (gPlayers[MySpectator.PlayerIndex].AI.Setup.MaxSoldiers >= 0);
   TrackBar_MaxSoldiers.Enabled := CheckBox_MaxSoldiers.Checked;
-  TrackBar_MaxSoldiers.Position := Max(fPlayers[MySpectator.PlayerIndex].AI.Setup.MaxSoldiers, 0);
+  TrackBar_MaxSoldiers.Position := Max(gPlayers[MySpectator.PlayerIndex].AI.Setup.MaxSoldiers, 0);
 end;
 
 
 procedure TKMapEdInterface.Town_ScriptRefresh;
 begin
-  CheckBox_AutoBuild.Checked := fPlayers[MySpectator.PlayerIndex].AI.Setup.AutoBuild;
-  CheckBox_AutoRepair.Checked := fPlayers[MySpectator.PlayerIndex].AI.Mayor.AutoRepair;
-  TrackBar_SerfsPer10Houses.Position := Round(10*fPlayers[MySpectator.PlayerIndex].AI.Setup.SerfsPerHouse);
-  TrackBar_WorkerCount.Position := fPlayers[MySpectator.PlayerIndex].AI.Setup.WorkerCount;
+  CheckBox_AutoBuild.Checked := gPlayers[MySpectator.PlayerIndex].AI.Setup.AutoBuild;
+  CheckBox_AutoRepair.Checked := gPlayers[MySpectator.PlayerIndex].AI.Mayor.AutoRepair;
+  TrackBar_SerfsPer10Houses.Position := Round(10*gPlayers[MySpectator.PlayerIndex].AI.Setup.SerfsPerHouse);
+  TrackBar_WorkerCount.Position := gPlayers[MySpectator.PlayerIndex].AI.Setup.WorkerCount;
 end;
 
 
 procedure TKMapEdInterface.Town_ScriptChange(Sender: TObject);
 begin
-  fPlayers[MySpectator.PlayerIndex].AI.Setup.AutoBuild := CheckBox_AutoBuild.Checked;
-  fPlayers[MySpectator.PlayerIndex].AI.Mayor.AutoRepair := CheckBox_AutoRepair.Checked;
-  fPlayers[MySpectator.PlayerIndex].AI.Setup.SerfsPerHouse := TrackBar_SerfsPer10Houses.Position / 10;
-  fPlayers[MySpectator.PlayerIndex].AI.Setup.WorkerCount := TrackBar_WorkerCount.Position;
+  gPlayers[MySpectator.PlayerIndex].AI.Setup.AutoBuild := CheckBox_AutoBuild.Checked;
+  gPlayers[MySpectator.PlayerIndex].AI.Mayor.AutoRepair := CheckBox_AutoRepair.Checked;
+  gPlayers[MySpectator.PlayerIndex].AI.Setup.SerfsPerHouse := TrackBar_SerfsPer10Houses.Position / 10;
+  gPlayers[MySpectator.PlayerIndex].AI.Setup.WorkerCount := TrackBar_WorkerCount.Position;
 end;
 
 
@@ -2005,22 +2005,22 @@ var
 begin
   //Set player colors
   for I := 0 to MAX_PLAYERS - 1 do
-    Button_PlayerSelect[I].ShapeColor := fPlayers[I].FlagColor;
+    Button_PlayerSelect[I].ShapeColor := gPlayers[I].FlagColor;
 
   //Update pages that have colored elements to match new players color
-  Button_Town[ttUnits].FlagColor := fPlayers[MySpectator.PlayerIndex].FlagColor;
+  Button_Town[ttUnits].FlagColor := gPlayers[MySpectator.PlayerIndex].FlagColor;
   for I := Low(Button_Citizen) to High(Button_Citizen) do
-    Button_Citizen[I].FlagColor := fPlayers[MySpectator.PlayerIndex].FlagColor;
+    Button_Citizen[I].FlagColor := gPlayers[MySpectator.PlayerIndex].FlagColor;
   for I := Low(Button_Warriors) to High(Button_Warriors) do
-    Button_Warriors[I].FlagColor := fPlayers[MySpectator.PlayerIndex].FlagColor;
-  Button_Player[ptColor].FlagColor := fPlayers[MySpectator.PlayerIndex].FlagColor;
-  Button_Reveal.FlagColor := fPlayers[MySpectator.PlayerIndex].FlagColor;
+    Button_Warriors[I].FlagColor := gPlayers[MySpectator.PlayerIndex].FlagColor;
+  Button_Player[ptColor].FlagColor := gPlayers[MySpectator.PlayerIndex].FlagColor;
+  Button_Reveal.FlagColor := gPlayers[MySpectator.PlayerIndex].FlagColor;
 
   PrevIndex := Dropbox_PlayerFOW.ItemIndex;
   Dropbox_PlayerFOW.Clear;
   Dropbox_PlayerFOW.Add('Show all', -1);
   for I := 0 to MAX_PLAYERS - 1 do
-    Dropbox_PlayerFOW.Add('[$' + IntToHex(FlagColorToTextColor(fPlayers[I].FlagColor) and $00FFFFFF, 6) + ']' + fPlayers[I].GetFormattedPlayerName, I);
+    Dropbox_PlayerFOW.Add('[$' + IntToHex(FlagColorToTextColor(gPlayers[I].FlagColor) and $00FFFFFF, 6) + ']' + gPlayers[I].GetFormattedPlayerName, I);
   if PrevIndex = -1 then
     PrevIndex := 0; //Select Show All
   Dropbox_PlayerFOW.ItemIndex := PrevIndex;
@@ -2427,7 +2427,7 @@ begin
     AA.Range := TrackBar_AttackRange.Position;
     AA.CustomPosition := KMPoint(NumEdit_AttackLocX.Value, NumEdit_AttackLocY.Value);
 
-    fPlayers[MySpectator.PlayerIndex].AI.General.Attacks[I] := AA;
+    gPlayers[MySpectator.PlayerIndex].AI.General.Attacks[I] := AA;
   end;
 
   Panel_Attack.Hide;
@@ -2462,10 +2462,10 @@ var
   AA: TAIAttack;
 begin
   FillChar(AA, SizeOf(AA), #0);
-  fPlayers[MySpectator.PlayerIndex].AI.General.Attacks.AddAttack(AA);
+  gPlayers[MySpectator.PlayerIndex].AI.General.Attacks.AddAttack(AA);
 
   Attacks_Refresh;
-  ColumnBox_Attacks.ItemIndex := fPlayers[MySpectator.PlayerIndex].AI.General.Attacks.Count - 1;
+  ColumnBox_Attacks.ItemIndex := gPlayers[MySpectator.PlayerIndex].AI.General.Attacks.Count - 1;
 
   //Edit the attack we have just appended
   Attacks_Edit(ColumnBox_Attacks.ItemIndex);
@@ -2476,8 +2476,8 @@ procedure TKMapEdInterface.Attacks_Del(Sender: TObject);
 var I: Integer;
 begin
   I := ColumnBox_Attacks.ItemIndex;
-  if InRange(I, 0, fPlayers[MySpectator.PlayerIndex].AI.General.Attacks.Count - 1) then
-    fPlayers[MySpectator.PlayerIndex].AI.General.Attacks.Delete(I);
+  if InRange(I, 0, gPlayers[MySpectator.PlayerIndex].AI.General.Attacks.Count - 1) then
+    gPlayers[MySpectator.PlayerIndex].AI.General.Attacks.Delete(I);
 
   Attacks_Refresh;
 end;
@@ -2485,8 +2485,8 @@ end;
 
 procedure TKMapEdInterface.Attacks_Edit(aIndex: Integer);
 begin
-  Assert(InRange(aIndex, 0, fPlayers[MySpectator.PlayerIndex].AI.General.Attacks.Count - 1));
-  Attack_Refresh(fPlayers[MySpectator.PlayerIndex].AI.General.Attacks[aIndex]);
+  Assert(InRange(aIndex, 0, gPlayers[MySpectator.PlayerIndex].AI.General.Attacks.Count - 1));
+  Attack_Refresh(gPlayers[MySpectator.PlayerIndex].AI.General.Attacks[aIndex]);
   Panel_Attack.Show;
 end;
 
@@ -2496,7 +2496,7 @@ var
   I: Integer;
 begin
   I := ColumnBox_Attacks.ItemIndex;
-  Button_AttacksDel.Enabled := InRange(I, 0, fPlayers[MySpectator.PlayerIndex].AI.General.Attacks.Count - 1);
+  Button_AttacksDel.Enabled := InRange(I, 0, gPlayers[MySpectator.PlayerIndex].AI.General.Attacks.Count - 1);
 end;
 
 
@@ -2507,7 +2507,7 @@ begin
   I := ColumnBox_Attacks.ItemIndex;
 
   //Check if user double-clicked on an existing item (not on an empty space)
-  if InRange(I, 0, fPlayers[MySpectator.PlayerIndex].AI.General.Attacks.Count - 1) then
+  if InRange(I, 0, gPlayers[MySpectator.PlayerIndex].AI.General.Attacks.Count - 1) then
     Attacks_Edit(I);
 end;
 
@@ -2522,9 +2522,9 @@ var
 begin
   ColumnBox_Attacks.Clear;
 
-  for I := 0 to fPlayers[MySpectator.PlayerIndex].AI.General.Attacks.Count - 1 do
+  for I := 0 to gPlayers[MySpectator.PlayerIndex].AI.General.Attacks.Count - 1 do
   begin
-    A := fPlayers[MySpectator.PlayerIndex].AI.General.Attacks[I];
+    A := gPlayers[MySpectator.PlayerIndex].AI.General.Attacks[I];
     ColumnBox_Attacks.AddItem(MakeListRow([Typ[A.AttackType], IntToStr(A.Delay div 10), IntToStr(A.TotalMen), Tgt[A.Target], TypeToString(A.CustomPosition)]));
   end;
 
@@ -2563,7 +2563,7 @@ begin
     G.MessageToShow := NumEdit_GoalMessage.Value;
     G.PlayerIndex := NumEdit_GoalPlayer.Value - 1;
 
-    fPlayers[MySpectator.PlayerIndex].Goals[I] := G;
+    gPlayers[MySpectator.PlayerIndex].Goals[I] := G;
   end;
 
   Panel_Goal.Hide;
@@ -2590,10 +2590,10 @@ var
   G: TKMGoal;
 begin
   FillChar(G, SizeOf(G), #0);
-  fPlayers[MySpectator.PlayerIndex].Goals.AddGoal(G);
+  gPlayers[MySpectator.PlayerIndex].Goals.AddGoal(G);
 
   Goals_Refresh;
-  ColumnBox_Goals.ItemIndex := fPlayers[MySpectator.PlayerIndex].Goals.Count - 1;
+  ColumnBox_Goals.ItemIndex := gPlayers[MySpectator.PlayerIndex].Goals.Count - 1;
 
   //Edit the attack we have just appended
   Goals_Edit(ColumnBox_Goals.ItemIndex);
@@ -2604,16 +2604,16 @@ procedure TKMapEdInterface.Goals_Del(Sender: TObject);
 var I: Integer;
 begin
   I := ColumnBox_Goals.ItemIndex;
-  if InRange(I, 0, fPlayers[MySpectator.PlayerIndex].Goals.Count - 1) then
-    fPlayers[MySpectator.PlayerIndex].Goals.Delete(I);
+  if InRange(I, 0, gPlayers[MySpectator.PlayerIndex].Goals.Count - 1) then
+    gPlayers[MySpectator.PlayerIndex].Goals.Delete(I);
   Goals_Refresh;
 end;
 
 
 procedure TKMapEdInterface.Goals_Edit(aIndex: Integer);
 begin
-  Assert(InRange(aIndex, 0, fPlayers[MySpectator.PlayerIndex].Goals.Count - 1));
-  Goal_Refresh(fPlayers[MySpectator.PlayerIndex].Goals[aIndex]);
+  Assert(InRange(aIndex, 0, gPlayers[MySpectator.PlayerIndex].Goals.Count - 1));
+  Goal_Refresh(gPlayers[MySpectator.PlayerIndex].Goals[aIndex]);
   Panel_Goal.Show;
 end;
 
@@ -2623,7 +2623,7 @@ var
   I: Integer;
 begin
   I := ColumnBox_Goals.ItemIndex;
-  Button_GoalsDel.Enabled := InRange(I, 0, fPlayers[MySpectator.PlayerIndex].Goals.Count - 1);
+  Button_GoalsDel.Enabled := InRange(I, 0, gPlayers[MySpectator.PlayerIndex].Goals.Count - 1);
 end;
 
 
@@ -2634,7 +2634,7 @@ begin
   I := ColumnBox_Goals.ItemIndex;
 
   //Check if user double-clicked on an existing item (not on an empty space)
-  if InRange(I, 0, fPlayers[MySpectator.PlayerIndex].Goals.Count - 1) then
+  if InRange(I, 0, gPlayers[MySpectator.PlayerIndex].Goals.Count - 1) then
     Goals_Edit(I);
 end;
 
@@ -2651,9 +2651,9 @@ var
 begin
   ColumnBox_Goals.Clear;
 
-  for I := 0 to fPlayers[MySpectator.PlayerIndex].Goals.Count - 1 do
+  for I := 0 to gPlayers[MySpectator.PlayerIndex].Goals.Count - 1 do
   begin
-    G := fPlayers[MySpectator.PlayerIndex].Goals[I];
+    G := gPlayers[MySpectator.PlayerIndex].Goals[I];
     ColumnBox_Goals.AddItem(MakeListRow([Typ[G.GoalType],
                                     Cnd[G.GoalCondition],
                                     IntToStr(G.PlayerIndex + 1),
@@ -2803,7 +2803,7 @@ begin
   Label_House.Caption := HouseDat.HouseName;
   Image_House_Logo.TexID := HouseDat.GUIIcon;
   Image_House_Worker.TexID := fResource.UnitDat[HouseDat.OwnerType].GUIIcon;
-  Image_House_Worker.FlagColor := fPlayers[Sender.Owner].FlagColor;
+  Image_House_Worker.FlagColor := gPlayers[Sender.Owner].FlagColor;
   Image_House_Worker.Hint := fResource.UnitDat[HouseDat.OwnerType].GUIName;
   Image_House_Worker.Visible := HouseDat.OwnerType <> ut_None;
   KMHealthBar_House.Caption := IntToStr(Round(Sender.GetHealth)) + '/' + IntToStr(HouseDat.MaxHealth);
@@ -2861,7 +2861,7 @@ begin
   DisplayPage(Panel_Unit);
   Label_UnitName.Caption := fResource.UnitDat[Sender.UnitType].GUIName;
   Image_UnitPic.TexID := fResource.UnitDat[Sender.UnitType].GUIScroll;
-  Image_UnitPic.FlagColor := fPlayers[Sender.Owner].FlagColor;
+  Image_UnitPic.FlagColor := gPlayers[Sender.Owner].FlagColor;
   KMConditionBar_Unit.Position := Sender.Condition / UNIT_MAX_CONDITION;
 
   Label_UnitDescription.Caption := fResource.UnitDat[Sender.UnitType].Description;
@@ -2882,7 +2882,7 @@ begin
   DisplayPage(Panel_Unit);
   Label_UnitName.Caption := fResource.UnitDat[Sender.UnitType].GUIName;
   Image_UnitPic.TexID := fResource.UnitDat[Sender.UnitType].GUIScroll;
-  Image_UnitPic.FlagColor := fPlayers[Sender.Owner].FlagColor;
+  Image_UnitPic.FlagColor := gPlayers[Sender.Owner].FlagColor;
   KMConditionBar_Unit.Position := Sender.Condition / UNIT_MAX_CONDITION;
 
   //Warrior specific
@@ -2909,15 +2909,15 @@ begin
   end;
 
   SetActivePlayer(aMarker.Owner);
-  Image_MarkerPic.FlagColor := fPlayers[aMarker.Owner].FlagColor;
+  Image_MarkerPic.FlagColor := gPlayers[aMarker.Owner].FlagColor;
 
   case aMarker.MarkerType of
     mtDefence:    begin
                     Label_MarkerType.Caption := fTextMain[TX_MAPED_AI_DEFENCE_POSITION];
                     Image_MarkerPic.TexID := 338;
-                    DropList_DefenceGroup.ItemIndex := Byte(fPlayers[aMarker.Owner].AI.General.DefencePositions[aMarker.Index].GroupType);
-                    DropList_DefenceType.ItemIndex := Byte(fPlayers[aMarker.Owner].AI.General.DefencePositions[aMarker.Index].DefenceType);
-                    TrackBar_DefenceRad.Position := fPlayers[aMarker.Owner].AI.General.DefencePositions[aMarker.Index].Radius;
+                    DropList_DefenceGroup.ItemIndex := Byte(gPlayers[aMarker.Owner].AI.General.DefencePositions[aMarker.Index].GroupType);
+                    DropList_DefenceType.ItemIndex := Byte(gPlayers[aMarker.Owner].AI.General.DefencePositions[aMarker.Index].DefenceType);
+                    TrackBar_DefenceRad.Position := gPlayers[aMarker.Owner].AI.General.DefencePositions[aMarker.Index].Radius;
                     DisplayPage(Panel_MarkerDefence);
                   end;
     mtRevealFOW:  begin
@@ -2977,7 +2977,7 @@ begin
 
   case Marker.MarkerType of
     mtDefence:    begin
-                    DP := fPlayers[Marker.Owner].AI.General.DefencePositions[Marker.Index];
+                    DP := gPlayers[Marker.Owner].AI.General.DefencePositions[Marker.Index];
                     DP.Radius := TrackBar_DefenceRad.Position;
                     DP.DefenceType := TAIDefencePosType(DropList_DefenceType.ItemIndex);
                     DP.GroupType := TGroupType(DropList_DefenceGroup.ItemIndex);
@@ -2989,7 +2989,7 @@ begin
 
                     if Sender = Button_DefenceDelete then
                     begin
-                      fPlayers[Marker.Owner].AI.General.DefencePositions.Delete(Marker.Index);
+                      gPlayers[Marker.Owner].AI.General.DefencePositions.Delete(Marker.Index);
                       SwitchPage(Button_Town[ttDefences]);
                     end;
 
@@ -3436,7 +3436,7 @@ end;
 procedure TKMapEdInterface.Player_ColorClick(Sender: TObject);
 begin
   if not (Sender = ColorSwatch_Color) then exit;
-  fPlayers[MySpectator.PlayerIndex].FlagColor := ColorSwatch_Color.GetColor;
+  gPlayers[MySpectator.PlayerIndex].FlagColor := ColorSwatch_Color.GetColor;
   Player_UpdateColors;
 end;
 
@@ -3457,19 +3457,19 @@ begin
   H := GUIHouseOrder[I];
 
   //Loop through states CanBuild > CantBuild > Released
-  if not fPlayers[MySpectator.PlayerIndex].Stats.HouseBlocked[H] and not fPlayers[MySpectator.PlayerIndex].Stats.HouseGranted[H] then
+  if not gPlayers[MySpectator.PlayerIndex].Stats.HouseBlocked[H] and not gPlayers[MySpectator.PlayerIndex].Stats.HouseGranted[H] then
   begin
-    fPlayers[MySpectator.PlayerIndex].Stats.HouseBlocked[H] := True;
-    fPlayers[MySpectator.PlayerIndex].Stats.HouseGranted[H] := False;
+    gPlayers[MySpectator.PlayerIndex].Stats.HouseBlocked[H] := True;
+    gPlayers[MySpectator.PlayerIndex].Stats.HouseGranted[H] := False;
   end else
-  if fPlayers[MySpectator.PlayerIndex].Stats.HouseBlocked[H] and not fPlayers[MySpectator.PlayerIndex].Stats.HouseGranted[H] then
+  if gPlayers[MySpectator.PlayerIndex].Stats.HouseBlocked[H] and not gPlayers[MySpectator.PlayerIndex].Stats.HouseGranted[H] then
   begin
-    fPlayers[MySpectator.PlayerIndex].Stats.HouseBlocked[H] := False;
-    fPlayers[MySpectator.PlayerIndex].Stats.HouseGranted[H] := True;
+    gPlayers[MySpectator.PlayerIndex].Stats.HouseBlocked[H] := False;
+    gPlayers[MySpectator.PlayerIndex].Stats.HouseGranted[H] := True;
   end else
   begin
-    fPlayers[MySpectator.PlayerIndex].Stats.HouseBlocked[H] := False;
-    fPlayers[MySpectator.PlayerIndex].Stats.HouseGranted[H] := False;
+    gPlayers[MySpectator.PlayerIndex].Stats.HouseBlocked[H] := False;
+    gPlayers[MySpectator.PlayerIndex].Stats.HouseGranted[H] := False;
   end;
 
   Player_BlockHouseRefresh;
@@ -3484,13 +3484,13 @@ begin
   for I := 1 to GUI_HOUSE_COUNT do
   begin
     H := GUIHouseOrder[I];
-    if fPlayers[MySpectator.PlayerIndex].Stats.HouseBlocked[H] and not fPlayers[MySpectator.PlayerIndex].Stats.HouseGranted[H] then
+    if gPlayers[MySpectator.PlayerIndex].Stats.HouseBlocked[H] and not gPlayers[MySpectator.PlayerIndex].Stats.HouseGranted[H] then
       Image_BlockHouse[I].TexID := 32
     else
-    if fPlayers[MySpectator.PlayerIndex].Stats.HouseGranted[H] and not fPlayers[MySpectator.PlayerIndex].Stats.HouseBlocked[H] then
+    if gPlayers[MySpectator.PlayerIndex].Stats.HouseGranted[H] and not gPlayers[MySpectator.PlayerIndex].Stats.HouseBlocked[H] then
       Image_BlockHouse[I].TexID := 33
     else
-    if not fPlayers[MySpectator.PlayerIndex].Stats.HouseGranted[H] and not fPlayers[MySpectator.PlayerIndex].Stats.HouseBlocked[H] then
+    if not gPlayers[MySpectator.PlayerIndex].Stats.HouseGranted[H] and not gPlayers[MySpectator.PlayerIndex].Stats.HouseBlocked[H] then
       Image_BlockHouse[I].TexID := 0
     else
       Image_BlockHouse[I].TexID := 24; //Some erroneous value
@@ -3506,7 +3506,7 @@ begin
   I := TKMButtonFlat(Sender).Tag;
   R := StoreResType[I];
 
-  fPlayers[MySpectator.PlayerIndex].Stats.AllowToTrade[R] := not fPlayers[MySpectator.PlayerIndex].Stats.AllowToTrade[R];
+  gPlayers[MySpectator.PlayerIndex].Stats.AllowToTrade[R] := not gPlayers[MySpectator.PlayerIndex].Stats.AllowToTrade[R];
 
   Player_BlockTradeRefresh;
 end;
@@ -3520,7 +3520,7 @@ begin
   for I := 1 to STORE_RES_COUNT do
   begin
     R := StoreResType[I];
-    if fPlayers[MySpectator.PlayerIndex].Stats.AllowToTrade[R] then
+    if gPlayers[MySpectator.PlayerIndex].Stats.AllowToTrade[R] then
       Image_BlockTrade[I].TexID := 0
     else
       Image_BlockTrade[I].TexID := 32; //Red cross
@@ -3572,9 +3572,9 @@ begin
     CheckBox_RevealAll.Checked := fGame.MapEditor.RevealAll[MySpectator.PlayerIndex];
 
   if Sender = Button_PlayerCenterScreen then
-    fGame.Viewport.Position := KMPointF(fPlayers[MySpectator.PlayerIndex].CenterScreen); //Jump to location
+    fGame.Viewport.Position := KMPointF(gPlayers[MySpectator.PlayerIndex].CenterScreen); //Jump to location
 
-  Button_PlayerCenterScreen.Caption := TypeToString(fPlayers[MySpectator.PlayerIndex].CenterScreen);
+  Button_PlayerCenterScreen.Caption := TypeToString(gPlayers[MySpectator.PlayerIndex].CenterScreen);
 end;
 
 
@@ -3583,25 +3583,25 @@ var I,K: Integer;
 begin
   if Sender = nil then
   begin
-    for I:=0 to fPlayers.Count-1 do
-    for K:=0 to fPlayers.Count-1 do
-      if (fPlayers[I]<>nil)and(fPlayers[K]<>nil) then
-        CheckBox_Alliances[I,K].Checked := (fPlayers.CheckAlliance(fPlayers[I].PlayerIndex, fPlayers[K].PlayerIndex)=at_Ally)
+    for I:=0 to gPlayers.Count-1 do
+    for K:=0 to gPlayers.Count-1 do
+      if (gPlayers[I]<>nil)and(gPlayers[K]<>nil) then
+        CheckBox_Alliances[I,K].Checked := (gPlayers.CheckAlliance(gPlayers[I].PlayerIndex, gPlayers[K].PlayerIndex)=at_Ally)
       else
         CheckBox_Alliances[I,K].Disable; //Player does not exist?
     exit;
   end;
 
-  I := TKMCheckBox(Sender).Tag div fPlayers.Count;
-  K := TKMCheckBox(Sender).Tag mod fPlayers.Count;
-  if CheckBox_Alliances[I,K].Checked then fPlayers[I].Alliances[K] := at_Ally
-                                     else fPlayers[I].Alliances[K] := at_Enemy;
+  I := TKMCheckBox(Sender).Tag div gPlayers.Count;
+  K := TKMCheckBox(Sender).Tag mod gPlayers.Count;
+  if CheckBox_Alliances[I,K].Checked then gPlayers[I].Alliances[K] := at_Ally
+                                     else gPlayers[I].Alliances[K] := at_Enemy;
 
   //Copy status to symmetrical item
   if CheckBox_AlliancesSym.Checked then
   begin
     CheckBox_Alliances[K,I].Checked := CheckBox_Alliances[I,K].Checked;
-    fPlayers[K].Alliances[I] := fPlayers[I].Alliances[K];
+    gPlayers[K].Alliances[I] := gPlayers[I].Alliances[K];
   end;
 end;
 
@@ -3621,15 +3621,15 @@ end;
 procedure TKMapEdInterface.Mission_PlayerTypesUpdate;
 var I: Integer;
 begin
-  for I := 0 to fPlayers.Count - 1 do
+  for I := 0 to gPlayers.Count - 1 do
   begin
-    CheckBox_PlayerTypes[I, 0].Enabled := fPlayers[I].HasAssets;
-    CheckBox_PlayerTypes[I, 1].Enabled := fPlayers[I].HasAssets;
-    CheckBox_PlayerTypes[I, 2].Enabled := fPlayers[I].HasAssets;
+    CheckBox_PlayerTypes[I, 0].Enabled := gPlayers[I].HasAssets;
+    CheckBox_PlayerTypes[I, 1].Enabled := gPlayers[I].HasAssets;
+    CheckBox_PlayerTypes[I, 2].Enabled := gPlayers[I].HasAssets;
 
-    CheckBox_PlayerTypes[I, 0].Checked := fPlayers[I].HasAssets and (fGame.MapEditor.DefaultHuman = I);
-    CheckBox_PlayerTypes[I, 1].Checked := fPlayers[I].HasAssets and fGame.MapEditor.PlayerHuman[I];
-    CheckBox_PlayerTypes[I, 2].Checked := fPlayers[I].HasAssets and fGame.MapEditor.PlayerAI[I];
+    CheckBox_PlayerTypes[I, 0].Checked := gPlayers[I].HasAssets and (fGame.MapEditor.DefaultHuman = I);
+    CheckBox_PlayerTypes[I, 1].Checked := gPlayers[I].HasAssets and fGame.MapEditor.PlayerHuman[I];
+    CheckBox_PlayerTypes[I, 2].Checked := gPlayers[I].HasAssets and fGame.MapEditor.PlayerAI[I];
   end;
 end;
 
@@ -3783,22 +3783,22 @@ begin
   begin
     P := GameCursor.Cell; //Get cursor position tile-wise
     case GameCursor.Mode of
-      cmRoad:      if fPlayers[MySpectator.PlayerIndex].CanAddFieldPlan(P, ft_Road) then
+      cmRoad:      if gPlayers[MySpectator.PlayerIndex].CanAddFieldPlan(P, ft_Road) then
                    begin
                      //If there's a field remove it first so we don't get road on top of the field tile (undesired in MapEd)
                      if gTerrain.TileIsCornField(P) or gTerrain.TileIsWineField(P) then
                        gTerrain.RemField(P);
-                     fPlayers[MySpectator.PlayerIndex].AddField(P, ft_Road);
+                     gPlayers[MySpectator.PlayerIndex].AddField(P, ft_Road);
                    end;
-      cmField:     if fPlayers[MySpectator.PlayerIndex].CanAddFieldPlan(P, ft_Corn) then fPlayers[MySpectator.PlayerIndex].AddField(P, ft_Corn);
-      cmWine:      if fPlayers[MySpectator.PlayerIndex].CanAddFieldPlan(P, ft_Wine) then fPlayers[MySpectator.PlayerIndex].AddField(P, ft_Wine);
+      cmField:     if gPlayers[MySpectator.PlayerIndex].CanAddFieldPlan(P, ft_Corn) then gPlayers[MySpectator.PlayerIndex].AddField(P, ft_Corn);
+      cmWine:      if gPlayers[MySpectator.PlayerIndex].CanAddFieldPlan(P, ft_Wine) then gPlayers[MySpectator.PlayerIndex].AddField(P, ft_Wine);
       //cm_Wall:  if fPlayers[MySpectator.PlayerIndex].CanAddFieldPlan(P, ft_Wall) then fPlayers[MySpectator.PlayerIndex].AddField(P, ft_Wine);
       cmObjects:   if GameCursor.Tag1 = 255 then gTerrain.SetTree(P, 255); //Allow many objects to be deleted at once
-      cmUnits:     if GameCursor.Tag1 = 255 then fPlayers.RemAnyUnit(P);
+      cmUnits:     if GameCursor.Tag1 = 255 then gPlayers.RemAnyUnit(P);
       cmErase:     case GetShownPage of
                       esp_Terrain:    gTerrain.Land[P.Y,P.X].Obj := 255;
                       esp_Buildings:  begin
-                                        fPlayers.RemAnyHouse(P);
+                                        gPlayers.RemAnyHouse(P);
                                         if gTerrain.Land[P.Y,P.X].TileOverlay = to_Road then
                                           gTerrain.RemRoad(P);
                                         if gTerrain.TileIsCornField(P) or gTerrain.TileIsWineField(P) then
@@ -3863,7 +3863,7 @@ begin
       Marker := fGame.MapEditor.ActiveMarker;
       case Marker.MarkerType of
         mtDefence:   begin
-                       DP := fPlayers[Marker.Owner].AI.General.DefencePositions[Marker.Index];
+                       DP := gPlayers[Marker.Owner].AI.General.DefencePositions[Marker.Index];
                        DP.Position := KMPointDir(P, DP.Position.Dir);
                      end;
         mtRevealFOW: fGame.MapEditor.Revealers[Marker.Owner][Marker.Index] := P;
@@ -3891,19 +3891,19 @@ begin
                         ShowGroupInfo(TKMUnitGroup(MySpectator.Selected));
                     end;
                   end;
-      cmRoad:     if fPlayers[MySpectator.PlayerIndex].CanAddFieldPlan(P, ft_Road) then
+      cmRoad:     if gPlayers[MySpectator.PlayerIndex].CanAddFieldPlan(P, ft_Road) then
                   begin
                     //If there's a field remove it first so we don't get road on top of the field tile (undesired in MapEd)
                     if gTerrain.TileIsCornField(P) or gTerrain.TileIsWineField(P) then
                       gTerrain.RemField(P);
-                    fPlayers[MySpectator.PlayerIndex].AddField(P, ft_Road);
+                    gPlayers[MySpectator.PlayerIndex].AddField(P, ft_Road);
                   end;
-      cmField:    if fPlayers[MySpectator.PlayerIndex].CanAddFieldPlan(P, ft_Corn) then fPlayers[MySpectator.PlayerIndex].AddField(P, ft_Corn);
-      cmWine:     if fPlayers[MySpectator.PlayerIndex].CanAddFieldPlan(P, ft_Wine) then fPlayers[MySpectator.PlayerIndex].AddField(P, ft_Wine);
+      cmField:    if gPlayers[MySpectator.PlayerIndex].CanAddFieldPlan(P, ft_Corn) then gPlayers[MySpectator.PlayerIndex].AddField(P, ft_Corn);
+      cmWine:     if gPlayers[MySpectator.PlayerIndex].CanAddFieldPlan(P, ft_Wine) then gPlayers[MySpectator.PlayerIndex].AddField(P, ft_Wine);
       //cm_Wall:
-      cmHouses:   if fPlayers[MySpectator.PlayerIndex].CanAddHousePlan(P, THouseType(GameCursor.Tag1)) then
+      cmHouses:   if gPlayers[MySpectator.PlayerIndex].CanAddHousePlan(P, THouseType(GameCursor.Tag1)) then
                   begin
-                    fPlayers[MySpectator.PlayerIndex].AddHouse(THouseType(GameCursor.Tag1), P.X, P.Y, true);
+                    gPlayers[MySpectator.PlayerIndex].AddHouse(THouseType(GameCursor.Tag1), P.X, P.Y, true);
                     if not(ssShift in Shift) then Town_BuildChange(Button_BuildRoad);
                   end;
       cmElevate,
@@ -3911,31 +3911,31 @@ begin
       cmMagicWater:fTerrainPainter.MagicWater(P);
       cmObjects:  gTerrain.SetTree(P, GameCursor.Tag1);
       cmUnits:    if GameCursor.Tag1 = 255 then
-                    fPlayers.RemAnyUnit(P)
+                    gPlayers.RemAnyUnit(P)
                   else
                   if gTerrain.CanPlaceUnit(P, TUnitType(GameCursor.Tag1)) then
                   begin
                     //Check if we can really add a unit
                     if TUnitType(GameCursor.Tag1) in [CITIZEN_MIN..CITIZEN_MAX] then
-                      fPlayers[MySpectator.PlayerIndex].AddUnit(TUnitType(GameCursor.Tag1), P, False)
+                      gPlayers[MySpectator.PlayerIndex].AddUnit(TUnitType(GameCursor.Tag1), P, False)
                     else
                     if TUnitType(GameCursor.Tag1) in [WARRIOR_MIN..WARRIOR_MAX] then
-                      fPlayers[MySpectator.PlayerIndex].AddUnitGroup(TUnitType(GameCursor.Tag1), P, dir_S, 1, 1)
+                      gPlayers[MySpectator.PlayerIndex].AddUnitGroup(TUnitType(GameCursor.Tag1), P, dir_S, 1, 1)
                     else
-                      fPlayers.PlayerAnimals.AddUnit(TUnitType(GameCursor.Tag1), P);
+                      gPlayers.PlayerAnimals.AddUnit(TUnitType(GameCursor.Tag1), P);
                   end;
       cmMarkers:  case GameCursor.Tag1 of
                     MARKER_REVEAL:        fGame.MapEditor.Revealers[MySpectator.PlayerIndex].Add(P, TrackBar_RevealNewSize.Position);
-                    MARKER_DEFENCE:       fPlayers[MySpectator.PlayerIndex].AI.General.DefencePositions.Add(KMPointDir(P, dir_N), gt_Melee, 10, adt_FrontLine);
+                    MARKER_DEFENCE:       gPlayers[MySpectator.PlayerIndex].AI.General.DefencePositions.Add(KMPointDir(P, dir_N), gt_Melee, 10, adt_FrontLine);
                     MARKER_CENTERSCREEN:  begin
-                                            fPlayers[MySpectator.PlayerIndex].CenterScreen := P;
+                                            gPlayers[MySpectator.PlayerIndex].CenterScreen := P;
                                             Player_MarkerClick(nil); //Update XY display
                                           end;
                   end;
       cmErase:    case GetShownPage of
                     esp_Terrain:    gTerrain.Land[P.Y,P.X].Obj := 255;
                     esp_Buildings:  begin
-                                      fPlayers.RemAnyHouse(P);
+                                      gPlayers.RemAnyHouse(P);
                                       if gTerrain.Land[P.Y,P.X].TileOverlay = to_Road then
                                         gTerrain.RemRoad(P);
                                       if gTerrain.TileIsCornField(P) or gTerrain.TileIsWineField(P) then

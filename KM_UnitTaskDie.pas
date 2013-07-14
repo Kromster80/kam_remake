@@ -64,7 +64,7 @@ begin
               GetHome.SetState(hst_Idle);
               GetHome.SetState(hst_Empty);
             end;
-            SetActionGoIn(ua_Walk, gd_GoOutside, fPlayers.HousesHitTest(fUnit.NextPosition.X, fUnit.NextPosition.Y));
+            SetActionGoIn(ua_Walk, gd_GoOutside, gPlayers.HousesHitTest(fUnit.NextPosition.X, fUnit.NextPosition.Y));
           end;
     1:    begin
             if not fShowAnimation or (fUnit is TKMUnitAnimal) then //Animals don't have a dying sequence. Can be changed later.

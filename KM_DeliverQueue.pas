@@ -174,7 +174,7 @@ var I: Integer; U: TKMUnit;
 begin
   for I := 0 to fSerfCount - 1 do
   begin
-    U := fPlayers.GetUnitByID(Cardinal(fSerfs[I].Serf));
+    U := gPlayers.GetUnitByID(Cardinal(fSerfs[I].Serf));
     Assert(U is TKMUnitSerf, 'Non-serf in delivery list');
     fSerfs[I].Serf := TKMUnitSerf(U);
   end;
@@ -196,7 +196,7 @@ end;
 //Remove died Serf from the List
 procedure TKMDeliveries.RemSerf(aIndex: Integer);
 begin
-  fPlayers.CleanUpUnitPointer(TKMUnit(fSerfs[aIndex].Serf));
+  gPlayers.CleanUpUnitPointer(TKMUnit(fSerfs[aIndex].Serf));
 
   //Serf order is not important, so we just move last one into freed spot
   if aIndex <> fSerfCount - 1 then
@@ -544,7 +544,7 @@ begin
       //Scan through players Barracks, if none accepts - allow deliver to Store
       I := 1;
       repeat
-        B := TKMHouseBarracks(fPlayers[fDemand[iD].Loc_House.Owner].FindHouse(ht_Barracks, I));
+        B := TKMHouseBarracks(gPlayers[fDemand[iD].Loc_House.Owner].FindHouse(ht_Barracks, I));
         if (B <> nil) and (not B.NotAcceptFlag[fOffer[iO].Ware]) then
         begin
           Result := False;
@@ -644,7 +644,7 @@ begin
   begin
     Result := KMLength(fOffer[iO].Loc_House.GetEntrance, fDemand[iD].Loc_House.GetEntrance)
     //Resource ratios are also considered
-    + fPlayers[fOffer[iO].Loc_House.Owner].Stats.Ratio[fDemand[iD].Ware, fDemand[iD].Loc_House.HouseType];
+    + gPlayers[fOffer[iO].Loc_House.Owner].Stats.Ratio[fDemand[iD].Ware, fDemand[iD].Loc_House.HouseType];
   end
   else
     Result := KMLength(fOffer[iO].Loc_House.GetEntrance, fDemand[iD].Loc_Unit.GetPosition);
@@ -837,8 +837,8 @@ begin
   fDemand[aID].Ware := wt_None;
   fDemand[aID].DemandType := dt_Once;
   fDemand[aID].Importance := diNorm;
-  fPlayers.CleanUpHousePointer(fDemand[aID].Loc_House);
-  fPlayers.CleanUpUnitPointer(fDemand[aID].Loc_Unit);
+  gPlayers.CleanUpHousePointer(fDemand[aID].Loc_House);
+  gPlayers.CleanUpUnitPointer(fDemand[aID].Loc_Unit);
   fDemand[aID].IsDeleted := false;
 end;
 
@@ -849,7 +849,7 @@ begin
   fOffer[aID].IsDeleted := false;
   fOffer[aID].Ware := wt_None;
   fOffer[aID].Count := 0;
-  fPlayers.CleanUpHousePointer(fOffer[aID].Loc_House);
+  gPlayers.CleanUpHousePointer(fOffer[aID].Loc_House);
 end;
 
 
@@ -937,13 +937,13 @@ procedure TKMDeliverQueue.SyncLoad;
 var i:integer;
 begin
   for i:=1 to fOfferCount do
-    fOffer[i].Loc_House := fPlayers.GetHouseByID(cardinal(fOffer[i].Loc_House));
+    fOffer[i].Loc_House := gPlayers.GetHouseByID(cardinal(fOffer[i].Loc_House));
 
   for i:=1 to fDemandCount do
   with fDemand[i] do
   begin
-    Loc_House := fPlayers.GetHouseByID(cardinal(Loc_House));
-    Loc_Unit := fPlayers.GetUnitByID(cardinal(Loc_Unit));
+    Loc_House := gPlayers.GetHouseByID(cardinal(Loc_House));
+    Loc_Unit := gPlayers.GetUnitByID(cardinal(Loc_Unit));
   end;
 end;
 

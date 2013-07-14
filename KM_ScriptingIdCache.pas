@@ -47,7 +47,7 @@ begin
 
   //We need to release pointer if we remove unit from cache
   if fUnitCache[fUnitLastAdded].U <> nil then
-    fPlayers.CleanUpUnitPointer(fUnitCache[fUnitLastAdded].U);
+    gPlayers.CleanUpUnitPointer(fUnitCache[fUnitLastAdded].U);
 
   fUnitCache[fUnitLastAdded].ID := aID;
   //We could be asked to cache that certain ID is nil (saves us time scanning Units to find out that this Id is removed)
@@ -69,7 +69,7 @@ begin
 
   //We need to release pointer if we remove house from cache
   if fHouseCache[fHouseLastAdded].H <> nil then
-    fPlayers.CleanUpHousePointer(fHouseCache[fHouseLastAdded].H);
+    gPlayers.CleanUpHousePointer(fHouseCache[fHouseLastAdded].H);
 
   fHouseCache[fHouseLastAdded].ID := aID;
   //We could be asked to cache that certain ID is nil (saves us time scanning Houses to find out that this Id is removed)
@@ -91,7 +91,7 @@ begin
 
   //We need to release pointer if we remove group from cache
   if fGroupCache[fGroupLastAdded].G <> nil then
-    fPlayers.CleanUpGroupPointer(fGroupCache[fGroupLastAdded].G);
+    gPlayers.CleanUpGroupPointer(fGroupCache[fGroupLastAdded].G);
 
   fGroupCache[fGroupLastAdded].ID := aID;
   //We could be asked to cache that certain ID is nil (saves us time scanning Groups to find out that this Id is removed)
@@ -117,7 +117,7 @@ begin
   end;
 
   //Not found so do lookup and add it to the cache
-  Result := fPlayers.GetUnitByID(aID);
+  Result := gPlayers.GetUnitByID(aID);
   if (Result <> nil) and Result.IsDeadOrDying then
     Result := nil;
 
@@ -136,7 +136,7 @@ begin
   end;
 
   //Not found so do lookup and add it to the cache
-  Result := fPlayers.GetHouseByID(aID);
+  Result := gPlayers.GetHouseByID(aID);
   if (Result <> nil) and Result.IsDestroyed then
     Result := nil;
 
@@ -155,7 +155,7 @@ begin
   end;
 
   //Not found so do lookup and add it to the cache
-  Result := fPlayers.GetGroupByID(aID);
+  Result := gPlayers.GetGroupByID(aID);
   if (Result <> nil) and Result.IsDead then
     Result := nil;
 
@@ -173,15 +173,15 @@ begin
   begin
     for I := Low(fUnitCache) to High(fUnitCache) do
       if (fUnitCache[I].U <> nil) and fUnitCache[I].U.IsDeadOrDying then
-        fPlayers.CleanUpUnitPointer(fUnitCache[I].U);
+        gPlayers.CleanUpUnitPointer(fUnitCache[I].U);
 
     for I := Low(fHouseCache) to High(fHouseCache) do
       if (fHouseCache[I].H <> nil) and fHouseCache[I].H.IsDestroyed then
-        fPlayers.CleanUpHousePointer(fHouseCache[I].H);
+        gPlayers.CleanUpHousePointer(fHouseCache[I].H);
 
     for I := Low(fGroupCache) to High(fGroupCache) do
       if (fGroupCache[I].G <> nil) and fGroupCache[I].G.IsDead then
-        fPlayers.CleanUpGroupPointer(fGroupCache[I].G);
+        gPlayers.CleanUpGroupPointer(fGroupCache[I].G);
   end;
 end;
 

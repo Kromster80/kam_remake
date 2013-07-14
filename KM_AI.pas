@@ -119,7 +119,7 @@ procedure TKMPlayerAI.CheckGoals;
 
     Result := False;
     if aGoal.PlayerIndex <> -1 then
-      Stat := fPlayers[aGoal.PlayerIndex].Stats
+      Stat := gPlayers[aGoal.PlayerIndex].Stats
     else
       Stat := nil;
 
@@ -156,7 +156,7 @@ begin
   VictorySatisfied  := True;
   SurvivalSatisfied := True;
 
-  with fPlayers[fOwner] do
+  with gPlayers[fOwner] do
   for I := 0 to Goals.Count - 1 do
   case Goals[I].GoalType of
     glt_Victory:  begin
@@ -205,7 +205,7 @@ end;
 //aHouse is our house that was attacked
 procedure TKMPlayerAI.HouseAttackNotification(aHouse: TKMHouse; aAttacker: TKMUnitWarrior);
 begin
-  case fPlayers[fOwner].PlayerType of
+  case gPlayers[fOwner].PlayerType of
     pt_Human:
       begin
         //No fight alerts in replays, and only show alerts for ourselves
@@ -225,7 +225,7 @@ const
 var
   Group: TKMUnitGroup;
 begin
-  case fPlayers[fOwner].PlayerType of
+  case gPlayers[fOwner].PlayerType of
     pt_Human:
       //No fight alerts in replays, and only show alerts for ourselves
       if not fGame.IsReplay and (fOwner = MySpectator.PlayerIndex) then
@@ -235,7 +235,7 @@ begin
         //If we are attacked, then we should counter attack the attacker!
         if aUnit is TKMUnitWarrior then
         begin
-          Group := fPlayers[fOwner].UnitGroups.GetGroupByMember(TKMUnitWarrior(aUnit));
+          Group := gPlayers[fOwner].UnitGroups.GetGroupByMember(TKMUnitWarrior(aUnit));
           //It's ok for the group to be nil, the warrior could still be walking out of the barracks
           if (Group <> nil) and not Group.IsDead then
             //If we are already in the process of attacking something, don't change our minds,
@@ -291,7 +291,7 @@ begin
   if (aTick + Byte(fOwner)) mod MAX_PLAYERS = 0 then
     CheckGoals; //This procedure manages victory and loss
 
-  case fPlayers[fOwner].PlayerType of
+  case gPlayers[fOwner].PlayerType of
     pt_Human:     begin
                   end;
     pt_Computer:  begin

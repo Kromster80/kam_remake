@@ -164,7 +164,7 @@ begin
     if gTerrain.TileInMapCoords(Round(Target.X), Round(Target.Y)) then //Arrows may fly off map, UnitsHitTest doesn't like negative coordinates
     begin
       U := gTerrain.UnitsHitTest(Round(Target.X), Round(Target.Y));
-      if (U <> nil) and (fPlayers.CheckAlliance(aOwner,U.Owner) = at_Ally) then
+      if (U <> nil) and (gPlayers.CheckAlliance(aOwner,U.Owner) = at_Ally) then
         Target := aTarget.PositionF; //Shoot at the target's current position instead
     end;
 
@@ -277,21 +277,21 @@ begin
                               if fType = pt_Bolt then Damage := fResource.UnitDat[ut_Arbaletman].Attack;
                               if fType = pt_SlingRock then Damage := fResource.UnitDat[ut_Slingshot].Attack;
                               Damage := Damage div Math.max(fResource.UnitDat[U.UnitType].GetDefenceVsProjectiles, 1); //Max is not needed, but animals have 0 defence
-                              if (FRIENDLY_FIRE or (fPlayers.CheckAlliance(fOwner, U.Owner)= at_Enemy))
+                              if (FRIENDLY_FIRE or (gPlayers.CheckAlliance(fOwner, U.Owner)= at_Enemy))
                               and (Damage >= KaMRandom(101)) then
                                 U.HitPointsDecrease(1, fOwner);
                             end
                             else
                             begin
-                              H := fPlayers.HousesHitTest(Round(fTarget.X), Round(fTarget.Y));
+                              H := gPlayers.HousesHitTest(Round(fTarget.X), Round(fTarget.Y));
                               if (H <> nil)
-                              and (FRIENDLY_FIRE or (fPlayers.CheckAlliance(fOwner, H.Owner)= at_Enemy))
+                              and (FRIENDLY_FIRE or (gPlayers.CheckAlliance(fOwner, H.Owner)= at_Enemy))
                               then
                                 H.AddDamage(fOwner, 1);
                             end;
               pt_TowerRock: If (U <> nil) and not U.IsDeadOrDying and U.Visible
                             and not (U is TKMUnitAnimal)
-                            and (FRIENDLY_FIRE or (fPlayers.CheckAlliance(fOwner, U.Owner)= at_Enemy)) then
+                            and (FRIENDLY_FIRE or (gPlayers.CheckAlliance(fOwner, U.Owner)= at_Enemy)) then
                               U.HitPointsDecrease(U.HitPointsMax, fOwner); //Instant death
             end;
           end;

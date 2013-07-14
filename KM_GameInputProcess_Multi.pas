@@ -180,7 +180,7 @@ begin
     exit;
   end;
 
-  if (fPlayers[MySpectator.PlayerIndex].AI.WonOrLost = wol_Lost) and not (aCommand.CommandType in AllowedAfterDefeat) then
+  if (gPlayers[MySpectator.PlayerIndex].AI.WonOrLost = wol_Lost) and not (aCommand.CommandType in AllowedAfterDefeat) then
   begin
     fSoundLib.Play(sfx_CantPlace);
     Exit;
@@ -357,7 +357,7 @@ begin
   fRandomCheck[Tick].OurCheck := Cardinal(KaMRandom(maxint)); //thats our CRC (must go before commands for replay compatibility)
 
   //Execute commands, in order players go (1,2,3..)
-  for I := 0 to fPlayers.Count - 1 do
+  for I := 0 to gPlayers.Count - 1 do
     for K := 1 to fSchedule[Tick, I].Count do
     begin
       NetplayersIndex := fNetworking.NetPlayers.PlayerIndexToLocal(I);
@@ -375,7 +375,7 @@ begin
   if fNetworking.Connected then SendRandomCheck(aTick);
 
   //It is possible that we have already recieved other player's random checks, if so check them now
-  for I := 0 to fPlayers.Count-1 do
+  for I := 0 to gPlayers.Count-1 do
   begin
     NetplayersIndex := fNetworking.NetPlayers.PlayerIndexToLocal(I);
     // In the case where a player was removed from a save, NetplayersIndex = -1

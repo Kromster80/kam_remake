@@ -375,11 +375,11 @@ end;
 procedure TFormMain.Export_DeliverLists1Click(Sender: TObject);
 var I: Integer;
 begin
-  if fPlayers = nil then Exit;
+  if gPlayers = nil then Exit;
   //You could possibly cheat in multiplayer by seeing what supplies your enemy has
   if (fGameApp.Game <> nil) and (not fGameApp.Game.IsMultiplayer or MULTIPLAYER_CHEATS) then
-  for I := 0 to fPlayers.Count - 1 do
-    fPlayers[I].Deliveries.Queue.ExportToFile(ExeDir + 'Player_' + IntToStr(I) + '_Deliver_List.txt');
+  for I := 0 to gPlayers.Count - 1 do
+    gPlayers[I].Deliveries.Queue.ExportToFile(ExeDir + 'Player_' + IntToStr(I) + '_Deliver_List.txt');
 end;
 
 
@@ -390,7 +390,7 @@ begin
   or fGameApp.Game.IsMultiplayer then
     Exit;
 
-  if (fPlayers <> nil) and (RGPlayer.ItemIndex < fPlayers.Count) then
+  if (gPlayers <> nil) and (RGPlayer.ItemIndex < gPlayers.Count) then
     MySpectator.PlayerIndex := RGPlayer.ItemIndex;
 end;
 

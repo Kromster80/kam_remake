@@ -74,9 +74,9 @@ begin
     if FOWIndex = -1 then
       Result := fFogOfWar
     else
-      Result := fPlayers[FOWIndex].FogOfWar
+      Result := gPlayers[FOWIndex].FogOfWar
   else
-    Result := fPlayers[PlayerIndex].FogOfWar;
+    Result := gPlayers[PlayerIndex].FogOfWar;
 end;
 
 
@@ -95,9 +95,9 @@ end;
 function TKMSpectator.HitTest(X, Y: Integer): TObject;
 begin
   if fGame.IsReplay or fGame.IsMapEditor then
-    Result := fPlayers.HitTest(X, Y)
+    Result := gPlayers.HitTest(X, Y)
   else
-    Result := fPlayers[fPlayerIndex].HitTest(X, Y);
+    Result := gPlayers[fPlayerIndex].HitTest(X, Y);
 end;
 
 

@@ -86,8 +86,8 @@ var
   EnemyQty, SelfQty: Integer;
   PowerSum: Single;
 begin
-  SelfStats := fPlayers[fOwner].Stats;
-  EnemyStats := fPlayers[aEnemyIndex].Stats;
+  SelfStats := gPlayers[fOwner].Stats;
+  EnemyStats := gPlayers[aEnemyIndex].Stats;
 
   Eval := fEvals[aEnemyIndex];
   Eval.Power := 0;
@@ -120,9 +120,9 @@ var
 begin
   Reset;
 
-  for I := 0 to fPlayers.Count - 1 do
-  if (I <> fOwner) and fPlayers[I].Enabled
-  and (fPlayers[fOwner].Alliances[I] = at_Enemy) then
+  for I := 0 to gPlayers.Count - 1 do
+  if (I <> fOwner) and gPlayers[I].Enabled
+  and (gPlayers[fOwner].Alliances[I] = at_Enemy) then
     EvaluatePower(I);
 end;
 

@@ -156,7 +156,7 @@ end;
 //How many houses of certain type we have (assume all wip houses will be finished)
 function TKMayorBalance.HouseCount(aHouse: THouseType): Integer;
 begin
-  Result := fPlayers[fOwner].Stats.GetHouseTotal(aHouse);
+  Result := gPlayers[fOwner].Stats.GetHouseTotal(aHouse);
 end;
 
 
@@ -177,8 +177,8 @@ var
 begin
   //ArmorWorkshop is needed to produce Shields before Tannery is made
   if (aHouse = ht_ArmorWorkshop)
-  and not fPlayers[fOwner].Stats.GetCanBuild(ht_ArmorWorkshop)
-  and (fPlayers[fOwner].Stats.GetHouseTotal(ht_Tannery) = 0) then
+  and not gPlayers[fOwner].Stats.GetCanBuild(ht_ArmorWorkshop)
+  and (gPlayers[fOwner].Stats.GetHouseTotal(ht_Tannery) = 0) then
     Append(ht_Tannery);
 
   SetLength(fAdvice, Length(fAdvice) + aCount);
@@ -228,9 +228,9 @@ begin
 
 
     //Do not build extra houses if we are low on building materials
-    if (fPlayers[fOwner].Stats.GetWareBalance(wt_Stone) < 40)
-    and (fPlayers[fOwner].Stats.GetHouseQty(ht_Quary) = 0) 
-    and (fPlayers[fOwner].Stats.GetHouseWip(ht_Quary) > 1) then
+    if (gPlayers[fOwner].Stats.GetWareBalance(wt_Stone) < 40)
+    and (gPlayers[fOwner].Stats.GetHouseQty(ht_Quary) = 0)
+    and (gPlayers[fOwner].Stats.GetHouseWip(ht_Quary) > 1) then
       Break;
 
 {  if (fPlayers[fOwner].Stats.GetHouseQty(ht_Quary) = 0)
@@ -516,10 +516,10 @@ begin
     Production := Min(CoalTheory, GoldOreTheory, GoldTheory);
 
     //How much Gold do we need
-    Consumption := GoldNeed + Byte(HouseCount(ht_Barracks) > 0) * fPlayers[fOwner].AI.Setup.WarriorsPerMinute(ArmyType);
+    Consumption := GoldNeed + Byte(HouseCount(ht_Barracks) > 0) * gPlayers[fOwner].AI.Setup.WarriorsPerMinute(ArmyType);
 
     //How much reserve do we have
-    Reserve := fPlayers[fOwner].Stats.GetWareBalance(wt_Gold) / Consumption;
+    Reserve := gPlayers[fOwner].Stats.GetWareBalance(wt_Gold) / Consumption;
 
     Balance := Production - Consumption + Max(Reserve - 30, 0);
 
@@ -649,7 +649,7 @@ procedure TKMayorBalance.UpdateBalanceCore;
 var
   P: TKMPlayer;
 begin
-  P := fPlayers[fOwner];
+  P := gPlayers[fOwner];
 
   with fCore do
   begin
@@ -727,7 +727,7 @@ procedure TKMayorBalance.UpdateBalanceFood;
 var
   P: TKMPlayer;
 begin
-  P := fPlayers[fOwner];
+  P := gPlayers[fOwner];
 
   with fFood do
   begin
@@ -811,7 +811,7 @@ begin
     AppendCore;
 
     //Don't build anything if we don't have a working School
-    if fPlayers[fOwner].Stats.GetHouseQty(ht_School) = 0 then Exit;
+    if gPlayers[fOwner].Stats.GetHouseQty(ht_School) = 0 then Exit;
 
     UpdateBalanceMaterials;
     AppendMaterials;

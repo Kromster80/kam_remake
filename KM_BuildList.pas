@@ -212,7 +212,7 @@ var
 begin
   for I := 0 to fHousesCount - 1 do
   if fHouses[I].House <> nil then
-    fPlayers.CleanUpHousePointer(fHouses[I].House);
+    gPlayers.CleanUpHousePointer(fHouses[I].House);
 
   inherited;
 end;
@@ -296,7 +296,7 @@ var I: Integer;
 begin
   for I := 0 to fHousesCount - 1 do
   if (fHouses[i].House <> nil) and (fHouses[I].House.IsDestroyed or fHouses[I].House.IsComplete) and (fHouses[I].Assigned = 0) then
-      fPlayers.CleanUpHousePointer(fHouses[I].House);
+      gPlayers.CleanUpHousePointer(fHouses[I].House);
 end;
 
 
@@ -342,7 +342,7 @@ procedure TKMHouseList.SyncLoad;
 var I: Integer;
 begin
   for I := 0 to fHousesCount - 1 do
-    fHouses[i].House := fPlayers.GetHouseByID(cardinal(fHouses[I].House));
+    fHouses[i].House := gPlayers.GetHouseByID(cardinal(fHouses[I].House));
 end;
 
 
@@ -388,7 +388,7 @@ begin
   fFields[aIndex].Loc := KMPoint(0,0);
   fFields[aIndex].FieldType := ft_None;
   fFields[aIndex].JobStatus := js_Empty;
-  fPlayers.CleanUpUnitPointer(fFields[aIndex].Worker); //Will nil the worker as well
+  gPlayers.CleanUpUnitPointer(fFields[aIndex].Worker); //Will nil the worker as well
 end;
 
 
@@ -574,7 +574,7 @@ end;
 procedure TKMFieldworksList.ReOpenField(aIndex: Integer);
 begin
   fFields[aIndex].JobStatus := js_Open;
-  fPlayers.CleanUpUnitPointer(fFields[aIndex].Worker); //Will nil the worker as well
+  gPlayers.CleanUpUnitPointer(fFields[aIndex].Worker); //Will nil the worker as well
 end;
 
 
@@ -620,7 +620,7 @@ procedure TKMFieldworksList.SyncLoad;
 var I: Integer;
 begin
   for I := 0 to fFieldsCount - 1 do
-    fFields[I].Worker := fPlayers.GetUnitByID(Cardinal(fFields[I].Worker));
+    fFields[I].Worker := gPlayers.GetUnitByID(Cardinal(fFields[I].Worker));
 end;
 
 
@@ -683,7 +683,7 @@ begin
   fPlans[aIndex].HouseType := ht_None;
   fPlans[aIndex].Loc       := KMPoint(0,0);
   fPlans[aIndex].JobStatus := js_Empty;
-  fPlayers.CleanUpUnitPointer(fPlans[aIndex].Worker);
+  gPlayers.CleanUpUnitPointer(fPlans[aIndex].Worker);
 end;
 
 
@@ -782,7 +782,7 @@ end;
 //When a worker dies while walking to the task aIndex, we should allow other workers to take this task
 procedure TKMHousePlanList.ReOpenPlan(aIndex: Integer);
 begin
-  fPlayers.CleanUpUnitPointer(fPlans[aIndex].Worker);
+  gPlayers.CleanUpUnitPointer(fPlans[aIndex].Worker);
   fPlans[aIndex].JobStatus := js_Open;
 end;
 
@@ -883,7 +883,7 @@ var
   I: Integer;
 begin
   for I := 0 to fPlansCount - 1 do
-    fPlans[I].Worker := fPlayers.GetUnitByID(Cardinal(fPlans[I].Worker));
+    fPlans[I].Worker := gPlayers.GetUnitByID(Cardinal(fPlans[I].Worker));
 end;
 
 
@@ -894,7 +894,7 @@ var
 begin
   for I := 0 to fHousesCount - 1 do
   if fHouses[I].House <> nil then
-    fPlayers.CleanUpHousePointer(fHouses[I].House);
+    gPlayers.CleanUpHousePointer(fHouses[I].House);
 
   inherited;
 end;
@@ -994,7 +994,7 @@ begin
          or not fHouses[I].House.BuildingRepair
          or fHouses[I].House.IsDestroyed)
     and (fHouses[I].Assigned = 0) then
-      fPlayers.CleanUpHousePointer(fHouses[I].House);
+      gPlayers.CleanUpHousePointer(fHouses[I].House);
 end;
 
 
@@ -1041,7 +1041,7 @@ procedure TKMRepairList.SyncLoad;
 var I: Integer;
 begin
   for I := 0 to fHousesCount - 1 do
-    fHouses[I].House := fPlayers.GetHouseByID(Cardinal(fHouses[I].House));
+    fHouses[I].House := gPlayers.GetHouseByID(Cardinal(fHouses[I].House));
 end;
 
 
@@ -1066,7 +1066,7 @@ begin
   fRepairList.Free;
 
   for I := fWorkersCount - 1 downto 0 do
-    fPlayers.CleanUpUnitPointer(TKMUnit(fWorkers[I].Worker));
+    gPlayers.CleanUpUnitPointer(TKMUnit(fWorkers[I].Worker));
 
   inherited;
 end;
@@ -1085,7 +1085,7 @@ end;
 //Remove died Worker from the List
 procedure TKMBuildList.RemWorker(aIndex: Integer);
 begin
-  fPlayers.CleanUpUnitPointer(TKMUnit(fWorkers[aIndex].Worker));
+  gPlayers.CleanUpUnitPointer(TKMUnit(fWorkers[aIndex].Worker));
 
   if aIndex <> fWorkersCount - 1 then
     Move(fWorkers[aIndex+1], fWorkers[aIndex], SizeOf(fWorkers[aIndex]) * (fWorkersCount - 1 - aIndex));
@@ -1149,7 +1149,7 @@ var I: Integer; U: TKMUnit;
 begin
   for I := 0 to fWorkersCount - 1 do
   begin
-    U := fPlayers.GetUnitByID(Cardinal(fWorkers[I].Worker));
+    U := gPlayers.GetUnitByID(Cardinal(fWorkers[I].Worker));
     Assert(U is TKMUnitWorker, 'Non-worker in build list');
     fWorkers[I].Worker := TKMUnitWorker(U);
   end;

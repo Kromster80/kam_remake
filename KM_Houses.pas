@@ -356,7 +356,7 @@ end;
 procedure TKMHouse.SyncLoad;
 begin
   if fCurrentAction <> nil then
-    fCurrentAction.fHouse := fPlayers.GetHouseByID(Cardinal(fCurrentAction.fHouse));
+    fCurrentAction.fHouse := gPlayers.GetHouseByID(Cardinal(fCurrentAction.fHouse));
 end;
 
 
@@ -387,8 +387,8 @@ end;
 procedure TKMHouse.Activate(aWasBuilt: Boolean);
 var I: Integer; Res: TWareType;
 begin
-  fPlayers[fOwner].Stats.HouseCreated(fHouseType, aWasBuilt); //Only activated houses count
-  fPlayers.RevealForTeam(fOwner, fPosition, fResource.HouseDat[fHouseType].Sight, FOG_OF_WAR_MAX);
+  gPlayers[fOwner].Stats.HouseCreated(fHouseType, aWasBuilt); //Only activated houses count
+  gPlayers.RevealForTeam(fOwner, fPosition, fResource.HouseDat[fHouseType].Sight, FOG_OF_WAR_MAX);
 
   fCurrentAction := THouseAction.Create(Self, hst_Empty);
   fCurrentAction.SubActionAdd([ha_Flagpole, ha_Flag1..ha_Flag3]);
@@ -398,7 +398,7 @@ begin
   for I := 1 to 4 do
   begin
     Res := fResource.HouseDat[fHouseType].ResInput[I];
-    with fPlayers[fOwner].Deliveries.Queue do
+    with gPlayers[fOwner].Deliveries.Queue do
     case Res of
       wt_None:    ;
       wt_Warfare: AddDemand(Self, nil, Res, 1, dt_Always, diNorm);
@@ -428,17 +428,17 @@ begin
   if (fBuildState > hbs_NoGlyph) and not IsSilent then
     fSoundLib.Play(sfx_HouseDestroy, fPosition);
 
-  fPlayers[fOwner].Stats.WareConsumed(wt_Wood, fBuildSupplyWood);
-  fPlayers[fOwner].Stats.WareConsumed(wt_Stone, fBuildSupplyStone);
+  gPlayers[fOwner].Stats.WareConsumed(wt_Wood, fBuildSupplyWood);
+  gPlayers[fOwner].Stats.WareConsumed(wt_Stone, fBuildSupplyStone);
 
   for I := 1 to 4 do
   begin
     R := fResource.HouseDat[fHouseType].ResInput[I];
     if R in [WARE_MIN..WARE_MAX] then
-      fPlayers[fOwner].Stats.WareConsumed(R, fResourceIn[I]);
+      gPlayers[fOwner].Stats.WareConsumed(R, fResourceIn[I]);
     R := fResource.HouseDat[fHouseType].ResOutput[I];
     if R in [WARE_MIN..WARE_MAX] then
-      fPlayers[fOwner].Stats.WareConsumed(R, fResourceOut[I]);
+      gPlayers[fOwner].Stats.WareConsumed(R, fResourceOut[I]);
   end;
 
   gTerrain.SetHouse(fPosition, fHouseType, hsNone, -1);
@@ -473,7 +473,7 @@ begin
   //We have to remove the house THEN check to see if we can place it again so we can put it on the old position
   gTerrain.SetHouse(fPosition, fHouseType, hsNone, -1);
   gTerrain.RemRoad(GetEntrance);
-  if fPlayers[MySpectator.PlayerIndex].CanAddHousePlan(aPos, HouseType) then
+  if gPlayers[MySpectator.PlayerIndex].CanAddHousePlan(aPos, HouseType) then
   begin
     fPosition.X := aPos.X - fResource.HouseDat[fHouseType].EntranceOffsetX;
     fPosition.Y := aPos.Y;
@@ -670,12 +670,12 @@ begin
   if (fBuildState=hbs_Stone) and (fBuildingProgress-fResource.HouseDat[fHouseType].WoodCost*50 = fResource.HouseDat[fHouseType].StoneCost*50) then
   begin
     fBuildState := hbs_Done;
-    fPlayers[fOwner].Stats.HouseEnded(fHouseType);
+    gPlayers[fOwner].Stats.HouseEnded(fHouseType);
     Activate(True);
     fScripting.ProcHouseBuilt(Self);
     //House was damaged while under construction, so set the repair mode now it is complete
     if (fDamage > 0) and BuildingRepair then
-      fPlayers[fOwner].BuildList.RepairList.AddHouse(Self);
+      gPlayers[fOwner].BuildList.RepairList.AddHouse(Self);
   end;
 end;
 
@@ -706,7 +706,7 @@ begin
   if IsComplete then
   begin
     if BuildingRepair then
-      fPlayers[fOwner].BuildList.RepairList.AddHouse(Self);
+      gPlayers[fOwner].BuildList.RepairList.AddHouse(Self);
 
     //Update fire if the house is complete
     UpdateDamage;
@@ -751,7 +751,7 @@ begin
   if fBuildingRepair then
   begin
     if IsComplete and IsDamaged and not IsDestroyed then
-      fPlayers[fOwner].BuildList.RepairList.AddHouse(Self);
+      gPlayers[fOwner].BuildList.RepairList.AddHouse(Self);
   end
   else
     //Worker checks on house and will cancel the walk if Repair is turned off
@@ -961,7 +961,7 @@ begin
     if aFromScript then
     begin
       Inc(fResourceDeliveryCount[I], aCount);
-      OrdersRemoved := fPlayers[fOwner].Deliveries.Queue.TryRemoveDemand(Self, aWare, aCount);
+      OrdersRemoved := gPlayers[fOwner].Deliveries.Queue.TryRemoveDemand(Self, aWare, aCount);
       Dec(fResourceDeliveryCount[I], OrdersRemoved);
     end;
   end;
@@ -976,7 +976,7 @@ begin
   if aWare = fResource.HouseDat[fHouseType].ResOutput[I] then
     begin
       inc(fResourceOut[I], aCount);
-      fPlayers[fOwner].Deliveries.Queue.AddOffer(Self, aWare, aCount);
+      gPlayers[fOwner].Deliveries.Queue.AddOffer(Self, aWare, aCount);
     end;
 end;
 
@@ -1018,7 +1018,7 @@ begin
     for K := 1 to aCount do
       if fResourceDeliveryCount[I] < GetResDistribution(I) then
       begin
-        fPlayers[fOwner].Deliveries.Queue.AddDemand(Self, nil, aWare, 1, dt_Once, diNorm);
+        gPlayers[fOwner].Deliveries.Queue.AddDemand(Self, nil, aWare, 1, dt_Once, diNorm);
         Inc(fResourceDeliveryCount[I]);
       end;
     Exit;
@@ -1043,7 +1043,7 @@ end;
 
 function TKMHouse.GetResDistribution(aID: Byte): Byte;
 begin
-  Result := fPlayers[fOwner].Stats.Ratio[fResource.HouseDat[fHouseType].ResInput[aID],fHouseType];
+  Result := gPlayers[fOwner].Stats.Ratio[fResource.HouseDat[fHouseType].ResInput[aID],fHouseType];
 end;
 
 
@@ -1182,7 +1182,7 @@ begin
   //FlagAnimStep is a sort of counter to reveal terrain once a sec
   if DYNAMIC_FOG_OF_WAR then
   if FlagAnimStep mod 10 = 0 then
-    fPlayers.RevealForTeam(fOwner, fPosition, fResource.HouseDat[fHouseType].Sight, FOG_OF_WAR_INC);
+    gPlayers.RevealForTeam(fOwner, fPosition, fResource.HouseDat[fHouseType].Sight, FOG_OF_WAR_INC);
 end;
 
 
@@ -1204,7 +1204,7 @@ begin
       if fResourceDeliveryCount[I] < GetResDistribution(I) then
       begin
         Count := GetResDistribution(I)-fResourceDeliveryCount[I];
-        fPlayers[fOwner].Deliveries.Queue.AddDemand(
+        gPlayers[fOwner].Deliveries.Queue.AddDemand(
           Self, nil, fResource.HouseDat[fHouseType].ResInput[I], Count, dt_Once, diNorm);
 
         inc(fResourceDeliveryCount[I], Count);
@@ -1214,7 +1214,7 @@ begin
       if fResourceDeliveryCount[I] > GetResDistribution(I) then
       begin
         Excess := fResourceDeliveryCount[I]-GetResDistribution(I);
-        Count := fPlayers[fOwner].Deliveries.Queue.TryRemoveDemand(
+        Count := gPlayers[fOwner].Deliveries.Queue.TryRemoveDemand(
                    Self, fResource.HouseDat[fHouseType].ResInput[I], Excess);
 
         dec(fResourceDeliveryCount[I], Count); //Only reduce it by the number that were actually removed
@@ -1237,7 +1237,7 @@ begin
     if fTimeSinceUnoccupiedReminder = 0 then
     begin
       //Hide messages for wrong player, in replays, and if we have lost
-      if (fOwner = MySpectator.PlayerIndex) and not fGame.IsReplay and (fPlayers[fOwner].AI.WonOrLost <> wol_Lost) then
+      if (fOwner = MySpectator.PlayerIndex) and not fGame.IsReplay and (gPlayers[fOwner].AI.WonOrLost <> wol_Lost) then
       begin
         //HouseName := fResource.HouseDat[HouseType].HouseName;
         //We can't paste houses name instead of %s like that because of plurals and feminine/masculine attrib
@@ -1283,7 +1283,7 @@ begin
                       fRenderPool.AddHouse(fHouseType, fPosition, 1, 1, 0);
                     fRenderPool.AddHouseSupply(fHouseType, fPosition, fResourceIn, fResourceOut);
                     if fCurrentAction <> nil then
-                      fRenderPool.AddHouseWork(fHouseType, fPosition, fCurrentAction.SubAction, WorkAnimStep, fPlayers[fOwner].FlagColor);
+                      fRenderPool.AddHouseWork(fHouseType, fPosition, fCurrentAction.SubAction, WorkAnimStep, gPlayers[fOwner].FlagColor);
                   end
                   else
                     fRenderPool.AddHouse(fHouseType, fPosition,
@@ -1366,7 +1366,7 @@ begin
   if fCurrentAction<>nil then
     fRenderPool.AddHouseWork(fHouseType, fPosition,
                             fCurrentAction.SubAction * [ha_Work1, ha_Work2, ha_Work3, ha_Work4, ha_Work5],
-                            WorkAnimStep, fPlayers[fOwner].FlagColor);
+                            WorkAnimStep, gPlayers[fOwner].FlagColor);
 end;
 
 
@@ -1475,7 +1475,7 @@ begin
     fRenderPool.AddHouseEater(fPosition, Eater[i].UnitType, ua_Eat,
                               AnimDir(i), AnimStep,
                               OffX[(i-1) mod 3], OffY[(i-1) mod 3],
-                              fPlayers[fOwner].FlagColor);
+                              gPlayers[fOwner].FlagColor);
   end;
 end;
 
@@ -1504,7 +1504,7 @@ end;
 procedure TKMHouseSchool.SyncLoad;
 begin
   Inherited;
-  UnitWIP := fPlayers.GetUnitByID(Cardinal(UnitWIP));
+  UnitWIP := gPlayers.GetUnitByID(Cardinal(UnitWIP));
 end;
 
 
@@ -1591,7 +1591,7 @@ begin
   Queue[High(Queue)] := ut_None; //Set the last one empty
 
   //Create the Unit
-  UnitWIP := fPlayers[fOwner].TrainUnit(Queue[0], GetEntrance);
+  UnitWIP := gPlayers[fOwner].TrainUnit(Queue[0], GetEntrance);
   TKMUnit(UnitWIP).TrainInHouse(Self); //Let the unit start the training task
 
   WorkAnimStep := 0;
@@ -1606,7 +1606,7 @@ begin
   UnitWIP := nil;
   Queue[0] := ut_None; //Clear the unit in training
   ResTakeFromIn(wt_Gold); //Do the goldtaking
-  fPlayers[fOwner].Stats.WareConsumed(wt_Gold);
+  gPlayers[fOwner].Stats.WareConsumed(wt_Gold);
   fHideOneGold := False;
   fTrainProgress := 0;
 
@@ -1662,7 +1662,7 @@ begin
   inherited;
   //A new storehouse should inherrit the accept properies of the first storehouse of that player,
   //which stops a sudden flow of unwanted resources to it as soon as it is create.
-  FirstStore := TKMHouseStore(fPlayers[fOwner].FindHouse(ht_Store, 1));
+  FirstStore := TKMHouseStore(gPlayers[fOwner].FindHouse(ht_Store, 1));
   if (FirstStore <> nil) and not FirstStore.IsDestroyed then
     for RT := WARE_MIN to WARE_MAX do
       NotAcceptFlag[RT] := FirstStore.NotAcceptFlag[RT];
@@ -1683,12 +1683,12 @@ begin
   case aWare of
     wt_All:     for R := Low(ResourceCount) to High(ResourceCount) do begin
                   ResourceCount[R] := EnsureRange(ResourceCount[R]+aCount, 0, High(Word));
-                  fPlayers[fOwner].Deliveries.Queue.AddOffer(Self, R, aCount);
+                  gPlayers[fOwner].Deliveries.Queue.AddOffer(Self, R, aCount);
                 end;
     WARE_MIN..
     WARE_MAX:   begin
                   ResourceCount[aWare]:=EnsureRange(ResourceCount[aWare]+aCount, 0, High(Word));
-                  fPlayers[fOwner].Deliveries.Queue.AddOffer(Self,aWare,aCount);
+                  gPlayers[fOwner].Deliveries.Queue.AddOffer(Self,aWare,aCount);
                 end;
     else        raise ELocError.Create('Cant''t add '+fResource.Wares[aWare].Title, GetPosition);
   end;
@@ -1718,7 +1718,7 @@ var
   R: TWareType;
 begin
   for R := WARE_MIN to WARE_MAX do
-    fPlayers[fOwner].Stats.WareConsumed(R, ResourceCount[R]);
+    gPlayers[fOwner].Stats.WareConsumed(R, ResourceCount[R]);
 
   inherited;
 end;
@@ -1761,7 +1761,7 @@ begin
     case aRes of
       wt_Arbalet: begin
                     ResAddToIn(wt_All, 10);
-                    fPlayers[fOwner].Stats.WareProduced(wt_All, 10);
+                    gPlayers[fOwner].Stats.WareProduced(wt_All, 10);
                     Exit;
                   end;
       wt_Horse:   if not fGame.IsMultiplayer then

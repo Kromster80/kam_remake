@@ -65,7 +65,7 @@ var
 begin
   //Count resources as lost
   for R := WARE_MIN to WARE_MAX do
-    fPlayers[fOwner].Stats.WareConsumed(R, fMarketResIn[R] + fMarketResOut[R]);
+    gPlayers[fOwner].Stats.WareConsumed(R, fMarketResIn[R] + fMarketResOut[R]);
 
   inherited;
 end;
@@ -133,14 +133,14 @@ begin
     if ResRequired > 0 then
     begin
       inc(fMarketDeliveryCount[aResource], Min(aCount, ResRequired));
-      fPlayers[fOwner].Deliveries.Queue.AddDemand(Self, nil, fResFrom, Min(aCount, ResRequired), dt_Once, diNorm);
+      gPlayers[fOwner].Deliveries.Queue.AddDemand(Self, nil, fResFrom, Min(aCount, ResRequired), dt_Once, diNorm);
     end;
     AttemptExchange;
   end
   else
   begin
     inc(fMarketResOut[aResource], aCount); //Place the new resource in the OUT list
-    fPlayers[fOwner].Deliveries.Queue.AddOffer(Self, aResource, aCount);
+    gPlayers[fOwner].Deliveries.Queue.AddOffer(Self, aResource, aCount);
   end;
 end;
 
@@ -163,11 +163,11 @@ begin
     TradeCount := Min((fMarketResIn[fResFrom] div RatioFrom), fTradeAmount);
 
     Dec(fMarketResIn[fResFrom], TradeCount * RatioFrom);
-    fPlayers[fOwner].Stats.WareConsumed(fResFrom, TradeCount * RatioFrom);
+    gPlayers[fOwner].Stats.WareConsumed(fResFrom, TradeCount * RatioFrom);
     Dec(fTradeAmount, TradeCount);
     Inc(fMarketResOut[fResTo], TradeCount * RatioTo);
-    fPlayers[fOwner].Stats.WareProduced(fResTo, TradeCount * RatioTo);
-    fPlayers[fOwner].Deliveries.Queue.AddOffer(Self, fResTo, TradeCount * RatioTo);
+    gPlayers[fOwner].Stats.WareProduced(fResTo, TradeCount * RatioTo);
+    gPlayers[fOwner].Deliveries.Queue.AddOffer(Self, fResTo, TradeCount * RatioTo);
 
     fSoundLib.Play(sfxn_Trade, fPosition);
   end;
@@ -184,7 +184,7 @@ end;
 
 function TKMHouseMarket.AllowedToTrade(aRes: TWareType): Boolean;
 begin
-  Result := fPlayers[fOwner].Stats.AllowToTrade[aRes];
+  Result := gPlayers[fOwner].Stats.AllowToTrade[aRes];
 end;
 
 
@@ -235,7 +235,7 @@ begin
   if (fTradeAmount = 0) and (fMarketResIn[fResFrom] > 0) then
   begin
     inc(fMarketResOut[fResFrom], fMarketResIn[fResFrom]);
-    fPlayers[fOwner].Deliveries.Queue.AddOffer(Self, fResFrom, fMarketResIn[fResFrom]);
+    gPlayers[fOwner].Deliveries.Queue.AddOffer(Self, fResFrom, fMarketResIn[fResFrom]);
     fMarketResIn[fResFrom] := 0;
   end;
 
@@ -256,13 +256,13 @@ begin
   if (ResRequired > 0) and (OrdersAllowed > 0) then
   begin
     inc(fMarketDeliveryCount[fResFrom], Min(ResRequired,OrdersAllowed));
-    fPlayers[fOwner].Deliveries.Queue.AddDemand(Self, nil, fResFrom, Min(ResRequired,OrdersAllowed), dt_Once, diNorm)
+    gPlayers[fOwner].Deliveries.Queue.AddDemand(Self, nil, fResFrom, Min(ResRequired,OrdersAllowed), dt_Once, diNorm)
   end
   else
     //There are too many resources ordered, so remove as many as we can from the delivery list (some will be being performed)
     if (ResRequired < 0) then
     begin
-      OrdersRemoved := fPlayers[fOwner].Deliveries.Queue.TryRemoveDemand(Self, fResFrom, -ResRequired);
+      OrdersRemoved := gPlayers[fOwner].Deliveries.Queue.TryRemoveDemand(Self, fResFrom, -ResRequired);
       dec(fMarketDeliveryCount[fResFrom], OrdersRemoved);
     end;
 end;

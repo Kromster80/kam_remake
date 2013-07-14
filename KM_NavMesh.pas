@@ -322,7 +322,7 @@ begin
   if not AI_GEN_NAVMESH then Exit;
 
   for I := 0 to fNodeCount - 1 do
-    for K := 0 to fPlayers.Count - 1 do
+    for K := 0 to gPlayers.Count - 1 do
       fNodes[I].Owner[K] := Min(255, Max(
         Max(fInfluences.Ownership[K, Max(fNodes[I].Loc.Y, 1), Max(fNodes[I].Loc.X, 1)],
             fInfluences.Ownership[K, Max(fNodes[I].Loc.Y, 1), Min(fNodes[I].Loc.X+1, gTerrain.MapX - 1)]),
@@ -339,7 +339,7 @@ var
 begin
   Best := 0;
   Result := PLAYER_NONE;
-  for I := 0 to fPlayers.Count - 1 do
+  for I := 0 to gPlayers.Count - 1 do
   if fNodes[aIndex].Owner[I] > Best then
   begin
     Best := fNodes[aIndex].Owner[I];
@@ -352,8 +352,8 @@ function TKMNavMesh.NodeEnemyPresence(aIndex: Integer; aOwner: TPlayerIndex): Wo
 var I: Integer;
 begin
   Result := 0;
-  for I := 0 to fPlayers.Count - 1 do
-  if (I <> aOwner) and (fPlayers.CheckAlliance(aOwner, I) = at_Enemy) then
+  for I := 0 to gPlayers.Count - 1 do
+  if (I <> aOwner) and (gPlayers.CheckAlliance(aOwner, I) = at_Enemy) then
     Result := Result + fNodes[aIndex].Owner[I];
 end;
 
@@ -362,8 +362,8 @@ function TKMNavMesh.PolyEnemyPresence(aIndex: Integer; aOwner: TPlayerIndex): Wo
 var I: Integer;
 begin
   Result := 0;
-  for I := 0 to fPlayers.Count - 1 do
-  if (I <> aOwner) and (fPlayers.CheckAlliance(aOwner, I) = at_Enemy) then
+  for I := 0 to gPlayers.Count - 1 do
+  if (I <> aOwner) and (gPlayers.CheckAlliance(aOwner, I) = at_Enemy) then
     Result := Result + (fNodes[fPolygons[aIndex].Indices[0]].Owner[I]
                       + fNodes[fPolygons[aIndex].Indices[1]].Owner[I]
                       + fNodes[fPolygons[aIndex].Indices[2]].Owner[I]) div 3;
@@ -730,7 +730,7 @@ begin
 
   //Defence outlines
   if OVERLAY_DEFENCES then
-    for I := 0 to fPlayers.Count - 1 do
+    for I := 0 to gPlayers.Count - 1 do
     begin
       GetDefenceOutline(I, Outline1, Outline2);
 

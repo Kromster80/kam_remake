@@ -290,8 +290,8 @@ begin
         GetHome.SetState(hst_Work); //Set house to Work state
         if WorkPlan.Resource1 <> wt_None then GetHome.ResTakeFromIn(WorkPlan.Resource1, WorkPlan.Count1);
         if WorkPlan.Resource2 <> wt_None then GetHome.ResTakeFromIn(WorkPlan.Resource2, WorkPlan.Count2);
-        fPlayers[fUnit.Owner].Stats.WareConsumed(WorkPlan.Resource1, WorkPlan.Count1);
-        fPlayers[fUnit.Owner].Stats.WareConsumed(WorkPlan.Resource2, WorkPlan.Count2);
+        gPlayers[fUnit.Owner].Stats.WareConsumed(WorkPlan.Resource1, WorkPlan.Count1);
+        gPlayers[fUnit.Owner].Stats.WareConsumed(WorkPlan.Resource2, WorkPlan.Count2);
         GetHome.fCurrentAction.SubActionAdd([ha_Smoke]);
         if WorkPlan.GatheringScript = gs_SwineBreeder then
         begin //Swines get feed and taken immediately
@@ -347,8 +347,8 @@ begin
           begin
             GetHome.ResAddToOut(WorkPlan.Product1,WorkPlan.ProdCount1);
             GetHome.ResAddToOut(WorkPlan.Product2,WorkPlan.ProdCount2);
-            fPlayers[fUnit.Owner].Stats.WareProduced(WorkPlan.Product1,WorkPlan.ProdCount1);
-            fPlayers[fUnit.Owner].Stats.WareProduced(WorkPlan.Product2,WorkPlan.ProdCount2);
+            gPlayers[fUnit.Owner].Stats.WareProduced(WorkPlan.Product1,WorkPlan.ProdCount1);
+            gPlayers[fUnit.Owner].Stats.WareProduced(WorkPlan.Product2,WorkPlan.ProdCount2);
           end;
 
           GetHome.SetState(hst_Idle);

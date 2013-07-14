@@ -36,8 +36,8 @@ begin
   fSoundLib := TSoundLib.Create(0, False);
   gTerrain := TKMTerrain.Create;
   gTerrain.MakeNewMap(32, 32, False);
-  fPlayers := TKMPlayersCollection.Create;
-  fPlayers.AddPlayers(1);
+  gPlayers := TKMPlayersCollection.Create;
+  gPlayers.AddPlayers(1);
   MySpectator := TKMSpectator.Create(0);
 
   fUnit := TKMUnit.Create(0, ut_Serf, KMPoint(8, 10), 0);
@@ -49,7 +49,7 @@ end;
 procedure TestTUnitActionGoInOut.TearDown;
 begin
   FUnitActionGoInOut.Free;
-  fPlayers.Free;
+  gPlayers.Free;
   gTerrain.Free;
   fSoundLib.Free;
   fResource.Free;

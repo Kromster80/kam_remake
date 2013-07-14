@@ -84,7 +84,7 @@ begin
   if not AI_GEN_INFLUENCE_MAPS then Exit;
 
   Best := 0;
-  for I := 0 to fPlayers.Count - 1 do
+  for I := 0 to gPlayers.Count - 1 do
   if Ownership[I,Y,X] > Best then
   begin
     Best := Ownership[I,Y,X];
@@ -101,13 +101,13 @@ begin
   fMapY := gTerrain.MapY;
   SetLength(AvoidBuilding, fMapY, fMapX);
   SetLength(Ownable, fMapY, fMapX);
-  SetLength(fInfluence, fPlayers.Count * fMapY * fMapX);
-  SetLength(fOwnership, fPlayers.Count * fMapY * fMapX);
+  SetLength(fInfluence, gPlayers.Count * fMapY * fMapX);
+  SetLength(fOwnership, gPlayers.Count * fMapY * fMapX);
   InitInfluenceAvoid;
   InitInfluenceOwnable;
 
   if AI_GEN_INFLUENCE_MAPS then
-  for I := 0 to fPlayers.Count - 1 do
+  for I := 0 to gPlayers.Count - 1 do
   begin
     UpdateDirectInfluence(I);
     UpdateOwnershipInfluence(I);
@@ -162,9 +162,9 @@ begin
    AvoidBuilding[I,K] := AvoidBuilding[I,K] or (Byte(gTerrain.TileIsCoal(K, I) > 1) * $FF);
 
   //Leave free space around all players Stores
-  for J := 0 to fPlayers.Count - 1 do
+  for J := 0 to gPlayers.Count - 1 do
   begin
-    S := fPlayers[J].FindHouse(ht_Store);
+    S := gPlayers[J].FindHouse(ht_Store);
     if S <> nil then
     for I := Max(S.GetEntrance.Y - 4, 1) to Min(S.GetEntrance.Y + 2, fMapY - 1) do
     for K := Max(S.GetEntrance.X - 3, 1) to Min(S.GetEntrance.X + 3, fMapX - 1) do
@@ -222,7 +222,7 @@ begin
     Influence[aIndex, I, K] := 0;
 
   //Sync tile ownership
-  PlayerHouses := fPlayers[aIndex].Houses;
+  PlayerHouses := gPlayers[aIndex].Houses;
   for I := 0 to PlayerHouses.Count - 1 do
   if not PlayerHouses[I].IsDestroyed and (PlayerHouses[I].HouseType <> ht_WatchTower) then
   begin
@@ -249,8 +249,8 @@ begin
     T := Influence[aIndex, I, K];
     if T <> 0 then
     begin
-      for H := 0 to fPlayers.Count - 1 do
-      if (H <> aIndex) and (fPlayers[aIndex].Alliances[H] = at_Enemy) then
+      for H := 0 to gPlayers.Count - 1 do
+      if (H <> aIndex) and (gPlayers[aIndex].Alliances[H] = at_Enemy) then
         T := T - Influence[H, I, K] div INFLUENCE_ENEMY_DIV;
 
       Ownership[aIndex, I, K] := Max(T, 0);
@@ -269,7 +269,7 @@ procedure TKMInfluences.ExportInfluenceMaps;
 var
   I, J, K: Integer;
 begin
-  for J := 0 to fPlayers.Count - 1 do
+  for J := 0 to gPlayers.Count - 1 do
   with TBitmap.Create do
   begin
     Width := fMapX;
@@ -281,7 +281,7 @@ begin
     SaveToFile(ExeDir + 'Export\Influence map Player'+IntToStr(J) + '.bmp');
   end;
 
-  for J := 0 to fPlayers.Count - 1 do
+  for J := 0 to gPlayers.Count - 1 do
   with TBitmap.Create do
   begin
     Width := fMapX;
@@ -300,7 +300,7 @@ var
   PCount: Word;
   K: Integer;
 begin
-  PCount := fPlayers.Count;
+  PCount := gPlayers.Count;
 
   SaveStream.Write('Influences');
 
@@ -353,7 +353,7 @@ begin
   //Update one player every 15 sec
   if aTick mod 150 = 15 then
   begin
-    fUpdatePlayerId := (fUpdatePlayerId + 1) mod fPlayers.Count;
+    fUpdatePlayerId := (fUpdatePlayerId + 1) mod gPlayers.Count;
 
     UpdateDirectInfluence(fUpdatePlayerId);
     UpdateOwnershipInfluence(fUpdatePlayerId);
@@ -376,7 +376,7 @@ begin
       Col := $80000000;
       J := GetBestOwner(K,I);
       if J <> PLAYER_NONE then
-        Col := (fPlayers[J].FlagColor and $FFFFFF) or (Influence[J,I,K] shl 24);
+        Col := (gPlayers[J].FlagColor and $FFFFFF) or (Influence[J,I,K] shl 24);
       fRenderAux.Quad(K, I, Col);
     end;
 
@@ -387,7 +387,7 @@ begin
       Col := $80000000;
       J := GetBestOwner(K,I);
       if J <> PLAYER_NONE then
-        Col := (fPlayers[J].FlagColor and $FFFFFF)
+        Col := (gPlayers[J].FlagColor and $FFFFFF)
                 or (Ownership[J,I,K] shl 24)
                 or ((Byte(InRange(Ownership[J,I,K], OWN_THRESHOLD, OWN_MARGIN)) * 255) shl 24);
       fRenderAux.Quad(K, I, Col);

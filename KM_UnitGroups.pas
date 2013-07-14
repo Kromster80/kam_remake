@@ -233,7 +233,7 @@ begin
   if fGame.IsMapEditor then
   begin
     //In MapEd we create only flagholder, other members are virtual
-    Warrior := TKMUnitWarrior(fPlayers[aOwner].AddUnit(aUnitType, KMPoint(PosX, PosY), False));
+    Warrior := TKMUnitWarrior(gPlayers[aOwner].AddUnit(aUnitType, KMPoint(PosX, PosY), False));
     if Warrior <> nil then
     begin
       Warrior.Direction := aDir;
@@ -252,7 +252,7 @@ begin
       UnitLoc := GetPositionInGroup2(PosX, PosY, aDir, I, aUnitPerRow, gTerrain.MapX, gTerrain.MapY, DoesFit);
       if not DoesFit then Continue;
 
-      Warrior := TKMUnitWarrior(fPlayers[aOwner].AddUnit(aUnitType, UnitLoc, True, DesiredArea));
+      Warrior := TKMUnitWarrior(gPlayers[aOwner].AddUnit(aUnitType, UnitLoc, True, DesiredArea));
       if Warrior = nil then Continue;
 
       Warrior.Direction := aDir;
@@ -314,17 +314,17 @@ begin
   //Assign event handlers after load
   for I := 0 to Count - 1 do
   begin
-    fMembers[I] := TKMUnitWarrior(fPlayers.GetUnitByID(Cardinal(fMembers[I])));
+    fMembers[I] := TKMUnitWarrior(gPlayers.GetUnitByID(Cardinal(fMembers[I])));
     Members[I].OnWarriorDied := Member_Died;
     Members[I].OnPickedFight := Member_PickedFight;
   end;
 
   for I := 0 to fOffenders.Count - 1 do
-    fOffenders[I] := TKMUnitWarrior(fPlayers.GetUnitByID(Cardinal(TKMUnitWarrior(fOffenders[I]))));
+    fOffenders[I] := TKMUnitWarrior(gPlayers.GetUnitByID(Cardinal(TKMUnitWarrior(fOffenders[I]))));
 
-  fOrderTargetGroup := fPlayers.GetGroupByID(Cardinal(fOrderTargetGroup));
-  fOrderTargetHouse := fPlayers.GetHouseByID(Cardinal(fOrderTargetHouse));
-  fOrderTargetUnit  := fPlayers.GetUnitByID(Cardinal(fOrderTargetUnit));
+  fOrderTargetGroup := gPlayers.GetGroupByID(Cardinal(fOrderTargetGroup));
+  fOrderTargetHouse := gPlayers.GetHouseByID(Cardinal(fOrderTargetHouse));
+  fOrderTargetUnit  := gPlayers.GetUnitByID(Cardinal(fOrderTargetUnit));
 end;
 
 
@@ -615,7 +615,7 @@ begin
       fMembers.Exchange(NewSel, 0);
   end;
 
-  fPlayers.CleanUpUnitPointer(TKMUnit(aMember));
+  gPlayers.CleanUpUnitPointer(TKMUnit(aMember));
 
   SetUnitsPerRow(fUnitsPerRow);
 
@@ -650,7 +650,7 @@ begin
   if TKMUnitWarrior(fOffenders[I]).IsDeadOrDying then
   begin
     U := fOffenders[I]; //Need to pass var
-    fPlayers.CleanUpUnitPointer(U);
+    gPlayers.CleanUpUnitPointer(U);
     fOffenders.Delete(I);
     if fOffenders.Count = 0 then
       OrderRepeat;
@@ -1016,7 +1016,7 @@ begin
   begin
     U := Members[0];
     aTargetGroup.AddMember(Members[0]);
-    fPlayers.CleanUpUnitPointer(U);
+    gPlayers.CleanUpUnitPointer(U);
     fMembers.Delete(0);
   end;
 
@@ -1096,7 +1096,7 @@ begin
   NewLeader.ReleaseUnitPointer;
   fMembers.Remove(NewLeader);
 
-  NewGroup := fPlayers[Owner].UnitGroups.AddGroup(NewLeader);
+  NewGroup := gPlayers[Owner].UnitGroups.AddGroup(NewLeader);
   NewGroup.OnGroupDied := OnGroupDied;
 
   //Split by UnitTypes or by Count (make NewGroup half or smaller half)
@@ -1105,7 +1105,7 @@ begin
   or (not MultipleTypes and (Count > NewGroup.Count + 1)) then
   begin
     U := Members[I];
-    fPlayers.CleanUpUnitPointer(U);
+    gPlayers.CleanUpUnitPointer(U);
     NewGroup.AddMember(Members[I], 1); // Join new group (insert next to commander)
     fMembers.Delete(I); // Leave this group
   end;
@@ -1149,7 +1149,7 @@ begin
   for I := fMembers.Count - 1 downto fMembers.Count - aCount do
   begin
     U := Members[I];
-    fPlayers.CleanUpUnitPointer(U);
+    gPlayers.CleanUpUnitPointer(U);
     aGroup.AddMember(Members[I]);
     fMembers.Delete(I);
   end;
@@ -1259,7 +1259,7 @@ begin
     if fTimeSinceHungryReminder < 1 then
     begin
       //Hide messages for wrong player, in replays, and if we have lost
-      if (Owner = MySpectator.PlayerIndex) and not fGame.IsReplay and (fPlayers[fOwner].AI.WonOrLost <> wol_Lost) then
+      if (Owner = MySpectator.PlayerIndex) and not fGame.IsReplay and (gPlayers[fOwner].AI.WonOrLost <> wol_Lost) then
         fGame.ShowMessage(mkUnit, fTextMain[TX_MSG_TROOP_HUNGRY], Position);
       fTimeSinceHungryReminder := TIME_BETWEEN_MESSAGES; //Don't show one again until it is time
     end;
@@ -1272,9 +1272,9 @@ end;
 procedure TKMUnitGroup.ClearOrderTarget;
 begin
   //Set fOrderTargets to nil, removing pointer if it's still valid
-  fPlayers.CleanUpUnitPointer(fOrderTargetUnit);
-  fPlayers.CleanUpGroupPointer(fOrderTargetGroup);
-  fPlayers.CleanUpHousePointer(fOrderTargetHouse);
+  gPlayers.CleanUpUnitPointer(fOrderTargetUnit);
+  gPlayers.CleanUpGroupPointer(fOrderTargetGroup);
+  gPlayers.CleanUpHousePointer(fOrderTargetHouse);
 end;
 
 
@@ -1284,7 +1284,7 @@ begin
   for I := fOffenders.Count - 1 downto 0 do
   begin
     U := fOffenders[I]; //Need to pass variable
-    fPlayers.CleanUpUnitPointer(U);
+    gPlayers.CleanUpUnitPointer(U);
   end;
   fOffenders.Clear;
 end;
@@ -1334,7 +1334,7 @@ function TKMUnitGroup.GetOrderTargetUnit: TKMUnit;
 begin
   //If the target unit has died then clear it
   if (fOrderTargetUnit <> nil) and fOrderTargetUnit.IsDeadOrDying then
-    fPlayers.CleanUpUnitPointer(fOrderTargetUnit);
+    gPlayers.CleanUpUnitPointer(fOrderTargetUnit);
 
   Result := fOrderTargetUnit;
 end;
@@ -1344,7 +1344,7 @@ function TKMUnitGroup.GetOrderTargetGroup: TKMUnitGroup;
 begin
   //If the target group has died then clear it
   if (fOrderTargetGroup <> nil) and fOrderTargetGroup.IsDead then
-    fPlayers.CleanUpGroupPointer(fOrderTargetGroup);
+    gPlayers.CleanUpGroupPointer(fOrderTargetGroup);
 
   Result := fOrderTargetGroup;
 end;
@@ -1368,7 +1368,7 @@ begin
     fOrderTargetUnit := aUnit.GetUnitPointer; //Else it will be nil from ClearOrderTarget
     if (aUnit is TKMUnitWarrior) and not IsRanged then
     begin
-      G := fPlayers[aUnit.Owner].UnitGroups.GetGroupByMember(TKMUnitWarrior(aUnit));
+      G := gPlayers[aUnit.Owner].UnitGroups.GetGroupByMember(TKMUnitWarrior(aUnit));
       //Target warrior won't have a group while he's walking out of the barracks
       if G <> nil then
         fOrderTargetGroup := G.GetGroupPointer;
@@ -1423,7 +1423,7 @@ begin
   UnitPos.Y := FlagCarrier.PositionF.Y + UNIT_OFF_Y + FlagCarrier.GetSlide(ax_Y);
 
   //Highlight selected group
-  FlagColor := fPlayers[FlagCarrier.Owner].FlagColor;
+  FlagColor := gPlayers[FlagCarrier.Owner].FlagColor;
   if MySpectator.Selected = Self then
     //If base color is brighter than $FFFF40 then use black highlight
     if (FlagColor and $FF) + (FlagColor shr 8 and $FF) + (FlagColor shr 16 and $FF) > $240 then
@@ -1451,7 +1451,7 @@ begin
     if not DoesFit then Continue; //Don't render units that are off the map in the map editor
     UnitPos.X := NewPos.X + UNIT_OFF_X; //MapEd units don't have sliding
     UnitPos.Y := NewPos.Y + UNIT_OFF_Y;
-    fRenderPool.AddUnit(FlagCarrier.UnitType, ua_Walk, fOrderLoc.Dir, UnitStillFrames[fOrderLoc.Dir], UnitPos.X, UnitPos.Y, fPlayers[FlagCarrier.Owner].FlagColor, True);
+    fRenderPool.AddUnit(FlagCarrier.UnitType, ua_Walk, fOrderLoc.Dir, UnitStillFrames[fOrderLoc.Dir], UnitPos.X, UnitPos.Y, gPlayers[FlagCarrier.Owner].FlagColor, True);
   end;
 end;
 
@@ -1544,13 +1544,13 @@ var
 begin
   Result := nil; //Makes compiler happy
 
-  case fPlayers[aUnit.Owner].PlayerType of
+  case gPlayers[aUnit.Owner].PlayerType of
     pt_Human:    begin
                    LinkUnit := aUnit.FindLinkUnit(aUnit.GetPosition);
                    if LinkUnit <> nil then
                    begin
                      //Link to other group
-                     Result := fPlayers[aUnit.Owner].UnitGroups.GetGroupByMember(LinkUnit);
+                     Result := gPlayers[aUnit.Owner].UnitGroups.GetGroupByMember(LinkUnit);
                      Result.AddMember(aUnit);
                      Result.OrderRepeat;
                    end

@@ -254,7 +254,7 @@ var
 begin
   //NOTE: MySpectator.PlayerIndex should not be used for important stuff here, use P instead (commands must be executed the same for all players)
   IsSilent := (aCommand.PlayerIndex <> MySpectator.PlayerIndex);
-  P := fPlayers[aCommand.PlayerIndex];
+  P := gPlayers[aCommand.PlayerIndex];
   SrcGroup := nil;
   TgtGroup := nil;
   SrcHouse := nil;
@@ -269,21 +269,21 @@ begin
                        gic_ArmyWalk, gic_ArmyStorm]
     then
     begin
-      SrcGroup := fPlayers.GetGroupByID(Params[1]);
+      SrcGroup := gPlayers.GetGroupByID(Params[1]);
       if (SrcGroup = nil) or SrcGroup.IsDead //Group has died before command could be executed
       or (SrcGroup.Owner <> aCommand.PlayerIndex) then //Potential exploit
         Exit;
     end;
     if CommandType in [gic_ArmyLink] then
     begin
-      TgtGroup := fPlayers.GetGroupByID(Params[2]);
+      TgtGroup := gPlayers.GetGroupByID(Params[2]);
       if (TgtGroup = nil) or TgtGroup.IsDead //Unit has died before command could be executed
       or (TgtGroup.Owner <> aCommand.PlayerIndex) then //Potential exploit
         Exit;
     end;
     if CommandType in [gic_ArmyAttackUnit] then
     begin
-      TgtUnit := fPlayers.GetUnitByID(Params[2]);
+      TgtUnit := gPlayers.GetUnitByID(Params[2]);
       if (TgtUnit = nil) or TgtUnit.IsDeadOrDying then //Unit has died before command could be executed
         Exit;
     end;
@@ -292,14 +292,14 @@ begin
       gic_HouseStoreAcceptFlag, gic_HouseBarracksAcceptFlag, gic_HouseBarracksEquip,
       gic_HouseSchoolTrain, gic_HouseRemoveTrain, gic_HouseWoodcutterMode] then
     begin
-      SrcHouse := fPlayers.GetHouseByID(Params[1]);
+      SrcHouse := gPlayers.GetHouseByID(Params[1]);
       if (SrcHouse = nil) or SrcHouse.IsDestroyed //House has been destroyed before command could be executed
       or (SrcHouse.Owner <> aCommand.PlayerIndex) then //Potential exploit
         Exit;
     end;
     if CommandType in [gic_ArmyAttackHouse] then
     begin
-      TgtHouse := fPlayers.GetHouseByID(Params[2]);
+      TgtHouse := gPlayers.GetHouseByID(Params[2]);
       if (TgtHouse = nil) or TgtHouse.IsDestroyed then Exit; //House has been destroyed before command could be executed
     end;
 
@@ -371,7 +371,7 @@ begin
                                   end;
       gic_GameAlertBeacon:        if fReplayState = gipRecording then //Beacons don't show up in replay
                                     //Beacons are only for allies
-                                    if fPlayers.CheckAlliance(Params[3], MySpectator.PlayerIndex) = at_Ally then
+                                    if gPlayers.CheckAlliance(Params[3], MySpectator.PlayerIndex) = at_Ally then
                                       fGame.Alerts.AddBeacon(KMPointF(Params[1]/10,Params[2]/10), Params[3]);
       else                        Assert(false);
     end;
@@ -429,7 +429,7 @@ begin
   //Must go before TakeCommand as it could execute command immediately (in singleplayer)
   //and the fake markup must be added first otherwise our logic in FieldsList fails
   if fGame.IsMultiplayer and (aCommandType = gic_BuildRemoveFieldPlan) then
-    fPlayers[MySpectator.PlayerIndex].RemFakeFieldPlan(aLoc);
+    gPlayers[MySpectator.PlayerIndex].RemFakeFieldPlan(aLoc);
 
   TakeCommand(MakeCommand(aCommandType, [aLoc.X, aLoc.Y]));
 end;
@@ -443,7 +443,7 @@ begin
   //Must go before TakeCommand as it could execute command immediately (in singleplayer)
   //and the fake markup must be added first otherwise our logic in FieldsList fails
   if fGame.IsMultiplayer then
-    fPlayers[MySpectator.PlayerIndex].ToggleFakeFieldPlan(aLoc, aFieldType);
+    gPlayers[MySpectator.PlayerIndex].ToggleFakeFieldPlan(aLoc, aFieldType);
 
   TakeCommand(MakeCommand(aCommandType, [aLoc.X, aLoc.Y, Byte(aFieldType)]));
 end;

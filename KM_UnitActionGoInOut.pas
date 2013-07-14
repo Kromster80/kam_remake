@@ -85,8 +85,8 @@ end;
 procedure TUnitActionGoInOut.SyncLoad;
 begin
   inherited;
-  fHouse := fPlayers.GetHouseByID(cardinal(fHouse));
-  fPushedUnit := fPlayers.GetUnitByID(cardinal(fPushedUnit));
+  fHouse := gPlayers.GetHouseByID(cardinal(fHouse));
+  fPushedUnit := gPlayers.GetUnitByID(cardinal(fPushedUnit));
 end;
 
 
@@ -95,8 +95,8 @@ begin
   if fUsedDoorway then
     DecDoorway;
 
-  fPlayers.CleanUpHousePointer(fHouse);
-  fPlayers.CleanUpUnitPointer(fPushedUnit);
+  gPlayers.CleanUpHousePointer(fHouse);
+  gPlayers.CleanUpUnitPointer(fPushedUnit);
 
   //A bug can occur because this action is destroyed early when a unit is told to die.
   //If we are still invisible then TTaskDie assumes we are inside and creates a new
@@ -210,7 +210,7 @@ begin
     if (U <> nil)
     and (U.GetUnitAction is TUnitActionStay)
     and not TUnitActionStay(U.GetUnitAction).Locked
-    and (fPlayers.CheckAlliance(U.Owner, fUnit.Owner) = at_Ally) then
+    and (gPlayers.CheckAlliance(U.Owner, fUnit.Owner) = at_Ally) then
       Result := U;
   end;
 end;
@@ -305,7 +305,7 @@ begin
     if (U = nil) then //Unit has walked away
     begin
       fWaitingForPush := False;
-      fPlayers.CleanUpUnitPointer(fPushedUnit);
+      gPlayers.CleanUpUnitPointer(fPushedUnit);
       WalkOut;
     end
     else
@@ -316,7 +316,7 @@ begin
       begin
         fHasStarted := False;
         fWaitingForPush := False;
-        fPlayers.CleanUpUnitPointer(fPushedUnit);
+        gPlayers.CleanUpUnitPointer(fPushedUnit);
       end;
       Exit;
     end;

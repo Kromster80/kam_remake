@@ -65,7 +65,7 @@ type
   end;
 
 var
-  fPlayers: TKMPlayersCollection;
+  gPlayers: TKMPlayersCollection;
   MySpectator: TKMSpectator; //Wrap to access player/fow separately
 
 

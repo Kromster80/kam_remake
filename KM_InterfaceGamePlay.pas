@@ -444,12 +444,12 @@ begin
   begin
     HT := ResRatioHouse[RatioTab, i];
     //Do not allow player to see blocked house (never able to build). Though house may be prebuilt and blocked
-    if (not fPlayers[MySpectator.PlayerIndex].Stats.HouseBlocked[HT])
-    or (fPlayers[MySpectator.PlayerIndex].Stats.GetHouseQty(HT) > 0) then
+    if (not gPlayers[MySpectator.PlayerIndex].Stats.HouseBlocked[HT])
+    or (gPlayers[MySpectator.PlayerIndex].Stats.GetHouseQty(HT) > 0) then
     begin
       Image_RatioPic[i].TexID := fResource.HouseDat[HT].GUIIcon;
       TrackBar_RatioRat[i].Caption := fResource.HouseDat[HT].HouseName;
-      TrackBar_RatioRat[i].Position := fPlayers[MySpectator.PlayerIndex].Stats.Ratio[ResRatioType[RatioTab], HT];
+      TrackBar_RatioRat[i].Position := gPlayers[MySpectator.PlayerIndex].Stats.Ratio[ResRatioType[RatioTab], HT];
       TrackBar_RatioRat[i].Enable;
     end else begin
       Image_RatioPic[i].TexID := 41; //Question mark
@@ -2102,7 +2102,7 @@ begin
   Image_House_Logo.TexID    := fResource.HouseDat[Sender.HouseType].GUIIcon;
   Image_House_Worker.TexID  := fResource.UnitDat[fResource.HouseDat[Sender.HouseType].OwnerType].GUIIcon;
   Image_House_Worker.Hint   := fResource.UnitDat[fResource.HouseDat[Sender.HouseType].OwnerType].GUIName;
-  Image_House_Worker.FlagColor := fPlayers[Sender.Owner].FlagColor;
+  Image_House_Worker.FlagColor := gPlayers[Sender.Owner].FlagColor;
   HealthBar_House.Caption   := inttostr(round(Sender.GetHealth))+'/'+inttostr(fResource.HouseDat[Sender.HouseType].MaxHealth);
   HealthBar_House.Position  := Sender.GetHealth / fResource.HouseDat[Sender.HouseType].MaxHealth;
 
@@ -2179,12 +2179,12 @@ begin
     ht_School:
         begin
           ResRow_School_Resource.ResourceCount := Sender.CheckResIn(wt_Gold) - byte(TKMHouseSchool(Sender).HideOneGold);
-          Button_School_UnitWIP.FlagColor := fPlayers[Sender.Owner].FlagColor;
+          Button_School_UnitWIP.FlagColor := gPlayers[Sender.Owner].FlagColor;
           for I := 1 to 5 do
-            Button_School_UnitPlan[I].FlagColor := fPlayers[Sender.Owner].FlagColor;
-          Image_School_Left.FlagColor  := fPlayers[Sender.Owner].FlagColor;
-          Image_School_Right.FlagColor := fPlayers[Sender.Owner].FlagColor;
-          Image_School_Train.FlagColor := fPlayers[Sender.Owner].FlagColor;
+            Button_School_UnitPlan[I].FlagColor := gPlayers[Sender.Owner].FlagColor;
+          Image_School_Left.FlagColor  := gPlayers[Sender.Owner].FlagColor;
+          Image_School_Right.FlagColor := gPlayers[Sender.Owner].FlagColor;
+          Image_School_Train.FlagColor := gPlayers[Sender.Owner].FlagColor;
           House_SchoolUnitChange(nil, mbLeft);
           SwitchPage(Panel_House_School);
         end;
@@ -2336,7 +2336,7 @@ begin
   //Common properties
   Label_UnitName.Caption      := fResource.UnitDat[Sender.UnitType].GUIName;
   Image_UnitPic.TexID         := fResource.UnitDat[Sender.UnitType].GUIScroll;
-  Image_UnitPic.FlagColor     := fPlayers[Sender.Owner].FlagColor;
+  Image_UnitPic.FlagColor     := gPlayers[Sender.Owner].FlagColor;
   ConditionBar_Unit.Position  := Sender.Condition / UNIT_MAX_CONDITION;
   Label_UnitTask.Caption      := Sender.GetActivityText;
 
@@ -2368,7 +2368,7 @@ begin
   //Common properties
   Label_UnitName.Caption      := fResource.UnitDat[W.UnitType].GUIName;
   Image_UnitPic.TexID         := fResource.UnitDat[W.UnitType].GUIScroll;
-  Image_UnitPic.FlagColor     := fPlayers[W.Owner].FlagColor;
+  Image_UnitPic.FlagColor     := gPlayers[W.Owner].FlagColor;
   ConditionBar_Unit.Position  := W.Condition / UNIT_MAX_CONDITION;
   //We show what this individual is doing, not the whole group. However this can be useful for debugging: Sender.GetOrderText
   Label_UnitTask.Caption      := W.GetWarriorActivityText(Sender.IsAttackingUnit);
@@ -2510,10 +2510,10 @@ begin
 
   //Update graphics owner color
   Image_House_Worker.Enable; //In the barrack the recruit icon is always enabled
-  Image_Barracks_Left.FlagColor := fPlayers[Barracks.Owner].FlagColor;
-  Image_Barracks_Right.FlagColor := fPlayers[Barracks.Owner].FlagColor;
-  Image_Barracks_Train.FlagColor := fPlayers[Barracks.Owner].FlagColor;
-  Button_BarracksRecruit.FlagColor := fPlayers[Barracks.Owner].FlagColor;
+  Image_Barracks_Left.FlagColor := gPlayers[Barracks.Owner].FlagColor;
+  Image_Barracks_Right.FlagColor := gPlayers[Barracks.Owner].FlagColor;
+  Image_Barracks_Train.FlagColor := gPlayers[Barracks.Owner].FlagColor;
+  Button_BarracksRecruit.FlagColor := gPlayers[Barracks.Owner].FlagColor;
 
   //Supply
   for I := 1 to BARRACKS_RES_COUNT do
@@ -2833,7 +2833,7 @@ var I: Integer;
 begin
   for I := 1 to GUI_HOUSE_COUNT do
   if GUIHouseOrder[I] <> ht_None then
-  if fPlayers[MySpectator.PlayerIndex].Stats.GetCanBuild(GUIHouseOrder[I]) then
+  if gPlayers[MySpectator.PlayerIndex].Stats.GetCanBuild(GUIHouseOrder[I]) then
   begin
     Button_Build[I].Enable;
     Button_Build[I].TexID := fResource.HouseDat[GUIHouseOrder[I]].GUIIcon;
@@ -3085,7 +3085,7 @@ begin
   fGame.Viewport.Position := KMPointF(Msg.Loc);
 
   //Try to highlight the house in question
-  H := fPlayers.HousesHitTest(Msg.Loc.X, Msg.Loc.Y);
+  H := gPlayers.HousesHitTest(Msg.Loc.X, Msg.Loc.Y);
   if H <> nil then
     MySpectator.Highlight := H;
 
@@ -3337,11 +3337,11 @@ begin
   if StatPlan[I].HouseType[K] <> ht_None then
   begin
     HT := StatPlan[I].HouseType[K];
-    Tmp := fPlayers[MySpectator.PlayerIndex].Stats.GetHouseQty(HT);
-    Tmp2 := fPlayers[MySpectator.PlayerIndex].Stats.GetHouseWip(HT);
+    Tmp := gPlayers[MySpectator.PlayerIndex].Stats.GetHouseQty(HT);
+    Tmp2 := gPlayers[MySpectator.PlayerIndex].Stats.GetHouseWip(HT);
     Stat_HouseQty[HT].Caption := IfThen(Tmp  = 0, '-', IntToStr(Tmp));
     Stat_HouseWip[HT].Caption := IfThen(Tmp2 = 0, '', '+' + IntToStr(Tmp2));
-    if fPlayers[MySpectator.PlayerIndex].Stats.GetCanBuild(HT) or (Tmp > 0) then
+    if gPlayers[MySpectator.PlayerIndex].Stats.GetCanBuild(HT) or (Tmp > 0) then
     begin
       Stat_HousePic[HT].TexID := fResource.HouseDat[HT].GUIIcon;
       Stat_HousePic[HT].Hint := fResource.HouseDat[HT].HouseName;
@@ -3355,12 +3355,12 @@ begin
 
   for UT := CITIZEN_MIN to CITIZEN_MAX do
   begin
-    Tmp := fPlayers[MySpectator.PlayerIndex].Stats.GetUnitQty(UT);
+    Tmp := gPlayers[MySpectator.PlayerIndex].Stats.GetUnitQty(UT);
     Tmp2 := 0;//fPlayers[MySpectator.PlayerIndex].Stats.GetUnitWip(UT);
     Stat_UnitQty[UT].Caption := IfThen(Tmp  = 0, '-', IntToStr(Tmp));
     Stat_UnitWip[UT].Caption := IfThen(Tmp2 = 0, '', '+' + IntToStr(Tmp2));
     Stat_UnitPic[UT].Hint := fResource.UnitDat[UT].GUIName;
-    Stat_UnitPic[UT].FlagColor := fPlayers[MySpectator.PlayerIndex].FlagColor;
+    Stat_UnitPic[UT].FlagColor := gPlayers[MySpectator.PlayerIndex].FlagColor;
   end;
 end;
 
@@ -3422,9 +3422,9 @@ begin
   begin
     Dropbox_ReplayFOW.Clear;
     Dropbox_ReplayFOW.Add(fTextMain[TX_REPLAY_SHOW_ALL], -1);
-    for I := 0 to fPlayers.Count - 1 do
-    if fPlayers[I].Enabled and (fPlayers[I].PlayerType = pt_Human) then
-        Dropbox_ReplayFOW.Add('[$' + IntToHex(FlagColorToTextColor(fPlayers[I].FlagColor) and $00FFFFFF, 6) + ']' + fPlayers[I].GetFormattedPlayerName, I);
+    for I := 0 to gPlayers.Count - 1 do
+    if gPlayers[I].Enabled and (gPlayers[I].PlayerType = pt_Human) then
+        Dropbox_ReplayFOW.Add('[$' + IntToHex(FlagColorToTextColor(gPlayers[I].FlagColor) and $00FFFFFF, 6) + ']' + gPlayers[I].GetFormattedPlayerName, I);
     Dropbox_ReplayFOW.ItemIndex := 0;
   end;
 end;
@@ -3655,7 +3655,7 @@ end;
 
 function TKMGamePlayInterface.HasLostMPGame:Boolean;
 begin
-  Result := fMultiplayer and (fPlayers[MySpectator.PlayerIndex].AI.WonOrLost = wol_Lost);
+  Result := fMultiplayer and (gPlayers[MySpectator.PlayerIndex].AI.WonOrLost = wol_Lost);
 end;
 
 
@@ -3696,7 +3696,7 @@ begin
   if fSelection[Key] <> -1 then
   begin
     OldSelected := MySpectator.Selected;
-    MySpectator.Selected := fPlayers.GetUnitByID(fSelection[Key]);
+    MySpectator.Selected := gPlayers.GetUnitByID(fSelection[Key]);
     if MySpectator.Selected <> nil then
     begin
       if TKMUnit(MySpectator.Selected).IsDeadOrDying then
@@ -3712,7 +3712,7 @@ begin
     end
     else
     begin
-      MySpectator.Selected := fPlayers.GetHouseByID(fSelection[Key]);
+      MySpectator.Selected := gPlayers.GetHouseByID(fSelection[Key]);
       if MySpectator.Selected <> nil then
       begin
         if TKMHouse(MySpectator.Selected).IsDestroyed then
@@ -3726,7 +3726,7 @@ begin
       end
       else
       begin
-        MySpectator.Selected := fPlayers.GetGroupByID(fSelection[Key]);
+        MySpectator.Selected := gPlayers.GetGroupByID(fSelection[Key]);
         if (MySpectator.Selected = nil) or TKMUnitGroup(MySpectator.Selected).IsDead then
         begin
           MySpectator.Selected := nil; //Don't select dead groups
@@ -3791,7 +3791,7 @@ begin
     end;
 
     Label_AlliesPlayer[I].Caption := fGame.Networking.NetPlayers[I+1].Nikname;
-    Label_AlliesPlayer[I].FontColor := fPlayers[fGame.Networking.NetPlayers[I+1].StartLocation - 1].FlagColor;
+    Label_AlliesPlayer[I].FontColor := gPlayers[fGame.Networking.NetPlayers[I+1].StartLocation - 1].FlagColor;
     DropBox_AlliesTeam[I].ItemIndex := fGame.Networking.NetPlayers[I+1].Team;
     //Strikethrough for disconnected players
     Image_AlliesFlag[I].Enabled := not fGame.Networking.NetPlayers[I+1].Dropped;
@@ -3863,7 +3863,7 @@ begin
       //Update it immediately so there's no 300ms lag after pressing the key
       fTeamNames.Clear;
       Rect := fGame.Viewport.GetMinimapClip;
-      fPlayers.GetUnitsInRect(Rect, fTeamNames);
+      gPlayers.GetUnitsInRect(Rect, fTeamNames);
     end;
   end;
 end;
@@ -4021,9 +4021,9 @@ begin
     if Group.Owner = MySpectator.PlayerIndex then
     begin
       U := gTerrain.UnitsHitTest(GameCursor.Cell.X, GameCursor.Cell.Y);
-      H := fPlayers.HousesHitTest(GameCursor.Cell.X, GameCursor.Cell.Y);
-      if ((U = nil) or U.IsDeadOrDying or (fPlayers.CheckAlliance(MySpectator.PlayerIndex, U.Owner) = at_Ally)) and
-         ((H = nil) or (fPlayers.CheckAlliance(MySpectator.PlayerIndex, H.Owner) = at_Ally)) then
+      H := gPlayers.HousesHitTest(GameCursor.Cell.X, GameCursor.Cell.Y);
+      if ((U = nil) or U.IsDeadOrDying or (gPlayers.CheckAlliance(MySpectator.PlayerIndex, U.Owner) = at_Ally)) and
+         ((H = nil) or (gPlayers.CheckAlliance(MySpectator.PlayerIndex, H.Owner) = at_Ally)) then
       begin
         if Group.CanWalkTo(GameCursor.Cell, 0) then
         begin
@@ -4125,32 +4125,32 @@ begin
   if ssLeft in Shift then //Only allow placing of roads etc. with the left mouse button
   begin
     P := GameCursor.Cell; //Get cursor position tile-wise
-    if fPlayers[MySpectator.PlayerIndex].FogOfWar.CheckTileRevelation(P.X, P.Y) > 0 then
+    if gPlayers[MySpectator.PlayerIndex].FogOfWar.CheckTileRevelation(P.X, P.Y) > 0 then
     case GameCursor.Mode of
-      cmRoad:  if fPlayers[MySpectator.PlayerIndex].CanAddFakeFieldPlan(P, ft_Road) and not KMSamePoint(LastDragPoint, P) then
+      cmRoad:  if gPlayers[MySpectator.PlayerIndex].CanAddFakeFieldPlan(P, ft_Road) and not KMSamePoint(LastDragPoint, P) then
                 begin
                   fGame.GameInputProcess.CmdBuild(gic_BuildAddFieldPlan, P, ft_Road);
                   LastDragPoint := GameCursor.Cell;
                 end;
-      cmField: if fPlayers[MySpectator.PlayerIndex].CanAddFakeFieldPlan(P, ft_Corn) and not KMSamePoint(LastDragPoint, P) then
+      cmField: if gPlayers[MySpectator.PlayerIndex].CanAddFakeFieldPlan(P, ft_Corn) and not KMSamePoint(LastDragPoint, P) then
                 begin
                   fGame.GameInputProcess.CmdBuild(gic_BuildAddFieldPlan, P, ft_Corn);
                   LastDragPoint := GameCursor.Cell;
                 end;
-      cmWine:  if fPlayers[MySpectator.PlayerIndex].CanAddFakeFieldPlan(P, ft_Wine) and not KMSamePoint(LastDragPoint, P) then
+      cmWine:  if gPlayers[MySpectator.PlayerIndex].CanAddFakeFieldPlan(P, ft_Wine) and not KMSamePoint(LastDragPoint, P) then
                 begin
                   fGame.GameInputProcess.CmdBuild(gic_BuildAddFieldPlan, P, ft_Wine);
                   LastDragPoint := GameCursor.Cell;
                 end;
       cmErase: if not KMSamePoint(LastDragPoint, P) then
                 begin
-                  if fPlayers[MySpectator.PlayerIndex].BuildList.HousePlanList.HasPlan(P) then
+                  if gPlayers[MySpectator.PlayerIndex].BuildList.HousePlanList.HasPlan(P) then
                   begin
                     fGame.GameInputProcess.CmdBuild(gic_BuildRemoveHousePlan, P);
                     LastDragPoint := GameCursor.Cell;
                   end
                   else
-                    if (fPlayers[MySpectator.PlayerIndex].BuildList.FieldworksList.HasFakeField(P) <> ft_None) then
+                    if (gPlayers[MySpectator.PlayerIndex].BuildList.FieldworksList.HasFakeField(P) <> ft_None) then
                     begin
                       fGame.GameInputProcess.CmdBuild(gic_BuildRemoveFieldPlan, P); //Remove any plans
                       LastDragPoint := GameCursor.Cell;
@@ -4194,9 +4194,9 @@ begin
   and (MySpectator.FogOfWar.CheckTileRevelation(GameCursor.Cell.X, GameCursor.Cell.Y) > 0) then
   begin
     U := gTerrain.UnitsHitTest (GameCursor.Cell.X, GameCursor.Cell.Y);
-    H := fPlayers.HousesHitTest(GameCursor.Cell.X, GameCursor.Cell.Y);
-    if ((U <> nil) and (not U.IsDeadOrDying) and (fPlayers.CheckAlliance(MySpectator.PlayerIndex, U.Owner) = at_Enemy)) or
-       ((H <> nil) and (fPlayers.CheckAlliance(MySpectator.PlayerIndex, H.Owner) = at_Enemy)) then
+    H := gPlayers.HousesHitTest(GameCursor.Cell.X, GameCursor.Cell.Y);
+    if ((U <> nil) and (not U.IsDeadOrDying) and (gPlayers.CheckAlliance(MySpectator.PlayerIndex, U.Owner) = at_Enemy)) or
+       ((H <> nil) and (gPlayers.CheckAlliance(MySpectator.PlayerIndex, H.Owner) = at_Enemy)) then
       fResource.Cursors.Cursor := kmc_Attack
     else
       if not fGame.Viewport.Scrolling then
@@ -4254,13 +4254,13 @@ begin
         if fJoiningGroups and (MySpectator.Selected is TKMUnitGroup) then
         begin
           Group := TKMUnitGroup(MySpectator.Selected);
-          U := fPlayers[MySpectator.PlayerIndex].UnitsHitTest(P.X, P.Y); //Scan only teammates
+          U := gPlayers[MySpectator.PlayerIndex].UnitsHitTest(P.X, P.Y); //Scan only teammates
           if (U is TKMUnitWarrior)
           and not U.IsDeadOrDying
           and not Group.HasMember(U)
           and (Group.GroupType = UnitGroups[U.UnitType]) then
           begin
-            Group2 := fPlayers[MySpectator.PlayerIndex].UnitGroups.GetGroupByMember(TKMUnitWarrior(U));
+            Group2 := gPlayers[MySpectator.PlayerIndex].UnitGroups.GetGroupByMember(TKMUnitWarrior(U));
             //Warrior might not have a group yet if he's still walking out of the barracks
             if Group2 <> nil then
             begin
@@ -4341,7 +4341,7 @@ begin
               fGame.GameInputProcess.CmdBuild(gic_BuildAddFieldPlan, P, ft_Wall);
 
             cmHouses:
-              if fPlayers[MySpectator.PlayerIndex].CanAddHousePlan(P, THouseType(GameCursor.Tag1)) then
+              if gPlayers[MySpectator.PlayerIndex].CanAddHousePlan(P, THouseType(GameCursor.Tag1)) then
               begin
                 fGame.GameInputProcess.CmdBuild(gic_BuildHousePlan, P,
                   THouseType(GameCursor.Tag1));
@@ -4352,7 +4352,7 @@ begin
             cmErase:
               if KMSamePoint(LastDragPoint, KMPoint(0,0)) then
               begin
-                H := fPlayers[MySpectator.PlayerIndex].HousesHitTest(P.X, P.Y);
+                H := gPlayers[MySpectator.PlayerIndex].HousesHitTest(P.X, P.Y);
                 //Ask wherever player wants to destroy own house (don't ask about houses that are not started, they are removed below)
                 if H <> nil then
                 begin
@@ -4363,10 +4363,10 @@ begin
                 else
                 begin
                   //Now remove houses that are not started
-                  if fPlayers[MySpectator.PlayerIndex].BuildList.HousePlanList.HasPlan(P) then
+                  if gPlayers[MySpectator.PlayerIndex].BuildList.HousePlanList.HasPlan(P) then
                     fGame.GameInputProcess.CmdBuild(gic_BuildRemoveHousePlan, P)
                   else
-                    if fPlayers[MySpectator.PlayerIndex].BuildList.FieldworksList.HasFakeField(P) <> ft_None then
+                    if gPlayers[MySpectator.PlayerIndex].BuildList.FieldworksList.HasFakeField(P) <> ft_None then
                       fGame.GameInputProcess.CmdBuild(gic_BuildRemoveFieldPlan, P) //Remove plans
                     else
                       fSoundLib.Play(sfx_CantPlace, P, False, 4); //Otherwise there is nothing to erase
@@ -4400,16 +4400,16 @@ begin
             //Try to Attack unit
             U := gTerrain.UnitsHitTest(P.X, P.Y);
             if (U <> nil) and not U.IsDeadOrDying
-            and (fPlayers.CheckAlliance(MySpectator.PlayerIndex, U.Owner) = at_Enemy) then
+            and (gPlayers.CheckAlliance(MySpectator.PlayerIndex, U.Owner) = at_Enemy) then
             begin
               fGame.GameInputProcess.CmdArmy(gic_ArmyAttackUnit, Group, U);
               fSoundLib.PlayWarrior(Group.UnitType, sp_Attack);
             end
             else
             begin //If there's no unit - try to Attack house
-              H := fPlayers.HousesHitTest(P.X, P.Y);
+              H := gPlayers.HousesHitTest(P.X, P.Y);
               if (H <> nil) and not H.IsDestroyed
-              and (fPlayers.CheckAlliance(MySpectator.PlayerIndex, H.Owner) = at_Enemy) then
+              and (gPlayers.CheckAlliance(MySpectator.PlayerIndex, H.Owner) = at_Enemy) then
               begin
                 fGame.GameInputProcess.CmdArmy(gic_ArmyAttackHouse, Group, H);
                 fSoundLib.PlayWarrior(Group.UnitType, sp_Attack);
@@ -4554,7 +4554,7 @@ begin
     if fGame.ShowTeamNames then
     begin
       Rect := fGame.Viewport.GetMinimapClip;
-      fPlayers.GetUnitsInRect(Rect, fTeamNames);
+      gPlayers.GetUnitsInRect(Rect, fTeamNames);
     end;
   end;
 
@@ -4572,13 +4572,13 @@ begin
 
   //Debug info
   if SHOW_SPRITE_COUNT then
-    S := IntToStr(fPlayers.UnitCount) + ' units on map|' +
+    S := IntToStr(gPlayers.UnitCount) + ' units on map|' +
          IntToStr(fRenderPool.RenderList.Stat_Sprites) + '/' +
          IntToStr(fRenderPool.RenderList.Stat_Sprites2) + ' sprites/rendered|' +
          IntToStr(CtrlPaintCount) + ' controls rendered|';
 
   if SHOW_POINTER_COUNT then
-    S := S + Format('Pointers: %d units, %d houses|', [fPlayers[MySpectator.PlayerIndex].Units.GetTotalPointers, fPlayers[MySpectator.PlayerIndex].Houses.GetTotalPointers]);
+    S := S + Format('Pointers: %d units, %d houses|', [gPlayers[MySpectator.PlayerIndex].Units.GetTotalPointers, gPlayers[MySpectator.PlayerIndex].Houses.GetTotalPointers]);
 
   if SHOW_CMDQUEUE_COUNT then
     S := S + IntToStr(fGame.GameInputProcess.Count) + ' commands stored|';
@@ -4591,12 +4591,12 @@ begin
 
   //Temporary inteface (by @Crow)
   if SHOW_ARMYEVALS then
-    for I := 0 to fPlayers.Count - 1 do
+    for I := 0 to gPlayers.Count - 1 do
     if I <> MySpectator.PlayerIndex then
-      S := S + Format('Enemy %d: %f|', [I, RoundTo(fPlayers[MySpectator.PlayerIndex].ArmyEval.Evaluations[I].Power, -3)]);
+      S := S + Format('Enemy %d: %f|', [I, RoundTo(gPlayers[MySpectator.PlayerIndex].ArmyEval.Evaluations[I].Power, -3)]);
 
   if SHOW_AI_WARE_BALANCE then
-    S := S + fPlayers[MySpectator.PlayerIndex].AI.Mayor.BalanceText + '|';
+    S := S + gPlayers[MySpectator.PlayerIndex].AI.Mayor.BalanceText + '|';
 
   Label_DebugInfo.Caption := S;
 end;
@@ -4618,8 +4618,8 @@ begin
       U := TKMUnit(fTeamNames[I]);
       if U.Visible and (MySpectator.FogOfWar.CheckRevelation(U.PositionF) > FOG_OF_WAR_MIN) then
       begin
-        Label_TeamName.Caption := fPlayers[U.Owner].PlayerName;
-        Label_TeamName.FontColor := FlagColorToTextColor(fPlayers[U.Owner].FlagColor);
+        Label_TeamName.Caption := gPlayers[U.Owner].PlayerName;
+        Label_TeamName.FontColor := FlagColorToTextColor(gPlayers[U.Owner].FlagColor);
 
         UnitLoc := U.PositionF;
         UnitLoc.X := UnitLoc.X - 0.5;

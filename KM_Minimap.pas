@@ -202,7 +202,7 @@ begin
     begin
       Owner := fAIFields.Influences.GetBestOwner(K,I);
       if Owner <> PLAYER_NONE then
-        fBase[I*fMapX + K] := ApplyBrightness(fPlayers[Owner].FlagColor, Byte(Max(fAIFields.Influences.Ownership[Owner,I,K],0)))
+        fBase[I*fMapX + K] := ApplyBrightness(gPlayers[Owner].FlagColor, Byte(Max(fAIFields.Influences.Ownership[Owner,I,K],0)))
       else
         fBase[I*fMapX + K] := $FF000000;
     end;
@@ -218,13 +218,13 @@ begin
       fBase[I*fMapX + K] := $FF000000
     else
       if fMyTerrain.Land[I+1,K+1].TileOwner <> -1 then
-        fBase[I*fMapX + K] := fPlayers[fMyTerrain.Land[I+1,K+1].TileOwner].FlagColor
+        fBase[I*fMapX + K] := gPlayers[fMyTerrain.Land[I+1,K+1].TileOwner].FlagColor
       else
       begin
         U := fMyTerrain.Land[I+1,K+1].IsUnit;
         if U <> nil then
           if U.Owner <> PLAYER_ANIMAL then
-            fBase[I*fMapX + K] := fPlayers[U.Owner].FlagColor
+            fBase[I*fMapX + K] := gPlayers[U.Owner].FlagColor
           else
             fBase[I*fMapX + K] := fResource.UnitDat[U.UnitType].MinimapColor
         else
@@ -240,16 +240,16 @@ begin
 
   //Scan all players units and paint all virtual group members in MapEd
   if fIsMapEditor then
-    for I := 0 to fPlayers.Count - 1 do
-    for K := 0 to fPlayers[I].UnitGroups.Count - 1 do
+    for I := 0 to gPlayers.Count - 1 do
+    for K := 0 to gPlayers[I].UnitGroups.Count - 1 do
     begin
-      Group := fPlayers[I].UnitGroups[K];
+      Group := gPlayers[I].UnitGroups[K];
       for J := 1 to Group.MapEdCount - 1 do
       begin
         //GetPositionInGroup2 operates with 1..N terrain, while Minimap uses 0..N-1, hence the +1 -1 fixes
         P := GetPositionInGroup2(Group.Position.X, Group.Position.Y, Group.Direction, J, Group.UnitsPerRow, fMapX+1, fMapY+1, DoesFit);
         if not DoesFit then Continue; //Don't render units that are off the map in the map editor
-        fBase[(P.Y - 1) * fMapX + P.X - 1] := fPlayers[I].FlagColor;
+        fBase[(P.Y - 1) * fMapX + P.X - 1] := gPlayers[I].FlagColor;
       end;
     end;
 end;

@@ -164,7 +164,7 @@ begin
   //stonemason-woodcutter-carpenter-2miners-metallurgist. In other words -
   //dont waste gold if it's not producing yet
 
-  P := fPlayers[fOwner];
+  P := gPlayers[fOwner];
 
   //Citizens
   //Count overall unit requirement (excluding Barracks and ownerless houses)
@@ -229,9 +229,9 @@ var
   H: TKMHouse;
   ResOrder: Integer;
 begin
-  for I := 0 to fPlayers[fOwner].Houses.Count - 1 do
+  for I := 0 to gPlayers[fOwner].Houses.Count - 1 do
   begin
-    H := fPlayers[fOwner].Houses[I];
+    H := gPlayers[fOwner].Houses[I];
 
     ResOrder := H.ResOrder[1] + H.ResOrder[2] + H.ResOrder[3] + H.ResOrder[4];
 
@@ -283,7 +283,7 @@ var
   RoadExists: Boolean;
 begin
   Result := False;
-  P := fPlayers[fOwner];
+  P := gPlayers[fOwner];
 
   //Find nearest wip or ready house
   H := P.Houses.FindHouse(ht_Any, aLoc.X, aLoc.Y, 1, False);
@@ -318,7 +318,7 @@ var
   NodeTagList: TKMPointTagList;
 begin
   Result := False;
-  P := fPlayers[fOwner];
+  P := gPlayers[fOwner];
 
   //Skip disabled houses
   if not P.Stats.GetCanBuild(aHouse) then Exit;
@@ -411,7 +411,7 @@ var
   S: TKMHouseStore;
   Houses: TKMHousesCollection;
 begin
-  Houses := fPlayers[fOwner].Houses;
+  Houses := gPlayers[fOwner].Houses;
 
   //Iterate through all Stores and block stone/trunks to reduce serf usage
   for I := 0 to Houses.Count - 1 do
@@ -433,7 +433,7 @@ var
   I: Integer;
   Houses: TKMHousesCollection;
 begin
-  Houses := fPlayers[fOwner].Houses;
+  Houses := gPlayers[fOwner].Houses;
 
   for I := 0 to Houses.Count - 1 do
   if not Houses[I].IsDestroyed
@@ -447,7 +447,7 @@ var
   P: TKMPlayer;
   H: THouseType;
 begin
-  P := fPlayers[fOwner];
+  P := gPlayers[fOwner];
 
   //Try to express needs in terms of Balance = Production - Demand
   fBalance.Refresh;
@@ -486,7 +486,7 @@ var
   StoreLoc: TKMPoint;
   I, K: Integer;
 begin
-  P := fPlayers[fOwner];
+  P := gPlayers[fOwner];
 
   //This is one time task to build roads around Store
   //When town becomes larger add road around Store to make traffic smoother
@@ -515,12 +515,12 @@ var
   Store: TKMHouse;
   StoreLoc, T: TKMPoint;
 begin
-  Store := fPlayers[fOwner].Houses.FindHouse(ht_Store, 0, 0, 1);
+  Store := gPlayers[fOwner].Houses.FindHouse(ht_Store, 0, 0, 1);
   if Store = nil then Exit;
   StoreLoc := Store.GetEntrance;
 
   //AI will be Wooden if there is no iron/coal nearby
-  if (fPlayers[fOwner].PlayerType = pt_Computer) and fSetup.AutoBuild then
+  if (gPlayers[fOwner].PlayerType = pt_Computer) and fSetup.AutoBuild then
   begin
     //todo: Add preferred army type selector to MapEd
     if (fCityPlanner.FindNearest(KMPointBelow(StoreLoc), 60, fnIron, T) and fCityPlanner.FindNearest(KMPointBelow(StoreLoc), 60, fnCoal, T)) then
@@ -599,8 +599,8 @@ begin
   fAutoRepair := Value;
 
   //Apply to those houses placed by a script before AutoRepair command
-  for I := 0 to fPlayers[fOwner].Houses.Count - 1 do
-    fPlayers[fOwner].Houses[I].BuildingRepair := fAutoRepair;
+  for I := 0 to gPlayers[fOwner].Houses.Count - 1 do
+    gPlayers[fOwner].Houses[I].BuildingRepair := fAutoRepair;
 end;
 
 

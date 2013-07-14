@@ -97,8 +97,8 @@ end;
 function TPathFindingRoad.IsWalkableTile(aX, aY: Word): Boolean;
 begin
   Result := ([CanMakeRoads, CanWalkRoad] * gTerrain.Land[aY,aX].Passability <> [])
-            and (fPlayers[fOwner].BuildList.FieldworksList.HasField(KMPoint(aX, aY)) in [ft_None, ft_Road])
-            and not fPlayers[fOwner].BuildList.HousePlanList.HasPlan(KMPoint(aX, aY));
+            and (gPlayers[fOwner].BuildList.FieldworksList.HasField(KMPoint(aX, aY)) in [ft_None, ft_Road])
+            and not gPlayers[fOwner].BuildList.HousePlanList.HasPlan(KMPoint(aX, aY));
 end;
 
 
@@ -115,7 +115,7 @@ begin
   Result := ((aX = fLocB.X) and (aY = fLocB.Y)) //We reached destination point
             or ((gTerrain.Land[aY, aX].TileOverlay = to_Road) and (gTerrain.Land[aY, aX].TileOwner = fOwner)) //We reached own road
             or RoadWorkNear //We reached our roadplan being constructed
-            or (fPlayers[fOwner].BuildList.FieldworksList.HasField(KMPoint(aX, aY)) = ft_Road);
+            or (gPlayers[fOwner].BuildList.FieldworksList.HasField(KMPoint(aX, aY)) = ft_Road);
 end;
 
 
