@@ -1,5 +1,5 @@
 unit KM_PNG;
-{$I ..\KaM_Remake.inc}
+{$I KaM_Remake.inc}
 interface
 uses
   KM_CommonTypes,
