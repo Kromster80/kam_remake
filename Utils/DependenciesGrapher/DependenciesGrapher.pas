@@ -219,6 +219,7 @@ var
     str : string;
     stop : boolean;
 begin
+  assert( id >= 0 );
   AssignFile( f, path );
   Reset( f );
 

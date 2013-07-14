@@ -15,6 +15,7 @@ type
     procedure ButChooseDprClick(Sender: TObject);
     procedure ButBuildGraphClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
+    procedure FormClose(Sender: TObject; var Action: TCloseAction);
   private
     { Private declarations }
   public
@@ -32,6 +33,7 @@ implementation
 
 procedure TForm1.FormCreate(Sender: TObject);
 begin
+  DepGraph := TDependenciesGrapher.Create;
   DepGraph.Init;
 end;
 
@@ -57,6 +59,9 @@ begin
   DepGraph.PrintOutput( 'dependencies.txt' );
 end;
 
-
+procedure TForm1.FormClose(Sender: TObject; var Action: TCloseAction);
+begin
+  DepGraph.Free;
+end;
 
 end.
