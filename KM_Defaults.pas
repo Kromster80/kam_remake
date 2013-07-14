@@ -1,7 +1,7 @@
 unit KM_Defaults;
 {$I KaM_Remake.inc}
 interface
-uses Classes, SysUtils, KM_Points;
+uses Classes, SysUtils;
 
 
 //Global const
@@ -361,20 +361,6 @@ const
     (ut_Arbaletman,   ut_Bowman,     ut_None),
     (ut_Cavalry,      ut_HorseScout, ut_None));
 
-  //Offsets for flags rendering in pixels
-  FlagXOffset: array [TGroupType, TKMDirection] of shortint = (
-    ( 0, 10, -1,  2,  1, -6,-10,  4, 13),  //gt_Melee
-    ( 0,  6,  5,  7, -3,-10, -4, 10,  9),  //gt_AntiHorse
-    ( 0,  8,  6,  6, -6, -8, -3,  8,  6),  //gt_Ranged
-    ( 0,  6,  2,  3, -5,-10, -8,  5,  6)); //gt_Mounted
-
-  FlagYOffset: array [TGroupType, TKMDirection] of shortint = (
-    ( 0, 28, 30, 30, 26, 25, 24, 25, 27),  //gt_Melee
-    ( 0, 23, 25, 25, 21, 20, 19, 20, 22),  //gt_AntiHorse
-    ( 0, 28, 30, 30, 26, 25, 24, 25, 27),  //gt_Ranged
-    ( 0,  4, 16, 16,  4,  5,  2,  3,  4)); //gt_Mounted
-
-
 type
   TGoInDirection = (gd_GoOutside=-1, gd_GoInside=1); //Switch to set if unit goes into house or out of it
 
@@ -565,11 +551,6 @@ const
   WINE_AGE_FULL = 5000 div TERRAIN_PACE; //Wine ready to be harvested
 
 
-//The frame shown when a unit is standing still in ua_Walk. Same for all units!
-const
-  UnitStillFrames: array [TKMDirection] of Byte = (0,3,2,2,1,6,7,6,6);
-
-
 type
   TProjectileType = (pt_Arrow, pt_Bolt, pt_SlingRock, pt_TowerRock); {pt_BallistaRock, }
 
@@ -705,20 +686,6 @@ const
 
 var
   ExeDir: string;
-
-  GameCursor: record
-    Float: TKMPointF;     //Precise cursor position in map coords
-    Cell: TKMPoint;       //Cursor position cell
-    SState: TShiftState;  //Thats actually used to see if Left or Right mouse button is pressed
-    Mode: TKMCursorMode;  //Modes used in game (building, unit, road, etc..)
-    Tag1: Byte;           //Tag to know building type, unit type etc.
-
-    MapEdDir: Byte;
-    MapEdShape: (hsCircle, hsSquare);
-    MapEdSlope: Byte;
-    MapEdSize: Byte;
-    MapEdSpeed: Byte;
-  end;
 
 
 implementation

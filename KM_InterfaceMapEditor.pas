@@ -402,7 +402,7 @@ type
 
 implementation
 uses
-  KM_CommonClasses, KM_PlayersCollection, KM_ResTexts, KM_Game, KM_Main,
+  KM_CommonClasses, KM_PlayersCollection, KM_ResTexts, KM_Game, KM_Main, KM_GameCursor,
   KM_GameApp, KM_Resource, KM_TerrainPainter, KM_ResCursors, KM_Utils,
   KM_ResMapElements, KM_AIDefensePos, KM_ResHouses, KM_RenderUI, KM_Sound,
   KM_ResWares, KM_HouseBarracks, KM_ResFonts;

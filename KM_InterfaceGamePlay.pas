@@ -403,7 +403,7 @@ type
 
 
 implementation
-uses KM_Main, KM_GameInputProcess, KM_GameInputProcess_Multi, KM_AI, KM_RenderUI,
+uses KM_Main, KM_GameInputProcess, KM_GameInputProcess_Multi, KM_AI, KM_RenderUI, KM_GameCursor,
   KM_PlayersCollection, KM_Player, KM_RenderPool, KM_ResTexts, KM_Game, KM_GameApp,
   KM_Utils, KM_ResLocales, KM_Sound, KM_Resource, KM_Log, KM_ResCursors, KM_ResFonts,
   KM_ResSprites, KM_ResUnits, KM_ResWares, KM_FogOfWar, KM_HouseBarracks;

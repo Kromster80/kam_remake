@@ -108,8 +108,8 @@ var
 
 
 implementation
-uses KM_CommonTypes, KM_RenderAux, KM_PlayersCollection, KM_Projectiles, KM_Game, KM_Sound, KM_Resource,
-  KM_ResMapElements, KM_Units, KM_AIFields, KM_TerrainPainter;
+uses KM_CommonTypes, KM_RenderAux, KM_PlayersCollection, KM_Projectiles, KM_Game, KM_Sound, KM_Resource, KM_ResUnits,
+  KM_ResMapElements, KM_Units, KM_AIFields, KM_TerrainPainter, KM_GameCursor;
 
 
 constructor TRenderPool.Create(aRender: TRender);
@@ -724,10 +724,21 @@ begin
 end;
 
 
-procedure TRenderPool.AddUnitFlag(
-  aUnit: TUnitType; aAct: TUnitActionType;
-  aDir: TKMDirection; FlagAnim: Integer;
-  pX, pY: Single; FlagColor: TColor4);
+procedure TRenderPool.AddUnitFlag(aUnit: TUnitType; aAct: TUnitActionType; aDir: TKMDirection;
+                                  FlagAnim: Integer; pX, pY: Single; FlagColor: TColor4);
+const
+  //Offsets for flags rendering in pixels
+  FlagXOffset: array [TGroupType, TKMDirection] of shortint = (
+    ( 0, 10, -1,  2,  1, -6,-10,  4, 13),  //gt_Melee
+    ( 0,  6,  5,  7, -3,-10, -4, 10,  9),  //gt_AntiHorse
+    ( 0,  8,  6,  6, -6, -8, -3,  8,  6),  //gt_Ranged
+    ( 0,  6,  2,  3, -5,-10, -8,  5,  6)); //gt_Mounted
+
+  FlagYOffset: array [TGroupType, TKMDirection] of shortint = (
+    ( 0, 28, 30, 30, 26, 25, 24, 25, 27),  //gt_Melee
+    ( 0, 23, 25, 25, 21, 20, 19, 20, 22),  //gt_AntiHorse
+    ( 0, 28, 30, 30, 26, 25, 24, 25, 27),  //gt_Ranged
+    ( 0,  4, 16, 16,  4,  5,  2,  3,  4)); //gt_Mounted
 var
   R: TRXData;
   A: TKMAnimLoop;

@@ -132,7 +132,7 @@ const
 
 
 implementation
-uses KM_Resource,  KM_Log, KM_Utils;
+uses KM_GameCursor, KM_Resource, KM_Log, KM_Utils;
 
 
 constructor TKMTerrainPainter.Create;

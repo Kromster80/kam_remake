@@ -178,7 +178,7 @@ type
 
 
 implementation
-uses KM_Game, KM_Player, KM_PlayersCollection, KM_Terrain, KM_Utils, KM_ResTexts, KM_RenderPool, KM_Hungarian, KM_UnitActionWalkTo, KM_PerfLog, KM_AI;
+uses KM_Game, KM_Player, KM_PlayersCollection, KM_Terrain, KM_Utils, KM_ResTexts, KM_RenderPool, KM_Hungarian, KM_UnitActionWalkTo, KM_PerfLog, KM_AI, KM_ResUnits;
 
 
 const

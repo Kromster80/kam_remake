@@ -29,7 +29,7 @@ type
   end;
 
 implementation
-uses KM_Resource;
+uses KM_Resource, KM_ResUnits;
 
 
 const

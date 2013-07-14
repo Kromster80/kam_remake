@@ -145,6 +145,10 @@ const
   );
 
 
+  //The frame shown when a unit is standing still in ua_Walk. Same for all units!
+  UnitStillFrames: array [TKMDirection] of Byte = (0,3,2,2,1,6,7,6,6);
+
+
 implementation
 uses KromUtils, KM_ResTexts;
 
