@@ -37,7 +37,7 @@ procedure InitUnitStatEvals;
 
 
 implementation
-uses Math, KM_PlayersCollection, KM_Resource, KM_ResourceUnit;
+uses Math, KM_PlayersCollection, KM_Resource, KM_ResUnits;
 
 
 var

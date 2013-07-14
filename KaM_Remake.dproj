@@ -208,7 +208,7 @@
 			<DCCReference Include="KM_ResourceSprites.pas"/>
 			<DCCReference Include="KM_ResTexts.pas"/>
 			<DCCReference Include="KM_ResourceTileset.pas"/>
-			<DCCReference Include="KM_ResourceUnit.pas"/>
+			<DCCReference Include="KM_ResUnits.pas"/>
 			<DCCReference Include="KM_ResWares.pas"/>
 			<DCCReference Include="KM_Saves.pas"/>
 			<DCCReference Include="KM_Scripting.pas"/>

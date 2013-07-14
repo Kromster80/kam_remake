@@ -36,7 +36,7 @@ type
 
 implementation
 uses
-  KM_Units, KM_Units_Warrior, KM_PlayersCollection, KM_ResourceUnit;
+  KM_Units, KM_Units_Warrior, KM_PlayersCollection, KM_ResUnits;
 
 
 { TKMHouseBarracks }

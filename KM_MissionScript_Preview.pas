@@ -46,7 +46,7 @@ type
 
 implementation
 uses
-  KM_Resource, KM_ResourceHouse, KM_ResourceUnit;
+  KM_Resource, KM_ResourceHouse, KM_ResUnits;
 
 
 { TMissionParserPreview }

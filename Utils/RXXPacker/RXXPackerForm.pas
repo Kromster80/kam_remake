@@ -27,7 +27,7 @@ var
 
 implementation
 {$R *.dfm}
-uses KM_ResourceHouse, KM_ResourceUnit, KM_Points;
+uses KM_ResourceHouse, KM_ResUnits, KM_Points;
 
 
 procedure TRXXForm1.FormCreate(Sender: TObject);

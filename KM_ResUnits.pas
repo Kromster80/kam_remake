@@ -1,4 +1,4 @@
-unit KM_ResourceUnit;
+unit KM_ResUnits;
 {$I KaM_Remake.inc}
 interface
 uses

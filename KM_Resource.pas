@@ -13,7 +13,7 @@ uses
   KM_ResourcePalettes,
   KM_ResourceSprites,
   KM_ResourceTileset,
-  KM_ResourceUnit,
+  KM_ResUnits,
   KM_ResWares;
 
 
