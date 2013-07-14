@@ -6,7 +6,7 @@ uses
   Classes, Graphics,
   dglOpenGL, SysUtils, KromOGLUtils, KromUtils, Math,
   KM_Defaults, KM_CommonClasses, KM_Pics, KM_Points, KM_Render,
-  KM_RenderTerrain, KM_ResourceHouse, KM_ResourceSprites, KM_ResourceWares,
+  KM_RenderTerrain, KM_ResourceHouse, KM_ResourceSprites, KM_ResWares,
   KM_Houses, KM_Terrain, OBJLoader;
 
 type

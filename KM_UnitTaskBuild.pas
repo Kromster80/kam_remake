@@ -14,126 +14,126 @@ type
     end;
 
   TTaskBuildRoad = class(TTaskBuild)
-    private
-      fLoc: TKMPoint;
-      BuildID: Integer;
-      DemandSet: Boolean;
-      TileLockSet: Boolean;
-    public
-      constructor Create(aWorker: TKMUnitWorker; aLoc: TKMPoint; aID: Integer);
-      constructor Load(LoadStream: TKMemoryStream); override;
-      destructor Destroy; override;
-      function WalkShouldAbandon: Boolean; override;
-      procedure CancelThePlan; override;
-      function Execute: TTaskResult; override;
-      procedure Save(SaveStream: TKMemoryStream); override;
-    end;
+  private
+    fLoc: TKMPoint;
+    BuildID: Integer;
+    DemandSet: Boolean;
+    TileLockSet: Boolean;
+  public
+    constructor Create(aWorker: TKMUnitWorker; aLoc: TKMPoint; aID: Integer);
+    constructor Load(LoadStream: TKMemoryStream); override;
+    destructor Destroy; override;
+    function WalkShouldAbandon: Boolean; override;
+    procedure CancelThePlan; override;
+    function Execute: TTaskResult; override;
+    procedure Save(SaveStream: TKMemoryStream); override;
+  end;
 
   TTaskBuildWine = class(TTaskBuild)
-    private
-      fLoc: TKMPoint;
-      BuildID: Integer;
-      DemandSet: Boolean;
-      TileLockSet: Boolean;
-    public
-      constructor Create(aWorker: TKMUnitWorker; aLoc: TKMPoint; aID: Integer);
-      constructor Load(LoadStream: TKMemoryStream); override;
-      destructor Destroy; override;
-      function WalkShouldAbandon: Boolean; override;
-      procedure CancelThePlan; override;
-      function Execute: TTaskResult; override;
-      procedure Save(SaveStream: TKMemoryStream); override;
-    end;
+  private
+    fLoc: TKMPoint;
+    BuildID: Integer;
+    DemandSet: Boolean;
+    TileLockSet: Boolean;
+  public
+    constructor Create(aWorker: TKMUnitWorker; aLoc: TKMPoint; aID: Integer);
+    constructor Load(LoadStream: TKMemoryStream); override;
+    destructor Destroy; override;
+    function WalkShouldAbandon: Boolean; override;
+    procedure CancelThePlan; override;
+    function Execute: TTaskResult; override;
+    procedure Save(SaveStream: TKMemoryStream); override;
+  end;
 
   TTaskBuildField = class(TTaskBuild)
-    private
-      fLoc: TKMPoint;
-      BuildID: Integer;
-      TileLockSet: Boolean;
-    public
-      constructor Create(aWorker: TKMUnitWorker; aLoc: TKMPoint; aID: Integer);
-      constructor Load(LoadStream: TKMemoryStream); override;
-      destructor Destroy; override;
-      function WalkShouldAbandon: Boolean; override;
-      procedure CancelThePlan; override;
-      function Execute: TTaskResult; override;
-      procedure Save(SaveStream: TKMemoryStream); override;
-    end;
+  private
+    fLoc: TKMPoint;
+    BuildID: Integer;
+    TileLockSet: Boolean;
+  public
+    constructor Create(aWorker: TKMUnitWorker; aLoc: TKMPoint; aID: Integer);
+    constructor Load(LoadStream: TKMemoryStream); override;
+    destructor Destroy; override;
+    function WalkShouldAbandon: Boolean; override;
+    procedure CancelThePlan; override;
+    function Execute: TTaskResult; override;
+    procedure Save(SaveStream: TKMemoryStream); override;
+  end;
 
   TTaskBuildWall = class(TTaskBuild)
-    private
-      fLoc:TKMPoint;
-      BuildID:integer;
-      //not abandoned properly yet due to global unfinished conception of wall-building
-    public
-      constructor Create(aWorker:TKMUnitWorker; aLoc:TKMPoint; aID:integer);
-      constructor Load(LoadStream:TKMemoryStream); override;
-      destructor Destroy; override;
-      //function WalkShouldAbandon: Boolean; override;
-      procedure CancelThePlan; override;
-      function Execute:TTaskResult; override;
-      procedure Save(SaveStream:TKMemoryStream); override;
-    end;
+  private
+    fLoc:TKMPoint;
+    BuildID:integer;
+    //not abandoned properly yet due to global unfinished conception of wall-building
+  public
+    constructor Create(aWorker:TKMUnitWorker; aLoc:TKMPoint; aID:integer);
+    constructor Load(LoadStream:TKMemoryStream); override;
+    destructor Destroy; override;
+    //function WalkShouldAbandon: Boolean; override;
+    procedure CancelThePlan; override;
+    function Execute:TTaskResult; override;
+    procedure Save(SaveStream:TKMemoryStream); override;
+  end;
 
   TTaskBuildHouseArea = class(TTaskBuild)
-    private
-      fHouse: TKMHouse;
-      fHouseType: THouseType;
-      fHouseLoc: TKMPoint;
-      BuildID: Integer;
-      HouseNeedsWorker: Boolean;
-      HouseReadyToBuild: Boolean;
-      Step: Byte;
-      Cells: array[1..4*4]of TKMPoint;
-      function GetHouseEntranceLoc: TKMPoint;
-    public
-      constructor Create(aWorker: TKMUnitWorker; aHouseType: THouseType; aLoc: TKMPoint; aID:integer);
-      constructor Load(LoadStream: TKMemoryStream); override;
-      procedure SyncLoad; override;
-      destructor Destroy; override;
-      function WalkShouldAbandon: Boolean; override;
-      procedure CancelThePlan; override;
-      function Digging: Boolean;
-      function Execute: TTaskResult; override;
-      procedure Save(SaveStream: TKMemoryStream); override;
-    end;
+  private
+    fHouse: TKMHouse;
+    fHouseType: THouseType;
+    fHouseLoc: TKMPoint;
+    BuildID: Integer;
+    HouseNeedsWorker: Boolean;
+    HouseReadyToBuild: Boolean;
+    Step: Byte;
+    Cells: array[1..4*4]of TKMPoint;
+    function GetHouseEntranceLoc: TKMPoint;
+  public
+    constructor Create(aWorker: TKMUnitWorker; aHouseType: THouseType; aLoc: TKMPoint; aID:integer);
+    constructor Load(LoadStream: TKMemoryStream); override;
+    procedure SyncLoad; override;
+    destructor Destroy; override;
+    function WalkShouldAbandon: Boolean; override;
+    procedure CancelThePlan; override;
+    function Digging: Boolean;
+    function Execute: TTaskResult; override;
+    procedure Save(SaveStream: TKMemoryStream); override;
+  end;
 
   TTaskBuildHouse = class(TUnitTask)
-    private
-      fHouse: TKMHouse;
-      BuildID: Integer;
-      BuildFrom: TKMPointDir; //Current WIP location
-      Cells: TKMPointDirList; //List of surrounding cells and directions
-    public
-      constructor Create(aWorker:TKMUnitWorker; aHouse:TKMHouse; aID:integer);
-      constructor Load(LoadStream:TKMemoryStream); override;
-      procedure SyncLoad; override;
-      destructor Destroy; override;
-      function WalkShouldAbandon:boolean; override;
-      function Execute:TTaskResult; override;
-      procedure Save(SaveStream:TKMemoryStream); override;
-    end;
+  private
+    fHouse: TKMHouse;
+    BuildID: Integer;
+    BuildFrom: TKMPointDir; //Current WIP location
+    Cells: TKMPointDirList; //List of surrounding cells and directions
+  public
+    constructor Create(aWorker:TKMUnitWorker; aHouse:TKMHouse; aID:integer);
+    constructor Load(LoadStream:TKMemoryStream); override;
+    procedure SyncLoad; override;
+    destructor Destroy; override;
+    function WalkShouldAbandon:boolean; override;
+    function Execute:TTaskResult; override;
+    procedure Save(SaveStream:TKMemoryStream); override;
+  end;
 
   TTaskBuildHouseRepair = class(TUnitTask)
-    private
-      fHouse: TKMHouse;
-      fRepairID: Integer; //Remember the house we repair to report if we died and let others take our place
-      BuildFrom: TKMPointDir; //Current WIP location
-      Cells: TKMPointDirList; //List of surrounding cells and directions
-    public
-      constructor Create(aWorker: TKMUnitWorker; aHouse: TKMHouse; aRepairID: Integer);
-      constructor Load(LoadStream: TKMemoryStream); override;
-      procedure SyncLoad; override;
-      destructor Destroy; override;
-      function WalkShouldAbandon: Boolean; override;
-      function Execute: TTaskResult; override;
-      procedure Save(SaveStream: TKMemoryStream); override;
-    end;
+  private
+    fHouse: TKMHouse;
+    fRepairID: Integer; //Remember the house we repair to report if we died and let others take our place
+    BuildFrom: TKMPointDir; //Current WIP location
+    Cells: TKMPointDirList; //List of surrounding cells and directions
+  public
+    constructor Create(aWorker: TKMUnitWorker; aHouse: TKMHouse; aRepairID: Integer);
+    constructor Load(LoadStream: TKMemoryStream); override;
+    procedure SyncLoad; override;
+    destructor Destroy; override;
+    function WalkShouldAbandon: Boolean; override;
+    function Execute: TTaskResult; override;
+    procedure Save(SaveStream: TKMemoryStream); override;
+  end;
 
 
 implementation
 uses KM_PlayersCollection, KM_Resource, KM_ResourceMapElements,
-  KM_ResourceWares, KM_Game;
+  KM_ResWares, KM_Game;
 
 
 { TTaskBuildRoad }

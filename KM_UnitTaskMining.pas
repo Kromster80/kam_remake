@@ -4,7 +4,7 @@ interface
 uses Math, SysUtils,
   KM_CommonClasses, KM_Defaults, KM_Points,
   KM_Units, KM_Units_Workplan, KM_Terrain,
-  KM_ResourceWares;
+  KM_ResWares;
 
 
 {Perform resource mining}

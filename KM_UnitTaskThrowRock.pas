@@ -8,21 +8,21 @@ uses Classes, SysUtils,
 {Throw a rock}
 type
   TTaskThrowRock = class(TUnitTask)
-    private
-      fTarget: TKMUnit;
-      fFlightTime: Word; //Thats how long it will take a stone to hit it's target
-    public
-      constructor Create(aUnit, aTarget: TKMUnit);
-      destructor Destroy; override;
-      constructor Load(LoadStream: TKMemoryStream); override;
-      procedure SyncLoad; override;
-      function Execute: TTaskResult; override;
-      procedure Save(SaveStream: TKMemoryStream); override;
-    end;
+  private
+    fTarget: TKMUnit;
+    fFlightTime: Word; //Thats how long it will take a stone to hit it's target
+  public
+    constructor Create(aUnit, aTarget: TKMUnit);
+    destructor Destroy; override;
+    constructor Load(LoadStream: TKMemoryStream); override;
+    procedure SyncLoad; override;
+    function Execute: TTaskResult; override;
+    procedure Save(SaveStream: TKMemoryStream); override;
+  end;
 
 
 implementation
-uses KM_PlayersCollection, KM_Projectiles, KM_ResourceWares;
+uses KM_PlayersCollection, KM_Projectiles, KM_ResWares;
 
 
 { TTaskThrowRock }

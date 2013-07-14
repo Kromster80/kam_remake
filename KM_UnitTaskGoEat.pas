@@ -7,22 +7,22 @@ uses Classes, KM_CommonClasses, KM_Defaults, KM_Units, KM_Houses, SysUtils, KM_P
 type
   //Go to eat
   TTaskGoEat = class(TUnitTask)
-    private
-      fInn: TKMHouseInn;
-      PlaceID: Byte; //Units place in Inn
-    public
-      constructor Create(aInn: TKMHouseInn; aUnit: TKMUnit);
-      constructor Load(LoadStream: TKMemoryStream); override;
-      procedure SyncLoad; override;
-      destructor Destroy; override;
-      function Eating: Boolean;
-      function Execute: TTaskResult; override;
-      procedure Save(SaveStream: TKMemoryStream); override;
-    end;
+  private
+    fInn: TKMHouseInn;
+    PlaceID: Byte; //Units place in Inn
+  public
+    constructor Create(aInn: TKMHouseInn; aUnit: TKMUnit);
+    constructor Load(LoadStream: TKMemoryStream); override;
+    procedure SyncLoad; override;
+    destructor Destroy; override;
+    function Eating: Boolean;
+    function Execute: TTaskResult; override;
+    procedure Save(SaveStream: TKMemoryStream); override;
+  end;
 
 
 implementation
-uses KM_PlayersCollection, KM_ResourceWares;
+uses KM_PlayersCollection, KM_ResWares;
 
 
 { TTaskGoEat }

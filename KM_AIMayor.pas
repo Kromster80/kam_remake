@@ -63,7 +63,7 @@ type
 
 implementation
 uses KM_Game, KM_Houses, KM_HouseCollection, KM_PlayersCollection, KM_Player, KM_Terrain, KM_Resource,
-  KM_ResourceWares, KM_AIFields;
+  KM_ResWares, KM_AIFields;
 
 
 const //Sample list made by AntonP

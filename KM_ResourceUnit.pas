@@ -4,7 +4,7 @@ interface
 uses
   Classes, SysUtils, TypInfo,
   KM_CommonClasses, KM_CommonTypes, KM_Defaults, KM_Points,
-  KM_ResourceWares;
+  KM_ResWares;
 
 
 //Used to separate close-combat units from archers (they use different fighting logic)

@@ -3,7 +3,7 @@ unit KM_UnitTaskDelivery;
 interface
 uses Classes, SysUtils,
   KM_CommonClasses, KM_Defaults, KM_Points,
-  KM_Houses, KM_Units, KM_ResourceWares;
+  KM_Houses, KM_Units, KM_ResWares;
 
 
 type

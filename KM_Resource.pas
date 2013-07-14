@@ -14,7 +14,7 @@ uses
   KM_ResourceSprites,
   KM_ResourceTileset,
   KM_ResourceUnit,
-  KM_ResourceWares;
+  KM_ResWares;
 
 
 type

@@ -102,7 +102,7 @@ uses
   KM_ResTexts in 'KM_ResTexts.pas',
   KM_ResourceTileset in 'KM_ResourceTileset.pas',
   KM_ResourceUnit in 'KM_ResourceUnit.pas',
-  KM_ResourceWares in 'KM_ResourceWares.pas',
+  KM_ResWares in 'KM_ResWares.pas',
   KM_Saves in 'KM_Saves.pas',
   KM_Scripting in 'KM_Scripting.pas',
   KM_ScriptingESA in 'KM_ScriptingESA.pas',

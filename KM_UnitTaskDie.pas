@@ -6,14 +6,14 @@ uses Classes, KM_CommonClasses, KM_Defaults, KM_Units, SysUtils;
 type
   {Yep, this is a Task}
   TTaskDie = class(TUnitTask)
-    private
-      fShowAnimation: Boolean;
-    public
-      constructor Create(aUnit: TKMUnit; aShowAnimation: Boolean);
-      constructor Load(LoadStream: TKMemoryStream); override;
-      function Execute: TTaskResult; override;
-      procedure Save(SaveStream: TKMemoryStream); override;
-    end;
+  private
+    fShowAnimation: Boolean;
+  public
+    constructor Create(aUnit: TKMUnit; aShowAnimation: Boolean);
+    constructor Load(LoadStream: TKMemoryStream); override;
+    function Execute: TTaskResult; override;
+    procedure Save(SaveStream: TKMemoryStream); override;
+  end;
 
 
 implementation
