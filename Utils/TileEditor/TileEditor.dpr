@@ -3,7 +3,7 @@ program TileEditor;
 uses
   Forms,
   Unit1 in 'Unit1.pas', {Form1}
-  KM_ResourceTileset in '..\..\KM_ResourceTileset.pas';
+  KM_ResTileset in '..\..\KM_ResTileset.pas';
 
 {$R *.res}
 

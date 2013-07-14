@@ -144,7 +144,7 @@ uses
   KM_Main,
   //Use these units directly to avoid pass-through methods in fMain
   KM_Resource,
-  KM_ResourceSprites,
+  KM_ResSprites,
   KM_Controls,
   KM_GameApp,
   KM_PlayersCollection,

@@ -3,7 +3,7 @@ unit KM_RenderUI;
 interface
 uses dglOpenGL, Controls, Graphics, Math, KromOGLUtils, StrUtils, SysUtils,
   KM_Defaults, KM_CommonTypes, KM_Points, KM_Pics,
-  KM_ResFonts, KM_ResourceSprites;
+  KM_ResFonts, KM_ResSprites;
 
 type
   TTextAlign = (taLeft, taCenter, taRight);

@@ -1,4 +1,4 @@
-unit KM_ResourceTileset;
+unit KM_ResTileset;
 {$I KaM_Remake.inc}
 interface
 uses

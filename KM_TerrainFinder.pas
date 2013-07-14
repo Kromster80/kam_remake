@@ -46,7 +46,7 @@ type
 
 
 implementation
-uses KM_ResourceMapElements, KM_Terrain;
+uses KM_ResMapElements, KM_Terrain;
 
 
 { TKMTerrainFinder }

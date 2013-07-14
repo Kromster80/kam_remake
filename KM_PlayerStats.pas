@@ -3,7 +3,7 @@ unit KM_PlayerStats;
 interface
 uses Classes, SysUtils,
   KM_CommonClasses, KM_CommonTypes, KM_Defaults,
-  KM_ResourceHouse, KM_ResWares;
+  KM_ResHouses, KM_ResWares;
 
 
 //These are stats for each player

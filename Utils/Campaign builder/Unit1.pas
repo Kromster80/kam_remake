@@ -4,7 +4,7 @@ interface
 uses
   Windows, Classes, ComCtrls, Controls, Dialogs, ExtCtrls, Forms,
   Graphics, Mask, Math, Spin, StdCtrls, SysUtils,
-  KM_Defaults, KM_Campaigns, KM_Pics, KM_ResourceSpritesEdit;
+  KM_Defaults, KM_Campaigns, KM_Pics, KM_ResSpritesEdit;
 
 
 type

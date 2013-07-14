@@ -1,11 +1,11 @@
-unit KM_ResourceSpritesEdit;
+unit KM_ResSpritesEdit;
 {$I KaM_Remake.inc}
 interface
 uses
   {$IFDEF Unix} LCLIntf, LCLType, {$ENDIF}
   Classes, Dialogs, Graphics, Math, Types, StrUtils, SysUtils,
-  KM_Defaults, KM_Pics, KM_ResourceHouse, KM_ResourcePalettes, KM_ResourceSprites
-  , KM_ResourceTileset
+  KM_Defaults, KM_Pics, KM_ResHouses, KM_ResPalettes, KM_ResSprites,
+  KM_ResTileset
   {$IFDEF FPC}, zstream {$ENDIF}
   {$IFDEF WDC}, ZLib {$ENDIF};
 

@@ -179,7 +179,7 @@ type
 
 implementation
 uses KM_AI, KM_Terrain, KM_Game, KM_FogOfWar, KM_PlayersCollection, KM_Units_Warrior,
-  KM_HouseBarracks, KM_ResUnits, KM_ResWares, KM_ResourceHouse,
+  KM_HouseBarracks, KM_ResUnits, KM_ResWares, KM_ResHouses,
   KM_Log, KM_Utils, KM_Resource, KM_UnitTaskSelfTrain, KM_Sound;
 
 

@@ -4,7 +4,7 @@ interface
 uses
   Classes, KromUtils, Math, SysUtils,
   KM_CommonClasses, KM_Defaults, KM_Points,
-  KM_Terrain, KM_ResourceHouse, KM_ResWares;
+  KM_Terrain, KM_ResHouses, KM_ResWares;
 
 {Everything related to houses is here}
 type

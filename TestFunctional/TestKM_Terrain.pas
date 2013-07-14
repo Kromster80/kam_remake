@@ -3,7 +3,7 @@ interface
 uses
   TestFramework, StrUtils, Classes,
   SysUtils,
-  KM_Defaults, KM_Terrain, KM_Resource, KM_ResourceTileset, KM_Log, KM_Utils;
+  KM_Defaults, KM_Terrain, KM_Resource, KM_ResTileset, KM_Log, KM_Utils;
 
 
 type

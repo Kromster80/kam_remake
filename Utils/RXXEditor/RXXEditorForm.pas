@@ -5,7 +5,7 @@ uses
   Classes, Controls, Dialogs,
   ExtCtrls, Forms, Graphics, Spin, StdCtrls, SysUtils, TypInfo,
   {$IFDEF FPC} LResources, {$ENDIF}
-  KM_Defaults, KM_Log, KM_Pics, KM_PNG, KM_ResourcePalettes, KM_ResourceSprites, KM_ResourceSpritesEdit;
+  KM_Defaults, KM_Log, KM_Pics, KM_PNG, KM_ResPalettes, KM_ResSprites, KM_ResSpritesEdit;
 
 
 type

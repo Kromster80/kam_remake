@@ -2,8 +2,8 @@ unit KM_Terrain;
 {$I KaM_Remake.inc}
 interface
 uses Classes, KromUtils, Math, SysUtils, Graphics,
-  KM_CommonClasses, KM_Defaults, KM_Points, KM_Utils, KM_ResourceTileset,
-  KM_ResourceHouse, KM_ResWares, KM_TerrainFinder;
+  KM_CommonClasses, KM_Defaults, KM_Points, KM_Utils, KM_ResTileset,
+  KM_ResHouses, KM_ResWares, KM_TerrainFinder;
 
 
 type
@@ -213,7 +213,7 @@ var
 
 implementation
 uses KM_Log, KM_PlayersCollection, KM_TerrainWalkConnect,
-  KM_Resource, KM_Units, KM_ResourceMapElements, KM_Sound, KM_UnitActionStay, KM_Units_Warrior;
+  KM_Resource, KM_Units, KM_ResMapElements, KM_Sound, KM_UnitActionStay, KM_Units_Warrior;
 
 
 { TKMTerrain }

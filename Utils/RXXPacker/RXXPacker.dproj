@@ -85,8 +85,8 @@
 				<Form>RXXForm1</Form>
 			</DCCReference>
 			<DCCReference Include="..\..\Common\KM_PNG.pas"/>
-			<DCCReference Include="..\..\KM_ResourceSprites.pas"/>
-			<DCCReference Include="..\..\KM_ResourceSpritesEdit.pas"/>
+			<DCCReference Include="..\..\KM_ResSprites.pas"/>
+			<DCCReference Include="..\..\KM_ResSpritesEdit.pas"/>
 			<DCCReference Include="..\..\KM_SoftShadows.pas"/>
 			<None Include="Profiling\AQtimeModule1.aqt"/>
 			<BuildConfiguration Include="Debug">

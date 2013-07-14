@@ -8,7 +8,7 @@ uses
   KM_CommonTypes,
   KM_InterfaceDefaults, KM_Terrain, KM_Pics,
   KM_Controls, KM_Houses, KM_HouseMarket, KM_Units, KM_UnitGroups, KM_Units_Warrior, KM_Saves, KM_Defaults, KM_MessageStack, KM_CommonClasses, KM_Points,
-  KM_ResourceHouse;
+  KM_ResHouses;
 
 
 const
@@ -406,7 +406,7 @@ implementation
 uses KM_Main, KM_GameInputProcess, KM_GameInputProcess_Multi, KM_AI, KM_RenderUI,
   KM_PlayersCollection, KM_Player, KM_RenderPool, KM_ResTexts, KM_Game, KM_GameApp,
   KM_Utils, KM_ResLocales, KM_Sound, KM_Resource, KM_Log, KM_ResCursors, KM_ResFonts,
-  KM_ResourceSprites, KM_ResUnits, KM_ResWares, KM_FogOfWar, KM_HouseBarracks;
+  KM_ResSprites, KM_ResUnits, KM_ResWares, KM_FogOfWar, KM_HouseBarracks;
 
 
 const

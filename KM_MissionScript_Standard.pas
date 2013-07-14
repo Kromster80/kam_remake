@@ -38,7 +38,7 @@ type
 
 implementation
 uses KM_PlayersCollection, KM_Player, KM_AI, KM_AIDefensePos, KM_TerrainPainter,
-  KM_Resource, KM_ResourceHouse, KM_ResUnits, KM_ResWares, KM_Game, KM_Units_Warrior;
+  KM_Resource, KM_ResHouses, KM_ResUnits, KM_ResWares, KM_Game, KM_Units_Warrior;
 
 
 type

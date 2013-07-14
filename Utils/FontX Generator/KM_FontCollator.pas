@@ -5,7 +5,7 @@ uses
   {$IFDEF FPC} lconvencoding, {$ENDIF}
   Classes, StrUtils, SysUtils,
   KM_CommonTypes, KM_Defaults, KM_FileIO,
-  KM_ResFontsEdit, KM_ResourcePalettes;
+  KM_ResFontsEdit, KM_ResPalettes;
 
 
 type

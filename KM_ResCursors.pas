@@ -6,7 +6,7 @@ uses
   {$IFDEF MSWindows} Windows, {$ENDIF}
   {$IFDEF Unix} LCLIntf, LCLType, {$ENDIF}
   Graphics, Math, SysUtils,
-  KM_Points, KM_ResourceSprites;
+  KM_Points, KM_ResSprites;
 
 type
   TKMCursor = (

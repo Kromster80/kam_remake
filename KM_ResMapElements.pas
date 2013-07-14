@@ -1,4 +1,4 @@
-unit KM_ResourceMapElements;
+unit KM_ResMapElements;
 {$I KaM_Remake.inc}
 interface
 uses

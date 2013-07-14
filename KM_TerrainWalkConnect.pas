@@ -28,7 +28,7 @@ type
   end;
 
 implementation
-uses Math, KM_ResourceMapElements;
+uses Math, KM_ResMapElements;
 
 { TKMTerrainWalkConnect }
 class procedure TKMTerrainWalkConnect.DoUpdate(aAreaAffected:TKMRect; aWC:TWalkConnect; aPass:TPassability; aAllowDiag: Boolean; aDiagObjectsEffected: Boolean);

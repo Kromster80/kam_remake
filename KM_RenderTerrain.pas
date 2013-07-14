@@ -3,7 +3,7 @@ unit KM_RenderTerrain;
 interface
 uses
   dglOpenGL, SysUtils, KromUtils, Math,
-  KM_CommonClasses, KM_Defaults, KM_FogOfWar, KM_Pics, KM_ResourceSprites, KM_Points, KM_Terrain;
+  KM_CommonClasses, KM_Defaults, KM_FogOfWar, KM_Pics, KM_ResSprites, KM_Points, KM_Terrain;
 
 type
   TUVRect = array [1 .. 4, 1 .. 2] of Single; // Texture UV coordinates

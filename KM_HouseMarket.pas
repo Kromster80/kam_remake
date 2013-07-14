@@ -4,7 +4,7 @@ interface
 uses
   Math,
   KM_CommonClasses, KM_Defaults,
-  KM_Houses, KM_ResourceHouse, KM_ResWares;
+  KM_Houses, KM_ResHouses, KM_ResWares;
 
 type
   //Marketplace

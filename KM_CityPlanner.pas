@@ -4,7 +4,7 @@ interface
 uses
   Classes, Graphics, KromUtils, Math, SysUtils, TypInfo,
   KM_Defaults, KM_Points, KM_CommonClasses,
-  KM_TerrainFinder, KM_PerfLog, KM_ResourceHouse, KM_ResWares;
+  KM_TerrainFinder, KM_PerfLog, KM_ResHouses, KM_ResWares;
 
 
 type

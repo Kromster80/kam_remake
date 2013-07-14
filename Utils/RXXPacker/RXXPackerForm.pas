@@ -5,7 +5,7 @@ uses
   Classes, Controls, Dialogs,
   ExtCtrls, Forms, Graphics, Spin, StdCtrls, SysUtils, TypInfo, Windows,
   {$IFDEF FPC} LResources, {$ENDIF}
-  KM_Defaults, KM_Log, KM_Pics, KM_ResourcePalettes, KM_ResourceSprites, KM_ResourceSpritesEdit;
+  KM_Defaults, KM_Log, KM_Pics, KM_ResPalettes, KM_ResSprites, KM_ResSpritesEdit;
 
 
 type
@@ -27,7 +27,7 @@ var
 
 implementation
 {$R *.dfm}
-uses KM_ResourceHouse, KM_ResUnits, KM_Points;
+uses KM_ResHouses, KM_ResUnits, KM_Points;
 
 
 procedure TRXXForm1.FormCreate(Sender: TObject);

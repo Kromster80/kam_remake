@@ -3,7 +3,7 @@ interface
 uses
   TestFramework, KM_CommonTypes, SysUtils, KM_CommonClasses, KM_Points,
   KM_Defaults, KromUtils, Classes, KM_Utils, Math, KM_Player, KM_PolySimplify,
-  KM_AIFields, KM_Log, KM_Terrain, KM_Resource, KM_ResourceTileset;
+  KM_AIFields, KM_Log, KM_Terrain, KM_Resource, KM_ResTileset;
 
 
 type

@@ -1,4 +1,4 @@
-unit KM_ResourcePalettes;
+unit KM_ResPalettes;
 {$I KaM_Remake.inc}
 interface
 uses

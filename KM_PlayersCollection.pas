@@ -70,7 +70,7 @@ var
 
 
 implementation
-uses KM_Game, KM_Log, KM_Resource, KM_ResourceHouse, KM_AIFields;
+uses KM_Game, KM_Log, KM_Resource, KM_ResHouses, KM_AIFields;
 
 
 { TKMPlayersCollection }

@@ -4,7 +4,7 @@ interface
 uses
    Math,
    KM_CommonClasses, KM_Defaults, KM_Points,
-   KM_ResourceHouse, KM_Houses, KM_Terrain;
+   KM_ResHouses, KM_Houses, KM_Terrain;
 
 type
   TKMHousesCollection = class

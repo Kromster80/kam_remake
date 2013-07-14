@@ -1,4 +1,4 @@
-unit KM_ResourceHouse;
+unit KM_ResHouses;
 {$I KaM_Remake.inc}
 interface
 uses

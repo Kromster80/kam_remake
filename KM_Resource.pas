@@ -8,11 +8,11 @@ uses
   KM_Render,
   KM_ResCursors,
   KM_ResFonts,
-  KM_ResourceHouse,
-  KM_ResourceMapElements,
-  KM_ResourcePalettes,
-  KM_ResourceSprites,
-  KM_ResourceTileset,
+  KM_ResHouses,
+  KM_ResMapElements,
+  KM_ResPalettes,
+  KM_ResSprites,
+  KM_ResTileset,
   KM_ResUnits,
   KM_ResWares;
 

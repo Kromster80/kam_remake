@@ -48,7 +48,7 @@ type
 implementation
 uses
   KM_Game, KM_PlayersCollection, KM_Goals, KM_Player, KM_PlayerStats,
-  KM_Sound, KM_Scripting, KM_ResourceHouse;
+  KM_Sound, KM_Scripting, KM_ResHouses;
 
 
 { TKMPlayerAI }

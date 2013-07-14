@@ -3,7 +3,7 @@ unit KM_UnitTaskBuild;
 interface
 uses SysUtils,
   KM_CommonClasses, KM_Defaults, KM_Points,
-  KM_Houses, KM_Terrain, KM_Units, KM_ResourceHouse;
+  KM_Houses, KM_Terrain, KM_Units, KM_ResHouses;
 
 
 //Do the building
@@ -132,7 +132,7 @@ type
 
 
 implementation
-uses KM_PlayersCollection, KM_Resource, KM_ResourceMapElements,
+uses KM_PlayersCollection, KM_Resource, KM_ResMapElements,
   KM_ResWares, KM_Game;
 
 

@@ -83,7 +83,7 @@ type
 
 
 implementation
-uses KM_Defaults, KM_Resource, KM_ResourceSprites, KM_Log;
+uses KM_Defaults, KM_Resource, KM_ResSprites, KM_Log;
 
 
 const
