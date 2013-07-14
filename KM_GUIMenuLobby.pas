@@ -123,7 +123,7 @@ type
 
 
 implementation
-uses KM_ResTexts, KM_ResLocales, KM_Utils, KM_Sound, KM_RenderUI, KM_Resource, KM_ResourceFonts, KM_NetPlayersList;
+uses KM_ResTexts, KM_ResLocales, KM_Utils, KM_Sound, KM_RenderUI, KM_Resource, KM_ResFonts, KM_NetPlayersList;
 
 
 { TKMGUIMenuLobby }

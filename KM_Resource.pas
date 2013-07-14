@@ -7,7 +7,7 @@ uses
   KM_CommonTypes, KM_Defaults, KM_Pics,
   KM_Render,
   KM_ResCursors,
-  KM_ResourceFonts,
+  KM_ResFonts,
   KM_ResourceHouse,
   KM_ResourceMapElements,
   KM_ResourcePalettes,

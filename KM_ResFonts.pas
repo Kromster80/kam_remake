@@ -1,4 +1,4 @@
-unit KM_ResourceFonts;
+unit KM_ResFonts;
 {$I KaM_Remake.inc}
 interface
 uses

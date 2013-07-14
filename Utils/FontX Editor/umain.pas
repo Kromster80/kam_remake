@@ -7,7 +7,7 @@ uses
   {$IFDEF Unix} LCLType, {$ENDIF}
   SysUtils, Classes, Graphics, Controls, Forms, Dialogs, ExtCtrls,
   StdCtrls, Math, ComCtrls, Buttons, Spin, StrUtils, KromUtils,
-  KM_Defaults, KM_ResourceFonts, KM_ResourceFontsEdit,
+  KM_Defaults, KM_ResFonts, KM_ResFontsEdit,
   Constants; //Declared last to override TKMFont (we could redesign that later, but for now it works okay)
 
 

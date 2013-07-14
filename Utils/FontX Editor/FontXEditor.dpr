@@ -2,8 +2,8 @@ program FontXEditor;
 uses
   Forms,
   umain in 'umain.pas' {frmMain},
-  KM_ResourceFontsEdit in '..\..\KM_ResourceFontsEdit.pas',
-  KM_ResourceFonts in '..\..\KM_ResourceFonts.pas';
+  KM_ResFonts in '..\..\KM_ResFonts.pas',
+  KM_ResFontsEdit in '..\..\KM_ResFontsEdit.pas';
 
 var
     frmMain: TfrmMain;

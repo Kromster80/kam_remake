@@ -3,8 +3,8 @@ program FontXGenerator;
 uses
   Forms,
   Unit_Main in 'Unit_Main.pas' {Form1},
-  KM_ResourceFonts in '..\..\KM_ResourceFonts.pas',
-  KM_ResourceFontsEdit in '..\..\KM_ResourceFontsEdit.pas',
+  KM_ResFonts in '..\..\KM_ResFonts.pas',
+  KM_ResFontsEdit in '..\..\KM_ResFontsEdit.pas',
   KM_FontCollator in 'KM_FontCollator.pas';
 
 begin

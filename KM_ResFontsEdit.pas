@@ -1,11 +1,11 @@
-unit KM_ResourceFontsEdit;
+unit KM_ResFontsEdit;
 {$I KaM_Remake.inc}
 interface
 uses
   Windows,
   {$IFDEF FPC} lconvencoding, {$ENDIF}
   Classes, Graphics, Math, SysUtils, Types,
-  KM_CommonTypes, KM_ResourceFonts;
+  KM_CommonTypes, KM_ResFonts;
 
 
 type
