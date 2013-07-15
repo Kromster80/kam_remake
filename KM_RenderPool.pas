@@ -56,6 +56,8 @@ type
     fFieldsList: TKMPointTagList;
     fHousePlansList: TKMPointDirList;
     fTabletsList: TKMPointTagList;
+    fMarksList: TKMPointTagList;
+    fHouseOutline: TKMPointList;
 
     procedure RenderBackgroundUI(aRect: TKMRect);
     procedure RenderObjects(aRect: TKMRect);
@@ -72,8 +74,9 @@ type
     procedure CollectPlans(aRect: TKMRect);
     procedure CollectTerrainObjects(aRect: TKMRect; aAnimStep: Cardinal);
 
-    procedure RenderWire(P: TKMPoint; Col: TColor4);
+    procedure RenderWireTile(P: TKMPoint; Col: TColor4);
     procedure RenderWireHousePlan(P: TKMPoint; aHouseType: THouseType);
+    procedure RenderObjectOrQuad(aIndex: Byte; AnimStep,pX,pY: Integer; DoImmediateRender: Boolean = False; Deleting: Boolean = False);
   public
     constructor Create(aRender: TRender);
     destructor Destroy; override;
@@ -98,7 +101,6 @@ type
     procedure RenderSpriteOnTile(aLoc: TKMPoint; aId: Word; aFlagColor: TColor4 = $FFFFFFFF);
     procedure RenderSpriteOnTerrain(aLoc: TKMPointF; aId: Word; aFlagColor: TColor4 = $FFFFFFFF);
     procedure RenderTile(Index: Byte; pX,pY,Rot: Integer);
-    procedure RenderObjectOrQuad(aIndex: Byte; AnimStep,pX,pY: Integer; DoImmediateRender: Boolean = False; Deleting: Boolean = False);
 
     property RenderList: TRenderList read fRenderList;
     property RenderTerrain: TRenderTerrain read fRenderTerrain;
@@ -132,7 +134,9 @@ begin
 
   fFieldsList     := TKMPointTagList.Create;
   fHousePlansList := TKMPointDirList.Create;
-  fTabletsList := TKMPointTagList.Create;
+  fTabletsList    := TKMPointTagList.Create;
+  fMarksList      := TKMPointTagList.Create;
+  fHouseOutline   := TKMPointList.Create;
   //fSampleHouse := TOBJModel.Create;
   //fSampleHouse.LoadFromFile(ExeDir + 'Store.obj');
 end;
@@ -143,6 +147,8 @@ begin
   fFieldsList.Free;
   fHousePlansList.Free;
   fTabletsList.Free;
+  fMarksList.Free;
+  fHouseOutline.Free;
   //fSampleHouse.Free;
   fRenderList.Free;
   fRenderTerrain.Free;
@@ -231,7 +237,6 @@ begin
     //Cursor overlays (including blue-wire plans), go on top of everything
     RenderForegroundUI;
 
-    if DISPLAY_SOUNDS then gResSounds.Paint;
   glPopAttrib;
 end;
 
@@ -241,9 +246,6 @@ var I,K: Integer;
 begin
   if MySpectator.Highlight is TKMHouse then
     RenderHouseOutline(TKMHouse(MySpectator.Highlight));
-
-  if MySpectator.Selected is TKMHouse then
-    RenderHouseOutline(TKMHouse(MySpectator.Selected));
 
   if fGame.IsMapEditor then
     fGame.MapEditor.Paint(plTerrain);
@@ -360,7 +362,7 @@ begin
     if fGame.IsMapEditor then
     begin
       fRenderAux.Quad(pX+1, pY+1, $600000FF);
-      RenderWire(KMPoint(pX+1, pY+1), $800000FF);
+      RenderWireTile(KMPoint(pX+1, pY+1), $800000FF);
     end;
   end
   else
@@ -1065,7 +1067,7 @@ begin
 end;
 
 
-procedure TRenderPool.RenderWire(P: TKMPoint; Col: TColor4);
+procedure TRenderPool.RenderWireTile(P: TKMPoint; Col: TColor4);
 begin
   if not gTerrain.TileInMapCoords(P.X, P.Y) then exit;
   glColor4ubv(@Col);
@@ -1084,7 +1086,6 @@ end;
 //Optimize later if needed
 procedure TRenderPool.RenderHouseOutline(aHouse: TKMHouse);
 var
-  Outline: TKMPointList;
   Loc: TKMPoint;
   I: Integer;
   X,Y: Word;
@@ -1093,23 +1094,21 @@ begin
     Exit;
 
   //Get an outline of build area
-  Outline := TKMPointList.Create;
+  fHouseOutline.Clear;
 
   Loc := aHouse.GetPosition;
-  fResource.HouseDat[aHouse.HouseType].Outline(Outline);
+  fResource.HouseDat[aHouse.HouseType].Outline(fHouseOutline);
 
   glColor3f(0, 1, 1);
   glBegin(GL_LINE_LOOP);
     with gTerrain do
-    for I := 0 to Outline.Count - 1 do
+    for I := 0 to fHouseOutline.Count - 1 do
     begin
-      X := Loc.X + Outline[I].X - 3;
-      Y := Loc.Y + Outline[I].Y - 4;
+      X := Loc.X + fHouseOutline[I].X - 3;
+      Y := Loc.Y + fHouseOutline[I].Y - 4;
       glVertex2f(X, Y - Land[Y+1, X+1].Height / CELL_HEIGHT_DIV);
     end;
   glEnd;
-
-  Outline.Free;
 end;
 
 
@@ -1142,18 +1141,15 @@ end;
 procedure TRenderPool.RenderWireHousePlan(P: TKMPoint; aHouseType: THouseType);
 var
   I: Integer;
-  MarksList: TKMPointTagList;
 begin
-  MarksList := TKMPointTagList.Create;
-  gPlayers[MySpectator.PlayerIndex].GetHouseMarks(P, aHouseType, MarksList);
+  fMarksList.Clear;
+  gPlayers[MySpectator.PlayerIndex].GetHouseMarks(P, aHouseType, fMarksList);
 
-  for I := 0 to MarksList.Count - 1 do
-  if MarksList.Tag[I] = TC_OUTLINE then
-    RenderWire(MarksList[I], $FFFFFF00) //Cyan rect
+  for I := 0 to fMarksList.Count - 1 do
+  if fMarksList.Tag[I] = TC_OUTLINE then
+    RenderWireTile(fMarksList[I], $FFFFFF00) //Cyan rect
   else
-    RenderSpriteOnTile(MarksList[I], MarksList.Tag[I]); //icon
-
-  MarksList.Free;
+    RenderSpriteOnTile(fMarksList[I], fMarksList.Tag[I]); //icon
 end;
 
 
@@ -1166,7 +1162,7 @@ var
   Tmp: Single;
   Rad, Slope: Byte;
 begin
-  if GameCursor.Cell.Y*GameCursor.Cell.X = 0 then Exit; //Caused a rare crash
+  if GameCursor.Cell.Y * GameCursor.Cell.X = 0 then Exit; //Caused a rare crash
 
   if fGame.IsMapEditor then
     fGame.MapEditor.Paint(plCursors);
@@ -1192,7 +1188,7 @@ begin
                                  or (Land[P.Y,P.X].TileOverlay=to_Road)
                                  or (gPlayers.HousesHitTest(P.X, P.Y) <> nil))
                         then
-                          RenderWire(P, $FFFFFF00) //Cyan quad
+                          RenderWireTile(P, $FFFFFF00) //Cyan quad
                         else
                           RenderSpriteOnTile(P, TC_BLOCK); //Red X
                       end;
@@ -1203,25 +1199,25 @@ begin
                             or gPlayers[MySpectator.PlayerIndex].BuildList.HousePlanList.HasPlan(P)
                             or (gPlayers[MySpectator.PlayerIndex].HousesHitTest(P.X, P.Y) <> nil))
                         then
-                          RenderWire(P, $FFFFFF00) //Cyan quad
+                          RenderWireTile(P, $FFFFFF00) //Cyan quad
                         else
                           RenderSpriteOnTile(P, TC_BLOCK); //Red X
                       end;
                   end;
     cmRoad:       if gPlayers[MySpectator.PlayerIndex].CanAddFakeFieldPlan(P, ft_Road) then
-                    RenderWire(P, $FFFFFF00) //Cyan quad
+                    RenderWireTile(P, $FFFFFF00) //Cyan quad
                   else
                     RenderSpriteOnTile(P, TC_BLOCK);       //Red X
     cmField:      if gPlayers[MySpectator.PlayerIndex].CanAddFakeFieldPlan(P, ft_Corn) then
-                    RenderWire(P, $FFFFFF00) //Cyan quad
+                    RenderWireTile(P, $FFFFFF00) //Cyan quad
                   else
                     RenderSpriteOnTile(P, TC_BLOCK);       //Red X
     cmWine:       if gPlayers[MySpectator.PlayerIndex].CanAddFakeFieldPlan(P, ft_Wine) then
-                    RenderWire(P, $FFFFFF00) //Cyan quad
+                    RenderWireTile(P, $FFFFFF00) //Cyan quad
                   else
                     RenderSpriteOnTile(P, TC_BLOCK);       //Red X
     cmWall:       if gPlayers[MySpectator.PlayerIndex].CanAddFakeFieldPlan(P, ft_Wall) then
-                    RenderWire(P, $FFFFFF00) //Cyan quad
+                    RenderWireTile(P, $FFFFFF00) //Cyan quad
                   else
                     RenderSpriteOnTile(P, TC_BLOCK);       //Red X
     cmHouses:     RenderWireHousePlan(P, THouseType(GameCursor.Tag1)); //Cyan quads and red Xs
@@ -1309,6 +1305,8 @@ begin
                     MARKER_CENTERSCREEN:  RenderSpriteOnTile(P, 391, gPlayers[MySpectator.PlayerIndex].FlagColor);
                   end;
   end;
+
+  if DISPLAY_SOUNDS then gResSounds.Paint;
 end;
 
 
