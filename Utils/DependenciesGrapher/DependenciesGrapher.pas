@@ -10,7 +10,6 @@ const
 type
   TDependenciesGrapher = class
   private
-    dprFileName : string;
     unitForAnalyse : array[0..MAX_UNITS_NUM] of string;
     unitAnalysed : array[0..MAX_UNITS_NUM] of string;
     unitStackPos : integer;
@@ -22,7 +21,8 @@ type
     f : TextFile;
     procedure ScanDpr( filename : string );
     function ReadWord() : string;
-    procedure ScanForUnits( path : string );
+    procedure ScanForAllUnits( path : string );
+    procedure ScanForUnitsInDir( path : string );
     procedure ScanUnitName( filename : string; numUnit : integer );
     procedure Analyse();
     procedure ScanForDep( path : string; id : integer );
@@ -32,63 +32,21 @@ type
     procedure SkipToUses();
     procedure ReadDepAndFillGraph( id : integer; dep_type : integer );
   public
-    procedure Init();
-    function CheckIfFileDpr( filename : string ) : boolean;
-    procedure SetDprPath( path : string );
-    procedure BuildGraph;
+    procedure BuildGraph( pathToDpr : string );
     procedure PrintOutput( path : string );
   end;
 
 implementation
 
-procedure TDependenciesGrapher.Init();
-var
-  i,j: Integer;
-begin
-  unitStackPos := 0;
-  unitAnalysedCount := 0;
-  for i := 0 to MAX_UNITS_NUM do
-    for j := 0 to MAX_UNITS_NUM do
-      graph[i][j] := 0;
-end;
 
-procedure TDependenciesGrapher.SetDprPath( path : string );
-begin
-  dprFileName := path;
-end;
-
-procedure TDependenciesGrapher.BuildGraph;
+procedure TDependenciesGrapher.BuildGraph( pathToDpr : string );
 var path : string;
     i : integer;
 begin
-  ScanDpr( dprFileName );
-  path := dprFileName;
-  i := length( dprFileName );
-  while( path[i] <> '\' ) do
-    dec(i);
-  delete( path, i + 1, length( dprFileName ) - i ); // Cut projectname.dpr from the path
-  ScanForUnits( path );
+  ScanDpr( pathToDpr );
+  path := ExtractFilePath( pathToDpr );
+  ScanForAllUnits( path );
   Analyse();
-end;
-
-function TDependenciesGrapher.CheckIfFileDpr( filename : string ) : boolean;
-begin
-  if filename[length(filename)] <> 'r' then
-  begin
-    CheckIfFileDpr := false;
-    exit;
-  end;
-  if filename[length(filename)-1] <> 'p' then
-  begin
-    CheckIfFileDpr := false;
-    exit;
-  end;
-  if filename[length(filename)-2] <> 'd' then
-  begin
-    CheckIfFileDpr := false;
-    exit;
-  end;
-  CheckIfFileDpr := true;
 end;
 
 procedure TDependenciesGrapher.ScanDpr( filename : string );
@@ -129,9 +87,15 @@ begin
 end;
 
 function TDependenciesGrapher.ReadWord() : string;
-var c : char;
+var c, temp_c : char;
     str : string;
+    temp : integer;
 begin
+    if EOF(f) then
+    begin
+      ReadWord := '';
+      exit;
+    end;
     while( eoln( f ) ) and (not EOF(f)) do
       readln( f );
     c := ' ';
@@ -140,43 +104,100 @@ begin
       Read(f, c);
     end;
 
-    while ( c <> ' ' ) and ( not eoln(f) ) and (not EOF(f)) do
+    if EOF( f ) then
     begin
-      str := str + c;
-      Read(f, c);
+      ReadWord := '';
+      exit;
     end;
 
-    if c <> ' ' then
+    temp := integer(c);
+    if temp < 30 then
+    begin
+      ReadWord := ReadWord;
+      exit;
+    end;
+
+    if ( c <> ' ' ) and ( eoln(f) ) then
+    begin
       str := str + c;
+    end
+    else
+    begin
+      while ( c <> ' ' ) and ( not eoln(f) ) and (not EOF(f)) and ( c <> #10 ) do
+      begin
+        str := str + c;
+        Read(f, c);
+        temp := integer(c);
+      end;
+      if (c <> ' ' )and ( temp <> 10 ) then
+        str := str + c;
+    end;
+
+    if str[1] = '{' then
+    begin
+      if pos( '}', str ) = 0 then
+        repeat
+          Read(f, c);
+        until c = '}';
+      ReadWord := ReadWord;
+      exit;
+    end;
+
+    if length( str ) > 1 then
+      if ( str[1] = '/' ) and ( str[2] = '/' ) then
+      begin
+        repeat
+          Read(f, c);
+        until (c = #10) or eoln(f);
+        ReadWord := ReadWord;
+        exit;
+      end;
+
+    if length( str ) > 1 then
+      if ( str[1] = '(' ) and ( str[2] = '*' ) then
+      begin
+        repeat
+          temp_c := c;
+          Read(f, c);
+        until ( temp_c = '*' ) and ( c = ')' );
+        ReadWord := ReadWord;
+        exit;
+      end;
 
   ReadWord := str;
 end;
 
-procedure TDependenciesGrapher.ScanForUnits( path : string );
+procedure TDependenciesGrapher.ScanForAllUnits( path : string );
+var
+    searchRec : TSearchRec;
+begin
+  ScanForUnitsInDir( path );
+
+  searchRec.Name := '';
+  FindFirst( path + '*', faDirectory, searchRec );  // searchRec.Name = '.'
+  FindNext( searchRec );  // searchRec.Name = '..'
+  while FindNext( searchRec ) = 0 do
+  begin
+    ScanForUnitsInDir( path + searchRec.Name + '\' );
+  end;
+end;
+
+procedure TDependenciesGrapher.ScanForUnitsInDir( path : string );
 var fileData : TWIN32FindData;
-    str : string;
-    numUnit : integer;
     seachInfo : WinAPI.Windows.THandle;
 begin
   fileData.cFileName := '';
   seachInfo := FindFirstFile( pchar(path + '*.pas'), fileData );
-  if seachInfo = ERROR_NO_MORE_FILES then
+  if seachInfo = INVALID_HANDLE_VALUE then
     exit;
-  numUnit := 0;
-  str := string(fileData.cFileName);
-  str := string(fileData.cAlternateFileName);
-  ScanUnitName( path + fileData.cFileName, numUnit );
-  inc( numUnit );
+  ScanUnitName( path + fileData.cFileName, numNonSysUnit );
+  inc( numNonSysUnit );
 
   while FindNextFile( seachInfo, fileData )  do
   begin
-    ScanUnitName( path + fileData.cFileName, numUnit );
-    inc( numUnit );
+    ScanUnitName( path + fileData.cFileName, numNonSysUnit );
+    inc( numNonSysUnit );
   end;
-
-  numNonSysUnit := numUnit;
-
-  { TODO: Add seach in subdirectories }
 end;
 
 procedure TDependenciesGrapher.ScanUnitName( filename : string; numUnit : integer );
@@ -254,7 +275,7 @@ begin
     begin
       if (str[length(str)] = ';') or (str[length(str)] = ',') then
       begin
-        if (str[length(str)] = ';') then
+        if ( pos( ';', str ) > 0 ) then
           stop := true;
         delete( str, length(str), 1 );  // delete ';' or ','
       end;

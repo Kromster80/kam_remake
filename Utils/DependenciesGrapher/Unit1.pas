@@ -34,14 +34,13 @@ implementation
 procedure TForm1.FormCreate(Sender: TObject);
 begin
   DepGraph := TDependenciesGrapher.Create;
-  DepGraph.Init;
 end;
 
 procedure TForm1.ButChooseDprClick(Sender: TObject);
 begin
   if not OpenDialog.Execute() then
     exit;
-  if not DepGraph.CheckIfFileDpr( OpenDialog.FileName ) then
+  if not SameText( ExtractFileExt(OpenDialog.FileName ), '.dpr' ) then
   begin
     MessageBox( 0, 'File must be a Delphi project', 'Error', MB_OK );
     exit;
@@ -49,13 +48,12 @@ begin
   ButChooseDpr.Visible := false;
   ButBuildGraph.Visible := true;
   ChConsSystem.Visible := true;
-  DepGraph.SetDprPath( OpenDialog.FileName );
 end;
 
 
 procedure TForm1.ButBuildGraphClick(Sender: TObject);
 begin
-  DepGraph.BuildGraph;
+  DepGraph.BuildGraph(  OpenDialog.FileName );
   DepGraph.PrintOutput( 'dependencies.txt' );
 end;
 
