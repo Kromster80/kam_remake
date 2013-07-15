@@ -350,7 +350,8 @@ end;
 
 procedure TKMGame.MouseMove(Shift: TShiftState; X,Y: Integer);
 begin
-  fActiveInterface.MouseMove(Shift, X,Y);end;
+  fActiveInterface.MouseMove(Shift, X,Y);
+end;
 
 
 procedure TKMGame.MouseUp(Button: TMouseButton; Shift: TShiftState; X, Y: Integer);

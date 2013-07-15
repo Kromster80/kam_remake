@@ -16,7 +16,7 @@ type
     fCount: Word;
     RenderOrder: array of smallint; //Order in which sprites will be drawn ()
     RenderList: array of record
-      Loc: TKMPointF; //Where sprite corner is located
+      Loc: TKMPointF; //Where sprite lower-left corner is located
       Feet: TKMPointF; //Feet of the sprite for FOW calculation (X;Y) and Z ordering (Y only)
       RX: TRXType;
       ID: Word;
@@ -902,6 +902,11 @@ begin
   begin
     if Lay = 1 then
     begin
+      if InRange(GameCursor.Float.X, pX, pX + pxWidth / CELL_SIZE_PX)
+      and InRange(GameCursor.Float.Y, pY - pxHeight / CELL_SIZE_PX, pY) then
+        sleep(0);
+        //todo: Can do objects UID picking by sprite shape here?
+
       glColor3ub(aFOW, aFOW, aFOW);
       glBindTexture(GL_TEXTURE_2D, Tex.Id);
       if HighlightRed then glColor3f(1,0,0);
