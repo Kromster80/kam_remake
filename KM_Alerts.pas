@@ -2,7 +2,7 @@ unit KM_Alerts;
 {$I KaM_Remake.inc}
 interface
 uses Classes, SysUtils,
-  KM_Defaults, KM_Pics, KM_Points, KM_Sound, KM_Viewport;
+  KM_Defaults, KM_Pics, KM_Points, KM_ResSound, KM_Viewport;
 
 
 type
@@ -236,7 +236,7 @@ begin
     //Make the sound
     if (fOwner = MySpectator.PlayerIndex)
     and (fLastLookedAt = INTERVAL_ATTACKED_MSG) then
-      fSoundLib.PlayNotification(fAsset);
+      gResSounds.PlayNotification(fAsset);
   end;
 end;
 
@@ -305,7 +305,7 @@ begin
   //If this player has too many beacons remove his oldest one
   RemoveExcessBeacons;
   fList.Add(TKMAlertBeacon.Create(aLoc, aOwner, fTickCounter^));
-  fSoundLib.Play(sfxn_Beacon);
+  gResSounds.Play(sfxn_Beacon);
 end;
 
 

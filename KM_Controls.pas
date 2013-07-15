@@ -1108,7 +1108,7 @@ type
 
 
 implementation
-uses KM_Resource, KM_ResCursors, KM_Sound, KM_Utils;
+uses KM_Resource, KM_ResCursors, KM_ResSound, KM_Utils;
 
 
 function MakeListRow(const aCaption: array of string; aTag: Integer = 0): TKMListRow;
@@ -1974,7 +1974,7 @@ end;
 
 procedure TKMButton.MouseUp(X,Y: Integer; Shift: TShiftState; Button: TMouseButton);
 begin
-  if fEnabled and MakesSound and (csDown in State) then fSoundLib.Play(sfxn_ButtonClick);
+  if fEnabled and MakesSound and (csDown in State) then gResSounds.Play(sfxn_ButtonClick);
   inherited;
 end;
 
@@ -2020,7 +2020,7 @@ end;
 procedure TKMButtonFlat.MouseUp(X,Y: Integer; Shift: TShiftState; Button: TMouseButton);
 begin
   if not Clickable then Exit;
-  if fEnabled and (csDown in State) then fSoundLib.Play(sfx_Click);
+  if fEnabled and (csDown in State) then gResSounds.Play(sfx_Click);
   inherited;
 end;
 

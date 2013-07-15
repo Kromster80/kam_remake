@@ -405,7 +405,7 @@ type
 implementation
 uses KM_Main, KM_GameInputProcess, KM_GameInputProcess_Multi, KM_AI, KM_RenderUI, KM_GameCursor,
   KM_PlayersCollection, KM_Player, KM_RenderPool, KM_ResTexts, KM_Game, KM_GameApp,
-  KM_Utils, KM_ResLocales, KM_Sound, KM_Resource, KM_Log, KM_ResCursors, KM_ResFonts,
+  KM_Utils, KM_ResLocales, KM_ResSound, KM_Resource, KM_Log, KM_ResCursors, KM_ResFonts,
   KM_ResSprites, KM_ResUnits, KM_ResWares, KM_FogOfWar, KM_HouseBarracks;
 
 
@@ -776,7 +776,7 @@ begin
     if Group.CanWalkTo(Loc, 0) then
     begin
       fGame.GameInputProcess.CmdArmy(gic_ArmyWalk, Group, Loc, dir_NA);
-      fSoundLib.PlayWarrior(Group.UnitType, sp_Move);
+      gResSounds.PlayWarrior(Group.UnitType, sp_Move);
     end;
   end;
 end;
@@ -1903,7 +1903,7 @@ end;
 
 procedure TKMGamePlayInterface.Chat_Show(Sender: TObject);
 begin
-  fSoundLib.Play(sfxn_MPChatOpen);
+  gResSounds.Play(sfxn_MPChatOpen);
   Allies_Close(nil);
   Panel_Chat.Show;
   Message_Close(nil);
@@ -1923,7 +1923,7 @@ end;
 
 procedure TKMGamePlayInterface.Allies_Show(Sender: TObject);
 begin
-  fSoundLib.Play(sfxn_MPChatOpen);
+  gResSounds.Play(sfxn_MPChatOpen);
   Panel_Allies.Show;
   Chat_Close(nil);
   Message_Close(nil);
@@ -1960,7 +1960,7 @@ begin
   Panel_Message.Show;
   //Must update top AFTER showing panel, otherwise Button_MessageGoTo.Visible will always return false
   Button_MessageDelete.Top := IfThen(Button_MessageGoTo.Visible, 104, 74);
-  fSoundLib.Play(sfx_MessageOpen); //Play parchment sound when they open the message
+  gResSounds.Play(sfx_MessageOpen); //Play parchment sound when they open the message
 end;
 
 
@@ -1974,7 +1974,7 @@ begin
 
     //Play sound
     if Sender <> nil then
-      fSoundLib.Play(sfx_MessageClose);
+      gResSounds.Play(sfx_MessageClose);
   end;
 
   ShownMessage := -1;
@@ -2694,7 +2694,7 @@ begin
   fGameApp.GameSettings.MusicOff      := CheckBox_Settings_MusicOff.Checked;
   fGameApp.GameSettings.ShuffleOn     := CheckBox_Settings_ShuffleOn.Checked;
 
-  fSoundLib.UpdateSoundVolume(fGameApp.GameSettings.SoundFXVolume);
+  gResSounds.UpdateSoundVolume(fGameApp.GameSettings.SoundFXVolume);
   fGameApp.MusicLib.UpdateMusicVolume(fGameApp.GameSettings.MusicVolume);
   if MusicToggled then
   begin
@@ -2749,38 +2749,38 @@ begin
   if Sender = Button_Army_Stop    then
   begin
     fGame.GameInputProcess.CmdArmy(gic_ArmyHalt, Group);
-    fSoundLib.PlayWarrior(Group.UnitType, sp_Halt);
+    gResSounds.PlayWarrior(Group.UnitType, sp_Halt);
   end;
   //if Sender = Button_Army_Attack  then ; //This command makes no sense unless player has no right-mouse-button
   if Sender = Button_Army_RotCW   then
   begin
     fGame.GameInputProcess.CmdArmy(gic_ArmyFormation, Group, tdCW, 0);
-    fSoundLib.PlayWarrior(Group.UnitType, sp_RotRight);
+    gResSounds.PlayWarrior(Group.UnitType, sp_RotRight);
   end;
   if Sender = Button_Army_Storm   then
   begin
     fGame.GameInputProcess.CmdArmy(gic_ArmyStorm, Group);
-    fSoundLib.PlayWarrior(Group.UnitType, sp_StormAttack);
+    gResSounds.PlayWarrior(Group.UnitType, sp_StormAttack);
   end;
   if Sender = Button_Army_RotCCW  then
   begin
     fGame.GameInputProcess.CmdArmy(gic_ArmyFormation, Group, tdCCW, 0);
-    fSoundLib.PlayWarrior(Group.UnitType, sp_RotLeft);
+    gResSounds.PlayWarrior(Group.UnitType, sp_RotLeft);
   end;
   if Sender = Button_Army_ForDown then
   begin
     fGame.GameInputProcess.CmdArmy(gic_ArmyFormation, Group, tdNone, 1);
-    fSoundLib.PlayWarrior(Group.UnitType, sp_Formation);
+    gResSounds.PlayWarrior(Group.UnitType, sp_Formation);
   end;
   if Sender = Button_Army_ForUp   then
   begin
     fGame.GameInputProcess.CmdArmy(gic_ArmyFormation, Group, tdNone, -1);
-    fSoundLib.PlayWarrior(Group.UnitType, sp_Formation);
+    gResSounds.PlayWarrior(Group.UnitType, sp_Formation);
   end;
   if Sender = Button_Army_Split   then
   begin
     fGame.GameInputProcess.CmdArmy(gic_ArmySplit, Group);
-    fSoundLib.PlayWarrior(Group.UnitType, sp_Split);
+    gResSounds.PlayWarrior(Group.UnitType, sp_Split);
   end;
   if Sender = Button_Army_Join    then
   begin
@@ -2791,7 +2791,7 @@ begin
   if Sender = Button_Army_Feed    then
   begin
     fGame.GameInputProcess.CmdArmy(gic_ArmyFeed, Group);
-    fSoundLib.PlayWarrior(Group.UnitType, sp_Eat);
+    gResSounds.PlayWarrior(Group.UnitType, sp_Eat);
   end;
 end;
 
@@ -2851,14 +2851,14 @@ end;
 
 procedure TKMGamePlayInterface.Allies_Close(Sender: TObject);
 begin
-  if Panel_Allies.Visible then fSoundLib.Play(sfxn_MPChatClose);
+  if Panel_Allies.Visible then gResSounds.Play(sfxn_MPChatClose);
   Panel_Allies.Hide;
 end;
 
 
 procedure TKMGamePlayInterface.Chat_Close(Sender: TObject);
 begin
-  if Panel_Chat.Visible then fSoundLib.Play(sfxn_MPChatClose);
+  if Panel_Chat.Visible then gResSounds.Play(sfxn_MPChatClose);
   Panel_Chat.Hide;
 end;
 
@@ -3023,7 +3023,7 @@ procedure TKMGamePlayInterface.MessageIssue(aKind: TKMMessageKind; aText: string
 begin
   fMessageList.Add(aKind, aText, KMPoint(0,0));
   Message_UpdateStack;
-  fSoundLib.Play(sfx_MessageNotice, 4); //Play horn sound on new message if it is the right type
+  gResSounds.Play(sfx_MessageNotice, 4); //Play horn sound on new message if it is the right type
 end;
 
 
@@ -3031,7 +3031,7 @@ procedure TKMGamePlayInterface.MessageIssue(aKind: TKMMessageKind; aText: string
 begin
   fMessageList.Add(aKind, aText, aLoc);
   Message_UpdateStack;
-  fSoundLib.Play(sfx_MessageNotice, 4); //Play horn sound on new message if it is the right type
+  gResSounds.Play(sfx_MessageNotice, 4); //Play horn sound on new message if it is the right type
 end;
 
 
@@ -3040,7 +3040,7 @@ begin
   if Panel_MessageLog.Visible then
   begin
     Panel_MessageLog.Hide;
-    fSoundLib.Play(sfx_MessageClose);
+    gResSounds.Play(sfx_MessageClose);
   end
   else
   begin
@@ -3053,7 +3053,7 @@ begin
 
     Panel_MessageLog.Show;
     ColumnBox_MessageLog.TopIndex := ColumnBox_MessageLog.RowCount;
-    fSoundLib.Play(sfx_MessageOpen); //Play parchment sound when they open the message
+    gResSounds.Play(sfx_MessageOpen); //Play parchment sound when they open the message
   end;
 end;
 
@@ -3062,7 +3062,7 @@ procedure TKMGamePlayInterface.MessageLog_Close(Sender: TObject);
 begin
   Panel_MessageLog.Hide;
   if Sender = Image_MessageLogClose then
-    fSoundLib.Play(sfx_MessageClose);
+    gResSounds.Play(sfx_MessageClose);
 end;
 
 
@@ -3705,7 +3705,7 @@ begin
         Exit;
       end;
       if (OldSelected <> MySpectator.Selected) and not fReplay and not HasLostMPGame then
-        fSoundLib.PlayCitizen(TKMUnit(MySpectator.Selected).UnitType, sp_Select);
+        gResSounds.PlayCitizen(TKMUnit(MySpectator.Selected).UnitType, sp_Select);
       //Selecting a unit twice is the shortcut to center on that unit
       if OldSelected = MySpectator.Selected then
         fGame.Viewport.Position := TKMUnit(MySpectator.Selected).PositionF;
@@ -3734,7 +3734,7 @@ begin
         end;
         TKMUnitGroup(MySpectator.Selected).SelectFlagBearer;
         if (OldSelected <> MySpectator.Selected) and not fReplay and not HasLostMPGame then
-          fSoundLib.PlayWarrior(TKMUnitGroup(MySpectator.Selected).SelectedUnit.UnitType, sp_Select);
+          gResSounds.PlayWarrior(TKMUnitGroup(MySpectator.Selected).SelectedUnit.UnitType, sp_Select);
         //Selecting a group twice is the shortcut to center on that group
         if OldSelected = MySpectator.Selected then
           fGame.Viewport.Position := TKMUnitGroup(MySpectator.Selected).SelectedUnit.PositionF;
@@ -4041,7 +4041,7 @@ begin
           fResource.Cursors.Cursor := kmc_Invisible;
         end
         else
-          fSoundLib.Play(sfx_CantPlace, GameCursor.Cell, False, 4);
+          gResSounds.Play(sfx_CantPlace, GameCursor.Cell, False, 4);
       end;
     end;
   end;
@@ -4264,7 +4264,7 @@ begin
             //Warrior might not have a group yet if he's still walking out of the barracks
             if Group2 <> nil then
             begin
-              fSoundLib.PlayWarrior(Group.UnitType, sp_Join); //In SP joining is instant, Group does not exist after that
+              gResSounds.PlayWarrior(Group.UnitType, sp_Join); //In SP joining is instant, Group does not exist after that
               fGame.GameInputProcess.CmdArmy(gic_ArmyLink, Group, Group2);
               Army_HideJoinMenu(nil);
             end;
@@ -4284,7 +4284,7 @@ begin
         begin
           if GameCursor.Mode in [cmErase, cmRoad, cmField, cmWine, cmWall, cmHouses] then
             //Can't place noise when clicking on unexplored areas
-            fSoundLib.Play(sfx_CantPlace, P, False, 4);
+            gResSounds.Play(sfx_CantPlace, P, False, 4);
         end
         else
           case GameCursor.Mode of
@@ -4315,7 +4315,7 @@ begin
                   ShowUnitInfo(TKMUnit(MySpectator.Selected));
                   if not fReplay and not HasLostMPGame
                   and (OldSelected <> MySpectator.Selected) then
-                    fSoundLib.PlayCitizen(TKMUnit(MySpectator.Selected).UnitType, sp_Select);
+                    gResSounds.PlayCitizen(TKMUnit(MySpectator.Selected).UnitType, sp_Select);
                 end;
 
                 if (MySpectator.Selected is TKMUnitGroup) then
@@ -4324,7 +4324,7 @@ begin
                   ShowGroupInfo(Group);
                   if not fReplay and not HasLostMPGame
                   and ((OldSelected <> Group) or (OldSelectedUnit <> Group.SelectedUnit)) then
-                    fSoundLib.PlayWarrior(Group.SelectedUnit.UnitType, sp_Select);
+                    gResSounds.PlayWarrior(Group.SelectedUnit.UnitType, sp_Select);
                 end;
               end;
 
@@ -4348,7 +4348,7 @@ begin
                 if not (ssShift in Shift) then Build_ButtonClick(Button_BuildRoad); //If shift pressed do not reset cursor(keep selected building)
               end
               else
-                fSoundLib.Play(sfx_CantPlace, P, False, 4);
+                gResSounds.Play(sfx_CantPlace, P, False, 4);
             cmErase:
               if KMSamePoint(LastDragPoint, KMPoint(0,0)) then
               begin
@@ -4358,7 +4358,7 @@ begin
                 begin
                   MySpectator.Selected := H; //Select the house irregardless of unit below/above
                   ShowHouseInfo(H, True);
-                  fSoundLib.Play(sfx_Click);
+                  gResSounds.Play(sfx_Click);
                 end
                 else
                 begin
@@ -4369,7 +4369,7 @@ begin
                     if gPlayers[MySpectator.PlayerIndex].BuildList.FieldworksList.HasFakeField(P) <> ft_None then
                       fGame.GameInputProcess.CmdBuild(gic_BuildRemoveFieldPlan, P) //Remove plans
                     else
-                      fSoundLib.Play(sfx_CantPlace, P, False, 4); //Otherwise there is nothing to erase
+                      gResSounds.Play(sfx_CantPlace, P, False, 4); //Otherwise there is nothing to erase
                 end;
               end;
           end
@@ -4403,7 +4403,7 @@ begin
             and (gPlayers.CheckAlliance(MySpectator.PlayerIndex, U.Owner) = at_Enemy) then
             begin
               fGame.GameInputProcess.CmdArmy(gic_ArmyAttackUnit, Group, U);
-              fSoundLib.PlayWarrior(Group.UnitType, sp_Attack);
+              gResSounds.PlayWarrior(Group.UnitType, sp_Attack);
             end
             else
             begin //If there's no unit - try to Attack house
@@ -4412,14 +4412,14 @@ begin
               and (gPlayers.CheckAlliance(MySpectator.PlayerIndex, H.Owner) = at_Enemy) then
               begin
                 fGame.GameInputProcess.CmdArmy(gic_ArmyAttackHouse, Group, H);
-                fSoundLib.PlayWarrior(Group.UnitType, sp_Attack);
+                gResSounds.PlayWarrior(Group.UnitType, sp_Attack);
               end
               else //If there's no house - Walk to spot
                 //Ensure down click was successful (could have been over a mountain, then dragged to a walkable location)
                 if SelectingTroopDirection and Group.CanWalkTo(P, 0) then
                 begin
                   fGame.GameInputProcess.CmdArmy(gic_ArmyWalk, Group, P, SelectedDirection);
-                  fSoundLib.PlayWarrior(Group.UnitType, sp_Move);
+                  gResSounds.PlayWarrior(Group.UnitType, sp_Move);
                 end;
             end;
           end;
@@ -4587,7 +4587,7 @@ begin
     S := S + 'Network delay: ' + IntToStr(TGameInputProcess_Multi(fGame.GameInputProcess).GetNetworkDelay) + '|';
 
   if DISPLAY_SOUNDS then
-    S := S + IntToStr(fSoundLib.ActiveCount) + ' sounds playing|';
+    S := S + IntToStr(gResSounds.ActiveCount) + ' sounds playing|';
 
   //Temporary inteface (by @Crow)
   if SHOW_ARMYEVALS then

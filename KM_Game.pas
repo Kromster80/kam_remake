@@ -182,7 +182,7 @@ uses
   KM_CommonClasses, KM_Log, KM_Utils, KM_GameCursor,
   KM_ArmyEvaluation, KM_GameApp, KM_GameInfo, KM_MissionScript, KM_MissionScript_Standard,
   KM_Player, KM_PlayerSpectator, KM_PlayersCollection, KM_RenderPool, KM_Resource, KM_ResCursors,
-  KM_Sound, KM_Terrain, KM_TerrainPainter, KM_AIFields, KM_Maps,
+  KM_ResSound, KM_Terrain, KM_TerrainPainter, KM_AIFields, KM_Maps,
   KM_Scripting, KM_GameInputProcess_Single, KM_GameInputProcess_Multi, KM_Main;
 
 
@@ -726,7 +726,7 @@ end;
 procedure TKMGame.PlayerVictory(aPlayerIndex: TPlayerIndex);
 begin
   if aPlayerIndex = MySpectator.PlayerIndex then
-    fSoundLib.Play(sfxn_Victory, 1, True); //Fade music
+    gResSounds.Play(sfxn_Victory, 1, True); //Fade music
 
   if fGameMode = gmMulti then
   begin
@@ -755,7 +755,7 @@ begin
     Exit;
 
   if aPlayerIndex = MySpectator.PlayerIndex then
-    fSoundLib.Play(sfxn_Defeat, 1, True); //Fade music
+    gResSounds.Play(sfxn_Defeat, 1, True); //Fade music
 
   if fGameMode = gmMulti then
   begin
@@ -1054,7 +1054,7 @@ begin
   PeaceTicksRemaining := Max(0, Int64((fGameOptions.Peacetime * 600)) - fGameTickCount);
   if (PeaceTicksRemaining = 1) and (fGameMode in [gmMulti,gmReplayMulti]) then
   begin
-    fSoundLib.Play(sfxn_Peacetime, 1, True); //Fades music
+    gResSounds.Play(sfxn_Peacetime, 1, True); //Fades music
     if fGameMode = gmMulti then
     begin
       SetGameSpeed(fGameOptions.SpeedAfterPT, False);

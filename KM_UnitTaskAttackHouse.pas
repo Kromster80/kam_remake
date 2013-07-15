@@ -24,7 +24,7 @@ type
 
 
 implementation
-uses KM_PlayersCollection, KM_Sound, KM_Resource, KM_Projectiles, KM_Game;
+uses KM_PlayersCollection, KM_ResSound, KM_Resource, KM_Projectiles, KM_Game;
 
 
 const
@@ -135,9 +135,9 @@ begin
              Direction := KMGetDirection(GetPosition, fHouse.GetEntrance); //Look at house
            if MySpectator.FogOfWar.CheckTileRevelation(Round(PositionF.X), Round(PositionF.Y)) >= 255 then
              case UnitType of
-               ut_Arbaletman: fSoundLib.Play(sfx_CrossbowDraw, PositionF); //Aiming
-               ut_Bowman:     fSoundLib.Play(sfx_BowDraw,      PositionF); //Aiming
-               ut_Slingshot:  fSoundLib.Play(sfx_SlingerShoot, PositionF); //Aiming
+               ut_Arbaletman: gResSounds.Play(sfx_CrossbowDraw, PositionF); //Aiming
+               ut_Bowman:     gResSounds.Play(sfx_BowDraw,      PositionF); //Aiming
+               ut_Slingshot:  gResSounds.Play(sfx_SlingerShoot, PositionF); //Aiming
                else           Assert(false, 'Unknown shooter');
              end;
          end
@@ -190,7 +190,7 @@ begin
 
            //Play a sound. We should not use KaMRandom here because sound playback depends on FOW and is individual for each player
            if MySpectator.FogOfWar.CheckTileRevelation(GetPosition.X, GetPosition.Y) >= 255 then
-             fSoundLib.Play(MeleeSoundsHouse[Random(Length(MeleeSoundsHouse))], PositionF);
+             gResSounds.Play(MeleeSoundsHouse[Random(Length(MeleeSoundsHouse))], PositionF);
 
            fPhase := 1; //Go for another hit (will be 2 after inc below)
          end;

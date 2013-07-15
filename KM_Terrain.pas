@@ -213,7 +213,7 @@ var
 
 implementation
 uses KM_Log, KM_PlayersCollection, KM_TerrainWalkConnect,
-  KM_Resource, KM_Units, KM_Sound, KM_UnitActionStay, KM_Units_Warrior;
+  KM_Resource, KM_Units, KM_ResSound, KM_UnitActionStay, KM_Units_Warrior;
 
 
 { TKMTerrain }
@@ -1539,7 +1539,7 @@ begin
       Land[Loc.Y,Loc.X].Obj := ChopableTrees[I, caAgeStump];
       //Remember tick when tree was chopped to calc the snim length
       FallingTrees.Add(Loc, ChopableTrees[I, caAgeFall], fAnimStep);
-      fSoundLib.Play(sfx_TreeDown, Loc, True);
+      gResSounds.Play(sfx_TreeDown, Loc, True);
       Exit;
     end;
 end;

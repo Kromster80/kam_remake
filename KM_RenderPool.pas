@@ -108,7 +108,7 @@ var
 
 
 implementation
-uses KM_CommonTypes, KM_RenderAux, KM_PlayersCollection, KM_Game, KM_Sound, KM_Resource, KM_ResUnits,
+uses KM_CommonTypes, KM_RenderAux, KM_PlayersCollection, KM_Game, KM_ResSound, KM_Resource, KM_ResUnits,
   KM_ResMapElements, KM_Units, KM_AIFields, KM_TerrainPainter, KM_GameCursor, KM_InterfaceMapEditor;
 
 
@@ -186,7 +186,7 @@ begin
     //Cursor overlays (including blue-wire plans), go on top of everything
     CollectCursors;
 
-    if DISPLAY_SOUNDS then fSoundLib.Paint;
+    if DISPLAY_SOUNDS then gResSounds.Paint;
   glPopAttrib;
 end;
 

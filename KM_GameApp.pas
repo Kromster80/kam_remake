@@ -89,7 +89,7 @@ implementation
 uses
   KM_Log, KM_Main, KM_GameCursor,
   {$IFDEF USE_MAD_EXCEPT} KM_Exceptions, {$ENDIF}
-  KM_Maps, KM_Resource, KM_Sound, KM_Utils;
+  KM_Maps, KM_Resource, KM_ResSound, KM_Utils;
 
 
 { Creating everything needed for MainMenu, game stuff is created on StartGame }
@@ -118,10 +118,10 @@ begin
   fResource     := TResource.Create(fRender, aLS, aLT);
   fResource.LoadMenuResources;
 
-  fSoundLib     := TSoundLib.Create(fGameSettings.SoundFXVolume, True); //Required for button click sounds
+  gResSounds     := TSoundLib.Create(fGameSettings.SoundFXVolume, True); //Required for button click sounds
   fMusicLib     := TMusicLib.Create(fGameSettings.MusicVolume);
-  fSoundLib.OnRequestFade   := fMusicLib.FadeMusic;
-  fSoundLib.OnRequestUnfade := fMusicLib.UnfadeMusic;
+  gResSounds.OnRequestFade   := fMusicLib.FadeMusic;
+  gResSounds.OnRequestUnfade := fMusicLib.UnfadeMusic;
 
   fCampaigns    := TKMCampaignsCollection.Create;
   fCampaigns.ScanFolder(ExeDir + 'Campaigns' + PathDelim);
@@ -171,7 +171,7 @@ begin
   FreeThenNil(fLocales);
   FreeThenNil(fMainMenuInterface);
   FreeThenNil(fResource);
-  FreeThenNil(fSoundLib);
+  FreeThenNil(gResSounds);
   FreeThenNil(fMusicLib);
   FreeThenNil(fTextMain);
   FreeAndNil(fNetworking);
@@ -206,7 +206,7 @@ begin
   FreeAndNil(fNetworking);
   FreeAndNil(fCampaigns);
   FreeAndNil(fMainMenuInterface);
-  FreeAndNil(fSoundLib);
+  FreeAndNil(gResSounds);
   FreeAndNil(fTextMain);
 
   //Recreate resources that use Locale info
@@ -215,9 +215,9 @@ begin
   {$IFDEF USE_MAD_EXCEPT}fExceptions.LoadTranslation;{$ENDIF}
   //Don't reshow the warning dialog when initing sounds, it gets stuck behind in full screen
   //and the user already saw it when starting the game.
-  fSoundLib := TSoundLib.Create(fGameSettings.SoundFXVolume, False);
-  fSoundLib.OnRequestFade := fMusicLib.FadeMusic;
-  fSoundLib.OnRequestUnfade := fMusicLib.UnfadeMusic;
+  gResSounds := TSoundLib.Create(fGameSettings.SoundFXVolume, False);
+  gResSounds.OnRequestFade := fMusicLib.FadeMusic;
+  gResSounds.OnRequestUnfade := fMusicLib.UnfadeMusic;
   fResource.Fonts.LoadFonts;
 
   //Campaigns use single locale
@@ -657,7 +657,7 @@ end;
 procedure TKMGameApp.PauseMusicToPlayFile(aFileName:string);
 begin
   if not FileExists(aFileName) then Exit;
-  fSoundLib.AbortAllFadeSounds; //Victory/defeat sounds also fade music, so stop those in the rare chance they might still be playing
+  gResSounds.AbortAllFadeSounds; //Victory/defeat sounds also fade music, so stop those in the rare chance they might still be playing
   fMusicLib.PauseMusicToPlayFile(aFileName, fGameSettings.SoundFXVolume);
 end;
 
@@ -707,7 +707,7 @@ begin
     fGame.UpdateStateIdle(aFrameTime);
 
   if fMusicLib <> nil then fMusicLib.UpdateStateIdle;
-  if fSoundLib <> nil then fSoundLib.UpdateStateIdle;
+  if gResSounds <> nil then gResSounds.UpdateStateIdle;
   if fNetworking <> nil then fNetworking.UpdateStateIdle;
 end;
 

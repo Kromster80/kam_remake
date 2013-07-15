@@ -148,7 +148,7 @@ uses
   KM_Controls,
   KM_GameApp,
   KM_PlayersCollection,
-  KM_Sound,
+  KM_ResSound,
   KM_Pics,
   KM_RenderPool;
 
@@ -341,7 +341,7 @@ end;
 
 procedure TFormMain.Export_Sounds1Click(Sender: TObject);
 begin
-  fSoundLib.ExportSounds;
+  gResSounds.ExportSounds;
 end;
 
 procedure TFormMain.Export_TreeAnim1Click(Sender: TObject);

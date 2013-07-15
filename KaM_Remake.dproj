@@ -206,6 +206,7 @@
 			<DCCReference Include="KM_ResLocales.pas"/>
 			<DCCReference Include="KM_ResMapElements.pas"/>
 			<DCCReference Include="KM_ResPalettes.pas"/>
+			<DCCReference Include="KM_ResSound.pas"/>
 			<DCCReference Include="KM_ResSprites.pas"/>
 			<DCCReference Include="KM_ResTexts.pas"/>
 			<DCCReference Include="KM_ResTileset.pas"/>
@@ -217,7 +218,6 @@
 			<DCCReference Include="KM_ScriptingIdCache.pas"/>
 			<DCCReference Include="KM_ServerQuery.pas"/>
 			<DCCReference Include="KM_Settings.pas"/>
-			<DCCReference Include="KM_Sound.pas"/>
 			<DCCReference Include="KM_Terrain.pas"/>
 			<DCCReference Include="KM_TerrainFinder.pas"/>
 			<DCCReference Include="KM_TerrainPainter.pas"/>

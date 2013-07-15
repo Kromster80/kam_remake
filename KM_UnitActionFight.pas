@@ -34,7 +34,7 @@ type
 
 
 implementation
-uses KM_PlayersCollection, KM_Sound, KM_Units_Warrior, KM_Resource, KM_Projectiles;
+uses KM_PlayersCollection, KM_ResSound, KM_Units_Warrior, KM_Resource, KM_Projectiles;
 
 const STRIKE_STEP = 5; //Melee units place hit on step 5
 
@@ -152,17 +152,17 @@ begin
   //We should not use KaMRandom below this line because sound playback depends on FOW and is individual for each player
   if MySpectator.FogOfWar.CheckTileRevelation(fUnit.GetPosition.X, fUnit.GetPosition.Y) < 255 then exit;
 
-  if MakeBattleCry then fSoundLib.PlayWarrior(fUnit.UnitType, sp_BattleCry, fUnit.PositionF);
+  if MakeBattleCry then gResSounds.PlayWarrior(fUnit.UnitType, sp_BattleCry, fUnit.PositionF);
 
   case fUnit.UnitType of
-    ut_Arbaletman: fSoundLib.Play(sfx_CrossbowDraw, fUnit.PositionF); //Aiming
-    ut_Bowman:     fSoundLib.Play(sfx_BowDraw,      fUnit.PositionF); //Aiming
-    ut_Slingshot:  fSoundLib.Play(sfx_SlingerShoot, fUnit.PositionF);
+    ut_Arbaletman: gResSounds.Play(sfx_CrossbowDraw, fUnit.PositionF); //Aiming
+    ut_Bowman:     gResSounds.Play(sfx_BowDraw,      fUnit.PositionF); //Aiming
+    ut_Slingshot:  gResSounds.Play(sfx_SlingerShoot, fUnit.PositionF);
     else           begin
                      if IsHit then
-                       fSoundLib.Play(MeleeSoundsHit[Random(Length(MeleeSoundsHit))], fUnit.PositionF)
+                       gResSounds.Play(MeleeSoundsHit[Random(Length(MeleeSoundsHit))], fUnit.PositionF)
                      else
-                       fSoundLib.Play(MeleeSoundsMiss[Random(Length(MeleeSoundsMiss))], fUnit.PositionF);
+                       gResSounds.Play(MeleeSoundsMiss[Random(Length(MeleeSoundsMiss))], fUnit.PositionF);
                    end;
   end;
 end;

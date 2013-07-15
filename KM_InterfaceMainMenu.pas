@@ -233,7 +233,7 @@ type
 
 implementation
 uses KM_Main, KM_NetworkTypes, KM_ResTexts, KM_Game, KM_GameApp, KM_ResLocales,
-  KM_Utils, KM_Log, KM_Sound, KM_Networking, KM_RenderUI, KM_ResFonts;
+  KM_Utils, KM_Log, KM_ResSound, KM_Networking, KM_RenderUI, KM_ResFonts;
 
 
 const
@@ -1355,17 +1355,17 @@ begin
   if Trim(aName) = '' then
   begin
     MP_Update(fTextMain[TX_GAME_ERROR_BLANK_PLAYERNAME], icYellow, false);
-    fSoundLib.Play(sfxn_Error);
+    gResSounds.Play(sfxn_Error);
   end
   else if Length(aName) > MAX_NAME_LENGTH then
   begin
     MP_Update(Format(fTextMain[TX_GAME_ERROR_LONG_PLAYERNAME], [MAX_NAME_LENGTH]), icYellow, false);
-    fSoundLib.Play(sfxn_Error);
+    gResSounds.Play(sfxn_Error);
   end
   else if (Pos('|', aName) <> 0) or (Pos('[$', aName) <> 0) or (Pos('[]', aName) <> 0) or (Pos('<$', aName) <> 0) then
   begin
     MP_Update(fTextMain[TX_GAME_ERROR_ILLEGAL_PLAYERNAME], icYellow, false);
-    fSoundLib.Play(sfxn_Error);
+    gResSounds.Play(sfxn_Error);
   end
   else
     Result := True;
@@ -1423,7 +1423,7 @@ procedure TKMMainMenuInterface.MP_JoinFail(const aData: UnicodeString);
 begin
   fGameApp.Networking.Disconnect;
   MP_Update(Format(fTextMain[TX_GAME_ERROR_CONNECTION_FAILED],[aData]),icYellow,false);
-  fSoundLib.Play(sfxn_Error);
+  gResSounds.Play(sfxn_Error);
 end;
 
 
@@ -1450,7 +1450,7 @@ end;
 procedure TKMMainMenuInterface.MP_HostFail(const aData: UnicodeString);
 begin
   fGameApp.Networking.Disconnect;
-  fSoundLib.Play(sfxn_Error);
+  gResSounds.Play(sfxn_Error);
 
   PageChange(Self, gpMultiplayer, aData);
 end;

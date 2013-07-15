@@ -17,7 +17,7 @@ type
 
 
 implementation
-uses KM_Sound, KM_PlayersCollection, KM_Resource, KM_Units_Warrior;
+uses KM_ResSound, KM_PlayersCollection, KM_Resource, KM_Units_Warrior;
 
 
 { TTaskDie }
@@ -78,9 +78,9 @@ begin
               if MySpectator.FogOfWar.CheckTileRevelation(fUnit.GetPosition.X, fUnit.GetPosition.Y) >= 255 then
               begin
                 if fUnit is TKMUnitWarrior then
-                  fSoundLib.PlayWarrior(fUnit.UnitType, sp_Death, fUnit.PositionF)
+                  gResSounds.PlayWarrior(fUnit.UnitType, sp_Death, fUnit.PositionF)
                 else
-                  fSoundLib.PlayCitizen(fUnit.UnitType, sp_Death, fUnit.PositionF);
+                  gResSounds.PlayCitizen(fUnit.UnitType, sp_Death, fUnit.PositionF);
               end;
             end;
           end;

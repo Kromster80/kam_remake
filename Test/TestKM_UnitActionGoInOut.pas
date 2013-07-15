@@ -21,7 +21,7 @@ type
 
 
 implementation
-uses KM_Log, KM_PlayersCollection, KM_PlayerSpectator, KM_Resource, KM_Sound, KM_Terrain, KM_Utils, KM_ResHouses;
+uses KM_Log, KM_PlayersCollection, KM_PlayerSpectator, KM_Resource, KM_ResSound, KM_Terrain, KM_Utils, KM_ResHouses;
 
 
 procedure TestTUnitActionGoInOut.SetUp;
@@ -33,7 +33,7 @@ begin
   gLog := TKMLog.Create(ExtractFilePath(ParamStr(0)) + 'log.log');
   fResource := TResource.Create(nil, nil, nil);
   fResource.LoadMenuResources;
-  fSoundLib := TSoundLib.Create(0, False);
+  gResSounds := TSoundLib.Create(0, False);
   gTerrain := TKMTerrain.Create;
   gTerrain.MakeNewMap(32, 32, False);
   gPlayers := TKMPlayersCollection.Create;
@@ -51,7 +51,7 @@ begin
   FUnitActionGoInOut.Free;
   gPlayers.Free;
   gTerrain.Free;
-  fSoundLib.Free;
+  gResSounds.Free;
   fResource.Free;
   gLog.Free;
   FUnitActionGoInOut := nil;

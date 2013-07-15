@@ -61,7 +61,7 @@ type
 
 
 implementation
-uses KM_Main, KM_ResTexts, KM_GameApp, KM_ResLocales, KM_Sound, KM_RenderUI, KM_ResFonts;
+uses KM_Main, KM_ResTexts, KM_GameApp, KM_ResLocales, KM_ResSound, KM_RenderUI, KM_ResFonts;
 
 
 { TKMGUIMainOptions }
@@ -229,7 +229,7 @@ begin
   TrackBar_Options_Music.Enabled      := not CheckBox_Options_MusicOff.Checked;
   CheckBox_Options_ShuffleOn.Enabled  := not CheckBox_Options_MusicOff.Checked;
 
-  fSoundLib.UpdateSoundVolume(fGameSettings.SoundFXVolume);
+  gResSounds.UpdateSoundVolume(fGameSettings.SoundFXVolume);
   fGameApp.MusicLib.UpdateMusicVolume(fGameSettings.MusicVolume);
   SetupVSync(fMainSettings.VSync);
   if MusicToggled then

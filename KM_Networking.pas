@@ -199,7 +199,7 @@ type
 
 
 implementation
-uses KM_ResTexts, KM_Sound, KM_Log, KM_Utils, StrUtils, Math, KM_Resource;
+uses KM_ResTexts, KM_ResSound, KM_Log, KM_Utils, StrUtils, Math, KM_Resource;
 
 
 { TKMNetworking }
@@ -881,7 +881,7 @@ begin
   if Assigned(fOnTextMessage) then
   begin
     fOnTextMessage(aText);
-    if aMakeSound then fSoundLib.Play(sfxn_MPChatMessage);
+    if aMakeSound then gResSounds.Play(sfxn_MPChatMessage);
   end;
 end;
 
@@ -1069,7 +1069,7 @@ begin
                           fNetPlayers[fMyIndex].ReadyToStart := True;
                           if Assigned(fOnPlayersSetup) then fOnPlayersSetup(Self);
                           SetGameState(lgs_Lobby);
-                          fSoundLib.Play(sfxn_MPChatMessage); //Sound for joining the lobby
+                          gResSounds.Play(sfxn_MPChatMessage); //Sound for joining the lobby
                           if fWelcomeMessage <> '' then PostLocalMessage(fWelcomeMessage, false);
                         end;
                     lpk_Joiner:
@@ -1160,7 +1160,7 @@ begin
               begin
                 fOnJoinSucc(Self); //Enter lobby
                 SetGameState(lgs_Lobby);
-                fSoundLib.Play(sfxn_MPChatMessage); //Sound for joining the lobby
+                gResSounds.Play(sfxn_MPChatMessage); //Sound for joining the lobby
                 if fWelcomeMessage <> '' then PostLocalMessage(fWelcomeMessage,false);
                 PacketSend(NET_ADDRESS_HOST, mk_LangCode, fLocales.UserLocale);
               end;

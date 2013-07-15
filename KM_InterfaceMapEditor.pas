@@ -405,7 +405,7 @@ implementation
 uses
   KM_CommonClasses, KM_PlayersCollection, KM_ResTexts, KM_Game, KM_Main, KM_GameCursor,
   KM_GameApp, KM_Resource, KM_TerrainPainter, KM_ResCursors, KM_Utils,
-  KM_ResMapElements, KM_AIDefensePos, KM_ResHouses, KM_RenderUI, KM_Sound,
+  KM_ResMapElements, KM_AIDefensePos, KM_ResHouses, KM_RenderUI, KM_ResSound,
   KM_ResWares, KM_HouseBarracks, KM_ResFonts;
 
 
@@ -3313,40 +3313,40 @@ begin
     if Panel_Extra.Visible then
     begin
       Panel_Extra.Hide;
-      fSoundLib.Play(sfxn_MPChatClose);
+      gResSounds.Play(sfxn_MPChatClose);
     end
     else
     begin
       Panel_Extra.Show;
       Panel_Message.Hide;
-      fSoundLib.Play(sfxn_MPChatOpen);
+      gResSounds.Play(sfxn_MPChatOpen);
     end;
   end
   else
   if Sender = Image_ExtraClose then
   begin
     Panel_Extra.Hide;
-    fSoundLib.Play(sfxn_MPChatClose);
+    gResSounds.Play(sfxn_MPChatClose);
   end;
   if Sender = Image_Message then
   begin
     if Panel_Message.Visible then
     begin
       Panel_Message.Hide;
-      fSoundLib.Play(sfxn_MPChatClose);
+      gResSounds.Play(sfxn_MPChatClose);
     end
     else
     begin
       Panel_Message.Show;
       Panel_Extra.Hide;
-      fSoundLib.Play(sfxn_MPChatOpen);
+      gResSounds.Play(sfxn_MPChatOpen);
     end;
   end
   else
   if Sender = Image_MessageClose then
   begin
     Panel_Message.Hide;
-    fSoundLib.Play(sfxn_MPChatClose);
+    gResSounds.Play(sfxn_MPChatClose);
   end;
 end;
 

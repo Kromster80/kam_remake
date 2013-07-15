@@ -180,7 +180,7 @@ begin
   begin
     fGameApp.NewCampaignMap(fGameApp.Campaigns.CampaignByTitle('TPR'), I);
 
-    gPlayers[0].Goals.ExportMessages(ExtractFilePath(ParamStr(0)) + Format('TPR%.2d.evt', [I+1]));
+    gPlayers[0].AI.Goals.ExportMessages(ExtractFilePath(ParamStr(0)) + Format('TPR%.2d.evt', [I+1]));
 
     fGameApp.Stop(gr_Silent);
   end;

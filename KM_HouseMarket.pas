@@ -46,7 +46,7 @@ type
 
 implementation
 uses
-  KM_PlayersCollection, KM_RenderPool, KM_Resource, KM_Sound;
+  KM_PlayersCollection, KM_RenderPool, KM_Resource, KM_ResSound;
 
 
 { TKMHouseMarket }
@@ -169,7 +169,7 @@ begin
     gPlayers[fOwner].Stats.WareProduced(fResTo, TradeCount * RatioTo);
     gPlayers[fOwner].Deliveries.Queue.AddOffer(Self, fResTo, TradeCount * RatioTo);
 
-    fSoundLib.Play(sfxn_Trade, fPosition);
+    gResSounds.Play(sfxn_Trade, fPosition);
   end;
 end;
 

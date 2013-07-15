@@ -51,7 +51,7 @@ type
 implementation
 uses
   KM_Game, KM_PlayersCollection, KM_Player, KM_PlayerStats,
-  KM_Sound, KM_Scripting, KM_ResHouses;
+  KM_ResSound, KM_Scripting, KM_ResHouses;
 
 
 { TKMPlayerAI }

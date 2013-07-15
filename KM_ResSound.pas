@@ -1,10 +1,11 @@
-unit KM_Sound;
+unit KM_ResSound;
 {$I KaM_Remake.inc}
 interface
 uses Classes, Dialogs, Forms, SysUtils, TypInfo,
   {$IFDEF Unix} LCLIntf, LCLType, {$ENDIF}
   OpenAL, KromUtils, KM_Defaults, KM_Points, KM_ResLocales;
 
+  //todo: Split into KM_Sound (OpenAL stuff) and KM_ResSounds (assets)
 
 const
   MAX_SOUNDS = 16; //64 looks like the limit, depends on hardware
@@ -195,7 +196,7 @@ type
 
 
 var
-  fSoundLib: TSoundLib;
+  gResSounds: TSoundLib;
 
 
 implementation
