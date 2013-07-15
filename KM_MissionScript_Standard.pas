@@ -444,7 +444,7 @@ begin
                               AddError('Goal type ' + GoalConditionStr[TGoalCondition(P[0])] + ' is deprecated');
                             if (P[2] <> 0) then
                               AddError('Goals messages are deprecated. Use .script instead');
-                            gPlayers[fLastPlayer].Goals.AddGoal(glt_Victory, TGoalCondition(P[0]), TGoalStatus(P[1]), 0, P[2], P[3]);
+                            gPlayers[fLastPlayer].AI.Goals.AddGoal(glt_Victory, TGoalCondition(P[0]), TGoalStatus(P[1]), 0, P[2], P[3]);
                           end;
                         end;
     ct_AddLostGoal:     if fLastPlayer >= 0 then
@@ -459,7 +459,7 @@ begin
                               AddError('LostGoal type ' + GoalConditionStr[TGoalCondition(P[0])] + ' is deprecated');
                             if (P[2] <> 0) then
                               AddError('LostGoals messages are deprecated. Use .script instead');
-                            gPlayers[fLastPlayer].Goals.AddGoal(glt_Survive, TGoalCondition(P[0]), TGoalStatus(P[1]), 0, P[2], P[3]);
+                            gPlayers[fLastPlayer].AI.Goals.AddGoal(glt_Survive, TGoalCondition(P[0]), TGoalStatus(P[1]), 0, P[2], P[3]);
                           end;
                         end;
     ct_AIDefence:       if fLastPlayer >=0 then
@@ -642,8 +642,8 @@ begin
     AddData(''); //NL
 
     //Human specific, e.g. goals, center screen (though all players can have it, only human can use it)
-    for K:=0 to gPlayers[I].Goals.Count-1 do
-      with gPlayers[I].Goals[K] do
+    for K:=0 to gPlayers[I].AI.Goals.Count-1 do
+      with gPlayers[I].AI.Goals[K] do
       begin
         if (GoalType = glt_Victory) or (GoalType = glt_None) then //For now treat none same as normal goal, we can add new command for it later
           if GoalCondition = gc_Time then

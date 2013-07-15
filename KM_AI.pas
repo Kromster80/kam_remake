@@ -5,17 +5,18 @@ uses
   Classes, KromUtils, SysUtils,
   KM_CommonClasses, KM_Defaults,
   KM_Houses, KM_Units, KM_UnitGroups, KM_Units_Warrior, KM_Points,
-  KM_AISetup, KM_AIMayor, KM_AIGeneral;
+  KM_AISetup, KM_AIMayor, KM_AIGeneral, KM_AIGoals;
 
 
 type
   TWonOrLost = (wol_None, wol_Won, wol_Lost);
 
   //Things that player does automatically
-  //Player AI exists both for AI and Human players
+  //Player AI exists both for AI and Human players, but for AI it does significantly more
   TKMPlayerAI = class
   private
     fOwner: TPlayerIndex;
+    fGoals: TKMGoals;
     fSetup: TKMPlayerAISetup;
     fMayor: TKMayor;
     fGeneral: TKMGeneral;
@@ -30,9 +31,11 @@ type
     property Setup: TKMPlayerAISetup read fSetup;
     property Mayor: TKMayor read fMayor;
     property General: TKMGeneral read fGeneral;
+    property Goals: TKMGoals read fGoals;
 
     procedure Defeat; //Defeat the player, this is not reversible
     procedure Victory; //Set this player as victorious, this is not reversible
+    procedure AddDefaultGoals(aBuildings: Boolean);
     property WonOrLost: TWonOrLost read fWonOrLost;
     procedure OwnerUpdate(aPlayer: TPlayerIndex);
     procedure HouseAttackNotification(aHouse: TKMHouse; aAttacker: TKMUnitWarrior);
@@ -47,7 +50,7 @@ type
 
 implementation
 uses
-  KM_Game, KM_PlayersCollection, KM_Goals, KM_Player, KM_PlayerStats,
+  KM_Game, KM_PlayersCollection, KM_Player, KM_PlayerStats,
   KM_Sound, KM_Scripting, KM_ResHouses;
 
 
@@ -60,12 +63,14 @@ begin
   fSetup := TKMPlayerAISetup.Create;
   fMayor := TKMayor.Create(fOwner, fSetup);
   fGeneral := TKMGeneral.Create(fOwner, fSetup);
+  fGoals := TKMGoals.Create;
   fWonOrLost := wol_None;
 end;
 
 
 destructor TKMPlayerAI.Destroy;
 begin
+  fGoals.Free;
   fGeneral.Free;
   fMayor.Free;
   fSetup.Free;
@@ -107,6 +112,22 @@ begin
     //Script may have additional event processors
     fScripting.ProcPlayerVictory(fOwner);
   end;
+end;
+
+
+procedure TKMPlayerAI.AddDefaultGoals(aBuildings: Boolean);
+var
+  I: Integer;
+  Enemies: array of TPlayerIndex;
+begin
+  SetLength(Enemies, 0);
+  for I := 0 to gPlayers.Count - 1 do
+    if (I <> fOwner) and (gPlayers[fOwner].Alliances[I] = at_Enemy) then
+    begin
+      SetLength(Enemies, Length(Enemies)+1);
+      Enemies[Length(Enemies)-1] := I;
+    end;
+  Goals.AddDefaultGoals(aBuildings, fOwner, Enemies);
 end;
 
 
@@ -260,6 +281,7 @@ begin
   fSetup.Save(SaveStream);
   fGeneral.Save(SaveStream);
   fMayor.Save(SaveStream);
+  fGoals.Save(SaveStream);
 end;
 
 
@@ -272,6 +294,7 @@ begin
   fSetup.Load(LoadStream);
   fGeneral.Load(LoadStream);
   fMayor.Load(LoadStream);
+  fGoals.Load(LoadStream);
 end;
 
 

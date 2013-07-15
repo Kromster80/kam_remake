@@ -118,6 +118,7 @@
 			<DCCReference Include="KM_AIInfluences.pas"/>
 			<DCCReference Include="KM_AIFields.pas"/>
 			<DCCReference Include="KM_AIGeneral.pas"/>
+			<DCCReference Include="KM_AIGoals.pas"/>
 			<DCCReference Include="KM_AIMayor.pas"/>
 			<DCCReference Include="KM_AIMayorBalance.pas"/>
 			<DCCReference Include="KM_AISetup.pas"/>
@@ -148,7 +149,6 @@
 			<DCCReference Include="KM_GameInputProcess.pas"/>
 			<DCCReference Include="KM_GameInputProcess_Multi.pas"/>
 			<DCCReference Include="KM_GameInputProcess_Single.pas"/>
-			<DCCReference Include="KM_Goals.pas"/>
 			<DCCReference Include="KM_GUIMenuCampaign.pas"/>
 			<DCCReference Include="KM_GUIMenuLobby.pas"/>
 			<DCCReference Include="KM_GUIMenuOptions.pas"/>

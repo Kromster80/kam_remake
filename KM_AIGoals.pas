@@ -1,4 +1,4 @@
-unit KM_Goals;
+unit KM_AIGoals;
 {$I KaM_Remake.inc}
 interface
 uses Classes, Math, SysUtils,

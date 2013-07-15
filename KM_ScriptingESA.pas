@@ -1227,7 +1227,8 @@ begin
   //Verify all input parameters
   if InRange(aPlayer, 0, gPlayers.Count - 1) then
   begin
-    gPlayers[aPlayer].AddDefaultGoals(aBuildings);
+
+    gPlayers[aPlayer].AI.AddDefaultGoals(aBuildings);
   end
   else
     LogError('Actions.PlayerAddDefaultGoals', [aPlayer, Byte(aBuildings)]);

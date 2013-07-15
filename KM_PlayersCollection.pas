@@ -145,7 +145,7 @@ var i,k:integer;
 begin
   //Remove other players goals using this player
   for i:=0 to fCount-1 do
-    fPlayerList[i].Goals.RemoveReference(aIndex);
+    fPlayerList[i].AI.Goals.RemoveReference(aIndex);
 
   FreeThenNil(fPlayerList[aIndex]);
 
@@ -477,7 +477,7 @@ procedure TKMPlayersCollection.AddDefaultGoalsToAll(aMissionMode: TKMissionMode)
 var I: Integer;
 begin
   for I := 0 to fCount - 1 do
-    fPlayerList[I].AddDefaultGoals(aMissionMode <> mm_Tactic);
+    fPlayerList[I].AI.AddDefaultGoals(aMissionMode <> mm_Tactic);
 end;
 
 

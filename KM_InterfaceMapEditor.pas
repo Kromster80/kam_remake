@@ -6,7 +6,7 @@ uses
    {$IFDEF Unix} LCLIntf, LCLType, {$ENDIF}
    Classes, Controls, KromUtils, Math, StrUtils, SysUtils, KromOGLUtils, TypInfo,
    KM_Controls, KM_Defaults, KM_Pics, KM_Maps, KM_Houses, KM_Units, KM_UnitGroups, KM_MapEditor,
-   KM_Points, KM_InterfaceDefaults, KM_AIAttacks, KM_Goals, KM_Terrain;
+   KM_Points, KM_InterfaceDefaults, KM_AIAttacks, KM_AIGoals, KM_Terrain;
 
 type
   TKMTerrainTab = (ttBrush, ttHeights, ttTile, ttObject, ttSelection);
@@ -2564,7 +2564,7 @@ begin
     G.MessageToShow := NumEdit_GoalMessage.Value;
     G.PlayerIndex := NumEdit_GoalPlayer.Value - 1;
 
-    gPlayers[MySpectator.PlayerIndex].Goals[I] := G;
+    gPlayers[MySpectator.PlayerIndex].AI.Goals[I] := G;
   end;
 
   Panel_Goal.Hide;
@@ -2591,10 +2591,10 @@ var
   G: TKMGoal;
 begin
   FillChar(G, SizeOf(G), #0);
-  gPlayers[MySpectator.PlayerIndex].Goals.AddGoal(G);
+  gPlayers[MySpectator.PlayerIndex].AI.Goals.AddGoal(G);
 
   Goals_Refresh;
-  ColumnBox_Goals.ItemIndex := gPlayers[MySpectator.PlayerIndex].Goals.Count - 1;
+  ColumnBox_Goals.ItemIndex := gPlayers[MySpectator.PlayerIndex].AI.Goals.Count - 1;
 
   //Edit the attack we have just appended
   Goals_Edit(ColumnBox_Goals.ItemIndex);
@@ -2605,16 +2605,16 @@ procedure TKMapEdInterface.Goals_Del(Sender: TObject);
 var I: Integer;
 begin
   I := ColumnBox_Goals.ItemIndex;
-  if InRange(I, 0, gPlayers[MySpectator.PlayerIndex].Goals.Count - 1) then
-    gPlayers[MySpectator.PlayerIndex].Goals.Delete(I);
+  if InRange(I, 0, gPlayers[MySpectator.PlayerIndex].AI.Goals.Count - 1) then
+    gPlayers[MySpectator.PlayerIndex].AI.Goals.Delete(I);
   Goals_Refresh;
 end;
 
 
 procedure TKMapEdInterface.Goals_Edit(aIndex: Integer);
 begin
-  Assert(InRange(aIndex, 0, gPlayers[MySpectator.PlayerIndex].Goals.Count - 1));
-  Goal_Refresh(gPlayers[MySpectator.PlayerIndex].Goals[aIndex]);
+  Assert(InRange(aIndex, 0, gPlayers[MySpectator.PlayerIndex].AI.Goals.Count - 1));
+  Goal_Refresh(gPlayers[MySpectator.PlayerIndex].AI.Goals[aIndex]);
   Panel_Goal.Show;
 end;
 
@@ -2624,7 +2624,7 @@ var
   I: Integer;
 begin
   I := ColumnBox_Goals.ItemIndex;
-  Button_GoalsDel.Enabled := InRange(I, 0, gPlayers[MySpectator.PlayerIndex].Goals.Count - 1);
+  Button_GoalsDel.Enabled := InRange(I, 0, gPlayers[MySpectator.PlayerIndex].AI.Goals.Count - 1);
 end;
 
 
@@ -2635,7 +2635,7 @@ begin
   I := ColumnBox_Goals.ItemIndex;
 
   //Check if user double-clicked on an existing item (not on an empty space)
-  if InRange(I, 0, gPlayers[MySpectator.PlayerIndex].Goals.Count - 1) then
+  if InRange(I, 0, gPlayers[MySpectator.PlayerIndex].AI.Goals.Count - 1) then
     Goals_Edit(I);
 end;
 
@@ -2652,9 +2652,9 @@ var
 begin
   ColumnBox_Goals.Clear;
 
-  for I := 0 to gPlayers[MySpectator.PlayerIndex].Goals.Count - 1 do
+  for I := 0 to gPlayers[MySpectator.PlayerIndex].AI.Goals.Count - 1 do
   begin
-    G := gPlayers[MySpectator.PlayerIndex].Goals[I];
+    G := gPlayers[MySpectator.PlayerIndex].AI.Goals[I];
     ColumnBox_Goals.AddItem(MakeListRow([Typ[G.GoalType],
                                     Cnd[G.GoalCondition],
                                     IntToStr(G.PlayerIndex + 1),

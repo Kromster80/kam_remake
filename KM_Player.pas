@@ -4,7 +4,7 @@ interface
 uses Classes, KromUtils, SysUtils, Math,
   KM_CommonClasses, KM_Defaults, KM_Points,
   KM_ArmyEvaluation, KM_BuildList, KM_DeliverQueue, KM_FogOfWar,
-  KM_Goals, KM_HouseCollection, KM_Houses, KM_Terrain, KM_AI, KM_PlayerStats, KM_Units, KM_Units_Warrior, KM_UnitGroups,
+  KM_HouseCollection, KM_Houses, KM_Terrain, KM_AI, KM_PlayerStats, KM_Units, KM_Units_Warrior, KM_UnitGroups,
   KM_ResHouses;
 
 
@@ -13,6 +13,7 @@ type
         pt_Human,
         pt_Computer);
 
+  //Player manages its assets
   TKMPlayerCommon = class
   private
     fPlayerIndex: TPlayerIndex; //Which ID this player is
@@ -43,7 +44,6 @@ type
     fBuildList: TKMBuildList; //Not the best name for buildingManagement
     fDeliveries: TKMDeliveries;
     fFogOfWar: TKMFogOfWar; //Stores FOW info for current player, which includes
-    fGoals: TKMGoals;
     fHouses: TKMHousesCollection;
     fRoadsList: TKMPointList; //Used only once to speedup mission loading, then freed
     fStats: TKMPlayerStats;
@@ -78,7 +78,6 @@ type
     property Deliveries: TKMDeliveries read fDeliveries;
     property Houses: TKMHousesCollection read fHouses;
     property Stats: TKMPlayerStats read fStats;
-    property Goals: TKMGoals read fGoals;
     property FogOfWar: TKMFogOfWar read fFogOfWar;
     property ArmyEval: TKMArmyEvaluation read fArmyEval;
     property UnitGroups: TKMUnitGroups read fUnitGroups;
@@ -126,7 +125,6 @@ type
     function HousesHitTest(X, Y: Integer): TKMHouse;
     function GroupsHitTest(X, Y: Integer): TKMUnitGroup;
     procedure GetHouseMarks(aLoc: TKMPoint; aHouseType: THouseType; aList: TKMPointTagList);
-    procedure AddDefaultGoals(aBuildings: Boolean);
 
     function GetFieldsCount: Integer;
     procedure GetFieldPlans(aList: TKMPointTagList; aRect: TKMRect; aIncludeFake: Boolean);
@@ -236,7 +234,6 @@ begin
 
   fAI           := TKMPlayerAI.Create(fPlayerIndex);
   fFogOfWar     := TKMFogOfWar.Create(gTerrain.MapX, gTerrain.MapY);
-  fGoals        := TKMGoals.Create;
   fStats        := TKMPlayerStats.Create;
   fRoadsList    := TKMPointList.Create;
   fHouses       := TKMHousesCollection.Create;
@@ -273,7 +270,6 @@ begin
 
   //Should be freed after Houses and Units, as they write Stats on Destroy
   FreeThenNil(fStats);
-  FreeThenNil(fGoals);
   FreeThenNil(fFogOfWar);
   FreeThenNil(fDeliveries);
   FreeThenNil(fBuildList);
@@ -992,22 +988,6 @@ begin
 end;
 
 
-procedure TKMPlayer.AddDefaultGoals(aBuildings: Boolean);
-var
-  I: Integer;
-  Enemies: array of TPlayerIndex;
-begin
-  SetLength(Enemies, 0);
-  for I := 0 to gPlayers.Count - 1 do
-    if (I <> fPlayerIndex) and (Alliances[I] = at_Enemy) then
-    begin
-      SetLength(Enemies, Length(Enemies)+1);
-      Enemies[Length(Enemies)-1] := I;
-    end;
-  Goals.AddDefaultGoals(aBuildings, fPlayerIndex, Enemies);
-end;
-
-
 procedure TKMPlayer.GetHouseMarks(aLoc: TKMPoint; aHouseType: THouseType; aList: TKMPointTagList);
   //Replace existing icon with a Block
   procedure BlockPoint(aPoint: TKMPoint; aID: Integer);
@@ -1086,7 +1066,6 @@ begin
   fBuildList.Save(SaveStream);
   fDeliveries.Save(SaveStream);
   fFogOfWar.Save(SaveStream);
-  fGoals.Save(SaveStream);
   fHouses.Save(SaveStream);
   fStats.Save(SaveStream);
   fUnitGroups.Save(SaveStream);
@@ -1111,7 +1090,6 @@ begin
   fBuildList.Load(LoadStream);
   fDeliveries.Load(LoadStream);
   fFogOfWar.Load(LoadStream);
-  fGoals.Load(LoadStream);
   fHouses.Load(LoadStream);
   fStats.Load(LoadStream);
   fUnitGroups.Load(LoadStream);
