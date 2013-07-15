@@ -52,21 +52,26 @@ type
     rPitch,rHeading,rBank: Integer;
     fRenderList: TRenderList;
     fRenderTerrain: TRenderTerrain;
-    //procedure RenderObject(aRX: TRXType; aId: Word; pX,pY: Single);
-    procedure RenderSprite(aRX: TRXType; aId: Word; pX,pY: Single; Col: TColor4; aFOW: Byte; HighlightRed: Boolean = False);
+
+    fFieldsList: TKMPointTagList;
+    fHousePlansList: TKMPointDirList;
+    fTabletsList: TKMPointTagList;
+
+    procedure RenderBackgroundUI(aRect: TKMRect);
+    procedure RenderObjects(aRect: TKMRect);
+    //Terrain overlay cursors rendering (incl. sprites highlighting)
+    procedure RenderForegroundUI;
+
+    procedure RenderSprite(aRX: TRXType; aId: Word; pX, pY: Single; Col: TColor4; aFOW: Byte; HighlightRed: Boolean = False);
     procedure RenderSpriteAlphaTest(aRX: TRXType; aId: Word; Param: Single; pX, pY: Single; aFOW: Byte; aId2: Word = 0; Param2: Single = 0; X2: Single = 0; Y2: Single = 0);
     procedure RenderObject(aIndex: Byte; AnimStep: Cardinal; LocX,LocY: Integer; DoImmediateRender: Boolean = False; Deleting: Boolean = False);
     procedure RenderObjectQuad(aIndex: Byte; AnimStep: Cardinal; pX,pY: Integer; IsDouble: Boolean; DoImmediateRender: Boolean = False; Deleting: Boolean = False);
     procedure RenderHouseOutline(aHouse: TKMHouse);
 
     //Terrain rendering sub-class
-    procedure CollectTerrain;
+    procedure CollectPlans(aRect: TKMRect);
     procedure CollectTerrainObjects(aRect: TKMRect; aAnimStep: Cardinal);
 
-    procedure CollectSprites;
-
-    //Terrain overlay cursors rendering (incl. sprites highlighting)
-    procedure CollectCursors;
     procedure RenderWire(P: TKMPoint; Col: TColor4);
     procedure RenderWireHousePlan(P: TKMPoint; aHouseType: THouseType);
   public
@@ -125,6 +130,9 @@ begin
   fRenderTerrain  := TRenderTerrain.Create;
   fRenderAux      := TRenderAux.Create;
 
+  fFieldsList     := TKMPointTagList.Create;
+  fHousePlansList := TKMPointDirList.Create;
+  fTabletsList := TKMPointTagList.Create;
   //fSampleHouse := TOBJModel.Create;
   //fSampleHouse.LoadFromFile(ExeDir + 'Store.obj');
 end;
@@ -132,6 +140,9 @@ end;
 
 destructor TRenderPool.Destroy;
 begin
+  fFieldsList.Free;
+  fHousePlansList.Free;
+  fTabletsList.Free;
   //fSampleHouse.Free;
   fRenderList.Free;
   fRenderTerrain.Free;
@@ -154,12 +165,14 @@ end;
 // 3. Polls Game objects to add themselves to RenderList through Add** methods
 // 4. Renders cursor highlights
 procedure TRenderPool.Render;
+var
+  ClipRect: TKMRect;
 begin
   if fRender.Blind then Exit;
 
   glLoadIdentity; // Reset The View
   glTranslatef(fGame.Viewport.ViewportClip.X/2, fGame.Viewport.ViewportClip.Y/2, 0);
-  glScalef(fGame.Viewport.Zoom*CELL_SIZE_PX, fGame.Viewport.Zoom*CELL_SIZE_PX, 1);
+  glScalef(fGame.Viewport.Zoom*CELL_SIZE_PX, fGame.Viewport.Zoom*CELL_SIZE_PX, 1 / 256);
   glTranslatef(-fGame.Viewport.Position.X+TOOLBAR_WIdTH/CELL_SIZE_PX/fGame.Viewport.Zoom, -fGame.Viewport.Position.Y, 0);
   if RENDER_3D then
   begin
@@ -173,28 +186,97 @@ begin
     glScalef(fGame.Viewport.Zoom, fGame.Viewport.Zoom, 1);
   end;
 
+  glRotatef(rHeading,1,0,0);
+  glRotatef(rPitch  ,0,1,0);
+  glRotatef(rBank   ,0,0,1);
+  glTranslatef(0, 0, -fGame.Viewport.Position.Y);
+
   glPushAttrib(GL_LINE_BIT or GL_POINT_BIT);
     glLineWidth(fGame.Viewport.Zoom * 2);
     glPointSize(fGame.Viewport.Zoom * 5);
 
-    //Background
-    CollectTerrain;
+    //Render only within visible area
+    ClipRect := fGame.Viewport.GetClip;
+
+    //Collect players plans for terrain layer
+    CollectPlans(ClipRect);
+
+    //With depth test we can render all terrain tiles and then apply light/shadow without worrying about
+    //foothills shadows going over mountain tops. Each tile strip is rendered an next Z plane.
+    //Means that Z-test on gpu will take care of clipping the foothill shadows
+    glEnable(GL_DEPTH_TEST);
+    glDepthFunc(GL_LEQUAL);
+
+    //Everything flat of terrain
+    fRenderTerrain.ClipRect := ClipRect;
+    fRenderTerrain.RenderBase(gTerrain.AnimStep, MySpectator.FogOfWar);
+
+  //Disable depth test and write to depth buffer,
+  //so that terrain shadows could be applied seamlessly ontop
+  glDepthMask(False);
+  glDisable(GL_DEPTH_TEST);
+
+    fRenderTerrain.RenderFences;
+
+    fRenderTerrain.RenderPlayerPlans(fFieldsList, fHousePlansList);
+
+    //House highlight, debug display
+    RenderBackgroundUI(ClipRect);
 
     //Sprites are added by Terrain/Players/Projectiles, then sorted by position
-    CollectSprites;
+    RenderObjects(ClipRect);
+
+    fRenderTerrain.RenderFOW(MySpectator.FogOfWar);
 
     //Cursor overlays (including blue-wire plans), go on top of everything
-    CollectCursors;
+    RenderForegroundUI;
 
     if DISPLAY_SOUNDS then gResSounds.Paint;
   glPopAttrib;
 end;
 
 
+procedure TRenderPool.RenderBackgroundUI(aRect: TKMRect);
+var I,K: Integer;
+begin
+  if MySpectator.Highlight is TKMHouse then
+    RenderHouseOutline(TKMHouse(MySpectator.Highlight));
+
+  if MySpectator.Selected is TKMHouse then
+    RenderHouseOutline(TKMHouse(MySpectator.Selected));
+
+  if fGame.IsMapEditor then
+    fGame.MapEditor.Paint(plTerrain);
+
+  if fAIFields <> nil then
+    fAIFields.Paint(aRect);
+
+  if SHOW_WALK_CONNECT then
+  begin
+    glPushAttrib(GL_DEPTH_BUFFER_BIT);
+      glDisable(GL_DEPTH_TEST);
+
+      for I := aRect.Top to aRect.Bottom do
+      for K := aRect.Left to aRect.Right do
+        fRenderAux.Text(K, I, IntToStr(gTerrain.Land[I,K].WalkConnect[wcWalk]), $FFFFFFFF);
+
+    glPopAttrib;
+  end;
+
+  if SHOW_TERRAIN_WIRES then
+    fRenderAux.Wires(aRect);
+
+  if SHOW_TERRAIN_PASS <> 0 then
+    fRenderAux.Passability(aRect, SHOW_TERRAIN_PASS);
+
+  if SHOW_UNIT_MOVEMENT then
+    fRenderAux.UnitMoves(aRect);
+end;
+
+
 procedure TRenderPool.CollectTerrainObjects(aRect: TKMRect; aAnimStep: Cardinal);
 var
   I, K: Integer;
-  TabletsList: TKMPointTagList;
 begin
   if fGame.IsMapEditor and not (mlObjects in fGame.MapEditor.VisibleLayers) then
     Exit;
@@ -214,22 +296,18 @@ begin
   end;
 
   //Tablets on house plans, for self and allies
-  TabletsList := TKMPointTagList.Create;
-  try
-    if fGame.IsReplay then
-      if MySpectator.FOWIndex = -1 then
-        for I := 0 to gPlayers.Count - 1 do
-          gPlayers[I].GetPlansTablets(TabletsList, aRect)
-      else
-        gPlayers[MySpectator.FOWIndex].GetPlansTablets(TabletsList, aRect)
+  fTabletsList.Clear;
+  if fGame.IsReplay then
+    if MySpectator.FOWIndex = -1 then
+      for I := 0 to gPlayers.Count - 1 do
+        gPlayers[I].GetPlansTablets(fTabletsList, aRect)
     else
-      gPlayers[MySpectator.PlayerIndex].GetPlansTablets(TabletsList, aRect);
+      gPlayers[MySpectator.FOWIndex].GetPlansTablets(fTabletsList, aRect)
+  else
+    gPlayers[MySpectator.PlayerIndex].GetPlansTablets(fTabletsList, aRect);
 
-    for I := 0 to TabletsList.Count - 1 do
-      AddHouseTablet(THouseType(TabletsList.Tag[I]), TabletsList[I]);
-  finally
-    TabletsList.Free;
-  end;
+  for I := 0 to fTabletsList.Count - 1 do
+    AddHouseTablet(THouseType(fTabletsList.Tag[I]), fTabletsList[I]);
 end;
 
 
@@ -935,80 +1013,47 @@ begin
 end;
 
 
-procedure TRenderPool.CollectTerrain;
+procedure TRenderPool.CollectPlans(aRect: TKMRect);
 var
   I: Integer;
-  Rect: TKMRect;
-  FieldsList: TKMPointTagList;
-  HousePlansList: TKMPointDirList;
 begin
-  Rect := fGame.Viewport.GetClip;
+  fFieldsList.Clear;
+  fHousePlansList.Clear;
 
   //Collect field plans (road, corn, wine)
-  FieldsList := TKMPointTagList.Create;
   if fGame.IsReplay then
   begin
     if MySpectator.FOWIndex = -1 then
       for I := 0 to gPlayers.Count - 1 do
-        gPlayers[I].GetFieldPlans(FieldsList, Rect, False)
+        gPlayers[I].GetFieldPlans(fFieldsList, aRect, False)
     else
-      gPlayers[MySpectator.FOWIndex].GetFieldPlans(FieldsList, Rect, False)
+      gPlayers[MySpectator.FOWIndex].GetFieldPlans(fFieldsList, aRect, False)
   end
   else
   begin
     //Field plans for self and allies
     //Include fake field plans for painting
-    gPlayers[MySpectator.PlayerIndex].GetFieldPlans(FieldsList, Rect, True);
+    gPlayers[MySpectator.PlayerIndex].GetFieldPlans(fFieldsList, aRect, True);
   end;
 
   //House plans for self and allies
-  HousePlansList := TKMPointDirList.Create;
   if fGame.IsReplay then
   begin
     if MySpectator.FOWIndex = -1 then
       for I := 0 to gPlayers.Count - 1 do
-        gPlayers[I].GetHousePlans(HousePlansList, Rect)
+        gPlayers[I].GetHousePlans(fHousePlansList, aRect)
     else
-      gPlayers[MySpectator.FOWIndex].GetHousePlans(HousePlansList, Rect)
+      gPlayers[MySpectator.FOWIndex].GetHousePlans(fHousePlansList, aRect)
   end
   else
-    gPlayers[MySpectator.PlayerIndex].GetHousePlans(HousePlansList, Rect);
-
-
-  fRenderTerrain.Render(Rect, gTerrain.AnimStep, MySpectator.FogOfWar, FieldsList, HousePlansList);
-
-
-  FreeAndNil(FieldsList);
-  FreeAndNil(HousePlansList);
-
-  if MySpectator.Highlight is TKMHouse then
-    RenderHouseOutline(TKMHouse(MySpectator.Highlight));
-
-  if fGame.IsMapEditor then
-    fGame.MapEditor.Paint(plTerrain);
-
-  if fAIFields <> nil then
-    fAIFields.Paint(Rect);
-
-  if SHOW_TERRAIN_WIRES then
-    fRenderAux.Wires(Rect);
-
-  if SHOW_TERRAIN_PASS <> 0 then
-    fRenderAux.Passability(Rect, SHOW_TERRAIN_PASS);
-
-  if SHOW_UNIT_MOVEMENT then
-    fRenderAux.UnitMoves(Rect);
+    gPlayers[MySpectator.PlayerIndex].GetHousePlans(fHousePlansList, aRect);
 end;
 
 
 //Collect all the sprites in the pool, sort them and render
-procedure TRenderPool.CollectSprites;
-var
-  Rect: TKMRect;
+procedure TRenderPool.RenderObjects(aRect: TKMRect);
 begin
-  Rect := fGame.Viewport.GetClip;
-
-  CollectTerrainObjects(Rect, gTerrain.AnimStep);
+  CollectTerrainObjects(aRect, gTerrain.AnimStep);
 
   gPlayers.Paint; //Quite slow           //Units and houses
   gProjectiles.Paint;
@@ -1112,7 +1157,7 @@ begin
 end;
 
 
-procedure TRenderPool.CollectCursors;
+procedure TRenderPool.RenderForegroundUI;
 var
   P: TKMPoint;
   F: TKMPointF;
@@ -1304,6 +1349,32 @@ end;
 
 //Sort all items in list from top-right to bottom-left
 procedure TRenderList.SortRenderList;
+//todo: Implement QuickSort here, note that RenderOrder is sparse
+{  procedure DoQuickSort(aLo, aHi: Integer);
+  var
+    Lo, Hi: Integer;
+    Mid: Single;
+  begin
+    Lo := aLo;
+    Hi := aHi;
+    Mid := RenderList[RenderOrder[(Lo + Hi) div 2]].Feet.Y;
+    repeat
+      while RenderList[RenderOrder[Lo]].Feet.Y < Mid do Inc(Lo);
+      while RenderList[RenderOrder[Hi]].Feet.Y > Mid do Dec(Hi);
+      if Lo <= Hi then
+      begin
+        SwapInt(RenderOrder[Lo], RenderOrder[Hi]);
+        Inc(Lo);
+        Dec(Hi);
+      end;
+    until Lo > Hi;
+    if Hi > aLo then DoQuickSort(aLo, Hi);
+    if Lo < aHi then DoQuickSort(Lo, aHi);
+  end;
+begin
+  if fCount > 0 then
+    DoQuickSort(0, fCount - 1);
+end; }
 var I,K: Integer;
 begin
   for I := 0 to fCount - 1 do
@@ -1314,7 +1385,7 @@ begin
           or((RenderList[RenderOrder[K]].Feet.Y = RenderList[RenderOrder[I]].Feet.Y)
           and(RenderList[RenderOrder[K]].Loc.X > RenderList[RenderOrder[I]].Loc.X))
           then //TopMost Rightmost
-            SwapInt(RenderOrder[K], RenderOrder[I])
+            SwapInt(RenderOrder[K], RenderOrder[I]);
 end;
 
 
@@ -1344,7 +1415,7 @@ begin
     SetLength(RenderList, fCount + 256); //Book some space
 
   RenderList[fCount].Loc        := KMPointF(pX,pY); //Position of sprite, floating-point
-  RenderList[fCount].Feet       := KMPointF(0, 0);  //Ground position of sprite for Z-sorting
+  RenderList[fCount].Feet       := RenderList[fCount-1].Feet;  //Ground position of sprite for Z-sorting
   RenderList[fCount].RX         := aRX;             //RX library
   RenderList[fCount].Id         := aId;             //Texture Id
   RenderList[fCount].NewInst    := False;            //Is this a new item (can be occluded), or a child one (always on top of it's parent)
@@ -1419,8 +1490,8 @@ begin
             glEnd;
           end;
         end;
-        inc(K);
-        inc(fStat_Sprites2);
+        Inc(K);
+        Inc(fStat_Sprites2);
       until ((K = fCount) or RenderList[K].NewInst);
     glPopMatrix;
   end;

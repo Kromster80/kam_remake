@@ -64,7 +64,7 @@ object FormMain: TFormMain
       Left = 8
       Top = 392
       Width = 177
-      Height = 81
+      Height = 89
       Caption = ' Graphics tweaks '
       TabOrder = 5
       object Label3: TLabel
@@ -83,10 +83,17 @@ object FormMain: TFormMain
       end
       object Label1: TLabel
         Left = 100
-        Top = 56
+        Top = 64
         Width = 60
         Height = 13
         Caption = 'Building step'
+      end
+      object Label7: TLabel
+        Left = 100
+        Top = 48
+        Width = 27
+        Height = 13
+        Caption = 'Angle'
       end
       object tbAngleX: TTrackBar
         Left = 4
@@ -94,7 +101,9 @@ object FormMain: TFormMain
         Width = 95
         Height = 17
         Max = 90
-        PageSize = 1
+        Min = -90
+        PageSize = 5
+        Frequency = 5
         TabOrder = 0
         ThumbLength = 14
         TickMarks = tmBoth
@@ -107,7 +116,9 @@ object FormMain: TFormMain
         Width = 95
         Height = 17
         Max = 90
-        PageSize = 1
+        Min = -90
+        PageSize = 5
+        Frequency = 5
         TabOrder = 1
         ThumbLength = 14
         TickMarks = tmBoth
@@ -116,11 +127,26 @@ object FormMain: TFormMain
       end
       object tbBuildingStep: TTrackBar
         Left = 4
-        Top = 56
+        Top = 64
         Width = 95
         Height = 17
         Max = 100
         TabOrder = 2
+        ThumbLength = 14
+        TickMarks = tmBoth
+        TickStyle = tsNone
+        OnChange = ControlsUpdate
+      end
+      object tbAngleZ: TTrackBar
+        Left = 4
+        Top = 48
+        Width = 95
+        Height = 17
+        Max = 90
+        Min = -90
+        PageSize = 5
+        Frequency = 5
+        TabOrder = 3
         ThumbLength = 14
         TickMarks = tmBoth
         TickStyle = tsNone

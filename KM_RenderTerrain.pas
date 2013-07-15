@@ -3,19 +3,18 @@ unit KM_RenderTerrain;
 interface
 uses
   dglOpenGL, SysUtils, KromUtils, Math,
-  KM_CommonClasses, KM_Defaults, KM_FogOfWar, KM_Pics, KM_ResSprites, KM_Points, KM_Terrain;
+  KM_CommonClasses, KM_CommonTypes, KM_Defaults, KM_FogOfWar, KM_Pics, KM_ResSprites, KM_Points, KM_Terrain;
 
 type
   TUVRect = array [1 .. 4, 1 .. 2] of Single; // Texture UV coordinates
   TVertice = record
-    X, Y, Z, ULit, UShd: Single;
+    X, Y, Z, ULit, UShd, UFow: Single;
   end;
 
   //Render terrain without sprites
   TRenderTerrain = class
   private
-    fRect: TKMRect;
-    fFOW: TKMFogOfWarCommon;
+    fClipRect: TKMRect;
     fTextG: GLuint; //Shading gradient for lighting
     fUseVBO: Boolean; //Wherever to render terrain through VBO (faster but needs GL1.5) or DrawCalls (slower but needs only GL1.1)
     fPos: array of TVertice;
@@ -23,14 +22,12 @@ type
     fVtxShd: GLUint;
     fIndShd: GLUint;
     function GetTileUV(Index: Word; Rot: Byte): TUVRect;
-    procedure BeginVBO;
+    procedure BeginVBO(aFOW: TKMFogOfWarCommon);
     procedure EndVBO;
     procedure DoTiles;
     procedure DoOverlays;
-    procedure DoFences;
-    procedure DoMarks(aFieldsList: TKMPointTagList; aHousePlansList: TKMPointDirList);
     procedure DoLighting;
-    procedure DoWater(AnimStep: Integer);
+    procedure DoWater(aAnimStep: Integer; aFOW: TKMFogOfWarCommon);
     procedure DoShadows;
     function VBOSupported: Boolean;
     procedure RenderFence(aFence: TFenceType; Pos: TKMDirection; pX,pY: Integer);
@@ -38,7 +35,11 @@ type
   public
     constructor Create;
     destructor Destroy; override;
-    procedure Render(aRect: TKMRect; AnimStep: Integer; aFOW: TKMFogOfWarCommon; aFieldsList: TKMPointTagList; aHousePlansList: TKMPointDirList);
+    property ClipRect: TKMRect read fClipRect write fClipRect;
+    procedure RenderBase(aAnimStep: Integer; aFOW: TKMFogOfWarCommon);
+    procedure RenderFences;
+    procedure RenderPlayerPlans(aFieldsList: TKMPointTagList; aHousePlansList: TKMPointDirList);
+    procedure RenderFOW(aFOW: TKMFogOfWarCommon);
     procedure RenderTile(Index: Byte; pX,pY,Rot: Integer);
   end;
 
@@ -84,7 +85,7 @@ begin
     glDeleteBuffers(1, @fVtxShd);
     glDeleteBuffers(1, @fIndShd);
   end;
-  Inherited;
+  inherited;
 end;
 
 
@@ -135,17 +136,22 @@ begin
 end;
 
 
-procedure TRenderTerrain.BeginVBO;
+procedure TRenderTerrain.BeginVBO(aFOW: TKMFogOfWarCommon);
 var
   I,K,H: Integer;
   SizeX, SizeY: Word;
   tX, tY: Word;
   Row: Integer;
+  Fog: PKMByte2Array;
 begin
   if not fUseVBO then Exit;
 
-  SizeX := fRect.Right - fRect.Left;
-  SizeY := fRect.Bottom - fRect.Top;
+  if aFOW is TKMFogOfWar then
+    Fog := @TKMFogOfWar(aFOW).Revelation
+  else Fog := nil;
+
+  SizeX := fClipRect.Right - fClipRect.Left;
+  SizeY := fClipRect.Bottom - fClipRect.Top;
   H := 0;
   SetLength(fPos, (SizeX + 2) * 2 * (SizeY + 1));
   with gTerrain do
@@ -153,20 +159,25 @@ begin
   for I := 0 to SizeY do
   for K := 0 to SizeX+1 do
   begin
-    tX := K + fRect.Left;
-    tY := I + fRect.Top;
+    tX := K + fClipRect.Left;
+    tY := I + fClipRect.Top;
     fPos[H+0].X := tX-1;
     fPos[H+0].Y := tY-1 - Land[tY, tX].Height / CELL_HEIGHT_DIV;
-    fPos[H+0].Z := -tY;
+    fPos[H+0].Z := tY - 1;
     fPos[H+0].ULit := Land[tY, tX].Light;
-    fPos[H+0].UShd := max(-Land[tY, tX].Light, 1 - fFOW.CheckVerticeRevelation(tX-1, tY-1) / 255);
+    fPos[H+0].UShd := -Land[tY, tX].Light;
+    if Fog <> nil then
+      fPos[H+0].UFow := Fog^[tY-1, tX-1] / 256;
 
-    tY := I + fRect.Top + 1;
+    tY := I + fClipRect.Top + 1;
     fPos[H+1].X := tX-1;
     fPos[H+1].Y := tY-1 - Land[tY, tX].Height / CELL_HEIGHT_DIV;
-    fPos[H+1].Z := -tY + 1;
+    fPos[H+1].Z := tY - 2;
     fPos[H+1].ULit := Land[tY, tX].Light;
-    fPos[H+1].UShd := max(-Land[tY, tX].Light, 1 - fFOW.CheckVerticeRevelation(tX-1, tY-1) / 255);
+    fPos[H+1].UShd := -Land[tY, tX].Light;
+    if Fog <> nil then
+      fPos[H+1].UFow := Fog^[tY-1, tX-1] / 256;
+
     H := H + 2;
   end;
 
@@ -211,8 +222,8 @@ begin
   //They all run at different speeds so we can't adjoin them in one layer
 
   with gTerrain do
-  for I := fRect.Top to fRect.Bottom do
-  for K := fRect.Left to fRect.Right do
+  for I := fClipRect.Top to fClipRect.Bottom do
+  for K := fClipRect.Left to fClipRect.Right do
   begin
     glBindTexture(GL_TEXTURE_2D, GFXData[rxTiles, Land[I,K].Terrain+1].Tex.ID);
     glBegin(GL_TRIANGLE_FAN);
@@ -226,17 +237,17 @@ begin
       glTexCoord2fv(@TexC[3]); glVertex3f(K  ,I  ,-Land[I+1,K+1].Height/CELL_HEIGHT_DIV);
       glTexCoord2fv(@TexC[4]); glVertex3f(K  ,I-1,-Land[I,K+1].Height/CELL_HEIGHT_DIV);
     end else begin
-      glTexCoord2fv(@TexC[1]); glVertex3f(K-1,I-1-Land[I,K].Height / CELL_HEIGHT_DIV, -I);
-      glTexCoord2fv(@TexC[2]); glVertex3f(K-1,I  -Land[I+1,K].Height / CELL_HEIGHT_DIV, -I);
-      glTexCoord2fv(@TexC[3]); glVertex3f(K  ,I  -Land[I+1,K+1].Height / CELL_HEIGHT_DIV, -I);
-      glTexCoord2fv(@TexC[4]); glVertex3f(K  ,I-1-Land[I,K+1].Height / CELL_HEIGHT_DIV, -I);
+      glTexCoord2fv(@TexC[1]); glVertex3f(K-1,I-1-Land[I,K].Height / CELL_HEIGHT_DIV, I-1);
+      glTexCoord2fv(@TexC[2]); glVertex3f(K-1,I  -Land[I+1,K].Height / CELL_HEIGHT_DIV, I-1);
+      glTexCoord2fv(@TexC[3]); glVertex3f(K  ,I  -Land[I+1,K+1].Height / CELL_HEIGHT_DIV, I-1);
+      glTexCoord2fv(@TexC[4]); glVertex3f(K  ,I-1-Land[I,K+1].Height / CELL_HEIGHT_DIV, I-1);
     end;
     glEnd;
   end;
 end;
 
 
-procedure TRenderTerrain.DoWater(AnimStep: Integer);
+procedure TRenderTerrain.DoWater(aAnimStep: Integer; aFOW: TKMFogOfWarCommon);
 type TAnimLayer = (alWater, alFalls, alSwamp);
 var
   AL: TAnimLayer;
@@ -252,18 +263,18 @@ begin
   for AL := Low(TAnimLayer) to High(TAnimLayer) do
   begin
     case AL of
-      alWater: TexOffset := 300 * (AnimStep mod 8 + 1);       // 300..2400
-      alFalls: TexOffset := 300 * (AnimStep mod 5 + 1 + 8);   // 2700..3900
-      alSwamp: TexOffset := 300 * ((AnimStep mod 24) div 8 + 1 + 8 + 5); // 4200..4800
+      alWater: TexOffset := 300 * (aAnimStep mod 8 + 1);       // 300..2400
+      alFalls: TexOffset := 300 * (aAnimStep mod 5 + 1 + 8);   // 2700..3900
+      alSwamp: TexOffset := 300 * ((aAnimStep mod 24) div 8 + 1 + 8 + 5); // 4200..4800
       else     TexOffset := 0;
     end;
 
     with gTerrain do
-    for I := fRect.Top to fRect.Bottom do
-    for K := fRect.Left to fRect.Right do
+    for I := fClipRect.Top to fClipRect.Bottom do
+    for K := fClipRect.Left to fClipRect.Right do
     if (TexOffset + Land[I,K].Terrain + 1 <= High(GFXData[rxTiles]))
     and (GFXData[rxTiles, TexOffset + Land[I,K].Terrain + 1].Tex.ID <> 0)
-    and (fFOW.CheckTileRevelation(K,I) > FOG_OF_WAR_ACT) then //No animation in FOW
+    and (aFOW.CheckTileRevelation(K,I) > FOG_OF_WAR_ACT) then //No animation in FOW
     begin
       glBindTexture(GL_TEXTURE_2D, GFXData[rxTiles, TexOffset + Land[I,K].Terrain + 1].Tex.ID);
       TexC := GetTileUV(TexOffset + Land[I,K].Terrain, Land[I,K].Rotation);
@@ -279,10 +290,10 @@ begin
         end
         else
         begin
-          glTexCoord2fv(@TexC[1]); glVertex3f(K-1,I-1-Land[I,K].Height/CELL_HEIGHT_DIV, -I);
-          glTexCoord2fv(@TexC[2]); glVertex3f(K-1,I  -Land[I+1,K].Height/CELL_HEIGHT_DIV, -I);
-          glTexCoord2fv(@TexC[3]); glVertex3f(K  ,I  -Land[I+1,K+1].Height/CELL_HEIGHT_DIV, -I);
-          glTexCoord2fv(@TexC[4]); glVertex3f(K  ,I-1-Land[I,K+1].Height/CELL_HEIGHT_DIV, -I);
+          glTexCoord2fv(@TexC[1]); glVertex3f(K-1,I-1-Land[I,K].Height/CELL_HEIGHT_DIV, I-1);
+          glTexCoord2fv(@TexC[2]); glVertex3f(K-1,I  -Land[I+1,K].Height/CELL_HEIGHT_DIV, I-1);
+          glTexCoord2fv(@TexC[3]); glVertex3f(K  ,I  -Land[I+1,K+1].Height/CELL_HEIGHT_DIV, I-1);
+          glTexCoord2fv(@TexC[4]); glVertex3f(K  ,I-1-Land[I,K+1].Height/CELL_HEIGHT_DIV, I-1);
         end;
       glEnd;
     end;
@@ -306,8 +317,8 @@ var
 begin
   glColor4f(1, 1, 1, 1);
 
-  for I := fRect.Top to fRect.Bottom do
-  for K := fRect.Left to fRect.Right do
+  for I := fClipRect.Top to fClipRect.Bottom do
+  for K := fClipRect.Left to fClipRect.Right do
   case gTerrain.Land[I, K].TileOverlay of
     to_Dig1:  RenderTile(249, K, I, 0);
     to_Dig2:  RenderTile(251, K, I, 0);
@@ -332,41 +343,27 @@ begin
 end;
 
 
-procedure TRenderTerrain.DoFences;
+procedure TRenderTerrain.RenderFences;
 var
   I,K: Integer;
 begin
-  //Disable depth test and write to depth buffer,
-  //so that terrain shadows could be applied seamlessly ontop
-  glDepthMask(False);
-  glDisable(GL_DEPTH_TEST);
-
   with gTerrain do
-  for I := fRect.Top to fRect.Bottom do
-  for K := fRect.Left to fRect.Right do
+  for I := fClipRect.Top to fClipRect.Bottom do
+  for K := fClipRect.Left to fClipRect.Right do
   begin
     if Land[I,K].FenceSide and 1 = 1 then RenderFence(Land[I,K].Fence, dir_N, K, I);
     if Land[I,K].FenceSide and 2 = 2 then RenderFence(Land[I,K].Fence, dir_E, K, I);
     if Land[I,K].FenceSide and 4 = 4 then RenderFence(Land[I,K].Fence, dir_W, K, I);
     if Land[I,K].FenceSide and 8 = 8 then RenderFence(Land[I,K].Fence, dir_S, K, I);
   end;
-
-  //Reenable depth test and write
-  glDepthMask(True);
-  glEnable(GL_DEPTH_TEST);
 end;
 
 
 //Player markings should be always clearly visible to the player (thats why we render them ontop FOW)
-procedure TRenderTerrain.DoMarks(aFieldsList: TKMPointTagList; aHousePlansList: TKMPointDirList);
+procedure TRenderTerrain.RenderPlayerPlans(aFieldsList: TKMPointTagList; aHousePlansList: TKMPointDirList);
 var
   I: Integer;
 begin
-  //Disable depth test and write to depth buffer,
-  //so that terrain shadows could be applied seamlessly ontop
-  glDepthMask(False);
-  glDisable(GL_DEPTH_TEST);
-
   //Rope field marks
   for I := 0 to aFieldsList.Count - 1 do
     RenderMarkup(aFieldsList[I].X, aFieldsList[I].Y, TFieldType(aFieldsList.Tag[I]));
@@ -374,10 +371,6 @@ begin
   //Rope outlines
   for I := 0 to aHousePlansList.Count - 1 do
     RenderFence(fncHousePlan, aHousePlansList[I].Dir, aHousePlansList[I].Loc.X, aHousePlansList[I].Loc.Y);
-
-  //Reenable depth test and write
-  glDepthMask(True);
-  glEnable(GL_DEPTH_TEST);
 end;
 
 
@@ -409,8 +402,8 @@ begin
   begin
     with gTerrain do
     if RENDER_3D then
-      for I := fRect.Top to fRect.Bottom do
-      for K := fRect.Left to fRect.Right do
+      for I := fClipRect.Top to fClipRect.Bottom do
+      for K := fClipRect.Left to fClipRect.Right do
       begin
         glBegin(GL_TRIANGLE_FAN);
           glTexCoord1f(Land[  I,   K].Light); glVertex3f(K-1, I-1, -Land[  I,   K].Height / CELL_HEIGHT_DIV);
@@ -420,14 +413,14 @@ begin
         glEnd;
       end
     else
-      for I := fRect.Top to fRect.Bottom do
-      for K := fRect.Left to fRect.Right do
+      for I := fClipRect.Top to fClipRect.Bottom do
+      for K := fClipRect.Left to fClipRect.Right do
       begin
         glBegin(GL_TRIANGLE_FAN);
-          glTexCoord1f(Land[  I,   K].Light); glVertex3f(K-1, I-1 - Land[  I,   K].Height / CELL_HEIGHT_DIV, -I);
-          glTexCoord1f(Land[I+1,   K].Light); glVertex3f(K-1,   I - Land[I+1,   K].Height / CELL_HEIGHT_DIV, -I);
-          glTexCoord1f(Land[I+1, K+1].Light); glVertex3f(  K,   I - Land[I+1, K+1].Height / CELL_HEIGHT_DIV, -I);
-          glTexCoord1f(Land[  I, K+1].Light); glVertex3f(  K, I-1 - Land[  I, K+1].Height / CELL_HEIGHT_DIV, -I);
+          glTexCoord1f(Land[  I,   K].Light); glVertex3f(K-1, I-1 - Land[  I,   K].Height / CELL_HEIGHT_DIV, I-1);
+          glTexCoord1f(Land[I+1,   K].Light); glVertex3f(K-1,   I - Land[I+1,   K].Height / CELL_HEIGHT_DIV, I-1);
+          glTexCoord1f(Land[I+1, K+1].Light); glVertex3f(  K,   I - Land[I+1, K+1].Height / CELL_HEIGHT_DIV, I-1);
+          glTexCoord1f(Land[  I, K+1].Light); glVertex3f(  K, I-1 - Land[  I, K+1].Height / CELL_HEIGHT_DIV, I-1);
         glEnd;
       end;
   end;
@@ -439,6 +432,7 @@ procedure TRenderTerrain.DoShadows;
 var
   I,K: Integer;
 begin
+  glColor4f(1, 1, 1, 1);
   glBlendFunc(GL_ZERO, GL_ONE_MINUS_SRC_COLOR);
   glBindTexture(GL_TEXTURE_2D, fTextG);
 
@@ -461,33 +455,103 @@ begin
   begin
     with gTerrain do
     if RENDER_3D then
-      for I := fRect.Top to fRect.Bottom do
-      for K := fRect.Left to fRect.Right do
+      for I := fClipRect.Top to fClipRect.Bottom do
+      for K := fClipRect.Left to fClipRect.Right do
       begin
         glBegin(GL_TRIANGLE_FAN);
-          glTexCoord1f(kromutils.max(0, -Land[I, K].Light, 1 - fFOW.CheckVerticeRevelation(K - 1, I - 1) / 255));
+          glTexCoord1f(-Land[I, K].Light);
           glVertex3f(K - 1, I - 1, -Land[I, K].Height / CELL_HEIGHT_DIV);
-          glTexCoord1f(kromutils.max(0, -Land[I + 1, K].Light, 1 - fFOW.CheckVerticeRevelation(K - 1, I) / 255));
+          glTexCoord1f(-Land[I + 1, K].Light);
           glVertex3f(K - 1, I, -Land[I + 1, K].Height / CELL_HEIGHT_DIV);
-          glTexCoord1f(kromutils.max(0, -Land[I + 1, K + 1].Light, 1 - fFOW.CheckVerticeRevelation(K, I) / 255));
+          glTexCoord1f(-Land[I + 1, K + 1].Light);
           glVertex3f(K, I, -Land[I + 1, K + 1].Height / CELL_HEIGHT_DIV);
-          glTexCoord1f(kromutils.max(0, -Land[I, K + 1].Light, 1 - fFOW.CheckVerticeRevelation(K, I - 1) / 255));
+          glTexCoord1f(-Land[I, K + 1].Light);
           glVertex3f(K, I - 1, -Land[I, K + 1].Height / CELL_HEIGHT_DIV);
         glEnd;
       end
     else
-      for I := fRect.Top to fRect.Bottom do
-      for K := fRect.Left to fRect.Right do
+      for I := fClipRect.Top to fClipRect.Bottom do
+      for K := fClipRect.Left to fClipRect.Right do
       begin
         glBegin(GL_TRIANGLE_FAN);
-          glTexCoord1f(max(-Land[I, K].Light, 1 - fFOW.CheckVerticeRevelation(K - 1, I - 1) / 255));
-          glVertex3f(K - 1, I - 1 - Land[I, K].Height / CELL_HEIGHT_DIV, -I);
-          glTexCoord1f(max(-Land[I + 1, K].Light, 1 - fFOW.CheckVerticeRevelation(K - 1, I) / 255));
-          glVertex3f(K - 1, I - Land[I + 1, K].Height / CELL_HEIGHT_DIV, -I);
-          glTexCoord1f(max(-Land[I + 1, K + 1].Light, 1 - fFOW.CheckVerticeRevelation(K, I) / 255));
-          glVertex3f(K, I - Land[I + 1, K + 1].Height / CELL_HEIGHT_DIV, -I);
-          glTexCoord1f(max(-Land[I, K + 1].Light, 1 - fFOW.CheckVerticeRevelation(K, I - 1) / 255));
-          glVertex3f(K, I - 1 - Land[I, K + 1].Height / CELL_HEIGHT_DIV, -I);
+          glTexCoord1f(-Land[I, K].Light);
+          glVertex3f(K - 1, I - 1 - Land[I, K].Height / CELL_HEIGHT_DIV, I-1);
+          glTexCoord1f(-Land[I + 1, K].Light);
+          glVertex3f(K - 1, I - Land[I + 1, K].Height / CELL_HEIGHT_DIV, I-1);
+          glTexCoord1f(-Land[I + 1, K + 1].Light);
+          glVertex3f(K, I - Land[I + 1, K + 1].Height / CELL_HEIGHT_DIV, I-1);
+          glTexCoord1f(-Land[I, K + 1].Light);
+          glVertex3f(K, I - 1 - Land[I, K + 1].Height / CELL_HEIGHT_DIV, I-1);
+        glEnd;
+      end;
+  end;
+
+  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+  glBindTexture(GL_TEXTURE_2D, 0);
+end;
+
+
+//Render FOW at once
+procedure TRenderTerrain.RenderFOW(aFOW: TKMFogOfWarCommon);
+var
+  I,K: Integer;
+  Fog: PKMByte2Array;
+begin
+  glColor4f(1, 1, 1, 1);
+  glBlendFunc(GL_ZERO, GL_SRC_COLOR);
+  glBindTexture(GL_TEXTURE_2D, fTextG);
+
+  if fUseVBO then
+  begin
+    //Setup vertex and UV layout and offsets
+    glEnableClientState(GL_VERTEX_ARRAY);
+    glVertexPointer(3, GL_FLOAT, SizeOf(TVertice), Pointer(0));
+    glClientActiveTexture(GL_TEXTURE0);
+    glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+    glTexCoordPointer(1, GL_FLOAT, SizeOf(TVertice), Pointer(20));
+
+    //Here and above OGL requests Pointer, but in fact it's just a number (offset within Array)
+    glDrawElements(GL_TRIANGLES, Length(fInd), GL_UNSIGNED_INT, Pointer(0));
+
+    glDisableClientState(GL_VERTEX_ARRAY);
+    glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+  end
+  else
+  begin
+
+    if aFOW is TKMFogOfWarOpen then Exit;
+
+    Fog := @TKMFogOfWar(aFOW).Revelation;
+
+    with gTerrain do
+    if RENDER_3D then
+      for I := fClipRect.Top to fClipRect.Bottom do
+      for K := fClipRect.Left to fClipRect.Right do
+      begin
+        glBegin(GL_TRIANGLE_FAN);
+          glTexCoord1f(Fog^[K - 1, I - 1] / 255);
+          glVertex3f(K - 1, I - 1, -Land[I, K].Height / CELL_HEIGHT_DIV);
+          glTexCoord1f(Fog^[K - 1, I] / 255);
+          glVertex3f(K - 1, I, -Land[I + 1, K].Height / CELL_HEIGHT_DIV);
+          glTexCoord1f(Fog^[K, I] / 255);
+          glVertex3f(K, I, -Land[I + 1, K + 1].Height / CELL_HEIGHT_DIV);
+          glTexCoord1f(Fog^[K, I - 1] / 255);
+          glVertex3f(K, I - 1, -Land[I, K + 1].Height / CELL_HEIGHT_DIV);
+        glEnd;
+      end
+    else
+      for I := fClipRect.Top to fClipRect.Bottom do
+      for K := fClipRect.Left to fClipRect.Right do
+      begin
+        glBegin(GL_TRIANGLE_FAN);
+          glTexCoord1f(Fog^[K - 1, I - 1] / 255);
+          glVertex2f(K - 1, I - 1 - Land[I, K].Height / CELL_HEIGHT_DIV);
+          glTexCoord1f(Fog^[K - 1, I] / 255);
+          glVertex2f(K - 1, I - Land[I + 1, K].Height / CELL_HEIGHT_DIV);
+          glTexCoord1f(Fog^[K, I] / 255);
+          glVertex2f(K, I - Land[I + 1, K + 1].Height / CELL_HEIGHT_DIV);
+          glTexCoord1f(Fog^[K, I - 1] / 255);
+          glVertex2f(K, I - 1 - Land[I, K + 1].Height / CELL_HEIGHT_DIV);
         glEnd;
       end;
   end;
@@ -500,49 +564,20 @@ end;
 //aRect - boundaries of render area in tilespace
 //AnimStep - animation step for terrain (water/etc)
 //aFOW - whose players FOW to apply
-procedure TRenderTerrain.Render(aRect: TKMRect; AnimStep: Integer; aFOW: TKMFogOfWarCommon; aFieldsList: TKMPointTagList; aHousePlansList: TKMPointDirList);
-var
-  I,K: Integer;
+procedure TRenderTerrain.RenderBase(aAnimStep: Integer; aFOW: TKMFogOfWarCommon);
 begin
-  fRect := aRect;
-  fFOW := aFOW;
-
   //VBO has proper vertice coords only for Light/Shadow
   //it cant handle 3D yet and because of FOW leaves terrain revealed, which is an exploit in MP
   //Thus we allow VBO only in 2D
   fUseVBO := VBOSupported and not RENDER_3D;
 
-  glPushAttrib(GL_DEPTH_BUFFER_BIT);
-
-    //With depth test we can render all terrain tiles and then apply light/shadow without worrying about
-    //foothills shadows going over mountain tops. Each tile strip is rendered an next Z plane.
-    //Means that Z-test on gpu will take care of clipping the foothill shadows
-    glEnable(GL_DEPTH_TEST);
-    glDepthFunc(GL_LEQUAL);
-
-    BeginVBO;
-      DoTiles;
-      DoOverlays;
-      DoLighting;
-      DoWater(AnimStep); //Unlit water goes above lit sand
-      DoFences;
-      DoShadows;
-      DoMarks(aFieldsList, aHousePlansList);
-    EndVBO;
-
-    if SHOW_WALK_CONNECT then
-    begin
-      glPushAttrib(GL_DEPTH_BUFFER_BIT);
-        glDisable(GL_DEPTH_TEST);
-
-        for I := aRect.Top to aRect.Bottom do
-        for K := aRect.Left to aRect.Right do
-          fRenderAux.Text(K, I, IntToStr(gTerrain.Land[I,K].WalkConnect[wcWalk]), $FFFFFFFF);
-
-      glPopAttrib;
-    end;
-
-  glPopAttrib;
+  BeginVBO(aFOW);
+    DoTiles;
+    DoOverlays;
+    DoLighting;
+    DoWater(aAnimStep, aFOW); //Unlit water goes above lit sand
+    DoShadows;
+  //EndVBO;
 end;
 
 
@@ -572,10 +607,10 @@ begin
     end
     else
     begin
-      glTexCoord2fv(@TexC[1]); glVertex3f(K-1,I-1-Land[I,K].Height/CELL_HEIGHT_DIV, -I);
-      glTexCoord2fv(@TexC[2]); glVertex3f(K-1,I  -Land[I+1,K].Height/CELL_HEIGHT_DIV, -I);
-      glTexCoord2fv(@TexC[3]); glVertex3f(K  ,I  -Land[I+1,K+1].Height/CELL_HEIGHT_DIV, -I);
-      glTexCoord2fv(@TexC[4]); glVertex3f(K  ,I-1-Land[I,K+1].Height/CELL_HEIGHT_DIV, -I);
+      glTexCoord2fv(@TexC[1]); glVertex3f(K-1,I-1-Land[I,K].Height/CELL_HEIGHT_DIV, I-1);
+      glTexCoord2fv(@TexC[2]); glVertex3f(K-1,I  -Land[I+1,K].Height/CELL_HEIGHT_DIV, I-1);
+      glTexCoord2fv(@TexC[3]); glVertex3f(K  ,I  -Land[I+1,K+1].Height/CELL_HEIGHT_DIV, I-1);
+      glTexCoord2fv(@TexC[4]); glVertex3f(K  ,I-1-Land[I,K+1].Height/CELL_HEIGHT_DIV, I-1);
     end;
   glEnd;
   glBindTexture(GL_TEXTURE_2D, 0);
@@ -639,7 +674,7 @@ begin
 
     case Pos of
       dir_W:  x1 := pX - 1 - 3 / CELL_SIZE_PX;
-      dir_E:  x1 := pX - 1 - FenceX + 3 / CELL_SIZE_PX;
+      dir_E:  x1 := pX - 1 + 3 / CELL_SIZE_PX - FenceX;
       else    x1 := pX - 1; //Should never happen
     end;
 

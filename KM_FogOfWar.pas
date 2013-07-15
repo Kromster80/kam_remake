@@ -2,7 +2,7 @@ unit KM_FogOfWar;
 {$I KaM_Remake.inc}
 interface
 uses Classes, Math,
-  KM_CommonClasses, KM_Points;
+  KM_CommonClasses, KM_CommonTypes, KM_Points;
 
 
 { FOW state for each player }
@@ -19,16 +19,17 @@ type
     fAnimStep: Cardinal;
     MapX: Word;
     MapY: Word;
-    Revelation: array of array of packed record
+    (*Revelation: array of array of packed record
       //Lies within range 0, TERRAIN_FOG_OF_WAR_MIN..TERRAIN_FOG_OF_WAR_MAX.
       Visibility: Byte;
       {LastTerrain: Byte;
       LastHeight: Byte;
       LastObj: Byte;
       LastHouse: THouseType;}
-    end;
+    end;*)
     procedure SetMapSize(X,Y: Word);
   public
+    Revelation: TKMByte2Array; //Public for faster access from Render
     constructor Create(X,Y: Word);
     procedure RevealCircle(Pos: TKMPoint; Radius,Amount: Word);
     procedure CoverCircle(Pos: TKMPoint; Radius: Word);
@@ -93,7 +94,7 @@ begin
   for I := max(Pos.Y-Radius, 0) to min(Pos.Y+Radius, MapY-1) do
   for K := max(Pos.X-Radius, 0) to min(Pos.X+Radius, MapX-1) do
   if (sqr(Pos.x-K) + sqr(Pos.y-I)) <= sqr(Radius) then
-    Revelation[I,K].Visibility := min(Revelation[I,K].Visibility + Amount, FOG_OF_WAR_MAX);
+    Revelation[I,K] := min(Revelation[I,K] + Amount, FOG_OF_WAR_MAX);
 end;
 
 
@@ -104,7 +105,7 @@ begin
   for I := max(Pos.Y-Radius, 0) to min(Pos.Y+Radius, MapY-1) do
   for K := max(Pos.X-Radius, 0) to min(Pos.X+Radius, MapX-1) do
   if (sqr(Pos.x-K) + sqr(Pos.y-I)) <= sqr(Radius) then
-    Revelation[I,K].Visibility := 0;
+    Revelation[I,K] := 0;
 end;
 
 
@@ -114,7 +115,7 @@ var I,K: Word;
 begin
   for I := 0 to MapY - 1 do
     for K := 0 to MapX - 1 do
-      Revelation[I, K].Visibility := FOG_OF_WAR_MAX;
+      Revelation[I, K] := FOG_OF_WAR_MAX;
 end;
 
 
@@ -123,7 +124,7 @@ var I,K: Word;
 begin
   for I := 0 to MapY - 1 do
     for K := 0 to MapX - 1 do
-      Revelation[I, K].Visibility := 0;
+      Revelation[I, K] := 0;
 end;
 
 
@@ -136,12 +137,12 @@ begin
   //I like how "alive" the fog looks with some tweaks
   //pulsating around units and slowly thickening when they leave :)
   if DYNAMIC_FOG_OF_WAR then
-    if (Revelation[Y,X].Visibility >= FOG_OF_WAR_ACT) then
+    if (Revelation[Y,X] >= FOG_OF_WAR_ACT) then
       Result := 255
     else
-      Result := (Revelation[Y,X].Visibility shl 8) div FOG_OF_WAR_ACT
+      Result := (Revelation[Y,X] shl 8) div FOG_OF_WAR_ACT
   else
-    if (Revelation[Y,X].Visibility >= FOG_OF_WAR_MIN) then
+    if (Revelation[Y,X] >= FOG_OF_WAR_MIN) then
       Result := 255
     else
       Result := 0;
@@ -204,7 +205,7 @@ var I,K: Word;
 begin
   for I := 0 to MapY - 1 do
     for K := 0 to MapX - 1 do
-      Revelation[I, K].Visibility := Math.max(Revelation[I, K].Visibility, aFOW.Revelation[I, K].Visibility);
+      Revelation[I, K] := Math.max(Revelation[I, K], aFOW.Revelation[I, K]);
 end;
 
 
@@ -244,10 +245,10 @@ begin
 
   for I := 0 to MapY - 1 do
   for K := 0 to MapX - 1 do
-  if (Revelation[I, K].Visibility > FOG_OF_WAR_MIN)
+  if (Revelation[I, K] > FOG_OF_WAR_MIN)
   and ((I * MapX + K + fAnimStep) mod FOW_PACE = 0) then
   begin
-    Dec(Revelation[I, K].Visibility, FOG_OF_WAR_DEC);
+    Dec(Revelation[I, K], FOG_OF_WAR_DEC);
 
     {//Remember waht we have seen last
     if Revelation[I, K].Visibility <= FOG_OF_WAR_MIN then

@@ -76,6 +76,8 @@ type
     Label2: TLabel;
     chkShowRoutes: TCheckBox;
     chkShowWires: TCheckBox;
+    tbAngleZ: TTrackBar;
+    Label7: TLabel;
     procedure Export_TreeAnim1Click(Sender: TObject);
     procedure MenuItem1Click(Sender: TObject);
     procedure FormKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
@@ -518,10 +520,11 @@ begin
     //Otherwise it could crash on the main menu
     if fRenderPool <> nil then
     begin
-      RENDER_3D := tbAngleX.Position + tbAngleY.Position <> 0;
+      RENDER_3D := False;//tbAngleX.Position + tbAngleY.Position <> 0;
       Label3.Caption := 'AngleX ' + IntToStr(tbAngleX.Position);
       Label4.Caption := 'AngleY ' + IntToStr(tbAngleY.Position);
-      fRenderPool.SetRotation(-tbAngleX.Position, 0, -tbAngleY.Position);
+      Label7.Caption := 'AngleZ ' + IntToStr(tbAngleZ.Position);
+      fRenderPool.SetRotation(-tbAngleX.Position, -tbAngleZ.Position, -tbAngleY.Position);
       fMain.Render;
     end;
     HOUSE_BUILDING_STEP := tbBuildingStep.Position / tbBuildingStep.Max;
