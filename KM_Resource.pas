@@ -188,7 +188,7 @@ var
   A: TUnitActionType;
   D: TKMDirection;
   R: TWareType;
-  T: TUnitThought;
+  T: TKMUnitThought;
   i,ci:integer;
   sy,sx,y,x:integer;
   Used:array of Boolean;
@@ -253,7 +253,7 @@ begin
   for i := 1 to fUnitDat.SerfCarry[R,D].Count do
     Used[fUnitDat.SerfCarry[R,D].Step[i]+1] := fUnitDat.SerfCarry[R,D].Step[i]+1 <> 0;
 
-  for T := Low(TUnitThought) to High(TUnitThought) do
+  for T := Low(TKMUnitThought) to High(TKMUnitThought) do
   for i := ThoughtBounds[T,1] to  ThoughtBounds[T,2] do
     Used[I+1] := True;
 

@@ -67,7 +67,7 @@ type
     fUnitType: TUnitType;
     fUnitTask: TUnitTask;
     fCurrentAction: TUnitAction;
-    fThought: TUnitThought;
+    fThought: TKMUnitThought;
     fHitPoints: Byte;
     fHitPointCounter: Cardinal; //Counter for hit point restoration, separate cos it resets on first hit
     fCondition: Integer; //Unit condition, when it reaches zero unit should die (rarely can be negative due to WalkExchange)
@@ -160,7 +160,7 @@ type
     property GetPosition: TKMPoint read fCurrPosition;
     procedure SetPosition(aPos: TKMPoint);
     property PositionF: TKMPointF read fPosition write fPosition;
-    property Thought: TUnitThought read fThought write fThought;
+    property Thought: TKMUnitThought read fThought write fThought;
     function GetMovementVector: TKMPointF;
     function IsIdle: Boolean;
     procedure TrainInHouse(aSchool: TKMHouseSchool);
@@ -752,7 +752,7 @@ end;
 function TKMUnitSerf.UpdateState: Boolean;
 var
   H: TKMHouseInn;
-  OldThought: TUnitThought;
+  OldThought: TKMUnitThought;
   WasIdle: Boolean;
 begin
   Result := True; //Required for override compatibility

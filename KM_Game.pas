@@ -22,9 +22,7 @@ type
     gmReplayMulti   //No input, different results screen to gmReplaySingle
     );
 
-  ///	<summary>
-  ///	  Class that manages single game session
-  ///	</summary>
+  //Class that manages single game session
   TKMGame = class
   private //Irrelevant to savegame
     fTimerGame: TTimer;

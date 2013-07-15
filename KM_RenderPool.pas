@@ -7,7 +7,7 @@ uses
   dglOpenGL, SysUtils, KromOGLUtils, KromUtils, Math,
   KM_Defaults, KM_CommonClasses, KM_Pics, KM_Points, KM_Render,
   KM_RenderTerrain, KM_ResHouses, KM_ResSprites, KM_ResWares,
-  KM_Houses, KM_Terrain, OBJLoader;
+  KM_Houses, KM_Terrain, KM_Projectiles, OBJLoader;
 
 type
   //List of sprites prepared to be rendered
@@ -86,7 +86,7 @@ type
     procedure AddHouseEater(Loc: TKMPoint; aUnit: TUnitType; aAct: TUnitActionType; aDir: TKMDirection; StepId: Integer; OffX,OffY: Single; FlagColor: TColor4);
     procedure AddUnit(aUnit: TUnitType; aAct: TUnitActionType; aDir: TKMDirection; StepId: Integer; pX,pY: Single; FlagColor: TColor4; NewInst: Boolean; DoImmediateRender: Boolean = False; Deleting: Boolean = False);
     procedure AddUnitCarry(aCarry: TWareType; aDir: TKMDirection; StepId: Integer; pX,pY: Single);
-    procedure AddUnitThought(aUnit: TUnitType; aAct: TUnitActionType; aDir: TKMDirection; Thought: TUnitThought; pX,pY: Single);
+    procedure AddUnitThought(aUnit: TUnitType; aAct: TUnitActionType; aDir: TKMDirection; Thought: TKMUnitThought; pX,pY: Single);
     procedure AddUnitFlag(aUnit: TUnitType; aAct: TUnitActionType; aDir: TKMDirection; FlagAnim: Integer; pX,pY: Single; FlagColor: TColor4);
     procedure AddUnitWithDefaultArm(aUnit: TUnitType; aAct: TUnitActionType; aDir: TKMDirection; StepId: Integer; pX,pY: Single; FlagColor: TColor4; DoImmediateRender: Boolean = False; Deleting: Boolean = False);
 
@@ -108,8 +108,8 @@ var
 
 
 implementation
-uses KM_CommonTypes, KM_RenderAux, KM_PlayersCollection, KM_Projectiles, KM_Game, KM_Sound, KM_Resource, KM_ResUnits,
-  KM_ResMapElements, KM_Units, KM_AIFields, KM_TerrainPainter, KM_GameCursor;
+uses KM_CommonTypes, KM_RenderAux, KM_PlayersCollection, KM_Game, KM_Sound, KM_Resource, KM_ResUnits,
+  KM_ResMapElements, KM_Units, KM_AIFields, KM_TerrainPainter, KM_GameCursor, KM_InterfaceMapEditor;
 
 
 constructor TRenderPool.Create(aRender: TRender);
@@ -694,7 +694,7 @@ end;
 
 procedure TRenderPool.AddUnitThought(aUnit: TUnitType; aAct: TUnitActionType;
                                      aDir: TKMDirection;
-                                     Thought: TUnitThought; pX,pY: Single);
+                                     Thought: TKMUnitThought; pX,pY: Single);
 var
   Id: Integer;
   CornerX, CornerY, Ground: Single;

@@ -1,7 +1,7 @@
 unit KM_Defaults;
 {$I KaM_Remake.inc}
 interface
-uses Classes, SysUtils;
+uses SysUtils;
 
 
 //Global const
@@ -256,12 +256,9 @@ type
 
 
 type
-  //Which MapEditor page is being shown
-  TKMMapEdShownPage = (esp_Unknown, esp_Terrain, esp_Buildings, esp_Reveal);
-
   TKMissionMode = (mm_Normal, mm_Tactic);
 
-  TAllianceType = (at_Enemy=0, at_Ally=1); //Must match KaM script IDs for now
+  TAllianceType = (at_Enemy, at_Ally);
 
 { Terrain }
 type
@@ -365,10 +362,10 @@ type
   TGoInDirection = (gd_GoOutside=-1, gd_GoInside=1); //Switch to set if unit goes into house or out of it
 
 type
-  TUnitThought = (th_None, th_Eat, th_Home, th_Build, th_Stone, th_Wood, th_Death, th_Quest);
+  TKMUnitThought = (th_None, th_Eat, th_Home, th_Build, th_Stone, th_Wood, th_Death, th_Quest);
 
 const //Corresponding indices in units.rx
-  ThoughtBounds: array [TUnitThought, 1..2] of Word = (
+  ThoughtBounds: array [TKMUnitThought, 1..2] of Word = (
   (0,0), (6250,6257), (6258,6265), (6266,6273), (6274,6281), (6282,6289), (6290,6297), (6298,6305)
   );
 
@@ -423,7 +420,6 @@ type
 
 {Houses in game}
 type
-
   //House has 3 basic states: no owner inside, owner inside, owner working inside
   THouseState = (hst_Empty, hst_Idle, hst_Work);
   //These are house building states
@@ -447,7 +443,6 @@ type
     );
 
 const
-
   HouseAction: array [THouseActionType] of string = (
   'ha_Work1', 'ha_Work2', 'ha_Work3', 'ha_Work4', 'ha_Work5', //Start, InProgress, .., .., Finish
   'ha_Smoke', 'ha_FlagShtok', 'ha_Idle',
@@ -509,54 +504,6 @@ type
   TKMVertexUsage = (vu_None=0,  //Nobody is on this vertex
                     vu_NWSE,    //Vertex is used NW-SE like this: \
                     vu_NESW);   //Vertex is used NE-SW like this: /
-
-  TChopableAge = (caAge1, caAge2, caAge3, caAgeFull, caAgeFall, caAgeStump);
-
-const
-  //Chopable tree, Chopdown animation,
-  //Age1, Age2, Age3, Age4, Falling, Stump
-  ChopableTrees: array [1..13, TChopableAge] of byte = (
-  //For grass
-  (  88,  89,  90,  90,  91,  37), //These two are very look alike
-  (  97,  98,  99, 100, 101,  41), //yet different in small detail and fall direction
-  ( 102, 103, 104, 105, 106,  45),
-  ( 107, 108, 109, 110, 111,  41),
-  ( 112, 113, 114, 114, 115,  25), //These two are very look alike
-  ( 116, 117, 118, 119, 120,  25), //yet different in small detail and fall direction
-  //For grass and yellow
-  (  92,  93,  94,  95,  96,  49),
-  //For yellow soil only
-  ( 121, 122, 123, 124, 125,  64),
-  //For dirt (pine trees)
-  ( 149, 150, 151, 151, 152,  29),
-  ( 153, 154, 155, 155, 156,  29),
-  ( 157, 158, 159, 160, 161,  33),
-  ( 162, 163, 164, 165, 166,  33),
-  ( 167, 168, 169, 170, 171,  33));
-
-  //Ages at which trees/fields grow up/change sprite multiplied by TERRAIN_PACE
-  TREE_AGE_1 = 2400 div TERRAIN_PACE;
-  TREE_AGE_2 = 5000 div TERRAIN_PACE;
-  TREE_AGE_FULL = 8000 div TERRAIN_PACE; //Tree is old enough to be chopped
-
-  CORN_AGE_1 = 1400 div TERRAIN_PACE;    //Measured from KaM ~150sec
-  CORN_AGE_2 = 2200 div TERRAIN_PACE;   //Number measured from KaM ~195sec
-  CORN_AGE_3 = 4400 div TERRAIN_PACE;
-  CORN_AGE_FULL = 6400 div TERRAIN_PACE; //Corn ready to be cut
-  CORN_AGE_MAX = 255; //todo: Remove. We set it to this once it's fully grown
-
-  //Wine values have been tweaked for balance. In KaM they matched corn.
-  WINE_AGE_1 = 1600 div TERRAIN_PACE;
-  WINE_AGE_2 = 3400 div TERRAIN_PACE;
-  WINE_AGE_FULL = 5000 div TERRAIN_PACE; //Wine ready to be harvested
-
-
-type
-  TProjectileType = (pt_Arrow, pt_Bolt, pt_SlingRock, pt_TowerRock); {pt_BallistaRock, }
-
-const //Corresponding indices in units.rx //pt_Arrow, pt_Bolt are unused
-  ProjectileBounds: array [TProjectileType, 1..2] of word = ((0,0), (0,0), (0,0), (4186,4190));
-
 
 type
   //Sketch of the goal and message displaying system used in KaM (from scripting point of view anyway)

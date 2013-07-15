@@ -39,6 +39,47 @@ var
   //on the stack (View>Debug>CPU>Stack) for reasons unknown to me.
   MapElem: array [Byte] of TKMMapElement;
 
+type
+  TChopableAge = (caAge1, caAge2, caAge3, caAgeFull, caAgeFall, caAgeStump);
+
+const
+  //Chopable tree, Chopdown animation,
+  //Age1, Age2, Age3, Age4, Falling, Stump
+  ChopableTrees: array [1..13, TChopableAge] of byte = (
+  //For grass
+  (  88,  89,  90,  90,  91,  37), //These two are very look alike
+  (  97,  98,  99, 100, 101,  41), //yet different in small detail and fall direction
+  ( 102, 103, 104, 105, 106,  45),
+  ( 107, 108, 109, 110, 111,  41),
+  ( 112, 113, 114, 114, 115,  25), //These two are very look alike
+  ( 116, 117, 118, 119, 120,  25), //yet different in small detail and fall direction
+  //For grass and yellow
+  (  92,  93,  94,  95,  96,  49),
+  //For yellow soil only
+  ( 121, 122, 123, 124, 125,  64),
+  //For dirt (pine trees)
+  ( 149, 150, 151, 151, 152,  29),
+  ( 153, 154, 155, 155, 156,  29),
+  ( 157, 158, 159, 160, 161,  33),
+  ( 162, 163, 164, 165, 166,  33),
+  ( 167, 168, 169, 170, 171,  33));
+
+  //Ages at which trees/fields grow up/change sprite multiplied by TERRAIN_PACE
+  TREE_AGE_1 = 2400 div TERRAIN_PACE;
+  TREE_AGE_2 = 5000 div TERRAIN_PACE;
+  TREE_AGE_FULL = 8000 div TERRAIN_PACE; //Tree is old enough to be chopped
+
+  CORN_AGE_1 = 1400 div TERRAIN_PACE;    //Measured from KaM ~150sec
+  CORN_AGE_2 = 2200 div TERRAIN_PACE;   //Number measured from KaM ~195sec
+  CORN_AGE_3 = 4400 div TERRAIN_PACE;
+  CORN_AGE_FULL = 6400 div TERRAIN_PACE; //Corn ready to be cut
+  CORN_AGE_MAX = 255; //todo: Remove. We set it to this once it's fully grown
+
+  //Wine values have been tweaked for balance. In KaM they matched corn.
+  WINE_AGE_1 = 1600 div TERRAIN_PACE;
+  WINE_AGE_2 = 3400 div TERRAIN_PACE;
+  WINE_AGE_FULL = 5000 div TERRAIN_PACE; //Wine ready to be harvested
+
 
 implementation
 

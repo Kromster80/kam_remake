@@ -7,6 +7,12 @@ uses Classes, SysUtils, Math, KromUtils,
 
 
 type
+  TProjectileType = (pt_Arrow, pt_Bolt, pt_SlingRock, pt_TowerRock); {pt_BallistaRock, }
+
+const //Corresponding indices in units.rx //pt_Arrow, pt_Bolt are unused
+  ProjectileBounds: array [TProjectileType, 1..2] of word = ((0,0), (0,0), (0,0), (4186,4190));
+
+type
   //Projectiles in-game: arrows, bolts, rocks, etc..
   //Once launched they are on their own
   TKMProjectiles = class
