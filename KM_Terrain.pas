@@ -10,6 +10,10 @@ type
   //Farmers/Woodcutters preferred activity
   TPlantAct = (taCut, taPlant, taAny);
   TTileOverlay = (to_None, to_Dig1, to_Dig2, to_Dig3, to_Dig4, to_Road, to_Wall);
+  TKMVertexUsage = (vu_None=0,  //Nobody is on this vertex
+                    vu_NWSE,    //Vertex is used NW-SE like this: \
+                    vu_NESW);   //Vertex is used NE-SW like this: /
+  TFenceType = (fncNone, fncCorn, fncWine, fncHousePlan, fncHouseFence);
 
 
   {Class to store all terrain data, aswell terrain routines}

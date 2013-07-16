@@ -211,16 +211,14 @@ begin
     //foothills shadows going over mountain tops. Each tile strip is rendered an next Z plane.
     //Means that Z-test on gpu will take care of clipping the foothill shadows
     glEnable(GL_DEPTH_TEST);
-    glDepthFunc(GL_LEQUAL);
 
     //Everything flat of terrain
     fRenderTerrain.ClipRect := ClipRect;
     fRenderTerrain.RenderBase(gTerrain.AnimStep, MySpectator.FogOfWar);
 
-  //Disable depth test and write to depth buffer,
-  //so that terrain shadows could be applied seamlessly ontop
-  glDepthMask(False);
-  glDisable(GL_DEPTH_TEST);
+    //Disable depth test //and write to depth buffer,
+    //so that terrain shadows could be applied seamlessly ontop
+    glDisable(GL_DEPTH_TEST);
 
     fRenderTerrain.RenderFences;
 

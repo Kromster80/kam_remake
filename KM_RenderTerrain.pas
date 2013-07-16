@@ -148,7 +148,8 @@ begin
 
   if aFOW is TKMFogOfWar then
     Fog := @TKMFogOfWar(aFOW).Revelation
-  else Fog := nil;
+  else
+    Fog := nil;
 
   SizeX := fClipRect.Right - fClipRect.Left;
   SizeY := fClipRect.Bottom - fClipRect.Top;
@@ -167,7 +168,9 @@ begin
     fPos[H+0].ULit := Land[tY, tX].Light;
     fPos[H+0].UShd := -Land[tY, tX].Light;
     if Fog <> nil then
-      fPos[H+0].UFow := Fog^[tY-1, tX-1] / 256;
+      fPos[H+0].UFow := Fog^[tY-1, tX-1] / 256
+    else
+      fPos[H+0].UFow := 255;
 
     tY := I + fClipRect.Top + 1;
     fPos[H+1].X := tX-1;
@@ -176,7 +179,9 @@ begin
     fPos[H+1].ULit := Land[tY, tX].Light;
     fPos[H+1].UShd := -Land[tY, tX].Light;
     if Fog <> nil then
-      fPos[H+1].UFow := Fog^[tY-1, tX-1] / 256;
+      fPos[H+1].UFow := Fog^[tY-1, tX-1] / 256
+    else
+      fPos[H+1].UFow := 255;
 
     H := H + 2;
   end;
@@ -497,6 +502,8 @@ var
   I,K: Integer;
   Fog: PKMByte2Array;
 begin
+  if aFOW is TKMFogOfWarOpen then Exit;
+
   glColor4f(1, 1, 1, 1);
   glBlendFunc(GL_ZERO, GL_SRC_COLOR);
   glBindTexture(GL_TEXTURE_2D, fTextG);
@@ -518,9 +525,6 @@ begin
   end
   else
   begin
-
-    if aFOW is TKMFogOfWarOpen then Exit;
-
     Fog := @TKMFogOfWar(aFOW).Revelation;
 
     with gTerrain do

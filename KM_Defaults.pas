@@ -20,6 +20,8 @@ const
   SCROLLFLEX            = 4;            //This is the number of pixels either side of the edge of the screen which will count as scrolling
   MENU_DESIGN_X         = 1024;         //Thats the size menu was designed for. All elements are placed in this size
   MENU_DESIGN_Y         = 768;          //Thats the size menu was designed for. All elements are placed in this size
+  MIN_RESOLUTION_WIDTH  = 1024;         //Lowest supported resolution X
+  MIN_RESOLUTION_HEIGHT = 576;          //Lowest supported resolution Y
 
   GAME_REVISION         = 'r5503';       //Should be updated for every release (each time save format is changed)
   GAME_VERSION          = 'Scripting Demo ' + GAME_REVISION;       //Game version string displayed in menu corner
@@ -450,19 +452,6 @@ const
   'ha_Fire1', 'ha_Fire2', 'ha_Fire3', 'ha_Fire4', 'ha_Fire5', 'ha_Fire6', 'ha_Fire7', 'ha_Fire8');
 
 
-const
-  //Tiles table made by JBSnorro, thanks to him :)
-  MapEdTileRemap: array [1..256] of Integer = (
-     1,73,74,75,37,21,22, 38, 33, 34, 32,181,173,177,129,130,131,132,133, 49,193,197,217,225,  0,  0, 45, 24, 13, 23,208,224,
-    27,76,77,78,36,39,40,198,100,101,102,189,169,185,134,135,136,137,138,124,125,126,229,218,219,220, 46, 11,  5,  0, 26,216,
-    28,79,80,81,35,88,89, 90, 70, 71, 72,182,174,178,196,139,140,141,142,127,128,  0,230,226,227,228, 47,204,205,206,203,207,
-    29,82,83,84,85,86,87,  0,112,113,114,190,170,186,161,162,163,164,165,106,107,108,233,234,231,  0, 48,221,213,214,199,200,
-    30,94,95,96,57,58,59,  0,103,104,105,183,175,179,157,202,158,159,160,117,118,119,209,210,241,245,194,248, 65, 66,195, 25,
-    31, 9,19,20,41,42,43, 44,  6,  7, 10,191,171,187,149,150,151,152, 16,242,243,244,235,238,239,240,  0, 50,172, 52,222,223,
-    18,67,68,69,91,92,93,  0,  3,  4,  2,184,176,180,145,146,147,148,  8,115,116,120,236,237,143,144,  0, 53,167, 55,215,232,
-    17,97,98,99, 0, 0, 0,  0, 12, 14, 15,192,168,188,153,154,155,156,  0,121,122,123,211,212,201,  0,246,166, 51, 54,  0,  0);
-    // 247 - doesn't work in game, replaced with random road
-
 {Terrain}
 type
   TFieldType = (
@@ -498,12 +487,6 @@ type
         tlRoadWork  // -        X         X       X          -     X      -
         );
 
-  TFenceType = (fncNone, fncCorn, fncWine, fncHousePlan, fncHouseFence);
-
-
-  TKMVertexUsage = (vu_None=0,  //Nobody is on this vertex
-                    vu_NWSE,    //Vertex is used NW-SE like this: \
-                    vu_NESW);   //Vertex is used NE-SW like this: /
 
 type
   //Sketch of the goal and message displaying system used in KaM (from scripting point of view anyway)
@@ -549,15 +532,6 @@ const
    'Military assets',
    'Serfs&Schools',
    'School Inn Store');
-
-  GoalStatusStr: array [TGoalStatus] of string =
-  ('True', 'False');
-
-
-//Lowest supported resolution
-const
-  MIN_RESOLUTION_WIDTH  = 1024;
-  MIN_RESOLUTION_HEIGHT = 576;
 
 
 type
