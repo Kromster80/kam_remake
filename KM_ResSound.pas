@@ -3,7 +3,7 @@ unit KM_ResSound;
 interface
 uses Classes, SysUtils, TypInfo,
   {$IFDEF Unix} LCLIntf, LCLType, {$ENDIF}
-  KromUtils, KM_Defaults, KM_Points;
+  KromUtils, KM_Defaults;
 
 type
   TAttackNotification = (an_Citizens, an_Town, an_Troops);

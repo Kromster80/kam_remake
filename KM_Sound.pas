@@ -79,7 +79,7 @@ var
 
 
 implementation
-uses KM_CommonClasses, KM_RenderAux, KM_Log, KM_Utils, KM_Resource;
+uses KM_RenderAux, KM_Log, KM_Utils, KM_Resource;
 
 
 const
