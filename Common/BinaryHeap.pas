@@ -5,7 +5,7 @@ interface
 
 
 type
-  TComparator = function(A, B: Pointer) : Boolean of object;
+  TComparator = function(A, B: Pointer): Boolean of object;
 
   TBinaryHeap = class
   private

@@ -4,8 +4,8 @@ object Form1: TForm1
   BorderIcons = [biSystemMenu, biMinimize]
   BorderStyle = bsDialog
   Caption = 'Dependencies Grapher'
-  ClientHeight = 59
-  ClientWidth = 223
+  ClientHeight = 105
+  ClientWidth = 233
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -18,8 +18,8 @@ object Form1: TForm1
   PixelsPerInch = 96
   TextHeight = 13
   object ButChooseDpr: TButton
-    Left = 24
-    Top = 16
+    Left = 40
+    Top = 8
     Width = 153
     Height = 25
     Caption = 'Choose Delphi Project'
@@ -27,9 +27,9 @@ object Form1: TForm1
     OnClick = ButChooseDprClick
   end
   object ButBuildGraph: TButton
-    Left = 8
-    Top = 8
-    Width = 169
+    Left = 40
+    Top = 72
+    Width = 153
     Height = 25
     Caption = 'Build Graph'
     TabOrder = 1
@@ -37,17 +37,16 @@ object Form1: TForm1
     OnClick = ButBuildGraphClick
   end
   object ChConsSystem: TCheckBox
-    Left = 79
-    Top = 39
-    Width = 144
+    Left = 39
+    Top = 47
+    Width = 122
     Height = 13
     Caption = 'Consider system units'
     TabOrder = 2
     Visible = False
   end
   object OpenDialog: TOpenDialog
-    Filter = 'Delphi Project|*.dpr|Any File|*.*'
-    Left = 192
-    Top = 32
+    Filter = 'Delphi Project|*.dpr'
+    Top = 8
   end
 end

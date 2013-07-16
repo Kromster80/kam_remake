@@ -1,10 +1,8 @@
 unit Unit1;
-
 interface
-
 uses
-  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
-  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, DependenciesGrapher;
+  SysUtils, Classes, Controls, Forms, Dialogs, StdCtrls, DependenciesGrapher;
+
 
 type
   TForm1 = class(TForm)
@@ -16,18 +14,15 @@ type
     procedure ButBuildGraphClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
-  private
-    { Private declarations }
-  public
-    { Public declarations }
   end;
+
 
 var
   Form1: TForm1;
   DepGraph : TDependenciesGrapher;
 
-implementation
 
+implementation
 {$R *.dfm}
 
 
@@ -36,30 +31,33 @@ begin
   DepGraph := TDependenciesGrapher.Create;
 end;
 
+
 procedure TForm1.ButChooseDprClick(Sender: TObject);
 begin
-  if not OpenDialog.Execute() then
-    exit;
-  if not SameText( ExtractFileExt(OpenDialog.FileName ), '.dpr' ) then
-  begin
-    MessageBox( 0, 'File must be a Delphi project', 'Error', MB_OK );
-    exit;
-  end;
-  ButChooseDpr.Visible := false;
-  ButBuildGraph.Visible := true;
-  ChConsSystem.Visible := true;
+  if not OpenDialog.Execute then
+    Exit;
+
+  OpenDialog.InitialDir := ExpandFileName(ExtractFilePath(Application.ExeName) + '..\..\');
+
+  Assert(SameText(ExtractFileExt(OpenDialog.FileName ), '.dpr'));
+
+  ButChooseDpr.Visible := False;
+  ButBuildGraph.Visible := True;
+  ChConsSystem.Visible := True;
 end;
 
 
 procedure TForm1.ButBuildGraphClick(Sender: TObject);
 begin
-  DepGraph.BuildGraph(  OpenDialog.FileName );
-  DepGraph.PrintOutput( 'dependencies.txt' );
+  DepGraph.BuildGraph(OpenDialog.FileName);
+  DepGraph.PrintOutput(ExtractFilePath(Application.ExeName) + 'dependencies.csv');
 end;
+
 
 procedure TForm1.FormClose(Sender: TObject; var Action: TCloseAction);
 begin
   DepGraph.Free;
 end;
+
 
 end.
