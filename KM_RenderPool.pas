@@ -39,7 +39,7 @@ type
     constructor Create;
     destructor Destroy; override;
 
-    procedure AddSprite(aRX: TRXType; aID: Word; pX,pY: Single; aTeam: Cardinal = $0; aAlphaStep: Single = -1);
+    procedure AddSprite(aRX: TRXType; aID: Word; aUID: Cardinal; pX,pY: Single; aTeam: Cardinal = $0; aAlphaStep: Single = -1);
     procedure AddSpriteG(aRX: TRXType; aID: Word; aUID: Cardinal; pX,pY,gX,gY: Single; aTeam: Cardinal = $0; aAlphaStep: Single = -1);
 
     property Stat_Sprites: Integer read fStat_Sprites;
@@ -397,35 +397,31 @@ var
   FOW: Byte;
   A: TKMAnimLoop;
 begin
-  if MapElem[aIndex].Anim.Count = 0 then Exit;
-
-  A := MapElem[aIndex].Anim;
-
-  FOW := MySpectator.FogOfWar.CheckTileRevelation(LocX,LocY);
-  if FOW = 0 then exit; //Don't render objects which are unexplored
-  if FOW <= 128 then AnimStep := 0; //Stop animation
-  Id := A.Step[AnimStep mod Byte(A.Count) +1]+1;
-  Id0 := A.Step[1] + 1;
-  if Id <= 0 then exit;
-
-  pX := LocX - 1;
-  pY := LocY - 1;
-
   if aIndex = 61 then
   begin
     //Invisible wall
-    CornerX := pX; //Required if DoImmediateRender = true
-    CornerY := pY;
     //Render as a red outline in map editor mode
     if fGame.IsMapEditor then
     begin
-      fRenderAux.Quad(pX+1, pY+1, $600000FF);
-      RenderWireTile(KMPoint(pX+1, pY+1), $800000FF);
+      fRenderAux.Quad(LocX, LocY, $600000FF);
+      RenderWireTile(KMPoint(LocX, LocY), $800000FF);
     end;
   end
   else
   begin
+    if MapElem[aIndex].Anim.Count = 0 then Exit;
+
+    A := MapElem[aIndex].Anim;
+    FOW := MySpectator.FogOfWar.CheckTileRevelation(LocX,LocY);
+    if FOW = 0 then exit; //Don't render objects which are unexplored
+    if FOW <= 128 then AnimStep := 0; //Stop animation
+    Id := A.Step[AnimStep mod Byte(A.Count) +1]+1;
+    Id0 := A.Step[1] + 1;
+    if Id <= 0 then exit;
+
     R := fRXData[rxTrees];
+    pX := LocX - 1;
+    pY := LocY - 1;
     gX := pX + (R.Pivot[Id0].X + R.Size[Id0].X/2) / CELL_SIZE_PX;
     gY := pY + (R.Pivot[Id0].Y + R.Size[Id0].Y) / CELL_SIZE_PX;
     CornerX := pX + R.Pivot[Id].X / CELL_SIZE_PX;
@@ -439,10 +435,10 @@ begin
     //fRenderAux.Dot(CornerX, CornerY, $FFFF00FF);
     //glRasterPos2f(pX - 1 + 0.1, pY - 1 + 0.1);
     //glPrint(inttostr(aIndex) + ':' + inttostr(Id));
-  end;
 
-  if DoImmediateRender then
-    RenderSprite(rxTrees, Id, 0, False, CornerX, CornerY, $FFFFFFFF, 255, Deleting);
+    if DoImmediateRender then
+      RenderSprite(rxTrees, Id, 0, False, CornerX, CornerY, $FFFFFFFF, 255, Deleting);
+  end;
 end;
 
 
@@ -574,6 +570,8 @@ begin
 
   gX := aLoc.X + (R.Pivot[PicWood].X + R.Size[PicWood].X / 2) / CELL_SIZE_PX - 1;
   gY := aLoc.Y + Max(GroundWood, GroundStone) / CELL_SIZE_PX - 1.5;
+
+  //Wood part of the house (may be seen below Stone part, e.g. Sawmill)
   CornerX := aLoc.X + R.Pivot[PicWood].X / CELL_SIZE_PX;
   CornerY := aLoc.Y + (R.Pivot[PicWood].Y + R.Size[PicWood].Y) / CELL_SIZE_PX
                    - gTerrain.Land[aLoc.Y + 1, aLoc.X].Height / CELL_HEIGHT_DIV;
@@ -601,13 +599,14 @@ begin
 end;
 
 
-procedure TRenderPool.AddHouseWork(aHouse: THouseType; Loc: TKMPoint; aActSet: THouseActionSet; AnimStep: Cardinal; FlagColor: TColor4);
+procedure TRenderPool.AddHouseWork(aHouse: THouseType; Loc: TKMPoint; aUID: Cardinal; aActSet: THouseActionSet; AnimStep: Cardinal; FlagColor: TColor4);
 var
   Id: Cardinal;
   AT: THouseActionType;
   A: TKMAnimLoop;
   R: TRXData;
   CornerX, CornerY: Single;
+  U: Cardinal;
 begin
   if aActSet = [] then Exit;
 
@@ -624,7 +623,11 @@ begin
       CornerX := Loc.X + (R.Pivot[Id].X + A.MoveX) / CELL_SIZE_PX - 1;
       CornerY := Loc.Y + (R.Pivot[Id].Y + A.MoveY + R.Size[Id].Y) / CELL_SIZE_PX - 1
                        - gTerrain.Land[Loc.Y + 1, Loc.X].Height / CELL_HEIGHT_DIV;
-      fRenderList.AddSprite(rxHouses, Id, CornerX, CornerY, FlagColor);
+
+      U := aUID * Byte(AT in [ha_Work1..ha_Work5, ha_Flagpole, ha_Idle]);
+
+
+      fRenderList.AddSprite(rxHouses, Id, U, CornerX, CornerY, FlagColor);
     end;
   end;
 end;
@@ -1456,14 +1459,13 @@ begin
   RenderList[fCount].NewInst    := True;            //Is this a new item (can be occluded), or a child one (always on top of it's parent)
   RenderList[fCount].TeamColor  := aTeam;           //Team Id (determines color)
   RenderList[fCount].AlphaStep  := aAlphaStep;      //Alpha step for wip buildings
-  RenderList[fCount].FOWvalue   := 255;             //Visibility recomputed in ClipRender anyway
 
   Inc(fCount); //New item added
 end;
 
 
 //Child items don't need ground level
-procedure TRenderList.AddSprite(aRX: TRXType; aId: Word; pX,pY: Single; aTeam: Cardinal = $0; aAlphaStep: Single = -1);
+procedure TRenderList.AddSprite(aRX: TRXType; aId: Word; aUID: Cardinal; pX,pY: Single; aTeam: Cardinal = $0; aAlphaStep: Single = -1);
 begin
   if fCount >= Length(RenderList) then
     SetLength(RenderList, fCount + 256); //Book some space
@@ -1472,10 +1474,10 @@ begin
   RenderList[fCount].Feet       := RenderList[fCount-1].Feet;  //Ground position of sprite for Z-sorting
   RenderList[fCount].RX         := aRX;             //RX library
   RenderList[fCount].Id         := aId;             //Texture Id
+  RenderList[fCount].UID        := aUID;
   RenderList[fCount].NewInst    := False;            //Is this a new item (can be occluded), or a child one (always on top of it's parent)
   RenderList[fCount].TeamColor  := aTeam;           //Team Id (determines color)
   RenderList[fCount].AlphaStep  := aAlphaStep;      //Alpha step for wip buildings
-  RenderList[fCount].FOWvalue   := 255;             //Visibility recomputed in ClipRender anyway
 
   Inc(fCount); //New item added
 end;
@@ -1526,9 +1528,6 @@ end;
 procedure TRenderList.Render(aTarget: TKMRenderTarget);
 var
   I, K: Integer;
-  SecondId: Word;
-  SecondAlpha: Single;
-  X2, Y2: Single;
 begin
   fStat_Sprites := fCount;
   fStat_Sprites2 := 0;
