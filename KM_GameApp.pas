@@ -613,9 +613,13 @@ begin
   else
     fMainMenuInterface.Paint;
 
+  //if fGame <> nil then
+    //fGame.RenderSelection;
+
   fRender.RenderBrightness(GameSettings.Brightness);
 
   fRender.EndFrame;
+
 end;
 
 

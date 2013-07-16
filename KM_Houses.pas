@@ -1265,12 +1265,12 @@ begin
     hbs_NoGlyph:; //Nothing
     hbs_Wood:   begin
                   Progress := fBuildingProgress / 50 / H.WoodCost;
-                  fRenderPool.AddHouse(fHouseType, fPosition, Progress, 0, 0);
+                  fRenderPool.AddHouse(fHouseType, fPosition, fID, Progress, 0, 0);
                   fRenderPool.AddHouseBuildSupply(fHouseType, fPosition, fBuildSupplyWood, fBuildSupplyStone);
                 end;
     hbs_Stone:  begin
                   Progress := (fBuildingProgress / 50 - H.WoodCost) / H.StoneCost;
-                  fRenderPool.AddHouse(fHouseType, fPosition, 1, Progress, 0);
+                  fRenderPool.AddHouse(fHouseType, fPosition, fID, 1, Progress, 0);
                   fRenderPool.AddHouseBuildSupply(fHouseType, fPosition, fBuildSupplyWood, fBuildSupplyStone);
                 end;
     else        begin
@@ -1278,15 +1278,15 @@ begin
                   if HOUSE_BUILDING_STEP = 0 then
                   begin
                     if fIsOnSnow then
-                      fRenderPool.AddHouse(fHouseType, fPosition, 1, 1, fSnowStep)
+                      fRenderPool.AddHouse(fHouseType, fPosition, fID, 1, 1, fSnowStep)
                     else
-                      fRenderPool.AddHouse(fHouseType, fPosition, 1, 1, 0);
+                      fRenderPool.AddHouse(fHouseType, fPosition, fID, 1, 1, 0);
                     fRenderPool.AddHouseSupply(fHouseType, fPosition, fResourceIn, fResourceOut);
                     if fCurrentAction <> nil then
                       fRenderPool.AddHouseWork(fHouseType, fPosition, fCurrentAction.SubAction, WorkAnimStep, gPlayers[fOwner].FlagColor);
                   end
                   else
-                    fRenderPool.AddHouse(fHouseType, fPosition,
+                    fRenderPool.AddHouse(fHouseType, fPosition, fID,
                       Min(HOUSE_BUILDING_STEP * 3, 1),
                       EnsureRange(HOUSE_BUILDING_STEP * 3 - 1, 0, 1),
                       Max(HOUSE_BUILDING_STEP * 3 - 2, 0));

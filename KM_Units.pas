@@ -350,16 +350,16 @@ begin
   case fCurrentAction.fActionType of
     ua_Walk:
       begin
-        fRenderPool.AddUnit(fUnitType, ua_Walk, Direction, AnimStep, XPaintPos, YPaintPos, gPlayers[fOwner].FlagColor, true);
+        fRenderPool.AddUnit(fUnitType, fID, ua_Walk, Direction, AnimStep, XPaintPos, YPaintPos, gPlayers[fOwner].FlagColor, true);
         if fResource.UnitDat[fUnitType].SupportsAction(ua_WalkArm) then
-          fRenderPool.AddUnit(fUnitType, ua_WalkArm, Direction, AnimStep, XPaintPos, YPaintPos, gPlayers[fOwner].FlagColor, false);
+          fRenderPool.AddUnit(fUnitType, fID, ua_WalkArm, Direction, AnimStep, XPaintPos, YPaintPos, gPlayers[fOwner].FlagColor, false);
       end;
     ua_Work..ua_Eat:
-        fRenderPool.AddUnit(fUnitType, Act, Direction, AnimStep, XPaintPos, YPaintPos, gPlayers[fOwner].FlagColor, true);
+        fRenderPool.AddUnit(fUnitType, fID, Act, Direction, AnimStep, XPaintPos, YPaintPos, gPlayers[fOwner].FlagColor, true);
     ua_WalkArm .. ua_WalkBooty2:
       begin
-        fRenderPool.AddUnit(fUnitType, ua_Walk, Direction, AnimStep, XPaintPos, YPaintPos, gPlayers[fOwner].FlagColor, true);
-        fRenderPool.AddUnit(fUnitType, Act, Direction, AnimStep, XPaintPos, YPaintPos, gPlayers[fOwner].FlagColor, false);
+        fRenderPool.AddUnit(fUnitType, fID, ua_Walk, Direction, AnimStep, XPaintPos, YPaintPos, gPlayers[fOwner].FlagColor, true);
+        fRenderPool.AddUnit(fUnitType, fID, Act, Direction, AnimStep, XPaintPos, YPaintPos, gPlayers[fOwner].FlagColor, false);
       end;
   end;
 
@@ -562,16 +562,16 @@ begin
   case fCurrentAction.fActionType of
     ua_Walk:
       begin
-        fRenderPool.AddUnit(fUnitType, ua_Walk, Direction, AnimStep, XPaintPos, YPaintPos, gPlayers[fOwner].FlagColor, true);
+        fRenderPool.AddUnit(fUnitType, fID, ua_Walk, Direction, AnimStep, XPaintPos, YPaintPos, gPlayers[fOwner].FlagColor, true);
         if fResource.UnitDat[fUnitType].SupportsAction(ua_WalkArm) then
-          fRenderPool.AddUnit(fUnitType, ua_WalkArm, Direction, AnimStep, XPaintPos, YPaintPos, gPlayers[fOwner].FlagColor, false);
+          fRenderPool.AddUnit(fUnitType, fID, ua_WalkArm, Direction, AnimStep, XPaintPos, YPaintPos, gPlayers[fOwner].FlagColor, false);
       end;
     ua_Work..ua_Eat:
-        fRenderPool.AddUnit(fUnitType, Act, Direction, AnimStep, XPaintPos, YPaintPos, gPlayers[fOwner].FlagColor, true);
+        fRenderPool.AddUnit(fUnitType, fID, Act, Direction, AnimStep, XPaintPos, YPaintPos, gPlayers[fOwner].FlagColor, true);
     ua_WalkArm .. ua_WalkBooty2:
       begin
-        fRenderPool.AddUnit(fUnitType, ua_Walk, Direction, AnimStep, XPaintPos, YPaintPos, gPlayers[fOwner].FlagColor, true);
-        fRenderPool.AddUnit(fUnitType, Act, Direction, AnimStep, XPaintPos, YPaintPos, gPlayers[fOwner].FlagColor, false);
+        fRenderPool.AddUnit(fUnitType, fID, ua_Walk, Direction, AnimStep, XPaintPos, YPaintPos, gPlayers[fOwner].FlagColor, true);
+        fRenderPool.AddUnit(fUnitType, fID, Act, Direction, AnimStep, XPaintPos, YPaintPos, gPlayers[fOwner].FlagColor, false);
       end;
   end;
 
@@ -728,14 +728,14 @@ begin
   XPaintPos := fPosition.X + UNIT_OFF_X + GetSlide(ax_X);
   YPaintPos := fPosition.Y + UNIT_OFF_Y + GetSlide(ax_Y);
 
-  fRenderPool.AddUnit(UnitType, Act, Direction, AnimStep, XPaintPos, YPaintPos, gPlayers[fOwner].FlagColor, true);
+  fRenderPool.AddUnit(UnitType, fID, Act, Direction, AnimStep, XPaintPos, YPaintPos, gPlayers[fOwner].FlagColor, true);
 
   if fUnitTask is TTaskDie then exit; //Do not show unnecessary arms
 
   if Carry <> wt_None then
     fRenderPool.AddUnitCarry(Carry, Direction, AnimStep, XPaintPos, YPaintPos)
   else
-    fRenderPool.AddUnit(UnitType, ua_WalkArm, Direction, AnimStep, XPaintPos, YPaintPos, gPlayers[fOwner].FlagColor, false);
+    fRenderPool.AddUnit(UnitType, fID, ua_WalkArm, Direction, AnimStep, XPaintPos, YPaintPos, gPlayers[fOwner].FlagColor, false);
 
   if fThought <> th_None then
     fRenderPool.AddUnitThought(fUnitType, Act, Direction, fThought, XPaintPos, YPaintPos);
@@ -875,7 +875,7 @@ begin
   XPaintPos := fPosition.X + UNIT_OFF_X + GetSlide(ax_X);
   YPaintPos := fPosition.Y + UNIT_OFF_Y + GetSlide(ax_Y);
 
-  fRenderPool.AddUnit(UnitType, fCurrentAction.fActionType, Direction, AnimStep, XPaintPos, YPaintPos, gPlayers[fOwner].FlagColor, true);
+  fRenderPool.AddUnit(UnitType, fID, fCurrentAction.fActionType, Direction, AnimStep, XPaintPos, YPaintPos, gPlayers[fOwner].FlagColor, true);
 
   if fThought <> th_None then
     fRenderPool.AddUnitThought(fUnitType, fCurrentAction.ActionType, Direction, fThought, XPaintPos, YPaintPos);
@@ -1009,7 +1009,7 @@ begin
                       0.5, $30FF8000, $60FF8000);
 
   //Animals share the same WalkTo logic as other units and they exchange places if necessary
-  fRenderPool.AddUnit(fUnitType, Act, Direction, AnimStep, XPaintPos, YPaintPos, $FFFFFFFF, True);
+  fRenderPool.AddUnit(fUnitType, fID, Act, Direction, AnimStep, XPaintPos, YPaintPos, $FFFFFFFF, True);
 end;
 
 

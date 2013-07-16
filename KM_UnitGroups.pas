@@ -1451,7 +1451,7 @@ begin
     if not DoesFit then Continue; //Don't render units that are off the map in the map editor
     UnitPos.X := NewPos.X + UNIT_OFF_X; //MapEd units don't have sliding
     UnitPos.Y := NewPos.Y + UNIT_OFF_Y;
-    fRenderPool.AddUnit(FlagCarrier.UnitType, ua_Walk, fOrderLoc.Dir, UnitStillFrames[fOrderLoc.Dir], UnitPos.X, UnitPos.Y, gPlayers[FlagCarrier.Owner].FlagColor, True);
+    fRenderPool.AddUnit(FlagCarrier.UnitType, 0, ua_Walk, fOrderLoc.Dir, UnitStillFrames[fOrderLoc.Dir], UnitPos.X, UnitPos.Y, gPlayers[FlagCarrier.Owner].FlagColor, True);
   end;
 end;
 

@@ -742,7 +742,7 @@ begin
   UnitPos.X := fPosition.X + UNIT_OFF_X + GetSlide(ax_X);
   UnitPos.Y := fPosition.Y + UNIT_OFF_Y + GetSlide(ax_Y);
 
-  fRenderPool.AddUnit(fUnitType, Act, Direction, AnimStep, UnitPos.X, UnitPos.Y, gPlayers[fOwner].FlagColor, True);
+  fRenderPool.AddUnit(fUnitType, fID, Act, Direction, AnimStep, UnitPos.X, UnitPos.Y, gPlayers[fOwner].FlagColor, True);
 
   if fThought <> th_None then
     fRenderPool.AddUnitThought(fUnitType, Act, Direction, fThought, UnitPos.X, UnitPos.Y);

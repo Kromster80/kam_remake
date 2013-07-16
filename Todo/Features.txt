@@ -1,7 +1,6 @@
 Distant future
 	Fog of war
 	Networking in separate thread to minimize lags
-	Unicode
 
 Future
 	Lookout tower [Krom]
@@ -12,6 +11,8 @@ Future
 	Improved MapEd
 	Checkpoints in replays for fast fwd/rwd
 
+Next Demo
+	Unicode
 
 
 Scripting Demo (r5503) - 2013-06-23
