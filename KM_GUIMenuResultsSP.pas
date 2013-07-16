@@ -123,10 +123,10 @@ begin
 
   //Header
   case fGameResultMsg of
-    gr_Win:       Label_Results.Caption := fTextMain[TX_MENU_MISSION_VICTORY];
-    gr_Defeat:    Label_Results.Caption := fTextMain[TX_MENU_MISSION_DEFEAT];
-    gr_Cancel:    Label_Results.Caption := fTextMain[TX_MENU_MISSION_CANCELED];
-    gr_ReplayEnd: Label_Results.Caption := fTextMain[TX_MENU_REPLAY_ENDED];
+    gr_Win:       Label_Results.Caption := gResTexts[TX_MENU_MISSION_VICTORY];
+    gr_Defeat:    Label_Results.Caption := gResTexts[TX_MENU_MISSION_DEFEAT];
+    gr_Cancel:    Label_Results.Caption := gResTexts[TX_MENU_MISSION_CANCELED];
+    gr_ReplayEnd: Label_Results.Caption := gResTexts[TX_MENU_REPLAY_ENDED];
     else          Label_Results.Caption := NO_TEXT;
   end;
 
@@ -181,7 +181,7 @@ begin
 
     if ShowAIResults then
       for I := 0 to TempGraphCount - 1 do
-        Chart_Army.AddLine(Format(fTextMain[TX_PLAYER_X], [I+1]), TempGraphs[I].Color, TempGraphs[I].G);
+        Chart_Army.AddLine(Format(gResTexts[TX_PLAYER_X], [I+1]), TempGraphs[I].Color, TempGraphs[I].G);
 
     //Citizens
     TempGraphCount := 0; //Reset
@@ -198,7 +198,7 @@ begin
 
     if ShowAIResults then
       for I := 0 to TempGraphCount - 1 do
-        Chart_Citizens.AddLine(Format(fTextMain[TX_PLAYER_X], [I+1]), TempGraphs[I].Color, TempGraphs[I].G);
+        Chart_Citizens.AddLine(Format(gResTexts[TX_PLAYER_X], [I+1]), TempGraphs[I].Color, TempGraphs[I].G);
 
     //Houses
     TempGraphCount := 0; //Reset
@@ -211,7 +211,7 @@ begin
 
     if ShowAIResults then
       for I := 0 to TempGraphCount - 1 do
-        Chart_Houses.AddLine(Format(fTextMain[TX_PLAYER_X], [I+1]), TempGraphs[I].Color, TempGraphs[I].G);
+        Chart_Houses.AddLine(Format(gResTexts[TX_PLAYER_X], [I+1]), TempGraphs[I].Color, TempGraphs[I].G);
 
     //Wares
     for R := WARE_MIN to WARE_MAX do
@@ -306,7 +306,7 @@ begin
         inc(Adv, 25);
         if I in [3,6,7] then inc(Adv, 15);
         if I = 9 then inc(Adv, 45); //Last one goes right at the bottom of the scroll
-        TKMLabel.Create(Panel_Stats,20,Adv,240,20,fTextMain[StatText[I]],fnt_Metal,taLeft);
+        TKMLabel.Create(Panel_Stats,20,Adv,240,20,gResTexts[StatText[I]],fnt_Metal,taLeft);
         Label_Stat[I] := TKMLabel.Create(Panel_Stats,260,Adv,80,20,'00',fnt_Metal,taRight);
       end;
 
@@ -319,7 +319,7 @@ begin
       Button_ResultsArmy.TexOffsetX := -91;
       Button_ResultsArmy.TexOffsetY := 7;
       Button_ResultsArmy.Anchors := [akLeft];
-      Button_ResultsArmy.Caption := fTextMain[TX_GRAPH_ARMY];
+      Button_ResultsArmy.Caption := gResTexts[TX_GRAPH_ARMY];
       Button_ResultsArmy.CapOffsetY := -11;
       Button_ResultsArmy.OnClick := GraphToggle;
 
@@ -327,7 +327,7 @@ begin
       Button_ResultsCitizens.TexOffsetX := -92;
       Button_ResultsCitizens.TexOffsetY := 6;
       Button_ResultsCitizens.Anchors := [akLeft];
-      Button_ResultsCitizens.Caption := fTextMain[TX_GRAPH_CITIZENS];
+      Button_ResultsCitizens.Caption := gResTexts[TX_GRAPH_CITIZENS];
       Button_ResultsCitizens.CapOffsetY := -11;
       Button_ResultsCitizens.OnClick := GraphToggle;
 
@@ -335,7 +335,7 @@ begin
       Button_ResultsHouses.TexOffsetX := -93;
       Button_ResultsHouses.TexOffsetY := 6;
       Button_ResultsHouses.Anchors := [akLeft];
-      Button_ResultsHouses.Caption := fTextMain[TX_GRAPH_HOUSES];
+      Button_ResultsHouses.Caption := gResTexts[TX_GRAPH_HOUSES];
       Button_ResultsHouses.CapOffsetY := -11;
       Button_ResultsHouses.OnClick := GraphToggle;
 
@@ -343,34 +343,34 @@ begin
       Button_ResultsWares.TexOffsetX := -93;
       Button_ResultsWares.TexOffsetY := 6;
       Button_ResultsWares.Anchors := [akLeft];
-      Button_ResultsWares.Caption := fTextMain[TX_GRAPH_RESOURCES];
+      Button_ResultsWares.Caption := gResTexts[TX_GRAPH_RESOURCES];
       Button_ResultsWares.CapOffsetY := -11;
       Button_ResultsWares.OnClick := GraphToggle;
 
       Chart_Army := TKMChart.Create(Panel_StatsCharts, 0, 46, 610, 374);
-      Chart_Army.Caption := fTextMain[TX_GRAPH_ARMY];
+      Chart_Army.Caption := gResTexts[TX_GRAPH_ARMY];
       Chart_Army.Anchors := [akLeft];
 
       Chart_Citizens := TKMChart.Create(Panel_StatsCharts, 0, 46, 610, 374);
-      Chart_Citizens.Caption := fTextMain[TX_GRAPH_CITIZENS];
+      Chart_Citizens.Caption := gResTexts[TX_GRAPH_CITIZENS];
       Chart_Citizens.Anchors := [akLeft];
 
       Chart_Houses := TKMChart.Create(Panel_StatsCharts, 0, 46, 610, 374);
-      Chart_Houses.Caption := fTextMain[TX_GRAPH_HOUSES];
+      Chart_Houses.Caption := gResTexts[TX_GRAPH_HOUSES];
       Chart_Houses.Anchors := [akLeft];
 
       Chart_Wares := TKMChart.Create(Panel_StatsCharts, 0, 46, 610, 374);
-      Chart_Wares.Caption := fTextMain[TX_GRAPH_TITLE_RESOURCES];
+      Chart_Wares.Caption := gResTexts[TX_GRAPH_TITLE_RESOURCES];
       Chart_Wares.Anchors := [akLeft];
     end;
 
-    Button_ResultsBack := TKMButton.Create(Panel_Results,30,610,220,30,fTextMain[TX_MENU_BACK],bsMenu);
+    Button_ResultsBack := TKMButton.Create(Panel_Results,30,610,220,30,gResTexts[TX_MENU_BACK],bsMenu);
     Button_ResultsBack.Anchors := [akLeft];
     Button_ResultsBack.OnClick := BackClick;
-    Button_ResultsRepeat := TKMButton.Create(Panel_Results,270,610,220,30,fTextMain[TX_MENU_MISSION_REPEAT],bsMenu);
+    Button_ResultsRepeat := TKMButton.Create(Panel_Results,270,610,220,30,gResTexts[TX_MENU_MISSION_REPEAT],bsMenu);
     Button_ResultsRepeat.Anchors := [akLeft];
     Button_ResultsRepeat.OnClick := RepeatClick;
-    Button_ResultsContinue := TKMButton.Create(Panel_Results,510,610,220,30,fTextMain[TX_MENU_MISSION_NEXT],bsMenu);
+    Button_ResultsContinue := TKMButton.Create(Panel_Results,510,610,220,30,gResTexts[TX_MENU_MISSION_NEXT],bsMenu);
     Button_ResultsContinue.Anchors := [akLeft];
     Button_ResultsContinue.OnClick := ContinueClick;
 end;

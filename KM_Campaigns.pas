@@ -417,15 +417,15 @@ end;
 function TKMCampaign.BreifingAudioFile(aIndex: Byte): string;
 begin
   Result := fPath + fShortTitle + Format('%.2d', [aIndex+1]) + PathDelim +
-            fShortTitle + Format('%.2d', [aIndex + 1]) + '.' + fLocales.UserLocale + '.mp3';
+            fShortTitle + Format('%.2d', [aIndex + 1]) + '.' + gResLocales.UserLocale + '.mp3';
 
   if not FileExists(Result) then
     Result := fPath + fShortTitle + Format('%.2d', [aIndex+1]) + PathDelim +
-              fShortTitle + Format('%.2d', [aIndex + 1]) + '.' + fLocales.FallbackLocale + '.mp3';
+              fShortTitle + Format('%.2d', [aIndex + 1]) + '.' + gResLocales.FallbackLocale + '.mp3';
 
   if not FileExists(Result) then
     Result := fPath + fShortTitle + Format('%.2d', [aIndex+1]) + PathDelim +
-              fShortTitle + Format('%.2d', [aIndex + 1]) + '.' + fLocales.DefaultLocale + '.mp3';
+              fShortTitle + Format('%.2d', [aIndex + 1]) + '.' + gResLocales.DefaultLocale + '.mp3';
 end;
 
 

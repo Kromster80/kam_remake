@@ -113,18 +113,16 @@ procedure TestTKMCampaignsCollection.SetUp;
 begin
   ExeDir := ExtractFilePath(ParamStr(0)) + '..\';
   gLog := TKMLog.Create(ExtractFilePath(ParamStr(0)) + 'Temp\log.tmp');
-  fLocales := TKMLocales.Create(ExeDir+'data\locales.txt', DEFAULT_LOCALE);
+
   fResource := TResource.Create(nil, nil, nil);
-  fTextMain := TKMTextLibrarySingle.Create;
-  fTextMain.LoadLocale(ExeDir + 'data\text\');
+  fResource.LoadLocaleResources(DEFAULT_LOCALE);
+
   fCampaigns := TKMCampaignsCollection.Create;
 end;
 
 procedure TestTKMCampaignsCollection.TearDown;
 begin
-  FreeAndNil(fTextMain);
   FreeAndNil(fResource);
-  FreeAndNil(fLocales);
   FreeAndNil(gLog);
   FreeAndNil(fCampaigns);
 end;

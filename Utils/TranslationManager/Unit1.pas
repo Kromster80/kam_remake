@@ -112,7 +112,7 @@ begin
 
   fExeDir := ExtractFilePath(ParamStr(0));
   fWorkDir := fExeDir + '..\..\';
-  fLocales := TKMLocales.Create(fWorkDir + 'data\locales.txt', DEFAULT_LOCALE);
+  gResLocales := TKMLocales.Create(fWorkDir + 'data\locales.txt', DEFAULT_LOCALE);
 
   InitLocalesList;
 
@@ -160,7 +160,7 @@ var
   SelCount, SecHeight: Word;
 begin
   SelCount := 0;
-  for I := 0 to fLocales.Count - 1 do
+  for I := 0 to gResLocales.Count - 1 do
   if (I+1 < clbShowLang.Count) then
   if clbShowLang.Checked[I+1] then
     Inc(SelCount);
@@ -171,7 +171,7 @@ begin
   SecHeight := ScrollBox1.ClientHeight div SelCount;
 
   K := 0;
-  for I := 0 to fLocales.Count - 1 do
+  for I := 0 to gResLocales.Count - 1 do
   if clbShowLang.Checked[I+1] then
   begin
     TransLabels[I].SetBounds(8, 4 + K * SecHeight, 100, 20);
@@ -244,14 +244,14 @@ procedure TForm1.RefreshList;
   begin
     Result := True;
     TextID := fTextManager.Consts[aIndex].TextID;
-    DefLoc := fLocales.IndexByCode(DEFAULT_LOCALE);
+    DefLoc := gResLocales.IndexByCode(DEFAULT_LOCALE);
 
     //Hide lines that have text
     if cbShowMis.Checked then
     begin
       Result := False;
       if (TextID <> -1) then
-        for I := 0 to fLocales.Count - 1 do
+        for I := 0 to gResLocales.Count - 1 do
           if clbShowLang.Checked[I+1] then
             Result := Result or (fTextManager.Texts[TextID][I] = '');
     end;
@@ -261,9 +261,9 @@ procedure TForm1.RefreshList;
     begin
       Result := False;
       if (TextID <> -1) then
-        for I := 0 to fLocales.Count - 1 do
+        for I := 0 to gResLocales.Count - 1 do
           if clbShowLang.Checked[I+1] then
-          for K := 0 to fLocales.Count - 1 do
+          for K := 0 to gResLocales.Count - 1 do
             if (K <> I) and clbShowLang.Checked[K+1] then
               Result := Result or (fTextManager.Texts[TextID][I] = fTextManager.Texts[TextID][K]);
     end;
@@ -328,22 +328,22 @@ begin
 
   clbShowLang.Items.Add('All');
 
-  for I := 0 to fLocales.Count - 1 do
-    clbShowLang.Items.Add(fLocales[I].Code);
+  for I := 0 to gResLocales.Count - 1 do
+    clbShowLang.Items.Add(gResLocales[I].Code);
 
-  SetLength(TransMemos, fLocales.Count);
-  SetLength(TransLabels, fLocales.Count);
-  for I := 0 to fLocales.Count - 1 do
+  SetLength(TransMemos, gResLocales.Count);
+  SetLength(TransLabels, gResLocales.Count);
+  for I := 0 to gResLocales.Count - 1 do
   begin
     TransLabels[I] := TLabel.Create(Form1);
     TransLabels[I].Parent := ScrollBox1;
-    TransLabels[I].Caption := fLocales[I].Title + ' (' + fLocales[I].Code + ')';
+    TransLabels[I].Caption := gResLocales[I].Title + ' (' + gResLocales[I].Code + ')';
     TransLabels[I].Hide;
 
     TransMemos[I] := TMemo.Create(Form1);
     TransMemos[I].Parent := ScrollBox1;
     TransMemos[I].Anchors := [akLeft, akRight, akTop];
-    TransMemos[I].Font.Charset := GetCharset(fLocales[I].Code);
+    TransMemos[I].Font.Charset := GetCharset(gResLocales[I].Code);
     TransMemos[I].OnChange := MemoChange;
     TransMemos[I].Tag := I;
     TransMemos[I].Hide;
@@ -355,7 +355,7 @@ procedure TForm1.RefreshLocales;
 var
   I: Integer;
 begin
-  for I := 0 to fLocales.Count - 1 do
+  for I := 0 to gResLocales.Count - 1 do
   begin
     TransMemos[I].Visible := clbShowLang.Checked[I+1];
     TransLabels[I].Visible := clbShowLang.Checked[I+1];
@@ -382,8 +382,8 @@ begin
   if Locs <> '' then
     clbShowLang.State[0] := cbGrayed;
 
-  for I := 0 to fLocales.Count - 1 do
-  if Pos(fLocales[I].Code, Locs) <> 0 then
+  for I := 0 to gResLocales.Count - 1 do
+  if Pos(gResLocales[I].Code, Locs) <> 0 then
     clbShowLang.Checked[I+1] := True;
 
   RefreshLocales;
@@ -397,9 +397,9 @@ var
   Locs: string;
 begin
   Locs := '';
-  for I := 0 to fLocales.Count - 1 do
+  for I := 0 to gResLocales.Count - 1 do
   if clbShowLang.Checked[I+1] then
-    Locs := Locs + fLocales[I].Code + ',';
+    Locs := Locs + gResLocales[I].Code + ',';
 
   F := TIniFile.Create(aPath);
   try
@@ -422,7 +422,7 @@ begin
 
   lblConstName.Caption := fTextManager.Consts[ID].ConstName;
 
-  for I := 0 to fLocales.Count - 1 do
+  for I := 0 to gResLocales.Count - 1 do
     if fTextManager.Consts[ID].TextID <> -1 then
       TransMemos[i].Text := {$IFDEF FPC}AnsiToUTF8{$ENDIF}(fTextManager.Texts[fTextManager.Consts[ID].TextID][i])
     else
@@ -575,8 +575,8 @@ begin
   ID := ListBox1.ItemIndex;
   if ID = -1 then Exit;
 
-  SetLength(fBuffer, fLocales.Count);
-  for I := 0 to fLocales.Count - 1 do
+  SetLength(fBuffer, gResLocales.Count);
+  for I := 0 to gResLocales.Count - 1 do
     fBuffer[I] := fTextManager.Texts[fTextManager.Consts[ListboxLookup[ID]].TextID][I];
   btnPaste.Enabled := True;
 end;
@@ -588,8 +588,8 @@ begin
   ID := ListBox1.ItemIndex;
   if ID = -1 then Exit;
 
-  Assert(Length(fBuffer) = fLocales.Count);
-  for I := 0 to fLocales.Count - 1 do
+  Assert(Length(fBuffer) = gResLocales.Count);
+  for I := 0 to gResLocales.Count - 1 do
     fTextManager.Texts[fTextManager.Consts[ListboxLookup[ID]].TextID][I] := fBuffer[I];
   mnuSave.Enabled := True;
   ListBox1Click(nil);

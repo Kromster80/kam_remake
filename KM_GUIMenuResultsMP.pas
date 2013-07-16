@@ -103,7 +103,7 @@ begin
 
       for K := 0 to 4 do
       begin
-        with TKMLabel.Create(Panel_BarsUpper, 160 + BarStep*K, 0, BarWidth+6, 40, fTextMain[Columns1[K]], fnt_Metal, taCenter) do
+        with TKMLabel.Create(Panel_BarsUpper, 160 + BarStep*K, 0, BarWidth+6, 40, gResTexts[Columns1[K]], fnt_Metal, taCenter) do
           AutoWrap := True;
         for I:=0 to MAX_PLAYERS - 1 do
         begin
@@ -121,7 +121,7 @@ begin
 
       for K := 0 to 4 do
       begin
-        with TKMLabel.Create(Panel_BarsLower, 160 + BarStep*K, 0, BarWidth+6, 40, fTextMain[Columns2[K]], fnt_Metal, taCenter) do
+        with TKMLabel.Create(Panel_BarsLower, 160 + BarStep*K, 0, BarWidth+6, 40, gResTexts[Columns2[K]], fnt_Metal, taCenter) do
           AutoWrap := True;
         for I := 0 to MAX_PLAYERS - 1 do
         begin
@@ -149,12 +149,12 @@ begin
     for I := Low(TWareType) to High(TWareType) do
     begin
       Chart_MPWares[I] := TKMChart.Create(Panel_ChartsWares, 140, 0, 900-140, 435);
-      Chart_MPWares[I].Caption := fTextMain[TX_GRAPH_TITLE_RESOURCES];
+      Chart_MPWares[I].Caption := gResTexts[TX_GRAPH_TITLE_RESOURCES];
       Chart_MPWares[I].Font := fnt_Metal; //fnt_Outline doesn't work because player names blend badly with yellow
       Chart_MPWares[I].Hide;
     end;
 
-    Label_NoWareData := TKMLabel.Create(Panel_ChartsWares, 450, 215, fTextMain[TX_GRAPH_NO_DATA], fnt_Metal, taCenter);
+    Label_NoWareData := TKMLabel.Create(Panel_ChartsWares, 450, 215, gResTexts[TX_GRAPH_NO_DATA], fnt_Metal, taCenter);
 end;
 
 
@@ -220,10 +220,10 @@ var
   I: Integer;
 begin
   case fGameResultMsg of
-    gr_Win:       Label_ResultsMP.Caption := fTextMain[TX_MENU_MISSION_VICTORY];
-    gr_Defeat:    Label_ResultsMP.Caption := fTextMain[TX_MENU_MISSION_DEFEAT];
-    gr_Cancel:    Label_ResultsMP.Caption := fTextMain[TX_MENU_MISSION_CANCELED];
-    gr_ReplayEnd: Label_ResultsMP.Caption := fTextMain[TX_MENU_REPLAY_ENDED];
+    gr_Win:       Label_ResultsMP.Caption := gResTexts[TX_MENU_MISSION_VICTORY];
+    gr_Defeat:    Label_ResultsMP.Caption := gResTexts[TX_MENU_MISSION_DEFEAT];
+    gr_Cancel:    Label_ResultsMP.Caption := gResTexts[TX_MENU_MISSION_CANCELED];
+    gr_ReplayEnd: Label_ResultsMP.Caption := gResTexts[TX_MENU_REPLAY_ENDED];
     else          Label_ResultsMP.Caption := NO_TEXT;
   end;
   //Append mission name and time after the result message
@@ -244,9 +244,9 @@ begin
 
   //Back button has different captions depending on where it returns us to
   if fGameResultMsg <> gr_ReplayEnd then
-    Button_ResultsMPBack.Caption := fTextMain[TX_RESULTS_BACK_MP]
+    Button_ResultsMPBack.Caption := gResTexts[TX_RESULTS_BACK_MP]
   else
-    Button_ResultsMPBack.Caption := fTextMain[TX_RESULTS_BACK_REPLAYS];
+    Button_ResultsMPBack.Caption := gResTexts[TX_RESULTS_BACK_REPLAYS];
 
   //Show first tab
   TabChange(Button_MPResultsBars);
@@ -489,7 +489,7 @@ begin
     Chart_MPWares[R].Clear;
     Chart_MPWares[R].MaxLength := 0;
     Chart_MPWares[R].MaxTime := fGame.GameTickCount div 10;
-    Chart_MPWares[R].Caption := fTextMain[TX_GRAPH_TITLE_RESOURCES] + ' - ' + fResource.Wares[R].Title;
+    Chart_MPWares[R].Caption := gResTexts[TX_GRAPH_TITLE_RESOURCES] + ' - ' + fResource.Wares[R].Title;
 
     for I := 0 to gPlayers.Count - 1 do
     with gPlayers[I] do
@@ -529,7 +529,7 @@ begin
     Button_MPResultsBars.TexOffsetX := -78;
     Button_MPResultsBars.TexOffsetY := 6;
     Button_MPResultsBars.Anchors := [akLeft];
-    Button_MPResultsBars.Caption := fTextMain[TX_RESULTS_STATISTICS];
+    Button_MPResultsBars.Caption := gResTexts[TX_RESULTS_STATISTICS];
     Button_MPResultsBars.CapOffsetY := -11;
     Button_MPResultsBars.OnClick := TabChange;
 
@@ -537,7 +537,7 @@ begin
     Button_MPResultsArmy.TexOffsetX := -76;
     Button_MPResultsArmy.TexOffsetY := 6;
     Button_MPResultsArmy.Anchors := [akLeft];
-    Button_MPResultsArmy.Caption := fTextMain[TX_GRAPH_ARMY];
+    Button_MPResultsArmy.Caption := gResTexts[TX_GRAPH_ARMY];
     Button_MPResultsArmy.CapOffsetY := -11;
     Button_MPResultsArmy.OnClick := TabChange;
 
@@ -545,7 +545,7 @@ begin
     Button_MPResultsEconomy.TexOffsetX := -72;
     Button_MPResultsEconomy.TexOffsetY := 6;
     Button_MPResultsEconomy.Anchors := [akLeft];
-    Button_MPResultsEconomy.Caption := fTextMain[TX_RESULTS_ECONOMY];
+    Button_MPResultsEconomy.Caption := gResTexts[TX_RESULTS_ECONOMY];
     Button_MPResultsEconomy.CapOffsetY := -11;
     Button_MPResultsEconomy.OnClick := TabChange;
 
@@ -553,7 +553,7 @@ begin
     Button_MPResultsWares.TexOffsetX := -77;
     Button_MPResultsWares.TexOffsetY := 6;
     Button_MPResultsWares.Anchors := [akLeft];
-    Button_MPResultsWares.Caption := fTextMain[TX_GRAPH_RESOURCES];
+    Button_MPResultsWares.Caption := gResTexts[TX_GRAPH_RESOURCES];
     Button_MPResultsWares.CapOffsetY := -11;
     Button_MPResultsWares.OnClick := TabChange;
 
@@ -563,15 +563,15 @@ begin
     Panel_ChartsMP.Anchors := [akLeft];
 
       Chart_MPArmy := TKMChart.Create(Panel_ChartsMP, 62, 0, 900, 435);
-      Chart_MPArmy.Caption := fTextMain[TX_GRAPH_ARMY];
+      Chart_MPArmy.Caption := gResTexts[TX_GRAPH_ARMY];
       Chart_MPArmy.Anchors := [akLeft];
 
       Chart_MPCitizens := TKMChart.Create(Panel_ChartsMP, 62, 0, 900, 200);
-      Chart_MPCitizens.Caption := fTextMain[TX_GRAPH_CITIZENS];
+      Chart_MPCitizens.Caption := gResTexts[TX_GRAPH_CITIZENS];
       Chart_MPCitizens.Anchors := [akLeft];
 
       Chart_MPHouses := TKMChart.Create(Panel_ChartsMP, 62, 235, 900, 200);
-      Chart_MPHouses.Caption := fTextMain[TX_GRAPH_HOUSES];
+      Chart_MPHouses.Caption := gResTexts[TX_GRAPH_HOUSES];
       Chart_MPHouses.Anchors := [akLeft];
 
     CreateChartWares(Panel_ResultsMP);

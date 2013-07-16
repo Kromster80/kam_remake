@@ -344,7 +344,7 @@ begin
       ut_Waterleaf:   Result := 'Waterleaf';
       ut_Duck:        Result := 'Duck';
       //todo: Add to TextLib
-      else            Result := fTextMain[TX_UNITS_NAMES__29 + UnitTypeToIndex[fUnitType]];
+      else            Result := gResTexts[TX_UNITS_NAMES__29 + UnitTypeToIndex[fUnitType]];
     end
   else
     Result := 'N/A';
@@ -354,7 +354,7 @@ end;
 function TKMUnitDatClass.GetDescription: string;
 begin
   if IsValid and not IsAnimal then
-    Result := fTextMain[TX_UNITS_DESCRIPTIONS__13 + UnitTypeToIndex[fUnitType]]
+    Result := gResTexts[TX_UNITS_DESCRIPTIONS__13 + UnitTypeToIndex[fUnitType]]
   else
     Result := 'N/A';
 end;

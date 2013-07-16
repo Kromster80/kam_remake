@@ -359,26 +359,26 @@ begin
   //We can't rely on fOrder because it does not get reset, so look at actions/tasks
   if fCurrentAction is TUnitActionFight then
     if IsRanged then
-      Result := fTextMain[TX_UNIT_TASK_FIRING]
+      Result := gResTexts[TX_UNIT_TASK_FIRING]
     else
-      Result := fTextMain[TX_UNIT_TASK_FIGHTING]
+      Result := gResTexts[TX_UNIT_TASK_FIGHTING]
   else
   if fCurrentAction is TUnitActionStormAttack then
-    Result := fTextMain[TX_UNIT_TASK_STORM_ATTACK]
+    Result := gResTexts[TX_UNIT_TASK_STORM_ATTACK]
   else
   if fUnitTask is TTaskAttackHouse then
-    Result := fTextMain[TX_UNIT_TASK_ATTACKING_HOUSE]
+    Result := gResTexts[TX_UNIT_TASK_ATTACKING_HOUSE]
   else
   if fCurrentAction is TUnitActionGoInOut then
-    Result := fTextMain[TX_UNIT_TASK_MOVING]
+    Result := gResTexts[TX_UNIT_TASK_MOVING]
   else
   if fCurrentAction is TUnitActionWalkTo then
     if aIsAttackingUnit then
-      Result := fTextMain[TX_UNIT_TASK_ATTACKING]
+      Result := gResTexts[TX_UNIT_TASK_ATTACKING]
     else
-      Result := fTextMain[TX_UNIT_TASK_MOVING]
+      Result := gResTexts[TX_UNIT_TASK_MOVING]
   else
-    Result := fTextMain[TX_UNIT_TASK_IDLE];
+    Result := gResTexts[TX_UNIT_TASK_IDLE];
 end;
 
 

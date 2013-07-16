@@ -6,9 +6,8 @@ uses
   {$IFDEF Unix} LCLType, {$ENDIF}
   Classes, Controls, Dialogs, ExtCtrls, KromUtils, Math, SysUtils, TypInfo,
   KM_CommonTypes, KM_Defaults, KM_RenderControl,
-  KM_Campaigns, KM_Game,
-  KM_InterfaceMainMenu,
-  KM_ResLocales, KM_Music, KM_Networking, KM_Settings, KM_ResTexts, KM_Render;
+  KM_Campaigns, KM_Game, KM_InterfaceMainMenu,
+  KM_Music, KM_Networking, KM_Settings, KM_ResTexts, KM_Render;
 
 type
   //Methods relevant to gameplay
@@ -89,7 +88,7 @@ implementation
 uses
   KM_Log, KM_Main, KM_GameCursor,
   {$IFDEF USE_MAD_EXCEPT} KM_Exceptions, {$ENDIF}
-  KM_Maps, KM_Resource, KM_ResSound, KM_Utils;
+  KM_Maps, KM_Resource, KM_Sound, KM_Utils;
 
 
 { Creating everything needed for MainMenu, game stuff is created on StartGame }
@@ -100,28 +99,24 @@ begin
   fOnCursorUpdate := aOnCursorUpdate;
 
   fGameSettings := TGameSettings.Create;
-  fLocales      := TKMLocales.Create(ExeDir + 'data' + PathDelim + 'locales.txt', fGameSettings.Locale);
-
-  fTextMain := TKMTextLibrarySingle.Create;
-  fTextMain.LoadLocale(ExeDir + 'data' + PathDelim + 'text' + PathDelim + 'text.%s.libx');
 
   {$IFDEF USE_MAD_EXCEPT}fExceptions.LoadTranslation;{$ENDIF}
 
   fRender       := TRender.Create(aRenderControl, aScreenX, aScreenY, aVSync);
 
+  fResource := TResource.Create(fRender, aLS, aLT);
+  fResource.LoadMainResources(fGameSettings.Locale);
+
   //Show the message if user has old OpenGL drivers (pre-1.4)
   if fRender.IsOldGLVersion then
     //MessageDlg works better than Application.MessageBox or others, it stays on top and
     //pauses here until the user clicks ok.
-    MessageDlg(fTextMain[TX_GAME_ERROR_OLD_OPENGL]+eol+eol+fTextMain[TX_GAME_ERROR_OLD_OPENGL_2], mtWarning, [mbOk], 0);
+    MessageDlg(gResTexts[TX_GAME_ERROR_OLD_OPENGL]+eol+eol+gResTexts[TX_GAME_ERROR_OLD_OPENGL_2], mtWarning, [mbOk], 0);
 
-  fResource     := TResource.Create(fRender, aLS, aLT);
-  fResource.LoadMenuResources;
-
-  gResSounds     := TSoundLib.Create(fGameSettings.SoundFXVolume, True); //Required for button click sounds
+  gSoundPlayer  := TKMSoundPlayer.Create(fGameSettings.SoundFXVolume);
   fMusicLib     := TMusicLib.Create(fGameSettings.MusicVolume);
-  gResSounds.OnRequestFade   := fMusicLib.FadeMusic;
-  gResSounds.OnRequestUnfade := fMusicLib.UnfadeMusic;
+  gSoundPlayer.OnRequestFade   := fMusicLib.FadeMusic;
+  gSoundPlayer.OnRequestUnfade := fMusicLib.UnfadeMusic;
 
   fCampaigns    := TKMCampaignsCollection.Create;
   fCampaigns.ScanFolder(ExeDir + 'Campaigns' + PathDelim);
@@ -168,12 +163,11 @@ begin
   if fCampaigns <> nil then fCampaigns.SaveProgress(ExeDir + 'Saves' + PathDelim + 'Campaigns.dat');
   FreeThenNil(fCampaigns);
   FreeThenNil(fGameSettings);
-  FreeThenNil(fLocales);
   FreeThenNil(fMainMenuInterface);
   FreeThenNil(fResource);
-  FreeThenNil(gResSounds);
+  FreeThenNil(gSoundPlayer);
   FreeThenNil(fMusicLib);
-  FreeThenNil(fTextMain);
+  FreeThenNil(gResTexts);
   FreeAndNil(fNetworking);
 
   FreeThenNil(fRender);
@@ -195,30 +189,21 @@ procedure TKMGameApp.ToggleLocale(aLocale: AnsiString);
 begin
   Assert(fGame = nil, 'We don''t want to recreate whole fGame for that. Let''s limit it only to MainMenu');
 
-  fMainMenuInterface.ShowScreen(msLoading, fTextMain[TX_MENU_NEW_LOCALE]);
+  fMainMenuInterface.ShowScreen(msLoading, gResTexts[TX_MENU_NEW_LOCALE]);
   Render; //Force to repaint information screen
 
   fTimerUI.Enabled := False; //Disable it while switching, if an OpenAL error appears the timer should be disabled
   fGameSettings.Locale := aLocale; //Wrong Locale will be ignored
-  fLocales.UserLocale := aLocale;
 
   //Release resources that use Locale info
   FreeAndNil(fNetworking);
   FreeAndNil(fCampaigns);
   FreeAndNil(fMainMenuInterface);
-  FreeAndNil(gResSounds);
-  FreeAndNil(fTextMain);
 
   //Recreate resources that use Locale info
-  fTextMain := TKMTextLibrarySingle.Create;
-  fTextMain.LoadLocale(ExeDir + 'data' + PathDelim + 'text' + PathDelim + 'text.%s.libx');
+  fResource.LoadLocaleResources(fGameSettings.Locale);
+
   {$IFDEF USE_MAD_EXCEPT}fExceptions.LoadTranslation;{$ENDIF}
-  //Don't reshow the warning dialog when initing sounds, it gets stuck behind in full screen
-  //and the user already saw it when starting the game.
-  gResSounds := TSoundLib.Create(fGameSettings.SoundFXVolume, False);
-  gResSounds.OnRequestFade := fMusicLib.FadeMusic;
-  gResSounds.OnRequestUnfade := fMusicLib.UnfadeMusic;
-  fResource.Fonts.LoadFonts;
 
   //Campaigns use single locale
   fCampaigns := TKMCampaignsCollection.Create;
@@ -351,13 +336,13 @@ begin
   fMainMenuInterface.ShowScreen(msLoading, '');
   Render;
 
-  GameLoadingStep(fTextMain[TX_MENU_LOADING_DEFINITIONS]);
+  GameLoadingStep(gResTexts[TX_MENU_LOADING_DEFINITIONS]);
   fResource.OnLoadingText := GameLoadingStep;
   fResource.LoadGameResources(fGameSettings.AlphaShadows);
 
-  GameLoadingStep(fTextMain[TX_MENU_LOADING_INITIALIZING]);
+  GameLoadingStep(gResTexts[TX_MENU_LOADING_INITIALIZING]);
 
-  GameLoadingStep(fTextMain[TX_MENU_LOADING_SCRIPT]);
+  GameLoadingStep(gResTexts[TX_MENU_LOADING_SCRIPT]);
 end;
 
 
@@ -426,7 +411,7 @@ begin
       //Note: While debugging, Delphi will still stop execution for the exception,
       //unless Tools > Debugger > Exception > "Stop on Delphi Exceptions" is unchecked.
       //But to normal player the dialog won't show.
-      LoadError := Format(fTextMain[TX_MENU_PARSE_ERROR], [aFilePath])+'||'+E.ClassName+': '+E.Message;
+      LoadError := Format(gResTexts[TX_MENU_PARSE_ERROR], [aFilePath])+'||'+E.ClassName+': '+E.Message;
       Stop(gr_Error, LoadError);
       gLog.AddTime('Game creation Exception: ' + LoadError);
       Exit;
@@ -459,7 +444,7 @@ begin
       //Note: While debugging, Delphi will still stop execution for the exception,
       //unless Tools > Debugger > Exception > "Stop on Delphi Exceptions" is unchecked.
       //But to normal player the dialog won't show.
-      LoadError := Format(fTextMain[TX_MENU_PARSE_ERROR], [aMissionFile])+'||'+E.ClassName+': '+E.Message;
+      LoadError := Format(gResTexts[TX_MENU_PARSE_ERROR], [aMissionFile])+'||'+E.ClassName+': '+E.Message;
       Stop(gr_Error, LoadError);
       gLog.AddTime('Game creation Exception: ' + LoadError);
       Exit;
@@ -492,7 +477,7 @@ begin
       //Note: While debugging, Delphi will still stop execution for the exception,
       //unless Tools > Debugger > Exception > "Stop on Delphi Exceptions" is unchecked.
       //But to normal player the dialog won't show.
-      LoadError := Format(fTextMain[TX_MENU_PARSE_ERROR], ['-'])+'||'+E.ClassName+': '+E.Message;
+      LoadError := Format(gResTexts[TX_MENU_PARSE_ERROR], ['-'])+'||'+E.ClassName+': '+E.Message;
       Stop(gr_Error, LoadError);
       gLog.AddTime('Game creation Exception: ' + LoadError);
       Exit;
@@ -654,10 +639,10 @@ begin
 end;
 
 
-procedure TKMGameApp.PauseMusicToPlayFile(aFileName:string);
+procedure TKMGameApp.PauseMusicToPlayFile(aFileName: string);
 begin
   if not FileExists(aFileName) then Exit;
-  gResSounds.AbortAllFadeSounds; //Victory/defeat sounds also fade music, so stop those in the rare chance they might still be playing
+  gSoundPlayer.AbortAllFadeSounds; //Victory/defeat sounds also fade music, so stop those in the rare chance they might still be playing
   fMusicLib.PauseMusicToPlayFile(aFileName, fGameSettings.SoundFXVolume);
 end;
 
@@ -707,7 +692,7 @@ begin
     fGame.UpdateStateIdle(aFrameTime);
 
   if fMusicLib <> nil then fMusicLib.UpdateStateIdle;
-  if gResSounds <> nil then gResSounds.UpdateStateIdle;
+  if gSoundPlayer <> nil then gSoundPlayer.UpdateStateIdle;
   if fNetworking <> nil then fNetworking.UpdateStateIdle;
 end;
 

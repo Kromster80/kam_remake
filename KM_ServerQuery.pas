@@ -454,7 +454,7 @@ end;
 //Get the server announcements in specified language
 procedure TKMServerQuery.FetchAnnouncements;
 begin
-  fMasterServer.FetchAnnouncements(fLocales.UserLocale);
+  fMasterServer.FetchAnnouncements(gResLocales.UserLocale);
 end;
 
 

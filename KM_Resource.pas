@@ -9,8 +9,10 @@ uses
   KM_ResCursors,
   KM_ResFonts,
   KM_ResHouses,
+  KM_ResLocales,
   KM_ResMapElements,
   KM_ResPalettes,
+  KM_ResSound,
   KM_ResSprites,
   KM_ResTileset,
   KM_ResUnits,
@@ -31,6 +33,7 @@ type
     fUnitDat: TKMUnitDatCollection;
     fPalettes: TKMPalettes;
     fWares: TKMWaresList;
+    fSounds: TKMResSounds;
     fSprites: TKMSprites;
     fTileset: TKMTileset;
     fMapElements: TKMMapElements;
@@ -46,7 +49,8 @@ type
 
     function GetDATCRC: Cardinal;
 
-    procedure LoadMenuResources;
+    procedure LoadMainResources(aLocale: AnsiString = '');
+    procedure LoadLocaleResources(aLocale: AnsiString = '');
     procedure LoadGameResources(aAlphaShadows: boolean);
 
     property DataState: TDataLoadingState read fDataState;
@@ -56,6 +60,7 @@ type
     property Palettes: TKMPalettes read fPalettes;
     property Fonts: TKMResourceFont read fFonts;
     property Wares: TKMWaresList read fWares;
+    property Sounds: TKMResSounds read fSounds;
     property Sprites: TKMSprites read fSprites;
     property Tileset: TKMTileset read fTileset;
     property UnitDat: TKMUnitDatCollection read fUnitDat;
@@ -71,7 +76,7 @@ type
 
 
 implementation
-uses KromUtils, KM_Log, KM_Points;
+uses KromUtils, KM_Log, KM_Points, KM_ResTexts;
 
 
 { TResource }
@@ -91,11 +96,14 @@ destructor TResource.Destroy;
 begin
   FreeAndNil(fCursors);
   FreeAndNil(fHouseDat);
+  FreeAndNil(gResLocales);
   FreeAndNil(fMapElements);
   FreeAndNil(fPalettes);
   FreeAndNil(fFonts);
   FreeAndNil(fWares);
   FreeAndNil(fSprites);
+  FreeAndNil(fSounds);
+  FreeAndNil(gResTexts);
   FreeAndNil(fTileset);
   FreeAndNil(fUnitDat);
   inherited;
@@ -124,7 +132,7 @@ begin
 end;
 
 
-procedure TResource.LoadMenuResources;
+procedure TResource.LoadMainResources(aLocale: AnsiString = '');
 begin
   Assert(SKIP_RENDER or (fRender <> nil), 'fRenderSetup should be init before ReadGFX to be able access OpenGL');
 
@@ -157,10 +165,28 @@ begin
   fHouseDat := TKMHouseDatCollection.Create;
   fUnitDat := TKMUnitDatCollection.Create;
 
+
   StepRefresh;
   gLog.AddTime('ReadGFX is done');
   fDataState := dls_Menu;
   gLog.AddTime('Resource loading state - Menu');
+
+  LoadLocaleResources(aLocale);
+end;
+
+
+procedure TResource.LoadLocaleResources(aLocale: AnsiString = '');
+begin
+  FreeAndNil(gResLocales);
+  FreeAndNil(gResTexts);
+  FreeAndNil(fSounds);
+
+  gResLocales := TKMLocales.Create(ExeDir + 'data' + PathDelim + 'locales.txt', aLocale);
+
+  gResTexts := TKMTextLibrarySingle.Create;
+  gResTexts.LoadLocale(ExeDir + 'data' + PathDelim + 'text' + PathDelim + 'text.%s.libx');
+
+  fSounds := TKMResSounds.Create(gResLocales.UserLocale, gResLocales.FallbackLocale, gResLocales.DefaultLocale);
 end;
 
 

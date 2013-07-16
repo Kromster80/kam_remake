@@ -773,7 +773,7 @@ begin
   for RT := Low(TRXType) to High(TRXType) do
   if RXInfo[RT].Usage = ruGame then
   begin
-    fStepCaption(fTextMain[RXInfo[RT].LoadingTextID]);
+    fStepCaption(gResTexts[RXInfo[RT].LoadingTextID]);
     gLog.AddTime('Reading ' + RXInfo[RT].FileName + '.rx');
     LoadSprites(RT, fAlphaShadows);
     fSprites[RT].MakeGFX(fAlphaShadows);

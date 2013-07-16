@@ -61,7 +61,7 @@ type
 
 
 implementation
-uses KM_PlayersCollection, KM_RenderPool;
+uses KM_PlayersCollection, KM_RenderPool, KM_Sound;
 
 
 type
@@ -236,7 +236,7 @@ begin
     //Make the sound
     if (fOwner = MySpectator.PlayerIndex)
     and (fLastLookedAt = INTERVAL_ATTACKED_MSG) then
-      gResSounds.PlayNotification(fAsset);
+      gSoundPlayer.PlayNotification(fAsset);
   end;
 end;
 
@@ -305,7 +305,7 @@ begin
   //If this player has too many beacons remove his oldest one
   RemoveExcessBeacons;
   fList.Add(TKMAlertBeacon.Create(aLoc, aOwner, fTickCounter^));
-  gResSounds.Play(sfxn_Beacon);
+  gSoundPlayer.Play(sfxn_Beacon);
 end;
 
 

@@ -218,6 +218,7 @@
 			<DCCReference Include="KM_ScriptingIdCache.pas"/>
 			<DCCReference Include="KM_ServerQuery.pas"/>
 			<DCCReference Include="KM_Settings.pas"/>
+			<DCCReference Include="KM_Sound.pas"/>
 			<DCCReference Include="KM_Terrain.pas"/>
 			<DCCReference Include="KM_TerrainFinder.pas"/>
 			<DCCReference Include="KM_TerrainPainter.pas"/>

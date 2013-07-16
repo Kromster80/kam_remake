@@ -147,7 +147,7 @@ type
 
 
 implementation
-uses KM_PlayersCollection, KM_Resource, KM_ResSound, KM_Game,
+uses KM_PlayersCollection, KM_Resource, KM_ResSound, KM_Sound, KM_Game,
    KM_ResTexts, KM_AIFields, KM_Scripting;
 
 
@@ -598,14 +598,14 @@ begin
     begin
       if aMakeSound and not fGame.IsReplay
       and (PlayerIndex = MySpectator.PlayerIndex) then
-        gResSounds.Play(sfx_placemarker);
+        gSoundPlayer.Play(sfx_placemarker);
       fBuildList.FieldworksList.AddField(aLoc, aFieldType)
     end
     else
     begin
       if aMakeSound and not fGame.IsReplay
       and (PlayerIndex = MySpectator.PlayerIndex) then
-        gResSounds.Play(sfx_CantPlace, 4);
+        gSoundPlayer.Play(sfx_CantPlace, 4);
       if Plan = ft_None then //If we can't build because there's some other plan, that's ok
       begin
         //Can't build here anymore because something changed between click and command processing, so remove any fake plans
@@ -628,18 +628,18 @@ begin
   begin
     fBuildList.FieldworksList.RemFakeField(aLoc); //Remove our fake marker which is shown to the user
     fBuildList.FieldworksList.AddFakeDeletedField(aLoc); //This will hide the real field until it is deleted from game
-    if PlayerIndex = MySpectator.PlayerIndex then gResSounds.Play(sfx_Click);
+    if PlayerIndex = MySpectator.PlayerIndex then gSoundPlayer.Play(sfx_Click);
   end
   else
     if CanAddFakeFieldPlan(aLoc, aFieldType) then
     begin
       fBuildList.FieldworksList.AddFakeField(aLoc, aFieldType);
       if PlayerIndex = MySpectator.PlayerIndex then
-        gResSounds.Play(sfx_placemarker);
+        gSoundPlayer.Play(sfx_placemarker);
     end
     else
       if PlayerIndex = MySpectator.PlayerIndex then
-        gResSounds.Play(sfx_CantPlace, 4);
+        gSoundPlayer.Play(sfx_CantPlace, 4);
 end;
 
 
@@ -684,7 +684,7 @@ begin
 
   fBuildList.HousePlanList.AddPlan(aHouseType, Loc);
   fStats.HousePlanned(aHouseType);
-  if (PlayerIndex = MySpectator.PlayerIndex) and not fGame.IsReplay then gResSounds.Play(sfx_placemarker);
+  if (PlayerIndex = MySpectator.PlayerIndex) and not fGame.IsReplay then gSoundPlayer.Play(sfx_placemarker);
 end;
 
 
@@ -721,7 +721,7 @@ begin
   if HT = ht_None then Exit; //Due to network delays house might not exist now
   fBuildList.HousePlanList.RemPlan(Position);
   fStats.HousePlanRemoved(HT);
-  if (PlayerIndex = MySpectator.PlayerIndex) and not fGame.IsReplay then gResSounds.Play(sfx_Click);
+  if (PlayerIndex = MySpectator.PlayerIndex) and not fGame.IsReplay then gSoundPlayer.Play(sfx_Click);
 end;
 
 
@@ -729,7 +729,7 @@ end;
 procedure TKMPlayer.RemFieldPlan(Position: TKMPoint; aMakeSound: Boolean);
 begin
   fBuildList.FieldworksList.RemFieldPlan(Position);
-  if aMakeSound and not fGame.IsReplay and (PlayerIndex = MySpectator.PlayerIndex) then gResSounds.Play(sfx_Click);
+  if aMakeSound and not fGame.IsReplay and (PlayerIndex = MySpectator.PlayerIndex) then gSoundPlayer.Play(sfx_Click);
 end;
 
 
@@ -751,7 +751,7 @@ procedure TKMPlayer.RemFakeFieldPlan(Position: TKMPoint);
 begin
   fBuildList.FieldworksList.RemFakeField(Position); //Remove our fake marker which is shown to the user
   fBuildList.FieldworksList.AddFakeDeletedField(Position); //This will hide the real field until it is deleted from game
-  if PlayerIndex = MySpectator.PlayerIndex then gResSounds.Play(sfx_Click);
+  if PlayerIndex = MySpectator.PlayerIndex then gSoundPlayer.Play(sfx_Click);
 end;
 
 
@@ -906,9 +906,9 @@ begin
   else
   begin
     if PlayerType = pt_Human then
-      Result := fTextMain[TX_PLAYER_YOU]
+      Result := gResTexts[TX_PLAYER_YOU]
     else
-      Result := Format(fTextMain[TX_PLAYER_X], [fPlayerIndex + 1]);
+      Result := Format(gResTexts[TX_PLAYER_X], [fPlayerIndex + 1]);
   end;
 end;
 

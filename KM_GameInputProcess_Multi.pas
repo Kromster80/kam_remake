@@ -80,7 +80,7 @@ type
 
 
 implementation
-uses KM_Game, KM_GameApp, KM_PlayersCollection, KM_Utils, KM_ResSound, KM_ResTexts, KM_AI;
+uses KM_Game, KM_GameApp, KM_PlayersCollection, KM_Utils, KM_Sound, KM_ResSound, KM_ResTexts, KM_AI;
 
 
 { TCommandsPack }
@@ -175,14 +175,14 @@ begin
 
   if fGame.IsPeaceTime and (aCommand.CommandType in BlockedByPeaceTime) then
   begin
-    fGameApp.Networking.PostLocalMessage(fTextMain[TX_MP_BLOCKED_BY_PEACETIME],false);
-    gResSounds.Play(sfx_CantPlace);
+    fGameApp.Networking.PostLocalMessage(gResTexts[TX_MP_BLOCKED_BY_PEACETIME],false);
+    gSoundPlayer.Play(sfx_CantPlace);
     exit;
   end;
 
   if (gPlayers[MySpectator.PlayerIndex].AI.WonOrLost = wol_Lost) and not (aCommand.CommandType in AllowedAfterDefeat) then
   begin
-    gResSounds.Play(sfx_CantPlace);
+    gSoundPlayer.Play(sfx_CantPlace);
     Exit;
   end;
 

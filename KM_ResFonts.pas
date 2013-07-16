@@ -359,7 +359,8 @@ begin
   begin
     FntPath := ExeDir + FONTS_FOLDER + FontInfo[F].FontFile + '.fntx';
     fFontData[F].LoadFontX(FntPath);
-    fFontData[F].GenerateTexture(fRender, FontInfo[F].TexMode);
+    if fRender <> nil then
+      fFontData[F].GenerateTexture(fRender, FontInfo[F].TexMode);
     fFontData[F].Compact;
   end;
 end;

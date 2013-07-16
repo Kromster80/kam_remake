@@ -56,7 +56,7 @@ type
 
 var
   //All games texts accessible from everywhere
-  fTextMain: TKMTextLibrarySingle;
+  gResTexts: TKMTextLibrarySingle;
 
 
 implementation
@@ -101,7 +101,7 @@ begin
 
   //Load ANSI file with codepage we say into unicode string
   langCode := Copy(FilePath, Length(FilePath) - 7, 3);
-  libTxt := ReadTextU(FilePath, fLocales.LocaleByCode(langCode).FontCodepage);
+  libTxt := ReadTextU(FilePath, gResLocales.LocaleByCode(langCode).FontCodepage);
   Tmp := TextToArray(libTxt);
 
   //First line is empty or comment and could have first 3 bytes Unicode Byte-Order Mark (BOM)
@@ -147,12 +147,12 @@ procedure TKMTextLibrarySingle.LoadLocale(aPathTemplate: string);
 begin
   //We load the English LIBX by default, then overwrite it with the selected language
   //(this way missing strings are in English)
-  LoadLIBXFile(Format(aPathTemplate, [fLocales.DefaultLocale]), fTexts);
+  LoadLIBXFile(Format(aPathTemplate, [gResLocales.DefaultLocale]), fTexts);
 
-  if fLocales.FallbackLocale <> '' then
-    LoadLIBXFile(Format(aPathTemplate, [fLocales.FallbackLocale]), fTexts);
+  if gResLocales.FallbackLocale <> '' then
+    LoadLIBXFile(Format(aPathTemplate, [gResLocales.FallbackLocale]), fTexts);
 
-  LoadLIBXFile(Format(aPathTemplate, [fLocales.UserLocale]), fTexts);
+  LoadLIBXFile(Format(aPathTemplate, [gResLocales.UserLocale]), fTexts);
 end;
 
 
@@ -168,9 +168,9 @@ end;
 procedure TKMTextLibraryMulti.InitLocaleIds;
 begin
   //Using indexes is fatsre than always looking them up for every string requested
-  fPref[0] := fLocales.IndexByCode(fLocales.UserLocale);
-  fPref[1] := fLocales.IndexByCode(fLocales.FallbackLocale);
-  fPref[2] := fLocales.IndexByCode(fLocales.DefaultLocale);
+  fPref[0] := gResLocales.IndexByCode(gResLocales.UserLocale);
+  fPref[1] := gResLocales.IndexByCode(gResLocales.FallbackLocale);
+  fPref[2] := gResLocales.IndexByCode(gResLocales.DefaultLocale);
 end;
 
 
@@ -196,10 +196,10 @@ procedure TKMTextLibraryMulti.LoadLocale(aPathTemplate: string);
 var
   I: Integer;
 begin
-  SetLength(fTexts, fLocales.Count);
+  SetLength(fTexts, gResLocales.Count);
 
-  for I := 0 to fLocales.Count - 1 do
-    LoadLIBXFile(Format(aPathTemplate, [fLocales[I].Code]), fTexts[I]);
+  for I := 0 to gResLocales.Count - 1 do
+    LoadLIBXFile(Format(aPathTemplate, [gResLocales[I].Code]), fTexts[I]);
 end;
 
 
@@ -235,10 +235,10 @@ var
   I,K: Integer;
   TextCount: Integer;
 begin
-  aStream.Write(fLocales.Count);
-  for I := 0 to fLocales.Count - 1 do
+  aStream.Write(gResLocales.Count);
+  for I := 0 to gResLocales.Count - 1 do
   begin
-    aStream.Write(fLocales[I].Code);
+    aStream.Write(gResLocales[I].Code);
 
     TextCount := Length(fTexts[I]);
 
@@ -261,13 +261,13 @@ begin
   //cos some players might have non-native locales missing
   //We might add locale selection to setup.exe
 
-  SetLength(fTexts, fLocales.Count);
+  SetLength(fTexts, gResLocales.Count);
 
   aStream.Read(LocCount);
   for I := 0 to LocCount - 1 do
   begin
     aStream.Read(curLoc);
-    Id := fLocales.IndexByCode(curLoc);
+    Id := gResLocales.IndexByCode(curLoc);
 
     aStream.Read(TextCount);
 

@@ -396,7 +396,7 @@ end;
 procedure TGameSettings.SetLocale(aLocale: AnsiString);
 begin
   //We don't know if Locales are initialized (e.g. in dedicated server)
-  if (fLocales <> nil) and (fLocales.IndexByCode(aLocale) <> -1) then
+  if (gResLocales <> nil) and (gResLocales.IndexByCode(aLocale) <> -1) then
     fLocale := aLocale
   else
     fLocale := DEFAULT_LOCALE;

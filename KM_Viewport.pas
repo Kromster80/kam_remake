@@ -46,7 +46,7 @@ type
 
 
 implementation
-uses KM_Defaults, KM_ResSound, KM_GameApp, KM_Main, KM_Resource, KM_ResCursors;
+uses KM_Defaults, KM_Sound, KM_GameApp, KM_Main, KM_Resource, KM_ResCursors;
 
 
 constructor TViewport.Create(aWidth, aHeight: Integer);
@@ -59,7 +59,7 @@ begin
   PrevScrollPos := 0;
   fZoom := 1;
   ReleaseScrollKeys;
-  gResSounds.UpdateListener(fPosition.X, fPosition.Y);
+  gSoundPlayer.UpdateListener(fPosition.X, fPosition.Y);
   Resize(aWidth, aHeight);
 end;
 
@@ -120,7 +120,7 @@ begin
 
   fPosition.X := EnsureRange(Value.X, TilesX, fMapX - TilesX - 1);
   fPosition.Y := EnsureRange(Value.Y, TilesY - PadTop, fMapY - TilesY - 1); //Top row should be visible
-  gResSounds.UpdateListener(fPosition.X, fPosition.Y);
+  gSoundPlayer.UpdateListener(fPosition.X, fPosition.Y);
 end;
 
 

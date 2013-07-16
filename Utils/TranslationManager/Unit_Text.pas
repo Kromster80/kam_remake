@@ -71,8 +71,8 @@ begin
   if fUseConsts then
     LoadConsts(aConstPath);
 
-  for I := 0 to fLocales.Count - 1 do
-    LoadText(Format(aTextPath, [fLocales[I].Code]), I);
+  for I := 0 to gResLocales.Count - 1 do
+    LoadText(Format(aTextPath, [gResLocales[I].Code]), I);
 
   if fUseConsts then
     AddMissingConsts;
@@ -85,8 +85,8 @@ begin
   if fUseConsts then
     SaveTextLibraryConsts(aConstPath);
 
-  for I := 0 to fLocales.Count - 1 do
-    SaveTranslation(Format(aTextPath, [fLocales[I].Code]), I);
+  for I := 0 to gResLocales.Count - 1 do
+    SaveTranslation(Format(aTextPath, [gResLocales[I].Code]), I);
 end;
 
 
@@ -95,7 +95,7 @@ procedure TTextManager.AddMissingConsts;
   var I: Integer;
   begin
     Result := True;
-    for I := 0 to fLocales.Count - 1 do
+    for I := 0 to gResLocales.Count - 1 do
       Result := Result and (Trim(fTexts[aIndex, I]) = '');
   end;
   function TextUnused(aIndex: Integer): Boolean;
@@ -114,7 +114,7 @@ begin
   for I := 0 to fTextMaxID do
     if not TextEmpty(I) and TextUnused(I) then
     begin
-      s := StringReplace(fTexts[I, fLocales.IndexByCode(DEFAULT_LOCALE)], ' ', '', [rfReplaceAll]);
+      s := StringReplace(fTexts[I, gResLocales.IndexByCode(DEFAULT_LOCALE)], ' ', '', [rfReplaceAll]);
       s := UpperCase(LeftStr(s, 16));
 
       SetLength(fConsts, Length(fConsts) + 1);
@@ -135,7 +135,7 @@ procedure TTextManager.Slice(aFirst, aNum: Integer);
 var I, K: Integer;
 begin
   for I := 0 to aNum - 1 do
-    for K := 0 to fLocales.Count - 1 do
+    for K := 0 to gResLocales.Count - 1 do
       fTexts[I, K] := fTexts[I + aFirst, K];
 
   SetLength(fTexts, aNum);
@@ -153,7 +153,7 @@ begin
   AssignFile(myFile, aFileName);
   ReWrite(myFile);
 
-  DefLoc := fLocales.IndexByCode(DEFAULT_LOCALE);
+  DefLoc := gResLocales.IndexByCode(DEFAULT_LOCALE);
 
   for I := 0 to High(fConsts) do
   if fConsts[I].TextID = -1 then
@@ -264,7 +264,7 @@ begin
 
   if B then
   begin
-    SetLength(fTexts, fTextMaxID + 1, fLocales.Count);
+    SetLength(fTexts, fTextMaxID + 1, gResLocales.Count);
 
     for I := 0 to SL.Count - 1 do
     begin
@@ -371,7 +371,7 @@ procedure TTextManager.SortByName;
     T: Integer;
   begin
     T := fConsts[A].TextID; fConsts[A].TextID := fConsts[B].TextID; fConsts[B].TextID := T;
-    for I := 0 to fLocales.Count - 1 do
+    for I := 0 to gResLocales.Count - 1 do
     begin
       S := fTexts[fConsts[A].TextID, I];
       fTexts[fConsts[A].TextID, I] := fTexts[fConsts[B].TextID, I];
@@ -405,9 +405,9 @@ begin
   if not fUseConsts then Exit;
 
   //Backup current texts
-  SetLength(fOldTexts, Length(fTexts), fLocales.Count);
+  SetLength(fOldTexts, Length(fTexts), gResLocales.Count);
   for I:=0 to Length(fTexts)-1 do
-    for K:=0 to fLocales.Count-1 do
+    for K:=0 to gResLocales.Count-1 do
       fOldTexts[I,K] := fTexts[I,K];
 
   CurIndex := 0;
@@ -416,7 +416,7 @@ begin
     if fConsts[I].TextID = -1 then
       Continue;
 
-    for K := 0 to fLocales.Count - 1 do
+    for K := 0 to gResLocales.Count - 1 do
       fTexts[CurIndex,K] := fOldTexts[fConsts[I].TextID,K];
 
     fConsts[I].TextID := CurIndex;
@@ -449,7 +449,7 @@ begin
 
     //Append new strings, they will be empty
     Inc(fTextMaxID);
-    SetLength(fTexts, fTextMaxID + 1, fLocales.Count);
+    SetLength(fTexts, fTextMaxID + 1, gResLocales.Count);
 
     fConsts[aIndex].TextID := fTextMaxID;
     fConsts[aIndex].ConstName := 'TX_NEW' + IntToStr(fTextMaxID);
@@ -457,15 +457,15 @@ begin
   else
   begin
     Inc(fTextMaxID);
-    SetLength(fTexts, fTextMaxID + 1, fLocales.Count);
+    SetLength(fTexts, fTextMaxID + 1, gResLocales.Count);
 
     //Move down
     for I := fTextMaxID downto aIndex + 1 do
-      for K := 0 to fLocales.Count - 1 do
+      for K := 0 to gResLocales.Count - 1 do
         fTexts[I,K] := fTexts[I-1,K];
 
     //Clear
-    for I := 0 to fLocales.Count - 1 do
+    for I := 0 to gResLocales.Count - 1 do
       fTexts[aIndex,I] := '';
   end;
 end;
@@ -479,7 +479,7 @@ begin
     if fConsts[aIndex].TextID <> -1 then
     begin
       //Clear all fTexts
-      for K := 0 to fLocales.Count - 1 do
+      for K := 0 to gResLocales.Count - 1 do
         fTexts[fConsts[aIndex].TextID,K] := '';
     end;
 
@@ -492,7 +492,7 @@ begin
   else
   begin
     //Clear all fTexts
-    for K := 0 to fLocales.Count - 1 do
+    for K := 0 to gResLocales.Count - 1 do
       fTexts[aIndex,K] := '';
   end;
 end;
@@ -504,7 +504,7 @@ begin
     Result := fConsts[aIndex]
   else
   begin
-    Result.ConstName := StringReplace(fTexts[aIndex, fLocales.IndexByCode(DEFAULT_LOCALE)], ' ', '', [rfReplaceAll]);
+    Result.ConstName := StringReplace(fTexts[aIndex, gResLocales.IndexByCode(DEFAULT_LOCALE)], ' ', '', [rfReplaceAll]);
     Result.ConstName := 'TX_' + IntToStr(aIndex) + '_' + UpperCase(LeftStr(Result.ConstName, 16));
     Result.TextID := aIndex;
   end;

@@ -248,7 +248,7 @@ type
 implementation
 uses
   KM_CommonTypes, KM_RenderPool, KM_RenderAux, KM_Units, KM_Scripting,
-  KM_PlayersCollection, KM_ResSound, KM_Game, KM_ResTexts,
+  KM_PlayersCollection, KM_ResSound, KM_Sound, KM_Game, KM_ResTexts,
   KM_Resource, KM_Utils, KM_FogOfWar, KM_AI;
 
 
@@ -426,7 +426,7 @@ begin
 
   //Play sound
   if (fBuildState > hbs_NoGlyph) and not IsSilent then
-    gResSounds.Play(sfx_HouseDestroy, fPosition);
+    gSoundPlayer.Play(sfx_HouseDestroy, fPosition);
 
   gPlayers[fOwner].Stats.WareConsumed(wt_Wood, fBuildSupplyWood);
   gPlayers[fOwner].Stats.WareConsumed(wt_Stone, fBuildSupplyStone);
@@ -1073,45 +1073,45 @@ begin
   if MySpectator.FogOfWar.CheckTileRevelation(fPosition.X, fPosition.Y) < 255 then exit;
 
   case fHouseType of //Various buildings and HouseActions producing sounds
-    ht_School:        if (Work = ha_Work5)and(Step = 28) then gResSounds.Play(sfx_SchoolDing, fPosition); //Ding as the clock strikes 12
-    ht_Mill:          if (Work = ha_Work2)and(Step = 0) then gResSounds.Play(sfx_mill, fPosition);
-    ht_CoalMine:      if (Work = ha_Work1)and(Step = 5) then gResSounds.Play(sfx_coalDown, fPosition)
-                      else if (Work = ha_Work1)and(Step = 24) then gResSounds.Play(sfx_CoalMineThud, fPosition,true,0.8)
-                      else if (Work = ha_Work2)and(Step = 7) then gResSounds.Play(sfx_mine, fPosition)
-                      else if (Work = ha_Work5)and(Step = 1) then gResSounds.Play(sfx_coalDown, fPosition);
-    ht_IronMine:      if (Work = ha_Work2)and(Step = 7) then gResSounds.Play(sfx_mine, fPosition);
-    ht_GoldMine:      if (Work = ha_Work2)and(Step = 5) then gResSounds.Play(sfx_mine, fPosition);
-    ht_Sawmill:       if (Work = ha_Work2)and(Step = 1) then gResSounds.Play(sfx_saw, fPosition);
-    ht_Wineyard:      if (Work = ha_Work2)and(Step in [1,7,13,19]) then gResSounds.Play(sfx_wineStep, fPosition)
-                      else if (Work = ha_Work5)and(Step = 14) then gResSounds.Play(sfx_wineDrain, fPosition,true,1.5)
-                      else if (Work = ha_Work1)and(Step = 10) then gResSounds.Play(sfx_wineDrain, fPosition,true,1.5);
-    ht_Bakery:        if (Work = ha_Work3)and(Step in [6,25]) then gResSounds.Play(sfx_BakerSlap, fPosition);
-    ht_Quary:         if (Work = ha_Work2)and(Step in [4,13]) then gResSounds.Play(sfx_QuarryClink, fPosition)
-                      else if (Work = ha_Work5)and(Step in [4,13,22]) then gResSounds.Play(sfx_QuarryClink, fPosition);
-    ht_WeaponSmithy:  if (Work = ha_Work1)and(Step in [17,22]) then gResSounds.Play(sfx_BlacksmithFire, fPosition)
-                      else if (Work = ha_Work2)and(Step in [10,25]) then gResSounds.Play(sfx_BlacksmithBang, fPosition)
-                      else if (Work = ha_Work3)and(Step in [10,25]) then gResSounds.Play(sfx_BlacksmithBang, fPosition)
-                      else if (Work = ha_Work4)and(Step in [8,22]) then gResSounds.Play(sfx_BlacksmithFire, fPosition)
-                      else if (Work = ha_Work5)and(Step = 12) then gResSounds.Play(sfx_BlacksmithBang, fPosition);
-    ht_ArmorSmithy:   if (Work = ha_Work2)and(Step in [13,28]) then gResSounds.Play(sfx_BlacksmithBang, fPosition)
-                      else if (Work = ha_Work3)and(Step in [13,28]) then gResSounds.Play(sfx_BlacksmithBang, fPosition)
-                      else if (Work = ha_Work4)and(Step in [8,22]) then gResSounds.Play(sfx_BlacksmithFire, fPosition)
-                      else if (Work = ha_Work5)and(Step in [8,22]) then gResSounds.Play(sfx_BlacksmithFire, fPosition);
-    ht_Metallurgists: if (Work = ha_Work3)and(Step = 6) then gResSounds.Play(sfx_metallurgists, fPosition)
-                      else if (Work = ha_Work4)and(Step in [16,20]) then gResSounds.Play(sfx_wineDrain, fPosition);
-    ht_IronSmithy:    if (Work = ha_Work2)and(Step in [1,16]) then gResSounds.Play(sfx_metallurgists, fPosition)
-                      else if (Work = ha_Work3)and(Step = 1) then gResSounds.Play(sfx_metallurgists, fPosition)
-                      else if (Work = ha_Work3)and(Step = 13) then gResSounds.Play(sfx_wineDrain, fPosition);
-    ht_WeaponWorkshop:if (Work = ha_Work2)and(Step in [1,10,19]) then gResSounds.Play(sfx_saw, fPosition)
-                      else if (Work = ha_Work3)and(Step in [10,21]) then gResSounds.Play(sfx_CarpenterHammer, fPosition)
-                      else if (Work = ha_Work4)and(Step in [2,13]) then gResSounds.Play(sfx_CarpenterHammer, fPosition);
-    ht_ArmorWorkshop: if (Work = ha_Work2)and(Step in [3,13,23]) then gResSounds.Play(sfx_saw, fPosition)
-                      else if (Work = ha_Work3)and(Step in [17,28]) then gResSounds.Play(sfx_CarpenterHammer, fPosition)
-                      else if (Work = ha_Work4)and(Step in [10,20]) then gResSounds.Play(sfx_CarpenterHammer, fPosition);
-    ht_Tannery:       if (Work = ha_Work2)and(Step = 5) then gResSounds.Play(sfx_Leather, fPosition,true,0.8);
-    ht_Butchers:      if (Work = ha_Work2)and(Step in [8,16,24]) then gResSounds.Play(sfx_ButcherCut, fPosition)
-                      else if (Work = ha_Work3)and(Step in [9,21]) then gResSounds.Play(sfx_SausageString, fPosition);
-    ht_Swine:         if ((Work = ha_Work2)and(Step in [10,20]))or((Work = ha_Work3)and(Step = 1)) then gResSounds.Play(sfx_ButcherCut, fPosition);
+    ht_School:        if (Work = ha_Work5)and(Step = 28) then gSoundPlayer.Play(sfx_SchoolDing, fPosition); //Ding as the clock strikes 12
+    ht_Mill:          if (Work = ha_Work2)and(Step = 0) then gSoundPlayer.Play(sfx_mill, fPosition);
+    ht_CoalMine:      if (Work = ha_Work1)and(Step = 5) then gSoundPlayer.Play(sfx_coalDown, fPosition)
+                      else if (Work = ha_Work1)and(Step = 24) then gSoundPlayer.Play(sfx_CoalMineThud, fPosition,true,0.8)
+                      else if (Work = ha_Work2)and(Step = 7) then gSoundPlayer.Play(sfx_mine, fPosition)
+                      else if (Work = ha_Work5)and(Step = 1) then gSoundPlayer.Play(sfx_coalDown, fPosition);
+    ht_IronMine:      if (Work = ha_Work2)and(Step = 7) then gSoundPlayer.Play(sfx_mine, fPosition);
+    ht_GoldMine:      if (Work = ha_Work2)and(Step = 5) then gSoundPlayer.Play(sfx_mine, fPosition);
+    ht_Sawmill:       if (Work = ha_Work2)and(Step = 1) then gSoundPlayer.Play(sfx_saw, fPosition);
+    ht_Wineyard:      if (Work = ha_Work2)and(Step in [1,7,13,19]) then gSoundPlayer.Play(sfx_wineStep, fPosition)
+                      else if (Work = ha_Work5)and(Step = 14) then gSoundPlayer.Play(sfx_wineDrain, fPosition,true,1.5)
+                      else if (Work = ha_Work1)and(Step = 10) then gSoundPlayer.Play(sfx_wineDrain, fPosition,true,1.5);
+    ht_Bakery:        if (Work = ha_Work3)and(Step in [6,25]) then gSoundPlayer.Play(sfx_BakerSlap, fPosition);
+    ht_Quary:         if (Work = ha_Work2)and(Step in [4,13]) then gSoundPlayer.Play(sfx_QuarryClink, fPosition)
+                      else if (Work = ha_Work5)and(Step in [4,13,22]) then gSoundPlayer.Play(sfx_QuarryClink, fPosition);
+    ht_WeaponSmithy:  if (Work = ha_Work1)and(Step in [17,22]) then gSoundPlayer.Play(sfx_BlacksmithFire, fPosition)
+                      else if (Work = ha_Work2)and(Step in [10,25]) then gSoundPlayer.Play(sfx_BlacksmithBang, fPosition)
+                      else if (Work = ha_Work3)and(Step in [10,25]) then gSoundPlayer.Play(sfx_BlacksmithBang, fPosition)
+                      else if (Work = ha_Work4)and(Step in [8,22]) then gSoundPlayer.Play(sfx_BlacksmithFire, fPosition)
+                      else if (Work = ha_Work5)and(Step = 12) then gSoundPlayer.Play(sfx_BlacksmithBang, fPosition);
+    ht_ArmorSmithy:   if (Work = ha_Work2)and(Step in [13,28]) then gSoundPlayer.Play(sfx_BlacksmithBang, fPosition)
+                      else if (Work = ha_Work3)and(Step in [13,28]) then gSoundPlayer.Play(sfx_BlacksmithBang, fPosition)
+                      else if (Work = ha_Work4)and(Step in [8,22]) then gSoundPlayer.Play(sfx_BlacksmithFire, fPosition)
+                      else if (Work = ha_Work5)and(Step in [8,22]) then gSoundPlayer.Play(sfx_BlacksmithFire, fPosition);
+    ht_Metallurgists: if (Work = ha_Work3)and(Step = 6) then gSoundPlayer.Play(sfx_metallurgists, fPosition)
+                      else if (Work = ha_Work4)and(Step in [16,20]) then gSoundPlayer.Play(sfx_wineDrain, fPosition);
+    ht_IronSmithy:    if (Work = ha_Work2)and(Step in [1,16]) then gSoundPlayer.Play(sfx_metallurgists, fPosition)
+                      else if (Work = ha_Work3)and(Step = 1) then gSoundPlayer.Play(sfx_metallurgists, fPosition)
+                      else if (Work = ha_Work3)and(Step = 13) then gSoundPlayer.Play(sfx_wineDrain, fPosition);
+    ht_WeaponWorkshop:if (Work = ha_Work2)and(Step in [1,10,19]) then gSoundPlayer.Play(sfx_saw, fPosition)
+                      else if (Work = ha_Work3)and(Step in [10,21]) then gSoundPlayer.Play(sfx_CarpenterHammer, fPosition)
+                      else if (Work = ha_Work4)and(Step in [2,13]) then gSoundPlayer.Play(sfx_CarpenterHammer, fPosition);
+    ht_ArmorWorkshop: if (Work = ha_Work2)and(Step in [3,13,23]) then gSoundPlayer.Play(sfx_saw, fPosition)
+                      else if (Work = ha_Work3)and(Step in [17,28]) then gSoundPlayer.Play(sfx_CarpenterHammer, fPosition)
+                      else if (Work = ha_Work4)and(Step in [10,20]) then gSoundPlayer.Play(sfx_CarpenterHammer, fPosition);
+    ht_Tannery:       if (Work = ha_Work2)and(Step = 5) then gSoundPlayer.Play(sfx_Leather, fPosition,true,0.8);
+    ht_Butchers:      if (Work = ha_Work2)and(Step in [8,16,24]) then gSoundPlayer.Play(sfx_ButcherCut, fPosition)
+                      else if (Work = ha_Work3)and(Step in [9,21]) then gSoundPlayer.Play(sfx_SausageString, fPosition);
+    ht_Swine:         if ((Work = ha_Work2)and(Step in [10,20]))or((Work = ha_Work3)and(Step = 1)) then gSoundPlayer.Play(sfx_ButcherCut, fPosition);
     //ht_WatchTower:  Sound handled by projectile itself
   end;
 end;
@@ -1241,7 +1241,7 @@ begin
       begin
         //HouseName := fResource.HouseDat[HouseType].HouseName;
         //We can't paste houses name instead of %s like that because of plurals and feminine/masculine attrib
-        fGame.ShowMessage(mkHouse, fTextMain[TX_MSG_HOUSE_UNOCCUPIED], GetEntrance);
+        fGame.ShowMessage(mkHouse, gResTexts[TX_MSG_HOUSE_UNOCCUPIED], GetEntrance);
       end;
       fTimeSinceUnoccupiedReminder := TIME_BETWEEN_MESSAGES; //Don't show one again until it is time
     end;
@@ -1337,9 +1337,9 @@ begin
   if (FlagAnimStep + 20*I) mod 100 = 0 then
   begin
     if fHouseType = ht_Stables then
-      gResSounds.Play(TSoundFX(byte(sfx_Horse1) + Random(4)), fPosition); //sfx_Horse1..sfx_Horse4
+      gSoundPlayer.Play(TSoundFX(byte(sfx_Horse1) + Random(4)), fPosition); //sfx_Horse1..sfx_Horse4
     if fHouseType = ht_Swine   then
-      gResSounds.Play(TSoundFX(byte(sfx_Pig1)   + Random(4)), fPosition); //sfx_Pig1..sfx_Pig4
+      gSoundPlayer.Play(TSoundFX(byte(sfx_Pig1)   + Random(4)), fPosition); //sfx_Pig1..sfx_Pig4
   end;
 end;
 

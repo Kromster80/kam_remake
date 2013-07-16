@@ -40,7 +40,7 @@ type
 
 
 var
-  fLocales: TKMLocales;
+  gResLocales: TKMLocales;
 
 
 const

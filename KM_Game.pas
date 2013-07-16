@@ -182,7 +182,7 @@ uses
   KM_CommonClasses, KM_Log, KM_Utils, KM_GameCursor,
   KM_ArmyEvaluation, KM_GameApp, KM_GameInfo, KM_MissionScript, KM_MissionScript_Standard,
   KM_Player, KM_PlayerSpectator, KM_PlayersCollection, KM_RenderPool, KM_Resource, KM_ResCursors,
-  KM_ResSound, KM_Terrain, KM_TerrainPainter, KM_AIFields, KM_Maps,
+  KM_ResSound, KM_Terrain, KM_TerrainPainter, KM_AIFields, KM_Maps, KM_Sound,
   KM_Scripting, KM_GameInputProcess_Single, KM_GameInputProcess_Multi, KM_Main;
 
 
@@ -638,7 +638,7 @@ begin
   else
   begin
     fNetworking.Disconnect;
-    fGameApp.Stop(gr_Disconnect, fTextMain[TX_GAME_ERROR_NETWORK] + ' ' + aData)
+    fGameApp.Stop(gr_Disconnect, gResTexts[TX_GAME_ERROR_NETWORK] + ' ' + aData)
   end;
 end;
 
@@ -692,7 +692,7 @@ begin
   //Stop game from executing while the user views the message
   fIsPaused := True;
   gLog.AddTime('Replay failed a consistency check at tick '+IntToStr(fGameTickCount));
-  if MessageDlg(fTextMain[TX_REPLAY_FAILED], mtWarning, [mbYes, mbNo], 0) <> mrYes then
+  if MessageDlg(gResTexts[TX_REPLAY_FAILED], mtWarning, [mbYes, mbNo], 0) <> mrYes then
     fGameApp.Stop(gr_Error, '')
   else
     fIsPaused := False;
@@ -727,7 +727,7 @@ end;
 procedure TKMGame.PlayerVictory(aPlayerIndex: TPlayerIndex);
 begin
   if aPlayerIndex = MySpectator.PlayerIndex then
-    gResSounds.Play(sfxn_Victory, 1, True); //Fade music
+    gSoundPlayer.Play(sfxn_Victory, 1, True); //Fade music
 
   if fGameMode = gmMulti then
   begin
@@ -756,11 +756,11 @@ begin
     Exit;
 
   if aPlayerIndex = MySpectator.PlayerIndex then
-    gResSounds.Play(sfxn_Defeat, 1, True); //Fade music
+    gSoundPlayer.Play(sfxn_Defeat, 1, True); //Fade music
 
   if fGameMode = gmMulti then
   begin
-    fNetworking.PostLocalMessage(Format(fTextMain[TX_MULTIPLAYER_PLAYER_DEFEATED],
+    fNetworking.PostLocalMessage(Format(gResTexts[TX_MULTIPLAYER_PLAYER_DEFEATED],
                                         [gPlayers[aPlayerIndex].PlayerName]));
     if aPlayerIndex = MySpectator.PlayerIndex then
     begin
@@ -827,7 +827,7 @@ procedure TKMGame.GameStart(aSizeX, aSizeY: Integer);
 var
   I: Integer;
 begin
-  fGameName := fTextMain[TX_MAPED_NEW_MISSION];
+  fGameName := gResTexts[TX_MAPED_NEW_MISSION];
 
   fMissionFile := '';
   fSaveFile := '';
@@ -1055,11 +1055,11 @@ begin
   PeaceTicksRemaining := Max(0, Int64((fGameOptions.Peacetime * 600)) - fGameTickCount);
   if (PeaceTicksRemaining = 1) and (fGameMode in [gmMulti,gmReplayMulti]) then
   begin
-    gResSounds.Play(sfxn_Peacetime, 1, True); //Fades music
+    gSoundPlayer.Play(sfxn_Peacetime, 1, True); //Fades music
     if fGameMode = gmMulti then
     begin
       SetGameSpeed(fGameOptions.SpeedAfterPT, False);
-      fNetworking.PostLocalMessage(fTextMain[TX_MP_PEACETIME_OVER], false);
+      fNetworking.PostLocalMessage(gResTexts[TX_MP_PEACETIME_OVER], false);
     end;
   end;
 end;
@@ -1315,7 +1315,7 @@ begin
       fGameLockedMutex := True //Remember so we unlock it in Destroy
     else
       //Abort loading (exception will be caught in fGameApp and shown to the user)
-      raise Exception.Create(fTextMain[TX_MULTIPLE_INSTANCES]);
+      raise Exception.Create(gResTexts[TX_MULTIPLE_INSTANCES]);
 
   //Not used, (only stored for preview) but it's easiest way to skip past it
   if not SaveIsMultiplayer then

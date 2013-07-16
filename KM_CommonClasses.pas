@@ -39,7 +39,7 @@ type
     function Read(out Value:Boolean     ): Longint; reintroduce; overload;
     function Read(out Value:Word        ): Longint; reintroduce; overload;
     function Read(out Value:ShortInt    ): Longint; reintroduce; overload;
-    procedure ReadAssert(const Value: string);
+    procedure ReadAssert(const Value: UnicodeString);
     function GetAsText: AnsiString; deprecated; //todo: Using text for data exchange is flawed idea. remove
   end;
 
@@ -335,8 +335,8 @@ function TKMemoryStream.Read(out Value:shortint): Longint;
 begin Result := inherited Read(Value, SizeOf(Value)); end;
 
 
-procedure TKMemoryStream.ReadAssert(const Value: string);
-var S: AnsiString;
+procedure TKMemoryStream.ReadAssert(const Value: UnicodeString);
+var S: UnicodeString;
 begin
   Read(s);
   Assert(s = Value, 'TKMemoryStream.Read <> Value: '+Value);

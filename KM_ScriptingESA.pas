@@ -180,7 +180,7 @@ type
 implementation
 uses KM_AI, KM_Terrain, KM_Game, KM_FogOfWar, KM_PlayersCollection, KM_Units_Warrior,
   KM_HouseBarracks, KM_ResUnits, KM_ResWares, KM_ResHouses,
-  KM_Log, KM_Utils, KM_Resource, KM_UnitTaskSelfTrain, KM_ResSound;
+  KM_Log, KM_Utils, KM_Resource, KM_UnitTaskSelfTrain, KM_Sound, KM_ResSound;
 
 
   //We need to check all input parameters as could be wildly off range due to
@@ -1244,7 +1244,7 @@ begin
   //Silently ignore missing files (player might choose to delete annoying sounds from scripts if he likes)
   if not FileExists(FullFileName) then Exit;
   if ValidSoundFileName(aFileName) and InRange(Volume, 0, 1) then
-    gResSounds.PlayWAVFromScript(FullFileName, KMPoint(0,0), False, Volume)
+    gSoundPlayer.PlayWAVFromScript(FullFileName, KMPoint(0,0), False, Volume)
   else
     LogError('Actions.PlayWAV: '+aFileName, []);
 end;
@@ -1259,7 +1259,7 @@ begin
   //Silently ignore missing files (player might choose to delete annoying sounds from scripts if he likes)
   if not FileExists(FullFileName) then Exit;
   if ValidSoundFileName(aFileName) and InRange(Volume, 0, 1) and gTerrain.TileInMapCoords(X,Y) then
-    gResSounds.PlayWAVFromScript(FullFileName, KMPoint(X,Y), True, Volume)
+    gSoundPlayer.PlayWAVFromScript(FullFileName, KMPoint(X,Y), True, Volume)
   else
     LogError('Actions.PlayWAVAtLocation: '+aFileName, [X, Y]);
 end;

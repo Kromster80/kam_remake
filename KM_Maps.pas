@@ -276,7 +276,7 @@ end;
 
 function TKMapInfo.LocationName(aIndex: TPlayerIndex): string;
 begin
-  Result := Format(fTextMain[TX_LOBBY_LOCATION_X], [aIndex + 1]);
+  Result := Format(gResTexts[TX_LOBBY_LOCATION_X], [aIndex + 1]);
 end;
 
 

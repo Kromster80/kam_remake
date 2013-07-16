@@ -32,8 +32,7 @@ begin
   SetKaMSeed(4);
   gLog := TKMLog.Create(ExtractFilePath(ParamStr(0)) + 'log.log');
   fResource := TResource.Create(nil, nil, nil);
-  fResource.LoadMenuResources;
-  gResSounds := TSoundLib.Create(0, False);
+  fResource.LoadMainResources;
   gTerrain := TKMTerrain.Create;
   gTerrain.MakeNewMap(32, 32, False);
   gPlayers := TKMPlayersCollection.Create;
@@ -51,7 +50,6 @@ begin
   FUnitActionGoInOut.Free;
   gPlayers.Free;
   gTerrain.Free;
-  gResSounds.Free;
   fResource.Free;
   gLog.Free;
   FUnitActionGoInOut := nil;

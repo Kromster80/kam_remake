@@ -1260,7 +1260,7 @@ begin
     begin
       //Hide messages for wrong player, in replays, and if we have lost
       if (Owner = MySpectator.PlayerIndex) and not fGame.IsReplay and (gPlayers[fOwner].AI.WonOrLost <> wol_Lost) then
-        fGame.ShowMessage(mkUnit, fTextMain[TX_MSG_TROOP_HUNGRY], Position);
+        fGame.ShowMessage(mkUnit, gResTexts[TX_MSG_TROOP_HUNGRY], Position);
       fTimeSinceHungryReminder := TIME_BETWEEN_MESSAGES; //Don't show one again until it is time
     end;
   end

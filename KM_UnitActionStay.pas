@@ -23,7 +23,7 @@ type
 
 
 implementation
-uses KM_PlayersCollection, KM_ResSound, KM_Resource;
+uses KM_PlayersCollection, KM_Sound, KM_ResSound, KM_Resource;
 
 
 { TUnitActionStay }
@@ -74,19 +74,19 @@ begin
   //Various UnitTypes and ActionTypes produce all the sounds
   case fUnit.UnitType of
     ut_Worker:      case ActionType of
-                      ua_Work:  if Step = 3 then gResSounds.Play(sfx_housebuild,fUnit.PositionF);
-                      ua_Work1: if Step = 0 then gResSounds.Play(sfx_Dig,fUnit.PositionF);
-                      ua_Work2: if Step = 8 then gResSounds.Play(sfx_Pave,fUnit.PositionF);
+                      ua_Work:  if Step = 3 then gSoundPlayer.Play(sfx_housebuild,fUnit.PositionF);
+                      ua_Work1: if Step = 0 then gSoundPlayer.Play(sfx_Dig,fUnit.PositionF);
+                      ua_Work2: if Step = 8 then gSoundPlayer.Play(sfx_Pave,fUnit.PositionF);
                     end;
     ut_Farmer:      case ActionType of
-                      ua_Work:  if Step = 8 then gResSounds.Play(sfx_CornCut,fUnit.PositionF);
-                      ua_Work1: if Step = 0 then gResSounds.Play(sfx_CornSow,fUnit.PositionF,true,0.6);
+                      ua_Work:  if Step = 8 then gSoundPlayer.Play(sfx_CornCut,fUnit.PositionF);
+                      ua_Work1: if Step = 0 then gSoundPlayer.Play(sfx_CornSow,fUnit.PositionF,true,0.6);
                     end;
     ut_StoneCutter: if ActionType = ua_Work then
-                      if Step = 3 then gResSounds.Play(sfx_minestone,fUnit.PositionF,true,1.4);
+                      if Step = 3 then gSoundPlayer.Play(sfx_minestone,fUnit.PositionF,true,1.4);
     ut_WoodCutter:  case ActionType of
-                      ua_Work: if (fUnit.AnimStep mod Cycle = 3) and (fUnit.Direction <> dir_N) then gResSounds.Play(sfx_ChopTree, fUnit.PositionF,true)
-                      else     if (fUnit.AnimStep mod Cycle = 0) and (fUnit.Direction =  dir_N) then gResSounds.Play(sfx_WoodcutterDig, fUnit.PositionF,true);
+                      ua_Work: if (fUnit.AnimStep mod Cycle = 3) and (fUnit.Direction <> dir_N) then gSoundPlayer.Play(sfx_ChopTree, fUnit.PositionF,true)
+                      else     if (fUnit.AnimStep mod Cycle = 0) and (fUnit.Direction =  dir_N) then gSoundPlayer.Play(sfx_WoodcutterDig, fUnit.PositionF,true);
                     end;
   end;
 end;

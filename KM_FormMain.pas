@@ -343,7 +343,7 @@ end;
 
 procedure TFormMain.Export_Sounds1Click(Sender: TObject);
 begin
-  gResSounds.ExportSounds;
+  fResource.Sounds.ExportSounds;
 end;
 
 procedure TFormMain.Export_TreeAnim1Click(Sender: TObject);

@@ -58,14 +58,14 @@ begin
   LoadStream.Read(s);
   if s <> 'KaM_GameInfo' then
   begin
-    fParseError := Format(fTextMain[TX_SAVE_UNSUPPORTED_FORMAT], [Copy(s, 1, 8)]);
+    fParseError := Format(gResTexts[TX_SAVE_UNSUPPORTED_FORMAT], [Copy(s, 1, 8)]);
     Exit;
   end;
 
   LoadStream.Read(Version);
   if Version <> GAME_REVISION then
   begin
-    fParseError := Format(fTextMain[TX_SAVE_UNSUPPORTED_VERSION], [Version]);
+    fParseError := Format(gResTexts[TX_SAVE_UNSUPPORTED_VERSION], [Version]);
     Exit;
   end;
 
@@ -173,8 +173,8 @@ end;
 function TKMGameInfo.MissionModeText: string;
 begin
   case MissionMode of
-    mm_Normal: Result := fTextMain[TX_MODE_BUILD_FIGHT];
-    mm_Tactic: Result := fTextMain[TX_MODE_FIGHTING]
+    mm_Normal: Result := gResTexts[TX_MODE_BUILD_FIGHT];
+    mm_Tactic: Result := gResTexts[TX_MODE_FIGHTING]
     else       Result := 'Unknown';
   end;
 end;

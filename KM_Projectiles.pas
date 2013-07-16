@@ -55,7 +55,7 @@ var
 
 
 implementation
-uses KM_ResSound, KM_RenderPool, KM_RenderAux, KM_PlayersCollection, KM_Resource;
+uses KM_ResSound, KM_Sound, KM_RenderPool, KM_RenderAux, KM_PlayersCollection, KM_Resource;
 
 
 const
@@ -237,7 +237,7 @@ begin
   fItems[I].fMaxLength:= aMaxLength;
 
   if (MySpectator.FogOfWar.CheckTileRevelation(KMPointRound(aStart).X, KMPointRound(aStart).Y) >= 255) then
-    gResSounds.Play(ProjectileLaunchSounds[aProjType], aStart);
+    gSoundPlayer.Play(ProjectileLaunchSounds[aProjType], aStart);
 
   Result := round(fItems[I].fLength / fItems[I].fSpeed);
 end;
@@ -263,7 +263,7 @@ begin
         //Can't use InRange cos it might get called twice due to <= X <= comparison
         if MySpectator.FogOfWar.CheckRevelation(fTarget) >= 255 then
           if (fLength - HTicks*fSpeed <= fPosition) and (fPosition < fLength - (HTicks-1)*fSpeed) then
-            gResSounds.Play(ProjectileHitSounds[fType], fTarget);
+            gSoundPlayer.Play(ProjectileHitSounds[fType], fTarget);
 
         if fPosition >= fLength then
         begin

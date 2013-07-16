@@ -106,13 +106,13 @@ end;
 function TTaskMining.GetActivityText: string;
 begin
   case WorkPlan.GatheringScript of
-    gs_StoneCutter:     Result := fTextMain[TX_UNIT_TASK_STONE];
-    gs_FarmerSow:       Result := fTextMain[TX_UNIT_TASK_SOW_CORN];
-    gs_FarmerCorn:      Result := fTextMain[TX_UNIT_TASK_CUTTING_CORN];
-    gs_FarmerWine:      Result := fTextMain[TX_UNIT_TASK_GRAPES];
-    gs_FisherCatch:     Result := fTextMain[TX_UNIT_TASK_FISHING];
-    gs_WoodCutterCut:   Result := fTextMain[TX_UNIT_TASK_CUT_TREE];
-    gs_WoodCutterPlant: Result := fTextMain[TX_UNIT_TASK_PLANT_TREE];
+    gs_StoneCutter:     Result := gResTexts[TX_UNIT_TASK_STONE];
+    gs_FarmerSow:       Result := gResTexts[TX_UNIT_TASK_SOW_CORN];
+    gs_FarmerCorn:      Result := gResTexts[TX_UNIT_TASK_CUTTING_CORN];
+    gs_FarmerWine:      Result := gResTexts[TX_UNIT_TASK_GRAPES];
+    gs_FisherCatch:     Result := gResTexts[TX_UNIT_TASK_FISHING];
+    gs_WoodCutterCut:   Result := gResTexts[TX_UNIT_TASK_CUT_TREE];
+    gs_WoodCutterPlant: Result := gResTexts[TX_UNIT_TASK_PLANT_TREE];
     else                Result := 'Unknown';
   end;
 end;

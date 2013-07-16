@@ -247,10 +247,10 @@ end;
 function TKMWare.GetTitle: UnicodeString;
 begin
   case fType of
-    WARE_MIN..WARE_MAX: Result := fTextMain[TX_RESOURCES_NAMES__27 + WareTypeToIndex[fType]];
-    wt_All:             Result := fTextMain[TX_RESOURCES_ALL];
-    wt_Warfare:         Result := fTextMain[TX_RESOURCES_WARFARE];
-    wt_Food:            Result := fTextMain[TX_RESOURCES_FOOD];
+    WARE_MIN..WARE_MAX: Result := gResTexts[TX_RESOURCES_NAMES__27 + WareTypeToIndex[fType]];
+    wt_All:             Result := gResTexts[TX_RESOURCES_ALL];
+    wt_Warfare:         Result := gResTexts[TX_RESOURCES_WARFARE];
+    wt_Food:            Result := gResTexts[TX_RESOURCES_FOOD];
     else                Result := 'N/A';
   end;
 end;

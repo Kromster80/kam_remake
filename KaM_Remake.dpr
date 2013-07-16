@@ -124,6 +124,7 @@ uses
   KM_ScriptingIdCache in 'KM_ScriptingIdCache.pas',
   KM_ServerQuery in 'KM_ServerQuery.pas',
   KM_Settings in 'KM_Settings.pas',
+  KM_Sound in 'KM_Sound.pas',
   KM_Terrain in 'KM_Terrain.pas',
   KM_TerrainFinder in 'KM_TerrainFinder.pas',
   KM_TerrainPainter in 'KM_TerrainPainter.pas',

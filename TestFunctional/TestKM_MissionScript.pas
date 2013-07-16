@@ -3,8 +3,7 @@ interface
 uses
   TestFramework, StrUtils, Classes, SysUtils,
   KM_Defaults, KM_Log, KM_Utils,
-  KM_GameApp, KM_ResLocales, KM_ResTexts,
-  KM_MissionScript_Standard;
+  KM_GameApp, KM_MissionScript_Standard;
 
 
 type
@@ -27,9 +26,6 @@ begin
   SKIP_SOUND := True;
   ExeDir := ExtractFilePath(ParamStr(0)) + '..\';
   gLog := TKMLog.Create(ExtractFilePath(ParamStr(0)) + 'Temp\temp.log');
-  fLocales := TKMLocales.Create(ExeDir+'data\locales.txt', DEFAULT_LOCALE);
-  fTextMain := TKMTextLibrarySingle.Create;
-  fTextMain.LoadLocale(ExeDir + 'data\text\');
   fGameApp := TKMGameApp.Create(nil, 1024, 768, False, nil, nil, nil, True);
   fGameApp.GameSettings.Autosave := False;
 end;
@@ -39,8 +35,6 @@ procedure TestKMMissionScript.TearDown;
 begin
   fGameApp.Stop(gr_Silent);
   FreeAndNil(fGameApp);
-  FreeAndNil(fTextMain);
-  FreeAndNil(fLocales);
   FreeAndNil(gLog);
 end;
 

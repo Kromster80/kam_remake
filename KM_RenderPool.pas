@@ -115,7 +115,7 @@ var
 
 
 implementation
-uses KM_CommonTypes, KM_RenderAux, KM_PlayersCollection, KM_Game, KM_ResSound, KM_Resource, KM_ResUnits,
+uses KM_CommonTypes, KM_RenderAux, KM_PlayersCollection, KM_Game, KM_Sound, KM_Resource, KM_ResUnits,
   KM_ResMapElements, KM_Units, KM_AIFields, KM_TerrainPainter, KM_GameCursor, KM_InterfaceMapEditor;
 
 
@@ -1311,7 +1311,7 @@ begin
                   end;
   end;
 
-  if DISPLAY_SOUNDS then gResSounds.Paint;
+  if DISPLAY_SOUNDS then gSoundPlayer.Paint;
 end;
 
 

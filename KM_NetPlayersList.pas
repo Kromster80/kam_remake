@@ -140,7 +140,7 @@ end;
 
 procedure TKMNetPlayerInfo.SetLangCode(const aCode: AnsiString);
 begin
-  if fLocales.IndexByCode(aCode) <> -1 then
+  if gResLocales.IndexByCode(aCode) <> -1 then
     fLangCode := aCode;
 end;
 
@@ -200,8 +200,8 @@ function TKMNetPlayerInfo.GetNickname: UnicodeString;
 begin
   case PlayerNetType of
     nptHuman:     Result := Nikname;
-    nptComputer:  Result := fTextMain[TX_LOBBY_SLOT_AI_PLAYER];
-    nptClosed:    Result := fTextMain[TX_LOBBY_SLOT_CLOSED];
+    nptComputer:  Result := gResTexts[TX_LOBBY_SLOT_AI_PLAYER];
+    nptClosed:    Result := gResTexts[TX_LOBBY_SLOT_CLOSED];
     else          Result := NO_TEXT;
   end;
 end;
@@ -721,7 +721,7 @@ var
 begin
   if not AllReady then
   begin
-    ErrorMsg := fTextMain[TX_LOBBY_EVERYONE_NOT_READY];
+    ErrorMsg := gResTexts[TX_LOBBY_EVERYONE_NOT_READY];
     Result := False;
     Exit;
   end;
@@ -774,7 +774,7 @@ begin
           Dec(TmpLocBothCount)
         else
         begin
-          ErrorMsg := fTextMain[TX_LOBBY_UNABLE_RANDOM_LOCS];
+          ErrorMsg := gResTexts[TX_LOBBY_UNABLE_RANDOM_LOCS];
           Result := False;
           Exit;
         end;

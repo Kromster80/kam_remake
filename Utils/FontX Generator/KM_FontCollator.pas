@@ -10,9 +10,9 @@ uses
 
 type
   TKMFontCollator = class
-
   public
     constructor Create;
+    destructor Destroy; override;
 
     procedure Collate(aFontName: string; aPal: TKMPal; aPad, aX, aY: Word; aFnt: TKMFontDataEdit);
     procedure CollectChars(aProgress: TUnicodeStringEvent);
@@ -28,7 +28,15 @@ constructor TKMFontCollator.Create;
 begin
   inherited;
 
-  fLocales := TKMLocales.Create(ExeDir + '..\..\data\locales.txt', DEFAULT_LOCALE);
+  gResLocales := TKMLocales.Create(ExeDir + '..\..\data\locales.txt', DEFAULT_LOCALE);
+end;
+
+
+destructor TKMFontCollator.Destroy;
+begin
+  gResLocales.Free;
+
+  inherited;
 end;
 
 
@@ -47,7 +55,7 @@ begin
     pals.LoadPalettes(ExeDir + '..\..\data\gfx\');
 
     //List of codepages we need to collate
-    codePages := fLocales.CodePagesList;
+    codePages := gResLocales.CodePagesList;
     SetLength(srcFont, Length(codePages));
 
     for I := Low(codePages) to High(codePages) do
@@ -147,7 +155,7 @@ begin
 
       //Load ANSI file with codepage we say into unicode string
       langCode := Copy(libxList[I], Length(libxList[I]) - 7, 3);
-      libTxt := ReadTextU(libxList[I], fLocales.LocaleByCode(langCode).FontCodepage);
+      libTxt := ReadTextU(libxList[I], gResLocales.LocaleByCode(langCode).FontCodepage);
 
       for K := 0 to Length(libTxt) - 1 do
         chars[Ord(libTxt[K+1])] := #1;
