@@ -9,13 +9,13 @@ type
 
   TBinaryHeap = class
   private
-    fCount: Cardinal;
+    fCount: Word;
     fItems: array of Pointer;
-    procedure _siftdown(startpos, pos: SmallInt);
-    procedure _siftup(pos: SmallInt);
+    procedure _siftdown(startpos, pos: Word);
+    procedure _siftup(pos: Word);
   public
     Cmp: TComparator;
-    constructor Create(aSize: Cardinal);
+    constructor Create(aSize: Word);
     procedure Clear;
     function IsEmpty: Boolean;
     function Pop: Pointer;
@@ -28,7 +28,7 @@ implementation
 
 
 { TBinaryHeap }
-constructor TBinaryHeap.Create(aSize: Cardinal);
+constructor TBinaryHeap.Create(aSize: Word);
 begin
   inherited Create;
 
@@ -85,7 +85,7 @@ end;
 //This function should be called every time the item is being modified.
 procedure TBinaryHeap.UpdateItem(x: Pointer);
 var
-  I: ShortInt;
+  I: Word;
 begin
   for I := 0 to fCount - 1 do
   if fItems[I] = x then
@@ -96,9 +96,9 @@ begin
 end;
 
 
-procedure TBinaryHeap._siftdown(startpos, pos: SmallInt);
+procedure TBinaryHeap._siftdown(startpos, pos: Word);
 var newitem, parent: Pointer;
-  parentpos: SmallInt;
+  parentpos: Word;
 begin
     newitem := fItems[pos];
     while (pos > startpos) do
@@ -117,8 +117,8 @@ begin
 end;
 
 
-procedure TBinaryHeap._siftup(pos: SmallInt);
-var childpos, endpos, rightpos, startpos: SmallInt;
+procedure TBinaryHeap._siftup(pos: Word);
+var childpos, endpos, rightpos, startpos: Word;
   newitem: Pointer;
 begin
     endpos := fCount;

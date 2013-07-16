@@ -64,7 +64,7 @@ end;
 
 procedure TForm1.FormDestroy(Sender: TObject);
 begin
-  TimeEndPeriod(1);
+  timeEndPeriod(1);
 end;
 
 
@@ -99,7 +99,7 @@ begin
   Times[1] := 0;
   Times[2] := 0;
 
-  for I := 0 to 99 do
+  for I := 0 to 299 do
   begin
     LocA.X := Random(MAX_SIZE);
     LocA.Y := Random(MAX_SIZE);
@@ -110,7 +110,7 @@ begin
     LocB.Y := LocA.Y + Round((Sqr(T) * Sign(T) * MAX_SIZE / 2));
 
     MakeRoutes;
-    DisplayMap;
+    //DisplayMap;
   end;
 end;
 
