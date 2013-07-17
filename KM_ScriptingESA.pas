@@ -338,7 +338,7 @@ begin
       U := gPlayers[aPlayer].Units[I];
       //Skip units in training, they can't be disturbed until they are finished training
       if U.IsDeadOrDying or (U.UnitTask is TTaskSelfTrain) then Continue;
-      Result[UnitCount] := U.ID;
+      Result[UnitCount] := U.UID;
       Inc(UnitCount);
     end;
 
@@ -369,7 +369,7 @@ begin
     begin
       H := gPlayers[aPlayer].Houses[I];
       if H.IsDestroyed then Continue;
-      Result[HouseCount] := H.ID;
+      Result[HouseCount] := H.UID;
       Inc(HouseCount);
     end;
 
@@ -400,7 +400,7 @@ begin
     begin
       G := gPlayers[aPlayer].UnitGroups[I];
       if G.IsDead then Continue;
-      Result[GroupCount] := G.ID;
+      Result[GroupCount] := G.UID;
       Inc(GroupCount);
     end;
 
@@ -527,8 +527,8 @@ begin
     H := gPlayers.HousesHitTest(aX, aY);
     if (H <> nil) and not H.IsDestroyed then
     begin
-      Result := H.ID;
-      fIDCache.CacheHouse(H, H.ID); //Improves cache efficiency since H will probably be accessed soon
+      Result := H.UID;
+      fIDCache.CacheHouse(H, H.UID); //Improves cache efficiency since H will probably be accessed soon
     end;
   end
   else
@@ -844,8 +844,8 @@ begin
     U := gTerrain.UnitsHitTest(aX, aY);
     if (U <> nil) and not U.IsDeadOrDying then
     begin
-      Result := U.ID;
-      fIDCache.CacheUnit(U, U.ID); //Improves cache efficiency since U will probably be accessed soon
+      Result := U.UID;
+      fIDCache.CacheUnit(U, U.UID); //Improves cache efficiency since U will probably be accessed soon
     end;
   end
   else
@@ -991,8 +991,8 @@ begin
   G := gPlayers.GroupsHitTest(aX, aY);
   if (G <> nil) and not G.IsDead then
   begin
-    Result := G.ID;
-    fIDCache.CacheGroup(G, G.ID); //Improves cache efficiency since G will probably be accessed soon
+    Result := G.UID;
+    fIDCache.CacheGroup(G, G.UID); //Improves cache efficiency since G will probably be accessed soon
   end
   else
     Result := -1;
@@ -1011,8 +1011,8 @@ begin
       G := gPlayers[U.Owner].UnitGroups.GetGroupByMember(TKMUnitWarrior(U));
       if G <> nil then
       begin
-        Result := G.ID;
-        fIDCache.CacheGroup(G, G.ID); //Improves cache efficiency since G will probably be accessed soon
+        Result := G.UID;
+        fIDCache.CacheGroup(G, G.UID); //Improves cache efficiency since G will probably be accessed soon
       end;
     end;
   end
@@ -1092,7 +1092,7 @@ begin
     begin
       if InRange(aMemberIndex, 0, G.Count-1) then
       begin
-        Result := G.Members[aMemberIndex].ID;
+        Result := G.Members[aMemberIndex].UID;
         //Improves cache efficiency since unit will probably be accessed soon
         fIDCache.CacheUnit(G.Members[aMemberIndex], Result);
       end
@@ -1283,7 +1283,7 @@ begin
                                         aColumns,
                                         aCount);
     if G = nil then Exit;
-    Result := G.ID;
+    Result := G.UID;
   end
   else
     LogError('Actions.GiveGroup', [aPlayer, aType, X, Y, aDir, aCount, aColumns]);
@@ -1304,7 +1304,7 @@ begin
   begin
     U := gPlayers[aPlayer].AddUnit(UnitIndexToType[aType], KMPoint(X,Y));
     if U = nil then Exit;
-    Result := U.ID;
+    Result := U.UID;
     U.Direction := TKMDirection(aDir + 1);
     //Make sure the unit is not locked so the script can use commands like UnitOrderWalk.
     //By default newly created units are given SetActionLockedStay
@@ -1330,7 +1330,7 @@ begin
     begin
       H := gPlayers[aPlayer].AddHouse(HouseIndexToType[aHouseType], X, Y, True);
       if H = nil then Exit;
-      Result := H.ID;
+      Result := H.UID;
     end;
   end
   else
@@ -1359,7 +1359,7 @@ begin
   begin
     U := gPlayers.PlayerAnimals.AddUnit(UnitIndexToType[aType], KMPoint(X,Y));
     if U <> nil then
-      Result := U.ID;
+      Result := U.UID;
   end
   else
     LogError('Actions.GiveAnimal', [aType, X, Y]);
@@ -2059,7 +2059,7 @@ begin
     begin
       G2 := G.OrderSplit(True);
       if G2 <> nil then
-        Result := G.ID;
+        Result := G.UID;
     end;
   end
   else

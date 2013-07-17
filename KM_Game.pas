@@ -56,7 +56,7 @@ type
     fCampaignName: string;  //Is this a game part of some campaign
     fGameName: string;
     fGameTickCount: Cardinal;
-    fIDTracker: Cardinal;       //Units-Houses tracker, to issue unique IDs
+    fUIDTracker: Cardinal;       //Units-Houses tracker, to issue unique IDs
     fMissionFile: string;   //Relative pathname to mission we are playing, so it gets saved to crashreport
     fMissionMode: TKMissionMode;
 
@@ -140,7 +140,7 @@ type
     property IsExiting: Boolean read fIsExiting;
     property IsPaused: Boolean read fIsPaused write fIsPaused;
     property MissionMode: TKMissionMode read fMissionMode write fMissionMode;
-    function GetNewID: Cardinal;
+    function GetNewUID: Integer;
     procedure SetGameSpeed(aSpeed: Single; aToggle: Boolean);
     procedure StepOneFrame;
     function SaveName(const aName, aExt: string; aMultiPlayer: Boolean): string;
@@ -198,7 +198,7 @@ begin
   fNetworking := aNetworking;
 
   fAdvanceFrame := False;
-  fIDTracker    := 0;
+  fUIDTracker    := 0;
   PlayOnState   := gr_Cancel;
   DoGameHold    := False;
   SkipReplayEndCheck := False;
@@ -921,7 +921,7 @@ end;
 
 procedure TKMGame.RenderSelection(X, Y: Integer);
 begin
-  GameCursor.ObjectId := fRenderPool.RenderSelection(X, Y);
+  GameCursor.ObjectUID := fRenderPool.RenderSelection(X, Y);
 end;
 
 
@@ -1075,15 +1075,19 @@ begin
 end;
 
 
-function TKMGame.GetNewID: Cardinal;
+function TKMGame.GetNewUID: Integer;
 const
   //Prime numbers let us generate sequence of non-repeating values of max_value length
-  //Keep within positive 24bit, since we colorcode in RGB
   max_value = 16777213;
   step = 8765423;
 begin
-  fIDTracker := (fIDTracker + step) mod max_value + 1; //1..N range, 0 is nothing for colorpicker
-  Result := fIDTracker;
+  //UIDs have the following properties:
+  // - allow -1 to indicate no UID
+  // - fit within 24bit (we can use that much for RGB colorcoding)
+  // - Start from 1, so that black colorcode can be detected and then re-mapped to -1
+
+  fUIDTracker := (fUIDTracker + step) mod max_value + 1; //1..N range, 0 is nothing for colorpicker
+  Result := fUIDTracker;
 end;
 
 
@@ -1211,7 +1215,7 @@ begin
     //(paths are relative and thus - MP safe)
     SaveStream.Write(fMissionFile);
 
-    SaveStream.Write(fIDTracker); //Units-Houses ID tracker
+    SaveStream.Write(fUIDTracker); //Units-Houses ID tracker
     SaveStream.Write(GetKaMSeed); //Include the random seed in the save file to ensure consistency in replays
 
     if fGameMode <> gmMulti then
@@ -1339,7 +1343,7 @@ begin
   //(paths are relative and thus - MP safe)
   LoadStream.Read(fMissionFile);
 
-  LoadStream.Read(fIDTracker);
+  LoadStream.Read(fUIDTracker);
   LoadStream.Read(LoadedSeed);
 
   if not SaveIsMultiplayer then

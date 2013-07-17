@@ -67,7 +67,7 @@ end;
 procedure TTaskAttackHouse.SyncLoad;
 begin
   inherited;
-  fHouse := gPlayers.GetHouseByID(cardinal(fHouse));
+  fHouse := gPlayers.GetHouseByUID(cardinal(fHouse));
 end;
 
 
@@ -205,7 +205,7 @@ procedure TTaskAttackHouse.Save(SaveStream:TKMemoryStream);
 begin
   inherited;
   if fHouse <> nil then
-    SaveStream.Write(fHouse.ID) //Store ID
+    SaveStream.Write(fHouse.UID) //Store ID
   else
     SaveStream.Write(Integer(0));
   SaveStream.Write(fDestroyingHouse);

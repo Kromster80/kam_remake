@@ -54,7 +54,7 @@ end;
 procedure TTaskThrowRock.SyncLoad;
 begin
   inherited;
-  fTarget := gPlayers.GetUnitByID(cardinal(fTarget));
+  fTarget := gPlayers.GetUnitByUID(cardinal(fTarget));
 end;
 
 
@@ -98,7 +98,7 @@ procedure TTaskThrowRock.Save(SaveStream: TKMemoryStream);
 begin
   inherited;
   if fTarget <> nil then
-    SaveStream.Write(fTarget.ID) //Store ID, then substitute it with reference on SyncLoad
+    SaveStream.Write(fTarget.UID) //Store ID, then substitute it with reference on SyncLoad
   else
     SaveStream.Write(Integer(0));
   SaveStream.Write(fFlightTime);

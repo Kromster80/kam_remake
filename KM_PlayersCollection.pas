@@ -35,10 +35,11 @@ type
     function GetClosestHouse(aLoc: TKMPoint; aIndex: TPlayerIndex; aAlliance: TAllianceType; aOnlyCompleted: Boolean = True): TKMHouse;
     function DistanceToEnemyTowers(aLoc: TKMPoint; aIndex: TPlayerIndex): Single;
     procedure GetUnitsInRect(aRect: TKMRect; List: TList);
-    function GetHouseByID(aID: Integer): TKMHouse;
-    function GetUnitByID(aID: Integer): TKMUnit;
-    function GetGroupByID(aID: Integer): TKMUnitGroup;
+    function GetHouseByUID(aUID: Integer): TKMHouse;
+    function GetUnitByUID(aUID: Integer): TKMUnit;
+    function GetGroupByUID(aUID: Integer): TKMUnitGroup;
     function HitTest(X,Y: Integer): TObject;
+    function ObjectByUID(aUID: Integer): TObject;
     function UnitCount:integer;
     function FindPlaceForUnit(PosX,PosY:integer; aUnitType: TUnitType; out PlacePoint: TKMPoint; RequiredWalkConnect:byte):Boolean;
 
@@ -268,44 +269,44 @@ begin
 end;
 
 
-function TKMPlayersCollection.GetHouseByID(aID: Integer): TKMHouse;
+function TKMPlayersCollection.GetHouseByUID(aUID: Integer): TKMHouse;
 var I: Integer;
 begin
   Result := nil;
-  if aID = 0 then Exit;
+  if aUID = 0 then Exit;
 
   for I := 0 to fCount - 1 do
   begin
-    Result := fPlayerList[I].Houses.GetHouseByID(aID);
+    Result := fPlayerList[I].Houses.GetHouseByUID(aUID);
     if Result <> nil then Exit; //else keep on testing
   end;
 end;
 
 
-function TKMPlayersCollection.GetUnitByID(aID: Integer): TKMUnit;
+function TKMPlayersCollection.GetUnitByUID(aUID: Integer): TKMUnit;
 var I: Integer;
 begin
   Result := nil;
-  if aID = 0 then Exit;
+  if aUID = 0 then Exit;
 
   for I := 0 to fCount - 1 do
   begin
-    Result := fPlayerList[I].Units.GetUnitByID(aID);
+    Result := fPlayerList[I].Units.GetUnitByUID(aUID);
     if Result <> nil then Exit; //else keep on testing
   end;
-  if Result = nil then Result := PlayerAnimals.Units.GetUnitByID(aID);
+  if Result = nil then Result := PlayerAnimals.Units.GetUnitByUID(aUID);
 end;
 
 
-function TKMPlayersCollection.GetGroupByID(aID: Integer): TKMUnitGroup;
+function TKMPlayersCollection.GetGroupByUID(aUID: Integer): TKMUnitGroup;
 var I: Integer;
 begin
   Result := nil;
-  if aID = 0 then Exit;
+  if aUID = 0 then Exit;
 
   for I := 0 to fCount - 1 do
   begin
-    Result := fPlayerList[I].UnitGroups.GetGroupByID(aID);
+    Result := fPlayerList[I].UnitGroups.GetGroupByUID(aUID);
     if Result <> nil then Exit; //else keep on testing
   end;
 end;
@@ -340,9 +341,26 @@ begin
 end;
 
 
+//Find object by its Id
+function TKMPlayersCollection.ObjectByUID(aUID: Integer): TObject;
+var
+  I: Integer;
+begin
+  Result := nil;
+
+  for I := 0 to fCount - 1 do
+  begin
+    Result := fPlayerList[I].ObjectByUID(aUID);
+    if Result <> nil then
+      Exit;
+  end;
+end;
+
+
 //Get total unit count for statistics display
 function TKMPlayersCollection.UnitCount: Integer;
-var I: Integer;
+var
+  I: Integer;
 begin
   Result := 0;
   for I := 0 to fCount - 1 do

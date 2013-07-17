@@ -15,7 +15,7 @@ type
   public
     NotAcceptFlag: array [WARFARE_MIN .. WARFARE_MAX] of Boolean;
     RecruitsList: TList;
-    constructor Create(aID: cardinal; aHouseType: THouseType; PosX, PosY: Integer; aOwner: TPlayerIndex; aBuildState: THouseBuildState);
+    constructor Create(aUID: Integer; aHouseType: THouseType; PosX, PosY: Integer; aOwner: TPlayerIndex; aBuildState: THouseBuildState);
     constructor Load(LoadStream: TKMemoryStream); override;
     procedure SyncLoad; override;
     destructor Destroy; override;
@@ -40,7 +40,7 @@ uses
 
 
 { TKMHouseBarracks }
-constructor TKMHouseBarracks.Create(aID: Cardinal; aHouseType: THouseType; PosX, PosY: Integer; aOwner: TPlayerIndex; aBuildState: THouseBuildState);
+constructor TKMHouseBarracks.Create(aUID: Integer; aHouseType: THouseType; PosX, PosY: Integer; aOwner: TPlayerIndex; aBuildState: THouseBuildState);
 begin
   inherited;
   RecruitsList := TList.Create;
@@ -70,7 +70,7 @@ var I: Integer;
 begin
   Inherited;
   for I := 0 to RecruitsList.Count - 1 do
-    RecruitsList.Items[I] := gPlayers.GetUnitByID(Cardinal(RecruitsList.Items[I]));
+    RecruitsList.Items[I] := gPlayers.GetUnitByUID(Cardinal(RecruitsList.Items[I]));
 end;
 
 
@@ -217,7 +217,7 @@ begin
   SaveStream.Write(ResourceCount, SizeOf(ResourceCount));
   SaveStream.Write(RecruitsList.Count);
   for I := 0 to RecruitsList.Count - 1 do
-    SaveStream.Write(TKMUnit(RecruitsList.Items[I]).ID); //Store ID
+    SaveStream.Write(TKMUnit(RecruitsList.Items[I]).UID); //Store ID
   SaveStream.Write(NotAcceptFlag, SizeOf(NotAcceptFlag));
 end;
 

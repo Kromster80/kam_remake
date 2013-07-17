@@ -22,7 +22,7 @@ type
     function GetResOrder(aId: Byte): Integer; override;
     procedure SetResOrder(aId: Byte; aValue: Integer); override;
   public
-    constructor Create(aID: Cardinal; aHouseType: THouseType; PosX, PosY: Integer; aOwner: TPlayerIndex; aBuildState: THouseBuildState);
+    constructor Create(aUID: Integer; aHouseType: THouseType; PosX, PosY: Integer; aOwner: TPlayerIndex; aBuildState: THouseBuildState);
     constructor Load(LoadStream: TKMemoryStream); override;
 
     procedure DemolishHouse(aFrom: TPlayerIndex; IsSilent: Boolean = False); override;
@@ -50,7 +50,7 @@ uses
 
 
 { TKMHouseMarket }
-constructor TKMHouseMarket.Create(aID: Cardinal; aHouseType: THouseType; PosX, PosY: Integer; aOwner: TPlayerIndex; aBuildState: THouseBuildState);
+constructor TKMHouseMarket.Create(aUID: Integer; aHouseType: THouseType; PosX, PosY: Integer; aOwner: TPlayerIndex; aBuildState: THouseBuildState);
 begin
   inherited;
 

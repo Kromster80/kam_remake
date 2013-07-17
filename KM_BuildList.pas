@@ -315,7 +315,7 @@ begin
   for I := 0 to fHousesCount - 1 do
   begin
     if fHouses[I].House <> nil then
-      SaveStream.Write(fHouses[I].House.ID)
+      SaveStream.Write(fHouses[I].House.UID)
     else
       SaveStream.Write(Integer(0));
     SaveStream.Write(fHouses[I].Assigned);
@@ -342,7 +342,7 @@ procedure TKMHouseList.SyncLoad;
 var I: Integer;
 begin
   for I := 0 to fHousesCount - 1 do
-    fHouses[i].House := gPlayers.GetHouseByID(cardinal(fHouses[I].House));
+    fHouses[i].House := gPlayers.GetHouseByUID(cardinal(fHouses[I].House));
 end;
 
 
@@ -592,7 +592,7 @@ begin
     SaveStream.Write(fFields[I].FieldType, SizeOf(fFields[I].FieldType));
     SaveStream.Write(fFields[I].JobStatus, SizeOf(fFields[I].JobStatus));
     if fFields[I].Worker <> nil then
-      SaveStream.Write(fFields[I].Worker.ID)
+      SaveStream.Write(fFields[I].Worker.UID)
     else
       SaveStream.Write(Integer(0));
   end;
@@ -620,7 +620,7 @@ procedure TKMFieldworksList.SyncLoad;
 var I: Integer;
 begin
   for I := 0 to fFieldsCount - 1 do
-    fFields[I].Worker := gPlayers.GetUnitByID(Cardinal(fFields[I].Worker));
+    fFields[I].Worker := gPlayers.GetUnitByUID(Cardinal(fFields[I].Worker));
 end;
 
 
@@ -853,7 +853,7 @@ begin
     SaveStream.Write(Loc);
     SaveStream.Write(JobStatus, SizeOf(JobStatus));
     if Worker <> nil then
-      SaveStream.Write(Worker.ID)
+      SaveStream.Write(Worker.UID)
     else
       SaveStream.Write(Integer(0));
   end;
@@ -883,7 +883,7 @@ var
   I: Integer;
 begin
   for I := 0 to fPlansCount - 1 do
-    fPlans[I].Worker := gPlayers.GetUnitByID(Cardinal(fPlans[I].Worker));
+    fPlans[I].Worker := gPlayers.GetUnitByUID(Cardinal(fPlans[I].Worker));
 end;
 
 
@@ -1014,7 +1014,7 @@ begin
   for I := 0 to fHousesCount - 1 do
   begin
     if fHouses[I].House <> nil then
-      SaveStream.Write(fHouses[I].House.ID)
+      SaveStream.Write(fHouses[I].House.UID)
     else
       SaveStream.Write(Integer(0));
     SaveStream.Write(fHouses[I].Assigned);
@@ -1041,7 +1041,7 @@ procedure TKMRepairList.SyncLoad;
 var I: Integer;
 begin
   for I := 0 to fHousesCount - 1 do
-    fHouses[I].House := gPlayers.GetHouseByID(Cardinal(fHouses[I].House));
+    fHouses[I].House := gPlayers.GetHouseByUID(Cardinal(fHouses[I].House));
 end;
 
 
@@ -1115,7 +1115,7 @@ begin
   for I := 0 to fWorkersCount - 1 do
   begin
     if fWorkers[I].Worker <> nil then
-      SaveStream.Write(fWorkers[I].Worker.ID)
+      SaveStream.Write(fWorkers[I].Worker.UID)
     else
       SaveStream.Write(Integer(0));
   end;
@@ -1149,7 +1149,7 @@ var I: Integer; U: TKMUnit;
 begin
   for I := 0 to fWorkersCount - 1 do
   begin
-    U := gPlayers.GetUnitByID(Cardinal(fWorkers[I].Worker));
+    U := gPlayers.GetUnitByUID(Cardinal(fWorkers[I].Worker));
     Assert(U is TKMUnitWorker, 'Non-worker in build list');
     fWorkers[I].Worker := TKMUnitWorker(U);
   end;

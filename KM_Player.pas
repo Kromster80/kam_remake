@@ -124,6 +124,7 @@ type
     function HitTest(X,Y: Integer): TObject;
     function HousesHitTest(X, Y: Integer): TKMHouse;
     function GroupsHitTest(X, Y: Integer): TKMUnitGroup;
+    function ObjectByUID(aUID: Integer): TObject;
     procedure GetHouseMarks(aLoc: TKMPoint; aHouseType: THouseType; aList: TKMPointTagList);
 
     function GetFieldsCount: Integer;
@@ -886,6 +887,40 @@ end;
 function TKMPlayer.GroupsHitTest(X, Y: Integer): TKMUnitGroup;
 begin
   Result:= fUnitGroups.HitTest(X, Y);
+end;
+
+
+function TKMPlayer.ObjectByUID(aUID: Integer): TObject;
+var
+  I: Integer;
+  G: TKMUnitGroup;
+begin
+  Result := nil;
+
+  for I := 0 to Houses.Count - 1 do
+    if aUID = Houses[I].UID then
+    begin
+      Result := Houses[I];
+      Exit;
+    end;
+
+  for I := 0 to Units.Count - 1 do
+    if aUID = Units[I].UID then
+    begin
+      Result := Units[I];
+
+      //If Id belongs to some Warrior, try to select his group instead
+      if Result is TKMUnitWarrior then
+      begin
+        G := fUnitGroups.GetGroupByMember(TKMUnitWarrior(Result));
+
+        //Warrior might not be assigned to a group while walking out of the Barracks
+        if G <> nil then
+          Result := G;
+      end;
+
+      Exit;
+    end;
 end;
 
 

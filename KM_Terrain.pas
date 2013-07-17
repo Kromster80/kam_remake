@@ -2733,7 +2733,7 @@ begin
     SaveStream.Write(Land[I,K].TileOverlay, SizeOf(Land[I,K].TileOverlay));
     SaveStream.Write(Land[I,K].TileOwner, SizeOf(Land[I,K].TileOwner));
     if Land[I,K].IsUnit <> nil then
-      SaveStream.Write(TKMUnit(Land[I,K].IsUnit).ID) //Store ID, then substitute it with reference on SyncLoad
+      SaveStream.Write(TKMUnit(Land[I,K].IsUnit).UID) //Store ID, then substitute it with reference on SyncLoad
     else
       SaveStream.Write(Integer(0));
     SaveStream.Write(Land[I,K].IsVertexUnit, SizeOf(Land[I,K].IsVertexUnit));
@@ -2786,7 +2786,7 @@ var
 begin
   for I := 1 to fMapY do
     for K := 1 to fMapX do
-      Land[I,K].IsUnit := gPlayers.GetUnitByID(Cardinal(Land[I,K].IsUnit));
+      Land[I,K].IsUnit := gPlayers.GetUnitByUID(Cardinal(Land[I,K].IsUnit));
 end;
 
 

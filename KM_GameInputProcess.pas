@@ -269,21 +269,21 @@ begin
                        gic_ArmyWalk, gic_ArmyStorm]
     then
     begin
-      SrcGroup := gPlayers.GetGroupByID(Params[1]);
+      SrcGroup := gPlayers.GetGroupByUID(Params[1]);
       if (SrcGroup = nil) or SrcGroup.IsDead //Group has died before command could be executed
       or (SrcGroup.Owner <> aCommand.PlayerIndex) then //Potential exploit
         Exit;
     end;
     if CommandType in [gic_ArmyLink] then
     begin
-      TgtGroup := gPlayers.GetGroupByID(Params[2]);
+      TgtGroup := gPlayers.GetGroupByUID(Params[2]);
       if (TgtGroup = nil) or TgtGroup.IsDead //Unit has died before command could be executed
       or (TgtGroup.Owner <> aCommand.PlayerIndex) then //Potential exploit
         Exit;
     end;
     if CommandType in [gic_ArmyAttackUnit] then
     begin
-      TgtUnit := gPlayers.GetUnitByID(Params[2]);
+      TgtUnit := gPlayers.GetUnitByUID(Params[2]);
       if (TgtUnit = nil) or TgtUnit.IsDeadOrDying then //Unit has died before command could be executed
         Exit;
     end;
@@ -292,14 +292,14 @@ begin
       gic_HouseStoreAcceptFlag, gic_HouseBarracksAcceptFlag, gic_HouseBarracksEquip,
       gic_HouseSchoolTrain, gic_HouseRemoveTrain, gic_HouseWoodcutterMode] then
     begin
-      SrcHouse := gPlayers.GetHouseByID(Params[1]);
+      SrcHouse := gPlayers.GetHouseByUID(Params[1]);
       if (SrcHouse = nil) or SrcHouse.IsDestroyed //House has been destroyed before command could be executed
       or (SrcHouse.Owner <> aCommand.PlayerIndex) then //Potential exploit
         Exit;
     end;
     if CommandType in [gic_ArmyAttackHouse] then
     begin
-      TgtHouse := gPlayers.GetHouseByID(Params[2]);
+      TgtHouse := gPlayers.GetHouseByUID(Params[2]);
       if (TgtHouse = nil) or TgtHouse.IsDestroyed then Exit; //House has been destroyed before command could be executed
     end;
 
@@ -382,42 +382,42 @@ end;
 procedure TGameInputProcess.CmdArmy(aCommandType: TGameInputCommandType; aGroup: TKMUnitGroup);
 begin
   Assert(aCommandType in [gic_ArmyFeed, gic_ArmySplit, gic_ArmyStorm, gic_ArmyHalt]);
-  TakeCommand(MakeCommand(aCommandType, [aGroup.ID]));
+  TakeCommand(MakeCommand(aCommandType, [aGroup.UID]));
 end;
 
 
 procedure TGameInputProcess.CmdArmy(aCommandType: TGameInputCommandType; aGroup: TKMUnitGroup; aUnit: TKMUnit);
 begin
   Assert(aCommandType in [gic_ArmyAttackUnit]);
-  TakeCommand(MakeCommand(aCommandType, [aGroup.ID, aUnit.ID]));
+  TakeCommand(MakeCommand(aCommandType, [aGroup.UID, aUnit.UID]));
 end;
 
 
 procedure TGameInputProcess.CmdArmy(aCommandType: TGameInputCommandType; aGroup1, aGroup2: TKMUnitGroup);
 begin
   Assert(aCommandType in [gic_ArmyLink]);
-  TakeCommand(MakeCommand(aCommandType, [aGroup1.ID, aGroup2.ID]));
+  TakeCommand(MakeCommand(aCommandType, [aGroup1.UID, aGroup2.UID]));
 end;
 
 
 procedure TGameInputProcess.CmdArmy(aCommandType: TGameInputCommandType; aGroup: TKMUnitGroup; aHouse: TKMHouse);
 begin
   Assert(aCommandType = gic_ArmyAttackHouse);
-  TakeCommand(MakeCommand(aCommandType, [aGroup.ID, aHouse.ID]));
+  TakeCommand(MakeCommand(aCommandType, [aGroup.UID, aHouse.UID]));
 end;
 
 
 procedure TGameInputProcess.CmdArmy(aCommandType: TGameInputCommandType; aGroup: TKMUnitGroup; aTurnAmount: TKMTurnDirection; aLineAmount:shortint);
 begin
   Assert(aCommandType = gic_ArmyFormation);
-  TakeCommand(MakeCommand(aCommandType, [aGroup.ID, byte(aTurnAmount), aLineAmount]));
+  TakeCommand(MakeCommand(aCommandType, [aGroup.UID, byte(aTurnAmount), aLineAmount]));
 end;
 
 
 procedure TGameInputProcess.CmdArmy(aCommandType: TGameInputCommandType; aGroup: TKMUnitGroup; aLoc: TKMPoint; aDirection: TKMDirection);
 begin
   Assert(aCommandType = gic_ArmyWalk);
-  TakeCommand(MakeCommand(aCommandType, [aGroup.ID, aLoc.X, aLoc.Y, byte(aDirection)]));
+  TakeCommand(MakeCommand(aCommandType, [aGroup.UID, aLoc.X, aLoc.Y, byte(aDirection)]));
 end;
 
 
@@ -459,35 +459,35 @@ end;
 procedure TGameInputProcess.CmdHouse(aCommandType: TGameInputCommandType; aHouse: TKMHouse);
 begin
   Assert(aCommandType in [gic_HouseRepairToggle, gic_HouseDeliveryToggle]);
-  TakeCommand(MakeCommand(aCommandType, aHouse.ID));
+  TakeCommand(MakeCommand(aCommandType, aHouse.UID));
 end;
 
 
 procedure TGameInputProcess.CmdHouse(aCommandType: TGameInputCommandType; aHouse: TKMHouse; aItem, aAmountChange: Integer);
 begin
   Assert(aCommandType = gic_HouseOrderProduct);
-  TakeCommand(MakeCommand(aCommandType, [aHouse.ID, aItem, aAmountChange]));
+  TakeCommand(MakeCommand(aCommandType, [aHouse.UID, aItem, aAmountChange]));
 end;
 
 
 procedure TGameInputProcess.CmdHouse(aCommandType: TGameInputCommandType; aHouse: TKMHouse; aItem: TWareType);
 begin
   Assert(aCommandType in [gic_HouseStoreAcceptFlag, gic_HouseBarracksAcceptFlag, gic_HouseMarketFrom, gic_HouseMarketTo]);
-  TakeCommand(MakeCommand(aCommandType, [aHouse.ID, byte(aItem)]));
+  TakeCommand(MakeCommand(aCommandType, [aHouse.UID, byte(aItem)]));
 end;
 
 
 procedure TGameInputProcess.CmdHouse(aCommandType: TGameInputCommandType; aHouse: TKMHouse; aWoodcutterMode: TWoodcutterMode);
 begin
   Assert(aCommandType = gic_HouseWoodcutterMode);
-  TakeCommand(MakeCommand(aCommandType, [aHouse.ID, byte(aWoodcutterMode)]));
+  TakeCommand(MakeCommand(aCommandType, [aHouse.UID, byte(aWoodcutterMode)]));
 end;
 
 
 procedure TGameInputProcess.CmdHouse(aCommandType: TGameInputCommandType; aHouse: TKMHouse; aUnitType: TUnitType; aCount:byte);
 begin
   Assert(aCommandType in [gic_HouseSchoolTrain, gic_HouseBarracksEquip]);
-  TakeCommand(MakeCommand(aCommandType, [aHouse.ID, byte(aUnitType), aCount]));
+  TakeCommand(MakeCommand(aCommandType, [aHouse.UID, byte(aUnitType), aCount]));
 end;
 
 
@@ -495,7 +495,7 @@ procedure TGameInputProcess.CmdHouse(aCommandType: TGameInputCommandType; aHouse
 begin
   Assert(aCommandType = gic_HouseRemoveTrain);
   Assert(aHouse is TKMHouseSchool);
-  TakeCommand(MakeCommand(aCommandType, [aHouse.ID, aItem]));
+  TakeCommand(MakeCommand(aCommandType, [aHouse.UID, aItem]));
 end;
 
 

@@ -3782,7 +3782,7 @@ begin
     if Marker.MarkerType <> mtNone then
       fResource.Cursors.Cursor := kmc_Info
     else
-    if GameCursor.ObjectId <> -1 then
+    if GameCursor.ObjectUID <> -1 then
       fResource.Cursors.Cursor := kmc_Info
     else
       if not fGame.Viewport.Scrolling then
@@ -3893,7 +3893,7 @@ begin
                       ShowMarkerInfo(Marker)
                     else
                     begin
-                      MySpectator.SelectHitTest(GameCursor.Cell.X, GameCursor.Cell.Y);
+                      MySpectator.SelectByUID(GameCursor.ObjectUID);
 
                       if MySpectator.Selected is TKMHouse then
                         ShowHouseInfo(TKMHouse(MySpectator.Selected));

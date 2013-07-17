@@ -188,8 +188,8 @@ begin
   if not WRITE_WALKTO_LOG then Exit;
 
   ExplanationLog := TStringList.Create;
-  if FileExists(ExeDir+'ExpLog'+inttostr(fUnit.ID)+'.txt') then
-    ExplanationLog.LoadFromFile(ExeDir+'ExpLog'+inttostr(fUnit.ID)+'.txt');
+  if FileExists(ExeDir+'ExpLog'+inttostr(fUnit.UID)+'.txt') then
+    ExplanationLog.LoadFromFile(ExeDir+'ExpLog'+inttostr(fUnit.UID)+'.txt');
 end;
 
 
@@ -253,8 +253,8 @@ end;
 procedure TUnitActionWalkTo.SyncLoad;
 begin
   inherited;
-  fTargetUnit   := gPlayers.GetUnitByID(cardinal(fTargetUnit));
-  fTargetHouse  := gPlayers.GetHouseByID(cardinal(fTargetHouse));
+  fTargetUnit   := gPlayers.GetUnitByUID(cardinal(fTargetUnit));
+  fTargetHouse  := gPlayers.GetHouseByUID(cardinal(fTargetHouse));
 end;
 
 
@@ -267,7 +267,7 @@ begin
   begin
     Explanation := 'WalkTo destroyed at'+floattostr(fUnit.PositionF.X)+':'+floattostr(fUnit.PositionF.Y);
     ExplanationLogAdd;
-    ExplanationLog.SaveToFile(ExeDir+'ExpLog'+inttostr(fUnit.ID)+'.txt');
+    ExplanationLog.SaveToFile(ExeDir+'ExpLog'+inttostr(fUnit.UID)+'.txt');
   end;
 
   FreeAndNil(ExplanationLog);
@@ -1153,11 +1153,11 @@ begin
   SaveStream.Write(fDistance);
   SaveStream.Write(fUseExactTarget);
   if fTargetUnit <> nil then
-    SaveStream.Write(fTargetUnit.ID) //Store ID, then substitute it with reference on SyncLoad
+    SaveStream.Write(fTargetUnit.UID) //Store ID, then substitute it with reference on SyncLoad
   else
     SaveStream.Write(Integer(0));
   if fTargetHouse <> nil then
-    SaveStream.Write(fTargetHouse.ID) //Store ID, then substitute it with reference on SyncLoad
+    SaveStream.Write(fTargetHouse.UID) //Store ID, then substitute it with reference on SyncLoad
   else
     SaveStream.Write(Integer(0));
 

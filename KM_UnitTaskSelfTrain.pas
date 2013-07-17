@@ -43,7 +43,7 @@ end;
 procedure TTaskSelfTrain.SyncLoad;
 begin
   inherited;
-  fSchool := TKMHouseSchool(gPlayers.GetHouseByID(Cardinal(fSchool)));
+  fSchool := TKMHouseSchool(gPlayers.GetHouseByUID(Cardinal(fSchool)));
 end;
 
 
@@ -111,7 +111,7 @@ procedure TTaskSelfTrain.Save(SaveStream: TKMemoryStream);
 begin
   inherited;
   if fSchool <> nil then
-    SaveStream.Write(fSchool.ID) //Store ID, then substitute it with reference on SyncLoad
+    SaveStream.Write(fSchool.UID) //Store ID, then substitute it with reference on SyncLoad
   else
     SaveStream.Write(Integer(0));
 end;

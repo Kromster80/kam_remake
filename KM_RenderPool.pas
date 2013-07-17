@@ -17,7 +17,7 @@ type
     Feet: TKMPointF; //Feet of the sprite for FOW calculation (X;Y) and Z ordering (Y only)
     RX: TRXType;
     ID: Word;
-    UID: Cardinal;
+    UID: Integer;
     NewInst: Boolean;
     TeamColor: Cardinal;
     AlphaStep: Single; //Only appliable to HouseBuild
@@ -39,8 +39,8 @@ type
     constructor Create;
     destructor Destroy; override;
 
-    procedure AddSprite(aRX: TRXType; aID: Word; aUID: Cardinal; pX,pY: Single; aTeam: Cardinal = $0; aAlphaStep: Single = -1);
-    procedure AddSpriteG(aRX: TRXType; aID: Word; aUID: Cardinal; pX,pY,gX,gY: Single; aTeam: Cardinal = $0; aAlphaStep: Single = -1);
+    procedure AddSprite(aRX: TRXType; aID: Word; aUID: Integer; pX,pY: Single; aTeam: Cardinal = $0; aAlphaStep: Single = -1);
+    procedure AddSpriteG(aRX: TRXType; aID: Word; aUID: Integer; pX,pY,gX,gY: Single; aTeam: Cardinal = $0; aAlphaStep: Single = -1);
 
     property Stat_Sprites: Integer read fStat_Sprites;
     property Stat_Sprites2: Integer read fStat_Sprites2;
@@ -70,8 +70,8 @@ type
     //Terrain overlay cursors rendering (incl. sprites highlighting)
     procedure RenderForegroundUI;
 
-    procedure RenderSprite(aRX: TRXType; aId: Word; aUID: Cardinal; aUseUID: Boolean; pX, pY: Single; Col: TColor4; aFOW: Byte; HighlightRed: Boolean = False);
-    procedure RenderSpriteAlphaTest(aRX: TRXType; aId: Word; aWoodProgress: Single; pX, pY: Single; aFOW: Byte; aUID: Cardinal; aId2: Word = 0; aStoneProgress: Single = 0; X2: Single = 0; Y2: Single = 0);
+    procedure RenderSprite(aRX: TRXType; aId: Word; aUID: Integer; aUseUID: Boolean; pX, pY: Single; Col: TColor4; aFOW: Byte; HighlightRed: Boolean = False);
+    procedure RenderSpriteAlphaTest(aRX: TRXType; aId: Word; aWoodProgress: Single; pX, pY: Single; aFOW: Byte; aUID: Integer; aId2: Word = 0; aStoneProgress: Single = 0; X2: Single = 0; Y2: Single = 0);
     procedure RenderMapElement1(aIndex: Byte; AnimStep: Cardinal; LocX,LocY: Integer; DoImmediateRender: Boolean = False; Deleting: Boolean = False);
     procedure RenderMapElement4(aIndex: Byte; AnimStep: Cardinal; pX,pY: Integer; IsDouble: Boolean; DoImmediateRender: Boolean = False; Deleting: Boolean = False);
     procedure RenderHouseOutline(aHouse: TKMHouse);
@@ -89,20 +89,20 @@ type
 
     procedure AddAlert(aLoc: TKMPointF; aId: Word; aFlagColor: TColor4);
     procedure AddProjectile(aProj: TProjectileType; aRenderPos, aTilePos: TKMPointF; aDir: TKMDirection; aFlight: Single);
-    procedure AddHouse(aHouse: THouseType; aLoc: TKMPoint; aUID: Cardinal; aWoodStep, aStoneStep, aSnowStep: Single);
+    procedure AddHouse(aHouse: THouseType; aLoc: TKMPoint; aUID: Integer; aWoodStep, aStoneStep, aSnowStep: Single);
 
     procedure AddHouseTablet(aHouse: THouseType; Loc: TKMPoint);
     procedure AddHouseBuildSupply(aHouse: THouseType; Loc: TKMPoint; Wood,Stone: Byte);
-    procedure AddHouseWork(aHouse: THouseType; Loc: TKMPoint; aUID: Cardinal; aActSet: THouseActionSet; AnimStep: Cardinal; FlagColor: TColor4);
+    procedure AddHouseWork(aHouse: THouseType; Loc: TKMPoint; aUID: Integer; aActSet: THouseActionSet; AnimStep: Cardinal; FlagColor: TColor4);
     procedure AddHouseSupply(aHouse: THouseType; Loc: TKMPoint; const R1,R2:array of byte);
     procedure AddHouseMarketSupply(Loc: TKMPoint; ResType: TWareType; ResCount:word; AnimStep: Integer);
     procedure AddHouseStableBeasts(aHouse: THouseType; Loc: TKMPoint; BeastId,BeastAge,AnimStep: Integer; aRX: TRXType = rxHouses);
     procedure AddHouseEater(Loc: TKMPoint; aUnit: TUnitType; aAct: TUnitActionType; aDir: TKMDirection; StepId: Integer; OffX,OffY: Single; FlagColor: TColor4);
-    procedure AddUnit(aUnit: TUnitType; aUID: Cardinal; aAct: TUnitActionType; aDir: TKMDirection; StepId: Integer; pX,pY: Single; FlagColor: TColor4; NewInst: Boolean; DoImmediateRender: Boolean = False; Deleting: Boolean = False);
-    procedure AddUnitCarry(aCarry: TWareType; aUID: Cardinal; aDir: TKMDirection; StepId: Integer; pX,pY: Single);
+    procedure AddUnit(aUnit: TUnitType; aUID: Integer; aAct: TUnitActionType; aDir: TKMDirection; StepId: Integer; pX,pY: Single; FlagColor: TColor4; NewInst: Boolean; DoImmediateRender: Boolean = False; Deleting: Boolean = False);
+    procedure AddUnitCarry(aCarry: TWareType; aUID: Integer; aDir: TKMDirection; StepId: Integer; pX,pY: Single);
     procedure AddUnitThought(aUnit: TUnitType; aAct: TUnitActionType; aDir: TKMDirection; Thought: TKMUnitThought; pX,pY: Single);
     procedure AddUnitFlag(aUnit: TUnitType; aAct: TUnitActionType; aDir: TKMDirection; FlagAnim: Integer; pX,pY: Single; FlagColor: TColor4);
-    procedure AddUnitWithDefaultArm(aUnit: TUnitType; aUID: Cardinal; aAct: TUnitActionType; aDir: TKMDirection; StepId: Integer; pX,pY: Single; FlagColor: TColor4; DoImmediateRender: Boolean = False; Deleting: Boolean = False);
+    procedure AddUnitWithDefaultArm(aUnit: TUnitType; aUID: Integer; aAct: TUnitActionType; aDir: TKMDirection; StepId: Integer; pX,pY: Single; FlagColor: TColor4; DoImmediateRender: Boolean = False; Deleting: Boolean = False);
 
     procedure RenderSpriteOnTile(aLoc: TKMPoint; aId: Word; aFlagColor: TColor4 = $FFFFFFFF);
     procedure RenderSpriteOnTerrain(aLoc: TKMPointF; aId: Word; aFlagColor: TColor4 = $FFFFFFFF);
@@ -550,7 +550,7 @@ end;
 
 
 //Render house in wood
-procedure TRenderPool.AddHouse(aHouse: THouseType; aLoc: TKMPoint; aUID: Cardinal; aWoodStep, aStoneStep, aSnowStep: Single);
+procedure TRenderPool.AddHouse(aHouse: THouseType; aLoc: TKMPoint; aUID: Integer; aWoodStep, aStoneStep, aSnowStep: Single);
 var
   R: TRXData;
   PicWood, PicStone, PicSnow: Integer;
@@ -596,7 +596,7 @@ begin
 end;
 
 
-procedure TRenderPool.AddHouseWork(aHouse: THouseType; Loc: TKMPoint; aUID: Cardinal; aActSet: THouseActionSet; AnimStep: Cardinal; FlagColor: TColor4);
+procedure TRenderPool.AddHouseWork(aHouse: THouseType; Loc: TKMPoint; aUID: Integer; aActSet: THouseActionSet; AnimStep: Cardinal; FlagColor: TColor4);
 var
   Id: Cardinal;
   AT: THouseActionType;
@@ -755,7 +755,7 @@ begin
 end;
 
 
-procedure TRenderPool.AddUnit(aUnit: TUnitType; aUID: Cardinal; aAct: TUnitActionType; aDir: TKMDirection; StepId: Integer; pX,pY: Single; FlagColor: TColor4; NewInst: Boolean; DoImmediateRender: Boolean = False; Deleting: Boolean = False);
+procedure TRenderPool.AddUnit(aUnit: TUnitType; aUID: Integer; aAct: TUnitActionType; aDir: TKMDirection; StepId: Integer; pX,pY: Single; FlagColor: TColor4; NewInst: Boolean; DoImmediateRender: Boolean = False; Deleting: Boolean = False);
 var
   CornerX, CornerY, Ground: Single;
   Id, Id0: Integer;
@@ -810,7 +810,7 @@ begin
 end;
 
 
-procedure TRenderPool.AddUnitCarry(aCarry: TWareType; aUID: Cardinal; aDir: TKMDirection; StepId: Integer; pX,pY: Single);
+procedure TRenderPool.AddUnitCarry(aCarry: TWareType; aUID: Integer; aDir: TKMDirection; StepId: Integer; pX,pY: Single);
 var
   CornerX, CornerY: Single;
   Id: Integer;
@@ -902,7 +902,7 @@ begin
 end;
 
 
-procedure TRenderPool.AddUnitWithDefaultArm(aUnit: TUnitType; aUID: Cardinal; aAct: TUnitActionType; aDir: TKMDirection; StepId: Integer; pX,pY: Single; FlagColor: TColor4; DoImmediateRender: Boolean = False; Deleting: Boolean = False);
+procedure TRenderPool.AddUnitWithDefaultArm(aUnit: TUnitType; aUID: Integer; aAct: TUnitActionType; aDir: TKMDirection; StepId: Integer; pX,pY: Single; FlagColor: TColor4; DoImmediateRender: Boolean = False; Deleting: Boolean = False);
 begin
   if aUnit = ut_Fish then aAct := FishCountAct[5]; //In map editor always render 5 fish
   AddUnit(aUnit, aUID, aAct, aDir, StepId, pX, pY, FlagColor, True, DoImmediateRender, Deleting);
@@ -945,7 +945,7 @@ begin
 end;}
 
 
-procedure TRenderPool.RenderSprite(aRX: TRXType; aId: Word; aUID: Cardinal; aUseUID: Boolean;
+procedure TRenderPool.RenderSprite(aRX: TRXType; aId: Word; aUID: Integer; aUseUID: Boolean;
   pX,pY: Single; Col: TColor4; aFOW: Byte; HighlightRed: Boolean = False);
 var
   F: TColor4;
@@ -998,7 +998,7 @@ end;
 //  If there are two masks then we need to render sprite only there
 //where its mask is white AND where second mask is black
 procedure TRenderPool.RenderSpriteAlphaTest(
-  aRX: TRXType; aId: Word; aWoodProgress: Single; pX, pY: Single; aFOW: Byte; aUID: Cardinal;
+  aRX: TRXType; aId: Word; aWoodProgress: Single; pX, pY: Single; aFOW: Byte; aUID: Integer;
   aId2: Word = 0; aStoneProgress: Single = 0; X2: Single = 0; Y2: Single = 0);
 begin
   glClear(GL_STENCIL_BUFFER_BIT);
@@ -1450,7 +1450,7 @@ end;
 
 
 //New items must provide their ground level
-procedure TRenderList.AddSpriteG(aRX: TRXType; aId: Word; aUID: Cardinal; pX,pY,gX,gY: Single; aTeam: Cardinal = $0; aAlphaStep: Single = -1);
+procedure TRenderList.AddSpriteG(aRX: TRXType; aId: Word; aUID: Integer; pX,pY,gX,gY: Single; aTeam: Cardinal = $0; aAlphaStep: Single = -1);
 begin
   if fCount >= Length(RenderList) then
     SetLength(RenderList, fCount + 256); //Book some space
@@ -1469,7 +1469,7 @@ end;
 
 
 //Child items don't need ground level
-procedure TRenderList.AddSprite(aRX: TRXType; aId: Word; aUID: Cardinal; pX,pY: Single; aTeam: Cardinal = $0; aAlphaStep: Single = -1);
+procedure TRenderList.AddSprite(aRX: TRXType; aId: Word; aUID: Integer; pX,pY: Single; aTeam: Cardinal = $0; aAlphaStep: Single = -1);
 begin
   if fCount >= Length(RenderList) then
     SetLength(RenderList, fCount + 256); //Book some space

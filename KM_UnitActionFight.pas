@@ -84,7 +84,7 @@ end;
 procedure TUnitActionFight.SyncLoad;
 begin
   inherited;
-  fOpponent := gPlayers.GetUnitByID(cardinal(fOpponent));
+  fOpponent := gPlayers.GetUnitByUID(cardinal(fOpponent));
 end;
 
 
@@ -349,7 +349,7 @@ procedure TUnitActionFight.Save(SaveStream:TKMemoryStream);
 begin
   inherited;
   if fOpponent <> nil then
-    SaveStream.Write(fOpponent.ID) //Store ID, then substitute it with reference on SyncLoad
+    SaveStream.Write(fOpponent.UID) //Store ID, then substitute it with reference on SyncLoad
   else
     SaveStream.Write(Integer(0));
   SaveStream.Write(fFightDelay);

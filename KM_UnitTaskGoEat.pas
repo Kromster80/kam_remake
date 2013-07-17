@@ -46,7 +46,7 @@ end;
 procedure TTaskGoEat.SyncLoad;
 begin
   inherited;
-  fInn := TKMHouseInn(gPlayers.GetHouseByID(Cardinal(fInn)));
+  fInn := TKMHouseInn(gPlayers.GetHouseByUID(Cardinal(fInn)));
 end;
 
 
@@ -160,7 +160,7 @@ procedure TTaskGoEat.Save(SaveStream: TKMemoryStream);
 begin
   inherited;
   if fInn <> nil then
-    SaveStream.Write(fInn.ID) //Store ID, then substitute it with reference on SyncLoad
+    SaveStream.Write(fInn.UID) //Store ID, then substitute it with reference on SyncLoad
   else
     SaveStream.Write(Integer(0));
   SaveStream.Write(PlaceID);

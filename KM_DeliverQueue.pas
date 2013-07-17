@@ -146,7 +146,7 @@ begin
   for I := 0 to fSerfCount - 1 do
   begin
     if fSerfs[I].Serf <> nil then
-      SaveStream.Write(fSerfs[I].Serf.ID)
+      SaveStream.Write(fSerfs[I].Serf.UID)
     else
       SaveStream.Write(Integer(0));
   end;
@@ -170,11 +170,13 @@ end;
 
 
 procedure TKMDeliveries.SyncLoad;
-var I: Integer; U: TKMUnit;
+var
+  I: Integer;
+  U: TKMUnit;
 begin
   for I := 0 to fSerfCount - 1 do
   begin
-    U := gPlayers.GetUnitByID(Cardinal(fSerfs[I].Serf));
+    U := gPlayers.GetUnitByUID(Cardinal(fSerfs[I].Serf));
     Assert(U is TKMUnitSerf, 'Non-serf in delivery list');
     fSerfs[I].Serf := TKMUnitSerf(U);
   end;
@@ -863,7 +865,7 @@ begin
     SaveStream.Write(fOffer[i].Ware, SizeOf(fOffer[i].Ware));
     SaveStream.Write(fOffer[i].Count);
     if fOffer[i].Loc_House <> nil then
-      SaveStream.Write(fOffer[i].Loc_House.ID)
+      SaveStream.Write(fOffer[i].Loc_House.UID)
     else
       SaveStream.Write(Integer(0));
     SaveStream.Write(fOffer[i].BeingPerformed);
@@ -877,8 +879,8 @@ begin
     SaveStream.Write(Ware, SizeOf(Ware));
     SaveStream.Write(DemandType, SizeOf(DemandType));
     SaveStream.Write(Importance, SizeOf(Importance));
-    if Loc_House <> nil then SaveStream.Write(Loc_House.ID) else SaveStream.Write(Integer(0));
-    if Loc_Unit  <> nil then SaveStream.Write(Loc_Unit.ID ) else SaveStream.Write(Integer(0));
+    if Loc_House <> nil then SaveStream.Write(Loc_House.UID) else SaveStream.Write(Integer(0));
+    if Loc_Unit  <> nil then SaveStream.Write(Loc_Unit.UID ) else SaveStream.Write(Integer(0));
     SaveStream.Write(BeingPerformed);
     SaveStream.Write(IsDeleted);
   end;
@@ -937,13 +939,13 @@ procedure TKMDeliverQueue.SyncLoad;
 var i:integer;
 begin
   for i:=1 to fOfferCount do
-    fOffer[i].Loc_House := gPlayers.GetHouseByID(cardinal(fOffer[i].Loc_House));
+    fOffer[i].Loc_House := gPlayers.GetHouseByUID(cardinal(fOffer[i].Loc_House));
 
   for i:=1 to fDemandCount do
   with fDemand[i] do
   begin
-    Loc_House := gPlayers.GetHouseByID(cardinal(Loc_House));
-    Loc_Unit := gPlayers.GetUnitByID(cardinal(Loc_Unit));
+    Loc_House := gPlayers.GetHouseByUID(cardinal(Loc_House));
+    Loc_Unit := gPlayers.GetUnitByUID(cardinal(Loc_Unit));
   end;
 end;
 

@@ -130,7 +130,7 @@ begin
   SaveStream.Write(fRadius);
   SaveStream.Write(fDefenceType, SizeOf(fDefenceType));
   if fCurrentGroup <> nil then
-    SaveStream.Write(fCurrentGroup.ID) //Store ID
+    SaveStream.Write(fCurrentGroup.UID) //Store ID
   else
     SaveStream.Write(Integer(0));
 end;
@@ -149,7 +149,7 @@ end;
 
 procedure TAIDefencePosition.SyncLoad;
 begin
-  fCurrentGroup := gPlayers.GetGroupByID(Cardinal(fCurrentGroup));
+  fCurrentGroup := gPlayers.GetGroupByUID(Cardinal(fCurrentGroup));
 end;
 
 

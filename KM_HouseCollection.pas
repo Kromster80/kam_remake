@@ -22,7 +22,7 @@ type
     procedure OwnerUpdate(aOwner: TPlayerIndex);
     property Houses[aIndex: Integer]: TKMHouse read GetHouse; default;
     function HitTest(X, Y: Integer): TKMHouse;
-    function GetHouseByID(aID: Integer): TKMHouse;
+    function GetHouseByUID(aUID: Integer): TKMHouse;
     function FindEmptyHouse(aUnitType: TUnitType; Loc: TKMPoint): TKMHouse;
     function FindHouse(aType: THouseType; X,Y: Word; const aIndex: Byte = 1; aOnlyCompleted: Boolean = True): TKMHouse;
     function GetTotalPointers: Cardinal;
@@ -58,7 +58,7 @@ end;
 function TKMHousesCollection.AddToCollection(aHouseType: THouseType; PosX,PosY: Integer; aOwner: TPlayerIndex; aHBS: THouseBuildState): TKMHouse;
 var ID: Cardinal;
 begin
-  ID := fGame.GetNewID;
+  ID := fGame.GetNewUID;
 
   case aHouseType of
     ht_Swine,
@@ -127,15 +127,15 @@ begin
 end;
 
 
-function TKMHousesCollection.GetHouseByID(aID: Integer): TKMHouse;
+function TKMHousesCollection.GetHouseByUID(aUID: Integer): TKMHouse;
 var I: Integer;
 begin
   Result := nil;
   for I := 0 to Count - 1 do
-    if aID = Houses[I].ID then
+    if aUID = Houses[I].UID then
     begin
       Result := Houses[I];
-      exit;
+      Exit;
     end;
 end;
 

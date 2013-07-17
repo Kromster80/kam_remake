@@ -63,7 +63,7 @@ type
 
   TKMUnit = class
   protected //Accessible for child classes
-    fID: Integer; //unique unit ID, used for save/load to sync to
+    fUID: Integer; //unique unit ID, used for save/load to sync to
     fUnitType: TUnitType;
     fUnitTask: TUnitTask;
     fCurrentAction: TUnitAction;
@@ -115,7 +115,7 @@ type
     procedure KillUnit(aFrom: TPlayerIndex; aShowAnimation, aForceDelay: Boolean); virtual; //Creates TTaskDie which then will Close the unit from further access
     procedure CloseUnit(aRemoveTileUsage: Boolean = True); dynamic;
 
-    property ID: Integer read fID;
+    property UID: Integer read fUID;
     property PrevPosition: TKMPoint read fPrevPosition;
     property NextPosition: TKMPoint read fNextPosition write SetNextPosition;
     property Direction: TKMDirection read fDirection write SetDirection;
@@ -275,7 +275,7 @@ type
     procedure RemoveUnit(aUnit: TKMUnit);
     procedure OwnerUpdate(aOwner: TPlayerIndex);
     function HitTest(X, Y: Integer; const UT: TUnitType = ut_Any): TKMUnit;
-    function GetUnitByID(aID: Integer): TKMUnit;
+    function GetUnitByUID(aUID: Integer): TKMUnit;
     function GetClosestUnit(aPoint: TKMPoint): TKMUnit;
     procedure GetUnitsInRect(aRect: TKMRect; List: TList);
     function GetTotalPointers: Integer;
@@ -350,16 +350,16 @@ begin
   case fCurrentAction.fActionType of
     ua_Walk:
       begin
-        fRenderPool.AddUnit(fUnitType, fID, ua_Walk, Direction, AnimStep, XPaintPos, YPaintPos, gPlayers[fOwner].FlagColor, true);
+        fRenderPool.AddUnit(fUnitType, fUID, ua_Walk, Direction, AnimStep, XPaintPos, YPaintPos, gPlayers[fOwner].FlagColor, true);
         if fResource.UnitDat[fUnitType].SupportsAction(ua_WalkArm) then
-          fRenderPool.AddUnit(fUnitType, fID, ua_WalkArm, Direction, AnimStep, XPaintPos, YPaintPos, gPlayers[fOwner].FlagColor, false);
+          fRenderPool.AddUnit(fUnitType, fUID, ua_WalkArm, Direction, AnimStep, XPaintPos, YPaintPos, gPlayers[fOwner].FlagColor, false);
       end;
     ua_Work..ua_Eat:
-        fRenderPool.AddUnit(fUnitType, fID, Act, Direction, AnimStep, XPaintPos, YPaintPos, gPlayers[fOwner].FlagColor, true);
+        fRenderPool.AddUnit(fUnitType, fUID, Act, Direction, AnimStep, XPaintPos, YPaintPos, gPlayers[fOwner].FlagColor, true);
     ua_WalkArm .. ua_WalkBooty2:
       begin
-        fRenderPool.AddUnit(fUnitType, fID, ua_Walk, Direction, AnimStep, XPaintPos, YPaintPos, gPlayers[fOwner].FlagColor, true);
-        fRenderPool.AddUnit(fUnitType, fID, Act, Direction, AnimStep, XPaintPos, YPaintPos, gPlayers[fOwner].FlagColor, false);
+        fRenderPool.AddUnit(fUnitType, fUID, ua_Walk, Direction, AnimStep, XPaintPos, YPaintPos, gPlayers[fOwner].FlagColor, true);
+        fRenderPool.AddUnit(fUnitType, fUID, Act, Direction, AnimStep, XPaintPos, YPaintPos, gPlayers[fOwner].FlagColor, false);
       end;
   end;
 
@@ -562,16 +562,16 @@ begin
   case fCurrentAction.fActionType of
     ua_Walk:
       begin
-        fRenderPool.AddUnit(fUnitType, fID, ua_Walk, Direction, AnimStep, XPaintPos, YPaintPos, gPlayers[fOwner].FlagColor, true);
+        fRenderPool.AddUnit(fUnitType, fUID, ua_Walk, Direction, AnimStep, XPaintPos, YPaintPos, gPlayers[fOwner].FlagColor, true);
         if fResource.UnitDat[fUnitType].SupportsAction(ua_WalkArm) then
-          fRenderPool.AddUnit(fUnitType, fID, ua_WalkArm, Direction, AnimStep, XPaintPos, YPaintPos, gPlayers[fOwner].FlagColor, false);
+          fRenderPool.AddUnit(fUnitType, fUID, ua_WalkArm, Direction, AnimStep, XPaintPos, YPaintPos, gPlayers[fOwner].FlagColor, false);
       end;
     ua_Work..ua_Eat:
-        fRenderPool.AddUnit(fUnitType, fID, Act, Direction, AnimStep, XPaintPos, YPaintPos, gPlayers[fOwner].FlagColor, true);
+        fRenderPool.AddUnit(fUnitType, fUID, Act, Direction, AnimStep, XPaintPos, YPaintPos, gPlayers[fOwner].FlagColor, true);
     ua_WalkArm .. ua_WalkBooty2:
       begin
-        fRenderPool.AddUnit(fUnitType, fID, ua_Walk, Direction, AnimStep, XPaintPos, YPaintPos, gPlayers[fOwner].FlagColor, true);
-        fRenderPool.AddUnit(fUnitType, fID, Act, Direction, AnimStep, XPaintPos, YPaintPos, gPlayers[fOwner].FlagColor, false);
+        fRenderPool.AddUnit(fUnitType, fUID, ua_Walk, Direction, AnimStep, XPaintPos, YPaintPos, gPlayers[fOwner].FlagColor, true);
+        fRenderPool.AddUnit(fUnitType, fUID, Act, Direction, AnimStep, XPaintPos, YPaintPos, gPlayers[fOwner].FlagColor, false);
       end;
   end;
 
@@ -728,14 +728,14 @@ begin
   XPaintPos := fPosition.X + UNIT_OFF_X + GetSlide(ax_X);
   YPaintPos := fPosition.Y + UNIT_OFF_Y + GetSlide(ax_Y);
 
-  fRenderPool.AddUnit(UnitType, fID, Act, Direction, AnimStep, XPaintPos, YPaintPos, gPlayers[fOwner].FlagColor, true);
+  fRenderPool.AddUnit(UnitType, fUID, Act, Direction, AnimStep, XPaintPos, YPaintPos, gPlayers[fOwner].FlagColor, true);
 
   if fUnitTask is TTaskDie then exit; //Do not show unnecessary arms
 
   if Carry <> wt_None then
-    fRenderPool.AddUnitCarry(Carry, fID, Direction, AnimStep, XPaintPos, YPaintPos)
+    fRenderPool.AddUnitCarry(Carry, fUID, Direction, AnimStep, XPaintPos, YPaintPos)
   else
-    fRenderPool.AddUnit(UnitType, fID, ua_WalkArm, Direction, AnimStep, XPaintPos, YPaintPos, gPlayers[fOwner].FlagColor, false);
+    fRenderPool.AddUnit(UnitType, fUID, ua_WalkArm, Direction, AnimStep, XPaintPos, YPaintPos, gPlayers[fOwner].FlagColor, false);
 
   if fThought <> th_None then
     fRenderPool.AddUnitThought(fUnitType, Act, Direction, fThought, XPaintPos, YPaintPos);
@@ -875,7 +875,7 @@ begin
   XPaintPos := fPosition.X + UNIT_OFF_X + GetSlide(ax_X);
   YPaintPos := fPosition.Y + UNIT_OFF_Y + GetSlide(ax_Y);
 
-  fRenderPool.AddUnit(UnitType, fID, fCurrentAction.fActionType, Direction, AnimStep, XPaintPos, YPaintPos, gPlayers[fOwner].FlagColor, true);
+  fRenderPool.AddUnit(UnitType, fUID, fCurrentAction.fActionType, Direction, AnimStep, XPaintPos, YPaintPos, gPlayers[fOwner].FlagColor, true);
 
   if fThought <> th_None then
     fRenderPool.AddUnitThought(fUnitType, fCurrentAction.ActionType, Direction, fThought, XPaintPos, YPaintPos);
@@ -1002,14 +1002,14 @@ begin
   XPaintPos := fPosition.X + UNIT_OFF_X + GetSlide(ax_X);
   YPaintPos := fPosition.Y + UNIT_OFF_Y + GetSlide(ax_Y);
 
-  //Make fish/watersnakes to be more visible in the MapEd
+  //Make fish/watersnakes more visible in the MapEd
   if (fGame.GameMode = gmMapEd) and (fUnitType in [ut_Fish, ut_Watersnake, ut_Seastar]) then
     fRenderAux.Circle(fPosition.X - 0.5,
                       gTerrain.FlatToHeight(fPosition.X - 0.5, fPosition.Y - 0.5),
                       0.5, $30FF8000, $60FF8000);
 
   //Animals share the same WalkTo logic as other units and they exchange places if necessary
-  fRenderPool.AddUnit(fUnitType, fID, Act, Direction, AnimStep, XPaintPos, YPaintPos, $FFFFFFFF, True);
+  fRenderPool.AddUnit(fUnitType, 0, Act, Direction, AnimStep, XPaintPos, YPaintPos, $FFFFFFFF, True);
 end;
 
 
@@ -1017,8 +1017,8 @@ end;
 constructor TKMUnit.Create(aID: Cardinal; aUnitType: TUnitType; aLoc: TKMPoint; aOwner: TPlayerIndex);
 begin
   inherited Create;
-  fID           := aID;
-  fTicker       := fID; //Units update states will be spread more evenly that way
+  fUID           := aID;
+  fTicker       := fUID; //Units update states will be spread more evenly that way
   fPointerCount := 0;
   fIsDead       := false;
   fKillASAP     := false;
@@ -1129,7 +1129,7 @@ begin
   LoadStream.Read(fKillASAPShowAnimation);
   LoadStream.Read(IsExchanging);
   LoadStream.Read(fPointerCount);
-  LoadStream.Read(fID);
+  LoadStream.Read(fUID);
   LoadStream.Read(AnimStep);
   LoadStream.Read(fDirection);
   LoadStream.Read(fCurrPosition);
@@ -1142,8 +1142,8 @@ procedure TKMUnit.SyncLoad;
 begin
   if fUnitTask<>nil then fUnitTask.SyncLoad;
   if fCurrentAction<>nil then fCurrentAction.SyncLoad;
-  fHome := gPlayers.GetHouseByID(cardinal(fHome));
-  fInHouse := gPlayers.GetHouseByID(cardinal(fInHouse));
+  fHome := gPlayers.GetHouseByUID(cardinal(fHome));
+  fInHouse := gPlayers.GetHouseByUID(cardinal(fInHouse));
 end;
 
 
@@ -1888,14 +1888,14 @@ begin
   SaveStream.Write(fHitPointCounter);
 
   if fInHouse <> nil then
-    SaveStream.Write(fInHouse.ID) //Store ID, then substitute it with reference on SyncLoad
+    SaveStream.Write(fInHouse.UID) //Store ID, then substitute it with reference on SyncLoad
   else
     SaveStream.Write(Integer(0));
 
   SaveStream.Write(fOwner, SizeOf(fOwner));
 
   if fHome <> nil then
-    SaveStream.Write(fHome.ID) //Store ID, then substitute it with reference on SyncLoad
+    SaveStream.Write(fHome.UID) //Store ID, then substitute it with reference on SyncLoad
   else
     SaveStream.Write(Integer(0));
 
@@ -1907,7 +1907,7 @@ begin
   SaveStream.Write(IsExchanging);
   SaveStream.Write(fPointerCount);
 
-  SaveStream.Write(fID);
+  SaveStream.Write(fUID);
   SaveStream.Write(AnimStep);
   SaveStream.Write(fDirection);
   SaveStream.Write(fCurrPosition);
@@ -2035,7 +2035,7 @@ end;
 
 procedure TUnitTask.SyncLoad;
 begin
-  fUnit := gPlayers.GetUnitByID(cardinal(fUnit));
+  fUnit := gPlayers.GetUnitByUID(cardinal(fUnit));
 end;
 
 
@@ -2059,7 +2059,7 @@ procedure TUnitTask.Save(SaveStream: TKMemoryStream);
 begin
   SaveStream.Write(fTaskName, SizeOf(fTaskName)); //Save task type before anything else for it will be used on loading to create specific task type
   if fUnit <> nil then
-    SaveStream.Write(fUnit.ID) //Store ID, then substitute it with reference on SyncLoad
+    SaveStream.Write(fUnit.UID) //Store ID, then substitute it with reference on SyncLoad
   else
     SaveStream.Write(Integer(0));
   SaveStream.Write(fPhase);
@@ -2093,7 +2093,7 @@ end;
 
 procedure TUnitAction.SyncLoad;
 begin
-  fUnit := gPlayers.GetUnitByID(cardinal(fUnit));
+  fUnit := gPlayers.GetUnitByUID(cardinal(fUnit));
 end;
 
 
@@ -2101,7 +2101,7 @@ procedure TUnitAction.Save(SaveStream: TKMemoryStream);
 begin
   SaveStream.Write(fActionType, SizeOf(fActionType));
   if fUnit <> nil then
-    SaveStream.Write(fUnit.ID) //Store ID, then substitute it with reference on SyncLoad
+    SaveStream.Write(fUnit.UID) //Store ID, then substitute it with reference on SyncLoad
   else
     SaveStream.Write(Integer(0));
   SaveStream.Write(Locked);
@@ -2174,7 +2174,7 @@ begin
                            ', tile is already occupied by ' + fResource.UnitDat[TKMUnit(gTerrain.Land[PlaceTo.Y,PlaceTo.X].IsUnit).UnitType].GUIName,
                            PlaceTo);
 
-  ID := fGame.GetNewID;
+  ID := fGame.GetNewUID;
   case aUnitType of
     ut_Serf:                          Result := TKMUnitSerf.Create(ID, aUnitType, PlaceTo, aOwner);
     ut_Worker:                        Result := TKMUnitWorker.Create(ID, aUnitType, PlaceTo, aOwner);
@@ -2220,12 +2220,12 @@ begin
 end;
 
 
-function TKMUnitsCollection.GetUnitByID(aID: Integer): TKMUnit;
+function TKMUnitsCollection.GetUnitByUID(aUID: Integer): TKMUnit;
 var I: Integer;
 begin
   Result := nil;
   for I := 0 to Count - 1 do
-    if aID = Units[I].ID then
+    if aUID = Units[I].UID then
     begin
       Result := Units[I];
       exit;

@@ -85,8 +85,8 @@ end;
 procedure TUnitActionGoInOut.SyncLoad;
 begin
   inherited;
-  fHouse := gPlayers.GetHouseByID(cardinal(fHouse));
-  fPushedUnit := gPlayers.GetUnitByID(cardinal(fPushedUnit));
+  fHouse := gPlayers.GetHouseByUID(cardinal(fHouse));
+  fPushedUnit := gPlayers.GetUnitByUID(cardinal(fPushedUnit));
 end;
 
 
@@ -390,11 +390,11 @@ begin
   inherited;
   SaveStream.Write(fStep);
   if fHouse <> nil then
-    SaveStream.Write(fHouse.ID) //Store ID, then substitute it with reference on SyncLoad
+    SaveStream.Write(fHouse.UID) //Store ID, then substitute it with reference on SyncLoad
   else
     SaveStream.Write(Integer(0));
   if fPushedUnit <> nil then
-    SaveStream.Write(fPushedUnit.ID) //Store ID, then substitute it with reference on SyncLoad
+    SaveStream.Write(fPushedUnit.UID) //Store ID, then substitute it with reference on SyncLoad
   else
     SaveStream.Write(Integer(0));
   SaveStream.Write(fDirection, SizeOf(fDirection));

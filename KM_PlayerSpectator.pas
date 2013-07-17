@@ -29,7 +29,7 @@ type
     property PlayerIndex: TPlayerIndex read fPlayerIndex write SetPlayerIndex;
     property FOWIndex: TPlayerIndex read fFOWIndex write SetFOWIndex;
     function FogOfWar: TKMFogOfWarCommon; //Which FOW we want to see
-    procedure SelectHitTest(X, Y: Integer);
+    procedure SelectByUID(aUID: Integer);
     function HitTest(X, Y: Integer): TObject;
     procedure Load(LoadStream: TKMemoryStream);
     procedure Save(SaveStream: TKMemoryStream);
@@ -43,7 +43,7 @@ type
 
 
 implementation
-uses KM_PlayersCollection, KM_Game, KM_Units_Warrior, KM_UnitGroups;
+uses KM_PlayersCollection, KM_Game, KM_UnitGroups;
 
 
 { TKMSpectator }
@@ -101,23 +101,18 @@ begin
 end;
 
 
-procedure TKMSpectator.SelectHitTest(X,Y: Integer);
-var
-  Obj: TObject;
+//Mark unit/house/group selected by its Id
+//Used by color-picking
+procedure TKMSpectator.SelectByUID(aUID: Integer);
 begin
-  Obj := HitTest(X, Y);
+  if fGame.IsReplay or fGame.IsMapEditor then
+    Selected := gPlayers.ObjectByUID(aUID)
+  else
+    Selected := gPlayers[fPlayerIndex].ObjectByUID(aUID);
 
-  //Don't select a warrior directly, only select his group.
-  //A warrior can be incorrectly selected while walking out of the barracks (before he has a group)
-  if Obj is TKMUnitWarrior then Exit;
-
-  if Obj <> nil then
-  begin
-    Selected := Obj;
-    //Update selected unit within a group
-    if Selected is TKMUnitGroup then
-      TKMUnitGroup(Selected).SelectHitTest(X,Y);
-  end;
+  //Update selected groups selected unit
+  if Selected is TKMUnitGroup then
+    TKMUnitGroup(Selected).SelectedUnit := TKMUnitGroup(Selected).MemberByUID(aUID);
 end;
 
 
@@ -160,9 +155,6 @@ begin
   if TimeGet > fHighlightEnd then
     fHighlight := nil;
 end;
-
-
-{ TKMSpectatorEverything }
 
 
 end.

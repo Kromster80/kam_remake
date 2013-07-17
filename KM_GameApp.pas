@@ -631,7 +631,7 @@ begin
     fGame.RenderSelection(GameCursor.Pixel.X, fRender.ScreenY - GameCursor.Pixel.Y - 1);
 
     if Assigned(fOnCursorUpdate) then
-      fOnCursorUpdate(3, 'Objects: ' + IntToStr(GameCursor.ObjectId));
+      fOnCursorUpdate(3, 'Objects: ' + IntToStr(GameCursor.ObjectUID));
   end;
 end;
 

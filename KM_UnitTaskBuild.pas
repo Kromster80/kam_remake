@@ -640,7 +640,7 @@ end;
 procedure TTaskBuildHouseArea.SyncLoad;
 begin
   inherited;
-  fHouse := gPlayers.GetHouseByID(cardinal(fHouse));
+  fHouse := gPlayers.GetHouseByUID(cardinal(fHouse));
 end;
 
 
@@ -808,7 +808,7 @@ var i:integer;
 begin
   inherited;
   if fHouse <> nil then
-    SaveStream.Write(fHouse.ID) //Store ID, then substitute it with reference on SyncLoad
+    SaveStream.Write(fHouse.UID) //Store ID, then substitute it with reference on SyncLoad
   else
     SaveStream.Write(Integer(0));
   SaveStream.Write(fHouseType, SizeOf(fHouseType));
@@ -849,7 +849,7 @@ end;
 procedure TTaskBuildHouse.SyncLoad;
 begin
   inherited;
-  fHouse := gPlayers.GetHouseByID(Cardinal(fHouse));
+  fHouse := gPlayers.GetHouseByUID(Cardinal(fHouse));
 end;
 
 
@@ -937,7 +937,7 @@ procedure TTaskBuildHouse.Save(SaveStream: TKMemoryStream);
 begin
   inherited;
   if fHouse <> nil then
-    SaveStream.Write(fHouse.ID) //Store ID, then substitute it with reference on SyncLoad
+    SaveStream.Write(fHouse.UID) //Store ID, then substitute it with reference on SyncLoad
   else
     SaveStream.Write(Integer(0));
   SaveStream.Write(BuildID);
@@ -973,7 +973,7 @@ end;
 procedure TTaskBuildHouseRepair.SyncLoad;
 begin
   inherited;
-  fHouse := gPlayers.GetHouseByID(Cardinal(fHouse));
+  fHouse := gPlayers.GetHouseByUID(Cardinal(fHouse));
 end;
 
 
@@ -1048,7 +1048,7 @@ procedure TTaskBuildHouseRepair.Save(SaveStream: TKMemoryStream);
 begin
   inherited;
   if fHouse <> nil then
-    SaveStream.Write(fHouse.ID) //Store ID, then substitute it with reference on SyncLoad
+    SaveStream.Write(fHouse.UID) //Store ID, then substitute it with reference on SyncLoad
   else
     SaveStream.Write(Integer(0));
   SaveStream.Write(fRepairID);

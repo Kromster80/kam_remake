@@ -28,7 +28,7 @@ type
   //Group of warriors
   TKMUnitGroup = class
   private
-    fID: Cardinal;
+    fUID: Integer;
     fPointerCount: Cardinal;
     fTicker: Cardinal;
     fOwner: TPlayerIndex;
@@ -76,6 +76,7 @@ type
     function GetCondition: Integer;
     function GetDirection: TKMDirection;
     function GetPosition: TKMPoint;
+    procedure SetSelected(aValue: TKMUnitWarrior);
   public
     //Each group can have initial order
     //SendGroup - walk to some location
@@ -93,9 +94,8 @@ type
     function GetGroupPointer: TKMUnitGroup;
     procedure ReleaseGroupPointer;
     procedure AddMember(aWarrior: TKMUnitWarrior; aIndex: Integer = -1);
-    function MemberHitTest(X,Y: Integer): TKMUnitWarrior;
+    function MemberByUID(aUID: Integer): TKMUnitWarrior;
     function HitTest(X,Y: Integer): Boolean;
-    procedure SelectHitTest(X,Y: Integer);
     procedure SelectFlagBearer;
     function HasMember(aWarrior: TKMUnit): Boolean;
     procedure ResetAnimStep;
@@ -112,7 +112,7 @@ type
     function UnitType: TUnitType;
     function GetOrderText: string;
     property GroupType: TGroupType read fGroupType;
-    property ID: Cardinal read fID;
+    property UID: Integer read fUID;
     property Count: Integer read GetCount;
     property MapEdCount: Word read fMapEdCount write fMapEdCount;
     property Members[aIndex: Integer]: TKMUnitWarrior read GetMember;
@@ -120,7 +120,7 @@ type
     property Position: TKMPoint read GetPosition write SetPosition;
     property Direction: TKMDirection read GetDirection write SetDirection;
     property UnitsPerRow: Word read fUnitsPerRow write SetUnitsPerRow;
-    property SelectedUnit: TKMUnitWarrior read fSelected;
+    property SelectedUnit: TKMUnitWarrior read fSelected write SetSelected;
     property Condition: Integer read GetCondition write SetCondition;
     property Order: TKMGroupOrder read fOrder;
 
@@ -163,7 +163,7 @@ type
 
     property Count: Integer read GetCount;
     property Groups[aIndex: Integer]: TKMUnitGroup read GetGroup; default;
-    function GetGroupByID(aID: Integer): TKMUnitGroup;
+    function GetGroupByUID(aUID: Integer): TKMUnitGroup;
     function GetGroupByMember(aUnit: TKMUnitWarrior): TKMUnitGroup;
     function HitTest(X,Y: Integer): TKMUnitGroup;
 
@@ -191,7 +191,7 @@ constructor TKMUnitGroup.Create(aID: Cardinal; aCreator: TKMUnitWarrior);
 begin
   inherited Create;
 
-  fID := aID;
+  fUID := aID;
   fOwner := aCreator.Owner;
   fGroupType := UnitGroups[aCreator.UnitType];
   fMembers := TList.Create;
@@ -218,7 +218,7 @@ var
 begin
   inherited Create;
 
-  fID := aID;
+  fUID := aID;
   fOwner := aOwner;
   fGroupType := UnitGroups[aUnitType];
   fMembers := TList.Create;
@@ -278,7 +278,7 @@ begin
   fOffenders := TList.Create;
 
   LoadStream.Read(fGroupType, SizeOf(fGroupType));
-  LoadStream.Read(fID);
+  LoadStream.Read(fUID);
   LoadStream.Read(fOwner);
   LoadStream.Read(NewCount);
   for I := 0 to NewCount - 1 do
@@ -314,17 +314,17 @@ begin
   //Assign event handlers after load
   for I := 0 to Count - 1 do
   begin
-    fMembers[I] := TKMUnitWarrior(gPlayers.GetUnitByID(Cardinal(fMembers[I])));
+    fMembers[I] := TKMUnitWarrior(gPlayers.GetUnitByUID(Cardinal(fMembers[I])));
     Members[I].OnWarriorDied := Member_Died;
     Members[I].OnPickedFight := Member_PickedFight;
   end;
 
   for I := 0 to fOffenders.Count - 1 do
-    fOffenders[I] := TKMUnitWarrior(gPlayers.GetUnitByID(Cardinal(TKMUnitWarrior(fOffenders[I]))));
+    fOffenders[I] := TKMUnitWarrior(gPlayers.GetUnitByUID(Cardinal(TKMUnitWarrior(fOffenders[I]))));
 
-  fOrderTargetGroup := gPlayers.GetGroupByID(Cardinal(fOrderTargetGroup));
-  fOrderTargetHouse := gPlayers.GetHouseByID(Cardinal(fOrderTargetHouse));
-  fOrderTargetUnit  := gPlayers.GetUnitByID(Cardinal(fOrderTargetUnit));
+  fOrderTargetGroup := gPlayers.GetGroupByUID(Cardinal(fOrderTargetGroup));
+  fOrderTargetHouse := gPlayers.GetHouseByUID(Cardinal(fOrderTargetHouse));
+  fOrderTargetUnit  := gPlayers.GetUnitByUID(Cardinal(fOrderTargetUnit));
 end;
 
 
@@ -360,26 +360,26 @@ var I: Integer;
 begin
   inherited;
   SaveStream.Write(fGroupType, SizeOf(fGroupType));
-  SaveStream.Write(fID);
+  SaveStream.Write(fUID);
   SaveStream.Write(fOwner);
   SaveStream.Write(fMembers.Count);
   for I := 0 to fMembers.Count - 1 do
-    SaveStream.Write(Members[I].ID);
+    SaveStream.Write(Members[I].UID);
   SaveStream.Write(fOffenders.Count);
   for I := 0 to fOffenders.Count - 1 do
-    SaveStream.Write(TKMUnitWarrior(fOffenders[I]).ID);
+    SaveStream.Write(TKMUnitWarrior(fOffenders[I]).UID);
   SaveStream.Write(fOrder, SizeOf(fOrder));
   SaveStream.Write(fOrderLoc);
   if fOrderTargetGroup <> nil then
-    SaveStream.Write(fOrderTargetGroup.ID)
+    SaveStream.Write(fOrderTargetGroup.UID)
   else
     SaveStream.Write(Integer(0));
   if fOrderTargetHouse <> nil then
-    SaveStream.Write(fOrderTargetHouse.ID)
+    SaveStream.Write(fOrderTargetHouse.UID)
   else
     SaveStream.Write(Integer(0));
   if fOrderTargetUnit <> nil then
-    SaveStream.Write(fOrderTargetUnit.ID)
+    SaveStream.Write(fOrderTargetUnit.UID)
   else
     SaveStream.Write(Integer(0));
   SaveStream.Write(fPointerCount);
@@ -504,6 +504,13 @@ begin
   Assert(fGame.IsMapEditor);
   Members[0].SetPosition(aValue);
   fOrderLoc.Loc := Members[0].GetPosition; //Don't assume we can move to aValue
+end;
+
+
+procedure TKMUnitGroup.SetSelected(aValue: TKMUnitWarrior);
+begin
+  Assert(HasMember(aValue), 'Cant''t select unit that is not a groups member');
+  fSelected := aValue;
 end;
 
 
@@ -843,13 +850,14 @@ begin
 end;
 
 
-function TKMUnitGroup.MemberHitTest(X,Y: Integer): TKMUnitWarrior;
-var I: Integer;
+function TKMUnitGroup.MemberByUID(aUID: Integer): TKMUnitWarrior;
+var
+  I: Integer;
 begin
   Result := nil;
 
   for I := 0 to Count - 1 do
-  if Members[I].HitTest(X, Y) and not Members[I].IsDead then
+  if (Members[I].UID = aUID) and not Members[I].IsDead then
   begin
     Result := Members[I];
     Break;
@@ -858,22 +866,17 @@ end;
 
 
 function TKMUnitGroup.HitTest(X,Y: Integer): Boolean;
-begin
-  Result := MemberHitTest(X, Y) <> nil;
-end;
-
-
-procedure TKMUnitGroup.SelectHitTest(X,Y: Integer);
 var
-  U: TKMUnit;
+  I: Integer;
 begin
-  //Don't use gTerrain.UnitHitTest because IsUnit doesn't always return the same
-  //results as TKMPlayersCollection.SelectHitTest when units are moving
-  U := MemberHitTest(X,Y);
-  Assert((U <> nil) and (U is TKMUnitWarrior) and HasMember(TKMUnitWarrior(U)),
-    'Should match with HitTest that selected this group in TKMPlayersCollection.SelectHitTest');
+  Result := False;
 
-  fSelected := TKMUnitWarrior(U);
+  for I := 0 to Count - 1 do
+  if Members[I].HitTest(X, Y) and not Members[I].IsDead then
+  begin
+    Result := True;
+    Break;
+  end;
 end;
 
 
@@ -1487,7 +1490,7 @@ end;
 
 function TKMUnitGroups.AddGroup(aWarrior: TKMUnitWarrior): TKMUnitGroup;
 begin
-  Result := TKMUnitGroup.Create(fGame.GetNewID, aWarrior);
+  Result := TKMUnitGroup.Create(fGame.GetNewUID, aWarrior);
   fGroups.Add(Result)
 end;
 
@@ -1498,7 +1501,7 @@ begin
   Result := nil;
   Assert(aUnitType in [WARRIOR_MIN..WARRIOR_MAX]);
 
-  Result := TKMUnitGroup.Create(fGame.GetNewID, aOwner, aUnitType, PosX, PosY, aDir, aUnitPerRow, aCount);
+  Result := TKMUnitGroup.Create(fGame.GetNewUID, aOwner, aUnitType, PosX, PosY, aDir, aUnitPerRow, aCount);
 
   //If group failed to create (e.g. due to being placed on unwalkable position)
   //then its memberCount = 0
@@ -1509,12 +1512,12 @@ begin
 end;
 
 
-function TKMUnitGroups.GetGroupByID(aID: Integer): TKMUnitGroup;
+function TKMUnitGroups.GetGroupByUID(aUID: Integer): TKMUnitGroup;
 var I: Integer;
 begin
   Result := nil;
   for I := 0 to Count-1 do
-    if aID = Groups[I].ID then
+    if aUID = Groups[I].UID then
     begin
       Result := Groups[I];
       Break;
@@ -1557,12 +1560,12 @@ begin
                    else
                    begin
                      //Create a new group with this one warrior
-                     Result := TKMUnitGroup.Create(fGame.GetNewID, aUnit);
+                     Result := TKMUnitGroup.Create(fGame.GetNewUID, aUnit);
                      fGroups.Add(Result);
                    end;
                  end;
     pt_Computer: begin
-                   Result := TKMUnitGroup.Create(fGame.GetNewID, aUnit);
+                   Result := TKMUnitGroup.Create(fGame.GetNewUID, aUnit);
                    fGroups.Add(Result);
                  end;
   end;

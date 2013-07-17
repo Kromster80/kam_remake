@@ -131,8 +131,8 @@ end;
 procedure TKMUnitWarrior.SyncLoad;
 begin
   inherited;
-  fOrderTargetUnit := TKMUnitWarrior(gPlayers.GetUnitByID(cardinal(fOrderTargetUnit)));
-  fOrderTargetHouse := gPlayers.GetHouseByID(cardinal(fOrderTargetHouse));
+  fOrderTargetUnit := TKMUnitWarrior(gPlayers.GetUnitByUID(cardinal(fOrderTargetUnit)));
+  fOrderTargetHouse := gPlayers.GetHouseByUID(cardinal(fOrderTargetHouse));
   if GetUnitAction is TUnitActionGoInOut then
     TUnitActionGoInOut(GetUnitAction).OnWalkedOut := WalkedOut;
 end;
@@ -451,11 +451,11 @@ begin
   SaveStream.Write(fOrder, SizeOf(fOrder));
   SaveStream.Write(fOrderLoc);
   if fOrderTargetHouse <> nil then
-    SaveStream.Write(fOrderTargetHouse.ID) //Store ID
+    SaveStream.Write(fOrderTargetHouse.UID) //Store ID
   else
     SaveStream.Write(Integer(0));
   if fOrderTargetUnit <> nil then
-    SaveStream.Write(fOrderTargetUnit.ID) //Store ID
+    SaveStream.Write(fOrderTargetUnit.UID) //Store ID
   else
     SaveStream.Write(Integer(0));
   SaveStream.Write(fRequestedFood);
@@ -742,7 +742,7 @@ begin
   UnitPos.X := fPosition.X + UNIT_OFF_X + GetSlide(ax_X);
   UnitPos.Y := fPosition.Y + UNIT_OFF_Y + GetSlide(ax_Y);
 
-  fRenderPool.AddUnit(fUnitType, fID, Act, Direction, AnimStep, UnitPos.X, UnitPos.Y, gPlayers[fOwner].FlagColor, True);
+  fRenderPool.AddUnit(fUnitType, fUID, Act, Direction, AnimStep, UnitPos.X, UnitPos.Y, gPlayers[fOwner].FlagColor, True);
 
   if fThought <> th_None then
     fRenderPool.AddUnitThought(fUnitType, Act, Direction, fThought, UnitPos.X, UnitPos.Y);

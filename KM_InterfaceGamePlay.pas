@@ -3675,13 +3675,13 @@ begin
   if not InRange(Key, 0, 9) then Exit;
 
   if aObject is TKMUnit then
-    fSelection[Key] := TKMUnit(aObject).ID
+    fSelection[Key] := TKMUnit(aObject).UID
   else
   if aObject is TKMHouse then
-    fSelection[Key] := TKMHouse(aObject).ID
+    fSelection[Key] := TKMHouse(aObject).UID
   else
   if aObject is TKMUnitGroup then
-    fSelection[Key] := TKMUnitGroup(aObject).ID
+    fSelection[Key] := TKMUnitGroup(aObject).UID
   else
     fSelection[Key] := -1;
 end;
@@ -3696,7 +3696,7 @@ begin
   if fSelection[Key] <> -1 then
   begin
     OldSelected := MySpectator.Selected;
-    MySpectator.Selected := gPlayers.GetUnitByID(fSelection[Key]);
+    MySpectator.Selected := gPlayers.GetUnitByUID(fSelection[Key]);
     if MySpectator.Selected <> nil then
     begin
       if TKMUnit(MySpectator.Selected).IsDeadOrDying then
@@ -3712,7 +3712,7 @@ begin
     end
     else
     begin
-      MySpectator.Selected := gPlayers.GetHouseByID(fSelection[Key]);
+      MySpectator.Selected := gPlayers.GetHouseByUID(fSelection[Key]);
       if MySpectator.Selected <> nil then
       begin
         if TKMHouse(MySpectator.Selected).IsDestroyed then
@@ -3726,7 +3726,7 @@ begin
       end
       else
       begin
-        MySpectator.Selected := gPlayers.GetGroupByID(fSelection[Key]);
+        MySpectator.Selected := gPlayers.GetGroupByUID(fSelection[Key]);
         if (MySpectator.Selected = nil) or TKMUnitGroup(MySpectator.Selected).IsDead then
         begin
           MySpectator.Selected := nil; //Don't select dead groups
@@ -3979,7 +3979,7 @@ var
   H: TKMHouse;
   MyRect: TRect;
 begin
-  fMyControls.MouseDown(X,Y,Shift,Button);
+  fMyControls.MouseDown(X, Y, Shift, Button);
 
   if (fGame.IsPaused and not fReplay) or (fMyControls.CtrlOver <> nil) then
     Exit;
@@ -4009,7 +4009,6 @@ begin
   end;
 
   //See if we can show DirectionSelector
-  //Can walk to ally units place, can't walk to house place anyway, unless it's a markup and allied
   if (Button = mbRight)
   and not fReplay
   and not HasLostMPGame
@@ -4020,8 +4019,12 @@ begin
     Group := TKMUnitGroup(MySpectator.Selected);
     if Group.Owner = MySpectator.PlayerIndex then
     begin
+      //Hittest target tile
       U := gTerrain.UnitsHitTest(GameCursor.Cell.X, GameCursor.Cell.Y);
       H := gPlayers.HousesHitTest(GameCursor.Cell.X, GameCursor.Cell.Y);
+
+      //Group can walk to ally units place
+      //Can't walk to house place anyway, unless it's a markup and allied
       if ((U = nil) or U.IsDeadOrDying or (gPlayers.CheckAlliance(MySpectator.PlayerIndex, U.Owner) = at_Ally)) and
          ((H = nil) or (gPlayers.CheckAlliance(MySpectator.PlayerIndex, H.Owner) = at_Ally)) then
       begin
@@ -4183,7 +4186,7 @@ begin
     Exit;
   end;
 
-  if GameCursor.ObjectId <> -1 then
+  if GameCursor.ObjectUID <> -1 then
   begin
     fResource.Cursors.Cursor := kmc_Info;
     Exit;
@@ -4254,7 +4257,7 @@ begin
         if fJoiningGroups and (MySpectator.Selected is TKMUnitGroup) then
         begin
           Group := TKMUnitGroup(MySpectator.Selected);
-          U := gPlayers[MySpectator.PlayerIndex].UnitsHitTest(P.X, P.Y); //Scan only teammates
+          U := gPlayers[MySpectator.PlayerIndex].Units.GetUnitByUID(GameCursor.ObjectUID);
           if (U is TKMUnitWarrior)
           and not U.IsDeadOrDying
           and not Group.HasMember(U)
@@ -4298,7 +4301,7 @@ begin
                   OldSelectedUnit := TKMUnitGroup(MySpectator.Selected).SelectedUnit;
 
                 //Allow to select any players assets in replay
-                MySpectator.SelectHitTest(P.X, P.Y);
+                MySpectator.SelectByUID(GameCursor.ObjectUID);
 
                 //In a replay we want in-game statistics (and other things) to be shown for the owner of the last select object
                 if fReplay then

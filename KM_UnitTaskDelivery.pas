@@ -40,10 +40,10 @@ begin
   inherited Create(aSerf);
   fTaskName := utn_Deliver;
 
-  Assert((aFrom <> nil) and (toHouse <> nil) and (Res <> wt_None), 'Serf ' + IntToStr(fUnit.ID) + ': invalid delivery task');
+  Assert((aFrom <> nil) and (toHouse <> nil) and (Res <> wt_None), 'Serf ' + IntToStr(fUnit.UID) + ': invalid delivery task');
 
   if WRITE_DELIVERY_LOG then
-    gLog.AddTime('Serf ' + IntToStr(fUnit.ID) + ' created delivery task ' + IntToStr(fDeliverID));
+    gLog.AddTime('Serf ' + IntToStr(fUnit.UID) + ' created delivery task ' + IntToStr(fDeliverID));
 
   fFrom    := aFrom.GetHousePointer;
   fToHouse := toHouse.GetHousePointer;
@@ -64,8 +64,8 @@ begin
   inherited Create(aSerf);
   fTaskName := utn_Deliver;
 
-  Assert((aFrom<>nil) and (toUnit<>nil) and ((toUnit is TKMUnitWarrior) or (toUnit is TKMUnitWorker)) and (Res <> wt_None), 'Serf '+inttostr(fUnit.ID)+': invalid delivery task');
-  if WRITE_DELIVERY_LOG then gLog.AddTime('Serf '+inttostr(fUnit.ID)+' created delivery task '+inttostr(fDeliverID));
+  Assert((aFrom<>nil) and (toUnit<>nil) and ((toUnit is TKMUnitWarrior) or (toUnit is TKMUnitWorker)) and (Res <> wt_None), 'Serf '+inttostr(fUnit.UID)+': invalid delivery task');
+  if WRITE_DELIVERY_LOG then gLog.AddTime('Serf '+inttostr(fUnit.UID)+' created delivery task '+inttostr(fDeliverID));
 
   fFrom    := aFrom.GetHousePointer;
   fToUnit  := toUnit.GetUnitPointer;
@@ -90,15 +90,15 @@ end;
 procedure TTaskDeliver.SyncLoad;
 begin
   inherited;
-  fFrom    := gPlayers.GetHouseByID(Cardinal(fFrom));
-  fToHouse := gPlayers.GetHouseByID(Cardinal(fToHouse));
-  fToUnit  := gPlayers.GetUnitByID(Cardinal(fToUnit));
+  fFrom    := gPlayers.GetHouseByUID(Cardinal(fFrom));
+  fToHouse := gPlayers.GetHouseByUID(Cardinal(fToHouse));
+  fToUnit  := gPlayers.GetUnitByUID(Cardinal(fToUnit));
 end;
 
 
 destructor TTaskDeliver.Destroy;
 begin
-  if WRITE_DELIVERY_LOG then gLog.AddTime('Serf '+inttostr(fUnit.ID)+' abandoned delivery task '+inttostr(fDeliverID)+' at phase ' + inttostr(fPhase));
+  if WRITE_DELIVERY_LOG then gLog.AddTime('Serf '+inttostr(fUnit.UID)+' abandoned delivery task '+inttostr(fDeliverID)+' at phase ' + inttostr(fPhase));
 
   if fDeliverID <> 0 then
     gPlayers[fUnit.Owner].Deliveries.Queue.AbandonDelivery(fDeliverID);
@@ -291,15 +291,15 @@ procedure TTaskDeliver.Save(SaveStream: TKMemoryStream);
 begin
   inherited;
   if fFrom <> nil then
-    SaveStream.Write(fFrom.ID) //Store ID, then substitute it with reference on SyncLoad
+    SaveStream.Write(fFrom.UID) //Store ID, then substitute it with reference on SyncLoad
   else
     SaveStream.Write(Integer(0));
   if fToHouse <> nil then
-    SaveStream.Write(fToHouse.ID) //Store ID, then substitute it with reference on SyncLoad
+    SaveStream.Write(fToHouse.UID) //Store ID, then substitute it with reference on SyncLoad
   else
     SaveStream.Write(Integer(0));
   if fToUnit <> nil then
-    SaveStream.Write(fToUnit.ID) //Store ID, then substitute it with reference on SyncLoad
+    SaveStream.Write(fToUnit.UID) //Store ID, then substitute it with reference on SyncLoad
   else
     SaveStream.Write(Integer(0));
   SaveStream.Write(fWareType, SizeOf(fWareType));

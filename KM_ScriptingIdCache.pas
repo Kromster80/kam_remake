@@ -17,18 +17,18 @@ type
     //3 separate bins used because we need to access class-specific fields (IsDead)
     //We employ circular buffers and store only position in buffer
     fUnitLastAdded: Byte;
-    fUnitCache: array [0..CACHE_SIZE-1] of record ID: Integer; U: TKMUnit; end;
+    fUnitCache: array [0..CACHE_SIZE-1] of record UID: Integer; U: TKMUnit; end;
     fHouseLastAdded: Byte;
-    fHouseCache: array[0..CACHE_SIZE-1] of record ID: Integer; H: TKMHouse; end;
+    fHouseCache: array[0..CACHE_SIZE-1] of record UID: Integer; H: TKMHouse; end;
     fGroupLastAdded: Byte;
-    fGroupCache: array[0..CACHE_SIZE-1] of record ID: Integer; G: TKMUnitGroup; end;
+    fGroupCache: array[0..CACHE_SIZE-1] of record UID: Integer; G: TKMUnitGroup; end;
   public
-    procedure CacheUnit(aUnit: TKMUnit; aID: Integer);
-    procedure CacheHouse(aHouse: TKMHouse; aID: Integer);
-    procedure CacheGroup(aGroup: TKMUnitGroup; aID: Integer);
-    function GetUnit(aID:Integer): TKMUnit;
-    function GetHouse(aID:Integer): TKMHouse;
-    function GetGroup(aID:Integer): TKMUnitGroup;
+    procedure CacheUnit(aUnit: TKMUnit; aUID: Integer);
+    procedure CacheHouse(aHouse: TKMHouse; aUID: Integer);
+    procedure CacheGroup(aGroup: TKMUnitGroup; aUID: Integer);
+    function GetUnit(aUID: Integer): TKMUnit;
+    function GetHouse(aUID: Integer): TKMHouse;
+    function GetGroup(aUID: Integer): TKMUnitGroup;
     procedure UpdateState;
   end;
 
@@ -38,19 +38,19 @@ uses KM_Game, KM_PlayersCollection;
 
 
 { TKMScriptingIdCache }
-procedure TKMScriptingIdCache.CacheUnit(aUnit: TKMUnit; aID: Integer);
+procedure TKMScriptingIdCache.CacheUnit(aUnit: TKMUnit; aUID: Integer);
 var I: ShortInt;
 begin
   for I := Low(fUnitCache) to High(fUnitCache) do
-  if fUnitCache[I].ID = aID then
+  if fUnitCache[I].UID = aUID then
     Exit; //Already in cache
 
   //We need to release pointer if we remove unit from cache
   if fUnitCache[fUnitLastAdded].U <> nil then
     gPlayers.CleanUpUnitPointer(fUnitCache[fUnitLastAdded].U);
 
-  fUnitCache[fUnitLastAdded].ID := aID;
-  //We could be asked to cache that certain ID is nil (saves us time scanning Units to find out that this Id is removed)
+  fUnitCache[fUnitLastAdded].UID := aUID;
+  //We could be asked to cache that certain UID is nil (saves us time scanning Units to find out that this UID is removed)
   if aUnit <> nil then
     fUnitCache[fUnitLastAdded].U := aUnit.GetUnitPointer
   else
@@ -60,19 +60,19 @@ begin
 end;
 
 
-procedure TKMScriptingIdCache.CacheHouse(aHouse: TKMHouse; aID: Integer);
+procedure TKMScriptingIdCache.CacheHouse(aHouse: TKMHouse; aUID: Integer);
 var I: ShortInt;
 begin
   for I := Low(fHouseCache) to High(fHouseCache) do
-  if fHouseCache[i].ID = aID then
+  if fHouseCache[i].UID = aUID then
     Exit; //Already in cache
 
   //We need to release pointer if we remove house from cache
   if fHouseCache[fHouseLastAdded].H <> nil then
     gPlayers.CleanUpHousePointer(fHouseCache[fHouseLastAdded].H);
 
-  fHouseCache[fHouseLastAdded].ID := aID;
-  //We could be asked to cache that certain ID is nil (saves us time scanning Houses to find out that this Id is removed)
+  fHouseCache[fHouseLastAdded].UID := aUID;
+  //We could be asked to cache that certain UID is nil (saves us time scanning Houses to find out that this UID is removed)
   if aHouse <> nil then
     fHouseCache[fHouseLastAdded].H := aHouse.GetHousePointer
   else
@@ -82,19 +82,19 @@ begin
 end;
 
 
-procedure TKMScriptingIdCache.CacheGroup(aGroup: TKMUnitGroup; aID: Integer);
+procedure TKMScriptingIdCache.CacheGroup(aGroup: TKMUnitGroup; aUID: Integer);
 var I: ShortInt;
 begin
   for I := Low(fGroupCache) to High(fGroupCache) do
-  if fGroupCache[I].ID = aID then
+  if fGroupCache[I].UID = aUID then
     Exit; //Already in cache
 
   //We need to release pointer if we remove group from cache
   if fGroupCache[fGroupLastAdded].G <> nil then
     gPlayers.CleanUpGroupPointer(fGroupCache[fGroupLastAdded].G);
 
-  fGroupCache[fGroupLastAdded].ID := aID;
-  //We could be asked to cache that certain ID is nil (saves us time scanning Groups to find out that this Id is removed)
+  fGroupCache[fGroupLastAdded].UID := aUID;
+  //We could be asked to cache that certain UID is nil (saves us time scanning Groups to find out that this UID is removed)
   if aGroup <> nil then
     fGroupCache[fGroupLastAdded].G := aGroup.GetGroupPointer
   else
@@ -104,11 +104,11 @@ begin
 end;
 
 
-function TKMScriptingIdCache.GetUnit(aID: Integer): TKMUnit;
+function TKMScriptingIdCache.GetUnit(aUID: Integer): TKMUnit;
 var I: ShortInt;
 begin
   for I := Low(fUnitCache) to High(fUnitCache) do
-  if fUnitCache[I].ID = aID then
+  if fUnitCache[I].UID = aUID then
   begin
     Result := fUnitCache[I].U;
     if (Result <> nil) and Result.IsDeadOrDying then
@@ -117,49 +117,49 @@ begin
   end;
 
   //Not found so do lookup and add it to the cache
-  Result := gPlayers.GetUnitByID(aID);
+  Result := gPlayers.GetUnitByUID(aUID);
   if (Result <> nil) and Result.IsDeadOrDying then
     Result := nil;
 
-  CacheUnit(Result, aID);
+  CacheUnit(Result, aUID);
 end;
 
 
-function TKMScriptingIdCache.GetHouse(aID:Integer): TKMHouse;
+function TKMScriptingIdCache.GetHouse(aUID:Integer): TKMHouse;
 var I: ShortInt;
 begin
   for I := Low(fHouseCache) to High(fHouseCache) do
-  if fHouseCache[I].ID = aID then
+  if fHouseCache[I].UID = aUID then
   begin
     Result := fHouseCache[I].H;
     Exit;
   end;
 
   //Not found so do lookup and add it to the cache
-  Result := gPlayers.GetHouseByID(aID);
+  Result := gPlayers.GetHouseByUID(aUID);
   if (Result <> nil) and Result.IsDestroyed then
     Result := nil;
 
-  CacheHouse(Result, aID);
+  CacheHouse(Result, aUID);
 end;
 
 
-function TKMScriptingIdCache.GetGroup(aID:Integer): TKMUnitGroup;
+function TKMScriptingIdCache.GetGroup(aUID: Integer): TKMUnitGroup;
 var I: ShortInt;
 begin
   for I := Low(fGroupCache) to High(fGroupCache) do
-  if fGroupCache[I].ID = aID then
+  if fGroupCache[I].UID = aUID then
   begin
     Result := fGroupCache[I].G;
     Exit;
   end;
 
   //Not found so do lookup and add it to the cache
-  Result := gPlayers.GetGroupByID(aID);
+  Result := gPlayers.GetGroupByUID(aUID);
   if (Result <> nil) and Result.IsDead then
     Result := nil;
 
-  CacheGroup(Result, aID);
+  CacheGroup(Result, aUID);
 end;
 
 
@@ -168,7 +168,7 @@ var
   I: ShortInt;
 begin
   //Clear out dead IDs every now and again
-  //Leave them in the cache as nils, because we still might need to lookup that ID
+  //Leave them in the cache as nils, because we still might need to lookup that UID
   if fGame.GameTickCount mod 11 = 0 then
   begin
     for I := Low(fUnitCache) to High(fUnitCache) do

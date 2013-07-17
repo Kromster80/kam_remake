@@ -34,7 +34,7 @@ type
 
   TKMHouse = class
   private
-    fID: Integer; //unique ID, used for save/load to sync to
+    fUID: Integer; //unique ID, used for save/load to sync to
     fHouseType: THouseType; //House type
 
     fBuildSupplyWood: Byte; //How much Wood was delivered to house building site
@@ -83,7 +83,7 @@ type
     DoorwayUse: Byte; //number of units using our door way. Used for sliding.
     OnDestroyed: TKMHouseFromEvent;
 
-    constructor Create(aID: Cardinal; aHouseType: THouseType; PosX, PosY: Integer; aOwner: TPlayerIndex; aBuildState: THouseBuildState);
+    constructor Create(aUID: Integer; aHouseType: THouseType; PosX, PosY: Integer; aOwner: TPlayerIndex; aBuildState: THouseBuildState);
     constructor Load(LoadStream: TKMemoryStream); virtual;
     procedure SyncLoad; virtual;
     destructor Destroy; override;
@@ -92,7 +92,7 @@ type
     property PointerCount: Cardinal read fPointerCount;
 
     procedure DemolishHouse(aFrom: TPlayerIndex; IsSilent: Boolean = False); virtual;
-    property ID: Integer read fID;
+    property UID: Integer read fUID;
 
     property GetPosition: TKMPoint read fPosition;
     procedure SetPosition(aPos: TKMPoint); //Used only by map editor
@@ -173,7 +173,7 @@ type
       EatStep: Cardinal;
     end;
   public
-    constructor Create(aID: Cardinal; aHouseType: THouseType; PosX, PosY: Integer; aOwner: TPlayerIndex; aBuildState: THouseBuildState);
+    constructor Create(aUID: Integer; aHouseType: THouseType; PosX, PosY: Integer; aOwner: TPlayerIndex; aBuildState: THouseBuildState);
     constructor Load(LoadStream: TKMemoryStream); override;
     function EaterGetsInside(aUnitType: TUnitType): Byte;
     procedure UpdateEater(aID: Byte; aFoodKind: TWareType);
@@ -193,7 +193,7 @@ type
     fTrainProgress: Byte; //Was it 150 steps in KaM?
   public
     Queue: array [0..5] of TUnitType; //Used in UI. First item is the unit currently being trained, 1..5 are the actual queue
-    constructor Create(aID: Cardinal; aHouseType: THouseType; PosX, PosY: Integer; aOwner: TPlayerIndex; aBuildState: THouseBuildState);
+    constructor Create(aUID: Integer; aHouseType: THouseType; PosX, PosY: Integer; aOwner: TPlayerIndex; aBuildState: THouseBuildState);
     constructor Load(LoadStream: TKMemoryStream); override;
     procedure SyncLoad; override;
     procedure DemolishHouse(aFrom: TPlayerIndex; IsSilent: Boolean = False); override;
@@ -239,7 +239,7 @@ type
     procedure SetWoodcutterMode(aWoodcutterMode: TWoodcutterMode);
   public
     property WoodcutterMode: TWoodcutterMode read fWoodcutterMode write SetWoodcutterMode;
-    constructor Create(aID: Cardinal; aHouseType: THouseType; PosX, PosY: Integer; aOwner: TPlayerIndex; aBuildState: THouseBuildState);
+    constructor Create(aUID: Integer; aHouseType: THouseType; PosX, PosY: Integer; aOwner: TPlayerIndex; aBuildState: THouseBuildState);
     constructor Load(LoadStream: TKMemoryStream); override;
     procedure Save(SaveStream: TKMemoryStream); override;
   end;
@@ -253,7 +253,7 @@ uses
 
 
 { TKMHouse }
-constructor TKMHouse.Create(aID: Cardinal; aHouseType: THouseType; PosX, PosY: Integer; aOwner: TPlayerIndex; aBuildState: THouseBuildState);
+constructor TKMHouse.Create(aUID: Integer; aHouseType: THouseType; PosX, PosY: Integer; aOwner: TPlayerIndex; aBuildState: THouseBuildState);
 var I: Byte;
 begin
   Assert((PosX <> 0) and (PosY <> 0)); // Can create only on map
@@ -290,7 +290,7 @@ begin
   fPointerCount     := 0;
   fTimeSinceUnoccupiedReminder   := TIME_BETWEEN_MESSAGES;
 
-  fID := aID;
+  fUID := aUID;
   ResourceDepletedMsgIssued := false;
 
   if aBuildState = hbs_Done then //House was placed on map already Built e.g. in mission maker
@@ -341,7 +341,7 @@ begin
   LoadStream.Read(fPointerCount);
   LoadStream.Read(fTimeSinceUnoccupiedReminder);
   LoadStream.Read(fDisableUnoccupiedMessage);
-  LoadStream.Read(fID);
+  LoadStream.Read(fUID);
   LoadStream.Read(HasAct);
   if HasAct then
   begin
@@ -356,7 +356,7 @@ end;
 procedure TKMHouse.SyncLoad;
 begin
   if fCurrentAction <> nil then
-    fCurrentAction.fHouse := gPlayers.GetHouseByID(Cardinal(fCurrentAction.fHouse));
+    fCurrentAction.fHouse := gPlayers.GetHouseByUID(Cardinal(fCurrentAction.fHouse));
 end;
 
 
@@ -1149,7 +1149,7 @@ begin
   SaveStream.Write(fPointerCount);
   SaveStream.Write(fTimeSinceUnoccupiedReminder);
   SaveStream.Write(fDisableUnoccupiedMessage);
-  SaveStream.Write(fID);
+  SaveStream.Write(fUID);
   HasAct := fCurrentAction <> nil;
   SaveStream.Write(HasAct);
   if HasAct then fCurrentAction.Save(SaveStream);
@@ -1265,12 +1265,12 @@ begin
     hbs_NoGlyph:; //Nothing
     hbs_Wood:   begin
                   Progress := fBuildingProgress / 50 / H.WoodCost;
-                  fRenderPool.AddHouse(fHouseType, fPosition, fID, Progress, 0, 0);
+                  fRenderPool.AddHouse(fHouseType, fPosition, fUID, Progress, 0, 0);
                   fRenderPool.AddHouseBuildSupply(fHouseType, fPosition, fBuildSupplyWood, fBuildSupplyStone);
                 end;
     hbs_Stone:  begin
                   Progress := (fBuildingProgress / 50 - H.WoodCost) / H.StoneCost;
-                  fRenderPool.AddHouse(fHouseType, fPosition, fID, 1, Progress, 0);
+                  fRenderPool.AddHouse(fHouseType, fPosition, fUID, 1, Progress, 0);
                   fRenderPool.AddHouseBuildSupply(fHouseType, fPosition, fBuildSupplyWood, fBuildSupplyStone);
                 end;
     else        begin
@@ -1278,15 +1278,15 @@ begin
                   if HOUSE_BUILDING_STEP = 0 then
                   begin
                     if fIsOnSnow then
-                      fRenderPool.AddHouse(fHouseType, fPosition, fID, 1, 1, fSnowStep)
+                      fRenderPool.AddHouse(fHouseType, fPosition, fUID, 1, 1, fSnowStep)
                     else
-                      fRenderPool.AddHouse(fHouseType, fPosition, fID, 1, 1, 0);
+                      fRenderPool.AddHouse(fHouseType, fPosition, fUID, 1, 1, 0);
                     fRenderPool.AddHouseSupply(fHouseType, fPosition, fResourceIn, fResourceOut);
                     if fCurrentAction <> nil then
-                      fRenderPool.AddHouseWork(fHouseType, fPosition, fID, fCurrentAction.SubAction, WorkAnimStep, gPlayers[fOwner].FlagColor);
+                      fRenderPool.AddHouseWork(fHouseType, fPosition, fUID, fCurrentAction.SubAction, WorkAnimStep, gPlayers[fOwner].FlagColor);
                   end
                   else
-                    fRenderPool.AddHouse(fHouseType, fPosition, fID,
+                    fRenderPool.AddHouse(fHouseType, fPosition, fUID,
                       Min(HOUSE_BUILDING_STEP * 3, 1),
                       EnsureRange(HOUSE_BUILDING_STEP * 3 - 1, 0, 1),
                       Max(HOUSE_BUILDING_STEP * 3 - 2, 0));
@@ -1364,20 +1364,20 @@ begin
 
   //But Animal Breeders should be on top of beasts
   if fCurrentAction <> nil then
-    fRenderPool.AddHouseWork(fHouseType, fPosition, fID,
+    fRenderPool.AddHouseWork(fHouseType, fPosition, fUID,
                             fCurrentAction.SubAction * [ha_Work1, ha_Work2, ha_Work3, ha_Work4, ha_Work5],
                             WorkAnimStep, gPlayers[fOwner].FlagColor);
 end;
 
 
 { TKMHouseInn }
-constructor TKMHouseInn.Create(aID: Cardinal; aHouseType: THouseType; PosX, PosY: Integer; aOwner: TPlayerIndex; aBuildState: THouseBuildState);
-var i:integer;
+constructor TKMHouseInn.Create(aUID: Integer; aHouseType: THouseType; PosX, PosY: Integer; aOwner: TPlayerIndex; aBuildState: THouseBuildState);
+var I: Integer;
 begin
   inherited;
 
-  for i:=Low(Eater) to High(Eater) do
-    Eater[i].UnitType := ut_None;
+  for I := Low(Eater) to High(Eater) do
+    Eater[I].UnitType := ut_None;
 end;
 
 
@@ -1481,7 +1481,7 @@ end;
 
 
 { TKMHouseSchool }
-constructor TKMHouseSchool.Create(aID: Cardinal; aHouseType: THouseType; PosX, PosY: Integer; aOwner: TPlayerIndex; aBuildState: THouseBuildState);
+constructor TKMHouseSchool.Create(aUID: Integer; aHouseType: THouseType; PosX, PosY: Integer; aOwner: TPlayerIndex; aBuildState: THouseBuildState);
 var I: Integer;
 begin
   inherited;
@@ -1504,7 +1504,7 @@ end;
 procedure TKMHouseSchool.SyncLoad;
 begin
   Inherited;
-  UnitWIP := gPlayers.GetUnitByID(Cardinal(UnitWIP));
+  UnitWIP := gPlayers.GetUnitByUID(Cardinal(UnitWIP));
 end;
 
 
@@ -1644,7 +1644,7 @@ procedure TKMHouseSchool.Save(SaveStream: TKMemoryStream);
 begin
   inherited;
   if TKMUnit(UnitWIP) <> nil then
-    SaveStream.Write(TKMUnit(UnitWIP).ID) //Store ID, then substitute it with reference on SyncLoad
+    SaveStream.Write(TKMUnit(UnitWIP).UID) //Store ID, then substitute it with reference on SyncLoad
   else
     SaveStream.Write(Integer(0));
   SaveStream.Write(fHideOneGold);
@@ -1794,7 +1794,7 @@ end;
 
 
 { TKMHouseWoodcutters }
-constructor TKMHouseWoodcutters.Create(aID: Cardinal; aHouseType: THouseType; PosX, PosY: Integer; aOwner: TPlayerIndex; aBuildState: THouseBuildState);
+constructor TKMHouseWoodcutters.Create(aUID: Integer; aHouseType: THouseType; PosX, PosY: Integer; aOwner: TPlayerIndex; aBuildState: THouseBuildState);
 begin
   inherited;
   WoodcutterMode := wcm_ChopAndPlant;
@@ -1870,7 +1870,7 @@ end;
 procedure THouseAction.Save(SaveStream: TKMemoryStream);
 begin
   if fHouse <> nil then
-    SaveStream.Write(fHouse.ID)
+    SaveStream.Write(fHouse.UID)
   else
     SaveStream.Write(Integer(0));
   SaveStream.Write(fHouseState, SizeOf(fHouseState));
@@ -1901,4 +1901,3 @@ end;
 
 
 end.
-

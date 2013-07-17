@@ -615,8 +615,8 @@ begin
   TestFunc := TKMEvent1I(fExec.GetProcAsMethodN('ONHOUSEBUILT'));
   if @TestFunc <> nil then
   begin
-    fIDCache.CacheHouse(aHouse, aHouse.ID); //Improves cache efficiency since aHouse will probably be accessed soon
-    TestFunc(aHouse.ID);
+    fIDCache.CacheHouse(aHouse, aHouse.UID); //Improves cache efficiency since aHouse will probably be accessed soon
+    TestFunc(aHouse.UID);
   end;
 end;
 
@@ -630,8 +630,8 @@ begin
   TestFunc := TKMEvent2I(fExec.GetProcAsMethodN('ONHOUSEDESTROYED'));
   if @TestFunc <> nil then
   begin
-    fIDCache.CacheHouse(aHouse, aHouse.ID); //Improves cache efficiency since aHouse will probably be accessed soon
-    TestFunc(aHouse.ID, aDestroyerIndex);
+    fIDCache.CacheHouse(aHouse, aHouse.UID); //Improves cache efficiency since aHouse will probably be accessed soon
+    TestFunc(aHouse.UID, aDestroyerIndex);
   end;
 end;
 
@@ -645,8 +645,8 @@ begin
   TestFunc := TKMEvent1I(fExec.GetProcAsMethodN('ONUNITTRAINED'));
   if @TestFunc <> nil then
   begin
-    fIDCache.CacheUnit(aUnit, aUnit.ID); //Improves cache efficiency since aUnit will probably be accessed soon
-    TestFunc(aUnit.ID);
+    fIDCache.CacheUnit(aUnit, aUnit.UID); //Improves cache efficiency since aUnit will probably be accessed soon
+    TestFunc(aUnit.UID);
   end;
 end;
 
@@ -660,8 +660,8 @@ begin
   TestFunc := TKMEvent2I(fExec.GetProcAsMethodN('ONUNITDIED'));
   if @TestFunc <> nil then
   begin
-    fIDCache.CacheUnit(aUnit, aUnit.ID); //Improves cache efficiency since aUnit will probably be accessed soon
-    TestFunc(aUnit.ID, aKillerOwner);
+    fIDCache.CacheUnit(aUnit, aUnit.UID); //Improves cache efficiency since aUnit will probably be accessed soon
+    TestFunc(aUnit.UID, aKillerOwner);
   end;
 end;
 
@@ -675,9 +675,9 @@ begin
   TestFunc := TKMEvent2I(fExec.GetProcAsMethodN('ONWARRIOREQUIPPED'));
   if @TestFunc <> nil then
   begin
-    fIDCache.CacheUnit(aUnit, aUnit.ID); //Improves cache efficiency since aUnit will probably be accessed soon
-    fIDCache.CacheGroup(aGroup, aGroup.ID);
-    TestFunc(aUnit.ID, aGroup.ID);
+    fIDCache.CacheUnit(aUnit, aUnit.UID); //Improves cache efficiency since aUnit will probably be accessed soon
+    fIDCache.CacheGroup(aGroup, aGroup.UID);
+    TestFunc(aUnit.UID, aGroup.UID);
   end;
 end;
 
