@@ -26,14 +26,11 @@ type
     procedure SetRenderFrame(RenderFrame:HWND; out h_DC: HDC; out h_RC: HGLRC);
     procedure SetRenderFrameAA(DummyFrame,RenderFrame:HWND; AntiAliasing:byte; out h_DC: HDC; out h_RC: HGLRC);
 
-    procedure SetRenderDefaults;
-    procedure CheckGLSLError(FormHandle:hWND; Handle: GLhandleARB; Param: GLenum; ShowWarnings:boolean; Text:string);
     procedure BuildFont(h_DC:HDC; FontSize:integer; FontWeight:word=FW_NORMAL);
     procedure glPrint(text: AnsiString);
     procedure glkScale(x:single);
     procedure glkQuad(Ax,Ay,Bx,By,Cx,Cy,Dx,Dy:single);
     procedure glkRect(Ax,Ay,Bx,By:single);
-    procedure glkMoveAALines(DoShift:boolean);
     procedure SetupVSync(aVSync:boolean);
 
 
@@ -222,41 +219,6 @@ begin
 end;
 
 
-procedure SetRenderDefaults;
-begin
-  glClearColor(0, 0, 0, 0); 	   //Background
-  glClearStencil(0);
-  glShadeModel(GL_SMOOTH);                 //Enables Smooth Color Shading
-  glPolygonMode(GL_FRONT, GL_FILL);
-  glEnable(GL_NORMALIZE);
-  glEnable(GL_BLEND);
-  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); //Set alpha mode
-  glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
-  glEnable(GL_COLOR_MATERIAL);                 //Enable Materials
-  glEnable(GL_TEXTURE_2D);                     // Enable Texture Mapping
-end;
-
-
-procedure CheckGLSLError(FormHandle:hWND; Handle: GLhandleARB; Param: GLenum; ShowWarnings:boolean; Text:string);
-var l,glsl_ok:GLint; s:PChar; i:integer; ShowMessage:boolean;
-begin
-  glGetObjectParameterivARB(Handle, Param, @glsl_ok);
-  s := StrAlloc(1000); //Allocate space
-  glGetInfoLogARB(Handle, StrBufSize(s), l, PGLcharARB(s));
-//Intent to hide all Warning messages
-  ShowMessage:=ShowWarnings;
-  for i:=1 to length(s) do
-  if (s[i]=#13)and(i+1<length(s)) then
-  if (s[i+1]<>'W')and(s[i+1]<>'L')and(not ShowMessage) then ShowMessage:=true;
-  if ShowMessage and (s[0]<>'') then
-  begin
-    s := StrPCopy(s,Text + StrPas(s));
-    MessageBox(HWND(nil), s,'GLSL Log', MB_OK);
-  end;
-  StrDispose(s); //Free-up space
-end;
-
-
 procedure BuildFont(h_DC:HDC; FontSize:integer; FontWeight:word=FW_NORMAL);
 var Font: HFONT;
 begin
@@ -307,19 +269,6 @@ begin
   glvertex2f(Bx,Ay);
   glvertex2f(Bx,By);
   glvertex2f(Ax,By);
-end;
-
-
-{Lines are drawn between pixels, thus when AA turned on they get blurred.
-We can negate this by using 0.5 offset
-Still it's unclear if that works on all GPUs the same..}
-//After we apply this command we can draw lines over pixels
-//when everythings done either shift back or PopMatrix
-procedure glkMoveAALines(DoShift:boolean);
-const Value=0.5;
-begin
-if DoShift then glTranslatef(Value,Value,0)
-           else glTranslatef(-Value,-Value,0);
 end;
 
 
