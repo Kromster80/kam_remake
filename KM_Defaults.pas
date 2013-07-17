@@ -83,6 +83,7 @@ var
   SHOW_TERRAIN_WIRES    :Boolean = False; //Makes terrain height visible
   SHOW_TERRAIN_PASS     :Byte = 0; //Byte(TPassability)
   SHOW_UNIT_ROUTES      :Boolean = False; //Draw unit routes
+  SHOW_SEL_BUFFER       :Boolean = False; //Display selection buffer
   SHOW_PROJECTILES      :Boolean = False; //Shows projectiles trajectory
   SHOW_POINTER_DOTS     :Boolean = False; //Show pointer count as small dots below unit/houses
   SHOW_GROUND_LINES     :Boolean = False; //Show a line below all sprites to mark the ground height used in Z-Order

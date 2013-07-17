@@ -3782,7 +3782,7 @@ begin
     if Marker.MarkerType <> mtNone then
       fResource.Cursors.Cursor := kmc_Info
     else
-    if MySpectator.HitTest(GameCursor.Cell.X, GameCursor.Cell.Y) <> nil then
+    if GameCursor.ObjectId <> -1 then
       fResource.Cursors.Cursor := kmc_Info
     else
       if not fGame.Viewport.Scrolling then

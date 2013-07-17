@@ -613,13 +613,26 @@ begin
   else
     fMainMenuInterface.Paint;
 
-  if fGame <> nil then
-    fGame.RenderSelection;
-
   fRender.RenderBrightness(GameSettings.Brightness);
+
+  if SHOW_SEL_BUFFER and (fGame <> nil) then
+    //Color-code render result assigned to GameCursor.ObjectId
+    fGame.RenderSelection(GameCursor.Pixel.X, fRender.ScreenY - GameCursor.Pixel.Y - 1);
 
   fRender.EndFrame;
 
+  //Selection buffer
+  if fGame <> nil then
+  begin
+    //Clear buffer
+    fRender.BeginFrame;
+
+    //Color-code render result assigned to GameCursor.ObjectId
+    fGame.RenderSelection(GameCursor.Pixel.X, fRender.ScreenY - GameCursor.Pixel.Y - 1);
+
+    if Assigned(fOnCursorUpdate) then
+      fOnCursorUpdate(3, 'Objects: ' + IntToStr(GameCursor.ObjectId));
+  end;
 end;
 
 

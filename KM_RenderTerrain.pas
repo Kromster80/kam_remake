@@ -16,6 +16,7 @@ type
   private
     fClipRect: TKMRect;
     fTextG: GLuint; //Shading gradient for lighting
+    fTextB: GLuint; //Contrast BW for FOW over color-coder
     fUseVBO: Boolean; //Wherever to render terrain through VBO (faster but needs GL1.5) or DrawCalls (slower but needs only GL1.1)
     fPos: array of TVertice;
     fInd: array of Integer;
@@ -39,7 +40,7 @@ type
     procedure RenderBase(aAnimStep: Integer; aFOW: TKMFogOfWarCommon);
     procedure RenderFences;
     procedure RenderPlayerPlans(aFieldsList: TKMPointTagList; aHousePlansList: TKMPointDirList);
-    procedure RenderFOW(aFOW: TKMFogOfWarCommon);
+    procedure RenderFOW(aFOW: TKMFogOfWarCommon; aUseContrast: Boolean);
     procedure RenderTile(Index: Byte; pX,pY,Rot: Integer);
   end;
 
@@ -64,6 +65,11 @@ begin
     pData[I] := EnsureRange(Round(I * 1.0625 - 16), 0, 255) * 65793 or $FF000000;
 
   fTextG := TRender.GenTexture(256, 1, @pData[0], tf_RGBA8);
+
+  //Sharp transition between black and white
+  pData[0] := $FF000000;
+  pData[1] := $00000000;
+  fTextB := TRender.GenTexture(2, 1, @pData[0], tf_RGBA8);
 
   fUseVBO := VBOSupported;
 
@@ -497,7 +503,7 @@ end;
 
 
 //Render FOW at once
-procedure TRenderTerrain.RenderFOW(aFOW: TKMFogOfWarCommon);
+procedure TRenderTerrain.RenderFOW(aFOW: TKMFogOfWarCommon; aUseContrast: Boolean);
 var
   I,K: Integer;
   Fog: PKMByte2Array;
@@ -505,8 +511,18 @@ begin
   if aFOW is TKMFogOfWarOpen then Exit;
 
   glColor4f(1, 1, 1, 1);
-  glBlendFunc(GL_ZERO, GL_SRC_COLOR);
-  glBindTexture(GL_TEXTURE_2D, fTextG);
+
+  if aUseContrast then
+  begin
+    //Hide everything behind FOW with a sharp transition
+    glColor4f(0, 0, 0, 1);
+    glBindTexture(GL_TEXTURE_2D, fTextB);
+  end
+  else
+  begin
+    glBlendFunc(GL_ZERO, GL_SRC_COLOR);
+    glBindTexture(GL_TEXTURE_2D, fTextG);
+  end;
 
   if fUseVBO then
   begin

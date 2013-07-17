@@ -4183,7 +4183,7 @@ begin
     Exit;
   end;
 
-  if MySpectator.HitTest(GameCursor.Cell.X, GameCursor.Cell.Y) <> nil then
+  if GameCursor.ObjectId <> -1 then
   begin
     fResource.Cursors.Cursor := kmc_Info;
     Exit;

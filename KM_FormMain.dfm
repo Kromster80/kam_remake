@@ -155,9 +155,9 @@ object FormMain: TFormMain
     end
     object GroupBox3: TGroupBox
       Left = 8
-      Top = 328
+      Top = 336
       Width = 177
-      Height = 65
+      Height = 57
       Caption = ' User Interface '
       TabOrder = 4
       object chkUIControlsBounds: TCheckBox
@@ -219,9 +219,9 @@ object FormMain: TFormMain
     end
     object GroupBox2: TGroupBox
       Left = 8
-      Top = 184
+      Top = 200
       Width = 177
-      Height = 145
+      Height = 137
       Caption = ' AI '
       TabOrder = 3
       object Label5: TLabel
@@ -320,7 +320,7 @@ object FormMain: TFormMain
       Left = 8
       Top = 104
       Width = 177
-      Height = 81
+      Height = 97
       Caption = ' Debug render '
       TabOrder = 6
       object Label2: TLabel
@@ -359,6 +359,15 @@ object FormMain: TFormMain
         Height = 17
         Caption = 'Show terrain wires'
         TabOrder = 2
+        OnClick = ControlsUpdate
+      end
+      object chkSelectionBuffer: TCheckBox
+        Left = 8
+        Top = 72
+        Width = 121
+        Height = 17
+        Caption = 'Show selection buffer'
+        TabOrder = 3
         OnClick = ControlsUpdate
       end
     end

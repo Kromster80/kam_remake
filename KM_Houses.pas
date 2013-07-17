@@ -1283,7 +1283,7 @@ begin
                       fRenderPool.AddHouse(fHouseType, fPosition, fID, 1, 1, 0);
                     fRenderPool.AddHouseSupply(fHouseType, fPosition, fResourceIn, fResourceOut);
                     if fCurrentAction <> nil then
-                      fRenderPool.AddHouseWork(fHouseType, fPosition, fCurrentAction.SubAction, WorkAnimStep, gPlayers[fOwner].FlagColor);
+                      fRenderPool.AddHouseWork(fHouseType, fPosition, fID, fCurrentAction.SubAction, WorkAnimStep, gPlayers[fOwner].FlagColor);
                   end
                   else
                     fRenderPool.AddHouse(fHouseType, fPosition, fID,
@@ -1352,19 +1352,19 @@ end;
 
 
 procedure TKMHouseSwineStable.Paint;
-var i:integer;
+var I: Integer;
 begin
   inherited;
   //We render beasts on top of the HouseWork (which is mostly flames in this case), because otherwise
   //Swinefarm looks okay, but Stables are totaly wrong - flames are right on horses backs!
-  if fBuildState=hbs_Done then
-    for i:=1 to 5 do
-      if BeastAge[i]>0 then
-        fRenderPool.AddHouseStableBeasts(fHouseType, fPosition, i, min(BeastAge[i],3), WorkAnimStep);
+  if fBuildState = hbs_Done then
+    for I := 1 to 5 do
+      if BeastAge[I] > 0 then
+        fRenderPool.AddHouseStableBeasts(fHouseType, fPosition, I, Min(BeastAge[I],3), WorkAnimStep);
 
   //But Animal Breeders should be on top of beasts
-  if fCurrentAction<>nil then
-    fRenderPool.AddHouseWork(fHouseType, fPosition,
+  if fCurrentAction <> nil then
+    fRenderPool.AddHouseWork(fHouseType, fPosition, fID,
                             fCurrentAction.SubAction * [ha_Work1, ha_Work2, ha_Work3, ha_Work4, ha_Work5],
                             WorkAnimStep, gPlayers[fOwner].FlagColor);
 end;

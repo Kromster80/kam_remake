@@ -167,7 +167,7 @@ type
     procedure ReplayInconsistancy;
 
     procedure Render(aRender: TRender);
-    procedure RenderSelection;
+    procedure RenderSelection(X, Y: Integer);
     procedure UpdateGame(Sender: TObject);
     procedure UpdateState(aGlobalTickCount: Cardinal);
     procedure UpdateStateIdle(aFrameTime: Cardinal);
@@ -919,9 +919,9 @@ begin
 end;
 
 
-procedure TKMGame.RenderSelection;
+procedure TKMGame.RenderSelection(X, Y: Integer);
 begin
-  fRenderPool.RenderSelection;
+  GameCursor.ObjectId := fRenderPool.RenderSelection(X, Y);
 end;
 
 
@@ -1042,6 +1042,9 @@ procedure TKMGame.UpdateGameCursor(X, Y: Integer; Shift: TShiftState);
 begin
   with GameCursor do
   begin
+    Pixel.X := X;
+    Pixel.Y := Y;
+
     Float.X := fViewport.Position.X + (X-fViewport.ViewRect.Right/2-TOOLBAR_WIDTH/2)/CELL_SIZE_PX/fViewport.Zoom;
     Float.Y := fViewport.Position.Y + (Y-fViewport.ViewRect.Bottom/2)/CELL_SIZE_PX/fViewport.Zoom;
     Float.Y := gTerrain.ConvertCursorToMapCoord(Float.X,Float.Y);
@@ -1075,11 +1078,11 @@ end;
 function TKMGame.GetNewID: Cardinal;
 const
   //Prime numbers let us generate sequence of non-repeating values of max_value length
-  //Keep within positive Integer, since we return -1 for no value in scripts
-  max_value = 795028841;
-  step = 360287471;
+  //Keep within positive 24bit, since we colorcode in RGB
+  max_value = 16777213;
+  step = 8765423;
 begin
-  fIDTracker := (fIDTracker + step) mod max_value;
+  fIDTracker := (fIDTracker + step) mod max_value + 1; //1..N range, 0 is nothing for colorpicker
   Result := fIDTracker;
 end;
 

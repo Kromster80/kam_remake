@@ -733,7 +733,7 @@ begin
   if fUnitTask is TTaskDie then exit; //Do not show unnecessary arms
 
   if Carry <> wt_None then
-    fRenderPool.AddUnitCarry(Carry, Direction, AnimStep, XPaintPos, YPaintPos)
+    fRenderPool.AddUnitCarry(Carry, fID, Direction, AnimStep, XPaintPos, YPaintPos)
   else
     fRenderPool.AddUnit(UnitType, fID, ua_WalkArm, Direction, AnimStep, XPaintPos, YPaintPos, gPlayers[fOwner].FlagColor, false);
 

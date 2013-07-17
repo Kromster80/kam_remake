@@ -78,6 +78,7 @@ type
     chkShowWires: TCheckBox;
     tbAngleZ: TTrackBar;
     Label7: TLabel;
+    chkSelectionBuffer: TCheckBox;
     procedure Export_TreeAnim1Click(Sender: TObject);
     procedure MenuItem1Click(Sender: TObject);
     procedure FormKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
@@ -494,6 +495,7 @@ begin
     SHOW_TERRAIN_PASS := I;
     SHOW_TERRAIN_WIRES := chkShowWires.Checked;
     SHOW_UNIT_ROUTES := chkShowRoutes.Checked;
+    SHOW_SEL_BUFFER := chkSelectionBuffer.Checked;
   end;
 
   //AI
