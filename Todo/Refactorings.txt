@@ -15,5 +15,3 @@ Replace indexing of terrain and net parts from 1..N to a convenient 0..N-1
 Tryout displaying 3D objects on terrain
 See about adding achievements to the game
 Try out making roadfinder aware of houses it connects (to prefer relevant houses)
-Remove intermediate strings from Net message processing, use streams instead
-Separate textLibraries for Campaign and Mission that could be saved to savegame along (savegame should be self-sufficient)

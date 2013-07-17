@@ -24,7 +24,7 @@
 	Woodcutter would cut a missing tree on a corn field (replaced with corn while he is chopping)
 	Look into translating texts returned from Net status and others that are hardcoded in 3rd party libs we use (pas files)
 	Towers attack range is uneven (should be measured from towers middle, not the recruit location in BR corner)
-	Set random seed randomly on fGame.Create (for MP it needs to be decided by host and synced before the game starts)
+	When citizen walks into a house he should be deselected
 
 	Water looks ugly brown when you zoom out too far due to water tiles having brown checkerboard pattern (anti-aliasing won't help)
 	Wooden house frames flicking on Onboard Intel HD Family Chipset (see images "Hidden House Frame Intel Onboard 1.jpg")
@@ -77,6 +77,7 @@ Improvements:
 	M	Archers should not change formations when group members get killed while under attack
 	L	Allow to block wares delivery into armor workshop, so that player could focus each on certain task (shields or armors)
 	L	Keep road bends when neighbour road is destroyed (e.g. house entrances)
+	L	Set random seed randomly on fGame.Create (for MP it needs to be decided by host and synced before the game starts)
 
 	L	MapEd: Allow to toggle trees/objects opacity (make them partially visible) [Marcin]
 	L	MapEd: Allow to toggle AI defence positions display
