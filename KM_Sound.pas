@@ -33,9 +33,6 @@ type
 
     fSoundGain:single; //aka "Global volume"
     fMusicIsFaded:boolean;
-    fNotificationSoundCount: array[TAttackNotification] of byte;
-    fWarriorSoundCount: array[WARRIOR_MIN..WARRIOR_MAX, TWarriorSpeech] of byte;
-    fWarriorUseBackup: array[WARRIOR_MIN..WARRIOR_MAX] of boolean;
 
     fOnFadeMusic:TNotifyEvent;
     fOnUnfadeMusic:TNotifyEvent;
@@ -441,7 +438,7 @@ var Wave: string; Count: Byte;
 begin
   if SKIP_SOUND or not fIsSoundInitialized then Exit;
 
-  Count := fNotificationSoundCount[aSound];
+  Count := fResource.Sounds.NotificationSoundCount[aSound];
 
   Wave := fResource.Sounds.FileOfNotification(aSound, Random(Count));
   if FileExists(Wave) then
@@ -474,7 +471,7 @@ begin
   if SKIP_SOUND or not fIsSoundInitialized then Exit;
   if not (aUnitType in [WARRIOR_MIN..WARRIOR_MAX]) then Exit;
 
-  Count := fWarriorSoundCount[aUnitType, aSound];
+  Count := fResource.Sounds.WarriorSoundCount[aUnitType, aSound];
 
   HasLoc := not KMSamePointF(aLoc, KMPointF(0,0));
   Wave := fResource.Sounds.FileOfWarrior(aUnitType, aSound, Random(Count));

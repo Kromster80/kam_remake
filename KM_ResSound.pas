@@ -111,8 +111,6 @@ type
   private
     fLocaleString: AnsiString; //Locale used to access warrior sounds
 
-    fNotificationSoundCount: array[TAttackNotification] of byte;
-    fWarriorSoundCount: array[WARRIOR_MIN..WARRIOR_MAX, TWarriorSpeech] of byte;
     fWarriorUseBackup: array[WARRIOR_MIN..WARRIOR_MAX] of boolean;
 
     procedure LoadSoundsDAT;
@@ -122,6 +120,9 @@ type
   public
     fWavesCount: integer;
     fWaves: array of TKMSoundData;
+
+    NotificationSoundCount: array[TAttackNotification] of byte;
+    WarriorSoundCount: array[WARRIOR_MIN..WARRIOR_MAX, TWarriorSpeech] of byte;
 
     constructor Create(aLocale, aFallback, aDefault: AnsiString);
     destructor Destroy; override;
@@ -339,8 +340,8 @@ begin
   SpeechPath := ExeDir + 'data' + PathDelim + 'sfx' + PathDelim + 'speech.' + fLocaleString + PathDelim;
 
   //Reset counts from previous locale/unsuccessful load
-  FillChar(fWarriorSoundCount, SizeOf(fWarriorSoundCount), #0);
-  FillChar(fNotificationSoundCount, SizeOf(fNotificationSoundCount), #0);
+  FillChar(WarriorSoundCount, SizeOf(WarriorSoundCount), #0);
+  FillChar(NotificationSoundCount, SizeOf(NotificationSoundCount), #0);
   FillChar(fWarriorUseBackup, SizeOf(fWarriorUseBackup), #0);
 
   if not DirectoryExists(SpeechPath) then Exit;
@@ -361,7 +362,7 @@ begin
       for I := 0 to 255 do
         if not FileExists(FileOfWarrior(U, WS, I)) then
         begin
-          fWarriorSoundCount[U, WS] := I;
+          WarriorSoundCount[U, WS] := I;
           Break;
         end;
 
@@ -370,7 +371,7 @@ begin
     for I := 0 to 255 do
       if not FileExists(FileOfNotification(AN, I)) then
       begin
-        fNotificationSoundCount[AN] := I;
+        NotificationSoundCount[AN] := I;
         Break;
       end;
 
@@ -393,9 +394,9 @@ begin
     MS.Read(S);
     if S = GAME_VERSION then
     begin
-      MS.Read(fWarriorSoundCount, SizeOf(fWarriorSoundCount));
+      MS.Read(WarriorSoundCount, SizeOf(WarriorSoundCount));
       MS.Read(fWarriorUseBackup, SizeOf(fWarriorUseBackup));
-      MS.Read(fNotificationSoundCount, SizeOf(fNotificationSoundCount));
+      MS.Read(NotificationSoundCount, SizeOf(NotificationSoundCount));
       Result := True;
     end;
   finally
@@ -411,9 +412,9 @@ begin
   MS := TKMemoryStream.Create;
   try
     MS.Write(AnsiString(GAME_VERSION));
-    MS.Write(fWarriorSoundCount, SizeOf(fWarriorSoundCount));
+    MS.Write(WarriorSoundCount, SizeOf(WarriorSoundCount));
     MS.Write(fWarriorUseBackup, SizeOf(fWarriorUseBackup));
-    MS.Write(fNotificationSoundCount, SizeOf(fNotificationSoundCount));
+    MS.Write(NotificationSoundCount, SizeOf(NotificationSoundCount));
     MS.SaveToFile(aFile);
   finally
     MS.Free;
