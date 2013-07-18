@@ -61,7 +61,7 @@ type
     destructor Destroy; override;
 
     procedure Show;
-    procedure UpdateState(aTickCount: Cardinal);
+    procedure UpdateState;
   end;
 
 
