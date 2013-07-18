@@ -50,6 +50,9 @@ object FormMain: TFormMain
       item
         Text = '50.0 fps (50)'
         Width = 80
+      end
+      item
+        Width = 50
       end>
   end
   object GroupBox1: TGroupBox
@@ -59,12 +62,12 @@ object FormMain: TFormMain
     Height = 489
     Anchors = [akTop, akRight]
     Caption = ' Development controls '
-    TabOrder = 2
+    TabOrder = 1
     object GroupBox4: TGroupBox
       Left = 8
       Top = 392
       Width = 177
-      Height = 81
+      Height = 89
       Caption = ' Graphics tweaks '
       TabOrder = 5
       object Label3: TLabel
@@ -83,10 +86,17 @@ object FormMain: TFormMain
       end
       object Label1: TLabel
         Left = 100
-        Top = 56
+        Top = 64
         Width = 60
         Height = 13
         Caption = 'Building step'
+      end
+      object Label7: TLabel
+        Left = 100
+        Top = 48
+        Width = 27
+        Height = 13
+        Caption = 'Angle'
       end
       object tbAngleX: TTrackBar
         Left = 4
@@ -94,7 +104,9 @@ object FormMain: TFormMain
         Width = 95
         Height = 17
         Max = 90
-        PageSize = 1
+        Min = -90
+        PageSize = 5
+        Frequency = 5
         TabOrder = 0
         ThumbLength = 14
         TickMarks = tmBoth
@@ -107,7 +119,9 @@ object FormMain: TFormMain
         Width = 95
         Height = 17
         Max = 90
-        PageSize = 1
+        Min = -90
+        PageSize = 5
+        Frequency = 5
         TabOrder = 1
         ThumbLength = 14
         TickMarks = tmBoth
@@ -116,7 +130,7 @@ object FormMain: TFormMain
       end
       object tbBuildingStep: TTrackBar
         Left = 4
-        Top = 56
+        Top = 64
         Width = 95
         Height = 17
         Max = 100
@@ -126,12 +140,27 @@ object FormMain: TFormMain
         TickStyle = tsNone
         OnChange = ControlsUpdate
       end
+      object tbAngleZ: TTrackBar
+        Left = 4
+        Top = 48
+        Width = 95
+        Height = 17
+        Max = 90
+        Min = -90
+        PageSize = 5
+        Frequency = 5
+        TabOrder = 3
+        ThumbLength = 14
+        TickMarks = tmBoth
+        TickStyle = tsNone
+        OnChange = ControlsUpdate
+      end
     end
     object GroupBox3: TGroupBox
       Left = 8
-      Top = 328
+      Top = 336
       Width = 177
-      Height = 65
+      Height = 57
       Caption = ' User Interface '
       TabOrder = 4
       object chkUIControlsBounds: TCheckBox
@@ -193,9 +222,9 @@ object FormMain: TFormMain
     end
     object GroupBox2: TGroupBox
       Left = 8
-      Top = 184
+      Top = 200
       Width = 177
-      Height = 145
+      Height = 137
       Caption = ' AI '
       TabOrder = 3
       object Label5: TLabel
@@ -204,6 +233,7 @@ object FormMain: TFormMain
         Width = 32
         Height = 13
         Caption = 'Margin'
+        Visible = False
       end
       object Label6: TLabel
         Left = 108
@@ -211,6 +241,7 @@ object FormMain: TFormMain
         Width = 47
         Height = 13
         Caption = 'Threshold'
+        Visible = False
       end
       object chkShowOwnership: TCheckBox
         Left = 8
@@ -260,6 +291,7 @@ object FormMain: TFormMain
         ThumbLength = 14
         TickMarks = tmBoth
         TickStyle = tsNone
+        Visible = False
         OnChange = ControlsUpdate
       end
       object tbOwnThresh: TTrackBar
@@ -274,6 +306,7 @@ object FormMain: TFormMain
         ThumbLength = 14
         TickMarks = tmBoth
         TickStyle = tsNone
+        Visible = False
         OnChange = ControlsUpdate
       end
       object chkShowDefences: TCheckBox
@@ -290,7 +323,7 @@ object FormMain: TFormMain
       Left = 8
       Top = 104
       Width = 177
-      Height = 81
+      Height = 97
       Caption = ' Debug render '
       TabOrder = 6
       object Label2: TLabel
@@ -329,6 +362,15 @@ object FormMain: TFormMain
         Height = 17
         Caption = 'Show terrain wires'
         TabOrder = 2
+        OnClick = ControlsUpdate
+      end
+      object chkSelectionBuffer: TCheckBox
+        Left = 8
+        Top = 72
+        Width = 121
+        Height = 17
+        Caption = 'Show selection buffer'
+        TabOrder = 3
         OnClick = ControlsUpdate
       end
     end
@@ -396,10 +438,6 @@ object FormMain: TFormMain
         object Export_Fonts1: TMenuItem
           Caption = 'Fonts'
           OnClick = Export_Fonts1Click
-        end
-        object Export_Text: TMenuItem
-          Caption = 'Texts'
-          OnClick = Export_TextClick
         end
         object Export_Sounds1: TMenuItem
           Caption = 'Sounds'

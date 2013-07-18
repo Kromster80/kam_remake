@@ -38,7 +38,7 @@
         <PackageName Value="LCL"/>
       </Item1>
     </RequiredPackages>
-    <Units Count="132">
+    <Units Count="133">
       <Unit0>
         <Filename Value="KaM_Remake.dpr"/>
         <IsPartOfProject Value="True"/>
@@ -104,7 +104,7 @@
         <Filename Value="KM_Campaigns.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="KM_Campaigns"/>
-        <EditorIndex Value="21"/>
+        <EditorIndex Value="22"/>
         <WindowIndex Value="0"/>
         <TopLine Value="33"/>
         <CursorPos X="14" Y="50"/>
@@ -136,7 +136,7 @@
         <Filename Value="KM_Controls.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="KM_Controls"/>
-        <EditorIndex Value="17"/>
+        <EditorIndex Value="18"/>
         <WindowIndex Value="0"/>
         <TopLine Value="681"/>
         <CursorPos X="11" Y="684"/>
@@ -148,7 +148,7 @@
         <Filename Value="KM_DedicatedServer.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="KM_DedicatedServer"/>
-        <EditorIndex Value="26"/>
+        <EditorIndex Value="27"/>
         <WindowIndex Value="0"/>
         <TopLine Value="16"/>
         <CursorPos X="14" Y="34"/>
@@ -182,6 +182,7 @@
         <Filename Value="KM_FogOfWar.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="KM_FogOfWar"/>
+        <IsVisibleTab Value="True"/>
         <EditorIndex Value="9"/>
         <WindowIndex Value="0"/>
         <TopLine Value="46"/>
@@ -341,7 +342,7 @@
         <Filename Value="KM_Log.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="KM_Log"/>
-        <EditorIndex Value="23"/>
+        <EditorIndex Value="24"/>
         <WindowIndex Value="0"/>
         <TopLine Value="110"/>
         <CursorPos X="56" Y="112"/>
@@ -422,7 +423,7 @@
         <Filename Value="KM_Networking.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="KM_Networking"/>
-        <EditorIndex Value="22"/>
+        <EditorIndex Value="23"/>
         <WindowIndex Value="0"/>
         <TopLine Value="166"/>
         <CursorPos X="14" Y="183"/>
@@ -563,7 +564,7 @@
         <Filename Value="KM_Resource.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="KM_Resource"/>
-        <EditorIndex Value="20"/>
+        <EditorIndex Value="21"/>
         <WindowIndex Value="0"/>
         <TopLine Value="92"/>
         <CursorPos X="62" Y="111"/>
@@ -675,7 +676,7 @@
         <Filename Value="KM_Settings.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="KM_Settings"/>
-        <EditorIndex Value="18"/>
+        <EditorIndex Value="19"/>
         <WindowIndex Value="0"/>
         <TopLine Value="439"/>
         <CursorPos X="3" Y="443"/>
@@ -777,7 +778,7 @@
         <Filename Value="KM_UnitActionWalkTo.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="KM_UnitActionWalkTo"/>
-        <EditorIndex Value="15"/>
+        <EditorIndex Value="16"/>
         <WindowIndex Value="0"/>
         <TopLine Value="668"/>
         <CursorPos X="3" Y="674"/>
@@ -956,14 +957,14 @@
       <Unit89>
         <Filename Value="KM_FormMain.pas"/>
         <IsPartOfProject Value="True"/>
-        <ComponentName Value="Form1"/>
+        <ComponentName Value="FormMain"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
         <UnitName Value="KM_FormMain"/>
         <EditorIndex Value="8"/>
         <WindowIndex Value="0"/>
         <TopLine Value="92"/>
-        <CursorPos X="46" Y="113"/>
+        <CursorPos X="25" Y="99"/>
         <UsageCount Value="22"/>
         <Loaded Value="True"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
@@ -1066,7 +1067,7 @@
         <Filename Value="KM_FormMain.lfm"/>
         <WindowIndex Value="0"/>
         <TopLine Value="1"/>
-        <CursorPos X="45" Y="18"/>
+        <CursorPos X="40" Y="9"/>
         <UsageCount Value="10"/>
         <DefaultSyntaxHighlighter Value="LFM"/>
       </Unit102>
@@ -1165,7 +1166,7 @@
         <Filename Value="KM_RenderPool.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="KM_RenderPool"/>
-        <EditorIndex Value="16"/>
+        <EditorIndex Value="17"/>
         <WindowIndex Value="0"/>
         <TopLine Value="90"/>
         <CursorPos X="88" Y="90"/>
@@ -1256,7 +1257,7 @@
       <Unit126>
         <Filename Value="KM_FileIO.pas"/>
         <UnitName Value="KM_FileIO"/>
-        <EditorIndex Value="19"/>
+        <EditorIndex Value="20"/>
         <WindowIndex Value="0"/>
         <TopLine Value="1"/>
         <CursorPos X="3" Y="5"/>
@@ -1267,7 +1268,7 @@
       <Unit127>
         <Filename Value="KM_CommonTypes.pas"/>
         <UnitName Value="KM_CommonTypes"/>
-        <EditorIndex Value="27"/>
+        <EditorIndex Value="28"/>
         <WindowIndex Value="0"/>
         <TopLine Value="1"/>
         <CursorPos X="3" Y="17"/>
@@ -1278,7 +1279,7 @@
       <Unit128>
         <Filename Value="KM_GUIMenuLobby.pas"/>
         <UnitName Value="KM_GUIMenuLobby"/>
-        <EditorIndex Value="24"/>
+        <EditorIndex Value="25"/>
         <WindowIndex Value="0"/>
         <TopLine Value="1388"/>
         <CursorPos X="72" Y="1391"/>
@@ -1289,7 +1290,7 @@
       <Unit129>
         <Filename Value="KM_GameApp.pas"/>
         <UnitName Value="KM_GameApp"/>
-        <EditorIndex Value="25"/>
+        <EditorIndex Value="26"/>
         <WindowIndex Value="0"/>
         <TopLine Value="523"/>
         <CursorPos X="71" Y="538"/>
@@ -1311,135 +1312,145 @@
       <Unit131>
         <Filename Value="KM_PlayerSpectator.pas"/>
         <UnitName Value="KM_PlayerSpectator"/>
-        <IsVisibleTab Value="True"/>
         <EditorIndex Value="14"/>
         <WindowIndex Value="0"/>
         <TopLine Value="27"/>
-        <CursorPos X="37" Y="46"/>
+        <CursorPos X="1" Y="38"/>
         <UsageCount Value="10"/>
         <Loaded Value="True"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit131>
+      <Unit132>
+        <Filename Value="KM_HouseMarket.pas"/>
+        <UnitName Value="KM_HouseMarket"/>
+        <EditorIndex Value="15"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="3"/>
+        <CursorPos X="55" Y="13"/>
+        <UsageCount Value="10"/>
+        <Loaded Value="True"/>
+        <DefaultSyntaxHighlighter Value="Delphi"/>
+      </Unit132>
     </Units>
     <JumpHistory Count="30" HistoryIndex="29">
       <Position1>
-        <Filename Value="KM_Game.pas"/>
-        <Caret Line="576" Column="53" TopLine="557"/>
-      </Position1>
-      <Position2>
         <Filename Value="KM_InterfaceGamePlay.pas"/>
         <Caret Line="384" Column="53" TopLine="368"/>
+      </Position1>
+      <Position2>
+        <Filename Value="KM_Game.pas"/>
+        <Caret Line="576" Column="53" TopLine="557"/>
       </Position2>
       <Position3>
         <Filename Value="KM_Game.pas"/>
-        <Caret Line="576" Column="53" TopLine="557"/>
+        <Caret Line="579" Column="35" TopLine="561"/>
       </Position3>
       <Position4>
         <Filename Value="KM_Game.pas"/>
-        <Caret Line="579" Column="35" TopLine="561"/>
+        <Caret Line="65" Column="58" TopLine="48"/>
       </Position4>
       <Position5>
-        <Filename Value="KM_Game.pas"/>
-        <Caret Line="65" Column="58" TopLine="48"/>
-      </Position5>
-      <Position6>
         <Filename Value="KM_Main.pas"/>
         <Caret Line="290" Column="57" TopLine="270"/>
-      </Position6>
-      <Position7>
+      </Position5>
+      <Position6>
         <Filename Value="KaM_Remake.dpr"/>
         <Caret Line="103" Column="39" TopLine="91"/>
-      </Position7>
-      <Position8>
+      </Position6>
+      <Position7>
         <Filename Value="KM_FormMain.pas"/>
         <Caret Line="473" Column="57" TopLine="460"/>
+      </Position7>
+      <Position8>
+        <Filename Value="KaM_Remake.dpr"/>
+        <Caret Line="147" Column="72" TopLine="120"/>
       </Position8>
       <Position9>
         <Filename Value="KaM_Remake.dpr"/>
-        <Caret Line="147" Column="72" TopLine="120"/>
+        <Caret Line="162" Column="1" TopLine="120"/>
       </Position9>
       <Position10>
         <Filename Value="KaM_Remake.dpr"/>
-        <Caret Line="162" Column="1" TopLine="120"/>
+        <Caret Line="142" Column="42" TopLine="87"/>
       </Position10>
       <Position11>
-        <Filename Value="KaM_Remake.dpr"/>
-        <Caret Line="142" Column="42" TopLine="87"/>
-      </Position11>
-      <Position12>
         <Filename Value="KM_FormMain.pas"/>
         <Caret Line="154" Column="1" TopLine="133"/>
+      </Position11>
+      <Position12>
+        <Filename Value="KM_FogOfWar.pas"/>
+        <Caret Line="1" Column="1" TopLine="1"/>
       </Position12>
       <Position13>
-        <Filename Value="KM_FogOfWar.pas"/>
+        <Filename Value="KM_Units.pas"/>
         <Caret Line="1" Column="1" TopLine="1"/>
       </Position13>
       <Position14>
-        <Filename Value="KM_Units.pas"/>
+        <Filename Value="KM_UnitGroups.pas"/>
         <Caret Line="1" Column="1" TopLine="1"/>
       </Position14>
       <Position15>
         <Filename Value="KM_UnitGroups.pas"/>
-        <Caret Line="1" Column="1" TopLine="1"/>
+        <Caret Line="655" Column="1" TopLine="632"/>
       </Position15>
       <Position16>
-        <Filename Value="KM_UnitGroups.pas"/>
-        <Caret Line="655" Column="1" TopLine="632"/>
+        <Filename Value="KM_UnitActionWalkTo.pas"/>
+        <Caret Line="1" Column="1" TopLine="1"/>
       </Position16>
       <Position17>
-        <Filename Value="KM_UnitActionWalkTo.pas"/>
+        <Filename Value="KM_RenderPool.pas"/>
         <Caret Line="1" Column="1" TopLine="1"/>
       </Position17>
       <Position18>
         <Filename Value="KM_RenderPool.pas"/>
-        <Caret Line="1" Column="1" TopLine="1"/>
+        <Caret Line="112" Column="67" TopLine="91"/>
       </Position18>
       <Position19>
         <Filename Value="KM_RenderPool.pas"/>
-        <Caret Line="112" Column="67" TopLine="91"/>
+        <Caret Line="10" Column="35" TopLine="1"/>
       </Position19>
       <Position20>
         <Filename Value="KM_RenderPool.pas"/>
-        <Caret Line="10" Column="35" TopLine="1"/>
+        <Caret Line="729" Column="23" TopLine="724"/>
       </Position20>
       <Position21>
-        <Filename Value="KM_RenderPool.pas"/>
-        <Caret Line="729" Column="23" TopLine="724"/>
-      </Position21>
-      <Position22>
         <Filename Value="KM_UnitGroups.pas"/>
         <Caret Line="74" Column="34" TopLine="53"/>
+      </Position21>
+      <Position22>
+        <Filename Value="KM_FormMain.pas"/>
+        <Caret Line="154" Column="1" TopLine="133"/>
       </Position22>
       <Position23>
         <Filename Value="KM_FormMain.pas"/>
-        <Caret Line="154" Column="1" TopLine="133"/>
+        <Caret Line="5" Column="77" TopLine="1"/>
       </Position23>
       <Position24>
-        <Filename Value="KM_FormMain.pas"/>
-        <Caret Line="5" Column="77" TopLine="1"/>
-      </Position24>
-      <Position25>
         <Filename Value="KM_Main.pas"/>
         <Caret Line="290" Column="57" TopLine="270"/>
+      </Position24>
+      <Position25>
+        <Filename Value="KM_UnitGroups.pas"/>
+        <Caret Line="1445" Column="59" TopLine="1425"/>
       </Position25>
       <Position26>
         <Filename Value="KM_UnitGroups.pas"/>
-        <Caret Line="1445" Column="59" TopLine="1425"/>
+        <Caret Line="88" Column="158" TopLine="55"/>
       </Position26>
       <Position27>
-        <Filename Value="KM_UnitGroups.pas"/>
-        <Caret Line="88" Column="158" TopLine="55"/>
+        <Filename Value="KM_DeliverQueue.pas"/>
+        <Caret Line="1" Column="1" TopLine="1"/>
       </Position27>
       <Position28>
-        <Filename Value="KM_DeliverQueue.pas"/>
+        <Filename Value="KM_InterfaceMapEditor.pas"/>
         <Caret Line="1" Column="1" TopLine="1"/>
       </Position28>
       <Position29>
-        <Filename Value="KM_InterfaceMapEditor.pas"/>
+        <Filename Value="KM_PlayerSpectator.pas"/>
         <Caret Line="1" Column="1" TopLine="1"/>
       </Position29>
       <Position30>
-        <Filename Value="KM_PlayerSpectator.pas"/>
+        <Filename Value="KM_HouseMarket.pas"/>
         <Caret Line="1" Column="1" TopLine="1"/>
       </Position30>
     </JumpHistory>
