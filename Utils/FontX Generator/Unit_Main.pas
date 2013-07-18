@@ -196,10 +196,19 @@ end;
 procedure TForm1.btnCollectCharsClick(Sender: TObject);
 var
   lab: string;
+  uniText: UnicodeString;
 begin
   lab := btnCollectChars.Caption;
   try
-    Collator.CollectChars(UpdateCaption);
+    uniText := Collator.CollectChars(UpdateCaption);
+
+    {$IFDEF WDC}
+      Memo1.Text := uniText;
+    {$ENDIF}
+    {$IFDEF FPC}
+      //FPC controls need utf8 strings
+      Memo1.Text := UTF8Encode(uniText);
+    {$ENDIF}
   finally
     btnCollectChars.Caption := lab;
   end;

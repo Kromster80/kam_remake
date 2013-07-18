@@ -1,4 +1,5 @@
 unit KM_FontCollator;
+{$I ..\..\KaM_Remake.inc}
 interface
 uses
   {$IFDEF WDC} Windows, {$ENDIF} //Declared first to get TBitmap overriden with VCL version
@@ -15,7 +16,7 @@ type
     destructor Destroy; override;
 
     procedure Collate(aFontName: string; aPal: TKMPal; aPad, aX, aY: Word; aFnt: TKMFontDataEdit);
-    procedure CollectChars(aProgress: TUnicodeStringEvent);
+    function CollectChars(aProgress: TUnicodeStringEvent): UnicodeString;
   end;
 
 
@@ -78,7 +79,7 @@ begin
 end;
 
 
-procedure TKMFontCollator.CollectChars(aProgress: TUnicodeStringEvent);
+function TKMFontCollator.CollectChars(aProgress: TUnicodeStringEvent): UnicodeString;
   procedure GetAllTextPaths(aExeDir: string; aList: TStringList);
   var
     I: Integer;
@@ -135,7 +136,6 @@ var
   chars: array [0..High(Word)] of WideChar;
   I, K: Integer;
   libTxt: UnicodeString;
-  uniText: UnicodeString;
   lab: string;
 begin
   //Collect list of library files
@@ -166,18 +166,10 @@ begin
     chars[32] := #0; // space symbol, KaM uses word spacing property instead
     chars[124] := #0; // | symbol, end of line in KaM
 
-    uniText := '';
+    Result := '';
     for I := 0 to High(Word) do
     if chars[I] <> #0 then
-      uniText := uniText + WideChar(I);
-
-    {$IFDEF WDC}
-      Memo1.Text := uniText;
-    {$ENDIF}
-    {$IFDEF FPC}
-      //FPC controls need utf8 strings
-      Memo1.Text := UTF8Encode(uniText);
-    {$ENDIF}
+      Result := Result + WideChar(I);
   finally
     libxList.Free;
   end;
