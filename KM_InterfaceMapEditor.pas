@@ -3893,7 +3893,7 @@ begin
                       ShowMarkerInfo(Marker)
                     else
                     begin
-                      MySpectator.SelectByUID(GameCursor.ObjectUID);
+                      MySpectator.UpdateSelect;
 
                       if MySpectator.Selected is TKMHouse then
                         ShowHouseInfo(TKMHouse(MySpectator.Selected));

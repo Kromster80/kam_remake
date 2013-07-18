@@ -50,6 +50,9 @@ object FormMain: TFormMain
       item
         Text = '50.0 fps (50)'
         Width = 80
+      end
+      item
+        Width = 50
       end>
   end
   object GroupBox1: TGroupBox

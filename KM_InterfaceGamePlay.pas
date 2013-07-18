@@ -3975,8 +3975,8 @@ end;
 procedure TKMGamePlayInterface.MouseDown(Button: TMouseButton; Shift: TShiftState; X,Y: Integer);
 var
   Group: TKMUnitGroup;
-  U: TKMUnit;
-  H: TKMHouse;
+  Obj: TObject;
+  canWalkTo: Boolean;
   MyRect: TRect;
 begin
   fMyControls.MouseDown(X, Y, Shift, Button);
@@ -4017,35 +4017,37 @@ begin
   and (MySpectator.Selected is TKMUnitGroup) then
   begin
     Group := TKMUnitGroup(MySpectator.Selected);
-    if Group.Owner = MySpectator.PlayerIndex then
-    begin
-      //Hittest target tile
-      U := gTerrain.UnitsHitTest(GameCursor.Cell.X, GameCursor.Cell.Y);
-      H := gPlayers.HousesHitTest(GameCursor.Cell.X, GameCursor.Cell.Y);
+    Obj := MySpectator.HitTestCursor;
 
-      //Group can walk to ally units place
-      //Can't walk to house place anyway, unless it's a markup and allied
-      if ((U = nil) or U.IsDeadOrDying or (gPlayers.CheckAlliance(MySpectator.PlayerIndex, U.Owner) = at_Ally)) and
-         ((H = nil) or (gPlayers.CheckAlliance(MySpectator.PlayerIndex, H.Owner) = at_Ally)) then
+    canWalkTo := True;
+
+    //Group can walk to allies units place
+    if Obj is TKMUnit then
+      canWalkTo := (gPlayers.CheckAlliance(MySpectator.PlayerIndex, TKMUnit(Obj).Owner) = at_Ally);
+
+    //Can't walk on to a house
+    if Obj is TKMHouse then
+      canWalkTo := False;
+
+    if canWalkTo then
+    begin
+      if Group.CanWalkTo(GameCursor.Cell, 0) then
       begin
-        if Group.CanWalkTo(GameCursor.Cell, 0) then
-        begin
-          SelectingTroopDirection := True; //MouseMove will take care of cursor changing
-          //Restrict the cursor to inside the main panel so it does not get jammed when used near the edge of the window in windowed mode
-          {$IFDEF MSWindows}
-          MyRect := fMain.ClientRect;
-          ClipCursor(@MyRect);
-          {$ENDIF}
-          //Now record it as Client XY
-          SelectingDirPosition.X := X;
-          SelectingDirPosition.Y := Y;
-          SelectedDirection := dir_NA;
-          DirectionCursorShow(X, Y, SelectedDirection);
-          fResource.Cursors.Cursor := kmc_Invisible;
-        end
-        else
-          gSoundPlayer.Play(sfx_CantPlace, GameCursor.Cell, False, 4);
-      end;
+        SelectingTroopDirection := True; //MouseMove will take care of cursor changing
+        //Restrict the cursor to inside the main panel so it does not get jammed when used near the edge of the window in windowed mode
+        {$IFDEF MSWindows}
+        MyRect := fMain.ClientRect;
+        ClipCursor(@MyRect);
+        {$ENDIF}
+        //Now record it as Client XY
+        SelectingDirPosition.X := X;
+        SelectingDirPosition.Y := Y;
+        SelectedDirection := dir_NA;
+        DirectionCursorShow(X, Y, SelectedDirection);
+        fResource.Cursors.Cursor := kmc_Invisible;
+      end
+      else
+        gSoundPlayer.Play(sfx_CantPlace, GameCursor.Cell, False, 4);
     end;
   end;
 end;
@@ -4058,8 +4060,7 @@ procedure TKMGamePlayInterface.MouseMove(Shift: TShiftState; X,Y: Integer);
 var
   DeltaX, DeltaY, DeltaDistanceSqr: integer;
   NewPoint: TPoint;
-  U: TKMUnit;
-  H: TKMHouse;
+  Obj: TObject;
   P: TKMPoint;
   VP: TKMPointF;
   Group: TKMUnitGroup;
@@ -4170,23 +4171,25 @@ begin
     Exit;
   end;
 
+  Obj := MySpectator.HitTestCursor;
+
   if fJoiningGroups and (MySpectator.Selected is TKMUnitGroup) then
   begin
     Group := TKMUnitGroup(MySpectator.Selected);
-    U := gTerrain.UnitsHitTest(GameCursor.Cell.X, GameCursor.Cell.Y);
-    if (U <> nil)
-    and (U is TKMUnitWarrior)
-    and (U.Owner = MySpectator.PlayerIndex)
-    and not U.IsDeadOrDying
-    and not Group.HasMember(TKMUnitWarrior(U))
-    and (UnitGroups[U.UnitType] = Group.GroupType) then
+    if (Obj <> nil)
+    and (Obj is TKMUnitWarrior)
+    and (TKMUnitWarrior(Obj).Owner = MySpectator.PlayerIndex)
+    and not Group.HasMember(TKMUnitWarrior(Obj))
+    and (UnitGroups[TKMUnitWarrior(Obj).UnitType] = Group.GroupType) then
       fResource.Cursors.Cursor := kmc_JoinYes
     else
       fResource.Cursors.Cursor := kmc_JoinNo;
     Exit;
   end;
 
-  if GameCursor.ObjectUID <> -1 then
+  //Only own units can be selected
+  if ((Obj is TKMUnit) and (TKMUnit(Obj).Owner = MySpectator.PlayerIndex))
+  or ((Obj is TKMHouse) and (TKMHouse(Obj).Owner = MySpectator.PlayerIndex)) then
   begin
     fResource.Cursors.Cursor := kmc_Info;
     Exit;
@@ -4196,10 +4199,8 @@ begin
   and not fReplay and not HasLostMPGame
   and (MySpectator.FogOfWar.CheckTileRevelation(GameCursor.Cell.X, GameCursor.Cell.Y) > 0) then
   begin
-    U := gTerrain.UnitsHitTest (GameCursor.Cell.X, GameCursor.Cell.Y);
-    H := gPlayers.HousesHitTest(GameCursor.Cell.X, GameCursor.Cell.Y);
-    if ((U <> nil) and (not U.IsDeadOrDying) and (gPlayers.CheckAlliance(MySpectator.PlayerIndex, U.Owner) = at_Enemy)) or
-       ((H <> nil) and (gPlayers.CheckAlliance(MySpectator.PlayerIndex, H.Owner) = at_Enemy)) then
+    if ((Obj is TKMUnit) and (gPlayers.CheckAlliance(MySpectator.PlayerIndex, TKMUnit(Obj).Owner) = at_Enemy))
+    or ((Obj is TKMHouse) and (gPlayers.CheckAlliance(MySpectator.PlayerIndex, TKMHouse(Obj).Owner) = at_Enemy)) then
       fResource.Cursors.Cursor := kmc_Attack
     else
       if not fGame.Viewport.Scrolling then
@@ -4215,7 +4216,7 @@ end;
 procedure TKMGamePlayInterface.MouseUp(Button: TMouseButton; Shift: TShiftState; X,Y: Integer);
 var
   P: TKMPoint;
-  U: TKMUnit;
+  Obj: TObject;
   H: TKMHouse;
   Group, Group2: TKMUnitGroup;
   OldSelected: TObject;
@@ -4257,13 +4258,15 @@ begin
         if fJoiningGroups and (MySpectator.Selected is TKMUnitGroup) then
         begin
           Group := TKMUnitGroup(MySpectator.Selected);
-          U := gPlayers[MySpectator.PlayerIndex].Units.GetUnitByUID(GameCursor.ObjectUID);
-          if (U is TKMUnitWarrior)
-          and not U.IsDeadOrDying
-          and not Group.HasMember(U)
-          and (Group.GroupType = UnitGroups[U.UnitType]) then
+          Obj := MySpectator.HitTestCursor;
+
+          if (Obj <> nil)
+          and (Obj is TKMUnitWarrior)
+          and (TKMUnitWarrior(Obj).Owner = MySpectator.PlayerIndex)
+          and not Group.HasMember(TKMUnitWarrior(Obj))
+          and (UnitGroups[TKMUnitWarrior(Obj).UnitType] = Group.GroupType) then
           begin
-            Group2 := gPlayers[MySpectator.PlayerIndex].UnitGroups.GetGroupByMember(TKMUnitWarrior(U));
+            Group2 := gPlayers[MySpectator.PlayerIndex].UnitGroups.GetGroupByMember(TKMUnitWarrior(Obj));
             //Warrior might not have a group yet if he's still walking out of the barracks
             if Group2 <> nil then
             begin
@@ -4300,8 +4303,7 @@ begin
                 if OldSelected is TKMUnitGroup then
                   OldSelectedUnit := TKMUnitGroup(MySpectator.Selected).SelectedUnit;
 
-                //Allow to select any players assets in replay
-                MySpectator.SelectByUID(GameCursor.ObjectUID);
+                MySpectator.UpdateSelect;
 
                 //In a replay we want in-game statistics (and other things) to be shown for the owner of the last select object
                 if fReplay then
@@ -4401,29 +4403,25 @@ begin
           if Group.CanTakeOrders and (Group.Owner = MySpectator.PlayerIndex) then
           begin
             //Try to Attack unit
-            U := gTerrain.UnitsHitTest(P.X, P.Y);
-            if (U <> nil) and not U.IsDeadOrDying
-            and (gPlayers.CheckAlliance(MySpectator.PlayerIndex, U.Owner) = at_Enemy) then
+            Obj := MySpectator.HitTestCursor;
+            if (Obj is TKMUnit) and (gPlayers.CheckAlliance(MySpectator.PlayerIndex, TKMUnit(Obj).Owner) = at_Enemy) then
             begin
-              fGame.GameInputProcess.CmdArmy(gic_ArmyAttackUnit, Group, U);
+              fGame.GameInputProcess.CmdArmy(gic_ArmyAttackUnit, Group, TKMUnit(Obj));
               gSoundPlayer.PlayWarrior(Group.UnitType, sp_Attack);
             end
             else
-            begin //If there's no unit - try to Attack house
-              H := gPlayers.HousesHitTest(P.X, P.Y);
-              if (H <> nil) and not H.IsDestroyed
-              and (gPlayers.CheckAlliance(MySpectator.PlayerIndex, H.Owner) = at_Enemy) then
-              begin
-                fGame.GameInputProcess.CmdArmy(gic_ArmyAttackHouse, Group, H);
-                gSoundPlayer.PlayWarrior(Group.UnitType, sp_Attack);
-              end
-              else //If there's no house - Walk to spot
-                //Ensure down click was successful (could have been over a mountain, then dragged to a walkable location)
-                if SelectingTroopDirection and Group.CanWalkTo(P, 0) then
-                begin
-                  fGame.GameInputProcess.CmdArmy(gic_ArmyWalk, Group, P, SelectedDirection);
-                  gSoundPlayer.PlayWarrior(Group.UnitType, sp_Move);
-                end;
+            //If there's no unit - try to Attack house
+            if (Obj is TKMHouse) and (gPlayers.CheckAlliance(MySpectator.PlayerIndex, TKMHouse(Obj).Owner) = at_Enemy) then
+            begin
+              fGame.GameInputProcess.CmdArmy(gic_ArmyAttackHouse, Group, TKMHouse(Obj));
+              gSoundPlayer.PlayWarrior(Group.UnitType, sp_Attack);
+            end
+            else
+            //Ensure down click was successful (could have been over a mountain, then dragged to a walkable location)
+            if SelectingTroopDirection and Group.CanWalkTo(P, 0) then
+            begin
+              fGame.GameInputProcess.CmdArmy(gic_ArmyWalk, Group, P, SelectedDirection);
+              gSoundPlayer.PlayWarrior(Group.UnitType, sp_Move);
             end;
           end;
         end;

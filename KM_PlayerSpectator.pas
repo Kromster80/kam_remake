@@ -29,8 +29,8 @@ type
     property PlayerIndex: TPlayerIndex read fPlayerIndex write SetPlayerIndex;
     property FOWIndex: TPlayerIndex read fFOWIndex write SetFOWIndex;
     function FogOfWar: TKMFogOfWarCommon; //Which FOW we want to see
-    procedure SelectByUID(aUID: Integer);
-    function HitTest(X, Y: Integer): TObject;
+    function HitTestCursor: TObject;
+    procedure UpdateSelect;
     procedure Load(LoadStream: TKMemoryStream);
     procedure Save(SaveStream: TKMemoryStream);
     procedure UpdateState(aTick: Cardinal);
@@ -43,7 +43,7 @@ type
 
 
 implementation
-uses KM_PlayersCollection, KM_Game, KM_UnitGroups;
+uses KM_PlayersCollection, KM_Game, KM_UnitGroups, KM_GameCursor, KM_Units_Warrior;
 
 
 { TKMSpectator }
@@ -92,27 +92,52 @@ begin
 end;
 
 
-function TKMSpectator.HitTest(X, Y: Integer): TObject;
+//Test if there's object below that player can interact with
+//Units and Houses, not Groups
+function TKMSpectator.HitTestCursor: TObject;
 begin
-  if fGame.IsReplay or fGame.IsMapEditor then
-    Result := gPlayers.HitTest(X, Y)
-  else
-    Result := gPlayers[fPlayerIndex].HitTest(X, Y);
+  Result := gPlayers.GetUnitByUID(GameCursor.ObjectUID);
+
+  //If there's no unit try pick a house on the Cell below
+  if Result = nil then
+    Result := gPlayers.HousesHitTest(GameCursor.Cell.X, GameCursor.Cell.Y);
 end;
 
 
-//Mark unit/house/group selected by its Id
-//Used by color-picking
-procedure TKMSpectator.SelectByUID(aUID: Integer);
+//Select anything player CAN select below cursor
+procedure TKMSpectator.UpdateSelect;
+var
+  G: TKMUnitGroup;
 begin
+  //In-game player can select only own Units
   if fGame.IsReplay or fGame.IsMapEditor then
-    Selected := gPlayers.ObjectByUID(aUID)
+    Selected := gPlayers.GetUnitByUID(GameCursor.ObjectUID)
   else
-    Selected := gPlayers[fPlayerIndex].ObjectByUID(aUID);
+    Selected := gPlayers[fPlayerIndex].Units.GetUnitByUID(GameCursor.ObjectUID);
+
+  //If Id belongs to some Warrior, try to select his group instead
+  if Selected is TKMUnitWarrior then
+  begin
+    if fGame.IsReplay or fGame.IsMapEditor then
+      G := gPlayers.GetGroupByMember(TKMUnitWarrior(Selected))
+    else
+      G := gPlayers[fPlayerIndex].UnitGroups.GetGroupByMember(TKMUnitWarrior(Selected));
+
+    //Warrior might not be assigned to a group while walking out of the Barracks
+    if G <> nil then
+      Selected := G;
+  end;
 
   //Update selected groups selected unit
   if Selected is TKMUnitGroup then
-    TKMUnitGroup(Selected).SelectedUnit := TKMUnitGroup(Selected).MemberByUID(aUID);
+    TKMUnitGroup(Selected).SelectedUnit := TKMUnitGroup(Selected).MemberByUID(GameCursor.ObjectUID);
+
+  //If there's no unit try pick a house on the Cell below
+  if Selected = nil then
+    if fGame.IsReplay or fGame.IsMapEditor then
+      Selected := gPlayers.HousesHitTest(GameCursor.Cell.X, GameCursor.Cell.Y)
+    else
+      Selected := gPlayers[fPlayerIndex].HousesHitTest(GameCursor.Cell.X, GameCursor.Cell.Y);
 end;
 
 

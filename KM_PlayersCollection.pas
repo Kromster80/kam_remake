@@ -4,7 +4,7 @@ interface
 uses
   Classes, KromUtils, Math, SysUtils, Graphics,
   KM_CommonClasses, KM_Defaults, KM_Units, KM_UnitGroups, KM_Terrain, KM_Houses,
-  KM_Player, KM_PlayerSpectator, KM_Utils, KM_Points;
+  KM_Player, KM_PlayerSpectator, KM_Utils, KM_Points, KM_Units_Warrior;
 
 
 { Players are identified by their starting location }
@@ -38,8 +38,8 @@ type
     function GetHouseByUID(aUID: Integer): TKMHouse;
     function GetUnitByUID(aUID: Integer): TKMUnit;
     function GetGroupByUID(aUID: Integer): TKMUnitGroup;
+    function GetGroupByMember(aWarrior: TKMUnitWarrior): TKMUnitGroup;
     function HitTest(X,Y: Integer): TObject;
-    function ObjectByUID(aUID: Integer): TObject;
     function UnitCount:integer;
     function FindPlaceForUnit(PosX,PosY:integer; aUnitType: TUnitType; out PlacePoint: TKMPoint; RequiredWalkConnect:byte):Boolean;
 
@@ -292,9 +292,13 @@ begin
   for I := 0 to fCount - 1 do
   begin
     Result := fPlayerList[I].Units.GetUnitByUID(aUID);
-    if Result <> nil then Exit; //else keep on testing
+
+    if Result <> nil then
+      Break;
   end;
-  if Result = nil then Result := PlayerAnimals.Units.GetUnitByUID(aUID);
+
+  if Result = nil then
+    Result := PlayerAnimals.Units.GetUnitByUID(aUID);
 end;
 
 
@@ -307,6 +311,19 @@ begin
   for I := 0 to fCount - 1 do
   begin
     Result := fPlayerList[I].UnitGroups.GetGroupByUID(aUID);
+    if Result <> nil then Exit; //else keep on testing
+  end;
+end;
+
+
+function TKMPlayersCollection.GetGroupByMember(aWarrior: TKMUnitWarrior): TKMUnitGroup;
+var I: Integer;
+begin
+  Result := nil;
+
+  for I := 0 to fCount - 1 do
+  begin
+    Result := fPlayerList[I].UnitGroups.GetGroupByMember(aWarrior);
     if Result <> nil then Exit; //else keep on testing
   end;
 end;
@@ -337,22 +354,6 @@ begin
       else
         Result := H; //Incomplete house or nil
     end;
-  end;
-end;
-
-
-//Find object by its Id
-function TKMPlayersCollection.ObjectByUID(aUID: Integer): TObject;
-var
-  I: Integer;
-begin
-  Result := nil;
-
-  for I := 0 to fCount - 1 do
-  begin
-    Result := fPlayerList[I].ObjectByUID(aUID);
-    if Result <> nil then
-      Exit;
   end;
 end;
 

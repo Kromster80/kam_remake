@@ -69,7 +69,9 @@ begin
   //Sharp transition between black and white
   pData[0] := $FF000000;
   pData[1] := $00000000;
-  fTextB := TRender.GenTexture(2, 1, @pData[0], tf_RGBA8);
+  pData[2] := $00000000;
+  pData[3] := $00000000;
+  fTextB := TRender.GenTexture(4, 1, @pData[0], tf_RGBA8);
 
   fUseVBO := VBOSupported;
 
