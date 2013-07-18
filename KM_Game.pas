@@ -167,7 +167,7 @@ type
     procedure ReplayInconsistancy;
 
     procedure Render(aRender: TRender);
-    procedure RenderSelection(X, Y: Integer);
+    procedure RenderSelection;
     procedure UpdateGame(Sender: TObject);
     procedure UpdateState(aGlobalTickCount: Cardinal);
     procedure UpdateStateIdle(aFrameTime: Cardinal);
@@ -919,9 +919,9 @@ begin
 end;
 
 
-procedure TKMGame.RenderSelection(X, Y: Integer);
+procedure TKMGame.RenderSelection;
 begin
-  GameCursor.ObjectUID := fRenderPool.RenderSelection(X, Y);
+  fRenderPool.RenderSelection;
 end;
 
 
@@ -1052,6 +1052,8 @@ begin
     //Cursor cannot reach row MapY or column MapX, they're not part of the map (only used for vertex height)
     Cell.X := EnsureRange(round(Float.X+0.5), 1, gTerrain.MapX-1); //Cell below cursor in map bounds
     Cell.Y := EnsureRange(round(Float.Y+0.5), 1, gTerrain.MapY-1);
+
+    ObjectUID := fRenderPool.GetSelectionUID(X, Y);
 
     SState := Shift;
   end;

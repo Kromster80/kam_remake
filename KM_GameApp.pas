@@ -617,7 +617,7 @@ begin
 
   if SHOW_SEL_BUFFER and (fGame <> nil) then
     //Color-code render result assigned to GameCursor.ObjectId
-    fGame.RenderSelection(GameCursor.Pixel.X, fRender.ScreenY - GameCursor.Pixel.Y - 1);
+    fGame.RenderSelection;
 
   fRender.EndFrame;
 
@@ -628,7 +628,7 @@ begin
     fRender.BeginFrame;
 
     //Color-code render result assigned to GameCursor.ObjectId
-    fGame.RenderSelection(GameCursor.Pixel.X, fRender.ScreenY - GameCursor.Pixel.Y - 1);
+    fGame.RenderSelection;
 
     if Assigned(fOnCursorUpdate) then
       fOnCursorUpdate(4, 'Objects: ' + IntToStr(GameCursor.ObjectUID));

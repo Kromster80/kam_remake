@@ -113,7 +113,8 @@ type
     procedure SetRotation(aH,aP,aB: Integer);
 
     procedure Render;
-    function RenderSelection(X,Y: Integer): Integer;
+    procedure RenderSelection;
+    function GetSelectionUID(X,Y: Integer): Integer;
   end;
 
 
@@ -262,12 +263,8 @@ begin
 end;
 
 
-function TRenderPool.RenderSelection(X,Y: Integer): Integer;
-var
-  Pix: Cardinal;
+procedure TRenderPool.RenderSelection;
 begin
-  Result := -1;
-
   if fRender.Blind then Exit;
 
   ApplyTransform;
@@ -283,9 +280,6 @@ begin
     glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND0_RGB, GL_SRC_COLOR);
     glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND1_RGB, GL_SRC_COLOR);
 
-    //Render house areas on terrain
-
-
     //Render sprites
     fRenderList.Render(rtSelection);
 
@@ -293,11 +287,20 @@ begin
     glAlphaFunc(GL_GREATER, 0.5);
     fRenderTerrain.RenderFOW(MySpectator.FogOfWar, True);
 
-    glReadPixels(X, Y, 1, 1, GL_RGB, GL_UNSIGNED_BYTE, @Pix);
-
-    if (Pix and $FFFFFF) <> 0 then
-      Result := Pix and $FFFFFF;
   glPopAttrib;
+end;
+
+
+function TRenderPool.GetSelectionUID(X, Y: Integer): Integer;
+var
+  Pix: Cardinal;
+begin
+  Result := -1;
+
+  glReadPixels(X, fRender.ScreenY - Y, 1, 1, GL_RGB, GL_UNSIGNED_BYTE, @Pix);
+
+  if (Pix and $FFFFFF) <> 0 then
+    Result := Pix and $FFFFFF;
 end;
 
 

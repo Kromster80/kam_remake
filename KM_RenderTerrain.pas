@@ -23,8 +23,7 @@ type
     fVtxShd: GLUint;
     fIndShd: GLUint;
     function GetTileUV(Index: Word; Rot: Byte): TUVRect;
-    procedure BeginVBO(aFOW: TKMFogOfWarCommon);
-    procedure EndVBO;
+    procedure UpdateVBO(aFOW: TKMFogOfWarCommon);
     procedure DoTiles;
     procedure DoOverlays;
     procedure DoLighting;
@@ -144,7 +143,7 @@ begin
 end;
 
 
-procedure TRenderTerrain.BeginVBO(aFOW: TKMFogOfWarCommon);
+procedure TRenderTerrain.UpdateVBO(aFOW: TKMFogOfWarCommon);
 var
   I,K,H: Integer;
   SizeX, SizeY: Word;
@@ -214,15 +213,6 @@ begin
 
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, fIndShd);
   glBufferData(GL_ELEMENT_ARRAY_BUFFER, Length(fInd) * SizeOf(fInd[0]), @fInd[0], GL_STREAM_DRAW);
-end;
-
-
-procedure TRenderTerrain.EndVBO;
-begin
-  if not fUseVBO then Exit;
-
-  glBindBuffer(GL_ARRAY_BUFFER, 0);
-  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 end;
 
 
@@ -583,7 +573,6 @@ begin
 end;
 
 
-//aRect - boundaries of render area in tilespace
 //AnimStep - animation step for terrain (water/etc)
 //aFOW - whose players FOW to apply
 procedure TRenderTerrain.RenderBase(aAnimStep: Integer; aFOW: TKMFogOfWarCommon);
@@ -593,13 +582,13 @@ begin
   //Thus we allow VBO only in 2D
   fUseVBO := VBOSupported and not RENDER_3D;
 
-  BeginVBO(aFOW);
-    DoTiles;
-    DoOverlays;
-    DoLighting;
-    DoWater(aAnimStep, aFOW); //Unlit water goes above lit sand
-    DoShadows;
-  //EndVBO;
+  UpdateVBO(aFOW);
+
+  DoTiles;
+  DoOverlays;
+  DoLighting;
+  DoWater(aAnimStep, aFOW); //Unlit water goes above lit sand
+  DoShadows;
 end;
 
 
