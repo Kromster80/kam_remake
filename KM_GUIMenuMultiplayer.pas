@@ -87,8 +87,8 @@ type
 
 
 implementation
-uses KM_Main, KM_NetworkTypes, KM_ResTexts, KM_Game, KM_GameApp,
-  KM_Utils, KM_Sound, KM_ResSound, KM_Networking, KM_RenderUI, KM_ResFonts;
+uses KM_Main, KM_NetworkTypes, KM_ResTexts, KM_GameApp,
+  KM_Utils, KM_Sound, KM_ResSound, KM_RenderUI, KM_ResFonts;
 
 
 const

@@ -289,7 +289,7 @@ end;
 //Load additional information for map that is not in main SP list
 procedure TKMapInfo.LoadExtra;
 var
-  st, DatFile, MapFile: string;
+  st, DatFile: string;
   ft: TextFile;
   fMissionParser: TMissionParserInfo;
 begin
@@ -300,7 +300,6 @@ begin
   ResetInfo;
 
   DatFile := fPath + fFileName + '.dat';
-  MapFile := fPath + fFileName + '.map';
 
   fMissionParser := TMissionParserInfo.Create(False);
   try

@@ -5,7 +5,7 @@ uses
   {$IFDEF Unix} LCLType, {$ENDIF}
   {$IFDEF WDC} ShellAPI, Windows, {$ENDIF} //Required for OpenURL in Delphi
   {$IFDEF FPC} LCLIntf, {$ENDIF} //Required for OpenURL in Lazarus
-  StrUtils, SysUtils, KromUtils, KromOGLUtils, Math, Classes, Forms, Controls,
+  StrUtils, SysUtils, KromUtils, Math, Classes, Forms, Controls,
   KM_Controls, KM_Defaults, KM_Pics,
   KM_InterfaceDefaults,
   KM_GUIMenuCampaign,
@@ -103,8 +103,8 @@ type
 
 
 implementation
-uses KM_Main, KM_ResTexts, KM_Game, KM_GameApp, KM_ResLocales,
-  KM_Utils, KM_Log, KM_Sound, KM_ResSound, KM_Networking, KM_RenderUI, KM_ResFonts;
+uses KM_Main, KM_ResTexts, KM_GameApp, KM_ResLocales,
+  KM_Utils, KM_Log, KM_Networking, KM_RenderUI, KM_ResFonts;
 
 
 { TKMMainMenuInterface }
@@ -551,7 +551,7 @@ end;
 //Should update anything we want to be updated, obviously
 procedure TKMMainMenuInterface.UpdateState(aTickCount: Cardinal);
 begin
-  fGuiLobby.UpdateState(aTickCount);
+  fGuiLobby.UpdateState;
   fGuiMapEditor.UpdateState;
   fGuiLoad.UpdateState;
   fGuiReplays.UpdateState;

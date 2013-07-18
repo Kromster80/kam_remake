@@ -868,6 +868,7 @@ end;
 function TKMNetPlayersList.GetSimpleAsText: UnicodeString;
 var I: Integer;
 begin
+  Result := '';
   for I := 1 to fCount do
   begin
     Result := Result + StringReplace(fNetPlayers[I].Nikname, '|', '', [rfReplaceAll]);
@@ -879,6 +880,7 @@ end;
 function TKMNetPlayersList.GetPlayersWithIDs: UnicodeString;
 var I: Integer;
 begin
+  Result := '';
   for I := 1 to fCount do
   begin
     Result := Result + '   ' + IntToStr(I) + ': ' + fNetPlayers[I].Nikname;

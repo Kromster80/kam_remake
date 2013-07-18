@@ -35,7 +35,7 @@ type
     procedure BrushTerrainTile(X, Y: SmallInt; aTerrainKind: TTerrainKind);
     function PickRandomTile(aTerrainKind: TTerrainKind): Byte;
     procedure RebuildMap(X,Y,Rad: Integer; aSquare: Boolean);
-    procedure EditBrush(aLoc: TKMPoint; aTile: Byte);
+    procedure EditBrush(aLoc: TKMPoint);
     procedure EditHeight;
     procedure EditTile(aLoc: TKMPoint; aTile,aRotation: Byte);
     procedure GenerateAddnData;
@@ -272,7 +272,7 @@ begin
 end;
 
 
-procedure TKMTerrainPainter.EditBrush(aLoc: TKMPoint; aTile: Byte);
+procedure TKMTerrainPainter.EditBrush(aLoc: TKMPoint);
 var
   I,K,Size,Rad: Integer;
 begin
@@ -809,7 +809,7 @@ begin
     cmEqualize:  if (ssLeft in GameCursor.SState) or (ssRight in GameCursor.SState) then
                     EditHeight;
     cmBrush:     if (ssLeft in GameCursor.SState) then
-                    EditBrush(GameCursor.Cell, GameCursor.Tag1);
+                    EditBrush(GameCursor.Cell);
     cmTiles:     if (ssLeft in GameCursor.SState) then
                     if GameCursor.MapEdDir in [0..3] then //Defined direction
                       EditTile(GameCursor.Cell, GameCursor.Tag1, GameCursor.MapEdDir)

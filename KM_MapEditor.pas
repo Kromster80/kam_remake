@@ -72,7 +72,7 @@ type
     procedure PasteApply; //Do the actual paste from buffer to terrain
     procedure PasteCancel;
     //procedure Transform; //Transforms the buffer data ?
-    procedure Paint(aLayer: TPaintLayer);
+    procedure Paint;
   end;
 
   //Designed to store MapEd specific data and methods
@@ -371,7 +371,7 @@ begin
 end;
 
 
-procedure TKMSelection.Paint(aLayer: TPaintLayer);
+procedure TKMSelection.Paint;
 var
   Sx, Sy: Word;
   I, K: Integer;
@@ -535,7 +535,7 @@ begin
   end;
 
   if mlSelection in fVisibleLayers then
-    fSelection.Paint(aLayer);
+    fSelection.Paint;
 
   //Show selected group order target
   if MySpectator.Selected is TKMUnitGroup then

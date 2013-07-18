@@ -118,7 +118,7 @@ type
     function GetChatMessages: string;
     procedure Show(aKind: TNetPlayerKind; aNetworking: TKMNetworking; aMainHeight: Word);
     procedure Lobby_Resize(aMainHeight: Word);
-    procedure UpdateState(aTickCount: Cardinal);
+    procedure UpdateState;
   end;
 
 
@@ -1437,7 +1437,7 @@ end;
 
 
 //Should update anything we want to be updated, obviously
-procedure TKMGUIMenuLobby.UpdateState(aTickCount: Cardinal);
+procedure TKMGUIMenuLobby.UpdateState;
 begin
   if fMapsMP <> nil then fMapsMP.UpdateState;
   if fSavesMP <> nil then fSavesMP.UpdateState;

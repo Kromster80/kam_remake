@@ -3,8 +3,8 @@ unit KM_GUIMenuMapEditor;
 interface
 uses
   Classes, Controls, SysUtils, Math,
-  KM_Controls, KM_Pics, KM_Maps, KM_Minimap,
-  KM_Campaigns, KM_InterfaceDefaults;
+  KM_Controls, KM_Maps, KM_Minimap,
+  KM_InterfaceDefaults;
 
 
 type
@@ -45,8 +45,7 @@ type
 
 
 implementation
-uses KM_Main, KM_NetworkTypes, KM_ResTexts, KM_Game, KM_GameApp, KM_ResLocales,
-  KM_Utils, KM_Log, KM_Sound, KM_ResSound, KM_Networking, KM_RenderUI, KM_ResFonts;
+uses KM_ResTexts, KM_Game, KM_GameApp, KM_RenderUI, KM_ResFonts;
 
 
 const
