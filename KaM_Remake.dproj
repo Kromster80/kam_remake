@@ -156,6 +156,7 @@
 			<DCCReference Include="KM_GUIMenuMapEditor.pas"/>
 			<DCCReference Include="KM_GUIMenuMultiplayer.pas"/>
 			<DCCReference Include="KM_GUIMenuOptions.pas"/>
+			<DCCReference Include="KM_GUIMenuReplays.pas"/>
 			<DCCReference Include="KM_GUIMenuResultsMP.pas"/>
 			<DCCReference Include="KM_GUIMenuResultsSP.pas"/>
 			<DCCReference Include="KM_GUIMenuSingleMap.pas"/>

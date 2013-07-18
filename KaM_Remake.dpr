@@ -60,6 +60,7 @@ uses
   KM_GUIMenuMapEditor in 'KM_GUIMenuMapEditor.pas',
   KM_GUIMenuMultiplayer in 'KM_GUIMenuMultiplayer.pas',
   KM_GUIMenuOptions in 'KM_GUIMenuOptions.pas',
+  KM_GUIMenuReplays in 'KM_GUIMenuReplays.pas',
   KM_GUIMenuResultsMP in 'KM_GUIMenuResultsMP.pas',
   KM_GUIMenuResultsSP in 'KM_GUIMenuResultsSP.pas',
   KM_GUIMenuSingleMap in 'KM_GUIMenuSingleMap.pas',

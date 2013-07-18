@@ -6,8 +6,8 @@ uses
   {$IFDEF WDC} ShellAPI, Windows, {$ENDIF} //Required for OpenURL in Delphi
   {$IFDEF FPC} LCLIntf, {$ENDIF} //Required for OpenURL in Lazarus
   StrUtils, SysUtils, KromUtils, KromOGLUtils, Math, Classes, Forms, Controls,
-  KM_Controls, KM_Defaults, KM_Maps, KM_Campaigns, KM_Saves, KM_Pics,
-  KM_InterfaceDefaults, KM_Minimap, KM_ServerQuery,
+  KM_Controls, KM_Defaults, KM_Pics,
+  KM_InterfaceDefaults,
   KM_GUIMenuCampaign,
   KM_GUIMenuCampaigns,
   KM_GUIMenuLoad,
@@ -15,6 +15,7 @@ uses
   KM_GUIMenuMapEditor,
   KM_GUIMenuMultiplayer,
   KM_GUIMenuOptions,
+  KM_GUIMenuReplays,
   KM_GUIMenuResultsMP,
   KM_GUIMenuResultsSP,
   KM_GUIMenuSingleMap;
@@ -25,13 +26,6 @@ type
 
   TKMMainMenuInterface = class (TKMUserInterface)
   private
-    fMaps: TKMapsCollection;
-    fMapsMP: TKMapsCollection;
-    fSaves: TKMSavesCollection;
-    fMinimap: TKMMinimap;
-
-    fLastSaveCRC: Cardinal; //CRC of selected save
-
     fGuiCampaign: TKMGUIMainCampaign;
     fGuiCampaigns: TKMGUIMainCampaigns;
     fGuiLoad: TKMGUIMenuLoad;
@@ -39,14 +33,14 @@ type
     fGuiMapEditor: TKMGUIMainMapEditor;
     fGuiMultiplayer: TKMGUIMainMultiplayer;
     fGuiOptions: TKMGUIMainOptions;
-    fGuiSingleMap: TKMGUIMenuSingleMap;
+    fGuiReplays: TKMGUIMenuReplays;
     fGuiResultsMP: TKMGUIMenuResultsMP;
     fGuiResultsSP: TKMGUIMenuResultsSP;
+    fGuiSingleMap: TKMGUIMenuSingleMap;
     //fPages: array [TGUIPage] of TKMGUIPage;
 
     procedure Create_MainMenu;
     procedure Create_SinglePlayer;
-    procedure Create_Replays;
     procedure Create_Credits;
     procedure Create_Loading;
     procedure Create_Error;
@@ -56,14 +50,6 @@ type
     procedure MainMenu_PlayTutorial(Sender: TObject);
     procedure MainMenu_PlayBattle(Sender: TObject);
     procedure Credits_LinkClick(Sender: TObject);
-
-    procedure Replays_ListClick(Sender: TObject);
-    procedure Replay_TypeChange(Sender: TObject);
-    procedure Replays_ScanUpdate(Sender: TObject);
-    procedure Replays_SortUpdate(Sender: TObject);
-    procedure Replays_RefreshList(aJumpToSelected:Boolean);
-    procedure Replays_Sort(aIndex: Integer);
-    procedure Replays_Play(Sender: TObject);
   protected
     Panel_Main:TKMPanel;
       Label_Version:TKMLabel;
@@ -84,12 +70,6 @@ type
       Button_SP_Single,
       Button_SP_Load: TKMButton;
       Button_SP_Back: TKMButton;
-    Panel_Replays:TKMPanel;
-      Radio_Replays_Type:TKMRadioGroup;
-      ColumnBox_Replays: TKMColumnBox;
-      Button_ReplaysPlay: TKMButton;
-      Button_ReplaysBack:TKMButton;
-      MinimapView_Replay: TKMMinimapView;
     Panel_Credits:TKMPanel;
       Label_Credits_KaM:TKMLabelScroll;
       Label_Credits_Remake:TKMLabelScroll;
@@ -123,7 +103,7 @@ type
 
 
 implementation
-uses KM_Main, KM_NetworkTypes, KM_ResTexts, KM_Game, KM_GameApp, KM_ResLocales,
+uses KM_Main, KM_ResTexts, KM_Game, KM_GameApp, KM_ResLocales,
   KM_Utils, KM_Log, KM_Sound, KM_ResSound, KM_Networking, KM_RenderUI, KM_ResFonts;
 
 
@@ -133,12 +113,6 @@ var S: TKMShape;
 begin
   inherited;
   Assert(gResTexts <> nil, 'fTextMain should be initialized before MainMenuInterface');
-
-  fMinimap := TKMMinimap.Create(True, False, True);
-
-  fMaps := TKMapsCollection.Create(False);
-  fMapsMP := TKMapsCollection.Create(True);
-  fSaves := TKMSavesCollection.Create;
 
   Panel_Main := TKMPanel.Create(fMyControls, 0,
                                              0,
@@ -160,7 +134,7 @@ begin
   fGuiMultiplayer := TKMGUIMainMultiplayer.Create(Panel_Main, PageChange);
     fGuiLobby := TKMGUIMenuLobby.Create(Panel_Main, PageChange);
   fGuiMapEditor := TKMGUIMainMapEditor.Create(Panel_Main, PageChange);
-  Create_Replays;
+  fGuiReplays := TKMGUIMenuReplays.Create(Panel_Main, PageChange);
   fGuiOptions := TKMGUIMainOptions.Create(Panel_Main, PageChange);
   Create_Credits;
   Create_Loading;
@@ -194,11 +168,6 @@ end;
 
 destructor TKMMainMenuInterface.Destroy;
 begin
-  fMaps.Free;
-  fMapsMP.Free;
-  fSaves.Free;
-  fMinimap.Free;
-
   fGuiLobby.Free;
   fGuiLoad.Free;
   fGuiMultiplayer.Free;
@@ -206,6 +175,7 @@ begin
   fGuiSingleMap.Free;
   fGuiCampaign.Free;
   fGuiCampaigns.Free;
+  fGuiReplays.Free;
   fGuiResultsMP.Free;
   fGuiResultsSP.Free;
 
@@ -337,42 +307,6 @@ begin
 end;
 
 
-procedure TKMMainMenuInterface.Create_Replays;
-begin
-  Panel_Replays := TKMPanel.Create(Panel_Main, 0, 0, Panel_Main.Width, Panel_Main.Height);
-  Panel_Replays.Stretch;
-
-    TKMLabel.Create(Panel_Replays, Panel_Main.Width div 2, 50, gResTexts[TX_MENU_LOAD_LIST], fnt_Outline, taCenter);
-
-    TKMBevel.Create(Panel_Replays, 62, 86, 900, 50);
-    Radio_Replays_Type := TKMRadioGroup.Create(Panel_Replays,70,94,300,40,fnt_Grey);
-    Radio_Replays_Type.ItemIndex := 0;
-    Radio_Replays_Type.Add(gResTexts[TX_MENU_MAPED_SPMAPS]);
-    Radio_Replays_Type.Add(gResTexts[TX_MENU_MAPED_MPMAPS]);
-    Radio_Replays_Type.OnChange := Replay_TypeChange;
-
-    ColumnBox_Replays := TKMColumnBox.Create(Panel_Replays, 62, 150, 700, 485, fnt_Metal, bsMenu);
-    ColumnBox_Replays.SetColumns(fnt_Outline, [gResTexts[TX_MENU_LOAD_FILE], gResTexts[TX_MENU_LOAD_DESCRIPTION]], [0, 300]);
-    ColumnBox_Replays.Anchors := [akLeft,akTop,akBottom];
-    ColumnBox_Replays.SearchColumn := 0;
-    ColumnBox_Replays.OnChange := Replays_ListClick;
-    ColumnBox_Replays.OnColumnClick := Replays_Sort;
-    ColumnBox_Replays.OnDoubleClick := Replays_Play;
-
-    Button_ReplaysPlay := TKMButton.Create(Panel_Replays,337,660,350,30,gResTexts[TX_MENU_VIEW_REPLAY], bsMenu);
-    Button_ReplaysPlay.Anchors := [akLeft,akBottom];
-    Button_ReplaysPlay.OnClick := Replays_Play;
-
-    Button_ReplaysBack := TKMButton.Create(Panel_Replays, 337, 700, 350, 30, gResTexts[TX_MENU_BACK], bsMenu);
-    Button_ReplaysBack.Anchors := [akLeft,akBottom];
-    Button_ReplaysBack.OnClick := SwitchMenuPage;
-
-    with TKMBevel.Create(Panel_Replays, 785, 290, 199, 199) do Anchors := [akLeft];
-    MinimapView_Replay := TKMMinimapView.Create(Panel_Replays,789,294,191,191);
-    MinimapView_Replay.Anchors := [akLeft];
-end;
-
-
 procedure TKMMainMenuInterface.Create_Credits;
 const OFFSET = 312;
 begin
@@ -459,15 +393,7 @@ begin
                     end;
     gpCampaign:     fGuiCampaign.Show(aText);
     gpOptions:      ;
-    gpReplays:      begin
-                      //Copy/Pasted from SwitchPage for now (needed that for ResultsMP BackClick)
-                      //Probably needs some cleanup when we have GUIMenuReplays
-                      fLastSaveCRC := 0;
-                      Radio_Replays_Type.ItemIndex := 0; //we always show SP replays on start
-                      Replay_TypeChange(nil); //Select SP as this will refresh everything
-                      Replays_Sort(ColumnBox_Replays.SortIndex); //Apply sorting from last time we were on this page
-                      Panel_Replays.Show;
-                    end;
+    gpReplays:      fGuiReplays.Show;
     gpCampSelect:   fGuiCampaigns.Show;
   end;
 end;
@@ -488,14 +414,8 @@ begin
   if (Sender = nil)
   or (Sender = Button_SP_Back)
   or (Sender = Button_CreditsBack)
-  or (Sender = Button_ErrorBack)
-  or (Sender = Button_ReplaysBack) then
-  begin
-    //Scan should be terminated, it is no longer needed
-    if Sender = Button_ReplaysBack then
-      fSaves.TerminateScan;
+  or (Sender = Button_ErrorBack) then
     Panel_MainMenu.Show;
-  end;
 
   {Show SinglePlayer menu}
   {Return to SinglePlayerMenu}
@@ -517,13 +437,8 @@ begin
     fGuiLoad.Show;
 
   {Show replays menu}
-  if Sender=Button_MM_Replays then begin
-    fLastSaveCRC := 0;
-    Radio_Replays_Type.ItemIndex := 0; //we always show SP replays on start
-    Replay_TypeChange(nil); //Select SP as this will refresh everything
-    Replays_Sort(ColumnBox_Replays.SortIndex); //Apply sorting from last time we were on this page
-    Panel_Replays.Show;
-  end;
+  if Sender=Button_MM_Replays then
+    fGuiReplays.Show;
 
   {Show MultiPlayer menu}
   if (Sender=Button_MM_MultiPlayer) then
@@ -599,118 +514,6 @@ begin
 end;
 
 
-procedure TKMMainMenuInterface.Replays_ListClick(Sender: TObject);
-var ID: Integer;
-begin
-  fSaves.Lock;
-    ID := ColumnBox_Replays.ItemIndex;
-
-    Button_ReplaysPlay.Enabled := InRange(ID, 0, fSaves.Count-1)
-                                  and fSaves[ID].IsValid
-                                  and fSaves[ID].IsReplayValid;
-
-    if InRange(ID, 0, fSaves.Count-1) then
-      fLastSaveCRC := fSaves[ID].CRC
-    else
-      fLastSaveCRC := 0;
-
-    MinimapView_Replay.Hide; //Hide by default, then show it if we load the map successfully
-    if Button_ReplaysPlay.Enabled and fSaves[ID].LoadMinimap(fMinimap) then
-    begin
-      MinimapView_Replay.SetMinimap(fMinimap);
-      MinimapView_Replay.Show;
-    end;
-  fSaves.Unlock;
-end;
-
-
-procedure TKMMainMenuInterface.Replay_TypeChange(Sender: TObject);
-begin
-  fSaves.TerminateScan;
-  fLastSaveCRC := 0;
-  ColumnBox_Replays.Clear;
-  Replays_ListClick(nil);
-  fSaves.Refresh(Replays_ScanUpdate, (Radio_Replays_Type.ItemIndex = 1));
-end;
-
-
-procedure TKMMainMenuInterface.Replays_ScanUpdate(Sender: TObject);
-begin
-  Replays_RefreshList(False); //Don't jump to selected with each scan update
-end;
-
-
-procedure TKMMainMenuInterface.Replays_SortUpdate(Sender: TObject);
-begin
-  Replays_RefreshList(True); //After sorting jump to the selected item
-end;
-
-
-procedure TKMMainMenuInterface.Replays_RefreshList(aJumpToSelected: Boolean);
-var
-  I, PrevTop: Integer;
-begin
-  PrevTop := ColumnBox_Replays.TopIndex;
-  ColumnBox_Replays.Clear;
-
-  fSaves.Lock;
-  try
-    for I := 0 to fSaves.Count - 1 do
-      ColumnBox_Replays.AddItem(MakeListRow(
-                           [fSaves[I].FileName, fSaves[I].Info.GetTitleWithTime],
-                           [$FFFFFFFF, $FFFFFFFF]));
-
-    for I := 0 to fSaves.Count - 1 do
-      if (fSaves[I].CRC = fLastSaveCRC) then
-        ColumnBox_Replays.ItemIndex := I;
-
-  finally
-    fSaves.Unlock;
-  end;
-
-  ColumnBox_Replays.TopIndex := PrevTop;
-
-  if aJumpToSelected and (ColumnBox_Replays.ItemIndex <> -1)
-  and not InRange(ColumnBox_Replays.ItemIndex - ColumnBox_Replays.TopIndex, 0, ColumnBox_Replays.GetVisibleRows-1)
-  then
-    if ColumnBox_Replays.ItemIndex < ColumnBox_Replays.TopIndex then
-      ColumnBox_Replays.TopIndex := ColumnBox_Replays.ItemIndex
-    else
-    if ColumnBox_Replays.ItemIndex > ColumnBox_Replays.TopIndex + ColumnBox_Replays.GetVisibleRows - 1 then
-      ColumnBox_Replays.TopIndex := ColumnBox_Replays.ItemIndex - ColumnBox_Replays.GetVisibleRows + 1;
-end;
-
-
-procedure TKMMainMenuInterface.Replays_Sort(aIndex: Integer);
-begin
-  case ColumnBox_Replays.SortIndex of
-    //Sorting by filename goes A..Z by default
-    0:  if ColumnBox_Replays.SortDirection = sdDown then
-          fSaves.Sort(smByFileNameDesc, Replays_SortUpdate)
-        else
-          fSaves.Sort(smByFileNameAsc, Replays_SortUpdate);
-    //Sorting by description goes A..Z by default
-    1:  if ColumnBox_Replays.SortDirection = sdDown then
-          fSaves.Sort(smByDescriptionDesc, Replays_SortUpdate)
-        else
-          fSaves.Sort(smByDescriptionAsc, Replays_SortUpdate);
-  end;
-end;
-
-
-procedure TKMMainMenuInterface.Replays_Play(Sender: TObject);
-var
-  ID: Integer;
-begin
-  if not Button_ReplaysPlay.Enabled then exit; //This is also called by double clicking
-
-  ID := ColumnBox_Replays.ItemIndex;
-  if not InRange(ID, 0, fSaves.Count-1) then Exit;
-  fSaves.TerminateScan; //stop scan as it is no longer needed
-  fGameApp.NewReplay(fSaves[ID].Path + fSaves[ID].FileName + '.bas');
-end;
-
-
 procedure TKMMainMenuInterface.KeyDown(Key:Word; Shift: TShiftState);
 begin
   if fMyControls.KeyDown(Key, Shift) then Exit; //Handled by Controls
@@ -751,11 +554,8 @@ begin
   fGuiLobby.UpdateState(aTickCount);
   fGuiMapEditor.UpdateState;
   fGuiLoad.UpdateState;
+  fGuiReplays.UpdateState;
   fGuiSingleMap.UpdateState;
-
-  if fMaps <> nil then fMaps.UpdateState;
-  if fMapsMP <> nil then fMapsMP.UpdateState;
-  if fSaves <> nil then fSaves.UpdateState;
 end;
 
 
