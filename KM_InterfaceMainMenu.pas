@@ -9,6 +9,7 @@ uses
   KM_Controls, KM_Defaults, KM_Maps, KM_Campaigns, KM_Saves, KM_Pics,
   KM_InterfaceDefaults, KM_Minimap, KM_ServerQuery,
   KM_GUIMenuCampaign,
+  KM_GUIMenuCampaigns,
   KM_GUIMenuLobby,
   KM_GUIMenuOptions,
   KM_GUIMenuResultsMP,
@@ -38,6 +39,7 @@ type
     fLobby: TKMGUIMenuLobby;
     fOptions: TKMGUIMainOptions;
     fGuiCampaign: TKMGUIMainCampaign;
+    fGuiCampaigns: TKMGUIMainCampaigns;
     fSingleMap: TKMGUIMenuSingleMap;
     fResultsMP: TKMGUIMenuResultsMP;
     fResultsSP: TKMGUIMenuResultsSP;
@@ -45,7 +47,6 @@ type
 
     procedure Create_MainMenu;
     procedure Create_SinglePlayer;
-    procedure Create_CampSelect;
     procedure Create_Load;
     procedure Create_MultiPlayer;
     procedure Create_MapEditor;
@@ -58,8 +59,6 @@ type
     procedure MainMenu_MultiplayerClick(Sender: TObject);
     procedure MainMenu_PlayTutorial(Sender: TObject);
     procedure MainMenu_PlayBattle(Sender: TObject);
-    procedure Campaign_FillList;
-    procedure Campaign_ListChange(Sender: TObject);
     procedure Credits_LinkClick(Sender: TObject);
 
     procedure MP_Init(Sender: TObject);
@@ -114,7 +113,6 @@ type
     procedure MapEditor_RefreshList(aJumpToSelected:Boolean);
     procedure MapEditor_ColumnClick(aValue: Integer);
     procedure MapEditor_SelectMap(Sender: TObject);
-
   protected
     Panel_Main:TKMPanel;
       Label_Version:TKMLabel;
@@ -170,12 +168,6 @@ type
         Edit_MP_Password: TKMEdit;
         Button_MP_PasswordOk: TKMButton;
         Button_MP_PasswordCancel: TKMButton;
-
-    Panel_CampSelect: TKMPanel;
-      ColumnBox_Camps: TKMColumnBox;
-      Image_CampsPreview: TKMImage;
-      Memo_CampDesc: TKMMemo;
-      Button_Camp_Start, Button_Camp_Back: TKMButton;
 
     Panel_Load:TKMPanel;
       ColumnBox_Load: TKMColumnBox;
@@ -268,7 +260,7 @@ begin
 
   Create_MainMenu;
   Create_SinglePlayer;
-    Create_CampSelect;
+    fGuiCampaigns := TKMGUIMainCampaigns.Create(Panel_Main, PageChange);
       fGuiCampaign := TKMGUIMainCampaign.Create(Panel_Main, PageChange);
   fSingleMap := TKMGUIMenuSingleMap.Create(Panel_Main, PageChange);
     Create_Load;
@@ -318,6 +310,7 @@ begin
   fOptions.Free;
   fSingleMap.Free;
   fGuiCampaign.Free;
+  fGuiCampaigns.Free;
   fResultsMP.Free;
   fResultsSP.Free;
 
@@ -577,44 +570,6 @@ begin
 end;
 
 
-procedure TKMMainMenuInterface.Create_CampSelect;
-var L: TKMLabel;
-begin
-  Panel_CampSelect := TKMPanel.Create(Panel_Main, 0, 0, Panel_Main.Width, Panel_Main.Height);
-  Panel_CampSelect.Stretch;
-
-    L := TKMLabel.Create(Panel_CampSelect, 80, 150, 575, 20, gResTexts[TX_MENU_CAMP_HEADER], fnt_Outline, taCenter);
-    L.Anchors := [];
-    ColumnBox_Camps := TKMColumnBox.Create(Panel_CampSelect, 80, 180, 575, 360, fnt_Grey, bsMenu);
-    ColumnBox_Camps.SetColumns(fnt_Outline, [gResTexts[TX_MENU_CAMPAIGNS_TITLE],
-                                             gResTexts[TX_MENU_CAMPAIGNS_MAPS_COUNT],
-                                             gResTexts[TX_MENU_CAMPAIGNS_MAPS_UNLOCKED], ''],
-                                             [0, 305, 440, 575]);
-    ColumnBox_Camps.Anchors := [];
-    ColumnBox_Camps.SearchColumn := 0;
-    ColumnBox_Camps.OnChange := Campaign_ListChange;
-    ColumnBox_Camps.OnDoubleClick := SwitchMenuPage;
-
-    with TKMBevel.Create(Panel_CampSelect, 669, 180, 275, 208) do Anchors := [];
-    Image_CampsPreview := TKMImage.Create(Panel_CampSelect, 673, 184, 267, 200, 0, rxGuiMain);
-    Image_CampsPreview.ImageStretch;
-    Image_CampsPreview.Anchors := [];
-
-    Memo_CampDesc := TKMMemo.Create(Panel_CampSelect, 669, 400, 275, 140, fnt_Game, bsMenu);
-    Memo_CampDesc.Anchors := [];
-    Memo_CampDesc.AutoWrap := True;
-    Memo_CampDesc.ItemHeight := 16;
-
-    Button_Camp_Start := TKMButton.Create(Panel_CampSelect, 362, 550, 300, 30, gResTexts[TX_MENU_CAMP_START], bsMenu);
-    Button_Camp_Start.Anchors := [];
-    Button_Camp_Start.OnClick := SwitchMenuPage;
-
-    Button_Camp_Back := TKMButton.Create(Panel_CampSelect, 362, 595, 300, 30, gResTexts[TX_MENU_BACK], bsMenu);
-    Button_Camp_Back.Anchors := [];
-    Button_Camp_Back.OnClick := SwitchMenuPage;
-end;
-
-
 procedure TKMMainMenuInterface.Create_Load;
 begin
   Panel_Load := TKMPanel.Create(Panel_Main,0,0,Panel_Main.Width, Panel_Main.Height);
@@ -831,7 +786,7 @@ begin
 
                       Panel_MultiPlayer.Show;
                     end;
-    gpCampaign:     fGuiCampaign.Show(fGameApp.Campaigns.ActiveCampaign);
+    gpCampaign:     fGuiCampaign.Show(aText);
     gpOptions:      ;
     gpReplays:      begin
                       //Copy/Pasted from SwitchPage for now (needed that for ResultsMP BackClick)
@@ -842,10 +797,7 @@ begin
                       Replays_Sort(ColumnBox_Replays.SortIndex); //Apply sorting from last time we were on this page
                       Panel_Replays.Show;
                     end;
-    gpCampSelect:   begin
-                      Campaign_FillList;
-                      Panel_CampSelect.Show;
-                    end;
+    gpCampSelect:   fGuiCampaigns.Show;
   end;
 end;
 
@@ -853,7 +805,6 @@ end;
 procedure TKMMainMenuInterface.SwitchMenuPage(Sender: TObject);
 var
   I: Integer;
-  CmpName: string;
 begin
   Label_Version.Caption := GAME_VERSION + ' / ' + fGameApp.RenderVersion;
 
@@ -882,7 +833,6 @@ begin
   {Show SinglePlayer menu}
   {Return to SinglePlayerMenu}
   if (Sender = Button_MM_SinglePlayer)
-  or (Sender = Button_Camp_Back)
   or (Sender = Button_LoadBack) then
   begin
     if (Sender = Button_LoadBack) then
@@ -893,17 +843,7 @@ begin
 
   {Show campaign selection menu}
   if (Sender = Button_SP_Camp) then
-  begin
-    Campaign_FillList;
-    Panel_CampSelect.Show;
-  end;
-
-  {Show campaign screen}
-  if (Sender = Button_Camp_Start) or (Sender = ColumnBox_Camps) then
-  begin
-    CmpName := ColumnBox_Camps.Rows[ColumnBox_Camps.ItemIndex].Cells[3].Caption;
-    fGuiCampaign.Show(fGameApp.Campaigns.CampaignByTitle(CmpName));
-  end;
+    fGuiCampaigns.Show;
 
   {Show SingleMap menu}
   if Sender = Button_SP_Single then
@@ -999,39 +939,6 @@ end;
 procedure TKMMainMenuInterface.MainMenu_PlayBattle(Sender: TObject);
 begin
   fGameApp.NewSingleMap(ExeDir + 'Tutorials'+PathDelim+'Battle Tutorial'+PathDelim+'Battle Tutorial.dat', gResTexts[TX_MENU_TUTORIAL_BATTLE]);
-end;
-
-
-procedure TKMMainMenuInterface.Campaign_FillList;
-var
-  I: Integer;
-  Camps: TKMCampaignsCollection;
-begin
-  Camps := fGameApp.Campaigns;
-
-  Image_CampsPreview.TexID := 0; //Clear preview image
-  ColumnBox_Camps.Clear;
-  Memo_CampDesc.Clear;
-  for I := 0 to Camps.Count - 1 do
-  with Camps[I] do
-    ColumnBox_Camps.AddItem(MakeListRow(
-                        [CampaignTitle, IntToStr(MapCount), IntToStr(UnlockedMap+1), ShortTitle],
-                        [$FFFFFFFF, $FFFFFFFF, $FFFFFFFF, $00FFFFFF]));
-
-  Button_Camp_Start.Disable;
-end;
-
-
-procedure TKMMainMenuInterface.Campaign_ListChange(Sender: TObject);
-var Camp: TKMCampaign;
-begin
-  Button_Camp_Start.Enable;
-  Camp := fGameApp.Campaigns.CampaignByTitle(ColumnBox_Camps.Rows[ColumnBox_Camps.ItemIndex].Cells[3].Caption);
-
-  Image_CampsPreview.RX := Camp.BackGroundPic.RX;
-  Image_CampsPreview.TexID := Camp.BackGroundPic.ID;
-
-  Memo_CampDesc.Text := Camp.CampaignDescription;
 end;
 
 

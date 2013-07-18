@@ -35,7 +35,7 @@ type
 
     procedure MouseMove(Shift: TShiftState; X,Y: Integer);
     procedure Resize(X, Y: Word);
-    procedure Show(aCampaign: TKMCampaign);
+    procedure Show(aCampaign: AnsiString);
   end;
 
 
@@ -200,9 +200,9 @@ begin
 end;
 
 
-procedure TKMGUIMainCampaign.Show(aCampaign: TKMCampaign);
+procedure TKMGUIMainCampaign.Show(aCampaign: AnsiString);
 begin
-  Campaign_Set(aCampaign);
+  Campaign_Set(fGameApp.Campaigns.CampaignByTitle(aCampaign));
 
   //Refresh;
   Panel_Campaign.Show;
@@ -211,8 +211,6 @@ end;
 
 procedure TKMGUIMainCampaign.BackClick(Sender: TObject);
 begin
-  //Return to MainMenu and restore resolution changes
-
   fGameApp.MusicLib.StopPlayingOtherFile; //Cancel briefing if it was playing
 
   fOnPageChange(Self, gpCampSelect, '');
