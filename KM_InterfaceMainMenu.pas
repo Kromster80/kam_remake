@@ -16,7 +16,8 @@ uses
   KM_GUIMenuReplays,
   KM_GUIMenuResultsMP,
   KM_GUIMenuResultsSP,
-  KM_GUIMenuSingleMap;
+  KM_GUIMenuSingleMap,
+  KM_GUIMenuSinglePlayer;
 
 
 type
@@ -36,17 +37,15 @@ type
     fGuiResultsMP: TKMGUIMenuResultsMP;
     fGuiResultsSP: TKMGUIMenuResultsSP;
     fGuiSingleMap: TKMGUIMenuSingleMap;
+    fGuiSinglePlayer: TKMGUIMenuSinglePlayer;
     //fPages: array [TGUIPage] of TKMGUIPage;
 
     procedure Create_MainMenu;
-    procedure Create_SinglePlayer;
     procedure Create_Loading;
     procedure Create_Error;
     procedure PageChange(Sender: TObject; Dest: TGUIPage; aText: string);
     procedure SwitchMenuPage(Sender: TObject);
     procedure MainMenu_MultiplayerClick(Sender: TObject);
-    procedure MainMenu_PlayTutorial(Sender: TObject);
-    procedure MainMenu_PlayBattle(Sender: TObject);
   protected
     Panel_Main:TKMPanel;
       Label_Version:TKMLabel;
@@ -59,14 +58,6 @@ type
       Button_MM_Options,
       Button_MM_Credits,
       Button_MM_Quit: TKMButton;
-    Panel_SinglePlayer:TKMPanel;
-      Panel_SPButtons:TKMPanel;
-      Button_SP_Tutor,
-      Button_SP_Fight,
-      Button_SP_Camp,
-      Button_SP_Single,
-      Button_SP_Load: TKMButton;
-      Button_SP_Back: TKMButton;
     Panel_Loading:TKMPanel;
       Label_Loading:TKMLabel;
     Panel_Error:TKMPanel;
@@ -117,7 +108,7 @@ begin
   with TKMImage.Create(Panel_Main, 512, 384,960,600,20,rxGuiMain) do Anchors := [];
 
   Create_MainMenu;
-  Create_SinglePlayer;
+  fGuiSinglePlayer := TKMGUIMenuSinglePlayer.Create(Panel_Main, PageChange);
     fGuiCampaigns := TKMGUIMainCampaigns.Create(Panel_Main, PageChange);
       fGuiCampaign := TKMGUIMainCampaign.Create(Panel_Main, PageChange);
     fGuiSingleMap := TKMGUIMenuSingleMap.Create(Panel_Main, PageChange);
@@ -163,13 +154,14 @@ begin
   fGuiLoad.Free;
   fGuiMultiplayer.Free;
   fGuiOptions.Free;
-  fGuiSingleMap.Free;
   fGuiCampaign.Free;
   fGuiCampaigns.Free;
   fGuiCredits.Free;
   fGuiReplays.Free;
   fGuiResultsMP.Free;
   fGuiResultsSP.Free;
+  fGuiSingleMap.Free;
+  fGuiSinglePlayer.Free;
 
   inherited;
 end;
@@ -271,34 +263,6 @@ begin
 end;
 
 
-//Single player menu
-procedure TKMMainMenuInterface.Create_SinglePlayer;
-begin
-  //Without anchors this page is centered on resize
-  Panel_SinglePlayer := TKMPanel.Create(Panel_Main, 0, 0, Panel_Main.Width, Panel_Main.Height);
-  Panel_SinglePlayer.Anchors := [];
-    TKMImage.Create(Panel_SinglePlayer, 300, 120, 423, 164, 4, rxGuiMain);
-    TKMLabel.Create(Panel_SinglePlayer, 512, 300, 'Remake', fnt_Metal, taCenter);
-    with TKMImage.Create(Panel_SinglePlayer, 50, 220, Round(218 * 1.3), Round(291 * 1.3), 5, rxGuiMain) do ImageStretch;
-    with TKMImage.Create(Panel_SinglePlayer, 705, 220, Round(207 * 1.3), Round(295 * 1.3), 6, rxGuiMain) do ImageStretch;
-
-    Panel_SPButtons := TKMPanel.Create(Panel_SinglePlayer,337,340,350,400);
-      Button_SP_Tutor  := TKMButton.Create(Panel_SPButtons,0,  0,350,30,gResTexts[TX_MENU_TUTORIAL_TOWN],bsMenu);
-      Button_SP_Fight  := TKMButton.Create(Panel_SPButtons,0, 40,350,30,gResTexts[TX_MENU_TUTORIAL_BATTLE],bsMenu);
-      Button_SP_Camp   := TKMButton.Create(Panel_SPButtons,0,100,350,30,gResTexts[TX_MENU_CAMPAIGNS],bsMenu);
-      Button_SP_Single := TKMButton.Create(Panel_SPButtons,0,160,350,30,gResTexts[TX_MENU_SINGLE_MAP],bsMenu);
-      Button_SP_Load   := TKMButton.Create(Panel_SPButtons,0,200,350,30,gResTexts[TX_MENU_LOAD_SAVEGAME],bsMenu);
-      Button_SP_Back   := TKMButton.Create(Panel_SPButtons,0,290,350,30,gResTexts[TX_MENU_BACK],bsMenu);
-
-      Button_SP_Tutor.OnClick  := MainMenu_PlayTutorial;
-      Button_SP_Fight.OnClick  := MainMenu_PlayBattle;
-      Button_SP_Camp.OnClick   := SwitchMenuPage;
-      Button_SP_Single.OnClick := SwitchMenuPage;
-      Button_SP_Load.OnClick   := SwitchMenuPage;
-      Button_SP_Back.OnClick   := SwitchMenuPage;
-end;
-
-
 procedure TKMMainMenuInterface.Create_Loading;
 begin
   Panel_Loading:=TKMPanel.Create(Panel_Main,0,0,Panel_Main.Width, Panel_Main.Height);
@@ -336,7 +300,9 @@ begin
 
   case Dest of
     gpMainMenu:     Panel_MainMenu.Show;
-    gpSingleplayer: Panel_SinglePlayer.Show;
+    gpSingleplayer: fGuiSinglePlayer.Show;
+    gpLoad:         fGuiLoad.Show;
+    gpSingleMap:    fGuiSingleMap.Show;
     gpMultiplayer:  fGuiMultiplayer.Show(aText);
     gpLobby:        begin
                       if aText = 'HOST' then
@@ -348,9 +314,10 @@ begin
                         Assert(False);
                     end;
     gpCampaign:     fGuiCampaign.Show(aText);
-    gpOptions:      ;
-    gpReplays:      fGuiReplays.Show;
     gpCampSelect:   fGuiCampaigns.Show;
+    gpOptions:      fGuiOptions.Show;
+    gpMapEditor:    fGuiMapEditor.Show;
+    gpReplays:      fGuiReplays.Show;
   end;
 end;
 
@@ -368,28 +335,13 @@ begin
 
   {Return to MainMenu}
   if (Sender = nil)
-  or (Sender = Button_SP_Back)
   or (Sender = Button_ErrorBack) then
     Panel_MainMenu.Show;
 
   {Show SinglePlayer menu}
   {Return to SinglePlayerMenu}
   if (Sender = Button_MM_SinglePlayer) then
-  begin
-    Panel_SinglePlayer.Show;
-  end;
-
-  {Show campaign selection menu}
-  if (Sender = Button_SP_Camp) then
-    fGuiCampaigns.Show;
-
-  {Show SingleMap menu}
-  if Sender = Button_SP_Single then
-    fGuiSingleMap.Show;
-
-  {Show Load menu}
-  if Sender=Button_SP_Load then
-    fGuiLoad.Show;
+    fGuiSinglePlayer.Show;
 
   {Show replays menu}
   if Sender=Button_MM_Replays then
@@ -432,18 +384,6 @@ begin
   end
   else
     ShowScreen(msError, gResTexts[TX_MULTIPLE_INSTANCES]);
-end;
-
-
-procedure TKMMainMenuInterface.MainMenu_PlayTutorial(Sender: TObject);
-begin
-  fGameApp.NewSingleMap(ExeDir + 'Tutorials'+PathDelim+'Town Tutorial'+PathDelim+'Town Tutorial.dat', gResTexts[TX_MENU_TUTORIAL_TOWN]);
-end;
-
-
-procedure TKMMainMenuInterface.MainMenu_PlayBattle(Sender: TObject);
-begin
-  fGameApp.NewSingleMap(ExeDir + 'Tutorials'+PathDelim+'Battle Tutorial'+PathDelim+'Battle Tutorial.dat', gResTexts[TX_MENU_TUTORIAL_BATTLE]);
 end;
 
 

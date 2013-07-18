@@ -161,6 +161,7 @@
 			<DCCReference Include="KM_GUIMenuResultsMP.pas"/>
 			<DCCReference Include="KM_GUIMenuResultsSP.pas"/>
 			<DCCReference Include="KM_GUIMenuSingleMap.pas"/>
+			<DCCReference Include="KM_GUIMenuSinglePlayer.pas"/>
 			<DCCReference Include="KM_HouseBarracks.pas"/>
 			<DCCReference Include="KM_HouseCollection.pas"/>
 			<DCCReference Include="KM_HouseMarket.pas"/>

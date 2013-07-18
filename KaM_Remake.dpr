@@ -65,6 +65,7 @@ uses
   KM_GUIMenuResultsMP in 'KM_GUIMenuResultsMP.pas',
   KM_GUIMenuResultsSP in 'KM_GUIMenuResultsSP.pas',
   KM_GUIMenuSingleMap in 'KM_GUIMenuSingleMap.pas',
+  KM_GUIMenuSinglePlayer in 'KM_GUIMenuSinglePlayer.pas',
   KM_HouseBarracks in 'KM_HouseBarracks.pas',
   KM_HouseCollection in 'KM_HouseCollection.pas',
   KM_HouseMarket in 'KM_HouseMarket.pas',
