@@ -55,6 +55,7 @@ uses
   KM_GameInputProcess_Single in 'KM_GameInputProcess_Single.pas',
   KM_GUIMenuCampaign in 'KM_GUIMenuCampaign.pas',
   KM_GUIMenuCampaigns in 'KM_GUIMenuCampaigns.pas',
+  KM_GUIMenuCredits in 'KM_GUIMenuCredits.pas',
   KM_GUIMenuLoad in 'KM_GUIMenuLoad.pas',
   KM_GUIMenuLobby in 'KM_GUIMenuLobby.pas',
   KM_GUIMenuMapEditor in 'KM_GUIMenuMapEditor.pas',

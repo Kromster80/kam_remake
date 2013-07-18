@@ -2,14 +2,12 @@ unit KM_InterfaceMainMenu;
 {$I KaM_Remake.inc}
 interface
 uses
-  {$IFDEF Unix} LCLType, {$ENDIF}
-  {$IFDEF WDC} ShellAPI, Windows, {$ENDIF} //Required for OpenURL in Delphi
-  {$IFDEF FPC} LCLIntf, {$ENDIF} //Required for OpenURL in Lazarus
-  StrUtils, SysUtils, KromUtils, Math, Classes, Forms, Controls,
+  StrUtils, SysUtils, KromUtils, Math, Classes, Controls,
   KM_Controls, KM_Defaults, KM_Pics,
   KM_InterfaceDefaults,
   KM_GUIMenuCampaign,
   KM_GUIMenuCampaigns,
+  KM_GUIMenuCredits,
   KM_GUIMenuLoad,
   KM_GUIMenuLobby,
   KM_GUIMenuMapEditor,
@@ -28,6 +26,7 @@ type
   private
     fGuiCampaign: TKMGUIMainCampaign;
     fGuiCampaigns: TKMGUIMainCampaigns;
+    fGuiCredits: TKMGUIMainCredits;
     fGuiLoad: TKMGUIMenuLoad;
     fGuiLobby: TKMGUIMenuLobby;
     fGuiMapEditor: TKMGUIMainMapEditor;
@@ -41,7 +40,6 @@ type
 
     procedure Create_MainMenu;
     procedure Create_SinglePlayer;
-    procedure Create_Credits;
     procedure Create_Loading;
     procedure Create_Error;
     procedure PageChange(Sender: TObject; Dest: TGUIPage; aText: string);
@@ -49,7 +47,6 @@ type
     procedure MainMenu_MultiplayerClick(Sender: TObject);
     procedure MainMenu_PlayTutorial(Sender: TObject);
     procedure MainMenu_PlayBattle(Sender: TObject);
-    procedure Credits_LinkClick(Sender: TObject);
   protected
     Panel_Main:TKMPanel;
       Label_Version:TKMLabel;
@@ -70,12 +67,6 @@ type
       Button_SP_Single,
       Button_SP_Load: TKMButton;
       Button_SP_Back: TKMButton;
-    Panel_Credits:TKMPanel;
-      Label_Credits_KaM:TKMLabelScroll;
-      Label_Credits_Remake:TKMLabelScroll;
-      Button_CreditsHomepage,
-      Button_CreditsFacebook,
-      Button_CreditsBack:TKMButton;
     Panel_Loading:TKMPanel;
       Label_Loading:TKMLabel;
     Panel_Error:TKMPanel;
@@ -136,7 +127,7 @@ begin
   fGuiMapEditor := TKMGUIMainMapEditor.Create(Panel_Main, PageChange);
   fGuiReplays := TKMGUIMenuReplays.Create(Panel_Main, PageChange);
   fGuiOptions := TKMGUIMainOptions.Create(Panel_Main, PageChange);
-  Create_Credits;
+  fGuiCredits := TKMGUIMainCredits.Create(Panel_Main, PageChange);
   Create_Loading;
   Create_Error;
   fGuiResultsMP := TKMGUIMenuResultsMP.Create(Panel_Main, PageChange);
@@ -175,6 +166,7 @@ begin
   fGuiSingleMap.Free;
   fGuiCampaign.Free;
   fGuiCampaigns.Free;
+  fGuiCredits.Free;
   fGuiReplays.Free;
   fGuiResultsMP.Free;
   fGuiResultsSP.Free;
@@ -307,42 +299,6 @@ begin
 end;
 
 
-procedure TKMMainMenuInterface.Create_Credits;
-const OFFSET = 312;
-begin
-  Panel_Credits := TKMPanel.Create(Panel_Main, 0, 0, Panel_Main.Width, Panel_Main.Height);
-  Panel_Credits.Stretch;
-
-    TKMLabel.Create(Panel_Credits, Panel_Main.Width div 2 - OFFSET, 70, gResTexts[TX_CREDITS],fnt_Outline,taCenter);
-    Label_Credits_Remake := TKMLabelScroll.Create(Panel_Credits, Panel_Main.Width div 2 - OFFSET, 110, 0, Panel_Main.Height - 130,
-    gResTexts[TX_CREDITS_PROGRAMMING]+'|Krom|Lewin||'+
-    gResTexts[TX_CREDITS_ADDITIONAL_PROGRAMMING]+'|Alex|Danjb||'+
-    gResTexts[TX_CREDITS_ADDITIONAL_GRAPHICS]+'|StarGazer|Malin|H.A.H.||'+
-    gResTexts[TX_CREDITS_ADDITIONAL_MUSIC]+'|Andre Sklenar - www.juicelab.cz||'+
-    gResTexts[TX_CREDITS_ADDITIONAL_SOUNDS]+'|trb1914||'+
-    gResTexts[TX_CREDITS_ADDITIONAL_TRANSLATIONS]+'|'+gResLocales.TranslatorCredits+'|'+
-    gResTexts[TX_CREDITS_SPECIAL]+'|KaM Community members'
-    ,fnt_Grey,taCenter);
-    Label_Credits_Remake.Anchors := [akLeft,akTop,akBottom];
-
-    TKMLabel.Create(Panel_Credits, Panel_Main.Width div 2 + OFFSET, 70, gResTexts[TX_CREDITS_ORIGINAL], fnt_Outline, taCenter);
-    Label_Credits_KaM := TKMLabelScroll.Create(Panel_Credits, Panel_Main.Width div 2 + OFFSET, 110, 0, Panel_Main.Height - 130, gResTexts[TX_CREDITS_TEXT], fnt_Grey, taCenter);
-    Label_Credits_KaM.Anchors := [akLeft,akTop,akBottom];
-
-    Button_CreditsHomepage:=TKMButton.Create(Panel_Credits,400,610,224,30,'[$F8A070]www.kamremake.com[]',bsMenu);
-    Button_CreditsHomepage.Anchors := [akLeft,akBottom];
-    Button_CreditsHomepage.OnClick:=Credits_LinkClick;
-
-    Button_CreditsFacebook:=TKMButton.Create(Panel_Credits,400,646,224,30,'[$F8A070]Facebook[]',bsMenu);
-    Button_CreditsFacebook.Anchors := [akLeft,akBottom];
-    Button_CreditsFacebook.OnClick:=Credits_LinkClick;
-
-    Button_CreditsBack:=TKMButton.Create(Panel_Credits,400,700,224,30,gResTexts[TX_MENU_BACK],bsMenu);
-    Button_CreditsBack.Anchors := [akLeft,akBottom];
-    Button_CreditsBack.OnClick:=SwitchMenuPage;
-end;
-
-
 procedure TKMMainMenuInterface.Create_Loading;
 begin
   Panel_Loading:=TKMPanel.Create(Panel_Main,0,0,Panel_Main.Width, Panel_Main.Height);
@@ -413,7 +369,6 @@ begin
   {Return to MainMenu}
   if (Sender = nil)
   or (Sender = Button_SP_Back)
-  or (Sender = Button_CreditsBack)
   or (Sender = Button_ErrorBack) then
     Panel_MainMenu.Show;
 
@@ -453,11 +408,8 @@ begin
     fGuiOptions.Show;
 
   {Show Credits}
-  if Sender=Button_MM_Credits then begin
-    Panel_Credits.Show;
-    Label_Credits_KaM.SmoothScrollToTop := TimeGet; //Set initial position
-    Label_Credits_Remake.SmoothScrollToTop := TimeGet; //Set initial position
-  end;
+  if Sender=Button_MM_Credits then
+    fGuiCredits.Show;
 
   {Show Loading... screen}
   if Sender=Panel_Loading then
@@ -492,25 +444,6 @@ end;
 procedure TKMMainMenuInterface.MainMenu_PlayBattle(Sender: TObject);
 begin
   fGameApp.NewSingleMap(ExeDir + 'Tutorials'+PathDelim+'Battle Tutorial'+PathDelim+'Battle Tutorial.dat', gResTexts[TX_MENU_TUTORIAL_BATTLE]);
-end;
-
-
-procedure TKMMainMenuInterface.Credits_LinkClick(Sender: TObject);
-
-  //This can't be moved to e.g. KM_Utils because the dedicated server needs that, and it must be Linux compatible
-  procedure GoToURL(aUrl: string);
-  begin
-    {$IFDEF WDC}
-    ShellExecute(Application.Handle, 'open', PChar(aUrl), nil, nil, SW_SHOWNORMAL);
-    {$ENDIF}
-    {$IFDEF FPC}
-    OpenURL(aUrl);
-    {$ENDIF}
-  end;
-
-begin
-  if Sender = Button_CreditsHomepage then GoToURL('http://www.kamremake.com/redirect.php?page=homepage&rev='+GAME_REVISION);
-  if Sender = Button_CreditsFacebook then GoToURL('http://www.kamremake.com/redirect.php?page=facebook&rev='+GAME_REVISION);
 end;
 
 
