@@ -56,6 +56,7 @@ uses
   KM_GUIMenuCampaign in 'KM_GUIMenuCampaign.pas',
   KM_GUIMenuCampaigns in 'KM_GUIMenuCampaigns.pas',
   KM_GUIMenuLobby in 'KM_GUIMenuLobby.pas',
+  KM_GUIMenuMapEditor in 'KM_GUIMenuMapEditor.pas',
   KM_GUIMenuMultiplayer in 'KM_GUIMenuMultiplayer.pas',
   KM_GUIMenuOptions in 'KM_GUIMenuOptions.pas',
   KM_GUIMenuResultsMP in 'KM_GUIMenuResultsMP.pas',

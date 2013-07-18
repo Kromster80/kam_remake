@@ -152,6 +152,7 @@
 			<DCCReference Include="KM_GUIMenuCampaign.pas"/>
 			<DCCReference Include="KM_GUIMenuCampaigns.pas"/>
 			<DCCReference Include="KM_GUIMenuLobby.pas"/>
+			<DCCReference Include="KM_GUIMenuMapEditor.pas"/>
 			<DCCReference Include="KM_GUIMenuMultiplayer.pas"/>
 			<DCCReference Include="KM_GUIMenuOptions.pas"/>
 			<DCCReference Include="KM_GUIMenuResultsMP.pas"/>

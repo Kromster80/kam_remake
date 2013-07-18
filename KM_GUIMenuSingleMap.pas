@@ -520,10 +520,9 @@ begin
 end;
 
 
-procedure TKMGUIMenuSingleMap.UpdateState(aTickCount: Cardinal);
+procedure TKMGUIMenuSingleMap.UpdateState;
 begin
-  if fMaps <> nil then
-    fMaps.UpdateState;
+  fMaps.UpdateState;
 end;
 
 

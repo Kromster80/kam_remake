@@ -11,6 +11,7 @@ uses
   KM_GUIMenuCampaign,
   KM_GUIMenuCampaigns,
   KM_GUIMenuLobby,
+  KM_GUIMenuMapEditor,
   KM_GUIMenuMultiplayer,
   KM_GUIMenuOptions,
   KM_GUIMenuResultsMP,
@@ -28,12 +29,12 @@ type
     fSaves: TKMSavesCollection;
     fMinimap: TKMMinimap;
 
-    fLastMapCRC: Cardinal; //CRC of selected map
     fLastSaveCRC: Cardinal; //CRC of selected save
 
     fGuiCampaign: TKMGUIMainCampaign;
     fGuiCampaigns: TKMGUIMainCampaigns;
     fLobby: TKMGUIMenuLobby;
+    fGuiMapEditor: TKMGUIMainMapEditor;
     fGuiMultiplayer: TKMGUIMainMultiplayer;
     fOptions: TKMGUIMainOptions;
     fSingleMap: TKMGUIMenuSingleMap;
@@ -44,7 +45,6 @@ type
     procedure Create_MainMenu;
     procedure Create_SinglePlayer;
     procedure Create_Load;
-    procedure Create_MapEditor;
     procedure Create_Replays;
     procedure Create_Credits;
     procedure Create_Loading;
@@ -72,15 +72,6 @@ type
     procedure Replays_RefreshList(aJumpToSelected:Boolean);
     procedure Replays_Sort(aIndex: Integer);
     procedure Replays_Play(Sender: TObject);
-
-    procedure MapEditor_Start(Sender: TObject);
-    procedure MapEditor_MapTypeChange(Sender: TObject);
-    procedure MapEditor_ListUpdate;
-    procedure MapEditor_ScanUpdate(Sender: TObject);
-    procedure MapEditor_SortUpdate(Sender: TObject);
-    procedure MapEditor_RefreshList(aJumpToSelected:Boolean);
-    procedure MapEditor_ColumnClick(aValue: Integer);
-    procedure MapEditor_SelectMap(Sender: TObject);
   protected
     Panel_Main:TKMPanel;
       Label_Version:TKMLabel;
@@ -115,14 +106,6 @@ type
       Button_ReplaysPlay: TKMButton;
       Button_ReplaysBack:TKMButton;
       MinimapView_Replay: TKMMinimapView;
-    Panel_MapEd: TKMPanel;
-      Panel_MapEdSizeXY: TKMPanel;
-      Radio_MapEdSizeX, Radio_MapEdSizeY: TKMRadioGroup;
-      Panel_MapEdLoad: TKMPanel;
-      ColumnBox_MapEd: TKMColumnBox;
-      Radio_MapEd_MapType: TKMRadioGroup;
-      MinimapView_MapEd: TKMMinimapView;
-      Button_MapEdBack,Button_MapEd_Create,Button_MapEd_Load: TKMButton;
     Panel_Credits:TKMPanel;
       Label_Credits_KaM:TKMLabelScroll;
       Label_Credits_Remake:TKMLabelScroll;
@@ -197,7 +180,7 @@ begin
     Create_Load;
   fGuiMultiplayer := TKMGUIMainMultiplayer.Create(Panel_Main, PageChange);
   fLobby := TKMGUIMenuLobby.Create(Panel_Main, PageChange);
-  Create_MapEditor;
+  fGuiMapEditor := TKMGUIMainMapEditor.Create(Panel_Main, PageChange);
   Create_Replays;
   fOptions := TKMGUIMainOptions.Create(Panel_Main, PageChange);
   Create_Credits;
@@ -416,57 +399,6 @@ begin
 end;
 
 
-//Should contain options to make a map from scratch, load map from file, generate new one
-procedure TKMMainMenuInterface.Create_MapEditor;
-var I: Integer;
-begin
-  Panel_MapEd:=TKMPanel.Create(Panel_Main,0,0,Panel_Main.Width, Panel_Main.Height);
-  Panel_MapEd.Stretch;
-    Panel_MapEdSizeXY := TKMPanel.Create(Panel_MapEd, 80, 160, 200, 400);
-    Panel_MapEdSizeXY.Anchors := [akLeft];
-      TKMLabel.Create(Panel_MapEdSizeXY, 6, 0, 188, 20, gResTexts[TX_MENU_NEW_MAP_SIZE], fnt_Outline, taLeft);
-      TKMBevel.Create(Panel_MapEdSizeXY, 0, 20, 200, 370);
-      TKMLabel.Create(Panel_MapEdSizeXY, 8, 27, 88, 20, gResTexts[TX_MENU_MAP_WIDTH], fnt_Outline, taLeft);
-      TKMLabel.Create(Panel_MapEdSizeXY, 108, 27, 88, 20, gResTexts[TX_MENU_MAP_HEIGHT], fnt_Outline, taLeft);
-
-      Radio_MapEdSizeX := TKMRadioGroup.Create(Panel_MapEdSizeXY, 10, 52, 88, 332, fnt_Metal);
-      Radio_MapEdSizeY := TKMRadioGroup.Create(Panel_MapEdSizeXY, 110, 52, 88, 332, fnt_Metal);
-      for I := 1 to MAPSIZES_COUNT do begin
-        Radio_MapEdSizeX.Add(IntToStr(MapSize[I]));
-        Radio_MapEdSizeY.Add(IntToStr(MapSize[I]));
-      end;
-      Radio_MapEdSizeX.ItemIndex := 2; //64
-      Radio_MapEdSizeY.ItemIndex := 2; //64
-
-      Button_MapEd_Create := TKMButton.Create(Panel_MapEdSizeXY, 0, 400, 200, 30, gResTexts[TX_MENU_MAP_CREATE_NEW_MAP], bsMenu);
-      Button_MapEd_Create.OnClick := MapEditor_Start;
-
-    Panel_MapEdLoad := TKMPanel.Create(Panel_MapEd, 300, 160, 620, 500);
-    Panel_MapEdLoad.Anchors := [akLeft];
-      TKMLabel.Create(Panel_MapEdLoad, 6, 0, 288, 20, gResTexts[TX_MENU_MAP_AVAILABLE], fnt_Outline, taLeft);
-      TKMBevel.Create(Panel_MapEdLoad, 0, 20, 300, 50);
-      Radio_MapEd_MapType := TKMRadioGroup.Create(Panel_MapEdLoad,8,28,286,40,fnt_Grey);
-      Radio_MapEd_MapType.ItemIndex := 0;
-      Radio_MapEd_MapType.Add(gResTexts[TX_MENU_MAPED_SPMAPS]);
-      Radio_MapEd_MapType.Add(gResTexts[TX_MENU_MAPED_MPMAPS]);
-      Radio_MapEd_MapType.OnChange := MapEditor_MapTypeChange;
-      ColumnBox_MapEd := TKMColumnBox.Create(Panel_MapEdLoad, 0, 80, 440, 310, fnt_Metal,  bsMenu);
-      ColumnBox_MapEd.SetColumns(fnt_Outline, [gResTexts[TX_MENU_MAP_TITLE], '#', gResTexts[TX_MENU_MAP_SIZE]], [0, 310, 340]);
-      ColumnBox_MapEd.SearchColumn := 0;
-      ColumnBox_MapEd.OnColumnClick := MapEditor_ColumnClick;
-      ColumnBox_MapEd.OnChange := MapEditor_SelectMap;
-      ColumnBox_MapEd.OnDoubleClick := MapEditor_Start;
-      Button_MapEd_Load := TKMButton.Create(Panel_MapEdLoad, 0, 400, 300, 30, gResTexts[TX_MENU_MAP_LOAD_EXISTING], bsMenu);
-      Button_MapEd_Load.OnClick := MapEditor_Start;
-      TKMBevel.Create(Panel_MapEdLoad, 448, 80, 199, 199);
-      MinimapView_MapEd := TKMMinimapView.Create(Panel_MapEdLoad, 452, 84, 191, 191);
-
-    Button_MapEdBack := TKMButton.Create(Panel_MapEd, 80, 620, 220, 30, gResTexts[TX_MENU_BACK], bsMenu);
-    Button_MapEdBack.Anchors := [akLeft];
-    Button_MapEdBack.OnClick := SwitchMenuPage;
-end;
-
-
 procedure TKMMainMenuInterface.Create_Replays;
 begin
   Panel_Replays := TKMPanel.Create(Panel_Main, 0, 0, Panel_Main.Width, Panel_Main.Height);
@@ -618,7 +550,6 @@ begin
   if (Sender = nil)
   or (Sender = Button_SP_Back)
   or (Sender = Button_CreditsBack)
-  or (Sender = Button_MapEdBack)
   or (Sender = Button_ErrorBack)
   or (Sender = Button_ReplaysBack) then
   begin
@@ -676,10 +607,8 @@ begin
     fGuiMultiplayer.Show('');
 
   {Show MapEditor menu}
-  if Sender=Button_MM_MapEd then begin
-    MapEditor_ListUpdate;
-    Panel_MapEd.Show;
-  end;
+  if Sender=Button_MM_MapEd then
+    fGuiMapEditor.Show;
 
   {Show Options menu}
   if Sender = Button_MM_Options then
@@ -999,179 +928,6 @@ begin
 end;
 
 
-procedure TKMMainMenuInterface.MapEditor_Start(Sender: TObject);
-var
-  MapEdSizeX, MapEdSizeY: Integer;
-  ID: Integer;
-  Maps: TKMapsCollection;
-begin
-  if Sender = Button_MapEd_Create then
-  begin
-    MapEdSizeX := MapSize[Radio_MapEdSizeX.ItemIndex+1];
-    MapEdSizeY := MapSize[Radio_MapEdSizeY.ItemIndex+1];
-    fGameApp.NewMapEditor('', MapEdSizeX, MapEdSizeY);
-  end;
-
-  //This is also called by double clicking on a map in the list
-  if ((Sender = Button_MapEd_Load) or (Sender = ColumnBox_MapEd)) and
-     Button_MapEd_Load.Enabled and (ColumnBox_MapEd.ItemIndex <> -1) then
-  begin
-    ID := ColumnBox_MapEd.Rows[ColumnBox_MapEd.ItemIndex].Tag;
-    if Radio_MapEd_MapType.ItemIndex = 0 then
-      Maps := fMaps
-    else
-      Maps := fMapsMP;
-
-    Maps.Lock;
-      fGameApp.NewMapEditor(Maps[ID].FullPath('.dat'), 0, 0);
-    Maps.Unlock;
-
-    //Keep MP/SP selected in the map editor interface
-    //(if mission failed to load we would have fGame = nil)
-    if (fGame <> nil) and (fGame.MapEditorInterface <> nil) then
-      fGame.MapEditorInterface.SetLoadMode(Radio_MapEd_MapType.ItemIndex = 1);
-  end;
-end;
-
-
-procedure TKMMainMenuInterface.MapEditor_MapTypeChange(Sender: TObject);
-begin
-  MapEditor_ListUpdate;
-end;
-
-
-//Clear the list and initiate refresh
-procedure TKMMainMenuInterface.MapEditor_ListUpdate;
-var
-  Maps: TKMapsCollection;
-begin
-  //Terminate both
-  fMaps.TerminateScan;
-  fMapsMP.TerminateScan;
-
-  ColumnBox_MapEd.Clear;
-  fLastMapCRC := 0;
-  MapEditor_SelectMap(nil);
-
-  //If both Maps and MapsMP are scanning at once ListUpdateDone can be called from either one
-  //meaning we can access inconsistent and trigger assertion
-  if Radio_MapEd_MapType.ItemIndex = 0 then Maps := fMaps else Maps := fMapsMP;
-
-  Maps.Refresh(MapEditor_ScanUpdate);
-end;
-
-
-procedure TKMMainMenuInterface.MapEditor_ScanUpdate(Sender: TObject);
-begin
-  MapEditor_RefreshList(False); //Don't jump to selected with each scan update
-end;
-
-
-procedure TKMMainMenuInterface.MapEditor_SortUpdate(Sender: TObject);
-begin
-  MapEditor_RefreshList(True); //After sorting jump to the selected item
-end;
-
-
-procedure TKMMainMenuInterface.MapEditor_RefreshList(aJumpToSelected:Boolean);
-var
-  I, PrevTop: Integer;
-  Maps: TKMapsCollection;
-begin
-  PrevTop := ColumnBox_MapEd.TopIndex;
-  ColumnBox_MapEd.Clear;
-
-  if Radio_MapEd_MapType.ItemIndex = 0 then
-    Maps := fMaps
-  else
-    Maps := fMapsMP;
-
-  Maps.Lock;
-  try
-    for I := 0 to Maps.Count - 1 do
-    begin
-      ColumnBox_MapEd.AddItem(MakeListRow([Maps[I].FileName, IntToStr(Maps[I].LocCount), Maps[I].SizeText], I));
-
-      if (Maps[I].CRC = fLastMapCRC) then
-        ColumnBox_MapEd.ItemIndex := I;
-    end;
-  finally
-    Maps.Unlock;
-  end;
-
-  ColumnBox_MapEd.TopIndex := PrevTop;
-
-  if aJumpToSelected and (ColumnBox_MapEd.ItemIndex <> -1)
-  and not InRange(ColumnBox_MapEd.ItemIndex - ColumnBox_MapEd.TopIndex, 0, ColumnBox_MapEd.GetVisibleRows-1)
-  then
-    if ColumnBox_MapEd.ItemIndex < ColumnBox_MapEd.TopIndex then
-      ColumnBox_MapEd.TopIndex := ColumnBox_MapEd.ItemIndex
-    else
-    if ColumnBox_MapEd.ItemIndex > ColumnBox_MapEd.TopIndex + ColumnBox_MapEd.GetVisibleRows - 1 then
-      ColumnBox_MapEd.TopIndex := ColumnBox_MapEd.ItemIndex - ColumnBox_MapEd.GetVisibleRows + 1;
-end;
-
-
-procedure TKMMainMenuInterface.MapEditor_ColumnClick(aValue: Integer);
-var
-  SM: TMapsSortMethod;
-begin
-  //Determine Sort method depending on which column user clicked
-  with ColumnBox_MapEd do
-  case SortIndex of
-    0:  if SortDirection = sdDown then
-          SM := smByNameDesc
-        else
-          SM := smByNameAsc;
-    1:  if SortDirection = sdDown then
-          SM := smByPlayersDesc
-        else
-          SM := smByPlayersAsc;
-    2:  if SortDirection = sdDown then
-          SM := smBySizeDesc
-        else
-          SM := smBySizeAsc;
-    else SM := smByNameAsc;
-  end;
-
-  //Keep both lists in sync incase user switches between them
-  fMaps.Sort(SM, MapEditor_SortUpdate);
-  fMapsMP.Sort(SM, MapEditor_SortUpdate);
-end;
-
-
-procedure TKMMainMenuInterface.MapEditor_SelectMap(Sender: TObject);
-var
-  ID: Integer;
-  Maps: TKMapsCollection;
-begin
-  Button_MapEd_Load.Enabled := (ColumnBox_MapEd.ItemIndex <> -1);
-
-  if Button_MapEd_Load.Enabled then
-  begin
-    ID := ColumnBox_MapEd.Rows[ColumnBox_MapEd.ItemIndex].Tag;
-    if Radio_MapEd_MapType.ItemIndex = 0 then
-      Maps := fMaps
-    else
-      Maps := fMapsMP;
-
-    Maps.Lock;
-      fLastMapCRC := Maps[ID].CRC;
-      fMinimap.LoadFromMission(Maps[ID].FullPath('.dat'), []);
-    Maps.Unlock;
-
-    fMinimap.Update(True);
-    MinimapView_MapEd.SetMinimap(fMinimap);
-    MinimapView_MapEd.Show;
-  end
-  else
-  begin
-    MinimapView_MapEd.Hide;
-    fLastMapCRC := 0;
-  end;
-end;
-
-
 procedure TKMMainMenuInterface.KeyDown(Key:Word; Shift: TShiftState);
 begin
   if fMyControls.KeyDown(Key, Shift) then Exit; //Handled by Controls
@@ -1210,6 +966,7 @@ end;
 procedure TKMMainMenuInterface.UpdateState(aTickCount: Cardinal);
 begin
   fLobby.UpdateState(aTickCount);
+  fGuiMapEditor.UpdateState;
   fSingleMap.UpdateState(aTickCount);
 
   if fMaps <> nil then fMaps.UpdateState;
