@@ -113,6 +113,7 @@ type
     procedure Terrain_ObjectsChange(Sender: TObject);
     procedure Terrain_ObjectsRefresh(Sender: TObject);
     procedure Terrain_SelectionClick(Sender: TObject);
+    procedure Terrain_UnRedoClick(Sender: TObject);
     procedure Town_BuildChange(Sender: TObject);
     procedure Town_BuildRefresh;
     procedure Town_DefenceAddClick(Sender: TObject);
@@ -155,6 +156,8 @@ type
 
     Panel_Terrain: TKMPanel;
       Button_Terrain: array [TKMTerrainTab] of TKMButton;
+      Button_TerrainUndo: TKMButton;
+      Button_TerrainRedo: TKMButton;
       Panel_Brushes: TKMPanel;
         BrushSize: TKMTrackBar;
         BrushCircle,BrushSquare: TKMButtonFlat;
@@ -868,6 +871,11 @@ begin
       Button_Terrain[I].Hint := gResTexts[BtnHint[I]];
       Button_Terrain[I].OnClick := SwitchPage;
     end;
+
+    Button_TerrainUndo := TKMButton.Create(Panel_Terrain, 180, 0, 20, 20, '<', bsGame);
+    Button_TerrainUndo.OnClick := Terrain_UnRedoClick;
+    Button_TerrainRedo := TKMButton.Create(Panel_Terrain, 200, 0, 20, 20, '>', bsGame);
+    Button_TerrainRedo.OnClick := Terrain_UnRedoClick;
 
     Panel_Brushes := TKMPanel.Create(Panel_Terrain,0,28,TB_WIDTH,400);
       TKMLabel.Create(Panel_Brushes, 0, PAGE_TITLE_Y, TB_WIDTH, 0, gResTexts[TX_MAPED_TERRAIN_BRUSH], fnt_Outline, taCenter);
@@ -2053,7 +2061,7 @@ procedure TKMapEdInterface.Terrain_BrushChange(Sender: TObject);
 begin
   GameCursor.Mode := cmBrush;
   GameCursor.MapEdSize := BrushSize.Position;
-  fTerrainPainter.RandomizeTiling := BrushRandom.Checked;
+  fGame.MapEditor.TerrainPainter.RandomizeTiling := BrushRandom.Checked;
 
   if Sender = BrushCircle then
     GameCursor.MapEdShape := hsCircle
@@ -2284,6 +2292,16 @@ begin
   end;
 
   //Flip selected
+end;
+
+
+procedure TKMapEdInterface.Terrain_UnRedoClick(Sender: TObject);
+begin
+  if Sender = Button_TerrainUndo then
+    fGame.MapEditor.TerrainPainter.Undo;
+
+  if Sender = Button_TerrainRedo then
+    fGame.MapEditor.TerrainPainter.Redo;
 end;
 
 
@@ -3475,7 +3493,6 @@ begin
       cmField:     if gPlayers[MySpectator.PlayerIndex].CanAddFieldPlan(P, ft_Corn) then gPlayers[MySpectator.PlayerIndex].AddField(P, ft_Corn);
       cmWine:      if gPlayers[MySpectator.PlayerIndex].CanAddFieldPlan(P, ft_Wine) then gPlayers[MySpectator.PlayerIndex].AddField(P, ft_Wine);
       //cm_Wall:  if fPlayers[MySpectator.PlayerIndex].CanAddFieldPlan(P, ft_Wall) then fPlayers[MySpectator.PlayerIndex].AddField(P, ft_Wine);
-      cmObjects:   if GameCursor.Tag1 = 255 then gTerrain.SetTree(P, 255); //Allow many objects to be deleted at once
       cmUnits:     if GameCursor.Tag1 = 255 then gPlayers.RemAnyUnit(P);
       cmErase:     case GetShownPage of
                       esp_Terrain:    gTerrain.Land[P.Y,P.X].Obj := 255;
@@ -3527,9 +3544,14 @@ begin
       cmTiles:    begin
                     SetTileDirection(GameCursor.MapEdDir+1); //Rotate tile direction
                     TilesRandom.Checked := false; //Reset
+                    fGame.MapEditor.TerrainPainter.MakeCheckpoint;
                   end;
-      cmObjects:  gTerrain.Land[P.Y,P.X].Obj := 255; //Delete object
+      cmObjects:  begin
+                    gTerrain.Land[P.Y,P.X].Obj := 255; //Delete object
+                    fGame.MapEditor.TerrainPainter.MakeCheckpoint;
+                  end;
     end;
+
     //Move the selected object to the cursor location
     if MySpectator.Selected is TKMHouse then
       TKMHouse(MySpectator.Selected).SetPosition(P); //Can place is checked in SetPosition
@@ -3593,9 +3615,11 @@ begin
                     if not(ssShift in Shift) then Town_BuildChange(Button_BuildRoad);
                   end;
       cmElevate,
-      cmEqualize:; //handled in UpdateStateIdle
-      cmMagicWater:fTerrainPainter.MagicWater(P);
-      cmObjects:  gTerrain.SetTree(P, GameCursor.Tag1);
+      cmEqualize,
+      cmBrush,
+      cmObjects,
+      cmTiles:      fGame.MapEditor.TerrainPainter.MakeCheckpoint;
+      cmMagicWater: fGame.MapEditor.TerrainPainter.MagicWater(P);
       cmUnits:    if GameCursor.Tag1 = 255 then
                     gPlayers.RemAnyUnit(P)
                   else

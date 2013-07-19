@@ -183,7 +183,7 @@ uses
   KM_CommonClasses, KM_Log, KM_Utils, KM_GameCursor,
   KM_ArmyEvaluation, KM_GameApp, KM_GameInfo, KM_MissionScript, KM_MissionScript_Standard,
   KM_Player, KM_PlayerSpectator, KM_PlayersCollection, KM_RenderPool, KM_Resource, KM_ResCursors,
-  KM_ResSound, KM_Terrain, KM_TerrainPainter, KM_AIFields, KM_Maps, KM_Sound,
+  KM_ResSound, KM_Terrain, KM_AIFields, KM_Maps, KM_Sound,
   KM_Scripting, KM_GameInputProcess_Single, KM_GameInputProcess_Multi, KM_Main;
 
 
@@ -277,7 +277,6 @@ begin
 
   FreeThenNil(fMapEditor);
   FreeThenNil(gPlayers);
-  FreeThenNil(fTerrainPainter);
   FreeThenNil(gTerrain);
   FreeAndNil(fAIFields);
   FreeAndNil(gProjectiles);
@@ -433,7 +432,6 @@ begin
   begin
     //Mission loader needs to read the data into MapEd (e.g. FOW revealers)
     fMapEditor := TKMMapEditor.Create;
-    fTerrainPainter := TKMTerrainPainter.Create;
   end;
 
   Parser := TMissionParserStandard.Create(ParseMode, PlayerEnabled, False);
@@ -833,10 +831,10 @@ begin
   fMissionFile := '';
   fSaveFile := '';
 
-  gTerrain.MakeNewMap(aSizeX, aSizeY, True);
-  fTerrainPainter := TKMTerrainPainter.Create;
-
   fMapEditor := TKMMapEditor.Create;
+  gTerrain.MakeNewMap(aSizeX, aSizeY, True);
+  fMapEditor.TerrainPainter.MakeCheckpoint;
+
   gPlayers.AddPlayers(MAX_PLAYERS); //Create MAX players
   gPlayers[0].PlayerType := pt_Human; //Make Player1 human by default
   for I := 0 to gPlayers.Count - 1 do
@@ -896,7 +894,7 @@ begin
   gLog.AddTime('Saving from map editor: ' + aPathName);
 
   gTerrain.SaveToFile(ChangeFileExt(aPathName, '.map'));
-  fTerrainPainter.SaveToFile(ChangeFileExt(aPathName, '.map'));
+  fMapEditor.TerrainPainter.SaveToFile(ChangeFileExt(aPathName, '.map'));
   fMissionParser := TMissionParserStandard.Create(mpm_Editor, false);
   fMissionParser.SaveDATFile(ChangeFileExt(aPathName, '.dat'));
   FreeAndNil(fMissionParser);
@@ -1543,8 +1541,8 @@ begin
     fViewport.UpdateStateIdle(aFrameTime); //Check to see if we need to scroll
 
   //Terrain should be updated in real time when user applies brushes
-  if fTerrainPainter <> nil then
-    fTerrainPainter.UpdateStateIdle;
+  if fMapEditor <> nil then
+    fMapEditor.TerrainPainter.UpdateStateIdle;
 end;
 
 

@@ -96,7 +96,7 @@ begin
   begin
     gTerrain.LoadFromFile(ChangeFileExt(fMissionFileName, '.map'), fParsingMode = mpm_Editor);
     if fParsingMode = mpm_Editor then
-      fTerrainPainter.LoadFromFile(ChangeFileExt(fMissionFileName, '.map'));
+      fGame.MapEditor.TerrainPainter.LoadFromFile(ChangeFileExt(fMissionFileName, '.map'));
   end
   else
   begin

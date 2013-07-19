@@ -5,6 +5,8 @@ uses Classes, KromUtils, Math, SysUtils,
   KM_CommonClasses, KM_Defaults, KM_Points,
   KM_Terrain;
 
+const
+  MAX_UNDO = 5;
 
 type
   TTerrainKind = (
@@ -16,13 +18,27 @@ type
     tkAbyss, tkGravel, tkWater, tkCoal, tkGold,
     tkIron, tkFastWater, tkLava);
 
-  //Terrain helper that is used to paint terrain types by Map Editor
+  TKMCheckpointTile = packed record
+    Terrain: Byte;
+    Height: Byte;
+    Rotation: Byte;
+    Obj: Byte;
+    TerType: TTerrainKind;
+  end;
+
+  //Terrain helper that is used to paint terrain types in Map Editor
   TKMTerrainPainter = class
   private
-    //Fraction part of height, for smooth height editing
-    HeightAdd: array [1 .. MAX_MAP_SIZE, 1 .. MAX_MAP_SIZE] of Byte;
+    fCheckpointPos: Byte;
+    fCheckpoints: array [0..MAX_UNDO] of record
+      HasData: Boolean;
+      Data: array [1..MAX_MAP_SIZE, 1..MAX_MAP_SIZE] of TKMCheckpointTile;
+    end;
 
-    Land2: array [1 .. MAX_MAP_SIZE, 1 .. MAX_MAP_SIZE] of record
+    //Fraction part of height, for smooth height editing
+    HeightAdd: array [1..MAX_MAP_SIZE, 1..MAX_MAP_SIZE] of Byte;
+
+    Land2: array [1..MAX_MAP_SIZE, 1..MAX_MAP_SIZE] of record
       TerType: TTerrainKind; //Stores terrain type per node
       Tiles: SmallInt;  //Stores kind of transition tile used, no need to save into MAP footer
     end;
@@ -32,6 +48,7 @@ type
     MapXn2,MapYn2:integer; //keeps previous node position
     MapXc2,MapYc2:integer; //keeps previous cell position
 
+    procedure CheckpointToTerrain;
     procedure BrushTerrainTile(X, Y: SmallInt; aTerrainKind: TTerrainKind);
     function PickRandomTile(aTerrainKind: TTerrainKind): Byte;
     procedure RebuildMap(X,Y,Rad: Integer; aSquare: Boolean);
@@ -49,11 +66,14 @@ type
     procedure UpdateStateIdle;
     procedure MagicWater(aLoc: TKMPoint);
     property TerrainKind[Y,X: Integer]: TTerrainKind read GetTerrainKind write SetTerrainKind;
+
+    function CanUndo: Boolean;
+    function CanRedo: Boolean;
+
+    procedure MakeCheckpoint;
+    procedure Undo;
+    procedure Redo;
   end;
-
-
-var
-  fTerrainPainter: TKMTerrainPainter;
 
 
 const
@@ -490,6 +510,7 @@ begin
                       end;
                   end;
       end;
+  MakeCheckpoint;
 end;
 
 
@@ -753,12 +774,15 @@ begin
   finally
     S.Free;
   end;
+
   //We can regenerate the MapEd data if it's missing (won't be as good as the original)
   if not MapEdChunkFound then
   begin
     gLog.AddNoTime('Regenerating missing MapEd data as best as we can');
     GenerateAddnData;
   end;
+
+  MakeCheckpoint;
 end;
 
 
@@ -801,20 +825,104 @@ begin
 end;
 
 
+procedure TKMTerrainPainter.MakeCheckpoint;
+var
+  I,K: Integer;
+begin
+  //Get next pos in circular buffer
+  fCheckpointPos := (fCheckpointPos + 1) mod MAX_UNDO;
+
+  //Store new checkpoint
+  for I := 1 to gTerrain.MapY do
+  for K := 1 to gTerrain.MapX do
+  with fCheckpoints[fCheckpointPos] do
+  begin
+    Data[I,K].Terrain := gTerrain.Land[I,K].Terrain;
+    Data[I,K].Height := gTerrain.Land[I,K].Height;
+    Data[I,K].Rotation := gTerrain.Land[I,K].Rotation;
+    Data[I,K].Obj := gTerrain.Land[I,K].Obj;
+    Data[I,K].TerType := Land2[I,K].TerType;
+  end;
+  fCheckpoints[fCheckpointPos].HasData := True;
+
+  //Mark next checkpoint pos as invalid, so we can't Redo to it
+  fCheckpoints[(fCheckpointPos + 1) mod MAX_UNDO].HasData := False;
+end;
+
+
+function TKMTerrainPainter.CanUndo: Boolean;
+begin
+  Result := fCheckpoints[(fCheckpointPos - 1 + MAX_UNDO) mod MAX_UNDO].HasData;
+end;
+
+
+function TKMTerrainPainter.CanRedo: Boolean;
+begin
+  Result := fCheckpoints[(fCheckpointPos + 1) mod MAX_UNDO].HasData;
+end;
+
+
+procedure TKMTerrainPainter.Undo;
+var
+  Prev: Byte;
+begin
+  Prev := (fCheckpointPos - 1 + MAX_UNDO) mod MAX_UNDO;
+
+  if not fCheckpoints[Prev].HasData then Exit;
+
+  fCheckpointPos := Prev;
+  CheckpointToTerrain;
+end;
+
+
+procedure TKMTerrainPainter.Redo;
+var
+  Next: Byte;
+begin
+  //Next pos in circular buffer
+  Next := (fCheckpointPos + 1) mod MAX_UNDO;
+
+  if not fCheckpoints[Next].HasData then Exit;
+
+  fCheckpointPos := Next;
+
+  CheckpointToTerrain;
+end;
+
+
+procedure TKMTerrainPainter.CheckpointToTerrain;
+var
+  I,K: Integer;
+begin
+  for I := 1 to gTerrain.MapY do
+  for K := 1 to gTerrain.MapX do
+  with fCheckpoints[fCheckpointPos] do
+  begin
+    gTerrain.Land[I,K].Terrain := Data[I,K].Terrain;
+    gTerrain.Land[I,K].Height := Data[I,K].Height;
+    gTerrain.Land[I,K].Rotation := Data[I,K].Rotation;
+    gTerrain.Land[I,K].Obj := Data[I,K].Obj;
+    Land2[I,K].TerType := Data[I,K].TerType;
+  end;
+end;
+
+
 //Only MapEd accesses it
 procedure TKMTerrainPainter.UpdateStateIdle;
 begin
   case GameCursor.Mode of
     cmElevate,
-    cmEqualize:  if (ssLeft in GameCursor.SState) or (ssRight in GameCursor.SState) then
+    cmEqualize:   if (ssLeft in GameCursor.SState) or (ssRight in GameCursor.SState) then
                     EditHeight;
-    cmBrush:     if (ssLeft in GameCursor.SState) then
+    cmBrush:      if (ssLeft in GameCursor.SState) then
                     EditBrush(GameCursor.Cell);
-    cmTiles:     if (ssLeft in GameCursor.SState) then
+    cmTiles:      if (ssLeft in GameCursor.SState) then
                     if GameCursor.MapEdDir in [0..3] then //Defined direction
                       EditTile(GameCursor.Cell, GameCursor.Tag1, GameCursor.MapEdDir)
                     else //Random direction
                       EditTile(GameCursor.Cell, GameCursor.Tag1, KaMRandom(4));
+    cmObjects:    if (ssLeft in GameCursor.SState) then
+                    gTerrain.SetTree(GameCursor.Cell, GameCursor.Tag1);
   end;
 end;
 

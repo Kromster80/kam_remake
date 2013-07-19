@@ -75,9 +75,11 @@ type
     procedure Paint;
   end;
 
+type
   //Designed to store MapEd specific data and methods
   TKMMapEditor = class
   private
+    fTerrainPainter: TKMTerrainPainter;
     fDeposits: TKMDeposits;
     fSelection: TKMSelection;
     fRevealers: array [0..MAX_PLAYERS-1] of TKMPointTagList;
@@ -92,6 +94,7 @@ type
     PlayerAI: array [0..MAX_PLAYERS - 1] of Boolean;
     constructor Create;
     destructor Destroy; override;
+    property TerrainPainter: TKMTerrainPainter read fTerrainPainter;
     property Deposits: TKMDeposits read fDeposits;
     property Selection: TKMSelection read fSelection;
     property Revealers[aIndex: Byte]: TKMPointTagList read GetRevealer;
@@ -139,17 +142,17 @@ end;
 //Get tile resource deposit
 function TKMDeposits.TileDeposit(aMat: TRawDeposit; X,Y: Word): Byte;
 var
-curUnit : TKMUnit;
+  curUnit: TKMUnit;
 begin
   case aMat of
-    rdStone: Result := 3*gTerrain.TileIsStone(X, Y); //3 stone produced by each time
+    rdStone: Result := 3 * gTerrain.TileIsStone(X, Y); //3 stone produced from each chunk
     rdCoal:  Result := gTerrain.TileIsCoal(X, Y);
     rdIron:  Result := gTerrain.TileIsIron(X, Y);
     rdGold:  Result := gTerrain.TileIsGold(X, Y);
     rdFish:  begin
                curUnit := gTerrain.Land[Y, X].IsUnit;
                if (curUnit <> nil) and (curUnit is TKMUnitAnimal) and (curUnit.UnitType = ut_Fish) then
-                 Result := 2*TKMUnitAnimal(curUnit).FishCount //You get 2 fish from each trip
+                 Result := 2 * TKMUnitAnimal(curUnit).FishCount //You get 2 fish from each trip
                else
                  Result := 0;
              end
@@ -323,7 +326,7 @@ begin
     fBuffer[By,Bx].Obj         := gTerrain.Land[I+1, K+1].Obj;
     fBuffer[By,Bx].OldTerrain  := gTerrain.Land[I+1, K+1].OldTerrain;
     fBuffer[By,Bx].OldRotation := gTerrain.Land[I+1, K+1].OldRotation;
-    fBuffer[By,Bx].TerrainKind := fTerrainPainter.TerrainKind[I+1, K+1];
+//TODO: Move to TerrainPainter    fBuffer[By,Bx].TerrainKind := fTerrainPainter.TerrainKind[I+1, K+1];
   end;
 end;
 
@@ -355,7 +358,7 @@ begin
     gTerrain.Land[I+1, K+1].Obj         := fBuffer[By,Bx].Obj;
     gTerrain.Land[I+1, K+1].OldTerrain  := fBuffer[By,Bx].OldTerrain;
     gTerrain.Land[I+1, K+1].OldRotation := fBuffer[By,Bx].OldRotation;
-    fTerrainPainter.TerrainKind[I+1, K+1] := fBuffer[By,Bx].TerrainKind;
+//TODO: Move to TerrainPainter    fTerrainPainter.TerrainKind[I+1, K+1] := fBuffer[By,Bx].TerrainKind;
   end;
 
   gTerrain.UpdateLighting(fRect);
@@ -402,6 +405,7 @@ var
 begin
   inherited Create;
 
+  fTerrainPainter := TKMTerrainPainter.Create;
   fDeposits := TKMDeposits.Create;
   fSelection := TKMSelection.Create;
 
@@ -416,6 +420,7 @@ destructor TKMMapEditor.Destroy;
 var
   I: Integer;
 begin
+  FreeAndNil(fTerrainPainter);
   FreeAndNil(fDeposits);
   FreeAndNil(fSelection);
 
