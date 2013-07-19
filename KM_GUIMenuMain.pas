@@ -7,7 +7,7 @@ uses
 
 
 type
-  TKMGUIMenuMain = class
+  TKMMenuMain = class
   private
     fOnPageChange: TGUIEventText;
 
@@ -34,7 +34,7 @@ uses KM_Main, KM_ResTexts, KM_GameApp, KM_RenderUI, KM_ResFonts;
 
 
 { TKMGUIMenuMain }
-constructor TKMGUIMenuMain.Create(aParent: TKMPanel; aOnPageChange: TGUIEventText);
+constructor TKMMenuMain.Create(aParent: TKMPanel; aOnPageChange: TGUIEventText);
 begin
   inherited Create;
 
@@ -69,7 +69,7 @@ begin
 end;
 
 
-procedure TKMGUIMenuMain.ButtonClick(Sender: TObject);
+procedure TKMMenuMain.ButtonClick(Sender: TObject);
 begin
   if Sender = Button_MM_SinglePlayer then
     fOnPageChange(gpSinglePlayer);
@@ -104,7 +104,7 @@ begin
 end;
 
 
-procedure TKMGUIMenuMain.Show;
+procedure TKMMenuMain.Show;
 begin
   Panel_MainMenu.Show;
 end;

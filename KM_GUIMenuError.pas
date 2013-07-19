@@ -7,7 +7,7 @@ uses
 
 
 type
-  TKMGUIMenuError = class
+  TKMMenuError = class
   private
     fOnPageChange: TGUIEventText;
 
@@ -28,7 +28,7 @@ uses KM_ResTexts, KM_RenderUI, KM_ResFonts;
 
 
 { TKMGUIMenuError }
-constructor TKMGUIMenuError.Create(aParent: TKMPanel; aOnPageChange: TGUIEventText);
+constructor TKMMenuError.Create(aParent: TKMPanel; aOnPageChange: TGUIEventText);
 begin
   inherited Create;
 
@@ -47,13 +47,13 @@ begin
 end;
 
 
-procedure TKMGUIMenuError.BackClick(Sender: TObject);
+procedure TKMMenuError.BackClick(Sender: TObject);
 begin
   fOnPageChange(gpMainMenu);
 end;
 
 
-procedure TKMGUIMenuError.Show(aText: UnicodeString);
+procedure TKMMenuError.Show(aText: UnicodeString);
 begin
   Label_Error.Caption := aText;
   Panel_Error.Show;

@@ -8,7 +8,7 @@ uses
 
 
 type
-  TKMGUIMainCampaign = class {(TKMGUIPage)}
+  TKMMenuCampaign = class {(TKMGUIPage)}
   private
     fOnPageChange: TGUIEventText; //will be in ancestor class
 
@@ -44,7 +44,7 @@ uses KM_GameApp, KM_ResTexts, KM_RenderUI, KM_ResFonts;
 
 
 { TKMGUIMainCampaign }
-constructor TKMGUIMainCampaign.Create(aParent: TKMPanel; aOnPageChange: TGUIEventText);
+constructor TKMMenuCampaign.Create(aParent: TKMPanel; aOnPageChange: TGUIEventText);
 var
   I: Integer;
 begin
@@ -94,7 +94,7 @@ begin
 end;
 
 
-procedure TKMGUIMainCampaign.Campaign_Set(aCampaign: TKMCampaign);
+procedure TKMMenuCampaign.Campaign_Set(aCampaign: TKMCampaign);
 const MapPic: array [Boolean] of byte = (10, 11);
 var I: Integer;
 begin
@@ -129,7 +129,7 @@ begin
 end;
 
 
-procedure TKMGUIMainCampaign.Campaign_SelectMap(Sender: TObject);
+procedure TKMMenuCampaign.Campaign_SelectMap(Sender: TObject);
 var
   I: Integer;
 begin
@@ -161,14 +161,14 @@ begin
 end;
 
 
-procedure TKMGUIMainCampaign.StartClick(Sender: TObject);
+procedure TKMMenuCampaign.StartClick(Sender: TObject);
 begin
   fGameApp.MusicLib.StopPlayingOtherFile;
   fGameApp.NewCampaignMap(fCampaign, fMapIndex);
 end;
 
 
-procedure TKMGUIMainCampaign.Resize(X, Y: Word);
+procedure TKMMenuCampaign.Resize(X, Y: Word);
 var
   I: Integer;
 begin
@@ -191,7 +191,7 @@ end;
 
 
 //Mission description jumps around to allow to pick any of beaten maps
-procedure TKMGUIMainCampaign.MouseMove(Shift: TShiftState; X,Y: Integer);
+procedure TKMMenuCampaign.MouseMove(Shift: TShiftState; X,Y: Integer);
 begin
   //If cursor hits the description, toggle it between left/right corner
   if InRange(Y - Panel_CampScroll.AbsTop, 0, Panel_CampScroll.Height)
@@ -200,7 +200,7 @@ begin
 end;
 
 
-procedure TKMGUIMainCampaign.Show(aCampaign: AnsiString);
+procedure TKMMenuCampaign.Show(aCampaign: AnsiString);
 begin
   Campaign_Set(fGameApp.Campaigns.CampaignByTitle(aCampaign));
 
@@ -209,7 +209,7 @@ begin
 end;
 
 
-procedure TKMGUIMainCampaign.BackClick(Sender: TObject);
+procedure TKMMenuCampaign.BackClick(Sender: TObject);
 begin
   fGameApp.MusicLib.StopPlayingOtherFile; //Cancel briefing if it was playing
 

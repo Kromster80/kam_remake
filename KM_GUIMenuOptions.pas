@@ -8,7 +8,7 @@ uses
 
 
 type
-  TKMGUIMainOptions = class {(TKMGUIPage)}
+  TKMMenuOptions = class {(TKMGUIPage)}
   private
     fOnPageChange: TGUIEventText; //will be in ancestor class
 
@@ -65,7 +65,7 @@ uses KM_Main, KM_ResTexts, KM_GameApp, KM_ResLocales, KM_Sound, KM_RenderUI, KM_
 
 
 { TKMGUIMainOptions }
-constructor TKMGUIMainOptions.Create(aParent: TKMPanel; aOnPageChange: TGUIEventText);
+constructor TKMMenuOptions.Create(aParent: TKMPanel; aOnPageChange: TGUIEventText);
 var
   I: Integer;
 begin
@@ -177,7 +177,7 @@ begin
 end;
 
 
-destructor TKMGUIMainOptions.Destroy;
+destructor TKMMenuOptions.Destroy;
 begin
 
   inherited;
@@ -187,7 +187,7 @@ end;
 //This is called when the options page is shown, so update all the values
 //Note: Options can be required to fill before fGameApp is completely initialized,
 //hence we need to pass either fGameApp.Settings or a direct Settings link
-procedure TKMGUIMainOptions.Refresh;
+procedure TKMMenuOptions.Refresh;
 begin
   CheckBox_Options_Autosave.Checked     := fGameSettings.Autosave;
   TrackBar_Options_Brightness.Position  := fGameSettings.Brightness;
@@ -209,7 +209,7 @@ end;
 
 
 //Changed options are saved immediately (cos they are easy to restore/rollback)
-procedure TKMGUIMainOptions.Change(Sender: TObject);
+procedure TKMMenuOptions.Change(Sender: TObject);
 var
   MusicToggled, ShuffleToggled: Boolean;
 begin
@@ -250,7 +250,7 @@ end;
 
 
 //Apply resolution changes
-procedure TKMGUIMainOptions.ChangeResolution(Sender: TObject);
+procedure TKMMenuOptions.ChangeResolution(Sender: TObject);
 var
   I: Integer;
   ResID, RefID: Integer;
@@ -288,7 +288,7 @@ begin
 end;
 
 
-procedure TKMGUIMainOptions.ApplyResolution(Sender: TObject);
+procedure TKMMenuOptions.ApplyResolution(Sender: TObject);
 var
   ResID, RefID: Integer;
   NewResolution: TScreenRes;
@@ -308,7 +308,7 @@ begin
 end;
 
 
-procedure TKMGUIMainOptions.FlagClick(Sender: TObject);
+procedure TKMMenuOptions.FlagClick(Sender: TObject);
 begin
   Assert(Sender is TKMImage);
   Radio_Options_Lang.ItemIndex := TKMImage(Sender).Tag;
@@ -317,7 +317,7 @@ end;
 
 
 //Resets dropboxes, they will have correct values
-procedure TKMGUIMainOptions.RefreshResolutions;
+procedure TKMMenuOptions.RefreshResolutions;
 var I: Integer; R: TResIndex;
 begin
   DropBox_Options_Resolution.Clear;
@@ -364,7 +364,7 @@ begin
 end;
 
 
-procedure TKMGUIMainOptions.Show;
+procedure TKMMenuOptions.Show;
 begin
   //Remember what we are working with
   //(we do that on Show because Create gets called from Main/Game constructor and fMain/fGameApp are not yet assigned)
@@ -378,7 +378,7 @@ begin
 end;
 
 
-procedure TKMGUIMainOptions.BackClick(Sender: TObject);
+procedure TKMMenuOptions.BackClick(Sender: TObject);
 begin
   //Return to MainMenu and restore resolution changes
   fMainSettings.SaveSettings;

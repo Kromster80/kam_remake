@@ -8,7 +8,7 @@ uses
 
 
 type
-  TKMGUIMainMapEditor = class {(TKMGUIPage)}
+  TKMMenuMapEditor = class {(TKMGUIPage)}
   private
     fOnPageChange: TGUIEventText; //will be in ancestor class
 
@@ -54,7 +54,7 @@ const
 
 
 { TKMGUIMainMapEditor }
-constructor TKMGUIMainMapEditor.Create(aParent: TKMPanel; aOnPageChange: TGUIEventText);
+constructor TKMMenuMapEditor.Create(aParent: TKMPanel; aOnPageChange: TGUIEventText);
 var I: Integer;
 begin
   inherited Create;
@@ -112,7 +112,7 @@ begin
 end;
 
 
-destructor TKMGUIMainMapEditor.Destroy;
+destructor TKMMenuMapEditor.Destroy;
 begin
   fMaps.Free;
   fMapsMP.Free;
@@ -121,7 +121,7 @@ begin
 end;
 
 
-procedure TKMGUIMainMapEditor.StartClick(Sender: TObject);
+procedure TKMMenuMapEditor.StartClick(Sender: TObject);
 var
   MapEdSizeX, MapEdSizeY: Integer;
   ID: Integer;
@@ -156,14 +156,14 @@ begin
 end;
 
 
-procedure TKMGUIMainMapEditor.MapTypeChange(Sender: TObject);
+procedure TKMMenuMapEditor.MapTypeChange(Sender: TObject);
 begin
   ListUpdate;
 end;
 
 
 //Clear the list and initiate refresh
-procedure TKMGUIMainMapEditor.ListUpdate;
+procedure TKMMenuMapEditor.ListUpdate;
 begin
   //Terminate both
   fMaps.TerminateScan;
@@ -182,19 +182,19 @@ begin
 end;
 
 
-procedure TKMGUIMainMapEditor.ScanUpdate(Sender: TObject);
+procedure TKMMenuMapEditor.ScanUpdate(Sender: TObject);
 begin
   RefreshList(False); //Don't jump to selected with each scan update
 end;
 
 
-procedure TKMGUIMainMapEditor.SortUpdate(Sender: TObject);
+procedure TKMMenuMapEditor.SortUpdate(Sender: TObject);
 begin
   RefreshList(True); //After sorting jump to the selected item
 end;
 
 
-procedure TKMGUIMainMapEditor.RefreshList(aJumpToSelected:Boolean);
+procedure TKMMenuMapEditor.RefreshList(aJumpToSelected:Boolean);
 var
   I, PrevTop: Integer;
   Maps: TKMapsCollection;
@@ -233,7 +233,7 @@ begin
 end;
 
 
-procedure TKMGUIMainMapEditor.ColumnClick(aValue: Integer);
+procedure TKMMenuMapEditor.ColumnClick(aValue: Integer);
 var
   SM: TMapsSortMethod;
 begin
@@ -261,7 +261,7 @@ begin
 end;
 
 
-procedure TKMGUIMainMapEditor.SelectMap(Sender: TObject);
+procedure TKMMenuMapEditor.SelectMap(Sender: TObject);
 var
   ID: Integer;
   Maps: TKMapsCollection;
@@ -293,7 +293,7 @@ begin
 end;
 
 
-procedure TKMGUIMainMapEditor.BackClick(Sender: TObject);
+procedure TKMMenuMapEditor.BackClick(Sender: TObject);
 begin
   fMaps.TerminateScan;
   fMapsMP.TerminateScan;
@@ -302,14 +302,14 @@ begin
 end;
 
 
-procedure TKMGUIMainMapEditor.Show;
+procedure TKMMenuMapEditor.Show;
 begin
   ListUpdate;
   Panel_MapEd.Show;
 end;
 
 
-procedure TKMGUIMainMapEditor.UpdateState;
+procedure TKMMenuMapEditor.UpdateState;
 begin
   fMaps.UpdateState;
   fMapsMP.UpdateState;

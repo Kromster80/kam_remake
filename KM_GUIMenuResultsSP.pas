@@ -8,7 +8,7 @@ uses
 
 
 type
-  TKMGUIMenuResultsSP = class
+  TKMMenuResultsSP = class
   private
     fOnPageChange: TGUIEventText; //will be in ancestor class
     fGameResultMsg: TGameResultMsg; //So we know where to go after results screen
@@ -63,7 +63,7 @@ uses KM_ResTexts, KM_Game, KM_GameApp, KM_PlayersCollection,
 
 
 { TKMGUIMenuResultsSP }
-constructor TKMGUIMenuResultsSP.Create(aParent: TKMPanel; aOnPageChange: TGUIEventText);
+constructor TKMMenuResultsSP.Create(aParent: TKMPanel; aOnPageChange: TGUIEventText);
 begin
   inherited Create;
 
@@ -72,7 +72,7 @@ begin
 end;
 
 
-procedure TKMGUIMenuResultsSP.Refresh;
+procedure TKMMenuResultsSP.Refresh;
 var
   TempGraphCount: Integer;
   TempGraphs: array [0..MAX_PLAYERS-1] of record
@@ -233,7 +233,7 @@ begin
 end;
 
 
-procedure TKMGUIMenuResultsSP.GraphToggle(Sender: TObject);
+procedure TKMMenuResultsSP.GraphToggle(Sender: TObject);
 begin
   Chart_Army.Visible := Sender = Button_ResultsArmy;
   Chart_Citizens.Visible := Sender = Button_ResultsCitizens;
@@ -247,7 +247,7 @@ begin
 end;
 
 
-procedure TKMGUIMenuResultsSP.Show(aMsg: TGameResultMsg);
+procedure TKMMenuResultsSP.Show(aMsg: TGameResultMsg);
 begin
   fGameResultMsg := aMsg;
 
@@ -265,7 +265,7 @@ begin
 end;
 
 
-procedure TKMGUIMenuResultsSP.Create_Results(aParent: TKMPanel);
+procedure TKMMenuResultsSP.Create_Results(aParent: TKMPanel);
 const StatText: array [1..9] of Word = (
     TX_RESULTS_UNITS_LOST,      TX_RESULTS_UNITS_DEFEATED,  TX_RESULTS_HOUSES_LOST,
     TX_RESULTS_HOUSES_DESTROYED,TX_RESULTS_HOUSES_BUILT,    TX_RESULTS_UNITS_TRAINED,
@@ -376,7 +376,7 @@ begin
 end;
 
 
-procedure TKMGUIMenuResultsSP.BackClick(Sender: TObject);
+procedure TKMMenuResultsSP.BackClick(Sender: TObject);
 begin
   //todo:
   //Depending on where we were created we need to return to a different place
@@ -391,13 +391,13 @@ begin
 end;
 
 
-procedure TKMGUIMenuResultsSP.ContinueClick(Sender: TObject);
+procedure TKMMenuResultsSP.ContinueClick(Sender: TObject);
 begin
   fOnPageChange(gpCampaign);
 end;
 
 
-procedure TKMGUIMenuResultsSP.RepeatClick(Sender: TObject);
+procedure TKMMenuResultsSP.RepeatClick(Sender: TObject);
 begin
   //Means replay last map
   fGameApp.NewRestartLast(fRepeatGameName, fRepeatMission, fRepeatSave, fRepeatCampName, fRepeatCampMap, fRepeatLocation, fRepeatColor);

@@ -8,7 +8,7 @@ uses
 
 
 type
-  TKMGUIMainCampaigns = class {(TKMGUIPage)}
+  TKMMenuCampaigns = class {(TKMGUIPage)}
   private
     fOnPageChange: TGUIEventText; //will be in ancestor class
 
@@ -33,7 +33,7 @@ uses KM_ResTexts, KM_ResFonts, KM_GameApp, KM_RenderUI;
 
 
 { TKMMainMenuInterface }
-constructor TKMGUIMainCampaigns.Create(aParent: TKMPanel; aOnPageChange: TGUIEventText);
+constructor TKMMenuCampaigns.Create(aParent: TKMPanel; aOnPageChange: TGUIEventText);
 var L: TKMLabel;
 begin
   inherited Create;
@@ -75,7 +75,7 @@ begin
 end;
 
 
-procedure TKMGUIMainCampaigns.RefreshList;
+procedure TKMMenuCampaigns.RefreshList;
 var
   I: Integer;
   Camps: TKMCampaignsCollection;
@@ -95,7 +95,7 @@ begin
 end;
 
 
-procedure TKMGUIMainCampaigns.ListChange(Sender: TObject);
+procedure TKMMenuCampaigns.ListChange(Sender: TObject);
 var Camp: TKMCampaign;
 begin
   Button_Camp_Start.Enable;
@@ -108,7 +108,7 @@ begin
 end;
 
 
-procedure TKMGUIMainCampaigns.StartClick(Sender: TObject);
+procedure TKMMenuCampaigns.StartClick(Sender: TObject);
 var
   CmpName: AnsiString;
 begin
@@ -117,13 +117,13 @@ begin
 end;
 
 
-procedure TKMGUIMainCampaigns.BackClick(Sender: TObject);
+procedure TKMMenuCampaigns.BackClick(Sender: TObject);
 begin
   fOnPageChange(gpSingleplayer);
 end;
 
 
-procedure TKMGUIMainCampaigns.Show;
+procedure TKMMenuCampaigns.Show;
 begin
   RefreshList;
 

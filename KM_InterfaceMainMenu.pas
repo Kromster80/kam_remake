@@ -2,7 +2,7 @@ unit KM_InterfaceMainMenu;
 {$I KaM_Remake.inc}
 interface
 uses
-  StrUtils, SysUtils, KromUtils, Math, Classes, Controls,
+  Classes, Controls, Math,
   KM_Controls, KM_Defaults, KM_Pics,
   KM_InterfaceDefaults,
   KM_GUIMenuCampaign,
@@ -24,24 +24,24 @@ uses
 
 
 type
-  TKMMainMenuInterface = class (TKMUserInterface)
+  TKMMainMenuInterface = class(TKMUserInterface)
   private
-    fGuiCampaign: TKMGUIMainCampaign;
-    fGuiCampaigns: TKMGUIMainCampaigns;
-    fGuiCredits: TKMGUIMainCredits;
-    fGuiError: TKMGUIMenuError;
-    fGuiLoad: TKMGUIMenuLoad;
-    fGuiLoading: TKMGUIMenuLoading;
-    fGuiLobby: TKMGUIMenuLobby;
-    fGuiMain: TKMGUIMenuMain;
-    fGuiMapEditor: TKMGUIMainMapEditor;
-    fGuiMultiplayer: TKMGUIMainMultiplayer;
-    fGuiOptions: TKMGUIMainOptions;
-    fGuiReplays: TKMGUIMenuReplays;
-    fGuiResultsMP: TKMGUIMenuResultsMP;
-    fGuiResultsSP: TKMGUIMenuResultsSP;
-    fGuiSingleMap: TKMGUIMenuSingleMap;
-    fGuiSinglePlayer: TKMGUIMenuSinglePlayer;
+    fMenuCampaign: TKMMenuCampaign;
+    fMenuCampaigns: TKMMenuCampaigns;
+    fMenuCredits: TKMMenuCredits;
+    fMenuError: TKMMenuError;
+    fMenuLoad: TKMMenuLoad;
+    fMenuLoading: TKMMenuLoading;
+    fMenuLobby: TKMMenuLobby;
+    fMenuMain: TKMMenuMain;
+    fMenuMapEditor: TKMMenuMapEditor;
+    fMenuMultiplayer: TKMMenuMultiplayer;
+    fMenuOptions: TKMMenuOptions;
+    fMenuReplays: TKMMenuReplays;
+    fMenuResultsMP: TKMMenuResultsMP;
+    fMenuResultsSP: TKMMenuResultsSP;
+    fMenuSingleMap: TKMMenuSingleMap;
+    fMenuSinglePlayer: TKMMenuSinglePlayer;
     //fPages: array [TGUIPage] of TKMGUIPage;
   protected
     Panel_Main: TKMPanel;
@@ -78,33 +78,31 @@ begin
   inherited;
   Assert(gResTexts <> nil, 'fTextMain should be initialized before MainMenuInterface');
 
-  Panel_Main := TKMPanel.Create(fMyControls, 0,
-                                             0,
-                                             MENU_DESIGN_X,
-                                             MENU_DESIGN_Y); //Parent Panel for whole menu
+  //Parent Panel for whole menu
+  Panel_Main := TKMPanel.Create(fMyControls, 0, 0, MENU_DESIGN_X, MENU_DESIGN_Y);
 
   //Background is the same for all pages, except Results/Campaign, which will render ontop
-  with TKMImage.Create(Panel_Main,-448,-216,960,600,17,rxGuiMain) do Anchors := [];
-  with TKMImage.Create(Panel_Main, 512,-216,960,600,18,rxGuiMain) do Anchors := [];
-  with TKMImage.Create(Panel_Main,-448, 384,960,600,19,rxGuiMain) do Anchors := [];
-  with TKMImage.Create(Panel_Main, 512, 384,960,600,20,rxGuiMain) do Anchors := [];
+  with TKMImage.Create(Panel_Main,-448,-216, 960, 600, 17, rxGuiMain) do Anchors := [];
+  with TKMImage.Create(Panel_Main, 512,-216, 960, 600, 18, rxGuiMain) do Anchors := [];
+  with TKMImage.Create(Panel_Main,-448, 384, 960, 600, 19, rxGuiMain) do Anchors := [];
+  with TKMImage.Create(Panel_Main, 512, 384, 960, 600, 20, rxGuiMain) do Anchors := [];
 
-  fGuiMain := TKMGUIMenuMain.Create(Panel_Main, PageChange);
-    fGuiSinglePlayer := TKMGUIMenuSinglePlayer.Create(Panel_Main, PageChange);
-      fGuiCampaigns := TKMGUIMainCampaigns.Create(Panel_Main, PageChange);
-        fGuiCampaign := TKMGUIMainCampaign.Create(Panel_Main, PageChange);
-      fGuiSingleMap := TKMGUIMenuSingleMap.Create(Panel_Main, PageChange);
-      fGuiLoad := TKMGUIMenuLoad.Create(Panel_Main, PageChange);
-    fGuiMultiplayer := TKMGUIMainMultiplayer.Create(Panel_Main, PageChange);
-      fGuiLobby := TKMGUIMenuLobby.Create(Panel_Main, PageChange);
-    fGuiMapEditor := TKMGUIMainMapEditor.Create(Panel_Main, PageChange);
-    fGuiReplays := TKMGUIMenuReplays.Create(Panel_Main, PageChange);
-    fGuiOptions := TKMGUIMainOptions.Create(Panel_Main, PageChange);
-    fGuiCredits := TKMGUIMainCredits.Create(Panel_Main, PageChange);
-    fGuiError := TKMGUIMenuError.Create(Panel_Main, PageChange);
-    fGuiLoading := TKMGUIMenuLoading.Create(Panel_Main, PageChange);
-    fGuiResultsMP := TKMGUIMenuResultsMP.Create(Panel_Main, PageChange);
-    fGuiResultsSP := TKMGUIMenuResultsSP.Create(Panel_Main, PageChange);
+  fMenuMain          := TKMMenuMain.Create(Panel_Main, PageChange);
+  fMenuSinglePlayer  := TKMMenuSinglePlayer.Create(Panel_Main, PageChange);
+  fMenuCampaigns     := TKMMenuCampaigns.Create(Panel_Main, PageChange);
+  fMenuCampaign      := TKMMenuCampaign.Create(Panel_Main, PageChange);
+  fMenuSingleMap     := TKMMenuSingleMap.Create(Panel_Main, PageChange);
+  fMenuLoad          := TKMMenuLoad.Create(Panel_Main, PageChange);
+  fMenuMultiplayer   := TKMMenuMultiplayer.Create(Panel_Main, PageChange);
+  fMenuLobby         := TKMMenuLobby.Create(Panel_Main, PageChange);
+  fMenuMapEditor     := TKMMenuMapEditor.Create(Panel_Main, PageChange);
+  fMenuReplays       := TKMMenuReplays.Create(Panel_Main, PageChange);
+  fMenuOptions       := TKMMenuOptions.Create(Panel_Main, PageChange);
+  fMenuCredits       := TKMMenuCredits.Create(Panel_Main, PageChange);
+  fMenuError         := TKMMenuError.Create(Panel_Main, PageChange);
+  fMenuLoading       := TKMMenuLoading.Create(Panel_Main, PageChange);
+  fMenuResultsMP     := TKMMenuResultsMP.Create(Panel_Main, PageChange);
+  fMenuResultsSP     := TKMMenuResultsSP.Create(Panel_Main, PageChange);
 
     {for i:=1 to length(FontFiles) do L[i]:=TKMLabel.Create(Panel_Main1,550,280+i*20,160,30,'This is a test string for KaM Remake ('+FontFiles[i],TKMFont(i),taLeft);//}
     //MyControls.AddTextEdit(Panel_Main, 32, 32, 200, 20, fnt_Grey);
@@ -131,22 +129,22 @@ end;
 
 destructor TKMMainMenuInterface.Destroy;
 begin
-  fGuiCampaign.Free;
-  fGuiCampaigns.Free;
-  fGuiCredits.Free;
-  fGuiError.Free;
-  fGuiLoad.Free;
-  fGuiLoading.Free;
-  fGuiLobby.Free;
-  fGuiMain.Free;
-  fGuiMapEditor.Free;
-  fGuiMultiplayer.Free;
-  fGuiOptions.Free;
-  fGuiReplays.Free;
-  fGuiResultsMP.Free;
-  fGuiResultsSP.Free;
-  fGuiSingleMap.Free;
-  fGuiSinglePlayer.Free;
+  fMenuCampaign.Free;
+  fMenuCampaigns.Free;
+  fMenuCredits.Free;
+  fMenuError.Free;
+  fMenuLoad.Free;
+  fMenuLoading.Free;
+  fMenuLobby.Free;
+  fMenuMain.Free;
+  fMenuMapEditor.Free;
+  fMenuMultiplayer.Free;
+  fMenuOptions.Free;
+  fMenuReplays.Free;
+  fMenuResultsMP.Free;
+  fMenuResultsSP.Free;
+  fMenuSingleMap.Free;
+  fMenuSinglePlayer.Free;
 
   inherited;
 end;
@@ -162,41 +160,41 @@ begin
   Panel_Main.Top  := (Y - Panel_Main.Height) div 2;
 
   //Needs to resize the map and move flag positions accordingly
-  fGuiCampaign.Resize(X, Y);
+  fMenuCampaign.Resize(X, Y);
 
   //Needs to swap map description / game settings on low resolution displays
-  fGuiLobby.Lobby_Resize(Panel_Main.Height);
+  fMenuLobby.Lobby_Resize(Panel_Main.Height);
 end;
 
 
 procedure TKMMainMenuInterface.AppendLoadingText(const aText: string);
 begin
-  fGuiLoading.AppendText(aText);
+  fMenuLoading.AppendText(aText);
 end;
 
 
 function TKMMainMenuInterface.GetChatText: string;
 begin
-  Result := fGuiLobby.GetChatText;
+  Result := fMenuLobby.GetChatText;
 end;
 
 
 //Access chat messages history to copy it over to gameplay chat
 function TKMMainMenuInterface.GetChatMessages: string;
 begin
-  Result := fGuiLobby.GetChatMessages;
+  Result := fMenuLobby.GetChatMessages;
 end;
 
 
 procedure TKMMainMenuInterface.ShowResultsMP(aMsg: TGameResultMsg);
 begin
-  fGuiResultsMP.Show(aMsg);
+  fMenuResultsMP.Show(aMsg);
 end;
 
 
 procedure TKMMainMenuInterface.ShowResultsSP(aMsg: TGameResultMsg);
 begin
-  fGuiResultsSP.Show(aMsg);
+  fMenuResultsSP.Show(aMsg);
 end;
 
 
@@ -212,28 +210,28 @@ begin
       Panel_Main.Childs[I].Hide;
 
   case Dest of
-    gpMainMenu:     fGuiMain.Show;
-    gpSingleplayer: fGuiSinglePlayer.Show;
-    gpLoad:         fGuiLoad.Show;
-    gpSingleMap:    fGuiSingleMap.Show;
-    gpMultiplayer:  fGuiMultiplayer.Show(aText);
+    gpMainMenu:     fMenuMain.Show;
+    gpSingleplayer: fMenuSinglePlayer.Show;
+    gpLoad:         fMenuLoad.Show;
+    gpSingleMap:    fMenuSingleMap.Show;
+    gpMultiplayer:  fMenuMultiplayer.Show(aText);
     gpLobby:        begin
                       if aText = 'HOST' then
-                        fGuiLobby.Show(lpk_Host, fGameApp.Networking, Panel_Main.Height)
+                        fMenuLobby.Show(lpk_Host, fGameApp.Networking, Panel_Main.Height)
                       else
                       if aText = 'JOIN' then
-                        fGuiLobby.Show(lpk_Joiner, fGameApp.Networking, Panel_Main.Height)
+                        fMenuLobby.Show(lpk_Joiner, fGameApp.Networking, Panel_Main.Height)
                       else
                         Assert(False);
                     end;
-    gpCampaign:     fGuiCampaign.Show(aText);
-    gpCampSelect:   fGuiCampaigns.Show;
-    gpCredits:      fGuiCredits.Show;
-    gpOptions:      fGuiOptions.Show;
-    gpMapEditor:    fGuiMapEditor.Show;
-    gpReplays:      fGuiReplays.Show;
-    gpError:        fGuiError.Show(aText);
-    gpLoading:      fGuiLoading.Show(aText);
+    gpCampaign:     fMenuCampaign.Show(aText);
+    gpCampSelect:   fMenuCampaigns.Show;
+    gpCredits:      fMenuCredits.Show;
+    gpOptions:      fMenuOptions.Show;
+    gpMapEditor:    fMenuMapEditor.Show;
+    gpReplays:      fMenuReplays.Show;
+    gpError:        fMenuError.Show(aText);
+    gpLoading:      fMenuLoading.Show(aText);
   end;
 end;
 
@@ -261,7 +259,7 @@ procedure TKMMainMenuInterface.MouseMove(Shift: TShiftState; X,Y: Integer);
 begin
   fMyControls.MouseMove(X,Y,Shift);
 
-  fGuiCampaign.MouseMove(Shift, X, Y);
+  fMenuCampaign.MouseMove(Shift, X, Y);
 end;
 
 
@@ -275,11 +273,11 @@ end;
 //Should update anything we want to be updated, obviously
 procedure TKMMainMenuInterface.UpdateState(aTickCount: Cardinal);
 begin
-  fGuiLobby.UpdateState;
-  fGuiMapEditor.UpdateState;
-  fGuiLoad.UpdateState;
-  fGuiReplays.UpdateState;
-  fGuiSingleMap.UpdateState;
+  fMenuLobby.UpdateState;
+  fMenuMapEditor.UpdateState;
+  fMenuLoad.UpdateState;
+  fMenuReplays.UpdateState;
+  fMenuSingleMap.UpdateState;
 end;
 
 

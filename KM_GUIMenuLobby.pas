@@ -12,7 +12,7 @@ uses
 type
   TLobbyTab = (ltDesc, ltOptions);
 
-  TKMGUIMenuLobby = class
+  TKMMenuLobby = class
   private
     fOnPageChange: TGUIEventText; //will be in ancestor class
 
@@ -73,8 +73,8 @@ type
         Button_LobbySettingsSave: TKMButton;
         Button_LobbySettingsCancel: TKMButton;
 
-      Menu_Chat: TKMMenu;
-      Menu_Host: TKMMenu;
+      Menu_Chat: TKMPopUpMenu;
+      Menu_Host: TKMPopUpMenu;
 
       Panel_LobbyServerName: TKMPanel;
         Label_LobbyServerName: TKMLabel;
@@ -127,7 +127,7 @@ uses KM_ResTexts, KM_ResLocales, KM_Utils, KM_Sound, KM_ResSound, KM_RenderUI, K
 
 
 { TKMGUIMenuLobby }
-constructor TKMGUIMenuLobby.Create(aParent: TKMPanel; aOnPageChange: TGUIEventText);
+constructor TKMMenuLobby.Create(aParent: TKMPanel; aOnPageChange: TGUIEventText);
 begin
   inherited Create;
 
@@ -145,7 +145,7 @@ begin
 end;
 
 
-destructor TKMGUIMenuLobby.Destroy;
+destructor TKMMenuLobby.Destroy;
 begin
   fMapsMP.Free;
   fSavesMP.Free;
@@ -155,7 +155,7 @@ begin
 end;
 
 
-procedure TKMGUIMenuLobby.CreateControls(aParent: TKMPanel);
+procedure TKMMenuLobby.CreateControls(aParent: TKMPanel);
 const
   CW = 690; C1 = 35; C2 = 195; C3 = 355; C4 = 445; C5 = 570; C6 = 650;
 var
@@ -320,9 +320,9 @@ begin
 end;
 
 
-procedure TKMGUIMenuLobby.CreateChatMenu(aParent: TKMPanel);
+procedure TKMMenuLobby.CreateChatMenu(aParent: TKMPanel);
 begin
-  Menu_Chat := TKMMenu.Create(aParent, 120);
+  Menu_Chat := TKMPopUpMenu.Create(aParent, 120);
   Menu_Chat.Anchors := [akLeft, akBottom];
   //Menu gets populated right before show
   Menu_Chat.AddItem(NO_TEXT);
@@ -330,9 +330,9 @@ begin
 end;
 
 
-procedure TKMGUIMenuLobby.CreatePlayerMenu(aParent: TKMPanel);
+procedure TKMMenuLobby.CreatePlayerMenu(aParent: TKMPanel);
 begin
-  Menu_Host := TKMMenu.Create(aParent, 120);
+  Menu_Host := TKMPopUpMenu.Create(aParent, 120);
   Menu_Host.AddItem(gResTexts[TX_LOBBY_PLAYER_KICK]);
   //Menu_Host.AddItem(fTextMain[TX_LOBBY_PLAYER_BAN]);
   //Menu_Host.AddItem(fTextMain[TX_LOBBY_PLAYER_SETHOST]);
@@ -340,7 +340,7 @@ begin
 end;
 
 
-procedure TKMGUIMenuLobby.CreateSettingsPopUp(aParent: TKMPanel);
+procedure TKMMenuLobby.CreateSettingsPopUp(aParent: TKMPanel);
 begin
   Panel_LobbySettings := TKMPanel.Create(aParent, 362, 250, 320, 300);
   Panel_LobbySettings.Anchors := [];
@@ -364,7 +364,7 @@ begin
 end;
 
 
-procedure TKMGUIMenuLobby.ChatMenuSelect(aItem: Integer);
+procedure TKMMenuLobby.ChatMenuSelect(aItem: Integer);
 
   procedure UpdateButtonCaption(aCaption: UnicodeString; aColor: Cardinal = 0);
   var CapWidth: Integer;
@@ -419,14 +419,14 @@ begin
 end;
 
 
-procedure TKMGUIMenuLobby.ChatMenuClick(Sender: TObject);
+procedure TKMMenuLobby.ChatMenuClick(Sender: TObject);
 begin
   if Menu_Chat.ItemIndex <> -1 then
     ChatMenuSelect(Menu_Chat.ItemTags[Menu_Chat.ItemIndex]);
 end;
 
 
-procedure TKMGUIMenuLobby.ChatMenuShow(Sender: TObject);
+procedure TKMMenuLobby.ChatMenuShow(Sender: TObject);
 var
   C: TKMControl;
   I: Integer;
@@ -455,7 +455,7 @@ end;
 
 
 //Try to detect which kind it is
-function TKMGUIMenuLobby.DetectMapType: Integer;
+function TKMMenuLobby.DetectMapType: Integer;
 begin
   //Default
   Result := 0;
@@ -475,20 +475,20 @@ end;
 
 
 //Access text that user was typing to copy it over to gameplay chat
-function TKMGUIMenuLobby.GetChatText: string;
+function TKMMenuLobby.GetChatText: string;
 begin
   Result := Edit_LobbyPost.Text;
 end;
 
 
 //Access chat messages history to copy it over to gameplay chat
-function TKMGUIMenuLobby.GetChatMessages: string;
+function TKMMenuLobby.GetChatMessages: string;
 begin
   Result := Memo_LobbyPosts.Text;
 end;
 
 
-procedure TKMGUIMenuLobby.Show(aKind: TNetPlayerKind; aNetworking: TKMNetworking; aMainHeight: Word);
+procedure TKMMenuLobby.Show(aKind: TNetPlayerKind; aNetworking: TKMNetworking; aMainHeight: Word);
 begin
   fNetworking := aNetworking;
 
@@ -513,7 +513,7 @@ begin
 end;
 
 
-procedure TKMGUIMenuLobby.Lobby_Resize(aMainHeight: Word);
+procedure TKMMenuLobby.Lobby_Resize(aMainHeight: Word);
 begin
   if not Panel_Lobby.Visible then Exit;
   //If the vertical screen height goes below a certain amount we need to switch to "compact" mode
@@ -541,7 +541,7 @@ begin
 end;
 
 
-procedure TKMGUIMenuLobby.GameOptionsTabSwitch(Sender: TObject);
+procedure TKMMenuLobby.GameOptionsTabSwitch(Sender: TObject);
 begin
   if Sender = Button_LobbyTabDesc then
     fLobbyTab := ltDesc;
@@ -561,7 +561,7 @@ begin
 end;
 
 
-procedure TKMGUIMenuLobby.BackClick(Sender: TObject);
+procedure TKMMenuLobby.BackClick(Sender: TObject);
 begin
   //Scan should be terminated, it is no longer needed
   fMapsMP.TerminateScan;
@@ -574,7 +574,7 @@ end;
 
 
 //Reset everything to it's defaults depending on users role (Host/Joiner/Reassigned)
-procedure TKMGUIMenuLobby.Reset(aKind: TNetPlayerKind; aPreserveMessage: Boolean = False; aPreserveMaps: Boolean = False);
+procedure TKMMenuLobby.Reset(aKind: TNetPlayerKind; aPreserveMessage: Boolean = False; aPreserveMaps: Boolean = False);
 var I: Integer;
 begin
   Label_LobbyServerName.Caption := '';
@@ -648,7 +648,7 @@ begin
 end;
 
 
-procedure TKMGUIMenuLobby.GameOptionsChange(Sender: TObject);
+procedure TKMMenuLobby.GameOptionsChange(Sender: TObject);
 begin
   //Set the peacetime
   fNetworking.NetGameOptions.Peacetime := EnsureRange(TrackBar_LobbyPeacetime.Position, 0, 300);
@@ -661,7 +661,7 @@ begin
 end;
 
 
-procedure TKMGUIMenuLobby.Lobby_OnGameOptions(Sender: TObject);
+procedure TKMMenuLobby.Lobby_OnGameOptions(Sender: TObject);
 begin
   TrackBar_LobbyPeacetime.Position    := fNetworking.NetGameOptions.Peacetime;
 
@@ -674,7 +674,7 @@ begin
 end;
 
 
-procedure TKMGUIMenuLobby.PlayerMenuClick(Sender: TObject);
+procedure TKMMenuLobby.PlayerMenuClick(Sender: TObject);
 var I: Integer;
 begin
   //We can't really do global bans because player's IP addresses change all the time (and we have no other way to identify someone).
@@ -699,7 +699,7 @@ begin
 end;
 
 
-procedure TKMGUIMenuLobby.PlayerMenuShow(Sender: TObject);
+procedure TKMMenuLobby.PlayerMenuShow(Sender: TObject);
 var
   C: TKMControl;
 begin
@@ -724,7 +724,7 @@ end;
 //conditions immediately and reverts the change without disturbing Host.
 //If the change is possible Networking will send query to the Host.
 //Host will reply with OnPlayersSetup event and data will be actualized.
-procedure TKMGUIMenuLobby.PlayersSetupChange(Sender: TObject);
+procedure TKMMenuLobby.PlayersSetupChange(Sender: TObject);
 var
   I: Integer;
 begin
@@ -803,7 +803,7 @@ end;
 
 //Players list has been updated
 //We should reflect it to UI
-procedure TKMGUIMenuLobby.Lobby_OnPlayersSetup(Sender: TObject);
+procedure TKMMenuLobby.Lobby_OnPlayersSetup(Sender: TObject);
 var
   I,K,ID,LocaleID: Integer;
   MyNik, CanEdit, HostCanEdit, IsSave, IsCoop, IsValid: Boolean;
@@ -992,7 +992,7 @@ begin
 end;
 
 
-procedure TKMGUIMenuLobby.Lobby_OnPingInfo(Sender: TObject);
+procedure TKMMenuLobby.Lobby_OnPingInfo(Sender: TObject);
 var I: Integer;
 begin
   for I := 0 to MAX_PLAYERS - 1 do
@@ -1009,7 +1009,7 @@ begin
 end;
 
 
-procedure TKMGUIMenuLobby.MapTypeChange(Sender: TObject);
+procedure TKMMenuLobby.MapTypeChange(Sender: TObject);
 begin
   //Terminate any running scans otherwise they will continue to fill the drop box in the background
   fMapsMP.TerminateScan;
@@ -1047,7 +1047,7 @@ end;
 
 
 //Change starting location
-procedure TKMGUIMenuLobby.MinimapLocClick(aValue: Integer);
+procedure TKMMenuLobby.MinimapLocClick(aValue: Integer);
 var
   I: Integer;
   CanEdit: Boolean;
@@ -1067,7 +1067,7 @@ begin
 end;
 
 
-procedure TKMGUIMenuLobby.MapList_SortUpdate(Sender: TObject);
+procedure TKMMenuLobby.MapList_SortUpdate(Sender: TObject);
 begin
   //After sorting jump to the selected item
   if Sender = fSavesMP then
@@ -1077,7 +1077,7 @@ begin
 end;
 
 
-procedure TKMGUIMenuLobby.MapList_ScanUpdate(Sender: TObject);
+procedure TKMMenuLobby.MapList_ScanUpdate(Sender: TObject);
 begin
   //Don't jump to selected with each scan update
   if Sender = fSavesMP then
@@ -1087,7 +1087,7 @@ begin
 end;
 
 
-procedure TKMGUIMenuLobby.RefreshMapList(aJumpToSelected:Boolean);
+procedure TKMMenuLobby.RefreshMapList(aJumpToSelected:Boolean);
 var
   I, PrevTop: Integer;
   PrevMap: string;
@@ -1144,7 +1144,7 @@ begin
 end;
 
 
-procedure TKMGUIMenuLobby.RefreshSaveList(aJumpToSelected: Boolean);
+procedure TKMMenuLobby.RefreshSaveList(aJumpToSelected: Boolean);
 var
   I, PrevTop: Integer;
   PrevSave: string;
@@ -1192,7 +1192,7 @@ begin
 end;
 
 
-procedure TKMGUIMenuLobby.MapColumnClick(aValue: Integer);
+procedure TKMMenuLobby.MapColumnClick(aValue: Integer);
 var
   SM: TMapsSortMethod;
   SSM: TSavesSortMethod;
@@ -1243,7 +1243,7 @@ end;
 
 
 //Just pass FileName to Networking, it will check validity itself
-procedure TKMGUIMenuLobby.MapChange(Sender: TObject);
+procedure TKMMenuLobby.MapChange(Sender: TObject);
 begin
   if Radio_LobbyMapType.ItemIndex < 4 then
   begin
@@ -1262,7 +1262,7 @@ end;
 
 //We have received MapName
 //Update UI to show it
-procedure TKMGUIMenuLobby.Lobby_OnMapName(const aData: UnicodeString);
+procedure TKMMenuLobby.Lobby_OnMapName(const aData: UnicodeString);
 var
   M: TKMapInfo;
   S: TKMSaveInfo;
@@ -1316,7 +1316,7 @@ end;
 
 
 //We have been assigned to be the host of the game because the host disconnected. Reopen lobby page in correct mode.
-procedure TKMGUIMenuLobby.Lobby_OnReassignedToHost(Sender: TObject);
+procedure TKMMenuLobby.Lobby_OnReassignedToHost(Sender: TObject);
   procedure SelectByName(aName: string);
   var I: Integer;
   begin
@@ -1358,7 +1358,7 @@ end;
 
 
 //Post what user has typed
-procedure TKMGUIMenuLobby.PostKeyDown(Sender: TObject; Key: Word);
+procedure TKMMenuLobby.PostKeyDown(Sender: TObject; Key: Word);
 var
   ChatMessage: string;
 begin
@@ -1383,14 +1383,14 @@ begin
 end;
 
 
-procedure TKMGUIMenuLobby.Lobby_OnMessage(const aText: UnicodeString);
+procedure TKMMenuLobby.Lobby_OnMessage(const aText: UnicodeString);
 begin
   Memo_LobbyPosts.Add(aText);
 end;
 
 
 //We were disconnected from Server. Either we were kicked, or connection broke down
-procedure TKMGUIMenuLobby.Lobby_OnDisconnect(const aData: UnicodeString);
+procedure TKMMenuLobby.Lobby_OnDisconnect(const aData: UnicodeString);
 begin
   fNetworking.Disconnect;
   gSoundPlayer.Play(sfxn_Error);
@@ -1399,7 +1399,7 @@ begin
 end;
 
 
-procedure TKMGUIMenuLobby.StartClick(Sender: TObject);
+procedure TKMMenuLobby.StartClick(Sender: TObject);
 begin
   if fNetworking.IsHost then
     fNetworking.StartClick
@@ -1413,7 +1413,7 @@ begin
 end;
 
 
-procedure TKMGUIMenuLobby.SettingsClick(Sender: TObject);
+procedure TKMMenuLobby.SettingsClick(Sender: TObject);
 begin
   if Sender = Button_LobbyChangeSettings then
   begin
@@ -1437,7 +1437,7 @@ end;
 
 
 //Should update anything we want to be updated, obviously
-procedure TKMGUIMenuLobby.UpdateState;
+procedure TKMMenuLobby.UpdateState;
 begin
   if fMapsMP <> nil then fMapsMP.UpdateState;
   if fSavesMP <> nil then fSavesMP.UpdateState;

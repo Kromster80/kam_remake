@@ -7,7 +7,7 @@ uses
 
 
 type
-  TKMGUIMenuLoad = class
+  TKMMenuLoad = class
   private
     fOnPageChange: TGUIEventText;
 
@@ -48,7 +48,7 @@ uses KM_ResTexts, KM_GameApp, KM_RenderUI, KM_ResFonts;
 
 
 { TKMGUIMenuLoad }
-constructor TKMGUIMenuLoad.Create(aParent: TKMPanel; aOnPageChange: TGUIEventText);
+constructor TKMMenuLoad.Create(aParent: TKMPanel; aOnPageChange: TGUIEventText);
 begin
   inherited Create;
 
@@ -96,7 +96,7 @@ begin
 end;
 
 
-destructor TKMGUIMenuLoad.Destroy;
+destructor TKMMenuLoad.Destroy;
 begin
   fSaves.Free;
   fMinimap.Free;
@@ -105,7 +105,7 @@ begin
 end;
 
 
-procedure TKMGUIMenuLoad.Load_ListClick(Sender: TObject);
+procedure TKMMenuLoad.Load_ListClick(Sender: TObject);
 begin
   fSaves.Lock;
     //Hide delete confirmation if player has selected a different savegame item
@@ -131,7 +131,7 @@ begin
 end;
 
 
-procedure TKMGUIMenuLoad.LoadClick(Sender: TObject);
+procedure TKMMenuLoad.LoadClick(Sender: TObject);
 begin
   if not Button_Load.Enabled then exit; //This is also called by double clicking
   if not InRange(ColumnBox_Load.ItemIndex, 0, fSaves.Count-1) then Exit;
@@ -140,7 +140,7 @@ begin
 end;
 
 
-procedure TKMGUIMenuLoad.Load_Delete_Click(Sender: TObject);
+procedure TKMMenuLoad.Load_Delete_Click(Sender: TObject);
 var
   PreviouslySelected: Integer;
 begin
@@ -167,19 +167,19 @@ begin
 end;
 
 
-procedure TKMGUIMenuLoad.Load_ScanUpdate(Sender: TObject);
+procedure TKMMenuLoad.Load_ScanUpdate(Sender: TObject);
 begin
   Load_RefreshList(False); //Don't jump to selected with each scan update
 end;
 
 
-procedure TKMGUIMenuLoad.Load_SortUpdate(Sender: TObject);
+procedure TKMMenuLoad.Load_SortUpdate(Sender: TObject);
 begin
   Load_RefreshList(True); //After sorting jump to the selected item
 end;
 
 
-procedure TKMGUIMenuLoad.Load_RefreshList(aJumpToSelected:Boolean);
+procedure TKMMenuLoad.Load_RefreshList(aJumpToSelected:Boolean);
 var I, PrevTop: Integer;
 begin
   PrevTop := ColumnBox_Load.TopIndex;
@@ -217,7 +217,7 @@ begin
 end;
 
 
-procedure TKMGUIMenuLoad.Load_Sort(aIndex: Integer);
+procedure TKMMenuLoad.Load_Sort(aIndex: Integer);
 begin
   case ColumnBox_Load.SortIndex of
     //Sorting by filename goes A..Z by default
@@ -235,7 +235,7 @@ end;
 
 
 //Shortcut to choose if DeleteConfirmation should be displayed or hid
-procedure TKMGUIMenuLoad.Load_DeleteConfirmation(aVisible:boolean);
+procedure TKMMenuLoad.Load_DeleteConfirmation(aVisible:boolean);
 begin
   Label_DeleteConfirm.Visible := aVisible;
   Button_DeleteYes.Visible := aVisible;
@@ -244,7 +244,7 @@ begin
 end;
 
 
-procedure TKMGUIMenuLoad.BackClick(Sender: TObject);
+procedure TKMMenuLoad.BackClick(Sender: TObject);
 begin
   //Scan should be terminated, it is no longer needed
   fSaves.TerminateScan;
@@ -253,7 +253,7 @@ begin
 end;
 
 
-procedure TKMGUIMenuLoad.Show;
+procedure TKMMenuLoad.Show;
 begin
   //Stop current scan so it can't add a save after we clear the list
   fSaves.TerminateScan;
@@ -272,7 +272,7 @@ begin
 end;
 
 
-procedure TKMGUIMenuLoad.UpdateState;
+procedure TKMMenuLoad.UpdateState;
 begin
   fSaves.UpdateState;
 end;

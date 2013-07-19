@@ -8,7 +8,7 @@ uses
 
 
 type
-  TKMGUIMenuResultsMP = class
+  TKMMenuResultsMP = class
   private
     fOnPageChange: TGUIEventText; //will be in ancestor class
 
@@ -66,7 +66,7 @@ const
 
 
 { TKMGUIMenuResultsMP }
-constructor TKMGUIMenuResultsMP.Create(aParent: TKMPanel; aOnPageChange: TGUIEventText);
+constructor TKMMenuResultsMP.Create(aParent: TKMPanel; aOnPageChange: TGUIEventText);
 begin
   inherited Create;
 
@@ -76,7 +76,7 @@ begin
 end;
 
 
-procedure TKMGUIMenuResultsMP.CreateBars(aParent: TKMPanel);
+procedure TKMMenuResultsMP.CreateBars(aParent: TKMPanel);
 const
   BarStep = 150;
   BarWidth = BarStep - 10;
@@ -133,7 +133,7 @@ begin
 end;
 
 
-procedure TKMGUIMenuResultsMP.CreateChartWares(aParent: TKMPanel);
+procedure TKMMenuResultsMP.CreateChartWares(aParent: TKMPanel);
 var
   I: TWareType;
 begin
@@ -158,7 +158,7 @@ begin
 end;
 
 
-procedure TKMGUIMenuResultsMP.TabChange(Sender: TObject);
+procedure TKMMenuResultsMP.TabChange(Sender: TObject);
 begin
   Button_MPResultsBars.Down := Sender = Button_MPResultsBars;
   Button_MPResultsArmy.Down := Sender = Button_MPResultsArmy;
@@ -181,7 +181,7 @@ begin
 end;
 
 
-procedure TKMGUIMenuResultsMP.WareChange(Sender: TObject);
+procedure TKMMenuResultsMP.WareChange(Sender: TObject);
 var
   K: Integer;
   I, R: TWareType;
@@ -215,7 +215,7 @@ begin
 end;
 
 
-procedure TKMGUIMenuResultsMP.Refresh;
+procedure TKMMenuResultsMP.Refresh;
 var
   I: Integer;
 begin
@@ -253,7 +253,7 @@ begin
 end;
 
 
-procedure TKMGUIMenuResultsMP.RefreshBars;
+procedure TKMMenuResultsMP.RefreshBars;
 
   procedure SetPlayerControls(aPlayer: Integer; aEnabled: Boolean);
   var I: Integer;
@@ -405,7 +405,7 @@ begin
 end;
 
 
-procedure TKMGUIMenuResultsMP.RefreshCharts;
+procedure TKMMenuResultsMP.RefreshCharts;
 var
   I: Integer;
 begin
@@ -451,7 +451,7 @@ begin
 end;
 
 
-procedure TKMGUIMenuResultsMP.RefreshChartWares;
+procedure TKMMenuResultsMP.RefreshChartWares;
 const
   Wares: array [0..30] of TWareType = (
     wt_All,     wt_Warfare, wt_Food,
@@ -507,7 +507,7 @@ begin
 end;
 
 
-procedure TKMGUIMenuResultsMP.Create_ResultsMP(aParent: TKMPanel);
+procedure TKMMenuResultsMP.Create_ResultsMP(aParent: TKMPanel);
 begin
   Panel_ResultsMP := TKMPanel.Create(aParent, 0, 0, aParent.Width, aParent.Height);
   Panel_ResultsMP.Stretch;
@@ -582,7 +582,7 @@ begin
 end;
 
 
-function TKMGUIMenuResultsMP.GetChartWares(aPlayer: TPlayerIndex; aWare: TWareType): TKMCardinalArray;
+function TKMMenuResultsMP.GetChartWares(aPlayer: TPlayerIndex; aWare: TWareType): TKMCardinalArray;
 var
   RT: TWareType;
   I: Integer;
@@ -622,7 +622,7 @@ begin
 end;
 
 
-procedure TKMGUIMenuResultsMP.Show(aMsg: TGameResultMsg);
+procedure TKMMenuResultsMP.Show(aMsg: TGameResultMsg);
 begin
   fGameResultMsg := aMsg;
 
@@ -631,16 +631,16 @@ begin
 end;
 
 
-procedure TKMGUIMenuResultsMP.BackClick(Sender: TObject);
+procedure TKMMenuResultsMP.BackClick(Sender: TObject);
 begin
   //Depending on where we were created we need to return to a different place
   //Multiplayer game end -> ResultsMP -> Multiplayer
   //Multiplayer replay end -> ResultsMP -> Replays
 
   if fGameResultMsg <> gr_ReplayEnd then
-    fOnPageChange(gpMultiplayer, '')
+    fOnPageChange(gpMultiplayer)
   else
-    fOnPageChange(gpReplays, '');
+    fOnPageChange(gpReplays);
 end;
 
 

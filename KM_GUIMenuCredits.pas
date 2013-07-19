@@ -11,7 +11,7 @@ uses
 
 
 type
-  TKMGUIMainCredits = class {(TKMGUIPage)}
+  TKMMenuCredits = class {(TKMGUIPage)}
   private
     fOnPageChange: TGUIEventText;
 
@@ -36,7 +36,7 @@ uses KM_ResTexts, KM_RenderUI, KM_ResFonts, KM_ResLocales;
 
 
 { TKMGUIMainCredits }
-constructor TKMGUIMainCredits.Create(aParent: TKMPanel; aOnPageChange: TGUIEventText);
+constructor TKMMenuCredits.Create(aParent: TKMPanel; aOnPageChange: TGUIEventText);
 const
   OFFSET = 312;
 begin
@@ -77,7 +77,7 @@ begin
 end;
 
 
-procedure TKMGUIMainCredits.LinkClick(Sender: TObject);
+procedure TKMMenuCredits.LinkClick(Sender: TObject);
 
   //This can't be moved to e.g. KM_Utils because the dedicated server needs that, and it must be Linux compatible
   procedure GoToURL(aUrl: string);
@@ -96,7 +96,7 @@ begin
 end;
 
 
-procedure TKMGUIMainCredits.Show;
+procedure TKMMenuCredits.Show;
 begin
   //Set initial position
   Label_Credits_KaM.SmoothScrollToTop := TimeGet;
@@ -106,7 +106,7 @@ begin
 end;
 
 
-procedure TKMGUIMainCredits.BackClick(Sender: TObject);
+procedure TKMMenuCredits.BackClick(Sender: TObject);
 begin
   fOnPageChange(gpMainMenu);
 end;

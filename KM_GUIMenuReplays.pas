@@ -7,7 +7,7 @@ uses
 
 
 type
-  TKMGUIMenuReplays = class
+  TKMMenuReplays = class
   private
     fOnPageChange: TGUIEventText;
 
@@ -45,7 +45,7 @@ uses KM_ResTexts, KM_GameApp, KM_RenderUI, KM_ResFonts;
 
 
 { TKMGUIMenuReplays }
-constructor TKMGUIMenuReplays.Create(aParent: TKMPanel; aOnPageChange: TGUIEventText);
+constructor TKMMenuReplays.Create(aParent: TKMPanel; aOnPageChange: TGUIEventText);
 begin
   inherited Create;
 
@@ -87,7 +87,7 @@ begin
 end;
 
 
-destructor TKMGUIMenuReplays.Destroy;
+destructor TKMMenuReplays.Destroy;
 begin
   fSaves.Free;
   fMinimap.Free;
@@ -96,7 +96,7 @@ begin
 end;
 
 
-procedure TKMGUIMenuReplays.Replays_ListClick(Sender: TObject);
+procedure TKMMenuReplays.Replays_ListClick(Sender: TObject);
 var ID: Integer;
 begin
   fSaves.Lock;
@@ -121,7 +121,7 @@ begin
 end;
 
 
-procedure TKMGUIMenuReplays.Replay_TypeChange(Sender: TObject);
+procedure TKMMenuReplays.Replay_TypeChange(Sender: TObject);
 begin
   fSaves.TerminateScan;
   fLastSaveCRC := 0;
@@ -131,19 +131,19 @@ begin
 end;
 
 
-procedure TKMGUIMenuReplays.Replays_ScanUpdate(Sender: TObject);
+procedure TKMMenuReplays.Replays_ScanUpdate(Sender: TObject);
 begin
   Replays_RefreshList(False); //Don't jump to selected with each scan update
 end;
 
 
-procedure TKMGUIMenuReplays.Replays_SortUpdate(Sender: TObject);
+procedure TKMMenuReplays.Replays_SortUpdate(Sender: TObject);
 begin
   Replays_RefreshList(True); //After sorting jump to the selected item
 end;
 
 
-procedure TKMGUIMenuReplays.Replays_RefreshList(aJumpToSelected: Boolean);
+procedure TKMMenuReplays.Replays_RefreshList(aJumpToSelected: Boolean);
 var
   I, PrevTop: Integer;
 begin
@@ -178,7 +178,7 @@ begin
 end;
 
 
-procedure TKMGUIMenuReplays.Replays_Sort(aIndex: Integer);
+procedure TKMMenuReplays.Replays_Sort(aIndex: Integer);
 begin
   case ColumnBox_Replays.SortIndex of
     //Sorting by filename goes A..Z by default
@@ -195,7 +195,7 @@ begin
 end;
 
 
-procedure TKMGUIMenuReplays.Replays_Play(Sender: TObject);
+procedure TKMMenuReplays.Replays_Play(Sender: TObject);
 var
   ID: Integer;
 begin
@@ -208,7 +208,7 @@ begin
 end;
 
 
-procedure TKMGUIMenuReplays.BackClick(Sender: TObject);
+procedure TKMMenuReplays.BackClick(Sender: TObject);
 begin
   //Scan should be terminated, it is no longer needed
   fSaves.TerminateScan;
@@ -217,7 +217,7 @@ begin
 end;
 
 
-procedure TKMGUIMenuReplays.Show;
+procedure TKMMenuReplays.Show;
 begin
   //Copy/Pasted from SwitchPage for now (needed that for ResultsMP BackClick)
   //Probably needs some cleanup when we have GUIMenuReplays
@@ -229,7 +229,7 @@ begin
 end;
 
 
-procedure TKMGUIMenuReplays.UpdateState;
+procedure TKMMenuReplays.UpdateState;
 begin
   fSaves.UpdateState;
 end;

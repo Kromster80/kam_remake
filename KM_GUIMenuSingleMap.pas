@@ -12,7 +12,7 @@ const
 
 
 type
-  TKMGUIMenuSingleMap = class
+  TKMMenuSingleMap = class
   private
     fOnPageChange: TGUIEventText;
 
@@ -70,7 +70,7 @@ uses KM_ResTexts, KM_GameApp, KM_Utils, KM_RenderUI, KM_ResFonts;
 
 
 { TKMGUIMenuSingleMap }
-constructor TKMGUIMenuSingleMap.Create(aParent: TKMPanel; aOnPageChange: TGUIEventText);
+constructor TKMMenuSingleMap.Create(aParent: TKMPanel; aOnPageChange: TGUIEventText);
 begin
   inherited Create;
 
@@ -83,7 +83,7 @@ begin
 end;
 
 
-destructor TKMGUIMenuSingleMap.Destroy;
+destructor TKMMenuSingleMap.Destroy;
 begin
   fMaps.Free;
   fMinimap.Free;
@@ -92,7 +92,7 @@ begin
 end;
 
 
-procedure TKMGUIMenuSingleMap.Create_SingleMap(aParent: TKMPanel);
+procedure TKMMenuSingleMap.Create_SingleMap(aParent: TKMPanel);
 const
   PAD_VERT = 44; //Padding from top/bottom
   PAD_SIDE = 44; //Padding from sides
@@ -218,7 +218,7 @@ begin
 end;
 
 
-procedure TKMGUIMenuSingleMap.ListClear;
+procedure TKMMenuSingleMap.ListClear;
 begin
   ColumnBox_SingleMaps.Clear;
   ListClick(nil);
@@ -226,19 +226,19 @@ begin
 end;
 
 
-procedure TKMGUIMenuSingleMap.ScanUpdate(Sender: TObject);
+procedure TKMMenuSingleMap.ScanUpdate(Sender: TObject);
 begin
   ListRefresh(False); //Don't jump to selected with each scan update
 end;
 
 
-procedure TKMGUIMenuSingleMap.SortUpdate(Sender: TObject);
+procedure TKMMenuSingleMap.SortUpdate(Sender: TObject);
 begin
   ListRefresh(True); //After sorting jump to the selected item
 end;
 
 
-procedure TKMGUIMenuSingleMap.ListRefresh(aJumpToSelected: Boolean);
+procedure TKMMenuSingleMap.ListRefresh(aJumpToSelected: Boolean);
 var
   I, PrevTop: Integer;
   R: TKMListRow;
@@ -274,7 +274,7 @@ begin
 end;
 
 
-procedure TKMGUIMenuSingleMap.ListClick(Sender: TObject);
+procedure TKMMenuSingleMap.ListClick(Sender: TObject);
 var
   MapId: Integer;
   I: Integer;
@@ -335,7 +335,7 @@ begin
 end;
 
 
-procedure TKMGUIMenuSingleMap.OptionsChange(Sender: TObject);
+procedure TKMMenuSingleMap.OptionsChange(Sender: TObject);
 begin
   if DropBox_SingleLoc.ItemIndex <> -1 then
     fSingleLoc := DropBox_SingleLoc.GetSelectedTag
@@ -351,7 +351,7 @@ begin
 end;
 
 
-procedure TKMGUIMenuSingleMap.Update;
+procedure TKMMenuSingleMap.Update;
 const
   GoalCondPic: array [TGoalCondition] of Word = (
     41, 39, 592, 38, 62, 41, 303, 141, 312);
@@ -431,7 +431,7 @@ begin
 end;
 
 
-procedure TKMGUIMenuSingleMap.StartClick(Sender: TObject);
+procedure TKMMenuSingleMap.StartClick(Sender: TObject);
 var
   I: Integer;
 begin
@@ -455,7 +455,7 @@ begin
 end;
 
 
-procedure TKMGUIMenuSingleMap.ListSort(aColumn: Integer);
+procedure TKMMenuSingleMap.ListSort(aColumn: Integer);
 var
   Method: TMapsSortMethod;
 begin
@@ -487,7 +487,7 @@ begin
 end;
 
 
-procedure TKMGUIMenuSingleMap.MinimapLocClick(aValue: Integer);
+procedure TKMMenuSingleMap.MinimapLocClick(aValue: Integer);
 begin
   fSingleLoc := aValue;
 
@@ -497,7 +497,7 @@ begin
 end;
 
 
-procedure TKMGUIMenuSingleMap.Show;
+procedure TKMMenuSingleMap.Show;
 begin
   //Stop current now scan so it can't add a map after we clear the list
   fMaps.TerminateScan;
@@ -511,7 +511,7 @@ begin
 end;
 
 
-procedure TKMGUIMenuSingleMap.BackClick(Sender: TObject);
+procedure TKMMenuSingleMap.BackClick(Sender: TObject);
 begin
   //Scan should be terminated, it is no longer needed
   fMaps.TerminateScan;
@@ -520,7 +520,7 @@ begin
 end;
 
 
-procedure TKMGUIMenuSingleMap.UpdateState;
+procedure TKMMenuSingleMap.UpdateState;
 begin
   fMaps.UpdateState;
 end;

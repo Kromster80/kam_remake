@@ -207,7 +207,7 @@ type
       Edit_ChatMsg: TKMEdit;
       Button_ChatRecipient: TKMButtonFlat;
       Image_ChatClose: TKMImage;
-      Menu_Chat: TKMMenu;
+      Menu_Chat: TKMPopUpMenu;
     Panel_Message: TKMPanel;
       Label_MessageText: TKMLabel;
       Button_MessageGoTo: TKMButton;
@@ -1202,7 +1202,7 @@ end;
 
 procedure TKMGamePlayInterface.Create_ChatMenu(aParent: TKMPanel);
 begin
-  Menu_Chat := TKMMenu.Create(aParent, 120);
+  Menu_Chat := TKMPopUpMenu.Create(aParent, 120);
   Menu_Chat.Anchors := [akLeft, akBottom];
   //Menu gets populated right before show
   Menu_Chat.AddItem(NO_TEXT);

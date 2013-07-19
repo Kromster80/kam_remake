@@ -8,7 +8,7 @@ uses
 
 
 type
-  TKMGUIMainMultiplayer = class {(TKMGUIPage)}
+  TKMMenuMultiplayer = class {(TKMGUIPage)}
   private
     fOnPageChange: TGUIEventText; //will be in ancestor class
 
@@ -96,7 +96,7 @@ const
 
 
 { TKMGUIMainMultiplayer }
-constructor TKMGUIMainMultiplayer.Create(aParent: TKMPanel; aOnPageChange: TGUIEventText);
+constructor TKMMenuMultiplayer.Create(aParent: TKMPanel; aOnPageChange: TGUIEventText);
   procedure CreateServerPopUp;
   begin
     Panel_MPCreateServer := TKMPanel.Create(aParent, 362, 250, 320, 300);
@@ -228,7 +228,7 @@ begin
 end;
 
 
-procedure TKMGUIMainMultiplayer.MP_Init;
+procedure TKMMenuMultiplayer.MP_Init;
 begin
   fServerSelected := False;
 
@@ -254,37 +254,37 @@ begin
 end;
 
 
-procedure TKMGUIMainMultiplayer.MP_CreateServerCancelClick(Sender: TObject);
+procedure TKMMenuMultiplayer.MP_CreateServerCancelClick(Sender: TObject);
 begin
   Panel_MPCreateServer.Hide;
 end;
 
 
-procedure TKMGUIMainMultiplayer.MP_CreateServerClick(Sender: TObject);
+procedure TKMMenuMultiplayer.MP_CreateServerClick(Sender: TObject);
 begin
   Panel_MPCreateServer.Show;
 end;
 
 
-procedure TKMGUIMainMultiplayer.MP_FindServerCancelClick(Sender: TObject);
+procedure TKMMenuMultiplayer.MP_FindServerCancelClick(Sender: TObject);
 begin
   Panel_MPFindServer.Hide;
 end;
 
 
-procedure TKMGUIMainMultiplayer.MP_FindServerClick(Sender: TObject);
+procedure TKMMenuMultiplayer.MP_FindServerClick(Sender: TObject);
 begin
   Panel_MPFindServer.Show;
 end;
 
 
-procedure TKMGUIMainMultiplayer.MP_FindServerIPClick(Sender: TObject);
+procedure TKMMenuMultiplayer.MP_FindServerIPClick(Sender: TObject);
 begin
   MP_Join(Edit_MP_FindIP.Text, Edit_MP_FindPort.Text, StrToIntDef(Edit_MP_FindRoom.Text, -1));
 end;
 
 
-procedure TKMGUIMainMultiplayer.MP_PasswordClick(Sender: TObject);
+procedure TKMMenuMultiplayer.MP_PasswordClick(Sender: TObject);
 begin
   if Sender = Button_MP_PasswordOk then
   begin
@@ -301,7 +301,7 @@ end;
 
 
 //Save the Player and IP name so it is not lost inbetween activities
-procedure TKMGUIMainMultiplayer.MP_SaveSettings;
+procedure TKMMenuMultiplayer.MP_SaveSettings;
 begin
   //Player name
   fGameApp.GameSettings.MultiplayerName := Edit_MP_PlayerName.Text;
@@ -319,7 +319,7 @@ end;
 
 //Update status line
 //When user tries to Join some server disable joining controls for that time
-procedure TKMGUIMainMultiplayer.MP_Update(const aStatus: string; aColor: TColor4; aBusy: Boolean);
+procedure TKMMenuMultiplayer.MP_Update(const aStatus: string; aColor: TColor4; aBusy: Boolean);
 begin
   fLobbyBusy := aBusy;
 
@@ -339,7 +339,7 @@ begin
 end;
 
 
-procedure TKMGUIMainMultiplayer.MP_ServersRefresh(Sender: TObject);
+procedure TKMMenuMultiplayer.MP_ServersRefresh(Sender: TObject);
 begin
   fGameApp.Networking.ServerQuery.OnListUpdated := MP_ServersUpdateList;
   fGameApp.Networking.ServerQuery.RefreshList;
@@ -356,7 +356,7 @@ end;
 
 
 //Refresh the display for the list of servers
-procedure TKMGUIMainMultiplayer.MP_ServersUpdateList(Sender: TObject);
+procedure TKMMenuMultiplayer.MP_ServersUpdateList(Sender: TObject);
 const
   GameStateTextIDs: array [TMPGameState] of Integer = (TX_MP_STATE_NONE, TX_MP_STATE_LOBBY, TX_MP_STATE_LOADING, TX_MP_STATE_GAME);
 var
@@ -415,7 +415,7 @@ begin
 end;
 
 
-procedure TKMGUIMainMultiplayer.MP_AnnouncementsUpdated(const S: UnicodeString);
+procedure TKMMenuMultiplayer.MP_AnnouncementsUpdated(const S: UnicodeString);
 begin
   Memo_MP_Announcement.Clear;
   Memo_MP_Announcement.Add(S);
@@ -423,7 +423,7 @@ end;
 
 
 //Sort the servers list by said column ID
-procedure TKMGUIMainMultiplayer.MP_ServersSort(aIndex: Integer);
+procedure TKMMenuMultiplayer.MP_ServersSort(aIndex: Integer);
 begin
   case ColumnBox_Servers.SortIndex of
     0:  if ColumnBox_Servers.SortDirection = sdDown then
@@ -462,7 +462,7 @@ begin
 end;
 
 
-procedure TKMGUIMainMultiplayer.MP_ServersClick(Sender: TObject);
+procedure TKMMenuMultiplayer.MP_ServersClick(Sender: TObject);
 var ID: Integer;
 begin
   ID := ColumnBox_Servers.ItemIndex;
@@ -492,7 +492,7 @@ begin
 end;
 
 
-procedure TKMGUIMainMultiplayer.MP_ServersDoubleClick(Sender: TObject);
+procedure TKMMenuMultiplayer.MP_ServersDoubleClick(Sender: TObject);
 begin
   //MP_SelectServer gets called by first Click
   if Button_MP_GetIn.Enabled and (ColumnBox_Servers.ItemIndex <> -1)
@@ -501,7 +501,7 @@ begin
 end;
 
 
-procedure TKMGUIMainMultiplayer.MP_HostClick(Sender: TObject);
+procedure TKMMenuMultiplayer.MP_HostClick(Sender: TObject);
 begin
   //Save the player and IP name so it is not lost if something fails
   MP_SaveSettings;
@@ -516,13 +516,13 @@ begin
 end;
 
 
-procedure TKMGUIMainMultiplayer.MP_GetInClick(Sender: TObject);
+procedure TKMMenuMultiplayer.MP_GetInClick(Sender: TObject);
 begin
   MP_Join(fSelectedServerInfo.IP, fSelectedServerInfo.Port, fSelectedRoomInfo.RoomID);
 end;
 
 
-function TKMGUIMainMultiplayer.MP_ValidatePlayerName(const aName: string): Boolean;
+function TKMMenuMultiplayer.MP_ValidatePlayerName(const aName: string): Boolean;
 begin
   Result := False;
 
@@ -547,7 +547,7 @@ end;
 
 
 //Join button is enabled if valid server is selected and the lobby is not busy
-function TKMGUIMainMultiplayer.MP_GetInEnabled: Boolean;
+function TKMMenuMultiplayer.MP_GetInEnabled: Boolean;
 var ID: Integer;
 begin
   ID := ColumnBox_Servers.ItemIndex;
@@ -555,7 +555,7 @@ begin
 end;
 
 
-procedure TKMGUIMainMultiplayer.MP_Join(aServerAddress, aPort: string; aRoom: Integer);
+procedure TKMMenuMultiplayer.MP_Join(aServerAddress, aPort: string; aRoom: Integer);
 begin
   //Save the player and IP name so it is not lost if the connection fails
   MP_SaveSettings;
@@ -574,7 +574,7 @@ begin
 end;
 
 
-procedure TKMGUIMainMultiplayer.MP_JoinPassword(Sender: TObject);
+procedure TKMMenuMultiplayer.MP_JoinPassword(Sender: TObject);
 begin
   Panel_MPFindServer.Hide;
   Edit_MP_Password.Text := '';
@@ -583,7 +583,7 @@ end;
 
 
 //We had recieved permission to join
-procedure TKMGUIMainMultiplayer.MP_JoinSuccess(Sender: TObject);
+procedure TKMMenuMultiplayer.MP_JoinSuccess(Sender: TObject);
 begin
   fGameApp.Networking.OnJoinSucc := nil;
   fGameApp.Networking.OnJoinFail := nil;
@@ -593,7 +593,7 @@ begin
 end;
 
 
-procedure TKMGUIMainMultiplayer.MP_JoinFail(const aData: UnicodeString);
+procedure TKMMenuMultiplayer.MP_JoinFail(const aData: UnicodeString);
 begin
   fGameApp.Networking.Disconnect;
   MP_Update(Format(gResTexts[TX_GAME_ERROR_CONNECTION_FAILED],[aData]),icYellow,false);
@@ -601,7 +601,7 @@ begin
 end;
 
 
-procedure TKMGUIMainMultiplayer.MP_JoinAssignedHost(Sender: TObject);
+procedure TKMMenuMultiplayer.MP_JoinAssignedHost(Sender: TObject);
 begin
   fGameApp.Networking.OnJoinSucc := nil;
   fGameApp.Networking.OnJoinFail := nil;
@@ -613,7 +613,7 @@ begin
 end;
 
 
-procedure TKMGUIMainMultiplayer.BackClick(Sender: TObject);
+procedure TKMMenuMultiplayer.BackClick(Sender: TObject);
 begin
   fGameApp.Networking.Disconnect;
   MP_SaveSettings;
@@ -624,7 +624,7 @@ begin
 end;
 
 
-procedure TKMGUIMainMultiplayer.MP_HostFail(const aData: UnicodeString);
+procedure TKMMenuMultiplayer.MP_HostFail(const aData: UnicodeString);
 begin
   fGameApp.Networking.Disconnect;
   gSoundPlayer.Play(sfxn_Error);
@@ -633,7 +633,7 @@ begin
 end;
 
 
-procedure TKMGUIMainMultiplayer.Show(aText: UnicodeString);
+procedure TKMMenuMultiplayer.Show(aText: UnicodeString);
 begin
   fGameApp.NetworkInit;
   MP_Init;

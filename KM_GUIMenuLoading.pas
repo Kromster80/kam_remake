@@ -7,7 +7,7 @@ uses
 
 
 type
-  TKMGUIMenuLoading = class
+  TKMMenuLoading = class
   private
     fOnPageChange: TGUIEventText;
   protected
@@ -26,7 +26,7 @@ uses KM_ResTexts, KM_RenderUI, KM_ResFonts;
 
 
 { TKMGUIMenuLoading }
-constructor TKMGUIMenuLoading.Create(aParent: TKMPanel; aOnPageChange: TGUIEventText);
+constructor TKMMenuLoading.Create(aParent: TKMPanel; aOnPageChange: TGUIEventText);
 begin
   inherited Create;
 
@@ -41,13 +41,13 @@ begin
 end;
 
 
-procedure TKMGUIMenuLoading.AppendText(const aText: UnicodeString);
+procedure TKMMenuLoading.AppendText(const aText: UnicodeString);
 begin
   Label_Loading.Caption := Label_Loading.Caption + aText + '|';
 end;
 
 
-procedure TKMGUIMenuLoading.Show(aText: UnicodeString);
+procedure TKMMenuLoading.Show(aText: UnicodeString);
 begin
   Label_Loading.Caption := aText;
   Panel_Loading.Show;

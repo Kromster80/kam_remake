@@ -979,7 +979,7 @@ type
   end;
 
 
-  TKMMenu = class(TKMPanel)
+  TKMPopUpMenu = class(TKMPanel)
   private
     fShapeBG: TKMShape;
     fList: TKMColumnBox;
@@ -4063,8 +4063,8 @@ begin
 end;
 
 
-{ TKMMenu }
-constructor TKMMenu.Create(aParent: TKMPanel; aWidth: Integer);
+{ TKMPopUpMenu }
+constructor TKMPopUpMenu.Create(aParent: TKMPanel; aWidth: Integer);
 begin
   inherited Create(aParent.MasterParent, 0, 0, aWidth, 0);
 
@@ -4086,38 +4086,38 @@ begin
 end;
 
 
-procedure TKMMenu.Clear;
+procedure TKMPopUpMenu.Clear;
 begin
   fList.Clear;
 end;
 
 
-function TKMMenu.GetItemIndex: Integer;
+function TKMPopUpMenu.GetItemIndex: Integer;
 begin
   Result := fList.ItemIndex;
 end;
 
 
-function TKMMenu.GetItemTag(aIndex: Integer): Integer;
+function TKMPopUpMenu.GetItemTag(aIndex: Integer): Integer;
 begin
   Result := fList.Rows[aIndex].Tag;
 end;
 
 
-procedure TKMMenu.SetItemIndex(aValue: Integer);
+procedure TKMPopUpMenu.SetItemIndex(aValue: Integer);
 begin
   fList.ItemIndex := aValue;
 end;
 
 
-procedure TKMMenu.AddItem(aCaption: string; aTag: Integer = 0);
+procedure TKMPopUpMenu.AddItem(aCaption: string; aTag: Integer = 0);
 begin
   fList.AddItem(MakeListRow(aCaption, aTag));
   Height := fList.ItemHeight * fList.RowCount;
 end;
 
 
-procedure TKMMenu.MenuClick(Sender: TObject);
+procedure TKMPopUpMenu.MenuClick(Sender: TObject);
 begin
   if Assigned(fOnClick) then
     fOnClick(Self);
@@ -4126,7 +4126,7 @@ begin
 end;
 
 
-procedure TKMMenu.MenuHide(Sender: TObject);
+procedure TKMPopUpMenu.MenuHide(Sender: TObject);
 begin
   Hide;
   fList.Hide;
@@ -4134,7 +4134,7 @@ begin
 end;
 
 
-procedure TKMMenu.ShowAt(X, Y: Integer);
+procedure TKMPopUpMenu.ShowAt(X, Y: Integer);
 begin
   fList.AbsLeft := X;
   fList.AbsTop := Y;

@@ -8,7 +8,7 @@ uses
 
 
 type
-  TKMGUIMenuSinglePlayer = class
+  TKMMenuSinglePlayer = class
   private
     fOnPageChange: TGUIEventText;
 
@@ -34,7 +34,7 @@ uses KM_ResTexts, KM_GameApp, KM_RenderUI, KM_ResFonts;
 
 
 { TKMGUIMenuSinglePlayer }
-constructor TKMGUIMenuSinglePlayer.Create(aParent: TKMPanel; aOnPageChange: TGUIEventText);
+constructor TKMMenuSinglePlayer.Create(aParent: TKMPanel; aOnPageChange: TGUIEventText);
 begin
   inherited Create;
 
@@ -65,7 +65,7 @@ begin
 end;
 
 
-procedure TKMGUIMenuSinglePlayer.ButtonClick(Sender: TObject);
+procedure TKMMenuSinglePlayer.ButtonClick(Sender: TObject);
 begin
   if Sender = Button_SP_Tutor then
     fGameApp.NewSingleMap(ExeDir + 'Tutorials'+PathDelim+'Town Tutorial'+PathDelim+'Town Tutorial.dat', gResTexts[TX_MENU_TUTORIAL_TOWN]);
@@ -87,7 +87,7 @@ begin
 end;
 
 
-procedure TKMGUIMenuSinglePlayer.Show;
+procedure TKMMenuSinglePlayer.Show;
 begin
   Panel_SinglePlayer.Show;
 end;
