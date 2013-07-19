@@ -42,14 +42,13 @@ type
     fMenuResultsSP: TKMMenuResultsSP;
     fMenuSingleMap: TKMMenuSingleMap;
     fMenuSinglePlayer: TKMMenuSinglePlayer;
-    //fPages: array [TGUIPage] of TKMGUIPage;
   protected
     Panel_Main: TKMPanel;
-      Label_Version: TKMLabel;
+    Label_Version: TKMLabel;
   public
     constructor Create(X,Y: Word);
     destructor Destroy; override;
-    procedure PageChange(Dest: TGUIPage; aText: string = '');
+    procedure PageChange(Dest: TKMMenuPage; aText: string = '');
     procedure AppendLoadingText(const aText: string);
     procedure ShowResultsMP(aMsg: TGameResultMsg);
     procedure ShowResultsSP(aMsg: TGameResultMsg);
@@ -198,7 +197,7 @@ begin
 end;
 
 
-procedure TKMMainMenuInterface.PageChange(Dest: TGUIPage; aText: string = '');
+procedure TKMMainMenuInterface.PageChange(Dest: TKMMenuPage; aText: string = '');
 var
   I: Integer;
 begin
