@@ -6,7 +6,8 @@ uses
    {$IFDEF Unix} LCLIntf, LCLType, {$ENDIF}
    Classes, Controls, KromUtils, Math, StrUtils, SysUtils, KromOGLUtils, TypInfo,
    KM_Controls, KM_Defaults, KM_Pics, KM_Maps, KM_Houses, KM_Units, KM_UnitGroups, KM_MapEditor,
-   KM_Points, KM_InterfaceDefaults, KM_AIAttacks, KM_AIGoals, KM_Terrain;
+   KM_Points, KM_InterfaceDefaults, KM_AIAttacks, KM_AIGoals, KM_Terrain,
+   KM_GUIMapEdHouse;
 
 type
   TKMTerrainTab = (ttBrush, ttHeights, ttTile, ttObject, ttSelection);
@@ -22,8 +23,6 @@ type
     fActivePage: TKMPanel;
     fLastTile: Byte;
     fLastObject: Byte;
-    fStorehouseItem: Byte; //Selected ware in storehouse
-    fBarracksItem: Byte; //Selected ware in barracks
     fTileDirection: Byte;
     fDragScrolling: Boolean;
     fDragScrollingCursorPos: TPoint;
@@ -31,6 +30,8 @@ type
 
     fSelection: TSelectionManipulation;
     fPrevX, fPrevY: Integer;
+
+    fGuiHouse: TKMMapEdHouse;
 
     fMaps: TKMapsCollection;
     fMapsMP: TKMapsCollection;
@@ -52,9 +53,6 @@ type
     procedure Create_Extra;
     procedure Create_Message;
     procedure Create_Unit;
-    procedure Create_House;
-    procedure Create_HouseStore;
-    procedure Create_HouseBarracks;
     procedure Create_Marker;
     procedure Create_AttackPopUp;
     procedure Create_FormationsPopUp;
@@ -82,13 +80,6 @@ type
     procedure Goals_ListClick(Sender: TObject);
     procedure Goals_ListDoubleClick(Sender: TObject);
     procedure Goals_Refresh;
-    procedure House_HealthChange(Sender: TObject; AButton: TMouseButton);
-    procedure House_BarracksRefresh(Sender: TObject);
-    procedure House_BarracksSelectWare(Sender: TObject);
-    procedure House_BarracksEditCount(Sender: TObject; AButton:TMouseButton);
-    procedure House_StoreRefresh(Sender: TObject);
-    procedure House_StoreSelectWare(Sender: TObject);
-    procedure House_StoreEditCount(Sender: TObject; AButton:TMouseButton);
     procedure Layers_UpdateVisibility;
     procedure Marker_Change(Sender: TObject);
     procedure Menu_SaveClick(Sender: TObject);
@@ -136,12 +127,12 @@ type
     procedure ExtraMessage_Switch(Sender: TObject);
 
     procedure SwitchPage(Sender: TObject);
+    procedure HidePages;
     procedure DisplayPage(aPage: TKMPanel);
     procedure DisplayHint(Sender: TObject);
     procedure Player_UpdateColors;
     procedure Player_FOWChange(Sender: TObject);
     procedure RightClick_Cancel;
-    procedure ShowHouseInfo(Sender: TKMHouse);
     procedure ShowUnitInfo(Sender: TKMUnit);
     procedure ShowGroupInfo(Sender: TKMUnitGroup);
     procedure ShowMarkerInfo(aMarker: TKMMapEdMarker);
@@ -314,26 +305,6 @@ type
         Edit_ArmyOrderX: TKMNumericEdit;
         Edit_ArmyOrderY: TKMNumericEdit;
         Edit_ArmyOrderDir: TKMNumericEdit;
-
-    Panel_House: TKMPanel;
-      Label_House: TKMLabel;
-      Image_House_Logo, Image_House_Worker: TKMImage;
-      Label_HouseHealth: TKMLabel;
-      KMHealthBar_House: TKMPercentBar;
-      Button_HouseHealthDec, Button_HouseHealthInc: TKMButton;
-      Label_House_Supply: TKMLabel;
-      ResRow_Resource: array [0..3] of TKMResourceOrderRow;
-
-      Panel_HouseStore:TKMPanel;
-        Button_Store:array[1..STORE_RES_COUNT]of TKMButtonFlat;
-        Label_Store_WareCount:TKMLabel;
-        Button_StoreDec100,Button_StoreDec:TKMButton;
-        Button_StoreInc100,Button_StoreInc:TKMButton;
-      Panel_HouseBarracks:TKMPanel;
-        Button_Barracks:array[1..BARRACKS_RES_COUNT]of TKMButtonFlat;
-        Label_Barracks_WareCount:TKMLabel;
-        Button_BarracksDec100,Button_BarracksDec:TKMButton;
-        Button_BarracksInc100,Button_BarracksInc:TKMButton;
 
     Panel_Marker: TKMPanel;
       Label_MarkerType: TKMLabel;
@@ -563,7 +534,7 @@ begin
 end;
 
 
-procedure TKMapEdInterface.DisplayPage(aPage: TKMPanel);
+procedure TKMapEdInterface.HidePages;
 var I,K: Integer;
 begin
   //Hide all existing pages (2 levels)
@@ -575,6 +546,12 @@ begin
     if TKMPanel(Panel_Common.Childs[I]).Childs[K] is TKMPanel then
       TKMPanel(Panel_Common.Childs[I]).Childs[K].Hide;
   end;
+end;
+
+
+procedure TKMapEdInterface.DisplayPage(aPage: TKMPanel);
+begin
+  HidePages;
 
   if aPage = Panel_Brushes then
     Terrain_BrushRefresh
@@ -739,8 +716,6 @@ var
 begin
   inherited;
 
-  fBarracksItem   := 1; //First ware selected by default
-  fStorehouseItem := 1; //First ware selected by default
   fTileDirection := 0;
   fDragScrolling := False;
   fDragScrollingCursorPos.X := 0;
@@ -817,10 +792,9 @@ begin
     Create_MenuQuit;
 
   Create_Unit;
-  Create_House;
-    Create_HouseStore;
-    Create_HouseBarracks;
-    //Create_HouseTownHall;
+
+  fGuiHouse := TKMMapEdHouse.Create(Panel_Common);
+
   Create_Marker;
 
   Image_Extra := TKMImage.Create(Panel_Main, TOOLBAR_WIDTH, Panel_Main.Height - 48, 30, 48, 494);
@@ -847,6 +821,8 @@ end;
 
 destructor TKMapEdInterface.Destroy;
 begin
+  fGuiHouse.Free;
+
   fMaps.Free;
   fMapsMP.Free;
   SHOW_TERRAIN_WIRES := false; //Don't show it in-game if they left it on in MapEd
@@ -1715,100 +1691,6 @@ begin
 end;
 
 
-{House description page}
-procedure TKMapEdInterface.Create_House;
-var
-  I: Integer;
-begin
-  Panel_House := TKMPanel.Create(Panel_Common, 0, 45, TB_WIDTH, 400);
-    //Thats common things
-    Label_House := TKMLabel.Create(Panel_House, 0, 14, TB_WIDTH, 0, '', fnt_Outline, taCenter);
-    Image_House_Logo := TKMImage.Create(Panel_House, 0, 41, 32, 32, 338);
-    Image_House_Logo.ImageCenter;
-    Image_House_Worker := TKMImage.Create(Panel_House, 30, 41, 32, 32, 141);
-    Image_House_Worker.ImageCenter;
-    Label_HouseHealth := TKMLabel.Create(Panel_House, 100, 41, 60, 20, gResTexts[TX_HOUSE_CONDITION], fnt_Mini, taCenter);
-    Label_HouseHealth.FontColor := $FFE0E0E0;
-    KMHealthBar_House := TKMPercentBar.Create(Panel_House, 100, 53, 60, 20);
-    Button_HouseHealthDec := TKMButton.Create(Panel_House, 80, 53, 20, 20, '-', bsGame);
-    Button_HouseHealthInc := TKMButton.Create(Panel_House, 160, 53, 20, 20, '+', bsGame);
-    Button_HouseHealthDec.OnClickEither := House_HealthChange;
-    Button_HouseHealthInc.OnClickEither := House_HealthChange;
-
-    Label_House_Supply := TKMLabel.Create(Panel_House, 0, 85, TB_WIDTH, 0, gResTexts[TX_HOUSE_SUPPLIES], fnt_Grey, taCenter);
-
-    for I := 0 to 3 do
-    begin
-      ResRow_Resource[I] := TKMResourceOrderRow.Create(Panel_House, 0, 105 + I * 25, TB_WIDTH, 20);
-      ResRow_Resource[I].RX := rxGui;
-      ResRow_Resource[I].OrderAdd.OnClickEither := House_HealthChange;
-      ResRow_Resource[I].OrderRem.OnClickEither := House_HealthChange;
-    end;
-end;
-
-
-{Store page}
-procedure TKMapEdInterface.Create_HouseStore;
-var I: Integer;
-begin
-  Panel_HouseStore := TKMPanel.Create(Panel_House,0,76,TB_WIDTH,400);
-    for I := 1 to STORE_RES_COUNT do
-    begin
-      Button_Store[I] := TKMButtonFlat.Create(Panel_HouseStore, 2 + ((I-1)mod 5)*36,8+((I-1)div 5)*42,32,36,0);
-      Button_Store[I].TexID := fResource.Wares[StoreResType[I]].GUIIcon;
-      Button_Store[I].Tag := I;
-      Button_Store[I].Hint := fResource.Wares[StoreResType[I]].Title;
-      Button_Store[I].OnClick := House_StoreSelectWare;
-    end;
-
-    Button_StoreDec100      := TKMButton.Create(Panel_HouseStore,108,218,20,20,'<', bsGame);
-    Button_StoreDec100.Tag  := 100;
-    Button_StoreDec       := TKMButton.Create(Panel_HouseStore,108,238,20,20,'-', bsGame);
-    Button_StoreDec.Tag   := 1;
-    Label_Store_WareCount:= TKMLabel.Create (Panel_HouseStore,128,230,40,20,'',fnt_Metal,taCenter);
-    Button_StoreInc100      := TKMButton.Create(Panel_HouseStore,168,218,20,20,'>', bsGame);
-    Button_StoreInc100.Tag  := 100;
-    Button_StoreInc       := TKMButton.Create(Panel_HouseStore,168,238,20,20,'+', bsGame);
-    Button_StoreInc.Tag   := 1;
-    Button_StoreDec100.OnClickEither := House_StoreEditCount;
-    Button_StoreDec.OnClickEither    := House_StoreEditCount;
-    Button_StoreInc100.OnClickEither := House_StoreEditCount;
-    Button_StoreInc.OnClickEither    := House_StoreEditCount;
-end;
-
-
-{Barracks page}
-procedure TKMapEdInterface.Create_HouseBarracks;
-var i:Integer;
-begin
-  Panel_HouseBarracks:=TKMPanel.Create(Panel_House,0,76,TB_WIDTH,400);
-    for i:=1 to BARRACKS_RES_COUNT do
-    begin
-      Button_Barracks[i]:=TKMButtonFlat.Create(Panel_HouseBarracks, ((i-1)mod 6)*31,8+((i-1)div 6)*42,28,38,0);
-      Button_Barracks[i].Tag := i;
-      Button_Barracks[i].TexID := fResource.Wares[BarracksResType[i]].GUIIcon;
-      Button_Barracks[i].TexOffsetX := 1;
-      Button_Barracks[i].TexOffsetY := 1;
-      Button_Barracks[i].CapOffsetY := 2;
-      Button_Barracks[i].Hint := fResource.Wares[BarracksResType[i]].Title;
-      Button_Barracks[i].OnClick := House_BarracksSelectWare;
-    end;
-    Button_BarracksDec100     := TKMButton.Create(Panel_HouseBarracks,108,218,20,20,'<', bsGame);
-    Button_BarracksDec100.Tag := 100;
-    Button_BarracksDec      := TKMButton.Create(Panel_HouseBarracks,108,238,20,20,'-', bsGame);
-    Button_BarracksDec.Tag  := 1;
-    Label_Barracks_WareCount:= TKMLabel.Create (Panel_HouseBarracks,128,230,40,20,'',fnt_Metal,taCenter);
-    Button_BarracksInc100     := TKMButton.Create(Panel_HouseBarracks,168,218,20,20,'>', bsGame);
-    Button_BarracksInc100.Tag := 100;
-    Button_BarracksInc      := TKMButton.Create(Panel_HouseBarracks,168,238,20,20,'+', bsGame);
-    Button_BarracksInc.Tag  := 1;
-    Button_BarracksDec100.OnClickEither := House_BarracksEditCount;
-    Button_BarracksDec.OnClickEither    := House_BarracksEditCount;
-    Button_BarracksInc100.OnClickEither := House_BarracksEditCount;
-    Button_BarracksInc.OnClickEither    := House_BarracksEditCount;
-end;
-
-
 procedure TKMapEdInterface.Create_Marker;
 begin
   Panel_Marker := TKMPanel.Create(Panel_Common, 0, 50, TB_WIDTH, 400);
@@ -2042,7 +1924,10 @@ end;
 procedure TKMapEdInterface.Player_ChangeActive(Sender: TObject);
 begin
   //If we had selected House or Unit - discard them
-  if Panel_House.Visible or Panel_Unit.Visible or Panel_Marker.Visible then
+  fGuiHouse.Hide;
+
+  //If we had selected House or Unit - discard them
+  if Panel_Unit.Visible or Panel_Marker.Visible then
     fActivePage := nil;
 
   if MySpectator.Selected <> nil then
@@ -2781,7 +2666,7 @@ begin
   if CheckBox_ShowObjects.Checked or Panel_Objects.Visible then
     fGame.MapEditor.VisibleLayers := fGame.MapEditor.VisibleLayers + [mlObjects];
 
-  if CheckBox_ShowHouses.Checked or Panel_Build.Visible or Panel_House.Visible then
+  if CheckBox_ShowHouses.Checked or Panel_Build.Visible or fGuiHouse.Visible then
     fGame.MapEditor.VisibleLayers := fGame.MapEditor.VisibleLayers + [mlHouses];
 
   if CheckBox_ShowUnits.Checked or Panel_Units.Visible or Panel_Unit.Visible then
@@ -2792,71 +2677,6 @@ begin
 
   if Panel_Selection.Visible then
     fGame.MapEditor.VisibleLayers := fGame.MapEditor.VisibleLayers + [mlSelection];
-end;
-
-
-procedure TKMapEdInterface.ShowHouseInfo(Sender: TKMHouse);
-var
-  HouseDat: TKMHouseDatClass;
-  I: Integer;
-  Res: TWareType;
-begin
-  if Sender = nil then
-  begin
-    DisplayPage(nil);
-    exit;
-  end;
-
-  SetActivePlayer(Sender.Owner);
-
-  HouseDat := fResource.HouseDat[Sender.HouseType];
-
-  {Common data}
-  Label_House.Caption := HouseDat.HouseName;
-  Image_House_Logo.TexID := HouseDat.GUIIcon;
-  Image_House_Worker.TexID := fResource.UnitDat[HouseDat.OwnerType].GUIIcon;
-  Image_House_Worker.FlagColor := gPlayers[Sender.Owner].FlagColor;
-  Image_House_Worker.Hint := fResource.UnitDat[HouseDat.OwnerType].GUIName;
-  Image_House_Worker.Visible := HouseDat.OwnerType <> ut_None;
-  KMHealthBar_House.Caption := IntToStr(Round(Sender.GetHealth)) + '/' + IntToStr(HouseDat.MaxHealth);
-  KMHealthBar_House.Position := Sender.GetHealth / HouseDat.MaxHealth;
-
-  Label_House_Supply.Hide;
-  for I := 0 to 3 do
-  begin
-    Res := HouseDat.ResInput[I+1];
-    if fResource.Wares[Res].IsValid then
-    begin
-      ResRow_Resource[I].TexID := fResource.Wares[Res].GUIIcon;
-      ResRow_Resource[I].Caption := fResource.Wares[Res].Title;
-      ResRow_Resource[I].Hint := fResource.Wares[Res].Title;
-      ResRow_Resource[I].ResourceCount := Sender.CheckResIn(Res);
-      ResRow_Resource[I].OrderCount := Sender.CheckResIn(Res);
-      ResRow_Resource[I].Show;
-      Label_House_Supply.Show;
-    end
-    else
-      ResRow_Resource[I].Hide;
-  end;
-
-  case Sender.HouseType of
-    ht_Store:     begin
-                    DisplayPage(Panel_HouseStore); //Must be displayed first
-                    House_StoreRefresh(nil);
-                    //Reselect the ware so the display is updated
-                    House_StoreSelectWare(Button_Store[fStorehouseItem]);
-                  end;
-    ht_Barracks:  begin
-                    DisplayPage(Panel_HouseBarracks); //Must be displayed first
-                    House_BarracksRefresh(nil);
-                    //In the barrack the recruit icon is always enabled
-                    Image_House_Worker.Enable;
-                    //Reselect the ware so the display is updated
-                    House_BarracksSelectWare(Button_Barracks[fBarracksItem]);
-                  end;
-    ht_TownHall:;
-    else          DisplayPage(Panel_House);
-  end;
 end;
 
 
@@ -3175,73 +2995,6 @@ begin
 end;
 
 
-procedure TKMapEdInterface.House_StoreRefresh(Sender: TObject);
-var
-  I, Tmp: Integer;
-begin
-  if MySpectator.Selected = nil then exit;
-  if not (MySpectator.Selected is TKMHouseStore) then exit;
-
-  for I := 1 to STORE_RES_COUNT do
-  begin
-    Tmp := TKMHouseStore(MySpectator.Selected).CheckResIn(StoreResType[I]);
-    Button_Store[I].Caption := IfThen(Tmp = 0, '-', IntToStr(Tmp));
-  end;
-end;
-
-
-procedure TKMapEdInterface.House_BarracksRefresh(Sender: TObject);
-var
-  I, Tmp: Integer;
-begin
-  if MySpectator.Selected = nil then exit;
-  if not (MySpectator.Selected is TKMHouseBarracks) then exit;
-
-  for I := 1 to BARRACKS_RES_COUNT do
-  begin
-    Tmp := TKMHouseBarracks(MySpectator.Selected).CheckResIn(BarracksResType[I]);
-    Button_Barracks[I].Caption := IfThen(Tmp = 0, '-', IntToStr(Tmp));
-  end;
-end;
-
-
-procedure TKMapEdInterface.House_HealthChange(Sender: TObject; AButton: TMouseButton);
-var
-  H: TKMHouse;
-  I: Integer;
-  Res: TWareType;
-  NewCount: Integer;
-begin
-  if not (MySpectator.Selected is TKMHouse) then Exit;
-  H := TKMHouse(MySpectator.Selected);
-
-  if Sender = Button_HouseHealthDec then H.AddDamage(-1, ORDER_CLICK_AMOUNT[AButton] * 5, True);
-  if Sender = Button_HouseHealthInc then H.AddRepair(ORDER_CLICK_AMOUNT[AButton] * 5);
-
-  for I := 0 to 3 do
-  begin
-    Res := fResource.HouseDat[H.HouseType].ResInput[I+1];
-
-    if Sender = ResRow_Resource[I].OrderAdd then
-    begin
-      NewCount := Math.Min(ORDER_CLICK_AMOUNT[aButton], MAX_WARES_IN_HOUSE - H.CheckResIn(Res));
-      H.ResAddToIn(Res, NewCount);
-    end;
-
-    if Sender = ResRow_Resource[I].OrderRem then
-    begin
-      NewCount := Math.Min(ORDER_CLICK_AMOUNT[aButton], H.CheckResIn(Res));
-      H.ResTakeFromIn(Res, NewCount);
-    end;
-  end;
-
-  if H.IsDestroyed then
-    ShowHouseInfo(nil)
-  else
-    ShowHouseInfo(H);
-end;
-
-
 procedure TKMapEdInterface.Unit_ArmyChange1(Sender: TObject);
 var
   Group: TKMUnitGroup;
@@ -3359,89 +3112,6 @@ begin
     Panel_Message.Hide;
     gSoundPlayer.Play(sfxn_MPChatClose);
   end;
-end;
-
-
-procedure TKMapEdInterface.House_BarracksSelectWare(Sender: TObject);
-var I: Integer;
-begin
-  if not Panel_HouseBarracks.Visible then exit;
-  if not (Sender is TKMButtonFlat) then exit; //Only FlatButtons
-  if TKMButtonFlat(Sender).Tag = 0 then exit; //with set Tag
-
-  for I:=1 to BARRACKS_RES_COUNT do
-    Button_Barracks[I].Down := False;
-  TKMButtonFlat(Sender).Down := True;
-  fBarracksItem := TKMButtonFlat(Sender).Tag;
-  House_BarracksEditCount(Sender, mbLeft);
-end;
-
-
-procedure TKMapEdInterface.House_StoreSelectWare(Sender: TObject);
-var I: Integer;
-begin
-  if not Panel_HouseStore.Visible then exit;
-  if not (Sender is TKMButtonFlat) then exit; //Only FlatButtons
-  if TKMButtonFlat(Sender).Tag = 0 then exit; //with set Tag
-
-  for I := 1 to Length(Button_Store) do
-    Button_Store[I].Down := False;
-
-  TKMButtonFlat(Sender).Down := True;
-  fStorehouseItem := TKMButtonFlat(Sender).Tag;
-  House_StoreEditCount(Sender, mbLeft);
-end;
-
-
-procedure TKMapEdInterface.House_BarracksEditCount(Sender: TObject; AButton:TMouseButton);
-var
-  Res: TWareType;
-  Barracks: TKMHouseBarracks;
-  NewCount: Word;
-begin
-  if not Panel_HouseBarracks.Visible or not (MySpectator.Selected is TKMHouseBarracks) then Exit;
-
-  Res := BarracksResType[fBarracksItem];
-  Barracks := TKMHouseBarracks(MySpectator.Selected);
-
-  if (Sender = Button_BarracksDec100) or (Sender = Button_BarracksDec) then begin
-    NewCount := Math.Min(Barracks.CheckResIn(Res), ORDER_CLICK_AMOUNT[aButton] * TKMButton(Sender).Tag);
-    Barracks.ResTakeFromOut(Res, NewCount);
-  end;
-
-  if (Sender = Button_BarracksInc100) or (Sender = Button_BarracksInc) then begin
-    NewCount := Math.Min(High(Word) - Barracks.CheckResIn(Res), ORDER_CLICK_AMOUNT[aButton] * TKMButton(Sender).Tag);
-    Barracks.ResAddToIn(Res, NewCount);
-  end;
-
-  Label_Barracks_WareCount.Caption := IntToStr(Barracks.CheckResIn(Res));
-  House_BarracksRefresh(nil);
-end;
-
-
-procedure TKMapEdInterface.House_StoreEditCount(Sender: TObject; AButton:TMouseButton);
-var
-  Res: TWareType;
-  Store: TKMHouseStore;
-  NewCount: Word;
-begin
-  if not Panel_HouseStore.Visible or not (MySpectator.Selected is TKMHouseStore) then Exit;
-
-  Res := StoreResType[fStorehouseItem];
-  Store := TKMHouseStore(MySpectator.Selected);
-
-  //We need to take no more than it is there, thats part of bugtracking idea
-  if (Sender = Button_StoreDec100) or (Sender = Button_StoreDec) then begin
-    NewCount := Math.Min(Store.CheckResIn(Res), ORDER_CLICK_AMOUNT[aButton]*TKMButton(Sender).Tag);
-    Store.ResTakeFromOut(Res, NewCount);
-  end;
-
-  //We can always add any amount of resource, it will be capped by Store
-  if (Sender = Button_StoreInc100) or (Sender = Button_StoreInc) then
-    Store.ResAddToIn(Res, ORDER_CLICK_AMOUNT[aButton]*TKMButton(Sender).Tag);
-
-  Label_Store_WareCount.Caption := inttostr(Store.CheckResIn(Res));
-  House_StoreRefresh(nil);
 end;
 
 
@@ -3782,7 +3452,7 @@ begin
     if Marker.MarkerType <> mtNone then
       fResource.Cursors.Cursor := kmc_Info
     else
-    if GameCursor.ObjectUID <> -1 then
+    if MySpectator.HitTestCursor <> nil then
       fResource.Cursors.Cursor := kmc_Info
     else
       if not fGame.Viewport.Scrolling then
@@ -3896,7 +3566,11 @@ begin
                       MySpectator.UpdateSelect;
 
                       if MySpectator.Selected is TKMHouse then
-                        ShowHouseInfo(TKMHouse(MySpectator.Selected));
+                      begin
+                        HidePages;
+                        SetActivePlayer(TKMHouse(MySpectator.Selected).Owner);
+                        fGuiHouse.Show(TKMHouse(MySpectator.Selected));
+                      end;
                       if MySpectator.Selected is TKMUnit then
                         ShowUnitInfo(TKMUnit(MySpectator.Selected));
                       if MySpectator.Selected is TKMUnitGroup then
