@@ -27,3 +27,4 @@ Proposed:
 	More options for on-screen text (background color, alignment, font, size, etc.)
 	States.PlayerIsAI(Index): Boolean;
 	Actions.AddDefensePosition, RemDefensePosition
+  States.HouseCantReachResources: boolean (for mines, fisher and woodcutters)
