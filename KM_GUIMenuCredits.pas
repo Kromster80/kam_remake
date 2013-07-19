@@ -108,7 +108,7 @@ end;
 
 procedure TKMGUIMainCredits.BackClick(Sender: TObject);
 begin
-  fOnPageChange(Self, gpMainMenu, '');
+  fOnPageChange(gpMainMenu);
 end;
 
 

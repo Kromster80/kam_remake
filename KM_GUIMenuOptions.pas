@@ -382,7 +382,8 @@ procedure TKMGUIMainOptions.BackClick(Sender: TObject);
 begin
   //Return to MainMenu and restore resolution changes
   fMainSettings.SaveSettings;
-  fOnPageChange(Self, gpMainMenu, '');
+
+  fOnPageChange(gpMainMenu);
 end;
 
 

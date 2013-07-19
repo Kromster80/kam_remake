@@ -67,23 +67,23 @@ end;
 
 procedure TKMGUIMenuSinglePlayer.ButtonClick(Sender: TObject);
 begin
-  if (Sender = Button_SP_Tutor) then
+  if Sender = Button_SP_Tutor then
     fGameApp.NewSingleMap(ExeDir + 'Tutorials'+PathDelim+'Town Tutorial'+PathDelim+'Town Tutorial.dat', gResTexts[TX_MENU_TUTORIAL_TOWN]);
 
   if Sender = Button_SP_Fight then
     fGameApp.NewSingleMap(ExeDir + 'Tutorials'+PathDelim+'Battle Tutorial'+PathDelim+'Battle Tutorial.dat', gResTexts[TX_MENU_TUTORIAL_BATTLE]);
 
-  if (Sender = Button_SP_Camp) then
-    fOnPageChange(Self, gpCampSelect, '');
+  if Sender = Button_SP_Camp then
+    fOnPageChange(gpCampSelect);
 
   if Sender = Button_SP_Single then
-    fOnPageChange(Self, gpSingleMap, '');
+    fOnPageChange(gpSingleMap);
 
-  if Sender=Button_SP_Load then
-    fOnPageChange(Self, gpLoad, '');
+  if Sender = Button_SP_Load then
+    fOnPageChange(gpLoad);
 
-  if Sender=Button_SP_Back then
-    fOnPageChange(Self, gpMainMenu, '');
+  if Sender = Button_SP_Back then
+    fOnPageChange(gpMainMenu);
 end;
 
 

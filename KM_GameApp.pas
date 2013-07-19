@@ -6,7 +6,7 @@ uses
   {$IFDEF Unix} LCLType, {$ENDIF}
   Classes, Controls, Dialogs, ExtCtrls, KromUtils, Math, SysUtils, TypInfo,
   KM_CommonTypes, KM_Defaults, KM_RenderControl,
-  KM_Campaigns, KM_Game, KM_InterfaceMainMenu,
+  KM_Campaigns, KM_Game, KM_InterfaceMainMenu, KM_InterfaceDefaults,
   KM_Music, KM_Networking, KM_Settings, KM_ResTexts, KM_Render;
 
 type
@@ -141,9 +141,9 @@ end;
 procedure TKMGameApp.AfterConstruction(aReturnToOptions: Boolean);
 begin
   if aReturnToOptions then
-    fMainMenuInterface.ShowScreen(msOptions)
+    fMainMenuInterface.PageChange(gpOptions)
   else
-    fMainMenuInterface.ShowScreen(msMain);
+    fMainMenuInterface.PageChange(gpMainMenu);
 end;
 
 
@@ -189,7 +189,7 @@ procedure TKMGameApp.ToggleLocale(aLocale: AnsiString);
 begin
   Assert(fGame = nil, 'We don''t want to recreate whole fGame for that. Let''s limit it only to MainMenu');
 
-  fMainMenuInterface.ShowScreen(msLoading, gResTexts[TX_MENU_NEW_LOCALE]);
+  fMainMenuInterface.PageChange(gpLoading, gResTexts[TX_MENU_NEW_LOCALE]);
   Render; //Force to repaint information screen
 
   fTimerUI.Enabled := False; //Disable it while switching, if an OpenAL error appears the timer should be disabled
@@ -210,7 +210,7 @@ begin
   fCampaigns.ScanFolder(ExeDir + 'Campaigns' + PathDelim);
   fCampaigns.LoadProgress(ExeDir + 'Saves' + PathDelim + 'Campaigns.dat');
   fMainMenuInterface := TKMMainMenuInterface.Create(fRender.ScreenX, fRender.ScreenY);
-  fMainMenuInterface.ShowScreen(msOptions);
+  fMainMenuInterface.PageChange(gpOptions);
   Resize(fRender.ScreenX, fRender.ScreenY); //Force the recreated main menu to resize to the user's screen
   fTimerUI.Enabled := True; //Safe to enable the timer again
 end;
@@ -333,7 +333,7 @@ end;
 procedure TKMGameApp.LoadGameAssets;
 begin
   //Load the resources if necessary
-  fMainMenuInterface.ShowScreen(msLoading, '');
+  fMainMenuInterface.PageChange(gpLoading);
   Render;
 
   GameLoadingStep(gResTexts[TX_MENU_LOADING_DEFINITIONS]);
@@ -380,9 +380,9 @@ begin
                         fCampaigns.UnlockNextMap;
                     end;
     gr_Error, gr_Disconnect:
-                    fMainMenuInterface.ShowScreen(msError, aTextMsg);
+                    fMainMenuInterface.PageChange(gpError, aTextMsg);
     gr_Silent:      ;//Used when loading new savegame from gameplay UI
-    gr_MapEdEnd:    fMainMenuInterface.ShowScreen(msMain);
+    gr_MapEdEnd:    fMainMenuInterface.PageChange(gpMainMenu);
   end;
 
   FreeThenNil(fGame);
@@ -541,7 +541,7 @@ begin
   if FileExists(ChangeFileExt(ExeDir + aSave, '.bas')) then
     LoadGameFromSave(ChangeFileExt(ExeDir + aSave, '.bas'), gmSingle)
   else
-    fMainMenuInterface.ShowScreen(msError, 'Can not repeat last mission');
+    fMainMenuInterface.PageChange(gpError, 'Can not repeat last mission');
 end;
 
 

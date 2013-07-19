@@ -7,8 +7,6 @@ uses
 
 
 type
-  TMenuScreen = (msError, msLoading, msMain, msOptions);
-
   TKMGUIMenuLoad = class
   private
     fOnPageChange: TGUIEventText;
@@ -251,7 +249,7 @@ begin
   //Scan should be terminated, it is no longer needed
   fSaves.TerminateScan;
 
-  fOnPageChange(Self, gpSingleplayer, '');
+  fOnPageChange(gpSingleplayer);
 end;
 
 

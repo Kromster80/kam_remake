@@ -8,8 +8,11 @@ uses
   KM_GUIMenuCampaign,
   KM_GUIMenuCampaigns,
   KM_GUIMenuCredits,
+  KM_GUIMenuError,
   KM_GUIMenuLoad,
+  KM_GUIMenuLoading,
   KM_GUIMenuLobby,
+  KM_GUIMenuMain,
   KM_GUIMenuMapEditor,
   KM_GUIMenuMultiplayer,
   KM_GUIMenuOptions,
@@ -21,15 +24,16 @@ uses
 
 
 type
-  TMenuScreen = (msError, msLoading, msMain, msOptions);
-
   TKMMainMenuInterface = class (TKMUserInterface)
   private
     fGuiCampaign: TKMGUIMainCampaign;
     fGuiCampaigns: TKMGUIMainCampaigns;
     fGuiCredits: TKMGUIMainCredits;
+    fGuiError: TKMGUIMenuError;
     fGuiLoad: TKMGUIMenuLoad;
+    fGuiLoading: TKMGUIMenuLoading;
     fGuiLobby: TKMGUIMenuLobby;
+    fGuiMain: TKMGUIMenuMain;
     fGuiMapEditor: TKMGUIMainMapEditor;
     fGuiMultiplayer: TKMGUIMainMultiplayer;
     fGuiOptions: TKMGUIMainOptions;
@@ -39,34 +43,13 @@ type
     fGuiSingleMap: TKMGUIMenuSingleMap;
     fGuiSinglePlayer: TKMGUIMenuSinglePlayer;
     //fPages: array [TGUIPage] of TKMGUIPage;
-
-    procedure Create_MainMenu;
-    procedure Create_Loading;
-    procedure Create_Error;
-    procedure PageChange(Sender: TObject; Dest: TGUIPage; aText: string);
-    procedure SwitchMenuPage(Sender: TObject);
-    procedure MainMenu_MultiplayerClick(Sender: TObject);
   protected
-    Panel_Main:TKMPanel;
-      Label_Version:TKMLabel;
-    Panel_MainMenu:TKMPanel;
-      Panel_MMButtons:TKMPanel;
-      Button_MM_SinglePlayer,
-      Button_MM_MultiPlayer,
-      Button_MM_MapEd,
-      Button_MM_Replays,
-      Button_MM_Options,
-      Button_MM_Credits,
-      Button_MM_Quit: TKMButton;
-    Panel_Loading:TKMPanel;
-      Label_Loading:TKMLabel;
-    Panel_Error:TKMPanel;
-      Label_Error:TKMLabel;
-      Button_ErrorBack:TKMButton;
+    Panel_Main: TKMPanel;
+      Label_Version: TKMLabel;
   public
     constructor Create(X,Y: Word);
     destructor Destroy; override;
-    procedure ShowScreen(aScreen: TMenuScreen; const aText: string = ''; aMsg: TGameResultMsg=gr_Silent);
+    procedure PageChange(Dest: TGUIPage; aText: string = '');
     procedure AppendLoadingText(const aText: string);
     procedure ShowResultsMP(aMsg: TGameResultMsg);
     procedure ShowResultsSP(aMsg: TGameResultMsg);
@@ -85,8 +68,7 @@ type
 
 
 implementation
-uses KM_Main, KM_ResTexts, KM_GameApp, KM_ResLocales,
-  KM_Utils, KM_Log, KM_Networking, KM_RenderUI, KM_ResFonts;
+uses KM_ResTexts, KM_GameApp, KM_Log, KM_Networking, KM_RenderUI, KM_ResFonts;
 
 
 { TKMMainMenuInterface }
@@ -107,23 +89,22 @@ begin
   with TKMImage.Create(Panel_Main,-448, 384,960,600,19,rxGuiMain) do Anchors := [];
   with TKMImage.Create(Panel_Main, 512, 384,960,600,20,rxGuiMain) do Anchors := [];
 
-  Create_MainMenu;
-  fGuiSinglePlayer := TKMGUIMenuSinglePlayer.Create(Panel_Main, PageChange);
-    fGuiCampaigns := TKMGUIMainCampaigns.Create(Panel_Main, PageChange);
-      fGuiCampaign := TKMGUIMainCampaign.Create(Panel_Main, PageChange);
-    fGuiSingleMap := TKMGUIMenuSingleMap.Create(Panel_Main, PageChange);
-    fGuiLoad := TKMGUIMenuLoad.Create(Panel_Main, PageChange);
-  fGuiMultiplayer := TKMGUIMainMultiplayer.Create(Panel_Main, PageChange);
-    fGuiLobby := TKMGUIMenuLobby.Create(Panel_Main, PageChange);
-  fGuiMapEditor := TKMGUIMainMapEditor.Create(Panel_Main, PageChange);
-  fGuiReplays := TKMGUIMenuReplays.Create(Panel_Main, PageChange);
-  fGuiOptions := TKMGUIMainOptions.Create(Panel_Main, PageChange);
-  fGuiCredits := TKMGUIMainCredits.Create(Panel_Main, PageChange);
-  Create_Loading;
-  Create_Error;
-  fGuiResultsMP := TKMGUIMenuResultsMP.Create(Panel_Main, PageChange);
-  fGuiResultsSP := TKMGUIMenuResultsSP.Create(Panel_Main, PageChange);
-
+  fGuiMain := TKMGUIMenuMain.Create(Panel_Main, PageChange);
+    fGuiSinglePlayer := TKMGUIMenuSinglePlayer.Create(Panel_Main, PageChange);
+      fGuiCampaigns := TKMGUIMainCampaigns.Create(Panel_Main, PageChange);
+        fGuiCampaign := TKMGUIMainCampaign.Create(Panel_Main, PageChange);
+      fGuiSingleMap := TKMGUIMenuSingleMap.Create(Panel_Main, PageChange);
+      fGuiLoad := TKMGUIMenuLoad.Create(Panel_Main, PageChange);
+    fGuiMultiplayer := TKMGUIMainMultiplayer.Create(Panel_Main, PageChange);
+      fGuiLobby := TKMGUIMenuLobby.Create(Panel_Main, PageChange);
+    fGuiMapEditor := TKMGUIMainMapEditor.Create(Panel_Main, PageChange);
+    fGuiReplays := TKMGUIMenuReplays.Create(Panel_Main, PageChange);
+    fGuiOptions := TKMGUIMainOptions.Create(Panel_Main, PageChange);
+    fGuiCredits := TKMGUIMainCredits.Create(Panel_Main, PageChange);
+    fGuiError := TKMGUIMenuError.Create(Panel_Main, PageChange);
+    fGuiLoading := TKMGUIMenuLoading.Create(Panel_Main, PageChange);
+    fGuiResultsMP := TKMGUIMenuResultsMP.Create(Panel_Main, PageChange);
+    fGuiResultsSP := TKMGUIMenuResultsSP.Create(Panel_Main, PageChange);
 
     {for i:=1 to length(FontFiles) do L[i]:=TKMLabel.Create(Panel_Main1,550,280+i*20,160,30,'This is a test string for KaM Remake ('+FontFiles[i],TKMFont(i),taLeft);//}
     //MyControls.AddTextEdit(Panel_Main, 32, 32, 200, 20, fnt_Grey);
@@ -150,13 +131,17 @@ end;
 
 destructor TKMMainMenuInterface.Destroy;
 begin
-  fGuiLobby.Free;
-  fGuiLoad.Free;
-  fGuiMultiplayer.Free;
-  fGuiOptions.Free;
   fGuiCampaign.Free;
   fGuiCampaigns.Free;
   fGuiCredits.Free;
+  fGuiError.Free;
+  fGuiLoad.Free;
+  fGuiLoading.Free;
+  fGuiLobby.Free;
+  fGuiMain.Free;
+  fGuiMapEditor.Free;
+  fGuiMultiplayer.Free;
+  fGuiOptions.Free;
   fGuiReplays.Free;
   fGuiResultsMP.Free;
   fGuiResultsSP.Free;
@@ -184,26 +169,9 @@ begin
 end;
 
 
-procedure TKMMainMenuInterface.ShowScreen(aScreen: TMenuScreen; const aText: string=''; aMsg: TGameResultMsg=gr_Silent);
-begin
-  case aScreen of
-    msError:     begin
-                   Label_Error.Caption := aText;
-                   SwitchMenuPage(Panel_Error);
-                 end;
-    msLoading:   begin
-                   Label_Loading.Caption := aText;
-                   SwitchMenuPage(Panel_Loading);
-                 end;
-    msMain:      SwitchMenuPage(nil);
-    msOptions:   SwitchMenuPage(Button_MM_Options);
-  end;
-end;
-
-
 procedure TKMMainMenuInterface.AppendLoadingText(const aText: string);
 begin
-  Label_Loading.Caption := Label_Loading.Caption + aText + '|';
+  fGuiLoading.AppendText(aText);
 end;
 
 
@@ -232,74 +200,19 @@ begin
 end;
 
 
-procedure TKMMainMenuInterface.Create_MainMenu;
-begin
-  //Without anchors this page is centered on resize
-  Panel_MainMenu := TKMPanel.Create(Panel_Main, 0, 0, Panel_Main.Width, Panel_Main.Height);
-  Panel_MainMenu.Anchors := [];
-    TKMImage.Create(Panel_MainMenu, 300, 120, 423, 164, 4, rxGuiMain);
-    TKMLabel.Create(Panel_MainMenu, 512, 300, 'Remake', fnt_Metal, taCenter);
-
-    with TKMImage.Create(Panel_MainMenu,  50, 220, round(218*1.3), round(291*1.3), 5, rxGuiMain) do
-      ImageStretch;
-    with TKMImage.Create(Panel_MainMenu, 705, 220, round(207*1.3), round(295*1.3), 6, rxGuiMain) do
-      ImageStretch;
-
-    Panel_MMButtons := TKMPanel.Create(Panel_MainMenu, 337, 340, 350, 400);
-      Button_MM_SinglePlayer := TKMButton.Create(Panel_MMButtons,0,  0,350,30,gResTexts[TX_MENU_SINGLEPLAYER],bsMenu);
-      Button_MM_MultiPlayer  := TKMButton.Create(Panel_MMButtons,0, 40,350,30,gResTexts[TX_MENU_MULTIPLAYER],bsMenu);
-      Button_MM_MapEd        := TKMButton.Create(Panel_MMButtons,0, 80,350,30,gResTexts[TX_MENU_MAP_EDITOR],bsMenu);
-      Button_MM_Replays      := TKMButton.Create(Panel_MMButtons,0,120,350,30,gResTexts[TX_MENU_REPLAYS],bsMenu);
-      Button_MM_Options      := TKMButton.Create(Panel_MMButtons,0,160,350,30,gResTexts[TX_MENU_OPTIONS],bsMenu);
-      Button_MM_Credits      := TKMButton.Create(Panel_MMButtons,0,200,350,30,gResTexts[TX_MENU_CREDITS],bsMenu);
-      Button_MM_Quit         := TKMButton.Create(Panel_MMButtons,0,290,350,30,gResTexts[TX_MENU_QUIT],bsMenu);
-      Button_MM_SinglePlayer.OnClick := SwitchMenuPage;
-      Button_MM_MultiPlayer.OnClick  := MainMenu_MultiplayerClick;
-      Button_MM_MapEd.OnClick        := SwitchMenuPage;
-      Button_MM_Replays.OnClick      := SwitchMenuPage;
-      Button_MM_Options.OnClick      := SwitchMenuPage;
-      Button_MM_Credits.OnClick      := SwitchMenuPage;
-      Button_MM_Quit.OnClick         := fMain.Stop;
-end;
-
-
-procedure TKMMainMenuInterface.Create_Loading;
-begin
-  Panel_Loading:=TKMPanel.Create(Panel_Main,0,0,Panel_Main.Width, Panel_Main.Height);
-  Panel_Loading.Stretch;
-    with TKMLabel.Create(Panel_Loading, Panel_Main.Width div 2, Panel_Main.Height div 2 - 20, gResTexts[TX_MENU_LOADING], fnt_Outline, taCenter) do
-      Center;
-    Label_Loading := TKMLabel.Create(Panel_Loading, Panel_Main.Width div 2, Panel_Main.Height div 2+10, '...', fnt_Grey, taCenter);
-    Label_Loading.Center;
-end;
-
-
-procedure TKMMainMenuInterface.Create_Error;
-begin
-  Panel_Error := TKMPanel.Create(Panel_Main, 0, 0, Panel_Main.Width, Panel_Main.Height);
-  Panel_Error.Stretch;
-    with TKMLabel.Create(Panel_Error, Panel_Main.Width div 2, Panel_Main.Height div 2 - 20, gResTexts[TX_MENU_ERROR], fnt_Antiqua, taCenter) do
-      Center;
-    Label_Error := TKMLabel.Create(Panel_Error, 8, Panel_Main.Height div 2+10, Panel_Main.Width-16, 200, '...', fnt_Grey, taCenter);
-    Label_Error.Center;
-    Label_Error.AutoWrap := True;
-    Button_ErrorBack := TKMButton.Create(Panel_Error,100,630,224,30,gResTexts[TX_MENU_BACK],bsMenu);
-    Button_ErrorBack.Center;
-    Button_ErrorBack.OnClick := SwitchMenuPage;
-end;
-
-
-procedure TKMMainMenuInterface.PageChange(Sender: TObject; Dest: TGUIPage; aText: string);
+procedure TKMMainMenuInterface.PageChange(Dest: TGUIPage; aText: string = '');
 var
   I: Integer;
 begin
+  Label_Version.Caption := GAME_VERSION + ' / ' + fGameApp.RenderVersion;
+
   //Hide all other pages
   for I := 1 to Panel_Main.ChildCount do
     if Panel_Main.Childs[I] is TKMPanel then
       Panel_Main.Childs[I].Hide;
 
   case Dest of
-    gpMainMenu:     Panel_MainMenu.Show;
+    gpMainMenu:     fGuiMain.Show;
     gpSingleplayer: fGuiSinglePlayer.Show;
     gpLoad:         fGuiLoad.Show;
     gpSingleMap:    fGuiSingleMap.Show;
@@ -315,75 +228,13 @@ begin
                     end;
     gpCampaign:     fGuiCampaign.Show(aText);
     gpCampSelect:   fGuiCampaigns.Show;
+    gpCredits:      fGuiCredits.Show;
     gpOptions:      fGuiOptions.Show;
     gpMapEditor:    fGuiMapEditor.Show;
     gpReplays:      fGuiReplays.Show;
+    gpError:        fGuiError.Show(aText);
+    gpLoading:      fGuiLoading.Show(aText);
   end;
-end;
-
-
-procedure TKMMainMenuInterface.SwitchMenuPage(Sender: TObject);
-var
-  I: Integer;
-begin
-  Label_Version.Caption := GAME_VERSION + ' / ' + fGameApp.RenderVersion;
-
-  //First thing - hide all existing pages
-  for I := 1 to Panel_Main.ChildCount do
-    if Panel_Main.Childs[i] is TKMPanel then
-      Panel_Main.Childs[i].Hide;
-
-  {Return to MainMenu}
-  if (Sender = nil)
-  or (Sender = Button_ErrorBack) then
-    Panel_MainMenu.Show;
-
-  {Show SinglePlayer menu}
-  {Return to SinglePlayerMenu}
-  if (Sender = Button_MM_SinglePlayer) then
-    fGuiSinglePlayer.Show;
-
-  {Show replays menu}
-  if Sender=Button_MM_Replays then
-    fGuiReplays.Show;
-
-  {Show MultiPlayer menu}
-  if (Sender=Button_MM_MultiPlayer) then
-    fGuiMultiplayer.Show('');
-
-  {Show MapEditor menu}
-  if Sender=Button_MM_MapEd then
-    fGuiMapEditor.Show;
-
-  {Show Options menu}
-  if Sender = Button_MM_Options then
-    fGuiOptions.Show;
-
-  {Show Credits}
-  if Sender=Button_MM_Credits then
-    fGuiCredits.Show;
-
-  {Show Loading... screen}
-  if Sender=Panel_Loading then
-    Panel_Loading.Show;
-
-  {Show Error... screen}
-  if Sender = Panel_Error then
-    Panel_Error.Show;
-end;
-
-
-procedure TKMMainMenuInterface.MainMenu_MultiplayerClick(Sender: TObject);
-begin
-  if fMain.LockMutex then
-  begin
-    if not fGameApp.CheckDATConsistency then
-      ShowScreen(msError, gResTexts[TX_ERROR_MODS])
-    else
-      SwitchMenuPage(Sender);
-  end
-  else
-    ShowScreen(msError, gResTexts[TX_MULTIPLE_INSTANCES]);
 end;
 
 

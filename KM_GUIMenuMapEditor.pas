@@ -298,7 +298,7 @@ begin
   fMaps.TerminateScan;
   fMapsMP.TerminateScan;
 
-  fOnPageChange(Self, gpMainMenu, '');
+  fOnPageChange(gpMainMenu);
 end;
 
 

@@ -113,13 +113,13 @@ var
   CmpName: AnsiString;
 begin
   CmpName := ColumnBox_Camps.Rows[ColumnBox_Camps.ItemIndex].Cells[3].Caption;
-  fOnPageChange(Self, gpCampaign, CmpName);
+  fOnPageChange(gpCampaign, CmpName);
 end;
 
 
 procedure TKMGUIMainCampaigns.BackClick(Sender: TObject);
 begin
-  fOnPageChange(Self, gpSingleplayer, '');
+  fOnPageChange(gpSingleplayer);
 end;
 
 

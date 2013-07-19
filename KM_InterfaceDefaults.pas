@@ -11,18 +11,21 @@ uses
 type
   TChatMode = (cmAll, cmTeam, cmWhisper);
   TGUIPage = (gpMainMenu,
-              gpSinglePlayer,
-                gpCampaign,
-                gpCampSelect,
-                gpSingleMap,
-                gpLoad,
-              gpMultiplayer,
-                gpLobby,
-              gpReplays,
-              gpMapEditor,
-              gpOptions);
+                gpSinglePlayer,
+                  gpCampaign,
+                  gpCampSelect,
+                  gpSingleMap,
+                  gpLoad,
+                gpMultiplayer,
+                  gpLobby,
+                gpReplays,
+                gpMapEditor,
+                gpOptions,
+                gpCredits,
+              gpLoading,
+              gpError );
   TGUIEvent = procedure (Sender: TObject; Dest: TGUIPage) of object;
-  TGUIEventText = procedure (Sender: TObject; Dest: TGUIPage; aText: string) of object;
+  TGUIEventText = procedure (Dest: TGUIPage; aText: string = '') of object;
 
   TKMUserInterface = class
   protected

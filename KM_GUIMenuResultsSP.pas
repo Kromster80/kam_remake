@@ -385,15 +385,15 @@ begin
   //Replay end -> ResultsSP -> Replays
 
   if fGameResultMsg <> gr_ReplayEnd then
-    fOnPageChange(Self, gpMainMenu, '')
+    fOnPageChange(gpMainMenu)
   else
-    fOnPageChange(Self, gpReplays, '');
+    fOnPageChange(gpReplays);
 end;
 
 
 procedure TKMGUIMenuResultsSP.ContinueClick(Sender: TObject);
 begin
-  fOnPageChange(Self, gpCampaign, '');
+  fOnPageChange(gpCampaign);
 end;
 
 

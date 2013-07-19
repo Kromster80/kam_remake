@@ -213,7 +213,7 @@ procedure TKMGUIMainCampaign.BackClick(Sender: TObject);
 begin
   fGameApp.MusicLib.StopPlayingOtherFile; //Cancel briefing if it was playing
 
-  fOnPageChange(Self, gpCampSelect, '');
+  fOnPageChange(gpCampSelect);
 end;
 
 

@@ -638,9 +638,9 @@ begin
   //Multiplayer replay end -> ResultsMP -> Replays
 
   if fGameResultMsg <> gr_ReplayEnd then
-    fOnPageChange(Self, gpMultiplayer, '')
+    fOnPageChange(gpMultiplayer, '')
   else
-    fOnPageChange(Self, gpReplays, '');
+    fOnPageChange(gpReplays, '');
 end;
 
 

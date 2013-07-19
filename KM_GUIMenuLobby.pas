@@ -569,7 +569,7 @@ begin
   fNetworking.AnnounceDisconnect;
   fNetworking.Disconnect;
 
-  fOnPageChange(Self, gpMultiplayer, gResTexts[TX_GAME_ERROR_DISCONNECT]);
+  fOnPageChange(gpMultiplayer, gResTexts[TX_GAME_ERROR_DISCONNECT]);
 end;
 
 
@@ -1395,7 +1395,7 @@ begin
   fNetworking.Disconnect;
   gSoundPlayer.Play(sfxn_Error);
 
-  fOnPageChange(Self, gpMultiplayer, aData);
+  fOnPageChange(gpMultiplayer, aData);
 end;
 
 

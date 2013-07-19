@@ -509,7 +509,7 @@ begin
   Panel_MPCreateServer.Hide; //Hide the panel so if it fails the error message will be easy to see (e.g. name too long)
   if not MP_ValidatePlayerName(Edit_MP_PlayerName.Text) then Exit;
 
-  fOnPageChange(Self, gpLobby, 'HOST');
+  fOnPageChange(gpLobby, 'HOST');
 
   fGameApp.Networking.OnHostFail := MP_HostFail;
   fGameApp.Networking.Host(Edit_MP_PlayerName.Text, Edit_MP_ServerName.Text, Edit_MP_ServerPort.Text, (Sender = Button_MP_CreateWAN));
@@ -589,7 +589,7 @@ begin
   fGameApp.Networking.OnJoinFail := nil;
   fGameApp.Networking.OnJoinAssignedHost := nil;
 
-  fOnPageChange(Self, gpLobby, 'JOIN');
+  fOnPageChange(gpLobby, 'JOIN');
 end;
 
 
@@ -609,7 +609,7 @@ begin
   fGameApp.Networking.OnHostFail := MP_HostFail;
 
   //We were joining a game and the server assigned hosting rights to us
-  fOnPageChange(Self, gpLobby, 'HOST'); //Open lobby page in host mode
+  fOnPageChange(gpLobby, 'HOST'); //Open lobby page in host mode
 end;
 
 
@@ -620,7 +620,7 @@ begin
 
   fMain.UnlockMutex; //Leaving MP areas
 
-  fOnPageChange(Self, gpMainMenu, '');
+  fOnPageChange(gpMainMenu);
 end;
 
 
@@ -629,7 +629,7 @@ begin
   fGameApp.Networking.Disconnect;
   gSoundPlayer.Play(sfxn_Error);
 
-  fOnPageChange(Self, gpMultiplayer, aData);
+  fOnPageChange(gpMultiplayer, aData);
 end;
 
 

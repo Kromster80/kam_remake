@@ -516,7 +516,7 @@ begin
   //Scan should be terminated, it is no longer needed
   fMaps.TerminateScan;
 
-  fOnPageChange(Self, gpSingleplayer, '');
+  fOnPageChange(gpSingleplayer);
 end;
 
 
