@@ -14,8 +14,6 @@ type
   TKMTownTab = (ttHouses, ttUnits, ttScript, ttDefences, ttOffence);
   TKMPlayerTab = (ptGoals, ptColor, ptBlockHouse, ptBlockTrade, ptMarkers);
 
-  TSelectionManipulation = (smNone, smNewRect, smResizeX1, smResizeY1, smResizeX2, smResizeY2, smMove);
-  TKMMapEdShownPage = (esp_Unknown, esp_Terrain, esp_Buildings, esp_Reveal);
 
   TKMapEdInterface = class (TKMUserInterface)
   private
@@ -28,8 +26,6 @@ type
     fDragScrollingCursorPos: TPoint;
     fDragScrollingViewportPos: TKMPointF;
 
-    fSelection: TSelectionManipulation;
-    fPrevX, fPrevY: Integer;
 
     fGuiHouse: TKMMapEdHouse;
 
@@ -101,8 +97,6 @@ type
     procedure Player_ChangeActive(Sender: TObject);
     procedure Player_ColorClick(Sender: TObject);
     procedure Player_MarkerClick(Sender: TObject);
-    procedure Selection_Start(X,Y: Integer);
-    procedure Selection_Resize(X,Y: Integer);
     procedure Terrain_BrushChange(Sender: TObject);
     procedure Terrain_BrushRefresh;
     procedure Terrain_HeightChange(Sender: TObject);
@@ -138,7 +132,6 @@ type
     procedure ShowGroupInfo(Sender: TKMUnitGroup);
     procedure ShowMarkerInfo(aMarker: TKMMapEdMarker);
     procedure SetActivePlayer(aIndex: TPlayerIndex);
-    procedure SetTileDirection(aTileDirection: Byte);
     procedure UpdateAITabsEnabled;
   protected
     Panel_Main:TKMPanel;
@@ -378,7 +371,7 @@ type
 implementation
 uses
   KM_CommonClasses, KM_PlayersCollection, KM_ResTexts, KM_Game, KM_Main, KM_GameCursor,
-  KM_GameApp, KM_Resource, KM_TerrainDeposits, KM_TerrainPainter, KM_ResCursors, KM_Utils,
+  KM_GameApp, KM_Resource, KM_TerrainDeposits, KM_TerrainPainter, KM_TerrainSelection, KM_ResCursors, KM_Utils,
   KM_ResMapElements, KM_AIDefensePos, KM_ResHouses, KM_RenderUI, KM_Sound, KM_ResSound,
   KM_ResWares, KM_HouseBarracks, KM_ResFonts;
 
@@ -564,7 +557,7 @@ begin
   else
   if aPage = Panel_Tiles then
   begin
-    SetTileDirection(fTileDirection); //ensures tags are in allowed ranges
+    GameCursor.MapEdDir := 0;
     Terrain_TilesRefresh(nil);
   end else
   if aPage = Panel_Objects then
@@ -1948,99 +1941,7 @@ begin
 end;
 
 
-procedure TKMapEdInterface.Selection_Resize(X, Y: Integer);
-var
-  Rect: TKMRect;
-  RectF: TKMRectF;
-begin
-  RectF := fGame.MapEditor.Selection.RawRect;
 
-  case fSelection of
-    smNone:       ;
-    smNewRect:    begin
-                    RectF.Right := GameCursor.Float.X;
-                    RectF.Bottom := GameCursor.Float.Y;
-                  end;
-    smResizeX1:   RectF.Left := GameCursor.Float.X;
-    smResizeY1:   RectF.Top := GameCursor.Float.Y;
-    smResizeX2:   RectF.Right := GameCursor.Float.X;
-    smResizeY2:   RectF.Bottom := GameCursor.Float.Y;
-    smMove:       begin
-                    Rect := fGame.MapEditor.Selection.Rect;
-                    Rect := KMRectMove(Rect, GameCursor.Cell.X - fPrevX, GameCursor.Cell.Y - fPrevY);
-                    RectF := KMRectF(Rect);
-
-                    fPrevX := GameCursor.Cell.X;
-                    fPrevY := GameCursor.Cell.Y;
-                  end;
-  end;
-
-  fGame.MapEditor.Selection.RawRect := RectF;
-end;
-
-
-procedure TKMapEdInterface.Selection_Start(X, Y: Integer);
-const
-  EDGE = 0.25;
-var
-  Rect: TKMRect;
-  RawRect: TKMRectF;
-begin
-  Rect := fGame.MapEditor.Selection.Rect;
-
-  if fGame.MapEditor.Selection.SelectionMode = smSelecting then
-  begin
-    if InRange(GameCursor.Float.Y, Rect.Top, Rect.Bottom)
-    and (Abs(GameCursor.Float.X - Rect.Left) < EDGE) then
-      fSelection := smResizeX1
-    else
-    if InRange(GameCursor.Float.Y, Rect.Top, Rect.Bottom)
-    and (Abs(GameCursor.Float.X - Rect.Right) < EDGE) then
-      fSelection := smResizeX2
-    else
-    if InRange(GameCursor.Float.X, Rect.Left, Rect.Right)
-    and (Abs(GameCursor.Float.Y - Rect.Top) < EDGE) then
-      fSelection := smResizeY1
-    else
-    if InRange(GameCursor.Float.X, Rect.Left, Rect.Right)
-    and (Abs(GameCursor.Float.Y - Rect.Bottom) < EDGE) then
-      fSelection := smResizeY2
-    else
-    if KMInRect(GameCursor.Float, Rect) then
-    begin
-      fSelection := smMove;
-      fPrevX := GameCursor.Cell.X;
-      fPrevY := GameCursor.Cell.Y;
-    end
-    else
-    begin
-      fSelection := smNewRect;
-      RawRect := fGame.MapEditor.Selection.RawRect;
-      RawRect.Left := GameCursor.Float.X;
-      RawRect.Top := GameCursor.Float.Y;
-      RawRect.Right := GameCursor.Float.X;
-      RawRect.Bottom := GameCursor.Float.Y;
-      fGame.MapEditor.Selection.RawRect := RawRect;
-    end;
-  end
-  else
-  begin
-    if KMInRect(GameCursor.Float, Rect) then
-    begin
-      fSelection := smMove;
-      //Grab and move
-      fPrevX := GameCursor.Cell.X;
-      fPrevY := GameCursor.Cell.Y;
-    end
-    else
-    begin
-      fSelection := smMove;
-      //Selection edge will jump to under cursor
-      fPrevX := EnsureRange(GameCursor.Cell.X, Rect.Left + 1, Rect.Right);
-      fPrevY := EnsureRange(GameCursor.Cell.Y, Rect.Top + 1, Rect.Bottom);
-    end;
-  end;
-end;
 
 
 procedure TKMapEdInterface.SetActivePlayer(aIndex: TPlayerIndex);
@@ -2972,13 +2873,6 @@ begin
 end;
 
 
-procedure TKMapEdInterface.SetTileDirection(aTileDirection: Byte);
-begin
-  fTileDirection := aTileDirection mod 4; //0..3
-  GameCursor.MapEdDir := fTileDirection;
-end;
-
-
 procedure TKMapEdInterface.UpdateAITabsEnabled;
 begin
   if fGame.MapEditor.PlayerAI[MySpectator.PlayerIndex] then
@@ -3411,9 +3305,6 @@ begin
   if fMyControls.CtrlOver <> nil then
     Exit;
 
-  if (Button = mbLeft) and (GameCursor.Mode = cmSelection) then
-    Selection_Start(X,Y);
-
   if (Button = mbMiddle) and (fMyControls.CtrlOver = nil) then
   begin
      fDragScrolling := True;
@@ -3433,12 +3324,13 @@ begin
 
   //So terrain brushes start on mouse down not mouse move
   fGame.UpdateGameCursor(X, Y, Shift);
+
+  fGame.MapEditor.MouseDown(GetShownPage, Button);
 end;
 
 
 procedure TKMapEdInterface.MouseMove(Shift: TShiftState; X,Y: Integer);
 var
-  P: TKMPoint;
   Marker: TKMMapEdMarker;
   VP: TKMPointF;
 begin
@@ -3479,36 +3371,7 @@ begin
 
   Label_Coordinates.Caption := Format('X: %d, Y: %d', [GameCursor.Cell.X, GameCursor.Cell.Y]);
 
-  //fGame.MapEditor.MouseMove;
-
-  if ssLeft in Shift then //Only allow placing of roads etc. with the left mouse button
-  begin
-    P := GameCursor.Cell; //Get cursor position tile-wise
-    case GameCursor.Mode of
-      cmRoad:      if gPlayers[MySpectator.PlayerIndex].CanAddFieldPlan(P, ft_Road) then
-                   begin
-                     //If there's a field remove it first so we don't get road on top of the field tile (undesired in MapEd)
-                     if gTerrain.TileIsCornField(P) or gTerrain.TileIsWineField(P) then
-                       gTerrain.RemField(P);
-                     gPlayers[MySpectator.PlayerIndex].AddField(P, ft_Road);
-                   end;
-      cmField:     if gPlayers[MySpectator.PlayerIndex].CanAddFieldPlan(P, ft_Corn) then gPlayers[MySpectator.PlayerIndex].AddField(P, ft_Corn);
-      cmWine:      if gPlayers[MySpectator.PlayerIndex].CanAddFieldPlan(P, ft_Wine) then gPlayers[MySpectator.PlayerIndex].AddField(P, ft_Wine);
-      //cm_Wall:  if fPlayers[MySpectator.PlayerIndex].CanAddFieldPlan(P, ft_Wall) then fPlayers[MySpectator.PlayerIndex].AddField(P, ft_Wine);
-      cmUnits:     if GameCursor.Tag1 = 255 then gPlayers.RemAnyUnit(P);
-      cmErase:     case GetShownPage of
-                      esp_Terrain:    gTerrain.Land[P.Y,P.X].Obj := 255;
-                      esp_Buildings:  begin
-                                        gPlayers.RemAnyHouse(P);
-                                        if gTerrain.Land[P.Y,P.X].TileOverlay = to_Road then
-                                          gTerrain.RemRoad(P);
-                                        if gTerrain.TileIsCornField(P) or gTerrain.TileIsWineField(P) then
-                                          gTerrain.RemField(P);
-                                      end;
-                    end;
-      cmSelection:  Selection_Resize(X,Y);
-    end;
-  end;
+  fGame.MapEditor.MouseMove(GetShownPage);
 end;
 
 
@@ -3535,25 +3398,13 @@ begin
     Exit; //We could have caused fGame reinit, so exit at once
   end;
 
-  fGame.UpdateGameCursor(X, Y, Shift); //Updates the shift state
-  P := GameCursor.Cell; //Get cursor position tile-wise
   if Button = mbRight then
   begin
-    RightClick_Cancel;
-
     //Right click performs some special functions and shortcuts
-    case GameCursor.Mode of
-      cmTiles:    begin
-                    SetTileDirection(GameCursor.MapEdDir+1); //Rotate tile direction
-                    TilesRandom.Checked := false; //Reset
-                    fGame.MapEditor.TerrainPainter.MakeCheckpoint;
-                  end;
-      cmElevate, cmEqualize:
-                    fGame.MapEditor.TerrainPainter.MakeCheckpoint;
-      cmObjects:  begin
-                    gTerrain.Land[P.Y,P.X].Obj := 255; //Delete object
-                    fGame.MapEditor.TerrainPainter.MakeCheckpoint;
-                  end;
+    if GameCursor.Mode = cmTiles then
+    begin
+      GameCursor.MapEdDir := (GameCursor.MapEdDir + 1) mod 4; //Rotate tile direction
+      TilesRandom.Checked := false; //Reset
     end;
 
     //Move the selected object to the cursor location
@@ -3580,83 +3431,34 @@ begin
   end
   else
   if Button = mbLeft then //Only allow placing of roads etc. with the left mouse button
-    case GameCursor.Mode of
-      cmNone:     begin
-                    //If there are some additional layers we first HitTest them
-                    //as they are rendered ontop of Houses/Objects
-                    Marker := fGame.MapEditor.HitTest(GameCursor.Cell.X, GameCursor.Cell.Y);
-                    if Marker.MarkerType <> mtNone then
-                      ShowMarkerInfo(Marker)
-                    else
-                    begin
-                      MySpectator.UpdateSelect;
+    if GameCursor.Mode = cmNone then
+    begin
+      //If there are some additional layers we first HitTest them
+      //as they are rendered ontop of Houses/Objects
+      Marker := fGame.MapEditor.HitTest(GameCursor.Cell.X, GameCursor.Cell.Y);
+      if Marker.MarkerType <> mtNone then
+        ShowMarkerInfo(Marker)
+      else
+      begin
+        MySpectator.UpdateSelect;
 
-                      if MySpectator.Selected is TKMHouse then
-                      begin
-                        HidePages;
-                        SetActivePlayer(TKMHouse(MySpectator.Selected).Owner);
-                        fGuiHouse.Show(TKMHouse(MySpectator.Selected));
-                      end;
-                      if MySpectator.Selected is TKMUnit then
-                        ShowUnitInfo(TKMUnit(MySpectator.Selected));
-                      if MySpectator.Selected is TKMUnitGroup then
-                        ShowGroupInfo(TKMUnitGroup(MySpectator.Selected));
-                    end;
-                  end;
-      cmRoad:     if gPlayers[MySpectator.PlayerIndex].CanAddFieldPlan(P, ft_Road) then
-                  begin
-                    //If there's a field remove it first so we don't get road on top of the field tile (undesired in MapEd)
-                    if gTerrain.TileIsCornField(P) or gTerrain.TileIsWineField(P) then
-                      gTerrain.RemField(P);
-                    gPlayers[MySpectator.PlayerIndex].AddField(P, ft_Road);
-                  end;
-      cmField:    if gPlayers[MySpectator.PlayerIndex].CanAddFieldPlan(P, ft_Corn) then gPlayers[MySpectator.PlayerIndex].AddField(P, ft_Corn);
-      cmWine:     if gPlayers[MySpectator.PlayerIndex].CanAddFieldPlan(P, ft_Wine) then gPlayers[MySpectator.PlayerIndex].AddField(P, ft_Wine);
-      //cm_Wall:
-      cmHouses:   if gPlayers[MySpectator.PlayerIndex].CanAddHousePlan(P, THouseType(GameCursor.Tag1)) then
-                  begin
-                    gPlayers[MySpectator.PlayerIndex].AddHouse(THouseType(GameCursor.Tag1), P.X, P.Y, true);
-                    if not(ssShift in Shift) then Town_BuildChange(Button_BuildRoad);
-                  end;
-      cmElevate,
-      cmEqualize,
-      cmBrush,
-      cmObjects,
-      cmTiles:      fGame.MapEditor.TerrainPainter.MakeCheckpoint;
-      cmMagicWater: fGame.MapEditor.TerrainPainter.MagicWater(P);
-      cmUnits:    if GameCursor.Tag1 = 255 then
-                    gPlayers.RemAnyUnit(P)
-                  else
-                  if gTerrain.CanPlaceUnit(P, TUnitType(GameCursor.Tag1)) then
-                  begin
-                    //Check if we can really add a unit
-                    if TUnitType(GameCursor.Tag1) in [CITIZEN_MIN..CITIZEN_MAX] then
-                      gPlayers[MySpectator.PlayerIndex].AddUnit(TUnitType(GameCursor.Tag1), P, False)
-                    else
-                    if TUnitType(GameCursor.Tag1) in [WARRIOR_MIN..WARRIOR_MAX] then
-                      gPlayers[MySpectator.PlayerIndex].AddUnitGroup(TUnitType(GameCursor.Tag1), P, dir_S, 1, 1)
-                    else
-                      gPlayers.PlayerAnimals.AddUnit(TUnitType(GameCursor.Tag1), P);
-                  end;
-      cmMarkers:  case GameCursor.Tag1 of
-                    MARKER_REVEAL:        fGame.MapEditor.Revealers[MySpectator.PlayerIndex].Add(P, TrackBar_RevealNewSize.Position);
-                    MARKER_DEFENCE:       gPlayers[MySpectator.PlayerIndex].AI.General.DefencePositions.Add(KMPointDir(P, dir_N), gt_Melee, 10, adt_FrontLine);
-                    MARKER_CENTERSCREEN:  begin
-                                            gPlayers[MySpectator.PlayerIndex].CenterScreen := P;
-                                            Player_MarkerClick(nil); //Update XY display
-                                          end;
-                  end;
-      cmErase:    case GetShownPage of
-                    esp_Terrain:    gTerrain.Land[P.Y,P.X].Obj := 255;
-                    esp_Buildings:  begin
-                                      gPlayers.RemAnyHouse(P);
-                                      if gTerrain.Land[P.Y,P.X].TileOverlay = to_Road then
-                                        gTerrain.RemRoad(P);
-                                      if gTerrain.TileIsCornField(P) or gTerrain.TileIsWineField(P) then
-                                        gTerrain.RemField(P);
-                                    end;
-                  end;
+        if MySpectator.Selected is TKMHouse then
+        begin
+          HidePages;
+          SetActivePlayer(TKMHouse(MySpectator.Selected).Owner);
+          fGuiHouse.Show(TKMHouse(MySpectator.Selected));
+        end;
+        if MySpectator.Selected is TKMUnit then
+          ShowUnitInfo(TKMUnit(MySpectator.Selected));
+        if MySpectator.Selected is TKMUnitGroup then
+          ShowGroupInfo(TKMUnitGroup(MySpectator.Selected));
+      end;
     end;
+
+
+  fGame.UpdateGameCursor(X, Y, Shift); //Updates the shift state
+
+  fGame.MapEditor.MouseUp(GetShownPage, Button);
 end;
 
 

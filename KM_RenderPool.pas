@@ -80,7 +80,6 @@ type
     procedure CollectPlans(aRect: TKMRect);
     procedure CollectTerrainObjects(aRect: TKMRect; aAnimStep: Cardinal);
 
-    procedure RenderWireTile(P: TKMPoint; Col: TColor4);
     procedure RenderWireHousePlan(P: TKMPoint; aHouseType: THouseType);
     procedure RenderMapElement(aIndex: Byte; AnimStep,pX,pY: Integer; DoImmediateRender: Boolean = False; Deleting: Boolean = False);
   public
@@ -107,6 +106,7 @@ type
     procedure RenderSpriteOnTile(aLoc: TKMPoint; aId: Word; aFlagColor: TColor4 = $FFFFFFFF);
     procedure RenderSpriteOnTerrain(aLoc: TKMPointF; aId: Word; aFlagColor: TColor4 = $FFFFFFFF);
     procedure RenderTile(Index: Byte; pX,pY,Rot: Integer);
+    procedure RenderWireTile(P: TKMPoint; Col: TColor4);
 
     property RenderList: TRenderList read fRenderList;
     property RenderTerrain: TRenderTerrain read fRenderTerrain;
@@ -311,7 +311,7 @@ begin
     RenderHouseOutline(TKMHouse(MySpectator.Highlight));
 
   if fGame.IsMapEditor then
-    fGame.MapEditor.Paint(plTerrain);
+    fGame.MapEditor.Paint(fGame.MapEditorInterface.GetShownPage, plTerrain);
 
   if fAIFields <> nil then
     fAIFields.Paint(aRect);
@@ -1213,7 +1213,7 @@ begin
   if GameCursor.Cell.Y * GameCursor.Cell.X = 0 then Exit; //Caused a rare crash
 
   if fGame.IsMapEditor then
-    fGame.MapEditor.Paint(plCursors);
+    fGame.MapEditor.Paint(fGame.MapEditorInterface.GetShownPage, plCursors);
 
   P := GameCursor.Cell;
   F := GameCursor.Float;
@@ -1226,31 +1226,15 @@ begin
   with gTerrain do
   case GameCursor.Mode of
     cmNone:       ;
-    cmErase:      case fGame.GameMode of
-                    gmMapEd:
-                      begin
-                        //With Buildings tab see if we can remove Fields or Houses
-                        if (fGame.MapEditorInterface.GetShownPage = esp_Buildings)
-                           and (    TileIsCornField(P)
-                                 or TileIsWineField(P)
-                                 or (Land[P.Y,P.X].TileOverlay=to_Road)
-                                 or (gPlayers.HousesHitTest(P.X, P.Y) <> nil))
-                        then
-                          RenderWireTile(P, $FFFFFF00) //Cyan quad
-                        else
-                          RenderSpriteOnTile(P, TC_BLOCK); //Red X
-                      end;
-
-                    gmSingle, gmMulti, gmReplaySingle, gmReplayMulti:
-                      begin
-                        if ((gPlayers[MySpectator.PlayerIndex].BuildList.FieldworksList.HasFakeField(P) <> ft_None)
-                            or gPlayers[MySpectator.PlayerIndex].BuildList.HousePlanList.HasPlan(P)
-                            or (gPlayers[MySpectator.PlayerIndex].HousesHitTest(P.X, P.Y) <> nil))
-                        then
-                          RenderWireTile(P, $FFFFFF00) //Cyan quad
-                        else
-                          RenderSpriteOnTile(P, TC_BLOCK); //Red X
-                      end;
+    cmErase:      if not fGame.IsMapEditor then
+                  begin
+                    if ((gPlayers[MySpectator.PlayerIndex].BuildList.FieldworksList.HasFakeField(P) <> ft_None)
+                        or gPlayers[MySpectator.PlayerIndex].BuildList.HousePlanList.HasPlan(P)
+                        or (gPlayers[MySpectator.PlayerIndex].HousesHitTest(P.X, P.Y) <> nil))
+                    then
+                      RenderWireTile(P, $FFFFFF00) //Cyan quad
+                    else
+                      RenderSpriteOnTile(P, TC_BLOCK); //Red X
                   end;
     cmRoad:       if gPlayers[MySpectator.PlayerIndex].CanAddFakeFieldPlan(P, ft_Road) then
                     RenderWireTile(P, $FFFFFF00) //Cyan quad

@@ -140,6 +140,7 @@ uses
   KM_TerrainDeposits in 'KM_TerrainDeposits.pas',
   KM_TerrainFinder in 'KM_TerrainFinder.pas',
   KM_TerrainPainter in 'KM_TerrainPainter.pas',
+  KM_TerrainSelection in 'KM_TerrainSelection.pas',
   KM_TerrainWalkConnect in 'KM_TerrainWalkConnect.pas',
   KM_UnitActionAbandonWalk in 'KM_UnitActionAbandonWalk.pas',
   KM_UnitActionFight in 'KM_UnitActionFight.pas',
