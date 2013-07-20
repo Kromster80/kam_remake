@@ -4288,7 +4288,7 @@ begin
         //Only allow placing of roads etc. with the left mouse button
         if MySpectator.FogOfWar.CheckTileRevelation(P.X, P.Y) = 0 then
         begin
-          if GameCursor.Mode in [cmErase, cmRoad, cmField, cmWine, cmWall, cmHouses] then
+          if GameCursor.Mode in [cmErase, cmRoad, cmField, cmWine, cmHouses] then
             //Can't place noise when clicking on unexplored areas
             gSoundPlayer.Play(sfx_CantPlace, P, False, 4);
         end
@@ -4341,9 +4341,6 @@ begin
 
             cmWine:
               if KMSamePoint(LastDragPoint, KMPoint(0,0)) then fGame.GameInputProcess.CmdBuild(gic_BuildAddFieldPlan, P, ft_Wine);
-
-            cmWall:
-              fGame.GameInputProcess.CmdBuild(gic_BuildAddFieldPlan, P, ft_Wall);
 
             cmHouses:
               if gPlayers[MySpectator.PlayerIndex].CanAddHousePlan(P, THouseType(GameCursor.Tag1)) then

@@ -218,7 +218,13 @@ var
 {Cursors}
 type
   TKMCursorMode = (
-    cmNone, cmErase, cmRoad, cmField, cmWine, cmWall, cmHouses, // Gameplay
+    cmNone,
+    cmErase, //Remove player controlled assets (plans, houses) with a confirmation dialog
+    cmRoad,
+    cmField,
+    cmWine,
+    cmHouses, // Gameplay
+
     //Map Editor
     cmElevate, //Height elevation
     cmEqualize, //Height equalization

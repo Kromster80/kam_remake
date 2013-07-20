@@ -311,7 +311,7 @@ begin
     RenderHouseOutline(TKMHouse(MySpectator.Highlight));
 
   if fGame.IsMapEditor then
-    fGame.MapEditor.Paint(fGame.MapEditorInterface.GetShownPage, plTerrain);
+    fGame.MapEditor.Paint(plTerrain);
 
   if fAIFields <> nil then
     fAIFields.Paint(aRect);
@@ -1213,7 +1213,7 @@ begin
   if GameCursor.Cell.Y * GameCursor.Cell.X = 0 then Exit; //Caused a rare crash
 
   if fGame.IsMapEditor then
-    fGame.MapEditor.Paint(fGame.MapEditorInterface.GetShownPage, plCursors);
+    fGame.MapEditor.Paint(plCursors);
 
   P := GameCursor.Cell;
   F := GameCursor.Float;
@@ -1245,10 +1245,6 @@ begin
                   else
                     RenderSpriteOnTile(P, TC_BLOCK);       //Red X
     cmWine:       if gPlayers[MySpectator.PlayerIndex].CanAddFakeFieldPlan(P, ft_Wine) then
-                    RenderWireTile(P, $FFFFFF00) //Cyan quad
-                  else
-                    RenderSpriteOnTile(P, TC_BLOCK);       //Red X
-    cmWall:       if gPlayers[MySpectator.PlayerIndex].CanAddFakeFieldPlan(P, ft_Wall) then
                     RenderWireTile(P, $FFFFFF00) //Cyan quad
                   else
                     RenderSpriteOnTile(P, TC_BLOCK);       //Red X

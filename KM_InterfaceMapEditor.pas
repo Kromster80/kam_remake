@@ -351,7 +351,6 @@ type
     constructor Create(aScreenX, aScreenY: word);
     destructor Destroy; override;
 
-    function GetShownPage: TKMMapEdShownPage;
     procedure SetLoadMode(aMultiplayer:boolean);
     procedure ShowMessage(aText: string);
 
@@ -2160,6 +2159,7 @@ begin
   begin
     //Paste selection
     fGame.MapEditor.Selection.PasteBegin;
+
     Button_SelectPasteApply.Enable;
     Button_SelectPasteCancel.Enable;
     Button_SelectFlipH.Enable;
@@ -2172,6 +2172,8 @@ begin
   begin
     //Apply paste
     fGame.MapEditor.Selection.PasteApply;
+    fGame.MapEditor.TerrainPainter.MakeCheckpoint;
+
     Button_SelectPasteApply.Disable;
     Button_SelectPasteCancel.Disable;
     Button_SelectFlipH.Disable;
@@ -2500,9 +2502,7 @@ begin
   if Sender = Button_BuildWine then
     GameCursor.Mode := cmWine
   else
-  //if Button_BuildWall.Down then
-  //  GameCursor.Mode:=cm_Wall;
-  //else
+
   for I := 1 to GUI_HOUSE_COUNT do
   if GUIHouseOrder[I] <> ht_None then
   if Sender = Button_Build[I] then
@@ -2523,7 +2523,6 @@ begin
   Button_BuildRoad.Down   := (GameCursor.Mode = cmRoad);
   Button_BuildField.Down  := (GameCursor.Mode = cmField);
   Button_BuildWine.Down   := (GameCursor.Mode = cmWine);
-  //Button_BuildWall.Down := (GameCursor.Mode = cm_Wall);
 
   for I := 1 to GUI_HOUSE_COUNT do
   if GUIHouseOrder[I] <> ht_None then
@@ -3325,7 +3324,7 @@ begin
   //So terrain brushes start on mouse down not mouse move
   fGame.UpdateGameCursor(X, Y, Shift);
 
-  fGame.MapEditor.MouseDown(GetShownPage, Button);
+  fGame.MapEditor.MouseDown(Button);
 end;
 
 
@@ -3365,19 +3364,18 @@ begin
     if MySpectator.HitTestCursor <> nil then
       fResource.Cursors.Cursor := kmc_Info
     else
-      if not fGame.Viewport.Scrolling then
-        fResource.Cursors.Cursor := kmc_Default;
+    if not fGame.Viewport.Scrolling then
+      fResource.Cursors.Cursor := kmc_Default;
   end;
 
   Label_Coordinates.Caption := Format('X: %d, Y: %d', [GameCursor.Cell.X, GameCursor.Cell.Y]);
 
-  fGame.MapEditor.MouseMove(GetShownPage);
+  fGame.MapEditor.MouseMove;
 end;
 
 
 procedure TKMapEdInterface.MouseUp(Button: TMouseButton; Shift: TShiftState; X,Y: Integer);
 var
-  P: TKMPoint;
   DP: TAIDefencePosition;
   Marker: TKMMapEdMarker;
 begin
@@ -3398,76 +3396,65 @@ begin
     Exit; //We could have caused fGame reinit, so exit at once
   end;
 
-  if Button = mbRight then
-  begin
-    //Right click performs some special functions and shortcuts
-    if GameCursor.Mode = cmTiles then
-    begin
-      GameCursor.MapEdDir := (GameCursor.MapEdDir + 1) mod 4; //Rotate tile direction
-      TilesRandom.Checked := false; //Reset
-    end;
+  case Button of
+    mbLeft:   if GameCursor.Mode = cmNone then
+              begin
+                //If there are some additional layers we first HitTest them
+                //since they are rendered ontop of Houses/Objects
+                Marker := fGame.MapEditor.HitTest(GameCursor.Cell.X, GameCursor.Cell.Y);
+                if Marker.MarkerType <> mtNone then
+                  ShowMarkerInfo(Marker)
+                else
+                begin
+                  MySpectator.UpdateSelect;
 
-    //Move the selected object to the cursor location
-    if MySpectator.Selected is TKMHouse then
-      TKMHouse(MySpectator.Selected).SetPosition(P); //Can place is checked in SetPosition
+                  if MySpectator.Selected is TKMHouse then
+                  begin
+                    HidePages;
+                    SetActivePlayer(TKMHouse(MySpectator.Selected).Owner);
+                    fGuiHouse.Show(TKMHouse(MySpectator.Selected));
+                  end;
+                  if MySpectator.Selected is TKMUnit then
+                    ShowUnitInfo(TKMUnit(MySpectator.Selected));
+                  if MySpectator.Selected is TKMUnitGroup then
+                    ShowGroupInfo(TKMUnitGroup(MySpectator.Selected));
+                end;
+              end;
+    mbRight:  begin
+                //Right click performs some special functions and shortcuts
+                if GameCursor.Mode = cmTiles then
+                begin
+                  GameCursor.MapEdDir := (GameCursor.MapEdDir + 1) mod 4; //Rotate tile direction
+                  TilesRandom.Checked := False; //Reset
+                end;
 
-    if MySpectator.Selected is TKMUnit then
-      TKMUnit(MySpectator.Selected).SetPosition(P);
+                //Move the selected object to the cursor location
+                if MySpectator.Selected is TKMHouse then
+                  TKMHouse(MySpectator.Selected).SetPosition(GameCursor.Cell); //Can place is checked in SetPosition
 
-    if MySpectator.Selected is TKMUnitGroup then
-      TKMUnitGroup(MySpectator.Selected).Position := P;
+                if MySpectator.Selected is TKMUnit then
+                  TKMUnit(MySpectator.Selected).SetPosition(GameCursor.Cell);
 
-    if Panel_Marker.Visible then
-    begin
-      Marker := fGame.MapEditor.ActiveMarker;
-      case Marker.MarkerType of
-        mtDefence:   begin
-                       DP := gPlayers[Marker.Owner].AI.General.DefencePositions[Marker.Index];
-                       DP.Position := KMPointDir(P, DP.Position.Dir);
-                     end;
-        mtRevealFOW: fGame.MapEditor.Revealers[Marker.Owner][Marker.Index] := P;
-      end;
-    end;
-  end
-  else
-  if Button = mbLeft then //Only allow placing of roads etc. with the left mouse button
-    if GameCursor.Mode = cmNone then
-    begin
-      //If there are some additional layers we first HitTest them
-      //as they are rendered ontop of Houses/Objects
-      Marker := fGame.MapEditor.HitTest(GameCursor.Cell.X, GameCursor.Cell.Y);
-      if Marker.MarkerType <> mtNone then
-        ShowMarkerInfo(Marker)
-      else
-      begin
-        MySpectator.UpdateSelect;
+                if MySpectator.Selected is TKMUnitGroup then
+                  TKMUnitGroup(MySpectator.Selected).Position := GameCursor.Cell;
 
-        if MySpectator.Selected is TKMHouse then
-        begin
-          HidePages;
-          SetActivePlayer(TKMHouse(MySpectator.Selected).Owner);
-          fGuiHouse.Show(TKMHouse(MySpectator.Selected));
-        end;
-        if MySpectator.Selected is TKMUnit then
-          ShowUnitInfo(TKMUnit(MySpectator.Selected));
-        if MySpectator.Selected is TKMUnitGroup then
-          ShowGroupInfo(TKMUnitGroup(MySpectator.Selected));
-      end;
-    end;
-
+                if Panel_Marker.Visible then
+                begin
+                  Marker := fGame.MapEditor.ActiveMarker;
+                  case Marker.MarkerType of
+                    mtDefence:   begin
+                                   DP := gPlayers[Marker.Owner].AI.General.DefencePositions[Marker.Index];
+                                   DP.Position := KMPointDir(GameCursor.Cell, DP.Position.Dir);
+                                 end;
+                    mtRevealFOW: fGame.MapEditor.Revealers[Marker.Owner][Marker.Index] := GameCursor.Cell;
+                  end;
+                end;
+              end;
+  end;
 
   fGame.UpdateGameCursor(X, Y, Shift); //Updates the shift state
 
-  fGame.MapEditor.MouseUp(GetShownPage, Button);
-end;
-
-
-function TKMapEdInterface.GetShownPage: TKMMapEdShownPage;
-begin
-  Result := esp_Unknown;
-  if Panel_Terrain.Visible then   Result := esp_Terrain;
-  if Panel_Build.Visible then     Result := esp_Buildings;
-  if Panel_Markers.Visible then Result := esp_Reveal;
+  fGame.MapEditor.MouseUp(Button);
 end;
 
 

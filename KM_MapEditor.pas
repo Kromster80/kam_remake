@@ -8,7 +8,6 @@ uses Classes, Controls, Math, SysUtils,
 
 type
   TSelectionManipulation = (smNone, smNewRect, smResizeX1, smResizeY1, smResizeX2, smResizeY2, smMove);
-  TKMMapEdShownPage = (esp_Unknown, esp_Terrain, esp_Buildings, esp_Reveal);
   TMarkerType = (mtNone, mtDefence, mtRevealFOW);
 
   TKMMapEdMarker = record
@@ -47,11 +46,11 @@ type
     function HitTest(X,Y: Integer): TKMMapEdMarker;
     procedure Selection_Resize;
     procedure Selection_Start;
-    procedure MouseDown(aPage: TKMMapEdShownPage; Button: TMouseButton);
-    procedure MouseMove(aPage: TKMMapEdShownPage);
-    procedure MouseUp(aPage: TKMMapEdShownPage; Button: TMouseButton);
+    procedure MouseDown(Button: TMouseButton);
+    procedure MouseMove;
+    procedure MouseUp(Button: TMouseButton);
     procedure Update;
-    procedure Paint(aPage: TKMMapEdShownPage; aLayer: TPaintLayer);
+    procedure Paint(aLayer: TPaintLayer);
   end;
 
 
@@ -230,41 +229,39 @@ begin
 end;
 
 
-procedure TKMMapEditor.MouseDown(aPage: TKMMapEdShownPage; Button: TMouseButton);
+procedure TKMMapEditor.MouseDown(Button: TMouseButton);
 begin
   if (Button = mbLeft) and (GameCursor.Mode = cmSelection) then
     Selection_Start;
 end;
 
 
-procedure TKMMapEditor.MouseMove(aPage: TKMMapEdShownPage);
+procedure TKMMapEditor.MouseMove;
 var
   P: TKMPoint;
 begin
   if ssLeft in GameCursor.SState then //Only allow placing of roads etc. with the left mouse button
   begin
-    P := GameCursor.Cell; //Get cursor position tile-wise
+    P := GameCursor.Cell;
     case GameCursor.Mode of
-      cmRoad:      if gPlayers[MySpectator.PlayerIndex].CanAddFieldPlan(P, ft_Road) then
-                   begin
-                     //If there's a field remove it first so we don't get road on top of the field tile (undesired in MapEd)
-                     if gTerrain.TileIsCornField(P) or gTerrain.TileIsWineField(P) then
-                       gTerrain.RemField(P);
-                     gPlayers[MySpectator.PlayerIndex].AddField(P, ft_Road);
-                   end;
-      cmField:     if gPlayers[MySpectator.PlayerIndex].CanAddFieldPlan(P, ft_Corn) then gPlayers[MySpectator.PlayerIndex].AddField(P, ft_Corn);
-      cmWine:      if gPlayers[MySpectator.PlayerIndex].CanAddFieldPlan(P, ft_Wine) then gPlayers[MySpectator.PlayerIndex].AddField(P, ft_Wine);
-      //cm_Wall:  if fPlayers[MySpectator.PlayerIndex].CanAddFieldPlan(P, ft_Wall) then fPlayers[MySpectator.PlayerIndex].AddField(P, ft_Wine);
-      cmUnits:     if GameCursor.Tag1 = 255 then gPlayers.RemAnyUnit(P);
-      cmErase:     case aPage of
-                      esp_Terrain:    gTerrain.Land[P.Y,P.X].Obj := 255;
-                      esp_Buildings:  begin
-                                        gPlayers.RemAnyHouse(P);
-                                        if gTerrain.Land[P.Y,P.X].TileOverlay = to_Road then
-                                          gTerrain.RemRoad(P);
-                                        if gTerrain.TileIsCornField(P) or gTerrain.TileIsWineField(P) then
-                                          gTerrain.RemField(P);
-                                      end;
+      cmRoad:       if gPlayers[MySpectator.PlayerIndex].CanAddFieldPlan(P, ft_Road) then
+                    begin
+                      //If there's a field remove it first so we don't get road on top of the field tile (undesired in MapEd)
+                      if gTerrain.TileIsCornField(P) or gTerrain.TileIsWineField(P) then
+                        gTerrain.RemField(P);
+                      gPlayers[MySpectator.PlayerIndex].AddField(P, ft_Road);
+                    end;
+      cmField:      if gPlayers[MySpectator.PlayerIndex].CanAddFieldPlan(P, ft_Corn) then
+                      gPlayers[MySpectator.PlayerIndex].AddField(P, ft_Corn);
+      cmWine:       if gPlayers[MySpectator.PlayerIndex].CanAddFieldPlan(P, ft_Wine) then
+                      gPlayers[MySpectator.PlayerIndex].AddField(P, ft_Wine);
+      cmUnits:      if GameCursor.Tag1 = 255 then gPlayers.RemAnyUnit(P);
+      cmErase:      begin
+                      gPlayers.RemAnyHouse(P);
+                      if gTerrain.Land[P.Y,P.X].TileOverlay = to_Road then
+                        gTerrain.RemRoad(P);
+                      if gTerrain.TileIsCornField(P) or gTerrain.TileIsWineField(P) then
+                        gTerrain.RemField(P);
                     end;
       cmSelection:  Selection_Resize;
     end;
@@ -272,86 +269,81 @@ begin
 end;
 
 
-procedure TKMMapEditor.MouseUp(aPage: TKMMapEdShownPage; Button: TMouseButton);
+procedure TKMMapEditor.MouseUp(Button: TMouseButton);
 var
   P: TKMPoint;
 begin
   P := GameCursor.Cell; //Get cursor position tile-wise
-  if Button = mbRight then
-  begin
-
-    //Right click performs some special functions and shortcuts
-    case GameCursor.Mode of
-      cmTiles:    begin
-                    GameCursor.MapEdDir := (GameCursor.MapEdDir + 1) mod 4; //Rotate tile direction
-                    fTerrainPainter.MakeCheckpoint;
-                  end;
-      cmElevate, cmEqualize:
-                    fTerrainPainter.MakeCheckpoint;
-      cmObjects:  begin
-                    gTerrain.Land[P.Y,P.X].Obj := 255; //Delete object
-                    fTerrainPainter.MakeCheckpoint;
-                  end;
-    end;
-
-  end
-  else
-  if Button = mbLeft then //Only allow placing of roads etc. with the left mouse button
-    case GameCursor.Mode of
-      cmRoad:     if gPlayers[MySpectator.PlayerIndex].CanAddFieldPlan(P, ft_Road) then
-                  begin
-                    //If there's a field remove it first so we don't get road on top of the field tile (undesired in MapEd)
-                    if gTerrain.TileIsCornField(P) or gTerrain.TileIsWineField(P) then
-                      gTerrain.RemField(P);
-                    gPlayers[MySpectator.PlayerIndex].AddField(P, ft_Road);
-                  end;
-      cmField:    if gPlayers[MySpectator.PlayerIndex].CanAddFieldPlan(P, ft_Corn) then gPlayers[MySpectator.PlayerIndex].AddField(P, ft_Corn);
-      cmWine:     if gPlayers[MySpectator.PlayerIndex].CanAddFieldPlan(P, ft_Wine) then gPlayers[MySpectator.PlayerIndex].AddField(P, ft_Wine);
-      //cm_Wall:
-      cmHouses:   if gPlayers[MySpectator.PlayerIndex].CanAddHousePlan(P, THouseType(GameCursor.Tag1)) then
-                  begin
-                    gPlayers[MySpectator.PlayerIndex].AddHouse(THouseType(GameCursor.Tag1), P.X, P.Y, true);
-                    if not(ssShift in GameCursor.SState) then GameCursor.Mode := cmRoad;
-                  end;
-      cmElevate,
-      cmEqualize,
-      cmBrush,
-      cmObjects,
-      cmTiles:      fTerrainPainter.MakeCheckpoint;
-      cmMagicWater: fTerrainPainter.MagicWater(P);
-      cmUnits:    if GameCursor.Tag1 = 255 then
-                    gPlayers.RemAnyUnit(P)
-                  else
-                  if gTerrain.CanPlaceUnit(P, TUnitType(GameCursor.Tag1)) then
-                  begin
-                    //Check if we can really add a unit
-                    if TUnitType(GameCursor.Tag1) in [CITIZEN_MIN..CITIZEN_MAX] then
-                      gPlayers[MySpectator.PlayerIndex].AddUnit(TUnitType(GameCursor.Tag1), P, False)
-                    else
-                    if TUnitType(GameCursor.Tag1) in [WARRIOR_MIN..WARRIOR_MAX] then
-                      gPlayers[MySpectator.PlayerIndex].AddUnitGroup(TUnitType(GameCursor.Tag1), P, dir_S, 1, 1)
-                    else
-                      gPlayers.PlayerAnimals.AddUnit(TUnitType(GameCursor.Tag1), P);
-                  end;
-      cmMarkers:  case GameCursor.Tag1 of
-                    MARKER_REVEAL:        fRevealers[MySpectator.PlayerIndex].Add(P, GameCursor.MapEdSize);
-                    MARKER_DEFENCE:       gPlayers[MySpectator.PlayerIndex].AI.General.DefencePositions.Add(KMPointDir(P, dir_N), gt_Melee, 10, adt_FrontLine);
-                    MARKER_CENTERSCREEN:  begin
-                                            gPlayers[MySpectator.PlayerIndex].CenterScreen := P;
-                                            //Update XY display
-                                          end;
-                  end;
-      cmErase:    case aPage of
-                    esp_Terrain:    gTerrain.Land[P.Y,P.X].Obj := 255;
-                    esp_Buildings:  begin
-                                      gPlayers.RemAnyHouse(P);
-                                      if gTerrain.Land[P.Y,P.X].TileOverlay = to_Road then
-                                        gTerrain.RemRoad(P);
-                                      if gTerrain.TileIsCornField(P) or gTerrain.TileIsWineField(P) then
-                                        gTerrain.RemField(P);
-                                    end;
-                  end;
-    end;
+  case Button of
+    mbLeft:   case GameCursor.Mode of
+                cmRoad:       if gPlayers[MySpectator.PlayerIndex].CanAddFieldPlan(P, ft_Road) then
+                              begin
+                                //If there's a field remove it first so we don't get road on top of the field tile (undesired in MapEd)
+                                if gTerrain.TileIsCornField(P) or gTerrain.TileIsWineField(P) then
+                                  gTerrain.RemField(P);
+                                gPlayers[MySpectator.PlayerIndex].AddField(P, ft_Road);
+                              end;
+                cmField:      if gPlayers[MySpectator.PlayerIndex].CanAddFieldPlan(P, ft_Corn) then
+                                gPlayers[MySpectator.PlayerIndex].AddField(P, ft_Corn);
+                cmWine:       if gPlayers[MySpectator.PlayerIndex].CanAddFieldPlan(P, ft_Wine) then
+                                gPlayers[MySpectator.PlayerIndex].AddField(P, ft_Wine);
+                cmHouses:     if gPlayers[MySpectator.PlayerIndex].CanAddHousePlan(P, THouseType(GameCursor.Tag1)) then
+                              begin
+                                gPlayers[MySpectator.PlayerIndex].AddHouse(THouseType(GameCursor.Tag1), P.X, P.Y, true);
+                                //Holding shift allows to place that house multiple times
+                                if not (ssShift in GameCursor.SState) then
+                                  GameCursor.Mode := cmRoad;
+                              end;
+                cmElevate, cmEqualize,
+                cmBrush, cmObjects,
+                cmTiles:      fTerrainPainter.MakeCheckpoint;
+                cmMagicWater: fTerrainPainter.MagicWater(P);
+                cmUnits:      if GameCursor.Tag1 = 255 then
+                                gPlayers.RemAnyUnit(P)
+                              else
+                              if gTerrain.CanPlaceUnit(P, TUnitType(GameCursor.Tag1)) then
+                              begin
+                                //Check if we can really add a unit
+                                if TUnitType(GameCursor.Tag1) in [CITIZEN_MIN..CITIZEN_MAX] then
+                                  gPlayers[MySpectator.PlayerIndex].AddUnit(TUnitType(GameCursor.Tag1), P, False)
+                                else
+                                if TUnitType(GameCursor.Tag1) in [WARRIOR_MIN..WARRIOR_MAX] then
+                                  gPlayers[MySpectator.PlayerIndex].AddUnitGroup(TUnitType(GameCursor.Tag1), P, dir_S, 1, 1)
+                                else
+                                  gPlayers.PlayerAnimals.AddUnit(TUnitType(GameCursor.Tag1), P);
+                              end;
+                cmMarkers:    case GameCursor.Tag1 of
+                                MARKER_REVEAL:        fRevealers[MySpectator.PlayerIndex].Add(P, GameCursor.MapEdSize);
+                                MARKER_DEFENCE:       gPlayers[MySpectator.PlayerIndex].AI.General.DefencePositions.Add(KMPointDir(P, dir_N), gt_Melee, 10, adt_FrontLine);
+                                MARKER_CENTERSCREEN:  begin
+                                                        gPlayers[MySpectator.PlayerIndex].CenterScreen := P;
+                                                        //Update XY display
+                                                      end;
+                              end;
+                cmErase:      begin
+                                gPlayers.RemAnyHouse(P);
+                                if gTerrain.Land[P.Y,P.X].TileOverlay = to_Road then
+                                  gTerrain.RemRoad(P);
+                                if gTerrain.TileIsCornField(P) or gTerrain.TileIsWineField(P) then
+                                  gTerrain.RemField(P);
+                              end;
+              end;
+    mbRight:  case GameCursor.Mode of
+                cmTiles:    begin
+                              GameCursor.MapEdDir := (GameCursor.MapEdDir + 1) mod 4; //Rotate tile direction
+                              fTerrainPainter.MakeCheckpoint;
+                            end;
+                cmElevate,
+                cmEqualize: begin
+                              //Actual change was made in UpdateStateIdle, we just register it is done here
+                              fTerrainPainter.MakeCheckpoint;
+                            end;
+                cmObjects:  begin
+                              gTerrain.Land[P.Y,P.X].Obj := 255; //Delete object
+                              fTerrainPainter.MakeCheckpoint;
+                            end;
+              end;
+  end;
 end;
 
 
@@ -365,7 +357,7 @@ begin
 end;
 
 
-procedure TKMMapEditor.Paint(aPage: TKMMapEdShownPage; aLayer: TPaintLayer);
+procedure TKMMapEditor.Paint(aLayer: TPaintLayer);
 var
   I, K: Integer;
   Loc, P: TKMPoint;
@@ -376,7 +368,7 @@ begin
 
   if aLayer = plCursors then
   //With Buildings tab see if we can remove Fields or Houses
-  if (aPage = esp_Buildings)
+  if (GameCursor.Mode = cmErase)
   and (    gTerrain.TileIsCornField(P)
            or gTerrain.TileIsWineField(P)
            or (gTerrain.Land[P.Y,P.X].TileOverlay=to_Road)
