@@ -3321,6 +3321,9 @@ begin
      Exit;
   end;
 
+  if Button = mbRight then
+    RightClick_Cancel;
+
   //So terrain brushes start on mouse down not mouse move
   fGame.UpdateGameCursor(X, Y, Shift);
 
