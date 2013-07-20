@@ -378,7 +378,7 @@ type
 implementation
 uses
   KM_CommonClasses, KM_PlayersCollection, KM_ResTexts, KM_Game, KM_Main, KM_GameCursor,
-  KM_GameApp, KM_Resource, KM_TerrainPainter, KM_ResCursors, KM_Utils,
+  KM_GameApp, KM_Resource, KM_TerrainDeposits, KM_TerrainPainter, KM_ResCursors, KM_Utils,
   KM_ResMapElements, KM_AIDefensePos, KM_ResHouses, KM_RenderUI, KM_Sound, KM_ResSound,
   KM_ResWares, KM_HouseBarracks, KM_ResFonts;
 
@@ -3479,6 +3479,8 @@ begin
 
   Label_Coordinates.Caption := Format('X: %d, Y: %d', [GameCursor.Cell.X, GameCursor.Cell.Y]);
 
+  //fGame.MapEditor.MouseMove;
+
   if ssLeft in Shift then //Only allow placing of roads etc. with the left mouse button
   begin
     P := GameCursor.Cell; //Get cursor position tile-wise
@@ -3546,6 +3548,8 @@ begin
                     TilesRandom.Checked := false; //Reset
                     fGame.MapEditor.TerrainPainter.MakeCheckpoint;
                   end;
+      cmElevate, cmEqualize:
+                    fGame.MapEditor.TerrainPainter.MakeCheckpoint;
       cmObjects:  begin
                     gTerrain.Land[P.Y,P.X].Obj := 255; //Delete object
                     fGame.MapEditor.TerrainPainter.MakeCheckpoint;

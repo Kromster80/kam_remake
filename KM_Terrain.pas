@@ -21,8 +21,9 @@ type
   private
     fAnimStep: Cardinal;
     fMapEditor: Boolean; //In MapEd mode some features behave differently
-    fMapX: Word; //Terrain width and height
-    fMapY: Word; //Terrain width and height
+    fMapX: Word; //Terrain width
+    fMapY: Word; //Terrain height
+    fMapRect: TKMRect; //Terrain rect (1, 1, MapX, MapY)
 
     fTileset: TKMTileset;
     fFinder: TKMTerrainFinder;
@@ -86,6 +87,7 @@ type
 
     property MapX: Word read fMapX;
     property MapY: Word read fMapY;
+    property MapRect: TKMRect read fMapRect;
 
     procedure SetTileLock(aLoc: TKMPoint; aTileLock: TTileLock);
     procedure UnlockTile(aLoc: TKMPoint);
@@ -245,6 +247,7 @@ begin
   fMapEditor := aMapEditor;
   fMapX := Min(aWidth,  MAX_MAP_SIZE);
   fMapY := Min(aHeight, MAX_MAP_SIZE);
+  fMapRect := KMRect(1, 1, fMapX, fMapY);
 
   for I := 1 to fMapY do
   for K := 1 to fMapX do
@@ -271,11 +274,11 @@ begin
   end;
 
   fFinder := TKMTerrainFinder.Create;
-  UpdateLighting(KMRect(1, 1, fMapX, fMapY));
-  UpdatePassability(KMRect(1, 1, fMapX, fMapY));
+  UpdateLighting(MapRect);
+  UpdatePassability(MapRect);
 
   //Everything except roads
-  UpdateWalkConnect([wcWalk, wcFish, wcWork], KMRect(1, 1, fMapX, fMapY), True);
+  UpdateWalkConnect([wcWalk, wcFish, wcWork], MapRect, True);
 end;
 
 
@@ -302,6 +305,7 @@ begin
     Assert((NewX <= MAX_MAP_SIZE) and (NewY <= MAX_MAP_SIZE), 'Can''t open the map cos it has too big dimensions');
     fMapX := NewX;
     fMapY := NewY;
+    fMapRect := KMRect(1, 1, fMapX, fMapY);
 
     for I := 1 to fMapY do for K := 1 to fMapX do
     begin
@@ -336,11 +340,11 @@ begin
   end;
 
   fFinder := TKMTerrainFinder.Create;
-  UpdateLighting(KMRect(1, 1, fMapX, fMapY));
-  UpdatePassability(KMRect(1, 1, fMapX, fMapY));
+  UpdateLighting(MapRect);
+  UpdatePassability(MapRect);
 
   //Everything except roads
-  UpdateWalkConnect([wcWalk, wcFish, wcWork], KMRect(1, 1, fMapX, fMapY), True);
+  UpdateWalkConnect([wcWalk, wcFish, wcWork], MapRect, True);
   gLog.AddTime('Map file loaded');
 end;
 
@@ -2716,6 +2720,7 @@ begin
   SaveStream.Write('Terrain');
   SaveStream.Write(fMapX);
   SaveStream.Write(fMapY);
+  SaveStream.Write(fMapRect);
   SaveStream.Write(fAnimStep);
 
   FallingTrees.SaveToStream(SaveStream);
@@ -2747,6 +2752,7 @@ begin
   LoadStream.ReadAssert('Terrain');
   LoadStream.Read(fMapX);
   LoadStream.Read(fMapY);
+  LoadStream.Read(fMapRect);
   LoadStream.Read(fAnimStep);
 
   FallingTrees.LoadFromStream(LoadStream);
@@ -2771,10 +2777,10 @@ begin
 
   fFinder := TKMTerrainFinder.Create;
 
-  UpdateLighting(KMRect(1, 1, fMapX, fMapY));
-  UpdatePassability(KMRect(1, 1, fMapX, fMapY));
+  UpdateLighting(MapRect);
+  UpdatePassability(MapRect);
 
-  UpdateWalkConnect([wcWalk, wcRoad, wcFish, wcWork], KMRect(1, 1, fMapX, fMapY), True);
+  UpdateWalkConnect([wcWalk, wcRoad, wcFish, wcWork], MapRect, True);
 
   gLog.AddTime('Terrain loaded');
 end;

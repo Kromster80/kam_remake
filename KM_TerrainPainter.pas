@@ -30,7 +30,7 @@ type
   TKMTerrainPainter = class
   private
     fCheckpointPos: Byte;
-    fCheckpoints: array [0..MAX_UNDO] of record
+    fCheckpoints: array [0..MAX_UNDO-1] of record
       HasData: Boolean;
       Data: array [1..MAX_MAP_SIZE, 1..MAX_MAP_SIZE] of TKMCheckpointTile;
     end;
@@ -43,10 +43,10 @@ type
       Tiles: SmallInt;  //Stores kind of transition tile used, no need to save into MAP footer
     end;
 
-    MapXn,MapYn:integer; //Cursor position node
-    MapXc,MapYc:integer; //Cursor position cell
-    MapXn2,MapYn2:integer; //keeps previous node position
-    MapXc2,MapYc2:integer; //keeps previous cell position
+    MapXn, MapYn: Integer; //Cursor position node
+    MapXc, MapYc: Integer; //Cursor position cell
+    MapXn2, MapYn2: Integer; //keeps previous node position
+    MapXc2, MapYc2: Integer; //keeps previous cell position
 
     procedure CheckpointToTerrain;
     procedure BrushTerrainTile(X, Y: SmallInt; aTerrainKind: TTerrainKind);
@@ -904,6 +904,10 @@ begin
     gTerrain.Land[I,K].Obj := Data[I,K].Obj;
     Land2[I,K].TerType := Data[I,K].TerType;
   end;
+
+  //Update derived fields (lighting)
+  gTerrain.UpdateLighting(gTerrain.MapRect);
+  gTerrain.UpdatePassability(gTerrain.MapRect);
 end;
 
 

@@ -137,6 +137,7 @@ uses
   KM_Settings in 'KM_Settings.pas',
   KM_Sound in 'KM_Sound.pas',
   KM_Terrain in 'KM_Terrain.pas',
+  KM_TerrainDeposits in 'KM_TerrainDeposits.pas',
   KM_TerrainFinder in 'KM_TerrainFinder.pas',
   KM_TerrainPainter in 'KM_TerrainPainter.pas',
   KM_TerrainWalkConnect in 'KM_TerrainWalkConnect.pas',
