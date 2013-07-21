@@ -146,7 +146,7 @@ type
 
 const
   //Used in the dedicated server display as it does not care about translations (translated ones are in KM_TextLibrary)
-  GameStateText: array [TMPGameState] of string = ('None','Lobby','Loading','Game');
+  GameStateText: array [TMPGameState] of string = ('None', 'Lobby', 'Loading', 'Game');
   ServerTypePic: array [TKMServerType] of TKMPic = ((RX: rxGuiMain; ID:74), (RX: rxGuiMain; ID:75));
 
 

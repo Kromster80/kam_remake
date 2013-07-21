@@ -231,8 +231,10 @@ end;
 
 procedure TKMMapEditor.MouseDown(Button: TMouseButton);
 begin
-  if (Button = mbLeft) and (GameCursor.Mode = cmSelection) then
-    Selection_Start;
+  if (Button = mbLeft) then
+  case GameCursor.Mode of
+    cmSelection:  Selection_Start;
+  end;
 end;
 
 
