@@ -833,6 +833,7 @@ begin
 
   fMapEditor := TKMMapEditor.Create;
   gTerrain.MakeNewMap(aSizeX, aSizeY, True);
+  fMapEditor.TerrainPainter.InitEmpty;
   fMapEditor.TerrainPainter.MakeCheckpoint;
 
   gPlayers.AddPlayers(MAX_PLAYERS); //Create MAX players

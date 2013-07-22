@@ -16,7 +16,7 @@ type
     Index: SmallInt;
   end;
 
-  //Designed to store MapEd specific data and methods
+  //Collection of map editing classes and map editor specific data
   TKMMapEditor = class
   private
     fTerrainPainter: TKMTerrainPainter;

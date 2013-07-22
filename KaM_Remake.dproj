@@ -93,8 +93,8 @@
 			<DCC_Optimize>false</DCC_Optimize>
 		</PropertyGroup>
 		<PropertyGroup Condition="'$(Cfg_2_Win32)'!=''">
-			<Manifest_File>$(BDS)\bin\default_app.manifest</Manifest_File>
 			<DCC_DebugInfoInExe>true</DCC_DebugInfoInExe>
+			<Manifest_File>$(BDS)\bin\default_app.manifest</Manifest_File>
 			<BCC_SourceDebuggingOn>true</BCC_SourceDebuggingOn>
 			<BCC_DebugLineNumbers>true</BCC_DebugLineNumbers>
 			<ILINK_FullDebugInfo>true</ILINK_FullDebugInfo>

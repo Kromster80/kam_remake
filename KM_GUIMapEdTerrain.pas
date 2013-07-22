@@ -8,6 +8,7 @@ uses
 type
   TKMTerrainTab = (ttBrush, ttHeights, ttTile, ttObject, ttSelection);
 
+  //Collection of terrain editing controls
   TKMMapEdTerrain = class
   private
     //Objects in MapElem are placed sparsely, so we need to compact them
@@ -589,6 +590,9 @@ begin
 
   if Sender = Button_TerrainRedo then
     fGame.MapEditor.TerrainPainter.Redo;
+
+  Button_TerrainUndo.Enabled := fGame.MapEditor.TerrainPainter.CanUndo;
+  Button_TerrainRedo.Enabled := fGame.MapEditor.TerrainPainter.CanRedo;
 end;
 
 
@@ -622,6 +626,9 @@ end;
 procedure TKMMapEdTerrain.UpdateState;
 begin
   TilesRandom.Checked := (GameCursor.MapEdDir = 4);
+
+  Button_TerrainUndo.Enabled := fGame.MapEditor.TerrainPainter.CanUndo;
+  Button_TerrainRedo.Enabled := fGame.MapEditor.TerrainPainter.CanRedo;
 end;
 
 

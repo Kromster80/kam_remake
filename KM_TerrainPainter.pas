@@ -6,7 +6,7 @@ uses Classes, KromUtils, Math, SysUtils,
   KM_Terrain;
 
 const
-  MAX_UNDO = 5;
+  MAX_UNDO = 40;
 
 type
   TTerrainKind = (
@@ -18,6 +18,7 @@ type
     tkAbyss, tkGravel, tkWater, tkCoal, tkGold,
     tkIron, tkFastWater, tkLava);
 
+  //Tile data that we store in undo checkpoints
   TKMCheckpointTile = packed record
     Terrain: Byte;
     Height: Byte;
@@ -26,22 +27,22 @@ type
     TerType: TTerrainKind;
   end;
 
+  TKMPainterTile = packed record
+    TerType: TTerrainKind; //Stores terrain type per node
+    Tiles: SmallInt;  //Stores kind of transition tile used, no need to save into MAP footer
+    HeightAdd: Byte; //Fraction part of height, for smooth height editing
+  end;
+
   //Terrain helper that is used to paint terrain types in Map Editor
   TKMTerrainPainter = class
   private
     fCheckpointPos: Byte;
     fCheckpoints: array [0..MAX_UNDO-1] of record
       HasData: Boolean;
-      Data: array [1..MAX_MAP_SIZE, 1..MAX_MAP_SIZE] of TKMCheckpointTile;
+      Data: array of array of TKMCheckpointTile;
     end;
 
-    //Fraction part of height, for smooth height editing
-    HeightAdd: array [1..MAX_MAP_SIZE, 1..MAX_MAP_SIZE] of Byte;
-
-    Land2: array [1..MAX_MAP_SIZE, 1..MAX_MAP_SIZE] of record
-      TerType: TTerrainKind; //Stores terrain type per node
-      Tiles: SmallInt;  //Stores kind of transition tile used, no need to save into MAP footer
-    end;
+    Land2: array of array of TKMPainterTile;
 
     MapXn, MapYn: Integer; //Cursor position node
     MapXc, MapYc: Integer; //Cursor position cell
@@ -58,11 +59,13 @@ type
     procedure GenerateAddnData;
     function GetTerrainKind(Y, X: Integer): TTerrainKind;
     procedure SetTerrainKind(Y, X: Integer; Kind: TTerrainKind);
+    procedure InitSize(X,Y: Word);
   public
     RandomizeTiling: Boolean;
     constructor Create;
-    procedure LoadFromFile(FileName: string);
-    procedure SaveToFile(FileName: string);
+    procedure InitEmpty;
+    procedure LoadFromFile(aFileName: string);
+    procedure SaveToFile(aFileName: string);
     procedure UpdateStateIdle;
     procedure MagicWater(aLoc: TKMPoint);
     property TerrainKind[Y,X: Integer]: TTerrainKind read GetTerrainKind write SetTerrainKind;
@@ -156,14 +159,9 @@ uses KM_GameCursor, KM_Resource, KM_Log, KM_Utils;
 
 
 constructor TKMTerrainPainter.Create;
-var
-  I,K: Integer;
 begin
   inherited;
 
-  for I := 1 to MAX_MAP_SIZE do
-  for K := 1 to MAX_MAP_SIZE do
-    Land2[I,K].TerType := tkGrass; //Grass
 end;
 
 
@@ -406,9 +404,9 @@ begin
     //Compute resulting floating-point height
     Tmp := power(abs(Tmp),(Slope+1)/6)*sign(Tmp); //Modify slopes curve
     Tmp := Tmp * (4.75/14*(Speed - 1) + 0.25);
-    Tmp := EnsureRange(gTerrain.Land[I,K].Height + HeightAdd[I,K]/255 + Tmp * (Byte(aRaise)*2 - 1), 0, 100); // (Byte(aRaise)*2 - 1) - LeftButton pressed it equals 1, otherwise equals -1
+    Tmp := EnsureRange(gTerrain.Land[I,K].Height + Land2[I,K].HeightAdd/255 + Tmp * (Byte(aRaise)*2 - 1), 0, 100); // (Byte(aRaise)*2 - 1) - LeftButton pressed it equals 1, otherwise equals -1
     gTerrain.Land[I,K].Height := trunc(Tmp);
-    HeightAdd[I,K] := round(frac(Tmp)*255); //write fractional part in 0..255 range (1Byte) to save us mem
+    Land2[I,K].HeightAdd := round(frac(Tmp)*255); //write fractional part in 0..255 range (1Byte) to save us mem
   end;
 
   R := KMRectGrow(KMRect(aLoc), Rad);
@@ -538,7 +536,7 @@ const
   ACC_MIN = 1; //Coal random tiling (edges are better in this case)
   ACC_NONE = 0;
 var
-  Accuracy: array [1 .. MAX_MAP_SIZE, 1 .. MAX_MAP_SIZE] of Byte;
+  Accuracy: array of array of Byte;
 
   procedure SetTerrainKindVertex(X,Y: Integer; T:TTerrainKind; aAccuracy:Byte);
   begin
@@ -570,15 +568,17 @@ var
   A: Byte;
   T, T2: TTerrainKind;
 begin
-  for I := 1 to MAX_MAP_SIZE do
-  for K := 1 to MAX_MAP_SIZE do
+  SetLength(Accuracy, gTerrain.MapX, gTerrain.MapY);
+
+  for I := 1 to gTerrain.MapY do
+  for K := 1 to gTerrain.MapX do
   begin
     Land2[I,K].TerType := tkCustom; //Everything custom by default
     Accuracy[I,K] := ACC_NONE;
   end;
 
-  for I := 1 to MAX_MAP_SIZE do
-  for K := 1 to MAX_MAP_SIZE do
+  for I := 1 to gTerrain.MapY do
+  for K := 1 to gTerrain.MapX do
     //Special tiles such as bridges should remain as tkCustom
     if gTerrain.Land[I,K].Terrain in SPECIAL_TILES then
       SetTerrainKindTile(K, I, tkCustom, ACC_MAX) //Maximum accuracy
@@ -711,8 +711,32 @@ begin
 end;
 
 
+procedure TKMTerrainPainter.InitSize(X, Y: Word);
+var
+  I: Integer;
+begin
+  for I := 0 to High(fCheckpoints) do
+    SetLength(fCheckpoints[I].Data, Y+1, X+1);
+
+  SetLength(Land2, Y+1, X+1);
+end;
+
+
+procedure TKMTerrainPainter.InitEmpty;
+var
+  I,K: Integer;
+begin
+  InitSize(gTerrain.MapX, gTerrain.MapY);
+
+  //Fill in default terain type - Grass
+  for I := 1 to gTerrain.MapY do
+  for K := 1 to gTerrain.MapX do
+    Land2[I,K].TerType := tkGrass;
+end;
+
+
 //Skip the KaM data and load MapEd vertice info
-procedure TKMTerrainPainter.LoadFromFile(FileName: string);
+procedure TKMTerrainPainter.LoadFromFile(aFileName: string);
 var
   I,K: Integer;
   TerType: ShortInt; //Krom's editor saves terrain kind as ShortInt
@@ -722,11 +746,13 @@ var
   Chunk: AnsiString;
   MapEdChunkFound: Boolean;
 begin
-  if not CheckFileExists(FileName) then Exit;
+  if not CheckFileExists(aFileName) then Exit;
+
+  InitSize(gTerrain.MapX, gTerrain.MapY);
 
   S := TKMemoryStream.Create;
   try
-    S.LoadFromFile(FileName);
+    S.LoadFromFile(aFileName);
     S.Read(NewX); //We read header to new variables to avoid damage to existing map if header is wrong
     S.Read(NewY);
     Assert((NewX = gTerrain.MapX) and (NewY = gTerrain.MapY), 'Map size does not match map size');
@@ -764,13 +790,13 @@ begin
           MapEdChunkFound := True; //Only set it once it's all loaded successfully
         end
         else
-          gLog.AddNoTime(FileName + ' has no MapEd.TILE chunk');
+          gLog.AddNoTime(aFileName + ' has no MapEd.TILE chunk');
       end
       else
-        gLog.AddNoTime(FileName + ' has no MapEd.ADDN chunk');
+        gLog.AddNoTime(aFileName + ' has no MapEd.ADDN chunk');
     end
     else
-      gLog.AddNoTime(FileName + ' has no MapEd chunk');
+      gLog.AddNoTime(aFileName + ' has no MapEd chunk');
   finally
     S.Free;
   end;
@@ -786,18 +812,18 @@ begin
 end;
 
 
-procedure TKMTerrainPainter.SaveToFile(FileName: string);
+procedure TKMTerrainPainter.SaveToFile(aFileName: string);
 var
   I,K: Integer;
   S: TKMemoryStream;
   NewX,NewY: Integer;
   ResHead: packed record x1:word; Allocated,Qty1,Qty2,x5,Len17:integer; end;
 begin
-  if not CheckFileExists(FileName) then Exit;
+  if not CheckFileExists(aFileName) then Exit;
 
   S := TKMemoryStream.Create;
   try
-    S.LoadFromFile(FileName);
+    S.LoadFromFile(aFileName);
     S.Read(NewX); //We read header to new variables to avoid damage to existing map if header is wrong
     S.Read(NewY);
     Assert((NewX = gTerrain.MapX) and (NewY = gTerrain.MapY), 'Map size does not match map size');
@@ -805,7 +831,7 @@ begin
     //Skip terrain data
     S.Seek(23 * NewX * NewY, soFromCurrent);
 
-    //For now we just throw away the resource footer because we don't understand it (and save a blank one)
+    //Skip resource footer
     S.Read(ResHead, 22);
     S.Seek(17 * ResHead.Allocated, soFromCurrent);
 
@@ -818,7 +844,7 @@ begin
     for K := 1 to NewX do
       S.Write(Land2[I,K].TerType, 1);
 
-    S.SaveToFile(FileName);
+    S.SaveToFile(aFileName);
   finally
     S.Free;
   end;
