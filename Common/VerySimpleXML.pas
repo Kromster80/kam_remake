@@ -31,6 +31,13 @@ uses
   Classes;
 
 type
+  //TXmlList owns items and frees them when they are deleted from the list
+  TXmlList = class(TList)
+  protected
+    //This one function is enough to free all deleted/cleared/rewritten objects
+    procedure Notify(Ptr: Pointer; Action: TListNotification); override;
+  end;
+
   TXmlNodeList = class;
 
   TXmlAttribute = class(TObject)
@@ -39,7 +46,7 @@ type
     Value: String; // Attribute value (always as String)
   end;
 
-  TXmlAttributeList = class(TList)
+  TXmlAttributeList = class(TXmlList)
   public
     function Find(AttrName: String): TXmlAttribute;
     // Find an Attribute by Name (not case sensitive)
@@ -80,7 +87,7 @@ type
       write SetAttr; // Attributes of a Node, accessible by attribute name
   end;
 
-  TXmlNodeList = class(TList);
+  TXmlNodeList = class(TXmlList);
 
   TXmlOnNodeSetText = procedure (Sender: TObject; Node: TXmlNode; Text: String) of
     object;
@@ -141,6 +148,15 @@ begin
   Result := StringReplace(Result, '&quot;', '"', [rfReplaceAll]);
   Result := StringReplace(Result, '&amp;', '&', [rfReplaceAll]);
 end;
+
+
+//We were notified that the item is deleted from the list
+procedure TXmlList.Notify(Ptr: Pointer; Action: TListNotification);
+begin
+  if (Action = lnDeleted) then
+    TObject(Ptr).Free;
+end;
+
 
 { TXmlVerySimple }
 
