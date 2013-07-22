@@ -285,6 +285,7 @@ type
       Button_AttackCancel: TKMButton;
 
     Panel_Goal: TKMPanel;
+      Image_GoalFlag: TKMImage;
       Radio_GoalType: TKMRadioGroup;
       Radio_GoalCondition: TKMRadioGroup;
       NumEdit_GoalTime: TKMNumericEdit;
@@ -1300,7 +1301,7 @@ begin
     TKMBevel.Create(Panel_Goal,   0,  0, SIZE_X, SIZE_Y);
     TKMLabel.Create(Panel_Goal, SIZE_X div 2, 10, gResTexts[TX_MAPED_GOALS_TITLE], fnt_Outline, taCenter);
 
-    Image_FormationsFlag := TKMImage.Create(Panel_Goal, 10, 10, 0, 0, 30, rxGuiMain);
+    Image_GoalFlag := TKMImage.Create(Panel_Goal, 10, 10, 0, 0, 30, rxGuiMain);
 
     TKMLabel.Create(Panel_Goal, 20, 40, 100, 0, gResTexts[TX_MAPED_GOALS_TYPE], fnt_Metal, taLeft);
     Radio_GoalType := TKMRadioGroup.Create(Panel_Goal, 20, 60, 100, 60, fnt_Metal);
@@ -1843,6 +1844,8 @@ end;
 
 procedure TKMapEdInterface.Goal_Refresh(aGoal: TKMGoal);
 begin
+  Image_GoalFlag.FlagColor := gPlayers[MySpectator.PlayerIndex].FlagColor;
+
   Radio_GoalType.ItemIndex := Byte(aGoal.GoalType);
   Radio_GoalCondition.ItemIndex := Byte(aGoal.GoalCondition);
   NumEdit_GoalTime.Value := aGoal.GoalTime div 10;
