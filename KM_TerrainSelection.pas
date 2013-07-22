@@ -180,12 +180,15 @@ begin
 
   if Sx*Sy <> 0 then
   begin
-    {$IFDEF MSWindows}
+    {$IFDEF WDC}
     hMem := GlobalAlloc(GMEM_DDESHARE or GMEM_MOVEABLE, BufferStream.Size);
     BufPtr := GlobalLock(hMem);
     Move(BufferStream.Memory^, BufPtr^, BufferStream.Size);
     Clipboard.SetAsHandle(CF_MAPDATA, hMem);
     GlobalUnlock(hMem);
+    {$ENDIF}
+    {$IFDEF FPC}
+    Clipboard.SetFormat(CF_MAPDATA, BufferStream);
     {$ENDIF}
   end;
   BufferStream.Free;
@@ -200,13 +203,18 @@ var
   BufPtr: Pointer;
   BufferStream: TKMemoryStream;
 begin
-  {$IFDEF MSWindows}
+  BufferStream := TKMemoryStream.Create;
+  {$IFDEF WDC}
   hMem := Clipboard.GetAsHandle(CF_MAPDATA);
   if hMem = 0 then Exit;
   BufPtr := GlobalLock(hMem);
   if BufPtr = nil then Exit;
-  BufferStream := TKMemoryStream.Create;
   BufferStream.WriteBuffer(BufPtr^, GlobalSize(hMem));
+  GlobalUnlock(hMem);
+  {$ENDIF}
+  {$IFDEF FPC}
+  if not Clipboard.GetFormat(CF_MAPDATA, BufferStream) then Exit;
+  {$ENDIF}
   BufferStream.Position := 0;
   BufferStream.Read(Sx);
   BufferStream.Read(Sy);
@@ -214,9 +222,7 @@ begin
   for I:=0 to Sy-1 do
     for K:=0 to Sx-1 do
       BufferStream.Read(fSelectionBuffer[I,K], SizeOf(fSelectionBuffer[I,K]));
-  GlobalUnlock(hMem);
   BufferStream.Free;
-  {$ENDIF}
 
 
   //Mapmaker could have changed selection rect, sync it with Buffer size
