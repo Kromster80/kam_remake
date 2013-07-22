@@ -115,7 +115,7 @@ begin
       begin
         //Set one of the players victorious with a team victory, that will set it for the entire team
         for K:=0 to 7 do
-          if States.PlayerEnabled(I) and (PlayersTeam[K] = I) then
+          if States.PlayerEnabled(K) and (PlayersTeam[K] = I) then
           begin
             Actions.PlayerWin([K], True);
             Break;
