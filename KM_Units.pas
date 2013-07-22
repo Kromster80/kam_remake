@@ -165,7 +165,7 @@ type
     function IsIdle: Boolean;
     procedure TrainInHouse(aSchool: TKMHouseSchool);
 
-    function CanStepTo(X,Y: Integer): Boolean;
+    function CanStepTo(X,Y: Integer; aPass: TPassability): Boolean;
     function CanWalkTo(aTo: TKMPoint; aDistance: Single): Boolean; overload;
     function CanWalkTo(aTo: TKMPoint; aPass: TPassability; aDistance: Single): Boolean; overload;
     function CanWalkTo(aFrom, aTo: TKMPoint; aDistance: Single): Boolean; overload;
@@ -1660,11 +1660,11 @@ begin
 end;
 
 
-function TKMUnit.CanStepTo(X,Y: Integer): Boolean;
+function TKMUnit.CanStepTo(X,Y: Integer; aPass: TPassability): Boolean;
 begin
   Result := gTerrain.TileInMapCoords(X,Y)
         and (gTerrain.Land[Y,X].IsUnit = nil)
-        and (gTerrain.CheckPassability(KMPoint(X,Y), DesiredPassability))
+        and (gTerrain.CheckPassability(KMPoint(X,Y), aPass))
         and (not KMStepIsDiag(GetPosition, KMPoint(X,Y)) //Only check vertex usage if the step is diagonal
              or (not gTerrain.HasVertexUnit(KMGetDiagVertex(GetPosition, KMPoint(X,Y)))))
         and (gTerrain.CanWalkDiagonaly(GetPosition, X, Y));

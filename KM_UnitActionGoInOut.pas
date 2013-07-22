@@ -154,13 +154,13 @@ function TUnitActionGoInOut.FindBestExit(aLoc: TKMPoint): TBestExit;
 var
   U: TKMUnit;
 begin
-  if fUnit.CanStepTo(aLoc.X, aLoc.Y) then
+  if fUnit.CanStepTo(aLoc.X, aLoc.Y, canWalk) then
     Result := be_Center
   else
-  if fUnit.CanStepTo(aLoc.X-1, aLoc.Y) then
+  if fUnit.CanStepTo(aLoc.X-1, aLoc.Y, canWalk) then
     Result := be_Left
   else
-  if fUnit.CanStepTo(aLoc.X+1, aLoc.Y) then
+  if fUnit.CanStepTo(aLoc.X+1, aLoc.Y, canWalk) then
     Result := be_Right
   else
   begin

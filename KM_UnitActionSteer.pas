@@ -100,14 +100,14 @@ begin
   Loc := KMPoint(KMGetPointInDir(fUnit.GetPosition, fUnit.Direction));
   //Decide whether we should change direction or not
   if (KaMRandom(10) < fDesireToSteer)
-  or not fUnit.CanStepTo(Loc.X, Loc.Y) then
+  or not fUnit.CanStepTo(Loc.X, Loc.Y, fUnit.DesiredPassability) then
   begin
     fDesireToSteer := 0; //Reset it
     List := TKMPointList.Create;
     Loc := fUnit.GetPosition;
     for I:=-1 to 1 do
       for K:=-1 to 1 do
-        if ((I<>0)or(K<>0)) and fUnit.CanStepTo(Loc.X+I, Loc.Y+K) then
+        if ((I<>0)or(K<>0)) and fUnit.CanStepTo(Loc.X+I, Loc.Y+K, fUnit.DesiredPassability) then
         begin
           //Directions next to our current one are preferable (looks nicer if animals don't make jarring direction changes often)
           GoodSpot := KMGetDirection(I, K) in [KMNextDirection(fUnit.Direction), KMPrevDirection(fUnit.Direction)];

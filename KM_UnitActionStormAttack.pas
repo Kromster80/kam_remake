@@ -165,7 +165,7 @@ begin
     fNextPos := KMPoint(KMGetPointInDir(fUnit.GetPosition, fUnit.Direction));
 
     //Action ends if: 1: Used up stamina. 2: There is an enemy to fight. 3: NextPos is an obsticle
-    if (fTileSteps >= fStamina) or not fUnit.CanStepTo(fNextPos.X, fNextPos.Y) then
+    if (fTileSteps >= fStamina) or not fUnit.CanStepTo(fNextPos.X, fNextPos.Y, fUnit.DesiredPassability) then
     begin
       Result := ActDone; //Finished run
       Exit; //Must exit right away as we might have changed this action to fight
