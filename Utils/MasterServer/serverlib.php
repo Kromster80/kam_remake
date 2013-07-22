@@ -348,11 +348,12 @@ function AddServer($aName,$aIP,$aPort,$aPlayerCount,$aIsDedicated,$aOS,$aTTL,$aR
 	//Remove characters that are not allowed (used for internal formatting)
 	$aName = str_replace($DISALLOWED_CHARS,"",$aName);
 	$aIP = str_replace($DISALLOWED_CHARS,"",$aIP);
-	$aPort = str_replace($DISALLOWED_CHARS,"",$aPort);
+	$aPort = intval(str_replace($DISALLOWED_CHARS,"",$aPort));
+	if(($aPort < 1) || ($aPort > 65535)) return "invalid port";
 	$aTTL = str_replace($DISALLOWED_CHARS,"",$aTTL);
 	$aPlayerCount = str_replace($DISALLOWED_CHARS,"",$aPlayerCount);
 	//Enforce max TTL, so people can not add a server that lasts a thousand years!
-	$aTTL = min($aTTL,$MAX_TTL);
+	$aTTL = max(min(intval($aTTL),$MAX_TTL),1);
 	$Servers = "";
 	$Exists = false;
 	//My server (kam.hodgman.id.au) can do outgoing connections on port 56789 (99% of servers use this) because we asked for permission
