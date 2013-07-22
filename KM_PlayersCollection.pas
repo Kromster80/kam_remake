@@ -414,6 +414,7 @@ function TKMPlayersCollection.CheckAlliance(aPlay1,aPlay2: TPlayerIndex): TAllia
 begin
   Result := at_Ally;
 
+  //TODO: if pla1=pla2 should be written in players alliance array, not a special case!
   if (aPlay1 = PLAYER_ANIMAL) or (aPlay2 = PLAYER_ANIMAL) or (aPlay1 = aPlay2) then
     Exit;
 
