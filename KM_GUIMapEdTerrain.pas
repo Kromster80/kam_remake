@@ -627,6 +627,8 @@ procedure TKMMapEdTerrain.UpdateState;
 begin
   TilesRandom.Checked := (GameCursor.MapEdDir = 4);
 
+  Button_SelectPaste.Enabled := fGame.MapEditor.Selection.Selection_DataInBuffer;
+
   Button_TerrainUndo.Enabled := fGame.MapEditor.TerrainPainter.CanUndo;
   Button_TerrainRedo.Enabled := fGame.MapEditor.TerrainPainter.CanRedo;
 
