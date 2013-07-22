@@ -52,7 +52,9 @@ type
   function KMRect(aLeft, aTop, aRight, aBottom: SmallInt): TKMRect; overload;
   function KMRect(aPoint: TKMPoint): TKMRect; overload;
   function KMRect(aPoint: TKMPointF): TKMRect; overload;
-  function KMRectF(aRect: TKMRect): TKMRectF;
+  function KMRectF(aRect: TKMRect): TKMRectF; overload;
+  function KMRectF(aPoint: TKMPointF): TKMRectF; overload;
+  function KMRectF(aLeft, aTop, aRight, aBottom: SmallInt): TKMRectF; overload;
   function KMRectRound(aRect: TKMRectF): TKMRect;
   function KMRectGrow(aRect: TKMRect; aInset: Integer): TKMRect;
   function KMRectGrowTopLeft(aRect: TKMRect): TKMRect;
@@ -268,6 +270,24 @@ begin
   Result.Right  := aRect.Right;
   Result.Top    := aRect.Top;
   Result.Bottom := aRect.Bottom;
+end;
+
+
+function KMRectF(aPoint: TKMPointF): TKMRectF;
+begin
+  Result.Left   := aPoint.X;
+  Result.Right  := aPoint.X;
+  Result.Top    := aPoint.Y;
+  Result.Bottom := aPoint.Y;
+end;
+
+
+function KMRectF(aLeft, aTop, aRight, aBottom: SmallInt): TKMRectF;
+begin
+  Result.Left   := aLeft;
+  Result.Right  := aRight;
+  Result.Top    := aTop;
+  Result.Bottom := aBottom;
 end;
 
 

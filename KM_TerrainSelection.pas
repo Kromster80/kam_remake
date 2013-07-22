@@ -6,11 +6,15 @@ uses Classes, Math,
 
 
 type
+  TSelectionManipulation = (smNone, smNewRect, smResizeX1, smResizeY1, smResizeX2, smResizeY2, smMove);
   TKMSelectionMode = (smSelecting, smPasting);
   TKMSelection = class
   private
+    fSelectionMan: TSelectionManipulation;
+    fPrevX, fPrevY: Integer;
+
     fRawRect: TKMRectF; //Cursor selection bounds (can have inverted bounds)
-    fRect: TKMRect; //Tile-space selection, at least 1 tile
+    fCellRect: TKMRect; //Tile-space selection, at least 1 tile
     fSelectionMode: TKMSelectionMode;
     fBuffer: array of array of record
       Terrain: Byte;
@@ -19,11 +23,10 @@ type
       Obj: Byte;
       TerrainKind: TTerrainKind; //Used for brushes
     end;
-    procedure SetRawRect(const aValue: TKMRectF);
+    procedure SyncCellRect;
   public
-    property RawRect: TKMRectF read fRawRect write SetRawRect;
-    property Rect: TKMRect read fRect write fRect;
-    property SelectionMode: TKMSelectionMode read fSelectionMode;
+    procedure Selection_Resize;
+    procedure Selection_Start;
     function IsBufferHasData: Boolean;
     procedure Copy; //Copies the selected are into buffer
     procedure PasteBegin; //Pastes the area from buffer and lets move it with cursor
@@ -35,19 +38,99 @@ type
 
 
 implementation
-uses KM_RenderAux, KM_RenderPool;
+uses KM_GameCursor, KM_RenderAux, KM_RenderPool;
 
 
 { TKMSelection }
-procedure TKMSelection.SetRawRect(const aValue: TKMRectF);
+procedure TKMSelection.SyncCellRect;
 begin
-  fRawRect := aValue;
-
   //Convert RawRect values that can be inverted to tilespace Rect
-  fRect.Left   := Trunc(Min(fRawRect.Left, fRawRect.Right));
-  fRect.Top    := Trunc(Min(fRawRect.Top, fRawRect.Bottom));
-  fRect.Right  := Ceil(Max(fRawRect.Left, fRawRect.Right));
-  fRect.Bottom := Ceil(Max(fRawRect.Top, fRawRect.Bottom));
+  fCellRect.Left   := Trunc(Min(fRawRect.Left, fRawRect.Right));
+  fCellRect.Top    := Trunc(Min(fRawRect.Top, fRawRect.Bottom));
+  fCellRect.Right  := Ceil(Max(fRawRect.Left, fRawRect.Right));
+  fCellRect.Bottom := Ceil(Max(fRawRect.Top, fRawRect.Bottom));
+end;
+
+
+procedure TKMSelection.Selection_Resize;
+var
+  RectO: TKMRect;
+begin
+  case fSelectionMan of
+    smNone:       ;
+    smNewRect:    begin
+                    fRawRect.Right := GameCursor.Float.X;
+                    fRawRect.Bottom := GameCursor.Float.Y;
+                  end;
+    smResizeX1:   fRawRect.Left := GameCursor.Float.X;
+    smResizeY1:   fRawRect.Top := GameCursor.Float.Y;
+    smResizeX2:   fRawRect.Right := GameCursor.Float.X;
+    smResizeY2:   fRawRect.Bottom := GameCursor.Float.Y;
+    smMove:       begin
+                    RectO := KMRectMove(fCellRect, GameCursor.Cell.X - fPrevX, GameCursor.Cell.Y - fPrevY);
+                    fRawRect := KMRectF(RectO);
+
+                    fPrevX := GameCursor.Cell.X;
+                    fPrevY := GameCursor.Cell.Y;
+                  end;
+  end;
+
+  SyncCellRect;
+end;
+
+
+procedure TKMSelection.Selection_Start;
+const
+  EDGE = 0.25;
+begin
+  if fSelectionMode = smSelecting then
+  begin
+    if InRange(GameCursor.Float.Y, fCellRect.Top, fCellRect.Bottom)
+    and (Abs(GameCursor.Float.X - fCellRect.Left) < EDGE) then
+      fSelectionMan := smResizeX1
+    else
+    if InRange(GameCursor.Float.Y, fCellRect.Top, fCellRect.Bottom)
+    and (Abs(GameCursor.Float.X - fCellRect.Right) < EDGE) then
+      fSelectionMan := smResizeX2
+    else
+    if InRange(GameCursor.Float.X, fCellRect.Left, fCellRect.Right)
+    and (Abs(GameCursor.Float.Y - fCellRect.Top) < EDGE) then
+      fSelectionMan := smResizeY1
+    else
+    if InRange(GameCursor.Float.X, fCellRect.Left, fCellRect.Right)
+    and (Abs(GameCursor.Float.Y - fCellRect.Bottom) < EDGE) then
+      fSelectionMan := smResizeY2
+    else
+    if KMInRect(GameCursor.Float, fCellRect) then
+    begin
+      fSelectionMan := smMove;
+      fPrevX := GameCursor.Cell.X;
+      fPrevY := GameCursor.Cell.Y;
+    end
+    else
+    begin
+      fSelectionMan := smNewRect;
+      fRawRect := KMRectF(GameCursor.Float);
+      SyncCellRect;
+    end;
+  end
+  else
+  begin
+    if KMInRect(GameCursor.Float, fCellRect) then
+    begin
+      fSelectionMan := smMove;
+      //Grab and move
+      fPrevX := GameCursor.Cell.X;
+      fPrevY := GameCursor.Cell.Y;
+    end
+    else
+    begin
+      fSelectionMan := smMove;
+      //Selection edge will jump to under cursor
+      fPrevX := EnsureRange(GameCursor.Cell.X, fCellRect.Left + 1, fCellRect.Right);
+      fPrevY := EnsureRange(GameCursor.Cell.Y, fCellRect.Top + 1, fCellRect.Bottom);
+    end;
+  end;
 end;
 
 
@@ -64,16 +147,16 @@ var
   Sx, Sy: Word;
   Bx, By: Word;
 begin
-  Sx := fRect.Right - fRect.Left;
-  Sy := fRect.Bottom - fRect.Top;
+  Sx := fCellRect.Right - fCellRect.Left;
+  Sy := fCellRect.Bottom - fCellRect.Top;
   SetLength(fBuffer, Sy, Sx);
 
-  for I := fRect.Top to fRect.Bottom - 1 do
-  for K := fRect.Left to fRect.Right - 1 do
+  for I := fCellRect.Top to fCellRect.Bottom - 1 do
+  for K := fCellRect.Left to fCellRect.Right - 1 do
   if gTerrain.TileInMapCoords(K+1, I+1, 0) then
   begin
-    Bx := K - fRect.Left;
-    By := I - fRect.Top;
+    Bx := K - fCellRect.Left;
+    By := I - fCellRect.Top;
     fBuffer[By,Bx].Terrain     := gTerrain.Land[I+1, K+1].Terrain;
     fBuffer[By,Bx].Height      := gTerrain.Land[I+1, K+1].Height;
     fBuffer[By,Bx].Rotation    := gTerrain.Land[I+1, K+1].Rotation;
@@ -86,8 +169,8 @@ end;
 procedure TKMSelection.PasteBegin;
 begin
   //Mapmaker could have changed selection rect, sync it with Buffer size
-  fRect.Right := fRect.Left + Length(fBuffer[0]);
-  fRect.Bottom := fRect.Top + Length(fBuffer);
+  fCellRect.Right := fCellRect.Left + Length(fBuffer[0]);
+  fCellRect.Bottom := fCellRect.Top + Length(fBuffer);
 
   fSelectionMode := smPasting;
 end;
@@ -98,12 +181,12 @@ var
   I, K: Integer;
   Bx, By: Word;
 begin
-  for I := fRect.Top to fRect.Bottom - 1 do
-  for K := fRect.Left to fRect.Right - 1 do
+  for I := fCellRect.Top to fCellRect.Bottom - 1 do
+  for K := fCellRect.Left to fCellRect.Right - 1 do
   if gTerrain.TileInMapCoords(K+1, I+1, 0) then
   begin
-    Bx := K - fRect.Left;
-    By := I - fRect.Top;
+    Bx := K - fCellRect.Left;
+    By := I - fCellRect.Top;
     gTerrain.Land[I+1, K+1].Terrain     := fBuffer[By,Bx].Terrain;
     gTerrain.Land[I+1, K+1].Height      := fBuffer[By,Bx].Height;
     gTerrain.Land[I+1, K+1].Rotation    := fBuffer[By,Bx].Rotation;
@@ -111,8 +194,8 @@ begin
 //TODO: Move to TerrainPainter    fTerrainPainter.TerrainKind[I+1, K+1] := fBuffer[By,Bx].TerrainKind;
   end;
 
-  gTerrain.UpdateLighting(fRect);
-  gTerrain.UpdatePassability(fRect);
+  gTerrain.UpdateLighting(fCellRect);
+  gTerrain.UpdatePassability(fCellRect);
 
   fSelectionMode := smSelecting;
 end;
@@ -129,20 +212,20 @@ var
   Sx, Sy: Word;
   I, K: Integer;
 begin
-  Sx := Rect.Right - Rect.Left;
-  Sy := Rect.Bottom - Rect.Top;
+  Sx := fCellRect.Right - fCellRect.Left;
+  Sy := fCellRect.Bottom - fCellRect.Top;
 
   case fSelectionMode of
     smSelecting:  begin
                     //fRenderAux.SquareOnTerrain(RawRect.Left, RawRect.Top, RawRect.Right, RawRect.Bottom, $40FFFF00);
-                    fRenderAux.SquareOnTerrain(Rect.Left, Rect.Top, Rect.Right, Rect.Bottom, $FFFFFF00);
+                    fRenderAux.SquareOnTerrain(fCellRect.Left, fCellRect.Top, fCellRect.Right, fCellRect.Bottom, $FFFFFF00);
                   end;
     smPasting:    begin
                     for I := 0 to Sy - 1 do
                     for K := 0 to Sx - 1 do
-                      fRenderPool.RenderTerrain.RenderTile(fBuffer[I,K].Terrain, Rect.Left+K+1, Rect.Top+I+1, fBuffer[I,K].Rotation);
+                      fRenderPool.RenderTerrain.RenderTile(fBuffer[I,K].Terrain, fCellRect.Left+K+1, fCellRect.Top+I+1, fBuffer[I,K].Rotation);
 
-                    fRenderAux.SquareOnTerrain(Rect.Left, Rect.Top, Rect.Right, Rect.Bottom, $FF0000FF);
+                    fRenderAux.SquareOnTerrain(fCellRect.Left, fCellRect.Top, fCellRect.Right, fCellRect.Bottom, $FF0000FF);
                   end;
   end;
 end;

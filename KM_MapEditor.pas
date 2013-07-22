@@ -7,7 +7,6 @@ uses Classes, Controls, Math, SysUtils,
 
 
 type
-  TSelectionManipulation = (smNone, smNewRect, smResizeX1, smResizeY1, smResizeX2, smResizeY2, smMove);
   TMarkerType = (mtNone, mtDefence, mtRevealFOW);
 
   TKMMapEdMarker = record
@@ -25,9 +24,6 @@ type
     fRevealers: array [0..MAX_PLAYERS-1] of TKMPointTagList;
     fVisibleLayers: TMapEdLayerSet;
 
-    fSelectionMan: TSelectionManipulation;
-    fPrevX, fPrevY: Integer;
-
     function GetRevealer(aIndex: Byte): TKMPointTagList;
   public
     ActiveMarker: TKMMapEdMarker;
@@ -44,8 +40,6 @@ type
     property Revealers[aIndex: Byte]: TKMPointTagList read GetRevealer;
     property VisibleLayers: TMapEdLayerSet read fVisibleLayers write fVisibleLayers;
     function HitTest(X,Y: Integer): TKMMapEdMarker;
-    procedure Selection_Resize;
-    procedure Selection_Start;
     procedure MouseDown(Button: TMouseButton);
     procedure MouseMove;
     procedure MouseUp(Button: TMouseButton);
@@ -134,106 +128,11 @@ begin
 end;
 
 
-procedure TKMMapEditor.Selection_Resize;
-var
-  Rect: TKMRect;
-  RectF: TKMRectF;
-begin
-  RectF := Selection.RawRect;
-
-  case fSelectionMan of
-    smNone:       ;
-    smNewRect:    begin
-                    RectF.Right := GameCursor.Float.X;
-                    RectF.Bottom := GameCursor.Float.Y;
-                  end;
-    smResizeX1:   RectF.Left := GameCursor.Float.X;
-    smResizeY1:   RectF.Top := GameCursor.Float.Y;
-    smResizeX2:   RectF.Right := GameCursor.Float.X;
-    smResizeY2:   RectF.Bottom := GameCursor.Float.Y;
-    smMove:       begin
-                    Rect := Selection.Rect;
-                    Rect := KMRectMove(Rect, GameCursor.Cell.X - fPrevX, GameCursor.Cell.Y - fPrevY);
-                    RectF := KMRectF(Rect);
-
-                    fPrevX := GameCursor.Cell.X;
-                    fPrevY := GameCursor.Cell.Y;
-                  end;
-  end;
-
-  Selection.RawRect := RectF;
-end;
-
-
-procedure TKMMapEditor.Selection_Start;
-const
-  EDGE = 0.25;
-var
-  Rect: TKMRect;
-  RawRect: TKMRectF;
-begin
-  Rect := Selection.Rect;
-
-  if Selection.SelectionMode = smSelecting then
-  begin
-    if InRange(GameCursor.Float.Y, Rect.Top, Rect.Bottom)
-    and (Abs(GameCursor.Float.X - Rect.Left) < EDGE) then
-      fSelectionMan := smResizeX1
-    else
-    if InRange(GameCursor.Float.Y, Rect.Top, Rect.Bottom)
-    and (Abs(GameCursor.Float.X - Rect.Right) < EDGE) then
-      fSelectionMan := smResizeX2
-    else
-    if InRange(GameCursor.Float.X, Rect.Left, Rect.Right)
-    and (Abs(GameCursor.Float.Y - Rect.Top) < EDGE) then
-      fSelectionMan := smResizeY1
-    else
-    if InRange(GameCursor.Float.X, Rect.Left, Rect.Right)
-    and (Abs(GameCursor.Float.Y - Rect.Bottom) < EDGE) then
-      fSelectionMan := smResizeY2
-    else
-    if KMInRect(GameCursor.Float, Rect) then
-    begin
-      fSelectionMan := smMove;
-      fPrevX := GameCursor.Cell.X;
-      fPrevY := GameCursor.Cell.Y;
-    end
-    else
-    begin
-      fSelectionMan := smNewRect;
-      RawRect := Selection.RawRect;
-      RawRect.Left := GameCursor.Float.X;
-      RawRect.Top := GameCursor.Float.Y;
-      RawRect.Right := GameCursor.Float.X;
-      RawRect.Bottom := GameCursor.Float.Y;
-      Selection.RawRect := RawRect;
-    end;
-  end
-  else
-  begin
-    if KMInRect(GameCursor.Float, Rect) then
-    begin
-      fSelectionMan := smMove;
-      //Grab and move
-      fPrevX := GameCursor.Cell.X;
-      fPrevY := GameCursor.Cell.Y;
-    end
-    else
-    begin
-      fSelectionMan := smMove;
-      //Selection edge will jump to under cursor
-      fPrevX := EnsureRange(GameCursor.Cell.X, Rect.Left + 1, Rect.Right);
-      fPrevY := EnsureRange(GameCursor.Cell.Y, Rect.Top + 1, Rect.Bottom);
-    end;
-  end;
-end;
-
-
 procedure TKMMapEditor.MouseDown(Button: TMouseButton);
 begin
   if (Button = mbLeft) then
   case GameCursor.Mode of
-    cmSelection:  Selection_Start;
+    cmSelection:  fSelection.Selection_Start;
   end;
 end;
 
@@ -265,7 +164,7 @@ begin
                       if gTerrain.TileIsCornField(P) or gTerrain.TileIsWineField(P) then
                         gTerrain.RemField(P);
                     end;
-      cmSelection:  Selection_Resize;
+      cmSelection:  fSelection.Selection_Resize;
     end;
   end;
 end;
