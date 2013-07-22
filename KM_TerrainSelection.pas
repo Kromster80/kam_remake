@@ -39,7 +39,7 @@ type
     procedure Selection_PasteCancel;
     procedure Selection_Flip(aAxis: TKMFlipAxis);
     //procedure Transform; //Transforms the buffer data ?
-    procedure Paint;
+    procedure Paint(aClipRect: TKMRect);
   end;
 
 
@@ -334,7 +334,7 @@ begin
 end;
 
 
-procedure TKMSelection.Paint;
+procedure TKMSelection.Paint(aClipRect: TKMRect);
 var
   Sx, Sy: Word;
   I, K: Integer;
@@ -350,6 +350,7 @@ begin
     smPasting:    begin
                     for I := 0 to Sy - 1 do
                     for K := 0 to Sx - 1 do
+                    if KMInRect(KMPoint(aClipRect.Left+K+1, aClipRect.Top+I+1), aClipRect) then
                       fRenderPool.RenderTerrain.RenderTile(fSelectionBuffer[I,K].Terrain, fSelectionRect.Left+K+1, fSelectionRect.Top+I+1, fSelectionBuffer[I,K].Rotation);
 
                     fRenderAux.SquareOnTerrain(fSelectionRect.Left, fSelectionRect.Top, fSelectionRect.Right, fSelectionRect.Bottom, $FF0000FF);
