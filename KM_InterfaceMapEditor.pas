@@ -7,38 +7,27 @@ uses
    Classes, Controls, KromUtils, Math, StrUtils, SysUtils, KromOGLUtils, TypInfo,
    KM_Controls, KM_Defaults, KM_Pics, KM_Maps, KM_Houses, KM_Units, KM_UnitGroups, KM_MapEditor,
    KM_Points, KM_InterfaceDefaults, KM_AIAttacks, KM_AIGoals, KM_Terrain,
-   KM_GUIMapEdHouse;
+   KM_GUIMapEdHouse,
+   KM_GUIMapEdTerrain;
 
 type
-  TKMTerrainTab = (ttBrush, ttHeights, ttTile, ttObject, ttSelection);
   TKMTownTab = (ttHouses, ttUnits, ttScript, ttDefences, ttOffence);
   TKMPlayerTab = (ptGoals, ptColor, ptBlockHouse, ptBlockTrade, ptMarkers);
-
 
   TKMapEdInterface = class (TKMUserInterface)
   private
     fPrevHint: TObject;
     fActivePage: TKMPanel;
-    fLastTile: Byte;
-    fLastObject: Byte;
-    fTileDirection: Byte;
     fDragScrolling: Boolean;
     fDragScrollingCursorPos: TPoint;
     fDragScrollingViewportPos: TKMPointF;
 
-
     fGuiHouse: TKMMapEdHouse;
+    fGuiTerrain: TKMMapEdTerrain;
 
     fMaps: TKMapsCollection;
     fMapsMP: TKMapsCollection;
 
-    //Objects in MapElem are placed sparsely, so we need to compact them
-    //to use in MapEd palette
-    fCountCompact: Integer;
-    fCompactToMapElem: array [Byte] of Byte; //Pointers to valid MapElem's
-    fMapElemToCompact: array [Byte] of Byte; //Pointers of valid MapElem's back to map objects. (reverse lookup to one above) 256 is no object.
-
-    procedure Create_Terrain;
     procedure Create_Town;
     procedure Create_Player;
     procedure Create_Mission;
@@ -63,7 +52,6 @@ type
     procedure Attacks_ListClick(Sender: TObject);
     procedure Attacks_ListDoubleClick(Sender: TObject);
     procedure Attacks_Refresh;
-    procedure CompactMapElements;
     procedure Extra_Change(Sender: TObject);
     procedure Formations_Show(Sender: TObject);
     procedure Formations_Close(Sender: TObject);
@@ -97,17 +85,6 @@ type
     procedure Player_ChangeActive(Sender: TObject);
     procedure Player_ColorClick(Sender: TObject);
     procedure Player_MarkerClick(Sender: TObject);
-    procedure Terrain_BrushChange(Sender: TObject);
-    procedure Terrain_BrushRefresh;
-    procedure Terrain_HeightChange(Sender: TObject);
-    procedure Terrain_HeightRefresh;
-    procedure Terrain_TilesChange(Sender: TObject);
-    procedure Terrain_TilesSet(aIndex: Integer);
-    procedure Terrain_TilesRefresh(Sender: TObject);
-    procedure Terrain_ObjectsChange(Sender: TObject);
-    procedure Terrain_ObjectsRefresh(Sender: TObject);
-    procedure Terrain_SelectionClick(Sender: TObject);
-    procedure Terrain_UnRedoClick(Sender: TObject);
     procedure Town_BuildChange(Sender: TObject);
     procedure Town_BuildRefresh;
     procedure Town_DefenceAddClick(Sender: TObject);
@@ -146,38 +123,6 @@ type
       Label_MissionName: TKMLabel;
       Image_Extra: TKMImage;
       Image_Message: TKMImage;
-
-    Panel_Terrain: TKMPanel;
-      Button_Terrain: array [TKMTerrainTab] of TKMButton;
-      Button_TerrainUndo: TKMButton;
-      Button_TerrainRedo: TKMButton;
-      Panel_Brushes: TKMPanel;
-        BrushSize: TKMTrackBar;
-        BrushCircle,BrushSquare: TKMButtonFlat;
-        BrushTable: array [0..6, 0..4] of TKMButtonFlat;
-        BrushRandom: TKMCheckBox;
-      Panel_Heights: TKMPanel;
-        HeightSize, HeightSlope, HeightSpeed: TKMTrackBar;
-        HeightShapeLabel: TKMLabel;
-        HeightCircle,HeightSquare: TKMButtonFlat;
-        HeightElevate, HeightUnequalize: TKMButtonFlat;
-      Panel_Tiles: TKMPanel;
-        TilesTable: array [0 .. MAPED_TILES_X * MAPED_TILES_Y - 1] of TKMButtonFlat; //how many are visible?
-        TilesScroll: TKMScrollBar;
-        TilesRandom: TKMCheckBox;
-        TilesMagicWater: TKMButtonFlat;
-      Panel_Objects: TKMPanel;
-        ObjectErase: TKMButtonFlat;
-        ObjectBlock: TKMButtonFlat;
-        ObjectsTable: array [0..8] of TKMButtonFlat;
-        ObjectsScroll: TKMScrollBar;
-      Panel_Selection: TKMPanel;
-        Button_SelectCopy: TKMButton;
-        Button_SelectPaste: TKMButton;
-        Button_SelectPasteApply: TKMButton;
-        Button_SelectPasteCancel: TKMButton;
-        Button_SelectFlipH, Button_SelectFlipV: TKMButton;
-
 
     //How to know where certain page should be?
     //see Docs\Map Editor menu structure.txt
@@ -367,14 +312,6 @@ type
   end;
 
 
-implementation
-uses
-  KM_CommonClasses, KM_PlayersCollection, KM_ResTexts, KM_Game, KM_Main, KM_GameCursor,
-  KM_GameApp, KM_Resource, KM_TerrainDeposits, KM_TerrainPainter, KM_TerrainSelection, KM_ResCursors, KM_Utils,
-  KM_ResMapElements, KM_AIDefensePos, KM_ResHouses, KM_RenderUI, KM_Sound, KM_ResSound,
-  KM_ResWares, KM_HouseBarracks, KM_ResFonts;
-
-
 const
   BIG_TAB_W = 37;
   BIG_PAD_W = 37;
@@ -385,6 +322,15 @@ const
   SMALL_TAB_H = 26;
   //SMALL_PAD_H = SMALL_TAB_H + 4;
 
+
+implementation
+uses
+  KM_CommonClasses, KM_PlayersCollection, KM_ResTexts, KM_Game, KM_Main, KM_GameCursor,
+  KM_GameApp, KM_Resource, KM_TerrainDeposits, KM_TerrainPainter, KM_TerrainSelection, KM_ResCursors, KM_Utils,
+  KM_AIDefensePos, KM_ResHouses, KM_RenderUI, KM_Sound, KM_ResSound,
+  KM_ResWares, KM_HouseBarracks, KM_ResFonts;
+
+const
   GROUP_TEXT: array [TGroupType] of Integer = (
     TX_MAPED_AI_ATTACK_TYPE_MELEE, TX_MAPED_AI_ATTACK_TYPE_ANTIHORSE,
     TX_MAPED_AI_ATTACK_TYPE_RANGED, TX_MAPED_AI_ATTACK_TYPE_MOUNTED);
@@ -393,17 +339,6 @@ const
     371, 374,
     376, 377);
 
-  //Tiles table made by JBSnorro, thanks to him :)
-  MapEdTileRemap: array [1..256] of Integer = (
-     1,73,74,75,37,21,22, 38, 33, 34, 32,181,173,177,129,130,131,132,133, 49,193,197,217,225,  0,  0, 45, 24, 13, 23,208,224,
-    27,76,77,78,36,39,40,198,100,101,102,189,169,185,134,135,136,137,138,124,125,126,229,218,219,220, 46, 11,  5,  0, 26,216,
-    28,79,80,81,35,88,89, 90, 70, 71, 72,182,174,178,196,139,140,141,142,127,128,  0,230,226,227,228, 47,204,205,206,203,207,
-    29,82,83,84,85,86,87,  0,112,113,114,190,170,186,161,162,163,164,165,106,107,108,233,234,231,  0, 48,221,213,214,199,200,
-    30,94,95,96,57,58,59,  0,103,104,105,183,175,179,157,202,158,159,160,117,118,119,209,210,241,245,194,248, 65, 66,195, 25,
-    31, 9,19,20,41,42,43, 44,  6,  7, 10,191,171,187,149,150,151,152, 16,242,243,244,235,238,239,240,  0, 50,172, 52,222,223,
-    18,67,68,69,91,92,93,  0,  3,  4,  2,184,176,180,145,146,147,148,  8,115,116,120,236,237,143,144,  0, 53,167, 55,215,232,
-    17,97,98,99, 0, 0, 0,  0, 12, 14, 15,192,168,188,153,154,155,156,  0,121,122,123,211,212,201,  0,246,166, 51, 54,  0,  0);
-    // 247 - doesn't work in game, replaced with random road
 
 {Switch between pages}
 procedure TKMapEdInterface.SwitchPage(Sender: TObject);
@@ -413,7 +348,7 @@ begin
   GameCursor.Tag1 := 0;
 
   //If the user clicks on the tab that is open, it closes it (main buttons only)
-  if ((Sender = Button_Main[1]) and Panel_Terrain.Visible) or
+  if ((Sender = Button_Main[1]) and fGuiTerrain.Visible) or
      ((Sender = Button_Main[2]) and Panel_Town.Visible) or
      ((Sender = Button_Main[3]) and Panel_Player.Visible) or
      ((Sender = Button_Main[4]) and Panel_Mission.Visible) or
@@ -427,43 +362,12 @@ begin
      (Sender=Button_Menu_Settings)or(Sender=Button_Menu_Quit) then
     MySpectator.Selected := nil;
 
-  if (Sender = Button_Main[1]) or (Sender = Button_Terrain[ttBrush]) then
+  if (Sender = Button_Main[1]) then
   begin
-    Terrain_BrushChange(BrushTable[0,0]);
-    DisplayPage(Panel_Brushes);
-  end else
-  if (Sender = Button_Terrain[ttHeights]) then
-  begin
-    Terrain_HeightChange(HeightCircle);
-    Terrain_HeightChange(HeightElevate);
-    DisplayPage(Panel_Heights);
-  end else
-  if (Sender = Button_Terrain[ttTile]) then
-  begin
-    Terrain_TilesSet(fLastTile);
-    DisplayPage(Panel_Tiles);
-  end else
-  if (Sender = Button_Terrain[ttObject]) then
-  begin
-    if fLastObject = 255 then
-      Terrain_ObjectsChange(ObjectErase)
-    else
-      if fLastObject = 61 then
-        Terrain_ObjectsChange(ObjectBlock)
-      else
-        Terrain_ObjectsChange(ObjectsTable[fLastObject]);
-    DisplayPage(Panel_Objects);
-  end else
-  if (Sender = Button_Terrain[ttSelection]) then
-  begin
-    Button_SelectPaste.Enabled := fGame.MapEditor.Selection.IsBufferHasData;
-    Button_SelectPasteApply.Disable;
-    Button_SelectPasteCancel.Disable;
-    Button_SelectFlipH.Disable;
-    Button_SelectFlipV.Disable;
-    Terrain_SelectionClick(Button_SelectCopy);
-    DisplayPage(Panel_Selection);
-  end else
+    HidePages;
+    fGuiTerrain.Show;
+  end
+  else
 
   if (Sender = Button_Main[2]) or (Sender = Button_Town[ttHouses]) then
   begin
@@ -547,21 +451,6 @@ end;
 procedure TKMapEdInterface.DisplayPage(aPage: TKMPanel);
 begin
   HidePages;
-
-  if aPage = Panel_Brushes then
-    Terrain_BrushRefresh
-  else
-  if aPage = Panel_Heights then
-    Terrain_HeightRefresh
-  else
-  if aPage = Panel_Tiles then
-  begin
-    GameCursor.MapEdDir := 0;
-    Terrain_TilesRefresh(nil);
-  end else
-  if aPage = Panel_Objects then
-    Terrain_ObjectsRefresh(nil)
-  else
 
   if aPage = Panel_Build then
     Town_BuildRefresh
@@ -689,29 +578,12 @@ begin
 end;
 
 
-procedure TKMapEdInterface.CompactMapElements;
-var
-  I: Integer;
-begin
-  fCountCompact := 0;
-  for I := 0 to fResource.MapElements.Count - 1 do
-  if (MapElem[I].Anim.Count > 0) and (MapElem[I].Anim.Step[1] > 0)
-  and (MapElem[I].Stump = -1) and (I <> 61) then //Hide falling trees and invisible wall (61)
-  begin
-    fCompactToMapElem[fCountCompact] := I; //pointer
-    fMapElemToCompact[I] := fCountCompact; //Reverse lookup
-    Inc(fCountCompact);
-  end;
-end;
-
-
 constructor TKMapEdInterface.Create(aScreenX, aScreenY: Word);
 var
   I: Integer;
 begin
   inherited;
 
-  fTileDirection := 0;
   fDragScrolling := False;
   fDragScrollingCursorPos.X := 0;
   fDragScrollingCursorPos.Y := 0;
@@ -720,7 +592,7 @@ begin
   fMaps := TKMapsCollection.Create(False);
   fMapsMP := TKMapsCollection.Create(True);
 
-  CompactMapElements;
+  //CompactMapElements;
 
   //Parent Page for whole toolbar in-game
   Panel_Main := TKMPanel.Create(fMyControls, 0, 0, aScreenX, aScreenY);
@@ -776,7 +648,7 @@ begin
 
 {I plan to store all possible layouts on different pages which gets displayed one at a time}
 {==========================================================================================}
-  Create_Terrain;
+  fGuiTerrain := TKMMapEdTerrain.Create(Panel_Common);
   Create_Town;
   Create_Player;
   Create_Mission;
@@ -817,6 +689,7 @@ end;
 destructor TKMapEdInterface.Destroy;
 begin
   fGuiHouse.Free;
+  fGuiTerrain.Free;
 
   fMaps.Free;
   fMapsMP.Free;
@@ -831,178 +704,6 @@ procedure TKMapEdInterface.Resize(X,Y: Word);
 begin
   Panel_Main.Width := X;
   Panel_Main.Height := Y;
-end;
-
-
-{Terrain page}
-procedure TKMapEdInterface.Create_Terrain;
-const
-  BtnGlyph: array [TKMTerrainTab] of Word = (383, 388, 382, 385, 384);
-  BtnHint: array [TKMTerrainTab] of Word = (
-    TX_MAPED_TERRAIN_HINTS_BRUSHES,
-    TX_MAPED_TERRAIN_HINTS_HEIGHTS,
-    TX_MAPED_TERRAIN_HINTS_TILES,
-    TX_MAPED_TERRAIN_HINTS_OBJECTS,
-    TX_MAPED_COPY_TITLE);
-  Surfaces: array [0 .. 6, 0 .. 4] of TTerrainKind = (
-    (tkGrass,       tkMoss,         tkRustyGrass1,  tkRustyGrass2,  tkCustom),
-    (tkDirtGrass,   tkDirt,         tkGravel,       tkCobbleStone,  tkCustom),
-    (tkGrassSand2,  tkGrassSand1,   tkSand,         tkRichSand,     tkCustom),
-    (tkSwamp,       tkGrassyWater,  tkWater,        tkFastWater,    tkCustom),
-    (tkShallowSnow, tkSnow,         tkDeepSnow,     tkIce,          tkCustom),
-    (tkStoneMount,  tkGoldMount,    tkIronMount,    tkAbyss,        tkCustom),
-    (tkCoal,        tkGold,         tkIron,         tkLava,         tkCustom));
-var
-  I: TKMTerrainTab;
-  J,K: Integer;
-begin
-  Panel_Terrain := TKMPanel.Create(Panel_Common, 0, 45, TB_WIDTH, 28);
-    for I := Low(TKMTerrainTab) to High(TKMTerrainTab) do
-    begin
-      Button_Terrain[I] := TKMButton.Create(Panel_Terrain, SMALL_PAD_W * Byte(I), 0, SMALL_TAB_W, SMALL_TAB_H, BtnGlyph[I], rxGui, bsGame);
-      Button_Terrain[I].Hint := gResTexts[BtnHint[I]];
-      Button_Terrain[I].OnClick := SwitchPage;
-    end;
-
-    Button_TerrainUndo := TKMButton.Create(Panel_Terrain, 180, 0, 20, 20, '<', bsGame);
-    Button_TerrainUndo.OnClick := Terrain_UnRedoClick;
-    Button_TerrainRedo := TKMButton.Create(Panel_Terrain, 200, 0, 20, 20, '>', bsGame);
-    Button_TerrainRedo.OnClick := Terrain_UnRedoClick;
-
-    Panel_Brushes := TKMPanel.Create(Panel_Terrain,0,28,TB_WIDTH,400);
-      TKMLabel.Create(Panel_Brushes, 0, PAGE_TITLE_Y, TB_WIDTH, 0, gResTexts[TX_MAPED_TERRAIN_BRUSH], fnt_Outline, taCenter);
-      BrushSize   := TKMTrackBar.Create(Panel_Brushes, 0, 30, 100, 0, 12);
-      BrushSize.OnChange := Terrain_BrushChange;
-      BrushCircle := TKMButtonFlat.Create(Panel_Brushes, 106, 28, 24, 24, 592);
-      BrushCircle.Hint := gResTexts[TX_MAPED_TERRAIN_HEIGHTS_CIRCLE];
-      BrushCircle.OnClick := Terrain_BrushChange;
-      BrushSquare := TKMButtonFlat.Create(Panel_Brushes, 134, 28, 24, 24, 593);
-      BrushSquare.Hint := gResTexts[TX_MAPED_TERRAIN_HEIGHTS_SQUARE];
-      BrushSquare.OnClick := Terrain_BrushChange;
-
-      for J := Low(Surfaces) to High(Surfaces) do
-      for K := Low(Surfaces[J]) to High(Surfaces[J]) do
-      if Surfaces[J,K] <> tkCustom then
-      begin
-        BrushTable[J,K] := TKMButtonFlat.Create(Panel_Brushes, K * 36, 60 + J * 40, 34, 34, Combo[Surfaces[J,K], Surfaces[J,K], 1] + 1, rxTiles);  // grass
-        BrushTable[J,K].Tag := Byte(Surfaces[J,K]);
-        BrushTable[J,K].OnClick := Terrain_BrushChange;
-      end;
-
-      BrushRandom := TKMCheckBox.Create(Panel_Brushes, 0, 350, TB_WIDTH, 20, gResTexts[TX_MAPED_TERRAIN_BRUSH_RANDOM], fnt_Metal);
-      BrushRandom.OnClick := Terrain_BrushChange;
-
-    Panel_Heights := TKMPanel.Create(Panel_Terrain,0,28,TB_WIDTH,400);
-      TKMLabel.Create(Panel_Heights, 0, PAGE_TITLE_Y, TB_WIDTH, 0, gResTexts[TX_MAPED_TERRAIN_HEIGHTS], fnt_Outline, taCenter);
-      HeightShapeLabel := TKMLabel.Create(Panel_Heights, 0, 34, TB_WIDTH, 0, gResTexts[TX_MAPED_TERRAIN_HEIGHTS_SHAPE], fnt_Metal, taLeft);
-      HeightCircle := TKMButtonFlat.Create(Panel_Heights, 120, 30, 24, 24, 592);
-      HeightCircle.Hint := gResTexts[TX_MAPED_TERRAIN_HEIGHTS_CIRCLE];
-      HeightCircle.OnClick  := Terrain_HeightChange;
-      HeightSquare := TKMButtonFlat.Create(Panel_Heights, 150, 30, 24, 24, 593);
-      HeightSquare.Hint := gResTexts[TX_MAPED_TERRAIN_HEIGHTS_SQUARE];
-      HeightSquare.OnClick  := Terrain_HeightChange;
-
-      HeightSize          := TKMTrackBar.Create(Panel_Heights, 0, 60, TB_WIDTH, 1, 15); //1..15(4bit) for size
-      HeightSize.Caption  := gResTexts[TX_MAPED_TERRAIN_HEIGHTS_SIZE];
-      HeightSize.Hint     := gResTexts[TX_MAPED_TERRAIN_HEIGHTS_SIZE_HINT];
-      HeightSize.OnChange := Terrain_HeightChange;
-      HeightSlope           := TKMTrackBar.Create(Panel_Heights, 0, 115, TB_WIDTH, 1, 15); //1..15(4bit) for slope shape
-      HeightSlope.Caption   := gResTexts[TX_MAPED_TERRAIN_HEIGHTS_SLOPE];
-      HeightSlope.Hint      := gResTexts[TX_MAPED_TERRAIN_HEIGHTS_SLOPE_HINT];
-      HeightSlope.OnChange  := Terrain_HeightChange;
-      HeightSpeed           := TKMTrackBar.Create(Panel_Heights, 0, 170, TB_WIDTH, 1, 15); //1..15(4bit) for speed
-      HeightSpeed.Caption   := gResTexts[TX_MAPED_TERRAIN_HEIGHTS_SPEED];
-      HeightSpeed.Hint      := gResTexts[TX_MAPED_TERRAIN_HEIGHTS_SPEED_HINT];
-      HeightSpeed.OnChange  := Terrain_HeightChange;
-
-      HeightElevate             := TKMButtonFlat.Create(Panel_Heights, 0, 225, TB_WIDTH, 20, 0);
-      HeightElevate.OnClick     := Terrain_HeightChange;
-      HeightElevate.Down        := True;
-      HeightElevate.Caption     := gResTexts[TX_MAPED_TERRAIN_HEIGHTS_ELEVATE];
-      HeightElevate.CapOffsetY  := -12;
-      HeightElevate.Hint        := gResTexts[TX_MAPED_TERRAIN_HEIGHTS_ELEVATE_HINT];
-      HeightUnequalize          := TKMButtonFlat.Create(Panel_Heights, 0, 255, TB_WIDTH, 20, 0);
-      HeightUnequalize.OnClick  := Terrain_HeightChange;
-      HeightUnequalize.Caption  := gResTexts[TX_MAPED_TERRAIN_HEIGHTS_UNEQUALIZE];
-      HeightUnequalize.CapOffsetY  := -12;
-      HeightUnequalize.Hint      := gResTexts[TX_MAPED_TERRAIN_HEIGHTS_UNEQUALIZE_HINT];
-
-    Panel_Tiles := TKMPanel.Create(Panel_Terrain, 0, 28, TB_WIDTH, 400);
-      TKMLabel.Create(Panel_Tiles, 0, PAGE_TITLE_Y, TB_WIDTH, 0, gResTexts[TX_MAPED_TERRAIN_HINTS_TILES], fnt_Outline, taCenter);
-
-      TilesMagicWater := TKMButtonFlat.Create(Panel_Tiles, 2, 24, TB_WIDTH - 4, 20, 0);
-      TilesMagicWater.Caption := gResTexts[TX_MAPED_TERRAIN_MAGIC_WATER];
-      TilesMagicWater.CapOffsetY := -12;
-      TilesMagicWater.Hint := gResTexts[TX_MAPED_TERRAIN_MAGIC_WATER_HINT];
-      TilesMagicWater.OnClick := Terrain_TilesChange;
-
-      TilesRandom := TKMCheckBox.Create(Panel_Tiles, 0, 60, TB_WIDTH, 20, gResTexts[TX_MAPED_TERRAIN_TILES_RANDOM], fnt_Metal);
-      TilesRandom.Checked := True;
-      TilesRandom.OnClick := Terrain_TilesChange;
-      TilesRandom.Hint := gResTexts[TX_MAPED_TERRAIN_TILES_RANDOM_HINT];
-
-      //Create scroll first to link to its MouseWheel event
-      TilesScroll := TKMScrollBar.Create(Panel_Tiles, 2, 80 + 4 + MAPED_TILES_Y * 32, 194, 20, sa_Horizontal, bsGame);
-      TilesScroll.MaxValue := 256 div MAPED_TILES_Y - MAPED_TILES_X; // 32 - 6
-      TilesScroll.Position := 0;
-      TilesScroll.OnChange := Terrain_TilesRefresh;
-      for J := 0 to MAPED_TILES_Y - 1 do
-      for K := 0 to MAPED_TILES_X - 1 do
-      begin
-        TilesTable[J * MAPED_TILES_X + K] := TKMButtonFlat.Create(Panel_Tiles, K * 32, 80 + J * 32, 32, 32, 1, rxTiles);
-        TilesTable[J * MAPED_TILES_X + K].Tag :=  J * MAPED_TILES_X + K; //Store ID
-        TilesTable[J * MAPED_TILES_X + K].OnClick := Terrain_TilesChange;
-        TilesTable[J * MAPED_TILES_X + K].OnMouseWheel := TilesScroll.MouseWheel;
-      end;
-
-    Panel_Objects := TKMPanel.Create(Panel_Terrain,0,28,TB_WIDTH,400);
-      TKMLabel.Create(Panel_Objects, 0, PAGE_TITLE_Y, TB_WIDTH, 0, gResTexts[TX_MAPED_OBJECTS], fnt_Outline, taCenter);
-      ObjectsScroll := TKMScrollBar.Create(Panel_Objects, 0, 295, TB_WIDTH, 20, sa_Horizontal, bsGame);
-      ObjectsScroll.MinValue := 0;
-      ObjectsScroll.MaxValue := fCountCompact div 3 - 3;
-      ObjectsScroll.Position := 0;
-      ObjectsScroll.OnChange := Terrain_ObjectsRefresh;
-      for J := 0 to 2 do for K := 0 to 2 do
-      begin
-        ObjectsTable[J*3+K] := TKMButtonFlat.Create(Panel_Objects, J*65, 40+K*85,64,84,1,rxTrees); //RXid=1  // 1 2
-        ObjectsTable[J*3+K].Tag := J*3+K; //Store ID
-        ObjectsTable[J*3+K].OnClick := Terrain_ObjectsChange;
-        ObjectsTable[J*3+K].OnMouseWheel := ObjectsScroll.MouseWheel;
-      end;
-      ObjectErase := TKMButtonFlat.Create(Panel_Objects, 0, 8,32,32,340);
-      ObjectErase.Hint := gResTexts[TX_MAPED_TERRAIN_OBJECTS_REMOVE];
-      ObjectErase.Tag := 255; //no object
-      ObjectErase.OnClick := Terrain_ObjectsChange;
-
-      ObjectBlock := TKMButtonFlat.Create(Panel_Objects, TB_WIDTH-32, 8,32,32,254,rxTrees);
-      ObjectBlock.Hint := gResTexts[TX_MAPED_TERRAIN_OBJECTS_BLOCK];
-      ObjectBlock.Tag := 61; //no object
-      ObjectBlock.OnClick := Terrain_ObjectsChange;
-
-    Panel_Selection := TKMPanel.Create(Panel_Terrain,0,28,TB_WIDTH,400);
-      TKMLabel.Create(Panel_Selection, 0, PAGE_TITLE_Y, TB_WIDTH, 0, gResTexts[TX_MAPED_COPY_TITLE], fnt_Outline, taCenter);
-        Button_SelectCopy := TKMButton.Create(Panel_Selection, 20, 30, TB_WIDTH - 40, 20, gResTexts[TX_MAPED_COPY], bsGame);
-        Button_SelectCopy.Hint := gResTexts[TX_MAPED_COPY_COPY_HINT];
-        Button_SelectCopy.OnClick := Terrain_SelectionClick;
-        Button_SelectPaste := TKMButton.Create(Panel_Selection, 20, 60, TB_WIDTH - 40, 20, gResTexts[TX_MAPED_PASTE], bsGame);
-        Button_SelectPaste.Hint := gResTexts[TX_MAPED_COPY_PASTE_HINT];
-        Button_SelectPaste.OnClick := Terrain_SelectionClick;
-        Button_SelectPasteApply := TKMButton.Create(Panel_Selection, 20, 90, TB_WIDTH - 40, 20, gResTexts[TX_MAPED_PASTE_APPLY], bsGame);
-        Button_SelectPasteApply.Hint := gResTexts[TX_MAPED_COPY_PASTE_HINT];
-        Button_SelectPasteApply.OnClick := Terrain_SelectionClick;
-        Button_SelectPasteCancel := TKMButton.Create(Panel_Selection, 20, 120, TB_WIDTH - 40, 20, gResTexts[TX_MAPED_PASTE_CANCEL], bsGame);
-        Button_SelectPasteCancel.Hint := gResTexts[TX_MAPED_COPY_PASTE_HINT];
-        Button_SelectPasteCancel.OnClick := Terrain_SelectionClick;
-        Button_SelectFlipH := TKMButton.Create(Panel_Selection, 20, 150, TB_WIDTH - 40, 20, gResTexts[TX_MAPED_COPY_PASTE_HFLIP], bsGame);
-        Button_SelectFlipH.Hint := gResTexts[TX_MAPED_COPY_PASTE_HFLIP_HINT];
-        Button_SelectFlipH.OnClick := Terrain_SelectionClick;
-        Button_SelectFlipH.Hide; //Not implemented yet
-        Button_SelectFlipV := TKMButton.Create(Panel_Selection, 20, 180, TB_WIDTH - 40, 20, gResTexts[TX_MAPED_COPY_PASTE_VFLIP], bsGame);
-        Button_SelectFlipV.Hint := gResTexts[TX_MAPED_COPY_PASTE_VFLIP_HINT];
-        Button_SelectFlipV.OnClick := Terrain_SelectionClick;
-        Button_SelectFlipV.Hide; //Not implemented yet
-        with TKMLabel.Create(Panel_Selection, 8, 190, TB_WIDTH-16, 80, gResTexts[TX_MAPED_COPY_SELECT_HINT], fnt_Grey, taLeft) do
-          AutoWrap := True;
 end;
 
 
@@ -1748,6 +1449,8 @@ begin
   for I := 0 to MAX_PLAYERS - 1 do
     Button_PlayerSelect[I].FontColor := CAP_COLOR[gPlayers[I].HasAssets];
 
+  fGuiTerrain.UpdateState;
+
   if fMaps <> nil then fMaps.UpdateState;
   if fMapsMP <> nil then fMapsMP.UpdateState;
 end;
@@ -1954,257 +1657,6 @@ begin
 
   Player_UpdateColors;
   UpdateAITabsEnabled;
-end;
-
-
-procedure TKMapEdInterface.Terrain_BrushChange(Sender: TObject);
-begin
-  GameCursor.Mode := cmBrush;
-  GameCursor.MapEdSize := BrushSize.Position;
-  fGame.MapEditor.TerrainPainter.RandomizeTiling := BrushRandom.Checked;
-
-  if Sender = BrushCircle then
-    GameCursor.MapEdShape := hsCircle
-  else
-  if Sender = BrushSquare then
-    GameCursor.MapEdShape := hsSquare
-  else
-  if Sender is TKMButtonFlat then
-    GameCursor.Tag1 := TKMButtonFlat(Sender).Tag;
-
-  Terrain_BrushRefresh;
-end;
-
-
-procedure TKMapEdInterface.Terrain_BrushRefresh;
-var
-  I,K: Integer;
-begin
-  BrushCircle.Down := (GameCursor.MapEdShape = hsCircle);
-  BrushSquare.Down := (GameCursor.MapEdShape = hsSquare);
-
-  for I := Low(BrushTable) to High(BrushTable) do
-  for K := Low(BrushTable[I]) to High(BrushTable[I]) do
-  if BrushTable[I,K] <> nil then
-    BrushTable[I,K].Down := (BrushTable[I,K].Tag = GameCursor.Tag1);
-end;
-
-
-procedure TKMapEdInterface.Terrain_HeightChange(Sender: TObject);
-begin
-  GameCursor.MapEdSize := HeightSize.Position;
-  GameCursor.MapEdSlope := HeightSlope.Position;
-  GameCursor.MapEdSpeed := HeightSpeed.Position;
-
-  if Sender = HeightCircle then
-    GameCursor.MapEdShape := hsCircle
-  else
-  if Sender = HeightSquare then
-    GameCursor.MapEdShape := hsSquare
-  else
-  if Sender = HeightElevate then
-    GameCursor.Mode := cmElevate
-  else
-  if Sender = HeightUnequalize then
-    GameCursor.Mode := cmEqualize;
-
-  Terrain_HeightRefresh;
-end;
-
-
-procedure TKMapEdInterface.Terrain_HeightRefresh;
-begin
-  HeightCircle.Down := (GameCursor.MapEdShape = hsCircle);
-  HeightSquare.Down := (GameCursor.MapEdShape = hsSquare);
-
-  HeightElevate.Down := (GameCursor.Mode = cmElevate);
-  HeightUnequalize.Down := (GameCursor.Mode = cmEqualize);
-end;
-
-
-procedure TKMapEdInterface.Terrain_TilesChange(Sender: TObject);
-begin
-  TilesMagicWater.Down := (Sender = TilesMagicWater);
-  if Sender = TilesMagicWater then
-    GameCursor.Mode := cmMagicWater;
-
-  if Sender = TilesRandom then
-    GameCursor.MapEdDir := 4 * Byte(TilesRandom.Checked); //Defined=0..3 or Random=4
-
-  if (Sender is TKMButtonFlat) and not (Sender = TilesMagicWater) then
-    Terrain_TilesSet(TKMButtonFlat(Sender).TexID);
-
-  Terrain_TilesRefresh(nil);
-end;
-
-
-procedure TKMapEdInterface.Terrain_TilesSet(aIndex: Integer);
-begin
-  TilesMagicWater.Down := False;
-  if aIndex <> 0 then
-  begin
-    GameCursor.Mode := cmTiles;
-    GameCursor.Tag1 := aIndex - 1; //MapEdTileRemap is 1 based, tag is 0 based
-    if TilesRandom.Checked then
-      GameCursor.MapEdDir := 4;
-
-    fLastTile := aIndex;
-  end;
-
-  Terrain_TilesRefresh(nil);
-end;
-
-
-procedure TKMapEdInterface.Terrain_TilesRefresh(Sender: TObject);
-  function GetTileIDFromTag(aTag: Byte): Byte;
-  var X,Y,Tile: Byte;
-  begin
-    X := aTag mod MAPED_TILES_X + TilesScroll.Position;
-    Y := (aTag div MAPED_TILES_X);
-    Tile := (256 div MAPED_TILES_Y) * Y + X;
-    Result := MapEdTileRemap[Tile + 1];
-  end;
-var
-  I,K,L: Integer;
-  TileID: Integer;
-begin
-  TilesRandom.Checked := (GameCursor.MapEdDir = 4);
-
-  for I := 0 to MAPED_TILES_Y - 1 do
-  for K := 0 to MAPED_TILES_X - 1 do
-  begin
-    L := I * MAPED_TILES_X + K;
-    TileID := GetTileIDFromTag(L);
-    TilesTable[L].TexID := TileID;
-    TilesTable[L].Enabled := TileID <> 0;
-    TilesTable[L].Hint := IntToStr(TileID);
-    //If cursor has a tile then make sure its properly selected in table as well
-    TilesTable[L].Down := (GameCursor.Mode = cmTiles) and (GameCursor.Tag1 = TileID - 1);
-  end;
-end;
-
-
-procedure TKMapEdInterface.Terrain_ObjectsChange(Sender: TObject);
-var
-  ObjID: Integer;
-begin
-  ObjID := ObjectsScroll.Position * 3 + TKMButtonFlat(Sender).Tag; //0..n-1
-
-  //Skip indexes out of range
-  if not InRange(ObjID, 0, fCountCompact - 1)
-  and not (TKMButtonFlat(Sender).Tag = 255)
-  and not (TKMButtonFlat(Sender).Tag = 61) then
-    Exit;
-
-  GameCursor.Mode := cmObjects;
-  if TKMButtonFlat(Sender).Tag = 255 then
-    //Erase
-    GameCursor.Tag1 := 255
-  else
-  if TKMButtonFlat(Sender).Tag = 61 then
-    //Block
-    GameCursor.Tag1 := 61
-  else
-    //Object
-    GameCursor.Tag1 := fCompactToMapElem[ObjID]; //0..n-1
-
-  fLastObject := TKMButtonFlat(Sender).Tag;
-
-  Terrain_ObjectsRefresh(nil);
-end;
-
-
-procedure TKMapEdInterface.Terrain_ObjectsRefresh(Sender: TObject);
-var
-  I: Integer;
-  ObjID: Integer;
-begin
-  for I := 0 to 8 do
-  begin
-    ObjID := ObjectsScroll.Position * 3 + I;
-    if ObjID < fCountCompact then
-    begin
-      ObjectsTable[I].TexID := MapElem[fCompactToMapElem[ObjID]].Anim.Step[1] + 1;
-      ObjectsTable[I].Caption := IntToStr(ObjID);
-      ObjectsTable[I].Enable;
-    end
-    else
-    begin
-      ObjectsTable[I].TexID := 0;
-      ObjectsTable[I].Caption := '';
-      ObjectsTable[I].Disable;
-    end;
-    //Mark the selected one using reverse lookup
-    ObjectsTable[I].Down := (GameCursor.Mode = cmObjects) and (ObjID = fMapElemToCompact[GameCursor.Tag1]);
-  end;
-
-  ObjectErase.Down := (GameCursor.Mode = cmObjects) and (GameCursor.Tag1 = 255); //or delete button
-  ObjectBlock.Down := (GameCursor.Mode = cmObjects) and (GameCursor.Tag1 = 61); //or block button
-end;
-
-
-procedure TKMapEdInterface.Terrain_SelectionClick(Sender: TObject);
-begin
-  GameCursor.Mode := cmSelection;
-  GameCursor.Tag1 := 0;
-
-  if Sender = Button_SelectCopy then
-  begin
-    //Copy selection into cursor
-    fGame.MapEditor.Selection.Copy;
-    Button_SelectPaste.Enabled := fGame.MapEditor.Selection.IsBufferHasData;
-  end
-  else
-  if Sender = Button_SelectPaste then
-  begin
-    //Paste selection
-    fGame.MapEditor.Selection.PasteBegin;
-
-    Button_SelectPasteApply.Enable;
-    Button_SelectPasteCancel.Enable;
-    Button_SelectFlipH.Enable;
-    Button_SelectFlipV.Enable;
-    Button_SelectCopy.Disable;
-    Button_SelectPaste.Disable;
-  end
-  else
-  if Sender = Button_SelectPasteApply then
-  begin
-    //Apply paste
-    fGame.MapEditor.Selection.PasteApply;
-    fGame.MapEditor.TerrainPainter.MakeCheckpoint;
-
-    Button_SelectPasteApply.Disable;
-    Button_SelectPasteCancel.Disable;
-    Button_SelectFlipH.Disable;
-    Button_SelectFlipV.Disable;
-    Button_SelectCopy.Enable;
-    Button_SelectPaste.Enable;
-  end
-  else
-  if Sender = Button_SelectPasteCancel then
-  begin
-    //Cancel pasting
-    fGame.MapEditor.Selection.PasteCancel;
-    Button_SelectPasteApply.Disable;
-    Button_SelectPasteCancel.Disable;
-    Button_SelectFlipH.Disable;
-    Button_SelectFlipV.Disable;
-    Button_SelectCopy.Enable;
-    Button_SelectPaste.Enable;
-  end;
-
-  //Flip selected
-end;
-
-
-procedure TKMapEdInterface.Terrain_UnRedoClick(Sender: TObject);
-begin
-  if Sender = Button_TerrainUndo then
-    fGame.MapEditor.TerrainPainter.Undo;
-
-  if Sender = Button_TerrainRedo then
-    fGame.MapEditor.TerrainPainter.Redo;
 end;
 
 
@@ -2581,7 +2033,7 @@ begin
   if Panel_Defence.Visible or Panel_MarkerDefence.Visible then
     fGame.MapEditor.VisibleLayers := fGame.MapEditor.VisibleLayers + [mlDefences];
 
-  if CheckBox_ShowObjects.Checked or Panel_Objects.Visible then
+  if CheckBox_ShowObjects.Checked or fGuiTerrain.Visible(ttObject) then
     fGame.MapEditor.VisibleLayers := fGame.MapEditor.VisibleLayers + [mlObjects];
 
   if CheckBox_ShowHouses.Checked or Panel_Build.Visible or fGuiHouse.Visible then
@@ -2593,7 +2045,7 @@ begin
   if CheckBox_ShowDeposits.Checked then
     fGame.MapEditor.VisibleLayers := fGame.MapEditor.VisibleLayers + [mlDeposits];
 
-  if Panel_Selection.Visible then
+  if fGuiTerrain.Visible(ttSelection) then
     fGame.MapEditor.VisibleLayers := fGame.MapEditor.VisibleLayers + [mlSelection];
 end;
 
@@ -2858,9 +2310,9 @@ begin
   //select the placed warrior.
 
   //Terrain height uses both buttons for relief changing, tile rotation etc.
-  if Panel_Heights.Visible then Exit;
+  if fGuiTerrain.Visible(ttHeights) then Exit;
   //Terrain tiles uses right click for choosing tile rotation
-  if Panel_Tiles.Visible then Exit;
+  if fGuiTerrain.Visible(ttTile) then Exit;
 
   GameCursor.Mode := cmNone;
   GameCursor.Tag1 := 0;
@@ -3426,10 +2878,7 @@ begin
     mbRight:  begin
                 //Right click performs some special functions and shortcuts
                 if GameCursor.Mode = cmTiles then
-                begin
                   GameCursor.MapEdDir := (GameCursor.MapEdDir + 1) mod 4; //Rotate tile direction
-                  TilesRandom.Checked := False; //Reset
-                end;
 
                 //Move the selected object to the cursor location
                 if MySpectator.Selected is TKMHouse then

@@ -49,6 +49,7 @@ uses
   KM_GameInputProcess_Multi in 'KM_GameInputProcess_Multi.pas',
   KM_GameInputProcess_Single in 'KM_GameInputProcess_Single.pas',
   KM_GUIMapEdHouse in 'KM_GUIMapEdHouse.pas',
+  KM_GUIMapEdTerrain in 'KM_GUIMapEdTerrain.pas',
   KM_GUIMenuCampaign in 'KM_GUIMenuCampaign.pas',
   KM_GUIMenuCampaigns in 'KM_GUIMenuCampaigns.pas',
   KM_GUIMenuCredits in 'KM_GUIMenuCredits.pas',
