@@ -330,12 +330,10 @@ begin
         Button_SelectFlipH := TKMButton.Create(Panel_Selection, 20, 150, TB_WIDTH - 40, 20, gResTexts[TX_MAPED_COPY_PASTE_HFLIP], bsGame);
         Button_SelectFlipH.Hint := gResTexts[TX_MAPED_COPY_PASTE_HFLIP_HINT];
         Button_SelectFlipH.OnClick := SelectionClick;
-        Button_SelectFlipH.Hide; //Not implemented yet
         Button_SelectFlipV := TKMButton.Create(Panel_Selection, 20, 180, TB_WIDTH - 40, 20, gResTexts[TX_MAPED_COPY_PASTE_VFLIP], bsGame);
         Button_SelectFlipV.Hint := gResTexts[TX_MAPED_COPY_PASTE_VFLIP_HINT];
         Button_SelectFlipV.OnClick := SelectionClick;
-        Button_SelectFlipV.Hide; //Not implemented yet
-        with TKMLabel.Create(Panel_Selection, 8, 190, TB_WIDTH-16, 80, gResTexts[TX_MAPED_COPY_SELECT_HINT], fnt_Grey, taLeft) do
+        with TKMLabel.Create(Panel_Selection, 8, 230, TB_WIDTH-16, 80, gResTexts[TX_MAPED_COPY_SELECT_HINT], fnt_Grey, taLeft) do
           AutoWrap := True;
 end;
 
@@ -577,9 +575,19 @@ begin
     Button_SelectFlipV.Disable;
     Button_SelectCopy.Enable;
     Button_SelectPaste.Enable;
+  end
+  else
+  if Sender = Button_SelectFlipH then
+  begin
+    //Flip selected
+    fGame.MapEditor.Selection.Selection_Flip(fa_Horizontal);
+  end
+  else
+  if Sender = Button_SelectFlipV then
+  begin
+    //Flip selected
+    fGame.MapEditor.Selection.Selection_Flip(fa_Vertical);
   end;
-
-  //Flip selected
 end;
 
 

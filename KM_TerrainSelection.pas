@@ -9,6 +9,16 @@ uses Classes, Math, Clipbrd,
 type
   TKMSelectionEdit = (seNone, seNewRect, seResizeX1, seResizeY1, seResizeX2, seResizeY2, seMove);
   TKMSelectionMode = (smSelecting, smPasting);
+  TKMFlipAxis = (fa_Horizontal, fa_Vertical);
+
+  TKMBufferData = record
+                    Terrain: Byte;
+                    Height: Byte;
+                    Rotation: Byte;
+                    Obj: Byte;
+                    TerrainKind: TTerrainKind; //Used for brushes
+                  end;
+
   TKMSelection = class
   private
     fSelectionEdit: TKMSelectionEdit;
@@ -17,13 +27,7 @@ type
     fSelectionRectF: TKMRectF; //Cursor selection bounds (can have inverted bounds)
     fSelectionRect: TKMRect; //Tile-space selection, at least 1 tile
     fSelectionMode: TKMSelectionMode;
-    fSelectionBuffer: array of array of record
-      Terrain: Byte;
-      Height: Byte;
-      Rotation: Byte;
-      Obj: Byte;
-      TerrainKind: TTerrainKind; //Used for brushes
-    end;
+    fSelectionBuffer: array of array of TKMBufferData;
     procedure Selection_SyncCellRect;
   public
     procedure Selection_Resize;
@@ -33,6 +37,7 @@ type
     procedure Selection_PasteBegin; //Pastes the area from buffer and lets move it with cursor
     procedure Selection_PasteApply; //Do the actual paste from buffer to terrain
     procedure Selection_PasteCancel;
+    procedure Selection_Flip(aAxis: TKMFlipAxis);
     //procedure Transform; //Transforms the buffer data ?
     procedure Paint;
   end;
@@ -261,6 +266,71 @@ end;
 procedure TKMSelection.Selection_PasteCancel;
 begin
   fSelectionMode := smSelecting;
+end;
+
+
+
+procedure TKMSelection.Selection_Flip(aAxis: TKMFlipAxis);
+const
+  CORNERS = [10,15,18,21..23,25,38,49,51..54,56,58,65,66,68..69,71,72,74,78,80,81,83,84,86..87,89,90,92,93,95,96,98,99,101,102,104,105,107..108,110..111,113,114,116,118,119,120,122,123,126..127,138,142,143,165,176..193,196,202,203,205,213,220,234..241,243,247];
+  CORNERS_REVERSED = [15,21,142,234,235,238];
+  EDGES = [4,12,19,39,50,57,64,67,70,73,76,79,82,85,88,91,94,97,100,103,106,109,112,115,117,121,124..125,139,141,166..175,194,198..200,204,206..212,216..219,223,224..233,242,244];
+  //objMiddle = [8,9,54..61,80,81,212,213,215];
+  //objMiddleVert = [8,9,54..61,80,81,212,213,215,  1..5,10..12,17..19,21..24,126,210,211,249..253];
+
+  procedure FixTerrain(X, Y: Integer);
+  var Ter, Rot:byte;
+  begin
+    Ter := fSelectionBuffer[Y,X].Terrain;
+    Rot := fSelectionBuffer[Y,X].Rotation mod 4; //Some KaM maps contain rotations > 3 which must be fixed by modding
+
+    //Edges
+    if (Ter in EDGES) and ((Rot in [1,3]) xor (aAxis = fa_Vertical)) then
+      fSelectionBuffer[Y,X].Rotation := (Rot+2) mod 4;
+
+    //Corners
+    if Ter in CORNERS then
+    begin
+      if (Rot in [1,3]) xor (Ter in CORNERS_REVERSED) xor (aAxis = fa_Vertical) then
+        fSelectionBuffer[Y,X].Rotation := (Rot+1) mod 4
+      else
+        fSelectionBuffer[Y,X].Rotation := (Rot+3) mod 4;
+    end;
+  end;
+
+var X,Y, MaxX, MaxY:integer; Temp: TKMBufferData;
+begin
+  MaxY := Length(fSelectionBuffer)-1;
+  if MaxY < 0 then Exit;
+  MaxX := Length(fSelectionBuffer[0])-1;
+
+  case aAxis of
+    fa_Horizontal:
+      for Y:=0 to MaxY do
+        for X:=0 to Ceil((MaxX+1) / 2)-1 do
+        begin
+          Temp := fSelectionBuffer[Y, X];
+          fSelectionBuffer[Y, X] := fSelectionBuffer[Y, MaxX-X];
+          fSelectionBuffer[Y, MaxX-X] := Temp;
+
+          FixTerrain(X, Y);
+          if MaxX-X <> X then
+            FixTerrain(MaxX-X, Y);
+        end;
+
+    fa_Vertical:
+      for Y:=0 to Ceil((MaxY+1) / 2)-1 do
+        for X:=0 to MaxX do
+        begin
+          Temp := fSelectionBuffer[Y, X];
+          fSelectionBuffer[Y, X] := fSelectionBuffer[MaxY-Y, X];
+          fSelectionBuffer[MaxY-Y, X] := Temp;
+
+          FixTerrain(X, Y);
+          if MaxY-Y <> Y then
+            FixTerrain(X, MaxY-Y);
+        end;
+  end;
 end;
 
 
