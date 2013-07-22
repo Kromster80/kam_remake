@@ -91,6 +91,7 @@ procedure TKMFogOfWar.RevealCircle(Pos: TKMPoint; Radius, Amount: Word);
 var I,K: Integer;
 begin
   //We inline maths here to gain performance
+  //todo: Use line sweeping instead of SQRT in each loop
   for I := max(Pos.Y-Radius, 0) to min(Pos.Y+Radius, MapY-1) do
   for K := max(Pos.X-Radius, 0) to min(Pos.X+Radius, MapX-1) do
   if (sqr(Pos.x-K) + sqr(Pos.y-I)) <= sqr(Radius) then
@@ -102,6 +103,7 @@ procedure TKMFogOfWar.CoverCircle(Pos: TKMPoint; Radius: Word);
 var I,K: Integer;
 begin
   //We inline maths here to gain performance
+  //todo: Use line sweeping instead of SQRT in each loop
   for I := max(Pos.Y-Radius, 0) to min(Pos.Y+Radius, MapY-1) do
   for K := max(Pos.X-Radius, 0) to min(Pos.X+Radius, MapX-1) do
   if (sqr(Pos.x-K) + sqr(Pos.y-I)) <= sqr(Radius) then
