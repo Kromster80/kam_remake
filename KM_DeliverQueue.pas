@@ -247,6 +247,7 @@ procedure TKMDeliveries.UpdateState;
 var
   I, K, iD, iO, FoundO, FoundD: Integer;
   Bid, BestBid: Single;
+  BestImportance: TDemandImportance;
   AvailableDeliveries, AvailableSerfs: Integer;
   Serf: TKMUnitSerf;
 begin
@@ -271,36 +272,39 @@ begin
       //a further away storehouse when there are multiple possibilities.
       //Note: All deliveries will be taken, because we have enough serfs to fill them all.
       //The important concept here is to always get the shortest delivery when a delivery can be taken to multiple places.
-      BestBid := -1;
+      BestBid := MaxSingle;
+      BestImportance := diNorm;
       FoundO := -1;
       FoundD := -1;
       for iD := 1 to fQueue.fDemandCount do
-        if fQueue.fDemand[iD].Ware <> wt_None then
+        if (fQueue.fDemand[iD].Ware <> wt_None)
+        and (fQueue.fDemand[iD].Importance >= BestImportance) then //Skip any less important than the best we found
           for iO := 1 to fQueue.fOfferCount do
             if (fQueue.fOffer[iO].Ware <> wt_None)
             and fQueue.ValidDelivery(iO,iD)
             and AnySerfCanDoDelivery(iO,iD) then //Only choose this delivery if at least one of the serfs can do it
             begin
               Bid := fQueue.CalculateBid(iO,iD,nil);
-              if (BestBid = -1) or (Bid < BestBid) then
+              if (Bid < BestBid) or (fQueue.fDemand[iD].Importance > BestImportance) then
               begin
                 BestBid := Bid;
+                BestImportance := fQueue.fDemand[iD].Importance;
                 FoundO := iO;
                 FoundD := iD;
               end;
             end;
 
       //FoundO and FoundD give us the best delivery to do at this moment. Now find the best serf for the job.
-      if BestBid <> -1 then
+      if (FoundO <> -1) and (FoundD <> -1) then
       begin
         Serf := nil;
-        BestBid := -1;
+        BestBid := MaxSingle;
         for K := 0 to fSerfCount - 1 do
           if fSerfs[K].Serf.IsIdle then
             if fQueue.SerfCanDoDelivery(FoundO,FoundD,fSerfs[K].Serf) then
             begin
               Bid := KMLength(fSerfs[K].Serf.GetPosition, fQueue.fOffer[FoundO].Loc_House.GetEntrance);
-              if (BestBid = -1) or (Bid < BestBid) then
+              if (Bid < BestBid) then
               begin
                 BestBid := Bid;
                 Serf := fSerfs[K].Serf;
