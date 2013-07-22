@@ -11,7 +11,7 @@ est,    Estonian,             1252,     59,           ,                Ingvar & 
 fre,    French,               1252,     51,           ,                Sylvain Domange & Shadaoe
 ger,    German,               1252,     46,           ,                The Knight
 hun,    Hungarian,            1250,     57,           ,                Osi Attila (Jecy)
-ita,    Italian,              1252,     50,           ,                Paolo Castelvetere
+ita,    Italian,              1252,     50,           ,                Esthlos
 jpn,    Japanese,             1252,     72,           ,                Guilherme Antunes da Silva
 lit,    Lithuanian,           1257,     67,           ,                Audrius Arlauskas (Zaero)
 nor,    Norwegian,            1252,     70,           ,                Tokicchi

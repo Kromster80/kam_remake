@@ -92,14 +92,14 @@ MaxID:697
 88:Il servo porta ai tuoi edifici le materie prime necessarie.||Deve esistere una strada di collegamento fra di essi.
 89:Per produrre i tronchi d'albero necessari alla segheria ti serve il boscaiolo, che si occupa anche del rimboschimento.
 90:Il minatore estrae i minerali dalle miniere di carbone, ferro e oro.
-91:L'allevatore accudisce e nutre con del grano il bestiame nelle stalle e negli allevamenti.
-92:Il contadino pianta e miete il grano nelle fattorie.||Inoltre raccoglie l'uva dai vigneti e si occupa della vendemmia nella cantina.
+91:L'allevatore accudisce e nutre il bestiame nelle stalle e negli allevamenti.
+92:Il contadino pianta e miete il grano nelle fattorie.||Raccoglie inoltre l'uva dai vigneti e si occupa della vendemmia nella cantina.
 93:Il carpentiere lavora nella segheria e nelle botteghe d'armi ed armature.||Costruisce inoltre balliste e catapulte nell'officina d'assedio.
 94:Il fornaio cuoce il pane nel forno.||Può anche macinare il grano nel mulino per ottenere la farina.
 95:Il macellaio produce salsicce nel mattatoio e cuoio nella conceria.
 96:Il pescatore cattura i pesci dai vicini corsi d'acqua.
-97:L'operaio costruisce edifici e strade. Dovrai soltanto impartire il comando e lui porterà avanti automaticamente i tuoi ordini.||Può anche riparare gli edifici danneggiati.
-98:Per fornire ai tuoi operai il materiale che servirà a costruire le strade e gli edifici, lo scalpellino taglia e sagoma la pietra grezza.
+97:L'operaio costruisce edifici e strade. Dovrai soltanto pianificare i lavori e lui porterà avanti automaticamente i tuoi ordini.||Può anche riparare gli edifici danneggiati.
+98:Lo scalpellino taglia e sagoma la pietra grezza per fornire ai tuoi operai il materiale che servirà a costruire le strade e gli edifici.
 99:Tra il calore e le fiamme delle forge, il fabbro crea armi e corazze per il tuo esercito.
 100:Il fonditore usa il carbone per raffinare l'oro ed il ferro grezzi.
 101:Nella caserma, la recluta riceve l'addestramento e l'equipaggiamento per diventare un soldato.||Può anche presidiare le torri di guardia.
@@ -175,13 +175,13 @@ MaxID:697
 171:Passa all'oggetto del corrente messaggio
 172:Chiudi
 173:Chiude la finestra
-174:Il tuo scalpellino non riesce a procurarsi|altre pietre.
+174:Il tuo scalpellino non riesce a procurarsi altre pietre.
 175:I filoni della tua miniera di carbone sono esauriti.
 176:I filoni della tua miniera di ferro sono esauriti.
 177:I filoni della tua miniera d'oro sono esauriti.
 178:Il tuo taglialegna non riesce a trovare altri alberi da abbattere
 179:Questo edificio non è occupato.
-180:Questi soldati sono molto affamati, hanno bisogno di mangiare al più presto!
+180:Questi soldati sono molto affamati, devono mangiare al più presto!
 181:PAUSA
 182:Trasporta della merce
 183:Pavimenta una strada
