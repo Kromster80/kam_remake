@@ -2044,9 +2044,6 @@ begin
 
   if CheckBox_ShowDeposits.Checked then
     fGame.MapEditor.VisibleLayers := fGame.MapEditor.VisibleLayers + [mlDeposits];
-
-  if fGuiTerrain.Visible(ttSelection) then
-    fGame.MapEditor.VisibleLayers := fGame.MapEditor.VisibleLayers + [mlSelection];
 end;
 
 

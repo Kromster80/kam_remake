@@ -629,6 +629,10 @@ begin
 
   Button_TerrainUndo.Enabled := fGame.MapEditor.TerrainPainter.CanUndo;
   Button_TerrainRedo.Enabled := fGame.MapEditor.TerrainPainter.CanRedo;
+
+  //TODO: hack for selection visibility
+  if Panel_Selection.Visible then
+    fGame.MapEditor.VisibleLayers := fGame.MapEditor.VisibleLayers + [mlSelection];
 end;
 
 
