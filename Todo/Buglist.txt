@@ -28,7 +28,9 @@
 	Look into translating texts returned from Net status and others that are hardcoded in 3rd party libs we use (pas files)
 	Towers attack range is uneven (should be measured from towers middle, not the recruit location in BR corner)
 	When citizen walks into a house he should be deselected
-  Player alliance towards self is inconsistent, especially in MP and when accessing from script (should be Ally always!)
+	AIAttacks bug (AI attacks mulfunction after 12min.rar)
+	MapEd should not allow to set active player type to nor human nor AI
+	Player alliance towards self is inconsistent, especially in MP and when accessing from script (should be Ally always!)
 
 	Water looks ugly brown when you zoom out too far due to water tiles having brown checkerboard pattern (anti-aliasing won't help)
 	Wooden house frames flicking on Onboard Intel HD Family Chipset (see images "Hidden House Frame Intel Onboard 1.jpg")

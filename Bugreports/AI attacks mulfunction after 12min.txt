@@ -1,0 +1,3 @@
+Colonel from kamclub.ru reports that after several scheduled attacks AI takes less and less warriors on to each wave.
+
+The thing is with Attacks.MenAvailable and Attacks.GroupCount. The attack is set to take 10men and 1mounted group. But Attack.CanOccur does not checks that mounted group mencount, so Scouts keep on attacking player one-by-one repeatedly, instead of attacking more rarily in groups of 10.
