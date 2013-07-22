@@ -1,5 +1,6 @@
 ﻿Since r5503:
 <===================================================================================>
+ +	Actions.GroupOrderSplit returned the original group ID, not the new one
 	Armour smithy has shields as 2nd ouput, armour workshop has shields as 1st output. Would make sense to match them (note: simply swapping in KM_ResourceHouses causes game logic to be swapped with GUI)
 	Armour smithy has iron as 1st input, weapon smithy has iron as 2nd input (iron/coal swapped). Would make sense to match them (note: simpply swapping in KM_ResourceHouses causes game logic to be swapped with GUI)
 	Deliveries should use the actual walking route length (opposed to Radius)
