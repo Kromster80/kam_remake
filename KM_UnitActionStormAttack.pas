@@ -29,7 +29,7 @@ type
   end;
 
 implementation
-uses KM_Resource, KM_ResUnits;
+uses KM_Resource, KM_ResUnits, KM_Units_Warrior;
 
 
 const
@@ -148,6 +148,18 @@ begin
     //No longer using previous vertex
     if KMStepIsDiag(fUnit.PrevPosition, fUnit.NextPosition) and (fTileSteps > 0) then
       DecVertex;
+
+    //Check for units nearby to fight
+    Locked := False; //Unlock during this check only so CheckForEnemy can abandon our action
+    if (fUnit is TKMUnitWarrior) then
+      if TKMUnitWarrior(fUnit).CheckForEnemy then
+      begin
+        //If we've picked a fight it means this action no longer exists,
+        //so we must exit out (don't set ActDone as that will now apply to fight action)
+        Result := ActContinues;
+        Exit;
+      end;
+    Locked := True; //Finished CheckForEnemy, so lock again
 
     //Begin the next step
     fNextPos := KMPoint(KMGetPointInDir(fUnit.GetPosition, fUnit.Direction));
