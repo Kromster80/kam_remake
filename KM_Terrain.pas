@@ -9,7 +9,7 @@ uses Classes, KromUtils, Math, SysUtils, Graphics,
 type
   //Farmers/Woodcutters preferred activity
   TPlantAct = (taCut, taPlant, taAny);
-  TTileOverlay = (to_None, to_Dig1, to_Dig2, to_Dig3, to_Dig4, to_Road, to_Wall);
+  TTileOverlay = (to_None, to_Dig1, to_Dig2, to_Dig3, to_Dig4, to_Road);
   TKMVertexUsage = (vu_None=0,  //Nobody is on this vertex
                     vu_NWSE,    //Vertex is used NW-SE like this: \
                     vu_NESW);   //Vertex is used NE-SW like this: /
@@ -65,7 +65,7 @@ type
       IsVertexUnit: TKMVertexUsage; //Whether there are units blocking the vertex. (walking diagonally or fighting)
 
       //MAPEDITOR
-      OldTerrain, OldRotation: Byte; //Only used for map editor
+      CornOrWine: Byte; //Indicate Corn or Wine field placed on the tile (without altering terrain)
 
       //DEDUCTED
       Light: Single; //KaM stores node lighting in 0..32 range (-16..16), but I want to use -1..1 range
@@ -99,7 +99,6 @@ type
     procedure RemovePlayer(aPlayer:TPlayerIndex);
     procedure RemRoad(Loc:TKMPoint);
     procedure RemField(Loc:TKMPoint);
-    procedure SetWall(Loc:TKMPoint; aOwner:TPlayerIndex);
     procedure IncDigState(Loc:TKMPoint);
     procedure ResetDigState(Loc:TKMPoint);
 
@@ -256,13 +255,12 @@ begin
     Terrain      := 0;
     Height       := 30 + KaMRandom(7);  //variation in Height
     Rotation     := KaMRandom(4);  //Make it random
-    OldTerrain   := 0;
-    OldRotation  := 0;
     Obj          := 255;             //none
     //Uncomment to enable random trees, but we don't want that for the map editor by default
     //if KaMRandom(16)=0 then Obj := ChopableTrees[KaMRandom(13)+1,4];
     TileOverlay  := to_None;
     TileLock     := tlNone;
+    CornOrWine   := 0;
     Passability  := []; //Gets recalculated later
     TileOwner    := -1;
     IsUnit       := nil;
@@ -309,10 +307,9 @@ begin
 
     for I := 1 to fMapY do for K := 1 to fMapX do
     begin
-      Land[I,K].OldTerrain   := 0;
-      Land[I,K].OldRotation  := 0;
       Land[I,K].TileOverlay  := to_None;
       Land[I,K].TileLock     := tlNone;
+      Land[I,K].CornOrWine   := 0;
       Land[I,K].Passability  := []; //Gets recalculated later
       Land[I,K].TileOwner    := PLAYER_NONE;
       Land[I,K].IsUnit       := nil;
@@ -372,21 +369,14 @@ begin
     b205 := 205;
     for i:=1 to fMapY do for k:=1 to fMapX do
     begin
-      //Map file stores terrain, not the fields placed over it, so save OldTerrain rather than Terrain
-      if TileIsCornField(KMPoint(k,i)) or TileIsWineField(KMPoint(k,i)) then
-        S.Write(Land[i,k].OldTerrain)
-      else
-        S.Write(Land[i,k].Terrain);
+      S.Write(Land[i,k].Terrain);
 
-      light := round((Land[i,k].Light+1)*16);
+      light := Round((Land[i,k].Light+1)*16);
       S.Write(light); //Light
       S.Write(Land[i,k].Height);
 
       //Map file stores terrain, not the fields placed over it, so save OldRotation rather than Rotation
-      if TileIsCornField(KMPoint(k,i)) or TileIsWineField(KMPoint(k,i)) then
-        S.Write(Land[i,k].OldRotation)
-      else
-        S.Write(Land[i,k].Rotation);
+      S.Write(Land[i,k].Rotation);
 
       S.Write(c0,1); //unknown
 
@@ -641,9 +631,12 @@ end;
 //Check if the tile is a corn field
 function TKMTerrain.TileIsCornField(Loc: TKMPoint): Boolean;
 begin
- //Tile can't be used as a field if there is road or any other overlay
-  Result := fTileset.TileIsCornField(Land[Loc.Y, Loc.X].Terrain)
-            and (Land[Loc.Y,Loc.X].TileOverlay = to_None);
+  //Tile can't be used as a field if there is road or any other overlay
+  if not fMapEditor then
+    Result := fTileset.TileIsCornField(Land[Loc.Y, Loc.X].Terrain)
+              and (Land[Loc.Y,Loc.X].TileOverlay = to_None)
+  else
+    Result := (Land[Loc.Y,Loc.X].CornOrWine = 1);
 end;
 
 
@@ -652,9 +645,12 @@ function TKMTerrain.TileIsWineField(Loc: TKMPoint): Boolean;
 begin
  //Tile can't be used as a winefield if there is road or any other overlay
  //It also must have right object on it
-  Result := fTileset.TileIsWineField(Land[Loc.Y, Loc.X].Terrain)
-            and (Land[Loc.Y,Loc.X].TileOverlay = to_None)
-            and (Land[Loc.Y,Loc.X].Obj in [54..57]);
+  if not fMapEditor then
+    Result := fTileset.TileIsWineField(Land[Loc.Y, Loc.X].Terrain)
+              and (Land[Loc.Y,Loc.X].TileOverlay = to_None)
+              and (Land[Loc.Y,Loc.X].Obj in [54..57])
+  else
+    Result := (Land[Loc.Y,Loc.X].CornOrWine = 2);
 end;
 
 
@@ -979,8 +975,10 @@ var ObjectChanged: Boolean;
 begin
   Land[Loc.Y,Loc.X].TileOwner := -1;
   Land[Loc.Y,Loc.X].TileOverlay := to_None;
-  Land[Loc.Y,Loc.X].Terrain := Land[Loc.Y,Loc.X].OldTerrain; //Reset terrain
-  Land[Loc.Y,Loc.X].Rotation := Land[Loc.Y,Loc.X].OldRotation; //Reset terrain
+
+  if fMapEditor then
+    Land[Loc.Y,Loc.X].CornOrWine := 0;
+
   if Land[Loc.Y,Loc.X].Obj in [54..59] then
   begin
     Land[Loc.Y,Loc.X].Obj := 255; //Remove corn/wine
@@ -1010,17 +1008,6 @@ begin
 end;
 
 
-procedure TKMTerrain.SetWall(Loc: TKMPoint; aOwner: TPlayerIndex);
-begin
-  Land[Loc.Y,Loc.X].TileOwner := aOwner;
-  Land[Loc.Y,Loc.X].TileOverlay := to_Wall;
-  Land[Loc.Y,Loc.X].FieldAge := 0;
-  UpdateFences(Loc);
-  UpdatePassability(KMRectGrow(KMRect(Loc), 1));
-  UpdateWalkConnect([wcWalk, wcRoad, wcWork], KMRect(Loc), False);
-end;
-
-
 {Set field on tile - corn/wine}
 procedure TKMTerrain.SetField(Loc: TKMPoint; aOwner: TPlayerIndex; aFieldType: TFieldType);
 begin
@@ -1028,17 +1015,15 @@ begin
   Land[Loc.Y,Loc.X].TileOverlay := to_None;
   Land[Loc.Y,Loc.X].FieldAge    := 0;
 
-  //Remember old terrain if we need to revert it in MapEd
-  Land[Loc.Y,Loc.X].OldTerrain  := Land[Loc.Y, Loc.X].Terrain;
-  Land[Loc.Y,Loc.X].OldRotation := Land[Loc.Y, Loc.X].Rotation;
-
   case aFieldType of
     ft_Road:      Land[Loc.Y,Loc.X].TileOverlay := to_Road;
-    ft_Corn:      begin
+    ft_Corn:      if fMapEditor then
+                    Land[Loc.Y,Loc.X].CornOrWine := 1 //This and nothing else
+                  else
+                  begin
                     Land[Loc.Y,Loc.X].Terrain  := 62;
                     Land[Loc.Y,Loc.X].Rotation := 0;
                     //If object is already corn then set the field age (some maps start with corn placed)
-                    if not fMapEditor then //Don't do this in editor mode
                     case Land[Loc.Y,Loc.X].Obj of
                       58: begin  //Smaller greeninsh Corn
                             Land[Loc.Y,Loc.X].FieldAge := CORN_AGE_2;
@@ -1051,7 +1036,10 @@ begin
                           end;
                     end;
                   end;
-    ft_Wine:      begin
+    ft_Wine:      if fMapEditor then
+                    Land[Loc.Y,Loc.X].CornOrWine := 2 //This and nothing else
+                  else
+                  begin
                     Land[Loc.Y,Loc.X].Terrain  := 55;
                     Land[Loc.Y,Loc.X].Rotation := 0;
                     CutGrapes(Loc); //Set object and age
@@ -2487,7 +2475,6 @@ begin
     ft_Road:  Result := Result and (CanMakeRoads  in Land[aY, aX].Passability);
     ft_Corn,
     ft_Wine:  Result := Result and TileGoodForField(aX, aY);
-    ft_Wall:  Result := Result and (CanMakeRoads  in Land[aY, aX].Passability);
     else      Result := False;
   end;
 end;

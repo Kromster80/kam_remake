@@ -311,7 +311,7 @@ begin
     RenderHouseOutline(TKMHouse(MySpectator.Highlight));
 
   if fGame.IsMapEditor then
-    fGame.MapEditor.Paint(plTerrain);
+    fGame.MapEditor.Paint(plTerrain, aRect);
 
   if fAIFields <> nil then
     fAIFields.Paint(aRect);
@@ -349,8 +349,16 @@ begin
   with gTerrain do
   for I := aRect.Top to aRect.Bottom do
   for K := aRect.Left to aRect.Right do
+  begin
     if Land[I, K].Obj <> 255 then
       RenderMapElement(Land[I, K].Obj, AnimStep, K, I);
+
+    //Fake wine objects for MapEd
+    case Land[I,K].CornOrWine of
+      1: ;
+      2: RenderMapElement(54, AnimStep, K, I);
+    end;
+  end;
 
   //Falling trees are in a separate list
   with gTerrain do
@@ -1213,7 +1221,7 @@ begin
   if GameCursor.Cell.Y * GameCursor.Cell.X = 0 then Exit; //Caused a rare crash
 
   if fGame.IsMapEditor then
-    fGame.MapEditor.Paint(plCursors);
+    fGame.MapEditor.Paint(plCursors, KMRect(0,0,0,0));
 
   P := GameCursor.Cell;
   F := GameCursor.Float;

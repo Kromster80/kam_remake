@@ -50,7 +50,7 @@ type
     procedure MouseMove;
     procedure MouseUp(Button: TMouseButton);
     procedure Update;
-    procedure Paint(aLayer: TPaintLayer);
+    procedure Paint(aLayer: TPaintLayer; aRect: TKMRect);
   end;
 
 
@@ -359,7 +359,7 @@ begin
 end;
 
 
-procedure TKMMapEditor.Paint(aLayer: TPaintLayer);
+procedure TKMMapEditor.Paint(aLayer: TPaintLayer; aRect: TKMRect);
 var
   I, K: Integer;
   Loc, P: TKMPoint;

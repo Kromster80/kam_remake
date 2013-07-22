@@ -17,7 +17,6 @@ type
       Height: Byte;
       Rotation: Byte;
       Obj: Byte;
-      OldTerrain, OldRotation: Byte; //Only used for map editor
       TerrainKind: TTerrainKind; //Used for brushes
     end;
     procedure SetRawRect(const aValue: TKMRectF);
@@ -79,8 +78,6 @@ begin
     fBuffer[By,Bx].Height      := gTerrain.Land[I+1, K+1].Height;
     fBuffer[By,Bx].Rotation    := gTerrain.Land[I+1, K+1].Rotation;
     fBuffer[By,Bx].Obj         := gTerrain.Land[I+1, K+1].Obj;
-    fBuffer[By,Bx].OldTerrain  := gTerrain.Land[I+1, K+1].OldTerrain;
-    fBuffer[By,Bx].OldRotation := gTerrain.Land[I+1, K+1].OldRotation;
 //TODO: Move to TerrainPainter    fBuffer[By,Bx].TerrainKind := fTerrainPainter.TerrainKind[I+1, K+1];
   end;
 end;
@@ -111,8 +108,6 @@ begin
     gTerrain.Land[I+1, K+1].Height      := fBuffer[By,Bx].Height;
     gTerrain.Land[I+1, K+1].Rotation    := fBuffer[By,Bx].Rotation;
     gTerrain.Land[I+1, K+1].Obj         := fBuffer[By,Bx].Obj;
-    gTerrain.Land[I+1, K+1].OldTerrain  := fBuffer[By,Bx].OldTerrain;
-    gTerrain.Land[I+1, K+1].OldRotation := fBuffer[By,Bx].OldRotation;
 //TODO: Move to TerrainPainter    fTerrainPainter.TerrainKind[I+1, K+1] := fBuffer[By,Bx].TerrainKind;
   end;
 

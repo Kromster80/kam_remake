@@ -322,27 +322,34 @@ begin
 
   for I := fClipRect.Top to fClipRect.Bottom do
   for K := fClipRect.Left to fClipRect.Right do
-  case gTerrain.Land[I, K].TileOverlay of
-    to_Dig1:  RenderTile(249, K, I, 0);
-    to_Dig2:  RenderTile(251, K, I, 0);
-    to_Dig3:  RenderTile(253, K, I, 0);
-    to_Dig4:  RenderTile(255, K, I, 0);
-    to_Wall:  fRenderAux.Quad(K, I, $800000FF);
-    to_Road:  begin
-                Road := 0;
-                if (I - 1 >= 1) then
-                  Road := Road + byte(gTerrain.Land[I - 1, K].TileOverlay = to_Road) shl 0;
-                if (K + 1 <= gTerrain.MapX - 1) then
-                  Road := Road + byte(gTerrain.Land[I, K + 1].TileOverlay = to_Road) shl 1;
-                if (I + 1 <= gTerrain.MapY - 1) then
-                  Road := Road + byte(gTerrain.Land[I + 1, K].TileOverlay = to_Road) shl 2;
-                if (K - 1 >= 1) then
-                  Road := Road + byte(gTerrain.Land[I, K - 1].TileOverlay = to_Road) shl 3;
-                ID := RoadsConnectivity[Road, 1];
-                Rot := RoadsConnectivity[Road, 2];
-                RenderTile(ID, K, I, Rot);
-              end;
-   end;
+  begin
+    case gTerrain.Land[I, K].TileOverlay of
+      to_Dig1:  RenderTile(249, K, I, 0);
+      to_Dig2:  RenderTile(251, K, I, 0);
+      to_Dig3:  RenderTile(253, K, I, 0);
+      to_Dig4:  RenderTile(255, K, I, 0);
+      to_Road:  begin
+                  Road := 0;
+                  if (I - 1 >= 1) then
+                    Road := Road + byte(gTerrain.Land[I - 1, K].TileOverlay = to_Road) shl 0;
+                  if (K + 1 <= gTerrain.MapX - 1) then
+                    Road := Road + byte(gTerrain.Land[I, K + 1].TileOverlay = to_Road) shl 1;
+                  if (I + 1 <= gTerrain.MapY - 1) then
+                    Road := Road + byte(gTerrain.Land[I + 1, K].TileOverlay = to_Road) shl 2;
+                  if (K - 1 >= 1) then
+                    Road := Road + byte(gTerrain.Land[I, K - 1].TileOverlay = to_Road) shl 3;
+                  ID := RoadsConnectivity[Road, 1];
+                  Rot := RoadsConnectivity[Road, 2];
+                  RenderTile(ID, K, I, Rot);
+                end;
+     end;
+
+     //Fake tiles for MapEd fields
+     case gTerrain.Land[I, K].CornOrWine of
+       1: RenderTile(62, K, I, 0);
+       2: RenderTile(55, K, I, 0);
+     end;
+  end;
 end;
 
 
@@ -702,7 +709,7 @@ end;
 
 procedure TRenderTerrain.RenderMarkup(pX, pY: Word; aFieldType: TFieldType);
 const
-  MarkupTex: array [TFieldType] of Word = (0, 105, 107, 0, 108, 111);
+  MarkupTex: array [TFieldType] of Word = (0, 105, 107, 108, 111);
 var
   ID: Integer;
   UVa,UVb: TKMPointF;

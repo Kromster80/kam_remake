@@ -589,7 +589,7 @@ end;
 procedure TKMPlayer.ToggleFieldPlan(aLoc: TKMPoint; aFieldType: TFieldType; aMakeSound:Boolean);
 var Plan: TFieldType;
 begin
-  Assert(aFieldType in [ft_Road, ft_Corn, ft_Wine, ft_Wall], 'Placing wrong FieldType');
+  Assert(aFieldType in [ft_Road, ft_Corn, ft_Wine], 'Placing wrong FieldType');
 
   Plan := fBuildList.FieldworksList.HasField(aLoc);
   if aFieldType = Plan then //Same plan - remove it
@@ -622,7 +622,7 @@ end;
 procedure TKMPlayer.ToggleFakeFieldPlan(aLoc: TKMPoint; aFieldType: TFieldType);
 var Plan: TFieldType;
 begin
-  Assert(aFieldType in [ft_Road, ft_Corn, ft_Wine, ft_Wall], 'Placing wrong fake FieldType');
+  Assert(aFieldType in [ft_Road, ft_Corn, ft_Wine], 'Placing wrong fake FieldType');
 
   Plan := fBuildList.FieldworksList.HasFakeField(aLoc);
   if aFieldType = Plan then //Same plan - remove it

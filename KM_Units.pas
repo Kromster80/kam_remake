@@ -830,7 +830,6 @@ begin
     ft_Road: fUnitTask := TTaskBuildRoad.Create(Self, aLoc, aIndex);
     ft_Corn: fUnitTask := TTaskBuildField.Create(Self, aLoc, aIndex);
     ft_Wine: fUnitTask := TTaskBuildWine.Create(Self, aLoc, aIndex);
-    ft_Wall: fUnitTask := TTaskBuildWall.Create(Self, aLoc, aIndex);
     else     begin
               Assert(false, 'Unexpected Field Type');
               fUnitTask := nil;
@@ -1097,7 +1096,6 @@ begin
       utn_BuildRoad:       fUnitTask := TTaskBuildRoad.Load(LoadStream);
       utn_BuildWine:       fUnitTask := TTaskBuildWine.Load(LoadStream);
       utn_BuildField:      fUnitTask := TTaskBuildField.Load(LoadStream);
-      utn_BuildWall:       fUnitTask := TTaskBuildWall.Load(LoadStream);
       utn_BuildHouseArea:  fUnitTask := TTaskBuildHouseArea.Load(LoadStream);
       utn_BuildHouse:      fUnitTask := TTaskBuildHouse.Load(LoadStream);
       utn_BuildHouseRepair:fUnitTask := TTaskBuildHouseRepair.Load(LoadStream);
@@ -1773,7 +1771,6 @@ const
       TX_UNIT_TASK_ROAD,       //utn_BuildRoad
       TX_UNIT_TASK_WINEFIELD,  //utn_BuildWine
       TX_UNIT_TASK_FIELD,      //utn_BuildField
-      -1,                      //utn_BuildWall (unused)
       TX_UNIT_TASK_HOUSE_SITE, //utn_BuildHouseArea
       TX_UNIT_TASK_HOUSE,      //utn_BuildHouse
       TX_UNIT_TASK_REPAIRING,  //utn_BuildHouseRepair

@@ -60,21 +60,6 @@ type
     procedure Save(SaveStream: TKMemoryStream); override;
   end;
 
-  TTaskBuildWall = class(TTaskBuild)
-  private
-    fLoc:TKMPoint;
-    BuildID:integer;
-    //not abandoned properly yet due to global unfinished conception of wall-building
-  public
-    constructor Create(aWorker:TKMUnitWorker; aLoc:TKMPoint; aID:integer);
-    constructor Load(LoadStream:TKMemoryStream); override;
-    destructor Destroy; override;
-    //function WalkShouldAbandon: Boolean; override;
-    procedure CancelThePlan; override;
-    function Execute:TTaskResult; override;
-    procedure Save(SaveStream:TKMemoryStream); override;
-  end;
-
   TTaskBuildHouseArea = class(TTaskBuild)
   private
     fHouse: TKMHouse;
@@ -488,110 +473,6 @@ begin
   SaveStream.Write(fLoc);
   SaveStream.Write(BuildID);
   SaveStream.Write(TileLockSet);
-end;
-
-
-{ TTaskBuildWall }
-constructor TTaskBuildWall.Create(aWorker:TKMUnitWorker; aLoc:TKMPoint; aID:integer);
-begin
-  inherited Create(aWorker);
-  fTaskName := utn_BuildWall;
-  fLoc      := aLoc;
-  BuildID   := aID;
-end;
-
-
-constructor TTaskBuildWall.Load(LoadStream:TKMemoryStream);
-begin
-  inherited;
-  LoadStream.Read(fLoc);
-  LoadStream.Read(BuildID);
-end;
-
-
-destructor TTaskBuildWall.Destroy;
-begin
-  gPlayers[fUnit.Owner].Deliveries.Queue.RemDemand(fUnit);
-  if fPhase > 1 then
-    gTerrain.UnlockTile(fLoc)
-  else
-    gPlayers[fUnit.Owner].BuildList.FieldworksList.ReOpenField(BuildID); //Allow other workers to take this task
-  inherited;
-end;
-
-
-procedure TTaskBuildWall.CancelThePlan;
-begin
-  gPlayers[fUnit.Owner].BuildList.FieldworksList.CloseField(BuildID); //Close the job now because it can no longer be cancelled
-  BuildID := -1;
-end;
-
-
-//Need an idea how to make it work
-function TTaskBuildWall.Execute:TTaskResult;
-begin
-  Result := TaskContinues;
-  with fUnit do
-  case fPhase of
-    0: begin
-         SetActionWalkToSpot(fLoc);
-         Thought := th_Build;
-       end;
-    1: begin
-        gTerrain.SetTileLock(fLoc, tlFieldWork);
-        gTerrain.ResetDigState(fLoc); //Remove any dig over that might have been there (e.g. destroyed house)
-        CancelThePlan;
-        SetActionLockedStay(0,ua_Walk);
-       end;
-    2: begin
-        gTerrain.IncDigState(fLoc);
-        SetActionLockedStay(22,ua_Work1,false);
-      end;
-    3: begin
-        gTerrain.IncDigState(fLoc);
-        SetActionLockedStay(22,ua_Work1,false);
-        gPlayers[Owner].Deliveries.Queue.AddDemand(nil, fUnit, wt_Wood, 1, dt_Once, diHigh4);
-      end;
-    4: begin
-        SetActionLockedStay(30,ua_Work1);
-        Thought:=th_Wood;
-      end;
-    5: begin
-        Thought := th_None;
-        SetActionLockedStay(22,ua_Work2,false);
-      end;
-    6: begin
-        gTerrain.ResetDigState(fLoc);
-        gTerrain.IncDigState(fLoc);
-        SetActionLockedStay(22,ua_Work2,false);
-      end;
-      //Ask for 2 more wood now
-    7: begin
-        //Walk away from tile and continue building from the side
-        SetActionLockedStay(11,ua_Work,false);
-      end;
-    8: begin
-        //fTerrain.IncWallState(fLoc);
-        SetActionLockedStay(11,ua_Work,false);
-      end;
-    9: begin
-        gTerrain.SetWall(fLoc,Owner);
-        SetActionStay(1,ua_Work);
-        gTerrain.UnlockTile(fLoc);
-       end;
-    else Result := TaskDone;
-  end;
-  if (fPhase<>4)and(fPhase<>8) then inc(fPhase); //Phase=4 is when worker waits for rt_Wood
-  if fPhase=8 then inc(fPhase2);
-  if fPhase2=5 then inc(fPhase); //wait 5 cycles
-end;
-
-
-procedure TTaskBuildWall.Save(SaveStream:TKMemoryStream);
-begin
-  inherited;
-  SaveStream.Write(fLoc);
-  SaveStream.Write(BuildID);
 end;
 
 

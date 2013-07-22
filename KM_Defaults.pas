@@ -396,7 +396,7 @@ const //Corresponding indices in units.rx
 type
   TUnitTaskName = ( utn_Unknown, //Uninitialized task to detect bugs
         utn_SelfTrain, utn_Deliver,        utn_BuildRoad,  utn_BuildWine,        utn_BuildField,
-        utn_BuildWall, utn_BuildHouseArea, utn_BuildHouse, utn_BuildHouseRepair, utn_GoHome,
+        utn_BuildHouseArea, utn_BuildHouse, utn_BuildHouseRepair, utn_GoHome,
         utn_GoEat,     utn_Mining,         utn_Die,        utn_GoOutShowHungry,  utn_AttackHouse,
         utn_ThrowRock);
 
@@ -466,8 +466,7 @@ type
     ft_Road,
     ft_Corn,
     ft_InitWine, //Reset rotation and set grapes ground, but without Grapes yet
-    ft_Wine,
-    ft_Wall
+    ft_Wine
     );
 
   THouseStage = (
