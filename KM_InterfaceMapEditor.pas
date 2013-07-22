@@ -326,9 +326,9 @@ const
 implementation
 uses
   KM_CommonClasses, KM_PlayersCollection, KM_ResTexts, KM_Game, KM_Main, KM_GameCursor,
-  KM_GameApp, KM_Resource, KM_TerrainDeposits, KM_TerrainPainter, KM_TerrainSelection, KM_ResCursors, KM_Utils,
+  KM_GameApp, KM_Resource, KM_TerrainDeposits, KM_ResCursors, KM_Utils,
   KM_AIDefensePos, KM_ResHouses, KM_RenderUI, KM_Sound, KM_ResSound,
-  KM_ResWares, KM_HouseBarracks, KM_ResFonts;
+  KM_ResWares, KM_ResFonts;
 
 const
   GROUP_TEXT: array [TGroupType] of Integer = (
