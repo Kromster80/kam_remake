@@ -35,6 +35,7 @@
 
 
 Improvements:
+ +	L	Serfs check for a better delivery destination when arriving at the From house (due to state of village changing)
 	Dismiss button to make units walk into the school and disappear (gold is not refunded)
 	L	Simple dedicated server form which lets you set the properties of the INI for the server and start it [gemGreg]
 	L	Placing houses in MP should put a temp/fake visual markup until the real one can be added to make it appear responsive

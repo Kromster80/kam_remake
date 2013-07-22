@@ -17,6 +17,7 @@ type
     fWareType: TWareType;
     fDeliverID: Integer;
     fDeliverKind: TDeliverKind;
+    procedure CheckForBetterDestination;
   public
     constructor Create(aSerf: TKMUnitSerf; aFrom: TKMHouse; toHouse: TKMHouse; Res: TWareType; aID: Integer); overload;
     constructor Create(aSerf: TKMUnitSerf; aFrom: TKMHouse; toUnit: TKMUnit; Res: TWareType; aID: Integer); overload;
@@ -137,6 +138,31 @@ begin
 end;
 
 
+procedure TTaskDeliver.CheckForBetterDestination;
+var
+  NewToHouse: TKMHouse;
+  NewToUnit: TKMUnit;
+begin
+  gPlayers[fUnit.Owner].Deliveries.Queue.CheckForBetterDemand(fDeliverID, NewToHouse, NewToUnit);
+
+  gPlayers.CleanUpHousePointer(fToHouse);
+  gPlayers.CleanUpUnitPointer(fToUnit);
+  if NewToHouse <> nil then
+  begin
+    fToHouse := NewToHouse.GetHousePointer;
+    if fToHouse.IsComplete then
+      fDeliverKind := dk_ToHouse
+    else
+      fDeliverKind := dk_ToConstruction;
+  end
+  else
+  begin
+    fToUnit := NewToUnit.GetUnitPointer;
+    fDeliverKind := dk_ToUnit;
+  end;
+end;
+
+
 function TTaskDeliver.Execute:TTaskResult;
 begin
   Result := TaskContinues;
@@ -166,6 +192,7 @@ begin
           SetActionLockedStay(5,ua_Walk); //Wait a moment inside
           fFrom.ResTakeFromOut(fWareType);
           CarryGive(fWareType);
+          CheckForBetterDestination; //Must run before TakenOffer so Offer is still valid
           gPlayers[Owner].Deliveries.Queue.TakenOffer(fDeliverID);
         end;
     3:  if fFrom.IsDestroyed then //We have the resource, so we don't care if house is destroyed

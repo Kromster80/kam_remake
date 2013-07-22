@@ -60,14 +60,14 @@ type
     procedure CloseDelivery(aID: Integer);
     procedure CloseDemand(aID: Integer);
     procedure CloseOffer(aID: Integer);
-    function ValidDelivery(iO, iD: Integer): Boolean;
+    function ValidDelivery(iO, iD: Integer; aIgnoreOffer: Boolean = False): Boolean;
     function SerfCanDoDelivery(iO, iD: Integer; aSerf: TKMUnitSerf): Boolean;
     function PermitDelivery(iO, iD: Integer; aSerf: TKMUnitSerf): Boolean;
     function CalculateBid(iO, iD: Integer; aSerf: TKMUnitSerf): Single;
   public
     procedure AddOffer(aHouse: TKMHouse; aWare: TWareType; aCount: Integer);
     procedure RemAllOffers(aHouse: TKMHouse);
-    procedure RemOffer(aHouse: TKMHouse; aWare: TWareType; aCount: Integer);
+    procedure RemOffer(aHouse: TKMHouse; aWare: TWareType; aCount: Cardinal);
 
     procedure AddDemand(aHouse: TKMHouse; aUnit: TKMUnit; aResource: TWareType; aCount: Byte; aType: TDemandType; aImp: TDemandImportance);
     function TryRemoveDemand(aHouse: TKMHouse; aResource: TWareType; aCount: Word): word;
@@ -77,6 +77,7 @@ type
     function GetAvailableDeliveriesCount: Integer;
     procedure AssignDelivery(iO, iD: Integer; aSerf: TKMUnitSerf);
     procedure AskForDelivery(aSerf: TKMUnitSerf; aHouse: TKMHouse = nil);
+    procedure CheckForBetterDemand(aDeliveryID: Integer; out aToHouse: TKMHouse; out aToUnit: TKMUnit);
     procedure TakenOffer(aID: Integer);
     procedure GaveDemand(aID: Integer);
     procedure AbandonDelivery(aID: Integer); //Occurs when unit is killed or something alike happens
@@ -383,7 +384,7 @@ begin
 end;
 
 
-procedure TKMDeliverQueue.RemOffer(aHouse: TKMHouse; aWare: TWareType; aCount: Integer);
+procedure TKMDeliverQueue.RemOffer(aHouse: TKMHouse; aWare: TWareType; aCount: Cardinal);
 var
   I: Integer;
 begin
@@ -504,7 +505,8 @@ begin
 end;
 
 
-function TKMDeliverQueue.ValidDelivery(iO,iD: Integer): Boolean;
+//IgnoreOffer means we don't check whether offer was already taken or deleted (used after offer was already claimed)
+function TKMDeliverQueue.ValidDelivery(iO,iD: Integer; aIgnoreOffer: Boolean = False): Boolean;
 var
   I: Integer;
   B: TKMHouseBarracks;
@@ -516,10 +518,10 @@ begin
             ((fDemand[iD].Ware = wt_Food) and (fOffer[iO].Ware in [wt_Bread, wt_Sausages, wt_Wine, wt_Fish]));
 
   //If Demand and Offer aren't reserved already
-  Result := Result and ((not fDemand[iD].BeingPerformed) and (fOffer[iO].BeingPerformed < fOffer[iO].Count));
+  Result := Result and ((not fDemand[iD].BeingPerformed) and (aIgnoreOffer or (fOffer[iO].BeingPerformed < fOffer[iO].Count)));
 
   //If Demand and Offer aren't deleted
-  Result := Result and (not fDemand[iD].IsDeleted) and (not fOffer[iO].IsDeleted);
+  Result := Result and (not fDemand[iD].IsDeleted) and (aIgnoreOffer or not fOffer[iO].IsDeleted);
 
   //If Demand house has WareDelivery toggled ON
   Result := Result and ((fDemand[iD].Loc_House = nil) or (fDemand[iD].Loc_House.WareDelivery));
@@ -690,6 +692,54 @@ begin
   if (fDemand[iD].Loc_Unit <> nil)
   and (fDemand[iD].Ware = wt_Food) then
     Result := Result + KaMRandom(5+(100 div fOffer[iO].Count)); //The more resource there is, the smaller Random can be. >100 we no longer care, it's just random 5.
+end;
+
+
+procedure TKMDeliverQueue.CheckForBetterDemand(aDeliveryID: Integer; out aToHouse: TKMHouse; out aToUnit: TKMUnit);
+var
+  iD, iO, BestD, OldD: Integer;
+  Bid, BestBid: Single;
+  BestImportance: TDemandImportance;
+begin
+  iO := fQueue[aDeliveryID].OfferID;
+  OldD := fQueue[aDeliveryID].DemandID;
+
+  //By default we keep the old demand, so that's our starting bid
+  BestBid := CalculateBid(iO, OldD, nil);
+  BestD := OldD;
+  BestImportance := fDemand[OldD].Importance;
+
+  for iD := 1 to fDemandCount do
+    if (fDemand[iD].Ware <> wt_None)
+    and (fDemand[iD].Importance >= BestImportance) //Skip any less important than the best we found
+    and ValidDelivery(iO, iD, True) then
+    begin
+      Bid := CalculateBid(iO, iD, nil);
+      if (Bid < BestBid) or (fDemand[iD].Importance > BestImportance) then
+      begin
+        BestD := iD;
+        BestBid := Bid;
+        BestImportance := fDemand[iD].Importance;
+      end;
+    end;
+
+  //Did we switch jobs?
+  if BestD <> OldD then
+  begin
+    //Remove old demand
+    fDemand[OldD].BeingPerformed := False;
+    if fDemand[OldD].IsDeleted then
+      CloseDemand(OldD);
+
+    //Take new demand
+    fQueue[aDeliveryID].DemandID := BestD;
+    //Store never has enough demand performed
+    if (fDemand[BestD].Loc_House = nil) or (fDemand[BestD].DemandType <> dt_Always) then
+      fDemand[BestD].BeingPerformed := True; //Places a virtual "Reserved" sign on Demand
+  end;
+  //Return chosen unit and house
+  aToHouse := fDemand[BestD].Loc_House;
+  aToUnit := fDemand[BestD].Loc_Unit;
 end;
 
 
