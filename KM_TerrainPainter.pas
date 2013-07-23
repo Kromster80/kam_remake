@@ -19,7 +19,7 @@ type
     tkIron, tkFastWater, tkLava);
 
   //Tile data that we store in undo checkpoints
-  TKMCheckpointTile = packed record
+  TKMUndoTile = packed record
     Terrain: Byte;
     Height: Byte;
     Rotation: Byte;
@@ -36,10 +36,10 @@ type
   //Terrain helper that is used to paint terrain types in Map Editor
   TKMTerrainPainter = class
   private
-    fCheckpointPos: Byte;
-    fCheckpoints: array [0..MAX_UNDO-1] of record
+    fUndoPos: Byte;
+    fUndos: array [0..MAX_UNDO-1] of record
       HasData: Boolean;
-      Data: array of array of TKMCheckpointTile;
+      Data: array of array of TKMUndoTile;
     end;
 
     MapXn, MapYn: Integer; //Cursor position node
@@ -154,6 +154,7 @@ implementation
 uses KM_GameCursor, KM_Resource, KM_Log, KM_Utils;
 
 
+{ TKMTerrainPainter }
 constructor TKMTerrainPainter.Create;
 begin
   inherited;
@@ -699,8 +700,8 @@ procedure TKMTerrainPainter.InitSize(X, Y: Word);
 var
   I: Integer;
 begin
-  for I := 0 to High(fCheckpoints) do
-    SetLength(fCheckpoints[I].Data, Y+1, X+1);
+  for I := 0 to High(fUndos) do
+    SetLength(fUndos[I].Data, Y+1, X+1);
 
   SetLength(Land2, Y+1, X+1);
 end;
@@ -840,12 +841,12 @@ var
   I,K: Integer;
 begin
   //Get next pos in circular buffer
-  fCheckpointPos := (fCheckpointPos + 1) mod MAX_UNDO;
+  fUndoPos := (fUndoPos + 1) mod MAX_UNDO;
 
   //Store new checkpoint
   for I := 1 to gTerrain.MapY do
   for K := 1 to gTerrain.MapX do
-  with fCheckpoints[fCheckpointPos] do
+  with fUndos[fUndoPos] do
   begin
     Data[I,K].Terrain := gTerrain.Land[I,K].Terrain;
     Data[I,K].Height := gTerrain.Land[I,K].Height;
@@ -853,22 +854,22 @@ begin
     Data[I,K].Obj := gTerrain.Land[I,K].Obj;
     Data[I,K].TerKind := Land2[I,K].TerKind;
   end;
-  fCheckpoints[fCheckpointPos].HasData := True;
+  fUndos[fUndoPos].HasData := True;
 
   //Mark next checkpoint pos as invalid, so we can't Redo to it
-  fCheckpoints[(fCheckpointPos + 1) mod MAX_UNDO].HasData := False;
+  fUndos[(fUndoPos + 1) mod MAX_UNDO].HasData := False;
 end;
 
 
 function TKMTerrainPainter.CanUndo: Boolean;
 begin
-  Result := fCheckpoints[(fCheckpointPos - 1 + MAX_UNDO) mod MAX_UNDO].HasData;
+  Result := fUndos[(fUndoPos - 1 + MAX_UNDO) mod MAX_UNDO].HasData;
 end;
 
 
 function TKMTerrainPainter.CanRedo: Boolean;
 begin
-  Result := fCheckpoints[(fCheckpointPos + 1) mod MAX_UNDO].HasData;
+  Result := fUndos[(fUndoPos + 1) mod MAX_UNDO].HasData;
 end;
 
 
@@ -876,11 +877,11 @@ procedure TKMTerrainPainter.Undo;
 var
   Prev: Byte;
 begin
-  Prev := (fCheckpointPos - 1 + MAX_UNDO) mod MAX_UNDO;
+  Prev := (fUndoPos - 1 + MAX_UNDO) mod MAX_UNDO;
 
-  if not fCheckpoints[Prev].HasData then Exit;
+  if not fUndos[Prev].HasData then Exit;
 
-  fCheckpointPos := Prev;
+  fUndoPos := Prev;
   CheckpointToTerrain;
 end;
 
@@ -890,11 +891,11 @@ var
   Next: Byte;
 begin
   //Next pos in circular buffer
-  Next := (fCheckpointPos + 1) mod MAX_UNDO;
+  Next := (fUndoPos + 1) mod MAX_UNDO;
 
-  if not fCheckpoints[Next].HasData then Exit;
+  if not fUndos[Next].HasData then Exit;
 
-  fCheckpointPos := Next;
+  fUndoPos := Next;
 
   CheckpointToTerrain;
 end;
@@ -906,7 +907,7 @@ var
 begin
   for I := 1 to gTerrain.MapY do
   for K := 1 to gTerrain.MapX do
-  with fCheckpoints[fCheckpointPos] do
+  with fUndos[fUndoPos] do
   begin
     gTerrain.Land[I,K].Terrain := Data[I,K].Terrain;
     gTerrain.Land[I,K].Height := Data[I,K].Height;
@@ -921,7 +922,6 @@ begin
 end;
 
 
-//Only MapEd accesses it
 procedure TKMTerrainPainter.UpdateStateIdle;
 begin
   case GameCursor.Mode of
