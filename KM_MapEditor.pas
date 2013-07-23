@@ -44,7 +44,7 @@ type
     procedure MouseMove;
     procedure MouseUp(Button: TMouseButton);
     procedure Update;
-    procedure Paint(aLayer: TPaintLayer; aClipRect: TKMRect);
+    procedure Paint(aLayer: TKMPaintLayer; aClipRect: TKMRect);
   end;
 
 
@@ -258,7 +258,7 @@ begin
 end;
 
 
-procedure TKMMapEditor.Paint(aLayer: TPaintLayer; aClipRect: TKMRect);
+procedure TKMMapEditor.Paint(aLayer: TKMPaintLayer; aClipRect: TKMRect);
 var
   I, K: Integer;
   Loc, P: TKMPoint;
@@ -327,7 +327,7 @@ begin
   end;
 
   if mlSelection in fVisibleLayers then
-    fSelection.Paint(aClipRect);
+    fSelection.Paint(aLayer, aClipRect);
 
   //Show selected group order target
   if MySpectator.Selected is TKMUnitGroup then

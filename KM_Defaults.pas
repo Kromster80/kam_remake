@@ -544,7 +544,6 @@ type
   TMapEdLayer = (mlObjects, mlHouses, mlUnits, mlDeposits, mlDefences, mlRevealFOW, mlCenterScreen, mlSelection);  //Enum representing mapEditor visible layers
   TMapEdLayerSet = set of TMapEdLayer;                                   //Set of above enum
 
-  TPaintLayer = (plTerrain, plObjects, plCursors);
 
 
 //Record storing resolution and refresh rate

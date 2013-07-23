@@ -11,6 +11,7 @@ uses
 
 type
   TKMRenderTarget = (rtScreen, rtSelection);
+  TKMPaintLayer = (plTerrain, plObjects, plCursors);
 
   TKMRenderSprite = record
     Loc: TKMPointF; //Where sprite lower-left corner is located
@@ -81,7 +82,6 @@ type
     procedure CollectTerrainObjects(aRect: TKMRect; aAnimStep: Cardinal);
 
     procedure RenderWireHousePlan(P: TKMPoint; aHouseType: THouseType);
-    procedure RenderMapElement(aIndex: Byte; AnimStep,pX,pY: Integer; DoImmediateRender: Boolean = False; Deleting: Boolean = False);
   public
     constructor Create(aRender: TRender);
     destructor Destroy; override;
@@ -103,6 +103,7 @@ type
     procedure AddUnitFlag(aUnit: TUnitType; aAct: TUnitActionType; aDir: TKMDirection; FlagAnim: Integer; pX,pY: Single; FlagColor: TColor4);
     procedure AddUnitWithDefaultArm(aUnit: TUnitType; aUID: Integer; aAct: TUnitActionType; aDir: TKMDirection; StepId: Integer; pX,pY: Single; FlagColor: TColor4; DoImmediateRender: Boolean = False; Deleting: Boolean = False);
 
+    procedure RenderMapElement(aIndex: Byte; AnimStep,pX,pY: Integer; DoImmediateRender: Boolean = False; Deleting: Boolean = False);
     procedure RenderSpriteOnTile(aLoc: TKMPoint; aId: Word; aFlagColor: TColor4 = $FFFFFFFF);
     procedure RenderSpriteOnTerrain(aLoc: TKMPointF; aId: Word; aFlagColor: TColor4 = $FFFFFFFF);
     procedure RenderTile(Index: Byte; pX,pY,Rot: Integer);
@@ -345,6 +346,9 @@ var
 begin
   if fGame.IsMapEditor and not (mlObjects in fGame.MapEditor.VisibleLayers) then
     Exit;
+
+  if fGame.IsMapEditor then
+    fGame.MapEditor.Paint(plObjects, aRect);
 
   with gTerrain do
   for I := aRect.Top to aRect.Bottom do

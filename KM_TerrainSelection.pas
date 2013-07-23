@@ -3,7 +3,7 @@ unit KM_TerrainSelection;
 interface
 uses Classes, Math, Clipbrd,
   {$IFDEF MSWindows} Windows, {$ENDIF}
-  KM_CommonClasses, KM_Points, KM_Terrain, KM_TerrainPainter;
+  KM_CommonClasses, KM_Points, KM_Terrain, KM_TerrainPainter, KM_RenderPool;
 
 
 type
@@ -39,7 +39,7 @@ type
     procedure Selection_PasteCancel;
     procedure Selection_Flip(aAxis: TKMFlipAxis);
     //procedure Transform; //Transforms the buffer data ?
-    procedure Paint(aClipRect: TKMRect);
+    procedure Paint(aLayer: TKMPaintLayer; aClipRect: TKMRect);
   end;
 
 
@@ -48,7 +48,7 @@ var
 
 
 implementation
-uses KM_GameCursor, KM_RenderAux, KM_RenderPool;
+uses KM_GameCursor, KM_RenderAux;
 
 
 { TKMSelection }
@@ -334,7 +334,7 @@ begin
 end;
 
 
-procedure TKMSelection.Paint(aClipRect: TKMRect);
+procedure TKMSelection.Paint(aLayer: TKMPaintLayer; aClipRect: TKMRect);
 var
   Sx, Sy: Word;
   I, K: Integer;
@@ -342,20 +342,31 @@ begin
   Sx := fSelectionRect.Right - fSelectionRect.Left;
   Sy := fSelectionRect.Bottom - fSelectionRect.Top;
 
-  case fSelectionMode of
-    smSelecting:  begin
-                    //fRenderAux.SquareOnTerrain(RawRect.Left, RawRect.Top, RawRect.Right, RawRect.Bottom, $40FFFF00);
-                    fRenderAux.SquareOnTerrain(fSelectionRect.Left, fSelectionRect.Top, fSelectionRect.Right, fSelectionRect.Bottom, $FFFFFF00);
-                  end;
-    smPasting:    begin
-                    for I := 0 to Sy - 1 do
-                    for K := 0 to Sx - 1 do
-                    if KMInRect(KMPoint(aClipRect.Left+K+1, aClipRect.Top+I+1), aClipRect) then
-                      fRenderPool.RenderTerrain.RenderTile(fSelectionBuffer[I,K].Terrain, fSelectionRect.Left+K+1, fSelectionRect.Top+I+1, fSelectionBuffer[I,K].Rotation);
+  if aLayer = plTerrain then
+    case fSelectionMode of
+      smSelecting:  begin
+                      //fRenderAux.SquareOnTerrain(RawRect.Left, RawRect.Top, RawRect.Right, RawRect.Bottom, $40FFFF00);
+                      fRenderAux.SquareOnTerrain(fSelectionRect.Left, fSelectionRect.Top, fSelectionRect.Right, fSelectionRect.Bottom, $FFFFFF00);
+                    end;
+      smPasting:    begin
+                      for I := 0 to Sy - 1 do
+                      for K := 0 to Sx - 1 do
+                      if KMInRect(KMPoint(aClipRect.Left+K+1, aClipRect.Top+I+1), aClipRect) then
+                        fRenderPool.RenderTerrain.RenderTile(fSelectionBuffer[I,K].Terrain, fSelectionRect.Left+K+1, fSelectionRect.Top+I+1, fSelectionBuffer[I,K].Rotation);
 
-                    fRenderAux.SquareOnTerrain(fSelectionRect.Left, fSelectionRect.Top, fSelectionRect.Right, fSelectionRect.Bottom, $FF0000FF);
-                  end;
-  end;
+                      fRenderAux.SquareOnTerrain(fSelectionRect.Left, fSelectionRect.Top, fSelectionRect.Right, fSelectionRect.Bottom, $FF0000FF);
+                    end;
+    end;
+
+  if aLayer = plObjects then
+    if fSelectionMode = smPasting then
+    begin
+      for I := 0 to Sy - 1 do
+      for K := 0 to Sx - 1 do
+        if (fSelectionBuffer[I,K].Obj <> 255)
+        and KMInRect(KMPoint(aClipRect.Left+K+1, aClipRect.Top+I+1), aClipRect) then
+          fRenderPool.RenderMapElement(fSelectionBuffer[I,K].Obj, 0, fSelectionRect.Left+K+1, fSelectionRect.Top+I+1, True);
+    end;
 end;
 
 
