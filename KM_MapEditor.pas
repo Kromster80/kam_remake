@@ -44,6 +44,7 @@ type
     procedure MouseMove;
     procedure MouseUp(Button: TMouseButton);
     procedure Update;
+    procedure UpdateStateIdle;
     procedure Paint(aLayer: TKMPaintLayer; aClipRect: TKMRect);
   end;
 
@@ -59,9 +60,10 @@ var
 begin
   inherited Create;
 
-  fTerrainPainter := TKMTerrainPainter.Create;
   fDeposits := TKMDeposits.Create;
-  fSelection := TKMSelection.Create;
+
+  fTerrainPainter := TKMTerrainPainter.Create;
+  fSelection := TKMSelection.Create(fTerrainPainter);
 
   fVisibleLayers := [mlObjects, mlHouses, mlUnits, mlDeposits];
 
@@ -339,6 +341,12 @@ begin
       fRenderAux.LineOnTerrain(G.Position.X - 0.5, G.Position.Y - 0.5, G.MapEdOrder.Pos.Loc.X - 0.5, G.MapEdOrder.Pos.Loc.Y - 0.5, $FF0000FF);
     end;
   end;
+end;
+
+
+procedure TKMMapEditor.UpdateStateIdle;
+begin
+  fTerrainPainter.UpdateStateIdle;
 end;
 
 

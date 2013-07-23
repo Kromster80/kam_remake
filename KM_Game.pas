@@ -1543,7 +1543,7 @@ begin
 
   //Terrain should be updated in real time when user applies brushes
   if fMapEditor <> nil then
-    fMapEditor.TerrainPainter.UpdateStateIdle;
+    fMapEditor.UpdateStateIdle;
 end;
 
 

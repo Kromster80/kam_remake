@@ -1,7 +1,7 @@
 unit KM_TerrainSelection;
 {$I KaM_Remake.inc}
 interface
-uses Classes, Math, Clipbrd,
+uses Classes, Math, Clipbrd, KromUtils,
   {$IFDEF MSWindows} Windows, {$ENDIF}
   KM_CommonClasses, KM_Points, KM_Terrain, KM_TerrainPainter, KM_RenderPool;
 
@@ -16,11 +16,12 @@ type
                     Height: Byte;
                     Rotation: Byte;
                     Obj: Byte;
-                    TerrainKind: TTerrainKind; //Used for brushes
+                    TerKind: TKMTerrainKind; //Used for brushes
                   end;
 
   TKMSelection = class
   private
+    fTerrainPainter: TKMTerrainPainter;
     fSelectionEdit: TKMSelectionEdit;
     fSelPrevX, fSelPrevY: Integer;
 
@@ -30,6 +31,7 @@ type
     fSelectionBuffer: array of array of TKMBufferData;
     procedure Selection_SyncCellRect;
   public
+    constructor Create(aTerrainPainter: TKMTerrainPainter);
     procedure Selection_Resize;
     procedure Selection_Start;
     function Selection_DataInBuffer: Boolean;
@@ -38,7 +40,7 @@ type
     procedure Selection_PasteApply; //Do the actual paste from buffer to terrain
     procedure Selection_PasteCancel;
     procedure Selection_Flip(aAxis: TKMFlipAxis);
-    //procedure Transform; //Transforms the buffer data ?
+
     procedure Paint(aLayer: TKMPaintLayer; aClipRect: TKMRect);
   end;
 
@@ -52,6 +54,14 @@ uses KM_GameCursor, KM_RenderAux;
 
 
 { TKMSelection }
+constructor TKMSelection.Create(aTerrainPainter: TKMTerrainPainter);
+begin
+  inherited Create;
+
+  fTerrainPainter := aTerrainPainter;
+end;
+
+
 procedure TKMSelection.Selection_SyncCellRect;
 begin
   //Convert RawRect values that can be inverted to tilespace Rect
@@ -174,11 +184,11 @@ begin
   begin
     Bx := K - fSelectionRect.Left;
     By := I - fSelectionRect.Top;
-    fSelectionBuffer[By,Bx].Terrain     := gTerrain.Land[I+1, K+1].Terrain;
-    fSelectionBuffer[By,Bx].Height      := gTerrain.Land[I+1, K+1].Height;
-    fSelectionBuffer[By,Bx].Rotation    := gTerrain.Land[I+1, K+1].Rotation;
-    fSelectionBuffer[By,Bx].Obj         := gTerrain.Land[I+1, K+1].Obj;
-//TODO: Move to TerrainPainter    fBuffer[By,Bx].TerrainKind := fTerrainPainter.TerrainKind[I+1, K+1];
+    fSelectionBuffer[By,Bx].Terrain   := gTerrain.Land[I+1, K+1].Terrain;
+    fSelectionBuffer[By,Bx].Height    := gTerrain.Land[I+1, K+1].Height;
+    fSelectionBuffer[By,Bx].Rotation  := gTerrain.Land[I+1, K+1].Rotation;
+    fSelectionBuffer[By,Bx].Obj       := gTerrain.Land[I+1, K+1].Obj;
+    fSelectionBuffer[By,Bx].TerKind   := fTerrainPainter.Land2[I+1, K+1].TerKind;
 
     BufferStream.Write(fSelectionBuffer[By,Bx], SizeOf(fSelectionBuffer[By,Bx]));
   end;
@@ -229,7 +239,6 @@ begin
       BufferStream.Read(fSelectionBuffer[I,K], SizeOf(fSelectionBuffer[I,K]));
   BufferStream.Free;
 
-
   //Mapmaker could have changed selection rect, sync it with Buffer size
   fSelectionRect.Right := fSelectionRect.Left + Length(fSelectionBuffer[0]);
   fSelectionRect.Bottom := fSelectionRect.Top + Length(fSelectionBuffer);
@@ -253,7 +262,7 @@ begin
     gTerrain.Land[I+1, K+1].Height      := fSelectionBuffer[By,Bx].Height;
     gTerrain.Land[I+1, K+1].Rotation    := fSelectionBuffer[By,Bx].Rotation;
     gTerrain.Land[I+1, K+1].Obj         := fSelectionBuffer[By,Bx].Obj;
-//TODO: Move to TerrainPainter    fTerrainPainter.TerrainKind[I+1, K+1] := fBuffer[By,Bx].TerrainKind;
+    fTerrainPainter.Land2[I+1, K+1].TerKind := fSelectionBuffer[By,Bx].TerKind;
   end;
 
   gTerrain.UpdateLighting(fSelectionRect);
@@ -269,68 +278,68 @@ begin
 end;
 
 
-
 procedure TKMSelection.Selection_Flip(aAxis: TKMFlipAxis);
-const
-  CORNERS = [10,15,18,21..23,25,38,49,51..54,56,58,65,66,68..69,71,72,74,78,80,81,83,84,86..87,89,90,92,93,95,96,98,99,101,102,104,105,107..108,110..111,113,114,116,118,119,120,122,123,126..127,138,142,143,165,176..193,196,202,203,205,213,220,234..241,243,247];
-  CORNERS_REVERSED = [15,21,142,234,235,238];
-  EDGES = [4,12,19,39,50,57,64,67,70,73,76,79,82,85,88,91,94,97,100,103,106,109,112,115,117,121,124..125,139,141,166..175,194,198..200,204,206..212,216..219,223,224..233,242,244];
-  //objMiddle = [8,9,54..61,80,81,212,213,215];
-  //objMiddleVert = [8,9,54..61,80,81,212,213,215,  1..5,10..12,17..19,21..24,126,210,211,249..253];
+
+  procedure SwapTiles(X1, Y1, X2, Y2: Word);
+  var Tmp: TKMTerrainKind;
+  begin
+    SwapInt(gTerrain.Land[Y1,X1].Terrain, gTerrain.Land[Y2,X2].Terrain);
+    SwapInt(gTerrain.Land[Y1,X1].Height, gTerrain.Land[Y2,X2].Height);
+    SwapInt(gTerrain.Land[Y1,X1].Rotation, gTerrain.Land[Y2,X2].Rotation);
+    SwapInt(gTerrain.Land[Y1,X1].Obj, gTerrain.Land[Y2,X2].Obj);
+    Tmp := fTerrainPainter.Land2[Y1, X1].TerKind;
+    fTerrainPainter.Land2[Y1, X1].TerKind := fTerrainPainter.Land2[Y2, X2].TerKind;
+    fTerrainPainter.Land2[Y2, X2].TerKind := Tmp;
+  end;
 
   procedure FixTerrain(X, Y: Integer);
-  var Ter, Rot:byte;
+  const
+    CORNERS = [10,15,18,21..23,25,38,49,51..54,56,58,65,66,68..69,71,72,74,78,80,81,83,84,86..87,89,90,92,93,95,96,98,99,101,102,104,105,107..108,110..111,113,114,116,118,119,120,122,123,126..127,138,142,143,165,176..193,196,202,203,205,213,220,234..241,243,247];
+    CORNERS_REVERSED = [15,21,142,234,235,238];
+    EDGES = [4,12,19,39,50,57,64,67,70,73,76,79,82,85,88,91,94,97,100,103,106,109,112,115,117,121,124..125,139,141,166..175,194,198..200,204,206..212,216..219,223,224..233,242,244];
+    //objMiddle = [8,9,54..61,80,81,212,213,215];
+    //objMiddleVert = [8,9,54..61,80,81,212,213,215,  1..5,10..12,17..19,21..24,126,210,211,249..253];
+  var
+    Ter, Rot: Byte;
   begin
-    Ter := fSelectionBuffer[Y,X].Terrain;
-    Rot := fSelectionBuffer[Y,X].Rotation mod 4; //Some KaM maps contain rotations > 3 which must be fixed by modding
+    Ter := gTerrain.Land[Y,X].Terrain;
+    Rot := gTerrain.Land[Y,X].Rotation mod 4; //Some KaM maps contain rotations > 3 which must be fixed by modding
 
     //Edges
     if (Ter in EDGES) and ((Rot in [1,3]) xor (aAxis = fa_Vertical)) then
-      fSelectionBuffer[Y,X].Rotation := (Rot+2) mod 4;
+      gTerrain.Land[Y,X].Rotation := (Rot+2) mod 4;
 
     //Corners
     if Ter in CORNERS then
     begin
       if (Rot in [1,3]) xor (Ter in CORNERS_REVERSED) xor (aAxis = fa_Vertical) then
-        fSelectionBuffer[Y,X].Rotation := (Rot+1) mod 4
+        gTerrain.Land[Y,X].Rotation := (Rot+1) mod 4
       else
-        fSelectionBuffer[Y,X].Rotation := (Rot+3) mod 4;
+        gTerrain.Land[Y,X].Rotation := (Rot+3) mod 4;
     end;
   end;
 
-var X,Y, MaxX, MaxY:integer; Temp: TKMBufferData;
+var
+  I,K: Integer;
+  SX, SY: Word;
 begin
-  MaxY := Length(fSelectionBuffer)-1;
-  if MaxY < 0 then Exit;
-  MaxX := Length(fSelectionBuffer[0])-1;
+  SX := (fSelectionRect.Right - fSelectionRect.Left);
+  SY := (fSelectionRect.Bottom - fSelectionRect.Top);
 
   case aAxis of
-    fa_Horizontal:
-      for Y:=0 to MaxY do
-        for X:=0 to Ceil((MaxX+1) / 2)-1 do
-        begin
-          Temp := fSelectionBuffer[Y, X];
-          fSelectionBuffer[Y, X] := fSelectionBuffer[Y, MaxX-X];
-          fSelectionBuffer[Y, MaxX-X] := Temp;
-
-          FixTerrain(X, Y);
-          if MaxX-X <> X then
-            FixTerrain(MaxX-X, Y);
-        end;
-
-    fa_Vertical:
-      for Y:=0 to Ceil((MaxY+1) / 2)-1 do
-        for X:=0 to MaxX do
-        begin
-          Temp := fSelectionBuffer[Y, X];
-          fSelectionBuffer[Y, X] := fSelectionBuffer[MaxY-Y, X];
-          fSelectionBuffer[MaxY-Y, X] := Temp;
-
-          FixTerrain(X, Y);
-          if MaxY-Y <> Y then
-            FixTerrain(X, MaxY-Y);
-        end;
+    fa_Horizontal:  for I := 1 to SY do
+                    for K := 1 to SX div 2 do
+                      SwapTiles(fSelectionRect.Left + K, fSelectionRect.Top + I,
+                                fSelectionRect.Right - K + 1, fSelectionRect.Top + I);
+    fa_Vertical:    for I := 1 to SY div 2 do
+                    for K := 1 to SX do
+                      SwapTiles(fSelectionRect.Left + K, fSelectionRect.Top + I,
+                                fSelectionRect.Left + K, fSelectionRect.Bottom - I + 1);
   end;
+
+  for I := 1 to SY do
+  for K := 1 to SX do
+    FixTerrain(fSelectionRect.Left + K, fSelectionRect.Top + I);
 end;
 
 

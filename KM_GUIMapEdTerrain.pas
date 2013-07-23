@@ -140,8 +140,6 @@ begin
     Button_SelectPaste.Enabled := fGame.MapEditor.Selection.Selection_DataInBuffer;
     Button_SelectPasteApply.Disable;
     Button_SelectPasteCancel.Disable;
-    Button_SelectFlipH.Disable;
-    Button_SelectFlipV.Disable;
     SelectionClick(Button_SelectCopy);
     Panel_Selection.Show;
   end;
@@ -173,7 +171,7 @@ const
     TX_MAPED_TERRAIN_HINTS_TILES,
     TX_MAPED_TERRAIN_HINTS_OBJECTS,
     TX_MAPED_COPY_TITLE);
-  Surfaces: array [0 .. 6, 0 .. 4] of TTerrainKind = (
+  Surfaces: array [0 .. 6, 0 .. 4] of TKMTerrainKind = (
     (tkGrass,       tkMoss,         tkRustyGrass1,  tkRustyGrass2,  tkCustom),
     (tkDirtGrass,   tkDirt,         tkGravel,       tkCobbleStone,  tkCustom),
     (tkGrassSand2,  tkGrassSand1,   tkSand,         tkRichSand,     tkCustom),
@@ -545,8 +543,6 @@ begin
 
     Button_SelectPasteApply.Enable;
     Button_SelectPasteCancel.Enable;
-    Button_SelectFlipH.Enable;
-    Button_SelectFlipV.Enable;
     Button_SelectCopy.Disable;
     Button_SelectPaste.Disable;
   end
@@ -559,8 +555,6 @@ begin
 
     Button_SelectPasteApply.Disable;
     Button_SelectPasteCancel.Disable;
-    Button_SelectFlipH.Disable;
-    Button_SelectFlipV.Disable;
     Button_SelectCopy.Enable;
     Button_SelectPaste.Enable;
   end
@@ -571,8 +565,6 @@ begin
     fGame.MapEditor.Selection.Selection_PasteCancel;
     Button_SelectPasteApply.Disable;
     Button_SelectPasteCancel.Disable;
-    Button_SelectFlipH.Disable;
-    Button_SelectFlipV.Disable;
     Button_SelectCopy.Enable;
     Button_SelectPaste.Enable;
   end

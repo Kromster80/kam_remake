@@ -9,7 +9,7 @@ const
   MAX_UNDO = 40;
 
 type
-  TTerrainKind = (
+  TKMTerrainKind = (
     tkCustom,
     tkGrass, tkMoss, tkRustyGrass1, tkRustyGrass2, tkDirtGrass,
     tkSand, tkRichSand, tkDirt, tkCobbleStone, tkGrassSand1,
@@ -24,11 +24,11 @@ type
     Height: Byte;
     Rotation: Byte;
     Obj: Byte;
-    TerType: TTerrainKind;
+    TerKind: TKMTerrainKind;
   end;
 
   TKMPainterTile = packed record
-    TerType: TTerrainKind; //Stores terrain type per node
+    TerKind: TKMTerrainKind; //Stores terrain type per node
     Tiles: SmallInt;  //Stores kind of transition tile used, no need to save into MAP footer
     HeightAdd: Byte; //Fraction part of height, for smooth height editing
   end;
@@ -42,25 +42,22 @@ type
       Data: array of array of TKMCheckpointTile;
     end;
 
-    Land2: array of array of TKMPainterTile;
-
     MapXn, MapYn: Integer; //Cursor position node
     MapXc, MapYc: Integer; //Cursor position cell
     MapXn2, MapYn2: Integer; //keeps previous node position
     MapXc2, MapYc2: Integer; //keeps previous cell position
 
     procedure CheckpointToTerrain;
-    procedure BrushTerrainTile(X, Y: SmallInt; aTerrainKind: TTerrainKind);
-    function PickRandomTile(aTerrainKind: TTerrainKind): Byte;
+    procedure BrushTerrainTile(X, Y: SmallInt; aTerrainKind: TKMTerrainKind);
+    function PickRandomTile(aTerrainKind: TKMTerrainKind): Byte;
     procedure RebuildMap(X,Y,Rad: Integer; aSquare: Boolean);
     procedure EditBrush(aLoc: TKMPoint);
     procedure EditHeight;
     procedure EditTile(aLoc: TKMPoint; aTile,aRotation: Byte);
     procedure GenerateAddnData;
-    function GetTerrainKind(Y, X: Integer): TTerrainKind;
-    procedure SetTerrainKind(Y, X: Integer; Kind: TTerrainKind);
     procedure InitSize(X,Y: Word);
   public
+    Land2: array of array of TKMPainterTile;
     RandomizeTiling: Boolean;
     constructor Create;
     procedure InitEmpty;
@@ -68,7 +65,6 @@ type
     procedure SaveToFile(aFileName: string);
     procedure UpdateStateIdle;
     procedure MagicWater(aLoc: TKMPoint);
-    property TerrainKind[Y,X: Integer]: TTerrainKind read GetTerrainKind write SetTerrainKind;
 
     function CanUndo: Boolean;
     function CanRedo: Boolean;
@@ -85,7 +81,7 @@ const
   //2 - in half
   //3 - one corner
   //"-" means flip before use
-  Combo: array [TTerrainKind, TTerrainKind, 1..3] of SmallInt = (
+  Combo: array [TKMTerrainKind, TKMTerrainKind, 1..3] of SmallInt = (
    //Custom //Grass        //Moss  //GrassRed    //GrassRed2//GrassGrnd//Sand           //OrangeSand  //Ground         //Cobblest       //SandGrass   //GrassSand      //Swamp       //GrndSwmp //Ice         //SnowLittle   //SnowMedium  //SnowBig  //StoneMount     //GreyMount      //RedMount       //Abyss        //Gravel      //Water          //Coal    //Gold           //Iron           //FastWater  //Lava
   ((0,0,0),(  0,   0,  0),(0,0,0),(  0,  0,  0),( 0, 0, 0),( 0, 0, 0),(   0,   0,   0),(  0,  0,  0),(   0,   0,   0),(   0,   0,   0),(  0,  0,  0),(   0,   0,   0),(  0,  0,  0),( 0, 0, 0),(  0,  0,  0),(  0,  0,   0),(  0,  0,  0),( 0, 0, 0),(   0,   0,   0),(   0,   0,   0),(   0,   0,   0),(  0, 0,    0),(  0,  0,  0),(   0,   0,   0),(  0,0,0),(   0,   0,   0),(   0,   0,   0),(   0, 0, 0),(   0, 0, 0)), //Custom
   ((0,0,0),(  0,   0,  0),(0,0,0),(  0,  0,  0),( 0, 0, 0),( 0, 0, 0),(   0,   0,   0),(  0,  0,  0),(   0,   0,   0),(   0,   0,   0),(  0,  0,  0),(   0,   0,   0),(  0,  0,  0),( 0, 0, 0),(  0,  0,  0),(  0,  0,   0),(  0,  0,  0),( 0, 0, 0),(   0,   0,   0),(   0,   0,   0),(   0,   0,   0),(  0, 0,    0),(  0,  0,  0),(   0,   0,   0),(  0,0,0),(   0,   0,   0),(   0,   0,   0),(   0, 0, 0),(   0, 0, 0)), //Grass
@@ -121,7 +117,7 @@ const
   //0     number of variants (1..X)
   //1..X  tile variants
   //
-  RandomTiling: array [TTerrainKind, 0..15] of Byte = (
+  RandomTiling: array [TKMTerrainKind, 0..15] of Byte = (
     (0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0),
     (15,1,1,1,2,2,2,3,3,3,5,5,5,11,13,14), //reduced chance for "eye-catching" tiles
     (1,9,0,0,0,0,0,0,0,0,0,0,0,0,0,0),
@@ -165,22 +161,22 @@ begin
 end;
 
 
-procedure TKMTerrainPainter.BrushTerrainTile(X, Y: SmallInt; aTerrainKind: TTerrainKind);
+procedure TKMTerrainPainter.BrushTerrainTile(X, Y: SmallInt; aTerrainKind: TKMTerrainKind);
 begin
   if not gTerrain.TileInMapCoords(X, Y) then
     Exit;
 
-  Land2[Y, X].TerType := aTerrainKind;
-  Land2[Y, X + 1].TerType := aTerrainKind;
-  Land2[Y + 1, X + 1].TerType := aTerrainKind;
-  Land2[Y + 1, X].TerType := aTerrainKind;
+  Land2[Y, X].TerKind := aTerrainKind;
+  Land2[Y, X + 1].TerKind := aTerrainKind;
+  Land2[Y + 1, X + 1].TerKind := aTerrainKind;
+  Land2[Y + 1, X].TerKind := aTerrainKind;
 
-  gTerrain.Land[Y, X].Terrain := PickRandomTile(TTerrainKind(GameCursor.Tag1));
+  gTerrain.Land[Y, X].Terrain := PickRandomTile(TKMTerrainKind(GameCursor.Tag1));
   gTerrain.Land[Y, X].Rotation := Random(4); //Random direction for all plain tiles
 end;
 
 
-function TKMTerrainPainter.PickRandomTile(aTerrainKind: TTerrainKind): Byte;
+function TKMTerrainPainter.PickRandomTile(aTerrainKind: TKMTerrainKind): Byte;
 begin
   Result := Abs(Combo[aTerrainKind, aTerrainKind, 1]);
   if not RandomizeTiling or (RandomTiling[aTerrainKind, 0] = 0) then Exit;
@@ -198,7 +194,7 @@ end;
 procedure TKMTerrainPainter.RebuildMap(X,Y,Rad: Integer; aSquare: Boolean);
 var
   I, K, pY, pX, Nodes, Rot, T: Integer;
-  Tmp, Ter1, Ter2, A, B, C, D: TTerrainKind;
+  Tmp, Ter1, Ter2, A, B, C, D: TKMTerrainKind;
 begin
   for I := -Rad to Rad do
   for K := -Rad to Rad do
@@ -208,15 +204,15 @@ begin
     pY := EnsureRange(Y+I, 1, gTerrain.MapY - 1);
 
     //don't touch custom placed tiles (tkCustom type)
-    if (Land2[pY  ,pX].TerType <> tkCustom)
-    and (Land2[pY  ,pX+1].TerType <> tkCustom)
-    and (Land2[pY+1,pX].TerType <> tkCustom)
-    and (Land2[pY+1,pX+1].TerType <> tkCustom) then
+    if (Land2[pY  ,pX].TerKind <> tkCustom)
+    and (Land2[pY  ,pX+1].TerKind <> tkCustom)
+    and (Land2[pY+1,pX].TerKind <> tkCustom)
+    and (Land2[pY+1,pX+1].TerKind <> tkCustom) then
     begin
-      A := (Land2[pY    , pX    ].TerType);
-      B := (Land2[pY    , pX + 1].TerType);
-      C := (Land2[pY + 1, pX    ].TerType);
-      D := (Land2[pY + 1, pX + 1].TerType);
+      A := (Land2[pY    , pX    ].TerKind);
+      B := (Land2[pY    , pX + 1].TerKind);
+      C := (Land2[pY + 1, pX    ].TerKind);
+      D := (Land2[pY + 1, pX + 1].TerKind);
       Rot := 0;
       Nodes := 1;
 
@@ -308,7 +304,7 @@ begin
   if Size = 0 then
   begin
     if (MapXn2 <> MapXn) or (MapYn2 <> MapYn) then
-      Land2[MapYn, MapXn].TerType := TTerrainKind(GameCursor.Tag1);
+      Land2[MapYn, MapXn].TerKind := TKMTerrainKind(GameCursor.Tag1);
   end
   else
     if (MapXc2 <> MapXc) or (MapYc2 <> MapYc) then
@@ -319,14 +315,14 @@ begin
         //first comes odd sizes 1,3,5..
         for I:=-Rad to Rad do for K:=-Rad to Rad do
         if (GameCursor.MapEdShape = hsSquare) or (Sqr(I) + Sqr(K) < Sqr(Rad + 0.5)) then               //Rounding corners in a nice way
-        BrushTerrainTile(MapXc+K, MapYc+I, TTerrainKind(GameCursor.Tag1));
+        BrushTerrainTile(MapXc+K, MapYc+I, TKMTerrainKind(GameCursor.Tag1));
       end
       else
       begin
         //even sizes 2,4,6..
         for I:=-Rad to Rad-1 do for K:=-Rad to Rad-1 do
         if (GameCursor.MapEdShape = hsSquare) or (Sqr(I + 0.5) + Sqr(K + 0.5) < Sqr(Rad)) then           //Rounding corners in a nice way
-        BrushTerrainTile(MapXc+K, MapYc+I, TTerrainKind(GameCursor.Tag1));
+        BrushTerrainTile(MapXc+K, MapYc+I, TKMTerrainKind(GameCursor.Tag1));
       end;
     end;
   RebuildMap(MapXc, MapYc, Rad+3, (GameCursor.MapEdShape = hsSquare)); //+3 for surrounding tiles
@@ -419,7 +415,7 @@ procedure TKMTerrainPainter.EditTile(aLoc: TKMPoint; aTile, aRotation: Byte);
 begin
   if gTerrain.TileInMapCoords(aLoc.X, aLoc.Y) then
   begin
-    Land2[aLoc.Y, aLoc.X].TerType := tkCustom;
+    Land2[aLoc.Y, aLoc.X].TerKind := tkCustom;
     gTerrain.Land[aLoc.Y, aLoc.X].Terrain := aTile;
     gTerrain.Land[aLoc.Y, aLoc.X].Rotation := aRotation;
     gTerrain.UpdatePassability(aLoc);
@@ -512,18 +508,6 @@ begin
 end;
 
 
-function TKMTerrainPainter.GetTerrainKind(Y, X: Integer): TTerrainKind;
-begin
-  Result := Land2[Y, X].TerType;
-end;
-
-
-procedure TKMTerrainPainter.SetTerrainKind(Y, X: Integer; Kind: TTerrainKind);
-begin
-  Land2[Y, X].TerType := Kind;
-end;
-
-
 procedure TKMTerrainPainter.GenerateAddnData;
 const
   SPECIAL_TILES = [24,25,194,198,199,202,206,207,214,216..219,221..233,246]; //Waterfalls and bridges
@@ -538,24 +522,24 @@ const
 var
   Accuracy: array of array of Byte;
 
-  procedure SetTerrainKindVertex(X,Y: Integer; T:TTerrainKind; aAccuracy:Byte);
+  procedure SetTerrainKindVertex(X,Y: Integer; T:TKMTerrainKind; aAccuracy:Byte);
   begin
     if not gTerrain.TileInMapCoords(X,Y) then Exit;
 
     //Special rules to fix stone hill corners:
     // - Never overwrite tkStoneMount with tkGrass
     // - Always allow tkStoneMount to overwrite tkGrass
-    if (Land2[Y,X].TerType = tkStoneMount) and (T = tkGrass) then Exit;
-    if (Land2[Y,X].TerType = tkGrass) and (T = tkStoneMount) then aAccuracy := ACC_MAX;
+    if (Land2[Y,X].TerKind = tkStoneMount) and (T = tkGrass) then Exit;
+    if (Land2[Y,X].TerKind = tkGrass) and (T = tkStoneMount) then aAccuracy := ACC_MAX;
 
     //Skip if already set more accurately
     if aAccuracy < Accuracy[Y,X] then Exit;
 
-    Land2[Y,X].TerType := T;
+    Land2[Y,X].TerKind := T;
     Accuracy[Y,X] := aAccuracy;
   end;
 
-  procedure SetTerrainKindTile(X,Y: Integer; T:TTerrainKind; aAccuracy:Byte);
+  procedure SetTerrainKindTile(X,Y: Integer; T:TKMTerrainKind; aAccuracy:Byte);
   begin
     SetTerrainKindVertex(X  , Y  , T, aAccuracy);
     SetTerrainKindVertex(X+1, Y  , T, aAccuracy);
@@ -566,14 +550,14 @@ var
 var
   I,K,J,Rot: Integer;
   A: Byte;
-  T, T2: TTerrainKind;
+  T, T2: TKMTerrainKind;
 begin
   SetLength(Accuracy, gTerrain.MapX+1, gTerrain.MapY+1);
 
   for I := 1 to gTerrain.MapY do
   for K := 1 to gTerrain.MapX do
   begin
-    Land2[I,K].TerType := tkCustom; //Everything custom by default
+    Land2[I,K].TerKind := tkCustom; //Everything custom by default
     Accuracy[I,K] := ACC_NONE;
   end;
 
@@ -587,7 +571,7 @@ begin
       if gTerrain.Land[I,K].Terrain in OTHER_WATER_TILES then
         SetTerrainKindTile(K, I, tkWater, ACC_MED) //Same accuracy as random tiling (see below)
       else
-        for T := Low(TTerrainKind) to High(TTerrainKind) do
+        for T := Low(TKMTerrainKind) to High(TKMTerrainKind) do
           if T <> tkCustom then
           begin
             //METHOD 1: Terrain type is the primary tile for this terrain
@@ -608,7 +592,7 @@ begin
 
             //METHOD 3: Edging data
             A := ACC_LOW; //Edging data is not as accurate as other methods (some edges reuse the same tiles)
-            for T2 := Low(TTerrainKind) to High(TTerrainKind) do
+            for T2 := Low(TKMTerrainKind) to High(TKMTerrainKind) do
             begin
               //1 vertex is T, 3 vertexes are T2
               if gTerrain.Land[I,K].Terrain = Abs(Combo[T,T2,1]) then
@@ -731,7 +715,7 @@ begin
   //Fill in default terain type - Grass
   for I := 1 to gTerrain.MapY do
   for K := 1 to gTerrain.MapX do
-    Land2[I,K].TerType := tkGrass;
+    Land2[I,K].TerKind := tkGrass;
 end;
 
 
@@ -782,10 +766,10 @@ begin
           begin
             //Krom's editor saves negative numbers for tiles placed manually
             S.Read(TerType, 1);
-            if InRange(TerType, ShortInt(Low(TTerrainKind)), ShortInt(High(TTerrainKind))) then
-              Land2[I,K].TerType := TTerrainKind(TerType)
+            if InRange(TerType, ShortInt(Low(TKMTerrainKind)), ShortInt(High(TKMTerrainKind))) then
+              Land2[I,K].TerKind := TKMTerrainKind(TerType)
             else
-              Land2[I,K].TerType := tkCustom;
+              Land2[I,K].TerKind := tkCustom;
           end;
           MapEdChunkFound := True; //Only set it once it's all loaded successfully
         end
@@ -842,7 +826,7 @@ begin
     S.Write(Integer(0)); //Cypher - ommited
     for I := 1 to NewY do
     for K := 1 to NewX do
-      S.Write(Land2[I,K].TerType, 1);
+      S.Write(Land2[I,K].TerKind, 1);
 
     S.SaveToFile(aFileName);
   finally
@@ -867,7 +851,7 @@ begin
     Data[I,K].Height := gTerrain.Land[I,K].Height;
     Data[I,K].Rotation := gTerrain.Land[I,K].Rotation;
     Data[I,K].Obj := gTerrain.Land[I,K].Obj;
-    Data[I,K].TerType := Land2[I,K].TerType;
+    Data[I,K].TerKind := Land2[I,K].TerKind;
   end;
   fCheckpoints[fCheckpointPos].HasData := True;
 
@@ -928,7 +912,7 @@ begin
     gTerrain.Land[I,K].Height := Data[I,K].Height;
     gTerrain.Land[I,K].Rotation := Data[I,K].Rotation;
     gTerrain.Land[I,K].Obj := Data[I,K].Obj;
-    Land2[I,K].TerType := Data[I,K].TerType;
+    Land2[I,K].TerKind := Data[I,K].TerKind;
   end;
 
   //Update derived fields (lighting)
