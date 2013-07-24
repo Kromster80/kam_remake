@@ -528,23 +528,29 @@ const
   GoalsSupported: set of TGoalCondition =
     [gc_Buildings, gc_Troops, gc_MilitaryAssets, gc_SerfsAndSchools, gc_EconomyBuildings];
 
-  GoalConditionStr: array [TGoalCondition] of string =
-  ('Unknown 0',
-   'Build Tannery',
-   'Time',
-   'Store School Barracks',
-   'Troops',
-   'Unknown 5',
-   'Military assets',
-   'Serfs&Schools',
-   'School Inn Store');
-
+  GoalConditionStr: array [TGoalCondition] of string = (
+    'Unknown 0',
+    'Build Tannery',
+    'Time',
+    'Store School Barracks',
+    'Troops',
+    'Unknown 5',
+    'Military assets',
+    'Serfs&Schools',
+    'School Inn Store');
 
 type
-  TMapEdLayer = (mlObjects, mlHouses, mlUnits, mlDeposits, mlDefences, mlRevealFOW, mlCenterScreen, mlSelection);  //Enum representing mapEditor visible layers
+  TMapEdLayer = (
+    mlObjects,
+    mlHouses,
+    mlUnits,
+    mlDeposits,
+    mlDefences,
+    mlRevealFOW,
+    mlCenterScreen,
+    mlSelection,
+    mlWaterFlow);  //Enum representing mapEditor visible layers
   TMapEdLayerSet = set of TMapEdLayer;                                   //Set of above enum
-
-
 
 //Record storing resolution and refresh rate
 type

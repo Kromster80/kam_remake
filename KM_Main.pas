@@ -260,7 +260,7 @@ begin
   if fGameApp <> nil then
   begin
     fGameApp.UpdateStateIdle(FrameTime);
-    fGameApp.Render;
+    fGameApp.Render(False);
   end;
 
   Done := False; //Repeats OnIdle asap without performing Form-specific idle code
@@ -407,7 +407,7 @@ end;
 procedure TKMMain.Render;
 begin
   if fGameApp <> nil then
-    fGameApp.Render;
+    fGameApp.Render(False);
 end;
 
 

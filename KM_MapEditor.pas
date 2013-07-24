@@ -331,6 +331,18 @@ begin
   if mlSelection in fVisibleLayers then
     fSelection.Paint(aLayer, aClipRect);
 
+  if mlWaterFlow in fVisibleLayers then
+  begin
+    for I := aClipRect.Top to aClipRect.Bottom do
+    for K := aClipRect.Left to aClipRect.Right do
+    if gTerrain.TileIsWater(K,I) then
+    begin
+      //TODO: Waterflow indication here
+      //fRenderPool.RenderSpriteOnTile(KMPoint(K,I), )
+    end;
+  end;
+
+
   //Show selected group order target
   if MySpectator.Selected is TKMUnitGroup then
   begin

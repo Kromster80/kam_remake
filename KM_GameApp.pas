@@ -5,7 +5,7 @@ uses
   {$IFDEF MSWindows} Windows, {$ENDIF}
   {$IFDEF Unix} LCLType, {$ENDIF}
   Classes, Controls, Dialogs, ExtCtrls, KromUtils, Math, SysUtils, TypInfo,
-  KM_CommonTypes, KM_Defaults, KM_RenderControl,
+  KM_CommonTypes, KM_Defaults, KM_RenderControl, KM_Controls,
   KM_Campaigns, KM_Game, KM_InterfaceMainMenu, KM_InterfaceDefaults,
   KM_Music, KM_Networking, KM_Settings, KM_ResTexts, KM_Render;
 
@@ -46,6 +46,8 @@ type
     procedure PrintScreen(aFilename: string = '');
     procedure PauseMusicToPlayFile(aFileName: string);
     function CheckDATConsistency: Boolean;
+    procedure ExportMainMenuPages(aPath: string);
+    procedure ExportGameplayPages(aPath: string);
 
     //These are all different game kinds we can start
     procedure NewCampaignMap(aCampaign: TKMCampaign; aMap: Byte);
@@ -74,7 +76,7 @@ type
     procedure MouseWheel(Shift: TShiftState; WheelDelta: Integer; X,Y: Integer);
     procedure FPSMeasurement(aFPS: Cardinal);
 
-    procedure Render;
+    procedure Render(aForPrintScreen: Boolean);
     procedure UpdateState(Sender: TObject);
     procedure UpdateStateIdle(aFrameTime: Cardinal);
   end;
@@ -190,7 +192,7 @@ begin
   Assert(fGame = nil, 'We don''t want to recreate whole fGame for that. Let''s limit it only to MainMenu');
 
   fMainMenuInterface.PageChange(gpLoading, gResTexts[TX_MENU_NEW_LOCALE]);
-  Render; //Force to repaint information screen
+  Render(False); //Force to repaint information screen
 
   fTimerUI.Enabled := False; //Disable it while switching, if an OpenAL error appears the timer should be disabled
   fGameSettings.Locale := aLocale; //Wrong Locale will be ignored
@@ -326,7 +328,7 @@ end;
 procedure TKMGameApp.GameLoadingStep(const aText: UnicodeString);
 begin
   fMainMenuInterface.AppendLoadingText(aText);
-  Render;
+  Render(False);
 end;
 
 
@@ -334,7 +336,7 @@ procedure TKMGameApp.LoadGameAssets;
 begin
   //Load the resources if necessary
   fMainMenuInterface.PageChange(gpLoading);
-  Render;
+  Render(False);
 
   GameLoadingStep(gResTexts[TX_MENU_LOADING_DEFINITIONS]);
   fResource.OnLoadingText := GameLoadingStep;
@@ -600,7 +602,55 @@ begin
 end;
 
 
-procedure TKMGameApp.Render;
+procedure TKMGameApp.ExportMainMenuPages(aPath: string);
+var
+  I, K: Integer;
+  MC: TKMPanel;
+begin
+  MC := MainMenuInterface.MyControls.MainPanel;
+  ForceDirectories(aPath);
+
+  for I := 1 to MC.ChildCount do
+    if (MC.Childs[I] is TKMPanel)
+    and (MC.Childs[I].Width > 100) then
+    begin
+      //Hide all other panels
+      for K := 1 to MC.ChildCount do
+        if MC.Childs[K] is TKMPanel then
+          MC.Childs[K].Hide;
+
+      MC.Childs[I].Show;
+
+      PrintScreen(aPath + 'Panel' + int2fix(I, 3) + '.jpg');
+    end;
+end;
+
+
+procedure TKMGameApp.ExportGameplayPages(aPath: string);
+var
+  I, K: Integer;
+  MC: TKMPanel;
+begin
+  MC := fGame.GamePlayInterface.MyControls.MainPanel;
+  ForceDirectories(aPath);
+
+  for I := 1 to MC.ChildCount do
+    if (MC.Childs[I] is TKMPanel)
+    and (MC.Childs[I].Width > 100) then
+    begin
+      //Hide all other panels
+      for K := 1 to MC.ChildCount do
+        if MC.Childs[K] is TKMPanel then
+          MC.Childs[K].Hide;
+
+      MC.Childs[I].Show;
+
+      PrintScreen(aPath + 'Panel' + int2fix(I, 3) + '.jpg');
+    end;
+end;
+
+
+procedure TKMGameApp.Render(aForPrintScreen: Boolean);
 begin
   if SKIP_RENDER then Exit;
   if fRender.Blind then Exit;
@@ -622,7 +672,7 @@ begin
   fRender.EndFrame;
 
   //Selection buffer
-  if fGame <> nil then
+  if not aForPrintScreen and (fGame <> nil) then
   begin
     //Clear buffer
     fRender.BeginFrame;
@@ -646,6 +696,7 @@ procedure TKMGameApp.PrintScreen(aFilename: string = '');
 var
   s: string;
 begin
+  Render(True);
   if aFilename = '' then
   begin
     DateTimeToString(s, 'yyyy-mm-dd hh-nn-ss', Now); //2007-12-23 15-24-33

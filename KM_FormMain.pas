@@ -574,53 +574,15 @@ end;
 
 
 procedure TFormMain.Debug_ExportMenuPagesClick(Sender: TObject);
-var
-  I, K: Integer;
-  MC: TKMMasterControl;
 begin
-  if fGameApp.MainMenuInterface = nil then Exit;
-
-  MC := fGameApp.MainMenuInterface.MyControls;
-  ForceDirectories(ExeDir + 'Export'+PathDelim+'MainMenu'+PathDelim);
-
-  for I := 1 to MC.MainPanel.ChildCount do
-    if MC.MainPanel.Childs[I] is TKMPanel then
-    begin
-      //Hide all other panels
-      for K := 1 to MC.MainPanel.ChildCount do
-        if MC.MainPanel.Childs[K] is TKMPanel then
-          MC.MainPanel.Childs[K].Hide;
-
-      MC.MainPanel.Childs[I].Show;
-
-      fGameApp.Render;
-      fGameApp.PrintScreen(ExeDir + 'Export' + PathDelim + 'MainMenu' + PathDelim + 'Panel' + int2fix(I, 3) + '.jpg');
-    end;
+  if fGameApp.MainMenuInterface <> nil then
+    fGameApp.ExportMainMenuPages(ExeDir + 'Export' + PathDelim + 'MainMenu' + PathDelim);
 end;
 
 procedure TFormMain.Debug_ExportGamePagesClick(Sender: TObject);
-var
-  I, K: Integer;
-  MC: TKMMasterControl;
 begin
-  if (fGameApp.Game = nil) or (fGameApp.Game.GamePlayInterface = nil) then Exit;
-
-  MC := fGameApp.Game.GamePlayInterface.MyControls;
-  ForceDirectories(ExeDir + 'Export' + PathDelim + 'GamePlay' + PathDelim);
-
-  for I := 1 to MC.MainPanel.ChildCount do
-    if MC.MainPanel.Childs[I] is TKMPanel then
-    begin
-      //Hide all other panels
-      for K := 1 to MC.MainPanel.ChildCount do
-        if MC.MainPanel.Childs[K] is TKMPanel then
-          MC.MainPanel.Childs[K].Hide;
-
-      MC.MainPanel.Childs[I].Show;
-
-      fGameApp.Render;
-      fGameApp.PrintScreen(ExeDir + 'Export' + PathDelim + 'GamePlay' + PathDelim + 'Panel' + int2fix(I, 3) + '.jpg');
-    end;
+  if (fGameApp.Game <> nil) and (fGameApp.Game.GamePlayInterface <> nil) then
+    fGameApp.ExportGameplayPages(ExeDir + 'Export' + PathDelim + 'Gameplay' + PathDelim);
 end;
 
 

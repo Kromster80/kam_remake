@@ -137,7 +137,6 @@ begin
   end else
   if (Sender = Button_Terrain[ttSelection]) then
   begin
-    Button_SelectPaste.Enabled := fGame.MapEditor.Selection.Selection_DataInBuffer;
     Button_SelectPasteApply.Disable;
     Button_SelectPasteCancel.Disable;
     SelectionClick(Button_SelectCopy);

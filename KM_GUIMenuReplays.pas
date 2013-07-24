@@ -58,14 +58,14 @@ begin
 
     TKMLabel.Create(Panel_Replays, aParent.Width div 2, 50, gResTexts[TX_MENU_LOAD_LIST], fnt_Outline, taCenter);
 
-    TKMBevel.Create(Panel_Replays, 62, 86, 900, 50);
+    TKMBevel.Create(Panel_Replays, 62, 86, 680, 50);
     Radio_Replays_Type := TKMRadioGroup.Create(Panel_Replays,70,94,300,40,fnt_Grey);
     Radio_Replays_Type.ItemIndex := 0;
     Radio_Replays_Type.Add(gResTexts[TX_MENU_MAPED_SPMAPS]);
     Radio_Replays_Type.Add(gResTexts[TX_MENU_MAPED_MPMAPS]);
     Radio_Replays_Type.OnChange := Replay_TypeChange;
 
-    ColumnBox_Replays := TKMColumnBox.Create(Panel_Replays, 62, 150, 700, 485, fnt_Metal, bsMenu);
+    ColumnBox_Replays := TKMColumnBox.Create(Panel_Replays, 62, 150, 680, 485, fnt_Metal, bsMenu);
     ColumnBox_Replays.SetColumns(fnt_Outline, [gResTexts[TX_MENU_LOAD_FILE], gResTexts[TX_MENU_LOAD_DESCRIPTION]], [0, 300]);
     ColumnBox_Replays.Anchors := [akLeft,akTop,akBottom];
     ColumnBox_Replays.SearchColumn := 0;
@@ -73,17 +73,17 @@ begin
     ColumnBox_Replays.OnColumnClick := Replays_Sort;
     ColumnBox_Replays.OnDoubleClick := Replays_Play;
 
-    Button_ReplaysPlay := TKMButton.Create(Panel_Replays,337,660,350,30,gResTexts[TX_MENU_VIEW_REPLAY], bsMenu);
-    Button_ReplaysPlay.Anchors := [akLeft,akBottom];
-    Button_ReplaysPlay.OnClick := Replays_Play;
+    with TKMBevel.Create(Panel_Replays, 763, 290, 199, 199) do Anchors := [akLeft];
+    MinimapView_Replay := TKMMinimapView.Create(Panel_Replays,767,294,191,191);
+    MinimapView_Replay.Anchors := [akLeft];
 
-    Button_ReplaysBack := TKMButton.Create(Panel_Replays, 337, 700, 350, 30, gResTexts[TX_MENU_BACK], bsMenu);
+    Button_ReplaysBack := TKMButton.Create(Panel_Replays, 62, 660, 335, 30, gResTexts[TX_MENU_BACK], bsMenu);
     Button_ReplaysBack.Anchors := [akLeft,akBottom];
     Button_ReplaysBack.OnClick := BackClick;
 
-    with TKMBevel.Create(Panel_Replays, 785, 290, 199, 199) do Anchors := [akLeft];
-    MinimapView_Replay := TKMMinimapView.Create(Panel_Replays,789,294,191,191);
-    MinimapView_Replay.Anchors := [akLeft];
+    Button_ReplaysPlay := TKMButton.Create(Panel_Replays,407, 660, 335, 30, gResTexts[TX_MENU_VIEW_REPLAY], bsMenu);
+    Button_ReplaysPlay.Anchors := [akLeft,akBottom];
+    Button_ReplaysPlay.OnClick := Replays_Play;
 end;
 
 
