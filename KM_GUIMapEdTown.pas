@@ -1,293 +1,42 @@
-unit KM_InterfaceMapEditor;
+unit KM_GUIMapEdTown;
 {$I KaM_Remake.inc}
 interface
 uses
-   {$IFDEF MSWindows} Windows, {$ENDIF}
-   {$IFDEF Unix} LCLIntf, LCLType, {$ENDIF}
-   Classes, Controls, KromUtils, Math, StrUtils, SysUtils, KromOGLUtils, TypInfo,
+   Classes, Controls, KromUtils, Math, StrUtils, SysUtils,
    KM_Controls, KM_Defaults, KM_Pics, KM_Maps, KM_Houses, KM_Units, KM_UnitGroups, KM_MapEditor,
    KM_Points, KM_InterfaceDefaults, KM_AIAttacks, KM_AIGoals, KM_Terrain,
-   KM_GUIMapEdHouse,
-   KM_GUIMapEdTerrain,
-   KM_GUIMapEdTown;
+   KM_GUIMapEdTownHouses,
+   KM_GUIMapEdTownUnits,
+   KM_GUIMapEdTownScript,
+   KM_GUIMapEdTownDefence,
+   KM_GUIMapEdTownOffence;
 
 type
-  TKMPlayerTab = (ptGoals, ptColor, ptBlockHouse, ptBlockTrade, ptMarkers);
+  TKMTownTab = (ttHouses, ttUnits, ttScript, ttDefences, ttOffence);
 
-  TKMapEdInterface = class (TKMUserInterface)
+  TKMMapEdTown = class
   private
-    fPrevHint: TObject;
-    fActivePage: TKMPanel;
-    fDragScrolling: Boolean;
-    fDragScrollingCursorPos: TPoint;
-    fDragScrollingViewportPos: TKMPointF;
+    fOnPageChange: TNotifyEvent;
 
-    fGuiHouse: TKMMapEdHouse;
-    fGuiTerrain: TKMMapEdTerrain;
-    fGuiTown: TKMMapEdTown;
+    fGuiHouses: TKMMapEdTownHouses;
+    fGuiUnits: TKMMapEdTownUnits;
+    fGuiScript: TKMMapEdTownScript;
+    fGuiDefence: TKMMapEdTownDefence;
+    fGuiOffence: TKMMapEdTownOffence;
 
-    fMaps: TKMapsCollection;
-    fMapsMP: TKMapsCollection;
-
-    procedure Create_Player;
-    procedure Create_Mission;
-    procedure Create_Menu;
-    procedure Create_MenuSave;
-    procedure Create_MenuLoad;
-    procedure Create_MenuQuit;
-    procedure Create_Extra;
-    procedure Create_Message;
-    procedure Create_Unit;
-    procedure Create_Marker;
-    procedure Create_AttackPopUp;
-    procedure Create_FormationsPopUp;
-    procedure Create_GoalPopUp;
-
-    procedure Attack_Change(Sender: TObject);
-    procedure Attack_Close(Sender: TObject);
-    procedure Attack_Refresh(aAttack: TAIAttack);
-    procedure Attacks_Add(Sender: TObject);
-    procedure Attacks_Del(Sender: TObject);
-    procedure Attacks_Edit(aIndex: Integer);
-    procedure Attacks_ListClick(Sender: TObject);
-    procedure Attacks_ListDoubleClick(Sender: TObject);
-    procedure Attacks_Refresh;
-    procedure Extra_Change(Sender: TObject);
-    procedure Formations_Show(Sender: TObject);
-    procedure Formations_Close(Sender: TObject);
-    procedure Goal_Change(Sender: TObject);
-    procedure Goal_Close(Sender: TObject);
-    procedure Goal_Refresh(aGoal: TKMGoal);
-    procedure Goals_Add(Sender: TObject);
-    procedure Goals_Del(Sender: TObject);
-    procedure Goals_Edit(aIndex: Integer);
-    procedure Goals_ListClick(Sender: TObject);
-    procedure Goals_ListDoubleClick(Sender: TObject);
-    procedure Goals_Refresh;
-    procedure Layers_UpdateVisibility;
-    procedure Marker_Change(Sender: TObject);
-    procedure Menu_SaveClick(Sender: TObject);
-    procedure Menu_LoadClick(Sender: TObject);
-    procedure Menu_QuitClick(Sender: TObject);
-    procedure Menu_LoadChange(Sender: TObject);
-    procedure Menu_LoadUpdate;
-    procedure Menu_LoadUpdateDone(Sender: TObject);
-    procedure Minimap_Update(Sender: TObject; const X,Y: Integer);
-    procedure Mission_AlliancesChange(Sender: TObject);
-    procedure Mission_ModeChange(Sender: TObject);
-    procedure Mission_ModeUpdate;
-    procedure Mission_PlayerTypesChange(Sender: TObject);
-    procedure Mission_PlayerTypesUpdate;
-    procedure PageChanged(Sender: TObject);
-    procedure Player_BlockHouseClick(Sender: TObject);
-    procedure Player_BlockHouseRefresh;
-    procedure Player_BlockTradeClick(Sender: TObject);
-    procedure Player_BlockTradeRefresh;
-    procedure Player_ChangeActive(Sender: TObject);
-    procedure Player_ColorClick(Sender: TObject);
-    procedure Player_MarkerClick(Sender: TObject);
-    procedure Town_BuildChange(Sender: TObject);
-    procedure Town_BuildRefresh;
-    procedure Town_DefenceAddClick(Sender: TObject);
-    procedure Town_DefenceRefresh;
-    procedure Town_DefenceChange(Sender: TObject);
-    procedure Town_ScriptRefresh;
-    procedure Town_ScriptChange(Sender: TObject);
-    procedure Town_UnitChange(Sender: TObject);
-    procedure Town_UnitRefresh;
-    procedure Unit_ArmyChange1(Sender: TObject); overload;
-    procedure Unit_ArmyChange2(Sender: TObject; AButton: TMouseButton); overload;
-    procedure ExtraMessage_Switch(Sender: TObject);
-
-    procedure SwitchPage(Sender: TObject);
-    procedure HidePages;
-    procedure DisplayPage(aPage: TKMPanel);
-    procedure DisplayHint(Sender: TObject);
-    procedure Player_UpdateColors;
-    procedure Player_FOWChange(Sender: TObject);
-    procedure RightClick_Cancel;
-    procedure ShowUnitInfo(Sender: TKMUnit);
-    procedure ShowGroupInfo(Sender: TKMUnitGroup);
-    procedure ShowMarkerInfo(aMarker: TKMMapEdMarker);
-    procedure SetActivePlayer(aIndex: TPlayerIndex);
-    procedure UpdateAITabsEnabled;
+    procedure PageChange(Sender: TObject);
   protected
-    Panel_Main:TKMPanel;
-      MinimapView: TKMMinimapView;
-      Label_Coordinates:TKMLabel;
-      Button_PlayerSelect: array [0..MAX_PLAYERS-1] of TKMFlatButtonShape; //Animals are common for all
-      Label_Stat,Label_Hint: TKMLabel;
-      Bevel_HintBG: TKMBevel;
-
-    Panel_Common: TKMPanel;
-      Button_Main: array [1..5] of TKMButton; //5 buttons
-      Label_MissionName: TKMLabel;
-      Image_Extra: TKMImage;
-      Image_Message: TKMImage;
-
-    //How to know where certain page should be?
-    //see Docs\Map Editor menu structure.txt
-
-    //Non-visual stuff per-player
-    Panel_Player: TKMPanel;
-      Button_Player: array [TKMPlayerTab] of TKMButton;
-      Panel_Goals: TKMPanel;
-        ColumnBox_Goals: TKMColumnBox;
-        Button_GoalsAdd: TKMButton;
-        Button_GoalsDel: TKMButton;
-      Panel_Color: TKMPanel;
-        ColorSwatch_Color: TKMColorSwatch;
-      Panel_BlockHouse: TKMPanel;
-        Button_BlockHouse: array [1 .. GUI_HOUSE_COUNT] of TKMButtonFlat;
-        Image_BlockHouse: array [1 .. GUI_HOUSE_COUNT] of TKMImage;
-      Panel_BlockTrade: TKMPanel;
-        Button_BlockTrade: array [1 .. STORE_RES_COUNT] of TKMButtonFlat;
-        Image_BlockTrade: array [1 .. STORE_RES_COUNT] of TKMImage;
-      Panel_Markers: TKMPanel;
-        Button_Reveal: TKMButtonFlat;
-        TrackBar_RevealNewSize: TKMTrackBar;
-        CheckBox_RevealAll: TKMCheckBox;
-        Button_CenterScreen: TKMButtonFlat;
-        Button_PlayerCenterScreen: TKMButton;
-
-    //Global things
-    Panel_Mission: TKMPanel;
-      Button_Mission: array [1..3] of TKMButton;
-      Panel_Mode: TKMPanel;
-        Radio_MissionMode: TKMRadioGroup;
-      Panel_Alliances: TKMPanel;
-        CheckBox_Alliances: array [0..MAX_PLAYERS-1, 0..MAX_PLAYERS-1] of TKMCheckBox;
-        CheckBox_AlliancesSym: TKMCheckBox;
-      Panel_PlayerTypes: TKMPanel;
-        CheckBox_PlayerTypes: array [0..MAX_PLAYERS-1, 0..2] of TKMCheckBox;
-
-    Panel_Menu: TKMPanel;
-      Button_Menu_Save,Button_Menu_Load,Button_Menu_Settings,Button_Menu_Quit: TKMButton;
-
-      Panel_Save:TKMPanel;
-        Radio_Save_MapType:TKMRadioGroup;
-        Edit_SaveName:TKMEdit;
-        Label_SaveExists:TKMLabel;
-        CheckBox_SaveExists:TKMCheckBox;
-        Button_SaveSave:TKMButton;
-        Button_SaveCancel:TKMButton;
-
-      Panel_Load:TKMPanel;
-        Radio_Load_MapType:TKMRadioGroup;
-        ListBox_Load:TKMListBox;
-        Button_LoadLoad:TKMButton;
-        Button_LoadCancel:TKMButton;
-
-      Panel_Quit:TKMPanel;
-        Button_Quit_Yes,Button_Quit_No:TKMButton;
-
-    Panel_Extra: TKMPanel;
-      Image_ExtraClose: TKMImage;
-      TrackBar_Passability:TKMTrackBar;
-      Label_Passability:TKMLabel;
-      CheckBox_ShowObjects: TKMCheckBox;
-      CheckBox_ShowHouses: TKMCheckBox;
-      CheckBox_ShowUnits: TKMCheckBox;
-      CheckBox_ShowDeposits: TKMCheckBox;
-      Dropbox_PlayerFOW: TKMDropList;
-
-    Panel_Message: TKMPanel;
-      Label_Message: TKMLabel;
-      Image_MessageClose: TKMImage;
-
-    Panel_Unit:TKMPanel;
-      Label_UnitName:TKMLabel;
-      Label_UnitCondition:TKMLabel;
-      Label_UnitDescription:TKMLabel;
-      KMConditionBar_Unit:TKMPercentBar;
-      Image_UnitPic:TKMImage;
-
-      Panel_Army:TKMPanel;
-        Button_Army_RotCW,Button_Army_RotCCW: TKMButton;
-        Button_Army_ForUp,Button_Army_ForDown: TKMButton;
-        ImageStack_Army: TKMImageStack;
-        Label_ArmyCount: TKMLabel;
-        Button_ArmyDec,Button_ArmyFood,Button_ArmyInc: TKMButton;
-        DropBox_ArmyOrder: TKMDropList;
-        Edit_ArmyOrderX: TKMNumericEdit;
-        Edit_ArmyOrderY: TKMNumericEdit;
-        Edit_ArmyOrderDir: TKMNumericEdit;
-
-    Panel_Marker: TKMPanel;
-      Label_MarkerType: TKMLabel;
-      Image_MarkerPic: TKMImage;
-
-      Panel_MarkerReveal: TKMPanel;
-        TrackBar_RevealSize: TKMTrackBar;
-        Button_RevealDelete: TKMButton;
-        Button_RevealClose: TKMButton;
-      Panel_MarkerDefence: TKMPanel;
-        DropList_DefenceGroup: TKMDropList;
-        DropList_DefenceType: TKMDropList;
-        TrackBar_DefenceRad: TKMTrackBar;
-        Button_DefenceCW, Button_DefenceCCW: TKMButton;
-        Button_DefenceDelete: TKMButton;
-        Button_DefenceClose: TKMButton;
-
-    //PopUp panels
-    Panel_Formations: TKMPanel;
-      Image_FormationsFlag: TKMImage;
-      NumEdit_FormationsCount,
-      NumEdit_FormationsColumns: array [TGroupType] of TKMNumericEdit;
-      Button_Formations_Ok: TKMButton;
-      Button_Formations_Cancel: TKMButton;
-
-    Panel_Attack: TKMPanel;
-      Radio_AttackType: TKMRadioGroup;
-      NumEdit_AttackDelay: TKMNumericEdit;
-      NumEdit_AttackMen: TKMNumericEdit;
-      NumEdit_AttackAmount: array [TGroupType] of TKMNumericEdit;
-      CheckBox_AttackTakeAll: TKMCheckBox;
-      Radio_AttackTarget: TKMRadioGroup;
-      TrackBar_AttackRange: TKMTrackBar;
-      NumEdit_AttackLocX: TKMNumericEdit;
-      NumEdit_AttackLocY: TKMNumericEdit;
-      Button_AttackOk: TKMButton;
-      Button_AttackCancel: TKMButton;
-
-    Panel_Goal: TKMPanel;
-      Image_GoalFlag: TKMImage;
-      Radio_GoalType: TKMRadioGroup;
-      Radio_GoalCondition: TKMRadioGroup;
-      NumEdit_GoalTime: TKMNumericEdit;
-      NumEdit_GoalMessage: TKMNumericEdit;
-      NumEdit_GoalPlayer: TKMNumericEdit;
-      Button_GoalOk: TKMButton;
-      Button_GoalCancel: TKMButton;
+    Panel_Town: TKMPanel;
+    Button_Town: array [TKMTownTab] of TKMButton;
   public
-    constructor Create(aScreenX, aScreenY: word);
+    constructor Create(aParent: TKMPanel; aOnPageChange: TNotifyEvent);
     destructor Destroy; override;
 
-    procedure SetLoadMode(aMultiplayer:boolean);
-    procedure ShowMessage(aText: string);
-
-    procedure KeyDown(Key:Word; Shift: TShiftState); override;
-    procedure KeyUp(Key:Word; Shift: TShiftState); override;
-    procedure MouseDown(Button: TMouseButton; Shift: TShiftState; X,Y: Integer); override;
-    procedure MouseMove(Shift: TShiftState; X,Y: Integer); override;
-    procedure MouseUp(Button: TMouseButton; Shift: TShiftState; X,Y: Integer); override;
-
-    procedure Resize(X,Y: Word); override;
-    procedure SyncUI;
-    procedure UpdateState(aTickCount: Cardinal); override;
-    procedure Paint; override;
+    procedure Show;
+    function Visible(aPage: TKMTownTab): Boolean; overload;
+    function Visible: Boolean; overload;
+    procedure UpdateState;
   end;
-
-
-const
-  BIG_TAB_W = 37;
-  BIG_PAD_W = 37;
-  BIG_TAB_H = 36;
-  //BIG_PAD_H = 40;
-  SMALL_TAB_W = 32;
-  SMALL_PAD_W = SMALL_TAB_W + 0;
-  SMALL_TAB_H = 26;
-  //SMALL_PAD_H = SMALL_TAB_H + 4;
 
 
 implementation
@@ -316,7 +65,7 @@ begin
 
   //If the user clicks on the tab that is open, it closes it (main buttons only)
   if ((Sender = Button_Main[1]) and fGuiTerrain.Visible) or
-     ((Sender = Button_Main[2]) and fGuiTown.Visible) or
+     ((Sender = Button_Main[2]) and Panel_Town.Visible) or
      ((Sender = Button_Main[3]) and Panel_Player.Visible) or
      ((Sender = Button_Main[4]) and Panel_Mission.Visible) or
      ((Sender = Button_Main[5]) and Panel_Menu.Visible) then
@@ -336,11 +85,22 @@ begin
   end
   else
 
-  if (Sender = Button_Main[2]) then
+  if (Sender = Button_Main[2]) or (Sender = Button_Town[ttHouses]) then
   begin
-    HidePages;
-    fGuiTown.Show;
-  end
+    Town_BuildRefresh;
+    DisplayPage(Panel_Build);
+  end else
+  if (Sender = Button_Town[ttUnits]) then
+    DisplayPage(Panel_Units)
+  else
+  if (Sender = Button_Town[ttScript]) then
+    DisplayPage(Panel_Script)
+  else
+  if (Sender = Button_Town[ttDefences]) then
+    DisplayPage(Panel_Defence)
+  else
+  if (Sender = Button_Town[ttOffence]) then
+    DisplayPage(Panel_Offence)
   else
 
   if (Sender = Button_Main[3])or(Sender = Button_Player[ptGoals]) then
@@ -407,6 +167,25 @@ end;
 procedure TKMapEdInterface.DisplayPage(aPage: TKMPanel);
 begin
   HidePages;
+
+  if aPage = Panel_Build then
+    Town_BuildRefresh
+  else
+  if aPage = Panel_Units then
+    Town_UnitRefresh
+  else
+  if aPage = Panel_Script then
+    Town_ScriptRefresh
+  else
+  if aPage = Panel_Defence then
+  begin
+    Town_DefenceAddClick(nil);
+    Town_DefenceRefresh;
+  end
+  else
+  if aPage = Panel_Offence then
+    Attacks_Refresh
+  else
 
   if aPage = Panel_Goals then
     Goals_Refresh
@@ -586,8 +365,7 @@ begin
 {I plan to store all possible layouts on different pages which gets displayed one at a time}
 {==========================================================================================}
   fGuiTerrain := TKMMapEdTerrain.Create(Panel_Common, PageChanged);
-  fGuiTown := TKMMapEdTown.Create(Panel_Common, PageChanged);
-
+  Create_Town;
   Create_Player;
   Create_Mission;
 
@@ -642,6 +420,168 @@ procedure TKMapEdInterface.Resize(X,Y: Word);
 begin
   Panel_Main.Width := X;
   Panel_Main.Height := Y;
+end;
+
+
+{Build page}
+procedure TKMapEdInterface.Create_Town;
+const
+  TabGlyph: array [TKMTownTab] of Word    = (391,   141,   62,        43,    53);
+  TabRXX  : array [TKMTownTab] of TRXType = (rxGui, rxGui, rxGuiMain, rxGui, rxGui);
+  TabHint : array [TKMTownTab] of Word = (
+    TX_MAPED_VILLAGE,
+    TX_MAPED_UNITS,
+    TX_MAPED_AI_TITLE,
+    TX_MAPED_AI_DEFENSE_OPTIONS,
+    TX_MAPED_AI_ATTACK);
+var
+  I: Integer;
+  VT: TKMTownTab;
+begin
+  Panel_Town := TKMPanel.Create(Panel_Common, 0, 45, TB_WIDTH, 28);
+
+    for VT := Low(TKMTownTab) to High(TKMTownTab) do
+    begin
+      Button_Town[VT] := TKMButton.Create(Panel_Town, SMALL_PAD_W * Byte(VT), 0, SMALL_TAB_W, SMALL_TAB_H, TabGlyph[VT], TabRXX[VT], bsGame);
+      Button_Town[VT].Hint := gResTexts[TabHint[VT]];
+      Button_Town[VT].OnClick := SwitchPage;
+    end;
+
+    //Town placement
+    Panel_Build := TKMPanel.Create(Panel_Town,0,28,TB_WIDTH,400);
+      TKMLabel.Create(Panel_Build,0,PAGE_TITLE_Y,TB_WIDTH,0,gResTexts[TX_MAPED_ROAD_TITLE],fnt_Outline,taCenter);
+      Button_BuildRoad   := TKMButtonFlat.Create(Panel_Build,  0,28,33,33,335);
+      Button_BuildField  := TKMButtonFlat.Create(Panel_Build, 37,28,33,33,337);
+      Button_BuildWine   := TKMButtonFlat.Create(Panel_Build, 74,28,33,33,336);
+      Button_BuildCancel := TKMButtonFlat.Create(Panel_Build,148,28,33,33,340);
+      Button_BuildRoad.OnClick  := Town_BuildChange;
+      Button_BuildField.OnClick := Town_BuildChange;
+      Button_BuildWine.OnClick  := Town_BuildChange;
+      Button_BuildCancel.OnClick:= Town_BuildChange;
+      Button_BuildRoad.Hint     := gResTexts[TX_BUILD_ROAD_HINT];
+      Button_BuildField.Hint    := gResTexts[TX_BUILD_FIELD_HINT];
+      Button_BuildWine.Hint     := gResTexts[TX_BUILD_WINE_HINT];
+      Button_BuildCancel.Hint   := gResTexts[TX_BUILD_CANCEL_HINT];
+
+      TKMLabel.Create(Panel_Build,0,65,TB_WIDTH,0,gResTexts[TX_MAPED_HOUSES_TITLE],fnt_Outline,taCenter);
+      for I:=1 to GUI_HOUSE_COUNT do
+        if GUIHouseOrder[I] <> ht_None then begin
+          Button_Build[I]:=TKMButtonFlat.Create(Panel_Build, ((I-1) mod 5)*37,83+((I-1) div 5)*37,33,33,fResource.HouseDat[GUIHouseOrder[I]].GUIIcon);
+          Button_Build[I].OnClick:=Town_BuildChange;
+          Button_Build[I].Hint := fResource.HouseDat[GUIHouseOrder[I]].HouseName;
+        end;
+
+    //Units placement
+    Panel_Units := TKMPanel.Create(Panel_Town,0,28,TB_WIDTH,400);
+
+      for I := 0 to High(Button_Citizen) do
+      begin
+        Button_Citizen[I] := TKMButtonFlat.Create(Panel_Units,(I mod 5)*37,8+(I div 5)*37,33,33,fResource.UnitDat[School_Order[I]].GUIIcon); //List of tiles 5x5
+        Button_Citizen[I].Hint := fResource.UnitDat[School_Order[I]].GUIName;
+        Button_Citizen[I].Tag := Byte(School_Order[I]); //Returns unit ID
+        Button_Citizen[I].OnClick := Town_UnitChange;
+      end;
+      Button_UnitCancel := TKMButtonFlat.Create(Panel_Units,((High(Button_Citizen)+1) mod 5)*37,8+(length(Button_Citizen) div 5)*37,33,33,340);
+      Button_UnitCancel.Hint := gResTexts[TX_BUILD_CANCEL_HINT];
+      Button_UnitCancel.Tag := 255; //Erase
+      Button_UnitCancel.OnClick := Town_UnitChange;
+
+      for I := 0 to High(Button_Warriors) do
+      begin
+        Button_Warriors[I] := TKMButtonFlat.Create(Panel_Units,(I mod 5)*37,124+(I div 5)*37,33,33, MapEd_Icon[I], rxGui);
+        Button_Warriors[I].Hint := fResource.UnitDat[MapEd_Order[I]].GUIName;
+        Button_Warriors[I].Tag := Byte(MapEd_Order[I]); //Returns unit ID
+        Button_Warriors[I].OnClick := Town_UnitChange;
+      end;
+
+      for I := 0 to High(Button_Animals) do
+      begin
+        Button_Animals[I] := TKMButtonFlat.Create(Panel_Units,(I mod 5)*37,240+(I div 5)*37,33,33, Animal_Icon[I], rxGui);
+        Button_Animals[I].Hint := fResource.UnitDat[Animal_Order[I]].GUIName;
+        Button_Animals[I].Tag := Byte(Animal_Order[I]); //Returns animal ID
+        Button_Animals[I].OnClick := Town_UnitChange;
+      end;
+
+    //Town settings
+    Panel_Script := TKMPanel.Create(Panel_Town, 0, 28, TB_WIDTH, 400);
+      TKMLabel.Create(Panel_Script, 0, PAGE_TITLE_Y, TB_WIDTH, 0, gResTexts[TX_MAPED_AI_TITLE], fnt_Outline, taCenter);
+      CheckBox_AutoBuild := TKMCheckBox.Create(Panel_Script, 0, 30, TB_WIDTH, 20, gResTexts[TX_MAPED_AI_AUTOBUILD], fnt_Metal);
+      CheckBox_AutoBuild.OnClick := Town_ScriptChange;
+      CheckBox_AutoRepair := TKMCheckBox.Create(Panel_Script, 0, 50, TB_WIDTH, 20, gResTexts[TX_MAPED_AI_AUTOREPAIR], fnt_Metal);
+      CheckBox_AutoRepair.OnClick := Town_ScriptChange;
+      TrackBar_SerfsPer10Houses := TKMTrackBar.Create(Panel_Script, 0, 70, TB_WIDTH, 1, 50);
+      TrackBar_SerfsPer10Houses.Caption := gResTexts[TX_MAPED_AI_SERFS_PER_10_HOUSES];
+      TrackBar_SerfsPer10Houses.OnChange := Town_ScriptChange;
+      TrackBar_WorkerCount := TKMTrackBar.Create(Panel_Script, 0, 110, TB_WIDTH, 0, 30);
+      TrackBar_WorkerCount.Caption := gResTexts[TX_MAPED_AI_WORKERS];
+      TrackBar_WorkerCount.OnChange := Town_ScriptChange;
+
+    //Defence settings
+    Panel_Defence := TKMPanel.Create(Panel_Town, 0, 28, TB_WIDTH, 400);
+      TKMLabel.Create(Panel_Defence, 0, PAGE_TITLE_Y, TB_WIDTH, 0, gResTexts[TX_MAPED_AI_DEFENSE], fnt_Outline, taCenter);
+      Button_DefencePosAdd := TKMButtonFlat.Create(Panel_Defence, 0, 30, 33, 33, 338);
+      Button_DefencePosAdd.OnClick := Town_DefenceAddClick;
+      Button_DefencePosAdd.Hint    := gResTexts[TX_MAPED_AI_DEFENSE_HINT];
+
+      TKMLabel.Create(Panel_Defence, 0, 65, TB_WIDTH, 0, gResTexts[TX_MAPED_AI_DEFENSE_OPTIONS], fnt_Outline, taCenter);
+      CheckBox_AutoDefence := TKMCheckBox.Create(Panel_Defence, 0, 90, TB_WIDTH, 20, gResTexts[TX_MAPED_AI_DEFENSE_AUTO], fnt_Metal);
+      CheckBox_AutoDefence.Hint := gResTexts[TX_MAPED_AI_DEFENSE_AUTO_HINT];
+      CheckBox_AutoDefence.OnClick := Town_DefenceChange;
+
+      TrackBar_EquipRateLeather := TKMTrackBar.Create(Panel_Defence, 0, 120, TB_WIDTH, 10, 300);
+      TrackBar_EquipRateLeather.Caption := gResTexts[TX_MAPED_AI_DEFENSE_EQUIP_LEATHER];
+      TrackBar_EquipRateLeather.Step := 5;
+      TrackBar_EquipRateLeather.OnChange := Town_DefenceChange;
+
+      TrackBar_EquipRateIron := TKMTrackBar.Create(Panel_Defence, 0, 164, TB_WIDTH, 10, 300);
+      TrackBar_EquipRateIron.Caption := gResTexts[TX_MAPED_AI_DEFENSE_EQUIP_IRON];
+      TrackBar_EquipRateIron.Step := 5;
+      TrackBar_EquipRateIron.OnChange := Town_DefenceChange;
+
+      TrackBar_RecruitCount := TKMTrackBar.Create(Panel_Defence, 0, 208, TB_WIDTH, 1, 20);
+      TrackBar_RecruitCount.Caption := gResTexts[TX_MAPED_AI_RECRUITS];
+      TrackBar_RecruitCount.Hint := gResTexts[TX_MAPED_AI_RECRUITS_HINT];
+      TrackBar_RecruitCount.OnChange := Town_DefenceChange;
+
+      TrackBar_RecruitDelay := TKMTrackBar.Create(Panel_Defence, 0, 252, TB_WIDTH, 0, 500);
+      TrackBar_RecruitDelay.Caption := gResTexts[TX_MAPED_AI_RECRUIT_DELAY];
+      TrackBar_RecruitDelay.Hint := gResTexts[TX_MAPED_AI_RECRUIT_DELAY_HINT];
+      TrackBar_RecruitDelay.Step := 5;
+      TrackBar_RecruitDelay.OnChange := Town_DefenceChange;
+
+      CheckBox_MaxSoldiers := TKMCheckBox.Create(Panel_Defence, 0, 296, TB_WIDTH, 20, gResTexts[TX_MAPED_AI_MAX_SOLDIERS], fnt_Metal);
+      CheckBox_MaxSoldiers.Hint := gResTexts[TX_MAPED_AI_MAX_SOLDIERS_ENABLE_HINT];
+      CheckBox_MaxSoldiers.OnClick := Town_DefenceChange;
+      TrackBar_MaxSoldiers := TKMTrackBar.Create(Panel_Defence, 20, 314, TB_WIDTH - 20, 0, 500);
+      TrackBar_MaxSoldiers.Caption := '';
+      TrackBar_MaxSoldiers.Hint := gResTexts[TX_MAPED_AI_MAX_SOLDIERS_HINT];
+      TrackBar_MaxSoldiers.Step := 5;
+      TrackBar_MaxSoldiers.OnChange := Town_DefenceChange;
+
+      Button_EditFormations := TKMButton.Create(Panel_Defence, 0, 344, TB_WIDTH, 25, gResTexts[TX_MAPED_AI_FORMATIONS], bsGame);
+      Button_EditFormations.OnClick := Formations_Show;
+
+    //Offence settings
+    Panel_Offence := TKMPanel.Create(Panel_Town, 0, 28, TB_WIDTH, 400);
+      TKMLabel.Create(Panel_Offence, 0, PAGE_TITLE_Y, TB_WIDTH, 0, gResTexts[TX_MAPED_AI_ATTACK], fnt_Outline, taCenter);
+
+      CheckBox_AutoAttack := TKMCheckBox.Create(Panel_Offence, 0, 30, TB_WIDTH, 20, gResTexts[TX_MAPED_AI_ATTACK_AUTO], fnt_Metal);
+      CheckBox_AutoAttack.Disable;
+
+      ColumnBox_Attacks := TKMColumnBox.Create(Panel_Offence, 0, 50, TB_WIDTH, 210, fnt_Game, bsGame);
+      ColumnBox_Attacks.SetColumns(fnt_Outline,
+        [gResTexts[TX_MAPED_AI_ATTACK_COL_TYPE],
+         gResTexts[TX_MAPED_AI_ATTACK_COL_DELAY],
+         gResTexts[TX_MAPED_AI_ATTACK_COL_MEN],
+         gResTexts[TX_MAPED_AI_ATTACK_COL_TARGET],
+         gResTexts[TX_MAPED_AI_ATTACK_COL_LOC]], [0, 20, 60, 100, 130]);
+      ColumnBox_Attacks.OnClick := Attacks_ListClick;
+      ColumnBox_Attacks.OnDoubleClick := Attacks_ListDoubleClick;
+
+      Button_AttacksAdd := TKMButton.Create(Panel_Offence, 0, 270, 25, 25, '+', bsGame);
+      Button_AttacksAdd.OnClick := Attacks_Add;
+      Button_AttacksDel := TKMButton.Create(Panel_Offence, 30, 270, 25, 25, 'X', bsGame);
+      Button_AttacksDel.OnClick := Attacks_Del;
 end;
 
 
@@ -1308,6 +1248,73 @@ begin
   end;
 
   inherited;
+end;
+
+
+procedure TKMapEdInterface.Town_DefenceAddClick(Sender: TObject);
+begin
+  //Press the button
+  Button_DefencePosAdd.Down := not Button_DefencePosAdd.Down and (Sender = Button_DefencePosAdd);
+
+  if Button_DefencePosAdd.Down then
+  begin
+    GameCursor.Mode := cmMarkers;
+    GameCursor.Tag1 := MARKER_DEFENCE;
+  end
+  else
+  begin
+    GameCursor.Mode := cmNone;
+    GameCursor.Tag1 := 0;
+  end;
+end;
+
+
+procedure TKMapEdInterface.Town_DefenceChange(Sender: TObject);
+begin
+  gPlayers[MySpectator.PlayerIndex].AI.Setup.AutoDefend := CheckBox_AutoDefence.Checked;
+  gPlayers[MySpectator.PlayerIndex].AI.Setup.EquipRateLeather := TrackBar_EquipRateLeather.Position * 10;
+  gPlayers[MySpectator.PlayerIndex].AI.Setup.EquipRateIron := TrackBar_EquipRateIron.Position * 10;
+  gPlayers[MySpectator.PlayerIndex].AI.Setup.RecruitCount := TrackBar_RecruitCount.Position;
+  gPlayers[MySpectator.PlayerIndex].AI.Setup.RecruitDelay := TrackBar_RecruitDelay.Position * 600;
+
+  if not CheckBox_MaxSoldiers.Checked then
+    gPlayers[MySpectator.PlayerIndex].AI.Setup.MaxSoldiers := -1
+  else
+    gPlayers[MySpectator.PlayerIndex].AI.Setup.MaxSoldiers := TrackBar_MaxSoldiers.Position;
+
+  Town_DefenceRefresh;
+end;
+
+
+procedure TKMapEdInterface.Town_DefenceRefresh;
+begin
+  CheckBox_AutoDefence.Checked := gPlayers[MySpectator.PlayerIndex].AI.Setup.AutoDefend;
+  TrackBar_EquipRateLeather.Position := gPlayers[MySpectator.PlayerIndex].AI.Setup.EquipRateLeather div 10;
+  TrackBar_EquipRateIron.Position := gPlayers[MySpectator.PlayerIndex].AI.Setup.EquipRateIron div 10;
+  TrackBar_RecruitCount.Position := gPlayers[MySpectator.PlayerIndex].AI.Setup.RecruitCount;
+  TrackBar_RecruitDelay.Position := Round(gPlayers[MySpectator.PlayerIndex].AI.Setup.RecruitDelay / 600);
+
+  CheckBox_MaxSoldiers.Checked := (gPlayers[MySpectator.PlayerIndex].AI.Setup.MaxSoldiers >= 0);
+  TrackBar_MaxSoldiers.Enabled := CheckBox_MaxSoldiers.Checked;
+  TrackBar_MaxSoldiers.Position := Max(gPlayers[MySpectator.PlayerIndex].AI.Setup.MaxSoldiers, 0);
+end;
+
+
+procedure TKMapEdInterface.Town_ScriptRefresh;
+begin
+  CheckBox_AutoBuild.Checked := gPlayers[MySpectator.PlayerIndex].AI.Setup.AutoBuild;
+  CheckBox_AutoRepair.Checked := gPlayers[MySpectator.PlayerIndex].AI.Mayor.AutoRepair;
+  TrackBar_SerfsPer10Houses.Position := Round(10*gPlayers[MySpectator.PlayerIndex].AI.Setup.SerfsPerHouse);
+  TrackBar_WorkerCount.Position := gPlayers[MySpectator.PlayerIndex].AI.Setup.WorkerCount;
+end;
+
+
+procedure TKMapEdInterface.Town_ScriptChange(Sender: TObject);
+begin
+  gPlayers[MySpectator.PlayerIndex].AI.Setup.AutoBuild := CheckBox_AutoBuild.Checked;
+  gPlayers[MySpectator.PlayerIndex].AI.Mayor.AutoRepair := CheckBox_AutoRepair.Checked;
+  gPlayers[MySpectator.PlayerIndex].AI.Setup.SerfsPerHouse := TrackBar_SerfsPer10Houses.Position / 10;
+  gPlayers[MySpectator.PlayerIndex].AI.Setup.WorkerCount := TrackBar_WorkerCount.Position;
 end;
 
 
