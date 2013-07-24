@@ -52,6 +52,7 @@ uses
   KM_GUIMapEdTerrain in 'KM_GUIMapEdTerrain.pas',
   KM_GUIMapEdTerrainBrushes in 'KM_GUIMapEdTerrainBrushes.pas',
   KM_GUIMapEdTerrainHeights in 'KM_GUIMapEdTerrainHeights.pas',
+  KM_GUIMapEdTerrainTiles in 'KM_GUIMapEdTerrainTiles.pas',
   KM_GUIMenuCampaign in 'KM_GUIMenuCampaign.pas',
   KM_GUIMenuCampaigns in 'KM_GUIMenuCampaigns.pas',
   KM_GUIMenuCredits in 'KM_GUIMenuCredits.pas',
