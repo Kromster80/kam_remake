@@ -2045,6 +2045,9 @@ begin
   if CheckBox_ShowUnits.Checked or Panel_Units.Visible or Panel_Unit.Visible then
     fGame.MapEditor.VisibleLayers := fGame.MapEditor.VisibleLayers + [mlUnits];
 
+  if fGuiTerrain.Visible(ttSelection) then
+    fGame.MapEditor.VisibleLayers := fGame.MapEditor.VisibleLayers + [mlSelection];
+
   if CheckBox_ShowDeposits.Checked then
     fGame.MapEditor.VisibleLayers := fGame.MapEditor.VisibleLayers + [mlDeposits];
 end;

@@ -148,6 +148,8 @@
 			<DCCReference Include="KM_GUIMapEdTerrainBrushes.pas"/>
 			<DCCReference Include="KM_GUIMapEdTerrainHeights.pas"/>
 			<DCCReference Include="KM_GUIMapEdTerrainTiles.pas"/>
+			<DCCReference Include="KM_GUIMapEdTerrainObjects.pas"/>
+			<DCCReference Include="KM_GUIMapEdTerrainSelection.pas"/>
 			<DCCReference Include="KM_GUIMenuCampaign.pas"/>
 			<DCCReference Include="KM_GUIMenuCampaigns.pas"/>
 			<DCCReference Include="KM_GUIMenuCredits.pas"/>
