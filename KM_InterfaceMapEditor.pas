@@ -78,6 +78,7 @@ type
     procedure Mission_ModeUpdate;
     procedure Mission_PlayerTypesChange(Sender: TObject);
     procedure Mission_PlayerTypesUpdate;
+    procedure PageChanged(Sender: TObject);
     procedure Player_BlockHouseClick(Sender: TObject);
     procedure Player_BlockHouseRefresh;
     procedure Player_BlockTradeClick(Sender: TObject);
@@ -649,7 +650,7 @@ begin
 
 {I plan to store all possible layouts on different pages which gets displayed one at a time}
 {==========================================================================================}
-  fGuiTerrain := TKMMapEdTerrain.Create(Panel_Common);
+  fGuiTerrain := TKMMapEdTerrain.Create(Panel_Common, PageChanged);
   Create_Town;
   Create_Player;
   Create_Mission;
@@ -1467,6 +1468,13 @@ begin
 
   MinimapView.SetMinimap(fGame.Minimap);
   MinimapView.SetViewport(fGame.Viewport);
+end;
+
+
+procedure TKMapEdInterface.PageChanged(Sender: TObject);
+begin
+  //Child panels visibility changed, that affects visible layers
+  Layers_UpdateVisibility;
 end;
 
 

@@ -37,7 +37,7 @@ uses
 { TKMMapEdTerrainBrushes }
 constructor TKMMapEdTerrainBrushes.Create(aParent: TKMPanel);
 const
-  Surfaces: array [0 .. 6, 0 .. 4] of TKMTerrainKind = (
+  Surfaces: array [0..6, 0..4] of TKMTerrainKind = (
     (tkGrass,       tkMoss,         tkRustyGrass1,  tkRustyGrass2,  tkCustom),
     (tkDirtGrass,   tkDirt,         tkGravel,       tkCobbleStone,  tkCustom),
     (tkGrassSand2,  tkGrassSand1,   tkSand,         tkRichSand,     tkCustom),

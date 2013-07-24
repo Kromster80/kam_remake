@@ -36,26 +36,10 @@ type
 implementation
 uses
   KM_Resource, KM_ResFonts, KM_ResMapElements, KM_ResTexts,
-  KM_GameCursor, KM_RenderUI,
-  KM_InterfaceDefaults;
+  KM_GameCursor, KM_RenderUI, KM_InterfaceDefaults;
 
 
-procedure TKMMapEdTerrainObjects.CompactMapElements;
-var
-  I: Integer;
-begin
-  fCountCompact := 0;
-  for I := 0 to fResource.MapElements.Count - 1 do
-  if (MapElem[I].Anim.Count > 0) and (MapElem[I].Anim.Step[1] > 0)
-  and (MapElem[I].Stump = -1) and (I <> 61) then //Hide falling trees and invisible wall (61)
-  begin
-    fCompactToMapElem[fCountCompact] := I; //pointer
-    fMapElemToCompact[I] := fCountCompact; //Reverse lookup
-    Inc(fCountCompact);
-  end;
-end;
-
-
+{ TKMMapEdTerrainObjects }
 constructor TKMMapEdTerrainObjects.Create(aParent: TKMPanel);
 var
   J,K: Integer;
@@ -90,6 +74,23 @@ begin
 end;
 
 
+//Map sparse objects into a tight lookup array
+procedure TKMMapEdTerrainObjects.CompactMapElements;
+var
+  I: Integer;
+begin
+  fCountCompact := 0;
+  for I := 0 to fResource.MapElements.Count - 1 do
+  if (MapElem[I].Anim.Count > 0) and (MapElem[I].Anim.Step[1] > 0)
+  and (MapElem[I].Stump = -1) and (I <> 61) then //Hide falling trees and invisible wall (61)
+  begin
+    fCompactToMapElem[fCountCompact] := I; //pointer
+    fMapElemToCompact[I] := fCountCompact; //Reverse lookup
+    Inc(fCountCompact);
+  end;
+end;
+
+
 procedure TKMMapEdTerrainObjects.ObjectsChange(Sender: TObject);
 var
   ObjID: Integer;
@@ -114,6 +115,7 @@ begin
     //Object
     GameCursor.Tag1 := fCompactToMapElem[ObjID]; //0..n-1
 
+  //Remember last selected object
   fLastObject := TKMButtonFlat(Sender).Tag;
 
   ObjectsRefresh(nil);

@@ -31,16 +31,16 @@ type
     KMHealthBar_House: TKMPercentBar;
     Button_HouseHealthDec, Button_HouseHealthInc: TKMButton;
     Label_House_Supply: TKMLabel;
-    ResRow_Resource: array [0 .. 3] of TKMResourceOrderRow;
+    ResRow_Resource: array [0..3] of TKMResourceOrderRow;
 
     Panel_HouseStore: TKMPanel;
-    Button_Store: array [1 .. STORE_RES_COUNT] of TKMButtonFlat;
+    Button_Store: array [1..STORE_RES_COUNT] of TKMButtonFlat;
     Label_Store_WareCount: TKMLabel;
     Button_StoreDec100, Button_StoreDec: TKMButton;
     Button_StoreInc100, Button_StoreInc: TKMButton;
 
     Panel_HouseBarracks: TKMPanel;
-    Button_Barracks: array [1 .. BARRACKS_RES_COUNT] of TKMButtonFlat;
+    Button_Barracks: array [1..BARRACKS_RES_COUNT] of TKMButtonFlat;
     Label_Barracks_WareCount: TKMLabel;
     Button_BarracksDec100, Button_BarracksDec: TKMButton;
     Button_BarracksInc100, Button_BarracksInc: TKMButton;

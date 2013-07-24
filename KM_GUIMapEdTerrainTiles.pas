@@ -9,9 +9,6 @@ uses
 type
   TKMMapEdTerrainTiles = class
   private
-    //Objects in MapElem are placed sparsely, so we need to compact them
-    //to use in MapEd palette
-    fTileDirection: Byte;
     fLastTile: Byte;
 
     procedure TilesChange(Sender: TObject);
@@ -35,8 +32,7 @@ type
 
 implementation
 uses
-  KM_ResFonts, KM_ResTexts, KM_GameCursor, KM_RenderUI,
-  KM_InterfaceDefaults;
+  KM_ResFonts, KM_ResTexts, KM_GameCursor, KM_RenderUI, KM_InterfaceDefaults;
 
 
 const
@@ -58,8 +54,6 @@ var
   J,K: Integer;
 begin
   inherited Create;
-
-  fTileDirection := 0;
 
   Panel_Tiles := TKMPanel.Create(aParent, 0, 28, TB_WIDTH, 400);
   TKMLabel.Create(Panel_Tiles, 0, PAGE_TITLE_Y, TB_WIDTH, 0, gResTexts[TX_MAPED_TERRAIN_HINTS_TILES], fnt_Outline, taCenter);
@@ -117,6 +111,7 @@ begin
     if TilesRandom.Checked then
       GameCursor.MapEdDir := 4;
 
+    //Remember last selected Tile
     fLastTile := aIndex;
   end;
 

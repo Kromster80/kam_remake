@@ -2,7 +2,7 @@ unit KM_GUIMapEdTerrain;
 {$I KaM_Remake.inc}
 interface
 uses
-   Math, SysUtils,
+   Classes, Math, SysUtils,
    KM_Controls, KM_Defaults, KM_Pics,
    KM_GUIMapEdTerrainBrushes,
    KM_GUIMapEdTerrainHeights,
@@ -17,6 +17,8 @@ type
   //Collection of terrain editing controls
   TKMMapEdTerrain = class
   private
+    fOnPageChange: TNotifyEvent;
+
     fGuiBrushes: TKMMapEdTerrainBrushes;
     fGuiHeights: TKMMapEdTerrainHeights;
     fGuiTiles: TKMMapEdTerrainTiles;
@@ -31,7 +33,7 @@ type
     Button_TerrainUndo: TKMButton;
     Button_TerrainRedo: TKMButton;
   public
-    constructor Create(aParent: TKMPanel);
+    constructor Create(aParent: TKMPanel; aOnPageChange: TNotifyEvent);
     destructor Destroy; override;
 
     procedure Show;
@@ -49,7 +51,7 @@ uses
 
 
 { TKMMapEdTerrain }
-constructor TKMMapEdTerrain.Create(aParent: TKMPanel);
+constructor TKMMapEdTerrain.Create(aParent: TKMPanel; aOnPageChange: TNotifyEvent);
 const
   BtnGlyph: array [TKMTerrainTab] of Word = (383, 388, 382, 385, 384);
   BtnHint: array [TKMTerrainTab] of Word = (
@@ -62,6 +64,8 @@ var
   I: TKMTerrainTab;
 begin
   inherited Create;
+
+  fOnPageChange := aOnPageChange;
 
   Panel_Terrain := TKMPanel.Create(aParent, 0, 45, TB_WIDTH, 28);
     for I := Low(TKMTerrainTab) to High(TKMTerrainTab) do
@@ -124,7 +128,8 @@ begin
   if (Sender = Button_Terrain[ttSelection]) then
     fGuiSelection.Show;
 
-  fOnPageChanged(Slef);
+  //Signla that active page has changed, that may affect layers visibility
+  fOnPageChange(Self);
 end;
 
 
