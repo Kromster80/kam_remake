@@ -151,6 +151,11 @@
 			<DCCReference Include="KM_GUIMapEdTerrainObjects.pas"/>
 			<DCCReference Include="KM_GUIMapEdTerrainSelection.pas"/>
 			<DCCReference Include="KM_GUIMapEdTown.pas"/>
+			<DCCReference Include="KM_GUIMapEdTownUnits.pas"/>
+			<DCCReference Include="KM_GUIMapEdTownHouses.pas"/>
+			<DCCReference Include="KM_GUIMapEdTownScript.pas"/>
+			<DCCReference Include="KM_GUIMapEdTownDefence.pas"/>
+			<DCCReference Include="KM_GUIMapEdTownOffence.pas"/>
 			<DCCReference Include="KM_GUIMenuCampaign.pas"/>
 			<DCCReference Include="KM_GUIMenuCampaigns.pas"/>
 			<DCCReference Include="KM_GUIMenuCredits.pas"/>

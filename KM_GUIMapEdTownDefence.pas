@@ -6,11 +6,14 @@ uses
    {$IFDEF Unix} LCLIntf, LCLType, {$ENDIF}
    Classes, Controls, KromUtils, Math, StrUtils, SysUtils, KromOGLUtils, TypInfo,
    KM_Controls, KM_Defaults, KM_Pics, KM_Maps, KM_Houses, KM_Units, KM_UnitGroups, KM_MapEditor,
-   KM_Points, KM_InterfaceDefaults, KM_AIAttacks, KM_AIGoals, KM_Terrain;
+   KM_Points, KM_InterfaceDefaults, KM_AIAttacks, KM_AIGoals, KM_Terrain,
+   KM_GUIMapEdFormations;
+
 
 type
   TKMMapEdTownDefence = class
   private
+    procedure Town_DefenceFormations(Sender: TObject);
     procedure Town_DefenceAddClick(Sender: TObject);
     procedure Town_DefenceRefresh;
     procedure Town_DefenceChange(Sender: TObject);
@@ -26,6 +29,8 @@ type
     TrackBar_RecruitDelay: TKMTrackBar;
     Button_EditFormations: TKMButton;
   public
+    FormationsPopUp: TKMMapEdFormations;
+
     constructor Create(aParent: TKMPanel);
 
     procedure Show;
@@ -44,8 +49,6 @@ uses
 
 { TKMMapEdTownDefence }
 constructor TKMMapEdTownDefence.Create(aParent: TKMPanel);
-var
-  I: Integer;
 begin
   inherited Create;
 
@@ -91,7 +94,7 @@ begin
   TrackBar_MaxSoldiers.OnChange := Town_DefenceChange;
 
   Button_EditFormations := TKMButton.Create(Panel_Defence, 0, 344, TB_WIDTH, 25, gResTexts[TX_MAPED_AI_FORMATIONS], bsGame);
-  Button_EditFormations.OnClick := Formations_Show;
+  Button_EditFormations.OnClick := Town_DefenceFormations;
 end;
 
 
@@ -127,6 +130,12 @@ begin
     gPlayers[MySpectator.PlayerIndex].AI.Setup.MaxSoldiers := TrackBar_MaxSoldiers.Position;
 
   Town_DefenceRefresh;
+end;
+
+
+procedure TKMMapEdTownDefence.Town_DefenceFormations(Sender: TObject);
+begin
+  FormationsPopUp.Show(MySpectator.PlayerIndex);
 end;
 
 

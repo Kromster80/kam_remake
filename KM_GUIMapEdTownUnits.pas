@@ -25,6 +25,7 @@ type
     procedure Show;
     procedure Hide;
     function Visible: Boolean;
+    procedure UpdateColors(aColor: Cardinal);
   end;
 
 
@@ -114,6 +115,17 @@ end;
 function TKMMapEdTownUnits.Visible: Boolean;
 begin
   Result := Panel_Units.Visible;
+end;
+
+
+procedure TKMMapEdTownUnits.UpdateColors(aColor: Cardinal);
+var
+  I: Integer;
+begin
+  for I := Low(Button_Citizen) to High(Button_Citizen) do
+    Button_Citizen[I].FlagColor := gPlayers[MySpectator.PlayerIndex].FlagColor;
+  for I := Low(Button_Warriors) to High(Button_Warriors) do
+    Button_Warriors[I].FlagColor := gPlayers[MySpectator.PlayerIndex].FlagColor;
 end;
 
 

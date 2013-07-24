@@ -9,7 +9,9 @@ uses
    KM_Points, KM_InterfaceDefaults, KM_AIAttacks, KM_AIGoals, KM_Terrain,
    KM_GUIMapEdHouse,
    KM_GUIMapEdTerrain,
-   KM_GUIMapEdTown;
+   KM_GUIMapEdTown,
+   KM_GUIMapEdAttack,
+   KM_GUIMapEdFormations;
 
 type
   TKMPlayerTab = (ptGoals, ptColor, ptBlockHouse, ptBlockTrade, ptMarkers);
@@ -25,6 +27,8 @@ type
     fGuiHouse: TKMMapEdHouse;
     fGuiTerrain: TKMMapEdTerrain;
     fGuiTown: TKMMapEdTown;
+    fGuiAttack: TKMMapEdAttack;
+    fGuiFormations: TKMMapEdFormations;
 
     fMaps: TKMapsCollection;
     fMapsMP: TKMapsCollection;
@@ -39,22 +43,9 @@ type
     procedure Create_Message;
     procedure Create_Unit;
     procedure Create_Marker;
-    procedure Create_AttackPopUp;
-    procedure Create_FormationsPopUp;
     procedure Create_GoalPopUp;
 
-    procedure Attack_Change(Sender: TObject);
-    procedure Attack_Close(Sender: TObject);
-    procedure Attack_Refresh(aAttack: TAIAttack);
-    procedure Attacks_Add(Sender: TObject);
-    procedure Attacks_Del(Sender: TObject);
-    procedure Attacks_Edit(aIndex: Integer);
-    procedure Attacks_ListClick(Sender: TObject);
-    procedure Attacks_ListDoubleClick(Sender: TObject);
-    procedure Attacks_Refresh;
     procedure Extra_Change(Sender: TObject);
-    procedure Formations_Show(Sender: TObject);
-    procedure Formations_Close(Sender: TObject);
     procedure Goal_Change(Sender: TObject);
     procedure Goal_Close(Sender: TObject);
     procedure Goal_Refresh(aGoal: TKMGoal);
@@ -86,15 +77,6 @@ type
     procedure Player_ChangeActive(Sender: TObject);
     procedure Player_ColorClick(Sender: TObject);
     procedure Player_MarkerClick(Sender: TObject);
-    procedure Town_BuildChange(Sender: TObject);
-    procedure Town_BuildRefresh;
-    procedure Town_DefenceAddClick(Sender: TObject);
-    procedure Town_DefenceRefresh;
-    procedure Town_DefenceChange(Sender: TObject);
-    procedure Town_ScriptRefresh;
-    procedure Town_ScriptChange(Sender: TObject);
-    procedure Town_UnitChange(Sender: TObject);
-    procedure Town_UnitRefresh;
     procedure Unit_ArmyChange1(Sender: TObject); overload;
     procedure Unit_ArmyChange2(Sender: TObject; AButton: TMouseButton); overload;
     procedure ExtraMessage_Switch(Sender: TObject);
@@ -230,26 +212,6 @@ type
         Button_DefenceClose: TKMButton;
 
     //PopUp panels
-    Panel_Formations: TKMPanel;
-      Image_FormationsFlag: TKMImage;
-      NumEdit_FormationsCount,
-      NumEdit_FormationsColumns: array [TGroupType] of TKMNumericEdit;
-      Button_Formations_Ok: TKMButton;
-      Button_Formations_Cancel: TKMButton;
-
-    Panel_Attack: TKMPanel;
-      Radio_AttackType: TKMRadioGroup;
-      NumEdit_AttackDelay: TKMNumericEdit;
-      NumEdit_AttackMen: TKMNumericEdit;
-      NumEdit_AttackAmount: array [TGroupType] of TKMNumericEdit;
-      CheckBox_AttackTakeAll: TKMCheckBox;
-      Radio_AttackTarget: TKMRadioGroup;
-      TrackBar_AttackRange: TKMTrackBar;
-      NumEdit_AttackLocX: TKMNumericEdit;
-      NumEdit_AttackLocY: TKMNumericEdit;
-      Button_AttackOk: TKMButton;
-      Button_AttackCancel: TKMButton;
-
     Panel_Goal: TKMPanel;
       Image_GoalFlag: TKMImage;
       Radio_GoalType: TKMRadioGroup;
@@ -339,7 +301,7 @@ begin
   if (Sender = Button_Main[2]) then
   begin
     HidePages;
-    fGuiTown.Show;
+    fGuiTown.Show(ttHouses);
   end
   else
 
@@ -474,40 +436,6 @@ begin
 end;
 
 
-procedure TKMapEdInterface.Formations_Show(Sender: TObject);
-var
-  GT: TGroupType;
-begin
-  //Fill UI
-  Image_FormationsFlag.FlagColor := gPlayers[MySpectator.PlayerIndex].FlagColor;
-  for GT := Low(TGroupType) to High(TGroupType) do
-  begin
-    NumEdit_FormationsCount[GT].Value := gPlayers[MySpectator.PlayerIndex].AI.General.DefencePositions.TroopFormations[GT].NumUnits;
-    NumEdit_FormationsColumns[GT].Value := gPlayers[MySpectator.PlayerIndex].AI.General.DefencePositions.TroopFormations[GT].UnitsPerRow;
-  end;
-
-  Panel_Formations.Show;
-end;
-
-
-procedure TKMapEdInterface.Formations_Close(Sender: TObject);
-var
-  GT: TGroupType;
-begin
-  Assert(Image_FormationsFlag.FlagColor = gPlayers[MySpectator.PlayerIndex].FlagColor, 'Cheap test to see if active player didn''t changed');
-
-  if Sender = Button_Formations_Ok then
-    //Save settings
-    for GT := Low(TGroupType) to High(TGroupType) do
-    begin
-      gPlayers[MySpectator.PlayerIndex].AI.General.DefencePositions.TroopFormations[GT].NumUnits := NumEdit_FormationsCount[GT].Value;
-      gPlayers[MySpectator.PlayerIndex].AI.General.DefencePositions.TroopFormations[GT].UnitsPerRow := NumEdit_FormationsColumns[GT].Value;
-    end;
-
-  Panel_Formations.Hide;
-end;
-
-
 //Update viewport position when user interacts with minimap
 procedure TKMapEdInterface.Minimap_Update(Sender: TObject; const X,Y: Integer);
 begin
@@ -614,9 +542,12 @@ begin
   Image_Message.Hide; //Hidden by default, only visible when a message is shown
 
   //Pages that need to be on top of everything
-  Create_AttackPopUp;
-  Create_FormationsPopUp;
+  fGuiAttack := TKMMapEdAttack.Create(Panel_Main);
+  fGuiFormations := TKMMapEdFormations.Create(Panel_Main);
   Create_GoalPopUp;
+
+  fGuiTown.fGuiDefence.FormationsPopUp := fGuiFormations;
+  fGuiTown.fGuiOffence.AttackPopUp := fGuiAttack;
 
   fMyControls.OnHint := DisplayHint;
 
@@ -628,6 +559,9 @@ destructor TKMapEdInterface.Destroy;
 begin
   fGuiHouse.Free;
   fGuiTerrain.Free;
+  fGuiTown.Free;
+  fGuiAttack.Free;
+  fGuiFormations.Free;
 
   fMaps.Free;
   fMapsMP.Free;
@@ -953,112 +887,6 @@ begin
 end;
 
 
-procedure TKMapEdInterface.Create_AttackPopUp;
-const
-  SIZE_X = 570;
-  SIZE_Y = 360;
-var
-  GT: TGroupType;
-begin
-  Panel_Attack := TKMPanel.Create(Panel_Main, 362, 250, SIZE_X, SIZE_Y);
-  Panel_Attack.Anchors := [];
-  Panel_Attack.Hide;
-
-    TKMBevel.Create(Panel_Attack, -1000,  -1000, 4000, 4000);
-    with TKMImage.Create(Panel_Attack, -20, -50, SIZE_X+40, SIZE_Y+60, 15, rxGuiMain) do ImageStretch;
-    TKMBevel.Create(Panel_Attack,   0,  0, SIZE_X, SIZE_Y);
-    TKMLabel.Create(Panel_Attack, SIZE_X div 2, 10, gResTexts[TX_MAPED_AI_ATTACK_INFO], fnt_Outline, taCenter);
-
-    TKMLabel.Create(Panel_Attack, 20, 40, gResTexts[TX_MAPED_AI_ATTACK_COL_TYPE], fnt_Metal, taLeft);
-    Radio_AttackType := TKMRadioGroup.Create(Panel_Attack, 20, 60, 80, 40, fnt_Metal);
-    Radio_AttackType.Add(gResTexts[TX_MAPED_AI_ATTACK_TYPE_ONCE]);
-    Radio_AttackType.Add(gResTexts[TX_MAPED_AI_ATTACK_TYPE_REP]);
-    Radio_AttackType.OnChange := Attack_Change;
-
-    TKMLabel.Create(Panel_Attack, 130, 40, gResTexts[TX_MAPED_AI_ATTACK_DELAY], fnt_Metal, taLeft);
-    NumEdit_AttackDelay := TKMNumericEdit.Create(Panel_Attack, 130, 60, 0, High(SmallInt));
-    NumEdit_AttackDelay.OnChange := Attack_Change;
-
-    TKMLabel.Create(Panel_Attack, 240, 40, gResTexts[TX_MAPED_AI_ATTACK_COL_MEN], fnt_Metal, taLeft);
-    NumEdit_AttackMen := TKMNumericEdit.Create(Panel_Attack, 240, 60, 0, 1000);
-    NumEdit_AttackMen.OnChange := Attack_Change;
-
-    TKMLabel.Create(Panel_Attack, 340, 40, gResTexts[TX_MAPED_AI_ATTACK_COUNT], fnt_Metal, taLeft);
-    for GT := Low(TGroupType) to High(TGroupType) do
-    begin
-      TKMLabel.Create(Panel_Attack, 425, 60 + Byte(GT) * 20, 0, 0, gResTexts[GROUP_TEXT[GT]], fnt_Metal, taLeft);
-      NumEdit_AttackAmount[GT] := TKMNumericEdit.Create(Panel_Attack, 340, 60 + Byte(GT) * 20, 0, 255);
-      NumEdit_AttackAmount[GT].OnChange := Attack_Change;
-    end;
-
-    CheckBox_AttackTakeAll := TKMCheckBox.Create(Panel_Attack, 340, 145, 160, 20, gResTexts[TX_MAPED_AI_ATTACK_TAKE_ALL], fnt_Metal);
-    CheckBox_AttackTakeAll.OnClick := Attack_Change;
-
-    //Second row
-
-    TKMLabel.Create(Panel_Attack, 20, 170, gResTexts[TX_MAPED_AI_ATTACK_COL_TARGET], fnt_Metal, taLeft);
-    Radio_AttackTarget := TKMRadioGroup.Create(Panel_Attack, 20, 190, 160, 80, fnt_Metal);
-    Radio_AttackTarget.Add(gResTexts[TX_MAPED_AI_TARGET_CLOSEST]);
-    Radio_AttackTarget.Add(gResTexts[TX_MAPED_AI_TARGET_HOUSE1]);
-    Radio_AttackTarget.Add(gResTexts[TX_MAPED_AI_TARGET_HOUSE2]);
-    Radio_AttackTarget.Add(gResTexts[TX_MAPED_AI_TARGET_CUSTOM]);
-    Radio_AttackTarget.OnChange := Attack_Change;
-
-    TKMLabel.Create(Panel_Attack, 200, 170, gResTexts[TX_MAPED_AI_TARGET_POS], fnt_Metal, taLeft);
-    NumEdit_AttackLocX := TKMNumericEdit.Create(Panel_Attack, 200, 190, 0, MAX_MAP_SIZE);
-    NumEdit_AttackLocX.OnChange := Attack_Change;
-    NumEdit_AttackLocY := TKMNumericEdit.Create(Panel_Attack, 200, 210, 0, MAX_MAP_SIZE);
-    NumEdit_AttackLocY.OnChange := Attack_Change;
-
-    TKMLabel.Create(Panel_Attack, 200, 240, 'Range (untested)', fnt_Metal, taLeft);
-    TrackBar_AttackRange := TKMTrackBar.Create(Panel_Attack, 200, 260, 100, 0, 255);
-    TrackBar_AttackRange.Disable;
-    TrackBar_AttackRange.OnChange := Attack_Change;
-
-    Button_AttackOk := TKMButton.Create(Panel_Attack, SIZE_X-20-320-10, SIZE_Y - 50, 160, 30, gResTexts[TX_MAPED_OK], bsMenu);
-    Button_AttackOk.OnClick := Attack_Close;
-    Button_AttackCancel := TKMButton.Create(Panel_Attack, SIZE_X-20-160, SIZE_Y - 50, 160, 30, gResTexts[TX_MAPED_CANCEL], bsMenu);
-    Button_AttackCancel.OnClick := Attack_Close;
-end;
-
-
-procedure TKMapEdInterface.Create_FormationsPopUp;
-const
-  T: array [TGroupType] of Integer = (TX_MAPED_AI_ATTACK_TYPE_MELEE, TX_MAPED_AI_ATTACK_TYPE_ANTIHORSE, TX_MAPED_AI_ATTACK_TYPE_RANGED, TX_MAPED_AI_ATTACK_TYPE_MOUNTED);  SIZE_X = 570;
-  SIZE_Y = 200;
-var
-  GT: TGroupType;
-  Img: TKMImage;
-begin
-  Panel_Formations := TKMPanel.Create(Panel_Main, 362, 250, SIZE_X, SIZE_Y);
-  Panel_Formations.Anchors := [];
-  Panel_Formations.Hide;
-
-    TKMBevel.Create(Panel_Formations, -1000,  -1000, 4000, 4000);
-    Img := TKMImage.Create(Panel_Formations, -20, -50, SIZE_X+40, SIZE_Y+60, 15, rxGuiMain);
-    Img.ImageStretch;
-    TKMBevel.Create(Panel_Formations,   0,  0, SIZE_X, SIZE_Y);
-    TKMLabel.Create(Panel_Formations, SIZE_X div 2, 10, gResTexts[TX_MAPED_AI_FORMATIONS_TITLE], fnt_Outline, taCenter);
-
-    Image_FormationsFlag := TKMImage.Create(Panel_Formations, 10, 10, 0, 0, 30, rxGuiMain);
-
-    TKMLabel.Create(Panel_Formations, 20, 70, 80, 0, gResTexts[TX_MAPED_AI_FORMATIONS_COUNT], fnt_Metal, taLeft);
-    TKMLabel.Create(Panel_Formations, 20, 95, 80, 0, gResTexts[TX_MAPED_AI_FORMATIONS_COLUMNS], fnt_Metal, taLeft);
-
-    for GT := Low(TGroupType) to High(TGroupType) do
-    begin
-      TKMLabel.Create(Panel_Formations, 130 + Byte(GT) * 110 + 32, 50, 0, 0, gResTexts[T[GT]], fnt_Metal, taCenter);
-      NumEdit_FormationsCount[GT] := TKMNumericEdit.Create(Panel_Formations, 130 + Byte(GT) * 110, 70, 1, 255);
-      NumEdit_FormationsColumns[GT] := TKMNumericEdit.Create(Panel_Formations, 130 + Byte(GT) * 110, 95, 1, 255);
-    end;
-
-    Button_Formations_Ok := TKMButton.Create(Panel_Formations, SIZE_X-20-320-10, 150, 160, 30, gResTexts[TX_MAPED_OK], bsMenu);
-    Button_Formations_Ok.OnClick := Formations_Close;
-    Button_Formations_Cancel := TKMButton.Create(Panel_Formations, SIZE_X-20-160, 150, 160, 30, gResTexts[TX_MAPED_CANCEL], bsMenu);
-    Button_Formations_Cancel.OnClick := Formations_Close;
-end;
-
-
 procedure TKMapEdInterface.Create_GoalPopUp;
 const
   SIZE_X = 600;
@@ -1321,11 +1149,8 @@ begin
     Button_PlayerSelect[I].ShapeColor := gPlayers[I].FlagColor;
 
   //Update pages that have colored elements to match new players color
-  Button_Town[ttUnits].FlagColor := gPlayers[MySpectator.PlayerIndex].FlagColor;
-  for I := Low(Button_Citizen) to High(Button_Citizen) do
-    Button_Citizen[I].FlagColor := gPlayers[MySpectator.PlayerIndex].FlagColor;
-  for I := Low(Button_Warriors) to High(Button_Warriors) do
-    Button_Warriors[I].FlagColor := gPlayers[MySpectator.PlayerIndex].FlagColor;
+  fGuiTown.UpdatePlayer(MySpectator.PlayerIndex);
+
   Button_Player[ptColor].FlagColor := gPlayers[MySpectator.PlayerIndex].FlagColor;
   Button_Reveal.FlagColor := gPlayers[MySpectator.PlayerIndex].FlagColor;
 
@@ -1359,9 +1184,6 @@ begin
 end;
 
 
-
-
-
 procedure TKMapEdInterface.SetActivePlayer(aIndex: TPlayerIndex);
 var
   I: Integer;
@@ -1373,148 +1195,6 @@ begin
 
   Player_UpdateColors;
   UpdateAITabsEnabled;
-end;
-
-
-procedure TKMapEdInterface.Attack_Change(Sender: TObject);
-var
-  GT: TGroupType;
-begin
-  //Settings get saved on close, now we just toggle fields
-  //because certain combinations can't coexist
-
-  for GT := Low(TGroupType) to High(TGroupType) do
-    NumEdit_AttackAmount[GT].Enabled := not CheckBox_AttackTakeAll.Checked;
-
-  NumEdit_AttackLocX.Enabled := (TAIAttackTarget(Radio_AttackTarget.ItemIndex) = att_CustomPosition);
-  NumEdit_AttackLocY.Enabled := (TAIAttackTarget(Radio_AttackTarget.ItemIndex) = att_CustomPosition);
-end;
-
-
-procedure TKMapEdInterface.Attack_Close(Sender: TObject);
-var
-  I: Integer;
-  AA: TAIAttack;
-  GT: TGroupType;
-begin
-  if Sender = Button_AttackOk then
-  begin
-    //Attack we are editing
-    I := ColumnBox_Attacks.ItemIndex;
-
-    //Copy attack info from controls to Attacks
-    AA.AttackType := TAIAttackType(Radio_AttackType.ItemIndex);
-    AA.Delay := NumEdit_AttackDelay.Value * 10;
-    AA.TotalMen := NumEdit_AttackMen.Value;
-    for GT := Low(TGroupType) to High(TGroupType) do
-      AA.GroupAmounts[GT] := NumEdit_AttackAmount[GT].Value;
-    AA.TakeAll := CheckBox_AttackTakeAll.Checked;
-    AA.Target := TAIAttackTarget(Radio_AttackTarget.ItemIndex);
-    AA.Range := TrackBar_AttackRange.Position;
-    AA.CustomPosition := KMPoint(NumEdit_AttackLocX.Value, NumEdit_AttackLocY.Value);
-
-    gPlayers[MySpectator.PlayerIndex].AI.General.Attacks[I] := AA;
-  end;
-
-  Panel_Attack.Hide;
-  Attacks_Refresh;
-end;
-
-
-procedure TKMapEdInterface.Attack_Refresh(aAttack: TAIAttack);
-var
-  GT: TGroupType;
-begin
-  //Set attack properties to UI
-  Radio_AttackType.ItemIndex := Byte(aAttack.AttackType);
-  NumEdit_AttackDelay.Value := aAttack.Delay div 10;
-  NumEdit_AttackMen.Value := aAttack.TotalMen;
-  for GT := Low(TGroupType) to High(TGroupType) do
-    NumEdit_AttackAmount[GT].Value := aAttack.GroupAmounts[GT];
-  CheckBox_AttackTakeAll.Checked := aAttack.TakeAll;
-  Radio_AttackTarget.ItemIndex := Byte(aAttack.Target);
-  TrackBar_AttackRange.Position := aAttack.Range;
-  NumEdit_AttackLocX.Value := aAttack.CustomPosition.X;
-  NumEdit_AttackLocY.Value := aAttack.CustomPosition.Y;
-
-  //Certain values disable certain controls
-  Attack_Change(nil);
-end;
-
-
-//Add a dummy attack and let mapmaker edit it
-procedure TKMapEdInterface.Attacks_Add(Sender: TObject);
-var
-  AA: TAIAttack;
-begin
-  FillChar(AA, SizeOf(AA), #0);
-  gPlayers[MySpectator.PlayerIndex].AI.General.Attacks.AddAttack(AA);
-
-  Attacks_Refresh;
-  ColumnBox_Attacks.ItemIndex := gPlayers[MySpectator.PlayerIndex].AI.General.Attacks.Count - 1;
-
-  //Edit the attack we have just appended
-  Attacks_Edit(ColumnBox_Attacks.ItemIndex);
-end;
-
-
-procedure TKMapEdInterface.Attacks_Del(Sender: TObject);
-var I: Integer;
-begin
-  I := ColumnBox_Attacks.ItemIndex;
-  if InRange(I, 0, gPlayers[MySpectator.PlayerIndex].AI.General.Attacks.Count - 1) then
-    gPlayers[MySpectator.PlayerIndex].AI.General.Attacks.Delete(I);
-
-  Attacks_Refresh;
-end;
-
-
-procedure TKMapEdInterface.Attacks_Edit(aIndex: Integer);
-begin
-  Assert(InRange(aIndex, 0, gPlayers[MySpectator.PlayerIndex].AI.General.Attacks.Count - 1));
-  Attack_Refresh(gPlayers[MySpectator.PlayerIndex].AI.General.Attacks[aIndex]);
-  Panel_Attack.Show;
-end;
-
-
-procedure TKMapEdInterface.Attacks_ListClick(Sender: TObject);
-var
-  I: Integer;
-begin
-  I := ColumnBox_Attacks.ItemIndex;
-  Button_AttacksDel.Enabled := InRange(I, 0, gPlayers[MySpectator.PlayerIndex].AI.General.Attacks.Count - 1);
-end;
-
-
-procedure TKMapEdInterface.Attacks_ListDoubleClick(Sender: TObject);
-var
-  I: Integer;
-begin
-  I := ColumnBox_Attacks.ItemIndex;
-
-  //Check if user double-clicked on an existing item (not on an empty space)
-  if InRange(I, 0, gPlayers[MySpectator.PlayerIndex].AI.General.Attacks.Count - 1) then
-    Attacks_Edit(I);
-end;
-
-
-procedure TKMapEdInterface.Attacks_Refresh;
-const
-  Typ: array [TAIAttackType] of string = ('O', 'R');
-  Tgt: array [TAIAttackTarget] of string = ('U', 'H1', 'H2', 'Pos');
-var
-  I: Integer;
-  A: TAIAttack;
-begin
-  ColumnBox_Attacks.Clear;
-
-  for I := 0 to gPlayers[MySpectator.PlayerIndex].AI.General.Attacks.Count - 1 do
-  begin
-    A := gPlayers[MySpectator.PlayerIndex].AI.General.Attacks[I];
-    ColumnBox_Attacks.AddItem(MakeListRow([Typ[A.AttackType], IntToStr(A.Delay div 10), IntToStr(A.TotalMen), Tgt[A.Target], TypeToString(A.CustomPosition)]));
-  end;
-
-  Attacks_ListClick(nil);
 end;
 
 
@@ -1653,76 +1333,6 @@ begin
 end;
 
 
-procedure TKMapEdInterface.Town_BuildChange(Sender: TObject);
-var I: Integer;
-begin
-  //Reset cursor and see if it needs to be changed
-  GameCursor.Mode := cmNone;
-  GameCursor.Tag1 := 0;
-
-  if Sender = Button_BuildCancel then
-    GameCursor.Mode := cmErase
-  else
-  if Sender = Button_BuildRoad then
-    GameCursor.Mode := cmRoad
-  else
-  if Sender = Button_BuildField then
-    GameCursor.Mode := cmField
-  else
-  if Sender = Button_BuildWine then
-    GameCursor.Mode := cmWine
-  else
-
-  for I := 1 to GUI_HOUSE_COUNT do
-  if GUIHouseOrder[I] <> ht_None then
-  if Sender = Button_Build[I] then
-  begin
-    GameCursor.Mode := cmHouses;
-    GameCursor.Tag1 := Byte(GUIHouseOrder[I]);
-  end;
-
-  Town_BuildRefresh;
-end;
-
-
-procedure TKMapEdInterface.Town_BuildRefresh;
-var
-  I: Integer;
-begin
-  Button_BuildCancel.Down := (GameCursor.Mode = cmErase);
-  Button_BuildRoad.Down   := (GameCursor.Mode = cmRoad);
-  Button_BuildField.Down  := (GameCursor.Mode = cmField);
-  Button_BuildWine.Down   := (GameCursor.Mode = cmWine);
-
-  for I := 1 to GUI_HOUSE_COUNT do
-  if GUIHouseOrder[I] <> ht_None then
-    Button_Build[I].Down := (GameCursor.Mode = cmHouses) and (GameCursor.Tag1 = Byte(GUIHouseOrder[I]));
-end;
-
-
-procedure TKMapEdInterface.Town_UnitChange(Sender: TObject);
-begin
-  GameCursor.Mode := cmUnits;
-  GameCursor.Tag1 := Byte(TKMButtonFlat(Sender).Tag);
-
-  Town_UnitRefresh;
-end;
-
-
-procedure TKMapEdInterface.Town_UnitRefresh;
-var
-  I: Integer;
-  B: TKMButtonFlat;
-begin
-  for I := 1 to Panel_Units.ChildCount do
-  if Panel_Units.Childs[I] is TKMButtonFlat then
-  begin
-    B := TKMButtonFlat(Panel_Units.Childs[I]);
-    B.Down := (GameCursor.Mode = cmUnits) and (GameCursor.Tag1 = B.Tag);
-  end;
-end;
-
-
 procedure TKMapEdInterface.Extra_Change(Sender: TObject);
 begin
   SHOW_TERRAIN_WIRES := TrackBar_Passability.Position <> 0;
@@ -1748,16 +1358,16 @@ begin
   if Panel_Markers.Visible or Panel_MarkerReveal.Visible then
     fGame.MapEditor.VisibleLayers := fGame.MapEditor.VisibleLayers + [mlRevealFOW, mlCenterScreen];
 
-  if Panel_Defence.Visible or Panel_MarkerDefence.Visible then
+  if fGuiTown.Visible(ttDefences) or Panel_MarkerDefence.Visible then
     fGame.MapEditor.VisibleLayers := fGame.MapEditor.VisibleLayers + [mlDefences];
 
   if CheckBox_ShowObjects.Checked or fGuiTerrain.Visible(ttObject) then
     fGame.MapEditor.VisibleLayers := fGame.MapEditor.VisibleLayers + [mlObjects];
 
-  if CheckBox_ShowHouses.Checked or Panel_Build.Visible or fGuiHouse.Visible then
+  if CheckBox_ShowHouses.Checked or fGuiTown.Visible(ttHouses) or fGuiHouse.Visible then
     fGame.MapEditor.VisibleLayers := fGame.MapEditor.VisibleLayers + [mlHouses];
 
-  if CheckBox_ShowUnits.Checked or Panel_Units.Visible or Panel_Unit.Visible then
+  if CheckBox_ShowUnits.Checked or fGuiTown.Visible(ttUnits) or Panel_Unit.Visible then
     fGame.MapEditor.VisibleLayers := fGame.MapEditor.VisibleLayers + [mlUnits];
 
   if fGuiTerrain.Visible(ttSelection) then
@@ -1910,11 +1520,15 @@ begin
                     if Sender = Button_DefenceDelete then
                     begin
                       gPlayers[Marker.Owner].AI.General.DefencePositions.Delete(Marker.Index);
-                      SwitchPage(Button_Town[ttDefences]);
+                      HidePages;
+                      fGuiTown.Show(ttDefences);
                     end;
 
                     if Sender = Button_DefenceClose then
-                      SwitchPage(Button_Town[ttDefences]);
+                    begin
+                      HidePages;
+                      fGuiTown.Show(ttDefences);
+                    end;
                   end;
     mtRevealFOW:  begin
                     //Shortcut to structure we update
@@ -2044,20 +1658,7 @@ end;
 
 procedure TKMapEdInterface.UpdateAITabsEnabled;
 begin
-  if fGame.MapEditor.PlayerAI[MySpectator.PlayerIndex] then
-  begin
-    Button_Town[ttScript].Enable;
-    Button_Town[ttDefences].Enable;
-    Button_Town[ttOffence].Enable;
-  end
-  else
-  begin
-    Button_Town[ttScript].Disable;
-    Button_Town[ttDefences].Disable;
-    Button_Town[ttOffence].Disable;
-    if Panel_Script.Visible or Panel_Defence.Visible or Panel_Offence.Visible then
-      Button_Town[ttHouses].Click; //Change back to first tab
-  end;
+  fGuiTown.UpdatePlayer(MySpectator.PlayerIndex);
 end;
 
 

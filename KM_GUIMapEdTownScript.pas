@@ -38,8 +38,6 @@ uses
 
 { TKMMapEdTownScript }
 constructor TKMMapEdTownScript.Create(aParent: TKMPanel);
-var
-  I: Integer;
 begin
   inherited Create;
 
