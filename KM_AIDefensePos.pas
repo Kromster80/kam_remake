@@ -10,6 +10,8 @@ type
   TAIDefencePosType = (adt_FrontLine=0, //Front line troops may not go on attacks, they are for defence
                        adt_BackLine=1); //Back line troops may attack
 
+  TKMFormation = record NumUnits, UnitsPerRow: Integer; end;
+
   TAIDefencePosition = class
   private
     fDefenceType: TAIDefencePosType; //Whether this is a front or back line defence position. See comments on TAIDefencePosType above
@@ -33,11 +35,12 @@ type
     property Radius: Integer read fRadius write fRadius; //If fighting (or houses being attacked) occurs within this radius from this defence position, this group will get involved
 
     property CurrentGroup: TKMUnitGroup read fCurrentGroup write SetCurrentGroup;
-    function IsFullyStocked(aAmount: Integer): Boolean;
+    function CanAccept(aGroup: TKMUnitGroup): Boolean;
     procedure Save(SaveStream: TKMemoryStream);
     procedure SyncLoad;
     procedure UpdateState;
   end;
+
 
   TAIDefencePositions = class
   private
@@ -57,7 +60,7 @@ type
     procedure Delete(aIndex: Integer);
     property Positions[aIndex: Integer]: TAIDefencePosition read GetPosition; default;
 
-    function FindPlaceForGroup(aGroup: TKMUnitGroup; aCanLinkToExisting, aTakeClosest: Boolean): Boolean;
+    function FindPlaceForGroup(aGroup: TKMUnitGroup; aTakeClosest: Boolean): Boolean;
     procedure RestockPositionWith(aDefenceGroup, aGroup: TKMUnitGroup);
     function FindPositionOf(aGroup: TKMUnitGroup): TAIDefencePosition;
 
@@ -153,9 +156,17 @@ begin
 end;
 
 
-function TAIDefencePosition.IsFullyStocked(aAmount: Integer): Boolean;
+function TAIDefencePosition.CanAccept(aGroup: TKMUnitGroup): Boolean;
 begin
-  Result := (CurrentGroup <> nil) and (CurrentGroup.Count >= aAmount);
+  Result := (fGroupType = UnitGroups[aGroup.UnitType]);
+
+  if not Result then Exit;
+
+  //Empty position accepts anything (e.g. happens at mission start)
+  Result := (CurrentGroup = nil) or
+            (aGroup.Count = 1);
+  //@Lewin: Plz check me here, KaM did not linked big groups to filled Positions?
+  //(CurrentGroup.Count + aGroup.Count <= TroopFormations[fGroupType].NumUnits);
 end;
 
 
@@ -234,34 +245,26 @@ begin
 end;
 
 
-function TAIDefencePositions.FindPlaceForGroup(aGroup: TKMUnitGroup; aCanLinkToExisting, aTakeClosest: Boolean): Boolean;
+function TAIDefencePositions.FindPlaceForGroup(aGroup: TKMUnitGroup; aTakeClosest: Boolean): Boolean;
 var
-  I, MenRequired, Matched: Integer;
+  I, Matched: Integer;
   Distance, Best: Single;
 begin
   Result := False;
   Matched := -1;
   Best := MaxSingle;
 
+  //Try to link to existing group
   for I := 0 to Count - 1 do
-  if Positions[I].GroupType = UnitGroups[aGroup.UnitType] then
+  if Positions[I].CanAccept(aGroup) then
   begin
-    //If not aCanLinkToExisting then a group with 1 member or more counts as fully stocked already
-    if aCanLinkToExisting then
-      MenRequired := TroopFormations[Positions[I].GroupType].NumUnits
-    else
-      MenRequired := 1;
-
-    if not Positions[I].IsFullyStocked(MenRequired) then
+    //Take closest position that is empty or requries restocking
+    Distance := KMLengthSqr(aGroup.Position, Positions[I].Position.Loc);
+    if Distance < Best then
     begin
-      //Take closest position that is empty or requries restocking
-      Distance := KMLengthSqr(aGroup.Position, Positions[I].Position.Loc);
-      if Distance < Best then
-      begin
-        Matched := I;
-        Best := Distance;
-        if not aTakeClosest then Break; //Take first one we find - that's what KaM does
-      end;
+      Matched := I;
+      Best := Distance;
+      if not aTakeClosest then Break; //Take first one we find - that's what KaM does
     end;
   end;
 
@@ -269,13 +272,15 @@ begin
   begin
     Result := True;
     if Positions[Matched].CurrentGroup = nil then
-    begin //New position
+    begin
+      //New position
       Positions[Matched].CurrentGroup := aGroup;
       if aGroup.UnitsPerRow < TroopFormations[aGroup.GroupType].UnitsPerRow then
         aGroup.UnitsPerRow := TroopFormations[aGroup.GroupType].UnitsPerRow;
       aGroup.OrderWalk(Positions[Matched].Position.Loc, True);
     end
-    else //Restock existing position
+    else
+      //Append to existing position
       RestockPositionWith(Positions[Matched].CurrentGroup, aGroup);
   end;
 end;

@@ -339,8 +339,6 @@ type
   TGroupType = (gt_Melee, gt_AntiHorse, gt_Ranged, gt_Mounted);
   TGroupTypeArray = array [TGroupType] of Word;
 
-  TKMFormation = record NumUnits, UnitsPerRow: Integer; end;
-
   TArmyType = (atLeather, atIron, atLeatherIron);
 
 const

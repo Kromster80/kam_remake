@@ -227,7 +227,7 @@ begin
       //Look for a new position to defend
       //In this case we choose the closest group, then move to a higher priority one later (see above)
       //This means at the start of the mission troops will take the position they are placed at rather than swapping around
-      if fDefencePositions.FindPlaceForGroup(Group, AI_LINK_IDLE, AI_FILL_CLOSEST) then Continue;
+      if fDefencePositions.FindPlaceForGroup(Group, AI_FILL_CLOSEST) then Continue;
 
       //Just chill and link with other idle groups
       if AI_LINK_IDLE then
@@ -458,7 +458,7 @@ end;
 
 procedure TKMGeneral.WarriorEquipped(aGroup: TKMUnitGroup);
 begin
-  fDefencePositions.FindPlaceForGroup(aGroup, True, AI_FILL_CLOSEST);
+  fDefencePositions.FindPlaceForGroup(aGroup, AI_FILL_CLOSEST);
 end;
 
 
