@@ -264,7 +264,9 @@ begin
     begin
       Matched := I;
       Best := Distance;
-      if not aTakeClosest then Break; //Take first one we find - that's what KaM does
+      //KaM fills defence positions by their order of creation
+      //Take first one we find - that's what KaM does
+      if not aTakeClosest then Break;
     end;
   end;
 

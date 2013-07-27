@@ -4,7 +4,8 @@ interface
 uses
    Classes, Math, StrUtils, SysUtils,
    KM_Controls, KM_Defaults, KM_Pics,
-   KM_InterfaceDefaults, KM_AIAttacks;
+   KM_InterfaceDefaults;
+
 
 type
   TKMMapEdFormations = class

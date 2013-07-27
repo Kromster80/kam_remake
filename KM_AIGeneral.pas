@@ -254,19 +254,19 @@ end;
 
 procedure TKMGeneral.CheckAttacks;
 var
-  AttackTotalAvailable: Word; //Total number of warriors available to attack the enemy
-  AttackGroupsCount: TGroupTypeArray;
+  MenAvailable: Word; //Total number of warriors available to attack the enemy
+  GroupsAvailable: TGroupTypeArray;
   AttackGroups: array [TGroupType] of array of TKMUnitGroup;
 
-  procedure AddToAvailableToAttack(aGroup: TKMUnitGroup);
+  procedure AddAvailable(aGroup: TKMUnitGroup);
   var GT: TGroupType;
   begin
     GT := UnitGroups[aGroup.UnitType];
-    if Length(AttackGroups[GT]) <= AttackGroupsCount[GT] then
-      SetLength(AttackGroups[GT],AttackGroupsCount[GT] + 10);
-    AttackGroups[GT, AttackGroupsCount[GT]] := aGroup;
-    Inc(AttackGroupsCount[GT]);
-    Inc(AttackTotalAvailable, aGroup.Count);
+    if Length(AttackGroups[GT]) <= GroupsAvailable[GT] then
+      SetLength(AttackGroups[GT], GroupsAvailable[GT] + 10);
+    AttackGroups[GT, GroupsAvailable[GT]] := aGroup;
+    Inc(GroupsAvailable[GT]);
+    Inc(MenAvailable, aGroup.Count);
   end;
 
 var
@@ -278,9 +278,9 @@ begin
   //Do not process attack or defence during peacetime
   if fGame.IsPeaceTime then Exit;
 
-  AttackTotalAvailable := 0;
+  MenAvailable := 0;
   for G := Low(TGroupType) to High(TGroupType) do
-    AttackGroupsCount[G] := 0;
+    GroupsAvailable[G] := 0;
 
   //Take all idling Groups that are:
   // - not linked to any Defence positions
@@ -294,19 +294,19 @@ begin
     begin
       DP := fDefencePositions.FindPositionOf(Group);
       if (DP = nil) or (DP.DefenceType = adt_BackLine) then
-        AddToAvailableToAttack(Group);
+        AddAvailable(Group);
     end;
   end;
 
   //Now process AI attacks (we have compiled a list of warriors available to attack)
   for I := 0 to Attacks.Count - 1 do
-  if Attacks.CanOccur(I, AttackTotalAvailable, AttackGroupsCount, fGame.GameTickCount) then //Check conditions are right
+  if Attacks.CanOccur(I, MenAvailable, GroupsAvailable, fGame.GameTickCount) then //Check conditions are right
   begin
     //Order groups to attack
     if Attacks[I].TakeAll then
     begin
       for G := Low(TGroupType) to High(TGroupType) do
-        for K := 0 to AttackGroupsCount[G] - 1 do
+        for K := 0 to GroupsAvailable[G] - 1 do
           OrderAttack(AttackGroups[G, K], Attacks[I].Target, Attacks[I].CustomPosition);
     end
     else
@@ -456,6 +456,7 @@ begin
 end;
 
 
+//Trained warrior reports for duty
 procedure TKMGeneral.WarriorEquipped(aGroup: TKMUnitGroup);
 begin
   fDefencePositions.FindPlaceForGroup(aGroup, AI_FILL_CLOSEST);
