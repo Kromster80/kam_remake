@@ -68,8 +68,8 @@ type
     BuildID: Integer;
     HouseNeedsWorker: Boolean;
     HouseReadyToBuild: Boolean;
-    Step: Byte;
-    Cells: array[1..4*4]of TKMPoint;
+    CellsToDig: array [0..15] of TKMPoint; //max house square is 4*4
+    LastToDig: ShortInt;
     function GetHouseEntranceLoc: TKMPoint;
   public
     constructor Create(aWorker: TKMUnitWorker; aHouseType: THouseType; aLoc: TKMPoint; aID:integer);
@@ -477,9 +477,9 @@ end;
 
 
 { TTaskBuildHouseArea }
-constructor TTaskBuildHouseArea.Create(aWorker: TKMUnitWorker; aHouseType: THouseType; aLoc: TKMPoint; aID:integer);
+constructor TTaskBuildHouseArea.Create(aWorker: TKMUnitWorker; aHouseType: THouseType; aLoc: TKMPoint; aID: Integer);
 var
-  i,k:integer;
+  I,K: Integer;
   HA: THouseArea;
 begin
   inherited Create(aWorker);
@@ -489,32 +489,32 @@ begin
   BuildID    := aID;
   HouseNeedsWorker  := False; //House needs this worker to complete
   HouseReadyToBuild := False; //House is ready to be built
-  Step       := 0;
 
   HA := fResource.HouseDat[fHouseType].BuildArea;
+
   //Fill Cells left->right, top->bottom. Worker will start flattening from the end (reversed)
-  for i := 1 to 4 do for k := 1 to 4 do
-  if HA[i,k] <> 0 then
+  LastToDig := -1;
+  for I := 1 to 4 do for K := 1 to 4 do
+  if HA[I,K] <> 0 then
   begin
-    inc(Step);
-    Cells[Step] := KMPoint(fHouseLoc.X + k - 3, fHouseLoc.Y + i - 4);
+    Inc(LastToDig);
+    CellsToDig[LastToDig] := KMPoint(fHouseLoc.X + K - 3, fHouseLoc.Y + I - 4);
   end;
 end;
 
 
 constructor TTaskBuildHouseArea.Load(LoadStream:TKMemoryStream);
-var i:integer;
 begin
   inherited;
+
   LoadStream.Read(fHouse, 4);
   LoadStream.Read(fHouseType, SizeOf(fHouseType));
   LoadStream.Read(fHouseLoc);
   LoadStream.Read(BuildID);
   LoadStream.Read(HouseNeedsWorker);
   LoadStream.Read(HouseReadyToBuild);
-  LoadStream.Read(Step);
-  for i:=1 to length(Cells) do
-  LoadStream.Read(Cells[i]);
+  LoadStream.Read(LastToDig);
+  LoadStream.Read(CellsToDig, SizeOf(CellsToDig));
 end;
 
 
@@ -634,8 +634,8 @@ begin
           Thought := th_None;
         end;
     2:  //The house can become too steep after we flatten one part of it
-        if CanWalkTo(Cells[Step], 0) then
-          SetActionWalkToSpot(Cells[Step])
+        if CanWalkTo(CellsToDig[LastToDig], 0) then
+          SetActionWalkToSpot(CellsToDig[LastToDig])
         else
         begin
           Result := TaskDone;
@@ -647,21 +647,21 @@ begin
         end;
     4:  begin
           SetActionLockedStay(11,ua_Work1,false);
-          gTerrain.FlattenTerrain(Cells[Step]);
+          gTerrain.FlattenTerrain(CellsToDig[LastToDig]);
         end;
     5:  begin
           SetActionLockedStay(11,ua_Work1,false);
-          gTerrain.FlattenTerrain(Cells[Step]);
+          gTerrain.FlattenTerrain(CellsToDig[LastToDig]);
         end;
     6:  begin
           SetActionLockedStay(11,ua_Work1,false);
-          gTerrain.FlattenTerrain(Cells[Step]);
-          gTerrain.FlattenTerrain(Cells[Step]); //Flatten the terrain twice now to ensure it really is flat
-          gTerrain.SetTileLock(Cells[Step], tlDigged); //Block passability on tile
-          if KMSamePoint(fHouse.GetEntrance, Cells[Step]) then
+          gTerrain.FlattenTerrain(CellsToDig[LastToDig]);
+          gTerrain.FlattenTerrain(CellsToDig[LastToDig]); //Flatten the terrain twice now to ensure it really is flat
+          gTerrain.SetTileLock(CellsToDig[LastToDig], tlDigged); //Block passability on tile
+          if KMSamePoint(fHouse.GetEntrance, CellsToDig[LastToDig]) then
             gTerrain.SetField(fHouse.GetEntrance, Owner, ft_Road);
-          gTerrain.RemoveObject(Cells[Step]); //All objects are removed
-          dec(Step);
+          gTerrain.RemoveObject(CellsToDig[LastToDig]); //All objects are removed
+          Dec(LastToDig);
         end;
     7:  begin
           //Walk away from building site, before we get trapped when house becomes stoned
@@ -677,17 +677,17 @@ begin
         Result := TaskDone;
   end;
 
-  inc(fPhase);
+  Inc(fPhase);
 
-  if (fPhase = 7) and (Step > 0) then
+  if (fPhase = 7) and (LastToDig >= 0) then
     fPhase := 2; //Repeat with next cell
 end;
 
 
 procedure TTaskBuildHouseArea.Save(SaveStream:TKMemoryStream);
-var i:integer;
 begin
   inherited;
+
   if fHouse <> nil then
     SaveStream.Write(fHouse.UID) //Store ID, then substitute it with reference on SyncLoad
   else
@@ -697,9 +697,8 @@ begin
   SaveStream.Write(BuildID);
   SaveStream.Write(HouseNeedsWorker);
   SaveStream.Write(HouseReadyToBuild);
-  SaveStream.Write(Step);
-  for i:=1 to length(Cells) do
-  SaveStream.Write(Cells[i]);
+  SaveStream.Write(LastToDig);
+  SaveStream.Write(CellsToDig, SizeOf(CellsToDig));
 end;
 
 
