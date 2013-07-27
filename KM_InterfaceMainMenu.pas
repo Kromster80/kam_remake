@@ -204,7 +204,7 @@ begin
   Label_Version.Caption := GAME_VERSION + ' / ' + fGameApp.RenderVersion;
 
   //Hide all other pages
-  for I := 1 to Panel_Main.ChildCount do
+  for I := 0 to Panel_Main.ChildCount - 1 do
     if Panel_Main.Childs[I] is TKMPanel then
       Panel_Main.Childs[I].Hide;
 

@@ -90,7 +90,7 @@ var
   I: Integer;
   B: TKMButtonFlat;
 begin
-  for I := 1 to Panel_Units.ChildCount do
+  for I := 0 to Panel_Units.ChildCount - 1 do
   if Panel_Units.Childs[I] is TKMButtonFlat then
   begin
     B := TKMButtonFlat(Panel_Units.Childs[I]);

@@ -610,12 +610,12 @@ begin
   MC := MainMenuInterface.MyControls.MainPanel;
   ForceDirectories(aPath);
 
-  for I := 1 to MC.ChildCount do
+  for I := 0 to MC.ChildCount - 1 do
     if (MC.Childs[I] is TKMPanel)
     and (MC.Childs[I].Width > 100) then
     begin
       //Hide all other panels
-      for K := 1 to MC.ChildCount do
+      for K := 0 to MC.ChildCount - 1 do
         if MC.Childs[K] is TKMPanel then
           MC.Childs[K].Hide;
 
@@ -634,12 +634,12 @@ begin
   MC := fGame.GamePlayInterface.MyControls.MainPanel;
   ForceDirectories(aPath);
 
-  for I := 1 to MC.ChildCount do
+  for I := 0 to MC.ChildCount - 1 do
     if (MC.Childs[I] is TKMPanel)
     and (MC.Childs[I].Width > 100) then
     begin
       //Hide all other panels
-      for K := 1 to MC.ChildCount do
+      for K := 0 to MC.ChildCount - 1 do
         if MC.Childs[K] is TKMPanel then
           MC.Childs[K].Hide;
 

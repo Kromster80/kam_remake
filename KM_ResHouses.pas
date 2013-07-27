@@ -42,7 +42,7 @@ type
     a5,SizeArea: SmallInt;
     SizeX,SizeY,sx2,sy2: ShortInt;
     WorkerWork,WorkerRest: SmallInt;
-    ResInput,ResOutput: array [1..4] of ShortInt; //KaM_Remake will use it's own tables for this matter
+    ResInput,ResOutput: array [1..4] of ShortInt; //KaM_Remake will use its own tables for this matter
     ResProductionX: ShortInt;
     MaxHealth,Sight: SmallInt;
     OwnerType: ShortInt;
@@ -60,28 +60,28 @@ type
     fHouseType: THouseType; //Our class
     fNameTextID: Integer;
     fHouseDat: TKMHouseDat;
-    function GetArea:THouseArea;
-    function GetDoesOrders:boolean;
-    function GetGUIIcon:word;
+    function GetArea: THouseArea;
+    function GetDoesOrders: Boolean;
+    function GetGUIIcon: Word;
     function GetHouseName: UnicodeString;
-    function GetResInput:THouseRes;
-    function GetResOutput:THouseRes;
-    function GetOwnerType:TUnitType;
-    function GetReleasedBy:THouseType;
-    function GetTabletIcon:word;
+    function GetResInput: THouseRes;
+    function GetResOutput: THouseRes;
+    function GetOwnerType: TUnitType;
+    function GetReleasedBy: THouseType;
+    function GetTabletIcon: Word;
     function GetSnowPic: SmallInt;
   public
-    constructor Create(aHouseType:THouseType);
-    procedure LoadFromStream(Stream:TMemoryStream);
+    constructor Create(aHouseType: THouseType);
+    procedure LoadFromStream(Stream: TMemoryStream);
     //Property accessors:
     //Derived from KaM
     property StonePic:smallint read fHouseDat.StonePic;
     property WoodPic:smallint read fHouseDat.WoodPic;
     property WoodPal:smallint read fHouseDat.WoodPal;
     property StonePal:smallint read fHouseDat.StonePal;
-    property SupplyIn:THouseSupply read fHouseDat.SupplyIn;
-    property SupplyOut:THouseSupply read fHouseDat.SupplyOut;
-    property Anim:THouseAnim read fHouseDat.Anim;
+    property SupplyIn: THouseSupply read fHouseDat.SupplyIn;
+    property SupplyOut: THouseSupply read fHouseDat.SupplyOut;
+    property Anim: THouseAnim read fHouseDat.Anim;
     property WoodPicSteps:word read fHouseDat.WoodPicSteps;
     property StonePicSteps:word read fHouseDat.StonePicSteps;
     property EntranceOffsetX:shortint read fHouseDat.EntranceOffsetX;
@@ -89,19 +89,19 @@ type
     property EntranceOffsetYpx:shortint read fHouseDat.EntranceOffsetYpx;
     property WoodCost:byte read fHouseDat.WoodCost;
     property StoneCost:byte read fHouseDat.StoneCost;
-    property BuildSupply:THouseBuildSupply read fHouseDat.BuildSupply;
+    property BuildSupply: THouseBuildSupply read fHouseDat.BuildSupply;
     property WorkerRest:smallint read fHouseDat.WorkerRest;
     property ResProductionX:shortint read fHouseDat.ResProductionX;
     property Sight:smallint read fHouseDat.Sight;
-    property OwnerType:TUnitType read GetOwnerType;
+    property OwnerType: TUnitType read GetOwnerType;
     //Additional properties added by Remake
-    property BuildArea:THouseArea read GetArea;
+    property BuildArea: THouseArea read GetArea;
     property DoesOrders:boolean read GetDoesOrders;
     property GUIIcon:word read GetGUIIcon;
     property HouseName: UnicodeString read GetHouseName;
-    property ReleasedBy:THouseType read GetReleasedBy;
-    property ResInput:THouseRes read GetResInput;
-    property ResOutput:THouseRes read GetResOutput;
+    property ReleasedBy: THouseType read GetReleasedBy;
+    property ResInput: THouseRes read GetResInput;
+    property ResOutput: THouseRes read GetResOutput;
     property TabletIcon:word read GetTabletIcon;
     property SnowPic: SmallInt read GetSnowPic;
     //Functions
@@ -645,7 +645,7 @@ end;
 { TKMHouseDatCollection }
 constructor TKMHouseDatCollection.Create;
 
-  procedure AddAnimation(aHouse: THouseType; aAnim:THouseActionType; aMoveX, aMoveY: Integer; const aSteps: array of SmallInt);
+  procedure AddAnimation(aHouse: THouseType; aAnim: THouseActionType; aMoveX, aMoveY: Integer; const aSteps: array of SmallInt);
   var I: Integer;
   begin
     with fItems[aHouse].fHouseDat.Anim[aAnim] do
@@ -772,7 +772,7 @@ end;
 //CRC should be calculated right away, cos file may be swapped after loading
 function TKMHouseDatCollection.LoadHouseDat(aPath: string): Cardinal;
 var
-  S:TKMemoryStream;
+  S: TKMemoryStream;
   i:integer;
 begin
   Assert(FileExists(aPath));

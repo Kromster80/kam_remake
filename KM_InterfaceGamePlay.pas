@@ -429,9 +429,9 @@ procedure TKMGamePlayInterface.SwitchPage_Ratios(Sender: TObject);
 var I: Integer; HT:THouseType;
 begin
   //Hide everything but the tab buttons
-  for i:=1 to Panel_Ratios.ChildCount do
-    if not (Panel_Ratios.Childs[i] is TKMButton) then
-      Panel_Ratios.Childs[i].Hide;
+  for I := 0 to Panel_Ratios.ChildCount - 1 do
+    if not (Panel_Ratios.Childs[I] is TKMButton) then
+      Panel_Ratios.Childs[I].Hide;
 
   RatioTab := TKMButton(Sender).Tag;
 
@@ -649,12 +649,12 @@ begin
     fSaves.TerminateScan;
 
   //Hide all existing pages
-  for I := 1 to Panel_Controls.ChildCount do
+  for I := 0 to Panel_Controls.ChildCount - 1 do
     if (Panel_Controls.Childs[I] is TKMPanel) then
       Panel_Controls.Childs[I].Hide;
 
   //Hide all House sub-pages
-  for I := 1 to Panel_House.ChildCount do
+  for I := 0 to Panel_House.ChildCount - 1 do
     if Panel_House.Childs[I] is TKMPanel then
       Panel_House.Childs[I].Hide;
 
@@ -2030,9 +2030,9 @@ begin
   end;
 
   //Release all buttons (houses and fields)
-  for i:=1 to Panel_Build.ChildCount do
-    if Panel_Build.Childs[i] is TKMButtonFlat then
-      TKMButtonFlat(Panel_Build.Childs[i]).Down := false;
+  for I := 0 to Panel_Build.ChildCount - 1 do
+    if Panel_Build.Childs[I] is TKMButtonFlat then
+      TKMButtonFlat(Panel_Build.Childs[I]).Down := False;
 
   //Press the button
   TKMButtonFlat(Sender).Down := true;
@@ -2108,7 +2108,7 @@ begin
 
   if fAskDemolish then
   begin
-    for I:=1 to Panel_House.ChildCount do
+    for I := 0 to Panel_House.ChildCount - 1 do
       Panel_House.Childs[I].Hide; //hide all
     Label_House_Demolish.Show;
     Button_House_DemolishYes.Show;
@@ -2125,7 +2125,7 @@ begin
 
   if not Sender.IsComplete then
   begin
-    for I:=1 to Panel_House.ChildCount do
+    for I := 0 to Panel_House.ChildCount - 1 do
       Panel_House.Childs[I].Hide; //hide all
     Label_House_UnderConstruction.Show;
     Image_HouseConstructionWood.Show;
@@ -2145,7 +2145,7 @@ begin
   end;
 
 
-  for I:=1 to Panel_House.ChildCount do
+  for I := 0 to Panel_House.ChildCount - 1 do
     Panel_House.Childs[I].Show; //show all
 
   Image_House_Worker.Enabled := Sender.GetHasOwner;
@@ -2201,7 +2201,7 @@ begin
           SwitchPage(Panel_HouseWoodcutter);
 
           //First thing - hide everything
-          for I:=1 to Panel_House_Common.ChildCount do
+          for I := 0 to Panel_House_Common.ChildCount - 1 do
             Panel_House_Common.Childs[I].Hide;
 
           Label_Common_Offer.Show;
@@ -2219,7 +2219,7 @@ begin
     else
         begin
           //First thing - hide everything
-          for I:=1 to Panel_House_Common.ChildCount do
+          for I := 0 to Panel_House_Common.ChildCount - 1 do
             Panel_House_Common.Childs[I].Hide;
 
           //Now show only what we need

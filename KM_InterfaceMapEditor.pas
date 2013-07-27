@@ -355,11 +355,11 @@ procedure TKMapEdInterface.HidePages;
 var I,K: Integer;
 begin
   //Hide all existing pages (2 levels)
-  for I := 1 to Panel_Common.ChildCount do
+  for I := 0 to Panel_Common.ChildCount - 1 do
   if Panel_Common.Childs[I] is TKMPanel then
   begin
     Panel_Common.Childs[I].Hide;
-    for K := 1 to TKMPanel(Panel_Common.Childs[I]).ChildCount do
+    for K := 0 to TKMPanel(Panel_Common.Childs[I]).ChildCount - 1 do
     if TKMPanel(Panel_Common.Childs[I]).Childs[K] is TKMPanel then
       TKMPanel(Panel_Common.Childs[I]).Childs[K].Hide;
   end;

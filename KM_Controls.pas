@@ -168,17 +168,17 @@ type
   { Panel which keeps child items in it, it's virtual and invisible }
   TKMPanel = class(TKMControl)
   private
-    GetCollection: TKMMasterControl;
+    fCollection: TKMMasterControl;
   protected
-    //Do not propogate SetEnabled and SetVisible because that would show/enable ALL child controls
+    //Do not propogate SetEnabled and SetVisible because that would show/enable ALL childs childs
     //e.g. scrollbar on a listbox
     procedure SetHeight(aValue: Integer); override;
     procedure SetWidth(aValue: Integer); override;
   public
-    ChildCount: Word;             //Those two are actually used only for TKMPanel
-    Childs: array of TKMControl; //No other elements needs to be parented
-    constructor Create(aParent: TKMMasterControl; aLeft,aTop,aWidth,aHeight: Integer); overload;
-    constructor Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight: Integer); overload;
+    ChildCount: Word;
+    Childs: array of TKMControl;
+    constructor Create(aParent: TKMMasterControl; aLeft, aTop, aWidth, aHeight: Integer); overload;
+    constructor Create(aParent: TKMPanel; aLeft, aTop, aWidth, aHeight: Integer); overload;
     destructor Destroy; override;
     procedure AddChild(aChild: TKMControl);
     procedure Paint; override;
@@ -1461,7 +1461,7 @@ begin
 
   //Only swap focus if visibility is now different
   if (OldVisible <> fVisible) and (Focusable or (Self is TKMPanel)) then
-    MasterParent.GetCollection.UpdateFocus(Self);
+    MasterParent.fCollection.UpdateFocus(Self);
 end;
 
 
@@ -1496,47 +1496,46 @@ begin
 end;
 
 
-{ TKMPanel } //virtual panels to contain child items
-constructor TKMPanel.Create(aParent: TKMMasterControl; aLeft,aTop,aWidth,aHeight: Integer);
+{ TKMPanel } //virtual panels that contain child items
+constructor TKMPanel.Create(aParent: TKMMasterControl; aLeft, aTop, aWidth, aHeight: Integer);
 begin
-  inherited Create(nil, aLeft,aTop,aWidth,aHeight);
-  GetCollection := aParent;
+  inherited Create(nil, aLeft, aTop, aWidth, aHeight);
+  fCollection := aParent;
   aParent.fCtrl := Self;
 end;
 
 
-constructor TKMPanel.Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight: Integer);
+constructor TKMPanel.Create(aParent: TKMPanel; aLeft, aTop, aWidth, aHeight: Integer);
 begin
-  inherited Create(aParent, aLeft,aTop,aWidth,aHeight);
-  GetCollection := aParent.GetCollection;
+  inherited Create(aParent, aLeft, aTop, aWidth, aHeight);
+  fCollection := aParent.fCollection;
 end;
 
 
 destructor TKMPanel.Destroy;
-var i: Integer;
+var I: Integer;
 begin
-  for i:=1 to ChildCount do
-    Childs[i].Free;
+  for I := 0 to ChildCount - 1 do
+    Childs[I].Free;
+
   inherited;
 end;
 
 
-{Parentize control to another control}
-{Parent control has a list of all it's child controls}
-{Also transform child according to parent position}
 procedure TKMPanel.AddChild(aChild: TKMControl);
 begin
-  inc(ChildCount);
-  {Hereby I still try to make a rule to count starting from 1, not from zero}
-  SetLength(Childs, ChildCount+1);
+  if ChildCount >= Length(Childs) then
+    SetLength(Childs, ChildCount + 16);
+
   Childs[ChildCount] := aChild;
+  Inc(ChildCount);
 end;
 
 
 procedure TKMPanel.SetHeight(aValue: Integer);
 var I: Integer;
 begin
-  for I := 1 to ChildCount do
+  for I := 0 to ChildCount - 1 do
     if (akTop in Childs[I].Anchors) and (akBottom in Childs[I].Anchors) then
       Childs[I].Height := Childs[I].Height + (aValue - fHeight)
     else
@@ -1555,7 +1554,7 @@ end;
 procedure TKMPanel.SetWidth(aValue: Integer);
 var I: Integer;
 begin
-  for I := 1 to ChildCount do
+  for I := 0 to ChildCount - 1 do
     if (akLeft in Childs[I].Anchors) and (akRight in Childs[I].Anchors) then
       Childs[I].Width := Childs[I].Width + (aValue - fWidth)
     else
@@ -1573,12 +1572,12 @@ end;
 
 {Panel Paint means to Paint all its childs}
 procedure TKMPanel.Paint;
-var i: Integer;
+var I: Integer;
 begin
   inherited;
-  for i:=1 to ChildCount do
-    if Childs[i].fVisible then
-      Childs[i].Paint;
+  for I := 0 to ChildCount - 1 do
+    if Childs[I].fVisible then
+      Childs[I].Paint;
 end;
 
 
@@ -1744,8 +1743,8 @@ begin
   if Visible and fEnabled then
   begin
     //Mark self as CtrlOver and CtrlUp, don't mark CtrlDown since MouseUp manually Nils it
-    Parent.GetCollection.CtrlOver := Self;
-    Parent.GetCollection.CtrlUp := Self;
+    Parent.fCollection.CtrlOver := Self;
+    Parent.fCollection.CtrlUp := Self;
     if Assigned(fOnClick) then fOnClick(Self);
     Result := true; //Click has happened
   end
@@ -1962,8 +1961,8 @@ begin
   if Visible and fEnabled then
   begin
     //Mark self as CtrlOver and CtrlUp, don't mark CtrlDown since MouseUp manually Nils it
-    Parent.GetCollection.CtrlOver := Self;
-    Parent.GetCollection.CtrlUp := Self;
+    Parent.fCollection.CtrlOver := Self;
+    Parent.fCollection.CtrlUp := Self;
     if Assigned(fOnClick) then fOnClick(Self);
     Result := true; //Click has happened
   end
@@ -5245,7 +5244,7 @@ procedure TKMMasterControl.UpdateFocus(aSender: TKMControl);
     Result := False;
 
     //Check for focusable controls
-    for I := 1 to C.ChildCount do
+    for I := 0 to C.ChildCount - 1 do
     if C.Childs[I].fVisible
     and C.Childs[I].Enabled
     and C.Childs[I].Focusable then
@@ -5255,7 +5254,7 @@ procedure TKMMasterControl.UpdateFocus(aSender: TKMControl);
       Exit;
     end;
 
-    for I := 1 to C.ChildCount do
+    for I := 0 to C.ChildCount - 1 do
     if C.Childs[I].fVisible
     and C.Childs[I].Enabled
     and (C.Childs[I] is TKMPanel) then
@@ -5295,7 +5294,7 @@ function TKMMasterControl.HitControl(X,Y: Integer; aIncludeDisabled: Boolean=fal
   begin
     Result := nil;
     //Process controls in reverse order since last created are on top
-    for I := P.ChildCount downto 1 do
+    for I := P.ChildCount - 1 downto 0 do
     if P.Childs[I].fVisible then //If we can't see it, we can't touch it
     begin
       //Scan Panels childs first, if none is hit - hittest the panel
