@@ -301,7 +301,8 @@ begin
                       begin
                         ResourcePlan(wt_Corn,1,wt_None,0,wt_Pig,wt_Skin);
                         GatheringScript := gs_SwineBreeder;
-                        for i:=1 to 4 do begin
+                        for I := 0 to 3 do
+                        begin
                           SubActAdd(ha_Work2,1);
                           SubActAdd(ha_Work3,1);
                         end;
@@ -359,7 +360,8 @@ begin
                       if (aHome = ht_ArmorWorkshop) and (aProduct = wt_Armor) then
                       begin
                         ResourcePlan(wt_Leather,1,wt_None,0,wt_Armor);
-                        for i:=1 to 4 do begin
+                        for I := 0 to 3 do
+                        begin
                           SubActAdd(ha_Work2,1);
                           SubActAdd(ha_Work3,1);
                           SubActAdd(ha_Work4,1);
@@ -371,7 +373,8 @@ begin
                       if (aHome = ht_ArmorWorkshop) and (aProduct = wt_Shield) then
                       begin
                         ResourcePlan(wt_Wood,1,wt_None,0,wt_Shield);
-                        for i:=1 to 4 do begin
+                        for I := 0 to 3 do
+                        begin
                           SubActAdd(ha_Work2,1);
                           SubActAdd(ha_Work3,1);
                           SubActAdd(ha_Work4,1);
@@ -384,7 +387,8 @@ begin
                       begin
                         ResourcePlan(wt_Wood,2,wt_None,0,wt_Axe);
                         SubActAdd(ha_Work1,1);
-                        for i:=1 to 3 do begin
+                        for I := 0 to 2 do
+                        begin
                           SubActAdd(ha_Work2,1);
                           SubActAdd(ha_Work3,1);
                           SubActAdd(ha_Work4,1);
@@ -397,7 +401,8 @@ begin
                       begin
                         ResourcePlan(wt_Wood,2,wt_None,0,wt_Pike);
                         SubActAdd(ha_Work1,1);
-                        for i:=1 to 3 do begin
+                        for I := 0 to 2 do
+                        begin
                           SubActAdd(ha_Work2,1);
                           SubActAdd(ha_Work3,1);
                           SubActAdd(ha_Work4,1);
@@ -410,7 +415,8 @@ begin
                       begin
                         ResourcePlan(wt_Wood,2,wt_None,0,wt_Bow);
                         SubActAdd(ha_Work1,1);
-                        for i:=1 to 3 do begin
+                        for I := 0 to 2 do
+                        begin
                           SubActAdd(ha_Work2,1);
                           SubActAdd(ha_Work3,1);
                           SubActAdd(ha_Work4,1);
@@ -428,7 +434,8 @@ begin
                       if aHome = ht_Bakery then
                       begin
                         ResourcePlan(wt_Flour,1,wt_None,0,wt_Bread);
-                        for i:=1 to 7 do begin
+                        for I := 0 to 6 do
+                        begin
                           SubActAdd(ha_Work2,1);
                           SubActAdd(ha_Work3,1);
                         end;
@@ -446,7 +453,8 @@ begin
                       begin
                         ResourcePlan(wt_Pig,1,wt_None,0,wt_Sausages);
                         SubActAdd(ha_Work1,1);
-                        for i:=1 to 6 do begin
+                        for I := 0 to 5 do
+                        begin
                           SubActAdd(ha_Work2,1);
                           SubActAdd(ha_Work4,1);
                           SubActAdd(ha_Work3,1);
@@ -483,7 +491,8 @@ begin
     ut_Smith:         if (aHome = ht_ArmorSmithy) and (aProduct = wt_MetalArmor) then
                       begin
                         ResourcePlan(wt_Steel,1,wt_Coal,1,wt_MetalArmor);
-                        for i:=1 to 4 do begin
+                        for I := 0 to 3 do
+                        begin
                           SubActAdd(ha_Work2,1);
                           SubActAdd(ha_Work3,1);
                           SubActAdd(ha_Work4,1);
@@ -496,7 +505,8 @@ begin
                       if (aHome = ht_ArmorSmithy) and (aProduct = wt_MetalShield) then
                       begin
                         ResourcePlan(wt_Steel,1,wt_Coal,1,wt_MetalShield);
-                        for i:=1 to 4 do begin
+                        for I := 0 to 3 do
+                        begin
                           SubActAdd(ha_Work2,1);
                           SubActAdd(ha_Work3,1);
                           SubActAdd(ha_Work4,1);
@@ -510,7 +520,8 @@ begin
                       begin
                         ResourcePlan(wt_Steel,1,wt_Coal,1,wt_Sword);
                         SubActAdd(ha_Work1,1);
-                        for i:=1 to 3 do begin
+                        for I := 0 to 2 do
+                        begin
                           SubActAdd(ha_Work2,1);
                           SubActAdd(ha_Work3,1);
                           SubActAdd(ha_Work4,1);
@@ -523,7 +534,8 @@ begin
                       begin
                         ResourcePlan(wt_Steel,1,wt_Coal,1,wt_Hallebard);
                         SubActAdd(ha_Work1,1);
-                        for i:=1 to 3 do begin
+                        for I := 0 to 2 do
+                        begin
                           SubActAdd(ha_Work2,1);
                           SubActAdd(ha_Work3,1);
                           SubActAdd(ha_Work4,1);
@@ -536,7 +548,8 @@ begin
                       begin
                         ResourcePlan(wt_Steel,1,wt_Coal,1,wt_Arbalet);
                         SubActAdd(ha_Work1,1);
-                        for i:=1 to 3 do begin
+                        for I := 0 to 2 do
+                        begin
                           SubActAdd(ha_Work2,1);
                           SubActAdd(ha_Work3,1);
                           SubActAdd(ha_Work4,1);
@@ -547,7 +560,8 @@ begin
     ut_Metallurgist:  if aHome = ht_IronSmithy then
                       begin
                         ResourcePlan(wt_IronOre,1,wt_Coal,1,wt_Steel);
-                        for i:=1 to 4 do begin
+                        for I := 0 to 3 do
+                        begin
                           SubActAdd(ha_Work2,1);
                           SubActAdd(ha_Work3,1);
                         end;
@@ -558,7 +572,8 @@ begin
                       if aHome = ht_Metallurgists then
                       begin
                         ResourcePlan(wt_GoldOre,1,wt_Coal,1,wt_Gold);
-                        for i:=1 to 4 do begin
+                        for I := 0 to 3 do
+                        begin
                           SubActAdd(ha_Work2,1);
                           SubActAdd(ha_Work3,1);
                           SubActAdd(ha_Work4,1);
