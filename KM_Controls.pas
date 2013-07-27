@@ -462,12 +462,12 @@ type
 
 
   {Row with resource name and icons}
-  TKMResourceRow = class(TKMControl)
+  TKMWaresRow = class(TKMControl)
   public
     RX: TRXType;
     TexID: Word;
-    Caption: String;
-    ResourceCount: Byte;
+    Caption: UnicodeString;
+    WareCount: Byte;
     procedure Paint; override;
   end;
 
@@ -508,8 +508,8 @@ type
     procedure Paint; override;
   end;
 
-  {Resource order bar}
-  TKMResourceOrderRow = class(TKMControl)
+  {Ware order bar}
+  TKMWareOrderRow = class(TKMWaresRow)
   private
     fOrderAdd: TKMButton;
     fOrderLab: TKMLabel;
@@ -518,12 +518,8 @@ type
     procedure SetEnabled(aValue: Boolean); override;
     procedure SetVisible(aValue: Boolean); override;
   public
-    RX: TRXType;
-    TexID: Word;
-    Caption: String;
-    ResourceCount: Byte;
     OrderCount: Word;
-    constructor Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight: Integer);
+    constructor Create(aParent: TKMPanel; aLeft, aTop, aWidth, aHeight: Integer);
     property OrderAdd: TKMButton read fOrderAdd; //UI sets and handles OnClickEither itself
     property OrderRem: TKMButton read fOrderRem;
     procedure Paint; override;
@@ -2435,15 +2431,15 @@ begin
 end;
 
 
-{ TKMResourceRow }
-procedure TKMResourceRow.Paint;
+{ TKMWaresRow }
+procedure TKMWaresRow.Paint;
 var I: Integer;
 begin
   inherited;
   TKMRenderUI.WriteBevel(AbsLeft,AbsTop,Width,Height);
   TKMRenderUI.WriteText(AbsLeft + 4, AbsTop + 3, Width-8, Caption, fnt_Game, taLeft, $FFE0E0E0);
-  for I:=1 to ResourceCount do
-    TKMRenderUI.WritePicture((AbsLeft+Width-2-20)-(ResourceCount-i)*14, AbsTop+1, 14, 14, [], RX, TexID);
+  for I := 0 to WareCount - 1 do
+    TKMRenderUI.WritePicture(AbsLeft + Width - 18 - I * 14, AbsTop + 3, 14, 14, [], RX, TexID);
 end;
 
 
@@ -2699,19 +2695,19 @@ begin
 end;
 
 
-{ TKMResourceOrderRow }
-constructor TKMResourceOrderRow.Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight: Integer);
+{ TKMWareOrderRow }
+constructor TKMWareOrderRow.Create(aParent: TKMPanel; aLeft, aTop, aWidth, aHeight: Integer);
 begin
   inherited Create(aParent, aLeft+68, aTop, aWidth-68, aHeight);
 
-  fOrderRem := TKMButton.Create(aParent, aLeft, aTop+2, 20, aHeight, '-', bsGame);
-  fOrderLab := TKMLabel.Create(aParent, aLeft+33, aTop+4, '', fnt_Grey, taCenter);
-  fOrderAdd := TKMButton.Create(aParent, aLeft+46, aTop+2, 20, aHeight, '+', bsGame);
+  fOrderRem := TKMButton.Create(aParent, aLeft, 0, 20, aHeight - 2, '-', bsGame);
+  fOrderLab := TKMLabel.Create(aParent, aLeft+33, 0, '', fnt_Grey, taCenter);
+  fOrderAdd := TKMButton.Create(aParent, aLeft+46, 0, 20, aHeight - 2, '+', bsGame);
 end;
 
 
 //Copy property to buttons
-procedure TKMResourceOrderRow.SetEnabled(aValue: Boolean);
+procedure TKMWareOrderRow.SetEnabled(aValue: Boolean);
 begin
   inherited;
   fOrderRem.Enabled := fEnabled;
@@ -2721,7 +2717,7 @@ end;
 
 
 //Copy property to buttons. Otherwise they won't be rendered
-procedure TKMResourceOrderRow.SetVisible(aValue: Boolean);
+procedure TKMWareOrderRow.SetVisible(aValue: Boolean);
 begin
   inherited;
   fOrderRem.Visible := fVisible;
@@ -2730,20 +2726,14 @@ begin
 end;
 
 
-procedure TKMResourceOrderRow.Paint;
-var I: Integer;
+procedure TKMWareOrderRow.Paint;
 begin
   inherited;
-  fOrderRem.Top := Top; //Use internal fTop instead of GetTop (which will return absolute value)
+  fOrderRem.Top := Top + 1; //Use internal fTop instead of GetTop (which will return absolute value)
   fOrderLab.Top := Top + 4;
-  fOrderAdd.Top := Top;
+  fOrderAdd.Top := Top + 1;
 
   fOrderLab.Caption := IntToStr(OrderCount);
-
-  TKMRenderUI.WriteBevel(AbsLeft, AbsTop, Width, Height);
-  TKMRenderUI.WriteText(AbsLeft + 4, AbsTop + 3, Width - 8, Caption, fnt_Game, taLeft, $FFE0E0E0);
-  for I := 1 to ResourceCount do
-    TKMRenderUI.WritePicture((AbsLeft+Width-2-20)-(ResourceCount-I)*14, AbsTop+1, 14, 14, [], RX, TexID);
 end;
 
 

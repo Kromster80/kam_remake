@@ -31,7 +31,7 @@ type
     KMHealthBar_House: TKMPercentBar;
     Button_HouseHealthDec, Button_HouseHealthInc: TKMButton;
     Label_House_Supply: TKMLabel;
-    ResRow_Resource: array [0..3] of TKMResourceOrderRow;
+    ResRow_Resource: array [0..3] of TKMWareOrderRow;
 
     Panel_HouseStore: TKMPanel;
     Button_Store: array [1..STORE_RES_COUNT] of TKMButtonFlat;
@@ -88,7 +88,7 @@ begin
 
     for I := 0 to 3 do
     begin
-      ResRow_Resource[I] := TKMResourceOrderRow.Create(Panel_House, 0, 105 + I * 25, TB_WIDTH, 20);
+      ResRow_Resource[I] := TKMWareOrderRow.Create(Panel_House, 0, 105 + I * 25, TB_WIDTH, 20);
       ResRow_Resource[I].RX := rxGui;
       ResRow_Resource[I].OrderAdd.OnClickEither := HouseChange;
       ResRow_Resource[I].OrderRem.OnClickEither := HouseChange;
@@ -203,7 +203,7 @@ begin
       ResRow_Resource[I].TexID := fResource.Wares[Res].GUIIcon;
       ResRow_Resource[I].Caption := fResource.Wares[Res].Title;
       ResRow_Resource[I].Hint := fResource.Wares[Res].Title;
-      ResRow_Resource[I].ResourceCount := fHouse.CheckResIn(Res);
+      ResRow_Resource[I].WareCount := fHouse.CheckResIn(Res);
       ResRow_Resource[I].OrderCount := fHouse.CheckResIn(Res);
       ResRow_Resource[I].Show;
       Label_House_Supply.Show;

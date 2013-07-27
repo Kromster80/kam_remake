@@ -330,8 +330,8 @@ type
       Image_HouseConstructionWood, Image_HouseConstructionStone: TKMImage;
       Label_HouseConstructionWood, Label_HouseConstructionStone: TKMLabel;
       Button_House_DemolishYes,Button_House_DemolishNo:TKMButton;
-      ResRow_Common_Resource:array[1..4]of TKMResourceRow; //4 bars is the maximum
-      ResRow_Order:array[1..4]of TKMResourceOrderRow; //3 bars is the maximum
+      ResRow_Common_Resource: array [1..4] of TKMWaresRow; //4 bars is the maximum
+      ResRow_Order:array[1..4]of TKMWareOrderRow; //3 bars is the maximum
       ResRow_Costs:array[1..4]of TKMCostsRow; //3 bars is the maximum
     Panel_HouseMarket:TKMPanel;
       Button_Market:array[0..STORE_RES_COUNT-1]of TKMButtonFlat;
@@ -344,7 +344,7 @@ type
       Button_Store:array[1..STORE_RES_COUNT]of TKMButtonFlat;
       Image_Store_Accept:array[1..STORE_RES_COUNT]of TKMImage;
     Panel_House_School:TKMPanel;
-      ResRow_School_Resource:TKMResourceRow;
+      ResRow_School_Resource:TKMWaresRow;
       Button_School_UnitWIP:TKMButton;
       Button_School_UnitWIPBar:TKMPercentBar;
       Button_School_UnitPlan:array[1..5]of TKMButtonFlat;
@@ -1666,10 +1666,10 @@ begin
       //They get repositioned on display
       for I := 1 to 4 do
       begin
-        ResRow_Common_Resource[I] := TKMResourceRow.Create(Panel_House_Common, 0,22,TB_WIDTH,20);
+        ResRow_Common_Resource[I] := TKMWaresRow.Create(Panel_House_Common, 0, 0, TB_WIDTH, 21);
         ResRow_Common_Resource[I].RX := rxGui;
 
-        ResRow_Order[I] := TKMResourceOrderRow.Create(Panel_House_Common, 0,22,TB_WIDTH,20);
+        ResRow_Order[I] := TKMWareOrderRow.Create(Panel_House_Common, 0, 0, TB_WIDTH, 21);
         ResRow_Order[I].RX := rxGui;
         ResRow_Order[I].OrderRem.OnClickEither := House_OrderClick;
         ResRow_Order[I].OrderAdd.OnClickEither := House_OrderClick;
@@ -1679,7 +1679,7 @@ begin
         ResRow_Order[I].OrderAdd.OnMouseWheel := House_OrderWheel;
         ResRow_Order[I].OnMouseWheel          := House_OrderWheel;
 
-        ResRow_Costs[I] := TKMCostsRow.Create(Panel_House_Common, 0,22,TB_WIDTH,20);
+        ResRow_Costs[I] := TKMCostsRow.Create(Panel_House_Common, 0, 0, TB_WIDTH, 21);
         ResRow_Costs[I].RX := rxGui;
       end;
 end;
@@ -1785,7 +1785,7 @@ begin
 
     TKMLabel.Create(Panel_House_School,0,2,TB_WIDTH,30,gResTexts[TX_HOUSE_NEEDS],fnt_Grey,taCenter);
 
-    ResRow_School_Resource := TKMResourceRow.Create(Panel_House_School, 0,22,TB_WIDTH,20);
+    ResRow_School_Resource := TKMWaresRow.Create(Panel_House_School, 0, 21, TB_WIDTH, 21);
     ResRow_School_Resource.RX := rxGui;
     ResRow_School_Resource.TexID := fResource.Wares[wt_Gold].GUIIcon;
     ResRow_School_Resource.Caption := fResource.Wares[wt_Gold].Title;
@@ -2178,7 +2178,7 @@ begin
 
     ht_School:
         begin
-          ResRow_School_Resource.ResourceCount := Sender.CheckResIn(wt_Gold) - byte(TKMHouseSchool(Sender).HideOneGold);
+          ResRow_School_Resource.WareCount := Sender.CheckResIn(wt_Gold) - Byte(TKMHouseSchool(Sender).HideOneGold);
           Button_School_UnitWIP.FlagColor := gPlayers[Sender.Owner].FlagColor;
           for I := 1 to 5 do
             Button_School_UnitPlan[I].FlagColor := gPlayers[Sender.Owner].FlagColor;
@@ -2209,11 +2209,11 @@ begin
           Label_Common_Offer.Top := 8;
 
           ResRow_Common_Resource[1].TexID := fResource.Wares[fResource.HouseDat[Sender.HouseType].ResOutput[1]].GUIIcon;
-          ResRow_Common_Resource[1].ResourceCount := Sender.CheckResOut(fResource.HouseDat[Sender.HouseType].ResOutput[1]);
+          ResRow_Common_Resource[1].WareCount := Sender.CheckResOut(fResource.HouseDat[Sender.HouseType].ResOutput[1]);
           ResRow_Common_Resource[1].Caption := fResource.Wares[fResource.HouseDat[Sender.HouseType].ResOutput[1]].Title;
           ResRow_Common_Resource[1].Hint := fResource.Wares[fResource.HouseDat[Sender.HouseType].ResOutput[1]].Title;
           ResRow_Common_Resource[1].Show;
-          ResRow_Common_Resource[1].Top := 2+LineAdv;
+          ResRow_Common_Resource[1].Top := 2 + LineAdv;
         end;
     ht_TownHall:;
     else
@@ -2232,14 +2232,14 @@ begin
             Label_Common_Demand.Top := Base+Line*LineAdv+6;
             inc(Line);
 
-            for I:=1 to 4 do
+            for I := 1 to 4 do
             if fResource.Wares[fResource.HouseDat[Sender.HouseType].ResInput[I]].IsValid then
             begin
               ResRow_Common_Resource[RowRes].TexID := fResource.Wares[fResource.HouseDat[Sender.HouseType].ResInput[I]].GUIIcon;
               ResRow_Common_Resource[RowRes].Caption := fResource.Wares[fResource.HouseDat[Sender.HouseType].ResInput[I]].Title;
               ResRow_Common_Resource[RowRes].Hint := fResource.Wares[fResource.HouseDat[Sender.HouseType].ResInput[I]].Title;
-              ResRow_Common_Resource[RowRes].ResourceCount := Sender.CheckResIn(fResource.HouseDat[Sender.HouseType].ResInput[I]);
-              ResRow_Common_Resource[RowRes].Top := Base+Line*LineAdv;
+              ResRow_Common_Resource[RowRes].WareCount := Sender.CheckResIn(fResource.HouseDat[Sender.HouseType].ResInput[I]);
+              ResRow_Common_Resource[RowRes].Top := Base + Line * LineAdv;
               ResRow_Common_Resource[RowRes].Show;
               inc(Line);
               inc(RowRes);
@@ -2255,15 +2255,15 @@ begin
             Label_Common_Offer.Top := Base+Line*LineAdv+6;
             inc(Line);
 
-            for I:=1 to 4 do
+            for I := 1 to 4 do
             if fResource.Wares[fResource.HouseDat[Sender.HouseType].ResOutput[I]].IsValid then
             begin
               ResRow_Common_Resource[RowRes].TexID := fResource.Wares[fResource.HouseDat[Sender.HouseType].ResOutput[I]].GUIIcon;
-              ResRow_Common_Resource[RowRes].ResourceCount := Sender.CheckResOut(fResource.HouseDat[Sender.HouseType].ResOutput[I]);
+              ResRow_Common_Resource[RowRes].WareCount := Sender.CheckResOut(fResource.HouseDat[Sender.HouseType].ResOutput[I]);
               ResRow_Common_Resource[RowRes].Caption := fResource.Wares[fResource.HouseDat[Sender.HouseType].ResOutput[I]].Title;
               ResRow_Common_Resource[RowRes].Hint := fResource.Wares[fResource.HouseDat[Sender.HouseType].ResOutput[I]].Title;
               ResRow_Common_Resource[RowRes].Show;
-              ResRow_Common_Resource[RowRes].Top := Base+Line*LineAdv;
+              ResRow_Common_Resource[RowRes].Top := Base + Line * LineAdv;
               inc(Line);
               inc(RowRes);
             end;
@@ -2284,17 +2284,17 @@ begin
                 ResRow_Order[I].TexID := fResource.Wares[Res].GUIIcon;
                 ResRow_Order[I].Caption := fResource.Wares[Res].Title;
                 ResRow_Order[I].Hint := fResource.Wares[Res].Title;
-                ResRow_Order[I].ResourceCount := Sender.CheckResOut(Res);
+                ResRow_Order[I].WareCount := Sender.CheckResOut(Res);
                 ResRow_Order[I].OrderCount := Sender.ResOrder[I];
                 ResRow_Order[I].Show;
-                ResRow_Order[I].Top := Base+Line*LineAdv;
+                ResRow_Order[I].Top := Base + Line * LineAdv;
                 inc(Line);
               end;
             end;
             Label_Common_Costs.Show;
             Label_Common_Costs.Top:=Base+Line*LineAdv+2;
             inc(Line);
-            for I:=1 to 4 do //Costs
+            for I := 1 to 4 do //Costs
             begin
               Res := fResource.HouseDat[Sender.HouseType].ResOutput[I];
               if fResource.Wares[Res].IsValid then
