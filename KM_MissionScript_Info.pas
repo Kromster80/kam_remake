@@ -67,9 +67,9 @@ end;
 function TMissionParserInfo.ProcessCommand(CommandType: TKMCommandType; P: array of Integer; TextParam: AnsiString = ''): Boolean;
 begin
   case CommandType of
-    ct_SetMaxPlayer:    fMapInfo.LocCount      := P[0];
-    ct_SetTactic:       fMapInfo.MissionMode      := mm_Tactic;
-    ct_SetCurrPlayer:   fLastPlayer      := P[0];
+    ct_SetMaxPlayer:    fMapInfo.LocCount := P[0];
+    ct_SetTactic:       fMapInfo.MissionMode := mm_Tactic;
+    ct_SetCurrPlayer:   fLastPlayer := P[0];
     ct_HumanPlayer:     begin
                           //Default human player can be human, obviously
                           fMapInfo.DefaultHuman     := P[0];
@@ -113,7 +113,7 @@ end;
 function TMissionParserInfo.LoadMapInfo(const aFileName: string): Boolean;
 var
   F: TKMemoryStream;
-  sx,sy: Integer;
+  newX, newY: Integer;
 begin
   Result := False;
   if not FileExists(aFileName) then Exit;
@@ -121,21 +121,20 @@ begin
   F := TKMemoryStream.Create;
   try
     F.LoadFromFile(aFileName);
-    F.Read(sx);
-    F.Read(sy);
+    F.Read(newX);
+    F.Read(newY);
   finally
     F.Free;
   end;
 
-  if (sx > MAX_MAP_SIZE) or (sy > MAX_MAP_SIZE) then
+  if (newX > MAX_MAP_SIZE) or (newY > MAX_MAP_SIZE) then
   begin
     AddError('MissionParser can''t open the map because it''s too big.', True);
-    Result := false;
     Exit;
   end;
 
-  fMapInfo.MapSizeX := sx;
-  fMapInfo.MapSizeY := sy;
+  fMapInfo.MapSizeX := newX;
+  fMapInfo.MapSizeY := newY;
   Result := True;
 end;
 
