@@ -189,6 +189,7 @@ procedure TKMMapEdAttack.Show(aPlayer: TPlayerIndex; aIndex: Integer);
 begin
   fOwner := aPlayer;
   fIndex := aIndex;
+
   Attack_Refresh(gPlayers[aPlayer].AI.General.Attacks[aIndex]);
   Panel_Attack.Show;
 end;

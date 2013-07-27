@@ -26,7 +26,7 @@ type
     fMapX: Integer;
     fMapY: Integer;
     fPlayerPreview: array [0 .. MAX_PLAYERS-1] of TPlayerPreviewInfo;
-    fMapPreview: array [1 .. MAX_MAP_SIZE * MAX_MAP_SIZE] of TTilePreviewInfo;
+    fMapPreview: array of TTilePreviewInfo;
 
     fRevealFor: array of TPlayerIndex;
 
@@ -82,12 +82,18 @@ begin
     Assert((NewX <= MAX_MAP_SIZE) and (NewY <= MAX_MAP_SIZE), 'Can''t open the map cos it has too big dimensions');
     fMapX := NewX;
     fMapY := NewY;
+
+    SetLength(fMapPreview, fMapX * fMapY + 1);
     for I := 1 to fMapX * fMapY do
     begin
       S.Read(fMapPreview[I].TileID);
       S.Seek(1, soFromCurrent);
       S.Read(fMapPreview[I].TileHeight); //Height (for lighting)
       S.Seek(20, soFromCurrent);
+
+      //Fill in blanks
+      fMapPreview[I].TileOwner := PLAYER_NONE;
+      fMapPreview[I].Revealed := False;
     end;
   finally
     S.Free;
@@ -189,8 +195,8 @@ begin
                           if (P[0] = 255) then
                           begin
                             if RevealForPlayer(fLastPlayer) then
-                              for I := 1 to MAX_MAP_SIZE * MAX_MAP_SIZE do
-                                fMapPreview[i].Revealed := True;
+                              for I := 1 to fMapX * fMapY do
+                                fMapPreview[I].Revealed := True;
                           end
                           else
                             RevealCircle(P[0]+1, P[1]+1, P[2]);
@@ -218,14 +224,10 @@ begin
   Result := False;
 
   SetLength(fRevealFor, Length(aRevealFor));
-  for I := 0 to Length(aRevealFor) - 1 do
+  for I := Low(aRevealFor) to High(aRevealFor) do
     fRevealFor[I] := aRevealFor[I];
 
-  FillChar(fMapPreview, SizeOf(fMapPreview), #0);
   FillChar(fPlayerPreview, SizeOf(fPlayerPreview), #0);
-
-  for I := Low(fMapPreview) to High(fMapPreview) do
-    fMapPreview[I].TileOwner := PLAYER_NONE;
 
   FileText := ReadMissionFile(aFileName);
   if FileText = '' then
