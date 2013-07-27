@@ -181,7 +181,7 @@ end;
 function TTaskMining.Execute: TTaskResult;
 const
   SkipWalk = 9;
-  SkipWork = 31; //Skip to certain Phases
+  SkipWork = 11 + MAX_WORKPLAN; //Skip to certain Phases
 var
   D: TKMDirection;
   TimeToWork, StillFrame: Integer;
@@ -284,77 +284,87 @@ begin
     8: SetActionGoIn(WorkPlan.ActionWalkFrom, gd_GoInside, GetHome); //Go inside
 
     {Unit back at home and can process its booty now}
-    9: begin
-        Thought := th_None;
-        fPhase2 := 1;
-        GetHome.SetState(hst_Work); //Set house to Work state
-        if WorkPlan.Resource1 <> wt_None then GetHome.ResTakeFromIn(WorkPlan.Resource1, WorkPlan.Count1);
-        if WorkPlan.Resource2 <> wt_None then GetHome.ResTakeFromIn(WorkPlan.Resource2, WorkPlan.Count2);
-        gPlayers[fUnit.Owner].Stats.WareConsumed(WorkPlan.Resource1, WorkPlan.Count1);
-        gPlayers[fUnit.Owner].Stats.WareConsumed(WorkPlan.Resource2, WorkPlan.Count2);
-        GetHome.fCurrentAction.SubActionAdd([ha_Smoke]);
-        if WorkPlan.GatheringScript = gs_SwineBreeder then
-        begin //Swines get feed and taken immediately
-          fBeastID := TKMHouseSwineStable(GetHome).FeedBeasts;
-          TKMHouseSwineStable(GetHome).TakeBeast(fBeastID);
-        end;
-        if WorkPlan.ActCount >= fPhase2 then
-        begin
-          GetHome.fCurrentAction.SubActionWork(WorkPlan.HouseAct[fPhase2].Act);
-          //Keep unit idling till next Phase, Idle time is -1 to compensate TaskExecution Phase
-          SetActionLockedStay(WorkPlan.HouseAct[fPhase2].TimeToWork-1,ua_Walk);
-        end
-        else
-        begin
-          fPhase := SkipWork; //Skip to step 31
-          SetActionLockedStay(0,ua_Walk);
-          exit;
-        end;
-       end;
-    10..30: begin //Allow for 20 different "house work" phases
-           inc(fPhase2);
-           if (fPhase2 = 2)and(WorkPlan.GatheringScript = gs_HorseBreeder) then
-             fBeastID := TKMHouseSwineStable(GetHome).FeedBeasts; //Feed a horse/pig
-           if WorkPlan.ActCount >= fPhase2 then
-           begin
-             GetHome.fCurrentAction.SubActionWork(WorkPlan.HouseAct[fPhase2].Act);
-             if WorkPlan.ActCount > fPhase2 then
-               SetActionLockedStay(WorkPlan.HouseAct[fPhase2].TimeToWork-1,ua_Walk) //-1 to compensate units UpdateState run
-             else
-               SetActionLockedStay(WorkPlan.HouseAct[fPhase2].TimeToWork-2,ua_Walk) //-2 to compensate 2 UpdateStates of a unit in last Act
-           end
-           else
-           begin
-             fPhase := SkipWork; //Skip to step 31
-             SetActionLockedStay(0,ua_Walk);
-             exit;
-           end;
-       end;
-    31: begin
-          if WorkPlan.GatheringScript = gs_HorseBreeder then
-            TKMHouseSwineStable(GetHome).TakeBeast(fBeastID); //Take the horse after feeding
+    9:    begin
+            Thought := th_None;
+            fPhase2 := 0;
+            GetHome.SetState(hst_Work);
 
-          case WorkPlan.GatheringScript of
-            gs_CoalMiner:    ResAcquired := gTerrain.DecOreDeposit(WorkPlan.Loc, wt_Coal);
-            gs_GoldMiner:    ResAcquired := gTerrain.DecOreDeposit(WorkPlan.Loc, wt_GoldOre);
-            gs_IronMiner:    ResAcquired := gTerrain.DecOreDeposit(WorkPlan.Loc, wt_IronOre);
-            gs_SwineBreeder: ResAcquired := fBeastID<>0;
-            gs_HorseBreeder: ResAcquired := fBeastID<>0;
-            else             ResAcquired := true;
+            //Take required resources
+            if WorkPlan.Resource1 <> wt_None then GetHome.ResTakeFromIn(WorkPlan.Resource1, WorkPlan.Count1);
+            if WorkPlan.Resource2 <> wt_None then GetHome.ResTakeFromIn(WorkPlan.Resource2, WorkPlan.Count2);
+            gPlayers[fUnit.Owner].Stats.WareConsumed(WorkPlan.Resource1, WorkPlan.Count1);
+            gPlayers[fUnit.Owner].Stats.WareConsumed(WorkPlan.Resource2, WorkPlan.Count2);
+
+            GetHome.fCurrentAction.SubActionAdd([ha_Smoke]);
+            if WorkPlan.GatheringScript = gs_SwineBreeder then
+            begin //Swines get feed and taken immediately
+              fBeastID := TKMHouseSwineStable(GetHome).FeedBeasts;
+              TKMHouseSwineStable(GetHome).TakeBeast(fBeastID);
+            end;
+
+            if WorkPlan.ActCount >= fPhase2 then
+            begin
+              GetHome.fCurrentAction.SubActionWork(WorkPlan.HouseAct[fPhase2].Act);
+              //Keep unit idling till next Phase, Idle time is -1 to compensate TaskExecution Phase
+              SetActionLockedStay(WorkPlan.HouseAct[fPhase2].TimeToWork-1, ua_Walk);
+            end
+            else
+            begin
+              fPhase := SkipWork; //Skip to work complete
+              SetActionLockedStay(0, ua_Walk);
+              Exit;
+            end;
           end;
-
-          if ResAcquired then
+    10..10 + MAX_WORKPLAN:
           begin
-            GetHome.ResAddToOut(WorkPlan.Product1,WorkPlan.ProdCount1);
-            GetHome.ResAddToOut(WorkPlan.Product2,WorkPlan.ProdCount2);
-            gPlayers[fUnit.Owner].Stats.WareProduced(WorkPlan.Product1,WorkPlan.ProdCount1);
-            gPlayers[fUnit.Owner].Stats.WareProduced(WorkPlan.Product2,WorkPlan.ProdCount2);
-          end;
+            Inc(fPhase2);
 
-          GetHome.SetState(hst_Idle);
-          SetActionLockedStay(WorkPlan.AfterWorkIdle-1, ua_Walk);
-        end;
-    else Result := TaskDone;
+            //Feed a horse/pig
+            if (WorkPlan.GatheringScript = gs_HorseBreeder) and (fPhase2 = 1) then
+              fBeastID := TKMHouseSwineStable(GetHome).FeedBeasts;
+
+            //Keep on working
+            if fPhase2 <= WorkPlan.ActCount then
+            begin
+              GetHome.fCurrentAction.SubActionWork(WorkPlan.HouseAct[fPhase2].Act);
+              if fPhase < WorkPlan.ActCount then
+                SetActionLockedStay(WorkPlan.HouseAct[fPhase2].TimeToWork-1, ua_Walk) //-1 to compensate units UpdateState run
+              else
+                SetActionLockedStay(WorkPlan.HouseAct[fPhase2].TimeToWork-2, ua_Walk) //-2 to compensate 2 UpdateStates of a unit in last Act
+            end
+            else
+            begin
+              fPhase := SkipWork; //Skip to step 31
+              SetActionLockedStay(0, ua_Walk);
+              Exit;
+            end;
+          end;
+    11 + MAX_WORKPLAN:
+          begin
+            if WorkPlan.GatheringScript = gs_HorseBreeder then
+              TKMHouseSwineStable(GetHome).TakeBeast(fBeastID); //Take the horse after feeding
+
+            case WorkPlan.GatheringScript of
+              gs_CoalMiner:    ResAcquired := gTerrain.DecOreDeposit(WorkPlan.Loc, wt_Coal);
+              gs_GoldMiner:    ResAcquired := gTerrain.DecOreDeposit(WorkPlan.Loc, wt_GoldOre);
+              gs_IronMiner:    ResAcquired := gTerrain.DecOreDeposit(WorkPlan.Loc, wt_IronOre);
+              gs_SwineBreeder: ResAcquired := fBeastID <> 0;
+              gs_HorseBreeder: ResAcquired := fBeastID <> 0;
+              else             ResAcquired := true;
+            end;
+
+            if ResAcquired then
+            begin
+              GetHome.ResAddToOut(WorkPlan.Product1, WorkPlan.ProdCount1);
+              GetHome.ResAddToOut(WorkPlan.Product2, WorkPlan.ProdCount2);
+              gPlayers[fUnit.Owner].Stats.WareProduced(WorkPlan.Product1, WorkPlan.ProdCount1);
+              gPlayers[fUnit.Owner].Stats.WareProduced(WorkPlan.Product2, WorkPlan.ProdCount2);
+            end;
+
+            GetHome.SetState(hst_Idle);
+            SetActionLockedStay(WorkPlan.AfterWorkIdle-1, ua_Walk);
+          end;
+    else  Result := TaskDone;
   end;
   inc(fPhase);
 end;

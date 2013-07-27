@@ -5,6 +5,9 @@ uses KM_Defaults, KM_CommonClasses, KM_Points, KM_Terrain, KM_Units,
   KM_ResHouses, KM_ResWares;
 
 
+const
+  MAX_WORKPLAN = 24;
+
 type
   TWorkPlanAllowedEvent = function(aProduct: TWareType): Boolean of object;
 
@@ -12,52 +15,44 @@ type
   private
     fHome: THouseType;
     fIssued: Boolean;
-    function ChooseTree(aLoc, aAvoid:TKMPoint; aRadius:Integer; aPlantAct: TPlantAct; aUnit:TKMUnit; out Tree:TKMPointDir; out PlantAct: TPlantAct):Boolean;
-    procedure FillDefaults;
-    procedure WalkStyle(aLoc2:TKMPointDir; aTo,aWork:TUnitActionType; aCycles,aDelay:byte; aFrom:TUnitActionType; aScript:TGatheringScript);
-    procedure SubActAdd(aAct:THouseActionType; aCycles:single);
-    procedure ResourcePlan(Res1:TWareType; Qty1:byte; Res2:TWareType; Qty2:byte; Prod1:TWareType; Prod2:TWareType=wt_None);
+    function ChooseTree(aLoc, aAvoid: TKMPoint; aRadius: Integer; aPlantAct: TPlantAct; aUnit: TKMUnit; out Tree: TKMPointDir; out PlantAct: TPlantAct): Boolean;
+    procedure Clear;
+    procedure WalkStyle(aLoc2: TKMPointDir; aTo, aWork: TUnitActionType; aCycles, aDelay: byte; aFrom: TUnitActionType; aScript: TGatheringScript);
+    procedure SubActAdd(aAct: THouseActionType; aCycles: Single);
+    procedure ResourcePlan(Res1: TWareType; Qty1: byte; Res2: TWareType; Qty2: byte; Prod1: TWareType; Prod2: TWareType = wt_None);
   public
     OnWorkplanAllowed: TWorkPlanAllowedEvent;
-    HasToWalk:boolean;
-    Loc:TKMPoint;
-    ActionWalkTo:TUnitActionType;
-    ActionWorkType:TUnitActionType;
-    WorkCyc:integer;
-    WorkDir:TKMDirection;
-    GatheringScript:TGatheringScript;
-    AfterWorkDelay:integer;
-    ActionWalkFrom:TUnitActionType;
-    Resource1:TWareType; Count1:byte;
-    Resource2:TWareType; Count2:byte;
-    ActCount:byte;
-    HouseAct:array[1..32] of record
-      Act:THouseActionType;
-      TimeToWork:word;
+    HasToWalk: Boolean;
+    Loc: TKMPoint;
+    ActionWalkTo: TUnitActionType;
+    ActionWorkType: TUnitActionType;
+    WorkCyc: Integer;
+    WorkDir: TKMDirection;
+    GatheringScript: TGatheringScript;
+    AfterWorkDelay: Integer;
+    ActionWalkFrom: TUnitActionType;
+    Resource1: TWareType; Count1: Byte;
+    Resource2: TWareType; Count2: Byte;
+    ActCount: Byte;
+    HouseAct: array [0..MAX_WORKPLAN - 1] of record
+      Act: THouseActionType;
+      TimeToWork: Word;
     end;
-    Product1:TWareType; ProdCount1:byte;
-    Product2:TWareType; ProdCount2:byte;
-    AfterWorkIdle:integer;
-    ResourceDepleted:boolean;
+    Product1: TWareType; ProdCount1: Byte;
+    Product2: TWareType; ProdCount2: Byte;
+    AfterWorkIdle: Integer;
+    ResourceDepleted: Boolean;
   public
-    constructor Create;
-    procedure FindPlan(aUnit:TKMUnit; aHome:THouseType; aProduct:TWareType; aLoc:TKMPoint; aPlantAct: TPlantAct);
-    function FindDifferentResource(aUnit:TKMUnit; aLoc, aAvoidLoc: TKMPoint):boolean;
-    property IsIssued:boolean read fIssued;
-    procedure Save(SaveStream:TKMemoryStream);
-    procedure Load(LoadStream:TKMemoryStream);
+    procedure FindPlan(aUnit: TKMUnit; aHome: THouseType; aProduct: TWareType; aLoc: TKMPoint; aPlantAct: TPlantAct);
+    function FindDifferentResource(aUnit: TKMUnit; aLoc, aAvoidLoc: TKMPoint): Boolean;
+    property IsIssued: Boolean read fIssued;
+    procedure Save(SaveStream: TKMemoryStream);
+    procedure Load(LoadStream: TKMemoryStream);
   end;
 
 
 implementation
 uses KM_Resource, KM_Utils;
-
-
-constructor TUnitWorkPlan.Create;
-begin
-  inherited;
-
-end;
 
 
 {Houses are only a place on map, they should not issue or perform tasks (except Training)
@@ -72,47 +67,51 @@ Then Work2 and Work3 same way. Then adds resource to out and everything to Idle 
 E.g. Farmer arrives at home and Idles for 5sec, then takes a work task (depending on ResOut count, HouseType and Need to sow corn)
 ...... then switches house to Work1 (and self busy for same framecount)
 Then Work2 and Work3 same way. Then adds resource to out and everything to Idle for 5sec.}
-procedure TUnitWorkPlan.FillDefaults;
+procedure TUnitWorkPlan.Clear;
 begin
   fIssued := False;
-  HasToWalk:=false;
-  Loc:=KMPoint(0,0);
-  ActionWalkTo:=ua_Walk;
-  ActionWorkType:=ua_Work;
-  WorkCyc:=0;
-  WorkDir:=dir_NA;
-  GatheringScript:=gs_None;
-  AfterWorkDelay:=0;
-  ActionWalkFrom:=ua_Walk;
-  Resource1:=wt_None; Count1:=0;
-  Resource2:=wt_None; Count2:=0;
-  ActCount:=0;
-  Product1:=wt_None; ProdCount1:=0;
-  Product2:=wt_None; ProdCount2:=0;
-  AfterWorkIdle:=0;
-  ResourceDepleted:=false;
+  HasToWalk := False;
+  Loc := KMPoint(0, 0);
+  ActionWalkTo := ua_Walk;
+  ActionWorkType := ua_Work;
+  WorkCyc := 0;
+  WorkDir := dir_NA;
+  GatheringScript := gs_None;
+  AfterWorkDelay := 0;
+  ActionWalkFrom := ua_Walk;
+  Resource1 := wt_None;
+  Count1 := 0;
+  Resource2 := wt_None;
+  Count2 := 0;
+  ActCount := 0;
+  Product1 := wt_None;
+  ProdCount1 := 0;
+  Product2 := wt_None;
+  ProdCount2 := 0;
+  AfterWorkIdle := 0;
+  ResourceDepleted := False;
 end;
 
 
 procedure TUnitWorkPlan.WalkStyle(aLoc2:TKMPointDir; aTo,aWork:TUnitActionType; aCycles,aDelay:byte; aFrom:TUnitActionType; aScript:TGatheringScript);
 begin
-  Loc:=aLoc2.Loc;
-  HasToWalk:=true;
-  ActionWalkTo:=aTo;
-  ActionWorkType:=aWork;
-  WorkCyc:=aCycles;
-  AfterWorkDelay:=aDelay;
-  GatheringScript:=aScript;
-  ActionWalkFrom:=aFrom;
-  WorkDir:=aLoc2.Dir;
+  Loc := aLoc2.Loc;
+  HasToWalk := True;
+  ActionWalkTo := aTo;
+  ActionWorkType := aWork;
+  WorkCyc := aCycles;
+  AfterWorkDelay := aDelay;
+  GatheringScript := aScript;
+  ActionWalkFrom := aFrom;
+  WorkDir := aLoc2.Dir;
 end;
 
 
-procedure TUnitWorkPlan.SubActAdd(aAct:THouseActionType; aCycles:single);
+procedure TUnitWorkPlan.SubActAdd(aAct: THouseActionType; aCycles: Single);
 begin
-  inc(ActCount);
   HouseAct[ActCount].Act := aAct;
   HouseAct[ActCount].TimeToWork := Round(fResource.HouseDat[fHome].Anim[aAct].Count * aCycles);
+  Inc(ActCount);
 end;
 
 
@@ -216,7 +215,7 @@ begin
     end;
   end;
 
-  TreeList.Free; 
+  TreeList.Free;
   BestToPlant.Free;
   SecondBestToPlant.Free;
 end;
@@ -224,13 +223,14 @@ end;
 
 procedure TUnitWorkPlan.FindPlan(aUnit:TKMUnit; aHome:THouseType; aProduct:TWareType; aLoc:TKMPoint; aPlantAct: TPlantAct);
 var
-  i:integer;
+  I: Integer;
   Tmp: TKMPointDir;
   PlantAct: TPlantAct;
 begin
+  Clear;
+
   fHome := aHome;
-  FillDefaults;
-  AfterWorkIdle := fResource.HouseDat[aHome].WorkerRest*10;
+  AfterWorkIdle := fResource.HouseDat[aHome].WorkerRest * 10;
 
   //Now we need to fill only specific properties
   case aUnit.UnitType of
@@ -576,7 +576,7 @@ end;
 
 
 procedure TUnitWorkPlan.Load(LoadStream:TKMemoryStream);
-var i:integer;
+var I: Integer;
 begin
   LoadStream.ReadAssert('WorkPlan');
   LoadStream.Read(fHome, SizeOf(fHome));
@@ -596,10 +596,10 @@ begin
   LoadStream.Read(Resource2, SizeOf(Resource2));
   LoadStream.Read(Count2);
   LoadStream.Read(ActCount);
-  for i:=1 to ActCount do //Write only assigned
+  for I := 0 to ActCount - 1 do //Write only assigned
   begin
-    LoadStream.Read(HouseAct[i].Act, SizeOf(HouseAct[i].Act));
-    LoadStream.Read(HouseAct[i].TimeToWork);
+    LoadStream.Read(HouseAct[I].Act, SizeOf(HouseAct[I].Act));
+    LoadStream.Read(HouseAct[I].TimeToWork);
   end;
   LoadStream.Read(Product1, SizeOf(Product1));
   LoadStream.Read(ProdCount1);
@@ -611,7 +611,7 @@ end;
 
 
 procedure TUnitWorkPlan.Save(SaveStream:TKMemoryStream);
-var i:integer;
+var I: Integer;
 begin
   SaveStream.Write('WorkPlan');
   SaveStream.Write(fHome, SizeOf(fHome));
@@ -631,10 +631,10 @@ begin
   SaveStream.Write(Resource2, SizeOf(Resource2));
   SaveStream.Write(Count2);
   SaveStream.Write(ActCount);
-  for i:=1 to ActCount do //Write only assigned
+  for I := 0 to ActCount - 1 do //Write only assigned
   begin
-    SaveStream.Write(HouseAct[i].Act, SizeOf(HouseAct[i].Act));
-    SaveStream.Write(HouseAct[i].TimeToWork);
+    SaveStream.Write(HouseAct[I].Act, SizeOf(HouseAct[I].Act));
+    SaveStream.Write(HouseAct[I].TimeToWork);
   end;
   SaveStream.Write(Product1, SizeOf(Product1));
   SaveStream.Write(ProdCount1);
