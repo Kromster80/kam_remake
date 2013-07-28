@@ -10,14 +10,17 @@ const
 type
   TDependenciesGrapher = class
   private
-    unitForAnalyse : array[0..MAX_UNITS_NUM] of string;
-    unitAnalysed : array[0..MAX_UNITS_NUM] of string;
+    unitForAnalyse : array of string;
+    unitForAnalyseArrayLength : integer;
+    unitAnalysed : array of string;
+    unitAnalysedArrayLength : integer;
     unitStackPos : integer;
     unitAnalysedCount : integer;
-    nonSystemUnit : array[0..MAX_UNITS_NUM] of string;
-    nonSystemUnitFile : array[0..MAX_UNITS_NUM] of string;
+    nonSystemUnit : array of string;
+    nonSystemUnitArrayLength : integer;
+    nonSystemUnitFile : array of string;
     numNonSysUnit : integer;
-    graph : array[0..MAX_UNITS_NUM,0..MAX_UNITS_NUM] of integer;
+    graph : array of array of integer;
     f : TextFile;
     procedure ScanDpr( filename : string );
     function ReadWord() : string;
@@ -68,6 +71,11 @@ begin
       begin
         if str[length(str)] <> ',' then
         begin
+          if unitStackPos >= unitForAnalyseArrayLength then
+          begin
+            unitForAnalyseArrayLength := unitForAnalyseArrayLength + 32;
+            SetLength( unitForAnalyse, unitForAnalyseArrayLength );
+          end;
           unitForAnalyse[unitStackPos] := str;
           inc(unitStackPos);
         end;
@@ -190,11 +198,23 @@ begin
   seachInfo := FindFirstFile( pchar(path + '*.pas'), fileData );
   if seachInfo = INVALID_HANDLE_VALUE then
     exit;
+  if numNonSysUnit >= nonSystemUnitArrayLength then
+  begin
+    nonSystemUnitArrayLength := nonSystemUnitArrayLength + 32;
+    SetLength( nonSystemUnit, nonSystemUnitArrayLength );
+    SetLength( nonSystemUnitFile, nonSystemUnitArrayLength );
+  end;
   ScanUnitName( path + fileData.cFileName, numNonSysUnit );
   inc( numNonSysUnit );
 
   while FindNextFile( seachInfo, fileData )  do
   begin
+    if numNonSysUnit >= nonSystemUnitArrayLength then
+    begin
+      nonSystemUnitArrayLength := nonSystemUnitArrayLength + 32;
+      SetLength( nonSystemUnit, nonSystemUnitArrayLength );
+      SetLength( nonSystemUnitFile, nonSystemUnitArrayLength );
+    end;
     ScanUnitName( path + fileData.cFileName, numNonSysUnit );
     inc( numNonSysUnit );
   end;
@@ -223,8 +243,21 @@ end;
 procedure TDependenciesGrapher.Analyse();
 var
     nonSysUnId : integer;
+    i, j: Integer;
 begin
+
+  SetLength( graph, numNonSysUnit, numNonSysUnit );
+  for i := 0 to numNonSysUnit - 1 do
+    for j := 0 to numNonSysUnit - 1 do
+      graph[i][j] := 0;
+
   repeat
+  if unitAnalysedCount >= unitAnalysedArrayLength then
+  begin
+    unitAnalysedArrayLength := unitAnalysedArrayLength + 32;
+    SetLength( unitAnalysed, unitAnalysedArrayLength );
+  end;
+
     unitAnalysed[unitAnalysedCount] := unitForAnalyse[unitStackPos-1];
     inc(unitAnalysedCount);
     dec(unitStackPos);
@@ -289,8 +322,13 @@ begin
           graph[id][dep_id] := dep_type;
           if ( not IsUnitInAnalyseList( str ) ) and ( not IsUnitAnalysed( str ) ) then
           begin
-            unitForAnalyse[unitStackPos] := str;
-            inc(unitStackPos);
+            if unitStackPos >= unitForAnalyseArrayLength then
+            begin
+              unitForAnalyseArrayLength := unitForAnalyseArrayLength + 32;
+              SetLength( unitForAnalyse, unitForAnalyseArrayLength );
+            end;
+              unitForAnalyse[unitStackPos] := str;
+              inc(unitStackPos);
           end;
         end;
       end;
@@ -352,7 +390,7 @@ begin
   for i := 0 to unitAnalysedCount - 1 do
   begin
     id := GetUnitId( unitAnalysed[i] );
-    for j := 0 to MAX_UNITS_NUM - 1 do
+    for j := 0 to numNonSysUnit - 1 do
     begin
       if graph[id][j] > 0 then
         writeln( f, id, ';', j, ';', graph[id][j] );
