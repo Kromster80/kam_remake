@@ -4,9 +4,6 @@ interface
 
 uses Winapi.Windows, System.SysUtils;
 
-const
-  MAX_UNITS_NUM = 1000;
-
 type
   TDependenciesGrapher = class
   private
@@ -247,9 +244,6 @@ var
 begin
 
   SetLength( graph, numNonSysUnit, numNonSysUnit );
-  for i := 0 to numNonSysUnit - 1 do
-    for j := 0 to numNonSysUnit - 1 do
-      graph[i][j] := 0;
 
   repeat
   if unitAnalysedCount >= unitAnalysedArrayLength then
