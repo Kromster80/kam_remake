@@ -2,11 +2,8 @@ unit KM_GUIMapEdTownUnits;
 {$I KaM_Remake.inc}
 interface
 uses
-   {$IFDEF MSWindows} Windows, {$ENDIF}
-   {$IFDEF Unix} LCLIntf, LCLType, {$ENDIF}
-   Classes, Controls, KromUtils, Math, StrUtils, SysUtils, KromOGLUtils, TypInfo,
-   KM_Controls, KM_Defaults, KM_Pics, KM_Maps, KM_Houses, KM_Units, KM_UnitGroups, KM_MapEditor,
-   KM_Points, KM_InterfaceDefaults, KM_AIAttacks, KM_AIGoals, KM_Terrain;
+   Classes, Controls, KromUtils, Math, StrUtils, SysUtils,
+   KM_Controls, KM_Defaults, KM_Pics, KM_InterfaceDefaults;
 
 type
   TKMMapEdTownUnits = class
@@ -31,10 +28,7 @@ type
 
 implementation
 uses
-  KM_CommonClasses, KM_PlayersCollection, KM_ResTexts, KM_Game, KM_Main, KM_GameCursor,
-  KM_GameApp, KM_Resource, KM_TerrainDeposits, KM_ResCursors, KM_Utils,
-  KM_AIDefensePos, KM_ResHouses, KM_RenderUI, KM_Sound, KM_ResSound,
-  KM_ResWares, KM_ResFonts;
+  KM_PlayersCollection, KM_ResTexts, KM_GameCursor, KM_Resource;
 
 
 { TKMMapEdTownUnits }

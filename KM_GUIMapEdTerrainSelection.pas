@@ -3,7 +3,7 @@ unit KM_GUIMapEdTerrainSelection;
 interface
 uses
    Math, SysUtils,
-   KM_Controls, KM_Defaults, KM_Pics;
+   KM_Controls, KM_Defaults;
 
 
 type

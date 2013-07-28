@@ -45,8 +45,7 @@ type
 
 implementation
 uses
-  KM_ResFonts, KM_ResTexts,
-  KM_Game, KM_GameCursor, KM_RenderUI,
+  KM_ResTexts, KM_Game, KM_GameCursor, KM_RenderUI,
   KM_InterfaceDefaults, KM_InterfaceMapEditor;
 
 

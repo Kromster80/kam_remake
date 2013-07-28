@@ -3,8 +3,7 @@ unit KM_GUIMapEdFormations;
 interface
 uses
    Classes, Math, StrUtils, SysUtils,
-   KM_Controls, KM_Defaults, KM_Pics,
-   KM_InterfaceDefaults;
+   KM_Controls, KM_Defaults, KM_Pics;
 
 
 type
@@ -29,7 +28,7 @@ type
 
 implementation
 uses
-  KM_CommonClasses, KM_PlayersCollection, KM_ResTexts, KM_RenderUI, KM_ResFonts;
+  KM_PlayersCollection, KM_ResTexts, KM_RenderUI, KM_ResFonts;
 
 
 { TKMMapEdFormations }
