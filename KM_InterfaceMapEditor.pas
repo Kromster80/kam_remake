@@ -269,6 +269,135 @@ const
     376, 377);
 
 
+{ TKMapEdInterface }
+constructor TKMapEdInterface.Create(aScreenX, aScreenY: Word);
+var
+  I: Integer;
+begin
+  inherited;
+
+  fDragScrolling := False;
+  fDragScrollingCursorPos.X := 0;
+  fDragScrollingCursorPos.Y := 0;
+  fDragScrollingViewportPos.X := 0;
+  fDragScrollingViewportPos.Y := 0;
+  fMaps := TKMapsCollection.Create(False);
+  fMapsMP := TKMapsCollection.Create(True);
+
+  //CompactMapElements;
+
+  //Parent Page for whole toolbar in-game
+  Panel_Main := TKMPanel.Create(fMyControls, 0, 0, aScreenX, aScreenY);
+
+    TKMImage.Create(Panel_Main,0,   0,224,200,407); //Minimap place
+    TKMImage.Create(Panel_Main,0, 200,224,400,404);
+    TKMImage.Create(Panel_Main,0, 600,224,400,404);
+    TKMImage.Create(Panel_Main,0,1000,224,400,404); //For 1600x1200 this is needed
+
+    MinimapView := TKMMinimapView.Create(Panel_Main, 10, 10, 176, 176);
+    MinimapView.OnChange := Minimap_Update;
+
+    Label_MissionName := TKMLabel.Create(Panel_Main, 230, 10, 184, 10, NO_TEXT, fnt_Grey, taLeft);
+    Label_Coordinates := TKMLabel.Create(Panel_Main, 230, 30, 'X: Y:', fnt_Grey, taLeft);
+    Label_Stat := TKMLabel.Create(Panel_Main, 230, 50, 0, 0, '', fnt_Outline, taLeft);
+
+    TKMLabel.Create(Panel_Main, TB_PAD, 190, TB_WIDTH, 0, gResTexts[TX_MAPED_PLAYERS], fnt_Outline, taLeft);
+    for I := 0 to MAX_PLAYERS - 1 do
+    begin
+      Button_PlayerSelect[I]         := TKMFlatButtonShape.Create(Panel_Main, 8 + I*23, 210, 21, 21, IntToStr(I+1), fnt_Grey, $FF0000FF);
+      Button_PlayerSelect[I].Tag     := I;
+      Button_PlayerSelect[I].OnClick := Player_ChangeActive;
+    end;
+    Button_PlayerSelect[0].Down := True; //First player selected by default
+
+  //Must be created before Hint so it goes over them
+  Create_Extra;
+  Create_Message;
+
+    Bevel_HintBG := TKMBevel.Create(Panel_Main,224+32,Panel_Main.Height-23,300,21);
+    Bevel_HintBG.BackAlpha := 0.5;
+    Bevel_HintBG.Hide;
+    Bevel_HintBG.Anchors := [akLeft, akBottom];
+
+    Label_Hint := TKMLabel.Create(Panel_Main, 224 + 36, Panel_Main.Height - 21, 0, 0, '', fnt_Outline, taLeft);
+    Label_Hint.Anchors := [akLeft, akBottom];
+
+  Panel_Common := TKMPanel.Create(Panel_Main,TB_PAD,255,TB_WIDTH,768);
+
+    {5 big tabs}
+    Button_Main[1] := TKMButton.Create(Panel_Common, BIG_PAD_W*0, 0, BIG_TAB_W, BIG_TAB_H, 381, rxGui, bsGame);
+    Button_Main[2] := TKMButton.Create(Panel_Common, BIG_PAD_W*1, 0, BIG_TAB_W, BIG_TAB_H, 589, rxGui, bsGame);
+    Button_Main[3] := TKMButton.Create(Panel_Common, BIG_PAD_W*2, 0, BIG_TAB_W, BIG_TAB_H, 392, rxGui, bsGame);
+    Button_Main[4] := TKMButton.Create(Panel_Common, BIG_PAD_W*3, 0, BIG_TAB_W, BIG_TAB_H, 441, rxGui, bsGame);
+    Button_Main[5] := TKMButton.Create(Panel_Common, BIG_PAD_W*4, 0, BIG_TAB_W, BIG_TAB_H, 389, rxGui, bsGame);
+    Button_Main[1].Hint := gResTexts[TX_MAPED_TERRAIN];
+    Button_Main[2].Hint := gResTexts[TX_MAPED_VILLAGE];
+    Button_Main[3].Hint := gResTexts[TX_MAPED_SCRIPTS_VISUAL];
+    Button_Main[4].Hint := gResTexts[TX_MAPED_SCRIPTS_GLOBAL];
+    Button_Main[5].Hint := gResTexts[TX_MAPED_MENU];
+    for I := 1 to 5 do
+      Button_Main[I].OnClick := SwitchPage;
+
+{I plan to store all possible layouts on different pages which gets displayed one at a time}
+{==========================================================================================}
+  fGuiTerrain := TKMMapEdTerrain.Create(Panel_Common, PageChanged);
+  fGuiTown := TKMMapEdTown.Create(Panel_Common, PageChanged);
+
+  Create_Player;
+  Create_Mission;
+
+  Create_Menu;
+    Create_MenuSave;
+    Create_MenuLoad;
+    Create_MenuQuit;
+
+  Create_Unit;
+
+  fGuiHouse := TKMMapEdHouse.Create(Panel_Common);
+
+  Create_Marker;
+
+  Image_Extra := TKMImage.Create(Panel_Main, TOOLBAR_WIDTH, Panel_Main.Height - 48, 30, 48, 494);
+  Image_Extra.Anchors := [akLeft, akBottom];
+  Image_Extra.HighlightOnMouseOver := True;
+  Image_Extra.OnClick := ExtraMessage_Switch;
+
+  Image_Message := TKMImage.Create(Panel_Main, TOOLBAR_WIDTH, Panel_Main.Height - 48*2, 30, 48, 496);
+  Image_Message.Anchors := [akLeft, akBottom];
+  Image_Message.HighlightOnMouseOver := True;
+  Image_Message.OnClick := ExtraMessage_Switch;
+  Image_Message.Hide; //Hidden by default, only visible when a message is shown
+
+  //Pages that need to be on top of everything
+  fGuiAttack := TKMMapEdAttack.Create(Panel_Main);
+  fGuiFormations := TKMMapEdFormations.Create(Panel_Main);
+  Create_GoalPopUp;
+
+  fGuiTown.fGuiDefence.FormationsPopUp := fGuiFormations;
+  fGuiTown.fGuiOffence.AttackPopUp := fGuiAttack;
+
+  fMyControls.OnHint := DisplayHint;
+
+  DisplayPage(nil); //Update
+end;
+
+
+destructor TKMapEdInterface.Destroy;
+begin
+  fGuiHouse.Free;
+  fGuiTerrain.Free;
+  fGuiTown.Free;
+  fGuiAttack.Free;
+  fGuiFormations.Free;
+
+  fMaps.Free;
+  fMapsMP.Free;
+  SHOW_TERRAIN_WIRES := false; //Don't show it in-game if they left it on in MapEd
+  SHOW_TERRAIN_PASS := 0; //Don't show it in-game if they left it on in MapEd
+  inherited;
+end;
+
+
 {Switch between pages}
 procedure TKMapEdInterface.SwitchPage(Sender: TObject);
 begin
@@ -433,141 +562,6 @@ begin
   end;
 
   fPrevHint := Sender;
-end;
-
-
-//Update viewport position when user interacts with minimap
-procedure TKMapEdInterface.Minimap_Update(Sender: TObject; const X,Y: Integer);
-begin
-  fGame.Viewport.Position := KMPointF(X,Y);
-end;
-
-
-constructor TKMapEdInterface.Create(aScreenX, aScreenY: Word);
-var
-  I: Integer;
-begin
-  inherited;
-
-  fDragScrolling := False;
-  fDragScrollingCursorPos.X := 0;
-  fDragScrollingCursorPos.Y := 0;
-  fDragScrollingViewportPos.X := 0;
-  fDragScrollingViewportPos.Y := 0;
-  fMaps := TKMapsCollection.Create(False);
-  fMapsMP := TKMapsCollection.Create(True);
-
-  //CompactMapElements;
-
-  //Parent Page for whole toolbar in-game
-  Panel_Main := TKMPanel.Create(fMyControls, 0, 0, aScreenX, aScreenY);
-
-    TKMImage.Create(Panel_Main,0,   0,224,200,407); //Minimap place
-    TKMImage.Create(Panel_Main,0, 200,224,400,404);
-    TKMImage.Create(Panel_Main,0, 600,224,400,404);
-    TKMImage.Create(Panel_Main,0,1000,224,400,404); //For 1600x1200 this is needed
-
-    MinimapView := TKMMinimapView.Create(Panel_Main, 10, 10, 176, 176);
-    MinimapView.OnChange := Minimap_Update;
-
-    Label_MissionName := TKMLabel.Create(Panel_Main, 230, 10, 184, 10, NO_TEXT, fnt_Grey, taLeft);
-    Label_Coordinates := TKMLabel.Create(Panel_Main, 230, 30, 'X: Y:', fnt_Grey, taLeft);
-    Label_Stat := TKMLabel.Create(Panel_Main, 230, 50, 0, 0, '', fnt_Outline, taLeft);
-
-    TKMLabel.Create(Panel_Main, TB_PAD, 190, TB_WIDTH, 0, gResTexts[TX_MAPED_PLAYERS], fnt_Outline, taLeft);
-    for I := 0 to MAX_PLAYERS - 1 do
-    begin
-      Button_PlayerSelect[I]         := TKMFlatButtonShape.Create(Panel_Main, 8 + I*23, 210, 21, 21, IntToStr(I+1), fnt_Grey, $FF0000FF);
-      Button_PlayerSelect[I].Tag     := I;
-      Button_PlayerSelect[I].OnClick := Player_ChangeActive;
-    end;
-    Button_PlayerSelect[0].Down := True; //First player selected by default
-
-  //Must be created before Hint so it goes over them
-  Create_Extra;
-  Create_Message;
-
-    Bevel_HintBG := TKMBevel.Create(Panel_Main,224+32,Panel_Main.Height-23,300,21);
-    Bevel_HintBG.BackAlpha := 0.5;
-    Bevel_HintBG.Hide;
-    Bevel_HintBG.Anchors := [akLeft, akBottom];
-
-    Label_Hint := TKMLabel.Create(Panel_Main, 224 + 36, Panel_Main.Height - 21, 0, 0, '', fnt_Outline, taLeft);
-    Label_Hint.Anchors := [akLeft, akBottom];
-
-  Panel_Common := TKMPanel.Create(Panel_Main,TB_PAD,255,TB_WIDTH,768);
-
-    {5 big tabs}
-    Button_Main[1] := TKMButton.Create(Panel_Common, BIG_PAD_W*0, 0, BIG_TAB_W, BIG_TAB_H, 381, rxGui, bsGame);
-    Button_Main[2] := TKMButton.Create(Panel_Common, BIG_PAD_W*1, 0, BIG_TAB_W, BIG_TAB_H, 589, rxGui, bsGame);
-    Button_Main[3] := TKMButton.Create(Panel_Common, BIG_PAD_W*2, 0, BIG_TAB_W, BIG_TAB_H, 392, rxGui, bsGame);
-    Button_Main[4] := TKMButton.Create(Panel_Common, BIG_PAD_W*3, 0, BIG_TAB_W, BIG_TAB_H, 441, rxGui, bsGame);
-    Button_Main[5] := TKMButton.Create(Panel_Common, BIG_PAD_W*4, 0, BIG_TAB_W, BIG_TAB_H, 389, rxGui, bsGame);
-    Button_Main[1].Hint := gResTexts[TX_MAPED_TERRAIN];
-    Button_Main[2].Hint := gResTexts[TX_MAPED_VILLAGE];
-    Button_Main[3].Hint := gResTexts[TX_MAPED_SCRIPTS_VISUAL];
-    Button_Main[4].Hint := gResTexts[TX_MAPED_SCRIPTS_GLOBAL];
-    Button_Main[5].Hint := gResTexts[TX_MAPED_MENU];
-    for I := 1 to 5 do
-      Button_Main[I].OnClick := SwitchPage;
-
-{I plan to store all possible layouts on different pages which gets displayed one at a time}
-{==========================================================================================}
-  fGuiTerrain := TKMMapEdTerrain.Create(Panel_Common, PageChanged);
-  fGuiTown := TKMMapEdTown.Create(Panel_Common, PageChanged);
-
-  Create_Player;
-  Create_Mission;
-
-  Create_Menu;
-    Create_MenuSave;
-    Create_MenuLoad;
-    Create_MenuQuit;
-
-  Create_Unit;
-
-  fGuiHouse := TKMMapEdHouse.Create(Panel_Common);
-
-  Create_Marker;
-
-  Image_Extra := TKMImage.Create(Panel_Main, TOOLBAR_WIDTH, Panel_Main.Height - 48, 30, 48, 494);
-  Image_Extra.Anchors := [akLeft, akBottom];
-  Image_Extra.HighlightOnMouseOver := True;
-  Image_Extra.OnClick := ExtraMessage_Switch;
-
-  Image_Message := TKMImage.Create(Panel_Main, TOOLBAR_WIDTH, Panel_Main.Height - 48*2, 30, 48, 496);
-  Image_Message.Anchors := [akLeft, akBottom];
-  Image_Message.HighlightOnMouseOver := True;
-  Image_Message.OnClick := ExtraMessage_Switch;
-  Image_Message.Hide; //Hidden by default, only visible when a message is shown
-
-  //Pages that need to be on top of everything
-  fGuiAttack := TKMMapEdAttack.Create(Panel_Main);
-  fGuiFormations := TKMMapEdFormations.Create(Panel_Main);
-  Create_GoalPopUp;
-
-  fGuiTown.fGuiDefence.FormationsPopUp := fGuiFormations;
-  fGuiTown.fGuiOffence.AttackPopUp := fGuiAttack;
-
-  fMyControls.OnHint := DisplayHint;
-
-  DisplayPage(nil); //Update
-end;
-
-
-destructor TKMapEdInterface.Destroy;
-begin
-  fGuiHouse.Free;
-  fGuiTerrain.Free;
-  fGuiTown.Free;
-  fGuiAttack.Free;
-  fGuiFormations.Free;
-
-  fMaps.Free;
-  fMapsMP.Free;
-  SHOW_TERRAIN_WIRES := false; //Don't show it in-game if they left it on in MapEd
-  SHOW_TERRAIN_PASS := 0; //Don't show it in-game if they left it on in MapEd
-  inherited;
 end;
 
 
@@ -1939,6 +1933,13 @@ begin
     fGame.Viewport.Position := KMPointF(gPlayers[MySpectator.PlayerIndex].CenterScreen); //Jump to location
 
   Button_PlayerCenterScreen.Caption := TypeToString(gPlayers[MySpectator.PlayerIndex].CenterScreen);
+end;
+
+
+//Update viewport position when user interacts with minimap
+procedure TKMapEdInterface.Minimap_Update(Sender: TObject; const X,Y: Integer);
+begin
+  fGame.Viewport.Position := KMPointF(X,Y);
 end;
 
 
