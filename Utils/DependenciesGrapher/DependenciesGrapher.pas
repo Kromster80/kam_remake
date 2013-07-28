@@ -2,28 +2,23 @@ unit DependenciesGrapher;
 
 interface
 
-uses Winapi.Windows, System.SysUtils;
+uses Winapi.Windows, System.SysUtils, System.Classes;
 
 type
   TDependenciesGrapher = class
   private
-    unitForAnalyse : array of string;
-    unitForAnalyseArrayLength : integer;
-    unitAnalysed : array of string;
-    unitAnalysedArrayLength : integer;
-    unitStackPos : integer;
-    unitAnalysedCount : integer;
-    nonSystemUnit : array of string;
+    unitForAnalyse : TStringList;
+    unitAnalysed : TStringList;
+    nonSystemUnit : TStringList;
     nonSystemUnitArrayLength : integer;
-    nonSystemUnitFile : array of string;
-    numNonSysUnit : integer;
+    nonSystemUnitFile : TStringList;
     graph : array of array of integer;
     f : TextFile;
     procedure ScanDpr( filename : string );
     function ReadWord() : string;
     procedure ScanForAllUnits( path : string );
     procedure ScanForUnitsInDir( path : string );
-    procedure ScanUnitName( filename : string; numUnit : integer );
+    procedure ScanUnitName( filename : string );
     procedure Analyse();
     procedure ScanForDep( path : string; id : integer );
     function GetUnitId( name : string ) : integer;
@@ -32,12 +27,22 @@ type
     procedure SkipToUses();
     procedure ReadDepAndFillGraph( id : integer; dep_type : integer );
   public
+    constructor Create();
     procedure BuildGraph( pathToDpr : string );
     procedure PrintOutput( path : string );
   end;
 
 implementation
 
+
+constructor TDependenciesGrapher.Create();
+begin
+  inherited Create;
+  unitForAnalyse := TStringList.Create();
+  unitAnalysed := TStringList.Create();
+  nonSystemUnit := TStringList.Create();
+  nonSystemUnitFile := TStringList.Create();
+end;
 
 procedure TDependenciesGrapher.BuildGraph( pathToDpr : string );
 var path : string;
@@ -68,18 +73,12 @@ begin
       begin
         if str[length(str)] <> ',' then
         begin
-          if unitStackPos >= unitForAnalyseArrayLength then
-          begin
-            unitForAnalyseArrayLength := unitForAnalyseArrayLength + 32;
-            SetLength( unitForAnalyse, unitForAnalyseArrayLength );
-          end;
-          unitForAnalyse[unitStackPos] := str;
-          inc(unitStackPos);
+          unitForAnalyse.Add( str );
         end;
       end;
 
   until SameText(str, 'begin');
-  dec(unitStackPos);
+  unitForAnalyse.Delete( unitForAnalyse.Count - 1 );
   close( f );
 end;
 
@@ -195,29 +194,15 @@ begin
   seachInfo := FindFirstFile( pchar(path + '*.pas'), fileData );
   if seachInfo = INVALID_HANDLE_VALUE then
     exit;
-  if numNonSysUnit >= nonSystemUnitArrayLength then
-  begin
-    nonSystemUnitArrayLength := nonSystemUnitArrayLength + 32;
-    SetLength( nonSystemUnit, nonSystemUnitArrayLength );
-    SetLength( nonSystemUnitFile, nonSystemUnitArrayLength );
-  end;
-  ScanUnitName( path + fileData.cFileName, numNonSysUnit );
-  inc( numNonSysUnit );
+  ScanUnitName( path + fileData.cFileName );
 
   while FindNextFile( seachInfo, fileData )  do
   begin
-    if numNonSysUnit >= nonSystemUnitArrayLength then
-    begin
-      nonSystemUnitArrayLength := nonSystemUnitArrayLength + 32;
-      SetLength( nonSystemUnit, nonSystemUnitArrayLength );
-      SetLength( nonSystemUnitFile, nonSystemUnitArrayLength );
-    end;
-    ScanUnitName( path + fileData.cFileName, numNonSysUnit );
-    inc( numNonSysUnit );
+    ScanUnitName( path + fileData.cFileName );
   end;
 end;
 
-procedure TDependenciesGrapher.ScanUnitName( filename : string; numUnit : integer );
+procedure TDependenciesGrapher.ScanUnitName( filename : string );
 var str : string;
     i : integer;
 begin
@@ -231,8 +216,8 @@ begin
   while str[i] <> ';' do
     dec(i);
   delete( str, i, length(str) - i + 1 );  // delete ';'
-  nonSystemUnit[numUnit] := str;
-  nonSystemUnitFile[numUnit] := filename;
+  nonSystemUnit.Add( str );
+  nonSystemUnitFile.Add( filename );
 
   Close( f );
 end;
@@ -243,23 +228,16 @@ var
     i, j: Integer;
 begin
 
-  SetLength( graph, numNonSysUnit, numNonSysUnit );
+  SetLength( graph, nonSystemUnit.Count, nonSystemUnit.Count );
 
   repeat
-  if unitAnalysedCount >= unitAnalysedArrayLength then
-  begin
-    unitAnalysedArrayLength := unitAnalysedArrayLength + 32;
-    SetLength( unitAnalysed, unitAnalysedArrayLength );
-  end;
+    unitAnalysed.Add( unitForAnalyse[unitForAnalyse.Count-1] );
+    unitForAnalyse.Delete( unitForAnalyse.Count-1 );
 
-    unitAnalysed[unitAnalysedCount] := unitForAnalyse[unitStackPos-1];
-    inc(unitAnalysedCount);
-    dec(unitStackPos);
+    nonSysUnId := GetUnitId( unitAnalysed[unitAnalysed.Count-1] );
 
-    nonSysUnId := GetUnitId(unitAnalysed[unitAnalysedCount-1]);
-
-    ScanForDep(nonSystemUnitFile[nonSysUnId], nonSysUnId );
-  until unitStackPos = 0;
+    ScanForDep( nonSystemUnitFile[nonSysUnId], nonSysUnId );
+  until unitForAnalyse.Count = 0;
 end;
 
 procedure TDependenciesGrapher.ScanForDep( path : string; id : integer );
@@ -316,13 +294,7 @@ begin
           graph[id][dep_id] := dep_type;
           if ( not IsUnitInAnalyseList( str ) ) and ( not IsUnitAnalysed( str ) ) then
           begin
-            if unitStackPos >= unitForAnalyseArrayLength then
-            begin
-              unitForAnalyseArrayLength := unitForAnalyseArrayLength + 32;
-              SetLength( unitForAnalyse, unitForAnalyseArrayLength );
-            end;
-              unitForAnalyse[unitStackPos] := str;
-              inc(unitStackPos);
+              unitForAnalyse.Add( str );
           end;
         end;
       end;
@@ -334,7 +306,7 @@ function TDependenciesGrapher.GetUnitId( name : string ) : integer;
 var res, i : integer;
 begin
   res := -1;
-  for i := 0 to numNonSysUnit-1 do
+  for i := 0 to nonSystemUnit.Count - 1 do
   begin
     if SameText( nonSystemUnit[i], name ) then
       res := i;
@@ -347,7 +319,7 @@ var i : integer;
     res : boolean;
 begin
   res := false;
-  for i := 0 to unitStackPos - 1 do
+  for i := 0 to unitForAnalyse.Count - 1 do
   begin
     if SameText( unitForAnalyse[i], name ) then
       res := true;
@@ -360,7 +332,7 @@ var i : integer;
     res : boolean;
 begin
   res := false;
-  for i := 0 to unitAnalysedCount - 1 do
+  for i := 0 to unitAnalysed.Count - 1 do
   begin
     if SameText( unitAnalysed[i], name ) then
       res := true;
@@ -376,15 +348,15 @@ begin
   rewrite( f );
 
   writeln( f, 'id;name' );
-  for i := 0 to numNonSysUnit - 1 do
+  for i := 0 to nonSystemUnit.Count - 1 do
     writeln( f, i, ';' ,nonSystemUnit[i] );
 
   writeln(f);
   writeln( f, 'id1;id2;type' );
-  for i := 0 to unitAnalysedCount - 1 do
+  for i := 0 to unitAnalysed.Count - 1 do
   begin
     id := GetUnitId( unitAnalysed[i] );
-    for j := 0 to numNonSysUnit - 1 do
+    for j := 0 to nonSystemUnit.Count - 1 do
     begin
       if graph[id][j] > 0 then
         writeln( f, id, ';', j, ';', graph[id][j] );
