@@ -11,7 +11,9 @@ uses
    KM_GUIMapEdTerrain,
    KM_GUIMapEdTown,
    KM_GUIMapEdAttack,
-   KM_GUIMapEdFormations;
+   KM_GUIMapEdFormations,
+   KM_GUIMapEdMarkerDefence,
+   KM_GUIMapEdMarkerReveal;
 
 type
   TKMPlayerTab = (ptGoals, ptColor, ptBlockHouse, ptBlockTrade, ptMarkers);
@@ -29,6 +31,8 @@ type
     fGuiTown: TKMMapEdTown;
     fGuiAttack: TKMMapEdAttack;
     fGuiFormations: TKMMapEdFormations;
+    fGuiMarkerDefence: TKMMapEdMarkerDefence;
+    fGuiMarkerReveal: TKMMapEdMarkerReveal;
 
     fMaps: TKMapsCollection;
     fMapsMP: TKMapsCollection;
@@ -42,7 +46,6 @@ type
     procedure Create_Extra;
     procedure Create_Message;
     procedure Create_Unit;
-    procedure Create_Marker;
     procedure Create_GoalPopUp;
 
     procedure Extra_Change(Sender: TObject);
@@ -56,7 +59,7 @@ type
     procedure Goals_ListDoubleClick(Sender: TObject);
     procedure Goals_Refresh;
     procedure Layers_UpdateVisibility;
-    procedure Marker_Change(Sender: TObject);
+    procedure Marker_Done(Sender: TObject);
     procedure Menu_SaveClick(Sender: TObject);
     procedure Menu_LoadClick(Sender: TObject);
     procedure Menu_QuitClick(Sender: TObject);
@@ -195,22 +198,6 @@ type
         Edit_ArmyOrderY: TKMNumericEdit;
         Edit_ArmyOrderDir: TKMNumericEdit;
 
-    Panel_Marker: TKMPanel;
-      Label_MarkerType: TKMLabel;
-      Image_MarkerPic: TKMImage;
-
-      Panel_MarkerReveal: TKMPanel;
-        TrackBar_RevealSize: TKMTrackBar;
-        Button_RevealDelete: TKMButton;
-        Button_RevealClose: TKMButton;
-      Panel_MarkerDefence: TKMPanel;
-        DropList_DefenceGroup: TKMDropList;
-        DropList_DefenceType: TKMDropList;
-        TrackBar_DefenceRad: TKMTrackBar;
-        Button_DefenceCW, Button_DefenceCCW: TKMButton;
-        Button_DefenceDelete: TKMButton;
-        Button_DefenceClose: TKMButton;
-
     //PopUp panels
     Panel_Goal: TKMPanel;
       Image_GoalFlag: TKMImage;
@@ -254,7 +241,7 @@ const
 
 implementation
 uses
-  KM_CommonClasses, KM_PlayersCollection, KM_ResTexts, KM_Game, KM_Main, KM_GameCursor,
+  KM_PlayersCollection, KM_ResTexts, KM_Game, KM_Main, KM_GameCursor,
   KM_GameApp, KM_Resource, KM_TerrainDeposits, KM_ResCursors, KM_Utils,
   KM_AIDefensePos, KM_ResHouses, KM_RenderUI, KM_Sound, KM_ResSound,
   KM_ResWares, KM_ResFonts;
@@ -351,11 +338,12 @@ begin
     Create_MenuLoad;
     Create_MenuQuit;
 
+
+  //Objects pages
   Create_Unit;
-
   fGuiHouse := TKMMapEdHouse.Create(Panel_Common);
-
-  Create_Marker;
+  fGuiMarkerDefence := TKMMapEdMarkerDefence.Create(Panel_Common, Marker_Done);
+  fGuiMarkerReveal := TKMMapEdMarkerReveal.Create(Panel_Common, Marker_Done);
 
   Image_Extra := TKMImage.Create(Panel_Main, TOOLBAR_WIDTH, Panel_Main.Height - 48, 30, 48, 494);
   Image_Extra.Anchors := [akLeft, akBottom];
@@ -389,6 +377,8 @@ begin
   fGuiTown.Free;
   fGuiAttack.Free;
   fGuiFormations.Free;
+  fGuiMarkerDefence.Free;
+  fGuiMarkerReveal.Free;
 
   fMaps.Free;
   fMapsMP.Free;
@@ -990,51 +980,6 @@ begin
 end;
 
 
-procedure TKMapEdInterface.Create_Marker;
-begin
-  Panel_Marker := TKMPanel.Create(Panel_Common, 0, 50, TB_WIDTH, 400);
-
-  Label_MarkerType := TKMLabel.Create(Panel_Marker, 32, 10, TB_WIDTH, 0, '', fnt_Outline, taLeft);
-  Image_MarkerPic := TKMImage.Create(Panel_Marker, 0, 10, 32, 32, 338);
-
-    Panel_MarkerReveal := TKMPanel.Create(Panel_Marker, 0, 46, TB_WIDTH, 400);
-      TrackBar_RevealSize := TKMTrackBar.Create(Panel_MarkerReveal, 0, 0, TB_WIDTH, 1, 64);
-      TrackBar_RevealSize.Caption := gResTexts[TX_MAPED_FOG_RADIUS];
-      TrackBar_RevealSize.OnChange := Marker_Change;
-      Button_RevealDelete := TKMButton.Create(Panel_MarkerReveal, 0, 55, 25, 25, 340, rxGui, bsGame);
-      Button_RevealDelete.Hint := gResTexts[TX_MAPED_DELETE_REVEALER_HINT];
-      Button_RevealDelete.OnClick := Marker_Change;
-      Button_RevealClose := TKMButton.Create(Panel_MarkerReveal, TB_WIDTH-100, 55, 100, 25, gResTexts[TX_MAPED_CLOSE], bsGame);
-      Button_RevealClose.Hint := gResTexts[TX_MAPED_CLOSE_REVEALER_HINT];
-      Button_RevealClose.OnClick := Marker_Change;
-
-    Panel_MarkerDefence := TKMPanel.Create(Panel_Marker, 0, 46, TB_WIDTH, 400);
-      DropList_DefenceGroup := TKMDropList.Create(Panel_MarkerDefence, 0, 10, TB_WIDTH, 20, fnt_Game, '', bsGame);
-      DropList_DefenceGroup.Add(gResTexts[TX_MAPED_AI_ATTACK_TYPE_MELEE]);
-      DropList_DefenceGroup.Add(gResTexts[TX_MAPED_AI_ATTACK_TYPE_ANTIHORSE]);
-      DropList_DefenceGroup.Add(gResTexts[TX_MAPED_AI_ATTACK_TYPE_RANGED]);
-      DropList_DefenceGroup.Add(gResTexts[TX_MAPED_AI_ATTACK_TYPE_MOUNTED]);
-      DropList_DefenceGroup.OnChange := Marker_Change;
-      DropList_DefenceType := TKMDropList.Create(Panel_MarkerDefence, 0, 40, TB_WIDTH, 20, fnt_Game, '', bsGame);
-      DropList_DefenceType.Add(gResTexts[TX_MAPED_AI_DEFENCE_FRONTLINE]);
-      DropList_DefenceType.Add(gResTexts[TX_MAPED_AI_DEFENCE_BACKLINE]);
-      DropList_DefenceType.OnChange := Marker_Change;
-      TrackBar_DefenceRad := TKMTrackBar.Create(Panel_MarkerDefence, 0, 70, TB_WIDTH, 1, 128);
-      TrackBar_DefenceRad.Caption := gResTexts[TX_MAPED_AI_DEFENCE_RADIUS];
-      TrackBar_DefenceRad.OnChange := Marker_Change;
-      Button_DefenceCCW  := TKMButton.Create(Panel_MarkerDefence, 0, 120, 50, 35, 23, rxGui, bsGame);
-      Button_DefenceCCW.OnClick := Marker_Change;
-      Button_DefenceCW := TKMButton.Create(Panel_MarkerDefence, 130, 120, 50, 35, 24, rxGui, bsGame);
-      Button_DefenceCW.OnClick := Marker_Change;
-      Button_DefenceDelete := TKMButton.Create(Panel_MarkerDefence, 0, 165, 25, 25, 340, rxGui, bsGame);
-      Button_DefenceDelete.Hint := gResTexts[TX_MAPED_AI_DEFENCE_DELETE_HINT];
-      Button_DefenceDelete.OnClick := Marker_Change;
-      Button_DefenceClose := TKMButton.Create(Panel_MarkerDefence, TB_WIDTH-100, 165, 100, 25, gResTexts[TX_MAPED_CLOSE], bsGame);
-      Button_DefenceClose.Hint := gResTexts[TX_MAPED_AI_DEFENCE_CLOSE_HINT];
-      Button_DefenceClose.OnClick := Marker_Change;
-end;
-
-
 //Should update any items changed by game (resource counts, hp, etc..)
 procedure TKMapEdInterface.UpdateState(aTickCount: Cardinal);
 const
@@ -1163,9 +1108,11 @@ procedure TKMapEdInterface.Player_ChangeActive(Sender: TObject);
 begin
   //If we had selected House or Unit - discard them
   fGuiHouse.Hide;
+  fGuiMarkerDefence.Hide;
+  fGuiMarkerReveal.Hide;
 
   //If we had selected House or Unit - discard them
-  if Panel_Unit.Visible or Panel_Marker.Visible then
+  if Panel_Unit.Visible then
     fActivePage := nil;
 
   if MySpectator.Selected <> nil then
@@ -1349,10 +1296,10 @@ begin
 
   fGame.MapEditor.VisibleLayers := [];
 
-  if Panel_Markers.Visible or Panel_MarkerReveal.Visible then
+  if Panel_Markers.Visible or fGuiMarkerReveal.Visible then
     fGame.MapEditor.VisibleLayers := fGame.MapEditor.VisibleLayers + [mlRevealFOW, mlCenterScreen];
 
-  if fGuiTown.Visible(ttDefences) or Panel_MarkerDefence.Visible then
+  if fGuiTown.Visible(ttDefences) or fGuiMarkerDefence.Visible then
     fGame.MapEditor.VisibleLayers := fGame.MapEditor.VisibleLayers + [mlDefences];
 
   if CheckBox_ShowObjects.Checked or fGuiTerrain.Visible(ttObject) then
@@ -1424,7 +1371,7 @@ end;
 
 procedure TKMapEdInterface.ShowMarkerInfo(aMarker: TKMMapEdMarker);
 begin
-  fGame.MapEditor.ActiveMarker := aMarker;
+  //fGame.MapEditor.ActiveMarker := aMarker;
 
   if (aMarker.MarkerType = mtNone) or (aMarker.Owner = PLAYER_NONE) or (aMarker.Index = -1) then
   begin
@@ -1433,22 +1380,15 @@ begin
   end;
 
   SetActivePlayer(aMarker.Owner);
-  Image_MarkerPic.FlagColor := gPlayers[aMarker.Owner].FlagColor;
 
   case aMarker.MarkerType of
     mtDefence:    begin
-                    Label_MarkerType.Caption := gResTexts[TX_MAPED_AI_DEFENCE_POSITION];
-                    Image_MarkerPic.TexID := 338;
-                    DropList_DefenceGroup.ItemIndex := Byte(gPlayers[aMarker.Owner].AI.General.DefencePositions[aMarker.Index].GroupType);
-                    DropList_DefenceType.ItemIndex := Byte(gPlayers[aMarker.Owner].AI.General.DefencePositions[aMarker.Index].DefenceType);
-                    TrackBar_DefenceRad.Position := gPlayers[aMarker.Owner].AI.General.DefencePositions[aMarker.Index].Radius;
-                    DisplayPage(Panel_MarkerDefence);
+                    HidePages;
+                    fGuiMarkerDefence.Show(aMarker.Owner, aMarker.Index);
                   end;
     mtRevealFOW:  begin
-                    Label_MarkerType.Caption := gResTexts[TX_MAPED_FOG];
-                    Image_MarkerPic.TexID := 393;
-                    TrackBar_RevealSize.Position := fGame.MapEditor.Revealers[aMarker.Owner].Tag[aMarker.Index];
-                    DisplayPage(Panel_MarkerReveal);
+                    HidePages;
+                    fGuiMarkerReveal.Show(aMarker.Owner, aMarker.Index);
                   end;
   end;
 end;
@@ -1491,55 +1431,11 @@ begin
 end;
 
 
-procedure TKMapEdInterface.Marker_Change(Sender: TObject);
-var
-  Marker: TKMMapEdMarker;
-  DP: TAIDefencePosition;
-  Rev: TKMPointTagList;
+procedure TKMapEdInterface.Marker_Done(Sender: TObject);
 begin
-  Marker := fGame.MapEditor.ActiveMarker;
-
-  case Marker.MarkerType of
-    mtDefence:    begin
-                    DP := gPlayers[Marker.Owner].AI.General.DefencePositions[Marker.Index];
-                    DP.Radius := TrackBar_DefenceRad.Position;
-                    DP.DefenceType := TAIDefencePosType(DropList_DefenceType.ItemIndex);
-                    DP.GroupType := TGroupType(DropList_DefenceGroup.ItemIndex);
-
-                    if Sender = Button_DefenceCW then
-                      DP.Position := KMPointDir(DP.Position.Loc, KMNextDirection(DP.Position.Dir));
-                    if Sender = Button_DefenceCCW then
-                      DP.Position := KMPointDir(DP.Position.Loc, KMPrevDirection(DP.Position.Dir));
-
-                    if Sender = Button_DefenceDelete then
-                    begin
-                      gPlayers[Marker.Owner].AI.General.DefencePositions.Delete(Marker.Index);
-                      HidePages;
-                      fGuiTown.Show(ttDefences);
-                    end;
-
-                    if Sender = Button_DefenceClose then
-                    begin
-                      HidePages;
-                      fGuiTown.Show(ttDefences);
-                    end;
-                  end;
-    mtRevealFOW:  begin
-                    //Shortcut to structure we update
-                    Rev := fGame.MapEditor.Revealers[Marker.Owner];
-
-                    if Sender = TrackBar_RevealSize then
-                      Rev.Tag[Marker.Index] := TrackBar_RevealSize.Position;
-
-                    if Sender = Button_RevealDelete then
-                    begin
-                      Rev.Delete(Marker.Index);
-                      SwitchPage(Button_Player[ptMarkers]);
-                    end;
-
-                    if Sender = Button_RevealClose then
-                      SwitchPage(Button_Player[ptMarkers]);
-                  end;
+  if Sender = fGuiMarkerReveal then
+  begin
+    SwitchPage(Button_Player[ptMarkers]);
   end;
 end;
 
@@ -2210,17 +2106,14 @@ begin
                 if MySpectator.Selected is TKMUnitGroup then
                   TKMUnitGroup(MySpectator.Selected).Position := GameCursor.Cell;
 
-                if Panel_Marker.Visible then
+                if fGuiMarkerDefence.Visible then
                 begin
-                  Marker := fGame.MapEditor.ActiveMarker;
-                  case Marker.MarkerType of
-                    mtDefence:   begin
-                                   DP := gPlayers[Marker.Owner].AI.General.DefencePositions[Marker.Index];
-                                   DP.Position := KMPointDir(GameCursor.Cell, DP.Position.Dir);
-                                 end;
-                    mtRevealFOW: fGame.MapEditor.Revealers[Marker.Owner][Marker.Index] := GameCursor.Cell;
-                  end;
+                  DP := gPlayers[fGuiMarkerDefence.Owner].AI.General.DefencePositions[fGuiMarkerDefence.Index];
+                  DP.Position := KMPointDir(GameCursor.Cell, DP.Position.Dir);
                 end;
+
+                if fGuiMarkerReveal.Visible then
+                  fGame.MapEditor.Revealers[fGuiMarkerReveal.Owner][fGuiMarkerReveal.Index] := GameCursor.Cell;
               end;
   end;
 

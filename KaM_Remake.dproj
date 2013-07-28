@@ -146,6 +146,8 @@
 			<DCCReference Include="KM_GUIMapEdAttack.pas"/>
 			<DCCReference Include="KM_GUIMapEdFormations.pas"/>
 			<DCCReference Include="KM_GUIMapEdHouse.pas"/>
+			<DCCReference Include="KM_GUIMapEdMarkerDefence.pas"/>
+			<DCCReference Include="KM_GUIMapEdMarkerReveal.pas"/>
 			<DCCReference Include="KM_GUIMapEdTerrain.pas"/>
 			<DCCReference Include="KM_GUIMapEdTerrainBrushes.pas"/>
 			<DCCReference Include="KM_GUIMapEdTerrainHeights.pas"/>

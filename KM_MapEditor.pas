@@ -26,7 +26,7 @@ type
 
     function GetRevealer(aIndex: Byte): TKMPointTagList;
   public
-    ActiveMarker: TKMMapEdMarker;
+    //ActiveMarker: TKMMapEdMarker;
 
     RevealAll: array [0..MAX_PLAYERS-1] of Boolean;
     DefaultHuman: TPlayerIndex;
@@ -290,14 +290,14 @@ begin
         fRenderPool.RenderSpriteOnTile(DP.Position.Loc, 510 + Byte(DP.Position.Dir), gPlayers[I].FlagColor);
       end;
 
-    if ActiveMarker.MarkerType = mtDefence then
+    {if ActiveMarker.MarkerType = mtDefence then
     if InRange(ActiveMarker.Index, 0, gPlayers[ActiveMarker.Owner].AI.General.DefencePositions.Count - 1) then
     begin
       DP := gPlayers[ActiveMarker.Owner].AI.General.DefencePositions[ActiveMarker.Index];
       fRenderAux.CircleOnTerrain(DP.Position.Loc.X, DP.Position.Loc.Y, DP.Radius,
                                  gPlayers[ActiveMarker.Owner].FlagColor AND $20FFFF80,
                                  gPlayers[ActiveMarker.Owner].FlagColor);
-    end;
+    end;}
   end;
 
   if mlRevealFOW in fVisibleLayers then

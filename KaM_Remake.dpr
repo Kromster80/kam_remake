@@ -51,6 +51,8 @@ uses
   KM_GUIMapEdAttack in 'KM_GUIMapEdAttack.pas',
   KM_GUIMapEdFormations in 'KM_GUIMapEdFormations.pas',
   KM_GUIMapEdHouse in 'KM_GUIMapEdHouse.pas',
+  KM_GUIMapEdMarkerDefence in 'KM_GUIMapEdMarkerDefence.pas',
+  KM_GUIMapEdMarkerReveal in 'KM_GUIMapEdMarkerReveal.pas',
   KM_GUIMapEdTerrain in 'KM_GUIMapEdTerrain.pas',
   KM_GUIMapEdTerrainBrushes in 'KM_GUIMapEdTerrainBrushes.pas',
   KM_GUIMapEdTerrainHeights in 'KM_GUIMapEdTerrainHeights.pas',
