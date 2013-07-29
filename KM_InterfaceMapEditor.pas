@@ -8,6 +8,7 @@ uses
    KM_Controls, KM_Defaults, KM_Pics, KM_Houses, KM_Units, KM_UnitGroups, KM_MapEditor,
    KM_Points, KM_InterfaceDefaults, KM_AIGoals, KM_Terrain,
    KM_GUIMapEdHouse,
+   KM_GUIMapEdGoal,
    KM_GUIMapEdTerrain,
    KM_GUIMapEdTown,
    KM_GUIMapEdAttack,
@@ -33,6 +34,7 @@ type
     fGuiTerrain: TKMMapEdTerrain;
     fGuiTown: TKMMapEdTown;
     fGuiAttack: TKMMapEdAttack;
+    fGuiGoal: TKMMapEdGoal;
     fGuiFormations: TKMMapEdFormations;
     fGuiMarkerDefence: TKMMapEdMarkerDefence;
     fGuiMarkerReveal: TKMMapEdMarkerReveal;
@@ -42,17 +44,14 @@ type
     procedure Create_Mission;
     procedure Create_Extra;
     procedure Create_Message;
-    procedure Create_GoalPopUp;
 
     procedure Extra_Change(Sender: TObject);
-    procedure Goal_Change(Sender: TObject);
-    procedure Goal_Close(Sender: TObject);
-    procedure Goal_Refresh(aGoal: TKMGoal);
     procedure Goals_Add(Sender: TObject);
     procedure Goals_Del(Sender: TObject);
     procedure Goals_Edit(aIndex: Integer);
     procedure Goals_ListClick(Sender: TObject);
     procedure Goals_ListDoubleClick(Sender: TObject);
+    procedure Goals_OnDone(Sender: TObject);
     procedure Goals_Refresh;
     procedure Layers_UpdateVisibility;
     procedure Marker_Done(Sender: TObject);
@@ -145,17 +144,6 @@ type
     Panel_Message: TKMPanel;
       Label_Message: TKMLabel;
       Image_MessageClose: TKMImage;
-
-    //PopUp panels
-    Panel_Goal: TKMPanel;
-      Image_GoalFlag: TKMImage;
-      Radio_GoalType: TKMRadioGroup;
-      Radio_GoalCondition: TKMRadioGroup;
-      NumEdit_GoalTime: TKMNumericEdit;
-      NumEdit_GoalMessage: TKMNumericEdit;
-      NumEdit_GoalPlayer: TKMNumericEdit;
-      Button_GoalOk: TKMButton;
-      Button_GoalCancel: TKMButton;
   public
     constructor Create(aScreenX, aScreenY: word);
     destructor Destroy; override;
@@ -299,7 +287,7 @@ begin
   //Pages that need to be on top of everything
   fGuiAttack := TKMMapEdAttack.Create(Panel_Main);
   fGuiFormations := TKMMapEdFormations.Create(Panel_Main);
-  Create_GoalPopUp;
+  fGuiGoal := TKMMapEdGoal.Create(Panel_Main);
 
   fGuiTown.fGuiDefence.FormationsPopUp := fGuiFormations;
   fGuiTown.fGuiOffence.AttackPopUp := fGuiAttack;
@@ -317,6 +305,7 @@ begin
   fGuiTown.Free;
   fGuiAttack.Free;
   fGuiFormations.Free;
+  fGuiGoal.Free;
   fGuiMarkerDefence.Free;
   fGuiMarkerReveal.Free;
   fGuiMenu.Free;
@@ -706,65 +695,6 @@ begin
 end;
 
 
-procedure TKMapEdInterface.Create_GoalPopUp;
-const
-  SIZE_X = 600;
-  SIZE_Y = 300;
-var
-  Img: TKMImage;
-begin
-  Panel_Goal := TKMPanel.Create(Panel_Main, 362, 250, SIZE_X, SIZE_Y);
-  Panel_Goal.Anchors := [];
-  Panel_Goal.Hide;
-
-    TKMBevel.Create(Panel_Goal, -1000,  -1000, 4000, 4000);
-    Img := TKMImage.Create(Panel_Goal, -20, -50, SIZE_X+40, SIZE_Y+60, 15, rxGuiMain);
-    Img.ImageStretch;
-    TKMBevel.Create(Panel_Goal,   0,  0, SIZE_X, SIZE_Y);
-    TKMLabel.Create(Panel_Goal, SIZE_X div 2, 10, gResTexts[TX_MAPED_GOALS_TITLE], fnt_Outline, taCenter);
-
-    Image_GoalFlag := TKMImage.Create(Panel_Goal, 10, 10, 0, 0, 30, rxGuiMain);
-
-    TKMLabel.Create(Panel_Goal, 20, 40, 100, 0, gResTexts[TX_MAPED_GOALS_TYPE], fnt_Metal, taLeft);
-    Radio_GoalType := TKMRadioGroup.Create(Panel_Goal, 20, 60, 100, 60, fnt_Metal);
-    Radio_GoalType.Add(gResTexts[TX_MAPED_GOALS_TYPE_NONE]);
-    Radio_GoalType.Add(gResTexts[TX_MAPED_GOALS_TYPE_VICTORY]);
-    Radio_GoalType.Add(gResTexts[TX_MAPED_GOALS_TYPE_SURVIVE]);
-    Radio_GoalType.OnChange := Goal_Change;
-
-    TKMLabel.Create(Panel_Goal, 140, 40, 180, 0, gResTexts[TX_MAPED_GOALS_CONDITION], fnt_Metal, taLeft);
-    Radio_GoalCondition := TKMRadioGroup.Create(Panel_Goal, 140, 60, 180, 180, fnt_Metal);
-    Radio_GoalCondition.Add(gResTexts[TX_MAPED_GOALS_CONDITION_NONE], False);
-    Radio_GoalCondition.Add(gResTexts[TX_MAPED_GOALS_CONDITION_TUTORIAL], False);
-    Radio_GoalCondition.Add(gResTexts[TX_MAPED_GOALS_CONDITION_TIME], False);
-    Radio_GoalCondition.Add(gResTexts[TX_MAPED_GOALS_CONDITION_BUILDS]);
-    Radio_GoalCondition.Add(gResTexts[TX_MAPED_GOALS_CONDITION_TROOPS]);
-    Radio_GoalCondition.Add(gResTexts[TX_MAPED_GOALS_CONDITION_UNKNOWN], False);
-    Radio_GoalCondition.Add(gResTexts[TX_MAPED_GOALS_CONDITION_ASSETS]);
-    Radio_GoalCondition.Add(gResTexts[TX_MAPED_GOALS_CONDITION_SERFS]);
-    Radio_GoalCondition.Add(gResTexts[TX_MAPED_GOALS_CONDITION_ECONOMY]);
-    Radio_GoalCondition.OnChange := Goal_Change;
-
-    TKMLabel.Create(Panel_Goal, 330, 40, gResTexts[TX_MAPED_GOALS_PLAYER], fnt_Metal, taLeft);
-    NumEdit_GoalPlayer := TKMNumericEdit.Create(Panel_Goal, 330, 60, 1, MAX_PLAYERS);
-    NumEdit_GoalPlayer.OnChange := Goal_Change;
-
-    TKMLabel.Create(Panel_Goal, 480, 40, gResTexts[TX_MAPED_GOALS_TIME], fnt_Metal, taLeft);
-    NumEdit_GoalTime := TKMNumericEdit.Create(Panel_Goal, 480, 60, 0, 32767);
-    NumEdit_GoalTime.OnChange := Goal_Change;
-    NumEdit_GoalTime.SharedHint := 'This setting is deprecated, use scripts instead';
-
-    TKMLabel.Create(Panel_Goal, 480, 90, gResTexts[TX_MAPED_GOALS_MESSAGE], fnt_Metal, taLeft);
-    NumEdit_GoalMessage := TKMNumericEdit.Create(Panel_Goal, 480, 110, 0, 0);
-    NumEdit_GoalMessage.SharedHint := 'This setting is deprecated, use scripts instead';
-
-    Button_GoalOk := TKMButton.Create(Panel_Goal, SIZE_X-20-320-10, SIZE_Y - 50, 160, 30, gResTexts[TX_MAPED_OK], bsMenu);
-    Button_GoalOk.OnClick := Goal_Close;
-    Button_GoalCancel := TKMButton.Create(Panel_Goal, SIZE_X-20-160, SIZE_Y - 50, 160, 30, gResTexts[TX_MAPED_CANCEL], bsMenu);
-    Button_GoalCancel.OnClick := Goal_Close;
-end;
-
-
 //Should update any items changed by game (resource counts, hp, etc..)
 procedure TKMapEdInterface.UpdateState(aTickCount: Cardinal);
 const
@@ -919,60 +849,6 @@ begin
 end;
 
 
-procedure TKMapEdInterface.Goal_Change(Sender: TObject);
-begin
-  //Settings get saved on close, now we just toggle fields
-  //because certain combinations can't coexist
-
-  NumEdit_GoalTime.Enabled := TGoalCondition(Radio_GoalCondition.ItemIndex) = gc_Time;
-  NumEdit_GoalPlayer.Enabled := TGoalCondition(Radio_GoalCondition.ItemIndex) <> gc_Time;
-end;
-
-
-procedure TKMapEdInterface.Goal_Close(Sender: TObject);
-var
-  I: Integer;
-  G: TKMGoal;
-begin
-  if Sender = Button_GoalOk then
-  begin
-    //Goal we are editing
-    I := ColumnBox_Goals.ItemIndex;
-
-    //Copy Goal info from controls to Goals
-    G.GoalType := TGoalType(Radio_GoalType.ItemIndex);
-    G.GoalCondition := TGoalCondition(Radio_GoalCondition.ItemIndex);
-    if G.GoalType = glt_Survive then
-      G.GoalStatus := gs_True
-    else
-      G.GoalStatus := gs_False;
-    G.GoalTime := NumEdit_GoalTime.Value * 10;
-    G.MessageToShow := NumEdit_GoalMessage.Value;
-    G.PlayerIndex := NumEdit_GoalPlayer.Value - 1;
-
-    gPlayers[MySpectator.PlayerIndex].AI.Goals[I] := G;
-  end;
-
-  Panel_Goal.Hide;
-  Goals_Refresh;
-end;
-
-
-procedure TKMapEdInterface.Goal_Refresh(aGoal: TKMGoal);
-begin
-  Image_GoalFlag.FlagColor := gPlayers[MySpectator.PlayerIndex].FlagColor;
-
-  Radio_GoalType.ItemIndex := Byte(aGoal.GoalType);
-  Radio_GoalCondition.ItemIndex := Byte(aGoal.GoalCondition);
-  NumEdit_GoalTime.Value := aGoal.GoalTime div 10;
-  NumEdit_GoalMessage.Value := aGoal.MessageToShow;
-  NumEdit_GoalPlayer.Value := aGoal.PlayerIndex + 1;
-
-  //Certain values disable certain controls
-  Goal_Change(nil);
-end;
-
-
 //Add a dummy goal and let mapmaker edit it
 procedure TKMapEdInterface.Goals_Add(Sender: TObject);
 var
@@ -1002,8 +878,9 @@ end;
 procedure TKMapEdInterface.Goals_Edit(aIndex: Integer);
 begin
   Assert(InRange(aIndex, 0, gPlayers[MySpectator.PlayerIndex].AI.Goals.Count - 1));
-  Goal_Refresh(gPlayers[MySpectator.PlayerIndex].AI.Goals[aIndex]);
-  Panel_Goal.Show;
+
+  fGuiGoal.Show(MySpectator.PlayerIndex, aIndex);
+  fGuiGoal.fOnDone := Goals_OnDone;
 end;
 
 
@@ -1025,6 +902,12 @@ begin
   //Check if user double-clicked on an existing item (not on an empty space)
   if InRange(I, 0, gPlayers[MySpectator.PlayerIndex].AI.Goals.Count - 1) then
     Goals_Edit(I);
+end;
+
+
+procedure TKMapEdInterface.Goals_OnDone(Sender: TObject);
+begin
+  Goals_Refresh;
 end;
 
 

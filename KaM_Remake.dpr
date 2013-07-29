@@ -50,6 +50,7 @@ uses
   KM_GameInputProcess_Single in 'KM_GameInputProcess_Single.pas',
   KM_GUIMapEdAttack in 'KM_GUIMapEdAttack.pas',
   KM_GUIMapEdFormations in 'KM_GUIMapEdFormations.pas',
+  KM_GUIMapEdGoal in 'KM_GUIMapEdGoal.pas',
   KM_GUIMapEdHouse in 'KM_GUIMapEdHouse.pas',
   KM_GUIMapEdMarkerDefence in 'KM_GUIMapEdMarkerDefence.pas',
   KM_GUIMapEdMarkerReveal in 'KM_GUIMapEdMarkerReveal.pas',

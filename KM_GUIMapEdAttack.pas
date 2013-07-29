@@ -2,7 +2,7 @@ unit KM_GUIMapEdAttack;
 {$I KaM_Remake.inc}
 interface
 uses
-   Classes, Controls, Math, StrUtils, SysUtils,
+   Classes,
    KM_Controls, KM_Defaults, KM_Pics,
    KM_Points, KM_AIAttacks;
 
@@ -44,10 +44,6 @@ const
   GROUP_TEXT: array [TGroupType] of Integer = (
     TX_MAPED_AI_ATTACK_TYPE_MELEE, TX_MAPED_AI_ATTACK_TYPE_ANTIHORSE,
     TX_MAPED_AI_ATTACK_TYPE_RANGED, TX_MAPED_AI_ATTACK_TYPE_MOUNTED);
-
-  GROUP_IMG: array [TGroupType] of Word = (
-    371, 374,
-    376, 377);
 
 
 { TKMMapEdAttack }
@@ -159,7 +155,6 @@ begin
   end;
 
   Panel_Attack.Hide;
-
   fOnDone(Self);
 end;
 
