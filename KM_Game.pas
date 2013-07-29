@@ -608,7 +608,7 @@ end;
 
 //Everyone is ready to start playing
 //Issued by fNetworking at the time depending on each Players lag individually
-procedure TKMGame.GameMPPlay(Sender:TObject);
+procedure TKMGame.GameMPPlay(Sender: TObject);
 begin
   GameWaitingForNetwork(false); //Finished waiting for players
   fNetworking.AnnounceGameInfo(MissionTime, GameName);
@@ -616,7 +616,7 @@ begin
 end;
 
 
-procedure TKMGame.GameMPReadyToPlay(Sender:TObject);
+procedure TKMGame.GameMPReadyToPlay(Sender: TObject);
 begin
   //Update the list of players that are ready to play
   GameWaitingForNetwork(true);

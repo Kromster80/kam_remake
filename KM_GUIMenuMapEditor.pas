@@ -144,14 +144,13 @@ begin
     else
       Maps := fMapsMP;
 
+    //Terminate both
+    fMaps.TerminateScan;
+    fMapsMP.TerminateScan;
+
     Maps.Lock;
       fGameApp.NewMapEditor(Maps[ID].FullPath('.dat'), 0, 0);
     Maps.Unlock;
-
-    //Keep MP/SP selected in the map editor interface
-    //(if mission failed to load we would have fGame = nil)
-    if (fGame <> nil) and (fGame.MapEditorInterface <> nil) then
-      fGame.MapEditorInterface.SetLoadMode(Radio_MapEd_MapType.ItemIndex = 1);
   end;
 end;
 

@@ -5,7 +5,7 @@ uses
    {$IFDEF MSWindows} Windows, {$ENDIF}
    {$IFDEF Unix} LCLIntf, LCLType, {$ENDIF}
    Classes, Controls, KromUtils, Math, StrUtils, SysUtils, KromOGLUtils, TypInfo,
-   KM_Controls, KM_Defaults, KM_Pics, KM_Maps, KM_Houses, KM_Units, KM_UnitGroups, KM_MapEditor,
+   KM_Controls, KM_Defaults, KM_Pics, KM_Houses, KM_Units, KM_UnitGroups, KM_MapEditor,
    KM_Points, KM_InterfaceDefaults, KM_AIGoals, KM_Terrain,
    KM_GUIMapEdHouse,
    KM_GUIMapEdTerrain,
@@ -13,7 +13,8 @@ uses
    KM_GUIMapEdAttack,
    KM_GUIMapEdFormations,
    KM_GUIMapEdMarkerDefence,
-   KM_GUIMapEdMarkerReveal;
+   KM_GUIMapEdMarkerReveal,
+   KM_GUIMapEdMenu;
 
 type
   TKMPlayerTab = (ptGoals, ptColor, ptBlockHouse, ptBlockTrade, ptMarkers);
@@ -33,16 +34,10 @@ type
     fGuiFormations: TKMMapEdFormations;
     fGuiMarkerDefence: TKMMapEdMarkerDefence;
     fGuiMarkerReveal: TKMMapEdMarkerReveal;
-
-    fMaps: TKMapsCollection;
-    fMapsMP: TKMapsCollection;
+    fGuiMenu: TKMMapEdMenu;
 
     procedure Create_Player;
     procedure Create_Mission;
-    procedure Create_Menu;
-    procedure Create_MenuSave;
-    procedure Create_MenuLoad;
-    procedure Create_MenuQuit;
     procedure Create_Extra;
     procedure Create_Message;
     procedure Create_Unit;
@@ -60,12 +55,6 @@ type
     procedure Goals_Refresh;
     procedure Layers_UpdateVisibility;
     procedure Marker_Done(Sender: TObject);
-    procedure Menu_SaveClick(Sender: TObject);
-    procedure Menu_LoadClick(Sender: TObject);
-    procedure Menu_QuitClick(Sender: TObject);
-    procedure Menu_LoadChange(Sender: TObject);
-    procedure Menu_LoadUpdate;
-    procedure Menu_LoadUpdateDone(Sender: TObject);
     procedure Minimap_Update(Sender: TObject; const X,Y: Integer);
     procedure Mission_AlliancesChange(Sender: TObject);
     procedure Mission_ModeChange(Sender: TObject);
@@ -146,26 +135,6 @@ type
       Panel_PlayerTypes: TKMPanel;
         CheckBox_PlayerTypes: array [0..MAX_PLAYERS-1, 0..2] of TKMCheckBox;
 
-    Panel_Menu: TKMPanel;
-      Button_Menu_Save,Button_Menu_Load,Button_Menu_Settings,Button_Menu_Quit: TKMButton;
-
-      Panel_Save:TKMPanel;
-        Radio_Save_MapType:TKMRadioGroup;
-        Edit_SaveName:TKMEdit;
-        Label_SaveExists:TKMLabel;
-        CheckBox_SaveExists:TKMCheckBox;
-        Button_SaveSave:TKMButton;
-        Button_SaveCancel:TKMButton;
-
-      Panel_Load:TKMPanel;
-        Radio_Load_MapType:TKMRadioGroup;
-        ListBox_Load:TKMListBox;
-        Button_LoadLoad:TKMButton;
-        Button_LoadCancel:TKMButton;
-
-      Panel_Quit:TKMPanel;
-        Button_Quit_Yes,Button_Quit_No:TKMButton;
-
     Panel_Extra: TKMPanel;
       Image_ExtraClose: TKMImage;
       TrackBar_Passability:TKMTrackBar;
@@ -212,7 +181,6 @@ type
     constructor Create(aScreenX, aScreenY: word);
     destructor Destroy; override;
 
-    procedure SetLoadMode(aMultiplayer:boolean);
     procedure ShowMessage(aText: string);
 
     procedure KeyDown(Key:Word; Shift: TShiftState); override;
@@ -268,10 +236,6 @@ begin
   fDragScrollingCursorPos.Y := 0;
   fDragScrollingViewportPos.X := 0;
   fDragScrollingViewportPos.Y := 0;
-  fMaps := TKMapsCollection.Create(False);
-  fMapsMP := TKMapsCollection.Create(True);
-
-  //CompactMapElements;
 
   //Parent Page for whole toolbar in-game
   Panel_Main := TKMPanel.Create(fMyControls, 0, 0, aScreenX, aScreenY);
@@ -333,11 +297,7 @@ begin
   Create_Player;
   Create_Mission;
 
-  Create_Menu;
-    Create_MenuSave;
-    Create_MenuLoad;
-    Create_MenuQuit;
-
+  fGuiMenu := TKMMapEdMenu.Create(Panel_Common);
 
   //Objects pages
   Create_Unit;
@@ -379,9 +339,8 @@ begin
   fGuiFormations.Free;
   fGuiMarkerDefence.Free;
   fGuiMarkerReveal.Free;
+  fGuiMenu.Free;
 
-  fMaps.Free;
-  fMapsMP.Free;
   SHOW_TERRAIN_WIRES := false; //Don't show it in-game if they left it on in MapEd
   SHOW_TERRAIN_PASS := 0; //Don't show it in-game if they left it on in MapEd
   inherited;
@@ -400,14 +359,13 @@ begin
      ((Sender = Button_Main[2]) and fGuiTown.Visible) or
      ((Sender = Button_Main[3]) and Panel_Player.Visible) or
      ((Sender = Button_Main[4]) and Panel_Mission.Visible) or
-     ((Sender = Button_Main[5]) and Panel_Menu.Visible) then
+     ((Sender = Button_Main[5]) and fGuiMenu.Visible) then
     Sender := nil;
 
   //Reset shown item if user clicked on any of the main buttons
   if (Sender=Button_Main[1])or(Sender=Button_Main[2])or
      (Sender=Button_Main[3])or(Sender=Button_Main[4])or
-     (Sender=Button_Main[5])or
-     (Sender=Button_Menu_Settings)or(Sender=Button_Menu_Quit) then
+     (Sender=Button_Main[5]) then
     MySpectator.Selected := nil;
 
   if (Sender = Button_Main[1]) then
@@ -450,23 +408,8 @@ begin
     DisplayPage(Panel_PlayerTypes)
   else
 
-  if (Sender = Button_Main[5]) or
-     (Sender = Button_Quit_No) or
-     (Sender = Button_LoadCancel) or
-     (Sender = Button_SaveCancel) then
-    DisplayPage(Panel_Menu)
-  else
-  if Sender = Button_Menu_Quit then
-    DisplayPage(Panel_Quit)
-  else
-  if Sender = Button_Menu_Save then
-    DisplayPage(Panel_Save)
-  else
-  if Sender = Button_Menu_Load then
-  begin
-    Menu_LoadUpdate;
-    DisplayPage(Panel_Load)
-  end;
+  if (Sender = Button_Main[5]) then
+    fGuiMenu.Show;
 end;
 
 
@@ -514,16 +457,6 @@ begin
   if aPage = Panel_PlayerTypes then
     Mission_PlayerTypesUpdate
   else
-
-  if aPage = Panel_Menu then
-  else
-  if aPage = Panel_Save then
-  begin
-    Edit_SaveName.Text := fGame.GameName;
-    Menu_SaveClick(Edit_SaveName);
-  end else
-  if aPage = Panel_Load then
-    Panel_Load.Show;
 
   //Display the panel (and its parents)
   fActivePage := aPage;
@@ -723,84 +656,6 @@ begin
 end;
 
 
-{Menu page}
-procedure TKMapEdInterface.Create_Menu;
-begin
-  Panel_Menu := TKMPanel.Create(Panel_Common, 0, 45, TB_WIDTH, 400);
-    Button_Menu_Load := TKMButton.Create(Panel_Menu, 0, 20, TB_WIDTH, 30, gResTexts[TX_MAPED_LOAD_TITLE], bsGame);
-    Button_Menu_Load.OnClick := SwitchPage;
-    Button_Menu_Load.Hint := gResTexts[TX_MAPED_LOAD_TITLE];
-    Button_Menu_Save := TKMButton.Create(Panel_Menu, 0, 60, TB_WIDTH, 30, gResTexts[TX_MAPED_SAVE_TITLE], bsGame);
-    Button_Menu_Save.OnClick := SwitchPage;
-    Button_Menu_Save.Hint := gResTexts[TX_MAPED_SAVE_TITLE];
-    Button_Menu_Settings := TKMButton.Create(Panel_Menu, 0, 100, TB_WIDTH, 30, gResTexts[TX_MENU_SETTINGS], bsGame);
-    Button_Menu_Settings.Hint := gResTexts[TX_MENU_SETTINGS];
-    Button_Menu_Settings.Disable;
-    Button_Menu_Quit := TKMButton.Create(Panel_Menu, 0, 180, TB_WIDTH, 30, gResTexts[TX_MENU_QUIT_MAPED], bsGame);
-    Button_Menu_Quit.Hint := gResTexts[TX_MENU_QUIT_MAPED];
-    Button_Menu_Quit.OnClick := SwitchPage;
-end;
-
-
-{Save page}
-procedure TKMapEdInterface.Create_MenuSave;
-begin
-  Panel_Save := TKMPanel.Create(Panel_Common,0,45,TB_WIDTH,400);
-    TKMBevel.Create(Panel_Save, 0, 30, TB_WIDTH, 37);
-    Radio_Save_MapType  := TKMRadioGroup.Create(Panel_Save,4,32,TB_WIDTH,35,fnt_Grey);
-    Radio_Save_MapType.ItemIndex := 0;
-    Radio_Save_MapType.Add(gResTexts[TX_MENU_MAPED_SPMAPS]);
-    Radio_Save_MapType.Add(gResTexts[TX_MENU_MAPED_MPMAPS]);
-    Radio_Save_MapType.OnChange := Menu_SaveClick;
-    TKMLabel.Create(Panel_Save,0,90,TB_WIDTH,20,gResTexts[TX_MAPED_SAVE_TITLE],fnt_Outline,taCenter);
-    Edit_SaveName       := TKMEdit.Create(Panel_Save,0,110,TB_WIDTH,20, fnt_Grey);
-    Edit_SaveName.AllowedChars := acFileName;
-    Label_SaveExists    := TKMLabel.Create(Panel_Save,0,140,TB_WIDTH,0,gResTexts[TX_MAPED_SAVE_EXISTS],fnt_Outline,taCenter);
-    CheckBox_SaveExists := TKMCheckBox.Create(Panel_Save,0,160,TB_WIDTH,20,gResTexts[TX_MAPED_SAVE_OVERWRITE], fnt_Metal);
-    Button_SaveSave     := TKMButton.Create(Panel_Save,0,180,TB_WIDTH,30,gResTexts[TX_MAPED_SAVE],bsGame);
-    Button_SaveCancel   := TKMButton.Create(Panel_Save,0,220,TB_WIDTH,30,gResTexts[TX_MAPED_SAVE_CANCEL],bsGame);
-    Edit_SaveName.OnChange      := Menu_SaveClick;
-    CheckBox_SaveExists.OnClick := Menu_SaveClick;
-    Button_SaveSave.OnClick     := Menu_SaveClick;
-    Button_SaveCancel.OnClick   := SwitchPage;
-end;
-
-
-{Load page}
-procedure TKMapEdInterface.Create_MenuLoad;
-begin
-  Panel_Load := TKMPanel.Create(Panel_Common,0,45,TB_WIDTH,400);
-    TKMLabel.Create(Panel_Load, 0, PAGE_TITLE_Y, TB_WIDTH, 30, gResTexts[TX_MAPED_LOAD_TITLE], fnt_Outline, taLeft);
-    TKMBevel.Create(Panel_Load, 0, 30, TB_WIDTH, 38);
-    Radio_Load_MapType := TKMRadioGroup.Create(Panel_Load,0,32,TB_WIDTH,35,fnt_Grey);
-    Radio_Load_MapType.ItemIndex := 0;
-    Radio_Load_MapType.Add(gResTexts[TX_MENU_MAPED_SPMAPS]);
-    Radio_Load_MapType.Add(gResTexts[TX_MENU_MAPED_MPMAPS]);
-    Radio_Load_MapType.OnChange := Menu_LoadChange;
-    ListBox_Load := TKMListBox.Create(Panel_Load, 0, 85, TB_WIDTH, 205, fnt_Grey, bsGame);
-    ListBox_Load.ItemHeight := 18;
-    ListBox_Load.AutoHideScrollBar := True;
-    Button_LoadLoad     := TKMButton.Create(Panel_Load,0,300,TB_WIDTH,30,gResTexts[TX_MAPED_LOAD],bsGame);
-    Button_LoadCancel   := TKMButton.Create(Panel_Load,0,335,TB_WIDTH,30,gResTexts[TX_MAPED_LOAD_CANCEL],bsGame);
-    Button_LoadLoad.OnClick     := Menu_LoadClick;
-    Button_LoadCancel.OnClick   := SwitchPage;
-end;
-
-
-{Quit page}
-procedure TKMapEdInterface.Create_MenuQuit;
-begin
-  Panel_Quit := TKMPanel.Create(Panel_Common, 0, 45, TB_WIDTH, 400);
-    TKMLabel.Create(Panel_Quit, 0, 40, TB_WIDTH, 60, gResTexts[TX_MAPED_LOAD_UNSAVED], fnt_Outline, taCenter);
-    Button_Quit_Yes := TKMButton.Create(Panel_Quit, 0, 100, TB_WIDTH, 30, gResTexts[TX_MENU_QUIT_MAPED], bsGame);
-    Button_Quit_No  := TKMButton.Create(Panel_Quit, 0, 140, TB_WIDTH, 30, gResTexts[TX_MENU_DONT_QUIT_MISSION], bsGame);
-    Button_Quit_Yes.Hint    := gResTexts[TX_MENU_QUIT_MAPED];
-    Button_Quit_No.Hint     := gResTexts[TX_MENU_DONT_QUIT_MISSION];
-    Button_Quit_Yes.OnClick := Menu_QuitClick;
-    Button_Quit_No.OnClick  := SwitchPage;
-end;
-
-
 procedure TKMapEdInterface.Create_Extra;
 begin
   Panel_Extra := TKMPanel.Create(Panel_Main, TOOLBAR_WIDTH, Panel_Main.Height - 190, 600, 190);
@@ -993,9 +848,7 @@ begin
     Button_PlayerSelect[I].FontColor := CAP_COLOR[gPlayers[I].HasAssets];
 
   fGuiTerrain.UpdateState;
-
-  if fMaps <> nil then fMaps.UpdateState;
-  if fMapsMP <> nil then fMapsMP.UpdateState;
+  fGuiMenu.UpdateState;
 end;
 
 
@@ -1402,125 +1255,12 @@ begin
 end;
 
 
-procedure TKMapEdInterface.Menu_SaveClick(Sender: TObject);
-var
-  SaveName: string;
-begin
-  SaveName := TKMapsCollection.FullPath(Trim(Edit_SaveName.Text), '.dat', Radio_Save_MapType.ItemIndex = 1);
-
-  if (Sender = Edit_SaveName) or (Sender = Radio_Save_MapType) then
-  begin
-    CheckBox_SaveExists.Enabled := FileExists(SaveName);
-    Label_SaveExists.Visible := CheckBox_SaveExists.Enabled;
-    CheckBox_SaveExists.Checked := False;
-    Button_SaveSave.Enabled := not CheckBox_SaveExists.Enabled;
-  end;
-
-  if Sender = CheckBox_SaveExists then
-    Button_SaveSave.Enabled := CheckBox_SaveExists.Checked;
-
-  if Sender = Button_SaveSave then
-  begin
-    fGame.SaveMapEditor(SaveName);
-
-    Player_UpdateColors;
-    Label_MissionName.Caption := fGame.GameName;
-
-    SwitchPage(Button_SaveCancel); //return to previous menu
-  end;
-end;
-
-
 procedure TKMapEdInterface.Marker_Done(Sender: TObject);
 begin
   if Sender = fGuiMarkerReveal then
   begin
     SwitchPage(Button_Player[ptMarkers]);
   end;
-end;
-
-
-//Mission loading dialog
-procedure TKMapEdInterface.Menu_LoadClick(Sender: TObject);
-var
-  MapName: string;
-  IsMulti: Boolean;
-begin
-  if ListBox_Load.ItemIndex = -1 then Exit;
-
-  MapName := ListBox_Load.Item[ListBox_Load.ItemIndex];
-  IsMulti := Radio_Load_MapType.ItemIndex = 1;
-  fGameApp.NewMapEditor(TKMapsCollection.FullPath(MapName, '.dat', IsMulti), 0, 0);
-
-  //Keep MP/SP selected in the new map editor interface
-  //this one is destroyed already by `fGameApp.NewMapEditor`
-  if (fGame <> nil) and (fGame.MapEditorInterface <> nil) then
-    fGame.MapEditorInterface.SetLoadMode(IsMulti);
-end;
-
-
-{Quit the mission and return to main menu}
-procedure TKMapEdInterface.Menu_QuitClick(Sender: TObject);
-begin
-  fGameApp.Stop(gr_MapEdEnd);
-end;
-
-
-procedure TKMapEdInterface.Menu_LoadChange(Sender: TObject);
-begin
-  Menu_LoadUpdate;
-end;
-
-
-procedure TKMapEdInterface.Menu_LoadUpdate;
-begin
-  fMaps.TerminateScan;
-  fMapsMP.TerminateScan;
-
-  ListBox_Load.Clear;
-  ListBox_Load.ItemIndex := -1;
-
-  if Radio_Load_MapType.ItemIndex = 0 then
-    fMaps.Refresh(Menu_LoadUpdateDone)
-  else
-    fMapsMP.Refresh(Menu_LoadUpdateDone);
-end;
-
-
-procedure TKMapEdInterface.Menu_LoadUpdateDone(Sender: TObject);
-var
-  I: Integer;
-  PrevMap: string;
-  PrevTop: Integer;
-  M: TKMapsCollection;
-begin
-  if Radio_Load_MapType.ItemIndex = 0 then
-    M := fMaps
-  else
-    M := fMapsMP;
-
-  //Remember previous map
-  if ListBox_Load.ItemIndex <> -1 then
-    PrevMap := M.Maps[ListBox_Load.ItemIndex].FileName
-  else
-    PrevMap := '';
-  PrevTop := ListBox_Load.TopIndex;
-
-  ListBox_Load.Clear;
-
-  M.Lock;
-  try
-    for I := 0 to M.Count - 1 do
-    begin
-      ListBox_Load.Add(M.Maps[I].FileName);
-      if M.Maps[I].FileName = PrevMap then
-        ListBox_Load.ItemIndex := I;
-    end;
-  finally
-    M.Unlock;
-  end;
-
-  ListBox_Load.TopIndex := PrevTop;
 end;
 
 
@@ -1549,21 +1289,6 @@ end;
 procedure TKMapEdInterface.UpdateAITabsEnabled;
 begin
   fGuiTown.UpdatePlayer(MySpectator.PlayerIndex);
-end;
-
-
-procedure TKMapEdInterface.SetLoadMode(aMultiplayer: Boolean);
-begin
-  if aMultiplayer then
-  begin
-    Radio_Load_MapType.ItemIndex := 1;
-    Radio_Save_MapType.ItemIndex := 1;
-  end
-  else
-  begin
-    Radio_Load_MapType.ItemIndex := 0;
-    Radio_Save_MapType.ItemIndex := 0;
-  end;
 end;
 
 

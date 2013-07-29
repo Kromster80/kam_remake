@@ -36,7 +36,6 @@ type
     function Visible(aPage: TKMTownTab): Boolean; overload;
     function Visible: Boolean; overload;
     procedure UpdatePlayer(aPlayerIndex: TPlayerIndex);
-    procedure UpdateState;
   end;
 
 
@@ -140,12 +139,6 @@ begin
   else
   if (aPage = ttOffence) then
     fGuiOffence.Show;
-end;
-
-
-procedure TKMMapEdTown.UpdateState;
-begin
-  //
 end;
 
 

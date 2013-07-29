@@ -40,6 +40,7 @@ type
     property Revealers[aIndex: Byte]: TKMPointTagList read GetRevealer;
     property VisibleLayers: TMapEdLayerSet read fVisibleLayers write fVisibleLayers;
     function HitTest(X,Y: Integer): TKMMapEdMarker;
+    function HumanCount: Integer;
     procedure MouseDown(Button: TMouseButton);
     procedure MouseMove;
     procedure MouseUp(Button: TMouseButton);
@@ -127,6 +128,18 @@ begin
   Result.MarkerType := mtNone;
   Result.Owner := PLAYER_NONE;
   Result.Index := -1;
+end;
+
+
+//How many human players there are in the mission
+function TKMMapEditor.HumanCount: Integer;
+var
+  I: Integer;
+begin
+  Result := 0;
+  for I := 0 to High(PlayerHuman) do
+  if PlayerHuman[I] then
+    Inc(Result);
 end;
 
 

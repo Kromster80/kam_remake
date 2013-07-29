@@ -148,6 +148,10 @@
 			<DCCReference Include="KM_GUIMapEdHouse.pas"/>
 			<DCCReference Include="KM_GUIMapEdMarkerDefence.pas"/>
 			<DCCReference Include="KM_GUIMapEdMarkerReveal.pas"/>
+			<DCCReference Include="KM_GUIMapEdMenu.pas"/>
+			<DCCReference Include="KM_GUIMapEdMenuLoad.pas"/>
+			<DCCReference Include="KM_GUIMapEdMenuSave.pas"/>
+			<DCCReference Include="KM_GUIMapEdMenuQuit.pas"/>
 			<DCCReference Include="KM_GUIMapEdTerrain.pas"/>
 			<DCCReference Include="KM_GUIMapEdTerrainBrushes.pas"/>
 			<DCCReference Include="KM_GUIMapEdTerrainHeights.pas"/>

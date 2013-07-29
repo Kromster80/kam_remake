@@ -553,7 +553,7 @@ var
   A: Byte;
   T, T2: TKMTerrainKind;
 begin
-  SetLength(Accuracy, gTerrain.MapX+1, gTerrain.MapY+1);
+  SetLength(Accuracy, gTerrain.MapY+1, gTerrain.MapX+1);
 
   for I := 1 to gTerrain.MapY do
   for K := 1 to gTerrain.MapX do
