@@ -164,6 +164,7 @@
 			<DCCReference Include="KM_GUIMapEdTownScript.pas"/>
 			<DCCReference Include="KM_GUIMapEdTownDefence.pas"/>
 			<DCCReference Include="KM_GUIMapEdTownOffence.pas"/>
+			<DCCReference Include="KM_GUIMapEdUnit.pas"/>
 			<DCCReference Include="KM_GUIMenuCampaign.pas"/>
 			<DCCReference Include="KM_GUIMenuCampaigns.pas"/>
 			<DCCReference Include="KM_GUIMenuCredits.pas"/>

@@ -69,6 +69,7 @@ uses
   KM_GUIMapEdTownScript in 'KM_GUIMapEdTownScript.pas',
   KM_GUIMapEdTownDefence in 'KM_GUIMapEdTownDefence.pas',
   KM_GUIMapEdTownOffence in 'KM_GUIMapEdTownOffence.pas',
+  KM_GUIMapEdUnit in 'KM_GUIMapEdUnit.pas',
   KM_GUIMenuCampaign in 'KM_GUIMenuCampaign.pas',
   KM_GUIMenuCampaigns in 'KM_GUIMenuCampaigns.pas',
   KM_GUIMenuCredits in 'KM_GUIMenuCredits.pas',

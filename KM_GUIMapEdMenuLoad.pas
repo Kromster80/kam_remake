@@ -3,8 +3,7 @@ unit KM_GUIMapEdMenuLoad;
 interface
 uses
    Classes, SysUtils,
-   KM_Controls, KM_Maps,
-   KM_Points, KM_InterfaceDefaults;
+   KM_Controls, KM_InterfaceDefaults, KM_Maps;
 
 type
   TKMMapEdMenuLoad = class

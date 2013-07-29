@@ -2,9 +2,8 @@ unit KM_GUIMapEdMenu;
 {$I KaM_Remake.inc}
 interface
 uses
-   Classes, Controls, Math, SysUtils,
-   KM_Controls, KM_Defaults, KM_Pics,
-   KM_InterfaceDefaults,
+   Classes, Controls, SysUtils,
+   KM_Controls, KM_InterfaceDefaults,
    KM_GUIMapEdMenuLoad,
    KM_GUIMapEdMenuSave,
    KM_GUIMapEdMenuQuit;
@@ -36,7 +35,7 @@ type
 
 implementation
 uses
-  KM_ResTexts, KM_RenderUI, KM_ResFonts;
+  KM_ResTexts, KM_RenderUI;
 
 
 { TKMapEdInterface }

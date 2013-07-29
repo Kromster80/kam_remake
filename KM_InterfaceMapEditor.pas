@@ -14,7 +14,8 @@ uses
    KM_GUIMapEdFormations,
    KM_GUIMapEdMarkerDefence,
    KM_GUIMapEdMarkerReveal,
-   KM_GUIMapEdMenu;
+   KM_GUIMapEdMenu,
+   KM_GUIMapEdUnit;
 
 type
   TKMPlayerTab = (ptGoals, ptColor, ptBlockHouse, ptBlockTrade, ptMarkers);
@@ -28,6 +29,7 @@ type
     fDragScrollingViewportPos: TKMPointF;
 
     fGuiHouse: TKMMapEdHouse;
+    fGuiUnit: TKMMapEdUnit;
     fGuiTerrain: TKMMapEdTerrain;
     fGuiTown: TKMMapEdTown;
     fGuiAttack: TKMMapEdAttack;
@@ -40,7 +42,6 @@ type
     procedure Create_Mission;
     procedure Create_Extra;
     procedure Create_Message;
-    procedure Create_Unit;
     procedure Create_GoalPopUp;
 
     procedure Extra_Change(Sender: TObject);
@@ -69,19 +70,15 @@ type
     procedure Player_ChangeActive(Sender: TObject);
     procedure Player_ColorClick(Sender: TObject);
     procedure Player_MarkerClick(Sender: TObject);
-    procedure Unit_ArmyChange1(Sender: TObject); overload;
-    procedure Unit_ArmyChange2(Sender: TObject; AButton: TMouseButton); overload;
+    procedure Player_UpdateColors;
+    procedure Player_FOWChange(Sender: TObject);
     procedure ExtraMessage_Switch(Sender: TObject);
 
     procedure SwitchPage(Sender: TObject);
     procedure HidePages;
     procedure DisplayPage(aPage: TKMPanel);
     procedure DisplayHint(Sender: TObject);
-    procedure Player_UpdateColors;
-    procedure Player_FOWChange(Sender: TObject);
     procedure RightClick_Cancel;
-    procedure ShowUnitInfo(Sender: TKMUnit);
-    procedure ShowGroupInfo(Sender: TKMUnitGroup);
     procedure ShowMarkerInfo(aMarker: TKMMapEdMarker);
     procedure SetActivePlayer(aIndex: TPlayerIndex);
     procedure UpdateAITabsEnabled;
@@ -149,24 +146,6 @@ type
       Label_Message: TKMLabel;
       Image_MessageClose: TKMImage;
 
-    Panel_Unit:TKMPanel;
-      Label_UnitName:TKMLabel;
-      Label_UnitCondition:TKMLabel;
-      Label_UnitDescription:TKMLabel;
-      KMConditionBar_Unit:TKMPercentBar;
-      Image_UnitPic:TKMImage;
-
-      Panel_Army:TKMPanel;
-        Button_Army_RotCW,Button_Army_RotCCW: TKMButton;
-        Button_Army_ForUp,Button_Army_ForDown: TKMButton;
-        ImageStack_Army: TKMImageStack;
-        Label_ArmyCount: TKMLabel;
-        Button_ArmyDec,Button_ArmyFood,Button_ArmyInc: TKMButton;
-        DropBox_ArmyOrder: TKMDropList;
-        Edit_ArmyOrderX: TKMNumericEdit;
-        Edit_ArmyOrderY: TKMNumericEdit;
-        Edit_ArmyOrderDir: TKMNumericEdit;
-
     //PopUp panels
     Panel_Goal: TKMPanel;
       Image_GoalFlag: TKMImage;
@@ -210,7 +189,7 @@ const
 implementation
 uses
   KM_PlayersCollection, KM_ResTexts, KM_Game, KM_Main, KM_GameCursor,
-  KM_GameApp, KM_Resource, KM_TerrainDeposits, KM_ResCursors, KM_Utils,
+  KM_Resource, KM_TerrainDeposits, KM_ResCursors, KM_Utils,
   KM_AIDefensePos, KM_ResHouses, KM_RenderUI, KM_Sound, KM_ResSound,
   KM_ResWares, KM_ResFonts;
 
@@ -300,10 +279,11 @@ begin
   fGuiMenu := TKMMapEdMenu.Create(Panel_Common);
 
   //Objects pages
-  Create_Unit;
+  fGuiUnit := TKMMapEdUnit.Create(Panel_Common);
   fGuiHouse := TKMMapEdHouse.Create(Panel_Common);
   fGuiMarkerDefence := TKMMapEdMarkerDefence.Create(Panel_Common, Marker_Done);
   fGuiMarkerReveal := TKMMapEdMarkerReveal.Create(Panel_Common, Marker_Done);
+
 
   Image_Extra := TKMImage.Create(Panel_Main, TOOLBAR_WIDTH, Panel_Main.Height - 48, 30, 48, 494);
   Image_Extra.Anchors := [akLeft, akBottom];
@@ -785,56 +765,6 @@ begin
 end;
 
 
-{Unit page}
-procedure TKMapEdInterface.Create_Unit;
-begin
-  Panel_Unit := TKMPanel.Create(Panel_Common, 0, 45, TB_WIDTH, 400);
-    Label_UnitName        := TKMLabel.Create(Panel_Unit,0,16,TB_WIDTH,0,'',fnt_Outline,taCenter);
-    Image_UnitPic         := TKMImage.Create(Panel_Unit,0,38,54,100,521);
-    Label_UnitCondition   := TKMLabel.Create(Panel_Unit,65,40,116,0,gResTexts[TX_UNIT_CONDITION],fnt_Grey,taCenter);
-    KMConditionBar_Unit   := TKMPercentBar.Create(Panel_Unit,65,55,116,15);
-    Label_UnitDescription := TKMLabel.Create(Panel_Unit,0,152,TB_WIDTH,200,'',fnt_Grey,taLeft); //Taken from LIB resource
-    Label_UnitDescription.AutoWrap := True;
-
-    Panel_Army := TKMPanel.Create(Panel_Unit, 0, 160, TB_WIDTH, 400);
-    Button_Army_RotCCW  := TKMButton.Create(Panel_Army,       0,  0, 56, 40, 23, rxGui, bsGame);
-    Button_Army_RotCW   := TKMButton.Create(Panel_Army,     124,  0, 56, 40, 24, rxGui, bsGame);
-    Button_Army_ForUp   := TKMButton.Create(Panel_Army,       0, 46, 56, 40, 33, rxGui, bsGame);
-    ImageStack_Army     := TKMImageStack.Create(Panel_Army,  62, 46, 56, 40, 43, 50);
-    Label_ArmyCount     := TKMLabel.Create(Panel_Army,       62, 60, 56, 20, '-', fnt_Outline, taCenter);
-    Button_Army_ForDown := TKMButton.Create(Panel_Army,     124, 46, 56, 40, 32, rxGui, bsGame);
-    Button_Army_RotCW.OnClick   := Unit_ArmyChange1;
-    Button_Army_RotCCW.OnClick  := Unit_ArmyChange1;
-    Button_Army_ForUp.OnClick   := Unit_ArmyChange1;
-    Button_Army_ForDown.OnClick := Unit_ArmyChange1;
-
-    Button_ArmyDec      := TKMButton.Create(Panel_Army,  0,92,56,40,'-', bsGame);
-    Button_ArmyFood     := TKMButton.Create(Panel_Army, 62,92,56,40,29, rxGui, bsGame);
-    Button_ArmyInc      := TKMButton.Create(Panel_Army,124,92,56,40,'+', bsGame);
-    Button_ArmyDec.OnClickEither  := Unit_ArmyChange2;
-    Button_ArmyFood.OnClick       := Unit_ArmyChange1;
-    Button_ArmyInc.OnClickEither  := Unit_ArmyChange2;
-
-    //Group order
-    //todo: Orders should be placed with a cursor (but keep numeric input as well?)
-    TKMLabel.Create(Panel_Army, 0, 140, TB_WIDTH, 0, gResTexts[TX_MAPED_GROUP_ORDER], fnt_Outline, taLeft);
-    DropBox_ArmyOrder   := TKMDropList.Create(Panel_Army, 0, 160, TB_WIDTH, 20, fnt_Metal, '', bsGame);
-    DropBox_ArmyOrder.Add(gResTexts[TX_MAPED_GROUP_ORDER_NONE]);
-    DropBox_ArmyOrder.Add(gResTexts[TX_MAPED_GROUP_ORDER_WALK]);
-    DropBox_ArmyOrder.Add(gResTexts[TX_MAPED_GROUP_ORDER_ATTACK]);
-    DropBox_ArmyOrder.OnChange := Unit_ArmyChange1;
-    TKMLabel.Create(Panel_Army, 0, 185, 'X:', fnt_Grey, taLeft);
-    Edit_ArmyOrderX := TKMNumericEdit.Create(Panel_Army, 20, 185, 0, 255);
-    Edit_ArmyOrderX.OnChange := Unit_ArmyChange1;
-    TKMLabel.Create(Panel_Army, 0, 205, 'Y:', fnt_Grey, taLeft);
-    Edit_ArmyOrderY := TKMNumericEdit.Create(Panel_Army, 20, 205, 0, 255);
-    Edit_ArmyOrderY.OnChange := Unit_ArmyChange1;
-    TKMLabel.Create(Panel_Army, 110, 185, gResTexts[TX_MAPED_GROUP_ORDER_DIRECTION], fnt_Grey, taLeft);
-    Edit_ArmyOrderDir := TKMNumericEdit.Create(Panel_Army, 110, 205, 0, 7);
-    Edit_ArmyOrderDir.OnChange := Unit_ArmyChange1;
-end;
-
-
 //Should update any items changed by game (resource counts, hp, etc..)
 procedure TKMapEdInterface.UpdateState(aTickCount: Cardinal);
 const
@@ -959,14 +889,11 @@ end;
 
 procedure TKMapEdInterface.Player_ChangeActive(Sender: TObject);
 begin
-  //If we had selected House or Unit - discard them
+  //If we had selected any player specific page - discard them
   fGuiHouse.Hide;
+  fGuiUnit.Hide;
   fGuiMarkerDefence.Hide;
   fGuiMarkerReveal.Hide;
-
-  //If we had selected House or Unit - discard them
-  if Panel_Unit.Visible then
-    fActivePage := nil;
 
   if MySpectator.Selected <> nil then
     MySpectator.Selected := nil;
@@ -1161,7 +1088,7 @@ begin
   if CheckBox_ShowHouses.Checked or fGuiTown.Visible(ttHouses) or fGuiHouse.Visible then
     fGame.MapEditor.VisibleLayers := fGame.MapEditor.VisibleLayers + [mlHouses];
 
-  if CheckBox_ShowUnits.Checked or fGuiTown.Visible(ttUnits) or Panel_Unit.Visible then
+  if CheckBox_ShowUnits.Checked or fGuiTown.Visible(ttUnits) or fGuiUnit.Visible then
     fGame.MapEditor.VisibleLayers := fGame.MapEditor.VisibleLayers + [mlUnits];
 
   if fGuiTerrain.Visible(ttSelection) then
@@ -1169,56 +1096,6 @@ begin
 
   if CheckBox_ShowDeposits.Checked then
     fGame.MapEditor.VisibleLayers := fGame.MapEditor.VisibleLayers + [mlDeposits];
-end;
-
-
-procedure TKMapEdInterface.ShowUnitInfo(Sender: TKMUnit);
-begin
-  if Sender = nil then
-  begin
-    DisplayPage(nil);
-    Exit;
-  end;
-
-  SetActivePlayer(Sender.Owner);
-
-  DisplayPage(Panel_Unit);
-  Label_UnitName.Caption := fResource.UnitDat[Sender.UnitType].GUIName;
-  Image_UnitPic.TexID := fResource.UnitDat[Sender.UnitType].GUIScroll;
-  Image_UnitPic.FlagColor := gPlayers[Sender.Owner].FlagColor;
-  KMConditionBar_Unit.Position := Sender.Condition / UNIT_MAX_CONDITION;
-
-  Label_UnitDescription.Caption := fResource.UnitDat[Sender.UnitType].Description;
-  Label_UnitDescription.Show;
-end;
-
-
-procedure TKMapEdInterface.ShowGroupInfo(Sender: TKMUnitGroup);
-begin
-  if (Sender = nil) or Sender.IsDead then
-  begin
-    DisplayPage(nil);
-    Exit;
-  end;
-
-  SetActivePlayer(Sender.Owner);
-
-  DisplayPage(Panel_Unit);
-  Label_UnitName.Caption := fResource.UnitDat[Sender.UnitType].GUIName;
-  Image_UnitPic.TexID := fResource.UnitDat[Sender.UnitType].GUIScroll;
-  Image_UnitPic.FlagColor := gPlayers[Sender.Owner].FlagColor;
-  KMConditionBar_Unit.Position := Sender.Condition / UNIT_MAX_CONDITION;
-
-  //Warrior specific
-  Label_UnitDescription.Hide;
-  ImageStack_Army.SetCount(Sender.MapEdCount, Sender.UnitsPerRow, Sender.UnitsPerRow div 2 + 1);
-  Label_ArmyCount.Caption := IntToStr(Sender.MapEdCount);
-  DropBox_ArmyOrder.ItemIndex := Byte(Sender.MapEdOrder.Order);
-  Edit_ArmyOrderX.Value := Sender.MapEdOrder.Pos.Loc.X;
-  Edit_ArmyOrderY.Value := Sender.MapEdOrder.Pos.Loc.Y;
-  Edit_ArmyOrderDir.Value := Max(Byte(Sender.MapEdOrder.Pos.Dir) - 1, 0);
-  Unit_ArmyChange1(nil);
-  Panel_Army.Show;
 end;
 
 
@@ -1255,12 +1132,11 @@ begin
 end;
 
 
+//When marker page is done we want to return to markers control page
 procedure TKMapEdInterface.Marker_Done(Sender: TObject);
 begin
   if Sender = fGuiMarkerReveal then
-  begin
     SwitchPage(Button_Player[ptMarkers]);
-  end;
 end;
 
 
@@ -1271,16 +1147,14 @@ begin
   //Place a warrior, right click so you are not placing more warriors,
   //select the placed warrior.
 
-  //Terrain height uses both buttons for relief changing, tile rotation etc.
+  //These pages use RMB
   if fGuiTerrain.Visible(ttHeights) then Exit;
-  //Terrain tiles uses right click for choosing tile rotation
   if fGuiTerrain.Visible(ttTile) then Exit;
+  if fGuiUnit.Visible then Exit;
+  if fGuiHouse.Visible then Exit;
 
   GameCursor.Mode := cmNone;
   GameCursor.Tag1 := 0;
-
-  //Display page will hide the army panel
-  if Panel_Army.Visible then Exit;
 
   DisplayPage(fActivePage);
 end;
@@ -1289,80 +1163,6 @@ end;
 procedure TKMapEdInterface.UpdateAITabsEnabled;
 begin
   fGuiTown.UpdatePlayer(MySpectator.PlayerIndex);
-end;
-
-
-procedure TKMapEdInterface.Unit_ArmyChange1(Sender: TObject);
-var
-  Group: TKMUnitGroup;
-begin
-  if not (MySpectator.Selected is TKMUnitGroup) then Exit;
-
-  Group := TKMUnitGroup(MySpectator.Selected);
-  if Sender = Button_Army_ForUp then Group.UnitsPerRow := Group.UnitsPerRow - 1;
-  if Sender = Button_Army_ForDown then Group.UnitsPerRow := Group.UnitsPerRow + 1;
-
-  ImageStack_Army.SetCount(Group.MapEdCount, Group.UnitsPerRow, Group.UnitsPerRow div 2 + 1);
-  Label_ArmyCount.Caption := IntToStr(Group.MapEdCount);
-
-  if Sender = Button_Army_RotCW then  Group.Direction := KMNextDirection(Group.Direction);
-  if Sender = Button_Army_RotCCW then Group.Direction := KMPrevDirection(Group.Direction);
-  Group.ResetAnimStep;
-
-  //Toggle between full and half condition
-  if Sender = Button_ArmyFood then
-  begin
-    if Group.Condition = UNIT_MAX_CONDITION then
-      Group.Condition := UNIT_MAX_CONDITION div 2
-    else
-      Group.Condition := UNIT_MAX_CONDITION;
-    KMConditionBar_Unit.Position := Group.Condition / UNIT_MAX_CONDITION;
-  end;
-
-  Group.MapEdOrder.Order := TKMInitialOrder(DropBox_ArmyOrder.ItemIndex);
-  Group.MapEdOrder.Pos.Loc.X := Edit_ArmyOrderX.Value;
-  Group.MapEdOrder.Pos.Loc.Y := Edit_ArmyOrderY.Value;
-  Group.MapEdOrder.Pos.Dir := TKMDirection(Edit_ArmyOrderDir.Value + 1);
-
-  if DropBox_ArmyOrder.ItemIndex = 0 then
-  begin
-    Edit_ArmyOrderX.Disable;
-    Edit_ArmyOrderY.Disable;
-    Edit_ArmyOrderDir.Disable;
-  end
-  else
-    if DropBox_ArmyOrder.ItemIndex = 2 then
-    begin
-      Edit_ArmyOrderX.Enable;
-      Edit_ArmyOrderY.Enable;
-      Edit_ArmyOrderDir.Disable; //Attack position doesn't let you set direction
-    end
-    else
-    begin
-      Edit_ArmyOrderX.Enable;
-      Edit_ArmyOrderY.Enable;
-      Edit_ArmyOrderDir.Enable;
-    end;
-end;
-
-
-procedure TKMapEdInterface.Unit_ArmyChange2(Sender: TObject; AButton: TMouseButton);
-var
-  NewCount: Integer;
-  Group: TKMUnitGroup;
-begin
-  if not (MySpectator.Selected is TKMUnitGroup) then Exit;
-
-  Group := TKMUnitGroup(MySpectator.Selected);
-
-  if Sender = Button_ArmyDec then //Decrease
-    NewCount := Group.MapEdCount - ORDER_CLICK_AMOUNT[AButton]
-  else //Increase
-    NewCount := Group.MapEdCount + ORDER_CLICK_AMOUNT[AButton];
-
-  Group.MapEdCount := EnsureRange(NewCount, 1, 200); //Limit max members
-  ImageStack_Army.SetCount(Group.MapEdCount, Group.UnitsPerRow, Group.UnitsPerRow div 2 + 1);
-  Label_ArmyCount.Caption := IntToStr(Group.MapEdCount);
 end;
 
 
@@ -1811,9 +1611,17 @@ begin
                     fGuiHouse.Show(TKMHouse(MySpectator.Selected));
                   end;
                   if MySpectator.Selected is TKMUnit then
-                    ShowUnitInfo(TKMUnit(MySpectator.Selected));
+                  begin
+                    HidePages;
+                    SetActivePlayer(TKMUnit(MySpectator.Selected).Owner);
+                    fGuiUnit.Show(TKMUnit(MySpectator.Selected));
+                  end;
                   if MySpectator.Selected is TKMUnitGroup then
-                    ShowGroupInfo(TKMUnitGroup(MySpectator.Selected));
+                  begin
+                    HidePages;
+                    SetActivePlayer(TKMUnitGroup(MySpectator.Selected).Owner);
+                    fGuiUnit.Show(TKMUnitGroup(MySpectator.Selected));
+                  end;
                 end;
               end;
     mbRight:  begin
