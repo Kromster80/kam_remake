@@ -10,10 +10,11 @@ type
     unitForAnalyse : TStringList;
     unitAnalysed : TStringList;
     nonSystemUnit : TStringList;
-    nonSystemUnitArrayLength : integer;
     nonSystemUnitFile : TStringList;
     graph : array of array of integer;
-    f : TextFile;
+    fileOfTextStrList : TStringList;
+    fileOfText : string;
+    fileOfTextPos : integer;
     procedure ScanDpr( filename : string );
     function ReadWord() : string;
     procedure ScanForAllUnits( path : string );
@@ -26,6 +27,9 @@ type
     function IsUnitAnalysed( name : string ) : boolean;
     procedure SkipToUses();
     procedure ReadDepAndFillGraph( id : integer; dep_type : integer );
+    procedure RefactorFileText();
+    procedure LoadFile( filename : string );
+    function CheckEOF() : boolean;
   public
     constructor Create();
     procedure BuildGraph( pathToDpr : string );
@@ -42,6 +46,7 @@ begin
   unitAnalysed := TStringList.Create();
   nonSystemUnit := TStringList.Create();
   nonSystemUnitFile := TStringList.Create();
+  fileOfTextStrList := TStringList.Create();
 end;
 
 procedure TDependenciesGrapher.BuildGraph( pathToDpr : string );
@@ -58,28 +63,118 @@ procedure TDependenciesGrapher.ScanDpr( filename : string );
 var
     str : string;
 begin
-  AssignFile( f, filename );
-  reset( f );
+  LoadFile( filename );
 
   SkipToUses();
 
   repeat
     str := ReadWord;
 
-    if ( str[1] = '{' ) or ( str[1] = '/' ) then
-      readln( f )
-    else
-      if( not ( SameText( str , 'in' ) ) ) and ( str[1] <> #39 ) then
+    if( not ( SameText( str , 'in' ) ) ) and ( str[1] <> #39 ) then
+    begin
+      if str[length(str)] <> ',' then
       begin
-        if str[length(str)] <> ',' then
-        begin
-          unitForAnalyse.Add( str );
-        end;
+        unitForAnalyse.Add( str );
       end;
+    end;
 
   until SameText(str, 'begin');
   unitForAnalyse.Delete( unitForAnalyse.Count - 1 );
-  close( f );
+end;
+
+procedure TDependenciesGrapher.LoadFile( filename : string );
+begin
+  fileOfTextStrList.LoadFromFile( filename );
+  RefactorFileText();
+end;
+
+procedure TDependenciesGrapher.RefactorFileText();
+var
+  i, j: Integer;
+begin
+  fileOfText := fileOfTextStrList.Text;
+  fileOfTextPos := 1;
+
+  // Inserting whitespaces after all ',' and ';'
+  i := 1;
+  while i < Length( fileOfText )  do
+  begin
+    if ( fileOfText[i] = ',' ) or ( fileOfText[i] = ';' ) then
+      insert( ' ', fileOfText, i + 1 );
+    inc(i);
+  end;
+
+  // Deleting {} comments
+  i := 1;
+  while i < Length( fileOfText )  do
+  begin
+    if ( fileOfText[i] = '{' ) then
+    begin
+      j := i;
+      repeat
+        inc(j);
+      until fileOfText[j] = '}';
+      delete( fileOfText, i, j - i + 1 );
+    end;
+    inc(i);
+  end;
+  // Deleting (* *) comments
+  i := 1;
+  while i < Length( fileOfText )  do
+  begin
+    if ( fileOfText[i] = '(' ) and ( fileOfText[i+1] = '*' ) then
+    begin
+      j := i;
+      repeat
+        inc(j);
+      until ( ( fileOfText[j] = ')' ) and ( fileOfText[j-1] = '*' ) ) or ( j >= length( fileOfText ) );
+      delete( fileOfText, i, j - i + 1 );
+      dec(i);
+    end;
+    inc(i);
+  end;
+  // Deleting // comments
+  i := 1;
+  while i < Length( fileOfText )  do
+  begin
+    if ( fileOfText[i] = '/' ) and ( fileOfText[i+1] = '/' ) then
+    begin
+      j := i;
+      repeat
+        inc(j);
+      until ( fileOfText[j] = #10 );
+      delete( fileOfText, i, j - i + 1 );
+      dec(i);
+    end;
+    inc(i);
+  end;
+  // Deleting eol symbols
+  i := 1;
+  while i < Length( fileOfText )  do
+  begin
+    if ( fileOfText[i] = #13 ) then
+    begin
+      delete( fileOfText, i, 2 );
+      insert( ' ', fileOfText, i );
+    end;
+    inc(i);
+  end;
+  // Deleting extra whitespaces
+  i := 1;
+  while i < Length( fileOfText )  do
+  begin
+    if ( fileOfText[i] = ' ' ) then
+    begin
+      j := i;
+      while fileOfText[j] = ' ' do
+        inc(j);
+      delete( fileOfText, i, j - i - 1 );
+    end;
+    inc(i);
+  end;
+  // File cannot start with a whitespace
+  if fileOfText[1] = ' ' then
+    delete( fileOfText, 1, 1 );
 end;
 
 procedure TDependenciesGrapher.SkipToUses();
@@ -87,88 +182,36 @@ var str : string;
 begin
   repeat
     str := ReadWord;
-  until SameText(str, 'uses') or EOF( f );
+  until SameText(str, 'uses') or CheckEOF();
 end;
 
 function TDependenciesGrapher.ReadWord() : string;
-var c, temp_c : char;
+var
     str : string;
-    temp : integer;
 begin
-    if EOF(f) then
-    begin
-      ReadWord := '';
-      exit;
-    end;
-    while( eoln( f ) ) and (not EOF(f)) do
-      readln( f );
-    c := ' ';
-    while( c = ' ' ) and (not EOF(f)) do
-    begin
-      Read(f, c);
-    end;
+  str := '';
+  if CheckEOF then
+  begin
+    ReadWord := '';
+    exit;
+  end;
 
-    if EOF( f ) then
-    begin
-      ReadWord := '';
-      exit;
-    end;
+  while not ( FileOfText[fileOfTextPos] = ' ' ) do
+  begin
+    str := str + FileOfText[fileOfTextPos];
+    inc(fileOfTextPos);
+  end;
 
-    temp := integer(c);
-    if temp < 30 then
-    begin
-      ReadWord := ReadWord;
-      exit;
-    end;
-
-    if ( c <> ' ' ) and ( eoln(f) ) then
-    begin
-      str := str + c;
-    end
-    else
-    begin
-      while ( c <> ' ' ) and ( not eoln(f) ) and (not EOF(f)) and ( c <> #10 ) do
-      begin
-        str := str + c;
-        Read(f, c);
-        temp := integer(c);
-      end;
-      if (c <> ' ' )and ( temp <> 10 ) then
-        str := str + c;
-    end;
-
-    if str[1] = '{' then
-    begin
-      if pos( '}', str ) = 0 then
-        repeat
-          Read(f, c);
-        until c = '}';
-      ReadWord := ReadWord;
-      exit;
-    end;
-
-    if length( str ) > 1 then
-      if ( str[1] = '/' ) and ( str[2] = '/' ) then
-      begin
-        repeat
-          Read(f, c);
-        until (c = #10) or eoln(f);
-        ReadWord := ReadWord;
-        exit;
-      end;
-
-    if length( str ) > 1 then
-      if ( str[1] = '(' ) and ( str[2] = '*' ) then
-      begin
-        repeat
-          temp_c := c;
-          Read(f, c);
-        until ( temp_c = '*' ) and ( c = ')' );
-        ReadWord := ReadWord;
-        exit;
-      end;
+  inc(fileOfTextPos);
 
   ReadWord := str;
+end;
+
+function TDependenciesGrapher.CheckEOF() : boolean;
+begin
+  Result := false;
+  if fileOfTextPos >= Length( FileOfText ) then
+    Result := true;
 end;
 
 procedure TDependenciesGrapher.ScanForAllUnits( path : string );
@@ -206,8 +249,7 @@ procedure TDependenciesGrapher.ScanUnitName( filename : string );
 var str : string;
     i : integer;
 begin
-  AssignFile( f, filename );
-  Reset( f );
+  LoadFile( filename );
 
   str := ReadWord;
   assert( SameText( str, 'unit' ) );
@@ -219,7 +261,6 @@ begin
   nonSystemUnit.Add( str );
   nonSystemUnitFile.Add( filename );
 
-  Close( f );
 end;
 
 procedure TDependenciesGrapher.Analyse();
@@ -246,24 +287,22 @@ var
     stop : boolean;
 begin
   assert( id >= 0 );
-  AssignFile( f, path );
-  Reset( f );
+  LoadFile( path );
 
   SkipToUses();
 
-  if EOF(f) then
+  if CheckEOF() then
     exit;
 
   ReadDepAndFillGraph( id, 1 );  // interface type
 
   SkipToUses();
 
-  if EOF(f) then
+  if CheckEOF() then
     exit;
 
   ReadDepAndFillGraph( id, 2 );  // implementation type
 
-  Close( f );
 end;
 
 procedure TDependenciesGrapher.ReadDepAndFillGraph( id : integer; dep_type : integer );
@@ -274,28 +313,24 @@ begin
   stop := false;
   repeat
     str := ReadWord;
-    if (str[1] = '{') then
-      readln( f )
-    else
+
+    if (str[length(str)] = ';') or (str[length(str)] = ',') then
     begin
-      if (str[length(str)] = ';') or (str[length(str)] = ',') then
-      begin
-        if ( pos( ';', str ) > 0 ) then
-          stop := true;
-        delete( str, length(str), 1 );  // delete ';' or ','
-      end;
+      if ( pos( ';', str ) > 0 ) then
+        stop := true;
+      delete( str, length(str), 1 );  // delete ';' or ','
+    end;
 
-      if ( length(str) > 0 ) then
-      begin
-        dep_id := GetUnitId( str );
+    if ( length(str) > 0 ) then
+    begin
+      dep_id := GetUnitId( str );
 
-        if dep_id >= 0 then
+      if dep_id >= 0 then
+      begin
+        graph[id][dep_id] := dep_type;
+        if ( not IsUnitInAnalyseList( str ) ) and ( not IsUnitAnalysed( str ) ) then
         begin
-          graph[id][dep_id] := dep_type;
-          if ( not IsUnitInAnalyseList( str ) ) and ( not IsUnitAnalysed( str ) ) then
-          begin
-              unitForAnalyse.Add( str );
-          end;
+            unitForAnalyse.Add( str );
         end;
       end;
     end;
@@ -343,6 +378,7 @@ end;
 procedure TDependenciesGrapher.PrintOutput( path : string );
 var i, j : integer;
     id : integer;
+    f : text;
 begin
   assignFile( f, path );
   rewrite( f );

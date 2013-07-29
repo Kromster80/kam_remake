@@ -29,6 +29,8 @@ implementation
 procedure TForm1.FormCreate(Sender: TObject);
 begin
   DepGraph := TDependenciesGrapher.Create;
+  DepGraph.BuildGraph('C:\Users\Neo7k\Documents\KaM Remake\ScripringDemo\KaM_Remake.dpr');
+  DepGraph.PrintOutput(ExtractFilePath(Application.ExeName) + 'dependencies.csv');
 end;
 
 
