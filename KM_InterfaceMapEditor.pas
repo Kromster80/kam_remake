@@ -16,7 +16,9 @@ uses
    KM_GUIMapEdMarkerDefence,
    KM_GUIMapEdMarkerReveal,
    KM_GUIMapEdMenu,
-   KM_GUIMapEdUnit;
+   KM_GUIMapEdUnit,
+
+   KM_GUIMapEdPlayerGoals;
 
 type
   TKMPlayerTab = (ptGoals, ptColor, ptBlockHouse, ptBlockTrade, ptMarkers);

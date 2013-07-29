@@ -58,6 +58,7 @@ uses
   KM_GUIMapEdMenuLoad in 'KM_GUIMapEdMenuLoad.pas',
   KM_GUIMapEdMenuSave in 'KM_GUIMapEdMenuSave.pas',
   KM_GUIMapEdMenuQuit in 'KM_GUIMapEdMenuQuit.pas',
+  KM_GUIMapEdPlayerGoals in 'KM_GUIMapEdPlayerGoals.pas',
   KM_GUIMapEdTerrain in 'KM_GUIMapEdTerrain.pas',
   KM_GUIMapEdTerrainBrushes in 'KM_GUIMapEdTerrainBrushes.pas',
   KM_GUIMapEdTerrainHeights in 'KM_GUIMapEdTerrainHeights.pas',
