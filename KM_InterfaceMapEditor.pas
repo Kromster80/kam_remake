@@ -18,6 +18,7 @@ uses
    KM_GUIMapEdMenu,
    KM_GUIMapEdUnit,
 
+   KM_GUIMapEdPlayerBlockHouse,
    KM_GUIMapEdPlayerColors,
    KM_GUIMapEdPlayerGoals;
 
@@ -43,6 +44,7 @@ type
     fGuiMarkerReveal: TKMMapEdMarkerReveal;
     fGuiMenu: TKMMapEdMenu;
 
+    fGuiPlayerBlockHouse: TKMMapEdPlayerBlockHouse;
     fGuiPlayerColors: TKMMapEdPlayerColors;
     fGuiPlayerGoals: TKMMapEdPlayerGoals;
 
@@ -61,8 +63,6 @@ type
     procedure Mission_PlayerTypesChange(Sender: TObject);
     procedure Mission_PlayerTypesUpdate;
     procedure PageChanged(Sender: TObject);
-    procedure Player_BlockHouseClick(Sender: TObject);
-    procedure Player_BlockHouseRefresh;
     procedure Player_BlockTradeClick(Sender: TObject);
     procedure Player_BlockTradeRefresh;
     procedure Player_ChangeActive(Sender: TObject);
@@ -99,9 +99,6 @@ type
     //Non-visual stuff per-player
     Panel_Player: TKMPanel;
       Button_Player: array [TKMPlayerTab] of TKMButton;
-      Panel_BlockHouse: TKMPanel;
-        Button_BlockHouse: array [1 .. GUI_HOUSE_COUNT] of TKMButtonFlat;
-        Image_BlockHouse: array [1 .. GUI_HOUSE_COUNT] of TKMImage;
       Panel_BlockTrade: TKMPanel;
         Button_BlockTrade: array [1 .. STORE_RES_COUNT] of TKMButtonFlat;
         Image_BlockTrade: array [1 .. STORE_RES_COUNT] of TKMImage;
@@ -304,8 +301,9 @@ begin
   fGuiMarkerReveal.Free;
   fGuiMenu.Free;
 
-  fGuiPlayerGoals.Free;
+  fGuiPlayerBlockHouse.Free;
   fGuiPlayerColors.Free;
+  fGuiPlayerGoals.Free;
 
   SHOW_TERRAIN_WIRES := false; //Don't show it in-game if they left it on in MapEd
   SHOW_TERRAIN_PASS := 0; //Don't show it in-game if they left it on in MapEd
@@ -361,7 +359,10 @@ begin
   end
   else
   if (Sender = Button_Player[ptBlockHouse]) then
-    DisplayPage(Panel_BlockHouse)
+  begin
+    HidePages;
+    fGuiPlayerBlockHouse.Show;
+  end
   else
   if (Sender = Button_Player[ptBlockTrade]) then
     DisplayPage(Panel_BlockTrade)
@@ -404,9 +405,6 @@ procedure TKMapEdInterface.DisplayPage(aPage: TKMPanel);
 begin
   HidePages;
 
-  if aPage = Panel_BlockHouse then
-    Player_BlockHouseRefresh
-  else
   if aPage = Panel_BlockTrade then
     Player_BlockTradeRefresh
   else
@@ -487,21 +485,7 @@ begin
 
     fGuiPlayerGoals := TKMMapEdPlayerGoals.Create(Panel_Player);
     fGuiPlayerColors := TKMMapEdPlayerColors.Create(Panel_Player);
-
-    //Allow/Block house building
-    Panel_BlockHouse := TKMPanel.Create(Panel_Player, 0, 28, TB_WIDTH, 400);
-      TKMLabel.Create(Panel_BlockHouse, 0, PAGE_TITLE_Y, TB_WIDTH, 0, gResTexts[TX_MAPED_BLOCK_HOUSES], fnt_Outline, taCenter);
-      for I := 1 to GUI_HOUSE_COUNT do
-      if GUIHouseOrder[I] <> ht_None then
-      begin
-        Button_BlockHouse[I] := TKMButtonFlat.Create(Panel_BlockHouse, ((I-1) mod 5)*37, 30 + ((I-1) div 5)*37,33,33,fResource.HouseDat[GUIHouseOrder[I]].GUIIcon);
-        Button_BlockHouse[I].Hint := fResource.HouseDat[GUIHouseOrder[I]].HouseName;
-        Button_BlockHouse[I].OnClick := Player_BlockHouseClick;
-        Button_BlockHouse[I].Tag := I;
-        Image_BlockHouse[I] := TKMImage.Create(Panel_BlockHouse, ((I-1) mod 5)*37 + 13, 30 + ((I-1) div 5)*37 + 13, 16, 16, 0, rxGuiMain);
-        Image_BlockHouse[I].Hitable := False;
-        Image_BlockHouse[I].ImageCenter;
-      end;
+    fGuiPlayerBlockHouse := TKMMapEdPlayerBlockHouse.Create(Panel_Player);
 
     //Allow/Block ware trading
     Panel_BlockTrade := TKMPanel.Create(Panel_Player, 0, 28, TB_WIDTH, 400);
@@ -983,56 +967,6 @@ procedure TKMapEdInterface.Player_FOWChange(Sender: TObject);
 begin
   MySpectator.FOWIndex := Dropbox_PlayerFOW.GetTag(Dropbox_PlayerFOW.ItemIndex);
   fGame.Minimap.Update(False); //Force update right now so FOW doesn't appear to lag
-end;
-
-
-procedure TKMapEdInterface.Player_BlockHouseClick(Sender: TObject);
-var
-  I: Integer;
-  H: THouseType;
-begin
-  I := TKMButtonFlat(Sender).Tag;
-  H := GUIHouseOrder[I];
-
-  //Loop through states CanBuild > CantBuild > Released
-  if not gPlayers[MySpectator.PlayerIndex].Stats.HouseBlocked[H] and not gPlayers[MySpectator.PlayerIndex].Stats.HouseGranted[H] then
-  begin
-    gPlayers[MySpectator.PlayerIndex].Stats.HouseBlocked[H] := True;
-    gPlayers[MySpectator.PlayerIndex].Stats.HouseGranted[H] := False;
-  end else
-  if gPlayers[MySpectator.PlayerIndex].Stats.HouseBlocked[H] and not gPlayers[MySpectator.PlayerIndex].Stats.HouseGranted[H] then
-  begin
-    gPlayers[MySpectator.PlayerIndex].Stats.HouseBlocked[H] := False;
-    gPlayers[MySpectator.PlayerIndex].Stats.HouseGranted[H] := True;
-  end else
-  begin
-    gPlayers[MySpectator.PlayerIndex].Stats.HouseBlocked[H] := False;
-    gPlayers[MySpectator.PlayerIndex].Stats.HouseGranted[H] := False;
-  end;
-
-  Player_BlockHouseRefresh;
-end;
-
-
-procedure TKMapEdInterface.Player_BlockHouseRefresh;
-var
-  I: Integer;
-  H: THouseType;
-begin
-  for I := 1 to GUI_HOUSE_COUNT do
-  begin
-    H := GUIHouseOrder[I];
-    if gPlayers[MySpectator.PlayerIndex].Stats.HouseBlocked[H] and not gPlayers[MySpectator.PlayerIndex].Stats.HouseGranted[H] then
-      Image_BlockHouse[I].TexID := 32
-    else
-    if gPlayers[MySpectator.PlayerIndex].Stats.HouseGranted[H] and not gPlayers[MySpectator.PlayerIndex].Stats.HouseBlocked[H] then
-      Image_BlockHouse[I].TexID := 33
-    else
-    if not gPlayers[MySpectator.PlayerIndex].Stats.HouseGranted[H] and not gPlayers[MySpectator.PlayerIndex].Stats.HouseBlocked[H] then
-      Image_BlockHouse[I].TexID := 0
-    else
-      Image_BlockHouse[I].TexID := 24; //Some erroneous value
-  end;
 end;
 
 

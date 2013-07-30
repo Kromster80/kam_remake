@@ -153,6 +153,7 @@
 			<DCCReference Include="KM_GUIMapEdMenuLoad.pas"/>
 			<DCCReference Include="KM_GUIMapEdMenuSave.pas"/>
 			<DCCReference Include="KM_GUIMapEdMenuQuit.pas"/>
+			<DCCReference Include="KM_GUIMapEdPlayerBlockHouse.pas"/>
 			<DCCReference Include="KM_GUIMapEdPlayerColors.pas"/>
 			<DCCReference Include="KM_GUIMapEdPlayerGoals.pas"/>
 			<DCCReference Include="KM_GUIMapEdTerrain.pas"/>
