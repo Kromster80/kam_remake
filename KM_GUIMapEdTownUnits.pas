@@ -22,7 +22,7 @@ type
     procedure Show;
     procedure Hide;
     function Visible: Boolean;
-    procedure UpdateColors(aColor: Cardinal);
+    procedure UpdatePlayerColor;
   end;
 
 
@@ -112,14 +112,17 @@ begin
 end;
 
 
-procedure TKMMapEdTownUnits.UpdateColors(aColor: Cardinal);
+procedure TKMMapEdTownUnits.UpdatePlayerColor;
 var
   I: Integer;
+  Col: Cardinal;
 begin
+  Col := gPlayers[MySpectator.PlayerIndex].FlagColor;
+
   for I := Low(Button_Citizen) to High(Button_Citizen) do
-    Button_Citizen[I].FlagColor := gPlayers[MySpectator.PlayerIndex].FlagColor;
+    Button_Citizen[I].FlagColor := Col;
   for I := Low(Button_Warriors) to High(Button_Warriors) do
-    Button_Warriors[I].FlagColor := gPlayers[MySpectator.PlayerIndex].FlagColor;
+    Button_Warriors[I].FlagColor := Col;
 end;
 
 

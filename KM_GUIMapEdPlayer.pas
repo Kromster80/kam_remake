@@ -34,7 +34,8 @@ type
     procedure Show(aPage: TKMPlayerTab);
     function Visible(aPage: TKMPlayerTab): Boolean; overload;
     function Visible: Boolean; overload;
-    procedure UpdatePlayer(aPlayerIndex: TPlayerIndex);
+    procedure ChangePlayer;
+    procedure UpdatePlayerColor;
   end;
 
 
@@ -155,11 +156,22 @@ begin
 end;
 
 
-procedure TKMMapEdPlayer.UpdatePlayer(aPlayerIndex: TPlayerIndex);
+procedure TKMMapEdPlayer.ChangePlayer;
 begin
-  Button_Player[ptColor].FlagColor := gPlayers[aPlayerIndex].FlagColor;
+  if fGuiPlayerGoals.Visible then fGuiPlayerGoals.Show;
+  if fGuiPlayerBlockHouse.Visible then fGuiPlayerBlockHouse.Show;
+  if fGuiPlayerBlockTrade.Visible then fGuiPlayerBlockTrade.Show;
+  if fGuiPlayerView.Visible then fGuiPlayerView.Show;
 
-  fGuiPlayerView.UpdatePlayer(aPlayerIndex);
+  UpdatePlayerColor;
+end;
+
+
+procedure TKMMapEdPlayer.UpdatePlayerColor;
+begin
+  Button_Player[ptColor].FlagColor := gPlayers[MySpectator.PlayerIndex].FlagColor;
+
+  fGuiPlayerView.UpdatePlayerColor;
 end;
 
 

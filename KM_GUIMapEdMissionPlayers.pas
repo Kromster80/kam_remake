@@ -88,8 +88,6 @@ begin
     fGame.MapEditor.PlayerAI[PlayerId] := CheckBox_PlayerTypes[PlayerId, 2].Checked;
 
   Mission_PlayerTypesUpdate;
-
-  fGame.MapEditorInterface.SyncUI;
 end;
 
 

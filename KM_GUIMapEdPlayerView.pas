@@ -23,7 +23,7 @@ type
     procedure Show;
     function Visible: Boolean;
     procedure Hide;
-    procedure UpdatePlayer(aPlayerIndex: TPlayerIndex);
+    procedure UpdatePlayerColor;
   end;
 
 
@@ -126,7 +126,7 @@ begin
 end;
 
 
-procedure TKMMapEdPlayerView.UpdatePlayer(aPlayerIndex: TPlayerIndex);
+procedure TKMMapEdPlayerView.UpdatePlayerColor;
 begin
   Button_Reveal.FlagColor := gPlayers[MySpectator.PlayerIndex].FlagColor;
 end;

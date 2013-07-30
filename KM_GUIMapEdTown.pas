@@ -34,7 +34,8 @@ type
     procedure Show(aPage: TKMTownTab);
     function Visible(aPage: TKMTownTab): Boolean; overload;
     function Visible: Boolean; overload;
-    procedure UpdatePlayer(aPlayerIndex: TPlayerIndex);
+    procedure ChangePlayer;
+    procedure UpdatePlayerColor;
   end;
 
 
@@ -155,22 +156,32 @@ begin
 end;
 
 
-procedure TKMMapEdTown.UpdatePlayer(aPlayerIndex: TPlayerIndex);
+procedure TKMMapEdTown.ChangePlayer;
 var
   isAI: Boolean;
 begin
-  //Update colors
-  Button_Town[ttUnits].FlagColor := gPlayers[aPlayerIndex].FlagColor;
-  fGuiUnits.UpdateColors(gPlayers[aPlayerIndex].FlagColor);
-
-  isAI := (gPlayers[aPlayerIndex].PlayerType = pt_Computer);
+  isAI := (gPlayers[MySpectator.PlayerIndex].PlayerType = pt_Computer);
 
   Button_Town[ttScript].Enabled := isAI;
   Button_Town[ttDefences].Enabled := isAI;
   Button_Town[ttOffence].Enabled := isAI;
 
-  if fGuiScript.Visible or fGuiDefence.Visible or fGuiOffence.Visible then
-    Button_Town[ttHouses].Click;
+  if isAi and (fGuiScript.Visible or fGuiDefence.Visible or fGuiOffence.Visible) then
+    PageChange(Button_Town[ttHouses]);
+
+  if fGuiScript.Visible then fGuiScript.Show;
+  if fGuiDefence.Visible then fGuiDefence.Show;
+  if fGuiOffence.Visible then fGuiOffence.Show;
+
+  UpdatePlayerColor;
+end;
+
+
+procedure TKMMapEdTown.UpdatePlayerColor;
+begin
+  //Update colors
+  Button_Town[ttUnits].FlagColor := gPlayers[MySpectator.PlayerIndex].FlagColor;
+  fGuiUnits.UpdatePlayerColor;
 end;
 
 

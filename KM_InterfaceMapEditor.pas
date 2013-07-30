@@ -48,20 +48,18 @@ type
 
     procedure Layers_UpdateVisibility;
     procedure Marker_Done(Sender: TObject);
-    procedure Minimap_Update(Sender: TObject; const X,Y: Integer);
+    procedure Minimap_OnUpdate(Sender: TObject; const X,Y: Integer);
     procedure PageChanged(Sender: TObject);
-    procedure Player_ChangeActive(Sender: TObject);
-    procedure Player_UpdateColors;
-    procedure ExtraMessage_Switch(Sender: TObject);
+    procedure Player_ActiveClick(Sender: TObject);
+    procedure Message_Click(Sender: TObject);
 
     procedure Main_ButtonClick(Sender: TObject);
     procedure HidePages;
-    procedure DisplayPage(aPage: TKMPanel);
     procedure DisplayHint(Sender: TObject);
     procedure RightClick_Cancel;
     procedure ShowMarkerInfo(aMarker: TKMMapEdMarker);
-    procedure SetActivePlayer(aIndex: TPlayerIndex);
-    procedure UpdateAITabsEnabled;
+    procedure Player_SetActive(aIndex: TPlayerIndex);
+    procedure Player_UpdatePages;
   protected
     Panel_Main:TKMPanel;
       MinimapView: TKMMinimapView;
@@ -129,7 +127,7 @@ begin
     TKMImage.Create(Panel_Main,0,1000,224,400,404); //For 1600x1200 this is needed
 
     MinimapView := TKMMinimapView.Create(Panel_Main, 10, 10, 176, 176);
-    MinimapView.OnChange := Minimap_Update;
+    MinimapView.OnChange := Minimap_OnUpdate;
 
     Label_MissionName := TKMLabel.Create(Panel_Main, 230, 10, 184, 10, NO_TEXT, fnt_Grey, taLeft);
     Label_Coordinates := TKMLabel.Create(Panel_Main, 230, 30, 'X: Y:', fnt_Grey, taLeft);
@@ -140,7 +138,7 @@ begin
     begin
       Button_PlayerSelect[I]         := TKMFlatButtonShape.Create(Panel_Main, 8 + I*23, 210, 21, 21, IntToStr(I+1), fnt_Grey, $FF0000FF);
       Button_PlayerSelect[I].Tag     := I;
-      Button_PlayerSelect[I].OnClick := Player_ChangeActive;
+      Button_PlayerSelect[I].OnClick := Player_ActiveClick;
     end;
     Button_PlayerSelect[0].Down := True; //First player selected by default
 
@@ -190,12 +188,12 @@ begin
   Image_Extra := TKMImage.Create(Panel_Main, TOOLBAR_WIDTH, Panel_Main.Height - 48, 30, 48, 494);
   Image_Extra.Anchors := [akLeft, akBottom];
   Image_Extra.HighlightOnMouseOver := True;
-  Image_Extra.OnClick := ExtraMessage_Switch;
+  Image_Extra.OnClick := Message_Click;
 
   Image_Message := TKMImage.Create(Panel_Main, TOOLBAR_WIDTH, Panel_Main.Height - 48*2, 30, 48, 496);
   Image_Message.Anchors := [akLeft, akBottom];
   Image_Message.HighlightOnMouseOver := True;
-  Image_Message.OnClick := ExtraMessage_Switch;
+  Image_Message.OnClick := Message_Click;
   Image_Message.Hide; //Hidden by default, only visible when a message is shown
 
   //Pages that need to be on top of everything
@@ -210,7 +208,7 @@ begin
 
   fMyControls.OnHint := DisplayHint;
 
-  DisplayPage(nil); //Update
+  HidePages;
 end;
 
 
@@ -235,57 +233,22 @@ begin
 end;
 
 
-{Switch between pages}
 procedure TKMapEdInterface.Main_ButtonClick(Sender: TObject);
 begin
   //Reset cursor mode
   GameCursor.Mode := cmNone;
   GameCursor.Tag1 := 0;
 
-  //If the user clicks on the tab that is open, it closes it (main buttons only)
-  if ((Sender = Button_Main[1]) and fGuiTerrain.Visible) or
-     ((Sender = Button_Main[2]) and fGuiTown.Visible) or
-     ((Sender = Button_Main[3]) and fGuiPlayer.Visible) or
-     ((Sender = Button_Main[4]) and fGuiMission.Visible) or
-     ((Sender = Button_Main[5]) and fGuiMenu.Visible) then
-    Sender := nil;
+  //Reset shown item when user clicks on any of the main buttons
+  MySpectator.Selected := nil;
 
-  //Reset shown item if user clicked on any of the main buttons
-  if (Sender = Button_Main[1])or(Sender = Button_Main[2])or
-     (Sender = Button_Main[3])or(Sender = Button_Main[4])or
-     (Sender = Button_Main[5]) then
-    MySpectator.Selected := nil;
+  HidePages;
 
-  if (Sender = Button_Main[1]) then
-  begin
-    HidePages;
-    fGuiTerrain.Show;
-  end
-  else
-
-  if (Sender = Button_Main[2]) then
-  begin
-    HidePages;
-    fGuiTown.Show(ttHouses);
-  end
-  else
-
-  if (Sender = Button_Main[3]) then
-  begin
-    HidePages;
-    fGuiPlayer.Show(ptGoals);
-  end
-  else
-
-  if (Sender = Button_Main[4]) then
-  begin
-    HidePages;
-    fGuiMission.Show(mtMode);
-  end
-  else
-
-  if (Sender = Button_Main[5]) then
-    fGuiMenu.Show;
+  if (Sender = Button_Main[1]) then fGuiTerrain.Show else
+  if (Sender = Button_Main[2]) then fGuiTown.Show(ttHouses) else
+  if (Sender = Button_Main[3]) then fGuiPlayer.Show(ptGoals) else
+  if (Sender = Button_Main[4]) then fGuiMission.Show(mtMode) else
+  if (Sender = Button_Main[5]) then fGuiMenu.Show;
 end;
 
 
@@ -301,20 +264,6 @@ begin
     if TKMPanel(Panel_Common.Childs[I]).Childs[K] is TKMPanel then
       TKMPanel(Panel_Common.Childs[I]).Childs[K].Hide;
   end;
-end;
-
-
-procedure TKMapEdInterface.DisplayPage(aPage: TKMPanel);
-begin
-  HidePages;
-
-  //Display the panel (and its parents)
-  fActivePage := aPage;
-  if aPage <> nil then
-    aPage.Show;
-
-  //Update list of visible layers with regard to active page and checkboxes
-  Layers_UpdateVisibility;
 end;
 
 
@@ -365,9 +314,14 @@ end;
 
 //Update UI state according to game state
 procedure TKMapEdInterface.SyncUI;
+var
+  I: Integer;
 begin
-  Player_UpdateColors;
-  UpdateAITabsEnabled;
+  //Set player colors
+  for I := 0 to MAX_PLAYERS - 1 do
+    Button_PlayerSelect[I].ShapeColor := gPlayers[I].FlagColor;
+
+  Player_UpdatePages;
 
   Label_MissionName.Caption := fGame.GameName;
 
@@ -376,114 +330,11 @@ begin
 end;
 
 
+//Active page has changed, that affects layers visibility
 procedure TKMapEdInterface.PageChanged(Sender: TObject);
 begin
   //Child panels visibility changed, that affects visible layers
   Layers_UpdateVisibility;
-end;
-
-
-procedure TKMapEdInterface.Paint;
-  procedure PaintTextInShape(aText: string; X,Y: SmallInt; aLineColor: Cardinal);
-  var
-    W: Integer;
-  begin
-    //Paint the background
-    W := 10 + 10 * Length(aText);
-    TKMRenderUI.WriteShape(X - W div 2, Y - 10, W, 20, $80000000);
-    TKMRenderUI.WriteOutline(X - W div 2, Y - 10, W, 20, 2, aLineColor);
-
-    //Paint the label on top of the background
-    TKMRenderUI.WriteText(X, Y - 7, 0, aText, fnt_Metal, taCenter, $FFFFFFFF);
-  end;
-const
-  DefenceLine: array [TAIDefencePosType] of Cardinal = ($FF80FF00, $FFFF8000);
-var
-  I, K: Integer;
-  R: TRawDeposit;
-  DP: TAIDefencePosition;
-  LocF: TKMPointF;
-  ScreenLoc: TKMPointI;
-begin
-  if mlDeposits in fGame.MapEditor.VisibleLayers then
-  begin
-    for R := Low(TRawDeposit) to High(TRawDeposit) do
-      for I := 0 to fGame.MapEditor.Deposits.Count[R] - 1 do
-      //Ignore water areas with 0 fish in them
-      if fGame.MapEditor.Deposits.Amount[R, I] > 0 then
-      begin
-        LocF := gTerrain.FlatToHeight(fGame.MapEditor.Deposits.Location[R, I]);
-        ScreenLoc := fGame.Viewport.MapToScreen(LocF);
-
-        //At extreme zoom coords may become out of range of SmallInt used in controls painting
-        if KMInRect(ScreenLoc, fGame.Viewport.ViewRect) then
-          PaintTextInShape(IntToStr(fGame.MapEditor.Deposits.Amount[R, I]), ScreenLoc.X, ScreenLoc.Y, DEPOSIT_COLORS[R]);
-      end;
-  end;
-
-  if mlDefences in fGame.MapEditor.VisibleLayers then
-  begin
-    for I := 0 to gPlayers.Count - 1 do
-      for K := 0 to gPlayers[I].AI.General.DefencePositions.Count - 1 do
-      begin
-        DP := gPlayers[I].AI.General.DefencePositions[K];
-        LocF := gTerrain.FlatToHeight(KMPointF(DP.Position.Loc.X-0.5, DP.Position.Loc.Y-0.5));
-        ScreenLoc := fGame.Viewport.MapToScreen(LocF);
-
-        if KMInRect(ScreenLoc, fGame.Viewport.ViewRect) then
-        begin
-          PaintTextInShape(IntToStr(K+1), ScreenLoc.X, ScreenLoc.Y - 15, DefenceLine[DP.DefenceType]);
-          TKMRenderUI.WritePicture(ScreenLoc.X, ScreenLoc.Y, 0, 0, [], rxGui, GROUP_IMG[DP.GroupType]);
-        end;
-      end;
-  end;
-
-  inherited;
-end;
-
-
-procedure TKMapEdInterface.Player_UpdateColors;
-var
-  I: Integer;
-begin
-  //Set player colors
-  for I := 0 to MAX_PLAYERS - 1 do
-    Button_PlayerSelect[I].ShapeColor := gPlayers[I].FlagColor;
-
-  //Update pages that have colored elements to match new players color
-  fGuiTown.UpdatePlayer(MySpectator.PlayerIndex);
-end;
-
-
-procedure TKMapEdInterface.Player_ChangeActive(Sender: TObject);
-begin
-  //If we had selected any player specific page - discard them
-  fGuiHouse.Hide;
-  fGuiUnit.Hide;
-  fGuiMarkerDefence.Hide;
-  fGuiMarkerReveal.Hide;
-
-  if MySpectator.Selected <> nil then
-    MySpectator.Selected := nil;
-
-  SetActivePlayer(TKMControl(Sender).Tag);
-
-  //Refresh per-player settings
-  DisplayPage(fActivePage);
-end;
-
-
-procedure TKMapEdInterface.SetActivePlayer(aIndex: TPlayerIndex);
-var
-  I: Integer;
-begin
-  MySpectator.PlayerIndex := aIndex;
-
-  for I := 0 to MAX_PLAYERS - 1 do
-    Button_PlayerSelect[I].Down := (I = MySpectator.PlayerIndex);
-
-  Player_UpdateColors;
-  UpdateAITabsEnabled;
 end;
 
 
@@ -518,17 +369,41 @@ begin
 end;
 
 
+procedure TKMapEdInterface.Player_ActiveClick(Sender: TObject);
+begin
+  //Hide player-specific pages
+  fGuiHouse.Hide;
+  fGuiUnit.Hide;
+  fGuiMarkerDefence.Hide;
+  fGuiMarkerReveal.Hide;
+
+  if MySpectator.Selected <> nil then
+    MySpectator.Selected := nil;
+
+  Player_SetActive(TKMControl(Sender).Tag);
+end;
+
+
+//Active player can be set either from buttons clicked or by selecting a unit or a house
+procedure TKMapEdInterface.Player_SetActive(aIndex: TPlayerIndex);
+var
+  I: Integer;
+begin
+  MySpectator.PlayerIndex := aIndex;
+
+  for I := 0 to MAX_PLAYERS - 1 do
+    Button_PlayerSelect[I].Down := (I = MySpectator.PlayerIndex);
+
+  Player_UpdatePages;
+end;
+
+
 procedure TKMapEdInterface.ShowMarkerInfo(aMarker: TKMMapEdMarker);
 begin
   //fGame.MapEditor.ActiveMarker := aMarker;
+  Assert((aMarker.MarkerType <> mtNone) and (aMarker.Owner <> PLAYER_NONE) and (aMarker.Index <> -1));
 
-  if (aMarker.MarkerType = mtNone) or (aMarker.Owner = PLAYER_NONE) or (aMarker.Index = -1) then
-  begin
-    DisplayPage(nil);
-    Exit;
-  end;
-
-  SetActivePlayer(aMarker.Owner);
+  Player_SetActive(aMarker.Owner);
 
   case aMarker.MarkerType of
     mtDefence:    begin
@@ -574,20 +449,23 @@ begin
   if fGuiUnit.Visible then Exit;
   if fGuiHouse.Visible then Exit;
 
+  //Reset cursor
   GameCursor.Mode := cmNone;
   GameCursor.Tag1 := 0;
-
-  DisplayPage(fActivePage);
 end;
 
 
-procedure TKMapEdInterface.UpdateAITabsEnabled;
+procedure TKMapEdInterface.Player_UpdatePages;
 begin
-  fGuiTown.UpdatePlayer(MySpectator.PlayerIndex);
+  //Update players info on pages
+  //Colors are updated as well
+
+  if fGuiTown.Visible then fGuiTown.ChangePlayer;
+  if fGuiPlayer.Visible then fGuiPlayer.ChangePlayer;
 end;
 
 
-procedure TKMapEdInterface.ExtraMessage_Switch(Sender: TObject);
+procedure TKMapEdInterface.Message_Click(Sender: TObject);
 begin
   if Sender = Image_Extra then
     if fGuiExtras.Visible then
@@ -610,7 +488,7 @@ end;
 
 
 //Update viewport position when user interacts with minimap
-procedure TKMapEdInterface.Minimap_Update(Sender: TObject; const X,Y: Integer);
+procedure TKMapEdInterface.Minimap_OnUpdate(Sender: TObject; const X,Y: Integer);
 begin
   fGame.Viewport.Position := KMPointF(X,Y);
 end;
@@ -631,7 +509,7 @@ begin
 
   //For now enter can open up Extra panel
   if Key = VK_RETURN then
-    ExtraMessage_Switch(Image_Extra);
+    Message_Click(Image_Extra);
 
   if Key = VK_ESCAPE then
   begin
@@ -785,19 +663,19 @@ begin
                   if MySpectator.Selected is TKMHouse then
                   begin
                     HidePages;
-                    SetActivePlayer(TKMHouse(MySpectator.Selected).Owner);
+                    Player_SetActive(TKMHouse(MySpectator.Selected).Owner);
                     fGuiHouse.Show(TKMHouse(MySpectator.Selected));
                   end;
                   if MySpectator.Selected is TKMUnit then
                   begin
                     HidePages;
-                    SetActivePlayer(TKMUnit(MySpectator.Selected).Owner);
+                    Player_SetActive(TKMUnit(MySpectator.Selected).Owner);
                     fGuiUnit.Show(TKMUnit(MySpectator.Selected));
                   end;
                   if MySpectator.Selected is TKMUnitGroup then
                   begin
                     HidePages;
-                    SetActivePlayer(TKMUnitGroup(MySpectator.Selected).Owner);
+                    Player_SetActive(TKMUnitGroup(MySpectator.Selected).Owner);
                     fGuiUnit.Show(TKMUnitGroup(MySpectator.Selected));
                   end;
                 end;
@@ -831,6 +709,65 @@ begin
   fGame.UpdateGameCursor(X, Y, Shift); //Updates the shift state
 
   fGame.MapEditor.MouseUp(Button);
+end;
+
+
+procedure TKMapEdInterface.Paint;
+  procedure PaintTextInShape(aText: string; X,Y: SmallInt; aLineColor: Cardinal);
+  var
+    W: Integer;
+  begin
+    //Paint the background
+    W := 10 + 10 * Length(aText);
+    TKMRenderUI.WriteShape(X - W div 2, Y - 10, W, 20, $80000000);
+    TKMRenderUI.WriteOutline(X - W div 2, Y - 10, W, 20, 2, aLineColor);
+
+    //Paint the label on top of the background
+    TKMRenderUI.WriteText(X, Y - 7, 0, aText, fnt_Metal, taCenter, $FFFFFFFF);
+  end;
+const
+  DefenceLine: array [TAIDefencePosType] of Cardinal = ($FF80FF00, $FFFF8000);
+var
+  I, K: Integer;
+  R: TRawDeposit;
+  DP: TAIDefencePosition;
+  LocF: TKMPointF;
+  ScreenLoc: TKMPointI;
+begin
+  if mlDeposits in fGame.MapEditor.VisibleLayers then
+  begin
+    for R := Low(TRawDeposit) to High(TRawDeposit) do
+      for I := 0 to fGame.MapEditor.Deposits.Count[R] - 1 do
+      //Ignore water areas with 0 fish in them
+      if fGame.MapEditor.Deposits.Amount[R, I] > 0 then
+      begin
+        LocF := gTerrain.FlatToHeight(fGame.MapEditor.Deposits.Location[R, I]);
+        ScreenLoc := fGame.Viewport.MapToScreen(LocF);
+
+        //At extreme zoom coords may become out of range of SmallInt used in controls painting
+        if KMInRect(ScreenLoc, fGame.Viewport.ViewRect) then
+          PaintTextInShape(IntToStr(fGame.MapEditor.Deposits.Amount[R, I]), ScreenLoc.X, ScreenLoc.Y, DEPOSIT_COLORS[R]);
+      end;
+  end;
+
+  if mlDefences in fGame.MapEditor.VisibleLayers then
+  begin
+    for I := 0 to gPlayers.Count - 1 do
+      for K := 0 to gPlayers[I].AI.General.DefencePositions.Count - 1 do
+      begin
+        DP := gPlayers[I].AI.General.DefencePositions[K];
+        LocF := gTerrain.FlatToHeight(KMPointF(DP.Position.Loc.X-0.5, DP.Position.Loc.Y-0.5));
+        ScreenLoc := fGame.Viewport.MapToScreen(LocF);
+
+        if KMInRect(ScreenLoc, fGame.Viewport.ViewRect) then
+        begin
+          PaintTextInShape(IntToStr(K+1), ScreenLoc.X, ScreenLoc.Y - 15, DefenceLine[DP.DefenceType]);
+          TKMRenderUI.WritePicture(ScreenLoc.X, ScreenLoc.Y, 0, 0, [], rxGui, GROUP_IMG[DP.GroupType]);
+        end;
+      end;
+  end;
+
+  inherited;
 end;
 
 
