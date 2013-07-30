@@ -12,6 +12,7 @@ uses
    KM_GUIMapEdTerrain,
    KM_GUIMapEdTown,
    KM_GUIMapEdPlayer,
+   KM_GUIMapEdMission,
    KM_GUIMapEdAttack,
    KM_GUIMapEdFormations,
    KM_GUIMapEdMarkerDefence,
@@ -33,6 +34,7 @@ type
     fGuiTerrain: TKMMapEdTerrain;
     fGuiTown: TKMMapEdTown;
     fGuiPlayer: TKMMapEdPlayer;
+    fGuiMission: TKMMapEdMission;
     fGuiAttack: TKMMapEdAttack;
     fGuiGoal: TKMMapEdGoal;
     fGuiFormations: TKMMapEdFormations;
@@ -40,7 +42,6 @@ type
     fGuiMarkerReveal: TKMMapEdMarkerReveal;
     fGuiMenu: TKMMapEdMenu;
 
-    procedure Create_Mission;
     procedure Create_Extra;
     procedure Create_Message;
 
@@ -48,11 +49,6 @@ type
     procedure Layers_UpdateVisibility;
     procedure Marker_Done(Sender: TObject);
     procedure Minimap_Update(Sender: TObject; const X,Y: Integer);
-    procedure Mission_AlliancesChange(Sender: TObject);
-    procedure Mission_ModeChange(Sender: TObject);
-    procedure Mission_ModeUpdate;
-    procedure Mission_PlayerTypesChange(Sender: TObject);
-    procedure Mission_PlayerTypesUpdate;
     procedure PageChanged(Sender: TObject);
     procedure Player_ChangeActive(Sender: TObject);
     procedure Player_UpdateColors;
@@ -83,17 +79,6 @@ type
 
     //How to know where certain page should be?
     //see Docs\Map Editor menu structure.txt
-
-    //Global things
-    Panel_Mission: TKMPanel;
-      Button_Mission: array [1..3] of TKMButton;
-      Panel_Mode: TKMPanel;
-        Radio_MissionMode: TKMRadioGroup;
-      Panel_Alliances: TKMPanel;
-        CheckBox_Alliances: array [0..MAX_PLAYERS-1, 0..MAX_PLAYERS-1] of TKMCheckBox;
-        CheckBox_AlliancesSym: TKMCheckBox;
-      Panel_PlayerTypes: TKMPanel;
-        CheckBox_PlayerTypes: array [0..MAX_PLAYERS-1, 0..2] of TKMCheckBox;
 
     Panel_Extra: TKMPanel;
       Image_ExtraClose: TKMImage;
@@ -225,9 +210,7 @@ begin
   fGuiTerrain := TKMMapEdTerrain.Create(Panel_Common, PageChanged);
   fGuiTown := TKMMapEdTown.Create(Panel_Common, PageChanged);
   fGuiPlayer := TKMMapEdPlayer.Create(Panel_Common, PageChanged);
-
-  Create_Mission;
-
+  fGuiMission := TKMMapEdMission.Create(Panel_Common, PageChanged);
   fGuiMenu := TKMMapEdMenu.Create(Panel_Common);
 
   //Objects pages
@@ -270,6 +253,7 @@ begin
   fGuiTerrain.Free;
   fGuiTown.Free;
   fGuiPlayer.Free;
+  fGuiMission.Free;
   fGuiAttack.Free;
   fGuiFormations.Free;
   fGuiGoal.Free;
@@ -294,7 +278,7 @@ begin
   if ((Sender = Button_Main[1]) and fGuiTerrain.Visible) or
      ((Sender = Button_Main[2]) and fGuiTown.Visible) or
      ((Sender = Button_Main[3]) and fGuiPlayer.Visible) or
-     ((Sender = Button_Main[4]) and Panel_Mission.Visible) or
+     ((Sender = Button_Main[4]) and fGuiMission.Visible) or
      ((Sender = Button_Main[5]) and fGuiMenu.Visible) then
     Sender := nil;
 
@@ -325,14 +309,11 @@ begin
   end
   else
 
-  if (Sender = Button_Main[4])or(Sender = Button_Mission[1]) then
-    DisplayPage(Panel_Mode)
-  else
-  if (Sender = Button_Mission[2]) then
-    DisplayPage(Panel_Alliances)
-  else
-  if (Sender = Button_Mission[3]) then
-    DisplayPage(Panel_PlayerTypes)
+  if (Sender = Button_Main[4]) then
+  begin
+    HidePages;
+    fGuiMission.Show(mtMode);
+  end
   else
 
   if (Sender = Button_Main[5]) then
@@ -358,16 +339,6 @@ end;
 procedure TKMapEdInterface.DisplayPage(aPage: TKMPanel);
 begin
   HidePages;
-
-  if aPage = Panel_Mode then
-    Mission_ModeUpdate
-  else
-  if aPage = Panel_Alliances then
-    Mission_AlliancesChange(nil)
-  else
-  if aPage = Panel_PlayerTypes then
-    Mission_PlayerTypesUpdate
-  else
 
   //Display the panel (and its parents)
   fActivePage := aPage;
@@ -404,64 +375,6 @@ procedure TKMapEdInterface.Resize(X,Y: Word);
 begin
   Panel_Main.Width := X;
   Panel_Main.Height := Y;
-end;
-
-
-procedure TKMapEdInterface.Create_Mission;
-var I,K: Integer;
-begin
-  Panel_Mission := TKMPanel.Create(Panel_Common, 0, 45, TB_WIDTH, 28);
-    Button_Mission[1] := TKMButton.Create(Panel_Mission, SMALL_PAD_W * 0, 0, SMALL_TAB_W, SMALL_TAB_H, 41, rxGui, bsGame);
-    Button_Mission[1].Hint := gResTexts[TX_MAPED_MISSION_MODE];
-    Button_Mission[2] := TKMButton.Create(Panel_Mission, SMALL_PAD_W * 1, 0, SMALL_TAB_W, SMALL_TAB_H, 386, rxGui, bsGame);
-    Button_Mission[2].Hint := gResTexts[TX_MAPED_ALLIANCE];
-    Button_Mission[3] := TKMButton.Create(Panel_Mission, SMALL_PAD_W * 2, 0, SMALL_TAB_W, SMALL_TAB_H, 656, rxGui, bsGame);
-    Button_Mission[3].Hint := gResTexts[TX_MAPED_PLAYERS_TYPE];
-    for I := 1 to 3 do Button_Mission[I].OnClick := SwitchPage;
-
-    Panel_Mode := TKMPanel.Create(Panel_Mission,0,28,TB_WIDTH,400);
-      TKMLabel.Create(Panel_Mode, 0, PAGE_TITLE_Y, TB_WIDTH, 0, gResTexts[TX_MAPED_MISSION_MODE], fnt_Outline, taCenter);
-      Radio_MissionMode := TKMRadioGroup.Create(Panel_Mode, 0, 30, TB_WIDTH, 40, fnt_Metal);
-      Radio_MissionMode.Add(gResTexts[TX_MAPED_MISSION_NORMAL]);
-      Radio_MissionMode.Add(gResTexts[TX_MAPED_MISSION_TACTIC]);
-      Radio_MissionMode.OnChange := Mission_ModeChange;
-
-    Panel_Alliances := TKMPanel.Create(Panel_Mission,0,28,TB_WIDTH,400);
-      TKMLabel.Create(Panel_Alliances, 0, PAGE_TITLE_Y, TB_WIDTH, 0, gResTexts[TX_MAPED_ALLIANCE], fnt_Outline, taCenter);
-      for I := 0 to MAX_PLAYERS - 1 do
-      begin
-        TKMLabel.Create(Panel_Alliances,24+I*20+2,30,20,20,inttostr(I+1),fnt_Outline,taLeft);
-        TKMLabel.Create(Panel_Alliances,4,50+I*25,20,20,inttostr(I+1),fnt_Outline,taLeft);
-        for K := 0 to MAX_PLAYERS - 1 do
-        begin
-          CheckBox_Alliances[I,K] := TKMCheckBox.Create(Panel_Alliances, 20+K*20, 46+I*25, 20, 20, '', fnt_Metal);
-          CheckBox_Alliances[I,K].Tag       := I * MAX_PLAYERS + K;
-          CheckBox_Alliances[I,K].OnClick   := Mission_AlliancesChange;
-        end;
-      end;
-
-      //It does not have OnClick event for a reason:
-      // - we don't have a rule to make alliances symmetrical yet
-      CheckBox_AlliancesSym := TKMCheckBox.Create(Panel_Alliances, 0, 50+MAX_PLAYERS*25, TB_WIDTH, 20, gResTexts[TX_MAPED_ALLIANCE_SYMMETRIC], fnt_Metal);
-      CheckBox_AlliancesSym.Checked := true;
-      CheckBox_AlliancesSym.Disable;
-
-    Panel_PlayerTypes := TKMPanel.Create(Panel_Mission, 0, 28, TB_WIDTH, 400);
-      TKMLabel.Create(Panel_PlayerTypes, 0, PAGE_TITLE_Y, TB_WIDTH, 0, gResTexts[TX_MAPED_PLAYERS_TYPE], fnt_Outline, taCenter);
-      TKMLabel.Create(Panel_PlayerTypes,  4, 30, 20, 20, '#',       fnt_Grey, taLeft);
-      TKMLabel.Create(Panel_PlayerTypes, 24, 30, 60, 20, gResTexts[TX_MAPED_PLAYERS_DEFAULT], fnt_Grey, taLeft);
-      TKMImage.Create(Panel_PlayerTypes,104, 30, 60, 20, 588, rxGui);
-      TKMImage.Create(Panel_PlayerTypes,164, 30, 20, 20,  62, rxGuiMain);
-      for I := 0 to MAX_PLAYERS - 1 do
-      begin
-        TKMLabel.Create(Panel_PlayerTypes,  4, 50+I*25, 20, 20, IntToStr(I+1), fnt_Outline, taLeft);
-        for K := 0 to 2 do
-        begin
-          CheckBox_PlayerTypes[I,K] := TKMCheckBox.Create(Panel_PlayerTypes, 44+K*60, 48+I*25, 20, 20, '', fnt_Metal);
-          CheckBox_PlayerTypes[I,K].Tag       := I;
-          CheckBox_PlayerTypes[I,K].OnClick   := Mission_PlayerTypesChange;
-        end;
-      end;
 end;
 
 
@@ -708,7 +621,7 @@ begin
 
   fGame.MapEditor.VisibleLayers := [];
 
-  if fGuiPlayer.Visible(ptMarkers) or fGuiMarkerReveal.Visible then
+  if fGuiPlayer.Visible(ptView) or fGuiMarkerReveal.Visible then
     fGame.MapEditor.VisibleLayers := fGame.MapEditor.VisibleLayers + [mlRevealFOW, mlCenterScreen];
 
   if fGuiTown.Visible(ttDefences) or fGuiMarkerDefence.Visible then
@@ -770,7 +683,7 @@ begin
   if Sender = fGuiMarkerReveal then
   begin
     HidePages;
-    fGuiPlayer.Show(ptMarkers);
+    fGuiPlayer.Show(ptView);
   end;
 end;
 
@@ -858,82 +771,6 @@ end;
 procedure TKMapEdInterface.Minimap_Update(Sender: TObject; const X,Y: Integer);
 begin
   fGame.Viewport.Position := KMPointF(X,Y);
-end;
-
-
-procedure TKMapEdInterface.Mission_AlliancesChange(Sender: TObject);
-var I,K: Integer;
-begin
-  if Sender = nil then
-  begin
-    for I:=0 to gPlayers.Count-1 do
-    for K:=0 to gPlayers.Count-1 do
-      if (gPlayers[I]<>nil)and(gPlayers[K]<>nil) then
-        CheckBox_Alliances[I,K].Checked := (gPlayers.CheckAlliance(gPlayers[I].PlayerIndex, gPlayers[K].PlayerIndex)=at_Ally)
-      else
-        CheckBox_Alliances[I,K].Disable; //Player does not exist?
-    exit;
-  end;
-
-  I := TKMCheckBox(Sender).Tag div gPlayers.Count;
-  K := TKMCheckBox(Sender).Tag mod gPlayers.Count;
-  if CheckBox_Alliances[I,K].Checked then gPlayers[I].Alliances[K] := at_Ally
-                                     else gPlayers[I].Alliances[K] := at_Enemy;
-
-  //Copy status to symmetrical item
-  if CheckBox_AlliancesSym.Checked then
-  begin
-    CheckBox_Alliances[K,I].Checked := CheckBox_Alliances[I,K].Checked;
-    gPlayers[K].Alliances[I] := gPlayers[I].Alliances[K];
-  end;
-end;
-
-
-procedure TKMapEdInterface.Mission_ModeChange(Sender: TObject);
-begin
-  fGame.MissionMode := TKMissionMode(Radio_MissionMode.ItemIndex);
-end;
-
-
-procedure TKMapEdInterface.Mission_ModeUpdate;
-begin
-  Radio_MissionMode.ItemIndex := Byte(fGame.MissionMode);
-end;
-
-
-procedure TKMapEdInterface.Mission_PlayerTypesUpdate;
-var I: Integer;
-begin
-  for I := 0 to gPlayers.Count - 1 do
-  begin
-    CheckBox_PlayerTypes[I, 0].Enabled := gPlayers[I].HasAssets;
-    CheckBox_PlayerTypes[I, 1].Enabled := gPlayers[I].HasAssets;
-    CheckBox_PlayerTypes[I, 2].Enabled := gPlayers[I].HasAssets;
-
-    CheckBox_PlayerTypes[I, 0].Checked := gPlayers[I].HasAssets and (fGame.MapEditor.DefaultHuman = I);
-    CheckBox_PlayerTypes[I, 1].Checked := gPlayers[I].HasAssets and fGame.MapEditor.PlayerHuman[I];
-    CheckBox_PlayerTypes[I, 2].Checked := gPlayers[I].HasAssets and fGame.MapEditor.PlayerAI[I];
-  end;
-end;
-
-
-procedure TKMapEdInterface.Mission_PlayerTypesChange(Sender: TObject);
-var PlayerId: Integer;
-begin
-  PlayerId := TKMCheckBox(Sender).Tag;
-
-  //There should be exactly one default human player
-  if Sender = CheckBox_PlayerTypes[PlayerId, 0] then
-    fGame.MapEditor.DefaultHuman := PlayerId;
-
-  if Sender = CheckBox_PlayerTypes[PlayerId, 1] then
-    fGame.MapEditor.PlayerHuman[PlayerId] := CheckBox_PlayerTypes[PlayerId, 1].Checked;
-
-  if Sender = CheckBox_PlayerTypes[PlayerId, 2] then
-    fGame.MapEditor.PlayerAI[PlayerId] := CheckBox_PlayerTypes[PlayerId, 2].Checked;
-
-  Mission_PlayerTypesUpdate;
-  UpdateAITabsEnabled;
 end;
 
 

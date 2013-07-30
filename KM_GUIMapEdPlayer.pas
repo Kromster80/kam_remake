@@ -62,7 +62,7 @@ begin
 
   fOnPageChange := aOnPageChange;
 
-  Panel_Player := TKMPanel.Create(aParent,0,45, TB_WIDTH,28);
+  Panel_Player := TKMPanel.Create(aParent, 0, 45, TB_WIDTH, 28);
 
   for PT := Low(TKMPlayerTab) to High(TKMPlayerTab) do
   begin
