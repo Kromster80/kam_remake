@@ -2,7 +2,7 @@ unit KM_GUIMapEdExtras;
 {$I KaM_Remake.inc}
 interface
 uses
-   Classes, Controls,
+   Classes, Controls, SysUtils,
    KM_Controls, KM_Defaults;
 
 type
@@ -17,12 +17,12 @@ type
     Image_ExtraClose: TKMImage;
     TrackBar_Passability: TKMTrackBar;
     Label_Passability: TKMLabel;
+    Dropbox_PlayerFOW: TKMDropList;
+  public
     CheckBox_ShowObjects: TKMCheckBox;
     CheckBox_ShowHouses: TKMCheckBox;
     CheckBox_ShowUnits: TKMCheckBox;
     CheckBox_ShowDeposits: TKMCheckBox;
-    Dropbox_PlayerFOW: TKMDropList;
-  public
     constructor Create(aParent: TKMPanel; aOnChange: TNotifyEvent);
 
     procedure Show;
@@ -39,6 +39,8 @@ uses
 
 { TKMMapEdExtras }
 constructor TKMMapEdExtras.Create(aParent: TKMPanel; aOnChange: TNotifyEvent);
+var
+  I: Integer;
 begin
   inherited Create;
 
@@ -82,6 +84,11 @@ begin
 
   //dropdown list needs to be ontop other buttons created on Panel_Main
   Dropbox_PlayerFOW := TKMDropList.Create(Panel_Extra, 460, 70, 160, 20, fnt_Metal, '', bsGame);
+
+  Dropbox_PlayerFOW.Add('Show all', -1);
+  for I := 0 to MAX_PLAYERS - 1 do
+    Dropbox_PlayerFOW.Add(Format(gResTexts[TX_PLAYER_X], [I]), I);
+
   Dropbox_PlayerFOW.Hint := gResTexts[TX_REPLAY_PLAYER_PERSPECTIVE];
   Dropbox_PlayerFOW.OnChange := Extra_FOWChange;
   //todo: This feature isn't working properly yet so it's hidden. FOW should be set by
@@ -107,7 +114,6 @@ end;
 procedure TKMMapEdExtras.Extra_Close(Sender: TObject);
 begin
   Hide;
-  gSoundPlayer.Play(sfxn_MPChatClose);
 end;
 
 
@@ -120,12 +126,14 @@ end;
 
 procedure TKMMapEdExtras.Hide;
 begin
+  gSoundPlayer.Play(sfxn_MPChatClose);
   Panel_Extra.Hide;
 end;
 
 
 procedure TKMMapEdExtras.Show;
 begin
+  gSoundPlayer.Play(sfxn_MPChatOpen);
   Panel_Extra.Show;
 end;
 

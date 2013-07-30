@@ -154,6 +154,7 @@
 			<DCCReference Include="KM_GUIMapEdMenuLoad.pas"/>
 			<DCCReference Include="KM_GUIMapEdMenuSave.pas"/>
 			<DCCReference Include="KM_GUIMapEdMenuQuit.pas"/>
+			<DCCReference Include="KM_GUIMapEdMessage.pas"/>
 			<DCCReference Include="KM_GUIMapEdPlayer.pas"/>
 			<DCCReference Include="KM_GUIMapEdPlayerBlockHouse.pas"/>
 			<DCCReference Include="KM_GUIMapEdPlayerBlockTrade.pas"/>

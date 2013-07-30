@@ -15,6 +15,7 @@ uses
    KM_GUIMapEdMission,
    KM_GUIMapEdAttack,
    KM_GUIMapEdExtras,
+   KM_GUIMapEdMessage,
    KM_GUIMapEdFormations,
    KM_GUIMapEdMarkerDefence,
    KM_GUIMapEdMarkerReveal,
@@ -40,11 +41,10 @@ type
     fGuiGoal: TKMMapEdGoal;
     fGuiFormations: TKMMapEdFormations;
     fGuiExtras: TKMMapEdExtras;
+    fGuiMessage: TKMMapEdMessage;
     fGuiMarkerDefence: TKMMapEdMarkerDefence;
     fGuiMarkerReveal: TKMMapEdMarkerReveal;
     fGuiMenu: TKMMapEdMenu;
-
-    procedure Create_Message;
 
     procedure Layers_UpdateVisibility;
     procedure Marker_Done(Sender: TObject);
@@ -54,7 +54,7 @@ type
     procedure Player_UpdateColors;
     procedure ExtraMessage_Switch(Sender: TObject);
 
-    procedure SwitchPage(Sender: TObject);
+    procedure Main_ButtonClick(Sender: TObject);
     procedure HidePages;
     procedure DisplayPage(aPage: TKMPanel);
     procedure DisplayHint(Sender: TObject);
@@ -75,23 +75,6 @@ type
       Label_MissionName: TKMLabel;
       Image_Extra: TKMImage;
       Image_Message: TKMImage;
-
-    //How to know where certain page should be?
-    //see Docs\Map Editor menu structure.txt
-
-    Panel_Extra: TKMPanel;
-      Image_ExtraClose: TKMImage;
-      TrackBar_Passability:TKMTrackBar;
-      Label_Passability:TKMLabel;
-      CheckBox_ShowObjects: TKMCheckBox;
-      CheckBox_ShowHouses: TKMCheckBox;
-      CheckBox_ShowUnits: TKMCheckBox;
-      CheckBox_ShowDeposits: TKMCheckBox;
-      Dropbox_PlayerFOW: TKMDropList;
-
-    Panel_Message: TKMPanel;
-      Label_Message: TKMLabel;
-      Image_MessageClose: TKMImage;
   public
     constructor Create(aScreenX, aScreenY: word);
     destructor Destroy; override;
@@ -163,7 +146,7 @@ begin
 
   //Must be created before Hint so it goes over them
   fGuiExtras := TKMMapEdExtras.Create(Panel_Main, PageChanged);
-  Create_Message;
+  fGuiMessage := TKMMapEdMessage.Create(Panel_Main);
 
     Bevel_HintBG := TKMBevel.Create(Panel_Main,224+32,Panel_Main.Height-23,300,21);
     Bevel_HintBG.BackAlpha := 0.5;
@@ -187,7 +170,7 @@ begin
     Button_Main[4].Hint := gResTexts[TX_MAPED_SCRIPTS_GLOBAL];
     Button_Main[5].Hint := gResTexts[TX_MAPED_MENU];
     for I := 1 to 5 do
-      Button_Main[I].OnClick := SwitchPage;
+      Button_Main[I].OnClick := Main_ButtonClick;
 
 {I plan to store all possible layouts on different pages which gets displayed one at a time}
 {==========================================================================================}
@@ -253,7 +236,7 @@ end;
 
 
 {Switch between pages}
-procedure TKMapEdInterface.SwitchPage(Sender: TObject);
+procedure TKMapEdInterface.Main_ButtonClick(Sender: TObject);
 begin
   //Reset cursor mode
   GameCursor.Mode := cmNone;
@@ -268,9 +251,9 @@ begin
     Sender := nil;
 
   //Reset shown item if user clicked on any of the main buttons
-  if (Sender=Button_Main[1])or(Sender=Button_Main[2])or
-     (Sender=Button_Main[3])or(Sender=Button_Main[4])or
-     (Sender=Button_Main[5]) then
+  if (Sender = Button_Main[1])or(Sender = Button_Main[2])or
+     (Sender = Button_Main[3])or(Sender = Button_Main[4])or
+     (Sender = Button_Main[5]) then
     MySpectator.Selected := nil;
 
   if (Sender = Button_Main[1]) then
@@ -360,28 +343,6 @@ procedure TKMapEdInterface.Resize(X,Y: Word);
 begin
   Panel_Main.Width := X;
   Panel_Main.Height := Y;
-end;
-
-
-procedure TKMapEdInterface.Create_Message;
-begin
-  Panel_Message := TKMPanel.Create(Panel_Main, TOOLBAR_WIDTH, Panel_Main.Height - 190, Panel_Main.Width - TOOLBAR_WIDTH, 190);
-  Panel_Message.Anchors := [akLeft, akBottom];
-  Panel_Message.Hide;
-
-    with TKMImage.Create(Panel_Message, 0, 0, 800, 190, 409) do
-    begin
-      Anchors := [akLeft, akTop, akBottom];
-      ImageStretch;
-    end;
-
-    Image_MessageClose := TKMImage.Create(Panel_Message, 800-35, 20, 32, 32, 52);
-    Image_MessageClose.Anchors := [akTop, akRight];
-    Image_MessageClose.Hint := gResTexts[TX_MSG_CLOSE_HINT];
-    Image_MessageClose.OnClick := ExtraMessage_Switch;
-    Image_MessageClose.HighlightOnMouseOver := True;
-
-    Label_Message := TKMLabel.Create(Panel_Message, 40, 50, 7000, 0, '', fnt_Grey, taLeft);
 end;
 
 
@@ -484,7 +445,6 @@ end;
 procedure TKMapEdInterface.Player_UpdateColors;
 var
   I: Integer;
-  PrevIndex: Integer;
 begin
   //Set player colors
   for I := 0 to MAX_PLAYERS - 1 do
@@ -492,15 +452,6 @@ begin
 
   //Update pages that have colored elements to match new players color
   fGuiTown.UpdatePlayer(MySpectator.PlayerIndex);
-
-  PrevIndex := Dropbox_PlayerFOW.ItemIndex;
-  Dropbox_PlayerFOW.Clear;
-  Dropbox_PlayerFOW.Add('Show all', -1);
-  for I := 0 to MAX_PLAYERS - 1 do
-    Dropbox_PlayerFOW.Add('[$' + IntToHex(FlagColorToTextColor(gPlayers[I].FlagColor) and $00FFFFFF, 6) + ']' + gPlayers[I].GetFormattedPlayerName, I);
-  if PrevIndex = -1 then
-    PrevIndex := 0; //Select Show All
-  Dropbox_PlayerFOW.ItemIndex := PrevIndex;
 end;
 
 
@@ -550,19 +501,19 @@ begin
   if fGuiTown.Visible(ttDefences) or fGuiMarkerDefence.Visible then
     fGame.MapEditor.VisibleLayers := fGame.MapEditor.VisibleLayers + [mlDefences];
 
-  if CheckBox_ShowObjects.Checked or fGuiTerrain.Visible(ttObject) then
+  if fGuiExtras.CheckBox_ShowObjects.Checked or fGuiTerrain.Visible(ttObject) then
     fGame.MapEditor.VisibleLayers := fGame.MapEditor.VisibleLayers + [mlObjects];
 
-  if CheckBox_ShowHouses.Checked or fGuiTown.Visible(ttHouses) or fGuiHouse.Visible then
+  if fGuiExtras.CheckBox_ShowHouses.Checked or fGuiTown.Visible(ttHouses) or fGuiHouse.Visible then
     fGame.MapEditor.VisibleLayers := fGame.MapEditor.VisibleLayers + [mlHouses];
 
-  if CheckBox_ShowUnits.Checked or fGuiTown.Visible(ttUnits) or fGuiUnit.Visible then
+  if fGuiExtras.CheckBox_ShowUnits.Checked or fGuiTown.Visible(ttUnits) or fGuiUnit.Visible then
     fGame.MapEditor.VisibleLayers := fGame.MapEditor.VisibleLayers + [mlUnits];
 
   if fGuiTerrain.Visible(ttSelection) then
     fGame.MapEditor.VisibleLayers := fGame.MapEditor.VisibleLayers + [mlSelection];
 
-  if CheckBox_ShowDeposits.Checked then
+  if fGuiExtras.CheckBox_ShowDeposits.Checked then
     fGame.MapEditor.VisibleLayers := fGame.MapEditor.VisibleLayers + [mlDeposits];
 end;
 
@@ -594,8 +545,7 @@ end;
 
 procedure TKMapEdInterface.ShowMessage(aText: string);
 begin
-  Label_Message.Caption := aText;
-  Panel_Message.Show;
+  fGuiMessage.Show(aText);
   Image_Message.Show; //Hidden by default, only visible when a message is shown
 end;
 
@@ -639,42 +589,23 @@ end;
 
 procedure TKMapEdInterface.ExtraMessage_Switch(Sender: TObject);
 begin
-  //Don't use DisplayPage because that hides other stuff
   if Sender = Image_Extra then
-  begin
-    if Panel_Extra.Visible then
-    begin
-      Panel_Extra.Hide;
-      gSoundPlayer.Play(sfxn_MPChatClose);
-    end
+    if fGuiExtras.Visible then
+      fGuiExtras.Hide
     else
     begin
-      Panel_Extra.Show;
-      Panel_Message.Hide;
-      gSoundPlayer.Play(sfxn_MPChatOpen);
+      fGuiMessage.Hide;
+      fGuiExtras.Show;
     end;
-  end;
 
   if Sender = Image_Message then
-  begin
-    if Panel_Message.Visible then
-    begin
-      Panel_Message.Hide;
-      gSoundPlayer.Play(sfxn_MPChatClose);
-    end
+    if fGuiMessage.Visible then
+      fGuiMessage.Hide
     else
     begin
-      Panel_Message.Show;
-      Panel_Extra.Hide;
-      gSoundPlayer.Play(sfxn_MPChatOpen);
+      fGuiMessage.Show;
+      fGuiExtras.Hide;
     end;
-  end
-  else
-  if Sender = Image_MessageClose then
-  begin
-    Panel_Message.Hide;
-    gSoundPlayer.Play(sfxn_MPChatClose);
-  end;
 end;
 
 
@@ -703,8 +634,10 @@ begin
     ExtraMessage_Switch(Image_Extra);
 
   if Key = VK_ESCAPE then
-    if Image_MessageClose.Click
-    or Image_ExtraClose.Click then ;
+  begin
+    fGuiMessage.Hide;
+    fGuiExtras.Hide;
+  end;
 
   //Scrolling
   if Key = VK_LEFT  then fGame.Viewport.ScrollKeyLeft  := True;
