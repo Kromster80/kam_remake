@@ -18,6 +18,7 @@ uses
    KM_GUIMapEdMenu,
    KM_GUIMapEdUnit,
 
+   KM_GUIMapEdPlayerColors,
    KM_GUIMapEdPlayerGoals;
 
 type
@@ -42,6 +43,7 @@ type
     fGuiMarkerReveal: TKMMapEdMarkerReveal;
     fGuiMenu: TKMMapEdMenu;
 
+    fGuiPlayerColors: TKMMapEdPlayerColors;
     fGuiPlayerGoals: TKMMapEdPlayerGoals;
 
     procedure Create_Player;
@@ -64,7 +66,6 @@ type
     procedure Player_BlockTradeClick(Sender: TObject);
     procedure Player_BlockTradeRefresh;
     procedure Player_ChangeActive(Sender: TObject);
-    procedure Player_ColorClick(Sender: TObject);
     procedure Player_MarkerClick(Sender: TObject);
     procedure Player_UpdateColors;
     procedure Player_FOWChange(Sender: TObject);
@@ -98,8 +99,6 @@ type
     //Non-visual stuff per-player
     Panel_Player: TKMPanel;
       Button_Player: array [TKMPlayerTab] of TKMButton;
-      Panel_Color: TKMPanel;
-        ColorSwatch_Color: TKMColorSwatch;
       Panel_BlockHouse: TKMPanel;
         Button_BlockHouse: array [1 .. GUI_HOUSE_COUNT] of TKMButtonFlat;
         Image_BlockHouse: array [1 .. GUI_HOUSE_COUNT] of TKMImage;
@@ -306,6 +305,7 @@ begin
   fGuiMenu.Free;
 
   fGuiPlayerGoals.Free;
+  fGuiPlayerColors.Free;
 
   SHOW_TERRAIN_WIRES := false; //Don't show it in-game if they left it on in MapEd
   SHOW_TERRAIN_PASS := 0; //Don't show it in-game if they left it on in MapEd
@@ -355,7 +355,10 @@ begin
   end
   else
   if (Sender = Button_Player[ptColor]) then
-    DisplayPage(Panel_Color)
+  begin
+    HidePages;
+    fGuiPlayerColors.Show;
+  end
   else
   if (Sender = Button_Player[ptBlockHouse]) then
     DisplayPage(Panel_BlockHouse)
@@ -401,9 +404,6 @@ procedure TKMapEdInterface.DisplayPage(aPage: TKMPanel);
 begin
   HidePages;
 
-  if aPage = Panel_Color then
-
-  else
   if aPage = Panel_BlockHouse then
     Player_BlockHouseRefresh
   else
@@ -474,7 +474,6 @@ const
     TX_MAPED_FOG);
 var
   I: Integer;
-  Col: array [0..255] of TColor4;
   PT: TKMPlayerTab;
 begin
   Panel_Player := TKMPanel.Create(Panel_Common,0,45, TB_WIDTH,28);
@@ -487,15 +486,7 @@ begin
     end;
 
     fGuiPlayerGoals := TKMMapEdPlayerGoals.Create(Panel_Player);
-
-    //Players color
-    Panel_Color := TKMPanel.Create(Panel_Player, 0, 28, TB_WIDTH, 400);
-      TKMLabel.Create(Panel_Color, 0, PAGE_TITLE_Y, TB_WIDTH, 0, gResTexts[TX_MAPED_PLAYER_COLORS], fnt_Outline, taCenter);
-      TKMBevel.Create(Panel_Color, 0, 30, TB_WIDTH, 210);
-      ColorSwatch_Color := TKMColorSwatch.Create(Panel_Color, 0, 32, 16, 16, 11);
-      for I := 0 to 255 do Col[I] := fResource.Palettes.DefDal.Color32(I);
-      ColorSwatch_Color.SetColors(Col);
-      ColorSwatch_Color.OnClick := Player_ColorClick;
+    fGuiPlayerColors := TKMMapEdPlayerColors.Create(Panel_Player);
 
     //Allow/Block house building
     Panel_BlockHouse := TKMPanel.Create(Panel_Player, 0, 28, TB_WIDTH, 400);
@@ -985,14 +976,6 @@ begin
     Panel_Message.Hide;
     gSoundPlayer.Play(sfxn_MPChatClose);
   end;
-end;
-
-
-procedure TKMapEdInterface.Player_ColorClick(Sender: TObject);
-begin
-  if not (Sender = ColorSwatch_Color) then exit;
-  gPlayers[MySpectator.PlayerIndex].FlagColor := ColorSwatch_Color.GetColor;
-  Player_UpdateColors;
 end;
 
 
