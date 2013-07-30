@@ -189,8 +189,21 @@ begin
   until i = 0;
 
   //Remove eol symbols (irregardless of EOL-style)
-  StringReplace(fileOfText, #10, '', [rfReplaceAll, rfIgnoreCase]);
-  StringReplace(fileOfText, #13, '', [rfReplaceAll, rfIgnoreCase]);
+  // doesnt work yet, assertion in ScanUnitName fails
+  {StringReplace(fileOfText, #10, '', [rfReplaceAll, rfIgnoreCase]);
+  StringReplace(fileOfText, #13, '', [rfReplaceAll, rfIgnoreCase]);}
+
+  // Deleting eol symbols
+  i := 1;
+  while i < Length( fileOfText )  do
+  begin
+    if ( fileOfText[i] = #13 ) then
+    begin
+      delete( fileOfText, i, 2 );
+      insert( ' ', fileOfText, i );
+    end;
+    inc(i);
+  end;
 
   // Deleting extra whitespaces
   i := 1;

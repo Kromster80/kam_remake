@@ -76,7 +76,6 @@ end;
 procedure TForm1.ButBuildGraphClick(Sender: TObject);
 begin
   DepGraphThread := TDepGraphThread.Create( False );
-  //DepGraphThread.Execute();
 end;
 
 
