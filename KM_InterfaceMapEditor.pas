@@ -19,6 +19,7 @@ uses
    KM_GUIMapEdUnit,
 
    KM_GUIMapEdPlayerBlockHouse,
+   KM_GUIMapEdPlayerBlockTrade,
    KM_GUIMapEdPlayerColors,
    KM_GUIMapEdPlayerGoals;
 
@@ -45,6 +46,7 @@ type
     fGuiMenu: TKMMapEdMenu;
 
     fGuiPlayerBlockHouse: TKMMapEdPlayerBlockHouse;
+    fGuiPlayerBlockTrade: TKMMapEdPlayerBlockTrade;
     fGuiPlayerColors: TKMMapEdPlayerColors;
     fGuiPlayerGoals: TKMMapEdPlayerGoals;
 
@@ -63,8 +65,6 @@ type
     procedure Mission_PlayerTypesChange(Sender: TObject);
     procedure Mission_PlayerTypesUpdate;
     procedure PageChanged(Sender: TObject);
-    procedure Player_BlockTradeClick(Sender: TObject);
-    procedure Player_BlockTradeRefresh;
     procedure Player_ChangeActive(Sender: TObject);
     procedure Player_MarkerClick(Sender: TObject);
     procedure Player_UpdateColors;
@@ -99,9 +99,6 @@ type
     //Non-visual stuff per-player
     Panel_Player: TKMPanel;
       Button_Player: array [TKMPlayerTab] of TKMButton;
-      Panel_BlockTrade: TKMPanel;
-        Button_BlockTrade: array [1 .. STORE_RES_COUNT] of TKMButtonFlat;
-        Image_BlockTrade: array [1 .. STORE_RES_COUNT] of TKMImage;
       Panel_Markers: TKMPanel;
         Button_Reveal: TKMButtonFlat;
         TrackBar_RevealNewSize: TKMTrackBar;
@@ -302,6 +299,7 @@ begin
   fGuiMenu.Free;
 
   fGuiPlayerBlockHouse.Free;
+  fGuiPlayerBlockTrade.Free;
   fGuiPlayerColors.Free;
   fGuiPlayerGoals.Free;
 
@@ -365,7 +363,10 @@ begin
   end
   else
   if (Sender = Button_Player[ptBlockTrade]) then
-    DisplayPage(Panel_BlockTrade)
+  begin
+    HidePages;
+    fGuiPlayerBlockTrade.Show;
+  end
   else
   if (Sender = Button_Player[ptMarkers]) then
     DisplayPage(Panel_Markers)
@@ -405,9 +406,6 @@ procedure TKMapEdInterface.DisplayPage(aPage: TKMPanel);
 begin
   HidePages;
 
-  if aPage = Panel_BlockTrade then
-    Player_BlockTradeRefresh
-  else
   if aPage = Panel_Markers then
     Player_MarkerClick(nil)
   else
@@ -471,7 +469,6 @@ const
     TX_MAPED_BLOCK_TRADE,
     TX_MAPED_FOG);
 var
-  I: Integer;
   PT: TKMPlayerTab;
 begin
   Panel_Player := TKMPanel.Create(Panel_Common,0,45, TB_WIDTH,28);
@@ -486,21 +483,7 @@ begin
     fGuiPlayerGoals := TKMMapEdPlayerGoals.Create(Panel_Player);
     fGuiPlayerColors := TKMMapEdPlayerColors.Create(Panel_Player);
     fGuiPlayerBlockHouse := TKMMapEdPlayerBlockHouse.Create(Panel_Player);
-
-    //Allow/Block ware trading
-    Panel_BlockTrade := TKMPanel.Create(Panel_Player, 0, 28, TB_WIDTH, 400);
-      TKMLabel.Create(Panel_BlockTrade, 0, PAGE_TITLE_Y, TB_WIDTH, 0, gResTexts[TX_MAPED_BLOCK_TRADE], fnt_Outline, taCenter);
-      for I := 1 to STORE_RES_COUNT do
-      begin
-        Button_BlockTrade[I] := TKMButtonFlat.Create(Panel_BlockTrade, ((I-1) mod 5)*37, 30 + ((I-1) div 5)*37,33,33, 0);
-        Button_BlockTrade[I].TexID := fResource.Wares[StoreResType[I]].GUIIcon;
-        Button_BlockTrade[I].Hint := fResource.Wares[StoreResType[I]].Title;
-        Button_BlockTrade[I].OnClick := Player_BlockTradeClick;
-        Button_BlockTrade[I].Tag := I;
-        Image_BlockTrade[I] := TKMImage.Create(Panel_BlockTrade, ((I-1) mod 5)*37 + 13, 30 + ((I-1) div 5)*37 + 13, 16, 16, 0, rxGuiMain);
-        Image_BlockTrade[I].Hitable := False;
-        Image_BlockTrade[I].ImageCenter;
-      end;
+    fGuiPlayerBlockTrade := TKMMapEdPlayerBlockTrade.Create(Panel_Player);
 
     //FOW settings
     Panel_Markers := TKMPanel.Create(Panel_Player, 0, 28, TB_WIDTH, 400);
@@ -967,36 +950,6 @@ procedure TKMapEdInterface.Player_FOWChange(Sender: TObject);
 begin
   MySpectator.FOWIndex := Dropbox_PlayerFOW.GetTag(Dropbox_PlayerFOW.ItemIndex);
   fGame.Minimap.Update(False); //Force update right now so FOW doesn't appear to lag
-end;
-
-
-procedure TKMapEdInterface.Player_BlockTradeClick(Sender: TObject);
-var
-  I: Integer;
-  R: TWareType;
-begin
-  I := TKMButtonFlat(Sender).Tag;
-  R := StoreResType[I];
-
-  gPlayers[MySpectator.PlayerIndex].Stats.AllowToTrade[R] := not gPlayers[MySpectator.PlayerIndex].Stats.AllowToTrade[R];
-
-  Player_BlockTradeRefresh;
-end;
-
-
-procedure TKMapEdInterface.Player_BlockTradeRefresh;
-var
-  I: Integer;
-  R: TWareType;
-begin
-  for I := 1 to STORE_RES_COUNT do
-  begin
-    R := StoreResType[I];
-    if gPlayers[MySpectator.PlayerIndex].Stats.AllowToTrade[R] then
-      Image_BlockTrade[I].TexID := 0
-    else
-      Image_BlockTrade[I].TexID := 32; //Red cross
-  end;
 end;
 
 

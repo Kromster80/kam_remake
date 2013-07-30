@@ -12,8 +12,8 @@ type
     procedure Player_BlockHouseRefresh;
   protected
     Panel_BlockHouse: TKMPanel;
-    Button_BlockHouse: array [1 .. GUI_HOUSE_COUNT] of TKMButtonFlat;
-    Image_BlockHouse: array [1 .. GUI_HOUSE_COUNT] of TKMImage;
+    Button_BlockHouse: array [1..GUI_HOUSE_COUNT] of TKMButtonFlat;
+    Image_BlockHouse: array [1..GUI_HOUSE_COUNT] of TKMImage;
   public
     constructor Create(aParent: TKMPanel);
 
