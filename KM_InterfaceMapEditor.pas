@@ -112,17 +112,6 @@ type
   end;
 
 
-const
-  BIG_TAB_W = 37;
-  BIG_PAD_W = 37;
-  BIG_TAB_H = 36;
-  //BIG_PAD_H = 40;
-  SMALL_TAB_W = 32;
-  SMALL_PAD_W = SMALL_TAB_W + 0;
-  SMALL_TAB_H = 26;
-  //SMALL_PAD_H = SMALL_TAB_H + 4;
-
-
 implementation
 uses
   KM_PlayersCollection, KM_ResTexts, KM_Game, KM_Main, KM_GameCursor,
@@ -131,10 +120,6 @@ uses
   KM_ResFonts;
 
 const
-  GROUP_TEXT: array [TGroupType] of Integer = (
-    TX_MAPED_AI_ATTACK_TYPE_MELEE, TX_MAPED_AI_ATTACK_TYPE_ANTIHORSE,
-    TX_MAPED_AI_ATTACK_TYPE_RANGED, TX_MAPED_AI_ATTACK_TYPE_MOUNTED);
-
   GROUP_IMG: array [TGroupType] of Word = (
     371, 374,
     376, 377);

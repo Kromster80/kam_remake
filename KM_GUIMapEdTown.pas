@@ -2,14 +2,13 @@ unit KM_GUIMapEdTown;
 {$I KaM_Remake.inc}
 interface
 uses
-   Classes, Controls, Math, SysUtils,
-   KM_Controls, KM_Defaults, KM_Pics,
-   KM_InterfaceDefaults,
-   KM_GUIMapEdTownHouses,
-   KM_GUIMapEdTownUnits,
-   KM_GUIMapEdTownScript,
-   KM_GUIMapEdTownDefence,
-   KM_GUIMapEdTownOffence;
+  Classes, Controls, Math, SysUtils,
+  KM_Controls, KM_Defaults, KM_Pics,
+  KM_GUIMapEdTownHouses,
+  KM_GUIMapEdTownUnits,
+  KM_GUIMapEdTownScript,
+  KM_GUIMapEdTownDefence,
+  KM_GUIMapEdTownOffence;
 
 type
   TKMTownTab = (ttHouses, ttUnits, ttScript, ttDefences, ttOffence);
@@ -41,7 +40,8 @@ type
 
 implementation
 uses
-  KM_Player, KM_PlayersCollection, KM_ResTexts, KM_GameCursor, KM_RenderUI, KM_InterfaceMapEditor;
+  KM_Player, KM_PlayersCollection, KM_ResTexts, KM_GameCursor,
+  KM_InterfaceDefaults, KM_RenderUI;
 
 
 { TKMMapEdTown }

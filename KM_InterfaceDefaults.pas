@@ -168,6 +168,15 @@ const
 
   MARKET_RES_HEIGHT = 35;
 
+  //Big tab buttons in MapEd
+  BIG_TAB_W = 37;
+  BIG_PAD_W = 37;
+  BIG_TAB_H = 36;
+  //Small sub-tab buttons in MapEd
+  SMALL_TAB_W = 32;
+  SMALL_PAD_W = SMALL_TAB_W + 0;
+  SMALL_TAB_H = 26;
+
 
 implementation
 

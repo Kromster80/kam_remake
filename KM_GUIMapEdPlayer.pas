@@ -4,7 +4,6 @@ interface
 uses
    Classes, Controls, Math, SysUtils,
    KM_Controls, KM_Defaults, KM_Pics,
-   KM_InterfaceDefaults,
    KM_GUIMapEdPlayerBlockHouse,
    KM_GUIMapEdPlayerBlockTrade,
    KM_GUIMapEdPlayerColors,
@@ -41,7 +40,8 @@ type
 
 implementation
 uses
-  KM_Player, KM_PlayersCollection, KM_ResTexts, KM_GameCursor, KM_RenderUI, KM_InterfaceMapEditor;
+  KM_Player, KM_PlayersCollection, KM_ResTexts, KM_GameCursor,
+  KM_RenderUI, KM_InterfaceDefaults;
 
 
 { TKMMapEdPlayer }

@@ -159,6 +159,7 @@
 			<DCCReference Include="KM_GUIMapEdPlayerColors.pas"/>
 			<DCCReference Include="KM_GUIMapEdPlayerGoals.pas"/>
 			<DCCReference Include="KM_GUIMapEdPlayerView.pas"/>
+			<DCCReference Include="KM_GUIMapEdMission.pas"/>
 			<DCCReference Include="KM_GUIMapEdMissionAlliances.pas"/>
 			<DCCReference Include="KM_GUIMapEdMissionMode.pas"/>
 			<DCCReference Include="KM_GUIMapEdMissionPlayers.pas"/>

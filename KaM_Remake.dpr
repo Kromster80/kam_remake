@@ -64,6 +64,7 @@ uses
   KM_GUIMapEdPlayerColors in 'KM_GUIMapEdPlayerColors.pas',
   KM_GUIMapEdPlayerGoals in 'KM_GUIMapEdPlayerGoals.pas',
   KM_GUIMapEdPlayerView in 'KM_GUIMapEdPlayerView.pas',
+  KM_GUIMapEdMission in 'KM_GUIMapEdMission.pas',
   KM_GUIMapEdMissionAlliances in 'KM_GUIMapEdMissionAlliances.pas',
   KM_GUIMapEdMissionMode in 'KM_GUIMapEdMissionMode.pas',
   KM_GUIMapEdMissionPlayers in 'KM_GUIMapEdMissionPlayers.pas',
