@@ -289,6 +289,23 @@ type
 
   THeightPass = (hpWalking, hpBuilding, hpBuildingMines);
 
+const
+  PassabilityText: array [TPassability] of UnicodeString = (
+    'Unused',
+    'CanWalk',
+    'CanWalkRoad',
+    'CanBuild',
+    'CanMakeRoads',
+    'CanFish',
+    'CanCrab',
+    'CanWolf',
+    'CanElevate',
+    'CanWorker',
+    'CanOwn',
+    'CanFactor'
+  );
+
+
 type
   TWalkConnect = (
     wcWalk,

@@ -14,6 +14,7 @@ uses
    KM_GUIMapEdPlayer,
    KM_GUIMapEdMission,
    KM_GUIMapEdAttack,
+   KM_GUIMapEdExtras,
    KM_GUIMapEdFormations,
    KM_GUIMapEdMarkerDefence,
    KM_GUIMapEdMarkerReveal,
@@ -38,21 +39,19 @@ type
     fGuiAttack: TKMMapEdAttack;
     fGuiGoal: TKMMapEdGoal;
     fGuiFormations: TKMMapEdFormations;
+    fGuiExtras: TKMMapEdExtras;
     fGuiMarkerDefence: TKMMapEdMarkerDefence;
     fGuiMarkerReveal: TKMMapEdMarkerReveal;
     fGuiMenu: TKMMapEdMenu;
 
-    procedure Create_Extra;
     procedure Create_Message;
 
-    procedure Extra_Change(Sender: TObject);
     procedure Layers_UpdateVisibility;
     procedure Marker_Done(Sender: TObject);
     procedure Minimap_Update(Sender: TObject; const X,Y: Integer);
     procedure PageChanged(Sender: TObject);
     procedure Player_ChangeActive(Sender: TObject);
     procedure Player_UpdateColors;
-    procedure Player_FOWChange(Sender: TObject);
     procedure ExtraMessage_Switch(Sender: TObject);
 
     procedure SwitchPage(Sender: TObject);
@@ -163,7 +162,7 @@ begin
     Button_PlayerSelect[0].Down := True; //First player selected by default
 
   //Must be created before Hint so it goes over them
-  Create_Extra;
+  fGuiExtras := TKMMapEdExtras.Create(Panel_Main, PageChanged);
   Create_Message;
 
     Bevel_HintBG := TKMBevel.Create(Panel_Main,224+32,Panel_Main.Height-23,300,21);
@@ -240,6 +239,7 @@ begin
   fGuiPlayer.Free;
   fGuiMission.Free;
   fGuiAttack.Free;
+  fGuiExtras.Free;
   fGuiFormations.Free;
   fGuiGoal.Free;
   fGuiMarkerDefence.Free;
@@ -360,54 +360,6 @@ procedure TKMapEdInterface.Resize(X,Y: Word);
 begin
   Panel_Main.Width := X;
   Panel_Main.Height := Y;
-end;
-
-
-procedure TKMapEdInterface.Create_Extra;
-begin
-  Panel_Extra := TKMPanel.Create(Panel_Main, TOOLBAR_WIDTH, Panel_Main.Height - 190, 600, 190);
-  Panel_Extra.Anchors := [akLeft, akBottom];
-  Panel_Extra.Hide;
-
-    with TKMImage.Create(Panel_Extra, 0, 0, 600, 190, 409) do
-    begin
-      Anchors := [akLeft, akTop, akBottom];
-      ImageAnchors := [akLeft, akRight, akTop];
-    end;
-
-    Image_ExtraClose := TKMImage.Create(Panel_Extra, 600 - 76, 24, 32, 32, 52);
-    Image_ExtraClose.Anchors := [akTop, akRight];
-    Image_ExtraClose.Hint := gResTexts[TX_MSG_CLOSE_HINT];
-    Image_ExtraClose.OnClick := ExtraMessage_Switch;
-    Image_ExtraClose.HighlightOnMouseOver := True;
-
-    TrackBar_Passability := TKMTrackBar.Create(Panel_Extra, 50, 70, 180, 0, Byte(High(TPassability)));
-    TrackBar_Passability.Font := fnt_Antiqua;
-    TrackBar_Passability.Caption := gResTexts[TX_MAPED_VIEW_PASSABILITY];
-    TrackBar_Passability.Position := 0; //Disabled by default
-    TrackBar_Passability.OnChange := Extra_Change;
-    Label_Passability := TKMLabel.Create(Panel_Extra, 50, 114, 180, 0, gResTexts[TX_MAPED_PASSABILITY_OFF], fnt_Antiqua, taLeft);
-
-    CheckBox_ShowObjects := TKMCheckBox.Create(Panel_Extra, 250, 70, 180, 20, gResTexts[TX_MAPED_VIEW_OBJECTS], fnt_Antiqua);
-    CheckBox_ShowObjects.Checked := True; //Enabled by default
-    CheckBox_ShowObjects.OnClick := Extra_Change;
-    CheckBox_ShowHouses := TKMCheckBox.Create(Panel_Extra, 250, 90, 180, 20, gResTexts[TX_MAPED_VIEW_HOUSES], fnt_Antiqua);
-    CheckBox_ShowHouses.Checked := True; //Enabled by default
-    CheckBox_ShowHouses.OnClick := Extra_Change;
-    CheckBox_ShowUnits := TKMCheckBox.Create(Panel_Extra, 250, 110, 180, 20, gResTexts[TX_MAPED_VIEW_UNITS], fnt_Antiqua);
-    CheckBox_ShowUnits.Checked := True; //Enabled by default
-    CheckBox_ShowUnits.OnClick := Extra_Change;
-    CheckBox_ShowDeposits := TKMCheckBox.Create(Panel_Extra, 250, 130, 180, 20, gResTexts[TX_MAPED_VIEW_DEPOSISTS], fnt_Antiqua);
-    CheckBox_ShowDeposits.Checked := True; //Enabled by default
-    CheckBox_ShowDeposits.OnClick := Extra_Change;
-
-    //dropdown list needs to be ontop other buttons created on Panel_Main
-    Dropbox_PlayerFOW := TKMDropList.Create(Panel_Extra, 460, 70, 160, 20, fnt_Metal, '', bsGame);
-    Dropbox_PlayerFOW.Hint := gResTexts[TX_REPLAY_PLAYER_PERSPECTIVE];
-    Dropbox_PlayerFOW.OnChange := Player_FOWChange;
-    //todo: This feature isn't working properly yet so it's hidden. FOW should be set by
-    //revealers list and current locations of units/houses (must update when they move)
-    Dropbox_PlayerFOW.Hide;
 end;
 
 
@@ -584,20 +536,6 @@ begin
 end;
 
 
-procedure TKMapEdInterface.Extra_Change(Sender: TObject);
-begin
-  SHOW_TERRAIN_WIRES := TrackBar_Passability.Position <> 0;
-  SHOW_TERRAIN_PASS := TrackBar_Passability.Position;
-
-  if TrackBar_Passability.Position <> 0 then
-    Label_Passability.Caption := GetEnumName(TypeInfo(TPassability), SHOW_TERRAIN_PASS)
-  else
-    Label_Passability.Caption := gResTexts[TX_MAPED_PASSABILITY_OFF];
-
-  Layers_UpdateVisibility;
-end;
-
-
 //Set which layers are visible and which are not
 //Layer is always visible if corresponding editing page is active (to see what gets placed)
 procedure TKMapEdInterface.Layers_UpdateVisibility;
@@ -715,13 +653,8 @@ begin
       Panel_Message.Hide;
       gSoundPlayer.Play(sfxn_MPChatOpen);
     end;
-  end
-  else
-  if Sender = Image_ExtraClose then
-  begin
-    Panel_Extra.Hide;
-    gSoundPlayer.Play(sfxn_MPChatClose);
   end;
+
   if Sender = Image_Message then
   begin
     if Panel_Message.Visible then
@@ -742,13 +675,6 @@ begin
     Panel_Message.Hide;
     gSoundPlayer.Play(sfxn_MPChatClose);
   end;
-end;
-
-
-procedure TKMapEdInterface.Player_FOWChange(Sender: TObject);
-begin
-  MySpectator.FOWIndex := Dropbox_PlayerFOW.GetTag(Dropbox_PlayerFOW.ItemIndex);
-  fGame.Minimap.Update(False); //Force update right now so FOW doesn't appear to lag
 end;
 
 

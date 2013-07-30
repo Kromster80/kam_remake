@@ -49,6 +49,7 @@ uses
   KM_GameInputProcess_Multi in 'KM_GameInputProcess_Multi.pas',
   KM_GameInputProcess_Single in 'KM_GameInputProcess_Single.pas',
   KM_GUIMapEdAttack in 'KM_GUIMapEdAttack.pas',
+  KM_GUIMapEdExtras in 'KM_GUIMapEdExtras.pas',
   KM_GUIMapEdFormations in 'KM_GUIMapEdFormations.pas',
   KM_GUIMapEdGoal in 'KM_GUIMapEdGoal.pas',
   KM_GUIMapEdHouse in 'KM_GUIMapEdHouse.pas',
