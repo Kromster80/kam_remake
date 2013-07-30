@@ -2,7 +2,7 @@ unit DependenciesGrapher;
 
 interface
 
-uses Winapi.Windows, System.SysUtils, System.Classes;
+uses Winapi.Windows, System.SysUtils, System.Classes, System.StrUtils;
 
 type
   TDependenciesGrapher = class
@@ -53,29 +53,46 @@ procedure TDependenciesGrapher.BuildGraph( pathToDpr : string );
 var path : string;
     i : integer;
 begin
-  ScanDpr( pathToDpr );
   path := ExtractFilePath( pathToDpr );
   ScanForAllUnits( path );
+  ScanDpr( pathToDpr );
   Analyse();
 end;
 
 procedure TDependenciesGrapher.ScanDpr( filename : string );
 var
-    str : string;
+    str, path : string;
+    lastUnitId, del_pos : integer;
 begin
   LoadFile( filename );
-
+  path := ExtractFilePath( filename );
   SkipToUses();
 
   repeat
     str := ReadWord;
 
-    if( not ( SameText( str , 'in' ) ) ) and ( str[1] <> #39 ) then
+    if( not ( SameText( str , 'in' ) ) ) then
     begin
-      if str[length(str)] <> ',' then
+      if ( str[1] <> #39 ) and ( str[length(str)] <> ',' ) then
       begin
         unitForAnalyse.Add( str );
       end;
+      if ( str[1] = #39 ) then
+      begin
+        lastUnitId := GetUnitId( unitForAnalyse[ unitForAnalyse.Count - 1] );
+        del_pos := PosEx( #39, str );
+        Delete( str, del_pos, 1 );
+        del_pos := PosEx( #39, str );
+        Delete( str, del_pos, 1 );
+        del_pos := PosEx( ',', str );
+        if del_pos > 0 then
+          Delete( str, del_pos, 1 );
+        del_pos := PosEx( ';', str );
+        if del_pos > 0 then
+          Delete( str, del_pos, 1 );
+        nonSystemUnitFile[lastUnitId] := path + str;
+      end;
+
     end;
 
   until SameText(str, 'begin');
