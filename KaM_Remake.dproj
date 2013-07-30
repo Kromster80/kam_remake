@@ -157,6 +157,7 @@
 			<DCCReference Include="KM_GUIMapEdPlayerBlockTrade.pas"/>
 			<DCCReference Include="KM_GUIMapEdPlayerColors.pas"/>
 			<DCCReference Include="KM_GUIMapEdPlayerGoals.pas"/>
+			<DCCReference Include="KM_GUIMapEdPlayerView.pas"/>
 			<DCCReference Include="KM_GUIMapEdTerrain.pas"/>
 			<DCCReference Include="KM_GUIMapEdTerrainBrushes.pas"/>
 			<DCCReference Include="KM_GUIMapEdTerrainHeights.pas"/>

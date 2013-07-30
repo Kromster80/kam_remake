@@ -62,6 +62,7 @@ uses
   KM_GUIMapEdPlayerBlockTrade in 'KM_GUIMapEdPlayerBlockTrade.pas',
   KM_GUIMapEdPlayerColors in 'KM_GUIMapEdPlayerColors.pas',
   KM_GUIMapEdPlayerGoals in 'KM_GUIMapEdPlayerGoals.pas',
+  KM_GUIMapEdPlayerView in 'KM_GUIMapEdPlayerView.pas',
   KM_GUIMapEdTerrain in 'KM_GUIMapEdTerrain.pas',
   KM_GUIMapEdTerrainBrushes in 'KM_GUIMapEdTerrainBrushes.pas',
   KM_GUIMapEdTerrainHeights in 'KM_GUIMapEdTerrainHeights.pas',

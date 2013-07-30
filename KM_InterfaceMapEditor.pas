@@ -21,7 +21,8 @@ uses
    KM_GUIMapEdPlayerBlockHouse,
    KM_GUIMapEdPlayerBlockTrade,
    KM_GUIMapEdPlayerColors,
-   KM_GUIMapEdPlayerGoals;
+   KM_GUIMapEdPlayerGoals,
+   KM_GUIMapEdPlayerView;
 
 type
   TKMPlayerTab = (ptGoals, ptColor, ptBlockHouse, ptBlockTrade, ptMarkers);
@@ -49,6 +50,7 @@ type
     fGuiPlayerBlockTrade: TKMMapEdPlayerBlockTrade;
     fGuiPlayerColors: TKMMapEdPlayerColors;
     fGuiPlayerGoals: TKMMapEdPlayerGoals;
+    fGuiPlayerView: TKMMapEdPlayerView;
 
     procedure Create_Player;
     procedure Create_Mission;
@@ -66,7 +68,6 @@ type
     procedure Mission_PlayerTypesUpdate;
     procedure PageChanged(Sender: TObject);
     procedure Player_ChangeActive(Sender: TObject);
-    procedure Player_MarkerClick(Sender: TObject);
     procedure Player_UpdateColors;
     procedure Player_FOWChange(Sender: TObject);
     procedure ExtraMessage_Switch(Sender: TObject);
@@ -99,12 +100,6 @@ type
     //Non-visual stuff per-player
     Panel_Player: TKMPanel;
       Button_Player: array [TKMPlayerTab] of TKMButton;
-      Panel_Markers: TKMPanel;
-        Button_Reveal: TKMButtonFlat;
-        TrackBar_RevealNewSize: TKMTrackBar;
-        CheckBox_RevealAll: TKMCheckBox;
-        Button_CenterScreen: TKMButtonFlat;
-        Button_PlayerCenterScreen: TKMButton;
 
     //Global things
     Panel_Mission: TKMPanel;
@@ -302,6 +297,7 @@ begin
   fGuiPlayerBlockTrade.Free;
   fGuiPlayerColors.Free;
   fGuiPlayerGoals.Free;
+  fGuiPlayerView.Free;
 
   SHOW_TERRAIN_WIRES := false; //Don't show it in-game if they left it on in MapEd
   SHOW_TERRAIN_PASS := 0; //Don't show it in-game if they left it on in MapEd
@@ -369,7 +365,10 @@ begin
   end
   else
   if (Sender = Button_Player[ptMarkers]) then
-    DisplayPage(Panel_Markers)
+  begin
+    HidePages;
+    fGuiPlayerView.Show;
+  end
   else
 
   if (Sender = Button_Main[4])or(Sender = Button_Mission[1]) then
@@ -405,10 +404,6 @@ end;
 procedure TKMapEdInterface.DisplayPage(aPage: TKMPanel);
 begin
   HidePages;
-
-  if aPage = Panel_Markers then
-    Player_MarkerClick(nil)
-  else
 
   if aPage = Panel_Mode then
     Mission_ModeUpdate
@@ -473,36 +468,18 @@ var
 begin
   Panel_Player := TKMPanel.Create(Panel_Common,0,45, TB_WIDTH,28);
 
-    for PT := Low(TKMPlayerTab) to High(TKMPlayerTab) do
-    begin
-      Button_Player[PT] := TKMButton.Create(Panel_Player, SMALL_PAD_W * Byte(PT), 0, SMALL_TAB_W, SMALL_TAB_H,  TabGlyph[PT], TabRXX[PT], bsGame);
-      Button_Player[PT].Hint := gResTexts[TabHint[PT]];
-      Button_Player[PT].OnClick := SwitchPage;
-    end;
+  for PT := Low(TKMPlayerTab) to High(TKMPlayerTab) do
+  begin
+    Button_Player[PT] := TKMButton.Create(Panel_Player, SMALL_PAD_W * Byte(PT), 0, SMALL_TAB_W, SMALL_TAB_H,  TabGlyph[PT], TabRXX[PT], bsGame);
+    Button_Player[PT].Hint := gResTexts[TabHint[PT]];
+    Button_Player[PT].OnClick := SwitchPage;
+  end;
 
-    fGuiPlayerGoals := TKMMapEdPlayerGoals.Create(Panel_Player);
-    fGuiPlayerColors := TKMMapEdPlayerColors.Create(Panel_Player);
-    fGuiPlayerBlockHouse := TKMMapEdPlayerBlockHouse.Create(Panel_Player);
-    fGuiPlayerBlockTrade := TKMMapEdPlayerBlockTrade.Create(Panel_Player);
-
-    //FOW settings
-    Panel_Markers := TKMPanel.Create(Panel_Player, 0, 28, TB_WIDTH, 400);
-      TKMLabel.Create(Panel_Markers, 0, PAGE_TITLE_Y, TB_WIDTH, 0, gResTexts[TX_MAPED_FOG], fnt_Outline, taCenter);
-      Button_Reveal         := TKMButtonFlat.Create(Panel_Markers, 0, 30, 33, 33, 394);
-      Button_Reveal.Hint    := gResTexts[TX_MAPED_FOG_HINT];
-      Button_Reveal.OnClick := Player_MarkerClick;
-      TrackBar_RevealNewSize  := TKMTrackBar.Create(Panel_Markers, 37, 35, 140, 1, 64);
-      TrackBar_RevealNewSize.OnChange := Player_MarkerClick;
-      TrackBar_RevealNewSize.Position := 8;
-      CheckBox_RevealAll          := TKMCheckBox.Create(Panel_Markers, 0, 75, 140, 20, gResTexts[TX_MAPED_FOG_ALL], fnt_Metal);
-      CheckBox_RevealAll.OnClick  := Player_MarkerClick;
-      TKMLabel.Create(Panel_Markers, 0, 100, TB_WIDTH, 0, gResTexts[TX_MAPED_FOG_CENTER], fnt_Outline, taCenter);
-      Button_CenterScreen         := TKMButtonFlat.Create(Panel_Markers, 0, 120, 33, 33, 391);
-      Button_CenterScreen.Hint    := gResTexts[TX_MAPED_FOG_CENTER_HINT];
-      Button_CenterScreen.OnClick := Player_MarkerClick;
-      Button_PlayerCenterScreen    := TKMButton.Create(Panel_Markers, 40, 120, 80, 33, '[X,Y]', bsGame);
-      Button_PlayerCenterScreen.OnClick := Player_MarkerClick;
-      Button_PlayerCenterScreen.Hint := gResTexts[TX_MAPED_FOG_CENTER_JUMP];
+  fGuiPlayerGoals := TKMMapEdPlayerGoals.Create(Panel_Player);
+  fGuiPlayerColors := TKMMapEdPlayerColors.Create(Panel_Player);
+  fGuiPlayerBlockHouse := TKMMapEdPlayerBlockHouse.Create(Panel_Player);
+  fGuiPlayerBlockTrade := TKMMapEdPlayerBlockTrade.Create(Panel_Player);
+  fGuiPlayerView := TKMMapEdPlayerView.Create(Panel_Player);
 end;
 
 
@@ -741,9 +718,9 @@ begin
 
   //Update pages that have colored elements to match new players color
   fGuiTown.UpdatePlayer(MySpectator.PlayerIndex);
+  fGuiPlayerView.UpdatePlayer(MySpectator.PlayerIndex);
 
   Button_Player[ptColor].FlagColor := gPlayers[MySpectator.PlayerIndex].FlagColor;
-  Button_Reveal.FlagColor := gPlayers[MySpectator.PlayerIndex].FlagColor;
 
   PrevIndex := Dropbox_PlayerFOW.ItemIndex;
   Dropbox_PlayerFOW.Clear;
@@ -810,7 +787,7 @@ begin
 
   fGame.MapEditor.VisibleLayers := [];
 
-  if Panel_Markers.Visible or fGuiMarkerReveal.Visible then
+  if fGuiPlayerView.Visible or fGuiMarkerReveal.Visible then
     fGame.MapEditor.VisibleLayers := fGame.MapEditor.VisibleLayers + [mlRevealFOW, mlCenterScreen];
 
   if fGuiTown.Visible(ttDefences) or fGuiMarkerDefence.Visible then
@@ -950,56 +927,6 @@ procedure TKMapEdInterface.Player_FOWChange(Sender: TObject);
 begin
   MySpectator.FOWIndex := Dropbox_PlayerFOW.GetTag(Dropbox_PlayerFOW.ItemIndex);
   fGame.Minimap.Update(False); //Force update right now so FOW doesn't appear to lag
-end;
-
-
-procedure TKMapEdInterface.Player_MarkerClick(Sender: TObject);
-begin
-  //Press the button
-  if Sender = Button_Reveal then
-  begin
-    Button_Reveal.Down := not Button_Reveal.Down;
-    Button_CenterScreen.Down := False;
-  end;
-  if Sender = Button_CenterScreen then
-  begin
-    Button_CenterScreen.Down := not Button_CenterScreen.Down;
-    Button_Reveal.Down := False;
-  end;
-
-  if (Sender = nil) and (GameCursor.Mode = cmNone) then
-  begin
-    Button_Reveal.Down := False;
-    Button_CenterScreen.Down := False;
-  end;
-
-  if Button_Reveal.Down then
-  begin
-    GameCursor.Mode := cmMarkers;
-    GameCursor.Tag1 := MARKER_REVEAL;
-    GameCursor.MapEdSize := TrackBar_RevealNewSize.Position;
-  end
-  else
-  if Button_CenterScreen.Down then
-  begin
-    GameCursor.Mode := cmMarkers;
-    GameCursor.Tag1 := MARKER_CENTERSCREEN;
-  end
-  else
-  begin
-    GameCursor.Mode := cmNone;
-    GameCursor.Tag1 := 0;
-  end;
-
-  if Sender = CheckBox_RevealAll then
-    fGame.MapEditor.RevealAll[MySpectator.PlayerIndex] := CheckBox_RevealAll.Checked
-  else
-    CheckBox_RevealAll.Checked := fGame.MapEditor.RevealAll[MySpectator.PlayerIndex];
-
-  if Sender = Button_PlayerCenterScreen then
-    fGame.Viewport.Position := KMPointF(gPlayers[MySpectator.PlayerIndex].CenterScreen); //Jump to location
-
-  Button_PlayerCenterScreen.Caption := TypeToString(gPlayers[MySpectator.PlayerIndex].CenterScreen);
 end;
 
 
