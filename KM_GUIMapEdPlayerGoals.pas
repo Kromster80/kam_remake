@@ -2,9 +2,9 @@ unit KM_GUIMapEdPlayerGoals;
 {$I KaM_Remake.inc}
 interface
 uses
-   Classes, Controls, Math, StrUtils, SysUtils,
-   KM_Controls, KM_Defaults, KM_Pics,
-   KM_Points, KM_InterfaceDefaults, KM_AIGoals,
+   Classes, Math, SysUtils,
+   KM_Controls, KM_Defaults,
+   KM_InterfaceDefaults, KM_AIGoals,
    KM_GUIMapEdGoal;
 
 
@@ -36,16 +36,11 @@ type
 
 implementation
 uses
-  KM_PlayersCollection, KM_ResTexts, KM_Game, KM_Main, KM_GameCursor,
-  KM_Resource, KM_TerrainDeposits, KM_ResCursors, KM_Utils,
-  KM_AIDefensePos, KM_ResHouses, KM_RenderUI, KM_Sound, KM_ResSound,
-  KM_ResWares, KM_ResFonts;
+  KM_PlayersCollection, KM_ResTexts, KM_RenderUI, KM_ResFonts;
 
 
 { TKMMapEdPlayerGoals }
 constructor TKMMapEdPlayerGoals.Create(aParent: TKMPanel);
-var
-  J,K: Integer;
 begin
   inherited Create;
 
@@ -164,7 +159,8 @@ end;
 
 procedure TKMMapEdPlayerGoals.Show;
 begin
-  0
+  Goals_Refresh;
+  Panel_Goals.Show;
 end;
 
 

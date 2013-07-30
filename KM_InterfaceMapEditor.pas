@@ -42,19 +42,14 @@ type
     fGuiMarkerReveal: TKMMapEdMarkerReveal;
     fGuiMenu: TKMMapEdMenu;
 
+    fGuiPlayerGoals: TKMMapEdPlayerGoals;
+
     procedure Create_Player;
     procedure Create_Mission;
     procedure Create_Extra;
     procedure Create_Message;
 
     procedure Extra_Change(Sender: TObject);
-    procedure Goals_Add(Sender: TObject);
-    procedure Goals_Del(Sender: TObject);
-    procedure Goals_Edit(aIndex: Integer);
-    procedure Goals_ListClick(Sender: TObject);
-    procedure Goals_ListDoubleClick(Sender: TObject);
-    procedure Goals_OnDone(Sender: TObject);
-    procedure Goals_Refresh;
     procedure Layers_UpdateVisibility;
     procedure Marker_Done(Sender: TObject);
     procedure Minimap_Update(Sender: TObject; const X,Y: Integer);
@@ -103,10 +98,6 @@ type
     //Non-visual stuff per-player
     Panel_Player: TKMPanel;
       Button_Player: array [TKMPlayerTab] of TKMButton;
-      Panel_Goals: TKMPanel;
-        ColumnBox_Goals: TKMColumnBox;
-        Button_GoalsAdd: TKMButton;
-        Button_GoalsDel: TKMButton;
       Panel_Color: TKMPanel;
         ColorSwatch_Color: TKMColorSwatch;
       Panel_BlockHouse: TKMPanel;
@@ -291,8 +282,10 @@ begin
   fGuiFormations := TKMMapEdFormations.Create(Panel_Main);
   fGuiGoal := TKMMapEdGoal.Create(Panel_Main);
 
+  //Pass pop-ups to their dispatchers
   fGuiTown.fGuiDefence.FormationsPopUp := fGuiFormations;
   fGuiTown.fGuiOffence.AttackPopUp := fGuiAttack;
+  fGuiPlayerGoals.GoalPopUp := fGuiGoal;
 
   fMyControls.OnHint := DisplayHint;
 
@@ -311,6 +304,8 @@ begin
   fGuiMarkerDefence.Free;
   fGuiMarkerReveal.Free;
   fGuiMenu.Free;
+
+  fGuiPlayerGoals.Free;
 
   SHOW_TERRAIN_WIRES := false; //Don't show it in-game if they left it on in MapEd
   SHOW_TERRAIN_PASS := 0; //Don't show it in-game if they left it on in MapEd
@@ -354,7 +349,10 @@ begin
   else
 
   if (Sender = Button_Main[3])or(Sender = Button_Player[ptGoals]) then
-    DisplayPage(Panel_Goals)
+  begin
+    HidePages;
+    fGuiPlayerGoals.Show;
+  end
   else
   if (Sender = Button_Player[ptColor]) then
     DisplayPage(Panel_Color)
@@ -403,9 +401,6 @@ procedure TKMapEdInterface.DisplayPage(aPage: TKMPanel);
 begin
   HidePages;
 
-  if aPage = Panel_Goals then
-    Goals_Refresh
-  else
   if aPage = Panel_Color then
 
   else
@@ -491,23 +486,7 @@ begin
       Button_Player[PT].OnClick := SwitchPage;
     end;
 
-    //Goals
-    Panel_Goals := TKMPanel.Create(Panel_Player,0,28,TB_WIDTH,400);
-      TKMLabel.Create(Panel_Goals, 0, PAGE_TITLE_Y, TB_WIDTH, 0, gResTexts[TX_MAPED_GOALS], fnt_Outline, taCenter);
-      ColumnBox_Goals := TKMColumnBox.Create(Panel_Goals, 0, 30, TB_WIDTH, 230, fnt_Game, bsGame);
-      ColumnBox_Goals.SetColumns(fnt_Outline,
-        [gResTexts[TX_MAPED_GOALS_TYPE],
-         gResTexts[TX_MAPED_GOALS_CONDITION],
-         gResTexts[TX_MAPED_GOALS_PLAYER],
-         gResTexts[TX_MAPED_GOALS_TIME],
-         gResTexts[TX_MAPED_GOALS_MESSAGE]], [0, 20, 120, 140, 160]);
-      ColumnBox_Goals.OnClick := Goals_ListClick;
-      ColumnBox_Goals.OnDoubleClick := Goals_ListDoubleClick;
-
-      Button_GoalsAdd := TKMButton.Create(Panel_Goals, 0, 270, 25, 25, '+', bsGame);
-      Button_GoalsAdd.OnClick := Goals_Add;
-      Button_GoalsDel := TKMButton.Create(Panel_Goals, 30, 270, 25, 25, 'X', bsGame);
-      Button_GoalsDel.OnClick := Goals_Del;
+    fGuiPlayerGoals := TKMMapEdPlayerGoals.Create(Panel_Player);
 
     //Players color
     Panel_Color := TKMPanel.Create(Panel_Player, 0, 28, TB_WIDTH, 400);
@@ -848,94 +827,6 @@ begin
 
   Player_UpdateColors;
   UpdateAITabsEnabled;
-end;
-
-
-//Add a dummy goal and let mapmaker edit it
-procedure TKMapEdInterface.Goals_Add(Sender: TObject);
-var
-  G: TKMGoal;
-begin
-  FillChar(G, SizeOf(G), #0);
-  gPlayers[MySpectator.PlayerIndex].AI.Goals.AddGoal(G);
-
-  Goals_Refresh;
-  ColumnBox_Goals.ItemIndex := gPlayers[MySpectator.PlayerIndex].AI.Goals.Count - 1;
-
-  //Edit the attack we have just appended
-  Goals_Edit(ColumnBox_Goals.ItemIndex);
-end;
-
-
-procedure TKMapEdInterface.Goals_Del(Sender: TObject);
-var I: Integer;
-begin
-  I := ColumnBox_Goals.ItemIndex;
-  if InRange(I, 0, gPlayers[MySpectator.PlayerIndex].AI.Goals.Count - 1) then
-    gPlayers[MySpectator.PlayerIndex].AI.Goals.Delete(I);
-  Goals_Refresh;
-end;
-
-
-procedure TKMapEdInterface.Goals_Edit(aIndex: Integer);
-begin
-  Assert(InRange(aIndex, 0, gPlayers[MySpectator.PlayerIndex].AI.Goals.Count - 1));
-
-  fGuiGoal.Show(MySpectator.PlayerIndex, aIndex);
-  fGuiGoal.fOnDone := Goals_OnDone;
-end;
-
-
-procedure TKMapEdInterface.Goals_ListClick(Sender: TObject);
-var
-  I: Integer;
-begin
-  I := ColumnBox_Goals.ItemIndex;
-  Button_GoalsDel.Enabled := InRange(I, 0, gPlayers[MySpectator.PlayerIndex].AI.Goals.Count - 1);
-end;
-
-
-procedure TKMapEdInterface.Goals_ListDoubleClick(Sender: TObject);
-var
-  I: Integer;
-begin
-  I := ColumnBox_Goals.ItemIndex;
-
-  //Check if user double-clicked on an existing item (not on an empty space)
-  if InRange(I, 0, gPlayers[MySpectator.PlayerIndex].AI.Goals.Count - 1) then
-    Goals_Edit(I);
-end;
-
-
-procedure TKMapEdInterface.Goals_OnDone(Sender: TObject);
-begin
-  Goals_Refresh;
-end;
-
-
-procedure TKMapEdInterface.Goals_Refresh;
-const
-  Typ: array [TGoalType] of string = ('-', 'V', 'S');
-  Cnd: array [TGoalCondition] of string = (
-    'None', 'BuildTutorial', 'Time', 'Buildings', 'Troops', 'Unknown',
-    'MilitaryAssets', 'SerfsAndSchools', 'EconomyBuildings');
-var
-  I: Integer;
-  G: TKMGoal;
-begin
-  ColumnBox_Goals.Clear;
-
-  for I := 0 to gPlayers[MySpectator.PlayerIndex].AI.Goals.Count - 1 do
-  begin
-    G := gPlayers[MySpectator.PlayerIndex].AI.Goals[I];
-    ColumnBox_Goals.AddItem(MakeListRow([Typ[G.GoalType],
-                                    Cnd[G.GoalCondition],
-                                    IntToStr(G.PlayerIndex + 1),
-                                    IntToStr(G.GoalTime div 10),
-                                    IntToStr(G.MessageToShow)]));
-  end;
-
-  Goals_ListClick(nil);
 end;
 
 
