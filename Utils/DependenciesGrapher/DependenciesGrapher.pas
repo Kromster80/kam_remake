@@ -30,6 +30,7 @@ type
     procedure RefactorFileText();
     procedure LoadFile( filename : string );
     function CheckEOF() : boolean;
+    procedure CutSymbol( s : string; var str : string );
   public
     constructor Create();
     procedure BuildGraph( pathToDpr : string );
@@ -63,6 +64,7 @@ procedure TDependenciesGrapher.ScanDpr( filename : string );
 var
     str, path : string;
     lastUnitId, del_pos : integer;
+    i: integer;
 begin
   LoadFile( filename );
   path := ExtractFilePath( filename );
@@ -79,24 +81,27 @@ begin
       end;
       if ( str[1] = #39 ) then
       begin
-        lastUnitId := GetUnitId( unitForAnalyse[ unitForAnalyse.Count - 1] );
-        del_pos := PosEx( #39, str );
-        Delete( str, del_pos, 1 );
-        del_pos := PosEx( #39, str );
-        Delete( str, del_pos, 1 );
-        del_pos := PosEx( ',', str );
-        if del_pos > 0 then
-          Delete( str, del_pos, 1 );
-        del_pos := PosEx( ';', str );
-        if del_pos > 0 then
-          Delete( str, del_pos, 1 );
-        nonSystemUnitFile[lastUnitId] := path + str;
+        CutSymbol( #39, str );
+        CutSymbol( #39, str );
+        CutSymbol( ',', str );
+        CutSymbol( ';', str );
+        for I := 0 to nonSystemUnit.Count - 1   do
+        begin
+          if nonSystemUnit[i] = unitForAnalyse[ unitForAnalyse.Count - 1] then
+            nonSystemUnitFile[i] := path + str;
+        end;
       end;
-
     end;
-
   until SameText(str, 'begin');
   unitForAnalyse.Delete( unitForAnalyse.Count - 1 );
+end;
+
+procedure TDependenciesGrapher.CutSymbol( s : string; var str : string );
+var delPos : integer;
+begin
+  delPos := PosEx( s, str );
+  if delPos > 0 then
+    Delete( str, delPos, 1 );
 end;
 
 procedure TDependenciesGrapher.LoadFile( filename : string );
@@ -122,34 +127,27 @@ begin
   end;
 
   // Deleting {} comments
-  i := 1;
-  while i < Length( fileOfText )  do
-  begin
-    if ( fileOfText[i] = '{' ) then
+  i := 0;
+  repeat
+    i := PosEx( '{', fileOfText, i + 1 );
+    if i > 0 then
     begin
-      j := i;
-      repeat
-        inc(j);
-      until fileOfText[j] = '}';
-      delete( fileOfText, i, j - i + 1 );
+      j := PosEx( '}', fileOfText, i + 1 );
+      if j > 0 then
+        delete( fileOfText, i, j - i + 1 );
     end;
-    inc(i);
-  end;
+  until i = 0;
   // Deleting (* *) comments
-  i := 1;
-  while i < Length( fileOfText )  do
-  begin
-    if ( fileOfText[i] = '(' ) and ( fileOfText[i+1] = '*' ) then
+  i := 0;
+  repeat
+    i := PosEx( '(*', fileOfText, i + 1 );
+    if i > 0 then
     begin
-      j := i;
-      repeat
-        inc(j);
-      until ( ( fileOfText[j] = ')' ) and ( fileOfText[j-1] = '*' ) ) or ( j >= length( fileOfText ) );
-      delete( fileOfText, i, j - i + 1 );
-      dec(i);
+      j := PosEx( '*)', fileOfText, i + 1 );
+      if j > 0 then
+        delete( fileOfText, i, j - i + 2 );
     end;
-    inc(i);
-  end;
+  until i = 0;
   // Deleting // comments
   i := 1;
   while i < Length( fileOfText )  do
