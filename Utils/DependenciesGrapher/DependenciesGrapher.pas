@@ -15,10 +15,13 @@ type
     fileOfTextStrList : TStringList;
     fileOfText : string;
     fileOfTextPos : integer;
+    analyseProgress : integer;
+    unitNumberToLoad : integer;
+    unitNumberLoaded : integer;
     procedure ScanDpr( filename : string );
     function ReadWord() : string;
-    procedure ScanForAllUnits( path : string );
-    procedure ScanForUnitsInDir( path : string );
+    procedure ScanForAllUnits( path : string; quickscan : boolean );
+    procedure ScanForUnitsInDir( path : string; quickscan : boolean );
     procedure ScanUnitName( filename : string );
     procedure Analyse();
     procedure ScanForDep( path : string; id : integer );
@@ -33,12 +36,13 @@ type
     procedure CutSymbol( s : string; var str : string );
   public
     constructor Create();
+    destructor Free();
     procedure BuildGraph( pathToDpr : string );
     procedure PrintOutput( path : string );
+    function GetAnalyseProgress() : integer;
   end;
 
 implementation
-
 
 constructor TDependenciesGrapher.Create();
 begin
@@ -50,14 +54,32 @@ begin
   fileOfTextStrList := TStringList.Create();
 end;
 
+destructor TDependenciesGrapher.Free();
+begin
+  unitForAnalyse.Free();
+  unitAnalysed.Free();
+  nonSystemUnit.Free();
+  nonSystemUnitFile.Free();
+  fileOfTextStrList.Free();
+  //inherited Free;
+end;
+
+function TDependenciesGrapher.GetAnalyseProgress() : integer;
+begin
+  Result := analyseProgress;
+end;
+
 procedure TDependenciesGrapher.BuildGraph( pathToDpr : string );
 var path : string;
     i : integer;
 begin
   path := ExtractFilePath( pathToDpr );
-  ScanForAllUnits( path );
+  ScanForAllUnits( path, true );
+  unitNumberToLoad := unitNumberToLoad * 2; // Units in project are loaded twice
+  ScanForAllUnits( path, false );
   ScanDpr( pathToDpr );
   Analyse();
+  analyseProgress := 100;
 end;
 
 procedure TDependenciesGrapher.ScanDpr( filename : string );
@@ -66,8 +88,8 @@ var
     lastUnitId, del_pos : integer;
     i: integer;
 begin
-  LoadFile( filename );
   path := ExtractFilePath( filename );
+  LoadFile( filename );
   SkipToUses();
 
   repeat
@@ -149,20 +171,22 @@ begin
     end;
   until i = 0;
   // Deleting // comments
-  i := 1;
-  while i < Length( fileOfText )  do
-  begin
-    if ( fileOfText[i] = '/' ) and ( fileOfText[i+1] = '/' ) then
+  i := 0;
+  repeat
+    i := PosEx( '//', fileOfText );
+    if i > 0 then
     begin
-      j := i;
-      repeat
-        inc(j);
-      until ( fileOfText[j] = #10 );
-      delete( fileOfText, i, j - i + 1 );
-      dec(i);
+      j := PosEx( #13#10, fileOfText, i );
+      if j > 0 then
+        delete( fileOfText, i, j - i + 2 )
+      else
+      begin
+        j := PosEx( #10, fileOfText, i );
+        if j > 0 then
+          delete( fileOfText, i, j - i + 1 );
+      end;
     end;
-    inc(i);
-  end;
+  until i = 0;
 
   //Remove eol symbols (irregardless of EOL-style)
   StringReplace(fileOfText, #10, '', [rfReplaceAll, rfIgnoreCase]);
@@ -223,22 +247,22 @@ begin
     Result := true;
 end;
 
-procedure TDependenciesGrapher.ScanForAllUnits( path : string );
+procedure TDependenciesGrapher.ScanForAllUnits( path : string; quickscan : boolean );
 var
     searchRec : TSearchRec;
 begin
-  ScanForUnitsInDir( path );
+  ScanForUnitsInDir( path, quickscan );
 
   searchRec.Name := '';
   FindFirst( path + '*', faDirectory, searchRec );  // searchRec.Name = '.'
   FindNext( searchRec );  // searchRec.Name = '..'
   while FindNext( searchRec ) = 0 do
   begin
-    ScanForUnitsInDir( path + searchRec.Name + '\' );
+    ScanForUnitsInDir( path + searchRec.Name + '\', quickscan  );
   end;
 end;
 
-procedure TDependenciesGrapher.ScanForUnitsInDir( path : string );
+procedure TDependenciesGrapher.ScanForUnitsInDir( path : string; quickscan : boolean );
 var fileData : TWIN32FindData;
     seachInfo : WinAPI.Windows.THandle;
 begin
@@ -246,11 +270,15 @@ begin
   seachInfo := FindFirstFile( pchar(path + '*.pas'), fileData );
   if seachInfo = INVALID_HANDLE_VALUE then
     exit;
-  ScanUnitName( path + fileData.cFileName );
+  inc(unitNumberToLoad);
+  if not quickscan then
+    ScanUnitName( path + fileData.cFileName );
 
   while FindNextFile( seachInfo, fileData )  do
   begin
-    ScanUnitName( path + fileData.cFileName );
+    inc(unitNumberToLoad);
+    if not quickscan then
+      ScanUnitName( path + fileData.cFileName );
   end;
 end;
 
@@ -259,6 +287,8 @@ var str : string;
     i : integer;
 begin
   LoadFile( filename );
+  inc(unitNumberLoaded);
+  analyseProgress := ( unitNumberLoaded * 100 ) div unitNumberToLoad;
 
   str := ReadWord;
   assert( SameText( str, 'unit' ) );

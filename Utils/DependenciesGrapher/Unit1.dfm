@@ -45,8 +45,23 @@ object Form1: TForm1
     TabOrder = 2
     Visible = False
   end
+  object ProgressBar: TProgressBar
+    Left = 43
+    Top = 8
+    Width = 150
+    Height = 17
+    TabOrder = 3
+    Visible = False
+  end
   object OpenDialog: TOpenDialog
     Filter = 'Delphi Project|*.dpr'
     Top = 8
+  end
+  object Timer: TTimer
+    Enabled = False
+    Interval = 10
+    OnTimer = TimerTimer
+    Left = 200
+    Top = 48
   end
 end
