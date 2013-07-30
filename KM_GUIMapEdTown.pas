@@ -90,6 +90,7 @@ begin
   inherited;
 end;
 
+
 procedure TKMMapEdTown.PageChange(Sender: TObject);
 begin
   //Reset cursor mode
@@ -125,20 +126,13 @@ end;
 
 procedure TKMMapEdTown.Show(aPage: TKMTownTab);
 begin
-  if (aPage = ttHouses) then
-    fGuiHouses.Show
-  else
-  if (aPage = ttUnits) then
-    fGuiUnits.Show
-  else
-  if (aPage = ttScript) then
-    fGuiScript.Show
-  else
-  if (aPage = ttDefences) then
-    fGuiDefence.Show
-  else
-  if (aPage = ttOffence) then
-    fGuiOffence.Show;
+  case aPage of
+    ttHouses:   fGuiHouses.Show;
+    ttUnits:    fGuiUnits.Show;
+    ttScript:   fGuiScript.Show;
+    ttDefences: fGuiDefence.Show;
+    ttOffence:  fGuiOffence.Show;
+  end;
 end;
 
 
@@ -150,7 +144,14 @@ end;
 
 function TKMMapEdTown.Visible(aPage: TKMTownTab): Boolean;
 begin
-  //
+  case aPage of
+    ttHouses:   Result := fGuiHouses.Visible;
+    ttUnits:    Result := fGuiUnits.Visible;
+    ttScript:   Result := fGuiScript.Visible;
+    ttDefences: Result := fGuiDefence.Visible;
+    ttOffence:  Result := fGuiOffence.Visible;
+    else        Result := False;
+  end;
 end;
 
 

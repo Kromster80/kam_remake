@@ -6,27 +6,20 @@ uses
    {$IFDEF Unix} LCLIntf, LCLType, {$ENDIF}
    Classes, Controls, KromUtils, Math, StrUtils, SysUtils, KromOGLUtils, TypInfo,
    KM_Controls, KM_Defaults, KM_Pics, KM_Houses, KM_Units, KM_UnitGroups, KM_MapEditor,
-   KM_Points, KM_InterfaceDefaults, KM_AIGoals, KM_Terrain,
+   KM_Points, KM_InterfaceDefaults, KM_Terrain,
    KM_GUIMapEdHouse,
    KM_GUIMapEdGoal,
    KM_GUIMapEdTerrain,
    KM_GUIMapEdTown,
+   KM_GUIMapEdPlayer,
    KM_GUIMapEdAttack,
    KM_GUIMapEdFormations,
    KM_GUIMapEdMarkerDefence,
    KM_GUIMapEdMarkerReveal,
    KM_GUIMapEdMenu,
-   KM_GUIMapEdUnit,
-
-   KM_GUIMapEdPlayerBlockHouse,
-   KM_GUIMapEdPlayerBlockTrade,
-   KM_GUIMapEdPlayerColors,
-   KM_GUIMapEdPlayerGoals,
-   KM_GUIMapEdPlayerView;
+   KM_GUIMapEdUnit;
 
 type
-  TKMPlayerTab = (ptGoals, ptColor, ptBlockHouse, ptBlockTrade, ptMarkers);
-
   TKMapEdInterface = class (TKMUserInterface)
   private
     fPrevHint: TObject;
@@ -39,6 +32,7 @@ type
     fGuiUnit: TKMMapEdUnit;
     fGuiTerrain: TKMMapEdTerrain;
     fGuiTown: TKMMapEdTown;
+    fGuiPlayer: TKMMapEdPlayer;
     fGuiAttack: TKMMapEdAttack;
     fGuiGoal: TKMMapEdGoal;
     fGuiFormations: TKMMapEdFormations;
@@ -46,13 +40,6 @@ type
     fGuiMarkerReveal: TKMMapEdMarkerReveal;
     fGuiMenu: TKMMapEdMenu;
 
-    fGuiPlayerBlockHouse: TKMMapEdPlayerBlockHouse;
-    fGuiPlayerBlockTrade: TKMMapEdPlayerBlockTrade;
-    fGuiPlayerColors: TKMMapEdPlayerColors;
-    fGuiPlayerGoals: TKMMapEdPlayerGoals;
-    fGuiPlayerView: TKMMapEdPlayerView;
-
-    procedure Create_Player;
     procedure Create_Mission;
     procedure Create_Extra;
     procedure Create_Message;
@@ -96,10 +83,6 @@ type
 
     //How to know where certain page should be?
     //see Docs\Map Editor menu structure.txt
-
-    //Non-visual stuff per-player
-    Panel_Player: TKMPanel;
-      Button_Player: array [TKMPlayerTab] of TKMButton;
 
     //Global things
     Panel_Mission: TKMPanel;
@@ -159,8 +142,8 @@ implementation
 uses
   KM_PlayersCollection, KM_ResTexts, KM_Game, KM_Main, KM_GameCursor,
   KM_Resource, KM_TerrainDeposits, KM_ResCursors, KM_Utils,
-  KM_AIDefensePos, KM_ResHouses, KM_RenderUI, KM_Sound, KM_ResSound,
-  KM_ResWares, KM_ResFonts;
+  KM_AIDefensePos, KM_RenderUI, KM_Sound, KM_ResSound,
+  KM_ResFonts;
 
 const
   GROUP_TEXT: array [TGroupType] of Integer = (
@@ -241,8 +224,8 @@ begin
 {==========================================================================================}
   fGuiTerrain := TKMMapEdTerrain.Create(Panel_Common, PageChanged);
   fGuiTown := TKMMapEdTown.Create(Panel_Common, PageChanged);
+  fGuiPlayer := TKMMapEdPlayer.Create(Panel_Common, PageChanged);
 
-  Create_Player;
   Create_Mission;
 
   fGuiMenu := TKMMapEdMenu.Create(Panel_Common);
@@ -273,7 +256,7 @@ begin
   //Pass pop-ups to their dispatchers
   fGuiTown.fGuiDefence.FormationsPopUp := fGuiFormations;
   fGuiTown.fGuiOffence.AttackPopUp := fGuiAttack;
-  fGuiPlayerGoals.GoalPopUp := fGuiGoal;
+  fGuiPlayer.fGuiPlayerGoals.GoalPopUp := fGuiGoal;
 
   fMyControls.OnHint := DisplayHint;
 
@@ -286,18 +269,13 @@ begin
   fGuiHouse.Free;
   fGuiTerrain.Free;
   fGuiTown.Free;
+  fGuiPlayer.Free;
   fGuiAttack.Free;
   fGuiFormations.Free;
   fGuiGoal.Free;
   fGuiMarkerDefence.Free;
   fGuiMarkerReveal.Free;
   fGuiMenu.Free;
-
-  fGuiPlayerBlockHouse.Free;
-  fGuiPlayerBlockTrade.Free;
-  fGuiPlayerColors.Free;
-  fGuiPlayerGoals.Free;
-  fGuiPlayerView.Free;
 
   SHOW_TERRAIN_WIRES := false; //Don't show it in-game if they left it on in MapEd
   SHOW_TERRAIN_PASS := 0; //Don't show it in-game if they left it on in MapEd
@@ -315,7 +293,7 @@ begin
   //If the user clicks on the tab that is open, it closes it (main buttons only)
   if ((Sender = Button_Main[1]) and fGuiTerrain.Visible) or
      ((Sender = Button_Main[2]) and fGuiTown.Visible) or
-     ((Sender = Button_Main[3]) and Panel_Player.Visible) or
+     ((Sender = Button_Main[3]) and fGuiPlayer.Visible) or
      ((Sender = Button_Main[4]) and Panel_Mission.Visible) or
      ((Sender = Button_Main[5]) and fGuiMenu.Visible) then
     Sender := nil;
@@ -340,34 +318,10 @@ begin
   end
   else
 
-  if (Sender = Button_Main[3])or(Sender = Button_Player[ptGoals]) then
+  if (Sender = Button_Main[3]) then
   begin
     HidePages;
-    fGuiPlayerGoals.Show;
-  end
-  else
-  if (Sender = Button_Player[ptColor]) then
-  begin
-    HidePages;
-    fGuiPlayerColors.Show;
-  end
-  else
-  if (Sender = Button_Player[ptBlockHouse]) then
-  begin
-    HidePages;
-    fGuiPlayerBlockHouse.Show;
-  end
-  else
-  if (Sender = Button_Player[ptBlockTrade]) then
-  begin
-    HidePages;
-    fGuiPlayerBlockTrade.Show;
-  end
-  else
-  if (Sender = Button_Player[ptMarkers]) then
-  begin
-    HidePages;
-    fGuiPlayerView.Show;
+    fGuiPlayer.Show(ptGoals);
   end
   else
 
@@ -450,36 +404,6 @@ procedure TKMapEdInterface.Resize(X,Y: Word);
 begin
   Panel_Main.Width := X;
   Panel_Main.Height := Y;
-end;
-
-
-procedure TKMapEdInterface.Create_Player;
-const
-  TabGlyph: array [TKMPlayerTab] of Word    = (8,         1159,     38,    327,   393);
-  TabRXX  : array [TKMPlayerTab] of TRXType = (rxGuiMain, rxHouses, rxGui, rxGui, rxGui);
-  TabHint : array [TKMPlayerTab] of Word = (
-    TX_MAPED_GOALS,
-    TX_MAPED_PLAYER_COLORS,
-    TX_MAPED_BLOCK_HOUSES,
-    TX_MAPED_BLOCK_TRADE,
-    TX_MAPED_FOG);
-var
-  PT: TKMPlayerTab;
-begin
-  Panel_Player := TKMPanel.Create(Panel_Common,0,45, TB_WIDTH,28);
-
-  for PT := Low(TKMPlayerTab) to High(TKMPlayerTab) do
-  begin
-    Button_Player[PT] := TKMButton.Create(Panel_Player, SMALL_PAD_W * Byte(PT), 0, SMALL_TAB_W, SMALL_TAB_H,  TabGlyph[PT], TabRXX[PT], bsGame);
-    Button_Player[PT].Hint := gResTexts[TabHint[PT]];
-    Button_Player[PT].OnClick := SwitchPage;
-  end;
-
-  fGuiPlayerGoals := TKMMapEdPlayerGoals.Create(Panel_Player);
-  fGuiPlayerColors := TKMMapEdPlayerColors.Create(Panel_Player);
-  fGuiPlayerBlockHouse := TKMMapEdPlayerBlockHouse.Create(Panel_Player);
-  fGuiPlayerBlockTrade := TKMMapEdPlayerBlockTrade.Create(Panel_Player);
-  fGuiPlayerView := TKMMapEdPlayerView.Create(Panel_Player);
 end;
 
 
@@ -718,9 +642,6 @@ begin
 
   //Update pages that have colored elements to match new players color
   fGuiTown.UpdatePlayer(MySpectator.PlayerIndex);
-  fGuiPlayerView.UpdatePlayer(MySpectator.PlayerIndex);
-
-  Button_Player[ptColor].FlagColor := gPlayers[MySpectator.PlayerIndex].FlagColor;
 
   PrevIndex := Dropbox_PlayerFOW.ItemIndex;
   Dropbox_PlayerFOW.Clear;
@@ -787,7 +708,7 @@ begin
 
   fGame.MapEditor.VisibleLayers := [];
 
-  if fGuiPlayerView.Visible or fGuiMarkerReveal.Visible then
+  if fGuiPlayer.Visible(ptMarkers) or fGuiMarkerReveal.Visible then
     fGame.MapEditor.VisibleLayers := fGame.MapEditor.VisibleLayers + [mlRevealFOW, mlCenterScreen];
 
   if fGuiTown.Visible(ttDefences) or fGuiMarkerDefence.Visible then
@@ -847,7 +768,10 @@ end;
 procedure TKMapEdInterface.Marker_Done(Sender: TObject);
 begin
   if Sender = fGuiMarkerReveal then
-    SwitchPage(Button_Player[ptMarkers]);
+  begin
+    HidePages;
+    fGuiPlayer.Show(ptMarkers);
+  end;
 end;
 
 

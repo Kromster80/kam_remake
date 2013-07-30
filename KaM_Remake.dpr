@@ -58,6 +58,7 @@ uses
   KM_GUIMapEdMenuLoad in 'KM_GUIMapEdMenuLoad.pas',
   KM_GUIMapEdMenuSave in 'KM_GUIMapEdMenuSave.pas',
   KM_GUIMapEdMenuQuit in 'KM_GUIMapEdMenuQuit.pas',
+  KM_GUIMapEdPlayer in 'KM_GUIMapEdPlayer.pas',
   KM_GUIMapEdPlayerBlockHouse in 'KM_GUIMapEdPlayerBlockHouse.pas',
   KM_GUIMapEdPlayerBlockTrade in 'KM_GUIMapEdPlayerBlockTrade.pas',
   KM_GUIMapEdPlayerColors in 'KM_GUIMapEdPlayerColors.pas',
