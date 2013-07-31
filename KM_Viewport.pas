@@ -12,8 +12,8 @@ type
     fTopHill: Single;
     fPosition: TKMPointF;
     fScrolling: Boolean;
-    PrevScrollAdv: array [1..24] of Single;
-    PrevScrollPos: Byte;
+    fPrevScrollAdv: array [0..24] of Single;
+    fPrevScrollPos: Byte;
     fViewportClip: TPoint;
     fViewRect: TKMRect;
     fZoom: Single;
@@ -55,8 +55,6 @@ begin
   fMapX := 1; //Avoid division by 0
   fMapY := 1; //Avoid division by 0
 
-  FillChar(PrevScrollAdv, SizeOf(PrevScrollAdv), #0);
-  PrevScrollPos := 0;
   fZoom := 1;
   ReleaseScrollKeys;
   gSoundPlayer.UpdateListener(fPosition.X, fPosition.Y);
@@ -177,7 +175,7 @@ var
   ScrollAdv: Single;
   CursorPoint: TKMPointI;
   ScreenBounds: TRect;
-  Temp:byte;
+  I: Byte;
   MousePos: TPoint;
 begin
   {$IFDEF MSWindows}
@@ -219,13 +217,13 @@ begin
 
   ScrollAdv := (SCROLLSPEED + fGameApp.GameSettings.ScrollSpeed / 3) * aFrameTime / 100; //1-5 tiles per second
 
-  PrevScrollPos := (PrevScrollPos + 1) mod length(PrevScrollAdv) + 1; //Position in ring-buffer
-  PrevScrollAdv[PrevScrollPos] := ScrollAdv; //Replace oldest value
-  for Temp := 1 to length(PrevScrollAdv) do //Compute average
-    ScrollAdv := ScrollAdv + PrevScrollAdv[Temp];
-  ScrollAdv := ScrollAdv / Length(PrevScrollAdv);
+  fPrevScrollPos := (fPrevScrollPos + 1) mod Length(fPrevScrollAdv); //Position in ring-buffer
+  fPrevScrollAdv[fPrevScrollPos] := ScrollAdv; //Replace oldest value
+  for I := Low(fPrevScrollAdv) to High(fPrevScrollAdv) do //Compute average
+    ScrollAdv := ScrollAdv + fPrevScrollAdv[I];
+  ScrollAdv := ScrollAdv / Length(fPrevScrollAdv);
 
-  Temp := 0; //That is our bitfield variable for directions, 0..12 range
+  I := 0; //That is our bitfield variable for directions, 0..12 range
   //    3 2 6  These are directions
   //    1 * 4  They are converted from bitfield to actual cursor constants, see Arr array
   //    9 8 12
@@ -236,15 +234,15 @@ begin
   if ScrollKeyRight then fPosition.X := fPosition.X + ScrollAdv;
   if ScrollKeyDown  then fPosition.Y := fPosition.Y + ScrollAdv;
   //Mouse
-  if CursorPoint.X <= ScreenBounds.Left   + SCROLLFLEX then begin inc(Temp,1); fPosition.X := fPosition.X - ScrollAdv*(1+(ScreenBounds.Left   - CursorPoint.X)/SCROLLFLEX); end;
-  if CursorPoint.Y <= ScreenBounds.Top    + SCROLLFLEX then begin inc(Temp,2); fPosition.Y := fPosition.Y - ScrollAdv*(1+(ScreenBounds.Top    - CursorPoint.Y)/SCROLLFLEX); end;
-  if CursorPoint.X >= ScreenBounds.Right -1-SCROLLFLEX then begin inc(Temp,4); fPosition.X := fPosition.X + ScrollAdv*(1-(ScreenBounds.Right -1-CursorPoint.X)/SCROLLFLEX); end;
-  if CursorPoint.Y >= ScreenBounds.Bottom-1-SCROLLFLEX then begin inc(Temp,8); fPosition.Y := fPosition.Y + ScrollAdv*(1-(ScreenBounds.Bottom-1-CursorPoint.Y)/SCROLLFLEX); end;
+  if CursorPoint.X <= ScreenBounds.Left   + SCROLLFLEX then begin inc(I,1); fPosition.X := fPosition.X - ScrollAdv*(1+(ScreenBounds.Left   - CursorPoint.X)/SCROLLFLEX); end;
+  if CursorPoint.Y <= ScreenBounds.Top    + SCROLLFLEX then begin inc(I,2); fPosition.Y := fPosition.Y - ScrollAdv*(1+(ScreenBounds.Top    - CursorPoint.Y)/SCROLLFLEX); end;
+  if CursorPoint.X >= ScreenBounds.Right -1-SCROLLFLEX then begin inc(I,4); fPosition.X := fPosition.X + ScrollAdv*(1-(ScreenBounds.Right -1-CursorPoint.X)/SCROLLFLEX); end;
+  if CursorPoint.Y >= ScreenBounds.Bottom-1-SCROLLFLEX then begin inc(I,8); fPosition.Y := fPosition.Y + ScrollAdv*(1-(ScreenBounds.Bottom-1-CursorPoint.Y)/SCROLLFLEX); end;
 
   //Now do actual the scrolling, if needed
-  fScrolling := Temp <> 0;
+  fScrolling := I <> 0;
   if fScrolling then
-    fResource.Cursors.Cursor := DirectionsBitfield[Temp] //Sample cursor type from bitfield value
+    fResource.Cursors.Cursor := DirectionsBitfield[I] //Sample cursor type from bitfield value
   else
     if (fResource.Cursors.Cursor in [kmc_Scroll0 .. kmc_Scroll7]) then
       fResource.Cursors.Cursor := kmc_Default;
