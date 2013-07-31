@@ -4,9 +4,10 @@ interface
 uses
    {$IFDEF MSWindows} Windows, {$ENDIF}
    {$IFDEF Unix} LCLIntf, LCLType, {$ENDIF}
-   Classes, Controls, KromUtils, Math, StrUtils, SysUtils, KromOGLUtils, TypInfo,
-   KM_Controls, KM_Defaults, KM_Pics, KM_Houses, KM_Units, KM_UnitGroups, KM_MapEditor,
-   KM_Points, KM_InterfaceDefaults, KM_Terrain,
+   Classes, Controls, Math, StrUtils, SysUtils,
+   KM_Controls, KM_Defaults, KM_Pics, KM_Points,
+   KM_Houses, KM_Units, KM_UnitGroups, KM_MapEditor,
+   KM_InterfaceDefaults, KM_Terrain,
    KM_GUIMapEdHouse,
    KM_GUIMapEdGoal,
    KM_GUIMapEdTerrain,
@@ -26,7 +27,6 @@ type
   TKMapEdInterface = class (TKMUserInterface)
   private
     fPrevHint: TObject;
-    fActivePage: TKMPanel;
     fDragScrolling: Boolean;
     fDragScrollingCursorPos: TPoint;
     fDragScrollingViewportPos: TKMPointF;
@@ -61,9 +61,9 @@ type
     procedure Player_SetActive(aIndex: TPlayerIndex);
     procedure Player_UpdatePages;
   protected
-    Panel_Main:TKMPanel;
+    Panel_Main: TKMPanel;
       MinimapView: TKMMinimapView;
-      Label_Coordinates:TKMLabel;
+      Label_Coordinates: TKMLabel;
       Button_PlayerSelect: array [0..MAX_PLAYERS-1] of TKMFlatButtonShape; //Animals are common for all
       Label_Stat,Label_Hint: TKMLabel;
       Bevel_HintBG: TKMBevel;
@@ -74,13 +74,13 @@ type
       Image_Extra: TKMImage;
       Image_Message: TKMImage;
   public
-    constructor Create(aScreenX, aScreenY: word);
+    constructor Create(aScreenX, aScreenY: Word);
     destructor Destroy; override;
 
     procedure ShowMessage(aText: string);
 
-    procedure KeyDown(Key:Word; Shift: TShiftState); override;
-    procedure KeyUp(Key:Word; Shift: TShiftState); override;
+    procedure KeyDown(Key: Word; Shift: TShiftState); override;
+    procedure KeyUp(Key: Word; Shift: TShiftState); override;
     procedure MouseDown(Button: TMouseButton; Shift: TShiftState; X,Y: Integer); override;
     procedure MouseMove(Shift: TShiftState; X,Y: Integer); override;
     procedure MouseUp(Button: TMouseButton; Shift: TShiftState; X,Y: Integer); override;
@@ -95,9 +95,8 @@ type
 implementation
 uses
   KM_PlayersCollection, KM_ResTexts, KM_Game, KM_Main, KM_GameCursor,
-  KM_Resource, KM_TerrainDeposits, KM_ResCursors, KM_Utils,
-  KM_AIDefensePos, KM_RenderUI, KM_Sound, KM_ResSound,
-  KM_ResFonts;
+  KM_Resource, KM_TerrainDeposits, KM_ResCursors,
+  KM_AIDefensePos, KM_RenderUI, KM_ResFonts;
 
 const
   GROUP_IMG: array [TGroupType] of Word = (
@@ -298,7 +297,7 @@ end;
 //Should update any items changed by game (resource counts, hp, etc..)
 procedure TKMapEdInterface.UpdateState(aTickCount: Cardinal);
 const
-  CAP_COLOR: array [Boolean] of TColor4 = ($80808080, $FFFFFFFF);
+  CAP_COLOR: array [Boolean] of Cardinal = ($80808080, $FFFFFFFF);
 var
   I: Integer;
 begin
