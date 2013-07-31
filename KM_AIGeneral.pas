@@ -326,7 +326,7 @@ begin
 
   //Check if we have enough troops we can take into attack (Backline formations)
 
-  //todo: Check if we can train more soldiers (ignoring EquipRate?)
+  //Check if we can train more soldiers (ignoring EquipRate?)
 
   //Make decision about attack
 

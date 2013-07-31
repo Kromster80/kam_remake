@@ -141,36 +141,37 @@ begin
     end;
     Button_PlayerSelect[0].Down := True; //First player selected by default
 
+  Image_Extra := TKMImage.Create(Panel_Main, TOOLBAR_WIDTH, Panel_Main.Height - 48, 30, 48, 494);
+  Image_Extra.Anchors := [akLeft, akBottom];
+  Image_Extra.HighlightOnMouseOver := True;
+  Image_Extra.OnClick := Message_Click;
+  Image_Message := TKMImage.Create(Panel_Main, TOOLBAR_WIDTH, Panel_Main.Height - 48*2, 30, 48, 496);
+  Image_Message.Anchors := [akLeft, akBottom];
+  Image_Message.HighlightOnMouseOver := True;
+  Image_Message.OnClick := Message_Click;
+  Image_Message.Hide; //Hidden by default, only visible when a message is shown
+
   //Must be created before Hint so it goes over them
   fGuiExtras := TKMMapEdExtras.Create(Panel_Main, PageChanged);
   fGuiMessage := TKMMapEdMessage.Create(Panel_Main);
 
-    Bevel_HintBG := TKMBevel.Create(Panel_Main,224+32,Panel_Main.Height-23,300,21);
-    Bevel_HintBG.BackAlpha := 0.5;
-    Bevel_HintBG.Hide;
-    Bevel_HintBG.Anchors := [akLeft, akBottom];
-
-    Label_Hint := TKMLabel.Create(Panel_Main, 224 + 36, Panel_Main.Height - 21, 0, 0, '', fnt_Outline, taLeft);
-    Label_Hint.Anchors := [akLeft, akBottom];
-
   Panel_Common := TKMPanel.Create(Panel_Main,TB_PAD,255,TB_WIDTH,768);
 
-    {5 big tabs}
-    Button_Main[1] := TKMButton.Create(Panel_Common, BIG_PAD_W*0, 0, BIG_TAB_W, BIG_TAB_H, 381, rxGui, bsGame);
-    Button_Main[2] := TKMButton.Create(Panel_Common, BIG_PAD_W*1, 0, BIG_TAB_W, BIG_TAB_H, 589, rxGui, bsGame);
-    Button_Main[3] := TKMButton.Create(Panel_Common, BIG_PAD_W*2, 0, BIG_TAB_W, BIG_TAB_H, 392, rxGui, bsGame);
-    Button_Main[4] := TKMButton.Create(Panel_Common, BIG_PAD_W*3, 0, BIG_TAB_W, BIG_TAB_H, 441, rxGui, bsGame);
-    Button_Main[5] := TKMButton.Create(Panel_Common, BIG_PAD_W*4, 0, BIG_TAB_W, BIG_TAB_H, 389, rxGui, bsGame);
-    Button_Main[1].Hint := gResTexts[TX_MAPED_TERRAIN];
-    Button_Main[2].Hint := gResTexts[TX_MAPED_VILLAGE];
-    Button_Main[3].Hint := gResTexts[TX_MAPED_SCRIPTS_VISUAL];
-    Button_Main[4].Hint := gResTexts[TX_MAPED_SCRIPTS_GLOBAL];
-    Button_Main[5].Hint := gResTexts[TX_MAPED_MENU];
-    for I := 1 to 5 do
-      Button_Main[I].OnClick := Main_ButtonClick;
+  {5 big tabs}
+  Button_Main[1] := TKMButton.Create(Panel_Common, BIG_PAD_W*0, 0, BIG_TAB_W, BIG_TAB_H, 381, rxGui, bsGame);
+  Button_Main[2] := TKMButton.Create(Panel_Common, BIG_PAD_W*1, 0, BIG_TAB_W, BIG_TAB_H, 589, rxGui, bsGame);
+  Button_Main[3] := TKMButton.Create(Panel_Common, BIG_PAD_W*2, 0, BIG_TAB_W, BIG_TAB_H, 392, rxGui, bsGame);
+  Button_Main[4] := TKMButton.Create(Panel_Common, BIG_PAD_W*3, 0, BIG_TAB_W, BIG_TAB_H, 441, rxGui, bsGame);
+  Button_Main[5] := TKMButton.Create(Panel_Common, BIG_PAD_W*4, 0, BIG_TAB_W, BIG_TAB_H, 389, rxGui, bsGame);
+  Button_Main[1].Hint := gResTexts[TX_MAPED_TERRAIN];
+  Button_Main[2].Hint := gResTexts[TX_MAPED_VILLAGE];
+  Button_Main[3].Hint := gResTexts[TX_MAPED_SCRIPTS_VISUAL];
+  Button_Main[4].Hint := gResTexts[TX_MAPED_SCRIPTS_GLOBAL];
+  Button_Main[5].Hint := gResTexts[TX_MAPED_MENU];
+  for I := 1 to 5 do
+    Button_Main[I].OnClick := Main_ButtonClick;
 
-{I plan to store all possible layouts on different pages which gets displayed one at a time}
-{==========================================================================================}
+  //Editing pages
   fGuiTerrain := TKMMapEdTerrain.Create(Panel_Common, PageChanged);
   fGuiTown := TKMMapEdTown.Create(Panel_Common, PageChanged);
   fGuiPlayer := TKMMapEdPlayer.Create(Panel_Common, PageChanged);
@@ -183,19 +184,7 @@ begin
   fGuiMarkerDefence := TKMMapEdMarkerDefence.Create(Panel_Common, Marker_Done);
   fGuiMarkerReveal := TKMMapEdMarkerReveal.Create(Panel_Common, Marker_Done);
 
-
-  Image_Extra := TKMImage.Create(Panel_Main, TOOLBAR_WIDTH, Panel_Main.Height - 48, 30, 48, 494);
-  Image_Extra.Anchors := [akLeft, akBottom];
-  Image_Extra.HighlightOnMouseOver := True;
-  Image_Extra.OnClick := Message_Click;
-
-  Image_Message := TKMImage.Create(Panel_Main, TOOLBAR_WIDTH, Panel_Main.Height - 48*2, 30, 48, 496);
-  Image_Message.Anchors := [akLeft, akBottom];
-  Image_Message.HighlightOnMouseOver := True;
-  Image_Message.OnClick := Message_Click;
-  Image_Message.Hide; //Hidden by default, only visible when a message is shown
-
-  //Pages that need to be on top of everything
+  //Modal pages
   fGuiAttack := TKMMapEdAttack.Create(Panel_Main);
   fGuiFormations := TKMMapEdFormations.Create(Panel_Main);
   fGuiGoal := TKMMapEdGoal.Create(Panel_Main);
@@ -204,6 +193,14 @@ begin
   fGuiTown.fGuiDefence.FormationsPopUp := fGuiFormations;
   fGuiTown.fGuiOffence.AttackPopUp := fGuiAttack;
   fGuiPlayer.fGuiPlayerGoals.GoalPopUp := fGuiGoal;
+
+  //Hints go above everything
+  Bevel_HintBG := TKMBevel.Create(Panel_Main,224+32,Panel_Main.Height-23,300,21);
+  Bevel_HintBG.BackAlpha := 0.5;
+  Bevel_HintBG.Hide;
+  Bevel_HintBG.Anchors := [akLeft, akBottom];
+  Label_Hint := TKMLabel.Create(Panel_Main, 224 + 36, Panel_Main.Height - 21, 0, 0, '', fnt_Outline, taLeft);
+  Label_Hint.Anchors := [akLeft, akBottom];
 
   fMyControls.OnHint := DisplayHint;
 
@@ -711,6 +708,7 @@ begin
 end;
 
 
+//UI should paint only controls
 procedure TKMapEdInterface.Paint;
   procedure PaintTextInShape(aText: string; X,Y: SmallInt; aLineColor: Cardinal);
   var

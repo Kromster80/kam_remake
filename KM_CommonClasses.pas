@@ -24,7 +24,6 @@ type
     function Write(const Value:Boolean  ): Longint; reintroduce; overload;
     function Write(const Value:Word     ): Longint; reintroduce; overload;
     function Write(const Value:ShortInt ): Longint; reintroduce; overload;
-    procedure SetAsText(const aText: AnsiString); deprecated; //todo: Using text for data exchange is flawed idea. remove
 
     procedure Read(out Value: AnsiString); reintroduce; overload;
     procedure ReadHugeString(out Value: AnsiString);
@@ -42,7 +41,6 @@ type
     function Read(out Value:Word        ): Longint; reintroduce; overload;
     function Read(out Value:ShortInt    ): Longint; reintroduce; overload;
     procedure ReadAssert(const Value: UnicodeString);
-    function GetAsText: AnsiString; deprecated; //todo: Using text for data exchange is flawed idea. remove
   end;
 
   TStreamEvent = procedure (aData: TKMemoryStream) of object;
@@ -274,14 +272,6 @@ function TKMemoryStream.Write(const Value:shortint): Longint;
 begin Result := inherited Write(Value, SizeOf(Value)); end;
 
 
-procedure TKMemoryStream.SetAsText(const aText: AnsiString);
-begin
-  Position := 0;
-  Write(Pointer(aText)^, Length(aText) * SizeOf(AnsiChar));
-  Position := 0;
-end;
-
-
 procedure TKMemoryStream.Read(out Value: AnsiString);
 var I: Word;
 begin
@@ -346,11 +336,6 @@ var S: UnicodeString;
 begin
   Read(s);
   Assert(s = Value, 'TKMemoryStream.Read <> Value: '+Value);
-end;
-
-function TKMemoryStream.GetAsText: AnsiString;
-begin
-  SetString(Result, PChar(Memory), Size div SizeOf(AnsiChar));
 end;
 
 

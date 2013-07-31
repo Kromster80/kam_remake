@@ -316,9 +316,9 @@ begin
 
   case gPlayers[fOwner].PlayerType of
     pt_Human:     begin
+                    //Humans dont need Mayor and Army management
                   end;
     pt_Computer:  begin
-                    //Human dont need Mayor and Army management
                     fMayor.UpdateState(aTick);
                     fGeneral.UpdateState(aTick);
                   end;

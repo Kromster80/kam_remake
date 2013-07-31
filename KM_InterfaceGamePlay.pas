@@ -414,10 +414,10 @@ const
   MESSAGE_AREA_RESIZE_Y = 200; //How much can we resize it
 
   ResRatioCount = 4;
-  ResRatioType:array[1..ResRatioCount] of TWareType = (wt_Steel, wt_Coal, wt_Wood, wt_Corn);
-  ResRatioHint:array[1..ResRatioCount] of word = (298, 300, 302, 304); //Distribution of rt_***
-  ResRatioHouseCount:array[1..ResRatioCount] of byte = (2, 4, 2, 3);
-  ResRatioHouse:array[1..ResRatioCount, 1..4] of THouseType = (
+  ResRatioType: array[1..ResRatioCount] of TWareType = (wt_Steel, wt_Coal, wt_Wood, wt_Corn);
+  ResRatioHint: array[1..ResRatioCount] of Word = (298, 300, 302, 304); //Distribution of rt_***
+  ResRatioHouseCount: array[1..ResRatioCount] of Byte = (2, 4, 2, 3);
+  ResRatioHouse: array[1..ResRatioCount, 1..4] of THouseType = (
       (ht_WeaponSmithy,   ht_ArmorSmithy,     ht_None,          ht_None),
       (ht_IronSmithy,     ht_Metallurgists,   ht_WeaponSmithy,  ht_ArmorSmithy),
       (ht_ArmorWorkshop,  ht_WeaponWorkshop,  ht_None,          ht_None),
