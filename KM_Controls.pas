@@ -280,7 +280,7 @@ type
     fHighlightID: Integer;
   public
     constructor Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight: Integer; aTexID1, aTexID2: Word; aRX: TRXType = rxGui);
-    procedure SetCount(aCount, aColumns, aHighlightID: Integer);
+    procedure SetCount(aCount, aColumns, aHighlightID: Word);
     procedure Paint; override;
   end;
 
@@ -1793,29 +1793,31 @@ begin
 end;
 
 
-procedure TKMImageStack.SetCount(aCount, aColumns, aHighlightID: Integer);
-var Aspect: Single;
+procedure TKMImageStack.SetCount(aCount, aColumns, aHighlightID: Word);
+var
+  Aspect: Single;
 begin
   fCount := aCount;
   fColumns := Math.max(1, aColumns);
   fHighlightID := aHighlightID;
 
   fDrawWidth  := EnsureRange(Width div fColumns, 8, GFXData[fRX, fTexID1].PxWidth);
-  fDrawHeight := EnsureRange(Height div ceil(fCount/fColumns), 6, GFXData[fRX, fTexID1].PxHeight);
+  fDrawHeight := EnsureRange(Height div Ceil(fCount/fColumns), 6, GFXData[fRX, fTexID1].PxHeight);
 
   Aspect := GFXData[fRX, fTexID1].PxWidth / GFXData[fRX, fTexID1].PxHeight;
   if fDrawHeight * Aspect <= fDrawWidth then
-    fDrawWidth  := round(fDrawHeight * Aspect)
+    fDrawWidth  := Round(fDrawHeight * Aspect)
   else
-    fDrawHeight := round(fDrawWidth / Aspect);
+    fDrawHeight := Round(fDrawWidth / Aspect);
 end;
 
 
 {If image area is bigger than image - do center image in it}
 procedure TKMImageStack.Paint;
 var
-  i: Integer;
-  OffsetX, OffsetY, CenterX, CenterY: Smallint; //variable parameters
+  I: Integer;
+  OffsetX, OffsetY, CenterX, CenterY: SmallInt; //variable parameters
+  texID: Word;
 begin
   inherited;
   if fTexID1 = 0 then Exit; //No picture to draw
@@ -1826,15 +1828,14 @@ begin
   CenterX := (Width - OffsetX * (fColumns-1) - fDrawWidth) div 2;
   CenterY := (Height - OffsetY * (Ceil(fCount/fColumns) - 1) - fDrawHeight) div 2;
 
-  for i := 1 to fCount do
-  if i <> fHighlightID then
-    TKMRenderUI.WritePicture(AbsLeft + CenterX + OffsetX * ((i-1) mod fColumns),
-                            AbsTop + CenterY + OffsetY * ((i-1) div fColumns),
-                            fDrawWidth, fDrawHeight, [akLeft, akTop, akRight, akBottom], fRX, fTexID1, fEnabled)
-  else
-    TKMRenderUI.WritePicture(AbsLeft + CenterX + OffsetX * ((i-1) mod fColumns),
-                            AbsTop + CenterY + OffsetY * ((i-1) div fColumns),
-                            fDrawWidth, fDrawHeight, [akLeft, akTop, akRight, akBottom], fRX, fTexID2, fEnabled);
+  for I := 0 to fCount - 1 do
+  begin
+    texID := IfThen(I = fHighlightID, fTexID2, fTexId1);
+
+    TKMRenderUI.WritePicture(AbsLeft + CenterX + OffsetX * (I mod fColumns),
+                            AbsTop + CenterY + OffsetY * (I div fColumns),
+                            fDrawWidth, fDrawHeight, [akLeft, akTop, akRight, akBottom], fRX, texID, fEnabled);
+  end;
 end;
 
 

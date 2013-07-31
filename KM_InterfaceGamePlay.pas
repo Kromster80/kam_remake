@@ -2387,7 +2387,7 @@ begin
   //Update army controls if required
   if Panel_Army.Visible then
   begin
-    ImageStack_Army.SetCount(Sender.Count, Sender.UnitsPerRow, Sender.UnitsPerRow div 2 + 1);
+    ImageStack_Army.SetCount(Sender.Count, Sender.UnitsPerRow, Sender.UnitsPerRow div 2);
     Army_ActivateControls(Sender);
   end;
 end;

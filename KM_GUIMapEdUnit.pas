@@ -137,7 +137,7 @@ begin
   KMConditionBar_Unit.Position := fGroup.Condition / UNIT_MAX_CONDITION;
 
   //Warrior specific
-  ImageStack_Army.SetCount(fGroup.MapEdCount, fGroup.UnitsPerRow, fGroup.UnitsPerRow div 2 + 1);
+  ImageStack_Army.SetCount(fGroup.MapEdCount, fGroup.UnitsPerRow, fGroup.UnitsPerRow div 2);
   Label_ArmyCount.Caption := IntToStr(fGroup.MapEdCount);
   DropBox_ArmyOrder.ItemIndex := Byte(fGroup.MapEdOrder.Order);
   Edit_ArmyOrderX.Value := fGroup.MapEdOrder.Pos.Loc.X;
@@ -152,7 +152,7 @@ begin
   if Sender = Button_Army_ForUp then fGroup.UnitsPerRow := fGroup.UnitsPerRow - 1;
   if Sender = Button_Army_ForDown then fGroup.UnitsPerRow := fGroup.UnitsPerRow + 1;
 
-  ImageStack_Army.SetCount(fGroup.MapEdCount, fGroup.UnitsPerRow, fGroup.UnitsPerRow div 2 + 1);
+  ImageStack_Army.SetCount(fGroup.MapEdCount, fGroup.UnitsPerRow, fGroup.UnitsPerRow div 2);
   Label_ArmyCount.Caption := IntToStr(fGroup.MapEdCount);
 
   if Sender = Button_Army_RotCW then  fGroup.Direction := KMNextDirection(fGroup.Direction);
@@ -206,7 +206,7 @@ begin
     NewCount := fGroup.MapEdCount + ORDER_CLICK_AMOUNT[AButton];
 
   fGroup.MapEdCount := EnsureRange(NewCount, 1, 200); //Limit max members
-  ImageStack_Army.SetCount(fGroup.MapEdCount, fGroup.UnitsPerRow, fGroup.UnitsPerRow div 2 + 1);
+  ImageStack_Army.SetCount(fGroup.MapEdCount, fGroup.UnitsPerRow, fGroup.UnitsPerRow div 2);
   Label_ArmyCount.Caption := IntToStr(fGroup.MapEdCount);
 end;
 
