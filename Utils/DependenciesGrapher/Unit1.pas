@@ -15,46 +15,72 @@ type
     Timer: TTimer;
     procedure ButChooseDprClick(Sender: TObject);
     procedure ButBuildGraphClick(Sender: TObject);
-    procedure FormCreate(Sender: TObject);
-    procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure TimerTimer(Sender: TObject);
+    procedure FormClose(Sender: TObject; var Action: TCloseAction);
   end;
 
   TDepGraphThread = class(TThread)
-    private
-    { Private declarations }
+  private
+    fDprFile: string;
+    DepGraph : TDependenciesGrapher;
   protected
+    constructor Create(aSuspended: Boolean; aDprFile: string);
     procedure Execute; override;
+    function Progress: Integer;
+    procedure DoTerminate; override;
   end;
 
 var
   Form1: TForm1;
-  DepGraph : TDependenciesGrapher;
   DepGraphThread: TDepGraphThread;
 
 
 implementation
 {$R *.dfm}
 
-procedure TDepGraphThread.Execute;
+
+constructor TDepGraphThread.Create(aSuspended: Boolean; aDprFile: string);
 begin
-  DepGraph.BuildGraph( Form1.OpenDialog.FileName );
-  DepGraph.PrintOutput( ExtractFilePath( Application.ExeName ) + 'dependencies.csv' );
+  inherited Create(aSuspended);
+
+  fDprFile := aDprFile;
 end;
 
-procedure TForm1.FormCreate(Sender: TObject);
+
+procedure TDepGraphThread.DoTerminate;
+begin
+  inherited;
+
+  if DepGraph <> nil then
+    DepGraph.ShouldCancel := True;
+end;
+
+
+procedure TDepGraphThread.Execute;
 begin
   DepGraph := TDependenciesGrapher.Create;
 
-  //DepGraph.BuildGraph('C:\Users\Neo7k\Documents\KaM Remake\ScripringDemo\KaM_Remake.dpr');
-  //DepGraph.PrintOutput(ExtractFilePath(Application.ExeName) + 'dependencies.csv');
+  DepGraph.BuildGraph(fDprFile);
+  DepGraph.PrintOutput(ExtractFilePath(fDprFile) + 'dependencies.csv');
+
+  FreeAndNil(DepGraph);
+end;
+
+
+function TDepGraphThread.Progress: Integer;
+begin
+  Result := 0;
+
+  if DepGraph <> nil then
+    Result := DepGraph.GetAnalyseProgress;
 end;
 
 
 procedure TForm1.TimerTimer(Sender: TObject);
 begin
-  ProgressBar.Position := DepGraph.GetAnalyseProgress;
+  ProgressBar.Position := DepGraphThread.Progress;
 end;
+
 
 procedure TForm1.ButChooseDprClick(Sender: TObject);
 begin
@@ -63,25 +89,28 @@ begin
 
   OpenDialog.InitialDir := ExpandFileName(ExtractFilePath(Application.ExeName) + '..\..\');
 
-  Assert(SameText(ExtractFileExt(OpenDialog.FileName ), '.dpr'));
+  Assert(SameText(ExtractFileExt(OpenDialog.FileName), '.dpr'));
 
   ButChooseDpr.Visible := False;
   ButBuildGraph.Visible := True;
   ChConsSystem.Visible := True;
   ProgressBar.Visible := True;
-  Timer.Enabled := True;
-end;
-
-
-procedure TForm1.ButBuildGraphClick(Sender: TObject);
-begin
-  DepGraphThread := TDepGraphThread.Create( False );
 end;
 
 
 procedure TForm1.FormClose(Sender: TObject; var Action: TCloseAction);
 begin
-  DepGraph.Free;
+  if DepGraphThread <> nil then
+  begin
+    DepGraphThread.Terminate;
+    DepGraphThread.WaitFor;
+  end;
+end;
+
+procedure TForm1.ButBuildGraphClick(Sender: TObject);
+begin
+  Timer.Enabled := True;
+  DepGraphThread := TDepGraphThread.Create(False, OpenDialog.FileName);
 end;
 
 

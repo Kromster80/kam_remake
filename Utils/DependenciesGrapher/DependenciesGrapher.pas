@@ -35,6 +35,7 @@ type
     function CheckEOF() : boolean;
     procedure CutSymbol( s : string; var str : string );
   public
+    ShouldCancel: Boolean;
     constructor Create();
     destructor Free();
     procedure BuildGraph( pathToDpr : string );
@@ -189,21 +190,8 @@ begin
   until i = 0;
 
   //Remove eol symbols (irregardless of EOL-style)
-  // doesnt work yet, assertion in ScanUnitName fails
-  {StringReplace(fileOfText, #10, '', [rfReplaceAll, rfIgnoreCase]);
-  StringReplace(fileOfText, #13, '', [rfReplaceAll, rfIgnoreCase]);}
-
-  // Deleting eol symbols
-  i := 1;
-  while i < Length( fileOfText )  do
-  begin
-    if ( fileOfText[i] = #13 ) then
-    begin
-      delete( fileOfText, i, 2 );
-      insert( ' ', fileOfText, i );
-    end;
-    inc(i);
-  end;
+  fileOfText := StringReplace(fileOfText, #10, '', [rfReplaceAll, rfIgnoreCase]);
+  fileOfText := StringReplace(fileOfText, #13, '', [rfReplaceAll, rfIgnoreCase]);
 
   // Deleting extra whitespaces
   i := 1;
@@ -432,6 +420,8 @@ var i, j : integer;
     id : integer;
     f : text;
 begin
+  if ShouldCancel then Exit;
+
   assignFile( f, path );
   rewrite( f );
 
