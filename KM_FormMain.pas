@@ -79,6 +79,7 @@ type
     tbAngleZ: TTrackBar;
     Label7: TLabel;
     chkSelectionBuffer: TCheckBox;
+    ExportMapEdpages1: TMenuItem;
     procedure Export_TreeAnim1Click(Sender: TObject);
     procedure MenuItem1Click(Sender: TObject);
     procedure FormKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
@@ -123,6 +124,7 @@ type
     procedure RenderAreaMouseWheel(Sender: TObject; Shift: TShiftState; WheelDelta: Integer; MousePos: TPoint; var Handled: Boolean);
     procedure RenderAreaResize(aWidth, aHeight: Integer);
     procedure RenderAreaRender(aSender: TObject);
+    procedure ExportMapEdpages1Click(Sender: TObject);
   private
     fUpdating: Boolean;
     {$IFDEF MSWindows}
@@ -583,6 +585,13 @@ procedure TFormMain.Debug_ExportGamePagesClick(Sender: TObject);
 begin
   if (fGameApp.Game <> nil) and (fGameApp.Game.GamePlayInterface <> nil) then
     fGameApp.ExportGameplayPages(ExeDir + 'Export' + PathDelim + 'Gameplay' + PathDelim);
+end;
+
+
+procedure TFormMain.ExportMapEdpages1Click(Sender: TObject);
+begin
+  if (fGameApp.Game <> nil) and (fGameApp.Game.MapEditorInterface <> nil) then
+    fGameApp.Game.MapEditorInterface.ExportPages(ExeDir + 'Export' + PathDelim + 'MapEd' + PathDelim);
 end;
 
 

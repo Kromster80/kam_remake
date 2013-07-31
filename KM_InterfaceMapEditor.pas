@@ -78,6 +78,7 @@ type
     destructor Destroy; override;
 
     procedure ShowMessage(aText: string);
+    procedure ExportPages(aPath: string);
 
     procedure KeyDown(Key: Word; Shift: TShiftState); override;
     procedure KeyUp(Key: Word; Shift: TShiftState); override;
@@ -95,7 +96,7 @@ type
 implementation
 uses
   KM_PlayersCollection, KM_ResTexts, KM_Game, KM_Main, KM_GameCursor,
-  KM_Resource, KM_TerrainDeposits, KM_ResCursors,
+  KM_Resource, KM_TerrainDeposits, KM_ResCursors, KM_GameApp,
   KM_AIDefensePos, KM_RenderUI, KM_ResFonts;
 
 const
@@ -108,6 +109,7 @@ const
 constructor TKMapEdInterface.Create(aScreenX, aScreenY: Word);
 var
   I: Integer;
+  S: TKMShape;
 begin
   inherited;
 
@@ -204,6 +206,18 @@ begin
 
   fMyControls.OnHint := DisplayHint;
 
+  if OVERLAY_RESOLUTIONS then
+  begin
+    S := TKMShape.Create(Panel_Main, 0, 0, 1024, 576);
+    S.LineColor := $FF00FFFF;
+    S.LineWidth := 1;
+    S.Hitable := False;
+    S := TKMShape.Create(Panel_Main, 0, 0, 1024, 768);
+    S.LineColor := $FF00FF00;
+    S.LineWidth := 1;
+    S.Hitable := False;
+  end;
+
   HidePages;
 end;
 
@@ -240,7 +254,7 @@ begin
 
   HidePages;
 
-  if (Sender = Button_Main[1]) then fGuiTerrain.Show else
+  if (Sender = Button_Main[1]) then fGuiTerrain.Show(ttBrush) else
   if (Sender = Button_Main[2]) then fGuiTown.Show(ttHouses) else
   if (Sender = Button_Main[3]) then fGuiPlayer.Show(ptGoals) else
   if (Sender = Button_Main[4]) then fGuiMission.Show(mtMode) else
@@ -487,6 +501,53 @@ end;
 procedure TKMapEdInterface.Minimap_OnUpdate(Sender: TObject; const X,Y: Integer);
 begin
   fGame.Viewport.Position := KMPointF(X,Y);
+end;
+
+
+procedure TKMapEdInterface.ExportPages(aPath: string);
+var
+  I: TKMTerrainTab;
+  K: TKMTownTab;
+  L: TKMPlayerTab;
+  M: TKMMissionTab;
+begin
+  ForceDirectories(aPath);
+
+  for I := Low(TKMTerrainTab) to High(TKMTerrainTab) do
+  begin
+    HidePages;
+    fGuiTerrain.Show(I);
+    fGameApp.PrintScreen(aPath + 'Terrain' + IntToStr(Byte(I)) + '.jpg');
+  end;
+
+  for K := Low(TKMTownTab) to High(TKMTownTab) do
+  begin
+    HidePages;
+    fGuiTown.Show(K);
+    fGameApp.PrintScreen(aPath + 'Town' + IntToStr(Byte(K)) + '.jpg');
+  end;
+
+  for L := Low(TKMPlayerTab) to High(TKMPlayerTab) do
+  begin
+    HidePages;
+    fGuiPlayer.Show(L);
+    fGameApp.PrintScreen(aPath + 'Player' + IntToStr(Byte(L)) + '.jpg');
+  end;
+
+  for M := Low(TKMMissionTab) to High(TKMMissionTab) do
+  begin
+    HidePages;
+    fGuiMission.Show(M);
+    fGameApp.PrintScreen(aPath + 'Mission' + IntToStr(Byte(M)) + '.jpg');
+  end;
+
+  HidePages;
+  fGuiHouse.Show(nil);
+  fGameApp.PrintScreen(aPath + 'House.jpg');
+
+  HidePages;
+  fGuiUnit.Show(TKMUnit(nil));
+  fGameApp.PrintScreen(aPath + 'Unit.jpg');
 end;
 
 

@@ -105,15 +105,18 @@ begin
   fUnit := aUnit;
   fGroup := nil;
 
+  Label_UnitDescription.Show;
+  Panel_Unit.Show;
+  Panel_Army.Hide;
+
+  if fUnit = nil then Exit;
+
   Label_UnitName.Caption := fResource.UnitDat[fUnit.UnitType].GUIName;
   Image_UnitPic.TexID := fResource.UnitDat[fUnit.UnitType].GUIScroll;
   Image_UnitPic.FlagColor := gPlayers[fUnit.Owner].FlagColor;
   KMConditionBar_Unit.Position := fUnit.Condition / UNIT_MAX_CONDITION;
 
   Label_UnitDescription.Caption := fResource.UnitDat[fUnit.UnitType].Description;
-  Label_UnitDescription.Show;
-
-  Panel_Unit.Show;
 end;
 
 
@@ -122,13 +125,18 @@ begin
   fUnit := nil;
   fGroup := aGroup;
 
+  Label_UnitDescription.Hide;
+  Panel_Unit.Show;
+  Panel_Army.Show;
+
+  if fGroup = nil then Exit;
+
   Label_UnitName.Caption := fResource.UnitDat[fGroup.UnitType].GUIName;
   Image_UnitPic.TexID := fResource.UnitDat[fGroup.UnitType].GUIScroll;
   Image_UnitPic.FlagColor := gPlayers[fGroup.Owner].FlagColor;
   KMConditionBar_Unit.Position := fGroup.Condition / UNIT_MAX_CONDITION;
 
   //Warrior specific
-  Label_UnitDescription.Hide;
   ImageStack_Army.SetCount(fGroup.MapEdCount, fGroup.UnitsPerRow, fGroup.UnitsPerRow div 2 + 1);
   Label_ArmyCount.Caption := IntToStr(fGroup.MapEdCount);
   DropBox_ArmyOrder.ItemIndex := Byte(fGroup.MapEdOrder.Order);
@@ -136,9 +144,6 @@ begin
   Edit_ArmyOrderY.Value := fGroup.MapEdOrder.Pos.Loc.Y;
   Edit_ArmyOrderDir.Value := Max(Byte(fGroup.MapEdOrder.Pos.Dir) - 1, 0);
   Unit_ArmyChange1(nil);
-
-  Panel_Unit.Show;
-  Panel_Army.Show;
 end;
 
 

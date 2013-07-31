@@ -36,7 +36,7 @@ type
     constructor Create(aParent: TKMPanel; aOnPageChange: TNotifyEvent);
     destructor Destroy; override;
 
-    procedure Show;
+    procedure Show(aTab: TKMTerrainTab);
     function Visible(aPage: TKMTerrainTab): Boolean; overload;
     function Visible: Boolean; overload;
     procedure UpdateState;
@@ -144,10 +144,10 @@ begin
 end;
 
 
-procedure TKMMapEdTerrain.Show;
+procedure TKMMapEdTerrain.Show(aTab: TKMTerrainTab);
 begin
   Panel_Terrain.Show;
-  PageChange(Button_Terrain[ttBrush]);
+  PageChange(Button_Terrain[aTab]);
 end;
 
 

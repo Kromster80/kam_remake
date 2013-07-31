@@ -181,6 +181,7 @@ var
   Res: TWareType;
 begin
   fHouse := aHouse;
+  if fHouse = nil then Exit;
 
   HouseDat := fResource.HouseDat[fHouse.HouseType];
 

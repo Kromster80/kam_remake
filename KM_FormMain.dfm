@@ -421,12 +421,16 @@ object FormMain: TFormMain
         OnClick = Debug_EnableCheatsClick
       end
       object ExportMenuPages: TMenuItem
-        Caption = 'Export Menu Pages'
+        Caption = 'Export Menu pages'
         OnClick = Debug_ExportMenuPagesClick
       end
       object ExportGamePages: TMenuItem
-        Caption = 'Export Game Pages'
+        Caption = 'Export Game pages'
         OnClick = Debug_ExportGamePagesClick
+      end
+      object ExportMapEdpages1: TMenuItem
+        Caption = 'Export MapEd pages'
+        OnClick = ExportMapEdpages1Click
       end
     end
     object Export1: TMenuItem

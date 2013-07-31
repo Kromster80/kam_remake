@@ -38,8 +38,8 @@ begin
 
   Panel_Color := TKMPanel.Create(aParent, 0, 28, TB_WIDTH, 400);
   TKMLabel.Create(Panel_Color, 0, PAGE_TITLE_Y, TB_WIDTH, 0, gResTexts[TX_MAPED_PLAYER_COLORS], fnt_Outline, taCenter);
-  TKMBevel.Create(Panel_Color, 0, 30, TB_WIDTH, 210);
-  ColorSwatch_Color := TKMColorSwatch.Create(Panel_Color, 0, 32, 16, 16, 11);
+  TKMBevel.Create(Panel_Color, 0, 30, TB_WIDTH, 180);
+  ColorSwatch_Color := TKMColorSwatch.Create(Panel_Color, 2, 32, 16, 16, 11);
   for I := 0 to 255 do
     Col[I] := fResource.Palettes.DefDal.Color32(I);
   ColorSwatch_Color.SetColors(Col);
