@@ -427,7 +427,10 @@ begin
     for I := aAgents.Count - 1 downto 0 do
       for J := aTasks.Count - 1 downto 0 do
         //Square the entire costs matrix to make high costs very bad compared to low costs
-        Solver.Costs[I, J] := Sqr(Round(10 * KMLengthDiag(aAgents[I], aTasks[J])));
+        //@Lewin: For some weird reason in XE2 (didnt tested in L nor 7)
+        //Round(Sqr( = sane values 200, 414, etc
+        //Sqr(Round( = insane 32243928 kind of numbers
+        Solver.Costs[I, J] := Round(Sqr(10 * KMLengthDiag(aAgents[I], aTasks[J])));
   end
   else
     for I := aAgents.Count - 1 downto 0 do
