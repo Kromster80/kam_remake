@@ -52,7 +52,7 @@ begin
   inherited;
 
   if DepGraph <> nil then
-    DepGraph.ShouldCancel := True;
+    DepGraph.Cancel();
 end;
 
 
@@ -102,6 +102,8 @@ procedure TForm1.FormClose(Sender: TObject; var Action: TCloseAction);
 begin
   if DepGraphThread <> nil then
   begin
+    if DepGraphThread.DepGraph <> nil then
+      DepGraphThread.DepGraph.Cancel();
     DepGraphThread.Terminate;
     DepGraphThread.WaitFor;
   end;

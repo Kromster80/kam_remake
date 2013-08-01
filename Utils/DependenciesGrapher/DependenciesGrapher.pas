@@ -18,6 +18,7 @@ type
     analyseProgress : integer;
     unitNumberToLoad : integer;
     unitNumberLoaded : integer;
+    ShouldCancel: Boolean;
     procedure ScanDpr( filename : string );
     function ReadWord() : string;
     procedure ScanForAllUnits( path : string; quickscan : boolean );
@@ -35,9 +36,9 @@ type
     function CheckEOF() : boolean;
     procedure CutSymbol( s : string; var str : string );
   public
-    ShouldCancel: Boolean;
     constructor Create();
     destructor Free();
+    procedure Cancel();
     procedure BuildGraph( pathToDpr : string );
     procedure PrintOutput( path : string );
     function GetAnalyseProgress() : integer;
@@ -65,6 +66,11 @@ begin
   //inherited Free;
 end;
 
+procedure TDependenciesGrapher.Cancel();
+begin
+  ShouldCancel := true;
+end;
+
 function TDependenciesGrapher.GetAnalyseProgress() : integer;
 begin
   Result := analyseProgress;
@@ -78,6 +84,8 @@ begin
   ScanForAllUnits( path, true );
   unitNumberToLoad := unitNumberToLoad * 2; // Units in project are loaded twice
   ScanForAllUnits( path, false );
+  if ShouldCancel then
+    exit;
   ScanDpr( pathToDpr );
   Analyse();
   analyseProgress := 100;
@@ -140,6 +148,9 @@ begin
   fileOfText := fileOfTextStrList.Text;
   fileOfTextPos := 1;
 
+  if ShouldCancel then
+    exit;
+
   // Inserting whitespaces after all ',' and ';'
   i := 1;
   while i < Length( fileOfText )  do
@@ -148,6 +159,9 @@ begin
       insert( ' ', fileOfText, i + 1 );
     inc(i);
   end;
+
+  if ShouldCancel then
+    exit;
 
   // Deleting {} comments
   i := 0;
@@ -160,6 +174,10 @@ begin
         delete( fileOfText, i, j - i + 1 );
     end;
   until i = 0;
+
+  if ShouldCancel then
+    exit;
+
   // Deleting (* *) comments
   i := 0;
   repeat
@@ -171,6 +189,10 @@ begin
         delete( fileOfText, i, j - i + 2 );
     end;
   until i = 0;
+
+  if ShouldCancel then
+    exit;
+
   // Deleting // comments
   i := 0;
   repeat
@@ -189,9 +211,15 @@ begin
     end;
   until i = 0;
 
+  if ShouldCancel then
+    exit;
+
   //Remove eol symbols (irregardless of EOL-style)
   fileOfText := StringReplace(fileOfText, #10, '', [rfReplaceAll, rfIgnoreCase]);
   fileOfText := StringReplace(fileOfText, #13, '', [rfReplaceAll, rfIgnoreCase]);
+
+  if ShouldCancel then
+    exit;
 
   // Deleting extra whitespaces
   i := 1;
@@ -206,6 +234,10 @@ begin
     end;
     inc(i);
   end;
+
+  if ShouldCancel then
+    exit;
+
   // File cannot start with a whitespace
   if fileOfText[1] = ' ' then
     delete( fileOfText, 1, 1 );
@@ -287,7 +319,11 @@ procedure TDependenciesGrapher.ScanUnitName( filename : string );
 var str : string;
     i : integer;
 begin
+  if ShouldCancel then
+    exit;
   LoadFile( filename );
+  if ShouldCancel then
+    exit;
   inc(unitNumberLoaded);
   analyseProgress := ( unitNumberLoaded * 100 ) div unitNumberToLoad;
 
