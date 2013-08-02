@@ -47,12 +47,12 @@ type
     fBuildingRepair: Boolean; //If on and the building is damaged then labourers will come and repair it
     fWareDelivery: Boolean; //If on then no wares will be delivered here
 
-    fResourceIn: array[1..4] of Byte; //Resource count in input
+    fResourceIn: array [1..4] of Byte; //Resource count in input
     fResourceDeliveryCount: array[1..4] of Word; //Count of the resources we have ordered for the input (used for ware distribution)
-    fResourceOut: array[1..4]of Byte; //Resource count in output
-    fResourceOrder: array[1..4]of Word; //If HousePlaceOrders=true then here are production orders
+    fResourceOut: array [1..4]of Byte; //Resource count in output
+    fResourceOrder: array [1..4]of Word; //If HousePlaceOrders=true then here are production orders
     fLastOrderProduced: Byte;
-    fResOrderDesired: array[1..4]of Single;
+    fResOrderDesired: array [1..4]of Single;
 
     WorkAnimStep: Cardinal; //Used for Work and etc.. which is not in sync with Flags
     fIsOnSnow: Boolean;
@@ -224,7 +224,7 @@ type
     procedure ResTakeFromOut(aWare: TWareType; const aCount: Word = 1); override;
     function ResCanAddToIn(aRes: TWareType): Boolean; override;
     procedure Save(SaveStream: TKMemoryStream); override;
-    end;
+  end;
 
 
   TKMHouseTower = class(TKMHouse)
