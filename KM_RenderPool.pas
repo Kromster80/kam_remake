@@ -25,11 +25,13 @@ type
     FOWvalue: Byte; // Fog of War thickness
   end;
 
+  TSmallIntArray = array of smallint;
+
   //List of sprites prepared to be rendered
   TRenderList = class
   private
     fCount: Word;
-    RenderOrder: array of smallint; //Order in which sprites will be drawn ()
+    RenderOrder: TSmallIntArray; //Order in which sprites will be drawn ()
     RenderList: array of TKMRenderSprite;
 
     fStat_Sprites: Integer; //Total sprites in queue
@@ -1420,7 +1422,7 @@ begin
   if fCount > 0 then
     DoQuickSort(0, fCount - 1);
 end; }
-var I,K: Integer;
+{var I,K: Integer;
 begin
   ClipRenderList;
 
@@ -1432,7 +1434,86 @@ begin
           or((RenderList[RenderOrder[K]].Feet.Y = RenderList[RenderOrder[I]].Feet.Y)
           and(RenderList[RenderOrder[K]].Loc.X > RenderList[RenderOrder[I]].Loc.X))
           then //TopMost Rightmost
-            SwapInt(RenderOrder[K], RenderOrder[I]);
+            SwapInt(RenderOrder[K], RenderOrder[I]);}
+
+function DoMergeSort(aLo, aHi : integer) : TSmallIntArray;
+var
+  k, mid, segmLen, i, j: Integer;
+  wholeSortedSegment: TSmallIntArray;
+  sortedSegment1: TSmallIntArray;
+  sortedSegment2: TSmallIntArray;
+begin
+  assert( aLo <= aHi );
+  mid := (aLo + aHi) div 2;
+  if aHi - aLo > 0 then
+  begin
+    sortedSegment1 := DoMergeSort(aLo, mid);  // Get the left sorted subarray
+    sortedSegment2 := DoMergeSort(mid+1, aHi);  // Get the right sorted subarray
+  end
+  else  // Deal just with 1 element
+  begin
+    SetLength(wholeSortedSegment, 1);
+    wholeSortedSegment[0] := RenderOrder[mid];
+    Result := wholeSortedSegment;  // 1 element is considered as sorted subarray
+    exit;
+  end;
+
+  segmLen := aHi - aLo + 1;
+  SetLength(wholeSortedSegment, segmLen); // Prepare buffer array
+
+  // Combine subarrays into the buffer one
+  i := 0;
+  j := 0;
+  for k := 0 to segmLen - 1 do
+  begin
+    if i > mid - aLo then // If entire first segment is added, just add second
+    begin
+      wholeSortedSegment[k] := sortedSegment2[j];
+      inc(j);
+    end
+    else
+      if j >= aHi - mid then // If entire second segment is added, just add first
+      begin
+        wholeSortedSegment[k] := sortedSegment1[i];
+        inc(i);
+      end
+      else
+        if sortedSegment1[i] = -1 then  //Exclude child sprites from comparison
+        begin
+          wholeSortedSegment[k] := sortedSegment1[i];
+          inc(i);
+        end
+        else
+          if sortedSegment2[j] = -1 then  //Exclude child sprites from comparison
+          begin
+            wholeSortedSegment[k] := sortedSegment2[j];
+            inc(j);
+          end
+          else
+          begin
+            if (RenderList[sortedSegment1[i]].Feet.Y > RenderList[sortedSegment2[j]].Feet.Y)
+            or((RenderList[sortedSegment1[i]].Feet.Y = RenderList[sortedSegment2[j]].Feet.Y)
+            and(RenderList[sortedSegment1[i]].Loc.X < RenderList[sortedSegment2[j]].Loc.X))
+            then  // Topmost is in segment 2
+            begin
+              wholeSortedSegment[k] := sortedSegment2[j];
+              inc(j);
+            end
+            else  // Topmost is in segment 1
+            begin
+              wholeSortedSegment[k] := sortedSegment1[i];
+              inc(i);
+            end;
+          end;
+  end;
+  SetLength(sortedSegment1, 0);
+  SetLength(sortedSegment2, 0);
+  Result := wholeSortedSegment;
+end;
+
+begin
+  ClipRenderList;
+  RenderOrder := DoMergeSort( 0, fCount - 1 );
 end;
 
 
