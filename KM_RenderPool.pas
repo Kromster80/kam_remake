@@ -1436,84 +1436,83 @@ begin
           then //TopMost Rightmost
             SwapInt(RenderOrder[K], RenderOrder[I]);}
 
-function DoMergeSort(aLo, aHi : integer) : TSmallIntArray;
-var
-  k, mid, segmLen, i, j: Integer;
-  wholeSortedSegment: TSmallIntArray;
-  sortedSegment1: TSmallIntArray;
-  sortedSegment2: TSmallIntArray;
-begin
-  assert( aLo <= aHi );
-  mid := (aLo + aHi) div 2;
-  if aHi - aLo > 0 then
+  function DoMergeSort(aLo, aHi : integer) : TSmallIntArray;
+  var
+    mid, segmLen, K, I, J: Integer;
+    wholeSortedSegment: TSmallIntArray;
+    sortedSegment1: TSmallIntArray;
+    sortedSegment2: TSmallIntArray;
   begin
-    sortedSegment1 := DoMergeSort(aLo, mid);  // Get the left sorted subarray
-    sortedSegment2 := DoMergeSort(mid+1, aHi);  // Get the right sorted subarray
-  end
-  else  // Deal just with 1 element
-  begin
-    SetLength(wholeSortedSegment, 1);
-    wholeSortedSegment[0] := RenderOrder[mid];
-    Result := wholeSortedSegment;  // 1 element is considered as sorted subarray
-    exit;
-  end;
-
-  segmLen := aHi - aLo + 1;
-  SetLength(wholeSortedSegment, segmLen); // Prepare buffer array
-
-  // Combine subarrays into the buffer one
-  i := 0;
-  j := 0;
-  for k := 0 to segmLen - 1 do
-  begin
-    if i > mid - aLo then // If entire first segment is added, just add second
+    assert( aLo <= aHi );
+    mid := (aLo + aHi) div 2;
+    if aHi - aLo > 0 then
     begin
-      wholeSortedSegment[k] := sortedSegment2[j];
-      inc(j);
+      sortedSegment1 := DoMergeSort(aLo, mid);  // Get the left sorted subarray
+      sortedSegment2 := DoMergeSort(mid+1, aHi);  // Get the right sorted subarray
     end
-    else
-      if j >= aHi - mid then // If entire second segment is added, just add first
+    else  // Deal just with 1 element
+    begin
+      SetLength(wholeSortedSegment, 1);
+      wholeSortedSegment[0] := RenderOrder[mid];
+      Result := wholeSortedSegment;  // 1 element is considered as sorted subarray
+      exit;
+    end;
+
+    segmLen := aHi - aLo + 1;
+    SetLength(wholeSortedSegment, segmLen); // Prepare buffer array
+
+    // Combine subarrays into the buffer one
+    I := 0;
+    J := 0;
+    for K := 0 to segmLen - 1 do
+    begin
+      if I > mid - aLo then // If entire first segment is added, just add second
       begin
-        wholeSortedSegment[k] := sortedSegment1[i];
-        inc(i);
+        wholeSortedSegment[K] := sortedSegment2[J];
+        inc(J);
       end
       else
-        if sortedSegment1[i] = -1 then  //Exclude child sprites from comparison
+        if J >= aHi - mid then // If entire second segment is added, just add first
         begin
-          wholeSortedSegment[k] := sortedSegment1[i];
-          inc(i);
+          wholeSortedSegment[K] := sortedSegment1[I];
+          inc(I);
         end
         else
-          if sortedSegment2[j] = -1 then  //Exclude child sprites from comparison
+          if sortedSegment1[I] = -1 then  //Exclude child sprites from comparison
           begin
-            wholeSortedSegment[k] := sortedSegment2[j];
-            inc(j);
+            wholeSortedSegment[K] := sortedSegment1[I];
+            inc(I);
           end
           else
-          begin
-            if (RenderList[sortedSegment1[i]].Feet.Y > RenderList[sortedSegment2[j]].Feet.Y)
-            or((RenderList[sortedSegment1[i]].Feet.Y = RenderList[sortedSegment2[j]].Feet.Y)
-            and(RenderList[sortedSegment1[i]].Loc.X < RenderList[sortedSegment2[j]].Loc.X))
-            then  // Topmost is in segment 2
+            if sortedSegment2[J] = -1 then  //Exclude child sprites from comparison
             begin
-              wholeSortedSegment[k] := sortedSegment2[j];
-              inc(j);
+              wholeSortedSegment[K] := sortedSegment2[J];
+              inc(J);
             end
-            else  // Topmost is in segment 1
+            else
             begin
-              wholeSortedSegment[k] := sortedSegment1[i];
-              inc(i);
+              if (RenderList[sortedSegment1[I]].Feet.Y > RenderList[sortedSegment2[J]].Feet.Y)
+              or((RenderList[sortedSegment1[I]].Feet.Y = RenderList[sortedSegment2[J]].Feet.Y)
+              and(RenderList[sortedSegment1[I]].Loc.X < RenderList[sortedSegment2[J]].Loc.X))
+              then  // Topmost is in segment 2
+              begin
+                wholeSortedSegment[K] := sortedSegment2[J];
+                inc(J);
+              end
+              else  // Topmost is in segment 1
+              begin
+                wholeSortedSegment[K] := sortedSegment1[I];
+                inc(I);
+              end;
             end;
-          end;
+    end;
+    Result := wholeSortedSegment;
   end;
-  SetLength(sortedSegment1, 0);
-  SetLength(sortedSegment2, 0);
-  Result := wholeSortedSegment;
-end;
 
 begin
   ClipRenderList;
-  RenderOrder := DoMergeSort( 0, fCount - 1 );
+  if fCount > 0 then
+    RenderOrder := DoMergeSort(0, fCount - 1);
 end;
 
 
