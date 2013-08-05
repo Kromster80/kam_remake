@@ -1376,28 +1376,27 @@ end;
 
 
 procedure TRenderList.ClipRenderList;
-var I: Integer;
+var I, J: Integer;
 begin
   SetLength(RenderOrder, fCount);
-
+  J := 0;
   for I := 0 to fCount - 1 do
-  if RenderList[I].NewInst then
-  begin
-    RenderOrder[I] := I;
-    RenderList[I].FOWvalue := MySpectator.FogOfWar.CheckRevelation(RenderList[I].Feet);
-  end
-  else
-  begin
-    RenderOrder[I] := -1;
-    RenderList[I].FOWvalue := RenderList[I-1].FOWvalue; //Take from previous
-  end;
+    if RenderList[I].NewInst then
+    begin
+      RenderOrder[J] := I;
+      inc(J);
+      RenderList[I].FOWvalue := MySpectator.FogOfWar.CheckRevelation(RenderList[I].Feet);
+    end
+    else
+      RenderList[I].FOWvalue := RenderList[I-1].FOWvalue; //Take from previous
+  SetLength(RenderOrder, J);
 end;
 
 
 //Sort all items in list from top-right to bottom-left
 procedure TRenderList.SortRenderList;
-//todo: Implement QuickSort here, note that RenderOrder is sparse
-{  procedure DoQuickSort(aLo, aHi: Integer);
+
+  procedure DoQuickSort(aLo, aHi: Integer);
   var
     Lo, Hi: Integer;
     Mid: Single;
@@ -1418,101 +1417,11 @@ procedure TRenderList.SortRenderList;
     if Hi > aLo then DoQuickSort(aLo, Hi);
     if Lo < aHi then DoQuickSort(Lo, aHi);
   end;
-begin
-  if fCount > 0 then
-    DoQuickSort(0, fCount - 1);
-end; }
-{var I,K: Integer;
-begin
-  ClipRenderList;
-
-  for I := 0 to fCount - 1 do
-    if RenderOrder[I] <> -1 then //Exclude child sprites from comparison
-      for K := I + 1 to fCount - 1 do
-        if RenderOrder[K] <> -1 then
-          if (RenderList[RenderOrder[K]].Feet.Y < RenderList[RenderOrder[I]].Feet.Y)
-          or((RenderList[RenderOrder[K]].Feet.Y = RenderList[RenderOrder[I]].Feet.Y)
-          and(RenderList[RenderOrder[K]].Loc.X > RenderList[RenderOrder[I]].Loc.X))
-          then //TopMost Rightmost
-            SwapInt(RenderOrder[K], RenderOrder[I]);}
-
-  function DoMergeSort(aLo, aHi : integer) : TSmallIntArray;
-  var
-    mid, segmLen, K, I, J: Integer;
-    wholeSortedSegment: TSmallIntArray;
-    sortedSegment1: TSmallIntArray;
-    sortedSegment2: TSmallIntArray;
-  begin
-    assert( aLo <= aHi );
-    mid := (aLo + aHi) div 2;
-    if aHi - aLo > 0 then
-    begin
-      sortedSegment1 := DoMergeSort(aLo, mid);  // Get the left sorted subarray
-      sortedSegment2 := DoMergeSort(mid+1, aHi);  // Get the right sorted subarray
-    end
-    else  // Deal just with 1 element
-    begin
-      SetLength(wholeSortedSegment, 1);
-      wholeSortedSegment[0] := RenderOrder[mid];
-      Result := wholeSortedSegment;  // 1 element is considered as sorted subarray
-      exit;
-    end;
-
-    segmLen := aHi - aLo + 1;
-    SetLength(wholeSortedSegment, segmLen); // Prepare buffer array
-
-    // Combine subarrays into the buffer one
-    I := 0;
-    J := 0;
-    for K := 0 to segmLen - 1 do
-    begin
-      if I > mid - aLo then // If entire first segment is added, just add second
-      begin
-        wholeSortedSegment[K] := sortedSegment2[J];
-        inc(J);
-      end
-      else
-        if J >= aHi - mid then // If entire second segment is added, just add first
-        begin
-          wholeSortedSegment[K] := sortedSegment1[I];
-          inc(I);
-        end
-        else
-          if sortedSegment1[I] = -1 then  //Exclude child sprites from comparison
-          begin
-            wholeSortedSegment[K] := sortedSegment1[I];
-            inc(I);
-          end
-          else
-            if sortedSegment2[J] = -1 then  //Exclude child sprites from comparison
-            begin
-              wholeSortedSegment[K] := sortedSegment2[J];
-              inc(J);
-            end
-            else
-            begin
-              if (RenderList[sortedSegment1[I]].Feet.Y > RenderList[sortedSegment2[J]].Feet.Y)
-              or((RenderList[sortedSegment1[I]].Feet.Y = RenderList[sortedSegment2[J]].Feet.Y)
-              and(RenderList[sortedSegment1[I]].Loc.X < RenderList[sortedSegment2[J]].Loc.X))
-              then  // Topmost is in segment 2
-              begin
-                wholeSortedSegment[K] := sortedSegment2[J];
-                inc(J);
-              end
-              else  // Topmost is in segment 1
-              begin
-                wholeSortedSegment[K] := sortedSegment1[I];
-                inc(I);
-              end;
-            end;
-    end;
-    Result := wholeSortedSegment;
-  end;
 
 begin
   ClipRenderList;
   if fCount > 0 then
-    RenderOrder := DoMergeSort(0, fCount - 1);
+    DoQuickSort(0, Length(RenderOrder) - 1);
 end;
 
 
@@ -1601,12 +1510,13 @@ end;
 {Now render all these items from list}
 procedure TRenderList.Render(aTarget: TKMRenderTarget);
 var
-  I, K: Integer;
+  I, K, objectCount: Integer;
 begin
   fStat_Sprites := fCount;
   fStat_Sprites2 := 0;
+  objectCount := Length(RenderOrder);
 
-  for I := 0 to fCount - 1 do
+  for I := 0 to objectCount - 1 do
   if RenderOrder[I] <> -1 then
   begin
     K := RenderOrder[I];
