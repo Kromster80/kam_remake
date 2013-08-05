@@ -41,6 +41,7 @@
 
 
 Improvements:
+ +	noticeably improved render performance when zoomed out
  +	L	Serfs check for a better delivery destination when arriving at the From house (due to state of village changing)
  +	M	MapEd: Copy/paste works between multiple instances of the editor using Windows clipboard
 	Dismiss button to make units walk into the school and disappear (gold is not refunded)
