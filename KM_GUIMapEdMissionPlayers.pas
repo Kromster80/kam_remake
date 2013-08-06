@@ -10,9 +10,11 @@ type
   private
     procedure Mission_PlayerTypesChange(Sender: TObject);
     procedure Mission_PlayerTypesUpdate;
+    procedure Mission_PlayerIdUpdate;
   protected
     Panel_PlayerTypes: TKMPanel;
     CheckBox_PlayerTypes: array [0..MAX_PLAYERS-1, 0..2] of TKMCheckBox;
+    Label_PlayerId : array [0..MAX_PLAYERS-1] of TKMLabel;
   public
     constructor Create(aParent: TKMPanel);
 
@@ -45,7 +47,8 @@ begin
   TKMImage.Create(Panel_PlayerTypes,164, 30, 20, 20,  62, rxGuiMain);
   for I := 0 to MAX_PLAYERS - 1 do
   begin
-    TKMLabel.Create(Panel_PlayerTypes,  4, 50+I*25, 20, 20, IntToStr(I+1), fnt_Outline, taLeft);
+    Label_PlayerId[i] := TKMLabel.Create(Panel_PlayerTypes,  4, 50+I*25, 20, 20, IntToStr(I+1), fnt_Outline, taLeft);
+
     for K := 0 to 2 do
     begin
       CheckBox_PlayerTypes[I,K] := TKMCheckBox.Create(Panel_PlayerTypes, 44+K*60, 48+I*25, 20, 20, '', fnt_Metal);
@@ -81,13 +84,29 @@ begin
   if Sender = CheckBox_PlayerTypes[PlayerId, 0] then
     fGame.MapEditor.DefaultHuman := PlayerId;
 
+  //User cannot set both options
   if Sender = CheckBox_PlayerTypes[PlayerId, 1] then
+  begin
     fGame.MapEditor.PlayerHuman[PlayerId] := CheckBox_PlayerTypes[PlayerId, 1].Checked;
+    fGame.MapEditor.PlayerAI[PlayerId] := not CheckBox_PlayerTypes[PlayerId, 1].Checked;
+  end;
 
   if Sender = CheckBox_PlayerTypes[PlayerId, 2] then
+  begin
+    fGame.MapEditor.PlayerHuman[PlayerId] := not CheckBox_PlayerTypes[PlayerId, 2].Checked;
     fGame.MapEditor.PlayerAI[PlayerId] := CheckBox_PlayerTypes[PlayerId, 2].Checked;
+  end;
 
   Mission_PlayerTypesUpdate;
+end;
+
+procedure TKMMapEdMissionPlayers.Mission_PlayerIdUpdate;
+var I : integer;
+begin
+  for I := 0 to MAX_PLAYERS - 1 do
+    if I < gPlayers.Count then
+      if not gPlayers[I].HasAssets then
+        Label_PlayerId[i].FontColor := $FF808080;
 end;
 
 
@@ -100,6 +119,7 @@ end;
 procedure TKMMapEdMissionPlayers.Show;
 begin
   Mission_PlayerTypesUpdate;
+  Mission_PlayerIdUpdate;
   Panel_PlayerTypes.Show;
 end;
 

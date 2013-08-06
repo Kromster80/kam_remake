@@ -285,6 +285,9 @@ begin
       NewCount := Math.Min(ORDER_CLICK_AMOUNT[aButton], fHouse.CheckResIn(Res));
       fHouse.ResTakeFromIn(Res, NewCount);
     end;
+
+    ResRow_Resource[I].OrderCount := fHouse.CheckResIn(Res);
+
   end;
 
   KMHealthBar_House.Caption := IntToStr(Round(fHouse.GetHealth)) + '/' + IntToStr(HouseDat.MaxHealth);
