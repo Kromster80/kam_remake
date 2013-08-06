@@ -90,11 +90,11 @@ Improvements:
 	L	Keep road bends when neighbour road is destroyed (e.g. house entrances)
 	L	Set random seed randomly on fGame.Create (for MP it needs to be decided by host and synced before the game starts)
   L Allow fish to swim under the ice (as well render it between sand and water terrain layers)
+  L Message when weaponmaker has complete his order
 
 	L	MapEd: Allow to toggle trees/objects opacity (make them partially visible) [Marcin]
 	L	MapEd: Allow to toggle AI defence positions display
 	L	MapEd: Random objects brush
-	L	MapEd: Allow to Undo/Redo actions (implement a queue)
 	L	MapEd: Artistic brushes (those that place random types of trees and/or decorations)
 	L	MapEd: Make houses highlight red when about to erase them as trees/units do
 	L	MapEd: Flat terrain checkbox on Extras popup
