@@ -61,6 +61,12 @@ var
 begin
   inherited Create;
 
+  for I := 0 to MAX_PLAYERS - 1 do
+  begin
+    PlayerHuman[I] := true;
+    PlayerAI[I] := true;
+  end;
+
   fDeposits := TKMDeposits.Create;
 
   fTerrainPainter := TKMTerrainPainter.Create;

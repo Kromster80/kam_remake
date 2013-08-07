@@ -68,9 +68,7 @@ begin
     CheckBox_PlayerTypes[I, 1].Enabled := gPlayers[I].HasAssets;
     CheckBox_PlayerTypes[I, 2].Enabled := gPlayers[I].HasAssets;
 
-    // If player type is not determined, it will be AI
-    if (not fGame.MapEditor.PlayerHuman[I]) and (not fGame.MapEditor.PlayerAI[I]) then
-      fGame.MapEditor.PlayerAI[I] := true;
+
 
     CheckBox_PlayerTypes[I, 0].Checked := gPlayers[I].HasAssets and (fGame.MapEditor.DefaultHuman = I);
     CheckBox_PlayerTypes[I, 1].Checked := gPlayers[I].HasAssets and fGame.MapEditor.PlayerHuman[I];
@@ -88,17 +86,23 @@ begin
   if Sender = CheckBox_PlayerTypes[PlayerId, 0] then
     fGame.MapEditor.DefaultHuman := PlayerId;
 
-  //User cannot set both options
+
   if Sender = CheckBox_PlayerTypes[PlayerId, 1] then
   begin
     fGame.MapEditor.PlayerHuman[PlayerId] := CheckBox_PlayerTypes[PlayerId, 1].Checked;
-    fGame.MapEditor.PlayerAI[PlayerId] := not CheckBox_PlayerTypes[PlayerId, 1].Checked;
+    //User cannot set player type undetermined
+    if (not CheckBox_PlayerTypes[PlayerId, 1].Checked)
+        and (not CheckBox_PlayerTypes[PlayerId, 2].Checked) then
+        fGame.MapEditor.PlayerAI[PlayerId] := true;
   end;
 
   if Sender = CheckBox_PlayerTypes[PlayerId, 2] then
   begin
-    fGame.MapEditor.PlayerHuman[PlayerId] := not CheckBox_PlayerTypes[PlayerId, 2].Checked;
     fGame.MapEditor.PlayerAI[PlayerId] := CheckBox_PlayerTypes[PlayerId, 2].Checked;
+    //User cannot set player type undetermined
+    if (not CheckBox_PlayerTypes[PlayerId, 1].Checked)
+        and (not CheckBox_PlayerTypes[PlayerId, 2].Checked) then
+        fGame.MapEditor.PlayerHuman[PlayerId] := true;
   end;
 
   Mission_PlayerTypesUpdate;
