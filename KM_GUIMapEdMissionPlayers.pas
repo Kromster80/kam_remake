@@ -68,6 +68,10 @@ begin
     CheckBox_PlayerTypes[I, 1].Enabled := gPlayers[I].HasAssets;
     CheckBox_PlayerTypes[I, 2].Enabled := gPlayers[I].HasAssets;
 
+    // If player type is not determined, it will be AI
+    if (not fGame.MapEditor.PlayerHuman[I]) and (not fGame.MapEditor.PlayerAI[I]) then
+      fGame.MapEditor.PlayerAI[I] := true;
+
     CheckBox_PlayerTypes[I, 0].Checked := gPlayers[I].HasAssets and (fGame.MapEditor.DefaultHuman = I);
     CheckBox_PlayerTypes[I, 1].Checked := gPlayers[I].HasAssets and fGame.MapEditor.PlayerHuman[I];
     CheckBox_PlayerTypes[I, 2].Checked := gPlayers[I].HasAssets and fGame.MapEditor.PlayerAI[I];
@@ -105,7 +109,9 @@ var I : integer;
 begin
   for I := 0 to MAX_PLAYERS - 1 do
     if I < gPlayers.Count then
-      if not gPlayers[I].HasAssets then
+      if gPlayers[I].HasAssets then
+        Label_PlayerId[i].FontColor := $FFFFFFFF
+      else
         Label_PlayerId[i].FontColor := $FF808080;
 end;
 
