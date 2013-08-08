@@ -5,6 +5,7 @@
  +	Storm attacking soldiers would sometimes pass by enemies instead of stopping to fight them
  +	Citizens would not step out of a house onto a tile which was not road
  +	Wares icons went off by few pixels to the left-top on the wares rows, reverted back
+ +	MapEd should not allow to set active player type to nor human nor AI
 	Armour smithy has shields as 2nd ouput, armour workshop has shields as 1st output. Would make sense to match them (note: simply swapping in KM_ResourceHouses causes game logic to be swapped with GUI)
 	Armour smithy has iron as 1st input, weapon smithy has iron as 2nd input (iron/coal swapped). Would make sense to match them (note: simpply swapping in KM_ResourceHouses causes game logic to be swapped with GUI)
 	Deliveries should use the actual walking route length (opposed to Radius)
@@ -31,7 +32,6 @@
 	Towers attack range is uneven (should be measured from towers middle, not the recruit location in BR corner)
 	When citizen walks into a house he should be deselected
 	AIAttacks bug (AI attacks mulfunction after 12min.rar)
-	MapEd should not allow to set active player type to nor human nor AI
 	Player alliance towards self is inconsistent, especially in MP and when accessing from script (should be Ally always!)
 
 	Water looks ugly brown when you zoom out too far due to water tiles having brown checkerboard pattern (anti-aliasing won't help)
