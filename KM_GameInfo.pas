@@ -56,6 +56,7 @@ var
   I: Integer;
 begin
   LoadStream.Read(s);
+  //TODO @Krom: 'KaM_GameInfo' is written in unicode in file, but s is AnsiString. Solve the comparasion problem
   if s <> 'KaM_GameInfo' then
   begin
     fParseError := Format(gResTexts[TX_SAVE_UNSUPPORTED_FORMAT], [Copy(s, 1, 8)]);
