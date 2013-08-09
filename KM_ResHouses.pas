@@ -217,300 +217,13 @@ type
     SnowPic: SmallInt;
   end;
 
+var
+  //Remake stores additional house properties here. This looks like House.Dat
+  HouseDatX: array [HOUSE_MIN..HOUSE_MAX] of THouseInfo;
+
 const
-  //Remake stores additional house properties here. This looks like House.Dat, but hardcoded.
-  HouseDatX: array [HOUSE_MIN..HOUSE_MAX] of THouseInfo = (
-    ( //Armor smithy
-    PlanYX:     ((0,0,0,0), (0,1,1,0), (1,1,1,1), (1,2,1,1));
-    DoesOrders: 1;
-    BuildIcon:  311;
-    TabletIcon: 261;
-    Input:      (wt_Steel,      wt_Coal,       wt_None,       wt_None);
-    Output:     (wt_MetalArmor, wt_MetalShield,wt_None,       wt_None);
-    ReleasedBy: ht_IronSmithy;
-    SnowPic:    -1;
-    ),
-    ( //Armor workshop
-    PlanYX:     ((0,0,0,0), (0,1,1,0), (0,1,1,1), (0,2,1,1));
-    DoesOrders: 1;
-    BuildIcon:  321;
-    TabletIcon: 271;
-    Input:      (wt_Wood,       wt_Leather,    wt_None,       wt_None);
-    Output:     (wt_Shield,     wt_Armor,      wt_None,       wt_None);
-    ReleasedBy: ht_Tannery;
-    SnowPic:    2067;
-    ),
-    ( //Bakery
-    PlanYX:     ((0,0,0,0), (0,1,1,1), (0,1,1,1), (0,1,1,2));
-    DoesOrders: 0;
-    BuildIcon:  308;
-    TabletIcon: 258;
-    Input:      (wt_Flour,      wt_None,       wt_None,       wt_None);
-    Output:     (wt_Bread,      wt_None,       wt_None,       wt_None);
-    ReleasedBy: ht_Mill;
-    SnowPic:    2054;
-    ),
-    ( //Barracks
-    PlanYX:     ((1,1,1,1), (1,1,1,1), (1,1,1,1), (1,2,1,1));
-    DoesOrders: 0;
-    BuildIcon:  322;
-    TabletIcon: 272;
-    Input:      (wt_Warfare,    wt_None,       wt_None,       wt_None);
-    Output:     (wt_None,       wt_None,       wt_None,       wt_None);
-    ReleasedBy: ht_Sawmill;
-    SnowPic:    -1;
-    ),
-    ( //Butchers
-    PlanYX:     ((0,0,0,0), (0,1,1,0), (0,1,1,1), (0,1,1,2));
-    DoesOrders: 0;
-    BuildIcon:  325;
-    TabletIcon: 275;
-    Input:      (wt_Pig,        wt_None,       wt_None,       wt_None);
-    Output:     (wt_Sausages,   wt_None,       wt_None,       wt_None);
-    ReleasedBy: ht_Swine;
-    SnowPic:    2066;
-    ),
-    ( //Coal mine
-    PlanYX:     ((0,0,0,0), (0,0,0,0), (1,1,1,0), (1,2,1,0));
-    DoesOrders: 0;
-    BuildIcon:  304;
-    TabletIcon: 254;
-    Input:      (wt_None,       wt_None,       wt_None,       wt_None);
-    Output:     (wt_Coal,       wt_None,       wt_None,       wt_None);
-    ReleasedBy: ht_Sawmill;
-    SnowPic:    -1;
-    ),
-    ( //Farm
-    PlanYX:     ((0,0,0,0), (1,1,1,1), (1,1,1,1), (1,2,1,1));
-    DoesOrders: 0;
-    BuildIcon:  309;
-    TabletIcon: 259;
-    Input:      (wt_None,       wt_None,       wt_None,       wt_None);
-    Output:     (wt_Corn,       wt_None,       wt_None,       wt_None);
-    ReleasedBy: ht_Sawmill;
-    SnowPic:    2055;
-    ),
-    ( //Fisher hut
-    PlanYX:     ((0,0,0,0), (0,0,0,0), (0,1,1,0), (0,2,1,1));
-    DoesOrders: 0;
-    BuildIcon:  307;
-    TabletIcon: 257;
-    Input:      (wt_None,       wt_None,       wt_None,       wt_None);
-    Output:     (wt_Fish,       wt_None,       wt_None,       wt_None);
-    ReleasedBy: ht_Sawmill;
-    SnowPic:    2053;
-    ),
-    ( //Gold mine
-    PlanYX:     ((0,0,0,0), (0,0,0,0), (0,0,0,0), (0,1,2,0));
-    DoesOrders: 0;
-    BuildIcon:  306;
-    TabletIcon: 256;
-    Input:      (wt_None,       wt_None,       wt_None,       wt_None);
-    Output:     (wt_GoldOre,    wt_None,       wt_None,       wt_None);
-    ReleasedBy: ht_Sawmill;
-    SnowPic:    -1;
-    ),
-    ( //Inn
-    PlanYX:     ((0,0,0,0), (0,1,1,1), (1,1,1,1), (1,2,1,1));
-    DoesOrders: 0;
-    BuildIcon:  328;
-    TabletIcon: 278;
-    Input:      (wt_Bread,      wt_Sausages,   wt_Wine,       wt_Fish);
-    Output:     (wt_None,       wt_None,       wt_None,       wt_None);
-    ReleasedBy: ht_Store;
-    SnowPic:    2063;
-    ),
-    ( //Iron mine
-    PlanYX:     ((0,0,0,0), (0,0,0,0), (0,0,0,0), (0,1,2,1));
-    DoesOrders: 0;
-    BuildIcon:  305;
-    TabletIcon: 255;
-    Input:      (wt_None,       wt_None,       wt_None,       wt_None);
-    Output:     (wt_IronOre,    wt_None,       wt_None,       wt_None);
-    ReleasedBy: ht_Sawmill;
-    SnowPic:    2052;
-    ),
-    ( //Iron smithy
-    PlanYX:     ((0,0,0,0), (0,0,0,0), (1,1,1,1), (1,1,2,1));
-    DoesOrders: 0;
-    BuildIcon:  302;
-    TabletIcon: 252;
-    Input:      (wt_IronOre,    wt_Coal,       wt_None,       wt_None);
-    Output:     (wt_Steel,      wt_None,       wt_None,       wt_None);
-    ReleasedBy: ht_IronMine;
-    SnowPic:    2051;
-    ),
-    ( //Marketplace
-    PlanYX:     ((0,0,0,0), (0,1,1,1), (1,1,1,1), (1,1,1,2));
-    DoesOrders: 0;
-    BuildIcon:  327;
-    TabletIcon: 277;
-    Input:      (wt_None,       wt_None,       wt_None,       wt_None);
-    Output:     (wt_None,       wt_None,       wt_None,       wt_None);
-    ReleasedBy: ht_Sawmill;
-    SnowPic:    -1;
-    ),
-    ( //Metallurgist
-    PlanYX:     ((0,0,0,0), (1,1,1,0), (1,1,1,0), (1,2,1,0));
-    DoesOrders: 0;
-    BuildIcon:  316;
-    TabletIcon: 266;
-    Input:      (wt_GoldOre,    wt_Coal,       wt_None,       wt_None);
-    Output:     (wt_Gold,       wt_None,       wt_None,       wt_None);
-    ReleasedBy: ht_GoldMine;
-    SnowPic:    -1;
-    ),
-    ( //Mill
-    PlanYX:     ((0,0,0,0), (0,0,0,0), (0,1,1,1), (0,1,2,1));
-    DoesOrders: 0;
-    BuildIcon:  323;
-    TabletIcon: 273;
-    Input:      (wt_Corn,       wt_None,       wt_None,       wt_None);
-    Output:     (wt_Flour,      wt_None,       wt_None,       wt_None);
-    ReleasedBy: ht_Farm;
-    SnowPic:    2062;
-    ),
-    ( //Quarry
-    PlanYX:     ((0,0,0,0), (0,0,0,0), (0,1,1,1), (0,1,2,1));
-    DoesOrders: 0;
-    BuildIcon:  315;
-    TabletIcon: 265;
-    Input:      (wt_None,       wt_None,       wt_None,       wt_None);
-    Output:     (wt_Stone,      wt_None,       wt_None,       wt_None);
-    ReleasedBy: ht_School;
-    SnowPic:    2058;
-    ),
-    ( //Sawmill
-    PlanYX:     ((0,0,0,0), (0,0,0,0), (1,1,1,1), (1,2,1,1));
-    DoesOrders: 0;
-    BuildIcon:  301;
-    TabletIcon: 251;
-    Input:      (wt_Trunk,      wt_None,       wt_None,       wt_None);
-    Output:     (wt_Wood,       wt_None,       wt_None,       wt_None);
-    ReleasedBy: ht_Woodcutters;
-    SnowPic:    2050;
-    ),
-    ( //School
-    PlanYX:     ((0,0,0,0), (1,1,1,0), (1,1,1,0), (1,2,1,0));
-    DoesOrders: 0;
-    BuildIcon:  314;
-    TabletIcon: 264;
-    Input:      (wt_Gold,       wt_None,       wt_None,       wt_None);
-    Output:     (wt_None,       wt_None,       wt_None,       wt_None);
-    ReleasedBy: ht_Store;
-    SnowPic:    2059;
-    ),
-    ( //Siege workshop
-    PlanYX:     ((0,0,0,0), (0,0,0,0), (0,1,1,1), (0,2,1,1));
-    DoesOrders: 1;
-    BuildIcon:  324;
-    TabletIcon: 274;
-    Input:      (wt_Wood,       wt_Steel,      wt_None,       wt_None);
-    Output:     (wt_None,       wt_None,       wt_None,       wt_None);
-    ReleasedBy: ht_IronSmithy;
-    SnowPic:    -1;
-    ),
-    ( //Stables
-    PlanYX:     ((0,0,0,0), (1,1,1,1), (1,1,1,1), (1,1,2,1));
-    DoesOrders: 0;
-    BuildIcon:  313;
-    TabletIcon: 263;
-    Input:      (wt_Corn,       wt_None,       wt_None,       wt_None);
-    Output:     (wt_Horse,      wt_None,       wt_None,       wt_None);
-    ReleasedBy: ht_Farm;
-    SnowPic:    -1;
-    ),
-    ( //Store
-    PlanYX:     ((0,0,0,0), (1,1,1,0), (1,1,1,0), (1,2,1,0));
-    DoesOrders: 0;
-    BuildIcon:  312;
-    TabletIcon: 262;
-    Input:      (wt_All,        wt_None,       wt_None,       wt_None);
-    Output:     (wt_All,        wt_None,       wt_None,       wt_None);
-    ReleasedBy: ht_None; //
-    SnowPic:    2056;
-    ),
-    ( //Swine
-    PlanYX:     ((0,0,0,0), (0,1,1,1), (1,1,1,1), (1,1,1,2));
-    DoesOrders: 0;
-    BuildIcon:  317;
-    TabletIcon: 267;
-    Input:      (wt_Corn,       wt_None,       wt_None,       wt_None);
-    Output:     (wt_Pig,        wt_Skin,       wt_None,       wt_None);
-    ReleasedBy: ht_Farm;
-    SnowPic:    2064;
-    ),
-    ( //Tannery
-    PlanYX:     ((0,0,0,0), (0,0,0,0), (0,1,1,1), (0,1,2,1));
-    DoesOrders: 0;
-    BuildIcon:  326;
-    TabletIcon: 276;
-    Input:      (wt_Skin,       wt_None,       wt_None,       wt_None);
-    Output:     (wt_Leather,    wt_None,       wt_None,       wt_None);
-    ReleasedBy: ht_Swine;
-    SnowPic:    -1;
-    ),
-    ( //Town hall
-    PlanYX:     ((0,0,0,0), (1,1,1,1), (1,1,1,1), (1,2,1,1));
-    DoesOrders: 0;
-    BuildIcon:  319;
-    TabletIcon: 269;
-    Input:      (wt_Gold,       wt_None,       wt_None,       wt_None);
-    Output:     (wt_None,       wt_None,       wt_None,       wt_None);
-    ReleasedBy: ht_Metallurgists;
-    SnowPic:    -1;
-    ),
-    ( //Watch tower
-    PlanYX:   ((0,0,0,0), (0,0,0,0), (0,1,1,0), (0,1,2,0));
-    DoesOrders: 0;
-    BuildIcon:  318;
-    TabletIcon: 268;
-    Input:      (wt_Stone,      wt_None,       wt_None,       wt_None);
-    Output:     (wt_None,       wt_None,       wt_None,       wt_None);
-    ReleasedBy: ht_Quary;
-    SnowPic:    2060;
-    ),
-    ( //Weapon smithy
-    PlanYX:     ((0,0,0,0), (0,0,0,0), (1,1,1,1), (1,2,1,1));
-    DoesOrders: 1;
-    BuildIcon:  303;
-    TabletIcon: 253;
-    Input:      (wt_Coal,       wt_Steel,      wt_None,       wt_None);
-    Output:     (wt_Sword,      wt_Hallebard,  wt_Arbalet,    wt_None);
-    ReleasedBy: ht_IronSmithy;
-    SnowPic:    -1;
-    ),
-    ( //Weapon workshop
-    PlanYX:     ((0,0,0,0), (0,0,0,0), (1,1,1,1), (1,2,1,1));
-    DoesOrders: 1;
-    BuildIcon:  320;
-    TabletIcon: 270;
-    Input:      (wt_Wood,       wt_None,       wt_None,       wt_None);
-    Output:     (wt_Axe,        wt_Pike,       wt_Bow,        wt_None);
-    ReleasedBy: ht_Sawmill;
-    SnowPic:    2061;
-    ),
-    ( //Wineyard
-    PlanYX:     ((0,0,0,0), (0,0,0,0), (0,1,1,1), (0,1,1,2));
-    DoesOrders: 0;
-    BuildIcon:  329;
-    TabletIcon: 279;
-    Input:      (wt_None,       wt_None,       wt_None,       wt_None);
-    Output:     (wt_Wine,       wt_None,       wt_None,       wt_None);
-    ReleasedBy: ht_Sawmill;
-    SnowPic:    2065;
-    ),
-    ( //Woodcutter
-    PlanYX:     ((0,0,0,0), (0,0,0,0), (1,1,1,0), (1,1,2,0));
-    DoesOrders: 0;
-    BuildIcon:  310;
-    TabletIcon: 260;
-    Input:      (wt_None,       wt_None,       wt_None,       wt_None);
-    Output:     (wt_Trunk,      wt_None,       wt_None,       wt_None);
-    ReleasedBy: ht_School;
-    SnowPic:    2057;
-    )
-    );
+
+
 
 
   //For some reason in KaM the piles of building supply are not aligned, each one has a different offset.
@@ -520,6 +233,16 @@ const
                                             ((MoveX:  0; MoveY: 0), (MoveX:  0; MoveY: 0), (MoveX: -7; MoveY: 0),  //Stone 1-3
                                              (MoveX: -7; MoveY:-4), (MoveX:-16; MoveY:-4), (MoveX:-16; MoveY:-4)));//Stone 4-6
 
+procedure LoadHouseDatX( pathToFile : string );
+var f : FILE of THouseInfo;
+    I : integer;
+begin
+  AssignFile(f, pathToFile);
+  Reset(f);
+  for I := integer(HOUSE_MIN) to integer(HOUSE_MAX) do
+    Read(f, HouseDatX[THouseType(I)]);
+  Close(f);
+end;
 
 { TKMHouseDatClass }
 constructor TKMHouseDatClass.Create(aHouseType: THouseType);
@@ -674,6 +397,7 @@ begin
     fItems[H] := TKMHouseDatClass.Create(H);
 
   fCRC := LoadHouseDat(ExeDir+'data' + PathDelim + 'defines' + PathDelim + 'houses.dat');
+  LoadHouseDatX(ExeDir+'data' + PathDelim + 'defines' + PathDelim + 'houses.datx');
 
   fItems[ht_Marketplace].fHouseType := ht_Marketplace;
   fItems[ht_Marketplace].fHouseDat.OwnerType := -1; //No unit works here (yet anyway)
