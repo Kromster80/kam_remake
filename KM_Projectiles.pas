@@ -373,7 +373,7 @@ end;
 procedure TKMProjectiles.Save(SaveStream: TKMemoryStream);
 var I, LiveCount: Integer;
 begin
-  SaveStream.Write('Projectiles');
+  SaveStream.WriteA('Projectiles');
 
   //Strip dead projectiles
   LiveCount := 0;

@@ -86,8 +86,8 @@ type
     function StartingLocToLocal(aLoc: Integer): Integer;
     function PlayerIndexToLocal(aIndex: TPlayerIndex): Integer;
 
-    function CheckCanJoin(aNik: string; aIndexOnServer: Integer): string;
-    function CheckCanReconnect(aLocalIndex: Integer): string;
+    function CheckCanJoin(aNik: UnicodeString; aIndexOnServer: Integer): AnsiString;
+    function CheckCanReconnect(aLocalIndex: Integer): AnsiString;
     function LocAvailable(aIndex: Integer): Boolean;
     function ColorAvailable(aIndex: Integer): Boolean;
     function AllReady: Boolean;
@@ -209,8 +209,8 @@ end;
 
 procedure TKMNetPlayerInfo.Load(LoadStream: TKMemoryStream);
 begin
-  LoadStream.Read(fNikname);
-  LoadStream.Read(AnsiString(fLangCode));
+  LoadStream.ReadW(fNikname);
+  LoadStream.ReadA(fLangCode);
   LoadStream.Read(fIndexOnServer);
   LoadStream.Read(PlayerNetType, SizeOf(PlayerNetType));
   LoadStream.Read(fFlagColorID);
@@ -225,8 +225,8 @@ end;
 
 procedure TKMNetPlayerInfo.Save(SaveStream: TKMemoryStream);
 begin
-  SaveStream.Write(fNikname);
-  SaveStream.Write(AnsiString(fLangCode));
+  SaveStream.WriteW(fNikname);
+  SaveStream.WriteA(fLangCode);
   SaveStream.Write(fIndexOnServer);
   SaveStream.Write(PlayerNetType, SizeOf(PlayerNetType));
   SaveStream.Write(fFlagColorID);
@@ -525,7 +525,7 @@ end;
 
 
 //See if player can join our game
-function TKMNetPlayersList.CheckCanJoin(aNik:string; aIndexOnServer:integer):string;
+function TKMNetPlayersList.CheckCanJoin(aNik: UnicodeString; aIndexOnServer:integer): AnsiString;
 begin
   if fCount >= MAX_PLAYERS then
     Result := 'Room is full. No more players can join the game'
@@ -544,7 +544,7 @@ end;
 
 
 //See if player can join our game
-function TKMNetPlayersList.CheckCanReconnect(aLocalIndex: Integer): string;
+function TKMNetPlayersList.CheckCanReconnect(aLocalIndex: Integer): AnsiString;
 begin
   if aLocalIndex = -1 then
     Result := 'Unknown nickname'

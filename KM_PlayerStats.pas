@@ -656,7 +656,7 @@ end;
 procedure TKMPlayerStats.Save(SaveStream: TKMemoryStream);
 var R: TWareType;
 begin
-  SaveStream.Write('PlayerStats');
+  SaveStream.WriteA('PlayerStats');
   SaveStream.Write(Houses, SizeOf(Houses));
   SaveStream.Write(Units, SizeOf(Units));
   SaveStream.Write(Wares, SizeOf(Wares));

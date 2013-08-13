@@ -238,13 +238,13 @@ begin
   aStream.Write(gResLocales.Count);
   for I := 0 to gResLocales.Count - 1 do
   begin
-    aStream.Write(gResLocales[I].Code);
+    aStream.WriteA(gResLocales[I].Code);
 
     TextCount := Length(fTexts[I]);
 
     aStream.Write(TextCount);
     for K := 0 to TextCount - 1 do
-      aStream.Write(fTexts[I,K]);
+      aStream.WriteW(fTexts[I,K]);
   end;
 end;
 
@@ -266,7 +266,7 @@ begin
   aStream.Read(LocCount);
   for I := 0 to LocCount - 1 do
   begin
-    aStream.Read(curLoc);
+    aStream.ReadA(curLoc);
     Id := gResLocales.IndexByCode(curLoc);
 
     aStream.Read(TextCount);
@@ -275,12 +275,12 @@ begin
     begin
       SetLength(fTexts[Id], TextCount);
       for K := 0 to TextCount - 1 do
-        aStream.Read(fTexts[Id,K]);
+        aStream.ReadW(fTexts[Id,K]);
     end
     else
     begin
       for K := 0 to TextCount - 1 do
-        aStream.Read(Tmp);
+        aStream.ReadW(Tmp);
     end;
   end;
 

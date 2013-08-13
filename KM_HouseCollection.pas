@@ -224,7 +224,7 @@ end;
 procedure TKMHousesCollection.Save(SaveStream: TKMemoryStream);
 var I: Integer;
 begin
-  SaveStream.Write('Houses');
+  SaveStream.WriteA('Houses');
 
   SaveStream.Write(Count);
   for I := 0 to Count - 1 do

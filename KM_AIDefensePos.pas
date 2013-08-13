@@ -323,7 +323,7 @@ end;
 procedure TAIDefencePositions.Save(SaveStream: TKMemoryStream);
 var I: Integer;
 begin
-  SaveStream.Write('PlayerAI');
+  SaveStream.WriteA('DefencePositions');
   SaveStream.Write(TroopFormations, SizeOf(TroopFormations));
   SaveStream.Write(Count);
 
@@ -335,7 +335,7 @@ end;
 procedure TAIDefencePositions.Load(LoadStream: TKMemoryStream);
 var I, NewCount: Integer;
 begin
-  LoadStream.ReadAssert('PlayerAI');
+  LoadStream.ReadAssert('DefencePositions');
   LoadStream.Read(TroopFormations, SizeOf(TroopFormations));
   LoadStream.Read(NewCount);
 

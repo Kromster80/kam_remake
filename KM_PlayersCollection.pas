@@ -506,7 +506,7 @@ procedure TKMPlayersCollection.Save(SaveStream: TKMemoryStream; aMultiplayer: Bo
 var
   I: Integer;
 begin
-  SaveStream.Write('Players');
+  SaveStream.WriteA('Players');
   SaveStream.Write(fCount);
   for I := 0 to fCount - 1 do
     fPlayerList[I].Save(SaveStream);

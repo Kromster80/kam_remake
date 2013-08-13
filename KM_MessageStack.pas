@@ -10,7 +10,7 @@ type
   TKMMessage = class
     fKind: TKMMessageKind;
     fLoc: TKMPoint;
-    fText: AnsiString;
+    fText: UnicodeString;
   public
     IsRead: Boolean; //Does not gets saved, because it's UI thing
     constructor Create(aKind: TKMMessageKind; aText: string; aLoc: TKMPoint);
@@ -19,7 +19,7 @@ type
     function Icon: Word;
     function IsGoto: Boolean;
     property Loc: TKMPoint read fLoc;
-    property Text: AnsiString read fText;
+    property Text: UnicodeString read fText;
     property Kind: TKMMessageKind read fKind;
 
     procedure Save(SaveStream: TKMemoryStream);
@@ -66,7 +66,7 @@ constructor TKMMessage.CreateFromStream(LoadStream: TKMemoryStream);
 begin
   inherited Create;
   LoadStream.Read(fLoc);
-  LoadStream.Read(fText);
+  LoadStream.ReadW(fText);
   LoadStream.Read(fKind, SizeOf(TKMMessageKind));
   LoadStream.Read(IsRead);
 end;
@@ -90,7 +90,7 @@ end;
 procedure TKMMessage.Save(SaveStream: TKMemoryStream);
 begin
   SaveStream.Write(fLoc);
-  SaveStream.Write(fText);
+  SaveStream.WriteW(fText);
   SaveStream.Write(fKind, SizeOf(TKMMessageKind));
   SaveStream.Write(IsRead);
 end;

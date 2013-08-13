@@ -2289,7 +2289,7 @@ end;
 procedure TKMUnitsCollection.Save(SaveStream: TKMemoryStream);
 var I: Integer;
 begin
-  SaveStream.Write('Units');
+  SaveStream.WriteA('Units');
   SaveStream.Write(Count);
   for I := 0 to Count - 1 do
   begin

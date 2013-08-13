@@ -253,7 +253,7 @@ end;
 
 procedure TViewport.Save(SaveStream: TKMemoryStream);
 begin
-  SaveStream.Write('Viewport');
+  SaveStream.WriteA('Viewport');
   SaveStream.Write(fMapX);
   SaveStream.Write(fMapY);
   SaveStream.Write(fPosition);

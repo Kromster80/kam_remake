@@ -734,7 +734,7 @@ procedure TKMScripting.Load(LoadStream: TKMemoryStream);
       btU8:  LoadStream.Read(tbtu8(Src^)); //Byte, Boolean
       btS32: LoadStream.Read(tbts32(Src^)); //Integer
       btSingle: LoadStream.Read(tbtsingle(Src^));
-      btString: LoadStream.Read(tbtString(Src^));
+      btString: LoadStream.ReadA(tbtString(Src^));
       btStaticArray:begin
                       LoadStream.Read(ElemCount);
                       Assert(ElemCount = TPSTypeRec_StaticArray(aType).Size, 'Script array element count mismatches saved count');
@@ -780,7 +780,7 @@ var
 begin
   LoadStream.ReadAssert('Script');
 
-  LoadStream.Read(fActions.SFXPath);
+  LoadStream.ReadW(fActions.SFXPath);
 
   LoadStream.ReadHugeString(fScriptCode);
 
@@ -811,7 +811,7 @@ procedure TKMScripting.Save(SaveStream: TKMemoryStream);
       btU8:         SaveStream.Write(tbtu8(Src^)); //Byte, Boolean
       btS32:        SaveStream.Write(tbts32(Src^)); //Integer
       btSingle:     SaveStream.Write(tbtsingle(Src^));
-      btString:     SaveStream.Write(tbtString(Src^));
+      btString:     SaveStream.WriteA(tbtString(Src^));
       btStaticArray:begin
                       ElemCount := TPSTypeRec_StaticArray(aType).Size;
                       SaveStream.Write(ElemCount);
@@ -853,10 +853,10 @@ var
   I: Integer;
   V: PIFVariant;
 begin
-  SaveStream.Write('Script');
+  SaveStream.WriteA('Script');
 
   //Write folder where SFX is stored
-  SaveStream.Write(fActions.SFXPath);
+  SaveStream.WriteW(fActions.SFXPath);
 
   //Write script code
   SaveStream.WriteHugeString(fScriptCode);

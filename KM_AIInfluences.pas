@@ -302,7 +302,7 @@ var
 begin
   PCount := gPlayers.Count;
 
-  SaveStream.Write('Influences');
+  SaveStream.WriteA('Influences');
 
   SaveStream.Write(PCount);
   SaveStream.Write(fMapX);

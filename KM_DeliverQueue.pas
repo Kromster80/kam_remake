@@ -141,7 +141,7 @@ end;
 procedure TKMDeliveries.Save(SaveStream: TKMemoryStream);
 var I: Integer;
 begin
-  SaveStream.Write('SerfList');
+  SaveStream.WriteA('SerfList');
 
   SaveStream.Write(fSerfCount);
   for I := 0 to fSerfCount - 1 do
@@ -912,7 +912,7 @@ end;
 procedure TKMDeliverQueue.Save(SaveStream:TKMemoryStream);
 var i:integer;
 begin
-  SaveStream.Write('Deliveries');
+  SaveStream.WriteA('Deliveries');
   SaveStream.Write(fOfferCount);
   for i:=1 to fOfferCount do
   begin

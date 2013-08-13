@@ -309,7 +309,7 @@ end;
 procedure TKMHouseList.Save(SaveStream: TKMemoryStream);
 var I: Integer;
 begin
-  SaveStream.Write('HouseList');
+  SaveStream.WriteA('HouseList');
 
   SaveStream.Write(fHousesCount);
   for I := 0 to fHousesCount - 1 do
@@ -583,7 +583,7 @@ var
   I: Integer;
 begin
   //Note: Fakes should not be saved, they are just temporary and saves must be consistent acorss all networked computers
-  SaveStream.Write('FieldworksList');
+  SaveStream.WriteA('FieldworksList');
 
   SaveStream.Write(fFieldsCount);
   for I := 0 to fFieldsCount - 1 do
@@ -843,7 +843,7 @@ procedure TKMHousePlanList.Save(SaveStream: TKMemoryStream);
 var
   I: Integer;
 begin
-  SaveStream.Write('HousePlanList');
+  SaveStream.WriteA('HousePlanList');
 
   SaveStream.Write(fPlansCount);
   for I := 0 to fPlansCount - 1 do
@@ -1008,7 +1008,7 @@ procedure TKMRepairList.Save(SaveStream: TKMemoryStream);
 var
   I: Integer;
 begin
-  SaveStream.Write('RepairList');
+  SaveStream.WriteA('RepairList');
 
   SaveStream.Write(fHousesCount);
   for I := 0 to fHousesCount - 1 do
@@ -1109,7 +1109,7 @@ procedure TKMBuildList.Save(SaveStream: TKMemoryStream);
 var
   I: Integer;
 begin
-  SaveStream.Write('WorkerList');
+  SaveStream.WriteA('WorkerList');
 
   SaveStream.Write(fWorkersCount);
   for I := 0 to fWorkersCount - 1 do

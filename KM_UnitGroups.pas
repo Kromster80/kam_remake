@@ -1598,7 +1598,7 @@ end;
 procedure TKMUnitGroups.Save(SaveStream: TKMemoryStream);
 var I: Integer;
 begin
-  SaveStream.Write('UnitGroups');
+  SaveStream.WriteA('UnitGroups');
   SaveStream.Write(Count);
   for I := 0 to Count - 1 do
     Groups[I].Save(SaveStream);

@@ -76,7 +76,7 @@ type
     property ActiveCampaign: TKMCampaign read fActiveCampaign;// write fActiveCampaign;
     function Count: Integer;
     property Campaigns[aIndex: Integer]: TKMCampaign read GetCampaign; default;
-    function CampaignByTitle(const aShortTitle: UnicodeString): TKMCampaign;
+    function CampaignByTitle(const aShortTitle: AnsiString): TKMCampaign;
     procedure SetActive(aCampaign: TKMCampaign; aMap: Byte);
     procedure UnlockNextMap;
   end;
@@ -174,7 +174,7 @@ begin
     M.Read(CampCount);
     for I := 0 to CampCount - 1 do
     begin
-      M.Read(CampName);
+      M.ReadA(CampName);
       M.Read(Unlocked);
       C := CampaignByTitle(AnsiString(CampName));
       if C <> nil then
@@ -200,7 +200,7 @@ begin
     M.Write(Count);
     for I := 0 to Count - 1 do
     begin
-      M.Write(Campaigns[I].ShortTitle);
+      M.WriteA(Campaigns[I].ShortTitle);
       M.Write(Campaigns[I].UnlockedMap);
     end;
 
@@ -219,7 +219,7 @@ begin
 end;
 
 
-function TKMCampaignsCollection.CampaignByTitle(const aShortTitle: UnicodeString): TKMCampaign;
+function TKMCampaignsCollection.CampaignByTitle(const aShortTitle: AnsiString): TKMCampaign;
 var I: Integer;
 begin
   Result := nil;
@@ -240,7 +240,7 @@ procedure TKMCampaignsCollection.Load(LoadStream: TKMemoryStream);
 var s: AnsiString;
 begin
   LoadStream.ReadAssert('CampaignInfo');
-  LoadStream.Read(s);
+  LoadStream.ReadA(s);
   fActiveCampaign := CampaignByTitle(s);
   LoadStream.Read(fActiveCampaignMap);
   //If loaded savegame references to missing campaign it will be treated as single-map (fActiveCampaign = nil)
@@ -249,11 +249,11 @@ end;
 
 procedure TKMCampaignsCollection.Save(SaveStream: TKMemoryStream);
 begin
-  SaveStream.Write('CampaignInfo');
+  SaveStream.WriteA('CampaignInfo');
   if fActiveCampaign <> nil then
-    SaveStream.Write(fActiveCampaign.ShortTitle)
+    SaveStream.WriteA(fActiveCampaign.ShortTitle)
   else
-    SaveStream.Write('');
+    SaveStream.WriteA('');
   SaveStream.Write(fActiveCampaignMap);
 end;
 
@@ -288,7 +288,7 @@ begin
   M := TKMemoryStream.Create;
   M.LoadFromFile(aFileName);
 
-  M.Read(fShortTitle);
+  M.ReadA(fShortTitle);
   M.Read(fMapCount);
   SetLength(Maps, fMapCount);
 
@@ -313,7 +313,7 @@ begin
   Assert(aFileName <> '');
 
   M := TKMemoryStream.Create;
-  M.Write(fShortTitle);
+  M.WriteA(fShortTitle);
   M.Write(fMapCount);
 
   for I := 0 to fMapCount - 1 do

@@ -330,7 +330,7 @@ procedure TPathFinding.Save(SaveStream: TKMemoryStream);
 var
   I: Integer;
 begin
-  SaveStream.Write('PathFinding');
+  SaveStream.WriteA('PathFinding');
 
   if CACHE_PATHFINDING then
   for I := 0 to PATH_CACHE_MAX - 1 do

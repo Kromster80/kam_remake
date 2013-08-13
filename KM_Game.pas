@@ -53,7 +53,7 @@ type
 
   //Should be saved
     fCampaignMap: Byte;         //Which campaign map it is, so we can unlock next one on victory
-    fCampaignName: string;  //Is this a game part of some campaign
+    fCampaignName: AnsiString;  //Is this a game part of some campaign
     fGameName: string;
     fGameTickCount: Cardinal;
     fUIDTracker: Cardinal;       //Units-Houses tracker, to issue unique IDs
@@ -126,7 +126,7 @@ type
     procedure OverlayAppendFormatted(aText: string; aParams: array of const);
     property GameTickCount:cardinal read fGameTickCount;
     property GameName: string read fGameName;
-    property CampaignName: string read fCampaignName;
+    property CampaignName: AnsiString read fCampaignName;
     property CampaignMap: Byte read fCampaignMap;
     property GameSpeed: Single read fGameSpeed;
     function PlayerLoc: Byte;
@@ -160,7 +160,7 @@ type
     property MapEditor: TKMMapEditor read fMapEditor;
     property Viewport: TViewport read fViewport;
 
-    procedure Save(const aName: string);
+    procedure Save(const aName: UnicodeString);
     {$IFDEF USE_MAD_EXCEPT}
     procedure AttachCrashReport(const ExceptIntf: IMEException; aZipFile: string);
     {$ENDIF}
@@ -1209,12 +1209,12 @@ begin
       fMinimap.SaveToStream(SaveStream);
 
     //We need to know which campaign to display after victory
-    SaveStream.Write(fCampaignName);
+    SaveStream.WriteA(fCampaignName);
     SaveStream.Write(fCampaignMap);
 
     //We need to know which mission/savegame to try to restart
     //(paths are relative and thus - MP safe)
-    SaveStream.Write(fMissionFile);
+    SaveStream.WriteW(fMissionFile);
 
     SaveStream.Write(fUIDTracker); //Units-Houses ID tracker
     SaveStream.Write(GetKaMSeed); //Include the random seed in the save file to ensure consistency in replays
@@ -1261,7 +1261,7 @@ end;
 
 
 //Saves game by provided name
-procedure TKMGame.Save(const aName: string);
+procedure TKMGame.Save(const aName: UnicodeString);
 var
   PathName: string;
 begin
@@ -1337,12 +1337,12 @@ begin
     fMinimap.LoadFromStream(LoadStream);
 
   //We need to know which campaign to display after victory
-  LoadStream.Read(fCampaignName);
+  LoadStream.ReadA(fCampaignName);
   LoadStream.Read(fCampaignMap);
 
   //We need to know which mission/savegame to try to restart
   //(paths are relative and thus - MP safe)
-  LoadStream.Read(fMissionFile);
+  LoadStream.ReadW(fMissionFile);
 
   LoadStream.Read(fUIDTracker);
   LoadStream.Read(LoadedSeed);

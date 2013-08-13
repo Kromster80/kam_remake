@@ -47,7 +47,7 @@ type
     GoalsSurvive: array [0..MAX_PLAYERS-1] of array of TKMMapGoalInfo;
     Alliances: array [0..MAX_PLAYERS-1, 0..MAX_PLAYERS-1] of TAllianceType;
     FlagColors: array [0..MAX_PLAYERS-1] of Cardinal;
-    Author, SmallDesc, BigDesc: AnsiString;
+    Author, SmallDesc, BigDesc: UnicodeString;
     IsCoop: Boolean; //Some multiplayer missions are defined as coop
     IsSpecial: Boolean; //Some missions are defined as special (e.g. tower defence, quest, etc.)
 
@@ -366,14 +366,14 @@ begin
   //Internal properties
   S.Read(fCRC);
   S.Read(fDatCRC);
-  S.Read(fVersion);
+  S.ReadA(fVersion);
 
   //Exposed properties
   S.Read(MapSizeX);
   S.Read(MapSizeY);
   S.Read(MissionMode, SizeOf(TKMissionMode));
   S.Read(LocCount);
-  S.Read(SmallDesc);
+  S.ReadW(SmallDesc);
   S.Read(IsCoop);
   S.Read(IsSpecial);
   S.Read(CanBeHuman, SizeOf(CanBeHuman));
@@ -392,14 +392,14 @@ begin
     //Internal properties
     S.Write(fCRC);
     S.Write(fDatCRC);
-    S.Write(fVersion);
+    S.WriteA(fVersion);
 
     //Exposed properties
     S.Write(MapSizeX);
     S.Write(MapSizeY);
     S.Write(MissionMode, SizeOf(TKMissionMode));
     S.Write(LocCount);
-    S.Write(SmallDesc);
+    S.WriteW(SmallDesc);
     S.Write(IsCoop);
     S.Write(IsSpecial);
     S.Write(CanBeHuman, SizeOf(CanBeHuman));

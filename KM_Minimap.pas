@@ -292,7 +292,7 @@ var
   L: Cardinal;
   I: Integer;
 begin
-  SaveStream.Write('Minimap');
+  SaveStream.WriteA('Minimap');
 
   SaveStream.Write(fMapX);
   SaveStream.Write(fMapY);

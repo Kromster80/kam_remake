@@ -319,7 +319,7 @@ var
   M: TKMemoryStream;
   Kind: TKMessageKind;
   tmpInteger: Integer;
-  tmpString: UnicodeString;
+  tmpString: AnsiString;
 begin
   Assert(aLength >= 1, 'Unexpectedly short message'); //Kind, Message
 
@@ -331,7 +331,7 @@ begin
   case Kind of
     mk_GameVersion:
       begin
-        M.Read(tmpString);
+        M.ReadA(tmpString);
         if tmpString <> NET_PROTOCOL_REVISON then
           fQueryIsDone := True;
       end;

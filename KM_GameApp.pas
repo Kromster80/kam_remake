@@ -28,7 +28,7 @@ type
     procedure GameLoadingStep(const aText: UnicodeString);
     procedure LoadGameAssets;
     procedure LoadGameFromSave(aFilePath: string; aGameMode: TGameMode);
-    procedure LoadGameFromScript(aMissionFile, aGameName, aCampaignName: string; aMap: Byte; aGameMode: TGameMode; aDesiredLoc: ShortInt; aDesiredColor: Cardinal);
+    procedure LoadGameFromScript(aMissionFile, aGameName: UnicodeString; aCampaignName: AnsiString; aMap: Byte; aGameMode: TGameMode; aDesiredLoc: ShortInt; aDesiredColor: Cardinal);
     procedure LoadGameFromScratch(aSizeX, aSizeY: Integer; aGameMode: TGameMode);
     function SaveName(const aName, aExt: string; aMultiPlayer: Boolean): string;
   public
@@ -425,7 +425,7 @@ begin
 end;
 
 
-procedure TKMGameApp.LoadGameFromScript(aMissionFile, aGameName, aCampaignName: string; aMap: Byte; aGameMode: TGameMode; aDesiredLoc: ShortInt; aDesiredColor: Cardinal);
+procedure TKMGameApp.LoadGameFromScript(aMissionFile, aGameName: UnicodeString; aCampaignName: AnsiString; aMap: Byte; aGameMode: TGameMode; aDesiredLoc: ShortInt; aDesiredColor: Cardinal);
 var
   LoadError: string;
 begin

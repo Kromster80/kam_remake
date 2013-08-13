@@ -628,7 +628,7 @@ end;
 procedure TUnitWorkPlan.Save(SaveStream:TKMemoryStream);
 var I: Integer;
 begin
-  SaveStream.Write('WorkPlan');
+  SaveStream.WriteA('WorkPlan');
   SaveStream.Write(fHome, SizeOf(fHome));
   SaveStream.Write(fIssued);
 //public

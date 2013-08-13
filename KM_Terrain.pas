@@ -2704,7 +2704,7 @@ var I,K: Integer;
 begin
   Assert(not fMapEditor, 'MapEd mode is not intended to be saved into savegame');
 
-  SaveStream.Write('Terrain');
+  SaveStream.WriteA('Terrain');
   SaveStream.Write(fMapX);
   SaveStream.Write(fMapY);
   SaveStream.Write(fMapRect);

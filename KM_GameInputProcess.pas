@@ -95,7 +95,7 @@ type
   TGameInputCommand = record
     CommandType: TGameInputCommandType;
     Params: array[1..MAX_PARAMS]of integer;
-    TextParam: string;
+    TextParam: UnicodeString;
     PlayerIndex: TPlayerIndex; //Player for which the command is to be issued. (Needed for multiplayer and other reasons)
   end;
 
@@ -116,8 +116,8 @@ type
       Rand: Cardinal; //acts as CRC check
     end;
 
-    function MakeCommand(aGIC: TGameInputCommandType; const aParam:array of integer): TGameInputCommand; overload;
-    function MakeCommand(aGIC: TGameInputCommandType; const aTextParam: string): TGameInputCommand; overload;
+    function MakeCommand(aGIC: TGameInputCommandType; const aParam: array of integer): TGameInputCommand; overload;
+    function MakeCommand(aGIC: TGameInputCommandType; const aTextParam: UnicodeString): TGameInputCommand; overload;
     procedure TakeCommand(aCommand: TGameInputCommand); virtual; abstract;
     procedure ExecCommand(aCommand: TGameInputCommand);
     procedure StoreCommand(aCommand: TGameInputCommand);
@@ -179,7 +179,7 @@ begin
   begin
     aMemoryStream.Write(CommandType, SizeOf(CommandType));
     aMemoryStream.Write(Params, SizeOf(Params));
-    aMemoryStream.Write(TextParam);
+    aMemoryStream.WriteW(TextParam);
     aMemoryStream.Write(PlayerIndex);
   end;
 end;
@@ -191,7 +191,7 @@ begin
   begin
     aMemoryStream.Read(CommandType, SizeOf(CommandType));
     aMemoryStream.Read(Params, SizeOf(Params));
-    aMemoryStream.Read(TextParam);
+    aMemoryStream.ReadW(TextParam);
     aMemoryStream.Read(PlayerIndex);
   end;
 end;
@@ -230,7 +230,7 @@ begin
 end;
 
 
-function TGameInputProcess.MakeCommand(aGIC: TGameInputCommandType; const aTextParam: string): TGameInputCommand;
+function TGameInputProcess.MakeCommand(aGIC: TGameInputCommandType; const aTextParam: UnicodeString): TGameInputCommand;
 var
   I: Integer;
 begin
@@ -549,16 +549,18 @@ end;
 
 
 procedure TGameInputProcess.SaveToFile(aFileName: string);
-var i:integer; S: TKMemoryStream;
+var
+  I: integer;
+  S: TKMemoryStream;
 begin
   S := TKMemoryStream.Create;
-  S.Write(AnsiString(GAME_VERSION));
+  S.WriteA(GAME_VERSION);
   S.Write(fCount);
-  for i:=1 to fCount do
+  for I := 1 to fCount do
   begin
-    S.Write(fQueue[i].Tick);
-    SaveCommandToMemoryStream(fQueue[i].Command, S);
-    S.Write(fQueue[i].Rand);
+    S.Write(fQueue[I].Tick);
+    SaveCommandToMemoryStream(fQueue[I].Command, S);
+    S.Write(fQueue[I].Rand);
   end;
 
   S.SaveToFile(aFileName);
@@ -575,15 +577,15 @@ begin
   if not FileExists(aFileName) then exit;
   S := TKMemoryStream.Create;
   S.LoadFromFile(aFileName);
-  S.Read(FileVersion);
-  Assert(FileVersion=GAME_VERSION, 'Old or unexpected replay file. '+GAME_VERSION+' is required.');
+  S.ReadA(FileVersion);
+  Assert(FileVersion = GAME_VERSION, 'Old or unexpected replay file. '+GAME_VERSION+' is required.');
   S.Read(fCount);
   setlength(fQueue, fCount+1);
-  for i:=1 to fCount do
+  for I := 1 to fCount do
   begin
-    S.Read(fQueue[i].Tick);
-    LoadCommandFromMemoryStream(fQueue[i].Command, S);
-    S.Read(fQueue[i].Rand);
+    S.Read(fQueue[I].Tick);
+    LoadCommandFromMemoryStream(fQueue[I].Command, S);
+    S.Read(fQueue[I].Rand);
   end;
 
   S.Free;

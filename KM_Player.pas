@@ -195,7 +195,7 @@ end;
 
 procedure TKMPlayerCommon.Save(SaveStream: TKMemoryStream);
 begin
-  SaveStream.Write('PlayerCommon');
+  SaveStream.WriteA('PlayerCommon');
   fUnits.Save(SaveStream);
 end;
 
@@ -1086,7 +1086,7 @@ begin
   fUnitGroups.Save(SaveStream);
 
   SaveStream.Write(fPlayerIndex);
-  SaveStream.Write(fPlayerName);
+  SaveStream.WriteW(fPlayerName);
   SaveStream.Write(fPlayerType, SizeOf(fPlayerType));
   SaveStream.Write(fAlliances, SizeOf(fAlliances));
   SaveStream.Write(fShareFOW, SizeOf(fShareFOW));
@@ -1110,7 +1110,7 @@ begin
   fUnitGroups.Load(LoadStream);
 
   LoadStream.Read(fPlayerIndex);
-  LoadStream.Read(fPlayerName);
+  LoadStream.ReadW(fPlayerName);
   LoadStream.Read(fPlayerType, SizeOf(fPlayerType));
   LoadStream.Read(fAlliances, SizeOf(fAlliances));
   LoadStream.Read(fShareFOW, SizeOf(fShareFOW));

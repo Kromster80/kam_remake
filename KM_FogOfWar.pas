@@ -227,7 +227,7 @@ procedure TKMFogOfWar.Save(SaveStream: TKMemoryStream);
 var
   I: Word;
 begin
-  SaveStream.Write('FOW');
+  SaveStream.WriteA('FOW');
   SaveStream.Write(fAnimStep);
   //Because each player has FOW it can become a bottleneck (8.7ms per run) due to autosaving (e.g. on Paradise Island)
   //so save it out 1 row at a time (due to 2D arrays not being continguous we can't save it all at once)

@@ -76,8 +76,8 @@ type
 
     fMaxRooms:word;
     fHTMLStatusFile:string;
-    fWelcomeMessage:string;
-    fServerName:string;
+    fWelcomeMessage: UnicodeString;
+    fServerName: UnicodeString;
     fKickTimeout:word;
     fRoomCount:integer;
     fEmptyGameInfo:TMPGameInfo;
@@ -93,7 +93,8 @@ type
     procedure ClientDisconnect(aHandle:integer);
     procedure SendMessage(aRecipient: Integer; aKind: TKMessageKind); overload;
     procedure SendMessage(aRecipient: Integer; aKind: TKMessageKind; aParam: Integer); overload;
-    procedure SendMessage(aRecipient: Integer; aKind: TKMessageKind; aText: UnicodeString); overload;
+    procedure SendMessageA(aRecipient: Integer; aKind: TKMessageKind; aText: AnsiString);
+    procedure SendMessageW(aRecipient: Integer; aKind: TKMessageKind; aText: UnicodeString);
     procedure SendMessage(aRecipient: Integer; aKind: TKMessageKind; aStream: TKMemoryStream); overload;
     procedure SendMessageAct(aRecipient: Integer; aKind: TKMessageKind; aStream: TKMemoryStream);
     procedure RecieveMessage(aSenderHandle:integer; aData:pointer; aLength:cardinal);
@@ -107,7 +108,7 @@ type
     procedure AddClientToRoom(aHandle, aRoom:integer);
     procedure SaveHTMLStatus;
   public
-    constructor Create(aMaxRooms:word; aKickTimeout: word; aHTMLStatusFile, aWelcomeMessage:string);
+    constructor Create(aMaxRooms:word; aKickTimeout: word; aHTMLStatusFile, aWelcomeMessage: UnicodeString);
     destructor Destroy; override;
     procedure StartListening(aPort,aServerName:string);
     procedure StopListening;
@@ -117,7 +118,7 @@ type
     property OnStatusMessage:TGetStrProc write fOnStatusMessage;
     property Listening: boolean read fListening;
     function GetPlayerCount:integer;
-    procedure UpdateSettings(aKickTimeout: word; aHTMLStatusFile, aWelcomeMessage, aServerName:string);
+    procedure UpdateSettings(aKickTimeout: word; aHTMLStatusFile, aWelcomeMessage, aServerName: UnicodeString);
     procedure GetServerInfo(aList: TList);
   end;
 
@@ -201,7 +202,7 @@ end;
 
 
 { TKMNetServer }
-constructor TKMNetServer.Create(aMaxRooms:word; aKickTimeout: word; aHTMLStatusFile, aWelcomeMessage:string);
+constructor TKMNetServer.Create(aMaxRooms:word; aKickTimeout: word; aHTMLStatusFile, aWelcomeMessage: UnicodeString);
 begin
   inherited Create;
   fEmptyGameInfo := TMPGameInfo.Create;
@@ -296,19 +297,19 @@ begin
   M.Free;
 
   //Measure pings. Iterate backwards so the indexes are maintained after kicking clients
-  for i:=fClientList.Count-1 downto 0 do
-    if fClientList[i].fPingStarted = 0 then //We have recieved mk_Pong for our previous measurement, so start a new one
+  for I:=fClientList.Count-1 downto 0 do
+    if fClientList[I].fPingStarted = 0 then //We have recieved mk_Pong for our previous measurement, so start a new one
     begin
-      fClientList[i].fPingStarted := TickCount;
-      SendMessage(fClientList[i].fHandle, mk_Ping);
+      fClientList[I].fPingStarted := TickCount;
+      SendMessage(fClientList[I].fHandle, mk_Ping);
     end
     else
       //If they don't respond within a reasonable time, kick them
-      if GetTimeSince(fClientList[i].fPingStarted) > fKickTimeout*1000 then
+      if GetTimeSince(fClientList[I].fPingStarted) > fKickTimeout*1000 then
       begin
-        Status('Client timed out '+inttostr(fClientList[i].fHandle));
-        SendMessage(fClientList[i].fHandle, mk_Kicked, 'Disconnected by the server: Timeout detected');
-        fServer.Kick(fClientList[i].fHandle);
+        Status('Client timed out '+inttostr(fClientList[I].fHandle));
+        SendMessageA(fClientList[I].fHandle, mk_Kicked, 'Disconnected by the server: Timeout detected');
+        fServer.Kick(fClientList[I].fHandle);
       end;
 
 end;
@@ -330,13 +331,13 @@ begin
 end;
 
 
-procedure TKMNetServer.UpdateSettings(aKickTimeout: word; aHTMLStatusFile, aWelcomeMessage, aServerName:string);
+procedure TKMNetServer.UpdateSettings(aKickTimeout: word; aHTMLStatusFile, aWelcomeMessage, aServerName: UnicodeString);
 begin
   fKickTimeout := aKickTimeout;
   fHTMLStatusFile := aHTMLStatusFile;
   fWelcomeMessage := aWelcomeMessage;
   if fServerName <> aServerName then
-    SendMessage(NET_ADDRESS_ALL, mk_ServerName, aServerName);
+    SendMessageW(NET_ADDRESS_ALL, mk_ServerName, aServerName);
   fServerName := aServerName;
 end;
 
@@ -355,9 +356,9 @@ end;
 procedure TKMNetServer.ClientConnect(aHandle:integer);
 begin
   fClientList.AddPlayer(aHandle, -1); //Clients are not initially put into a room, they choose a room later
-  SendMessage(aHandle, mk_GameVersion, NET_PROTOCOL_REVISON); //First make sure they are using the right version
-  if fWelcomeMessage <> '' then SendMessage(aHandle, mk_WelcomeMessage, fWelcomeMessage); //Welcome them to the server
-  SendMessage(aHandle, mk_ServerName, fServerName);
+  SendMessageA(aHandle, mk_GameVersion, NET_PROTOCOL_REVISON); //First make sure they are using the right version
+  if fWelcomeMessage <> '' then SendMessageW(aHandle, mk_WelcomeMessage, fWelcomeMessage); //Welcome them to the server
+  SendMessageW(aHandle, mk_ServerName, fServerName);
   SendMessage(aHandle, mk_IndexOnServer, aHandle); //This is the signal that the client may now start sending
 end;
 
@@ -370,7 +371,7 @@ begin
   begin
     if not AddNewRoom then //Create a new room for this client
     begin
-      SendMessage(aHandle, mk_RefuseToJoin, 'Room limit reached');
+      SendMessageA(aHandle, mk_RefuseToJoin, 'Room limit reached');
       fServer.Kick(aHandle);
       Exit;
     end;
@@ -381,7 +382,7 @@ begin
       aRoom := GetFirstAvailableRoom; //Take the first one which has a space (or create a new one if none have spaces)
       if aRoom = -1 then //No rooms available
       begin
-        SendMessage(aHandle, mk_RefuseToJoin, 'Server is full');
+        SendMessageA(aHandle, mk_RefuseToJoin, 'Server is full');
         fServer.Kick(aHandle);
         Exit;
       end;
@@ -390,7 +391,7 @@ begin
       //If the room is outside the valid range
       if not InRange(aRoom,0,fRoomCount-1) then
       begin
-        SendMessage(aHandle, mk_RefuseToJoin, 'Invalid room number');
+        SendMessageA(aHandle, mk_RefuseToJoin, 'Invalid room number');
         fServer.Kick(aHandle);
         Exit;
       end;
@@ -473,12 +474,23 @@ begin
 end;
 
 
-procedure TKMNetServer.SendMessage(aRecipient: Integer; aKind: TKMessageKind; aText: UnicodeString);
+procedure TKMNetServer.SendMessageA(aRecipient: Integer; aKind: TKMessageKind; aText: AnsiString);
 var
   M: TKMemoryStream;
 begin
   M := TKMemoryStream.Create;
-  M.Write(aText);
+  M.WriteA(aText);
+  SendMessageAct(aRecipient, aKind, M);
+  M.Free;
+end;
+
+
+procedure TKMNetServer.SendMessageW(aRecipient: Integer; aKind: TKMessageKind; aText: UnicodeString);
+var
+  M: TKMemoryStream;
+begin
+  M := TKMemoryStream.Create;
+  M.WriteW(aText);
   SendMessageAct(aRecipient, aKind, M);
   M.Free;
 end;
@@ -569,7 +581,7 @@ begin
               M.Read(tmpInteger);
               if fClientList.GetByHandle(tmpInteger) <> nil then
               begin
-                SendMessage(tmpInteger, mk_Kicked, 'You were kicked by the host');
+                SendMessageA(tmpInteger, mk_Kicked, 'You were kicked by the host');
                 fServer.Kick(tmpInteger);
               end;
             end;

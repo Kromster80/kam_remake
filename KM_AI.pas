@@ -274,7 +274,7 @@ end;
 
 procedure TKMPlayerAI.Save(SaveStream: TKMemoryStream);
 begin
-  SaveStream.Write('PlayerAI');
+  SaveStream.WriteA('PlayerAI');
   SaveStream.Write(fOwner);
   SaveStream.Write(fWonOrLost, SizeOf(fWonOrLost));
 

@@ -118,7 +118,7 @@ end;
 procedure TAIAttacks.Save(SaveStream: TKMemoryStream);
 var I: Integer;
 begin
-  SaveStream.Write('AIAttacks');
+  SaveStream.WriteA('AIAttacks');
   SaveStream.Write(fCount);
   for I := 0 to fCount - 1 do
     SaveStream.Write(fAttacks[I], SizeOf(fAttacks[I]));

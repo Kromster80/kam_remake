@@ -585,7 +585,7 @@ procedure TKMNavMesh.Save(SaveStream: TKMemoryStream);
 var
   I,K: Integer;
 begin
-  SaveStream.Write('NavMesh');
+  SaveStream.WriteA('NavMesh');
 
   SaveStream.Write(fNodeCount);
   for I := 0 to fNodeCount - 1 do

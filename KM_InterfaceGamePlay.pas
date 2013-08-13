@@ -3492,7 +3492,7 @@ procedure TKMGamePlayInterface.Save(SaveStream: TKMemoryStream);
 begin
   fGuiGameHouse.Save(SaveStream);
 
-  SaveStream.Write(fLastSaveName);
+  SaveStream.WriteW(fLastSaveName);
   SaveStream.Write(fSelection, SizeOf(fSelection));
   fMessageList.Save(SaveStream);
   //Everything else (e.g. ShownUnit or AskDemolish) can't be seen in Save_menu anyways
@@ -3503,7 +3503,7 @@ procedure TKMGamePlayInterface.Load(LoadStream: TKMemoryStream);
 begin
   fGuiGameHouse.Load(LoadStream);
 
-  LoadStream.Read(fLastSaveName);
+  LoadStream.ReadW(fLastSaveName);
   LoadStream.Read(fSelection, SizeOf(fSelection));
   fMessageList.Load(LoadStream);
   //Everything else (e.g. ShownUnit or AskDemolish) can't be seen in Save_menu anyways

@@ -9,9 +9,20 @@ type
   { Extended with custom Read/Write commands which accept various types without asking for their length}
   TKMemoryStream = class(TMemoryStream)
   public
-    procedure Write(const Value: AnsiString); reintroduce; overload;
+    //Legacy format for campaigns info, maxlength 65k ansichars
+    procedure ReadA(out Value: AnsiString); reintroduce; overload;
+    procedure WriteA(const Value: AnsiString); reintroduce; overload;
+    //Assert for savegame sections
+    procedure ReadAssert(const Value: AnsiString);
+
+    //Ansistrings saved by PascalScript into savegame
+    procedure ReadHugeString(out Value: AnsiString);
     procedure WriteHugeString(const Value: AnsiString);
-    procedure Write(const Value: UnicodeString); reintroduce; overload;
+
+    //Unicode strings
+    procedure ReadW(out Value: UnicodeString); reintroduce; overload;
+    procedure WriteW(const Value: UnicodeString); reintroduce; overload;
+
     procedure Write(const Value:TKMPointDir ); reintroduce; overload;
     function Write(const Value:TKMDirection): Longint; reintroduce; overload;
     function Write(const Value:TKMPoint ): Longint; reintroduce; overload;
@@ -25,9 +36,6 @@ type
     function Write(const Value:Word     ): Longint; reintroduce; overload;
     function Write(const Value:ShortInt ): Longint; reintroduce; overload;
 
-    procedure Read(out Value: AnsiString); reintroduce; overload;
-    procedure ReadHugeString(out Value: AnsiString);
-    procedure Read(out Value: UnicodeString); reintroduce; overload;
     procedure Read(out Value:TKMPointDir); reintroduce; overload;
     function Read(out Value:TKMDirection): Longint; reintroduce; overload;
     function Read(out Value:TKMPoint    ): Longint; reintroduce; overload;
@@ -40,7 +48,6 @@ type
     function Read(out Value:Boolean     ): Longint; reintroduce; overload;
     function Read(out Value:Word        ): Longint; reintroduce; overload;
     function Read(out Value:ShortInt    ): Longint; reintroduce; overload;
-    procedure ReadAssert(const Value: UnicodeString);
   end;
 
   TStreamEvent = procedure (aData: TKMemoryStream) of object;
@@ -164,9 +171,9 @@ begin
   aStream.Read(GameState, SizeOf(GameState));
   aStream.Read(PasswordLocked);
   aStream.Read(PlayerCount);
-  aStream.Read(Players);
-  aStream.Read(Description);
-  aStream.Read(Map);
+  aStream.ReadW(Players);
+  aStream.ReadW(Description);
+  aStream.ReadW(Map);
   aStream.Read(GameTime, SizeOf(GameTime));
 end;
 
@@ -186,9 +193,9 @@ begin
   aStream.Write(GameState, SizeOf(GameState));
   aStream.Write(PasswordLocked);
   aStream.Write(PlayerCount);
-  aStream.Write(Players);
-  aStream.Write(Description);
-  aStream.Write(Map);
+  aStream.WriteW(Players);
+  aStream.WriteW(Description);
+  aStream.WriteW(Map);
   aStream.Write(GameTime, SizeOf(GameTime));
 end;
 
@@ -212,7 +219,7 @@ end;
 
 
 { TKMemoryStream }
-procedure TKMemoryStream.Write(const Value: AnsiString);
+procedure TKMemoryStream.WriteA(const Value: AnsiString);
 var I: Word;
 begin
   I := Length(Value);
@@ -232,7 +239,7 @@ begin
 end;
 
 
-procedure TKMemoryStream.Write(const Value: UnicodeString);
+procedure TKMemoryStream.WriteW(const Value: UnicodeString);
 var I: Word;
 begin
   I := Length(Value);
@@ -272,7 +279,7 @@ function TKMemoryStream.Write(const Value:shortint): Longint;
 begin Result := inherited Write(Value, SizeOf(Value)); end;
 
 
-procedure TKMemoryStream.Read(out Value: AnsiString);
+procedure TKMemoryStream.ReadA(out Value: AnsiString);
 var I: Word;
 begin
   Read(I, SizeOf(I));
@@ -291,7 +298,7 @@ begin
     Read(Pointer(Value)^, I);
 end;
 
-procedure TKMemoryStream.Read(out Value: UnicodeString);
+procedure TKMemoryStream.ReadW(out Value: UnicodeString);
 var I: Word;
 begin
   Read(I, SizeOf(I));
@@ -331,10 +338,10 @@ function TKMemoryStream.Read(out Value:shortint): Longint;
 begin Result := inherited Read(Value, SizeOf(Value)); end;
 
 
-procedure TKMemoryStream.ReadAssert(const Value: UnicodeString);
-var S: UnicodeString;
+procedure TKMemoryStream.ReadAssert(const Value: AnsiString);
+var S: AnsiString;
 begin
-  Read(s);
+  ReadA(s);
   Assert(s = Value, 'TKMemoryStream.Read <> Value: '+Value);
 end;
 

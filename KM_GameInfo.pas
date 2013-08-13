@@ -11,20 +11,20 @@ type
   private
     fParseError: string;
   public
-    Title: string; //Used for campaigns and to store in savegames
+    Title: UnicodeString; //Used for campaigns and to store in savegames
     Version: AnsiString; //Savegame version, yet unused in maps, they always have actual version
     DATCRC: Cardinal; //CRC of defines .dat files
     TickCount: Cardinal;
     MissionMode: TKMissionMode; //Fighting or Build-a-City map
     MapSizeX, MapSizeY: Integer;
-    VictoryCondition: string;
-    DefeatCondition: string;
+    VictoryCondition: UnicodeString;
+    DefeatCondition: UnicodeString;
 
     PlayerCount: Byte;
     //Location name is string because for savegames we store players name there
     Enabled: array [0..MAX_PLAYERS-1] of Boolean;
     CanBeHuman: array [0..MAX_PLAYERS-1] of Boolean;
-    LocationName: array [0..MAX_PLAYERS-1] of string;
+    LocationName: array [0..MAX_PLAYERS-1] of UnicodeString;
     PlayerTypes: array [0..MAX_PLAYERS-1] of TPlayerType;
     ColorID: array [0..MAX_PLAYERS-1] of Integer;
     Team: array [0..MAX_PLAYERS-1] of Integer;
@@ -55,15 +55,14 @@ var
   s: AnsiString;
   I: Integer;
 begin
-  LoadStream.Read(s);
-  //TODO @Krom: 'KaM_GameInfo' is written in unicode in file, but s is AnsiString. Solve the comparasion problem
+  LoadStream.ReadA(s);
   if s <> 'KaM_GameInfo' then
   begin
     fParseError := Format(gResTexts[TX_SAVE_UNSUPPORTED_FORMAT], [Copy(s, 1, 8)]);
     Exit;
   end;
 
-  LoadStream.Read(Version);
+  LoadStream.ReadA(Version);
   if Version <> GAME_REVISION then
   begin
     fParseError := Format(gResTexts[TX_SAVE_UNSUPPORTED_VERSION], [Version]);
@@ -72,20 +71,20 @@ begin
 
   LoadStream.Read(DATCRC); //Don't check it here (maps don't care), if required somebody else will check it
 
-  LoadStream.Read(Title); //GameName
+  LoadStream.ReadW(Title); //GameName
   LoadStream.Read(TickCount); //TickCount
   LoadStream.Read(MissionMode, SizeOf(MissionMode));
   LoadStream.Read(MapSizeX);
   LoadStream.Read(MapSizeY);
-  LoadStream.Read(VictoryCondition);
-  LoadStream.Read(DefeatCondition);
+  LoadStream.ReadW(VictoryCondition);
+  LoadStream.ReadW(DefeatCondition);
 
   LoadStream.Read(PlayerCount);
   for I := 0 to PlayerCount - 1 do
   begin
     LoadStream.Read(CanBeHuman[I]);
     LoadStream.Read(Enabled[I]);
-    LoadStream.Read(LocationName[I]);
+    LoadStream.ReadW(LocationName[I]);
     LoadStream.Read(PlayerTypes[I], SizeOf(PlayerTypes[I]));
     LoadStream.Read(ColorID[I]);
     LoadStream.Read(Team[I]);
@@ -96,24 +95,24 @@ end;
 procedure TKMGameInfo.Save(SaveStream: TKMemoryStream);
 var I: Integer;
 begin
-  SaveStream.Write('KaM_GameInfo');
-  SaveStream.Write(AnsiString(GAME_REVISION)); //Save current revision
+  SaveStream.WriteA('KaM_GameInfo');
+  SaveStream.WriteA(GAME_REVISION); //Save current revision
   SaveStream.Write(fResource.GetDATCRC);
 
-  SaveStream.Write(Title); //GameName
+  SaveStream.WriteW(Title); //GameName
   SaveStream.Write(TickCount);
   SaveStream.Write(MissionMode, SizeOf(MissionMode));
   SaveStream.Write(MapSizeX);
   SaveStream.Write(MapSizeY);
-  SaveStream.Write(VictoryCondition);
-  SaveStream.Write(DefeatCondition);
+  SaveStream.WriteW(VictoryCondition);
+  SaveStream.WriteW(DefeatCondition);
 
   SaveStream.Write(PlayerCount);
   for I := 0 to PlayerCount - 1 do
   begin
     SaveStream.Write(CanBeHuman[I]);
     SaveStream.Write(Enabled[I]);
-    SaveStream.Write(LocationName[I]);
+    SaveStream.WriteW(LocationName[I]);
     SaveStream.Write(PlayerTypes[I], SizeOf(PlayerTypes[I]));
     SaveStream.Write(ColorID[I]);
     SaveStream.Write(Team[I]);
