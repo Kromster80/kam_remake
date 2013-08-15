@@ -27,4 +27,11 @@ Proposed:
 	More options for on-screen text (background color, alignment, font, size, etc.)
 	States.PlayerIsAI(Index): Boolean;
 	Actions.AddDefensePosition, RemDefensePosition
-  States.HouseCantReachResources: boolean (for mines, fisher and woodcutters)
+  States.HouseCanReachResources: boolean (for mines, fisher and woodcutters)
+  OnHousePlanPut(aHouseID)
+  HousePlanAt(X, Y), returns aPlanID.
+  HousePlanType(aPlanID), returns the type of the house plan.
+  OnRoadPlanPut(X,Y,Typ) (also with versions for fields and wine)
+  States.GroupAtDefPos(PlayerID, PositionID)
+  Actions.AddDefPos(PlayerID, UnitType, X, Y, facing direction, defence radius, frontline: boolean)
+  Actions.RemDefPos(PlayerID, PositionID)
