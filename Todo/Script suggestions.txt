@@ -7,6 +7,7 @@ Accepted:
 	DisplayText(text, player_id, timeout) to show announcements that will be gone after timeout (for TD and etc.)
 	Split a specific warrior out of a group
 	Looping option for PlayWAV (useful for ambient sounds at a location)
+	UnitKill should work for animals (doesn't work because they don't check fKillASAP during UpdateState)
 
 
 Proposed:
@@ -35,3 +36,4 @@ Proposed:
   States.GroupAtDefPos(PlayerID, PositionID)
   Actions.AddDefPos(PlayerID, UnitType, X, Y, facing direction, defence radius, frontline: boolean)
   Actions.RemDefPos(PlayerID, PositionID)
+  Allow high volume boost for positional script sounds (currently limited to 1.0) since they are much quieter than non-positional sounds
