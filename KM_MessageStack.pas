@@ -13,7 +13,7 @@ type
     fText: UnicodeString;
   public
     IsRead: Boolean; //Does not gets saved, because it's UI thing
-    constructor Create(aKind: TKMMessageKind; aText: string; aLoc: TKMPoint);
+    constructor Create(aKind: TKMMessageKind; aText: UnicodeString; aLoc: TKMPoint);
     constructor CreateFromStream(LoadStream: TKMemoryStream);
 
     function Icon: Word;
@@ -41,7 +41,7 @@ type
     property MessagesStack[aIndex: Integer]: TKMMessage read GetMessageStack;
     property MessagesLog[aIndex: Integer]: TKMMessage read GetMessageLog;
 
-    procedure Add(aKind: TKMMessageKind; aText: string; aLoc: TKMPoint);
+    procedure Add(aKind: TKMMessageKind; aText: UnicodeString; aLoc: TKMPoint);
     procedure RemoveStack(aIndex: Integer);
 
     procedure Save(SaveStream: TKMemoryStream);
@@ -53,7 +53,7 @@ implementation
 
 
 { TKMMessage }
-constructor TKMMessage.Create(aKind: TKMMessageKind; aText: string; aLoc: TKMPoint);
+constructor TKMMessage.Create(aKind: TKMMessageKind; aText: UnicodeString; aLoc: TKMPoint);
 begin
   inherited Create;
   fKind := aKind;
@@ -124,7 +124,7 @@ begin
 end;
 
 
-procedure TKMMessageList.Add(aKind: TKMMessageKind; aText: string; aLoc: TKMPoint);
+procedure TKMMessageList.Add(aKind: TKMMessageKind; aText: UnicodeString; aLoc: TKMPoint);
 begin
   case aKind of
     mkText, mkQuill:
