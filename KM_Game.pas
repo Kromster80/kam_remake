@@ -1362,6 +1362,7 @@ begin
   gProjectiles.Load(LoadStream);
   fScripting.Load(LoadStream);
 
+  fTextMission := TKMTextLibraryMulti.Create;
   fTextMission.Load(LoadStream);
 
   if IsReplay then
