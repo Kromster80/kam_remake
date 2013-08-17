@@ -54,6 +54,7 @@ begin
 
   fOnPageChange := aOnPageChange;
 
+  fMinimap := TKMMinimap.Create(True, False, True);
   fSaves := TKMSavesCollection.Create;
 
   Panel_Load := TKMPanel.Create(aParent,0,0,aParent.Width, aParent.Height);
