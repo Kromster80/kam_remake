@@ -8,15 +8,16 @@ uses
 
 
 type
-  //Barracks has 11 resources and Recruits
+  //Barracks have 11 resources and Recruits
   TKMHouseBarracks = class(TKMHouse)
   private
     fRecruitsList: TList;
-    ResourceCount: array [WARFARE_MIN..WARFARE_MAX] of Word;
+    fResourceCount: array [WARFARE_MIN..WARFARE_MAX] of Word;
   public
     NotAcceptFlag: array [WARFARE_MIN .. WARFARE_MAX] of Boolean;
     constructor Create(aUID: Integer; aHouseType: THouseType; PosX, PosY: Integer; aOwner: TPlayerIndex; aBuildState: THouseBuildState);
     constructor Load(LoadStream: TKMemoryStream); override;
+    procedure Save(SaveStream: TKMemoryStream); override;
     procedure SyncLoad; override;
     destructor Destroy; override;
 
@@ -25,15 +26,15 @@ type
     procedure ResAddToIn(aWare: TWareType; aCount: Word = 1; aFromScript: Boolean = False); override;
     procedure ResTakeFromOut(aWare: TWareType; const aCount: Word = 1); override;
     function CheckResIn(aWare: TWareType): Word; override;
-    function CanTakeResOut(aWare: TWareType): Boolean;
     function ResCanAddToIn(aRes: TWareType): Boolean; override;
+
+    function CanTakeResOut(aWare: TWareType): Boolean;
     function CanEquip(aUnitType: TUnitType): Boolean;
     function RecruitsCount: Integer;
     procedure RecruitsAdd(aUnit: Pointer);
     procedure RecruitsRemove(aUnit: Pointer);
     procedure ToggleAcceptFlag(aRes: TWareType);
     function Equip(aUnitType: TUnitType; aCount: Byte): Byte;
-    procedure Save(SaveStream: TKMemoryStream); override;
   end;
 
 
@@ -52,14 +53,14 @@ end;
 
 constructor TKMHouseBarracks.Load(LoadStream: TKMemoryStream);
 var
-  I,aCount: Integer;
+  I, NewCount: Integer;
   U: TKMUnit;
 begin
   inherited;
-  LoadStream.Read(ResourceCount, SizeOf(ResourceCount));
+  LoadStream.Read(fResourceCount, SizeOf(fResourceCount));
   fRecruitsList := TList.Create;
-  LoadStream.Read(aCount);
-  for I := 0 to aCount - 1 do
+  LoadStream.Read(NewCount);
+  for I := 0 to NewCount - 1 do
   begin
     LoadStream.Read(U, 4); //subst on syncload
     fRecruitsList.Add(U);
@@ -71,7 +72,7 @@ end;
 procedure TKMHouseBarracks.SyncLoad;
 var I: Integer;
 begin
-  Inherited;
+  inherited;
   for I := 0 to RecruitsCount - 1 do
     fRecruitsList.Items[I] := gPlayers.GetUnitByUID(Cardinal(fRecruitsList.Items[I]));
 end;
@@ -87,15 +88,15 @@ end;
 procedure TKMHouseBarracks.Activate(aWasBuilt: Boolean);
 var
   FirstBarracks: TKMHouseBarracks;
-  RT: TWareType;
+  WT: TWareType;
 begin
   inherited;
   //A new Barracks should inherit the accept properies of the first Barracks of that player,
   //which stops a sudden flow of unwanted wares to it as soon as it is created.
   FirstBarracks := TKMHouseBarracks(gPlayers[fOwner].FindHouse(ht_Barracks, 1));
   if (FirstBarracks <> nil) and not FirstBarracks.IsDestroyed then
-    for RT := WARFARE_MIN to WARFARE_MAX do
-      NotAcceptFlag[RT] := FirstBarracks.NotAcceptFlag[RT];
+    for WT := WARFARE_MIN to WARFARE_MAX do
+      NotAcceptFlag[WT] := FirstBarracks.NotAcceptFlag[WT];
 end;
 
 
@@ -108,7 +109,7 @@ begin
   fRecruitsList.Clear;
 
   for R := WARFARE_MIN to WARFARE_MAX do
-    gPlayers[fOwner].Stats.WareConsumed(R, ResourceCount[R]);
+    gPlayers[fOwner].Stats.WareConsumed(R, fResourceCount[R]);
 
   inherited;
 end;
@@ -136,7 +137,7 @@ procedure TKMHouseBarracks.ResAddToIn(aWare: TWareType; aCount: Word = 1; aFromS
 begin
   Assert(aWare in [WARFARE_MIN..WARFARE_MAX], 'Invalid resource added to barracks');
 
-  ResourceCount[aWare] := EnsureRange(ResourceCount[aWare]+aCount, 0, High(Word));
+  fResourceCount[aWare] := EnsureRange(fResourceCount[aWare]+aCount, 0, High(Word));
   gPlayers[fOwner].Deliveries.Queue.AddOffer(Self, aWare, aCount);
 end;
 
@@ -150,7 +151,7 @@ end;
 function TKMHouseBarracks.CheckResIn(aWare: TWareType): Word;
 begin
   if aWare in [WARFARE_MIN..WARFARE_MAX] then
-    Result := ResourceCount[aWare]
+    Result := fResourceCount[aWare]
   else
     Result := 0; //Including Wood/stone in building stage
 end;
@@ -158,15 +159,15 @@ end;
 
 procedure TKMHouseBarracks.ResTakeFromOut(aWare: TWareType; const aCount: Word=1);
 begin
-  Assert(aCount <= ResourceCount[aWare]);
-  dec(ResourceCount[aWare], aCount);
+  Assert(aCount <= fResourceCount[aWare]);
+  dec(fResourceCount[aWare], aCount);
 end;
 
 
 function TKMHouseBarracks.CanTakeResOut(aWare: TWareType): Boolean;
 begin
   Assert(aWare in [WARFARE_MIN .. WARFARE_MAX]);
-  Result := (ResourceCount[aWare] > 0);
+  Result := (fResourceCount[aWare] > 0);
 end;
 
 
@@ -185,7 +186,7 @@ begin
 
   for I := 1 to 4 do
   if TroopCost[aUnitType, I] <> wt_None then //Can't equip if we don't have a required resource
-    Result := Result and (ResourceCount[TroopCost[aUnitType, I]] > 0);
+    Result := Result and (fResourceCount[TroopCost[aUnitType, I]] > 0);
 end;
 
 
@@ -208,7 +209,7 @@ begin
     for I := 1 to 4 do
     if TroopCost[aUnitType, I] <> wt_None then
     begin
-      Dec(ResourceCount[TroopCost[aUnitType, I]]);
+      Dec(fResourceCount[TroopCost[aUnitType, I]]);
       gPlayers[fOwner].Stats.WareConsumed(TroopCost[aUnitType, I]);
       gPlayers[fOwner].Deliveries.Queue.RemOffer(Self, TroopCost[aUnitType, I], 1);
     end;
@@ -232,10 +233,12 @@ end;
 
 
 procedure TKMHouseBarracks.Save(SaveStream: TKMemoryStream);
-var I: Integer;
+var
+  I: Integer;
 begin
   inherited;
-  SaveStream.Write(ResourceCount, SizeOf(ResourceCount));
+
+  SaveStream.Write(fResourceCount, SizeOf(fResourceCount));
   SaveStream.Write(RecruitsCount);
   for I := 0 to RecruitsCount - 1 do
     SaveStream.Write(TKMUnit(fRecruitsList.Items[I]).UID); //Store ID
