@@ -238,7 +238,7 @@ begin
   if (fUnit.GetHome <> nil)
   and (fUnit.GetHome.HouseType = ht_Barracks) //Unit home is barracks
   and (fUnit.GetHome = fHouse) then //And is the house we are walking from
-    TKMHouseBarracks(fHouse).RecruitsList.Remove(fUnit);
+    TKMHouseBarracks(fHouse).RecruitsRemove(fUnit);
 
   //We are walking straight
   if fStreet.X = fDoor.X then
@@ -356,7 +356,7 @@ begin
       and (fUnit.GetHome = fHouse)
       and (fUnit.GetHome.HouseType = ht_Barracks) //Unit home is barracks
       and not fUnit.GetHome.IsDestroyed then //And is the house we are walking into and it's not destroyed
-        TKMHouseBarracks(fUnit.GetHome).RecruitsList.Add(fUnit); //Add the recruit once it is inside, otherwise it can be equipped while still walking in!
+        TKMHouseBarracks(fUnit.GetHome).RecruitsAdd(fUnit); //Add the recruit once it is inside, otherwise it can be equipped while still walking in!
       //Set us as inside even if the house is destroyed. In that case UpdateVisibility will sort things out.
 
       //When any woodcutter returns home - add an Axe

@@ -771,7 +771,7 @@ begin
     Image_Barracks_Accept[I].Visible := Barracks.NotAcceptFlag[BarracksResType[I]];
   end;
 
-  Tmp := Barracks.RecruitsList.Count;
+  Tmp := Barracks.RecruitsCount;
   Button_BarracksRecruit.Caption := IfThen(Tmp = 0, '-', IntToStr(Tmp));
   Button_BarracksRecruit.Down := True; //Recruit is always enabled, all troops require one
 

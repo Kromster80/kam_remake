@@ -11,10 +11,10 @@ type
   //Barracks has 11 resources and Recruits
   TKMHouseBarracks = class(TKMHouse)
   private
+    fRecruitsList: TList;
     ResourceCount: array [WARFARE_MIN..WARFARE_MAX] of Word;
   public
     NotAcceptFlag: array [WARFARE_MIN .. WARFARE_MAX] of Boolean;
-    RecruitsList: TList;
     constructor Create(aUID: Integer; aHouseType: THouseType; PosX, PosY: Integer; aOwner: TPlayerIndex; aBuildState: THouseBuildState);
     constructor Load(LoadStream: TKMemoryStream); override;
     procedure SyncLoad; override;
@@ -28,6 +28,9 @@ type
     function CanTakeResOut(aWare: TWareType): Boolean;
     function ResCanAddToIn(aRes: TWareType): Boolean; override;
     function CanEquip(aUnitType: TUnitType): Boolean;
+    function RecruitsCount: Integer;
+    procedure RecruitsAdd(aUnit: Pointer);
+    procedure RecruitsRemove(aUnit: Pointer);
     procedure ToggleAcceptFlag(aRes: TWareType);
     function Equip(aUnitType: TUnitType; aCount: Byte): Byte;
     procedure Save(SaveStream: TKMemoryStream); override;
@@ -43,7 +46,7 @@ uses
 constructor TKMHouseBarracks.Create(aUID: Integer; aHouseType: THouseType; PosX, PosY: Integer; aOwner: TPlayerIndex; aBuildState: THouseBuildState);
 begin
   inherited;
-  RecruitsList := TList.Create;
+  fRecruitsList := TList.Create;
 end;
 
 
@@ -54,12 +57,12 @@ var
 begin
   inherited;
   LoadStream.Read(ResourceCount, SizeOf(ResourceCount));
-  RecruitsList := TList.Create;
+  fRecruitsList := TList.Create;
   LoadStream.Read(aCount);
   for I := 0 to aCount - 1 do
   begin
     LoadStream.Read(U, 4); //subst on syncload
-    RecruitsList.Add(U);
+    fRecruitsList.Add(U);
   end;
   LoadStream.Read(NotAcceptFlag, SizeOf(NotAcceptFlag));
 end;
@@ -69,14 +72,14 @@ procedure TKMHouseBarracks.SyncLoad;
 var I: Integer;
 begin
   Inherited;
-  for I := 0 to RecruitsList.Count - 1 do
-    RecruitsList.Items[I] := gPlayers.GetUnitByUID(Cardinal(RecruitsList.Items[I]));
+  for I := 0 to RecruitsCount - 1 do
+    fRecruitsList.Items[I] := gPlayers.GetUnitByUID(Cardinal(fRecruitsList.Items[I]));
 end;
 
 
 destructor TKMHouseBarracks.Destroy;
 begin
-  RecruitsList.Free;
+  fRecruitsList.Free;
   inherited;
 end;
 
@@ -102,7 +105,7 @@ var
 begin
   //Recruits are no longer under our control so we forget about them (UpdateVisibility will sort it out)
   //Otherwise it can cause crashes while saving under the right conditions when a recruit is then killed.
-  RecruitsList.Clear;
+  fRecruitsList.Clear;
 
   for R := WARFARE_MIN to WARFARE_MAX do
     gPlayers[fOwner].Stats.WareConsumed(R, ResourceCount[R]);
@@ -111,7 +114,25 @@ begin
 end;
 
 
-procedure TKMHouseBarracks.ResAddToIn(aWare: TWareType; aCount:word=1; aFromScript:boolean=false);
+procedure TKMHouseBarracks.RecruitsAdd(aUnit: Pointer);
+begin
+  fRecruitsList.Add(aUnit);
+end;
+
+
+function TKMHouseBarracks.RecruitsCount: Integer;
+begin
+  Result := fRecruitsList.Count;
+end;
+
+
+procedure TKMHouseBarracks.RecruitsRemove(aUnit: Pointer);
+begin
+  fRecruitsList.Remove(aUnit);
+end;
+
+
+procedure TKMHouseBarracks.ResAddToIn(aWare: TWareType; aCount: Word = 1; aFromScript: Boolean = False);
 begin
   Assert(aWare in [WARFARE_MIN..WARFARE_MAX], 'Invalid resource added to barracks');
 
@@ -160,7 +181,7 @@ end;
 function TKMHouseBarracks.CanEquip(aUnitType: TUnitType): Boolean;
 var I: Integer;
 begin
-  Result := RecruitsList.Count > 0; //Can't equip anything without recruits
+  Result := RecruitsCount > 0; //Can't equip anything without recruits
 
   for I := 1 to 4 do
   if TroopCost[aUnitType, I] <> wt_None then //Can't equip if we don't have a required resource
@@ -193,8 +214,8 @@ begin
     end;
 
     //Special way to kill the Recruit because it is in a house
-    TKMUnitRecruit(RecruitsList.Items[0]).DestroyInBarracks;
-    RecruitsList.Delete(0); //Delete first recruit in the list
+    TKMUnitRecruit(fRecruitsList.Items[0]).DestroyInBarracks;
+    fRecruitsList.Delete(0); //Delete first recruit in the list
 
     //Make new unit
     Soldier := TKMUnitWarrior(gPlayers[fOwner].TrainUnit(aUnitType, GetEntrance));
@@ -215,9 +236,9 @@ var I: Integer;
 begin
   inherited;
   SaveStream.Write(ResourceCount, SizeOf(ResourceCount));
-  SaveStream.Write(RecruitsList.Count);
-  for I := 0 to RecruitsList.Count - 1 do
-    SaveStream.Write(TKMUnit(RecruitsList.Items[I]).UID); //Store ID
+  SaveStream.Write(RecruitsCount);
+  for I := 0 to RecruitsCount - 1 do
+    SaveStream.Write(TKMUnit(fRecruitsList.Items[I]).UID); //Store ID
   SaveStream.Write(NotAcceptFlag, SizeOf(NotAcceptFlag));
 end;
 
