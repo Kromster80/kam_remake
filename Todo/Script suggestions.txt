@@ -28,12 +28,13 @@ Proposed:
 	More options for on-screen text (background color, alignment, font, size, etc.)
 	States.PlayerIsAI(Index): Boolean;
 	Actions.AddDefensePosition, RemDefensePosition
-  States.HouseCanReachResources: boolean (for mines, fisher and woodcutters)
-  OnHousePlanPut(aHouseID)
-  HousePlanAt(X, Y), returns aPlanID.
-  HousePlanType(aPlanID), returns the type of the house plan.
-  OnRoadPlanPut(X,Y,Typ) (also with versions for fields and wine)
-  States.GroupAtDefPos(PlayerID, PositionID)
-  Actions.AddDefPos(PlayerID, UnitType, X, Y, facing direction, defence radius, frontline: boolean)
-  Actions.RemDefPos(PlayerID, PositionID)
-  Allow high volume boost for positional script sounds (currently limited to 1.0) since they are much quieter than non-positional sounds
+	States.HouseCanReachResources: boolean (for mines, fisher and woodcutters)
+	OnHousePlanPut(aHouseID)
+	HousePlanAt(X, Y), returns aPlanID.
+	HousePlanType(aPlanID), returns the type of the house plan.
+	OnRoadPlanPut(X,Y,Typ) (also with versions for fields and wine)
+	States.GroupAtDefPos(PlayerID, PositionID)
+	Actions.AddDefPos(PlayerID, UnitType, X, Y, facing direction, defence radius, frontline: boolean)
+	Actions.RemDefPos(PlayerID, PositionID)
+	Allow high volume boost for positional script sounds (currently limited to 1.0) since they are much quieter than non-positional sounds
+	Add flag to allow to kill units with death animation, but without sound
