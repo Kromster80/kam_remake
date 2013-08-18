@@ -1,6 +1,6 @@
 /// :: Fun with Flags! ::
 /// **** FLORESCENCE ****
-/// *     v1.0 r20      *
+/// *     v1.1 r21      *
 /// * by Siegfried 2013 *
 ///
 /// licenced under GPLv2
@@ -538,8 +538,8 @@ begin
 		else if NOT FLAG_UNLOCKED[flg] then txtfirst := txtfirst + ' [' + IntToStr(SCORES[loc][flg]) + ']: <<$18> ' + IntToStr(FLAGS[flg].unlocked_at) + '>';
       end;
 	  final: begin
-	    txtfinal := txtfinal + '|<$' + IntToStr(flg) + '> [' + IntToStr(SCORES[loc][flg]) + ' <$19> ' + IntToStr(FLAGS[flg].unlocked_at) + ']: ';
-		for i := 1 to LOCATIONS_TOTAL do if TEAM_OF_PLAYER[i] = 0 then if ((flg = NUM_FLAGS - 1) AND HAS_FINALFLAG_ONE[i]) OR ((flg = NUM_FLAGS) AND HAS_FINALFLAG_TWO[i]) then txtfinal := txtfinal + PlayerColorName(i) + ' (' + IntToStr(SCORES[i][flg]) + ')[] ';
+	    txtfinal := txtfinal + '|<$' + IntToStr(flg) + '> [' + IntToStr(SCORES[loc][flg]) + ' <$19> ' + IntToStr(FLAGS[flg].unlocked_at) + ']:';
+		for i := 1 to LOCATIONS_TOTAL do if TEAM_OF_PLAYER[i] = 0 then if ((flg = NUM_FLAGS - 1) AND HAS_FINALFLAG_ONE[i]) OR ((flg = NUM_FLAGS) AND HAS_FINALFLAG_TWO[i]) then txtfinal := txtfinal + ' [$' + PlayerColorsCorrected(i) + '](' + IntToStr(SCORES[i][flg]) + ')[]';
 		// up to now, only unteamed players who posses the final flag have been added to the list - now also add the teams
 		txtfinal := txtfinal + TeamFinalFlagText(loc, flg);
       end;
@@ -1022,6 +1022,7 @@ procedure OnHouseDestroyed(aHouseID: integer; aDestroyerIndex: integer);
 var
   owner: integer;
   xcoord: integer;
+  i: integer;
 begin
   if (aDestroyerIndex < 0) OR (aDestroyerIndex >= LOCATIONS_TOTAL) then EXIT;
   if NOT States.HouseIsComplete(aHouseID) then EXIT;
@@ -1029,13 +1030,18 @@ begin
   if (owner < 0) OR (owner >= LOCATIONS_TOTAL) then EXIT;
   if aDestroyerIndex <> owner then
   begin
-    Inc(SCORES[aDestroyerIndex + 1][3]); // -1 for losing house (owner)
-	Dec(SCORES[owner + 1][3]); // +1 for destroying house (attacker)
+    Inc(SCORES[aDestroyerIndex + 1][3]); // +1 for destroying house (attacker)
+	Dec(SCORES[owner + 1][3]); // -1 for losing house (owner)
   end
   else // demolished by owner
   begin
     xcoord := States.HousePositionX(aHouseID); // y-coord not needed because the valley is rectangular from y = 0 to y = y_max <- map specific!
-	if (xcoord > 83) AND (xcoord < 125) then SCORES[owner + 1][3] := SCORES[owner + 1][3] - 2; // -1 for losing house (owner) and -1 for denying attacker the score
+	if (xcoord > 83) AND (xcoord < 125) then
+	begin
+	  Dec(SCORES[owner + 1][3]); // -1 for losing house (owner)
+	  // increase score number for all other players if they are not teamed up with the owner
+	  for i := 1 to LOCATIONS_TOTAL do if (States.PlayerEnabled(i)) AND (i <> owner + 1) AND ((TEAM_OF_PLAYER[i] <> TEAM_OF_PLAYER[owner + 1]) OR (TEAM_OF_PLAYER[i] = 0)) then Inc(SCORES[i][3]); // +1 for destroying house (attacker)
+	end
   end
 end;
 
