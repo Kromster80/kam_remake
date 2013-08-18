@@ -17,7 +17,7 @@
     <node id="n0">
       <data key="d6">
         <y:ShapeNode>
-          <y:Geometry height="30.0" width="200.0" x="524.1666666666667" y="115.0"/>
+          <y:Geometry height="30.0" width="200.0" x="539.0178571428571" y="-545.0"/>
           <y:Fill color="#00CCFF" transparent="false"/>
           <y:BorderStyle color="#000000" type="line" width="1.0"/>
           <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="18.701171875" modelName="custom" textColor="#000000" visible="true" width="156.0625" x="21.96875" y="5.6494140625">String types in KaM Remake<y:LabelModel>
@@ -34,7 +34,7 @@
     <node id="n1">
       <data key="d6">
         <y:ShapeNode>
-          <y:Geometry height="30.0" width="120.0" x="145.0" y="255.0"/>
+          <y:Geometry height="30.0" width="120.0" x="145.0" y="-345.0"/>
           <y:Fill color="#99CC00" transparent="false"/>
           <y:BorderStyle color="#000000" type="line" width="1.0"/>
           <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="18.701171875" modelName="custom" textColor="#000000" visible="true" width="38.67578125" x="40.662109375" y="5.6494140625">UI text<y:LabelModel>
@@ -51,7 +51,7 @@
     <node id="n2">
       <data key="d6">
         <y:ShapeNode>
-          <y:Geometry height="50.0" width="120.0" x="330.625" y="309.1666666666667"/>
+          <y:Geometry height="50.0" width="120.0" x="344.73214285714283" y="-347.85714285714283"/>
           <y:Fill color="#99CCFF" transparent="false"/>
           <y:BorderStyle color="#000000" type="line" width="1.0"/>
           <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="33.40234375" modelName="custom" textColor="#000000" visible="true" width="104.037109375" x="7.9814453125" y="8.298828125">UnicodeString
@@ -69,7 +69,7 @@ mostly 2byte chars<y:LabelModel>
     <node id="n3">
       <data key="d6">
         <y:ShapeNode>
-          <y:Geometry height="80.0" width="120.0" x="330.625" y="90.0"/>
+          <y:Geometry height="80.0" width="120.0" x="344.73214285714283" y="-570.0"/>
           <y:Fill color="#99CCFF" transparent="false"/>
           <y:BorderStyle color="#000000" type="line" width="1.0"/>
           <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="62.8046875" modelName="custom" textColor="#000000" visible="true" width="108.0625" x="5.96875" y="8.59765625">AnsiString
@@ -89,10 +89,10 @@ faster to process<y:LabelModel>
     <node id="n4">
       <data key="d6">
         <y:ShapeNode>
-          <y:Geometry height="30.0" width="120.0" x="145.0" y="315.0"/>
+          <y:Geometry height="30.0" width="120.0" x="145.0" y="-285.0"/>
           <y:Fill color="#99CC00" transparent="false"/>
           <y:BorderStyle color="#000000" type="line" width="1.0"/>
-          <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="18.701171875" modelName="custom" textColor="#000000" visible="true" width="81.3671875" x="19.31640625" y="5.6494140625">User input text<y:LabelModel>
+          <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="18.701171875" modelName="custom" textColor="#000000" visible="true" width="52.0234375" x="33.98828125" y="5.6494140625">Chat text<y:LabelModel>
               <y:SmartNodeLabelModel distance="4.0"/>
             </y:LabelModel>
             <y:ModelParameter>
@@ -106,7 +106,7 @@ faster to process<y:LabelModel>
     <node id="n5">
       <data key="d6">
         <y:ShapeNode>
-          <y:Geometry height="30.0" width="120.0" x="145.0" y="135.0"/>
+          <y:Geometry height="30.0" width="120.0" x="145.0" y="-525.0"/>
           <y:Fill color="#99CC00" transparent="false"/>
           <y:BorderStyle color="#000000" type="line" width="1.0"/>
           <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="18.701171875" modelName="custom" textColor="#000000" visible="true" width="82.6796875" x="18.66015625" y="5.6494140625">Mission scripts<y:LabelModel>
@@ -123,7 +123,7 @@ faster to process<y:LabelModel>
     <node id="n6">
       <data key="d6">
         <y:ShapeNode>
-          <y:Geometry height="30.0" width="120.0" x="145.0" y="75.0"/>
+          <y:Geometry height="30.0" width="120.0" x="145.0" y="-585.0"/>
           <y:Fill color="#99CC00" transparent="false"/>
           <y:BorderStyle color="#000000" type="line" width="1.0"/>
           <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="18.701171875" modelName="custom" textColor="#000000" visible="true" width="88.6796875" x="15.66015625" y="5.6494140625">Dynamic scripts<y:LabelModel>
@@ -140,7 +140,7 @@ faster to process<y:LabelModel>
     <node id="n7">
       <data key="d6">
         <y:ShapeNode>
-          <y:Geometry height="30.0" width="120.0" x="145.0" y="375.0"/>
+          <y:Geometry height="30.0" width="120.0" x="145.0" y="-225.0"/>
           <y:Fill color="#99CC00" transparent="false"/>
           <y:BorderStyle color="#000000" type="line" width="1.0"/>
           <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="18.701171875" modelName="custom" textColor="#000000" visible="true" width="71.365234375" x="24.3173828125" y="5.6494140625">Player name<y:LabelModel>
@@ -157,7 +157,7 @@ faster to process<y:LabelModel>
     <node id="n8">
       <data key="d6">
         <y:ShapeNode>
-          <y:Geometry height="30.0" width="120.0" x="0.0" y="555.0"/>
+          <y:Geometry height="30.0" width="120.0" x="0.0" y="-45.0"/>
           <y:Fill color="#99CC00" transparent="false"/>
           <y:BorderStyle color="#000000" type="line" width="1.0"/>
           <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="18.701171875" modelName="custom" textColor="#000000" visible="true" width="88.03515625" x="15.982421875" y="5.6494140625">Mission name ?<y:LabelModel>
@@ -174,7 +174,7 @@ faster to process<y:LabelModel>
     <node id="n9">
       <data key="d6">
         <y:ShapeNode>
-          <y:Geometry height="30.0" width="120.0" x="145.0" y="195.0"/>
+          <y:Geometry height="30.0" width="120.0" x="145.0" y="-405.0"/>
           <y:Fill color="#99CC00" transparent="false"/>
           <y:BorderStyle color="#000000" type="line" width="1.0"/>
           <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="18.701171875" modelName="custom" textColor="#000000" visible="true" width="96.033203125" x="11.9833984375" y="5.6494140625">FileSystem paths<y:LabelModel>
@@ -191,7 +191,7 @@ faster to process<y:LabelModel>
     <node id="n10">
       <data key="d6">
         <y:ShapeNode>
-          <y:Geometry height="30.0" width="120.0" x="0.0" y="495.0"/>
+          <y:Geometry height="30.0" width="120.0" x="0.0" y="-105.0"/>
           <y:Fill color="#99CC00" transparent="false"/>
           <y:BorderStyle color="#000000" type="line" width="1.0"/>
           <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="18.701171875" modelName="custom" textColor="#000000" visible="true" width="100.708984375" x="9.6455078125" y="5.6494140625">Room password ?<y:LabelModel>
@@ -208,7 +208,7 @@ faster to process<y:LabelModel>
     <node id="n11">
       <data key="d6">
         <y:ShapeNode>
-          <y:Geometry height="30.0" width="120.0" x="0.0" y="435.0"/>
+          <y:Geometry height="30.0" width="120.0" x="0.0" y="-165.0"/>
           <y:Fill color="#99CC00" transparent="false"/>
           <y:BorderStyle color="#000000" type="line" width="1.0"/>
           <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="18.701171875" modelName="custom" textColor="#000000" visible="true" width="68.037109375" x="25.9814453125" y="5.6494140625">Locale texts<y:LabelModel>
@@ -223,13 +223,12 @@ faster to process<y:LabelModel>
       </data>
     </node>
     <node id="n12">
-      <data key="d5"/>
       <data key="d6">
         <y:ShapeNode>
-          <y:Geometry height="30.0" width="80.0" x="165.0" y="435.0"/>
+          <y:Geometry height="30.0" width="80.0" x="165.0" y="-165.0"/>
           <y:Fill color="#FFCC00" transparent="false"/>
           <y:BorderStyle color="#000000" type="line" width="1.0"/>
-          <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="18.701171875" modelName="custom" textColor="#000000" visible="true" width="61.369140625" x="9.3154296875" y="5.6494140625">to Unicode<y:LabelModel>
+          <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="18.701171875" modelName="custom" textColor="#000000" visible="true" width="88.046875" x="-4.0234375" y="5.6494140625">Ansi to Unicode<y:LabelModel>
               <y:SmartNodeLabelModel distance="4.0"/>
             </y:LabelModel>
             <y:ModelParameter>
@@ -243,7 +242,7 @@ faster to process<y:LabelModel>
     <node id="n13">
       <data key="d6">
         <y:ShapeNode>
-          <y:Geometry height="60.0" width="120.0" x="330.625" y="0.0"/>
+          <y:Geometry height="60.0" width="120.0" x="344.73214285714283" y="-660.0"/>
           <y:Fill color="#99CCFF" transparent="false"/>
           <y:BorderStyle color="#000000" type="line" width="1.0"/>
           <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="48.103515625" modelName="custom" textColor="#000000" visible="true" width="90.712890625" x="14.6435546875" y="5.9482421875">String
@@ -260,10 +259,9 @@ Delphi / Lazarus<y:LabelModel>
       </data>
     </node>
     <node id="n14">
-      <data key="d5"/>
       <data key="d6">
         <y:ShapeNode>
-          <y:Geometry height="30.0" width="80.0" x="165.0" y="15.0"/>
+          <y:Geometry height="30.0" width="80.0" x="165.0" y="-645.0"/>
           <y:Fill color="#FFCC00" transparent="false"/>
           <y:BorderStyle color="#000000" type="line" width="1.0"/>
           <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="18.701171875" modelName="custom" textColor="#000000" visible="true" width="42.021484375" x="18.9892578125" y="5.6494140625">Unsafe<y:LabelModel>
@@ -278,10 +276,9 @@ Delphi / Lazarus<y:LabelModel>
       </data>
     </node>
     <node id="n15">
-      <data key="d5"/>
       <data key="d6">
         <y:ShapeNode>
-          <y:Geometry height="30.0" width="80.0" x="165.0" y="502.5"/>
+          <y:Geometry height="30.0" width="80.0" x="165.0" y="-97.5"/>
           <y:Fill color="#FFCC00" transparent="false"/>
           <y:BorderStyle color="#000000" type="line" width="1.0"/>
           <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="18.701171875" modelName="custom" textColor="#000000" visible="true" width="65.376953125" x="7.3115234375" y="5.6494140625">only Latin ?<y:LabelModel>
@@ -295,8 +292,24 @@ Delphi / Lazarus<y:LabelModel>
         </y:ShapeNode>
       </data>
     </node>
+    <node id="n16">
+      <data key="d6">
+        <y:ShapeNode>
+          <y:Geometry height="30.0" width="120.0" x="145.0" y="-465.0"/>
+          <y:Fill color="#99CC00" transparent="false"/>
+          <y:BorderStyle color="#000000" type="line" width="1.0"/>
+          <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="18.701171875" modelName="custom" textColor="#000000" visible="true" width="93.3671875" x="13.31640625" y="5.6494140625">Mission filename<y:LabelModel>
+              <y:SmartNodeLabelModel distance="4.0"/>
+            </y:LabelModel>
+            <y:ModelParameter>
+              <y:SmartNodeLabelModelParameter labelRatioX="0.0" labelRatioY="0.0" nodeRatioX="0.0" nodeRatioY="0.0" offsetX="0.0" offsetY="0.0" upX="0.0" upY="-1.0"/>
+            </y:ModelParameter>
+          </y:NodeLabel>
+          <y:Shape type="rectangle"/>
+        </y:ShapeNode>
+      </data>
+    </node>
     <edge id="e0" source="n11" target="n12">
-      <data key="d9"/>
       <data key="d10">
         <y:PolyLineEdge>
           <y:Path sx="60.0" sy="-0.0" tx="-40.0" ty="-0.0"/>
@@ -307,12 +320,11 @@ Delphi / Lazarus<y:LabelModel>
       </data>
     </edge>
     <edge id="e1" source="n12" target="n2">
-      <data key="d9"/>
       <data key="d10">
         <y:PolyLineEdge>
-          <y:Path sx="40.0" sy="-0.0" tx="-60.0" ty="12.5">
-            <y:Point x="275.0" y="450.0"/>
-            <y:Point x="315.625" y="346.6666666666667"/>
+          <y:Path sx="40.0" sy="-0.0" tx="-60.0" ty="14.285714285714334">
+            <y:Point x="275.0" y="-150.0"/>
+            <y:Point x="329.73214285714283" y="-308.5714285714285"/>
           </y:Path>
           <y:LineStyle color="#000000" type="line" width="1.0"/>
           <y:Arrows source="none" target="standard"/>
@@ -321,12 +333,11 @@ Delphi / Lazarus<y:LabelModel>
       </data>
     </edge>
     <edge id="e2" source="n7" target="n2">
-      <data key="d9"/>
       <data key="d10">
         <y:PolyLineEdge>
-          <y:Path sx="60.0" sy="-0.0" tx="-60.0" ty="4.166666666666668">
-            <y:Point x="275.0" y="390.0"/>
-            <y:Point x="315.625" y="338.33333333333337"/>
+          <y:Path sx="60.0" sy="-0.0" tx="-60.0" ty="7.142857142857167">
+            <y:Point x="275.0" y="-210.0"/>
+            <y:Point x="329.73214285714283" y="-315.71428571428567"/>
           </y:Path>
           <y:LineStyle color="#000000" type="line" width="1.0"/>
           <y:Arrows source="none" target="standard"/>
@@ -335,23 +346,11 @@ Delphi / Lazarus<y:LabelModel>
       </data>
     </edge>
     <edge id="e3" source="n4" target="n2">
-      <data key="d9"/>
       <data key="d10">
         <y:PolyLineEdge>
-          <y:Path sx="60.0" sy="-0.0" tx="-60.0" ty="-4.166666666666664"/>
-          <y:LineStyle color="#000000" type="line" width="1.0"/>
-          <y:Arrows source="none" target="standard"/>
-          <y:BendStyle smoothed="false"/>
-        </y:PolyLineEdge>
-      </data>
-    </edge>
-    <edge id="e4" source="n1" target="n2">
-      <data key="d9"/>
-      <data key="d10">
-        <y:PolyLineEdge>
-          <y:Path sx="60.0" sy="-0.0" tx="-60.0" ty="-12.5">
-            <y:Point x="275.0" y="270.0"/>
-            <y:Point x="315.625" y="321.6666666666667"/>
+          <y:Path sx="60.0" sy="-0.0" tx="-60.0" ty="-0.0">
+            <y:Point x="275.0" y="-270.0"/>
+            <y:Point x="329.73214285714283" y="-322.85714285714283"/>
           </y:Path>
           <y:LineStyle color="#000000" type="line" width="1.0"/>
           <y:Arrows source="none" target="standard"/>
@@ -359,8 +358,17 @@ Delphi / Lazarus<y:LabelModel>
         </y:PolyLineEdge>
       </data>
     </edge>
+    <edge id="e4" source="n1" target="n2">
+      <data key="d10">
+        <y:PolyLineEdge>
+          <y:Path sx="60.0" sy="-0.0" tx="-60.0" ty="-7.142857142857167"/>
+          <y:LineStyle color="#000000" type="line" width="1.0"/>
+          <y:Arrows source="none" target="standard"/>
+          <y:BendStyle smoothed="false"/>
+        </y:PolyLineEdge>
+      </data>
+    </edge>
     <edge id="e5" source="n5" target="n3">
-      <data key="d9"/>
       <data key="d10">
         <y:PolyLineEdge>
           <y:Path sx="60.0" sy="-0.0" tx="-60.0" ty="20.0"/>
@@ -371,12 +379,11 @@ Delphi / Lazarus<y:LabelModel>
       </data>
     </edge>
     <edge id="e6" source="n6" target="n3">
-      <data key="d9"/>
       <data key="d10">
         <y:PolyLineEdge>
           <y:Path sx="60.0" sy="-0.0" tx="-60.0" ty="-20.0">
-            <y:Point x="275.0" y="90.0"/>
-            <y:Point x="315.625" y="110.0"/>
+            <y:Point x="275.0" y="-570.0"/>
+            <y:Point x="329.73214285714283" y="-550.0"/>
           </y:Path>
           <y:LineStyle color="#000000" type="line" width="1.0"/>
           <y:Arrows source="none" target="standard"/>
@@ -385,12 +392,11 @@ Delphi / Lazarus<y:LabelModel>
       </data>
     </edge>
     <edge id="e7" source="n9" target="n2">
-      <data key="d9"/>
       <data key="d10">
         <y:PolyLineEdge>
-          <y:Path sx="60.0" sy="-0.0" tx="-60.0" ty="-20.83333333333333">
-            <y:Point x="275.0" y="210.0"/>
-            <y:Point x="315.625" y="313.33333333333337"/>
+          <y:Path sx="60.0" sy="-0.0" tx="-60.0" ty="-14.285714285714278">
+            <y:Point x="275.0" y="-390.0"/>
+            <y:Point x="329.73214285714283" y="-337.1428571428571"/>
           </y:Path>
           <y:LineStyle color="#000000" type="line" width="1.0"/>
           <y:Arrows source="none" target="standard"/>
@@ -399,7 +405,6 @@ Delphi / Lazarus<y:LabelModel>
       </data>
     </edge>
     <edge id="e8" source="n3" target="n0">
-      <data key="d9"/>
       <data key="d10">
         <y:PolyLineEdge>
           <y:Path sx="60.0" sy="-0.0" tx="-100.0" ty="-0.0"/>
@@ -410,12 +415,11 @@ Delphi / Lazarus<y:LabelModel>
       </data>
     </edge>
     <edge id="e9" source="n2" target="n0">
-      <data key="d9"/>
       <data key="d10">
         <y:PolyLineEdge>
           <y:Path sx="60.0" sy="-0.0" tx="-100.0" ty="10.0">
-            <y:Point x="460.625" y="334.1666666666667"/>
-            <y:Point x="509.1666666666667" y="140.0"/>
+            <y:Point x="474.73214285714283" y="-322.85714285714283"/>
+            <y:Point x="524.0178571428571" y="-520.0"/>
           </y:Path>
           <y:LineStyle color="#000000" type="line" width="1.0"/>
           <y:Arrows source="none" target="standard"/>
@@ -424,7 +428,6 @@ Delphi / Lazarus<y:LabelModel>
       </data>
     </edge>
     <edge id="e10" source="n14" target="n13">
-      <data key="d9"/>
       <data key="d10">
         <y:PolyLineEdge>
           <y:Path sx="40.0" sy="-0.0" tx="-60.0" ty="-0.0"/>
@@ -435,12 +438,11 @@ Delphi / Lazarus<y:LabelModel>
       </data>
     </edge>
     <edge id="e11" source="n13" target="n0">
-      <data key="d9"/>
       <data key="d10">
         <y:PolyLineEdge>
           <y:Path sx="60.0" sy="-0.0" tx="-100.0" ty="-10.0">
-            <y:Point x="460.625" y="30.0"/>
-            <y:Point x="509.1666666666667" y="120.0"/>
+            <y:Point x="474.73214285714283" y="-630.0"/>
+            <y:Point x="524.0178571428571" y="-540.0"/>
           </y:Path>
           <y:LineStyle color="#000000" type="line" width="1.0"/>
           <y:Arrows source="none" target="standard"/>
@@ -449,7 +451,6 @@ Delphi / Lazarus<y:LabelModel>
       </data>
     </edge>
     <edge id="e12" source="n10" target="n15">
-      <data key="d9"/>
       <data key="d10">
         <y:PolyLineEdge>
           <y:Path sx="60.0" sy="-0.0" tx="-34.65625" ty="-7.5"/>
@@ -460,12 +461,11 @@ Delphi / Lazarus<y:LabelModel>
       </data>
     </edge>
     <edge id="e13" source="n15" target="n2">
-      <data key="d9"/>
       <data key="d10">
         <y:PolyLineEdge>
-          <y:Path sx="40.0" sy="-0.0" tx="-60.0" ty="20.833333333333332">
-            <y:Point x="275.0" y="517.5"/>
-            <y:Point x="315.625" y="355.0"/>
+          <y:Path sx="40.0" sy="-0.0" tx="-60.0" ty="21.4285714285715">
+            <y:Point x="275.0" y="-82.5"/>
+            <y:Point x="329.73214285714283" y="-301.42857142857133"/>
           </y:Path>
           <y:LineStyle color="#000000" type="line" width="1.0"/>
           <y:Arrows source="none" target="standard"/>
@@ -474,12 +474,25 @@ Delphi / Lazarus<y:LabelModel>
       </data>
     </edge>
     <edge id="e14" source="n8" target="n15">
-      <data key="d9"/>
       <data key="d10">
         <y:PolyLineEdge>
           <y:Path sx="60.0" sy="-0.0" tx="-34.65625" ty="7.5">
-            <y:Point x="130.0" y="570.0"/>
-            <y:Point x="150.0" y="525.0"/>
+            <y:Point x="130.0" y="-30.0"/>
+            <y:Point x="150.0" y="-75.0"/>
+          </y:Path>
+          <y:LineStyle color="#000000" type="line" width="1.0"/>
+          <y:Arrows source="none" target="standard"/>
+          <y:BendStyle smoothed="false"/>
+        </y:PolyLineEdge>
+      </data>
+    </edge>
+    <edge id="e15" source="n16" target="n2">
+      <data key="d9"/>
+      <data key="d10">
+        <y:PolyLineEdge>
+          <y:Path sx="60.0" sy="-0.0" tx="-60.0" ty="-21.428571428571388">
+            <y:Point x="275.0" y="-450.0"/>
+            <y:Point x="329.73214285714283" y="-344.2857142857142"/>
           </y:Path>
           <y:LineStyle color="#000000" type="line" width="1.0"/>
           <y:Arrows source="none" target="standard"/>

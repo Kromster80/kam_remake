@@ -48,7 +48,8 @@ begin
     ColumnBox_Camps := TKMColumnBox.Create(Panel_CampSelect, 80, 180, 575, 360, fnt_Grey, bsMenu);
     ColumnBox_Camps.SetColumns(fnt_Outline, [gResTexts[TX_MENU_CAMPAIGNS_TITLE],
                                              gResTexts[TX_MENU_CAMPAIGNS_MAPS_COUNT],
-                                             gResTexts[TX_MENU_CAMPAIGNS_MAPS_UNLOCKED], ''],
+                                             gResTexts[TX_MENU_CAMPAIGNS_MAPS_UNLOCKED],
+                                             ''], //Hidden column with campaign shortname
                                              [0, 305, 440, 575]);
     ColumnBox_Camps.Anchors := [];
     ColumnBox_Camps.SearchColumn := 0;
@@ -96,10 +97,13 @@ end;
 
 
 procedure TKMMenuCampaigns.ListChange(Sender: TObject);
-var Camp: TKMCampaign;
+var
+  CmpName: AnsiString;
+  Camp: TKMCampaign;
 begin
   Button_Camp_Start.Enable;
-  Camp := fGameApp.Campaigns.CampaignByTitle(ColumnBox_Camps.Rows[ColumnBox_Camps.ItemIndex].Cells[3].Caption);
+  CmpName := AnsiString(ColumnBox_Camps.Rows[ColumnBox_Camps.ItemIndex].Cells[3].Caption);
+  Camp := fGameApp.Campaigns.CampaignByTitle(CmpName);
 
   Image_CampsPreview.RX := Camp.BackGroundPic.RX;
   Image_CampsPreview.TexID := Camp.BackGroundPic.ID;
@@ -112,7 +116,7 @@ procedure TKMMenuCampaigns.StartClick(Sender: TObject);
 var
   CmpName: AnsiString;
 begin
-  CmpName := ColumnBox_Camps.Rows[ColumnBox_Camps.ItemIndex].Cells[3].Caption;
+  CmpName := AnsiString(ColumnBox_Camps.Rows[ColumnBox_Camps.ItemIndex].Cells[3].Caption);
   fOnPageChange(gpCampaign, CmpName);
 end;
 

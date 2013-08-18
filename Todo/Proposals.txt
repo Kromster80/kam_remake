@@ -1,7 +1,7 @@
 Ideas that have not been decided. Should be moved to Bugslist.txt when a decision is made
 We can discuss them in dialog-style and maybe move to GC issues later on
 <===================================================================================>
-  L Add lookout tower armed with endless arrows
+	L	Add lookout tower armed with endless arrows
 	L	Show the mining radius of the selected house or house that you are placing
 			Krom: Idea is okay. We need to display mining "strength" (think coalmine) as well, in some nice way, also show ranges of all houses of the same king to allow player to plan his mining better (e.g. avoid overlaps). Iron/Gold don't need this mostly, but Coal/Fish/Towers - do.
 			Krom: Another note - mining radies should show effective range with regard to walking legth.
@@ -9,7 +9,7 @@ We can discuss them in dialog-style and maybe move to GC issues later on
 	L	Gameplay mutators in multiplayer: no iron, no archers, no market, no towers, etc. Host can select multiple mutators.
 	L	People can cheat in MP during peacetime by digging a house/road over an enemy road or free land (block houses on enemy territory during peacetime?)
 			Krom: Easiest implementation seems to be floodfill from towns until areas make borders
-      Lewin: Agreed.
+			Lewin: Agreed.
 	L	AI warriors should automatically engage enemies within 3-4 tiles (happens in KaM?)
 			Krom: 2 tiles seems quite enough to me
 	L	Split network protocol (commands) into server-client level (queries, rooms, connecting, disconnecting) and game level (lobby, gameplay) [Lewin]
@@ -24,11 +24,10 @@ We can discuss them in dialog-style and maybe move to GC issues later on
 	L	Allow dedicated server host to do announcements (e.g. server will be closed in 5min, plz save and quit)
 	L	Add shortcut keys to common messsages in MP (defend here, attack, check ur base, etc.)
 		Allow to cancel builders tasks (e.g. roadbuilding)
-    Sound notification when MP game starts (some players join the lobby, hit ready and alt-tab waiting for game to start)
-
+		Sound notification when MP game starts (some players join the lobby, hit ready and alt-tab waiting for game to start)
 		Warriors should resume their last attack order after a fight "ends", so if you ask cavalry to attack archers they do not stop and stand still as soon as the first one dies because the others are not within direct reach. Probably all orders should be remembered and resumed after a fight, so if you ask a warrior to move somewhere and he bumps into a bowman, after killing him he should continue on his way.
-      Krom: Is it requested only for Attack orders, or Walk too?
-	Lewin: This is already working, right now it happens for attacking and walking which seems good to me.
+			Krom: Is it requested only for Attack orders, or Walk too?
+			Lewin: This is already working, right now it happens for attacking and walking which seems good to me.
 		Aggressive/defensive stances for soldiers, so they will attack a unit within a few tiles in aggressive mode and only start shooting when the enemy is close in defensive mode
 	L	Add a "seperate one unit from the group" button for scouting etc. (we can rearrange interface due to unused move/attack buttons)
 	L	Add a way to feed only <30% hungry units
@@ -49,13 +48,16 @@ We can discuss them in dialog-style and maybe move to GC issues later on
 		Allow saving from within replays. This would let you create a save of a game at a certain moment and continue playing from there, which could be good for practice (e.g. town building) or fun.
 		A way to order +100 weapons at weapon makers (shift + click?)
 		Invisible links between water bodies to connect water under bridges
-    Allow to start Remake with commandline parameters to autoconnect to MP server .\KamRemake.exe -ip 10.3.6.241 -port 2325 -room 0
+		Allow to start Remake with commandline parameters to autoconnect to MP server .\KamRemake.exe -ip 10.3.6.241 -port 2325 -room 0
 	L	Serfs that are f.e. taking corn to the mill should claim/lock a flour in the output before arriving, rather than only checking it when arriving (which usually means another serf takes it)
-      Krom: I dont think this is a good idea, that could slow deliveries down
-      Lewin: IMO it won't in almost all cases, it allows serfs to be more efficiently allocated. Remember that only 1 item is locked per serf bringing an item there, so only a few items will get locked. Right now it's very annoying when a serf drops something off and doesn't take an item out, and a serf from a long way away is made to walk there and take it instead. It also reduces overall traffic on the road networks. I think we could test it on Rayzel's map and see whether it's more efficient (compare overall productivity and average number of idle serfs?).
+			Krom: I dont think this is a good idea, that could slow deliveries down
+			Lewin: IMO it won't in almost all cases, it allows serfs to be more efficiently allocated. Remember that only 1 item is locked per serf bringing an item there, so only a few items will get locked. Right now it's very annoying when a serf drops something off and doesn't take an item out, and a serf from a long way away is made to walk there and take it instead. It also reduces overall traffic on the road networks. I think we could test it on Rayzel's map and see whether it's more efficient (compare overall productivity and average number of idle serfs?).
 	L	Pressing tab should cycle to next edit box (needs TabOrder like Delphi controls?)
 		Placing beacons in replays for educational purposes (e.g. while making a video for youtube)
 		Limit rate of the message notification sound to avoid sound spam when you lost many villagers
+		Add "Attack ground" for archers
+		Remove current group button in MapEd in Groups panel
+		Toggle feed button for troops between "feed" and "cancel"
 
 
 REJECTED:

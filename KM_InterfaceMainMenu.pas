@@ -48,7 +48,7 @@ type
   public
     constructor Create(X,Y: Word);
     destructor Destroy; override;
-    procedure PageChange(Dest: TKMMenuPage; aText: string = '');
+    procedure PageChange(Dest: TKMMenuPage; aText: UnicodeString = '');
     procedure AppendLoadingText(const aText: string);
     procedure ShowResultsMP(aMsg: TGameResultMsg);
     procedure ShowResultsSP(aMsg: TGameResultMsg);
@@ -197,7 +197,7 @@ begin
 end;
 
 
-procedure TKMMainMenuInterface.PageChange(Dest: TKMMenuPage; aText: string = '');
+procedure TKMMainMenuInterface.PageChange(Dest: TKMMenuPage; aText: UnicodeString = '');
 var
   I: Integer;
 begin
@@ -223,7 +223,7 @@ begin
                       else
                         Assert(False);
                     end;
-    gpCampaign:     fMenuCampaign.Show(aText);
+    gpCampaign:     fMenuCampaign.Show(AnsiString(aText));
     gpCampSelect:   fMenuCampaigns.Show;
     gpCredits:      fMenuCredits.Show;
     gpOptions:      fMenuOptions.Show;
