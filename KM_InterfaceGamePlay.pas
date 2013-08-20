@@ -6,7 +6,7 @@ uses
   {$IFDEF Unix} LCLIntf, LCLType, {$ENDIF}
   StrUtils, SysUtils, KromUtils, Math, Classes, Controls,
   KM_Controls, KM_CommonClasses, KM_CommonTypes, KM_Defaults, KM_Pics, KM_Points,
-  KM_InterfaceDefaults, KM_Terrain, KM_Houses, KM_HouseMarket, KM_Units,
+  KM_InterfaceDefaults, KM_Terrain, KM_Houses, KM_Units,
   KM_UnitGroups, KM_Units_Warrior, KM_Saves, KM_MessageStack, KM_ResHouses,
   KM_GUIGameHouse;
 
@@ -32,7 +32,7 @@ type
     ShownMessage: Integer;
     PlayMoreMsg: TGameResultMsg; //Remember which message we are showing
     fJoiningGroups, fPlacingBeacon: Boolean;
-    fAskDemolish, fAskDismiss: Boolean;
+    fAskDismiss: Boolean;
     fDragScrolling: Boolean;
     fDragScrollingCursorPos: TPoint;
     fDragScrollingViewportPos: TKMPointF;
