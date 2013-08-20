@@ -669,7 +669,7 @@ function TKMScriptStates.IsFieldAt(aPlayer: ShortInt; X, Y: Word): Boolean;
 begin
   Result := False;
   if InRange(aPlayer, -1, gPlayers.Count - 1) and gTerrain.TileInMapCoords(X, Y) then
-    Result := gTerrain.TileIsWineField(KMPoint(X,Y))
+    Result := gTerrain.TileIsCornField(KMPoint(X,Y))
               and ((aPlayer = -1) or (gTerrain.Land[Y, X].TileOwner = aPlayer))
   else
     LogError('States.IsFieldAt', [aPlayer, X, Y]);
