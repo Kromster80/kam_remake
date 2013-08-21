@@ -25,6 +25,8 @@ Proposed:
 	Way to add/remove recruits directly from barracks
 	ChangeMapTile
 	SetAIName
+	OnUnitAttacked
+	OnHouseAttacked
 	More options for on-screen text (background color, alignment, font, size, etc.)
 	States.PlayerIsAI(Index): Boolean;
 	Actions.AddDefensePosition, RemDefensePosition
