@@ -12,7 +12,7 @@ uses Classes, DateUtils, Math, SysUtils, KM_Defaults, KM_Points
   function GetPositionInGroup2(OriginX, OriginY: Word; aDir: TKMDirection; aIndex, aUnitPerRow: Word; MapX, MapY: Word; out aTargetCanBeReached: Boolean): TKMPoint;
   function GetPositionFromIndex(aOrigin: TKMPoint; aIndex: Byte): TKMPointI;
 
-  function FixDelim(const aString: string): string;
+  function FixDelim(const aString: UnicodeString): UnicodeString;
 
   procedure ConvertRGB2HSB(aR, aG, aB: Integer; out oH, oS, oB: Single);
   procedure ConvertHSB2RGB(aHue, aSat, aBri: Single; out R, G, B: Byte);
@@ -20,7 +20,7 @@ uses Classes, DateUtils, Math, SysUtils, KM_Defaults, KM_Points
   function GetPingColor(aPing: Word): Cardinal;
   function GetFPSColor(aFPS: Word): Cardinal;
   function FlagColorToTextColor(aColor: Cardinal): Cardinal;
-  function TimeToString(aTime: TDateTime): string;
+  function TimeToString(aTime: TDateTime): UnicodeString;
 
   procedure ParseDelimited(const Value, Delimiter: UnicodeString; SL: TStringList);
 
@@ -34,7 +34,7 @@ uses Classes, DateUtils, Math, SysUtils, KM_Defaults, KM_Points
   function TimeGet: Cardinal;
   function GetTimeSince(aTime: Cardinal): Cardinal;
 
-  function MapSizeText(X,Y: Word): string;
+  function MapSizeText(X,Y: Word): UnicodeString;
 
   //Taken from KromUtils to reduce dependancies (required so the dedicated server compiles on Linux without using Controls)
   procedure KMSwapInt(var A,B:byte); overload;
@@ -118,8 +118,9 @@ begin
 end;
 
 
-function MapSizeText(X,Y: Word): string;
+function MapSizeText(X,Y: Word): UnicodeString;
 begin
+  //Pretend these are understandable in any language
   case X * Y of
             1.. 48* 48: Result := 'XS';
      48* 48+1.. 80* 80: Result := 'S';
@@ -227,7 +228,7 @@ end;
 
 
 //Use this function to convert platform-specific path delimiters
-function FixDelim(const aString: string): string;
+function FixDelim(const aString: UnicodeString): UnicodeString;
 begin
   Result := StringReplace(aString, '\', PathDelim, [rfReplaceAll, rfIgnoreCase]);
 end;
@@ -401,7 +402,7 @@ end;
 
 //Convert DateTime to string xx:xx:xx where hours have at least 2 digits
 //F.e. we can have 72:12:34 for 3 days long game
-function TimeToString(aTime: TDateTime): string;
+function TimeToString(aTime: TDateTime): UnicodeString;
 begin
   //We can't use simple Trunc(aTime * 24 * 60 * 60) maths because it is prone to rounding errors
   //e.g. 3599 equals to 59:58 and 3600 equals to 59:59
