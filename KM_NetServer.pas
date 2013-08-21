@@ -849,7 +849,7 @@ begin
         with Node.AddChild('players') do
         begin
           Players.Clear;
-          ParseDelimited(Players, fRoomInfo[i].GameInfo.Players, '|');
+          ParseDelimited(fRoomInfo[i].GameInfo.Players, '|', Players);
           for k:=0 to Players.Count-1 do
             AddChild('player').Text := Players[k];
         end;

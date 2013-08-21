@@ -22,7 +22,7 @@ uses Classes, DateUtils, Math, SysUtils, KM_Defaults, KM_Points
   function FlagColorToTextColor(aColor: Cardinal): Cardinal;
   function TimeToString(aTime: TDateTime): string;
 
-  procedure ParseDelimited(const SL: TStringList; const Value: string; const Delimiter: string);
+  procedure ParseDelimited(const Value, Delimiter: UnicodeString; SL: TStringList);
 
   procedure SetKaMSeed(aSeed:integer);
   function GetKaMSeed:integer;
@@ -411,12 +411,12 @@ end;
 
 
 //Taken from: http://delphi.about.com/od/adptips2005/qt/parsedelimited.htm
-procedure ParseDelimited(const SL: TStringList; const Value: string; const Delimiter: string);
+procedure ParseDelimited(const Value, Delimiter: UnicodeString; SL: TStringList);
 var
-  dx: integer;
-  ns: string;
-  txt: string;
-  Delta: integer;
+  dx: Integer;
+  ns: UnicodeString;
+  txt: UnicodeString;
+  Delta: Integer;
 begin
   Delta := Length(Delimiter);
   txt := Value + Delimiter;
