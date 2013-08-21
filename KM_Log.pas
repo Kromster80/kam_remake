@@ -17,7 +17,7 @@ type
     procedure AddLineTime(const aText: UnicodeString);
     procedure AddLineNoTime(const aText: UnicodeString);
   public
-    constructor Create(const aPath: string);
+    constructor Create(const aPath: UnicodeString);
     // AppendLog adds the line to Log along with time passed since previous line added
     procedure AddTime(const aText: UnicodeString); overload;
     procedure AddTime(const aText: UnicodeString; num: Integer); overload;
@@ -26,11 +26,11 @@ type
     procedure AddTime(const aText: UnicodeString; Res: boolean); overload;
     procedure AddTime(a, b: integer); overload;
     // Add line if TestValue=false
-    procedure AddAssert(const aMessageText: string);
+    procedure AddAssert(const aMessageText: UnicodeString);
     // AddToLog simply adds the text
     procedure AddNoTime(const aText: UnicodeString);
     procedure DeleteOldLogs;
-    property LogPath: string read fLogPath; //Used by dedicated server
+    property LogPath: UnicodeString read fLogPath; //Used by dedicated server
   end;
 
   var
@@ -82,7 +82,7 @@ end;
 
 
 { TKMLog }
-constructor TKMLog.Create(const aPath: string);
+constructor TKMLog.Create(const aPath: UnicodeString);
 begin
   inherited Create;
   fLogPath := aPath;
@@ -173,7 +173,7 @@ end;
 
 procedure TKMLog.AddTime(const aText: UnicodeString; Res: boolean);
 var
-  s: string;
+  s: UnicodeString;
 begin
   if Self = nil then Exit;
 
@@ -193,7 +193,7 @@ begin
 end;
 
 
-procedure TKMLog.AddAssert(const aMessageText: string);
+procedure TKMLog.AddAssert(const aMessageText: UnicodeString);
 begin
   if Self = nil then Exit;
 
@@ -202,7 +202,7 @@ begin
 end;
 
 
-procedure TKMLog.AddNoTime(const aText: string);
+procedure TKMLog.AddNoTime(const aText: UnicodeString);
 begin
   if Self = nil then Exit;
 

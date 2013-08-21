@@ -141,7 +141,7 @@ type
     procedure CmdHouse(aCommandType: TGameInputCommandType; aHouse: TKMHouse; aItem: TWareType); overload;
     procedure CmdHouse(aCommandType: TGameInputCommandType; aHouse: TKMHouse; aWoodcutterMode: TWoodcutterMode); overload;
     procedure CmdHouse(aCommandType: TGameInputCommandType; aHouse: TKMHouse; aUnitType: TUnitType; aCount:byte); overload;
-    procedure CmdHouse(aCommandType: TGameInputCommandType; aHouse: TKMHouse; aItem:integer); overload;
+    procedure CmdHouse(aCommandType: TGameInputCommandType; aHouse: TKMHouse; aItem: Integer); overload;
 
     procedure CmdRatio(aCommandType: TGameInputCommandType; aRes: TWareType; aHouseType: THouseType; aValue:integer);
 
@@ -160,8 +160,8 @@ type
     procedure UpdateState(aTick:cardinal); virtual;
 
     //Replay methods
-    procedure SaveToFile(aFileName:string);
-    procedure LoadFromFile(aFileName:string);
+    procedure SaveToFile(aFileName: UnicodeString);
+    procedure LoadFromFile(aFileName: UnicodeString);
     property Count:integer read fCount;
     property ReplayState: TGIPReplayState read fReplayState;
     function GetLastTick:Cardinal;
@@ -548,7 +548,7 @@ begin
 end;
 
 
-procedure TGameInputProcess.SaveToFile(aFileName: string);
+procedure TGameInputProcess.SaveToFile(aFileName: UnicodeString);
 var
   I: integer;
   S: TKMemoryStream;
@@ -568,7 +568,7 @@ begin
 end;
 
 
-procedure TGameInputProcess.LoadFromFile(aFileName: string);
+procedure TGameInputProcess.LoadFromFile(aFileName: UnicodeString);
 var
   FileVersion: AnsiString;
   I: Integer;
