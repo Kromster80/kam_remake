@@ -35,7 +35,7 @@ type
     procedure SyncLoad; override;
     destructor Destroy; override;
     function ActName: TUnitActionName; override;
-    function GetExplanation:string; override;
+    function GetExplanation: UnicodeString; override;
     property GetHasStarted: boolean read fHasStarted;
     property GetWaitingForPush: boolean read fWaitingForPush;
     function GetDoorwaySlide(aCheck: TCheckAxis): Single;
@@ -124,7 +124,7 @@ begin
 end;
 
 
-function TUnitActionGoInOut.GetExplanation: string;
+function TUnitActionGoInOut.GetExplanation: UnicodeString;
 begin
   Result := 'Walking in/out';
 end;

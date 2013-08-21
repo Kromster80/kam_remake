@@ -32,7 +32,7 @@ type
 
     function ActName: TUnitActionName; virtual; abstract;
     property ActionType: TUnitActionType read fActionType;
-    function GetExplanation: string; virtual; abstract;
+    function GetExplanation: UnicodeString; virtual; abstract;
     function Execute: TActionResult; virtual; abstract;
     procedure Save(SaveStream: TKMemoryStream); virtual;
     procedure Paint; virtual;
@@ -146,7 +146,7 @@ type
     property GetUnitAction: TUnitAction read fCurrentAction;
     property UnitTask: TUnitTask read fUnitTask;
     property UnitType: TUnitType read fUnitType;
-    function GetUnitActText: string;
+    function GetUnitActText: UnicodeString;
     property Condition: Integer read fCondition write fCondition;
     procedure HitPointsDecrease(aAmount: Byte; aFrom: TPlayerIndex);
     property HitPointsMax: Byte read GetHitPointsMax;
@@ -176,7 +176,7 @@ type
     function VertexUsageCompatible(aFrom, aTo: TKMPoint): Boolean;
     procedure VertexAdd(aFrom, aTo: TKMPoint);
     procedure Walk(aFrom, aTo: TKMPoint);
-    function GetActivityText: string; virtual;
+    function GetActivityText: UnicodeString; virtual;
     function GetSlide(aCheck: TCheckAxis): Single;
     function PathfindingShouldAvoid: Boolean; virtual;
 
@@ -194,7 +194,7 @@ type
   public
     function WorkPlanProductValid(aProduct: TWareType): Boolean;
     function CanWorkAt(aLoc: TKMPoint; aGatheringScript: TGatheringScript): Boolean;
-    function GetActivityText: string; override;
+    function GetActivityText: UnicodeString; override;
     function UpdateState: Boolean; override;
     procedure Paint; override;
   end;
@@ -389,7 +389,7 @@ begin
 end;
 
 
-function TKMUnitCitizen.GetActivityText: string;
+function TKMUnitCitizen.GetActivityText: UnicodeString;
 begin
   Result := Inherited GetActivityText; //Default
   if fUnitTask is TTaskMining then
@@ -1284,7 +1284,7 @@ begin
 end;
 
 
-function TKMUnit.GetUnitActText: string;
+function TKMUnit.GetUnitActText: UnicodeString;
 begin
   Result := fCurrentAction.GetExplanation;
 end;
@@ -1763,7 +1763,7 @@ begin
 end;
 
 
-function TKMUnit.GetActivityText: string;
+function TKMUnit.GetActivityText: UnicodeString;
 const
   TASK_TEXT: array[TUnitTaskName] of Integer = (
       -1,-1,                   //utn_Unknown, utn_SelfTrain

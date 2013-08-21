@@ -110,7 +110,7 @@ type
     function IsRanged: Boolean;
     function IsDead: Boolean;
     function UnitType: TUnitType;
-    function GetOrderText: string;
+    function GetOrderText: UnicodeString;
     property GroupType: TGroupType read fGroupType;
     property UID: Integer read fUID;
     property Count: Integer read GetCount;
@@ -1226,7 +1226,7 @@ begin
 end;
 
 
-function TKMUnitGroup.GetOrderText: string;
+function TKMUnitGroup.GetOrderText: UnicodeString;
 begin
   case fOrder of
     goNone:         Result := 'Idle';

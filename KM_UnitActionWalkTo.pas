@@ -79,7 +79,7 @@ type
     function CanAbandonExternal: Boolean;
     property DoesWalking: Boolean read fDoesWalking;
     property DoingExchange: Boolean read fDoExchange; //Critical piece, must not be abandoned
-    function GetExplanation: string; override;
+    function GetExplanation: UnicodeString; override;
     function WalkingToUnit: Boolean; //Are we walking to a unit?
     function WasPushed: Boolean;
 
@@ -305,9 +305,9 @@ begin
 end;
 
 
-function TUnitActionWalkTo.GetExplanation:string;
+function TUnitActionWalkTo.GetExplanation: UnicodeString;
 begin
-  Result := TInteractionStatusNames[fInteractionStatus] + ': '+Explanation;
+  Result := TInteractionStatusNames[fInteractionStatus] + ': ' + Explanation;
 end;
 
 

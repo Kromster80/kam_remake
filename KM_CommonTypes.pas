@@ -17,7 +17,7 @@ type
   TIntegerEvent = procedure (aValue: Integer) of object;
   TUnicodeStringEvent = procedure (const aData: UnicodeString) of object;
   TResyncEvent = procedure (aSender: Integer; aTick: cardinal) of object;
-  TIntegerStringEvent = procedure (aValue: Integer; const aText: string) of object;
+  TIntegerStringEvent = procedure (aValue: Integer; const aText: UnicodeString) of object;
 
   TKMAnimLoop = packed record
                   Step: array [1 .. 30] of SmallInt;

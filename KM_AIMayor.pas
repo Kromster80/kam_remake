@@ -53,7 +53,7 @@ type
     procedure AfterMissionInit;
     property AutoRepair: Boolean read fAutoRepair write SetAutoRepair;
     procedure OwnerUpdate(aPlayer: TPlayerIndex);
-    function BalanceText: string;
+    function BalanceText: UnicodeString;
 
     procedure UpdateState(aTick: Cardinal);
     procedure Save(SaveStream: TKMemoryStream);
@@ -604,7 +604,7 @@ begin
 end;
 
 
-function TKMayor.BalanceText: string;
+function TKMayor.BalanceText: UnicodeString;
 begin
   Result := fBalance.BalanceText;
 end;

@@ -28,7 +28,7 @@ type
     // Add line if TestValue=false
     procedure AddAssert(const aMessageText: string);
     // AddToLog simply adds the text
-    procedure AddNoTime(const aText: string);
+    procedure AddNoTime(const aText: UnicodeString);
     procedure DeleteOldLogs;
     property LogPath: string read fLogPath; //Used by dedicated server
   end;
@@ -45,15 +45,15 @@ uses KM_Defaults;
 type
   TKMOldLogsDeleter = class(TThread)
   private
-    fPathToLogs: string;
+    fPathToLogs: UnicodeString;
   public
-    constructor Create(const aPathToLogs:string);
+    constructor Create(const aPathToLogs: UnicodeString);
     procedure Execute; override;
   end;
 
 
 { TKMOldLogsDeleter }
-constructor TKMOldLogsDeleter.Create(const aPathToLogs: string);
+constructor TKMOldLogsDeleter.Create(const aPathToLogs: UnicodeString);
 begin
   //Thread isn't started until all constructors have run to completion
   //so Create(False) may be put in front as well

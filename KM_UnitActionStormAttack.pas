@@ -22,7 +22,7 @@ type
     constructor Load(LoadStream: TKMemoryStream); override;
     destructor Destroy; override;
     function ActName: TUnitActionName; override;
-    function GetExplanation:string; override;
+    function GetExplanation: UnicodeString; override;
     function GetSpeed: Single;
     function Execute: TActionResult; override;
     procedure Save(SaveStream: TKMemoryStream); override;
@@ -76,7 +76,7 @@ begin
 end;
 
 
-function TUnitActionStormAttack.GetExplanation: string;
+function TUnitActionStormAttack.GetExplanation: UnicodeString;
 begin
   Result := 'Storming';
 end;

@@ -15,7 +15,7 @@ type
     constructor Create(aUnit: TKMUnit; aTimeToStay:integer; aActionType:TUnitActionType; aStayStill:boolean; aStillFrame:byte; aLocked:boolean);
     constructor Load(LoadStream:TKMemoryStream); override;
     function ActName: TUnitActionName; override;
-    function GetExplanation: string; override;
+    function GetExplanation: UnicodeString; override;
     function HowLongLeftToStay:integer;
     function Execute: TActionResult; override;
     procedure Save(SaveStream:TKMemoryStream); override;
@@ -51,7 +51,7 @@ begin
 end;
 
 
-function TUnitActionStay.GetExplanation: string;
+function TUnitActionStay.GetExplanation: UnicodeString;
 begin
   Result := 'Staying';
 end;

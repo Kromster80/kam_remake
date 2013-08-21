@@ -47,14 +47,14 @@ type
     fGameMode: TGameMode;
     fWaitingForNetwork: Boolean;
     fAdvanceFrame: Boolean; //Replay variable to advance 1 frame, afterwards set to false
-    fSaveFile: string;  //Relative pathname to savegame we are playing, so it gets saved to crashreport
+    fSaveFile: UnicodeString;  //Relative pathname to savegame we are playing, so it gets saved to crashreport
     fShowTeamNames: Boolean;
     fGameLockedMutex: Boolean;
 
   //Should be saved
     fCampaignMap: Byte;         //Which campaign map it is, so we can unlock next one on victory
     fCampaignName: AnsiString;  //Is this a game part of some campaign
-    fGameName: string;
+    fGameName: UnicodeString;
     fGameTickCount: Cardinal;
     fUIDTracker: Cardinal;       //Units-Houses tracker, to issue unique IDs
     fMissionFile: string;   //Relative pathname to mission we are playing, so it gets saved to crashreport
@@ -62,7 +62,7 @@ type
 
     procedure GameMPDisconnect(const aData: UnicodeString);
     procedure MultiplayerRig;
-    procedure SaveGame(const aPathName: string);
+    procedure SaveGame(const aPathName: UnicodeString);
     procedure UpdatePeaceTime;
     procedure SyncUI;
   public
@@ -118,12 +118,12 @@ type
     function IsMapEditor: Boolean;
     function IsMultiplayer: Boolean;
     function IsReplay: Boolean;
-    procedure ShowMessage(aKind: TKMMessageKind; aText: string; aLoc: TKMPoint);
-    procedure ShowMessageFormatted(aKind: TKMMessageKind; aText: string; aLoc: TKMPoint; aParams: array of const);
-    procedure ShowOverlay(aText: string);
-    procedure ShowOverlayFormatted(aText: string; aParams: array of const);
-    procedure OverlayAppend(aText: string);
-    procedure OverlayAppendFormatted(aText: string; aParams: array of const);
+    procedure ShowMessage(aKind: TKMMessageKind; aText: UnicodeString; aLoc: TKMPoint);
+    procedure ShowMessageFormatted(aKind: TKMMessageKind; aText: UnicodeString; aLoc: TKMPoint; aParams: array of const);
+    procedure ShowOverlay(aText: UnicodeString);
+    procedure ShowOverlayFormatted(aText: UnicodeString; aParams: array of const);
+    procedure OverlayAppend(aText: UnicodeString);
+    procedure OverlayAppendFormatted(aText: UnicodeString; aParams: array of const);
     property GameTickCount:cardinal read fGameTickCount;
     property GameName: string read fGameName;
     property CampaignName: AnsiString read fCampaignName;
@@ -982,13 +982,13 @@ begin
 end;
 
 
-procedure TKMGame.ShowMessage(aKind: TKMMessageKind; aText: string; aLoc: TKMPoint);
+procedure TKMGame.ShowMessage(aKind: TKMMessageKind; aText: UnicodeString; aLoc: TKMPoint);
 begin
   fGamePlayInterface.MessageIssue(aKind, fTextMission.ParseTextMarkup(aText), aLoc);
 end;
 
 
-procedure TKMGame.ShowMessageFormatted(aKind: TKMMessageKind; aText: string; aLoc: TKMPoint; aParams: array of const);
+procedure TKMGame.ShowMessageFormatted(aKind: TKMMessageKind; aText: UnicodeString; aLoc: TKMPoint; aParams: array of const);
 var S: UnicodeString;
 begin
   //We must parse for text markup before AND after running Format, since individual format
@@ -998,13 +998,13 @@ begin
 end;
 
 
-procedure TKMGame.ShowOverlay(aText: string);
+procedure TKMGame.ShowOverlay(aText: UnicodeString);
 begin
   fGamePlayInterface.SetScriptedOverlay(fTextMission.ParseTextMarkup(aText));
 end;
 
 
-procedure TKMGame.ShowOverlayFormatted(aText: string; aParams: array of const);
+procedure TKMGame.ShowOverlayFormatted(aText: UnicodeString; aParams: array of const);
 var S: UnicodeString;
 begin
   //We must parse for text markup before AND after running Format, since individual format
@@ -1014,13 +1014,13 @@ begin
 end;
 
 
-procedure TKMGame.OverlayAppend(aText: string);
+procedure TKMGame.OverlayAppend(aText: UnicodeString);
 begin
   fGamePlayInterface.AppendScriptedOverlay(fTextMission.ParseTextMarkup(aText));
 end;
 
 
-procedure TKMGame.OverlayAppendFormatted(aText: string; aParams: array of const);
+procedure TKMGame.OverlayAppendFormatted(aText: UnicodeString; aParams: array of const);
 var S: UnicodeString;
 begin
   //We must parse for text markup before AND after running Format, since individual format
@@ -1144,7 +1144,7 @@ end;
 
 
 //Saves the game in all its glory
-procedure TKMGame.SaveGame(const aPathName: string);
+procedure TKMGame.SaveGame(const aPathName: UnicodeString);
 var
   SaveStream: TKMemoryStream;
   fGameInfo: TKMGameInfo;

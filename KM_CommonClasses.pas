@@ -149,7 +149,7 @@ type
   //Custom Exception that includes a TKMPoint
   ELocError = class(Exception)
     Loc: TKMPoint;
-    constructor Create(const aMsg: string; aLoc: TKMPoint);
+    constructor Create(const aMsg: UnicodeString; aLoc: TKMPoint);
   end;
 
 
@@ -158,7 +158,7 @@ uses KM_Utils;
 
 
 { ELocError }
-constructor ELocError.Create(const aMsg: string; aLoc: TKMPoint);
+constructor ELocError.Create(const aMsg: UnicodeString; aLoc: TKMPoint);
 begin
   inherited Create(aMsg);
   Loc := aLoc;

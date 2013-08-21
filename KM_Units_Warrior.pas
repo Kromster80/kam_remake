@@ -57,7 +57,7 @@ type
     procedure CloseUnit(aRemoveTileUsage: Boolean = True); override;
     destructor Destroy; override;
 
-    function GetWarriorActivityText(aIsAttackingUnit: Boolean): string;
+    function GetWarriorActivityText(aIsAttackingUnit: Boolean): UnicodeString;
     procedure KillUnit(aFrom: TPlayerIndex; aShowAnimation, aForceDelay: Boolean); override;
 
     //Commands from TKMUnitGroup
@@ -354,7 +354,7 @@ end;
 
 
 //Only the group knows the difference between Walking and Attacking unit, so we need aIsAttackingUnit parameter
-function TKMUnitWarrior.GetWarriorActivityText(aIsAttackingUnit: Boolean): string;
+function TKMUnitWarrior.GetWarriorActivityText(aIsAttackingUnit: Boolean): UnicodeString;
 begin
   //We can't rely on fOrder because it does not get reset, so look at actions/tasks
   if fCurrentAction is TUnitActionFight then

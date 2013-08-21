@@ -127,10 +127,10 @@ type
     constructor Create(aLocale, aFallback, aDefault: AnsiString);
     destructor Destroy; override;
 
-    function FileOfCitizen(aUnitType:TUnitType; aSound:TWarriorSpeech):string;
-    function FileOfNewSFX(aSFX: TSoundFXNew): string;
-    function FileOfNotification(aSound:TAttackNotification; aNumber:byte):string;
-    function FileOfWarrior(aUnitType:TUnitType; aSound:TWarriorSpeech; aNumber:byte):string;
+    function FileOfCitizen(aUnitType: TUnitType; aSound: TWarriorSpeech): UnicodeString;
+    function FileOfNewSFX(aSFX: TSoundFXNew): UnicodeString;
+    function FileOfNotification(aSound: TAttackNotification; aNumber: Byte): UnicodeString;
+    function FileOfWarrior(aUnitType: TUnitType; aSound: TWarriorSpeech; aNumber: Byte): UnicodeString;
 
     procedure ExportSounds;
   end;
@@ -282,7 +282,7 @@ begin
 end;
 
 
-function TKMResSounds.FileOfCitizen(aUnitType: TUnitType; aSound: TWarriorSpeech): string;
+function TKMResSounds.FileOfCitizen(aUnitType: TUnitType; aSound: TWarriorSpeech): UnicodeString;
 var SoundID: Byte;
 begin
   if not (aUnitType in [CITIZEN_MIN..CITIZEN_MAX]) then Exit;
@@ -296,7 +296,7 @@ begin
 end;
 
 
-function TKMResSounds.FileOfWarrior(aUnitType:TUnitType; aSound:TWarriorSpeech; aNumber:byte):string;
+function TKMResSounds.FileOfWarrior(aUnitType: TUnitType; aSound: TWarriorSpeech; aNumber: Byte): UnicodeString;
 var
   S:string;
 begin
@@ -312,14 +312,15 @@ begin
 end;
 
 
-function TKMResSounds.FileOfNewSFX(aSFX: TSoundFXNew): string;
+function TKMResSounds.FileOfNewSFX(aSFX: TSoundFXNew): UnicodeString;
 begin
   Result := ExeDir + NewSFXFolder + NewSFXFile[aSFX];
 end;
 
 
-function TKMResSounds.FileOfNotification(aSound:TAttackNotification; aNumber:byte):string;
-var S:string;
+function TKMResSounds.FileOfNotification(aSound: TAttackNotification; aNumber: Byte): UnicodeString;
+var
+  S: UnicodeString;
 begin
   S := ExeDir + 'data'+PathDelim+'sfx'+PathDelim+'speech.'+fLocaleString+ PathDelim + AttackNotifications[aSound] + int2fix(aNumber,2);
   Result := '';

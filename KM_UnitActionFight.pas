@@ -25,7 +25,7 @@ type
     constructor Load(LoadStream:TKMemoryStream); override;
     destructor Destroy; override;
     function ActName: TUnitActionName; override;
-    function GetExplanation:string; override;
+    function GetExplanation: UnicodeString; override;
     procedure SyncLoad; override;
     property GetOpponent: TKMUnit read fOpponent;
     function Execute: TActionResult; override;
@@ -94,7 +94,7 @@ begin
 end;
 
 
-function TUnitActionFight.GetExplanation: string;
+function TUnitActionFight.GetExplanation: UnicodeString;
 begin
   Result := 'Fighting';
 end;

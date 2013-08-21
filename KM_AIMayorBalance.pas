@@ -88,12 +88,12 @@ type
     fWarfare: TKMWareBalanceWarfare;
 
     //For debugging (doesn't need saving)
-    fCoreText: string;
-    fMaterialsText: string;
-    fGoldText: string;
-    fFoodText: string;
-    fWarfareText: string;
-    fAdviceText: string;
+    fCoreText: UnicodeString;
+    fMaterialsText: UnicodeString;
+    fGoldText: UnicodeString;
+    fFoodText: UnicodeString;
+    fWarfareText: UnicodeString;
+    fAdviceText: UnicodeString;
 
     function WeaponUsed(aWare: TWareType): Boolean;
 
@@ -130,7 +130,7 @@ type
     procedure Take;
     procedure Reject;
     procedure SetArmyDemand(ShieldNeed, ArmorNeed, AxeNeed, PikeNeed, BowNeed, HorseNeed: Single);
-    function BalanceText: string;
+    function BalanceText: UnicodeString;
 
     procedure Save(SaveStream: TKMemoryStream);
     procedure Load(LoadStream: TKMemoryStream);
@@ -598,7 +598,7 @@ end;
 procedure TKMayorBalance.UpdateBalanceWarfare;
 var
   I: TWareType;
-  S: string;
+  S: UnicodeString;
 begin
   UpdateBalanceLeather;
   UpdateBalanceIron;
@@ -788,7 +788,7 @@ begin
 end;
 
 
-function TKMayorBalance.BalanceText: string;
+function TKMayorBalance.BalanceText: UnicodeString;
 begin
   Result := fCoreText + '|' +
             fMaterialsText + '|' +

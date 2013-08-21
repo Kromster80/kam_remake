@@ -16,7 +16,7 @@ type
     constructor Load(LoadStream: TKMemoryStream); override;
     destructor Destroy; override;
     function ActName: TUnitActionName; override;
-    function GetExplanation: string; override;
+    function GetExplanation: UnicodeString; override;
     function Execute: TActionResult; override;
     procedure Save(SaveStream: TKMemoryStream); override;
   end;
@@ -62,7 +62,7 @@ begin
 end;
 
 
-function TUnitActionAbandonWalk.GetExplanation: string;
+function TUnitActionAbandonWalk.GetExplanation: UnicodeString;
 begin
   Result := 'Abandoning walk';
 end;

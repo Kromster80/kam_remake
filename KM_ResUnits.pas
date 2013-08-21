@@ -32,7 +32,7 @@ type
     fUnitSprite: TKMUnitSprite;
     fUnitSprite2: TKMUnitSprite2;
     function GetAllowedPassability: TPassability;
-    function GetDescription: string;
+    function GetDescription: UnicodeString;
     function GetDesiredPassability: TPassability;
     function GetFightType: TFightType;
     function GetGUIIcon: Word;
@@ -41,7 +41,7 @@ type
     function GetMiningRange: Byte;
     function GetSpeed: Single;
     function GetUnitAnim(aAction: TUnitActionType; aDir: TKMDirection): TKMAnimLoop;
-    function GetUnitName: string;
+    function GetUnitName: UnicodeString;
   public
     constructor Create(aType: TUnitType);
     function IsValid: Boolean;
@@ -53,7 +53,7 @@ type
     property Attack:smallint read fUnitDat.Attack;
     property AttackHorse:smallint read fUnitDat.AttackHorse;
     property Defence:smallint read fUnitDat.Defence;
-    property Description: string read GetDescription;
+    property Description: UnicodeString read GetDescription;
     property Sight:smallint read fUnitDat.Sight;
     //Additional properties added by Remake
     property AllowedPassability:TPassability read GetAllowedPassability;
@@ -66,7 +66,7 @@ type
     property Speed:single read GetSpeed;
     function SupportsAction(aAct: TUnitActionType):boolean;
     property UnitAnim[aAction:TUnitActionType; aDir:TKMDirection]: TKMAnimLoop read GetUnitAnim;
-    property GUIName:string read GetUnitName;
+    property GUIName: UnicodeString read GetUnitName;
   end;
 
 
@@ -75,7 +75,7 @@ type
     fCRC:cardinal;
     fItems: array [TUnitType] of TKMUnitDatClass;
     fSerfCarry: array [WARE_MIN..WARE_MAX, dir_N..dir_NW] of TKMAnimLoop;
-    function LoadUnitsDat(aPath: string): Cardinal;
+    function LoadUnitsDat(aPath: UnicodeString): Cardinal;
     function GetUnitDat(aType: TUnitType): TKMUnitDatClass;
     function GetSerfCarry(aType: TWareType; aDir: TKMDirection): TKMAnimLoop;
   public
@@ -86,7 +86,7 @@ type
     property SerfCarry[aType: TWareType; aDir: TKMDirection]: TKMAnimLoop read GetSerfCarry;
     property CRC: Cardinal read fCRC; //Return hash of all values
 
-    procedure ExportCSV(aPath: string);
+    procedure ExportCSV(aPath: UnicodeString);
   end;
 
 const
@@ -330,7 +330,7 @@ begin
 end;
 
 
-function TKMUnitDatClass.GetUnitName: string;
+function TKMUnitDatClass.GetUnitName: UnicodeString;
 begin
   if IsValid then
     //Result := GetEnumName(TypeInfo(TUnitType), Integer(fUnitType))
@@ -351,7 +351,7 @@ begin
 end;
 
 
-function TKMUnitDatClass.GetDescription: string;
+function TKMUnitDatClass.GetDescription: UnicodeString;
 begin
   if IsValid and not IsAnimal then
     Result := gResTexts[TX_UNITS_DESCRIPTIONS__13 + UnitTypeToIndex[fUnitType]]
@@ -384,7 +384,7 @@ begin
 end;
 
 
-procedure TKMUnitDatCollection.ExportCSV(aPath: string);
+procedure TKMUnitDatCollection.ExportCSV(aPath: UnicodeString);
 var ft:textfile; ii:TUnitType;
 begin
     AssignFile(ft,ExeDir+'UnitDAT.csv'); rewrite(ft);
@@ -449,7 +449,7 @@ begin
 end;
 
 
-function TKMUnitDatCollection.LoadUnitsDat(aPath: string): Cardinal;
+function TKMUnitDatCollection.LoadUnitsDat(aPath: UnicodeString): Cardinal;
 const UNIT_DAT_COUNT = 41;
 var
   S: TKMemoryStream;

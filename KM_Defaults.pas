@@ -632,7 +632,7 @@ const
 
 
 var
-  ExeDir: string;
+  ExeDir: UnicodeString;
 
 
 implementation

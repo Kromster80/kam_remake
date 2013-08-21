@@ -21,7 +21,7 @@ type
     destructor Destroy; override;
     function WalkShouldAbandon:boolean; override;
     constructor Load(LoadStream: TKMemoryStream); override;
-    function GetActivityText: string;
+    function GetActivityText: UnicodeString;
     property WorkPlan: TUnitWorkPlan read fWorkPlan;
     function Execute: TTaskResult; override;
     procedure Save(SaveStream: TKMemoryStream); override;
@@ -103,7 +103,7 @@ begin
 end;
 
 
-function TTaskMining.GetActivityText: string;
+function TTaskMining.GetActivityText: UnicodeString;
 begin
   case WorkPlan.GatheringScript of
     gs_StoneCutter:     Result := gResTexts[TX_UNIT_TASK_STONE];

@@ -82,8 +82,8 @@ type
     constructor Create;
     destructor Destroy; override;
     procedure MakeNewMap(aWidth, aHeight: Integer; aMapEditor: Boolean);
-    procedure LoadFromFile(FileName: string; aMapEditor: Boolean);
-    procedure SaveToFile(aFile:string);
+    procedure LoadFromFile(FileName: UnicodeString; aMapEditor: Boolean);
+    procedure SaveToFile(aFile: UnicodeString);
 
     property MapX: Word read fMapX;
     property MapY: Word read fMapY;
@@ -280,7 +280,7 @@ begin
 end;
 
 
-procedure TKMTerrain.LoadFromFile(FileName: string; aMapEditor: Boolean);
+procedure TKMTerrain.LoadFromFile(FileName: UnicodeString; aMapEditor: Boolean);
 var
   I, K: Integer;
   S: TKMemoryStream;
@@ -347,7 +347,7 @@ end;
 
 
 //Save (export) map in KaM .map format with additional tile information on the end?
-procedure TKMTerrain.SaveToFile(aFile: string);
+procedure TKMTerrain.SaveToFile(aFile: UnicodeString);
 var
   S: TKMemoryStream; i,k:integer; c0,cF:cardinal; light,b205: Byte; SizeX,SizeY:Integer;
     ResHead: packed record x1:word; Allocated,Qty1,Qty2,x5,Len17:integer; end;

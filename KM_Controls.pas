@@ -60,7 +60,7 @@ type
 
     procedure Paint;
 
-    procedure SaveToFile(aFileName: string);
+    procedure SaveToFile(aFileName: UnicodeString);
   end;
 
 
@@ -124,7 +124,7 @@ type
     OutlineColor: Cardinal;
 
     Tag: Integer; //Some tag which can be used for various needs
-    Hint: string; //Text that shows up when cursor is over that control, mainly for Buttons
+    Hint: UnicodeString; //Text that shows up when cursor is over that control, mainly for Buttons
     constructor Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight: Integer);
     function HitTest(X, Y: Integer; aIncludeDisabled: Boolean=false): Boolean; virtual;
 
@@ -213,21 +213,21 @@ type
     fAutoWrap: Boolean;
     fFont: TKMFont;
     fFontColor: TColor4; //Usually white (self-colored)
-    fCaption: string; //Original text
-    fText: string; //Reformatted text
+    fCaption: UnicodeString; //Original text
+    fText: UnicodeString; //Reformatted text
     fTextAlign: TTextAlign;
     fTextSize: TKMPoint;
     fStrikethrough: Boolean;
     function TextLeft: Integer;
-    procedure SetCaption(aCaption: string);
+    procedure SetCaption(aCaption: UnicodeString);
     procedure SetAutoWrap(aValue: boolean);
     procedure ReformatText;
   public
-    constructor Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight: Integer; aCaption: string; aFont: TKMFont; aTextAlign: TTextAlign); overload;
-    constructor Create(aParent: TKMPanel; aLeft,aTop: Integer; aCaption: string; aFont: TKMFont; aTextAlign: TTextAlign); overload;
+    constructor Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight: Integer; aCaption: UnicodeString; aFont: TKMFont; aTextAlign: TTextAlign); overload;
+    constructor Create(aParent: TKMPanel; aLeft,aTop: Integer; aCaption: UnicodeString; aFont: TKMFont; aTextAlign: TTextAlign); overload;
     function HitTest(X, Y: Integer; aIncludeDisabled: Boolean=false): Boolean; override;
     property AutoWrap: boolean read fAutoWrap write SetAutoWrap; //Whether to automatically wrap text within given text area width
-    property Caption: string read fCaption write SetCaption;
+    property Caption: UnicodeString read fCaption write SetCaption;
     property FontColor: TColor4 read fFontColor write fFontColor;
     property Strikethrough: Boolean read fStrikethrough write fStrikethrough;
     property TextSize: TKMPoint read fTextSize;
@@ -240,7 +240,7 @@ type
   TKMLabelScroll = class(TKMLabel)
   public
     SmoothScrollToTop: cardinal; //Delta between this and TimeGetTime affects vertical position
-    constructor Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight: Integer; aCaption: string; aFont: TKMFont; aTextAlign: TTextAlign);
+    constructor Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight: Integer; aCaption: UnicodeString; aFont: TKMFont; aTextAlign: TTextAlign);
     procedure Paint; override;
   end;
 
@@ -315,13 +315,13 @@ type
     fStyle: TButtonStyle;
     fRX: TRXType;
   public
-    Caption: string;
+    Caption: UnicodeString;
     FlagColor: TColor4; //When using an image
     Font: TKMFont;
     MakesSound: Boolean;
     TexID: Word;
     constructor Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight: Integer; aTexID: Word; aRX: TRXType; aStyle: TButtonStyle); overload;
-    constructor Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight: Integer; aCaption: string; aStyle: TButtonStyle); overload;
+    constructor Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight: Integer; aCaption: UnicodeString; aStyle: TButtonStyle); overload;
     function Click: Boolean; //Try to click a button and return TRUE if succeded
     procedure MouseUp(X,Y: Integer; Shift: TShiftState; Button: TMouseButton); override;
     procedure Paint; override;
@@ -337,7 +337,7 @@ type
     TexOffsetX: Shortint;
     TexOffsetY: Shortint;
     CapOffsetY: Shortint;
-    Caption: string;
+    Caption: UnicodeString;
     Down: Boolean;
     FlagColor: TColor4;
     Font: TKMFont;
@@ -355,14 +355,14 @@ type
   {FlatButton with Shape on it}
   TKMFlatButtonShape = class(TKMControl)
   private
-    fCaption: string;
+    fCaption: UnicodeString;
     fFont: TKMFont;
     fFontHeight: Byte;
   public
     Down: Boolean;
     FontColor: TColor4;
     ShapeColor: TColor4;
-    constructor Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight: Integer; aCaption: string; aFont: TKMFont; aShapeColor: TColor4);
+    constructor Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight: Integer; aCaption: UnicodeString; aFont: TKMFont; aShapeColor: TColor4);
     procedure Paint; override;
   end;
 
@@ -372,12 +372,12 @@ type
   TKMEdit = class(TKMControl)
   private
     fFont: TKMFont;
-    fText: string;
+    fText: UnicodeString;
     fAllowedChars: TAllowedChars;
     fCursorPos: Integer;
     fLeftIndex: Integer; //The position of the character shown left-most when text does not fit
     procedure SetCursorPos(aPos: Integer);
-    procedure SetText(aText: string);
+    procedure SetText(aText: UnicodeString);
     procedure ValidateText;
     function KeyEventHandled(Key: Word; Shift: TShiftState): Boolean;
   public
@@ -391,7 +391,7 @@ type
 
     property AllowedChars: TAllowedChars read fAllowedChars write fAllowedChars;
     property CursorPos: Integer read fCursorPos write SetCursorPos;
-    property Text: string read fText write SetText;
+    property Text: UnicodeString read fText write SetText;
 
     function HitTest(X,Y: Integer; aIncludeDisabled: Boolean=false): Boolean; override;
     function KeyDown(Key: Word; Shift: TShiftState): Boolean; override;
@@ -405,12 +405,12 @@ type
   { Checkbox }
   TKMCheckBox = class(TKMControl)
   private
-    fCaption: string;
+    fCaption: UnicodeString;
     fChecked: Boolean;
     fFont: TKMFont;
   public
-    constructor Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight: Integer; aCaption: string; aFont: TKMFont); overload;
-    property Caption: string read fCaption write fCaption;
+    constructor Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight: Integer; aCaption: UnicodeString; aFont: TKMFont); overload;
+    property Caption: UnicodeString read fCaption write fCaption;
     property Checked: Boolean read fChecked write fChecked;
     procedure MouseUp(X,Y: Integer; Shift: TShiftState; Button: TMouseButton); override;
     procedure Paint; override;
@@ -423,7 +423,7 @@ type
     fItemIndex: Integer;
     fCount: Integer;
     fItems: array of record
-      Text: string;
+      Text: UnicodeString;
       Enabled: Boolean;
     end;
     fFont: TKMFont;
@@ -431,7 +431,7 @@ type
   public
     constructor Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight: Integer; aFont: TKMFont);
 
-    procedure Add(aText: string; aEnabled: Boolean = True);
+    procedure Add(aText: UnicodeString; aEnabled: Boolean = True);
     procedure Clear;
     property Count: Integer read fCount;
     property ItemIndex: Integer read fItemIndex write fItemIndex;
@@ -451,7 +451,7 @@ type
     procedure SetPosition(aValue: Single);
     procedure SetSeam(aValue: Single);
   public
-    Caption: string;
+    Caption: UnicodeString;
     FontColor: TColor4;
     TextYOffset: Integer;
     constructor Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight: Integer; aFont: TKMFont = fnt_Mini);
@@ -477,7 +477,7 @@ type
     fButtonInc: TKMButton;
     fButtonDec: TKMButton;
     fFont: TKMFont;
-    fText: string;
+    fText: UnicodeString;
     fValue: Integer;
     fCursorPos: Integer;
     fLeftIndex: Integer; //The position of the character shown left-most when text does not fit
@@ -487,7 +487,7 @@ type
     procedure SetValue(aValue: Integer);
     procedure ValidateText;
     function KeyEventHandled(Key: Word; Shift: TShiftState): Boolean;
-    procedure SetSharedHint(aHint: string);
+    procedure SetSharedHint(aHint: UnicodeString);
   protected
     procedure SetLeft(aValue: Integer); override;
     procedure SetTop(aValue: Integer); override;
@@ -500,7 +500,7 @@ type
     constructor Create(aParent: TKMPanel; aLeft,aTop: Integer; aValueMin, aValueMax: SmallInt);
     property CursorPos: Integer read fCursorPos write SetCursorPos;
     property Value: Integer read fValue write SetValue;
-    property SharedHint: string read Hint write SetSharedHint;
+    property SharedHint: UnicodeString read Hint write SetSharedHint;
     function KeyDown(Key: Word; Shift: TShiftState): Boolean; override;
     procedure KeyPress(Key: Char); override;
     function KeyUp(Key: Word; Shift: TShiftState): Boolean; override;
@@ -531,7 +531,7 @@ type
   public
     RX: TRXType;
     TexID1, TexID2: Word;
-    Caption: String;
+    Caption: UnicodeString;
     procedure Paint; override;
   end;
 
@@ -543,19 +543,19 @@ type
     fMinValue: Word;
     fMaxValue: Word;
     fOnChange: TNotifyEvent;
-    fCaption: string;
+    fCaption: UnicodeString;
     fPosition: Word;
     fFont: TKMFont;
-    procedure SetCaption(const aValue: string);
+    procedure SetCaption(const aValue: UnicodeString);
     procedure SetPosition(aValue: Word);
   public
     Step: Byte; //Change Position by this amount each time
-    ThumbText: string;
+    ThumbText: UnicodeString;
     ThumbWidth: Word;
 
     constructor Create(aParent: TKMPanel; aLeft, aTop, aWidth: Integer; aMin, aMax: Word);
 
-    property Caption: string read fCaption write SetCaption;
+    property Caption: UnicodeString read fCaption write SetCaption;
     property Position: Word read fPosition write SetPosition;
     property Font: TKMFont read fFont write fFont;
     property MinValue: Word read fMinValue;
@@ -625,7 +625,7 @@ type
     procedure SetItemHeight(const Value: byte);
     procedure SetAutoHideScrollBar(Value: boolean);
     procedure UpdateScrollBar;
-    function GetItem(aIndex: Integer): string;
+    function GetItem(aIndex: Integer): UnicodeString;
   protected
     procedure SetHeight(aValue: Integer); override;
     procedure SetEnabled(aValue: Boolean); override;
@@ -638,11 +638,11 @@ type
     property AutoHideScrollBar: boolean read fAutoHideScrollBar write SetAutoHideScrollBar;
     property BackAlpha: Single write SetBackAlpha;
 
-    procedure Add(aItem: string; aTag: Integer=0);
+    procedure Add(aItem: UnicodeString; aTag: Integer=0);
     procedure Clear;
     function Count: Integer;
 
-    property Item[aIndex: Integer]: string read GetItem; default;
+    property Item[aIndex: Integer]: UnicodeString read GetItem; default;
     property ItemHeight: Byte read fItemHeight write SetItemHeight; //Accessed by DropBox
     property ItemIndex: Smallint read fItemIndex write fItemIndex;
     property TopIndex: Integer read GetTopIndex write SetTopIndex;
@@ -659,7 +659,7 @@ type
   TSortDirection = (sdNone, sdUp, sdDown);
 
   TKMListHeaderColumn = class
-    Caption: string;
+    Caption: UnicodeString;
     Glyph: TKMPic;
     Offset: Word; //Offsets are easier to handle than widths
   end;
@@ -700,8 +700,8 @@ type
 
   TKMListRow = record
     Cells: array of record
-      Caption: string;
-      Hint: string;
+      Caption: UnicodeString;
+      Hint: UnicodeString;
       Color: TColor4;
       HighlightColor: TColor4;
       Pic: TKMPic;
@@ -723,7 +723,7 @@ type
     fItemHeight: Byte;
     fItemIndex: Smallint;
     fSearchColumn: ShortInt; //which columns text we should search, -1 for disabled
-    fSearch: string; //Contains user input characters we should search for
+    fSearch: UnicodeString; //Contains user input characters we should search for
     fLastKeyTime: Cardinal;
     fRowCount: Integer;
     fColumns: array of TKMListColumn;
@@ -839,8 +839,8 @@ type
   //DropBox with a ListBox
   TKMDropList = class(TKMDropCommon)
   private
-    fCaption: string; //Current caption (Default or from list)
-    fDefaultCaption: string;
+    fCaption: UnicodeString; //Current caption (Default or from list)
+    fDefaultCaption: UnicodeString;
     fList: TKMListBox;
     procedure UpdateDropPosition; override;
     procedure ListShow(Sender: TObject); override;
@@ -848,23 +848,23 @@ type
     procedure ListChange(Sender: TObject); override;
     procedure ListHide(Sender: TObject); override;
     function ListVisible: Boolean; override;
-    function GetItem(aIndex: Integer): string;
+    function GetItem(aIndex: Integer): UnicodeString;
     function GetItemIndex: smallint; override;
     procedure SetItemIndex(aIndex: smallint); override;
   protected
     procedure SetEnabled(aValue: Boolean); override;
     procedure SetVisible(aValue: Boolean); override;
   public
-    constructor Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight: Integer; aFont: TKMFont; aDefaultCaption: string; aStyle: TButtonStyle);
+    constructor Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight: Integer; aFont: TKMFont; aDefaultCaption: UnicodeString; aStyle: TButtonStyle);
     procedure Clear; override;
     function Count: Integer; override;
-    procedure Add(aItem: string; aTag: Integer=0);
-    procedure SelectByName(aText: string);
+    procedure Add(aItem: UnicodeString; aTag: Integer=0);
+    procedure SelectByName(aText: UnicodeString);
     procedure SelectByTag(aTag: Integer);
     function GetTag(aIndex: Integer): Integer;
     function GetSelectedTag: Integer;
-    property DefaultCaption: string read fDefaultCaption write fDefaultCaption;
-    property Item[aIndex: Integer]: string read GetItem;
+    property DefaultCaption: UnicodeString read fDefaultCaption write fDefaultCaption;
+    property Item[aIndex: Integer]: UnicodeString read GetItem;
 
     procedure Paint; override;
   end;
@@ -873,7 +873,7 @@ type
   //DropBox with a ColumnBox
   TKMDropColumns = class(TKMDropCommon)
   private
-    fDefaultCaption: string;
+    fDefaultCaption: UnicodeString;
     fDropWidth: Integer;
     fList: TKMColumnBox;
     procedure UpdateDropPosition; override;
@@ -891,14 +891,14 @@ type
     procedure SetVisible(aValue: Boolean); override;
   public
     FadeImageWhenDisabled: Boolean;
-    constructor Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight: Integer; aFont: TKMFont; aDefaultCaption: string; aStyle: TButtonStyle);
+    constructor Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight: Integer; aFont: TKMFont; aDefaultCaption: UnicodeString; aStyle: TButtonStyle);
     procedure Add(aItem: TKMListRow);
     procedure Clear; override;
     function Count: Integer; override;
     property List: TKMColumnBox read fList;
     property Item[aIndex: Integer]: TKMListRow read GetItem;
     procedure SetColumns(aFont: TKMFont; aColumns: array of string; aColumnOffsets: array of Word);
-    property DefaultCaption: string read fDefaultCaption write fDefaultCaption;
+    property DefaultCaption: UnicodeString read fDefaultCaption write fDefaultCaption;
     property DropWidth: Integer read fDropWidth write SetDropWidth;
 
     procedure Paint; override;
@@ -909,7 +909,7 @@ type
   TKMDropColors = class(TKMControl)
   private
     fColorIndex: Integer;
-    fRandomCaption: string;
+    fRandomCaption: UnicodeString;
     fButton: TKMButton;
     fSwatch: TKMColorSwatch;
     fShape: TKMShape;
@@ -923,7 +923,7 @@ type
   public
     constructor Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight,aCount: Integer);
     property ColorIndex: Integer read fColorIndex write SetColorIndex;
-    procedure SetColors(const aColors: array of TColor4; aRandomCaption: string = '');
+    procedure SetColors(const aColors: array of TColor4; aRandomCaption: UnicodeString = '');
     property OnChange: TNotifyEvent write fOnChange;
     procedure Paint; override;
   end;
@@ -986,7 +986,7 @@ type
     function GetItemTag(aIndex: Integer): Integer;
   public
     constructor Create(aParent: TKMPanel; aWidth: Integer);
-    procedure AddItem(aCaption: string; aTag: Integer = 0);
+    procedure AddItem(aCaption: UnicodeString; aTag: Integer = 0);
     procedure Clear;
     property ItemIndex: Integer read GetItemIndex write SetItemIndex;
     property ItemTags[aIndex: Integer]: Integer read GetItemTag;
@@ -1018,7 +1018,7 @@ type
   end;
 
   TKMGraphLine = record
-                Title: string;
+                Title: UnicodeString;
                 Tag: Integer;
                 Color: TColor4;
                 Visible: Boolean;
@@ -1028,7 +1028,7 @@ type
 
   TKMChart = class(TKMControl)
   private
-    fCaption: string;
+    fCaption: UnicodeString;
     fFont: TKMFont;
     fCount: Integer;
     fItemHeight: Byte;
@@ -1044,10 +1044,10 @@ type
   public
     constructor Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight: Integer);
 
-    procedure AddLine(aTitle: string; aColor: TColor4; const aValues: TKMCardinalArray; aTag:Integer=-1);
+    procedure AddLine(aTitle: UnicodeString; aColor: TColor4; const aValues: TKMCardinalArray; aTag:Integer=-1);
     procedure AddAltLine(const aAltValues: TKMCardinalArray);
     procedure TrimToFirstVariation;
-    property Caption: string read fCaption write fCaption;
+    property Caption: UnicodeString read fCaption write fCaption;
     procedure Clear;
     procedure SetLineVisible(aLineID:Integer; aVisible:Boolean);
     property MaxLength: Cardinal read fMaxLength write fMaxLength;
@@ -1611,7 +1611,7 @@ end;
 
 
 { TKMLabel }
-constructor TKMLabel.Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight: Integer; aCaption: string; aFont: TKMFont; aTextAlign: TTextAlign);
+constructor TKMLabel.Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight: Integer; aCaption: UnicodeString; aFont: TKMFont; aTextAlign: TTextAlign);
 begin
   inherited Create(aParent, aLeft,aTop,aWidth,aHeight);
   fFont := aFont;
@@ -1623,7 +1623,7 @@ end;
 
 
 //Same as above but with width/height ommitted, as in most cases we don't know/don't care
-constructor TKMLabel.Create(aParent: TKMPanel; aLeft, aTop: Integer; aCaption: string; aFont: TKMFont; aTextAlign: TTextAlign);
+constructor TKMLabel.Create(aParent: TKMPanel; aLeft, aTop: Integer; aCaption: UnicodeString; aFont: TKMFont; aTextAlign: TTextAlign);
 begin
   inherited Create(aParent, aLeft, aTop, 0, 0);
   fFont := aFont;
@@ -1645,7 +1645,7 @@ begin
 end;
 
 
-procedure TKMLabel.SetCaption(aCaption: string);
+procedure TKMLabel.SetCaption(aCaption: UnicodeString);
 begin
   fCaption := aCaption;
   ReformatText;
@@ -1696,7 +1696,7 @@ end;
 
 
 { TKMLabelScroll }
-constructor TKMLabelScroll.Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight: Integer; aCaption: string; aFont: TKMFont; aTextAlign: TTextAlign);
+constructor TKMLabelScroll.Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight: Integer; aCaption: UnicodeString; aFont: TKMFont; aTextAlign: TTextAlign);
 begin
   inherited Create(aParent, aLeft,aTop,aWidth,aHeight, aCaption, aFont, aTextAlign);
   SmoothScrollToTop := 0; //Disabled by default
@@ -1935,7 +1935,7 @@ end;
 
 
 {Different version of button, with caption on it instead of image}
-constructor TKMButton.Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight: Integer; aCaption: string; aStyle: TButtonStyle);
+constructor TKMButton.Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight: Integer; aCaption: UnicodeString; aStyle: TButtonStyle);
 begin
   inherited Create(aParent, aLeft,aTop,aWidth,aHeight);
   TexID       := 0;
@@ -2052,7 +2052,7 @@ end;
 
 
 { TKMFlatButtonShape }
-constructor TKMFlatButtonShape.Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight: Integer; aCaption: string; aFont: TKMFont; aShapeColor: TColor4);
+constructor TKMFlatButtonShape.Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight: Integer; aCaption: UnicodeString; aFont: TKMFont; aShapeColor: TColor4);
 begin
   inherited Create(aParent, aLeft,aTop,aWidth,aHeight);
   fCaption    := aCaption;
@@ -2106,7 +2106,7 @@ end;
 
 //
 procedure TKMEdit.SetCursorPos(aPos: Integer);
-var RText: string;
+var RText: UnicodeString;
 begin
   fCursorPos := EnsureRange(aPos, 0, Length(fText));
   if fCursorPos < fLeftIndex then
@@ -2125,7 +2125,7 @@ begin
 end;
 
 
-procedure TKMEdit.SetText(aText: string);
+procedure TKMEdit.SetText(aText: UnicodeString);
 begin
   fText := aText;
   ValidateText; //Validate first since it could change fText
@@ -2254,7 +2254,7 @@ end;
 procedure TKMEdit.Paint;
 var
   Col: TColor4;
-  RText: string;
+  RText: UnicodeString;
   OffX: Integer;
 begin
   inherited;
@@ -2281,7 +2281,7 @@ end;
 
 
 { TKMCheckBox }
-constructor TKMCheckBox.Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight: Integer; aCaption: string; aFont: TKMFont);
+constructor TKMCheckBox.Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight: Integer; aCaption: UnicodeString; aFont: TKMFont);
 begin
   inherited Create(aParent, aLeft,aTop,aWidth,aHeight);
   fFont     := aFont;
@@ -2326,7 +2326,7 @@ begin
 end;
 
 
-procedure TKMRadioGroup.Add(aText: string; aEnabled: Boolean);
+procedure TKMRadioGroup.Add(aText: UnicodeString; aEnabled: Boolean);
 begin
   if fCount >= Length(fItems) then
     SetLength(fItems, fCount + 8);
@@ -2574,7 +2574,7 @@ begin
 end;
 
 
-procedure TKMNumericEdit.SetSharedHint(aHint: string);
+procedure TKMNumericEdit.SetSharedHint(aHint: UnicodeString);
 begin
   Hint := aHint;
   fButtonInc.Hint := aHint;
@@ -2601,7 +2601,7 @@ end;
 
 
 procedure TKMNumericEdit.SetCursorPos(aPos: Integer);
-var RText: string;
+var RText: UnicodeString;
 begin
   fCursorPos := EnsureRange(aPos, 0, Length(fText));
   if fCursorPos < fLeftIndex then
@@ -2674,7 +2674,7 @@ end;
 procedure TKMNumericEdit.Paint;
 var
   Col: TColor4;
-  RText: string;
+  RText: UnicodeString;
   OffX: Integer;
 begin
   inherited;
@@ -2764,7 +2764,7 @@ begin
 end;
 
 
-procedure TKMTrackBar.SetCaption(const aValue: string);
+procedure TKMTrackBar.SetCaption(const aValue: UnicodeString);
 begin
   fCaption := aValue;
 
@@ -3313,7 +3313,7 @@ begin
 end;
 
 
-procedure TKMListBox.Add(aItem: string; aTag: Integer=0);
+procedure TKMListBox.Add(aItem: UnicodeString; aTag: Integer=0);
 begin
   fItems.Add(aItem);
   SetLength(ItemTags, Length(ItemTags)+1);
@@ -3345,7 +3345,7 @@ begin
 end;
 
 
-function TKMListBox.GetItem(aIndex: Integer): string;
+function TKMListBox.GetItem(aIndex: Integer): UnicodeString;
 begin
   Result := fItems[aIndex];
 end;
@@ -4100,7 +4100,7 @@ begin
 end;
 
 
-procedure TKMPopUpMenu.AddItem(aCaption: string; aTag: Integer = 0);
+procedure TKMPopUpMenu.AddItem(aCaption: UnicodeString; aTag: Integer = 0);
 begin
   fList.AddItem(MakeListRow(aCaption, aTag));
   Height := fList.ItemHeight * fList.RowCount;
@@ -4240,7 +4240,7 @@ end;
 
 
 { TKMDropList }
-constructor TKMDropList.Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight: Integer; aFont: TKMFont; aDefaultCaption: string; aStyle: TButtonStyle);
+constructor TKMDropList.Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight: Integer; aFont: TKMFont; aDefaultCaption: UnicodeString; aStyle: TButtonStyle);
 var P: TKMPanel;
 begin
   inherited Create(aParent, aLeft,aTop,aWidth,aHeight, aFont, aStyle);
@@ -4350,14 +4350,14 @@ begin
 end;
 
 
-procedure TKMDropList.Add(aItem: string; aTag: Integer=0);
+procedure TKMDropList.Add(aItem: UnicodeString; aTag: Integer=0);
 begin
   fList.Add(aItem, aTag);
   UpdateDropPosition;
 end;
 
 
-procedure TKMDropList.SelectByName(aText: string);
+procedure TKMDropList.SelectByName(aText: UnicodeString);
 var I: Integer;
 begin
   fList.ItemIndex := -1;
@@ -4389,7 +4389,7 @@ begin
 end;
 
 
-function TKMDropList.GetItem(aIndex: Integer): string;
+function TKMDropList.GetItem(aIndex: Integer): UnicodeString;
 begin
   Result := fList.Item[aIndex];
 end;
@@ -4412,7 +4412,7 @@ end;
 
 
 { TKMDropColumns }
-constructor TKMDropColumns.Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight: Integer; aFont: TKMFont; aDefaultCaption: string; aStyle: TButtonStyle);
+constructor TKMDropColumns.Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight: Integer; aFont: TKMFont; aDefaultCaption: UnicodeString; aStyle: TButtonStyle);
 var P: TKMPanel;
 begin
   inherited Create(aParent, aLeft,aTop,aWidth,aHeight, aFont, aStyle);
@@ -4644,7 +4644,7 @@ begin
 end;
 
 
-procedure TKMDropColors.SetColors(const aColors: array of TColor4; aRandomCaption: string = '');
+procedure TKMDropColors.SetColors(const aColors: array of TColor4; aRandomCaption: UnicodeString = '');
 begin
   //Store local copy of flag to substitute 0 color with "Random" text
   fRandomCaption := aRandomCaption;
@@ -4926,7 +4926,7 @@ begin
 end;
 
 
-procedure TKMChart.AddLine(aTitle: string; aColor: TColor4; const aValues: TKMCardinalArray; aTag:Integer=-1);
+procedure TKMChart.AddLine(aTitle: UnicodeString; aColor: TColor4; const aValues: TKMCardinalArray; aTag:Integer=-1);
 begin
   if fMaxLength = 0 then Exit;
 
@@ -5412,7 +5412,7 @@ begin
 end;
 
 
-procedure TKMMasterControl.SaveToFile(aFileName: string);
+procedure TKMMasterControl.SaveToFile(aFileName: UnicodeString);
 var ft: Textfile;
 begin
   AssignFile(ft,aFileName);

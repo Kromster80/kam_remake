@@ -61,8 +61,8 @@ type
     RandomizeTiling: Boolean;
     constructor Create;
     procedure InitEmpty;
-    procedure LoadFromFile(aFileName: string);
-    procedure SaveToFile(aFileName: string);
+    procedure LoadFromFile(aFileName: UnicodeString);
+    procedure SaveToFile(aFileName: UnicodeString);
     procedure UpdateStateIdle;
     procedure MagicWater(aLoc: TKMPoint);
 
@@ -721,7 +721,7 @@ end;
 
 
 //Skip the KaM data and load MapEd vertice info
-procedure TKMTerrainPainter.LoadFromFile(aFileName: string);
+procedure TKMTerrainPainter.LoadFromFile(aFileName: UnicodeString);
 var
   I,K: Integer;
   TerType: ShortInt; //Krom's editor saves terrain kind as ShortInt
@@ -797,7 +797,7 @@ begin
 end;
 
 
-procedure TKMTerrainPainter.SaveToFile(aFileName: string);
+procedure TKMTerrainPainter.SaveToFile(aFileName: UnicodeString);
 var
   I,K: Integer;
   S: TKMemoryStream;

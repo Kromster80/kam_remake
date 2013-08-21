@@ -24,7 +24,7 @@ type
     procedure GenerateBW;
     procedure GenerateLinear;
   public
-    procedure LoadFromFile(const aFileName: string);
+    procedure LoadFromFile(const aFileName: UnicodeString);
     function Color32(aIdx: Byte): Cardinal;
   end;
 
@@ -37,10 +37,10 @@ type
     constructor Create;
     destructor Destroy; override;
 
-    procedure LoadPalettes(aPath: string);
+    procedure LoadPalettes(aPath: UnicodeString);
     property PalData[aIndex: TKMPal]: TKMPalData read GetPalData; default;
     function DefDal: TKMPalData; //Default palette for the game
-    function PalFile(aIndex: TKMPal):string;
+    function PalFile(aIndex: TKMPal): UnicodeString;
   end;
 
 
@@ -95,7 +95,7 @@ begin
 end;
 
 
-procedure TKMPalData.LoadFromFile(const aFileName: string);
+procedure TKMPalData.LoadFromFile(const aFileName: UnicodeString);
 var
   S: TKMemoryStream;
 begin
@@ -147,7 +147,7 @@ begin
 end;
 
 
-procedure TKMPalettes.LoadPalettes(aPath: string);
+procedure TKMPalettes.LoadPalettes(aPath: UnicodeString);
 var
   I: TKMPal;
 begin
@@ -160,7 +160,7 @@ begin
 end;
 
 
-function TKMPalettes.PalFile(aIndex: TKMPal): string;
+function TKMPalettes.PalFile(aIndex: TKMPal): UnicodeString;
 begin
   Result := PalFiles[aIndex];
 end;

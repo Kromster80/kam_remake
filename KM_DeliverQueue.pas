@@ -86,7 +86,7 @@ type
     procedure Load(LoadStream: TKMemoryStream);
     procedure SyncLoad;
 
-    procedure ExportToFile(aFileName: string);
+    procedure ExportToFile(aFileName: UnicodeString);
   end;
 
   TKMDeliveries = class
@@ -1004,11 +1004,11 @@ begin
 end;
 
 
-procedure TKMDeliverQueue.ExportToFile(aFileName: string);
+procedure TKMDeliverQueue.ExportToFile(aFileName: UnicodeString);
 var
   I: Integer;
   f: textfile;
-  s: string;
+  s: UnicodeString;
 begin
   assignfile(f,aFileName); Rewrite(f);
 
