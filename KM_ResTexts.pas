@@ -78,7 +78,7 @@ procedure TKMTextLibrary.LoadLIBXFile(FilePath: string; var aArray: TKMStringArr
     while P^ <> #0 do
     begin
       Start := P;
-      while not (P^ in [#0, #10, #13]) do Inc(P);
+      while not CharInSet(P^, [#0, #10, #13]) do Inc(P);
       SetString(S, Start, P - Start);
 
       SetLength(Result, Length(Result) + 1);

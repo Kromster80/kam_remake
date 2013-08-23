@@ -39,7 +39,7 @@ type
     procedure CheckOpenALError;
 
     procedure PlayWave(const aFile: string; Loc: TKMPointF; Attenuated:boolean=true; Volume:single=1; FadeMusic:boolean=false); overload;
-    procedure PlaySound(SoundID: TSoundFX; const aFile:string; Loc: TKMPointF; Attenuated:boolean=true; Volume:single=1; FadeMusic:boolean=false);
+    procedure PlaySound(SoundID: TSoundFX; const aFile: UnicodeString; Loc: TKMPointF; Attenuated:boolean=true; Volume:single=1; FadeMusic:boolean=false);
   public
     constructor Create(aVolume: Single);
     destructor Destroy; override;
@@ -285,7 +285,7 @@ end;
 {Call to this procedure will find free spot and start to play sound immediately}
 {Will need to make another one for unit sounds, which will take WAV file path as parameter}
 {Attenuated means if sound should fade over distance or not}
-procedure TKMSoundPlayer.PlaySound(SoundID: TSoundFX; const aFile:string; Loc: TKMPointF; Attenuated:boolean=true; Volume:single=1; FadeMusic:boolean=false);
+procedure TKMSoundPlayer.PlaySound(SoundID: TSoundFX; const aFile: UnicodeString; Loc: TKMPointF; Attenuated:boolean=true; Volume:single=1; FadeMusic:boolean=false);
 var Dif:array[1..3]of single;
   FreeBuf{,FreeSrc}:integer;
   i,ID:integer;
@@ -322,9 +322,11 @@ begin
 
   //Find free buffer and use it
   FreeBuf := 0;
-  for i:=1 to MAX_SOUNDS do begin
+  for i:=1 to MAX_SOUNDS do
+  begin
     alGetSourcei(fSound[i].ALSource, AL_SOURCE_STATE, @ALState);
-    if ALState<>AL_PLAYING then begin
+    if ALState<>AL_PLAYING then
+    begin
       FreeBuf := i;
       Break;
     end;
@@ -382,7 +384,8 @@ begin
   AlSourcei(fSound[FreeBuf].ALSource, AL_BUFFER, fSound[FreeBuf].ALBuffer);
   AlSourcef(fSound[FreeBuf].ALSource, AL_PITCH, 1);
   AlSourcef(fSound[FreeBuf].ALSource, AL_GAIN, 1 * Volume * fSoundGain);
-  if Attenuated then begin
+  if Attenuated then
+  begin
     Dif[1]:=Loc.X; Dif[2]:=Loc.Y; Dif[3]:=0;
     AlSourcefv(fSound[FreeBuf].ALSource, AL_POSITION, @Dif[1]);
     AlSourcei(fSound[FreeBuf].ALSource, AL_SOURCE_RELATIVE, AL_FALSE); //If Attenuated then it is not relative to the listener

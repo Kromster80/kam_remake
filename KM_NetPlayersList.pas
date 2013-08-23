@@ -14,7 +14,7 @@ type
   //Multiplayer info that is filled in Lobby before TKMPlayers are created (thats why it has many mirror fields)
   TKMNetPlayerInfo = class
   private
-    fNikname: UnicodeString;
+    fNikname: AnsiString;
     fLangCode: AnsiString;
     fIndexOnServer: Integer;
     fFlagColorID: Integer;    //Flag color, 0 means random
@@ -40,7 +40,7 @@ type
     function IsClosed: Boolean;
     function GetPlayerType: TPlayerType;
     function GetNickname: UnicodeString;
-    property Nikname: UnicodeString read fNikname;
+    property Nikname: AnsiString read fNikname;
     property LangCode: AnsiString read fLangCode write SetLangCode;
     property IndexOnServer: Integer read fIndexOnServer;
     property SetIndexOnServer: Integer write fIndexOnServer;
@@ -69,11 +69,11 @@ type
     procedure Clear;
     property Count:integer read fCount;
 
-    procedure AddPlayer(aNik: string; aIndexOnServer: Integer; const aLang: AnsiString);
+    procedure AddPlayer(aNik: AnsiString; aIndexOnServer: Integer; const aLang: AnsiString);
     procedure AddAIPlayer(aSlot: Integer = -1);
     procedure AddClosedPlayer(aSlot: Integer = -1);
     procedure DisconnectPlayer(aIndexOnServer: Integer);
-    procedure DisconnectAllClients(aOwnNikname: string);
+    procedure DisconnectAllClients(aOwnNikname: AnsiString);
     procedure DropPlayer(aIndexOnServer: Integer);
     procedure RemPlayer(aIndexOnServer: Integer);
     procedure RemAIPlayer(ID: Integer);
@@ -86,7 +86,7 @@ type
     function StartingLocToLocal(aLoc: Integer): Integer;
     function PlayerIndexToLocal(aIndex: TPlayerIndex): Integer;
 
-    function CheckCanJoin(aNik: UnicodeString; aIndexOnServer: Integer): AnsiString;
+    function CheckCanJoin(aNik: AnsiString; aIndexOnServer: Integer): AnsiString;
     function CheckCanReconnect(aLocalIndex: Integer): AnsiString;
     function LocAvailable(aIndex: Integer): Boolean;
     function ColorAvailable(aIndex: Integer): Boolean;
@@ -100,7 +100,7 @@ type
 
     procedure ResetLocAndReady;
     procedure SetAIReady;
-    function ValidateSetup(aHumanUsableLocs, aAIUsableLocs: TPlayerIndexArray; out ErrorMsg: string): Boolean;
+    function ValidateSetup(aHumanUsableLocs, aAIUsableLocs: TPlayerIndexArray; out ErrorMsg: UnicodeString): Boolean;
 
     //Import/Export
     procedure SaveToStream(aStream: TKMemoryStream); //Gets all relevant information as text string
@@ -209,7 +209,7 @@ end;
 
 procedure TKMNetPlayerInfo.Load(LoadStream: TKMemoryStream);
 begin
-  LoadStream.ReadW(fNikname);
+  LoadStream.ReadA(fNikname);
   LoadStream.ReadA(fLangCode);
   LoadStream.Read(fIndexOnServer);
   LoadStream.Read(PlayerNetType, SizeOf(PlayerNetType));
@@ -225,7 +225,7 @@ end;
 
 procedure TKMNetPlayerInfo.Save(SaveStream: TKMemoryStream);
 begin
-  SaveStream.WriteW(fNikname);
+  SaveStream.WriteA(fNikname);
   SaveStream.WriteA(fLangCode);
   SaveStream.Write(fIndexOnServer);
   SaveStream.Write(PlayerNetType, SizeOf(PlayerNetType));
@@ -330,7 +330,7 @@ begin
 end;
 
 
-procedure TKMNetPlayersList.AddPlayer(aNik: string; aIndexOnServer: Integer; const aLang: AnsiString);
+procedure TKMNetPlayersList.AddPlayer(aNik: AnsiString; aIndexOnServer: Integer; const aLang: AnsiString);
 begin
   Assert(fCount <= MAX_PLAYERS, 'Can''t add player');
   Inc(fCount);
@@ -398,27 +398,30 @@ end;
 
 
 //Set player to no longer be connected, but do not remove them from the game
-procedure TKMNetPlayersList.DisconnectPlayer(aIndexOnServer:integer);
-var ID:integer;
+procedure TKMNetPlayersList.DisconnectPlayer(aIndexOnServer: Integer);
+var
+  ID: Integer;
 begin
   ID := ServerToLocal(aIndexOnServer);
   Assert(ID <> -1, 'Cannot disconnect player');
-  fNetPlayers[ID].Connected := false;
+  fNetPlayers[ID].Connected := False;
 end;
 
 //Mark all human players as disconnected (used when reconnecting if all clients were lost)
-procedure TKMNetPlayersList.DisconnectAllClients(aOwnNikname:string);
-var I: Integer;
+procedure TKMNetPlayersList.DisconnectAllClients(aOwnNikname: AnsiString);
+var
+  I: Integer;
 begin
-  for i:=1 to fCount do
-    if (fNetPlayers[i].IsHuman) and (fNetPlayers[i].Nikname <> aOwnNikname) then
-      fNetPlayers[i].Connected := false;
+  for I := 1 to fCount do
+    if (fNetPlayers[I].IsHuman) and (fNetPlayers[I].Nikname <> aOwnNikname) then
+      fNetPlayers[I].Connected := False;
 end;
 
 
 //Set player to no longer be on the server, but do not remove their assets from the game
-procedure TKMNetPlayersList.DropPlayer(aIndexOnServer:integer);
-var ID:integer;
+procedure TKMNetPlayersList.DropPlayer(aIndexOnServer: Integer);
+var
+  ID: Integer;
 begin
   ID := ServerToLocal(aIndexOnServer);
   Assert(ID <> -1, 'Cannot drop player');
@@ -428,15 +431,16 @@ end;
 
 
 procedure TKMNetPlayersList.RemPlayer(aIndexOnServer:integer);
-var ID,I: Integer;
+var
+  ID, I: Integer;
 begin
   ID := ServerToLocal(aIndexOnServer);
   Assert(ID <> -1, 'Cannot remove player');
   fNetPlayers[ID].Free;
-  for i:=ID to fCount-1 do
-    fNetPlayers[i] := fNetPlayers[i+1]; //Shift only pointers
+  for I := ID to fCount - 1 do
+    fNetPlayers[I] := fNetPlayers[I + 1]; // Shift only pointers
 
-  fNetPlayers[fCount] := TKMNetPlayerInfo.Create; //Empty players are created but not used
+  fNetPlayers[fCount] := TKMNetPlayerInfo.Create; // Empty players are created but not used
   dec(fCount);
 end;
 
@@ -445,48 +449,51 @@ procedure TKMNetPlayersList.RemAIPlayer(ID:integer);
 var I: Integer;
 begin
   fNetPlayers[ID].Free;
-  for i:=ID to fCount-1 do
-    fNetPlayers[i] := fNetPlayers[i+1]; //Shift only pointers
+  for I := ID to fCount - 1 do
+    fNetPlayers[I] := fNetPlayers[I + 1]; // Shift only pointers
 
-  fNetPlayers[fCount] := TKMNetPlayerInfo.Create; //Empty players are created but not used
+  fNetPlayers[fCount] := TKMNetPlayerInfo.Create; // Empty players are created but not used
   dec(fCount);
   UpdateAIPlayerNames;
 end;
 
 
 procedure TKMNetPlayersList.RemClosedPlayer(ID:integer);
-var I: Integer;
+var
+  I: Integer;
 begin
   fNetPlayers[ID].Free;
-  for i:=ID to fCount-1 do
-    fNetPlayers[i] := fNetPlayers[i+1]; //Shift only pointers
+  for I := ID to fCount - 1 do
+    fNetPlayers[I] := fNetPlayers[I + 1]; // Shift only pointers
 
-  fNetPlayers[fCount] := TKMNetPlayerInfo.Create; //Empty players are created but not used
+  fNetPlayers[fCount] := TKMNetPlayerInfo.Create; // Empty players are created but not used
   dec(fCount);
 end;
 
 
 procedure TKMNetPlayersList.UpdateAIPlayerNames;
-var i, AICount:integer;
+var
+  I, AICount: Integer;
 begin
   AICount := 0;
-  for i:=1 to fCount do
-    if fNetPlayers[i].PlayerNetType = nptComputer then
+  for I := 1 to fCount do
+    if fNetPlayers[I].PlayerNetType = nptComputer then
     begin
-      inc(AICount);
-      fNetPlayers[i].fNikname := 'AI Player '+IntToStr(AICount);
+      Inc(AICount);
+      fNetPlayers[I].fNikname := AnsiString('AI Player ' + IntToStr(AICount));
     end;
 end;
 
 
 function TKMNetPlayersList.ServerToLocal(aIndexOnServer:integer):integer;
-var I: Integer;
+var
+  I: Integer;
 begin
   Result := -1;
-  for i:=1 to fCount do
-    if fNetPlayers[i].fIndexOnServer = aIndexOnServer then
+  for I := 1 to fCount do
+    if fNetPlayers[I].fIndexOnServer = aIndexOnServer then
     begin
-      Result := i;
+      Result := I;
       Exit;
     end;
 end;
@@ -525,7 +532,7 @@ end;
 
 
 //See if player can join our game
-function TKMNetPlayersList.CheckCanJoin(aNik: UnicodeString; aIndexOnServer:integer): AnsiString;
+function TKMNetPlayersList.CheckCanJoin(aNik: AnsiString; aIndexOnServer:integer): AnsiString;
 begin
   if fCount >= MAX_PLAYERS then
     Result := 'Room is full. No more players can join the game'
@@ -685,7 +692,7 @@ end;
 
 //Convert undefined/random start locations to fixed and assign random colors
 //Remove odd players
-function TKMNetPlayersList.ValidateSetup(aHumanUsableLocs, aAIUsableLocs: TPlayerIndexArray; out ErrorMsg:String):boolean;
+function TKMNetPlayersList.ValidateSetup(aHumanUsableLocs, aAIUsableLocs: TPlayerIndexArray; out ErrorMsg: UnicodeString):boolean;
 
   function IsHumanLoc(aLoc: Byte): Boolean;
   var I: Integer;
@@ -779,7 +786,7 @@ begin
           Exit;
         end;
     end;
-    
+
   RemAllClosedPlayers; //Closed players are just a marker in the lobby, delete them when the game starts
 
   //Randomize all available lists (don't use KaMRandom - we want varied results and PlayerList is synced to clients before start)

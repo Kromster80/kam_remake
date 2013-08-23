@@ -77,7 +77,7 @@ type
     fMaxRooms:word;
     fHTMLStatusFile:string;
     fWelcomeMessage: UnicodeString;
-    fServerName: UnicodeString;
+    fServerName: AnsiString;
     fKickTimeout:word;
     fRoomCount:integer;
     fEmptyGameInfo:TMPGameInfo;
@@ -108,9 +108,9 @@ type
     procedure AddClientToRoom(aHandle, aRoom:integer);
     procedure SaveHTMLStatus;
   public
-    constructor Create(aMaxRooms:word; aKickTimeout: word; aHTMLStatusFile, aWelcomeMessage: UnicodeString);
+    constructor Create(aMaxRooms:word; aKickTimeout: Word; aHTMLStatusFile, aWelcomeMessage: UnicodeString);
     destructor Destroy; override;
-    procedure StartListening(aPort,aServerName:string);
+    procedure StartListening(aPort: string; aServerName: AnsiString);
     procedure StopListening;
     procedure ClearClients;
     procedure MeasurePings;
@@ -118,7 +118,7 @@ type
     property OnStatusMessage:TGetStrProc write fOnStatusMessage;
     property Listening: boolean read fListening;
     function GetPlayerCount:integer;
-    procedure UpdateSettings(aKickTimeout: word; aHTMLStatusFile, aWelcomeMessage, aServerName: UnicodeString);
+    procedure UpdateSettings(aKickTimeout: word; aHTMLStatusFile, aWelcomeMessage: UnicodeString; aServerName: AnsiString);
     procedure GetServerInfo(aList: TList);
   end;
 
@@ -132,7 +132,7 @@ begin
   inherited Create;
   fHandle := aHandle;
   fRoom := aRoom;
-  SetLength(fBuffer,0);
+  SetLength(fBuffer, 0);
   fBufferSize := 0;
 end;
 
@@ -243,7 +243,7 @@ begin
 end;
 
 
-procedure TKMNetServer.StartListening(aPort,aServerName:string);
+procedure TKMNetServer.StartListening(aPort: string; aServerName: AnsiString);
 begin
   fRoomCount := 0;
   Assert(AddNewRoom); //Must succeed
@@ -331,13 +331,13 @@ begin
 end;
 
 
-procedure TKMNetServer.UpdateSettings(aKickTimeout: word; aHTMLStatusFile, aWelcomeMessage, aServerName: UnicodeString);
+procedure TKMNetServer.UpdateSettings(aKickTimeout: word; aHTMLStatusFile, aWelcomeMessage: UnicodeString; aServerName: AnsiString);
 begin
   fKickTimeout := aKickTimeout;
   fHTMLStatusFile := aHTMLStatusFile;
   fWelcomeMessage := aWelcomeMessage;
   if fServerName <> aServerName then
-    SendMessageW(NET_ADDRESS_ALL, mk_ServerName, aServerName);
+    SendMessageA(NET_ADDRESS_ALL, mk_ServerName, aServerName);
   fServerName := aServerName;
 end;
 
@@ -358,7 +358,7 @@ begin
   fClientList.AddPlayer(aHandle, -1); //Clients are not initially put into a room, they choose a room later
   SendMessageA(aHandle, mk_GameVersion, NET_PROTOCOL_REVISON); //First make sure they are using the right version
   if fWelcomeMessage <> '' then SendMessageW(aHandle, mk_WelcomeMessage, fWelcomeMessage); //Welcome them to the server
-  SendMessageW(aHandle, mk_ServerName, fServerName);
+  SendMessageA(aHandle, mk_ServerName, fServerName);
   SendMessage(aHandle, mk_IndexOnServer, aHandle); //This is the signal that the client may now start sending
 end;
 

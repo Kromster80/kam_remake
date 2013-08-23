@@ -4,7 +4,7 @@ interface
 uses
     {$IFDEF MSWindows} Windows, {$ENDIF}
     {$IFDEF Unix} LCLIntf, LCLType, {$ENDIF}
-    Classes, Controls,  Math, SysUtils, StrUtils, Clipbrd,
+    Classes, Controls,  Math, SysUtils, StrUtils, Clipbrd, Character,
     KromUtils, KromOGLUtils, KM_Defaults, KM_Points, KM_CommonTypes, KM_Pics,
     KM_RenderUI, KM_ResFonts, KM_ResSprites, KM_Minimap, KM_Viewport;
 
@@ -2142,13 +2142,13 @@ procedure TKMEdit.ValidateText;
 var
   I: Integer;
 const
-  DigitChars: set of Char = ['1' .. '9', '0'];
   NonFileChars: set of Char = [#0 .. #31, '<', '>', '|', '"', '\', '/', ':', '*', '?'];
   NonTextChars: set of Char = [#0 .. #31, '°', '|']; //° has negative width so acts like a backspace in KaM fonts
 begin
+
   //Validate contents
   for I := Length(fText) downto 1 do
-  if (fAllowedChars = acDigits) and not(fText[i] in DigitChars) or
+  if (fAllowedChars = acDigits) and not TCharacter.IsDigit(fText[i]) or
      (fAllowedChars = acFileName) and (fText[i] in NonFileChars) or
      (fAllowedChars = acText) and (fText[i] in NonTextChars) then
   begin
@@ -2647,14 +2647,12 @@ end;
 
 
 procedure TKMNumericEdit.ValidateText;
-const
-  DigitChars: set of Char = ['1' .. '9', '0'];
 var
   I: Integer;
 begin
   //Validate contents
   for I := Length(fText) downto 1 do
-  if not (fText[I] in DigitChars) then
+  if not TCharacter.IsDigit(fText[I]) then
   begin
     Delete(fText, I, 1);
     if CursorPos >= I then //Keep cursor in place

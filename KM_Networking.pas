@@ -56,9 +56,9 @@ type
     fRoomToJoin: integer; // The room we should join once we hear from the server
     fLastProcessedTick: cardinal;
     fReconnectRequested: cardinal; // TickCount at which a reconnection was requested
-    fMyNikname: UnicodeString;
+    fMyNikname: AnsiString;
     fWelcomeMessage: UnicodeString;
-    fServerName: UnicodeString; // Name of the server we are currently in (shown in the lobby)
+    fServerName: AnsiString; // Name of the server we are currently in (shown in the lobby)
     fPassword: AnsiString;
     fDescription: UnicodeString;
     fEnteringPassword: Boolean;
@@ -101,7 +101,7 @@ type
     procedure SetGameState(aState: TNetGameState);
     procedure SendMapOrSave;
     procedure DoReconnection;
-    procedure PlayerJoined(aServerIndex: Integer; aPlayerName: UnicodeString);
+    procedure PlayerJoined(aServerIndex: Integer; aPlayerName: AnsiString);
     function CalculateGameCRC:Cardinal;
 
     procedure ConnectSucceed(Sender:TObject);
@@ -120,17 +120,17 @@ type
     property MyIndex:integer read fMyIndex;
     property NetGameState:TNetGameState read fNetGameState;
     function MyIPString:string;
-    property ServerName:string read fServerName;
-    property ServerAddress:string read fServerAddress;
-    property ServerPort:string read fServerPort;
-    property ServerRoom:Integer read fRoomToJoin;
-    function IsHost:boolean;
-    function IsReconnecting:boolean;
+    property ServerName: AnsiString read fServerName;
+    property ServerAddress: string read fServerAddress;
+    property ServerPort: string read fServerPort;
+    property ServerRoom: integer read fRoomToJoin;
+    function IsHost: Boolean;
+    function IsReconnecting: Boolean;
 
     //Lobby
     property ServerQuery:TKMServerQuery read fServerQuery;
-    procedure Host(aUserName,aServerName,aPort:string; aAnnounceServer:boolean);
-    procedure Join(aServerAddress,aPort,aUserName:string; aRoom:integer; aIsReconnection:boolean=false);
+    procedure Host(aUserName, aServerName: AnsiString; aPort: string; aAnnounceServer: Boolean);
+    procedure Join(aServerAddress, aPort: string; aUserName: AnsiString; aRoom: Integer; aIsReconnection: Boolean = False);
     procedure AnnounceDisconnect;
     procedure Disconnect;
     procedure DropWaitingPlayers(aPlayers:TStringList);
@@ -248,7 +248,7 @@ end;
 
 
 //Startup a local server and connect to it as ordinary client
-procedure TKMNetworking.Host(aUserName, aServerName, aPort: string; aAnnounceServer: boolean);
+procedure TKMNetworking.Host(aUserName, aServerName: AnsiString; aPort: string; aAnnounceServer: Boolean);
 begin
   fWelcomeMessage := '';
   fPassword := '';
@@ -272,7 +272,7 @@ begin
 end;
 
 
-procedure TKMNetworking.Join(aServerAddress,aPort,aUserName:string; aRoom:integer; aIsReconnection:boolean=false);
+procedure TKMNetworking.Join(aServerAddress, aPort: string; aUserName: AnsiString; aRoom: Integer; aIsReconnection: Boolean = False);
 begin
   Assert(not fNetClient.Connected, 'Cannot connect: We are already connected');
 
@@ -625,11 +625,12 @@ end;
 
 
 procedure TKMNetworking.SendPassword(aPassword: AnsiString);
-var M: TKMemoryStream;
+var
+  M: TKMemoryStream;
 begin
   M := TKMemoryStream.Create;
   M.WriteA(aPassword);
-  M.WriteW(fMyNikname);
+  M.WriteA(fMyNikname);
   PacketSend(NET_ADDRESS_HOST, mk_Password, M);
   M.Free;
 
@@ -924,7 +925,7 @@ begin
 end;
 
 
-procedure TKMNetworking.PlayerJoined(aServerIndex: Integer; aPlayerName: UnicodeString);
+procedure TKMNetworking.PlayerJoined(aServerIndex: Integer; aPlayerName: AnsiString);
 begin
   PacketSend(aServerIndex, mk_GameCRC, Integer(CalculateGameCRC));
   fNetPlayers.AddPlayer(aPlayerName, aServerIndex, '');
@@ -1019,8 +1020,8 @@ begin
 
       mk_ServerName:
               begin
-                M.ReadW(tmpStringW);
-                fServerName := tmpStringW;
+                M.ReadA(tmpStringA);
+                fServerName := tmpStringA;
               end;
 
       mk_HostingRights:
@@ -1081,7 +1082,7 @@ begin
                     begin
                         SetGameState(lgs_Query);
                         fJoinTimeout := TimeGet; //Wait another X seconds for host to reply before timing out
-                        PacketSendW(NET_ADDRESS_HOST, mk_AskToJoin, fMyNikname);
+                        PacketSendA(NET_ADDRESS_HOST, mk_AskToJoin, fMyNikname);
                     end;
                   end;
               end;
@@ -1117,14 +1118,14 @@ begin
       mk_AskToJoin:
               if IsHost then
               begin
-                M.ReadW(tmpStringW);
-                replyStringA := fNetPlayers.CheckCanJoin(tmpStringW, aSenderIndex);
+                M.ReadA(tmpStringA);
+                replyStringA := fNetPlayers.CheckCanJoin(tmpStringA, aSenderIndex);
                 if (replyStringA = '') and (fNetGameState <> lgs_Lobby) then
                   replyStringA := 'Cannot join while the game is in progress';
                 if replyStringA = '' then
                 begin
                   if fPassword = '' then
-                    PlayerJoined(aSenderIndex, tmpStringW)
+                    PlayerJoined(aSenderIndex, tmpStringA)
                   else
                     PacketSend(aSenderIndex, mk_ReqPassword);
                 end
@@ -1138,12 +1139,12 @@ begin
                 M.ReadA(tmpStringA); //Password
                 if tmpStringA = fPassword then
                 begin
-                  M.ReadW(tmpStringW); //Player name
-                  replyStringA := fNetPlayers.CheckCanJoin(tmpStringW, aSenderIndex);
+                  M.ReadA(tmpStringA); //Player name
+                  replyStringA := fNetPlayers.CheckCanJoin(tmpStringA, aSenderIndex);
                   if (replyStringA = '') and (fNetGameState <> lgs_Lobby) then
                     replyStringA := 'Cannot join while the game is in progress';
                   if replyStringA = '' then
-                    PlayerJoined(aSenderIndex, tmpStringW)
+                    PlayerJoined(aSenderIndex, tmpStringA)
                   else
                     PacketSendA(aSenderIndex, mk_RefuseToJoin, replyStringA);
                 end

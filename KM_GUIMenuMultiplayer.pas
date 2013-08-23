@@ -512,7 +512,7 @@ begin
   fOnPageChange(gpLobby, 'HOST');
 
   fGameApp.Networking.OnHostFail := MP_HostFail;
-  fGameApp.Networking.Host(Edit_MP_PlayerName.Text, Edit_MP_ServerName.Text, Edit_MP_ServerPort.Text, (Sender = Button_MP_CreateWAN));
+  fGameApp.Networking.Host(AnsiString(Edit_MP_PlayerName.Text), AnsiString(Edit_MP_ServerName.Text), Edit_MP_ServerPort.Text, (Sender = Button_MP_CreateWAN));
 end;
 
 
@@ -570,7 +570,7 @@ begin
   fGameApp.Networking.OnJoinFail := MP_JoinFail;
   fGameApp.Networking.OnJoinPassword := MP_JoinPassword;
   fGameApp.Networking.OnJoinAssignedHost := MP_JoinAssignedHost;
-  fGameApp.Networking.Join(aServerAddress, aPort, Edit_MP_PlayerName.Text, aRoom); //Init lobby
+  fGameApp.Networking.Join(aServerAddress, aPort, AnsiString(Edit_MP_PlayerName.Text), aRoom); //Init lobby
 end;
 
 

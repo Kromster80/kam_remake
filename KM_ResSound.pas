@@ -298,7 +298,7 @@ end;
 
 function TKMResSounds.FileOfWarrior(aUnitType: TUnitType; aSound: TWarriorSpeech; aNumber: Byte): UnicodeString;
 var
-  S:string;
+  S: UnicodeString;
 begin
   S := ExeDir + 'data'+PathDelim+'sfx'+PathDelim+'speech.'+fLocaleString+PathDelim;
   if fWarriorUseBackup[aUnitType] then

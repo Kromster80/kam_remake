@@ -16,7 +16,7 @@ uses SysUtils;
 implementation
 
 type
-    TCharSet = set of Char;
+    TCharSet = set of AnsiChar;
 const
     UriProtocolSchemeAllowedChars : TCharSet = ['a'..'z','0'..'9','+','-','.'];
 
@@ -27,7 +27,7 @@ var
 begin
     Result := '';
     for I := 1 to Length(S) do begin
-        if S[I] in ['0'..'9', 'A'..'Z', 'a'..'z'] then
+        if CharInSet(S[I], ['0'..'9', 'A'..'Z', 'a'..'z']) then
             Result := Result + S[I]
         else
             Result := Result + '%' + IntToHex(Ord(S[I]), 2);
@@ -149,7 +149,7 @@ begin
     if p <> 0 then begin
         S := LowerCase(Copy(url, 1, p - 1));
         for i := 1 to Length(S) do begin
-            if not (S[i] in UriProtocolSchemeAllowedChars) then begin
+            if not CharInSet(S[i], UriProtocolSchemeAllowedChars) then begin
                 q := i;
                 Break;
             end;

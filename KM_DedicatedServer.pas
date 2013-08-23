@@ -26,10 +26,10 @@ type
                        const aWelcomeMessage:string; aDedicated:Boolean);
     destructor Destroy; override;
 
-    procedure Start(const aServerName:string; const aPort:string; aPublishServer:boolean);
+    procedure Start(const aServerName: AnsiString; const aPort:string; aPublishServer:boolean);
     procedure Stop;
     procedure UpdateState;
-    procedure UpdateSettings(const aServerName:string; aPublishServer:boolean; aKickTimeout, aPingInterval, aAnnounceInterval:word;
+    procedure UpdateSettings(const aServerName: AnsiString; aPublishServer:boolean; aKickTimeout, aPingInterval, aAnnounceInterval:word;
                              const aMasterServerAddress:string; const aHTMLStatusFile:string; const aWelcomeMessage:string);
     property OnMessage: TUnicodeStringEvent write fOnMessage;
     
@@ -70,13 +70,13 @@ begin
 end;
 
 
-procedure TKMDedicatedServer.Start(const aServerName:string; const aPort:string; aPublishServer:boolean);
+procedure TKMDedicatedServer.Start(const aServerName: AnsiString; const aPort:string; aPublishServer:boolean);
 begin
   fPort := aPort;
   fServerName := aServerName;
   fPublishServer := aPublishServer;
   fNetServer.OnStatusMessage := StatusMessage;
-  fNetServer.StartListening(fPort,aServerName);
+  fNetServer.StartListening(fPort, aServerName);
 end;
 
 
@@ -111,7 +111,7 @@ begin
 end;
 
 
-procedure TKMDedicatedServer.UpdateSettings(const aServerName:string; aPublishServer:boolean; aKickTimeout, aPingInterval, aAnnounceInterval:word;
+procedure TKMDedicatedServer.UpdateSettings(const aServerName: AnsiString; aPublishServer:boolean; aKickTimeout, aPingInterval, aAnnounceInterval:word;
                                             const aMasterServerAddress:string; const aHTMLStatusFile:string; const aWelcomeMessage:string);
 begin
   fAnnounceInterval := Max(MINIMUM_ANNOUNCE_INTERVAL, aAnnounceInterval);
