@@ -78,8 +78,8 @@ type
     property FontData[aIndex: TKMFont]: TKMFontData read GetFontData;
 
     function WordWrap(aText: UnicodeString; aFont: TKMFont; aMaxPxWidth: Integer; aForced: Boolean; aIndentAfterNL: Boolean): UnicodeString;
-    function CharsThatFit(const aText: AnsiString; aFont: TKMFont; aMaxPxWidth: integer): integer;
-    function GetTextSize(const aText: string; Fnt: TKMFont): TKMPoint;
+    function CharsThatFit(const aText: UnicodeString; aFont: TKMFont; aMaxPxWidth: integer): integer;
+    function GetTextSize(const aText: UnicodeString; Fnt: TKMFont): TKMPoint;
 
     procedure LoadFonts;
     procedure ExportFonts;
@@ -451,14 +451,14 @@ begin
 end;
 
 
-function TKMResourceFont.CharsThatFit(const aText: AnsiString; aFont: TKMFont; aMaxPxWidth:integer):integer;
+function TKMResourceFont.CharsThatFit(const aText: UnicodeString; aFont: TKMFont; aMaxPxWidth:integer):integer;
 var I, CharSpacing, AdvX: Integer;
 begin
   AdvX := 0;
   Result := Length(aText);
   CharSpacing := fFontData[aFont].CharSpacing; //Spacing between letters, this varies between fonts
 
-  for I := 1 to length(aText) do
+  for I := 1 to Length(aText) do
   begin
     if aText[I] = #32 then Inc(AdvX, fFontData[aFont].WordSpacing)
                       else Inc(AdvX, fFontData[aFont].Letters[byte(aText[I])].Width + CharSpacing);
@@ -472,7 +472,7 @@ begin
 end;
 
 
-function TKMResourceFont.GetTextSize(const aText: string; Fnt: TKMFont): TKMPoint;
+function TKMResourceFont.GetTextSize(const aText: UnicodeString; Fnt: TKMFont): TKMPoint;
 var
   I: Integer;
   CharSpacing, LineCount, TmpColor: Integer;

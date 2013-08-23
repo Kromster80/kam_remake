@@ -36,9 +36,9 @@ type
     constructor Create;
     destructor Destroy; override;
 
-    procedure LoadFromFile(aFileName: string);
-    procedure SaveToFile(aFileName: string);
-    procedure LoadFromPath(aPath: string);
+    procedure LoadFromFile(aFileName: UnicodeString);
+    procedure SaveToFile(aFileName: UnicodeString);
+    procedure LoadFromPath(aPath: UnicodeString);
 
     property BackGroundPic: TKMPic read fBackGroundPic write fBackGroundPic;
     property MapCount: Byte read fMapCount write SetMapCount;
@@ -49,8 +49,8 @@ type
     function CampaignDescription: UnicodeString;
     function MissionFile(aIndex: Byte): UnicodeString;
     function MissionTitle(aIndex: Byte): UnicodeString;
-    function MissionText(aIndex: Byte): UnicodeString;
-    function BreifingAudioFile(aIndex: Byte): string;
+    function MissionBriefing(aIndex: Byte): UnicodeString;
+    function BreifingAudioFile(aIndex: Byte): UnicodeString;
   end;
 
 
@@ -278,7 +278,7 @@ end;
 
 //Load campaign info from *.cmp file
 //It should be private, but it is used by CampaignBuilder
-procedure TKMCampaign.LoadFromFile(aFileName: string);
+procedure TKMCampaign.LoadFromFile(aFileName: UnicodeString);
 var
   M: TKMemoryStream;
   I, K: Integer;
@@ -305,7 +305,7 @@ begin
 end;
 
 
-procedure TKMCampaign.SaveToFile(aFileName: string);
+procedure TKMCampaign.SaveToFile(aFileName: UnicodeString);
 var
   M: TKMemoryStream;
   I, K: Integer;
@@ -335,7 +335,7 @@ begin
 end;
 
 
-procedure TKMCampaign.LoadFromPath(aPath: string);
+procedure TKMCampaign.LoadFromPath(aPath: UnicodeString);
 var
   SP: TKMSpritePack;
   FirstSpriteIndex: Word;
@@ -408,13 +408,13 @@ end;
 
 //Mission texts of original campaigns are available in all languages,
 //custom campaigns are unlikely to have more texts in more than 1-2 languages
-function TKMCampaign.MissionText(aIndex: Byte): UnicodeString;
+function TKMCampaign.MissionBriefing(aIndex: Byte): UnicodeString;
 begin
   Result := fTextLib[10 + aIndex];
 end;
 
 
-function TKMCampaign.BreifingAudioFile(aIndex: Byte): string;
+function TKMCampaign.BreifingAudioFile(aIndex: Byte): UnicodeString;
 begin
   Result := fPath + fShortTitle + Format('%.2d', [aIndex+1]) + PathDelim +
             fShortTitle + Format('%.2d', [aIndex + 1]) + '.' + gResLocales.UserLocale + '.mp3';

@@ -1431,7 +1431,7 @@ begin
   begin
     Panel_LobbySettings.Hide;
     fNetworking.Description := Edit_LobbyDescription.Text;
-    fNetworking.SetPassword(Edit_LobbyPassword.Text);
+    fNetworking.SetPassword(AnsiString(Edit_LobbyPassword.Text));
   end;
 end;
 

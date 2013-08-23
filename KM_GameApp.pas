@@ -36,7 +36,7 @@ type
     destructor Destroy; override;
     procedure AfterConstruction(aReturnToOptions: Boolean); reintroduce;
 
-    procedure Stop(aMsg: TGameResultMsg; aTextMsg: string = '');
+    procedure Stop(aMsg: TGameResultMsg; aTextMsg: UnicodeString = '');
     function CanClose: Boolean;
     procedure Resize(X,Y: Integer);
     procedure ToggleLocale(aLocale: AnsiString);
@@ -55,7 +55,7 @@ type
     procedure NewSingleSave(aSaveName: string);
     procedure NewMultiplayerMap(const aFileName: UnicodeString);
     procedure NewMultiplayerSave(const aSaveName: UnicodeString);
-    procedure NewRestartLast(aGameName, aMission, aSave, aCampName: UnicodeString; aCampMap: Byte; aLocation: Byte; aColor: Cardinal);
+    procedure NewRestartLast(aGameName, aMission, aSave: UnicodeString; aCampName: AnsiString; aCampMap: Byte; aLocation: Byte; aColor: Cardinal);
     procedure NewEmptyMap(aSizeX, aSizeY: Integer);
     procedure NewMapEditor(const aFileName: string; aSizeX, aSizeY: Integer);
     procedure NewReplay(const aFilePath: string);
@@ -355,7 +355,7 @@ end;
 //4. Fill in menu message if needed
 //5. Free the game object
 //6. Switch to MainMenu
-procedure TKMGameApp.Stop(aMsg: TGameResultMsg; aTextMsg: string='');
+procedure TKMGameApp.Stop(aMsg: TGameResultMsg; aTextMsg: UnicodeString='');
 begin
   if fGame = nil then Exit;
 
@@ -535,7 +535,7 @@ begin
 end;
 
 
-procedure TKMGameApp.NewRestartLast(aGameName, aMission, aSave, aCampName: UnicodeString; aCampMap: Byte; aLocation: Byte; aColor: Cardinal);
+procedure TKMGameApp.NewRestartLast(aGameName, aMission, aSave: UnicodeString; aCampName: AnsiString; aCampMap: Byte; aLocation: Byte; aColor: Cardinal);
 begin
   if FileExists(ExeDir + aMission) then
     LoadGameFromScript(ExeDir + aMission, aGameName, aCampName, aCampMap, gmSingle, aLocation, aColor)

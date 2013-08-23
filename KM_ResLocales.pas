@@ -99,11 +99,11 @@ begin
     end;
     Chunk := Trim(Chunk);
     case I of
-      1: aLocale.Code             := Chunk;
+      1: aLocale.Code             := AnsiString(Chunk);
       2: aLocale.Title            := Chunk;
       3: aLocale.FontCodepage     := StrToIntDef(Chunk, 0);
       4: aLocale.FlagSpriteID     := StrToIntDef(Chunk, 0);
-      5: aLocale.FallbackLocale   := Chunk;
+      5: aLocale.FallbackLocale   := AnsiString(Chunk);
       6: aLocale.TranslatorCredit := Chunk;
     end;
 

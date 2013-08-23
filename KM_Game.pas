@@ -89,7 +89,7 @@ type
     procedure MouseUp(Button: TMouseButton; Shift: TShiftState; X,Y: Integer);
     procedure MouseWheel(Shift: TShiftState; WheelDelta: Integer; X,Y: Integer);
 
-    procedure GameStart(aMissionFile, aGameName, aCampName: string; aCampMap: Byte; aLocation: ShortInt; aColor: Cardinal); overload;
+    procedure GameStart(aMissionFile, aGameName: string; aCampName: AnsiString; aCampMap: Byte; aLocation: ShortInt; aColor: Cardinal); overload;
     procedure GameStart(aSizeX, aSizeY: Integer); overload;
     procedure Load(const aPathName: string);
 
@@ -383,7 +383,7 @@ end;
 
 
 //New mission
-procedure TKMGame.GameStart(aMissionFile, aGameName, aCampName: string; aCampMap: Byte; aLocation: ShortInt; aColor: Cardinal);
+procedure TKMGame.GameStart(aMissionFile, aGameName: string; aCampName: AnsiString; aCampMap: Byte; aLocation: ShortInt; aColor: Cardinal);
 const
   GAME_PARSE: array [TGameMode] of TMissionParsingMode = (
     mpm_Single, mpm_Multi, mpm_Editor, mpm_Single, mpm_Single);

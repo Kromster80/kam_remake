@@ -150,7 +150,7 @@ begin
   end;
 
   Label_CampaignTitle.Caption := Format(gResTexts[TX_GAME_MISSION], [fMapIndex+1]);
-  Label_CampaignText.Caption := fCampaign.MissionText(fMapIndex);
+  Label_CampaignText.Caption := fCampaign.MissionBriefing(fMapIndex);
 
   //Add offset from top and space on bottom to fit buttons
   Panel_CampScroll.Height := Label_CampaignText.Top + Label_CampaignText.TextSize.Y + 70;

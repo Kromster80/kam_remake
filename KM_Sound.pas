@@ -21,25 +21,25 @@ type
     end;
     fIsSoundInitialized: boolean;
 
-    fSound:array [1..MAX_SOUNDS] of record
-      ALBuffer:TALuint;
-      ALSource:TALuint;
-      Name:string;
-      Position:TKMPointF;
-      Duration:cardinal; //MSec
-      PlaySince:cardinal;
-      FadesMusic:boolean;
+    fSound: array [1..MAX_SOUNDS] of record
+      ALBuffer: TALuint;
+      ALSource: TALuint;
+      Name: string;
+      Position: TKMPointF;
+      Duration: cardinal; //MSec
+      PlaySince: cardinal;
+      FadesMusic: Boolean;
     end;
 
     fSoundGain:single; //aka "Global volume"
     fMusicIsFaded:boolean;
 
-    fOnFadeMusic:TNotifyEvent;
-    fOnUnfadeMusic:TNotifyEvent;
+    fOnFadeMusic: TNotifyEvent;
+    fOnUnfadeMusic: TNotifyEvent;
     procedure CheckOpenALError;
 
-    procedure PlayWave(const aFile: string; Loc:TKMPointF; Attenuated:boolean=true; Volume:single=1; FadeMusic:boolean=false); overload;
-    procedure PlaySound(SoundID:TSoundFX; const aFile:string; Loc:TKMPointF; Attenuated:boolean=true; Volume:single=1; FadeMusic:boolean=false);
+    procedure PlayWave(const aFile: string; Loc: TKMPointF; Attenuated:boolean=true; Volume:single=1; FadeMusic:boolean=false); overload;
+    procedure PlaySound(SoundID: TSoundFX; const aFile:string; Loc: TKMPointF; Attenuated:boolean=true; Volume:single=1; FadeMusic:boolean=false);
   public
     constructor Create(aVolume: Single);
     destructor Destroy; override;
@@ -52,19 +52,19 @@ type
     procedure UpdateListener(X,Y:single);
     procedure UpdateSoundVolume(Value:single);
 
-    procedure PlayNotification(aSound:TAttackNotification);
-    procedure PlayWAVFromScript(aFileName: string; Loc:TKMPoint; Attenuated:Boolean; Volume:Single);
+    procedure PlayNotification(aSound: TAttackNotification);
+    procedure PlayWAVFromScript(aFileName: string; Loc: TKMPoint; Attenuated:Boolean; Volume:Single);
 
-    procedure PlayCitizen(aUnitType:TUnitType; aSound:TWarriorSpeech); overload;
-    procedure PlayCitizen(aUnitType:TUnitType; aSound:TWarriorSpeech; aLoc:TKMPointF); overload;
-    procedure PlayWarrior(aUnitType:TUnitType; aSound:TWarriorSpeech); overload;
-    procedure PlayWarrior(aUnitType:TUnitType; aSound:TWarriorSpeech; aLoc:TKMPointF); overload;
-    procedure Play(SoundID:TSoundFX; Volume: Single = 1); overload;
-    procedure Play(SoundID:TSoundFX; Loc:TKMPoint; Attenuated:boolean=true; Volume:single=1); overload;
-    procedure Play(SoundID:TSoundFX; Loc:TKMPointF; Attenuated:boolean=true; Volume:single=1); overload;
+    procedure PlayCitizen(aUnitType: TUnitType; aSound: TWarriorSpeech); overload;
+    procedure PlayCitizen(aUnitType: TUnitType; aSound: TWarriorSpeech; aLoc: TKMPointF); overload;
+    procedure PlayWarrior(aUnitType: TUnitType; aSound: TWarriorSpeech); overload;
+    procedure PlayWarrior(aUnitType: TUnitType; aSound: TWarriorSpeech; aLoc: TKMPointF); overload;
+    procedure Play(SoundID: TSoundFX; Volume: Single = 1); overload;
+    procedure Play(SoundID: TSoundFX; Loc: TKMPoint; Attenuated:boolean=true; Volume:single=1); overload;
+    procedure Play(SoundID: TSoundFX; Loc: TKMPointF; Attenuated:boolean=true; Volume:single=1); overload;
 
-    procedure Play(SoundID:TSoundFXNew; Volume:Single = 1; FadeMusic:boolean=false); overload;
-    procedure Play(SoundID:TSoundFXNew; Loc:TKMPoint; Attenuated:boolean=true; Volume:single=1; FadeMusic:boolean=false); overload;
+    procedure Play(SoundID: TSoundFXNew; Volume:Single = 1; FadeMusic:boolean=false); overload;
+    procedure Play(SoundID: TSoundFXNew; Loc: TKMPoint; Attenuated:boolean=true; Volume:single=1; FadeMusic:boolean=false); overload;
 
     procedure Paint;
     procedure UpdateStateIdle;
@@ -238,21 +238,21 @@ end;
 
 
 {Wrapper with fewer options for non-attenuated sounds}
-procedure TKMSoundPlayer.Play(SoundID:TSoundFX; Volume:single=1);
+procedure TKMSoundPlayer.Play(SoundID: TSoundFX; Volume:single=1);
 begin
   if SKIP_SOUND or not fIsSoundInitialized then Exit;
   Play(SoundID, KMPointF(0,0), false, Volume); //Redirect
 end;
 
 
-procedure TKMSoundPlayer.Play(SoundID:TSoundFXNew; Volume:single=1; FadeMusic:boolean=false);
+procedure TKMSoundPlayer.Play(SoundID: TSoundFXNew; Volume:single=1; FadeMusic:boolean=false);
 begin
   if SKIP_SOUND or not fIsSoundInitialized then Exit;
   Play(SoundID, KMPoint(0,0), false, Volume, FadeMusic);
 end;
 
 
-procedure TKMSoundPlayer.Play(SoundID:TSoundFXNew; Loc:TKMPoint; Attenuated:boolean=true; Volume:single=1; FadeMusic:boolean=false);
+procedure TKMSoundPlayer.Play(SoundID: TSoundFXNew; Loc: TKMPoint; Attenuated:boolean=true; Volume:single=1; FadeMusic:boolean=false);
 begin
   if SKIP_SOUND or not fIsSoundInitialized then Exit;
   PlayWave(fResource.Sounds.FileOfNewSFX(SoundID), KMPointF(Loc), Attenuated, Volume, FadeMusic);
@@ -260,14 +260,14 @@ end;
 
 
 {Wrapper for TSoundFX}
-procedure TKMSoundPlayer.Play(SoundID:TSoundFX; Loc:TKMPoint; Attenuated:boolean=true; Volume:single=1);
+procedure TKMSoundPlayer.Play(SoundID: TSoundFX; Loc: TKMPoint; Attenuated:boolean=true; Volume:single=1);
 begin
   if SKIP_SOUND or not fIsSoundInitialized then Exit;
   PlaySound(SoundID, '', KMPointF(Loc), Attenuated, Volume); //Redirect
 end;
 
 
-procedure TKMSoundPlayer.Play(SoundID:TSoundFX; Loc:TKMPointF; Attenuated:boolean=true; Volume:single=1);
+procedure TKMSoundPlayer.Play(SoundID: TSoundFX; Loc: TKMPointF; Attenuated:boolean=true; Volume:single=1);
 begin
   if SKIP_SOUND or not fIsSoundInitialized then Exit;
   PlaySound(SoundID, '', Loc, Attenuated, Volume); //Redirect
@@ -275,7 +275,7 @@ end;
 
 
 {Wrapper WAV files}
-procedure TKMSoundPlayer.PlayWave(const aFile: string; Loc:TKMPointF; Attenuated:boolean=true; Volume:single=1; FadeMusic:boolean=false);
+procedure TKMSoundPlayer.PlayWave(const aFile: string; Loc: TKMPointF; Attenuated:boolean=true; Volume:single=1; FadeMusic:boolean=false);
 begin
   if not fIsSoundInitialized then Exit;
   PlaySound(sfx_None, aFile, Loc, Attenuated, Volume, FadeMusic); //Redirect
@@ -285,13 +285,13 @@ end;
 {Call to this procedure will find free spot and start to play sound immediately}
 {Will need to make another one for unit sounds, which will take WAV file path as parameter}
 {Attenuated means if sound should fade over distance or not}
-procedure TKMSoundPlayer.PlaySound(SoundID:TSoundFX; const aFile:string; Loc:TKMPointF; Attenuated:boolean=true; Volume:single=1; FadeMusic:boolean=false);
+procedure TKMSoundPlayer.PlaySound(SoundID: TSoundFX; const aFile:string; Loc: TKMPointF; Attenuated:boolean=true; Volume:single=1; FadeMusic:boolean=false);
 var Dif:array[1..3]of single;
   FreeBuf{,FreeSrc}:integer;
   i,ID:integer;
   W: TKMSoundData;
   Distance:single;
-  ALState:TALint;
+  ALState: TALint;
   WAVformat: TALenum;
   WAVdata: TALvoid;
   WAVsize: TALsizei;
@@ -412,7 +412,7 @@ begin
 end;
 
 
-procedure TKMSoundPlayer.PlayCitizen(aUnitType:TUnitType; aSound:TWarriorSpeech);
+procedure TKMSoundPlayer.PlayCitizen(aUnitType: TUnitType; aSound: TWarriorSpeech);
 begin
   if SKIP_SOUND or not fIsSoundInitialized then Exit;
 
@@ -420,8 +420,10 @@ begin
 end;
 
 
-procedure TKMSoundPlayer.PlayCitizen(aUnitType:TUnitType; aSound:TWarriorSpeech; aLoc:TKMPointF);
-var Wave:string; HasLoc:boolean;
+procedure TKMSoundPlayer.PlayCitizen(aUnitType: TUnitType; aSound: TWarriorSpeech; aLoc: TKMPointF);
+var
+  Wave: UnicodeString;
+  HasLoc: Boolean;
 begin
   if SKIP_SOUND or not fIsSoundInitialized then Exit;
   if not (aUnitType in [CITIZEN_MIN..CITIZEN_MAX]) then Exit;
@@ -446,7 +448,7 @@ begin
 end;
 
 
-procedure TKMSoundPlayer.PlayWAVFromScript(aFileName: string; Loc:TKMPoint; Attenuated:Boolean; Volume:Single);
+procedure TKMSoundPlayer.PlayWAVFromScript(aFileName: string; Loc: TKMPoint; Attenuated:Boolean; Volume:Single);
 begin
   if SKIP_SOUND or not fIsSoundInitialized then Exit;
 
@@ -454,7 +456,7 @@ begin
 end;
 
 
-procedure TKMSoundPlayer.PlayWarrior(aUnitType:TUnitType; aSound:TWarriorSpeech);
+procedure TKMSoundPlayer.PlayWarrior(aUnitType: TUnitType; aSound: TWarriorSpeech);
 begin
   if SKIP_SOUND or not fIsSoundInitialized then Exit;
 
@@ -462,7 +464,7 @@ begin
 end;
 
 
-procedure TKMSoundPlayer.PlayWarrior(aUnitType:TUnitType; aSound:TWarriorSpeech; aLoc:TKMPointF);
+procedure TKMSoundPlayer.PlayWarrior(aUnitType: TUnitType; aSound: TWarriorSpeech; aLoc: TKMPointF);
 var
   Wave: string;
   HasLoc: Boolean;

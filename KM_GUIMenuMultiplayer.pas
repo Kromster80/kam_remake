@@ -289,7 +289,7 @@ begin
   if Sender = Button_MP_PasswordOk then
   begin
     Panel_MPPassword.Hide;
-    fGameApp.Networking.SendPassword(Edit_MP_Password.Text);
+    fGameApp.Networking.SendPassword(AnsiString(Edit_MP_Password.Text));
   end;
   if Sender = Button_MP_PasswordCancel then
   begin

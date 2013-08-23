@@ -21,7 +21,7 @@ type
     fRepeatGameName: UnicodeString;
     fRepeatMission: UnicodeString;
     fRepeatSave: UnicodeString;
-    fRepeatCampName: UnicodeString;
+    fRepeatCampName: AnsiString;
     fRepeatCampMap: Byte;
     fRepeatLocation: Byte;
     fRepeatColor: Cardinal;

@@ -100,7 +100,7 @@ begin
   if not FileExists(FilePath) then Exit;
 
   //Load ANSI file with codepage we say into unicode string
-  langCode := Copy(FilePath, Length(FilePath) - 7, 3);
+  langCode := AnsiString(Copy(FilePath, Length(FilePath) - 7, 3));
   libTxt := ReadTextU(FilePath, gResLocales.LocaleByCode(langCode).FontCodepage);
   Tmp := TextToArray(libTxt);
 
