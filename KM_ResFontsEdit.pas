@@ -41,7 +41,6 @@ uses KM_PNG;
 { TKMFontDataEdit }
 procedure TKMFontDataEdit.CreateFont(aFontName: string; aFontSize: Byte; aFontStyle: TFontStyles; aAntialias: Boolean; const aChars: array of WideChar);
 const
-  INS = 0;
   FONT_INTERLINE = 5; //Spacing between lines of text
 var
   bitmap: TBitmap;
@@ -100,18 +99,18 @@ begin
 
       if chWidth = 0 then Continue;
 
-      if pX + chWidth + fTexPadding >= fTexSizeX then
+      if pX + chWidth + fTexPadding*2 >= fTexSizeX then
       begin
         pX := fTexPadding;
-        Inc(pY, txtHeight + fTexPadding);
-        if pY + txtHeight + fTexPadding > fTexSizeY then
+        Inc(pY, txtHeight + fTexPadding*2);
+        if pY + txtHeight + fTexPadding*2 > fTexSizeY then
           Break;
       end;
 
-      Letters[I].u1 := (pX + INS) / fTexSizeX;
-      Letters[I].v1 := (pY + INS) / fTexSizeY;
-      Letters[I].u2 := (pX + chWidth - INS) / fTexSizeX;
-      Letters[I].v2 := (pY + txtHeight - INS) / fTexSizeY;
+      Letters[I].u1 := (pX - fTexPadding) / fTexSizeX;
+      Letters[I].v1 := (pY - fTexPadding) / fTexSizeY;
+      Letters[I].u2 := (pX + chWidth + fTexPadding) / fTexSizeX;
+      Letters[I].v2 := (pY + txtHeight + fTexPadding) / fTexSizeY;
 
       chRect.Left := pX;
       chRect.Top := pY;
@@ -120,7 +119,7 @@ begin
       ch := WideChar(I); //Lazarus needs extra verbose types
       bitmap.Canvas.TextRect(chRect, pX, pY, UTF8Encode(ch));
 
-      Inc(pX, chWidth + fTexPadding);
+      Inc(pX, chWidth + fTexPadding*2);
     end;
 
     SetLength(fTexData, fTexSizeX * fTexSizeY);
