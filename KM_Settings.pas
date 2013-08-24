@@ -63,9 +63,9 @@ type
     fPingInterval: Integer;
     fAnnounceServer: Boolean;
     fHTMLStatusFile: string;
-    fServerWelcomeMessage: string;
-    function LoadFromINI(FileName: string): Boolean;
-    procedure SaveToINI(FileName: string);
+    fServerWelcomeMessage: UnicodeString;
+    function LoadFromINI(FileName: UnicodeString): Boolean;
+    procedure SaveToINI(FileName: UnicodeString);
 
     procedure SetAutosave(aValue: Boolean);
     procedure SetBrightness(aValue: Byte);
@@ -288,7 +288,7 @@ begin
 end;
 
 
-function TGameSettings.LoadFromINI(FileName: string): Boolean;
+function TGameSettings.LoadFromINI(FileName: UnicodeString): Boolean;
 var
   F: TMemIniFile;
 begin
@@ -342,7 +342,7 @@ end;
 
 
 //Don't rewrite the file for each individual change, do it in one batch for simplicity
-procedure TGameSettings.SaveToINI(FileName: string);
+procedure TGameSettings.SaveToINI(FileName: UnicodeString);
 var
   F: TMemIniFile;
 begin

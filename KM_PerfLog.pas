@@ -18,7 +18,7 @@ type
     procedure Clear;
     procedure EnterSection(aSection: TPerfSection);
     procedure LeaveSection(aSection: TPerfSection);
-    procedure SaveToFile(aFilename: string);
+    procedure SaveToFile(aFilename: UnicodeString);
   end;
 
 
@@ -26,7 +26,7 @@ implementation
 
 
 const
-  SectionName: array [TPerfSection] of string = ('Tick', 'Hungarian');
+  SectionName: array [TPerfSection] of AnsiString = ('Tick', 'Hungarian');
 
 
 { TKMPerfLog }
@@ -57,7 +57,7 @@ begin
 end;
 
 
-procedure TKMPerfLog.SaveToFile(aFilename: string);
+procedure TKMPerfLog.SaveToFile(aFilename: UnicodeString);
 var
   K: TPerfSection;
   I: Integer;

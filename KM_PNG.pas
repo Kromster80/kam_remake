@@ -7,22 +7,22 @@ uses
   {$IFDEF FPC} BGRABitmap, BGRABitmapTypes; {$ENDIF}
 
 
-  procedure SaveToPng(aWidth, aHeight: Word; const aPixelData: TKMCardinalArray; aFile: string);
-  procedure LoadFromPng(const aFile: string; var aWidth, aHeight: Word; var aPixelData: TKMCardinalArray);
+  procedure SaveToPng(aWidth, aHeight: Word; const aPixelData: TKMCardinalArray; aFile: UnicodeString);
+  procedure LoadFromPng(const aFile: UnicodeString; var aWidth, aHeight: Word; var aPixelData: TKMCardinalArray);
 
 
 implementation
 
 
-procedure SaveToPng(aWidth, aHeight: Word; const aPixelData: TKMCardinalArray; aFile: string);
+procedure SaveToPng(aWidth, aHeight: Word; const aPixelData: TKMCardinalArray; aFile: UnicodeString);
 var
-  {$IFDEF WDC} Png: PNGImage.TPngObject; {$ENDIF}
+  {$IFDEF WDC} Png: PNGImage.TPngImage; {$ENDIF}
   {$IFDEF FPC} Png: TBGRABitmap; {$ENDIF}
   I, K: Integer;
   T: Cardinal;
 begin
   {$IFDEF WDC}
-    Png := TPngObject.CreateBlank(COLOR_RGBALPHA, 8, aWidth, aHeight);
+    Png := TPngImage.CreateBlank(COLOR_RGBALPHA, 8, aWidth, aHeight);
     try
       for I := 0 to aHeight - 1 do
       for K := 0 to aWidth - 1 do
@@ -57,15 +57,15 @@ begin
 end;
 
 
-procedure LoadFromPng(const aFile: string; var aWidth, aHeight: Word; var aPixelData: TKMCardinalArray);
+procedure LoadFromPng(const aFile: UnicodeString; var aWidth, aHeight: Word; var aPixelData: TKMCardinalArray);
 var
-  {$IFDEF WDC} Png: TPngObject; {$ENDIF}
+  {$IFDEF WDC} Png: TPngImage; {$ENDIF}
   {$IFDEF FPC} Png: TBGRABitmap; {$ENDIF}
   I, K: Integer;
   T: Byte;
 begin
   {$IFDEF WDC}
-    Png := TPngObject.Create;
+    Png := TPngImage.Create;
     Png.LoadFromFile(aFile);
 
     aWidth := Png.Width;
