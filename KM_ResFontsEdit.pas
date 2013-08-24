@@ -166,11 +166,15 @@ begin
   pX := fTexPadding;
   pY := fTexPadding;
   for K := Low(aFonts) to High(aFonts) do
-    for I := 0 to 255 do
+    for I := 0 to aFonts[K].CharCount do
     begin
       if aFonts[K].Used[I] = 0 then Continue;
 
-      uniChar := AnsiCharToWideChar(AnsiChar(I), aCodepages[K]);
+      if aFonts[K].IsUnicode then
+        uniChar := WideChar(I)
+      else
+        uniChar := AnsiCharToWideChar(AnsiChar(I), aCodepages[K]);
+
       uniCode := Ord(uniChar);
 
       //We already have that letter

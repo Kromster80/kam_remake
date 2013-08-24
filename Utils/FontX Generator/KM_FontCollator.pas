@@ -45,7 +45,6 @@ procedure TKMFontCollator.Collate(aFontName: string; aPal: TKMPal; aPad, aX, aY:
 var
   pals: TKMPalettes;
   codePages: TKMWordArray;
-  fntId: TKMFont;
   I: Integer;
   srcFont: array of TKMFontDataEdit;
   fntFile: string;
@@ -57,13 +56,16 @@ begin
 
     //List of codepages we need to collate
     codePages := gResLocales.CodePagesList;
+
+    SetLength(codePages, Length(codePages)+1);
+    codePages[High(codePages)] := 9999;
     SetLength(srcFont, Length(codePages));
 
     for I := Low(codePages) to High(codePages) do
     begin
       srcFont[I] := TKMFontDataEdit.Create;
-      fntFile := ExeDir + '..\..\data\gfx\fonts\' + FontInfo[fntId].FontFile + '.' + IntToStr(codePages[I]) + '.fnt';
-      srcFont[I].LoadFont(fntFile, pals[FontInfo[fntId].Pal]);
+      fntFile := ExeDir + '..\..\data\gfx\fonts\' + aFontName + '.' + IntToStr(codePages[I]) + '.fnt';
+      srcFont[I].LoadFont(fntFile, pals[aPal]);
     end;
 
     aFnt.TexPadding := aPad;

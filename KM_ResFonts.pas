@@ -41,6 +41,7 @@ type
     fTexID: Cardinal;
     fTexData: TKMCardinalArray;
     fTexSizeX, fTexSizeY: Word;
+    fCharCount: Word;
     fBaseHeight, fWordSpacing, fCharSpacing, fUnknown: SmallInt;
     fLineSpacing: Byte; //Not in KaM files, we use custom value that fits well
     fIsUnicode: Boolean;
@@ -57,6 +58,7 @@ type
     procedure ExportBimap(const aPath: string; aOnlyAlpha: Boolean); overload;
     procedure ExportPng(const aFilename: string);
 
+    property CharCount: Word read fCharCount;
     property CharSpacing: SmallInt read fCharSpacing;
     property LineSpacing: Byte read fLineSpacing;
     property BaseHeight: SmallInt read fBaseHeight;
@@ -112,7 +114,6 @@ var
   I, M, L: Integer;
   MaxHeight: Integer;
   pX, pY: Integer;
-  charCount: Word;
 begin
   MaxHeight := 0;
   if not FileExists(aFileName) then
@@ -122,7 +123,7 @@ begin
   S.LoadFromFile(aFileName);
 
   //Fnt allows to store 256 or 65000 characters, but there's no flag inside, we can test only filesize
-  charCount := IfThen(S.Size <= 65000, 256, 65000);
+  fCharCount := IfThen(S.Size <= 65000, 256, 65000);
 
   fIsUnicode := S.Size > 65000;
 
@@ -132,10 +133,10 @@ begin
   S.Read(fUnknown, 2); //Unknown field
   fLineSpacing := FONT_INTERLINE;
 
-  S.Read(Used[0], charCount);
+  S.Read(Used[0], fCharCount);
 
   //Read font data
-  for I := 0 to charCount - 1 do
+  for I := 0 to fCharCount - 1 do
   if Used[I] <> 0 then
   begin
     S.Read(Letters[I].Width, 2);
@@ -158,11 +159,11 @@ begin
   //Compile texture
   pX := PAD;
   pY := PAD;
-  fTexSizeX := TEX_SIZE;
-  fTexSizeY := TEX_SIZE;
+  fTexSizeX := TEX_SIZE * (1 + Byte(fIsUnicode) * 3); //256 / 1024
+  fTexSizeY := TEX_SIZE * (1 + Byte(fIsUnicode) * 1); //256 / 512
   SetLength(fTexData, fTexSizeX * fTexSizeY);
 
-  for I := 0 to charCount - 1 do
+  for I := 0 to fCharCount - 1 do
   if Used[I] <> 0 then
   begin
     //Switch to new line

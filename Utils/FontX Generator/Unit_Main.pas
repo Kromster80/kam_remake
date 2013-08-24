@@ -64,7 +64,6 @@ implementation
 {$R *.dfm}
 
 
-
 procedure TForm1.FormCreate(Sender: TObject);
 var
   fntId: TKMFont;
@@ -73,7 +72,6 @@ begin
   ExeDir := ExtractFilePath(Application.ExeName);
 
   Collator := TKMFontCollator.Create;
-
 
   //Available fonts
   for fntId := Low(TKMFont) to High(TKMFont) do
