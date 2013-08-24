@@ -512,7 +512,7 @@ begin
   fOnPageChange(gpLobby, 'HOST');
 
   fGameApp.Networking.OnHostFail := MP_HostFail;
-  fGameApp.Networking.Host(AnsiString(Edit_MP_PlayerName.Text), AnsiString(Edit_MP_ServerName.Text), Edit_MP_ServerPort.Text, (Sender = Button_MP_CreateWAN));
+  fGameApp.Networking.Host(Edit_MP_ServerName.Text, Edit_MP_ServerPort.Text, AnsiString(Edit_MP_PlayerName.Text), (Sender = Button_MP_CreateWAN));
 end;
 
 

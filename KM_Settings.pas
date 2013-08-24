@@ -56,7 +56,7 @@ type
     fLastRoom: string;
     fServerPort: string;
     fMasterServerAddress: string;
-    fServerName: string;
+    fServerName: UnicodeString;
     fMasterAnnounceInterval: Integer;
     fMaxRooms: Integer;
     fAutoKickTimeout: Integer;
@@ -115,7 +115,7 @@ type
     property LastRoom: string read fLastRoom write SetLastRoom;
     property ServerPort: string read fServerPort write SetServerPort;
     property MasterServerAddress: string read fMasterServerAddress write SetMasterServerAddress;
-    property ServerName: string read fServerName write SetServerName;
+    property ServerName: UnicodeString read fServerName write SetServerName;
     property MasterAnnounceInterval: Integer read fMasterAnnounceInterval write SetMasterAnnounceInterval;
     property AnnounceServer: Boolean read fAnnounceServer write SetAnnounceServer;
     property MaxRooms: Integer read fMaxRooms write SetMaxRooms;

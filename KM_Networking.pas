@@ -58,7 +58,7 @@ type
     fReconnectRequested: cardinal; // TickCount at which a reconnection was requested
     fMyNikname: AnsiString;
     fWelcomeMessage: UnicodeString;
-    fServerName: AnsiString; // Name of the server we are currently in (shown in the lobby)
+    fServerName: UnicodeString; // Name of the server we are currently in (shown in the lobby)
     fPassword: AnsiString;
     fDescription: UnicodeString;
     fEnteringPassword: Boolean;
@@ -120,7 +120,7 @@ type
     property MyIndex:integer read fMyIndex;
     property NetGameState:TNetGameState read fNetGameState;
     function MyIPString:string;
-    property ServerName: AnsiString read fServerName;
+    property ServerName: UnicodeString read fServerName;
     property ServerAddress: string read fServerAddress;
     property ServerPort: string read fServerPort;
     property ServerRoom: integer read fRoomToJoin;
@@ -129,7 +129,7 @@ type
 
     //Lobby
     property ServerQuery:TKMServerQuery read fServerQuery;
-    procedure Host(aUserName, aServerName: AnsiString; aPort: string; aAnnounceServer: Boolean);
+    procedure Host(aServerName: UnicodeString; aPort: string; aUserName: AnsiString; aAnnounceServer: Boolean);
     procedure Join(aServerAddress, aPort: string; aUserName: AnsiString; aRoom: Integer; aIsReconnection: Boolean = False);
     procedure AnnounceDisconnect;
     procedure Disconnect;
@@ -248,7 +248,7 @@ end;
 
 
 //Startup a local server and connect to it as ordinary client
-procedure TKMNetworking.Host(aUserName, aServerName: AnsiString; aPort: string; aAnnounceServer: Boolean);
+procedure TKMNetworking.Host(aServerName: UnicodeString; aPort: string; aUserName: AnsiString; aAnnounceServer: Boolean);
 begin
   fWelcomeMessage := '';
   fPassword := '';
@@ -1020,8 +1020,8 @@ begin
 
       mk_ServerName:
               begin
-                M.ReadA(tmpStringA);
-                fServerName := tmpStringA;
+                M.ReadW(tmpStringW);
+                fServerName := tmpStringW;
               end;
 
       mk_HostingRights:
