@@ -2,7 +2,7 @@ object Form1: TForm1
   Left = 438
   Top = 169
   Caption = 'Form1'
-  ClientHeight = 609
+  ClientHeight = 649
   ClientWidth = 801
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -15,7 +15,7 @@ object Form1: TForm1
   OnDestroy = FormDestroy
   DesignSize = (
     801
-    609)
+    649)
   PixelsPerInch = 96
   TextHeight = 16
   object Label4: TLabel
@@ -32,38 +32,42 @@ object Form1: TForm1
     Left = 280
     Top = 24
     Width = 512
-    Height = 512
+    Height = 552
     Anchors = [akLeft, akTop, akRight, akBottom]
+    ExplicitHeight = 512
   end
   object btnSave: TButton
     Left = 416
-    Top = 544
+    Top = 584
     Width = 129
     Height = 57
     Anchors = [akLeft, akBottom]
     Caption = 'Save font ...'
     TabOrder = 0
     OnClick = btnSaveClick
+    ExplicitTop = 544
   end
   object btnExportTex: TButton
     Left = 280
-    Top = 544
+    Top = 584
     Width = 129
     Height = 25
     Anchors = [akLeft, akBottom]
     Caption = 'Export texture ...'
     TabOrder = 1
     OnClick = btnExportTexClick
+    ExplicitTop = 544
   end
   object btnImportTex: TButton
     Left = 280
-    Top = 576
+    Top = 616
     Width = 129
     Height = 25
     Anchors = [akLeft, akBottom]
     Caption = 'Import texture ...'
     TabOrder = 2
     OnClick = btnImportTexClick
+    ExplicitTop = 576
   end
   object GroupBox1: TGroupBox
     Left = 8
@@ -133,12 +137,12 @@ object Form1: TForm1
     Left = 8
     Top = 112
     Width = 265
-    Height = 313
+    Height = 353
     Caption = ' Generate from scratch '
     TabOrder = 4
     object Label1: TLabel
       Left = 8
-      Top = 72
+      Top = 96
       Width = 92
       Height = 16
       Caption = 'Used characters'
@@ -168,7 +172,7 @@ object Form1: TForm1
     end
     object btnGenerate: TButton
       Left = 136
-      Top = 280
+      Top = 320
       Width = 121
       Height = 25
       Caption = 'Generate font'
@@ -177,9 +181,9 @@ object Form1: TForm1
     end
     object Memo1: TMemo
       Left = 8
-      Top = 88
+      Top = 112
       Width = 249
-      Height = 185
+      Height = 201
       Font.Charset = 4
       Font.Color = clWindowText
       Font.Height = -13
@@ -238,17 +242,27 @@ object Form1: TForm1
     end
     object btnCollectChars: TButton
       Left = 8
-      Top = 280
+      Top = 320
       Width = 121
       Height = 25
       Caption = 'Collect "libx" chars'
       TabOrder = 6
       OnClick = btnCollectCharsClick
     end
+    object cbAntialias: TCheckBox
+      Left = 8
+      Top = 72
+      Width = 73
+      Height = 20
+      Caption = 'Antialias'
+      Checked = True
+      State = cbChecked
+      TabOrder = 7
+    end
   end
   object GroupBox3: TGroupBox
     Left = 8
-    Top = 432
+    Top = 472
     Width = 265
     Height = 169
     Caption = ' Collate existing fonts '
@@ -265,7 +279,7 @@ object Form1: TForm1
     end
     object btnCollate: TButton
       Left = 136
-      Top = 4
+      Top = 20
       Width = 121
       Height = 25
       Anchors = [akLeft, akBottom]
@@ -275,7 +289,7 @@ object Form1: TForm1
     end
     object btnCollateAuto: TButton
       Left = 136
-      Top = 36
+      Top = 52
       Width = 121
       Height = 25
       Anchors = [akLeft, akBottom]
@@ -286,7 +300,7 @@ object Form1: TForm1
   end
   object btnOneClick: TButton
     Left = 552
-    Top = 544
+    Top = 584
     Width = 129
     Height = 57
     Anchors = [akLeft, akBottom]
@@ -299,6 +313,7 @@ object Form1: TForm1
     ParentFont = False
     TabOrder = 6
     OnClick = btnOneClickClick
+    ExplicitTop = 544
   end
   object dlgSave: TSaveDialog
     Left = 288

@@ -39,6 +39,7 @@ type
     btnCollateAuto: TButton;
     cbCells: TCheckBox;
     btnOneClick: TButton;
+    cbAntialias: TCheckBox;
     procedure btnGenerateClick(Sender: TObject);
     procedure btnSaveClick(Sender: TObject);
     procedure btnExportTexClick(Sender: TObject);
@@ -113,7 +114,7 @@ begin
   Fnt.TexPadding := sePadding.Value;
   Fnt.TexSizeX := StrToInt(rgSizeX.Items[rgSizeX.ItemIndex]);
   Fnt.TexSizeY := StrToInt(rgSizeY.Items[rgSizeY.ItemIndex]);
-  Fnt.CreateFont(edtFontName.Text, seFontSize.Value, fntStyle, useChars);
+  Fnt.CreateFont(edtFontName.Text, seFontSize.Value, fntStyle, cbAntialias.Checked, useChars);
 
   Fnt.ExportBimap(Image1.Picture.Bitmap, True, cbCells.Checked);
 end;
@@ -227,6 +228,7 @@ begin
   if not dlgOpen.Execute then Exit;
 
   Fnt.ImportPng(dlgOpen.FileName);
+  Fnt.ExportBimap(Image1.Picture.Bitmap, False, cbCells.Checked);
 end;
 
 

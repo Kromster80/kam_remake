@@ -14,7 +14,7 @@ type
   private
     fTexPadding: Byte;
   public
-    procedure CreateFont(aFontName: string; aFontSize: Byte; aFontStyle: TFontStyles; const aChars: array of WideChar);
+    procedure CreateFont(aFontName: string; aFontSize: Byte; aFontStyle: TFontStyles; aAntialias: Boolean; const aChars: array of WideChar);
     procedure CollateFont(aFonts: array of TKMFontDataEdit; aCodepages: array of Word);
     procedure ImportPng(const aFilename: string);
     procedure SaveToFont(const aFilename: string);
@@ -35,10 +35,11 @@ type
 
 
 implementation
+uses KM_PNG;
 
 
 { TKMFontDataEdit }
-procedure TKMFontDataEdit.CreateFont(aFontName: string; aFontSize: Byte; aFontStyle: TFontStyles; const aChars: array of WideChar);
+procedure TKMFontDataEdit.CreateFont(aFontName: string; aFontSize: Byte; aFontStyle: TFontStyles; aAntialias: Boolean; const aChars: array of WideChar);
 const
   INS = 0;
   FONT_INTERLINE = 5; //Spacing between lines of text
@@ -59,6 +60,10 @@ begin
     bitmap.Canvas.Font.Size := aFontSize;
     bitmap.Canvas.Font.Name := aFontName;
     bitmap.Canvas.Font.Style := aFontStyle;
+    if aAntialias then
+      bitmap.Canvas.Font.Quality := fqClearType
+    else
+      bitmap.Canvas.Font.Quality := fqNonAntialiased;
 
     //Common font props
     fBaseHeight := aFontSize;
@@ -219,8 +224,18 @@ end;
 
 
 procedure TKMFontDataEdit.ImportPng(const aFilename: string);
+var
+  I, K: Word;
+  pngWidth, pngHeight: Word;
+  pngData: TKMCardinalArray;
 begin
+  LoadFromPng(aFilename, pngWidth, pngHeight, pngData);
 
+  Assert((pngWidth = fTexSizeX) and (pngHeight = fTexSizeY), 'Size must match because of letters data');
+
+  for I := 0 to fTexSizeY - 1 do
+  for K := 0 to fTexSizeX - 1 do
+    (PCardinal(Cardinal(@fTexData[0]) + (I * fTexSizeX + K) * 4))^ := pngData[I * fTexSizeX + K];
 end;
 
 
