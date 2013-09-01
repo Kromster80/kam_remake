@@ -11,8 +11,8 @@ function AddStatsRecord($con, $rev) {
 	$time = date("Y-m-d H:i:s");
 	$data = $con->query("SELECT SUM(Players) AS PlayerSum, COUNT(IP) AS ServerCount FROM Servers WHERE Rev='$rev'");
 	$data = $data->fetch_array();
-	$players = $data["PlayerSum"];
-	$servers = $data["ServerCount"];
+	$players = intval($data["PlayerSum"]);
+	$servers = intval($data["ServerCount"]);
 	$con->query("INSERT INTO Stats (Rev, Timestamp, Players, Servers) VALUES ('$rev', '$time', $players, $servers)");
 	//Also update the player time
 	global $STATS_PERIOD;
@@ -32,7 +32,7 @@ function StatsUpdate($con, $rev) {
 	}
 }
 
-function GetServerGraph($con, $rev, $size = array(500, 200), $timespan = array(0, 0), $numperiods = 0, $Format='') {
+function GetServerGraph($con, $rev, $type, $size = array(500, 200), $timespan = array(0, 0), $numperiods = 0, $Format='') {
 	global $STATS_PERIOD;
 	
 	date_default_timezone_set("UTC");
@@ -53,21 +53,37 @@ function GetServerGraph($con, $rev, $size = array(500, 200), $timespan = array(0
 	$Timestamps = "";
 	
 	$CountMax = 0;
+	$revlimit = "";
+	if($rev != "any")
+		$revlimit = "Rev = '$rev' AND";
 
-	$data = $con->query("SELECT Timestamp, Players, Servers FROM Stats WHERE Rev = '$rev' AND Timestamp >= '$sqlsince' AND Timestamp <= '$sqlto ORDER BY Timestamp ASC'");
+	switch($type) {
+		case 'day':
+			$data = $con->query("SELECT Timestamp AS MyTimestamp, AVG(Players) AS MyPlayers, AVG(Servers) AS MyServers FROM Stats WHERE $revlimit Timestamp >= '$sqlsince' AND Timestamp <= '$sqlto' GROUP BY DATE(Timestamp) ORDER BY Timestamp ASC");
+			break;
+		default:
+			$data = $con->query("SELECT Timestamp AS MyTimestamp, Players AS MyPlayers, Servers AS MyServers FROM Stats WHERE $revlimit Timestamp >= '$sqlsince' AND Timestamp <= '$sqlto' ORDER BY Timestamp ASC");
+	}
 	$period = round($data->num_rows / ($numperiods-2));
+	//echo "period: $period num rows: ".$data->num_rows."\n";
 	$p = $period;
+	$LastTimestampEntry = "";
 	while($row = $data->fetch_array()) {
+		$Timestamp = $row["MyTimestamp"];
+		$Players = round($row["MyPlayers"]);
+		$Servers = round($row["MyServers"]);
 		if (!($p++ % $period)) {
-			$Timestamps .= 't('.strtotime($row["Timestamp"]).",$showdates),";
+			//echo " writing at $p\n";
+			$Timestamps .= $LastTimestampEntry; //Skip the last one
+			$LastTimestampEntry = 't('.strtotime($Timestamp).",$showdates),";
 			$p = 1;
 		}
-		$LastTimestamp = $row["Timestamp"];
-		$ServerLine .= "'".$row["Servers"]."',";
-		$PlayerLine .= "'".$row["Players"]."',";
+		$LastTimestamp = $Timestamp;
+		$ServerLine .= "'".$Servers."',";
+		$PlayerLine .= "'".$Players."',";
 
-		$CountMax = ($row["Servers"] > $CountMax) ? $row["Servers"] : $CountMax;
-		$CountMax = ($row["Players"] > $CountMax) ? $row["Players"] : $CountMax;
+		$CountMax = ($Servers > $CountMax) ? $Servers : $CountMax;
+		$CountMax = ($Players > $CountMax) ? $Players : $CountMax;
 	}
 	
 	$ServerLine = rtrim($ServerLine, ",");
@@ -124,6 +140,14 @@ function GetServerGraph($con, $rev, $size = array(500, 200), $timespan = array(0
 $con = db_connect();
 $format = "";
 if(isset($_REQUEST['format'])) $format = $con->real_escape_string($_REQUEST['format']);
+$Rev = $MAIN_VERSION;
+if(isset($_REQUEST["rev"])) {
+	$Rev = $con->real_escape_string($_REQUEST["rev"]);
+}
+$Type = "";
+if(isset($_REQUEST["rev"])) {
+	$Type = $con->real_escape_string($_REQUEST["type"]);
+}
 
 if ( basename(__FILE__) == basename($_SERVER["SCRIPT_FILENAME"]) ) { //if we have been called directly
 	global $MAIN_VERSION;
@@ -138,7 +162,7 @@ if ( basename(__FILE__) == basename($_SERVER["SCRIPT_FILENAME"]) ) { //if we hav
 			echo '<!doctype html><html><head><META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=UTF-8">
 			<script src="RGraph/libraries/RGraph.common.core.js" ></script><script src="RGraph/libraries/RGraph.line.js">
 			</script><!--[if IE 8]><script src="RGraph/excanvas/excanvas.original.js"></script><![endif]--></head><body>';
-		echo GetServerGraph($con, $MAIN_VERSION, array($con->real_escape_string($_REQUEST["width"]), $con->real_escape_string($_REQUEST["height"])), 
+		echo GetServerGraph($con, $Rev, $Type, array($con->real_escape_string($_REQUEST["width"]), $con->real_escape_string($_REQUEST["height"])), 
 			array($con->real_escape_string($_REQUEST["since"]), $con->real_escape_string($_REQUEST["to"])), $con->real_escape_string($_REQUEST["period"]), $format);
 		if (isset($_REQUEST["html"])) echo '</body></html>';
 	} 
@@ -146,7 +170,7 @@ if ( basename(__FILE__) == basename($_SERVER["SCRIPT_FILENAME"]) ) { //if we hav
 		echo '<!doctype html><html><head><META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=UTF-8">
 		<script src="RGraph/libraries/RGraph.common.core.js" ></script><script src="RGraph/libraries/RGraph.line.js">
 		</script><!--[if IE 8]><script src="RGraph/excanvas/excanvas.original.js"></script><![endif]--></head><body>';
-		echo GetServerGraph($con, $MAIN_VERSION, array(512,256), array(time() - 24*60*60, time()), 28, $format);
+		echo GetServerGraph($con, $Rev, $Type, array(512,256), array(time() - 24*60*60, time()), 28, $format);
 		echo '</body></html>';
 	} 
 	else echo '<!doctype html><html><head></head><body><form><p>All textfields are mandatory!</p>

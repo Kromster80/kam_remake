@@ -54,7 +54,7 @@ switch($format) {
 //                BODY                 //
 /////////////////////////////////////////
 Remove_Old_Servers($con);
-$data = $con->query("SELECT IP, Port, Name, Players, Dedicated, OS, Pingable FROM Servers WHERE Rev='$rev' ORDER BY Players DESC");
+$data = $con->query("SELECT IP, Port, Name, Players, Dedicated, OS, Pingable FROM Servers WHERE Rev='$rev' ORDER BY Players DESC, Name ASC");
 while($row = $data->fetch_array())
 {
 	$Name = $row['Name'];

@@ -60,16 +60,16 @@ function GetMapFileName($Rev)
 
 function TestConnection($aIP, $aPort) {
 	//My server (kam.hodgman.id.au) can do outgoing connections on port 56789 (99% of servers use this) because we asked for permission
-	if($aPort == "56789") {
+	//if($aPort == "56789") {
 	  $fp = @fsockopen($aIP, $aPort, $errnum, $errstr, 6); //@ means suppress errors such as "failed to connect"
 	  if($fp) {
 		fclose($fp);
 		return true;
 	  } else
 		return false;
-	}
-	else
-	  return (file_get_contents('http://www.kamremake.com/portcheck.php?ip='.$aIP.'&port='.$aPort.'') == 'TRUE');
+	//}
+	//else
+	//  return (file_get_contents('http://www.kamremake.com/portcheck.php?ip='.$aIP.'&port='.$aPort.'') == 'TRUE');
 }
 
 function Remove_Old_Servers($con) {

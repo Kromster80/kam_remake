@@ -19,8 +19,8 @@ $rev = $MAIN_VERSION;
 $con = db_connect();
 $data = $con->query("SELECT SUM(Players) AS PlayerSum, COUNT(IP) AS ServerCount FROM Servers WHERE Rev='$rev'");
 $data = $data->fetch_array();
-$TotalPlayerCount = $data["PlayerSum"];
-$ServerCount = $data["ServerCount"];
+$TotalPlayerCount = intval($data["PlayerSum"]);
+$ServerCount = intval($data["ServerCount"]);
 switch ($Format)
 {
 	case "kamclub":
