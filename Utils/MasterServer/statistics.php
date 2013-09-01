@@ -1,151 +1,103 @@
 ﻿<?php
+include_once("consts.php");
+include_once("db.php");
+include_once("serverlib.php");
 
-global $STATS_FILE, $STATS_TEMP_FILE, $STATS_PERIOD, $PLAYER_TIME_FILE;
-$STATS_FILE = "stats.txt"; //actual statistics record
-$PLAYER_TIME_FILE = "playertime.txt"; //record of total player seconds
-$STATS_TEMP_FILE = "stats_tmp.txt"; //servers and playercount of the last x minutes
+global $STATS_PERIOD;
 $STATS_PERIOD = 600; //seconds between stat records
 
-function StatsUpdate($Server, $PlayerCount) {
-	global $STATS_TEMP_FILE, $STATS_PERIOD;
-
-	$TempEntries = array();
-
-	//Mutex lock a .mutex file
-	$lock = fopen($STATS_TEMP_FILE.'.mutex', 'w') or die("can't open file");
-	flock($lock, LOCK_EX);
-
-	if (file_exists($STATS_TEMP_FILE)) {
-		$StatsTemp = file($STATS_TEMP_FILE, FILE_SKIP_EMPTY_LINES);
-
-		$LastMajUpdate = rtrim(array_shift($StatsTemp), "\n");
-
-		foreach ($StatsTemp as $Entry) {
-			$Entry = explode(',', rtrim($Entry, "\n"));
-			$TempEntries[$Entry[0]] = (int)$Entry[1];
-		}
-
-		if ($LastMajUpdate < time() - $STATS_PERIOD) {
-			StatsMajUpdate($TempEntries, time() - $LastMajUpdate);
-			$LastMajUpdate = time();
-			$TempEntries = array();
-		}
-
-		//if (($TempEntries[$Server]) < $PlayerCount)
-			$TempEntries[$Server] = $PlayerCount;
-	}
-	else {
-		$LastMajUpdate = time();
-		$TempEntries[$Server] = $PlayerCount;
-	}
-
-	$fh = fopen($STATS_TEMP_FILE, 'w');
-	fwrite($fh, $LastMajUpdate."\n");
-
-	foreach ($TempEntries as $Key=>$Val) 
-		fwrite($fh, $Key.','.$Val."\n");
-
-	fclose($fh);
-	fclose($lock);
+function AddStatsRecord($con, $rev) {
+	date_default_timezone_set("UTC");
+	$time = date("Y-m-d H:i:s");
+	$data = $con->query("SELECT SUM(Players) AS PlayerSum, COUNT(IP) AS ServerCount FROM Servers WHERE Rev='$rev'");
+	$data = $data->fetch_array();
+	$players = $data["PlayerSum"];
+	$servers = $data["ServerCount"];
+	$con->query("INSERT INTO Stats (Rev, Timestamp, Players, Servers) VALUES ('$rev', '$time', $players, $servers)");
+	//Also update the player time
+	global $STATS_PERIOD;
+	$playersMinutes = round($players*$STATS_PERIOD / 60);
+	$con->query("INSERT INTO PlayerTime (Rev, PlayerMinutes) VALUES ('$rev', $playersMinutes) ON DUPLICATE KEY UPDATE PlayerMinutes = PlayerMinutes + $playersMinutes");
 }
 
-function StatsMajUpdate($TempEntries, $SecondsSinceLastUpdate) {
-	global $STATS_FILE, $PLAYER_TIME_FILE;
-
-	$Servers = 0; $Players = 0;
-
-	foreach ($TempEntries as $Server=>$PlayerCount) {
-		$Servers++; $Players += $PlayerCount;
+//Currently unused, it could be used in future to avoid needing cron to update stats
+function StatsUpdate($con, $rev) {
+	date_default_timezone_set("UTC");
+	$TenMinsAgo = time() - $STATS_PERIOD;
+	//Are there any rows where the timestamp is sooner than 10 minutes ago?
+	$data = $con->query("SELECT Timestamp FROM Stats WHERE Rev='$rev' AND Timestamp > '$TenMinsAgo'");
+	//No timestamp within the last 10 minutes, so we need to record stats
+	if($data->num_rows() == 0) {
+		AddStatsRecord($con, $rev);
 	}
-
-	//Mutex lock a .mutex file
-	$lock = fopen($STATS_FILE.'.mutex', 'w') or die("can't open file");
-	flock($lock, LOCK_EX);
-
-	$fh = fopen($STATS_FILE, 'a');
-	fwrite($fh, time().','.$Servers.','.$Players."\n");
-	fclose($fh);
-	fclose($lock);
-	
-	//update player time
-	$PlayerSeconds = 0;
-	if (file_exists($PLAYER_TIME_FILE)) {
-		$PlayerSeconds += trim(file_get_contents($PLAYER_TIME_FILE));
-	}
-	$PlayerSeconds += $SecondsSinceLastUpdate*$Players;
-
-	//Mutex lock a .mutex file
-	$lock = fopen($PLAYER_TIME_FILE.'.mutex', 'w') or die("can't open file");
-	flock($lock, LOCK_EX);
-
-	$fh = fopen($PLAYER_TIME_FILE, 'w');
-	fwrite($fh, $PlayerSeconds);
-	fclose($fh);
-	fclose($lock);
 }
 
-function GetServerGraph($size = array(500, 200), $timespan = array(0, 0), $period = 1, $Format='') {
-	global $STATS_FILE, $STATS_PERIOD;
+function GetServerGraph($con, $rev, $size = array(500, 200), $timespan = array(0, 0), $numperiods = 0, $Format='') {
+	global $STATS_PERIOD;
 	
-	if (!file_exists($STATS_FILE)) return "No statistics available!";
-	else $Stats = file($STATS_FILE, FILE_SKIP_EMPTY_LINES);
+	date_default_timezone_set("UTC");
 
-	$tsince = ($timespan[0] > 0) ? $timespan[0] : strtok($Stats[0], ',');
+	$tsince = ($timespan[0] > 0) ? $timespan[0] : 0;
 	$tto    = ($timespan[1] > 0) ? $timespan[1] : time();
+	$sqlsince = date("Y-m-d H:i:s", $tsince);
+	$sqlto = date("Y-m-d H:i:s", $tto);
+	$showdates = intval($tto - $tsince > 2 * 60*60*24);
 	$width  = $size[0];
 	$height = $size[1];
+	if($numperiods == 0) {
+		$numperiods = $width / 28;
+	}
 	
 	$ServerLine = "";
 	$PlayerLine = "";
 	$Timestamps = "";
-
-	//date_default_timezone_set("UTC");
 	
 	$CountMax = 0;
 
+	$data = $con->query("SELECT Timestamp, Players, Servers FROM Stats WHERE Rev = '$rev' AND Timestamp >= '$sqlsince' AND Timestamp <= '$sqlto ORDER BY Timestamp ASC'");
+	$period = round($data->num_rows / ($numperiods-2));
 	$p = $period;
-	foreach ($Stats as $Line) {
-		$Line = explode(',', rtrim($Line, "\n"));
-		if ($Line[0] > $tto) break;
-		if ($Line[0] < $tsince) continue; 
-		
+	while($row = $data->fetch_array()) {
 		if (!($p++ % $period)) {
-			$Timestamps .= 't('.$Line[0].'),';
+			$Timestamps .= 't('.strtotime($row["Timestamp"]).",$showdates),";
 			$p = 1;
 		}
+		$LastTimestamp = $row["Timestamp"];
+		$ServerLine .= "'".$row["Servers"]."',";
+		$PlayerLine .= "'".$row["Players"]."',";
 
-		$ServerLine .= "'".$Line[1]."',";
-		$PlayerLine .= "'".$Line[2]."',";
-
-		$CountMax = ($Line[2] > $CountMax) ? $Line[2] : $CountMax;
-		$CountMax = ($Line[1] > $CountMax) ? $Line[1] : $CountMax;
+		$CountMax = ($row["Servers"] > $CountMax) ? $row["Servers"] : $CountMax;
+		$CountMax = ($row["Players"] > $CountMax) ? $row["Players"] : $CountMax;
 	}
 	
 	$ServerLine = rtrim($ServerLine, ",");
 	$PlayerLine = rtrim($PlayerLine, ",");
-	$Timestamps.= 't('.strtok($Stats[count($Stats) - 1], ',').')';
+	$Timestamps.= 't('.strtotime($LastTimestamp).",$showdates)";
+	//$Timestamps.= 't('.strtok($Stats[count($Stats) - 1], ',').')';
 
 	$xticks = ($tto - $tsince) / $STATS_PERIOD / $period;
 	
-	if($Format == 'kamclub')
-	{
+	if($Format == 'kamclub') {
 		$ServersTitle = 'Сервера';
 		$PlayersTitle = 'Игроки';
-	}
-	else
-	{
+	} else {
 		$ServersTitle = 'Servers';
 		$PlayersTitle = 'Players';
 	}
 	
 	return 
 	'<canvas id="Stats" width="'.$width.'" height="'.$height.'">[No canvas support]</canvas><script>
-		function t(ts) {
-			date = new Date(ts * 1000);
-			hours = (date.getHours() < 10) ? String(0)+date.getHours() : date.getHours();
-			minutes = (date.getMinutes() < 10) ? String(0)+date.getMinutes() : date.getMinutes();
-			return hours+":"+minutes;
-			return date.toLocaleString(); 
+		function t(ts,d) {
+			var date = new Date(ts * 1000);
+			if(d) {
+				var day = (date.getDate()<=9 ? "0" + date.getDate() : date.getDate());
+				var month = ((date.getMonth()+1)<=9 ? "0" + (date.getMonth()+1) : (date.getMonth()+1));
+				return day+"/"+month;
+			} else {
+				var hours = (date.getHours() < 10) ? String(0)+date.getHours() : date.getHours();
+				var minutes = (date.getMinutes() < 10) ? String(0)+date.getMinutes() : date.getMinutes();
+				return hours+":"+minutes;
+			}
 		}
         window.onload = function () {
             var line = new RGraph.Line("Stats", ['.$ServerLine.'], ['.$PlayerLine.']);
@@ -165,15 +117,16 @@ function GetServerGraph($size = array(500, 200), $timespan = array(0, 0), $perio
 			line.Set("chart.ymax", '.(($CountMax + 5) * 1.2).');
 			line.Set("chart.text.font", "Calibri, MS Sans Serif, Arial, sans-serif");
             line.Draw();
-            //document.write((new Date()).toLocaleString());
         }
     </script>';	
 }
 
+$con = db_connect();
 $format = "";
-if(isset($_REQUEST['format'])) $format = $_REQUEST['format'];
+if(isset($_REQUEST['format'])) $format = $con->real_escape_string($_REQUEST['format']);
 
-if (count(get_included_files()) == 1) { //if we have been called directly
+if ( basename(__FILE__) == basename($_SERVER["SCRIPT_FILENAME"]) ) { //if we have been called directly
+	global $MAIN_VERSION;
 	if (
 		isset($_REQUEST["since"]) &&
 		isset($_REQUEST["to"]) && 
@@ -185,15 +138,15 @@ if (count(get_included_files()) == 1) { //if we have been called directly
 			echo '<!doctype html><html><head><META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=UTF-8">
 			<script src="RGraph/libraries/RGraph.common.core.js" ></script><script src="RGraph/libraries/RGraph.line.js">
 			</script><!--[if IE 8]><script src="RGraph/excanvas/excanvas.original.js"></script><![endif]--></head><body>';
-		echo GetServerGraph(array($_REQUEST["width"], $_REQUEST["height"]), 
-			array($_REQUEST["since"], $_REQUEST["to"]), $_REQUEST["period"], $format);
+		echo GetServerGraph($con, $MAIN_VERSION, array($con->real_escape_string($_REQUEST["width"]), $con->real_escape_string($_REQUEST["height"])), 
+			array($con->real_escape_string($_REQUEST["since"]), $con->real_escape_string($_REQUEST["to"])), $con->real_escape_string($_REQUEST["period"]), $format);
 		if (isset($_REQUEST["html"])) echo '</body></html>';
 	} 
 	else if (isset($_REQUEST["default"])) {
 		echo '<!doctype html><html><head><META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=UTF-8">
 		<script src="RGraph/libraries/RGraph.common.core.js" ></script><script src="RGraph/libraries/RGraph.line.js">
 		</script><!--[if IE 8]><script src="RGraph/excanvas/excanvas.original.js"></script><![endif]--></head><body>';
-		echo GetServerGraph(array(512,256), array(time() - 24*60*60, time()), 18, $format);
+		echo GetServerGraph($con, $MAIN_VERSION, array(512,256), array(time() - 24*60*60, time()), 28, $format);
 		echo '</body></html>';
 	} 
 	else echo '<!doctype html><html><head></head><body><form><p>All textfields are mandatory!</p>
@@ -201,9 +154,10 @@ if (count(get_included_files()) == 1) { //if we have been called directly
 		<label>to (timestamp): </label><input name="to" type="text" value="0"><br>
 		<label>width (pixel): </label><input name="width" type="text" value="512"><br>
 		<label>height (pixel): </label><input name="height" type="text" value="256"><br>
-		<label>period (of labels per datapoints): </label><input name="period" type="text" value="18"><br>
+		<label>period: </label><input name="period" type="text" value="28"><br>
 		<input type="checkbox" name="html" value="true" checked><label>include HTML-header and footer</label><br>
 		<input type="submit" value="Submit"></form></body></html>';
 }
+$con->close();
 
 ?>

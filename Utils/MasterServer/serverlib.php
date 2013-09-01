@@ -1,8 +1,6 @@
 ﻿<?php
-include("consts.php");
-global $DO_STATS;
-
-if ($DO_STATS) include("statistics.php");
+include_once("consts.php");
+include_once("statistics.php");
 
 /*
 * json_encode provider for the case that the webserver has PHP < 5.2.0
@@ -53,13 +51,6 @@ if (!function_exists('json_encode'))
   }
 }
 
-function GetDataFileName($Rev)
-{
-	global $MAIN_VERSION;
-	if($Rev == "") $Rev = $MAIN_VERSION;
-	Return "servers.$Rev.txt";
-}
-
 function GetMapFileName($Rev)
 {
 	global $MAIN_VERSION;
@@ -67,10 +58,28 @@ function GetMapFileName($Rev)
 	Return "maps.$Rev.txt";
 }
 
+function TestConnection($aIP, $aPort) {
+	//My server (kam.hodgman.id.au) can do outgoing connections on port 56789 (99% of servers use this) because we asked for permission
+	if($aPort == "56789") {
+	  $fp = @fsockopen($aIP, $aPort, $errnum, $errstr, 6); //@ means suppress errors such as "failed to connect"
+	  if($fp) {
+		fclose($fp);
+		return true;
+	  } else
+		return false;
+	}
+	else
+	  return (file_get_contents('http://www.kamremake.com/portcheck.php?ip='.$aIP.'&port='.$aPort.'') == 'TRUE');
+}
+
+function Remove_Old_Servers($con) {
+	$con->query("DELETE FROM Servers WHERE Expiry <= '".date("Y-m-d H:i:s")."'");
+}
+
 function CheckVersion($aRev)
 {
 	$Result = ctype_alnum($aRev); //Protect against injection attacks by only allowing alphanumeric characters
-	$Result = $Result && (strlen($aRev) <= 7); //Don't allow really long names
+	$Result = $Result && (strlen($aRev) <= 8); //Don't allow really long names
 	return $Result;
 }
 
@@ -79,334 +88,6 @@ function plural($count, $singular, $plural = 's') {
         $plural = $singular . $plural;
     }
     return ($count == 1 ? $singular : $plural);
-}
-
-function GetMaps($aFormat, $aRev, $aNum)
-{
-	$result = "";
-	
-	switch($aFormat)
-	{
-		default:
-			$result .= '<table border="1" width="100%"><tr><td><strong>#</strong></td><td><strong>Map</strong></td><td style="text-align: center"><strong>Games played</strong></td><td style="text-align: center"><strong>Average players per game</strong></td></tr>'."\n";
-	}
-	
-	$FileName = GetMapFileName($aRev);
-	if(file_exists($FileName))
-	{
-		$Output = "";
-		$Found = False;
-		//Mutex lock a .mutex file
-		$lock = fopen($FileName.'.mutex', 'w') or die("can't open file");
-		flock($lock, LOCK_EX);
-		$lines = file($FileName);
-		fclose($lock);
-		
-		$mapsPlays = array();
-		$mapsAvgPlayers = array();
-		foreach($lines as $line)
-		{
-			list($Map, $TotalPlayers, $PlayedCounter) = explode("|",trim($line));
-			$mapsPlays[$Map] = $PlayedCounter;
-			$mapsAvgPlayers[$Map] = $TotalPlayers / $PlayedCounter;
-		}
-		arsort($mapsPlays,SORT_NUMERIC);
-		$count = 0;
-		foreach ($mapsPlays as $Map => $Plays)
-		{
-			$count++;
-			switch($aFormat)
-			{
-				default:
-					$result .= "<tr class=\"no_translate\"><td>$count</td><td style=\"white-space: nowrap;\">$Map</td><td style=\"text-align: center\">$Plays</td><td style=\"text-align: center\">".number_format($mapsAvgPlayers[$Map],2)."</td></tr>\n";
-			}
-			if($count == $aNum) break;
-		}
-	}
-	
-	switch($aFormat)
-	{
-		default:
-			$result .= "</table>\n";
-	}
-
-	echo $result;
-}
-
-function AddMap($aMapName, $aPlayerCount, $aRev)
-{
-	if(($aPlayerCount > 0) && ($aPlayerCount <= 8))
-	{
-		$FileName = GetMapFileName($aRev);
-
-		//Mutex lock a .mutex file
-		$lock = fopen($FileName.'.mutex', 'w') or die("can't open file");
-		flock($lock, LOCK_EX);
-
-		$aMapName = str_replace("|", "", $aMapName); //don't allow seperator
-		if(file_exists($FileName))
-		{
-			$Output = "";
-			$Found = False;
-			$lines = file($FileName);
-			foreach($lines as $line)
-			{
-				list($Map, $TotalPlayers, $PlayedCounter) = explode("|",trim($line));
-				if($Map != "")
-				{
-					if($Map == $aMapName)
-					{
-						$PlayedCounter += 1;
-						$TotalPlayers += $aPlayerCount;
-						$Found = True;
-					}
-					$Output .= $Map."|".$TotalPlayers."|".$PlayedCounter."\n";
-				}
-			}
-			if(!$Found)
-			{
-				$Output .= $aMapName."|".$aPlayerCount."|1\n";
-			}
-		}
-		else
-		{
-			$Output = $aMapName."|".$aPlayerCount."|1";
-		}
-		$fh = fopen($FileName, 'w') or die("can't open file");
-		fwrite($fh, $Output);
-		fclose($fh);
-		fclose($lock);
-	}
-}
-
-function GetTime($Format)
-{
-	global $PLAYER_TIME_FILE;
-	if (file_exists($PLAYER_TIME_FILE)) {
-		$PlayerSeconds = file_get_contents($PLAYER_TIME_FILE);
-	} else { $PlayerSeconds = 0; }
-	$result = "";
-	$minutes = floor($PlayerSeconds/60)%60;
-	$hours = floor($PlayerSeconds/(60*60))%24;
-	$days = floor($PlayerSeconds/(60*60*24))%365;
-	$years = floor($PlayerSeconds/(60*60*24*365));
-	switch($Format)
-	{
-		case "seconds": $result = $PlayerSeconds; break;
-		case "ajaxupdate":
-			$data = json_encode(Array("yr"=>$years,"dy"=>$days,"hr"=>$hours));
-			$result = $_GET['jsonp_callback']."(".$data.")";
-		break;
-		default:
-			$result = "<span id=\"years\">$years</span> ".plural($years,"year").", ";
-			$result .= "<span id=\"days\">$days</span> ".plural($days,"day").", ";
-			$result .= "<span id=\"hours\">$hours</span> ".plural($hours,"hour")."";
-			$startscript = '<script type="text/javascript">'."\n".
-			'function uppt(){setTimeout(function (){jQuery.ajax({dataType: "jsonp",jsonp: "jsonp_callback",url: "http://kam.hodgman.id.au/servertime.php?format=ajaxupdate",success: function (data){jQuery("#years").empty().append(data.yr);jQuery("#days").empty().append(data.dy);jQuery("#hours").empty().append(data.hr);uppt();}});}, 300000);}'."\n".
-			'jQuery(document).ready(function($){uppt();});</script>'."\n";
-			$result = $startscript.$result;
-		break;
-	}
-	return $result;
-}
-
-function GetStats($Format)
-{
-	global $MAIN_VERSION;
-	$DATA_FILE = GetDataFileName($MAIN_VERSION); //Use the main revision for stats
-	$ServerCount = 0;
-	$TotalPlayerCount = 0;
-	if(!file_exists($DATA_FILE))
-		return "";
-	$Lines = file($DATA_FILE);
-	foreach($Lines as $Line)
-	{
-		//Data does not yet use quotes or backslashes, but it might in future
-		$Line = trim(stripslashes_if_gpc_magic_quotes($Line));
-		list($Name,$IP,$Port,$PlayerCount,$IsDedicated,$OS,$Alive,$Expiry) = explode("|",$Line);
-		if(time() < $Expiry)
-		{
-			$ServerCount++;
-			$TotalPlayerCount = $TotalPlayerCount + $PlayerCount;
-		}
-	}
-	switch ($Format)
-	{
-		case "kamclub":
-			return '<html><head><META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=UTF-8"><meta http-equiv="refresh" content="65"></head><body><div style="font-size:11px; font-family:Arial,Tahoma"><b>Кол-во серверов:</b> '.$ServerCount.'<BR><b>Кол-во игроков:</b> '.$TotalPlayerCount.'</font></div></body></html>';
-		case "kamclubeng":
-			return '<html><head><META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=UTF-8"><meta http-equiv="refresh" content="65"></head><body><div style="font-size:11px; font-family:Arial,Tahoma"><b>Server count:</b> '.$ServerCount.'<BR><b>Player count:</b> '.$TotalPlayerCount.'</font></div></body></html>';
-		case "ajaxupdate":
-			$data = json_encode(Array("pct"=>$TotalPlayerCount,"sct"=>$ServerCount));
-			return $_GET['jsonp_callback']."(".$data.")";
-		case "csv":
-			return $ServerCount.','.$TotalPlayerCount;
-		case "refresh":
-			/*
-			* user-side request after 30s with parameter ?format=ajaxupdate which then updates the numbers
-			*/
-			$startscript = '<script type="text/javascript">'."\n".
-			'function updnr(){setTimeout(function (){jQuery.ajax({dataType: "jsonp",jsonp: "jsonp_callback",url: "http://kam.hodgman.id.au/serverstats.php?format=ajaxupdate",success: function (data){jQuery("#scount").empty().append(data.sct);jQuery("#pcount").empty().append(data.pct);updnr();}});}, 65000);}'."\n".
-			'jQuery(document).ready(function($){updnr();});</script>'."\n";
-			return $startscript.'There '.plural($ServerCount,'is','are',true).' <span id="scount">'.$ServerCount.'</span> '.plural($ServerCount,'server').' running and <span id="pcount">'.$TotalPlayerCount.'</span> '.plural($TotalPlayerCount,'player').' online';
-		default:
-			return 'There '.plural($ServerCount,'is','are',true).' '.$ServerCount.' '.plural($ServerCount,'server').' running and '.$TotalPlayerCount.' '.plural($TotalPlayerCount,'player').' online';
-	}
-}
-
-function GetServers($aFormat,$aRev)
-{
-	$DATA_FILE = GetDataFileName($aRev);
-	include("flag.php");
-	$Result = "";
-	$cnts = 0;
-	if(!file_exists($DATA_FILE))
-		return "";
-	switch($aFormat)
-	{
-		case "ajaxupdate":
-			$Result = array();
-		break;
-		case "refresh":
-			$Result = '<script type="text/javascript">'."\n".
-			'function srvlsttim(dat){var x="<tr><td><strong>Name</strong></td><td><strong>Address</strong></td><td style=\"text-align: center\"><strong>Players</strong></td></tr>";for(var n=0;n<dat.cnt;n++){x+="<tr><td><img src=\"http://kam.hodgman.id.au/flags/"+dat.srvs[n].c+".gif\" alt=\""+dat.srvs[n].c+"\" />&nbsp;"+dat.srvs[n].n+"</td><td>"+(dat.srvs[n].a=="0"?" <img src=\"http://kam.hodgman.id.au/error.png\" alt=\"Server unreachable\" style=\"vertical-align:middle\" />":"")+dat.srvs[n].i+"</td><td style=\"text-align: center\">"+dat.srvs[n].p+"</td></tr>";jQuery("#ajxtbl").empty().append(x);}}'."\n".
-			'function updsr(){setTimeout(function (){jQuery.ajax({dataType: "jsonp",jsonp: "jsonp_callback",url: "http://kam.hodgman.id.au/serverquery.php?format=ajaxupdate",success: function (data){srvlsttim(data);updsr();}});}, 35000);}'."\n".
-			'jQuery(document).ready(function($){updsr();});</script>'."\n";
-		case "table":
-			$Result .= '<table border="1" width="100%" id="ajxtbl"><tr><td><strong>Name</strong></td><td><strong>Address</strong></td><td style="text-align: center"><strong>Players</strong></td></tr>';
-		break;
-		case "kamclub":
-			$Result .= '<table border="1" width="100%" id="ajxtbl" style="font-size:11px; font-family:Arial,Tahoma"><tr><td><strong>Название сервера</strong></td><td><strong>Адрес</strong></td><td style="text-align: center"><strong>Кол-во игроков</strong></td></tr>';
-		break;
-		case "kamclubeng":
-			$Result .= '<table border="1" width="100%" id="ajxtbl" style="font-size:11px; font-family:Arial,Tahoma"><tr><td><strong>Server name</strong></td><td><strong>Address</strong></td><td style="text-align: center"><strong>Players</strong></td></tr>';
-		default:
-	}
-	$Lines = file($DATA_FILE);
-	foreach($Lines as $Line)
-	{
-		//Data does not yet use quotes or backslashes, but it might in future
-		$Line = trim(stripslashes_if_gpc_magic_quotes($Line));
-		list($Name,$IP,$Port,$PlayerCount,$IsDedicated,$OS,$Alive,$Expiry) = explode("|",$Line);
-		if(time() < $Expiry)
-		{
-			$cnts++;
-			switch($aFormat)
-			{
-				case "refresh":
-				case "kamclub":
-				case "kamclubeng":
-				case "table":
-					//Clean color codes matching [$xxxxxx] or []
-					$Name = preg_replace('/\\[\\$[0-9a-fA-F]{6}\\]|\\[\\]|\[\]/',"",$Name); //WTF regex
-					$Country = IPToCountry($IP);
-					$Warning = '';
-					if(!$Alive) $Warning = ' <IMG src="http://kam.hodgman.id.au/error.png" alt="Server unreachable" style="vertical-align:middle">';
-					$Result .= "<TR class=\"no_translate\"><TD><IMG src=\"http://kam.hodgman.id.au/flags/".strtolower($Country).".gif\" alt=\"".GetCountryName($Country)."\">&nbsp;$Name</TD><TD>$Warning$IP</TD><TD style=\"text-align: center\">$PlayerCount</TD></TR>\n";
-					break;
-				case "ajaxupdate":
-					//Clean color codes matching [$xxxxxx] or []
-					$Name = preg_replace('/\\[\\$[0-9a-fA-F]{6}\\]|\\[\\]|\[\]/',"",$Name); //WTF regex
-					$srvsgl = array();
-					$srvsgl['c'] = strtolower(IPToCountry($IP));
-					$srvsgl['n'] = $Name;
-					if(!$Alive) { $srvsgl['a'] = "0"; } //$Alive could be '' to mean false
-					else        { $srvsgl['a'] = "1"; }
-					$srvsgl['i'] = $IP;
-					//$Result['o'] = $Port; // not used yet
-					$srvsgl['p'] = $PlayerCount;
-					$Result[] = $srvsgl;
-					break;
-				default:
-					if(substr($aRev,1) >= 4878) //New server releases expect more parameters
-						$Result .= "$Name,$IP,$Port,$IsDedicated,$OS\n";
-					else
-						$Result .= "$Name,$IP,$Port\n";
-			}
-		}
-	}
-	switch($aFormat)
-	{
-		case "ajaxupdate":
-			$Result = json_encode(Array("cnt"=>$cnts,"srvs"=>$Result));
-			$Result = $_GET['jsonp_callback']."(".$Result.")";
-			break;
-		case "kamclub":
-		case "kamclubeng":
-		case "refresh":
-		case "table":
-			$Result .= '</table>';
-		default:
-	}
-	return $Result;
-}
-
-function AddServer($aName,$aIP,$aPort,$aPlayerCount,$aIsDedicated,$aOS,$aTTL,$aRev)
-{
-	global $DISALLOWED_CHARS, $MAX_TTL, $DO_STATS, $MAIN_VERSION;
-	$DATA_FILE = GetDataFileName($aRev);
-	//Remove characters that are not allowed (used for internal formatting)
-	$aName = str_replace($DISALLOWED_CHARS,"",$aName);
-	$aIP = str_replace($DISALLOWED_CHARS,"",$aIP);
-	$aPort = intval(str_replace($DISALLOWED_CHARS,"",$aPort));
-	if(($aPort < 1) || ($aPort > 65535)) return "invalid port";
-	$aTTL = str_replace($DISALLOWED_CHARS,"",$aTTL);
-	$aPlayerCount = str_replace($DISALLOWED_CHARS,"",$aPlayerCount);
-	//Enforce max TTL, so people can not add a server that lasts a thousand years!
-	$aTTL = max(min(intval($aTTL),$MAX_TTL),1);
-	$Servers = "";
-	$Exists = false;
-	//My server (kam.hodgman.id.au) can do outgoing connections on port 56789 (99% of servers use this) because we asked for permission
-	if($aPort == "56789")
-	{
-      $fp = @fsockopen($aIP, $aPort, $errnum, $errstr, 6); //@ means suppress errors such as "failed to connect"
-	  if($fp)
-	  {
-	    $aAlive = true;
-	    fclose($fp);
-	  } else $aAlive = false;
-	}
-	else
-	  $aAlive = (file_get_contents('http://www.kamremake.com/portcheck.php?ip='.$aIP.'&port='.$aPort.'') == 'TRUE');
-	
-	//Only record statistics about the main revision (for now)
-	if (($DO_STATS) && ($aRev == $MAIN_VERSION)) StatsUpdate($aName,$aPlayerCount);
-	
-	//Mutex lock a .mutex file
-	$lock = fopen($DATA_FILE.'.mutex', 'w') or die("can't open file");
-	flock($lock, LOCK_EX);
-	
-	if(file_exists($DATA_FILE))
-	{
-		$Lines = file($DATA_FILE);
-		foreach($Lines as $Line)
-		{
-			//Data does not yet use quotes or backslashes, but it might in future
-			$Line = trim(stripslashes_if_gpc_magic_quotes($Line));
-			list($Name,$IP,$Port,$PlayerCount,$IsDedicated,$OS,$Alive,$Expiry) = explode("|",$Line);
-			if(time() < $Expiry)
-			{
-				if(($IP == $aIP) && ($Port == $aPort))
-				{
-					$Servers .= "$aName|$IP|$Port|$aPlayerCount|$aIsDedicated|$aOS|$aAlive|".(time()+$aTTL)."\n";
-					$Exists = true;
-				}
-				else
-				{
-					$Servers .= "$Name|$IP|$Port|$PlayerCount|$IsDedicated|$OS|$Alive|$Expiry\n";
-				}
-			}
-		}
-	}
-	if(!$Exists)
-	{
-		$Servers .= "$aName|$aIP|$aPort|$aPlayerCount|$aIsDedicated|$aOS|$aAlive|".(time()+$aTTL)."\n";
-	}
-	$fh = fopen($DATA_FILE, 'w') or die("can't open file");
-	fwrite($fh, $Servers);
-	fclose($fh);
-	fclose($lock);
-	return 'Success';
 }
 
 function stripslashes_if_gpc_magic_quotes( $string ) {

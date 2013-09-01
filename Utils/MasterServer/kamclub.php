@@ -1,12 +1,12 @@
 ﻿<?
+include_once("consts.php");
+global $BASE_URL;
 $RefRate = 60 + rand(1,9);
-if($_REQUEST['type'] == 'graph')
-{
+if($_REQUEST['type'] == 'graph') {
   $RefRate = $RefRate*10;
 }
 $format = $_REQUEST['format'];
-if($format == "")
-{
+if($format == "") {
   $format = "kamclub";
 }
 
@@ -19,9 +19,9 @@ if($format == "")
 <body style="font-size:9px; font-family:Arial,Tahoma">
 <?
 if($_REQUEST['type'] == 'list')
-	echo file_get_contents('http://kam.hodgman.id.au/serverquery.php?format='.$format);
+	echo file_get_contents($BASE_URL.'serverquery.php?format='.$format);
 if($_REQUEST['type'] == 'graph')
-	echo file_get_contents('http://kam.hodgman.id.au/statistics.php?since='.(time()-(24*60*60)-(10*60)).'&to=0&width=500&height=250&period=18&format='.$format);
+	echo file_get_contents($BASE_URL.'statistics.php?since='.(time()-(24*60*60)-(10*60)).'&to=0&width=500&height=250&period=18&format='.$format);
 ?>
 </body>
 </html>
