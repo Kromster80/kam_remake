@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 include_once("consts.php");
 include_once("statistics.php");
 

@@ -46,7 +46,10 @@
       $zip->extractTo("crashes/", "bugreport.txt");
       $zip->close();
 	  if(file_exists("crashes/bugreport.txt")) {
-		$ToSend .= "\n\n\n".file_get_contents("crashes/bugreport.txt");
+		$file_text = file_get_contents("crashes/bugreport.txt");
+		$file_text = str_replace("\r\n", "\n", $file_text);
+		$file_text = str_replace("\r", "\n", $file_text);
+		$ToSend .= "\n\n\n".$file_text;
 	  }
 	  unlink("crashes/bugreport.txt");
 	}

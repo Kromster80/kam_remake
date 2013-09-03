@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 include_once("consts.php");
 include_once("db.php");
 include_once("serverlib.php");

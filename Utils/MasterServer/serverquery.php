@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 include_once("serverlib.php");
 $con = db_connect();
 $format = "";
@@ -16,7 +16,7 @@ include_once("flag.php");
 include_once("consts.php");
 include_once("db.php");
 
-global $MAIN_VERSION, $BASE_URL;
+global $MAIN_VERSION, $TABLE_REFRESH, $BASE_URL;
 
 $rev = "";
 if(isset($_REQUEST["rev"]))	$rev = $con->real_escape_string($_REQUEST["rev"]);
@@ -38,7 +38,7 @@ switch($format) {
 	case "refresh":
 		$Result = '<script type="text/javascript">'."\n".
 		'function srvlsttim(dat){var x="<tr><td><strong>Name</strong></td><td><strong>Address</strong></td><td style=\"text-align: center\"><strong>Players</strong></td></tr>";for(var n=0;n<dat.cnt;n++){x+="<tr><td><img src=\"'.$BASE_URL.'flags/"+dat.srvs[n].c+".gif\" alt=\""+dat.srvs[n].c+"\" />&nbsp;"+dat.srvs[n].n+"</td><td>"+(dat.srvs[n].a=="0"?" <img src=\"'.$BASE_URL.'error.png\" alt=\"Server unreachable\" style=\"vertical-align:middle\" />":"")+dat.srvs[n].i+"</td><td style=\"text-align: center\">"+dat.srvs[n].p+"</td></tr>";jQuery("#ajxtbl").empty().append(x);}}'."\n".
-		'function updsr(){setTimeout(function (){jQuery.ajax({dataType: "jsonp",jsonp: "jsonp_callback",url: "'.$BASE_URL.'serverquery.php?format=ajaxupdate&rev='.$rev.'",success: function (data){srvlsttim(data);updsr();}});}, 35000);}'."\n".
+		'function updsr(){setTimeout(function (){jQuery.ajax({dataType: "jsonp",jsonp: "jsonp_callback",url: "'.$BASE_URL.'serverquery.php?format=ajaxupdate&rev='.$rev.'",success: function (data){srvlsttim(data);updsr();}});}, '.(1000*$TABLE_REFRESH).');}'."\n".
 		'jQuery(document).ready(function($){updsr();});</script>'."\n";
 	case "table":
 		$Result .= '<table border="1" width="100%" id="ajxtbl"><tr><td><strong>Name</strong></td><td><strong>Address</strong></td><td style="text-align: center"><strong>Players</strong></td></tr>';

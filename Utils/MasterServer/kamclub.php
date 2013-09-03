@@ -1,7 +1,7 @@
-﻿<?
+<?
 include_once("consts.php");
-global $BASE_URL;
-$RefRate = 60 + rand(1,9);
+global $BASE_URL, $TABLE_REFRESH;
+$RefRate = $TABLE_REFRESH;
 if($_REQUEST['type'] == 'graph') {
   $RefRate = $RefRate*10;
 }
