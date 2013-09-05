@@ -34,6 +34,7 @@
 	When citizen walks into a house he should be deselected
 	AIAttacks bug (AI attacks mulfunction after 12min.rar)
 	Player alliance towards self is inconsistent, especially in MP and when accessing from script (should be Ally always!)
+	Check alliance settings when executing attack commands from script
 
 	Water looks ugly brown when you zoom out too far due to water tiles having brown checkerboard pattern (anti-aliasing won't help)
 	Wooden house frames flicking on Onboard Intel HD Family Chipset (see images "Hidden House Frame Intel Onboard 1.jpg")
