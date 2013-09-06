@@ -13,27 +13,32 @@ type
     fLastSchoolUnit: Byte;  //Last unit that was selected in School, global for all schools player owns
     fLastBarracksUnit: Byte; //Last unit that was selected in Barracks, global for all barracks player owns
 
-    procedure Create_HouseMarket;
-    procedure Create_HouseStore;
-    procedure Create_HouseSchool;
     procedure Create_HouseBarracks;
+    procedure Create_HouseMarket;
+    procedure Create_HouseSchool;
+    procedure Create_HouseStore;
     procedure Create_HouseWoodcutter;
 
-    procedure House_WoodcutterChange(Sender: TObject);
-    procedure House_BarracksUnitChange(Sender: TObject; AButton: TMouseButton);
-    procedure House_BarracksAcceptFlag(Sender: TObject);
     procedure House_Demolish(Sender: TObject);
     procedure House_RepairToggle(Sender: TObject);
-    procedure House_WareDeliveryToggle(Sender: TObject);
     procedure House_OrderClick(Sender: TObject; AButton: TMouseButton);
     procedure House_OrderWheel(Sender: TObject; WheelDelta: Integer);
+    procedure House_WareDeliveryToggle(Sender: TObject);
+
+    procedure House_BarracksAcceptFlag(Sender: TObject);
+    procedure House_BarracksUnitChange(Sender: TObject; AButton: TMouseButton);
+
     procedure House_MarketFill(aMarket: TKMHouseMarket);
     procedure House_MarketOrderClick(Sender: TObject; AButton: TMouseButton);
     procedure House_MarketSelect(Sender: TObject; AButton: TMouseButton);
+
     procedure House_SchoolUnitChange(Sender: TObject; AButton: TMouseButton);
     procedure House_SchoolUnitRemove(Sender: TObject; AButton: TMouseButton);
+
     procedure House_StoreAcceptFlag(Sender: TObject);
     procedure House_StoreFill;
+
+    procedure House_WoodcutterChange(Sender: TObject);
   protected
     Panel_House: TKMPanel;
       Label_House: TKMLabel;
