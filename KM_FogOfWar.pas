@@ -33,6 +33,8 @@ type
     constructor Create(X,Y: Word);
     procedure RevealCircle(Pos: TKMPoint; Radius,Amount: Word);
     procedure CoverCircle(Pos: TKMPoint; Radius: Word);
+    procedure RevealRect(TL, BR: TKMPoint; Amount: Word);
+    procedure CoverRect(TL, BR: TKMPoint);
     procedure RevealEverything;
     procedure CoverEverything;
     function CheckVerticeRevelation(const X,Y: Word): Byte; override;
@@ -100,8 +102,8 @@ begin
 
   //Inline maths here to gain performance
   for I := I1 to I2 do for K := K1 to K2 do
-  if (sqr(Pos.x-K) + sqr(Pos.y-I)) <= sqr(Radius) then
-    Revelation[I,K] := min(Revelation[I,K] + Amount, FOG_OF_WAR_MAX);
+  if (sqr(Pos.X - K) + sqr(Pos.Y - I)) <= sqr(Radius) then
+    Revelation[I, K] := min(Revelation[I, K] + Amount, FOG_OF_WAR_MAX);
 end;
 
 
@@ -118,7 +120,25 @@ begin
 
   //Inline maths here to gain performance
   for I := I1 to I2 do for K := K1 to K2 do
-  if (sqr(Pos.x-K) + sqr(Pos.y-I)) <= sqr(Radius) then
+  if (sqr(Pos.X - K) + sqr(Pos.Y - I)) <= sqr(Radius) then
+    Revelation[I,K] := 0;
+end;
+
+
+procedure TKMFogOfWar.RevealRect(TL, BR: TKMPoint; Amount: Word);
+var
+  I, K: Word;
+begin
+  for I := TL.Y to BR.Y do for K := TL.X to BR.X do
+    Revelation[I,K] := Min(Revelation[I,K] + Amount, FOG_OF_WAR_MAX);
+end;
+
+
+procedure TKMFogOfWar.CoverRect(TL, BR: TKMPoint);
+var
+  I, K: Word;
+begin
+  for I := TL.Y to BR.Y do for K := TL.X to BR.X do
     Revelation[I,K] := 0;
 end;
 

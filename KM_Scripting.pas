@@ -204,8 +204,10 @@ begin
 
       RegisterMethod('procedure FogCoverAll(aPlayer: Byte)');
       RegisterMethod('procedure FogCoverCircle(aPlayer, X, Y, aRadius: Word)');
+      RegisterMethod('procedure FogCoverRect(aPlayer, X1, Y1, X2, Y2: Word)');
       RegisterMethod('procedure FogRevealAll(aPlayer: Byte)');
       RegisterMethod('procedure FogRevealCircle(aPlayer, X, Y, aRadius: Word)');
+      RegisterMethod('procedure FogRevealRect(aPlayer, X1, Y1, X2, Y2: Word)');
 
       RegisterMethod('function  GiveAnimal(aType, X,Y: Word): Integer');
       RegisterMethod('function  GiveGroup(aPlayer, aType, X, Y, aDir, aCount, aColumns: Word): Integer');
@@ -476,10 +478,12 @@ begin
     begin
       RegisterMethod(@TKMScriptActions.AIRecruitLimit,    'AIRECRUITLIMIT');
 
-      RegisterMethod(@TKMScriptActions.FogRevealCircle,   'FOGREVEALCIRCLE');
-      RegisterMethod(@TKMScriptActions.FogCoverCircle,    'FOGCOVERCIRCLE');
-      RegisterMethod(@TKMScriptActions.FogRevealAll,      'FOGREVEALALL');
       RegisterMethod(@TKMScriptActions.FogCoverAll,       'FOGCOVERALL');
+      RegisterMethod(@TKMScriptActions.FogCoverCircle,    'FOGCOVERCIRCLE');
+      RegisterMethod(@TKMScriptActions.FogCoverRect,      'FOGCOVERRECT');
+      RegisterMethod(@TKMScriptActions.FogRevealAll,      'FOGREVEALALL');
+      RegisterMethod(@TKMScriptActions.FogRevealCircle,   'FOGREVEALCIRCLE');
+      RegisterMethod(@TKMScriptActions.FogRevealRect,     'FOGREVEALRECT');
 
       RegisterMethod(@TKMScriptActions.GiveAnimal,    'GIVEANIMAL');
       RegisterMethod(@TKMScriptActions.GiveGroup,     'GIVEGROUP');

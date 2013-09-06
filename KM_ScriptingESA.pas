@@ -114,6 +114,8 @@ type
 
     procedure FogCoverAll(aPlayer: Byte);
     procedure FogCoverCircle(aPlayer, X, Y, aRadius: Word);
+    procedure FogRevealRect(aPlayer, X1, Y1, X2, Y2: Word);
+    procedure FogCoverRect(aPlayer, X1, Y1, X2, Y2: Word);
     procedure FogRevealAll(aPlayer: Byte);
     procedure FogRevealCircle(aPlayer, X, Y, aRadius: Word);
 
@@ -1429,6 +1431,28 @@ begin
     gPlayers[aPlayer].FogOfWar.CoverCircle(KMPoint(X, Y), aRadius)
   else
     LogError('Actions.FogCoverCircle', [aPlayer, X, Y, aRadius]);
+end;
+
+
+procedure TKMScriptActions.FogRevealRect(aPlayer, X1, Y1, X2, Y2: Word);
+begin
+  if InRange(aPlayer, 0, gPlayers.Count - 1)
+  and gTerrain.TileInMapCoords(X1,Y1)
+  and gTerrain.TileInMapCoords(X2,Y2) then
+    gPlayers[aPlayer].FogOfWar.RevealRect(KMPoint(X1, Y1), KMPoint(X2, Y2), FOG_OF_WAR_MAX)
+  else
+    LogError('Actions.FogRevealRect', [aPlayer, X1, Y1, X2, Y2]);
+end;
+
+
+procedure TKMScriptActions.FogCoverRect(aPlayer, X1, Y1, X2, Y2: Word);
+begin
+  if InRange(aPlayer, 0, gPlayers.Count - 1)
+  and gTerrain.TileInMapCoords(X1,Y1)
+  and gTerrain.TileInMapCoords(X2,Y2) then
+    gPlayers[aPlayer].FogOfWar.CoverRect(KMPoint(X1, Y1), KMPoint(X2, Y2))
+  else
+    LogError('Actions.FogCoverRect', [aPlayer, X1, Y1, X2, Y2]);
 end;
 
 

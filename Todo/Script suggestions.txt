@@ -1,3 +1,7 @@
+Implemented:
+ 5777	Cover/Reveal rectangular FOW area
+
+
 Accepted:
 	Closest house/unit/group to given XY of certain player and type
 	Change house/unit/group owner
@@ -8,7 +12,6 @@ Accepted:
 	Split a specific warrior out of a group
 	Looping option for PlayWAV (useful for ambient sounds at a location)
 	UnitKill should work for animals (doesn't work because they don't check fKillASAP during UpdateState)
-	Reveal rectangular FOW area
 
 
 Proposed:
