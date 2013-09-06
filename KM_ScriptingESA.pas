@@ -104,6 +104,7 @@ type
     constructor Create(aIDCache: TKMScriptingIdCache);
 
     procedure AIRecruitLimit(aPlayer, aLimit: Byte);
+    procedure AIEquipRate(aPlayer: Byte; aType: Byte; aRate: Word);
 
     function  GiveAnimal(aType, X,Y: Word): Integer;
     function  GiveGroup(aPlayer, aType, X,Y, aDir, aCount, aColumns: Word): Integer;
@@ -1346,6 +1347,19 @@ begin
     gPlayers[aPlayer].AI.Setup.RecruitCount := aLimit
   else
     LogError('Actions.AIRecruitLimit', [aPlayer, aLimit]);
+end;
+
+
+procedure TKMScriptActions.AIEquipRate(aPlayer: Byte; aType: Byte; aRate: Word);
+begin
+  if InRange(aPlayer, 0, gPlayers.Count - 1) then
+    case aType of
+      0:    gPlayers[aPlayer].AI.Setup.EquipRateLeather := aRate;
+      1:    gPlayers[aPlayer].AI.Setup.EquipRateIron := aRate;
+      else  LogError('Actions.AIEquipRate, unknown type', [aPlayer, aType, aRate]);
+    end
+  else
+    LogError('Actions.AIEquipRate', [aPlayer, aType, aRate]);
 end;
 
 

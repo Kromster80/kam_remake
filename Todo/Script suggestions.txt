@@ -1,11 +1,10 @@
 Implemented:
  5777	Cover/Reveal rectangular FOW area
-
+ 5778	Actions.AIEquipRate(aPlayer: Byte; aType: Byte; aRate: Word);
 
 Accepted:
 	Closest house/unit/group to given XY of certain player and type
 	Change house/unit/group owner
-	AI equip rate
 	Allow to query count of placed house plans
 	States.HouseUnderAttack or OnHouseUnderAttack or similar (needed for Tower Defence)
 	DisplayText(text, player_id, timeout) to show announcements that will be gone after timeout (for TD and etc.)
@@ -51,7 +50,6 @@ Proposed:
 	Actions.AI_serfsPer10Houses(PlayerID, SerfsPer10Houses:Integer); 
 	Actions.AI_workers(PlayerID, Workers:Integer); 
 	Actions.AI_autodefence(PlayerID; Enable:Boolean); 
-	Actions.AI_equipRate(PlayerID, LeatherRate, IronRate:Integer); 
 	Actions.AI_recruitsPerBarrack(PlayerID, RecrutsPerBarrack:Integer); 
 	Actions.AI_recruitsDelay(PlayerID, Minutes:Integer); 
 	Actions.AI_maxSoldiers(PlayerID, Threshold:Integer); 

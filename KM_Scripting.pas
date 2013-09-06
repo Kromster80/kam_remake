@@ -201,6 +201,7 @@ begin
     with Sender.AddClassN(nil, AnsiString(fActions.ClassName)) do
     begin
       RegisterMethod('procedure AIRecruitLimit(aPlayer, aLimit: Byte)');
+      RegisterMethod('procedure AIEquipRate(aPlayer: Byte; aType: Byte; aRate: Word)');
 
       RegisterMethod('procedure FogCoverAll(aPlayer: Byte)');
       RegisterMethod('procedure FogCoverCircle(aPlayer, X, Y, aRadius: Word)');
@@ -216,7 +217,7 @@ begin
       RegisterMethod('procedure GiveWares(aPlayer, aType, aCount: Word)');
       RegisterMethod('procedure GiveWeapons(aPlayer, aType, aCount: Word)');
 
-	    RegisterMethod('procedure GroupOrderAttackHouse(aGroupID, aHouseID: Integer)');
+      RegisterMethod('procedure GroupOrderAttackHouse(aGroupID, aHouseID: Integer)');
       RegisterMethod('procedure GroupOrderAttackUnit(aGroupID, aUnitID: Integer)');
       RegisterMethod('procedure GroupOrderFood(aGroupID: Integer)');
       RegisterMethod('procedure GroupOrderHalt(aGroupID: Integer)');
@@ -226,8 +227,8 @@ begin
       RegisterMethod('procedure GroupOrderWalk(aGroupID: Integer; X, Y, aDirection: Word)');
       RegisterMethod('procedure GroupSetFormation(aGroupID: Integer; aNumColumns: Byte)');
 
-  	  RegisterMethod('procedure HouseAddDamage(aHouseID: Integer; aDamage: Word)');
-  	  RegisterMethod('procedure HouseAddRepair(aHouseID: Integer; aRepair: Word)');
+      RegisterMethod('procedure HouseAddDamage(aHouseID: Integer; aDamage: Word)');
+      RegisterMethod('procedure HouseAddRepair(aHouseID: Integer; aRepair: Word)');
       RegisterMethod('procedure HouseAddWaresTo(aHouseID: Integer; aType, aCount: Word)');
       RegisterMethod('procedure HouseAllow(aPlayer, aHouseType: Word; aAllowed: Boolean)');
       RegisterMethod('function  HouseBarracksEquip(aHouseID: Integer; aUnitType: Integer; aCount: Integer): Integer');
@@ -477,6 +478,7 @@ begin
     with ClassImp.Add(TKMScriptActions) do
     begin
       RegisterMethod(@TKMScriptActions.AIRecruitLimit,    'AIRECRUITLIMIT');
+      RegisterMethod(@TKMScriptActions.AIEquipRate,       'AIEQUIPRATE');
 
       RegisterMethod(@TKMScriptActions.FogCoverAll,       'FOGCOVERALL');
       RegisterMethod(@TKMScriptActions.FogCoverCircle,    'FOGCOVERCIRCLE');
