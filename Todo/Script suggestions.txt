@@ -8,6 +8,7 @@ Accepted:
 	Split a specific warrior out of a group
 	Looping option for PlayWAV (useful for ambient sounds at a location)
 	UnitKill should work for animals (doesn't work because they don't check fKillASAP during UpdateState)
+	Reveal rectangular FOW area
 
 
 Proposed:
@@ -41,21 +42,24 @@ Proposed:
 	Allow high volume boost for positional script sounds (currently limited to 1.0) since they are much quieter than non-positional sounds
 	Add flag to allow to kill units with death animation, but without sound
 
-  Actions.AI_enable(PlayerID; Enable:Boolean); //Auto-feed, etc
-  Actions.AI_autoBuild(PlayerID; Enable:Boolean); 
-  Actions.AI_autoRepair(PlayerID; Enable:Boolean); 
-  Actions.AI_serfsPer10Houses(PlayerID, SerfsPer10Houses:Integer); 
-  Actions.AI_workers(PlayerID, Workers:Integer); 
-  Actions.AI_autodefence(PlayerID; Enable:Boolean); 
-  Actions.AI_equipRate(PlayerID, LeatherRate, IronRate:Integer); 
-  Actions.AI_recruitsPerBarrack(PlayerID, RecrutsPerBarrack:Integer); 
-  Actions.AI_recruitsDelay(PlayerID, Minutes:Integer); 
-  Actions.AI_maxSoldiers(PlayerID, Threshold:Integer); 
-  Actions.AI_setFormations(PlayerID, MeleeCount, MeleeColumns, AntihorseCount, AntihorseColumns, RangedCount, RangedColumns, MountedCount, MountedColumns); 
-  Actions.AI_startAttack(PlayerID, TargetX, TargetY, ArmyCount, MeleeGroups, AntihorseGroups, RangedGroups, MountedGroups); 
-  States.AI_closestEnemyUnit(PlayerID):Integer; 
-  States.AI_closestEnemyHouse(PlayerID):Integer 
-  States.Path_getLength(fromX, fromY, toX, toY):Integer; 
-  States.Path_closestUnit(X, Y):Integer; 
-  States.Path_closestHouse(X, Y):Integer; 
-  OnGroupHungry(aGroupID); 
+	Actions.AI_enable(PlayerID; Enable:Boolean); //Auto-feed, etc
+	Actions.AI_autoBuild(PlayerID; Enable:Boolean); 
+	Actions.AI_autoRepair(PlayerID; Enable:Boolean); 
+	Actions.AI_serfsPer10Houses(PlayerID, SerfsPer10Houses:Integer); 
+	Actions.AI_workers(PlayerID, Workers:Integer); 
+	Actions.AI_autodefence(PlayerID; Enable:Boolean); 
+	Actions.AI_equipRate(PlayerID, LeatherRate, IronRate:Integer); 
+	Actions.AI_recruitsPerBarrack(PlayerID, RecrutsPerBarrack:Integer); 
+	Actions.AI_recruitsDelay(PlayerID, Minutes:Integer); 
+	Actions.AI_maxSoldiers(PlayerID, Threshold:Integer); 
+	Actions.AI_setFormations(PlayerID, MeleeCount, MeleeColumns, AntihorseCount, AntihorseColumns, RangedCount, RangedColumns, MountedCount, MountedColumns); 
+	Actions.AI_startAttack(PlayerID, TargetX, TargetY, ArmyCount, MeleeGroups, AntihorseGroups, RangedGroups, MountedGroups); 
+	States.AI_closestEnemyUnit(PlayerID):Integer; 
+	States.AI_closestEnemyHouse(PlayerID):Integer 
+	States.Path_getLength(fromX, fromY, toX, toY):Integer; 
+	States.Path_closestUnit(X, Y):Integer; 
+	States.Path_closestHouse(X, Y):Integer; 
+	OnGroupHungry(aGroupID); 
+	BlockCamera, block player from changing the view/zoom
+	Change player color
+	
