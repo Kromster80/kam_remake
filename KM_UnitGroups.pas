@@ -890,6 +890,11 @@ end;
 procedure TKMUnitGroup.OrderAttackHouse(aHouse: TKMHouse; aClearOffenders: Boolean);
 var I: Integer;
 begin
+  Assert(aHouse <> nil);
+
+  //Can attack only enemy houses
+  if gPlayers[Owner].Alliances[aHouse.Owner] <> at_Enemy then Exit;
+
   if aClearOffenders and CanTakeOrders then ClearOffenders;
 
   fOrder := goAttackHouse;
@@ -905,6 +910,10 @@ procedure TKMUnitGroup.OrderAttackUnit(aUnit: TKMUnit; aClearOffenders: Boolean)
 var I: Integer;
 begin
   Assert(aUnit <> nil);
+
+  //Can attack only enemy units
+  if gPlayers[Owner].Alliances[aUnit.Owner] <> at_Enemy then Exit;
+
   if aClearOffenders and CanTakeOrders then ClearOffenders;
 
   if IsRanged then

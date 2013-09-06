@@ -1957,7 +1957,6 @@ var
   G: TKMUnitGroup;
   H: TKMHouse;
 begin
-  //todo: Check Alliance before attacking
   if (aGroupID > 0) and (aHouseID > 0) then
   begin
     G := fIDCache.GetGroup(aGroupID);
@@ -1975,7 +1974,6 @@ var
   G: TKMUnitGroup;
   U: TKMUnit;
 begin
-  //todo: Check Alliance before attacking
   if (aGroupID > 0) and (aUnitID > 0) then
   begin
     G := fIDCache.GetGroup(aGroupID);

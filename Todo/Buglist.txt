@@ -7,6 +7,7 @@
  +	Wares icons went off by few pixels to the left-top on the wares rows, reverted back
  +	MapEd should not allow to set active player type to nor human nor AI
  +	Script command IsFieldAt checked winefields by mistake (same as IsWineFieldAt)
+ +	Script could order to attack allied assets. Check alliance settings when executing attack commands from script
 	Armour smithy has shields as 2nd ouput, armour workshop has shields as 1st output. Would make sense to match them (note: simply swapping in KM_ResourceHouses causes game logic to be swapped with GUI)
 	Armour smithy has iron as 1st input, weapon smithy has iron as 2nd input (iron/coal swapped). Would make sense to match them (note: simpply swapping in KM_ResourceHouses causes game logic to be swapped with GUI)
 	Deliveries should use the actual walking route length (opposed to Radius)
@@ -34,7 +35,6 @@
 	When citizen walks into a house he should be deselected
 	AIAttacks bug (AI attacks mulfunction after 12min.rar)
 	Player alliance towards self is inconsistent, especially in MP and when accessing from script (should be Ally always!)
-	Check alliance settings when executing attack commands from script
 
 	Water looks ugly brown when you zoom out too far due to water tiles having brown checkerboard pattern (anti-aliasing won't help)
 	Wooden house frames flicking on Onboard Intel HD Family Chipset (see images "Hidden House Frame Intel Onboard 1.jpg")
