@@ -19,66 +19,66 @@ type
     procedure Create_HouseBarracks;
     procedure Create_HouseWoodcutter;
 
-    procedure House_WoodcutterChange(Sender:TObject);
-    procedure House_BarracksUnitChange(Sender:TObject; AButton:TMouseButton);
+    procedure House_WoodcutterChange(Sender: TObject);
+    procedure House_BarracksUnitChange(Sender: TObject; AButton: TMouseButton);
     procedure House_BarracksAcceptFlag(Sender: TObject);
-    procedure House_Demolish(Sender:TObject);
-    procedure House_RepairToggle(Sender:TObject);
-    procedure House_WareDeliveryToggle(Sender:TObject);
-    procedure House_OrderClick(Sender:TObject; AButton:TMouseButton);
+    procedure House_Demolish(Sender: TObject);
+    procedure House_RepairToggle(Sender: TObject);
+    procedure House_WareDeliveryToggle(Sender: TObject);
+    procedure House_OrderClick(Sender: TObject; AButton: TMouseButton);
     procedure House_OrderWheel(Sender: TObject; WheelDelta: Integer);
     procedure House_MarketFill(aMarket: TKMHouseMarket);
-    procedure House_MarketOrderClick(Sender:TObject; AButton:TMouseButton);
-    procedure House_MarketSelect(Sender:TObject; AButton:TMouseButton);
-    procedure House_SchoolUnitChange(Sender:TObject; AButton:TMouseButton);
+    procedure House_MarketOrderClick(Sender: TObject; AButton: TMouseButton);
+    procedure House_MarketSelect(Sender: TObject; AButton: TMouseButton);
+    procedure House_SchoolUnitChange(Sender: TObject; AButton: TMouseButton);
     procedure House_SchoolUnitRemove(Sender: TObject; AButton: TMouseButton);
     procedure House_StoreAcceptFlag(Sender: TObject);
     procedure House_StoreFill;
   protected
-    Panel_House:TKMPanel;
-      Label_House:TKMLabel;
+    Panel_House: TKMPanel;
+      Label_House: TKMLabel;
       Button_HouseWaresBlock,Button_HouseRepair: TKMButton;
       Image_House_Logo,Image_House_Worker: TKMImage;
-      HealthBar_House:TKMPercentBar;
-      Label_HouseHealth:TKMLabel;
+      HealthBar_House: TKMPercentBar;
+      Label_HouseHealth: TKMLabel;
 
-    Panel_House_Common:TKMPanel;
+    Panel_House_Common: TKMPanel;
       Label_Common_Demand,Label_Common_Offer,Label_Common_Costs,
-      Label_House_UnderConstruction,Label_House_Demolish:TKMLabel;
+      Label_House_UnderConstruction,Label_House_Demolish: TKMLabel;
       Image_HouseConstructionWood, Image_HouseConstructionStone: TKMImage;
       Label_HouseConstructionWood, Label_HouseConstructionStone: TKMLabel;
-      Button_House_DemolishYes,Button_House_DemolishNo:TKMButton;
+      Button_House_DemolishYes,Button_House_DemolishNo: TKMButton;
       ResRow_Common_Resource: array [1..4] of TKMWaresRow; //4 bars is the maximum
-      ResRow_Order:array[1..4]of TKMWareOrderRow; //3 bars is the maximum
-      ResRow_Costs:array[1..4]of TKMCostsRow; //3 bars is the maximum
-    Panel_HouseMarket:TKMPanel;
-      Button_Market:array[0..STORE_RES_COUNT-1]of TKMButtonFlat;
+      ResRow_Order: array [1..4]of TKMWareOrderRow; //3 bars is the maximum
+      ResRow_Costs: array [1..4]of TKMCostsRow; //3 bars is the maximum
+    Panel_HouseMarket: TKMPanel;
+      Button_Market: array [0..STORE_RES_COUNT-1]of TKMButtonFlat;
       Shape_Market_From, Shape_Market_To: TKMShape;
       Label_Market_In, Label_Market_Out: TKMLabel;
       Button_Market_In, Button_Market_Out: TKMButtonFlat;
       Button_Market_Add,Button_Market_Remove: TKMButton;
-      Label_Market_FromAmount,Label_Market_ToAmount:TKMLabel;
-    Panel_HouseStore:TKMPanel;
-      Button_Store:array[1..STORE_RES_COUNT]of TKMButtonFlat;
-      Image_Store_Accept:array[1..STORE_RES_COUNT]of TKMImage;
-    Panel_House_School:TKMPanel;
-      ResRow_School_Resource:TKMWaresRow;
-      Button_School_UnitWIP:TKMButton;
-      Button_School_UnitWIPBar:TKMPercentBar;
-      Button_School_UnitPlan:array[1..5]of TKMButtonFlat;
-      Label_School_Unit:TKMLabel;
-      Image_School_Right,Image_School_Train,Image_School_Left:TKMImage;
-      Button_School_Right,Button_School_Train,Button_School_Left:TKMButton;
-    Panel_HouseBarracks:TKMPanel;
-      Button_Barracks:array[1..BARRACKS_RES_COUNT]of TKMButtonFlat;
-      Image_Barracks_Accept:array[1..BARRACKS_RES_COUNT]of TKMImage;
+      Label_Market_FromAmount,Label_Market_ToAmount: TKMLabel;
+    Panel_HouseStore: TKMPanel;
+      Button_Store: array [1..STORE_RES_COUNT]of TKMButtonFlat;
+      Image_Store_Accept: array [1..STORE_RES_COUNT]of TKMImage;
+    Panel_House_School: TKMPanel;
+      ResRow_School_Resource: TKMWaresRow;
+      Button_School_UnitWIP: TKMButton;
+      Button_School_UnitWIPBar: TKMPercentBar;
+      Button_School_UnitPlan: array [1..5] of TKMButtonFlat;
+      Label_School_Unit: TKMLabel;
+      Image_School_Right,Image_School_Train,Image_School_Left: TKMImage;
+      Button_School_Right,Button_School_Train,Button_School_Left: TKMButton;
+    Panel_HouseBarracks: TKMPanel;
+      Button_Barracks: array [1..BARRACKS_RES_COUNT] of TKMButtonFlat;
+      Image_Barracks_Accept: array [1..BARRACKS_RES_COUNT] of TKMImage;
       Button_BarracksRecruit: TKMButtonFlat;
-      Label_Barracks_Unit:TKMLabel;
-      Image_Barracks_Right,Image_Barracks_Train,Image_Barracks_Left:TKMImage;
-      Button_Barracks_Right,Button_Barracks_Train,Button_Barracks_Left:TKMButton;
-    Panel_HouseWoodcutter:TKMPanel;
-      Radio_Woodcutter:TKMRadioGroup;
-      Button_Woodcutter:TKMButtonFlat;
+      Label_Barracks_Unit: TKMLabel;
+      Image_Barracks_Right,Image_Barracks_Train,Image_Barracks_Left: TKMImage;
+      Button_Barracks_Right,Button_Barracks_Train,Button_Barracks_Left: TKMButton;
+    Panel_HouseWoodcutter: TKMPanel;
+      Radio_Woodcutter: TKMRadioGroup;
+      Button_Woodcutter: TKMButtonFlat;
   public
     OnHouseDemolish: TEvent;
 
@@ -390,7 +390,7 @@ end;
 
 procedure TKMGUIGameHouse.Show(aHouse: TKMHouse; aAskDemolish: Boolean);
 const LineAdv = 25; //Each new Line is placed ## pixels after previous
-var I,RowRes,Base,Line:integer; Res:TWareType;
+var I,RowRes,Base,Line:integer; Res: TWareType;
 begin
   fAskDemolish := aAskDemolish;
 
@@ -707,7 +707,7 @@ begin
 end;
 
 
-procedure TKMGUIGameHouse.House_WoodcutterChange(Sender:TObject);
+procedure TKMGUIGameHouse.House_WoodcutterChange(Sender: TObject);
 var
   W: TKMHouseWoodcutters;
   WMode: TWoodcutterMode;
@@ -740,7 +740,7 @@ begin
 end;
 
 
-procedure TKMGUIGameHouse.House_BarracksUnitChange(Sender:TObject; AButton:TMouseButton);
+procedure TKMGUIGameHouse.House_BarracksUnitChange(Sender: TObject; AButton: TMouseButton);
 var
   I, K, Tmp: Integer;
   Barracks: TKMHouseBarracks;
@@ -806,7 +806,7 @@ end;
 
 
 {Process click on Left-Train-Right buttons of School}
-procedure TKMGUIGameHouse.House_SchoolUnitChange(Sender:TObject; AButton:TMouseButton);
+procedure TKMGUIGameHouse.House_SchoolUnitChange(Sender: TObject; AButton: TMouseButton);
 var
   I: Byte;
   School: TKMHouseSchool;

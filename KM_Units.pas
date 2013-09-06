@@ -24,8 +24,8 @@ type
     fActionType: TUnitActionType;
     fUnit: TKMUnit;
   public
-    Locked: boolean; //Means that unit can't take part in interaction, must stay on its tile
-    StepDone: boolean; //True when single action element is done (unit walked to new tile, single attack loop done)
+    Locked: Boolean; //Means that unit can't take part in interaction, must stay on its tile
+    StepDone: Boolean; //True when single action element is done (unit walked to new tile, single attack loop done)
     constructor Create(aUnit: TKMUnit; aActionType: TUnitActionType; aLocked: Boolean);
     constructor Load(LoadStream: TKMemoryStream); virtual;
     procedure SyncLoad; virtual;
@@ -1802,7 +1802,7 @@ begin
 end;
 
 
-function TKMUnit.GetSlide(aCheck:TCheckAxis): single;
+function TKMUnit.GetSlide(aCheck: TCheckAxis): Single;
 //Pixel positions (waypoints) for sliding around other units. Uses a lookup to save on-the-fly calculations.
 //Follows a sort of a bell curve (normal distribution) shape for realistic acceleration/deceleration.
 //I tweaked it by hand to look similar to KaM.
