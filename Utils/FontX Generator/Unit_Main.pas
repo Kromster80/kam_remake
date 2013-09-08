@@ -26,7 +26,6 @@ type
     Label3: TLabel;
     btnGenerate: TButton;
     Memo1: TMemo;
-    edtFontName: TEdit;
     seFontSize: TSpinEdit;
     cbBold: TCheckBox;
     cbItalic: TCheckBox;
@@ -40,6 +39,7 @@ type
     cbCells: TCheckBox;
     btnOneClick: TButton;
     cbAntialias: TCheckBox;
+    cbFontName: TComboBox;
     procedure btnGenerateClick(Sender: TObject);
     procedure btnSaveClick(Sender: TObject);
     procedure btnExportTexClick(Sender: TObject);
@@ -71,6 +71,8 @@ var
 begin
   Caption := 'KaM FontX Generator (' + GAME_REVISION + ')';
   ExeDir := ExtractFilePath(Application.ExeName);
+
+  cbFontName.Items.AddStrings(Screen.Fonts);
 
   Collator := TKMFontCollator.Create;
 
@@ -114,7 +116,7 @@ begin
   Fnt.TexPadding := sePadding.Value;
   Fnt.TexSizeX := StrToInt(rgSizeX.Items[rgSizeX.ItemIndex]);
   Fnt.TexSizeY := StrToInt(rgSizeY.Items[rgSizeY.ItemIndex]);
-  Fnt.CreateFont(edtFontName.Text, seFontSize.Value, fntStyle, cbAntialias.Checked, useChars);
+  Fnt.CreateFont(cbFontName.Text, seFontSize.Value, fntStyle, cbAntialias.Checked, useChars);
 
   Fnt.ExportBimap(Image1.Picture.Bitmap, True, cbCells.Checked);
 end;

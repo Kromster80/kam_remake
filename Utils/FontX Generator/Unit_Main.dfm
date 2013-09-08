@@ -45,7 +45,6 @@ object Form1: TForm1
     Caption = 'Save font ...'
     TabOrder = 0
     OnClick = btnSaveClick
-    ExplicitTop = 544
   end
   object btnExportTex: TButton
     Left = 280
@@ -56,7 +55,6 @@ object Form1: TForm1
     Caption = 'Export texture ...'
     TabOrder = 1
     OnClick = btnExportTexClick
-    ExplicitTop = 544
   end
   object btnImportTex: TButton
     Left = 280
@@ -67,7 +65,6 @@ object Form1: TForm1
     Caption = 'Import texture ...'
     TabOrder = 2
     OnClick = btnImportTexClick
-    ExplicitTop = 576
   end
   object GroupBox1: TGroupBox
     Left = 8
@@ -78,7 +75,7 @@ object Form1: TForm1
     TabOrder = 3
     object Label5: TLabel
       Left = 152
-      Top = 24
+      Top = 16
       Width = 45
       Height = 16
       Caption = 'Padding'
@@ -88,7 +85,7 @@ object Form1: TForm1
     end
     object sePadding: TSpinEdit
       Left = 152
-      Top = 40
+      Top = 32
       Width = 49
       Height = 26
       MaxValue = 8
@@ -98,9 +95,9 @@ object Form1: TForm1
     end
     object rgSizeX: TRadioGroup
       Left = 14
-      Top = 24
+      Top = 16
       Width = 59
-      Height = 64
+      Height = 72
       Caption = ' Size X '
       ItemIndex = 0
       Items.Strings = (
@@ -112,9 +109,9 @@ object Form1: TForm1
     end
     object rgSizeY: TRadioGroup
       Left = 80
-      Top = 24
+      Top = 16
       Width = 65
-      Height = 65
+      Height = 73
       Caption = ' Size Y '
       ItemIndex = 0
       Items.Strings = (
@@ -126,10 +123,10 @@ object Form1: TForm1
     end
     object cbCells: TCheckBox
       Left = 152
-      Top = 72
-      Width = 47
+      Top = 64
+      Width = 81
       Height = 20
-      Caption = 'Cells'
+      Caption = 'Show cells'
       TabOrder = 3
     end
   end
@@ -206,14 +203,6 @@ object Form1: TForm1
       TabOrder = 1
       WantReturns = False
     end
-    object edtFontName: TEdit
-      Left = 8
-      Top = 40
-      Width = 129
-      Height = 24
-      TabOrder = 2
-      Text = 'Arial MS Uni'
-    end
     object seFontSize: TSpinEdit
       Left = 144
       Top = 40
@@ -221,7 +210,7 @@ object Form1: TForm1
       Height = 26
       MaxValue = 24
       MinValue = 6
-      TabOrder = 3
+      TabOrder = 2
       Value = 11
     end
     object cbBold: TCheckBox
@@ -230,7 +219,7 @@ object Form1: TForm1
       Width = 44
       Height = 20
       Caption = 'Bold'
-      TabOrder = 4
+      TabOrder = 3
     end
     object cbItalic: TCheckBox
       Left = 200
@@ -238,7 +227,7 @@ object Form1: TForm1
       Width = 47
       Height = 20
       Caption = 'Italic'
-      TabOrder = 5
+      TabOrder = 4
     end
     object btnCollectChars: TButton
       Left = 8
@@ -246,7 +235,7 @@ object Form1: TForm1
       Width = 121
       Height = 25
       Caption = 'Collect "libx" chars'
-      TabOrder = 6
+      TabOrder = 5
       OnClick = btnCollectCharsClick
     end
     object cbAntialias: TCheckBox
@@ -257,6 +246,14 @@ object Form1: TForm1
       Caption = 'Antialias'
       Checked = True
       State = cbChecked
+      TabOrder = 6
+    end
+    object cbFontName: TComboBox
+      Left = 8
+      Top = 40
+      Width = 129
+      Height = 24
+      DropDownCount = 24
       TabOrder = 7
     end
   end
@@ -313,7 +310,6 @@ object Form1: TForm1
     ParentFont = False
     TabOrder = 6
     OnClick = btnOneClickClick
-    ExplicitTop = 544
   end
   object dlgSave: TSaveDialog
     Left = 288
