@@ -39,7 +39,7 @@ object frmMain: TfrmMain
   end
   object Label3: TLabel
     Left = 62
-    Top = 307
+    Top = 339
     Width = 83
     Height = 13
     Caption = 'BaseCharHeight?'
@@ -48,7 +48,7 @@ object frmMain: TfrmMain
   end
   object Label4: TLabel
     Left = 62
-    Top = 331
+    Top = 363
     Width = 72
     Height = 13
     Caption = 'Word spacing?'
@@ -57,7 +57,7 @@ object frmMain: TfrmMain
   end
   object Label5: TLabel
     Left = 62
-    Top = 355
+    Top = 387
     Width = 62
     Height = 13
     Caption = 'Char spacing'
@@ -66,7 +66,7 @@ object frmMain: TfrmMain
   end
   object Label6: TLabel
     Left = 62
-    Top = 379
+    Top = 411
     Width = 66
     Height = 13
     Caption = 'Line spacing?'
@@ -84,7 +84,7 @@ object frmMain: TfrmMain
   end
   object Label7: TLabel
     Left = 62
-    Top = 403
+    Top = 451
     Width = 107
     Height = 13
     Caption = 'Selected letter Y offset'
@@ -111,7 +111,7 @@ object frmMain: TfrmMain
   end
   object btnSaveFont: TBitBtn
     Left = 8
-    Top = 480
+    Top = 536
     Width = 145
     Height = 25
     Caption = 'Save Font File ...'
@@ -136,7 +136,6 @@ object frmMain: TfrmMain
         Text = 'Font Hex Code'
         Width = 50
       end>
-    ExplicitWidth = 833
   end
   object Edit1: TEdit
     Left = 160
@@ -149,7 +148,7 @@ object frmMain: TfrmMain
   end
   object CheckCells: TCheckBox
     Left = 8
-    Top = 429
+    Top = 309
     Width = 71
     Height = 17
     Caption = 'Show cells'
@@ -160,7 +159,7 @@ object frmMain: TfrmMain
   end
   object btnExportBitmap: TBitBtn
     Left = 8
-    Top = 452
+    Top = 508
     Width = 73
     Height = 25
     Caption = 'Export BMP ...'
@@ -169,7 +168,7 @@ object frmMain: TfrmMain
   end
   object btnImportBitmap: TBitBtn
     Left = 80
-    Top = 452
+    Top = 508
     Width = 73
     Height = 25
     Caption = 'Import BMP ...'
@@ -178,7 +177,7 @@ object frmMain: TfrmMain
   end
   object SpinEdit1: TSpinEdit
     Left = 8
-    Top = 304
+    Top = 336
     Width = 50
     Height = 22
     MaxValue = 65535
@@ -189,7 +188,7 @@ object frmMain: TfrmMain
   end
   object SpinEdit2: TSpinEdit
     Left = 8
-    Top = 328
+    Top = 360
     Width = 50
     Height = 22
     MaxValue = 65535
@@ -200,7 +199,7 @@ object frmMain: TfrmMain
   end
   object SpinEdit3: TSpinEdit
     Left = 8
-    Top = 352
+    Top = 384
     Width = 50
     Height = 22
     MaxValue = 65535
@@ -211,7 +210,7 @@ object frmMain: TfrmMain
   end
   object SpinEdit4: TSpinEdit
     Left = 8
-    Top = 376
+    Top = 408
     Width = 50
     Height = 22
     MaxValue = 65535
@@ -222,7 +221,7 @@ object frmMain: TfrmMain
   end
   object SpinEdit5: TSpinEdit
     Left = 8
-    Top = 400
+    Top = 448
     Width = 50
     Height = 22
     MaxValue = 65535
