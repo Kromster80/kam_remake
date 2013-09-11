@@ -20,13 +20,15 @@ type
     GroupBox1: TGroupBox;
     sePadding: TSpinEdit;
     Label5: TLabel;
-    GroupBox3: TGroupBox;
-    ListBox1: TListBox;
-    btnCollate: TButton;
     rgSizeX: TRadioGroup;
     rgSizeY: TRadioGroup;
-    btnCollateAuto: TButton;
     cbCells: TCheckBox;
+    ListBox1: TListBox;
+    btnCollate: TButton;
+    btnCollateAuto: TButton;
+    ListBox2: TListBox;
+    Label1: TLabel;
+    Label2: TLabel;
     procedure btnSaveClick(Sender: TObject);
     procedure btnExportTexClick(Sender: TObject);
     procedure btnImportTexClick(Sender: TObject);
@@ -34,6 +36,7 @@ type
     procedure btnCollateClick(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure btnCollateAllClick(Sender: TObject);
+    procedure ListBox1Click(Sender: TObject);
   private
     Fnt: TKMFontDataEdit;
     Collator: TKMFontCollator;
@@ -50,7 +53,7 @@ implementation
 
 procedure TForm1.FormCreate(Sender: TObject);
 var
-  fntId: TKMFont;
+  I: Integer;
 begin
   Caption := 'KaM FontX Collator (' + GAME_REVISION + ')';
   ExeDir := ExtractFilePath(Application.ExeName);
@@ -58,10 +61,11 @@ begin
   Collator := TKMFontCollator.Create;
 
   //Scan fonts folder
+  Collator.ListFonts(ExeDir+'..\..\data\gfx\fonts\');
 
   //Available fonts
-  for fntId := Low(TKMFont) to High(TKMFont) do
-    ListBox1.Items.Add(FontInfo[fntId].FontFile);
+  for I := 0 to Collator.Fonts.Count - 1 do
+    ListBox1.Items.Add(Collator.Fonts[I]);
 end;
 
 
@@ -69,6 +73,14 @@ procedure TForm1.FormDestroy(Sender: TObject);
 begin
   FreeAndNil(Collator);
   FreeAndNil(Fnt);
+end;
+
+
+procedure TForm1.ListBox1Click(Sender: TObject);
+begin
+  ListBox2.Clear;
+
+  ListBox2.Items.Text := Collator.FontCodepages(ListBox1.ItemIndex);
 end;
 
 
@@ -85,19 +97,32 @@ end;
 
 procedure TForm1.btnCollateClick(Sender: TObject);
 var
-  fntId: TKMFont;
+  I,K: Integer;
+  files: TStringArray;
 begin
   if ListBox1.ItemIndex = -1 then Exit;
-
-  fntId := TKMFont(ListBox1.ItemIndex);
 
   //Recreate clean Font
   FreeAndNil(Fnt);
   Fnt := TKMFontDataEdit.Create;
 
-  Collator.Collate(FontInfo[fntId].FontFile, FontInfo[fntId].Pal, sePadding.Value,
+  K := 0;
+  SetLength(files, ListBox2.Count);
+  for I := 0 to ListBox2.Count - 1 do
+  if ListBox2.Selected[I] then
+  begin
+    files[K] := ListBox2.Items[I];
+    Inc(K);
+  end;
+  SetLength(files, K);
+
+  if K = 0 then Exit;  
+
+  Collator.Collate(ListBox1.ItemIndex,
                    StrToInt(rgSizeX.Items[rgSizeX.ItemIndex]),
                    StrToInt(rgSizeY.Items[rgSizeY.ItemIndex]),
+                   sePadding.Value,
+                   files,
                    Fnt);
 
   Fnt.ExportBimap(Image1.Picture.Bitmap, False, cbCells.Checked);

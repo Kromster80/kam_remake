@@ -11,11 +11,17 @@ uses
 
 type
   TKMFontCollator = class
+  private
+    fFontDir: string;
+    fFonts: TStringList;
   public
     constructor Create;
     destructor Destroy; override;
 
-    procedure Collate(aFontName: string; aPal: TKMPal; aPad, aX, aY: Word; aFnt: TKMFontDataEdit);
+    property Fonts: TStringList read fFonts;
+    procedure Collate(aIndex: Integer; aX, aY, aPad: Word; aFiles: TStringArray; var aFont: TKMFontDataEdit);
+    function FontCodepages(aIndex: Integer): string;
+    procedure ListFonts(aPath: string);
   end;
 
 
@@ -28,6 +34,8 @@ constructor TKMFontCollator.Create;
 begin
   inherited;
 
+  fFonts := TStringList.Create;
+
   gResLocales := TKMLocales.Create(ExeDir + '..\..\data\locales.txt', DEFAULT_LOCALE);
 end;
 
@@ -35,48 +43,89 @@ end;
 destructor TKMFontCollator.Destroy;
 begin
   gResLocales.Free;
+  fFonts.Free;
 
   inherited;
 end;
 
 
-procedure TKMFontCollator.Collate(aFontName: string; aPal: TKMPal; aPad, aX, aY: Word; aFnt: TKMFontDataEdit);
+procedure TKMFontCollator.Collate(aIndex: Integer; aX, aY, aPad: Word; aFiles: TStringArray; var aFont: TKMFontDataEdit);
 var
-  pals: TKMPalettes;
-  codePages: TKMWordArray;
   I: Integer;
-  srcFont: array of TKMFontDataEdit;
-  fntFile: string;
+  srcFonts: array of TKMFontDataEdit;
+  pals: TKMPalettes;
+  fntPal: TKMPal;
+  srcFontFile: string;
 begin
-  //We need palettes to properly load FNT files
-  pals := TKMPalettes.Create;
-  try
+  SetLength(srcFonts, Length(aFiles));
+
+  for I := Low(aFiles) to High(aFiles) do
+  begin
+    srcFonts[I] := TKMFontDataEdit.Create;
+    srcFontFile := ExeDir + '..\..\data\gfx\fonts\' + aFiles[I];
+
+    //Guess font palette from filename
+    pals := TKMPalettes.Create;
     pals.LoadPalettes(ExeDir + '..\..\data\gfx\');
 
-    //List of codepages we need to collate
-    codePages := gResLocales.CodePagesList;
+    fntPal := TKMResourceFont.GuessPalette(srcFontFile);
 
-    SetLength(codePages, Length(codePages)+1);
-    codePages[High(codePages)] := 9999;
-    SetLength(srcFont, Length(codePages));
-
-    for I := Low(codePages) to High(codePages) do
-    begin
-      srcFont[I] := TKMFontDataEdit.Create;
-      fntFile := ExeDir + '..\..\data\gfx\fonts\' + aFontName + '.' + IntToStr(codePages[I]) + '.fnt';
-      srcFont[I].LoadFont(fntFile, pals[aPal]);
-    end;
-
-    aFnt.TexPadding := aPad;
-    aFnt.TexSizeX := aX;
-    aFnt.TexSizeY := aY;
-    aFnt.CollateFont(srcFont, codePages);
-
-    for I := Low(codePages) to High(codePages) do
-      srcFont[I].Free;
-  finally
-    pals.Free;
+    if srcFontFile[Length(srcFontFile)] = 'x' then
+      srcFonts[I].LoadFontX(srcFontFile)
+    else
+      srcFonts[I].LoadFont(srcFontFile, pals[fntPal]);
   end;
+
+  aFont := TKMFontDataEdit.Create;
+  aFont.TexPadding := aPad;
+  aFont.TexSizeX := aX;
+  aFont.TexSizeY := aY;
+  aFont.CollateFonts(srcFonts);
+
+  for I := Low(aFiles) to High(aFiles) do
+    srcFonts[I].Free;
+end;
+
+
+function TKMFontCollator.FontCodepages(aIndex: Integer): string;
+var
+  SearchRec: TSearchRec;
+begin
+  Result := '';
+
+  FindFirst(fFontDir + fFonts[aIndex] + '*.fnt?', faAnyFile - faDirectory, SearchRec);
+  repeat
+    Result := Result + SearchRec.Name + #13#10;
+  until (FindNext(SearchRec) <> 0);
+  FindClose(SearchRec);
+end;
+
+
+procedure TKMFontCollator.ListFonts(aPath: string);
+var
+  SearchRec: TSearchRec;
+  I: Integer;
+  fntName: string;
+begin
+  fFonts.Clear;
+  fFontDir := '';
+
+  if not DirectoryExists(aPath) then Exit;
+
+  fFontDir := aPath;
+  FindFirst(fFontDir + '*.fnt?', faAnyFile - faDirectory, SearchRec);
+  repeat
+    I := Pos('.', SearchRec.Name);
+
+    if I = 0 then Continue;
+
+    fntName := Copy(SearchRec.Name, 1, I-1);
+
+    if fFonts.IndexOf(fntName) = -1 then
+      fFonts.Append(fntName);
+  until (FindNext(SearchRec) <> 0);
+
+  FindClose(SearchRec);
 end;
 
 

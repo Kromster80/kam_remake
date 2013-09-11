@@ -2,7 +2,7 @@ unit KM_ResFonts;
 {$I KaM_Remake.inc}
 interface
 uses
-  Classes, Graphics, Math, SysUtils, KM_PNG,
+  Classes, Graphics, Math, StrUtils, SysUtils, KM_PNG,
   KM_CommonTypes, KM_Defaults, KM_Points, KM_Render, KM_ResPalettes;
 
 
@@ -44,6 +44,7 @@ type
     fCharCount: Word;
     fBaseHeight, fWordSpacing, fCharSpacing, fUnknown: SmallInt;
     fLineSpacing: Byte; //Not in KaM files, we use custom value that fits well
+    fCodepage: Word;
     fIsUnicode: Boolean;
     Used: array [0..High(Word)] of Byte;
     rawData: array [0..High(Word)] of array of Byte; //Raw data for ANSI fonts
@@ -78,6 +79,7 @@ type
     destructor Destroy; override;
 
     property FontData[aIndex: TKMFont]: TKMFontData read GetFontData;
+    class function GuessPalette(aFileName: string): TKMPal;
 
     function WordWrap(aText: UnicodeString; aFont: TKMFont; aMaxPxWidth: Integer; aForced: Boolean; aIndentAfterNL: Boolean): UnicodeString;
     function CharsThatFit(const aText: UnicodeString; aFont: TKMFont; aMaxPxWidth: integer): integer;
@@ -111,7 +113,8 @@ const
   PAD = 1;
 var
   S: TMemoryStream;
-  I, M, L: Integer;
+  fileName: string;
+  I, K, M, L: Integer;
   MaxHeight: Integer;
   pX, pY: Integer;
 begin
@@ -125,6 +128,12 @@ begin
   //Fnt allows to store 256 or 65000 characters, but there's no flag inside, we can test only filesize
   fCharCount := IfThen(S.Size <= 65000, 256, 65000);
 
+  //Try to get the codepage
+  fileName := ExtractFileName(aFileName);
+  I := Pos('.', fileName);
+  K := PosEx('.', fileName, I+1);
+
+  fCodepage := StrToIntDef(Copy(fileName, I+1, K-I-1), 0);
   fIsUnicode := S.Size > 65000;
 
   S.Read(fBaseHeight, 2);
@@ -208,7 +217,9 @@ begin
 
     Assert(Head = FNTX_HEAD);
 
-    fIsUnicode := False;
+    fCodepage := 0;
+    fIsUnicode := True;
+    fCharCount := 65535;
 
     S.Read(fBaseHeight, 2);
     S.Read(fWordSpacing, 2);
@@ -348,6 +359,25 @@ end;
 function TKMResourceFont.GetFontData(aIndex: TKMFont): TKMFontData;
 begin
   Result := fFontData[aIndex];
+end;
+
+
+class function TKMResourceFont.GuessPalette(aFileName: string): TKMPal;
+var
+  fileName: string;
+  filePart: string;
+  I: Integer;
+  K: TKMFontInfo;
+begin
+  Result := pal_map;
+
+  fileName := ExtractFileName(aFileName);
+  I := Pos('.', fileName);
+  filePart := Copy(fileName, 1, I-1);
+
+  for K in FontInfo do
+  if K.FontFile = filePart then
+    Result := K.Pal;
 end;
 
 

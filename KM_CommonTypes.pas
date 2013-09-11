@@ -10,6 +10,7 @@ type
   PKMWordArray = ^TKMWordArray;
   TKMCardinalArray = array of Cardinal;
   TIntegerArray = array of Integer;
+  TStringArray = array of string;
   TRGBArray = array of record R,G,B: Byte end;
 
   TEvent = procedure of object;

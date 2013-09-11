@@ -15,7 +15,7 @@ type
     fTexPadding: Byte;
   public
     procedure CreateFont(aFontName: string; aFontSize: Byte; aFontStyle: TFontStyles; aAntialias: Boolean; const aChars: array of WideChar);
-    procedure CollateFont(aFonts: array of TKMFontDataEdit; aCodepages: array of Word);
+    procedure CollateFonts(aFonts: array of TKMFontDataEdit);
     procedure ImportPng(const aFilename: string);
     procedure SaveToFont(const aFilename: string);
     procedure SaveToFontX(const aFilename: string);
@@ -25,6 +25,7 @@ type
     property TexSizeX: Word read fTexSizeX write fTexSizeX;
     property TexSizeY: Word read fTexSizeY write fTexSizeY;
     property IsUnicode: Boolean read fIsUnicode;
+    property Codepage: Word read fCodepage;
 
     property CharSpacing: SmallInt read fCharSpacing write fCharSpacing;
     property LineSpacing: Byte read fLineSpacing write fLineSpacing;
@@ -136,7 +137,7 @@ end;
 
 
 //Create font by collating several different codepages
-procedure TKMFontDataEdit.CollateFont(aFonts: array of TKMFontDataEdit; aCodepages: array of Word);
+procedure TKMFontDataEdit.CollateFonts(aFonts: array of TKMFontDataEdit);
   function AnsiCharToWideChar(ac: AnsiChar; CodePage: Word): WideChar;
   begin
     if MultiByteToWideChar(CodePage, 0, @ac, 1, @Result, 1) <> 1 then
@@ -177,7 +178,7 @@ begin
       if aFonts[K].IsUnicode then
         uniChar := WideChar(I)
       else
-        uniChar := AnsiCharToWideChar(AnsiChar(I), aCodepages[K]);
+        uniChar := AnsiCharToWideChar(AnsiChar(I), aFonts[K].Codepage);
 
       uniCode := Ord(uniChar);
 

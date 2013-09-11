@@ -36,6 +36,26 @@ object Form1: TForm1
     Anchors = [akLeft, akTop, akRight, akBottom]
     ExplicitHeight = 512
   end
+  object Label1: TLabel
+    Left = 8
+    Top = 120
+    Width = 83
+    Height = 16
+    Caption = 'Available fonts'
+    Color = clBtnFace
+    ParentColor = False
+    Transparent = False
+  end
+  object Label2: TLabel
+    Left = 152
+    Top = 120
+    Width = 96
+    Height = 16
+    Caption = 'Fonts codepages'
+    Color = clBtnFace
+    ParentColor = False
+    Transparent = False
+  end
   object btnSave: TButton
     Left = 416
     Top = 584
@@ -130,43 +150,41 @@ object Form1: TForm1
       TabOrder = 3
     end
   end
-  object GroupBox3: TGroupBox
+  object ListBox1: TListBox
     Left = 8
-    Top = 472
-    Width = 265
-    Height = 169
-    Caption = ' Collate existing fonts '
+    Top = 136
+    Width = 137
+    Height = 241
     TabOrder = 4
-    DesignSize = (
-      265
-      169)
-    object ListBox1: TListBox
-      Left = 8
-      Top = 24
-      Width = 121
-      Height = 137
-      TabOrder = 0
-    end
-    object btnCollate: TButton
-      Left = 136
-      Top = 20
-      Width = 121
-      Height = 25
-      Anchors = [akLeft, akBottom]
-      Caption = 'Collate codepages'
-      TabOrder = 1
-      OnClick = btnCollateClick
-    end
-    object btnCollateAuto: TButton
-      Left = 136
-      Top = 52
-      Width = 121
-      Height = 25
-      Anchors = [akLeft, akBottom]
-      Caption = 'Collate all'
-      TabOrder = 2
-      OnClick = btnCollateAllClick
-    end
+    OnClick = ListBox1Click
+  end
+  object btnCollate: TButton
+    Left = 152
+    Top = 320
+    Width = 121
+    Height = 25
+    Anchors = [akLeft, akBottom]
+    Caption = 'Collate codepages'
+    TabOrder = 5
+    OnClick = btnCollateClick
+  end
+  object btnCollateAuto: TButton
+    Left = 152
+    Top = 352
+    Width = 121
+    Height = 25
+    Anchors = [akLeft, akBottom]
+    Caption = 'Collate all'
+    TabOrder = 6
+    OnClick = btnCollateAllClick
+  end
+  object ListBox2: TListBox
+    Left = 152
+    Top = 136
+    Width = 121
+    Height = 177
+    MultiSelect = True
+    TabOrder = 7
   end
   object dlgSave: TSaveDialog
     Left = 288
