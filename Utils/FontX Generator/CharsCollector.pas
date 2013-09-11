@@ -78,6 +78,7 @@ begin
   libxList := TStringList.Create;
 
   FillChar(chars, SizeOf(chars), #0);
+  gResLocales := TKMLocales.Create(ExeDir + '..\..\data\locales.txt', DEFAULT_LOCALE);
   try
     GetAllTextPaths(ExeDir + '..\..\', libxList);
 
@@ -108,6 +109,7 @@ begin
       Result := Result + WideChar(I);
   finally
     libxList.Free;
+    gResLocales.Free;
   end;
 end;
 
