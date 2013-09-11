@@ -55,9 +55,9 @@ type
     procedure LoadFontX(const aFileName: string);
     procedure GenerateTexture(aRender: TRender; aTexMode: TTexFormat);
     procedure Compact;
-    procedure ExportBimap(aBitmap: TBitmap; aOnlyAlpha, aShowCells: Boolean); overload;
-    procedure ExportBimap(const aPath: string; aOnlyAlpha: Boolean); overload;
-    procedure ExportPng(const aFilename: string);
+    procedure ExportAtlasBmp(aBitmap: TBitmap; aOnlyAlpha, aShowCells: Boolean); overload;
+    procedure ExportAtlasBmp(const aPath: string; aOnlyAlpha: Boolean); overload;
+    procedure ExportAtlasPng(const aFilename: string);
 
     property CharCount: Word read fCharCount;
     property CharSpacing: SmallInt read fCharSpacing;
@@ -261,7 +261,7 @@ end;
 
 
 //Export texture data into bitmap
-procedure TKMFontData.ExportBimap(aBitmap: TBitmap; aOnlyAlpha, aShowCells: Boolean);
+procedure TKMFontData.ExportAtlasBmp(aBitmap: TBitmap; aOnlyAlpha, aShowCells: Boolean);
 var
   I, K: Integer;
 begin
@@ -296,7 +296,7 @@ end;
 
 
 //Export texture data into a bitmap file
-procedure TKMFontData.ExportBimap(const aPath: string; aOnlyAlpha: Boolean);
+procedure TKMFontData.ExportAtlasBmp(const aPath: string; aOnlyAlpha: Boolean);
 var
   exportBmp: TBitmap;
 begin
@@ -304,7 +304,7 @@ begin
 
   exportBmp := TBitMap.Create;
   try
-    ExportBimap(exportBmp, aOnlyAlpha, False);
+    ExportAtlasBmp(exportBmp, aOnlyAlpha, False);
 
     ForceDirectories(ExtractFilePath(aPath));
     exportBmp.SaveToFile(aPath);
@@ -314,7 +314,7 @@ begin
 end;
 
 
-procedure TKMFontData.ExportPng(const aFilename: string);
+procedure TKMFontData.ExportAtlasPng(const aFilename: string);
 var
   I, K: Integer;
   pngWidth, pngHeight: Word;
@@ -407,7 +407,7 @@ begin
   begin
     FntPath := ExeDir + FONTS_FOLDER + FontInfo[F].FontFile + '.fntx';
     fFontData[F].LoadFontX(FntPath);
-    fFontData[F].ExportBimap(ExeDir + 'Export' + PathDelim + 'Fonts' + PathDelim + FontInfo[F].FontFile + '.bmp', False);
+    fFontData[F].ExportAtlasBmp(ExeDir + 'Export' + PathDelim + 'Fonts' + PathDelim + FontInfo[F].FontFile + '.bmp', False);
     fFontData[F].Compact;
   end;
 end;

@@ -162,18 +162,18 @@ object frmMain: TfrmMain
     Top = 508
     Width = 73
     Height = 25
-    Caption = 'Export BMP ...'
+    Caption = 'Export PNG ...'
     TabOrder = 7
-    OnClick = btnExportBitmapClick
+    OnClick = btnExportPngClick
   end
   object btnImportBitmap: TBitBtn
     Left = 80
     Top = 508
     Width = 73
     Height = 25
-    Caption = 'Import BMP ...'
+    Caption = 'Import PNG ...'
     TabOrder = 5
-    OnClick = btnImportBitmapClick
+    OnClick = btnImportPngClick
   end
   object SpinEdit1: TSpinEdit
     Left = 8

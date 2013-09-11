@@ -16,6 +16,7 @@ type
   public
     procedure CreateFont(aFontName: string; aFontSize: Byte; aFontStyle: TFontStyles; aAntialias: Boolean; const aChars: array of WideChar);
     procedure CollateFonts(aFonts: array of TKMFontDataEdit);
+    procedure ExportGridPng(const aFilename: string);
     procedure ImportPng(const aFilename: string);
     procedure SaveToFont(const aFilename: string);
     procedure SaveToFontX(const aFilename: string);
@@ -27,6 +28,7 @@ type
     property IsUnicode: Boolean read fIsUnicode;
     property Codepage: Word read fCodepage;
 
+    //Same as in FontData, but writeable
     property CharSpacing: SmallInt read fCharSpacing write fCharSpacing;
     property LineSpacing: Byte read fLineSpacing write fLineSpacing;
     property BaseHeight: SmallInt read fBaseHeight write fBaseHeight;
@@ -220,6 +222,42 @@ begin
 
       Inc(pX, chWidth + fTexPadding);
     end;
+end;
+
+
+procedure TKMFontDataEdit.ExportGridPng(const aFilename: string);
+var
+  x,y: Word;
+  I, M, L: Integer;
+  chWidth, chHeight: Byte;
+  srcX, srcY: Word;
+  dstPixel, srcPixel: Cardinal;
+  data: TKMCardinalArray;
+begin
+  x := 256 * 24;
+  y := 256 * 24;
+
+  SetLength(data, x * y);
+
+  for I := 0 to fCharCount - 1 do
+  if Used[I] <> 0 then
+  begin
+      chWidth := Letters[I].Width;
+      chHeight := Letters[I].Height;
+
+      //Copy the character over
+      for M := 0 to chHeight - 1 do
+      for L := 0 to chWidth - 1 do
+      begin
+        srcX := Round(Letters[I].u1 * fTexSizeX);
+        srcY := Round(Letters[I].v1 * fTexSizeY);
+        srcPixel := (srcY + M) * fTexSizeX + srcX + L;
+        dstPixel := ((I div 256) * 24 + M) * x + (I mod 256) * 24 + L;
+        data[dstPixel] := fTexData[srcPixel];
+      end;
+  end;
+
+  SaveToPng(x, y, data, aFilename);
 end;
 
 

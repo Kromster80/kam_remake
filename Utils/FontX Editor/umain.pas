@@ -42,12 +42,12 @@ type
     procedure FormCreate(Sender: TObject);
     procedure btnRefreshClick(Sender: TObject);
     procedure lbFontsClick(Sender: TObject);
-    procedure btnExportBitmapClick(Sender: TObject);
+    procedure btnExportPngClick(Sender: TObject);
     procedure PaintBox1MouseMove(Sender: TObject; Shift: TShiftState; X,Y: Integer);
     procedure PaintBox1MouseUp(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
     procedure Edit1Change(Sender: TObject);
     procedure CheckCellsClick(Sender: TObject);
-    procedure btnImportBitmapClick(Sender: TObject);
+    procedure btnImportPngClick(Sender: TObject);
     procedure SpinEdit1Change(Sender: TObject);
     procedure SpinEdit5Change(Sender: TObject);
     procedure ScrollBar1Change(Sender: TObject);
@@ -237,15 +237,15 @@ begin
 end;
 
 
-procedure TfrmMain.btnExportBitmapClick(Sender: TObject);
+procedure TfrmMain.btnExportPngClick(Sender: TObject);
 begin
   if not RunSaveDialog(SaveDialog1, '', ExeDir, 'PNG images|*.png', 'png') then Exit;
 
-  fFnt.ExportPng(SaveDialog1.FileName);
+  fFnt.ExportGridPng(SaveDialog1.FileName);
 end;
 
 
-procedure TfrmMain.btnImportBitmapClick(Sender: TObject);
+procedure TfrmMain.btnImportPngClick(Sender: TObject);
 begin
   //
 end;

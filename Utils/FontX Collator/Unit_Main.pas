@@ -125,7 +125,7 @@ begin
                    files,
                    Fnt);
 
-  Fnt.ExportBimap(Image1.Picture.Bitmap, False, cbCells.Checked);
+  Fnt.ExportAtlasBmp(Image1.Picture.Bitmap, False, cbCells.Checked);
 end;
 
 
@@ -151,7 +151,7 @@ begin
   dlgSave.DefaultExt := 'png';
   if not dlgSave.Execute then Exit;
 
-  Fnt.ExportPng(dlgSave.FileName);
+  Fnt.ExportAtlasPng(dlgSave.FileName);
 end;
 
 
@@ -160,7 +160,6 @@ begin
   if not dlgOpen.Execute then Exit;
 
   Fnt.ImportPng(dlgOpen.FileName);
-  Fnt.ExportBimap(Image1.Picture.Bitmap, False, cbCells.Checked);
 end;
 
 

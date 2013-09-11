@@ -101,7 +101,7 @@ begin
   Fnt.TexSizeY := StrToInt(rgSizeY.Items[rgSizeY.ItemIndex]);
   Fnt.CreateFont(cbFontName.Text, seFontSize.Value, fntStyle, cbAntialias.Checked, useChars);
 
-  Fnt.ExportBimap(Image1.Picture.Bitmap, True, cbCells.Checked);
+  Fnt.ExportAtlasBmp(Image1.Picture.Bitmap, True, cbCells.Checked);
 end;
 
 
@@ -149,7 +149,7 @@ begin
   dlgSave.DefaultExt := 'png';
   if not dlgSave.Execute then Exit;
 
-  Fnt.ExportPng(dlgSave.FileName);
+  Fnt.ExportAtlasPng(dlgSave.FileName);
 end;
 
 
@@ -158,7 +158,6 @@ begin
   if not dlgOpen.Execute then Exit;
 
   Fnt.ImportPng(dlgOpen.FileName);
-  Fnt.ExportBimap(Image1.Picture.Bitmap, False, cbCells.Checked);
 end;
 
 
