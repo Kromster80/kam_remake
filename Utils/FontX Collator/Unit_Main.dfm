@@ -2,7 +2,7 @@ object Form1: TForm1
   Left = 438
   Top = 169
   Caption = 'Form1'
-  ClientHeight = 545
+  ClientHeight = 649
   ClientWidth = 801
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -15,7 +15,7 @@ object Form1: TForm1
   OnDestroy = FormDestroy
   DesignSize = (
     801
-    545)
+    649)
   PixelsPerInch = 96
   TextHeight = 16
   object Label4: TLabel
@@ -32,12 +32,13 @@ object Form1: TForm1
     Left = 280
     Top = 24
     Width = 512
-    Height = 512
+    Height = 552
     Anchors = [akLeft, akTop, akRight, akBottom]
+    ExplicitHeight = 512
   end
   object btnSave: TButton
-    Left = 144
-    Top = 480
+    Left = 416
+    Top = 584
     Width = 129
     Height = 57
     Anchors = [akLeft, akBottom]
@@ -46,8 +47,8 @@ object Form1: TForm1
     OnClick = btnSaveClick
   end
   object btnExportTex: TButton
-    Left = 8
-    Top = 480
+    Left = 280
+    Top = 584
     Width = 129
     Height = 25
     Anchors = [akLeft, akBottom]
@@ -56,8 +57,8 @@ object Form1: TForm1
     OnClick = btnExportTexClick
   end
   object btnImportTex: TButton
-    Left = 8
-    Top = 512
+    Left = 280
+    Top = 616
     Width = 129
     Height = 25
     Anchors = [akLeft, akBottom]
@@ -129,131 +130,42 @@ object Form1: TForm1
       TabOrder = 3
     end
   end
-  object GroupBox2: TGroupBox
+  object GroupBox3: TGroupBox
     Left = 8
-    Top = 112
+    Top = 472
     Width = 265
-    Height = 353
-    Caption = ' Generate from scratch '
+    Height = 169
+    Caption = ' Collate existing fonts '
     TabOrder = 4
-    object Label1: TLabel
-      Left = 8
-      Top = 96
-      Width = 92
-      Height = 16
-      Caption = 'Used characters'
-      Color = clBtnFace
-      ParentColor = False
-      Transparent = False
-    end
-    object Label2: TLabel
+    DesignSize = (
+      265
+      169)
+    object ListBox1: TListBox
       Left = 8
       Top = 24
-      Width = 61
-      Height = 16
-      Caption = 'Font name'
-      Color = clBtnFace
-      ParentColor = False
-      Transparent = False
-    end
-    object Label3: TLabel
-      Left = 144
-      Top = 24
-      Width = 51
-      Height = 16
-      Caption = 'Font size'
-      Color = clBtnFace
-      ParentColor = False
-      Transparent = False
-    end
-    object btnGenerate: TButton
-      Left = 136
-      Top = 320
       Width = 121
-      Height = 25
-      Caption = 'Generate font'
+      Height = 137
       TabOrder = 0
-      OnClick = btnGenerateClick
     end
-    object Memo1: TMemo
-      Left = 8
-      Top = 112
-      Width = 249
-      Height = 201
-      Font.Charset = 4
-      Font.Color = clWindowText
-      Font.Height = -13
-      Font.Name = 'Arial Unicode MS'
-      Font.Style = []
-      Lines.Strings = (
-        '!"$%&'#39'()*+,-./0123456789:;=?@ABCD'
-        'EFGHIJKLMNOPQRSTUVWXYZ[\]`a'
-        'bcdefghijklmnopqrstuvwxyz???????'
-        '???????????????????????????'
-        '???????????????????????????????'
-        '???????????????????????????????'
-        '?'
-        '???????????????????????'
-        '????????????????????????'
-        '??????????????????????????'
-        '?')
-      ParentFont = False
-      ScrollBars = ssVertical
-      TabOrder = 1
-      WantReturns = False
-    end
-    object seFontSize: TSpinEdit
-      Left = 144
-      Top = 40
-      Width = 49
-      Height = 26
-      MaxValue = 24
-      MinValue = 6
-      TabOrder = 2
-      Value = 11
-    end
-    object cbBold: TCheckBox
-      Left = 200
-      Top = 32
-      Width = 44
-      Height = 20
-      Caption = 'Bold'
-      TabOrder = 3
-    end
-    object cbItalic: TCheckBox
-      Left = 200
-      Top = 48
-      Width = 47
-      Height = 20
-      Caption = 'Italic'
-      TabOrder = 4
-    end
-    object btnCollectChars: TButton
-      Left = 8
-      Top = 320
+    object btnCollate: TButton
+      Left = 136
+      Top = 20
       Width = 121
       Height = 25
-      Caption = 'Collect "libx" chars'
-      TabOrder = 5
-      OnClick = btnCollectCharsClick
+      Anchors = [akLeft, akBottom]
+      Caption = 'Collate codepages'
+      TabOrder = 1
+      OnClick = btnCollateClick
     end
-    object cbAntialias: TCheckBox
-      Left = 8
-      Top = 72
-      Width = 73
-      Height = 20
-      Caption = 'Antialias'
-      Checked = True
-      State = cbChecked
-      TabOrder = 6
-    end
-    object cbFontName: TComboBox
-      Left = 8
-      Top = 40
-      Width = 129
-      Height = 24
-      DropDownCount = 24
-      TabOrder = 7
+    object btnCollateAuto: TButton
+      Left = 136
+      Top = 52
+      Width = 121
+      Height = 25
+      Anchors = [akLeft, akBottom]
+      Caption = 'Collate all'
+      TabOrder = 2
+      OnClick = btnCollateAllClick
     end
   end
   object dlgSave: TSaveDialog

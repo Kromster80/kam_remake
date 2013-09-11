@@ -3,7 +3,7 @@
 			<ProjectGuid>{9E61582D-8EC3-4BC3-9C4A-75625011B0F8}</ProjectGuid>
 			<ProjectVersion>13.4</ProjectVersion>
 			<FrameworkType>VCL</FrameworkType>
-			<MainSource>FontXGenerator.dpr</MainSource>
+			<MainSource>FontXCollator.dpr</MainSource>
 			<Base>True</Base>
 			<Config Condition="'$(Config)'==''">Debug</Config>
 			<Platform Condition="'$(Platform)'==''">Win32</Platform>
@@ -100,7 +100,7 @@
 			</DCCReference>
 			<DCCReference Include="..\..\KM_ResFonts.pas"/>
 			<DCCReference Include="..\..\KM_ResFontsEdit.pas"/>
-			<DCCReference Include="CharsCollector.pas"/>
+			<DCCReference Include="KM_FontCollator.pas"/>
 			<BuildConfiguration Include="Release">
 				<Key>Cfg_2</Key>
 				<CfgParent>Base</CfgParent>
@@ -146,7 +146,7 @@
 						<VersionInfoKeys Name="Comments"/>
 					</VersionInfoKeys>
 					<Source>
-						<Source Name="MainSource">FontXGenerator.dpr</Source>
+						<Source Name="MainSource">FontXCollator.dpr</Source>
 					</Source>
 					<Excluded_Packages>
 						<Excluded_Packages Name="C:\Program Files\FastReports\LibD16\dclfrxDB16.bpl">FastReport 4.0 DB Components</Excluded_Packages>

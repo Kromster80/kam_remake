@@ -1,4 +1,4 @@
-program FontXGenerator;
+program FontXCollator;
 {$I ..\..\KaM_Remake.inc}
 uses
   Forms,
@@ -6,7 +6,7 @@ uses
   Unit_Main in 'Unit_Main.pas' {Form1},
   KM_ResFonts in '..\..\KM_ResFonts.pas',
   KM_ResFontsEdit in '..\..\KM_ResFontsEdit.pas',
-  CharsCollector in 'CharsCollector.pas';
+  KM_FontCollator in 'KM_FontCollator.pas';
 
 begin
   Application.Initialize;
