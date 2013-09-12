@@ -18,6 +18,7 @@ type
     procedure CollateFonts(aFonts: array of TKMFontDataEdit);
     procedure ExportGridPng(const aFilename: string);
     procedure ImportPng(const aFilename: string);
+    function MaxLetterHeight: Byte;
     procedure SaveToFont(const aFilename: string);
     procedure SaveToFontX(const aFilename: string);
 
@@ -155,7 +156,7 @@ var
   uniChar: Char;
   uniCode: Word;
 begin
-  //Common font props are presumably the same for all codepages
+  //Common font properties are presumably the same for all codepages
   fBaseHeight := aFonts[0].BaseHeight;
   fWordSpacing := aFonts[0].WordSpacing;
   fCharSpacing := aFonts[0].CharSpacing;
@@ -163,9 +164,8 @@ begin
 
   //Atlas line height
   lineHeight := 0;
-  for I := 0 to 255 do
-  if aFonts[0].Used[I] <> 0 then
-    lineHeight := Math.max(lineHeight, aFonts[0].Letters[I].Height);
+  for K := Low(aFonts) to High(aFonts) do
+    lineHeight := Math.max(lineHeight, aFonts[K].MaxLetterHeight);
 
   //Texture data
   SetLength(fTexData, fTexSizeX * fTexSizeY);
@@ -274,6 +274,18 @@ begin
   for I := 0 to fTexSizeY - 1 do
   for K := 0 to fTexSizeX - 1 do
     (PCardinal(Cardinal(@fTexData[0]) + (I * fTexSizeX + K) * 4))^ := pngData[I * fTexSizeX + K];
+end;
+
+
+//Maximum letter height, used for atlas generation and export
+function TKMFontDataEdit.MaxLetterHeight: Byte;
+var
+  I: Integer;
+begin
+  Result := 0;
+  for I := 0 to fCharCount - 1 do
+  if Used[I] <> 0 then
+    Result := Math.max(Result, Letters[I].Height);
 end;
 
 

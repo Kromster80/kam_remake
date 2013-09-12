@@ -2,7 +2,7 @@ object Form1: TForm1
   Left = 438
   Top = 169
   Caption = 'Form1'
-  ClientHeight = 649
+  ClientHeight = 585
   ClientWidth = 801
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -15,15 +15,15 @@ object Form1: TForm1
   OnDestroy = FormDestroy
   DesignSize = (
     801
-    649)
+    585)
   PixelsPerInch = 96
   TextHeight = 16
   object Label4: TLabel
     Left = 280
     Top = 8
-    Width = 45
+    Width = 50
     Height = 16
-    Caption = 'Preview'
+    Caption = 'Preview:'
     Color = clBtnFace
     ParentColor = False
     Transparent = False
@@ -33,65 +33,61 @@ object Form1: TForm1
     Top = 24
     Width = 512
     Height = 552
-    Anchors = [akLeft, akTop, akRight, akBottom]
-    ExplicitHeight = 512
+    Anchors = [akLeft, akTop, akRight]
   end
   object Label1: TLabel
     Left = 8
-    Top = 120
-    Width = 83
+    Top = 8
+    Width = 36
     Height = 16
-    Caption = 'Available fonts'
+    Caption = 'Fonts:'
     Color = clBtnFace
     ParentColor = False
     Transparent = False
   end
   object Label2: TLabel
     Left = 152
-    Top = 120
-    Width = 96
+    Top = 8
+    Width = 52
     Height = 16
-    Caption = 'Fonts codepages'
+    Caption = 'Variants:'
     Color = clBtnFace
     ParentColor = False
     Transparent = False
   end
   object btnSave: TButton
-    Left = 416
-    Top = 584
+    Left = 144
+    Top = 400
     Width = 129
     Height = 57
-    Anchors = [akLeft, akBottom]
     Caption = 'Save font ...'
     TabOrder = 0
     OnClick = btnSaveClick
   end
   object btnExportTex: TButton
-    Left = 280
-    Top = 584
+    Left = 8
+    Top = 400
     Width = 129
     Height = 25
-    Anchors = [akLeft, akBottom]
     Caption = 'Export texture ...'
     TabOrder = 1
     OnClick = btnExportTexClick
   end
   object btnImportTex: TButton
-    Left = 280
-    Top = 616
+    Left = 8
+    Top = 432
     Width = 129
     Height = 25
-    Anchors = [akLeft, akBottom]
     Caption = 'Import texture ...'
     TabOrder = 2
     OnClick = btnImportTexClick
   end
   object GroupBox1: TGroupBox
     Left = 8
-    Top = 8
+    Top = 280
     Width = 265
-    Height = 97
-    Caption = ' Texture atlas '
+    Height = 105
+    Caption = ' Texture atlas properties '
     TabOrder = 3
     object Label5: TLabel
       Left = 152
@@ -117,9 +113,9 @@ object Form1: TForm1
       Left = 14
       Top = 16
       Width = 59
-      Height = 72
+      Height = 81
       Caption = ' Size X '
-      ItemIndex = 0
+      ItemIndex = 1
       Items.Strings = (
         '128'
         '256'
@@ -131,9 +127,9 @@ object Form1: TForm1
       Left = 80
       Top = 16
       Width = 65
-      Height = 73
+      Height = 81
       Caption = ' Size Y '
-      ItemIndex = 0
+      ItemIndex = 2
       Items.Strings = (
         '128'
         '256'
@@ -152,7 +148,7 @@ object Form1: TForm1
   end
   object ListBox1: TListBox
     Left = 8
-    Top = 136
+    Top = 24
     Width = 137
     Height = 241
     TabOrder = 4
@@ -160,31 +156,20 @@ object Form1: TForm1
   end
   object btnCollate: TButton
     Left = 152
-    Top = 320
+    Top = 208
     Width = 121
     Height = 25
-    Anchors = [akLeft, akBottom]
-    Caption = 'Collate codepages'
+    Caption = 'Collate selected'
     TabOrder = 5
     OnClick = btnCollateClick
   end
-  object btnCollateAuto: TButton
-    Left = 152
-    Top = 352
-    Width = 121
-    Height = 25
-    Anchors = [akLeft, akBottom]
-    Caption = 'Collate all'
-    TabOrder = 6
-    OnClick = btnCollateAllClick
-  end
   object ListBox2: TListBox
     Left = 152
-    Top = 136
+    Top = 24
     Width = 121
     Height = 177
     MultiSelect = True
-    TabOrder = 7
+    TabOrder = 6
   end
   object dlgSave: TSaveDialog
     Left = 288

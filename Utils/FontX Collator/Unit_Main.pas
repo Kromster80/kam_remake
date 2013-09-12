@@ -25,7 +25,6 @@ type
     cbCells: TCheckBox;
     ListBox1: TListBox;
     btnCollate: TButton;
-    btnCollateAuto: TButton;
     ListBox2: TListBox;
     Label1: TLabel;
     Label2: TLabel;
@@ -35,7 +34,6 @@ type
     procedure FormCreate(Sender: TObject);
     procedure btnCollateClick(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
-    procedure btnCollateAllClick(Sender: TObject);
     procedure ListBox1Click(Sender: TObject);
   private
     Fnt: TKMFontDataEdit;
@@ -79,8 +77,8 @@ end;
 procedure TForm1.ListBox1Click(Sender: TObject);
 begin
   ListBox2.Clear;
-
   ListBox2.Items.Text := Collator.FontCodepages(ListBox1.ItemIndex);
+  ListBox2.SelectAll;
 end;
 
 
@@ -126,23 +124,6 @@ begin
                    Fnt);
 
   Fnt.ExportAtlasBmp(Image1.Picture.Bitmap, False, cbCells.Checked);
-end;
-
-
-procedure TForm1.btnCollateAllClick(Sender: TObject);
-var
-  I: TKMFont;
-begin
-  //256x512 - enough for any fonts yet
-  rgSizeX.ItemIndex := 1;
-  rgSizeY.ItemIndex := 2;
-
-  for I := Low(TKMFont) to High(TKMFont) do
-  begin
-    ListBox1.ItemIndex := Byte(I);
-    btnCollateClick(Self);
-    btnSaveClick(Self);
-  end;
 end;
 
 
