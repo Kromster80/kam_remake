@@ -17,7 +17,6 @@ type
     Label4: TLabel;
     Label5: TLabel;
     Label6: TLabel;
-    Label7: TLabel;
     OpenDialog1: TOpenDialog;
     SaveDialog1: TSaveDialog;
     lbFonts: TListBox;
@@ -26,7 +25,6 @@ type
     SpinEdit2: TSpinEdit;
     SpinEdit3: TSpinEdit;
     SpinEdit4: TSpinEdit;
-    SpinEdit5: TSpinEdit;
     StatusBar1: TStatusBar;
     Image4: TImage;
     Image5: TImage;
@@ -38,6 +36,9 @@ type
     btnExportBitmap: TBitBtn;
     ScrollBar1: TScrollBar;
     PaintBox1: TPaintBox;
+    GroupBox1: TGroupBox;
+    SpinEdit5: TSpinEdit;
+    Label7: TLabel;
     procedure btnSaveFontClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure btnRefreshClick(Sender: TObject);
@@ -138,10 +139,10 @@ begin
 
   if not DirectoryExists(aPath + 'data\gfx\fonts\') then Exit;
 
-  FindFirst(aPath+'data\gfx\fonts\*.fntx', faAnyFile - faDirectory, SearchRec);
+  FindFirst(aPath + 'data\gfx\fonts\*.fntx', faAnyFile - faDirectory, SearchRec);
   repeat
     lbFonts.Items.Add(SearchRec.Name);
-  until (FindNext(SearchRec)<>0);
+  until (FindNext(SearchRec) <> 0);
   FindClose(SearchRec);
 end;
 
@@ -247,7 +248,9 @@ end;
 
 procedure TfrmMain.btnImportPngClick(Sender: TObject);
 begin
-  //
+  if not RunOpenDialog(OpenDialog1, '', ExeDir, 'PNG images|*.png') then Exit;
+
+  fFnt.ImportGridPng(OpenDialog1.FileName);
 end;
 
 
@@ -269,9 +272,11 @@ end;
 
 procedure TfrmMain.PaintBox1MouseUp(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
 begin
-  Shape1.Left := PaintBox1.Left + (X div 32) * 32;
-  Shape1.Top := PaintBox1.Top + (Y div 32) * 32;
   fSelectedLetter := (Y div 32) *16 + X div 32;
+  GroupBox1.Caption := ' Letter: ' + IntToStr(fSelectedLetter) + ' (' + IntToHex(fSelectedLetter, 2) + 'h) ';
+
+  Shape1.Left := PaintBox1.Left + (X div 32) * 32 - 2;
+  Shape1.Top := PaintBox1.Top + (Y div 32) * 32 - 2;
 
   SpinEdit5.Value := fFnt.Letters[fSelectedLetter].YOffset;
 end;

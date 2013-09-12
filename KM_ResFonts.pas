@@ -1,4 +1,4 @@
-unit KM_ResFonts;
+﻿unit KM_ResFonts;
 {$I KaM_Remake.inc}
 interface
 uses
@@ -287,9 +287,11 @@ begin
     for I := 0 to High(Word) do
     if Used[I] <> 0 then
     begin
-        aBitmap.Canvas.Rectangle(Round(Letters[I].u1 * fTexSizeX),
-          Round(Letters[I].v1 * fTexSizeY), Round(Letters[I].u2 * fTexSizeX),
-          Round(Letters[I].v2 * fTexSizeY));
+      //Draw cell outside letter area
+      aBitmap.Canvas.Rectangle(Round(Letters[I].u1 * fTexSizeX)-1,
+                               Round(Letters[I].v1 * fTexSizeY)-1,
+                               Round(Letters[I].u2 * fTexSizeX)+1,
+                               Round(Letters[I].v2 * fTexSizeY)+1);
     end;
   end;
 end;

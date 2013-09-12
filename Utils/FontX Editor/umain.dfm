@@ -76,20 +76,11 @@ object frmMain: TfrmMain
   object Shape1: TShape
     Left = 160
     Top = 16
-    Width = 32
-    Height = 32
+    Width = 34
+    Height = 34
     Brush.Style = bsClear
     Pen.Color = clWhite
     Pen.Width = 2
-  end
-  object Label7: TLabel
-    Left = 62
-    Top = 451
-    Width = 107
-    Height = 13
-    Caption = 'Selected letter Y offset'
-    Color = clBtnFace
-    ParentColor = False
   end
   object lbFonts: TListBox
     Left = 8
@@ -111,7 +102,7 @@ object frmMain: TfrmMain
   end
   object btnSaveFont: TBitBtn
     Left = 8
-    Top = 536
+    Top = 600
     Width = 145
     Height = 25
     Caption = 'Save Font File ...'
@@ -159,7 +150,7 @@ object frmMain: TfrmMain
   end
   object btnExportBitmap: TBitBtn
     Left = 8
-    Top = 508
+    Top = 572
     Width = 73
     Height = 25
     Caption = 'Export PNG ...'
@@ -168,7 +159,7 @@ object frmMain: TfrmMain
   end
   object btnImportBitmap: TBitBtn
     Left = 80
-    Top = 508
+    Top = 572
     Width = 73
     Height = 25
     Caption = 'Import PNG ...'
@@ -219,17 +210,6 @@ object frmMain: TfrmMain
     Value = 0
     OnChange = SpinEdit1Change
   end
-  object SpinEdit5: TSpinEdit
-    Left = 8
-    Top = 448
-    Width = 50
-    Height = 22
-    MaxValue = 65535
-    MinValue = -65535
-    TabOrder = 12
-    Value = 0
-    OnChange = SpinEdit5Change
-  end
   object ScrollBar1: TScrollBar
     Left = 672
     Top = 16
@@ -238,8 +218,36 @@ object frmMain: TfrmMain
     Kind = sbVertical
     Max = 2000
     PageSize = 0
-    TabOrder = 13
+    TabOrder = 12
     OnChange = ScrollBar1Change
+  end
+  object GroupBox1: TGroupBox
+    Left = 8
+    Top = 440
+    Width = 145
+    Height = 105
+    Caption = ' Letter: '
+    TabOrder = 13
+    object Label7: TLabel
+      Left = 62
+      Top = 27
+      Width = 36
+      Height = 13
+      Caption = 'Y offset'
+      Color = clBtnFace
+      ParentColor = False
+    end
+    object SpinEdit5: TSpinEdit
+      Left = 8
+      Top = 24
+      Width = 50
+      Height = 22
+      MaxValue = 65535
+      MinValue = -65535
+      TabOrder = 0
+      Value = 0
+      OnChange = SpinEdit5Change
+    end
   end
   object OpenDialog1: TOpenDialog
     Left = 88

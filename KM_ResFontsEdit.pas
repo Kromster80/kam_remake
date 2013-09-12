@@ -17,8 +17,10 @@ type
     procedure CreateFont(aFontName: string; aFontSize: Byte; aFontStyle: TFontStyles; aAntialias: Boolean; const aChars: array of WideChar);
     procedure CollateFonts(aFonts: array of TKMFontDataEdit);
     procedure ExportGridPng(const aFilename: string);
+    procedure ImportGridPng(const aFilename: string);
     procedure ImportPng(const aFilename: string);
     function MaxLetterHeight: Byte;
+    function MaxLetterWidth: Byte;
     procedure SaveToFont(const aFilename: string);
     procedure SaveToFontX(const aFilename: string);
 
@@ -29,7 +31,7 @@ type
     property IsUnicode: Boolean read fIsUnicode;
     property Codepage: Word read fCodepage;
 
-    //Same as in FontData, but writeable
+    //Same as in TKMFontData, but writeable
     property CharSpacing: SmallInt read fCharSpacing write fCharSpacing;
     property LineSpacing: Byte read fLineSpacing write fLineSpacing;
     property BaseHeight: SmallInt read fBaseHeight write fBaseHeight;
@@ -111,10 +113,10 @@ begin
           Break;
       end;
 
-      Letters[I].u1 := (pX - fTexPadding) / fTexSizeX;
-      Letters[I].v1 := (pY - fTexPadding) / fTexSizeY;
-      Letters[I].u2 := (pX + chWidth + fTexPadding) / fTexSizeX;
-      Letters[I].v2 := (pY + txtHeight + fTexPadding) / fTexSizeY;
+      Letters[I].u1 := (pX) / fTexSizeX;
+      Letters[I].v1 := (pY) / fTexSizeY;
+      Letters[I].u2 := (pX + chWidth) / fTexSizeX;
+      Letters[I].v2 := (pY + txtHeight) / fTexSizeY;
 
       chRect.Left := pX;
       chRect.Top := pY;
@@ -192,11 +194,11 @@ begin
 
       if chWidth = 0 then Continue;
 
-      if pX + chWidth + fTexPadding >= fTexSizeX then
+      if pX + chWidth + fTexPadding*2 >= fTexSizeX then
       begin
         pX := fTexPadding;
-        Inc(pY, lineHeight + fTexPadding);
-        if pY + lineHeight + fTexPadding >= fTexSizeY then
+        Inc(pY, lineHeight + fTexPadding*2);
+        if pY + lineHeight + fTexPadding*2 >= fTexSizeY then
           Exit;
       end;
 
@@ -220,44 +222,143 @@ begin
       Letters[uniCode].u2 := (pX + chWidth - INS) / fTexSizeX;
       Letters[uniCode].v2 := (pY + chHeight - INS) / fTexSizeY;
 
-      Inc(pX, chWidth + fTexPadding);
+      Inc(pX, chWidth + fTexPadding*2);
     end;
 end;
 
 
 procedure TKMFontDataEdit.ExportGridPng(const aFilename: string);
 var
-  x,y: Word;
-  I, M, L: Integer;
+  cellX, cellY, pngWidth, pngHeight: Word;
+  I, K, M, L: Integer;
   chWidth, chHeight: Byte;
   srcX, srcY: Word;
   dstPixel, srcPixel: Cardinal;
   data: TKMCardinalArray;
 begin
-  x := 256 * 24;
-  y := 256 * 24;
+  cellX := MaxLetterWidth;
+  cellY := MaxLetterHeight;
+  pngWidth := 256 * cellX;
+  pngHeight := 256 * cellY;
 
-  SetLength(data, x * y);
+  SetLength(data, pngWidth * pngHeight);
 
+  //Draw grid
+  for I := 0 to 255 do
+  for K := 0 to pngWidth - 1 do
+    data[I * cellY * pngWidth + K] := $FF00FF00;
+
+  for K := 0 to 255 do
+  for I := 0 to pngHeight - 1 do
+    data[K * CellX + I * pngWidth] := $FF00FF00;
+
+
+  //Draw letters
   for I := 0 to fCharCount - 1 do
   if Used[I] <> 0 then
   begin
-      chWidth := Letters[I].Width;
-      chHeight := Letters[I].Height;
+    chWidth := Letters[I].Width;
+    chHeight := Letters[I].Height;
 
-      //Copy the character over
-      for M := 0 to chHeight - 1 do
-      for L := 0 to chWidth - 1 do
-      begin
-        srcX := Round(Letters[I].u1 * fTexSizeX);
-        srcY := Round(Letters[I].v1 * fTexSizeY);
-        srcPixel := (srcY + M) * fTexSizeX + srcX + L;
-        dstPixel := ((I div 256) * 24 + M) * x + (I mod 256) * 24 + L;
-        data[dstPixel] := fTexData[srcPixel];
-      end;
+    //Copy the character over
+    for M := 0 to chHeight - 1 do
+    for L := 0 to chWidth - 1 do
+    begin
+      srcX := Round(Letters[I].u1 * fTexSizeX);
+      srcY := Round(Letters[I].v1 * fTexSizeY);
+      srcPixel := (srcY + M) * fTexSizeX + srcX + L;
+      dstPixel := ((I div 256) * cellY + M + 1) * pngWidth + (I mod 256) * cellX + L + 1; //+1 for the grid
+      data[dstPixel] := fTexData[srcPixel];
+    end;
   end;
 
-  SaveToPng(x, y, data, aFilename);
+  SaveToPng(pngWidth, pngHeight, data, aFilename);
+end;
+
+
+procedure TKMFontDataEdit.ImportGridPng(const aFilename: string);
+var
+  cellX, cellY, pngWidth, pngHeight: Word;
+  pngData: TKMCardinalArray;
+  I, K, M, L: Integer;
+  chBounds: TRect;
+  cX, cY, dstX, dstY: Word;
+  letter: Word;
+  lineHeight: Byte;
+  dstPixel, srcPixel: Cardinal;
+begin
+  LoadFromPng(aFilename, pngWidth, pngHeight, pngData);
+
+  //Guess cell size
+  cellX := pngWidth div 256;
+  cellY := pngHeight div 256;
+
+  Assert((pngWidth > 0) and (pngHeight > 0), 'Imported image should have a size');
+  Assert((pngWidth mod 256 = 0) and (pngHeight mod 256 = 0), 'Imported image dimensions should be multiple of 256');
+
+  //Scan all letter-boxes
+  for I := 0 to 255 do for K := 0 to 255 do
+  begin
+    chBounds := Rect(MAXBYTE, MAXBYTE, 0, 0);
+
+    //Scan all pixels of a single letter to determine its dimensions
+    //Excluding 1/1 coords which are for grid lines (irregardless of visibility)
+    for L := 1 to cellY - 1 do for M := 1 to cellX - 1 do
+    begin
+      //Pixel coords
+      cX := K * cellX + M;
+      cY := I * cellY + L;
+
+      if pngData[cY * pngWidth + cX] <> 0 then
+      begin
+        chBounds.Left   := Math.Min(chBounds.Left,   M);
+        chBounds.Top    := Math.Min(chBounds.Top,    L);
+        chBounds.Right  := Math.Max(chBounds.Right,  M);
+        chBounds.Bottom := Math.Max(chBounds.Bottom, L);
+      end;
+    end;
+
+    letter := I * 256 + K;
+
+    Used[letter] := Byte((chBounds.Width > 0) and (chBounds.Height > 0));
+    Letters[letter].Width := chBounds.Width;
+    Letters[letter].Height := chBounds.Height;
+  end;
+
+  dstX := fTexPadding;
+  dstY := fTexPadding;
+  lineHeight := MaxLetterHeight;
+
+  //Pack found letters into atlas
+  //Hope that TexSize did not changed
+  for I := 0 to fCharCount - 1 do
+  if Used[I] <> 0 then
+  begin
+
+    if dstX + Letters[I].Width + fTexPadding*2 >= fTexSizeX then
+    begin
+      dstX := fTexPadding;
+      Inc(dstY, lineHeight + fTexPadding*2);
+      if dstY + lineHeight + fTexPadding*2 >= fTexSizeY then
+        Exit;
+    end;
+
+    //Copy the character over
+    for M := 0 to chBounds.Width - 1 do
+    for L := 0 to chBounds.Height - 1 do
+    begin
+      srcPixel := (chBounds.Top + M) * pngWidth + chBounds.Left + L;
+      dstPixel := (dstY + M) * fTexSizeX + dstX + L;
+      fTexData[dstPixel] := pngData[srcPixel];
+    end;
+
+    Letters[I].u1 := (dstX) / fTexSizeX;
+    Letters[I].v1 := (dstY) / fTexSizeY;
+    Letters[I].u2 := (dstX + chBounds.Width) / fTexSizeX;
+    Letters[I].v2 := (dstY + chBounds.Height) / fTexSizeY;
+
+    Inc(dstX, chBounds.Width + fTexPadding*2);
+  end;
 end;
 
 
@@ -286,6 +387,17 @@ begin
   for I := 0 to fCharCount - 1 do
   if Used[I] <> 0 then
     Result := Math.max(Result, Letters[I].Height);
+end;
+
+
+function TKMFontDataEdit.MaxLetterWidth: Byte;
+var
+  I: Integer;
+begin
+  Result := 0;
+  for I := 0 to fCharCount - 1 do
+  if Used[I] <> 0 then
+    Result := Math.max(Result, Letters[I].Width);
 end;
 
 
