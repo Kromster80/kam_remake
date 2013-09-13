@@ -14,6 +14,10 @@ object frmMain: TfrmMain
   Scaled = False
   OnCreate = FormCreate
   OnDestroy = FormDestroy
+  OnResize = FormResize
+  DesignSize = (
+    697
+    650)
   PixelsPerInch = 96
   TextHeight = 13
   object PaintBox1: TPaintBox
@@ -21,6 +25,7 @@ object frmMain: TfrmMain
     Top = 16
     Width = 512
     Height = 512
+    Anchors = [akLeft, akTop, akRight, akBottom]
     OnMouseMove = PaintBox1MouseMove
     OnMouseUp = PaintBox1MouseUp
     OnPaint = PaintBox1Paint
@@ -30,12 +35,14 @@ object frmMain: TfrmMain
     Top = 536
     Width = 377
     Height = 30
+    Anchors = [akLeft, akBottom]
   end
   object Image5: TImage
     Left = 160
     Top = 565
     Width = 529
     Height = 60
+    Anchors = [akLeft, akBottom]
   end
   object Label3: TLabel
     Left = 62
@@ -133,6 +140,7 @@ object frmMain: TfrmMain
     Top = 540
     Width = 145
     Height = 21
+    Anchors = [akLeft, akBottom]
     TabOrder = 4
     Text = 'Sample phrase'
     OnChange = Edit1Change
@@ -215,8 +223,9 @@ object frmMain: TfrmMain
     Top = 16
     Width = 17
     Height = 513
+    Anchors = [akTop, akRight, akBottom]
     Kind = sbVertical
-    Max = 2000
+    Max = 65535
     PageSize = 0
     TabOrder = 12
     OnChange = ScrollBar1Change

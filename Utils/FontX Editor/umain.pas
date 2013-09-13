@@ -54,6 +54,7 @@ type
     procedure ScrollBar1Change(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure PaintBox1Paint(Sender: TObject);
+    procedure FormResize(Sender: TObject);
   private
     fBmp: TBitmap;
     fFnt: TKMFontDataEdit;
@@ -109,6 +110,16 @@ begin
 end;
 
 
+procedure TfrmMain.FormResize(Sender: TObject);
+begin
+  fBmp.Width := PaintBox1.Width;
+  fBmp.Height := PaintBox1.Height;
+
+  ShowBigImage(CheckCells.Checked);
+  PaintBox1.Repaint;
+end;
+
+
 procedure TfrmMain.btnRefreshClick(Sender: TObject);
 begin
   Assert(DirectoryExists(DataDir), 'Data folder not found');
@@ -155,9 +166,6 @@ begin
   PaintBox1.Repaint;
   Edit1Change(nil);
   StatusBar1.Panels.Items[0].Text := 'Font: ' + lbFonts.Items[lbFonts.ItemIndex];
-
-  ScrollBar1.Max := (65536 - 256) div 32;
-  ScrollBar1.Enabled := ScrollBar1.Min <> ScrollBar1.Max;
 end;
 
 
@@ -185,29 +193,45 @@ var
   pX, pY: Word;
   T, R: Cardinal;
   Let: TKMLetter;
+  cellX, cellY: Word;
+  cols, rows: Byte;
+  offset: Word;
 begin
   fBmp.Canvas.Brush.Color := BG_COLOR;
   fBmp.Canvas.FillRect(fBmp.Canvas.ClipRect);
 
-  for I := 0 to 15 do
-  for K := 0 to 15 do
-  if fFnt.Letters[I * 16 + K + ScrollBar1.Position * 32].Width <> 0 then
+  if fFnt = nil then Exit;
+
+  cellX := fFnt.MaxLetterWidth + 1;
+  cellY := fFnt.MaxLetterHeight + 1;
+  cols := fBmp.Width div cellX;
+  rows := fBmp.Height div cellY;
+
+  offset := ScrollBar1.Position;
+
+  for I := 0 to rows - 1 do
+  for K := 0 to cols - 1 do
+  if offset + I * cols + K <= 65535 then
   begin
-    Let := fFnt.Letters[I * 16 + K + ScrollBar1.Position * 32];
+    Let := fFnt.Letters[offset + I * cols + K];
 
-    for L := 0 to Let.Height - 1 do
-    for M := 0 to Let.Width - 1 do
+    if Let.Width <> 0 then
     begin
-      pX := Round(Let.u1 * fFnt.TexSizeX) + M;
-      pY := Round(Let.v1 * fFnt.TexSizeY) + L;
-      T := fFnt.TexData[pY * fFnt.TexSizeX + pX];
 
-      //Blend with background
-      R := Round(Lerp(BG_COLOR and $FF, T and $FF, T shr 24 / 255)) +
-           Round(Lerp(BG_COLOR shr 8 and $FF, T shr 8 and $FF, T shr 24 / 255)) shl 8 +
-           Round(Lerp(BG_COLOR shr 16 and $FF, T shr 16 and $FF, T shr 24 / 255)) shl 16;
+      for L := 0 to Let.Height - 1 do
+      for M := 0 to Let.Width - 1 do
+      begin
+        pX := Round(Let.u1 * fFnt.TexSizeX) + M;
+        pY := Round(Let.v1 * fFnt.TexSizeY) + L;
+        T := fFnt.TexData[pY * fFnt.TexSizeX + pX];
 
-      fBmp.Canvas.Pixels[K * 32 + M, I * 32 + L] := R;
+        //Blend with background
+        R := Round(Lerp(BG_COLOR and $FF, T and $FF, T shr 24 / 255)) +
+             Round(Lerp(BG_COLOR shr 8 and $FF, T shr 8 and $FF, T shr 24 / 255)) shl 8 +
+             Round(Lerp(BG_COLOR shr 16 and $FF, T shr 16 and $FF, T shr 24 / 255)) shl 16;
+
+        fBmp.Canvas.Pixels[K * cellX + M + 1, I * cellY + L + 1] := R;
+      end;
     end;
   end;
 
@@ -215,16 +239,16 @@ begin
   begin
     fBmp.Canvas.Pen.Color := $AAAAAA;
 
-    for I := 0 to 14 do
+    for I := 0 to rows - 1 do
     begin
-      fBmp.Canvas.MoveTo(0, 31 + I * 32);
-      fBmp.Canvas.LineTo(511, 31 + I * 32);
+      fBmp.Canvas.MoveTo(0, I * cellY);
+      fBmp.Canvas.LineTo(fBmp.Width - 1, I * cellY);
     end;
 
-    for K := 0 to 15 do
+    for K := 0 to cols - 1 do
     begin
-      fBmp.Canvas.MoveTo(31 + K * 32, 0);
-      fBmp.Canvas.LineTo(31 + K * 32, 511);
+      fBmp.Canvas.MoveTo(K * cellX, 0);
+      fBmp.Canvas.LineTo(K * cellX, fBmp.Height - 1);
     end;
   end;
 
