@@ -2,7 +2,7 @@ object Form1: TForm1
   Left = 438
   Top = 169
   Caption = 'Form1'
-  ClientHeight = 545
+  ClientHeight = 689
   ClientWidth = 801
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -15,7 +15,7 @@ object Form1: TForm1
   OnDestroy = FormDestroy
   DesignSize = (
     801
-    545)
+    689)
   PixelsPerInch = 96
   TextHeight = 16
   object Label4: TLabel
@@ -32,12 +32,13 @@ object Form1: TForm1
     Left = 280
     Top = 24
     Width = 512
-    Height = 512
+    Height = 656
     Anchors = [akLeft, akTop, akRight, akBottom]
+    ExplicitHeight = 512
   end
   object btnSave: TButton
     Left = 144
-    Top = 480
+    Top = 624
     Width = 129
     Height = 57
     Anchors = [akLeft, akBottom]
@@ -47,7 +48,7 @@ object Form1: TForm1
   end
   object btnExportTex: TButton
     Left = 8
-    Top = 480
+    Top = 624
     Width = 129
     Height = 25
     Anchors = [akLeft, akBottom]
@@ -57,7 +58,7 @@ object Form1: TForm1
   end
   object btnImportTex: TButton
     Left = 8
-    Top = 512
+    Top = 656
     Width = 129
     Height = 25
     Anchors = [akLeft, akBottom]
@@ -133,12 +134,12 @@ object Form1: TForm1
     Left = 8
     Top = 112
     Width = 265
-    Height = 353
+    Height = 401
     Caption = ' Generate from scratch '
     TabOrder = 4
     object Label1: TLabel
       Left = 8
-      Top = 96
+      Top = 144
       Width = 92
       Height = 16
       Caption = 'Used characters'
@@ -168,7 +169,7 @@ object Form1: TForm1
     end
     object btnGenerate: TButton
       Left = 136
-      Top = 320
+      Top = 368
       Width = 121
       Height = 25
       Caption = 'Generate font'
@@ -177,7 +178,7 @@ object Form1: TForm1
     end
     object Memo1: TMemo
       Left = 8
-      Top = 112
+      Top = 160
       Width = 249
       Height = 201
       Font.Charset = 4
@@ -230,7 +231,7 @@ object Form1: TForm1
     end
     object btnCollectChars: TButton
       Left = 8
-      Top = 320
+      Top = 368
       Width = 121
       Height = 25
       Caption = 'Collect "libx" chars'
@@ -254,6 +255,35 @@ object Form1: TForm1
       Height = 24
       DropDownCount = 24
       TabOrder = 7
+    end
+    object SpinEdit1: TSpinEdit
+      Left = 8
+      Top = 112
+      Width = 65
+      Height = 26
+      MaxValue = 65535
+      MinValue = 0
+      TabOrder = 8
+      Value = 19968
+    end
+    object SpinEdit2: TSpinEdit
+      Left = 80
+      Top = 112
+      Width = 65
+      Height = 26
+      MaxValue = 65535
+      MinValue = 0
+      TabOrder = 9
+      Value = 40870
+    end
+    object btnSetRange: TButton
+      Left = 152
+      Top = 112
+      Width = 105
+      Height = 25
+      Caption = 'Set range'
+      TabOrder = 10
+      OnClick = btnSetRangeClick
     end
   end
   object dlgSave: TSaveDialog

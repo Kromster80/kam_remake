@@ -35,6 +35,9 @@ type
     cbCells: TCheckBox;
     cbAntialias: TCheckBox;
     cbFontName: TComboBox;
+    SpinEdit1: TSpinEdit;
+    SpinEdit2: TSpinEdit;
+    btnSetRange: TButton;
     procedure btnGenerateClick(Sender: TObject);
     procedure btnSaveClick(Sender: TObject);
     procedure btnExportTexClick(Sender: TObject);
@@ -43,6 +46,7 @@ type
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure UpdateCaption(const aString: UnicodeString);
+    procedure btnSetRangeClick(Sender: TObject);
   private
     Fnt: TKMFontDataEdit;
   end;
@@ -119,6 +123,26 @@ end;
 procedure TForm1.UpdateCaption(const aString: UnicodeString);
 begin
   btnCollectChars.Caption := aString;
+end;
+
+
+procedure TForm1.btnSetRangeClick(Sender: TObject);
+var
+  uniText: UnicodeString;
+  I: Integer;
+begin
+  uniText := '';
+
+  for I := SpinEdit1.Value to SpinEdit2.Value do
+    uniText := uniText + WideChar(I);
+
+  {$IFDEF WDC}
+    Memo1.Text := uniText;
+  {$ENDIF}
+  {$IFDEF FPC}
+    //FPC controls need utf8 strings
+    Memo1.Text := UTF8Encode(uniText);
+  {$ENDIF}
 end;
 
 
