@@ -3429,9 +3429,11 @@ end;
 
 
 procedure TKMListBox.Paint;
-var i,PaintWidth: Integer;
+var
+  I, PaintWidth: Integer;
 begin
   inherited;
+
   if fScrollBar.Visible then
     PaintWidth := Width - fScrollBar.Width //Leave space for scrollbar
   else
@@ -3442,8 +3444,8 @@ begin
   if (fItemIndex <> -1) and InRange(fItemIndex - TopIndex, 0, (fHeight div fItemHeight)-1) then
     TKMRenderUI.WriteShape(AbsLeft, AbsTop+fItemHeight*(fItemIndex - TopIndex), PaintWidth, fItemHeight, $88888888, $FFFFFFFF);
 
-  for i:=0 to Math.min(fItems.Count-1, (fHeight div fItemHeight)-1) do
-    TKMRenderUI.WriteText(AbsLeft+4, AbsTop+i*fItemHeight+3, PaintWidth-8, fItems.Strings[TopIndex+i] , fFont, taLeft);
+  for I := 0 to Math.min(fItems.Count-1, (fHeight div fItemHeight)-1) do
+    TKMRenderUI.WriteText(AbsLeft+4, AbsTop+I*fItemHeight+3, PaintWidth-8, fItems.Strings[TopIndex+I] , fFont, taLeft);
 end;
 
 
@@ -4032,7 +4034,7 @@ begin
   for I := 0 to Math.min(fRowCount - 1, MaxItem) do
     TKMRenderUI.WriteShape(AbsLeft+1, Y + I * fItemHeight - 1, PaintWidth - 2, 1, $FFBBBBBB);
 
-  TKMRenderUI.SetupClipY(AbsTop, AbsTop + Height);
+  TKMRenderUI.SetupClipY(AbsTop, AbsTop + Height - 1);
 
   //Selection highlight
   if not HideSelection
