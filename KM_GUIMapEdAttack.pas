@@ -2,7 +2,7 @@ unit KM_GUIMapEdAttack;
 {$I KaM_Remake.inc}
 interface
 uses
-   Classes,
+   Classes, SysUtils,
    KM_Controls, KM_Defaults, KM_Pics,
    KM_Points, KM_AIAttacks;
 
@@ -14,8 +14,13 @@ type
     procedure Attack_Change(Sender: TObject);
     procedure Attack_Close(Sender: TObject);
     procedure Attack_Refresh(aAttack: TAIAttack);
+    procedure Attack_Save;
+    procedure Attack_Switch(Sender: TObject);
   protected
     Panel_Attack: TKMPanel;
+    Label_AttackHeader: TKMLabel;
+    Button_Next: TKMButton;
+    Button_Prev: TKMButton;
     Radio_AttackType: TKMRadioGroup;
     NumEdit_AttackDelay: TKMNumericEdit;
     NumEdit_AttackMen: TKMNumericEdit;
@@ -56,14 +61,20 @@ var
 begin
   inherited Create;
 
-  Panel_Attack := TKMPanel.Create(aParent, 362, 250, SIZE_X, SIZE_Y);
+  Panel_Attack := TKMPanel.Create(aParent, TOOLBAR_WIDTH + (aParent.Width - TOOLBAR_WIDTH - SIZE_X) div 2,
+                                           (aParent.Height - SIZE_Y) div 2, SIZE_X, SIZE_Y);
   Panel_Attack.Anchors := [];
   Panel_Attack.Hide;
 
     TKMBevel.Create(Panel_Attack, -1000,  -1000, 4000, 4000);
     with TKMImage.Create(Panel_Attack, -20, -50, SIZE_X+40, SIZE_Y+60, 15, rxGuiMain) do ImageStretch;
     TKMBevel.Create(Panel_Attack,   0,  0, SIZE_X, SIZE_Y);
-    TKMLabel.Create(Panel_Attack, SIZE_X div 2, 10, gResTexts[TX_MAPED_AI_ATTACK_INFO], fnt_Outline, taCenter);
+    Label_AttackHeader := TKMLabel.Create(Panel_Attack, SIZE_X div 2, 10, gResTexts[TX_MAPED_AI_ATTACK_INFO], fnt_Outline, taCenter);
+
+    Button_Prev := TKMButton.Create(Panel_Attack, 20, 10, 60, 20, '<<', bsMenu);
+    Button_Prev.OnClick := Attack_Switch;
+    Button_Next := TKMButton.Create(Panel_Attack, SIZE_X-20-60, 10, 60, 20, '>>', bsMenu);
+    Button_Next.OnClick := Attack_Switch;
 
     TKMLabel.Create(Panel_Attack, 20, 40, gResTexts[TX_MAPED_AI_ATTACK_COL_TYPE], fnt_Metal, taLeft);
     Radio_AttackType := TKMRadioGroup.Create(Panel_Attack, 20, 60, 80, 40, fnt_Metal);
@@ -134,25 +145,9 @@ end;
 
 
 procedure TKMMapEdAttack.Attack_Close(Sender: TObject);
-var
-  AA: TAIAttack;
-  GT: TGroupType;
 begin
   if Sender = Button_AttackOk then
-  begin
-    //Copy attack info from controls to Attacks
-    AA.AttackType := TAIAttackType(Radio_AttackType.ItemIndex);
-    AA.Delay := NumEdit_AttackDelay.Value * 10;
-    AA.TotalMen := NumEdit_AttackMen.Value;
-    for GT := Low(TGroupType) to High(TGroupType) do
-      AA.GroupAmounts[GT] := NumEdit_AttackAmount[GT].Value;
-    AA.TakeAll := CheckBox_AttackTakeAll.Checked;
-    AA.Target := TAIAttackTarget(Radio_AttackTarget.ItemIndex);
-    AA.Range := TrackBar_AttackRange.Position;
-    AA.CustomPosition := KMPoint(NumEdit_AttackLocX.Value, NumEdit_AttackLocY.Value);
-
-    gPlayers[fOwner].AI.General.Attacks[fIndex] := AA;
-  end;
+    Attack_Save;
 
   Panel_Attack.Hide;
   fOnDone(Self);
@@ -163,6 +158,8 @@ procedure TKMMapEdAttack.Attack_Refresh(aAttack: TAIAttack);
 var
   GT: TGroupType;
 begin
+  Label_AttackHeader.Caption := gResTexts[TX_MAPED_AI_ATTACK_INFO] + ' (' + IntToStr(fIndex) + ')';
+
   //Set attack properties to UI
   Radio_AttackType.ItemIndex := Byte(aAttack.AttackType);
   NumEdit_AttackDelay.Value := aAttack.Delay div 10;
@@ -180,12 +177,51 @@ begin
 end;
 
 
+procedure TKMMapEdAttack.Attack_Save;
+var
+  AA: TAIAttack;
+  GT: TGroupType;
+begin
+  //Copy attack info from controls to Attacks
+  AA.AttackType := TAIAttackType(Radio_AttackType.ItemIndex);
+  AA.Delay := NumEdit_AttackDelay.Value * 10;
+  AA.TotalMen := NumEdit_AttackMen.Value;
+  for GT := Low(TGroupType) to High(TGroupType) do
+    AA.GroupAmounts[GT] := NumEdit_AttackAmount[GT].Value;
+  AA.TakeAll := CheckBox_AttackTakeAll.Checked;
+  AA.Target := TAIAttackTarget(Radio_AttackTarget.ItemIndex);
+  AA.Range := TrackBar_AttackRange.Position;
+  AA.CustomPosition := KMPoint(NumEdit_AttackLocX.Value, NumEdit_AttackLocY.Value);
+
+  gPlayers[fOwner].AI.General.Attacks[fIndex] := AA;
+end;
+
+
+//Show previous or next attack
+//We save changes before switching
+procedure TKMMapEdAttack.Attack_Switch(Sender: TObject);
+var
+  atCount: Integer;
+begin
+  Attack_Save;
+
+  atCount := gPlayers[fOwner].AI.General.Attacks.Count;
+
+  if Sender = Button_Prev then
+    fIndex := (fIndex + atCount - 1) mod atCount
+  else
+    fIndex := (fIndex + 1) mod atCount;
+
+  Attack_Refresh(gPlayers[fOwner].AI.General.Attacks[fIndex]);
+end;
+
+
 procedure TKMMapEdAttack.Show(aPlayer: TPlayerIndex; aIndex: Integer);
 begin
   fOwner := aPlayer;
   fIndex := aIndex;
 
-  Attack_Refresh(gPlayers[aPlayer].AI.General.Attacks[aIndex]);
+  Attack_Refresh(gPlayers[fOwner].AI.General.Attacks[fIndex]);
   Panel_Attack.Show;
 end;
 
