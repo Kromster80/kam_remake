@@ -89,6 +89,15 @@ object frmMain: TfrmMain
     Pen.Color = clWhite
     Pen.Width = 2
   end
+  object Label1: TLabel
+    Left = 62
+    Top = 523
+    Width = 71
+    Height = 13
+    Caption = 'Export padding'
+    Color = clBtnFace
+    ParentColor = False
+  end
   object lbFonts: TListBox
     Left = 8
     Top = 40
@@ -234,7 +243,7 @@ object frmMain: TfrmMain
     Left = 8
     Top = 440
     Width = 145
-    Height = 105
+    Height = 57
     Caption = ' Letter: '
     TabOrder = 13
     object Label7: TLabel
@@ -257,6 +266,16 @@ object frmMain: TfrmMain
       Value = 0
       OnChange = SpinEdit5Change
     end
+  end
+  object SpinEdit6: TSpinEdit
+    Left = 8
+    Top = 520
+    Width = 50
+    Height = 22
+    MaxValue = 65535
+    MinValue = -65535
+    TabOrder = 14
+    Value = 0
   end
   object OpenDialog1: TOpenDialog
     Left = 88

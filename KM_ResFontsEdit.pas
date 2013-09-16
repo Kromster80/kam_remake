@@ -1,4 +1,4 @@
-unit KM_ResFontsEdit;
+﻿unit KM_ResFontsEdit;
 {$I KaM_Remake.inc}
 interface
 uses
@@ -16,7 +16,7 @@ type
   public
     procedure CreateFont(aFontName: string; aFontSize: Byte; aFontStyle: TFontStyles; aAntialias: Boolean; const aChars: array of WideChar);
     procedure CollateFonts(aFonts: array of TKMFontDataEdit);
-    procedure ExportGridPng(const aFilename: string);
+    procedure ExportGridPng(const aFilename: string; aPadding: Byte);
     procedure ImportGridPng(const aFilename: string);
     procedure ImportPng(const aFilename: string);
     function MaxLetterHeight: Byte;
@@ -227,7 +227,7 @@ begin
 end;
 
 
-procedure TKMFontDataEdit.ExportGridPng(const aFilename: string);
+procedure TKMFontDataEdit.ExportGridPng(const aFilename: string; aPadding: Byte);
 var
   cellX, cellY, pngWidth, pngHeight: Word;
   I, K, M, L: Integer;
@@ -236,8 +236,9 @@ var
   dstPixel, srcPixel: Cardinal;
   data: TKMCardinalArray;
 begin
-  cellX := MaxLetterWidth;
-  cellY := MaxLetterHeight;
+  //+1 for the grid
+  cellX := MaxLetterWidth + 1 + aPadding * 2;
+  cellY := MaxLetterHeight + 1 + aPadding * 2;
   pngWidth := 256 * cellX;
   pngHeight := 256 * cellY;
 
@@ -251,7 +252,6 @@ begin
   for K := 0 to 255 do
   for I := 0 to pngHeight - 1 do
     data[K * CellX + I * pngWidth] := $FF00FF00;
-
 
   //Draw letters
   for I := 0 to fCharCount - 1 do
@@ -267,7 +267,7 @@ begin
       srcX := Round(Letters[I].u1 * fTexSizeX);
       srcY := Round(Letters[I].v1 * fTexSizeY);
       srcPixel := (srcY + M) * fTexSizeX + srcX + L;
-      dstPixel := ((I div 256) * cellY + M + 1) * pngWidth + (I mod 256) * cellX + L + 1; //+1 for the grid
+      dstPixel := ((I div 256) * cellY + M + 1 + aPadding) * pngWidth + (I mod 256) * cellX + L + 1 + aPadding;
       data[dstPixel] := fTexData[srcPixel];
     end;
   end;
@@ -281,7 +281,7 @@ var
   cellX, cellY, pngWidth, pngHeight: Word;
   pngData: TKMCardinalArray;
   I, K, M, L: Integer;
-  chBounds: TRect;
+  chMaxX, chMaxY: Byte;
   cX, cY, dstX, dstY: Word;
   letter: Word;
   lineHeight: Byte;
@@ -297,32 +297,36 @@ begin
   Assert((pngWidth mod 256 = 0) and (pngHeight mod 256 = 0), 'Imported image dimensions should be multiple of 256');
 
   //Scan all letter-boxes
-  for I := 0 to 255 do for K := 0 to 255 do
+  for I := 0 to 255 do
+  for K := 0 to 255 do
   begin
-    chBounds := Rect(MAXBYTE, MAXBYTE, 0, 0);
+    chMaxX := 0;
+    chMaxY := 0;
 
     //Scan all pixels of a single letter to determine its dimensions
     //Excluding 1/1 coords which are for grid lines (irregardless of visibility)
-    for L := 1 to cellY - 1 do for M := 1 to cellX - 1 do
+    for L := 1 to cellY - 1 do
+    for M := 1 to cellX - 1 do
     begin
       //Pixel coords
       cX := K * cellX + M;
       cY := I * cellY + L;
 
-      if pngData[cY * pngWidth + cX] <> 0 then
+      if pngData[cY * pngWidth + cX] shr 24 > 0 then
       begin
-        chBounds.Left   := Math.Min(chBounds.Left,   M);
-        chBounds.Top    := Math.Min(chBounds.Top,    L);
-        chBounds.Right  := Math.Max(chBounds.Right,  M);
-        chBounds.Bottom := Math.Max(chBounds.Bottom, L);
+        chMaxX := Math.Max(chMaxX, M - 1);
+        chMaxY := Math.Max(chMaxY, L - 1);
       end;
     end;
 
     letter := I * 256 + K;
 
-    Used[letter] := Byte((chBounds.Width > 0) and (chBounds.Height > 0));
-    Letters[letter].Width := chBounds.Width;
-    Letters[letter].Height := chBounds.Height;
+    Used[letter] := Byte((chMaxX > 0) and (chMaxY > 0));
+    if Used[letter] <> 0 then
+    begin
+      Letters[letter].Width := chMaxX;
+      Letters[letter].Height := chMaxY;
+    end;
   end;
 
   dstX := fTexPadding;
@@ -334,7 +338,6 @@ begin
   for I := 0 to fCharCount - 1 do
   if Used[I] <> 0 then
   begin
-
     if dstX + Letters[I].Width + fTexPadding*2 >= fTexSizeX then
     begin
       dstX := fTexPadding;
@@ -344,20 +347,20 @@ begin
     end;
 
     //Copy the character over
-    for M := 0 to chBounds.Width - 1 do
-    for L := 0 to chBounds.Height - 1 do
+    for M := 0 to Letters[I].Height - 1 do
+    for L := 0 to Letters[I].Width - 1 do
     begin
-      srcPixel := (chBounds.Top + M) * pngWidth + chBounds.Left + L;
+      srcPixel := (I div 256 * CellY + 1 + M) * pngWidth + I mod 256 * CellX + 1 + L;
       dstPixel := (dstY + M) * fTexSizeX + dstX + L;
       fTexData[dstPixel] := pngData[srcPixel];
     end;
 
     Letters[I].u1 := (dstX) / fTexSizeX;
     Letters[I].v1 := (dstY) / fTexSizeY;
-    Letters[I].u2 := (dstX + chBounds.Width) / fTexSizeX;
-    Letters[I].v2 := (dstY + chBounds.Height) / fTexSizeY;
+    Letters[I].u2 := (dstX + Letters[I].Width) / fTexSizeX;
+    Letters[I].v2 := (dstY + Letters[I].Height) / fTexSizeY;
 
-    Inc(dstX, chBounds.Width + fTexPadding*2);
+    Inc(dstX, Letters[I].Width + fTexPadding*2);
   end;
 end;
 

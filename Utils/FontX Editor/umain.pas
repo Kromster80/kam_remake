@@ -39,6 +39,8 @@ type
     GroupBox1: TGroupBox;
     SpinEdit5: TSpinEdit;
     Label7: TLabel;
+    SpinEdit6: TSpinEdit;
+    Label1: TLabel;
     procedure btnSaveFontClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure btnRefreshClick(Sender: TObject);
@@ -142,7 +144,7 @@ begin
   if not RunSaveDialog(SaveDialog1, lbFonts.Items[lbFonts.ItemIndex], DataDir + 'Data\Gfx\Fonts\', 'KaM Fonts|*.fnt', 'fnt') then
     Exit;
 
-  fFnt.SaveToFont(SaveDialog1.FileName);
+  fFnt.SaveToFontX(SaveDialog1.FileName);
 end;
 
 
@@ -184,9 +186,6 @@ begin
 
   fCellX := fFnt.MaxLetterWidth + 1;
   fCellY := fFnt.MaxLetterHeight + 1;
-
-  Shape1.Width := fCellX + 5;
-  Shape1.Height := fCellY + 5;
 
   fUpdating := True;
   SpinEdit1.Value := fFnt.BaseHeight;
@@ -272,7 +271,7 @@ procedure TfrmMain.btnExportPngClick(Sender: TObject);
 begin
   if not RunSaveDialog(SaveDialog1, '', ExeDir, 'PNG images|*.png', 'png') then Exit;
 
-  fFnt.ExportGridPng(SaveDialog1.FileName);
+  fFnt.ExportGridPng(SaveDialog1.FileName, SpinEdit6.Value);
 end;
 
 
@@ -281,6 +280,10 @@ begin
   if not RunOpenDialog(OpenDialog1, '', ExeDir, 'PNG images|*.png') then Exit;
 
   fFnt.ImportGridPng(OpenDialog1.FileName);
+
+  ShowBigImage(CheckCells.Checked);
+  PaintBox1.Repaint;
+  Edit1Change(nil);
 end;
 
 
@@ -312,8 +315,11 @@ begin
   fSelectedLetter := offset + (Y div fCellY) * fCols + X div fCellX;
   GroupBox1.Caption := ' Letter: ' + IntToStr(fSelectedLetter) + ' (' + IntToHex(fSelectedLetter, 2) + 'h) ';
 
-  Shape1.Left := PaintBox1.Left + (fSelectedLetter - offset) mod fCols * fCellX - 2;
-  Shape1.Top := PaintBox1.Top + (fSelectedLetter - offset) div fCols * fCellY - 2;
+  Shape1.Width := fFnt.Letters[fSelectedLetter].Width + 4;
+  Shape1.Height := fFnt.Letters[fSelectedLetter].Height + 4;
+
+  Shape1.Left := PaintBox1.Left + (fSelectedLetter - offset) mod fCols * fCellX - 1;
+  Shape1.Top := PaintBox1.Top + (fSelectedLetter - offset) div fCols * fCellY - 1;
 
   fUpdating := True;
   SpinEdit5.Value := fFnt.Letters[fSelectedLetter].YOffset;
@@ -322,18 +328,16 @@ end;
 
 
 procedure TfrmMain.Edit1Change(Sender: TObject);
-const
-  D: Integer = $AF6B6B;
 var
   Bmp: TBitmap;
-  I, L, M: integer;
-  C: Cardinal;
-  AdvX: integer;
+  I, L, M: Integer;
+  srcCol, dstCol: Integer;
+  AdvX: Integer;
   MyRect: TRect;
   Text: string;
   Let: TKMLetter;
   pX, pY: Word;
-  A: Byte;
+  alpha: Byte;
 begin
   Bmp := TBitmap.Create;
   Bmp.PixelFormat := pf32bit;
@@ -350,7 +354,7 @@ begin
   {$ENDIF}
 
   //Fill area
-  Bmp.Canvas.Brush.Color := D;
+  Bmp.Canvas.Brush.Color := BG_COLOR;
   Bmp.Canvas.FillRect(Bmp.Canvas.ClipRect);
 
   for I := 1 to Length(Text) do
@@ -364,13 +368,14 @@ begin
       pX := Round(Let.u1 * fFnt.TexSizeX) + M;
       pY := Round(Let.v1 * fFnt.TexSizeY) + L;
 
-      C := fFnt.TexData[pY * fFnt.TexSizeX + pX] and $FFFFFF;
-      A := 255 - (fFnt.TexData[pY * fFnt.TexSizeX + pX] shr 24) and $FF;
-      //C + (D - C) * A
+      srcCol := fFnt.TexData[pY * fFnt.TexSizeX + pX] and $FFFFFF;
+      dstCol := Bmp.Canvas.Pixels[AdvX + M, Let.YOffset + L] and $FFFFFF;
+      alpha := 255 - (fFnt.TexData[pY * fFnt.TexSizeX + pX] shr 24) and $FF;
+      //srcCol + (dstCol - srcCol) * alpha
       Bmp.Canvas.Pixels[AdvX + M, Let.YOffset + L] :=
-        (C and $FF) + ((D and $FF - C and $FF) * A) div 256 +
-        ((C shr 8 and $FF) + ((D shr 8 and $FF - C shr 8 and $FF) * A) div 256) shl 8 +
-        ((C shr 16 and $FF) + ((D shr 16 and $FF - C shr 16 and $FF) * A) div 256) shl 16;
+        ((srcCol and $FF) + ((dstCol and $FF - srcCol and $FF) * alpha) div 256) +
+        ((srcCol shr 8 and $FF) + ((dstCol shr 8 and $FF - srcCol shr 8 and $FF) * alpha) div 256) shl 8 +
+        ((srcCol shr 16 and $FF) + ((dstCol shr 16 and $FF - srcCol shr 16 and $FF) * alpha) div 256) shl 16;
     end;
 
     Inc(AdvX, Let.Width + fFnt.CharSpacing);
@@ -381,16 +386,16 @@ begin
   Bmp.Width := AdvX + 1;
   Bmp.Height := 20;
 
-  Image4.Canvas.Brush.Color := D;
+  Image4.Canvas.Brush.Color := BG_COLOR;
   Image4.Canvas.FillRect(Image4.Canvas.ClipRect);
-  Image4.Canvas.Draw( (Image4.Width - Bmp.Width) div 2 , (Image4.Height - Bmp.Height) div 2 + 2, Bmp); //Draw MyBitmap into Image1
+  Image4.Canvas.Draw((Image4.Width - Bmp.Width) div 2, (Image4.Height - Bmp.Height) div 2 + 2, Bmp); //Draw MyBitmap into Image1
 
   MyRect.Left := (Image5.Width  - Bmp.Width*2 ) div 2;
   MyRect.Top  := (Image5.Height - Bmp.Height*2) div 2;
   MyRect.Right  := MyRect.Left + Bmp.Width*2;
   MyRect.Bottom := MyRect.Top + Bmp.Height*2;
 
-  Image5.Canvas.Brush.Color := D;
+  Image5.Canvas.Brush.Color := BG_COLOR;
   Image5.Canvas.FillRect(Image5.Canvas.ClipRect);
   Image5.Canvas.StretchDraw(MyRect, Bmp); //Draw MyBitmap into Image1
 
@@ -439,8 +444,8 @@ begin
 
   offset := ScrollBar1.Position;
 
-  Shape1.Left := PaintBox1.Left + (fSelectedLetter - offset) mod fCols * fCellX - 2;
-  Shape1.Top := PaintBox1.Top + (fSelectedLetter - offset) div fCols * fCellY - 2;
+  Shape1.Left := PaintBox1.Left + (fSelectedLetter - offset) mod fCols * fCellX - 1;
+  Shape1.Top := PaintBox1.Top + (fSelectedLetter - offset) div fCols * fCellY - 1;
 end;
 
 
