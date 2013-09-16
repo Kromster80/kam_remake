@@ -123,7 +123,7 @@ begin
                    files,
                    Fnt);
 
-  Fnt.ExportAtlasBmp(Image1.Picture.Bitmap, False, cbCells.Checked);
+  Fnt.ExportAtlasBmp(Image1.Picture.Bitmap, cbCells.Checked);
 end;
 
 

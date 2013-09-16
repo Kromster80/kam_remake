@@ -55,8 +55,8 @@ type
     procedure LoadFontX(const aFileName: string);
     procedure GenerateTexture(aRender: TRender; aTexMode: TTexFormat);
     procedure Compact;
-    procedure ExportAtlasBmp(aBitmap: TBitmap; aOnlyAlpha, aShowCells: Boolean); overload;
-    procedure ExportAtlasBmp(const aPath: string; aOnlyAlpha: Boolean); overload;
+    procedure ExportAtlasBmp(aBitmap: TBitmap; aShowCells: Boolean); overload;
+    procedure ExportAtlasBmp(const aPath: string); overload;
     procedure ExportAtlasPng(const aFilename: string);
 
     property CharCount: Word read fCharCount;
@@ -260,10 +260,13 @@ begin
 end;
 
 
-//Export texture data into bitmap
-procedure TKMFontData.ExportAtlasBmp(aBitmap: TBitmap; aOnlyAlpha, aShowCells: Boolean);
+//Export texture atlas into bitmap (just for looks)
+procedure TKMFontData.ExportAtlasBmp(aBitmap: TBitmap; aShowCells: Boolean);
+const D: Integer = $AF6B6B;
 var
   I, K: Integer;
+  C: Integer;
+  A: Byte;
 begin
   Assert(Length(fTexData) > 0, 'There is no font data in memory');
 
@@ -271,14 +274,16 @@ begin
   aBitmap.Width  := fTexSizeX;
   aBitmap.Height := fTexSizeY;
 
-  if aOnlyAlpha then
-    for I := 0 to fTexSizeY - 1 do
-    for K := 0 to fTexSizeX - 1 do
-      aBitmap.Canvas.Pixels[K, I] := (fTexData[(I * fTexSizeX + K)] shr 24) * 65793
-  else
-    for I := 0 to fTexSizeY - 1 do
-    for K := 0 to fTexSizeX - 1 do
-      aBitmap.Canvas.Pixels[K,I]:= fTexData[I * fTexSizeX + K] and $FFFFFF;
+  for I := 0 to fTexSizeY - 1 do
+  for K := 0 to fTexSizeX - 1 do
+  begin
+    C := fTexData[I * fTexSizeX + K] and $FFFFFF;
+    A := 255 - (fTexData[I * fTexSizeX + K] shr 24) and $FF;
+    //C + (D-C)*A
+    aBitmap.Canvas.Pixels[K,I] := (C and $FF) + ((D and $FF - C and $FF) * A) div 256 +
+                                  ((C shr 8 and $FF) + ((D shr 8 and $FF - C shr 8 and $FF) * A) div 256) shl 8 +
+                                  ((C shr 16 and $FF) + ((D shr 16 and $FF - C shr 16 and $FF) * A) div 256) shl 16;
+  end;
 
   if aShowCells then
   begin
@@ -297,8 +302,8 @@ begin
 end;
 
 
-//Export texture data into a bitmap file
-procedure TKMFontData.ExportAtlasBmp(const aPath: string; aOnlyAlpha: Boolean);
+//Export texture atlas into a bitmap file (just for looks)
+procedure TKMFontData.ExportAtlasBmp(const aPath: string);
 var
   exportBmp: TBitmap;
 begin
@@ -306,7 +311,7 @@ begin
 
   exportBmp := TBitMap.Create;
   try
-    ExportAtlasBmp(exportBmp, aOnlyAlpha, False);
+    ExportAtlasBmp(exportBmp, False);
 
     ForceDirectories(ExtractFilePath(aPath));
     exportBmp.SaveToFile(aPath);
@@ -409,7 +414,7 @@ begin
   begin
     FntPath := ExeDir + FONTS_FOLDER + FontInfo[F].FontFile + '.fntx';
     fFontData[F].LoadFontX(FntPath);
-    fFontData[F].ExportAtlasBmp(ExeDir + 'Export' + PathDelim + 'Fonts' + PathDelim + FontInfo[F].FontFile + '.bmp', False);
+    fFontData[F].ExportAtlasBmp(ExeDir + 'Export' + PathDelim + 'Fonts' + PathDelim + FontInfo[F].FontFile + '.bmp');
     fFontData[F].Compact;
   end;
 end;

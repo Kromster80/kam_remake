@@ -105,7 +105,7 @@ begin
   Fnt.TexSizeY := StrToInt(rgSizeY.Items[rgSizeY.ItemIndex]);
   Fnt.CreateFont(cbFontName.Text, seFontSize.Value, fntStyle, cbAntialias.Checked, useChars);
 
-  Fnt.ExportAtlasBmp(Image1.Picture.Bitmap, True, cbCells.Checked);
+  Fnt.ExportAtlasBmp(Image1.Picture.Bitmap, cbCells.Checked);
 end;
 
 
