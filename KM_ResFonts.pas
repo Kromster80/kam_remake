@@ -262,7 +262,8 @@ end;
 
 //Export texture atlas into bitmap (just for looks)
 procedure TKMFontData.ExportAtlasBmp(aBitmap: TBitmap; aShowCells: Boolean);
-const D: Integer = $AF6B6B;
+const
+  D: Integer = $AF6B6B;
 var
   I, K: Integer;
   C: Integer;
@@ -279,7 +280,7 @@ begin
   begin
     C := fTexData[I * fTexSizeX + K] and $FFFFFF;
     A := 255 - (fTexData[I * fTexSizeX + K] shr 24) and $FF;
-    //C + (D-C)*A
+    //C + (D - C) * A
     aBitmap.Canvas.Pixels[K,I] := (C and $FF) + ((D and $FF - C and $FF) * A) div 256 +
                                   ((C shr 8 and $FF) + ((D shr 8 and $FF - C shr 8 and $FF) * A) div 256) shl 8 +
                                   ((C shr 16 and $FF) + ((D shr 16 and $FF - C shr 16 and $FF) * A) div 256) shl 16;

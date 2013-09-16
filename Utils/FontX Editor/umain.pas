@@ -58,6 +58,10 @@ type
   private
     fBmp: TBitmap;
     fFnt: TKMFontDataEdit;
+    fCellX: Byte;
+    fCellY: Byte;
+    fRows: Word;
+    fCols: Word;
     fSelectedLetter: Integer;
     fUpdating: Boolean;
     procedure ScanFonts(const aPath: string);
@@ -178,6 +182,12 @@ begin
 
   fFnt.LoadFontX(aFilename);
 
+  fCellX := fFnt.MaxLetterWidth + 1;
+  fCellY := fFnt.MaxLetterHeight + 1;
+
+  Shape1.Width := fCellX + 5;
+  Shape1.Height := fCellY + 5;
+
   fUpdating := True;
   SpinEdit1.Value := fFnt.BaseHeight;
   SpinEdit2.Value := fFnt.WordSpacing;
@@ -193,8 +203,6 @@ var
   pX, pY: Word;
   T, R: Cardinal;
   Let: TKMLetter;
-  cellX, cellY: Word;
-  cols, rows: Byte;
   offset: Word;
 begin
   fBmp.Canvas.Brush.Color := BG_COLOR;
@@ -202,18 +210,16 @@ begin
 
   if fFnt = nil then Exit;
 
-  cellX := fFnt.MaxLetterWidth + 1;
-  cellY := fFnt.MaxLetterHeight + 1;
-  cols := fBmp.Width div cellX;
-  rows := fBmp.Height div cellY;
+  fCols := fBmp.Width div fCellX;
+  fRows := fBmp.Height div fCellY;
 
   offset := ScrollBar1.Position;
 
-  for I := 0 to rows - 1 do
-  for K := 0 to cols - 1 do
-  if offset + I * cols + K <= 65535 then
+  for I := 0 to fRows - 1 do
+  for K := 0 to fCols - 1 do
+  if offset + I * fCols + K <= 65535 then
   begin
-    Let := fFnt.Letters[offset + I * cols + K];
+    Let := fFnt.Letters[offset + I * fCols + K];
 
     if Let.Width <> 0 then
     begin
@@ -230,7 +236,7 @@ begin
              Round(Lerp(BG_COLOR shr 8 and $FF, T shr 8 and $FF, T shr 24 / 255)) shl 8 +
              Round(Lerp(BG_COLOR shr 16 and $FF, T shr 16 and $FF, T shr 24 / 255)) shl 16;
 
-        fBmp.Canvas.Pixels[K * cellX + M + 1, I * cellY + L + 1] := R;
+        fBmp.Canvas.Pixels[K * fCellX + M + 1, I * fCellY + L + 1] := R;
       end;
     end;
   end;
@@ -239,16 +245,16 @@ begin
   begin
     fBmp.Canvas.Pen.Color := $AAAAAA;
 
-    for I := 0 to rows - 1 do
+    for I := 0 to fRows - 1 do
     begin
-      fBmp.Canvas.MoveTo(0, I * cellY);
-      fBmp.Canvas.LineTo(fBmp.Width - 1, I * cellY);
+      fBmp.Canvas.MoveTo(0, I * fCellY);
+      fBmp.Canvas.LineTo(fBmp.Width - 1, I * fCellY);
     end;
 
-    for K := 0 to cols - 1 do
+    for K := 0 to fCols - 1 do
     begin
-      fBmp.Canvas.MoveTo(K * cellX, 0);
-      fBmp.Canvas.LineTo(K * cellX, fBmp.Height - 1);
+      fBmp.Canvas.MoveTo(K * fCellX, 0);
+      fBmp.Canvas.LineTo(K * fCellX, fBmp.Height - 1);
     end;
   end;
 
@@ -279,46 +285,58 @@ end;
 
 
 procedure TfrmMain.PaintBox1MouseMove(Sender: TObject; Shift: TShiftState; X,Y: Integer);
+var
+  id, offset: Word;
+  Let: TKMLetter;
 begin
   if fFnt = nil then Exit;
 
-  StatusBar1.Panels.Items[1].Text := 'Character: ' + IntToStr((Y div 32) *16 + X div 32) + ' ('+
-                                     IntToHex( (((Y div 32)*16)+(X div 32)) ,2)+'h)';
-  StatusBar1.Panels.Items[2].Text :=
-  'Width '+int2fix(fFnt.Letters[(((Y div 32)*16)+(X div 32))].Width,2)+', '+
-  'Height '+int2fix(fFnt.Letters[(((Y div 32)*16)+(X div 32))].Height,2)+', '+
-  IntToStr(fFnt.Letters[(((Y div 32)*16)+(X div 32))].Unknown1)+'? . '+
-  IntToStr(fFnt.Letters[(((Y div 32)*16)+(X div 32))].Unknown2)+'? . '+
-  IntToStr(fFnt.Letters[(((Y div 32)*16)+(X div 32))].YOffset)+' . '+
-  IntToStr(fFnt.Letters[(((Y div 32)*16)+(X div 32))].Unknown3)+'?';
+  offset := ScrollBar1.Position;
+  id := offset + (Y div fCellY) * fCols + X div fCellX;
+  StatusBar1.Panels.Items[1].Text := 'Character: ' + IntToStr(id) + ' (' + IntToHex(id, 2) + 'h)';
+
+  Let := fFnt.Letters[id];
+  StatusBar1.Panels.Items[2].Text := Format('Width %d, Height %d, %d? . %d? . %d . %d?',
+                                            [Let.Width, Let.Height, Let.Unknown1, Let.Unknown2, Let.YOffset, Let.Unknown3]);
 end;
 
 
 procedure TfrmMain.PaintBox1MouseUp(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+var
+  offset: Word;
 begin
-  fSelectedLetter := (Y div 32) *16 + X div 32;
+  if fFnt = nil then Exit;
+
+  offset := ScrollBar1.Position;
+
+  fSelectedLetter := offset + (Y div fCellY) * fCols + X div fCellX;
   GroupBox1.Caption := ' Letter: ' + IntToStr(fSelectedLetter) + ' (' + IntToHex(fSelectedLetter, 2) + 'h) ';
 
-  Shape1.Left := PaintBox1.Left + (X div 32) * 32 - 2;
-  Shape1.Top := PaintBox1.Top + (Y div 32) * 32 - 2;
+  Shape1.Left := PaintBox1.Left + (fSelectedLetter - offset) mod fCols * fCellX - 2;
+  Shape1.Top := PaintBox1.Top + (fSelectedLetter - offset) div fCols * fCellY - 2;
 
+  fUpdating := True;
   SpinEdit5.Value := fFnt.Letters[fSelectedLetter].YOffset;
+  fUpdating := False;
 end;
 
 
 procedure TfrmMain.Edit1Change(Sender: TObject);
+const
+  D: Integer = $AF6B6B;
 var
   Bmp: TBitmap;
   I, L, M: integer;
-  T: Cardinal;
+  C: Cardinal;
   AdvX: integer;
   MyRect: TRect;
   Text: string;
   Let: TKMLetter;
   pX, pY: Word;
+  A: Byte;
 begin
   Bmp := TBitmap.Create;
-  Bmp.PixelFormat := pf24bit;
+  Bmp.PixelFormat := pf32bit;
   Bmp.Width := 512;
   Bmp.Height := 20;
 
@@ -332,34 +350,38 @@ begin
   {$ENDIF}
 
   //Fill area
-  Bmp.Canvas.Brush.Color := $000000;
+  Bmp.Canvas.Brush.Color := D;
   Bmp.Canvas.FillRect(Bmp.Canvas.ClipRect);
 
   for I := 1 to Length(Text) do
   if Text[I] <> ' ' then
   begin
     Let := fFnt.Letters[Ord(Text[I])];
-    
-    for L := 0 to Let.Height - 1 do 
+
+    for L := 0 to Let.Height - 1 do
     for M := 0 to Let.Width - 1 do
     begin
       pX := Round(Let.u1 * fFnt.TexSizeX) + M;
       pY := Round(Let.v1 * fFnt.TexSizeY) + L;
 
-      T := fFnt.TexData[pY * fFnt.TexSizeX + pX] and $FFFFFF;
-      if T <> 0 then
-        Bmp.Canvas.Pixels[AdvX + M, Let.YOffset + L] := T;
+      C := fFnt.TexData[pY * fFnt.TexSizeX + pX] and $FFFFFF;
+      A := 255 - (fFnt.TexData[pY * fFnt.TexSizeX + pX] shr 24) and $FF;
+      //C + (D - C) * A
+      Bmp.Canvas.Pixels[AdvX + M, Let.YOffset + L] :=
+        (C and $FF) + ((D and $FF - C and $FF) * A) div 256 +
+        ((C shr 8 and $FF) + ((D shr 8 and $FF - C shr 8 and $FF) * A) div 256) shl 8 +
+        ((C shr 16 and $FF) + ((D shr 16 and $FF - C shr 16 and $FF) * A) div 256) shl 16;
     end;
-    
+
     Inc(AdvX, Let.Width + fFnt.CharSpacing);
   end else
     Inc(AdvX, fFnt.WordSpacing);
 
   //Match phrase bounds
-  Bmp.Width := AdvX+1;
+  Bmp.Width := AdvX + 1;
   Bmp.Height := 20;
 
-  Image4.Canvas.Brush.Color := $000000;
+  Image4.Canvas.Brush.Color := D;
   Image4.Canvas.FillRect(Image4.Canvas.ClipRect);
   Image4.Canvas.Draw( (Image4.Width - Bmp.Width) div 2 , (Image4.Height - Bmp.Height) div 2 + 2, Bmp); //Draw MyBitmap into Image1
 
@@ -368,7 +390,7 @@ begin
   MyRect.Right  := MyRect.Left + Bmp.Width*2;
   MyRect.Bottom := MyRect.Top + Bmp.Height*2;
 
-  Image5.Canvas.Brush.Color := $000000;
+  Image5.Canvas.Brush.Color := D;
   Image5.Canvas.FillRect(Image5.Canvas.ClipRect);
   Image5.Canvas.StretchDraw(MyRect, Bmp); //Draw MyBitmap into Image1
 
@@ -400,16 +422,25 @@ end;
 
 procedure TfrmMain.SpinEdit5Change(Sender: TObject);
 begin
+  if fUpdating then Exit;
   if fSelectedLetter = 0 then Exit;
+
   fFnt.Letters[fSelectedLetter].YOffset := SpinEdit5.Value;
   Edit1Change(nil);
 end;
 
 
 procedure TfrmMain.ScrollBar1Change(Sender: TObject);
+var
+  offset: Word;
 begin
   ShowBigImage(CheckCells.Checked);
   PaintBox1.Repaint;
+
+  offset := ScrollBar1.Position;
+
+  Shape1.Left := PaintBox1.Left + (fSelectedLetter - offset) mod fCols * fCellX - 2;
+  Shape1.Top := PaintBox1.Top + (fSelectedLetter - offset) div fCols * fCellY - 2;
 end;
 
 
