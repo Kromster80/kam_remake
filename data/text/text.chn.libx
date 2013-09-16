@@ -1,4 +1,4 @@
-
+﻿
 MaxID:697
 
 0:Ju Mu Chang
@@ -117,7 +117,7 @@ MaxID:697
 113:Ni Que Ding Yao Tui Chu Ren Wu Ma?
 114:Tui Chu Ren Wu
 115:Fan Hui
-116:She Zhi
+116:设置
 118:Yin Xiao
 119:Tiao Jie Yin Liang
 120:Tiao Jie Yin Liang
@@ -208,10 +208,10 @@ MaxID:697
 231:Kai Shi Di Tu
 232:Hui Dao Cai Dan
 233:Jia Zai Bao Cun You Xi
-234:Duo Ren You Xi
-235:She Zhi
-236:Zhi Zuo Tuan Dui
-237:Tui Chu You Xi
+234:多人联网
+235:设置
+236:制作团队
+237:退出游戏
 238:Ji Xu
 239:Chong Qi Ren Wu
 240:Jie Jue Fang Fa:
@@ -247,13 +247,13 @@ MaxID:697
 270:Zi Yuan Sheng Chan
 272:Ni
 273:Wan Jia %d
-279:JOYMANIA ENTERTAINMENT||PROGRAMMING:|Peter Ohlmann||GAME GRAPHICS:|Adam Sprys||LEVEL DESIGN:|Adam Sprys|Andr?Qua�||SOUND EDITING AND MIXING:|Tonstudio Mannheim||MUSIC:|Gerd Hofmann|Joachim Sch�fer|J�rgen Rebhann|Klaus Staendike|Steffen Sch�ngel||ILLUSTRATIONS:|Boleslaw Kasza|Christoph Werner||TRANSLATION:|Ronnie Shankland|Patricia Bellantuono|Andrea Rumpelt|||ZUXXEZ ENTERTAINMENT AG||PRODUCER:|Uwe Sch�fer||MANUAL:|Peter Ohlmann|Uwe Sch�fer||BETA TESTING:|Peter Ohlmann|Adam Sprys|Alexandra Constandache|Dirk P. Hassinger|Achim Heidelauf|Uwe Sch�fer|Ingrid Sch�fer|Dirk U. Jantz|Ion Constandache|Yaman Egeli|Roman Eich|Iris Mocsnek|Anke Jantz|Paul Hassinger|Liza Hassinger||GAMES DIRECTOR:|Achim Heidelauf||PUBLISHED BY:|TopWare Interactive||CUTSCENES:||DIRECTION:|Slawomir Jedrzejewski||Kajetan Czarnecki|Wojciech Drazek|Daniel Duplaga|Rafal Januszkiewicz|Andrzej Rams|Piotr Rulka|Krzysztof Rybczynski|Grzegorz Wisniewski||VOICES:|Claus Boyen (Storyteller)||Tim Timmermann|Peter Houska|Dirk M�hlbach|Ralf Ditze|Gerhard Piske|Gernot Wassmann||ARTWORK:|Boleslaw Kasza|Adam Sprys||OPENING ANIMATION:|Uwe Sch�fer|Christian Bigalk|Additional 3D-Modelling:|Niels Horstmann||SPECIAL THANKS TO:|Tadeusz Zuber|Dieter Ohlmann|Alexandra Constandache|Ingrid Sch�fer
+279:JOYMANIA ENTERTAINMENT||PROGRAMMING:|Peter Ohlmann||GAME GRAPHICS:|Adam Sprys||LEVEL DESIGN:|Adam Sprys|Andre Quaß|SOUND EDITING AND MIXING:|Tonstudio Mannheim||MUSIC:|Gerd Hofmann|Joachim Schäfer|Jürgen Rebhann|Klaus Staendike|Steffen Schüngel||ILLUSTRATIONS:|Boleslaw Kasza|Christoph Werner||TRANSLATION:|Ronnie Shankland|Patricia Bellantuono|Andrea Rumpelt|||ZUXXEZ ENTERTAINMENT AG||PRODUCER:|Uwe Schäfer||MANUAL:|Peter Ohlmann|Uwe Schäfer||BETA TESTING:|Peter Ohlmann|Adam Sprys|Alexandra Constandache|Dirk P. Hassinger|Achim Heidelauf|Uwe Schäfer|Ingrid Schäfer|Dirk U. Jantz|Ion Constandache|Yaman Egeli|Roman Eich|Iris Mocsnek|Anke Jantz|Paul Hassinger|Liza Hassinger||GAMES DIRECTOR:|Achim Heidelauf||PUBLISHED BY:|TopWare Interactive||CUTSCENES:||DIRECTION:|Slawomir Jedrzejewski||Kajetan Czarnecki|Wojciech Drazek|Daniel Duplaga|Rafal Januszkiewicz|Andrzej Rams|Piotr Rulka|Krzysztof Rybczynski|Grzegorz Wisniewski||VOICES:|Claus Boyen (Storyteller)||Tim Timmermann|Peter Houska|Dirk Mühlbach|Ralf Ditze|Gerhard Piske|Gernot Wassmann||ARTWORK:|Boleslaw Kasza|Adam Sprys||OPENING ANIMATION:|Uwe Schäfer|Christian Bigalk|Additional 3D-Modelling:|Niels Horstmann||SPECIAL THANKS TO:|Tadeusz Zuber|Dieter Ohlmann|Alexandra Constandache|Ingrid Schäfer
 280:Ren Wu Qu Xiao
 281:Lu Xiang Jie Shu
 282:Jian Zao Jiao Cheng
 283:Zhan Dou Jiao Cheng
-284:Dan Ren You Xi
-285:Di Tu Bian Ji Qi
+284:单人任务
+285:地图编辑器
 286:Kai Shi Ren Wu
 287:Biao Ti
 288:Da Xiao
@@ -442,7 +442,7 @@ MaxID:697
 622:Ting Zhi Dui Wu  ('%s')
 623:He Bin Dui Wu  ('%s')
 624:Dan Du Dui Wu  ('%s')
-625:Guan Kan Lu Xiang
+625:观看游戏录像
 626:Lu Xiang Chong Bo
 627:Bu Zhi Chi De Ge Shi %s
 628:Bu Zhi Chi De Ban Ben %s
