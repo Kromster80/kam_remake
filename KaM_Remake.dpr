@@ -126,6 +126,7 @@ uses
   KM_NetClient in 'KM_NetClient.pas',
   KM_NetServer in 'KM_NetServer.pas',
   KM_Networking in 'KM_Networking.pas',
+  KM_NetworkClasses in 'KM_NetworkClasses.pas',
   KM_NetworkTypes in 'KM_NetworkTypes.pas',
   KM_NetPlayersList in 'KM_NetPlayersList.pas',
   KM_Outline in 'KM_Outline.pas',

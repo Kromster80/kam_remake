@@ -4,7 +4,7 @@ interface
 uses
   {$IFDEF Unix} LCLIntf, {$ENDIF}
   Classes, SysUtils, TypInfo, Forms, KromUtils,
-  KM_CommonClasses, KM_CommonTypes, KM_NetworkTypes, KM_Defaults,
+  KM_CommonClasses, KM_CommonTypes, KM_NetworkClasses, KM_NetworkTypes, KM_Defaults,
   KM_Saves, KM_GameOptions, KM_ResLocales,
   KM_Maps, KM_NetPlayersList, KM_DedicatedServer, KM_NetClient, KM_ServerQuery;
 

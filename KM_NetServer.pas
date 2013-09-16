@@ -1,7 +1,7 @@
 unit KM_NetServer;
 {$I KaM_Remake.inc}
 interface
-uses Classes, SysUtils, Math, KM_CommonClasses, KM_NetworkTypes, KM_Defaults, KM_Utils, VerySimpleXML
+uses Classes, SysUtils, Math, KM_CommonClasses, KM_NetworkClasses, KM_NetworkTypes, KM_Defaults, KM_Utils, VerySimpleXML
      {$IFDEF MSWindows} ,Windows {$ENDIF}
      {$IFDEF WDC} ,KM_NetServerOverbyte {$ENDIF}
      {$IFDEF FPC} ,KM_NetServerLNet {$ENDIF}
@@ -80,7 +80,7 @@ type
     fServerName: UnicodeString;
     fKickTimeout:word;
     fRoomCount:integer;
-    fEmptyGameInfo:TMPGameInfo;
+    fEmptyGameInfo: TMPGameInfo;
     fRoomInfo:array of record
                          HostHandle:integer;
                          GameInfo:TMPGameInfo;

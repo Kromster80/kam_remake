@@ -221,6 +221,7 @@
 			<DCCReference Include="KM_NetClient.pas"/>
 			<DCCReference Include="KM_NetServer.pas"/>
 			<DCCReference Include="KM_Networking.pas"/>
+			<DCCReference Include="KM_NetworkClasses.pas"/>
 			<DCCReference Include="KM_NetworkTypes.pas"/>
 			<DCCReference Include="KM_NetPlayersList.pas"/>
 			<DCCReference Include="KM_Outline.pas"/>

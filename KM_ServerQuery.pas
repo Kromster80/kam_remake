@@ -3,7 +3,7 @@ unit KM_ServerQuery;
 interface
 uses Classes, SysUtils,
   KM_Defaults, KM_CommonClasses, KM_CommonTypes, KM_ResLocales,
-  KM_NetworkTypes, KM_Utils, KM_MasterServer, KM_NetClient;
+  KM_NetworkTypes, KM_NetworkClasses, KM_Utils, KM_MasterServer, KM_NetClient;
 
 const
   MAX_QUERIES = 16; //The maximum number of individual server queries that can be happening at once
