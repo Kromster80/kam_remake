@@ -13,40 +13,43 @@ uses
 
 type
   TfrmMain = class(TForm)
-    Label3: TLabel;
-    Label4: TLabel;
-    Label5: TLabel;
-    Label6: TLabel;
     OpenDialog1: TOpenDialog;
     SaveDialog1: TSaveDialog;
     lbFonts: TListBox;
     Shape1: TShape;
-    SpinEdit1: TSpinEdit;
-    SpinEdit2: TSpinEdit;
-    SpinEdit3: TSpinEdit;
-    SpinEdit4: TSpinEdit;
     StatusBar1: TStatusBar;
     Image4: TImage;
     Image5: TImage;
     Edit1: TEdit;
     CheckCells: TCheckBox;
-    btnRefresh: TButton;
     btnSaveFont: TBitBtn;
     btnImportBitmap: TBitBtn;
     btnExportBitmap: TBitBtn;
     ScrollBar1: TScrollBar;
     PaintBox1: TPaintBox;
     GroupBox1: TGroupBox;
-    SpinEdit5: TSpinEdit;
+    seLetterY: TSpinEdit;
     Label7: TLabel;
-    sePadTop: TSpinEdit;
-    Label1: TLabel;
+    GroupBox2: TGroupBox;
+    seCharSpacing: TSpinEdit;
+    seLineSpacing: TSpinEdit;
+    seWordSpacing: TSpinEdit;
+    seBaseHeight: TSpinEdit;
+    Label6: TLabel;
+    Label5: TLabel;
+    Label4: TLabel;
+    Label3: TLabel;
+    seAllYOffset: TSpinEdit;
+    Label8: TLabel;
+    GroupBox3: TGroupBox;
     sePadRight: TSpinEdit;
-    sePadBottom: TSpinEdit;
     sePadLeft: TSpinEdit;
+    sePadBottom: TSpinEdit;
+    sePadTop: TSpinEdit;
+    Label2: TLabel;
+    Label1: TLabel;
     procedure btnSaveFontClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
-    procedure btnRefreshClick(Sender: TObject);
     procedure lbFontsClick(Sender: TObject);
     procedure btnExportPngClick(Sender: TObject);
     procedure PaintBox1MouseMove(Sender: TObject; Shift: TShiftState; X,Y: Integer);
@@ -54,8 +57,8 @@ type
     procedure Edit1Change(Sender: TObject);
     procedure CheckCellsClick(Sender: TObject);
     procedure btnImportPngClick(Sender: TObject);
-    procedure SpinEdit1Change(Sender: TObject);
-    procedure SpinEdit5Change(Sender: TObject);
+    procedure seFontPropsChange(Sender: TObject);
+    procedure seLetterYChange(Sender: TObject);
     procedure ScrollBar1Change(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure PaintBox1Paint(Sender: TObject);
@@ -129,13 +132,6 @@ begin
 end;
 
 
-procedure TfrmMain.btnRefreshClick(Sender: TObject);
-begin
-  Assert(DirectoryExists(DataDir), 'Data folder not found');
-  ScanFonts(DataDir);
-end;
-
-
 procedure TfrmMain.btnSaveFontClick(Sender: TObject);
 begin
   if fFnt = nil then
@@ -191,10 +187,10 @@ begin
   fCellY := fFnt.MaxLetterHeight + 1;
 
   fUpdating := True;
-  SpinEdit1.Value := fFnt.BaseHeight;
-  SpinEdit2.Value := fFnt.WordSpacing;
-  SpinEdit3.Value := fFnt.CharSpacing;
-  SpinEdit4.Value := fFnt.Unknown;
+  seBaseHeight.Value := fFnt.BaseHeight;
+  seWordSpacing.Value := fFnt.WordSpacing;
+  seCharSpacing.Value := fFnt.CharSpacing;
+  seLineSpacing.Value := fFnt.Unknown;
   fUpdating := False;
 end;
 
@@ -300,11 +296,11 @@ var
 begin
   if fFnt = nil then Exit;
 
+  //Information about character below
   offset := ScrollBar1.Position;
   id := offset + (Y div fCellY) * fCols + X div fCellX;
-  StatusBar1.Panels.Items[1].Text := 'Character: ' + IntToStr(id) + ' (' + IntToHex(id, 2) + 'h)';
-
   Let := fFnt.Letters[id];
+  StatusBar1.Panels.Items[1].Text := 'Character: ' + IntToStr(id) + ' (' + IntToHex(id, 2) + 'h)';
   StatusBar1.Panels.Items[2].Text := Format('Width %d, Height %d, %d? . %d? . %d . %d?',
                                             [Let.Width, Let.Height, Let.Unknown1, Let.Unknown2, Let.YOffset, Let.Unknown3]);
 end;
@@ -328,7 +324,7 @@ begin
   Shape1.Top := PaintBox1.Top + (fSelectedLetter - offset) div fCols * fCellY - 1;
 
   fUpdating := True;
-  SpinEdit5.Value := fFnt.Letters[fSelectedLetter].YOffset;
+  seLetterY.Value := fFnt.Letters[fSelectedLetter].YOffset;
   fUpdating := False;
 end;
 
@@ -416,27 +412,34 @@ begin
 end;
 
 
-procedure TfrmMain.SpinEdit1Change(Sender: TObject);
+procedure TfrmMain.seFontPropsChange(Sender: TObject);
+var
+  I: Integer;
 begin
   if fUpdating then Exit;
 
   if (Sender is TSpinEdit) and (TSpinEdit(Sender).Text = '') then Exit;
 
-  fFnt.BaseHeight  := SpinEdit1.Value;
-  fFnt.WordSpacing := SpinEdit2.Value;
-  fFnt.CharSpacing := SpinEdit3.Value;
-  fFnt.Unknown     := SpinEdit4.Value;
+  fFnt.BaseHeight  := seBaseHeight.Value;
+  fFnt.WordSpacing := seWordSpacing.Value;
+  fFnt.CharSpacing := seCharSpacing.Value;
+  fFnt.Unknown     := seLineSpacing.Value;
+
+  if Sender = seAllYOffset then
+  for I := 0 to fFnt.CharCount - 1 do
+  if fFnt.Letters[I].Width > 0 then
+    fFnt.Letters[I].YOffset := seAllYOffset.Value;
 
   Edit1Change(nil);
 end;
 
 
-procedure TfrmMain.SpinEdit5Change(Sender: TObject);
+procedure TfrmMain.seLetterYChange(Sender: TObject);
 begin
   if fUpdating then Exit;
   if fSelectedLetter = 0 then Exit;
 
-  fFnt.Letters[fSelectedLetter].YOffset := SpinEdit5.Value;
+  fFnt.Letters[fSelectedLetter].YOffset := seLetterY.Value;
   Edit1Change(nil);
 end;
 

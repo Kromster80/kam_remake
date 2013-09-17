@@ -31,7 +31,8 @@ type
     end;
 
   TKMLetter = packed record
-      Width, Height, YOffset: Word;
+      Width, Height: Word;
+      YOffset: SmallInt;
       Unknown1, Unknown2, Unknown3: Word;
       u1,v1,u2,v2: Single; //Location within texture atlas
     end;
