@@ -13,18 +13,19 @@ type
   TKMFontDataEdit = class(TKMFontData)
   private
     fTexPadding: Byte;
+    function GetTexData(aIndex: Integer): TKMCardinalArray;
   public
     procedure CreateFont(aFontName: string; aFontSize: Byte; aFontStyle: TFontStyles; aAntialias: Boolean; const aChars: array of WideChar);
     procedure CollateFonts(aFonts: array of TKMFontDataEdit);
     procedure ExportGridPng(const aFilename: string; aPadding: TRect);
     procedure ImportGridPng(const aFilename: string);
-    procedure ImportPng(const aFilename: string);
+    procedure ImportPng(const aFilename: string; aIndex: Integer);
     function MaxLetterHeight: Byte;
     function MaxLetterWidth: Byte;
     procedure SaveToFont(const aFilename: string);
     procedure SaveToFontX(const aFilename: string);
 
-    property TexData: TKMCardinalArray read fTexData;
+    property TexData[aIndex: Integer]: TKMCardinalArray read GetTexData;
     property TexPadding: Byte read fTexPadding write fTexPadding;
     property TexSizeX: Word read fTexSizeX write fTexSizeX;
     property TexSizeY: Word read fTexSizeY write fTexSizeY;
@@ -49,26 +50,27 @@ procedure TKMFontDataEdit.CreateFont(aFontName: string; aFontSize: Byte; aFontSt
 const
   FONT_INTERLINE = 5; //Spacing between lines of text
 var
-  bitmap: TBitmap;
-  I, K, pX, pY: Integer;
+  bmp:  TBitmap;
+  I, J, K, pX, pY: Integer;
   chWidth: Byte;
   chRect: TRect;
+  scLine: Cardinal;
   txtHeight: Integer;
   ch: UnicodeString;
 begin
-  bitmap := TBitmap.Create;
+  bmp := TBitmap.Create;
   try
-    bitmap.PixelFormat := pf32bit;
-    bitmap.Width := fTexSizeX;
-    bitmap.Height := fTexSizeY;
-    bitmap.Canvas.Font.Color := clWhite;
-    bitmap.Canvas.Font.Size := aFontSize;
-    bitmap.Canvas.Font.Name := aFontName;
-    bitmap.Canvas.Font.Style := aFontStyle;
+    bmp.PixelFormat := pf32bit;
+    bmp.Width := 64;
+    bmp.Height := 64;
+    bmp.Canvas.Font.Color := $00FF00;
+    bmp.Canvas.Font.Size := aFontSize;
+    bmp.Canvas.Font.Name := aFontName;
+    bmp.Canvas.Font.Style := aFontStyle;
     if aAntialias then
-      bitmap.Canvas.Font.Quality := fqClearType
+      bmp.Canvas.Font.Quality := fqClearType
     else
-      bitmap.Canvas.Font.Quality := fqNonAntialiased;
+      bmp.Canvas.Font.Quality := fqNonAntialiased;
 
     //Common font props
     fBaseHeight := aFontSize;
@@ -76,7 +78,7 @@ begin
     fCharSpacing := 0;
     fLineSpacing := FONT_INTERLINE;
 
-    txtHeight := bitmap.Canvas.TextHeight('"_pI|,');
+    txtHeight := bmp.Canvas.TextHeight('"_pI|,');
 
     //Characters we gonna use
     FillChar(Used, SizeOf(Used), #0);
@@ -88,16 +90,20 @@ begin
     if Used[I] <> 0 then
     begin
       ch := WideChar(I); //Lazarus needs extra verbose types
-      Letters[I].Width := bitmap.Canvas.TextWidth(UTF8Encode(ch));
+      Letters[I].Width := bmp.Canvas.TextWidth(UTF8Encode(ch));
       Letters[I].Height := txtHeight;
     end;
 
-    bitmap.Canvas.Brush.Style := bsSolid;
-    bitmap.Canvas.Brush.Color := clBlack;
-    bitmap.Canvas.FillRect(Rect(0, 0, fTexSizeX, fTexSizeY));
+    bmp.Canvas.Brush.Style := bsSolid;
+    bmp.Canvas.Brush.Color := clBlack;
+    bmp.Canvas.FillRect(bmp.Canvas.ClipRect);
 
+    fAtlasCount := 1;
     pX := fTexPadding;
     pY := fTexPadding;
+    SetLength(fAtlases, 0);
+    SetLength(fAtlases, fAtlasCount);
+    SetLength(fAtlases[fAtlasCount - 1].TexData, fTexSizeX * fTexSizeY);
     for I := 0 to High(Word) do
     if Used[I] <> 0 then
     begin
@@ -105,38 +111,51 @@ begin
 
       if chWidth = 0 then Continue;
 
-      if pX + chWidth + fTexPadding*2 >= fTexSizeX then
+      if pX + chWidth + fTexPadding * 2 >= fTexSizeX then
       begin
         pX := fTexPadding;
-        Inc(pY, txtHeight + fTexPadding*2);
-        if pY + txtHeight + fTexPadding*2 > fTexSizeY then
-          Break;
+        Inc(pY, txtHeight + fTexPadding * 2);
+        if pY + txtHeight + fTexPadding * 2 > fTexSizeY then
+        begin
+          //Append new atlas
+          Assert((AtlasCount < 255), 'We hit a limit of 256 atlases');
+          Inc(fAtlasCount);
+          pX := fTexPadding;
+          pY := fTexPadding;
+          SetLength(fAtlases, fAtlasCount);
+          SetLength(fAtlases[fAtlasCount - 1].TexData, fTexSizeX * fTexSizeY);
+        end;
       end;
 
+      Used[I] := AtlasCount;
       Letters[I].u1 := (pX) / fTexSizeX;
       Letters[I].v1 := (pY) / fTexSizeY;
       Letters[I].u2 := (pX + chWidth) / fTexSizeX;
       Letters[I].v2 := (pY + txtHeight) / fTexSizeY;
 
-      chRect.Left := pX;
-      chRect.Top := pY;
-      chRect.Right := pX + chWidth;
-      chRect.Bottom := pY + txtHeight;
-      ch := WideChar(I); //Lazarus needs extra verbose types
-      bitmap.Canvas.TextRect(chRect, pX, pY, UTF8Encode(ch));
+      chRect.Left := 0;
+      chRect.Top := 0;
+      chRect.Right := chWidth;
+      chRect.Bottom := txtHeight;
 
-      Inc(pX, chWidth + fTexPadding*2);
+      //Lazarus needs extra verbose types
+      ch := WideChar(I);
+
+      //Draw single letter and copy it to atlas
+      bmp.Canvas.TextRect(chRect, 0, 0, UTF8Encode(ch));
+
+      //Only Green will be used to generate the texture to avoid rimming
+      for J := 0 to txtHeight - 1 do
+      begin
+        scLine := Cardinal(bmp.scanline[J]);
+        for K := 0 to chWidth - 1 do
+          fAtlases[fAtlasCount - 1].TexData[((pY + J) * fTexSizeX + pX + K)] := Cardinal(PByte(scLine + K * 4+1)^ shl 24) or $FFFFFF;
+      end;
+
+      Inc(pX, chWidth + fTexPadding * 2);
     end;
-
-    SetLength(fTexData, fTexSizeX * fTexSizeY);
-
-    //Only Alpha will be used to generate the texture to avoid rimming
-    for I := 0 to bitmap.Height - 1 do
-    for K := 0 to bitmap.Width - 1 do
-      fTexData[(I * bitmap.Width + K)] := Cardinal(bitmap.Canvas.Pixels[K, I] shl 24) or $FFFFFF;
-
   finally
-    bitmap.Free;
+    bmp.Free;
   end;
 end;
 
@@ -170,10 +189,12 @@ begin
     lineHeight := Math.max(lineHeight, aFonts[K].MaxLetterHeight);
 
   //Texture data
-  SetLength(fTexData, fTexSizeX * fTexSizeY);
-
+  fAtlasCount := 1;
   pX := fTexPadding;
   pY := fTexPadding;
+  SetLength(fAtlases, 0);
+  SetLength(fAtlases, fAtlasCount);
+  SetLength(fAtlases[fAtlasCount - 1].TexData, fTexSizeX * fTexSizeY);
   for K := Low(aFonts) to High(aFonts) do
     for I := 0 to aFonts[K].CharCount do
     begin
@@ -199,7 +220,15 @@ begin
         pX := fTexPadding;
         Inc(pY, lineHeight + fTexPadding*2);
         if pY + lineHeight + fTexPadding*2 >= fTexSizeY then
-          Exit;
+        begin
+          //Append new atlas
+          Assert((AtlasCount < 255), 'We hit a limit of 256 atlases');
+          Inc(fAtlasCount);
+          pX := fTexPadding;
+          pY := fTexPadding;
+          SetLength(fAtlases, fAtlasCount);
+          SetLength(fAtlases[fAtlasCount - 1].TexData, fTexSizeX * fTexSizeY);
+        end;
       end;
 
       //Copy the character over
@@ -210,7 +239,7 @@ begin
         srcY := Round(aFonts[K].Letters[I].v1 * aFonts[K].fTexSizeY);
         srcPixel := (srcY + M) * aFonts[K].fTexSizeX + srcX + L;
         dstPixel := (pY + M) * fTexSizeX + pX + L;
-        fTexData[dstPixel] := aFonts[K].fTexData[srcPixel];
+        fAtlases[fAtlasCount - 1].TexData[dstPixel] := aFonts[K].TexData[aFonts[K].Used[I]-1][srcPixel];
       end;
 
       Used[uniCode] := 1;
@@ -268,11 +297,17 @@ begin
       srcY := Round(Letters[I].v1 * fTexSizeY);
       srcPixel := (srcY + M) * fTexSizeX + srcX + L;
       dstPixel := ((I div 256) * cellY + M + 1 + aPadding.Top) * pngWidth + (I mod 256) * cellX + L + 1 + aPadding.Left;
-      data[dstPixel] := fTexData[srcPixel];
+      data[dstPixel] := fAtlases[Used[I]].TexData[srcPixel];
     end;
   end;
 
   SaveToPng(pngWidth, pngHeight, data, aFilename);
+end;
+
+
+function TKMFontDataEdit.GetTexData(aIndex: Integer): TKMCardinalArray;
+begin
+  Result := fAtlases[aIndex].TexData;
 end;
 
 
@@ -329,8 +364,12 @@ begin
     end;
   end;
 
+  fAtlasCount := 1;
   dstX := fTexPadding;
   dstY := fTexPadding;
+  SetLength(fAtlases, 0);
+  SetLength(fAtlases, fAtlasCount);
+  SetLength(fAtlases[fAtlasCount - 1].TexData, fTexSizeX * fTexSizeY);
   lineHeight := MaxLetterHeight;
 
   //Pack found letters into atlas
@@ -338,12 +377,20 @@ begin
   for I := 0 to fCharCount - 1 do
   if Used[I] <> 0 then
   begin
-    if dstX + Letters[I].Width + fTexPadding*2 >= fTexSizeX then
+    if dstX + Letters[I].Width + fTexPadding * 2 >= fTexSizeX then
     begin
       dstX := fTexPadding;
-      Inc(dstY, lineHeight + fTexPadding*2);
-      if dstY + lineHeight + fTexPadding*2 >= fTexSizeY then
-        Exit;
+      Inc(dstY, lineHeight + fTexPadding * 2);
+      if dstY + lineHeight + fTexPadding * 2 >= fTexSizeY then
+      begin
+        //Append new atlas
+        Assert((AtlasCount < 255), 'We hit a limit of 256 atlases');
+        Inc(fAtlasCount);
+        dstX := fTexPadding;
+        dstY := fTexPadding;
+        SetLength(fAtlases, fAtlasCount);
+        SetLength(fAtlases[fAtlasCount - 1].TexData, fTexSizeX * fTexSizeY);
+      end;
     end;
 
     //Copy the character over
@@ -352,7 +399,7 @@ begin
     begin
       srcPixel := (I div 256 * CellY + 1 + M) * pngWidth + I mod 256 * CellX + 1 + L;
       dstPixel := (dstY + M) * fTexSizeX + dstX + L;
-      fTexData[dstPixel] := pngData[srcPixel];
+      fAtlases[fAtlasCount - 1].TexData[dstPixel] := pngData[srcPixel];
     end;
 
     Letters[I].u1 := (dstX) / fTexSizeX;
@@ -360,12 +407,12 @@ begin
     Letters[I].u2 := (dstX + Letters[I].Width) / fTexSizeX;
     Letters[I].v2 := (dstY + Letters[I].Height) / fTexSizeY;
 
-    Inc(dstX, Letters[I].Width + fTexPadding*2);
+    Inc(dstX, Letters[I].Width + fTexPadding * 2);
   end;
 end;
 
 
-procedure TKMFontDataEdit.ImportPng(const aFilename: string);
+procedure TKMFontDataEdit.ImportPng(const aFilename: string; aIndex: Integer);
 var
   I, K: Word;
   pngWidth, pngHeight: Word;
@@ -377,7 +424,7 @@ begin
 
   for I := 0 to fTexSizeY - 1 do
   for K := 0 to fTexSizeX - 1 do
-    (PCardinal(Cardinal(@fTexData[0]) + (I * fTexSizeX + K) * 4))^ := pngData[I * fTexSizeX + K];
+    (PCardinal(Cardinal(@fAtlases[aIndex].TexData[0]) + (I * fTexSizeX + K) * 4))^ := pngData[I * fTexSizeX + K];
 end;
 
 
@@ -467,7 +514,8 @@ begin
     //Texture data
     S.Write(fTexSizeX, 2);
     S.Write(fTexSizeY, 2);
-    S.Write(fTexData[0], fTexSizeX * fTexSizeY * 4);
+    for I := 0 to fAtlasCount - 1 do
+      S.Write(fAtlases[I].TexData[0], fTexSizeX * fTexSizeY * 4);
 
     S.SaveToFile(aFilename);
   finally

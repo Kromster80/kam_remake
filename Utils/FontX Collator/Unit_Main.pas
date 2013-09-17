@@ -5,7 +5,8 @@ uses
   {$IFDEF WDC} Windows, {$ENDIF} //Declared first to get TBitmap overriden with VCL version
   {$IFDEF FPC} lconvencoding, {$ENDIF}
   SysUtils, Classes, Graphics, Controls, Forms, Dialogs, ExtCtrls, StdCtrls, Spin, StrUtils,
-  KM_CommonTypes, KM_Defaults, KM_FontCollator, KM_ResFonts, KM_ResFontsEdit, KM_ResPalettes;
+  KM_CommonTypes, KM_Defaults, KM_FontCollator, KM_ResFonts, KM_ResFontsEdit, KM_ResPalettes,
+  Vcl.ComCtrls;
 
 
 type
@@ -28,6 +29,8 @@ type
     ListBox2: TListBox;
     Label1: TLabel;
     Label2: TLabel;
+    Label6: TLabel;
+    tbAtlas: TTrackBar;
     procedure btnSaveClick(Sender: TObject);
     procedure btnExportTexClick(Sender: TObject);
     procedure btnImportTexClick(Sender: TObject);
@@ -35,6 +38,7 @@ type
     procedure btnCollateClick(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure ListBox1Click(Sender: TObject);
+    procedure tbAtlasChange(Sender: TObject);
   private
     Fnt: TKMFontDataEdit;
     Collator: TKMFontCollator;
@@ -114,7 +118,7 @@ begin
   end;
   SetLength(files, K);
 
-  if K = 0 then Exit;  
+  if K = 0 then Exit;
 
   Collator.Collate(ListBox1.ItemIndex,
                    StrToInt(rgSizeX.Items[rgSizeX.ItemIndex]),
@@ -123,7 +127,17 @@ begin
                    files,
                    Fnt);
 
-  Fnt.ExportAtlasBmp(Image1.Picture.Bitmap, cbCells.Checked);
+  tbAtlas.Max := Fnt.AtlasCount - 1;
+
+  Fnt.ExportAtlasBmp(Image1.Picture.Bitmap, tbAtlas.Position, cbCells.Checked);
+  Image1.Repaint;
+end;
+
+
+procedure TForm1.tbAtlasChange(Sender: TObject);
+begin
+  Fnt.ExportAtlasBmp(Image1.Picture.Bitmap, tbAtlas.Position, cbCells.Checked);
+  Image1.Repaint;
 end;
 
 
@@ -132,7 +146,7 @@ begin
   dlgSave.DefaultExt := 'png';
   if not dlgSave.Execute then Exit;
 
-  Fnt.ExportAtlasPng(dlgSave.FileName);
+  Fnt.ExportAtlasPng(dlgSave.FileName, tbAtlas.Position);
 end;
 
 
@@ -140,7 +154,7 @@ procedure TForm1.btnImportTexClick(Sender: TObject);
 begin
   if not dlgOpen.Execute then Exit;
 
-  Fnt.ImportPng(dlgOpen.FileName);
+  Fnt.ImportPng(dlgOpen.FileName, tbAtlas.Position);
 end;
 
 

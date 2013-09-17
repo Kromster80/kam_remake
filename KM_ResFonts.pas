@@ -38,34 +38,42 @@ type
     end;
 
   TKMFontData = class
+  private
+    function GetTexID(aIndex: Integer): Cardinal;
   protected
-    fTexID: Cardinal;
-    fTexData: TKMCardinalArray;
-    fTexSizeX, fTexSizeY: Word;
+    fTexSizeX, fTexSizeY: Word; //All atlases have same dimensions
+    //Character atlases
+    fAtlasCount: Byte;
+    fAtlases: array of record
+      TexID: Cardinal;
+      TexData: TKMCardinalArray;
+    end;
     fCharCount: Word;
     fBaseHeight, fWordSpacing, fCharSpacing, fUnknown: SmallInt;
     fLineSpacing: Byte; //Not in KaM files, we use custom value that fits well
     fCodepage: Word;
     fIsUnicode: Boolean;
-    Used: array [0..High(Word)] of Byte;
     rawData: array [0..High(Word)] of array of Byte; //Raw data for ANSI fonts
   public
+    Used: array [0..High(Word)] of Byte;
     Letters: array [0..High(Word)] of TKMLetter;
 
     procedure LoadFont(const aFileName: string; aPal: TKMPalData);
     procedure LoadFontX(const aFileName: string);
-    procedure GenerateTexture(aRender: TRender; aTexMode: TTexFormat);
+    procedure GenerateTextures(aRender: TRender; aTexMode: TTexFormat);
     procedure Compact;
-    procedure ExportAtlasBmp(aBitmap: TBitmap; aShowCells: Boolean); overload;
-    procedure ExportAtlasBmp(const aPath: string); overload;
-    procedure ExportAtlasPng(const aFilename: string);
+    procedure ExportAtlasBmp(aBitmap: TBitmap; aIndex: Integer; aShowCells: Boolean); overload;
+    procedure ExportAtlasBmp(const aPath: string; aIndex: Integer); overload;
+    procedure ExportAtlasPng(const aFilename: string; aIndex: Integer);
+
+    property AtlasCount: Byte read fAtlasCount;
+    property TexID[aIndex: Integer]: Cardinal read GetTexID;
 
     property CharCount: Word read fCharCount;
     property CharSpacing: SmallInt read fCharSpacing;
     property LineSpacing: Byte read fLineSpacing;
     property BaseHeight: SmallInt read fBaseHeight;
     property WordSpacing: SmallInt read fWordSpacing;
-    property TexID: Cardinal read fTexID;
   end;
 
 
@@ -171,7 +179,10 @@ begin
   pY := PAD;
   fTexSizeX := TEX_SIZE * (1 + Byte(fIsUnicode) * 3); //256 / 1024
   fTexSizeY := TEX_SIZE * (1 + Byte(fIsUnicode) * 1); //256 / 512
-  SetLength(fTexData, fTexSizeX * fTexSizeY);
+  fAtlasCount := 1;
+  SetLength(fAtlases, 0);
+  SetLength(fAtlases, fAtlasCount);
+  SetLength(fAtlases[fAtlasCount - 1].TexData, fTexSizeX * fTexSizeY);
 
   for I := 0 to fCharCount - 1 do
   if Used[I] <> 0 then
@@ -186,7 +197,7 @@ begin
     //Fill in colors
     for L := 0 to Letters[I].Height - 1 do
     for M := 0 to Letters[I].Width - 1 do
-      fTexData[(pY + L) * fTexSizeX + pX + M] :=
+      fAtlases[fAtlasCount - 1].TexData[(pY + L) * fTexSizeX + pX + M] :=
         aPal.Color32(rawData[I, L * Letters[I].Width + M]);
 
     Letters[I].u1 := pX / fTexSizeX;
@@ -227,15 +238,22 @@ begin
     S.Read(fCharSpacing, 2);
     S.Read(fLineSpacing, 1);
 
+    fAtlasCount := 1;
     S.Read(Used[0], Length(Used) * SizeOf(Used[0]));
     for I := 0 to High(Word) do
     if Used[I] <> 0 then
+    begin
       S.Read(Letters[I], SizeOf(TKMLetter));
+      fAtlasCount := Max(fAtlasCount, Used[I]);
+    end;
 
     S.Read(fTexSizeX, 2);
     S.Read(fTexSizeY, 2);
-    SetLength(fTexData, fTexSizeX * fTexSizeY);
-    S.Read(fTexData[0], fTexSizeX * fTexSizeY * 4);
+    for I := 0 to fAtlasCount - 1 do
+    begin
+      SetLength(fAtlases[I].TexData, fTexSizeX * fTexSizeY);
+      S.Read(fAtlases[I].TexData, fTexSizeX * fTexSizeY * 4);
+    end;
   finally
     S.Free;
   end;
@@ -244,47 +262,67 @@ end;
 
 //After font has been loaded and texture generated we can flush temp data
 procedure TKMFontData.Compact;
+var
+  I: Integer;
 begin
   //Discard texture data to save mem
-  SetLength(fTexData, 0);
+  for I := 0 to fAtlasCount - 1 do
+    SetLength(fAtlases[I].TexData, 0);
+
   fTexSizeX := 0;
   fTexSizeY := 0;
 end;
 
 
 //Generate color texture from prepared data
-procedure TKMFontData.GenerateTexture(aRender: TRender; aTexMode: TTexFormat);
+procedure TKMFontData.GenerateTextures(aRender: TRender; aTexMode: TTexFormat);
+var
+  I: Integer;
 begin
-  if Length(fTexData) = 0 then Exit;
+  for I := 0 to fAtlasCount - 1 do
+  if Length(fAtlases[I].TexData) <> 0 then
+    fAtlases[I].TexID := aRender.GenTexture(fTexSizeX, fTexSizeY, @fAtlases[I].TexData, aTexMode)
+  else
+    fAtlases[I].TexID := 0;
+end;
 
-  fTexID := aRender.GenTexture(fTexSizeX, fTexSizeY, @fTexData[0], aTexMode);
+
+function TKMFontData.GetTexID(aIndex: Integer): Cardinal;
+begin
+  Result := fAtlases[aIndex].TexID;
 end;
 
 
 //Export texture atlas into bitmap (just for looks)
-procedure TKMFontData.ExportAtlasBmp(aBitmap: TBitmap; aShowCells: Boolean);
+procedure TKMFontData.ExportAtlasBmp(aBitmap: TBitmap; aIndex: Integer; aShowCells: Boolean);
 const
   D: Integer = $AF6B6B;
 var
   I, K: Integer;
+  scLine: Cardinal;
+  TD: TKMCardinalArray;
   C: Integer;
   A: Byte;
 begin
-  Assert(Length(fTexData) > 0, 'There is no font data in memory');
+  Assert(Length(fAtlases[aIndex].TexData) > 0, 'There is no font data in memory');
 
   aBitmap.PixelFormat := pf32bit;
   aBitmap.Width  := fTexSizeX;
   aBitmap.Height := fTexSizeY;
 
+  TD := fAtlases[aIndex].TexData;
   for I := 0 to fTexSizeY - 1 do
-  for K := 0 to fTexSizeX - 1 do
   begin
-    C := fTexData[I * fTexSizeX + K] and $FFFFFF;
-    A := 255 - (fTexData[I * fTexSizeX + K] shr 24) and $FF;
-    //C + (D - C) * A
-    aBitmap.Canvas.Pixels[K,I] := (C and $FF) + ((D and $FF - C and $FF) * A) div 256 +
-                                  ((C shr 8 and $FF) + ((D shr 8 and $FF - C shr 8 and $FF) * A) div 256) shl 8 +
-                                  ((C shr 16 and $FF) + ((D shr 16 and $FF - C shr 16 and $FF) * A) div 256) shl 16;
+    scLine := Cardinal(aBitmap.ScanLine[I]);
+    for K := 0 to fTexSizeX - 1 do
+    begin
+      C := TD[I * fTexSizeX + K] and $FFFFFF;
+      A := 255 - (TD[I * fTexSizeX + K] shr 24) and $FF;
+      //C + (D - C) * A
+      PCardinal(scLine + K * 4)^ := ((C and $FF) + ((D and $FF - C and $FF) * A) div 256) +
+                                    ((C shr 8 and $FF) + ((D shr 8 and $FF - C shr 8 and $FF) * A) div 256) shl 8 +
+                                    ((C shr 16 and $FF) + ((D shr 16 and $FF - C shr 16 and $FF) * A) div 256) shl 16;
+    end;
   end;
 
   if aShowCells then
@@ -305,15 +343,15 @@ end;
 
 
 //Export texture atlas into a bitmap file (just for looks)
-procedure TKMFontData.ExportAtlasBmp(const aPath: string);
+procedure TKMFontData.ExportAtlasBmp(const aPath: string; aIndex: Integer);
 var
   exportBmp: TBitmap;
 begin
-  Assert(Length(fTexData) > 0, 'There is no font data in memory');
+  Assert(Length(fAtlases[aIndex].TexData) > 0, 'There is no font data in memory');
 
   exportBmp := TBitMap.Create;
   try
-    ExportAtlasBmp(exportBmp, False);
+    ExportAtlasBmp(exportBmp, aIndex, False);
 
     ForceDirectories(ExtractFilePath(aPath));
     exportBmp.SaveToFile(aPath);
@@ -323,13 +361,13 @@ begin
 end;
 
 
-procedure TKMFontData.ExportAtlasPng(const aFilename: string);
+procedure TKMFontData.ExportAtlasPng(const aFilename: string; aIndex: Integer);
 var
   I, K: Integer;
   pngWidth, pngHeight: Word;
   pngData: TKMCardinalArray;
 begin
-  Assert(Length(fTexData) > 0, 'There is no font data in memory');
+  Assert(Length(fAtlases[aIndex].TexData) > 0, 'There is no font data in memory');
 
   pngWidth := fTexSizeX;
   pngHeight := fTexSizeY;
@@ -337,7 +375,7 @@ begin
 
   for I := 0 to fTexSizeY - 1 do
   for K := 0 to fTexSizeX - 1 do
-    pngData[I * fTexSizeX + K] := (PCardinal(Cardinal(@fTexData[0]) + (I * fTexSizeX + K) * 4))^;
+    pngData[I * fTexSizeX + K] := (PCardinal(Cardinal(@fAtlases[aIndex].TexData[0]) + (I * fTexSizeX + K) * 4))^;
 
   SaveToPng(pngWidth,pngHeight, pngData, aFilename);
 end;
@@ -400,7 +438,7 @@ begin
     FntPath := ExeDir + FONTS_FOLDER + FontInfo[F].FontFile + '.fntx';
     fFontData[F].LoadFontX(FntPath);
     if fRender <> nil then
-      fFontData[F].GenerateTexture(fRender, FontInfo[F].TexMode);
+      fFontData[F].GenerateTextures(fRender, FontInfo[F].TexMode);
     fFontData[F].Compact;
   end;
 end;
@@ -410,13 +448,15 @@ procedure TKMResourceFont.ExportFonts;
 var
   F: TKMFont;
   FntPath: string;
+  I: Integer;
 begin
   //We need to reload fonts to regenerate TexData
   for F := Low(TKMFont) to High(TKMFont) do
   begin
     FntPath := ExeDir + FONTS_FOLDER + FontInfo[F].FontFile + '.fntx';
     fFontData[F].LoadFontX(FntPath);
-    fFontData[F].ExportAtlasBmp(ExeDir + 'Export' + PathDelim + 'Fonts' + PathDelim + FontInfo[F].FontFile + '.bmp');
+    for I := 0 to fFontData[F].AtlasCount - 1 do
+      fFontData[F].ExportAtlasBmp(ExeDir + 'Export' + PathDelim + 'Fonts' + PathDelim + FontInfo[F].FontFile + IntToStr(I) + '.bmp', I);
     fFontData[F].Compact;
   end;
 end;

@@ -5,7 +5,7 @@ uses
   {$IFDEF WDC} Windows, {$ENDIF} //Declared first to get TBitmap overriden with VCL version
   {$IFDEF FPC} lconvencoding, {$ENDIF}
   SysUtils, Classes, Graphics, Controls, Forms, Dialogs, ExtCtrls, StdCtrls, Spin, StrUtils,
-  KM_CommonTypes, KM_Defaults, KM_ResFonts, KM_ResFontsEdit, KM_ResPalettes;
+  KM_CommonTypes, KM_Defaults, KM_ResFonts, KM_ResFontsEdit, KM_ResPalettes, Vcl.ComCtrls;
 
 
 type
@@ -38,6 +38,8 @@ type
     SpinEdit1: TSpinEdit;
     SpinEdit2: TSpinEdit;
     btnSetRange: TButton;
+    tbAtlas: TTrackBar;
+    Label6: TLabel;
     procedure btnGenerateClick(Sender: TObject);
     procedure btnSaveClick(Sender: TObject);
     procedure btnExportTexClick(Sender: TObject);
@@ -47,6 +49,7 @@ type
     procedure FormDestroy(Sender: TObject);
     procedure UpdateCaption(const aString: UnicodeString);
     procedure btnSetRangeClick(Sender: TObject);
+    procedure tbAtlasChange(Sender: TObject);
   private
     Fnt: TKMFontDataEdit;
   end;
@@ -104,8 +107,17 @@ begin
   Fnt.TexSizeX := StrToInt(rgSizeX.Items[rgSizeX.ItemIndex]);
   Fnt.TexSizeY := StrToInt(rgSizeY.Items[rgSizeY.ItemIndex]);
   Fnt.CreateFont(cbFontName.Text, seFontSize.Value, fntStyle, cbAntialias.Checked, useChars);
+  tbAtlas.Max := Fnt.AtlasCount - 1;
 
-  Fnt.ExportAtlasBmp(Image1.Picture.Bitmap, cbCells.Checked);
+  Fnt.ExportAtlasBmp(Image1.Picture.Bitmap, tbAtlas.Position, cbCells.Checked);
+  Image1.Repaint;
+end;
+
+
+procedure TForm1.tbAtlasChange(Sender: TObject);
+begin
+  Fnt.ExportAtlasBmp(Image1.Picture.Bitmap, tbAtlas.Position, cbCells.Checked);
+  Image1.Repaint;
 end;
 
 
@@ -173,7 +185,7 @@ begin
   dlgSave.DefaultExt := 'png';
   if not dlgSave.Execute then Exit;
 
-  Fnt.ExportAtlasPng(dlgSave.FileName);
+  Fnt.ExportAtlasPng(dlgSave.FileName, tbAtlas.Position);
 end;
 
 
@@ -181,7 +193,7 @@ procedure TForm1.btnImportTexClick(Sender: TObject);
 begin
   if not dlgOpen.Execute then Exit;
 
-  Fnt.ImportPng(dlgOpen.FileName);
+  Fnt.ImportPng(dlgOpen.FileName, tbAtlas.Position);
 end;
 
 

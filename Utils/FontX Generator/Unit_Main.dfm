@@ -36,6 +36,16 @@ object Form1: TForm1
     Anchors = [akLeft, akTop, akRight, akBottom]
     ExplicitHeight = 512
   end
+  object Label6: TLabel
+    Left = 16
+    Top = 544
+    Width = 62
+    Height = 16
+    Caption = 'Atlas index'
+    Color = clBtnFace
+    ParentColor = False
+    Transparent = False
+  end
   object btnSave: TButton
     Left = 144
     Top = 624
@@ -70,7 +80,7 @@ object Form1: TForm1
     Left = 8
     Top = 8
     Width = 265
-    Height = 97
+    Height = 113
     Caption = ' Texture atlas '
     TabOrder = 3
     object Label5: TLabel
@@ -97,28 +107,30 @@ object Form1: TForm1
       Left = 14
       Top = 16
       Width = 59
-      Height = 72
+      Height = 89
       Caption = ' Size X '
       ItemIndex = 0
       Items.Strings = (
         '128'
         '256'
         '512'
-        '1024')
+        '1024'
+        '2048')
       TabOrder = 1
     end
     object rgSizeY: TRadioGroup
       Left = 80
       Top = 16
       Width = 65
-      Height = 73
+      Height = 89
       Caption = ' Size Y '
       ItemIndex = 0
       Items.Strings = (
         '128'
         '256'
         '512'
-        '1024')
+        '1024'
+        '2048')
       TabOrder = 2
     end
     object cbCells: TCheckBox
@@ -132,7 +144,7 @@ object Form1: TForm1
   end
   object GroupBox2: TGroupBox
     Left = 8
-    Top = 112
+    Top = 128
     Width = 265
     Height = 401
     Caption = ' Generate from scratch '
@@ -285,6 +297,14 @@ object Form1: TForm1
       TabOrder = 10
       OnClick = btnSetRangeClick
     end
+  end
+  object tbAtlas: TTrackBar
+    Left = 8
+    Top = 560
+    Width = 150
+    Height = 33
+    TabOrder = 5
+    OnChange = tbAtlasChange
   end
   object dlgSave: TSaveDialog
     Left = 288

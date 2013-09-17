@@ -79,6 +79,9 @@
 			<DCC_RemoteDebug>true</DCC_RemoteDebug>
 		</PropertyGroup>
 		<PropertyGroup Condition="'$(Cfg_1_Win32)'!=''">
+			<ILINK_FullDebugInfo>true</ILINK_FullDebugInfo>
+			<BCC_SourceDebuggingOn>true</BCC_SourceDebuggingOn>
+			<BCC_DebugLineNumbers>true</BCC_DebugLineNumbers>
 			<VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
 			<DCC_DebugDCUs>true</DCC_DebugDCUs>
 			<Manifest_File>$(BDS)\bin\default_app.manifest</Manifest_File>
@@ -101,6 +104,7 @@
 			<DCCReference Include="..\..\KM_ResFonts.pas"/>
 			<DCCReference Include="..\..\KM_ResFontsEdit.pas"/>
 			<DCCReference Include="CharsCollector.pas"/>
+			<None Include="Profiling\AQtimeModule1.aqt"/>
 			<BuildConfiguration Include="Release">
 				<Key>Cfg_2</Key>
 				<CfgParent>Base</CfgParent>

@@ -55,9 +55,19 @@ object Form1: TForm1
     ParentColor = False
     Transparent = False
   end
+  object Label6: TLabel
+    Left = 8
+    Top = 392
+    Width = 62
+    Height = 16
+    Caption = 'Atlas index'
+    Color = clBtnFace
+    ParentColor = False
+    Transparent = False
+  end
   object btnSave: TButton
     Left = 144
-    Top = 400
+    Top = 456
     Width = 129
     Height = 57
     Caption = 'Save font ...'
@@ -66,7 +76,7 @@ object Form1: TForm1
   end
   object btnExportTex: TButton
     Left = 8
-    Top = 400
+    Top = 456
     Width = 129
     Height = 25
     Caption = 'Export texture ...'
@@ -75,7 +85,7 @@ object Form1: TForm1
   end
   object btnImportTex: TButton
     Left = 8
-    Top = 432
+    Top = 488
     Width = 129
     Height = 25
     Caption = 'Import texture ...'
@@ -170,6 +180,14 @@ object Form1: TForm1
     Height = 177
     MultiSelect = True
     TabOrder = 6
+  end
+  object tbAtlas: TTrackBar
+    Left = 0
+    Top = 408
+    Width = 150
+    Height = 33
+    TabOrder = 7
+    OnChange = tbAtlasChange
   end
   object dlgSave: TSaveDialog
     Left = 288

@@ -227,7 +227,7 @@ begin
       begin
         pX := Round(Let.u1 * fFnt.TexSizeX) + M;
         pY := Round(Let.v1 * fFnt.TexSizeY) + L;
-        T := fFnt.TexData[pY * fFnt.TexSizeX + pX];
+        T := fFnt.TexData[0][pY * fFnt.TexSizeX + pX];
 
         //Blend with background
         R := Round(Lerp(BG_COLOR and $FF, T and $FF, T shr 24 / 255)) +
@@ -330,13 +330,15 @@ end;
 
 
 procedure TfrmMain.Edit1Change(Sender: TObject);
+const
+  PAD = 2;
 var
   Bmp: TBitmap;
   I, L, M: Integer;
   srcCol, dstCol: Integer;
   AdvX: Integer;
   MyRect: TRect;
-  Text: string;
+  Text: UnicodeString;
   Let: TKMLetter;
   pX, pY: Word;
   alpha: Byte;
@@ -344,7 +346,7 @@ begin
   Bmp := TBitmap.Create;
   Bmp.PixelFormat := pf32bit;
   Bmp.Width := 512;
-  Bmp.Height := 20;
+  Bmp.Height := 22;
 
   AdvX := 0;
 
@@ -370,11 +372,11 @@ begin
       pX := Round(Let.u1 * fFnt.TexSizeX) + M;
       pY := Round(Let.v1 * fFnt.TexSizeY) + L;
 
-      srcCol := fFnt.TexData[pY * fFnt.TexSizeX + pX] and $FFFFFF;
-      dstCol := Bmp.Canvas.Pixels[AdvX + M, Let.YOffset + L] and $FFFFFF;
-      alpha := 255 - (fFnt.TexData[pY * fFnt.TexSizeX + pX] shr 24) and $FF;
+      srcCol := fFnt.TexData[0][pY * fFnt.TexSizeX + pX] and $FFFFFF;
+      dstCol := Bmp.Canvas.Pixels[AdvX + M, Let.YOffset + L + PAD] and $FFFFFF;
+      alpha := 255 - (fFnt.TexData[0][pY * fFnt.TexSizeX + pX] shr 24) and $FF;
       //srcCol + (dstCol - srcCol) * alpha
-      Bmp.Canvas.Pixels[AdvX + M, Let.YOffset + L] :=
+      Bmp.Canvas.Pixels[AdvX + M, Let.YOffset + L + PAD] :=
         ((srcCol and $FF) + ((dstCol and $FF - srcCol and $FF) * alpha) div 256) +
         ((srcCol shr 8 and $FF) + ((dstCol shr 8 and $FF - srcCol shr 8 and $FF) * alpha) div 256) shl 8 +
         ((srcCol shr 16 and $FF) + ((dstCol shr 16 and $FF - srcCol shr 16 and $FF) * alpha) div 256) shl 16;
