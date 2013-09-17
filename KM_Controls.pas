@@ -1999,12 +1999,12 @@ begin
   Col := IfThen(fEnabled, $FFFFFFFF, $FF808080);
 
   TKMRenderUI.WriteText(AbsLeft + Byte(csDown in State),
-                      (AbsTop + Height div 2)-7 + Byte(csDown in State), Width, Caption, Font, fTextAlign, Col);
+                      (AbsTop + Height div 2) - 7 + Byte(csDown in State), Width, Caption, Font, fTextAlign, Col);
 end;
 
 
 //Simple version of button, with a caption and image
-constructor TKMButtonFlat.Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight,aTexID: Integer; aRX: TRXType = rxGui);
+constructor TKMButtonFlat.Create(aParent: TKMPanel; aLeft, aTop, aWidth, aHeight, aTexID: Integer; aRX: TRXType = rxGui);
 begin
   inherited Create(aParent, aLeft, aTop, aWidth, aHeight);
   RX        := aRX;
@@ -2052,9 +2052,9 @@ end;
 
 
 { TKMFlatButtonShape }
-constructor TKMFlatButtonShape.Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight: Integer; aCaption: UnicodeString; aFont: TKMFont; aShapeColor: TColor4);
+constructor TKMFlatButtonShape.Create(aParent: TKMPanel; aLeft, aTop, aWidth, aHeight: Integer; aCaption: UnicodeString; aFont: TKMFont; aShapeColor: TColor4);
 begin
-  inherited Create(aParent, aLeft,aTop,aWidth,aHeight);
+  inherited Create(aParent, aLeft, aTop, aWidth, aHeight);
   fCaption    := aCaption;
   ShapeColor  := aShapeColor;
   fFont       := aFont;
