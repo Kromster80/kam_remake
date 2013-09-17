@@ -39,8 +39,11 @@ type
     GroupBox1: TGroupBox;
     SpinEdit5: TSpinEdit;
     Label7: TLabel;
-    SpinEdit6: TSpinEdit;
+    sePadTop: TSpinEdit;
     Label1: TLabel;
+    sePadRight: TSpinEdit;
+    sePadBottom: TSpinEdit;
+    sePadLeft: TSpinEdit;
     procedure btnSaveFontClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure btnRefreshClick(Sender: TObject);
@@ -141,7 +144,7 @@ begin
     Exit;
   end;
 
-  if not RunSaveDialog(SaveDialog1, lbFonts.Items[lbFonts.ItemIndex], DataDir + 'Data\Gfx\Fonts\', 'KaM Fonts|*.fnt', 'fnt') then
+  if not RunSaveDialog(SaveDialog1, lbFonts.Items[lbFonts.ItemIndex], DataDir + 'Data\Gfx\Fonts\', 'KaM FontX|*.fntx', 'fntx') then
     Exit;
 
   fFnt.SaveToFontX(SaveDialog1.FileName);
@@ -271,7 +274,7 @@ procedure TfrmMain.btnExportPngClick(Sender: TObject);
 begin
   if not RunSaveDialog(SaveDialog1, '', ExeDir, 'PNG images|*.png', 'png') then Exit;
 
-  fFnt.ExportGridPng(SaveDialog1.FileName, SpinEdit6.Value);
+  fFnt.ExportGridPng(SaveDialog1.FileName, Rect(sePadLeft.Value, sePadTop.Value, sePadRight.Value, sePadBottom.Value));
 end;
 
 
@@ -280,6 +283,9 @@ begin
   if not RunOpenDialog(OpenDialog1, '', ExeDir, 'PNG images|*.png') then Exit;
 
   fFnt.ImportGridPng(OpenDialog1.FileName);
+
+  fCellX := fFnt.MaxLetterWidth + 1;
+  fCellY := fFnt.MaxLetterHeight + 1;
 
   ShowBigImage(CheckCells.Checked);
   PaintBox1.Repaint;
@@ -383,7 +389,7 @@ begin
     Inc(AdvX, fFnt.WordSpacing);
 
   //Match phrase bounds
-  Bmp.Width := AdvX + 1;
+  Bmp.Width := AdvX - Min(fFnt.CharSpacing, 0); //Revert last char overlap (if spacing is negative)
   Bmp.Height := 20;
 
   Image4.Canvas.Brush.Color := BG_COLOR;

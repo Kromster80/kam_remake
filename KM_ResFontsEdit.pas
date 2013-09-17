@@ -16,7 +16,7 @@ type
   public
     procedure CreateFont(aFontName: string; aFontSize: Byte; aFontStyle: TFontStyles; aAntialias: Boolean; const aChars: array of WideChar);
     procedure CollateFonts(aFonts: array of TKMFontDataEdit);
-    procedure ExportGridPng(const aFilename: string; aPadding: Byte);
+    procedure ExportGridPng(const aFilename: string; aPadding: TRect);
     procedure ImportGridPng(const aFilename: string);
     procedure ImportPng(const aFilename: string);
     function MaxLetterHeight: Byte;
@@ -227,7 +227,7 @@ begin
 end;
 
 
-procedure TKMFontDataEdit.ExportGridPng(const aFilename: string; aPadding: Byte);
+procedure TKMFontDataEdit.ExportGridPng(const aFilename: string; aPadding: TRect);
 var
   cellX, cellY, pngWidth, pngHeight: Word;
   I, K, M, L: Integer;
@@ -237,8 +237,8 @@ var
   data: TKMCardinalArray;
 begin
   //+1 for the grid
-  cellX := MaxLetterWidth + 1 + aPadding * 2;
-  cellY := MaxLetterHeight + 1 + aPadding * 2;
+  cellX := MaxLetterWidth + 1 + aPadding.Left + aPadding.Right;
+  cellY := MaxLetterHeight + 1 + aPadding.Top + aPadding.Bottom;
   pngWidth := 256 * cellX;
   pngHeight := 256 * cellY;
 
@@ -267,7 +267,7 @@ begin
       srcX := Round(Letters[I].u1 * fTexSizeX);
       srcY := Round(Letters[I].v1 * fTexSizeY);
       srcPixel := (srcY + M) * fTexSizeX + srcX + L;
-      dstPixel := ((I div 256) * cellY + M + 1 + aPadding) * pngWidth + (I mod 256) * cellX + L + 1 + aPadding;
+      dstPixel := ((I div 256) * cellY + M + 1 + aPadding.Top) * pngWidth + (I mod 256) * cellX + L + 1 + aPadding.Left;
       data[dstPixel] := fTexData[srcPixel];
     end;
   end;

@@ -2,7 +2,7 @@ object frmMain: TfrmMain
   Left = 185
   Top = 94
   Caption = 'KaM Font Editor'
-  ClientHeight = 650
+  ClientHeight = 690
   ClientWidth = 697
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -17,32 +17,35 @@ object frmMain: TfrmMain
   OnResize = FormResize
   DesignSize = (
     697
-    650)
+    690)
   PixelsPerInch = 96
   TextHeight = 13
   object PaintBox1: TPaintBox
     Left = 160
     Top = 16
     Width = 512
-    Height = 512
+    Height = 552
     Anchors = [akLeft, akTop, akRight, akBottom]
     OnMouseMove = PaintBox1MouseMove
     OnMouseUp = PaintBox1MouseUp
     OnPaint = PaintBox1Paint
+    ExplicitHeight = 512
   end
   object Image4: TImage
     Left = 312
-    Top = 536
+    Top = 576
     Width = 377
     Height = 30
     Anchors = [akLeft, akBottom]
+    ExplicitTop = 536
   end
   object Image5: TImage
     Left = 160
-    Top = 565
+    Top = 605
     Width = 529
     Height = 60
     Anchors = [akLeft, akBottom]
+    ExplicitTop = 565
   end
   object Label3: TLabel
     Left = 62
@@ -90,8 +93,8 @@ object frmMain: TfrmMain
     Pen.Width = 2
   end
   object Label1: TLabel
-    Left = 62
-    Top = 523
+    Left = 6
+    Top = 507
     Width = 71
     Height = 13
     Caption = 'Export padding'
@@ -118,16 +121,16 @@ object frmMain: TfrmMain
   end
   object btnSaveFont: TBitBtn
     Left = 8
-    Top = 600
+    Top = 640
     Width = 145
     Height = 25
-    Caption = 'Save Font File ...'
+    Caption = 'Save FontX File ...'
     TabOrder = 0
     OnClick = btnSaveFontClick
   end
   object StatusBar1: TStatusBar
     Left = 0
-    Top = 630
+    Top = 670
     Width = 697
     Height = 20
     Panels = <
@@ -143,16 +146,18 @@ object frmMain: TfrmMain
         Text = 'Font Hex Code'
         Width = 50
       end>
+    ExplicitTop = 630
   end
   object Edit1: TEdit
     Left = 160
-    Top = 540
+    Top = 580
     Width = 145
     Height = 21
     Anchors = [akLeft, akBottom]
     TabOrder = 4
     Text = 'Sample phrase'
     OnChange = Edit1Change
+    ExplicitTop = 540
   end
   object CheckCells: TCheckBox
     Left = 8
@@ -167,7 +172,7 @@ object frmMain: TfrmMain
   end
   object btnExportBitmap: TBitBtn
     Left = 8
-    Top = 572
+    Top = 612
     Width = 73
     Height = 25
     Caption = 'Export PNG ...'
@@ -176,7 +181,7 @@ object frmMain: TfrmMain
   end
   object btnImportBitmap: TBitBtn
     Left = 80
-    Top = 572
+    Top = 612
     Width = 73
     Height = 25
     Caption = 'Import PNG ...'
@@ -231,13 +236,14 @@ object frmMain: TfrmMain
     Left = 672
     Top = 16
     Width = 17
-    Height = 513
+    Height = 553
     Anchors = [akTop, akRight, akBottom]
     Kind = sbVertical
     Max = 65535
     PageSize = 0
     TabOrder = 12
     OnChange = ScrollBar1Change
+    ExplicitHeight = 513
   end
   object GroupBox1: TGroupBox
     Left = 8
@@ -260,21 +266,51 @@ object frmMain: TfrmMain
       Top = 24
       Width = 50
       Height = 22
-      MaxValue = 65535
-      MinValue = -65535
+      MaxValue = 32
+      MinValue = -32
       TabOrder = 0
       Value = 0
       OnChange = SpinEdit5Change
     end
   end
-  object SpinEdit6: TSpinEdit
-    Left = 8
-    Top = 520
-    Width = 50
+  object sePadTop: TSpinEdit
+    Left = 56
+    Top = 528
+    Width = 49
     Height = 22
-    MaxValue = 65535
-    MinValue = -65535
+    MaxValue = 16
+    MinValue = 0
     TabOrder = 14
+    Value = 0
+  end
+  object sePadRight: TSpinEdit
+    Left = 104
+    Top = 552
+    Width = 49
+    Height = 22
+    MaxValue = 16
+    MinValue = 0
+    TabOrder = 15
+    Value = 0
+  end
+  object sePadLeft: TSpinEdit
+    Left = 8
+    Top = 552
+    Width = 49
+    Height = 22
+    MaxValue = 16
+    MinValue = 0
+    TabOrder = 17
+    Value = 0
+  end
+  object sePadBottom: TSpinEdit
+    Left = 56
+    Top = 576
+    Width = 49
+    Height = 22
+    MaxValue = 16
+    MinValue = 0
+    TabOrder = 16
     Value = 0
   end
   object OpenDialog1: TOpenDialog
