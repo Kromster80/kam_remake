@@ -1,4 +1,4 @@
-unit KM_Settings;
+﻿unit KM_Settings;
 {$I KaM_Remake.inc}
 interface
 uses Classes, SysUtils, Math, KM_Defaults, INIfiles, KM_ResLocales;
@@ -12,7 +12,6 @@ type
 
     fFullScreen: Boolean;
     fResolution: TScreenRes;
-
     fVSync: Boolean;
 
     function LoadFromINI(FileName: string): Boolean;
@@ -71,7 +70,6 @@ type
     procedure SetBrightness(aValue: Byte);
     procedure SetScrollSpeed(aValue: Byte);
     procedure SetAlphaShadows(aValue: Boolean);
-    procedure SetLocale(aLocale: AnsiString);
     procedure SetMusicOff(aValue: Boolean);
     procedure SetShuffleOn(aValue: Boolean);
     procedure SetMusicVolume(aValue: Single);
@@ -100,7 +98,7 @@ type
     property Brightness: Byte read fBrightness write SetBrightness;
     property ScrollSpeed: Byte read fScrollSpeed write SetScrollSpeed;
     property AlphaShadows: Boolean read fAlphaShadows write SetAlphaShadows;
-    property Locale: AnsiString read fLocale write SetLocale;
+    property Locale: AnsiString read fLocale write fLocale;
     property MusicOff: Boolean read fMusicOff write SetMusicOff;
     property ShuffleOn: Boolean read fShuffleOn write SetShuffleOn;
     property MusicVolume: Single read fMusicVolume write SetMusicVolume;
@@ -147,26 +145,28 @@ begin
 end;
 
 function TMainSettings.LoadFromINI(FileName: string): Boolean;
-var f:TMemIniFile;
+var
+  F: TMemIniFile;
 begin
   Result := FileExists(FileName);
 
-  f := TMemIniFile.Create(FileName);
+  F := TMemIniFile.Create(FileName);
 
-  fFullScreen         := f.ReadBool   ('GFX', 'FullScreen',       False);
-  fVSync              := f.ReadBool   ('GFX', 'VSync',            True);
-  fResolution.Width   := f.ReadInteger('GFX', 'ResolutionWidth',  1024);
-  fResolution.Height  := f.ReadInteger('GFX', 'ResolutionHeight', 768);
-  fResolution.RefRate := f.ReadInteger('GFX', 'RefreshRate',      60);
+  fFullScreen         := F.ReadBool   ('GFX', 'FullScreen',       False);
+  fVSync              := F.ReadBool   ('GFX', 'VSync',            True);
+  fResolution.Width   := F.ReadInteger('GFX', 'ResolutionWidth',  1024);
+  fResolution.Height  := F.ReadInteger('GFX', 'ResolutionHeight', 768);
+  fResolution.RefRate := F.ReadInteger('GFX', 'RefreshRate',      60);
 
-  FreeAndNil(f);
+  FreeAndNil(F);
   fNeedsSave := False;
 end;
 
 
 //Don't rewrite the file for each individual change, do it in one batch for simplicity
 procedure TMainSettings.SaveToINI(FileName: string);
-var F: TMemIniFile;
+var
+  F: TMemIniFile;
 begin
   F := TMemIniFile.Create(FileName);
 
@@ -301,7 +301,8 @@ begin
 
     fAutosave       := F.ReadBool   ('Game', 'Autosave',       True); //Should be ON by default
     fScrollSpeed    := F.ReadInteger('Game', 'ScrollSpeed',    10);
-    Locale          := AnsiString(F.ReadString ('Game', 'Locale',         DEFAULT_LOCALE));
+    //We can get some unsupported LocaleCode, but that is fine, it will have Eng fallback anyway
+    fLocale         := AnsiString(F.ReadString ('Game', 'Locale', DEFAULT_LOCALE));
     fSpeedPace      := F.ReadInteger('Game', 'SpeedPace',      100);
     fSpeedMedium    := F.ReadInteger('Game', 'SpeedMedium',    3);
     fSpeedFast      := F.ReadInteger('Game', 'SpeedFast',      6);
@@ -389,17 +390,6 @@ begin
   end;
 
   fNeedsSave := False;
-end;
-
-
-//Scan list of available locales and pick existing one, or ignore
-procedure TGameSettings.SetLocale(aLocale: AnsiString);
-begin
-  //We don't know if Locales are initialized (e.g. in dedicated server)
-  if (gResLocales <> nil) and (gResLocales.IndexByCode(aLocale) <> -1) then
-    fLocale := aLocale
-  else
-    fLocale := DEFAULT_LOCALE;
 end;
 
 
