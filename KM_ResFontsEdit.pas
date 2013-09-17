@@ -63,7 +63,7 @@ begin
     bmp.PixelFormat := pf32bit;
     bmp.Width := 64;
     bmp.Height := 64;
-    bmp.Canvas.Font.Color := $00FF00;
+    bmp.Canvas.Font.Color := $00FF00; //Only green channel to avoid ClearType antialiasing
     bmp.Canvas.Font.Size := aFontSize;
     bmp.Canvas.Font.Name := aFontName;
     bmp.Canvas.Font.Style := aFontStyle;

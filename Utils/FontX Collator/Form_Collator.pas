@@ -1,4 +1,4 @@
-unit Unit_Main;
+﻿unit Form_Collator;
 {$I ..\..\KaM_Remake.inc}
 interface
 uses
@@ -63,7 +63,7 @@ begin
   Collator := TKMFontCollator.Create;
 
   //Scan fonts folder
-  Collator.ListFonts(ExeDir+'..\..\data\gfx\fonts\');
+  Collator.ListFonts(ExeDir + '..\..\data\gfx\fonts\');
 
   //Available fonts
   for I := 0 to Collator.Fonts.Count - 1 do

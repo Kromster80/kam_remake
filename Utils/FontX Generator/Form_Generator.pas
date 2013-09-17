@@ -1,4 +1,4 @@
-unit Unit_Main;
+﻿unit Form_Generator;
 {$I ..\..\KaM_Remake.inc}
 interface
 uses

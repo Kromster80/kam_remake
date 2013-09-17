@@ -98,7 +98,7 @@
 			<DelphiCompile Include="$(MainSource)">
 				<MainSource>MainSource</MainSource>
 			</DelphiCompile>
-			<DCCReference Include="Unit_Main.pas">
+			<DCCReference Include="Form_Generator.pas">
 				<Form>Form1</Form>
 			</DCCReference>
 			<DCCReference Include="..\..\KM_ResFonts.pas"/>

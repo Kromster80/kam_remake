@@ -1,8 +1,8 @@
-program FontXGenerator;
+﻿program FontXGenerator;
 {$I ..\..\KaM_Remake.inc}
 uses
   Forms,
-  Unit_Main in 'Unit_Main.pas' {Form1},
+  Form_Generator in 'Form_Generator.pas' {Form1},
   KM_ResFonts in '..\..\KM_ResFonts.pas',
   KM_ResFontsEdit in '..\..\KM_ResFontsEdit.pas',
   CharsCollector in 'CharsCollector.pas';
