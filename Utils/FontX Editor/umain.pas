@@ -202,6 +202,7 @@ var
   T, R: Cardinal;
   Let: TKMLetter;
   offset: Word;
+  letter: Integer;
 begin
   fBmp.Canvas.Brush.Color := BG_COLOR;
   fBmp.Canvas.FillRect(fBmp.Canvas.ClipRect);
@@ -215,27 +216,27 @@ begin
 
   for I := 0 to fRows - 1 do
   for K := 0 to fCols - 1 do
-  if offset + I * fCols + K <= 65535 then
   begin
-    Let := fFnt.Letters[offset + I * fCols + K];
+    letter := offset + I * fCols + K;
 
-    if Let.Width <> 0 then
+    //Dont render anything beyond 65535 if we have Scroll positioned past last char
+    if letter > 65535 then Break;
+    if fFnt.Used[letter] = 0 then Continue;
+
+    Let := fFnt.Letters[letter];
+    for L := 0 to Let.Height - 1 do
+    for M := 0 to Let.Width - 1 do
     begin
+      pX := Round(Let.u1 * fFnt.TexSizeX) + M;
+      pY := Round(Let.v1 * fFnt.TexSizeY) + L;
+      T := fFnt.TexData[Let.AtlasId][pY * fFnt.TexSizeX + pX];
 
-      for L := 0 to Let.Height - 1 do
-      for M := 0 to Let.Width - 1 do
-      begin
-        pX := Round(Let.u1 * fFnt.TexSizeX) + M;
-        pY := Round(Let.v1 * fFnt.TexSizeY) + L;
-        T := fFnt.TexData[0][pY * fFnt.TexSizeX + pX];
+      //Blend with background
+      R := Round(Lerp(BG_COLOR and $FF, T and $FF, T shr 24 / 255)) +
+           Round(Lerp(BG_COLOR shr 8 and $FF, T shr 8 and $FF, T shr 24 / 255)) shl 8 +
+           Round(Lerp(BG_COLOR shr 16 and $FF, T shr 16 and $FF, T shr 24 / 255)) shl 16;
 
-        //Blend with background
-        R := Round(Lerp(BG_COLOR and $FF, T and $FF, T shr 24 / 255)) +
-             Round(Lerp(BG_COLOR shr 8 and $FF, T shr 8 and $FF, T shr 24 / 255)) shl 8 +
-             Round(Lerp(BG_COLOR shr 16 and $FF, T shr 16 and $FF, T shr 24 / 255)) shl 16;
-
-        fBmp.Canvas.Pixels[K * fCellX + M + 1, I * fCellY + L + 1] := R;
-      end;
+      fBmp.Canvas.Pixels[K * fCellX + M + 1, I * fCellY + L + 1] := R;
     end;
   end;
 
@@ -302,7 +303,7 @@ begin
   Let := fFnt.Letters[id];
   StatusBar1.Panels.Items[1].Text := 'Character: ' + IntToStr(id) + ' (' + IntToHex(id, 2) + 'h)';
   StatusBar1.Panels.Items[2].Text := Format('Width %d, Height %d, %d? . %d? . %d . %d?',
-                                            [Let.Width, Let.Height, Let.Unknown1, Let.Unknown2, Let.YOffset, Let.Unknown3]);
+                                            [Let.Width, Let.Height, Let.AtlasId, Let.Unknown2, Let.YOffset, Let.Unknown3]);
 end;
 
 
@@ -372,9 +373,9 @@ begin
       pX := Round(Let.u1 * fFnt.TexSizeX) + M;
       pY := Round(Let.v1 * fFnt.TexSizeY) + L;
 
-      srcCol := fFnt.TexData[0][pY * fFnt.TexSizeX + pX] and $FFFFFF;
+      srcCol := fFnt.TexData[Let.AtlasId][pY * fFnt.TexSizeX + pX] and $FFFFFF;
       dstCol := Bmp.Canvas.Pixels[AdvX + M, Let.YOffset + L + PAD] and $FFFFFF;
-      alpha := 255 - (fFnt.TexData[0][pY * fFnt.TexSizeX + pX] shr 24) and $FF;
+      alpha := 255 - (fFnt.TexData[Let.AtlasId][pY * fFnt.TexSizeX + pX] shr 24) and $FF;
       //srcCol + (dstCol - srcCol) * alpha
       Bmp.Canvas.Pixels[AdvX + M, Let.YOffset + L + PAD] :=
         ((srcCol and $FF) + ((dstCol and $FF - srcCol and $FF) * alpha) div 256) +

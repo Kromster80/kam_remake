@@ -33,7 +33,8 @@ type
   TKMLetter = packed record
       Width, Height: Word;
       YOffset: SmallInt;
-      Unknown1, Unknown2, Unknown3: Word;
+      AtlasId: Word; //Was Unknown field, we use it for multi-atlas fonts to mark the letters location
+      Unknown2, Unknown3: Word;
       u1,v1,u2,v2: Single; //Location within texture atlas
     end;
 
@@ -159,7 +160,7 @@ begin
   begin
     S.Read(Letters[I].Width, 2);
     S.Read(Letters[I].Height, 2);
-    S.Read(Letters[I].Unknown1, 2); //Unknown field
+    S.Read(Letters[I].AtlasId, 2); //was Unknown field
     S.Read(Letters[I].Unknown2, 2); //Unknown field
     S.Read(Letters[I].YOffset, 2);
     S.Read(Letters[I].Unknown3, 2); //Unknown field
@@ -244,15 +245,17 @@ begin
     if Used[I] <> 0 then
     begin
       S.Read(Letters[I], SizeOf(TKMLetter));
-      fAtlasCount := Max(fAtlasCount, Used[I]);
+      fAtlasCount := Max(fAtlasCount, Letters[I].AtlasId + 1);
     end;
+
+    SetLength(fAtlases, fAtlasCount);
 
     S.Read(fTexSizeX, 2);
     S.Read(fTexSizeY, 2);
     for I := 0 to fAtlasCount - 1 do
     begin
       SetLength(fAtlases[I].TexData, fTexSizeX * fTexSizeY);
-      S.Read(fAtlases[I].TexData, fTexSizeX * fTexSizeY * 4);
+      S.Read(fAtlases[I].TexData[0], fTexSizeX * fTexSizeY * 4);
     end;
   finally
     S.Free;
@@ -281,7 +284,7 @@ var
 begin
   for I := 0 to fAtlasCount - 1 do
   if Length(fAtlases[I].TexData) <> 0 then
-    fAtlases[I].TexID := aRender.GenTexture(fTexSizeX, fTexSizeY, @fAtlases[I].TexData, aTexMode)
+    fAtlases[I].TexID := aRender.GenTexture(fTexSizeX, fTexSizeY, @fAtlases[I].TexData[0], aTexMode)
   else
     fAtlases[I].TexID := 0;
 end;

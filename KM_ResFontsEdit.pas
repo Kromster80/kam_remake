@@ -127,7 +127,7 @@ begin
         end;
       end;
 
-      Used[I] := AtlasCount;
+      Letters[I].AtlasId := AtlasCount - 1;
       Letters[I].u1 := (pX) / fTexSizeX;
       Letters[I].v1 := (pY) / fTexSizeY;
       Letters[I].u2 := (pX + chWidth) / fTexSizeX;
@@ -239,13 +239,14 @@ begin
         srcY := Round(aFonts[K].Letters[I].v1 * aFonts[K].fTexSizeY);
         srcPixel := (srcY + M) * aFonts[K].fTexSizeX + srcX + L;
         dstPixel := (pY + M) * fTexSizeX + pX + L;
-        fAtlases[fAtlasCount - 1].TexData[dstPixel] := aFonts[K].TexData[aFonts[K].Used[I]-1][srcPixel];
+        fAtlases[fAtlasCount - 1].TexData[dstPixel] := aFonts[K].TexData[aFonts[K].Letters[I].AtlasId][srcPixel];
       end;
 
       Used[uniCode] := 1;
       Letters[uniCode].Width := chWidth;
       Letters[uniCode].Height := chHeight;
       Letters[uniCode].YOffset := aFonts[K].Letters[I].YOffset;
+      Letters[uniCode].AtlasId := fAtlasCount - 1;
       Letters[uniCode].u1 := (pX + INS) / fTexSizeX;
       Letters[uniCode].v1 := (pY + INS) / fTexSizeY;
       Letters[uniCode].u2 := (pX + chWidth - INS) / fTexSizeX;
@@ -297,7 +298,7 @@ begin
       srcY := Round(Letters[I].v1 * fTexSizeY);
       srcPixel := (srcY + M) * fTexSizeX + srcX + L;
       dstPixel := ((I div 256) * cellY + M + 1 + aPadding.Top) * pngWidth + (I mod 256) * cellX + L + 1 + aPadding.Left;
-      data[dstPixel] := fAtlases[Used[I]].TexData[srcPixel];
+      data[dstPixel] := fAtlases[Letters[I].AtlasId].TexData[srcPixel];
     end;
   end;
 
@@ -357,11 +358,8 @@ begin
     letter := I * 256 + K;
 
     Used[letter] := Byte((chMaxX > 0) and (chMaxY > 0));
-    if Used[letter] <> 0 then
-    begin
-      Letters[letter].Width := chMaxX;
-      Letters[letter].Height := chMaxY;
-    end;
+    Letters[letter].Width := chMaxX;
+    Letters[letter].Height := chMaxY;
   end;
 
   fAtlasCount := 1;
@@ -471,7 +469,7 @@ begin
     begin
       S.Write(Letters[I].Width, 2);
       S.Write(Letters[I].Height, 2);
-      S.Write(Letters[I].Unknown1, 2); //Unknown field
+      S.Write(Letters[I].AtlasId, 2); //was Unknown field
       S.Write(Letters[I].Unknown2, 2); //Unknown field
       S.Write(Letters[I].YOffset, 2);
       S.Write(Letters[I].Unknown3, 2); //Unknown field

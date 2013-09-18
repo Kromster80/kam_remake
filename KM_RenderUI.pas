@@ -1,4 +1,4 @@
-unit KM_RenderUI;
+﻿unit KM_RenderUI;
 {$I KaM_Remake.inc}
 interface
 uses dglOpenGL, Controls, Graphics, Math, KromOGLUtils, StrUtils, SysUtils,
@@ -516,52 +516,61 @@ begin
   AdvY := Y;
   LineCount := 1;
 
-  glPushMatrix;
-    glBindTexture(GL_TEXTURE_2D, FontData.TexID);
-    glColor4ubv(@aColor);
+  glColor4ubv(@aColor);
 
-    glBegin(GL_QUADS);
-      K := 0;
-      for I := 1 to Length(aText) do
-      begin
+  K := 0;
+  for I := 1 to Length(aText) do
+  begin
+    if (I = 1)
+    or (FontData.Letters[Ord(aText[I-1])].AtlasId <> FontData.Letters[Ord(aText[I])].AtlasId) then
+    begin
+      glBindTexture(GL_TEXTURE_2D, FontData.TexID[FontData.Letters[Ord(aText[I])].AtlasId]);
+      glBegin(GL_QUADS);
+    end;
 
-        //Loop as there might be adjoined tags on same position
-        while (K < Length(Colors)) and (I = Colors[K].FirstChar) do
-        begin
-          if Colors[K].Color = 0 then
-            glColor4ubv(@aColor)
-          else
-            glColor4ubv(@Colors[K].Color);
-          Inc(K);
-        end;
+    //Loop as there might be adjoined tags on same position
+    while (K < Length(Colors)) and (I = Colors[K].FirstChar) do
+    begin
+      if Colors[K].Color = 0 then
+        glColor4ubv(@aColor)
+      else
+        glColor4ubv(@Colors[K].Color);
+      Inc(K);
+    end;
 
-        case aText[I] of
-          #32:  Inc(AdvX, FontData.WordSpacing);
-          #124: begin
-                  //KaM uses #124 or vertical bar (|) for new lines in the LIB files,
-                  //so lets do the same here. Saves complex conversions...
-                  Inc(AdvY, LineHeight);
-                  Inc(LineCount);
-                  case aAlign of
-                    taLeft:   AdvX := X;
-                    taCenter: AdvX := X + (W - LineWidth[LineCount]) div 2;
-                    taRight:  AdvX := X + W - LineWidth[LineCount];
-                  end;
-                end;
-          else  begin
-                  Let := FontData.Letters[Ord(aText[I])];
+    case aText[I] of
+      #32:  Inc(AdvX, FontData.WordSpacing);
+      #124: begin
+              //KaM uses #124 or vertical bar (|) for new lines in the LIB files,
+              //so lets do the same here. Saves complex conversions...
+              Inc(AdvY, LineHeight);
+              Inc(LineCount);
+              case aAlign of
+                taLeft:   AdvX := X;
+                taCenter: AdvX := X + (W - LineWidth[LineCount]) div 2;
+                taRight:  AdvX := X + W - LineWidth[LineCount];
+              end;
+            end;
+      else  begin
+              //Show missing letters in font as "?"
+              if FontData.Used[Ord(aText[I])] <> 0 then
+                Let := FontData.Letters[Ord(aText[I])]
+              else
+                Let := FontData.Letters[Ord('?')];
 
-                  glTexCoord2f(Let.u1, Let.v1); glVertex2f(AdvX            , AdvY            + Let.YOffset);
-                  glTexCoord2f(Let.u2, Let.v1); glVertex2f(AdvX + Let.Width, AdvY            + Let.YOffset);
-                  glTexCoord2f(Let.u2, Let.v2); glVertex2f(AdvX + Let.Width, AdvY+Let.Height + Let.YOffset);
-                  glTexCoord2f(Let.u1, Let.v2); glVertex2f(AdvX            , AdvY+Let.Height + Let.YOffset);
-                  Inc(AdvX, Let.Width + FontData.CharSpacing);
-                end;
-        end;
-      end;
-    glEnd;
-    glBindTexture(GL_TEXTURE_2D, 0);
-  glPopMatrix;
+              glTexCoord2f(Let.u1, Let.v1); glVertex2f(AdvX            , AdvY            + Let.YOffset);
+              glTexCoord2f(Let.u2, Let.v1); glVertex2f(AdvX + Let.Width, AdvY            + Let.YOffset);
+              glTexCoord2f(Let.u2, Let.v2); glVertex2f(AdvX + Let.Width, AdvY+Let.Height + Let.YOffset);
+              glTexCoord2f(Let.u1, Let.v2); glVertex2f(AdvX            , AdvY+Let.Height + Let.YOffset);
+              Inc(AdvX, Let.Width + FontData.CharSpacing);
+            end;
+    end;
+
+    if (I = Length(aText))
+    or (FontData.Letters[Ord(aText[I])].AtlasId <> FontData.Letters[Ord(aText[I+1])].AtlasId) then
+      glEnd;
+  end;
+  glBindTexture(GL_TEXTURE_2D, 0);
 
   if SHOW_TEXT_OUTLINES then
   begin
