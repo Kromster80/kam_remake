@@ -450,6 +450,8 @@ end;
 
 
 procedure TKMFontDataEdit.SaveToFont(const aFilename: string);
+const
+  Zero: Word = 0;
 var
   I: Byte;
   S: TMemoryStream;
@@ -470,9 +472,9 @@ begin
       S.Write(Letters[I].Width, 2);
       S.Write(Letters[I].Height, 2);
       S.Write(Letters[I].AtlasId, 2); //was Unknown field
-      S.Write(Letters[I].Unknown2, 2); //Unknown field
+      S.Write(Zero, 2); //Unknown field
       S.Write(Letters[I].YOffset, 2);
-      S.Write(Letters[I].Unknown3, 2); //Unknown field
+      S.Write(Zero, 2); //Unknown field
 
       S.Write(rawData[I,0], Letters[I].Width * Letters[I].Height);
     end;
@@ -510,6 +512,7 @@ begin
       S.Write(Letters[I], SizeOf(TKMLetter));
 
     //Texture data
+    S.Write(fAtlasCount, 1);
     S.Write(fTexSizeX, 2);
     S.Write(fTexSizeY, 2);
     for I := 0 to fAtlasCount - 1 do

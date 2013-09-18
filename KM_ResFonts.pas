@@ -34,7 +34,6 @@ type
       Width, Height: Word;
       YOffset: SmallInt;
       AtlasId: Word; //Was Unknown field, we use it for multi-atlas fonts to mark the letters location
-      Unknown2, Unknown3: Word;
       u1,v1,u2,v2: Single; //Location within texture atlas
     end;
 
@@ -161,9 +160,9 @@ begin
     S.Read(Letters[I].Width, 2);
     S.Read(Letters[I].Height, 2);
     S.Read(Letters[I].AtlasId, 2); //was Unknown field
-    S.Read(Letters[I].Unknown2, 2); //Unknown field
+    S.Seek(2, soFromCurrent); //Unknown field
     S.Read(Letters[I].YOffset, 2);
-    S.Read(Letters[I].Unknown3, 2); //Unknown field
+    S.Seek(2, soFromCurrent); //Unknown field
 
     MaxHeight := Math.max(MaxHeight, Letters[I].Height);
 
@@ -216,7 +215,7 @@ const
   FNTX_HEAD: AnsiString = 'FNTX';
 var
   S: TMemoryStream;
-  Head: AnsiString;
+  Head, Version: AnsiString;
   I: Integer;
 begin
   if not FileExists(aFileName) then Exit;
@@ -239,19 +238,15 @@ begin
     S.Read(fCharSpacing, 2);
     S.Read(fLineSpacing, 1);
 
-    fAtlasCount := 1;
     S.Read(Used[0], Length(Used) * SizeOf(Used[0]));
     for I := 0 to High(Word) do
     if Used[I] <> 0 then
-    begin
       S.Read(Letters[I], SizeOf(TKMLetter));
-      fAtlasCount := Max(fAtlasCount, Letters[I].AtlasId + 1);
-    end;
 
-    SetLength(fAtlases, fAtlasCount);
-
+    S.Read(fAtlasCount, 1);
     S.Read(fTexSizeX, 2);
     S.Read(fTexSizeY, 2);
+    SetLength(fAtlases, fAtlasCount);
     for I := 0 to fAtlasCount - 1 do
     begin
       SetLength(fAtlases[I].TexData, fTexSizeX * fTexSizeY);
