@@ -2,7 +2,7 @@ unit KM_ServerQuery;
 {$I KaM_Remake.inc}
 interface
 uses Classes, SysUtils,
-  KM_Defaults, KM_CommonClasses, KM_CommonTypes, KM_ResLocales,
+  KM_Defaults, KM_CommonClasses, KM_CommonTypes,
   KM_NetworkTypes, KM_NetworkClasses, KM_Utils, KM_MasterServer, KM_NetClient;
 
 const
@@ -122,7 +122,7 @@ type
     property SortMethod: TServerSortMethod read fSortMethod write SetSortMethod;
 
     procedure RefreshList;
-    procedure FetchAnnouncements;
+    procedure FetchAnnouncements(aLocale: AnsiString);
     procedure SendMapInfo(const aMapName: string; aPlayerCount: Integer);
     procedure UpdateStateIdle;
   end;
@@ -414,21 +414,23 @@ end;
 
 
 procedure TKMServerQuery.ReceiveServerList(const S: string);
-var i: integer;
+var I: integer;
 begin
   fQueriesCompleted := 0;
   fServerList.LoadFromText(S);
   fRoomList.Clear; //Updated rooms list will be loaded soon
-  for i:=0 to MAX_QUERIES-1 do
-    fServerList.TakeNewQuery(fQuery[i]);
+  for I := 0 to MAX_QUERIES - 1 do
+    fServerList.TakeNewQuery(fQuery[I]);
   //If there are no servers we should update the list now, otherwise wait for the first server
-  if (fServerList.fCount = 0) and Assigned(fOnListUpdated) then fOnListUpdated(Self);
+  if (fServerList.fCount = 0) and Assigned(fOnListUpdated) then
+    fOnListUpdated(Self);
 end;
 
 
 procedure TKMServerQuery.ReceiveAnnouncements(const S: string);
 begin
-  if Assigned(fOnAnnouncements) then fOnAnnouncements(S);
+  if Assigned(fOnAnnouncements) then
+    fOnAnnouncements(S);
 end;
 
 
@@ -438,23 +440,25 @@ begin
   fServerList.SetPing(aServerID, GetTimeSince(aPingStarted)); //Tell ServersList ping
 
   Sort; //Apply sorting
-  if Assigned(fOnListUpdated) then fOnListUpdated(Self);
+  if Assigned(fOnListUpdated) then
+    fOnListUpdated(Self);
 end;
 
 
 procedure TKMServerQuery.QueryDone(Sender: TObject);
 begin
-  inc(fQueriesCompleted);
+  Inc(fQueriesCompleted);
   fServerList.TakeNewQuery(TKMQuery(Sender));
   //When we receive the last query we should update the list (this removes 'Refreshing...' when no servers respond)
-  if (fQueriesCompleted = fServerList.Count) and Assigned(fOnListUpdated) then fOnListUpdated(Self);
+  if (fQueriesCompleted = fServerList.Count) and Assigned(fOnListUpdated) then
+    fOnListUpdated(Self);
 end;
 
 
 //Get the server announcements in specified language
-procedure TKMServerQuery.FetchAnnouncements;
+procedure TKMServerQuery.FetchAnnouncements(aLocale: AnsiString);
 begin
-  fMasterServer.FetchAnnouncements(gResLocales.UserLocale);
+  fMasterServer.FetchAnnouncements(aLocale);
 end;
 
 

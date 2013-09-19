@@ -87,7 +87,7 @@ type
 
 
 implementation
-uses KM_Main, KM_NetworkTypes, KM_ResTexts, KM_GameApp,
+uses KM_Main, KM_NetworkTypes, KM_ResTexts, KM_GameApp, KM_ResLocales,
   KM_Utils, KM_Sound, KM_ResSound, KM_RenderUI, KM_ResFonts;
 
 
@@ -248,7 +248,7 @@ begin
 
   //Fetch the announcements display
   fGameApp.Networking.ServerQuery.OnAnnouncements := MP_AnnouncementsUpdated;
-  fGameApp.Networking.ServerQuery.FetchAnnouncements;
+  fGameApp.Networking.ServerQuery.FetchAnnouncements(gResLocales.UserLocale);
   Memo_MP_Announcement.Clear;
   Memo_MP_Announcement.Add(gResTexts[TX_MP_MENU_LOADING_ANNOUNCEMENTS]);
 end;

@@ -102,12 +102,12 @@ type
 const
   FontInfo: array [TKMFont] of TKMFontInfo = (
     (FontFile: 'antiqua';     Pal: pal_0;         TexMode: tf_RGB5A1),
+    (FontFile: 'arial';       Pal: pal_0;         TexMode: tf_Alpha8),
     (FontFile: 'game';        Pal: pal_bw;        TexMode: tf_Alpha8),
     (FontFile: 'grey';        Pal: pal_0;         TexMode: tf_RGB5A1),
     (FontFile: 'metal';       Pal: pal_0;         TexMode: tf_RGB5A1),
     (FontFile: 'mini';        Pal: pal_bw;        TexMode: tf_Alpha8),
-    (FontFile: 'outline';     Pal: pal_0;         TexMode: tf_RGB5A1),
-    (FontFile: 'arial';       Pal: pal_0;         TexMode: tf_Alpha8)
+    (FontFile: 'outline';     Pal: pal_0;         TexMode: tf_RGB5A1)
   );
 
 
