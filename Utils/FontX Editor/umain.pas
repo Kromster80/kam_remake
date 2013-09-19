@@ -1,4 +1,4 @@
-unit umain;
+﻿unit umain;
 {$I ..\..\KaM_Remake.inc}
 interface
 uses
@@ -277,6 +277,8 @@ end;
 
 procedure TfrmMain.btnImportPngClick(Sender: TObject);
 begin
+  Assert(fFnt <> nil, 'Import needs donor font selected');
+
   if not RunOpenDialog(OpenDialog1, '', ExeDir, 'PNG images|*.png') then Exit;
 
   fFnt.ImportGridPng(OpenDialog1.FileName);
@@ -388,7 +390,7 @@ begin
     Inc(AdvX, fFnt.WordSpacing);
 
   //Match phrase bounds
-  Bmp.Width := AdvX - Min(fFnt.CharSpacing, 0); //Revert last char overlap (if spacing is negative)
+  Bmp.Width := Max(AdvX - Min(fFnt.CharSpacing, 0), 0); //Revert last char overlap (if spacing is negative)
   Bmp.Height := 20;
 
   Image4.Canvas.Brush.Color := BG_COLOR;

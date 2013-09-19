@@ -350,8 +350,8 @@ begin
 
       if pngData[cY * pngWidth + cX] shr 24 > 0 then
       begin
-        chMaxX := Math.Max(chMaxX, M - 1);
-        chMaxY := Math.Max(chMaxY, L - 1);
+        chMaxX := Math.Max(chMaxX, M);
+        chMaxY := Math.Max(chMaxY, L);
       end;
     end;
 
