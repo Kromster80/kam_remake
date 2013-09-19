@@ -496,7 +496,7 @@ end;
 
 procedure TKMSpritePackEdit.SaveToRXXFile(const aFileName: string);
 var
-  i:integer;
+  I: Integer;
   InputStream: TMemoryStream;
   OutputStream: TFileStream;
   CompressionStream: TCompressionStream;
@@ -518,7 +518,7 @@ begin
       if fRXData.HasMask[I] then
         InputStream.Write(fRXData.Mask[I, 0], fRXData.Size[I].X * fRXData.Size[I].Y);
     end;
-  OutputStream := TFileStream.Create(aFileName,fmCreate);
+  OutputStream := TFileStream.Create(aFileName, fmCreate);
   CompressionStream := TCompressionStream.Create(clMax, OutputStream);
   InputStream.Position := 0;
   CompressionStream.CopyFrom(InputStream, InputStream.Size);

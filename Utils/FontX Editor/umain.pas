@@ -191,6 +191,7 @@ begin
   seWordSpacing.Value := fFnt.WordSpacing;
   seCharSpacing.Value := fFnt.CharSpacing;
   seLineSpacing.Value := fFnt.Unknown;
+  seAllYOffset.Value := 0;
   fUpdating := False;
 end;
 

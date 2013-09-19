@@ -74,7 +74,7 @@ var
   SHOW_TEXT_OUTLINES    :Boolean = False; //Display text areas outlines
   ENABLE_DESIGN_CONTORLS:Boolean = False; //Enable special mode to allow to move/edit controls
   MODE_DESIGN_CONTORLS  :Boolean = False; //Special mode to move/edit controls activated by F7, it must block OnClick events! always Off here
-  OVERLAY_RESOLUTIONS   :Boolean = True; //Render constraining frame
+  OVERLAY_RESOLUTIONS   :Boolean = False; //Render constraining frame
   LOCAL_SERVER_LIST     :Boolean = False; //Instead of loading server list from master server, add localhost:56789 (good for testing)
   {Gameplay display}
   SKIP_RENDER           :Boolean = False; //Skip all the rendering in favor of faster logic

@@ -5,7 +5,9 @@ uses
   Windows,
   {$IFDEF FPC} lconvencoding, {$ENDIF}
   Classes, Graphics, Math, SysUtils, Types,
-  KM_CommonTypes, KM_ResFonts;
+  KM_CommonTypes, KM_ResFonts
+  {$IFDEF FPC}, zstream {$ENDIF}
+  {$IFDEF WDC}, ZLib {$ENDIF};
 
 
 type
@@ -491,36 +493,43 @@ procedure TKMFontDataEdit.SaveToFontX(const aFilename: string);
 const
   FNTX_HEAD: AnsiString = 'FNTX';
 var
-  S: TMemoryStream;
   I: Integer;
+  InputStream: TMemoryStream;
+  OutputStream: TFileStream;
+  CompressionStream: TCompressionStream;
 begin
-  S := TMemoryStream.Create;
+  InputStream := TMemoryStream.Create;
   try
     //Header
-    S.Write(FNTX_HEAD[1], 4);
+    InputStream.Write(FNTX_HEAD[1], 4);
 
     //Base font properties
-    S.Write(fBaseHeight, 2);
-    S.Write(fWordSpacing, 2);
-    S.Write(fCharSpacing, 2);
-    S.Write(fLineSpacing, 1);
+    InputStream.Write(fBaseHeight, 2);
+    InputStream.Write(fWordSpacing, 2);
+    InputStream.Write(fCharSpacing, 2);
+    InputStream.Write(fLineSpacing, 1);
 
     //Letters data
-    S.Write(Used[0], Length(Used) * SizeOf(Used[0]));
+    InputStream.Write(Used[0], Length(Used) * SizeOf(Used[0]));
     for I := 0 to High(Word) do
     if Used[I] <> 0 then
-      S.Write(Letters[I], SizeOf(TKMLetter));
+      InputStream.Write(Letters[I], SizeOf(TKMLetter));
 
     //Texture data
-    S.Write(fAtlasCount, 1);
-    S.Write(fTexSizeX, 2);
-    S.Write(fTexSizeY, 2);
+    InputStream.Write(fAtlasCount, 1);
+    InputStream.Write(fTexSizeX, 2);
+    InputStream.Write(fTexSizeY, 2);
     for I := 0 to fAtlasCount - 1 do
-      S.Write(fAtlases[I].TexData[0], fTexSizeX * fTexSizeY * 4);
+      InputStream.Write(fAtlases[I].TexData[0], fTexSizeX * fTexSizeY * 4);
 
-    S.SaveToFile(aFilename);
+    OutputStream := TFileStream.Create(aFileName, fmCreate);
+    CompressionStream := TCompressionStream.Create(clMax, OutputStream);
+    InputStream.Position := 0;
+    CompressionStream.CopyFrom(InputStream, InputStream.Size);
   finally
-    S.Free;
+    CompressionStream.Free;
+    OutputStream.Free;
+    InputStream.Free;
   end;
 end;
 

@@ -3,7 +3,9 @@
 interface
 uses
   Classes, Graphics, Math, StrUtils, SysUtils, KM_PNG,
-  KM_CommonTypes, KM_Defaults, KM_Points, KM_Render, KM_ResPalettes;
+  KM_CommonTypes, KM_Defaults, KM_Points, KM_Render, KM_ResPalettes
+  {$IFDEF FPC}, zstream {$ENDIF}
+  {$IFDEF WDC}, ZLib {$ENDIF};
 
 
 type
@@ -102,12 +104,12 @@ type
 const
   FontInfo: array [TKMFont] of TKMFontInfo = (
     (FontFile: 'antiqua';     Pal: pal_0;         TexMode: tf_RGB5A1),
-    (FontFile: 'arial';       Pal: pal_0;         TexMode: tf_Alpha8),
     (FontFile: 'game';        Pal: pal_bw;        TexMode: tf_Alpha8),
     (FontFile: 'grey';        Pal: pal_0;         TexMode: tf_RGB5A1),
     (FontFile: 'metal';       Pal: pal_0;         TexMode: tf_RGB5A1),
     (FontFile: 'mini';        Pal: pal_bw;        TexMode: tf_Alpha8),
-    (FontFile: 'outline';     Pal: pal_0;         TexMode: tf_RGB5A1)
+    (FontFile: 'outline';     Pal: pal_0;         TexMode: tf_RGB5A1),
+    (FontFile: 'arial';       Pal: pal_0;         TexMode: tf_Alpha8)
   );
 
 
@@ -214,18 +216,18 @@ procedure TKMFontData.LoadFontX(const aFileName: string);
 const
   FNTX_HEAD: AnsiString = 'FNTX';
 var
-  S: TMemoryStream;
+  InputStream: TFileStream;
+  DecompressionStream: TDecompressionStream;
   Head, Version: AnsiString;
   I: Integer;
 begin
   if not FileExists(aFileName) then Exit;
 
-  S := TMemoryStream.Create;
+  InputStream := TFileStream.Create(aFileName, fmOpenRead or fmShareDenyNone);
+  DecompressionStream := TDecompressionStream.Create(InputStream);
   try
-    S.LoadFromFile(aFileName);
-
     SetLength(Head, 4);
-    S.Read(Head[1], 4);
+    DecompressionStream.Read(Head[1], 4);
 
     Assert(Head = FNTX_HEAD);
 
@@ -233,27 +235,28 @@ begin
     fIsUnicode := True;
     fCharCount := 65535;
 
-    S.Read(fBaseHeight, 2);
-    S.Read(fWordSpacing, 2);
-    S.Read(fCharSpacing, 2);
-    S.Read(fLineSpacing, 1);
+    DecompressionStream.Read(fBaseHeight, 2);
+    DecompressionStream.Read(fWordSpacing, 2);
+    DecompressionStream.Read(fCharSpacing, 2);
+    DecompressionStream.Read(fLineSpacing, 1);
 
-    S.Read(Used[0], Length(Used) * SizeOf(Used[0]));
+    DecompressionStream.Read(Used[0], Length(Used) * SizeOf(Used[0]));
     for I := 0 to High(Word) do
     if Used[I] <> 0 then
-      S.Read(Letters[I], SizeOf(TKMLetter));
+      DecompressionStream.Read(Letters[I], SizeOf(TKMLetter));
 
-    S.Read(fAtlasCount, 1);
-    S.Read(fTexSizeX, 2);
-    S.Read(fTexSizeY, 2);
+    DecompressionStream.Read(fAtlasCount, 1);
+    DecompressionStream.Read(fTexSizeX, 2);
+    DecompressionStream.Read(fTexSizeY, 2);
     SetLength(fAtlases, fAtlasCount);
     for I := 0 to fAtlasCount - 1 do
     begin
       SetLength(fAtlases[I].TexData, fTexSizeX * fTexSizeY);
-      S.Read(fAtlases[I].TexData[0], fTexSizeX * fTexSizeY * 4);
+      DecompressionStream.Read(fAtlases[I].TexData[0], fTexSizeX * fTexSizeY * 4);
     end;
   finally
-    S.Free;
+    DecompressionStream.Free;
+    InputStream.Free;
   end;
 end;
 
