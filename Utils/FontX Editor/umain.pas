@@ -302,8 +302,8 @@ begin
   id := offset + (Y div fCellY) * fCols + X div fCellX;
   Let := fFnt.Letters[id];
   StatusBar1.Panels.Items[1].Text := 'Character: ' + IntToStr(id) + ' (' + IntToHex(id, 2) + 'h)';
-  StatusBar1.Panels.Items[2].Text := Format('Width %d, Height %d, %d? . %d? . %d . %d?',
-                                            [Let.Width, Let.Height, Let.AtlasId, Let.Unknown2, Let.YOffset, Let.Unknown3]);
+  StatusBar1.Panels.Items[2].Text := Format('Width %d, Height %d, %d . %d',
+                                            [Let.Width, Let.Height, Let.AtlasId, Let.YOffset]);
 end;
 
 

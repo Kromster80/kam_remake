@@ -96,8 +96,6 @@ object frmMain: TfrmMain
         Text = 'Font Hex Code'
         Width = 50
       end>
-    ExplicitTop = 630
-    ExplicitWidth = 697
   end
   object Edit1: TEdit
     Left = 176
@@ -140,17 +138,15 @@ object frmMain: TfrmMain
   end
   object ScrollBar1: TScrollBar
     Left = 688
-    Top = 16
+    Top = 24
     Width = 17
-    Height = 553
+    Height = 545
     Anchors = [akTop, akRight, akBottom]
     Kind = sbVertical
     Max = 65535
     PageSize = 0
     TabOrder = 7
     OnChange = ScrollBar1Change
-    ExplicitLeft = 672
-    ExplicitHeight = 513
   end
   object GroupBox1: TGroupBox
     Left = 8

@@ -328,7 +328,7 @@ begin
     aBitmap.Canvas.Brush.Style := bsClear;
     aBitmap.Canvas.Pen.Color := clAqua;
     for I := 0 to High(Word) do
-    if Used[I] <> 0 then
+    if (Used[I] <> 0) and (Letters[I].AtlasId = aIndex) then
     begin
       //Draw cell outside letter area
       aBitmap.Canvas.Rectangle(Round(Letters[I].u1 * fTexSizeX)-1,
