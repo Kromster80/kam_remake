@@ -1007,52 +1007,62 @@ end;
 procedure TKMDeliverQueue.ExportToFile(aFileName: UnicodeString);
 var
   I: Integer;
-  f: textfile;
-  s: UnicodeString;
+  SL: TStringList;
+  tmpS: UnicodeString;
 begin
-  assignfile(f,aFileName); Rewrite(f);
+  SL := TStringList.Create;
 
-  s:='Demand:'+eol+'---------------------------------'+eol;
-  for i:=1 to fDemandCount do if fDemand[i].Ware<>wt_None then
+  SL.Append('Demand:');
+  SL.Append('---------------------------------');
+  for I := 1 to fDemandCount do
+  if fDemand[I].Ware <> wt_None then
   begin
-    s:=s+#9;
-    if fDemand[i].Loc_House<>nil then s:=s+fResource.HouseDat[fDemand[i].Loc_House.HouseType].HouseName+#9+#9;
-    if fDemand[i].Loc_Unit<>nil then s:=s+fResource.UnitDat[fDemand[i].Loc_Unit.UnitType].GUIName+#9+#9;
-    s:=s+fResource.Wares[fDemand[i].Ware].Title;
-    if fDemand[i].Importance <> diNorm then s:=s+'^';
-    s:=s+eol;
-  end;
-  s:=s+eol+'Offer:'+eol+'---------------------------------'+eol;
-  for i:=1 to fOfferCount do if fOffer[i].Ware<>wt_None then
-  begin
-    s:=s+#9;
-    if fOffer[i].Loc_House<>nil then s:=s+fResource.HouseDat[fOffer[i].Loc_House.HouseType].HouseName+#9+#9;
-    s:=s+fResource.Wares[fOffer[i].Ware].Title+#9;
-    s:=s+IntToStr(fOffer[i].Count);
-    s:=s+eol;
+    tmpS := #9;
+    if fDemand[I].Loc_House <> nil then tmpS := tmpS + fResource.HouseDat[fDemand[I].Loc_House.HouseType].HouseName + #9 + #9;
+    if fDemand[I].Loc_Unit  <> nil then tmpS := tmpS + fResource.UnitDat[fDemand[I].Loc_Unit.UnitType].GUIName + #9 + #9;
+    tmpS := tmpS + fResource.Wares[fDemand[I].Ware].Title;
+    if fDemand[I].Importance <> diNorm then
+      tmpS := tmpS + '^';
+
+    SL.Append(tmpS);
   end;
 
-  s:=s+eol+'Running deliveries:'+eol+'---------------------------------'+eol;
-  for i:=1 to fQueueCount do if fQueue[i].OfferID<>0 then
+  SL.Append('Offer:');
+  SL.Append('---------------------------------');
+  for I := 1 to fOfferCount do
+  if fOffer[I].Ware <> wt_None then
   begin
+    tmpS := #9;
+    if fOffer[I].Loc_House <> nil then tmpS := tmpS + fResource.HouseDat[fOffer[I].Loc_House.HouseType].HouseName + #9 + #9;
+    tmpS := tmpS + fResource.Wares[fOffer[I].Ware].Title + #9;
+    tmpS := tmpS + IntToStr(fOffer[I].Count);
 
-    s:=s+'id '+inttostr(i)+'.'+#9;
-    s:=s+fResource.Wares[fOffer[fQueue[i].OfferID].Ware].Title+#9;
+    SL.Append(tmpS);
+  end;
 
-    if fOffer[fQueue[i].OfferID].Loc_House = nil then
-      s:=s+'Destroyed'+' >>> '
+  SL.Append('Running deliveries:');
+  SL.Append('---------------------------------');
+  for I := 1 to fQueueCount do
+  if fQueue[I].OfferID <> 0 then
+  begin
+    tmpS := 'id ' + IntToStr(I) + '.' + #9;
+    tmpS := tmpS + fResource.Wares[fOffer[fQueue[I].OfferID].Ware].Title + #9;
+
+    if fOffer[fQueue[I].OfferID].Loc_House = nil then
+      tmpS := tmpS + 'Destroyed' + ' >>> '
     else
-      s:=s+fResource.HouseDat[fOffer[fQueue[i].OfferID].Loc_House.HouseType].HouseName+' >>> ';
+      tmpS := tmpS + fResource.HouseDat[fOffer[fQueue[I].OfferID].Loc_House.HouseType].HouseName + ' >>> ';
 
-    if fDemand[fQueue[i].DemandID].Loc_House = nil then
-      s:=s+'Destroyed'
+    if fDemand[fQueue[I].DemandID].Loc_House = nil then
+      tmpS := tmpS + 'Destroyed'
     else
-      s:=s+fResource.HouseDat[fDemand[fQueue[i].DemandID].Loc_House.HouseType].HouseName;
-    s:=s+eol;
+      tmpS := tmpS + fResource.HouseDat[fDemand[fQueue[I].DemandID].Loc_House.HouseType].HouseName;
+
+    SL.Append(tmpS);
   end;
 
-  write(f,s);
-  closefile(f);
+  SL.SaveToFile(aFileName);
+  SL.Free;
 end;
 
 

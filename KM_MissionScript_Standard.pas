@@ -559,11 +559,11 @@ var
   procedure AddData(aText: AnsiString);
   begin
     if CommandLayerCount = -1 then //No layering
-      SaveString := SaveString + aText + eol //Add to the string normally
+      SaveString := SaveString + aText + EolA //Add to the string normally
     else
     begin
       case (CommandLayerCount mod COMMANDLAYERS) of
-        0:   SaveString := SaveString + eol + aText //Put a line break every 4 commands
+        0:   SaveString := SaveString + EolA + aText //Put a line break every 4 commands
         else SaveString := SaveString + ' ' + aText; //Just put spaces so commands "layer"
       end;
       inc(CommandLayerCount);

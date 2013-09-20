@@ -85,7 +85,7 @@ type
 
     procedure DeleteSave(aIndex: Integer);
 
-    function SavesList: string;
+    function SavesList: UnicodeString;
     procedure UpdateState;
   end;
 
@@ -294,13 +294,14 @@ begin
 end;
 
 
-function TKMSavesCollection.SavesList: string;
-var I: Integer;
+function TKMSavesCollection.SavesList: UnicodeString;
+var
+  I: Integer;
 begin
   Lock;
     Result := '';
     for I := 0 to fCount - 1 do
-      Result := Result + fSaves[I].FileName + eol;
+      Result := Result + fSaves[I].FileName + EolW;
   Unlock;
 end;
 

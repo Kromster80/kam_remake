@@ -113,7 +113,7 @@ begin
   if fRender.IsOldGLVersion then
     //MessageDlg works better than Application.MessageBox or others, it stays on top and
     //pauses here until the user clicks ok.
-    MessageDlg(gResTexts[TX_GAME_ERROR_OLD_OPENGL]+eol+eol+gResTexts[TX_GAME_ERROR_OLD_OPENGL_2], mtWarning, [mbOk], 0);
+    MessageDlg(gResTexts[TX_GAME_ERROR_OLD_OPENGL] + EolW + EolW + gResTexts[TX_GAME_ERROR_OLD_OPENGL_2], mtWarning, [mbOk], 0);
 
   gSoundPlayer  := TKMSoundPlayer.Create(fGameSettings.SoundFXVolume);
   fMusicLib     := TMusicLib.Create(fGameSettings.MusicVolume);

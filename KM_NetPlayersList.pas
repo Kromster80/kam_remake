@@ -22,6 +22,7 @@ type
     fPingPos: Byte;
     function GetFlagColor: Cardinal;
     procedure SetLangCode(const aCode: AnsiString);
+    function GetNiknameColored: AnsiString;
   public
     PlayerNetType: TNetPlayerType; //Human, Computer, Closed
     StartLocation: Integer;  //Start location, 0 means random
@@ -41,6 +42,7 @@ type
     function GetPlayerType: TPlayerType;
     function GetNickname: UnicodeString;
     property Nikname: AnsiString read fNikname;
+    property NiknameColored: AnsiString read GetNiknameColored;
     property LangCode: AnsiString read fLangCode write SetLangCode;
     property IndexOnServer: Integer read fIndexOnServer;
     property SetIndexOnServer: Integer write fIndexOnServer;
@@ -111,7 +113,7 @@ type
 
 
 implementation
-uses KM_ResTexts;
+uses KM_ResTexts, KM_Utils;
 
 
 { TKMNetPlayerInfo }
@@ -204,6 +206,15 @@ begin
     nptClosed:    Result := gResTexts[TX_LOBBY_SLOT_CLOSED];
     else          Result := NO_TEXT;
   end;
+end;
+
+
+function TKMNetPlayerInfo.GetNiknameColored: AnsiString;
+begin
+  if FlagColorID <> 0 then
+    Result := '[$' + IntToHex(FlagColorToTextColor(FlagColor) and $00FFFFFF, 6) + ']' + Nikname
+  else
+    Result := Nikname;
 end;
 
 

@@ -78,7 +78,8 @@ procedure MailTo(Address,Subject,Body:string);
 procedure OpenMySite(ToolName:string; Address:string='http://krom.reveur.de');
 
 const
-  eol: AnsiString = #13#10; //EndOfLine
+  EolA: AnsiString = #13#10; //EndOfLine
+  EolW: UnicodeString = #0013#0010; //EndOfLine
 
 
 implementation
@@ -235,7 +236,7 @@ begin
   Result := FileExists(FileName);
 
   if not IsSilent and not Result then
-    Application.MessageBox(PChar('Unable to locate file:' + eol + '"' + FileName + '"'), 'Error', MB_OK);
+    Application.MessageBox(PChar('Unable to locate file:' + EolA + '"' + FileName + '"'), 'Error', MB_OK);
 end;
 
 

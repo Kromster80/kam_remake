@@ -340,7 +340,7 @@ implementation
 uses KM_Main, KM_GameInputProcess, KM_GameInputProcess_Multi, KM_AI, KM_RenderUI, KM_GameCursor,
   KM_PlayersCollection, KM_Player, KM_RenderPool, KM_ResTexts, KM_Game, KM_GameApp,
   KM_Utils, KM_ResLocales, KM_ResSound, KM_Resource, KM_Log, KM_ResCursors, KM_ResFonts,
-  KM_ResSprites, KM_ResUnits, KM_ResWares, KM_FogOfWar, KM_HouseBarracks, KM_Sound;
+  KM_ResSprites, KM_ResUnits, KM_ResWares, KM_FogOfWar, KM_HouseBarracks, KM_Sound, KM_NetPlayersList;
 
 
 const
@@ -2109,23 +2109,29 @@ end;
 
 
 procedure TKMGamePlayInterface.Chat_MenuShow(Sender: TObject);
-var C: TKMControl; I: Integer;
+var
+  C: TKMControl;
+  I: Integer;
+  n: TKMNetPlayerInfo;
 begin
-  //First populate the list
   Menu_Chat.Clear;
+
+  //Fill lists with options to whom player can whisper
   Menu_Chat.AddItem(gResTexts[TX_CHAT_ALL], -1);
+
   //Only show "Team" if the player is on a team
   if fGame.Networking.NetPlayers[fGame.Networking.MyIndex].Team <> 0 then
-    Menu_Chat.AddItem('[$66FF66]'+gResTexts[TX_CHAT_TEAM], -2);
+    Menu_Chat.AddItem('[$66FF66]' + gResTexts[TX_CHAT_TEAM], -2);
 
+  //Fill
   for I := 1 to fGame.Networking.NetPlayers.Count do
-    if I <> fGame.Networking.MyIndex then //Can't whisper to yourself
-      with fGame.Networking.NetPlayers[I] do
-        if IsHuman and Connected and not Dropped then
-          if FlagColor <> 0 then
-            Menu_Chat.AddItem('[$'+IntToHex(FlagColorToTextColor(FlagColor) and $00FFFFFF,6)+']' + Nikname, IndexOnServer)
-          else
-            Menu_Chat.AddItem(Nikname, IndexOnServer);
+  if I <> fGame.Networking.MyIndex then //Can't whisper to self
+  begin
+    n := fGame.Networking.NetPlayers[I];
+
+    if n.IsHuman and n.Connected and not n.Dropped then
+      Menu_Chat.AddItem(UnicodeString(n.NiknameColored), n.IndexOnServer);
+  end;
 
   C := TKMControl(Sender);
   //Position the menu next to the icon, but do not overlap players name
@@ -2843,7 +2849,7 @@ begin
         Image_AlliesFlag[I].TexID := 0;
     end;
 
-    Label_AlliesPlayer[I].Caption := fGame.Networking.NetPlayers[I+1].Nikname;
+    Label_AlliesPlayer[I].Caption := UnicodeString(fGame.Networking.NetPlayers[I+1].Nikname);
     Label_AlliesPlayer[I].FontColor := gPlayers[fGame.Networking.NetPlayers[I+1].StartLocation - 1].FlagColor;
     DropBox_AlliesTeam[I].ItemIndex := fGame.Networking.NetPlayers[I+1].Team;
     //Strikethrough for disconnected players

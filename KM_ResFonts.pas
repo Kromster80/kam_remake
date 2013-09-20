@@ -109,7 +109,7 @@ const
     (FontFile: 'metal';       Pal: pal_0;         TexMode: tf_RGB5A1),
     (FontFile: 'mini';        Pal: pal_bw;        TexMode: tf_Alpha8),
     (FontFile: 'outline';     Pal: pal_0;         TexMode: tf_RGB5A1),
-    (FontFile: 'arial';       Pal: pal_0;         TexMode: tf_Alpha8)
+    (FontFile: 'arial';       Pal: pal_0;         TexMode: tf_RGBA8)
   );
 
 

@@ -125,7 +125,7 @@ begin
 
     s := RightStr(s, Length(s) - firstDelimiter);
     //Required characters that can't be stored in plain text
-    s := StringReplace(s, '\n', eol, [rfReplaceAll, rfIgnoreCase]); //EOL
+    s := StringReplace(s, '\n', EolW, [rfReplaceAll, rfIgnoreCase]); //EOL
     s := StringReplace(s, '\\', '\', [rfReplaceAll, rfIgnoreCase]); //Slash
     aArray[ID] := s;
   end;

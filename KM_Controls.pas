@@ -3157,22 +3157,24 @@ end;
 
 
 procedure TKMMemo.ReformatText;
-var NewText: UnicodeString;
+var
+  newText: UnicodeString;
 begin
   if fAutoWrap then
-    NewText := fResource.Fonts.WordWrap(fText, fFont, fWidth - fScrollBar.Width - 8, True, IndentAfterNL)
+    newText := fResource.Fonts.WordWrap(fText, fFont, fWidth - fScrollBar.Width - 8, True, IndentAfterNL)
   else
-    NewText := fText;
+    newText := fText;
 
   //KaM uses | for new line, fItems.Text:= uses standard eol to parse each item from the string
-  fItems.Text := StringReplace(NewText, '|', eol, [rfReplaceAll]);
+  fItems.Text := StringReplace(newText, '|', EolW, [rfReplaceAll]);
   UpdateScrollBar;
 end;
 
 
 //fItems.Count or Height has changed
 procedure TKMMemo.UpdateScrollBar;
-var OldMax: Integer;
+var
+  OldMax: Integer;
 begin
   OldMax := fScrollBar.MaxValue;
   fScrollBar.MaxValue := fItems.Count - (fHeight div fItemHeight);

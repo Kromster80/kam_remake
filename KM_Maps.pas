@@ -115,7 +115,7 @@ type
     property SortMethod: TMapsSortMethod read fSortMethod; //Read-only because we should not change it while Refreshing
 
     //Should be accessed only as a part of aOnRefresh/aOnSort events handlers
-    function MapList: string;
+    function MapList: UnicodeString;
     procedure UpdateState;
   end;
 
@@ -478,13 +478,14 @@ begin
 end;
 
 
-function TKMapsCollection.MapList: string;
-var I: Integer;
+function TKMapsCollection.MapList: UnicodeString;
+var
+  I: Integer;
 begin
   Lock;
     Result := '';
     for I := 0 to fCount - 1 do
-      Result := Result + fMaps[I].FileName + eol;
+      Result := Result + fMaps[I].FileName + EolW;
   Unlock;
 end;
 

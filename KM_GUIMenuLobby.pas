@@ -430,6 +430,7 @@ procedure TKMMenuLobby.ChatMenuShow(Sender: TObject);
 var
   C: TKMControl;
   I: Integer;
+  n: TKMNetPlayerInfo;
 begin
   //Populate menu with right options
   Menu_Chat.Clear;
@@ -437,16 +438,16 @@ begin
   Menu_Chat.AddItem(gResTexts[TX_CHAT_ALL], -1);
   //Only show "Team" if the player is on a team
   if fNetworking.NetPlayers[fNetworking.MyIndex].Team <> 0 then
-    Menu_Chat.AddItem('[$66FF66]'+gResTexts[TX_CHAT_TEAM], -2);
+    Menu_Chat.AddItem('[$66FF66]' + gResTexts[TX_CHAT_TEAM], -2);
 
   for I := 1 to fNetworking.NetPlayers.Count do
-    if I <> fNetworking.MyIndex then //Can't whisper to yourself
-      with fNetworking.NetPlayers[I] do
-        if IsHuman and Connected and not Dropped then
-          if FlagColorID <> 0 then
-            Menu_Chat.AddItem('[$'+IntToHex(FlagColorToTextColor(FlagColor) and $00FFFFFF,6)+']' + Nikname, IndexOnServer)
-          else
-            Menu_Chat.AddItem(Nikname, IndexOnServer);
+  if I <> fNetworking.MyIndex then //Can't whisper to yourself
+  begin
+    n := fNetworking.NetPlayers[I];
+
+    if n.IsHuman and n.Connected and not n.Dropped then
+      Menu_Chat.AddItem(UnicodeString(n.NiknameColored), n.IndexOnServer);
+  end;
 
   C := TKMControl(Sender);
   //Position the menu next to the icon, but do not overlap players name

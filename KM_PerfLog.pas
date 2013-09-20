@@ -61,31 +61,29 @@ procedure TKMPerfLog.SaveToFile(aFilename: UnicodeString);
 var
   K: TPerfSection;
   I: Integer;
-  S: TFileStream;
-  ss: AnsiString;
+  S: TStringList;
 begin
   ForceDirectories(ExtractFilePath(aFilename));
-  S := TFileStream.Create(aFilename, fmCreate);
+
+  S := TStringList.Create;
 
   for K := Low(TPerfSection) to High(TPerfSection) do
   begin
     //Section name
-    ss := SectionName[K] + eol + StringOfChar('-', 60) + eol;
-    S.WriteBuffer(ss[1], Length(ss));
+    S.Append(SectionName[K]);
+    S.Append(StringOfChar('-', 60));
 
     //Times
     for I := 0 to fCount[K] - 1 do
     if fTimes[K,I] > 10 then //Dont bother saving 95% of data
-    begin
-      ss := Format('%d'#9'%d' + eol, [I, fTimes[K,I]]);
-      S.WriteBuffer(ss[1], Length(ss));
-    end;
+      S.Append(Format('%d'#9'%d', [I, fTimes[K,I]]));
 
     //Footer
-    ss := eol + eol;
-    S.WriteBuffer(ss[1], Length(ss));
+    S.Append('');
+    S.Append('');
   end;
 
+  S.SaveToFile(aFilename);
   S.Free;
 end;
 
