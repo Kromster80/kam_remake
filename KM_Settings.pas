@@ -278,7 +278,7 @@ begin
 
     fAutosave       := F.ReadBool   ('Game', 'Autosave',       True); //Should be ON by default
     fScrollSpeed    := F.ReadInteger('Game', 'ScrollSpeed',    10);
-    fLocale         := AnsiString(F.ReadString ('Game', 'Locale', DEFAULT_LOCALE));
+    fLocale         := AnsiString(F.ReadString ('Game', 'Locale', UnicodeString(DEFAULT_LOCALE)));
     fSpeedPace      := F.ReadInteger('Game', 'SpeedPace',      100);
     fSpeedMedium    := F.ReadInteger('Game', 'SpeedMedium',    3);
     fSpeedFast      := F.ReadInteger('Game', 'SpeedFast',      6);
@@ -330,7 +330,7 @@ begin
 
     F.WriteBool   ('Game','Autosave',     fAutosave);
     F.WriteInteger('Game','ScrollSpeed',  fScrollSpeed);
-    F.WriteString ('Game','Locale',       fLocale);
+    F.WriteString ('Game','Locale',       UnicodeString(fLocale));
     F.WriteInteger('Game','SpeedPace',    fSpeedPace);
     F.WriteInteger('Game','SpeedMedium',  fSpeedMedium);
     F.WriteInteger('Game','SpeedFast',    fSpeedFast);

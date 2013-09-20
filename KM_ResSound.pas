@@ -200,10 +200,10 @@ begin
 
   if SKIP_SOUND then Exit;
 
-  if DirectoryExists(ExeDir+'data'+PathDelim+'sfx'+PathDelim+'speech.'+aLocale+PathDelim) then
+  if DirectoryExists(ExeDir + 'data' + PathDelim + 'sfx' + PathDelim + 'speech.' + UnicodeString(aLocale) + PathDelim) then
     fLocaleString := aLocale
   else
-    if DirectoryExists(ExeDir+'data'+PathDelim+'sfx'+PathDelim+'speech.'+aFallback+PathDelim) then
+    if DirectoryExists(ExeDir + 'data' + PathDelim + 'sfx' + PathDelim + 'speech.' + UnicodeString(aFallback) + PathDelim) then
       fLocaleString := aFallback//Use fallback local when primary doesn't exist
     else
       fLocaleString := aDefault; //Use English voices when no language specific voices exist
@@ -300,7 +300,7 @@ function TKMResSounds.FileOfWarrior(aUnitType: TUnitType; aSound: TWarriorSpeech
 var
   S: UnicodeString;
 begin
-  S := ExeDir + 'data'+PathDelim+'sfx'+PathDelim+'speech.'+fLocaleString+PathDelim;
+  S := ExeDir + 'data' + PathDelim + 'sfx' + PathDelim + 'speech.' + UnicodeString(fLocaleString) + PathDelim;
   if fWarriorUseBackup[aUnitType] then
     S := S + WarriorSFXFolderBackup[aUnitType]
   else
@@ -322,7 +322,7 @@ function TKMResSounds.FileOfNotification(aSound: TAttackNotification; aNumber: B
 var
   S: UnicodeString;
 begin
-  S := ExeDir + 'data'+PathDelim+'sfx'+PathDelim+'speech.'+fLocaleString+ PathDelim + AttackNotifications[aSound] + int2fix(aNumber,2);
+  S := ExeDir + 'data'+PathDelim+'sfx'+PathDelim+'speech.'+UnicodeString(fLocaleString)+ PathDelim + AttackNotifications[aSound] + int2fix(aNumber,2);
   Result := '';
   if FileExists(S+'.snd') then Result := S+'.snd';
   if FileExists(S+'.wav') then Result := S+'.wav'; //In Russian version there are WAVs
@@ -338,7 +338,7 @@ var
   AN: TAttackNotification;
   SpeechPath: string;
 begin
-  SpeechPath := ExeDir + 'data' + PathDelim + 'sfx' + PathDelim + 'speech.' + fLocaleString + PathDelim;
+  SpeechPath := ExeDir + 'data' + PathDelim + 'sfx' + PathDelim + 'speech.' + UnicodeString(fLocaleString) + PathDelim;
 
   //Reset counts from previous locale/unsuccessful load
   FillChar(WarriorSoundCount, SizeOf(WarriorSoundCount), #0);

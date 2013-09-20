@@ -20,7 +20,7 @@ function GetFileExt (const FileName: string): string;
 function AssureFileExt(FileName,Ext:string): string;
 function TruncateExt(FileName:string): string;
 function GetFileSize(const FileName: string): LongInt;
-function CheckFileExists(const FileName: string; const IsSilent:boolean = false):boolean;
+function CheckFileExists(const aFileName: UnicodeString; const aSilent: Boolean = False): Boolean;
 function CheckSameContents(A, B: string): Boolean;
 
 procedure FreeThenNil(var Obj);
@@ -231,12 +231,12 @@ begin
 end;
 
 
-function CheckFileExists(const FileName: string; const IsSilent: boolean = false): boolean;
+function CheckFileExists(const aFileName: UnicodeString; const aSilent: Boolean = False): Boolean;
 begin
-  Result := FileExists(FileName);
+  Result := FileExists(aFileName);
 
-  if not IsSilent and not Result then
-    Application.MessageBox(PChar('Unable to locate file:' + EolA + '"' + FileName + '"'), 'Error', MB_OK);
+  if not aSilent and not Result then
+    Application.MessageBox(PWideChar('Unable to locate file:' + EolW + '"' + aFileName + '"'), 'Error', MB_OK);
 end;
 
 

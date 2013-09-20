@@ -114,9 +114,11 @@ end;
 
 procedure TKMMenuCampaigns.StartClick(Sender: TObject);
 var
-  CmpName: AnsiString;
+  CmpName: UnicodeString;
 begin
-  CmpName := AnsiString(ColumnBox_Camps.Rows[ColumnBox_Camps.ItemIndex].Cells[3].Caption);
+  //Get the caption and pass it to Campaign selection menu (it will be casted to AnsiString there)
+  //so that we avoid cast/uncast/cast along the event chain
+  CmpName := ColumnBox_Camps.Rows[ColumnBox_Camps.ItemIndex].Cells[3].Caption;
   fOnPageChange(gpCampaign, CmpName);
 end;
 

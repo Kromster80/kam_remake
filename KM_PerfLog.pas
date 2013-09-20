@@ -26,7 +26,8 @@ implementation
 
 
 const
-  SectionName: array [TPerfSection] of AnsiString = ('Tick', 'Hungarian');
+  //Unicode for TStringList population
+  SectionName: array [TPerfSection] of UnicodeString = ('Tick', 'Hungarian');
 
 
 { TKMPerfLog }

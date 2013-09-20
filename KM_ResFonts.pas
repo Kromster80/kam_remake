@@ -218,7 +218,7 @@ const
 var
   InputStream: TFileStream;
   DecompressionStream: TDecompressionStream;
-  Head, Version: AnsiString;
+  Head: AnsiString;
   I: Integer;
 begin
   if not FileExists(aFileName) then Exit;
