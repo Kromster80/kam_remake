@@ -97,7 +97,6 @@ type
   TKMScriptActions = class
   private
     fIDCache: TKMScriptingIdCache;
-    function ValidSoundFileName(aFileName: AnsiString): Boolean;
     procedure LogError(aFuncName: string; const aValues: array of Integer);
   public
     SFXPath: UnicodeString;  //Relative to EXE (safe to use in Save, cos it is the same for all MP players)
@@ -1116,26 +1115,13 @@ begin
 end;
 
 
-function TKMScriptActions.ValidSoundFileName(aFileName: AnsiString): Boolean;
-var I: Integer;
-begin
-  for I:=1 to Length(aFileName) do
-    if not (aFileName[I] in ['a'..'z', '1'..'9', '0']) then
-    begin
-      Result := False;
-      Exit;
-    end;
-  Result := Length(aFileName) > 0;
-end;
-
-
 procedure TKMScriptActions.LogError(aFuncName: string; const aValues: array of Integer);
 var
   I: Integer;
   Values: string;
 begin
   for I := Low(aValues) to High(aValues) do
-    Values := Values + IntToStr(aValues[I]) + IfThen(I<>High(aValues), ', ');
+    Values := Values + IntToStr(aValues[I]) + IfThen(I <> High(aValues), ', ');
   gLog.AddTime('Mistake in script usage ' + aFuncName + ': ' + Values);
 end;
 
@@ -1239,32 +1225,33 @@ end;
 
 
 procedure TKMScriptActions.PlayWAV(aPlayer: ShortInt; const aFileName: AnsiString; Volume: Single);
-var FullFileName: string;
+var fullFileName: UnicodeString;
 begin
   if (aPlayer <> MySpectator.PlayerIndex) and (aPlayer <> -1) then Exit;
 
-  FullFileName := ExeDir + Format(SFXPath, [aFileName]);
+  fullFileName := ExeDir + Format(SFXPath, [aFileName]);
   //Silently ignore missing files (player might choose to delete annoying sounds from scripts if he likes)
-  if not FileExists(FullFileName) then Exit;
-  if ValidSoundFileName(aFileName) and InRange(Volume, 0, 1) then
-    gSoundPlayer.PlayWAVFromScript(FullFileName, KMPoint(0,0), False, Volume)
+  if not FileExists(fullFileName) then Exit;
+  if InRange(Volume, 0, 1) then
+    gSoundPlayer.PlayWAVFromScript(fullFileName, KMPoint(0,0), False, Volume)
   else
-    LogError('Actions.PlayWAV: '+aFileName, []);
+    LogError('Actions.PlayWAV: ' + UnicodeString(aFileName), []);
 end;
 
 
 procedure TKMScriptActions.PlayWAVAtLocation(aPlayer: ShortInt; const aFileName: AnsiString; Volume: Single; X, Y: Word);
-var FullFileName: string;
+var
+  fullFileName: UnicodeString;
 begin
   if (aPlayer <> MySpectator.PlayerIndex) and (aPlayer <> -1) then Exit;
 
-  FullFileName := ExeDir + Format(SFXPath, [aFileName]);
+  fullFileName := ExeDir + Format(SFXPath, [aFileName]);
   //Silently ignore missing files (player might choose to delete annoying sounds from scripts if he likes)
-  if not FileExists(FullFileName) then Exit;
-  if ValidSoundFileName(aFileName) and InRange(Volume, 0, 1) and gTerrain.TileInMapCoords(X,Y) then
-    gSoundPlayer.PlayWAVFromScript(FullFileName, KMPoint(X,Y), True, Volume)
+  if not FileExists(fullFileName) then Exit;
+  if InRange(Volume, 0, 1) and gTerrain.TileInMapCoords(X,Y) then
+    gSoundPlayer.PlayWAVFromScript(fullFileName, KMPoint(X,Y), True, Volume)
   else
-    LogError('Actions.PlayWAVAtLocation: '+aFileName, [X, Y]);
+    LogError('Actions.PlayWAVAtLocation: ' + UnicodeString(aFileName), [X, Y]);
 end;
 
 
@@ -1488,38 +1475,42 @@ begin
 end;
 
 
+//Input text is ANSI with libx codes to substitute
 procedure TKMScriptActions.ShowMsg(aPlayer: Shortint; aText: AnsiString);
 begin
   if (aPlayer = MySpectator.PlayerIndex) or (aPlayer = -1) then
-    fGame.ShowMessage(mkText, aText, KMPoint(0,0));
+    fGame.ShowMessage(mkText, UnicodeString(aText), KMPoint(0,0));
 end;
 
 
+//Input text is ANSI with libx codes to substitute
 procedure TKMScriptActions.ShowMsgFormatted(aPlayer: Shortint; aText: AnsiString; Params: array of const);
 begin
   if (aPlayer = MySpectator.PlayerIndex) or (aPlayer = -1) then
-    fGame.ShowMessageFormatted(mkText, aText, KMPoint(0,0), Params);
+    fGame.ShowMessageFormatted(mkText, UnicodeString(aText), KMPoint(0,0), Params);
 end;
 
 
+//Input text is ANSI with libx codes to substitute
 procedure TKMScriptActions.ShowMsgGoto(aPlayer: Shortint; aX, aY: Word; aText: AnsiString);
 begin
   if gTerrain.TileInMapCoords(aX, aY) then
   begin
     if (aPlayer = MySpectator.PlayerIndex) or (aPlayer = -1) then
-      fGame.ShowMessage(mkText, aText, KMPoint(aX,aY));
+      fGame.ShowMessage(mkText, UnicodeString(aText), KMPoint(aX,aY));
   end
   else
     LogError('Actions.ShowMsgGoto', [aPlayer, aX, aY]);
 end;
 
 
+//Input text is ANSI with libx codes to substitute
 procedure TKMScriptActions.ShowMsgGotoFormatted(aPlayer: Shortint; aX, aY: Word; aText: AnsiString; Params: array of const);
 begin
   if gTerrain.TileInMapCoords(aX, aY) then
   begin
     if (aPlayer = MySpectator.PlayerIndex) or (aPlayer = -1) then
-      fGame.ShowMessageFormatted(mkText, aText, KMPoint(aX,aY), Params);
+      fGame.ShowMessageFormatted(mkText, UnicodeString(aText), KMPoint(aX,aY), Params);
   end
   else
     LogError('Actions.ShowMsgGotoFormatted', [aPlayer, aX, aY]);
