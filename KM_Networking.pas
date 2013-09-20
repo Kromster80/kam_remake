@@ -813,12 +813,12 @@ begin
   end
   else
   if ConsoleCmd = '/help' then
-    PostLocalMessage('The following console commands are available:|'+
-                     '    /kick <Player ID> - Kicks a player from the lobby|'+
+    PostLocalMessage('The following console commands are available:|' +
+                     '    /kick <Player ID> - Kicks a player from the lobby|' +
                    //'    /ban <Player ID> - Kicks and bans a player from the lobby|'+
                    //'    /newhost <Player ID> - Changes the host player|'+
-                     '    /help - Displays this page|'+
-                     'Player IDs:|'+
+                     '    /help - Displays this page|' +
+                     'Player IDs:|' +
                      fNetPlayers.GetPlayersWithIDs, False)
   else
   begin
@@ -1489,11 +1489,11 @@ begin
       mk_ResyncFromTick:
               begin
                 M.Read(tmpInteger);
-                if WRITE_RECONNECT_LOG then gLog.AddTime('Asked to resync from tick '+IntToStr(tmpInteger));
+                if WRITE_RECONNECT_LOG then gLog.AddTime('Asked to resync from tick ' + IntToStr(tmpInteger));
                 PlayerIndex := fNetPlayers.ServerToLocal(aSenderIndex);
                 if Assigned(fOnResyncFromTick) and (PlayerIndex<>-1) then
                 begin
-                  if WRITE_RECONNECT_LOG then gLog.AddTime('Resyncing player '+fNetPlayers[PlayerIndex].Nikname);
+                  if WRITE_RECONNECT_LOG then gLog.AddTime('Resyncing player ' + UnicodeString(fNetPlayers[PlayerIndex].Nikname));
                   fOnResyncFromTick(fNetPlayers[PlayerIndex].StartLocation - 1, Cardinal(tmpInteger));
                 end;
               end;

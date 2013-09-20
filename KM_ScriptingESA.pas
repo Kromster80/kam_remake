@@ -1773,29 +1773,33 @@ end;
 
 procedure TKMScriptActions.OverlayTextSet(aPlayer: Shortint; aText: AnsiString);
 begin
+  //Text from script should be only ANSI Latin, but UI is Unicode, so we switch it
   if (aPlayer = MySpectator.PlayerIndex) or (aPlayer = -1) then
-    fGame.ShowOverlay(aText);
+    fGame.ShowOverlay(UnicodeString(aText));
 end;
 
 
 procedure TKMScriptActions.OverlayTextSetFormatted(aPlayer: Shortint; aText: AnsiString; Params: array of const);
 begin
+  //Text from script should be only ANSI Latin, but UI is Unicode, so we switch it
   if (aPlayer = MySpectator.PlayerIndex) or (aPlayer = -1) then
-    fGame.ShowOverlayFormatted(aText, Params);
+    fGame.ShowOverlayFormatted(UnicodeString(aText), Params);
 end;
 
 
 procedure TKMScriptActions.OverlayTextAppend(aPlayer: Shortint; aText: AnsiString);
 begin
+  //Text from script should be only ANSI Latin, but UI is Unicode, so we switch it
   if (aPlayer = MySpectator.PlayerIndex) or (aPlayer = -1) then
-    fGame.OverlayAppend(aText);
+    fGame.OverlayAppend(UnicodeString(aText));
 end;
 
 
 procedure TKMScriptActions.OverlayTextAppendFormatted(aPlayer: Shortint; aText: AnsiString; Params: array of const);
 begin
+  //Text from script should be only ANSI Latin, but UI is Unicode, so we switch it
   if (aPlayer = MySpectator.PlayerIndex) or (aPlayer = -1) then
-    fGame.OverlayAppendFormatted(aText, Params);
+    fGame.OverlayAppendFormatted(UnicodeString(aText), Params);
 end;
 
 

@@ -2048,55 +2048,54 @@ end;
 
 procedure TKMGamePlayInterface.Chat_MenuSelect(aItem: Integer);
 
-  procedure UpdateButtonCaption(aCaption: string; aColor: Cardinal = 0);
-  var CapWidth: Integer;
-  const MIN_SIZE = 80; //Minimum size for the button
+  procedure UpdateButtonCaption(aCaption: UnicodeString; aColor: Cardinal = 0);
+  const
+    MIN_SIZE = 80; //Minimum size for the button
+  var
+    txtWidth: Word;
   begin
     //Update button width according to selected item
-    CapWidth := fResource.Fonts.GetTextSize(aCaption, Button_ChatRecipient.Font).X;
-    CapWidth := Max(MIN_SIZE, CapWidth+10); //Apply minimum size
+    txtWidth := fResource.Fonts.GetTextSize(aCaption, Button_ChatRecipient.Font).X;
+    txtWidth := Max(MIN_SIZE, txtWidth + 10); //Apply minimum size
+
     if aColor <> 0 then
-      aCaption := '[$'+IntToHex(aColor and $00FFFFFF,6)+']'+aCaption;
+      aCaption := '[$' + IntToHex(aColor and $00FFFFFF, 6) + ']' + aCaption;
     Button_ChatRecipient.Caption := aCaption;
-    Button_ChatRecipient.Width := CapWidth;
+    Button_ChatRecipient.Width := txtWidth;
 
     Edit_ChatMsg.AbsLeft := Button_ChatRecipient.AbsLeft + Button_ChatRecipient.Width + 4;
     Edit_ChatMsg.Width := Memo_ChatText.Width - Button_ChatRecipient.Width - 4;
   end;
 
-var I: Integer;
+var
+  I: Integer;
 begin
-  //All
-  if aItem = -1 then
-  begin
-    fChatMode := cmAll;
-    UpdateButtonCaption(gResTexts[TX_CHAT_ALL]);
-    Edit_ChatMsg.DrawOutline := False; //No outline for All
-  end
-  else
-    //Team
-    if aItem = -2 then
-    begin
-      fChatMode := cmTeam;
-      UpdateButtonCaption(gResTexts[TX_CHAT_TEAM], $FF66FF66);
-      Edit_ChatMsg.DrawOutline := True;
-      Edit_ChatMsg.OutlineColor := $FF66FF66;
-    end
-    else
-    //Whisper
-    begin
-      I := fGame.Networking.NetPlayers.ServerToLocal(aItem);
-      if I <> -1 then
-      begin
-        fChatMode := cmWhisper;
-        Edit_ChatMsg.DrawOutline := True;
-        Edit_ChatMsg.OutlineColor := $FF00B9FF;
-        with fGame.Networking.NetPlayers[I] do
-        begin
-          fChatWhisperRecipient := IndexOnServer;
-          UpdateButtonCaption(Nikname, IfThen(FlagColorID <> 0, FlagColorToTextColor(FlagColor), 0));
-        end;
-      end;
+  case aItem of
+    -1:   begin //All
+            fChatMode := cmAll;
+            UpdateButtonCaption(gResTexts[TX_CHAT_ALL]);
+            Edit_ChatMsg.DrawOutline := False; //No outline for All
+          end;
+    -2:   begin //Team
+            fChatMode := cmTeam;
+            UpdateButtonCaption(gResTexts[TX_CHAT_TEAM], $FF66FF66);
+            Edit_ChatMsg.DrawOutline := True;
+            Edit_ChatMsg.OutlineColor := $FF66FF66;
+          end;
+    else  begin //Whisper to player
+            I := fGame.Networking.NetPlayers.ServerToLocal(aItem);
+            if I <> -1 then
+            begin
+              fChatMode := cmWhisper;
+              Edit_ChatMsg.DrawOutline := True;
+              Edit_ChatMsg.OutlineColor := $FF00B9FF;
+              with fGame.Networking.NetPlayers[I] do
+              begin
+                fChatWhisperRecipient := IndexOnServer;
+                UpdateButtonCaption(UnicodeString(Nikname), IfThen(FlagColorID <> 0, FlagColorToTextColor(FlagColor), 0));
+              end;
+            end;
+          end;
     end;
 end;
 

@@ -41,7 +41,7 @@ type
     function IsClosed: Boolean;
     function GetPlayerType: TPlayerType;
     function GetNickname: UnicodeString;
-    property Nikname: AnsiString read fNikname;
+    property Nikname: AnsiString read fNikname; //Only ANSI-Latin
     property NiknameColored: AnsiString read GetNiknameColored;
     property LangCode: AnsiString read fLangCode write SetLangCode;
     property IndexOnServer: Integer read fIndexOnServer;
@@ -84,7 +84,7 @@ type
 
     //Getters
     function ServerToLocal(aIndexOnServer: Integer): Integer;
-    function NiknameToLocal(aNikname: string): Integer;
+    function NiknameToLocal(aNikname: AnsiString): Integer;
     function StartingLocToLocal(aLoc: Integer): Integer;
     function PlayerIndexToLocal(aIndex: TPlayerIndex): Integer;
 
@@ -511,8 +511,9 @@ end;
 
 
 //Networking needs to convert Nikname to local index in players list
-function TKMNetPlayersList.NiknameToLocal(aNikname: string): Integer;
-var I: Integer;
+function TKMNetPlayersList.NiknameToLocal(aNikname: AnsiString): Integer;
+var
+  I: Integer;
 begin
   Result := -1;
   for I := 1 to fCount do
@@ -901,8 +902,9 @@ begin
   Result := '';
   for I := 1 to fCount do
   begin
-    Result := Result + '   ' + IntToStr(I) + ': ' + fNetPlayers[I].Nikname;
-    if I < fCount then Result := Result + '|';
+    Result := Result + '   ' + IntToStr(I) + ': ' + UnicodeString(fNetPlayers[I].Nikname);
+    if I < fCount then
+      Result := Result + '|';
   end;
 end;
 

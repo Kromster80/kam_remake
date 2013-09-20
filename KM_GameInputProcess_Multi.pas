@@ -336,12 +336,13 @@ end;
 
 
 procedure TGameInputProcess_Multi.GetWaitingPlayers(aTick: Cardinal; aPlayersList: TStringList);
-var I: Integer;
+var
+  I: Integer;
 begin
   for I := 1 to fNetworking.NetPlayers.Count do
     if not (fRecievedData[aTick mod MAX_SCHEDULE, fNetworking.NetPlayers[i].StartLocation - 1] or
            (not fNetworking.NetPlayers[i].IsHuman) or fNetworking.NetPlayers[i].Dropped) then
-      aPlayersList.Add(fNetworking.NetPlayers[i].Nikname);
+      aPlayersList.Add(UnicodeString(fNetworking.NetPlayers[i].Nikname));
 end;
 
 
@@ -349,8 +350,8 @@ end;
 //upcoming commands will be stacked into next batch
 procedure TGameInputProcess_Multi.RunningTimer(aTick: Cardinal);
 var
-  I, K, Tick: cardinal;
-  NetplayersIndex: integer;
+  I, K, Tick: Cardinal;
+  NetplayersIndex: Integer;
 begin
   fNumberConsecutiveWaits := 0; //We are not waiting if the game is running
   Tick := aTick mod MAX_SCHEDULE; //Place in a ring buffer

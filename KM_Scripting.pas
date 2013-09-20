@@ -15,7 +15,7 @@ type
     fScriptCode: AnsiString;
     fByteCode: AnsiString;
     fExec: TPSExec;
-    fErrorString: string; //Info about found mistakes
+    fErrorString: UnicodeString; //Info about found mistakes (Unicode, can be localized later on)
 
     fStates: TKMScriptStates;
     fActions: TKMScriptActions;
@@ -30,7 +30,7 @@ type
     constructor Create;
     destructor Destroy; override;
 
-    property ErrorString: string read fErrorString;
+    property ErrorString: UnicodeString read fErrorString;
     procedure LoadFromFile(aFileName: string);
     procedure ExportDataToText;
 
@@ -353,7 +353,7 @@ begin
     if not Compiler.Compile(fScriptCode) then  // Compile the Pascal script into bytecode
     begin
       for I := 0 to Compiler.MsgCount - 1 do
-        fErrorString := fErrorString + Compiler.Msg[I].MessageToString + '|';
+        fErrorString := fErrorString + UnicodeString(Compiler.Msg[I].MessageToString) + '|';
       Exit;
     end;
 
@@ -369,14 +369,14 @@ end;
 //Link the ByteCode with used functions and load it into Executioner
 procedure TKMScripting.LinkRuntime;
 
-  function ValidateVarType(aType: TPSTypeRec): string;
+  function ValidateVarType(aType: TPSTypeRec): UnicodeString;
   var
     I: Integer;
   begin
     //Check against our set of allowed types
     if not (aType.BaseType in VALID_GLOBAL_VAR_TYPES) then
     begin
-      Result := 'Unsupported global variable type ' + IntToStr(aType.BaseType) + ': ' + aType.ExportName + '|';
+      Result := Format('Unsupported global variable type %d (%s)|', [aType.BaseType, UnicodeString(aType.ExportName)]);
       Exit;
     end;
 
@@ -568,8 +568,9 @@ begin
     for I := 0 to fExec.GetVarCount - 1 do
     begin
       V := fExec.GetVarNo(I);
-      if SameText(V.FType.ExportName, 'TKMScriptStates')
-      or SameText(V.FType.ExportName, 'TKMScriptActions') then
+      //Promote to Unicode just to make compiler happy
+      if SameText(UnicodeString(V.FType.ExportName), 'TKMScriptStates')
+      or SameText(UnicodeString(V.FType.ExportName), 'TKMScriptActions') then
         Continue;
 
       fErrorString := fErrorString + ValidateVarType(V.FType);
