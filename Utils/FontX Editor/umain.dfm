@@ -20,28 +20,28 @@ object frmMain: TfrmMain
     690)
   PixelsPerInch = 96
   TextHeight = 13
-  object PaintBox1: TPaintBox
+  object pbFont: TPaintBox
     Left = 176
     Top = 24
     Width = 512
-    Height = 544
+    Height = 512
     Anchors = [akLeft, akTop, akRight, akBottom]
-    OnMouseMove = PaintBox1MouseMove
-    OnMouseUp = PaintBox1MouseUp
-    OnPaint = PaintBox1Paint
+    OnMouseMove = pbFontMouseMove
+    OnMouseUp = pbFontMouseUp
+    OnPaint = pbFontPaint
   end
-  object Image4: TImage
-    Left = 328
-    Top = 576
-    Width = 377
+  object imgPreviewSmall: TImage
+    Left = 352
+    Top = 544
+    Width = 353
     Height = 30
     Anchors = [akLeft, akBottom]
   end
-  object Image5: TImage
+  object imgPreviewBig: TImage
     Left = 176
-    Top = 605
+    Top = 576
     Width = 529
-    Height = 60
+    Height = 89
     Anchors = [akLeft, akBottom]
   end
   object Shape1: TShape
@@ -69,14 +69,14 @@ object frmMain: TfrmMain
     TabOrder = 1
     OnClick = lbFontsClick
   end
-  object btnSaveFont: TBitBtn
+  object btnSaveFontX: TBitBtn
     Left = 8
     Top = 640
     Width = 161
     Height = 25
     Caption = 'Save FontX File ...'
     TabOrder = 0
-    OnClick = btnSaveFontClick
+    OnClick = btnSaveFontXClick
   end
   object StatusBar1: TStatusBar
     Left = 0
@@ -99,8 +99,8 @@ object frmMain: TfrmMain
   end
   object Edit1: TEdit
     Left = 176
-    Top = 580
-    Width = 145
+    Top = 548
+    Width = 121
     Height = 21
     Anchors = [akLeft, akBottom]
     TabOrder = 3
@@ -118,7 +118,7 @@ object frmMain: TfrmMain
     TabOrder = 5
     OnClick = CheckCellsClick
   end
-  object btnExportBitmap: TBitBtn
+  object btnExportPng: TBitBtn
     Left = 8
     Top = 612
     Width = 81
@@ -127,7 +127,7 @@ object frmMain: TfrmMain
     TabOrder = 6
     OnClick = btnExportPngClick
   end
-  object btnImportBitmap: TBitBtn
+  object btnImportPng: TBitBtn
     Left = 88
     Top = 612
     Width = 81
@@ -140,7 +140,7 @@ object frmMain: TfrmMain
     Left = 688
     Top = 24
     Width = 17
-    Height = 545
+    Height = 513
     Anchors = [akTop, akRight, akBottom]
     Kind = sbVertical
     Max = 65535
@@ -337,6 +337,73 @@ object frmMain: TfrmMain
       MinValue = 0
       TabOrder = 3
       Value = 0
+    end
+  end
+  object CheckBox1: TCheckBox
+    Left = 304
+    Top = 549
+    Width = 41
+    Height = 17
+    Caption = 'Cells'
+    TabOrder = 11
+    OnClick = CheckBox1Click
+  end
+  object GroupBox4: TGroupBox
+    Left = 184
+    Top = 416
+    Width = 265
+    Height = 113
+    Caption = ' Texture atlas '
+    TabOrder = 12
+    object Label9: TLabel
+      Left = 152
+      Top = 16
+      Width = 39
+      Height = 13
+      Caption = 'Padding'
+      Color = clBtnFace
+      ParentColor = False
+      Transparent = False
+    end
+    object sePadding: TSpinEdit
+      Left = 152
+      Top = 32
+      Width = 49
+      Height = 22
+      MaxValue = 8
+      MinValue = 0
+      TabOrder = 0
+      Value = 1
+    end
+    object rgSizeX: TRadioGroup
+      Left = 14
+      Top = 16
+      Width = 59
+      Height = 89
+      Caption = ' Size X '
+      ItemIndex = 1
+      Items.Strings = (
+        '128'
+        '256'
+        '512'
+        '1024'
+        '2048')
+      TabOrder = 1
+    end
+    object rgSizeY: TRadioGroup
+      Left = 80
+      Top = 16
+      Width = 65
+      Height = 89
+      Caption = ' Size Y '
+      ItemIndex = 1
+      Items.Strings = (
+        '128'
+        '256'
+        '512'
+        '1024'
+        '2048')
+      TabOrder = 2
     end
   end
   object OpenDialog1: TOpenDialog

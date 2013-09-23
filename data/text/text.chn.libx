@@ -1,485 +1,701 @@
 ﻿
 MaxID:697
 
-0:Ju Mu Chang
-1:Zhi Tie Chang
-2:Wu Qi Tie Jiang Pu
-3:Mei Kuang
-4:Tie Kuang
-5:Jin Kuang
-6:Diao Yu Xiao Wu
-7:Mian Bao Fang
-8:Nong Chang
-9:Fa Mu Chang
-10:Tie Zhi Fang Ju Dian
-11:Cang Ku
-12:Ma Juan
-13:Xue Xiao
-14:Cai Shi Chang
-15:Lian Jin Shi
-16:Yang Zhu Chang
-17:Liao Wang Ta
-18:Shi Zheng Ting
-19:Mu Zhi Wu Qi Dian
-20:Pi Jia Fang Ju Dian
-21:Bing Ying
-22:Mo Fang
-23:Gong Cheng Gong Chang
-24:Xiang Chang Dian
-25:Pi Ge Chang
-26:Xun Lian Guan
-27:Can Ting
-28:Niang Jiu Chang
-29:Jiao Yi Suo
-30:Mu Cai
-31:Shi Tou
-32:Mu Ban
-33:Tie Kuang Shi
-34:Jin Kuang Shi
-35:Mei
-36:Tie
-37:Bao Xiang
-38:Pu Tao Jiu
-39:Xiao Mai
-40:Mian Bao
-41:Mian Fen
-42:Pi Ge
-43:Xiang Chang
-44:Zhu Rou
-45:Zhu Pi
-46:Mu Dun
-47:Tie Dun
-48:Pi Jia
-49:Tie Kai Jia
-50:Fu Tou
-51:Jian
-52:Chang Mao
-53:Chang Qiang
-54:Gong Jian
-55:Nu
-56:Ma
-57:Yu
-58:Ban Yun Gong
-59:Fa Mu Gong
-60:Kuang Gong
-61:Si Yang Yuan
-62:Nong Ming
-63:Mu Jiang
-64:Chu Shi
-65:Tu Fu
-66:Yu Fu
-67:Jian Zhu Gong
-68:Shi Jiang
-69:Tie Jiang
-70:Lian Jin Shi
-71:Xin Bing
-72:Fu Tou Bing
-73:Fu Dun Bing
-74:Tie Jian Bing
-75:Gong Jian Bing
-76:Tie Nu Bing
-77:Chang Mao Bing
-78:Tie Qiang Bing
-79:Qi Bing
-80:Tie Qi Bing
-81:Man Bing
-82:Nong Min Bing
-83:Tou Shi Bing
-84:Tie Man Bing
-85:Man Qi Bing
-86:Tou Shi Che
-87:Nu Che
-88:The serf supplies your buildings with the necessary raw materials.||Note that a connecting road must exist between the buildings.
-89:To produce tree trunks for the sawmill, you need the woodcutter.||The woodcutter carries out reforesting independently.
-90:The miner mines ore from the coal, iron and gold mines.
-91:The animal breeder uses corn to raise pigs in the swine farm and horses in the stables.
-92:The farmer plants and harvests corn on the farm.||He also produces wine in the vineyard.
-93:The carpenter works in the sawmill, the weapons workshop and in the armory workshop.||He also builds catapults and ballistae in the siege workshop.
-94:The baker grinds corn into flour in the mill.||He also bakes bread in the bakery.
-95:The butcher makes sausages in the butchery and leather in the tannery.
-96:The fisherman catches fish in nearby water bodies.
-97:The laborer constructs buildings and roads. Simply highlight your preferred location and he will carry out your commands automatically.||He also repairs damaged buildings.
-98:To supply your laborers with enough material to construct roads and buildings, the stonemason will hew and cut stones.
-99:The blacksmith forges iron weapons and armor in the weapons and armor smithies.
-100:The metallurgist uses coal to refine gold and iron ore.
-101:The recruit can be equipped as a soldier in the barracks.||He also occupies the watchtower.
-102:Jian Zhu Lie Biao
-103:Wu Zi Fen Pei
-104:Shu Ju Tong Ji
-105:Xi Tong She Zhi
-106:Fan Hui
-107:Jian Zhu Lie Biao
-108:Wu Zi Fen Pei
-109:Shu Ju Tong Ji
-110:Xi Tong She Zhi
-111:Du Qu You Xi
-112:Bao Cun You XI
-113:Ni Que Ding Yao Tui Chu Ren Wu Ma?
-114:Tui Chu Ren Wu
-115:Fan Hui
+0:锯木屋
+1:炼铁坊
+2:铁制武器铺
+3:采煤场
+4:铁矿
+5:采金场
+6:钓鱼屋
+7:面包房
+8:农场
+9:伐木场
+10:铁制防具铺
+11:仓库
+12:马厩
+13:学校
+14:采石场
+15:炼金室
+16:养猪场
+17:瞭望塔
+18:市政厅
+19:木制武器铺
+20:皮甲防具铺
+21:军营
+22:磨坊
+23:攻城工坊
+24:香肠铺
+25:制革坊
+26:雇佣大厅
+27:餐厅
+28:酿酒屋
+29:交易市场
+30:原木
+31:石块
+32:木板
+33:铁矿石
+34:金矿石
+35:煤
+36:铁锭
+37:金币箱
+38:葡萄酒
+39:小麦
+40:面包
+41:面粉
+42:皮革
+43:香肠
+44:猪肉
+45:猪皮
+46:木盾
+47:铁盾
+48:皮甲
+49:铁甲
+50:斧头
+51:铁剑
+52:长矛
+53:长枪
+54:弓箭
+55:铁弩
+56:马匹
+57:鱼
+58:农奴
+59:伐木工
+60:矿工
+61:饲养员
+62:农夫
+63:木匠
+64:面包师
+65:屠夫
+66:渔夫
+67:劳工
+68:石匠
+69:铁匠
+70:炼金师
+71:新兵
+72:民兵
+73:斧战士
+74:剑士
+75:弓箭手
+76:弓弩手
+77:长矛兵
+78:铁枪兵
+79:侦察兵
+80:骑士
+81:野蛮人
+82:起义者
+83:盗贼
+84:武士
+85:游民
+86:投石车
+87:弩炮
+88:你的农奴会给建筑供应必要的原材料.以及搬运各种原材料. ||注意建筑物之间的道路不被切断.
+89:伐木工会生产木头. ||他也可以种植树木.
+90:矿工会在煤矿.铁矿和金矿中采取需要的资源.
+91:饲养员会用小麦来喂养猪和马来进行生产.
+92:农夫会在农田上种植小麦. ||他还会在酿酒房中生产葡萄酒.
+93:木匠一般在锯木厂中工作.他也会在木制武器加工厂.皮甲防具店中工作. ||他还会在公攻城车间制作机器.
+94:面包师会把小麦磨成面粉. ||当然他也会在面包房里烤面包.
+95:屠夫可以在制革厂加工皮革.也可以在屠宰场制作香肠.
+96:渔民会在附近的范围进行打渔.
+97:劳工会建造建筑物和道路.选好位置.他会执行你的命令.
+98:要确保你的劳工有足够的材料来建设建筑物和铺设道路.因为石头会逐渐削减.
+99:铁匠会使用钢材来制作盔甲和武器.
+100:炼金师使用煤矿金矿和铁矿来制作铁锭和黄金.
+101:招募一个新兵,他可以在兵营里面武装自己。 ||他也可以驻守瞭望塔
+102:建筑列表
+103:物资分配
+104:数据统计
+105:系统设置
+106:返回
+107:建筑列表
+108:物资分配
+109:数据统计
+110:系统设置
+111:读取游戏
+112:保存游戏
+113:你确定要退出任务吗?
+114:退出任务
+115:返回
 116:设置
-118:Yin Xiao
-119:Tiao Jie Yin Liang
-120:Tiao Jie Yin Liang
-121:Yin Yue
-122:Yin Yue Kai/Guan
-123:Zi Dong Bao Cun
-124:Yin Yue Bo Fang Qi
-125:Shang Yi Shou Ge
-126:Xia Yi Shou Ge
-127:Chai Chu
-128:Chai Chu Jian Zhu/Bei Xuan Zhong
-129:Dao Lu
-130:Dao Lu
-131:Nong Tian
-132:Nong Tian
-133:Pu Tao Yuan
-134:Pu Tao Yuan
-135:Qu Xiao
-136:Qu Xiao Dang Qian Xun Lian
-137:Xu Qiu:
-139:Xue Liang:
-140:Cun Huo
-141:Fang Wu | Zheng Zai Jian Zao
-142:Cui Hui
-143:Ni Zhen De Xiang | Chai Chu Zhe Ge Jian Zhu Ma?
-144:Chai Chu Xuan Ze De Jian Zhu
-145:Jian Shao Shu Liang
-146:Zeng Jia Shu Liang
-147:Shang Yi Ge Shi Bing Zhong Lei
-148:Xia Yi Ge Shi Bing Zhong Lei
-149:Zhuang Bei Shi Bing
-150:Shang Yi Ge Zhi Ye
-151:Xia Yi Ge Zhi Ye
-152:Tian Jia Dao Dui Lie
-153:Da Kai / Guan Bi Yun Shu Wu Zi
-154:Xiao Hao:
-155:Da Kai / Guan Bi Fang Wu Xiu Li
-156:Jian Zhu Wu Dang Qian Bu Ke You
-157:Ji e
-158:Xiao Dui Zuo Zhuan
-159:Xiao Dui You Zhuan
-160:Gong Ji ('a')
-161:Zhi Pai ('d')
-162:Gei Jun Dui Ti Gong Shi Wu
-163:Kai Shi Chong Feng
-164:Zeng Jia Hang
-165:Jian Shao Hang
-166:Xuan Ze Xiao Dui
-167:Qu Xiao
-168:Shan Chu
-169:Shan Chu Xiao Xi
-170:Qu
-171:Qu Dang Qian Xiao Xi Chu
-172:Guan Bi
-173:Guan Bi Chuang Kou
-174:Ni De Shi Jiang Wu Fa Cai Ji Dao Ren He Shi Tou.
-175:Ni De Mei Kuang Ku Jie.
-176:Ni De Tie Kuang Ku Jie.
-177:Ni De Jin Kuang Ku Jie.
-179:Fang Wu Mei Ren Shi Yong.
-180:Zhe Dui Shi Bing Fei Chang Ji e,Ta Men Xu Yao Jin Kuai Chi Yi Xie Dong Xi!
-181:Zan Ting
-205:Spirit
-206:Busy
-207:Middle Ages Horn
-208:Spring
-209:Lute
-210:Mercenary
-211:The Princess
-212:The Queen
-213:In the Marketplace
-214:On the Battlefield
-215:Court Dance
-216:The Army
-217:In the Castle
-218:Fanfares
-219:At Court
-220:Entree
-221:Deep Blue
-222:Struggle
-223:Royal Quarters
-224:Aristocracy
-225:At the Harbor
-226:Journey
-227:Ren Wu
-229:Kai Shi Ren Wu!
-230:Wan Dan Ren Di Tu
-231:Kai Shi Di Tu
-232:Hui Dao Cai Dan
-233:Jia Zai Bao Cun You Xi
+117:退出编辑器
+118:音效
+119:调节音量
+120:调节音量
+121:音乐
+122:音乐 开/关
+123:自动保存
+124:音乐播放器
+125:上一首
+126:下一首
+127:拆除
+128:拆除建筑/被选中
+129:道路
+130:道路
+131:农田
+132:农田
+133:葡萄园
+134:葡萄园
+135:取消
+136:取消当前训练
+137:需求:
+138:供应:
+139:训练:
+140:存货
+141:房屋 | 正在建造
+142:摧毁
+143:你真的想 | 拆除这个建筑吗?
+144:拆除选择的建筑
+145:减少数量
+146:增加数量
+147:上一个士兵种类
+148:下一个士兵种类
+149:装备士兵
+150:上一个职业
+151:下一个职业
+152:添加到队列
+153:打开/关闭运输物资
+154:消耗:
+155:打开/关闭房屋修理
+156:建筑物当前不可用
+157:饥饿
+158:小队左转
+159:小队右转
+160:攻击('a')
+161:直排('d')
+162:给军队提供食物
+163:开始冲锋
+164:增加行
+165:减少行
+166:选择小队
+167:取消
+168:删除
+169:删除消息
+170:跳转
+171:去当前消息处
+172:关闭
+173:关闭窗口
+174:你的采石场找不到任何石头
+175:你的煤矿枯竭
+176:你的铁矿枯竭
+177:你的金矿枯竭
+178:伐木屋周围没有任何树木砍伐了
+179:房屋没人使用
+180:这队士兵非常饥饿,他们需要尽快吃一些东西!
+181:暂停
+182:运输中
+183:修建道路
+184:挖掘场
+185:修建草地
+186:使房屋场所变平
+187:建造房子
+188:修理建筑
+189:回家
+190:去酒店
+191:攻击房子
+192:开火
+193:战斗中
+194:冲锋攻击
+195:攻击中
+196:移动中
+197:闲置
+198:采集石头
+199:播种小麦
+200:收割小麦
+201:采集葡萄
+202:捕鱼中
+203:砍伐树
+204:种植树
+205:精神
+206:忙
+207:中世纪号角
+208:弹簧
+209:琵琶
+210:雇佣兵
+211:公主
+212:女王
+213:在市场上
+214:在战场上
+215:宫廷舞蹈
+216:军队
+217:在城堡
+218:吹奏
+219:在法院
+220:主菜
+221:深蓝色
+222:斗争
+223:皇家住所
+224:贵族
+225:在港口
+226:旅行
+227:任务
+228:任务
+229:开始任务!
+230:玩单人地图
+231:开始地图
+232:回到菜单
+233:载入保存游戏
 234:多人联网
 235:设置
 236:制作团队
 237:退出游戏
-238:Ji Xu
-239:Chong Qi Ren Wu
-240:Jie Jue Fang Fa:
-241:Bu Zhi Chi
-242:Bu Zhi Chi
-243:Sheng Li!
-244:Shi Bai!
-245:Ren Yuan Sun Shi Shu Liang:
-246:Sha Si Dan Wei Shu Liang:
-247:Jian Zhu Wu Sun Shi Shu Liang:
-248:Chai Hui Jian Zhu Wu Shu Liang:
-249:Jian Zao Jian Zhu Shu Liang:
-250:Xun Lian Dan Wei Shu Liang:
-251:Wu Qi Sheng Chan Shu Liang:
-252:Shi Bing Xun Lian Shu Liang:
-253:Ren Wu Wan Cheng:
-254:Shu Ju Tong Ji
-255:Jing Ji
-256:Dan Wei  |Xun Lian
-257:Dan Wei  | Si Wang
-258:Shi Bing | Xun Lian
-259:Shi Bing | Si Wang
-260:Shi Bing | Ji Bai
-261:Jian Zhu Wu | Jian Zao
-262:Jian Zhu Wu | Sun Shi
-263:Jian Zhu Wu | Cui Hui
-264:Wu Zi | Sheng Chan Shu
-265:Wu Qi | Sheng Chan
-266:Jun Dui
-267:Dan Wei
-268:Jian Zhu
-269:Zi Yuan
-270:Zi Yuan Sheng Chan
-272:Ni
-273:Wan Jia %d
-279:JOYMANIA ENTERTAINMENT||PROGRAMMING:|Peter Ohlmann||GAME GRAPHICS:|Adam Sprys||LEVEL DESIGN:|Adam Sprys|Andre Quaß|SOUND EDITING AND MIXING:|Tonstudio Mannheim||MUSIC:|Gerd Hofmann|Joachim Schäfer|Jürgen Rebhann|Klaus Staendike|Steffen Schüngel||ILLUSTRATIONS:|Boleslaw Kasza|Christoph Werner||TRANSLATION:|Ronnie Shankland|Patricia Bellantuono|Andrea Rumpelt|||ZUXXEZ ENTERTAINMENT AG||PRODUCER:|Uwe Schäfer||MANUAL:|Peter Ohlmann|Uwe Schäfer||BETA TESTING:|Peter Ohlmann|Adam Sprys|Alexandra Constandache|Dirk P. Hassinger|Achim Heidelauf|Uwe Schäfer|Ingrid Schäfer|Dirk U. Jantz|Ion Constandache|Yaman Egeli|Roman Eich|Iris Mocsnek|Anke Jantz|Paul Hassinger|Liza Hassinger||GAMES DIRECTOR:|Achim Heidelauf||PUBLISHED BY:|TopWare Interactive||CUTSCENES:||DIRECTION:|Slawomir Jedrzejewski||Kajetan Czarnecki|Wojciech Drazek|Daniel Duplaga|Rafal Januszkiewicz|Andrzej Rams|Piotr Rulka|Krzysztof Rybczynski|Grzegorz Wisniewski||VOICES:|Claus Boyen (Storyteller)||Tim Timmermann|Peter Houska|Dirk Mühlbach|Ralf Ditze|Gerhard Piske|Gernot Wassmann||ARTWORK:|Boleslaw Kasza|Adam Sprys||OPENING ANIMATION:|Uwe Schäfer|Christian Bigalk|Additional 3D-Modelling:|Niels Horstmann||SPECIAL THANKS TO:|Tadeusz Zuber|Dieter Ohlmann|Alexandra Constandache|Ingrid Schäfer
-280:Ren Wu Qu Xiao
-281:Lu Xiang Jie Shu
-282:Jian Zao Jiao Cheng
-283:Zhan Dou Jiao Cheng
+238:继续
+239:重启任务
+240:解决方法:
+241:不支持
+242:不支持
+243:胜利!
+244:失败!
+245:单位损失:
+246:单位被击败:
+247:建筑物损失:
+248:建筑物被摧毁:
+249:建造建筑:
+250:训练单位:
+251:武器生产:
+252:士兵训练:
+253:任务完成:
+254:数据统计:
+255:经济
+256:单位|训练
+257:单位|死亡
+258:士兵|训练
+259:士兵|死亡
+260:士兵|杀死
+261:建筑物|建造
+262:建筑物|损失
+263:建筑物|摧毁
+264:物资|生产
+265:武器|生产
+266:军队
+267:单位
+268:建筑
+269:资源
+270:资源生产
+271:没有数据
+272:你
+273:玩家 %d
+274:回到游戏
+275:回到重放
+276:所有
+277:战争
+278:食物
+279:joymania娱乐| |编程:|彼得OHLMANN | |游戏图形:|亚当sprys | |水平设计:|亚当sprys | Andr?作为遼|声音编辑和混合:| tonstudio曼海姆| |音乐:|霍夫曼|约阿希姆Sch鋐二| J黵创雷布汉|克劳斯staendike |斯特芬Sch黱凝胶| |插图:|博莱斯瓦夫kasza |克里斯托夫沃纳| |翻译:|罗尼的专访|帕特丽夏bellantuono |安德列rumpelt | | | zuxxez娱乐银| |制作人:|乌韦SCH鋐二| |手册:|彼得OHLMANN |乌韦SCH鋐二| |测试:|彼得OHLMANN |亚当sprys |亚历山德拉constandache |德克P. hassinger |阿希姆heidelauf |乌韦SCH鋐二|英格丽Sch鋐二|德克美国州立|离子constandache |雅曼该|罗马Eich |虹膜mocsnek |安科扬茨|保罗hassinger |丽莎hassinger | |游戏导演:阿希姆heidelauf | | |出版:| TopWare互动| |过场动画:| |方向:|斯瓦沃米尔jedrzejewski | |考耶坦Czarnecki | Wojciech德拉泽克|丹尼尔duplaga |拉法尔januszkiewicz | Andrzej公羊|彼得亚雷rulka |克日什托夫Rybczynski |格热戈日Wisniewski | |声音:克劳斯|博因（讲故事）| |提姆Timmermann |彼得Houska |德克M黨伊巴赫|拉尔夫ditze |格哈德piske | Gernot wassmann | |艺术品:|博莱斯瓦夫kasza |亚当sprys | |开场动画:|乌韦SCH鋐二|基督教bigalk |额外的三维建模:|尼尔斯霍斯特曼| |特别感谢:| Tadeusz尤伯| Dieter OHLMANN |亚历山德拉constandache |英格丽Sch鋐二
+280:任务取消
+281:录像结束
+282:建造教程
+283:战斗教程
 284:单人任务
 285:地图编辑器
-286:Kai Shi Ren Wu
-287:Biao Ti
-288:Da Xiao
-289:Sheng Li Tiao Jian:
-290:Shi Bai Tiao Jian:
-291:Meng You:
-292:Di Ren:
-293:Shi Jian
-294:Xin De Di Tu Chi Cun
-295:Kuan Du
-296:Gao Du
-297:Chuang Jian Xin De Di Tu
-298:Ke Yong De Di Tu
-299:Du Qu Xian You De Di Tu
-301:Kong Zhi Qi
-302:You Xi Wan Jia:
-303:Sheng Yin:
-304:Jin Yong Yin Yue
-305:Tu Xing:
-306:Liang Du
-308:Quan Ping
-309:Ying Yong
-310:Yu Yan:
-311:Ying Zi Zhi Liang:
-312:Di
-313:Gao
-314:Jia Zai... Qing Shao Deng
-315:You Cuo Wu Fa Sheng
-316:Xin De Yu Yan Huan Jing Jia Zai
-317:Cun Dang You Xi Lie Biao
-318:Wen Jian Ming
-319:Miao Shu
-320:Jia Zai
-321:Shan Chu
-322:Ni Que Ding Shan Chu Zhe Ge Ji Lu MA?
-323:Shan Chu
-324:Qu Xiao
-325:Biao Ti
-326:Di Tu
-327:Jie Suo
-328:Ni Ying Le!
-329:Ji Xu Wan
-330:Sheng Li!
-331:Ni Shu Le!
-332:Ji Xu Guan Kan
-333:Shi Bai
-334:Lu Xiang Yi Jing Jie Shu
-335:Ji Xu Guan Kan
-336:Tui Chu Cai Dan
-337:Bu Ke Yong
-338:An %s Ji Xu You Xi
-339:Wan Jia Xin Xi
-340:Liao Tian
-341:Ji Lu Yi Jing Cun Zai
-342:Fu Gai
-343:Ji Lu
-344:Du Qu
-345:Jian Ce Dao De OpenGL Ban Ben Jiao Zao,You Xi Yun Xing Ke Neng Huan Man Huo Zhe Chu Xian Tu Xing Wen Ti
-346:Qing Geng Xin Nin De Xian Ka Qu Dong Lai Huo De Geng Hao De Xing Neng
-347:Wang Luo Cuo Wu:
-348:Cuo Wu: Wan Jia Xing Ming Bu Neng Kong Bai
-349:Cuo Wu: Wan Jia Xing Ming Bu Neng Chao Guo %d Zi Fu Chang Du
-350:Cuo Wu: Wan Jia Xing Ming Bao Han Fei Fa Zi Fu
-351:Lian Jie Shi Bai: %s
-352:Ni Yi Jing Duan Kai Lian Jie
-353:Ren Wu %d
-355:Ni De Yu Fu Xiao Wu Li Shui Tai Yuan.
-356:Ni De Yu Fu Zai Fu Jin Shui Yu Nei Bu Neng Zai Zhuo Dao Geng Duo De Yu Le
-357:Chong Qi Lu Xiang
-358:Zan Ting Lu Xiang
-359:Di Yi Bu Qian Jin
-360:Hui Fu Zan Ting Lu Xiang
-361:Tui Chu Lu Xiang
-364:Shi Yong Shu Biao Zuo Jian Xuan Ze Mao YI Zhong Lei
-365:Shi Yong Shu Biao You Jian Xuan Ze Mao Yi Zhong Lei
-366:Cong x%d
-367:Huan x%d
-368:Di Xing Bian Ji Qi
-394:Cun Zhuang Gui Hua
-395:Shi Jue Jiao Ben
-396:Quan Ju Jiao Ben
-397:Cai Dan
-499:Xin De Ren Wu
-500:Wan Jia Xing Ming
-501:Zhuang Tai:
-502:Chuang Jian Fu Wu Qi
-503:Chuang Jian Fu Wu Qi
-504:Ming Zi
-505:Duan Kou
-506:Chuang Jian Ben Di Fu Wu Qi
-507:Chuang Jian Wang Luo Fu Wu Qin
-508:Qu Xiao
-509:Zhao Fu Wu Qi De IP
-510:Zhao Dao Fu Wu Qin
-511:Di Zhi
-512:Duan Kou
-513:Fang Jian
-514:Lian Jie
-515:Qu Xiao
-518:Fu Wu Qi Ming Cheng
-519:Zhuang Tai
-520:Wan Jia
-521:Ping
-522:Shua Xin Fu Wu Qi Lie Biao
-523:Fu Wu Qi Xi Jie
-524:Wan Jia Lie Biao:
-525:Jia Ru
-526:Lian Jie Zhong,Qing Shao Deng...
-527:Jia Zai Gong Gao...
-528:Shua Xin...
-529:Wan Jia Ming
-530:Kai Shi Wei Zhi
-531:Dui Wu
-532:Yan Se
-533:Zhun Bei
-534:Ping
-536:Da Kai
-537:Dian Nao
-538:Xuan Ze...
-539:Sui Ji
-540:Mei You
-541:Bao Cun You Xi
-542:Xuan Ze Yi Ge Di Tu
-543:Xuan Ze Yi Ge Ji Lu...
-544:Tui Chu Da Ting
-545:Zhun Bei
-546:Qu Xiao Zhun Bei
-547:Kai Shi!
-561:Wei Zhi %d
-562:Cuo Wu:Xuan Ze Cun Dang Zhong De Yi Ge Wan Jia Kong Zhi
-563:Cuo Wu:Di Tu Wei Neng Ja Zai Qing Xuan Ze Di Tu
-564:Bu Neng Kai Shi: %s
-565:Bu Shi Suo You Ren Dou Zhun Bei Kai Shi
-567:Ni Yi Jing Cheng Wei Zhu Ji
-568:You Xi Kai Shi
-569:Jian Zhu  Di Tu
-570:Zhan Dou Di Tu
-571:He Zuo Di Tu
-573:You Xi Xuan Xiang:
-574:He Ping Shi Qi (Shi Jian)
-575:Guan Bi
-576:Zhu Ji Kong Zhi You Xi
-577:Deng Dai Wan Jia:
-580:Qi Shi Yu Shang Ren Chong Zhi Ban Ren Yuan
-581:Qi Shi Yu Shang Ren Yuan Zhi Zuo Ren Yuan
-582:Bian Cheng:
-583:E Wai De Bian Cheng:
-584:E Wai De Tu Pian:
-585:E Wai De Sheng Yin:
-586:E Wai De Yin Yue:
-587:E Wai De Fan Yi:
-588:Te Bie Gan Xie:
-589:Duo Ren Di Tu
-590:Dan Ren Di Tu
-591:Gun Dong Su Du
-592:Mei You Fa Xian Fu Wu Qi
-593:Sui Ji Bo Fang Yin Yue
-594:Di Tu Xin Xi:
+286:开始任务!
+287:标题
+288:尺寸
+289:胜利条件:
+290:失败条件:
+291:盟友:
+292:敌人
+293:时间
+294:新的地图尺寸
+295:宽度
+296:高度
+297:创建新的地图
+298:可用的地图
+299:读取现有地图
+300:位置
+301:控制器
+302:游戏玩家:
+303:声音:
+304:禁用音乐
+305:图形:
+306:亮度
+307:垂直同步
+308:全屏
+309:应用
+310:语言:
+311:影子质量:
+312:低
+313:高
+314:载入中…请稍等
+315:有错误发生
+316:新的语言环境加载
+317:存档游戏列表
+318:文件名
+319:描述
+320:载入
+321:删除
+322:你确定删除这个记录吗?
+323:删除
+324:取消
+325:标题
+326:地图
+327:解锁
+328:你赢了!
+329:继续玩
+330:胜利!
+331:你输了!
+332:继续观看
+333:失败
+334:录像已经结束
+335:继续观看
+336:退出菜单
+337:不可用
+338:按 %s 继续游戏
+339:玩家信息
+340:聊天
+341:记录已经存在
+342:覆盖
+343:记录
+344:读取
+345:"检测到OpenGL版本较早,游戏运行可能缓慢或者出现图形问题"
+346:请更新你的显卡驱动来获得更好的性能
+347:网络错误:
+348:错误:玩家姓名不能空白
+349:错误:玩家姓名不能超过 %d字符长度
+350:错误:玩家姓名包含非法字符
+351:连接失败: %s
+352:你已经断开连接
+353:任务 %d
+354:消息日志
+355:你的渔夫小屋离水太远.
+356:你的渔夫在附近水域内不能再捉到更多的鱼
+357:重启录像
+358:暂停录像
+359:第一步前进
+360:恢复暂停录像
+361:退出录像
+362:切换玩家视角
+363:显示所有
+364:使用鼠标左键选择贸易种类
+365:使用鼠标右键选择贸易种类
+366:用 x%d
+367:换 x%d
+368:地形编辑器
+369:刷子
+370:高度
+371:矿物
+372:对象
+373:高度
+374:刷子形状
+375:大小
+376:滑动以改变笔刷的大小
+377:坡度
+378:滑动变化高度:1 =很低…15 =非常高
+379:速度
+380:滑动变化速度:1 =慢…15 =非常快
+381:圆形刷子
+382:方形刷子
+383:提高/降低
+384:凹凸/平整
+385:拉高（左键）/降低（右键）
+386:凹凸（左键）/平整（右键）
+387:刷子
+388:随机元素
+389:随机方向
+390:随机转方向或使用鼠标右键点击旋转所方向
+391:使用鼠标右键点击旋转所选方向
+392:正步走
+393:删除一个对象
+394:村庄规划
+395:视觉脚本
+396:全局脚本
+397:菜单
+398:对象
+399:显示矿物数字
+400:显示单位
+401:显示房屋
+402:显示对象
+403:视图通过性
+404:任何未保存的更改将丢失
+405:取消
+406:载入
+407:载入地图
+408:取消
+409:记录
+410:覆盖
+411:地图已经存在
+412:玩家:
+413:默认
+414:玩家类型
+415:对称
+416:联盟
+417:策略
+418:正常
+419:任务模式
+420:跳转到位置
+421:屏幕中心任务开始
+422:屏幕中心
+423:显示所有
+424:显示地图一部分
+425:迷雾
+426:禁止交易的物品
+427:禁止/可以建造的房屋
+428:颜色
+429:模式
+430:消息
+431:时间
+432:玩家
+433:经济建筑
+434:搬运工和学校
+435:军事资产
+436:未知
+437:部队
+438:建筑
+439:时间
+440:建造教学
+441:没有
+442:条件
+443:生存
+444:胜利
+445:没有
+446:类型
+447:模式
+448:确定
+449:取消
+450:纵列
+451:计数
+452:部队
+453:编辑部队
+454:设定限制有多少士兵可以有AI
+455:有多少士兵AI可以有一次
+456:放置最大士兵
+457:有多少AI士兵在军营
+458:新兵/兵营
+459:位置
+460:自定义的位置
+461:最近的房子2
+462:最近的房子1
+463:最近的单位
+464:把所有的
+465:组数
+466:攻击信息
+467:延迟
+468:重复
+469:一次
+470:安装
+471:范围
+472:反制骑兵
+473:近战
+474:位置
+475:目标
+476:男人
+477:延迟
+478:类型
+479:使用
+480:AI攻击
+481:装备皮革武器几率
+482:装备铁制武器几率
+483:自动防御
+484:AI创建和管理自动建造防御阵
+485:AI地方的防御
+486:AI防御
+487:工人
+488:每个工人10个房子
+489:自动维修
+490:自动建造
+491:AI设置
+492:房屋
+493:道路建造
+494:垂直翻转选择
+495:水平翻转选择
+496:粘贴地形
+497:拷贝地形
+498:复制/粘贴
+499:新的任务
+500:玩家姓名
+501:状态:
+502:创建服务器
+503:创建服务器
+504:名字
+505:端口
+506:创建本地服务器
+507:创建网络服务器
+508:取消
+509:找服务器的IP
+510:找到服务器
+511:地址
+512:端口
+513:房间
+514:连接
+515:取消
+516:带密码的服务器
+517:密码
+518:服务器名称
+519:状态
+520:玩家
+521:网络延迟
+522:刷新服务器列表
+523:服务器细节
+524:玩家列表:
+525:加入
+526:"连接中,请稍等…"
+527:加载公告…
+528:刷新…
+529:玩家名
+530:开始位置
+531:队伍
+532:颜色
+533:准备
+534:网络延迟
+535:网络延迟/帧数
+536:打开
+537:电脑
+538:选择…
+539:随机
+540:没有
+541:保存游戏
+542:选择一个地图
+543:选择一个记录…
+544:退出大厅
+545:准备
+546:取消准备
+547:开始!
+548:游戏速度（和平时期）
+549:游戏速度
+550:确定
+551:取消
+552:描述
+553:密码
+554:服务器的设置
+555:设为主机
+556:禁止
+557:踢除
+558:同队伍地图开始位置随机
+559:描述
+560:选项
+561:位置 %d
+562:错误:选择存档中的一个玩家控制
+563:错误:地图未能加载请选择地图
+564:不能开始: %s
+565:不是所有人都已经准备
+566:无法分配随机位置
+567:你已经成为主机
+568:游戏开始
+569:建设地图
+570:战斗地图
+571:合作地图
+572:特色地图
+573:游戏选项:
+574:和平时期(时间)
+575:关闭
+576:主机控制游戏
+577:等待玩家:
+578:全部
+579:队伍
+580:骑士与商人重制版人员
+581:骑士与商人原制作人员
+582:编程:
+583:额外的编程:
+584:额外的图片:
+585:额外的声音:
+586:额外的音乐:
+587:额外的发音:
+588:特别感谢:
+589:多人地图
+590:单人地图
+591:滚动速度
+592:没有发现服务器
+593:随即播放音乐
+594:地图信息:
 595:-
-596:Deng Dai
-597:Jia Zai Zhong
-598:You Xi
-599:Jian Zhu He Zhan Dou
-600:Zhan Dou
-601:Zhun Bei
-602:Cuo Wu De Xie Yi Ban Ben: %s. Fu Wu Qi Shi Yong: %s
-603:Zeng Jia Jiao Yi E Du
-604:Jian Shao Jiao Yi E Du
-605:Bao Cun You Xi...
-606:%s Bei Ji Bai Le!
-607:Diu Qi Wan Jia
-608:Zhu Ji Jiang Zai %d Miao Hou Diu Qi Zhe Xie Wan Jia
-609:Zhu Ji Xian Zai Jiang Diu Qi Zhe Xie Wan Jia
-610:Zhu Ji  (%s) Yi Jing Tui Chu
-611:Dao Fu Wu Qi De Lian Jie Diu Shi.Shi Tu Chong Xin Lian Jie...
-612:Ni Que Ding Ni Xiang Yao Tui Chu Ma?
-613:Ni Que Ding Ni Xiang Yong Jiu Qu Chu Zhe Xie Wan Jia Ma?
-614:Qu Xiao
-615:Ben Ren Wu Zhong Zi Yuan Bu Ke Mao Yi
-616:Zhong Zhi Kan Fa
-617:Jin Kan Fa
-618:Ni Bu Neng Zuo De,Zi He Ping Shi Qi
-619:He Ping Qi Sheng Yu: %s
-620:He Ping Shi Qi Yi Jing Jie Shu. Kai Shi Zhan Dou!
-621:You Xi Shi Jian:|%s
-622:Ting Zhi Dui Wu  ('%s')
-623:He Bin Dui Wu  ('%s')
-624:Dan Du Dui Wu  ('%s')
+596:等待
+597:加载中
+598:游戏
+599:建筑和战斗
+600:战斗
+601:准备
+602:错误的协议版本: %s.服务器适用: %s
+603:增加交易额度
+604:减少交易额度
+605:保存游戏…
+606:%s被击败了!
+607:丢弃玩家
+608:主机将在%d秒后放弃这些玩家
+609:主机现在将放弃这些玩家
+610:主机(%s)已经退出
+611:到服务器的连接丢失.试图重新连接…
+612:你确定你想要退出吗?
+613:你确定你想永久去除这些玩家吗?
+614:取消
+615:本任务中资源不可贸易
+616:种植和砍伐
+617:仅砍伐
+618:和平时期不允许这么做
+619:和平时间剩余: %s
+620:和平时期已经结束了.开始战斗吧!
+621:游戏时间: |%s
+622:停止队伍 ('%s')
+623:合并队伍 ('%s')
+624:单独队伍 ('%s')
 625:观看游戏录像
-626:Lu Xiang Chong Bo
-627:Bu Zhi Chi De Ge Shi %s
-628:Bu Zhi Chi De Ban Ben %s
-630:Chu Xian Yi Ge Cuo Wu Ee Jie Xi Wen Jian %s
-631:Chu Shi Hua
-632:Jiao Ben
-633:Dan Wei
-634:Fang Wu
-635:Shu
-636:Ding Yi
-637:Que Ding
-638:Di Tu Mei You Fa Xian: %s
-639:Ji Lu Mei You Fa Xian: %s
-640:Ying She Wen Jian Bu Pi Pei Zhu Ji De Di Tu: %s
-641:Ji Lu Bu Pi Pei Zhu Ji De Ji Lu: %s
-642:Hui Fang Shi Bai De Yi Ge Zhi Ming Cuo Wu. Zhe Shi Yi Ge Yi Jing Dw Que Xian Ying Xiang Bo Fang Yi Xie Lu Xiang.Ni Xiang Ji Xu Guan Kan Ma?
-643:You may only have one instance of the game in multiplayer mode at once
-645:Zai Ying Yong Cheng Xu Zhong Fa Sheng Cuo Wu. Qing Dian Ji Fa Song Cuo Wu Bao Gao,Wo Men Ke Yi Yan Jiu Zhe Ge Wen Ti. Xie Xie Ni De Bang Zhu!
-646:Fa Sheng Cuo Wu Bao Gao
-647:Xian Shi Yuan Shi Shu Ju
-648:Hui Fu Ying Yong Cheng Xu
-649:Zhong Zhi Ying Yong Cheng Xu
-650:Xi Yi Ge
-651:Cha Kan Xi Jie
-652:Ni De Ming Zi:(Ke Xuan)
-653:Ni De Dian Zi You Jian:(Ke Xuan)
-654:Ji De Wo
-655:Cuo Wu Xi Jie
-656:Zai Shen Me Qing Kuang Xia You Cuo Wu De Bao Gai?Ni Neng Ti Gong E Wai Xin Xi?(Ying Yu You Xian)
-657:Jie Tu
-658:Fu Shang Yi Ge bug Bao Gao De Ping Mu Jie Tu
-659:(Dian Ji Bian Ji Tu Xiang)
-660:Fa Song Bao Gao
-661:Qu Xiao
-662:Fa Song Cuo Wu Bao Gao...
-663:Lian Jie Dao Fu Wu Qi...
-664:Fa Song Shu Ju...
-665:Fa Song Beng Kui Bao Gao Shi Bai! Wo Men De Fu Wu Qi Ke Neng Hen Mang ,Qing Chang Shi Zai Ci Fa Song Ta.
-666:Xin Xi
-667:Qing Shao Deng...
+626:录像重播
+627:不支持的格式 %s
+628:不支持的版本 %s
+629:不支持修改
+630:出现一个错误无解析文件 %s
+631:初始化
+632:脚本
+633:单位集
+634:房屋群
+635:树林
+636:定义
+637:确定
+638:地图没有发现: %s
+639:记录没有发现: %s
+640:映射文件不匹配主机的地图: %s
+641:记录不匹配主机的记录: %s
+642:回放失败的一个致命错误.这是一个已经缺陷影像播放一些录像.你想继续吗?
+643:你可能只有一个实例的游戏的多人模式一次
+644:
+645:"在应用程序中发生错误.请点击发送错误报告,我们可以研究这个问题.谢谢你的帮助!"
+646:发送错误报告
+647:显示原始数据
+648:恢复应用程序
+649:终止应用程序
+650:戏一个
+651:查看细节
+652:你的名字:（可选）
+653:你的电子邮件:(可选)
+654:记得我
+655:错误细节
+656:再什么情况下有错误的报告?你能提供额外信息?（英语优先）
+657:截图
+658:附上一个BUG报告的屏幕截图
+659:（点击标记图像）
+660:发送报告
+661:取消
+662:发送错误报告…
+663:连接到服务器…
+664:发送数据…
+665:"发送崩溃报告失败!我们的服务器可能很忙,请尝试再次发送他."
+666:信息
+667:请稍等…
+668:保存地图
+669:在AI开始训练新兵的前几分钟的延迟
+670:训练延迟（分钟）
+671:设置水体中的所有石头的方向
+672:魔法水
+673:拷贝
+674:粘贴
+675:粘贴应用
+676:粘贴取消
+677:垂直翻转
+678:水平翻转
+679:拖动选择地图上的一个地区
+680:AI的防御方案
+681:关闭
+682:半径
+683:删除当前探测器
+684:回到全亮模式
+685:关闭
+686:全队命令
+687:没有
+688:攻击位置
+689:走向
+690:方向
+691:后面
+692:前面
+693:防御半径
+694:删除当前的防守位置
+695:回到防御模式
+696:防御阵地
+697:单位

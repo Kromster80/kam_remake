@@ -82,14 +82,14 @@ begin
           T := 0;
           if TChunktRNS(Png.Chunks.ItemFromClass(TChunktRNS)).DataSize > 0 then
             T := TChunktRNS(Png.Chunks.ItemFromClass(TChunktRNS)).PaletteValues[0]; //We don't handle multi-transparent palettes yet
-          for K:=0 to Png.Height-1 do for I:=0 to Png.Width-1 do
+          for K := 0 to Png.Height - 1 do for I := 0 to Png.Width - 1 do
             if PByteArray(Png.Scanline[K])^[I] = T then
               aPixelData[K * Png.Width + I] := cardinal(Png.Pixels[I,K]) and $FFFFFF //avoid black edging
             else
               aPixelData[K * Png.Width + I] := cardinal(Png.Pixels[I,K]) or $FF000000;
         end;
       ptmPartial:
-        for K:=0 to Png.Height-1 do for I:=0 to Png.Width-1 do
+        for K := 0 to Png.Height - 1 do for I := 0 to Png.Width - 1 do
         begin
           T := Png.AlphaScanline[K]^[I];
           aPixelData[K * Png.Width + I] := cardinal(Png.Pixels[I,K]) or (T shl 24);

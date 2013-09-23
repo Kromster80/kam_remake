@@ -18,15 +18,15 @@ type
     lbFonts: TListBox;
     Shape1: TShape;
     StatusBar1: TStatusBar;
-    Image4: TImage;
-    Image5: TImage;
+    imgPreviewSmall: TImage;
+    imgPreviewBig: TImage;
     Edit1: TEdit;
     CheckCells: TCheckBox;
-    btnSaveFont: TBitBtn;
-    btnImportBitmap: TBitBtn;
-    btnExportBitmap: TBitBtn;
+    btnSaveFontX: TBitBtn;
+    btnImportPng: TBitBtn;
+    btnExportPng: TBitBtn;
     ScrollBar1: TScrollBar;
-    PaintBox1: TPaintBox;
+    pbFont: TPaintBox;
     GroupBox1: TGroupBox;
     seLetterY: TSpinEdit;
     Label7: TLabel;
@@ -48,12 +48,18 @@ type
     sePadTop: TSpinEdit;
     Label2: TLabel;
     Label1: TLabel;
-    procedure btnSaveFontClick(Sender: TObject);
+    CheckBox1: TCheckBox;
+    GroupBox4: TGroupBox;
+    Label9: TLabel;
+    sePadding: TSpinEdit;
+    rgSizeX: TRadioGroup;
+    rgSizeY: TRadioGroup;
+    procedure btnSaveFontXClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure lbFontsClick(Sender: TObject);
     procedure btnExportPngClick(Sender: TObject);
-    procedure PaintBox1MouseMove(Sender: TObject; Shift: TShiftState; X,Y: Integer);
-    procedure PaintBox1MouseUp(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+    procedure pbFontMouseMove(Sender: TObject; Shift: TShiftState; X,Y: Integer);
+    procedure pbFontMouseUp(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
     procedure Edit1Change(Sender: TObject);
     procedure CheckCellsClick(Sender: TObject);
     procedure btnImportPngClick(Sender: TObject);
@@ -61,8 +67,9 @@ type
     procedure seLetterYChange(Sender: TObject);
     procedure ScrollBar1Change(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
-    procedure PaintBox1Paint(Sender: TObject);
+    procedure pbFontPaint(Sender: TObject);
     procedure FormResize(Sender: TObject);
+    procedure CheckBox1Click(Sender: TObject);
   private
     fBmp: TBitmap;
     fFnt: TKMFontDataEdit;
@@ -72,8 +79,11 @@ type
     fCols: Word;
     fSelectedLetter: Integer;
     fUpdating: Boolean;
+    fPreviewText: UnicodeString;
+    fPreviewCells: Boolean;
     procedure ScanFonts(const aPath: string);
     procedure LoadFont(const aFilename: string);
+    procedure RefreshTextPreview;
   public
     procedure ShowBigImage(aShowCells: Boolean);
   end;
@@ -124,15 +134,15 @@ end;
 
 procedure TfrmMain.FormResize(Sender: TObject);
 begin
-  fBmp.Width := PaintBox1.Width;
-  fBmp.Height := PaintBox1.Height;
+  fBmp.Width := pbFont.Width;
+  fBmp.Height := pbFont.Height;
 
   ShowBigImage(CheckCells.Checked);
-  PaintBox1.Repaint;
+  pbFont.Repaint;
 end;
 
 
-procedure TfrmMain.btnSaveFontClick(Sender: TObject);
+procedure TfrmMain.btnSaveFontXClick(Sender: TObject);
 begin
   if fFnt = nil then
   begin
@@ -168,7 +178,7 @@ begin
   LoadFont(DataDir + 'data\gfx\fonts\' + lbFonts.Items[lbFonts.ItemIndex]);
 
   ShowBigImage(CheckCells.Checked);
-  PaintBox1.Repaint;
+  pbFont.Repaint;
   Edit1Change(nil);
   StatusBar1.Panels.Items[0].Text := 'Font: ' + lbFonts.Items[lbFonts.ItemIndex];
 end;
@@ -258,13 +268,13 @@ begin
     end;
   end;
 
-  PaintBox1.Canvas.Draw(0, 0, fBmp);
+  pbFont.Canvas.Draw(0, 0, fBmp);
 end;
 
 
-procedure TfrmMain.PaintBox1Paint(Sender: TObject);
+procedure TfrmMain.pbFontPaint(Sender: TObject);
 begin
-  PaintBox1.Canvas.Draw(0, 0, fBmp);
+  pbFont.Canvas.Draw(0, 0, fBmp);
 end;
 
 
@@ -282,18 +292,21 @@ begin
 
   if not RunOpenDialog(OpenDialog1, '', ExeDir, 'PNG images|*.png') then Exit;
 
+  fFnt.TexSizeX := StrToInt(rgSizeX.Items[rgSizeX.ItemIndex]);
+  fFnt.TexSizeY := StrToInt(rgSizeY.Items[rgSizeY.ItemIndex]);
+  fFnt.TexPadding := sePadding.Value;
   fFnt.ImportGridPng(OpenDialog1.FileName);
 
   fCellX := fFnt.MaxLetterWidth + 1;
   fCellY := fFnt.MaxLetterHeight + 1;
 
   ShowBigImage(CheckCells.Checked);
-  PaintBox1.Repaint;
-  Edit1Change(nil);
+  pbFont.Repaint;
+  RefreshTextPreview;
 end;
 
 
-procedure TfrmMain.PaintBox1MouseMove(Sender: TObject; Shift: TShiftState; X,Y: Integer);
+procedure TfrmMain.pbFontMouseMove(Sender: TObject; Shift: TShiftState; X,Y: Integer);
 var
   id, offset: Word;
   Let: TKMLetter;
@@ -310,7 +323,7 @@ begin
 end;
 
 
-procedure TfrmMain.PaintBox1MouseUp(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+procedure TfrmMain.pbFontMouseUp(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
 var
   offset: Word;
 begin
@@ -324,8 +337,8 @@ begin
   Shape1.Width := fFnt.Letters[fSelectedLetter].Width + 4;
   Shape1.Height := fFnt.Letters[fSelectedLetter].Height + 4;
 
-  Shape1.Left := PaintBox1.Left + (fSelectedLetter - offset) mod fCols * fCellX - 1;
-  Shape1.Top := PaintBox1.Top + (fSelectedLetter - offset) div fCols * fCellY - 1;
+  Shape1.Left := pbFont.Left + (fSelectedLetter - offset) mod fCols * fCellX - 1;
+  Shape1.Top := pbFont.Top + (fSelectedLetter - offset) div fCols * fCellY - 1;
 
   fUpdating := True;
   seLetterY.Value := fFnt.Letters[fSelectedLetter].YOffset;
@@ -334,6 +347,19 @@ end;
 
 
 procedure TfrmMain.Edit1Change(Sender: TObject);
+begin
+  {$IFDEF FPC} //FPC uses unicode strings in Edit1
+    fPreviewText := Trim(UTF8ToAnsi(Edit1.Text));
+  {$ENDIF}
+  {$IFDEF WDC} //Delphi uses ansi strings
+    fPreviewText := Trim(Edit1.Text);
+  {$ENDIF}
+
+  RefreshTextPreview;
+end;
+
+
+procedure TfrmMain.RefreshTextPreview;
 const
   PAD = 2;
 var
@@ -342,7 +368,6 @@ var
   srcCol, dstCol: Integer;
   AdvX: Integer;
   MyRect: TRect;
-  Text: UnicodeString;
   Let: TKMLetter;
   pX, pY: Word;
   alpha: Byte;
@@ -352,23 +377,21 @@ begin
   Bmp.Width := 512;
   Bmp.Height := 22;
 
-  AdvX := 0;
-
-  {$IFDEF FPC} //FPC uses unicode strings in Edit1
-    Text := Trim(UTF8ToAnsi(Edit1.Text));
-  {$ENDIF}
-  {$IFDEF WDC} //Delphi uses ansi strings
-    Text := Trim(Edit1.Text);
-  {$ENDIF}
+  AdvX := 10;
 
   //Fill area
   Bmp.Canvas.Brush.Color := BG_COLOR;
   Bmp.Canvas.FillRect(Bmp.Canvas.ClipRect);
 
-  for I := 1 to Length(Text) do
-  if Text[I] <> ' ' then
+  Bmp.Canvas.Pen.Style := psSolid;
+  Bmp.Canvas.Pen.Color := clLtGray;
+  Bmp.Canvas.MoveTo(0, 12 + PAD);
+  Bmp.Canvas.LineTo(512, 12 + PAD);
+
+  for I := 1 to Length(fPreviewText) do
+  if fPreviewText[I] <> ' ' then
   begin
-    Let := fFnt.Letters[Ord(Text[I])];
+    Let := fFnt.Letters[Ord(fPreviewText[I])];
 
     for L := 0 to Let.Height - 1 do
     for M := 0 to Let.Width - 1 do
@@ -379,6 +402,14 @@ begin
       srcCol := fFnt.TexData[Let.AtlasId][pY * fFnt.TexSizeX + pX] and $FFFFFF;
       dstCol := Bmp.Canvas.Pixels[AdvX + M, Let.YOffset + L + PAD] and $FFFFFF;
       alpha := 255 - (fFnt.TexData[Let.AtlasId][pY * fFnt.TexSizeX + pX] shr 24) and $FF;
+
+      if fPreviewCells then
+      begin
+        if alpha = 255 then
+          srcCol := $808080;
+        alpha := 0;
+      end;
+
       //srcCol + (dstCol - srcCol) * alpha
       Bmp.Canvas.Pixels[AdvX + M, Let.YOffset + L + PAD] :=
         ((srcCol and $FF) + ((dstCol and $FF - srcCol and $FF) * alpha) div 256) +
@@ -391,30 +422,37 @@ begin
     Inc(AdvX, fFnt.WordSpacing);
 
   //Match phrase bounds
-  Bmp.Width := Max(AdvX - Min(fFnt.CharSpacing, 0), 0); //Revert last char overlap (if spacing is negative)
-  Bmp.Height := 20;
+  Bmp.Width := Max(AdvX - Min(fFnt.CharSpacing, 0), 0) + 20; //Revert last char overlap (if spacing is negative)
+  Bmp.Height := 22;
 
-  Image4.Canvas.Brush.Color := BG_COLOR;
-  Image4.Canvas.FillRect(Image4.Canvas.ClipRect);
-  Image4.Canvas.Draw((Image4.Width - Bmp.Width) div 2, (Image4.Height - Bmp.Height) div 2 + 2, Bmp); //Draw MyBitmap into Image1
+  imgPreviewSmall.Canvas.Brush.Color := BG_COLOR;
+  imgPreviewSmall.Canvas.FillRect(imgPreviewSmall.Canvas.ClipRect);
+  imgPreviewSmall.Canvas.Draw((imgPreviewSmall.Width - Bmp.Width) div 2, (imgPreviewSmall.Height - Bmp.Height) div 2 + 2, Bmp); //Draw MyBitmap into Image1
 
-  MyRect.Left := (Image5.Width  - Bmp.Width*2 ) div 2;
-  MyRect.Top  := (Image5.Height - Bmp.Height*2) div 2;
-  MyRect.Right  := MyRect.Left + Bmp.Width*2;
-  MyRect.Bottom := MyRect.Top + Bmp.Height*2;
+  MyRect.Left := (imgPreviewBig.Width  - Bmp.Width*4 ) div 2;
+  MyRect.Top  := (imgPreviewBig.Height - Bmp.Height*4) div 2;
+  MyRect.Right  := MyRect.Left + Bmp.Width*4;
+  MyRect.Bottom := MyRect.Top + Bmp.Height*4;
 
-  Image5.Canvas.Brush.Color := BG_COLOR;
-  Image5.Canvas.FillRect(Image5.Canvas.ClipRect);
-  Image5.Canvas.StretchDraw(MyRect, Bmp); //Draw MyBitmap into Image1
+  imgPreviewBig.Canvas.Brush.Color := BG_COLOR;
+  imgPreviewBig.Canvas.FillRect(imgPreviewBig.Canvas.ClipRect);
+  imgPreviewBig.Canvas.StretchDraw(MyRect, Bmp); //Draw MyBitmap into Image1
 
   Bmp.Free;
+end;
+
+
+procedure TfrmMain.CheckBox1Click(Sender: TObject);
+begin
+  fPreviewCells := CheckBox1.Checked;
+  RefreshTextPreview;
 end;
 
 
 procedure TfrmMain.CheckCellsClick(Sender: TObject);
 begin
   ShowBigImage(CheckCells.Checked);
-  PaintBox1.Repaint;
+  pbFont.Repaint;
 end;
 
 
@@ -436,7 +474,7 @@ begin
   if fFnt.Letters[I].Width > 0 then
     fFnt.Letters[I].YOffset := seAllYOffset.Value;
 
-  Edit1Change(nil);
+  RefreshTextPreview;
 end;
 
 
@@ -446,7 +484,7 @@ begin
   if fSelectedLetter = 0 then Exit;
 
   fFnt.Letters[fSelectedLetter].YOffset := seLetterY.Value;
-  Edit1Change(nil);
+  RefreshTextPreview;
 end;
 
 
@@ -455,12 +493,12 @@ var
   offset: Word;
 begin
   ShowBigImage(CheckCells.Checked);
-  PaintBox1.Repaint;
+  pbFont.Repaint;
 
   offset := ScrollBar1.Position;
 
-  Shape1.Left := PaintBox1.Left + (fSelectedLetter - offset) mod fCols * fCellX - 1;
-  Shape1.Top := PaintBox1.Top + (fSelectedLetter - offset) div fCols * fCellY - 1;
+  Shape1.Left := pbFont.Left + (fSelectedLetter - offset) mod fCols * fCellX - 1;
+  Shape1.Top := pbFont.Top + (fSelectedLetter - offset) div fCols * fCellY - 1;
 end;
 
 
