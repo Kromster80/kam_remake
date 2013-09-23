@@ -46,6 +46,9 @@ type
 implementation
 uses KM_PNG;
 
+const
+  BG_COLOR = $FFAF6B6B;
+
 
 { TKMFontDataEdit }
 procedure TKMFontDataEdit.CreateFont(aFontName: string; aFontSize: Byte; aFontStyle: TFontStyles; aAntialias: Boolean; const aChars: array of WideChar);
@@ -262,28 +265,22 @@ end;
 procedure TKMFontDataEdit.ExportGridPng(const aFilename: string; aPadding: TRect);
 var
   cellX, cellY, pngWidth, pngHeight: Word;
-  I, K, M, L: Integer;
+  I, M, L: Integer;
   chWidth, chHeight: Byte;
   srcX, srcY: Word;
   dstPixel, srcPixel: Cardinal;
   data: TKMCardinalArray;
 begin
-  //+1 for the grid
-  cellX := MaxLetterWidth + 1 + aPadding.Left + aPadding.Right;
-  cellY := MaxLetterHeight + 1 + aPadding.Top + aPadding.Bottom;
+  cellX := MaxLetterWidth + aPadding.Left + aPadding.Right;
+  cellY := MaxLetterHeight + aPadding.Top + aPadding.Bottom;
   pngWidth := 256 * cellX;
   pngHeight := 256 * cellY;
 
   SetLength(data, pngWidth * pngHeight);
 
-  //Draw grid
-  for I := 0 to 255 do
-  for K := 0 to pngWidth - 1 do
-    data[I * cellY * pngWidth + K] := $FF00FF00;
-
-  for K := 0 to 255 do
-  for I := 0 to pngHeight - 1 do
-    data[K * CellX + I * pngWidth] := $FF00FF00;
+  //fill everything so we later cut the letters from it
+  for I := 0 to pngWidth * pngHeight - 1 do
+    data[I] := BG_COLOR;
 
   //Draw letters
   for I := 0 to fCharCount - 1 do
@@ -292,6 +289,14 @@ begin
     chWidth := Letters[I].Width;
     chHeight := Letters[I].Height;
 
+    //Cut the window for the character
+    for M := 0 to chHeight + aPadding.Top + aPadding.Bottom - 1 do
+    for L := 0 to chWidth + aPadding.Left + aPadding.Right - 1 do
+    begin
+      dstPixel := ((I div 256) * cellY + M) * pngWidth + (I mod 256) * cellX + L;
+      data[dstPixel] := $00000000;
+    end;
+
     //Copy the character over
     for M := 0 to chHeight - 1 do
     for L := 0 to chWidth - 1 do
@@ -299,7 +304,7 @@ begin
       srcX := Round(Letters[I].u1 * fTexSizeX);
       srcY := Round(Letters[I].v1 * fTexSizeY);
       srcPixel := (srcY + M) * fTexSizeX + srcX + L;
-      dstPixel := ((I div 256) * cellY + M + 1 + aPadding.Top) * pngWidth + (I mod 256) * cellX + L + 1 + aPadding.Left;
+      dstPixel := ((I div 256) * cellY + M + aPadding.Top) * pngWidth + (I mod 256) * cellX + L + aPadding.Left;
       data[dstPixel] := fAtlases[Letters[I].AtlasId].TexData[srcPixel];
     end;
   end;
@@ -319,7 +324,7 @@ var
   cellX, cellY, pngWidth, pngHeight: Word;
   pngData: TKMCardinalArray;
   I, K, M, L: Integer;
-  chMaxX, chMaxY: Byte;
+  chMaxX, chMaxY: ShortInt;
   cX, cY, dstX, dstY: Word;
   letter: Word;
   lineHeight: Byte;
@@ -338,19 +343,18 @@ begin
   for I := 0 to 255 do
   for K := 0 to 255 do
   begin
-    chMaxX := 0;
-    chMaxY := 0;
+    chMaxX := -1;
+    chMaxY := -1;
 
     //Scan all pixels of a single letter to determine its dimensions
-    //Excluding 1/1 coords which are for grid lines (irregardless of visibility)
-    for L := 1 to cellY - 1 do
-    for M := 1 to cellX - 1 do
+    for L := 0 to cellY - 1 do
+    for M := 0 to cellX - 1 do
     begin
       //Pixel coords
       cX := K * cellX + M;
       cY := I * cellY + L;
 
-      if pngData[cY * pngWidth + cX] shr 24 > 0 then
+      if pngData[cY * pngWidth + cX] <> BG_COLOR then
       begin
         chMaxX := Math.Max(chMaxX, M);
         chMaxY := Math.Max(chMaxY, L);
@@ -360,8 +364,8 @@ begin
     letter := I * 256 + K;
 
     Used[letter] := Byte((chMaxX > 0) and (chMaxY > 0));
-    Letters[letter].Width := chMaxX;
-    Letters[letter].Height := chMaxY;
+    Letters[letter].Width := chMaxX + 1;
+    Letters[letter].Height := chMaxY + 1;
   end;
 
   fAtlasCount := 1;
@@ -397,7 +401,7 @@ begin
     for M := 0 to Letters[I].Height - 1 do
     for L := 0 to Letters[I].Width - 1 do
     begin
-      srcPixel := (I div 256 * CellY + 1 + M) * pngWidth + I mod 256 * CellX + 1 + L;
+      srcPixel := (I div 256 * CellY + M) * pngWidth + I mod 256 * CellX + L;
       dstPixel := (dstY + M) * fTexSizeX + dstX + L;
       fAtlases[fAtlasCount - 1].TexData[dstPixel] := pngData[srcPixel];
     end;
@@ -524,11 +528,14 @@ begin
 
     OutputStream := TFileStream.Create(aFileName, fmCreate);
     CompressionStream := TCompressionStream.Create(clMax, OutputStream);
-    InputStream.Position := 0;
-    CompressionStream.CopyFrom(InputStream, InputStream.Size);
+    try
+      InputStream.Position := 0;
+      CompressionStream.CopyFrom(InputStream, InputStream.Size);
+    finally
+      CompressionStream.Free;
+      OutputStream.Free;
+    end;
   finally
-    CompressionStream.Free;
-    OutputStream.Free;
     InputStream.Free;
   end;
 end;
