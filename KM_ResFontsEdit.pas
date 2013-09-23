@@ -406,6 +406,7 @@ begin
       fAtlases[fAtlasCount - 1].TexData[dstPixel] := pngData[srcPixel];
     end;
 
+    Letters[I].AtlasId := fAtlasCount - 1;
     Letters[I].u1 := (dstX) / fTexSizeX;
     Letters[I].v1 := (dstY) / fTexSizeY;
     Letters[I].u2 := (dstX + Letters[I].Width) / fTexSizeX;

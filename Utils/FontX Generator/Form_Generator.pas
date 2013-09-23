@@ -35,8 +35,6 @@ type
     cbCells: TCheckBox;
     cbAntialias: TCheckBox;
     cbFontName: TComboBox;
-    SpinEdit1: TSpinEdit;
-    SpinEdit2: TSpinEdit;
     btnSetRange: TButton;
     tbAtlas: TTrackBar;
     Label6: TLabel;
@@ -139,13 +137,20 @@ end;
 
 
 procedure TForm1.btnSetRangeClick(Sender: TObject);
+const
+  //Chinese punctuation marks as reported by JiZong
+  CN_CHARS: array [0..13] of Word =
+    (183, 8212, 8216, 8217, 8220, 8221, 8230, 12289, 12290, 65281, 65292, 65306, 65307, 65311);
 var
   uniText: UnicodeString;
-  I: Integer;
+  I: Word;
 begin
   uniText := '';
 
-  for I := SpinEdit1.Value to SpinEdit2.Value do
+  for I := Low(CN_CHARS) to High(CN_CHARS) do
+    uniText := uniText + WideChar(CN_CHARS[I]);
+
+  for I := 19968 to 40870 do
     uniText := uniText + WideChar(I);
 
   {$IFDEF WDC}

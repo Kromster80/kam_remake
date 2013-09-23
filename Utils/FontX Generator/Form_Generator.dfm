@@ -244,7 +244,7 @@ object Form1: TForm1
     end
     object btnCollectChars: TButton
       Left = 8
-      Top = 368
+      Top = 112
       Width = 121
       Height = 25
       Caption = 'Collect "libx" chars'
@@ -269,33 +269,13 @@ object Form1: TForm1
       DropDownCount = 24
       TabOrder = 7
     end
-    object SpinEdit1: TSpinEdit
-      Left = 8
-      Top = 112
-      Width = 65
-      Height = 26
-      MaxValue = 65535
-      MinValue = 0
-      TabOrder = 8
-      Value = 19968
-    end
-    object SpinEdit2: TSpinEdit
-      Left = 80
-      Top = 112
-      Width = 65
-      Height = 26
-      MaxValue = 65535
-      MinValue = 0
-      TabOrder = 9
-      Value = 40870
-    end
     object btnSetRange: TButton
-      Left = 152
+      Left = 136
       Top = 112
-      Width = 105
+      Width = 121
       Height = 25
-      Caption = 'Set range'
-      TabOrder = 10
+      Caption = 'Chinese range'
+      TabOrder = 8
       OnClick = btnSetRangeClick
     end
   end
