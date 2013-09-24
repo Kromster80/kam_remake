@@ -14,7 +14,7 @@ type
   TNetGameKind = (ngk_None, ngk_Map, ngk_Save);
 
 const
-  NetMPGameState:array[TNetGameState] of TMPGameState = (mgs_None, mgs_None, mgs_None, mgs_Lobby, mgs_Loading, mgs_Game, mgs_Game);
+  NetMPGameState:array[TNetGameState] of TMPGameState = (mgsNone, mgsNone, mgsNone, mgsLobby, mgsLoading, mgsGame, mgsGame);
   NetAllowedPackets:array[TNetGameState] of set of TKMessageKind = (
     //lgs_None
     [],

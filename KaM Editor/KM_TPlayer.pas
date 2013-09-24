@@ -106,7 +106,7 @@ begin
   Result := '';
   for i := 1 to HouseCount do
     Result := Result + '!SET_HOUSE ' + inttostr(House[i].Kind - 1) + ' ' + inttostr(House[i].PosX - 1) + ' ' +
-      inttostr(House[i].PosY - 1) + eol;
+      inttostr(House[i].PosY - 1) + EolA;
 end;
 
 constructor TMission.Create();
@@ -165,7 +165,7 @@ begin
           Result := Result + '!SET_WINEFIELD ' + inttostr(k - 1) + ' ' + inttostr(i - 1) + ' ';
         inc(Num);
         if Num mod 4 = 0 then
-          Result := Result + eol;
+          Result := Result + EolA;
       end;
 end;
 

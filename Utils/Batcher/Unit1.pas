@@ -292,7 +292,7 @@ begin
           begin
             Memo1.Lines.Append(TruncateExt(ExtractFileName(PathToMaps[I])) + ' ' + GoalTxt);
 
-            GoalLog.Append('  if States.GameTime = ' + Args[4] + ' then' + eol +
+            GoalLog.Append('  if States.GameTime = ' + Args[4] + ' then' + EolW +
                            '    Actions.ShowMsg( ?, States.Text(' + Args[3] + '));');
 
             //Cut Goal out
@@ -387,7 +387,7 @@ begin
             if (AILoc = 0) or ((AILoc > NextCurrLoc) and (NextCurrLoc <> 0)) then
             begin
               //Add from new line
-              Insert(eol + '!SET_AI_PLAYER', Txt, CurrEnd);
+              Insert(EolA + '!SET_AI_PLAYER', Txt, CurrEnd);
               if AiId <> -1 then
                 PlayersSet[AiId] := True
               else
@@ -457,7 +457,7 @@ begin
           while (CurrEnd < Length(Txt)) and not (Txt[CurrEnd] in ['!', #13, '/']) do
             Inc(CurrEnd);
 
-            Insert(eol + '!SET_AI_AUTO_DEFENCE', Txt, CurrEnd);
+            Insert(EolA + '!SET_AI_AUTO_DEFENCE', Txt, CurrEnd);
 
           CurrLoc := CurrEnd;
         end;
@@ -605,7 +605,7 @@ begin
           if not PlayersSet[PlayerId] then
           begin
             //Add from new line
-            Insert(eol + '!SET_USER_PLAYER ', Txt, CurrEnd);
+            Insert(EolA + '!SET_USER_PLAYER ', Txt, CurrEnd);
             PlayersSet[PlayerId] := True;
           end;
 

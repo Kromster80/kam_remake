@@ -1,9 +1,9 @@
 object Form1: TForm1
   Left = 297
   Top = 193
-  Width = 908
-  Height = 720
   HelpType = htKeyword
+  ClientHeight = 690
+  ClientWidth = 900
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -20,7 +20,7 @@ object Form1: TForm1
   OnResize = RenderResize
   DesignSize = (
     900
-    674)
+    690)
   PixelsPerInch = 96
   TextHeight = 13
   object Image3: TImage
@@ -141,6 +141,10 @@ object Form1: TForm1
     OnChange = PalletePageChange
     object TabSheet1: TTabSheet
       Caption = 'Terrain'
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       object LB01: TSpeedButton
         Left = 4
         Top = 72
@@ -3044,6 +3048,10 @@ object Form1: TForm1
     object TabSheet6: TTabSheet
       Caption = 'Tiles'
       ImageIndex = 5
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       object ScrollBox2: TScrollBox
         Left = 0
         Top = 64
@@ -11306,14 +11314,14 @@ object Form1: TForm1
         Width = 77
         Height = 25
         Caption = 'Rotate tile '
-        TabOrder = 0
-        OnClick = TileRotateButtonClick
         Glyph.Data = {
           8A000000424D8A000000000000003E0000002800000013000000130000000100
           0100000000004C0000000000000000000000020000000000000000000000FFFF
           FF00FFFFE000FFFFE000FF7FE000FE7FE000FC07E000FE79E000FF7EE000EFFF
           6000DFFF6000DFFF6000DFFF6000DFFEE000EFDFE000F3CFE000FC07E000FFCF
           E000FFDFE000FFFFE000FFFFE000}
+        TabOrder = 0
+        OnClick = TileRotateButtonClick
       end
       object RG_Angle: TRadioGroup
         Left = 0
@@ -11344,6 +11352,10 @@ object Form1: TForm1
     object TabSheet4: TTabSheet
       Caption = 'Relief'
       ImageIndex = 4
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       object GB01: TSpeedButton
         Left = 4
         Top = 116
@@ -11478,6 +11490,10 @@ object Form1: TForm1
     object TabSheet2: TTabSheet
       Caption = 'Objects'
       ImageIndex = 1
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       DesignSize = (
         202
         349)
@@ -11569,6 +11585,10 @@ object Form1: TForm1
     object TabSheet3: TTabSheet
       Caption = 'Houses'
       ImageIndex = 2
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       object BB01: TSpeedButton
         Left = 164
         Top = 108
@@ -13038,7 +13058,7 @@ object Form1: TForm1
   end
   object StatusBar1: TStatusBar
     Left = 0
-    Top = 655
+    Top = 671
     Width = 900
     Height = 19
     Panels = <
@@ -13061,6 +13081,7 @@ object Form1: TForm1
       item
         Width = 50
       end>
+    ExplicitTop = 655
   end
   object Panel2: TPanel
     Left = 4
@@ -13094,8 +13115,6 @@ object Form1: TForm1
     Top = 8
     Width = 33
     Height = 33
-    TabOrder = 0
-    OnClick = NewMapClick
     Glyph.Data = {
       F6060000424DF606000000000000360000002800000018000000180000000100
       180000000000C006000000000000000000000000000000000000FFFFFF804000
@@ -13155,14 +13174,14 @@ object Form1: TForm1
       FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF}
     Margin = 2
     Spacing = 0
+    TabOrder = 0
+    OnClick = NewMapClick
   end
   object OpenMapButton: TBitBtn
     Left = 40
     Top = 8
     Width = 33
     Height = 33
-    TabOrder = 1
-    OnClick = OpenMapClick
     Glyph.Data = {
       F6060000424DF606000000000000360000002800000018000000180000000100
       180000000000C0060000120B0000120B00000000000000000000FFFFFF3D840E
@@ -13222,6 +13241,8 @@ object Form1: TForm1
       FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF}
     Margin = 2
     Spacing = 0
+    TabOrder = 1
+    OnClick = OpenMapClick
   end
   object Undo: TBitBtn
     Left = 148
@@ -13229,8 +13250,6 @@ object Form1: TForm1
     Width = 33
     Height = 33
     Enabled = False
-    TabOrder = 4
-    OnClick = UndoClick
     Glyph.Data = {
       96010000424D9601000000000000760000002800000018000000180000000100
       0400000000002001000000000000000000001000000000000000000000000000
@@ -13247,6 +13266,8 @@ object Form1: TForm1
       FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF}
     Margin = 2
     Spacing = 0
+    TabOrder = 4
+    OnClick = UndoClick
   end
   object Redo: TBitBtn
     Left = 180
@@ -13254,8 +13275,6 @@ object Form1: TForm1
     Width = 33
     Height = 33
     Enabled = False
-    TabOrder = 5
-    OnClick = RedoClick
     Glyph.Data = {
       96010000424D9601000000000000760000002800000018000000180000000100
       0400000000002001000000000000000000001000000000000000000000000000
@@ -13272,14 +13291,14 @@ object Form1: TForm1
       FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF}
     Margin = 2
     Spacing = 0
+    TabOrder = 5
+    OnClick = RedoClick
   end
   object OpenProButton: TBitBtn
     Left = 72
     Top = 8
     Width = 33
     Height = 33
-    TabOrder = 2
-    OnClick = OpenProClick
     Glyph.Data = {
       F6060000424DF606000000000000360000002800000018000000180000000100
       180000000000C006000000000000000000000000000000000000FFFFFF804000
@@ -13339,14 +13358,14 @@ object Form1: TForm1
       FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF}
     Margin = 2
     Spacing = 0
+    TabOrder = 2
+    OnClick = OpenProClick
   end
   object SaveMapButton: TBitBtn
     Left = 108
     Top = 8
     Width = 33
     Height = 33
-    TabOrder = 3
-    OnClick = SaveMapClick
     Glyph.Data = {
       F6060000424DF606000000000000360000002800000018000000180000000100
       180000000000C006000000000000000000000000000000000000FFFFFFFFFFFF
@@ -13406,6 +13425,8 @@ object Form1: TForm1
       FF55AAFF55AAFF55AAFF55AAFF55AAFF55AAFF55AAFF55FFFFFF}
     Margin = 2
     Spacing = 0
+    TabOrder = 3
+    OnClick = SaveMapClick
   end
   object Panel5: TPanel
     Left = 218

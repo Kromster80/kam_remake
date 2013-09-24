@@ -1,8 +1,6 @@
 unit KM_NetworkTypes;
 {$I KaM_Remake.inc}
 interface
-uses
-  Classes, SysUtils, KM_Pics;
 
 
 const
@@ -141,13 +139,13 @@ const
 
 
 type
-  TMPGameState = (mgs_None, mgs_Lobby, mgs_Loading, mgs_Game);
-  TKMServerType = (st_Client, st_Dedicated);
+  TMPGameState = (mgsNone, mgsLobby, mgsLoading, mgsGame);
+  TKMServerType = (mstClient, mstDedicated);
 
 const
   //Used in the dedicated server display as it does not care about translations (translated ones are in KM_TextLibrary)
-  GameStateText: array [TMPGameState] of string = ('None', 'Lobby', 'Loading', 'Game');
-  ServerTypePic: array [TKMServerType] of TKMPic = ((RX: rxGuiMain; ID:74), (RX: rxGuiMain; ID:75));
+  GameStateText: array [TMPGameState] of UnicodeString = ('None', 'Lobby', 'Loading', 'Game');
+  ServerTypePic: array [TKMServerType] of Word = (74, 75);
 
 
 implementation

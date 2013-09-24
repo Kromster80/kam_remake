@@ -39,7 +39,7 @@ begin
   else
   begin
     ShowMessage('Unable to locate ".\data\gfx\pal0.bbm" file');
-    ShowMessage('Pallete loading error.' + eol + 'Place KaM Editor into KaM folder');
+    ShowMessage('Pallete loading error.' + EolW + 'Place KaM Editor into KaM folder');
     exit;
   end;
 
@@ -68,7 +68,7 @@ begin
   else
   begin
     ShowMessage('Unable to locate ".\data\gfx\res\trees.rx" file');
-    ShowMessage('Objects loading error.' + eol + 'Place KaM Editor into KaM folder');
+    ShowMessage('Objects loading error.' + EolW + 'Place KaM Editor into KaM folder');
     exit;
   end;
 
@@ -89,7 +89,7 @@ begin
   else
   begin
     ShowMessage('Unable to locate ".\data\defines\mapelem.dat" file');
-    ShowMessage('Map Elements loading error.' + eol + 'Place KaM Editor into KaM folder');
+    ShowMessage('Map Elements loading error.' + EolW + 'Place KaM Editor into KaM folder');
     exit;
   end;
 
@@ -190,7 +190,7 @@ begin
   else
   begin
     ShowMessage('Unable to locate ".\data\gfx\res\houses.rx" file');
-    ShowMessage('Houses loading error.' + eol + 'Place KaM Editor into KaM folder');
+    ShowMessage('Houses loading error.' + EolW + 'Place KaM Editor into KaM folder');
     exit;
   end;
 

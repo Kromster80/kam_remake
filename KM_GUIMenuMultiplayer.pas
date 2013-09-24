@@ -388,7 +388,8 @@ begin
       ColumnBox_Servers.AddItem(
       MakeListRow(['', '', DisplayName, gResTexts[GameStateTextIDs[R.GameInfo.GameState]], IntToStr(R.GameInfo.PlayerCount), IntToStr(S.Ping)],
                   [$FFFFFFFF, $FFFFFFFF, $FFFFFFFF, $FFFFFFFF, $FFFFFFFF, GetPingColor(S.Ping)],
-                  [ServerTypePic[S.ServerType],MakePic(rxGuiMain,IfThen(R.GameInfo.PasswordLocked, 73, 0)),MakePic(rxGuiMain,0),MakePic(rxGuiMain,0),MakePic(rxGuiMain,0),MakePic(rxGuiMain,0)], I));
+                  [MakePic(rxGuiMain, ServerTypePic[S.ServerType]), MakePic(rxGuiMain, IfThen(R.GameInfo.PasswordLocked, 73, 0)), MakePic(rxGuiMain,0), MakePic(rxGuiMain,0), MakePic(rxGuiMain,0), MakePic(rxGuiMain,0)],
+                  I));
 
       //if server was selected, we need to select it again, because TKMColumnListBox was cleared
       if fServerSelected

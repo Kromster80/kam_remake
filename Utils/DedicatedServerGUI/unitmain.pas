@@ -8,7 +8,7 @@ uses
   KM_Settings,
   KM_DedicatedServer,
   KM_Log,
-  KM_CommonClasses;
+  KM_NetworkClasses;
 
 
 type

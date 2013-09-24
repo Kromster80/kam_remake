@@ -220,9 +220,9 @@ procedure TKMServerList.LoadFromText(const aText: UnicodeString);
   function GetServerType(aDedicated, aOS: UnicodeString): TKMServerType;
   begin
     if aDedicated = '0' then
-      Result := st_Client
+      Result := mstClient
     else
-      Result := st_Dedicated;
+      Result := mstDedicated;
   end;
 
 var

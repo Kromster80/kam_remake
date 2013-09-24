@@ -1324,7 +1324,7 @@ begin
     if ObjIndexInv[Land[i,k].Obj]=0 then begin
       if not RemWrong then
       begin
-        ErrS := 'Wrong object used at '+inttostr(k)+':'+inttostr(i)+' it will be removed'+eol+'Remove all wrong objects silently?';
+        ErrS := 'Wrong object used at '+inttostr(k)+':'+inttostr(i)+' it will be removed'+EolW+'Remove all wrong objects silently?';
         if MessageBox(Form1.Handle,@(ErrS[1]),'Warning', mb_yesno)=IDYES then RemWrong:=true;
       end;
       Land[i,k].Obj:=255
