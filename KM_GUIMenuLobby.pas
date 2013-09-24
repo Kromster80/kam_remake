@@ -374,7 +374,7 @@ procedure TKMMenuLobby.ChatMenuSelect(aItem: Integer);
     CapWidth := fResource.Fonts.GetTextSize(aCaption, Button_LobbyPost.Font).X;
     CapWidth := Max(MIN_SIZE, CapWidth+10); //Apply minimum size
     if aColor <> 0 then
-      aCaption := '[$'+IntToHex(aColor and $00FFFFFF,6)+']'+aCaption;
+      aCaption := WrapColor(aCaption, aColor);
     Button_LobbyPost.Caption := aCaption;
     Button_LobbyPost.Width := CapWidth;
 

@@ -212,7 +212,7 @@ end;
 function TKMNetPlayerInfo.GetNiknameColored: AnsiString;
 begin
   if FlagColorID <> 0 then
-    Result := '[$' + IntToHex(FlagColorToTextColor(FlagColor) and $00FFFFFF, 6) + ']' + Nikname
+    Result := WrapColorA(Nikname, FlagColorToTextColor(FlagColor))
   else
     Result := Nikname;
 end;

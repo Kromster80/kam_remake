@@ -830,7 +830,7 @@ end;
 
 //We route the message through Server to ensure everyone sees messages in the same order
 //with exact same timestamps (possibly added by Server?)
-procedure TKMNetworking.PostMessage(aText: UnicodeString; aShowName:boolean=false; aTeamOnly:boolean=false; aRecipientServerIndex:Integer=-1);
+procedure TKMNetworking.PostMessage(aText: UnicodeString; aShowName: Boolean = False; aTeamOnly: Boolean = False; aRecipientServerIndex: Integer = -1);
 
   function GetRecipientName: AnsiString;
   var
@@ -849,9 +849,8 @@ var
 begin
   if aShowName then
   begin
-    //TODO: WrapInColor(UnicodeString(fMyNikname), FlagColorToTextColor(NetPlayers[fMyIndex].FlagColor));
     if NetPlayers[fMyIndex].FlagColorID <> 0 then
-      NameText := '[$'+IntToHex(FlagColorToTextColor(NetPlayers[fMyIndex].FlagColor) and $00FFFFFF,6)+']'+UnicodeString(fMyNikname)+'[]'
+      NameText := UnicodeString(WrapColorA(fMyNikname, FlagColorToTextColor(NetPlayers[fMyIndex].FlagColor)))
     else
       NameText := UnicodeString(fMyNikname);
 

@@ -21,6 +21,8 @@ uses Classes, DateUtils, Math, SysUtils, KM_Defaults, KM_Points
   function GetFPSColor(aFPS: Word): Cardinal;
   function FlagColorToTextColor(aColor: Cardinal): Cardinal;
   function TimeToString(aTime: TDateTime): UnicodeString;
+  function WrapColor(aText: UnicodeString; aColor: Cardinal): UnicodeString;
+  function WrapColorA(aText: AnsiString; aColor: Cardinal): AnsiString;
 
   procedure ParseDelimited(const Value, Delimiter: UnicodeString; SL: TStringList);
 
@@ -408,6 +410,19 @@ begin
   //e.g. 3599 equals to 59:58 and 3600 equals to 59:59
   //That is why we resort to DateUtils routines which are slower but much more correct
   Result :=  Format('%.2d', [HoursBetween(aTime, 0)]) + FormatDateTime(':nn:ss', aTime);
+end;
+
+
+//Make a string wrapped into color code
+function WrapColor(aText: UnicodeString; aColor: Cardinal): UnicodeString;
+begin
+  Result := '[$' + IntToHex(aColor and $00FFFFFF, 6) + ']' + aText + '[]';
+end;
+
+
+function WrapColorA(aText: AnsiString; aColor: Cardinal): AnsiString;
+begin
+  Result := '[$' + IntToHex(aColor and $00FFFFFF, 6) + ']' + aText + '[]';
 end;
 
 

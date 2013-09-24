@@ -2059,7 +2059,7 @@ procedure TKMGamePlayInterface.Chat_MenuSelect(aItem: Integer);
     txtWidth := Max(MIN_SIZE, txtWidth + 10); //Apply minimum size
 
     if aColor <> 0 then
-      aCaption := '[$' + IntToHex(aColor and $00FFFFFF, 6) + ']' + aCaption;
+      aCaption := WrapColor(aCaption, aColor);
     Button_ChatRecipient.Caption := aCaption;
     Button_ChatRecipient.Width := txtWidth;
 
@@ -2482,7 +2482,7 @@ begin
     Dropbox_ReplayFOW.Add(gResTexts[TX_REPLAY_SHOW_ALL], -1);
     for I := 0 to gPlayers.Count - 1 do
     if gPlayers[I].Enabled and (gPlayers[I].PlayerType = pt_Human) then
-        Dropbox_ReplayFOW.Add('[$' + IntToHex(FlagColorToTextColor(gPlayers[I].FlagColor) and $00FFFFFF, 6) + ']' + gPlayers[I].GetFormattedPlayerName, I);
+        Dropbox_ReplayFOW.Add(WrapColor(gPlayers[I].GetFormattedPlayerName, FlagColorToTextColor(gPlayers[I].FlagColor)));
     Dropbox_ReplayFOW.ItemIndex := 0;
   end;
 end;
