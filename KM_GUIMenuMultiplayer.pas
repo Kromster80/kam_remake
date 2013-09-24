@@ -236,7 +236,7 @@ begin
   //Refresh the list when they first open the multiplayer page
   MP_ServersRefresh(nil);
 
-  Edit_MP_PlayerName.Text := fGameApp.GameSettings.MultiplayerName;
+  Edit_MP_PlayerName.Text := UnicodeString(fGameApp.GameSettings.MultiplayerName);
 
   Edit_MP_ServerName.Text := fGameApp.GameSettings.ServerName;
   Edit_MP_ServerPort.Text := fGameApp.GameSettings.ServerPort;
@@ -305,7 +305,7 @@ end;
 procedure TKMMenuMultiplayer.MP_SaveSettings;
 begin
   //Player name
-  fGameApp.GameSettings.MultiplayerName := Edit_MP_PlayerName.Text;
+  fGameApp.GameSettings.MultiplayerName := AnsiString(Edit_MP_PlayerName.Text);
 
   //Create Server popup
   fGameApp.GameSettings.ServerName := Edit_MP_ServerName.Text;

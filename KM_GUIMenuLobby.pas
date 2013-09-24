@@ -844,7 +844,7 @@ begin
     end
     else
     begin
-      Label_LobbyPlayer[I].Caption := CurPlayer.GetNickname;
+      Label_LobbyPlayer[I].Caption := CurPlayer.SlotName;
       if CurPlayer.FlagColorID = 0 then
         Label_LobbyPlayer[I].FontColor := $FFFFFFFF
       else

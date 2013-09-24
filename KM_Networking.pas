@@ -1685,7 +1685,7 @@ begin
     MPGameInfo.GameTime := aGameTime;
     MPGameInfo.GameState := NetMPGameState[fNetGameState];
     MPGameInfo.PasswordLocked := (fPassword <> '');
-    MPGameInfo.Players := fNetPlayers.GetSimpleAsText;
+    MPGameInfo.Players := fNetPlayers.GetSlotNames;
     MPGameInfo.PlayerCount := fNetPlayers.GetConnectedCount;
 
     M := TKMemoryStream.Create;

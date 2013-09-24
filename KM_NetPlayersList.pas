@@ -40,8 +40,8 @@ type
     function IsComputer: Boolean;
     function IsClosed: Boolean;
     function GetPlayerType: TPlayerType;
-    function GetNickname: UnicodeString;
-    property Nikname: AnsiString read fNikname; //Only ANSI-Latin
+    function SlotName: UnicodeString; //Player name if it's human or computer or closed
+    property Nikname: AnsiString read fNikname; //Human player nikname (ANSI-Latin)
     property NiknameColored: AnsiString read GetNiknameColored;
     property LangCode: AnsiString read fLangCode write SetLangCode;
     property IndexOnServer: Integer read fIndexOnServer;
@@ -62,7 +62,6 @@ type
     function GetPlayer(aIndex: Integer): TKMNetPlayerInfo;
     procedure ValidateColors;
     procedure RemAllClosedPlayers;
-    procedure UpdateAIPlayerNames;
   public
     HostDoesSetup: Boolean; //Gives host absolute control over locations/teams (not colors)
     RandomizeTeamLocations: Boolean; //When the game starts locations are shuffled within each team
@@ -78,8 +77,8 @@ type
     procedure DisconnectAllClients(aOwnNikname: AnsiString);
     procedure DropPlayer(aIndexOnServer: Integer);
     procedure RemPlayer(aIndexOnServer: Integer);
-    procedure RemAIPlayer(ID: Integer);
-    procedure RemClosedPlayer(ID: Integer);
+    procedure RemAIPlayer(aIndex: Integer);
+    procedure RemClosedPlayer(aIndex: Integer);
     property Player[aIndex: Integer]: TKMNetPlayerInfo read GetPlayer; default;
 
     //Getters
@@ -107,7 +106,7 @@ type
     //Import/Export
     procedure SaveToStream(aStream: TKMemoryStream); //Gets all relevant information as text string
     procedure LoadFromStream(aStream: TKMemoryStream); //Sets all relevant information
-    function GetSimpleAsText: UnicodeString; //Gets just names as a text string seperated by |
+    function GetSlotNames: UnicodeString; //Gets just names as a text string seperated by |
     function GetPlayersWithIDs: UnicodeString;
   end;
 
@@ -192,17 +191,18 @@ end;
 
 function TKMNetPlayerInfo.GetPlayerType: TPlayerType;
 const
-  PlayerTypes: array[TNetPlayerType] of TPlayerType = (pt_Human, pt_Computer, pt_Computer);
+  PlayerTypes: array [TNetPlayerType] of TPlayerType = (pt_Human, pt_Computer, pt_Computer);
 begin
   Result := PlayerTypes[PlayerNetType];
 end;
 
 
-function TKMNetPlayerInfo.GetNickname: UnicodeString;
+function TKMNetPlayerInfo.SlotName: UnicodeString;
 begin
   case PlayerNetType of
-    nptHuman:     Result := Nikname;
-    nptComputer:  Result := gResTexts[TX_LOBBY_SLOT_AI_PLAYER];
+    nptHuman:     Result := UnicodeString(Nikname);
+    nptComputer:  //In lobby AI players don't have numbers yet (they are added on mission start)
+                  Result := gResTexts[TX_LOBBY_SLOT_AI_PLAYER];
     nptClosed:    Result := gResTexts[TX_LOBBY_SLOT_CLOSED];
     else          Result := NO_TEXT;
   end;
@@ -365,23 +365,22 @@ procedure TKMNetPlayersList.AddAIPlayer(aSlot: Integer = -1);
 begin
   if aSlot = -1 then
   begin
-    Assert(fCount <= MAX_PLAYERS,'Can''t add AI player');
-    inc(fCount);
+    Assert(fCount <= MAX_PLAYERS, 'Can''t add AI player');
+    Inc(fCount);
     aSlot := fCount;
   end;
-  fNetPlayers[aSlot].fNikname := 'AI Player';
+  fNetPlayers[aSlot].fNikname := '';
   fNetPlayers[aSlot].fLangCode := '';
   fNetPlayers[aSlot].fIndexOnServer := -1;
   fNetPlayers[aSlot].PlayerNetType := nptComputer;
   fNetPlayers[aSlot].Team := 0;
   fNetPlayers[aSlot].FlagColorID := 0;
   fNetPlayers[aSlot].StartLocation := 0;
-  fNetPlayers[aSlot].ReadyToStart := true;
-  fNetPlayers[aSlot].ReadyToPlay := true;
-  fNetPlayers[aSlot].Connected := true;
-  fNetPlayers[aSlot].Dropped := false;
+  fNetPlayers[aSlot].ReadyToStart := True;
+  fNetPlayers[aSlot].ReadyToPlay := True;
+  fNetPlayers[aSlot].Connected := True;
+  fNetPlayers[aSlot].Dropped := False;
   fNetPlayers[aSlot].ResetPingRecord;
-  UpdateAIPlayerNames;
 end;
 
 
@@ -389,21 +388,21 @@ procedure TKMNetPlayersList.AddClosedPlayer(aSlot: Integer = -1);
 begin
   if aSlot = -1 then
   begin
-    Assert(fCount <= MAX_PLAYERS,'Can''t add closed player');
-    inc(fCount);
+    Assert(fCount <= MAX_PLAYERS, 'Can''t add closed player');
+    Inc(fCount);
     aSlot := fCount;
   end;
-  fNetPlayers[aSlot].fNikname := 'Closed';
+  fNetPlayers[aSlot].fNikname := '';
   fNetPlayers[aSlot].fLangCode := '';
   fNetPlayers[aSlot].fIndexOnServer := -1;
   fNetPlayers[aSlot].PlayerNetType := nptClosed;
   fNetPlayers[aSlot].Team := 0;
   fNetPlayers[aSlot].FlagColorID := 0;
   fNetPlayers[aSlot].StartLocation := 0;
-  fNetPlayers[aSlot].ReadyToStart := true;
-  fNetPlayers[aSlot].ReadyToPlay := true;
-  fNetPlayers[aSlot].Connected := true;
-  fNetPlayers[aSlot].Dropped := false;
+  fNetPlayers[aSlot].ReadyToStart := True;
+  fNetPlayers[aSlot].ReadyToPlay := True;
+  fNetPlayers[aSlot].Connected := True;
+  fNetPlayers[aSlot].Dropped := False;
   fNetPlayers[aSlot].ResetPingRecord;
 end;
 
@@ -441,7 +440,7 @@ begin
 end;
 
 
-procedure TKMNetPlayersList.RemPlayer(aIndexOnServer:integer);
+procedure TKMNetPlayersList.RemPlayer(aIndexOnServer: Integer);
 var
   ID, I: Integer;
 begin
@@ -452,51 +451,37 @@ begin
     fNetPlayers[I] := fNetPlayers[I + 1]; // Shift only pointers
 
   fNetPlayers[fCount] := TKMNetPlayerInfo.Create; // Empty players are created but not used
-  dec(fCount);
+  Dec(fCount);
 end;
 
 
-procedure TKMNetPlayersList.RemAIPlayer(ID:integer);
-var I: Integer;
-begin
-  fNetPlayers[ID].Free;
-  for I := ID to fCount - 1 do
-    fNetPlayers[I] := fNetPlayers[I + 1]; // Shift only pointers
-
-  fNetPlayers[fCount] := TKMNetPlayerInfo.Create; // Empty players are created but not used
-  dec(fCount);
-  UpdateAIPlayerNames;
-end;
-
-
-procedure TKMNetPlayersList.RemClosedPlayer(ID:integer);
+procedure TKMNetPlayersList.RemAIPlayer(aIndex: Integer);
 var
   I: Integer;
 begin
-  fNetPlayers[ID].Free;
-  for I := ID to fCount - 1 do
+  fNetPlayers[aIndex].Free;
+  for I := aIndex to fCount - 1 do
     fNetPlayers[I] := fNetPlayers[I + 1]; // Shift only pointers
 
   fNetPlayers[fCount] := TKMNetPlayerInfo.Create; // Empty players are created but not used
-  dec(fCount);
+  Dec(fCount);
 end;
 
 
-procedure TKMNetPlayersList.UpdateAIPlayerNames;
+procedure TKMNetPlayersList.RemClosedPlayer(aIndex: Integer);
 var
-  I, AICount: Integer;
+  I: Integer;
 begin
-  AICount := 0;
-  for I := 1 to fCount do
-    if fNetPlayers[I].PlayerNetType = nptComputer then
-    begin
-      Inc(AICount);
-      fNetPlayers[I].fNikname := AnsiString('AI Player ' + IntToStr(AICount));
-    end;
+  fNetPlayers[aIndex].Free;
+  for I := aIndex to fCount - 1 do
+    fNetPlayers[I] := fNetPlayers[I + 1]; // Shift only pointers
+
+  fNetPlayers[fCount] := TKMNetPlayerInfo.Create; // Empty players are created but not used
+  Dec(fCount);
 end;
 
 
-function TKMNetPlayersList.ServerToLocal(aIndexOnServer:integer):integer;
+function TKMNetPlayersList.ServerToLocal(aIndexOnServer: Integer): Integer;
 var
   I: Integer;
 begin
@@ -893,13 +878,14 @@ begin
 end;
 
 
-function TKMNetPlayersList.GetSimpleAsText: UnicodeString;
-var I: Integer;
+function TKMNetPlayersList.GetSlotNames: UnicodeString;
+var
+  I: Integer;
 begin
   Result := '';
   for I := 1 to fCount do
   begin
-    Result := Result + StringReplace(UnicodeString(fNetPlayers[I].Nikname), '|', '', [rfReplaceAll]);
+    Result := Result + fNetPlayers[I].SlotName;
     if I < fCount then
       Result := Result + '|';
   end;
@@ -907,7 +893,8 @@ end;
 
 
 function TKMNetPlayersList.GetPlayersWithIDs: UnicodeString;
-var I: Integer;
+var
+  I: Integer;
 begin
   Result := '';
   for I := 1 to fCount do

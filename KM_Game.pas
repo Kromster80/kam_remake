@@ -539,7 +539,7 @@ begin
     SetGameSpeed(fGameOptions.SpeedAfterPT, False);
 
   //First give all AI players a name so fixed AIs (not added in lobby) still have a name
-  for I := 0 to gPlayers.Count-1 do
+  for I := 0 to gPlayers.Count - 1 do
     if gPlayers[I].PlayerType = pt_Computer then
       //Can't be translated yet because PlayerName is written into save (solve this when we make network messages translated?)
       gPlayers[I].PlayerName := 'AI Player';
@@ -548,7 +548,7 @@ begin
   //Assign existing NetPlayers(1..N) to map players(0..N-1)
   for I := 1 to fNetworking.NetPlayers.Count do
   begin
-    PlayerIndex := fNetworking.NetPlayers[I].StartLocation - 1; //PlayerID is 0 based
+    PlayerIndex := fNetworking.NetPlayers[I].StartLocation - 1;
     gPlayers[PlayerIndex].PlayerType := fNetworking.NetPlayers[I].GetPlayerType;
     gPlayers[PlayerIndex].PlayerName := UnicodeString(fNetworking.NetPlayers[I].Nikname);
     gPlayers[PlayerIndex].FlagColor := fNetworking.NetPlayers[I].FlagColor;
