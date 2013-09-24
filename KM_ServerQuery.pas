@@ -123,7 +123,7 @@ type
 
     procedure RefreshList;
     procedure FetchAnnouncements(aLocale: AnsiString);
-    procedure SendMapInfo(const aMapName: string; aPlayerCount: Integer);
+    procedure SendMapInfo(const aMapName: UnicodeString; aPlayerCount: Integer);
     procedure UpdateStateIdle;
   end;
 
@@ -462,18 +462,18 @@ begin
 end;
 
 
-procedure TKMServerQuery.SendMapInfo(const aMapName: string; aPlayerCount: Integer);
+procedure TKMServerQuery.SendMapInfo(const aMapName: UnicodeString; aPlayerCount: Integer);
 begin
   fMasterServer.SendMapInfo(aMapName, aPlayerCount);
 end;
 
 
 procedure TKMServerQuery.UpdateStateIdle;
-var i: Integer;
+var I: Integer;
 begin
   fMasterServer.UpdateStateIdle;
-  for i:=0 to MAX_QUERIES-1 do
-    fQuery[i].UpdateStateIdle;
+  for I := 0 to MAX_QUERIES - 1 do
+    fQuery[I].UpdateStateIdle;
 end;
 
 

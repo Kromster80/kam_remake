@@ -114,23 +114,23 @@ type
     procedure PacketSendW(aRecipient: Integer; aKind: TKMessageKind; const aText: UnicodeString);
     procedure SetDescription(const Value: string);
   public
-    constructor Create(const aMasterServerAddress:string; aKickTimeout, aPingInterval, aAnnounceInterval:word);
+    constructor Create(const aMasterServerAddress: string; aKickTimeout, aPingInterval, aAnnounceInterval: Word);
     destructor Destroy; override;
 
-    property MyIndex:integer read fMyIndex;
-    property NetGameState:TNetGameState read fNetGameState;
+    property MyIndex: Integer read fMyIndex;
+    property NetGameState: TNetGameState read fNetGameState;
     function MyIPString:string;
     property ServerName: UnicodeString read fServerName;
     property ServerAddress: string read fServerAddress;
     property ServerPort: string read fServerPort;
-    property ServerRoom: integer read fRoomToJoin;
+    property ServerRoom: Integer read fRoomToJoin;
     function IsHost: Boolean;
     function IsReconnecting: Boolean;
 
     //Lobby
     property ServerQuery: TKMServerQuery read fServerQuery;
-    procedure Host(aServerName: UnicodeString; aPort: string; aUserName: AnsiString; aAnnounceServer: Boolean);
-    procedure Join(aServerAddress, aPort: string; aUserName: AnsiString; aRoom: Integer; aIsReconnection: Boolean = False);
+    procedure Host(aServerName: UnicodeString; aPort: string; aNikname: AnsiString; aAnnounceServer: Boolean);
+    procedure Join(aServerAddress, aPort: string; aNikname: AnsiString; aRoom: Integer; aIsReconnection: Boolean = False);
     procedure AnnounceDisconnect;
     procedure Disconnect;
     procedure DropPlayers(aPlayers: TKMByteArray);
@@ -248,7 +248,7 @@ end;
 
 
 //Startup a local server and connect to it as ordinary client
-procedure TKMNetworking.Host(aServerName: UnicodeString; aPort: string; aUserName: AnsiString; aAnnounceServer: Boolean);
+procedure TKMNetworking.Host(aServerName: UnicodeString; aPort: string; aNikname: AnsiString; aAnnounceServer: Boolean);
 begin
   fWelcomeMessage := '';
   fPassword := '';
@@ -268,11 +268,11 @@ begin
     end;
   end;
 
-  Join('127.0.0.1', aPort, aUserName, 0); //Server will assign hosting rights to us as we are the first joiner
+  Join('127.0.0.1', aPort, aNikname, 0); //Server will assign hosting rights to us as we are the first joiner
 end;
 
 
-procedure TKMNetworking.Join(aServerAddress, aPort: string; aUserName: AnsiString; aRoom: Integer; aIsReconnection: Boolean = False);
+procedure TKMNetworking.Join(aServerAddress, aPort: string; aNikname: AnsiString; aRoom: Integer; aIsReconnection: Boolean = False);
 begin
   Assert(not fNetClient.Connected, 'Cannot connect: We are already connected');
 
@@ -291,7 +291,7 @@ begin
 
   fServerAddress := aServerAddress;
   fServerPort := aPort;
-  fMyNikname := aUserName;
+  fMyNikname := aNikname;
   fNetPlayerKind := lpk_Joiner;
   fServerName := ''; //Server will tell us once we are joined
 
@@ -456,7 +456,7 @@ begin
       if fSaveInfo.Info.Enabled[K-1]
       and ((I = aPlayerID) or (aPlayerID = -1)) //-1 means update all players
       and fNetPlayers.LocAvailable(K)
-      and (fNetPlayers[I].Nikname = fSaveInfo.Info.LocationName[K-1]) then
+      and (fNetPlayers[I].Nikname = fSaveInfo.Info.LocationUser[K-1]) then
       begin
         fNetPlayers[I].StartLocation := K;
         Break;

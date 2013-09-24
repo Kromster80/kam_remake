@@ -1,4 +1,4 @@
-unit KM_Controls;
+ï»¿unit KM_Controls;
 {$I KaM_Remake.inc}
 interface
 uses
@@ -366,7 +366,12 @@ type
     procedure Paint; override;
   end;
 
-  TAllowedChars = (acDigits, acFileName, acText);
+  TAllowedChars = (
+    acDigits, //Only 0..9 digits, for numeric input
+    acANSI7, //#33..#126 - only basic latin chars and symbols for user nikname
+    acFileName, //Exclude symbols that can't be used in filenames
+    acText  //Anything is allowed except for eol symbol
+  );
 
   {EditField}
   TKMEdit = class(TKMControl)
@@ -2142,15 +2147,17 @@ procedure TKMEdit.ValidateText;
 var
   I: Integer;
 const
-  NonFileChars: set of Char = [#0 .. #31, '<', '>', '|', '"', '\', '/', ':', '*', '?'];
-  NonTextChars: set of Char = [#0 .. #31, '°', '|']; //° has negative width so acts like a backspace in KaM fonts
+  NonFileChars: set of AnsiChar = [#0 .. #31, '<', '>', '', '|', '"', '\', '/', ':', '*', '?'];
+  NonTextChars: set of AnsiChar = [#0 .. #31, '', '|']; // has negative width so acts like a backspace in KaM fonts
 begin
+  //Parse whole text incase user placed it from clipboard
 
   //Validate contents
   for I := Length(fText) downto 1 do
-  if (fAllowedChars = acDigits) and not TCharacter.IsDigit(fText[i]) or
-     (fAllowedChars = acFileName) and (fText[i] in NonFileChars) or
-     (fAllowedChars = acText) and (fText[i] in NonTextChars) then
+  if (fAllowedChars = acDigits) and not InRange(Ord(fText[I]), 48, 57)
+  or (fAllowedChars = acANSI7) and not InRange(Ord(fText[I]), 32, 126)
+  or (fAllowedChars = acFileName) and CharInSet(fText[I], NonFileChars)
+  or (fAllowedChars = acText) and CharInSet(fText[I], NonTextChars) then
   begin
     Delete(fText, I, 1);
     if CursorPos >= I then //Keep cursor in place

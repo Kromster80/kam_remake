@@ -899,8 +899,9 @@ begin
   Result := '';
   for I := 1 to fCount do
   begin
-    Result := Result + StringReplace(fNetPlayers[I].Nikname, '|', '', [rfReplaceAll]);
-    if I < fCount then Result := Result + '|';
+    Result := Result + StringReplace(UnicodeString(fNetPlayers[I].Nikname), '|', '', [rfReplaceAll]);
+    if I < fCount then
+      Result := Result + '|';
   end;
 end;
 

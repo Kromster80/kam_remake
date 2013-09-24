@@ -33,7 +33,6 @@ type
     procedure MP_ServersClick(Sender: TObject);
     procedure MP_ServersDoubleClick(Sender: TObject);
     procedure MP_GetInClick(Sender: TObject);
-    function MP_ValidatePlayerName(const aName: string): Boolean;
     function MP_GetInEnabled: Boolean;
     procedure MP_Join(aServerAddress, aPort: string; aRoom: Integer);
     procedure MP_JoinPassword(Sender: TObject);
@@ -43,6 +42,7 @@ type
     procedure MP_HostClick(Sender: TObject);
     procedure MP_HostFail(const aData: UnicodeString);
     procedure BackClick(Sender: TObject);
+    function ValidatePlayerName(const aName: UnicodeString): Boolean;
   protected
     Panel_MultiPlayer: TKMPanel;
       Panel_MPAnnouncement: TKMPanel;
@@ -92,7 +92,7 @@ uses KM_Main, KM_NetworkTypes, KM_ResTexts, KM_GameApp, KM_ResLocales,
 
 
 const
-  MAX_NAME_LENGTH = 16;
+  MAX_NIKNAME_LENGTH = 16;
 
 
 { TKMGUIMainMultiplayer }
@@ -170,7 +170,8 @@ begin
       TKMBevel.Create(Panel_MPPlayerName, 0, 0, 320, 120);
       TKMLabel.Create(Panel_MPPlayerName, 8, 10, 304, 20, gResTexts[TX_MP_MENU_PLAYERNAME], fnt_Outline, taLeft);
       Edit_MP_PlayerName := TKMEdit.Create(Panel_MPPlayerName, 8, 30, 140, 20, fnt_Grey);
-      Edit_MP_PlayerName.MaxLen := MAX_NAME_LENGTH;
+      Edit_MP_PlayerName.MaxLen := MAX_NIKNAME_LENGTH;
+      Edit_MP_PlayerName.AllowedChars := acANSI7;
       TKMLabel.Create(Panel_MPPlayerName, 8, 60, 304, 20, gResTexts[TX_MP_MENU_STATUS], fnt_Outline, taLeft);
       Label_MP_Status := TKMLabel.Create(Panel_MPPlayerName, 8, 80, 304, 36, '', fnt_Grey, taLeft);
       Label_MP_Status.AutoWrap := True;
@@ -507,8 +508,11 @@ begin
   //Save the player and IP name so it is not lost if something fails
   MP_SaveSettings;
 
-  Panel_MPCreateServer.Hide; //Hide the panel so if it fails the error message will be easy to see (e.g. name too long)
-  if not MP_ValidatePlayerName(Edit_MP_PlayerName.Text) then Exit;
+  //Hide the panel so if it fails the error message will be easy to see (e.g. name too long)
+  Panel_MPCreateServer.Hide;
+
+  if not ValidatePlayerName(Edit_MP_PlayerName.Text) then
+    Exit;
 
   fOnPageChange(gpLobby, 'HOST');
 
@@ -523,27 +527,34 @@ begin
 end;
 
 
-function TKMMenuMultiplayer.MP_ValidatePlayerName(const aName: string): Boolean;
+//Make sure that the nikname as a whole is valid (checks that TKMEdit can not always perform)
+function TKMMenuMultiplayer.ValidatePlayerName(const aName: UnicodeString): Boolean;
+var
+  err: UnicodeString;
+  I: Integer;
 begin
-  Result := False;
+  err := '';
 
-  if Trim(aName) = '' then
-  begin
-    MP_Update(gResTexts[TX_GAME_ERROR_BLANK_PLAYERNAME], icYellow, false);
-    gSoundPlayer.Play(sfxn_Error);
-  end
-  else if Length(aName) > MAX_NAME_LENGTH then
-  begin
-    MP_Update(Format(gResTexts[TX_GAME_ERROR_LONG_PLAYERNAME], [MAX_NAME_LENGTH]), icYellow, false);
-    gSoundPlayer.Play(sfxn_Error);
-  end
-  else if (Pos('|', aName) <> 0) or (Pos('[$', aName) <> 0) or (Pos('[]', aName) <> 0) or (Pos('<$', aName) <> 0) then
-  begin
-    MP_Update(gResTexts[TX_GAME_ERROR_ILLEGAL_PLAYERNAME], icYellow, false);
-    gSoundPlayer.Play(sfxn_Error);
-  end
+  if (aName = '') or (aName <> Trim(aName)) then
+    err := gResTexts[TX_GAME_ERROR_BLANK_PLAYERNAME]
   else
-    Result := True;
+  if Length(aName) > MAX_NIKNAME_LENGTH then
+    err := Format(gResTexts[TX_GAME_ERROR_LONG_PLAYERNAME], [MAX_NIKNAME_LENGTH])
+  else
+  if (Pos('|', aName) <> 0) or (Pos('[$', aName) <> 0) or (Pos('[]', aName) <> 0) or (Pos('<$', aName) <> 0) then
+    err := gResTexts[TX_GAME_ERROR_ILLEGAL_PLAYERNAME]
+  else
+  for I := 1 to Length(aName) do
+    if not InRange(Ord(aName[I]), 32, 126) then
+      err := gResTexts[TX_GAME_ERROR_ILLEGAL_PLAYERNAME];
+
+  Result := (err = '');
+
+  if not Result then
+  begin
+    MP_Update(err, icYellow, False);
+    gSoundPlayer.Play(sfxn_Error);
+  end
 end;
 
 
@@ -561,10 +572,11 @@ begin
   //Save the player and IP name so it is not lost if the connection fails
   MP_SaveSettings;
 
-  if not MP_ValidatePlayerName(Edit_MP_PlayerName.Text) then Exit;
+  if not ValidatePlayerName(Edit_MP_PlayerName.Text) then
+    Exit;
 
   //Disable buttons to prevent multiple clicks while connection process is in progress
-  MP_Update(gResTexts[TX_MP_MENU_STATUS_CONNECTING],icGreen, True);
+  MP_Update(gResTexts[TX_MP_MENU_STATUS_CONNECTING], icGreen, True);
 
   //Send request to join
   fGameApp.Networking.OnJoinSucc := MP_JoinSuccess;
@@ -597,7 +609,7 @@ end;
 procedure TKMMenuMultiplayer.MP_JoinFail(const aData: UnicodeString);
 begin
   fGameApp.Networking.Disconnect;
-  MP_Update(Format(gResTexts[TX_GAME_ERROR_CONNECTION_FAILED],[aData]),icYellow,false);
+  MP_Update(Format(gResTexts[TX_GAME_ERROR_CONNECTION_FAILED], [aData]), icYellow, False);
   gSoundPlayer.Play(sfxn_Error);
 end;
 

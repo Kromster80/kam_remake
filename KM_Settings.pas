@@ -52,7 +52,7 @@ type
     fSpeedMedium: Word;
     fSpeedFast: Word;
     fSpeedVeryFast: Word;
-    fMultiplayerName: UnicodeString;
+    fMultiplayerName: AnsiString;
     fLastIP: string;
     fLastPort: string;
     fLastRoom: string;
@@ -75,7 +75,7 @@ type
     procedure SetShuffleOn(aValue: Boolean);
     procedure SetMusicVolume(aValue: Single);
     procedure SetSoundFXVolume(aValue: Single);
-    procedure SetMultiplayerName(aValue: UnicodeString);
+    procedure SetMultiplayerName(aValue: AnsiString);
     procedure SetLastIP(aValue: string);
     procedure SetMasterServerAddress(aValue: string);
     procedure SetServerName(aValue: UnicodeString);
@@ -112,7 +112,7 @@ type
     property SpeedMedium: Word read fSpeedMedium;
     property SpeedFast: Word read fSpeedFast;
     property SpeedVeryFast: Word read fSpeedVeryFast;
-    property MultiplayerName: UnicodeString read fMultiplayerName write SetMultiplayerName;
+    property MultiplayerName: AnsiString read fMultiplayerName write SetMultiplayerName;
     property LastIP: string read fLastIP write SetLastIP;
     property LastPort: string read fLastPort write SetLastPort;
     property LastRoom: string read fLastRoom write SetLastRoom;
@@ -294,7 +294,7 @@ begin
     else
       HITPOINT_RESTORE_PACE := DEFAULT_HITPOINT_RESTORE;
 
-    fMultiplayerName        := F.ReadString ('Multiplayer','Name','NoName');
+    fMultiplayerName        := AnsiString(F.ReadString ('Multiplayer','Name','NoName'));
     fLastIP                 := F.ReadString ('Multiplayer','LastIP','127.0.0.1');
     fLastPort               := F.ReadString ('Multiplayer','LastPort','56789');
     fLastRoom               := F.ReadString ('Multiplayer','LastRoom','0');
@@ -344,7 +344,7 @@ begin
     if INI_HITPOINT_RESTORE then
       F.WriteInteger('Fights','HitPointRestorePace', HITPOINT_RESTORE_PACE);
 
-    F.WriteString ('Multiplayer','Name',    fMultiplayerName);
+    F.WriteString ('Multiplayer','Name',    UnicodeString(fMultiplayerName));
     F.WriteString ('Multiplayer','LastIP',  fLastIP);
     F.WriteString ('Multiplayer','LastPort',fLastPort);
     F.WriteString ('Multiplayer','LastRoom',fLastRoom);
@@ -412,7 +412,7 @@ begin
 end;
 
 
-procedure TGameSettings.SetMultiplayerName(aValue: UnicodeString);
+procedure TGameSettings.SetMultiplayerName(aValue: AnsiString);
 begin
   fMultiplayerName := aValue;
   Changed;

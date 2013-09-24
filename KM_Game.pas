@@ -1169,7 +1169,7 @@ begin
       begin
         fGameInfo.Enabled[I] := False;
         fGameInfo.CanBeHuman[I] := False;
-        fGameInfo.LocationName[I] := 'Unknown ' + IntToStr(I + 1);
+        fGameInfo.LocationUser[I] := AnsiString('Unknown ' + IntToStr(I + 1));
         fGameInfo.PlayerTypes[I] := pt_Human;
         fGameInfo.ColorID[I] := 0;
         fGameInfo.Team[I] := 0;
@@ -1177,7 +1177,7 @@ begin
       begin
         fGameInfo.Enabled[I] := True;
         fGameInfo.CanBeHuman[I] := fNetworking.NetPlayers[NetIndex].IsHuman;
-        fGameInfo.LocationName[I] := UnicodeString(fNetworking.NetPlayers[NetIndex].Nikname);
+        fGameInfo.LocationUser[I] := fNetworking.NetPlayers[NetIndex].Nikname;
         fGameInfo.PlayerTypes[I] := fNetworking.NetPlayers[NetIndex].GetPlayerType;
         fGameInfo.ColorID[I] := fNetworking.NetPlayers[NetIndex].FlagColorID;
         fGameInfo.Team[I] := fNetworking.NetPlayers[NetIndex].Team;
