@@ -309,7 +309,7 @@ type
     procedure ShowClock(aSpeed: Single);
     procedure ShowPlayMore(DoShow:boolean; Msg: TGameResultMsg);
     procedure ShowMPPlayMore(Msg: TGameResultMsg);
-    procedure ShowNetworkLag(aShow: Boolean; aPlayers: TStringList; IsHost: Boolean);
+    procedure ShowNetworkLag(aShow: Boolean; aPlayers: TKMByteArray; IsHost: Boolean);
     procedure SetScriptedOverlay(aText: string);
     procedure AppendScriptedOverlay(aText: string);
     procedure ReleaseDirectionSelector;
@@ -2597,7 +2597,7 @@ begin
 end;
 
 
-procedure TKMGamePlayInterface.ShowNetworkLag(aShow: Boolean; aPlayers: TStringList; IsHost: Boolean);
+procedure TKMGamePlayInterface.ShowNetworkLag(aShow: Boolean; aPlayers: TKMByteArray; IsHost: Boolean);
 var
   I: Integer;
   txt: UnicodeString;
@@ -2619,8 +2619,8 @@ begin
   else
   begin
     txt := gResTexts[TX_MULTIPLAYER_WAITING] + ' ';
-    for I := 0 to aPlayers.Count - 1 do
-      txt := txt + aPlayers.Strings[I] + IfThen(I <> aPlayers.Count-1, ', ');
+    for I := Low(aPlayers) to High(aPlayers) do
+      txt := txt + UnicodeString(fGame.Networking.NetPlayers[I].Nikname) + IfThen(I <> High(aPlayers), ', ');
 
     Button_NetDropPlayers.Visible := IsHost;
 
@@ -2677,7 +2677,7 @@ begin
   begin
     Panel_NetWaitConfirm.Hide;
     if Button_NetConfirmYes.Caption = gResTexts[TX_GAMEPLAY_DROP_PLAYERS] then
-      fGame.GameDropWaitingPlayers else
+      fGame.WaitingPlayersDrop else
     if Button_NetConfirmYes.Caption = gResTexts[TX_GAMEPLAY_QUIT_TO_MENU] then
       fGameApp.Stop(gr_Cancel);
   end

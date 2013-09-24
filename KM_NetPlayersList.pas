@@ -2,7 +2,7 @@ unit KM_NetPlayersList;
 {$I KaM_Remake.inc}
 interface
 uses Classes, KromUtils, StrUtils, Math, SysUtils,
-  KM_CommonClasses, KM_Defaults, KM_Player, KM_ResLocales;
+  KM_CommonClasses, KM_CommonTypes, KM_Defaults, KM_Player, KM_ResLocales;
 
 const
   PING_COUNT = 20; //Number of pings to store and take the maximum over for latency calculation (pings are measured once per second)
@@ -95,7 +95,7 @@ type
     function AllReady: Boolean;
     function AllReadyToPlay: Boolean;
     function GetMaxHighestRoundTripLatency: Word;
-    procedure GetNotReadyToPlayPlayers(aPlayerList: TStringList);
+    function GetNotReadyToPlayPlayers: TKMByteArray;
     function GetAICount: Integer;
     function GetClosedCount: Integer;
     function GetConnectedCount: Integer;
@@ -639,12 +639,21 @@ begin
 end;
 
 
-procedure TKMNetPlayersList.GetNotReadyToPlayPlayers(aPlayerList: TStringList);
-var I: Integer;
+function TKMNetPlayersList.GetNotReadyToPlayPlayers: TKMByteArray;
+var
+  I, K: Integer;
 begin
+  SetLength(Result, MAX_PLAYERS);
+
+  K := 0;
   for I := 1 to fCount do
     if (not fNetPlayers[I].ReadyToPlay) and fNetPlayers[I].IsHuman and fNetPlayers[I].Connected then
-      aPlayerList.Add(fNetPlayers[I].Nikname);
+    begin
+      Result[K] := I;
+      Inc(K)
+    end;
+
+  SetLength(Result, K);
 end;
 
 

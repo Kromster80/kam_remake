@@ -133,7 +133,7 @@ type
     procedure Join(aServerAddress, aPort: string; aUserName: AnsiString; aRoom: Integer; aIsReconnection: Boolean = False);
     procedure AnnounceDisconnect;
     procedure Disconnect;
-    procedure DropWaitingPlayers(aPlayers: TStringList);
+    procedure DropPlayers(aPlayers: TKMByteArray);
     function  Connected: boolean;
     procedure MatchPlayersToSave(aPlayerID:integer=-1);
     procedure SelectNoMap(aMessage:string);
@@ -361,18 +361,18 @@ begin
 end;
 
 
-procedure TKMNetworking.DropWaitingPlayers(aPlayers: TStringList);
+procedure TKMNetworking.DropPlayers(aPlayers: TKMByteArray);
 var
   I, ServerIndex: Integer;
 begin
   Assert(IsHost, 'Only the host is allowed to drop players');
-  for I := 0 to aPlayers.Count - 1 do
+  for I := Low(aPlayers) to High(aPlayers) do
   begin
-    ServerIndex := NetPlayers[NetPlayers.NiknameToLocal(aPlayers[I])].IndexOnServer;
+    ServerIndex := NetPlayers[I].IndexOnServer;
     //Make sure this player is properly disconnected from the server
     PacketSend(NET_ADDRESS_SERVER, mk_KickPlayer, ServerIndex);
     NetPlayers.DropPlayer(ServerIndex);
-    PostMessage('The host dropped ' + aPlayers[I] + ' from the game');
+    PostMessage('The host dropped ' + UnicodeString(NetPlayers[I].Nikname) + ' from the game');
   end;
   SendPlayerListAndRefreshPlayersSetup;
 end;

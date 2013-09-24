@@ -1,7 +1,7 @@
 unit KM_GameInputProcess_Multi;
 {$I KaM_Remake.inc}
 interface
-uses Classes, SysUtils, Math, KromUtils, KM_GameInputProcess, KM_Networking, KM_Defaults, KM_CommonClasses;
+uses Classes, SysUtils, Math, KromUtils, KM_GameInputProcess, KM_Networking, KM_Defaults, KM_CommonClasses, KM_CommonTypes;
 
 const
   MAX_SCHEDULE = 100; //Size of ring buffers (10 sec) Make them large so overruns do not occur
@@ -70,7 +70,7 @@ type
     procedure AdjustDelay(aGameSpeed: Single);
     function GetNetworkDelay:word;
     property GetNumberConsecutiveWaits:word read fNumberConsecutiveWaits;
-    procedure GetWaitingPlayers(aTick:cardinal; aPlayersList:TStringList);
+    function GetWaitingPlayers(aTick: Cardinal): TKMByteArray;
     procedure RecieveCommands(aStream: TKMemoryStream); //Called by TKMNetwork when it has data for us
     procedure ResyncFromTick(aSender:Integer; aTick:cardinal);
     function CommandsConfirmed(aTick:cardinal):boolean; override;
@@ -335,14 +335,23 @@ begin
 end;
 
 
-procedure TGameInputProcess_Multi.GetWaitingPlayers(aTick: Cardinal; aPlayersList: TStringList);
+//Indexes of players we are waiting for
+function TGameInputProcess_Multi.GetWaitingPlayers(aTick: Cardinal): TKMByteArray;
 var
-  I: Integer;
+  I, K: Integer;
 begin
+  SetLength(Result, MAX_PLAYERS);
+
+  K := 0;
   for I := 1 to fNetworking.NetPlayers.Count do
-    if not (fRecievedData[aTick mod MAX_SCHEDULE, fNetworking.NetPlayers[I].StartLocation - 1] or
-           (not fNetworking.NetPlayers[I].IsHuman) or fNetworking.NetPlayers[I].Dropped) then
-      aPlayersList.Add(fNetworking.NetPlayers[I].Nikname);
+    if not (fRecievedData[aTick mod MAX_SCHEDULE, fNetworking.NetPlayers[I].StartLocation - 1]
+    or (not fNetworking.NetPlayers[I].IsHuman) or fNetworking.NetPlayers[I].Dropped) then
+    begin
+      Result[K] := I;
+      Inc(K);
+    end;
+
+  SetLength(Result, K);
 end;
 
 

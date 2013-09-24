@@ -4,6 +4,7 @@ interface
 
 
 type
+  TKMByteArray = array of Byte;
   TKMByte2Array = array of array of Byte;
   PKMByte2Array = ^TKMByte2Array;
   TKMWordArray = array of Word;
