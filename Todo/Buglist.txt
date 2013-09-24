@@ -66,7 +66,7 @@ Improvements:
 	L	Multiplayer in-game player list and lobby description ordered (grouped) by teams [Lewin, implemented?]
 	M	New column in load/replays menus: Date/time (stored internally in save format since file modified date is not very trustworthy) [Marcin]
 	L	New command !SKIP_HOUSE. If I want a map with no stone, then after building the inn the woodcutter and tower should become available (skips the stonemason)
-	M	Pause in multiplayer (only host can use it, maybe later have a lobby setting "clients may pause")
+	M	Pause in multiplayer (pause by everyone and unpause by at least 2 other players)
 	L	"Checkpoints" in replays every 20 minutes or so to allow skipping forwards/backwards (zips entire game state which can be loaded)
 			Krom: Not sure how this will cope with 29hour games
 			Lewin: We can delete save points as the game goes longer. By the time we reach 29 hours we only keep save points from every 1-2 hours. For 90 minute games we keep one every 10 minutes.
