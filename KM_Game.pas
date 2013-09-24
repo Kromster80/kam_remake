@@ -45,7 +45,7 @@ type
     fGameSpeed: Single; //Actual speedup value
     fGameSpeedMultiplier: Word; //How many ticks are compressed into one
     fGameMode: TGameMode;
-    fWaitingForNetwork: Boolean;
+    fWaitingForNetwork: Boolean; //Indicates that we are waiting for other players commands in MP
     fAdvanceFrame: Boolean; //Replay variable to advance 1 frame, afterwards set to false
     fSaveFile: UnicodeString;  //Relative pathname to savegame we are playing, so it gets saved to crashreport
     fShowTeamNames: Boolean;
@@ -1447,8 +1447,10 @@ begin
                     begin
                       if DO_PERF_LOGGING then fPerfLog.EnterSection(psTick);
 
+                      //As soon as next command arrives we are longer in a waiting state
                       if fWaitingForNetwork then
-                        GameWaitingForNetwork(False); //No longer waiting for players
+                        GameWaitingForNetwork(False);
+
                       Inc(fGameTickCount); //Thats our tick counter for gameplay events
                       if (fGameMode = gmMulti) then fNetworking.LastProcessedTick := fGameTickCount;
                       //Tell the master server about our game on the specific tick (host only)

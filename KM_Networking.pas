@@ -1,4 +1,4 @@
-unit KM_Networking;
+﻿unit KM_Networking;
 {$I KaM_Remake.inc}
 interface
 uses
@@ -128,7 +128,7 @@ type
     function IsReconnecting: Boolean;
 
     //Lobby
-    property ServerQuery:TKMServerQuery read fServerQuery;
+    property ServerQuery: TKMServerQuery read fServerQuery;
     procedure Host(aServerName: UnicodeString; aPort: string; aUserName: AnsiString; aAnnounceServer: Boolean);
     procedure Join(aServerAddress, aPort: string; aUserName: AnsiString; aRoom: Integer; aIsReconnection: Boolean = False);
     procedure AnnounceDisconnect;

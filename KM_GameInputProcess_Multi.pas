@@ -328,7 +328,7 @@ function TGameInputProcess_Multi.CommandsConfirmed(aTick: Cardinal): Boolean;
 var
   I: Integer;
 begin
-  Result := true;
+  Result := True;
   for I := 1 to fNetworking.NetPlayers.Count do
     Result := Result and (fRecievedData[aTick mod MAX_SCHEDULE, fNetworking.NetPlayers[I].StartLocation - 1]
               or not fNetworking.NetPlayers[I].IsHuman or fNetworking.NetPlayers[I].Dropped);
