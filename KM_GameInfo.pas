@@ -24,7 +24,7 @@ type
     //Location name is string because for savegames we store players name there
     Enabled: array [0..MAX_PLAYERS-1] of Boolean;
     CanBeHuman: array [0..MAX_PLAYERS-1] of Boolean;
-    LocationUser: array [0..MAX_PLAYERS-1] of AnsiString; //Nikname of the player who played from this location
+    LocationUser: array [0..MAX_PLAYERS-1] of AnsiString; //Nikname of the player who plays this location
     PlayerTypes: array [0..MAX_PLAYERS-1] of TPlayerType;
     ColorID: array [0..MAX_PLAYERS-1] of Integer;
     Team: array [0..MAX_PLAYERS-1] of Integer;

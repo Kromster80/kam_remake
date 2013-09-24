@@ -76,9 +76,8 @@ type
     procedure DisconnectPlayer(aIndexOnServer: Integer);
     procedure DisconnectAllClients(aOwnNikname: AnsiString);
     procedure DropPlayer(aIndexOnServer: Integer);
-    procedure RemPlayer(aIndexOnServer: Integer);
-    procedure RemAIPlayer(aIndex: Integer);
-    procedure RemClosedPlayer(aIndex: Integer);
+    procedure RemPlayer(aIndex: Integer);
+    procedure RemServerPlayer(aIndexOnServer: Integer);
     property Player[aIndex: Integer]: TKMNetPlayerInfo read GetPlayer; default;
 
     //Getters
@@ -333,11 +332,12 @@ end;
 
 
 procedure TKMNetPlayersList.RemAllClosedPlayers;
-var I: Integer;
+var
+  I: Integer;
 begin
-  for i:=fCount downto 1 do
-    if Player[i].IsClosed then
-      RemClosedPlayer(i);
+  for I := fCount downto 1 do
+    if Player[I].IsClosed then
+      RemPlayer(I);
 end;
 
 
@@ -440,44 +440,26 @@ begin
 end;
 
 
-procedure TKMNetPlayersList.RemPlayer(aIndexOnServer: Integer);
+procedure TKMNetPlayersList.RemPlayer(aIndex: Integer);
 var
-  ID, I: Integer;
+  I: Integer;
+begin
+  fNetPlayers[aIndex].Free;
+  for I := aIndex to fCount - 1 do
+    fNetPlayers[I] := fNetPlayers[I + 1]; // Shift only pointers
+
+  fNetPlayers[fCount] := TKMNetPlayerInfo.Create; // Empty players are created but not used
+  Dec(fCount);
+end;
+
+
+procedure TKMNetPlayersList.RemServerPlayer(aIndexOnServer: Integer);
+var
+  ID: Integer;
 begin
   ID := ServerToLocal(aIndexOnServer);
-  Assert(ID <> -1, 'Cannot remove player');
-  fNetPlayers[ID].Free;
-  for I := ID to fCount - 1 do
-    fNetPlayers[I] := fNetPlayers[I + 1]; // Shift only pointers
-
-  fNetPlayers[fCount] := TKMNetPlayerInfo.Create; // Empty players are created but not used
-  Dec(fCount);
-end;
-
-
-procedure TKMNetPlayersList.RemAIPlayer(aIndex: Integer);
-var
-  I: Integer;
-begin
-  fNetPlayers[aIndex].Free;
-  for I := aIndex to fCount - 1 do
-    fNetPlayers[I] := fNetPlayers[I + 1]; // Shift only pointers
-
-  fNetPlayers[fCount] := TKMNetPlayerInfo.Create; // Empty players are created but not used
-  Dec(fCount);
-end;
-
-
-procedure TKMNetPlayersList.RemClosedPlayer(aIndex: Integer);
-var
-  I: Integer;
-begin
-  fNetPlayers[aIndex].Free;
-  for I := aIndex to fCount - 1 do
-    fNetPlayers[I] := fNetPlayers[I + 1]; // Shift only pointers
-
-  fNetPlayers[fCount] := TKMNetPlayerInfo.Create; // Empty players are created but not used
-  Dec(fCount);
+  Assert(ID <> -1, 'Cannot remove non-existing player');
+  RemPlayer(ID);
 end;
 
 
@@ -529,19 +511,19 @@ end;
 
 
 //See if player can join our game
-function TKMNetPlayersList.CheckCanJoin(aNik: AnsiString; aIndexOnServer:integer): AnsiString;
+function TKMNetPlayersList.CheckCanJoin(aNik: AnsiString; aIndexOnServer: Integer): AnsiString;
 begin
   if fCount >= MAX_PLAYERS then
     Result := 'Room is full. No more players can join the game'
   else
   if ServerToLocal(aIndexOnServer) <> -1 then
-    Result := 'Player with said index already joined the game'
+    Result := 'Player with the same index has already joined the game, please retry'
   else
   if NiknameToLocal(aNik) <> -1 then
-    Result := 'Player with the same name already joined the game'
+    Result := 'Player with the same name has already joined the game, please retry'
   else
-  if LeftStr(aNik,length('AI Player')) = 'AI Player' then
-    Result := 'Cannot have the same name as AI players'
+  if (aNik = 'AI Player') or (aNik = 'Closed') then
+    Result := 'Special slot names can not be used'
   else
     Result := '';
 end;

@@ -772,10 +772,9 @@ begin
         case DropBox_LobbyPlayerSlot[I].ItemIndex of
           0: //Open
             begin
-              if fNetworking.NetPlayers[I+1].IsComputer then
-                fNetworking.NetPlayers.RemAIPlayer(I+1)
-              else if fNetworking.NetPlayers[I+1].IsClosed then
-                fNetworking.NetPlayers.RemClosedPlayer(I+1);
+              if fNetworking.NetPlayers[I+1].IsComputer
+              or fNetworking.NetPlayers[I+1].IsClosed then
+                fNetworking.NetPlayers.RemPlayer(I+1);
             end;
           1: //Closed
             fNetworking.NetPlayers.AddClosedPlayer(I+1); //Replace it

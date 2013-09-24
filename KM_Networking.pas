@@ -1225,7 +1225,7 @@ begin
                       TryPlayGame;
                     end
                     else
-                      fNetPlayers.RemPlayer(tmpInteger);
+                      fNetPlayers.RemServerPlayer(tmpInteger);
                   SendPlayerListAndRefreshPlayersSetup;
                 end
                 else
@@ -1237,7 +1237,7 @@ begin
                       if fNetGameState = lgs_Loading then
                         fNetPlayers.DropPlayer(tmpInteger)
                       else
-                        fNetPlayers.RemPlayer(tmpInteger); //Remove the player anyway as it might be the host that was lost
+                        fNetPlayers.RemServerPlayer(tmpInteger); //Remove the player anyway as it might be the host that was lost
                   end;
               end;
 
@@ -1250,7 +1250,7 @@ begin
                       if fNetGameState in [lgs_Loading, lgs_Game] then
                         fNetPlayers.DropPlayer(aSenderIndex)
                       else
-                        fNetPlayers.RemPlayer(aSenderIndex);
+                        fNetPlayers.RemServerPlayer(aSenderIndex);
                       SendPlayerListAndRefreshPlayersSetup;
                     end;
                 lpk_Joiner:
@@ -1261,7 +1261,7 @@ begin
                       if fNetGameState in [lgs_Loading, lgs_Game] then
                         fNetPlayers.DropPlayer(aSenderIndex)
                       else
-                        fNetPlayers.RemPlayer(aSenderIndex);
+                        fNetPlayers.RemServerPlayer(aSenderIndex);
                     end;
               end;
 
