@@ -49,7 +49,7 @@ type
     fStats: TKMPlayerStats;
     fUnitGroups: TKMUnitGroups;
 
-    fPlayerName: UnicodeString;
+    fOwnerNikname: AnsiString;
     fPlayerType: TPlayerType;
     fFlagColor: Cardinal;
     fCenterScreen: TKMPoint;
@@ -83,8 +83,8 @@ type
     property UnitGroups: TKMUnitGroups read fUnitGroups;
 
     procedure SetPlayerID(aNewIndex: TPlayerIndex);
-    property PlayerName: UnicodeString read fPlayerName write fPlayerName;
-    function GetFormattedPlayerName: UnicodeString;
+    procedure SetOwnerNikname(aName: AnsiString); //MP owner nikname (empty in SP)
+    function OwnerName: UnicodeString; //Universal owner name
     function HasAssets: Boolean;
     property PlayerType: TPlayerType read fPlayerType write fPlayerType; //Is it Human or AI
     property FlagColor: Cardinal read fFlagColor write fFlagColor;
@@ -108,7 +108,7 @@ type
     procedure AddRoadToList(aLoc: TKMPoint);
     //procedure AddRoadConnect(LocA,LocB: TKMPoint);
     procedure AddField(aLoc: TKMPoint; aFieldType: TFieldType);
-    procedure ToggleFieldPlan(aLoc: TKMPoint; aFieldType: TFieldType; aMakeSound:Boolean);
+    procedure ToggleFieldPlan(aLoc: TKMPoint; aFieldType: TFieldType; aMakeSound: Boolean);
     procedure ToggleFakeFieldPlan(aLoc: TKMPoint; aFieldType: TFieldType);
     function AddHouse(aHouseType: THouseType; PosX, PosY:word; RelativeEntrace: Boolean): TKMHouse;
     procedure AddHousePlan(aHouseType: THouseType; aLoc: TKMPoint);
@@ -243,7 +243,7 @@ begin
   fArmyEval     := TKMArmyEvaluation.Create(aPlayerIndex);
   fUnitGroups   := TKMUnitGroups.Create;
 
-  fPlayerName   := '';
+  fOwnerNikname := '';
   fPlayerType   := pt_Computer;
   for I := 0 to MAX_PLAYERS - 1 do
   begin
@@ -428,6 +428,12 @@ begin
   fUnits.OwnerUpdate(aNewIndex);
   fHouses.OwnerUpdate(aNewIndex);
   fAI.OwnerUpdate(aNewIndex);
+end;
+
+
+procedure TKMPlayer.SetOwnerNikname(aName: AnsiString); //MP owner nikname (empty in SP)
+begin
+  fOwnerNikname := aName;
 end;
 
 
@@ -905,7 +911,8 @@ end;
 
 
 function TKMPlayer.GetColorIndex: Byte;
-var I: Integer;
+var
+  I: Integer;
 begin
   Result := 3; //3 = Black which can be the default when a non-palette 32 bit color value is used
   for I := 0 to 255 do
@@ -914,21 +921,23 @@ begin
 end;
 
 
-function TKMPlayer.GetFormattedPlayerName: UnicodeString;
+function TKMPlayer.OwnerName: UnicodeString;
 begin
-  if fPlayerName <> '' then
-    Result := fPlayerName
+  //Default names
+  if PlayerType = pt_Human then
+    Result := gResTexts[TX_PLAYER_YOU]
   else
-  begin
-    if PlayerType = pt_Human then
-      Result := gResTexts[TX_PLAYER_YOU]
-    else
-      Result := Format(gResTexts[TX_PLAYER_X], [fPlayerIndex + 1]);
-  end;
+    Result := Format(gResTexts[TX_PLAYER_X], [fPlayerIndex + 1]);
+  --- maybe we dont need fOwnerNikname cos its saved in GameInfo header, independently from players (cos they actually dont care for that name)
+  //todo: Try to take player name from mission text
+
+  //If this location was controlled by a real player - show his nik
+  if fOwnerNikname <> '' then
+    Result := fOwnerNikname;
 end;
 
 
-function  TKMPlayer.GetAlliances(aIndex: Integer): TAllianceType;
+function TKMPlayer.GetAlliances(aIndex: Integer): TAllianceType;
 begin
   Result := fAlliances[aIndex];
 end;
@@ -1086,7 +1095,7 @@ begin
   fUnitGroups.Save(SaveStream);
 
   SaveStream.Write(fPlayerIndex);
-  SaveStream.WriteW(fPlayerName);
+  SaveStream.WriteA(fOwnerNikname);
   SaveStream.Write(fPlayerType, SizeOf(fPlayerType));
   SaveStream.Write(fAlliances, SizeOf(fAlliances));
   SaveStream.Write(fShareFOW, SizeOf(fShareFOW));
@@ -1110,7 +1119,7 @@ begin
   fUnitGroups.Load(LoadStream);
 
   LoadStream.Read(fPlayerIndex);
-  LoadStream.ReadW(fPlayerName);
+  LoadStream.ReadA(fOwnerNikname);
   LoadStream.Read(fPlayerType, SizeOf(fPlayerType));
   LoadStream.Read(fAlliances, SizeOf(fAlliances));
   LoadStream.Read(fShareFOW, SizeOf(fShareFOW));

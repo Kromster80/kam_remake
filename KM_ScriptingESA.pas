@@ -487,7 +487,7 @@ end;
 function TKMScriptStates.PlayerName(aPlayer: Byte): UnicodeString;
 begin
   if InRange(aPlayer, 0, gPlayers.Count - 1) then
-    Result := gPlayers[aPlayer].PlayerName
+    Result := gPlayers[aPlayer].OwnerName
   else
   begin
     Result := '';

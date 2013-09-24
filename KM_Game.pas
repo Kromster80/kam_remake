@@ -538,20 +538,15 @@ begin
   else
     SetGameSpeed(fGameOptions.SpeedAfterPT, False);
 
-  //First give all AI players a name so fixed AIs (not added in lobby) still have a name
-  for I := 0 to gPlayers.Count - 1 do
-    if gPlayers[I].PlayerType = pt_Computer then
-      //Can't be translated yet because PlayerName is written into save (solve this when we make network messages translated?)
-      gPlayers[I].PlayerName := 'AI Player';
-
-
   //Assign existing NetPlayers(1..N) to map players(0..N-1)
   for I := 1 to fNetworking.NetPlayers.Count do
   begin
     PlayerIndex := fNetworking.NetPlayers[I].StartLocation - 1;
     gPlayers[PlayerIndex].PlayerType := fNetworking.NetPlayers[I].GetPlayerType;
-    gPlayers[PlayerIndex].PlayerName := UnicodeString(fNetworking.NetPlayers[I].Nikname);
     gPlayers[PlayerIndex].FlagColor := fNetworking.NetPlayers[I].FlagColor;
+
+    //Set owners name so we can write it into savegame/replay
+    gPlayers[PlayerIndex].SetOwnerNikname(fNetworking.NetPlayers[I].Nikname);
   end;
 
   //Setup alliances
@@ -762,7 +757,7 @@ begin
   if fGameMode = gmMulti then
   begin
     fNetworking.PostLocalMessage(Format(gResTexts[TX_MULTIPLAYER_PLAYER_DEFEATED],
-                                        [gPlayers[aPlayerIndex].PlayerName]));
+                                        [gPlayers[aPlayerIndex].OwnerName]));
     if aPlayerIndex = MySpectator.PlayerIndex then
     begin
       PlayOnState := gr_Defeat;
@@ -1278,7 +1273,7 @@ procedure TKMGame.Load(const aPathName: string);
 var
   LoadStream: TKMemoryStream;
   GameInfo: TKMGameInfo;
-  LoadedSeed: Longint;
+  LoadedSeed: LongInt;
   SaveIsMultiplayer: Boolean;
 begin
   fSaveFile := ChangeFileExt(ExtractRelativePath(ExeDir, aPathName), '.sav');

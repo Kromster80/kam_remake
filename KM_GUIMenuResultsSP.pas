@@ -76,12 +76,13 @@ procedure TKMMenuResultsSP.Refresh;
 var
   TempGraphCount: Integer;
   TempGraphs: array [0..MAX_PLAYERS-1] of record
+                                          OwnerName: UnicodeString;
                                           Color: Cardinal;
                                           G: TKMCardinalArray;
                                         end;
 
   //Temp graphs are used to adjoin same colored AI opponents into one chart
-  procedure AddToTempGraph(aColor: Cardinal; aGraph: TKMCardinalArray);
+  procedure AddToTempGraph(aOwnerName: UnicodeString; aColor: Cardinal; aGraph: TKMCardinalArray);
   var I, ID: Integer;
   begin
     ID := -1;
@@ -94,13 +95,15 @@ var
     if ID = -1 then
     begin
       ID := TempGraphCount;
-      inc(TempGraphCount);
+      Inc(TempGraphCount);
       TempGraphs[ID].G := aGraph; //Overwrite existing graph
     end
     else
       for I := 0 to Length(aGraph) - 1 do
-        inc(TempGraphs[ID].G[I], aGraph[I]); //Add each element to the existing elements
+        Inc(TempGraphs[ID].G[I], aGraph[I]); //Add each element to the existing elements
+
     TempGraphs[ID].Color := aColor;
+    TempGraphs[ID].OwnerName := aOwnerName;
   end;
 
 var
@@ -175,43 +178,43 @@ begin
     for I := 0 to gPlayers.Count - 1 do
     with gPlayers[I] do
       if PlayerType = pt_Computer then
-        AddToTempGraph(FlagColor, Stats.ChartArmy)
+        AddToTempGraph(OwnerName, FlagColor, Stats.ChartArmy)
       else
-        Chart_Army.AddLine(GetFormattedPlayerName, FlagColor, Stats.ChartArmy);
+        Chart_Army.AddLine(OwnerName, FlagColor, Stats.ChartArmy);
 
     if ShowAIResults then
       for I := 0 to TempGraphCount - 1 do
-        Chart_Army.AddLine(Format(gResTexts[TX_PLAYER_X], [I+1]), TempGraphs[I].Color, TempGraphs[I].G);
+        Chart_Army.AddLine(TempGraphs[I].OwnerName, TempGraphs[I].Color, TempGraphs[I].G);
 
     //Citizens
     TempGraphCount := 0; //Reset
     for I := 0 to gPlayers.Count - 1 do
     with gPlayers[I] do
       if PlayerType = pt_Computer then
-        AddToTempGraph(FlagColor, Stats.ChartCitizens)
+        AddToTempGraph(OwnerName, FlagColor, Stats.ChartCitizens)
       else
       begin
-        Chart_Citizens.AddLine(GetFormattedPlayerName, FlagColor, Stats.ChartCitizens);
+        Chart_Citizens.AddLine(OwnerName, FlagColor, Stats.ChartCitizens);
         //Recruits aren't that important, but if we want to include them they should be a separate graph
         //Chart_Citizens.AddAltLine(Stats.ChartRecruits);
       end;
 
     if ShowAIResults then
       for I := 0 to TempGraphCount - 1 do
-        Chart_Citizens.AddLine(Format(gResTexts[TX_PLAYER_X], [I+1]), TempGraphs[I].Color, TempGraphs[I].G);
+        Chart_Citizens.AddLine(TempGraphs[I].OwnerName, TempGraphs[I].Color, TempGraphs[I].G);
 
     //Houses
     TempGraphCount := 0; //Reset
     for I := 0 to gPlayers.Count - 1 do
     with gPlayers[I] do
       if PlayerType = pt_Computer then
-        AddToTempGraph(FlagColor, Stats.ChartHouses)
+        AddToTempGraph(OwnerName, FlagColor, Stats.ChartHouses)
       else
-        Chart_Houses.AddLine(GetFormattedPlayerName, FlagColor, Stats.ChartHouses);
+        Chart_Houses.AddLine(OwnerName, FlagColor, Stats.ChartHouses);
 
     if ShowAIResults then
       for I := 0 to TempGraphCount - 1 do
-        Chart_Houses.AddLine(Format(gResTexts[TX_PLAYER_X], [I+1]), TempGraphs[I].Color, TempGraphs[I].G);
+        Chart_Houses.AddLine(TempGraphs[I].OwnerName, TempGraphs[I].Color, TempGraphs[I].G);
 
     //Wares
     for R := WARE_MIN to WARE_MAX do

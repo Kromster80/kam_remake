@@ -2482,7 +2482,7 @@ begin
     Dropbox_ReplayFOW.Add(gResTexts[TX_REPLAY_SHOW_ALL], -1);
     for I := 0 to gPlayers.Count - 1 do
     if gPlayers[I].Enabled and (gPlayers[I].PlayerType = pt_Human) then
-        Dropbox_ReplayFOW.Add(WrapColor(gPlayers[I].GetFormattedPlayerName, FlagColorToTextColor(gPlayers[I].FlagColor)));
+        Dropbox_ReplayFOW.Add(WrapColor(gPlayers[I].OwnerName, FlagColorToTextColor(gPlayers[I].FlagColor)));
     Dropbox_ReplayFOW.ItemIndex := 0;
   end;
 end;
@@ -3689,7 +3689,7 @@ begin
       U := TKMUnit(fTeamNames[I]);
       if U.Visible and (MySpectator.FogOfWar.CheckRevelation(U.PositionF) > FOG_OF_WAR_MIN) then
       begin
-        Label_TeamName.Caption := gPlayers[U.Owner].PlayerName;
+        Label_TeamName.Caption := gPlayers[U.Owner].OwnerName;
         Label_TeamName.FontColor := FlagColorToTextColor(gPlayers[U.Owner].FlagColor);
 
         UnitLoc := U.PositionF;

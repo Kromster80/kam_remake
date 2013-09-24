@@ -281,9 +281,9 @@ begin
     if gPlayers[I].Enabled then
     begin
       SetPlayerControls(Index, True); //Enable used ones
-      Label_ResultsPlayerName1[Index].Caption   := gPlayers[I].PlayerName;
+      Label_ResultsPlayerName1[Index].Caption   := gPlayers[I].OwnerName;
       Label_ResultsPlayerName1[Index].FontColor := FlagColorToTextColor(gPlayers[I].FlagColor);
-      Label_ResultsPlayerName2[Index].Caption   := gPlayers[I].PlayerName;
+      Label_ResultsPlayerName2[Index].Caption   := gPlayers[I].OwnerName;
       Label_ResultsPlayerName2[Index].FontColor := FlagColorToTextColor(gPlayers[I].FlagColor);
       Inc(Index);
     end;
@@ -428,7 +428,7 @@ begin
     if Enabled then
     begin
       Chart_MPArmy.MaxLength := Max(Chart_MPArmy.MaxLength, Stats.ChartCount);
-      Chart_MPArmy.AddLine(PlayerName, FlagColor, Stats.ChartArmy);
+      Chart_MPArmy.AddLine(OwnerName, FlagColor, Stats.ChartArmy);
     end;
 
   Chart_MPArmy.TrimToFirstVariation;
@@ -438,7 +438,7 @@ begin
     if Enabled then
     begin
       Chart_MPCitizens.MaxLength := Max(Chart_MPCitizens.MaxLength, Stats.ChartCount);
-      Chart_MPCitizens.AddLine(PlayerName, FlagColor, Stats.ChartCitizens);
+      Chart_MPCitizens.AddLine(OwnerName, FlagColor, Stats.ChartCitizens);
     end;
 
   for I := 0 to gPlayers.Count - 1 do
@@ -446,7 +446,7 @@ begin
     if Enabled then
     begin
       Chart_MPHouses.MaxLength := Max(Chart_MPHouses.MaxLength, Stats.ChartCount);
-      Chart_MPHouses.AddLine(PlayerName, FlagColor, Stats.ChartHouses);
+      Chart_MPHouses.AddLine(OwnerName, FlagColor, Stats.ChartHouses);
     end;
 end;
 
@@ -497,7 +497,7 @@ begin
     begin
       Chart_MPWares[R].MaxLength := Max(Chart_MPWares[R].MaxLength, Stats.ChartCount);
       //Do some postprocessing on stats (GDP, food value)
-      Chart_MPWares[R].AddLine(PlayerName, FlagColor, GetChartWares(I, R), I);
+      Chart_MPWares[R].AddLine(OwnerName, FlagColor, GetChartWares(I, R), I);
     end;
   end;
 

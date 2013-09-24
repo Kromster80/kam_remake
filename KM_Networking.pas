@@ -523,7 +523,7 @@ begin
   FreeAndNil(fMapInfo);
   FreeAndNil(fSaveInfo);
 
-  fSaveInfo := TKMSaveInfo.Create(ExeDir + 'SavesMP'+PathDelim, aName);
+  fSaveInfo := TKMSaveInfo.Create(ExeDir + 'SavesMP' + PathDelim, aName);
 
   if not fSaveInfo.IsValid then
   begin
