@@ -41,7 +41,6 @@
 			<Base>true</Base>
 		</PropertyGroup>
 		<PropertyGroup Condition="'$(Base)'!=''">
-			<DCC_IMPLICIT_STRING_CAST>false</DCC_IMPLICIT_STRING_CAST>
 			<DCC_COMPARING_SIGNED_UNSIGNED>false</DCC_COMPARING_SIGNED_UNSIGNED>
 			<DCC_COMBINING_SIGNED_UNSIGNED>false</DCC_COMBINING_SIGNED_UNSIGNED>
 			<DCC_MaxStackSize>2097152</DCC_MaxStackSize>
