@@ -2147,8 +2147,8 @@ procedure TKMEdit.ValidateText;
 var
   I: Integer;
 const
-  NonFileChars: set of AnsiChar = [#0 .. #31, '<', '>', '', '|', '"', '\', '/', ':', '*', '?'];
-  NonTextChars: set of AnsiChar = [#0 .. #31, '', '|']; // has negative width so acts like a backspace in KaM fonts
+  NonFileChars: set of AnsiChar = [#0 .. #31, '<', '>', '°', '|', '"', '\', '/', ':', '*', '?'];
+  NonTextChars: set of AnsiChar = [#0 .. #31, '°', '|']; //° has negative width so acts like a backspace in KaM fonts
 begin
   //Parse whole text incase user placed it from clipboard
 
