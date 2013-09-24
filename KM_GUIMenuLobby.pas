@@ -884,7 +884,7 @@ begin
                       //Disable taken locations
                       if not fNetworking.NetPlayers.LocAvailable(K+1)
                       and (fNetworking.NetPlayers[I+1].StartLocation <> K+1) then
-                        LocationName := '[$707070]'+LocationName+'[]';
+                        LocationName := '[$707070]' + LocationName + '[]';
                       DropBox_LobbyLoc[I].Add(LocationName, K+1);
                     end;
                 end;
@@ -994,19 +994,21 @@ end;
 
 
 procedure TKMMenuLobby.Lobby_OnPingInfo(Sender: TObject);
-var I: Integer;
+var
+  I: Integer;
 begin
   for I := 0 to MAX_PLAYERS - 1 do
-  if (fNetworking.Connected) and (I < fNetworking.NetPlayers.Count) and
-     (fNetworking.NetPlayers[I+1].IsHuman) then
-  begin
-    Label_LobbyPing[I].Caption := IntToStr(fNetworking.NetPlayers[I+1].GetInstantPing);
-    Label_LobbyPing[I].FontColor := GetPingColor(fNetworking.NetPlayers[I+1].GetInstantPing);
-  end
-  else
-    Label_LobbyPing[I].Caption := '';
-  Label_LobbyServerName.Caption := fNetworking.ServerName+' #'+IntToStr(fNetworking.ServerRoom+1)+
-                                   '  '+fNetworking.ServerAddress+' : '+fNetworking.ServerPort;
+    if (fNetworking.Connected) and (I < fNetworking.NetPlayers.Count) and
+       (fNetworking.NetPlayers[I+1].IsHuman) then
+    begin
+      Label_LobbyPing[I].Caption := IntToStr(fNetworking.NetPlayers[I+1].GetInstantPing);
+      Label_LobbyPing[I].FontColor := GetPingColor(fNetworking.NetPlayers[I+1].GetInstantPing);
+    end
+    else
+      Label_LobbyPing[I].Caption := '';
+
+  Label_LobbyServerName.Caption := fNetworking.ServerName + ' #' + IntToStr(fNetworking.ServerRoom+1) +
+                                   '  ' + fNetworking.ServerAddress + ' : ' + fNetworking.ServerPort;
 end;
 
 

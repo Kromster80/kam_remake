@@ -63,11 +63,11 @@ begin
     Label_Credits_KaM := TKMLabelScroll.Create(Panel_Credits, aParent.Width div 2 + OFFSET, 110, 0, aParent.Height - 130, gResTexts[TX_CREDITS_TEXT], fnt_Grey, taCenter);
     Label_Credits_KaM.Anchors := [akLeft,akTop,akBottom];
 
-    Button_CreditsHomepage:=TKMButton.Create(Panel_Credits,400,610,224,30,'[$F8A070]www.kamremake.com[]',bsMenu);
+    Button_CreditsHomepage:=TKMButton.Create(Panel_Credits,400,610,224,30, '[$F8A070]www.kamremake.com[]', bsMenu);
     Button_CreditsHomepage.Anchors := [akLeft,akBottom];
     Button_CreditsHomepage.OnClick := LinkClick;
 
-    Button_CreditsFacebook:=TKMButton.Create(Panel_Credits,400,646,224,30,'[$F8A070]Facebook[]',bsMenu);
+    Button_CreditsFacebook:=TKMButton.Create(Panel_Credits,400,646,224,30, '[$F8A070]Facebook[]', bsMenu);
     Button_CreditsFacebook.Anchors := [akLeft,akBottom];
     Button_CreditsFacebook.OnClick := LinkClick;
 

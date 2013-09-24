@@ -32,7 +32,6 @@ object Form1: TForm1
     Anchors = [akLeft, akTop, akRight, akBottom]
     Options = [goFixedVertLine, goFixedHorzLine, goVertLine, goHorzLine, goRangeSelect, goThumbTracking]
     TabOrder = 0
-    ExplicitWidth = 1073
   end
   object Button2: TButton
     Left = 128
@@ -60,7 +59,6 @@ object Form1: TForm1
     ParentFont = False
     TabOrder = 2
     WordWrap = False
-    ExplicitWidth = 609
   end
   object CheckBox1: TCheckBox
     Left = 16

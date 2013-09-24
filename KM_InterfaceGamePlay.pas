@@ -2877,15 +2877,18 @@ end;
 
 
 procedure TKMGamePlayInterface.AlliesOnPingInfo(Sender: TObject);
-var I: Integer;
+var
+  I: Integer;
+  ping: Word;
+  fps: Cardinal;
 begin
   for I := 0 to MAX_PLAYERS - 1 do
     if (I < fGame.Networking.NetPlayers.Count) and (fGame.Networking.NetPlayers[I+1].IsHuman) then
     begin
-      Label_AlliesPing[I].Caption := Format('[$%.6x]', [GetPingColor(fGame.Networking.NetPlayers[I+1].GetInstantPing) and $FFFFFF])+
-                                     IntToStr(fGame.Networking.NetPlayers[I+1].GetInstantPing)+'[] / '+
-                                     Format('[$%.6x]', [GetFPSColor(fGame.Networking.NetPlayers[I+1].FPS) and $FFFFFF])+
-                                     IntToStr(fGame.Networking.NetPlayers[I+1].FPS)+'[]';
+      ping := fGame.Networking.NetPlayers[I+1].GetInstantPing;
+      fps := fGame.Networking.NetPlayers[I+1].FPS;
+      Label_AlliesPing[I].Caption := WrapColor(IntToStr(ping), GetPingColor(ping)) + ' / ' +
+                                     WrapColor(IntToStr(fps), GetFPSColor(fps));
     end
     else
       Label_AlliesPing[I].Caption := '';

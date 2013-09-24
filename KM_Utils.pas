@@ -23,6 +23,7 @@ uses Classes, DateUtils, Math, SysUtils, KM_Defaults, KM_Points
   function TimeToString(aTime: TDateTime): UnicodeString;
   function WrapColor(aText: UnicodeString; aColor: Cardinal): UnicodeString;
   function WrapColorA(aText: AnsiString; aColor: Cardinal): AnsiString;
+  function StripColor(aText: UnicodeString): UnicodeString;
 
   procedure ParseDelimited(const Value, Delimiter: UnicodeString; SL: TStringList);
 
@@ -423,6 +424,28 @@ end;
 function WrapColorA(aText: AnsiString; aColor: Cardinal): AnsiString;
 begin
   Result := '[$' + IntToHex(aColor and $00FFFFFF, 6) + ']' + aText + '[]';
+end;
+
+
+function StripColor(aText: UnicodeString): UnicodeString;
+var
+  I: Integer;
+  skippingMarkup: Boolean;
+begin
+  Result := aText;
+
+  for I := 1 to Length(aText) do
+  begin
+    if (I+1 <= Length(aText))
+    and ((aText[I] + aText[I+1] = '[$') or (aText[I] + aText[I+1] = '[]')) then
+      skippingMarkup := True;
+
+    if not skippingMarkup then
+      Result := Result + aText[I];
+
+    if skippingMarkup and (aText[I] = ']') then
+      skippingMarkup := False;
+  end;
 end;
 
 

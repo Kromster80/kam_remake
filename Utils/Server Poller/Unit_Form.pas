@@ -3,7 +3,7 @@ interface
 uses
   Windows, Messages, SysUtils, Classes, Graphics, StrUtils, Math,
   Controls, Forms, Dialogs, Grids, StdCtrls, ExtCtrls,
-  KM_Defaults, KM_Settings, KM_ServerQuery;
+  KM_Defaults, KM_Settings, KM_ServerQuery, KM_Utils;
 
 type
   TForm1 = class(TForm)
@@ -174,15 +174,7 @@ begin
     DisplayName := IfThen(R.OnlyRoom, S.Name, S.Name + ' #' + IntToStr(R.RoomID + 1));
 
     L := 1;
-    ShortName := '';
-    if Length(DisplayName) <> 0 then
-    while L <= Length(DisplayName) do
-    begin
-      if (L < Length(DisplayName)) and (DisplayName[L] + DisplayName[L+1] = '[$') then
-        Inc(L, 8);
-      ShortName := ShortName + DisplayName[L];
-      Inc(L);
-    end;
+    ShortName := StripColor(DisplayName);
 
     StringGrid1.Cells[0, I+1] := ShortName;
     StringGrid1.Cells[1, I+1] := R.GameInfo.Description;
