@@ -1,4 +1,4 @@
-unit KM_InterfaceGamePlay;
+﻿unit KM_InterfaceGamePlay;
 {$I KaM_Remake.inc}
 interface
 uses
@@ -77,15 +77,15 @@ type
 
     procedure Beacon_Cancel;
     procedure Army_ActivateControls(aGroup: TKMUnitGroup);
-    procedure Army_HideJoinMenu(Sender:TObject);
-    procedure Army_Issue_Order(Sender:TObject);
+    procedure Army_HideJoinMenu(Sender: TObject);
+    procedure Army_Issue_Order(Sender: TObject);
     procedure House_Demolish;
-    procedure Unit_Dismiss(Sender:TObject);
+    procedure Unit_Dismiss(Sender: TObject);
     procedure Menu_Settings_Fill;
-    procedure Menu_Settings_Change(Sender:TObject);
-    procedure Menu_QuitMission(Sender:TObject);
-    procedure Menu_NextTrack(Sender:TObject);
-    procedure Menu_PreviousTrack(Sender:TObject);
+    procedure Menu_Settings_Change(Sender: TObject);
+    procedure Menu_QuitMission(Sender: TObject);
+    procedure Menu_NextTrack(Sender: TObject);
+    procedure Menu_PreviousTrack(Sender: TObject);
     procedure Chat_Click(Sender: TObject);
     procedure Chat_Show(Sender: TObject);
     procedure Allies_Click(Sender: TObject);
@@ -120,14 +120,14 @@ type
     procedure SwitchPage_Ratios(Sender: TObject);
     procedure RatiosChange(Sender: TObject);
     procedure DisplayHint(Sender: TObject);
-    procedure PlayMoreClick(Sender:TObject);
-    procedure MPPlayMoreClick(Sender:TObject);
-    procedure NetWaitClick(Sender:TObject);
+    procedure PlayMoreClick(Sender: TObject);
+    procedure MPPlayMoreClick(Sender: TObject);
+    procedure NetWaitClick(Sender: TObject);
     procedure ReplayClick(Sender: TObject);
     procedure Build_ButtonClick(Sender: TObject);
     procedure Build_Update;
     procedure Chat_Close(Sender: TObject);
-    procedure Chat_Post(Sender:TObject; Key:word);
+    procedure Chat_Post(Sender: TObject; Key:word);
     procedure Chat_Resize(Sender: TObject; X,Y: Integer);
     procedure Chat_MenuClick(Sender: TObject);
     procedure Chat_MenuSelect(aItem: Integer);
@@ -136,7 +136,7 @@ type
     procedure Stats_Update;
     procedure Menu_Update;
     procedure SetPause(aValue:boolean);
-    procedure DirectionCursorShow(X,Y: Integer; Dir:TKMDirection);
+    procedure DirectionCursorShow(X,Y: Integer; Dir: TKMDirection);
     procedure DirectionCursorHide;
     function HasLostMPGame:Boolean;
     procedure UpdateDebugInfo;
@@ -153,12 +153,12 @@ type
       Image_MessageLog: TKMImage;
       Label_MPChatUnread: TKMLabel;
       Image_Message: array[0..MAX_VISIBLE_MSGS]of TKMImage; //Queue of messages covers 32*48=1536px height
-      Image_Clock:TKMImage; //Clock displayed when game speed is increased
-      Label_Clock:TKMLabel;
-      Label_ClockSpeedup:TKMLabel;
-      Label_ScriptedOverlay:TKMLabel; //Label that can be set from script
+      Image_Clock: TKMImage; //Clock displayed when game speed is increased
+      Label_Clock: TKMLabel;
+      Label_ClockSpeedup: TKMLabel;
+      Label_ScriptedOverlay: TKMLabel; //Label that can be set from script
       Label_MenuTitle: TKMLabel; //Displays the title of the current menu to the right of return
-      Image_DirectionCursor:TKMImage;
+      Image_DirectionCursor: TKMImage;
 
     Panel_Controls: TKMPanel;
       Button_Main: array [TKMTabButtons] of TKMButton; //4 common buttons + Return
@@ -173,14 +173,14 @@ type
       Button_ReplayResume: TKMButton;
       Button_ReplayExit: TKMButton;
       Dropbox_ReplayFOW: TKMDropList;
-    Panel_Allies:TKMPanel;
+    Panel_Allies: TKMPanel;
       Label_PeacetimeRemaining: TKMLabel;
       Image_AlliesFlag:array [0..MAX_PLAYERS-1] of TKMImage;
       Label_AlliesPlayer:array [0..MAX_PLAYERS-1] of TKMLabel;
       DropBox_AlliesTeam:array [0..MAX_PLAYERS-1] of TKMDropList;
       Label_AlliesTeam:array [0..MAX_PLAYERS-1] of TKMLabel;
       Label_AlliesPing:array [0..MAX_PLAYERS-1] of TKMLabel;
-      Image_AlliesClose:TKMImage;
+      Image_AlliesClose: TKMImage;
     Panel_Chat: TKMPanel; //For multiplayer: Send, reply, text area for typing, etc.
       Dragger_Chat: TKMDragger;
       Image_Chat: TKMImage;
@@ -197,60 +197,60 @@ type
     Panel_MessageLog: TKMPanel;
       ColumnBox_MessageLog: TKMColumnBox;
       Image_MessageLogClose: TKMImage;
-    Panel_Pause:TKMPanel;
-      Bevel_Pause:TKMBevel;
-      Image_Pause:TKMImage;
-      Label_Pause1:TKMLabel;
-      Label_Pause2:TKMLabel;
-    Panel_PlayMore:TKMPanel;
-      Bevel_PlayMore:TKMBevel;
-      Panel_PlayMoreMsg:TKMPanel;
-        Image_PlayMore:TKMImage;
-        Label_PlayMore:TKMLabel;
-        Button_PlayMore,Button_PlayQuit:TKMButton;
-    Panel_MPPlayMore:TKMPanel;
-      Bevel_MPPlayMore:TKMBevel;
-      Image_MPPlayMore:TKMImage;
-      Label_MPPlayMore:TKMLabel;
-      Button_MPPlayMore,Button_MPPlayQuit:TKMButton;
-    Panel_NetWait:TKMPanel;
-      Bevel_NetWait:TKMBevel;
-      Panel_NetWaitMsg:TKMPanel;
-        Image_NetWait:TKMImage;
-        Label_NetWait,Label_NetDropPlayersDelay:TKMLabel;
-        Panel_NetWaitButtons:TKMPanel;
-          Button_NetQuit,Button_NetDropPlayers:TKMButton;
-        Panel_NetWaitConfirm:TKMPanel;
-          Label_NetWaitConfirm:TKMLabel;
-          Button_NetConfirmYes,Button_NetConfirmNo:TKMButton;
-    Panel_Ratios:TKMPanel;
+    Panel_Pause: TKMPanel;
+      Bevel_Pause: TKMBevel;
+      Image_Pause: TKMImage;
+      Label_Pause1: TKMLabel;
+      Label_Pause2: TKMLabel;
+    Panel_PlayMore: TKMPanel;
+      Bevel_PlayMore: TKMBevel;
+      Panel_PlayMoreMsg: TKMPanel;
+        Image_PlayMore: TKMImage;
+        Label_PlayMore: TKMLabel;
+        Button_PlayMore,Button_PlayQuit: TKMButton;
+    Panel_MPPlayMore: TKMPanel;
+      Bevel_MPPlayMore: TKMBevel;
+      Image_MPPlayMore: TKMImage;
+      Label_MPPlayMore: TKMLabel;
+      Button_MPPlayMore,Button_MPPlayQuit: TKMButton;
+    Panel_NetWait: TKMPanel;
+      Bevel_NetWait: TKMBevel;
+      Panel_NetWaitMsg: TKMPanel;
+        Image_NetWait: TKMImage;
+        Label_NetWait,Label_NetDropPlayersDelay: TKMLabel;
+        Panel_NetWaitButtons: TKMPanel;
+          Button_NetQuit,Button_NetDropPlayers: TKMButton;
+        Panel_NetWaitConfirm: TKMPanel;
+          Label_NetWaitConfirm: TKMLabel;
+          Button_NetConfirmYes,Button_NetConfirmNo: TKMButton;
+    Panel_Ratios: TKMPanel;
       Button_Ratios:array[1..4]of TKMButton;
-      Image_RatioPic0:TKMImage;
-      Label_RatioLab0:TKMLabel;
+      Image_RatioPic0: TKMImage;
+      Label_RatioLab0: TKMLabel;
       Image_RatioPic:array[1..4]of TKMImage;
       TrackBar_RatioRat:array[1..4]of TKMTrackBar;
-    Panel_Stats:TKMPanel;
+    Panel_Stats: TKMPanel;
       Panel_StatBlock: array [0..12] of TKMPanel;
       Stat_HousePic: array [HOUSE_MIN..HOUSE_MAX] of TKMImage;
       Stat_UnitPic: array [CITIZEN_MIN..CITIZEN_MAX] of TKMImage;
       Stat_HouseQty, Stat_HouseWip: array [HOUSE_MIN..HOUSE_MAX] of TKMLabel;
       Stat_UnitQty, Stat_UnitWip: array [CITIZEN_MIN..CITIZEN_MAX] of TKMLabel;
 
-    Panel_Build:TKMPanel;
-      Label_Build:TKMLabel;
-      Image_Build_Selected:TKMImage;
-      Image_BuildCost_WoodPic:TKMImage;
-      Image_BuildCost_StonePic:TKMImage;
-      Label_BuildCost_Wood:TKMLabel;
-      Label_BuildCost_Stone:TKMLabel;
-      Button_BuildRoad,Button_BuildField,Button_BuildWine,Button_BuildCancel:TKMButtonFlat;
+    Panel_Build: TKMPanel;
+      Label_Build: TKMLabel;
+      Image_Build_Selected: TKMImage;
+      Image_BuildCost_WoodPic: TKMImage;
+      Image_BuildCost_StonePic: TKMImage;
+      Label_BuildCost_Wood: TKMLabel;
+      Label_BuildCost_Stone: TKMLabel;
+      Button_BuildRoad,Button_BuildField,Button_BuildWine,Button_BuildCancel: TKMButtonFlat;
       Button_Build:array[1..GUI_HOUSE_COUNT]of TKMButtonFlat;
 
-    Panel_Menu:TKMPanel;
-      Button_Menu_Save,Button_Menu_Load,Button_Menu_Settings,Button_Menu_Quit,Button_Menu_TrackUp,Button_Menu_TrackDown:TKMButton;
+    Panel_Menu: TKMPanel;
+      Button_Menu_Save,Button_Menu_Load,Button_Menu_Settings,Button_Menu_Quit,Button_Menu_TrackUp,Button_Menu_TrackDown: TKMButton;
       Label_Menu_Track, Label_GameTime: TKMLabel;
 
-      Panel_Save:TKMPanel;
+      Panel_Save: TKMPanel;
         ListBox_Save: TKMListBox;
         Edit_Save: TKMEdit;
         Label_SaveExists: TKMLabel;
@@ -274,29 +274,29 @@ type
       Panel_Quit: TKMPanel;
         Button_Quit_Yes, Button_Quit_No: TKMButton;
 
-    Panel_Unit:TKMPanel;
-      Label_UnitName:TKMLabel;
-      Label_UnitCondition:TKMLabel;
-      Label_UnitTask:TKMLabel;
-      Label_UnitDescription:TKMLabel;
-      ConditionBar_Unit:TKMPercentBar;
-      Image_UnitPic:TKMImage;
-      Button_Unit_Dismiss:TKMButton;
+    Panel_Unit: TKMPanel;
+      Label_UnitName: TKMLabel;
+      Label_UnitCondition: TKMLabel;
+      Label_UnitTask: TKMLabel;
+      Label_UnitDescription: TKMLabel;
+      ConditionBar_Unit: TKMPercentBar;
+      Image_UnitPic: TKMImage;
+      Button_Unit_Dismiss: TKMButton;
 
-      Panel_Unit_Dismiss:TKMPanel;
-         Label_Unit_Dismiss:TKMLabel;
-         Button_Unit_DismissYes,Button_Unit_DismissNo:TKMButton;
+      Panel_Unit_Dismiss: TKMPanel;
+         Label_Unit_Dismiss: TKMLabel;
+         Button_Unit_DismissYes,Button_Unit_DismissNo: TKMButton;
 
-      Panel_Army:TKMPanel;
-        Button_Army_GoTo,Button_Army_Stop,Button_Army_Attack:TKMButton;
-        Button_Army_RotCW,Button_Army_Storm,Button_Army_RotCCW:TKMButton;
-        Button_Army_ForUp,Button_Army_ForDown:TKMButton;
-        ImageStack_Army:TKMImageStack;
-        Button_Army_Split,Button_Army_Join,Button_Army_Feed:TKMButton;
+      Panel_Army: TKMPanel;
+        Button_Army_GoTo,Button_Army_Stop,Button_Army_Attack: TKMButton;
+        Button_Army_RotCW,Button_Army_Storm,Button_Army_RotCCW: TKMButton;
+        Button_Army_ForUp,Button_Army_ForDown: TKMButton;
+        ImageStack_Army: TKMImageStack;
+        Button_Army_Split,Button_Army_Join,Button_Army_Feed: TKMButton;
 
-      Panel_Army_JoinGroups:TKMPanel;
-        Button_Army_Join_Cancel:TKMButton;
-        Label_Army_Join_Message:TKMLabel;
+      Panel_Army_JoinGroups: TKMPanel;
+        Button_Army_Join_Cancel: TKMButton;
+        Label_Army_Join_Message: TKMLabel;
   public
     constructor Create(aScreenX, aScreenY: Word; aMultiplayer, aReplay: Boolean); reintroduce;
     destructor Destroy; override;
@@ -307,9 +307,9 @@ type
     procedure SetMenuState(aTactic: Boolean);
     procedure SetMinimap;
     procedure ShowClock(aSpeed: Single);
-    procedure ShowPlayMore(DoShow:boolean; Msg:TGameResultMsg);
-    procedure ShowMPPlayMore(Msg:TGameResultMsg);
-    procedure ShowNetworkLag(DoShow:boolean; aPlayers:TStringList; IsHost:boolean);
+    procedure ShowPlayMore(DoShow:boolean; Msg: TGameResultMsg);
+    procedure ShowMPPlayMore(Msg: TGameResultMsg);
+    procedure ShowNetworkLag(aShow: Boolean; aPlayers: TStringList; IsHost: Boolean);
     procedure SetScriptedOverlay(aText: string);
     procedure AppendScriptedOverlay(aText: string);
     procedure ReleaseDirectionSelector;
@@ -360,7 +360,7 @@ const
 
 {Switch between pages}
 procedure TKMGamePlayInterface.SwitchPage_Ratios(Sender: TObject);
-var I: Integer; HT:THouseType;
+var I: Integer; HT: THouseType;
 begin
   //Hide everything but the tab buttons
   for I := 0 to Panel_Ratios.ChildCount - 1 do
@@ -399,7 +399,7 @@ end;
 
 
 procedure TKMGamePlayInterface.RatiosChange(Sender: TObject);
-var RT:TWareType; HT:THouseType;
+var RT: TWareType; HT: THouseType;
 begin
   RT := ResRatioType[RatioTab];
   HT := ResRatioHouse[RatioTab, TKMTrackBar(Sender).Tag];
@@ -1872,20 +1872,20 @@ end;
 
 
 //Quit the mission and return to main menu
-procedure TKMGamePlayInterface.Menu_QuitMission(Sender:TObject);
+procedure TKMGamePlayInterface.Menu_QuitMission(Sender: TObject);
 begin
   //Show outcome depending on actual situation. By default PlayOnState is gr_Cancel, if playing on after victory/defeat it changes
   fGameApp.Stop(fGame.PlayOnState);
 end;
 
 
-procedure TKMGamePlayInterface.Menu_NextTrack(Sender:TObject);
+procedure TKMGamePlayInterface.Menu_NextTrack(Sender: TObject);
 begin
   fGameApp.MusicLib.PlayNextTrack;
 end;
 
 
-procedure TKMGamePlayInterface.Menu_PreviousTrack(Sender:TObject);
+procedure TKMGamePlayInterface.Menu_PreviousTrack(Sender: TObject);
 begin
   fGameApp.MusicLib.PlayPreviousTrack;
 end;
@@ -2511,7 +2511,7 @@ begin
 end;
 
 
-procedure TKMGamePlayInterface.ShowPlayMore(DoShow:boolean; Msg:TGameResultMsg);
+procedure TKMGamePlayInterface.ShowPlayMore(DoShow:boolean; Msg: TGameResultMsg);
 begin
   ReleaseDirectionSelector;
   PlayMoreMsg := Msg;
@@ -2537,7 +2537,7 @@ begin
 end;
 
 
-procedure TKMGamePlayInterface.ShowMPPlayMore(Msg:TGameResultMsg);
+procedure TKMGamePlayInterface.ShowMPPlayMore(Msg: TGameResultMsg);
 begin
   ReleaseDirectionSelector;
   PlayMoreMsg := Msg;
@@ -2563,7 +2563,7 @@ begin
 end;
 
 
-procedure TKMGamePlayInterface.PlayMoreClick(Sender:TObject);
+procedure TKMGamePlayInterface.PlayMoreClick(Sender: TObject);
 begin
   Panel_PlayMore.Hide; //Hide anyways
 
@@ -2583,7 +2583,7 @@ begin
 end;
 
 
-procedure TKMGamePlayInterface.MPPlayMoreClick(Sender:TObject);
+procedure TKMGamePlayInterface.MPPlayMoreClick(Sender: TObject);
 begin
   Panel_MPPlayMore.Hide;
 
@@ -2597,31 +2597,34 @@ begin
 end;
 
 
-procedure TKMGamePlayInterface.ShowNetworkLag(DoShow:boolean; aPlayers:TStringList; IsHost:boolean);
-var I: Integer; S:String;
+procedure TKMGamePlayInterface.ShowNetworkLag(aShow: Boolean; aPlayers: TStringList; IsHost: Boolean);
+var
+  I: Integer;
+  txt: UnicodeString;
 begin
-  if DoShow then ReleaseDirectionSelector;
-  if not DoShow then //Reset the confirm when we hide this screen so it's not on confirm when it reshows
+  if aShow then ReleaseDirectionSelector;
+  if not aShow then //Reset the confirm when we hide this screen so it's not on confirm when it reshows
   begin
     Panel_NetWaitConfirm.Hide;
     Panel_NetWaitButtons.Show;
   end;
+
   if fGame.Networking.IsReconnecting then
   begin
-    S := gResTexts[TX_MULTIPLAYER_ATTEMPT_RECONNECTING];
-    Button_NetDropPlayers.Visible := false;
+    txt := gResTexts[TX_MULTIPLAYER_ATTEMPT_RECONNECTING];
+    Button_NetDropPlayers.Visible := False;
     fNetWaitDropPlayersDelayStarted := 0;
     Label_NetDropPlayersDelay.Caption := '';
   end
   else
   begin
-    S := gResTexts[TX_MULTIPLAYER_WAITING]+' ';
-    for i:=0 to aPlayers.Count-1 do
-      S := S + aPlayers.Strings[i] + IfThen(i<>aPlayers.Count-1, ', ');
+    txt := gResTexts[TX_MULTIPLAYER_WAITING] + ' ';
+    for I := 0 to aPlayers.Count - 1 do
+      txt := txt + aPlayers.Strings[I] + IfThen(I <> aPlayers.Count-1, ', ');
 
     Button_NetDropPlayers.Visible := IsHost;
 
-    if not DoShow then
+    if not aShow then
       fNetWaitDropPlayersDelayStarted := 0
     else
       if fNetWaitDropPlayersDelayStarted = 0 then
@@ -2632,8 +2635,8 @@ begin
       end;
   end;
 
-  Label_NetWait.Caption := S;
-  Panel_NetWait.Visible := DoShow;
+  Label_NetWait.Caption := txt;
+  Panel_NetWait.Visible := aShow;
 end;
 
 
@@ -2649,7 +2652,7 @@ begin
 end;
 
 
-procedure TKMGamePlayInterface.NetWaitClick(Sender:TObject);
+procedure TKMGamePlayInterface.NetWaitClick(Sender: TObject);
 begin
   if Sender = Button_NetQuit then
   begin
@@ -2682,7 +2685,7 @@ begin
 end;
 
 
-procedure TKMGamePlayInterface.DirectionCursorShow(X,Y: Integer; Dir:TKMDirection);
+procedure TKMGamePlayInterface.DirectionCursorShow(X,Y: Integer; Dir: TKMDirection);
 begin
   Image_DirectionCursor.Visible := True;
   Image_DirectionCursor.Left    := X + fResource.Cursors.CursorOffset(Dir).X;

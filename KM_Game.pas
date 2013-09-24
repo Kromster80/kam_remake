@@ -98,13 +98,13 @@ type
 
     procedure Resize(X,Y: Integer);
 
-    procedure GameMPPlay(Sender:TObject);
-    procedure GameMPReadyToPlay(Sender:TObject);
-    procedure GameHold(DoHold:boolean; Msg:TGameResultMsg); //Hold the game to ask if player wants to play after Victory/Defeat/ReplayEnd
-    procedure RequestGameHold(Msg:TGameResultMsg);
-    procedure PlayerVictory(aPlayerIndex:TPlayerIndex);
-    procedure PlayerDefeat(aPlayerIndex:TPlayerIndex);
-    procedure GameWaitingForNetwork(aWaiting:boolean);
+    procedure GameMPPlay(Sender: TObject);
+    procedure GameMPReadyToPlay(Sender: TObject);
+    procedure GameHold(DoHold:boolean; Msg: TGameResultMsg); //Hold the game to ask if player wants to play after Victory/Defeat/ReplayEnd
+    procedure RequestGameHold(Msg: TGameResultMsg);
+    procedure PlayerVictory(aPlayerIndex: TPlayerIndex);
+    procedure PlayerDefeat(aPlayerIndex: TPlayerIndex);
+    procedure GameWaitingForNetwork(aWaiting: Boolean);
     procedure GameDropWaitingPlayers;
 
     procedure AutoSave;
@@ -578,7 +578,8 @@ begin
   fNetworking.OnReassignedHost := nil; //So it is no longer assigned to a lobby event
   fNetworking.GameCreated;
 
-  if fNetworking.Connected and (fNetworking.NetGameState = lgs_Loading) then GameWaitingForNetwork(True); //Waiting for players
+  if fNetworking.Connected and (fNetworking.NetGameState = lgs_Loading) then
+    GameWaitingForNetwork(True); //Waiting for players
 end;
 
 
@@ -610,7 +611,7 @@ end;
 //Issued by fNetworking at the time depending on each Players lag individually
 procedure TKMGame.GameMPPlay(Sender: TObject);
 begin
-  GameWaitingForNetwork(false); //Finished waiting for players
+  GameWaitingForNetwork(False); //Finished waiting for players
   fNetworking.AnnounceGameInfo(MissionTime, GameName);
   gLog.AddTime('Net game began');
 end;
@@ -619,7 +620,7 @@ end;
 procedure TKMGame.GameMPReadyToPlay(Sender: TObject);
 begin
   //Update the list of players that are ready to play
-  GameWaitingForNetwork(true);
+  GameWaitingForNetwork(True);
 end;
 
 
@@ -716,7 +717,7 @@ begin
 end;
 
 
-procedure TKMGame.RequestGameHold(Msg:TGameResultMsg);
+procedure TKMGame.RequestGameHold(Msg: TGameResultMsg);
 begin
   DoGameHold := true;
   DoGameHoldState := Msg;
@@ -783,26 +784,26 @@ end;
 //todo: Move to fNetworking and query GIP from there
 procedure TKMGame.GameWaitingForNetwork(aWaiting: Boolean);
 var
-  WaitingPlayers: TStringList;
+  playersList: TStringList;
 begin
   fWaitingForNetwork := aWaiting;
 
-  WaitingPlayers := TStringList.Create;
+  playersList := TStringList.Create;
   try
     case fNetworking.NetGameState of
       lgs_Game, lgs_Reconnecting:
           //GIP is waiting for next tick
-          TGameInputProcess_Multi(fGameInputProcess).GetWaitingPlayers(fGameTickCount+1, WaitingPlayers);
+          TGameInputProcess_Multi(fGameInputProcess).GetWaitingPlayers(fGameTickCount+1, playersList);
       lgs_Loading:
           //We are waiting during inital loading
-          fNetworking.NetPlayers.GetNotReadyToPlayPlayers(WaitingPlayers);
+          fNetworking.NetPlayers.GetNotReadyToPlayPlayers(playersList);
       else
-          Assert(False, 'GameWaitingForNetwork from wrong state '+GetEnumName(TypeInfo(TNetGameState), Integer(fNetworking.NetGameState)));
+          Assert(False, 'GameWaitingForNetwork from wrong state ' + GetEnumName(TypeInfo(TNetGameState), Integer(fNetworking.NetGameState)));
     end;
 
-    fGamePlayInterface.ShowNetworkLag(aWaiting, WaitingPlayers, fNetworking.IsHost);
+    fGamePlayInterface.ShowNetworkLag(aWaiting, playersList, fNetworking.IsHost);
   finally
-    WaitingPlayers.Free;
+    playersList.Free;
   end;
 end;
 
@@ -810,23 +811,23 @@ end;
 //todo: Move to fNetworking and query GIP from there
 procedure TKMGame.GameDropWaitingPlayers;
 var
-  WaitingPlayers: TStringList;
+  playersList: TStringList;
 begin
-  WaitingPlayers := TStringList.Create;
+  playersList := TStringList.Create;
   try
     case fNetworking.NetGameState of
       lgs_Game,lgs_Reconnecting:
           //GIP is waiting for next tick
-          TGameInputProcess_Multi(fGameInputProcess).GetWaitingPlayers(fGameTickCount+1, WaitingPlayers);
+          TGameInputProcess_Multi(fGameInputProcess).GetWaitingPlayers(fGameTickCount+1, playersList);
       lgs_Loading:
           //We are waiting during inital loading
-          fNetworking.NetPlayers.GetNotReadyToPlayPlayers(WaitingPlayers);
+          fNetworking.NetPlayers.GetNotReadyToPlayPlayers(playersList);
       else
           Assert(False); //Should not be waiting for players from any other GameState
     end;
-    fNetworking.DropWaitingPlayers(WaitingPlayers);
+    fNetworking.DropWaitingPlayers(playersList);
   finally
-    WaitingPlayers.Free;
+    playersList.Free;
   end;
 end;
 
@@ -1446,8 +1447,9 @@ begin
                     begin
                       if DO_PERF_LOGGING then fPerfLog.EnterSection(psTick);
 
-                      if fWaitingForNetwork then GameWaitingForNetwork(false); //No longer waiting for players
-                      inc(fGameTickCount); //Thats our tick counter for gameplay events
+                      if fWaitingForNetwork then
+                        GameWaitingForNetwork(False); //No longer waiting for players
+                      Inc(fGameTickCount); //Thats our tick counter for gameplay events
                       if (fGameMode = gmMulti) then fNetworking.LastProcessedTick := fGameTickCount;
                       //Tell the master server about our game on the specific tick (host only)
                       if (fGameMode = gmMulti) and fNetworking.IsHost and (
@@ -1487,7 +1489,7 @@ begin
                     begin
                       fGameInputProcess.WaitingForConfirmation(fGameTickCount);
                       if TGameInputProcess_Multi(fGameInputProcess).GetNumberConsecutiveWaits > 5 then
-                        GameWaitingForNetwork(true);
+                        GameWaitingForNetwork(True);
                     end;
                     fGameInputProcess.UpdateState(fGameTickCount); //Do maintenance
                   end;
