@@ -412,7 +412,7 @@ begin
         with fNetworking.NetPlayers[I] do
         begin
           fChatWhisperRecipient := IndexOnServer;
-          UpdateButtonCaption(Nikname, IfThen(FlagColorID <> 0, FlagColorToTextColor(FlagColor), 0));
+          UpdateButtonCaption(UnicodeString(Nikname), IfThen(FlagColorID <> 0, FlagColorToTextColor(FlagColor), 0));
         end;
       end;
     end;
@@ -1419,7 +1419,7 @@ begin
   if Sender = Button_LobbyChangeSettings then
   begin
     Edit_LobbyDescription.Text := fNetworking.Description;
-    Edit_LobbyPassword.Text := fNetworking.Password;
+    Edit_LobbyPassword.Text := UnicodeString(fNetworking.Password);
     Panel_LobbySettings.Show;
   end;
 

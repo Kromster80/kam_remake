@@ -23,7 +23,7 @@ type
   TRender = class
   private
     fRenderControl: TKMRenderControl;
-    fOpenGL_Vendor, fOpenGL_Renderer, fOpenGL_Version: AnsiString;
+    fOpenGL_Vendor, fOpenGL_Renderer, fOpenGL_Version: UnicodeString;
     fScreenX, fScreenY: Word;
     fBlind: Boolean;
   public
@@ -37,10 +37,10 @@ type
     class function GenTexture(DestX, DestY: Word; const Data: Pointer; Mode: TTexFormat): GLUint;
     class procedure UpdateTexture(aTexture: GLuint; DestX, DestY: Word; Mode: TTexFormat; const Data: Pointer);
 
-    property RendererVersion: AnsiString read fOpenGL_Version;
+    property RendererVersion: UnicodeString read fOpenGL_Version;
     function IsOldGLVersion: Boolean;
-    procedure DoPrintScreen(FileName: string);
-    procedure Resize(Width,Height: Integer);
+    procedure DoPrintScreen(aFileName: string);
+    procedure Resize(Width, Height: Integer);
 
     property ScreenX: Word read fScreenX;
     property ScreenY: Word read fScreenY;
@@ -71,9 +71,9 @@ begin
     //glEnable(GL_CULL_FACE);
     //glCullFace(GL_FRONT);
 
-    fOpenGL_Vendor   := glGetString(GL_VENDOR);   gLog.AddNoTime('OpenGL Vendor: '   + string(fOpenGL_Vendor));
-    fOpenGL_Renderer := glGetString(GL_RENDERER); gLog.AddNoTime('OpenGL Renderer: ' + string(fOpenGL_Renderer));
-    fOpenGL_Version  := glGetString(GL_VERSION);  gLog.AddNoTime('OpenGL Version: '  + string(fOpenGL_Version));
+    fOpenGL_Vendor   := UnicodeString(glGetString(GL_VENDOR));   gLog.AddNoTime('OpenGL Vendor: '   + fOpenGL_Vendor);
+    fOpenGL_Renderer := UnicodeString(glGetString(GL_RENDERER)); gLog.AddNoTime('OpenGL Renderer: ' + fOpenGL_Renderer);
+    fOpenGL_Version  := UnicodeString(glGetString(GL_VERSION));  gLog.AddNoTime('OpenGL Version: '  + fOpenGL_Version);
 
     SetupVSync(aVSync);
 
@@ -190,7 +190,7 @@ begin
 end;
 
 
-procedure TRender.DoPrintScreen(FileName: string);
+procedure TRender.DoPrintScreen(aFileName: string);
 {$IFDEF WDC}
 var
   i, k, W, H: integer;
@@ -216,12 +216,12 @@ begin
 
   jpg := TJpegImage.Create;
   jpg.assign(mkbmp);
-  jpg.ProgressiveEncoding := true;
-  jpg.ProgressiveDisplay  := true;
+  jpg.ProgressiveEncoding := True;
+  jpg.ProgressiveDisplay  := True;
   jpg.Performance         := jpBestQuality;
   jpg.CompressionQuality  := 90;
   jpg.Compress;
-  jpg.SaveToFile(FileName);
+  jpg.SaveToFile(aFileName);
 
   jpg.Free;
   mkbmp.Free;

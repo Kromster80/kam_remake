@@ -639,12 +639,12 @@ begin
 end;
 
 
-procedure TKMNetPlayersList.GetNotReadyToPlayPlayers(aPlayerList:TStringList);
+procedure TKMNetPlayersList.GetNotReadyToPlayPlayers(aPlayerList: TStringList);
 var I: Integer;
 begin
-  for i:=1 to fCount do
-    if (not fNetPlayers[i].ReadyToPlay) and fNetPlayers[i].IsHuman and fNetPlayers[i].Connected then
-      aPlayerList.Add(fNetPlayers[i].Nikname);
+  for I := 1 to fCount do
+    if (not fNetPlayers[I].ReadyToPlay) and fNetPlayers[I].IsHuman and fNetPlayers[I].Connected then
+      aPlayerList.Add(fNetPlayers[I].Nikname);
 end;
 
 

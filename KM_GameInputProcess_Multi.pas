@@ -340,9 +340,9 @@ var
   I: Integer;
 begin
   for I := 1 to fNetworking.NetPlayers.Count do
-    if not (fRecievedData[aTick mod MAX_SCHEDULE, fNetworking.NetPlayers[i].StartLocation - 1] or
-           (not fNetworking.NetPlayers[i].IsHuman) or fNetworking.NetPlayers[i].Dropped) then
-      aPlayersList.Add(UnicodeString(fNetworking.NetPlayers[i].Nikname));
+    if not (fRecievedData[aTick mod MAX_SCHEDULE, fNetworking.NetPlayers[I].StartLocation - 1] or
+           (not fNetworking.NetPlayers[I].IsHuman) or fNetworking.NetPlayers[I].Dropped) then
+      aPlayersList.Add(fNetworking.NetPlayers[I].Nikname);
 end;
 
 

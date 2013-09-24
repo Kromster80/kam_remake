@@ -1,4 +1,4 @@
-
+{$WARN IMPLICIT_STRING_CAST OFF}
 
 unit uPSDisassembly;
 {$I PascalScript.inc}

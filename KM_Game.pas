@@ -782,42 +782,52 @@ end;
 //Display the overlay "Waiting for players"
 //todo: Move to fNetworking and query GIP from there
 procedure TKMGame.GameWaitingForNetwork(aWaiting: Boolean);
-var WaitingPlayers: TStringList;
+var
+  WaitingPlayers: TStringList;
 begin
   fWaitingForNetwork := aWaiting;
 
   WaitingPlayers := TStringList.Create;
-  case fNetworking.NetGameState of
-    lgs_Game, lgs_Reconnecting:
-        //GIP is waiting for next tick
-        TGameInputProcess_Multi(fGameInputProcess).GetWaitingPlayers(fGameTickCount+1, WaitingPlayers);
-    lgs_Loading:
-        //We are waiting during inital loading
-        fNetworking.NetPlayers.GetNotReadyToPlayPlayers(WaitingPlayers);
-    else
-        Assert(false, 'GameWaitingForNetwork from wrong state '+GetEnumName(TypeInfo(TNetGameState), Integer(fNetworking.NetGameState)));
-  end;
+  try
+    case fNetworking.NetGameState of
+      lgs_Game, lgs_Reconnecting:
+          //GIP is waiting for next tick
+          TGameInputProcess_Multi(fGameInputProcess).GetWaitingPlayers(fGameTickCount+1, WaitingPlayers);
+      lgs_Loading:
+          //We are waiting during inital loading
+          fNetworking.NetPlayers.GetNotReadyToPlayPlayers(WaitingPlayers);
+      else
+          Assert(False, 'GameWaitingForNetwork from wrong state '+GetEnumName(TypeInfo(TNetGameState), Integer(fNetworking.NetGameState)));
+    end;
 
-  fGamePlayInterface.ShowNetworkLag(aWaiting, WaitingPlayers, fNetworking.IsHost);
-  WaitingPlayers.Free;
+    fGamePlayInterface.ShowNetworkLag(aWaiting, WaitingPlayers, fNetworking.IsHost);
+  finally
+    WaitingPlayers.Free;
+  end;
 end;
 
 
 //todo: Move to fNetworking and query GIP from there
 procedure TKMGame.GameDropWaitingPlayers;
-var WaitingPlayers: TStringList;
+var
+  WaitingPlayers: TStringList;
 begin
   WaitingPlayers := TStringList.Create;
-  case fNetworking.NetGameState of
-    lgs_Game,lgs_Reconnecting:
-        TGameInputProcess_Multi(fGameInputProcess).GetWaitingPlayers(fGameTickCount+1, WaitingPlayers); //GIP is waiting for next tick
-    lgs_Loading:
-        fNetworking.NetPlayers.GetNotReadyToPlayPlayers(WaitingPlayers); //We are waiting during inital loading
-    else
-        Assert(False); //Should not be waiting for players from any other GameState
+  try
+    case fNetworking.NetGameState of
+      lgs_Game,lgs_Reconnecting:
+          //GIP is waiting for next tick
+          TGameInputProcess_Multi(fGameInputProcess).GetWaitingPlayers(fGameTickCount+1, WaitingPlayers);
+      lgs_Loading:
+          //We are waiting during inital loading
+          fNetworking.NetPlayers.GetNotReadyToPlayPlayers(WaitingPlayers);
+      else
+          Assert(False); //Should not be waiting for players from any other GameState
+    end;
+    fNetworking.DropWaitingPlayers(WaitingPlayers);
+  finally
+    WaitingPlayers.Free;
   end;
-  fNetworking.DropWaitingPlayers(WaitingPlayers);
-  WaitingPlayers.Free;
 end;
 
 

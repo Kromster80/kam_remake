@@ -89,7 +89,7 @@ begin
   for I := 0 to Camps.Count - 1 do
   with Camps[I] do
     ColumnBox_Camps.AddItem(MakeListRow(
-                        [CampaignTitle, IntToStr(MapCount), IntToStr(UnlockedMap+1), ShortTitle],
+                        [CampaignTitle, IntToStr(MapCount), IntToStr(UnlockedMap+1), UnicodeString(ShortTitle)],
                         [$FFFFFFFF, $FFFFFFFF, $FFFFFFFF, $00FFFFFF]));
 
   Button_Camp_Start.Disable;

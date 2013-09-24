@@ -42,7 +42,7 @@ type
     procedure ToggleLocale(aLocale: AnsiString);
     procedure NetworkInit;
     procedure SendMPGameInfo(Sender: TObject);
-    function RenderVersion: string;
+    function RenderVersion: UnicodeString;
     procedure PrintScreen(aFilename: string = '');
     procedure PauseMusicToPlayFile(aFileName: string);
     function CheckDATConsistency: Boolean;
@@ -686,9 +686,9 @@ begin
 end;
 
 
-function TKMGameApp.RenderVersion: string;
+function TKMGameApp.RenderVersion: UnicodeString;
 begin
-  Result := 'OpenGL '+ fRender.RendererVersion;
+  Result := 'OpenGL ' + fRender.RendererVersion;
 end;
 
 

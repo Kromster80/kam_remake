@@ -133,7 +133,7 @@ type
     procedure Join(aServerAddress, aPort: string; aUserName: AnsiString; aRoom: Integer; aIsReconnection: Boolean = False);
     procedure AnnounceDisconnect;
     procedure Disconnect;
-    procedure DropWaitingPlayers(aPlayers:TStringList);
+    procedure DropWaitingPlayers(aPlayers: TStringList);
     function  Connected: boolean;
     procedure MatchPlayersToSave(aPlayerID:integer=-1);
     procedure SelectNoMap(aMessage:string);
@@ -362,7 +362,8 @@ end;
 
 
 procedure TKMNetworking.DropWaitingPlayers(aPlayers: TStringList);
-var I, ServerIndex: Integer;
+var
+  I, ServerIndex: Integer;
 begin
   Assert(IsHost, 'Only the host is allowed to drop players');
   for I := 0 to aPlayers.Count - 1 do
@@ -434,30 +435,30 @@ end;
 
 
 procedure TKMNetworking.MatchPlayersToSave(aPlayerID: Integer = -1);
-var i,k: integer;
+var I,K: Integer;
 begin
   Assert(IsHost, 'Only host can match players');
   Assert(fSelectGameKind = ngk_Save, 'Not a save');
   if aPlayerID = -1 then
   begin
     //If we are matching all then reset them all first so we don't get clashes
-    for i:=1 to fNetPlayers.Count do
-      fNetPlayers[i].StartLocation := 0;
+    for I := 1 to fNetPlayers.Count do
+      fNetPlayers[I].StartLocation := 0;
 
-    for i:=1 to MAX_PLAYERS - fSaveInfo.Info.HumanCount - fNetPlayers.GetClosedCount do
+    for I := 1 to MAX_PLAYERS - fSaveInfo.Info.HumanCount - fNetPlayers.GetClosedCount do
       if fNetPlayers.Count < MAX_PLAYERS then
         fNetPlayers.AddClosedPlayer; //Close unused slots
   end;
 
   //Match players based on their nicknames
-  for i:=1 to fNetPlayers.Count do
-    for k:=1 to fSaveInfo.Info.PlayerCount do
-      if fSaveInfo.Info.Enabled[k-1]
-      and ((i = aPlayerID) or (aPlayerID = -1)) //-1 means update all players
-      and fNetPlayers.LocAvailable(k)
-      and (fNetPlayers[i].Nikname = fSaveInfo.Info.LocationName[k-1]) then
+  for I := 1 to fNetPlayers.Count do
+    for K := 1 to fSaveInfo.Info.PlayerCount do
+      if fSaveInfo.Info.Enabled[K-1]
+      and ((I = aPlayerID) or (aPlayerID = -1)) //-1 means update all players
+      and fNetPlayers.LocAvailable(K)
+      and (fNetPlayers[I].Nikname = fSaveInfo.Info.LocationName[K-1]) then
       begin
-        fNetPlayers[i].StartLocation := k;
+        fNetPlayers[I].StartLocation := K;
         Break;
       end;
 end;
@@ -620,7 +621,7 @@ procedure TKMNetworking.KickPlayer(aPlayerIndex: Integer);
 begin
   Assert(IsHost, 'Only host is allowed to kick players out');
   PacketSend(NET_ADDRESS_SERVER, mk_KickPlayer, fNetPlayers[aPlayerIndex].IndexOnServer);
-  PostMessage(fNetPlayers[aPlayerIndex].Nikname + ' was kicked by the host');
+  PostMessage(UnicodeString(fNetPlayers[aPlayerIndex].Nikname) + ' was kicked by the host');
 end;
 
 
@@ -831,7 +832,7 @@ end;
 //with exact same timestamps (possibly added by Server?)
 procedure TKMNetworking.PostMessage(aText: UnicodeString; aShowName:boolean=false; aTeamOnly:boolean=false; aRecipientServerIndex:Integer=-1);
 
-  function GetRecipientName: string;
+  function GetRecipientName: AnsiString;
   var
     I: Integer;
   begin
@@ -848,18 +849,19 @@ var
 begin
   if aShowName then
   begin
+    //TODO: WrapInColor(UnicodeString(fMyNikname), FlagColorToTextColor(NetPlayers[fMyIndex].FlagColor));
     if NetPlayers[fMyIndex].FlagColorID <> 0 then
-      NameText := '[$'+IntToHex(FlagColorToTextColor(NetPlayers[fMyIndex].FlagColor) and $00FFFFFF,6)+']'+fMyNikname+'[]'
+      NameText := '[$'+IntToHex(FlagColorToTextColor(NetPlayers[fMyIndex].FlagColor) and $00FFFFFF,6)+']'+UnicodeString(fMyNikname)+'[]'
     else
-      NameText := fMyNikname;
+      NameText := UnicodeString(fMyNikname);
 
     if aTeamOnly then
-      aText := NameText+' [$66FF66](Team)[]: '+aText
+      aText := NameText + ' [$66FF66](Team)[]: ' + aText
     else
       if aRecipientServerIndex <> -1 then
-        aText := NameText+' [$00B9FF](Whisper to '+GetRecipientName+')[]: '+aText
+        aText := NameText + ' [$00B9FF](Whisper to ' + UnicodeString(GetRecipientName) + ')[]: ' + aText
       else
-        aText := NameText+' (All): '+aText;
+        aText := NameText + ' (All): ' + aText;
   end;
   if not aTeamOnly then
   begin
@@ -875,7 +877,7 @@ begin
     if NetPlayers[fMyIndex].Team = 0 then
       PacketSendW(fMyIndexOnServer, mk_Text, aText) //Send to self only if we have no team
     else
-      for I:=1 to NetPlayers.Count do
+      for I := 1 to NetPlayers.Count do
         if (NetPlayers[I].Team = NetPlayers[fMyIndex].Team) and NetPlayers[I].IsHuman and (NetPlayers[I].IndexOnServer <> -1) then
           PacketSendW(NetPlayers[I].IndexOnServer, mk_Text, aText); //Send to each player on team (includes self)
 end;
@@ -935,7 +937,7 @@ begin
   if fSelectGameKind = ngk_Save then MatchPlayersToSave(fNetPlayers.ServerToLocal(aServerIndex)); //Match only this player
   SendPlayerListAndRefreshPlayersSetup;
   SendGameOptions;
-  PostMessage(aPlayerName+' has joined');
+  PostMessage(UnicodeString(aPlayerName) + ' has joined');
 end;
 
 
@@ -1061,7 +1063,7 @@ begin
                   end
                   else
                   begin
-                    PacketSendW(NET_ADDRESS_HOST, mk_AskToReconnect, fMyNikname);
+                    PacketSendA(NET_ADDRESS_HOST, mk_AskToReconnect, fMyNikname);
                     fJoinTimeout := TimeGet; //Wait another X seconds for host to reply before timing out
                     if WRITE_RECONNECT_LOG then gLog.AddTime('Asking to reconnect');
                   end;
@@ -1089,13 +1091,13 @@ begin
 
       mk_AskToReconnect:
               begin
-                M.ReadW(tmpStringW);
-                PlayerIndex := fNetPlayers.NiknameToLocal(tmpStringW);
+                M.ReadA(tmpStringA);
+                PlayerIndex := fNetPlayers.NiknameToLocal(tmpStringA);
                 replyStringA := fNetPlayers.CheckCanReconnect(PlayerIndex);
-                if WRITE_RECONNECT_LOG then gLog.AddTime(tmpStringW + ' asked to reconnect: ' + replyStringA);
+                if WRITE_RECONNECT_LOG then gLog.AddTime(UnicodeString(tmpStringA) + ' asked to reconnect: ' + UnicodeString(replyStringA));
                 if replyStringA = '' then
                 begin
-                  PostMessage(tmpStringW + ' has reconnected');
+                  PostMessage(UnicodeString(tmpStringA) + ' has reconnected');
                   fNetPlayers[PlayerIndex].SetIndexOnServer := aSenderIndex; //They will have a new index
                   fNetPlayers[PlayerIndex].Connected := True; //This player is now back online
                   SendPlayerListAndRefreshPlayersSetup;
@@ -1176,7 +1178,7 @@ begin
               begin
                 M.ReadA(tmpStringA);
                 fNetClient.Disconnect;
-                fOnJoinFail(tmpStringA);
+                fOnJoinFail(UnicodeString(tmpStringA));
               end;
 
       mk_ReqPassword:
@@ -1191,7 +1193,7 @@ begin
                 M.Read(tmpInteger);
                 if Cardinal(tmpInteger) <> CalculateGameCRC then
                 begin
-                  replyStringW := 'Error: '+fMyNikname+' has different data files to the host and so cannot join this game';
+                  replyStringW := 'Error: '+UnicodeString(fMyNikname)+' has different data files to the host and so cannot join this game';
                   PacketSendW(NET_ADDRESS_OTHERS, mk_Text, replyStringW);
                   fOnJoinFail('Your data files do not match the host');
                 end;
@@ -1200,7 +1202,7 @@ begin
       mk_Kicked:
               begin
                 M.ReadA(tmpStringA);
-                fOnDisconnect(tmpStringA);
+                fOnDisconnect(UnicodeString(tmpStringA));
               end;
 
       mk_ClientLost:
@@ -1212,8 +1214,8 @@ begin
                   if PlayerIndex = -1 then exit; //Has already disconnected or not from our room
                   if not fNetPlayers[PlayerIndex].Dropped then
                   begin
-                    PostMessage(fNetPlayers[PlayerIndex].Nikname+' lost connection');
-                    if WRITE_RECONNECT_LOG then gLog.AddTime(fNetPlayers[PlayerIndex].Nikname+' lost connection');
+                    PostMessage(UnicodeString(fNetPlayers[PlayerIndex].Nikname)+' lost connection');
+                    if WRITE_RECONNECT_LOG then gLog.AddTime(UnicodeString(fNetPlayers[PlayerIndex].Nikname)+' lost connection');
                   end;
                   if fNetGameState = lgs_Game then
                     fNetPlayers.DisconnectPlayer(tmpInteger)
@@ -1245,7 +1247,7 @@ begin
                 lpk_Host:
                     begin
                       if fNetPlayers.ServerToLocal(aSenderIndex) = -1 then exit; //Has already disconnected
-                      PostMessage(fNetPlayers[fNetPlayers.ServerToLocal(aSenderIndex)].Nikname+' has quit');
+                      PostMessage(UnicodeString(fNetPlayers[fNetPlayers.ServerToLocal(aSenderIndex)].Nikname)+' has quit');
                       if fNetGameState in [lgs_Loading, lgs_Game] then
                         fNetPlayers.DropPlayer(aSenderIndex)
                       else
@@ -1290,8 +1292,8 @@ begin
                   fDescription := '';
                   fOnMPGameInfoChanged(Self);
                   SendPlayerListAndRefreshPlayersSetup;
-                  PostMessage('Hosting rights reassigned to '+fMyNikname);
-                  if WRITE_RECONNECT_LOG then gLog.AddTime('Hosting rights reassigned to us ('+fMyNikname+')');
+                  PostMessage('Hosting rights reassigned to '+UnicodeString(fMyNikname));
+                  if WRITE_RECONNECT_LOG then gLog.AddTime('Hosting rights reassigned to us ('+UnicodeString(fMyNikname)+')');
                 end;
               end;
 
@@ -1359,12 +1361,12 @@ begin
                 begin
                   if fMapInfo.IsValid then
                   begin
-                    PostMessage('Error: '+fMyNikname+' has a different version of the map '+fMapInfo.FileName);
+                    PostMessage('Error: '+UnicodeString(fMyNikname)+' has a different version of the map '+fMapInfo.FileName);
                     tmpStringW := Format(gResTexts[TX_MAP_WRONG_VERSION], [fMapInfo.FileName]);
                   end
                   else
                   begin
-                    PostMessage('Error: '+fMyNikname+' does not have the map '+fMapInfo.FileName);
+                    PostMessage('Error: '+UnicodeString(fMyNikname)+' does not have the map '+fMapInfo.FileName);
                     tmpStringW := Format(gResTexts[TX_MAP_DOESNT_EXIST], [fMapInfo.FileName]);
                   end;
                   FreeAndNil(fMapInfo);
@@ -1395,12 +1397,12 @@ begin
                 begin
                   if fSaveInfo.IsValid then
                   begin
-                    PostMessage('Error: '+fMyNikname+' has a different version of the save '+fSaveInfo.FileName);
+                    PostMessage('Error: ' + UnicodeString(fMyNikname) + ' has a different version of the save ' + fSaveInfo.FileName);
                     tmpStringW := Format(gResTexts[TX_SAVE_WRONG_VERSION],[fSaveInfo.FileName]);
                   end
                   else
                   begin
-                    PostMessage('Error: '+fMyNikname+' does not have the save '+fSaveInfo.FileName);
+                    PostMessage('Error: ' + UnicodeString(fMyNikname) + ' does not have the save ' + fSaveInfo.FileName);
                     tmpStringW := Format(gResTexts[TX_SAVE_DOESNT_EXIST],[fSaveInfo.FileName]);
                   end;
                   FreeAndNil(fSaveInfo);
