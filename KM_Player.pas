@@ -973,17 +973,18 @@ end;
 
 
 { See if player owns any Fields/Roads/Walls (has any assets on Terrain)
-  Queried by MapEditor>SaveDAT;
-  Might also be used to show Players strength (or builder/warrior balance) in Tavern
-  If Player has none and no Units/Houses we can assume it's empty and does not needs to be saved }
+  If Player has none and no Units/Houses we can assume it's empty and does not needs to be saved
+  Queried by MapEditor.SaveDAT;
+  Might also be used to show Players strength (or builder/warrior balance) in Tavern }
 function TKMPlayer.GetFieldsCount: Integer;
-var i,k: Integer;
+var
+  I,K: Integer;
 begin
   Result := 0;
-  for i := 1 to gTerrain.MapY do
-  for k := 1 to gTerrain.MapX do
-    if gTerrain.Land[i,k].TileOwner = fPlayerIndex then
-      inc(Result);
+  for I := 1 to gTerrain.MapY do
+  for K := 1 to gTerrain.MapX do
+    if gTerrain.Land[I,K].TileOwner = fPlayerIndex then
+      Inc(Result);
 end;
 
 

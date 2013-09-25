@@ -41,7 +41,7 @@ begin
   fOnPageChange := aOnPageChange;
 
   Panel_CampSelect := TKMPanel.Create(aParent, 0, 0, aParent.Width, aParent.Height);
-  Panel_CampSelect.Stretch;
+  Panel_CampSelect.AnchorsStretch;
 
     L := TKMLabel.Create(Panel_CampSelect, 80, 150, 575, 20, gResTexts[TX_MENU_CAMP_HEADER], fnt_Outline, taCenter);
     L.Anchors := [];

@@ -30,7 +30,7 @@ type
   TKMUserInterface = class
   protected
     fMyControls: TKMMasterControl;
-
+    Panel_Main: TKMPanel;
   public
     constructor Create(aScreenX, aScreenY: Word);
     destructor Destroy; override;
@@ -46,7 +46,7 @@ type
     procedure MouseUp(Button: TMouseButton; Shift: TShiftState; X,Y: Integer); virtual; abstract;
     procedure MouseWheel(Shift: TShiftState; WheelDelta: Integer; X,Y: Integer);
 
-    procedure Resize(X,Y: Word); virtual; abstract;
+    procedure Resize(X,Y: Word); virtual;
     procedure UpdateState(aTickCount: Cardinal); virtual; abstract;
     procedure Paint; virtual;
   end;
@@ -187,6 +187,9 @@ begin
   inherited Create;
 
   fMyControls := TKMMasterControl.Create;
+
+  //Parent Panel for whole UI
+  Panel_Main := TKMPanel.Create(fMyControls, 0, 0, aScreenX, aScreenY);
 end;
 
 
@@ -206,6 +209,13 @@ end;
 procedure TKMUserInterface.MouseWheel(Shift: TShiftState; WheelDelta, X, Y: Integer);
 begin
   fMyControls.MouseWheel(X, Y, WheelDelta);
+end;
+
+
+procedure TKMUserInterface.Resize(X, Y: Word);
+begin
+  Panel_Main.Width := X;
+  Panel_Main.Height := Y;
 end;
 
 

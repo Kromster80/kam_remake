@@ -44,6 +44,7 @@ type
     fMenuSinglePlayer: TKMMenuSinglePlayer;
   protected
     Panel_Main: TKMPanel;
+    Panel_Menu: TKMPanel;
     Label_Version: TKMLabel;
   public
     constructor Create(X,Y: Word);
@@ -72,36 +73,38 @@ uses KM_ResTexts, KM_GameApp, KM_Log, KM_Networking, KM_RenderUI, KM_ResFonts;
 
 { TKMMainMenuInterface }
 constructor TKMMainMenuInterface.Create(X,Y: Word);
-var S: TKMShape;
+var
+  S: TKMShape;
 begin
   inherited;
   Assert(gResTexts <> nil, 'fTextMain should be initialized before MainMenuInterface');
 
-  //Parent Panel for whole menu
-  Panel_Main := TKMPanel.Create(fMyControls, 0, 0, MENU_DESIGN_X, MENU_DESIGN_Y);
+  //Fixed-size and centered Panel for menu
+  Panel_Menu := TKMPanel.Create(Panel_Main, 0, 0, MENU_DESIGN_X, MENU_DESIGN_Y);
+  Panel_Menu.AnchorsCenter;
 
   //Background is the same for all pages, except Results/Campaign, which will render ontop
-  with TKMImage.Create(Panel_Main,-448,-216, 960, 600, 17, rxGuiMain) do Anchors := [];
-  with TKMImage.Create(Panel_Main, 512,-216, 960, 600, 18, rxGuiMain) do Anchors := [];
-  with TKMImage.Create(Panel_Main,-448, 384, 960, 600, 19, rxGuiMain) do Anchors := [];
-  with TKMImage.Create(Panel_Main, 512, 384, 960, 600, 20, rxGuiMain) do Anchors := [];
+  with TKMImage.Create(Panel_Menu,-448,-216, 960, 600, 17, rxGuiMain) do Anchors := [];
+  with TKMImage.Create(Panel_Menu, 512,-216, 960, 600, 18, rxGuiMain) do Anchors := [];
+  with TKMImage.Create(Panel_Menu,-448, 384, 960, 600, 19, rxGuiMain) do Anchors := [];
+  with TKMImage.Create(Panel_Menu, 512, 384, 960, 600, 20, rxGuiMain) do Anchors := [];
 
-  fMenuMain          := TKMMenuMain.Create(Panel_Main, PageChange);
-  fMenuSinglePlayer  := TKMMenuSinglePlayer.Create(Panel_Main, PageChange);
-  fMenuCampaigns     := TKMMenuCampaigns.Create(Panel_Main, PageChange);
-  fMenuCampaign      := TKMMenuCampaign.Create(Panel_Main, PageChange);
-  fMenuSingleMap     := TKMMenuSingleMap.Create(Panel_Main, PageChange);
-  fMenuLoad          := TKMMenuLoad.Create(Panel_Main, PageChange);
-  fMenuMultiplayer   := TKMMenuMultiplayer.Create(Panel_Main, PageChange);
-  fMenuLobby         := TKMMenuLobby.Create(Panel_Main, PageChange);
-  fMenuMapEditor     := TKMMenuMapEditor.Create(Panel_Main, PageChange);
-  fMenuReplays       := TKMMenuReplays.Create(Panel_Main, PageChange);
-  fMenuOptions       := TKMMenuOptions.Create(Panel_Main, PageChange);
-  fMenuCredits       := TKMMenuCredits.Create(Panel_Main, PageChange);
-  fMenuError         := TKMMenuError.Create(Panel_Main, PageChange);
-  fMenuLoading       := TKMMenuLoading.Create(Panel_Main, PageChange);
-  fMenuResultsMP     := TKMMenuResultsMP.Create(Panel_Main, PageChange);
-  fMenuResultsSP     := TKMMenuResultsSP.Create(Panel_Main, PageChange);
+  fMenuMain          := TKMMenuMain.Create(Panel_Menu, PageChange);
+  fMenuSinglePlayer  := TKMMenuSinglePlayer.Create(Panel_Menu, PageChange);
+  fMenuCampaigns     := TKMMenuCampaigns.Create(Panel_Menu, PageChange);
+  fMenuCampaign      := TKMMenuCampaign.Create(Panel_Menu, PageChange);
+  fMenuSingleMap     := TKMMenuSingleMap.Create(Panel_Menu, PageChange);
+  fMenuLoad          := TKMMenuLoad.Create(Panel_Menu, PageChange);
+  fMenuMultiplayer   := TKMMenuMultiplayer.Create(Panel_Menu, PageChange);
+  fMenuLobby         := TKMMenuLobby.Create(Panel_Menu, PageChange);
+  fMenuMapEditor     := TKMMenuMapEditor.Create(Panel_Menu, PageChange);
+  fMenuReplays       := TKMMenuReplays.Create(Panel_Menu, PageChange);
+  fMenuOptions       := TKMMenuOptions.Create(Panel_Menu, PageChange);
+  fMenuCredits       := TKMMenuCredits.Create(Panel_Menu, PageChange);
+  fMenuError         := TKMMenuError.Create(Panel_Menu, PageChange);
+  fMenuLoading       := TKMMenuLoading.Create(Panel_Menu, PageChange);
+  fMenuResultsMP     := TKMMenuResultsMP.Create(Panel_Menu, PageChange);
+  fMenuResultsSP     := TKMMenuResultsSP.Create(Panel_Menu, PageChange);
 
     {for i:=1 to length(FontFiles) do L[i]:=TKMLabel.Create(Panel_Main1,550,280+i*20,160,30,'This is a test string for KaM Remake ('+FontFiles[i],TKMFont(i),taLeft);//}
     //MyControls.AddTextEdit(Panel_Main, 32, 32, 200, 20, fnt_Grey);
@@ -111,11 +114,11 @@ begin
 
   if OVERLAY_RESOLUTIONS then
   begin
-    S := TKMShape.Create(Panel_Main, 0, 96, 1024, 576);
+    S := TKMShape.Create(Panel_Menu, 0, 96, 1024, 576);
     S.LineColor := $FF00FFFF;
     S.LineWidth := 1;
     S.Hitable := False;
-    S := TKMShape.Create(Panel_Main, 0, 0, 1024, 768);
+    S := TKMShape.Create(Panel_Menu, 0, 0, 1024, 768);
     S.LineColor := $FF00FF00;
     S.LineWidth := 1;
     S.Hitable := False;
@@ -152,17 +155,13 @@ end;
 //Keep Panel_Main centered
 procedure TKMMainMenuInterface.Resize(X, Y: Word);
 begin
-  Panel_Main.Width  := Min(X, MENU_DESIGN_X);
-  Panel_Main.Height := Min(Y, MENU_DESIGN_Y);
-
-  Panel_Main.Left := (X - Panel_Main.Width) div 2;
-  Panel_Main.Top  := (Y - Panel_Main.Height) div 2;
+  inherited;
 
   //Needs to resize the map and move flag positions accordingly
   fMenuCampaign.Resize(X, Y);
 
   //Needs to swap map description / game settings on low resolution displays
-  fMenuLobby.Lobby_Resize(Panel_Main.Height);
+  fMenuLobby.Lobby_Resize(Panel_Menu.Height);
 end;
 
 
@@ -204,9 +203,9 @@ begin
   Label_Version.Caption := GAME_VERSION + ' / ' + fGameApp.RenderVersion;
 
   //Hide all other pages
-  for I := 0 to Panel_Main.ChildCount - 1 do
-    if Panel_Main.Childs[I] is TKMPanel then
-      Panel_Main.Childs[I].Hide;
+  for I := 0 to Panel_Menu.ChildCount - 1 do
+    if Panel_Menu.Childs[I] is TKMPanel then
+      Panel_Menu.Childs[I].Hide;
 
   case Dest of
     gpMainMenu:     fMenuMain.Show;
@@ -216,10 +215,10 @@ begin
     gpMultiplayer:  fMenuMultiplayer.Show(aText);
     gpLobby:        begin
                       if aText = 'HOST' then
-                        fMenuLobby.Show(lpk_Host, fGameApp.Networking, Panel_Main.Height)
+                        fMenuLobby.Show(lpk_Host, fGameApp.Networking, Panel_Menu.Height)
                       else
                       if aText = 'JOIN' then
-                        fMenuLobby.Show(lpk_Joiner, fGameApp.Networking, Panel_Main.Height)
+                        fMenuLobby.Show(lpk_Joiner, fGameApp.Networking, Panel_Menu.Height)
                       else
                         Assert(False);
                     end;

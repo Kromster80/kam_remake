@@ -142,8 +142,8 @@ type
     procedure Disable;
     procedure Show;
     procedure Hide;
-    procedure Center;
-    procedure Stretch;
+    procedure AnchorsCenter;
+    procedure AnchorsStretch;
     function MasterParent: TKMPanel;
 
     function KeyDown(Key: Word; Shift: TShiftState): Boolean; virtual;
@@ -1479,8 +1479,8 @@ end;
 
 
 procedure TKMControl.Hide;    begin Visible := False; end;
-procedure TKMControl.Center;  begin Anchors := []; end;
-procedure TKMControl.Stretch; begin Anchors := [akLeft, akTop, akRight, akBottom]; end;
+procedure TKMControl.AnchorsCenter;  begin Anchors := []; end;
+procedure TKMControl.AnchorsStretch; begin Anchors := [akLeft, akTop, akRight, akBottom]; end;
 
 
 function TKMControl.MasterParent: TKMPanel;
@@ -4068,12 +4068,12 @@ begin
   inherited Create(aParent.MasterParent, 0, 0, aWidth, 0);
 
   fShapeBG := TKMShape.Create(Self, 0, 0, aParent.Width, aParent.Height);
-  fShapeBG.Stretch;
+  fShapeBG.AnchorsStretch;
   fShapeBG.OnClick := MenuHide;
   fShapeBG.Hide;
 
   fList := TKMColumnBox.Create(Self, 0, 0, aWidth, 0, fnt_Grey, bsMenu);
-  fList.Stretch;
+  fList.AnchorsStretch;
   fList.BackAlpha := 0.8;
   fList.Focusable := False;
   fList.SetColumns(fnt_Grey, [''], [0]);
@@ -4149,7 +4149,8 @@ end;
 
 { TKMDropCommon }
 constructor TKMDropCommon.Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight: Integer; aFont: TKMFont; aStyle: TButtonStyle);
-var P: TKMPanel;
+var
+  P: TKMPanel;
 begin
   inherited Create(aParent, aLeft,aTop,aWidth,aHeight);
 
@@ -4163,7 +4164,7 @@ begin
 
   P := MasterParent;
   fShape := TKMShape.Create(P, 0, 0, P.Width, P.Height);
-  fShape.Stretch; //todo: Should be stretched to whole screen, not just Panel_Main which is constrained by MENU_DESIGN_SIZE
+  fShape.AnchorsStretch;
   fShape.fOnClick := ListHide;
 end;
 

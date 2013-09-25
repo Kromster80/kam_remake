@@ -76,7 +76,7 @@ begin
   //We cant pass pointers to Settings in here cos on GUI creation fMain/fGameApp are not initialized yet
 
   Panel_Options := TKMPanel.Create(aParent,0,0,aParent.Width, aParent.Height);
-  Panel_Options.Stretch;
+  Panel_Options.AnchorsStretch;
     with TKMImage.Create(Panel_Options,705,220,round(207*1.3),round(295*1.3),6,rxGuiMain) do
     begin
       ImageStretch;

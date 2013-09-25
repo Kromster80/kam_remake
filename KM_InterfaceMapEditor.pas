@@ -86,7 +86,6 @@ type
     procedure MouseMove(Shift: TShiftState; X,Y: Integer); override;
     procedure MouseUp(Button: TMouseButton; Shift: TShiftState; X,Y: Integer); override;
 
-    procedure Resize(X,Y: Word); override;
     procedure SyncUI;
     procedure UpdateState(aTickCount: Cardinal); override;
     procedure Paint; override;
@@ -119,29 +118,26 @@ begin
   fDragScrollingViewportPos.X := 0;
   fDragScrollingViewportPos.Y := 0;
 
-  //Parent Page for whole toolbar in-game
-  Panel_Main := TKMPanel.Create(fMyControls, 0, 0, aScreenX, aScreenY);
+  TKMImage.Create(Panel_Main, 0,    0, 224, 200, 407); //Minimap place
+  TKMImage.Create(Panel_Main, 0,  200, 224, 400, 404);
+  TKMImage.Create(Panel_Main, 0,  600, 224, 400, 404);
+  TKMImage.Create(Panel_Main, 0, 1000, 224, 400, 404); //For 1600x1200 this is needed
 
-    TKMImage.Create(Panel_Main,0,   0,224,200,407); //Minimap place
-    TKMImage.Create(Panel_Main,0, 200,224,400,404);
-    TKMImage.Create(Panel_Main,0, 600,224,400,404);
-    TKMImage.Create(Panel_Main,0,1000,224,400,404); //For 1600x1200 this is needed
+  MinimapView := TKMMinimapView.Create(Panel_Main, 10, 10, 176, 176);
+  MinimapView.OnChange := Minimap_OnUpdate;
 
-    MinimapView := TKMMinimapView.Create(Panel_Main, 10, 10, 176, 176);
-    MinimapView.OnChange := Minimap_OnUpdate;
+  Label_MissionName := TKMLabel.Create(Panel_Main, 230, 10, 184, 10, NO_TEXT, fnt_Grey, taLeft);
+  Label_Coordinates := TKMLabel.Create(Panel_Main, 230, 30, 'X: Y:', fnt_Grey, taLeft);
+  Label_Stat := TKMLabel.Create(Panel_Main, 230, 50, 0, 0, '', fnt_Outline, taLeft);
 
-    Label_MissionName := TKMLabel.Create(Panel_Main, 230, 10, 184, 10, NO_TEXT, fnt_Grey, taLeft);
-    Label_Coordinates := TKMLabel.Create(Panel_Main, 230, 30, 'X: Y:', fnt_Grey, taLeft);
-    Label_Stat := TKMLabel.Create(Panel_Main, 230, 50, 0, 0, '', fnt_Outline, taLeft);
-
-    TKMLabel.Create(Panel_Main, TB_PAD, 190, TB_WIDTH, 0, gResTexts[TX_MAPED_PLAYERS], fnt_Outline, taLeft);
-    for I := 0 to MAX_PLAYERS - 1 do
-    begin
-      Button_PlayerSelect[I]         := TKMFlatButtonShape.Create(Panel_Main, 8 + I*23, 210, 21, 21, IntToStr(I+1), fnt_Grey, $FF0000FF);
-      Button_PlayerSelect[I].Tag     := I;
-      Button_PlayerSelect[I].OnClick := Player_ActiveClick;
-    end;
-    Button_PlayerSelect[0].Down := True; //First player selected by default
+  TKMLabel.Create(Panel_Main, TB_PAD, 190, TB_WIDTH, 0, gResTexts[TX_MAPED_PLAYERS], fnt_Outline, taLeft);
+  for I := 0 to MAX_PLAYERS - 1 do
+  begin
+    Button_PlayerSelect[I]         := TKMFlatButtonShape.Create(Panel_Main, 8 + I*23, 210, 21, 21, IntToStr(I+1), fnt_Grey, $FF0000FF);
+    Button_PlayerSelect[I].Tag     := I;
+    Button_PlayerSelect[I].OnClick := Player_ActiveClick;
+  end;
+  Button_PlayerSelect[0].Down := True; //First player selected by default
 
   Image_Extra := TKMImage.Create(Panel_Main, TOOLBAR_WIDTH, Panel_Main.Height - 48, 30, 48, 494);
   Image_Extra.Anchors := [akLeft, akBottom];
@@ -294,14 +290,6 @@ begin
   end;
 
   fPrevHint := Sender;
-end;
-
-
-//Update Hint position and etc..
-procedure TKMapEdInterface.Resize(X,Y: Word);
-begin
-  Panel_Main.Width := X;
-  Panel_Main.Height := Y;
 end;
 
 

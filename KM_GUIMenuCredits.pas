@@ -45,7 +45,7 @@ begin
   fOnPageChange := aOnPageChange;
 
   Panel_Credits := TKMPanel.Create(aParent, 0, 0, aParent.Width, aParent.Height);
-  Panel_Credits.Stretch;
+  Panel_Credits.AnchorsStretch;
 
     TKMLabel.Create(Panel_Credits, aParent.Width div 2 - OFFSET, 70, gResTexts[TX_CREDITS],fnt_Outline,taCenter);
     Label_Credits_Remake := TKMLabelScroll.Create(Panel_Credits, aParent.Width div 2 - OFFSET, 110, 0, aParent.Height - 130,

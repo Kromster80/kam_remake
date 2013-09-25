@@ -66,7 +66,7 @@ begin
   fMinimap := TKMMinimap.Create(True, False, True);
 
   Panel_MapEd:=TKMPanel.Create(aParent,0,0,aParent.Width, aParent.Height);
-  Panel_MapEd.Stretch;
+  Panel_MapEd.AnchorsStretch;
     Panel_MapEdSizeXY := TKMPanel.Create(Panel_MapEd, 80, 160, 200, 400);
     Panel_MapEdSizeXY.Anchors := [akLeft];
       TKMLabel.Create(Panel_MapEdSizeXY, 6, 0, 188, 20, gResTexts[TX_MENU_NEW_MAP_SIZE], fnt_Outline, taLeft);

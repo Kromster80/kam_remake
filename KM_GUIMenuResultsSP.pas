@@ -276,17 +276,17 @@ const StatText: array [1..9] of Word = (
 var I, Adv: Integer;
 begin
   Panel_Results := TKMPanel.Create(aParent,0,0,aParent.Width, aParent.Height);
-  Panel_Results.Stretch;
+  Panel_Results.AnchorsStretch;
     //Background image
     with TKMImage.Create(Panel_Results,0,0,aParent.Width, aParent.Height,7,rxGuiMain) do
     begin
       ImageStretch;
-      Center;
+      AnchorsCenter;
     end;
     //Fade to black by 62.5%
     with TKMShape.Create(Panel_Results,0,0,aParent.Width, aParent.Height) do
     begin
-      Center;
+      AnchorsCenter;
       FillColor := $A0000000;
     end;
 
@@ -300,13 +300,13 @@ begin
       with TKMImage.Create(Panel_Stats, 0, 0, 360, 354, 3, rxGuiMain) do
       begin
         ImageStretch;
-        Center;
+        AnchorsCenter;
       end;
 
       Adv := 0;
       for I := 1 to 9 do
       begin
-        inc(Adv, 25);
+        Inc(Adv, 25);
         if I in [3,6,7] then inc(Adv, 15);
         if I = 9 then inc(Adv, 45); //Last one goes right at the bottom of the scroll
         TKMLabel.Create(Panel_Stats,20,Adv,240,20,gResTexts[StatText[I]],fnt_Metal,taLeft);

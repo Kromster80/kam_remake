@@ -33,11 +33,11 @@ begin
   fOnPageChange := aOnPageChange;
 
   Panel_Loading := TKMPanel.Create(aParent,0,0,aParent.Width, aParent.Height);
-  Panel_Loading.Stretch;
+  Panel_Loading.AnchorsStretch;
     with TKMLabel.Create(Panel_Loading, aParent.Width div 2, aParent.Height div 2 - 20, gResTexts[TX_MENU_LOADING], fnt_Outline, taCenter) do
-      Center;
+      AnchorsCenter;
     Label_Loading := TKMLabel.Create(Panel_Loading, aParent.Width div 2, aParent.Height div 2+10, '...', fnt_Grey, taCenter);
-    Label_Loading.Center;
+    Label_Loading.AnchorsCenter;
 end;
 
 

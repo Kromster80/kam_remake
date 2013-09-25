@@ -754,33 +754,30 @@ begin
 
   fTeamNames := TList.Create;
 
-  //Parent Page for whole toolbar in-game
-  Panel_Main := TKMPanel.Create(fMyControls, 0, 0, aScreenX, aScreenY);
+  Label_TeamName := TKMLabel.Create(Panel_Main, 0, 0, '', fnt_Grey, taCenter);
 
-    Label_TeamName := TKMLabel.Create(Panel_Main, 0, 0, '', fnt_Grey, taCenter);
+  Sidebar_Top       := TKMImage.Create(Panel_Main, 0,    0, 224, 200, 407);
+  Sidebar_Middle    := TKMImage.Create(Panel_Main, 0,  200, 224, 168, 554);
 
-    Sidebar_Top       := TKMImage.Create(Panel_Main, 0,    0, 224, 200, 407);
-    Sidebar_Middle    := TKMImage.Create(Panel_Main, 0,  200, 224, 168, 554);
+  MinimapView := TKMMinimapView.Create(Panel_Main, 10, 10, 176, 176);
+  MinimapView.OnChange := Minimap_Update; //Allow dragging with LMB pressed
+  MinimapView.OnClickRight := Minimap_RightClick;
+  MinimapView.OnMinimapClick := Minimap_Click; //For placing beacons
 
-    MinimapView := TKMMinimapView.Create(Panel_Main, 10, 10, 176, 176);
-    MinimapView.OnChange := Minimap_Update; //Allow dragging with LMB pressed
-    MinimapView.OnClickRight := Minimap_RightClick;
-    MinimapView.OnMinimapClick := Minimap_Click; //For placing beacons
+  Image_Clock := TKMImage.Create(Panel_Main,232,8,67,65,556);
+  Image_Clock.Hide;
+  Label_Clock := TKMLabel.Create(Panel_Main,265,80,'mm:ss',fnt_Outline,taCenter);
+  Label_Clock.Hide;
+  Label_ClockSpeedup := TKMLabel.Create(Panel_Main,265,48,'x1',fnt_Metal,taCenter);
+  Label_ClockSpeedup.Hide;
 
-    Image_Clock := TKMImage.Create(Panel_Main,232,8,67,65,556);
-    Image_Clock.Hide;
-    Label_Clock := TKMLabel.Create(Panel_Main,265,80,'mm:ss',fnt_Outline,taCenter);
-    Label_Clock.Hide;
-    Label_ClockSpeedup := TKMLabel.Create(Panel_Main,265,48,'x1',fnt_Metal,taCenter);
-    Label_ClockSpeedup.Hide;
+  Label_ScriptedOverlay := TKMLabel.Create(Panel_Main,260,110,'',fnt_Metal,taLeft);
 
-    Label_ScriptedOverlay := TKMLabel.Create(Panel_Main,260,110,'',fnt_Metal,taLeft);
+  Image_DirectionCursor := TKMImage.Create(Panel_Main,0,0,35,36,519);
+  Image_DirectionCursor.Hide;
 
-    Image_DirectionCursor := TKMImage.Create(Panel_Main,0,0,35,36,519);
-    Image_DirectionCursor.Hide;
-
-    //Debugging displays
-    Label_DebugInfo := TKMLabel.Create(Panel_Main,224+8,106,'',fnt_Outline,taLeft);
+  //Debugging displays
+  Label_DebugInfo := TKMLabel.Create(Panel_Main,224+8,106,'',fnt_Outline,taLeft);
 
 {I plan to store all possible layouts on different pages which gets displayed one at a time}
 {==========================================================================================}
@@ -844,17 +841,17 @@ end;
 
 
 procedure TKMGamePlayInterface.Resize(X,Y: Word);
-var ShowSwords: Boolean;
+var
+  showSwords: Boolean;
 begin
-  Panel_Main.Width := X;
-  Panel_Main.Height := Y;
+  inherited;
 
   //Show swords filler if screen height allows
-  ShowSwords := (Panel_Main.Height >= 758);
-  Sidebar_Middle.Visible := ShowSwords;
+  showSwords := (Panel_Main.Height >= 758);
+  Sidebar_Middle.Visible := showSwords;
 
   //Needs to be -10 when the swords are hidden so it fits 1024x576
-  Panel_Controls.Top := Sidebar_Top.Height - 10 + (10+Sidebar_Middle.Height) * Byte(ShowSwords);
+  Panel_Controls.Top := Sidebar_Top.Height - 10 + (10+Sidebar_Middle.Height) * Byte(showSwords);
   Panel_Controls.Height := Panel_Main.Height - Panel_Controls.Top;
 
   if Panel_Stats.Visible then
@@ -866,18 +863,18 @@ end;
 procedure TKMGamePlayInterface.Create_Pause;
 begin
   Panel_Pause := TKMPanel.Create(Panel_Main, 0, 0, Panel_Main.Width, Panel_Main.Height);
-  Panel_Pause.Stretch;
+  Panel_Pause.AnchorsStretch;
   Bevel_Pause := TKMBevel.Create(Panel_Pause, -1, -1, Panel_Main.Width + 2, Panel_Main.Height + 2);
   Image_Pause := TKMImage.Create(Panel_Pause, (Panel_Main.Width div 2), (Panel_Main.Height div 2) - 40, 0, 0, 556);
   Label_Pause1 := TKMLabel.Create(Panel_Pause, (Panel_Main.Width div 2), (Panel_Main.Height div 2),
     gResTexts[TX_POPUP_PAUSE], fnt_Antiqua, taCenter);
   Label_Pause2 := TKMLabel.Create(Panel_Pause, (Panel_Main.Width div 2), (Panel_Main.Height div 2) + 20,
     Format(gResTexts[TX_GAMEPLAY_PAUSE_INFO], ['"P"']), fnt_Grey, taCenter);
-  Bevel_Pause.Stretch; //Anchor to all sides
+  Bevel_Pause.AnchorsStretch; //Anchor to all sides
   Image_Pause.ImageCenter;
-  Label_Pause1.Center;
-  Label_Pause2.Center;
-  Image_Pause.Center;
+  Label_Pause1.AnchorsCenter;
+  Label_Pause2.AnchorsCenter;
+  Image_Pause.AnchorsCenter;
   Panel_Pause.Hide
 end;
 
@@ -888,13 +885,13 @@ end;
 procedure TKMGamePlayInterface.Create_PlayMore;
 begin
   Panel_PlayMore := TKMPanel.Create(Panel_Main,0,0,Panel_Main.Width,Panel_Main.Height);
-  Panel_PlayMore.Stretch;
+  Panel_PlayMore.AnchorsStretch;
     Bevel_PlayMore := TKMBevel.Create(Panel_PlayMore,-1,-1,Panel_Main.Width+2,Panel_Main.Height+2);
-    Bevel_PlayMore.Stretch;
+    Bevel_PlayMore.AnchorsStretch;
 
     Panel_PlayMoreMsg := TKMPanel.Create(Panel_PlayMore,(Panel_Main.Width div 2)-100,(Panel_Main.Height div 2)-100,200,200);
-    Panel_PlayMoreMsg.Center;
-      Image_PlayMore:=TKMImage.Create(Panel_PlayMoreMsg,100,40,0,0,556);
+    Panel_PlayMoreMsg.AnchorsCenter;
+      Image_PlayMore := TKMImage.Create(Panel_PlayMoreMsg,100,40,0,0,556);
       Image_PlayMore.ImageCenter;
 
       Label_PlayMore  := TKMLabel.Create(Panel_PlayMoreMsg,100,80,NO_TEXT,fnt_Outline,taCenter);
@@ -909,11 +906,11 @@ end;
 procedure TKMGamePlayInterface.Create_MPPlayMore;
 begin
   Panel_MPPlayMore := TKMPanel.Create(Panel_Main,(Panel_Main.Width div 2)-200,(Panel_Main.Height div 2)-100,400,200);
-  Panel_MPPlayMore.Center;
+  Panel_MPPlayMore.AnchorsCenter;
     Bevel_MPPlayMore := TKMBevel.Create(Panel_MPPlayMore,-1,-1,Panel_MPPlayMore.Width+2,Panel_MPPlayMore.Height+2);
-    Bevel_MPPlayMore.Stretch;
+    Bevel_MPPlayMore.AnchorsStretch;
 
-      Image_MPPlayMore:=TKMImage.Create(Panel_MPPlayMore,200,40,0,0,556);
+      Image_MPPlayMore := TKMImage.Create(Panel_MPPlayMore,200,40,0,0,556);
       Image_MPPlayMore.ImageCenter;
 
       Label_MPPlayMore  := TKMLabel.Create(Panel_MPPlayMore,200,80,NO_TEXT,fnt_Outline,taCenter);
@@ -929,13 +926,13 @@ end;
 procedure TKMGamePlayInterface.Create_NetWait;
 begin
   Panel_NetWait := TKMPanel.Create(Panel_Main,0,0,Panel_Main.Width,Panel_Main.Height);
-  Panel_NetWait.Stretch;
+  Panel_NetWait.AnchorsStretch;
     Bevel_NetWait := TKMBevel.Create(Panel_NetWait,-1,-1,Panel_Main.Width+2,Panel_Main.Height+2);
-    Bevel_NetWait.Stretch;
+    Bevel_NetWait.AnchorsStretch;
 
     Panel_NetWaitMsg := TKMPanel.Create(Panel_NetWait,0,(Panel_Main.Height div 2)-200,Panel_Main.Width,400);
-    Panel_NetWaitMsg.Center;
-      Image_NetWait:=TKMImage.Create(Panel_NetWaitMsg,Panel_Main.Width div 2,40,0,0,556);
+    Panel_NetWaitMsg.AnchorsCenter;
+      Image_NetWait := TKMImage.Create(Panel_NetWaitMsg,Panel_Main.Width div 2,40,0,0,556);
       Image_NetWait.ImageCenter;
 
       Label_NetWait  := TKMLabel.Create(Panel_NetWaitMsg,Panel_Main.Width div 2,80,NO_TEXT,fnt_Outline,taCenter);
@@ -1320,7 +1317,7 @@ begin
   begin
     //Houses block
     Panel_StatBlock[I] := TKMPanel.Create(Panel_Stats, 0, 0, 30, 30);
-    with TKMBevel.Create(Panel_StatBlock[I], 0, 0, 30, 30) do Stretch;
+    with TKMBevel.Create(Panel_StatBlock[I], 0, 0, 30, 30) do AnchorsStretch;
 
     OffX := 0;
     for K := Low(StatPlan[I].HouseType) to High(StatPlan[I].HouseType) do

@@ -54,12 +54,12 @@ begin
   fOnPageChange := aOnPageChange;
 
   Panel_Campaign := TKMPanel.Create(aParent, 0, 0, aParent.Width, aParent.Height);
-  Panel_Campaign.Stretch;
+  Panel_Campaign.AnchorsStretch;
     Image_CampaignBG := TKMImage.Create(Panel_Campaign, 0, 0, aParent.Width, aParent.Height,0,rxGuiMain);
     Image_CampaignBG.ImageStretch;
 
     Panel_Campaign_Flags:=TKMPanel.Create(Panel_Campaign, 0, 0, aParent.Width, aParent.Height);
-    Panel_Campaign_Flags.Stretch;
+    Panel_Campaign_Flags.AnchorsStretch;
     for I := 0 to High(Image_CampaignFlags) do
     begin
       Image_CampaignFlags[I] := TKMImage.Create(Panel_Campaign_Flags, aParent.Width, aParent.Height, 23, 29, 10, rxGuiMain);
@@ -77,7 +77,7 @@ begin
 
     Image_Scroll := TKMImage.Create(Panel_CampScroll, 0, 0, 360, 430, 410, rxGui);
     Image_Scroll.ClipToBounds := True;
-    Image_Scroll.Stretch;
+    Image_Scroll.AnchorsStretch;
     Image_Scroll.ImageAnchors := [akLeft, akRight, akTop];
     Label_CampaignTitle := TKMLabel.Create(Panel_CampScroll, 130, 46, 100, 20, NO_TEXT, fnt_Outline, taCenter);
 

@@ -162,7 +162,7 @@ var
   I, K, OffY: Integer;
 begin
   Panel_Lobby := TKMPanel.Create(aParent,0,0,aParent.Width, aParent.Height);
-  Panel_Lobby.Stretch;
+  Panel_Lobby.AnchorsStretch;
 
     //Server Name
     Panel_LobbyServerName := TKMPanel.Create(Panel_Lobby, 30, 30, CW, 30);
@@ -247,7 +247,7 @@ begin
     //Setup
     Panel_LobbySetup := TKMPanel.Create(Panel_Lobby, 725, 30, 270, 712);
     Panel_LobbySetup.Anchors := [akLeft, akTop, akBottom];
-      with TKMBevel.Create(Panel_LobbySetup,  0,  0, 270, 712) do Stretch;
+      with TKMBevel.Create(Panel_LobbySetup,  0,  0, 270, 712) do AnchorsStretch;
       Radio_LobbyMapType := TKMRadioGroup.Create(Panel_LobbySetup, 10, 10, 250, 80, fnt_Metal);
       Radio_LobbyMapType.Add(gResTexts[TX_LOBBY_MAP_BUILD]);
       Radio_LobbyMapType.Add(gResTexts[TX_LOBBY_MAP_FIGHT]);

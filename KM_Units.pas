@@ -1702,7 +1702,7 @@ begin
       if not gPlayers.FindPlaceForUnit(fInHouse.GetEntrance.X, fInHouse.GetEntrance.Y, UnitType, fCurrPosition, gTerrain.GetWalkConnectID(fInHouse.GetEntrance)) then
       begin
         //There is no space for this unit so it must be destroyed
-        //todo: rerote to KillUnit and let it sort out that unit is invisible and cant be placed
+        //todo: re-route to KillUnit and let it sort out that unit is invisible and cant be placed
         if (gPlayers <> nil) and (fOwner <> PLAYER_NONE) then
         begin
           gPlayers[fOwner].Stats.UnitLost(fUnitType);

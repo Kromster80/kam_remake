@@ -35,14 +35,14 @@ begin
   fOnPageChange := aOnPageChange;
 
   Panel_Error := TKMPanel.Create(aParent, 0, 0, aParent.Width, aParent.Height);
-  Panel_Error.Stretch;
+  Panel_Error.AnchorsStretch;
     with TKMLabel.Create(Panel_Error, aParent.Width div 2, aParent.Height div 2 - 20, gResTexts[TX_MENU_ERROR], fnt_Antiqua, taCenter) do
-      Center;
+      AnchorsCenter;
     Label_Error := TKMLabel.Create(Panel_Error, 8, aParent.Height div 2+10, aParent.Width-16, 200, '...', fnt_Grey, taCenter);
-    Label_Error.Center;
+    Label_Error.AnchorsCenter;
     Label_Error.AutoWrap := True;
     Button_ErrorBack := TKMButton.Create(Panel_Error,100,630,224,30,gResTexts[TX_MENU_BACK],bsMenu);
-    Button_ErrorBack.Center;
+    Button_ErrorBack.AnchorsCenter;
     Button_ErrorBack.OnClick := BackClick;
 end;
 

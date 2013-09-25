@@ -103,7 +103,7 @@ var
   B: TKMBevel;
 begin
   Panel_Single := TKMPanel.Create(aParent, 0, 0, aParent.Width, aParent.Height);
-  Panel_Single.Stretch;
+  Panel_Single.AnchorsStretch;
 
     Half := (aParent.Width - PAD_SIDE) div 2 - PAD_SIDE;
 

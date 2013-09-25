@@ -241,6 +241,7 @@ begin
 
     fFightDelay := -1; //Reset
   end;
+
   if Step = SLINGSHOT_FIRING_DELAY then
     if fUnit.UnitType = ut_Slingshot then
     begin

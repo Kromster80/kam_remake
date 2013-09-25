@@ -163,7 +163,7 @@ begin
   fOnPageChange := aOnPageChange;
 
   Panel_MultiPlayer := TKMPanel.Create(aParent, 0, 0, aParent.Width, aParent.Height);
-  Panel_MultiPlayer.Stretch;
+  Panel_MultiPlayer.AnchorsStretch;
 
     //Top area
     Panel_MPPlayerName := TKMPanel.Create(Panel_MultiPlayer, 675, 45, 320, 120);
@@ -209,7 +209,7 @@ begin
     //Server details area
     Panel_MPServerDetails := TKMPanel.Create(Panel_MultiPlayer, 675, 240, 320, 465);
     Panel_MPServerDetails.Anchors := [akLeft, akTop, akBottom];
-      with TKMBevel.Create(Panel_MPServerDetails, 0, 0, 320, 465) do Stretch;
+      with TKMBevel.Create(Panel_MPServerDetails, 0, 0, 320, 465) do AnchorsStretch;
       TKMLabel.Create(Panel_MPServerDetails, 8, 6, 304, 20, gResTexts[TX_MP_MENU_HEADER_SERVER_DETAILS], fnt_Outline, taCenter);
       TKMLabel.Create(Panel_MPServerDetails, 8, 30, 304, 20, gResTexts[TX_MP_MENU_GAME_INFORMATION], fnt_Outline, taLeft);
       Label_MP_Desc := TKMLabel.Create(Panel_MPServerDetails, 8, 50, 304, 80, '', fnt_Metal, taLeft);

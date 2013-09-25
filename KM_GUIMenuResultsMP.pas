@@ -510,15 +510,15 @@ end;
 procedure TKMMenuResultsMP.Create_ResultsMP(aParent: TKMPanel);
 begin
   Panel_ResultsMP := TKMPanel.Create(aParent, 0, 0, aParent.Width, aParent.Height);
-  Panel_ResultsMP.Stretch;
+  Panel_ResultsMP.AnchorsStretch;
     with TKMImage.Create(Panel_ResultsMP,0,0,aParent.Width, aParent.Height,7,rxGuiMain) do
     begin
       ImageStretch;
-      Center;
+      AnchorsCenter;
     end;
     with TKMShape.Create(Panel_ResultsMP,0,0,aParent.Width, aParent.Height) do
     begin
-      Center;
+      AnchorsCenter;
       FillColor := $A0000000;
     end;
 

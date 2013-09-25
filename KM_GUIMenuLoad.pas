@@ -58,7 +58,7 @@ begin
   fSaves := TKMSavesCollection.Create;
 
   Panel_Load := TKMPanel.Create(aParent,0,0,aParent.Width, aParent.Height);
-  Panel_Load.Stretch;
+  Panel_Load.AnchorsStretch;
 
     TKMLabel.Create(Panel_Load, aParent.Width div 2, 50, gResTexts[TX_MENU_LOAD_LIST], fnt_Outline, taCenter);
 
