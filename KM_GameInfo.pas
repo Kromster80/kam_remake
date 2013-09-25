@@ -21,10 +21,9 @@ type
     DefeatCondition: UnicodeString;
 
     PlayerCount: Byte;
-    //Location name is string because for savegames we store players name there
     Enabled: array [0..MAX_PLAYERS-1] of Boolean;
     CanBeHuman: array [0..MAX_PLAYERS-1] of Boolean;
-    LocationUser: array [0..MAX_PLAYERS-1] of AnsiString; //Nikname of the player who plays this location
+    OwnerNikname: array [0..MAX_PLAYERS-1] of AnsiString; //Nikname of the player who plays this location
     PlayerTypes: array [0..MAX_PLAYERS-1] of TPlayerType;
     ColorID: array [0..MAX_PLAYERS-1] of Integer;
     Team: array [0..MAX_PLAYERS-1] of Integer;
@@ -84,7 +83,7 @@ begin
   begin
     LoadStream.Read(CanBeHuman[I]);
     LoadStream.Read(Enabled[I]);
-    LoadStream.ReadA(LocationUser[I]);
+    LoadStream.ReadA(OwnerNikname[I]);
     LoadStream.Read(PlayerTypes[I], SizeOf(PlayerTypes[I]));
     LoadStream.Read(ColorID[I]);
     LoadStream.Read(Team[I]);
@@ -112,7 +111,7 @@ begin
   begin
     SaveStream.Write(CanBeHuman[I]);
     SaveStream.Write(Enabled[I]);
-    SaveStream.WriteA(LocationUser[I]);
+    SaveStream.WriteA(OwnerNikname[I]);
     SaveStream.Write(PlayerTypes[I], SizeOf(PlayerTypes[I]));
     SaveStream.Write(ColorID[I]);
     SaveStream.Write(Team[I]);

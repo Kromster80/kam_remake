@@ -159,6 +159,7 @@ type
     property GamePlayInterface: TKMGamePlayInterface read fGamePlayInterface;
     property MapEditorInterface: TKMapEdInterface read fMapEditorInterface;
     property MapEditor: TKMMapEditor read fMapEditor;
+    property TextMission: TKMTextLibraryMulti read fTextMission;
     property Viewport: TViewport read fViewport;
 
     procedure Save(const aName: UnicodeString);
@@ -1132,7 +1133,7 @@ procedure TKMGame.SaveGame(const aPathName: UnicodeString);
 var
   SaveStream: TKMemoryStream;
   fGameInfo: TKMGameInfo;
-  i, NetIndex: integer;
+  I, netIndex: Integer;
 begin
   gLog.AddTime('Saving game: ' + aPathName);
 
@@ -1155,27 +1156,23 @@ begin
     fGameInfo.PlayerCount := gPlayers.Count;
     for I := 0 to gPlayers.Count - 1 do
     begin
-      if fNetworking <> nil then
-        NetIndex := fNetworking.NetPlayers.PlayerIndexToLocal(I)
-      else
-        NetIndex := -1;
-
-      if NetIndex = -1 then
+      if fNetworking = nil then
       begin
         fGameInfo.Enabled[I] := False;
         fGameInfo.CanBeHuman[I] := False;
-        fGameInfo.LocationUser[I] := AnsiString('Unknown ' + IntToStr(I + 1));
+        fGameInfo.OwnerNikname[I] := '';
         fGameInfo.PlayerTypes[I] := pt_Human;
         fGameInfo.ColorID[I] := 0;
         fGameInfo.Team[I] := 0;
       end else
       begin
+        netIndex := fNetworking.NetPlayers.PlayerIndexToLocal(I);
         fGameInfo.Enabled[I] := True;
-        fGameInfo.CanBeHuman[I] := fNetworking.NetPlayers[NetIndex].IsHuman;
-        fGameInfo.LocationUser[I] := fNetworking.NetPlayers[NetIndex].Nikname;
-        fGameInfo.PlayerTypes[I] := fNetworking.NetPlayers[NetIndex].GetPlayerType;
-        fGameInfo.ColorID[I] := fNetworking.NetPlayers[NetIndex].FlagColorID;
-        fGameInfo.Team[I] := fNetworking.NetPlayers[NetIndex].Team;
+        fGameInfo.CanBeHuman[I] := fNetworking.NetPlayers[netIndex].IsHuman;
+        fGameInfo.OwnerNikname[I] := fNetworking.NetPlayers[netIndex].Nikname;
+        fGameInfo.PlayerTypes[I] := fNetworking.NetPlayers[netIndex].GetPlayerType;
+        fGameInfo.ColorID[I] := fNetworking.NetPlayers[netIndex].FlagColorID;
+        fGameInfo.Team[I] := fNetworking.NetPlayers[netIndex].Team;
       end;
     end;
 

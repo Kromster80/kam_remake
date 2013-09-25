@@ -456,7 +456,7 @@ begin
       if fSaveInfo.Info.Enabled[K-1]
       and ((I = aPlayerID) or (aPlayerID = -1)) //-1 means update all players
       and fNetPlayers.LocAvailable(K)
-      and (fNetPlayers[I].Nikname = fSaveInfo.Info.LocationUser[K-1]) then
+      and (fNetPlayers[I].Nikname = fSaveInfo.Info.OwnerNikname[K-1]) then
       begin
         fNetPlayers[I].StartLocation := K;
         Break;

@@ -867,7 +867,7 @@ begin
                     for K := 0 to fNetworking.SaveInfo.Info.PlayerCount - 1 do
                       if fNetworking.SaveInfo.Info.Enabled[K]
                       and (fNetworking.SaveInfo.Info.CanBeHuman[K] or ALLOW_TAKE_AI_PLAYERS) then
-                        DropBox_LobbyLoc[I].Add(UnicodeString(fNetworking.SaveInfo.Info.LocationUser[K]), K+1);
+                        DropBox_LobbyLoc[I].Add(UnicodeString(fNetworking.SaveInfo.Info.OwnerNikname[K]), K+1);
                 end;
       ngk_Map:  begin
                   IsValid := fNetworking.MapInfo.IsValid;

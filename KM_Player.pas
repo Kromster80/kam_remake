@@ -152,6 +152,10 @@ uses KM_PlayersCollection, KM_Resource, KM_ResSound, KM_Sound, KM_Game,
    KM_ResTexts, KM_AIFields, KM_Scripting;
 
 
+const
+  PLAYER_NAMES_OFFSET = 100;
+
+
 { TKMPlayerCommon }
 constructor TKMPlayerCommon.Create(aPlayerIndex: TPlayerIndex);
 begin
@@ -928,12 +932,19 @@ begin
     Result := gResTexts[TX_PLAYER_YOU]
   else
     Result := Format(gResTexts[TX_PLAYER_X], [fPlayerIndex + 1]);
-  --- maybe we dont need fOwnerNikname cos its saved in GameInfo header, independently from players (cos they actually dont care for that name)
-  //todo: Try to take player name from mission text
 
-  //If this location was controlled by a real player - show his nik
+  //Try to take player name from mission text if we are in SP
+  //Do not use names in MP ot avoid confusion of AI players with real player niknames
+  if fGame.GameMode in [gmSingle, gmMapEd, gmReplaySingle] then
+    if fGame.TextMission.HasText(PLAYER_NAMES_OFFSET + fPlayerIndex) then
+      if PlayerType = pt_Human then
+        Result := gResTexts[TX_PLAYER_YOU] + ' (' + fGame.TextMission[PLAYER_NAMES_OFFSET + fPlayerIndex] + ')'
+      else
+        Result := fGame.TextMission[PLAYER_NAMES_OFFSET + fPlayerIndex];
+
+  //If this location is controlled by an MP player - show his nik
   if fOwnerNikname <> '' then
-    Result := fOwnerNikname;
+    Result := UnicodeString(fOwnerNikname);
 end;
 
 

@@ -21,13 +21,13 @@ const
 type
   TKMStringArray = array of UnicodeString;
 
-  TKMTextLibrary = class
+  TKMTextLibraryCommon = class
   private
     procedure LoadLIBXFile(FilePath: string; var aArray: TKMStringArray);
   end;
 
 
-  TKMTextLibrarySingle = class(TKMTextLibrary)
+  TKMTextLibrarySingle = class(TKMTextLibraryCommon)
   private
     fTexts: TKMStringArray;
     function GetTexts(aIndex: Word): UnicodeString;
@@ -37,7 +37,7 @@ type
   end;
 
 
-  TKMTextLibraryMulti = class(TKMTextLibrary)
+  TKMTextLibraryMulti = class(TKMTextLibraryCommon)
   private
     fPref: array [0..2] of Integer;
 
@@ -48,6 +48,7 @@ type
     constructor Create;
     procedure LoadLocale(aPathTemplate: string); //All locales for Mission strings
     function ParseTextMarkup(const aText: UnicodeString): UnicodeString;
+    function HasText(aIndex: Word): Boolean;
     property Texts[aIndex: Word]: UnicodeString read GetTexts; default;
     procedure Save(aStream: TKMemoryStream);
     procedure Load(aStream: TKMemoryStream);
@@ -62,8 +63,9 @@ var
 implementation
 
 
-{LIBX files consist of lines. Each line has an index and a text. Lines without index are skipped}
-procedure TKMTextLibrary.LoadLIBXFile(FilePath: string; var aArray: TKMStringArray);
+{ TKMTextLibraryCommon }
+//LIBX files consist of lines. Each line has an index and a text. Lines without index are skipped
+procedure TKMTextLibraryCommon.LoadLIBXFile(FilePath: string; var aArray: TKMStringArray);
   function TextToArray(const Value: UnicodeString): TKMStringArray;
   var
     P, Start: PWideChar;
@@ -95,7 +97,7 @@ var
   I: Integer;
   s: UnicodeString;
   firstDelimiter: Integer;
-  ID, MaxID: Integer;
+  id, topId: Integer;
 begin
   if not FileExists(FilePath) then Exit;
 
@@ -104,30 +106,34 @@ begin
   libTxt := ReadTextU(FilePath, gResLocales.LocaleByCode(langCode).FontCodepage);
   Tmp := TextToArray(libTxt);
 
-  //First line is empty or comment and could have first 3 bytes Unicode Byte-Order Mark (BOM)
-  s := Tmp[1];
-  if Copy(s, 1, 6) <> 'MaxID:' then Exit;
+  for I := High(Tmp) downto 0 do
+  begin
+    firstDelimiter := Pos(':', Tmp[I]);
+    if firstDelimiter = 0 then Continue;
 
-  firstDelimiter := Pos(':', s);
-  if not TryStrToInt(RightStr(s, Length(s) - firstDelimiter), MaxID) then Exit;
+    if TryStrToInt(LeftStr(Tmp[I], firstDelimiter - 1), topId) then
+      Break;
+  end;
 
-  SetLength(aArray, MaxID + 1);
+  Assert(topId <= 1024, 'Dont allow too many strings for no reason');
 
-  for I := 2 to High(Tmp) do
+  SetLength(aArray, topId + 1);
+
+  for I := 0 to High(Tmp) do
   begin
     s := Tmp[I];
 
     //Get string index and skip erroneous lines
     firstDelimiter := Pos(':', s);
     if firstDelimiter = 0 then Continue;
-    if not TryStrToInt(TrimLeft(LeftStr(s, firstDelimiter - 1)), ID) then Continue;
-    if ID > MaxID then Continue;
+    if not TryStrToInt(TrimLeft(LeftStr(s, firstDelimiter - 1)), id) then Continue;
 
     s := RightStr(s, Length(s) - firstDelimiter);
     //Required characters that can't be stored in plain text
+    //todo: Remove them in favor of | for eol (and update libx files)
     s := StringReplace(s, '\n', EolW, [rfReplaceAll, rfIgnoreCase]); //EOL
     s := StringReplace(s, '\\', '\', [rfReplaceAll, rfIgnoreCase]); //Slash
-    aArray[ID] := s;
+    aArray[id] := s;
   end;
 end;
 
@@ -171,6 +177,15 @@ begin
   fPref[0] := gResLocales.IndexByCode(gResLocales.UserLocale);
   fPref[1] := gResLocales.IndexByCode(gResLocales.FallbackLocale);
   fPref[2] := gResLocales.IndexByCode(gResLocales.DefaultLocale);
+end;
+
+
+//Check if requested string is empty
+function TKMTextLibraryMulti.HasText(aIndex: Word): Boolean;
+begin
+  Result := ((fPref[0] <> -1) and (aIndex < Length(fTexts[fPref[0]])) and (fTexts[fPref[0], aIndex] <> ''))
+         or ((fPref[1] <> -1) and (aIndex < Length(fTexts[fPref[1]])) and (fTexts[fPref[1], aIndex] <> ''))
+         or ((fPref[2] <> -1) and (aIndex < Length(fTexts[fPref[2]])) and (fTexts[fPref[2], aIndex] <> ''));
 end;
 
 
