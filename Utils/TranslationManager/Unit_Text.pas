@@ -18,7 +18,7 @@ type
   TTextManager = class
   private
     fUseConsts: Boolean; //We use consts only for ingame library, others don't need them
-    fTextMaxID: Integer;
+    fTextsTopId: Integer;
     fTexts: array of TStringArray;
     fConsts: array of TTextInfo;
 
@@ -66,7 +66,7 @@ begin
   SetLength(fTexts, 0);
 
   fUseConsts := aConstPath <> '';
-  fTextMaxID := -1;
+  fTextsTopId := -1;
 
   if fUseConsts then
     LoadConsts(aConstPath);
@@ -109,9 +109,11 @@ procedure TTextManager.AddMissingConsts;
       Break;
     end;
   end;
-var I: Integer; s: string;
+var
+  I: Integer;
+  s: string;
 begin
-  for I := 0 to fTextMaxID do
+  for I := 0 to fTextsTopId do
     if not TextEmpty(I) and TextUnused(I) then
     begin
       s := StringReplace(fTexts[I, gResLocales.IndexByCode(DEFAULT_LOCALE)], ' ', '', [rfReplaceAll]);
@@ -132,14 +134,15 @@ end;
 
 
 procedure TTextManager.Slice(aFirst, aNum: Integer);
-var I, K: Integer;
+var
+  I, K: Integer;
 begin
   for I := 0 to aNum - 1 do
     for K := 0 to gResLocales.Count - 1 do
       fTexts[I, K] := fTexts[I + aFirst, K];
 
   SetLength(fTexts, aNum);
-  fTextMaxID := aNum-1;
+  fTextsTopId := aNum - 1;
 end;
 
 
@@ -225,8 +228,8 @@ end;
 procedure TTextManager.LoadText(aTextPath: string; TranslationID: Integer);
 var
   SL: TStringList;
-  B: Boolean;
-  I, ID, firstDelimiter, T: Integer;
+  firstDelimiter, topId: Integer;
+  I, ID: Integer;
   Line: string;
 begin
   if not FileExists(aTextPath) then Exit;
@@ -234,53 +237,35 @@ begin
   SL := TStringList.Create;
   SL.LoadFromFile(aTextPath);
 
-  B := False;
+  for I := SL.Count - 1 downto 0 do
+  begin
+    firstDelimiter := Pos(':', SL[I]);
+    if firstDelimiter = 0 then Continue;
+
+    if TryStrToInt(LeftStr(SL[I], firstDelimiter - 1), topId) then
+      Break;
+  end;
+
+  Assert(topId <= 1024, 'Dont allow too many strings for no reason');
+
+  fTextsTopId := Max(fTextsTopId, topId);
+
+  SetLength(fTexts, fTextsTopId + 1, gResLocales.Count);
+
   for I := 0 to SL.Count - 1 do
   begin
     Line := Trim(SL[I]);
-    if Pos('MaxID:', Line) = 1 then
-    begin
-      B := TryStrToInt(TrimLeft(Copy(Line, 7, Length(Line))), T);
-      Break;
-    end;
-  end;
 
-  //Make sure we've got valid TextCount
-  if B then
-  begin
-    if (fTextMaxID <> -1) and (fTextMaxID <> T) then
-    begin
-      ShowMessage(aTextPath + ' MaxID is inconsistent with other files');
-      B := False;
-    end
-    else
-      fTextMaxID := T;
-  end
-  else
-  begin
-    ShowMessage(aTextPath + ' has no MaxID entry');
-    B := False;
-  end;
+    firstDelimiter := Pos(':', Line);
+    if firstDelimiter = 0 then Continue;
+    if not TryStrToInt(TrimLeft(LeftStr(Line, firstDelimiter-1)), ID) then Continue;
 
-  if B then
-  begin
-    SetLength(fTexts, fTextMaxID + 1, gResLocales.Count);
+    Line := RightStr(Line, Length(Line) - firstDelimiter);
+    //Required characters that can't be stored in plain text
+    Line := StringReplace(Line, '\n', eol, [rfReplaceAll, rfIgnoreCase]); //EOL
+    Line := StringReplace(Line, '\\', '\', [rfReplaceAll, rfIgnoreCase]); //Slash
 
-    for I := 0 to SL.Count - 1 do
-    begin
-      Line := Trim(SL[I]);
-
-      firstDelimiter := Pos(':', Line);
-      if firstDelimiter = 0 then continue;
-      if not TryStrToInt(TrimLeft(LeftStr(Line, firstDelimiter-1)), ID) then continue;
-
-      Line := RightStr(Line, Length(Line) - firstDelimiter);
-      //Required characters that can't be stored in plain text
-      Line := StringReplace(Line, '\n', eol, [rfReplaceAll, rfIgnoreCase]); //EOL
-      Line := StringReplace(Line, '\\', '\', [rfReplaceAll, rfIgnoreCase]); //Slash
-
-      fTexts[ID, TranslationID] := Line;
-    end;
+    fTexts[ID, TranslationID] := Line;
   end;
 
   SL.Free;
@@ -295,10 +280,7 @@ var
 begin
   SL := TStringList.Create;
 
-  SL.Add(''); //First line may contain BOM
-  SL.Add('MaxID:' + IntToStr(fTextMaxID));
-  SL.Add('');
-  for I := 0 to fTextMaxID do
+  for I := 0 to fTextsTopId do
   if I <= High(fTexts) then
   if fTexts[I, TranslationID] <> '' then
   begin
@@ -423,7 +405,7 @@ begin
     Inc(CurIndex);
   end;
   SetLength(fTexts, CurIndex);
-  fTextMaxID := CurIndex-1;
+  fTextsTopId := CurIndex - 1;
 end;
 
 
@@ -448,19 +430,19 @@ begin
       fConsts[I+1] := fConsts[I];
 
     //Append new strings, they will be empty
-    Inc(fTextMaxID);
-    SetLength(fTexts, fTextMaxID + 1, gResLocales.Count);
+    Inc(fTextsTopId);
+    SetLength(fTexts, fTextsTopId + 1, gResLocales.Count);
 
-    fConsts[aIndex].TextID := fTextMaxID;
-    fConsts[aIndex].ConstName := 'TX_NEW' + IntToStr(fTextMaxID);
+    fConsts[aIndex].TextID := fTextsTopId;
+    fConsts[aIndex].ConstName := 'TX_NEW' + IntToStr(fTextsTopId);
   end
   else
   begin
-    Inc(fTextMaxID);
-    SetLength(fTexts, fTextMaxID + 1, gResLocales.Count);
+    Inc(fTextsTopId);
+    SetLength(fTexts, fTextsTopId + 1, gResLocales.Count);
 
     //Move down
-    for I := fTextMaxID downto aIndex + 1 do
+    for I := fTextsTopId downto aIndex + 1 do
       for K := 0 to gResLocales.Count - 1 do
         fTexts[I,K] := fTexts[I-1,K];
 
