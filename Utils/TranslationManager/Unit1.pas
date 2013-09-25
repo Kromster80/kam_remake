@@ -175,7 +175,7 @@ begin
   if clbShowLang.Checked[I+1] then
   begin
     TransLabels[I].SetBounds(8, 4 + K * SecHeight, 100, 20);
-    TransMemos[I].SetBounds(8, 22 + K * SecHeight, ScrollBox1.Width - 16, SecHeight - 20);
+    TransMemos[I].SetBounds(8, 22 + K * SecHeight, ScrollBox1.Width - 20, SecHeight - 20);
     Inc(K);
   end;
 end;
@@ -343,6 +343,7 @@ begin
     TransMemos[I] := TMemo.Create(Form1);
     TransMemos[I].Parent := ScrollBox1;
     TransMemos[I].Anchors := [akLeft, akRight, akTop];
+    TransMemos[I].Font.Name := 'Arial Unicode MS'; //If not found, parent font is used
     TransMemos[I].Font.Charset := GetCharset(gResLocales[I].Code);
     TransMemos[I].OnChange := MemoChange;
     TransMemos[I].Tag := I;
