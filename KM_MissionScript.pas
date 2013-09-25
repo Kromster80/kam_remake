@@ -172,9 +172,9 @@ end;
 
 function TMissionParserCommon.TokenizeScript(const aText: AnsiString; aMaxCmd: Byte; aCommands: array of AnsiString): Boolean;
 var
-  CommandText, Param, TextParam: AnsiString;
+  CommandText, strParam, TextParam: AnsiString;
   ParamList: array of Integer;
-  I, K, IntParam: Integer;
+  I, K, intParam: Integer;
   CommandType: TKMCommandType;
   J: Integer;
   DoProcess: Boolean;
@@ -215,18 +215,18 @@ begin
         for K := 0 to aMaxCmd - 1 do
           if (I < Length(aText)) and (aText[I] <> '!') then
           begin
-            Param := '';
+            strParam := '';
             repeat
-              Param := Param + aText[I];
+              strParam := strParam + aText[I];
               Inc(I);
             until((I >= Length(aText)) or (aText[I] = '!') or (aText[I] = #32)); //Until we find another ! OR we run out of data
 
             //Convert to an integer, if possible
-            if TryStrToInt(Param, IntParam) then
-              ParamList[K] := IntParam
+            if TryStrToInt(string(strParam), intParam) then
+              ParamList[K] := intParam
             else
               if K = 0 then
-                TextParam := Param; //Accept text for first parameter
+                TextParam := strParam; //Accept text for first parameter
 
             if (I <= Length(aText)) and (aText[I] = #32) then
               Inc(I);

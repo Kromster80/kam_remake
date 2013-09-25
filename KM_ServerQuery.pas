@@ -226,23 +226,23 @@ procedure TKMServerList.LoadFromText(const aText: UnicodeString);
   end;
 
 var
-  Strings, Items: TStringList;
+  srvList, srvInfo: TStringList;
   I: Integer;
 begin
   fLastQueried := -1; //First is 0
   Clear;
-  Strings := TStringList.Create;
-  Items := TStringList.Create;
-  Strings.Text := aText; //Parse according to EOLs
-  for I := 0 to Strings.Count - 1 do
+  srvList := TStringList.Create;
+  srvInfo := TStringList.Create;
+  srvList.Text := aText; //Parse according to EOLs
+  for I := 0 to srvList.Count - 1 do
   begin
-    ParseDelimited(Strings[I], ',', Items); //Automatically clears Items and loads each value
-    if Items.Count = 5 then //Must have 5 parameters
-      AddServer(Items[1], Items[2], Items[0], GetServerType(Items[3], Items[4]), 0);
+    ParseDelimited(srvList[I], ',', srvInfo); //Automatically clears srvInfo and loads each value
+    if srvInfo.Count = 5 then //Must have 5 parameters
+      AddServer(srvInfo[1], srvInfo[2], srvInfo[0], GetServerType(srvInfo[3], srvInfo[4]), 0);
   end;
 
-  Items.Free;
-  Strings.Free;
+  srvInfo.Free;
+  srvList.Free;
 end;
 
 

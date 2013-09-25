@@ -2,7 +2,7 @@ unit KM_Campaigns;
 {$I KaM_Remake.inc}
 interface
 uses
-  Classes, KromUtils, Math, SysUtils,
+  AnsiStrings, Classes, KromUtils, Math, SysUtils,
   KM_CommonClasses, KM_Pics, KM_Points, KM_ResTexts, KM_ResLocales;
 
 
@@ -220,11 +220,12 @@ end;
 
 
 function TKMCampaignsCollection.CampaignByTitle(const aShortTitle: AnsiString): TKMCampaign;
-var I: Integer;
+var
+  I: Integer;
 begin
   Result := nil;
   for I := 0 to Count - 1 do
-    if SameText(Campaigns[I].ShortTitle, aShortTitle) then
+    if AnsiStrings.SameText(Campaigns[I].ShortTitle, aShortTitle) then
       Result := Campaigns[I];
 end;
 
@@ -395,8 +396,8 @@ end;
 
 function TKMCampaign.MissionFile(aIndex: Byte): UnicodeString;
 begin
-  Result := fPath + fShortTitle + Format('%.2d', [aIndex+1]) + PathDelim +
-            fShortTitle + Format('%.2d', [aIndex+1]) + '.dat';
+  Result := fPath + UnicodeString(fShortTitle) + Format('%.2d', [aIndex + 1]) + PathDelim +
+            UnicodeString(fShortTitle) + Format('%.2d', [aIndex + 1]) + '.dat';
 end;
 
 
@@ -416,16 +417,16 @@ end;
 
 function TKMCampaign.BreifingAudioFile(aIndex: Byte): UnicodeString;
 begin
-  Result := fPath + fShortTitle + Format('%.2d', [aIndex+1]) + PathDelim +
-            fShortTitle + Format('%.2d', [aIndex + 1]) + '.' + gResLocales.UserLocale + '.mp3';
+  Result := fPath + UnicodeString(fShortTitle) + Format('%.2d', [aIndex+1]) + PathDelim +
+            UnicodeString(fShortTitle) + Format('%.2d', [aIndex + 1]) + '.' + UnicodeString(gResLocales.UserLocale) + '.mp3';
 
   if not FileExists(Result) then
-    Result := fPath + fShortTitle + Format('%.2d', [aIndex+1]) + PathDelim +
-              fShortTitle + Format('%.2d', [aIndex + 1]) + '.' + gResLocales.FallbackLocale + '.mp3';
+    Result := fPath + UnicodeString(fShortTitle) + Format('%.2d', [aIndex+1]) + PathDelim +
+              UnicodeString(fShortTitle) + Format('%.2d', [aIndex + 1]) + '.' + UnicodeString(gResLocales.FallbackLocale) + '.mp3';
 
   if not FileExists(Result) then
-    Result := fPath + fShortTitle + Format('%.2d', [aIndex+1]) + PathDelim +
-              fShortTitle + Format('%.2d', [aIndex + 1]) + '.' + gResLocales.DefaultLocale + '.mp3';
+    Result := fPath + UnicodeString(fShortTitle) + Format('%.2d', [aIndex+1]) + PathDelim +
+              UnicodeString(fShortTitle) + Format('%.2d', [aIndex + 1]) + '.' + UnicodeString(gResLocales.DefaultLocale) + '.mp3';
 end;
 
 

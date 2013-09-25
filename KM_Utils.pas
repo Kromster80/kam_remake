@@ -423,7 +423,7 @@ end;
 
 function WrapColorA(aText: AnsiString; aColor: Cardinal): AnsiString;
 begin
-  Result := '[$' + IntToHex(aColor and $00FFFFFF, 6) + ']' + aText + '[]';
+  Result := '[$' + AnsiString(IntToHex(aColor and $00FFFFFF, 6) + ']') + aText + '[]';
 end;
 
 
@@ -433,6 +433,7 @@ var
   skippingMarkup: Boolean;
 begin
   Result := aText;
+  skippingMarkup := False;
 
   for I := 1 to Length(aText) do
   begin
