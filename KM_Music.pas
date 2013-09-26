@@ -15,7 +15,7 @@ interface
   {$DEFINE USELIBZPLAY}
 {$ENDIF}
 
-uses Classes, SysUtils, KromUtils, Math,
+uses Classes, SysUtils, KromUtils, Math, Types,
      KM_Defaults
      {$IFDEF USEBASS}     , Bass {$ENDIF}
      {$IFDEF USELIBZPLAY} , libZPlay {$ENDIF}
@@ -26,10 +26,10 @@ type TFadeState = (fsNone, fsFadeOut, fsFadeIn, fsFaded);
 type
   TMusicLib = class
   private
-    MusicCount: Integer;
-    MusicIndex: Integer; //Points to the index in TrackOrder of the current track
-    MusicTracks: array[1..256]of string;
-    TrackOrder: array[1..256]of byte; //Each index points to an index of MusicTracks
+    fMusicCount: Integer;
+    fMusicIndex: Integer; //Points to the index in TrackOrder of the current track
+    fMusicTracks: TStringDynArray;
+    fTrackOrder: TIntegerDynArray; //Each index points to an index of MusicTracks
     //MIDICount,MIDIIndex:integer;
     //MIDITracks:array[1..256]of string;
     IsMusicInitialized: Boolean;
@@ -99,10 +99,10 @@ begin
   UpdateMusicVolume(aVolume);
 
   // Initialise TrackOrder
-  for I := 1 to MusicCount do
-    TrackOrder[I] := I;
+  for I := 0 to fMusicCount - 1 do
+    fTrackOrder[I] := I;
 
-  gLog.AddTime('Music init done, ' + IntToStr(MusicCount) + ' tracks found');
+  gLog.AddTime('Music init done, ' + IntToStr(fMusicCount) + ' tracks found');
 end;
 
 
@@ -214,76 +214,83 @@ end;
 
 
 procedure TMusicLib.ScanMusicTracks(Path: string);
-var SearchRec: TSearchRec;
+var
+  SearchRec: TSearchRec;
 begin
-  if not IsMusicInitialized then exit;
-  MusicCount := 0;
-  if not DirectoryExists(Path) then exit;
+  if not IsMusicInitialized then Exit;
+  fMusicCount := 0;
+  if not DirectoryExists(Path) then Exit;
 
-  FindFirst(Path + '*', faDirectory, SearchRec);
+  SetLength(fMusicTracks, 255);
+
+  FindFirst(Path + '*.*', faAnyFile - faDirectory, SearchRec);
   repeat
-    if (SearchRec.Attr and faDirectory <> faDirectory)
-    and (SearchRec.Name <> '.') and (SearchRec.Name <> '..') then
-    if (GetFileExt(SearchRec.Name) = 'MP3') or //Allow all formats supported by both libraries
-       (GetFileExt(SearchRec.Name) = 'MP2') or
-       (GetFileExt(SearchRec.Name) = 'MP1') or
-       (GetFileExt(SearchRec.Name) = 'WAV') or
-       (GetFileExt(SearchRec.Name) = 'OGG')
-       {$IFDEF USEBASS} //Formats supported by BASS but not LibZPlay
-       or (GetFileExt(SearchRec.Name) = 'AIFF')
-       {$ENDIF}
-       {$IFDEF USELIBZPLAY} //Formats supported by LibZPlay but not BASS
-       or (GetFileExt(SearchRec.Name) = 'FLAC')
-       or (GetFileExt(SearchRec.Name) = 'OGA')
-       or (GetFileExt(SearchRec.Name) = 'AC3')
-       or (GetFileExt(SearchRec.Name) = 'AAC')
-       or (GetFileExt(SearchRec.Name) = 'OGA')
-       {$ENDIF} then
-       begin
-      Inc(MusicCount);
-      MusicTracks[MusicCount] := Path + SearchRec.Name;
+    if (GetFileExt(SearchRec.Name) = 'MP3') //Allow all formats supported by both libraries
+    or (GetFileExt(SearchRec.Name) = 'MP2')
+    or (GetFileExt(SearchRec.Name) = 'MP1')
+    or (GetFileExt(SearchRec.Name) = 'WAV')
+    or (GetFileExt(SearchRec.Name) = 'OGG')
+    {$IFDEF USEBASS} //Formats supported by BASS but not LibZPlay
+    or (GetFileExt(SearchRec.Name) = 'AIFF')
+    {$ENDIF}
+    {$IFDEF USELIBZPLAY} //Formats supported by LibZPlay but not BASS
+    or (GetFileExt(SearchRec.Name) = 'FLAC')
+    or (GetFileExt(SearchRec.Name) = 'OGA')
+    or (GetFileExt(SearchRec.Name) = 'AC3')
+    or (GetFileExt(SearchRec.Name) = 'AAC')
+    or (GetFileExt(SearchRec.Name) = 'OGA')
+    {$ENDIF}
+    then
+    begin
+      Inc(fMusicCount);
+      fMusicTracks[fMusicCount - 1] := Path + SearchRec.Name;
     end;
     {if GetFileExt(SearchRec.Name)='MID' then
     begin
-      inc(MIDICount);
+      Inc(MIDICount);
       MIDITracks[MIDICount] := Path + SearchRec.Name;
     end;}
   until (FindNext(SearchRec) <> 0);
   FindClose(SearchRec);
-  MusicIndex := 0;
+
+  //Cut to length
+  SetLength(fMusicTracks, fMusicCount);
+  SetLength(fTrackOrder, fMusicCount);
+
+  fMusicIndex := -1;
 end;
 
 
 procedure TMusicLib.PlayMenuTrack;
 begin
-  if not IsMusicInitialized then exit;
-  if MusicIndex = 1 then exit; //It's already playing
-  MusicIndex := 1;
-  PlayMusicFile(MusicTracks[1]);
+  if not IsMusicInitialized then Exit;
+  if fMusicCount = 0 then Exit; //no music files found
+  if fMusicIndex = 0 then Exit; //It's already playing
+  fMusicIndex := 0;
+  PlayMusicFile(fMusicTracks[0]);
 end;
 
 
 procedure TMusicLib.PlayNextTrack;
 begin
   if not IsMusicInitialized then exit;
-  if MusicCount = 0 then exit; //no music files found
+  if fMusicCount = 0 then exit; //no music files found
   if fFadeState <> fsNone then exit;
 
   //Set next index, looped or random
-  MusicIndex := MusicIndex mod MusicCount + 1;
-  PlayMusicFile(MusicTracks[TrackOrder[MusicIndex]]);
+  fMusicIndex := (fMusicIndex + 1) mod fMusicCount;
+  PlayMusicFile(fMusicTracks[fTrackOrder[fMusicIndex]]);
 end;
 
 
 procedure TMusicLib.PlayPreviousTrack;
 begin
   if not IsMusicInitialized then exit;
-  if MusicCount = 0 then exit; //no music files found
+  if fMusicCount = 0 then exit; //no music files found
   if fFadeState <> fsNone then exit;
 
-  Dec(MusicIndex); //Set to previous
-  if MusicIndex = 0 then MusicIndex := MusicCount; //Loop to the top
-  PlayMusicFile(MusicTracks[TrackOrder[MusicIndex]]);
+  fMusicIndex := (fMusicIndex + fMusicCount - 1) mod fMusicCount;
+  PlayMusicFile(fMusicTracks[fTrackOrder[fMusicIndex]]);
 end;
 
 
@@ -324,7 +331,7 @@ begin
   if not IsMusicInitialized then exit;
   {$IFDEF USELIBZPLAY} ZPlayer.StopPlayback; {$ENDIF}
   {$IFDEF USEBASS} BASS_ChannelStop(fBassStream); {$ENDIF}
-  MusicIndex := 0;
+  fMusicIndex := -1;
 end;
 
 
@@ -347,30 +354,36 @@ end;
 
 
 procedure TMusicLib.ShuffleSongs;
-var I, R, NewIndex: Integer;
+var
+  I, R, NewIndex: Integer;
 begin
-  if MusicIndex = 0 then exit; // Music is disabled
-  NewIndex := MusicIndex;
-  for I := MusicCount downto 2 do
+  if fMusicIndex = -1 then Exit; // Music is disabled
+
+  NewIndex := fMusicIndex;
+
+  //Shuffle everything except for first (menu) track
+  for I := fMusicCount - 1 downto 1 do
   begin
-    R := RandomRange(2, I);
+    R := RandomRange(1, I);
     //Remember the track number of the current track
-    if TrackOrder[R] = MusicIndex then
+    if fTrackOrder[R] = fMusicIndex then
       NewIndex := I;
-    KromUtils.SwapInt(TrackOrder[R], TrackOrder[I]);
+    KromUtils.SwapInt(fTrackOrder[R], fTrackOrder[I]);
   end;
-  MusicIndex := NewIndex;
+  fMusicIndex := NewIndex;
 end;
 
 
 procedure TMusicLib.UnshuffleSongs;
-var I: Integer;
+var
+  I: Integer;
 begin
-  if MusicIndex = 0 then Exit; // Music is disabled
-  MusicIndex := TrackOrder[MusicIndex];
+  if fMusicIndex = -1 then Exit; // Music is disabled
+  fMusicIndex := fTrackOrder[fMusicIndex];
+
   //Reset every index of the TrackOrder array
-  for I := 1 to MusicCount do
-    TrackOrder[I] := I;
+  for I := 0 to fMusicCount - 1 do
+    fTrackOrder[I] := I;
 end;
 
 
@@ -483,9 +496,9 @@ end;
 function TMusicLib.GetTrackTitle: string;
 begin
   if not IsMusicInitialized then Exit;
-  if not InRange(MusicIndex, Low(MusicTracks), High(MusicTracks)) then Exit;
+  if not InRange(fMusicIndex, Low(fMusicTracks), High(fMusicTracks)) then Exit;
 
-  Result := TruncateExt(ExtractFileName(MusicTracks[TrackOrder[MusicIndex]]));
+  Result := TruncateExt(ExtractFileName(fMusicTracks[fTrackOrder[fMusicIndex]]));
 end;
 
 

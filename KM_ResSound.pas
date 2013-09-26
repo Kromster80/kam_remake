@@ -125,7 +125,6 @@ type
     WarriorSoundCount: array[WARRIOR_MIN..WARRIOR_MAX, TWarriorSpeech] of byte;
 
     constructor Create(aLocale, aFallback, aDefault: AnsiString);
-    destructor Destroy; override;
 
     function FileOfCitizen(aUnitType: TUnitType; aSound: TWarriorSpeech): UnicodeString;
     function FileOfNewSFX(aSFX: TSoundFXNew): UnicodeString;
@@ -210,13 +209,6 @@ begin
 
   LoadSoundsDAT;
   ScanWarriorSounds;
-end;
-
-
-destructor TKMResSounds.Destroy;
-begin
-
-  inherited;
 end;
 
 

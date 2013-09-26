@@ -6,7 +6,7 @@
 unit URLUtils;
 
 interface
-uses SysUtils;
+uses SysUtils, KromUtils;
 
 
   procedure ParseURL(const url : String; var Proto, User, Pass, Host, Port, Path : String);
@@ -26,8 +26,9 @@ var
     I : Integer;
 begin
     Result := '';
-    for I := 1 to Length(S) do begin
-        if CharInSet(S[I], ['0'..'9', 'A'..'Z', 'a'..'z']) then
+    for I := 1 to Length(S) do
+    begin
+        if KromUtils.CharInSet(S[I], ['0'..'9', 'A'..'Z', 'a'..'z']) then
             Result := Result + S[I]
         else
             Result := Result + '%' + IntToHex(Ord(S[I]), 2);
@@ -149,7 +150,7 @@ begin
     if p <> 0 then begin
         S := LowerCase(Copy(url, 1, p - 1));
         for i := 1 to Length(S) do begin
-            if not CharInSet(S[i], UriProtocolSchemeAllowedChars) then begin
+            if not KromUtils.CharInSet(S[i], UriProtocolSchemeAllowedChars) then begin
                 q := i;
                 Break;
             end;

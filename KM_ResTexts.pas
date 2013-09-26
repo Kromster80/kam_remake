@@ -80,7 +80,7 @@ procedure TKMTextLibraryCommon.LoadLIBXFile(FilePath: string; var aArray: TKMStr
     while P^ <> #0 do
     begin
       Start := P;
-      while not CharInSet(P^, [#0, #10, #13]) do Inc(P);
+      while not KromUtils.CharInSet(P^, [#0, #10, #13]) do Inc(P);
       SetString(S, Start, P - Start);
 
       SetLength(Result, Length(Result) + 1);

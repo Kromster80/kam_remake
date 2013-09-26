@@ -49,7 +49,7 @@ type
     fChatWhisperRecipient: Integer; //Server index of the player who will receive the whisper
 
     //Saved (in singleplayer only)
-    fLastSaveName: string; //The file name we last used to save this file (used as default in Save menu)
+    fLastSaveName: UnicodeString; //The file name we last used to save this file (used as default in Save menu)
     fMessageList: TKMMessageList;
     fSelection: array [0..9] of Integer;
 

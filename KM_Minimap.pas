@@ -279,8 +279,8 @@ begin
 
   if fMapY > 0 then //if MapY = 0 then loop will overflow to MaxWord
   for I := 0 to fMapY - 1 do
-    Move(Pointer(Cardinal(fBase) + I * fMapX * 4)^,
-         Pointer(Cardinal(wData) + I * fWidthPOT * 4)^, fMapX * 4);
+    Move(Pointer(NativeUint(fBase) + I * fMapX * 4)^,
+         Pointer(NativeUint(wData) + I * fWidthPOT * 4)^, fMapX * 4);
 
   TRender.UpdateTexture(fMapTex.Tex, fWidthPOT, fHeightPOT, tf_RGBA8, wData);
   FreeMem(wData);

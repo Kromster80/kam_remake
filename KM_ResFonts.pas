@@ -311,6 +311,8 @@ begin
   aBitmap.Width  := fTexSizeX;
   aBitmap.Height := fTexSizeY;
 
+  {$IFDEF WDC}
+  //todo: Add Lazarus analog
   TD := fAtlases[aIndex].TexData;
   for I := 0 to fTexSizeY - 1 do
   begin
@@ -325,6 +327,7 @@ begin
                                     ((C shr 16 and $FF) + ((BG shr 16 and $FF - C shr 16 and $FF) * A) div 255);
     end;
   end;
+  {$ENDIF}
 
   if aShowCells then
   begin

@@ -12,6 +12,7 @@ uses
 type
   TAnsiStringArray = array of AnsiString;
   TStringArray = array of String;
+  TSetOfAnsiChar = set of AnsiChar;
 
 
 function TimeGet: Cardinal;
@@ -21,6 +22,8 @@ function AssureFileExt(FileName,Ext:string): string;
 function TruncateExt(FileName:string): string;
 function GetFileSize(const FileName: string): LongInt;
 function CheckSameContents(A, B: string): Boolean;
+function CharInSet(C: AnsiChar; S: TSetOfAnsiChar): Boolean; overload;
+function CharInSet(C: WideChar; S: TSetOfAnsiChar): Boolean; overload;
 
 procedure FreeThenNil(var Obj);
 
@@ -259,6 +262,18 @@ begin
     S1.Free;
     S2.Free;
   end;
+end;
+
+
+function CharInSet(C: AnsiChar; S: TSetOfAnsiChar): Boolean;
+begin
+  Result := C in S;
+end;
+
+
+function CharInSet(C: WideChar; S: TSetOfAnsiChar): Boolean;
+begin
+  Result := (Ord(C) <= MAXBYTE) and (AnsiChar(C) in S);
 end;
 
 

@@ -64,7 +64,7 @@ type
     fAutoKickTimeout: Integer;
     fPingInterval: Integer;
     fAnnounceServer: Boolean;
-    fHTMLStatusFile: string;
+    fHTMLStatusFile: UnicodeString;
     fServerWelcomeMessage: UnicodeString;
     procedure SetAutosave(aValue: Boolean);
     procedure SetBrightness(aValue: Byte);
@@ -87,7 +87,7 @@ type
     procedure SetAutoKickTimeout(aValue: Integer);
     procedure SetPingInterval(aValue: Integer);
     procedure SetMasterAnnounceInterval(eValue: Integer);
-    procedure SetHTMLStatusFile(eValue: string);
+    procedure SetHTMLStatusFile(eValue: UnicodeString);
     procedure SetMaxRooms(eValue: Integer);
   protected
     function LoadFromINI(FileName: UnicodeString): Boolean;
@@ -124,7 +124,7 @@ type
     property MaxRooms: Integer read fMaxRooms write SetMaxRooms;
     property AutoKickTimeout: Integer read fAutoKickTimeout write SetAutoKickTimeout;
     property PingInterval: Integer read fPingInterval write SetPingInterval;
-    property HTMLStatusFile: string read fHTMLStatusFile write SetHTMLStatusFile;
+    property HTMLStatusFile: UnicodeString read fHTMLStatusFile write SetHTMLStatusFile;
     property ServerWelcomeMessage: UnicodeString read fServerWelcomeMessage write SetServerWelcomeMessage;
   end;
 
@@ -524,7 +524,7 @@ begin
 end;
 
 
-procedure TGameSettings.SetServerWelcomeMessage(aValue: string);
+procedure TGameSettings.SetServerWelcomeMessage(aValue: UnicodeString);
 begin
   fServerWelcomeMessage := aValue;
   Changed;

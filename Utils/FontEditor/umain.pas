@@ -217,7 +217,7 @@ var
   MaxHeight, MaxWidth: Integer;
 begin
   Result := false;
-  if not CheckFileExists(aFilename, true) then Exit;
+  if not FileExists(aFilename, true) then Exit;
 
   MaxWidth  := 0;
   MaxHeight := 0;
@@ -335,7 +335,7 @@ function TfrmMain.LoadPalette(const aFilename: string; PalID: Byte): Boolean;
 var f:file; I: Integer;
 begin
   Result := False;
-  if not CheckFileExists(aFilename, True) then
+  if not FileExists(aFilename, True) then
     Exit;
 
   assignfile(f, aFilename);

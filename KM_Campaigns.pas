@@ -2,7 +2,8 @@ unit KM_Campaigns;
 {$I KaM_Remake.inc}
 interface
 uses
-  AnsiStrings, Classes, KromUtils, Math, SysUtils,
+  {$IFDEF WDC}AnsiStrings, {$ENDIF}
+  Classes, KromUtils, Math, SysUtils,
   KM_CommonClasses, KM_Pics, KM_Points, KM_ResTexts, KM_ResLocales;
 
 
@@ -225,7 +226,7 @@ var
 begin
   Result := nil;
   for I := 0 to Count - 1 do
-    if AnsiStrings.SameText(Campaigns[I].ShortTitle, aShortTitle) then
+    if {$IFDEF WDC}AnsiStrings.{$ENDIF}SameText(Campaigns[I].ShortTitle, aShortTitle) then
       Result := Campaigns[I];
 end;
 

@@ -150,7 +150,6 @@ uses
   //Use these units directly to avoid pass-through methods in fMain
   KM_Resource,
   KM_ResSprites,
-  KM_Controls,
   KM_GameApp,
   KM_HandsCollection,
   KM_ResSound,

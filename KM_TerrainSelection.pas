@@ -65,10 +65,10 @@ end;
 procedure TKMSelection.Selection_SyncCellRect;
 begin
   //Convert RawRect values that can be inverted to tilespace Rect
-  fSelectionRect.Left   := Trunc(Min(fSelectionRectF.Left, fSelectionRectF.Right));
-  fSelectionRect.Top    := Trunc(Min(fSelectionRectF.Top, fSelectionRectF.Bottom));
-  fSelectionRect.Right  := Ceil(Max(fSelectionRectF.Left, fSelectionRectF.Right));
-  fSelectionRect.Bottom := Ceil(Max(fSelectionRectF.Top, fSelectionRectF.Bottom));
+  fSelectionRect.Left   := Trunc(Math.Min(fSelectionRectF.Left, fSelectionRectF.Right));
+  fSelectionRect.Top    := Trunc(Math.Min(fSelectionRectF.Top, fSelectionRectF.Bottom));
+  fSelectionRect.Right  := Ceil(Math.Max(fSelectionRectF.Left, fSelectionRectF.Right));
+  fSelectionRect.Bottom := Ceil(Math.Max(fSelectionRectF.Top, fSelectionRectF.Bottom));
 end;
 
 

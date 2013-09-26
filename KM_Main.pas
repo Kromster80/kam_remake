@@ -44,7 +44,7 @@ type
     function LockMutex: Boolean;
     procedure UnlockMutex;
 
-    procedure StatusBarText(aPanelIndex: Integer; const aText: string); overload;
+    procedure StatusBarText(aPanelIndex: Integer; const aText: UnicodeString); overload;
 
     property Resolutions: TKMResolutions read fResolutions;
     property Settings: TMainSettings read fMainSettings;
@@ -130,7 +130,7 @@ begin
 end;
 
 
-procedure TKMMain.StatusBarText(aPanelIndex: Integer; const aText: string);
+procedure TKMMain.StatusBarText(aPanelIndex: Integer; const aText: UnicodeString);
 begin
   fFormMain.StatusBar1.Panels[aPanelIndex].Text := aText;
 end;

@@ -4,7 +4,7 @@ interface
 uses
     {$IFDEF MSWindows} Windows, {$ENDIF}
     {$IFDEF Unix} LCLIntf, LCLType, {$ENDIF}
-    Classes, Controls,  Math, SysUtils, StrUtils, Clipbrd, Character,
+    Classes, Controls,  Math, SysUtils, StrUtils, Clipbrd,
     KromUtils, KromOGLUtils, KM_Defaults, KM_Points, KM_CommonTypes, KM_Pics,
     KM_RenderUI, KM_ResFonts, KM_ResSprites, KM_Minimap, KM_Viewport;
 
@@ -2147,8 +2147,8 @@ procedure TKMEdit.ValidateText;
 var
   I: Integer;
 const
-  NonFileChars: set of AnsiChar = [#0 .. #31, '<', '>', '°', '|', '"', '\', '/', ':', '*', '?'];
-  NonTextChars: set of AnsiChar = [#0 .. #31, '°', '|']; //° has negative width so acts like a backspace in KaM fonts
+  NonFileChars: TSetOfAnsiChar = [#0 .. #31, '<', '>', #176, '|', '"', '\', '/', ':', '*', '?'];
+  NonTextChars: TSetOfAnsiChar = [#0 .. #31, #176, '|']; //° has negative width so acts like a backspace in KaM fonts
 begin
   //Parse whole text incase user placed it from clipboard
 
@@ -2659,7 +2659,7 @@ var
 begin
   //Validate contents
   for I := Length(fText) downto 1 do
-  if not TCharacter.IsDigit(fText[I]) then
+  if not KromUtils.CharInSet(fText[I], ['0'..'9']) then
   begin
     Delete(fText, I, 1);
     if CursorPos >= I then //Keep cursor in place
@@ -4111,7 +4111,7 @@ end;
 
 procedure TKMPopUpMenu.AddItem(aCaption: UnicodeString; aTag: Integer = 0);
 begin
-  fList.AddItem(MakeListRow(aCaption, aTag));
+  fList.AddItem(MakeListRow([aCaption], [aTag]));
   Height := fList.ItemHeight * fList.RowCount;
 end;
 

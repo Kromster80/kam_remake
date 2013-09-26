@@ -112,7 +112,7 @@ type
     procedure PacketSend(aRecipient: Integer; aKind: TKMessageKind; aParam: Integer); overload;
     procedure PacketSendA(aRecipient: Integer; aKind: TKMessageKind; const aText: AnsiString);
     procedure PacketSendW(aRecipient: Integer; aKind: TKMessageKind; const aText: UnicodeString);
-    procedure SetDescription(const Value: string);
+    procedure SetDescription(const Value: UnicodeString);
   public
     constructor Create(const aMasterServerAddress: string; aKickTimeout, aPingInterval, aAnnounceInterval: Word);
     destructor Destroy; override;
@@ -692,7 +692,7 @@ end;
 procedure TKMNetworking.StartClick;
 var
   HumanUsableLocs, AIUsableLocs: TPlayerIndexArray;
-  ErrorMessage: string;
+  ErrorMessage: UnicodeString;
   M: TKMemoryStream;
 begin
   Assert(IsHost, 'Only host can start the game');
@@ -1644,7 +1644,7 @@ begin
 end;
 
 
-procedure TKMNetworking.SetDescription(const Value: string);
+procedure TKMNetworking.SetDescription(const Value: UnicodeString);
 begin
   Assert(IsHost, 'Only host can set description');
   fDescription := Value;

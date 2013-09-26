@@ -57,7 +57,7 @@ type
     fGameName: UnicodeString;
     fGameTickCount: Cardinal;
     fUIDTracker: Cardinal;       //Units-Houses tracker, to issue unique IDs
-    fMissionFile: string;   //Relative pathname to mission we are playing, so it gets saved to crashreport
+    fMissionFile: UnicodeString;   //Relative pathname to mission we are playing, so it gets saved to crashreport
     fMissionMode: TKMissionMode;
 
     procedure GameMPDisconnect(const aData: UnicodeString);
@@ -126,7 +126,7 @@ type
     procedure OverlayAppend(aText: UnicodeString);
     procedure OverlayAppendFormatted(aText: UnicodeString; aParams: array of const);
     property GameTickCount:cardinal read fGameTickCount;
-    property GameName: string read fGameName;
+    property GameName: UnicodeString read fGameName;
     property CampaignName: AnsiString read fCampaignName;
     property CampaignMap: Byte read fCampaignMap;
     property GameSpeed: Single read fGameSpeed;
@@ -134,8 +134,8 @@ type
     function PlayerColor: Cardinal;
 
     property GameMode: TGameMode read fGameMode;
-    property MissionFile: string read fMissionFile;
-    property SaveFile: string read fSaveFile;
+    property MissionFile: UnicodeString read fMissionFile;
+    property SaveFile: UnicodeString read fSaveFile;
     property ShowTeamNames: Boolean read fShowTeamNames write fShowTeamNames;
 
     property IsExiting: Boolean read fIsExiting;

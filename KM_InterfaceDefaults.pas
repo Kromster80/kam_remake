@@ -25,7 +25,7 @@ type
                   gpLoading,
                   gpError );
   TGUIEvent = procedure (Sender: TObject; Dest: TKMMenuPage) of object;
-  TGUIEventText = procedure (Dest: TKMMenuPage; aText: string = '') of object;
+  TGUIEventText = procedure (Dest: TKMMenuPage; aText: UnicodeString = '') of object;
 
   TKMUserInterface = class
   protected
