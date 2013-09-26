@@ -9,7 +9,7 @@ uses
 type
   TKMMapEdFormations = class
   private
-    fOwner: TPlayerIndex;
+    fOwner: THandIndex;
     procedure Formations_Close(Sender: TObject);
   protected
     Panel_Formations: TKMPanel;
@@ -22,13 +22,13 @@ type
     fOnDone: TNotifyEvent;
     constructor Create(aParent: TKMPanel);
 
-    procedure Show(aPlayer: TPlayerIndex);
+    procedure Show(aPlayer: THandIndex);
   end;
 
 
 implementation
 uses
-  KM_PlayersCollection, KM_ResTexts, KM_RenderUI, KM_ResFonts;
+  KM_HandsCollection, KM_ResTexts, KM_RenderUI, KM_ResFonts;
 
 
 { TKMMapEdFormations }
@@ -71,19 +71,19 @@ begin
 end;
 
 
-procedure TKMMapEdFormations.Show(aPlayer: TPlayerIndex);
+procedure TKMMapEdFormations.Show(aPlayer: THandIndex);
 var
   GT: TGroupType;
 begin
   fOwner := aPlayer;
 
   //Fill UI
-  Image_FormationsFlag.FlagColor := gPlayers[fOwner].FlagColor;
+  Image_FormationsFlag.FlagColor := gHands[fOwner].FlagColor;
 
   for GT := Low(TGroupType) to High(TGroupType) do
   begin
-    NumEdit_FormationsCount[GT].Value := gPlayers[fOwner].AI.General.DefencePositions.TroopFormations[GT].NumUnits;
-    NumEdit_FormationsColumns[GT].Value := gPlayers[fOwner].AI.General.DefencePositions.TroopFormations[GT].UnitsPerRow;
+    NumEdit_FormationsCount[GT].Value := gHands[fOwner].AI.General.DefencePositions.TroopFormations[GT].NumUnits;
+    NumEdit_FormationsColumns[GT].Value := gHands[fOwner].AI.General.DefencePositions.TroopFormations[GT].UnitsPerRow;
   end;
 
   Panel_Formations.Show;
@@ -94,14 +94,14 @@ procedure TKMMapEdFormations.Formations_Close(Sender: TObject);
 var
   GT: TGroupType;
 begin
-  Assert(Image_FormationsFlag.FlagColor = gPlayers[fOwner].FlagColor, 'Cheap test to see if active player didn''t changed');
+  Assert(Image_FormationsFlag.FlagColor = gHands[fOwner].FlagColor, 'Cheap test to see if active player didn''t changed');
 
   if Sender = Button_Formations_Ok then
     //Save settings
     for GT := Low(TGroupType) to High(TGroupType) do
     begin
-      gPlayers[fOwner].AI.General.DefencePositions.TroopFormations[GT].NumUnits := NumEdit_FormationsCount[GT].Value;
-      gPlayers[fOwner].AI.General.DefencePositions.TroopFormations[GT].UnitsPerRow := NumEdit_FormationsColumns[GT].Value;
+      gHands[fOwner].AI.General.DefencePositions.TroopFormations[GT].NumUnits := NumEdit_FormationsCount[GT].Value;
+      gHands[fOwner].AI.General.DefencePositions.TroopFormations[GT].UnitsPerRow := NumEdit_FormationsColumns[GT].Value;
     end;
 
   Panel_Formations.Hide;

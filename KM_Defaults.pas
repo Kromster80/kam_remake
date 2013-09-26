@@ -23,7 +23,7 @@ const
   MIN_RESOLUTION_WIDTH  = 1024;         //Lowest supported resolution X
   MIN_RESOLUTION_HEIGHT = 576;          //Lowest supported resolution Y
 
-  GAME_REVISION         = 'r5822';       //Should be updated for every release (each time save format is changed)
+  GAME_REVISION         = 'r5843';       //Should be updated for every release (each time save format is changed)
   GAME_VERSION          = 'Next Demo ' + GAME_REVISION;       //Game version string displayed in menu corner
   NET_PROTOCOL_REVISON  = GAME_REVISION;     //Clients of this version may connect to the dedicated server
 
@@ -138,7 +138,7 @@ const
   MAX_WARES_ORDER     = 999;  //Number of max allowed items to be ordered in production houses (Weapon/Armor/etc)
 
 const
-  MAX_PLAYERS       = 8;    //Maximum players per map
+  MAX_HANDS       = 8;    //Maximum players per map
   MAX_AI_PLANS      = 4;    //How many houses AI is allowed to plan at once (after establishing Materials supply)
   AUTOSAVE_COUNT    = 3;    //How many autosaves to backup
 
@@ -200,10 +200,10 @@ const
   CHARTS_SAMPLING_FOR_TACTICS = 50; //Each 5sec, cos average game length is much shorter
 
 type
-  TPlayerIndex = {type} ShortInt;
-  TPlayerArray = array [0..MAX_PLAYERS-1] of TPlayerIndex;
-  TPlayerIndexArray = array of TPlayerIndex;
-  TPlayerEnabledArray = array [0..MAX_PLAYERS-1] of Boolean;
+  THandIndex = {type} ShortInt;
+  TPlayerArray = array [0..MAX_HANDS-1] of THandIndex;
+  TPlayerIndexArray = array of THandIndex;
+  TPlayerEnabledArray = array [0..MAX_HANDS-1] of Boolean;
 
 const
   PLAYER_NONE = -1; //No player
@@ -612,7 +612,7 @@ const
   3,   //Black
   3,   //Black
   255  //White}
-  DefaultTeamColors: array [0..MAX_PLAYERS-1] of Cardinal = (
+  DefaultTeamColors: array [0..MAX_HANDS-1] of Cardinal = (
   $FF0707FF, //Red
   $FFE3BB5B, //Cyan
   $FF27A700, //Green

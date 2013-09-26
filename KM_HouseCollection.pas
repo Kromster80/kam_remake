@@ -10,16 +10,16 @@ type
   TKMHousesCollection = class
   private
     fHouses: TKMList; //Private to hide methods we don't want to expose
-    function AddToCollection(aHouseType: THouseType; PosX,PosY: Integer; aOwner: TPlayerIndex; aHBS: THouseBuildState):TKMHouse;
+    function AddToCollection(aHouseType: THouseType; PosX,PosY: Integer; aOwner: THandIndex; aHBS: THouseBuildState):TKMHouse;
     function GetHouse(aIndex: Integer): TKMHouse;
     function GetCount: Integer;
   public
     constructor Create;
     destructor Destroy; override;
-    function AddHouse(aHouseType: THouseType; PosX,PosY: Integer; aOwner: TPlayerIndex; RelativeEntrance: Boolean):TKMHouse;
-    function AddHouseWIP(aHouseType: THouseType; PosX,PosY: Integer; aOwner: TPlayerIndex): TKMHouse;
+    function AddHouse(aHouseType: THouseType; PosX,PosY: Integer; aOwner: THandIndex; RelativeEntrance: Boolean):TKMHouse;
+    function AddHouseWIP(aHouseType: THouseType; PosX,PosY: Integer; aOwner: THandIndex): TKMHouse;
     property Count: Integer read GetCount;
-    procedure OwnerUpdate(aOwner: TPlayerIndex);
+    procedure OwnerUpdate(aOwner: THandIndex);
     property Houses[aIndex: Integer]: TKMHouse read GetHouse; default;
     function HitTest(X, Y: Integer): TKMHouse;
     function GetHouseByUID(aUID: Integer): TKMHouse;
@@ -55,7 +55,7 @@ begin
 end;
 
 
-function TKMHousesCollection.AddToCollection(aHouseType: THouseType; PosX,PosY: Integer; aOwner: TPlayerIndex; aHBS: THouseBuildState): TKMHouse;
+function TKMHousesCollection.AddToCollection(aHouseType: THouseType; PosX,PosY: Integer; aOwner: THandIndex; aHBS: THouseBuildState): TKMHouse;
 var ID: Cardinal;
 begin
   ID := fGame.GetNewUID;
@@ -90,7 +90,7 @@ begin
 end;
 
 
-function TKMHousesCollection.AddHouse(aHouseType: THouseType; PosX,PosY: Integer; aOwner: TPlayerIndex; RelativeEntrance: Boolean):TKMHouse;
+function TKMHousesCollection.AddHouse(aHouseType: THouseType; PosX,PosY: Integer; aOwner: THandIndex; RelativeEntrance: Boolean):TKMHouse;
 begin
   if RelativeEntrance then
     Result := AddToCollection(aHouseType, PosX - fResource.HouseDat[aHouseType].EntranceOffsetX, PosY, aOwner, hbs_Done)
@@ -100,13 +100,13 @@ end;
 
 
 {Add a plan for house}
-function TKMHousesCollection.AddHouseWIP(aHouseType: THouseType; PosX, PosY: Integer; aOwner: TPlayerIndex): TKMHouse;
+function TKMHousesCollection.AddHouseWIP(aHouseType: THouseType; PosX, PosY: Integer; aOwner: THandIndex): TKMHouse;
 begin
   Result := AddToCollection(aHouseType, PosX, PosY, aOwner, hbs_NoGlyph);
 end;
 
 
-procedure TKMHousesCollection.OwnerUpdate(aOwner: TPlayerIndex);
+procedure TKMHousesCollection.OwnerUpdate(aOwner: THandIndex);
 var I: Integer;
 begin
   for I := 0 to Count - 1 do

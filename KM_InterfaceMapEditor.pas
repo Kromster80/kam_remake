@@ -58,13 +58,13 @@ type
     procedure DisplayHint(Sender: TObject);
     procedure RightClick_Cancel;
     procedure ShowMarkerInfo(aMarker: TKMMapEdMarker);
-    procedure Player_SetActive(aIndex: TPlayerIndex);
+    procedure Player_SetActive(aIndex: THandIndex);
     procedure Player_UpdatePages;
   protected
     Panel_Main: TKMPanel;
       MinimapView: TKMMinimapView;
       Label_Coordinates: TKMLabel;
-      Button_PlayerSelect: array [0..MAX_PLAYERS-1] of TKMFlatButtonShape; //Animals are common for all
+      Button_PlayerSelect: array [0..MAX_HANDS-1] of TKMFlatButtonShape; //Animals are common for all
       Label_Stat,Label_Hint: TKMLabel;
       Bevel_HintBG: TKMBevel;
 
@@ -94,7 +94,7 @@ type
 
 implementation
 uses
-  KM_PlayersCollection, KM_ResTexts, KM_Game, KM_Main, KM_GameCursor,
+  KM_HandsCollection, KM_ResTexts, KM_Game, KM_Main, KM_GameCursor,
   KM_Resource, KM_TerrainDeposits, KM_ResCursors, KM_GameApp,
   KM_AIDefensePos, KM_RenderUI, KM_ResFonts;
 
@@ -131,7 +131,7 @@ begin
   Label_Stat := TKMLabel.Create(Panel_Main, 230, 50, 0, 0, '', fnt_Outline, taLeft);
 
   TKMLabel.Create(Panel_Main, TB_PAD, 190, TB_WIDTH, 0, gResTexts[TX_MAPED_PLAYERS], fnt_Outline, taLeft);
-  for I := 0 to MAX_PLAYERS - 1 do
+  for I := 0 to MAX_HANDS - 1 do
   begin
     Button_PlayerSelect[I]         := TKMFlatButtonShape.Create(Panel_Main, 8 + I*23, 210, 21, 21, IntToStr(I+1), fnt_Grey, $FF0000FF);
     Button_PlayerSelect[I].Tag     := I;
@@ -302,8 +302,8 @@ var
 begin
   //Show players without assets in grey
   if aTickCount mod 10 = 0 then
-  for I := 0 to MAX_PLAYERS - 1 do
-    Button_PlayerSelect[I].FontColor := CAP_COLOR[gPlayers[I].HasAssets];
+  for I := 0 to MAX_HANDS - 1 do
+    Button_PlayerSelect[I].FontColor := CAP_COLOR[gHands[I].HasAssets];
 
   fGuiTerrain.UpdateState;
   fGuiMenu.UpdateState;
@@ -316,8 +316,8 @@ var
   I: Integer;
 begin
   //Set player colors
-  for I := 0 to MAX_PLAYERS - 1 do
-    Button_PlayerSelect[I].ShapeColor := gPlayers[I].FlagColor;
+  for I := 0 to MAX_HANDS - 1 do
+    Button_PlayerSelect[I].ShapeColor := gHands[I].FlagColor;
 
   Player_UpdatePages;
 
@@ -383,14 +383,14 @@ end;
 
 
 //Active player can be set either from buttons clicked or by selecting a unit or a house
-procedure TKMapEdInterface.Player_SetActive(aIndex: TPlayerIndex);
+procedure TKMapEdInterface.Player_SetActive(aIndex: THandIndex);
 var
   I: Integer;
 begin
-  MySpectator.PlayerIndex := aIndex;
+  MySpectator.HandIndex := aIndex;
 
-  for I := 0 to MAX_PLAYERS - 1 do
-    Button_PlayerSelect[I].Down := (I = MySpectator.PlayerIndex);
+  for I := 0 to MAX_HANDS - 1 do
+    Button_PlayerSelect[I].Down := (I = MySpectator.HandIndex);
 
   Player_UpdatePages;
 end;
@@ -742,7 +742,7 @@ begin
 
                 if fGuiMarkerDefence.Visible then
                 begin
-                  DP := gPlayers[fGuiMarkerDefence.Owner].AI.General.DefencePositions[fGuiMarkerDefence.Index];
+                  DP := gHands[fGuiMarkerDefence.Owner].AI.General.DefencePositions[fGuiMarkerDefence.Index];
                   DP.Position := KMPointDir(GameCursor.Cell, DP.Position.Dir);
                 end;
 
@@ -798,10 +798,10 @@ begin
 
   if mlDefences in fGame.MapEditor.VisibleLayers then
   begin
-    for I := 0 to gPlayers.Count - 1 do
-      for K := 0 to gPlayers[I].AI.General.DefencePositions.Count - 1 do
+    for I := 0 to gHands.Count - 1 do
+      for K := 0 to gHands[I].AI.General.DefencePositions.Count - 1 do
       begin
-        DP := gPlayers[I].AI.General.DefencePositions[K];
+        DP := gHands[I].AI.General.DefencePositions[K];
         LocF := gTerrain.FlatToHeight(KMPointF(DP.Position.Loc.X-0.5, DP.Position.Loc.Y-0.5));
         ScreenLoc := fGame.Viewport.MapToScreen(LocF);
 

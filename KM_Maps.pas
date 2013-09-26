@@ -19,7 +19,7 @@ type
 
   TKMMapGoalInfo = packed record
     Cond: TGoalCondition;
-    Play: TPlayerIndex;
+    Play: THandIndex;
     Stat: TGoalStatus;
   end;
 
@@ -39,14 +39,14 @@ type
     MapSizeX, MapSizeY: Integer;
     MissionMode: TKMissionMode;
     LocCount: Byte;
-    CanBeHuman: array [0..MAX_PLAYERS-1] of Boolean;
-    CanBeAI: array [0..MAX_PLAYERS-1] of Boolean;
-    DefaultHuman: TPlayerIndex;
-    GoalsVictoryCount, GoalsSurviveCount: array [0..MAX_PLAYERS-1] of Byte;
-    GoalsVictory: array [0..MAX_PLAYERS-1] of array of TKMMapGoalInfo;
-    GoalsSurvive: array [0..MAX_PLAYERS-1] of array of TKMMapGoalInfo;
-    Alliances: array [0..MAX_PLAYERS-1, 0..MAX_PLAYERS-1] of TAllianceType;
-    FlagColors: array [0..MAX_PLAYERS-1] of Cardinal;
+    CanBeHuman: array [0..MAX_HANDS-1] of Boolean;
+    CanBeAI: array [0..MAX_HANDS-1] of Boolean;
+    DefaultHuman: THandIndex;
+    GoalsVictoryCount, GoalsSurviveCount: array [0..MAX_HANDS-1] of Byte;
+    GoalsVictory: array [0..MAX_HANDS-1] of array of TKMMapGoalInfo;
+    GoalsSurvive: array [0..MAX_HANDS-1] of array of TKMMapGoalInfo;
+    Alliances: array [0..MAX_HANDS-1, 0..MAX_HANDS-1] of TAllianceType;
+    FlagColors: array [0..MAX_HANDS-1] of Cardinal;
     Author, SmallDesc, BigDesc: UnicodeString;
     IsCoop: Boolean; //Some multiplayer missions are defined as coop
     IsSpecial: Boolean; //Some missions are defined as special (e.g. tower defence, quest, etc.)
@@ -54,7 +54,7 @@ type
     constructor Create(const aFolder: string; aStrictParsing, aIsMultiplayer: Boolean);
     destructor Destroy; override;
 
-    procedure AddGoal(aType: TGoalType; aPlayer: TPlayerIndex; aCondition: TGoalCondition; aStatus: TGoalStatus; aPlayerIndex: TPlayerIndex);
+    procedure AddGoal(aType: TGoalType; aPlayer: THandIndex; aCondition: TGoalCondition; aStatus: TGoalStatus; aPlayerIndex: THandIndex);
     procedure LoadExtra;
 
     property InfoAmount: TKMMapInfoAmount read fInfoAmount;
@@ -64,7 +64,7 @@ type
     function HumanUsableLocations: TPlayerIndexArray;
     function AIUsableLocations: TPlayerIndexArray;
     property CRC: Cardinal read fCRC;
-    function LocationName(aIndex: TPlayerIndex): string;
+    function LocationName(aIndex: THandIndex): string;
     function SizeText: string;
     function IsValid: Boolean;
     function HumanPlayerCount: Byte;
@@ -217,7 +217,7 @@ begin
 end;
 
 
-procedure TKMapInfo.AddGoal(aType: TGoalType; aPlayer: TPlayerIndex; aCondition: TGoalCondition; aStatus: TGoalStatus; aPlayerIndex: TPlayerIndex);
+procedure TKMapInfo.AddGoal(aType: TGoalType; aPlayer: THandIndex; aCondition: TGoalCondition; aStatus: TGoalStatus; aPlayerIndex: THandIndex);
 var G: TKMMapGoalInfo;
 begin
   G.Cond := aCondition;
@@ -251,7 +251,7 @@ var
   I: Integer;
 begin
   SetLength(Result, 0);
-  for I := 0 to MAX_PLAYERS - 1 do
+  for I := 0 to MAX_HANDS - 1 do
     if CanBeHuman[I] then
     begin
       SetLength(Result, Length(Result)+1);
@@ -265,7 +265,7 @@ var
   I: Integer;
 begin
   SetLength(Result, 0);
-  for I := 0 to MAX_PLAYERS - 1 do
+  for I := 0 to MAX_HANDS - 1 do
     if CanBeAI[I] then
     begin
       SetLength(Result, Length(Result)+1);
@@ -274,7 +274,7 @@ begin
 end;
 
 
-function TKMapInfo.LocationName(aIndex: TPlayerIndex): string;
+function TKMapInfo.LocationName(aIndex: THandIndex): string;
 begin
   Result := Format(gResTexts[TX_LOBBY_LOCATION_X], [aIndex + 1]);
 end;
@@ -339,7 +339,7 @@ begin
   Author := '';
   SmallDesc := '';
   BigDesc := '';
-  for I:=0 to MAX_PLAYERS-1 do
+  for I:=0 to MAX_HANDS-1 do
   begin
     FlagColors[I] := DefaultTeamColors[I];
     CanBeHuman[I] := False;
@@ -348,7 +348,7 @@ begin
     SetLength(GoalsVictory[I], 0);
     GoalsSurviveCount[I] := 0;
     SetLength(GoalsSurvive[I], 0);
-    for K:=0 to MAX_PLAYERS-1 do
+    for K:=0 to MAX_HANDS-1 do
       Alliances[I,K] := at_Enemy;
   end;
 end;
@@ -424,7 +424,7 @@ function TKMapInfo.HumanPlayerCount: Byte;
 var I: Integer;
 begin
   Result := 0;
-  for I := 0 to MAX_PLAYERS - 1 do
+  for I := 0 to MAX_HANDS - 1 do
     if CanBeHuman[I] then
       Inc(Result);
 end;

@@ -30,7 +30,7 @@ type
     fNodes: array of record
       Loc: TKMPoint;
       Nearby: array of Word; //Indexes of connected nodes
-      Owner: array [0..MAX_PLAYERS-1] of Byte;
+      Owner: array [0..MAX_HANDS-1] of Byte;
     end;
     fPolygons: array of record
       Indices: array [0..2] of Word;
@@ -45,20 +45,20 @@ type
     procedure AssembleNavMesh;
     procedure InitConnectivity;
 
-    function GetOwnerPolys(aOwner: TPlayerIndex): TKMWordArray;
+    function GetOwnerPolys(aOwner: THandIndex): TKMWordArray;
     function ConvertPolysToEdges(aPolys: TKMWordArray): TKMEdgesArray;
     function RemoveInnerEdges(const aEdges: TKMEdgesArray): TKMEdgesArray;
-    function EdgesToWeightOutline(const aEdges: TKMEdgesArray; aOwner: TPlayerIndex): TKMWeightSegments;
+    function EdgesToWeightOutline(const aEdges: TKMEdgesArray; aOwner: THandIndex): TKMWeightSegments;
 
-    function GetBestOwner(aIndex: Integer): TPlayerIndex;
-    function NodeEnemyPresence(aIndex: Integer; aOwner: TPlayerIndex): Word;
-    function PolyEnemyPresence(aIndex: Integer; aOwner: TPlayerIndex): Word;
+    function GetBestOwner(aIndex: Integer): THandIndex;
+    function NodeEnemyPresence(aIndex: Integer; aOwner: THandIndex): Word;
+    function PolyEnemyPresence(aIndex: Integer; aOwner: THandIndex): Word;
     procedure UpdateOwnership;
   public
     constructor Create(aInfluences: TKMInfluences);
 
     procedure Init;
-    procedure GetDefenceOutline(aOwner: TPlayerIndex; out aOutline1, aOutline2: TKMWeightSegments);
+    procedure GetDefenceOutline(aOwner: THandIndex; out aOutline1, aOutline2: TKMWeightSegments);
 
     procedure Save(SaveStream: TKMemoryStream);
     procedure Load(LoadStream: TKMemoryStream);
@@ -69,7 +69,7 @@ type
 
 
 implementation
-uses KM_Outline, KM_PlayersCollection, KM_RenderAux, KM_Terrain;
+uses KM_Outline, KM_HandsCollection, KM_RenderAux, KM_Terrain;
 
 
 { TKMNavMesh }
@@ -322,7 +322,7 @@ begin
   if not AI_GEN_NAVMESH then Exit;
 
   for I := 0 to fNodeCount - 1 do
-    for K := 0 to gPlayers.Count - 1 do
+    for K := 0 to gHands.Count - 1 do
       fNodes[I].Owner[K] := Min(255, Max(
         Max(fInfluences.Ownership[K, Max(fNodes[I].Loc.Y, 1), Max(fNodes[I].Loc.X, 1)],
             fInfluences.Ownership[K, Max(fNodes[I].Loc.Y, 1), Min(fNodes[I].Loc.X+1, gTerrain.MapX - 1)]),
@@ -332,14 +332,14 @@ begin
 end;
 
 
-function TKMNavMesh.GetBestOwner(aIndex: Integer): TPlayerIndex;
+function TKMNavMesh.GetBestOwner(aIndex: Integer): THandIndex;
 var
   I: Integer;
   Best: Byte;
 begin
   Best := 0;
   Result := PLAYER_NONE;
-  for I := 0 to gPlayers.Count - 1 do
+  for I := 0 to gHands.Count - 1 do
   if fNodes[aIndex].Owner[I] > Best then
   begin
     Best := fNodes[aIndex].Owner[I];
@@ -348,29 +348,29 @@ begin
 end;
 
 
-function TKMNavMesh.NodeEnemyPresence(aIndex: Integer; aOwner: TPlayerIndex): Word;
+function TKMNavMesh.NodeEnemyPresence(aIndex: Integer; aOwner: THandIndex): Word;
 var I: Integer;
 begin
   Result := 0;
-  for I := 0 to gPlayers.Count - 1 do
-  if (I <> aOwner) and (gPlayers.CheckAlliance(aOwner, I) = at_Enemy) then
+  for I := 0 to gHands.Count - 1 do
+  if (I <> aOwner) and (gHands.CheckAlliance(aOwner, I) = at_Enemy) then
     Result := Result + fNodes[aIndex].Owner[I];
 end;
 
 
-function TKMNavMesh.PolyEnemyPresence(aIndex: Integer; aOwner: TPlayerIndex): Word;
+function TKMNavMesh.PolyEnemyPresence(aIndex: Integer; aOwner: THandIndex): Word;
 var I: Integer;
 begin
   Result := 0;
-  for I := 0 to gPlayers.Count - 1 do
-  if (I <> aOwner) and (gPlayers.CheckAlliance(aOwner, I) = at_Enemy) then
+  for I := 0 to gHands.Count - 1 do
+  if (I <> aOwner) and (gHands.CheckAlliance(aOwner, I) = at_Enemy) then
     Result := Result + (fNodes[fPolygons[aIndex].Indices[0]].Owner[I]
                       + fNodes[fPolygons[aIndex].Indices[1]].Owner[I]
                       + fNodes[fPolygons[aIndex].Indices[2]].Owner[I]) div 3;
 end;
 
 
-function TKMNavMesh.GetOwnerPolys(aOwner: TPlayerIndex): TKMWordArray;
+function TKMNavMesh.GetOwnerPolys(aOwner: THandIndex): TKMWordArray;
 var I,K: Integer;
 begin
   //Collect polys that are well within our ownership area
@@ -484,7 +484,7 @@ begin
 end;
 
 
-function TKMNavMesh.EdgesToWeightOutline(const aEdges: TKMEdgesArray; aOwner: TPlayerIndex): TKMWeightSegments;
+function TKMNavMesh.EdgesToWeightOutline(const aEdges: TKMEdgesArray; aOwner: THandIndex): TKMWeightSegments;
 var I: Integer;
 begin
   SetLength(Result, aEdges.Count);
@@ -498,7 +498,7 @@ begin
 end;
 
 
-procedure TKMNavMesh.GetDefenceOutline(aOwner: TPlayerIndex; out aOutline1, aOutline2: TKMWeightSegments);
+procedure TKMNavMesh.GetDefenceOutline(aOwner: THandIndex; out aOutline1, aOutline2: TKMWeightSegments);
 const
   AP_CLEAR = 0;
   AP_SEED = 255;
@@ -730,7 +730,7 @@ begin
 
   //Defence outlines
   if OVERLAY_DEFENCES then
-    for I := 0 to gPlayers.Count - 1 do
+    for I := 0 to gHands.Count - 1 do
     begin
       GetDefenceOutline(I, Outline1, Outline2);
 

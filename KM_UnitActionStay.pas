@@ -23,7 +23,7 @@ type
 
 
 implementation
-uses KM_PlayersCollection, KM_Sound, KM_ResSound, KM_Resource;
+uses KM_HandsCollection, KM_Sound, KM_ResSound, KM_Resource;
 
 
 { TUnitActionStay }

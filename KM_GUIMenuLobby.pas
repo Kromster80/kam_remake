@@ -82,14 +82,14 @@ type
       Panel_LobbyPlayers: TKMPanel;
         CheckBox_LobbyHostControl: TKMCheckBox;
         CheckBox_LobbyRandomizeTeamLocations: TKMCheckBox;
-        Image_LobbyFlag: array [0..MAX_PLAYERS-1] of TKMImage;
-        DropBox_LobbyPlayerSlot: array [0..MAX_PLAYERS-1] of TKMDropList;
-        Label_LobbyPlayer: array [0..MAX_PLAYERS-1] of TKMLabel;
-        DropBox_LobbyLoc: array [0..MAX_PLAYERS-1] of TKMDropList;
-        DropBox_LobbyTeam: array [0..MAX_PLAYERS-1] of TKMDropList;
-        DropBox_LobbyColors: array [0..MAX_PLAYERS-1] of TKMDropColumns;
-        Image_LobbyReady: array [0..MAX_PLAYERS-1] of TKMImage;
-        Label_LobbyPing: array [0..MAX_PLAYERS-1] of TKMLabel;
+        Image_LobbyFlag: array [0..MAX_HANDS-1] of TKMImage;
+        DropBox_LobbyPlayerSlot: array [0..MAX_HANDS-1] of TKMDropList;
+        Label_LobbyPlayer: array [0..MAX_HANDS-1] of TKMLabel;
+        DropBox_LobbyLoc: array [0..MAX_HANDS-1] of TKMDropList;
+        DropBox_LobbyTeam: array [0..MAX_HANDS-1] of TKMDropList;
+        DropBox_LobbyColors: array [0..MAX_HANDS-1] of TKMDropColumns;
+        Image_LobbyReady: array [0..MAX_HANDS-1] of TKMImage;
+        Label_LobbyPing: array [0..MAX_HANDS-1] of TKMLabel;
 
       Panel_LobbySetup: TKMPanel;
         Radio_LobbyMapType: TKMRadioGroup;
@@ -187,7 +187,7 @@ begin
       TKMLabel.Create(Panel_LobbyPlayers, C5, 50, gResTexts[TX_LOBBY_HEADER_READY], fnt_Outline, taCenter);
       TKMLabel.Create(Panel_LobbyPlayers, C6, 50, gResTexts[TX_LOBBY_HEADER_PING], fnt_Outline, taCenter);
 
-      for I := 0 to MAX_PLAYERS - 1 do
+      for I := 0 to MAX_HANDS - 1 do
       begin
         OffY := 70 + I * 24;
         Image_LobbyFlag[I] := TKMImage.Create(Panel_LobbyPlayers, 10, OffY, 20, 20, 0, rxGuiMain);
@@ -580,7 +580,7 @@ var I: Integer;
 begin
   Label_LobbyServerName.Caption := '';
 
-  for I := 0 to MAX_PLAYERS - 1 do
+  for I := 0 to MAX_HANDS - 1 do
   begin
     Label_LobbyPlayer[I].Caption := '.';
     Label_LobbyPlayer[I].FontColor := $FFFFFFFF;
@@ -742,7 +742,7 @@ begin
     fNetworking.SendPlayerListAndRefreshPlayersSetup;
   end;
 
-  for I := 0 to MAX_PLAYERS - 1 do
+  for I := 0 to MAX_HANDS - 1 do
   begin
     //Starting location
     if (Sender = DropBox_LobbyLoc[I]) and DropBox_LobbyLoc[I].Enabled then
@@ -928,7 +928,7 @@ begin
   end;
 
   //Disable rest of the players
-  for I := fNetworking.NetPlayers.Count to MAX_PLAYERS - 1 do
+  for I := fNetworking.NetPlayers.Count to MAX_HANDS - 1 do
   begin
     Label_LobbyPlayer[I].Caption := '';
     Image_LobbyFlag[I].TexID := 0;
@@ -947,13 +947,13 @@ begin
   end;
 
   //Update the minimap preivew with player colors
-  for I := 0 to MAX_PLAYERS - 1 do
+  for I := 0 to MAX_HANDS - 1 do
   begin
     ID := fNetworking.NetPlayers.StartingLocToLocal(I+1);
     if ID <> -1 then
-      fMinimap.PlayerColors[I] := fNetworking.NetPlayers[ID].FlagColor
+      fMinimap.HandColors[I] := fNetworking.NetPlayers[ID].FlagColor
     else
-      fMinimap.PlayerColors[I] := $7F000000; //Semi-transparent when not selected
+      fMinimap.HandColors[I] := $7F000000; //Semi-transparent when not selected
   end;
 
   //If we have a map selected update the preview
@@ -961,13 +961,13 @@ begin
   begin
     fMinimap.Update(not fNetworking.MapInfo.IsCoop);
     MinimapView_Lobby.SetMinimap(fMinimap);
-    for I := 0 to MAX_PLAYERS - 1 do
+    for I := 0 to MAX_HANDS - 1 do
     begin
       ID := fNetworking.NetPlayers.StartingLocToLocal(I+1);
       if ID <> -1 then
-        fMinimap.PlayerTeam[I] := fNetworking.NetPlayers[ID].Team
+        fMinimap.HandTeam[I] := fNetworking.NetPlayers[ID].Team
       else
-        fMinimap.PlayerTeam[I] := 0;
+        fMinimap.HandTeam[I] := 0;
     end;
   end;
 
@@ -996,7 +996,7 @@ procedure TKMMenuLobby.Lobby_OnPingInfo(Sender: TObject);
 var
   I: Integer;
 begin
-  for I := 0 to MAX_PLAYERS - 1 do
+  for I := 0 to MAX_HANDS - 1 do
     if (fNetworking.Connected) and (I < fNetworking.NetPlayers.Count) and
        (fNetworking.NetPlayers[I+1].IsHuman) then
     begin

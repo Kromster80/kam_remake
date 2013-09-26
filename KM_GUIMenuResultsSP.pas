@@ -57,8 +57,8 @@ type
 
 
 implementation
-uses KM_ResTexts, KM_Game, KM_GameApp, KM_PlayersCollection,
-  KM_Utils, KM_Resource, KM_Player, KM_CommonTypes, KM_RenderUI, KM_ResFonts,
+uses KM_ResTexts, KM_Game, KM_GameApp, KM_HandsCollection,
+  KM_Utils, KM_Resource, KM_Hand, KM_CommonTypes, KM_RenderUI, KM_ResFonts,
   KM_ResWares;
 
 
@@ -75,7 +75,7 @@ end;
 procedure TKMMenuResultsSP.Refresh;
 var
   TempGraphCount: Integer;
-  TempGraphs: array [0..MAX_PLAYERS-1] of record
+  TempGraphs: array [0..MAX_HANDS-1] of record
                                           OwnerName: UnicodeString;
                                           Color: Cardinal;
                                           G: TKMCardinalArray;
@@ -110,7 +110,7 @@ var
   I: Integer;
   R: TWareType;
   G: TKMCardinalArray;
-  HumanId: TPlayerIndex;
+  HumanId: THandIndex;
   ShowAIResults: Boolean;
 begin
   //If the player canceled mission, hide the AI graph lines so he doesn't see secret info about enemy (e.g. army size)
@@ -138,12 +138,12 @@ begin
 
   //This is SP menu, we are dead sure there's only one Human player
   HumanId := -1;
-  for I := 0 to gPlayers.Count - 1 do
-  if gPlayers[I].PlayerType = pt_Human then
+  for I := 0 to gHands.Count - 1 do
+  if gHands[I].PlayerType = hndHuman then
     HumanId := I;
 
   //List values (like old KaM did)
-  with gPlayers[HumanId].Stats do
+  with gHands[HumanId].Stats do
   begin
     Label_Stat[1].Caption := IntToStr(GetCitizensLost + GetWarriorsLost);
     Label_Stat[2].Caption := IntToStr(GetCitizensKilled + GetWarriorsKilled);
@@ -163,10 +163,10 @@ begin
     Chart_Citizens.Clear;
     Chart_Houses.Clear;
     Chart_Wares.Clear;
-    Chart_Army.MaxLength      := gPlayers[HumanId].Stats.ChartCount;
-    Chart_Citizens.MaxLength  := gPlayers[HumanId].Stats.ChartCount;
-    Chart_Houses.MaxLength    := gPlayers[HumanId].Stats.ChartCount;
-    Chart_Wares.MaxLength     := gPlayers[HumanId].Stats.ChartCount;
+    Chart_Army.MaxLength      := gHands[HumanId].Stats.ChartCount;
+    Chart_Citizens.MaxLength  := gHands[HumanId].Stats.ChartCount;
+    Chart_Houses.MaxLength    := gHands[HumanId].Stats.ChartCount;
+    Chart_Wares.MaxLength     := gHands[HumanId].Stats.ChartCount;
 
     Chart_Army.MaxTime      := fGame.GameTickCount div 10;
     Chart_Citizens.MaxTime  := fGame.GameTickCount div 10;
@@ -175,9 +175,9 @@ begin
 
     //Army
     TempGraphCount := 0; //Reset
-    for I := 0 to gPlayers.Count - 1 do
-    with gPlayers[I] do
-      if PlayerType = pt_Computer then
+    for I := 0 to gHands.Count - 1 do
+    with gHands[I] do
+      if PlayerType = hndComputer then
         AddToTempGraph(OwnerName, FlagColor, Stats.ChartArmy)
       else
         Chart_Army.AddLine(OwnerName, FlagColor, Stats.ChartArmy);
@@ -188,9 +188,9 @@ begin
 
     //Citizens
     TempGraphCount := 0; //Reset
-    for I := 0 to gPlayers.Count - 1 do
-    with gPlayers[I] do
-      if PlayerType = pt_Computer then
+    for I := 0 to gHands.Count - 1 do
+    with gHands[I] do
+      if PlayerType = hndComputer then
         AddToTempGraph(OwnerName, FlagColor, Stats.ChartCitizens)
       else
       begin
@@ -205,9 +205,9 @@ begin
 
     //Houses
     TempGraphCount := 0; //Reset
-    for I := 0 to gPlayers.Count - 1 do
-    with gPlayers[I] do
-      if PlayerType = pt_Computer then
+    for I := 0 to gHands.Count - 1 do
+    with gHands[I] do
+      if PlayerType = hndComputer then
         AddToTempGraph(OwnerName, FlagColor, Stats.ChartHouses)
       else
         Chart_Houses.AddLine(OwnerName, FlagColor, Stats.ChartHouses);
@@ -219,7 +219,7 @@ begin
     //Wares
     for R := WARE_MIN to WARE_MAX do
     begin
-      G := gPlayers[HumanId].Stats.ChartWares[R];
+      G := gHands[HumanId].Stats.ChartWares[R];
       for I := 0 to High(G) do
         if G[I] <> 0 then
         begin

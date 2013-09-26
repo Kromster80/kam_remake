@@ -96,7 +96,7 @@ type
     CommandType: TGameInputCommandType;
     Params: array[1..MAX_PARAMS]of integer;
     TextParam: UnicodeString;
-    PlayerIndex: TPlayerIndex; //Player for which the command is to be issued. (Needed for multiplayer and other reasons)
+    HandIndex: THandIndex; //Player for which the command is to be issued. (Needed for multiplayer and other reasons)
   end;
 
   //As TGameInputCommand is no longer fixed size (due to the string) we cannot simply read/write it as a block
@@ -148,7 +148,7 @@ type
     procedure CmdGame(aCommandType: TGameInputCommandType; aValue:boolean); overload;
     procedure CmdGame(aCommandType: TGameInputCommandType; aValue: string); overload;
     procedure CmdGame(aCommandType: TGameInputCommandType; aPlayer, aTeam:integer); overload;
-    procedure CmdGame(aCommandType: TGameInputCommandType; aLoc: TKMPointF; aPlayer: TPlayerIndex); overload;
+    procedure CmdGame(aCommandType: TGameInputCommandType; aLoc: TKMPointF; aPlayer: THandIndex); overload;
 
     procedure CmdTemp(aCommandType: TGameInputCommandType; aLoc: TKMPoint); overload;
     procedure CmdTemp(aCommandType: TGameInputCommandType); overload;
@@ -170,7 +170,7 @@ type
 
 
 implementation
-uses KM_Game, KM_HouseMarket, KM_PlayersCollection, KM_Player, KM_ResTexts, KM_Utils, KM_AI, KM_HouseBarracks;
+uses KM_Game, KM_HouseMarket, KM_HandsCollection, KM_Hand, KM_ResTexts, KM_Utils, KM_AI, KM_HouseBarracks;
 
 
 procedure SaveCommandToMemoryStream(aCommand: TGameInputCommand; aMemoryStream: TKMemoryStream);
@@ -180,7 +180,7 @@ begin
     aMemoryStream.Write(CommandType, SizeOf(CommandType));
     aMemoryStream.Write(Params, SizeOf(Params));
     aMemoryStream.WriteW(TextParam);
-    aMemoryStream.Write(PlayerIndex);
+    aMemoryStream.Write(HandIndex);
   end;
 end;
 
@@ -192,7 +192,7 @@ begin
     aMemoryStream.Read(CommandType, SizeOf(CommandType));
     aMemoryStream.Read(Params, SizeOf(Params));
     aMemoryStream.ReadW(TextParam);
-    aMemoryStream.Read(PlayerIndex);
+    aMemoryStream.Read(HandIndex);
   end;
 end;
 
@@ -219,7 +219,7 @@ var
   I: Integer;
 begin
   Result.CommandType := aGIC;
-  Result.PlayerIndex := MySpectator.PlayerIndex;
+  Result.HandIndex := MySpectator.HandIndex;
 
   for I := Low(aParam) to High(aParam) do
     Result.Params[I+1] := aParam[I];
@@ -235,7 +235,7 @@ var
   I: Integer;
 begin
   Result.CommandType := aGIC;
-  Result.PlayerIndex := MySpectator.PlayerIndex;
+  Result.HandIndex := MySpectator.HandIndex;
 
   for I := Low(Result.Params) to High(Result.Params) do
     Result.Params[I] := MaxInt;
@@ -246,15 +246,15 @@ end;
 
 procedure TGameInputProcess.ExecCommand(aCommand: TGameInputCommand);
 var
-  P: TKMPlayer;
+  P: TKMHand;
   IsSilent: boolean;
   SrcGroup, TgtGroup: TKMUnitGroup;
   TgtUnit: TKMUnit;
   SrcHouse, TgtHouse: TKMHouse;
 begin
   //NOTE: MySpectator.PlayerIndex should not be used for important stuff here, use P instead (commands must be executed the same for all players)
-  IsSilent := (aCommand.PlayerIndex <> MySpectator.PlayerIndex);
-  P := gPlayers[aCommand.PlayerIndex];
+  IsSilent := (aCommand.HandIndex <> MySpectator.HandIndex);
+  P := gHands[aCommand.HandIndex];
   SrcGroup := nil;
   TgtGroup := nil;
   SrcHouse := nil;
@@ -269,21 +269,21 @@ begin
                        gic_ArmyWalk, gic_ArmyStorm]
     then
     begin
-      SrcGroup := gPlayers.GetGroupByUID(Params[1]);
+      SrcGroup := gHands.GetGroupByUID(Params[1]);
       if (SrcGroup = nil) or SrcGroup.IsDead //Group has died before command could be executed
-      or (SrcGroup.Owner <> aCommand.PlayerIndex) then //Potential exploit
+      or (SrcGroup.Owner <> aCommand.HandIndex) then //Potential exploit
         Exit;
     end;
     if CommandType in [gic_ArmyLink] then
     begin
-      TgtGroup := gPlayers.GetGroupByUID(Params[2]);
+      TgtGroup := gHands.GetGroupByUID(Params[2]);
       if (TgtGroup = nil) or TgtGroup.IsDead //Unit has died before command could be executed
-      or (TgtGroup.Owner <> aCommand.PlayerIndex) then //Potential exploit
+      or (TgtGroup.Owner <> aCommand.HandIndex) then //Potential exploit
         Exit;
     end;
     if CommandType in [gic_ArmyAttackUnit] then
     begin
-      TgtUnit := gPlayers.GetUnitByUID(Params[2]);
+      TgtUnit := gHands.GetUnitByUID(Params[2]);
       if (TgtUnit = nil) or TgtUnit.IsDeadOrDying then //Unit has died before command could be executed
         Exit;
     end;
@@ -292,14 +292,14 @@ begin
       gic_HouseStoreAcceptFlag, gic_HouseBarracksAcceptFlag, gic_HouseBarracksEquip,
       gic_HouseSchoolTrain, gic_HouseRemoveTrain, gic_HouseWoodcutterMode] then
     begin
-      SrcHouse := gPlayers.GetHouseByUID(Params[1]);
+      SrcHouse := gHands.GetHouseByUID(Params[1]);
       if (SrcHouse = nil) or SrcHouse.IsDestroyed //House has been destroyed before command could be executed
-      or (SrcHouse.Owner <> aCommand.PlayerIndex) then //Potential exploit
+      or (SrcHouse.Owner <> aCommand.HandIndex) then //Potential exploit
         Exit;
     end;
     if CommandType in [gic_ArmyAttackHouse] then
     begin
-      TgtHouse := gPlayers.GetHouseByUID(Params[2]);
+      TgtHouse := gHands.GetHouseByUID(Params[2]);
       if (TgtHouse = nil) or TgtHouse.IsDestroyed then Exit; //House has been destroyed before command could be executed
     end;
 
@@ -371,7 +371,7 @@ begin
                                   end;
       gic_GameAlertBeacon:        if fReplayState = gipRecording then //Beacons don't show up in replay
                                     //Beacons are only for allies
-                                    if gPlayers.CheckAlliance(Params[3], MySpectator.PlayerIndex) = at_Ally then
+                                    if gHands.CheckAlliance(Params[3], MySpectator.HandIndex) = at_Ally then
                                       fGame.Alerts.AddBeacon(KMPointF(Params[1]/10,Params[2]/10), Params[3]);
       else                        Assert(false);
     end;
@@ -429,7 +429,7 @@ begin
   //Must go before TakeCommand as it could execute command immediately (in singleplayer)
   //and the fake markup must be added first otherwise our logic in FieldsList fails
   if fGame.IsMultiplayer and (aCommandType = gic_BuildRemoveFieldPlan) then
-    gPlayers[MySpectator.PlayerIndex].RemFakeFieldPlan(aLoc);
+    gHands[MySpectator.HandIndex].RemFakeFieldPlan(aLoc);
 
   TakeCommand(MakeCommand(aCommandType, [aLoc.X, aLoc.Y]));
 end;
@@ -443,7 +443,7 @@ begin
   //Must go before TakeCommand as it could execute command immediately (in singleplayer)
   //and the fake markup must be added first otherwise our logic in FieldsList fails
   if fGame.IsMultiplayer then
-    gPlayers[MySpectator.PlayerIndex].ToggleFakeFieldPlan(aLoc, aFieldType);
+    gHands[MySpectator.HandIndex].ToggleFakeFieldPlan(aLoc, aFieldType);
 
   TakeCommand(MakeCommand(aCommandType, [aLoc.X, aLoc.Y, Byte(aFieldType)]));
 end;
@@ -527,7 +527,7 @@ begin
 end;
 
 
-procedure TGameInputProcess.CmdGame(aCommandType: TGameInputCommandType; aLoc: TKMPointF; aPlayer: TPlayerIndex);
+procedure TGameInputProcess.CmdGame(aCommandType: TGameInputCommandType; aLoc: TKMPointF; aPlayer: THandIndex);
 begin
   Assert(aCommandType = gic_GameAlertBeacon);
   TakeCommand(MakeCommand(aCommandType, [Round(aLoc.X * 10), Round(aLoc.Y * 10), aPlayer]));

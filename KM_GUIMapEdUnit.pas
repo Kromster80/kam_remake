@@ -44,7 +44,7 @@ type
 
 implementation
 uses
-  KM_PlayersCollection, KM_RenderUI, KM_Resource, KM_ResFonts, KM_ResTexts;
+  KM_HandsCollection, KM_RenderUI, KM_Resource, KM_ResFonts, KM_ResTexts;
 
 
 { TKMMapEdUnit }
@@ -113,7 +113,7 @@ begin
 
   Label_UnitName.Caption := fResource.UnitDat[fUnit.UnitType].GUIName;
   Image_UnitPic.TexID := fResource.UnitDat[fUnit.UnitType].GUIScroll;
-  Image_UnitPic.FlagColor := gPlayers[fUnit.Owner].FlagColor;
+  Image_UnitPic.FlagColor := gHands[fUnit.Owner].FlagColor;
   KMConditionBar_Unit.Position := fUnit.Condition / UNIT_MAX_CONDITION;
 
   Label_UnitDescription.Caption := fResource.UnitDat[fUnit.UnitType].Description;
@@ -133,7 +133,7 @@ begin
 
   Label_UnitName.Caption := fResource.UnitDat[fGroup.UnitType].GUIName;
   Image_UnitPic.TexID := fResource.UnitDat[fGroup.UnitType].GUIScroll;
-  Image_UnitPic.FlagColor := gPlayers[fGroup.Owner].FlagColor;
+  Image_UnitPic.FlagColor := gHands[fGroup.Owner].FlagColor;
   KMConditionBar_Unit.Position := fGroup.Condition / UNIT_MAX_CONDITION;
 
   //Warrior specific

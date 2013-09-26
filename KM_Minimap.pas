@@ -29,10 +29,10 @@ type
     procedure UpdateMinimapFromParser(aRevealAll:Boolean);
     procedure UpdateTexture;
   public
-    PlayerColors: array [0..MAX_PLAYERS-1] of Cardinal;
-    PlayerLoc: array [0..MAX_PLAYERS-1] of TKMPoint;
-    PlayerShow: array [0..MAX_PLAYERS-1] of Boolean;
-    PlayerTeam: array [0..MAX_PLAYERS-1] of ShortInt;
+    HandColors: array [0..MAX_HANDS-1] of Cardinal;
+    HandLocs: array [0..MAX_HANDS-1] of TKMPoint;
+    HandShow: array [0..MAX_HANDS-1] of Boolean;
+    HandTeam: array [0..MAX_HANDS-1] of ShortInt;
     constructor Create(aFromParser: Boolean; aIsMapEditor: Boolean; aSepia: Boolean);
     destructor Destroy; override;
 
@@ -41,7 +41,7 @@ type
     property MapY: Word read fMapY;
     property MapTex: TTexture read fMapTex;
 
-    procedure LoadFromMission(aMissionPath: string; const aRevealFor: array of TPlayerIndex);
+    procedure LoadFromMission(aMissionPath: string; const aRevealFor: array of THandIndex);
     procedure LoadFromTerrain(aAlerts: TKMAlerts);
     procedure LoadFromStream(LoadStream: TKMemoryStream);
     procedure SaveToStream(SaveStream: TKMemoryStream);
@@ -51,7 +51,7 @@ type
 
 
 implementation
-uses KM_AIFields, KM_PlayersCollection, KM_Resource, KM_Units, KM_UnitGroups;
+uses KM_AIFields, KM_HandsCollection, KM_Resource, KM_Units, KM_UnitGroups;
 
 
 { TKMMinimap }
@@ -78,7 +78,7 @@ end;
 
 
 //Load map in a direct way, should be used only when in Menu
-procedure TKMMinimap.LoadFromMission(aMissionPath: string; const aRevealFor: array of TPlayerIndex);
+procedure TKMMinimap.LoadFromMission(aMissionPath: string; const aRevealFor: array of THandIndex);
 var I: Integer;
 begin
   fParser.LoadMission(aMissionPath, aRevealFor);
@@ -91,11 +91,11 @@ begin
   fMapTex.U := fMapX / fWidthPOT;
   fMapTex.V := fMapY / fHeightPOT;
 
-  for I := 0 to MAX_PLAYERS - 1 do
+  for I := 0 to MAX_HANDS - 1 do
   begin
-    PlayerColors[I] := fParser.PlayerPreview[I].Color;
-    PlayerLoc[I] := fParser.PlayerPreview[I].StartingLoc;
-    PlayerShow[I] := fParser.PlayerPreview[I].CanHuman;
+    HandColors[I] := fParser.PlayerPreview[I].Color;
+    HandLocs[I] := fParser.PlayerPreview[I].StartingLoc;
+    HandShow[I] := fParser.PlayerPreview[I].CanHuman;
   end;
 end;
 
@@ -112,11 +112,11 @@ begin
   fMapTex.U := fMapX / fWidthPOT;
   fMapTex.V := fMapY / fHeightPOT;
 
-  for I := 0 to MAX_PLAYERS - 1 do
+  for I := 0 to MAX_HANDS - 1 do
   begin
-    PlayerColors[I] := $00000000;
-    PlayerLoc[I] := KMPoint(0,0);
-    PlayerShow[I] := False;
+    HandColors[I] := $00000000;
+    HandLocs[I] := KMPoint(0,0);
+    HandShow[I] := False;
   end;
 
   fAlerts := aAlerts;
@@ -138,7 +138,7 @@ begin
         fBase[N] := $E0000000
       else
         if TileOwner <> PLAYER_NONE then
-          fBase[N] := PlayerColors[TileOwner]
+          fBase[N] := HandColors[TileOwner]
         else
         begin
           //Formula for lighting is the same as in TTerrain.RebuildLighting
@@ -192,7 +192,7 @@ var
   P: TKMPoint;
   DoesFit: Boolean;
   Light: Smallint;
-  Owner: TPlayerIndex;
+  Owner: THandIndex;
   Group: TKMUnitGroup;
 begin
   if OVERLAY_OWNERSHIP then
@@ -202,7 +202,7 @@ begin
     begin
       Owner := fAIFields.Influences.GetBestOwner(K,I);
       if Owner <> PLAYER_NONE then
-        fBase[I*fMapX + K] := ApplyBrightness(gPlayers[Owner].FlagColor, Byte(Max(fAIFields.Influences.Ownership[Owner,I,K],0)))
+        fBase[I*fMapX + K] := ApplyBrightness(gHands[Owner].FlagColor, Byte(Max(fAIFields.Influences.Ownership[Owner,I,K],0)))
       else
         fBase[I*fMapX + K] := $FF000000;
     end;
@@ -218,13 +218,13 @@ begin
       fBase[I*fMapX + K] := $FF000000
     else
       if fMyTerrain.Land[I+1,K+1].TileOwner <> -1 then
-        fBase[I*fMapX + K] := gPlayers[fMyTerrain.Land[I+1,K+1].TileOwner].FlagColor
+        fBase[I*fMapX + K] := gHands[fMyTerrain.Land[I+1,K+1].TileOwner].FlagColor
       else
       begin
         U := fMyTerrain.Land[I+1,K+1].IsUnit;
         if U <> nil then
           if U.Owner <> PLAYER_ANIMAL then
-            fBase[I*fMapX + K] := gPlayers[U.Owner].FlagColor
+            fBase[I*fMapX + K] := gHands[U.Owner].FlagColor
           else
             fBase[I*fMapX + K] := fResource.UnitDat[U.UnitType].MinimapColor
         else
@@ -240,16 +240,16 @@ begin
 
   //Scan all players units and paint all virtual group members in MapEd
   if fIsMapEditor then
-    for I := 0 to gPlayers.Count - 1 do
-    for K := 0 to gPlayers[I].UnitGroups.Count - 1 do
+    for I := 0 to gHands.Count - 1 do
+    for K := 0 to gHands[I].UnitGroups.Count - 1 do
     begin
-      Group := gPlayers[I].UnitGroups[K];
+      Group := gHands[I].UnitGroups[K];
       for J := 1 to Group.MapEdCount - 1 do
       begin
         //GetPositionInGroup2 operates with 1..N terrain, while Minimap uses 0..N-1, hence the +1 -1 fixes
         P := GetPositionInGroup2(Group.Position.X, Group.Position.Y, Group.Direction, J, Group.UnitsPerRow, fMapX+1, fMapY+1, DoesFit);
         if not DoesFit then Continue; //Don't render units that are off the map in the map editor
-        fBase[(P.Y - 1) * fMapX + P.X - 1] := gPlayers[I].FlagColor;
+        fBase[(P.Y - 1) * fMapX + P.X - 1] := gHands[I].FlagColor;
       end;
     end;
 end;
@@ -300,11 +300,11 @@ begin
   SaveStream.Write(L);
   if L > 0 then
     SaveStream.Write(fBase[0], L * SizeOf(Cardinal));
-  for I := 0 to MAX_PLAYERS - 1 do
+  for I := 0 to MAX_HANDS - 1 do
   begin
-    SaveStream.Write(PlayerColors[I]);
-    SaveStream.Write(PlayerLoc[I]);
-    SaveStream.Write(PlayerShow[I]);
+    SaveStream.Write(HandColors[I]);
+    SaveStream.Write(HandLocs[I]);
+    SaveStream.Write(HandShow[I]);
   end;
 end;
 
@@ -322,11 +322,11 @@ begin
   SetLength(fBase, L);
   if L > 0 then
     LoadStream.Read(fBase[0], L * SizeOf(Cardinal));
-  for I := 0 to MAX_PLAYERS - 1 do
+  for I := 0 to MAX_HANDS - 1 do
   begin
-    LoadStream.Read(PlayerColors[I]);
-    LoadStream.Read(PlayerLoc[I]);
-    LoadStream.Read(PlayerShow[I]);
+    LoadStream.Read(HandColors[I]);
+    LoadStream.Read(HandLocs[I]);
+    LoadStream.Read(HandShow[I]);
   end;
 
   fWidthPOT := MakePOT(fMapX);

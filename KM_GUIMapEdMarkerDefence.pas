@@ -9,7 +9,7 @@ uses
 type
   TKMMapEdMarkerDefence = class
   private
-    fOwner: TPlayerIndex;
+    fOwner: THandIndex;
     fIndex: Integer;
     fOnDone: TNotifyEvent;
     procedure Marker_Change(Sender: TObject);
@@ -27,9 +27,9 @@ type
     constructor Create(aParent: TKMPanel; aOnDone: TNotifyEvent);
 
     property Index: Integer read fIndex;
-    property Owner: TPlayerIndex read fOwner;
+    property Owner: THandIndex read fOwner;
 
-    procedure Show(aPlayer: TPlayerIndex; aIndex: Integer);
+    procedure Show(aPlayer: THandIndex; aIndex: Integer);
     procedure Hide;
     function Visible: Boolean;
   end;
@@ -37,7 +37,7 @@ type
 
 implementation
 uses
-  KM_PlayersCollection, KM_ResTexts,
+  KM_HandsCollection, KM_ResTexts,
   KM_RenderUI, KM_ResFonts, KM_AIDefensePos;
 
 
@@ -83,7 +83,7 @@ procedure TKMMapEdMarkerDefence.Marker_Change(Sender: TObject);
 var
   DP: TAIDefencePosition;
 begin
-  DP := gPlayers[fOwner].AI.General.DefencePositions[fIndex];
+  DP := gHands[fOwner].AI.General.DefencePositions[fIndex];
   DP.Radius := TrackBar_DefenceRad.Position;
   DP.DefenceType := TAIDefencePosType(DropList_DefenceType.ItemIndex);
   DP.GroupType := TGroupType(DropList_DefenceGroup.ItemIndex);
@@ -95,7 +95,7 @@ begin
 
   if Sender = Button_DefenceDelete then
   begin
-    gPlayers[fOwner].AI.General.DefencePositions.Delete(fIndex);
+    gHands[fOwner].AI.General.DefencePositions.Delete(fIndex);
     Hide;
     fOnDone(Self);
   end;
@@ -108,16 +108,16 @@ begin
 end;
 
 
-procedure TKMMapEdMarkerDefence.Show(aPlayer: TPlayerIndex; aIndex: Integer);
+procedure TKMMapEdMarkerDefence.Show(aPlayer: THandIndex; aIndex: Integer);
 begin
   fOwner := aPlayer;
   fIndex := aIndex;
 
   Label_MarkerType.Caption := gResTexts[TX_MAPED_AI_DEFENCE_POSITION];
   Image_MarkerPic.TexID := 338;
-  DropList_DefenceGroup.ItemIndex := Byte(gPlayers[fOwner].AI.General.DefencePositions[fIndex].GroupType);
-  DropList_DefenceType.ItemIndex := Byte(gPlayers[fOwner].AI.General.DefencePositions[fIndex].DefenceType);
-  TrackBar_DefenceRad.Position := gPlayers[fOwner].AI.General.DefencePositions[fIndex].Radius;
+  DropList_DefenceGroup.ItemIndex := Byte(gHands[fOwner].AI.General.DefencePositions[fIndex].GroupType);
+  DropList_DefenceType.ItemIndex := Byte(gHands[fOwner].AI.General.DefencePositions[fIndex].DefenceType);
+  TrackBar_DefenceRad.Position := gHands[fOwner].AI.General.DefencePositions[fIndex].Radius;
 
   Panel_MarkerDefence.Show;
 end;

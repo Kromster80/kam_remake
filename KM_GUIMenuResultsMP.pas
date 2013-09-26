@@ -13,7 +13,7 @@ type
     fOnPageChange: TGUIEventText; //will be in ancestor class
 
     fGameResultMsg: TGameResultMsg; //So we know where to go after results screen
-    fPlayersVisible: array [0 .. MAX_PLAYERS - 1] of Boolean; //Remember visible players when toggling wares
+    fPlayersVisible: array [0 .. MAX_HANDS - 1] of Boolean; //Remember visible players when toggling wares
     fEnabledPlayers: Integer;
 
     procedure BackClick(Sender: TObject);
@@ -23,7 +23,7 @@ type
 
     procedure TabChange(Sender: TObject);
     procedure WareChange(Sender: TObject);
-    function GetChartWares(aPlayer: TPlayerIndex; aWare: TWareType): TKMCardinalArray;
+    function GetChartWares(aPlayer: THandIndex; aWare: TWareType): TKMCardinalArray;
     procedure Refresh;
     procedure RefreshBars;
     procedure RefreshCharts;
@@ -37,9 +37,9 @@ type
       Label_ResultsMP: TKMLabel;
       Panel_Bars: TKMPanel;
         Panel_BarsUpper, Panel_BarsLower: TKMPanel;
-          Label_ResultsPlayerName1, Label_ResultsPlayerName2: array [0 .. MAX_PLAYERS - 1] of TKMLabel;
-          Bar_Results: array [0 .. MAX_PLAYERS - 1, 0 .. 9] of TKMPercentBar;
-          Image_ResultsRosette: array [0 .. MAX_PLAYERS - 1, 0 .. 9] of TKMImage;
+          Label_ResultsPlayerName1, Label_ResultsPlayerName2: array [0 .. MAX_HANDS - 1] of TKMLabel;
+          Bar_Results: array [0 .. MAX_HANDS - 1, 0 .. 9] of TKMPercentBar;
+          Image_ResultsRosette: array [0 .. MAX_HANDS - 1, 0 .. 9] of TKMImage;
       Panel_ChartsMP: TKMPanel;
         Chart_MPArmy: TKMChart;
         Chart_MPCitizens: TKMChart;
@@ -57,7 +57,7 @@ type
 
 
 implementation
-uses KM_ResTexts, KM_Game, KM_PlayersCollection, KM_Utils, KM_Resource, KM_ResFonts, KM_RenderUI;
+uses KM_ResTexts, KM_Game, KM_HandsCollection, KM_Utils, KM_Resource, KM_ResFonts, KM_RenderUI;
 
 
 const
@@ -98,14 +98,14 @@ begin
     Panel_BarsUpper := TKMPanel.Create(Panel_Bars, 0, 0, 900, 215);
     Panel_BarsUpper.Anchors := [];
 
-      for I := 0 to MAX_PLAYERS - 1 do
+      for I := 0 to MAX_HANDS - 1 do
         Label_ResultsPlayerName1[I] := TKMLabel.Create(Panel_BarsUpper, 0, 38+I*BAR_ROW_HEIGHT, 150, 20, '', fnt_Metal, taLeft);
 
       for K := 0 to 4 do
       begin
         with TKMLabel.Create(Panel_BarsUpper, 160 + BarStep*K, 0, BarWidth+6, 40, gResTexts[Columns1[K]], fnt_Metal, taCenter) do
           AutoWrap := True;
-        for I:=0 to MAX_PLAYERS - 1 do
+        for I:=0 to MAX_HANDS - 1 do
         begin
           Bar_Results[I,K] := TKMPercentBar.Create(Panel_BarsUpper, 160 + K*BarStep, 35+I*BAR_ROW_HEIGHT, BarWidth, 20, fnt_Grey);
           Bar_Results[I,K].TextYOffset := -3;
@@ -116,14 +116,14 @@ begin
     Panel_BarsLower := TKMPanel.Create(Panel_Bars, 0, 220, 900, 180);
     Panel_BarsLower.Anchors := [];
 
-      for I := 0 to MAX_PLAYERS - 1 do
+      for I := 0 to MAX_HANDS - 1 do
         Label_ResultsPlayerName2[I] := TKMLabel.Create(Panel_BarsLower, 0, 38+I*BAR_ROW_HEIGHT, 150, 20, '', fnt_Metal, taLeft);
 
       for K := 0 to 4 do
       begin
         with TKMLabel.Create(Panel_BarsLower, 160 + BarStep*K, 0, BarWidth+6, 40, gResTexts[Columns2[K]], fnt_Metal, taCenter) do
           AutoWrap := True;
-        for I := 0 to MAX_PLAYERS - 1 do
+        for I := 0 to MAX_HANDS - 1 do
         begin
           Bar_Results[I,K+5] := TKMPercentBar.Create(Panel_BarsLower, 160 + K*BarStep, 35+I*BAR_ROW_HEIGHT, BarWidth, 20, fnt_Grey);
           Bar_Results[I,K+5].TextYOffset := -3;
@@ -231,8 +231,8 @@ begin
 
   //Get player count to compact their data output
   fEnabledPlayers := 0;
-  for I := 0 to gPlayers.Count - 1 do
-    if gPlayers[I].Enabled then
+  for I := 0 to gHands.Count - 1 do
+    if gHands[I].Enabled then
       Inc(fEnabledPlayers);
 
   RefreshBars;
@@ -274,17 +274,17 @@ var
   Totals: array [0..9] of Cardinal;
 begin
   //Update visibility depending on players count (note, players may be sparsed)
-  for I := 0 to MAX_PLAYERS - 1 do
+  for I := 0 to MAX_HANDS - 1 do
     SetPlayerControls(I, False); //Disable them all to start
   Index := 0;
-  for I := 0 to gPlayers.Count - 1 do
-    if gPlayers[I].Enabled then
+  for I := 0 to gHands.Count - 1 do
+    if gHands[I].Enabled then
     begin
       SetPlayerControls(Index, True); //Enable used ones
-      Label_ResultsPlayerName1[Index].Caption   := gPlayers[I].OwnerName;
-      Label_ResultsPlayerName1[Index].FontColor := FlagColorToTextColor(gPlayers[I].FlagColor);
-      Label_ResultsPlayerName2[Index].Caption   := gPlayers[I].OwnerName;
-      Label_ResultsPlayerName2[Index].FontColor := FlagColorToTextColor(gPlayers[I].FlagColor);
+      Label_ResultsPlayerName1[Index].Caption   := gHands[I].OwnerName;
+      Label_ResultsPlayerName1[Index].FontColor := FlagColorToTextColor(gHands[I].FlagColor);
+      Label_ResultsPlayerName2[Index].Caption   := gHands[I].OwnerName;
+      Label_ResultsPlayerName2[Index].FontColor := FlagColorToTextColor(gHands[I].FlagColor);
       Inc(Index);
     end;
 
@@ -305,9 +305,9 @@ begin
   FillChar(Totals, SizeOf(Totals), #0);
 
   //Calculate bests for each "section"
-  for I := 0 to gPlayers.Count - 1 do
-    if gPlayers[I].Enabled then
-      with gPlayers[I].Stats do
+  for I := 0 to gHands.Count - 1 do
+    if gHands[I].Enabled then
+      with gHands[I].Stats do
       begin
         if Bests[0] < GetCitizensTrained then Bests[0] := GetCitizensTrained;
         if Bests[1] > GetCitizensLost    then Bests[1] := GetCitizensLost;
@@ -335,11 +335,11 @@ begin
 
   //Fill in raw values
   Index := 0;
-  for I := 0 to gPlayers.Count - 1 do
-    if gPlayers[I].Enabled then
+  for I := 0 to gHands.Count - 1 do
+    if gHands[I].Enabled then
     begin
 
-      with gPlayers[I].Stats do
+      with gHands[I].Stats do
       begin
         //Living things
         Bar_Results[Index,0].Tag := GetCitizensTrained;
@@ -409,7 +409,7 @@ procedure TKMMenuResultsMP.RefreshCharts;
 var
   I: Integer;
 begin
-  for I := 0 to MAX_PLAYERS - 1 do
+  for I := 0 to MAX_HANDS - 1 do
     fPlayersVisible[I] := True;
 
   Chart_MPArmy.Clear;
@@ -423,8 +423,8 @@ begin
   Chart_MPCitizens.MaxTime  := fGame.GameTickCount div 10;
   Chart_MPHouses.MaxTime    := fGame.GameTickCount div 10;
 
-  for I := 0 to gPlayers.Count - 1 do
-  with gPlayers[I] do
+  for I := 0 to gHands.Count - 1 do
+  with gHands[I] do
     if Enabled then
     begin
       Chart_MPArmy.MaxLength := Max(Chart_MPArmy.MaxLength, Stats.ChartCount);
@@ -433,16 +433,16 @@ begin
 
   Chart_MPArmy.TrimToFirstVariation;
 
-  for I := 0 to gPlayers.Count - 1 do
-  with gPlayers[I] do
+  for I := 0 to gHands.Count - 1 do
+  with gHands[I] do
     if Enabled then
     begin
       Chart_MPCitizens.MaxLength := Max(Chart_MPCitizens.MaxLength, Stats.ChartCount);
       Chart_MPCitizens.AddLine(OwnerName, FlagColor, Stats.ChartCitizens);
     end;
 
-  for I := 0 to gPlayers.Count - 1 do
-  with gPlayers[I] do
+  for I := 0 to gHands.Count - 1 do
+  with gHands[I] do
     if Enabled then
     begin
       Chart_MPHouses.MaxLength := Max(Chart_MPHouses.MaxLength, Stats.ChartCount);
@@ -470,9 +470,9 @@ begin
   for I := Low(Wares) to High(Wares) do
   begin
     R := Wares[I];
-    for K := 0 to gPlayers.Count - 1 do
-    if gPlayers[K].Enabled
-    and not gPlayers[K].Stats.ChartWaresEmpty(R) then
+    for K := 0 to gHands.Count - 1 do
+    if gHands[K].Enabled
+    and not gHands[K].Stats.ChartWaresEmpty(R) then
     begin
       Columnbox_Wares.AddItem(MakeListRow(['', fResource.Wares[R].Title],
                                           [$FFFFFFFF, $FFFFFFFF],
@@ -491,8 +491,8 @@ begin
     Chart_MPWares[R].MaxTime := fGame.GameTickCount div 10;
     Chart_MPWares[R].Caption := gResTexts[TX_GRAPH_TITLE_RESOURCES] + ' - ' + fResource.Wares[R].Title;
 
-    for I := 0 to gPlayers.Count - 1 do
-    with gPlayers[I] do
+    for I := 0 to gHands.Count - 1 do
+    with gHands[I] do
     if Enabled then
     begin
       Chart_MPWares[R].MaxLength := Max(Chart_MPWares[R].MaxLength, Stats.ChartCount);
@@ -582,12 +582,12 @@ begin
 end;
 
 
-function TKMMenuResultsMP.GetChartWares(aPlayer: TPlayerIndex; aWare: TWareType): TKMCardinalArray;
+function TKMMenuResultsMP.GetChartWares(aPlayer: THandIndex; aWare: TWareType): TKMCardinalArray;
 var
   RT: TWareType;
   I: Integer;
 begin
-  with gPlayers[aPlayer].Stats do
+  with gHands[aPlayer].Stats do
   case aWare of
     WARE_MIN..WARE_MAX: Result := ChartWares[aWare];
     wt_All:             begin

@@ -27,7 +27,7 @@ type
 
 implementation
 uses
-  KM_PlayersCollection, KM_ResTexts, KM_RenderUI, KM_ResFonts;
+  KM_HandsCollection, KM_ResTexts, KM_RenderUI, KM_ResFonts;
 
 
 { TKMMapEdTownScript }
@@ -52,19 +52,19 @@ end;
 
 procedure TKMMapEdTownScript.Town_ScriptRefresh;
 begin
-  CheckBox_AutoBuild.Checked := gPlayers[MySpectator.PlayerIndex].AI.Setup.AutoBuild;
-  CheckBox_AutoRepair.Checked := gPlayers[MySpectator.PlayerIndex].AI.Mayor.AutoRepair;
-  TrackBar_SerfsPer10Houses.Position := Round(10*gPlayers[MySpectator.PlayerIndex].AI.Setup.SerfsPerHouse);
-  TrackBar_WorkerCount.Position := gPlayers[MySpectator.PlayerIndex].AI.Setup.WorkerCount;
+  CheckBox_AutoBuild.Checked := gHands[MySpectator.HandIndex].AI.Setup.AutoBuild;
+  CheckBox_AutoRepair.Checked := gHands[MySpectator.HandIndex].AI.Mayor.AutoRepair;
+  TrackBar_SerfsPer10Houses.Position := Round(10*gHands[MySpectator.HandIndex].AI.Setup.SerfsPerHouse);
+  TrackBar_WorkerCount.Position := gHands[MySpectator.HandIndex].AI.Setup.WorkerCount;
 end;
 
 
 procedure TKMMapEdTownScript.Town_ScriptChange(Sender: TObject);
 begin
-  gPlayers[MySpectator.PlayerIndex].AI.Setup.AutoBuild := CheckBox_AutoBuild.Checked;
-  gPlayers[MySpectator.PlayerIndex].AI.Mayor.AutoRepair := CheckBox_AutoRepair.Checked;
-  gPlayers[MySpectator.PlayerIndex].AI.Setup.SerfsPerHouse := TrackBar_SerfsPer10Houses.Position / 10;
-  gPlayers[MySpectator.PlayerIndex].AI.Setup.WorkerCount := TrackBar_WorkerCount.Position;
+  gHands[MySpectator.HandIndex].AI.Setup.AutoBuild := CheckBox_AutoBuild.Checked;
+  gHands[MySpectator.HandIndex].AI.Mayor.AutoRepair := CheckBox_AutoRepair.Checked;
+  gHands[MySpectator.HandIndex].AI.Setup.SerfsPerHouse := TrackBar_SerfsPer10Houses.Position / 10;
+  gHands[MySpectator.HandIndex].AI.Setup.WorkerCount := TrackBar_WorkerCount.Position;
 end;
 
 

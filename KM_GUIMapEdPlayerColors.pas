@@ -25,7 +25,7 @@ type
 
 implementation
 uses
-  KM_PlayersCollection, KM_Game, KM_ResTexts, KM_RenderUI, KM_Resource, KM_ResFonts;
+  KM_HandsCollection, KM_Game, KM_ResTexts, KM_RenderUI, KM_Resource, KM_ResFonts;
 
 
 { TKMMapEdPlayerColors }
@@ -49,7 +49,7 @@ end;
 
 procedure TKMMapEdPlayerColors.Player_ColorClick(Sender: TObject);
 begin
-  gPlayers[MySpectator.PlayerIndex].FlagColor := ColorSwatch_Color.GetColor;
+  gHands[MySpectator.HandIndex].FlagColor := ColorSwatch_Color.GetColor;
 
   fGame.MapEditorInterface.SyncUI;
 end;

@@ -55,7 +55,7 @@ type
 
 implementation
 uses
-  KM_PlayersCollection, KM_ResTexts, KM_Resource, KM_RenderUI,
+  KM_HandsCollection, KM_ResTexts, KM_Resource, KM_RenderUI,
   KM_ResWares, KM_HouseBarracks, KM_ResFonts;
 
 
@@ -189,7 +189,7 @@ begin
   Label_House.Caption := HouseDat.HouseName;
   Image_House_Logo.TexID := HouseDat.GUIIcon;
   Image_House_Worker.TexID := fResource.UnitDat[HouseDat.OwnerType].GUIIcon;
-  Image_House_Worker.FlagColor := gPlayers[fHouse.Owner].FlagColor;
+  Image_House_Worker.FlagColor := gHands[fHouse.Owner].FlagColor;
   Image_House_Worker.Hint := fResource.UnitDat[HouseDat.OwnerType].GUIName;
   Image_House_Worker.Visible := HouseDat.OwnerType <> ut_None;
   KMHealthBar_House.Caption := IntToStr(Round(fHouse.GetHealth)) + '/' + IntToStr(HouseDat.MaxHealth);

@@ -26,7 +26,7 @@ type
       fShotFrom: TKMPointF; //Where the projectile was launched from
 
       fType: TProjectileType; //type of projectile (arrow, bolt, rocks, etc..)
-      fOwner: TPlayerIndex; //The ID of the player who launched the projectile, used for kill statistics
+      fOwner: THandIndex; //The ID of the player who launched the projectile, used for kill statistics
       fSpeed: Single; //Each projectile speed may vary a little bit
       fArc: Single; //Thats how high projectile will go along parabola (varies a little more)
       fPosition: Single; //Projectiles position along the route Start>>End
@@ -34,13 +34,13 @@ type
       fMaxLength: Single; //Maximum length the archer could have shot
     end;
 
-    function AddItem(aStart,aAim,aEnd: TKMPointF; aSpeed, aArc, aMaxLength: Single; aProjType: TProjectileType; aOwner: TPlayerIndex):word;
+    function AddItem(aStart,aAim,aEnd: TKMPointF; aSpeed, aArc, aMaxLength: Single; aProjType: TProjectileType; aOwner: THandIndex):word;
     procedure RemItem(aIndex: Integer);
     function ProjectileVisible(aIndex: Integer): Boolean;
   public
     constructor Create;
-    function AimTarget(aStart: TKMPointF; aTarget: TKMUnit; aProjType: TProjectileType; aOwner: TPlayerIndex; aMaxRange,aMinRange: Single):word; overload;
-    function AimTarget(aStart: TKMPointF; aTarget: TKMHouse; aProjType: TProjectileType; aOwner: TPlayerIndex; aMaxRange,aMinRange: Single):word; overload;
+    function AimTarget(aStart: TKMPointF; aTarget: TKMUnit; aProjType: TProjectileType; aOwner: THandIndex; aMaxRange,aMinRange: Single):word; overload;
+    function AimTarget(aStart: TKMPointF; aTarget: TKMHouse; aProjType: TProjectileType; aOwner: THandIndex; aMaxRange,aMinRange: Single):word; overload;
 
     procedure UpdateState;
     procedure Paint;
@@ -55,7 +55,7 @@ var
 
 
 implementation
-uses KM_ResSound, KM_Sound, KM_RenderPool, KM_RenderAux, KM_PlayersCollection, KM_Resource;
+uses KM_ResSound, KM_Sound, KM_RenderPool, KM_RenderAux, KM_HandsCollection, KM_Resource;
 
 
 const
@@ -83,7 +83,7 @@ begin
 end;
 
 
-function TKMProjectiles.AimTarget(aStart: TKMPointF; aTarget: TKMUnit; aProjType: TProjectileType; aOwner: TPlayerIndex; aMaxRange,aMinRange: Single):word;
+function TKMProjectiles.AimTarget(aStart: TKMPointF; aTarget: TKMUnit; aProjType: TProjectileType; aOwner: THandIndex; aMaxRange,aMinRange: Single):word;
 var
   TargetVector,Target,TargetPosition: TKMPointF;
   A,B,C,D: Single;
@@ -170,7 +170,7 @@ begin
     if gTerrain.TileInMapCoords(Round(Target.X), Round(Target.Y)) then //Arrows may fly off map, UnitsHitTest doesn't like negative coordinates
     begin
       U := gTerrain.UnitsHitTest(Round(Target.X), Round(Target.Y));
-      if (U <> nil) and (gPlayers.CheckAlliance(aOwner,U.Owner) = at_Ally) then
+      if (U <> nil) and (gHands.CheckAlliance(aOwner,U.Owner) = at_Ally) then
         Target := aTarget.PositionF; //Shoot at the target's current position instead
     end;
 
@@ -180,7 +180,7 @@ begin
 end;
 
 
-function TKMProjectiles.AimTarget(aStart: TKMPointF; aTarget: TKMHouse; aProjType: TProjectileType; aOwner: TPlayerIndex; aMaxRange,aMinRange: Single):word;
+function TKMProjectiles.AimTarget(aStart: TKMPointF; aTarget: TKMHouse; aProjType: TProjectileType; aOwner: THandIndex; aMaxRange,aMinRange: Single):word;
 var
   Speed, Arc: Single;
   DistanceToHit, DistanceInRange: Single;
@@ -202,7 +202,7 @@ end;
 
 
 { Return flight time (archers like to know when they hit target before firing again) }
-function TKMProjectiles.AddItem(aStart,aAim,aEnd: TKMPointF; aSpeed,aArc,aMaxLength: Single; aProjType: TProjectileType; aOwner: TPlayerIndex):word;
+function TKMProjectiles.AddItem(aStart,aAim,aEnd: TKMPointF; aSpeed,aArc,aMaxLength: Single; aProjType: TProjectileType; aOwner: THandIndex):word;
 const //TowerRock position is a bit different for reasons said below
   OffsetX: array [TProjectileType] of Single = (0.5, 0.5, 0.5, -0.25); //Recruit stands in entrance, Tower middleline is X-0.75
   OffsetY: array [TProjectileType] of Single = (0.2, 0.2, 0.2, -0.5); //Add towers height
@@ -283,21 +283,21 @@ begin
                               if fType = pt_Bolt then Damage := fResource.UnitDat[ut_Arbaletman].Attack;
                               if fType = pt_SlingRock then Damage := fResource.UnitDat[ut_Slingshot].Attack;
                               Damage := Damage div Math.max(fResource.UnitDat[U.UnitType].GetDefenceVsProjectiles, 1); //Max is not needed, but animals have 0 defence
-                              if (FRIENDLY_FIRE or (gPlayers.CheckAlliance(fOwner, U.Owner)= at_Enemy))
+                              if (FRIENDLY_FIRE or (gHands.CheckAlliance(fOwner, U.Owner)= at_Enemy))
                               and (Damage >= KaMRandom(101)) then
                                 U.HitPointsDecrease(1, fOwner);
                             end
                             else
                             begin
-                              H := gPlayers.HousesHitTest(Round(fTarget.X), Round(fTarget.Y));
+                              H := gHands.HousesHitTest(Round(fTarget.X), Round(fTarget.Y));
                               if (H <> nil)
-                              and (FRIENDLY_FIRE or (gPlayers.CheckAlliance(fOwner, H.Owner)= at_Enemy))
+                              and (FRIENDLY_FIRE or (gHands.CheckAlliance(fOwner, H.Owner)= at_Enemy))
                               then
                                 H.AddDamage(fOwner, 1);
                             end;
               pt_TowerRock: If (U <> nil) and not U.IsDeadOrDying and U.Visible
                             and not (U is TKMUnitAnimal)
-                            and (FRIENDLY_FIRE or (gPlayers.CheckAlliance(fOwner, U.Owner)= at_Enemy)) then
+                            and (FRIENDLY_FIRE or (gHands.CheckAlliance(fOwner, U.Owner)= at_Enemy)) then
                               U.HitPointsDecrease(U.HitPointsMax, fOwner); //Instant death
             end;
           end;

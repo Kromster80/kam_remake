@@ -36,7 +36,7 @@ type
 
 implementation
 uses
-  KM_PlayersCollection, KM_ResTexts, KM_RenderUI, KM_ResFonts;
+  KM_HandsCollection, KM_ResTexts, KM_RenderUI, KM_ResFonts;
 
 
 { TKMMapEdPlayerGoals }
@@ -69,10 +69,10 @@ var
   G: TKMGoal;
 begin
   FillChar(G, SizeOf(G), #0);
-  gPlayers[MySpectator.PlayerIndex].AI.Goals.AddGoal(G);
+  gHands[MySpectator.HandIndex].AI.Goals.AddGoal(G);
 
   Goals_Refresh;
-  ColumnBox_Goals.ItemIndex := gPlayers[MySpectator.PlayerIndex].AI.Goals.Count - 1;
+  ColumnBox_Goals.ItemIndex := gHands[MySpectator.HandIndex].AI.Goals.Count - 1;
 
   //Edit the attack we have just appended
   Goals_Edit(ColumnBox_Goals.ItemIndex);
@@ -83,17 +83,17 @@ procedure TKMMapEdPlayerGoals.Goals_Del(Sender: TObject);
 var I: Integer;
 begin
   I := ColumnBox_Goals.ItemIndex;
-  if InRange(I, 0, gPlayers[MySpectator.PlayerIndex].AI.Goals.Count - 1) then
-    gPlayers[MySpectator.PlayerIndex].AI.Goals.Delete(I);
+  if InRange(I, 0, gHands[MySpectator.HandIndex].AI.Goals.Count - 1) then
+    gHands[MySpectator.HandIndex].AI.Goals.Delete(I);
   Goals_Refresh;
 end;
 
 
 procedure TKMMapEdPlayerGoals.Goals_Edit(aIndex: Integer);
 begin
-  Assert(InRange(aIndex, 0, gPlayers[MySpectator.PlayerIndex].AI.Goals.Count - 1));
+  Assert(InRange(aIndex, 0, gHands[MySpectator.HandIndex].AI.Goals.Count - 1));
 
-  GoalPopUp.Show(MySpectator.PlayerIndex, aIndex);
+  GoalPopUp.Show(MySpectator.HandIndex, aIndex);
   GoalPopUp.fOnDone := Goals_OnDone;
 end;
 
@@ -103,7 +103,7 @@ var
   I: Integer;
 begin
   I := ColumnBox_Goals.ItemIndex;
-  Button_GoalsDel.Enabled := InRange(I, 0, gPlayers[MySpectator.PlayerIndex].AI.Goals.Count - 1);
+  Button_GoalsDel.Enabled := InRange(I, 0, gHands[MySpectator.HandIndex].AI.Goals.Count - 1);
 end;
 
 
@@ -114,7 +114,7 @@ begin
   I := ColumnBox_Goals.ItemIndex;
 
   //Check if user double-clicked on an existing item (not on an empty space)
-  if InRange(I, 0, gPlayers[MySpectator.PlayerIndex].AI.Goals.Count - 1) then
+  if InRange(I, 0, gHands[MySpectator.HandIndex].AI.Goals.Count - 1) then
     Goals_Edit(I);
 end;
 
@@ -137,12 +137,12 @@ var
 begin
   ColumnBox_Goals.Clear;
 
-  for I := 0 to gPlayers[MySpectator.PlayerIndex].AI.Goals.Count - 1 do
+  for I := 0 to gHands[MySpectator.HandIndex].AI.Goals.Count - 1 do
   begin
-    G := gPlayers[MySpectator.PlayerIndex].AI.Goals[I];
+    G := gHands[MySpectator.HandIndex].AI.Goals[I];
     ColumnBox_Goals.AddItem(MakeListRow([Typ[G.GoalType],
                                     Cnd[G.GoalCondition],
-                                    IntToStr(G.PlayerIndex + 1),
+                                    IntToStr(G.HandIndex + 1),
                                     IntToStr(G.GoalTime div 10),
                                     IntToStr(G.MessageToShow)]));
   end;

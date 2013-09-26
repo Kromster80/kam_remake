@@ -15,7 +15,7 @@ type
   TKMUnit = class;
   TKMUnitWorker = class;
   TKMUnitEvent = procedure(aUnit: TKMUnit) of object;
-  TKMUnitFromEvent = procedure(aUnit: TKMUnit; aFrom: TPlayerIndex) of object;
+  TKMUnitFromEvent = procedure(aUnit: TKMUnit; aFrom: THandIndex) of object;
 
   TActionResult = (ActContinues, ActDone, ActAborted); //
 
@@ -72,7 +72,7 @@ type
     fHitPointCounter: Cardinal; //Counter for hit point restoration, separate cos it resets on first hit
     fCondition: Integer; //Unit condition, when it reaches zero unit should die (rarely can be negative due to WalkExchange)
     fTicker: Cardinal; //ticks of life for the unit (allows to spread updates)
-    fOwner: TPlayerIndex;
+    fOwner: THandIndex;
     fHome: TKMHouse;
     fPosition: TKMPointF;
     fVisible: Boolean;
@@ -103,7 +103,7 @@ type
     OnUnitDied: TKMUnitFromEvent;
     OnUnitTrained: TKMUnitEvent;
 
-    constructor Create(aID: Cardinal; aUnitType: TUnitType; aLoc: TKMPoint; aOwner: TPlayerIndex);
+    constructor Create(aID: Cardinal; aUnitType: TUnitType; aLoc: TKMPoint; aOwner: THandIndex);
     constructor Load(LoadStream: TKMemoryStream); dynamic;
     procedure SyncLoad; virtual;
     destructor Destroy; override;
@@ -112,7 +112,7 @@ type
     procedure ReleaseUnitPointer;  //Decreases the pointer counter
     property GetPointerCount: Word read fPointerCount;
 
-    procedure KillUnit(aFrom: TPlayerIndex; aShowAnimation, aForceDelay: Boolean); virtual; //Creates TTaskDie which then will Close the unit from further access
+    procedure KillUnit(aFrom: THandIndex; aShowAnimation, aForceDelay: Boolean); virtual; //Creates TTaskDie which then will Close the unit from further access
     procedure CloseUnit(aRemoveTileUsage: Boolean = True); dynamic;
 
     property UID: Integer read fUID;
@@ -141,14 +141,14 @@ type
     procedure Feed(Amount: Single);
     procedure AbandonWalk;
     property DesiredPassability: TPassability read GetDesiredPassability;
-    property Owner: TPlayerIndex read fOwner;
+    property Owner: THandIndex read fOwner;
     property GetHome: TKMHouse read fHome;
     property GetUnitAction: TUnitAction read fCurrentAction;
     property UnitTask: TUnitTask read fUnitTask;
     property UnitType: TUnitType read fUnitType;
     function GetUnitActText: UnicodeString;
     property Condition: Integer read fCondition write fCondition;
-    procedure HitPointsDecrease(aAmount: Byte; aFrom: TPlayerIndex);
+    procedure HitPointsDecrease(aAmount: Byte; aFrom: THandIndex);
     property HitPointsMax: Byte read GetHitPointsMax;
     procedure CancelUnitTask;
     property Visible: boolean read fVisible write fVisible;
@@ -215,7 +215,7 @@ type
   private
     fCarry: TWareType;
   public
-    constructor Create(aID: Cardinal; aUnitType: TUnitType; aLoc: TKMPoint; aOwner: TPlayerIndex);
+    constructor Create(aID: Cardinal; aUnitType: TUnitType; aLoc: TKMPoint; aOwner: THandIndex);
     constructor Load(LoadStream: TKMemoryStream); override;
     procedure Save(SaveStream: TKMemoryStream); override;
 
@@ -251,7 +251,7 @@ type
   private
     fFishCount:byte; //1-5
   public
-    constructor Create(aID: Cardinal; aUnitType: TUnitType; aLoc: TKMPoint; aOwner: TPlayerIndex); overload;
+    constructor Create(aID: Cardinal; aUnitType: TUnitType; aLoc: TKMPoint; aOwner: THandIndex); overload;
     constructor Load(LoadStream: TKMemoryStream); override;
     property FishCount: byte read fFishCount;
     function ReduceFish: Boolean;
@@ -269,11 +269,11 @@ type
   public
     constructor Create;
     destructor Destroy; override;
-    function AddUnit(aOwner: TPlayerIndex; aUnitType: TUnitType; aLoc: TKMPoint; aAutoPlace: boolean = True; aRequiredWalkConnect: Byte = 0): TKMUnit;
+    function AddUnit(aOwner: THandIndex; aUnitType: TUnitType; aLoc: TKMPoint; aAutoPlace: boolean = True; aRequiredWalkConnect: Byte = 0): TKMUnit;
     property Count: Integer read GetCount;
     property Units[aIndex: Integer]: TKMUnit read GetUnit; default; //Use instead of Items[.]
     procedure RemoveUnit(aUnit: TKMUnit);
-    procedure OwnerUpdate(aOwner: TPlayerIndex);
+    procedure OwnerUpdate(aOwner: THandIndex);
     function HitTest(X, Y: Integer; const UT: TUnitType = ut_Any): TKMUnit;
     function GetUnitByUID(aUID: Integer): TKMUnit;
     function GetClosestUnit(aPoint: TKMPoint): TKMUnit;
@@ -290,7 +290,7 @@ type
 implementation
 uses
   KM_CommonTypes, KM_Game, KM_RenderPool, KM_RenderAux, KM_ResTexts, KM_Scripting,
-  KM_PlayersCollection, KM_FogOfWar, KM_Units_Warrior, KM_Resource, KM_Log, KM_ResUnits,
+  KM_HandsCollection, KM_FogOfWar, KM_Units_Warrior, KM_Resource, KM_Log, KM_ResUnits,
 
   KM_UnitActionAbandonWalk,
   KM_UnitActionFight,
@@ -318,7 +318,7 @@ function TKMUnitCitizen.FindHome: Boolean;
 var H: TKMHouse;
 begin
   Result:=false;
-  H := gPlayers[fOwner].Houses.FindEmptyHouse(fUnitType, fCurrPosition);
+  H := gHands[fOwner].Houses.FindEmptyHouse(fUnitType, fCurrPosition);
   if H <> nil then
   begin
     fHome  := H.GetHousePointer;
@@ -353,16 +353,16 @@ begin
   case fCurrentAction.fActionType of
     ua_Walk:
       begin
-        fRenderPool.AddUnit(fUnitType, ID, ua_Walk, Direction, AnimStep, XPaintPos, YPaintPos, gPlayers[fOwner].FlagColor, true);
+        fRenderPool.AddUnit(fUnitType, ID, ua_Walk, Direction, AnimStep, XPaintPos, YPaintPos, gHands[fOwner].FlagColor, true);
         if fResource.UnitDat[fUnitType].SupportsAction(ua_WalkArm) then
-          fRenderPool.AddUnit(fUnitType, ID, ua_WalkArm, Direction, AnimStep, XPaintPos, YPaintPos, gPlayers[fOwner].FlagColor, false);
+          fRenderPool.AddUnit(fUnitType, ID, ua_WalkArm, Direction, AnimStep, XPaintPos, YPaintPos, gHands[fOwner].FlagColor, false);
       end;
     ua_Work..ua_Eat:
-        fRenderPool.AddUnit(fUnitType, ID, Act, Direction, AnimStep, XPaintPos, YPaintPos, gPlayers[fOwner].FlagColor, true);
+        fRenderPool.AddUnit(fUnitType, ID, Act, Direction, AnimStep, XPaintPos, YPaintPos, gHands[fOwner].FlagColor, true);
     ua_WalkArm .. ua_WalkBooty2:
       begin
-        fRenderPool.AddUnit(fUnitType, ID, ua_Walk, Direction, AnimStep, XPaintPos, YPaintPos, gPlayers[fOwner].FlagColor, true);
-        fRenderPool.AddUnit(fUnitType, ID, Act, Direction, AnimStep, XPaintPos, YPaintPos, gPlayers[fOwner].FlagColor, false);
+        fRenderPool.AddUnit(fUnitType, ID, ua_Walk, Direction, AnimStep, XPaintPos, YPaintPos, gHands[fOwner].FlagColor, true);
+        fRenderPool.AddUnit(fUnitType, ID, Act, Direction, AnimStep, XPaintPos, YPaintPos, gHands[fOwner].FlagColor, false);
       end;
   end;
 
@@ -380,9 +380,9 @@ begin
                           //Woodcutters should not plant trees on our own or our ally's house plans
                           //(it's very annoying if they do)
                           Result := True;
-                          for I := 0 to gPlayers.Count - 1 do
-                            if (I = fOwner) or (gPlayers[fOwner].Alliances[I] = at_Ally) then
-                              Result := Result and not gPlayers[I].BuildList.HousePlanList.HasPlan(aLoc);
+                          for I := 0 to gHands.Count - 1 do
+                            if (I = fOwner) or (gHands[fOwner].Alliances[I] = at_Ally) then
+                              Result := Result and not gHands[I].BuildList.HousePlanList.HasPlan(aLoc);
                         end;
     else Result := True;
   end;
@@ -416,7 +416,7 @@ begin
     if (UnitTask is TTaskMining) and (GetUnitAction is TUnitActionStay) and (fInHouse = fHome) then
       SetActionStay(0, ua_Walk); //If we were working inside the house stop
     FreeAndNil(fUnitTask);
-    gPlayers.CleanUpHousePointer(fHome);
+    gHands.CleanUpHousePointer(fHome);
   end;
 
   if inherited UpdateState then exit;
@@ -435,7 +435,7 @@ begin
   //See if need to get to eat
   if fCondition < UNIT_MIN_CONDITION then
   begin
-    H := gPlayers[fOwner].FindInn(fCurrPosition,Self,not fVisible);
+    H := gHands[fOwner].FindInn(fCurrPosition,Self,not fVisible);
     if H <> nil then
       fUnitTask := TTaskGoEat.Create(H, Self)
     else
@@ -489,7 +489,7 @@ begin
 
   Assert(Msg <> 0, fResource.HouseDat[fHome.HouseType].HouseName+' resource cant possibly deplet');
 
-  if (fOwner = MySpectator.PlayerIndex) and not fGame.IsReplay then //Don't show message for other players or during replays
+  if (fOwner = MySpectator.HandIndex) and not fGame.IsReplay then //Don't show message for other players or during replays
     fGame.ShowMessage(mkHouse, gResTexts[Msg], fHome.GetEntrance);
 
   fHome.ResourceDepletedMsgIssued := True;
@@ -542,7 +542,7 @@ function TKMUnitRecruit.FindHome: Boolean;
 var H: TKMHouse;
 begin
   Result  := false;
-  H := gPlayers[fOwner].Houses.FindEmptyHouse(fUnitType, fCurrPosition);
+  H := gHands[fOwner].Houses.FindEmptyHouse(fUnitType, fCurrPosition);
   if H <> nil then
   begin
     fHome  := H.GetHousePointer;
@@ -570,16 +570,16 @@ begin
   case fCurrentAction.fActionType of
     ua_Walk:
       begin
-        fRenderPool.AddUnit(fUnitType, ID, ua_Walk, Direction, AnimStep, XPaintPos, YPaintPos, gPlayers[fOwner].FlagColor, true);
+        fRenderPool.AddUnit(fUnitType, ID, ua_Walk, Direction, AnimStep, XPaintPos, YPaintPos, gHands[fOwner].FlagColor, true);
         if fResource.UnitDat[fUnitType].SupportsAction(ua_WalkArm) then
-          fRenderPool.AddUnit(fUnitType, ID, ua_WalkArm, Direction, AnimStep, XPaintPos, YPaintPos, gPlayers[fOwner].FlagColor, false);
+          fRenderPool.AddUnit(fUnitType, ID, ua_WalkArm, Direction, AnimStep, XPaintPos, YPaintPos, gHands[fOwner].FlagColor, false);
       end;
     ua_Work..ua_Eat:
-        fRenderPool.AddUnit(fUnitType, ID, Act, Direction, AnimStep, XPaintPos, YPaintPos, gPlayers[fOwner].FlagColor, true);
+        fRenderPool.AddUnit(fUnitType, ID, Act, Direction, AnimStep, XPaintPos, YPaintPos, gHands[fOwner].FlagColor, true);
     ua_WalkArm .. ua_WalkBooty2:
       begin
-        fRenderPool.AddUnit(fUnitType, ID, ua_Walk, Direction, AnimStep, XPaintPos, YPaintPos, gPlayers[fOwner].FlagColor, true);
-        fRenderPool.AddUnit(fUnitType, ID, Act, Direction, AnimStep, XPaintPos, YPaintPos, gPlayers[fOwner].FlagColor, false);
+        fRenderPool.AddUnit(fUnitType, ID, ua_Walk, Direction, AnimStep, XPaintPos, YPaintPos, gHands[fOwner].FlagColor, true);
+        fRenderPool.AddUnit(fUnitType, ID, Act, Direction, AnimStep, XPaintPos, YPaintPos, gHands[fOwner].FlagColor, false);
       end;
   end;
 
@@ -615,7 +615,7 @@ begin
     and not TUnitActionWalkTo(GetUnitAction).DoingExchange then
       AbandonWalk;
     FreeAndNil(fUnitTask);
-    gPlayers.CleanUpHousePointer(fHome);
+    gHands.CleanUpHousePointer(fHome);
   end;
 
   if inherited UpdateState then exit;
@@ -625,7 +625,7 @@ begin
 
   if fCondition < UNIT_MIN_CONDITION then
   begin
-    H := gPlayers[fOwner].FindInn(fCurrPosition,Self,not fVisible);
+    H := gHands[fOwner].FindInn(fCurrPosition,Self,not fVisible);
     if H <> nil then
       fUnitTask := TTaskGoEat.Create(H,Self)
     else
@@ -680,7 +680,7 @@ end;
 
 
 { TKMSerf }
-constructor TKMUnitSerf.Create(aID: Cardinal; aUnitType: TUnitType; aLoc: TKMPoint; aOwner: TPlayerIndex);
+constructor TKMUnitSerf.Create(aID: Cardinal; aUnitType: TUnitType; aLoc: TKMPoint; aOwner: THandIndex);
 begin
   inherited;
   fCarry := wt_None;
@@ -707,7 +707,7 @@ begin
   //Remember current task
   T := fUnitTask;
   //Try to get a new one
-  gPlayers[Owner].Deliveries.Queue.AskForDelivery(Self, aFrom);
+  gHands[Owner].Deliveries.Queue.AskForDelivery(Self, aFrom);
 
   //Return True if we've got a new deliery
   Result := fUnitTask <> T;
@@ -741,14 +741,14 @@ begin
 
   ID := fUID * Byte(not (fCurrentAction.fActionType in [ua_Die, ua_Eat]));
 
-  fRenderPool.AddUnit(UnitType, ID, Act, Direction, AnimStep, XPaintPos, YPaintPos, gPlayers[fOwner].FlagColor, true);
+  fRenderPool.AddUnit(UnitType, ID, Act, Direction, AnimStep, XPaintPos, YPaintPos, gHands[fOwner].FlagColor, true);
 
   if fUnitTask is TTaskDie then Exit; //Do not show unnecessary arms
 
   if Carry <> wt_None then
     fRenderPool.AddUnitCarry(Carry, ID, Direction, AnimStep, XPaintPos, YPaintPos)
   else
-    fRenderPool.AddUnit(UnitType, ID, ua_WalkArm, Direction, AnimStep, XPaintPos, YPaintPos, gPlayers[fOwner].FlagColor, false);
+    fRenderPool.AddUnit(UnitType, ID, ua_WalkArm, Direction, AnimStep, XPaintPos, YPaintPos, gHands[fOwner].FlagColor, false);
 
   if fThought <> th_None then
     fRenderPool.AddUnitThought(fUnitType, Act, Direction, fThought, XPaintPos, YPaintPos);
@@ -778,7 +778,7 @@ begin
 
   if fCondition < UNIT_MIN_CONDITION then
   begin
-    H := gPlayers[fOwner].FindInn(fCurrPosition, Self);
+    H := gHands[fOwner].FindInn(fCurrPosition, Self);
     if H <> nil then
       fUnitTask := TTaskGoEat.Create(H, Self);
   end;
@@ -891,7 +891,7 @@ begin
 
   ID := fUID * Byte(not (fCurrentAction.fActionType in [ua_Die, ua_Eat]));
 
-  fRenderPool.AddUnit(UnitType, ID, fCurrentAction.fActionType, Direction, AnimStep, XPaintPos, YPaintPos, gPlayers[fOwner].FlagColor, true);
+  fRenderPool.AddUnit(UnitType, ID, fCurrentAction.fActionType, Direction, AnimStep, XPaintPos, YPaintPos, gHands[fOwner].FlagColor, true);
 
   if fThought <> th_None then
     fRenderPool.AddUnitThought(fUnitType, fCurrentAction.ActionType, Direction, fThought, XPaintPos, YPaintPos);
@@ -908,7 +908,7 @@ begin
 
   if fCondition < UNIT_MIN_CONDITION then
   begin
-    H := gPlayers[fOwner].FindInn(fCurrPosition, Self);
+    H := gHands[fOwner].FindInn(fCurrPosition, Self);
     if H <> nil then
       fUnitTask := TTaskGoEat.Create(H, Self);
   end;
@@ -926,7 +926,7 @@ end;
 
 
 { TKMUnitAnimal }
-constructor TKMUnitAnimal.Create(aID: Cardinal; aUnitType: TUnitType; aLoc: TKMPoint; aOwner: TPlayerIndex);
+constructor TKMUnitAnimal.Create(aID: Cardinal; aUnitType: TUnitType; aLoc: TKMPoint; aOwner: THandIndex);
 begin
   inherited;
 
@@ -1031,7 +1031,7 @@ end;
 
 
 { TKMUnit }
-constructor TKMUnit.Create(aID: Cardinal; aUnitType: TUnitType; aLoc: TKMPoint; aOwner: TPlayerIndex);
+constructor TKMUnit.Create(aID: Cardinal; aUnitType: TUnitType; aLoc: TKMPoint; aOwner: THandIndex);
 begin
   inherited Create;
   fUID           := aID;
@@ -1065,8 +1065,8 @@ begin
   gTerrain.UnitAdd(NextPosition,Self);
 
   //The area around the unit should be visible at the start of the mission
-  if InRange(fOwner, 0, MAX_PLAYERS-1) then //Not animals
-    gPlayers.RevealForTeam(fOwner, fCurrPosition, fResource.UnitDat[fUnitType].Sight, FOG_OF_WAR_MAX);
+  if InRange(fOwner, 0, MAX_HANDS-1) then //Not animals
+    gHands.RevealForTeam(fOwner, fCurrPosition, fResource.UnitDat[fUnitType].Sight, FOG_OF_WAR_MAX);
 end;
 
 
@@ -1158,8 +1158,8 @@ procedure TKMUnit.SyncLoad;
 begin
   if fUnitTask<>nil then fUnitTask.SyncLoad;
   if fCurrentAction<>nil then fCurrentAction.SyncLoad;
-  fHome := gPlayers.GetHouseByUID(cardinal(fHome));
-  fInHouse := gPlayers.GetHouseByUID(cardinal(fInHouse));
+  fHome := gHands.GetHouseByUID(cardinal(fHome));
+  fInHouse := gHands.GetHouseByUID(cardinal(fInHouse));
 end;
 
 
@@ -1178,7 +1178,7 @@ end;
 
 
 {Decreases the pointer counter}
-//Should be used only by fPlayers for clarity sake
+//Should be used only by gHands for clarity sake
 procedure TKMUnit.ReleaseUnitPointer;
 begin
   if fPointerCount < 1 then
@@ -1196,7 +1196,7 @@ begin
   if fHome <> nil then
   begin
     fHome.GetHasOwner := False;
-    gPlayers.CleanUpHousePointer(fHome);
+    gHands.CleanUpHousePointer(fHome);
   end;
 
   if aRemoveTileUsage then gTerrain.UnitRem(fNextPosition); //Must happen before we nil NextPosition
@@ -1227,7 +1227,7 @@ end;
 // Kill - release all unit-specific tasks
 // TTaskDie - perform dying animation
 // CloseUnit - erase all unit data and hide it from further access
-procedure TKMUnit.KillUnit(aFrom: TPlayerIndex; aShowAnimation, aForceDelay: Boolean);
+procedure TKMUnit.KillUnit(aFrom: THandIndex; aShowAnimation, aForceDelay: Boolean);
 begin
   //Don't kill unit if it's already dying
   if IsDeadOrDying then
@@ -1291,7 +1291,7 @@ end;
 
 
 //Return TRUE if unit was killed
-procedure TKMUnit.HitPointsDecrease(aAmount: Byte; aFrom: TPlayerIndex);
+procedure TKMUnit.HitPointsDecrease(aAmount: Byte; aFrom: THandIndex);
 begin
   Assert(aAmount > 0, '0 damage should be handled outside so not to reset HPCounter');
 
@@ -1325,7 +1325,7 @@ end;
 
 procedure TKMUnit.SetInHouse(aInHouse: TKMHouse);
 begin
-  gPlayers.CleanUpHousePointer(fInHouse);
+  gHands.CleanUpHousePointer(fInHouse);
   if aInHouse <> nil then
     fInHouse := aInHouse.GetHousePointer;
 end;
@@ -1349,7 +1349,7 @@ begin
   fNextPosition := aLoc;
   //If we're not using dynamic fog of war we only need to update it when the unit steps on a new tile
   if not DYNAMIC_FOG_OF_WAR and (fOwner <> PLAYER_ANIMAL) then
-    gPlayers.RevealForTeam(fOwner, fCurrPosition, fResource.UnitDat[fUnitType].Sight, FOG_OF_WAR_INC);
+    gHands.RevealForTeam(fOwner, fCurrPosition, fResource.UnitDat[fUnitType].Sight, FOG_OF_WAR_INC);
 end;
 
 
@@ -1608,7 +1608,7 @@ end;
 
 function TKMUnit.CanGoEat: Boolean;
 begin
-  Result := gPlayers[fOwner].FindInn(fCurrPosition,Self) <> nil;
+  Result := gHands[fOwner].FindInn(fCurrPosition,Self) <> nil;
 end;
 
 
@@ -1699,13 +1699,13 @@ begin
     or (TUnitActionGoInOut(GetUnitAction).GetWaitingForPush) then
     begin
       //Position in a spiral nearest to entrance of house, updating IsUnit.
-      if not gPlayers.FindPlaceForUnit(fInHouse.GetEntrance.X, fInHouse.GetEntrance.Y, UnitType, fCurrPosition, gTerrain.GetWalkConnectID(fInHouse.GetEntrance)) then
+      if not gHands.FindPlaceForUnit(fInHouse.GetEntrance.X, fInHouse.GetEntrance.Y, UnitType, fCurrPosition, gTerrain.GetWalkConnectID(fInHouse.GetEntrance)) then
       begin
         //There is no space for this unit so it must be destroyed
         //todo: re-route to KillUnit and let it sort out that unit is invisible and cant be placed
-        if (gPlayers <> nil) and (fOwner <> PLAYER_NONE) then
+        if (gHands <> nil) and (fOwner <> PLAYER_NONE) then
         begin
-          gPlayers[fOwner].Stats.UnitLost(fUnitType);
+          gHands[fOwner].Stats.UnitLost(fUnitType);
           fScripting.ProcUnitDied(Self, -1);
         end;
         CloseUnit(False); //Close the unit without removing tile usage (because this unit was in a house it has none)
@@ -1967,7 +1967,7 @@ begin
 
   //We only need to update fog of war regularly if we're using dynamic fog of war, otherwise only update it when the unit moves
   if DYNAMIC_FOG_OF_WAR and (fTicker mod 10 = 0) then
-    gPlayers.RevealForTeam(fOwner, fCurrPosition, fResource.UnitDat[fUnitType].Sight, FOG_OF_WAR_INC);
+    gHands.RevealForTeam(fOwner, fCurrPosition, fResource.UnitDat[fUnitType].Sight, FOG_OF_WAR_INC);
 
   UpdateThoughts;
   UpdateHitPoints;
@@ -2050,14 +2050,14 @@ end;
 
 procedure TUnitTask.SyncLoad;
 begin
-  fUnit := gPlayers.GetUnitByUID(cardinal(fUnit));
+  fUnit := gHands.GetUnitByUID(cardinal(fUnit));
 end;
 
 
 destructor TUnitTask.Destroy;
 begin
   fUnit.Thought := th_None; //Stop any thoughts
-  gPlayers.CleanUpUnitPointer(fUnit);
+  gHands.CleanUpUnitPointer(fUnit);
   fPhase        := high(byte)-1; //-1 so that if it is increased on the next run it won't overrun before exiting
   fPhase2       := high(byte)-1;
   inherited;
@@ -2108,7 +2108,7 @@ end;
 
 procedure TUnitAction.SyncLoad;
 begin
-  fUnit := gPlayers.GetUnitByUID(cardinal(fUnit));
+  fUnit := gHands.GetUnitByUID(cardinal(fUnit));
 end;
 
 
@@ -2160,7 +2160,7 @@ end;
 
 
 //AutoPlace means we should try to find a spot for this unit instead of just placing it where we were told to
-function TKMUnitsCollection.AddUnit(aOwner: TPlayerIndex; aUnitType: TUnitType; aLoc: TKMPoint; aAutoPlace: Boolean = True; aRequiredWalkConnect: Byte = 0): TKMUnit;
+function TKMUnitsCollection.AddUnit(aOwner: THandIndex; aUnitType: TUnitType; aLoc: TKMPoint; aAutoPlace: Boolean = True; aRequiredWalkConnect: Byte = 0): TKMUnit;
 var
   ID: Cardinal;
   PlaceTo: TKMPoint;
@@ -2170,7 +2170,7 @@ begin
     PlaceTo := KMPoint(0,0); // Will have 0:0 if no place found
     if aRequiredWalkConnect = 0 then
       aRequiredWalkConnect := gTerrain.GetWalkConnectID(aLoc);
-    gPlayers.FindPlaceForUnit(aLoc.X, aLoc.Y, aUnitType, PlaceTo, aRequiredWalkConnect);
+    gHands.FindPlaceForUnit(aLoc.X, aLoc.Y, aUnitType, PlaceTo, aRequiredWalkConnect);
   end
   else
     PlaceTo := aLoc;
@@ -2214,7 +2214,7 @@ begin
 end;
 
 
-procedure TKMUnitsCollection.OwnerUpdate(aOwner: TPlayerIndex);
+procedure TKMUnitsCollection.OwnerUpdate(aOwner: THandIndex);
 var I: Integer;
 begin
   for I := 0 to Count - 1 do

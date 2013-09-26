@@ -11,7 +11,7 @@ type
 
   TKMMapEdMarker = record
     MarkerType: TMarkerType;
-    Owner: TPlayerIndex;
+    Owner: THandIndex;
     Index: SmallInt;
   end;
 
@@ -21,17 +21,17 @@ type
     fTerrainPainter: TKMTerrainPainter;
     fDeposits: TKMDeposits;
     fSelection: TKMSelection;
-    fRevealers: array [0..MAX_PLAYERS-1] of TKMPointTagList;
+    fRevealers: array [0..MAX_HANDS-1] of TKMPointTagList;
     fVisibleLayers: TMapEdLayerSet;
 
     function GetRevealer(aIndex: Byte): TKMPointTagList;
   public
     //ActiveMarker: TKMMapEdMarker;
 
-    RevealAll: array [0..MAX_PLAYERS-1] of Boolean;
-    DefaultHuman: TPlayerIndex;
-    PlayerHuman: array [0..MAX_PLAYERS - 1] of Boolean;
-    PlayerAI: array [0..MAX_PLAYERS - 1] of Boolean;
+    RevealAll: array [0..MAX_HANDS-1] of Boolean;
+    DefaultHuman: THandIndex;
+    PlayerHuman: array [0..MAX_HANDS - 1] of Boolean;
+    PlayerAI: array [0..MAX_HANDS - 1] of Boolean;
     constructor Create;
     destructor Destroy; override;
     property TerrainPainter: TKMTerrainPainter read fTerrainPainter;
@@ -51,7 +51,7 @@ type
 
 
 implementation
-uses KM_PlayersCollection, KM_RenderAux, KM_AIDefensePos, KM_UnitGroups, KM_GameCursor, KM_ResHouses;
+uses KM_HandsCollection, KM_RenderAux, KM_AIDefensePos, KM_UnitGroups, KM_GameCursor, KM_ResHouses;
 
 
 { TKMMapEditor }
@@ -61,7 +61,7 @@ var
 begin
   inherited Create;
 
-  for I := 0 to MAX_PLAYERS - 1 do
+  for I := 0 to MAX_HANDS - 1 do
   begin
     PlayerHuman[I] := true;
     PlayerAI[I] := true;
@@ -105,10 +105,10 @@ var I,K: Integer;
 begin
   if mlDefences in fVisibleLayers then
   begin
-    for I := 0 to gPlayers.Count - 1 do
-      for K := 0 to gPlayers[I].AI.General.DefencePositions.Count - 1 do
-        if (gPlayers[I].AI.General.DefencePositions[K].Position.Loc.X = X)
-        and (gPlayers[I].AI.General.DefencePositions[K].Position.Loc.Y = Y) then
+    for I := 0 to gHands.Count - 1 do
+      for K := 0 to gHands[I].AI.General.DefencePositions.Count - 1 do
+        if (gHands[I].AI.General.DefencePositions[K].Position.Loc.X = X)
+        and (gHands[I].AI.General.DefencePositions[K].Position.Loc.Y = Y) then
         begin
           Result.MarkerType := mtDefence;
           Result.Owner := I;
@@ -119,7 +119,7 @@ begin
 
   if mlRevealFOW in fVisibleLayers then
   begin
-    for I := 0 to gPlayers.Count - 1 do
+    for I := 0 to gHands.Count - 1 do
       for K := 0 to fRevealers[I].Count - 1 do
         if (fRevealers[I][K].X = X) and (fRevealers[I][K].Y = Y) then
         begin
@@ -166,20 +166,20 @@ begin
   begin
     P := GameCursor.Cell;
     case GameCursor.Mode of
-      cmRoad:       if gPlayers[MySpectator.PlayerIndex].CanAddFieldPlan(P, ft_Road) then
+      cmRoad:       if gHands[MySpectator.HandIndex].CanAddFieldPlan(P, ft_Road) then
                     begin
                       //If there's a field remove it first so we don't get road on top of the field tile (undesired in MapEd)
                       if gTerrain.TileIsCornField(P) or gTerrain.TileIsWineField(P) then
                         gTerrain.RemField(P);
-                      gPlayers[MySpectator.PlayerIndex].AddField(P, ft_Road);
+                      gHands[MySpectator.HandIndex].AddField(P, ft_Road);
                     end;
-      cmField:      if gPlayers[MySpectator.PlayerIndex].CanAddFieldPlan(P, ft_Corn) then
-                      gPlayers[MySpectator.PlayerIndex].AddField(P, ft_Corn);
-      cmWine:       if gPlayers[MySpectator.PlayerIndex].CanAddFieldPlan(P, ft_Wine) then
-                      gPlayers[MySpectator.PlayerIndex].AddField(P, ft_Wine);
-      cmUnits:      if GameCursor.Tag1 = 255 then gPlayers.RemAnyUnit(P);
+      cmField:      if gHands[MySpectator.HandIndex].CanAddFieldPlan(P, ft_Corn) then
+                      gHands[MySpectator.HandIndex].AddField(P, ft_Corn);
+      cmWine:       if gHands[MySpectator.HandIndex].CanAddFieldPlan(P, ft_Wine) then
+                      gHands[MySpectator.HandIndex].AddField(P, ft_Wine);
+      cmUnits:      if GameCursor.Tag1 = 255 then gHands.RemAnyUnit(P);
       cmErase:      begin
-                      gPlayers.RemAnyHouse(P);
+                      gHands.RemAnyHouse(P);
                       if gTerrain.Land[P.Y,P.X].TileOverlay = to_Road then
                         gTerrain.RemRoad(P);
                       if gTerrain.TileIsCornField(P) or gTerrain.TileIsWineField(P) then
@@ -198,20 +198,20 @@ begin
   P := GameCursor.Cell; //Get cursor position tile-wise
   case Button of
     mbLeft:   case GameCursor.Mode of
-                cmRoad:       if gPlayers[MySpectator.PlayerIndex].CanAddFieldPlan(P, ft_Road) then
+                cmRoad:       if gHands[MySpectator.HandIndex].CanAddFieldPlan(P, ft_Road) then
                               begin
                                 //If there's a field remove it first so we don't get road on top of the field tile (undesired in MapEd)
                                 if gTerrain.TileIsCornField(P) or gTerrain.TileIsWineField(P) then
                                   gTerrain.RemField(P);
-                                gPlayers[MySpectator.PlayerIndex].AddField(P, ft_Road);
+                                gHands[MySpectator.HandIndex].AddField(P, ft_Road);
                               end;
-                cmField:      if gPlayers[MySpectator.PlayerIndex].CanAddFieldPlan(P, ft_Corn) then
-                                gPlayers[MySpectator.PlayerIndex].AddField(P, ft_Corn);
-                cmWine:       if gPlayers[MySpectator.PlayerIndex].CanAddFieldPlan(P, ft_Wine) then
-                                gPlayers[MySpectator.PlayerIndex].AddField(P, ft_Wine);
-                cmHouses:     if gPlayers[MySpectator.PlayerIndex].CanAddHousePlan(P, THouseType(GameCursor.Tag1)) then
+                cmField:      if gHands[MySpectator.HandIndex].CanAddFieldPlan(P, ft_Corn) then
+                                gHands[MySpectator.HandIndex].AddField(P, ft_Corn);
+                cmWine:       if gHands[MySpectator.HandIndex].CanAddFieldPlan(P, ft_Wine) then
+                                gHands[MySpectator.HandIndex].AddField(P, ft_Wine);
+                cmHouses:     if gHands[MySpectator.HandIndex].CanAddHousePlan(P, THouseType(GameCursor.Tag1)) then
                               begin
-                                gPlayers[MySpectator.PlayerIndex].AddHouse(THouseType(GameCursor.Tag1), P.X, P.Y, true);
+                                gHands[MySpectator.HandIndex].AddHouse(THouseType(GameCursor.Tag1), P.X, P.Y, true);
                                 //Holding shift allows to place that house multiple times
                                 if not (ssShift in GameCursor.SState) then
                                   GameCursor.Mode := cmRoad;
@@ -221,29 +221,29 @@ begin
                 cmTiles:      fTerrainPainter.MakeCheckpoint;
                 cmMagicWater: fTerrainPainter.MagicWater(P);
                 cmUnits:      if GameCursor.Tag1 = 255 then
-                                gPlayers.RemAnyUnit(P)
+                                gHands.RemAnyUnit(P)
                               else
                               if gTerrain.CanPlaceUnit(P, TUnitType(GameCursor.Tag1)) then
                               begin
                                 //Check if we can really add a unit
                                 if TUnitType(GameCursor.Tag1) in [CITIZEN_MIN..CITIZEN_MAX] then
-                                  gPlayers[MySpectator.PlayerIndex].AddUnit(TUnitType(GameCursor.Tag1), P, False)
+                                  gHands[MySpectator.HandIndex].AddUnit(TUnitType(GameCursor.Tag1), P, False)
                                 else
                                 if TUnitType(GameCursor.Tag1) in [WARRIOR_MIN..WARRIOR_MAX] then
-                                  gPlayers[MySpectator.PlayerIndex].AddUnitGroup(TUnitType(GameCursor.Tag1), P, dir_S, 1, 1)
+                                  gHands[MySpectator.HandIndex].AddUnitGroup(TUnitType(GameCursor.Tag1), P, dir_S, 1, 1)
                                 else
-                                  gPlayers.PlayerAnimals.AddUnit(TUnitType(GameCursor.Tag1), P);
+                                  gHands.PlayerAnimals.AddUnit(TUnitType(GameCursor.Tag1), P);
                               end;
                 cmMarkers:    case GameCursor.Tag1 of
-                                MARKER_REVEAL:        fRevealers[MySpectator.PlayerIndex].Add(P, GameCursor.MapEdSize);
-                                MARKER_DEFENCE:       gPlayers[MySpectator.PlayerIndex].AI.General.DefencePositions.Add(KMPointDir(P, dir_N), gt_Melee, 10, adt_FrontLine);
+                                MARKER_REVEAL:        fRevealers[MySpectator.HandIndex].Add(P, GameCursor.MapEdSize);
+                                MARKER_DEFENCE:       gHands[MySpectator.HandIndex].AI.General.DefencePositions.Add(KMPointDir(P, dir_N), gt_Melee, 10, adt_FrontLine);
                                 MARKER_CENTERSCREEN:  begin
-                                                        gPlayers[MySpectator.PlayerIndex].CenterScreen := P;
+                                                        gHands[MySpectator.HandIndex].CenterScreen := P;
                                                         //Update XY display
                                                       end;
                               end;
                 cmErase:      begin
-                                gPlayers.RemAnyHouse(P);
+                                gHands.RemAnyHouse(P);
                                 if gTerrain.Land[P.Y,P.X].TileOverlay = to_Road then
                                   gTerrain.RemRoad(P);
                                 if gTerrain.TileIsCornField(P) or gTerrain.TileIsWineField(P) then
@@ -294,7 +294,7 @@ begin
   and (    gTerrain.TileIsCornField(P)
            or gTerrain.TileIsWineField(P)
            or (gTerrain.Land[P.Y,P.X].TileOverlay=to_Road)
-           or (gPlayers.HousesHitTest(P.X, P.Y) <> nil))
+           or (gHands.HousesHitTest(P.X, P.Y) <> nil))
   then
     fRenderPool.RenderWireTile(P, $FFFFFF00); //Cyan quad
 
@@ -302,11 +302,11 @@ begin
   if mlDefences in fVisibleLayers then
   begin
     if aLayer = plCursors then
-      for I := 0 to gPlayers.Count - 1 do
-      for K := 0 to gPlayers[I].AI.General.DefencePositions.Count - 1 do
+      for I := 0 to gHands.Count - 1 do
+      for K := 0 to gHands[I].AI.General.DefencePositions.Count - 1 do
       begin
-        DP := gPlayers[I].AI.General.DefencePositions[K];
-        fRenderPool.RenderSpriteOnTile(DP.Position.Loc, 510 + Byte(DP.Position.Dir), gPlayers[I].FlagColor);
+        DP := gHands[I].AI.General.DefencePositions[K];
+        fRenderPool.RenderSpriteOnTile(DP.Position.Loc, 510 + Byte(DP.Position.Dir), gHands[I].FlagColor);
       end;
 
     {if ActiveMarker.MarkerType = mtDefence then
@@ -320,30 +320,30 @@ begin
   end;
 
   if mlRevealFOW in fVisibleLayers then
-  for I := 0 to gPlayers.Count - 1 do
+  for I := 0 to gHands.Count - 1 do
   for K := 0 to fRevealers[I].Count - 1 do
   begin
     Loc := fRevealers[I][K];
     case aLayer of
       plTerrain:  fRenderAux.CircleOnTerrain(Loc.X, Loc.Y,
                                            fRevealers[I].Tag[K],
-                                           gPlayers[I].FlagColor and $20FFFFFF,
-                                           gPlayers[I].FlagColor);
+                                           gHands[I].FlagColor and $20FFFFFF,
+                                           gHands[I].FlagColor);
       plCursors:  fRenderPool.RenderSpriteOnTile(Loc,
-                      394, gPlayers[I].FlagColor);
+                      394, gHands[I].FlagColor);
     end;
   end;
 
   if mlCenterScreen in fVisibleLayers then
-  for I := 0 to gPlayers.Count - 1 do
+  for I := 0 to gHands.Count - 1 do
   begin
-    Loc := gPlayers[I].CenterScreen;
+    Loc := gHands[I].CenterScreen;
     case aLayer of
       plTerrain:  fRenderAux.SquareOnTerrain(Loc.X - 3, Loc.Y - 2.5,
                                              Loc.X + 2, Loc.Y + 1.5,
-                                             gPlayers[I].FlagColor);
+                                             gHands[I].FlagColor);
       plCursors:  fRenderPool.RenderSpriteOnTile(Loc,
-                      391, gPlayers[I].FlagColor);
+                      391, gHands[I].FlagColor);
     end;
   end;
 

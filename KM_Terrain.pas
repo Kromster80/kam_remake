@@ -60,7 +60,7 @@ type
       //Used to display half-dug road
       TileOverlay: TTileOverlay; //fs_None fs_Dig1, fs_Dig2, fs_Dig3, fs_Dig4 +Roads
 
-      TileOwner: TPlayerIndex; //Who owns the tile by having a house/road/field on it
+      TileOwner: THandIndex; //Who owns the tile by having a house/road/field on it
       IsUnit: Pointer; //Whenever there's a unit on that tile mark the tile as occupied and count the number
       IsVertexUnit: TKMVertexUsage; //Whether there are units blocking the vertex. (walking diagonally or fighting)
 
@@ -91,12 +91,12 @@ type
 
     procedure SetTileLock(aLoc: TKMPoint; aTileLock: TTileLock);
     procedure UnlockTile(aLoc: TKMPoint);
-    procedure SetRoads(aList: TKMPointList; aOwner: TPlayerIndex; aUpdateWalkConnects: Boolean = True);
-    procedure SetField(Loc: TKMPoint; aOwner: TPlayerIndex; aFieldType: TFieldType);
-    procedure SetHouse(Loc: TKMPoint; aHouseType: THouseType; aHouseStage: THouseStage; aOwner: TPlayerIndex; const aFlattenTerrain: Boolean = False);
-    procedure SetHouseAreaOwner(Loc: TKMPoint; aHouseType: THouseType; aOwner: TPlayerIndex);
+    procedure SetRoads(aList: TKMPointList; aOwner: THandIndex; aUpdateWalkConnects: Boolean = True);
+    procedure SetField(Loc: TKMPoint; aOwner: THandIndex; aFieldType: TFieldType);
+    procedure SetHouse(Loc: TKMPoint; aHouseType: THouseType; aHouseStage: THouseStage; aOwner: THandIndex; const aFlattenTerrain: Boolean = False);
+    procedure SetHouseAreaOwner(Loc: TKMPoint; aHouseType: THouseType; aOwner: THandIndex);
 
-    procedure RemovePlayer(aPlayer: TPlayerIndex);
+    procedure RemovePlayer(aPlayer: THandIndex);
     procedure RemRoad(Loc: TKMPoint);
     procedure RemField(Loc: TKMPoint);
     procedure IncDigState(Loc: TKMPoint);
@@ -180,7 +180,7 @@ type
     function TileIsLocked(aLoc: TKMPoint): Boolean;
     function UnitsHitTest(X, Y: Word): Pointer;
     function UnitsHitTestF(aLoc: TKMPointF): Pointer;
-    function UnitsHitTestWithinRad(aLoc: TKMPoint; MinRad, MaxRad: Single; aPlayer: TPlayerIndex; aAlliance: TAllianceType; Dir: TKMDirection; const aClosest: Boolean): Pointer;
+    function UnitsHitTestWithinRad(aLoc: TKMPoint; MinRad, MaxRad: Single; aPlayer: THandIndex; aAlliance: TAllianceType; Dir: TKMDirection; const aClosest: Boolean): Pointer;
 
     function ObjectIsChopableTree(X,Y: Word): Boolean; overload;
     function ObjectIsChopableTree(Loc: TKMPoint; aStage: TChopableAge): Boolean; overload;
@@ -217,7 +217,7 @@ var
 
 
 implementation
-uses KM_Log, KM_PlayersCollection, KM_TerrainWalkConnect,
+uses KM_Log, KM_HandsCollection, KM_TerrainWalkConnect,
   KM_Resource, KM_Units, KM_ResSound, KM_Sound, KM_UnitActionStay, KM_Units_Warrior;
 
 
@@ -720,7 +720,7 @@ end;
 { Should scan withing given radius and return closest unit with given Alliance status
   Should be optimized versus usual UnitsHitTest
   Prefer Warriors over Citizens}
-function TKMTerrain.UnitsHitTestWithinRad(aLoc: TKMPoint; MinRad, MaxRad: Single; aPlayer: TPlayerIndex; aAlliance: TAllianceType; Dir: TKMDirection; const aClosest: Boolean): Pointer;
+function TKMTerrain.UnitsHitTestWithinRad(aLoc: TKMPoint; MinRad, MaxRad: Single; aPlayer: THandIndex; aAlliance: TAllianceType; Dir: TKMDirection; const aClosest: Boolean): Pointer;
 type
   TKMUnitArray = array of TKMUnit;
   procedure Append(var aArray: TKMUnitArray; var aCount: Integer; const aUnit: TKMUnit);
@@ -774,7 +774,7 @@ begin
 
     //Alliance is the check that will invalidate most candidates, so do it early on
     if (U = nil)
-    or (gPlayers.CheckAlliance(aPlayer, U.Owner) <> aAlliance) //How do WE feel about enemy, not how they feel about us
+    or (gHands.CheckAlliance(aPlayer, U.Owner) <> aAlliance) //How do WE feel about enemy, not how they feel about us
     or U.IsDeadOrDying
     or not U.Visible then //Inside of house
       Continue;
@@ -787,7 +787,7 @@ begin
     //In KaM archers can shoot further than sight radius (shoot further into explored areas)
     //so CheckTileRevelation is required, we can't remove it to optimise.
     //But because it will not invalidate many candidates, check it late so other checks can do their work first
-    if (gPlayers[aPlayer].FogOfWar.CheckTileRevelation(K,I) <> 255) then Continue;
+    if (gHands[aPlayer].FogOfWar.CheckTileRevelation(K,I) <> 255) then Continue;
 
     //This unit could be on a different tile next to KMPoint(k,i), so we cannot use that anymore.
     //There was a crash caused by VertexUsageCompatible checking (k,i) instead of U.GetPosition.
@@ -928,7 +928,7 @@ begin
 end;
 
 
-procedure TKMTerrain.SetRoads(aList: TKMPointList; aOwner: TPlayerIndex; aUpdateWalkConnects: Boolean = True);
+procedure TKMTerrain.SetRoads(aList: TKMPointList; aOwner: THandIndex; aUpdateWalkConnects: Boolean = True);
 var
   I: Integer;
   Bounds: TKMRect;
@@ -995,7 +995,7 @@ begin
 end;
 
 
-procedure TKMTerrain.RemovePlayer(aPlayer: TPlayerIndex);
+procedure TKMTerrain.RemovePlayer(aPlayer: THandIndex);
 var
   I, K: Word;
 begin
@@ -1009,7 +1009,7 @@ end;
 
 
 {Set field on tile - corn/wine}
-procedure TKMTerrain.SetField(Loc: TKMPoint; aOwner: TPlayerIndex; aFieldType: TFieldType);
+procedure TKMTerrain.SetField(Loc: TKMPoint; aOwner: THandIndex; aFieldType: TFieldType);
 begin
   Land[Loc.Y,Loc.X].TileOwner   := aOwner;
   Land[Loc.Y,Loc.X].TileOverlay := to_None;
@@ -1497,7 +1497,7 @@ end;
 
 function TKMTerrain.WaterHasFish(aLoc: TKMPoint): Boolean;
 begin
-  Result := (gPlayers.PlayerAnimals.GetFishInWaterBody(Land[aLoc.Y,aLoc.X].WalkConnect[wcFish],false) <> nil);
+  Result := (gHands.PlayerAnimals.GetFishInWaterBody(Land[aLoc.Y,aLoc.X].WalkConnect[wcFish],false) <> nil);
 end;
 
 
@@ -1506,7 +1506,7 @@ var MyFish: TKMUnitAnimal;
 begin
   //Here we are catching fish in the tile 1 in the direction
   aLoc.Loc := KMPoint(KMGetPointInDir(aLoc.Loc, aLoc.Dir));
-  MyFish := gPlayers.PlayerAnimals.GetFishInWaterBody(Land[aLoc.Loc.Y, aLoc.Loc.X].WalkConnect[wcFish], not TestOnly);
+  MyFish := gHands.PlayerAnimals.GetFishInWaterBody(Land[aLoc.Loc.Y, aLoc.Loc.X].WalkConnect[wcFish], not TestOnly);
   Result := (MyFish <> nil);
   if (not TestOnly) and (MyFish <> nil) then MyFish.ReduceFish; //This will reduce the count or kill it (if they're all gone)
 end;
@@ -1845,9 +1845,9 @@ var
   var
     DistNext: Single;
   begin
-    DistNext := gPlayers.DistanceToEnemyTowers(KMPoint(X,Y), U.Owner);
+    DistNext := gHands.DistanceToEnemyTowers(KMPoint(X,Y), U.Owner);
     Result := (DistNext > RANGE_WATCHTOWER_MAX)
-    or (DistNext >= gPlayers.DistanceToEnemyTowers(Loc, U.Owner));
+    or (DistNext >= gHands.DistanceToEnemyTowers(Loc, U.Owner));
   end;
 var
   I, K: Integer;
@@ -2286,7 +2286,7 @@ end;
 
 
 {Place house plan on terrain and change terrain properties accordingly}
-procedure TKMTerrain.SetHouse(Loc: TKMPoint; aHouseType: THouseType; aHouseStage: THouseStage; aOwner: TPlayerIndex; const aFlattenTerrain: Boolean = False);
+procedure TKMTerrain.SetHouse(Loc: TKMPoint; aHouseType: THouseType; aHouseStage: THouseStage; aOwner: THandIndex; const aFlattenTerrain: Boolean = False);
 var
   I, K, X, Y: Word;
   ToFlatten: TKMPointList;
@@ -2355,7 +2355,7 @@ end;
 
 
 {That is mainly used for minimap now}
-procedure TKMTerrain.SetHouseAreaOwner(Loc: TKMPoint; aHouseType: THouseType; aOwner: TPlayerIndex);
+procedure TKMTerrain.SetHouseAreaOwner(Loc: TKMPoint; aHouseType: THouseType; aOwner: THandIndex);
 var i,k:integer; HA: THouseArea;
 begin
   HA := fResource.HouseDat[aHouseType].BuildArea;
@@ -2400,7 +2400,7 @@ end;
 
 
 //Check that house can be placed on Terrain
-//Other checks are performed on Players level. Of course Terrain is not aware of that
+//Other checks are performed on Hands level. Of course Terrain is not aware of that
 function TKMTerrain.CanPlaceHouse(Loc: TKMPoint; aHouseType: THouseType): Boolean;
 var
   I,K,X,Y: Integer;
@@ -2779,7 +2779,7 @@ var
 begin
   for I := 1 to fMapY do
     for K := 1 to fMapX do
-      Land[I,K].IsUnit := gPlayers.GetUnitByUID(Cardinal(Land[I,K].IsUnit));
+      Land[I,K].IsUnit := gHands.GetUnitByUID(Cardinal(Land[I,K].IsUnit));
 end;
 
 

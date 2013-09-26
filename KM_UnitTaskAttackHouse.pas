@@ -24,7 +24,7 @@ type
 
 
 implementation
-uses KM_PlayersCollection, KM_ResSound, KM_Sound, KM_Resource, KM_Projectiles, KM_Game;
+uses KM_HandsCollection, KM_ResSound, KM_Sound, KM_Resource, KM_Projectiles, KM_Game;
 
 
 const
@@ -67,13 +67,13 @@ end;
 procedure TTaskAttackHouse.SyncLoad;
 begin
   inherited;
-  fHouse := gPlayers.GetHouseByUID(cardinal(fHouse));
+  fHouse := gHands.GetHouseByUID(cardinal(fHouse));
 end;
 
 
 destructor TTaskAttackHouse.Destroy;
 begin
-  gPlayers.CleanUpHousePointer(fHouse);
+  gHands.CleanUpHousePointer(fHouse);
   inherited;
 end;
 
@@ -157,7 +157,7 @@ begin
        end;
     2: begin
          //Let the house know it is being attacked
-         gPlayers[fHouse.Owner].AI.HouseAttackNotification(fHouse, TKMUnitWarrior(fUnit));
+         gHands[fHouse.Owner].AI.HouseAttackNotification(fHouse, TKMUnitWarrior(fUnit));
          fDestroyingHouse := True;
          if IsRanged then
            SetActionLockedStay(FIRING_DELAY, ua_Work, False, 0, 0) //Start shooting

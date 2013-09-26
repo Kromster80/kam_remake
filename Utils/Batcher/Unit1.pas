@@ -4,7 +4,7 @@ interface
 uses
   Windows, Classes, Controls, Forms, Math, StdCtrls, SysUtils, StrUtils,
   KM_Defaults, KM_CommonClasses, KM_Points, KromUtils,
-  KM_GameApp, KM_Log, KM_PlayersCollection,
+  KM_GameApp, KM_Log, KM_HandsCollection,
   KM_Maps, KM_MissionScript_Info, KM_Terrain, KM_Utils;
 
 
@@ -175,7 +175,7 @@ begin
   begin
     fGameApp.NewCampaignMap(fGameApp.Campaigns.CampaignByTitle('TPR'), I);
 
-    gPlayers[0].AI.Goals.ExportMessages(ExtractFilePath(ParamStr(0)) + Format('TPR%.2d.evt', [I+1]));
+    gHands[0].AI.Goals.ExportMessages(ExtractFilePath(ParamStr(0)) + Format('TPR%.2d.evt', [I+1]));
 
     fGameApp.Stop(gr_Silent);
   end;
@@ -331,7 +331,7 @@ var
   Txt: AnsiString;
   PlayerId, AiId: Integer;
   MP: TMissionParserPatcher;
-  PlayersSet: array [0 .. MAX_PLAYERS - 1] of Boolean;
+  PlayersSet: array [0 .. MAX_HANDS - 1] of Boolean;
   s: string;
 begin
   Memo1.Clear;
@@ -401,7 +401,7 @@ begin
       MP.SaveToFile(Txt, PathToMaps[I]);
 
       s := '';
-      for K := 0 to MAX_PLAYERS - 1 do
+      for K := 0 to MAX_HANDS - 1 do
         s := s + IfThen(PlayersSet[K], '1', '0');
 
       Memo1.Lines.Append(s + ' ' + TruncateExt(ExtractFileName(PathToMaps[I])));
@@ -559,7 +559,7 @@ var
   Txt: AnsiString;
   PlayerId: Integer;
   MP: TMissionParserPatcher;
-  PlayersSet: array [0 .. MAX_PLAYERS - 1] of Boolean;
+  PlayersSet: array [0 .. MAX_HANDS - 1] of Boolean;
   s: string;
 begin
   Memo1.Clear;
@@ -616,7 +616,7 @@ begin
       MP.SaveToFile(Txt, PathToMaps[I]);
 
       s := '';
-      for K := 0 to MAX_PLAYERS - 1 do
+      for K := 0 to MAX_HANDS - 1 do
         s := s + IfThen(PlayersSet[K], '1', '0');
 
       Memo1.Lines.Append(s + ' ' + TruncateExt(ExtractFileName(PathToMaps[I])));

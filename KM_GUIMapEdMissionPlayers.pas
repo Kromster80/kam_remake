@@ -13,8 +13,8 @@ type
     procedure Mission_PlayerIdUpdate;
   protected
     Panel_PlayerTypes: TKMPanel;
-    CheckBox_PlayerTypes: array [0..MAX_PLAYERS-1, 0..2] of TKMCheckBox;
-    Label_PlayerId : array [0..MAX_PLAYERS-1] of TKMLabel;
+    CheckBox_PlayerTypes: array [0..MAX_HANDS-1, 0..2] of TKMCheckBox;
+    Label_PlayerId : array [0..MAX_HANDS-1] of TKMLabel;
   public
     constructor Create(aParent: TKMPanel);
 
@@ -26,7 +26,7 @@ type
 
 implementation
 uses
-  KM_PlayersCollection, KM_ResTexts, KM_Game, KM_Main, KM_GameCursor,
+  KM_HandsCollection, KM_ResTexts, KM_Game, KM_Main, KM_GameCursor,
   KM_Resource, KM_TerrainDeposits, KM_ResCursors, KM_Utils,
   KM_AIDefensePos, KM_RenderUI, KM_Sound, KM_ResSound,
   KM_ResFonts;
@@ -45,7 +45,7 @@ begin
   TKMLabel.Create(Panel_PlayerTypes, 24, 30, 60, 20, gResTexts[TX_MAPED_PLAYERS_DEFAULT], fnt_Grey, taLeft);
   TKMImage.Create(Panel_PlayerTypes,104, 30, 60, 20, 588, rxGui);
   TKMImage.Create(Panel_PlayerTypes,164, 30, 20, 20,  62, rxGuiMain);
-  for I := 0 to MAX_PLAYERS - 1 do
+  for I := 0 to MAX_HANDS - 1 do
   begin
     Label_PlayerId[i] := TKMLabel.Create(Panel_PlayerTypes,  4, 50+I*25, 20, 20, IntToStr(I+1), fnt_Outline, taLeft);
 
@@ -62,17 +62,17 @@ end;
 procedure TKMMapEdMissionPlayers.Mission_PlayerTypesUpdate;
 var I: Integer;
 begin
-  for I := 0 to gPlayers.Count - 1 do
+  for I := 0 to gHands.Count - 1 do
   begin
-    CheckBox_PlayerTypes[I, 0].Enabled := gPlayers[I].HasAssets;
-    CheckBox_PlayerTypes[I, 1].Enabled := gPlayers[I].HasAssets;
-    CheckBox_PlayerTypes[I, 2].Enabled := gPlayers[I].HasAssets;
+    CheckBox_PlayerTypes[I, 0].Enabled := gHands[I].HasAssets;
+    CheckBox_PlayerTypes[I, 1].Enabled := gHands[I].HasAssets;
+    CheckBox_PlayerTypes[I, 2].Enabled := gHands[I].HasAssets;
 
 
 
-    CheckBox_PlayerTypes[I, 0].Checked := gPlayers[I].HasAssets and (fGame.MapEditor.DefaultHuman = I);
-    CheckBox_PlayerTypes[I, 1].Checked := gPlayers[I].HasAssets and fGame.MapEditor.PlayerHuman[I];
-    CheckBox_PlayerTypes[I, 2].Checked := gPlayers[I].HasAssets and fGame.MapEditor.PlayerAI[I];
+    CheckBox_PlayerTypes[I, 0].Checked := gHands[I].HasAssets and (fGame.MapEditor.DefaultHuman = I);
+    CheckBox_PlayerTypes[I, 1].Checked := gHands[I].HasAssets and fGame.MapEditor.PlayerHuman[I];
+    CheckBox_PlayerTypes[I, 2].Checked := gHands[I].HasAssets and fGame.MapEditor.PlayerAI[I];
   end;
 end;
 
@@ -111,9 +111,9 @@ end;
 procedure TKMMapEdMissionPlayers.Mission_PlayerIdUpdate;
 var I : integer;
 begin
-  for I := 0 to MAX_PLAYERS - 1 do
-    if I < gPlayers.Count then
-      if gPlayers[I].HasAssets then
+  for I := 0 to MAX_HANDS - 1 do
+    if I < gHands.Count then
+      if gHands[I].HasAssets then
         Label_PlayerId[i].FontColor := $FFFFFFFF
       else
         Label_PlayerId[i].FontColor := $FF808080;

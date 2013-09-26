@@ -194,6 +194,10 @@
 			<DCCReference Include="KM_GUIMenuResultsSP.pas"/>
 			<DCCReference Include="KM_GUIMenuSingleMap.pas"/>
 			<DCCReference Include="KM_GUIMenuSinglePlayer.pas"/>
+			<DCCReference Include="KM_Hand.pas"/>
+			<DCCReference Include="KM_HandsCollection.pas"/>
+			<DCCReference Include="KM_HandSpectator.pas"/>
+			<DCCReference Include="KM_HandStats.pas"/>
 			<DCCReference Include="KM_HouseBarracks.pas"/>
 			<DCCReference Include="KM_HouseCollection.pas"/>
 			<DCCReference Include="KM_HouseMarket.pas"/>
@@ -229,10 +233,6 @@
 			<DCCReference Include="KM_PathFindingRoad.pas"/>
 			<DCCReference Include="KM_PerfLog.pas"/>
 			<DCCReference Include="KM_Pics.pas"/>
-			<DCCReference Include="KM_Player.pas"/>
-			<DCCReference Include="KM_PlayersCollection.pas"/>
-			<DCCReference Include="KM_PlayerSpectator.pas"/>
-			<DCCReference Include="KM_PlayerStats.pas"/>
 			<DCCReference Include="KM_PNG.pas"/>
 			<DCCReference Include="KM_Points.pas"/>
 			<DCCReference Include="KM_PolySimplify.pas"/>

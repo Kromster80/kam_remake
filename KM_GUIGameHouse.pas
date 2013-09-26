@@ -101,7 +101,7 @@ type
 
 implementation
 uses KM_Game, KM_GameInputProcess,
-  KM_HouseBarracks, KM_PlayersCollection, KM_RenderUI,
+  KM_HouseBarracks, KM_HandsCollection, KM_RenderUI,
   KM_Resource, KM_ResFonts, KM_ResHouses, KM_ResTexts, KM_ResUnits, KM_ResWares;
 
 
@@ -415,7 +415,7 @@ begin
   Image_House_Logo.TexID    := fResource.HouseDat[aHouse.HouseType].GUIIcon;
   Image_House_Worker.TexID  := fResource.UnitDat[fResource.HouseDat[aHouse.HouseType].OwnerType].GUIIcon;
   Image_House_Worker.Hint   := fResource.UnitDat[fResource.HouseDat[aHouse.HouseType].OwnerType].GUIName;
-  Image_House_Worker.FlagColor := gPlayers[aHouse.Owner].FlagColor;
+  Image_House_Worker.FlagColor := gHands[aHouse.Owner].FlagColor;
   HealthBar_House.Caption   := inttostr(round(aHouse.GetHealth))+'/'+inttostr(fResource.HouseDat[aHouse.HouseType].MaxHealth);
   HealthBar_House.Position  := aHouse.GetHealth / fResource.HouseDat[aHouse.HouseType].MaxHealth;
 
@@ -488,12 +488,12 @@ begin
     ht_School:
         begin
           ResRow_School_Resource.WareCount := aHouse.CheckResIn(wt_Gold) - Byte(TKMHouseSchool(aHouse).HideOneGold);
-          Button_School_UnitWIP.FlagColor := gPlayers[aHouse.Owner].FlagColor;
+          Button_School_UnitWIP.FlagColor := gHands[aHouse.Owner].FlagColor;
           for I := 1 to 5 do
-            Button_School_UnitPlan[I].FlagColor := gPlayers[aHouse.Owner].FlagColor;
-          Image_School_Left.FlagColor  := gPlayers[aHouse.Owner].FlagColor;
-          Image_School_Right.FlagColor := gPlayers[aHouse.Owner].FlagColor;
-          Image_School_Train.FlagColor := gPlayers[aHouse.Owner].FlagColor;
+            Button_School_UnitPlan[I].FlagColor := gHands[aHouse.Owner].FlagColor;
+          Image_School_Left.FlagColor  := gHands[aHouse.Owner].FlagColor;
+          Image_School_Right.FlagColor := gHands[aHouse.Owner].FlagColor;
+          Image_School_Train.FlagColor := gHands[aHouse.Owner].FlagColor;
           House_SchoolUnitChange(nil, mbLeft);
           Panel_House_School.Show;
         end;
@@ -757,10 +757,10 @@ begin
 
   //Update graphics owner color
   Image_House_Worker.Enable; //In the barrack the recruit icon is always enabled
-  Image_Barracks_Left.FlagColor := gPlayers[Barracks.Owner].FlagColor;
-  Image_Barracks_Right.FlagColor := gPlayers[Barracks.Owner].FlagColor;
-  Image_Barracks_Train.FlagColor := gPlayers[Barracks.Owner].FlagColor;
-  Button_BarracksRecruit.FlagColor := gPlayers[Barracks.Owner].FlagColor;
+  Image_Barracks_Left.FlagColor := gHands[Barracks.Owner].FlagColor;
+  Image_Barracks_Right.FlagColor := gHands[Barracks.Owner].FlagColor;
+  Image_Barracks_Train.FlagColor := gHands[Barracks.Owner].FlagColor;
+  Button_BarracksRecruit.FlagColor := gHands[Barracks.Owner].FlagColor;
 
   //Supply
   for I := 1 to BARRACKS_RES_COUNT do

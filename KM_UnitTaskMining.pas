@@ -29,7 +29,7 @@ type
 
 
 implementation
-uses KM_Houses, KM_PlayersCollection, KM_Resource, KM_ResMapElements, KM_ResTexts, KM_ResHouses;
+uses KM_Houses, KM_HandsCollection, KM_Resource, KM_ResMapElements, KM_ResTexts, KM_ResHouses;
 
 
 { TTaskMining }
@@ -292,8 +292,8 @@ begin
             //Take required resources
             if WorkPlan.Resource1 <> wt_None then GetHome.ResTakeFromIn(WorkPlan.Resource1, WorkPlan.Count1);
             if WorkPlan.Resource2 <> wt_None then GetHome.ResTakeFromIn(WorkPlan.Resource2, WorkPlan.Count2);
-            gPlayers[fUnit.Owner].Stats.WareConsumed(WorkPlan.Resource1, WorkPlan.Count1);
-            gPlayers[fUnit.Owner].Stats.WareConsumed(WorkPlan.Resource2, WorkPlan.Count2);
+            gHands[fUnit.Owner].Stats.WareConsumed(WorkPlan.Resource1, WorkPlan.Count1);
+            gHands[fUnit.Owner].Stats.WareConsumed(WorkPlan.Resource2, WorkPlan.Count2);
 
             GetHome.fCurrentAction.SubActionAdd([ha_Smoke]);
             if WorkPlan.GatheringScript = gs_SwineBreeder then
@@ -357,8 +357,8 @@ begin
             begin
               GetHome.ResAddToOut(WorkPlan.Product1, WorkPlan.ProdCount1);
               GetHome.ResAddToOut(WorkPlan.Product2, WorkPlan.ProdCount2);
-              gPlayers[fUnit.Owner].Stats.WareProduced(WorkPlan.Product1, WorkPlan.ProdCount1);
-              gPlayers[fUnit.Owner].Stats.WareProduced(WorkPlan.Product2, WorkPlan.ProdCount2);
+              gHands[fUnit.Owner].Stats.WareProduced(WorkPlan.Product1, WorkPlan.ProdCount1);
+              gHands[fUnit.Owner].Stats.WareProduced(WorkPlan.Product2, WorkPlan.ProdCount2);
             end;
 
             GetHome.SetState(hst_Idle);

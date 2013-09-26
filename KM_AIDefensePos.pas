@@ -72,7 +72,7 @@ type
 
 
 implementation
-uses KM_Game, KM_PlayersCollection;
+uses KM_Game, KM_HandsCollection;
 
 
 { TAIDefencePosition }
@@ -97,7 +97,7 @@ end;
 procedure TAIDefencePosition.SetCurrentGroup(aGroup: TKMUnitGroup);
 begin
   //Release previous group
-  gPlayers.CleanUpGroupPointer(fCurrentGroup);
+  gHands.CleanUpGroupPointer(fCurrentGroup);
 
   //Take new one
   if aGroup <> nil then
@@ -152,7 +152,7 @@ end;
 
 procedure TAIDefencePosition.SyncLoad;
 begin
-  fCurrentGroup := gPlayers.GetGroupByUID(Cardinal(fCurrentGroup));
+  fCurrentGroup := gHands.GetGroupByUID(Cardinal(fCurrentGroup));
 end;
 
 
@@ -190,7 +190,7 @@ begin
 end;
 
 
-{ TKMPlayerAI }
+{ TAIDefencePositions }
 constructor TAIDefencePositions.Create;
 var GT: TGroupType;
 begin

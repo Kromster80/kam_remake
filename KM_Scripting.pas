@@ -35,12 +35,12 @@ type
     procedure ExportDataToText;
 
     procedure ProcHouseBuilt(aHouse: TKMHouse);
-    procedure ProcHouseDestroyed(aHouse: TKMHouse; aDestroyerIndex: TPlayerIndex);
+    procedure ProcHouseDestroyed(aHouse: TKMHouse; aDestroyerIndex: THandIndex);
     procedure ProcMissionStart;
-    procedure ProcPlayerDefeated(aPlayer: TPlayerIndex);
-    procedure ProcPlayerVictory(aPlayer: TPlayerIndex);
+    procedure ProcPlayerDefeated(aPlayer: THandIndex);
+    procedure ProcPlayerVictory(aPlayer: THandIndex);
     procedure ProcTick;
-    procedure ProcUnitDied(aUnit: TKMUnit; aKillerOwner: TPlayerIndex);
+    procedure ProcUnitDied(aUnit: TKMUnit; aKillerOwner: THandIndex);
     procedure ProcUnitTrained(aUnit: TKMUnit);
     procedure ProcWarriorEquipped(aUnit: TKMUnit; aGroup: TKMUnitGroup);
 
@@ -628,7 +628,7 @@ begin
 end;
 
 
-procedure TKMScripting.ProcHouseDestroyed(aHouse: TKMHouse; aDestroyerIndex: TPlayerIndex);
+procedure TKMScripting.ProcHouseDestroyed(aHouse: TKMHouse; aDestroyerIndex: THandIndex);
 var
   TestFunc: TKMEvent2I;
 begin
@@ -658,7 +658,7 @@ begin
 end;
 
 
-procedure TKMScripting.ProcUnitDied(aUnit: TKMUnit; aKillerOwner: TPlayerIndex);
+procedure TKMScripting.ProcUnitDied(aUnit: TKMUnit; aKillerOwner: THandIndex);
 var
   TestFunc: TKMEvent2I;
 begin
@@ -689,7 +689,7 @@ begin
 end;
 
 
-procedure TKMScripting.ProcPlayerDefeated(aPlayer: TPlayerIndex);
+procedure TKMScripting.ProcPlayerDefeated(aPlayer: THandIndex);
 var
   TestFunc: TKMEvent1I;
 begin
@@ -700,7 +700,7 @@ begin
 end;
 
 
-procedure TKMScripting.ProcPlayerVictory(aPlayer: TPlayerIndex);
+procedure TKMScripting.ProcPlayerVictory(aPlayer: THandIndex);
 var
   TestFunc: TKMEvent1I;
 begin

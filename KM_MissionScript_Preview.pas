@@ -7,40 +7,40 @@ uses
 
 
 type
-  TTilePreviewInfo = record
+  TKMTilePreview = record
                        TileID: Byte;
                        TileHeight: Byte; //Used for calculating light
-                       TileOwner: TPlayerIndex;
+                       TileOwner: THandIndex;
                        Revealed: Boolean;
                      end;
 
-  TPlayerPreviewInfo = record
-                         Color: Cardinal;
-                         StartingLoc: TKMPoint;
-                         CanHuman, CanAI: Boolean;
-                       end;
+  TKMHandPreview = record
+                       Color: Cardinal;
+                       StartingLoc: TKMPoint;
+                       CanHuman, CanAI: Boolean;
+                     end;
 
   //Specially optimized mission parser for map previews
   TMissionParserPreview = class(TMissionParserCommon)
   private
     fMapX: Integer;
     fMapY: Integer;
-    fPlayerPreview: array [0 .. MAX_PLAYERS-1] of TPlayerPreviewInfo;
-    fMapPreview: array of TTilePreviewInfo;
+    fHandPreview: array [0 .. MAX_HANDS-1] of TKMHandPreview;
+    fMapPreview: array of TKMTilePreview;
 
-    fRevealFor: array of TPlayerIndex;
+    fRevealFor: array of THandIndex;
 
-    function GetTileInfo(X, Y: Integer): TTilePreviewInfo;
-    function GetPlayerInfo(aIndex: Byte): TPlayerPreviewInfo;
+    function GetTileInfo(X, Y: Integer): TKMTilePreview;
+    function GetPlayerInfo(aIndex: Byte): TKMHandPreview;
     function LoadMapData(const aFileName: string): Boolean;
   protected
     function ProcessCommand(CommandType: TKMCommandType; P: array of Integer; TextParam: AnsiString = ''): Boolean; override;
   public
-    property MapPreview[X, Y: Integer]: TTilePreviewInfo read GetTileInfo;
-    property PlayerPreview[aIndex: Byte]: TPlayerPreviewInfo read GetPlayerInfo;
+    property MapPreview[X, Y: Integer]: TKMTilePreview read GetTileInfo;
+    property PlayerPreview[aIndex: Byte]: TKMHandPreview read GetPlayerInfo;
     property MapX: Integer read fMapX;
     property MapY: Integer read fMapY;
-    function LoadMission(const aFileName: string; const aRevealFor: array of TPlayerIndex): Boolean; reintroduce;
+    function LoadMission(const aFileName: string; const aRevealFor: array of THandIndex): Boolean; reintroduce;
   end;
 
 
@@ -50,15 +50,15 @@ uses
 
 
 { TMissionParserPreview }
-function TMissionParserPreview.GetTileInfo(X,Y: Integer): TTilePreviewInfo;
+function TMissionParserPreview.GetTileInfo(X,Y: Integer): TKMTilePreview;
 begin
   Result := fMapPreview[(Y-1)*fMapX + X];
 end;
 
 
-function TMissionParserPreview.GetPlayerInfo(aIndex: Byte): TPlayerPreviewInfo;
+function TMissionParserPreview.GetPlayerInfo(aIndex: Byte): TKMHandPreview;
 begin
-  Result := fPlayerPreview[aIndex];
+  Result := fHandPreview[aIndex];
 end;
 
 
@@ -107,10 +107,10 @@ function TMissionParserPreview.ProcessCommand(CommandType: TKMCommandType; P: ar
 
   procedure SetOwner(X,Y: Word);
   begin
-    fMapPreview[X + Y*fMapX].TileOwner := fLastPlayer;
+    fMapPreview[X + Y*fMapX].TileOwner := fLastHand;
   end;
 
-  function RevealForPlayer(aPlayerIndex: TPlayerIndex): Boolean;
+  function RevealForPlayer(aPlayerIndex: THandIndex): Boolean;
   var
     I: Integer;
   begin
@@ -127,7 +127,7 @@ function TMissionParserPreview.ProcessCommand(CommandType: TKMCommandType; P: ar
   var
     I, K: Word;
   begin
-    if not RevealForPlayer(fLastPlayer) then
+    if not RevealForPlayer(fLastHand) then
       Exit;
 
     for I := Max(Y-Radius,1) to Min(Y+Radius,fMapY) do
@@ -143,7 +143,7 @@ var
   Loc: TKMPoint;
 begin
   case CommandType of
-    ct_SetCurrPlayer:   fLastPlayer := P[0];
+    ct_SetCurrPlayer:   fLastHand := P[0];
     ct_SetHouse:        if InRange(P[0], Low(HouseIndexToType), High(HouseIndexToType)) then
                         begin
                           RevealCircle(P[1]+1, P[2]+1, fResource.HouseDat[HouseIndexToType[P[0]]].Sight);
@@ -153,19 +153,19 @@ begin
                               if InRange(P[1]+1+k-3, 1, fMapX) and InRange(P[2]+1+i-4, 1, fMapY) then
                                 SetOwner(P[1]+1+k-3, P[2]+1+i-4);
                         end;
-    ct_SetMapColor:     if InRange(fLastPlayer, 0, MAX_PLAYERS-1) then
-                          fPlayerPreview[fLastPlayer].Color := fResource.Palettes.DefDal.Color32(P[0]);
-    ct_CenterScreen:    fPlayerPreview[fLastPlayer].StartingLoc := KMPoint(P[0]+1,P[1]+1);
+    ct_SetMapColor:     if InRange(fLastHand, 0, MAX_HANDS-1) then
+                          fHandPreview[fLastHand].Color := fResource.Palettes.DefDal.Color32(P[0]);
+    ct_CenterScreen:    fHandPreview[fLastHand].StartingLoc := KMPoint(P[0]+1,P[1]+1);
     ct_HumanPlayer:     //Default human player can be human, obviously
-                        fPlayerPreview[P[0]].CanHuman := True;
+                        fHandPreview[P[0]].CanHuman := True;
     ct_UserPlayer:      if P[0] = -1 then
-                          fPlayerPreview[fLastPlayer].CanHuman := True
+                          fHandPreview[fLastHand].CanHuman := True
                         else
-                          fPlayerPreview[P[0]].CanHuman := True;
+                          fHandPreview[P[0]].CanHuman := True;
     ct_AIPlayer:        if P[0] = -1 then
-                          fPlayerPreview[fLastPlayer].CanAI := True
+                          fHandPreview[fLastHand].CanAI := True
                         else
-                          fPlayerPreview[P[0]].CanAI := True;
+                          fHandPreview[P[0]].CanAI := True;
     ct_SetRoad,
     ct_SetField,
     ct_SetWinefield:    SetOwner(P[0]+1, P[1]+1);
@@ -194,7 +194,7 @@ begin
     ct_ClearUp:         begin
                           if (P[0] = 255) then
                           begin
-                            if RevealForPlayer(fLastPlayer) then
+                            if RevealForPlayer(fLastHand) then
                               for I := 1 to fMapX * fMapY do
                                 fMapPreview[I].Revealed := True;
                           end
@@ -208,7 +208,7 @@ end;
 
 
 //We use custom mission loader for speed (compare only used commands)
-function TMissionParserPreview.LoadMission(const aFileName: string; const aRevealFor: array of TPlayerIndex): Boolean;
+function TMissionParserPreview.LoadMission(const aFileName: string; const aRevealFor: array of THandIndex): Boolean;
 const
   Commands: array [0..14] of AnsiString = (
     '!SET_MAP', '!SET_MAP_COLOR', '!SET_AI_PLAYER', '!CENTER_SCREEN',
@@ -227,7 +227,7 @@ begin
   for I := Low(aRevealFor) to High(aRevealFor) do
     fRevealFor[I] := aRevealFor[I];
 
-  FillChar(fPlayerPreview, SizeOf(fPlayerPreview), #0);
+  FillChar(fHandPreview, SizeOf(fHandPreview), #0);
 
   FileText := ReadMissionFile(aFileName);
   if FileText = '' then

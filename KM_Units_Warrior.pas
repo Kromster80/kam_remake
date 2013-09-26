@@ -51,14 +51,14 @@ type
     OnWarriorWalkOut: TKMWarriorEvent;
     FaceDir: TKMDirection; //Direction we should face after walking. Only check for enemies in this direction.
 
-    constructor Create(aID: Cardinal; aUnitType: TUnitType; aLoc: TKMPoint; aOwner: TPlayerIndex);
+    constructor Create(aID: Cardinal; aUnitType: TUnitType; aLoc: TKMPoint; aOwner: THandIndex);
     constructor Load(LoadStream: TKMemoryStream); override;
     procedure SyncLoad; override;
     procedure CloseUnit(aRemoveTileUsage: Boolean = True); override;
     destructor Destroy; override;
 
     function GetWarriorActivityText(aIsAttackingUnit: Boolean): UnicodeString;
-    procedure KillUnit(aFrom: TPlayerIndex; aShowAnimation, aForceDelay: Boolean); override;
+    procedure KillUnit(aFrom: THandIndex; aShowAnimation, aForceDelay: Boolean); override;
 
     //Commands from TKMUnitGroup
     procedure OrderFood;
@@ -93,14 +93,14 @@ type
 
 
 implementation
-uses KM_ResTexts, KM_PlayersCollection, KM_RenderPool, KM_RenderAux, KM_UnitTaskAttackHouse,
+uses KM_ResTexts, KM_HandsCollection, KM_RenderPool, KM_RenderAux, KM_UnitTaskAttackHouse,
   KM_UnitActionAbandonWalk, KM_UnitActionFight, KM_UnitActionGoInOut, KM_UnitActionWalkTo, KM_UnitActionStay,
   KM_UnitActionStormAttack, KM_Resource, KM_ResUnits,
   KM_ResWares, KM_Game, KM_ResHouses;
 
 
 { TKMUnitWarrior }
-constructor TKMUnitWarrior.Create(aID: Cardinal; aUnitType: TUnitType; aLoc: TKMPoint; aOwner: TPlayerIndex);
+constructor TKMUnitWarrior.Create(aID: Cardinal; aUnitType: TUnitType; aLoc: TKMPoint; aOwner: THandIndex);
 begin
   inherited;
   fOrderTargetUnit   := nil;
@@ -131,8 +131,8 @@ end;
 procedure TKMUnitWarrior.SyncLoad;
 begin
   inherited;
-  fOrderTargetUnit := TKMUnitWarrior(gPlayers.GetUnitByUID(cardinal(fOrderTargetUnit)));
-  fOrderTargetHouse := gPlayers.GetHouseByUID(cardinal(fOrderTargetHouse));
+  fOrderTargetUnit := TKMUnitWarrior(gHands.GetUnitByUID(cardinal(fOrderTargetUnit)));
+  fOrderTargetHouse := gHands.GetHouseByUID(cardinal(fOrderTargetHouse));
   if GetUnitAction is TUnitActionGoInOut then
     TUnitActionGoInOut(GetUnitAction).OnWalkedOut := WalkedOut;
 end;
@@ -157,7 +157,7 @@ begin
 end;
 
 
-procedure TKMUnitWarrior.KillUnit(aFrom: TPlayerIndex; aShowAnimation, aForceDelay: Boolean);
+procedure TKMUnitWarrior.KillUnit(aFrom: THandIndex; aShowAnimation, aForceDelay: Boolean);
 begin
   if not IsDeadOrDying then
   begin
@@ -177,7 +177,7 @@ procedure TKMUnitWarrior.OrderFood;
 begin
   if (fCondition < (UNIT_MAX_CONDITION * TROOPS_FEED_MAX)) and not fRequestedFood then
   begin
-    gPlayers[fOwner].Deliveries.Queue.AddDemand(nil, Self, wt_Food, 1, dt_Once, diHigh2);
+    gHands[fOwner].Deliveries.Queue.AddDemand(nil, Self, wt_Food, 1, dt_Once, diHigh2);
     fRequestedFood := True;
   end;
 end;
@@ -204,8 +204,8 @@ end;
 procedure TKMUnitWarrior.ClearOrderTarget;
 begin
   //Set fOrderTargets to nil, removing pointer if it's still valid
-  gPlayers.CleanUpUnitPointer(fOrderTargetUnit);
-  gPlayers.CleanUpHousePointer(fOrderTargetHouse);
+  gHands.CleanUpUnitPointer(fOrderTargetUnit);
+  gHands.CleanUpHousePointer(fOrderTargetHouse);
 end;
 
 
@@ -326,7 +326,7 @@ begin
   Best := MaxSingle;
 
   FoundUnits := TList.Create;
-  gPlayers[fOwner].Units.GetUnitsInRect(KMRect(aLoc.X-LINK_RADIUS,
+  gHands[fOwner].Units.GetUnitsInRect(KMRect(aLoc.X-LINK_RADIUS,
                                                aLoc.Y-LINK_RADIUS,
                                                aLoc.X+LINK_RADIUS,
                                                aLoc.Y+LINK_RADIUS),
@@ -742,7 +742,7 @@ begin
   UnitPos.X := fPosition.X + UNIT_OFF_X + GetSlide(ax_X);
   UnitPos.Y := fPosition.Y + UNIT_OFF_Y + GetSlide(ax_Y);
 
-  fRenderPool.AddUnit(fUnitType, fUID, Act, Direction, AnimStep, UnitPos.X, UnitPos.Y, gPlayers[fOwner].FlagColor, True);
+  fRenderPool.AddUnit(fUnitType, fUID, Act, Direction, AnimStep, UnitPos.X, UnitPos.Y, gHands[fOwner].FlagColor, True);
 
   if fThought <> th_None then
     fRenderPool.AddUnitThought(fUnitType, Act, Direction, fThought, UnitPos.X, UnitPos.Y);

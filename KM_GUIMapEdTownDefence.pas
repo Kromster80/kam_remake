@@ -37,7 +37,7 @@ type
 
 implementation
 uses
-  KM_PlayersCollection, KM_ResTexts, KM_GameCursor, KM_RenderUI, KM_ResFonts;
+  KM_HandsCollection, KM_ResTexts, KM_GameCursor, KM_RenderUI, KM_ResFonts;
 
 
 { TKMMapEdTownDefence }
@@ -111,16 +111,16 @@ end;
 
 procedure TKMMapEdTownDefence.Town_DefenceChange(Sender: TObject);
 begin
-  gPlayers[MySpectator.PlayerIndex].AI.Setup.AutoDefend := CheckBox_AutoDefence.Checked;
-  gPlayers[MySpectator.PlayerIndex].AI.Setup.EquipRateLeather := TrackBar_EquipRateLeather.Position * 10;
-  gPlayers[MySpectator.PlayerIndex].AI.Setup.EquipRateIron := TrackBar_EquipRateIron.Position * 10;
-  gPlayers[MySpectator.PlayerIndex].AI.Setup.RecruitCount := TrackBar_RecruitCount.Position;
-  gPlayers[MySpectator.PlayerIndex].AI.Setup.RecruitDelay := TrackBar_RecruitDelay.Position * 600;
+  gHands[MySpectator.HandIndex].AI.Setup.AutoDefend := CheckBox_AutoDefence.Checked;
+  gHands[MySpectator.HandIndex].AI.Setup.EquipRateLeather := TrackBar_EquipRateLeather.Position * 10;
+  gHands[MySpectator.HandIndex].AI.Setup.EquipRateIron := TrackBar_EquipRateIron.Position * 10;
+  gHands[MySpectator.HandIndex].AI.Setup.RecruitCount := TrackBar_RecruitCount.Position;
+  gHands[MySpectator.HandIndex].AI.Setup.RecruitDelay := TrackBar_RecruitDelay.Position * 600;
 
   if not CheckBox_MaxSoldiers.Checked then
-    gPlayers[MySpectator.PlayerIndex].AI.Setup.MaxSoldiers := -1
+    gHands[MySpectator.HandIndex].AI.Setup.MaxSoldiers := -1
   else
-    gPlayers[MySpectator.PlayerIndex].AI.Setup.MaxSoldiers := TrackBar_MaxSoldiers.Position;
+    gHands[MySpectator.HandIndex].AI.Setup.MaxSoldiers := TrackBar_MaxSoldiers.Position;
 
   Town_DefenceRefresh;
 end;
@@ -128,21 +128,21 @@ end;
 
 procedure TKMMapEdTownDefence.Town_DefenceFormations(Sender: TObject);
 begin
-  FormationsPopUp.Show(MySpectator.PlayerIndex);
+  FormationsPopUp.Show(MySpectator.HandIndex);
 end;
 
 
 procedure TKMMapEdTownDefence.Town_DefenceRefresh;
 begin
-  CheckBox_AutoDefence.Checked := gPlayers[MySpectator.PlayerIndex].AI.Setup.AutoDefend;
-  TrackBar_EquipRateLeather.Position := gPlayers[MySpectator.PlayerIndex].AI.Setup.EquipRateLeather div 10;
-  TrackBar_EquipRateIron.Position := gPlayers[MySpectator.PlayerIndex].AI.Setup.EquipRateIron div 10;
-  TrackBar_RecruitCount.Position := gPlayers[MySpectator.PlayerIndex].AI.Setup.RecruitCount;
-  TrackBar_RecruitDelay.Position := Round(gPlayers[MySpectator.PlayerIndex].AI.Setup.RecruitDelay / 600);
+  CheckBox_AutoDefence.Checked := gHands[MySpectator.HandIndex].AI.Setup.AutoDefend;
+  TrackBar_EquipRateLeather.Position := gHands[MySpectator.HandIndex].AI.Setup.EquipRateLeather div 10;
+  TrackBar_EquipRateIron.Position := gHands[MySpectator.HandIndex].AI.Setup.EquipRateIron div 10;
+  TrackBar_RecruitCount.Position := gHands[MySpectator.HandIndex].AI.Setup.RecruitCount;
+  TrackBar_RecruitDelay.Position := Round(gHands[MySpectator.HandIndex].AI.Setup.RecruitDelay / 600);
 
-  CheckBox_MaxSoldiers.Checked := (gPlayers[MySpectator.PlayerIndex].AI.Setup.MaxSoldiers >= 0);
+  CheckBox_MaxSoldiers.Checked := (gHands[MySpectator.HandIndex].AI.Setup.MaxSoldiers >= 0);
   TrackBar_MaxSoldiers.Enabled := CheckBox_MaxSoldiers.Checked;
-  TrackBar_MaxSoldiers.Position := Max(gPlayers[MySpectator.PlayerIndex].AI.Setup.MaxSoldiers, 0);
+  TrackBar_MaxSoldiers.Position := Max(gHands[MySpectator.HandIndex].AI.Setup.MaxSoldiers, 0);
 end;
 
 

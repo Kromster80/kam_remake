@@ -9,7 +9,7 @@ uses
 type
   TKMMapEdMarkerReveal = class
   private
-    fOwner: TPlayerIndex;
+    fOwner: THandIndex;
     fIndex: Integer;
     fOnDone: TNotifyEvent;
     procedure Marker_Change(Sender: TObject);
@@ -24,9 +24,9 @@ type
     constructor Create(aParent: TKMPanel; aOnDone: TNotifyEvent);
 
     property Index: Integer read fIndex;
-    property Owner: TPlayerIndex read fOwner;
+    property Owner: THandIndex read fOwner;
 
-    procedure Show(aPlayer: TPlayerIndex; aIndex: Integer);
+    procedure Show(aPlayer: THandIndex; aIndex: Integer);
     procedure Hide;
     function Visible: Boolean;
   end;
@@ -34,7 +34,7 @@ type
 
 implementation
 uses
-  KM_CommonClasses, KM_PlayersCollection, KM_ResTexts, KM_Game,
+  KM_CommonClasses, KM_HandsCollection, KM_ResTexts, KM_Game,
   KM_RenderUI, KM_ResFonts;
 
 
@@ -89,12 +89,12 @@ begin
 end;
 
 
-procedure TKMMapEdMarkerReveal.Show(aPlayer: TPlayerIndex; aIndex: Integer);
+procedure TKMMapEdMarkerReveal.Show(aPlayer: THandIndex; aIndex: Integer);
 begin
   fOwner := aPlayer;
   fIndex := aIndex;
 
-  Image_MarkerPic.FlagColor := gPlayers[fOwner].FlagColor;
+  Image_MarkerPic.FlagColor := gHands[fOwner].FlagColor;
 
   Label_MarkerType.Caption := gResTexts[TX_MAPED_FOG];
   Image_MarkerPic.TexID := 393;

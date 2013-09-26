@@ -25,7 +25,7 @@ type
 
 implementation
 uses
-  KM_PlayersCollection, KM_ResTexts,
+  KM_HandsCollection, KM_ResTexts,
   KM_Resource, KM_ResHouses, KM_RenderUI, KM_ResFonts;
 
 
@@ -61,19 +61,19 @@ begin
   H := GUIHouseOrder[I];
 
   //Loop through states CanBuild > CantBuild > Released
-  if not gPlayers[MySpectator.PlayerIndex].Stats.HouseBlocked[H] and not gPlayers[MySpectator.PlayerIndex].Stats.HouseGranted[H] then
+  if not gHands[MySpectator.HandIndex].Stats.HouseBlocked[H] and not gHands[MySpectator.HandIndex].Stats.HouseGranted[H] then
   begin
-    gPlayers[MySpectator.PlayerIndex].Stats.HouseBlocked[H] := True;
-    gPlayers[MySpectator.PlayerIndex].Stats.HouseGranted[H] := False;
+    gHands[MySpectator.HandIndex].Stats.HouseBlocked[H] := True;
+    gHands[MySpectator.HandIndex].Stats.HouseGranted[H] := False;
   end else
-  if gPlayers[MySpectator.PlayerIndex].Stats.HouseBlocked[H] and not gPlayers[MySpectator.PlayerIndex].Stats.HouseGranted[H] then
+  if gHands[MySpectator.HandIndex].Stats.HouseBlocked[H] and not gHands[MySpectator.HandIndex].Stats.HouseGranted[H] then
   begin
-    gPlayers[MySpectator.PlayerIndex].Stats.HouseBlocked[H] := False;
-    gPlayers[MySpectator.PlayerIndex].Stats.HouseGranted[H] := True;
+    gHands[MySpectator.HandIndex].Stats.HouseBlocked[H] := False;
+    gHands[MySpectator.HandIndex].Stats.HouseGranted[H] := True;
   end else
   begin
-    gPlayers[MySpectator.PlayerIndex].Stats.HouseBlocked[H] := False;
-    gPlayers[MySpectator.PlayerIndex].Stats.HouseGranted[H] := False;
+    gHands[MySpectator.HandIndex].Stats.HouseBlocked[H] := False;
+    gHands[MySpectator.HandIndex].Stats.HouseGranted[H] := False;
   end;
 
   Player_BlockHouseRefresh;
@@ -88,13 +88,13 @@ begin
   for I := 1 to GUI_HOUSE_COUNT do
   begin
     H := GUIHouseOrder[I];
-    if gPlayers[MySpectator.PlayerIndex].Stats.HouseBlocked[H] and not gPlayers[MySpectator.PlayerIndex].Stats.HouseGranted[H] then
+    if gHands[MySpectator.HandIndex].Stats.HouseBlocked[H] and not gHands[MySpectator.HandIndex].Stats.HouseGranted[H] then
       Image_BlockHouse[I].TexID := 32
     else
-    if gPlayers[MySpectator.PlayerIndex].Stats.HouseGranted[H] and not gPlayers[MySpectator.PlayerIndex].Stats.HouseBlocked[H] then
+    if gHands[MySpectator.HandIndex].Stats.HouseGranted[H] and not gHands[MySpectator.HandIndex].Stats.HouseBlocked[H] then
       Image_BlockHouse[I].TexID := 33
     else
-    if not gPlayers[MySpectator.PlayerIndex].Stats.HouseGranted[H] and not gPlayers[MySpectator.PlayerIndex].Stats.HouseBlocked[H] then
+    if not gHands[MySpectator.HandIndex].Stats.HouseGranted[H] and not gHands[MySpectator.HandIndex].Stats.HouseBlocked[H] then
       Image_BlockHouse[I].TexID := 0
     else
       Image_BlockHouse[I].TexID := 24; //Some erroneous value

@@ -41,7 +41,7 @@ type
 
 implementation
 uses
-  KM_Player, KM_PlayersCollection, KM_ResTexts, KM_GameCursor,
+  KM_Hand, KM_HandsCollection, KM_ResTexts, KM_GameCursor,
   KM_RenderUI, KM_InterfaceDefaults;
 
 
@@ -169,7 +169,7 @@ end;
 
 procedure TKMMapEdPlayer.UpdatePlayerColor;
 begin
-  Button_Player[ptColor].FlagColor := gPlayers[MySpectator.PlayerIndex].FlagColor;
+  Button_Player[ptColor].FlagColor := gHands[MySpectator.HandIndex].FlagColor;
 
   fGuiPlayerView.UpdatePlayerColor;
 end;

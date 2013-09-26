@@ -20,7 +20,7 @@ type
 
 
 implementation
-uses KM_PlayersCollection;
+uses KM_HandsCollection;
 
 
 { TTaskSelfTrain }
@@ -43,14 +43,14 @@ end;
 procedure TTaskSelfTrain.SyncLoad;
 begin
   inherited;
-  fSchool := TKMHouseSchool(gPlayers.GetHouseByUID(Cardinal(fSchool)));
+  fSchool := TKMHouseSchool(gHands.GetHouseByUID(Cardinal(fSchool)));
 end;
 
 
 destructor TTaskSelfTrain.Destroy;
 begin
   if (fPhase <= 5) and not fSchool.IsDestroyed then fSchool.SetState(hst_Idle); //If we abandon for some reason, clear the school animation
-  gPlayers.CleanUpHousePointer(TKMHouse(fSchool));
+  gHands.CleanUpHousePointer(TKMHouse(fSchool));
   inherited;
 end;
 

@@ -11,7 +11,7 @@ type
   //to prefer connecting to supply/demand houses
   TPathFindingRoad = class(TPathFindingAStarNew)
   private
-    fOwner: TPlayerIndex;
+    fOwner: THandIndex;
   protected
     function CanWalkTo(const aFrom: TKMPoint; aToX, aToY: SmallInt): Boolean; override;
     function DestinationReached(aX, aY: Word): Boolean; override;
@@ -19,9 +19,9 @@ type
     function MovementCost(aFromX, aFromY, aToX, aToY: Word): Word; override;
     function EstimateToFinish(aX, aY: Word): Word; override;
   public
-    constructor Create(aOwner: TPlayerIndex);
+    constructor Create(aOwner: THandIndex);
 
-    procedure OwnerUpdate(aPlayer: TPlayerIndex);
+    procedure OwnerUpdate(aPlayer: THandIndex);
     function Route_Make(aLocA, aLocB: TKMPoint; NodeList: TKMPointList): Boolean; reintroduce;
     function Route_ReturnToWalkable(aLocA, aLocB: TKMPoint; NodeList: TKMPointList): Boolean; reintroduce;
     procedure Save(SaveStream: TKMemoryStream); override;
@@ -30,18 +30,18 @@ type
 
 
 implementation
-uses KM_PlayersCollection, KM_Terrain, KM_Units;
+uses KM_HandsCollection, KM_Terrain, KM_Units;
 
 
 { TPathFindingRoad }
-constructor TPathFindingRoad.Create(aOwner: TPlayerIndex);
+constructor TPathFindingRoad.Create(aOwner: THandIndex);
 begin
   inherited Create;
   fOwner := aOwner;
 end;
 
 
-procedure TPathFindingRoad.OwnerUpdate(aPlayer: TPlayerIndex);
+procedure TPathFindingRoad.OwnerUpdate(aPlayer: THandIndex);
 begin
   fOwner := aPlayer;
 end;
@@ -97,8 +97,8 @@ end;
 function TPathFindingRoad.IsWalkableTile(aX, aY: Word): Boolean;
 begin
   Result := ([CanMakeRoads, CanWalkRoad] * gTerrain.Land[aY,aX].Passability <> [])
-            and (gPlayers[fOwner].BuildList.FieldworksList.HasField(KMPoint(aX, aY)) in [ft_None, ft_Road])
-            and not gPlayers[fOwner].BuildList.HousePlanList.HasPlan(KMPoint(aX, aY));
+            and (gHands[fOwner].BuildList.FieldworksList.HasField(KMPoint(aX, aY)) in [ft_None, ft_Road])
+            and not gHands[fOwner].BuildList.HousePlanList.HasPlan(KMPoint(aX, aY));
 end;
 
 
@@ -115,7 +115,7 @@ begin
   Result := ((aX = fLocB.X) and (aY = fLocB.Y)) //We reached destination point
             or ((gTerrain.Land[aY, aX].TileOverlay = to_Road) and (gTerrain.Land[aY, aX].TileOwner = fOwner)) //We reached own road
             or RoadWorkNear //We reached our roadplan being constructed
-            or (gPlayers[fOwner].BuildList.FieldworksList.HasField(KMPoint(aX, aY)) = ft_Road);
+            or (gHands[fOwner].BuildList.FieldworksList.HasField(KMPoint(aX, aY)) = ft_Road);
 end;
 
 

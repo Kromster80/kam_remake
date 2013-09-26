@@ -1,4 +1,4 @@
-unit KM_PlayerSpectator;
+unit KM_HandSpectator;
 {$I KaM_Remake.inc}
 interface
 uses KromUtils,
@@ -11,23 +11,23 @@ type
   //or several players to control 1 town in future)
   TKMSpectator = class
   private
-    fPlayerIndex: TPlayerIndex;
+    fHandIndex: THandIndex;
     fHighlight: TObject; //Unit/House/Group that is shown highlighted to draw players attention
     fHighlightEnd: Cardinal; //Highlight has a short time to live
     fSelected: TObject;
-    fFOWIndex: TPlayerIndex; //Unit/House/Group selected by player and shown in UI
+    fFOWIndex: THandIndex; //Unit/House/Group selected by player and shown in UI
     fFogOfWar: TKMFogOfWarOpen; //Stub for MapEd
     procedure SetHighlight(Value: TObject);
     procedure SetSelected(Value: TObject);
-    procedure SetPlayerIndex(const Value: TPlayerIndex);
-    procedure SetFOWIndex(const Value: TPlayerIndex);
+    procedure SetHandIndex(const Value: THandIndex);
+    procedure SetFOWIndex(const Value: THandIndex);
   public
-    constructor Create(aPlayerIndex: TPlayerIndex);
+    constructor Create(aHandIndex: THandIndex);
     destructor Destroy; override;
     property Highlight: TObject read fHighlight write SetHighlight;
     property Selected: TObject read fSelected write SetSelected;
-    property PlayerIndex: TPlayerIndex read fPlayerIndex write SetPlayerIndex;
-    property FOWIndex: TPlayerIndex read fFOWIndex write SetFOWIndex;
+    property HandIndex: THandIndex read fHandIndex write SetHandIndex;
+    property FOWIndex: THandIndex read fFOWIndex write SetFOWIndex;
     function FogOfWar: TKMFogOfWarCommon; //Which FOW we want to see
     function HitTestCursor: TObject;
     procedure UpdateSelect;
@@ -38,15 +38,15 @@ type
 
 
 implementation
-uses KM_PlayersCollection, KM_Game, KM_UnitGroups, KM_GameCursor, KM_Units_Warrior;
+uses KM_HandsCollection, KM_Game, KM_UnitGroups, KM_GameCursor, KM_Units_Warrior;
 
 
 { TKMSpectator }
-constructor TKMSpectator.Create(aPlayerIndex: TPlayerIndex);
+constructor TKMSpectator.Create(aHandIndex: THandIndex);
 begin
   inherited Create;
 
-  fPlayerIndex := aPlayerIndex;
+  fHandIndex := aHandIndex;
 
   //Stub that always returns REVEALED
   fFogOfWar := TKMFogOfWarOpen.Create;
@@ -69,21 +69,21 @@ begin
     if FOWIndex = -1 then
       Result := fFogOfWar
     else
-      Result := gPlayers[FOWIndex].FogOfWar
+      Result := gHands[FOWIndex].FogOfWar
   else
-    Result := gPlayers[PlayerIndex].FogOfWar;
+    Result := gHands[HandIndex].FogOfWar;
 end;
 
 
 procedure TKMSpectator.Load(LoadStream: TKMemoryStream);
 begin
-  LoadStream.Read(fPlayerIndex);
+  LoadStream.Read(fHandIndex);
 end;
 
 
 procedure TKMSpectator.Save(SaveStream: TKMemoryStream);
 begin
-  SaveStream.Write(fPlayerIndex);
+  SaveStream.Write(fHandIndex);
 end;
 
 
@@ -91,11 +91,11 @@ end;
 //Units and Houses, not Groups
 function TKMSpectator.HitTestCursor: TObject;
 begin
-  Result := gPlayers.GetUnitByUID(GameCursor.ObjectUID);
+  Result := gHands.GetUnitByUID(GameCursor.ObjectUID);
 
   //If there's no unit try pick a house on the Cell below
   if Result = nil then
-    Result := gPlayers.HousesHitTest(GameCursor.Cell.X, GameCursor.Cell.Y);
+    Result := gHands.HousesHitTest(GameCursor.Cell.X, GameCursor.Cell.Y);
 end;
 
 
@@ -106,17 +106,17 @@ var
 begin
   //In-game player can select only own Units
   if fGame.IsReplay or fGame.IsMapEditor then
-    Selected := gPlayers.GetUnitByUID(GameCursor.ObjectUID)
+    Selected := gHands.GetUnitByUID(GameCursor.ObjectUID)
   else
-    Selected := gPlayers[fPlayerIndex].Units.GetUnitByUID(GameCursor.ObjectUID);
+    Selected := gHands[fHandIndex].Units.GetUnitByUID(GameCursor.ObjectUID);
 
   //If Id belongs to some Warrior, try to select his group instead
   if Selected is TKMUnitWarrior then
   begin
     if fGame.IsReplay or fGame.IsMapEditor then
-      G := gPlayers.GetGroupByMember(TKMUnitWarrior(Selected))
+      G := gHands.GetGroupByMember(TKMUnitWarrior(Selected))
     else
-      G := gPlayers[fPlayerIndex].UnitGroups.GetGroupByMember(TKMUnitWarrior(Selected));
+      G := gHands[fHandIndex].UnitGroups.GetGroupByMember(TKMUnitWarrior(Selected));
 
     //Warrior might not be assigned to a group while walking out of the Barracks
     if G <> nil then
@@ -130,13 +130,13 @@ begin
   //If there's no unit try pick a house on the Cell below
   if Selected = nil then
     if fGame.IsReplay or fGame.IsMapEditor then
-      Selected := gPlayers.HousesHitTest(GameCursor.Cell.X, GameCursor.Cell.Y)
+      Selected := gHands.HousesHitTest(GameCursor.Cell.X, GameCursor.Cell.Y)
     else
-      Selected := gPlayers[fPlayerIndex].HousesHitTest(GameCursor.Cell.X, GameCursor.Cell.Y);
+      Selected := gHands[fHandIndex].HousesHitTest(GameCursor.Cell.X, GameCursor.Cell.Y);
 end;
 
 
-procedure TKMSpectator.SetFOWIndex(const Value: TPlayerIndex);
+procedure TKMSpectator.SetFOWIndex(const Value: THandIndex);
 begin
   fFOWIndex := Value;
 end;
@@ -151,10 +151,10 @@ begin
 end;
 
 
-procedure TKMSpectator.SetPlayerIndex(const Value: TPlayerIndex);
+procedure TKMSpectator.SetHandIndex(const Value: THandIndex);
 begin
   Assert((MULTIPLAYER_CHEATS or not fGame.IsMultiplayer) or fGame.IsReplay or fGame.IsMapEditor);
-  fPlayerIndex := Value;
+  fHandIndex := Value;
 
   if not fGame.IsReplay and not fGame.IsMapEditor then
     Selected := nil;

@@ -1,39 +1,39 @@
-unit KM_PlayersCollection;
+unit KM_HandsCollection;
 {$I KaM_Remake.inc}
 interface
 uses
   Classes, KromUtils, Math, SysUtils, Graphics,
   KM_CommonClasses, KM_Defaults, KM_Units, KM_UnitGroups, KM_Terrain, KM_Houses,
-  KM_Player, KM_PlayerSpectator, KM_Utils, KM_Points, KM_Units_Warrior;
+  KM_Hand, KM_HandSpectator, KM_Utils, KM_Points, KM_Units_Warrior;
 
 
 { Players are identified by their starting location }
 type
-  TKMPlayersCollection = class
+  TKMHandsCollection = class
   private
     fCount: Byte;
-    fPlayerList: array of TKMPlayer;
-    fPlayerAnimals: TKMPlayerAnimals;
-    function GetPlayer(aIndex: Integer): TKMPlayer;
+    fHandsList: array of TKMHand;
+    fPlayerAnimals: TKMHandAnimals;
+    function GetPlayer(aIndex: Integer): TKMHand;
   public
     constructor Create;
     destructor Destroy; override;
 
     property Count: Byte read fCount;
-    property Player[aIndex: Integer]: TKMPlayer read GetPlayer; default;
-    property PlayerAnimals: TKMPlayerAnimals read fPlayerAnimals;
+    property Player[aIndex: Integer]: TKMHand read GetPlayer; default;
+    property PlayerAnimals: TKMHandAnimals read fPlayerAnimals;
 
     procedure AddPlayers(aCount: Byte); //Batch add several players
 
     procedure RemoveEmptyPlayers;
-    procedure RemovePlayer(aIndex: TPlayerIndex);
+    procedure RemovePlayer(aIndex: THandIndex);
     procedure AfterMissionInit(aFlattenRoads: Boolean);
     function HousesHitTest(X,Y: Integer): TKMHouse;
     function UnitsHitTest(X, Y: Integer): TKMUnit;
     function GroupsHitTest(X, Y: Integer): TKMUnitGroup;
-    function GetClosestUnit(aLoc: TKMPoint; aIndex: TPlayerIndex; aAlliance: TAllianceType): TKMUnit;
-    function GetClosestHouse(aLoc: TKMPoint; aIndex: TPlayerIndex; aAlliance: TAllianceType; aOnlyCompleted: Boolean = True): TKMHouse;
-    function DistanceToEnemyTowers(aLoc: TKMPoint; aIndex: TPlayerIndex): Single;
+    function GetClosestUnit(aLoc: TKMPoint; aIndex: THandIndex; aAlliance: TAllianceType): TKMUnit;
+    function GetClosestHouse(aLoc: TKMPoint; aIndex: THandIndex; aAlliance: TAllianceType; aOnlyCompleted: Boolean = True): TKMHouse;
+    function DistanceToEnemyTowers(aLoc: TKMPoint; aIndex: THandIndex): Single;
     procedure GetUnitsInRect(aRect: TKMRect; List: TList);
     function GetHouseByUID(aUID: Integer): TKMHouse;
     function GetUnitByUID(aUID: Integer): TKMUnit;
@@ -46,13 +46,13 @@ type
     //Check how Player1 feels towards Player2
     //Note: this is position dependant, e.g. Player1 may be allied with
     //      Player2, but Player2 could be an enemy to Player1
-    function CheckAlliance(aPlay1, aPlay2: TPlayerIndex): TAllianceType;
+    function CheckAlliance(aPlay1, aPlay2: THandIndex): TAllianceType;
     procedure CleanUpUnitPointer(var aUnit: TKMUnit);
     procedure CleanUpGroupPointer(var aGroup: TKMUnitGroup);
     procedure CleanUpHousePointer(var aHouse: TKMHouse);
     procedure RemAnyHouse(Position: TKMPoint);
     procedure RemAnyUnit(Position: TKMPoint);
-    procedure RevealForTeam(aPlayer: TPlayerIndex; Pos: TKMPoint; Radius,Amount:word);
+    procedure RevealForTeam(aPlayer: THandIndex; Pos: TKMPoint; Radius,Amount:word);
     procedure SyncFogOfWar;
     procedure AddDefaultGoalsToAll(aMissionMode: TKMissionMode);
 
@@ -66,7 +66,7 @@ type
   end;
 
 var
-  gPlayers: TKMPlayersCollection;
+  gHands: TKMHandsCollection;
   MySpectator: TKMSpectator; //Wrap to access player/fow separately
 
 
@@ -74,20 +74,20 @@ implementation
 uses KM_Game, KM_Log, KM_Resource, KM_ResHouses, KM_AIFields;
 
 
-{ TKMPlayersCollection }
-constructor TKMPlayersCollection.Create;
+{ TKMHandsCollection }
+constructor TKMHandsCollection.Create;
 begin
   inherited Create;
 
-  fPlayerAnimals := TKMPlayerAnimals.Create(PLAYER_ANIMAL); //Always create Animals
+  fPlayerAnimals := TKMHandAnimals.Create(PLAYER_ANIMAL); //Always create Animals
 end;
 
 
-destructor TKMPlayersCollection.Destroy;
+destructor TKMHandsCollection.Destroy;
 var I: Integer;
 begin
   for I := 0 to fCount - 1 do
-    FreeThenNil(fPlayerList[I]);
+    FreeThenNil(fHandsList[I]);
 
   PlayerAnimals.Free;
 
@@ -95,121 +95,121 @@ begin
 end;
 
 
-function TKMPlayersCollection.GetPlayer(aIndex: Integer): TKMPlayer;
+function TKMHandsCollection.GetPlayer(aIndex: Integer): TKMHand;
 begin
   Assert(InRange(aIndex, 0, fCount-1));
-  Result := fPlayerList[aIndex];
+  Result := fHandsList[aIndex];
 end;
 
 
-procedure TKMPlayersCollection.AddPlayers(aCount: Byte);
+procedure TKMHandsCollection.AddPlayers(aCount: Byte);
 var I: Integer;
 begin
-  Assert(fCount+aCount <= MAX_PLAYERS);
+  Assert(fCount+aCount <= MAX_HANDS);
 
-  SetLength(fPlayerList, fCount + aCount);
+  SetLength(fHandsList, fCount + aCount);
 
   for I := fCount to fCount + aCount - 1 do
-    fPlayerList[I] := TKMPlayer.Create(I);
+    fHandsList[I] := TKMHand.Create(I);
 
   fCount := fCount + aCount;
 end;
 
 
-procedure TKMPlayersCollection.AfterMissionInit(aFlattenRoads: Boolean);
+procedure TKMHandsCollection.AfterMissionInit(aFlattenRoads: Boolean);
 var
   I: Integer;
 begin
   fAIFields.AfterMissionInit;
 
   for I := 0 to fCount - 1 do
-    fPlayerList[I].AfterMissionInit(aFlattenRoads);
+    fHandsList[I].AfterMissionInit(aFlattenRoads);
 end;
 
 
 //We assume that if player has no assets it is unused and can be removed, so that remaining players
 //will be tightly packed and mission info will display correct player count
 //Accessed only by MapEditor when it needs to remove empty players before saving a map
-procedure TKMPlayersCollection.RemoveEmptyPlayers;
+procedure TKMHandsCollection.RemoveEmptyPlayers;
 var I: Integer;
 begin
   for I := Count - 1 downto 0 do
-    if fPlayerList[I].GetFieldsCount + fPlayerList[I].Houses.Count + fPlayerList[I].Units.Count = 0 then
+    if fHandsList[I].GetFieldsCount + fHandsList[I].Houses.Count + fHandsList[I].Units.Count = 0 then
       RemovePlayer(I);
 end;
 
 
 //Remove player 'aIndex'
 //Accessed only by MapEditor when it needs to remove empty players before saving a map
-procedure TKMPlayersCollection.RemovePlayer(aIndex: TPlayerIndex);
+procedure TKMHandsCollection.RemovePlayer(aIndex: THandIndex);
 var i,k:integer;
 begin
   //Remove other players goals using this player
   for i:=0 to fCount-1 do
-    fPlayerList[i].AI.Goals.RemoveReference(aIndex);
+    fHandsList[i].AI.Goals.RemoveReference(aIndex);
 
-  FreeThenNil(fPlayerList[aIndex]);
+  FreeThenNil(fHandsList[aIndex]);
 
   for i:=aIndex to fCount-2 do
   begin
-    fPlayerList[i] := fPlayerList[i+1];
-    fPlayerList[i].SetPlayerID(i);
+    fHandsList[i] := fHandsList[i+1];
+    fHandsList[i].SetPlayerID(i);
   end;
 
   dec(fCount);
-  SetLength(fPlayerList, fCount);
+  SetLength(fHandsList, fCount);
 
   for i:=0 to fCount-1 do
     for k:=aIndex to fCount-1 do
-      fPlayerList[i].Alliances[k] := fPlayerList[i].Alliances[k+1];
+      fHandsList[i].Alliances[k] := fHandsList[i].Alliances[k+1];
 
   gTerrain.RemovePlayer(aIndex);
 end;
 
 
-function TKMPlayersCollection.HousesHitTest(X, Y: Integer): TKMHouse;
+function TKMHandsCollection.HousesHitTest(X, Y: Integer): TKMHouse;
 var
   I: Integer;
 begin
   Result := nil;
   for I := 0 to fCount - 1 do
   begin
-    Result := fPlayerList[I].HousesHitTest(X, Y);
+    Result := fHandsList[I].HousesHitTest(X, Y);
     if Result <> nil then
       Exit; //There can't be 2 houses on one tile
   end;
 end;
 
 
-function TKMPlayersCollection.UnitsHitTest(X, Y: Integer): TKMUnit;
+function TKMHandsCollection.UnitsHitTest(X, Y: Integer): TKMUnit;
 var
   I: Integer;
 begin
   Result := nil;
   for I := 0 to fCount - 1 do
   begin
-    Result := fPlayerList[I].UnitsHitTest(X, Y);
+    Result := fHandsList[I].UnitsHitTest(X, Y);
     if Result <> nil then
       Exit; //There can't be 2 units on one tile
   end;
 end;
 
 
-function TKMPlayersCollection.GroupsHitTest(X, Y: Integer): TKMUnitGroup;
+function TKMHandsCollection.GroupsHitTest(X, Y: Integer): TKMUnitGroup;
 var
   I: Integer;
 begin
   Result := nil;
   for I := 0 to fCount - 1 do
   begin
-    Result := fPlayerList[I].GroupsHitTest(X, Y);
+    Result := fHandsList[I].GroupsHitTest(X, Y);
     if Result <> nil then
       Exit; //There can't be 2 groups on one tile
   end;
 end;
 
 
-function TKMPlayersCollection.GetClosestUnit(aLoc: TKMPoint; aIndex: TPlayerIndex; aAlliance: TAllianceType): TKMUnit;
+function TKMHandsCollection.GetClosestUnit(aLoc: TKMPoint; aIndex: THandIndex; aAlliance: TAllianceType): TKMUnit;
 var
   I: Integer;
   U: TKMUnit;
@@ -219,7 +219,7 @@ begin
   for I := 0 to fCount - 1 do
   if (aIndex <> I) and (CheckAlliance(aIndex, I) = aAlliance) then
   begin
-    U := fPlayerList[I].Units.GetClosestUnit(aLoc);
+    U := fHandsList[I].Units.GetClosestUnit(aLoc);
     if (U <> nil)
     and ((Result = nil) or (KMLengthSqr(U.PositionF, KMPointF(aLoc)) < KMLengthSqr(Result.PositionF, KMPointF(aLoc)))) then
       Result := U;
@@ -228,7 +228,7 @@ end;
 
 
 //Get closest house. Note: we check by house cells, not by entrance
-function TKMPlayersCollection.GetClosestHouse(aLoc: TKMPoint; aIndex: TPlayerIndex; aAlliance: TAllianceType; aOnlyCompleted: Boolean = True): TKMHouse;
+function TKMHandsCollection.GetClosestHouse(aLoc: TKMPoint; aIndex: THandIndex; aAlliance: TAllianceType; aOnlyCompleted: Boolean = True): TKMHouse;
 var
   I: Integer;
   H: TKMHouse;
@@ -239,7 +239,7 @@ begin
   for I := 0 to fCount - 1 do
   if (aIndex <> I) and (Player[aIndex].Alliances[I] = aAlliance) then
   begin
-    H := fPlayerList[I].Houses.FindHouse(ht_Any, aLoc.X, aLoc.Y, 1, aOnlyCompleted);
+    H := fHandsList[I].Houses.FindHouse(ht_Any, aLoc.X, aLoc.Y, 1, aOnlyCompleted);
     if (H <> nil) and ((Result = nil) or (H.GetDistance(aLoc) < Result.GetDistance(aLoc))) then
       Result := H;
   end;
@@ -247,7 +247,7 @@ end;
 
 
 //Return distance from the tile to the closest enemy tower
-function TKMPlayersCollection.DistanceToEnemyTowers(aLoc: TKMPoint; aIndex: TPlayerIndex): Single;
+function TKMHandsCollection.DistanceToEnemyTowers(aLoc: TKMPoint; aIndex: THandIndex): Single;
 var
   I, K: Integer;
   H: TKMHouse;
@@ -256,9 +256,9 @@ begin
   for I := 0 to fCount - 1 do
   if (aIndex <> I) and (Player[aIndex].Alliances[I] = at_Enemy) then
   begin
-    for K := fPlayerList[I].Houses.Count - 1 downto 0 do
+    for K := fHandsList[I].Houses.Count - 1 downto 0 do
     begin
-      H := fPlayerList[I].Houses[K];
+      H := fHandsList[I].Houses[K];
       if (H is TKMHouseTower) and H.IsComplete
       and not H.IsDestroyed and H.GetHasOwner
       and (H.fCurrentAction.State <> hst_Empty) then
@@ -269,7 +269,7 @@ begin
 end;
 
 
-function TKMPlayersCollection.GetHouseByUID(aUID: Integer): TKMHouse;
+function TKMHandsCollection.GetHouseByUID(aUID: Integer): TKMHouse;
 var I: Integer;
 begin
   Result := nil;
@@ -277,13 +277,13 @@ begin
 
   for I := 0 to fCount - 1 do
   begin
-    Result := fPlayerList[I].Houses.GetHouseByUID(aUID);
+    Result := fHandsList[I].Houses.GetHouseByUID(aUID);
     if Result <> nil then Exit; //else keep on testing
   end;
 end;
 
 
-function TKMPlayersCollection.GetUnitByUID(aUID: Integer): TKMUnit;
+function TKMHandsCollection.GetUnitByUID(aUID: Integer): TKMUnit;
 var I: Integer;
 begin
   Result := nil;
@@ -291,7 +291,7 @@ begin
 
   for I := 0 to fCount - 1 do
   begin
-    Result := fPlayerList[I].Units.GetUnitByUID(aUID);
+    Result := fHandsList[I].Units.GetUnitByUID(aUID);
 
     if Result <> nil then
       Break;
@@ -302,7 +302,7 @@ begin
 end;
 
 
-function TKMPlayersCollection.GetGroupByUID(aUID: Integer): TKMUnitGroup;
+function TKMHandsCollection.GetGroupByUID(aUID: Integer): TKMUnitGroup;
 var I: Integer;
 begin
   Result := nil;
@@ -310,26 +310,26 @@ begin
 
   for I := 0 to fCount - 1 do
   begin
-    Result := fPlayerList[I].UnitGroups.GetGroupByUID(aUID);
+    Result := fHandsList[I].UnitGroups.GetGroupByUID(aUID);
     if Result <> nil then Exit; //else keep on testing
   end;
 end;
 
 
-function TKMPlayersCollection.GetGroupByMember(aWarrior: TKMUnitWarrior): TKMUnitGroup;
+function TKMHandsCollection.GetGroupByMember(aWarrior: TKMUnitWarrior): TKMUnitGroup;
 var I: Integer;
 begin
   Result := nil;
 
   for I := 0 to fCount - 1 do
   begin
-    Result := fPlayerList[I].UnitGroups.GetGroupByMember(aWarrior);
+    Result := fHandsList[I].UnitGroups.GetGroupByMember(aWarrior);
     if Result <> nil then Exit; //else keep on testing
   end;
 end;
 
 
-function TKMPlayersCollection.HitTest(X,Y: Integer): TObject;
+function TKMHandsCollection.HitTest(X,Y: Integer): TObject;
 var
   H: TKMHouse;
   U: TKMUnit;
@@ -359,28 +359,28 @@ end;
 
 
 //Get total unit count for statistics display
-function TKMPlayersCollection.UnitCount: Integer;
+function TKMHandsCollection.UnitCount: Integer;
 var
   I: Integer;
 begin
   Result := 0;
   for I := 0 to fCount - 1 do
-    Inc(Result, fPlayerList[I].Units.Count);
+    Inc(Result, fHandsList[I].Units.Count);
 end;
 
 
-procedure TKMPlayersCollection.GetUnitsInRect(aRect: TKMRect; List: TList);
+procedure TKMHandsCollection.GetUnitsInRect(aRect: TKMRect; List: TList);
 var I: Integer;
 begin
   Assert(List.Count = 0);
 
   for I := 0 to fCount - 1 do
-    fPlayerList[I].Units.GetUnitsInRect(aRect, List);
+    fHandsList[I].Units.GetUnitsInRect(aRect, List);
 end;
 
 
 {Should return closest position where unit can be placed}
-function TKMPlayersCollection.FindPlaceForUnit(PosX,PosY:integer; aUnitType: TUnitType; out PlacePoint: TKMPoint; RequiredWalkConnect:byte):Boolean;
+function TKMHandsCollection.FindPlaceForUnit(PosX,PosY:integer; aUnitType: TUnitType; out PlacePoint: TKMPoint; RequiredWalkConnect:byte):Boolean;
 var
   I: Integer;
   P: TKMPointI;
@@ -410,7 +410,7 @@ end;
 
 { Check how Player1 feels towards Player2. Note: this is position dependant,
 e.g. Play1 may be allied with Play2, but Play2 may be enemy to Play1}
-function TKMPlayersCollection.CheckAlliance(aPlay1,aPlay2: TPlayerIndex): TAllianceType;
+function TKMHandsCollection.CheckAlliance(aPlay1,aPlay2: THandIndex): TAllianceType;
 begin
   Result := at_Ally;
 
@@ -418,13 +418,13 @@ begin
   if (aPlay1 = PLAYER_ANIMAL) or (aPlay2 = PLAYER_ANIMAL) or (aPlay1 = aPlay2) then
     Exit;
 
-  Result := fPlayerList[aPlay1].Alliances[aPlay2];
+  Result := fHandsList[aPlay1].Alliances[aPlay2];
 end;
 
 
 //We need to clean pointers through this method because on games exit we free all objects and in
 //destructor we must release all pointers. It is common that there are cross-pointers (units in fight f.e.) that cant be cross-freed
-procedure TKMPlayersCollection.CleanUpUnitPointer(var aUnit: TKMUnit);
+procedure TKMHandsCollection.CleanUpUnitPointer(var aUnit: TKMUnit);
 begin
   if (aUnit <> nil) and not fGame.IsExiting then
     aUnit.ReleaseUnitPointer;
@@ -432,7 +432,7 @@ begin
 end;
 
 
-procedure TKMPlayersCollection.CleanUpGroupPointer(var aGroup: TKMUnitGroup);
+procedure TKMHandsCollection.CleanUpGroupPointer(var aGroup: TKMUnitGroup);
 begin
   if (aGroup <> nil) and (fGame <> nil) and not fGame.IsExiting then
     aGroup.ReleaseGroupPointer;
@@ -440,7 +440,7 @@ begin
 end;
 
 
-procedure TKMPlayersCollection.CleanUpHousePointer(var aHouse: TKMHouse);
+procedure TKMHandsCollection.CleanUpHousePointer(var aHouse: TKMHouse);
 begin
   if (aHouse <> nil) and (fGame <> nil) and not fGame.IsExiting then
     aHouse.ReleaseHousePointer;
@@ -449,117 +449,117 @@ end;
 
 
 //MapEd procedure to remove any house under cursor
-procedure TKMPlayersCollection.RemAnyHouse(Position: TKMPoint);
+procedure TKMHandsCollection.RemAnyHouse(Position: TKMPoint);
 var I: Integer;
 begin
   for I := 0 to fCount - 1 do
-    fPlayerList[I].RemHouse(Position, true, true);
+    fHandsList[I].RemHouse(Position, true, true);
 end;
 
 
 //MapEd procedure to remove any unit under cursor
-procedure TKMPlayersCollection.RemAnyUnit(Position: TKMPoint);
+procedure TKMHandsCollection.RemAnyUnit(Position: TKMPoint);
 var I: Integer;
 begin
   for I := 0 to fCount - 1 do
-    fPlayerList[I].RemGroup(Position);
+    fHandsList[I].RemGroup(Position);
   for I := 0 to fCount - 1 do
-    fPlayerList[I].RemUnit(Position);
+    fHandsList[I].RemUnit(Position);
   fPlayerAnimals.RemUnit(Position);
 end;
 
 
 //Reveal portion of terrain for said player and his allies (if they share vision)
 //In singleplayer KaM sometimes you should not see your allies till some time
-procedure TKMPlayersCollection.RevealForTeam(aPlayer: TPlayerIndex; Pos: TKMPoint; Radius, Amount: Word);
+procedure TKMHandsCollection.RevealForTeam(aPlayer: THandIndex; Pos: TKMPoint; Radius, Amount: Word);
 var I: Integer;
 begin
-  fPlayerList[aPlayer].FogOfWar.RevealCircle(Pos,Radius,Amount);
+  fHandsList[aPlayer].FogOfWar.RevealCircle(Pos,Radius,Amount);
 
   for I := 0 to fCount - 1 do
-  if (I <> aPlayer) and (fPlayerList[aPlayer].Alliances[I] = at_Ally) and fPlayerList[aPlayer].ShareFOW[I] then
-    fPlayerList[I].FogOfWar.RevealCircle(Pos, Radius, Amount);
+  if (I <> aPlayer) and (fHandsList[aPlayer].Alliances[I] = at_Ally) and fHandsList[aPlayer].ShareFOW[I] then
+    fHandsList[I].FogOfWar.RevealCircle(Pos, Radius, Amount);
 end;
 
 
 //Synchronize FOW between players (e.g. when alliances change)
-procedure TKMPlayersCollection.SyncFogOfWar;
+procedure TKMHandsCollection.SyncFogOfWar;
 var I,K: Integer;
 begin
   for I := 0 to fCount - 1 do
   for K := 0 to fCount - 1 do
-  if (I <> K) and (fPlayerList[I].Alliances[K] = at_Ally) and fPlayerList[I].ShareFOW[K] then
-    fPlayerList[K].FogOfWar.SyncFOW(fPlayerList[I].FogOfWar);
+  if (I <> K) and (fHandsList[I].Alliances[K] = at_Ally) and fHandsList[I].ShareFOW[K] then
+    fHandsList[K].FogOfWar.SyncFOW(fHandsList[I].FogOfWar);
 end;
 
 
-procedure TKMPlayersCollection.AddDefaultGoalsToAll(aMissionMode: TKMissionMode);
+procedure TKMHandsCollection.AddDefaultGoalsToAll(aMissionMode: TKMissionMode);
 var I: Integer;
 begin
   for I := 0 to fCount - 1 do
-    fPlayerList[I].AI.AddDefaultGoals(aMissionMode <> mm_Tactic);
+    fHandsList[I].AI.AddDefaultGoals(aMissionMode <> mm_Tactic);
 end;
 
 
 // aMultiplayer - savegames should be identical when in MP mode
-procedure TKMPlayersCollection.Save(SaveStream: TKMemoryStream; aMultiplayer: Boolean);
+procedure TKMHandsCollection.Save(SaveStream: TKMemoryStream; aMultiplayer: Boolean);
 var
   I: Integer;
 begin
   SaveStream.WriteA('Players');
   SaveStream.Write(fCount);
   for I := 0 to fCount - 1 do
-    fPlayerList[I].Save(SaveStream);
+    fHandsList[I].Save(SaveStream);
   PlayerAnimals.Save(SaveStream);
 end;
 
 
-procedure TKMPlayersCollection.Load(LoadStream: TKMemoryStream);
+procedure TKMHandsCollection.Load(LoadStream: TKMemoryStream);
 var
   I: Integer;
 begin
   LoadStream.ReadAssert('Players');
   LoadStream.Read(fCount);
 
-  if fCount > MAX_PLAYERS then
+  if fCount > MAX_HANDS then
     gLog.AddAssert('Player count in savegame exceeds MAX_PLAYERS allowed by Remake');
 
-  SetLength(fPlayerList, fCount);
+  SetLength(fHandsList, fCount);
 
   for I := 0 to fCount - 1 do
   begin
-    fPlayerList[I] := TKMPlayer.Create(0);
-    fPlayerList[I].Load(LoadStream);
+    fHandsList[I] := TKMHand.Create(0);
+    fHandsList[I].Load(LoadStream);
   end;
   PlayerAnimals.Load(LoadStream);
 end;
 
 
-procedure TKMPlayersCollection.SyncLoad;
+procedure TKMHandsCollection.SyncLoad;
 var I: Integer;
 begin
   for I := 0 to fCount - 1 do
-    fPlayerList[I].SyncLoad;
+    fHandsList[I].SyncLoad;
 
   PlayerAnimals.SyncLoad;
 end;
 
 
-procedure TKMPlayersCollection.IncAnimStep;
+procedure TKMHandsCollection.IncAnimStep;
 var I: Integer;
 begin
   for I := 0 to fCount - 1 do
-    fPlayerList[I].IncAnimStep;
+    fHandsList[I].IncAnimStep;
 end;
 
 
-procedure TKMPlayersCollection.UpdateState(aTick: Cardinal);
+procedure TKMHandsCollection.UpdateState(aTick: Cardinal);
 var
   I: Integer;
 begin
   for I := 0 to Count - 1 do
   if not fGame.IsPaused and not fGame.IsExiting then
-    fPlayerList[I].UpdateState(aTick)
+    fHandsList[I].UpdateState(aTick)
   else
     //PlayerAI can stop the game and clear everything
     Exit;
@@ -568,11 +568,11 @@ begin
 end;
 
 
-procedure TKMPlayersCollection.Paint;
+procedure TKMHandsCollection.Paint;
 var I: Integer;
 begin
   for I := 0 to fCount - 1 do
-    fPlayerList[I].Paint;
+    fHandsList[I].Paint;
 
   PlayerAnimals.Paint;
 end;

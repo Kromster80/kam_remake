@@ -9,7 +9,7 @@ uses
 type
   TKMMapEdAttack = class
   private
-    fOwner: TPlayerIndex;
+    fOwner: THandIndex;
     fIndex: Integer;
     procedure Attack_Change(Sender: TObject);
     procedure Attack_Close(Sender: TObject);
@@ -36,13 +36,13 @@ type
     fOnDone: TNotifyEvent;
     constructor Create(aParent: TKMPanel);
 
-    procedure Show(aPlayer: TPlayerIndex; aIndex: Integer);
+    procedure Show(aPlayer: THandIndex; aIndex: Integer);
   end;
 
 
 implementation
 uses
-  KM_PlayersCollection, KM_ResTexts, KM_RenderUI, KM_ResFonts;
+  KM_HandsCollection, KM_ResTexts, KM_RenderUI, KM_ResFonts;
 
 
 const
@@ -193,7 +193,7 @@ begin
   AA.Range := TrackBar_AttackRange.Position;
   AA.CustomPosition := KMPoint(NumEdit_AttackLocX.Value, NumEdit_AttackLocY.Value);
 
-  gPlayers[fOwner].AI.General.Attacks[fIndex] := AA;
+  gHands[fOwner].AI.General.Attacks[fIndex] := AA;
 end;
 
 
@@ -205,23 +205,23 @@ var
 begin
   Attack_Save;
 
-  atCount := gPlayers[fOwner].AI.General.Attacks.Count;
+  atCount := gHands[fOwner].AI.General.Attacks.Count;
 
   if Sender = Button_Prev then
     fIndex := (fIndex + atCount - 1) mod atCount
   else
     fIndex := (fIndex + 1) mod atCount;
 
-  Attack_Refresh(gPlayers[fOwner].AI.General.Attacks[fIndex]);
+  Attack_Refresh(gHands[fOwner].AI.General.Attacks[fIndex]);
 end;
 
 
-procedure TKMMapEdAttack.Show(aPlayer: TPlayerIndex; aIndex: Integer);
+procedure TKMMapEdAttack.Show(aPlayer: THandIndex; aIndex: Integer);
 begin
   fOwner := aPlayer;
   fIndex := aIndex;
 
-  Attack_Refresh(gPlayers[fOwner].AI.General.Attacks[fIndex]);
+  Attack_Refresh(gHands[fOwner].AI.General.Attacks[fIndex]);
   Panel_Attack.Show;
 end;
 

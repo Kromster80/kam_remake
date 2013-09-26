@@ -35,7 +35,7 @@ type
 
 implementation
 uses
-  KM_Player, KM_PlayersCollection, KM_ResTexts, KM_GameCursor, KM_RenderUI, KM_InterfaceDefaults;
+  KM_Hand, KM_HandsCollection, KM_ResTexts, KM_GameCursor, KM_RenderUI, KM_InterfaceDefaults;
 
 
 { TKMMapEdMission }

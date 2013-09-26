@@ -37,7 +37,7 @@ type
 
 
 implementation
-uses KM_PlayersCollection, KM_Player, KM_AI, KM_AIDefensePos, KM_TerrainPainter,
+uses KM_HandsCollection, KM_Hand, KM_AI, KM_AIDefensePos, KM_TerrainPainter,
   KM_Resource, KM_ResHouses, KM_ResUnits, KM_ResWares, KM_Game, KM_Units_Warrior;
 
 
@@ -87,7 +87,7 @@ var
 begin
   inherited LoadMission(aFileName);
 
-  Assert((gTerrain <> nil) and (gPlayers <> nil));
+  Assert((gTerrain <> nil) and (gHands <> nil));
 
   Result := False;
 
@@ -127,7 +127,7 @@ var
   Qty: Integer;
   H: TKMHouse;
   HT: THouseType;
-  iPlayerAI: TKMPlayerAI;
+  iPlayerAI: TKMHandAI;
 begin
   Result := False; //Set it right from the start. There are several Exit points below
 
@@ -143,21 +143,21 @@ begin
                           end}
                         end;
     ct_SetMaxPlayer:    begin
-                          gPlayers.AddPlayers(P[0]);
+                          gHands.AddPlayers(P[0]);
                           //Set players to enabled/disabled
-                          for I := 0 to gPlayers.Count - 1 do
-                            gPlayers[i].Enabled := fPlayerEnabled[i];
+                          for I := 0 to gHands.Count - 1 do
+                            gHands[i].Enabled := fPlayerEnabled[i];
                         end;
     ct_SetTactic:       begin
                           //Default is mm_Normal
                           fGame.MissionMode := mm_Tactic;
                         end;
-    ct_SetCurrPlayer:   if InRange(P[0], 0, MAX_PLAYERS - 1) then
+    ct_SetCurrPlayer:   if InRange(P[0], 0, MAX_HANDS - 1) then
                         begin
                           if fPlayerEnabled[P[0]] then
-                            fLastPlayer := P[0]
+                            fLastHand := P[0]
                           else
-                            fLastPlayer := -1; //Lets us skip this player
+                            fLastHand := -1; //Lets us skip this player
                           fLastHouse := nil;
                           fLastTroop := nil;
                         end;
@@ -166,7 +166,7 @@ begin
                           //MP and SP set human players themselves
                           //Remains usefull for map preview and MapEd
                           fDefaultLocation := P[0];
-                          if (fParsingMode = mpm_Editor) and (gPlayers <> nil) then
+                          if (fParsingMode = mpm_Editor) and (gHands <> nil) then
                           begin
                             fGame.MapEditor.DefaultHuman := P[0];
                             fGame.MapEditor.PlayerHuman[P[0]] := True;
@@ -175,42 +175,42 @@ begin
     ct_UserPlayer:      //New command added by KMR - mark player as allowed to be human
                         //MP and SP set human players themselves
                         //Remains usefull for map preview and MapEd
-                        if (fParsingMode = mpm_Editor) and (gPlayers <> nil) then
-                          if InRange(P[0], 0, gPlayers.Count - 1) then
+                        if (fParsingMode = mpm_Editor) and (gHands <> nil) then
+                          if InRange(P[0], 0, gHands.Count - 1) then
                             fGame.MapEditor.PlayerHuman[P[0]] := True
                           else
-                            fGame.MapEditor.PlayerHuman[fLastPlayer] := True;
+                            fGame.MapEditor.PlayerHuman[fLastHand] := True;
     ct_AIPlayer:        //New command added by KMR - mark player as allowed to be human
                         //MP and SP set human players themselves
                         //Remains usefull for map preview and MapEd
-                        if (fParsingMode = mpm_Editor) and (gPlayers <> nil) then
-                          if InRange(P[0], 0, gPlayers.Count - 1) then
+                        if (fParsingMode = mpm_Editor) and (gHands <> nil) then
+                          if InRange(P[0], 0, gHands.Count - 1) then
                             fGame.MapEditor.PlayerAI[P[0]] := True
                           else
-                            fGame.MapEditor.PlayerAI[fLastPlayer] := True;
-    ct_CenterScreen:    if fLastPlayer >= 0 then
-                          gPlayers[fLastPlayer].CenterScreen := KMPoint(P[0]+1, P[1]+1);
-    ct_ClearUp:         if fLastPlayer >= 0 then
+                            fGame.MapEditor.PlayerAI[fLastHand] := True;
+    ct_CenterScreen:    if fLastHand >= 0 then
+                          gHands[fLastHand].CenterScreen := KMPoint(P[0]+1, P[1]+1);
+    ct_ClearUp:         if fLastHand >= 0 then
                         begin
                           if fParsingMode = mpm_Editor then
                             if P[0] = 255 then
-                              fGame.MapEditor.RevealAll[fLastPlayer] := True
+                              fGame.MapEditor.RevealAll[fLastHand] := True
                             else
-                              fGame.MapEditor.Revealers[fLastPlayer].Add(KMPoint(P[0]+1,P[1]+1), P[2])
+                              fGame.MapEditor.Revealers[fLastHand].Add(KMPoint(P[0]+1,P[1]+1), P[2])
                           else
                             if P[0] = 255 then
-                              gPlayers[fLastPlayer].FogOfWar.RevealEverything
+                              gHands[fLastHand].FogOfWar.RevealEverything
                             else
-                              gPlayers[fLastPlayer].FogOfWar.RevealCircle(KMPoint(P[0]+1,P[1]+1), P[2], 255);
+                              gHands[fLastHand].FogOfWar.RevealCircle(KMPoint(P[0]+1,P[1]+1), P[2], 255);
                         end;
-    ct_SetHouse:        if fLastPlayer >= 0 then
+    ct_SetHouse:        if fLastHand >= 0 then
                           if InRange(P[0], Low(HouseIndexToType), High(HouseIndexToType)) then
                             if gTerrain.CanPlaceHouseFromScript(HouseIndexToType[P[0]], KMPoint(P[1]+1, P[2]+1)) then
-                              fLastHouse := gPlayers[fLastPlayer].AddHouse(
+                              fLastHouse := gHands[fLastHand].AddHouse(
                                 HouseIndexToType[P[0]], P[1]+1, P[2]+1, false)
                             else
                               AddError('ct_SetHouse failed, can not place house at ' + TypeToString(KMPoint(P[1]+1, P[2]+1)));
-    ct_SetHouseDamage:  if fLastPlayer >= 0 then //Skip false-positives for skipped players
+    ct_SetHouseDamage:  if fLastHand >= 0 then //Skip false-positives for skipped players
                           if fLastHouse <> nil then
                             fLastHouse.AddDamage(-1, min(P[0],high(word)), fParsingMode = mpm_Editor)
                           else
@@ -218,83 +218,83 @@ begin
     ct_SetUnit:         begin
                           //Animals should be added regardless of current player
                           if UnitOldIndexToType[P[0]] in [ANIMAL_MIN..ANIMAL_MAX] then
-                            gPlayers.PlayerAnimals.AddUnit(UnitOldIndexToType[P[0]], KMPoint(P[1]+1, P[2]+1))
+                            gHands.PlayerAnimals.AddUnit(UnitOldIndexToType[P[0]], KMPoint(P[1]+1, P[2]+1))
                           else
-                          if (fLastPlayer >= 0) and (UnitOldIndexToType[P[0]] in [HUMANS_MIN..HUMANS_MAX]) then
-                            gPlayers[fLastPlayer].AddUnit(UnitOldIndexToType[P[0]], KMPoint(P[1]+1, P[2]+1));
+                          if (fLastHand >= 0) and (UnitOldIndexToType[P[0]] in [HUMANS_MIN..HUMANS_MAX]) then
+                            gHands[fLastHand].AddUnit(UnitOldIndexToType[P[0]], KMPoint(P[1]+1, P[2]+1));
                         end;
 
-    ct_SetUnitByStock:  if fLastPlayer >= 0 then
+    ct_SetUnitByStock:  if fLastHand >= 0 then
                           if UnitOldIndexToType[P[0]] in [HUMANS_MIN..HUMANS_MAX] then
                           begin
-                            H := gPlayers[fLastPlayer].FindHouse(ht_Store, 1);
+                            H := gHands[fLastHand].FindHouse(ht_Store, 1);
                             if H <> nil then
-                              gPlayers[fLastPlayer].AddUnit(UnitOldIndexToType[P[0]], KMPoint(H.GetEntrance.X, H.GetEntrance.Y+1));
+                              gHands[fLastHand].AddUnit(UnitOldIndexToType[P[0]], KMPoint(H.GetEntrance.X, H.GetEntrance.Y+1));
                           end;
-    ct_SetRoad:         if fLastPlayer >= 0 then
-                          gPlayers[fLastPlayer].AddRoadToList(KMPoint(P[0]+1,P[1]+1));
-    ct_SetField:        if fLastPlayer >= 0 then
-                          gPlayers[fLastPlayer].AddField(KMPoint(P[0]+1,P[1]+1),ft_Corn);
-    ct_SetWinefield:    if fLastPlayer >= 0 then
-                          gPlayers[fLastPlayer].AddField(KMPoint(P[0]+1,P[1]+1),ft_Wine);
-    ct_SetStock:        if fLastPlayer >= 0 then
+    ct_SetRoad:         if fLastHand >= 0 then
+                          gHands[fLastHand].AddRoadToList(KMPoint(P[0]+1,P[1]+1));
+    ct_SetField:        if fLastHand >= 0 then
+                          gHands[fLastHand].AddField(KMPoint(P[0]+1,P[1]+1),ft_Corn);
+    ct_SetWinefield:    if fLastHand >= 0 then
+                          gHands[fLastHand].AddField(KMPoint(P[0]+1,P[1]+1),ft_Wine);
+    ct_SetStock:        if fLastHand >= 0 then
                         begin //This command basically means: Put a SH here with road bellow it
-                          fLastHouse := gPlayers[fLastPlayer].AddHouse(ht_Store, P[0]+1,P[1]+1, false);
-                          gPlayers[fLastPlayer].AddRoadToList(KMPoint(P[0]+1,P[1]+2));
-                          gPlayers[fLastPlayer].AddRoadToList(KMPoint(P[0],P[1]+2));
-                          gPlayers[fLastPlayer].AddRoadToList(KMPoint(P[0]-1,P[1]+2));
+                          fLastHouse := gHands[fLastHand].AddHouse(ht_Store, P[0]+1,P[1]+1, false);
+                          gHands[fLastHand].AddRoadToList(KMPoint(P[0]+1,P[1]+2));
+                          gHands[fLastHand].AddRoadToList(KMPoint(P[0],P[1]+2));
+                          gHands[fLastHand].AddRoadToList(KMPoint(P[0]-1,P[1]+2));
                         end;
-    ct_AddWare:         if fLastPlayer >= 0 then
+    ct_AddWare:         if fLastHand >= 0 then
                         begin
                           Qty := EnsureRange(P[1], -1, High(Word)); //Sometimes user can define it to be 999999
                           if Qty = -1 then Qty := High(Word); //-1 means maximum resources
-                          H := gPlayers[fLastPlayer].FindHouse(ht_Store,1);
+                          H := gHands[fLastHand].FindHouse(ht_Store,1);
                           if (H <> nil) and H.ResCanAddToIn(WareIndexToType[P[0]]) then
                           begin
                             H.ResAddToIn(WareIndexToType[P[0]], Qty, True);
-                            gPlayers[fLastPlayer].Stats.WareInitial(WareIndexToType[P[0]], Qty);
+                            gHands[fLastHand].Stats.WareInitial(WareIndexToType[P[0]], Qty);
                           end;
 
                         end;
     ct_AddWareToAll:    begin
                           Qty := EnsureRange(P[1], -1, High(Word)); //Sometimes user can define it to be 999999
                           if Qty = -1 then Qty := High(Word); //-1 means maximum resources
-                          for i:=0 to gPlayers.Count-1 do
+                          for i:=0 to gHands.Count-1 do
                           begin
-                            H := gPlayers[i].FindHouse(ht_Store, 1);
+                            H := gHands[i].FindHouse(ht_Store, 1);
                             if (H <> nil) and H.ResCanAddToIn(WareIndexToType[P[0]]) then
                             begin
                               H.ResAddToIn(WareIndexToType[P[0]], Qty, True);
-                              gPlayers[i].Stats.WareInitial(WareIndexToType[P[0]], Qty);
+                              gHands[i].Stats.WareInitial(WareIndexToType[P[0]], Qty);
                             end;
                           end;
                         end;
-    ct_AddWareToSecond: if fLastPlayer >= 0 then
+    ct_AddWareToSecond: if fLastHand >= 0 then
                         begin
                           Qty := EnsureRange(P[1], -1, High(Word)); //Sometimes user can define it to be 999999
                           if Qty = -1 then Qty := High(Word); //-1 means maximum resources
 
-                          H := TKMHouseStore(gPlayers[fLastPlayer].FindHouse(ht_Store, 2));
+                          H := TKMHouseStore(gHands[fLastHand].FindHouse(ht_Store, 2));
                           if (H <> nil) and H.ResCanAddToIn(WareIndexToType[P[0]]) then
                           begin
                             H.ResAddToIn(WareIndexToType[P[0]], Qty, True);
-                            gPlayers[fLastPlayer].Stats.WareInitial(WareIndexToType[P[0]], Qty);
+                            gHands[fLastHand].Stats.WareInitial(WareIndexToType[P[0]], Qty);
                           end;
                         end;
     //Depreciated by ct_AddWareToLast, but we keep it for backwards compatibility in loading
-    ct_AddWareTo:       if fLastPlayer >= 0 then
+    ct_AddWareTo:       if fLastHand >= 0 then
                         begin //HouseType, House Order, Ware Type, Count
                           Qty := EnsureRange(P[3], -1, High(Word)); //Sometimes user can define it to be 999999
                           if Qty = -1 then Qty := High(Word); //-1 means maximum resources
 
-                          H := gPlayers[fLastPlayer].FindHouse(HouseIndexToType[P[0]], P[1]);
+                          H := gHands[fLastHand].FindHouse(HouseIndexToType[P[0]], P[1]);
                           if (H <> nil) and H.ResCanAddToIn(WareIndexToType[P[2]]) then
                           begin
                             H.ResAddToIn(WareIndexToType[P[2]], Qty, True);
-                            gPlayers[fLastPlayer].Stats.WareInitial(WareIndexToType[P[2]], Qty);
+                            gHands[fLastHand].Stats.WareInitial(WareIndexToType[P[2]], Qty);
                           end;
                         end;
-    ct_AddWareToLast:   if fLastPlayer >= 0 then
+    ct_AddWareToLast:   if fLastHand >= 0 then
                         begin //Ware Type, Count
                           Qty := EnsureRange(P[1], -1, High(Word)); //Sometimes user can define it to be 999999
                           if Qty = -1 then Qty := High(Word); //-1 means maximum resources
@@ -302,44 +302,44 @@ begin
                           if (fLastHouse <> nil) and fLastHouse.ResCanAddToIn(WareIndexToType[P[0]]) then
                           begin
                             fLastHouse.ResAddToIn(WareIndexToType[P[0]], Qty, True);
-                            gPlayers[fLastPlayer].Stats.WareInitial(WareIndexToType[P[0]], Qty);
+                            gHands[fLastHand].Stats.WareInitial(WareIndexToType[P[0]], Qty);
                           end
                           else
                             AddError('ct_AddWareToLast without prior declaration of House');
                         end;
-    ct_AddWeapon:       if fLastPlayer >= 0 then
+    ct_AddWeapon:       if fLastHand >= 0 then
                         begin
                           Qty := EnsureRange(P[1], -1, High(Word)); //Sometimes user can define it to be 999999
                           if Qty = -1 then Qty := High(Word); //-1 means maximum weapons
-                          H := gPlayers[fLastPlayer].FindHouse(ht_Barracks, 1);
+                          H := gHands[fLastHand].FindHouse(ht_Barracks, 1);
                           if (H <> nil) and H.ResCanAddToIn(WareIndexToType[P[0]]) then
                           begin
                             H.ResAddToIn(WareIndexToType[P[0]], Qty, True);
-                            gPlayers[fLastPlayer].Stats.WareInitial(WareIndexToType[P[0]], Qty);
+                            gHands[fLastHand].Stats.WareInitial(WareIndexToType[P[0]], Qty);
                           end;
                         end;
-    ct_BlockTrade:      if fLastPlayer >= 0 then
+    ct_BlockTrade:      if fLastHand >= 0 then
                         begin
                           if WareIndexToType[P[0]] in [WARE_MIN..WARE_MAX] then
-                            gPlayers[fLastPlayer].Stats.AllowToTrade[WareIndexToType[P[0]]] := false;
+                            gHands[fLastHand].Stats.AllowToTrade[WareIndexToType[P[0]]] := false;
                         end;
-    ct_BlockHouse:      if fLastPlayer >= 0 then
+    ct_BlockHouse:      if fLastHand >= 0 then
                         begin
                           if InRange(P[0], Low(HouseIndexToType), High(HouseIndexToType)) then
-                            gPlayers[fLastPlayer].Stats.HouseBlocked[HouseIndexToType[P[0]]] := True;
+                            gHands[fLastHand].Stats.HouseBlocked[HouseIndexToType[P[0]]] := True;
                         end;
-    ct_ReleaseHouse:    if fLastPlayer >= 0 then
+    ct_ReleaseHouse:    if fLastHand >= 0 then
                         begin
                           if InRange(P[0], Low(HouseIndexToType), High(HouseIndexToType)) then
-                            gPlayers[fLastPlayer].Stats.HouseGranted[HouseIndexToType[P[0]]] := True;
+                            gHands[fLastHand].Stats.HouseGranted[HouseIndexToType[P[0]]] := True;
                         end;
-    ct_ReleaseAllHouses:if fLastPlayer >= 0 then
+    ct_ReleaseAllHouses:if fLastHand >= 0 then
                           for HT := HOUSE_MIN to HOUSE_MAX do
-                            gPlayers[fLastPlayer].Stats.HouseGranted[HT] := True;
-    ct_SetGroup:        if fLastPlayer >= 0 then
+                            gHands[fLastHand].Stats.HouseGranted[HT] := True;
+    ct_SetGroup:        if fLastHand >= 0 then
                           if InRange(P[0], Low(UnitIndexToType), High(UnitIndexToType)) and (UnitIndexToType[P[0]] <> ut_None) then
                           try
-                            fLastTroop := gPlayers[fLastPlayer].AddUnitGroup(
+                            fLastTroop := gHands[fLastHand].AddUnitGroup(
                               UnitIndexToType[P[0]],
                               KMPoint(P[1]+1, P[2]+1),
                               TKMDirection(P[3]+1),
@@ -352,7 +352,7 @@ begin
                             on E: ELocError do
                               AddError(ELocError(E).Message);
                           end;
-    ct_SendGroup:       if fLastPlayer >= 0 then
+    ct_SendGroup:       if fLastHand >= 0 then
                         begin
                           if fLastTroop <> nil then
                             if fParsingMode = mpm_Editor then
@@ -365,17 +365,17 @@ begin
                           else
                             AddError('ct_SendGroup without prior declaration of Troop');
                         end;
-    ct_SetGroupFood:    if fLastPlayer >= 0 then
+    ct_SetGroupFood:    if fLastHand >= 0 then
                         begin
                           if fLastTroop <> nil then
                             fLastTroop.Condition := UNIT_MAX_CONDITION
                           else
                             AddError('ct_SetGroupFood without prior declaration of Troop');
                         end;
-    ct_AICharacter:     if fLastPlayer >= 0 then
+    ct_AICharacter:     if fLastHand >= 0 then
                         begin
-                          if gPlayers[fLastPlayer].PlayerType <> pt_Computer then Exit;
-                          iPlayerAI := gPlayers[fLastPlayer].AI; //Setup the AI's character
+                          if gHands[fLastHand].PlayerType <> hndComputer then Exit;
+                          iPlayerAI := gHands[fLastHand].AI; //Setup the AI's character
                           if TextParam = PARAMVALUES[cpt_Recruits]     then iPlayerAI.Setup.RecruitCount  := P[1];
                           if TextParam = PARAMVALUES[cpt_Constructors] then iPlayerAI.Setup.WorkerCount   := P[1];
                           if TextParam = PARAMVALUES[cpt_WorkerFactor] then iPlayerAI.Setup.SerfsPerHouse := (10/Max(P[1],1));
@@ -396,22 +396,22 @@ begin
                             iPlayerAI.General.DefencePositions.TroopFormations[TGroupType(P[1])].UnitsPerRow  := P[3];
                           end;
                         end;
-    ct_AINoBuild:       if fLastPlayer >= 0 then
-                          gPlayers[fLastPlayer].AI.Setup.AutoBuild := False;
-    ct_AIAutoRepair:    if fLastPlayer >= 0 then
-                          gPlayers[fLastPlayer].AI.Mayor.AutoRepair := True;
-    ct_AIAutoAttack:    if fLastPlayer >= 0 then
-                          gPlayers[fLastPlayer].AI.Setup.AutoAttack := True;
-    ct_AIAutoDefend:    if fLastPlayer >= 0 then
-                          gPlayers[fLastPlayer].AI.Setup.AutoDefend := True;
-    ct_AIStartPosition: if fLastPlayer >= 0 then
-                          gPlayers[fLastPlayer].AI.Setup.StartPosition := KMPoint(P[0]+1,P[1]+1);
-    ct_SetAlliance:     if (fLastPlayer >= 0) and fPlayerEnabled[P[0]] then
+    ct_AINoBuild:       if fLastHand >= 0 then
+                          gHands[fLastHand].AI.Setup.AutoBuild := False;
+    ct_AIAutoRepair:    if fLastHand >= 0 then
+                          gHands[fLastHand].AI.Mayor.AutoRepair := True;
+    ct_AIAutoAttack:    if fLastHand >= 0 then
+                          gHands[fLastHand].AI.Setup.AutoAttack := True;
+    ct_AIAutoDefend:    if fLastHand >= 0 then
+                          gHands[fLastHand].AI.Setup.AutoDefend := True;
+    ct_AIStartPosition: if fLastHand >= 0 then
+                          gHands[fLastHand].AI.Setup.StartPosition := KMPoint(P[0]+1,P[1]+1);
+    ct_SetAlliance:     if (fLastHand >= 0) and fPlayerEnabled[P[0]] then
                           if P[1] = 1 then
-                            gPlayers[fLastPlayer].Alliances[P[0]] := at_Ally
+                            gHands[fLastHand].Alliances[P[0]] := at_Ally
                           else
-                            gPlayers[fLastPlayer].Alliances[P[0]] := at_Enemy;
-    ct_AttackPosition:  if fLastPlayer >= 0 then
+                            gHands[fLastHand].Alliances[P[0]] := at_Enemy;
+    ct_AttackPosition:  if fLastHand >= 0 then
                           //If target is building: Attack building
                           //If target is unit: Chase/attack unit
                           //If target is nothing: move to position
@@ -432,43 +432,43 @@ begin
                           else
                             AddError('ct_AttackPosition without prior declaration of Troop');
     ct_AddGoal:         //ADD_GOAL, condition, status, message_id, player_id,
-                        if fLastPlayer >= 0 then
+                        if fLastHand >= 0 then
                         begin
                           if not InRange(P[0], 0, Byte(High(TGoalCondition))) then
                             AddError('Add_Goal with unknown condition index ' + IntToStr(P[0]))
                           else
-                          if InRange(P[3], 0, gPlayers.Count - 1)
+                          if InRange(P[3], 0, gHands.Count - 1)
                           and fPlayerEnabled[P[3]] then
                           begin
                             if not (TGoalCondition(P[0]) in GoalsSupported) then
                               AddError('Goal type ' + GoalConditionStr[TGoalCondition(P[0])] + ' is deprecated');
                             if (P[2] <> 0) then
                               AddError('Goals messages are deprecated. Use .script instead');
-                            gPlayers[fLastPlayer].AI.Goals.AddGoal(glt_Victory, TGoalCondition(P[0]), TGoalStatus(P[1]), 0, P[2], P[3]);
+                            gHands[fLastHand].AI.Goals.AddGoal(glt_Victory, TGoalCondition(P[0]), TGoalStatus(P[1]), 0, P[2], P[3]);
                           end;
                         end;
-    ct_AddLostGoal:     if fLastPlayer >= 0 then
+    ct_AddLostGoal:     if fLastHand >= 0 then
                         begin
                           if not InRange(P[0], 0, Byte(High(TGoalCondition))) then
                             AddError('Add_LostGoal with unknown condition index ' + IntToStr(P[0]))
                           else
-                          if InRange(P[3], 0, gPlayers.Count - 1)
+                          if InRange(P[3], 0, gHands.Count - 1)
                           and fPlayerEnabled[P[3]] then
                           begin
                             if not (TGoalCondition(P[0]) in GoalsSupported) then
                               AddError('LostGoal type ' + GoalConditionStr[TGoalCondition(P[0])] + ' is deprecated');
                             if (P[2] <> 0) then
                               AddError('LostGoals messages are deprecated. Use .script instead');
-                            gPlayers[fLastPlayer].AI.Goals.AddGoal(glt_Survive, TGoalCondition(P[0]), TGoalStatus(P[1]), 0, P[2], P[3]);
+                            gHands[fLastHand].AI.Goals.AddGoal(glt_Survive, TGoalCondition(P[0]), TGoalStatus(P[1]), 0, P[2], P[3]);
                           end;
                         end;
-    ct_AIDefence:       if fLastPlayer >=0 then
+    ct_AIDefence:       if fLastHand >=0 then
                         if InRange(P[3], Integer(Low(TGroupType)), Integer(High(TGroupType))) then //TPR 3 tries to set TGroupType 240 due to a missing space
-                          gPlayers[fLastPlayer].AI.General.DefencePositions.Add(KMPointDir(P[0]+1, P[1]+1, TKMDirection(P[2]+1)),TGroupType(P[3]),P[4],TAIDefencePosType(P[5]));
-    ct_SetMapColor:     if fLastPlayer >=0 then
+                          gHands[fLastHand].AI.General.DefencePositions.Add(KMPointDir(P[0]+1, P[1]+1, TKMDirection(P[2]+1)),TGroupType(P[3]),P[4],TAIDefencePosType(P[5]));
+    ct_SetMapColor:     if fLastHand >=0 then
                           //For now simply use the minimap color for all color, it is too hard to load all 8 shades from ct_SetNewRemap
-                          gPlayers[fLastPlayer].FlagColor := fResource.Palettes.DefDal.Color32(P[0]);
-    ct_AIAttack:        if fLastPlayer >=0 then
+                          gHands[fLastHand].FlagColor := fResource.Palettes.DefDal.Color32(P[0]);
+    ct_AIAttack:        if fLastHand >=0 then
                         begin
                           //Set up the attack command
                           if TextParam = AI_ATTACK_PARAMS[cpt_Type] then
@@ -491,10 +491,10 @@ begin
                           if TextParam = AI_ATTACK_PARAMS[cpt_TakeAll] then
                             fAIAttack.TakeAll := True;
                         end;
-    ct_CopyAIAttack:    if fLastPlayer >= 0 then
+    ct_CopyAIAttack:    if fLastHand >= 0 then
                         begin
                           //Save the attack to the AI assets
-                          gPlayers[fLastPlayer].AI.General.Attacks.AddAttack(fAIAttack);
+                          gHands[fLastHand].AI.General.Attacks.AddAttack(fAIAttack);
 
                           //Reset values before next Attack processing
                           FillChar(fAIAttack, SizeOf(fAIAttack), #0);
@@ -523,13 +523,13 @@ begin
   for I := 0 to fAttackPositionsCount - 1 do
     with fAttackPositions[I] do
     begin
-      H := gPlayers.HousesHitTest(Target.X, Target.Y); //Attack house
-      if (H <> nil) and (not H.IsDestroyed) and (gPlayers.CheckAlliance(Group.Owner, H.Owner) = at_Enemy) then
+      H := gHands.HousesHitTest(Target.X, Target.Y); //Attack house
+      if (H <> nil) and (not H.IsDestroyed) and (gHands.CheckAlliance(Group.Owner, H.Owner) = at_Enemy) then
         Group.OrderAttackHouse(H, True)
       else
       begin
         U := gTerrain.UnitsHitTest(Target.X, Target.Y); //Chase/attack unit
-        if (U <> nil) and (not U.IsDeadOrDying) and (gPlayers.CheckAlliance(Group.Owner, U.Owner) = at_Enemy) then
+        if (U <> nil) and (not U.IsDeadOrDying) and (gHands.CheckAlliance(Group.Owner, U.Owner) = at_Enemy) then
           Group.OrderAttackUnit(U, True)
         else
           Group.OrderWalk(Target, True); //Just move to position
@@ -614,12 +614,12 @@ begin
     AnsiString(ChangeFileExt(ExtractFileName(aFileName), '.map')) + '"');
 
   if fGame.MissionMode = mm_Tactic then AddCommand(ct_SetTactic, []);
-  AddCommand(ct_SetMaxPlayer, [gPlayers.Count]);
+  AddCommand(ct_SetMaxPlayer, [gHands.Count]);
   AddCommand(ct_HumanPlayer, [fGame.MapEditor.DefaultHuman]);
   AddData(''); //NL
 
   //Player loop
-  for I := 0 to gPlayers.Count - 1 do
+  for I := 0 to gHands.Count - 1 do
   begin
     //Player header, using same order of commands as KaM
     AddCommand(ct_SetCurrPlayer, [I]);
@@ -628,9 +628,9 @@ begin
     if fGame.MapEditor.PlayerHuman[I] then AddCommand(ct_UserPlayer, []);
     if fGame.MapEditor.PlayerAI[I] then AddCommand(ct_AIPlayer, []);
 
-    AddCommand(ct_SetMapColor, [gPlayers[I].FlagColorIndex]);
-    if not KMSamePoint(gPlayers[I].CenterScreen, KMPoint(0,0)) then
-      AddCommand(ct_CenterScreen, [gPlayers[I].CenterScreen.X-1, gPlayers[I].CenterScreen.Y-1]);
+    AddCommand(ct_SetMapColor, [gHands[I].FlagColorIndex]);
+    if not KMSamePoint(gHands[I].CenterScreen, KMPoint(0,0)) then
+      AddCommand(ct_CenterScreen, [gHands[I].CenterScreen.X-1, gHands[I].CenterScreen.Y-1]);
 
     with fGame.MapEditor.Revealers[I] do
     for K := 0 to Count - 1 do
@@ -642,52 +642,52 @@ begin
     AddData(''); //NL
 
     //Human specific, e.g. goals, center screen (though all players can have it, only human can use it)
-    for K:=0 to gPlayers[I].AI.Goals.Count-1 do
-      with gPlayers[I].AI.Goals[K] do
+    for K:=0 to gHands[I].AI.Goals.Count-1 do
+      with gHands[I].AI.Goals[K] do
       begin
         if (GoalType = glt_Victory) or (GoalType = glt_None) then //For now treat none same as normal goal, we can add new command for it later
           if GoalCondition = gc_Time then
             AddCommand(ct_AddGoal, [byte(GoalCondition),byte(GoalStatus),MessageToShow,GoalTime])
           else
-            AddCommand(ct_AddGoal, [byte(GoalCondition),byte(GoalStatus),MessageToShow,PlayerIndex]);
+            AddCommand(ct_AddGoal, [byte(GoalCondition),byte(GoalStatus),MessageToShow, HandIndex]);
 
         if GoalType = glt_Survive then
           if GoalCondition = gc_Time then
             AddCommand(ct_AddLostGoal, [byte(GoalCondition),byte(GoalStatus),MessageToShow,GoalTime])
           else
-            AddCommand(ct_AddLostGoal, [byte(GoalCondition),byte(GoalStatus),MessageToShow,PlayerIndex]);
+            AddCommand(ct_AddLostGoal, [byte(GoalCondition),byte(GoalStatus),MessageToShow, HandIndex]);
       end;
     AddData(''); //NL
 
     //Computer specific, e.g. AI commands. Always save these commands even if the player
     //is not AI so no data is lost from MapEd (human players will ignore AI script anyway)
-    AddCommand(ct_AIStartPosition, [gPlayers[I].AI.Setup.StartPosition.X-1,gPlayers[I].AI.Setup.StartPosition.Y-1]);
-    if not gPlayers[I].AI.Setup.AutoBuild then AddCommand(ct_AINoBuild, []);
-    if gPlayers[I].AI.Mayor.AutoRepair then    AddCommand(ct_AIAutoRepair, []);
-    if gPlayers[I].AI.Setup.AutoAttack then    AddCommand(ct_AIAutoAttack, []);
-    if gPlayers[I].AI.Setup.AutoDefend then    AddCommand(ct_AIAutoDefend, []);
-    AddCommand(ct_AICharacter,cpt_Recruits, [gPlayers[I].AI.Setup.RecruitCount]);
-    AddCommand(ct_AICharacter,cpt_WorkerFactor, [Round(10 / gPlayers[I].AI.Setup.SerfsPerHouse)]);
-    AddCommand(ct_AICharacter,cpt_Constructors, [gPlayers[I].AI.Setup.WorkerCount]);
-    AddCommand(ct_AICharacter,cpt_TownDefence, [gPlayers[I].AI.Setup.TownDefence]);
+    AddCommand(ct_AIStartPosition, [gHands[I].AI.Setup.StartPosition.X-1,gHands[I].AI.Setup.StartPosition.Y-1]);
+    if not gHands[I].AI.Setup.AutoBuild then AddCommand(ct_AINoBuild, []);
+    if gHands[I].AI.Mayor.AutoRepair then    AddCommand(ct_AIAutoRepair, []);
+    if gHands[I].AI.Setup.AutoAttack then    AddCommand(ct_AIAutoAttack, []);
+    if gHands[I].AI.Setup.AutoDefend then    AddCommand(ct_AIAutoDefend, []);
+    AddCommand(ct_AICharacter,cpt_Recruits, [gHands[I].AI.Setup.RecruitCount]);
+    AddCommand(ct_AICharacter,cpt_WorkerFactor, [Round(10 / gHands[I].AI.Setup.SerfsPerHouse)]);
+    AddCommand(ct_AICharacter,cpt_Constructors, [gHands[I].AI.Setup.WorkerCount]);
+    AddCommand(ct_AICharacter,cpt_TownDefence, [gHands[I].AI.Setup.TownDefence]);
     //Only store if a limit is in place (high is the default)
-    if gPlayers[I].AI.Setup.MaxSoldiers <> -1 then
-      AddCommand(ct_AICharacter,cpt_MaxSoldier, [gPlayers[I].AI.Setup.MaxSoldiers]);
-    AddCommand(ct_AICharacter,cpt_EquipRateLeather, [gPlayers[I].AI.Setup.EquipRateLeather]);
-    AddCommand(ct_AICharacter,cpt_EquipRateIron,    [gPlayers[I].AI.Setup.EquipRateIron]);
-    AddCommand(ct_AICharacter,cpt_AttackFactor, [gPlayers[I].AI.Setup.Aggressiveness]);
-    AddCommand(ct_AICharacter,cpt_RecruitCount, [gPlayers[I].AI.Setup.RecruitDelay]);
+    if gHands[I].AI.Setup.MaxSoldiers <> -1 then
+      AddCommand(ct_AICharacter,cpt_MaxSoldier, [gHands[I].AI.Setup.MaxSoldiers]);
+    AddCommand(ct_AICharacter,cpt_EquipRateLeather, [gHands[I].AI.Setup.EquipRateLeather]);
+    AddCommand(ct_AICharacter,cpt_EquipRateIron,    [gHands[I].AI.Setup.EquipRateIron]);
+    AddCommand(ct_AICharacter,cpt_AttackFactor, [gHands[I].AI.Setup.Aggressiveness]);
+    AddCommand(ct_AICharacter,cpt_RecruitCount, [gHands[I].AI.Setup.RecruitDelay]);
     for G:=Low(TGroupType) to High(TGroupType) do
-      if gPlayers[I].AI.General.DefencePositions.TroopFormations[G].NumUnits <> 0 then //Must be valid and used
-        AddCommand(ct_AICharacter, cpt_TroopParam, [KaMGroupType[G], gPlayers[I].AI.General.DefencePositions.TroopFormations[G].NumUnits, gPlayers[I].AI.General.DefencePositions.TroopFormations[G].UnitsPerRow]);
+      if gHands[I].AI.General.DefencePositions.TroopFormations[G].NumUnits <> 0 then //Must be valid and used
+        AddCommand(ct_AICharacter, cpt_TroopParam, [KaMGroupType[G], gHands[I].AI.General.DefencePositions.TroopFormations[G].NumUnits, gHands[I].AI.General.DefencePositions.TroopFormations[G].UnitsPerRow]);
     AddData(''); //NL
-    for K:=0 to gPlayers[I].AI.General.DefencePositions.Count - 1 do
-      with gPlayers[I].AI.General.DefencePositions[K] do
+    for K:=0 to gHands[I].AI.General.DefencePositions.Count - 1 do
+      with gHands[I].AI.General.DefencePositions[K] do
         AddCommand(ct_AIDefence, [Position.Loc.X-1,Position.Loc.Y-1,byte(Position.Dir)-1,KaMGroupType[GroupType],Radius,byte(DefenceType)]);
     AddData(''); //NL
     AddData(''); //NL
-    for K:=0 to gPlayers[I].AI.General.Attacks.Count - 1 do
-      with gPlayers[I].AI.General.Attacks[K] do
+    for K:=0 to gHands[I].AI.General.Attacks.Count - 1 do
+      with gHands[I].AI.General.Attacks[K] do
       begin
         AddCommand(ct_AIAttack, cpt_Type, [KaMAttackType[AttackType]]);
         AddCommand(ct_AIAttack, cpt_TotalAmount, [TotalMen]);
@@ -714,22 +714,22 @@ begin
 
     //General, e.g. units, roads, houses, etc.
     //Alliances
-    for K:=0 to gPlayers.Count-1 do
+    for K:=0 to gHands.Count-1 do
       if K<>I then
-        AddCommand(ct_SetAlliance, [K, byte(gPlayers[I].Alliances[K])]); //0=enemy, 1=ally
+        AddCommand(ct_SetAlliance, [K, byte(gHands[I].Alliances[K])]); //0=enemy, 1=ally
     AddData(''); //NL
 
     //Release/block houses
     ReleaseAllHouses := True;
     for HT := HOUSE_MIN to HOUSE_MAX do
     begin
-      if gPlayers[I].Stats.HouseBlocked[HT] then
+      if gHands[I].Stats.HouseBlocked[HT] then
       begin
         AddCommand(ct_BlockHouse, [HouseTypeToIndex[HT]-1]);
         ReleaseAllHouses := false;
       end
       else
-        if gPlayers[I].Stats.HouseGranted[HT] then
+        if gHands[I].Stats.HouseGranted[HT] then
           AddCommand(ct_ReleaseHouse, [HouseTypeToIndex[HT]-1])
         else
           ReleaseAllHouses := false;
@@ -739,15 +739,15 @@ begin
 
     //Block trades
     for Res := WARE_MIN to WARE_MAX do
-      if not gPlayers[I].Stats.AllowToTrade[Res] then
+      if not gHands[I].Stats.AllowToTrade[Res] then
         AddCommand(ct_BlockTrade, [WareTypeToIndex[Res]]);
 
     //Houses
     StoreCount := 0;
     BarracksCount := 0;
-    for K := 0 to gPlayers[I].Houses.Count - 1 do
+    for K := 0 to gHands[I].Houses.Count - 1 do
     begin
-      H := gPlayers[I].Houses[K];
+      H := gHands[I].Houses[K];
       if not H.IsDestroyed then
       begin
         AddCommand(ct_SetHouse, [HouseTypeToIndex[H.HouseType]-1, H.GetPosition.X-1, H.GetPosition.Y-1]);
@@ -787,7 +787,7 @@ begin
     CommandLayerCount := 0; //Enable command layering
     for iY := 1 to gTerrain.MapY do
       for iX := 1 to gTerrain.MapX do
-        if gTerrain.Land[iY,iX].TileOwner = gPlayers[I].PlayerIndex then
+        if gTerrain.Land[iY,iX].TileOwner = gHands[I].HandIndex then
         begin
           if gTerrain.Land[iY,iX].TileOverlay = to_Road then
             AddCommand(ct_SetRoad, [iX-1,iY-1]);
@@ -801,17 +801,17 @@ begin
     AddData(''); //NL
 
     //Units
-    for K := 0 to gPlayers[I].Units.Count - 1 do
+    for K := 0 to gHands[I].Units.Count - 1 do
     begin
-      U := gPlayers[I].Units[K];
+      U := gHands[I].Units[K];
       if not (U is TKMUnitWarrior) then //Groups get saved separately
         AddCommand(ct_SetUnit, [UnitTypeToOldIndex[U.UnitType], U.GetPosition.X-1, U.GetPosition.Y-1]);
     end;
 
     //Unit groups
-    for K := 0 to gPlayers[I].UnitGroups.Count - 1 do
+    for K := 0 to gHands[I].UnitGroups.Count - 1 do
     begin
-      Group := gPlayers[I].UnitGroups[K];
+      Group := gHands[I].UnitGroups[K];
       AddCommand(ct_SetGroup, [UnitTypeToIndex[Group.UnitType], Group.Position.X-1, Group.Position.Y-1, Byte(Group.Direction)-1, Group.UnitsPerRow, Group.MapEdCount]);
       if Group.Condition = UNIT_MAX_CONDITION then
         AddCommand(ct_SetGroupFood, []);
@@ -835,9 +835,9 @@ begin
 
   //Animals, wares to all, etc. go here
   AddData('//Animals');
-  for I:=0 to gPlayers.PlayerAnimals.Units.Count-1 do
+  for I:=0 to gHands.PlayerAnimals.Units.Count-1 do
   begin
-    U := gPlayers.PlayerAnimals.Units[I];
+    U := gHands.PlayerAnimals.Units[I];
     AddCommand(ct_SetUnit, [UnitTypeToOldIndex[U.UnitType], U.GetPosition.X-1, U.GetPosition.Y-1]);
   end;
   AddData(''); //NL

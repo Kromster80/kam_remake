@@ -8,7 +8,7 @@ uses
 type
   TKMMapEdGoal = class
   private
-    fOwner: TPlayerIndex;
+    fOwner: THandIndex;
     fIndex: Integer;
 
     procedure Goal_Change(Sender: TObject);
@@ -28,13 +28,13 @@ type
     fOnDone: TNotifyEvent;
     constructor Create(aParent: TKMPanel);
 
-    procedure Show(aPlayer: TPlayerIndex; aIndex: Integer);
+    procedure Show(aPlayer: THandIndex; aIndex: Integer);
   end;
 
 
 implementation
 uses
-  KM_PlayersCollection, KM_ResTexts, KM_RenderUI, KM_ResFonts;
+  KM_HandsCollection, KM_ResTexts, KM_RenderUI, KM_ResFonts;
 
 
 { TKMGUIMapEdGoal }
@@ -80,7 +80,7 @@ begin
   Radio_GoalCondition.OnChange := Goal_Change;
 
   TKMLabel.Create(Panel_Goal, 330, 40, gResTexts[TX_MAPED_GOALS_PLAYER], fnt_Metal, taLeft);
-  NumEdit_GoalPlayer := TKMNumericEdit.Create(Panel_Goal, 330, 60, 1, MAX_PLAYERS);
+  NumEdit_GoalPlayer := TKMNumericEdit.Create(Panel_Goal, 330, 60, 1, MAX_HANDS);
   NumEdit_GoalPlayer.OnChange := Goal_Change;
 
   TKMLabel.Create(Panel_Goal, 480, 40, gResTexts[TX_MAPED_GOALS_TIME], fnt_Metal, taLeft);
@@ -125,9 +125,9 @@ begin
       G.GoalStatus := gs_False;
     G.GoalTime := NumEdit_GoalTime.Value * 10;
     G.MessageToShow := NumEdit_GoalMessage.Value;
-    G.PlayerIndex := NumEdit_GoalPlayer.Value - 1;
+    G.HandIndex := NumEdit_GoalPlayer.Value - 1;
 
-    gPlayers[fOwner].AI.Goals[fIndex] := G;
+    gHands[fOwner].AI.Goals[fIndex] := G;
   end;
 
   Panel_Goal.Hide;
@@ -137,25 +137,25 @@ end;
 
 procedure TKMMapEdGoal.Goal_Refresh(aGoal: TKMGoal);
 begin
-  Image_GoalFlag.FlagColor := gPlayers[fOwner].FlagColor;
+  Image_GoalFlag.FlagColor := gHands[fOwner].FlagColor;
 
   Radio_GoalType.ItemIndex := Byte(aGoal.GoalType);
   Radio_GoalCondition.ItemIndex := Byte(aGoal.GoalCondition);
   NumEdit_GoalTime.Value := aGoal.GoalTime div 10;
   NumEdit_GoalMessage.Value := aGoal.MessageToShow;
-  NumEdit_GoalPlayer.Value := aGoal.PlayerIndex + 1;
+  NumEdit_GoalPlayer.Value := aGoal.HandIndex + 1;
 
   //Certain values disable certain controls
   Goal_Change(nil);
 end;
 
 
-procedure TKMMapEdGoal.Show(aPlayer: TPlayerIndex; aIndex: Integer);
+procedure TKMMapEdGoal.Show(aPlayer: THandIndex; aIndex: Integer);
 begin
   fOwner := aPlayer;
   fIndex := aIndex;
 
-  Goal_Refresh(gPlayers[fOwner].AI.Goals[fIndex]);
+  Goal_Refresh(gHands[fOwner].AI.Goals[fIndex]);
   Panel_Goal.Show;
 end;
 

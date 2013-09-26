@@ -6,7 +6,7 @@ uses Classes, KromUtils, Math, SysUtils,
 
 
 type
-  TKMPlayerAISetup = class
+  TKMHandAISetup = class
   public
     Aggressiveness: Integer; //-1 means not used or default
     AutoAttack: Boolean;
@@ -33,8 +33,8 @@ type
 implementation
 
 
-{ TKMPlayerAISetup }
-constructor TKMPlayerAISetup.Create;
+{ TKMHandAISetup }
+constructor TKMHandAISetup.Create;
 begin
   inherited;
 
@@ -56,7 +56,7 @@ begin
 end;
 
 
-function TKMPlayerAISetup.GetEquipRate(aUnit: TUnitType): Word;
+function TKMHandAISetup.GetEquipRate(aUnit: TUnitType): Word;
 begin
   if aUnit in WARRIORS_IRON then
     Result := EquipRateIron
@@ -65,7 +65,7 @@ begin
 end;
 
 
-function TKMPlayerAISetup.WarriorsPerMinute(aArmy: TArmyType): Single;
+function TKMHandAISetup.WarriorsPerMinute(aArmy: TArmyType): Single;
 var
   EquipRate: Single;
 begin
@@ -81,7 +81,7 @@ begin
 end;
 
 
-procedure TKMPlayerAISetup.Save(SaveStream: TKMemoryStream);
+procedure TKMHandAISetup.Save(SaveStream: TKMemoryStream);
 begin
   SaveStream.Write(Aggressiveness);
   SaveStream.Write(AutoAttack);
@@ -99,7 +99,7 @@ begin
 end;
 
 
-procedure TKMPlayerAISetup.Load(LoadStream: TKMemoryStream);
+procedure TKMHandAISetup.Load(LoadStream: TKMemoryStream);
 begin
   LoadStream.Read(Aggressiveness);
   LoadStream.Read(AutoAttack);

@@ -21,7 +21,7 @@ type
 
 
 implementation
-uses KM_Log, KM_PlayersCollection, KM_PlayerSpectator, KM_Resource, KM_ResSound, KM_Terrain, KM_Utils, KM_ResHouses;
+uses KM_Log, KM_HandsCollection, KM_HandSpectator, KM_Resource, KM_ResSound, KM_Terrain, KM_Utils, KM_ResHouses;
 
 
 procedure TestTUnitActionGoInOut.SetUp;
@@ -35,8 +35,8 @@ begin
   fResource.LoadMainResources;
   gTerrain := TKMTerrain.Create;
   gTerrain.MakeNewMap(32, 32, False);
-  gPlayers := TKMPlayersCollection.Create;
-  gPlayers.AddPlayers(1);
+  gHands := TKMHandsCollection.Create;
+  gHands.AddPlayers(1);
   MySpectator := TKMSpectator.Create(0);
 
   fUnit := TKMUnit.Create(0, ut_Serf, KMPoint(8, 10), 0);
@@ -48,7 +48,7 @@ end;
 procedure TestTUnitActionGoInOut.TearDown;
 begin
   FUnitActionGoInOut.Free;
-  gPlayers.Free;
+  gHands.Free;
   gTerrain.Free;
   fResource.Free;
   gLog.Free;

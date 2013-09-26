@@ -2,7 +2,7 @@ unit KM_NetPlayersList;
 {$I KaM_Remake.inc}
 interface
 uses Classes, KromUtils, StrUtils, Math, SysUtils,
-  KM_CommonClasses, KM_CommonTypes, KM_Defaults, KM_Player, KM_ResLocales;
+  KM_CommonClasses, KM_CommonTypes, KM_Defaults, KM_Hand, KM_ResLocales;
 
 const
   PING_COUNT = 20; //Number of pings to store and take the maximum over for latency calculation (pings are measured once per second)
@@ -39,7 +39,7 @@ type
     function IsHuman: Boolean;
     function IsComputer: Boolean;
     function IsClosed: Boolean;
-    function GetPlayerType: TPlayerType;
+    function GetPlayerType: THandType;
     function SlotName: UnicodeString; //Player name if it's human or computer or closed
     property Nikname: AnsiString read fNikname; //Human player nikname (ANSI-Latin)
     property NiknameColored: AnsiString read GetNiknameColored;
@@ -58,7 +58,7 @@ type
   TKMNetPlayersList = class
   private
     fCount: Integer;
-    fNetPlayers: array [1 .. MAX_PLAYERS] of TKMNetPlayerInfo;
+    fNetPlayers: array [1 .. MAX_HANDS] of TKMNetPlayerInfo;
     function GetPlayer(aIndex: Integer): TKMNetPlayerInfo;
     procedure ValidateColors;
     procedure RemAllClosedPlayers;
@@ -84,7 +84,7 @@ type
     function ServerToLocal(aIndexOnServer: Integer): Integer;
     function NiknameToLocal(aNikname: AnsiString): Integer;
     function StartingLocToLocal(aLoc: Integer): Integer;
-    function PlayerIndexToLocal(aIndex: TPlayerIndex): Integer;
+    function PlayerIndexToLocal(aIndex: THandIndex): Integer;
 
     function CheckCanJoin(aNik: AnsiString; aIndexOnServer: Integer): AnsiString;
     function CheckCanReconnect(aLocalIndex: Integer): AnsiString;
@@ -188,9 +188,9 @@ begin
 end;
 
 
-function TKMNetPlayerInfo.GetPlayerType: TPlayerType;
+function TKMNetPlayerInfo.GetPlayerType: THandType;
 const
-  PlayerTypes: array [TNetPlayerType] of TPlayerType = (pt_Human, pt_Computer, pt_Computer);
+  PlayerTypes: array [TNetPlayerType] of THandType = (hndHuman, hndComputer, hndComputer);
 begin
   Result := PlayerTypes[PlayerNetType];
 end;
@@ -254,7 +254,7 @@ constructor TKMNetPlayersList.Create;
 var I: Integer;
 begin
   inherited;
-  for I := 1 to MAX_PLAYERS do
+  for I := 1 to MAX_HANDS do
     fNetPlayers[I] := TKMNetPlayerInfo.Create;
 end;
 
@@ -262,7 +262,7 @@ end;
 destructor TKMNetPlayersList.Destroy;
 var I: Integer;
 begin
-  for I := 1 to MAX_PLAYERS do
+  for I := 1 to MAX_HANDS do
     fNetPlayers[I].Free;
   inherited;
 end;
@@ -343,7 +343,7 @@ end;
 
 procedure TKMNetPlayersList.AddPlayer(aNik: AnsiString; aIndexOnServer: Integer; const aLang: AnsiString);
 begin
-  Assert(fCount <= MAX_PLAYERS, 'Can''t add player');
+  Assert(fCount <= MAX_HANDS, 'Can''t add player');
   Inc(fCount);
   fNetPlayers[fCount].fNikname := aNik;
   fNetPlayers[fCount].fLangCode := aLang;
@@ -365,7 +365,7 @@ procedure TKMNetPlayersList.AddAIPlayer(aSlot: Integer = -1);
 begin
   if aSlot = -1 then
   begin
-    Assert(fCount <= MAX_PLAYERS, 'Can''t add AI player');
+    Assert(fCount <= MAX_HANDS, 'Can''t add AI player');
     Inc(fCount);
     aSlot := fCount;
   end;
@@ -388,7 +388,7 @@ procedure TKMNetPlayersList.AddClosedPlayer(aSlot: Integer = -1);
 begin
   if aSlot = -1 then
   begin
-    Assert(fCount <= MAX_PLAYERS, 'Can''t add closed player');
+    Assert(fCount <= MAX_HANDS, 'Can''t add closed player');
     Inc(fCount);
     aSlot := fCount;
   end;
@@ -500,7 +500,7 @@ begin
 end;
 
 
-function TKMNetPlayersList.PlayerIndexToLocal(aIndex: TPlayerIndex): Integer;
+function TKMNetPlayersList.PlayerIndexToLocal(aIndex: THandIndex): Integer;
 var I: Integer;
 begin
   Result := -1;
@@ -513,7 +513,7 @@ end;
 //See if player can join our game
 function TKMNetPlayersList.CheckCanJoin(aNik: AnsiString; aIndexOnServer: Integer): AnsiString;
 begin
-  if fCount >= MAX_PLAYERS then
+  if fCount >= MAX_HANDS then
     Result := 'Room is full. No more players can join the game'
   else
   if ServerToLocal(aIndexOnServer) <> -1 then
@@ -610,7 +610,7 @@ function TKMNetPlayersList.GetNotReadyToPlayPlayers: TKMByteArray;
 var
   I, K: Integer;
 begin
-  SetLength(Result, MAX_PLAYERS);
+  SetLength(Result, MAX_HANDS);
 
   K := 0;
   for I := 1 to fCount do
@@ -709,7 +709,7 @@ function TKMNetPlayersList.ValidateSetup(aHumanUsableLocs, aAIUsableLocs: TPlaye
 var
   I, K, J:integer;
   UsedLoc:array of boolean;
-  AvailableLocHuman, AvailableLocBoth:array[1..MAX_PLAYERS] of byte;
+  AvailableLocHuman, AvailableLocBoth:array[1..MAX_HANDS] of byte;
   LocHumanCount, LocBothCount: Byte;
   TmpLocHumanCount, TmpLocBothCount: Byte;
   TeamLocs:array of Integer;
@@ -727,8 +727,8 @@ begin
     or ((fNetPlayers[i].PlayerNetType = nptComputer) and not IsAILoc(fNetPlayers[i].StartLocation)) then
       fNetPlayers[i].StartLocation := 0;
 
-  SetLength(UsedLoc, MAX_PLAYERS+1); //01..MAX_PLAYERS, all false
-  for i:=1 to MAX_PLAYERS do UsedLoc[i] := false;
+  SetLength(UsedLoc, MAX_HANDS+1); //01..MAX_PLAYERS, all false
+  for i:=1 to MAX_HANDS do UsedLoc[i] := false;
 
   //Remember all used locations and drop duplicates
   for i:=1 to fCount do
@@ -740,7 +740,7 @@ begin
   //Collect available locations in a list
   LocHumanCount := 0;
   LocBothCount := 0;
-  for I:=1 to MAX_PLAYERS do
+  for I:=1 to MAX_HANDS do
   if not UsedLoc[I] then
     begin
       if IsHumanLoc(I) and IsAILoc(I) then

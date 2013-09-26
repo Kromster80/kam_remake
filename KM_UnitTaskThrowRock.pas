@@ -22,7 +22,7 @@ type
 
 
 implementation
-uses KM_PlayersCollection, KM_Projectiles, KM_ResWares;
+uses KM_HandsCollection, KM_Projectiles, KM_ResWares;
 
 
 { TTaskThrowRock }
@@ -38,7 +38,7 @@ destructor TTaskThrowRock.Destroy;
 begin
   if not fUnit.GetHome.IsDestroyed and (fUnit.GetHome.GetState = hst_Work) then
     fUnit.GetHome.SetState(hst_Idle); //Make sure we don't abandon and leave our tower with "working" animations
-  gPlayers.CleanUpUnitPointer(fTarget);
+  gHands.CleanUpUnitPointer(fTarget);
   inherited;
 end;
 
@@ -54,7 +54,7 @@ end;
 procedure TTaskThrowRock.SyncLoad;
 begin
   inherited;
-  fTarget := gPlayers.GetUnitByUID(cardinal(fTarget));
+  fTarget := gHands.GetUnitByUID(cardinal(fTarget));
 end;
 
 
@@ -78,9 +78,9 @@ begin
         end;
     1:  begin
           GetHome.ResTakeFromIn(wt_Stone, 1);
-          gPlayers[Owner].Stats.WareConsumed(wt_Stone);
+          gHands[Owner].Stats.WareConsumed(wt_Stone);
           fFlightTime := gProjectiles.AimTarget(PositionF, fTarget, pt_TowerRock, Owner, RANGE_WATCHTOWER_MAX, RANGE_WATCHTOWER_MIN);
-          gPlayers.CleanUpUnitPointer(fTarget); //We don't need it anymore
+          gHands.CleanUpUnitPointer(fTarget); //We don't need it anymore
           SetActionLockedStay(1, ua_Walk);
         end;
     2:  SetActionLockedStay(fFlightTime, ua_Walk); //Pretend to look how it goes

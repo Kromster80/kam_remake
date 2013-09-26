@@ -22,7 +22,7 @@ type
 
 
 implementation
-uses KM_PlayersCollection, KM_ResWares;
+uses KM_HandsCollection, KM_ResWares;
 
 
 { TTaskGoEat }
@@ -46,7 +46,7 @@ end;
 procedure TTaskGoEat.SyncLoad;
 begin
   inherited;
-  fInn := TKMHouseInn(gPlayers.GetHouseByUID(Cardinal(fInn)));
+  fInn := TKMHouseInn(gHands.GetHouseByUID(Cardinal(fInn)));
 end;
 
 
@@ -56,7 +56,7 @@ begin
   if Eating then
     fInn.EatersGoesOut(PlaceID);
 
-  gPlayers.CleanUpHousePointer(TKMHouse(fInn));
+  gHands.CleanUpHousePointer(TKMHouse(fInn));
   inherited;
 end;
 
@@ -104,7 +104,7 @@ begin
       if (Condition<UNIT_MAX_CONDITION*0.9)and(fInn.CheckResIn(wt_Bread)>0) then
       begin
         fInn.ResTakeFromIn(wt_Bread);
-        gPlayers[fUnit.Owner].Stats.WareConsumed(wt_Bread);
+        gHands[fUnit.Owner].Stats.WareConsumed(wt_Bread);
         SetActionLockedStay(29*4, ua_Eat, False);
         Feed(UNIT_MAX_CONDITION * BREAD_RESTORE);
         fInn.UpdateEater(PlaceID, wt_Bread);
@@ -113,7 +113,7 @@ begin
    4: if (Condition<UNIT_MAX_CONDITION*0.9)and(fInn.CheckResIn(wt_Sausages)>0) then
    begin
         fInn.ResTakeFromIn(wt_Sausages);
-        gPlayers[fUnit.Owner].Stats.WareConsumed(wt_Sausages);
+        gHands[fUnit.Owner].Stats.WareConsumed(wt_Sausages);
         SetActionLockedStay(29*4, ua_Eat, False);
         Feed(UNIT_MAX_CONDITION * SAUSAGE_RESTORE);
         fInn.UpdateEater(PlaceID, wt_Sausages);
@@ -122,7 +122,7 @@ begin
    5: if (Condition<UNIT_MAX_CONDITION*0.9)and(fInn.CheckResIn(wt_Wine)>0) then
    begin
         fInn.ResTakeFromIn(wt_Wine);
-        gPlayers[fUnit.Owner].Stats.WareConsumed(wt_Wine);
+        gHands[fUnit.Owner].Stats.WareConsumed(wt_Wine);
         SetActionLockedStay(29*4, ua_Eat, False);
         Feed(UNIT_MAX_CONDITION * WINE_RESTORE);
         fInn.UpdateEater(PlaceID, wt_Wine);
@@ -131,7 +131,7 @@ begin
    6: if (Condition<UNIT_MAX_CONDITION*0.9)and(fInn.CheckResIn(wt_Fish)>0) then
    begin
         fInn.ResTakeFromIn(wt_Fish);
-        gPlayers[fUnit.Owner].Stats.WareConsumed(wt_Fish);
+        gHands[fUnit.Owner].Stats.WareConsumed(wt_Fish);
         SetActionLockedStay(29*4, ua_Eat, False);
         Feed(UNIT_MAX_CONDITION * FISH_RESTORE);
         fInn.UpdateEater(PlaceID, wt_Fish);

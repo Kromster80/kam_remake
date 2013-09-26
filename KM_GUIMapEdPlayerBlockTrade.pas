@@ -25,7 +25,7 @@ type
 
 implementation
 uses
-  KM_PlayersCollection, KM_ResTexts,
+  KM_HandsCollection, KM_ResTexts,
   KM_Resource, KM_RenderUI, KM_ResFonts, KM_ResWares;
 
 
@@ -60,7 +60,7 @@ begin
   I := TKMButtonFlat(Sender).Tag;
   R := StoreResType[I];
 
-  gPlayers[MySpectator.PlayerIndex].Stats.AllowToTrade[R] := not gPlayers[MySpectator.PlayerIndex].Stats.AllowToTrade[R];
+  gHands[MySpectator.HandIndex].Stats.AllowToTrade[R] := not gHands[MySpectator.HandIndex].Stats.AllowToTrade[R];
 
   Player_BlockTradeRefresh;
 end;
@@ -74,7 +74,7 @@ begin
   for I := 1 to STORE_RES_COUNT do
   begin
     R := StoreResType[I];
-    if gPlayers[MySpectator.PlayerIndex].Stats.AllowToTrade[R] then
+    if gHands[MySpectator.HandIndex].Stats.AllowToTrade[R] then
       Image_BlockTrade[I].TexID := 0
     else
       Image_BlockTrade[I].TexID := 32; //Red cross

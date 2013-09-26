@@ -48,7 +48,7 @@ type
   protected
     fStrictParsing: Boolean; //Report non-fatal script errors such as SEND_GROUP without defining a group first
     fMissionFileName: string;
-    fLastPlayer: TPlayerIndex; //Current Player
+    fLastHand: THandIndex; //Current Player
     fFatalErrors: string; //Fatal errors descriptions accumulate here
     fMinorErrors: string; //Minor error descriptions accumulate here
     function TextToCommandType(const ACommandText: AnsiString): TKMCommandType;
@@ -78,7 +78,7 @@ end;
 function TMissionParserCommon.LoadMission(const aFileName: string):boolean;
 begin
   fMissionFileName := aFileName;
-  fLastPlayer := -1;
+  fLastHand := -1;
 
   Result := true;
 end;

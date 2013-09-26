@@ -20,7 +20,6 @@ type
   private
     fGameSettings: TGameSettings;
     fServerQuery: TKMServerQuery;
-    fRooms: TStringList;
     fBaseTime: TDateTime;
     fBase: array [0..63] of record
       Room: string;

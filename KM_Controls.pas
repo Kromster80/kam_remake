@@ -4768,10 +4768,10 @@ begin
   end;
 
   if fShowLocs then
-  for I := 0 to MAX_PLAYERS - 1 do
-  if fMinimap.PlayerShow[I] and not KMSamePoint(fMinimap.PlayerLoc[I], KMPoint(0,0)) then
+  for I := 0 to MAX_HANDS - 1 do
+  if fMinimap.HandShow[I] and not KMSamePoint(fMinimap.HandLocs[I], KMPoint(0,0)) then
   begin
-    T := MapCoordsToLocal(fMinimap.PlayerLoc[I].X, fMinimap.PlayerLoc[I].Y, fLocRad);
+    T := MapCoordsToLocal(fMinimap.HandLocs[I].X, fMinimap.HandLocs[I].Y, fLocRad);
     if Sqr(T.X - X) + Sqr(T.Y - Y) < Sqr(fLocRad) then
     begin
       if Assigned(OnLocClick) then
@@ -4827,29 +4827,29 @@ begin
   if not fShowLocs then Exit;
 
   //Connect allied players
-  for I := 0 to MAX_PLAYERS - 1 do
-  if fMinimap.PlayerShow[I] and not KMSamePoint(fMinimap.PlayerLoc[I], KMPoint(0,0)) then
-    for K := I + 1 to MAX_PLAYERS - 1 do
-    if fMinimap.PlayerShow[K] and not KMSamePoint(fMinimap.PlayerLoc[K], KMPoint(0,0)) then
-      if (fMinimap.PlayerTeam[I] <> 0) and (fMinimap.PlayerTeam[I] = fMinimap.PlayerTeam[K]) then
+  for I := 0 to MAX_HANDS - 1 do
+  if fMinimap.HandShow[I] and not KMSamePoint(fMinimap.HandLocs[I], KMPoint(0,0)) then
+    for K := I + 1 to MAX_HANDS - 1 do
+    if fMinimap.HandShow[K] and not KMSamePoint(fMinimap.HandLocs[K], KMPoint(0,0)) then
+      if (fMinimap.HandTeam[I] <> 0) and (fMinimap.HandTeam[I] = fMinimap.HandTeam[K]) then
       begin
-        T1 := MapCoordsToLocal(fMinimap.PlayerLoc[I].X, fMinimap.PlayerLoc[I].Y, fLocRad);
-        T2 := MapCoordsToLocal(fMinimap.PlayerLoc[K].X, fMinimap.PlayerLoc[K].Y, fLocRad);
+        T1 := MapCoordsToLocal(fMinimap.HandLocs[I].X, fMinimap.HandLocs[I].Y, fLocRad);
+        T2 := MapCoordsToLocal(fMinimap.HandLocs[K].X, fMinimap.HandLocs[K].Y, fLocRad);
         TKMRenderUI.WriteLine(T1.X, T1.Y, T2.X, T2.Y, $FFFFFFFF);
       end;
 
   //Draw all the circles, THEN all the numbers so the numbers are not covered by circles when they are close
-  for I := 0 to MAX_PLAYERS - 1 do
-  if fMinimap.PlayerShow[I] and not KMSamePoint(fMinimap.PlayerLoc[I], KMPoint(0,0)) then
+  for I := 0 to MAX_HANDS - 1 do
+  if fMinimap.HandShow[I] and not KMSamePoint(fMinimap.HandLocs[I], KMPoint(0,0)) then
   begin
-    T := MapCoordsToLocal(fMinimap.PlayerLoc[I].X, fMinimap.PlayerLoc[I].Y, fLocRad);
-    TKMRenderUI.WriteCircle(T.X, T.Y, fLocRad, fMinimap.PlayerColors[I]);
+    T := MapCoordsToLocal(fMinimap.HandLocs[I].X, fMinimap.HandLocs[I].Y, fLocRad);
+    TKMRenderUI.WriteCircle(T.X, T.Y, fLocRad, fMinimap.HandColors[I]);
   end;
 
-  for I := 0 to MAX_PLAYERS - 1 do
-  if fMinimap.PlayerShow[I] and not KMSamePoint(fMinimap.PlayerLoc[I], KMPoint(0,0)) then
+  for I := 0 to MAX_HANDS - 1 do
+  if fMinimap.HandShow[I] and not KMSamePoint(fMinimap.HandLocs[I], KMPoint(0,0)) then
   begin
-    T := MapCoordsToLocal(fMinimap.PlayerLoc[I].X, fMinimap.PlayerLoc[I].Y, fLocRad);
+    T := MapCoordsToLocal(fMinimap.HandLocs[I].X, fMinimap.HandLocs[I].Y, fLocRad);
     TKMRenderUI.WriteText(T.X, T.Y - 6, 0, IntToStr(I+1), fnt_Outline, taCenter);
   end;
 end;

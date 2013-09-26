@@ -1,4 +1,4 @@
-unit KM_PlayerStats;
+unit KM_HandStats;
 {$I KaM_Remake.inc}
 interface
 uses Classes, SysUtils,
@@ -34,7 +34,7 @@ type
   end;
 
   //Player statistics (+ ratios, house unlock, trade permissions)
-  TKMPlayerStats = class
+  TKMHandStats = class
   private
     fChartCount: Integer;
     fChartCapacity: Integer;
@@ -133,8 +133,8 @@ const
     );
 
 
-{ TKMPlayerStats }
-constructor TKMPlayerStats.Create;
+{ TKMHandStats }
+constructor TKMHandStats.Create;
 var
   W: TWareType;
   I,K: Integer;
@@ -152,7 +152,7 @@ begin
 end;
 
 
-procedure TKMPlayerStats.UpdateReqDone(aType: THouseType);
+procedure TKMHandStats.UpdateReqDone(aType: THouseType);
 var H: THouseType;
 begin
   for H := HOUSE_MIN to HOUSE_MAX do
@@ -161,20 +161,20 @@ begin
 end;
 
 
-procedure TKMPlayerStats.HousePlanned(aType: THouseType);
+procedure TKMHandStats.HousePlanned(aType: THouseType);
 begin
   Inc(Houses[aType].Planned);
 end;
 
 
-procedure TKMPlayerStats.HousePlanRemoved(aType: THouseType);
+procedure TKMHandStats.HousePlanRemoved(aType: THouseType);
 begin
   Inc(Houses[aType].PlanRemoved);
 end;
 
 
 //New house in progress
-procedure TKMPlayerStats.HouseStarted(aType: THouseType);
+procedure TKMHandStats.HouseStarted(aType: THouseType);
 begin
   Inc(Houses[aType].Started);
 end;
@@ -182,14 +182,14 @@ end;
 
 //House building process was ended. We don't really know if it was canceled or destroyed or finished
 //Other House** methods will handle that
-procedure TKMPlayerStats.HouseEnded(aType: THouseType);
+procedure TKMHandStats.HouseEnded(aType: THouseType);
 begin
   Inc(Houses[aType].Ended);
 end;
 
 
 //New house, either built by player or created by mission script
-procedure TKMPlayerStats.HouseCreated(aType: THouseType; aWasBuilt:boolean);
+procedure TKMHandStats.HouseCreated(aType: THouseType; aWasBuilt:boolean);
 begin
   if aWasBuilt then
     Inc(Houses[aType].Built)
@@ -200,26 +200,26 @@ end;
 
 
 //Destroyed by enemy
-procedure TKMPlayerStats.HouseLost(aType: THouseType);
+procedure TKMHandStats.HouseLost(aType: THouseType);
 begin
   Inc(Houses[aType].Lost);
 end;
 
 
-procedure TKMPlayerStats.HouseSelfDestruct(aType: THouseType);
+procedure TKMHandStats.HouseSelfDestruct(aType: THouseType);
 begin
   Inc(Houses[aType].SelfDestruct);
 end;
 
 
 //Player has destroyed an enemy house
-procedure TKMPlayerStats.HouseDestroyed(aType: THouseType);
+procedure TKMHandStats.HouseDestroyed(aType: THouseType);
 begin
   Inc(Houses[aType].Destroyed);
 end;
 
 
-procedure TKMPlayerStats.UnitCreated(aType: TUnitType; aWasTrained:boolean);
+procedure TKMHandStats.UnitCreated(aType: TUnitType; aWasTrained:boolean);
 begin
   if aWasTrained then
     Inc(Units[aType].Trained)
@@ -228,19 +228,19 @@ begin
 end;
 
 
-procedure TKMPlayerStats.UnitLost(aType: TUnitType);
+procedure TKMHandStats.UnitLost(aType: TUnitType);
 begin
   Inc(Units[aType].Lost);
 end;
 
 
-procedure TKMPlayerStats.UnitKilled(aType: TUnitType);
+procedure TKMHandStats.UnitKilled(aType: TUnitType);
 begin
   Inc(Units[aType].Killed);
 end;
 
 
-procedure TKMPlayerStats.WareInitial(aRes: TWareType; aCount: Cardinal);
+procedure TKMHandStats.WareInitial(aRes: TWareType; aCount: Cardinal);
 begin
   if not DISPLAY_CHARTS_RESULT then Exit;
   if aRes <> wt_None then
@@ -248,7 +248,7 @@ begin
 end;
 
 
-procedure TKMPlayerStats.WareProduced(aRes: TWareType; aCount: Cardinal);
+procedure TKMHandStats.WareProduced(aRes: TWareType; aCount: Cardinal);
 var R: TWareType;
 begin
   if aRes <> wt_None then
@@ -262,7 +262,7 @@ begin
 end;
 
 
-procedure TKMPlayerStats.WareConsumed(aRes: TWareType; aCount: Cardinal = 1);
+procedure TKMHandStats.WareConsumed(aRes: TWareType; aCount: Cardinal = 1);
 begin
   if not DISPLAY_CHARTS_RESULT then Exit;
   if aRes <> wt_None then
@@ -271,7 +271,7 @@ end;
 
 
 //How many complete houses are there
-function TKMPlayerStats.GetHouseQty(aType: THouseType): Integer;
+function TKMHandStats.GetHouseQty(aType: THouseType): Integer;
 var H: THouseType;
 begin
   Result := 0;
@@ -285,7 +285,7 @@ end;
 
 
 //How many complete houses there are
-function TKMPlayerStats.GetHouseQty(aType: array of THouseType): Integer;
+function TKMHandStats.GetHouseQty(aType: array of THouseType): Integer;
 var
   I: Integer;
   H: THouseType;
@@ -309,7 +309,7 @@ end;
 
 
 //How many houses are planned and in progress
-function TKMPlayerStats.GetHouseWip(aType: THouseType): Integer;
+function TKMHandStats.GetHouseWip(aType: THouseType): Integer;
 var H: THouseType;
 begin
   Result := 0;
@@ -323,14 +323,14 @@ end;
 
 
 //How many houses are planned in progress and ready
-function TKMPlayerStats.GetHouseTotal(aType: THouseType): Integer;
+function TKMHandStats.GetHouseTotal(aType: THouseType): Integer;
 begin
   Result := GetHouseQty(aType) + GetHouseWip(aType);
 end;
 
 
 //How many houses are planned and in progress
-function TKMPlayerStats.GetHouseWip(aType: array of THouseType): Integer;
+function TKMHandStats.GetHouseWip(aType: array of THouseType): Integer;
 var
   I: Integer;
   H: THouseType;
@@ -353,7 +353,7 @@ begin
 end;
 
 
-function TKMPlayerStats.GetUnitQty(aType: TUnitType): Integer;
+function TKMHandStats.GetUnitQty(aType: TUnitType): Integer;
 var UT: TUnitType;
 begin
   Result := 0;
@@ -371,20 +371,20 @@ begin
 end;
 
 
-function TKMPlayerStats.GetUnitKilledQty(aType: TUnitType): Integer;
+function TKMHandStats.GetUnitKilledQty(aType: TUnitType): Integer;
 begin
   Result := Units[aType].Killed;
 end;
 
 
-function TKMPlayerStats.GetUnitLostQty(aType: TUnitType): Integer;
+function TKMHandStats.GetUnitLostQty(aType: TUnitType): Integer;
 begin
   Result := Units[aType].Lost;
 end;
 
 
 //How many wares player has
-function TKMPlayerStats.GetWareBalance(aRT: TWareType): Integer;
+function TKMHandStats.GetWareBalance(aRT: TWareType): Integer;
 var RT: TWareType;
 begin
   Result := 0;
@@ -399,7 +399,7 @@ begin
 end;
 
 
-function TKMPlayerStats.GetArmyCount: Integer;
+function TKMHandStats.GetArmyCount: Integer;
 var UT: TUnitType;
 begin
   Result := 0;
@@ -408,7 +408,7 @@ begin
 end;
 
 
-function TKMPlayerStats.GetCitizensCount: Integer;
+function TKMHandStats.GetCitizensCount: Integer;
 var UT: TUnitType;
 begin
   Result := 0;
@@ -418,13 +418,13 @@ end;
 
 
 //Houses might be blocked by mission script
-function TKMPlayerStats.GetCanBuild(aType: THouseType): Boolean;
+function TKMHandStats.GetCanBuild(aType: THouseType): Boolean;
 begin
   Result := (fHouseUnlocked[aType] or HouseGranted[aType]) and not HouseBlocked[aType];
 end;
 
 
-function TKMPlayerStats.GetRatio(aRes: TWareType; aHouse: THouseType): Byte;
+function TKMHandStats.GetRatio(aRes: TWareType; aHouse: THouseType): Byte;
 begin  
   Result := 5; //Default should be 5, for house/resource combinations that don't have a setting (on a side note this should be the only place the resourse limit is defined)
   case aRes of
@@ -444,7 +444,7 @@ begin
 end;
 
 
-procedure TKMPlayerStats.SetRatio(aRes: TWareType; aHouse: THouseType; aValue: Byte);
+procedure TKMHandStats.SetRatio(aRes: TWareType; aHouse: THouseType; aValue: Byte);
 begin
   case aRes of
     wt_Steel: if aHouse = ht_WeaponSmithy   then fResourceRatios[1,1] := aValue else
@@ -464,7 +464,7 @@ end;
 
 
 //The value includes only citizens, Warriors are counted separately
-function TKMPlayerStats.GetCitizensTrained: Cardinal;
+function TKMHandStats.GetCitizensTrained: Cardinal;
 var UT: TUnitType;
 begin
   Result := 0;
@@ -473,7 +473,7 @@ begin
 end;
 
 
-function TKMPlayerStats.GetCitizensLost: Cardinal;
+function TKMHandStats.GetCitizensLost: Cardinal;
 var UT: TUnitType;
 begin
   Result := 0;
@@ -482,7 +482,7 @@ begin
 end;
 
 
-function TKMPlayerStats.GetCitizensKilled: Cardinal;
+function TKMHandStats.GetCitizensKilled: Cardinal;
 var UT: TUnitType;
 begin
   Result := 0;
@@ -491,7 +491,7 @@ begin
 end;
 
 
-function TKMPlayerStats.GetHousesBuilt: Cardinal;
+function TKMHandStats.GetHousesBuilt: Cardinal;
 var HT: THouseType;
 begin
   Result := 0;
@@ -500,7 +500,7 @@ begin
 end;
 
 
-function TKMPlayerStats.GetHousesLost: Cardinal;
+function TKMHandStats.GetHousesLost: Cardinal;
 var HT: THouseType;
 begin
   Result := 0;
@@ -509,7 +509,7 @@ begin
 end;
 
 
-function TKMPlayerStats.GetHousesDestroyed: Cardinal;
+function TKMHandStats.GetHousesDestroyed: Cardinal;
 var HT: THouseType;
 begin
   Result := 0;
@@ -519,7 +519,7 @@ end;
 
 
 //The value includes all Warriors
-function TKMPlayerStats.GetWarriorsTrained: Cardinal;
+function TKMHandStats.GetWarriorsTrained: Cardinal;
 var UT: TUnitType;
 begin
   Result := 0;
@@ -528,7 +528,7 @@ begin
 end;
 
 
-function TKMPlayerStats.GetWarriorsLost: Cardinal;
+function TKMHandStats.GetWarriorsLost: Cardinal;
 var UT: TUnitType;
 begin
   Result := 0;
@@ -537,7 +537,7 @@ begin
 end;
 
 
-function TKMPlayerStats.GetWarriorsKilled: Cardinal;
+function TKMHandStats.GetWarriorsKilled: Cardinal;
 var UT: TUnitType;
 begin
   Result := 0;
@@ -546,7 +546,7 @@ begin
 end;
 
 
-function TKMPlayerStats.GetWaresProduced(aRT: TWareType): Cardinal;
+function TKMHandStats.GetWaresProduced(aRT: TWareType): Cardinal;
 var RT: TWareType;
 begin
   Result := 0;
@@ -562,7 +562,7 @@ end;
 
 
 //Everything except weapons
-function TKMPlayerStats.GetCivilProduced: Cardinal;
+function TKMHandStats.GetCivilProduced: Cardinal;
 var RT: TWareType;
 begin
   Result := 0;
@@ -573,7 +573,7 @@ end;
 
 
 //KaM includes all weapons and armor, but not horses
-function TKMPlayerStats.GetWeaponsProduced: Cardinal;
+function TKMHandStats.GetWeaponsProduced: Cardinal;
 var RT: TWareType;
 begin
   Result := 0;
@@ -582,7 +582,7 @@ begin
 end;
 
 
-function TKMPlayerStats.GetChartWares(aWare: TWareType): TKMCardinalArray;
+function TKMHandStats.GetChartWares(aWare: TWareType): TKMCardinalArray;
 var
   RT: TWareType;
   I: Integer;
@@ -623,7 +623,7 @@ begin
 end;
 
 
-function TKMPlayerStats.ChartWaresEmpty(aWare: TWareType): Boolean;
+function TKMHandStats.ChartWaresEmpty(aWare: TWareType): Boolean;
 var
   RT: TWareType;
 begin
@@ -653,7 +653,7 @@ begin
 end;
 
 
-procedure TKMPlayerStats.Save(SaveStream: TKMemoryStream);
+procedure TKMHandStats.Save(SaveStream: TKMemoryStream);
 var R: TWareType;
 begin
   SaveStream.WriteA('PlayerStats');
@@ -678,7 +678,7 @@ begin
 end;
 
 
-procedure TKMPlayerStats.Load(LoadStream: TKMemoryStream);
+procedure TKMHandStats.Load(LoadStream: TKMemoryStream);
 var R: TWareType;
 begin
   LoadStream.ReadAssert('PlayerStats');
@@ -710,7 +710,7 @@ begin
 end;
 
 
-procedure TKMPlayerStats.UpdateState;
+procedure TKMHandStats.UpdateState;
 var I: TWareType;
 begin
   if not DISPLAY_CHARTS_RESULT then Exit;

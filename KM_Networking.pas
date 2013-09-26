@@ -167,7 +167,7 @@ type
     property NetPlayers:TKMNetPlayersList read fNetPlayers;
     property LastProcessedTick:cardinal write fLastProcessedTick;
     procedure GameCreated;
-    procedure SendCommands(aStream: TKMemoryStream; aPlayerIndex: TPlayerIndex = -1);
+    procedure SendCommands(aStream: TKMemoryStream; aPlayerIndex: THandIndex = -1);
     procedure AttemptReconnection;
 
     property OnJoinSucc:TNotifyEvent write fOnJoinSucc;         //We were allowed to join
@@ -445,8 +445,8 @@ begin
     for I := 1 to fNetPlayers.Count do
       fNetPlayers[I].StartLocation := 0;
 
-    for I := 1 to MAX_PLAYERS - fSaveInfo.Info.HumanCount - fNetPlayers.GetClosedCount do
-      if fNetPlayers.Count < MAX_PLAYERS then
+    for I := 1 to MAX_HANDS - fSaveInfo.Info.HumanCount - fNetPlayers.GetClosedCount do
+      if fNetPlayers.Count < MAX_HANDS then
         fNetPlayers.AddClosedPlayer; //Close unused slots
   end;
 
@@ -893,7 +893,7 @@ end;
 
 
 //Send our commands to either to all players, or to specified one
-procedure TKMNetworking.SendCommands(aStream: TKMemoryStream; aPlayerIndex: TPlayerIndex = -1);
+procedure TKMNetworking.SendCommands(aStream: TKMemoryStream; aPlayerIndex: THandIndex = -1);
 var
   I: Integer;
 begin

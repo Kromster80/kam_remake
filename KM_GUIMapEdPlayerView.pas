@@ -29,7 +29,7 @@ type
 
 implementation
 uses
-  KM_PlayersCollection, KM_ResTexts, KM_Game, KM_GameCursor,
+  KM_HandsCollection, KM_ResTexts, KM_Game, KM_GameCursor,
   KM_RenderUI, KM_ResFonts;
 
 
@@ -97,14 +97,14 @@ begin
   end;
 
   if Sender = CheckBox_RevealAll then
-    fGame.MapEditor.RevealAll[MySpectator.PlayerIndex] := CheckBox_RevealAll.Checked
+    fGame.MapEditor.RevealAll[MySpectator.HandIndex] := CheckBox_RevealAll.Checked
   else
-    CheckBox_RevealAll.Checked := fGame.MapEditor.RevealAll[MySpectator.PlayerIndex];
+    CheckBox_RevealAll.Checked := fGame.MapEditor.RevealAll[MySpectator.HandIndex];
 
   if Sender = Button_PlayerCenterScreen then
-    fGame.Viewport.Position := KMPointF(gPlayers[MySpectator.PlayerIndex].CenterScreen); //Jump to location
+    fGame.Viewport.Position := KMPointF(gHands[MySpectator.HandIndex].CenterScreen); //Jump to location
 
-  Button_PlayerCenterScreen.Caption := TypeToString(gPlayers[MySpectator.PlayerIndex].CenterScreen);
+  Button_PlayerCenterScreen.Caption := TypeToString(gHands[MySpectator.HandIndex].CenterScreen);
 end;
 
 
@@ -128,7 +128,7 @@ end;
 
 procedure TKMMapEdPlayerView.UpdatePlayerColor;
 begin
-  Button_Reveal.FlagColor := gPlayers[MySpectator.PlayerIndex].FlagColor;
+  Button_Reveal.FlagColor := gHands[MySpectator.HandIndex].FlagColor;
 end;
 
 

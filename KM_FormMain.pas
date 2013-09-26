@@ -152,7 +152,7 @@ uses
   KM_ResSprites,
   KM_Controls,
   KM_GameApp,
-  KM_PlayersCollection,
+  KM_HandsCollection,
   KM_ResSound,
   KM_Pics,
   KM_RenderPool;
@@ -380,11 +380,11 @@ end;
 procedure TFormMain.Export_DeliverLists1Click(Sender: TObject);
 var I: Integer;
 begin
-  if gPlayers = nil then Exit;
+  if gHands = nil then Exit;
   //You could possibly cheat in multiplayer by seeing what supplies your enemy has
   if (fGameApp.Game <> nil) and (not fGameApp.Game.IsMultiplayer or MULTIPLAYER_CHEATS) then
-  for I := 0 to gPlayers.Count - 1 do
-    gPlayers[I].Deliveries.Queue.ExportToFile(ExeDir + 'Player_' + IntToStr(I) + '_Deliver_List.txt');
+  for I := 0 to gHands.Count - 1 do
+    gHands[I].Deliveries.Queue.ExportToFile(ExeDir + 'Player_' + IntToStr(I) + '_Deliver_List.txt');
 end;
 
 
@@ -395,8 +395,8 @@ begin
   or fGameApp.Game.IsMultiplayer then
     Exit;
 
-  if (gPlayers <> nil) and (RGPlayer.ItemIndex < gPlayers.Count) then
-    MySpectator.PlayerIndex := RGPlayer.ItemIndex;
+  if (gHands <> nil) and (RGPlayer.ItemIndex < gHands.Count) then
+    MySpectator.HandIndex := RGPlayer.ItemIndex;
 end;
 
 

@@ -95,7 +95,7 @@ type
 
 implementation
 uses
-  KM_RenderAux, KM_Game, KM_PlayersCollection, KM_Terrain,
+  KM_RenderAux, KM_Game, KM_HandsCollection, KM_Terrain,
   KM_UnitActionGoInOut, KM_UnitActionStay,
   KM_UnitTaskBuild,
   KM_Units_Warrior, KM_Log, KM_Resource;
@@ -253,8 +253,8 @@ end;
 procedure TUnitActionWalkTo.SyncLoad;
 begin
   inherited;
-  fTargetUnit   := gPlayers.GetUnitByUID(cardinal(fTargetUnit));
-  fTargetHouse  := gPlayers.GetHouseByUID(cardinal(fTargetHouse));
+  fTargetUnit   := gHands.GetUnitByUID(cardinal(fTargetUnit));
+  fTargetHouse  := gHands.GetHouseByUID(cardinal(fTargetHouse));
 end;
 
 
@@ -278,8 +278,8 @@ begin
 
   fUnit.IsExchanging := false;
 
-  gPlayers.CleanUpUnitPointer(fTargetUnit);
-  gPlayers.CleanUpHousePointer(fTargetHouse);
+  gHands.CleanUpUnitPointer(fTargetUnit);
+  gHands.CleanUpHousePointer(fTargetHouse);
   inherited;
 end;
 
@@ -441,9 +441,9 @@ begin
 
   if (fUnit is TKMUnitWorker) then
   begin
-    DistNext := gPlayers.DistanceToEnemyTowers(T, fUnit.Owner);
+    DistNext := gHands.DistanceToEnemyTowers(T, fUnit.Owner);
     if (DistNext <= RANGE_WATCHTOWER_MAX)
-    and (DistNext < gPlayers.DistanceToEnemyTowers(fUnit.GetPosition, fUnit.Owner)) then
+    and (DistNext < gHands.DistanceToEnemyTowers(fUnit.GetPosition, fUnit.Owner)) then
     begin
       //Cancel the plan if we cant approach it
       if TKMUnitWorker(fUnit).UnitTask is TTaskBuild then
@@ -552,7 +552,7 @@ begin
     //by the enemy instead of fighting them.
     //CheckAlliance is for optimisation since pushing allies doesn't matter
     if (fOpponent is TKMUnitWarrior)
-    and (gPlayers.CheckAlliance(fOpponent.Owner, fUnit.Owner) = at_Enemy)
+    and (gHands.CheckAlliance(fOpponent.Owner, fUnit.Owner) = at_Enemy)
     and TKMUnitWarrior(fOpponent).CheckForEnemy then
       Exit;
 
@@ -588,7 +588,7 @@ begin
     //with the enemy instead of fighting them.
     //CheckAlliance is for optimisation since pushing allies doesn't matter
     if (fOpponent is TKMUnitWarrior)
-    and (gPlayers.CheckAlliance(fOpponent.Owner, fUnit.Owner) = at_Enemy)
+    and (gHands.CheckAlliance(fOpponent.Owner, fUnit.Owner) = at_Enemy)
     and TKMUnitWarrior(fOpponent).CheckForEnemy then
       Exit;
 
@@ -922,8 +922,8 @@ begin
     fNewWalkTo := gTerrain.GetClosestTile(aLoc, fUnit.GetPosition, fPass, False);
 
   //Release pointers if we had them
-  gPlayers.CleanUpHousePointer(fTargetHouse);
-  gPlayers.CleanUpUnitPointer(fTargetUnit);
+  gHands.CleanUpHousePointer(fTargetHouse);
+  gHands.CleanUpUnitPointer(fTargetUnit);
 end;
 
 
@@ -939,8 +939,8 @@ begin
   fNewWalkTo := aNewTargetUnit.GetPosition;
 
   //Release pointers if we had them
-  gPlayers.CleanUpHousePointer(fTargetHouse);
-  gPlayers.CleanUpUnitPointer(fTargetUnit);
+  gHands.CleanUpHousePointer(fTargetHouse);
+  gHands.CleanUpUnitPointer(fTargetUnit);
   if aNewTargetUnit <> nil then
     fTargetUnit := aNewTargetUnit.GetUnitPointer; //Change target
 end;

@@ -13,7 +13,7 @@ type
     fAlertType: TAlertType;
     fExpiration: Cardinal;
     fLoc: TKMPointF;
-    fOwner: TPlayerIndex;
+    fOwner: THandIndex;
   protected
     function GetTexMinimap: TKMPic; virtual; abstract;
     function GetTexTerrain: TKMPic; virtual; abstract;
@@ -21,11 +21,11 @@ type
     function GetVisibleMinimap: Boolean; virtual; abstract;
     function GetVisibleTerrain: Boolean; virtual; abstract;
   public
-    constructor Create(aAlertType: TAlertType; aLoc: TKMPointF; aOwner: TPlayerIndex; aTick: Cardinal);
+    constructor Create(aAlertType: TAlertType; aLoc: TKMPointF; aOwner: THandIndex; aTick: Cardinal);
 
     property AlertType: TAlertType read fAlertType;
     property Loc: TKMPointF read fLoc;
-    property Owner: TPlayerIndex read fOwner;
+    property Owner: THandIndex read fOwner;
     property TexMinimap: TKMPic read GetTexMinimap;
     property TexTerrain: TKMPic read GetTexTerrain;
     property TeamColor: Cardinal read GetTeamColor;
@@ -51,8 +51,8 @@ type
   public
     constructor Create(aTickCounter: PCardinal; aViewport: TViewport);
     destructor Destroy; override;
-    procedure AddBeacon(aLoc: TKMPointF; aOwner: TPlayerIndex);
-    procedure AddFight(aLoc: TKMPointF; aPlayer: TPlayerIndex; aAsset: TAttackNotification);
+    procedure AddBeacon(aLoc: TKMPointF; aOwner: THandIndex);
+    procedure AddFight(aLoc: TKMPointF; aPlayer: THandIndex; aAsset: TAttackNotification);
     property Count: Integer read GetCount;
     property Items[aIndex: Integer]: TKMAlert read GetAlert; default;
     procedure Paint(aPass: Byte);
@@ -61,7 +61,7 @@ type
 
 
 implementation
-uses KM_PlayersCollection, KM_RenderPool, KM_Sound;
+uses KM_HandsCollection, KM_RenderPool, KM_Sound;
 
 
 type
@@ -74,7 +74,7 @@ type
     function GetVisibleMinimap: Boolean; override;
     function GetVisibleTerrain: Boolean; override;
   public
-    constructor Create(aLoc: TKMPointF; aOwner: TPlayerIndex; aTick: Cardinal);
+    constructor Create(aLoc: TKMPointF; aOwner: THandIndex; aTick: Cardinal);
   end;
 
   TKMAlertAttacked = class(TKMAlert)
@@ -88,7 +88,7 @@ type
     function GetVisibleMinimap: Boolean; override;
     function GetVisibleTerrain: Boolean; override;
   public
-    constructor Create(aLoc: TKMPointF; aOwner: TPlayerIndex; aAsset: TAttackNotification; aTick: Cardinal);
+    constructor Create(aLoc: TKMPointF; aOwner: THandIndex; aAsset: TAttackNotification; aTick: Cardinal);
     property Asset: TAttackNotification read fAsset;
     procedure Refresh(aTick: Cardinal);
     procedure Update(const aView: TKMRect); override;
@@ -103,7 +103,7 @@ const
 
 
 { TKMAlert }
-constructor TKMAlert.Create(aAlertType: TAlertType; aLoc: TKMPointF; aOwner: TPlayerIndex; aTick: Cardinal);
+constructor TKMAlert.Create(aAlertType: TAlertType; aLoc: TKMPointF; aOwner: THandIndex; aTick: Cardinal);
 begin
   inherited Create;
 
@@ -127,7 +127,7 @@ end;
 
 
 { TKMAlertBeacon }
-constructor TKMAlertBeacon.Create(aLoc: TKMPointF; aOwner: TPlayerIndex; aTick: Cardinal);
+constructor TKMAlertBeacon.Create(aLoc: TKMPointF; aOwner: THandIndex; aTick: Cardinal);
 begin
   inherited Create(atBeacon, aLoc, aOwner, aTick);
 end;
@@ -149,7 +149,7 @@ end;
 
 function TKMAlertBeacon.GetTeamColor: Cardinal;
 begin
-  Result := gPlayers[fOwner].FlagColor;
+  Result := gHands[fOwner].FlagColor;
 end;
 
 
@@ -167,7 +167,7 @@ end;
 
 
 { TKMAlertFight }
-constructor TKMAlertAttacked.Create(aLoc: TKMPointF; aOwner: TPlayerIndex; aAsset: TAttackNotification; aTick: Cardinal);
+constructor TKMAlertAttacked.Create(aLoc: TKMPointF; aOwner: THandIndex; aAsset: TAttackNotification; aTick: Cardinal);
 begin
   inherited Create(atFight, aLoc, aOwner, aTick);
 
@@ -193,7 +193,7 @@ end;
 
 function TKMAlertAttacked.GetTeamColor: Cardinal;
 begin
-  Result := gPlayers[fOwner].FlagColor;
+  Result := gHands[fOwner].FlagColor;
 end;
 
 
@@ -234,7 +234,7 @@ begin
       fLastLookedAt := INTERVAL_ATTACKED_MSG;
 
     //Make the sound
-    if (fOwner = MySpectator.PlayerIndex)
+    if (fOwner = MySpectator.HandIndex)
     and (fLastLookedAt = INTERVAL_ATTACKED_MSG) then
       gSoundPlayer.PlayNotification(fAsset);
   end;
@@ -277,7 +277,7 @@ end;
 
 
 //Ally has placed a beacon for ue
-procedure TKMAlerts.AddBeacon(aLoc: TKMPointF; aOwner: TPlayerIndex);
+procedure TKMAlerts.AddBeacon(aLoc: TKMPointF; aOwner: THandIndex);
   procedure RemoveExcessBeacons;
   var
     I, OldestID, Count: Integer;
@@ -310,7 +310,7 @@ end;
 
 
 //Player belongings signal that they are under attack
-procedure TKMAlerts.AddFight(aLoc: TKMPointF; aPlayer: TPlayerIndex; aAsset: TAttackNotification);
+procedure TKMAlerts.AddFight(aLoc: TKMPointF; aPlayer: THandIndex; aAsset: TAttackNotification);
 var
   I: Integer;
 begin
@@ -349,9 +349,9 @@ begin
   begin
     case aPass of
       0:  if MySpectator.FogOfWar.CheckRevelation(Items[I].Loc) > 0 then
-            fRenderPool.AddAlert(Items[I].Loc, Items[I].TexTerrain.ID, gPlayers[Items[I].Owner].FlagColor);
+            fRenderPool.AddAlert(Items[I].Loc, Items[I].TexTerrain.ID, gHands[Items[I].Owner].FlagColor);
       1:  if MySpectator.FogOfWar.CheckRevelation(Items[I].Loc) = 0 then
-            fRenderPool.RenderSpriteOnTerrain(Items[I].Loc, Items[I].TexTerrain.ID, gPlayers[Items[I].Owner].FlagColor);
+            fRenderPool.RenderSpriteOnTerrain(Items[I].Loc, Items[I].TexTerrain.ID, gHands[Items[I].Owner].FlagColor);
     end;
   end;
 end;

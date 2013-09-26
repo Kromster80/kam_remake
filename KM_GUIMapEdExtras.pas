@@ -33,7 +33,7 @@ type
 
 implementation
 uses
-  KM_PlayersCollection, KM_Sound, KM_ResSound,
+  KM_HandsCollection, KM_Sound, KM_ResSound,
   KM_RenderUI, KM_ResFonts, KM_ResTexts;
 
 
@@ -86,7 +86,7 @@ begin
   Dropbox_PlayerFOW := TKMDropList.Create(Panel_Extra, 460, 70, 160, 20, fnt_Metal, '', bsGame);
 
   Dropbox_PlayerFOW.Add('Show all', -1);
-  for I := 0 to MAX_PLAYERS - 1 do
+  for I := 0 to MAX_HANDS - 1 do
     Dropbox_PlayerFOW.Add(Format(gResTexts[TX_PLAYER_X], [I]), I);
 
   Dropbox_PlayerFOW.Hint := gResTexts[TX_REPLAY_PLAYER_PERSPECTIVE];

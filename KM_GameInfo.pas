@@ -2,7 +2,7 @@ unit KM_GameInfo;
 {$I KaM_Remake.inc}
 interface
 uses
-  Classes, SysUtils, KM_Player, KM_CommonClasses, KM_Defaults;
+  Classes, SysUtils, KM_Hand, KM_CommonClasses, KM_Defaults;
 
 
 type
@@ -21,12 +21,12 @@ type
     DefeatCondition: UnicodeString;
 
     PlayerCount: Byte;
-    Enabled: array [0..MAX_PLAYERS-1] of Boolean;
-    CanBeHuman: array [0..MAX_PLAYERS-1] of Boolean;
-    OwnerNikname: array [0..MAX_PLAYERS-1] of AnsiString; //Nikname of the player who plays this location
-    PlayerTypes: array [0..MAX_PLAYERS-1] of TPlayerType;
-    ColorID: array [0..MAX_PLAYERS-1] of Integer;
-    Team: array [0..MAX_PLAYERS-1] of Integer;
+    Enabled: array [0..MAX_HANDS-1] of Boolean;
+    CanBeHuman: array [0..MAX_HANDS-1] of Boolean;
+    OwnerNikname: array [0..MAX_HANDS-1] of AnsiString; //Nikname of the player who plays this location
+    PlayerTypes: array [0..MAX_HANDS-1] of THandType;
+    ColorID: array [0..MAX_HANDS-1] of Integer;
+    Team: array [0..MAX_HANDS-1] of Integer;
 
     //To be used in Savegames
     procedure Save(SaveStream: TKMemoryStream);
@@ -133,7 +133,7 @@ var
 begin
   Result := 0;
   for I := 0 to PlayerCount - 1 do
-    if PlayerTypes[I] = pt_Computer then
+    if PlayerTypes[I] = hndComputer then
       Inc(Result);
 end;
 
@@ -144,7 +144,7 @@ var
 begin
   Result := 0;
   for I := 0 to PlayerCount - 1 do
-    if Enabled[I] and (PlayerTypes[I] = pt_Human) then
+    if Enabled[I] and (PlayerTypes[I] = hndHuman) then
       Inc(Result);
 end;
 
@@ -154,7 +154,7 @@ var
   I: Integer;
 begin
   SetLength(Result, 0);
-  for I := 0 to MAX_PLAYERS - 1 do
+  for I := 0 to MAX_HANDS - 1 do
     if CanBeHuman[I] then
     begin
       SetLength(Result, Length(Result)+1);

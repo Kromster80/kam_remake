@@ -28,7 +28,7 @@ type
 
 implementation
 uses
-  KM_PlayersCollection, KM_GameCursor, KM_RenderUI, KM_Resource, KM_ResFonts, KM_ResTexts;
+  KM_HandsCollection, KM_GameCursor, KM_RenderUI, KM_Resource, KM_ResFonts, KM_ResTexts;
 
 
 { TKMMapEdTownUnits }
@@ -125,7 +125,7 @@ var
   I: Integer;
   Col: Cardinal;
 begin
-  Col := gPlayers[MySpectator.PlayerIndex].FlagColor;
+  Col := gHands[MySpectator.HandIndex].FlagColor;
 
   for I := Low(Button_Citizen) to High(Button_Citizen) do
     Button_Citizen[I].FlagColor := Col;

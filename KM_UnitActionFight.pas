@@ -34,7 +34,7 @@ type
 
 
 implementation
-uses KM_PlayersCollection, KM_ResSound, KM_Sound, KM_Units_Warrior, KM_Resource, KM_Projectiles;
+uses KM_HandsCollection, KM_ResSound, KM_Sound, KM_Units_Warrior, KM_Resource, KM_Projectiles;
 
 const STRIKE_STEP = 5; //Melee units place hit on step 5
 
@@ -65,7 +65,7 @@ end;
 
 destructor TUnitActionFight.Destroy;
 begin
-  gPlayers.CleanUpUnitPointer(fOpponent);
+  gHands.CleanUpUnitPointer(fOpponent);
   if not KMSamePoint(fVertexOccupied, KMPoint(0,0)) then
     DecVertex;
   inherited;
@@ -84,7 +84,7 @@ end;
 procedure TUnitActionFight.SyncLoad;
 begin
   inherited;
-  fOpponent := gPlayers.GetUnitByUID(cardinal(fOpponent));
+  fOpponent := gHands.GetUnitByUID(cardinal(fOpponent));
 end;
 
 
@@ -180,7 +180,7 @@ begin
     //After killing an opponent there is a very high chance that there is another enemy to be fought immediately
     //Try to start fighting that enemy by reusing this FightAction, rather than destroying it and making a new one
     Locked := false; //Fight can be interrupted by FindEnemy, otherwise it will always return nil!
-    gPlayers.CleanUpUnitPointer(fOpponent); //We are finished with the old opponent
+    gHands.CleanUpUnitPointer(fOpponent); //We are finished with the old opponent
     fOpponent := TKMUnitWarrior(fUnit).FindEnemy; //Find a new opponent
     if fOpponent <> nil then
     begin
@@ -323,11 +323,11 @@ begin
   if Step = 1 then
   begin
     //Tell the Opponent we are attacking him
-    gPlayers[fOpponent.Owner].AI.UnitAttackNotification(fOpponent, TKMUnitWarrior(fUnit));
+    gHands[fOpponent.Owner].AI.UnitAttackNotification(fOpponent, TKMUnitWarrior(fUnit));
 
     //Tell our AI that we are in a battle and might need assistance! (only for melee battles against warriors)
     if (fOpponent is TKMUnitWarrior) and not TKMUnitWarrior(fUnit).IsRanged then
-      gPlayers[fUnit.Owner].AI.UnitAttackNotification(fUnit, TKMUnitWarrior(fOpponent));
+      gHands[fUnit.Owner].AI.UnitAttackNotification(fUnit, TKMUnitWarrior(fOpponent));
   end;
 
   if TKMUnitWarrior(fUnit).IsRanged then

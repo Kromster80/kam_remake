@@ -41,7 +41,7 @@ type
 
 implementation
 uses
-  KM_Player, KM_PlayersCollection, KM_ResTexts, KM_GameCursor,
+  KM_Hand, KM_HandsCollection, KM_ResTexts, KM_GameCursor,
   KM_InterfaceDefaults, KM_RenderUI;
 
 
@@ -160,7 +160,7 @@ procedure TKMMapEdTown.ChangePlayer;
 var
   isAI: Boolean;
 begin
-  isAI := (gPlayers[MySpectator.PlayerIndex].PlayerType = pt_Computer);
+  isAI := (gHands[MySpectator.HandIndex].PlayerType = hndComputer);
 
   Button_Town[ttScript].Enabled := isAI;
   Button_Town[ttDefences].Enabled := isAI;
@@ -180,7 +180,7 @@ end;
 procedure TKMMapEdTown.UpdatePlayerColor;
 begin
   //Update colors
-  Button_Town[ttUnits].FlagColor := gPlayers[MySpectator.PlayerIndex].FlagColor;
+  Button_Town[ttUnits].FlagColor := gHands[MySpectator.HandIndex].FlagColor;
   fGuiUnits.UpdatePlayerColor;
 end;
 

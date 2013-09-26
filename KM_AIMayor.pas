@@ -11,8 +11,8 @@ type
   //Mayor is the one who manages the town
   TKMayor = class
   private
-    fOwner: TPlayerIndex;
-    fSetup: TKMPlayerAISetup;
+    fOwner: THandIndex;
+    fSetup: TKMHandAISetup;
     fBalance: TKMayorBalance;
     fCityPlanner: TKMCityPlanner;
     fPathFindingRoad: TPathFindingRoad;
@@ -45,14 +45,14 @@ type
     procedure CheckExhaustedMines;
     procedure CheckWeaponOrderCount;
   public
-    constructor Create(aPlayer: TPlayerIndex; aSetup: TKMPlayerAISetup);
+    constructor Create(aPlayer: THandIndex; aSetup: TKMHandAISetup);
     destructor Destroy; override;
 
     property CityPlanner: TKMCityPlanner read fCityPlanner;
 
     procedure AfterMissionInit;
     property AutoRepair: Boolean read fAutoRepair write SetAutoRepair;
-    procedure OwnerUpdate(aPlayer: TPlayerIndex);
+    procedure OwnerUpdate(aPlayer: THandIndex);
     function BalanceText: UnicodeString;
 
     procedure UpdateState(aTick: Cardinal);
@@ -62,7 +62,7 @@ type
 
 
 implementation
-uses KM_Game, KM_Houses, KM_HouseCollection, KM_PlayersCollection, KM_Player, KM_Terrain, KM_Resource,
+uses KM_Game, KM_Houses, KM_HouseCollection, KM_HandsCollection, KM_Hand, KM_Terrain, KM_Resource,
   KM_ResWares, KM_AIFields;
 
 
@@ -96,7 +96,7 @@ const //Sample list made by AntonP
 
 
 { TKMayor }
-constructor TKMayor.Create(aPlayer: TPlayerIndex; aSetup: TKMPlayerAISetup);
+constructor TKMayor.Create(aPlayer: THandIndex; aSetup: TKMHandAISetup);
 begin
   inherited Create;
 
@@ -130,7 +130,7 @@ end;
 { Check existing unit count vs house count and train missing citizens }
 procedure TKMayor.CheckUnitCount;
 var
-  P: TKMPlayer;
+  P: TKMHand;
   HS: TKMHouseSchool;
   UnitReq: array [CITIZEN_MIN..CITIZEN_MAX] of Integer;
 
@@ -164,7 +164,7 @@ begin
   //stonemason-woodcutter-carpenter-2miners-metallurgist. In other words -
   //dont waste gold if it's not producing yet
 
-  P := gPlayers[fOwner];
+  P := gHands[fOwner];
 
   //Citizens
   //Count overall unit requirement (excluding Barracks and ownerless houses)
@@ -229,9 +229,9 @@ var
   H: TKMHouse;
   ResOrder: Integer;
 begin
-  for I := 0 to gPlayers[fOwner].Houses.Count - 1 do
+  for I := 0 to gHands[fOwner].Houses.Count - 1 do
   begin
-    H := gPlayers[fOwner].Houses[I];
+    H := gHands[fOwner].Houses[I];
 
     ResOrder := H.ResOrder[1] + H.ResOrder[2] + H.ResOrder[3] + H.ResOrder[4];
 
@@ -276,14 +276,14 @@ end;
 function TKMayor.TryConnectToRoad(aLoc: TKMPoint): Boolean;
 var
   I: Integer;
-  P: TKMPlayer;
+  P: TKMHand;
   H: TKMHouse;
   LocTo: TKMPoint;
   NodeList: TKMPointList;
   RoadExists: Boolean;
 begin
   Result := False;
-  P := gPlayers[fOwner];
+  P := gHands[fOwner];
 
   //Find nearest wip or ready house
   H := P.Houses.FindHouse(ht_Any, aLoc.X, aLoc.Y, 1, False);
@@ -314,11 +314,11 @@ function TKMayor.TryBuildHouse(aHouse: THouseType): Boolean;
 var
   I, K: Integer;
   Loc: TKMPoint;
-  P: TKMPlayer;
+  P: TKMHand;
   NodeTagList: TKMPointTagList;
 begin
   Result := False;
-  P := gPlayers[fOwner];
+  P := gHands[fOwner];
 
   //Skip disabled houses
   if not P.Stats.GetCanBuild(aHouse) then Exit;
@@ -411,7 +411,7 @@ var
   S: TKMHouseStore;
   Houses: TKMHousesCollection;
 begin
-  Houses := gPlayers[fOwner].Houses;
+  Houses := gHands[fOwner].Houses;
 
   //Iterate through all Stores and block stone/trunks to reduce serf usage
   for I := 0 to Houses.Count - 1 do
@@ -433,7 +433,7 @@ var
   I: Integer;
   Houses: TKMHousesCollection;
 begin
-  Houses := gPlayers[fOwner].Houses;
+  Houses := gHands[fOwner].Houses;
 
   for I := 0 to Houses.Count - 1 do
   if not Houses[I].IsDestroyed
@@ -444,10 +444,10 @@ end;
 
 procedure TKMayor.CheckHouseCount;
 var
-  P: TKMPlayer;
+  P: TKMHand;
   H: THouseType;
 begin
-  P := gPlayers[fOwner];
+  P := gHands[fOwner];
 
   //Try to express needs in terms of Balance = Production - Demand
   fBalance.Refresh;
@@ -481,12 +481,12 @@ end;
 
 procedure TKMayor.CheckRoadsCount;
 var
-  P: TKMPlayer;
+  P: TKMHand;
   Store: TKMHouse;
   StoreLoc: TKMPoint;
   I, K: Integer;
 begin
-  P := gPlayers[fOwner];
+  P := gHands[fOwner];
 
   //This is one time task to build roads around Store
   //When town becomes larger add road around Store to make traffic smoother
@@ -515,12 +515,12 @@ var
   Store: TKMHouse;
   StoreLoc, T: TKMPoint;
 begin
-  Store := gPlayers[fOwner].Houses.FindHouse(ht_Store, 0, 0, 1);
+  Store := gHands[fOwner].Houses.FindHouse(ht_Store, 0, 0, 1);
   if Store = nil then Exit;
   StoreLoc := Store.GetEntrance;
 
   //AI will be Wooden if there is no iron/coal nearby
-  if (gPlayers[fOwner].PlayerType = pt_Computer) and fSetup.AutoBuild then
+  if (gHands[fOwner].PlayerType = hndComputer) and fSetup.AutoBuild then
   begin
     //todo: Add preferred army type selector to MapEd
     if (fCityPlanner.FindNearest(KMPointBelow(StoreLoc), 60, fnIron, T) and fCityPlanner.FindNearest(KMPointBelow(StoreLoc), 60, fnCoal, T)) then
@@ -543,7 +543,7 @@ begin
 end;
 
 
-procedure TKMayor.OwnerUpdate(aPlayer: TPlayerIndex);
+procedure TKMayor.OwnerUpdate(aPlayer: THandIndex);
 begin
   fOwner := aPlayer;
   fBalance.OwnerUpdate(aPlayer);
@@ -599,8 +599,8 @@ begin
   fAutoRepair := Value;
 
   //Apply to those houses placed by a script before AutoRepair command
-  for I := 0 to gPlayers[fOwner].Houses.Count - 1 do
-    gPlayers[fOwner].Houses[I].BuildingRepair := fAutoRepair;
+  for I := 0 to gHands[fOwner].Houses.Count - 1 do
+    gHands[fOwner].Houses[I].BuildingRepair := fAutoRepair;
 end;
 
 
@@ -612,7 +612,7 @@ end;
 
 procedure TKMayor.UpdateState(aTick: Cardinal);
 begin
-  if (aTick + Byte(fOwner)) mod (MAX_PLAYERS * 10) <> 0 then Exit;
+  if (aTick + Byte(fOwner)) mod (MAX_HANDS * 10) <> 0 then Exit;
 
   //Train new units (citizens, serfs, workers and recruits) if needed
   CheckUnitCount;

@@ -45,7 +45,7 @@ type
 
 
 implementation
-uses KM_PlayersCollection, KM_Resource, KM_Terrain, KM_UnitActionStay, KM_UnitActionWalkTo, KM_HouseBarracks, KM_ResHouses;
+uses KM_HandsCollection, KM_Resource, KM_Terrain, KM_UnitActionStay, KM_UnitActionWalkTo, KM_HouseBarracks, KM_ResHouses;
 
 
 { TUnitActionGoInOut }
@@ -85,8 +85,8 @@ end;
 procedure TUnitActionGoInOut.SyncLoad;
 begin
   inherited;
-  fHouse := gPlayers.GetHouseByUID(cardinal(fHouse));
-  fPushedUnit := gPlayers.GetUnitByUID(cardinal(fPushedUnit));
+  fHouse := gHands.GetHouseByUID(cardinal(fHouse));
+  fPushedUnit := gHands.GetUnitByUID(cardinal(fPushedUnit));
 end;
 
 
@@ -95,8 +95,8 @@ begin
   if fUsedDoorway then
     DecDoorway;
 
-  gPlayers.CleanUpHousePointer(fHouse);
-  gPlayers.CleanUpUnitPointer(fPushedUnit);
+  gHands.CleanUpHousePointer(fHouse);
+  gHands.CleanUpUnitPointer(fPushedUnit);
 
   //A bug can occur because this action is destroyed early when a unit is told to die.
   //If we are still invisible then TTaskDie assumes we are inside and creates a new
@@ -210,7 +210,7 @@ begin
     if (U <> nil)
     and (U.GetUnitAction is TUnitActionStay)
     and not TUnitActionStay(U.GetUnitAction).Locked
-    and (gPlayers.CheckAlliance(U.Owner, fUnit.Owner) = at_Ally) then
+    and (gHands.CheckAlliance(U.Owner, fUnit.Owner) = at_Ally) then
       Result := U;
   end;
 end;
@@ -305,7 +305,7 @@ begin
     if (U = nil) then //Unit has walked away
     begin
       fWaitingForPush := False;
-      gPlayers.CleanUpUnitPointer(fPushedUnit);
+      gHands.CleanUpUnitPointer(fPushedUnit);
       WalkOut;
     end
     else
@@ -316,7 +316,7 @@ begin
       begin
         fHasStarted := False;
         fWaitingForPush := False;
-        gPlayers.CleanUpUnitPointer(fPushedUnit);
+        gHands.CleanUpUnitPointer(fPushedUnit);
       end;
       Exit;
     end;

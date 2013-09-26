@@ -3,12 +3,12 @@ unit KM_ArmyEvaluation;
 interface
 uses
   Classes, KromUtils,
-  KM_Defaults, KM_PlayerStats;
+  KM_Defaults, KM_HandStats;
 
 
 type
   TKMEvaluation = record
-    EnemyIndex: TPlayerIndex; //Evaluation made against this player
+    EnemyIndex: THandIndex; //Evaluation made against this player
     VictoryChance: Single;
     Power: Single;
     UnitTypesPower: array [WARRIOR_MIN .. WARRIOR_MAX] of Single;
@@ -18,17 +18,17 @@ type
   //This class evaluate self army relatively enemy armies
   TKMArmyEvaluation = class
   private
-    fOwner: TPlayerIndex;
-    fEvals: array [0 .. MAX_PLAYERS - 1] of TKMEvaluation; //Results of evaluetion
+    fOwner: THandIndex;
+    fEvals: array [0 .. MAX_HANDS - 1] of TKMEvaluation; //Results of evaluetion
 
-    function GetEvaluation(aIndex: TPlayerIndex): TKMEvaluation;
+    function GetEvaluation(aIndex: THandIndex): TKMEvaluation;
     procedure Reset;
-    procedure EvaluatePower(aEnemyIndex: TPlayerIndex);
+    procedure EvaluatePower(aEnemyIndex: THandIndex);
   public
-    constructor Create(aOwner: TPlayerIndex);
+    constructor Create(aOwner: THandIndex);
     destructor Destroy; override;
 
-    property Evaluations[aIndex: TPlayerIndex]: TKMEvaluation read GetEvaluation;
+    property Evaluations[aIndex: THandIndex]: TKMEvaluation read GetEvaluation;
     procedure UpdateState; //Call to update evaluation
   end;
 
@@ -37,7 +37,7 @@ procedure InitUnitStatEvals;
 
 
 implementation
-uses Math, KM_PlayersCollection, KM_Resource, KM_ResUnits;
+uses Math, KM_HandsCollection, KM_Resource, KM_ResUnits;
 
 
 var
@@ -46,14 +46,14 @@ var
 
 
 { TKMArmyEvaluation }
-constructor TKMArmyEvaluation.Create(aOwner: TPlayerIndex);
+constructor TKMArmyEvaluation.Create(aOwner: THandIndex);
 var I: Integer;
 begin
   inherited Create;
 
   fOwner := aOwner;
 
-  for I := 0 to MAX_PLAYERS - 1 do
+  for I := 0 to MAX_HANDS - 1 do
     fEvals[I].EnemyIndex := I;
 end;
 
@@ -65,7 +65,7 @@ begin
 end;
 
 
-function TKMArmyEvaluation.GetEvaluation(aIndex: TPlayerIndex): TKMEvaluation;
+function TKMArmyEvaluation.GetEvaluation(aIndex: THandIndex): TKMEvaluation;
 begin
   Result := fEvals[aIndex];
 end;
@@ -78,16 +78,16 @@ end;
 
 
 //Calculate our power against specified player
-procedure TKMArmyEvaluation.EvaluatePower(aEnemyIndex: TPlayerIndex);
+procedure TKMArmyEvaluation.EvaluatePower(aEnemyIndex: THandIndex);
 var
-  SelfStats, EnemyStats: TKMPlayerStats;
+  SelfStats, EnemyStats: TKMHandStats;
   Eval: TKMEvaluation;
   I, K: TUnitType;
   EnemyQty, SelfQty: Integer;
   PowerSum: Single;
 begin
-  SelfStats := gPlayers[fOwner].Stats;
-  EnemyStats := gPlayers[aEnemyIndex].Stats;
+  SelfStats := gHands[fOwner].Stats;
+  EnemyStats := gHands[aEnemyIndex].Stats;
 
   Eval := fEvals[aEnemyIndex];
   Eval.Power := 0;
@@ -120,9 +120,9 @@ var
 begin
   Reset;
 
-  for I := 0 to gPlayers.Count - 1 do
-  if (I <> fOwner) and gPlayers[I].Enabled
-  and (gPlayers[fOwner].Alliances[I] = at_Enemy) then
+  for I := 0 to gHands.Count - 1 do
+  if (I <> fOwner) and gHands[I].Enabled
+  and (gHands[fOwner].Alliances[I] = at_Enemy) then
     EvaluatePower(I);
 end;
 

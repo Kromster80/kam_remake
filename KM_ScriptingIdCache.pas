@@ -34,7 +34,7 @@ type
 
 
 implementation
-uses KM_Game, KM_PlayersCollection;
+uses KM_Game, KM_HandsCollection;
 
 
 { TKMScriptingIdCache }
@@ -47,7 +47,7 @@ begin
 
   //We need to release pointer if we remove unit from cache
   if fUnitCache[fUnitLastAdded].U <> nil then
-    gPlayers.CleanUpUnitPointer(fUnitCache[fUnitLastAdded].U);
+    gHands.CleanUpUnitPointer(fUnitCache[fUnitLastAdded].U);
 
   fUnitCache[fUnitLastAdded].UID := aUID;
   //We could be asked to cache that certain UID is nil (saves us time scanning Units to find out that this UID is removed)
@@ -69,7 +69,7 @@ begin
 
   //We need to release pointer if we remove house from cache
   if fHouseCache[fHouseLastAdded].H <> nil then
-    gPlayers.CleanUpHousePointer(fHouseCache[fHouseLastAdded].H);
+    gHands.CleanUpHousePointer(fHouseCache[fHouseLastAdded].H);
 
   fHouseCache[fHouseLastAdded].UID := aUID;
   //We could be asked to cache that certain UID is nil (saves us time scanning Houses to find out that this UID is removed)
@@ -91,7 +91,7 @@ begin
 
   //We need to release pointer if we remove group from cache
   if fGroupCache[fGroupLastAdded].G <> nil then
-    gPlayers.CleanUpGroupPointer(fGroupCache[fGroupLastAdded].G);
+    gHands.CleanUpGroupPointer(fGroupCache[fGroupLastAdded].G);
 
   fGroupCache[fGroupLastAdded].UID := aUID;
   //We could be asked to cache that certain UID is nil (saves us time scanning Groups to find out that this UID is removed)
@@ -117,7 +117,7 @@ begin
   end;
 
   //Not found so do lookup and add it to the cache
-  Result := gPlayers.GetUnitByUID(aUID);
+  Result := gHands.GetUnitByUID(aUID);
   if (Result <> nil) and Result.IsDeadOrDying then
     Result := nil;
 
@@ -136,7 +136,7 @@ begin
   end;
 
   //Not found so do lookup and add it to the cache
-  Result := gPlayers.GetHouseByUID(aUID);
+  Result := gHands.GetHouseByUID(aUID);
   if (Result <> nil) and Result.IsDestroyed then
     Result := nil;
 
@@ -155,7 +155,7 @@ begin
   end;
 
   //Not found so do lookup and add it to the cache
-  Result := gPlayers.GetGroupByUID(aUID);
+  Result := gHands.GetGroupByUID(aUID);
   if (Result <> nil) and Result.IsDead then
     Result := nil;
 
@@ -173,15 +173,15 @@ begin
   begin
     for I := Low(fUnitCache) to High(fUnitCache) do
       if (fUnitCache[I].U <> nil) and fUnitCache[I].U.IsDeadOrDying then
-        gPlayers.CleanUpUnitPointer(fUnitCache[I].U);
+        gHands.CleanUpUnitPointer(fUnitCache[I].U);
 
     for I := Low(fHouseCache) to High(fHouseCache) do
       if (fHouseCache[I].H <> nil) and fHouseCache[I].H.IsDestroyed then
-        gPlayers.CleanUpHousePointer(fHouseCache[I].H);
+        gHands.CleanUpHousePointer(fHouseCache[I].H);
 
     for I := Low(fGroupCache) to High(fGroupCache) do
       if (fGroupCache[I].G <> nil) and fGroupCache[I].G.IsDead then
-        gPlayers.CleanUpGroupPointer(fGroupCache[I].G);
+        gHands.CleanUpGroupPointer(fGroupCache[I].G);
   end;
 end;
 

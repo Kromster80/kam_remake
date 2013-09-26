@@ -46,8 +46,8 @@ type
         MinimapView_Single: TKMMinimapView;
         DropBox_SingleLoc: TKMDropList;
         DropBox_SingleColor: TKMDropColumns;
-        Image_SingleAllies: array [0..MAX_PLAYERS-1] of TKMImage;
-        Image_SingleEnemies: array [0..MAX_PLAYERS-1] of TKMImage;
+        Image_SingleAllies: array [0..MAX_HANDS-1] of TKMImage;
+        Image_SingleEnemies: array [0..MAX_HANDS-1] of TKMImage;
         Image_SingleVictGoal: array [0..MAX_UI_GOALS-1] of TKMImage;
         Label_SingleVictGoal: array [0..MAX_UI_GOALS-1] of TKMLabel;
         Image_SingleVictGoalSt: array [0..MAX_UI_GOALS-1] of TKMImage;
@@ -201,7 +201,7 @@ begin
       B.Anchors := [akLeft, akBottom];
       L := TKMLabel.Create(Panel_SingleDesc, 4, 614, 190, 20, gResTexts[TX_MENU_ENEMIES], fnt_Metal, taLeft);
       L.Anchors := [akLeft, akBottom];
-      for I := 0 to MAX_PLAYERS - 1 do
+      for I := 0 to MAX_HANDS - 1 do
       begin
         Image_SingleAllies[I] := TKMImage.Create(Panel_SingleDesc, 200 + I*32, 590, 50, 20, 30, rxGuiMain);
         Image_SingleAllies[I].Anchors := [akLeft, akBottom];
@@ -371,7 +371,7 @@ begin
     Label_SingleSurvGoal[I].Caption := '';
     Image_SingleSurvGoalSt[I].Hide;
   end;
-  for I := 0 to MAX_PLAYERS - 1 do
+  for I := 0 to MAX_HANDS - 1 do
   begin
     Image_SingleAllies[I].Hide;
     Image_SingleEnemies[I].Hide;
@@ -384,8 +384,8 @@ begin
     M := fMaps[MapId];
 
     //Refresh minimap with selected location and player color
-    fMinimap.LoadFromMission(M.FullPath('.dat'), [TPlayerIndex(fSingleLoc)]);
-    fMinimap.PlayerColors[fSingleLoc] := fSingleColor;
+    fMinimap.LoadFromMission(M.FullPath('.dat'), [THandIndex(fSingleLoc)]);
+    fMinimap.HandColors[fSingleLoc] := fSingleColor;
     fMinimap.Update(False);
     MinimapView_Single.SetMinimap(fMinimap);
 
