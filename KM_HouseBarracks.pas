@@ -2,7 +2,7 @@ unit KM_HouseBarracks;
 {$I KaM_Remake.inc}
 interface
 uses
-  Classes, Math,
+  Classes, Math, Types,
   KM_CommonClasses, KM_Defaults,
   KM_Houses, KM_ResHouses, KM_ResWares;
 

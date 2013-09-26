@@ -71,12 +71,10 @@ function GeTVector3fs(S : String) : TVector3f;
 var P, P2 : Integer;
     C : TVector3f;
 begin
-  S :=Trim(Copy(S, 3, Length(S)));
-  P :=Pos(' ', S);
-  P2 :=PosEx(' ', S, P+1);
-  {$WARN SYMBOL_DEPRECATED OFF}
-  S := StringReplace(S, '.', DecimalSeparator, [rfReplaceAll]);
-  {$WARN SYMBOL_DEPRECATED ON}
+  S := Trim(Copy(S, 3, Length(S)));
+  P := Pos(' ', S);
+  P2 := PosEx(' ', S, P+1);
+  S := StringReplace(S, '.', TFormatSettings.Create.DecimalSeparator, [rfReplaceAll]);
 
   C.X :=-StrToFloat(Copy(S, 1, P-1));
   C.Y :=-StrToFloat(Copy(S, P+1, P2-P-1));
@@ -91,11 +89,9 @@ end;
 function GetTexCoords(S : String) : TVector2f;
 var P, P2 : Integer;
 begin
-  P :=Pos(' ', S);
-  P2 :=PosEx(' ', S, P+1);
-  {$WARN SYMBOL_DEPRECATED OFF}
-  S := StringReplace(S, '.', DecimalSeparator, [rfReplaceAll]);
-  {$WARN SYMBOL_DEPRECATED ON}
+  P := Pos(' ', S);
+  P2 := PosEx(' ', S, P+1);
+  S := StringReplace(S, '.', TFormatSettings.Create.DecimalSeparator, [rfReplaceAll]);
 
   Result.U :=StrToFloat(Copy(S, P+1, P2-P-1));
   Result.V :=StrToFloat(Copy(S, P2+1, Length(S)));

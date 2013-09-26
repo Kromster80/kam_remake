@@ -45,19 +45,20 @@ function Max(const A,B,C: single):single; overload;
   function Mix(x1,x2:integer; MixValue:single):integer; overload;
   function Lerp(A,B: Single; MixValue: Single): Single;
 
-procedure decs(var AText:string; const Len:integer=1); overload;
-procedure decs(var AText:widestring; const Len:integer=1); overload;
-function  decs(AText:string; Len,RunAsFunction:integer):string; overload;
-function RemoveQuotes(Input:string):string;
-procedure SwapStr(var A,B:string);
-procedure SwapInt(var A,B:byte); overload;
-procedure SwapInt(var A,B:shortint); overload;
-procedure SwapInt(var A,B:smallint); overload;
-procedure SwapInt(var A,B:word); overload;
-procedure SwapInt(var A,B:integer); overload;
-procedure SwapInt(var A,B:cardinal); overload;
-procedure SwapFloat(var A,B:single);
-function Equals(A,B:single; const Epsilon:single=0.001):boolean;
+  procedure decs(var AText: string; const Len: integer = 1); overload;
+  procedure decs(var AText: widestring; const Len: integer = 1); overload;
+  function decs(AText: string; Len, RunAsFunction: integer): string; overload;
+  function RemoveQuotes(Input: string): string;
+  procedure SwapStr(var A, B: string);
+  procedure SwapInt(var A, B: Byte); overload;
+  procedure SwapInt(var A, B: ShortInt); overload;
+  procedure SwapInt(var A, B: SmallInt); overload;
+  procedure SwapInt(var A, B: Word); overload;
+  procedure SwapInt(var A, B: Integer); overload;
+  procedure SwapInt(var A, B: Cardinal); overload;
+  procedure SwapInt(var A, B: NativeUInt); overload;
+  procedure SwapFloat(var A, B: Single);
+  function Equals(A, B: single; const Epsilon: single = 0.001): Boolean;
 
 function MakePOT(num:integer): integer;
 function Adler32CRC(TextPointer:Pointer; TextLength:cardinal):cardinal; overload;
@@ -441,14 +442,20 @@ begin
   s:=A; A:=B; B:=s;
 end;
 
-procedure SwapInt(var A,B:integer);
+procedure SwapInt(var A,B: Integer);
 var s:integer;
 begin
   s:=A; A:=B; B:=s;
 end;
 
-procedure SwapInt(var A,B:cardinal);
+procedure SwapInt(var A,B: Cardinal);
 var s:cardinal;
+begin
+  s:=A; A:=B; B:=s;
+end;
+
+procedure SwapInt(var A,B: NativeUInt);
+var s:NativeUInt;
 begin
   s:=A; A:=B; B:=s;
 end;

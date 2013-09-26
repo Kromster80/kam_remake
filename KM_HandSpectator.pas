@@ -169,7 +169,7 @@ begin
 end;
 
 
-procedure TKMSpectator.UpdateState(aTick: Cardinal);
+procedure TKMSpectator.UpdateState;
 begin
   //Hide the highlight
   if TimeGet > fHighlightEnd then

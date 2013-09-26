@@ -142,23 +142,22 @@ type
     procedure UpdateDebugInfo;
     procedure HidePages;
   protected
-    Panel_Main: TKMPanel;
-      Sidebar_Top: TKMImage;
-      Sidebar_Middle: TKMImage;
-      MinimapView: TKMMinimapView;
-      Label_DebugInfo, Label_Hint: TKMLabel;
-      Bevel_HintBG: TKMBevel;
+    Sidebar_Top: TKMImage;
+    Sidebar_Middle: TKMImage;
+    MinimapView: TKMMinimapView;
+    Label_DebugInfo, Label_Hint: TKMLabel;
+    Bevel_HintBG: TKMBevel;
 
-      Image_MPChat, Image_MPAllies: TKMImage; //Multiplayer buttons
-      Image_MessageLog: TKMImage;
-      Label_MPChatUnread: TKMLabel;
-      Image_Message: array[0..MAX_VISIBLE_MSGS]of TKMImage; //Queue of messages covers 32*48=1536px height
-      Image_Clock: TKMImage; //Clock displayed when game speed is increased
-      Label_Clock: TKMLabel;
-      Label_ClockSpeedup: TKMLabel;
-      Label_ScriptedOverlay: TKMLabel; //Label that can be set from script
-      Label_MenuTitle: TKMLabel; //Displays the title of the current menu to the right of return
-      Image_DirectionCursor: TKMImage;
+    Image_MPChat, Image_MPAllies: TKMImage; //Multiplayer buttons
+    Image_MessageLog: TKMImage;
+    Label_MPChatUnread: TKMLabel;
+    Image_Message: array[0..MAX_VISIBLE_MSGS]of TKMImage; //Queue of messages covers 32*48=1536px height
+    Image_Clock: TKMImage; //Clock displayed when game speed is increased
+    Label_Clock: TKMLabel;
+    Label_ClockSpeedup: TKMLabel;
+    Label_ScriptedOverlay: TKMLabel; //Label that can be set from script
+    Label_MenuTitle: TKMLabel; //Displays the title of the current menu to the right of return
+    Image_DirectionCursor: TKMImage;
 
     Panel_Controls: TKMPanel;
       Button_Main: array [TKMTabButtons] of TKMButton; //4 common buttons + Return

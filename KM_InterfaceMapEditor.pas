@@ -61,12 +61,11 @@ type
     procedure Player_SetActive(aIndex: THandIndex);
     procedure Player_UpdatePages;
   protected
-    Panel_Main: TKMPanel;
-      MinimapView: TKMMinimapView;
-      Label_Coordinates: TKMLabel;
-      Button_PlayerSelect: array [0..MAX_HANDS-1] of TKMFlatButtonShape; //Animals are common for all
-      Label_Stat,Label_Hint: TKMLabel;
-      Bevel_HintBG: TKMBevel;
+    MinimapView: TKMMinimapView;
+    Label_Coordinates: TKMLabel;
+    Button_PlayerSelect: array [0..MAX_HANDS-1] of TKMFlatButtonShape; //Animals are common for all
+    Label_Stat,Label_Hint: TKMLabel;
+    Bevel_HintBG: TKMBevel;
 
     Panel_Common: TKMPanel;
       Button_Main: array [1..5] of TKMButton; //5 buttons

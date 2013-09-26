@@ -125,7 +125,7 @@ begin
     if (I <> fOwner) and (gHands[fOwner].Alliances[I] = at_Enemy) then
     begin
       SetLength(Enemies, Length(Enemies)+1);
-      Enemies[Length(Enemies)-1] := I;
+      Enemies[High(Enemies)] := I;
     end;
   Goals.AddDefaultGoals(aBuildings, fOwner, Enemies);
 end;

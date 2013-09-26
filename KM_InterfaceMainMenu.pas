@@ -43,7 +43,6 @@ type
     fMenuSingleMap: TKMMenuSingleMap;
     fMenuSinglePlayer: TKMMenuSinglePlayer;
   protected
-    Panel_Main: TKMPanel;
     Panel_Menu: TKMPanel;
     Label_Version: TKMLabel;
   public

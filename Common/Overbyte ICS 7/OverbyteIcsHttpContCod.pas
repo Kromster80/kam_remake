@@ -512,20 +512,22 @@ begin
                 if AddQuality then begin
                     QualStr := FormatFloat('0.###', ContItem.Quality);
                     { Force the point as decimal separator }
-                    {$IFDEF VER240}
-                      if TFormatSettings.Create.DecimalSeparator <> '.' then begin
+                    {$IF Defined(VER240) or Defined(VER250) or Defined(VER260)}
+                      if TFormatSettings.Create.DecimalSeparator <> '.' then
+                      begin
                           DecPos := Pos(TFormatSettings.Create.DecimalSeparator, QualStr);
                           if DecPos > 0 then
                               QualStr[DecPos] := '.';
                       end;
-                    {$ENDIF}
-                    {$IFNDEF VER240}
-                    if DecimalSeparator <> '.' then begin
+                    {$IFEND}
+                    {$IF not Defined(VER240) and not Defined(VER250) and not Defined(VER260)}
+                    if DecimalSeparator <> '.' then
+                    begin
                         DecPos := Pos(DecimalSeparator, QualStr);
                         if DecPos > 0 then
                             QualStr[DecPos] := '.';
                     end;
-                    {$ENDIF}
+                    {$IFEND}
 
                     if FHeaderText = '' then
                         FHeaderText := Format('%s;q=%s', [ContItem.Coding, QualStr])

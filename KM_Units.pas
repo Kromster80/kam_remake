@@ -2,7 +2,7 @@ unit KM_Units;
 {$I KaM_Remake.inc}
 interface
 uses
-  Classes, Math, SysUtils, KromUtils, TypInfo,
+  Classes, Math, SysUtils, KromUtils, TypInfo, Types,
   KM_CommonClasses, KM_Defaults, KM_Points, KM_Utils,
   KM_Terrain, KM_ResHouses, KM_ResWares, KM_Houses;
 

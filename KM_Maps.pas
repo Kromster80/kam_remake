@@ -538,7 +538,7 @@ begin
   for I := 0 to fCount - 1 do
   for K := I to fCount - 1 do
   if Compare(fMaps[I], fMaps[K], fSortMethod) then
-    SwapInt(Cardinal(fMaps[I]), Cardinal(fMaps[K])); //Exchange only pointers to MapInfo objects
+    SwapInt(NativeUInt(fMaps[I]), NativeUInt(fMaps[K])); //Exchange only pointers to MapInfo objects
 end;
 
 
