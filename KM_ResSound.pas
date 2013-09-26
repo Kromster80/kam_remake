@@ -228,10 +228,10 @@ var
   Tab2:array[1..200]of smallint;
   i,Tmp:integer;
 begin
-  if not CheckFileExists(ExeDir+'data'+PathDelim+'sfx'+PathDelim+'sounds.dat') then Exit;
+  if not FileExists(ExeDir + 'data' + PathDelim + 'sfx' + PathDelim + 'sounds.dat') then Exit;
 
   S := TMemoryStream.Create;
-  S.LoadFromFile(ExeDir + 'data'+PathDelim+'sfx'+PathDelim+'sounds.dat');
+  S.LoadFromFile(ExeDir + 'data' + PathDelim + 'sfx' + PathDelim + 'sounds.dat');
   S.Read(Head, 4);
   S.Read(Tab1, Head.Count*4); //Read Count*4bytes into Tab1(WaveSizes)
   S.Read(Tab2, Head.Count*2); //Read Count*2bytes into Tab2(No idea what is it)

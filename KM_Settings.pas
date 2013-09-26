@@ -82,7 +82,7 @@ type
     procedure SetLastPort(aValue: string);
     procedure SetLastRoom(aValue: string);
     procedure SetServerPort(aValue: string);
-    procedure SetServerWelcomeMessage(aValue: string);
+    procedure SetServerWelcomeMessage(aValue: UnicodeString);
     procedure SetAnnounceServer(aValue: Boolean);
     procedure SetAutoKickTimeout(aValue: Integer);
     procedure SetPingInterval(aValue: Integer);
@@ -125,7 +125,7 @@ type
     property AutoKickTimeout: Integer read fAutoKickTimeout write SetAutoKickTimeout;
     property PingInterval: Integer read fPingInterval write SetPingInterval;
     property HTMLStatusFile: string read fHTMLStatusFile write SetHTMLStatusFile;
-    property ServerWelcomeMessage: string read fServerWelcomeMessage write SetServerWelcomeMessage;
+    property ServerWelcomeMessage: UnicodeString read fServerWelcomeMessage write SetServerWelcomeMessage;
   end;
 
 
@@ -489,7 +489,7 @@ begin
 end;
 
 
-procedure TGameSettings.SetHTMLStatusFile(eValue: string);
+procedure TGameSettings.SetHTMLStatusFile(eValue: UnicodeString);
 begin
   fHTMLStatusFile := eValue;
   Changed;

@@ -731,7 +731,7 @@ var
   Chunk: AnsiString;
   MapEdChunkFound: Boolean;
 begin
-  if not CheckFileExists(aFileName) then Exit;
+  if not FileExists(aFileName) then Exit;
 
   InitSize(gTerrain.MapX, gTerrain.MapY);
 
@@ -799,12 +799,15 @@ end;
 
 procedure TKMTerrainPainter.SaveToFile(aFileName: UnicodeString);
 var
-  I,K: Integer;
+  I, K: Integer;
   S: TKMemoryStream;
-  NewX,NewY: Integer;
-  ResHead: packed record x1:word; Allocated,Qty1,Qty2,x5,Len17:integer; end;
+  NewX, NewY: Integer;
+  ResHead: packed record
+    x1: Word;
+    Allocated, Qty1, Qty2, x5, Len17: Integer;
+  end;
 begin
-  if not CheckFileExists(aFileName) then Exit;
+  if not FileExists(aFileName) then Exit;
 
   S := TKMemoryStream.Create;
   try

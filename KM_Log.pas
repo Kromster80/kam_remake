@@ -10,7 +10,7 @@ type
   TKMLog = class
   private
     fl: textfile;
-    fLogPath: string;
+    fLogPath: UnicodeString;
     fFirstTick: cardinal;
     fPreviousTick: cardinal;
     fPreviousDate: TDateTime;

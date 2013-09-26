@@ -289,7 +289,7 @@ begin
   fMapX := 0;
   fMapY := 0;
 
-  if not CheckFileExists(FileName) then Exit;
+  if not FileExists(FileName) then Exit;
 
   fMapEditor := aMapEditor;
 

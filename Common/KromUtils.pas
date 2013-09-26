@@ -20,7 +20,6 @@ function GetFileExt (const FileName: string): string;
 function AssureFileExt(FileName,Ext:string): string;
 function TruncateExt(FileName:string): string;
 function GetFileSize(const FileName: string): LongInt;
-function CheckFileExists(const aFileName: UnicodeString; const aSilent: Boolean = False): Boolean;
 function CheckSameContents(A, B: string): Boolean;
 
 procedure FreeThenNil(var Obj);
@@ -56,7 +55,9 @@ function Max(const A,B,C: single):single; overload;
   procedure SwapInt(var A, B: Word); overload;
   procedure SwapInt(var A, B: Integer); overload;
   procedure SwapInt(var A, B: Cardinal); overload;
+  {$IFDEF WDC}
   procedure SwapInt(var A, B: NativeUInt); overload;
+  {$ENDIF}
   procedure SwapFloat(var A, B: Single);
   function Equals(A, B: single; const Epsilon: single = 0.001): Boolean;
 
@@ -229,15 +230,6 @@ begin
   finally
     SysUtils.FindClose(SearchRec);
   end;
-end;
-
-
-function CheckFileExists(const aFileName: UnicodeString; const aSilent: Boolean = False): Boolean;
-begin
-  Result := FileExists(aFileName);
-
-  if not aSilent and not Result then
-    Application.MessageBox(PWideChar('Unable to locate file:' + EolW + '"' + aFileName + '"'), 'Error', MB_OK);
 end;
 
 
@@ -454,11 +446,13 @@ begin
   s:=A; A:=B; B:=s;
 end;
 
+{$IFDEF WDC}
 procedure SwapInt(var A,B: NativeUInt);
 var s:NativeUInt;
 begin
   s:=A; A:=B; B:=s;
 end;
+{$ENDIF}
 
 procedure SwapFloat(var A,B:single);
 var s:single;
