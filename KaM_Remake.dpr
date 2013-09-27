@@ -187,6 +187,7 @@ uses
   KM_UnitActionWalkTo in 'KM_UnitActionWalkTo.pas',
   KM_UnitGroups in 'KM_UnitGroups.pas',
   KM_Units in 'KM_Units.pas',
+  KM_UnitsCollection in 'KM_UnitsCollection.pas',
   KM_Units_Warrior in 'KM_Units_Warrior.pas',
   KM_Units_WorkPlan in 'KM_Units_WorkPlan.pas',
   KM_UnitTaskAttackHouse in 'KM_UnitTaskAttackHouse.pas',

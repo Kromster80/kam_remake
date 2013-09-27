@@ -26,10 +26,7 @@ type
 
 implementation
 uses
-  KM_HandsCollection, KM_ResTexts, KM_Game, KM_Main, KM_GameCursor,
-  KM_Resource, KM_TerrainDeposits, KM_ResCursors, KM_Utils,
-  KM_AIDefensePos, KM_RenderUI, KM_Sound, KM_ResSound,
-  KM_ResFonts;
+  KM_HandsCollection, KM_ResTexts, KM_Game, KM_RenderUI, KM_ResFonts;
 
 
 { TKMMapEdMissionPlayers }

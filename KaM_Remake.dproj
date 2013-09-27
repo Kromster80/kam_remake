@@ -279,6 +279,7 @@
 			<DCCReference Include="KM_UnitActionWalkTo.pas"/>
 			<DCCReference Include="KM_UnitGroups.pas"/>
 			<DCCReference Include="KM_Units.pas"/>
+			<DCCReference Include="KM_UnitsCollection.pas"/>
 			<DCCReference Include="KM_Units_Warrior.pas"/>
 			<DCCReference Include="KM_Units_WorkPlan.pas"/>
 			<DCCReference Include="KM_UnitTaskAttackHouse.pas"/>

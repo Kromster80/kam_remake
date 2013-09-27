@@ -3,7 +3,7 @@ unit KM_GUIMapEdMissionAlliances;
 interface
 uses
    Classes, SysUtils,
-   KM_Controls, KM_Defaults, KM_Pics, KM_InterfaceDefaults;
+   KM_Controls, KM_Defaults, KM_InterfaceDefaults;
 
 type
   TKMMapEdMissionAlliances = class
@@ -24,10 +24,7 @@ type
 
 implementation
 uses
-  KM_HandsCollection, KM_ResTexts, KM_Game, KM_Main, KM_GameCursor,
-  KM_Resource, KM_TerrainDeposits, KM_ResCursors, KM_Utils,
-  KM_AIDefensePos, KM_RenderUI, KM_Sound, KM_ResSound,
-  KM_ResFonts;
+  KM_HandsCollection, KM_ResTexts, KM_RenderUI, KM_ResFonts;
 
 
 { TKMMapEdMissionAlliances }

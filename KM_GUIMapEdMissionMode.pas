@@ -3,7 +3,7 @@ unit KM_GUIMapEdMissionMode;
 interface
 uses
    Classes,
-   KM_Controls, KM_Defaults, KM_Pics, KM_InterfaceDefaults;
+   KM_Controls, KM_Defaults, KM_InterfaceDefaults;
 
 type
   TKMMapEdMissionMode = class
@@ -24,8 +24,7 @@ type
 
 implementation
 uses
-  KM_ResTexts, KM_Game,
-  KM_RenderUI, KM_ResFonts;
+  KM_ResTexts, KM_Game, KM_RenderUI, KM_ResFonts;
 
 
 { TKMMapEdMissionMode }

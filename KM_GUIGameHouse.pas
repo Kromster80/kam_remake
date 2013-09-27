@@ -3,7 +3,7 @@ unit KM_GUIGameHouse;
 interface
 uses
   StrUtils, SysUtils, Math, Classes, Controls,
-  KM_Controls, KM_CommonClasses, KM_CommonTypes, KM_Defaults, KM_Pics, KM_Points,
+  KM_Controls, KM_CommonClasses, KM_CommonTypes, KM_Defaults, KM_Pics,
   KM_InterfaceDefaults, KM_Houses, KM_HouseMarket;
 
 type

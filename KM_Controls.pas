@@ -6,7 +6,7 @@ uses
     {$IFDEF Unix} LCLIntf, LCLType, {$ENDIF}
     Classes, Controls,  Math, SysUtils, StrUtils, Clipbrd,
     KromUtils, KromOGLUtils, KM_Defaults, KM_Points, KM_CommonTypes, KM_Pics,
-    KM_RenderUI, KM_ResFonts, KM_ResSprites, KM_Minimap, KM_Viewport;
+    KM_RenderUI, KM_ResFonts, KM_Minimap, KM_Viewport;
 
 type
   TNotifyEventMB = procedure(Sender: TObject; AButton: TMouseButton) of object;
@@ -1109,7 +1109,7 @@ type
 
 
 implementation
-uses KM_Resource, KM_ResCursors, KM_Sound, KM_ResSound, KM_Utils;
+uses KM_Resource, KM_ResCursors, KM_ResSound, KM_ResSprites, KM_Sound, KM_Utils;
 
 
 function MakeListRow(const aCaption: array of string; aTag: Integer = 0): TKMListRow;
