@@ -82,11 +82,11 @@ type
     constructor Create(aGameMode: TGameMode; aRender: TRender; aNetworking: TKMNetworking);
     destructor Destroy; override;
 
-    procedure GameStart(aMissionFile, aGameName: string; aCampName: AnsiString; aCampMap: Byte; aLocation: ShortInt; aColor: Cardinal); overload;
+    procedure GameStart(aMissionFile, aGameName: UnicodeString; aCampName: AnsiString; aCampMap: Byte; aLocation: ShortInt; aColor: Cardinal); overload;
     procedure GameStart(aSizeX, aSizeY: Integer); overload;
-    procedure Load(const aPathName: string);
+    procedure Load(const aPathName: UnicodeString);
 
-    function MapSizeInfo: string;
+    function MapSizeInfo: UnicodeString;
 
     procedure GameMPPlay(Sender: TObject);
     procedure GameMPReadyToPlay(Sender: TObject);
@@ -98,7 +98,7 @@ type
     procedure WaitingPlayersDrop;
 
     procedure AutoSave;
-    procedure SaveMapEditor(const aPathName: string);
+    procedure SaveMapEditor(const aPathName: UnicodeString);
     procedure RestartReplay; //Restart the replay but keep current viewport position/zoom
 
     function MissionTime: TDateTime;
@@ -133,7 +133,7 @@ type
     function GetNewUID: Integer;
     procedure SetGameSpeed(aSpeed: Single; aToggle: Boolean);
     procedure StepOneFrame;
-    function SaveName(const aName, aExt: string; aMultiPlayer: Boolean): string;
+    function SaveName(const aName, aExt: UnicodeString; aMultiPlayer: Boolean): UnicodeString;
     procedure UpdateMultiplayerTeams;
 
     property PerfLog: TKMPerfLog read fPerfLog;
@@ -154,7 +154,7 @@ type
 
     procedure Save(const aSaveName: UnicodeString);
     {$IFDEF USE_MAD_EXCEPT}
-    procedure AttachCrashReport(const ExceptIntf: IMEException; aZipFile: string);
+    procedure AttachCrashReport(const ExceptIntf: IMEException; aZipFile: UnicodeString);
     {$ENDIF}
     procedure ReplayInconsistancy;
 
@@ -296,14 +296,14 @@ begin
 end;
 
 
-function TKMGame.MapSizeInfo: string;
+function TKMGame.MapSizeInfo: UnicodeString;
 begin
   Result := 'Map size: ' + IntToStr(gTerrain.MapX) + ' x ' + IntToStr(gTerrain.MapY);
 end;
 
 
 //New mission
-procedure TKMGame.GameStart(aMissionFile, aGameName: string; aCampName: AnsiString; aCampMap: Byte; aLocation: ShortInt; aColor: Cardinal);
+procedure TKMGame.GameStart(aMissionFile, aGameName: UnicodeString; aCampName: AnsiString; aCampMap: Byte; aLocation: ShortInt; aColor: Cardinal);
 const
   GAME_PARSE: array [TGameMode] of TMissionParsingMode = (
     mpm_Single, mpm_Multi, mpm_Editor, mpm_Single, mpm_Single);
@@ -559,9 +559,9 @@ end;
 
 
 {$IFDEF USE_MAD_EXCEPT}
-procedure TKMGame.AttachCrashReport(const ExceptIntf: IMEException; aZipFile:string);
+procedure TKMGame.AttachCrashReport(const ExceptIntf: IMEException; aZipFile: UnicodeString);
 
-  procedure AttachFile(const aFile: string);
+  procedure AttachFile(const aFile: UnicodeString);
   begin
     if (aFile = '') or not FileExists(aFile) then Exit;
     ExceptIntf.AdditionalAttachments.Add(aFile, '', aZipFile);
@@ -582,7 +582,7 @@ begin
     end;
   except
     on E : Exception do
-      gLog.AddTime('Exception while trying to save game for crash report: '+E.ClassName+': '+E.Message);
+      gLog.AddTime('Exception while trying to save game for crash report: '+ E.ClassName + ': ' + E.Message);
   end;
 
   AttachFile(ExeDir + fMissionFile);
@@ -606,7 +606,7 @@ procedure TKMGame.ReplayInconsistancy;
 begin
   //Stop game from executing while the user views the message
   fIsPaused := True;
-  gLog.AddTime('Replay failed a consistency check at tick '+IntToStr(fGameTickCount));
+  gLog.AddTime('Replay failed a consistency check at tick ' + IntToStr(fGameTickCount));
   if MessageDlg(gResTexts[TX_REPLAY_FAILED], mtWarning, [mbYes, mbNo], 0) <> mrYes then
     fGameApp.Stop(gr_Error, '')
   else
@@ -784,7 +784,7 @@ end;
 
 
 //aPathName - full path to DAT file
-procedure TKMGame.SaveMapEditor(const aPathName: string);
+procedure TKMGame.SaveMapEditor(const aPathName: UnicodeString);
 var
   I: Integer;
   fMissionParser: TMissionParserStandard;
@@ -1162,7 +1162,7 @@ end;
 //Saves game by provided name
 procedure TKMGame.Save(const aSaveName: UnicodeString);
 var
-  fullPath: string;
+  fullPath: UnicodeString;
 begin
   //Convert name to full path+name
   fullPath := SaveName(aSaveName, 'sav', IsMultiplayer);
@@ -1184,7 +1184,7 @@ begin
 end;
 
 
-procedure TKMGame.Load(const aPathName: string);
+procedure TKMGame.Load(const aPathName: UnicodeString);
 var
   LoadStream: TKMemoryStream;
   GameInfo: TKMGameInfo;
@@ -1474,7 +1474,7 @@ begin
 end;
 
 
-function TKMGame.SaveName(const aName, aExt: string; aMultiPlayer: Boolean): string;
+function TKMGame.SaveName(const aName, aExt: UnicodeString; aMultiPlayer: Boolean): UnicodeString;
 begin
   if aMultiPlayer then
     Result := ExeDir + 'SavesMP'+PathDelim + aName + '.' + aExt

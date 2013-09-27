@@ -136,9 +136,9 @@ type
     procedure DropPlayers(aPlayers: TKMByteArray);
     function  Connected: boolean;
     procedure MatchPlayersToSave(aPlayerID:integer=-1);
-    procedure SelectNoMap(aMessage:string);
-    procedure SelectMap(const aName:string);
-    procedure SelectSave(const aName:string);
+    procedure SelectNoMap(const aErrorMessage: UnicodeString);
+    procedure SelectMap(const aName: UnicodeString);
+    procedure SelectSave(const aName: UnicodeString);
     procedure SelectLoc(aIndex:integer; aPlayerIndex:integer);
     procedure SelectTeam(aIndex:integer; aPlayerIndex:integer);
     procedure SelectColor(aIndex:integer; aPlayerIndex:integer);
@@ -154,7 +154,7 @@ type
     procedure SendGameOptions;
 
     //Common
-    procedure ConsoleCommand(aText:string);
+    procedure ConsoleCommand(aText: UnicodeString);
     procedure PostMessage(aText: UnicodeString; aShowName:boolean=false; aTeamOnly:boolean=false; aRecipientServerIndex:Integer=-1);
     procedure PostLocalMessage(aText: UnicodeString; aMakeSound:boolean=true);
     procedure AnnounceGameInfo(aGameTime: TDateTime; aMap: UnicodeString);
@@ -465,7 +465,7 @@ end;
 
 
 //Clear selection from any map/save
-procedure TKMNetworking.SelectNoMap(aMessage: string);
+procedure TKMNetworking.SelectNoMap(const aErrorMessage: UnicodeString);
 begin
   Assert(IsHost, 'Only host can reset map');
 
@@ -478,14 +478,16 @@ begin
   fNetPlayers.ResetLocAndReady; //Reset start locations
   fNetPlayers[fMyIndex].ReadyToStart := True;
 
-  if Assigned(fOnMapName) then fOnMapName(aMessage);
+  if Assigned(fOnMapName) then
+    fOnMapName(aErrorMessage);
+
   SendPlayerListAndRefreshPlayersSetup;
 end;
 
 
 //Tell other players which map we will be using
 //Players will reset their starting locations and "Ready" status on their own
-procedure TKMNetworking.SelectMap(const aName:string);
+procedure TKMNetworking.SelectMap(const aName: UnicodeString);
 begin
   Assert(IsHost, 'Only host can select maps');
   FreeAndNil(fMapInfo);
@@ -509,14 +511,16 @@ begin
 
   SendMapOrSave;
 
-  if Assigned(fOnMapName) then fOnMapName(fMapInfo.FileName);
+  if Assigned(fOnMapName) then
+    fOnMapName(fMapInfo.FileName);
+
   SendPlayerListAndRefreshPlayersSetup;
 end;
 
 
 //Tell other players which save we will be using
 //Players will reset their starting locations and "Ready" status on their own
-procedure TKMNetworking.SelectSave(const aName:string);
+procedure TKMNetworking.SelectSave(const aName: UnicodeString);
 begin
   Assert(IsHost, 'Only host can select saves');
 
@@ -547,7 +551,9 @@ begin
   SendMapOrSave;
   MatchPlayersToSave; //Don't match players if it's not a valid save
 
-  if Assigned(fOnMapName) then fOnMapName(fSaveInfo.FileName);
+  if Assigned(fOnMapName) then
+    fOnMapName(fSaveInfo.FileName);
+
   SendPlayerListAndRefreshPlayersSetup;
 end;
 
@@ -782,10 +788,10 @@ begin
 end;
 
 
-procedure TKMNetworking.ConsoleCommand(aText: string);
+procedure TKMNetworking.ConsoleCommand(aText: UnicodeString);
 var
   s,PlayerID: Integer;
-  ConsoleCmd: string;
+  ConsoleCmd: UnicodeString;
 begin
   PostLocalMessage('[$808080]' + aText + '[]');
   s := PosEx(' ', aText);

@@ -27,10 +27,10 @@ type
 
     procedure GameLoadingStep(const aText: UnicodeString);
     procedure LoadGameAssets;
-    procedure LoadGameFromSave(aFilePath: string; aGameMode: TGameMode);
+    procedure LoadGameFromSave(aFilePath: UnicodeString; aGameMode: TGameMode);
     procedure LoadGameFromScript(aMissionFile, aGameName: UnicodeString; aCampaignName: AnsiString; aMap: Byte; aGameMode: TGameMode; aDesiredLoc: ShortInt; aDesiredColor: Cardinal);
     procedure LoadGameFromScratch(aSizeX, aSizeY: Integer; aGameMode: TGameMode);
-    function SaveName(const aName, aExt: string; aMultiPlayer: Boolean): string;
+    function SaveName(const aName, aExt: UnicodeString; aMultiPlayer: Boolean): UnicodeString;
   public
     constructor Create(aRenderControl: TKMRenderControl; aScreenX, aScreenY: Word; aVSync: Boolean; aLS: TEvent; aLT: TUnicodeStringEvent; aOnCursorUpdate: TIntegerStringEvent; NoMusic: Boolean = False);
     destructor Destroy; override;
@@ -43,22 +43,22 @@ type
     procedure NetworkInit;
     procedure SendMPGameInfo(Sender: TObject);
     function RenderVersion: UnicodeString;
-    procedure PrintScreen(aFilename: string = '');
-    procedure PauseMusicToPlayFile(aFileName: string);
+    procedure PrintScreen(aFilename: UnicodeString = '');
+    procedure PauseMusicToPlayFile(aFileName: UnicodeString);
     function CheckDATConsistency: Boolean;
-    procedure ExportMainMenuPages(aPath: string);
-    procedure ExportGameplayPages(aPath: string);
+    procedure ExportMainMenuPages(aPath: UnicodeString);
+    procedure ExportGameplayPages(aPath: UnicodeString);
 
     //These are all different game kinds we can start
     procedure NewCampaignMap(aCampaign: TKMCampaign; aMap: Byte);
-    procedure NewSingleMap(aMissionFile, aGameName: string; aDesiredLoc: ShortInt = -1; aDesiredColor: Cardinal = $00000000);
-    procedure NewSingleSave(aSaveName: string);
+    procedure NewSingleMap(aMissionFile, aGameName: UnicodeString; aDesiredLoc: ShortInt = -1; aDesiredColor: Cardinal = $00000000);
+    procedure NewSingleSave(aSaveName: UnicodeString);
     procedure NewMultiplayerMap(const aFileName: UnicodeString);
     procedure NewMultiplayerSave(const aSaveName: UnicodeString);
     procedure NewRestartLast(aGameName, aMission, aSave: UnicodeString; aCampName: AnsiString; aCampMap: Byte; aLocation: Byte; aColor: Cardinal);
     procedure NewEmptyMap(aSizeX, aSizeY: Integer);
-    procedure NewMapEditor(const aFileName: string; aSizeX, aSizeY: Integer);
-    procedure NewReplay(const aFilePath: string);
+    procedure NewMapEditor(const aFileName: UnicodeString; aSizeX, aSizeY: Integer);
+    procedure NewReplay(const aFilePath: UnicodeString);
 
     property Campaigns: TKMCampaignsCollection read fCampaigns;
     function Game: TKMGame;
@@ -392,9 +392,9 @@ begin
 end;
 
 
-procedure TKMGameApp.LoadGameFromSave(aFilePath: string; aGameMode: TGameMode);
+procedure TKMGameApp.LoadGameFromSave(aFilePath: UnicodeString; aGameMode: TGameMode);
 var
-  LoadError: string;
+  LoadError: UnicodeString;
 begin
   Stop(gr_Silent); //Stop everything silently
   LoadGameAssets;
@@ -427,7 +427,7 @@ end;
 
 procedure TKMGameApp.LoadGameFromScript(aMissionFile, aGameName: UnicodeString; aCampaignName: AnsiString; aMap: Byte; aGameMode: TGameMode; aDesiredLoc: ShortInt; aDesiredColor: Cardinal);
 var
-  LoadError: string;
+  LoadError: UnicodeString;
 begin
   Stop(gr_Silent); //Stop everything silently
   LoadGameAssets;
@@ -497,13 +497,13 @@ begin
 end;
 
 
-procedure TKMGameApp.NewSingleMap(aMissionFile, aGameName: string; aDesiredLoc: ShortInt = -1; aDesiredColor: Cardinal = $00000000);
+procedure TKMGameApp.NewSingleMap(aMissionFile, aGameName: UnicodeString; aDesiredLoc: ShortInt = -1; aDesiredColor: Cardinal = $00000000);
 begin
   LoadGameFromScript(aMissionFile, aGameName, '', 0, gmSingle, aDesiredLoc, aDesiredColor);
 end;
 
 
-procedure TKMGameApp.NewSingleSave(aSaveName: string);
+procedure TKMGameApp.NewSingleSave(aSaveName: UnicodeString);
 begin
   //Convert SaveName to local FilePath
   LoadGameFromSave(SaveName(aSaveName, 'sav', False), gmSingle);
@@ -553,7 +553,7 @@ begin
 end;
 
 
-procedure TKMGameApp.NewMapEditor(const aFileName: string; aSizeX, aSizeY: Integer);
+procedure TKMGameApp.NewMapEditor(const aFileName: UnicodeString; aSizeX, aSizeY: Integer);
 begin
   if aFileName <> '' then
     LoadGameFromScript(aFileName, TruncateExt(ExtractFileName(aFileName)), '', 0, gmMapEd, 0, 0)
@@ -562,14 +562,14 @@ begin
 end;
 
 
-procedure TKMGameApp.NewReplay(const aFilePath: string);
+procedure TKMGameApp.NewReplay(const aFilePath: UnicodeString);
 begin
   Assert(ExtractFileExt(aFilePath) = '.bas');
   LoadGameFromSave(aFilePath, gmReplaySingle); //Will be changed to gmReplayMulti depending on save contents
 end;
 
 
-function TKMGameApp.SaveName(const aName, aExt: string; aMultiPlayer: Boolean): string;
+function TKMGameApp.SaveName(const aName, aExt: UnicodeString; aMultiPlayer: Boolean): UnicodeString;
 begin
   if aMultiPlayer then
     Result := ExeDir + 'SavesMP' + PathDelim + aName + '.' + aExt
@@ -602,7 +602,7 @@ begin
 end;
 
 
-procedure TKMGameApp.ExportMainMenuPages(aPath: string);
+procedure TKMGameApp.ExportMainMenuPages(aPath: UnicodeString);
 var
   I, K: Integer;
   MC: TKMPanel;
@@ -626,7 +626,7 @@ begin
 end;
 
 
-procedure TKMGameApp.ExportGameplayPages(aPath: string);
+procedure TKMGameApp.ExportGameplayPages(aPath: UnicodeString);
 var
   I, K: Integer;
   MC: TKMPanel;
@@ -692,7 +692,7 @@ begin
 end;
 
 
-procedure TKMGameApp.PrintScreen(aFilename: string = '');
+procedure TKMGameApp.PrintScreen(aFilename: UnicodeString = '');
 var
   s: string;
 begin
@@ -707,7 +707,7 @@ begin
 end;
 
 
-procedure TKMGameApp.PauseMusicToPlayFile(aFileName: string);
+procedure TKMGameApp.PauseMusicToPlayFile(aFileName: UnicodeString);
 begin
   if not FileExists(aFileName) then Exit;
   gSoundPlayer.AbortAllFadeSounds; //Victory/defeat sounds also fade music, so stop those in the rare chance they might still be playing

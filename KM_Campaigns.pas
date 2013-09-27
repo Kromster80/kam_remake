@@ -17,7 +17,7 @@ type
   TKMCampaign = class
   private
     //Runtime variables
-    fPath: string;
+    fPath: UnicodeString;
     fTextLib: TKMTextLibrarySingle;
     fUnlockedMap: Byte;
 
@@ -61,15 +61,15 @@ type
     fActiveCampaignMap: Byte; //Map of campaign we are playing, could be different than UnlockedMaps
     fList: TList;
     function GetCampaign(aIndex: Integer): TKMCampaign;
-    procedure AddCampaign(const aPath: string);
+    procedure AddCampaign(const aPath: UnicodeString);
   public
     constructor Create;
     destructor Destroy; override;
 
     //Initialization
-    procedure ScanFolder(const aPath: string);
-    procedure LoadProgress(const FileName: string);
-    procedure SaveProgress(const FileName: string);
+    procedure ScanFolder(const aPath: UnicodeString);
+    procedure LoadProgress(const aFileName: UnicodeString);
+    procedure SaveProgress(const aFileName: UnicodeString);
     procedure Save(SaveStream: TKMemoryStream);
     procedure Load(LoadStream: TKMemoryStream);
 
@@ -113,7 +113,7 @@ begin
 end;
 
 
-procedure TKMCampaignsCollection.AddCampaign(const aPath: string);
+procedure TKMCampaignsCollection.AddCampaign(const aPath: UnicodeString);
 var
   C: TKMCampaign;
 begin
@@ -124,7 +124,7 @@ end;
 
 
 //Scan campaigns folder
-procedure TKMCampaignsCollection.ScanFolder(const aPath: string);
+procedure TKMCampaignsCollection.ScanFolder(const aPath: UnicodeString);
 var
   SearchRec: TSearchRec;
 begin
@@ -155,7 +155,7 @@ end;
 
 
 //Read progress from file trying to find matching campaigns
-procedure TKMCampaignsCollection.LoadProgress(const FileName: string);
+procedure TKMCampaignsCollection.LoadProgress(const aFileName: UnicodeString);
 var
   M: TKMemoryStream;
   C: TKMCampaign;
@@ -163,11 +163,11 @@ var
   CampName: AnsiString;
   Unlocked: Byte;
 begin
-  if not FileExists(FileName) then Exit;
+  if not FileExists(aFileName) then Exit;
 
   M := TKMemoryStream.Create;
   try
-    M.LoadFromFile(FileName);
+    M.LoadFromFile(aFileName);
 
     M.Read(I); //Check for wrong file format
     if I <> CAMP_HEADER then Exit; //All campaigns will be kept in initial state
@@ -187,13 +187,13 @@ begin
 end;
 
 
-procedure TKMCampaignsCollection.SaveProgress(const FileName: string);
+procedure TKMCampaignsCollection.SaveProgress(const aFileName: UnicodeString);
 var
   M: TKMemoryStream;
   I: Integer;
 begin
   //Makes the folder incase it is missing
-  ForceDirectories(ExtractFilePath(FileName));
+  ForceDirectories(ExtractFilePath(aFileName));
 
   M := TKMemoryStream.Create;
   try
@@ -205,7 +205,7 @@ begin
       M.Write(Campaigns[I].UnlockedMap);
     end;
 
-    M.SaveToFile(FileName);
+    M.SaveToFile(aFileName);
   finally
     M.Free;
   end;

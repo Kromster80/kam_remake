@@ -1362,10 +1362,12 @@ end;
 //Post what user has typed
 procedure TKMMenuLobby.PostKeyDown(Sender: TObject; Key: Word);
 var
-  ChatMessage: string;
+  ChatMessage: UnicodeString;
 begin
   if (Key <> VK_RETURN) or (Trim(Edit_LobbyPost.Text) = '') then Exit;
+
   ChatMessage := Edit_LobbyPost.Text;
+
   //Console commands are disabled for now, maybe we'll reuse them later
   //Check for console commands
   {if (Length(ChatMessage) > 1) and (ChatMessage[1] = '/')
@@ -1376,6 +1378,7 @@ begin
     if (Length(ChatMessage) > 1) and (ChatMessage[1] = '/') and (ChatMessage[2] = '/') then
       Delete(ChatMessage, 1, 1); //Remove one of the /'s
   end;}
+
   if fChatMode in [cmAll, cmTeam] then
     fNetworking.PostMessage(ChatMessage, True, fChatMode = cmTeam);
   if fChatMode = cmWhisper then

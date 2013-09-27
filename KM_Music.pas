@@ -38,12 +38,12 @@ type
     {$IFDEF USELIBZPLAY} ZPlayer, ZPlayerOther: ZPlay; {$ENDIF} //I dislike that it's not TZPlay... Guess they don't know Delphi conventions.
     fFadeState: TFadeState;
     fFadeStarted: Cardinal;
-    fToPlayAfterFade: string;
+    fToPlayAfterFade: UnicodeString;
     fFadedToPlayOther: Boolean;
     fOtherVolume: Single;
     function PlayMusicFile(FileName: UnicodeString): Boolean;
     function PlayOtherFile(FileName: UnicodeString): Boolean;
-    procedure ScanMusicTracks(aPath: string);
+    procedure ScanMusicTracks(aPath: UnicodeString);
     procedure ShuffleSongs; //should not be seen outside of this class
     procedure UnshuffleSongs;
   public
@@ -60,9 +60,9 @@ type
     procedure ToggleShuffle(aEnableShuffle: Boolean);
     procedure FadeMusic(Sender: TObject);
     procedure UnfadeMusic(Sender: TObject);
-    procedure PauseMusicToPlayFile(aFileName: string; aVolume: Single);
+    procedure PauseMusicToPlayFile(aFileName: UnicodeString; aVolume: Single);
     procedure StopPlayingOtherFile;
-    function GetTrackTitle: string;
+    function GetTrackTitle: UnicodeString;
     procedure UpdateStateIdle; //Used for fading
   end;
 
@@ -202,7 +202,7 @@ end;
 {Update music gain (global volume for all sounds/music)}
 procedure TMusicLib.UpdateMusicVolume(Value: Single);
 begin
-  if not IsMusicInitialized then exit; //Keep silent
+  if not IsMusicInitialized then Exit; //Keep silent
   MusicGain := Value;
   {$IFDEF USELIBZPLAY}
   ZPlayer.SetPlayerVolume(Round(Value * 100), Round(Value * 100)); //0=silent, 100=max
@@ -213,7 +213,7 @@ begin
 end;
 
 
-procedure TMusicLib.ScanMusicTracks(aPath: string);
+procedure TMusicLib.ScanMusicTracks(aPath: UnicodeString);
 var
   SearchRec: TSearchRec;
 begin
@@ -464,7 +464,7 @@ begin
 end;
 
 
-procedure TMusicLib.PauseMusicToPlayFile(aFileName: string; aVolume: single);
+procedure TMusicLib.PauseMusicToPlayFile(aFileName: UnicodeString; aVolume: single);
 begin
   fOtherVolume := aVolume;
   if fFadeState in [fsNone, fsFadeIn] then
@@ -493,7 +493,7 @@ begin
 end;
 
 
-function TMusicLib.GetTrackTitle: string;
+function TMusicLib.GetTrackTitle: UnicodeString;
 begin
   if not IsMusicInitialized then Exit;
   if not InRange(fMusicIndex, Low(fMusicTracks), High(fMusicTracks)) then Exit;
@@ -512,7 +512,7 @@ MCISendString(PChar('play ' + s), nil, 0, 0);}
 
 
 (*
-function PlayMidiFile(FileName:string):word;
+function PlayMidiFile(FileName: UnicodeString):word;
 var
   wdeviceid: integer;
   mciOpen: tmci_open_parms;

@@ -19,8 +19,8 @@ type
     procedure SetVSync(aValue: Boolean);
   protected
     procedure Changed;
-    function LoadFromINI(FileName: string): Boolean;
-    procedure SaveToINI(FileName: string);
+    function LoadFromINI(aFileName: UnicodeString): Boolean;
+    procedure SaveToINI(aFileName: UnicodeString);
   public
     constructor Create;
     destructor Destroy; override;
@@ -157,13 +157,13 @@ begin
 end;
 
 
-function TMainSettings.LoadFromINI(FileName: string): Boolean;
+function TMainSettings.LoadFromINI(aFileName: UnicodeString): Boolean;
 var
   F: TMemIniFile;
 begin
-  Result := FileExists(FileName);
+  Result := FileExists(aFileName);
 
-  F := TMemIniFile.Create(FileName);
+  F := TMemIniFile.Create(aFileName);
 
   fFullScreen         := F.ReadBool   ('GFX', 'FullScreen',       False);
   fVSync              := F.ReadBool   ('GFX', 'VSync',            True);
@@ -177,11 +177,11 @@ end;
 
 
 //Don't rewrite the file for each individual change, do it in one batch for simplicity
-procedure TMainSettings.SaveToINI(FileName: string);
+procedure TMainSettings.SaveToINI(aFileName: UnicodeString);
 var
   F: TMemIniFile;
 begin
-  F := TMemIniFile.Create(FileName);
+  F := TMemIniFile.Create(aFileName);
 
   F.WriteBool   ('GFX','FullScreen',      fFullScreen);
   F.WriteBool   ('GFX','VSync',           fVSync);

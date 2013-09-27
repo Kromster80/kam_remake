@@ -9,7 +9,7 @@ type
   //Info that is relevant to any game, be it Save or a Mission
   TKMGameInfo = class
   private
-    fParseError: string;
+    fParseError: UnicodeString;
   public
     Title: UnicodeString; //Used for campaigns and to store in savegames
     Version: AnsiString; //Savegame version, yet unused in maps, they always have actual version
@@ -32,15 +32,15 @@ type
     procedure Save(SaveStream: TKMemoryStream);
     procedure Load(LoadStream: TKMemoryStream);
 
-    property ParseError: string read fParseError;
+    property ParseError: UnicodeString read fParseError;
     function IsValid(aCheckDATCRC: Boolean): Boolean;
     function AICount: Byte;
     function HumanCount: Byte;
     function HumanUsableLocations: TPlayerIndexArray;
-    function SizeText: string;
-    function MissionModeText: string;
-    function GetTimeText: string;
-    function GetTitleWithTime: string;
+    function SizeText: UnicodeString;
+    function MissionModeText: UnicodeString;
+    function GetTimeText: UnicodeString;
+    function GetTitleWithTime: UnicodeString;
   end;
 
 
@@ -163,13 +163,13 @@ begin
 end;
 
 
-function TKMGameInfo.SizeText: string;
+function TKMGameInfo.SizeText: UnicodeString;
 begin
   Result := MapSizeText(MapSizeX, MapSizeY);
 end;
 
 
-function TKMGameInfo.MissionModeText: string;
+function TKMGameInfo.MissionModeText: UnicodeString;
 begin
   case MissionMode of
     mm_Normal: Result := gResTexts[TX_MODE_BUILD_FIGHT];
@@ -179,13 +179,13 @@ begin
 end;
 
 
-function TKMGameInfo.GetTimeText: string;
+function TKMGameInfo.GetTimeText: UnicodeString;
 begin
   Result := TimeToString(TickCount/24/60/60/10);
 end;
 
 
-function TKMGameInfo.GetTitleWithTime: string;
+function TKMGameInfo.GetTitleWithTime: UnicodeString;
 begin
   if IsValid(True) then
     Result := Title + ' ' + TimeToString(TickCount/24/60/60/10)

@@ -42,16 +42,16 @@ type
     function CheckTargetHasDied: Boolean;
     function CheckForObstacle:TObstacleCheck;
     function CheckWalkComplete:boolean;
-    function CheckInteractionFreq(aIntCount,aTimeout,aFreq:integer):boolean;
-    function DoUnitInteraction:boolean;
+    function CheckInteractionFreq(aIntCount,aTimeout,aFreq:integer): Boolean;
+    function DoUnitInteraction: Boolean;
       //Sub functions split out of DoUnitInteraction (these are the solutions)
-      function IntCheckIfPushing(fOpponent:TKMUnit):boolean;
-      function IntSolutionPush(fOpponent:TKMUnit; HighestInteractionCount:integer):boolean;
-      function IntSolutionExchange(fOpponent:TKMUnit; HighestInteractionCount:integer):boolean;
+      function IntCheckIfPushing(fOpponent: TKMUnit):boolean;
+      function IntSolutionPush(fOpponent: TKMUnit; HighestInteractionCount:integer):boolean;
+      function IntSolutionExchange(fOpponent: TKMUnit; HighestInteractionCount:integer):boolean;
       function IntCheckIfPushed(HighestInteractionCount:integer):boolean;
-      function IntSolutionDodge(fOpponent:TKMUnit; HighestInteractionCount:integer):boolean;
+      function IntSolutionDodge(fOpponent: TKMUnit; HighestInteractionCount:integer):boolean;
       function IntSolutionAvoid(fOpponent: TKMUnit): Boolean;
-      function IntSolutionSideStep(aPosition:TKMPoint; HighestInteractionCount:integer):boolean;
+      function IntSolutionSideStep(aPosition: TKMPoint; HighestInteractionCount:integer):boolean;
 
     procedure ChangeStepTo(aPos: TKMPoint);
     procedure PerformExchange(ForcedExchangePos:TKMPoint);
@@ -66,7 +66,7 @@ type
   private //Debug items
     NodePos: Integer;
     NodeList: TKMPointList;
-    Explanation: string; //Debug only, explanation what unit is doing
+    Explanation: UnicodeString; //Debug only, explanation what unit is doing
     ExplanationLog: TStringList;
   public
     fVertexOccupied: TKMPoint; //Public because it needs to be used by AbandonWalk

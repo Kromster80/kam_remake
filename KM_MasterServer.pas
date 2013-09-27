@@ -26,7 +26,7 @@ type
     procedure ReceiveAnnouncements(const S: string);
     procedure Error(const S: string);
   public
-    constructor Create(const aMasterServerAddress:string; aDedicated:Boolean);
+    constructor Create(const aMasterServerAddress: string; aDedicated:Boolean);
     destructor Destroy; override;
 
     property OnError: TGetStrProc write fOnError;
