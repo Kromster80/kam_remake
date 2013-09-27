@@ -440,24 +440,24 @@ end;
 
 procedure TTSavesScanner.Execute;
 var
-  PathToSaves: string;
+  pathToSaves: string;
   SearchRec: TSearchRec;
   Save: TKMSaveInfo;
 begin
   if fMultiplayerPath then
-    PathToSaves := ExeDir + 'SavesMP'+PathDelim
+    pathToSaves := ExeDir + 'SavesMP' + PathDelim
   else
-    PathToSaves := ExeDir + 'Saves'+PathDelim;
+    pathToSaves := ExeDir + 'Saves' + PathDelim;
 
-  if not DirectoryExists(PathToSaves) then Exit;
+  if not DirectoryExists(pathToSaves) then Exit;
 
-  if FindFirst(PathToSaves + '*.sav', faAnyFile, SearchRec) = 0 then
+  if FindFirst(pathToSaves + '*.sav', faAnyFile, SearchRec) = 0 then
   repeat
     if (SearchRec.Attr and faDirectory <> faDirectory) //Only files
     and (SearchRec.Name <> '.') and (SearchRec.Name <> '..')
     then
     begin
-      Save :=  TKMSaveInfo.Create(PathToSaves, TruncateExt(SearchRec.Name));
+      Save :=  TKMSaveInfo.Create(pathToSaves, TruncateExt(SearchRec.Name));
       if SLOW_SAVE_SCAN then
         Sleep(50);
       fOnSaveAdd(Save);

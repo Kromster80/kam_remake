@@ -43,7 +43,7 @@ type
     fOtherVolume: Single;
     function PlayMusicFile(FileName: UnicodeString): Boolean;
     function PlayOtherFile(FileName: UnicodeString): Boolean;
-    procedure ScanMusicTracks(Path: string);
+    procedure ScanMusicTracks(aPath: string);
     procedure ShuffleSongs; //should not be seen outside of this class
     procedure UnshuffleSongs;
   public
@@ -213,17 +213,17 @@ begin
 end;
 
 
-procedure TMusicLib.ScanMusicTracks(Path: string);
+procedure TMusicLib.ScanMusicTracks(aPath: string);
 var
   SearchRec: TSearchRec;
 begin
   if not IsMusicInitialized then Exit;
   fMusicCount := 0;
-  if not DirectoryExists(Path) then Exit;
+  if not DirectoryExists(aPath) then Exit;
 
   SetLength(fMusicTracks, 255);
 
-  FindFirst(Path + '*.*', faAnyFile - faDirectory, SearchRec);
+  FindFirst(aPath + '*.*', faAnyFile - faDirectory, SearchRec);
   repeat
     if (GetFileExt(SearchRec.Name) = 'MP3') //Allow all formats supported by both libraries
     or (GetFileExt(SearchRec.Name) = 'MP2')
@@ -243,7 +243,7 @@ begin
     then
     begin
       Inc(fMusicCount);
-      fMusicTracks[fMusicCount - 1] := Path + SearchRec.Name;
+      fMusicTracks[fMusicCount - 1] := aPath + SearchRec.Name;
     end;
     {if GetFileExt(SearchRec.Name)='MID' then
     begin

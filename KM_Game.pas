@@ -94,8 +94,7 @@ type
     procedure GameStart(aSizeX, aSizeY: Integer); overload;
     procedure Load(const aPathName: string);
 
-    function MapX: Word;
-    function MapY: Word;
+    function MapSizeInfo: string;
 
     procedure Resize(X,Y: Integer);
 
@@ -162,7 +161,7 @@ type
     property TextMission: TKMTextLibraryMulti read fTextMission;
     property Viewport: TViewport read fViewport;
 
-    procedure Save(const aName: UnicodeString);
+    procedure Save(const aSaveName: UnicodeString);
     {$IFDEF USE_MAD_EXCEPT}
     procedure AttachCrashReport(const ExceptIntf: IMEException; aZipFile: string);
     {$ENDIF}
@@ -314,15 +313,9 @@ begin
 end;
 
 
-function TKMGame.MapX: Word;
+function TKMGame.MapSizeInfo: string;
 begin
-  Result := gTerrain.MapX;
-end;
-
-
-function TKMGame.MapY: Word;
-begin
-  Result := gTerrain.MapY;
+  Result := 'Map size: ' + IntToStr(gTerrain.MapX) + ' x ' + IntToStr(gTerrain.MapY);
 end;
 
 
@@ -1069,7 +1062,7 @@ const
 begin
   //UIDs have the following properties:
   // - allow -1 to indicate no UID
-  // - fit within 24bit (we can use that much for RGB colorcoding)
+  // - fit within 24bit (we can use that much for RGB colorcoding in unit picking)
   // - Start from 1, so that black colorcode can be detected and then re-mapped to -1
 
   fUIDTracker := (fUIDTracker + step) mod max_value + 1; //1..N range, 0 is nothing for colorpicker
@@ -1242,25 +1235,25 @@ end;
 
 
 //Saves game by provided name
-procedure TKMGame.Save(const aName: UnicodeString);
+procedure TKMGame.Save(const aSaveName: UnicodeString);
 var
-  PathName: string;
+  fullPath: string;
 begin
   //Convert name to full path+name
-  PathName := SaveName(aName, 'sav', IsMultiplayer);
+  fullPath := SaveName(aSaveName, 'sav', IsMultiplayer);
 
-  SaveGame(PathName);
+  SaveGame(fullPath);
 
   //Remember which savegame to try to restart (if game was not saved before)
-  fSaveFile := ExtractRelativePath(ExeDir, PathName);
+  fSaveFile := ExtractRelativePath(ExeDir, fullPath);
 
   //Copy basesave so we have a starting point for replay
-  DeleteFile(SaveName(aName, 'bas', IsMultiplayer));
-  CopyFile(PChar(SaveName('basesave', 'bas', IsMultiplayer)), PChar(SaveName(aName, 'bas', IsMultiplayer)), False);
+  DeleteFile(SaveName(aSaveName, 'bas', IsMultiplayer));
+  CopyFile(PChar(SaveName('basesave', 'bas', IsMultiplayer)), PChar(SaveName(aSaveName, 'bas', IsMultiplayer)), False);
 
   //Save replay queue
   gLog.AddTime('Saving replay info');
-  fGameInputProcess.SaveToFile(ChangeFileExt(PathName, '.rpl'));
+  fGameInputProcess.SaveToFile(ChangeFileExt(fullPath, '.rpl'));
 
   gLog.AddTime('Saving game', True);
 end;
