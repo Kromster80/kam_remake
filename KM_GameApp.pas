@@ -226,14 +226,14 @@ begin
   //it must be properly sized (player could resize the screen while playing)
   fMainMenuInterface.Resize(X, Y);
 
-  if fGame <> nil then fGame.Resize(X, Y);
+  if fGame <> nil then fGame.ActiveInterface.Resize(X, Y);
 end;
 
 
 procedure TKMGameApp.KeyDown(Key: Word; Shift: TShiftState);
 begin
   if fGame <> nil then
-    fGame.KeyDown(Key, Shift)
+    fGame.ActiveInterface.KeyDown(Key, Shift)
   else
     fMainMenuInterface.KeyDown(Key, Shift);
 end;
@@ -242,7 +242,7 @@ end;
 procedure TKMGameApp.KeyPress(Key: Char);
 begin
   if fGame <> nil then
-    fGame.KeyPress(Key)
+    fGame.ActiveInterface.KeyPress(Key)
   else
     fMainMenuInterface.KeyPress(Key);
 end;
@@ -261,7 +261,7 @@ begin
   if DEBUG_CHEATS and (Key = VK_F12) then SHOW_CONTROLS_OVERLAY := not SHOW_CONTROLS_OVERLAY;
 
   if fGame <> nil then
-    fGame.KeyUp(Key, Shift)
+    fGame.ActiveInterface.KeyUp(Key, Shift)
   else
     fMainMenuInterface.KeyUp(Key, Shift);
 end;
@@ -270,7 +270,7 @@ end;
 procedure TKMGameApp.MouseDown(Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
 begin
   if fGame <> nil then
-    fGame.MouseDown(Button,Shift,X,Y)
+    fGame.ActiveInterface.MouseDown(Button,Shift,X,Y)
   else
     fMainMenuInterface.MouseDown(Button,Shift,X,Y);
 end;
@@ -283,7 +283,7 @@ begin
     Exit; // Exit if Cursor is outside of frame
 
   if fGame <> nil then
-    fGame.MouseMove(Shift,X,Y)
+    fGame.ActiveInterface.MouseMove(Shift,X,Y)
   else
     //fMainMenuInterface = nil while loading a new locale
     if fMainMenuInterface <> nil then
@@ -298,7 +298,7 @@ end;
 procedure TKMGameApp.MouseUp(Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
 begin
   if fGame <> nil then
-    fGame.MouseUp(Button,Shift,X,Y)
+    fGame.ActiveInterface.MouseUp(Button,Shift,X,Y)
   else
     fMainMenuInterface.MouseUp(Button, Shift, X,Y);
 end;
@@ -307,7 +307,7 @@ end;
 procedure TKMGameApp.MouseWheel(Shift: TShiftState; WheelDelta: Integer; X, Y: Integer);
 begin
   if fGame <> nil then
-    fGame.MouseWheel(Shift, WheelDelta, X, Y)
+    fGame.ActiveInterface.MouseWheel(Shift, WheelDelta, X, Y)
   else
     fMainMenuInterface.MouseWheel(Shift, WheelDelta, X, Y);
 end;

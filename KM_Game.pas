@@ -33,7 +33,7 @@ type
     fTextMission: TKMTextLibraryMulti;
     fMinimap: TKMMinimap;
     fPathfinding: TPathFinding;
-    fViewport: TViewport;
+    fViewport: TViewport; //todo: Move into Interface
     fPerfLog: TKMPerfLog;
     fActiveInterface: TKMUserInterface; //Shortcut for both of UI
     fGamePlayInterface: TKMGamePlayInterface;
@@ -82,21 +82,11 @@ type
     constructor Create(aGameMode: TGameMode; aRender: TRender; aNetworking: TKMNetworking);
     destructor Destroy; override;
 
-    procedure KeyDown(Key: Word; Shift: TShiftState);
-    procedure KeyPress(Key: Char);
-    procedure KeyUp(Key: Word; Shift: TShiftState);
-    procedure MouseDown(Button: TMouseButton; Shift: TShiftState; X,Y: Integer);
-    procedure MouseMove(Shift: TShiftState; X,Y: Integer);
-    procedure MouseUp(Button: TMouseButton; Shift: TShiftState; X,Y: Integer);
-    procedure MouseWheel(Shift: TShiftState; WheelDelta: Integer; X,Y: Integer);
-
     procedure GameStart(aMissionFile, aGameName: string; aCampName: AnsiString; aCampMap: Byte; aLocation: ShortInt; aColor: Cardinal); overload;
     procedure GameStart(aSizeX, aSizeY: Integer); overload;
     procedure Load(const aPathName: string);
 
     function MapSizeInfo: string;
-
-    procedure Resize(X,Y: Integer);
 
     procedure GameMPPlay(Sender: TObject);
     procedure GameMPReadyToPlay(Sender: TObject);
@@ -155,6 +145,7 @@ type
     property Pathfinding: TPathFinding read fPathfinding;
     property GameInputProcess: TGameInputProcess read fGameInputProcess;
     property GameOptions: TKMGameOptions read fGameOptions;
+    property ActiveInterface: TKMUserInterface read fActiveInterface;
     property GamePlayInterface: TKMGamePlayInterface read fGamePlayInterface;
     property MapEditorInterface: TKMapEdInterface read fMapEditorInterface;
     property MapEditor: TKMMapEditor read fMapEditor;
@@ -305,75 +296,9 @@ begin
 end;
 
 
-procedure TKMGame.Resize(X,Y: Integer);
-begin
-  fActiveInterface.Resize(X, Y);
-
-  fViewport.Resize(X, Y);
-end;
-
-
 function TKMGame.MapSizeInfo: string;
 begin
   Result := 'Map size: ' + IntToStr(gTerrain.MapX) + ' x ' + IntToStr(gTerrain.MapY);
-end;
-
-
-procedure TKMGame.KeyDown(Key: Word; Shift: TShiftState);
-begin
-  fActiveInterface.KeyDown(Key, Shift);
-end;
-
-
-procedure TKMGame.KeyPress(Key: Char);
-begin
-  fActiveInterface.KeyPress(Key);
-end;
-
-
-procedure TKMGame.KeyUp(Key: Word; Shift: TShiftState);
-begin
-  fActiveInterface.KeyUp(Key, Shift);
-end;
-
-
-procedure TKMGame.MouseDown(Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
-begin
-  fActiveInterface.MouseDown(Button,Shift,X,Y);
-end;
-
-
-procedure TKMGame.MouseMove(Shift: TShiftState; X,Y: Integer);
-begin
-  fActiveInterface.MouseMove(Shift, X,Y);
-end;
-
-
-procedure TKMGame.MouseUp(Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
-begin
-  fActiveInterface.MouseUp(Button, Shift, X,Y);
-end;
-
-
-procedure TKMGame.MouseWheel(Shift: TShiftState; WheelDelta: Integer; X, Y: Integer);
-var PrevCursor: TKMPointF;
-begin
-  fActiveInterface.MouseWheel(Shift, WheelDelta, X, Y);
-
-  if (X < 0) or (Y < 0) then Exit; //This occours when you use the mouse wheel on the window frame
-
-  //Allow to zoom only when curor is over map. Controls handle zoom on their own
-  if (fActiveInterface.MyControls.CtrlOver = nil) then
-  begin
-    UpdateGameCursor(X, Y, Shift); //Make sure we have the correct cursor position to begin with
-    PrevCursor := GameCursor.Float;
-    fViewport.Zoom := fViewport.Zoom + WheelDelta / 2000;
-    UpdateGameCursor(X, Y, Shift); //Zooming changes the cursor position
-    //Move the center of the screen so the cursor stays on the same tile, thus pivoting the zoom around the cursor
-    fViewport.Position := KMPointF(fViewport.Position.X + PrevCursor.X-GameCursor.Float.X,
-                                   fViewport.Position.Y + PrevCursor.Y-GameCursor.Float.Y);
-    UpdateGameCursor(X, Y, Shift); //Recentering the map changes the cursor position
-  end;
 end;
 
 

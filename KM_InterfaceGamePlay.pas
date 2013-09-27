@@ -328,6 +328,7 @@ type
     procedure MouseDown(Button: TMouseButton; Shift: TShiftState; X,Y: Integer); override;
     procedure MouseMove(Shift: TShiftState; X,Y: Integer); override;
     procedure MouseUp(Button: TMouseButton; Shift: TShiftState; X,Y: Integer); override;
+    procedure MouseWheel(Shift: TShiftState; WheelDelta: Integer; X, Y: Integer); override;
 
     procedure Resize(X,Y: Word); override;
     procedure UpdateState(aTickCount: Cardinal); override;
@@ -855,6 +856,8 @@ begin
 
   if Panel_Stats.Visible then
     Stats_Resize;
+
+  fGame.Viewport.Resize(X, Y);
 end;
 
 
@@ -3492,6 +3495,29 @@ begin
   end;
 
   LastDragPoint := KMPoint(0,0);
+end;
+
+
+procedure TKMGamePlayInterface.MouseWheel(Shift: TShiftState; WheelDelta, X, Y: Integer);
+var
+  PrevCursor: TKMPointF;
+begin
+  inherited;
+
+  if (X < 0) or (Y < 0) then Exit; //This happens when you use the mouse wheel on the window frame
+
+  //Allow to zoom only when curor is over map. Controls handle zoom on their own
+  if (fMyControls.CtrlOver = nil) then
+  begin
+    fGame.UpdateGameCursor(X, Y, Shift); //Make sure we have the correct cursor position to begin with
+    PrevCursor := GameCursor.Float;
+    fGame.Viewport.Zoom := fGame.Viewport.Zoom + WheelDelta / 2000;
+    fGame.UpdateGameCursor(X, Y, Shift); //Zooming changes the cursor position
+    //Move the center of the screen so the cursor stays on the same tile, thus pivoting the zoom around the cursor
+    fGame.Viewport.Position := KMPointF(fGame.Viewport.Position.X + PrevCursor.X-GameCursor.Float.X,
+                                        fGame.Viewport.Position.Y + PrevCursor.Y-GameCursor.Float.Y);
+    fGame.UpdateGameCursor(X, Y, Shift); //Recentering the map changes the cursor position
+  end;
 end;
 
 
