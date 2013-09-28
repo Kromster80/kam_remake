@@ -154,7 +154,7 @@ const
 
 implementation
 uses
-  KM_Game, KM_Terrain, KM_RenderPool;
+  KM_Terrain, KM_RenderPool;
 
 
 { TKMUserInterfaceGame }

@@ -7,7 +7,7 @@ uses
   Forms, Controls, Classes, Dialogs, ExtCtrls, SysUtils, KromUtils, Math, TypInfo,
   {$IFDEF USE_MAD_EXCEPT} MadExcept, KM_Exceptions, {$ENDIF}
   KM_CommonTypes, KM_Defaults, KM_Points,
-  KM_Alerts, KM_GameInputProcess, KM_GameOptions,
+  KM_GameInputProcess, KM_GameOptions,
   KM_InterfaceDefaults, KM_InterfaceGame, KM_InterfaceMapEditor, KM_InterfaceGamePlay,
   KM_MapEditor, KM_Networking,
   KM_PathFinding, KM_PathFindingAStarOld, KM_PathFindingAStarNew, KM_PathFindingJPS,
@@ -164,7 +164,7 @@ var
 
 implementation
 uses
-  KM_CommonClasses, KM_Log, KM_Utils, KM_GameCursor,
+  KM_CommonClasses, KM_Log, KM_Utils,
   KM_ArmyEvaluation, KM_GameApp, KM_GameInfo, KM_MissionScript, KM_MissionScript_Standard,
   KM_Hand, KM_HandSpectator, KM_HandsCollection, KM_RenderPool, KM_Resource, KM_ResCursors,
   KM_ResSound, KM_Terrain, KM_AIFields, KM_Maps, KM_Sound,
