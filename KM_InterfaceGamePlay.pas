@@ -2669,7 +2669,7 @@ begin
   begin
     txt := gResTexts[TX_MULTIPLAYER_WAITING] + ' ';
     for I := Low(aPlayers) to High(aPlayers) do
-      txt := txt + UnicodeString(fGame.Networking.NetPlayers[I].Nikname) + IfThen(I <> High(aPlayers), ', ');
+      txt := txt + UnicodeString(fGame.Networking.NetPlayers[I+1].Nikname) + IfThen(I <> High(aPlayers), ', ');
 
     Button_NetDropPlayers.Visible := IsHost;
 

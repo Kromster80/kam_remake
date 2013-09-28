@@ -190,7 +190,7 @@ end;
 
 
 { TKMServerList }
-procedure TKMServerList.AddServer(aIP, aPort, aName: string; aType: TKMServerType; aPing: word);
+procedure TKMServerList.AddServer(aIP, aPort, aName: string; aType: TKMServerType; aPing: Word);
 begin
   if Length(fServers) <= fCount then SetLength(fServers, fCount+16);
   fServers[fCount].Name := aName;
@@ -198,7 +198,7 @@ begin
   fServers[fCount].Port := aPort;
   fServers[fCount].ServerType := aType;
   fServers[fCount].Ping := aPing;
-  inc(fCount);
+  Inc(fCount);
 end;
 
 
@@ -250,7 +250,7 @@ procedure TKMServerList.TakeNewQuery(aQuery:TKMQuery);
 begin
   if fLastQueried < fCount-1 then
   begin
-    inc(fLastQueried);
+    Inc(fLastQueried);
     aQuery.PerformQuery(Servers[fLastQueried].IP, Servers[fLastQueried].Port, fLastQueried);
   end
   else
@@ -371,7 +371,7 @@ end;
 
 { TKMServerQuery }
 constructor TKMServerQuery.Create(aMasterServerAddress: string);
-var i: integer;
+var I: Integer;
 begin
   inherited Create;
   fMasterServer := TKMMasterServer.Create(aMasterServerAddress, False);
@@ -382,23 +382,25 @@ begin
 
   fServerList := TKMServerList.Create;
   fRoomList := TKMRoomList.Create;
-  for i:=0 to MAX_QUERIES-1 do
+  for I := 0 to MAX_QUERIES - 1 do
   begin
-    fQuery[i] := TKMQuery.Create;
-    fQuery[i].OnServerData := ServerDataReceive;
-    fQuery[i].OnQueryDone := QueryDone;
+    fQuery[I] := TKMQuery.Create;
+    fQuery[I].OnServerData := ServerDataReceive;
+    fQuery[I].OnQueryDone := QueryDone;
   end;
 end;
 
 
 destructor TKMServerQuery.Destroy;
-var i:integer;
+var
+  I: Integer;
 begin
   fMasterServer.Free;
   fServerList.Free;
   fRoomList.Free;
-  for i:=0 to MAX_QUERIES-1 do
-    fQuery[i].Free;
+  for I := 0 to MAX_QUERIES - 1 do
+    fQuery[I].Free;
+
   inherited;
 end;
 
@@ -414,7 +416,7 @@ end;
 
 
 procedure TKMServerQuery.ReceiveServerList(const S: string);
-var I: integer;
+var I: Integer;
 begin
   fQueriesCompleted := 0;
   fServerList.LoadFromText(S);

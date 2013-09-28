@@ -76,6 +76,7 @@ var
   MODE_DESIGN_CONTORLS  :Boolean = False; //Special mode to move/edit controls activated by F7, it must block OnClick events! always Off here
   OVERLAY_RESOLUTIONS   :Boolean = False; //Render constraining frame
   LOCAL_SERVER_LIST     :Boolean = False; //Instead of loading server list from master server, add localhost:56789 (good for testing)
+  NET_SHOW_EACH_MSG     :Boolean = False; //Show each message kind arrived in chat (except ping/fps)
   {Gameplay display}
   SKIP_RENDER           :Boolean = False; //Skip all the rendering in favor of faster logic
   SKIP_SOUND            :Boolean = False; //Skip all the sounds in favor of faster logic

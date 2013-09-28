@@ -743,7 +743,8 @@ end;
 
 
 procedure TKMNetworking.SendPlayerListAndRefreshPlayersSetup(aPlayerIndex: Integer = NET_ADDRESS_OTHERS);
-var I: Integer;
+var
+  I: Integer;
   M: TKMemoryStream;
 begin
   Assert(IsHost, 'Only host can send player list');
@@ -979,13 +980,14 @@ procedure TKMNetworking.PacketRecieve(aNetClient: TKMNetClient; aSenderIndex: In
 var
   M: TKMemoryStream;
   Kind: TKMessageKind;
+  err: UnicodeString;
   tmpInteger: Integer;
   tmpStringA, replyStringA: AnsiString;
   tmpStringW, replyStringW: UnicodeString;
   LocID,TeamID,ColorID,PlayerIndex: Integer;
 begin
   Assert(aLength >= 1, 'Unexpectedly short message'); //Kind, Message
-  if not Connected then exit;
+  if not Connected then Exit;
 
   M := TKMemoryStream.Create;
   try
@@ -993,18 +995,23 @@ begin
     M.Position := 0;
     M.Read(Kind, SizeOf(TKMessageKind)); //Depending on kind message contains either Text or a Number
 
-
     //Make sure we are allowed to receive this packet at this point
     if not (Kind in NetAllowedPackets[fNetGameState]) then
     begin
       //When querying or reconnecting to a host we may receive data such as commands, player setup, etc. These should be ignored.
       if not (fNetGameState in [lgs_Query,lgs_Reconnecting]) then
       begin
-        gLog.AddTime('Received a packet not intended for this state ('+GetEnumName(TypeInfo(TNetGameState), Integer(fNetGameState))+'): '+GetEnumName(TypeInfo(TKMessageKind), Integer(Kind)));
-        PostLocalMessage('Error: Received a packet not intended for this state: '+GetEnumName(TypeInfo(TKMessageKind), Integer(Kind)));
+        err := 'Received a packet not intended for this state (' +
+          GetEnumName(TypeInfo(TNetGameState), Integer(fNetGameState)) + '): ' +
+          GetEnumName(TypeInfo(TKMessageKind), Integer(Kind));
+        gLog.AddTime(err);
+        PostLocalMessage('Error: ' + err);
       end;
       Exit;
     end;
+
+    if NET_SHOW_EACH_MSG and not (Kind in [mk_Ping, mk_PingInfo, mk_FPS]) then
+      PostLocalMessage(GetEnumName(TypeInfo(TKMessageKind), Integer(Kind)));
 
     case Kind of
       mk_GameVersion:
@@ -1620,7 +1627,7 @@ end;
 
 procedure TKMNetworking.StartGame;
 begin
-  PostLocalMessage(gResTexts[TX_LOBBY_GAME_STARTED],false);
+  PostLocalMessage(gResTexts[TX_LOBBY_GAME_STARTED], False);
   SetGameState(lgs_Loading); //Loading has begun (no further players allowed to join)
   fIgnorePings := -1; //Ignore all pings until we have finished loading
 

@@ -80,7 +80,7 @@ begin
   Assert(gResTexts <> nil, 'fTextMain should be initialized before MainMenuInterface');
 
   //Fixed-size and centered Panel for menu
-  Panel_Menu := TKMPanel.Create(Panel_Main, 0, 0, MENU_DESIGN_X, MENU_DESIGN_Y);
+  Panel_Menu := TKMPanel.Create(Panel_Main, (X - MENU_DESIGN_X) div 2, (Y - MENU_DESIGN_Y) div 2, MENU_DESIGN_X, MENU_DESIGN_Y);
   Panel_Menu.AnchorsCenter;
 
   //Background is the same for all pages, except Results/Campaign, which will render ontop

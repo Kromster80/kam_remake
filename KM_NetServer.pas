@@ -254,7 +254,7 @@ begin
   fServer.OnClientDisconnect := ClientDisconnect;
   fServer.OnDataAvailable := DataAvailable;
   fServer.StartListening(aPort);
-  Status('Listening on port '+aPort);
+  Status('Listening on port ' + aPort);
   fListening := true;
   SaveHTMLStatus;
 end;
@@ -714,11 +714,12 @@ begin
 end;
 
 
-function TKMNetServer.IsValidHandle(aHandle:integer):boolean;
+function TKMNetServer.IsValidHandle(aHandle: Integer): Boolean;
 begin
-  //Can't use "in [...]" with negative numbers
-  Result := (aHandle=NET_ADDRESS_OTHERS)or(aHandle=NET_ADDRESS_ALL)or(aHandle=NET_ADDRESS_HOST)or(aHandle=NET_ADDRESS_SERVER)or
-            InRange(aHandle,FIRST_TAG,fServer.GetMaxHandle);
+  //Can not use "in [...]" with negative numbers
+  Result := (aHandle = NET_ADDRESS_OTHERS) or (aHandle = NET_ADDRESS_ALL)
+         or (aHandle = NET_ADDRESS_HOST) or (aHandle = NET_ADDRESS_SERVER)
+         or InRange(aHandle, FIRST_TAG, fServer.GetMaxHandle);
 end;
 
 
@@ -730,7 +731,7 @@ begin
     Exit;
   end;
   Result := true;
-  inc(fRoomCount);
+  Inc(fRoomCount);
   SetLength(fRoomInfo,fRoomCount);
   fRoomInfo[fRoomCount-1].HostHandle := NET_ADDRESS_EMPTY;
   fRoomInfo[fRoomCount-1].GameInfo := TMPGameInfo.Create;

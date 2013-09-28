@@ -245,7 +245,8 @@ begin
   //if (fGameInputProcess <> nil) and (fGameInputProcess.ReplayState = gipRecording) then
   //  fGameInputProcess.SaveToFile(SaveName('basesave', 'rpl', fGameMode = gmMulti));
 
-  if DO_PERF_LOGGING and (fPerfLog <> nil) then fPerfLog.SaveToFile(ExeDir + 'Logs'+PathDelim+'PerfLog.txt');
+  if DO_PERF_LOGGING and (fPerfLog <> nil) then
+    fPerfLog.SaveToFile(ExeDir + 'Logs' + PathDelim + 'PerfLog.txt');
 
   FreeAndNil(fTimerGame);
 
@@ -564,7 +565,7 @@ begin
     end;
   except
     on E : Exception do
-      gLog.AddTime('Exception while trying to save game for crash report: '+ E.ClassName + ': ' + E.Message);
+      gLog.AddTime('Exception while trying to save game for crash report: ' + E.ClassName + ': ' + E.Message);
   end;
 
   AttachFile(ExeDir + fMissionFile);
@@ -822,7 +823,7 @@ end;
 function TKMGame.MissionTime: TDateTime;
 begin
   //Convert cardinal into TDateTime, where 1hour = 1/24 and so on..
-  Result := fGameTickCount/24/60/60/10;
+  Result := fGameTickCount / 24 / 60 / 60 / 10;
 end;
 
 
@@ -1035,12 +1036,15 @@ begin
       end else
       begin
         netIndex := fNetworking.NetPlayers.PlayerIndexToLocal(I);
-        fGameInfo.Enabled[I] := True;
-        fGameInfo.CanBeHuman[I] := fNetworking.NetPlayers[netIndex].IsHuman;
-        fGameInfo.OwnerNikname[I] := fNetworking.NetPlayers[netIndex].Nikname;
-        fGameInfo.PlayerTypes[I] := fNetworking.NetPlayers[netIndex].GetPlayerType;
-        fGameInfo.ColorID[I] := fNetworking.NetPlayers[netIndex].FlagColorID;
-        fGameInfo.Team[I] := fNetworking.NetPlayers[netIndex].Team;
+        if netIndex <> -1 then
+        begin
+          fGameInfo.Enabled[I] := True;
+          fGameInfo.CanBeHuman[I] := fNetworking.NetPlayers[netIndex].IsHuman;
+          fGameInfo.OwnerNikname[I] := fNetworking.NetPlayers[netIndex].Nikname;
+          fGameInfo.PlayerTypes[I] := fNetworking.NetPlayers[netIndex].GetPlayerType;
+          fGameInfo.ColorID[I] := fNetworking.NetPlayers[netIndex].FlagColorID;
+          fGameInfo.Team[I] := fNetworking.NetPlayers[netIndex].Team;
+        end;
       end;
     end;
 
