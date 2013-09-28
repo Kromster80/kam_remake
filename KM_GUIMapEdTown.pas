@@ -42,7 +42,7 @@ type
 implementation
 uses
   KM_Hand, KM_HandsCollection, KM_ResTexts, KM_GameCursor,
-  KM_InterfaceDefaults, KM_RenderUI;
+  KM_InterfaceGame, KM_RenderUI;
 
 
 { TKMMapEdTown }

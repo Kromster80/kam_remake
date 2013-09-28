@@ -3,7 +3,7 @@ unit KM_GUIMapEdTownDefence;
 interface
 uses
    Classes, Controls, Math, StrUtils, SysUtils,
-   KM_Controls, KM_Defaults, KM_InterfaceDefaults, KM_GUIMapEdFormations;
+   KM_Controls, KM_Defaults, KM_GUIMapEdFormations;
 
 
 type
@@ -37,7 +37,7 @@ type
 
 implementation
 uses
-  KM_HandsCollection, KM_ResTexts, KM_GameCursor, KM_RenderUI, KM_ResFonts;
+  KM_HandsCollection, KM_ResTexts, KM_GameCursor, KM_RenderUI, KM_ResFonts, KM_InterfaceGame;
 
 
 { TKMMapEdTownDefence }

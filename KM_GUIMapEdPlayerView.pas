@@ -4,7 +4,7 @@ interface
 uses
    Classes,
    KM_Controls, KM_Defaults,
-   KM_Points, KM_InterfaceDefaults;
+   KM_Points;
 
 type
   TKMMapEdPlayerView = class
@@ -29,8 +29,7 @@ type
 
 implementation
 uses
-  KM_HandsCollection, KM_ResTexts, KM_Game, KM_GameCursor,
-  KM_RenderUI, KM_ResFonts;
+  KM_HandsCollection, KM_ResTexts, KM_Game, KM_GameCursor, KM_RenderUI, KM_ResFonts, KM_InterfaceGame;
 
 
 { TKMMapEdPlayerView }
@@ -102,7 +101,7 @@ begin
     CheckBox_RevealAll.Checked := fGame.MapEditor.RevealAll[MySpectator.HandIndex];
 
   if Sender = Button_PlayerCenterScreen then
-    fGame.Viewport.Position := KMPointF(gHands[MySpectator.HandIndex].CenterScreen); //Jump to location
+    fGame.MapEditorInterface.Viewport.Position := KMPointF(gHands[MySpectator.HandIndex].CenterScreen); //Jump to location
 
   Button_PlayerCenterScreen.Caption := TypeToString(gHands[MySpectator.HandIndex].CenterScreen);
 end;

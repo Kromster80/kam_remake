@@ -133,7 +133,7 @@ begin
 
   fOnPageChange := aOnPageChange;
 
-  fMinimap := TKMMinimap.Create(True, False, True);
+  fMinimap := TKMMinimap.Create(True, True);
 
   fMapsMP := TKMapsCollection.Create(True);
   fSavesMP := TKMSavesCollection.Create;

@@ -6,8 +6,8 @@ uses
   {$IFDEF Unix} LCLIntf, LCLType, {$ENDIF}
   StrUtils, SysUtils, KromUtils, Math, Classes, Controls,
   KM_Controls, KM_CommonClasses, KM_CommonTypes, KM_Defaults, KM_Pics, KM_Points,
-  KM_InterfaceDefaults, KM_Terrain, KM_Houses, KM_Units,
-  KM_UnitGroups, KM_Units_Warrior, KM_Saves, KM_MessageStack, KM_ResHouses,
+  KM_InterfaceDefaults, KM_InterfaceGame, KM_Terrain, KM_Houses, KM_Units, KM_Minimap, KM_Viewport, KM_Render,
+  KM_UnitGroups, KM_Units_Warrior, KM_Saves, KM_MessageStack, KM_ResHouses, KM_Alerts,
   KM_GUIGameHouse;
 
 
@@ -18,8 +18,10 @@ const
 type
   TKMTabButtons = (tbBuild, tbRatio, tbStats, tbMenu);
 
-  TKMGamePlayInterface = class (TKMUserInterface)
+  TKMGamePlayInterface = class (TKMUserInterfaceGame)
   private
+    fAlerts: TKMAlerts;
+
     fMultiplayer: Boolean; //Multiplayer UI has slightly different layout
     fReplay: Boolean; //Replay UI has slightly different layout
     fSave_Selected: Integer; //Save selected from list (needed because of scanning)
@@ -297,14 +299,13 @@ type
         Button_Army_Join_Cancel: TKMButton;
         Label_Army_Join_Message: TKMLabel;
   public
-    constructor Create(aScreenX, aScreenY: Word; aMultiplayer, aReplay: Boolean); reintroduce;
+    constructor Create(aRender: TRender; aMultiplayer, aReplay: Boolean); reintroduce;
     destructor Destroy; override;
     procedure ShowUnitInfo(Sender: TKMUnit; aAskDismiss:boolean=false);
     procedure ShowGroupInfo(Sender: TKMUnitGroup);
     procedure MessageIssue(aKind: TKMMessageKind; aText: string); overload;
     procedure MessageIssue(aKind: TKMMessageKind; aText: string; aLoc: TKMPoint); overload;
     procedure SetMenuState(aTactic: Boolean);
-    procedure SetMinimap;
     procedure ShowClock(aSpeed: Single);
     procedure ShowPlayMore(DoShow:boolean; Msg: TGameResultMsg);
     procedure ShowMPPlayMore(Msg: TGameResultMsg);
@@ -320,18 +321,22 @@ type
     procedure AlliesOnPingInfo(Sender: TObject);
     procedure AlliesTeamChange(Sender: TObject);
 
+    property Alerts: TKMAlerts read fAlerts;
+
     procedure Save(SaveStream: TKMemoryStream);
+    procedure SaveMinimap(SaveStream: TKMemoryStream);
     procedure Load(LoadStream: TKMemoryStream);
+    procedure LoadMinimap(LoadStream: TKMemoryStream);
 
     procedure KeyDown(Key:Word; Shift: TShiftState); override;
     procedure KeyUp(Key:Word; Shift: TShiftState); override;
     procedure MouseDown(Button: TMouseButton; Shift: TShiftState; X,Y: Integer); override;
     procedure MouseMove(Shift: TShiftState; X,Y: Integer); override;
     procedure MouseUp(Button: TMouseButton; Shift: TShiftState; X,Y: Integer); override;
-    procedure MouseWheel(Shift: TShiftState; WheelDelta: Integer; X, Y: Integer); override;
-
     procedure Resize(X,Y: Word); override;
+    procedure SyncUI; override;
     procedure UpdateState(aTickCount: Cardinal); override;
+    procedure UpdateStateIdle(aFrameTime: Cardinal); override;
     procedure Paint; override;
   end;
 
@@ -695,7 +700,7 @@ end;
 //Update viewport position when user interacts with minimap
 procedure TKMGamePlayInterface.Minimap_Update(Sender: TObject; const X,Y: Integer);
 begin
-  fGame.Viewport.Position := KMPointF(X,Y);
+  fViewport.Position := KMPointF(X,Y);
 end;
 
 
@@ -728,10 +733,13 @@ begin
 end;
 
 
-constructor TKMGamePlayInterface.Create(aScreenX, aScreenY: Word; aMultiplayer, aReplay: Boolean);
+constructor TKMGamePlayInterface.Create(aRender: TRender; aMultiplayer, aReplay: Boolean);
 var S: TKMShape;
 begin
-  inherited Create(aScreenX, aScreenY);
+  inherited Create(aRender);
+
+  fAlerts := TKMAlerts.Create(fViewport);
+  fRenderPool := TRenderPool.Create(fViewport, aRender);
 
   fMultiplayer := aMultiplayer;
   fReplay := aReplay;
@@ -820,7 +828,7 @@ begin
   end;
 
   SwitchPage(nil); //Update
-  Resize(aScreenX,aScreenY); //Hide/show swords according to player's resolution when game starts
+  Resize(aRender.ScreenX, aRender.ScreenY); //Hide/show swords according to player's resolution when game starts
   //Panel_Main.Width := aScreenX;
   //Panel_Main.Height := aScreenY;
   //UpdatePositions; //Reposition messages stack etc.
@@ -830,6 +838,9 @@ end;
 destructor TKMGamePlayInterface.Destroy;
 begin
   ReleaseDirectionSelector; //Make sure we don't exit leaving the cursor restrained
+
+  FreeAndNil(fViewport);
+  FreeAndNil(fMinimap);
 
   fGuiGameHouse.Free;
 
@@ -857,7 +868,7 @@ begin
   if Panel_Stats.Visible then
     Stats_Resize;
 
-  fGame.Viewport.Resize(X, Y);
+  fViewport.Resize(X, Y);
 end;
 
 
@@ -1665,7 +1676,7 @@ end;
 
 procedure TKMGamePlayInterface.Message_GoTo(Sender: TObject);
 begin
-  fGame.Viewport.Position := KMPointF(fMessageList.MessagesStack[ShownMessage].Loc);
+  fViewport.Position := KMPointF(fMessageList.MessagesStack[ShownMessage].Loc);
 end;
 
 
@@ -2144,10 +2155,21 @@ procedure TKMGamePlayInterface.ReplayClick(Sender: TObject);
     Button_ReplayStep.Enabled := not aPaused;
     Button_ReplayResume.Enabled := not aPaused;
   end;
+var
+  oldCenter: TKMPointF;
+  oldZoom: Single;
 begin
   if (Sender = Button_ReplayRestart) then
   begin
+    //Restart the replay but keep the viewport position/zoom
+    oldCenter := fViewport.Position;
+    oldZoom := fViewport.Zoom;
+
     fGame.RestartReplay; //reload it once again
+
+    //Self is now destroyed, so we must access the NEW fGame object
+    fGame.MapEditorInterface.SyncUIView(oldCenter, oldZoom);
+
     Exit; //Restarting the replay will destroy Self, so exit immediately
   end;
 
@@ -2179,7 +2201,7 @@ begin
   if (Sender = Dropbox_ReplayFOW) then
   begin
     MySpectator.FOWIndex := Dropbox_ReplayFOW.GetTag(Dropbox_ReplayFOW.ItemIndex);
-    fGame.Minimap.Update(False); //Force update right now so FOW doesn't appear to lag
+    fMinimap.Update(False); //Force update right now so FOW doesn't appear to lag
   end;
 end;
 
@@ -2247,7 +2269,7 @@ begin
   Msg.IsRead := True;
 
   //Jump to location
-  fGame.Viewport.Position := KMPointF(Msg.Loc);
+  fViewport.Position := KMPointF(Msg.Loc);
 
   //Try to highlight the house in question
   H := gHands.HousesHitTest(Msg.Loc.X, Msg.Loc.Y);
@@ -2504,7 +2526,7 @@ end;
 procedure TKMGamePlayInterface.SetPause(aValue:boolean);
 begin
   ReleaseDirectionSelector; //Don't restrict cursor movement to direction selection while paused
-  fGame.Viewport.ReleaseScrollKeys;
+  fViewport.ReleaseScrollKeys;
   fGame.IsPaused := aValue;
   Panel_Pause.Visible := aValue;
 end;
@@ -2768,7 +2790,7 @@ begin
         gSoundPlayer.PlayCitizen(TKMUnit(MySpectator.Selected).UnitType, sp_Select);
       //Selecting a unit twice is the shortcut to center on that unit
       if OldSelected = MySpectator.Selected then
-        fGame.Viewport.Position := TKMUnit(MySpectator.Selected).PositionF;
+        fViewport.Position := TKMUnit(MySpectator.Selected).PositionF;
     end
     else
     begin
@@ -2782,7 +2804,7 @@ begin
         end;
         //Selecting a house twice is the shortcut to center on that house
         if OldSelected = MySpectator.Selected then
-          fGame.Viewport.Position := KMPointF(TKMHouse(MySpectator.Selected).GetEntrance);
+          fViewport.Position := KMPointF(TKMHouse(MySpectator.Selected).GetEntrance);
       end
       else
       begin
@@ -2797,7 +2819,7 @@ begin
           gSoundPlayer.PlayWarrior(TKMUnitGroup(MySpectator.Selected).SelectedUnit.UnitType, sp_Select);
         //Selecting a group twice is the shortcut to center on that group
         if OldSelected = MySpectator.Selected then
-          fGame.Viewport.Position := TKMUnitGroup(MySpectator.Selected).SelectedUnit.PositionF;
+          fViewport.Position := TKMUnitGroup(MySpectator.Selected).SelectedUnit.PositionF;
       end;
     end;
 
@@ -2910,22 +2932,22 @@ begin
 
   if fMyControls.KeyDown(Key, Shift) then
   begin
-    fGame.Viewport.ReleaseScrollKeys; //Release the arrow keys when you open a window with an edit to stop them becoming stuck
+    fViewport.ReleaseScrollKeys; //Release the arrow keys when you open a window with an edit to stop them becoming stuck
     Exit;
   end;
 
   case Key of
-    VK_LEFT:  fGame.Viewport.ScrollKeyLeft  := True;
-    VK_RIGHT: fGame.Viewport.ScrollKeyRight := True;
-    VK_UP:    fGame.Viewport.ScrollKeyUp    := True;
-    VK_DOWN:  fGame.Viewport.ScrollKeyDown  := True;
+    VK_LEFT:  fViewport.ScrollKeyLeft  := True;
+    VK_RIGHT: fViewport.ScrollKeyRight := True;
+    VK_UP:    fViewport.ScrollKeyUp    := True;
+    VK_DOWN:  fViewport.ScrollKeyDown  := True;
     //As we don't have names for teams in SP we only allow showing team names in MP or MP replays
     Ord(SC_SHOW_TEAMS): if fMultiplayer or (fGame.GameMode = gmReplayMulti) then //Only MP replays
     begin
       fGame.ShowTeamNames := True;
       //Update it immediately so there's no 300ms lag after pressing the key
       fTeamNames.Clear;
-      Rect := fGame.Viewport.GetMinimapClip;
+      Rect := fViewport.GetMinimapClip;
       gHands.GetUnitsInRect(Rect, fTeamNames);
     end;
   end;
@@ -2956,11 +2978,11 @@ begin
 
   case Key of
     //Scrolling
-    VK_LEFT:  fGame.Viewport.ScrollKeyLeft  := False;
-    VK_RIGHT: fGame.Viewport.ScrollKeyRight := False;
-    VK_UP:    fGame.Viewport.ScrollKeyUp    := False;
-    VK_DOWN:  fGame.Viewport.ScrollKeyDown  := False;
-    VK_BACK:  fGame.Viewport.ResetZoom;
+    VK_LEFT:  fViewport.ScrollKeyLeft  := False;
+    VK_RIGHT: fViewport.ScrollKeyRight := False;
+    VK_UP:    fViewport.ScrollKeyUp    := False;
+    VK_DOWN:  fViewport.ScrollKeyDown  := False;
+    VK_BACK:  fViewport.ResetZoom;
 
     Ord(SC_SHOW_TEAMS):  fGame.ShowTeamNames := False;
   end;
@@ -3058,8 +3080,8 @@ begin
      {$ENDIF}
      fDragScrollingCursorPos.X := X;
      fDragScrollingCursorPos.Y := Y;
-     fDragScrollingViewportPos.X := fGame.Viewport.Position.X;
-     fDragScrollingViewportPos.Y := fGame.Viewport.Position.Y;
+     fDragScrollingViewportPos.X := fViewport.Position.X;
+     fDragScrollingViewportPos.Y := fViewport.Position.Y;
      fResource.Cursors.Cursor := kmc_Drag;
      Exit;
   end;
@@ -3130,9 +3152,9 @@ var
 begin
   if fDragScrolling then
   begin
-    VP.X := fDragScrollingViewportPos.X + (fDragScrollingCursorPos.X - X) / (CELL_SIZE_PX * fGame.Viewport.Zoom);
-    VP.Y := fDragScrollingViewportPos.Y + (fDragScrollingCursorPos.Y - Y) / (CELL_SIZE_PX * fGame.Viewport.Zoom);
-    fGame.Viewport.Position := VP;
+    VP.X := fDragScrollingViewportPos.X + (fDragScrollingCursorPos.X - X) / (CELL_SIZE_PX * fViewport.Zoom);
+    VP.Y := fDragScrollingViewportPos.Y + (fDragScrollingCursorPos.Y - Y) / (CELL_SIZE_PX * fViewport.Zoom);
+    fViewport.Position := VP;
     Exit;
   end;
 
@@ -3142,7 +3164,7 @@ begin
   begin
     //Beacons are a special case, the cursor should be shown over controls to (you can place it on the minimap)
     if fMyControls.CtrlOver = nil then
-      fGame.UpdateGameCursor(X,Y,Shift); //Keep the game cursor up to date
+      UpdateGameCursor(X,Y,Shift); //Keep the game cursor up to date
     fResource.Cursors.Cursor := kmc_Beacon;
     Exit;
   end;
@@ -3154,7 +3176,7 @@ begin
   and not SelectingTroopDirection then
   begin
     //kmc_Edit and kmc_DragUp are handled by Controls.MouseMove (it will reset them when required)
-    if not fGame.Viewport.Scrolling and not (fResource.Cursors.Cursor in [kmc_Edit,kmc_DragUp]) then
+    if not fViewport.Scrolling and not (fResource.Cursors.Cursor in [kmc_Edit,kmc_DragUp]) then
       fResource.Cursors.Cursor := kmc_Default;
     Exit;
   end
@@ -3187,7 +3209,7 @@ begin
     Exit;
   end;
 
-  fGame.UpdateGameCursor(X,Y,Shift);
+  UpdateGameCursor(X,Y,Shift);
 
   if ssLeft in Shift then //Only allow placing of roads etc. with the left mouse button
   begin
@@ -3229,7 +3251,7 @@ begin
   if GameCursor.Mode <> cmNone then
   begin
     //Use the default cursor while placing roads, don't become stuck on c_Info or others
-    if not fGame.Viewport.Scrolling then
+    if not fViewport.Scrolling then
       fResource.Cursors.Cursor := kmc_Default;
     Exit;
   end;
@@ -3266,12 +3288,12 @@ begin
     or ((Obj is TKMHouse) and (gHands.CheckAlliance(MySpectator.HandIndex, TKMHouse(Obj).Owner) = at_Enemy)) then
       fResource.Cursors.Cursor := kmc_Attack
     else
-      if not fGame.Viewport.Scrolling then
+      if not fViewport.Scrolling then
         fResource.Cursors.Cursor := kmc_Default;
     Exit;
   end;
 
-  if not fGame.Viewport.Scrolling then
+  if not fViewport.Scrolling then
     fResource.Cursors.Cursor := kmc_Default;
 end;
 
@@ -3498,33 +3520,11 @@ begin
 end;
 
 
-procedure TKMGamePlayInterface.MouseWheel(Shift: TShiftState; WheelDelta, X, Y: Integer);
-var
-  PrevCursor: TKMPointF;
-begin
-  inherited;
-
-  if (X < 0) or (Y < 0) then Exit; //This happens when you use the mouse wheel on the window frame
-
-  //Allow to zoom only when curor is over map. Controls handle zoom on their own
-  if (fMyControls.CtrlOver = nil) then
-  begin
-    fGame.UpdateGameCursor(X, Y, Shift); //Make sure we have the correct cursor position to begin with
-    PrevCursor := GameCursor.Float;
-    fGame.Viewport.Zoom := fGame.Viewport.Zoom + WheelDelta / 2000;
-    fGame.UpdateGameCursor(X, Y, Shift); //Zooming changes the cursor position
-    //Move the center of the screen so the cursor stays on the same tile, thus pivoting the zoom around the cursor
-    fGame.Viewport.Position := KMPointF(fGame.Viewport.Position.X + PrevCursor.X-GameCursor.Float.X,
-                                        fGame.Viewport.Position.Y + PrevCursor.Y-GameCursor.Float.Y);
-    fGame.UpdateGameCursor(X, Y, Shift); //Recentering the map changes the cursor position
-  end;
-end;
-
-
 procedure TKMGamePlayInterface.Save(SaveStream: TKMemoryStream);
 begin
-  fGuiGameHouse.Save(SaveStream);
+  fViewport.Save(SaveStream);
 
+  fGuiGameHouse.Save(SaveStream);
   SaveStream.WriteW(fLastSaveName);
   SaveStream.Write(fSelection, SizeOf(fSelection));
   fMessageList.Save(SaveStream);
@@ -3532,23 +3532,45 @@ begin
 end;
 
 
+//Save just the minimap for preview (near the start of the file)
+procedure TKMGamePlayInterface.SaveMinimap(SaveStream: TKMemoryStream);
+begin
+  fMinimap.SaveToStream(SaveStream);
+end;
+
+
 procedure TKMGamePlayInterface.Load(LoadStream: TKMemoryStream);
 begin
-  fGuiGameHouse.Load(LoadStream);
+  fViewport.Load(LoadStream);
 
+  fGuiGameHouse.Load(LoadStream);
   LoadStream.ReadW(fLastSaveName);
   LoadStream.Read(fSelection, SizeOf(fSelection));
   fMessageList.Load(LoadStream);
+
   //Everything else (e.g. ShownUnit or AskDemolish) can't be seen in Save_menu anyways
   Message_UpdateStack;
   gLog.AddTime('Interface loaded');
 end;
 
 
-procedure TKMGamePlayInterface.SetMinimap;
+//Load the minimap (saved near start of the file)
+procedure TKMGamePlayInterface.LoadMinimap(LoadStream: TKMemoryStream);
 begin
-  MinimapView.SetMinimap(fGame.Minimap);
-  MinimapView.SetViewport(fGame.Viewport);
+  fMinimap.LoadFromStream(LoadStream);
+end;
+
+
+procedure TKMGamePlayInterface.SyncUI;
+begin
+  inherited;
+
+  fMinimap.Alerts := fAlerts;
+
+  MinimapView.SetMinimap(fMinimap);
+  MinimapView.SetViewport(fViewport);
+
+  SetMenuState(fGame.MissionMode = mm_Tactic);
 end;
 
 
@@ -3559,6 +3581,12 @@ var
   I: Integer;
   Rect: TKMRect;
 begin
+  //Update minimap every 1000ms
+  if aTickCount mod 10 = 0 then
+    fMinimap.Update(False);
+
+  fAlerts.UpdateState(aTickCount);
+
   //Update unit/house information
   if MySpectator.Selected is TKMUnitGroup then
     ShowGroupInfo(TKMUnitGroup(MySpectator.Selected))
@@ -3646,13 +3674,20 @@ begin
     fTeamNames.Clear;
     if fGame.ShowTeamNames then
     begin
-      Rect := fGame.Viewport.GetMinimapClip;
+      Rect := fViewport.GetMinimapClip;
       gHands.GetUnitsInRect(Rect, fTeamNames);
     end;
   end;
 
   UpdateDebugInfo;
   if fSaves <> nil then fSaves.UpdateState;
+end;
+
+
+procedure TKMGamePlayInterface.UpdateStateIdle(aFrameTime: Cardinal);
+begin
+  //Check to see if we need to scroll
+  fViewport.UpdateStateIdle(aFrameTime);
 end;
 
 
@@ -3718,7 +3753,7 @@ begin
         UnitLoc.X := UnitLoc.X - 0.5;
         UnitLoc.Y := UnitLoc.Y - 1;
         MapLoc := gTerrain.FlatToHeight(UnitLoc);
-        ScreenLoc := fGame.Viewport.MapToScreen(MapLoc);
+        ScreenLoc := fViewport.MapToScreen(MapLoc);
 
         if KMInRect(ScreenLoc, KMRect(0, 0, Panel_Main.Width, Panel_Main.Height)) then
         begin

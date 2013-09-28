@@ -3,7 +3,7 @@ unit KM_GUIMapEdMissionPlayers;
 interface
 uses
    Classes, SysUtils,
-   KM_Controls, KM_Defaults, KM_Pics, KM_InterfaceDefaults;
+   KM_Controls, KM_Defaults, KM_Pics;
 
 type
   TKMMapEdMissionPlayers = class
@@ -26,7 +26,7 @@ type
 
 implementation
 uses
-  KM_HandsCollection, KM_ResTexts, KM_Game, KM_RenderUI, KM_ResFonts;
+  KM_HandsCollection, KM_ResTexts, KM_Game, KM_RenderUI, KM_ResFonts, KM_InterfaceGame;
 
 
 { TKMMapEdMissionPlayers }

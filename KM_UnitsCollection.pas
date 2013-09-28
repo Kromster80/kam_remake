@@ -34,7 +34,7 @@ type
     procedure Load(LoadStream: TKMemoryStream);
     procedure SyncLoad;
     procedure UpdateState;
-    procedure Paint;
+    procedure Paint(aRect: TKMRect);
   end;
 
 
@@ -299,18 +299,18 @@ begin
 end;
 
 
-procedure TKMUnitsCollection.Paint;
+procedure TKMUnitsCollection.Paint(aRect: TKMRect);
 const
   Margin = 2;
 var
   I: Integer;
-  Rect: TKMRect;
+  growRect: TKMRect;
 begin
   //Add additional margin to compensate for units height
-  Rect := KMRectGrow(fGame.Viewport.GetClip, Margin);
+  growRect := KMRectGrow(aRect, Margin);
 
   for I := 0 to Count - 1 do
-  if (Units[I] <> nil) and not Units[I].IsDead and KMInRect(Units[I].PositionF, Rect) then
+  if (Units[I] <> nil) and not Units[I].IsDead and KMInRect(Units[I].PositionF, growRect) then
     Units[I].Paint;
 end;
 

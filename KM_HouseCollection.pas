@@ -32,7 +32,7 @@ type
     procedure IncAnimStep;
     procedure UpdateResRequest; //Change resource requested counts for all houses
     procedure UpdateState;
-    procedure Paint;
+    procedure Paint(aRect: TKMRect);
   end;
 
 
@@ -315,17 +315,18 @@ begin
 end;
 
 
-procedure TKMHousesCollection.Paint;
-const Margin = 3;
+procedure TKMHousesCollection.Paint(aRect: TKMRect);
+const
+  Margin = 3;
 var
   I: Integer;
-  Rect: TKMRect;
+  growRect: TKMRect;
 begin
   //Compensate for big houses near borders or standing on hills
-  Rect := KMRectGrow(fGame.Viewport.GetClip, Margin);
+  growRect := KMRectGrow(aRect, Margin);
 
   for I := 0 to Count - 1 do
-  if not Houses[I].IsDestroyed and KMInRect(Houses[I].GetPosition, Rect) then
+  if not Houses[I].IsDestroyed and KMInRect(Houses[I].GetPosition, growRect) then
     Houses[I].Paint;
 end;
 

@@ -173,7 +173,7 @@ type
     procedure Load(LoadStream: TKMemoryStream);
     procedure SyncLoad;
     procedure UpdateState;
-    procedure Paint;
+    procedure Paint(aRect: TKMRect);
   end;
 
 
@@ -1653,12 +1653,18 @@ begin
 end;
 
 
-procedure TKMUnitGroups.Paint;
+procedure TKMUnitGroups.Paint(aRect: TKMRect);
+const
+  Margin = 2;
 var
   I: Integer;
+  growRect: TKMRect;
 begin
+  //Add additional margin to compensate for units height
+  growRect := KMRectGrow(aRect, Margin);
+
   for I := 0 to Count - 1 do
-  if not Groups[I].IsDead then
+  if not Groups[I].IsDead and KMInRect(Groups[I].Members[0].PositionF, growRect) then
     Groups[I].Paint;
 end;
 

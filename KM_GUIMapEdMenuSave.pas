@@ -3,8 +3,7 @@ unit KM_GUIMapEdMenuSave;
 interface
 uses
    Classes, SysUtils,
-   KM_Controls, KM_Maps,
-   KM_InterfaceDefaults;
+   KM_Controls, KM_Maps;
 
 
 type
@@ -31,7 +30,7 @@ type
 
 implementation
 uses
-  KM_Game, KM_RenderUI, KM_ResFonts, KM_ResTexts;
+  KM_Game, KM_RenderUI, KM_ResFonts, KM_ResTexts, KM_InterfaceGame;
 
 
 { TKMMapEdMenuSave }

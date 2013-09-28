@@ -3,7 +3,7 @@ unit KM_GUIMapEdMenuLoad;
 interface
 uses
    Classes, SysUtils,
-   KM_Controls, KM_InterfaceDefaults, KM_Maps;
+   KM_Controls, KM_Maps;
 
 type
   TKMMapEdMenuLoad = class
@@ -35,7 +35,7 @@ type
 
 implementation
 uses
-  KM_ResTexts, KM_Game, KM_GameApp, KM_RenderUI, KM_ResFonts;
+  KM_ResTexts, KM_Game, KM_GameApp, KM_RenderUI, KM_ResFonts, KM_InterfaceGame;
 
 
 { TKMMapEdMenuLoad }

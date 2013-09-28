@@ -3,7 +3,7 @@ unit KM_GUIMapEdMissionAlliances;
 interface
 uses
    Classes, SysUtils,
-   KM_Controls, KM_Defaults, KM_InterfaceDefaults;
+   KM_Controls, KM_Defaults, KM_InterfaceGame;
 
 type
   TKMMapEdMissionAlliances = class

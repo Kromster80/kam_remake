@@ -43,20 +43,20 @@ type
   //lived and last only a few seconds
   TKMAlerts = class
   private
-    fTickCounter: PCardinal;
+    fTickCounter: Integer;
     fViewport: TViewport;
     fList: TList;
     function GetAlert(aIndex: Integer): TKMAlert;
     function GetCount: Integer;
   public
-    constructor Create(aTickCounter: PCardinal; aViewport: TViewport);
+    constructor Create(aViewport: TViewport);
     destructor Destroy; override;
     procedure AddBeacon(aLoc: TKMPointF; aOwner: THandIndex);
     procedure AddFight(aLoc: TKMPointF; aPlayer: THandIndex; aAsset: TAttackNotification);
     property Count: Integer read GetCount;
     property Items[aIndex: Integer]: TKMAlert read GetAlert; default;
     procedure Paint(aPass: Byte);
-    procedure UpdateState;
+    procedure UpdateState(aTickCount: Cardinal);
   end;
 
 
@@ -242,11 +242,10 @@ end;
 
 
 { TKMAlerts }
-constructor TKMAlerts.Create(aTickCounter: PCardinal; aViewport: TViewport);
+constructor TKMAlerts.Create(aViewport: TViewport);
 begin
   inherited Create;
 
-  fTickCounter := aTickCounter;
   fViewport := aViewport;
   fList := TList.Create;
 end;
@@ -304,7 +303,7 @@ procedure TKMAlerts.AddBeacon(aLoc: TKMPointF; aOwner: THandIndex);
 begin
   //If this player has too many beacons remove his oldest one
   RemoveExcessBeacons;
-  fList.Add(TKMAlertBeacon.Create(aLoc, aOwner, fTickCounter^));
+  fList.Add(TKMAlertBeacon.Create(aLoc, aOwner, fTickCounter));
   gSoundPlayer.Play(sfxn_Beacon);
 end;
 
@@ -321,12 +320,12 @@ begin
         if (Owner = aPlayer) and (Asset = aAsset)
         and (KMLength(Loc, aLoc) < FIGHT_DISTANCE) then
         begin
-          Refresh(fTickCounter^);
+          Refresh(fTickCounter);
           Exit;
         end;
 
   //Otherwise create a new alert
-  fList.Add(TKMAlertAttacked.Create(aLoc, aPlayer, aAsset, fTickCounter^));
+  fList.Add(TKMAlertAttacked.Create(aLoc, aPlayer, aAsset, fTickCounter));
 end;
 
 
@@ -357,18 +356,18 @@ begin
 end;
 
 
-procedure TKMAlerts.UpdateState;
+procedure TKMAlerts.UpdateState(aTickCount: Cardinal);
 var
   I: Integer;
 begin
   //Update alerts visibility
-  if (fTickCounter^ mod 10 = 0) then
+  if (aTickCount mod 10 = 0) then
   for I := fList.Count - 1 downto 0 do
     Items[I].Update(fViewport.GetMinimapClip);
 
   //Remove expired alerts
   for I := fList.Count - 1 downto 0 do
-    if Items[I].IsExpired(fTickCounter^) then
+    if Items[I].IsExpired(aTickCount) then
     begin
       Items[I].Free;
       fList.Delete(I);

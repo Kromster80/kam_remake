@@ -3,7 +3,7 @@ unit KM_GUIMapEdPlayerBlockHouse;
 interface
 uses
    Classes,
-   KM_Controls, KM_Pics, KM_InterfaceDefaults;
+   KM_Controls, KM_Pics, KM_InterfaceGame;
 
 type
   TKMMapEdPlayerBlockHouse = class

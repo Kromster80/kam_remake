@@ -10,7 +10,7 @@ type
   //Intermediary class between TTerrain/Players and UI
   TKMMinimap = class
   private
-    fIsMapEditor: Boolean; //Paint missing army memmbers
+    fPaintVirtualGroups: Boolean; //Paint missing army memmbers
     fSepia: Boolean; //Less saturated display for menu
     fParser: TMissionParserPreview;
     fMyTerrain: TKMTerrain;
@@ -33,16 +33,17 @@ type
     HandLocs: array [0..MAX_HANDS-1] of TKMPoint;
     HandShow: array [0..MAX_HANDS-1] of Boolean;
     HandTeam: array [0..MAX_HANDS-1] of ShortInt;
-    constructor Create(aFromParser: Boolean; aIsMapEditor: Boolean; aSepia: Boolean);
+    constructor Create(aFromParser: Boolean; aSepia: Boolean);
     destructor Destroy; override;
 
-    property Alerts: TKMAlerts read fAlerts;
+    property Alerts: TKMAlerts read fAlerts write fAlerts;
     property MapX: Word read fMapX;
     property MapY: Word read fMapY;
     property MapTex: TTexture read fMapTex;
+    property PaintVirtualGroups: Boolean read fPaintVirtualGroups write fPaintVirtualGroups;
 
     procedure LoadFromMission(aMissionPath: string; const aRevealFor: array of THandIndex);
-    procedure LoadFromTerrain(aAlerts: TKMAlerts);
+    procedure LoadFromTerrain;
     procedure LoadFromStream(LoadStream: TKMemoryStream);
     procedure SaveToStream(SaveStream: TKMemoryStream);
 
@@ -55,11 +56,10 @@ uses KM_AIFields, KM_HandsCollection, KM_Resource, KM_Units, KM_UnitGroups;
 
 
 { TKMMinimap }
-constructor TKMMinimap.Create(aFromParser: Boolean; aIsMapEditor: Boolean; aSepia: Boolean);
+constructor TKMMinimap.Create(aFromParser: Boolean; aSepia: Boolean);
 begin
   inherited Create;
 
-  fIsMapEditor := aIsMapEditor;
   fSepia := aSepia;
   fMapTex.Tex := TRender.GenerateTextureCommon;
 
@@ -100,7 +100,7 @@ begin
 end;
 
 
-procedure TKMMinimap.LoadFromTerrain(aAlerts: TKMAlerts);
+procedure TKMMinimap.LoadFromTerrain;
 var I: Integer;
 begin
   fMyTerrain := gTerrain;
@@ -118,8 +118,6 @@ begin
     HandLocs[I] := KMPoint(0,0);
     HandShow[I] := False;
   end;
-
-  fAlerts := aAlerts;
 end;
 
 
@@ -239,7 +237,7 @@ begin
   end;
 
   //Scan all players units and paint all virtual group members in MapEd
-  if fIsMapEditor then
+  if fPaintVirtualGroups then
     for I := 0 to gHands.Count - 1 do
     for K := 0 to gHands[I].UnitGroups.Count - 1 do
     begin

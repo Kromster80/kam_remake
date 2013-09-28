@@ -231,7 +231,7 @@ begin
       begin
         //No fight alerts in replays, and only show alerts for ourselves
         if (not fGame.IsReplay) and (fOwner = MySpectator.HandIndex) then
-          fGame.Alerts.AddFight(KMPointF(aHouse.GetPosition), fOwner, an_Town);
+          fGame.GamePlayInterface.Alerts.AddFight(KMPointF(aHouse.GetPosition), fOwner, an_Town);
       end;
     hndComputer:
       fGeneral.RetaliateAgainstThreat(aAttacker);
@@ -250,7 +250,7 @@ begin
     hndHuman:
       //No fight alerts in replays, and only show alerts for ourselves
       if not fGame.IsReplay and (fOwner = MySpectator.HandIndex) then
-        fGame.Alerts.AddFight(aUnit.PositionF, fOwner, NotifyKind[aUnit is TKMUnitWarrior]);
+        fGame.GamePlayInterface.Alerts.AddFight(aUnit.PositionF, fOwner, NotifyKind[aUnit is TKMUnitWarrior]);
     hndComputer:
       begin
         //If we are attacked, then we should counter attack the attacker!

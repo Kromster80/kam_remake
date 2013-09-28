@@ -3,7 +3,7 @@ unit KM_GUIMapEdMarkerReveal;
 interface
 uses
    Classes, Controls, Math, StrUtils, SysUtils,
-   KM_Controls, KM_Defaults, KM_Pics, KM_InterfaceDefaults;
+   KM_Controls, KM_Defaults, KM_Pics;
 
 
 type
@@ -35,7 +35,7 @@ type
 implementation
 uses
   KM_CommonClasses, KM_HandsCollection, KM_ResTexts, KM_Game,
-  KM_RenderUI, KM_ResFonts;
+  KM_RenderUI, KM_ResFonts, KM_InterfaceGame;
 
 
 { TKMMapEdMarkerReveal }

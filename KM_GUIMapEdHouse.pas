@@ -3,7 +3,7 @@ unit KM_GUIMapEdHouse;
 interface
 uses
    Classes, Controls, Math, StrUtils, SysUtils,
-   KM_Controls, KM_Defaults, KM_Pics, KM_Houses, KM_InterfaceDefaults, KM_ResHouses;
+   KM_Controls, KM_Defaults, KM_Pics, KM_Houses, KM_InterfaceGame, KM_ResHouses;
 
 type
   TKMMapEdHouse = class

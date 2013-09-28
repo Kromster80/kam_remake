@@ -36,7 +36,7 @@ type
 implementation
 uses
   KM_Resource, KM_ResFonts, KM_ResMapElements, KM_ResTexts,
-  KM_GameCursor, KM_RenderUI, KM_InterfaceDefaults;
+  KM_GameCursor, KM_RenderUI, KM_InterfaceGame;
 
 
 { TKMMapEdTerrainObjects }

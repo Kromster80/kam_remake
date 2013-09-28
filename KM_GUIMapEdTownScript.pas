@@ -3,7 +3,7 @@ unit KM_GUIMapEdTownScript;
 interface
 uses
    Classes, Controls, KromUtils, Math, StrUtils, SysUtils,
-   KM_Controls, KM_InterfaceDefaults;
+   KM_Controls;
 
 type
   TKMMapEdTownScript = class
@@ -27,7 +27,7 @@ type
 
 implementation
 uses
-  KM_HandsCollection, KM_ResTexts, KM_RenderUI, KM_ResFonts;
+  KM_HandsCollection, KM_ResTexts, KM_RenderUI, KM_ResFonts, KM_InterfaceGame;
 
 
 { TKMMapEdTownScript }

@@ -24,7 +24,7 @@ uses
 
 
 type
-  TKMMainMenuInterface = class(TKMUserInterface)
+  TKMMainMenuInterface = class(TKMUserInterfaceCommon)
   private
     fMenuCampaign: TKMMenuCampaign;
     fMenuCampaigns: TKMMenuCampaigns;

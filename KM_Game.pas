@@ -8,10 +8,10 @@ uses
   {$IFDEF USE_MAD_EXCEPT} MadExcept, KM_Exceptions, {$ENDIF}
   KM_CommonTypes, KM_Defaults, KM_Points,
   KM_Alerts, KM_GameInputProcess, KM_GameOptions,
-  KM_InterfaceDefaults, KM_InterfaceMapEditor, KM_InterfaceGamePlay,
-  KM_MapEditor, KM_Minimap, KM_Networking,
+  KM_InterfaceDefaults, KM_InterfaceGame, KM_InterfaceMapEditor, KM_InterfaceGamePlay,
+  KM_MapEditor, KM_Networking,
   KM_PathFinding, KM_PathFindingAStarOld, KM_PathFindingAStarNew, KM_PathFindingJPS,
-  KM_PerfLog, KM_Projectiles, KM_Render, KM_Viewport, KM_ResTexts;
+  KM_PerfLog, KM_Projectiles, KM_Render, KM_ResTexts;
 
 type
   TGameMode = (
@@ -26,16 +26,13 @@ type
   TKMGame = class
   private //Irrelevant to savegame
     fTimerGame: TTimer;
-    fAlerts: TKMAlerts;
     fGameOptions: TKMGameOptions;
     fNetworking: TKMNetworking;
     fGameInputProcess: TGameInputProcess;
     fTextMission: TKMTextLibraryMulti;
-    fMinimap: TKMMinimap;
     fPathfinding: TPathFinding;
-    fViewport: TViewport; //todo: Move into Interface
     fPerfLog: TKMPerfLog;
-    fActiveInterface: TKMUserInterface; //Shortcut for both of UI
+    fActiveInterface: TKMUserInterfaceGame; //Shortcut for both of UI
     fGamePlayInterface: TKMGamePlayInterface;
     fMapEditorInterface: TKMapEdInterface;
     fMapEditor: TKMMapEditor;
@@ -64,7 +61,6 @@ type
     procedure MultiplayerRig;
     procedure SaveGame(const aPathName: UnicodeString);
     procedure UpdatePeaceTime;
-    procedure SyncUI;
     function WaitingPlayersList: TKMByteArray;
   public
     PlayOnState: TGameResultMsg;
@@ -137,20 +133,16 @@ type
     procedure UpdateMultiplayerTeams;
 
     property PerfLog: TKMPerfLog read fPerfLog;
-    procedure UpdateGameCursor(X,Y: Integer; Shift: TShiftState);
 
-    property Alerts: TKMAlerts read fAlerts;
-    property Minimap: TKMMinimap read fMinimap;
     property Networking: TKMNetworking read fNetworking;
     property Pathfinding: TPathFinding read fPathfinding;
     property GameInputProcess: TGameInputProcess read fGameInputProcess;
     property GameOptions: TKMGameOptions read fGameOptions;
-    property ActiveInterface: TKMUserInterface read fActiveInterface;
+    property ActiveInterface: TKMUserInterfaceGame read fActiveInterface;
     property GamePlayInterface: TKMGamePlayInterface read fGamePlayInterface;
     property MapEditorInterface: TKMapEdInterface read fMapEditorInterface;
     property MapEditor: TKMMapEditor read fMapEditor;
     property TextMission: TKMTextLibraryMulti read fTextMission;
-    property Viewport: TViewport read fViewport;
 
     procedure Save(const aSaveName: UnicodeString);
     {$IFDEF USE_MAD_EXCEPT}
@@ -200,22 +192,14 @@ begin
   //Create required UI (gameplay or MapEd)
   if fGameMode = gmMapEd then
   begin
-    fMinimap := TKMMinimap.Create(False, True, False);
-    fMapEditorInterface := TKMapEdInterface.Create(aRender.ScreenX, aRender.ScreenY);
+    fMapEditorInterface := TKMapEdInterface.Create(aRender);
     fActiveInterface := fMapEditorInterface;
   end
   else
   begin
-    fMinimap := TKMMinimap.Create(False, False, False);
-    fGamePlayInterface := TKMGamePlayInterface.Create(aRender.ScreenX, aRender.ScreenY, IsMultiplayer, IsReplay);
+    fGamePlayInterface := TKMGamePlayInterface.Create(aRender, IsMultiplayer, IsReplay);
     fActiveInterface := fGamePlayInterface;
   end;
-
-  //todo: Maybe we should reset the GameCursor? If I play 192x192 map, quit, and play a 64x64 map
-  //      my cursor could be at (190,190) if the player starts with his cursor over the controls panel...
-  //      This caused a crash in RenderCursors which I fixed by adding range checking to CheckTileRevelation
-  //      (good idea anyway) There could be other crashes caused by this.
-  fViewport := TViewport.Create(aRender.ScreenX, aRender.ScreenY);
 
   fTimerGame := TTimer.Create(nil);
   SetGameSpeed(1, False); //Initialize relevant variables
@@ -232,7 +216,6 @@ begin
 
   if DO_PERF_LOGGING then fPerfLog := TKMPerfLog.Create;
   gLog.AddTime('<== Game creation is done ==>');
-  fAlerts := TKMAlerts.Create(@fGameTickCount, fViewport);
   fScripting := TKMScripting.Create;
 
   case PathFinderToUse of
@@ -244,7 +227,6 @@ begin
   end;
   gProjectiles := TKMProjectiles.Create;
 
-  fRenderPool := TRenderPool.Create(aRender);
 
   fGameTickCount := 0; //Restart counter
 end;
@@ -274,17 +256,14 @@ begin
   FreeAndNil(gProjectiles);
   FreeAndNil(fPathfinding);
   FreeAndNil(fScripting);
-  FreeAndNil(fAlerts);
 
   FreeThenNil(fGamePlayInterface);
   FreeThenNil(fMapEditorInterface);
-  FreeAndNil(fMinimap);
-  FreeAndNil(fViewport);
 
   FreeAndNil(fGameInputProcess);
   FreeAndNil(fRenderPool);
   FreeAndNil(fGameOptions);
-  FreeAndNil(fAlerts);
+
   if DO_PERF_LOGGING then fPerfLog.Free;
 
   //When leaving the game we should always reset the cursor in case the user had beacon or linking selected
@@ -434,8 +413,11 @@ begin
   fScripting.ProcMissionStart;
 
   //When everything is ready we can update UI
-  SyncUI;
-  fViewport.Position := KMPointF(gHands[MySpectator.HandIndex].CenterScreen);
+  fActiveInterface.SyncUI;
+  if IsMapEditor then
+    fActiveInterface.SyncUIView(KMPointF(gTerrain.MapX / 2, gTerrain.MapY / 2))
+  else
+    fActiveInterface.SyncUIView(KMPointF(gHands[MySpectator.HandIndex].CenterScreen));
 
   gLog.AddTime('Gameplay initialized', true);
 end;
@@ -620,7 +602,8 @@ begin
   DoGameHold := false;
   fGamePlayInterface.ReleaseDirectionSelector; //In case of victory/defeat while moving troops
   fResource.Cursors.Cursor := kmc_Default;
-  fViewport.ReleaseScrollKeys;
+
+  fGamePlayInterface.Viewport.ReleaseScrollKeys;
   PlayOnState := Msg;
 
   if DoHold then
@@ -753,7 +736,8 @@ begin
     fGameInputProcess := TGameInputProcess_Single.Create(gipRecording);
 
   //When everything is ready we can update UI
-  SyncUI;
+  fActiveInterface.SyncUI;
+  fActiveInterface.SyncUIView(KMPointF(gTerrain.MapX / 2, gTerrain.MapY / 2));
 
   gLog.AddTime('Gameplay initialized', True);
 end;
@@ -827,20 +811,9 @@ begin
 end;
 
 
-//Restart the replay but keep the viewport position/zoom
 procedure TKMGame.RestartReplay;
-var
-  OldCenter: TKMPointF;
-  OldZoom: Single;
 begin
-  OldCenter := fViewport.Position;
-  OldZoom := fViewport.Zoom;
-
   fGameApp.NewReplay(ChangeFileExt(ExeDir + fSaveFile, '.bas'));
-
-  //Self is now destroyed, so we must access the NEW fGame object
-  fGame.Viewport.Position := OldCenter;
-  fGame.Viewport.Zoom := OldZoom;
 end;
 
 
@@ -936,29 +909,6 @@ end;
 function TKMGame.IsPeaceTime: Boolean;
 begin
   Result := not CheckTime(fGameOptions.Peacetime * 600);
-end;
-
-
-//Compute cursor position and store it in global variables
-procedure TKMGame.UpdateGameCursor(X, Y: Integer; Shift: TShiftState);
-begin
-  with GameCursor do
-  begin
-    Pixel.X := X;
-    Pixel.Y := Y;
-
-    Float.X := fViewport.Position.X + (X-fViewport.ViewRect.Right/2-TOOLBAR_WIDTH/2)/CELL_SIZE_PX/fViewport.Zoom;
-    Float.Y := fViewport.Position.Y + (Y-fViewport.ViewRect.Bottom/2)/CELL_SIZE_PX/fViewport.Zoom;
-    Float.Y := gTerrain.ConvertCursorToMapCoord(Float.X,Float.Y);
-
-    //Cursor cannot reach row MapY or column MapX, they're not part of the map (only used for vertex height)
-    Cell.X := EnsureRange(round(Float.X+0.5), 1, gTerrain.MapX-1); //Cell below cursor in map bounds
-    Cell.Y := EnsureRange(round(Float.Y+0.5), 1, gTerrain.MapY-1);
-
-    ObjectUID := fRenderPool.GetSelectionUID(X, Y);
-
-    SState := Shift;
-  end;
 end;
 
 
@@ -1100,12 +1050,13 @@ begin
 
     //Because some stuff is only saved in singleplayer we need to know whether it is included in this save,
     //so we can load multiplayer saves in single player and vice versa.
-    SaveStream.Write(fGameMode = gmMulti);
+    SaveStream.Write(IsMultiplayer);
 
-    //Minimap is near the start so it can be accessed quickly
-    //Each player in MP has his own minimap version ..
-    if fGameMode <> gmMulti then
-      fMinimap.SaveToStream(SaveStream);
+    //In SinglePlayer we want to show player a preview of what the game looked like when he saved
+    //Save Minimap is near the start so it can be accessed quickly
+    //In MP each player has his own perspective, hence we dont save minimaps to avoid cheating
+    if not IsMultiplayer then
+      fGamePlayInterface.SaveMinimap(SaveStream);
 
     //We need to know which campaign to display after victory
     SaveStream.WriteA(fCampaignName);
@@ -1118,12 +1069,12 @@ begin
     SaveStream.Write(fUIDTracker); //Units-Houses ID tracker
     SaveStream.Write(GetKaMSeed); //Include the random seed in the save file to ensure consistency in replays
 
-    if fGameMode <> gmMulti then
+    if not IsMultiplayer then
       SaveStream.Write(PlayOnState, SizeOf(PlayOnState));
 
     gTerrain.Save(SaveStream); //Saves the map
     gHands.Save(SaveStream, fGameMode = gmMulti); //Saves all players properties individually
-    if fGameMode <> gmMulti then
+    if not IsMultiplayer then
       MySpectator.Save(SaveStream);
     fAIFields.Save(SaveStream);
     fPathfinding.Save(SaveStream);
@@ -1136,13 +1087,8 @@ begin
     //created identically on all player's computers. Eventually these things can go through the GIP
 
     //For multiplayer consistency we compare all saves CRCs, they should be created identical on all player's computers.
-    if fGameMode <> gmMulti then
-    begin
-      //Viewport settings are unique for each player
-      fViewport.Save(SaveStream);
+    if not IsMultiplayer then
       fGamePlayInterface.Save(SaveStream); //Saves message queue and school/barracks selected units
-      //Don't include fGameSettings.Save it's not required for settings are Game-global, not mission
-    end;
 
     //If we want stuff like the MessageStack and screen center to be stored in multiplayer saves,
     //we must send those "commands" through the GIP so all players know about them and they're in sync.
@@ -1231,9 +1177,9 @@ begin
       //Abort loading (exception will be caught in fGameApp and shown to the user)
       raise Exception.Create(gResTexts[TX_MULTIPLE_INSTANCES]);
 
-  //Not used, (only stored for preview) but it's easiest way to skip past it
+  //Not used, (only stored for SP preview) but it's easiest way to skip past it
   if not SaveIsMultiplayer then
-    fMinimap.LoadFromStream(LoadStream);
+    fGamePlayInterface.LoadMinimap(LoadStream);
 
   //We need to know which campaign to display after victory
   LoadStream.ReadA(fCampaignName);
@@ -1270,11 +1216,7 @@ begin
   //Multiplayer saves don't have this piece of information. Its valid only for MyPlayer
   //todo: Send all message commands through GIP (note: that means there will be a delay when you press delete)
   if not SaveIsMultiplayer then
-  begin
-    fViewport.Load(LoadStream);
     fGamePlayInterface.Load(LoadStream);
-  end;
-
 
   if IsReplay then
     fGameInputProcess := TGameInputProcess_Single.Create(gipReplaying) //Replay
@@ -1305,9 +1247,11 @@ begin
     fScripting.ProcMissionStart;
 
   //When everything is ready we can update UI
-  SyncUI;
-  if SaveIsMultiplayer then //MP does not saves view position cos of save identity for all players
-    fViewport.Position := KMPointF(gHands[MySpectator.HandIndex].CenterScreen);
+  fActiveInterface.SyncUI;
+
+  //MP does not saves view position cos of save identity for all players
+  if SaveIsMultiplayer then
+    fActiveInterface.SyncUIView(KMPointF(gHands[MySpectator.HandIndex].CenterScreen));
 
   gLog.AddTime('Loading game', True);
 
@@ -1318,7 +1262,8 @@ end;
 
 
 procedure TKMGame.UpdateGame(Sender: TObject);
-var I: Integer;
+var
+  I: Integer;
 begin
   //Some PCs seem to change 8087CW randomly between events like Timers and OnMouse*,
   //so we need to set it right before we do game logic processing
@@ -1418,8 +1363,6 @@ begin
                 end;
   end;
 
-  fAlerts.UpdateState;
-
   if DoGameHold then GameHold(True, DoGameHoldState);
 end;
 
@@ -1428,10 +1371,6 @@ procedure TKMGame.UpdateState(aGlobalTickCount: Cardinal);
 begin
   if not fIsPaused then
     fActiveInterface.UpdateState(aGlobalTickCount);
-
-  //Update minimap every 1000ms
-  if aGlobalTickCount mod 10 = 0 then
-    fMinimap.Update(False);
 
   if (aGlobalTickCount mod 10 = 0) and (fMapEditor <> nil) then
     fMapEditor.Update;
@@ -1442,7 +1381,7 @@ end;
 procedure TKMGame.UpdateStateIdle(aFrameTime: Cardinal);
 begin
   if (not fIsPaused) or IsReplay then
-    fViewport.UpdateStateIdle(aFrameTime); //Check to see if we need to scroll
+    fActiveInterface.UpdateStateIdle(aFrameTime);
 
   //Terrain should be updated in real time when user applies brushes
   if fMapEditor <> nil then
@@ -1450,36 +1389,12 @@ begin
 end;
 
 
-procedure TKMGame.SyncUI;
-begin
-  fMinimap.LoadFromTerrain(fAlerts);
-  fMinimap.Update(False);
-
-  if fGameMode = gmMapEd then
-  begin
-    fViewport.ResizeMap(gTerrain.MapX, gTerrain.MapY, 100 / CELL_SIZE_PX);
-    fViewport.ResetZoom;
-    fViewport.Position := KMPointF(gTerrain.MapX / 2, gTerrain.MapY / 2);
-
-    fMapEditorInterface.SyncUI;
-  end
-  else
-  begin
-    fViewport.ResizeMap(gTerrain.MapX, gTerrain.MapY, gTerrain.TopHill / CELL_SIZE_PX);
-    fViewport.ResetZoom;
-
-    fGamePlayInterface.SetMinimap;
-    fGamePlayInterface.SetMenuState(fMissionMode = mm_Tactic);
-  end;
-end;
-
-
 function TKMGame.SaveName(const aName, aExt: UnicodeString; aMultiPlayer: Boolean): UnicodeString;
 begin
   if aMultiPlayer then
-    Result := ExeDir + 'SavesMP'+PathDelim + aName + '.' + aExt
+    Result := ExeDir + 'SavesMP' + PathDelim + aName + '.' + aExt
   else
-    Result := ExeDir + 'Saves'+PathDelim + aName + '.' + aExt;
+    Result := ExeDir + 'Saves' + PathDelim + aName + '.' + aExt;
 end;
 
 

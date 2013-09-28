@@ -32,7 +32,7 @@ type
 
 implementation
 uses
-  KM_ResFonts, KM_ResTexts, KM_GameCursor, KM_RenderUI, KM_InterfaceDefaults;
+  KM_ResFonts, KM_ResTexts, KM_GameCursor, KM_RenderUI, KM_InterfaceGame;
 
 
 const

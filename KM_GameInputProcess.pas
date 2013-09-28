@@ -372,7 +372,7 @@ begin
       gic_GameAlertBeacon:        if fReplayState = gipRecording then //Beacons don't show up in replay
                                     //Beacons are only for allies
                                     if gHands.CheckAlliance(Params[3], MySpectator.HandIndex) = at_Ally then
-                                      fGame.Alerts.AddBeacon(KMPointF(Params[1]/10,Params[2]/10), Params[3]);
+                                      fGame.GamePlayInterface.Alerts.AddBeacon(KMPointF(Params[1]/10,Params[2]/10), Params[3]);
       else                        Assert(false);
     end;
   end;

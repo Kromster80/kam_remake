@@ -3,7 +3,7 @@ unit KM_GUIMapEdMarkerDefence;
 interface
 uses
    Classes, Controls, Math, StrUtils, SysUtils,
-   KM_Controls, KM_Defaults, KM_Pics, KM_Points, KM_InterfaceDefaults;
+   KM_Controls, KM_Defaults, KM_Pics, KM_Points, KM_InterfaceGame;
 
 
 type

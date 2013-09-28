@@ -31,7 +31,7 @@ type
 implementation
 uses
   KM_ResFonts, KM_ResTexts, KM_Game, KM_GameCursor, KM_RenderUI,
-  KM_TerrainPainter, KM_InterfaceDefaults;
+  KM_TerrainPainter, KM_InterfaceGame;
 
 
 { TKMMapEdTerrainBrushes }

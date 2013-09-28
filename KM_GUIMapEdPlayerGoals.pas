@@ -4,7 +4,7 @@ interface
 uses
    Classes, Math, SysUtils,
    KM_Controls, KM_Defaults,
-   KM_InterfaceDefaults, KM_AIGoals,
+   KM_InterfaceGame, KM_AIGoals,
    KM_GUIMapEdGoal;
 
 

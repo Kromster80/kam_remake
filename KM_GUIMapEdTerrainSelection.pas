@@ -32,7 +32,7 @@ uses
   KM_ResFonts, KM_ResTexts,
   KM_Game, KM_GameCursor, KM_RenderUI,
   KM_TerrainSelection,
-  KM_InterfaceDefaults;
+  KM_InterfaceGame;
 
 
 { TKMMapEdTerrainSelection }

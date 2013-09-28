@@ -5,7 +5,7 @@ uses
   {$IFDEF Unix} LCLIntf, LCLType, {$ENDIF}
   Classes, Graphics,
   dglOpenGL, SysUtils, KromOGLUtils, KromUtils, Math,
-  KM_Defaults, KM_CommonClasses, KM_Pics, KM_Points, KM_Render,
+  KM_Defaults, KM_CommonClasses, KM_Pics, KM_Points, KM_Render, KM_Viewport,
   KM_RenderTerrain, KM_ResHouses, KM_ResSprites, KM_ResWares,
   KM_Houses, KM_Terrain, KM_Projectiles, OBJLoader;
 
@@ -56,6 +56,7 @@ type
   TRenderPool = class
   private
     fRXData: array [TRXType] of TRXData; //Shortcuts
+    fViewport: TViewport;
     fRender: TRender;
     //fSampleHouse: TOBJModel;
     rPitch,rHeading,rBank: Integer;
@@ -85,7 +86,7 @@ type
 
     procedure RenderWireHousePlan(P: TKMPoint; aHouseType: THouseType);
   public
-    constructor Create(aRender: TRender);
+    constructor Create(aViewport: TViewport; aRender: TRender);
     destructor Destroy; override;
 
     procedure AddAlert(aLoc: TKMPointF; aId: Word; aFlagColor: TColor4);
@@ -130,8 +131,9 @@ uses KM_CommonTypes, KM_RenderAux, KM_HandsCollection, KM_Game, KM_Sound, KM_Res
   KM_ResMapElements, KM_Units, KM_AIFields, KM_TerrainPainter, KM_GameCursor;
 
 
-constructor TRenderPool.Create(aRender: TRender);
-var RT: TRXType;
+constructor TRenderPool.Create(aViewport: TViewport; aRender: TRender);
+var
+  RT: TRXType;
 begin
   inherited Create;
 
@@ -139,6 +141,8 @@ begin
     fRXData[RT] := fResource.Sprites[RT].RXData;
 
   fRender := aRender;
+  fViewport := aViewport;
+
   fRenderList     := TRenderList.Create;
   fRenderTerrain  := TRenderTerrain.Create;
   fRenderAux      := TRenderAux.Create;
@@ -163,7 +167,8 @@ begin
   //fSampleHouse.Free;
   fRenderList.Free;
   fRenderTerrain.Free;
-  FreeThenNil(fRenderAux);
+  fRenderAux.Free;
+
   inherited;
 end;
 
@@ -179,9 +184,9 @@ end;
 procedure TRenderPool.ApplyTransform;
 begin
   glLoadIdentity; // Reset The View
-  glTranslatef(fGame.Viewport.ViewportClip.X/2, fGame.Viewport.ViewportClip.Y/2, 0);
-  glScalef(fGame.Viewport.Zoom*CELL_SIZE_PX, fGame.Viewport.Zoom*CELL_SIZE_PX, 1 / 256);
-  glTranslatef(-fGame.Viewport.Position.X+TOOLBAR_WIdTH/CELL_SIZE_PX/fGame.Viewport.Zoom, -fGame.Viewport.Position.Y, 0);
+  glTranslatef(fViewport.ViewportClip.X/2, fViewport.ViewportClip.Y/2, 0);
+  glScalef(fViewport.Zoom*CELL_SIZE_PX, fViewport.Zoom*CELL_SIZE_PX, 1 / 256);
+  glTranslatef(-fViewport.Position.X+TOOLBAR_WIdTH/CELL_SIZE_PX/fViewport.Zoom, -fViewport.Position.Y, 0);
   if RENDER_3D then
   begin
     fRender.SetRenderMode(rm3D);
@@ -190,14 +195,14 @@ begin
     glRotatef(rHeading,1,0,0);
     glRotatef(rPitch  ,0,1,0);
     glRotatef(rBank   ,0,0,1);
-    glTranslatef(-fGame.Viewport.Position.X+TOOLBAR_WIdTH/CELL_SIZE_PX/fGame.Viewport.Zoom, -fGame.Viewport.Position.Y-8, 10);
-    glScalef(fGame.Viewport.Zoom, fGame.Viewport.Zoom, 1);
+    glTranslatef(-fViewport.Position.X+TOOLBAR_WIdTH/CELL_SIZE_PX/fViewport.Zoom, -fViewport.Position.Y-8, 10);
+    glScalef(fViewport.Zoom, fViewport.Zoom, 1);
   end;
 
   glRotatef(rHeading,1,0,0);
   glRotatef(rPitch  ,0,1,0);
   glRotatef(rBank   ,0,0,1);
-  glTranslatef(0, 0, -fGame.Viewport.Position.Y);
+  glTranslatef(0, 0, -fViewport.Position.Y);
 end;
 
 
@@ -215,11 +220,11 @@ begin
   ApplyTransform;
 
   glPushAttrib(GL_LINE_BIT or GL_POINT_BIT);
-    glLineWidth(fGame.Viewport.Zoom * 2);
-    glPointSize(fGame.Viewport.Zoom * 5);
+    glLineWidth(fViewport.Zoom * 2);
+    glPointSize(fViewport.Zoom * 5);
 
     //Render only within visible area
-    ClipRect := fGame.Viewport.GetClip;
+    ClipRect := fViewport.GetClip;
 
     //Collect players plans for terrain layer
     CollectPlans(ClipRect);
@@ -248,14 +253,17 @@ begin
     fRenderList.Clear;
     CollectTerrainObjects(ClipRect, gTerrain.AnimStep);
 
-    gHands.Paint; //Units and houses
+    gHands.Paint(ClipRect); //Units and houses
     gProjectiles.Paint;
-    fGame.Alerts.Paint(0);
+
+    if fGame.GamePlayInterface <> nil then
+      fGame.GamePlayInterface.Alerts.Paint(0);
 
     fRenderList.SortRenderList;
     fRenderList.Render(rtScreen);
 
-    fGame.Alerts.Paint(1);
+    if fGame.GamePlayInterface <> nil then
+      fGame.GamePlayInterface.Alerts.Paint(1);
 
     fRenderTerrain.RenderFOW(MySpectator.FogOfWar, False);
 

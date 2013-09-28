@@ -62,7 +62,7 @@ type
     procedure IncAnimStep;
 
     procedure UpdateState(aTick: Cardinal);
-    procedure Paint;
+    procedure Paint(aRect: TKMRect);
   end;
 
 var
@@ -568,13 +568,13 @@ begin
 end;
 
 
-procedure TKMHandsCollection.Paint;
+procedure TKMHandsCollection.Paint(aRect: TKMRect);
 var I: Integer;
 begin
   for I := 0 to fCount - 1 do
-    fHandsList[I].Paint;
+    fHandsList[I].Paint(aRect);
 
-  PlayerAnimals.Paint;
+  PlayerAnimals.Paint(aRect);
 end;
 
 

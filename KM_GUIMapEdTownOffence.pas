@@ -4,7 +4,7 @@ interface
 uses
    Classes, Controls, Math, SysUtils,
    KM_Controls,
-   KM_Points, KM_InterfaceDefaults, KM_AIAttacks, KM_GUIMapEdAttack;
+   KM_Points, KM_AIAttacks, KM_GUIMapEdAttack;
 
 type
   TKMMapEdTownOffence = class
@@ -37,7 +37,7 @@ type
 
 implementation
 uses
-  KM_HandsCollection, KM_ResTexts, KM_RenderUI, KM_ResFonts;
+  KM_HandsCollection, KM_ResTexts, KM_RenderUI, KM_ResFonts, KM_InterfaceGame;
 
 
 { TKMMapEdTownOffence }

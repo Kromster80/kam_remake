@@ -77,7 +77,7 @@ begin
   fOnPageChange := aOnPageChange;
 
   fMaps := TKMapsCollection.Create(False);
-  fMinimap := TKMMinimap.Create(True, False, True);
+  fMinimap := TKMMinimap.Create(True, True);
 
   Create_SingleMap(aParent);
 end;

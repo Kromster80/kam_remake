@@ -33,7 +33,7 @@ type
     procedure SyncLoad; virtual;
 
     procedure UpdateState(aTick: Cardinal); virtual;
-    procedure Paint; virtual;
+    procedure Paint(aRect: TKMRect); virtual;
   end;
 
 
@@ -137,7 +137,7 @@ type
     procedure SyncLoad; override;
     procedure IncAnimStep;
     procedure UpdateState(aTick: Cardinal); override;
-    procedure Paint; override;
+    procedure Paint(aRect: TKMRect); override;
   end;
 
 
@@ -179,10 +179,10 @@ begin
 end;
 
 
-procedure TKMHandCommon.Paint;
+procedure TKMHandCommon.Paint(aRect: TKMRect);
 begin
   if not fGame.IsMapEditor or (mlUnits in fGame.MapEditor.VisibleLayers) then
-    fUnits.Paint;
+    fUnits.Paint(aRect);
 end;
 
 
@@ -1244,17 +1244,17 @@ begin
 end;
 
 
-procedure TKMHand.Paint;
+procedure TKMHand.Paint(aRect: TKMRect);
 begin
   if not Enabled then Exit;
 
   inherited;
 
   if not fGame.IsMapEditor or (mlUnits in fGame.MapEditor.VisibleLayers) then
-    fUnitGroups.Paint;
+    fUnitGroups.Paint(aRect);
 
   if not fGame.IsMapEditor or (mlHouses in fGame.MapEditor.VisibleLayers) then
-    fHouses.Paint;
+    fHouses.Paint(aRect);
 end;
 
 

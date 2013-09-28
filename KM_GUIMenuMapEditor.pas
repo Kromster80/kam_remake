@@ -63,9 +63,9 @@ begin
 
   fMaps := TKMapsCollection.Create(False);
   fMapsMP := TKMapsCollection.Create(True);
-  fMinimap := TKMMinimap.Create(True, False, True);
+  fMinimap := TKMMinimap.Create(True, True);
 
-  Panel_MapEd:=TKMPanel.Create(aParent,0,0,aParent.Width, aParent.Height);
+  Panel_MapEd:=TKMPanel.Create(aParent, 0, 0, aParent.Width, aParent.Height);
   Panel_MapEd.AnchorsStretch;
     Panel_MapEdSizeXY := TKMPanel.Create(Panel_MapEd, 80, 160, 200, 400);
     Panel_MapEdSizeXY.Anchors := [akLeft];

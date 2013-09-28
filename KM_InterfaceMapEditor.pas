@@ -7,7 +7,7 @@ uses
    Classes, Controls, Math, StrUtils, SysUtils,
    KM_Controls, KM_Defaults, KM_Pics, KM_Points,
    KM_Houses, KM_Units, KM_UnitGroups, KM_MapEditor,
-   KM_InterfaceDefaults, KM_Terrain,
+   KM_InterfaceDefaults, KM_InterfaceGame, KM_Terrain, KM_Minimap, KM_Viewport, KM_Render,
    KM_GUIMapEdHouse,
    KM_GUIMapEdGoal,
    KM_GUIMapEdTerrain,
@@ -24,7 +24,7 @@ uses
    KM_GUIMapEdUnit;
 
 type
-  TKMapEdInterface = class (TKMUserInterface)
+  TKMapEdInterface = class (TKMUserInterfaceGame)
   private
     fPrevHint: TObject;
     fDragScrolling: Boolean;
@@ -73,29 +73,31 @@ type
       Image_Extra: TKMImage;
       Image_Message: TKMImage;
   public
-    constructor Create(aScreenX, aScreenY: Word);
+    constructor Create(aRender: TRender);
     destructor Destroy; override;
 
     procedure ShowMessage(aText: string);
     procedure ExportPages(aPath: string);
+    property Minimap: TKMMinimap read fMinimap;
+    property Viewport: TViewport read fViewport;
 
     procedure KeyDown(Key: Word; Shift: TShiftState); override;
     procedure KeyUp(Key: Word; Shift: TShiftState); override;
     procedure MouseDown(Button: TMouseButton; Shift: TShiftState; X,Y: Integer); override;
     procedure MouseMove(Shift: TShiftState; X,Y: Integer); override;
     procedure MouseUp(Button: TMouseButton; Shift: TShiftState; X,Y: Integer); override;
-    procedure MouseWheel(Shift: TShiftState; WheelDelta: Integer; X, Y: Integer); override;
     procedure Resize(X,Y: Word); override;
 
-    procedure SyncUI;
+    procedure SyncUI; override;
     procedure UpdateState(aTickCount: Cardinal); override;
+    procedure UpdateStateIdle(aFrameTime: Cardinal); override;
     procedure Paint; override;
   end;
 
 
 implementation
 uses
-  KM_HandsCollection, KM_ResTexts, KM_Game, KM_Main, KM_GameCursor,
+  KM_HandsCollection, KM_ResTexts, KM_Game, KM_Main, KM_GameCursor, KM_RenderPool,
   KM_Resource, KM_TerrainDeposits, KM_ResCursors, KM_GameApp,
   KM_AIDefensePos, KM_RenderUI, KM_ResFonts;
 
@@ -106,12 +108,15 @@ const
 
 
 { TKMapEdInterface }
-constructor TKMapEdInterface.Create(aScreenX, aScreenY: Word);
+constructor TKMapEdInterface.Create(aRender: TRender);
 var
   I: Integer;
   S: TKMShape;
 begin
   inherited;
+
+  fMinimap.PaintVirtualGroups := True;
+  fRenderPool := TRenderPool.Create(fViewport, aRender);
 
   fDragScrolling := False;
   fDragScrollingCursorPos.X := 0;
@@ -221,6 +226,9 @@ end;
 
 destructor TKMapEdInterface.Destroy;
 begin
+  FreeAndNil(fViewport);
+  FreeAndNil(fMinimap);
+
   fGuiHouse.Free;
   fGuiTerrain.Free;
   fGuiTown.Free;
@@ -294,6 +302,7 @@ begin
 end;
 
 
+
 //Should update any items changed by game (resource counts, hp, etc..)
 procedure TKMapEdInterface.UpdateState(aTickCount: Cardinal);
 const
@@ -301,6 +310,10 @@ const
 var
   I: Integer;
 begin
+  //Update minimap every 1000ms
+  if aTickCount mod 10 = 0 then
+    fMinimap.Update(False);
+
   //Show players without assets in grey
   if aTickCount mod 10 = 0 then
   for I := 0 to MAX_HANDS - 1 do
@@ -311,11 +324,24 @@ begin
 end;
 
 
+procedure TKMapEdInterface.UpdateStateIdle(aFrameTime: Cardinal);
+begin
+  //Check to see if we need to scroll
+  fViewport.UpdateStateIdle(aFrameTime);
+end;
+
+
 //Update UI state according to game state
 procedure TKMapEdInterface.SyncUI;
 var
   I: Integer;
 begin
+  inherited;
+  fViewport.Position := KMPointF(gTerrain.MapX / 2, gTerrain.MapY / 2);
+
+  MinimapView.SetMinimap(fMinimap);
+  MinimapView.SetViewport(fViewport);
+
   //Set player colors
   for I := 0 to MAX_HANDS - 1 do
     Button_PlayerSelect[I].ShapeColor := gHands[I].FlagColor;
@@ -323,9 +349,6 @@ begin
   Player_UpdatePages;
 
   Label_MissionName.Caption := fGame.GameName;
-
-  MinimapView.SetMinimap(fGame.Minimap);
-  MinimapView.SetViewport(fGame.Viewport);
 end;
 
 
@@ -489,7 +512,7 @@ end;
 //Update viewport position when user interacts with minimap
 procedure TKMapEdInterface.Minimap_OnUpdate(Sender: TObject; const X,Y: Integer);
 begin
-  fGame.Viewport.Position := KMPointF(X,Y);
+  fViewport.Position := KMPointF(X,Y);
 end;
 
 
@@ -544,7 +567,7 @@ procedure TKMapEdInterface.KeyDown(Key: Word; Shift: TShiftState);
 begin
   if fMyControls.KeyDown(Key, Shift) then
   begin
-    fGame.Viewport.ReleaseScrollKeys; //Release the arrow keys when you open a window with an edit to stop them becoming stuck
+    fViewport.ReleaseScrollKeys; //Release the arrow keys when you open a window with an edit to stop them becoming stuck
     Exit; //Handled by Controls
   end;
 
@@ -564,10 +587,10 @@ begin
   end;
 
   //Scrolling
-  if Key = VK_LEFT  then fGame.Viewport.ScrollKeyLeft  := True;
-  if Key = VK_RIGHT then fGame.Viewport.ScrollKeyRight := True;
-  if Key = VK_UP    then fGame.Viewport.ScrollKeyUp    := True;
-  if Key = VK_DOWN  then fGame.Viewport.ScrollKeyDown  := True;
+  if Key = VK_LEFT  then fViewport.ScrollKeyLeft  := True;
+  if Key = VK_RIGHT then fViewport.ScrollKeyRight := True;
+  if Key = VK_UP    then fViewport.ScrollKeyUp    := True;
+  if Key = VK_DOWN  then fViewport.ScrollKeyDown  := True;
 end;
 
 
@@ -580,14 +603,14 @@ begin
     Button_Main[Key-48].Click;
 
   //Scrolling
-  if Key = VK_LEFT  then fGame.Viewport.ScrollKeyLeft  := False;
-  if Key = VK_RIGHT then fGame.Viewport.ScrollKeyRight := False;
-  if Key = VK_UP    then fGame.Viewport.ScrollKeyUp    := False;
-  if Key = VK_DOWN  then fGame.Viewport.ScrollKeyDown  := False;
+  if Key = VK_LEFT  then fViewport.ScrollKeyLeft  := False;
+  if Key = VK_RIGHT then fViewport.ScrollKeyRight := False;
+  if Key = VK_UP    then fViewport.ScrollKeyUp    := False;
+  if Key = VK_DOWN  then fViewport.ScrollKeyDown  := False;
 
   //Backspace resets the zoom and view, similar to other RTS games like Dawn of War.
   //This is useful because it is hard to find default zoom using the scroll wheel, and if not zoomed 100% things can be scaled oddly (like shadows)
-  if Key = VK_BACK  then fGame.Viewport.ResetZoom;
+  if Key = VK_BACK  then fViewport.ResetZoom;
 end;
 
 
@@ -610,8 +633,8 @@ begin
      {$ENDIF}
      fDragScrollingCursorPos.X := X;
      fDragScrollingCursorPos.Y := Y;
-     fDragScrollingViewportPos.X := fGame.Viewport.Position.X;
-     fDragScrollingViewportPos.Y := fGame.Viewport.Position.Y;
+     fDragScrollingViewportPos.X := fViewport.Position.X;
+     fDragScrollingViewportPos.Y := fViewport.Position.Y;
      fResource.Cursors.Cursor := kmc_Drag;
      Exit;
   end;
@@ -620,7 +643,7 @@ begin
     RightClick_Cancel;
 
   //So terrain brushes start on mouse down not mouse move
-  fGame.UpdateGameCursor(X, Y, Shift);
+  UpdateGameCursor(X, Y, Shift);
 
   fGame.MapEditor.MouseDown(Button);
 end;
@@ -633,9 +656,9 @@ var
 begin
   if fDragScrolling then
   begin
-    VP.X := fDragScrollingViewportPos.X + (fDragScrollingCursorPos.X - X) / (CELL_SIZE_PX * fGame.Viewport.Zoom);
-    VP.Y := fDragScrollingViewportPos.Y + (fDragScrollingCursorPos.Y - Y) / (CELL_SIZE_PX * fGame.Viewport.Zoom);
-    fGame.Viewport.Position := VP;
+    VP.X := fDragScrollingViewportPos.X + (fDragScrollingCursorPos.X - X) / (CELL_SIZE_PX * fViewport.Zoom);
+    VP.Y := fDragScrollingViewportPos.Y + (fDragScrollingCursorPos.Y - Y) / (CELL_SIZE_PX * fViewport.Zoom);
+    fViewport.Position := VP;
     Exit;
   end;
 
@@ -644,7 +667,7 @@ begin
   if fMyControls.CtrlOver <> nil then
   begin
     //kmc_Edit and kmc_DragUp are handled by Controls.MouseMove (it will reset them when required)
-    if not fGame.Viewport.Scrolling and not (fResource.Cursors.Cursor in [kmc_Edit,kmc_DragUp]) then
+    if not fViewport.Scrolling and not (fResource.Cursors.Cursor in [kmc_Edit,kmc_DragUp]) then
       fResource.Cursors.Cursor := kmc_Default;
     GameCursor.SState := []; //Don't do real-time elevate when the mouse is over controls, only terrain
     Exit;
@@ -652,7 +675,7 @@ begin
   else
     DisplayHint(nil); //Clear shown hint
 
-  fGame.UpdateGameCursor(X,Y,Shift);
+  UpdateGameCursor(X,Y,Shift);
   if GameCursor.Mode = cmNone then
   begin
     Marker := fGame.MapEditor.HitTest(GameCursor.Cell.X, GameCursor.Cell.Y);
@@ -662,7 +685,7 @@ begin
     if MySpectator.HitTestCursor <> nil then
       fResource.Cursors.Cursor := kmc_Info
     else
-    if not fGame.Viewport.Scrolling then
+    if not fViewport.Scrolling then
       fResource.Cursors.Cursor := kmc_Default;
   end;
 
@@ -752,32 +775,9 @@ begin
               end;
   end;
 
-  fGame.UpdateGameCursor(X, Y, Shift); //Updates the shift state
+  UpdateGameCursor(X, Y, Shift); //Updates the shift state
 
   fGame.MapEditor.MouseUp(Button);
-end;
-
-
-procedure TKMapEdInterface.MouseWheel(Shift: TShiftState; WheelDelta, X, Y: Integer);
-var
-  PrevCursor: TKMPointF;
-begin
-  inherited;
-
-  if (X < 0) or (Y < 0) then Exit; //This happens when you use the mouse wheel on the window frame
-
-  //Allow to zoom only when curor is over map. Controls handle zoom on their own
-  if (fMyControls.CtrlOver = nil) then
-  begin
-    fGame.UpdateGameCursor(X, Y, Shift); //Make sure we have the correct cursor position to begin with
-    PrevCursor := GameCursor.Float;
-    fGame.Viewport.Zoom := fGame.Viewport.Zoom + WheelDelta / 2000;
-    fGame.UpdateGameCursor(X, Y, Shift); //Zooming changes the cursor position
-    //Move the center of the screen so the cursor stays on the same tile, thus pivoting the zoom around the cursor
-    fGame.Viewport.Position := KMPointF(fGame.Viewport.Position.X + PrevCursor.X-GameCursor.Float.X,
-                                        fGame.Viewport.Position.Y + PrevCursor.Y-GameCursor.Float.Y);
-    fGame.UpdateGameCursor(X, Y, Shift); //Recentering the map changes the cursor position
-  end;
 end;
 
 
@@ -785,7 +785,7 @@ procedure TKMapEdInterface.Resize(X,Y: Word);
 begin
   inherited;
 
-  fGame.Viewport.Resize(X, Y);
+  fViewport.Resize(X, Y);
 end;
 
 
@@ -820,10 +820,10 @@ begin
       if fGame.MapEditor.Deposits.Amount[R, I] > 0 then
       begin
         LocF := gTerrain.FlatToHeight(fGame.MapEditor.Deposits.Location[R, I]);
-        ScreenLoc := fGame.Viewport.MapToScreen(LocF);
+        ScreenLoc := fViewport.MapToScreen(LocF);
 
         //At extreme zoom coords may become out of range of SmallInt used in controls painting
-        if KMInRect(ScreenLoc, fGame.Viewport.ViewRect) then
+        if KMInRect(ScreenLoc, fViewport.ViewRect) then
           PaintTextInShape(IntToStr(fGame.MapEditor.Deposits.Amount[R, I]), ScreenLoc.X, ScreenLoc.Y, DEPOSIT_COLORS[R]);
       end;
   end;
@@ -835,9 +835,9 @@ begin
       begin
         DP := gHands[I].AI.General.DefencePositions[K];
         LocF := gTerrain.FlatToHeight(KMPointF(DP.Position.Loc.X-0.5, DP.Position.Loc.Y-0.5));
-        ScreenLoc := fGame.Viewport.MapToScreen(LocF);
+        ScreenLoc := fViewport.MapToScreen(LocF);
 
-        if KMInRect(ScreenLoc, fGame.Viewport.ViewRect) then
+        if KMInRect(ScreenLoc, fViewport.ViewRect) then
         begin
           PaintTextInShape(IntToStr(K+1), ScreenLoc.X, ScreenLoc.Y - 15, DefenceLine[DP.DefenceType]);
           TKMRenderUI.WritePicture(ScreenLoc.X, ScreenLoc.Y, 0, 0, [], rxGui, GROUP_IMG[DP.GroupType]);
