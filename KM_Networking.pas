@@ -999,7 +999,7 @@ begin
     if not (Kind in NetAllowedPackets[fNetGameState]) then
     begin
       //When querying or reconnecting to a host we may receive data such as commands, player setup, etc. These should be ignored.
-      if not (fNetGameState in [lgs_Query,lgs_Reconnecting]) then
+      if not (fNetGameState in [lgs_Query, lgs_Reconnecting]) then
       begin
         err := 'Received a packet not intended for this state (' +
           GetEnumName(TypeInfo(TNetGameState), Integer(fNetGameState)) + '): ' +
