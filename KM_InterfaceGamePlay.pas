@@ -303,18 +303,18 @@ type
     destructor Destroy; override;
     procedure ShowUnitInfo(Sender: TKMUnit; aAskDismiss:boolean=false);
     procedure ShowGroupInfo(Sender: TKMUnitGroup);
-    procedure MessageIssue(aKind: TKMMessageKind; aText: string); overload;
-    procedure MessageIssue(aKind: TKMMessageKind; aText: string; aLoc: TKMPoint); overload;
+    procedure MessageIssue(aKind: TKMMessageKind; aText: UnicodeString); overload;
+    procedure MessageIssue(aKind: TKMMessageKind; aText: UnicodeString; aLoc: TKMPoint); overload;
     procedure SetMenuState(aTactic: Boolean);
     procedure ShowClock(aSpeed: Single);
     procedure ShowPlayMore(DoShow:boolean; Msg: TGameResultMsg);
     procedure ShowMPPlayMore(Msg: TGameResultMsg);
     procedure ShowNetworkLag(aShow: Boolean; aPlayers: TKMByteArray; IsHost: Boolean);
-    procedure SetScriptedOverlay(aText: string);
-    procedure AppendScriptedOverlay(aText: string);
+    procedure SetScriptedOverlay(aText: UnicodeString);
+    procedure AppendScriptedOverlay(aText: UnicodeString);
     procedure ReleaseDirectionSelector;
-    procedure SetChatText(const aString: string);
-    procedure SetChatMessages(const aString: string);
+    procedure SetChatText(const aString: UnicodeString);
+    procedure SetChatMessages(const aString: UnicodeString);
     procedure ChatMessage(const aData: UnicodeString);
     procedure WarriorCommanderDied(DeadID, NewID: Cardinal);
     procedure AlliesOnPlayerSetup(Sender: TObject);
@@ -2234,7 +2234,7 @@ begin
 end;
 
 
-procedure TKMGamePlayInterface.MessageIssue(aKind: TKMMessageKind; aText: string);
+procedure TKMGamePlayInterface.MessageIssue(aKind: TKMMessageKind; aText: UnicodeString);
 begin
   fMessageList.Add(aKind, aText, KMPoint(0,0));
   Message_UpdateStack;
@@ -2242,7 +2242,7 @@ begin
 end;
 
 
-procedure TKMGamePlayInterface.MessageIssue(aKind: TKMMessageKind; aText: string; aLoc: TKMPoint);
+procedure TKMGamePlayInterface.MessageIssue(aKind: TKMMessageKind; aText: UnicodeString; aLoc: TKMPoint);
 begin
   fMessageList.Add(aKind, aText, aLoc);
   Message_UpdateStack;
@@ -2689,13 +2689,13 @@ begin
 end;
 
 
-procedure TKMGamePlayInterface.SetScriptedOverlay(aText: string);
+procedure TKMGamePlayInterface.SetScriptedOverlay(aText: UnicodeString);
 begin
   Label_ScriptedOverlay.Caption := aText;
 end;
 
 
-procedure TKMGamePlayInterface.AppendScriptedOverlay(aText: string);
+procedure TKMGamePlayInterface.AppendScriptedOverlay(aText: UnicodeString);
 begin
   Label_ScriptedOverlay.Caption := Label_ScriptedOverlay.Caption + aText;
 end;
@@ -2769,7 +2769,7 @@ begin
 end;
 
 
-procedure TKMGamePlayInterface.SetChatText(const aString: string);
+procedure TKMGamePlayInterface.SetChatText(const aString: UnicodeString);
 begin
   Edit_ChatMsg.Text := aString;
   if aString <> '' then Chat_Show(nil);
@@ -2857,7 +2857,7 @@ begin
 end;
 
 
-procedure TKMGamePlayInterface.SetChatMessages(const aString: string);
+procedure TKMGamePlayInterface.SetChatMessages(const aString: UnicodeString);
 begin
   Memo_ChatText.Text := aString;
   Memo_ChatText.ScrollToBottom;
