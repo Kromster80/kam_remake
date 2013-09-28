@@ -782,6 +782,8 @@ var
 begin
   Assert(IsHost, 'Only host can send game options');
 
+  //fNetGameOptions.RandomSeed := RandomRange(1, 2147483646);
+
   M := TKMemoryStream.Create;
   fNetGameOptions.Save(M);
   PacketSend(NET_ADDRESS_OTHERS, mk_GameOptions, M);

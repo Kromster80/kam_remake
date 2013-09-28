@@ -27,8 +27,8 @@ uses Classes, DateUtils, Math, SysUtils, KM_Defaults, KM_Points
 
   procedure ParseDelimited(const Value, Delimiter: UnicodeString; SL: TStringList);
 
-  procedure SetKaMSeed(aSeed:integer);
-  function GetKaMSeed:integer;
+  procedure SetKaMSeed(aSeed: Integer);
+  function GetKaMSeed: Integer;
   function KaMRandom:extended; overload;
   function KaMRandom(aMax:integer):integer; overload;
   function KaMRandomS(Range_Both_Directions:integer):integer; overload;
@@ -480,7 +480,7 @@ end;
 //Randomize, which prompts for an initial value of seed and forces it to be an integer between 1 and 2^31 - 2."
 procedure SetKaMSeed(aSeed: Integer);
 begin
-  Assert(InRange(aSeed,1,2147483646),'KaMSeed initialised incorrectly: '+IntToStr(aSeed));
+  Assert(InRange(aSeed, 1, 2147483646), 'KaMSeed initialised incorrectly: ' + IntToStr(aSeed));
   if CUSTOM_RANDOM then
     fKaMSeed := aSeed
   else
