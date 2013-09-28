@@ -61,6 +61,7 @@ type
     fServerName: UnicodeString;
     fMasterAnnounceInterval: Integer;
     fMaxRooms: Integer;
+    fFlashOnMessage: Boolean;
     fAutoKickTimeout: Integer;
     fPingInterval: Integer;
     fAnnounceServer: Boolean;
@@ -89,6 +90,7 @@ type
     procedure SetMasterAnnounceInterval(eValue: Integer);
     procedure SetHTMLStatusFile(eValue: UnicodeString);
     procedure SetMaxRooms(eValue: Integer);
+    procedure SetFlashOnMessage(aValue: Boolean);
   protected
     function LoadFromINI(FileName: UnicodeString): Boolean;
     procedure SaveToINI(FileName: UnicodeString);
@@ -122,6 +124,7 @@ type
     property MasterAnnounceInterval: Integer read fMasterAnnounceInterval write SetMasterAnnounceInterval;
     property AnnounceServer: Boolean read fAnnounceServer write SetAnnounceServer;
     property MaxRooms: Integer read fMaxRooms write SetMaxRooms;
+    property FlashOnMessage: Boolean read fFlashOnMessage write SetFlashOnMessage;
     property AutoKickTimeout: Integer read fAutoKickTimeout write SetAutoKickTimeout;
     property PingInterval: Integer read fPingInterval write SetPingInterval;
     property HTMLStatusFile: UnicodeString read fHTMLStatusFile write SetHTMLStatusFile;
@@ -298,6 +301,7 @@ begin
     fLastIP                 := F.ReadString ('Multiplayer','LastIP','127.0.0.1');
     fLastPort               := F.ReadString ('Multiplayer','LastPort','56789');
     fLastRoom               := F.ReadString ('Multiplayer','LastRoom','0');
+    fFlashOnMessage         := F.ReadBool   ('Multiplayer','FlashOnMessage',True);
     fServerPort             := F.ReadString ('Server','ServerPort','56789');
     //We call it MasterServerAddressNew to force it to update in everyone's .ini file when we changed address.
     //If the key stayed the same then everyone would still be using the old value from their settings.
@@ -325,8 +329,8 @@ var
 begin
   F := TMemIniFile.Create(FileName);
   try
-    F.WriteInteger('GFX','Brightness',      fBrightness);
-    F.WriteBool   ('GFX','AlphaShadows',    fAlphaShadows);
+    F.WriteInteger('GFX','Brightness',    fBrightness);
+    F.WriteBool   ('GFX','AlphaShadows',  fAlphaShadows);
 
     F.WriteBool   ('Game','Autosave',     fAutosave);
     F.WriteInteger('Game','ScrollSpeed',  fScrollSpeed);
@@ -344,21 +348,22 @@ begin
     if INI_HITPOINT_RESTORE then
       F.WriteInteger('Fights','HitPointRestorePace', HITPOINT_RESTORE_PACE);
 
-    F.WriteString ('Multiplayer','Name',    UnicodeString(fMultiplayerName));
-    F.WriteString ('Multiplayer','LastIP',  fLastIP);
-    F.WriteString ('Multiplayer','LastPort',fLastPort);
-    F.WriteString ('Multiplayer','LastRoom',fLastRoom);
+    F.WriteString ('Multiplayer','Name',            UnicodeString(fMultiplayerName));
+    F.WriteString ('Multiplayer','LastIP',          fLastIP);
+    F.WriteString ('Multiplayer','LastPort',        fLastPort);
+    F.WriteString ('Multiplayer','LastRoom',        fLastRoom);
+    F.WriteBool   ('Multiplayer','FlashOnMessage',  fFlashOnMessage);
 
-    F.WriteString ('Server','ServerName',fServerName);
-    F.WriteString ('Server','WelcomeMessage',fServerWelcomeMessage);
-    F.WriteString ('Server','ServerPort',fServerPort);
-    F.WriteBool   ('Server','AnnounceDedicatedServer',fAnnounceServer);
-    F.WriteInteger('Server','MaxRooms',fMaxRooms);
-    F.WriteString ('Server','HTMLStatusFile',fHTMLStatusFile);
-    F.WriteInteger('Server','MasterServerAnnounceInterval',fMasterAnnounceInterval);
-    F.WriteString ('Server','MasterServerAddressNew',fMasterServerAddress);
-    F.WriteInteger('Server','AutoKickTimeout',fAutoKickTimeout);
-    F.WriteInteger('Server','PingMeasurementInterval',fPingInterval);
+    F.WriteString ('Server','ServerName',                   fServerName);
+    F.WriteString ('Server','WelcomeMessage',               fServerWelcomeMessage);
+    F.WriteString ('Server','ServerPort',                   fServerPort);
+    F.WriteBool   ('Server','AnnounceDedicatedServer',      fAnnounceServer);
+    F.WriteInteger('Server','MaxRooms',                     fMaxRooms);
+    F.WriteString ('Server','HTMLStatusFile',               fHTMLStatusFile);
+    F.WriteInteger('Server','MasterServerAnnounceInterval', fMasterAnnounceInterval);
+    F.WriteString ('Server','MasterServerAddressNew',       fMasterServerAddress);
+    F.WriteInteger('Server','AutoKickTimeout',              fAutoKickTimeout);
+    F.WriteInteger('Server','PingMeasurementInterval',      fPingInterval);
 
     F.UpdateFile; //Write changes to file
   finally
@@ -380,6 +385,13 @@ end;
 procedure TGameSettings.SetBrightness(aValue: Byte);
 begin
   fBrightness := EnsureRange(aValue, 0, 20);
+  Changed;
+end;
+
+
+procedure TGameSettings.SetFlashOnMessage(aValue: Boolean);
+begin
+  fFlashOnMessage := aValue;
   Changed;
 end;
 

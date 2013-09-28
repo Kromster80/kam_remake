@@ -420,7 +420,7 @@ begin
   else
     fActiveInterface.SyncUIView(KMPointF(gHands[MySpectator.HandIndex].CenterScreen));
 
-  gLog.AddTime('Gameplay initialized', true);
+  gLog.AddTime('Gameplay initialized', True);
 end;
 
 

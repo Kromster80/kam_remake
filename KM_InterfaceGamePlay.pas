@@ -2866,6 +2866,9 @@ end;
 
 procedure TKMGamePlayInterface.ChatMessage(const aData: UnicodeString);
 begin
+  if fGameApp.GameSettings.FlashOnMessage then
+    fMain.FlashingStart;
+
   Memo_ChatText.Add(aData);
 
   if not Panel_Chat.Visible then

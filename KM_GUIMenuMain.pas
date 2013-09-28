@@ -74,7 +74,7 @@ begin
   if Sender = Button_MM_SinglePlayer then
     fOnPageChange(gpSinglePlayer);
 
-  if (Sender=Button_MM_MultiPlayer) then
+  if Sender = Button_MM_MultiPlayer then
   begin
     if fMain.LockMutex then
     begin

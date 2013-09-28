@@ -123,7 +123,7 @@ type
 
 
 implementation
-uses KM_ResTexts, KM_ResLocales, KM_Utils, KM_Sound, KM_ResSound, KM_RenderUI, KM_Resource, KM_ResFonts, KM_NetPlayersList;
+uses KM_ResTexts, KM_ResLocales, KM_Utils, KM_Sound, KM_ResSound, KM_RenderUI, KM_Resource, KM_ResFonts, KM_NetPlayersList, KM_Main, KM_GameApp;
 
 
 { TKMGUIMenuLobby }
@@ -1390,6 +1390,9 @@ end;
 
 procedure TKMMenuLobby.Lobby_OnMessage(const aText: UnicodeString);
 begin
+  if fGameApp.GameSettings.FlashOnMessage then
+    fMain.FlashingStart;
+
   Memo_LobbyPosts.Add(aText);
 end;
 

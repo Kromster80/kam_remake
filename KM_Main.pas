@@ -13,6 +13,7 @@ type
     fFormLoading: TFormLoading;
 
     fOldTimeFPS, fOldFrameTimes, fFrameCount: Cardinal;
+    fFlashing: Boolean;
     fMutex: THandle;
 
     fMainSettings: TMainSettings;
@@ -40,6 +41,8 @@ type
     function ClientRect: TRect;
     function ClientToScreen(aPoint: TPoint): TPoint;
     procedure ReinitRender(aReturnToOptions: Boolean);
+    procedure FlashingStart;
+    procedure FlashingStop;
 
     function LockMutex: Boolean;
     procedure UnlockMutex;
@@ -199,6 +202,9 @@ end;
 //Apply the cursor restriction when alt-tabbing back
 procedure TKMMain.DoRestore(Sender: TObject);
 begin
+  if Application.Active then
+    FlashingStop;
+
   if Application.Active and (fMainSettings <> nil) then
     ApplyCursorRestriction; //Cursor restriction is lost when alt-tabbing out, so we need to apply it again
 end;
@@ -329,6 +335,40 @@ begin
     CloseHandle(fMutex);
     fMutex := 0;
   {$ENDIF}
+end;
+
+
+procedure TKMMain.FlashingStart;
+var
+  flashInfo: TFlashWInfo;
+begin
+  if (GetForeGroundWindow <> fMain.FormMain.Handle) then
+  begin
+    flashInfo.cbSize := 20;
+    flashInfo.hwnd := Application.Handle;
+    flashInfo.dwflags := FLASHW_ALL;
+    flashInfo.ucount := 5;
+    flashInfo.dwtimeout := 0;
+    fFlashing := True;
+    FlashWindowEx(flashInfo);
+  end
+end;
+
+
+procedure TKMMain.FlashingStop;
+var
+  flashInfo: TFlashWInfo;
+begin
+  if fFlashing then
+  begin
+    flashInfo.cbSize := 20;
+    flashInfo.hwnd := Application.Handle;
+    flashInfo.dwflags := FLASHW_STOP;
+    flashInfo.ucount := 0;
+    flashInfo.dwtimeout := 0;
+    fFlashing := False;
+    FlashWindowEx(flashInfo);
+  end
 end;
 
 
