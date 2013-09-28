@@ -101,7 +101,7 @@ begin
     CheckBox_RevealAll.Checked := fGame.MapEditor.RevealAll[MySpectator.HandIndex];
 
   if Sender = Button_PlayerCenterScreen then
-    fGame.MapEditorInterface.Viewport.Position := KMPointF(gHands[MySpectator.HandIndex].CenterScreen); //Jump to location
+    fGame.ActiveInterface.Viewport.Position := KMPointF(gHands[MySpectator.HandIndex].CenterScreen); //Jump to location
 
   Button_PlayerCenterScreen.Caption := TypeToString(gHands[MySpectator.HandIndex].CenterScreen);
 end;

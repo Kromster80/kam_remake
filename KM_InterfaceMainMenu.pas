@@ -2,7 +2,7 @@ unit KM_InterfaceMainMenu;
 {$I KaM_Remake.inc}
 interface
 uses
-  Classes, Controls, Math,
+  Classes, Controls, Math, SysUtils, KromUtils,
   KM_Controls, KM_Defaults, KM_Pics,
   KM_InterfaceDefaults,
   KM_GUIMenuCampaign,
@@ -54,6 +54,7 @@ type
     procedure ShowResultsSP(aMsg: TGameResultMsg);
     function GetChatText: string;
     function GetChatMessages: string;
+    procedure ExportPages(aPath: string); override;
 
     procedure KeyDown(Key:Word; Shift: TShiftState); override;
     procedure KeyUp(Key:Word; Shift: TShiftState); override;
@@ -230,6 +231,32 @@ begin
     gpError:        fMenuError.Show(aText);
     gpLoading:      fMenuLoading.Show(aText);
   end;
+end;
+
+
+procedure TKMMainMenuInterface.ExportPages(aPath: string);
+var
+  path: string;
+  I, K: Integer;
+begin
+  inherited;
+
+  path := aPath + 'Menu' + PathDelim;
+  ForceDirectories(path);
+
+  for I := 0 to Panel_Menu.ChildCount - 1 do
+    if (Panel_Menu.Childs[I] is TKMPanel)
+    and (Panel_Menu.Childs[I].Width > 100) then
+    begin
+      //Hide all other panels
+      for K := 0 to Panel_Menu.ChildCount - 1 do
+        if Panel_Menu.Childs[K] is TKMPanel then
+          Panel_Menu.Childs[K].Hide;
+
+      Panel_Menu.Childs[I].Show;
+
+      fGameApp.PrintScreen(path + 'Panel' + int2fix(I, 3) + '.jpg');
+    end;
 end;
 
 

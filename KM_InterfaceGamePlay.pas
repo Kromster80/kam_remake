@@ -323,6 +323,8 @@ type
 
     property Alerts: TKMAlerts read fAlerts;
 
+    procedure ExportPages(aPath: string); override;
+
     procedure Save(SaveStream: TKMemoryStream);
     procedure SaveMinimap(SaveStream: TKMemoryStream);
     procedure Load(LoadStream: TKMemoryStream);
@@ -694,6 +696,32 @@ begin
     Bevel_HintBG.Width := 10 + fResource.Fonts.GetTextSize(Label_Hint.Caption, Label_Hint.Font).X;
   end;
   PrevHint := Sender;
+end;
+
+
+procedure TKMGamePlayInterface.ExportPages(aPath: string);
+var
+  path: string;
+  I, K: Integer;
+begin
+  inherited;
+
+  path := aPath + 'Gameplay' + PathDelim;
+  ForceDirectories(aPath);
+
+  for I := 0 to Panel_Main.ChildCount - 1 do
+    if (Panel_Main.Childs[I] is TKMPanel)
+    and (Panel_Main.Childs[I].Width > 100) then
+    begin
+      //Hide all other panels
+      for K := 0 to Panel_Main.ChildCount - 1 do
+        if Panel_Main.Childs[K] is TKMPanel then
+          Panel_Main.Childs[K].Hide;
+
+      Panel_Main.Childs[I].Show;
+
+      fGameApp.PrintScreen(aPath + 'Panel' + int2fix(I, 3) + '.jpg');
+    end;
 end;
 
 
@@ -2168,7 +2196,7 @@ begin
     fGame.RestartReplay; //reload it once again
 
     //Self is now destroyed, so we must access the NEW fGame object
-    fGame.MapEditorInterface.SyncUIView(oldCenter, oldZoom);
+    fGame.GamePlayInterface.SyncUIView(oldCenter, oldZoom);
 
     Exit; //Restarting the replay will destroy Self, so exit immediately
   end;

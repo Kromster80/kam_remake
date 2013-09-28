@@ -83,7 +83,7 @@ begin
     fGame.SaveMapEditor(SaveName);
 
     //Player colors and mapname has changed
-    fGame.MapEditorInterface.SyncUI;
+    fGame.ActiveInterface.SyncUI;
 
     fOnDone(Self);
   end;

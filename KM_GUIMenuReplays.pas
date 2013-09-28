@@ -52,6 +52,7 @@ begin
   fOnPageChange := aOnPageChange;
 
   fSaves := TKMSavesCollection.Create;
+  fMinimap := TKMMinimap.Create(False, True);
 
   Panel_Replays := TKMPanel.Create(aParent, 0, 0, aParent.Width, aParent.Height);
   Panel_Replays.AnchorsStretch;

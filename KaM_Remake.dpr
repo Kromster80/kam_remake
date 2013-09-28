@@ -111,6 +111,7 @@ uses
   KM_HTTPClient in 'KM_HTTPClient.pas',
   KM_Hungarian in 'KM_Hungarian.pas',
   KM_InterfaceDefaults in 'KM_InterfaceDefaults.pas',
+  KM_InterfaceGame in 'KM_InterfaceGame.pas',
   KM_InterfaceGamePlay in 'KM_InterfaceGamePlay.pas',
   KM_InterfaceMainMenu in 'KM_InterfaceMainMenu.pas',
   KM_InterfaceMapEditor in 'KM_InterfaceMapEditor.pas',

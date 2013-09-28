@@ -46,8 +46,7 @@ type
     Export_TreeAnim1: TMenuItem;
     ExportMainMenu: TMenuItem;
     Debug_EnableCheats: TMenuItem;
-    ExportGamePages: TMenuItem;
-    ExportMenuPages: TMenuItem;
+    ExportUIPages: TMenuItem;
     Resources1: TMenuItem;
     HousesDat1: TMenuItem;
     GroupBox2: TGroupBox;
@@ -79,7 +78,6 @@ type
     tbAngleZ: TTrackBar;
     Label7: TLabel;
     chkSelectionBuffer: TCheckBox;
-    ExportMapEdpages1: TMenuItem;
     procedure Export_TreeAnim1Click(Sender: TObject);
     procedure MenuItem1Click(Sender: TObject);
     procedure FormKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
@@ -111,20 +109,18 @@ type
     procedure chkSuperSpeedClick(Sender: TObject);
     procedure Debug_ShowPanelClick(Sender: TObject);
     procedure FormMouseWheel(Sender: TObject; Shift: TShiftState; WheelDelta: Integer; MousePos: TPoint; var Handled: Boolean);
-    procedure Debug_ExportGamePagesClick(Sender: TObject);
-    procedure Debug_ExportMenuPagesClick(Sender: TObject);
+    procedure Debug_ExportUIPagesClick(Sender: TObject);
     procedure HousesDat1Click(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure ResourceValues1Click(Sender: TObject);
     procedure ControlsUpdate(Sender: TObject);
-    
+
     procedure RenderAreaMouseDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
     procedure RenderAreaMouseMove(Sender: TObject; Shift: TShiftState; X,Y: Integer);
     procedure RenderAreaMouseUp(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
     procedure RenderAreaMouseWheel(Sender: TObject; Shift: TShiftState; WheelDelta: Integer; MousePos: TPoint; var Handled: Boolean);
     procedure RenderAreaResize(aWidth, aHeight: Integer);
     procedure RenderAreaRender(aSender: TObject);
-    procedure ExportMapEdpages1Click(Sender: TObject);
   private
     fUpdating: Boolean;
     {$IFDEF MSWindows}
@@ -574,23 +570,13 @@ begin
 end;
 
 
-procedure TFormMain.Debug_ExportMenuPagesClick(Sender: TObject);
+procedure TFormMain.Debug_ExportUIPagesClick(Sender: TObject);
 begin
+  if (fGameApp.Game <> nil) and (fGameApp.Game.ActiveInterface <> nil) then
+    fGameApp.Game.ActiveInterface.ExportPages(ExeDir + 'Export' + PathDelim)
+  else
   if fGameApp.MainMenuInterface <> nil then
-    fGameApp.ExportMainMenuPages(ExeDir + 'Export' + PathDelim + 'MainMenu' + PathDelim);
-end;
-
-procedure TFormMain.Debug_ExportGamePagesClick(Sender: TObject);
-begin
-  if (fGameApp.Game <> nil) and (fGameApp.Game.GamePlayInterface <> nil) then
-    fGameApp.ExportGameplayPages(ExeDir + 'Export' + PathDelim + 'Gameplay' + PathDelim);
-end;
-
-
-procedure TFormMain.ExportMapEdpages1Click(Sender: TObject);
-begin
-  if (fGameApp.Game <> nil) and (fGameApp.Game.MapEditorInterface <> nil) then
-    fGameApp.Game.MapEditorInterface.ExportPages(ExeDir + 'Export' + PathDelim + 'MapEd' + PathDelim);
+    fGameApp.MainMenuInterface.ExportPages(ExeDir + 'Export' + PathDelim);
 end;
 
 

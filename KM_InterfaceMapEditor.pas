@@ -77,7 +77,7 @@ type
     destructor Destroy; override;
 
     procedure ShowMessage(aText: string);
-    procedure ExportPages(aPath: string);
+    procedure ExportPages(aPath: string); override;
     property Minimap: TKMMinimap read fMinimap;
     property Viewport: TViewport read fViewport;
 
@@ -518,48 +518,52 @@ end;
 
 procedure TKMapEdInterface.ExportPages(aPath: string);
 var
+  path: string;
   I: TKMTerrainTab;
   K: TKMTownTab;
   L: TKMPlayerTab;
   M: TKMMissionTab;
 begin
-  ForceDirectories(aPath);
+  inherited;
+
+  path := aPath + 'MapEd' + PathDelim;
+  ForceDirectories(path);
 
   for I := Low(TKMTerrainTab) to High(TKMTerrainTab) do
   begin
     HidePages;
     fGuiTerrain.Show(I);
-    fGameApp.PrintScreen(aPath + 'Terrain' + IntToStr(Byte(I)) + '.jpg');
+    fGameApp.PrintScreen(path + 'Terrain' + IntToStr(Byte(I)) + '.jpg');
   end;
 
   for K := Low(TKMTownTab) to High(TKMTownTab) do
   begin
     HidePages;
     fGuiTown.Show(K);
-    fGameApp.PrintScreen(aPath + 'Town' + IntToStr(Byte(K)) + '.jpg');
+    fGameApp.PrintScreen(path + 'Town' + IntToStr(Byte(K)) + '.jpg');
   end;
 
   for L := Low(TKMPlayerTab) to High(TKMPlayerTab) do
   begin
     HidePages;
     fGuiPlayer.Show(L);
-    fGameApp.PrintScreen(aPath + 'Player' + IntToStr(Byte(L)) + '.jpg');
+    fGameApp.PrintScreen(path + 'Player' + IntToStr(Byte(L)) + '.jpg');
   end;
 
   for M := Low(TKMMissionTab) to High(TKMMissionTab) do
   begin
     HidePages;
     fGuiMission.Show(M);
-    fGameApp.PrintScreen(aPath + 'Mission' + IntToStr(Byte(M)) + '.jpg');
+    fGameApp.PrintScreen(path + 'Mission' + IntToStr(Byte(M)) + '.jpg');
   end;
 
   HidePages;
   fGuiHouse.Show(nil);
-  fGameApp.PrintScreen(aPath + 'House.jpg');
+  fGameApp.PrintScreen(path + 'House.jpg');
 
   HidePages;
   fGuiUnit.Show(TKMUnit(nil));
-  fGameApp.PrintScreen(aPath + 'Unit.jpg');
+  fGameApp.PrintScreen(path + 'Unit.jpg');
 end;
 
 

@@ -51,7 +51,7 @@ procedure TKMMapEdPlayerColors.Player_ColorClick(Sender: TObject);
 begin
   gHands[MySpectator.HandIndex].FlagColor := ColorSwatch_Color.GetColor;
 
-  fGame.MapEditorInterface.SyncUI;
+  fGame.ActiveInterface.SyncUI;
 end;
 
 

@@ -46,8 +46,6 @@ type
     procedure PrintScreen(aFilename: UnicodeString = '');
     procedure PauseMusicToPlayFile(aFileName: UnicodeString);
     function CheckDATConsistency: Boolean;
-    procedure ExportMainMenuPages(aPath: UnicodeString);
-    procedure ExportGameplayPages(aPath: UnicodeString);
 
     //These are all different game kinds we can start
     procedure NewCampaignMap(aCampaign: TKMCampaign; aMap: Byte);
@@ -599,54 +597,6 @@ begin
     fNetworking.AnnounceGameInfo(fGame.MissionTime, fGame.GameName)
   else
     fNetworking.AnnounceGameInfo(-1, ''); //fNetworking will fill the details from lobby
-end;
-
-
-procedure TKMGameApp.ExportMainMenuPages(aPath: UnicodeString);
-var
-  I, K: Integer;
-  MC: TKMPanel;
-begin
-  MC := MainMenuInterface.MyControls.MainPanel;
-  ForceDirectories(aPath);
-
-  for I := 0 to MC.ChildCount - 1 do
-    if (MC.Childs[I] is TKMPanel)
-    and (MC.Childs[I].Width > 100) then
-    begin
-      //Hide all other panels
-      for K := 0 to MC.ChildCount - 1 do
-        if MC.Childs[K] is TKMPanel then
-          MC.Childs[K].Hide;
-
-      MC.Childs[I].Show;
-
-      PrintScreen(aPath + 'Panel' + int2fix(I, 3) + '.jpg');
-    end;
-end;
-
-
-procedure TKMGameApp.ExportGameplayPages(aPath: UnicodeString);
-var
-  I, K: Integer;
-  MC: TKMPanel;
-begin
-  MC := fGame.GamePlayInterface.MyControls.MainPanel;
-  ForceDirectories(aPath);
-
-  for I := 0 to MC.ChildCount - 1 do
-    if (MC.Childs[I] is TKMPanel)
-    and (MC.Childs[I].Width > 100) then
-    begin
-      //Hide all other panels
-      for K := 0 to MC.ChildCount - 1 do
-        if MC.Childs[K] is TKMPanel then
-          MC.Childs[K].Hide;
-
-      MC.Childs[I].Show;
-
-      PrintScreen(aPath + 'Panel' + int2fix(I, 3) + '.jpg');
-    end;
 end;
 
 

@@ -36,6 +36,7 @@ type
     destructor Destroy; override;
 
     property MyControls: TKMMasterControl read fMyControls;
+    procedure ExportPages(aPath: string); virtual; abstract;
 
     procedure KeyDown(Key: Word; Shift: TShiftState); virtual; abstract;
     procedure KeyPress(Key: Char);

@@ -10,6 +10,7 @@ uses
 
 
 type
+  //Common class for ingame interfaces (Gameplay, MapEd)
   TKMUserInterfaceGame = class(TKMUserInterfaceCommon)
   protected
     fMinimap: TKMMinimap;
@@ -32,7 +33,7 @@ type
 const
   //Toolbar pads
   TB_PAD = 9; //Picked up empirically
-  TB_WIDTH = 180;
+  TB_WIDTH = 180; //max widht of sidebar elements
   PAGE_TITLE_Y = 5; //Page title offset
 
   //Shortcuts

@@ -205,6 +205,7 @@
 			<DCCReference Include="KM_HTTPClient.pas"/>
 			<DCCReference Include="KM_Hungarian.pas"/>
 			<DCCReference Include="KM_InterfaceDefaults.pas"/>
+			<DCCReference Include="KM_InterfaceGame.pas"/>
 			<DCCReference Include="KM_InterfaceGamePlay.pas"/>
 			<DCCReference Include="KM_InterfaceMainMenu.pas"/>
 			<DCCReference Include="KM_InterfaceMapEditor.pas"/>
