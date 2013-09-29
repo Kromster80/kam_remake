@@ -93,8 +93,9 @@ Improvements:
 	L	Allow to block wares delivery into armor workshop, so that player could focus each on certain task (shields or armors)
 	L	Keep road bends when neighbour road is destroyed (e.g. house entrances)
 	L	Set random seed randomly on fGame.Create (for MP it needs to be decided by host and synced before the game starts)
-  L Allow fish to swim under the ice (as well render it between sand and water terrain layers)
-  L Message when weaponmaker has complete his order
+	L	Allow fish to swim under the ice (as well render it between sand and water terrain layers)
+	L	Message when weaponmaker has complete his order
+	L	Allow to copy opponents nikname into buffer (through players menu > Copy?)
 
 	L	MapEd: Allow to toggle trees/objects opacity (make them partially visible) [Marcin]
 	L	MapEd: Allow to toggle AI defence positions display
