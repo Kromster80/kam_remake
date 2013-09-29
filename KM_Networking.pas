@@ -730,6 +730,9 @@ begin
   //ValidateSetup removes closed players if successful, so our index changes
   fMyIndex := fNetPlayers.NiknameToLocal(fMyNikname);
 
+  //Init random seed for all the players
+  fNetGameOptions.RandomSeed := RandomRange(1, 2147483646);
+
   //Let everyone start with final version of fNetPlayers and fNetGameOptions
   SendGameOptions;
 
@@ -781,8 +784,6 @@ var
   M: TKMemoryStream;
 begin
   Assert(IsHost, 'Only host can send game options');
-
-  //fNetGameOptions.RandomSeed := RandomRange(1, 2147483646);
 
   M := TKMemoryStream.Create;
   fNetGameOptions.Save(M);

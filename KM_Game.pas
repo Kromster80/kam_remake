@@ -227,7 +227,6 @@ begin
   end;
   gProjectiles := TKMProjectiles.Create;
 
-
   fGameTickCount := 0; //Restart counter
 end;
 
@@ -402,7 +401,8 @@ begin
 
   gHands.AfterMissionInit(True);
 
-  SetKaMSeed(4); //Random after StartGame and ViewReplay should match
+  //Random after StartGame and ViewReplay should match
+  SetKaMSeed(fNetworking.NetGameOptions.RandomSeed);
 
   //We need to make basesave.bas since we don't know the savegame name
   //until after user saves it, but we need to attach replay base to it.

@@ -20,6 +20,7 @@ type
     fResolutions: TKMResolutions;
 
     procedure DoRestore(Sender: TObject);
+    procedure DoActivate(Sender: TObject);
     procedure DoDeactivate(Sender: TObject);
     procedure DoIdle(Sender: TObject; var Done: Boolean);
   public
@@ -87,8 +88,8 @@ end;
 
 procedure TKMMain.Start;
 begin
-  SetKaMSeed(4); //Used for gameplay events so the order is important
-  Randomize; //Random is only used for cases where order does not matter, e.g. shuffle tracks
+  //Random is only used for cases where order does not matter, e.g. shuffle tracks
+  Randomize;
 
   fFormLoading.Label5.Caption := GAME_VERSION;
   fFormLoading.Show; //This is our splash screen
@@ -124,6 +125,7 @@ begin
   ReinitRender(False);
 
   Application.OnIdle := DoIdle;
+  Application.OnActivate := DoActivate;
   Application.OnDeactivate := DoDeactivate;
   Application.OnRestore := DoRestore; //OnActivate seems to happen at the wrong times, OnRestore happens when alt-tabbing back in full screen mode
 
@@ -202,11 +204,15 @@ end;
 //Apply the cursor restriction when alt-tabbing back
 procedure TKMMain.DoRestore(Sender: TObject);
 begin
-  if Application.Active then
-    FlashingStop;
-
   if Application.Active and (fMainSettings <> nil) then
     ApplyCursorRestriction; //Cursor restriction is lost when alt-tabbing out, so we need to apply it again
+end;
+
+
+procedure TKMMain.DoActivate(Sender: TObject);
+begin
+  if Application.Active then
+    FlashingStop;
 end;
 
 
