@@ -1,6 +1,8 @@
 Implemented:
  5777	Cover/Reveal rectangular FOW area
  5778	Actions.AIEquipRate(aPlayer: Byte; aType: Byte; aRate: Word);
+ 5871	OnHousePlanPlaced(aPlayer: Byte; aX, aY: Word; aType: Byte);
+
 
 Accepted:
 	Closest house/unit/group to given XY of certain player and type
@@ -27,14 +29,13 @@ Proposed:
 	GroupKillAll, GroupSetHunder (both can be implemented in script fairly easily, do we still provide them?)
 	Way to add/remove recruits directly from barracks
 	ChangeMapTile
-	SetAIName
+	States.HousePlanAt(X, Y) - returns aPlanID.
 	OnUnitAttacked
 	OnHouseAttacked
 	More options for on-screen text (background color, alignment, font, size, etc.)
 	States.PlayerIsAI(Index): Boolean;
 	Actions.AddDefensePosition, RemDefensePosition
 	States.HouseCanReachResources: boolean (for mines, fisher and woodcutters)
-	OnHousePlanPut(aHouseID)
 	HousePlanAt(X, Y), returns aPlanID.
 	HousePlanType(aPlanID), returns the type of the house plan.
 	OnRoadPlanPut(X,Y,Typ) (also with versions for fields and wine)
@@ -63,4 +64,7 @@ Proposed:
 	OnGroupHungry(aGroupID); 
 	BlockCamera, block player from changing the view/zoom
 	Change player color
-	
+
+
+Rejected:	
+	Actions.SetAIName (Player names can be written in libx, changing names during the game sounds like inconsistency)

@@ -402,7 +402,10 @@ begin
   gHands.AfterMissionInit(True);
 
   //Random after StartGame and ViewReplay should match
-  SetKaMSeed(fNetworking.NetGameOptions.RandomSeed);
+  if IsMultiplayer then
+    SetKaMSeed(fNetworking.NetGameOptions.RandomSeed)
+  else
+    SetKaMSeed(RandomRange(1, 2147483646));
 
   //We need to make basesave.bas since we don't know the savegame name
   //until after user saves it, but we need to attach replay base to it.

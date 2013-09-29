@@ -40,7 +40,7 @@ type
     function GetGroupByUID(aUID: Integer): TKMUnitGroup;
     function GetGroupByMember(aWarrior: TKMUnitWarrior): TKMUnitGroup;
     function HitTest(X,Y: Integer): TObject;
-    function UnitCount:integer;
+    function UnitCount: Integer;
     function FindPlaceForUnit(PosX,PosY:integer; aUnitType: TUnitType; out PlacePoint: TKMPoint; RequiredWalkConnect:byte):Boolean;
 
     //Check how Player1 feels towards Player2

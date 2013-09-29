@@ -5,7 +5,7 @@ uses
   Classes, SysUtils,
   uPSCompiler, uPSRuntime, uPSUtils, uPSDisassembly,
   KM_CommonClasses, KM_Defaults, KM_FileIO,
-  KM_ScriptingESA, KM_ScriptingIdCache, KM_Houses, KM_Units, KM_UnitGroups;
+  KM_ScriptingESA, KM_ScriptingIdCache, KM_Houses, KM_Units, KM_UnitGroups, KM_ResHouses;
 
   //Dynamic scripts allow mapmakers to control the mission flow
 
@@ -35,6 +35,7 @@ type
     procedure ExportDataToText;
 
     procedure ProcHouseBuilt(aHouse: TKMHouse);
+    procedure ProcHousePlanPlaced(aPlayer: THandIndex; aX, aY: Word; aType: THouseType);
     procedure ProcHouseDestroyed(aHouse: TKMHouse; aDestroyerIndex: THandIndex);
     procedure ProcMissionStart;
     procedure ProcPlayerDefeated(aPlayer: THandIndex);
@@ -54,6 +55,7 @@ type
   TKMEvent = procedure of object;
   TKMEvent1I = procedure (aIndex: Integer) of object;
   TKMEvent2I = procedure (aIndex, aParam: Integer) of object;
+  TKMEvent4I = procedure (aIndex, aParam1, aParam2, aParam3: Integer) of object;
 
 var
   fScripting: TKMScripting;
@@ -303,31 +305,33 @@ end;
   A result type of 0 means no result}
 function TKMScripting.ScriptOnExportCheck(Sender: TPSPascalCompiler; Proc: TPSInternalProcedure; const ProcDecl: AnsiString): Boolean;
 const
-  Procs: array [0..8] of record
+  Procs: array [0..9] of record
     Names: AnsiString;
     ParamCount: Byte;
-    Typ: array [0..3] of Byte;
-    Dir: array [0..2] of TPSParameterMode;
+    Typ: array [0..4] of Byte;
+    Dir: array [0..3] of TPSParameterMode;
   end =
   (
-  (Names: 'ONHOUSEBUILT';      ParamCount: 1; Typ: (0, btS32, 0,      0);      Dir: (pmIn, pmIn, pmIn)),
-  (Names: 'ONHOUSEDESTROYED';  ParamCount: 2; Typ: (0, btS32, btS32,  0);      Dir: (pmIn, pmIn, pmIn)),
-  (Names: 'ONMISSIONSTART';    ParamCount: 0; Typ: (0, 0,     0,      0);      Dir: (pmIn, pmIn, pmIn)),
-  (Names: 'ONPLAYERDEFEATED';  ParamCount: 1; Typ: (0, btS32, 0,      0);      Dir: (pmIn, pmIn, pmIn)),
-  (Names: 'ONPLAYERVICTORY';   ParamCount: 1; Typ: (0, btS32, 0,      0);      Dir: (pmIn, pmIn, pmIn)),
-  (Names: 'ONTICK';            ParamCount: 0; Typ: (0, 0,     0,      0);      Dir: (pmIn, pmIn, pmIn)),
-  (Names: 'ONUNITDIED';        ParamCount: 2; Typ: (0, btS32, btS32,  0);      Dir: (pmIn, pmIn, pmIn)),
-  (Names: 'ONUNITTRAINED';     ParamCount: 1; Typ: (0, btS32, 0,      0);      Dir: (pmIn, pmIn, pmIn)),
-  (Names: 'ONWARRIOREQUIPPED'; ParamCount: 2; Typ: (0, btS32, btS32,  0);      Dir: (pmIn, pmIn, pmIn))
+  (Names: 'ONHOUSEBUILT';      ParamCount: 1; Typ: (0, btS32, 0,     0,     0    ); Dir: (pmIn, pmIn, pmIn, pmIn)),
+  (Names: 'ONHOUSEDESTROYED';  ParamCount: 2; Typ: (0, btS32, btS32, 0,     0    ); Dir: (pmIn, pmIn, pmIn, pmIn)),
+  (Names: 'ONHOUSEPLANPLACED'; ParamCount: 4; Typ: (0, btS32, btS32, btS32, btS32); Dir: (pmIn, pmIn, pmIn, pmIn)),
+  (Names: 'ONMISSIONSTART';    ParamCount: 0; Typ: (0, 0,     0,     0,     0    ); Dir: (pmIn, pmIn, pmIn, pmIn)),
+  (Names: 'ONPLAYERDEFEATED';  ParamCount: 1; Typ: (0, btS32, 0,     0,     0    ); Dir: (pmIn, pmIn, pmIn, pmIn)),
+  (Names: 'ONPLAYERVICTORY';   ParamCount: 1; Typ: (0, btS32, 0,     0,     0    ); Dir: (pmIn, pmIn, pmIn, pmIn)),
+  (Names: 'ONTICK';            ParamCount: 0; Typ: (0, 0,     0,     0,     0    ); Dir: (pmIn, pmIn, pmIn, pmIn)),
+  (Names: 'ONUNITDIED';        ParamCount: 2; Typ: (0, btS32, btS32, 0,     0    ); Dir: (pmIn, pmIn, pmIn, pmIn)),
+  (Names: 'ONUNITTRAINED';     ParamCount: 1; Typ: (0, btS32, 0,     0,     0    ); Dir: (pmIn, pmIn, pmIn, pmIn)),
+  (Names: 'ONWARRIOREQUIPPED'; ParamCount: 2; Typ: (0, btS32, btS32, 0,     0    ); Dir: (pmIn, pmIn, pmIn, pmIn))
   );
-var I: Integer;
+var
+  I: Integer;
 begin
   Result := True;
   for I := Low(Procs) to High(Procs) do
     if (Proc.Name = Procs[I].Names) then
       if not ExportCheck(Sender, Proc, Slice(Procs[I].Typ, Procs[I].ParamCount+1), Slice(Procs[I].Dir, Procs[I].ParamCount)) then
       begin
-        //Something is wrong, so cause an error
+        //Something is wrong, show an error
         //todo: Sender.MakeError reports the wrong line number so the user has no idea what the error is
         Sender.MakeError(Procs[I].Names, ecTypeMismatch, '');
         Result := False;
@@ -640,6 +644,16 @@ begin
     fIDCache.CacheHouse(aHouse, aHouse.UID); //Improves cache efficiency since aHouse will probably be accessed soon
     TestFunc(aHouse.UID, aDestroyerIndex);
   end;
+end;
+
+
+procedure TKMScripting.ProcHousePlanPlaced(aPlayer: THandIndex; aX, aY: Word; aType: THouseType);
+var
+  TestFunc: TKMEvent4I;
+begin
+  TestFunc := TKMEvent4I(fExec.GetProcAsMethodN('ONHOUSEPLANPLACED'));
+  if @TestFunc <> nil then
+    TestFunc(aPlayer, aX, aY, HouseTypeToIndex[aType]);
 end;
 
 

@@ -9,6 +9,7 @@
  +	Script command IsFieldAt checked winefields by mistake (same as IsWineFieldAt)
  +	Script could order to attack allied assets. Check alliance settings when executing attack commands from script
  +	Script would not allow to play WAV files with anything except lower case letters and digits
+ +	Random seed should be different before each game
 	Armour smithy has shields as 2nd ouput, armour workshop has shields as 1st output. Would make sense to match them (note: simply swapping in KM_ResourceHouses causes game logic to be swapped with GUI)
 	Armour smithy has iron as 1st input, weapon smithy has iron as 2nd input (iron/coal swapped). Would make sense to match them (note: simpply swapping in KM_ResourceHouses causes game logic to be swapped with GUI)
 	Deliveries should use the actual walking route length (opposed to Radius)
@@ -44,10 +45,12 @@
 
 
 Improvements:
- +	noticeably improved render performance when zoomed out
+ +	M	Noticeably improved render performance when zoomed out
  +	L	Serfs check for a better delivery destination when arriving at the From house (due to state of village changing)
  +	M	MapEd: Copy/paste works between multiple instances of the editor using Windows clipboard
+ +	L	Allow to specify localized player names for the missions
  +	L	Game will flash on task bar when new chat message arrives
+ +	L	Set random seed on game start (for MP it needs to be decided by host and synced before the game starts)
 	Dismiss button to make units walk into the school and disappear (gold is not refunded)
 	L	Simple dedicated server form which lets you set the properties of the INI for the server and start it [gemGreg]
 	L	Placing houses in MP should put a temp/fake visual markup until the real one can be added to make it appear responsive
@@ -92,7 +95,6 @@ Improvements:
 	M	Archers should not change formations when group members get killed while under attack
 	L	Allow to block wares delivery into armor workshop, so that player could focus each on certain task (shields or armors)
 	L	Keep road bends when neighbour road is destroyed (e.g. house entrances)
-	L	Set random seed randomly on fGame.Create (for MP it needs to be decided by host and synced before the game starts)
 	L	Allow fish to swim under the ice (as well render it between sand and water terrain layers)
 	L	Message when weaponmaker has complete his order
 	L	Allow to copy opponents nikname into buffer (through players menu > Copy?)
@@ -108,7 +110,7 @@ Improvements:
 	L	MapEd: An option to hide roads/fields, so you can view just the terrain while you edit it
 	M	MapEd: "Sync all" checkbox when adding wares to a house which makes it the same for all houses of that type
  
- -  Make units turn around without skipping inbetween directions (instead of immediate direction change)
+ -	Make units turn around without skipping inbetween directions (instead of immediate direction change)
  -	Unexpectedly high ping values (not our problem usually)
  -	One type of pine tree cannot be cut (same as KaM, there are not even sprites for it falling down)
  -	The ingame briefing texture is too short, see attached picture

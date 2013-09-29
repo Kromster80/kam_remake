@@ -695,7 +695,10 @@ begin
 
   fBuildList.HousePlanList.AddPlan(aHouseType, Loc);
   fStats.HousePlanned(aHouseType);
-  if (HandIndex = MySpectator.HandIndex) and not fGame.IsReplay then gSoundPlayer.Play(sfx_placemarker);
+  fScripting.ProcHousePlanPlaced(fHandIndex, Loc.X, Loc.Y, aHouseType);
+
+  if (HandIndex = MySpectator.HandIndex) and not fGame.IsReplay then
+    gSoundPlayer.Play(sfx_placemarker);
 end;
 
 
