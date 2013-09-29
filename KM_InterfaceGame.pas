@@ -151,6 +151,9 @@ const
   SMALL_PAD_W = 30;
   SMALL_TAB_H = 26;
 
+  MESSAGE_AREA_HEIGHT = 173+17; //Image_ChatHead + Image_ChatBody
+  MESSAGE_AREA_RESIZE_Y = 200; //How much can we resize it
+
 
 implementation
 uses

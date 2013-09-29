@@ -144,6 +144,7 @@
         <DCCReference Include="KM_GameInputProcess_Multi.pas"/>
         <DCCReference Include="KM_GameInputProcess_Single.pas"/>
         <DCCReference Include="KM_GUIGameBuild.pas"/>
+        <DCCReference Include="KM_GUIGameChat.pas"/>
         <DCCReference Include="KM_GUIGameHouse.pas"/>
         <DCCReference Include="KM_GUIGameStats.pas"/>
         <DCCReference Include="KM_GUIMapEdAttack.pas"/>

@@ -9,6 +9,7 @@ uses
   KM_InterfaceDefaults, KM_InterfaceGame, KM_Terrain, KM_Houses, KM_Units, KM_Minimap, KM_Viewport, KM_Render,
   KM_UnitGroups, KM_Units_Warrior, KM_Saves, KM_MessageStack, KM_ResHouses, KM_Alerts,
   KM_GUIGameBuild,
+  KM_GUIGameChat,
   KM_GUIGameHouse,
   KM_GUIGameStats;
 
@@ -29,6 +30,7 @@ type
     fSave_Selected: Integer; //Save selected from list (needed because of scanning)
 
     fGuiGameBuild: TKMGUIGameBuild;
+    fGuiGameChat: TKMGUIGameChat;
     fGuiGameHouse: TKMGUIGameHouse;
     fGuiGameStats: TKMGUIGameStats;
 
@@ -51,8 +53,6 @@ type
     fTeamNames: TList;
     Label_TeamName: TKMLabel;
     fLastSyncedMessage: Word; //Last message that we synced with MessageLog
-    fChatMode: TChatMode;
-    fChatWhisperRecipient: Integer; //Server index of the player who will receive the whisper
 
     //Saved (in singleplayer only)
     fLastSaveName: UnicodeString; //The file name we last used to save this file (used as default in Save menu)
@@ -62,8 +62,6 @@ type
     procedure Create_Controls;
     procedure Create_Replay;
     procedure Create_Allies;
-    procedure Create_Chat;
-    procedure Create_ChatMenu(aParent: TKMPanel);
     procedure Create_Message;
     procedure Create_MessageLog;
     procedure Create_Pause;
@@ -83,6 +81,7 @@ type
     procedure Army_ActivateControls(aGroup: TKMUnitGroup);
     procedure Army_HideJoinMenu(Sender: TObject);
     procedure Army_Issue_Order(Sender: TObject);
+    procedure Chat_Click(Sender: TObject);
     procedure House_Demolish;
     procedure Unit_Dismiss(Sender: TObject);
     procedure Menu_Settings_Fill;
@@ -90,8 +89,6 @@ type
     procedure Menu_QuitMission(Sender: TObject);
     procedure Menu_NextTrack(Sender: TObject);
     procedure Menu_PreviousTrack(Sender: TObject);
-    procedure Chat_Click(Sender: TObject);
-    procedure Chat_Show(Sender: TObject);
     procedure Allies_Click(Sender: TObject);
     procedure Allies_Show(Sender: TObject);
     procedure MessageStack_UpdatePositions;
@@ -127,12 +124,6 @@ type
     procedure MPPlayMoreClick(Sender: TObject);
     procedure NetWaitClick(Sender: TObject);
     procedure ReplayClick(Sender: TObject);
-    procedure Chat_Close(Sender: TObject);
-    procedure Chat_Post(Sender: TObject; Key:word);
-    procedure Chat_Resize(Sender: TObject; X,Y: Integer);
-    procedure Chat_MenuClick(Sender: TObject);
-    procedure Chat_MenuSelect(aItem: Integer);
-    procedure Chat_MenuShow(Sender: TObject);
     procedure Allies_Close(Sender: TObject);
     procedure Menu_Update;
     procedure SetPause(aValue:boolean);
@@ -180,14 +171,6 @@ type
       Label_AlliesTeam:array [0..MAX_HANDS-1] of TKMLabel;
       Label_AlliesPing:array [0..MAX_HANDS-1] of TKMLabel;
       Image_AlliesClose: TKMImage;
-    Panel_Chat: TKMPanel; //For multiplayer: Send, reply, text area for typing, etc.
-      Dragger_Chat: TKMDragger;
-      Image_Chat: TKMImage;
-      Memo_ChatText: TKMMemo;
-      Edit_ChatMsg: TKMEdit;
-      Button_ChatRecipient: TKMButtonFlat;
-      Image_ChatClose: TKMImage;
-      Menu_Chat: TKMPopUpMenu;
     Panel_Message: TKMPanel;
       Label_MessageText: TKMLabel;
       Button_MessageGoTo: TKMButton;
@@ -332,9 +315,6 @@ uses KM_Main, KM_GameInputProcess, KM_GameInputProcess_Multi, KM_AI, KM_RenderUI
 
 
 const
-  MESSAGE_AREA_HEIGHT = 173+17; //Image_ChatHead + Image_ChatBody
-  MESSAGE_AREA_RESIZE_Y = 200; //How much can we resize it
-
   ResRatioCount = 4;
   ResRatioType: array[1..ResRatioCount] of TWareType = (wt_Steel, wt_Coal, wt_Wood, wt_Corn);
   ResRatioHint: array[1..ResRatioCount] of Word = (298, 300, 302, 304); //Distribution of rt_***
@@ -796,8 +776,10 @@ begin
 
   Create_NetWait; //Overlay blocking everyhitng but sidestack and messages
   Create_Allies; //MessagePage sibling
-  Create_Chat; //On top of NetWait to allow players to chat while waiting for late opponents
-  Create_ChatMenu(Panel_Main);
+
+  //On top of NetWait to allow players to chat while waiting for late opponents
+  fGuiGameChat := TKMGUIGameChat.Create(Panel_Main);
+
   Create_Message; //Must go bellow message stack
   Create_MessageLog; //Must go bellow message stack
   Create_MessageStack; //Messages, Allies, Chat icons
@@ -1109,59 +1091,6 @@ begin
     ColumnBox_MessageLog.OnClick := MessageLog_ItemClick;
     for I := 0 to MAX_LOG_MSGS - 1 do
       ColumnBox_MessageLog.AddItem(MakeListRow(['', ''], -1));
-end;
-
-
-{Chat page}
-procedure TKMGamePlayInterface.Create_Chat;
-begin
-  Panel_Chat := TKMPanel.Create(Panel_Main, TOOLBAR_WIDTH, Panel_Main.Height - MESSAGE_AREA_HEIGHT, 600, MESSAGE_AREA_HEIGHT);
-  Panel_Chat.Anchors := [akLeft, akBottom];
-  Panel_Chat.Hide;
-
-    Image_Chat := TKMImage.Create(Panel_Chat, 0, 0, 600, 500, 409);
-    Image_Chat.Anchors := [akLeft,akTop,akBottom];
-
-    //Allow to resize chat area height
-    Dragger_Chat := TKMDragger.Create(Panel_Chat, 45, 36, 600-130, 10);
-    Dragger_Chat.Anchors := [akTop];
-    Dragger_Chat.SetBounds(0, -MESSAGE_AREA_RESIZE_Y, 0, 0);
-    Dragger_Chat.OnMove := Chat_Resize;
-
-    Memo_ChatText := TKMMemo.Create(Panel_Chat,45,50,600-85,101, fnt_Arial, bsGame);
-    Memo_ChatText.Anchors := [akLeft, akTop, akRight, akBottom];
-    Memo_ChatText.AutoWrap := True;
-    Memo_ChatText.IndentAfterNL := True; //Don't let players fake system messages
-    Memo_ChatText.ScrollDown := True;
-
-    Edit_ChatMsg := TKMEdit.Create(Panel_Chat, 75, 154, 380, 20, fnt_Arial);
-    Edit_ChatMsg.Anchors := [akLeft, akRight, akBottom];
-    Edit_ChatMsg.OnKeyDown := Chat_Post;
-    Edit_ChatMsg.Text := '';
-    Edit_ChatMsg.ShowColors := True;
-
-    Button_ChatRecipient := TKMButtonFlat.Create(Panel_Chat,45,154,132,20,0);
-    Button_ChatRecipient.Font := fnt_Grey;
-    Button_ChatRecipient.CapOffsetY := -11;
-    Button_ChatRecipient.OnClick := Chat_MenuShow;
-    Button_ChatRecipient.Anchors := [akRight, akBottom];
-
-    Image_ChatClose := TKMImage.Create(Panel_Chat, 600-80, 18, 32, 32, 52);
-    Image_ChatClose.Anchors := [akTop, akRight];
-    Image_ChatClose.Hint := gResTexts[TX_MSG_CLOSE_HINT];
-    Image_ChatClose.OnClick := Chat_Close;
-    Image_ChatClose.HighlightOnMouseOver := True;
-end;
-
-
-procedure TKMGamePlayInterface.Create_ChatMenu(aParent: TKMPanel);
-begin
-  Menu_Chat := TKMPopUpMenu.Create(aParent, 120);
-  Menu_Chat.Anchors := [akLeft, akBottom];
-  //Menu gets populated right before show
-  Menu_Chat.AddItem(NO_TEXT);
-  Menu_Chat.OnClick := Chat_MenuClick;
-  Chat_MenuSelect(-1); //Initialise it
 end;
 
 
@@ -1478,21 +1407,18 @@ end;
 
 procedure TKMGamePlayInterface.Chat_Click(Sender: TObject);
 begin
-  if Panel_Chat.Visible then
-    Chat_Close(Sender)
+  if fGuiGameChat.Visible then
+    fGuiGameChat.Hide
   else
-    Chat_Show(Sender);
-end;
+  begin
+    Allies_Close(nil);
+    Message_Close(nil);
+    MessageLog_Close(nil);
+    Label_MPChatUnread.Caption := ''; //No unread messages
+    gSoundPlayer.Play(sfxn_MPChatOpen);
 
-
-procedure TKMGamePlayInterface.Chat_Show(Sender: TObject);
-begin
-  gSoundPlayer.Play(sfxn_MPChatOpen);
-  Allies_Close(nil);
-  Panel_Chat.Show;
-  Message_Close(nil);
-  MessageLog_Close(nil);
-  Label_MPChatUnread.Caption := ''; //No unread messages
+    fGuiGameChat.Show;
+  end;
 end;
 
 
@@ -1509,7 +1435,7 @@ procedure TKMGamePlayInterface.Allies_Show(Sender: TObject);
 begin
   gSoundPlayer.Play(sfxn_MPChatOpen);
   Panel_Allies.Show;
-  Chat_Close(nil);
+  fGuiGameChat.Hide;
   Message_Close(nil);
   MessageLog_Close(nil);
 end;
@@ -1545,7 +1471,7 @@ begin
   Button_MessageGoTo.Visible := not KMSamePoint(fMessageList.MessagesStack[ShownMessage].Loc, KMPoint(0,0));
 
   Allies_Close(nil);
-  Chat_Close(nil); //Removes focus from Edit_Text
+  fGuiGameChat.Hide;
   MessageLog_Close(nil);
   Panel_Message.Show;
   //Must update top AFTER showing panel, otherwise Button_MessageGoTo.Visible will always return false
@@ -1856,127 +1782,6 @@ begin
 end;
 
 
-procedure TKMGamePlayInterface.Chat_Close(Sender: TObject);
-begin
-  if Panel_Chat.Visible then gSoundPlayer.Play(sfxn_MPChatClose);
-  Panel_Chat.Hide;
-end;
-
-
-procedure TKMGamePlayInterface.Chat_Post(Sender: TObject; Key: Word);
-begin
-  if (Key = VK_RETURN) and (Trim(Edit_ChatMsg.Text) <> '') and (fGame.Networking <> nil) then
-  begin
-    if fChatMode in [cmAll, cmTeam] then
-      fGame.Networking.PostMessage(Edit_ChatMsg.Text, True, fChatMode = cmTeam);
-    if fChatMode = cmWhisper then
-      fGame.Networking.PostMessage(Edit_ChatMsg.Text, True, False, fChatWhisperRecipient);
-    Edit_ChatMsg.Text := '';
-  end;
-end;
-
-
-procedure TKMGamePlayInterface.Chat_Resize(Sender: TObject; X,Y: Integer);
-var H: Integer;
-begin
-  H := EnsureRange(-Y, 0, MESSAGE_AREA_RESIZE_Y);
-  Panel_Chat.Top := Panel_Main.Height - (MESSAGE_AREA_HEIGHT + H);
-  Panel_Chat.Height := MESSAGE_AREA_HEIGHT + H;
-end;
-
-
-procedure TKMGamePlayInterface.Chat_MenuSelect(aItem: Integer);
-
-  procedure UpdateButtonCaption(aCaption: UnicodeString; aColor: Cardinal = 0);
-  const
-    MIN_SIZE = 80; //Minimum size for the button
-  var
-    txtWidth: Word;
-  begin
-    //Update button width according to selected item
-    txtWidth := fResource.Fonts.GetTextSize(aCaption, Button_ChatRecipient.Font).X;
-    txtWidth := Max(MIN_SIZE, txtWidth + 10); //Apply minimum size
-
-    if aColor <> 0 then
-      aCaption := WrapColor(aCaption, aColor);
-    Button_ChatRecipient.Caption := aCaption;
-    Button_ChatRecipient.Width := txtWidth;
-
-    Edit_ChatMsg.AbsLeft := Button_ChatRecipient.AbsLeft + Button_ChatRecipient.Width + 4;
-    Edit_ChatMsg.Width := Memo_ChatText.Width - Button_ChatRecipient.Width - 4;
-  end;
-
-var
-  I: Integer;
-begin
-  case aItem of
-    -1:   begin //All
-            fChatMode := cmAll;
-            UpdateButtonCaption(gResTexts[TX_CHAT_ALL]);
-            Edit_ChatMsg.DrawOutline := False; //No outline for All
-          end;
-    -2:   begin //Team
-            fChatMode := cmTeam;
-            UpdateButtonCaption(gResTexts[TX_CHAT_TEAM], $FF66FF66);
-            Edit_ChatMsg.DrawOutline := True;
-            Edit_ChatMsg.OutlineColor := $FF66FF66;
-          end;
-    else  begin //Whisper to player
-            I := fGame.Networking.NetPlayers.ServerToLocal(aItem);
-            if I <> -1 then
-            begin
-              fChatMode := cmWhisper;
-              Edit_ChatMsg.DrawOutline := True;
-              Edit_ChatMsg.OutlineColor := $FF00B9FF;
-              with fGame.Networking.NetPlayers[I] do
-              begin
-                fChatWhisperRecipient := IndexOnServer;
-                UpdateButtonCaption(UnicodeString(Nikname), IfThen(FlagColorID <> 0, FlagColorToTextColor(FlagColor), 0));
-              end;
-            end;
-          end;
-    end;
-end;
-
-
-procedure TKMGamePlayInterface.Chat_MenuClick(Sender: TObject);
-begin
-  if Menu_Chat.ItemIndex <> -1 then
-    Chat_MenuSelect(Menu_Chat.ItemTags[Menu_Chat.ItemIndex]);
-end;
-
-
-procedure TKMGamePlayInterface.Chat_MenuShow(Sender: TObject);
-var
-  C: TKMControl;
-  I: Integer;
-  n: TKMNetPlayerInfo;
-begin
-  Menu_Chat.Clear;
-
-  //Fill lists with options to whom player can whisper
-  Menu_Chat.AddItem(gResTexts[TX_CHAT_ALL], -1);
-
-  //Only show "Team" if the player is on a team
-  if fGame.Networking.NetPlayers[fGame.Networking.MyIndex].Team <> 0 then
-    Menu_Chat.AddItem('[$66FF66]' + gResTexts[TX_CHAT_TEAM], -2);
-
-  //Fill
-  for I := 1 to fGame.Networking.NetPlayers.Count do
-  if I <> fGame.Networking.MyIndex then //Can't whisper to self
-  begin
-    n := fGame.Networking.NetPlayers[I];
-
-    if n.IsHuman and n.Connected and not n.Dropped then
-      Menu_Chat.AddItem(UnicodeString(n.NiknameColored), n.IndexOnServer);
-  end;
-
-  C := TKMControl(Sender);
-  //Position the menu next to the icon, but do not overlap players name
-  Menu_Chat.ShowAt(C.AbsLeft, C.AbsTop - Menu_Chat.Height);
-end;
-
-
 procedure TKMGamePlayInterface.ReplayClick(Sender: TObject);
   procedure SetButtons(aPaused: Boolean);
   begin
@@ -2063,7 +1868,7 @@ begin
     MessageLog_Update(True);
 
     Allies_Close(nil);
-    Chat_Close(nil); //Removes focus from Edit_Text
+    fGuiGameChat.Hide;
     MessageLog_Close(nil);
     Message_Close(nil);
 
@@ -2484,7 +2289,7 @@ begin
 end;
 
 
-function TKMGamePlayInterface.HasLostMPGame:Boolean;
+function TKMGamePlayInterface.HasLostMPGame: Boolean;
 begin
   Result := fMultiplayer and (gHands[MySpectator.HandIndex].AI.WonOrLost = wol_Lost);
 end;
@@ -2492,8 +2297,10 @@ end;
 
 procedure TKMGamePlayInterface.SetChatText(const aString: UnicodeString);
 begin
-  Edit_ChatMsg.Text := aString;
-  if aString <> '' then Chat_Show(nil);
+  fGuiGameChat.SetChatText(aString);
+
+  if aString <> '' then
+    fGuiGameChat.Show;
 end;
 
 
@@ -2580,19 +2387,15 @@ end;
 
 procedure TKMGamePlayInterface.SetChatMessages(const aString: UnicodeString);
 begin
-  Memo_ChatText.Text := aString;
-  Memo_ChatText.ScrollToBottom;
+  fGuiGameChat.SetChatMessages(aString);
 end;
 
 
 procedure TKMGamePlayInterface.ChatMessage(const aData: UnicodeString);
 begin
-  if fGameApp.GameSettings.FlashOnMessage then
-    fMain.FlashingStart;
+  fGuiGameChat.ChatMessage(aData);
 
-  Memo_ChatText.Add(aData);
-
-  if not Panel_Chat.Visible then
+  if not fGuiGameChat.Visible then
     Label_MPChatUnread.Caption := IntToStr(StrToIntDef(Label_MPChatUnread.Caption, 0) + 1); //New message
 end;
 
@@ -2760,15 +2563,29 @@ begin
                           ;
     VK_DELETE:            Button_MessageDelete.Click;
     VK_RETURN:            //Enter is the shortcut to bring up chat in multiplayer
-                          if fMultiplayer and not Panel_Chat.Visible then
-                            Chat_Show(Self);
-    VK_ESCAPE:            //'or' allows us to go through Clicks one by one
-                          if Button_Army_Join_Cancel.Click
-                            or Image_MessageClose.Click
-                            or Image_ChatClose.Click
-                            or Image_AlliesClose.Click
-                            or Image_MessageLogClose.Click
-                            or Button_Back.Click then ;
+                          if fMultiplayer and not fGuiGameChat.Visible then
+                            fGuiGameChat.Show;
+    VK_ESCAPE:            begin
+                            //Progressively hide open elements on Esc
+                            if fJoiningGroups then
+                              Army_HideJoinMenu(nil)
+                            else
+                            if ShownMessage <> -1 then
+                              Message_Close(nil)
+                            else
+                            if fGuiGameChat.Visible then
+                              fGuiGameChat.Hide
+                            else
+                            if Panel_Allies.Visible then
+                              Allies_Close(nil)
+                            else
+                            if Panel_MessageLog.Visible then
+                              MessageLog_Close(nil)
+                            else
+                            if Button_Back.Visible then
+                              SwitchPage(Button_Back);
+                          end;
+
     //Menu shortcuts
     SC_MENU_BUILD:  Button_Main[tbBuild].Click;
     SC_MENU_RATIO:  Button_Main[tbRatio].Click;
@@ -3396,7 +3213,7 @@ begin
   //Update message stack
   //Flash unread message display
   Label_MPChatUnread.Visible := fMultiplayer and (Label_MPChatUnread.Caption <> '') and not (aTickCount mod 10 < 5);
-  Image_MPChat.Highlight := Panel_Chat.Visible or (Label_MPChatUnread.Visible and (Label_MPChatUnread.Caption <> ''));
+  Image_MPChat.Highlight := fGuiGameChat.Visible or (Label_MPChatUnread.Visible and (Label_MPChatUnread.Caption <> ''));
   Image_MPAllies.Highlight := Panel_Allies.Visible;
   if not fReplay and not Image_MessageLog.Visible and (fMessageList.CountLog > 0) then
   begin
