@@ -72,7 +72,7 @@ begin
     begin
       Button_Build[I] := TKMButtonFlat.Create(Panel_Build, ((I-1) mod 5)*37, 120+((I-1) div 5)*37, 33, 33,
                                               fResource.HouseDat[GUIHouseOrder[I]].GUIIcon);
-
+      Button_Build[I].Tag := Byte(GUIHouseOrder[I]);
       Button_Build[I].OnClick := Build_ButtonClick;
       Button_Build[I].Hint := fResource.HouseDat[GUIHouseOrder[I]].HouseName;
     end;
@@ -91,6 +91,8 @@ procedure TKMGUIGameBuild.Build_ButtonClick(Sender: TObject);
   end;
 var
   I: Integer;
+  house: THouseType;
+  houseDat: TKMHouseDatClass;
 begin
   if Sender = nil then
   begin
@@ -121,14 +123,11 @@ begin
   if Button_BuildWine.Down then
     SetCost(cmWine, 0, 336, 1, 0, gResTexts[TX_BUILD_WINE])
   else
-    for I := 1 to GUI_HOUSE_COUNT do
-    if (GUIHouseOrder[I] <> ht_None) and (Button_Build[I].Down) then
-      SetCost(cmHouses,
-              Byte(GUIHouseOrder[I]),
-              fResource.HouseDat[GUIHouseOrder[I]].GUIIcon,
-              fResource.HouseDat[GUIHouseOrder[I]].WoodCost,
-              fResource.HouseDat[GUIHouseOrder[I]].StoneCost,
-              fResource.HouseDat[GUIHouseOrder[I]].HouseName);
+  begin
+    house := THouseType(TKMButton(Sender).Tag);
+    houseDat := fResource.HouseDat[house];
+    SetCost(cmHouses, Byte(house), houseDat.GUIIcon, houseDat.WoodCost, houseDat.StoneCost, houseDat.HouseName);
+  end;
 end;
 
 
