@@ -2,7 +2,6 @@ Implemented:
  5777	Cover/Reveal rectangular FOW area
  5778	Actions.AIEquipRate(aPlayer: Byte; aType: Byte; aRate: Word)
  5871	Event OnHousePlanPlaced(aPlayer: Byte; aX, aY: Word; aType: Byte)
- 5872	Actions.HousePlanRemove(aPlayer, X, Y: Word)
 
 
 Accepted:
