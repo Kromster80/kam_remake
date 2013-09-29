@@ -1,7 +1,8 @@
 Implemented:
  5777	Cover/Reveal rectangular FOW area
- 5778	Actions.AIEquipRate(aPlayer: Byte; aType: Byte; aRate: Word);
- 5871	OnHousePlanPlaced(aPlayer: Byte; aX, aY: Word; aType: Byte);
+ 5778	Actions.AIEquipRate(aPlayer: Byte; aType: Byte; aRate: Word)
+ 5871	Event OnHousePlanPlaced(aPlayer: Byte; aX, aY: Word; aType: Byte)
+ 5872	Actions.HousePlanRemove(aPlayer, X, Y: Word)
 
 
 Accepted:
@@ -36,7 +37,6 @@ Proposed:
 	States.PlayerIsAI(Index): Boolean;
 	Actions.AddDefensePosition, RemDefensePosition
 	States.HouseCanReachResources: boolean (for mines, fisher and woodcutters)
-	HousePlanAt(X, Y), returns aPlanID.
 	HousePlanType(aPlanID), returns the type of the house plan.
 	OnRoadPlanPut(X,Y,Typ) (also with versions for fields and wine)
 	States.GroupAtDefPos(PlayerID, PositionID)

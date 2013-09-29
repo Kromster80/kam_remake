@@ -733,9 +733,11 @@ var
 begin
   HT := fBuildList.HousePlanList.GetPlan(Position);
   if HT = ht_None then Exit; //Due to network delays house might not exist now
+
   fBuildList.HousePlanList.RemPlan(Position);
   fStats.HousePlanRemoved(HT);
-  if (HandIndex = MySpectator.HandIndex) and not fGame.IsReplay then gSoundPlayer.Play(sfx_Click);
+  if (HandIndex = MySpectator.HandIndex) and not fGame.IsReplay then
+    gSoundPlayer.Play(sfx_Click);
 end;
 
 

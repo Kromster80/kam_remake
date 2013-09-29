@@ -137,6 +137,7 @@ type
     procedure HouseDestroy(aHouseID: Integer; aSilent: Boolean);
     procedure HouseDeliveryBlock(aHouseID: Integer; aDeliveryBlocked: Boolean);
     procedure HouseDisableUnoccupiedMessage(aHouseID: Integer; aDisabled: Boolean);
+    procedure HousePlanRemove(aPlayer, X, Y: Word);
     procedure HouseRepairEnable(aHouseID: Integer; aRepairEnabled: Boolean);
     function  HouseSchoolQueueAdd(aHouseID: Integer; aUnitType: Integer; aCount: Integer): Integer;
     procedure HouseSchoolQueueRemove(aHouseID, QueueIndex: Integer);
@@ -1655,6 +1656,17 @@ begin
   end
   else
     LogError('Actions.HouseDisableUnoccupiedMessage', [aHouseID, Byte(aDisabled)]);
+end;
+
+
+procedure TKMScriptActions.HousePlanRemove(aPlayer, X, Y: Word);
+begin
+  //Verify all input parameters
+  if InRange(aPlayer, 0, gHands.Count - 1)
+  and gTerrain.TileInMapCoords(X,Y) then
+    gHands[aPlayer].RemHousePlan(KMPoint(X, Y))
+  else
+    LogError('Actions.HousePlanRemove', [aPlayer, X, Y]);
 end;
 
 

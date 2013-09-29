@@ -724,13 +724,13 @@ end;
 
 
 function TKMHousePlanList.HasPlan(aLoc: TKMPoint): Boolean;
-var I: Integer;
+var
+  I: Integer;
 begin
   Result := False;
 
   for I := 0 to fPlansCount - 1 do
   if (fPlans[I].HouseType <> ht_None)
-
   and ((aLoc.X - fPlans[I].Loc.X + 3 in [1..4]) and
        (aLoc.Y - fPlans[I].Loc.Y + 4 in [1..4]) and
        (fResource.HouseDat[fPlans[I].HouseType].BuildArea[aLoc.Y - fPlans[I].Loc.Y + 4, aLoc.X - fPlans[I].Loc.X + 3] <> 0))
@@ -743,11 +743,11 @@ end;
 
 
 procedure TKMHousePlanList.RemPlan(aLoc: TKMPoint);
-var I: Integer;
+var
+  I: Integer;
 begin
   for I := 0 to fPlansCount - 1 do
   if (fPlans[I].HouseType <> ht_None)
-
   and ((aLoc.X - fPlans[I].Loc.X + 3 in [1..4]) and
        (aLoc.Y - fPlans[I].Loc.Y + 4 in [1..4]) and
        (fResource.HouseDat[fPlans[I].HouseType].BuildArea[aLoc.Y - fPlans[I].Loc.Y + 4, aLoc.X - fPlans[I].Loc.X + 3] <> 0))
@@ -762,12 +762,12 @@ end;
 
 
 function TKMHousePlanList.GetPlan(aLoc: TKMPoint): THouseType;
-var I: Integer;
+var
+  I: Integer;
 begin
   Result := ht_None;
   for I := 0 to fPlansCount - 1 do
   if (fPlans[I].HouseType <> ht_None)
-
   and ((aLoc.X - fPlans[I].Loc.X + 3 in [1..4]) and
        (aLoc.Y - fPlans[I].Loc.Y + 4 in [1..4]) and
        (fResource.HouseDat[fPlans[I].HouseType].BuildArea[aLoc.Y - fPlans[I].Loc.Y + 4, aLoc.X - fPlans[I].Loc.X + 3] <> 0))

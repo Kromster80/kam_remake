@@ -237,6 +237,7 @@ begin
       RegisterMethod('procedure HouseDeliveryBlock(aHouseID: Integer; aDeliveryBlocked: Boolean)');
       RegisterMethod('procedure HouseDestroy(aHouseID: Integer; aSilent: Boolean)');
       RegisterMethod('procedure HouseDisableUnoccupiedMessage(aHouseID: Integer; aDisabled: Boolean)');
+      RegisterMethod('procedure HousePlanRemove(aPlayer, X, Y: Word)');
       RegisterMethod('procedure HouseRepairEnable(aHouseID: Integer; aRepairEnabled: Boolean)');
       RegisterMethod('function  HouseSchoolQueueAdd(aHouseID: Integer; aUnitType: Integer; aCount: Integer): Integer');
       RegisterMethod('procedure HouseSchoolQueueRemove(aHouseID, QueueIndex: Integer)');
@@ -516,6 +517,7 @@ begin
       RegisterMethod(@TKMScriptActions.HouseDeliveryBlock,      'HOUSEDELIVERYBLOCK');
       RegisterMethod(@TKMScriptActions.HouseDisableUnoccupiedMessage, 'HOUSEDISABLEUNOCCUPIEDMESSAGE');
       RegisterMethod(@TKMScriptActions.HouseDestroy,            'HOUSEDESTROY');
+      RegisterMethod(@TKMScriptActions.HousePlanRemove,         'HOUSEPLANREMOVE');
       RegisterMethod(@TKMScriptActions.HouseRepairEnable,       'HOUSEREPAIRENABLE');
       RegisterMethod(@TKMScriptActions.HouseSchoolQueueAdd,     'HOUSESCHOOLQUEUEADD');
       RegisterMethod(@TKMScriptActions.HouseSchoolQueueRemove,  'HOUSESCHOOLQUEUEREMOVE');
