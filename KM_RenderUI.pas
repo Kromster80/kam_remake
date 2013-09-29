@@ -23,12 +23,13 @@ type
     class procedure WritePercentBar   (PosX,PosY,SizeX,SizeY:SmallInt; aSeam: Single; aPos: Single);
     class procedure WritePicture      (PosX,PosY,SizeX,SizeY: SmallInt; aAnchors: TAnchors; aRX: TRXType; aID: Word; Enabled: Boolean = True; aColor: TColor4 = $FFFF00FF; aLightness: Single = 0);
     class procedure WritePlot         (PosX,PosY,SizeX,SizeY: SmallInt; aValues: TKMCardinalArray; aMaxValue: Cardinal; aColor: TColor4; LineWidth: Byte);
-    class procedure WriteOutline      (PosX,PosY,SizeX,SizeY,LineWidth:smallint; Col:TColor4);
+    class procedure WriteOutline      (PosX,PosY,SizeX,SizeY,LineWidth: SmallInt; Col: TColor4);
     class procedure WriteShape        (PosX,PosY,SizeX,SizeY:smallint; Col:TColor4; Outline: TColor4 = $00000000);
     class procedure WriteLine         (X1,Y1,X2,Y2: Single; aCol: TColor4; aPattern: Word = $FFFF);
     class procedure WriteText         (X,Y,W: smallint; aText: string; aFont: TKMFont; aAlign: TTextAlign; aColor: TColor4 = $FFFFFFFF; aIgnoreMarkup:Boolean = False; aShowMarkup:Boolean=False);
     class procedure WriteTexture      (PosX,PosY,SizeX,SizeY:smallint; aTexture: TTexture; aCol: TColor4);
     class procedure WriteCircle       (PosX,PosY: SmallInt; Rad: Byte; aFillCol: TColor4);
+    class procedure WriteShadow       (PosX,PosY,SizeX,SizeY: SmallInt; aBlur: Byte; aCol: TColor4);
   end;
 
 
@@ -634,5 +635,61 @@ begin
   glEnd;
 end;
 
+
+class procedure TKMRenderUI.WriteShadow(PosX, PosY, SizeX, SizeY: SmallInt; aBlur: Byte; aCol: TColor4);
+  procedure DoNode(aX, aY: Single; aColor: TColor4);
+  begin
+    glColor4ubv(@aColor);
+    glVertex2f(aX, aY);
+  end;
+var
+  bCol: TColor4;
+begin
+  //Same color, but fully transparent
+  bCol := aCol and $FFFFFF;
+
+  glPushMatrix;
+    //Slightly shifted shadow looks nicer
+    glTranslatef(PosX + aBlur / 8, PosY + aBlur / 6, 0);
+
+    glColor4ubv(@aCol);
+    glBegin(GL_QUADS);
+      glkRect(0, 0, SizeX, SizeY);
+    glEnd;
+
+    glBegin(GL_QUAD_STRIP);
+      DoNode(-aBlur, 0, bCol);
+      DoNode(0, 0, aCol);
+      DoNode(-aBlur * 0.7, -aBlur * 0.7, bCol);
+      DoNode(0, 0, aCol);
+      DoNode(0, -aBlur, bCol);
+      DoNode(0, 0, aCol);
+
+      DoNode(SizeX, -aBlur, bCol);
+      DoNode(SizeX, 0, aCol);
+      DoNode(SizeX + aBlur * 0.7, -aBlur * 0.7, bCol);
+      DoNode(SizeX, 0, aCol);
+      DoNode(SizeX + aBlur, 0, bCol);
+      DoNode(SizeX, 0, aCol);
+
+      DoNode(SizeX + aBlur, SizeY, bCol);
+      DoNode(SizeX, SizeY, aCol);
+      DoNode(SizeX + aBlur * 0.7, SizeY + aBlur * 0.7, bCol);
+      DoNode(SizeX, SizeY, aCol);
+      DoNode(SizeX, SizeY + aBlur, bCol);
+      DoNode(SizeX, SizeY, aCol);
+
+      DoNode(0, SizeY + aBlur, bCol);
+      DoNode(0, SizeY, aCol);
+      DoNode(-aBlur * 0.7, SizeY + aBlur * 0.7, bCol);
+      DoNode(0, SizeY, aCol);
+      DoNode(-aBlur, SizeY, bCol);
+      DoNode(0, SizeY, aCol);
+
+      DoNode(-aBlur, 0, bCol);
+      DoNode(0, 0, aCol);
+    glEnd;
+  glPopMatrix;
+end;
 
 end.

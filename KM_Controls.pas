@@ -373,6 +373,33 @@ type
     acText  //Anything is allowed except for eol symbol
   );
 
+  //Form that can be dragged around (and resized?)
+  TKMForm = class(TKMPanel)
+  private
+    fHeaderHeight: Integer;
+    fButtonClose: TKMButtonFlat;
+    fLabelCaption: TKMLabel;
+
+    fDragging: Boolean;
+    fOffsetX: Integer;
+    fOffsetY: Integer;
+    function HitHeader(X, Y: Integer): Boolean;
+    procedure FormCloseClick(Sender: TObject);
+    function GetCaption: UnicodeString;
+    procedure SetCaption(const aValue: UnicodeString);
+  public
+    OnMove: TNotifyEvent;
+    OnClose: TNotifyEvent;
+
+    constructor Create(aParent: TKMPanel; aLeft, aTop, aWidth, aHeight: Integer);
+    property Caption: UnicodeString read GetCaption write SetCaption;
+    procedure MouseDown (X,Y: Integer; Shift: TShiftState; Button: TMouseButton); override;
+    procedure MouseMove (X,Y: Integer; Shift: TShiftState); override;
+    procedure MouseUp   (X,Y: Integer; Shift: TShiftState; Button: TMouseButton); override;
+    procedure Paint; override;
+  end;
+
+
   {EditField}
   TKMEdit = class(TKMControl)
   private
@@ -1256,7 +1283,9 @@ end;
 
 {One common thing - draw childs for self}
 procedure TKMControl.Paint;
-var sColor: TColor4; Tmp: TKMPoint;
+var
+  sColor: TColor4;
+  Tmp: TKMPoint;
 begin
   Inc(CtrlPaintCount);
 
@@ -1534,7 +1563,8 @@ end;
 
 
 procedure TKMPanel.SetHeight(aValue: Integer);
-var I: Integer;
+var
+  I: Integer;
 begin
   for I := 0 to ChildCount - 1 do
     if (akTop in Childs[I].Anchors) and (akBottom in Childs[I].Anchors) then
@@ -1553,7 +1583,8 @@ end;
 
 
 procedure TKMPanel.SetWidth(aValue: Integer);
-var I: Integer;
+var
+  I: Integer;
 begin
   for I := 0 to ChildCount - 1 do
     if (akLeft in Childs[I].Anchors) and (akRight in Childs[I].Anchors) then
@@ -1573,12 +1604,103 @@ end;
 
 {Panel Paint means to Paint all its childs}
 procedure TKMPanel.Paint;
-var I: Integer;
+var
+  I: Integer;
 begin
   inherited;
   for I := 0 to ChildCount - 1 do
     if Childs[I].fVisible then
       Childs[I].Paint;
+end;
+
+
+{ TKMForm }
+constructor TKMForm.Create(aParent: TKMPanel; aLeft, aTop, aWidth, aHeight: Integer);
+begin
+  inherited Create(aParent, aLeft, aTop, aWidth, aHeight);
+
+  fHeaderHeight := 24;
+
+  fButtonClose := TKMButtonFlat.Create(Self, aWidth - fHeaderHeight + 2, 2, fHeaderHeight-4, fHeaderHeight-4, 340, rxGui);
+  fButtonClose.OnClick := FormCloseClick;
+  fLabelCaption := TKMLabel.Create(Self, 0, 5, aWidth, fHeaderHeight, 'Form1', fnt_Outline, taCenter);
+  fLabelCaption.Hitable := False;
+end;
+
+
+procedure TKMForm.FormCloseClick(Sender: TObject);
+begin
+  Hide;
+
+  if Assigned(OnClose) then
+    OnClose(Self);
+end;
+
+
+function TKMForm.GetCaption: UnicodeString;
+begin
+  Result := fLabelCaption.Caption;
+end;
+
+
+procedure TKMForm.SetCaption(const aValue: UnicodeString);
+begin
+  fLabelCaption.Caption := aValue;
+end;
+
+
+function TKMForm.HitHeader(X, Y: Integer): Boolean;
+begin
+  Result := InRange(X - AbsLeft, 0, Width) and InRange(Y - AbsTop, 0, fHeaderHeight);
+end;
+
+
+procedure TKMForm.MouseDown(X, Y: Integer; Shift: TShiftState; Button: TMouseButton);
+begin
+  inherited;
+
+  if HitHeader(X,Y) then
+  begin
+    fDragging := True;
+    fOffsetX := X - AbsLeft;
+    fOffsetY := Y - AbsTop;
+  end;
+
+  MouseMove(X, Y, Shift);
+end;
+
+
+procedure TKMForm.MouseMove(X,Y: Integer; Shift: TShiftState);
+begin
+  inherited;
+
+  if fDragging and (csDown in State) then
+  begin
+    AbsLeft := EnsureRange(X - fOffsetX, 0, MasterParent.Width - Width);
+    AbsTop := EnsureRange(Y - fOffsetY, 0, MasterParent.Height - Height);
+
+    if Assigned(OnMove) then
+      OnMove(Self);
+  end;
+end;
+
+
+procedure TKMForm.MouseUp(X,Y: Integer; Shift: TShiftState; Button: TMouseButton);
+begin
+  inherited;
+  MouseMove(X,Y,Shift);
+
+end;
+
+
+procedure TKMForm.Paint;
+begin
+  TKMRenderUI.WriteShadow(AbsLeft, AbsTop, Width, Height, 15, $40000000);
+
+  TKMRenderUI.WriteOutline(AbsLeft, AbsTop, Width, Height, 3, $FF000000);
+  TKMRenderUI.WriteOutline(AbsLeft+1, AbsTop+1, Width-2, Height-2, 1, $FF80FFFF);
+
+  inherited;
 end;
 
 

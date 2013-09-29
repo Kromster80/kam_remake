@@ -75,6 +75,7 @@ uses KM_ResTexts, KM_GameApp, KM_Log, KM_Networking, KM_RenderUI, KM_ResFonts;
 constructor TKMMainMenuInterface.Create(X,Y: Word);
 var
   S: TKMShape;
+  //F: TKMForm;
 begin
   inherited;
   Assert(gResTexts <> nil, 'fTextMain should be initialized before MainMenuInterface');
@@ -124,8 +125,11 @@ begin
     S.Hitable := False;
   end;
 
+  //F := TKMForm.Create(Panel_Main, 100, 100, 200, 160);
+  //F.Caption := 'Some Form';
+  //F.Show;
+
   gLog.AddTime('Main menu init done');
-//Use ShowScreen to select properscreen after fGame init is done
 end;
 
 
