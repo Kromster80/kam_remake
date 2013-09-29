@@ -143,6 +143,7 @@ procedure TKMGUIGameBuild.Hide;
 begin
   //Reset cursor
   Build_ButtonClick(nil);
+  Panel_Build.Hide;
 end;
 
 

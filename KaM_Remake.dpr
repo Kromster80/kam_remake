@@ -51,6 +51,7 @@ uses
   KM_GUIGameBuild in 'KM_GUIGameBuild.pas',
   KM_GUIGameChat in 'KM_GUIGameChat.pas',
   KM_GUIGameHouse in 'KM_GUIGameHouse.pas',
+  KM_GUIGameRatios in 'KM_GUIGameRatios.pas',
   KM_GUIGameStats in 'KM_GUIGameStats.pas',
   KM_GUIMapEdAttack in 'KM_GUIMapEdAttack.pas',
   KM_GUIMapEdExtras in 'KM_GUIMapEdExtras.pas',

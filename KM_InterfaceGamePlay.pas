@@ -11,6 +11,7 @@ uses
   KM_GUIGameBuild,
   KM_GUIGameChat,
   KM_GUIGameHouse,
+  KM_GUIGameRatios,
   KM_GUIGameStats;
 
 
@@ -32,6 +33,7 @@ type
     fGuiGameBuild: TKMGUIGameBuild;
     fGuiGameChat: TKMGUIGameChat;
     fGuiGameHouse: TKMGUIGameHouse;
+    fGuiGameRatios: TKMGUIGameRatios;
     fGuiGameStats: TKMGUIGameStats;
 
     //Not saved
@@ -48,7 +50,6 @@ type
     SelectedDirection: TKMDirection;
     SelectingTroopDirection: Boolean;
     SelectingDirPosition: TPoint;
-    RatioTab: Byte; //Active resource distribution tab
     fSaves: TKMSavesCollection;
     fTeamNames: TList;
     Label_TeamName: TKMLabel;
@@ -69,7 +70,6 @@ type
     procedure Create_MPPlayMore;
     procedure Create_NetWait;
     procedure Create_MessageStack;
-    procedure Create_Ratios;
     procedure Create_Menu;
     procedure Create_Save;
     procedure Create_Load;
@@ -117,8 +117,6 @@ type
     procedure Selection_Assign(aKey: Word; aObject: TObject);
     procedure Selection_Select(aKey: Word);
     procedure SwitchPage(Sender: TObject);
-    procedure SwitchPage_Ratios(Sender: TObject);
-    procedure RatiosChange(Sender: TObject);
     procedure DisplayHint(Sender: TObject);
     procedure PlayMoreClick(Sender: TObject);
     procedure MPPlayMoreClick(Sender: TObject);
@@ -205,12 +203,6 @@ type
         Panel_NetWaitConfirm: TKMPanel;
           Label_NetWaitConfirm: TKMLabel;
           Button_NetConfirmYes,Button_NetConfirmNo: TKMButton;
-    Panel_Ratios: TKMPanel;
-      Button_Ratios:array[1..4]of TKMButton;
-      Image_RatioPic0: TKMImage;
-      Label_RatioLab0: TKMLabel;
-      Image_RatioPic:array[1..4]of TKMImage;
-      TrackBar_RatioRat:array[1..4]of TKMTrackBar;
     Panel_Menu: TKMPanel;
       Button_Menu_Save,Button_Menu_Load,Button_Menu_Settings,Button_Menu_Quit,Button_Menu_TrackUp,Button_Menu_TrackDown: TKMButton;
       Label_Menu_Track, Label_GameTime: TKMLabel;
@@ -311,68 +303,6 @@ uses KM_Main, KM_GameInputProcess, KM_GameInputProcess_Multi, KM_AI, KM_RenderUI
   KM_HandsCollection, KM_Hand, KM_RenderPool, KM_ResTexts, KM_Game, KM_GameApp,
   KM_Utils, KM_ResLocales, KM_ResSound, KM_Resource, KM_Log, KM_ResCursors, KM_ResFonts,
   KM_ResSprites, KM_ResUnits, KM_ResWares, KM_FogOfWar, KM_Sound, KM_NetPlayersList;
-
-
-const
-  ResRatioCount = 4;
-  ResRatioType: array[1..ResRatioCount] of TWareType = (wt_Steel, wt_Coal, wt_Wood, wt_Corn);
-  ResRatioHint: array[1..ResRatioCount] of Word = (298, 300, 302, 304); //Distribution of rt_***
-  ResRatioHouseCount: array[1..ResRatioCount] of Byte = (2, 4, 2, 3);
-  ResRatioHouse: array[1..ResRatioCount, 1..4] of THouseType = (
-      (ht_WeaponSmithy,   ht_ArmorSmithy,     ht_None,          ht_None),
-      (ht_IronSmithy,     ht_Metallurgists,   ht_WeaponSmithy,  ht_ArmorSmithy),
-      (ht_ArmorWorkshop,  ht_WeaponWorkshop,  ht_None,          ht_None),
-      (ht_Mill,           ht_Swine,           ht_Stables,       ht_None));
-
-
-{Switch between pages}
-procedure TKMGamePlayInterface.SwitchPage_Ratios(Sender: TObject);
-var I: Integer; HT: THouseType;
-begin
-  //Hide everything but the tab buttons
-  for I := 0 to Panel_Ratios.ChildCount - 1 do
-    if not (Panel_Ratios.Childs[I] is TKMButton) then
-      Panel_Ratios.Childs[I].Hide;
-
-  RatioTab := TKMButton(Sender).Tag;
-
-  Image_RatioPic0.TexID := fResource.Wares[ResRatioType[RatioTab]].GUIIcon;//Show resource icon
-  Label_RatioLab0.Caption := fResource.Wares[ResRatioType[RatioTab]].Title;
-  Image_RatioPic0.Show;
-  Label_RatioLab0.Show;
-
-  for i:=1 to ResRatioHouseCount[RatioTab] do
-  begin
-    HT := ResRatioHouse[RatioTab, i];
-    //Do not allow player to see blocked house (never able to build). Though house may be prebuilt and blocked
-    if (not gHands[MySpectator.HandIndex].Stats.HouseBlocked[HT])
-    or (gHands[MySpectator.HandIndex].Stats.GetHouseQty(HT) > 0) then
-    begin
-      Image_RatioPic[i].TexID := fResource.HouseDat[HT].GUIIcon;
-      TrackBar_RatioRat[i].Caption := fResource.HouseDat[HT].HouseName;
-      TrackBar_RatioRat[i].Position := gHands[MySpectator.HandIndex].Stats.Ratio[ResRatioType[RatioTab], HT];
-      TrackBar_RatioRat[i].Enable;
-    end else begin
-      Image_RatioPic[i].TexID := 41; //Question mark
-      TrackBar_RatioRat[i].Caption := gResTexts[TX_GAMEPLAY_NOT_AVAILABLE];
-      TrackBar_RatioRat[i].Position := 0;
-      TrackBar_RatioRat[i].Disable;
-    end;
-
-    Image_RatioPic[i].Show;
-    TrackBar_RatioRat[i].Show;
-  end;
-end;
-
-
-procedure TKMGamePlayInterface.RatiosChange(Sender: TObject);
-var RT: TWareType; HT: THouseType;
-begin
-  RT := ResRatioType[RatioTab];
-  HT := ResRatioHouse[RatioTab, TKMTrackBar(Sender).Tag];
-
-  fGame.GameInputProcess.CmdRatio(gic_RatioChange, RT, HT, TKMTrackBar(Sender).Position);
-end;
 
 
 procedure TKMGamePlayInterface.Menu_Save_ListChange(Sender: TObject);
@@ -524,6 +454,7 @@ begin
 
   fGuiGameBuild.Hide;
   fGuiGameHouse.Hide;
+  fGuiGameRatios.Hide;
   fGuiGameStats.Hide;
 end;
 
@@ -574,9 +505,8 @@ begin
 
   if Sender = Button_Main[tbRatio] then
   begin
-    Panel_Ratios.Show;
-    SwitchPage_Ratios(Button_Ratios[1]); //Open 1st tab
     Label_MenuTitle.Caption := gResTexts[TX_MENU_TAB_DISTRIBUTE];
+    fGuiGameRatios.Show;
   end else
 
   if Sender = Button_Main[tbStats] then
@@ -827,7 +757,9 @@ begin
   FreeAndNil(fMinimap);
 
   fGuiGameBuild.Free;
+  fGuiGameChat.Free;
   fGuiGameHouse.Free;
+  fGuiGameRatios.Free;
   fGuiGameStats.Free;
 
   fMessageList.Free;
@@ -1125,7 +1057,7 @@ begin
     Label_MenuTitle.AutoWrap := True;
 
   fGuiGameBuild := TKMGUIGameBuild.Create(Panel_Controls);
-  Create_Ratios;
+  fGuiGameRatios := TKMGUIGameRatios.Create(Panel_Controls);
   fGuiGameStats := TKMGUIGameStats.Create(Panel_Controls);
   Create_Menu;
     Create_Save;
@@ -1176,34 +1108,6 @@ begin
     Image_AlliesClose.Hint := gResTexts[TX_MSG_CLOSE_HINT];
     Image_AlliesClose.OnClick := Allies_Close;
     Image_AlliesClose.HighlightOnMouseOver := True;
-end;
-
-
-{Ratios page}
-procedure TKMGamePlayInterface.Create_Ratios;
-const Res:array[1..4] of TWareType = (wt_Steel,wt_Coal,wt_Wood,wt_Corn);
-var I: Integer;
-begin
-  Panel_Ratios:=TKMPanel.Create(Panel_Controls, TB_PAD, 44, TB_WIDTH, 332);
-
-  for i:=1 to 4 do begin
-    Button_Ratios[i]         := TKMButton.Create(Panel_Ratios, (i-1)*40,20,32,32,0, rxGui, bsGame);
-    Button_Ratios[i].TexID   := fResource.Wares[Res[i]].GUIIcon;
-    Button_Ratios[i].Hint    := fResource.Wares[Res[i]].Title;
-    Button_Ratios[i].Tag     := i;
-    Button_Ratios[i].OnClick := SwitchPage_Ratios;
-  end;
-
-  Image_RatioPic0 := TKMImage.Create(Panel_Ratios,4,76,32,32,327);
-  Label_RatioLab0 := TKMLabel.Create(Panel_Ratios,36,72,148,30,NO_TEXT,fnt_Outline,taLeft);
-
-  for i:=1 to 4 do begin
-    Image_RatioPic[i]            := TKMImage.Create(Panel_Ratios,4,124+(i-1)*50,32,32,327);
-    TrackBar_RatioRat[i]         := TKMTrackBar.Create(Panel_Ratios,40,116+(i-1)*50,140,0,5);
-    TrackBar_RatioRat[i].Font    := fnt_Grey; //fnt_Metal doesn't fit the text
-    TrackBar_RatioRat[i].Tag     := i;
-    TrackBar_RatioRat[i].OnChange:= RatiosChange;
-  end;
 end;
 
 
