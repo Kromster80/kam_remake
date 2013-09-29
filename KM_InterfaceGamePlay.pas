@@ -280,7 +280,6 @@ type
     procedure SetChatText(const aString: UnicodeString);
     procedure SetChatMessages(const aString: UnicodeString);
     procedure ChatMessage(const aData: UnicodeString);
-    procedure WarriorCommanderDied(DeadID, NewID: Cardinal);
     procedure AlliesOnPlayerSetup(Sender: TObject);
     procedure AlliesOnPingInfo(Sender: TObject);
     procedure AlliesTeamChange(Sender: TObject);
@@ -2397,15 +2396,6 @@ begin
 
   if not fGuiGameChat.Visible then
     Label_MPChatUnread.Caption := IntToStr(StrToIntDef(Label_MPChatUnread.Caption, 0) + 1); //New message
-end;
-
-
-procedure TKMGamePlayInterface.WarriorCommanderDied(DeadID, NewID: Cardinal);
-var I: Integer;
-begin
-  for I := 0 to 9 do
-    if fSelection[I] = DeadID then
-      fSelection[I] := NewID; //If the commander dies select the new commander
 end;
 
 
