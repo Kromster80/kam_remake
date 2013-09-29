@@ -57,14 +57,15 @@ end;
 
 
 procedure TKMMapEdMissionAlliances.Mission_AlliancesChange(Sender: TObject);
-var I,K: Integer;
+var
+  I,K: Integer;
 begin
   if Sender = nil then
   begin
-    for I:=0 to gHands.Count-1 do
-    for K:=0 to gHands.Count-1 do
+    for I := 0 to gHands.Count - 1 do
+    for K := 0 to gHands.Count - 1 do
       if (gHands[I]<>nil)and(gHands[K]<>nil) then
-        CheckBox_Alliances[I,K].Checked := (gHands.CheckAlliance(gHands[I].HandIndex, gHands[K].HandIndex)=at_Ally)
+        CheckBox_Alliances[I,K].Checked := (gHands[I].Alliances[K] = at_Ally)
       else
         CheckBox_Alliances[I,K].Disable; //Player does not exist?
     exit;

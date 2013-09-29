@@ -2011,11 +2011,13 @@ begin
   begin
     G := fIDCache.GetGroup(aGroupID);
     U := fIDCache.GetUnit(aUnitID);
-    if (G <> nil) and (U <> nil) then
+
+    //Player can not attack animals
+    if (G <> nil) and (U <> nil) and (U.Owner <> PLAYER_ANIMAL) then
       G.OrderAttackUnit(U, True);
   end
   else
-    LogError('Actions.GroupOrderAttackHouse', [aGroupID, aUnitID]);
+    LogError('Actions.GroupOrderAttackUnit', [aGroupID, aUnitID]);
 end;
 
 

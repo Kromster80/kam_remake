@@ -888,7 +888,8 @@ end;
 
 //All units are assigned TTaskAttackHouse which does everything for us (move to position, hit house, abandon, etc.)
 procedure TKMUnitGroup.OrderAttackHouse(aHouse: TKMHouse; aClearOffenders: Boolean);
-var I: Integer;
+var
+  I: Integer;
 begin
   Assert(aHouse <> nil);
 
@@ -907,7 +908,8 @@ end;
 
 
 procedure TKMUnitGroup.OrderAttackUnit(aUnit: TKMUnit; aClearOffenders: Boolean);
-var I: Integer;
+var
+  I: Integer;
 begin
   Assert(aUnit <> nil);
 

@@ -10,6 +10,7 @@
  +	Script could order to attack allied assets. Check alliance settings when executing attack commands from script
  +	Script would not allow to play WAV files with anything except lower case letters and digits
  +	Random seed should be different before each game
+ +	Attacking an animal through script command would crash a game
 	Armour smithy has shields as 2nd ouput, armour workshop has shields as 1st output. Would make sense to match them (note: simply swapping in KM_ResourceHouses causes game logic to be swapped with GUI)
 	Armour smithy has iron as 1st input, weapon smithy has iron as 2nd input (iron/coal swapped). Would make sense to match them (note: simpply swapping in KM_ResourceHouses causes game logic to be swapped with GUI)
 	Deliveries should use the actual walking route length (opposed to Radius)

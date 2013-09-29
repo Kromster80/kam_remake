@@ -63,6 +63,7 @@ Proposed:
 	OnGroupHungry(aGroupID); 
 	BlockCamera, block player from changing the view/zoom
 	Change player color
+	Actions.GroupOrderAttackGroup(AttackersGroupID, GroupToAttackID: Integer)
 
 
 Rejected:	
