@@ -8,6 +8,7 @@ uses
   KM_Controls, KM_CommonClasses, KM_CommonTypes, KM_Defaults, KM_Pics, KM_Points,
   KM_InterfaceDefaults, KM_InterfaceGame, KM_Terrain, KM_Houses, KM_Units, KM_Minimap, KM_Viewport, KM_Render,
   KM_UnitGroups, KM_Units_Warrior, KM_Saves, KM_MessageStack, KM_ResHouses, KM_Alerts,
+  KM_GUIGameBuild,
   KM_GUIGameHouse;
 
 
@@ -26,6 +27,7 @@ type
     fReplay: Boolean; //Replay UI has slightly different layout
     fSave_Selected: Integer; //Save selected from list (needed because of scanning)
 
+    fGuiGameBuild: TKMGUIGameBuild;
     fGuiGameHouse: TKMGUIGameHouse;
 
     //Not saved
@@ -67,7 +69,6 @@ type
     procedure Create_MPPlayMore;
     procedure Create_NetWait;
     procedure Create_MessageStack;
-    procedure Create_Build;
     procedure Create_Ratios;
     procedure Create_Stats;
     procedure Create_Menu;
@@ -126,8 +127,6 @@ type
     procedure MPPlayMoreClick(Sender: TObject);
     procedure NetWaitClick(Sender: TObject);
     procedure ReplayClick(Sender: TObject);
-    procedure Build_ButtonClick(Sender: TObject);
-    procedure Build_Update;
     procedure Chat_Close(Sender: TObject);
     procedure Chat_Post(Sender: TObject; Key:word);
     procedure Chat_Resize(Sender: TObject; X,Y: Integer);
@@ -236,16 +235,6 @@ type
       Stat_UnitPic: array [CITIZEN_MIN..CITIZEN_MAX] of TKMImage;
       Stat_HouseQty, Stat_HouseWip: array [HOUSE_MIN..HOUSE_MAX] of TKMLabel;
       Stat_UnitQty, Stat_UnitWip: array [CITIZEN_MIN..CITIZEN_MAX] of TKMLabel;
-
-    Panel_Build: TKMPanel;
-      Label_Build: TKMLabel;
-      Image_Build_Selected: TKMImage;
-      Image_BuildCost_WoodPic: TKMImage;
-      Image_BuildCost_StonePic: TKMImage;
-      Label_BuildCost_Wood: TKMLabel;
-      Label_BuildCost_Stone: TKMLabel;
-      Button_BuildRoad,Button_BuildField,Button_BuildWine,Button_BuildCancel: TKMButtonFlat;
-      Button_Build:array[1..GUI_HOUSE_COUNT]of TKMButtonFlat;
 
     Panel_Menu: TKMPanel;
       Button_Menu_Save,Button_Menu_Load,Button_Menu_Settings,Button_Menu_Quit,Button_Menu_TrackUp,Button_Menu_TrackDown: TKMButton;
@@ -562,6 +551,7 @@ begin
     if (Panel_Controls.Childs[I] is TKMPanel) then
       Panel_Controls.Childs[I].Hide;
 
+  fGuiGameBuild.Hide;
   fGuiGameHouse.Hide;
 end;
 
@@ -577,7 +567,6 @@ var
     for T := Low(TKMTabButtons) to High(TKMTabButtons) do Button_Main[T].Visible := ShowEm;
     Button_Back.Visible := not ShowEm;
     Label_MenuTitle.Visible := not ShowEm;
-
   end;
 
 begin
@@ -585,9 +574,6 @@ begin
   or (Sender = Button_Main[tbStats]) or (Sender = Button_Main[tbMenu])
   or (Sender = Button_Menu_Settings) or (Sender = Button_Menu_Quit) then
     MySpectator.Selected := nil;
-
-  //Reset the CursorMode, to cm_None
-  Build_ButtonClick(nil);
 
   //Set LastVisiblePage to which ever page was last visible, out of the ones needed
   if Panel_Settings.Visible then LastVisiblePage := Panel_Settings else
@@ -610,10 +596,8 @@ begin
   Flip4MainButtons(false);
   if Sender = Button_Main[tbBuild] then
   begin
-    Build_Update;
-    Panel_Build.Show;
     Label_MenuTitle.Caption := gResTexts[TX_MENU_TAB_BUILD];
-    Build_ButtonClick(Button_BuildRoad);
+    fGuiGameBuild.Show;
   end else
 
   if Sender = Button_Main[tbRatio] then
@@ -870,6 +854,7 @@ begin
   FreeAndNil(fViewport);
   FreeAndNil(fMinimap);
 
+  fGuiGameBuild.Free;
   fGuiGameHouse.Free;
 
   fMessageList.Free;
@@ -1219,7 +1204,7 @@ begin
     Label_MenuTitle := TKMLabel.Create(Panel_Controls, 54, 4, 138, 0, '', fnt_Metal, taLeft);
     Label_MenuTitle.AutoWrap := True;
 
-  Create_Build;
+  fGuiGameBuild := TKMGUIGameBuild.Create(Panel_Controls);
   Create_Ratios;
   Create_Stats;
   Create_Menu;
@@ -1271,46 +1256,6 @@ begin
     Image_AlliesClose.Hint := gResTexts[TX_MSG_CLOSE_HINT];
     Image_AlliesClose.OnClick := Allies_Close;
     Image_AlliesClose.HighlightOnMouseOver := True;
-end;
-
-
-{Build page}
-procedure TKMGamePlayInterface.Create_Build;
-var I: Integer;
-begin
-  Panel_Build := TKMPanel.Create(Panel_Controls, TB_PAD, 44, TB_WIDTH, 332);
-    Label_Build := TKMLabel.Create(Panel_Build, 0, 10, TB_WIDTH, 0, '', fnt_Outline, taCenter);
-    Image_Build_Selected := TKMImage.Create(Panel_Build, 0, 40, 32, 32, 335);
-    Image_Build_Selected.ImageCenter;
-    Image_BuildCost_WoodPic := TKMImage.Create(Panel_Build, 67, 40, 32, 32, 353);
-    Image_BuildCost_WoodPic.ImageCenter;
-    Image_BuildCost_StonePic := TKMImage.Create(Panel_Build, 122, 40, 32, 32, 352);
-    Image_BuildCost_StonePic.ImageCenter;
-    Label_BuildCost_Wood  := TKMLabel.Create(Panel_Build,  97, 50, 20, 20, '', fnt_Outline, taLeft);
-    Label_BuildCost_Stone := TKMLabel.Create(Panel_Build, 152, 50, 20, 20, '', fnt_Outline, taLeft);
-
-    Button_BuildRoad    := TKMButtonFlat.Create(Panel_Build,   0, 80, 33, 33, 335);
-    Button_BuildField   := TKMButtonFlat.Create(Panel_Build,  37, 80, 33, 33, 337);
-    Button_BuildWine    := TKMButtonFlat.Create(Panel_Build,  74, 80, 33, 33, 336);
-    Button_BuildCancel  := TKMButtonFlat.Create(Panel_Build, 148, 80, 33, 33, 340);
-    Button_BuildRoad.OnClick    := Build_ButtonClick;
-    Button_BuildField.OnClick   := Build_ButtonClick;
-    Button_BuildWine.OnClick    := Build_ButtonClick;
-    Button_BuildCancel.OnClick  := Build_ButtonClick;
-    Button_BuildRoad.Hint   := gResTexts[TX_BUILD_ROAD_HINT];
-    Button_BuildField.Hint  := gResTexts[TX_BUILD_FIELD_HINT];
-    Button_BuildWine.Hint   := gResTexts[TX_BUILD_WINE_HINT];
-    Button_BuildCancel.Hint := gResTexts[TX_BUILD_CANCEL_HINT];
-
-    for i:=1 to GUI_HOUSE_COUNT do
-    if GUIHouseOrder[i] <> ht_None then
-    begin
-      Button_Build[i] := TKMButtonFlat.Create(Panel_Build, ((i-1) mod 5)*37,120+((i-1) div 5)*37,33,33,
-      fResource.HouseDat[GUIHouseOrder[i]].GUIIcon);
-
-      Button_Build[i].OnClick := Build_ButtonClick;
-      Button_Build[i].Hint := fResource.HouseDat[GUIHouseOrder[i]].HouseName;
-    end;
 end;
 
 
@@ -1724,70 +1669,6 @@ begin
 end;
 
 
-procedure TKMGamePlayInterface.Build_ButtonClick(Sender: TObject);
-var I: Integer;
-begin
-  if Sender = nil then
-  begin
-    GameCursor.Mode := cmNone;
-    Exit;
-  end;
-
-  //Release all buttons (houses and fields)
-  for I := 0 to Panel_Build.ChildCount - 1 do
-    if Panel_Build.Childs[I] is TKMButtonFlat then
-      TKMButtonFlat(Panel_Build.Childs[I]).Down := False;
-
-  //Press the button
-  TKMButtonFlat(Sender).Down := true;
-
-  //Reset building mode
-  // and see if it needs to be changed
-
-  GameCursor.Mode := cmNone;
-  GameCursor.Tag1 := 0;
-
-  Label_BuildCost_Wood.Caption  := '-';
-  Label_BuildCost_Stone.Caption := '-';
-  Label_Build.Caption := '';
-
-
-  if Button_BuildCancel.Down then begin
-    GameCursor.Mode:=cmErase;
-    Image_Build_Selected.TexID := 340;
-    Label_Build.Caption := gResTexts[TX_BUILD_DEMOLISH];
-  end;
-  if Button_BuildRoad.Down then begin
-    GameCursor.Mode:=cmRoad;
-    Image_Build_Selected.TexID := 335;
-    Label_BuildCost_Stone.Caption:='1';
-    Label_Build.Caption := gResTexts[TX_BUILD_ROAD];
-  end;
-  if Button_BuildField.Down then begin
-    GameCursor.Mode:=cmField;
-    Image_Build_Selected.TexID := 337;
-    Label_Build.Caption := gResTexts[TX_BUILD_FIELD];
-  end;
-  if Button_BuildWine.Down then begin
-    GameCursor.Mode:=cmWine;
-    Image_Build_Selected.TexID := 336;
-    Label_BuildCost_Wood.Caption:='1';
-    Label_Build.Caption := gResTexts[TX_BUILD_WINE];
-  end;
-
-  for i:=1 to GUI_HOUSE_COUNT do
-  if GUIHouseOrder[i] <> ht_None then
-  if Button_Build[i].Down then begin
-     GameCursor.Mode:=cmHouses;
-     GameCursor.Tag1:=byte(GUIHouseOrder[i]);
-     Image_Build_Selected.TexID := fResource.HouseDat[GUIHouseOrder[i]].GUIIcon;
-     Label_BuildCost_Wood.Caption:=inttostr(fResource.HouseDat[GUIHouseOrder[i]].WoodCost);
-     Label_BuildCost_Stone.Caption:=inttostr(fResource.HouseDat[GUIHouseOrder[i]].StoneCost);
-     Label_Build.Caption := fResource.HouseDat[GUIHouseOrder[i]].HouseName;
-  end;
-end;
-
-
 procedure TKMGamePlayInterface.ShowUnitInfo(Sender: TKMUnit; aAskDismiss: Boolean = False);
 begin
   Assert(MySpectator.Selected = Sender);
@@ -2024,27 +1905,6 @@ begin
   Panel_Army_JoinGroups.Hide;
   if MySpectator.Selected is TKMUnitWarrior then
     Panel_Army.Show;
-end;
-
-
-procedure TKMGamePlayInterface.Build_Update;
-var I: Integer;
-begin
-  for I := 1 to GUI_HOUSE_COUNT do
-  if GUIHouseOrder[I] <> ht_None then
-  if gHands[MySpectator.HandIndex].Stats.GetCanBuild(GUIHouseOrder[I]) then
-  begin
-    Button_Build[I].Enable;
-    Button_Build[I].TexID := fResource.HouseDat[GUIHouseOrder[I]].GUIIcon;
-    Button_Build[I].OnClick := Build_ButtonClick;
-    Button_Build[I].Hint := fResource.HouseDat[GUIHouseOrder[I]].HouseName;
-  end
-  else
-  begin
-    Button_Build[I].OnClick := nil;
-    Button_Build[I].TexID := 41;
-    Button_Build[I].Hint := gResTexts[TX_HOUSE_NOT_AVAIABLE]; //Building not available
-  end;
 end;
 
 
@@ -3466,7 +3326,9 @@ begin
               begin
                 fGame.GameInputProcess.CmdBuild(gic_BuildHousePlan, P,
                   THouseType(GameCursor.Tag1));
-                if not (ssShift in Shift) then Build_ButtonClick(Button_BuildRoad); //If shift pressed do not reset cursor(keep selected building)
+                //If shift pressed do not reset cursor (keep selected building)
+                if not (ssShift in Shift) then
+                  fGuiGameBuild.Show;
               end
               else
                 gSoundPlayer.Play(sfx_CantPlace, P, False, 4);
@@ -3498,9 +3360,11 @@ begin
       end;
     mbRight:
       begin
-        //Cancel build/join
-        if Panel_Build.Visible then
+        //Cancel build
+        if fGuiGameBuild.Visible then
           SwitchPage(Button_Back);
+
+        //Cancel join
         if fJoiningGroups then
         begin
           Army_HideJoinMenu(nil);
@@ -3664,7 +3528,7 @@ begin
   end;
 
   //Keep on updating these menu pages as game data keeps on changing
-  if Panel_Build.Visible then Build_Update;
+  if fGuiGameBuild.Visible then fGuiGameBuild.UpdateState;
   if Panel_Stats.Visible then Stats_Update;
   if Panel_Menu.Visible then Menu_Update;
 

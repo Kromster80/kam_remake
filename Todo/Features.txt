@@ -12,7 +12,7 @@ Future
 
 Next Demo
  +	Select objects by shape
- + Undo/Redo in MapEd terrain editing
+ +	Undo/Redo in MapEd terrain editing
 	Unicode
 
 
