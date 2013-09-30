@@ -96,12 +96,12 @@ begin
   end;
 
   if Sender = CheckBox_RevealAll then
-    fGame.MapEditor.RevealAll[MySpectator.HandIndex] := CheckBox_RevealAll.Checked
+    gGame.MapEditor.RevealAll[MySpectator.HandIndex] := CheckBox_RevealAll.Checked
   else
-    CheckBox_RevealAll.Checked := fGame.MapEditor.RevealAll[MySpectator.HandIndex];
+    CheckBox_RevealAll.Checked := gGame.MapEditor.RevealAll[MySpectator.HandIndex];
 
   if Sender = Button_PlayerCenterScreen then
-    fGame.ActiveInterface.Viewport.Position := KMPointF(gHands[MySpectator.HandIndex].CenterScreen); //Jump to location
+    gGame.ActiveInterface.Viewport.Position := KMPointF(gHands[MySpectator.HandIndex].CenterScreen); //Jump to location
 
   Button_PlayerCenterScreen.Caption := TypeToString(gHands[MySpectator.HandIndex].CenterScreen);
 end;

@@ -134,7 +134,7 @@ begin
   end;
 
   //Append mission name and time after the result message
-  Label_Results.Caption := Label_Results.Caption + ' - ' + fGame.GameName; //Don't show the mission time in SP because it's already shown elsewhere
+  Label_Results.Caption := Label_Results.Caption + ' - ' + gGame.GameName; //Don't show the mission time in SP because it's already shown elsewhere
 
   //This is SP menu, we are dead sure there's only one Human player
   HumanId := -1;
@@ -153,7 +153,7 @@ begin
     Label_Stat[6].Caption := IntToStr(GetCitizensTrained);
     Label_Stat[7].Caption := IntToStr(GetWeaponsProduced);
     Label_Stat[8].Caption := IntToStr(GetWarriorsTrained);
-    Label_Stat[9].Caption := TimeToString(fGame.MissionTime);
+    Label_Stat[9].Caption := TimeToString(gGame.MissionTime);
   end;
 
   //Chart values
@@ -168,10 +168,10 @@ begin
     Chart_Houses.MaxLength    := gHands[HumanId].Stats.ChartCount;
     Chart_Wares.MaxLength     := gHands[HumanId].Stats.ChartCount;
 
-    Chart_Army.MaxTime      := fGame.GameTickCount div 10;
-    Chart_Citizens.MaxTime  := fGame.GameTickCount div 10;
-    Chart_Houses.MaxTime    := fGame.GameTickCount div 10;
-    Chart_Wares.MaxTime     := fGame.GameTickCount div 10;
+    Chart_Army.MaxTime      := gGame.GameTickCount div 10;
+    Chart_Citizens.MaxTime  := gGame.GameTickCount div 10;
+    Chart_Houses.MaxTime    := gGame.GameTickCount div 10;
+    Chart_Wares.MaxTime     := gGame.GameTickCount div 10;
 
     //Army
     TempGraphCount := 0; //Reset
@@ -228,9 +228,9 @@ begin
         end;
     end;
 
-    Button_ResultsHouses.Enabled := (fGame.MissionMode = mm_Normal);
-    Button_ResultsCitizens.Enabled := (fGame.MissionMode = mm_Normal);
-    Button_ResultsWares.Enabled := (fGame.MissionMode = mm_Normal);
+    Button_ResultsHouses.Enabled := (gGame.MissionMode = mm_Normal);
+    Button_ResultsCitizens.Enabled := (gGame.MissionMode = mm_Normal);
+    Button_ResultsWares.Enabled := (gGame.MissionMode = mm_Normal);
     GraphToggle(Button_ResultsArmy);
   end;
 end;
@@ -255,13 +255,13 @@ begin
   fGameResultMsg := aMsg;
 
   //Remember which map we played so we could restart it
-  fRepeatGameName := fGame.GameName;
-  fRepeatMission := fGame.MissionFile;
-  fRepeatSave := fGame.SaveFile;
-  fRepeatCampName := fGame.CampaignName;
-  fRepeatCampMap := fGame.CampaignMap;
-  fRepeatLocation := fGame.PlayerLoc;
-  fRepeatColor := fGame.PlayerColor;
+  fRepeatGameName := gGame.GameName;
+  fRepeatMission := gGame.MissionFile;
+  fRepeatSave := gGame.SaveFile;
+  fRepeatCampName := gGame.CampaignName;
+  fRepeatCampMap := gGame.CampaignMap;
+  fRepeatLocation := gGame.PlayerLoc;
+  fRepeatColor := gGame.PlayerColor;
 
   Refresh;
   Panel_Results.Show;

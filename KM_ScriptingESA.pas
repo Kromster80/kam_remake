@@ -235,13 +235,13 @@ end;
 
 function TKMScriptStates.GameTime: Cardinal;
 begin
-  Result := fGame.GameTickCount;
+  Result := gGame.GameTickCount;
 end;
 
 
 function TKMScriptStates.PeaceTime: Cardinal;
 begin
-  Result := 600*fGame.GameOptions.Peacetime;
+  Result := 600*gGame.GameOptions.Peacetime;
 end;
 
 
@@ -1479,7 +1479,7 @@ end;
 procedure TKMScriptActions.ShowMsg(aPlayer: Shortint; aText: AnsiString);
 begin
   if (aPlayer = MySpectator.HandIndex) or (aPlayer = -1) then
-    fGame.ShowMessage(mkText, UnicodeString(aText), KMPoint(0,0));
+    gGame.ShowMessage(mkText, UnicodeString(aText), KMPoint(0,0));
 end;
 
 
@@ -1487,7 +1487,7 @@ end;
 procedure TKMScriptActions.ShowMsgFormatted(aPlayer: Shortint; aText: AnsiString; Params: array of const);
 begin
   if (aPlayer = MySpectator.HandIndex) or (aPlayer = -1) then
-    fGame.ShowMessageFormatted(mkText, UnicodeString(aText), KMPoint(0,0), Params);
+    gGame.ShowMessageFormatted(mkText, UnicodeString(aText), KMPoint(0,0), Params);
 end;
 
 
@@ -1497,7 +1497,7 @@ begin
   if gTerrain.TileInMapCoords(aX, aY) then
   begin
     if (aPlayer = MySpectator.HandIndex) or (aPlayer = -1) then
-      fGame.ShowMessage(mkText, UnicodeString(aText), KMPoint(aX,aY));
+      gGame.ShowMessage(mkText, UnicodeString(aText), KMPoint(aX,aY));
   end
   else
     LogError('Actions.ShowMsgGoto', [aPlayer, aX, aY]);
@@ -1510,7 +1510,7 @@ begin
   if gTerrain.TileInMapCoords(aX, aY) then
   begin
     if (aPlayer = MySpectator.HandIndex) or (aPlayer = -1) then
-      fGame.ShowMessageFormatted(mkText, UnicodeString(aText), KMPoint(aX,aY), Params);
+      gGame.ShowMessageFormatted(mkText, UnicodeString(aText), KMPoint(aX,aY), Params);
   end
   else
     LogError('Actions.ShowMsgGotoFormatted', [aPlayer, aX, aY]);
@@ -1766,7 +1766,7 @@ procedure TKMScriptActions.OverlayTextSet(aPlayer: Shortint; aText: AnsiString);
 begin
   //Text from script should be only ANSI Latin, but UI is Unicode, so we switch it
   if (aPlayer = MySpectator.HandIndex) or (aPlayer = -1) then
-    fGame.ShowOverlay(UnicodeString(aText));
+    gGame.ShowOverlay(UnicodeString(aText));
 end;
 
 
@@ -1774,7 +1774,7 @@ procedure TKMScriptActions.OverlayTextSetFormatted(aPlayer: Shortint; aText: Ans
 begin
   //Text from script should be only ANSI Latin, but UI is Unicode, so we switch it
   if (aPlayer = MySpectator.HandIndex) or (aPlayer = -1) then
-    fGame.ShowOverlayFormatted(UnicodeString(aText), Params);
+    gGame.ShowOverlayFormatted(UnicodeString(aText), Params);
 end;
 
 
@@ -1782,7 +1782,7 @@ procedure TKMScriptActions.OverlayTextAppend(aPlayer: Shortint; aText: AnsiStrin
 begin
   //Text from script should be only ANSI Latin, but UI is Unicode, so we switch it
   if (aPlayer = MySpectator.HandIndex) or (aPlayer = -1) then
-    fGame.OverlayAppend(UnicodeString(aText));
+    gGame.OverlayAppend(UnicodeString(aText));
 end;
 
 
@@ -1790,7 +1790,7 @@ procedure TKMScriptActions.OverlayTextAppendFormatted(aPlayer: Shortint; aText: 
 begin
   //Text from script should be only ANSI Latin, but UI is Unicode, so we switch it
   if (aPlayer = MySpectator.HandIndex) or (aPlayer = -1) then
-    fGame.OverlayAppendFormatted(UnicodeString(aText), Params);
+    gGame.OverlayAppendFormatted(UnicodeString(aText), Params);
 end;
 
 

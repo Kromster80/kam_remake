@@ -88,7 +88,7 @@ begin
     fWonOrLost := wol_Lost;
 
     //Let the game know
-    fGame.PlayerDefeat(fOwner);
+    gGame.PlayerDefeat(fOwner);
 
     //Script may have additional event processors
     fScripting.ProcPlayerDefeated(fOwner);
@@ -106,8 +106,8 @@ begin
     fWonOrLost := wol_Won;
 
     //Let everyone know in MP mode
-    if not fGame.IsReplay and (fGame.IsMultiplayer or (MySpectator.HandIndex = fOwner)) then
-      fGame.PlayerVictory(fOwner);
+    if not gGame.IsReplay and (gGame.IsMultiplayer or (MySpectator.HandIndex = fOwner)) then
+      gGame.PlayerVictory(fOwner);
 
     //Script may have additional event processors
     fScripting.ProcPlayerVictory(fOwner);
@@ -230,8 +230,8 @@ begin
     hndHuman:
       begin
         //No fight alerts in replays, and only show alerts for ourselves
-        if (not fGame.IsReplay) and (fOwner = MySpectator.HandIndex) then
-          fGame.GamePlayInterface.Alerts.AddFight(KMPointF(aHouse.GetPosition), fOwner, an_Town);
+        if (not gGame.IsReplay) and (fOwner = MySpectator.HandIndex) then
+          gGame.GamePlayInterface.Alerts.AddFight(KMPointF(aHouse.GetPosition), fOwner, an_Town);
       end;
     hndComputer:
       fGeneral.RetaliateAgainstThreat(aAttacker);
@@ -249,8 +249,8 @@ begin
   case gHands[fOwner].PlayerType of
     hndHuman:
       //No fight alerts in replays, and only show alerts for ourselves
-      if not fGame.IsReplay and (fOwner = MySpectator.HandIndex) then
-        fGame.GamePlayInterface.Alerts.AddFight(aUnit.PositionF, fOwner, NotifyKind[aUnit is TKMUnitWarrior]);
+      if not gGame.IsReplay and (fOwner = MySpectator.HandIndex) then
+        gGame.GamePlayInterface.Alerts.AddFight(aUnit.PositionF, fOwner, NotifyKind[aUnit is TKMUnitWarrior]);
     hndComputer:
       begin
         //If we are attacked, then we should counter attack the attacker!

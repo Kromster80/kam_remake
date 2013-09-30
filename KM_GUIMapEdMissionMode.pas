@@ -43,13 +43,13 @@ end;
 
 procedure TKMMapEdMissionMode.Mission_ModeChange(Sender: TObject);
 begin
-  fGame.MissionMode := TKMissionMode(Radio_MissionMode.ItemIndex);
+  gGame.MissionMode := TKMissionMode(Radio_MissionMode.ItemIndex);
 end;
 
 
 procedure TKMMapEdMissionMode.Mission_ModeUpdate;
 begin
-  Radio_MissionMode.ItemIndex := Byte(fGame.MissionMode);
+  Radio_MissionMode.ItemIndex := Byte(gGame.MissionMode);
 end;
 
 

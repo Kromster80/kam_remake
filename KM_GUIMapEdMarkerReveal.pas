@@ -69,7 +69,7 @@ var
   Rev: TKMPointTagList;
 begin
   //Shortcut to structure we update
-  Rev := fGame.MapEditor.Revealers[fOwner];
+  Rev := gGame.MapEditor.Revealers[fOwner];
 
   if Sender = TrackBar_RevealSize then
     Rev.Tag[fIndex] := TrackBar_RevealSize.Position;
@@ -98,7 +98,7 @@ begin
 
   Label_MarkerType.Caption := gResTexts[TX_MAPED_FOG];
   Image_MarkerPic.TexID := 393;
-  TrackBar_RevealSize.Position := fGame.MapEditor.Revealers[fOwner].Tag[fIndex];
+  TrackBar_RevealSize.Position := gGame.MapEditor.Revealers[fOwner].Tag[fIndex];
 
   Panel_MarkerReveal.Show;
 end;

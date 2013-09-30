@@ -464,8 +464,8 @@ begin
 
   Assert(Msg <> 0, fResource.HouseDat[fHome.HouseType].HouseName+' resource cant possibly deplet');
 
-  if (fOwner = MySpectator.HandIndex) and not fGame.IsReplay then //Don't show message for other players or during replays
-    fGame.ShowMessage(mkHouse, gResTexts[Msg], fHome.GetEntrance);
+  if (fOwner = MySpectator.HandIndex) and not gGame.IsReplay then //Don't show message for other players or during replays
+    gGame.ShowMessage(mkHouse, gResTexts[Msg], fHome.GetEntrance);
 
   fHome.ResourceDepletedMsgIssued := True;
 end;
@@ -994,14 +994,14 @@ begin
   YPaintPos := fPosition.Y + UNIT_OFF_Y + GetSlide(ax_Y);
 
   //Make fish/watersnakes more visible in the MapEd
-  if (fGame.GameMode = gmMapEd) and (fUnitType in [ut_Fish, ut_Watersnake, ut_Seastar]) then
+  if (gGame.GameMode = gmMapEd) and (fUnitType in [ut_Fish, ut_Watersnake, ut_Seastar]) then
     fRenderAux.Circle(fPosition.X - 0.5,
                       gTerrain.FlatToHeight(fPosition.X - 0.5, fPosition.Y - 0.5),
                       0.5, $30FF8000, $60FF8000);
 
   //Animals share the same WalkTo logic as other units and they exchange places if necessary
   //Animals can be picked only in MapEd
-  fRenderPool.AddUnit(fUnitType, fUID * Byte(fGame.IsMapEditor), Act, Direction, AnimStep, XPaintPos, YPaintPos, $FFFFFFFF, True);
+  fRenderPool.AddUnit(fUnitType, fUID * Byte(gGame.IsMapEditor), Act, Direction, AnimStep, XPaintPos, YPaintPos, $FFFFFFFF, True);
 end;
 
 
@@ -1029,7 +1029,7 @@ begin
   AnimStep      := UnitStillFrames[fDirection]; //Use still frame at begining, so units don't all change frame on first tick
   //Units start with a random amount of condition ranging from 0.5 to 0.7 (KaM uses 0.6 for all units)
   //By adding the random amount they won't all go eat at the same time and cause crowding, blockages, food shortages and other problems.
-  if (fGame <> nil) and (fGame.GameMode <> gmMapEd) then
+  if (gGame <> nil) and (gGame.GameMode <> gmMapEd) then
     fCondition    := Round(UNIT_MAX_CONDITION * (UNIT_CONDITION_BASE + KaMRandomS(UNIT_CONDITION_RANDOM)))
   else
     fCondition    := Round(UNIT_MAX_CONDITION * UNIT_CONDITION_BASE);
@@ -1247,7 +1247,7 @@ end;
 procedure TKMUnit.SetPosition(aPos: TKMPoint);
 begin
   //This is only used by the map editor, set all positions to aPos
-  Assert(fGame.GameMode = gmMapEd);
+  Assert(gGame.GameMode = gmMapEd);
   if not gTerrain.CanPlaceUnit(aPos, UnitType) then Exit;
 
   gTerrain.UnitRem(fCurrPosition);
@@ -1379,8 +1379,8 @@ begin
     //Skip the unit's animation forward to 1 step AFTER firing
     case UnitType of
       ut_Arbaletman,
-      ut_Bowman:     Step := (FIRING_DELAY+(fGame.GameTickCount-TKMUnitWarrior(Self).LastShootTime)) mod Cycle;
-      ut_Slingshot:  Step := (SLINGSHOT_FIRING_DELAY+(fGame.GameTickCount-TKMUnitWarrior(Self).LastShootTime)) mod Cycle;
+      ut_Bowman:     Step := (FIRING_DELAY+(gGame.GameTickCount-TKMUnitWarrior(Self).LastShootTime)) mod Cycle;
+      ut_Slingshot:  Step := (SLINGSHOT_FIRING_DELAY+(gGame.GameTickCount-TKMUnitWarrior(Self).LastShootTime)) mod Cycle;
     end;
   end;
 

@@ -11,7 +11,7 @@ uses
 
 type
   TAnsiStringArray = array of AnsiString;
-  TStringArray = array of String;
+  TUnicodeStringArray = array of UnicodeString;
   TSetOfAnsiChar = set of AnsiChar;
 
 

@@ -19,17 +19,15 @@ const
   NO_TEXT = '<<<LEER>>>';
 
 type
-  TKMStringArray = array of UnicodeString;
-
   TKMTextLibraryCommon = class
   private
-    procedure LoadLIBXFile(FilePath: string; var aArray: TKMStringArray);
+    procedure LoadLIBXFile(FilePath: string; var aArray: TUnicodeStringArray);
   end;
 
 
   TKMTextLibrarySingle = class(TKMTextLibraryCommon)
   private
-    fTexts: TKMStringArray;
+    fTexts: TUnicodeStringArray;
     function GetTexts(aIndex: Word): UnicodeString;
   public
     procedure LoadLocale(aPathTemplate: string); //initial locale for UI strings
@@ -41,7 +39,7 @@ type
   private
     fPref: array [0..2] of Integer;
 
-    fTexts: array of TKMStringArray;
+    fTexts: array of TUnicodeStringArray;
     function GetTexts(aIndex: Word): UnicodeString;
     procedure InitLocaleIds;
   public
@@ -65,8 +63,8 @@ implementation
 
 { TKMTextLibraryCommon }
 //LIBX files consist of lines. Each line has an index and a text. Lines without index are skipped
-procedure TKMTextLibraryCommon.LoadLIBXFile(FilePath: string; var aArray: TKMStringArray);
-  function TextToArray(const Value: UnicodeString): TKMStringArray;
+procedure TKMTextLibraryCommon.LoadLIBXFile(FilePath: string; var aArray: TUnicodeStringArray);
+  function TextToArray(const Value: UnicodeString): TUnicodeStringArray;
   var
     P, Start: PWideChar;
     S: UnicodeString;
@@ -91,7 +89,7 @@ procedure TKMTextLibraryCommon.LoadLIBXFile(FilePath: string; var aArray: TKMStr
     end;
   end;
 var
-  Tmp: TKMStringArray;
+  Tmp: TUnicodeStringArray;
   langCode: AnsiString;
   libTxt: UnicodeString;
   I: Integer;

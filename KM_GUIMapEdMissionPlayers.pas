@@ -67,9 +67,9 @@ begin
 
 
 
-    CheckBox_PlayerTypes[I, 0].Checked := gHands[I].HasAssets and (fGame.MapEditor.DefaultHuman = I);
-    CheckBox_PlayerTypes[I, 1].Checked := gHands[I].HasAssets and fGame.MapEditor.PlayerHuman[I];
-    CheckBox_PlayerTypes[I, 2].Checked := gHands[I].HasAssets and fGame.MapEditor.PlayerAI[I];
+    CheckBox_PlayerTypes[I, 0].Checked := gHands[I].HasAssets and (gGame.MapEditor.DefaultHuman = I);
+    CheckBox_PlayerTypes[I, 1].Checked := gHands[I].HasAssets and gGame.MapEditor.PlayerHuman[I];
+    CheckBox_PlayerTypes[I, 2].Checked := gHands[I].HasAssets and gGame.MapEditor.PlayerAI[I];
   end;
 end;
 
@@ -81,25 +81,25 @@ begin
 
   //There should be exactly one default human player
   if Sender = CheckBox_PlayerTypes[PlayerId, 0] then
-    fGame.MapEditor.DefaultHuman := PlayerId;
+    gGame.MapEditor.DefaultHuman := PlayerId;
 
 
   if Sender = CheckBox_PlayerTypes[PlayerId, 1] then
   begin
-    fGame.MapEditor.PlayerHuman[PlayerId] := CheckBox_PlayerTypes[PlayerId, 1].Checked;
+    gGame.MapEditor.PlayerHuman[PlayerId] := CheckBox_PlayerTypes[PlayerId, 1].Checked;
     //User cannot set player type undetermined
     if (not CheckBox_PlayerTypes[PlayerId, 1].Checked)
         and (not CheckBox_PlayerTypes[PlayerId, 2].Checked) then
-        fGame.MapEditor.PlayerAI[PlayerId] := true;
+        gGame.MapEditor.PlayerAI[PlayerId] := true;
   end;
 
   if Sender = CheckBox_PlayerTypes[PlayerId, 2] then
   begin
-    fGame.MapEditor.PlayerAI[PlayerId] := CheckBox_PlayerTypes[PlayerId, 2].Checked;
+    gGame.MapEditor.PlayerAI[PlayerId] := CheckBox_PlayerTypes[PlayerId, 2].Checked;
     //User cannot set player type undetermined
     if (not CheckBox_PlayerTypes[PlayerId, 1].Checked)
         and (not CheckBox_PlayerTypes[PlayerId, 2].Checked) then
-        fGame.MapEditor.PlayerHuman[PlayerId] := true;
+        gGame.MapEditor.PlayerHuman[PlayerId] := true;
   end;
 
   Mission_PlayerTypesUpdate;

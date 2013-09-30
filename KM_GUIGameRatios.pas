@@ -135,7 +135,7 @@ begin
   ware := ResRatioType[fActiveTab];
   house := ResRatioHouse[fActiveTab, TKMTrackBar(Sender).Tag];
 
-  fGame.GameInputProcess.CmdRatio(gic_RatioChange, ware, house, TKMTrackBar(Sender).Position);
+  gGame.GameInputProcess.CmdRatio(gic_RatioChange, ware, house, TKMTrackBar(Sender).Position);
 end;
 
 

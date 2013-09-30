@@ -227,7 +227,7 @@ begin
     else          Label_ResultsMP.Caption := NO_TEXT;
   end;
   //Append mission name and time after the result message
-  Label_ResultsMP.Caption := Label_ResultsMP.Caption + ' - ' + fGame.GameName + ' - ' + TimeToString(fGame.MissionTime);
+  Label_ResultsMP.Caption := Label_ResultsMP.Caption + ' - ' + gGame.GameName + ' - ' + TimeToString(gGame.MissionTime);
 
   //Get player count to compact their data output
   fEnabledPlayers := 0;
@@ -239,8 +239,8 @@ begin
   RefreshCharts;
   RefreshChartWares;
 
-  Button_MPResultsWares.Enabled := (fGame.MissionMode = mm_Normal);
-  Button_MPResultsEconomy.Enabled := (fGame.MissionMode = mm_Normal);
+  Button_MPResultsWares.Enabled := (gGame.MissionMode = mm_Normal);
+  Button_MPResultsEconomy.Enabled := (gGame.MissionMode = mm_Normal);
 
   //Back button has different captions depending on where it returns us to
   if fGameResultMsg <> gr_ReplayEnd then
@@ -419,9 +419,9 @@ begin
   Chart_MPArmy.MaxLength := 0;
   Chart_MPCitizens.MaxLength := 0;
   Chart_MPHouses.MaxLength := 0;
-  Chart_MPArmy.MaxTime      := fGame.GameTickCount div 10;
-  Chart_MPCitizens.MaxTime  := fGame.GameTickCount div 10;
-  Chart_MPHouses.MaxTime    := fGame.GameTickCount div 10;
+  Chart_MPArmy.MaxTime      := gGame.GameTickCount div 10;
+  Chart_MPCitizens.MaxTime  := gGame.GameTickCount div 10;
+  Chart_MPHouses.MaxTime    := gGame.GameTickCount div 10;
 
   for I := 0 to gHands.Count - 1 do
   with gHands[I] do
@@ -488,7 +488,7 @@ begin
 
     Chart_MPWares[R].Clear;
     Chart_MPWares[R].MaxLength := 0;
-    Chart_MPWares[R].MaxTime := fGame.GameTickCount div 10;
+    Chart_MPWares[R].MaxTime := gGame.GameTickCount div 10;
     Chart_MPWares[R].Caption := gResTexts[TX_GRAPH_TITLE_RESOURCES] + ' - ' + fResource.Wares[R].Title;
 
     for I := 0 to gHands.Count - 1 do

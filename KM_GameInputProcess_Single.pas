@@ -20,7 +20,7 @@ uses KM_Game, KM_Defaults, KM_Utils;
 
 procedure TGameInputProcess_Single.TakeCommand(aCommand: TGameInputCommand);
 begin
-  if fGame.GameMode in [gmReplaySingle, gmReplayMulti] then Exit;
+  if gGame.GameMode in [gmReplaySingle, gmReplayMulti] then Exit;
 
   StoreCommand(aCommand); //Store the command for the replay (store it first in case Exec crashes and we want to debug it)
   ExecCommand(aCommand); //Execute the command now
@@ -44,7 +44,7 @@ begin
       //CRC check after the command
       if CRASH_ON_REPLAY and (fQueue[fCursor].Rand <> MyRand) then //Should always be called to maintain randoms flow
       begin
-        fGame.ReplayInconsistancy;
+        gGame.ReplayInconsistancy;
         Exit; //ReplayInconsistancy sometimes calls GIP.Free, so exit immidiately
       end;
       Inc(fCursor);

@@ -210,7 +210,7 @@ begin
         if HasEnoughGold then //If we are low on Gold don't hire more ppl
           if not TryAddToQueue(ut_Serf, Round(fSetup.SerfsPerHouse * (P.Stats.GetHouseQty(ht_Any) + P.Stats.GetUnitQty(ut_Worker)/2))) then
             if not TryAddToQueue(ut_Worker, fSetup.WorkerCount) then
-              if fGame.CheckTime(fSetup.RecruitDelay) then //Recruits can only be trained after this time
+              if gGame.CheckTime(fSetup.RecruitDelay) then //Recruits can only be trained after this time
                 if not TryAddToQueue(ut_Recruit, fSetup.RecruitCount * P.Stats.GetHouseQty(ht_Barracks)) then
                   Break; //There's no unit demand at all
     end;

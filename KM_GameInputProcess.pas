@@ -304,11 +304,11 @@ begin
     end;
 
     //Some commands are blocked by peacetime (this is a fall back in case players try to cheat)
-    if fGame.IsPeaceTime and (CommandType in BlockedByPeaceTime) then
+    if gGame.IsPeaceTime and (CommandType in BlockedByPeaceTime) then
        Exit;
 
     //No commands allowed after a player has lost (this is a fall back in case players try to cheat)
-    if not (aCommand.CommandType in AllowedAfterDefeat) and fGame.IsMultiplayer and (P.AI.WonOrLost = wol_Lost) then
+    if not (aCommand.CommandType in AllowedAfterDefeat) and gGame.IsMultiplayer and (P.AI.WonOrLost = wol_Lost) then
       Exit;
 
     case CommandType of
@@ -322,8 +322,8 @@ begin
       gic_ArmyFormation:    SrcGroup.OrderFormation(TKMTurnDirection(Params[2]),Params[3], True);
       gic_ArmyWalk:         SrcGroup.OrderWalk(KMPoint(Params[2],Params[3]), True, TKMDirection(Params[4]));
 
-      gic_BuildAddFieldPlan:      P.ToggleFieldPlan(KMPoint(Params[1],Params[2]), TFieldType(Params[3]), not fGame.IsMultiplayer); //Make sound in singleplayer mode only
-      gic_BuildRemoveFieldPlan:   P.RemFieldPlan(KMPoint(Params[1],Params[2]), not fGame.IsMultiplayer); //Make sound in singleplayer mode only
+      gic_BuildAddFieldPlan:      P.ToggleFieldPlan(KMPoint(Params[1],Params[2]), TFieldType(Params[3]), not gGame.IsMultiplayer); //Make sound in singleplayer mode only
+      gic_BuildRemoveFieldPlan:   P.RemFieldPlan(KMPoint(Params[1],Params[2]), not gGame.IsMultiplayer); //Make sound in singleplayer mode only
       gic_BuildRemoveHouse:       P.RemHouse(KMPoint(Params[1],Params[2]), IsSilent);
       gic_BuildRemoveHousePlan:   P.RemHousePlan(KMPoint(Params[1],Params[2]));
       gic_BuildHousePlan:         if P.CanAddHousePlan(KMPoint(Params[2],Params[3]), THouseType(Params[1])) then
@@ -346,20 +346,20 @@ begin
                                     P.Houses.UpdateResRequest
                                   end;
 
-      gic_TempAddScout:           if DEBUG_CHEATS and (MULTIPLAYER_CHEATS or not fGame.IsMultiplayer) then
+      gic_TempAddScout:           if DEBUG_CHEATS and (MULTIPLAYER_CHEATS or not gGame.IsMultiplayer) then
                                     //Place a warrior
                                     P.AddUnit(ut_HorseScout, KMPoint(Params[1], Params[2]), True, 0, True);
-      gic_TempRevealMap:          if DEBUG_CHEATS and (MULTIPLAYER_CHEATS or not fGame.IsMultiplayer) then
+      gic_TempRevealMap:          if DEBUG_CHEATS and (MULTIPLAYER_CHEATS or not gGame.IsMultiplayer) then
                                     P.FogOfWar.RevealEverything;
       gic_TempDoNothing:          ;
 
       gic_GamePause:              ;//if fReplayState = gipRecording then fGame.fGamePlayInterface.SetPause(boolean(Params[1]));
       gic_GameSave:               if fReplayState = gipRecording then
                                   begin
-                                    fGame.Save(TextParam);
-                                    if fGame.IsMultiplayer then
+                                    gGame.Save(TextParam);
+                                    if gGame.IsMultiplayer then
                                       //Tell the player we have saved the game
-                                      fGame.Networking.PostLocalMessage(gResTexts[TX_MULTIPLAYER_SAVING_GAME]);
+                                      gGame.Networking.PostLocalMessage(gResTexts[TX_MULTIPLAYER_SAVING_GAME]);
                                   end;
       gic_GameTeamChange:         begin
                                     //Currently unused, disabled to prevent potential exploitation
@@ -372,7 +372,7 @@ begin
       gic_GameAlertBeacon:        if fReplayState = gipRecording then //Beacons don't show up in replay
                                     //Beacons are only for allies
                                     if gHands.CheckAlliance(Params[3], MySpectator.HandIndex) = at_Ally then
-                                      fGame.GamePlayInterface.Alerts.AddBeacon(KMPointF(Params[1]/10,Params[2]/10), Params[3]);
+                                      gGame.GamePlayInterface.Alerts.AddBeacon(KMPointF(Params[1]/10,Params[2]/10), Params[3]);
       else                        Assert(false);
     end;
   end;
@@ -428,7 +428,7 @@ begin
   //Remove fake markup that will be visible only to MySpectator until Server verifies it.
   //Must go before TakeCommand as it could execute command immediately (in singleplayer)
   //and the fake markup must be added first otherwise our logic in FieldsList fails
-  if fGame.IsMultiplayer and (aCommandType = gic_BuildRemoveFieldPlan) then
+  if gGame.IsMultiplayer and (aCommandType = gic_BuildRemoveFieldPlan) then
     gHands[MySpectator.HandIndex].RemFakeFieldPlan(aLoc);
 
   TakeCommand(MakeCommand(aCommandType, [aLoc.X, aLoc.Y]));
@@ -442,7 +442,7 @@ begin
   //Add fake markup that will be visible only to MySpectator until Server verifies it.
   //Must go before TakeCommand as it could execute command immediately (in singleplayer)
   //and the fake markup must be added first otherwise our logic in FieldsList fails
-  if fGame.IsMultiplayer then
+  if gGame.IsMultiplayer then
     gHands[MySpectator.HandIndex].ToggleFakeFieldPlan(aLoc, aFieldType);
 
   TakeCommand(MakeCommand(aCommandType, [aLoc.X, aLoc.Y, Byte(aFieldType)]));
@@ -620,7 +620,7 @@ begin
   inc(fCount);
   if Length(fQueue) <= fCount then SetLength(fQueue, fCount+128);
 
-  fQueue[fCount].Tick    := fGame.GameTickCount;
+  fQueue[fCount].Tick    := gGame.GameTickCount;
   fQueue[fCount].Command := aCommand;
   fQueue[fCount].Rand    := Cardinal(KaMRandom(maxint)); //This will be our check to ensure everything is consistent
 end;

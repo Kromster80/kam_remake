@@ -528,7 +528,7 @@ end;
 destructor TTaskBuildHouseArea.Destroy;
 begin
   //Don't demolish the house when the game is exiting (causes wrong stats and errors in script)
-  if (fGame = nil) or fGame.IsExiting then
+  if (gGame = nil) or gGame.IsExiting then
 	  Exit;
 
   //Yet unstarted

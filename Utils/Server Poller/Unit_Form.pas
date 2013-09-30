@@ -159,7 +159,7 @@ end;
 
 procedure TForm1.UpdateList(Sender: TObject);
 var
-  I, L: Integer;
+  I: Integer;
   R: TKMRoomInfo;
   S: TKMServerInfo;
   DisplayName, ShortName: string;
@@ -172,7 +172,6 @@ begin
     S := fServerQuery.Servers[R.ServerIndex];
     DisplayName := IfThen(R.OnlyRoom, S.Name, S.Name + ' #' + IntToStr(R.RoomID + 1));
 
-    L := 1;
     ShortName := StripColor(DisplayName);
 
     StringGrid1.Cells[0, I+1] := ShortName;

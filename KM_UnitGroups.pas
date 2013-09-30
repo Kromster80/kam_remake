@@ -230,7 +230,7 @@ begin
   //Whole group should have the same condition
   NewCondition := Round(UNIT_MAX_CONDITION * (UNIT_CONDITION_BASE + KaMRandomS(UNIT_CONDITION_RANDOM)));
 
-  if fGame.IsMapEditor then
+  if gGame.IsMapEditor then
   begin
     //In MapEd we create only flagholder, other members are virtual
     Warrior := TKMUnitWarrior(gHands[aOwner].AddUnit(aUnitType, KMPoint(PosX, PosY), False));
@@ -501,7 +501,7 @@ end;
 
 procedure TKMUnitGroup.SetPosition(aValue: TKMPoint);
 begin
-  Assert(fGame.IsMapEditor);
+  Assert(gGame.IsMapEditor);
   Members[0].SetPosition(aValue);
   fOrderLoc.Loc := Members[0].GetPosition; //Don't assume we can move to aValue
 end;
@@ -524,7 +524,7 @@ end;
 
 procedure TKMUnitGroup.SetDirection(Value: TKMDirection);
 begin
-  Assert(fGame.IsMapEditor);
+  Assert(gGame.IsMapEditor);
   fOrderLoc.Dir := Value;
   Members[0].Direction := Value;
 end;
@@ -532,7 +532,7 @@ end;
 
 procedure TKMUnitGroup.SetUnitsPerRow(aCount: Word);
 begin
-  if fGame.IsMapEditor then
+  if gGame.IsMapEditor then
     fUnitsPerRow := EnsureRange(aCount, 1, fMapEdCount)
   else
     fUnitsPerRow := EnsureRange(aCount, 1, Count);
@@ -562,7 +562,7 @@ end;
 //Used by the MapEd after changing direction (so warriors are frozen on the right frame)
 procedure TKMUnitGroup.ResetAnimStep;
 begin
-  Assert(fGame.IsMapEditor);
+  Assert(gGame.IsMapEditor);
   Members[0].AnimStep := UnitStillFrames[Members[0].Direction];
 end;
 
@@ -1273,8 +1273,8 @@ begin
     if fTimeSinceHungryReminder < 1 then
     begin
       //Hide messages for wrong player, in replays, and if we have lost
-      if (Owner = MySpectator.HandIndex) and not fGame.IsReplay and (gHands[fOwner].AI.WonOrLost <> wol_Lost) then
-        fGame.ShowMessage(mkUnit, gResTexts[TX_MSG_TROOP_HUNGRY], Position);
+      if (Owner = MySpectator.HandIndex) and not gGame.IsReplay and (gHands[fOwner].AI.WonOrLost <> wol_Lost) then
+        gGame.ShowMessage(mkUnit, gResTexts[TX_MSG_TROOP_HUNGRY], Position);
       fTimeSinceHungryReminder := TIME_BETWEEN_MESSAGES; //Don't show one again until it is time
     end;
   end
@@ -1311,7 +1311,7 @@ var
   NewOrder: TKMCardinalArray;
   NewMembers: TList;
 begin
-  if DO_PERF_LOGGING then fGame.PerfLog.EnterSection(psHungarian);
+  if DO_PERF_LOGGING then gGame.PerfLog.EnterSection(psHungarian);
   if not HUNGARIAN_GROUP_ORDER then Exit;
   if fMembers.Count <= 1 then Exit; //If it's just the leader we can't rearrange
   Agents := TKMPointList.Create;
@@ -1340,7 +1340,7 @@ begin
 
   Agents.Free;
   Tasks.Free;
-  if DO_PERF_LOGGING then fGame.PerfLog.LeaveSection(psHungarian);
+  if DO_PERF_LOGGING then gGame.PerfLog.LeaveSection(psHungarian);
 end;
 
 
@@ -1446,7 +1446,7 @@ begin
       FlagColor := $FFFFFFFF;
 
   //In MapEd units fTicker always the same, use Terrain instead
-  FlagStep := IfThen(fGame.GameMode = gmMapEd, gTerrain.AnimStep, fTicker);
+  FlagStep := IfThen(gGame.GameMode = gmMapEd, gTerrain.AnimStep, fTicker);
 
   //Flag needs to be rendered above or below unit depending on direction (see AddUnitFlag)
 
@@ -1501,7 +1501,7 @@ end;
 
 function TKMUnitGroups.AddGroup(aWarrior: TKMUnitWarrior): TKMUnitGroup;
 begin
-  Result := TKMUnitGroup.Create(fGame.GetNewUID, aWarrior);
+  Result := TKMUnitGroup.Create(gGame.GetNewUID, aWarrior);
   fGroups.Add(Result)
 end;
 
@@ -1512,7 +1512,7 @@ begin
   Result := nil;
   Assert(aUnitType in [WARRIOR_MIN..WARRIOR_MAX]);
 
-  Result := TKMUnitGroup.Create(fGame.GetNewUID, aOwner, aUnitType, PosX, PosY, aDir, aUnitPerRow, aCount);
+  Result := TKMUnitGroup.Create(gGame.GetNewUID, aOwner, aUnitType, PosX, PosY, aDir, aUnitPerRow, aCount);
 
   //If group failed to create (e.g. due to being placed on unwalkable position)
   //then its memberCount = 0
@@ -1571,12 +1571,12 @@ begin
                    else
                    begin
                      //Create a new group with this one warrior
-                     Result := TKMUnitGroup.Create(fGame.GetNewUID, aUnit);
+                     Result := TKMUnitGroup.Create(gGame.GetNewUID, aUnit);
                      fGroups.Add(Result);
                    end;
                  end;
     hndComputer: begin
-                   Result := TKMUnitGroup.Create(fGame.GetNewUID, aUnit);
+                   Result := TKMUnitGroup.Create(gGame.GetNewUID, aUnit);
                    fGroups.Add(Result);
                  end;
   end;

@@ -348,7 +348,7 @@ begin
 
   Player_UpdatePages;
 
-  Label_MissionName.Caption := fGame.GameName;
+  Label_MissionName.Caption := gGame.GameName;
 end;
 
 
@@ -364,30 +364,30 @@ end;
 //Layer is always visible if corresponding editing page is active (to see what gets placed)
 procedure TKMapEdInterface.Layers_UpdateVisibility;
 begin
-  if fGame = nil then Exit; //Happens on init
+  if gGame = nil then Exit; //Happens on init
 
-  fGame.MapEditor.VisibleLayers := [];
+  gGame.MapEditor.VisibleLayers := [];
 
   if fGuiPlayer.Visible(ptView) or fGuiMarkerReveal.Visible then
-    fGame.MapEditor.VisibleLayers := fGame.MapEditor.VisibleLayers + [mlRevealFOW, mlCenterScreen];
+    gGame.MapEditor.VisibleLayers := gGame.MapEditor.VisibleLayers + [mlRevealFOW, mlCenterScreen];
 
   if fGuiTown.Visible(ttDefences) or fGuiMarkerDefence.Visible then
-    fGame.MapEditor.VisibleLayers := fGame.MapEditor.VisibleLayers + [mlDefences];
+    gGame.MapEditor.VisibleLayers := gGame.MapEditor.VisibleLayers + [mlDefences];
 
   if fGuiExtras.CheckBox_ShowObjects.Checked or fGuiTerrain.Visible(ttObject) then
-    fGame.MapEditor.VisibleLayers := fGame.MapEditor.VisibleLayers + [mlObjects];
+    gGame.MapEditor.VisibleLayers := gGame.MapEditor.VisibleLayers + [mlObjects];
 
   if fGuiExtras.CheckBox_ShowHouses.Checked or fGuiTown.Visible(ttHouses) or fGuiHouse.Visible then
-    fGame.MapEditor.VisibleLayers := fGame.MapEditor.VisibleLayers + [mlHouses];
+    gGame.MapEditor.VisibleLayers := gGame.MapEditor.VisibleLayers + [mlHouses];
 
   if fGuiExtras.CheckBox_ShowUnits.Checked or fGuiTown.Visible(ttUnits) or fGuiUnit.Visible then
-    fGame.MapEditor.VisibleLayers := fGame.MapEditor.VisibleLayers + [mlUnits];
+    gGame.MapEditor.VisibleLayers := gGame.MapEditor.VisibleLayers + [mlUnits];
 
   if fGuiTerrain.Visible(ttSelection) then
-    fGame.MapEditor.VisibleLayers := fGame.MapEditor.VisibleLayers + [mlSelection];
+    gGame.MapEditor.VisibleLayers := gGame.MapEditor.VisibleLayers + [mlSelection];
 
   if fGuiExtras.CheckBox_ShowDeposits.Checked then
-    fGame.MapEditor.VisibleLayers := fGame.MapEditor.VisibleLayers + [mlDeposits];
+    gGame.MapEditor.VisibleLayers := gGame.MapEditor.VisibleLayers + [mlDeposits];
 end;
 
 
@@ -649,7 +649,7 @@ begin
   //So terrain brushes start on mouse down not mouse move
   UpdateGameCursor(X, Y, Shift);
 
-  fGame.MapEditor.MouseDown(Button);
+  gGame.MapEditor.MouseDown(Button);
 end;
 
 
@@ -682,7 +682,7 @@ begin
   UpdateGameCursor(X,Y,Shift);
   if GameCursor.Mode = cmNone then
   begin
-    Marker := fGame.MapEditor.HitTest(GameCursor.Cell.X, GameCursor.Cell.Y);
+    Marker := gGame.MapEditor.HitTest(GameCursor.Cell.X, GameCursor.Cell.Y);
     if Marker.MarkerType <> mtNone then
       fResource.Cursors.Cursor := kmc_Info
     else
@@ -695,7 +695,7 @@ begin
 
   Label_Coordinates.Caption := Format('X: %d, Y: %d', [GameCursor.Cell.X, GameCursor.Cell.Y]);
 
-  fGame.MapEditor.MouseMove;
+  gGame.MapEditor.MouseMove;
 end;
 
 
@@ -726,7 +726,7 @@ begin
               begin
                 //If there are some additional layers we first HitTest them
                 //since they are rendered ontop of Houses/Objects
-                Marker := fGame.MapEditor.HitTest(GameCursor.Cell.X, GameCursor.Cell.Y);
+                Marker := gGame.MapEditor.HitTest(GameCursor.Cell.X, GameCursor.Cell.Y);
                 if Marker.MarkerType <> mtNone then
                   ShowMarkerInfo(Marker)
                 else
@@ -775,13 +775,13 @@ begin
                 end;
 
                 if fGuiMarkerReveal.Visible then
-                  fGame.MapEditor.Revealers[fGuiMarkerReveal.Owner][fGuiMarkerReveal.Index] := GameCursor.Cell;
+                  gGame.MapEditor.Revealers[fGuiMarkerReveal.Owner][fGuiMarkerReveal.Index] := GameCursor.Cell;
               end;
   end;
 
   UpdateGameCursor(X, Y, Shift); //Updates the shift state
 
-  fGame.MapEditor.MouseUp(Button);
+  gGame.MapEditor.MouseUp(Button);
 end;
 
 
@@ -816,23 +816,23 @@ var
   LocF: TKMPointF;
   ScreenLoc: TKMPointI;
 begin
-  if mlDeposits in fGame.MapEditor.VisibleLayers then
+  if mlDeposits in gGame.MapEditor.VisibleLayers then
   begin
     for R := Low(TRawDeposit) to High(TRawDeposit) do
-      for I := 0 to fGame.MapEditor.Deposits.Count[R] - 1 do
+      for I := 0 to gGame.MapEditor.Deposits.Count[R] - 1 do
       //Ignore water areas with 0 fish in them
-      if fGame.MapEditor.Deposits.Amount[R, I] > 0 then
+      if gGame.MapEditor.Deposits.Amount[R, I] > 0 then
       begin
-        LocF := gTerrain.FlatToHeight(fGame.MapEditor.Deposits.Location[R, I]);
+        LocF := gTerrain.FlatToHeight(gGame.MapEditor.Deposits.Location[R, I]);
         ScreenLoc := fViewport.MapToScreen(LocF);
 
         //At extreme zoom coords may become out of range of SmallInt used in controls painting
         if KMInRect(ScreenLoc, fViewport.ViewRect) then
-          PaintTextInShape(IntToStr(fGame.MapEditor.Deposits.Amount[R, I]), ScreenLoc.X, ScreenLoc.Y, DEPOSIT_COLORS[R]);
+          PaintTextInShape(IntToStr(gGame.MapEditor.Deposits.Amount[R, I]), ScreenLoc.X, ScreenLoc.Y, DEPOSIT_COLORS[R]);
       end;
   end;
 
-  if mlDefences in fGame.MapEditor.VisibleLayers then
+  if mlDefences in gGame.MapEditor.VisibleLayers then
   begin
     for I := 0 to gHands.Count - 1 do
       for K := 0 to gHands[I].AI.General.DefencePositions.Count - 1 do

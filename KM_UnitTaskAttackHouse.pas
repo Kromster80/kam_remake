@@ -128,7 +128,7 @@ begin
            //Prevent rate of fire exploit by making archers pause for longer if they shot recently
            Cycle := max(fResource.UnitDat[UnitType].UnitAnim[ua_Work, Direction].Count, 1);
            if NeedsToReload(Cycle) then
-             Delay := Delay + Cycle-(fGame.GameTickCount-LastShootTime);
+             Delay := Delay + Cycle-(gGame.GameTickCount-LastShootTime);
 
            SetActionLockedStay(Delay,ua_Work,true); //Pretend to aim
            if not KMSamePoint(GetPosition, fHouse.GetClosestCell(GetPosition)) then //Unbuilt houses can be attacked from within

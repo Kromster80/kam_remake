@@ -58,7 +58,7 @@ end;
 function TKMHousesCollection.AddToCollection(aHouseType: THouseType; PosX,PosY: Integer; aOwner: THandIndex; aHBS: THouseBuildState): TKMHouse;
 var ID: Cardinal;
 begin
-  ID := fGame.GetNewUID;
+  ID := gGame.GetNewUID;
 
   case aHouseType of
     ht_Swine,

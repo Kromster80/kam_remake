@@ -646,7 +646,7 @@ begin
 
   if Sender = Button_House_DemolishYes then
   begin
-    fGame.GameInputProcess.CmdBuild(gic_BuildRemoveHouse, TKMHouse(MySpectator.Selected).GetPosition);
+    gGame.GameInputProcess.CmdBuild(gic_BuildRemoveHouse, TKMHouse(MySpectator.Selected).GetPosition);
     MySpectator.Selected := nil; //fPlayers.Selected MUST be reset before calling ShowHouseInfo
     Panel_House.Hide; //Simpliest way to reset page and ShownHouse
   end else
@@ -660,7 +660,7 @@ procedure TKMGUIGameHouse.House_RepairToggle(Sender: TObject);
 begin
   if (MySpectator.Selected = nil) or not (MySpectator.Selected is TKMHouse) then Exit;
 
-  fGame.GameInputProcess.CmdHouse(gic_HouseRepairToggle, TKMHouse(MySpectator.Selected));
+  gGame.GameInputProcess.CmdHouse(gic_HouseRepairToggle, TKMHouse(MySpectator.Selected));
   Button_HouseRepair.TexID := IfThen(TKMHouse(MySpectator.Selected).BuildingRepair, 39, 40);
 end;
 
@@ -669,7 +669,7 @@ procedure TKMGUIGameHouse.House_WareDeliveryToggle(Sender: TObject);
 begin
   if (MySpectator.Selected = nil) or not (MySpectator.Selected is TKMHouse) then Exit;
 
-  fGame.GameInputProcess.CmdHouse(gic_HouseDeliveryToggle, TKMHouse(MySpectator.Selected));
+  gGame.GameInputProcess.CmdHouse(gic_HouseDeliveryToggle, TKMHouse(MySpectator.Selected));
   Button_HouseWaresBlock.TexID := IfThen(TKMHouse(MySpectator.Selected).WareDelivery, 37, 38);
 end;
 
@@ -685,9 +685,9 @@ begin
 
   for I := 1 to 4 do begin
     if Sender = ResRow_Order[I].OrderRem then
-      fGame.GameInputProcess.CmdHouse(gic_HouseOrderProduct, H, I, -ORDER_CLICK_AMOUNT[AButton]);
+      gGame.GameInputProcess.CmdHouse(gic_HouseOrderProduct, H, I, -ORDER_CLICK_AMOUNT[AButton]);
     if Sender = ResRow_Order[I].OrderAdd then
-      fGame.GameInputProcess.CmdHouse(gic_HouseOrderProduct, H, I, ORDER_CLICK_AMOUNT[AButton]);
+      gGame.GameInputProcess.CmdHouse(gic_HouseOrderProduct, H, I, ORDER_CLICK_AMOUNT[AButton]);
   end;
 end;
 
@@ -707,7 +707,7 @@ begin
     if (Sender = ResRow_Order[I])
     or (Sender = ResRow_Order[I].OrderRem)
     or (Sender = ResRow_Order[I].OrderAdd) then
-      fGame.GameInputProcess.CmdHouse(gic_HouseOrderProduct, H, I, Amount);
+      gGame.GameInputProcess.CmdHouse(gic_HouseOrderProduct, H, I, Amount);
   end;
 end;
 
@@ -727,7 +727,7 @@ begin
       WMode := wcm_ChopAndPlant
     else
       WMode := wcm_Chop;
-    fGame.GameInputProcess.CmdHouse(gic_HouseWoodcutterMode, W, WMode);
+    gGame.GameInputProcess.CmdHouse(gic_HouseWoodcutterMode, W, WMode);
   end;
 
   case W.WoodcutterMode of
@@ -789,9 +789,9 @@ begin
 
   if Sender=Button_Barracks_Train then //Equip unit
     if AButton = mbLeft then
-      fGame.GameInputProcess.CmdHouse(gic_HouseBarracksEquip, Barracks, Barracks_Order[fLastBarracksUnit], 1)
+      gGame.GameInputProcess.CmdHouse(gic_HouseBarracksEquip, Barracks, Barracks_Order[fLastBarracksUnit], 1)
     else if AButton = mbRight then
-      fGame.GameInputProcess.CmdHouse(gic_HouseBarracksEquip, Barracks, Barracks_Order[fLastBarracksUnit], 10);
+      gGame.GameInputProcess.CmdHouse(gic_HouseBarracksEquip, Barracks, Barracks_Order[fLastBarracksUnit], 10);
 
   Button_Barracks_Train.Enabled := Barracks.CanEquip(Barracks_Order[fLastBarracksUnit]);
   Button_Barracks_Left.Enabled := fLastBarracksUnit > 0;
@@ -828,9 +828,9 @@ begin
 
   if Sender=Button_School_Train then //Add unit to training queue
     if AButton = mbLeft then
-      fGame.GameInputProcess.CmdHouse(gic_HouseSchoolTrain, School, School_Order[fLastSchoolUnit], 1)
+      gGame.GameInputProcess.CmdHouse(gic_HouseSchoolTrain, School, School_Order[fLastSchoolUnit], 1)
     else if AButton = mbRight then
-      fGame.GameInputProcess.CmdHouse(gic_HouseSchoolTrain, School, School_Order[fLastSchoolUnit], 6);
+      gGame.GameInputProcess.CmdHouse(gic_HouseSchoolTrain, School, School_Order[fLastSchoolUnit], 6);
 
   if School.Queue[0] <> ut_None then
     Button_School_UnitWIP.TexID := fResource.UnitDat[School.Queue[0]].GUIIcon
@@ -882,9 +882,9 @@ begin
   //Right click clears entire queue after this item.
   //In that case we remove the same ID repeatedly because they're automatically move along
   case AButton of
-    mbLeft:  fGame.GameInputProcess.CmdHouse(gic_HouseRemoveTrain, School, ID);
+    mbLeft:  gGame.GameInputProcess.CmdHouse(gic_HouseRemoveTrain, School, ID);
     mbRight: for i:=ID to High(School.Queue) do
-               fGame.GameInputProcess.CmdHouse(gic_HouseRemoveTrain, School, ID);
+               gGame.GameInputProcess.CmdHouse(gic_HouseRemoveTrain, School, ID);
   end;
   House_SchoolUnitChange(nil, mbLeft);
 end;
@@ -896,7 +896,7 @@ procedure TKMGUIGameHouse.House_BarracksAcceptFlag(Sender: TObject);
 begin
   if MySpectator.Selected = nil then Exit;
   if not (MySpectator.Selected is TKMHouseBarracks) then Exit;
-  fGame.GameInputProcess.CmdHouse(gic_HouseBarracksAcceptFlag, TKMHouse(MySpectator.Selected), BarracksResType[(Sender as TKMControl).Tag]);
+  gGame.GameInputProcess.CmdHouse(gic_HouseBarracksAcceptFlag, TKMHouse(MySpectator.Selected), BarracksResType[(Sender as TKMControl).Tag]);
 end;
 
 
@@ -906,7 +906,7 @@ procedure TKMGUIGameHouse.House_StoreAcceptFlag(Sender: TObject);
 begin
   if MySpectator.Selected = nil then Exit;
   if not (MySpectator.Selected is TKMHouseStore) then Exit;
-  fGame.GameInputProcess.CmdHouse(gic_HouseStoreAcceptFlag, TKMHouse(MySpectator.Selected), StoreResType[(Sender as TKMControl).Tag]);
+  gGame.GameInputProcess.CmdHouse(gic_HouseStoreAcceptFlag, TKMHouse(MySpectator.Selected), StoreResType[(Sender as TKMControl).Tag]);
 end;
 
 
@@ -981,9 +981,9 @@ begin
   M := TKMHouseMarket(MySpectator.Selected);
 
   if Sender = Button_Market_Remove then
-    fGame.GameInputProcess.CmdHouse(gic_HouseOrderProduct, M, 1, -ORDER_CLICK_AMOUNT[AButton]);
+    gGame.GameInputProcess.CmdHouse(gic_HouseOrderProduct, M, 1, -ORDER_CLICK_AMOUNT[AButton]);
   if Sender = Button_Market_Add then
-    fGame.GameInputProcess.CmdHouse(gic_HouseOrderProduct, M, 1, ORDER_CLICK_AMOUNT[AButton]);
+    gGame.GameInputProcess.CmdHouse(gic_HouseOrderProduct, M, 1, ORDER_CLICK_AMOUNT[AButton]);
 end;
 
 
@@ -995,9 +995,9 @@ begin
   M := TKMHouseMarket(MySpectator.Selected);
 
   if aButton = mbLeft then
-    fGame.GameInputProcess.CmdHouse(gic_HouseMarketFrom, M, TWareType(TKMButtonFlat(Sender).Tag));
+    gGame.GameInputProcess.CmdHouse(gic_HouseMarketFrom, M, TWareType(TKMButtonFlat(Sender).Tag));
   if aButton = mbRight then
-    fGame.GameInputProcess.CmdHouse(gic_HouseMarketTo, M, TWareType(TKMButtonFlat(Sender).Tag));
+    gGame.GameInputProcess.CmdHouse(gic_HouseMarketTo, M, TWareType(TKMButtonFlat(Sender).Tag));
 
   House_MarketFill(M); //Update costs and order count
 end;

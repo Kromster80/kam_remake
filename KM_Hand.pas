@@ -181,7 +181,7 @@ end;
 
 procedure TKMHandCommon.Paint(aRect: TKMRect);
 begin
-  if not fGame.IsMapEditor or (mlUnits in fGame.MapEditor.VisibleLayers) then
+  if not gGame.IsMapEditor or (mlUnits in gGame.MapEditor.VisibleLayers) then
     fUnits.Paint(aRect);
 end;
 
@@ -189,7 +189,7 @@ end;
 procedure TKMHandCommon.RemUnit(Position: TKMPoint);
 var U: TKMUnit;
 begin
-  Assert(fGame.IsMapEditor);
+  Assert(gGame.IsMapEditor);
 
   U := fUnits.HitTest(Position.X, Position.Y);
   if U <> nil then
@@ -607,14 +607,14 @@ begin
   else
     if CanAddFieldPlan(aLoc, aFieldType) then
     begin
-      if aMakeSound and not fGame.IsReplay
+      if aMakeSound and not gGame.IsReplay
       and (HandIndex = MySpectator.HandIndex) then
         gSoundPlayer.Play(sfx_placemarker);
       fBuildList.FieldworksList.AddField(aLoc, aFieldType)
     end
     else
     begin
-      if aMakeSound and not fGame.IsReplay
+      if aMakeSound and not gGame.IsReplay
       and (HandIndex = MySpectator.HandIndex) then
         gSoundPlayer.Play(sfx_CantPlace, 4);
       if Plan = ft_None then //If we can't build because there's some other plan, that's ok
@@ -697,7 +697,7 @@ begin
   fStats.HousePlanned(aHouseType);
   fScripting.ProcHousePlanPlaced(fHandIndex, Loc.X, Loc.Y, aHouseType);
 
-  if (HandIndex = MySpectator.HandIndex) and not fGame.IsReplay then
+  if (HandIndex = MySpectator.HandIndex) and not gGame.IsReplay then
     gSoundPlayer.Play(sfx_placemarker);
 end;
 
@@ -736,7 +736,7 @@ begin
 
   fBuildList.HousePlanList.RemPlan(Position);
   fStats.HousePlanRemoved(HT);
-  if (HandIndex = MySpectator.HandIndex) and not fGame.IsReplay then
+  if (HandIndex = MySpectator.HandIndex) and not gGame.IsReplay then
     gSoundPlayer.Play(sfx_Click);
 end;
 
@@ -745,14 +745,14 @@ end;
 procedure TKMHand.RemFieldPlan(Position: TKMPoint; aMakeSound: Boolean);
 begin
   fBuildList.FieldworksList.RemFieldPlan(Position);
-  if aMakeSound and not fGame.IsReplay and (HandIndex = MySpectator.HandIndex) then gSoundPlayer.Play(sfx_Click);
+  if aMakeSound and not gGame.IsReplay and (HandIndex = MySpectator.HandIndex) then gSoundPlayer.Play(sfx_Click);
 end;
 
 
 procedure TKMHand.RemGroup(Position: TKMPoint);
 var Group: TKMUnitGroup;
 begin
-  Assert(fGame.IsMapEditor);
+  Assert(gGame.IsMapEditor);
 
   Group := fUnitGroups.HitTest(Position.X, Position.Y);
   if Group <> nil then
@@ -940,12 +940,12 @@ begin
 
   //Try to take player name from mission text if we are in SP
   //Do not use names in MP ot avoid confusion of AI players with real player niknames
-  if fGame.GameMode in [gmSingle, gmMapEd, gmReplaySingle] then
-    if fGame.TextMission.HasText(HANDS_NAMES_OFFSET + fHandIndex) then
+  if gGame.GameMode in [gmSingle, gmMapEd, gmReplaySingle] then
+    if gGame.TextMission.HasText(HANDS_NAMES_OFFSET + fHandIndex) then
       if PlayerType = hndHuman then
-        Result := gResTexts[TX_PLAYER_YOU] + ' (' + fGame.TextMission[HANDS_NAMES_OFFSET + fHandIndex] + ')'
+        Result := gResTexts[TX_PLAYER_YOU] + ' (' + gGame.TextMission[HANDS_NAMES_OFFSET + fHandIndex] + ')'
       else
-        Result := fGame.TextMission[HANDS_NAMES_OFFSET + fHandIndex];
+        Result := gGame.TextMission[HANDS_NAMES_OFFSET + fHandIndex];
 
   //If this location is controlled by an MP player - show his nik
   if fOwnerNikname <> '' then
@@ -1242,8 +1242,8 @@ begin
   //if (aTick + Byte(fPlayerIndex)) mod 20 = 0 then
     //fArmyEval.UpdateState;
 
-  if (fGame.MissionMode = mm_Normal) and (aTick mod CHARTS_SAMPLING_FOR_ECONOMY = 0)
-  or (fGame.MissionMode = mm_Tactic) and (aTick mod CHARTS_SAMPLING_FOR_TACTICS = 0)
+  if (gGame.MissionMode = mm_Normal) and (aTick mod CHARTS_SAMPLING_FOR_ECONOMY = 0)
+  or (gGame.MissionMode = mm_Tactic) and (aTick mod CHARTS_SAMPLING_FOR_TACTICS = 0)
   or (aTick = 1) then
     fStats.UpdateState;
 end;
@@ -1255,10 +1255,10 @@ begin
 
   inherited;
 
-  if not fGame.IsMapEditor or (mlUnits in fGame.MapEditor.VisibleLayers) then
+  if not gGame.IsMapEditor or (mlUnits in gGame.MapEditor.VisibleLayers) then
     fUnitGroups.Paint(aRect);
 
-  if not fGame.IsMapEditor or (mlHouses in fGame.MapEditor.VisibleLayers) then
+  if not gGame.IsMapEditor or (mlHouses in gGame.MapEditor.VisibleLayers) then
     fHouses.Paint(aRect);
 end;
 

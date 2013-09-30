@@ -120,15 +120,15 @@ var
   TrainedSomething, CanEquipIron, CanEquipLeather: Boolean;
   GroupReq: TGroupTypeArray;
 begin
-  if fGame.IsPeaceTime then Exit; //Do not train soldiers during peacetime
+  if gGame.IsPeaceTime then Exit; //Do not train soldiers during peacetime
 
   //Don't train if we have reached our limit
   if (fSetup.MaxSoldiers <> -1) and (gHands[fOwner].Stats.GetArmyCount >= fSetup.MaxSoldiers) then
     Exit;
 
   //Delay between equipping soldiers for KaM compatibility
-  CanEquipIron := fGame.CheckTime(fLastEquippedTime + fSetup.EquipRateIron);
-  CanEquipLeather := fGame.CheckTime(fLastEquippedTime + fSetup.EquipRateLeather);
+  CanEquipIron := gGame.CheckTime(fLastEquippedTime + fSetup.EquipRateIron);
+  CanEquipLeather := gGame.CheckTime(fLastEquippedTime + fSetup.EquipRateLeather);
 
   if not CanEquipIron and not CanEquipLeather then Exit;
 
@@ -184,7 +184,7 @@ begin
           HB.Equip(UT, 1);
           Dec(GroupReq[GT]);
           TrainedSomething := True;
-          fLastEquippedTime := fGame.GameTickCount; //Only reset it when we actually trained something
+          fLastEquippedTime := gGame.GameTickCount; //Only reset it when we actually trained something
           if fSetup.GetEquipRate(UT) > 0 then
             Break; //Only equip 1 soldier when we have a restricted equip rate
         end;
@@ -219,7 +219,7 @@ begin
       if (Group.Condition < UNIT_MIN_CONDITION) then
         Group.OrderFood(True);
 
-      if fGame.IsPeaceTime then Continue; //Do not process attack or defence during peacetime
+      if gGame.IsPeaceTime then Continue; //Do not process attack or defence during peacetime
 
       //We already have a position, finished with this group
       if fDefencePositions.FindPositionOf(Group) <> nil then Continue;
@@ -276,7 +276,7 @@ var
   DP: TAIDefencePosition;
 begin
   //Do not process attack or defence during peacetime
-  if fGame.IsPeaceTime then Exit;
+  if gGame.IsPeaceTime then Exit;
 
   MenAvailable := 0;
   for G := Low(TGroupType) to High(TGroupType) do
@@ -300,7 +300,7 @@ begin
 
   //Now process AI attacks (we have compiled a list of warriors available to attack)
   for I := 0 to Attacks.Count - 1 do
-  if Attacks.CanOccur(I, MenAvailable, GroupsAvailable, fGame.GameTickCount) then //Check conditions are right
+  if Attacks.CanOccur(I, MenAvailable, GroupsAvailable, gGame.GameTickCount) then //Check conditions are right
   begin
     //Order groups to attack
     if Attacks[I].TakeAll then

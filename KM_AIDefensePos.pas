@@ -107,21 +107,21 @@ end;
 
 procedure TAIDefencePosition.SetDefenceType(const Value: TAIDefencePosType);
 begin
-  Assert(fGame.IsMapEditor);
+  Assert(gGame.IsMapEditor);
   fDefenceType := Value;
 end;
 
 
 procedure TAIDefencePosition.SetGroupType(const Value: TGroupType);
 begin
-  Assert(fGame.IsMapEditor);
+  Assert(gGame.IsMapEditor);
   fGroupType := Value;
 end;
 
 
 procedure TAIDefencePosition.SetPosition(const Value: TKMPointDir);
 begin
-  Assert(fGame.IsMapEditor);
+  Assert(gGame.IsMapEditor);
   fPosition := Value;
 end;
 

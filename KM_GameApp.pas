@@ -181,13 +181,13 @@ function TKMGameApp.CanClose: Boolean;
 begin
   //There are no unsaved changes in MainMenu and in Replays
   //In all other cases (maybe except gsOnHold?) there are potentially unsaved changes
-  Result := (fGame = nil) or (fGame.GameMode in [gmReplaySingle, gmReplayMulti]);
+  Result := (gGame = nil) or (gGame.GameMode in [gmReplaySingle, gmReplayMulti]);
 end;
 
 
 procedure TKMGameApp.ToggleLocale(aLocale: AnsiString);
 begin
-  Assert(fGame = nil, 'We don''t want to recreate whole fGame for that. Let''s limit it only to MainMenu');
+  Assert(gGame = nil, 'We don''t want to recreate whole fGame for that. Let''s limit it only to MainMenu');
 
   fMainMenuInterface.PageChange(gpLoading, gResTexts[TX_MENU_NEW_LOCALE]);
   Render(False); //Force to repaint information screen
@@ -224,14 +224,14 @@ begin
   //it must be properly sized (player could resize the screen while playing)
   fMainMenuInterface.Resize(X, Y);
 
-  if fGame <> nil then fGame.ActiveInterface.Resize(X, Y);
+  if gGame <> nil then gGame.ActiveInterface.Resize(X, Y);
 end;
 
 
 procedure TKMGameApp.KeyDown(Key: Word; Shift: TShiftState);
 begin
-  if fGame <> nil then
-    fGame.ActiveInterface.KeyDown(Key, Shift)
+  if gGame <> nil then
+    gGame.ActiveInterface.KeyDown(Key, Shift)
   else
     fMainMenuInterface.KeyDown(Key, Shift);
 end;
@@ -239,8 +239,8 @@ end;
 
 procedure TKMGameApp.KeyPress(Key: Char);
 begin
-  if fGame <> nil then
-    fGame.ActiveInterface.KeyPress(Key)
+  if gGame <> nil then
+    gGame.ActiveInterface.KeyPress(Key)
   else
     fMainMenuInterface.KeyPress(Key);
 end;
@@ -258,8 +258,8 @@ begin
   //GLOBAL KEYS
   if DEBUG_CHEATS and (Key = VK_F12) then SHOW_CONTROLS_OVERLAY := not SHOW_CONTROLS_OVERLAY;
 
-  if fGame <> nil then
-    fGame.ActiveInterface.KeyUp(Key, Shift)
+  if gGame <> nil then
+    gGame.ActiveInterface.KeyUp(Key, Shift)
   else
     fMainMenuInterface.KeyUp(Key, Shift);
 end;
@@ -267,8 +267,8 @@ end;
 
 procedure TKMGameApp.MouseDown(Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
 begin
-  if fGame <> nil then
-    fGame.ActiveInterface.MouseDown(Button,Shift,X,Y)
+  if gGame <> nil then
+    gGame.ActiveInterface.MouseDown(Button,Shift,X,Y)
   else
     fMainMenuInterface.MouseDown(Button,Shift,X,Y);
 end;
@@ -280,8 +280,8 @@ begin
   or not InRange(Y, 1, fRender.ScreenY - 1) then
     Exit; // Exit if Cursor is outside of frame
 
-  if fGame <> nil then
-    fGame.ActiveInterface.MouseMove(Shift,X,Y)
+  if gGame <> nil then
+    gGame.ActiveInterface.MouseMove(Shift,X,Y)
   else
     //fMainMenuInterface = nil while loading a new locale
     if fMainMenuInterface <> nil then
@@ -295,8 +295,8 @@ end;
 
 procedure TKMGameApp.MouseUp(Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
 begin
-  if fGame <> nil then
-    fGame.ActiveInterface.MouseUp(Button,Shift,X,Y)
+  if gGame <> nil then
+    gGame.ActiveInterface.MouseUp(Button,Shift,X,Y)
   else
     fMainMenuInterface.MouseUp(Button, Shift, X,Y);
 end;
@@ -304,8 +304,8 @@ end;
 
 procedure TKMGameApp.MouseWheel(Shift: TShiftState; WheelDelta: Integer; X, Y: Integer);
 begin
-  if fGame <> nil then
-    fGame.ActiveInterface.MouseWheel(Shift, WheelDelta, X, Y)
+  if gGame <> nil then
+    gGame.ActiveInterface.MouseWheel(Shift, WheelDelta, X, Y)
   else
     fMainMenuInterface.MouseWheel(Shift, WheelDelta, X, Y);
 end;
@@ -319,7 +319,7 @@ end;
 
 function TKMGameApp.Game: TKMGame;
 begin
-  Result := fGame;
+  Result := gGame;
 end;
 
 
@@ -355,9 +355,9 @@ end;
 //6. Switch to MainMenu
 procedure TKMGameApp.Stop(aMsg: TGameResultMsg; aTextMsg: UnicodeString='');
 begin
-  if fGame = nil then Exit;
+  if gGame = nil then Exit;
 
-  if fGame.IsMultiplayer then
+  if gGame.IsMultiplayer then
   begin
     if fNetworking.Connected then
       fNetworking.AnnounceDisconnect;
@@ -369,9 +369,9 @@ begin
                     begin
                       //If the game was a part of a campaign, select that campaign,
                       //so we know which menu to show next and unlock next map
-                      fCampaigns.SetActive(fCampaigns.CampaignByTitle(fGame.CampaignName), fGame.CampaignMap);
+                      fCampaigns.SetActive(fCampaigns.CampaignByTitle(gGame.CampaignName), gGame.CampaignMap);
 
-                      if (fGame.GameMode in [gmMulti, gmReplayMulti]) or MP_RESULTS_IN_SP then
+                      if (gGame.GameMode in [gmMulti, gmReplayMulti]) or MP_RESULTS_IN_SP then
                         fMainMenuInterface.ShowResultsMP(aMsg)
                       else
                         fMainMenuInterface.ShowResultsSP(aMsg);
@@ -385,7 +385,7 @@ begin
     gr_MapEdEnd:    fMainMenuInterface.PageChange(gpMainMenu);
   end;
 
-  FreeThenNil(fGame);
+  FreeThenNil(gGame);
   gLog.AddTime('Gameplay ended - ' + GetEnumName(TypeInfo(TGameResultMsg), Integer(aMsg)) + ' /' + aTextMsg);
 end;
 
@@ -401,9 +401,9 @@ begin
   if fMain <> nil then
     fMain.FormMain.ControlsReset;
 
-  fGame := TKMGame.Create(aGameMode, fRender, fNetworking);
+  gGame := TKMGame.Create(aGameMode, fRender, fNetworking);
   try
-    fGame.Load(aFilePath);
+    gGame.Load(aFilePath);
   except
     on E : Exception do
     begin
@@ -419,7 +419,7 @@ begin
   end;
 
   if Assigned(fOnCursorUpdate) then
-    fOnCursorUpdate(0, fGame.MapSizeInfo);
+    fOnCursorUpdate(0, gGame.MapSizeInfo);
 end;
 
 
@@ -434,9 +434,9 @@ begin
   if fMain <> nil then
     fMain.FormMain.ControlsReset;
 
-  fGame := TKMGame.Create(aGameMode, fRender, fNetworking);
+  gGame := TKMGame.Create(aGameMode, fRender, fNetworking);
   try
-    fGame.GameStart(aMissionFile, aGameName, aCampaignName, aMap, aDesiredLoc, aDesiredColor);
+    gGame.GameStart(aMissionFile, aGameName, aCampaignName, aMap, aDesiredLoc, aDesiredColor);
   except
     on E : Exception do
     begin
@@ -452,7 +452,7 @@ begin
   end;
 
   if Assigned(fOnCursorUpdate) then
-    fOnCursorUpdate(0, fGame.MapSizeInfo);
+    fOnCursorUpdate(0, gGame.MapSizeInfo);
 end;
 
 
@@ -467,9 +467,9 @@ begin
   if fMain <> nil then
     fMain.FormMain.ControlsReset;
 
-  fGame := TKMGame.Create(aGameMode, fRender, nil);
+  gGame := TKMGame.Create(aGameMode, fRender, nil);
   try
-    fGame.GameStart(aSizeX, aSizeY);
+    gGame.GameStart(aSizeX, aSizeY);
   except
     on E : Exception do
     begin
@@ -485,7 +485,7 @@ begin
   end;
 
   if Assigned(fOnCursorUpdate) then
-    fOnCursorUpdate(0, fGame.MapSizeInfo);
+    fOnCursorUpdate(0, gGame.MapSizeInfo);
 end;
 
 
@@ -513,8 +513,8 @@ begin
   LoadGameFromScript(TKMapsCollection.FullPath(aFileName, '.dat', True), aFileName, '', 0, gmMulti, 0, 0);
 
   //Copy text from lobby to in-game chat
-  fGame.GamePlayInterface.SetChatText(fMainMenuInterface.GetChatText);
-  fGame.GamePlayInterface.SetChatMessages(fMainMenuInterface.GetChatMessages);
+  gGame.GamePlayInterface.SetChatText(fMainMenuInterface.GetChatText);
+  gGame.GamePlayInterface.SetChatMessages(fMainMenuInterface.GetChatMessages);
 end;
 
 
@@ -525,8 +525,8 @@ begin
   LoadGameFromSave(SaveName(aSaveName, 'sav', True), gmMulti);
 
   //Copy the chat and typed lobby message to the in-game chat
-  fGame.GamePlayInterface.SetChatText(fMainMenuInterface.GetChatText);
-  fGame.GamePlayInterface.SetChatMessages(fMainMenuInterface.GetChatMessages);
+  gGame.GamePlayInterface.SetChatText(fMainMenuInterface.GetChatText);
+  gGame.GamePlayInterface.SetChatMessages(fMainMenuInterface.GetChatMessages);
 end;
 
 
@@ -590,8 +590,8 @@ end;
 //fNetworking knows nothing about fGame
 procedure TKMGameApp.SendMPGameInfo(Sender: TObject);
 begin
-  if fGame <> nil then
-    fNetworking.AnnounceGameInfo(fGame.MissionTime, fGame.GameName)
+  if gGame <> nil then
+    fNetworking.AnnounceGameInfo(gGame.MissionTime, gGame.GameName)
   else
     fNetworking.AnnounceGameInfo(-1, ''); //fNetworking will fill the details from lobby
 end;
@@ -605,27 +605,27 @@ begin
 
   fRender.BeginFrame;
 
-  if fGame <> nil then
-    fGame.Render(fRender)
+  if gGame <> nil then
+    gGame.Render(fRender)
   else
     fMainMenuInterface.Paint;
 
   fRender.RenderBrightness(GameSettings.Brightness);
 
-  if SHOW_SEL_BUFFER and (fGame <> nil) then
+  if SHOW_SEL_BUFFER and (gGame <> nil) then
     //Color-code render result assigned to GameCursor.ObjectId
-    fGame.RenderSelection;
+    gGame.RenderSelection;
 
   fRender.EndFrame;
 
   //Selection buffer
-  if not aForPrintScreen and (fGame <> nil) then
+  if not aForPrintScreen and (gGame <> nil) then
   begin
     //Clear buffer
     fRender.BeginFrame;
 
     //Color-code render result assigned to GameCursor.ObjectId
-    fGame.RenderSelection;
+    gGame.RenderSelection;
 
     if Assigned(fOnCursorUpdate) then
       fOnCursorUpdate(4, 'Objects: ' + IntToStr(GameCursor.ObjectUID));
@@ -677,10 +677,10 @@ begin
   Inc(fGlobalTickCount);
   //Always update networking for auto reconnection and query timeouts
   if fNetworking <> nil then fNetworking.UpdateState(fGlobalTickCount);
-  if fGame <> nil then
+  if gGame <> nil then
   begin
-    fGame.UpdateState(fGlobalTickCount);
-    if fGame.IsMultiplayer and (fGlobalTickCount mod 100 = 0) then
+    gGame.UpdateState(fGlobalTickCount);
+    if gGame.IsMultiplayer and (fGlobalTickCount mod 100 = 0) then
       SendMPGameInfo(Self); //Send status to the server every 10 seconds
   end
   else
@@ -694,8 +694,8 @@ begin
       fMusicLib.PlayNextTrack; //Feed new music track
 
     //StatusBar
-    if (fGame <> nil) and not fGame.IsPaused and Assigned(fOnCursorUpdate) then
-        fOnCursorUpdate(2, 'Time: ' + TimeToString(fGame.MissionTime));
+    if (gGame <> nil) and not gGame.IsPaused and Assigned(fOnCursorUpdate) then
+        fOnCursorUpdate(2, 'Time: ' + TimeToString(gGame.MissionTime));
   end;
 end;
 
@@ -703,8 +703,8 @@ end;
 //This is our real-time "thread", use it wisely
 procedure TKMGameApp.UpdateStateIdle(aFrameTime: Cardinal);
 begin
-  if fGame <> nil then
-    fGame.UpdateStateIdle(aFrameTime);
+  if gGame <> nil then
+    gGame.UpdateStateIdle(aFrameTime);
 
   if fMusicLib <> nil then fMusicLib.UpdateStateIdle;
   if gSoundPlayer <> nil then gSoundPlayer.UpdateStateIdle;

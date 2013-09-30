@@ -96,7 +96,7 @@ begin
   begin
     gTerrain.LoadFromFile(ChangeFileExt(fMissionFileName, '.map'), fParsingMode = mpm_Editor);
     if fParsingMode = mpm_Editor then
-      fGame.MapEditor.TerrainPainter.LoadFromFile(ChangeFileExt(fMissionFileName, '.map'));
+      gGame.MapEditor.TerrainPainter.LoadFromFile(ChangeFileExt(fMissionFileName, '.map'));
   end
   else
   begin
@@ -150,7 +150,7 @@ begin
                         end;
     ct_SetTactic:       begin
                           //Default is mm_Normal
-                          fGame.MissionMode := mm_Tactic;
+                          gGame.MissionMode := mm_Tactic;
                         end;
     ct_SetCurrPlayer:   if InRange(P[0], 0, MAX_HANDS - 1) then
                         begin
@@ -168,8 +168,8 @@ begin
                           fDefaultLocation := P[0];
                           if (fParsingMode = mpm_Editor) and (gHands <> nil) then
                           begin
-                            fGame.MapEditor.DefaultHuman := P[0];
-                            fGame.MapEditor.PlayerHuman[P[0]] := True;
+                            gGame.MapEditor.DefaultHuman := P[0];
+                            gGame.MapEditor.PlayerHuman[P[0]] := True;
                           end;
                         end;
     ct_UserPlayer:      //New command added by KMR - mark player as allowed to be human
@@ -177,26 +177,26 @@ begin
                         //Remains usefull for map preview and MapEd
                         if (fParsingMode = mpm_Editor) and (gHands <> nil) then
                           if InRange(P[0], 0, gHands.Count - 1) then
-                            fGame.MapEditor.PlayerHuman[P[0]] := True
+                            gGame.MapEditor.PlayerHuman[P[0]] := True
                           else
-                            fGame.MapEditor.PlayerHuman[fLastHand] := True;
+                            gGame.MapEditor.PlayerHuman[fLastHand] := True;
     ct_AIPlayer:        //New command added by KMR - mark player as allowed to be human
                         //MP and SP set human players themselves
                         //Remains usefull for map preview and MapEd
                         if (fParsingMode = mpm_Editor) and (gHands <> nil) then
                           if InRange(P[0], 0, gHands.Count - 1) then
-                            fGame.MapEditor.PlayerAI[P[0]] := True
+                            gGame.MapEditor.PlayerAI[P[0]] := True
                           else
-                            fGame.MapEditor.PlayerAI[fLastHand] := True;
+                            gGame.MapEditor.PlayerAI[fLastHand] := True;
     ct_CenterScreen:    if fLastHand >= 0 then
                           gHands[fLastHand].CenterScreen := KMPoint(P[0]+1, P[1]+1);
     ct_ClearUp:         if fLastHand >= 0 then
                         begin
                           if fParsingMode = mpm_Editor then
                             if P[0] = 255 then
-                              fGame.MapEditor.RevealAll[fLastHand] := True
+                              gGame.MapEditor.RevealAll[fLastHand] := True
                             else
-                              fGame.MapEditor.Revealers[fLastHand].Add(KMPoint(P[0]+1,P[1]+1), P[2])
+                              gGame.MapEditor.Revealers[fLastHand].Add(KMPoint(P[0]+1,P[1]+1), P[2])
                           else
                             if P[0] = 255 then
                               gHands[fLastHand].FogOfWar.RevealEverything
@@ -613,9 +613,9 @@ begin
   AddData('!' + COMMANDVALUES[ct_SetMap] + ' "data\mission\smaps\' +
     AnsiString(ChangeFileExt(ExtractFileName(aFileName), '.map')) + '"');
 
-  if fGame.MissionMode = mm_Tactic then AddCommand(ct_SetTactic, []);
+  if gGame.MissionMode = mm_Tactic then AddCommand(ct_SetTactic, []);
   AddCommand(ct_SetMaxPlayer, [gHands.Count]);
-  AddCommand(ct_HumanPlayer, [fGame.MapEditor.DefaultHuman]);
+  AddCommand(ct_HumanPlayer, [gGame.MapEditor.DefaultHuman]);
   AddData(''); //NL
 
   //Player loop
@@ -625,18 +625,18 @@ begin
     AddCommand(ct_SetCurrPlayer, [I]);
     AddCommand(ct_EnablePlayer, [I]);
 
-    if fGame.MapEditor.PlayerHuman[I] then AddCommand(ct_UserPlayer, []);
-    if fGame.MapEditor.PlayerAI[I] then AddCommand(ct_AIPlayer, []);
+    if gGame.MapEditor.PlayerHuman[I] then AddCommand(ct_UserPlayer, []);
+    if gGame.MapEditor.PlayerAI[I] then AddCommand(ct_AIPlayer, []);
 
     AddCommand(ct_SetMapColor, [gHands[I].FlagColorIndex]);
     if not KMSamePoint(gHands[I].CenterScreen, KMPoint(0,0)) then
       AddCommand(ct_CenterScreen, [gHands[I].CenterScreen.X-1, gHands[I].CenterScreen.Y-1]);
 
-    with fGame.MapEditor.Revealers[I] do
+    with gGame.MapEditor.Revealers[I] do
     for K := 0 to Count - 1 do
       AddCommand(ct_ClearUp, [Items[K].X-1, Items[K].Y-1, Tag[K]]);
 
-    if fGame.MapEditor.RevealAll[I] then
+    if gGame.MapEditor.RevealAll[I] then
       AddCommand(ct_ClearUp, [255]);
 
     AddData(''); //NL

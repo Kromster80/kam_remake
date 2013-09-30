@@ -156,7 +156,7 @@ type
 
 
 var
-  fGame: TKMGame;
+  gGame: TKMGame;
 
 
 implementation
@@ -1300,7 +1300,7 @@ begin
                       gTerrain.UpdateState;
                       fAIFields.UpdateState(fGameTickCount);
                       gHands.UpdateState(fGameTickCount); //Quite slow
-                      if fGame = nil then Exit; //Quit the update if game was stopped for some reason
+                      if gGame = nil then Exit; //Quit the update if game was stopped for some reason
                       MySpectator.UpdateState(fGameTickCount);
                       fPathfinding.UpdateState;
                       gProjectiles.UpdateState; //If game has stopped it's NIL
@@ -1340,14 +1340,14 @@ begin
                     gTerrain.UpdateState;
                     fAIFields.UpdateState(fGameTickCount);
                     gHands.UpdateState(fGameTickCount); //Quite slow
-                    if fGame = nil then Exit; //Quit the update if game was stopped for some reason
+                    if gGame = nil then Exit; //Quit the update if game was stopped for some reason
                     MySpectator.UpdateState(fGameTickCount);
                     fPathfinding.UpdateState;
                     gProjectiles.UpdateState; //If game has stopped it's NIL
 
                     //Issue stored commands
                     fGameInputProcess.ReplayTimer(fGameTickCount);
-                    if fGame = nil then Exit; //Quit if the game was stopped by a replay mismatch
+                    if gGame = nil then Exit; //Quit if the game was stopped by a replay mismatch
                     if not SkipReplayEndCheck and fGameInputProcess.ReplayEnded then
                       RequestGameHold(gr_ReplayEnd);
 

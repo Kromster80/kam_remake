@@ -65,7 +65,7 @@ end;
 function TKMSpectator.FogOfWar: TKMFogOfWarCommon;
 begin
   //fGame = nil in Tests
-  if (fGame <> nil) and (fGame.IsReplay or fGame.IsMapEditor) then
+  if (gGame <> nil) and (gGame.IsReplay or gGame.IsMapEditor) then
     if FOWIndex = -1 then
       Result := fFogOfWar
     else
@@ -105,7 +105,7 @@ var
   G: TKMUnitGroup;
 begin
   //In-game player can select only own Units
-  if fGame.IsReplay or fGame.IsMapEditor then
+  if gGame.IsReplay or gGame.IsMapEditor then
     Selected := gHands.GetUnitByUID(GameCursor.ObjectUID)
   else
     Selected := gHands[fHandIndex].Units.GetUnitByUID(GameCursor.ObjectUID);
@@ -113,7 +113,7 @@ begin
   //If Id belongs to some Warrior, try to select his group instead
   if Selected is TKMUnitWarrior then
   begin
-    if fGame.IsReplay or fGame.IsMapEditor then
+    if gGame.IsReplay or gGame.IsMapEditor then
       G := gHands.GetGroupByMember(TKMUnitWarrior(Selected))
     else
       G := gHands[fHandIndex].UnitGroups.GetGroupByMember(TKMUnitWarrior(Selected));
@@ -129,7 +129,7 @@ begin
 
   //If there's no unit try pick a house on the Cell below
   if Selected = nil then
-    if fGame.IsReplay or fGame.IsMapEditor then
+    if gGame.IsReplay or gGame.IsMapEditor then
       Selected := gHands.HousesHitTest(GameCursor.Cell.X, GameCursor.Cell.Y)
     else
       Selected := gHands[fHandIndex].HousesHitTest(GameCursor.Cell.X, GameCursor.Cell.Y);
@@ -153,10 +153,10 @@ end;
 
 procedure TKMSpectator.SetHandIndex(const Value: THandIndex);
 begin
-  Assert((MULTIPLAYER_CHEATS or not fGame.IsMultiplayer) or fGame.IsReplay or fGame.IsMapEditor);
+  Assert((MULTIPLAYER_CHEATS or not gGame.IsMultiplayer) or gGame.IsReplay or gGame.IsMapEditor);
   fHandIndex := Value;
 
-  if not fGame.IsReplay and not fGame.IsMapEditor then
+  if not gGame.IsReplay and not gGame.IsMapEditor then
     Selected := nil;
 end;
 

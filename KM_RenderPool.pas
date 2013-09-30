@@ -256,14 +256,14 @@ begin
     gHands.Paint(ClipRect); //Units and houses
     gProjectiles.Paint;
 
-    if fGame.GamePlayInterface <> nil then
-      fGame.GamePlayInterface.Alerts.Paint(0);
+    if gGame.GamePlayInterface <> nil then
+      gGame.GamePlayInterface.Alerts.Paint(0);
 
     fRenderList.SortRenderList;
     fRenderList.Render(rtScreen);
 
-    if fGame.GamePlayInterface <> nil then
-      fGame.GamePlayInterface.Alerts.Paint(1);
+    if gGame.GamePlayInterface <> nil then
+      gGame.GamePlayInterface.Alerts.Paint(1);
 
     fRenderTerrain.RenderFOW(MySpectator.FogOfWar, False);
 
@@ -321,8 +321,8 @@ begin
   if MySpectator.Highlight is TKMHouse then
     RenderHouseOutline(TKMHouse(MySpectator.Highlight));
 
-  if fGame.IsMapEditor then
-    fGame.MapEditor.Paint(plTerrain, aRect);
+  if gGame.IsMapEditor then
+    gGame.MapEditor.Paint(plTerrain, aRect);
 
   if fAIFields <> nil then
     fAIFields.Paint(aRect);
@@ -354,11 +354,11 @@ procedure TRenderPool.CollectTerrainObjects(aRect: TKMRect; aAnimStep: Cardinal)
 var
   I, K: Integer;
 begin
-  if fGame.IsMapEditor and not (mlObjects in fGame.MapEditor.VisibleLayers) then
+  if gGame.IsMapEditor and not (mlObjects in gGame.MapEditor.VisibleLayers) then
     Exit;
 
-  if fGame.IsMapEditor then
-    fGame.MapEditor.Paint(plObjects, aRect);
+  if gGame.IsMapEditor then
+    gGame.MapEditor.Paint(plObjects, aRect);
 
   with gTerrain do
   for I := aRect.Top to aRect.Bottom do
@@ -384,7 +384,7 @@ begin
 
   //Tablets on house plans, for self and allies
   fTabletsList.Clear;
-  if fGame.IsReplay then
+  if gGame.IsReplay then
     if MySpectator.FOWIndex = -1 then
       for I := 0 to gHands.Count - 1 do
         gHands[I].GetPlansTablets(fTabletsList, aRect)
@@ -428,7 +428,7 @@ begin
   begin
     //Invisible wall
     //Render as a red outline in map editor mode
-    if fGame.IsMapEditor then
+    if gGame.IsMapEditor then
     begin
       fRenderAux.Quad(LocX, LocY, $600000FF);
       RenderWireTile(KMPoint(LocX, LocY), $800000FF);
@@ -872,7 +872,7 @@ begin
 
   //Thought bubbles are animated in reverse
   Id := ThoughtBounds[Thought, 2] + 1 -
-       (fGame.GameTickCount mod Word(ThoughtBounds[Thought, 2] - ThoughtBounds[Thought, 1]));
+       (gGame.GameTickCount mod Word(ThoughtBounds[Thought, 2] - ThoughtBounds[Thought, 1]));
 
   CornerX := pX + R.Pivot[Id].X / CELL_SIZE_PX;
   CornerY := gTerrain.FlatToHeight(pX, pY) + (R.Pivot[Id].Y + R.Size[Id].Y) / CELL_SIZE_PX - 1.5;
@@ -1108,7 +1108,7 @@ begin
   fHousePlansList.Clear;
 
   //Collect field plans (road, corn, wine)
-  if fGame.IsReplay then
+  if gGame.IsReplay then
   begin
     if MySpectator.FOWIndex = -1 then
       for I := 0 to gHands.Count - 1 do
@@ -1124,7 +1124,7 @@ begin
   end;
 
   //House plans for self and allies
-  if fGame.IsReplay then
+  if gGame.IsReplay then
   begin
     if MySpectator.FOWIndex = -1 then
       for I := 0 to gHands.Count - 1 do
@@ -1234,8 +1234,8 @@ var
 begin
   if GameCursor.Cell.Y * GameCursor.Cell.X = 0 then Exit; //Caused a rare crash
 
-  if fGame.IsMapEditor then
-    fGame.MapEditor.Paint(plCursors, KMRect(0,0,0,0));
+  if gGame.IsMapEditor then
+    gGame.MapEditor.Paint(plCursors, KMRect(0,0,0,0));
 
   P := GameCursor.Cell;
   F := GameCursor.Float;
@@ -1248,7 +1248,7 @@ begin
   with gTerrain do
   case GameCursor.Mode of
     cmNone:       ;
-    cmErase:      if not fGame.IsMapEditor then
+    cmErase:      if not gGame.IsMapEditor then
                   begin
                     if ((gHands[MySpectator.HandIndex].BuildList.FieldworksList.HasFakeField(P) <> ft_None)
                         or gHands[MySpectator.HandIndex].BuildList.HousePlanList.HasPlan(P)

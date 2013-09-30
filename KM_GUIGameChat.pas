@@ -103,12 +103,12 @@ end;
 
 procedure TKMGUIGameChat.Chat_Post(Sender: TObject; Key: Word);
 begin
-  if (Key = VK_RETURN) and (Trim(Edit_ChatMsg.Text) <> '') and (fGame.Networking <> nil) then
+  if (Key = VK_RETURN) and (Trim(Edit_ChatMsg.Text) <> '') and (gGame.Networking <> nil) then
   begin
     if fChatMode in [cmAll, cmTeam] then
-      fGame.Networking.PostMessage(Edit_ChatMsg.Text, True, fChatMode = cmTeam);
+      gGame.Networking.PostMessage(Edit_ChatMsg.Text, True, fChatMode = cmTeam);
     if fChatMode = cmWhisper then
-      fGame.Networking.PostMessage(Edit_ChatMsg.Text, True, False, fChatWhisperRecipient);
+      gGame.Networking.PostMessage(Edit_ChatMsg.Text, True, False, fChatWhisperRecipient);
     Edit_ChatMsg.Text := '';
   end;
 end;
@@ -160,13 +160,13 @@ begin
             Edit_ChatMsg.OutlineColor := $FF66FF66;
           end;
     else  begin //Whisper to player
-            I := fGame.Networking.NetPlayers.ServerToLocal(aItem);
+            I := gGame.Networking.NetPlayers.ServerToLocal(aItem);
             if I <> -1 then
             begin
               fChatMode := cmWhisper;
               Edit_ChatMsg.DrawOutline := True;
               Edit_ChatMsg.OutlineColor := $FF00B9FF;
-              with fGame.Networking.NetPlayers[I] do
+              with gGame.Networking.NetPlayers[I] do
               begin
                 fChatWhisperRecipient := IndexOnServer;
                 UpdateButtonCaption(UnicodeString(Nikname), IfThen(FlagColorID <> 0, FlagColorToTextColor(FlagColor), 0));
@@ -196,14 +196,14 @@ begin
   Menu_Chat.AddItem(gResTexts[TX_CHAT_ALL], -1);
 
   //Only show "Team" if the player is on a team
-  if fGame.Networking.NetPlayers[fGame.Networking.MyIndex].Team <> 0 then
+  if gGame.Networking.NetPlayers[gGame.Networking.MyIndex].Team <> 0 then
     Menu_Chat.AddItem('[$66FF66]' + gResTexts[TX_CHAT_TEAM], -2);
 
   //Fill
-  for I := 1 to fGame.Networking.NetPlayers.Count do
-  if I <> fGame.Networking.MyIndex then //Can't whisper to self
+  for I := 1 to gGame.Networking.NetPlayers.Count do
+  if I <> gGame.Networking.MyIndex then //Can't whisper to self
   begin
-    n := fGame.Networking.NetPlayers[I];
+    n := gGame.Networking.NetPlayers[I];
 
     if n.IsHuman and n.Connected and not n.Dropped then
       Menu_Chat.AddItem(UnicodeString(n.NiknameColored), n.IndexOnServer);

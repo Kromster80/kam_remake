@@ -163,7 +163,7 @@ end;
 
 procedure TKMMapEdMenuLoad.Show;
 begin
-  if fGame.MapEditor.HumanCount > 1 then
+  if gGame.MapEditor.HumanCount > 1 then
     Radio_Load_MapType.ItemIndex := 1
   else
     Radio_Load_MapType.ItemIndex := 0;

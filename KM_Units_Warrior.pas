@@ -289,14 +289,14 @@ end;
 //Used to prevent rate of fire exploit
 function TKMUnitWarrior.NeedsToReload(aFightAnimLength: Byte): Boolean;
 begin
-  Result := (fLastShootTime <> 0) and ((fGame.GameTickCount - fLastShootTime) < aFightAnimLength);
+  Result := (fLastShootTime <> 0) and ((gGame.GameTickCount - fLastShootTime) < aFightAnimLength);
 end;
 
 
 //Used to prevent rate of fire exploit
 procedure TKMUnitWarrior.SetLastShootTime;
 begin
-  fLastShootTime := fGame.GameTickCount;
+  fLastShootTime := gGame.GameTickCount;
 end;
 
 

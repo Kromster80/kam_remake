@@ -80,14 +80,14 @@ begin
   if Sender = Button_SelectCopy then
   begin
     //Copy selection into cursor
-    fGame.MapEditor.Selection.Selection_Copy;
-    Button_SelectPaste.Enabled := fGame.MapEditor.Selection.Selection_DataInBuffer;
+    gGame.MapEditor.Selection.Selection_Copy;
+    Button_SelectPaste.Enabled := gGame.MapEditor.Selection.Selection_DataInBuffer;
   end
   else
   if Sender = Button_SelectPaste then
   begin
     //Paste selection
-    fGame.MapEditor.Selection.Selection_PasteBegin;
+    gGame.MapEditor.Selection.Selection_PasteBegin;
 
     Button_SelectPasteApply.Enable;
     Button_SelectPasteCancel.Enable;
@@ -98,8 +98,8 @@ begin
   if Sender = Button_SelectPasteApply then
   begin
     //Apply paste
-    fGame.MapEditor.Selection.Selection_PasteApply;
-    fGame.MapEditor.TerrainPainter.MakeCheckpoint;
+    gGame.MapEditor.Selection.Selection_PasteApply;
+    gGame.MapEditor.TerrainPainter.MakeCheckpoint;
 
     Button_SelectPasteApply.Disable;
     Button_SelectPasteCancel.Disable;
@@ -110,7 +110,7 @@ begin
   if Sender = Button_SelectPasteCancel then
   begin
     //Cancel pasting
-    fGame.MapEditor.Selection.Selection_PasteCancel;
+    gGame.MapEditor.Selection.Selection_PasteCancel;
     Button_SelectPasteApply.Disable;
     Button_SelectPasteCancel.Disable;
     Button_SelectCopy.Enable;
@@ -120,13 +120,13 @@ begin
   if Sender = Button_SelectFlipH then
   begin
     //Flip selected
-    fGame.MapEditor.Selection.Selection_Flip(fa_Horizontal);
+    gGame.MapEditor.Selection.Selection_Flip(fa_Horizontal);
   end
   else
   if Sender = Button_SelectFlipV then
   begin
     //Flip selected
-    fGame.MapEditor.Selection.Selection_Flip(fa_Vertical);
+    gGame.MapEditor.Selection.Selection_Flip(fa_Vertical);
   end;
 end;
 
@@ -154,7 +154,7 @@ end;
 
 procedure TKMMapEdTerrainSelection.UpdateState;
 begin
-  Button_SelectPaste.Enabled := fGame.MapEditor.Selection.Selection_DataInBuffer;
+  Button_SelectPaste.Enabled := gGame.MapEditor.Selection.Selection_DataInBuffer;
 end;
 
 

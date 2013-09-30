@@ -173,7 +173,7 @@ var i,Tick: Cardinal;
 begin
   Assert(fDelay < MAX_SCHEDULE, 'Error, fDelay >= MAX_SCHEDULE');
 
-  if fGame.IsPeaceTime and (aCommand.CommandType in BlockedByPeaceTime) then
+  if gGame.IsPeaceTime and (aCommand.CommandType in BlockedByPeaceTime) then
   begin
     fGameApp.Networking.PostLocalMessage(gResTexts[TX_MP_BLOCKED_BY_PEACETIME],false);
     gSoundPlayer.Play(sfx_CantPlace);
@@ -188,7 +188,7 @@ begin
 
   //Find first unsent pack
   Tick := MAX_SCHEDULE; //Out of range value
-  for I := fGame.GameTickCount + fDelay to fGame.GameTickCount + MAX_SCHEDULE-1 do
+  for I := gGame.GameTickCount + fDelay to gGame.GameTickCount + MAX_SCHEDULE-1 do
   if not fSent[I mod MAX_SCHEDULE] then
   begin
     Tick := I mod MAX_SCHEDULE; //Place in a ring buffer
@@ -274,7 +274,7 @@ begin
   with fRandomCheck[aTick mod MAX_SCHEDULE] do
   begin
     Assert(OurCheck = PlayerCheck[aPlayerIndex],Format('Random check mismatch for tick %d from player %d processed at tick %d',
-                                                       [aTick, aPlayerIndex, fGame.GameTickCount]));
+                                                       [aTick, aPlayerIndex, gGame.GameTickCount]));
     PlayerCheckPending[aPlayerIndex] := false;
   end;
 end;
@@ -296,7 +296,7 @@ begin
     kdp_Commands:
         begin
           //Recieving commands too late will happen during reconnections, so just ignore it
-          if Tick > fGame.GameTickCount then
+          if Tick > gGame.GameTickCount then
           begin
             fSchedule[Tick mod MAX_SCHEDULE, handIndex].Load(aStream);
             fRecievedData[Tick mod MAX_SCHEDULE, handIndex] := True;
@@ -308,7 +308,7 @@ begin
           fRandomCheck[Tick mod MAX_SCHEDULE].PlayerCheck[handIndex] := CRC; //Store it for this player
           fRandomCheck[Tick mod MAX_SCHEDULE].PlayerCheckPending[handIndex] := True;
           //If we have processed this tick already, check now
-          if Tick <= fGame.GameTickCount then
+          if Tick <= gGame.GameTickCount then
             DoRandomCheck(Tick, handIndex);
         end;
   end;
@@ -399,7 +399,7 @@ begin
   FillChar(fRecievedData[Tick], SizeOf(fRecievedData[Tick]), #0); //Reset
   fSent[Tick] := False;
 
-  if aTick mod DELAY_ADJUST = 0 then AdjustDelay(fGame.GameSpeed); //Adjust fDelay every X ticks
+  if aTick mod DELAY_ADJUST = 0 then AdjustDelay(gGame.GameSpeed); //Adjust fDelay every X ticks
 end;
 
 

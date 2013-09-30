@@ -80,10 +80,10 @@ begin
 
   if Sender = Button_SaveSave then
   begin
-    fGame.SaveMapEditor(SaveName);
+    gGame.SaveMapEditor(SaveName);
 
     //Player colors and mapname has changed
-    fGame.ActiveInterface.SyncUI;
+    gGame.ActiveInterface.SyncUI;
 
     fOnDone(Self);
   end;
@@ -101,12 +101,12 @@ end;
 
 procedure TKMMapEdMenuSave.Show;
 begin
-  if fGame.MapEditor.HumanCount > 1 then
+  if gGame.MapEditor.HumanCount > 1 then
     Radio_Save_MapType.ItemIndex := 1
   else
     Radio_Save_MapType.ItemIndex := 0;
 
-  Edit_SaveName.Text := fGame.GameName;
+  Edit_SaveName.Text := gGame.GameName;
   Menu_SaveClick(Edit_SaveName);
   Panel_Save.Show;
 end;

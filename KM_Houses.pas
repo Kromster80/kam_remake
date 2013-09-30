@@ -297,7 +297,7 @@ begin
   begin
     Activate(False);
     fBuildingProgress := fResource.HouseDat[fHouseType].MaxHealth;
-    gTerrain.SetHouse(fPosition, fHouseType, hsBuilt, fOwner, (fGame <> nil) and (fGame.GameMode <> gmMapEd)); //Sets passability and flattens terrain if we're not in the map editor
+    gTerrain.SetHouse(fPosition, fHouseType, hsBuilt, fOwner, (gGame <> nil) and (gGame.GameMode <> gmMapEd)); //Sets passability and flattens terrain if we're not in the map editor
   end
   else
     gTerrain.SetHouse(fPosition, fHouseType, hsFence, fOwner); //Terrain remains neutral yet
@@ -469,7 +469,7 @@ procedure TKMHouse.SetPosition(aPos: TKMPoint);
 var
   WasOnSnow: Boolean;
 begin
-  Assert(fGame.GameMode = gmMapEd);
+  Assert(gGame.GameMode = gmMapEd);
   //We have to remove the house THEN check to see if we can place it again so we can put it on the old position
   gTerrain.SetHouse(fPosition, fHouseType, hsNone, -1);
   gTerrain.RemRoad(GetEntrance);
@@ -1168,7 +1168,7 @@ begin
   Inc(FlagAnimStep);
   Inc(WorkAnimStep);
 
-  if (FlagAnimStep mod 10 = 0) and fGame.IsMapEditor then
+  if (FlagAnimStep mod 10 = 0) and gGame.IsMapEditor then
   begin
     WasOnSnow := fIsOnSnow;
     CheckOnSnow;
@@ -1177,7 +1177,7 @@ begin
   end;
 
   if fIsOnSnow and (fSnowStep < 1) then
-    fSnowStep := Min(fSnowStep + (1 + Byte(fGame.IsMapEditor) * 10) / SNOW_TIME, 1);
+    fSnowStep := Min(fSnowStep + (1 + Byte(gGame.IsMapEditor) * 10) / SNOW_TIME, 1);
 
   //FlagAnimStep is a sort of counter to reveal terrain once a sec
   if DYNAMIC_FOG_OF_WAR then
@@ -1237,11 +1237,11 @@ begin
     if fTimeSinceUnoccupiedReminder = 0 then
     begin
       //Hide messages for wrong player, in replays, and if we have lost
-      if (fOwner = MySpectator.HandIndex) and not fGame.IsReplay and (gHands[fOwner].AI.WonOrLost <> wol_Lost) then
+      if (fOwner = MySpectator.HandIndex) and not gGame.IsReplay and (gHands[fOwner].AI.WonOrLost <> wol_Lost) then
       begin
         //HouseName := fResource.HouseDat[HouseType].HouseName;
         //We can't paste houses name instead of %s like that because of plurals and feminine/masculine attrib
-        fGame.ShowMessage(mkHouse, gResTexts[TX_MSG_HOUSE_UNOCCUPIED], GetEntrance);
+        gGame.ShowMessage(mkHouse, gResTexts[TX_MSG_HOUSE_UNOCCUPIED], GetEntrance);
       end;
       fTimeSinceUnoccupiedReminder := TIME_BETWEEN_MESSAGES; //Don't show one again until it is time
     end;
@@ -1749,7 +1749,7 @@ begin
   Assert(aRes in [WARE_MIN .. WARE_MAX]); //Dunno why thats happening sometimes..
 
   //We need to skip cheats in MP replays too, not just MP games, so don't use fGame.IsMultiplayer
-  if CHEATS_ENABLED and (MULTIPLAYER_CHEATS or not (fGame.GameMode in [gmMulti, gmReplayMulti])) then
+  if CHEATS_ENABLED and (MULTIPLAYER_CHEATS or not (gGame.GameMode in [gmMulti, gmReplayMulti])) then
   begin
     ApplyCheat := True;
 
@@ -1764,18 +1764,18 @@ begin
                     gHands[fOwner].Stats.WareProduced(wt_All, 10);
                     Exit;
                   end;
-      wt_Horse:   if not fGame.IsMultiplayer then
+      wt_Horse:   if not gGame.IsMultiplayer then
                   begin
                     //Game results cheats should not be used in MP even in debug
                     //MP does Win/Defeat differently (without Hold)
-                    fGame.RequestGameHold(gr_Win);
+                    gGame.RequestGameHold(gr_Win);
                     Exit;
                   end;
-      wt_Fish:    if not fGame.IsMultiplayer then
+      wt_Fish:    if not gGame.IsMultiplayer then
                   begin
                     //Game results cheats should not be used in MP even in debug
                     //MP does Win/Defeat differently (without Hold)
-                    fGame.RequestGameHold(gr_Defeat);
+                    gGame.RequestGameHold(gr_Defeat);
                     Exit;
                   end;
     end;
