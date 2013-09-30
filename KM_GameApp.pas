@@ -513,11 +513,8 @@ begin
   LoadGameFromScript(TKMapsCollection.FullPath(aFileName, '.dat', True), aFileName, '', 0, gmMulti, 0, 0);
 
   //Copy text from lobby to in-game chat
-  if fGame <> nil then
-  begin
-    fGame.GamePlayInterface.SetChatText(fMainMenuInterface.GetChatText);
-    fGame.GamePlayInterface.SetChatMessages(fMainMenuInterface.GetChatMessages);
-  end;
+  fGame.GamePlayInterface.SetChatText(fMainMenuInterface.GetChatText);
+  fGame.GamePlayInterface.SetChatMessages(fMainMenuInterface.GetChatMessages);
 end;
 
 

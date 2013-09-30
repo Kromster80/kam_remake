@@ -140,7 +140,6 @@ type
     property GameOptions: TKMGameOptions read fGameOptions;
     property ActiveInterface: TKMUserInterfaceGame read fActiveInterface;
     property GamePlayInterface: TKMGamePlayInterface read fGamePlayInterface;
-    //property MapEditorInterface: TKMapEdInterface read fMapEditorInterface;
     property MapEditor: TKMMapEditor read fMapEditor;
     property TextMission: TKMTextLibraryMulti read fTextMission;
 
@@ -171,9 +170,9 @@ uses
   KM_Scripting, KM_GameInputProcess_Single, KM_GameInputProcess_Multi, KM_Main;
 
 
-{ Creating everything needed for MainMenu, game stuff is created on StartGame }
-//aMultiplayer - is this a multiplayer game
+//Create template for the Game
 //aRender - who will be rendering the Game session
+//aNetworking - access to MP stuff
 constructor TKMGame.Create(aGameMode: TGameMode; aRender: TRender; aNetworking: TKMNetworking);
 begin
   inherited Create;
@@ -182,14 +181,14 @@ begin
   fNetworking := aNetworking;
 
   fAdvanceFrame := False;
-  fUIDTracker    := 0;
+  fUIDTracker   := 0;
   PlayOnState   := gr_Cancel;
   DoGameHold    := False;
   SkipReplayEndCheck := False;
   fWaitingForNetwork := False;
   fGameOptions  := TKMGameOptions.Create;
 
-  //Create required UI (gameplay or MapEd)
+  //UserInterface is different between Gameplay and MapEd
   if fGameMode = gmMapEd then
   begin
     fMapEditorInterface := TKMapEdInterface.Create(aRender);
@@ -219,11 +218,10 @@ begin
   fScripting := TKMScripting.Create;
 
   case PathFinderToUse of
-    0:  fPathfinding := TPathfindingAStarOld.Create;
-    1:  fPathfinding := TPathfindingAStarNew.Create;
-    2:  fPathfinding := TPathfindingJPS.Create;
-  else  fPathfinding := TPathfindingAStarOld.Create;
-
+    0:    fPathfinding := TPathfindingAStarOld.Create;
+    1:    fPathfinding := TPathfindingAStarNew.Create;
+    2:    fPathfinding := TPathfindingJPS.Create;
+    else  fPathfinding := TPathfindingAStarOld.Create;
   end;
   gProjectiles := TKMProjectiles.Create;
 
@@ -231,7 +229,7 @@ begin
 end;
 
 
-{ Destroy what was created }
+//Destroy what was created
 destructor TKMGame.Destroy;
 begin
   //We might have crashed part way through .Create, so we can't assume ANYTHING exists here.

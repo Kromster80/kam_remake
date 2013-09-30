@@ -651,7 +651,7 @@ end;
 
 procedure TKMMenuLobby.GameOptionsChange(Sender: TObject);
 begin
-  //Set the peacetime
+  //Set the peacetime length (up to 300min)
   fNetworking.NetGameOptions.Peacetime := EnsureRange(TrackBar_LobbyPeacetime.Position, 0, 300);
   fNetworking.NetGameOptions.SpeedPT := (TrackBar_LobbySpeedPT.Position - 1) / 2 + 1;
   fNetworking.NetGameOptions.SpeedAfterPT := (TrackBar_LobbySpeedAfterPT.Position - 1) / 2 + 1;
@@ -664,19 +664,20 @@ end;
 
 procedure TKMMenuLobby.Lobby_OnGameOptions(Sender: TObject);
 begin
-  TrackBar_LobbyPeacetime.Position    := fNetworking.NetGameOptions.Peacetime;
+  TrackBar_LobbyPeacetime.Position := fNetworking.NetGameOptions.Peacetime;
 
   TrackBar_LobbySpeedPT.Enabled   := (TrackBar_LobbyPeacetime.Position > 0) and TrackBar_LobbySpeedAfterPT.Enabled;
   TrackBar_LobbySpeedPT.Position  := Round((fNetworking.NetGameOptions.SpeedPT - 1) * 2 + 1);
   TrackBar_LobbySpeedPT.ThumbText := 'x' + FloatToStr(fNetworking.NetGameOptions.SpeedPT);
 
-  TrackBar_LobbySpeedAfterPT.Position   := Round((fNetworking.NetGameOptions.SpeedAfterPT - 1) * 2 + 1);
-  TrackBar_LobbySpeedAfterPT.ThumbText  := 'x' + FloatToStr(fNetworking.NetGameOptions.SpeedAfterPT);
+  TrackBar_LobbySpeedAfterPT.Position  := Round((fNetworking.NetGameOptions.SpeedAfterPT - 1) * 2 + 1);
+  TrackBar_LobbySpeedAfterPT.ThumbText := 'x' + FloatToStr(fNetworking.NetGameOptions.SpeedAfterPT);
 end;
 
 
 procedure TKMMenuLobby.PlayerMenuClick(Sender: TObject);
-var I: Integer;
+var
+  id: Integer;
 begin
   //We can't really do global bans because player's IP addresses change all the time (and we have no other way to identify someone).
   //My idea was for bans to be managed completely by the server, since player's don't actually know each other's IPs.
@@ -685,12 +686,12 @@ begin
   //In any way banlist should be editable from within the lobby, so we will need methods to get the list
   //from the server and allow to remove items from it.
 
-  I := fNetworking.NetPlayers.ServerToLocal(TKMControl(Sender).Tag);
-  if I = -1 then Exit; //Player has quit the lobby
+  id := fNetworking.NetPlayers.ServerToLocal(TKMControl(Sender).Tag);
+  if id = -1 then Exit; //Player has quit the lobby
 
   //Kick
   if (Sender = Menu_Host) and (Menu_Host.ItemIndex = 0) then
-    fNetworking.KickPlayer(I);
+    fNetworking.KickPlayer(id);
 
   //todo: Ban
   //if (Sender = Menu_Host) and (ListBox_PlayerMenuHost.ItemIndex = 1) then
@@ -702,22 +703,23 @@ end;
 
 procedure TKMMenuLobby.PlayerMenuShow(Sender: TObject);
 var
-  C: TKMControl;
+  ctrl: TKMControl;
 begin
-  C := TKMControl(Sender);
+  ctrl := TKMControl(Sender);
 
   //Only human players (excluding ourselves) have the player menu
-  if not fNetworking.NetPlayers[C.Tag].IsHuman //No menu for AI players
-  or (fNetworking.MyIndex = C.Tag) //No menu for ourselves
+  if not fNetworking.NetPlayers[ctrl.Tag].IsHuman //No menu for AI players
+  or (fNetworking.MyIndex = ctrl.Tag) //No menu for ourselves
   or not fNetworking.IsHost //Only host gets to use the menu (for now)
-  or not fNetworking.NetPlayers[C.Tag].Connected then //Don't show menu for empty slots
+  or not fNetworking.NetPlayers[ctrl.Tag].Connected then //Don't show menu for empty slots
     Exit;
 
-  //Remember which player it is by their server index (order of players can change)
-  Menu_Host.Tag := fNetworking.NetPlayers[C.Tag].IndexOnServer;
+  //Remember which player it is by his server index
+  //since order of players can change. If someone above leaves we still have the proper Id
+  Menu_Host.Tag := fNetworking.NetPlayers[ctrl.Tag].IndexOnServer;
 
   //Position the menu next to the icon, but do not overlap players name
-  Menu_Host.ShowAt(C.AbsLeft, C.AbsTop + C.Height);
+  Menu_Host.ShowAt(ctrl.AbsLeft, ctrl.AbsTop + ctrl.Height);
 end;
 
 
