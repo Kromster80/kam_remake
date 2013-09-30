@@ -9,7 +9,7 @@ uses
 type
   TKMHouseInn = class(TKMHouse)
   private
-    Eater: array [1..6] of record //only 6 units are allowed in the inn
+    Eater: array [0..5] of record //only 6 units are allowed in the inn
       UnitType: TUnitType;
       FoodKind: TWareType; //What kind of food eater eats
       EatStep: Cardinal;
@@ -17,9 +17,9 @@ type
   public
     constructor Create(aUID: Integer; aHouseType: THouseType; PosX, PosY: Integer; aOwner: THandIndex; aBuildState: THouseBuildState);
     constructor Load(LoadStream: TKMemoryStream); override;
-    function EaterGetsInside(aUnitType: TUnitType): Byte;
-    procedure UpdateEater(aIndex: Byte; aFoodKind: TWareType);
-    procedure EatersGoesOut(aIndex: Byte);
+    function EaterGetsInside(aUnitType: TUnitType): ShortInt;
+    procedure UpdateEater(aIndex: ShortInt; aFoodKind: TWareType);
+    procedure EatersGoesOut(aIndex: ShortInt);
     function HasFood: Boolean;
     function HasSpace: Boolean;
     procedure Save(SaveStream: TKMemoryStream); override;
@@ -52,11 +52,11 @@ end;
 
 
 //EatStep := FlagAnimStep, cos increases it each frame, we don't need to increase all 6 AnimSteps manually
-function TKMHouseInn.EaterGetsInside(aUnitType: TUnitType): Byte;
+function TKMHouseInn.EaterGetsInside(aUnitType: TUnitType): ShortInt;
 var
   I: Integer;
 begin
-  Result := 0;
+  Result := -1;
   for I := Low(Eater) to High(Eater) do
   if Eater[I].UnitType = ut_None then
   begin
@@ -69,19 +69,19 @@ begin
 end;
 
 
-procedure TKMHouseInn.UpdateEater(aIndex: Byte; aFoodKind: TWareType);
+procedure TKMHouseInn.UpdateEater(aIndex: ShortInt; aFoodKind: TWareType);
 begin
-  if aIndex = 0 then exit;
-  Assert(aFoodKind in [wt_Wine, wt_Bread, wt_Sausages, wt_Fish], 'Wrong food kind');
+  if aIndex = -1 then Exit;
+  Assert(aFoodKind in [wt_Wine, wt_Bread, wt_Sausages, wt_Fish], 'Wrong kind of food in Inn');
 
   Eater[aIndex].FoodKind := aFoodKind; //Order is Wine-Bread-Sausages-Fish
-  Eater[aIndex].EatStep  := FlagAnimStep; //FlagAnimStep-Eater[i].EatStep = 0
+  Eater[aIndex].EatStep  := FlagAnimStep; //Eat animation step will be difference between FlagAnim and EatStep
 end;
 
 
-procedure TKMHouseInn.EatersGoesOut(aIndex: Byte);
+procedure TKMHouseInn.EatersGoesOut(aIndex: ShortInt);
 begin
-  if aIndex <> 0 then
+  if aIndex <> -1 then
     Eater[aIndex].UnitType := ut_None;
 end;
 
@@ -110,14 +110,14 @@ end;
 
 
 procedure TKMHouseInn.Paint;
-  //Chose eater animation direction (1357 face south, 2468 face north)
+  //Chose eater animation direction (135 face south, 246 face north)
   function AnimDir(aIndex: Integer): TKMDirection;
   begin
     case Eater[aIndex].FoodKind of
-      wt_Wine:      Result  := TKMDirection(1 * 2 - 1 + ((aIndex - 1) div 3));
-      wt_Bread:     Result  := TKMDirection(2 * 2 - 1 + ((aIndex - 1) div 3));
-      wt_Sausages:  Result  := TKMDirection(3 * 2 - 1 + ((aIndex - 1) div 3));
-      wt_Fish:      Result  := TKMDirection(4 * 2 - 1 + ((aIndex - 1) div 3));
+      wt_Wine:      Result  := TKMDirection(1 * 2 - 1 + (aIndex div 3));
+      wt_Bread:     Result  := TKMDirection(2 * 2 - 1 + (aIndex div 3));
+      wt_Sausages:  Result  := TKMDirection(3 * 2 - 1 + (aIndex div 3));
+      wt_Fish:      Result  := TKMDirection(4 * 2 - 1 + (aIndex div 3));
       else          Result  := dir_NA;
     end;
   end;
@@ -139,7 +139,7 @@ begin
 
     fRenderPool.AddHouseEater(fPosition, Eater[I].UnitType, ua_Eat,
                               AnimDir(I), AnimStep,
-                              offX[(I-1) mod 3], offY[(I-1) mod 3],
+                              offX[I mod 3], offY[I mod 3],
                               gHands[fOwner].FlagColor);
   end;
 end;
