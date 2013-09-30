@@ -207,6 +207,7 @@
 			<DCCReference Include="KM_HouseCollection.pas"/>
 			<DCCReference Include="KM_HouseMarket.pas"/>
 			<DCCReference Include="KM_Houses.pas"/>
+			<DCCReference Include="KM_HouseSchool.pas"/>
 			<DCCReference Include="KM_HTTPClient.pas"/>
 			<DCCReference Include="KM_Hungarian.pas"/>
 			<DCCReference Include="KM_InterfaceDefaults.pas"/>

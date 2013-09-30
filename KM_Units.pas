@@ -4,7 +4,7 @@ interface
 uses
   Classes, Math, SysUtils, KromUtils, TypInfo, Types,
   KM_CommonClasses, KM_Defaults, KM_Points, KM_Utils,
-  KM_Terrain, KM_ResHouses, KM_ResWares, KM_Houses;
+  KM_Terrain, KM_ResHouses, KM_ResWares, KM_Houses, KM_HouseSchool;
 
 //Memo on directives:
 //Dynamic - declared and used (overriden) occasionally

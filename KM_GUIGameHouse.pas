@@ -54,18 +54,18 @@ type
       Label_HouseConstructionWood, Label_HouseConstructionStone: TKMLabel;
       Button_House_DemolishYes,Button_House_DemolishNo: TKMButton;
       ResRow_Common_Resource: array [1..4] of TKMWaresRow; //4 bars is the maximum
-      ResRow_Order: array [1..4]of TKMWareOrderRow; //3 bars is the maximum
-      ResRow_Costs: array [1..4]of TKMCostsRow; //3 bars is the maximum
+      ResRow_Order: array [1..4] of TKMWareOrderRow; //3 bars is the maximum
+      ResRow_Costs: array [1..4] of TKMCostsRow; //3 bars is the maximum
     Panel_HouseMarket: TKMPanel;
-      Button_Market: array [0..STORE_RES_COUNT-1]of TKMButtonFlat;
+      Button_Market: array [0..STORE_RES_COUNT-1] of TKMButtonFlat;
       Shape_Market_From, Shape_Market_To: TKMShape;
       Label_Market_In, Label_Market_Out: TKMLabel;
       Button_Market_In, Button_Market_Out: TKMButtonFlat;
       Button_Market_Add,Button_Market_Remove: TKMButton;
       Label_Market_FromAmount,Label_Market_ToAmount: TKMLabel;
     Panel_HouseStore: TKMPanel;
-      Button_Store: array [1..STORE_RES_COUNT]of TKMButtonFlat;
-      Image_Store_Accept: array [1..STORE_RES_COUNT]of TKMImage;
+      Button_Store: array [1..STORE_RES_COUNT] of TKMButtonFlat;
+      Image_Store_Accept: array [1..STORE_RES_COUNT] of TKMImage;
     Panel_House_School: TKMPanel;
       ResRow_School_Resource: TKMWaresRow;
       Button_School_UnitWIP: TKMButton;
@@ -101,7 +101,7 @@ type
 
 implementation
 uses KM_Game, KM_GameInputProcess,
-  KM_HouseBarracks, KM_HandsCollection, KM_RenderUI,
+  KM_HouseBarracks, KM_HouseSchool, KM_HandsCollection, KM_RenderUI,
   KM_Resource, KM_ResFonts, KM_ResHouses, KM_ResTexts, KM_ResUnits, KM_ResWares;
 
 
@@ -851,7 +851,7 @@ begin
       Button_School_UnitPlan[I].Hint:='';
     end;
 
-  Button_School_Train.Enabled := School.Queue[High(School.Queue)] = ut_None;
+  Button_School_Train.Enabled := not School.QueueIsFull;
   Button_School_Left.Enabled := fLastSchoolUnit > 0;
   Button_School_Right.Enabled := fLastSchoolUnit < High(School_Order);
   Image_School_Left.Visible:= Button_School_Left.Enabled;
@@ -872,19 +872,17 @@ end;
 procedure TKMGUIGameHouse.House_SchoolUnitRemove(Sender: TObject; AButton: TMouseButton);
 var
   School: TKMHouseSchool;
-  i, ID:Integer;
+  I, id: Integer;
 begin
   School := TKMHouseSchool(MySpectator.Selected);
-  ID := TKMControl(Sender).Tag; //Item number that was clicked from the school queue
-
-  if not (ID in [0..High(School.Queue)]) then Exit;
+  id := TKMControl(Sender).Tag; //Item number that was clicked from the school queue
 
   //Right click clears entire queue after this item.
-  //In that case we remove the same ID repeatedly because they're automatically move along
+  //In that case we remove the same id repeatedly because they're automatically move along
   case AButton of
-    mbLeft:  gGame.GameInputProcess.CmdHouse(gic_HouseRemoveTrain, School, ID);
-    mbRight: for i:=ID to High(School.Queue) do
-               gGame.GameInputProcess.CmdHouse(gic_HouseRemoveTrain, School, ID);
+    mbLeft:  gGame.GameInputProcess.CmdHouse(gic_HouseRemoveTrain, School, id);
+    mbRight: for I := School.QueueLength - 1 downto id do
+               gGame.GameInputProcess.CmdHouse(gic_HouseRemoveTrain, School, I);
   end;
   House_SchoolUnitChange(nil, mbLeft);
 end;

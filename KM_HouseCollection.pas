@@ -37,7 +37,7 @@ type
 
 
 implementation
-uses KM_HouseBarracks, KM_HouseInn, KM_HouseMarket, KM_Game, KM_Resource;
+uses KM_HouseBarracks, KM_HouseInn, KM_HouseMarket, KM_HouseSchool, KM_Game, KM_Resource;
 
 
 { TKMHousesCollection }

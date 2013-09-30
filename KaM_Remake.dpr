@@ -113,6 +113,7 @@ uses
   KM_HouseCollection in 'KM_HouseCollection.pas',
   KM_HouseMarket in 'KM_HouseMarket.pas',
   KM_Houses in 'KM_Houses.pas',
+  KM_HouseSchool in 'KM_HouseSchool.pas',
   KM_HTTPClient in 'KM_HTTPClient.pas',
   KM_Hungarian in 'KM_Hungarian.pas',
   KM_InterfaceDefaults in 'KM_InterfaceDefaults.pas',

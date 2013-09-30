@@ -170,7 +170,7 @@ type
 
 
 implementation
-uses KM_Game, KM_HouseMarket, KM_HandsCollection, KM_Hand, KM_ResTexts, KM_Utils, KM_AI, KM_HouseBarracks;
+uses KM_Game, KM_HouseMarket, KM_HandsCollection, KM_Hand, KM_ResTexts, KM_Utils, KM_AI, KM_HouseBarracks, KM_HouseSchool;
 
 
 procedure SaveCommandToMemoryStream(aCommand: TGameInputCommand; aMemoryStream: TKMemoryStream);

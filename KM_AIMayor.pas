@@ -62,7 +62,7 @@ type
 
 
 implementation
-uses KM_Game, KM_Houses, KM_HouseCollection, KM_HandsCollection, KM_Hand, KM_Terrain, KM_Resource,
+uses KM_Game, KM_Houses, KM_HouseCollection, KM_HouseSchool, KM_HandsCollection, KM_Hand, KM_Terrain, KM_Resource,
   KM_ResWares, KM_AIFields;
 
 
@@ -181,7 +181,7 @@ begin
   while HS <> nil do
   begin
     Schools[K-1] := HS;
-    for I := 0 to High(HS.Queue) do //Decrease requirement for each unit in training
+    for I := 0 to HS.QueueLength - 1 do //Decrease requirement for each unit in training
       if HS.Queue[I] <> ut_None then
         Dec(UnitReq[HS.Queue[I]]); //Can be negative and compensated by e.g. ReqRecruits
     Inc(K);

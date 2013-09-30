@@ -162,7 +162,7 @@ type
     procedure PlayerShareFog(aPlayer1, aPlayer2: Word; aShare: Boolean);
     procedure PlayerWareDistribution(aPlayer, aWareType, aHouseType, aAmount: Byte);
     procedure PlayerWin(const aVictors: array of Integer; aTeamVictory: Boolean);
-    
+
     procedure PlayWAV(aPlayer: ShortInt; const aFileName: AnsiString; Volume: Single);
     procedure PlayWAVAtLocation(aPlayer: ShortInt; const aFileName: AnsiString; Volume: Single; X, Y: Word);
 
@@ -181,7 +181,7 @@ type
 
 implementation
 uses KM_AI, KM_Terrain, KM_Game, KM_FogOfWar, KM_HandsCollection, KM_Units_Warrior,
-  KM_HouseBarracks, KM_ResUnits, KM_ResWares, KM_ResHouses,
+  KM_HouseBarracks, KM_HouseSchool, KM_ResUnits, KM_ResWares, KM_ResHouses,
   KM_Log, KM_Utils, KM_Resource, KM_UnitTaskSelfTrain, KM_Sound;
 
 
@@ -613,6 +613,7 @@ begin
 end;
 
 
+//Get the unit type in Schools queue
 function TKMScriptStates.HouseSchoolQueue(aHouseID, QueueIndex: Integer): Integer;
 var H: TKMHouse;
 begin
