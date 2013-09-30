@@ -45,7 +45,6 @@ type
     fWaitingForNetwork: Boolean; //Indicates that we are waiting for other players commands in MP
     fAdvanceFrame: Boolean; //Replay variable to advance 1 frame, afterwards set to false
     fSaveFile: UnicodeString;  //Relative pathname to savegame we are playing, so it gets saved to crashreport
-    fShowTeamNames: Boolean;
     fGameLockedMutex: Boolean;
 
   //Should be saved
@@ -121,7 +120,6 @@ type
     property GameMode: TGameMode read fGameMode;
     property MissionFile: UnicodeString read fMissionFile;
     property SaveFile: UnicodeString read fSaveFile;
-    property ShowTeamNames: Boolean read fShowTeamNames write fShowTeamNames;
 
     property IsExiting: Boolean read fIsExiting;
     property IsPaused: Boolean read fIsPaused write fIsPaused;

@@ -37,6 +37,7 @@ type
     fGuiGameStats: TKMGUIGameStats;
 
     //Not saved
+    fShowTeamNames: Boolean; //True while the SC_SHOW_TEAM key is pressed
     LastDragPoint: TKMPoint; //Last mouse point that we drag placed/removed a road/field
     PrevHint: TObject;
     ShownMessage: Integer;
@@ -2393,7 +2394,7 @@ begin
     //As we don't have names for teams in SP we only allow showing team names in MP or MP replays
     Ord(SC_SHOW_TEAMS): if fMultiplayer or (fGame.GameMode = gmReplayMulti) then //Only MP replays
     begin
-      fGame.ShowTeamNames := True;
+      fShowTeamNames := True;
       //Update it immediately so there's no 300ms lag after pressing the key
       fTeamNames.Clear;
       Rect := fViewport.GetMinimapClip;
@@ -2433,7 +2434,7 @@ begin
     VK_DOWN:  fViewport.ScrollKeyDown  := False;
     VK_BACK:  fViewport.ResetZoom;
 
-    Ord(SC_SHOW_TEAMS):  fGame.ShowTeamNames := False;
+    Ord(SC_SHOW_TEAMS):  fShowTeamNames := False;
   end;
 
   if not fGame.IsMultiplayer or MULTIPLAYER_SPEEDUP then
@@ -3139,7 +3140,7 @@ begin
   if aTickCount mod 3 = 0 then //Update once every 300ms, player won't notice
   begin
     fTeamNames.Clear;
-    if fGame.ShowTeamNames then
+    if fShowTeamNames then
     begin
       Rect := fViewport.GetMinimapClip;
       gHands.GetUnitsInRect(Rect, fTeamNames);
@@ -3205,7 +3206,7 @@ var
   MapLoc: TKMPointF;
   ScreenLoc: TKMPointI;
 begin
-  if fGame.ShowTeamNames then
+  if fShowTeamNames then
   begin
     Label_TeamName.Visible := True; //Only visible while we're using it, otherwise it shows up in other places
     for I := 0 to fTeamNames.Count - 1 do
