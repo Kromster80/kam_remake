@@ -109,6 +109,7 @@ uses
   KM_HandSpectator in 'KM_HandSpectator.pas',
   KM_HandStats in 'KM_HandStats.pas',
   KM_HouseBarracks in 'KM_HouseBarracks.pas',
+  KM_HouseInn in 'KM_HouseInn.pas',
   KM_HouseCollection in 'KM_HouseCollection.pas',
   KM_HouseMarket in 'KM_HouseMarket.pas',
   KM_Houses in 'KM_Houses.pas',

@@ -265,7 +265,7 @@ type
 implementation
 uses
   KM_CommonTypes, KM_Game, KM_RenderPool, KM_RenderAux, KM_ResTexts, KM_Scripting,
-  KM_HandsCollection, KM_FogOfWar, KM_Units_Warrior, KM_Resource, KM_ResUnits,
+  KM_HandsCollection, KM_FogOfWar, KM_Units_Warrior, KM_Resource, KM_ResUnits, KM_HouseInn,
 
   KM_UnitActionAbandonWalk,
   KM_UnitActionFight,
@@ -374,10 +374,11 @@ end;
 
 function TKMUnitCitizen.UpdateState: Boolean;
 var
-  H: TKMHouseInn;
+  houseInn: TKMHouseInn;
 begin
   Result := True; //Required for override compatibility
-  if fCurrentAction=nil then raise ELocError.Create(fResource.UnitDat[UnitType].GUIName+' has no action at start of TKMUnitCitizen.UpdateState',fCurrPosition);
+  if fCurrentAction = nil then
+    raise ELocError.Create(fResource.UnitDat[UnitType].GUIName + ' has no action at start of TKMUnitCitizen.UpdateState', fCurrPosition);
 
   //Reset unit activity if home was destroyed, except when unit is dying or eating (finish eating/dying first)
   if (fHome <> nil)
@@ -410,9 +411,9 @@ begin
   //See if need to get to eat
   if fCondition < UNIT_MIN_CONDITION then
   begin
-    H := gHands[fOwner].FindInn(fCurrPosition,Self,not fVisible);
-    if H <> nil then
-      fUnitTask := TTaskGoEat.Create(H, Self)
+    houseInn := gHands[fOwner].FindInn(fCurrPosition,Self,not fVisible);
+    if houseInn <> nil then
+      fUnitTask := TTaskGoEat.Create(houseInn, Self)
     else
       if (fHome <> nil) and not fVisible then
         //If we inside home - go out and return (I suspect that was same task as TTaskGoEat in KaM though)
