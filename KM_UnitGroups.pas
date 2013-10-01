@@ -913,10 +913,14 @@ var
 begin
   Assert(aUnit <> nil);
 
+  //If unit is already dying ignore the order
+  if aUnit.IsDeadOrDying then Exit;
+
   //Can attack only enemy units
   if gHands[Owner].Alliances[aUnit.Owner] <> at_Enemy then Exit;
 
-  if aClearOffenders and CanTakeOrders then ClearOffenders;
+  if aClearOffenders and CanTakeOrders then
+    ClearOffenders;
 
   if IsRanged then
   begin

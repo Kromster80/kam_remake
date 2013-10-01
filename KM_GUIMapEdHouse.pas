@@ -265,7 +265,7 @@ var
   NewCount: Integer;
   HouseDat: TKMHouseDatClass;
 begin
-  if Sender = Button_HouseHealthDec then fHouse.AddDamage(-1, ORDER_CLICK_AMOUNT[AButton] * 5, True);
+  if Sender = Button_HouseHealthDec then fHouse.AddDamage(ORDER_CLICK_AMOUNT[AButton] * 5, nil, True);
   if Sender = Button_HouseHealthInc then fHouse.AddRepair(ORDER_CLICK_AMOUNT[AButton] * 5);
 
   HouseDat := fResource.HouseDat[fHouse.HouseType];

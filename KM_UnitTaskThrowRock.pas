@@ -79,7 +79,7 @@ begin
     1:  begin
           GetHome.ResTakeFromIn(wt_Stone, 1);
           gHands[Owner].Stats.WareConsumed(wt_Stone);
-          fFlightTime := gProjectiles.AimTarget(PositionF, fTarget, pt_TowerRock, Owner, RANGE_WATCHTOWER_MAX, RANGE_WATCHTOWER_MIN);
+          fFlightTime := gProjectiles.AimTarget(PositionF, fTarget, pt_TowerRock, fUnit, RANGE_WATCHTOWER_MAX, RANGE_WATCHTOWER_MIN);
           gHands.CleanUpUnitPointer(fTarget); //We don't need it anymore
           SetActionLockedStay(1, ua_Walk);
         end;

@@ -6,7 +6,9 @@ uses
   KM_CommonClasses, KM_Defaults, KM_Points,
   KM_Terrain, KM_ResHouses, KM_ResWares;
 
-{Everything related to houses is here}
+  //Houses are ruled by units, hence they don't know about TKMUnits
+
+//Everything related to houses is here
 type
   TWoodcutterMode = (wcm_Chop, wcm_ChopAndPlant);
 
@@ -118,7 +120,7 @@ type
     property BuildingState: THouseBuildState read fBuildState write fBuildState;
     procedure IncBuildingProgress;
     function MaxHealth: Word;
-    procedure AddDamage(aFrom: THandIndex; aAmount: Word; aIsEditor: Boolean = False);
+    procedure AddDamage(aAmount: Word; aAttacker: TObject; aIsEditor: Boolean = False);
     procedure AddRepair(aAmount: Word = 5);
     procedure UpdateDamage;
 
@@ -205,7 +207,7 @@ type
 
 implementation
 uses
-  KM_CommonTypes, KM_RenderPool, KM_RenderAux, KM_Units, KM_Scripting,
+  KM_CommonTypes, KM_RenderPool, KM_RenderAux, KM_Units, KM_Units_Warrior, KM_Scripting,
   KM_HandsCollection, KM_ResSound, KM_Sound, KM_Game, KM_ResTexts,
   KM_Resource, KM_Utils, KM_FogOfWar, KM_AI;
 
@@ -653,13 +655,17 @@ begin
 end;
 
 
-{Add damage to the house, positive number}
-procedure TKMHouse.AddDamage(aFrom: THandIndex; aAmount: Word; aIsEditor: Boolean = False);
+//Add damage to the house, positive number
+procedure TKMHouse.AddDamage(aAmount: Word; aAttacker: TObject; aIsEditor: Boolean = False);
+var
+  attackerHand: THandIndex;
 begin
   if IsDestroyed then
     Exit;
 
-  //(NoGlyph houses MaxHealth = 0 destroyed instantly)
+  gHands[Owner].AI.HouseAttackNotification(Self, TKMUnitWarrior(aAttacker));
+
+  //(NoGlyph houses MaxHealth = 0, they get destroyed instantly)
   fDamage := Math.min(fDamage + aAmount, MaxHealth);
   if IsComplete then
   begin
@@ -670,13 +676,19 @@ begin
     UpdateDamage;
   end;
 
+  if aAttacker <> nil then
+    attackerHand := TKMUnitWarrior(aAttacker).Owner
+  else
+    attackerHand := PLAYER_NONE;
+
   //Properly release house assets
+  //Do not remove house in Editor just yet, mapmaker might increase the hp again
   if (GetHealth = 0) and not aIsEditor then
-    DemolishHouse(aFrom);
+    DemolishHouse(attackerHand);
 end;
 
 
-{Add repair to the house}
+//Add repair to the house
 procedure TKMHouse.AddRepair(aAmount: Word = 5);
 begin
   fDamage := EnsureRange(fDamage - aAmount, 0, High(Word));
@@ -684,21 +696,22 @@ begin
 end;
 
 
-{Update house damage animation}
+//Update house damage animation
 procedure TKMHouse.UpdateDamage;
-var Dmg: word;
+var
+  dmgLevel: Word;
 begin
-  Dmg := MaxHealth div 8; //There are 8 fire places for each house, so the increment for each fire level is Max_Health / 8
-  fCurrentAction.SubActionRem([ha_Fire1,ha_Fire2,ha_Fire3,ha_Fire4,ha_Fire5,ha_Fire6,ha_Fire7,ha_Fire8]);
-  if fDamage > 0*Dmg then fCurrentAction.SubActionAdd([ha_Fire1]);
-  if fDamage > 1*Dmg then fCurrentAction.SubActionAdd([ha_Fire2]);
-  if fDamage > 2*Dmg then fCurrentAction.SubActionAdd([ha_Fire3]);
-  if fDamage > 3*Dmg then fCurrentAction.SubActionAdd([ha_Fire4]);
-  if fDamage > 4*Dmg then fCurrentAction.SubActionAdd([ha_Fire5]);
-  if fDamage > 5*Dmg then fCurrentAction.SubActionAdd([ha_Fire6]);
-  if fDamage > 6*Dmg then fCurrentAction.SubActionAdd([ha_Fire7]);
-  if fDamage > 7*Dmg then fCurrentAction.SubActionAdd([ha_Fire8]);
-  {House gets destroyed in UpdateState loop}
+  dmgLevel := MaxHealth div 8; //There are 8 fire places for each house, so the increment for each fire level is Max_Health / 8
+  fCurrentAction.SubActionRem([ha_Fire1, ha_Fire2, ha_Fire3, ha_Fire4, ha_Fire5, ha_Fire6, ha_Fire7, ha_Fire8]);
+  if fDamage > 0 * dmgLevel then fCurrentAction.SubActionAdd([ha_Fire1]);
+  if fDamage > 1 * dmgLevel then fCurrentAction.SubActionAdd([ha_Fire2]);
+  if fDamage > 2 * dmgLevel then fCurrentAction.SubActionAdd([ha_Fire3]);
+  if fDamage > 3 * dmgLevel then fCurrentAction.SubActionAdd([ha_Fire4]);
+  if fDamage > 4 * dmgLevel then fCurrentAction.SubActionAdd([ha_Fire5]);
+  if fDamage > 5 * dmgLevel then fCurrentAction.SubActionAdd([ha_Fire6]);
+  if fDamage > 6 * dmgLevel then fCurrentAction.SubActionAdd([ha_Fire7]);
+  if fDamage > 7 * dmgLevel then fCurrentAction.SubActionAdd([ha_Fire8]);
+  //House gets destroyed in UpdateState loop
 end;
 
 

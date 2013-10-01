@@ -1552,13 +1552,14 @@ end;
 
 
 procedure TKMScriptActions.HouseAddDamage(aHouseID: Integer; aDamage: Word);
-var H: TKMHouse;
+var
+  H: TKMHouse;
 begin
   if aHouseID > 0 then
   begin
     H := fIDCache.GetHouse(aHouseID);
     if H <> nil then
-      H.AddDamage(-1, aDamage);
+      H.AddDamage(aDamage, nil); //We don't know who did the damage
   end
   else
     LogError('Actions.HouseAddDamage', [aHouseID, aDamage]);
@@ -1566,7 +1567,8 @@ end;
 
 
 procedure TKMScriptActions.HouseAddRepair(aHouseID: Integer; aRepair: Word);
-var H: TKMHouse;
+var
+  H: TKMHouse;
 begin
   if aHouseID > 0 then
   begin
@@ -1580,7 +1582,8 @@ end;
 
 
 procedure TKMScriptActions.HouseDestroy(aHouseID: Integer; aSilent: Boolean);
-var H: TKMHouse;
+var
+  H: TKMHouse;
 begin
   if aHouseID > 0 then
   begin

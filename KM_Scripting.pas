@@ -36,6 +36,7 @@ type
 
     procedure ProcHouseBuilt(aHouse: TKMHouse);
     procedure ProcHousePlanPlaced(aPlayer: THandIndex; aX, aY: Word; aType: THouseType);
+    procedure ProcHouseDamaged(aHouse: TKMHouse; aAttacker: TKMUnit);
     procedure ProcHouseDestroyed(aHouse: TKMHouse; aDestroyerIndex: THandIndex);
     procedure ProcMissionStart;
     procedure ProcPlayerDefeated(aPlayer: THandIndex);
@@ -305,7 +306,7 @@ end;
   A result type of 0 means no result}
 function TKMScripting.ScriptOnExportCheck(Sender: TPSPascalCompiler; Proc: TPSInternalProcedure; const ProcDecl: AnsiString): Boolean;
 const
-  Procs: array [0..9] of record
+  Procs: array [0..10] of record
     Names: AnsiString;
     ParamCount: Byte;
     Typ: array [0..4] of Byte;
@@ -313,6 +314,7 @@ const
   end =
   (
   (Names: 'ONHOUSEBUILT';      ParamCount: 1; Typ: (0, btS32, 0,     0,     0    ); Dir: (pmIn, pmIn, pmIn, pmIn)),
+  (Names: 'ONHOUSEDAMAGED';    ParamCount: 2; Typ: (0, btS32, btS32, 0,     0    ); Dir: (pmIn, pmIn, pmIn, pmIn)),
   (Names: 'ONHOUSEDESTROYED';  ParamCount: 2; Typ: (0, btS32, btS32, 0,     0    ); Dir: (pmIn, pmIn, pmIn, pmIn)),
   (Names: 'ONHOUSEPLANPLACED'; ParamCount: 4; Typ: (0, btS32, btS32, btS32, btS32); Dir: (pmIn, pmIn, pmIn, pmIn)),
   (Names: 'ONMISSIONSTART';    ParamCount: 0; Typ: (0, 0,     0,     0,     0    ); Dir: (pmIn, pmIn, pmIn, pmIn)),
@@ -628,6 +630,28 @@ begin
   begin
     fIDCache.CacheHouse(aHouse, aHouse.UID); //Improves cache efficiency since aHouse will probably be accessed soon
     TestFunc(aHouse.UID);
+  end;
+end;
+
+
+procedure TKMScripting.ProcHouseDamaged(aHouse: TKMHouse; aAttacker: TKMUnit);
+var
+  TestFunc: TKMEvent2I;
+begin
+  //Check if event handler (procedure) exists and run it
+  //Store house by its KaM index to keep it consistent with DAT scripts
+  TestFunc := TKMEvent2I(fExec.GetProcAsMethodN('ONHOUSEDAMAGED'));
+  if @TestFunc <> nil then
+  begin
+    fIDCache.CacheHouse(aHouse, aHouse.UID); //Improves cache efficiency since aHouse will probably be accessed soon
+    if aAttacker <> nil then
+    begin
+      fIDCache.CacheUnit(aAttacker, aAttacker.UID); //Improves cache efficiency since aAttacker will probably be accessed soon
+      TestFunc(aHouse.UID, aAttacker.UID);
+    end
+    else
+      //House was damaged, but we don't know by whom (e.g. by script command)
+      TestFunc(aHouse.UID, -1);
   end;
 end;
 

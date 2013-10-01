@@ -26,7 +26,7 @@ type
       fShotFrom: TKMPointF; //Where the projectile was launched from
 
       fType: TProjectileType; //type of projectile (arrow, bolt, rocks, etc..)
-      fOwner: THandIndex; //The ID of the player who launched the projectile, used for kill statistics
+      fOwner: TKMUnit; //The projectiles owner, used for kill statistics and script events
       fSpeed: Single; //Each projectile speed may vary a little bit
       fArc: Single; //Thats how high projectile will go along parabola (varies a little more)
       fPosition: Single; //Projectiles position along the route Start>>End
@@ -34,19 +34,20 @@ type
       fMaxLength: Single; //Maximum length the archer could have shot
     end;
 
-    function AddItem(aStart,aAim,aEnd: TKMPointF; aSpeed, aArc, aMaxLength: Single; aProjType: TProjectileType; aOwner: THandIndex):word;
+    function AddItem(aStart,aAim,aEnd: TKMPointF; aSpeed, aArc, aMaxLength: Single; aProjType: TProjectileType; aOwner: TKMUnit):word;
     procedure RemItem(aIndex: Integer);
     function ProjectileVisible(aIndex: Integer): Boolean;
   public
     constructor Create;
-    function AimTarget(aStart: TKMPointF; aTarget: TKMUnit; aProjType: TProjectileType; aOwner: THandIndex; aMaxRange,aMinRange: Single):word; overload;
-    function AimTarget(aStart: TKMPointF; aTarget: TKMHouse; aProjType: TProjectileType; aOwner: THandIndex; aMaxRange,aMinRange: Single):word; overload;
+    function AimTarget(aStart: TKMPointF; aTarget: TKMUnit; aProjType: TProjectileType; aOwner: TKMUnit; aMaxRange,aMinRange: Single):word; overload;
+    function AimTarget(aStart: TKMPointF; aTarget: TKMHouse; aProjType: TProjectileType; aOwner: TKMUnit; aMaxRange,aMinRange: Single):word; overload;
 
     procedure UpdateState;
     procedure Paint;
 
     procedure Save(SaveStream: TKMemoryStream);
     procedure Load(LoadStream: TKMemoryStream);
+    procedure SyncLoad;
   end;
 
 
@@ -79,11 +80,12 @@ end;
 
 procedure TKMProjectiles.RemItem(aIndex: Integer);
 begin
+  gHands.CleanUpUnitPointer(fItems[aIndex].fOwner);
   fItems[aIndex].fSpeed := 0;
 end;
 
 
-function TKMProjectiles.AimTarget(aStart: TKMPointF; aTarget: TKMUnit; aProjType: TProjectileType; aOwner: THandIndex; aMaxRange,aMinRange: Single):word;
+function TKMProjectiles.AimTarget(aStart: TKMPointF; aTarget: TKMUnit; aProjType: TProjectileType; aOwner: TKMUnit; aMaxRange,aMinRange: Single): Word;
 var
   TargetVector,Target,TargetPosition: TKMPointF;
   A,B,C,D: Single;
@@ -170,7 +172,7 @@ begin
     if gTerrain.TileInMapCoords(Round(Target.X), Round(Target.Y)) then //Arrows may fly off map, UnitsHitTest doesn't like negative coordinates
     begin
       U := gTerrain.UnitsHitTest(Round(Target.X), Round(Target.Y));
-      if (U <> nil) and (gHands.CheckAlliance(aOwner,U.Owner) = at_Ally) then
+      if (U <> nil) and (gHands.CheckAlliance(aOwner.Owner, U.Owner) = at_Ally) then
         Target := aTarget.PositionF; //Shoot at the target's current position instead
     end;
 
@@ -180,7 +182,7 @@ begin
 end;
 
 
-function TKMProjectiles.AimTarget(aStart: TKMPointF; aTarget: TKMHouse; aProjType: TProjectileType; aOwner: THandIndex; aMaxRange,aMinRange: Single):word;
+function TKMProjectiles.AimTarget(aStart: TKMPointF; aTarget: TKMHouse; aProjType: TProjectileType; aOwner: TKMUnit; aMaxRange,aMinRange: Single): Word;
 var
   Speed, Arc: Single;
   DistanceToHit, DistanceInRange: Single;
@@ -202,7 +204,7 @@ end;
 
 
 { Return flight time (archers like to know when they hit target before firing again) }
-function TKMProjectiles.AddItem(aStart,aAim,aEnd: TKMPointF; aSpeed,aArc,aMaxLength: Single; aProjType: TProjectileType; aOwner: THandIndex):word;
+function TKMProjectiles.AddItem(aStart,aAim,aEnd: TKMPointF; aSpeed,aArc,aMaxLength: Single; aProjType: TProjectileType; aOwner: TKMUnit): Word;
 const //TowerRock position is a bit different for reasons said below
   OffsetX: array [TProjectileType] of Single = (0.5, 0.5, 0.5, -0.25); //Recruit stands in entrance, Tower middleline is X-0.75
   OffsetY: array [TProjectileType] of Single = (0.2, 0.2, 0.2, -0.5); //Add towers height
@@ -220,7 +222,7 @@ begin
   fItems[I].fType   := aProjType;
   fItems[I].fSpeed  := aSpeed;
   fItems[I].fArc    := aArc;
-  fItems[I].fOwner  := aOwner;
+  fItems[I].fOwner  := aOwner.GetUnitPointer;
   fItems[I].fAim    := aAim;
   //Don't allow projectile to land off map, (we use fTaret for hit tests, FOW, etc.) but on borders is fine
   fItems[I].fTarget.X := EnsureRange(aEnd.X, 0, gTerrain.MapX-0.01);
@@ -239,7 +241,7 @@ begin
   if (MySpectator.FogOfWar.CheckTileRevelation(KMPointRound(aStart).X, KMPointRound(aStart).Y) >= 255) then
     gSoundPlayer.Play(ProjectileLaunchSounds[aProjType], aStart);
 
-  Result := round(fItems[I].fLength / fItems[I].fSpeed);
+  Result := Round(fItems[I].fLength / fItems[I].fSpeed);
 end;
 
 
@@ -283,22 +285,22 @@ begin
                               if fType = pt_Bolt then Damage := fResource.UnitDat[ut_Arbaletman].Attack;
                               if fType = pt_SlingRock then Damage := fResource.UnitDat[ut_Slingshot].Attack;
                               Damage := Damage div Math.max(fResource.UnitDat[U.UnitType].GetDefenceVsProjectiles, 1); //Max is not needed, but animals have 0 defence
-                              if (FRIENDLY_FIRE or (gHands.CheckAlliance(fOwner, U.Owner)= at_Enemy))
+                              if (FRIENDLY_FIRE or (gHands.CheckAlliance(fOwner.Owner, U.Owner)= at_Enemy))
                               and (Damage >= KaMRandom(101)) then
-                                U.HitPointsDecrease(1, fOwner);
+                                U.HitPointsDecrease(1, fOwner.Owner);
                             end
                             else
                             begin
                               H := gHands.HousesHitTest(Round(fTarget.X), Round(fTarget.Y));
                               if (H <> nil)
-                              and (FRIENDLY_FIRE or (gHands.CheckAlliance(fOwner, H.Owner)= at_Enemy))
+                              and (FRIENDLY_FIRE or (gHands.CheckAlliance(fOwner.Owner, H.Owner)= at_Enemy))
                               then
-                                H.AddDamage(fOwner, 1);
+                                H.AddDamage(1, fOwner);
                             end;
-              pt_TowerRock: If (U <> nil) and not U.IsDeadOrDying and U.Visible
+              pt_TowerRock: if (U <> nil) and not U.IsDeadOrDying and U.Visible
                             and not (U is TKMUnitAnimal)
-                            and (FRIENDLY_FIRE or (gHands.CheckAlliance(fOwner, U.Owner)= at_Enemy)) then
-                              U.HitPointsDecrease(U.HitPointsMax, fOwner); //Instant death
+                            and (FRIENDLY_FIRE or (gHands.CheckAlliance(fOwner.Owner, U.Owner)= at_Enemy)) then
+                              U.HitPointsDecrease(U.HitPointsMax, fOwner.Owner); //Instant death
             end;
           end;
           RemItem(I);
@@ -371,7 +373,8 @@ end;
 
 
 procedure TKMProjectiles.Save(SaveStream: TKMemoryStream);
-var I, LiveCount: Integer;
+var
+  I, LiveCount: Integer;
 begin
   SaveStream.WriteA('Projectiles');
 
@@ -385,7 +388,25 @@ begin
 
   for I := 0 to Length(fItems) - 1 do
     if fItems[I].fSpeed <> 0 then
-      SaveStream.Write(fItems[I], SizeOf(fItems[I]));
+    begin
+      SaveStream.Write(fItems[I].fScreenStart);
+      SaveStream.Write(fItems[I].fScreenEnd);
+      SaveStream.Write(fItems[I].fAim);
+      SaveStream.Write(fItems[I].fTarget);
+      SaveStream.Write(fItems[I].fShotFrom);
+      SaveStream.Write(fItems[I].fType, SizeOf(TProjectileType));
+
+      if fItems[I].fOwner <> nil then
+        SaveStream.Write(fItems[I].fOwner.UID) //Store ID
+      else
+        SaveStream.Write(Integer(0));
+
+      SaveStream.Write(fItems[I].fSpeed);
+      SaveStream.Write(fItems[I].fArc);
+      SaveStream.Write(fItems[I].fPosition);
+      SaveStream.Write(fItems[I].fLength);
+      SaveStream.Write(fItems[I].fMaxLength);
+    end;
 end;
 
 
@@ -399,7 +420,31 @@ begin
   SetLength(fItems, NewCount);
 
   for I := 0 to NewCount - 1 do
-    LoadStream.Read(fItems[I], SizeOf(fItems[I]));
+  begin
+    LoadStream.Read(fItems[I].fScreenStart);
+    LoadStream.Read(fItems[I].fScreenEnd);
+    LoadStream.Read(fItems[I].fAim);
+    LoadStream.Read(fItems[I].fTarget);
+    LoadStream.Read(fItems[I].fShotFrom);
+    LoadStream.Read(fItems[I].fType, SizeOf(TProjectileType));
+    LoadStream.Read(fItems[I].fOwner, 4);
+    LoadStream.Read(fItems[I].fSpeed);
+    LoadStream.Read(fItems[I].fArc);
+    LoadStream.Read(fItems[I].fPosition);
+    LoadStream.Read(fItems[I].fLength);
+    LoadStream.Read(fItems[I].fMaxLength);
+  end;
+end;
+
+
+procedure TKMProjectiles.SyncLoad;
+var
+  I: Integer;
+begin
+  inherited;
+
+  for I := 0 to Length(fItems) - 1 do
+    fItems[I].fOwner := gHands.GetUnitByUID(Cardinal(fItems[I].fOwner));
 end;
 
 

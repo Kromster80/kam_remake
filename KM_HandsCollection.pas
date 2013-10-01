@@ -84,7 +84,8 @@ end;
 
 
 destructor TKMHandsCollection.Destroy;
-var I: Integer;
+var
+  I: Integer;
 begin
   for I := 0 to fCount - 1 do
     FreeThenNil(fHandsList[I]);
@@ -103,7 +104,8 @@ end;
 
 
 procedure TKMHandsCollection.AddPlayers(aCount: Byte);
-var I: Integer;
+var
+  I: Integer;
 begin
   Assert(fCount+aCount <= MAX_HANDS);
 
@@ -131,7 +133,8 @@ end;
 //will be tightly packed and mission info will display correct player count
 //Accessed only by MapEditor when it needs to remove empty players before saving a map
 procedure TKMHandsCollection.RemoveEmptyPlayers;
-var I: Integer;
+var
+  I: Integer;
 begin
   for I := Count - 1 downto 0 do
     if fHandsList[I].GetFieldsCount + fHandsList[I].Houses.Count + fHandsList[I].Units.Count = 0 then
@@ -270,7 +273,8 @@ end;
 
 
 function TKMHandsCollection.GetHouseByUID(aUID: Integer): TKMHouse;
-var I: Integer;
+var
+  I: Integer;
 begin
   Result := nil;
   if aUID = 0 then Exit;
@@ -284,7 +288,8 @@ end;
 
 
 function TKMHandsCollection.GetUnitByUID(aUID: Integer): TKMUnit;
-var I: Integer;
+var
+  I: Integer;
 begin
   Result := nil;
   if aUID = 0 then Exit;
@@ -303,7 +308,8 @@ end;
 
 
 function TKMHandsCollection.GetGroupByUID(aUID: Integer): TKMUnitGroup;
-var I: Integer;
+var
+  I: Integer;
 begin
   Result := nil;
   if aUID = 0 then Exit;
@@ -317,7 +323,8 @@ end;
 
 
 function TKMHandsCollection.GetGroupByMember(aWarrior: TKMUnitWarrior): TKMUnitGroup;
-var I: Integer;
+var
+  I: Integer;
 begin
   Result := nil;
 

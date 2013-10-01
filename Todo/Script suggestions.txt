@@ -2,13 +2,12 @@ Implemented:
  5777	Cover/Reveal rectangular FOW area
  5778	Actions.AIEquipRate(aPlayer: Byte; aType: Byte; aRate: Word)
  5871	Event OnHousePlanPlaced(aPlayer: Byte; aX, aY: Word; aType: Byte)
-
+ 5882	Event OnHouseDamaged(aHouse, aAttacker: Integer);
 
 Accepted:
 	Closest house/unit/group to given XY of certain player and type
 	Change house/unit/group owner
 	Allow to query count of placed house plans
-	States.HouseUnderAttack or OnHouseUnderAttack or similar (needed for Tower Defence)
 	DisplayText(text, player_id, timeout) to show announcements that will be gone after timeout (for TD and etc.)
 	Split a specific warrior out of a group
 	Looping option for PlayWAV (useful for ambient sounds at a location)
@@ -31,7 +30,6 @@ Proposed:
 	ChangeMapTile
 	States.HousePlanAt(X, Y) - returns aPlanID.
 	OnUnitAttacked
-	OnHouseAttacked
 	More options for on-screen text (background color, alignment, font, size, etc.)
 	States.PlayerIsAI(Index): Boolean;
 	Actions.AddDefensePosition, RemDefensePosition

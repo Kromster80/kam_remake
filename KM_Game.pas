@@ -1231,8 +1231,10 @@ begin
 
   fGameInputProcess.LoadFromFile(ChangeFileExt(aPathName, '.rpl'));
 
-  gHands.SyncLoad; //Should parse all Unit-House ID references and replace them with actual pointers
-  gTerrain.SyncLoad; //IsUnit values should be replaced with actual pointers
+   //Should check all Unit-House ID references and replace them with actual pointers
+  gHands.SyncLoad;
+  gTerrain.SyncLoad;
+  gProjectiles.SyncLoad;
 
   if fGameMode = gmMulti then
     MultiplayerRig;

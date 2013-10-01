@@ -3,12 +3,13 @@ unit KM_UnitActionFight;
 interface
 uses Classes, KM_CommonClasses, KM_Defaults, KM_Utils, KromUtils, Math, SysUtils, KM_Units, KM_Points;
 
-{Fight until we die or the opponent dies}
+
+//Fight until we die or the opponent dies
 type
   TUnitActionFight = class(TUnitAction)
   private
-    fFightDelay:integer; //Pause for this many ticks before going onto the next Step
-    fOpponent:TKMUnit; //Who we are fighting with
+    fFightDelay: Integer; //Pause for this many ticks before going onto the next Step
+    fOpponent: TKMUnit; //Who we are fighting with
     fVertexOccupied: TKMPoint; //The diagonal vertex we are currently occupying
 
     //Execute is broken up into multiple methods
@@ -34,12 +35,14 @@ type
 
 
 implementation
-uses KM_HandsCollection, KM_ResSound, KM_Sound, KM_Units_Warrior, KM_Resource, KM_Projectiles;
+uses
+  KM_HandsCollection, KM_ResSound, KM_Sound, KM_Units_Warrior, KM_Resource, KM_Projectiles;
 
-const STRIKE_STEP = 5; //Melee units place hit on step 5
 
 const
-  MeleeSoundsHit:array[0..14] of TSoundFX = (
+  STRIKE_STEP = 5; //Melee units place hit on step 5
+
+  MeleeSoundsHit: array [0..14] of TSoundFX = (
     sfx_Melee34, sfx_Melee35, sfx_Melee36, sfx_Melee41, sfx_Melee42,
     sfx_Melee44, sfx_Melee45, sfx_Melee46, sfx_Melee47, sfx_Melee48,
     sfx_Melee49, sfx_Melee50, sfx_Melee55, sfx_Melee56, sfx_Melee57);
@@ -213,7 +216,7 @@ begin
   Result := false;
   if Step = FIRING_DELAY then
   begin
-    if fFightDelay=-1 then //Initialize
+    if fFightDelay = -1 then //Initialize
     begin
       if fUnit.UnitType <> ut_Slingshot then MakeSound(False);
       if fUnit.UnitType = ut_Arbaletman then
@@ -225,16 +228,16 @@ begin
     if fFightDelay > 0 then
     begin
       dec(fFightDelay);
-      Result := true; //do not increment AnimStep, just exit;
-      exit;
+      Result := True; //do not increment AnimStep, just exit;
+      Exit;
     end;
     if fUnit.UnitType = ut_Slingshot then MakeSound(false);
     TKMUnitWarrior(fUnit).SetLastShootTime; //Record last time the warrior shot
 
     //Fire the arrow
     case fUnit.UnitType of
-      ut_Arbaletman: gProjectiles.AimTarget(fUnit.PositionF, fOpponent, pt_Bolt, fUnit.Owner, RANGE_ARBALETMAN_MAX, RANGE_ARBALETMAN_MIN);
-      ut_Bowman:     gProjectiles.AimTarget(fUnit.PositionF, fOpponent, pt_Arrow, fUnit.Owner, RANGE_BOWMAN_MAX, RANGE_BOWMAN_MIN);
+      ut_Arbaletman: gProjectiles.AimTarget(fUnit.PositionF, fOpponent, pt_Bolt, fUnit, RANGE_ARBALETMAN_MAX, RANGE_ARBALETMAN_MIN);
+      ut_Bowman:     gProjectiles.AimTarget(fUnit.PositionF, fOpponent, pt_Arrow, fUnit, RANGE_BOWMAN_MAX, RANGE_BOWMAN_MIN);
       ut_Slingshot:  ;
       else Assert(false, 'Unknown shooter');
     end;
@@ -245,7 +248,7 @@ begin
   if Step = SLINGSHOT_FIRING_DELAY then
     if fUnit.UnitType = ut_Slingshot then
     begin
-      gProjectiles.AimTarget(fUnit.PositionF, fOpponent, pt_SlingRock, fUnit.Owner, RANGE_SLINGSHOT_MAX, RANGE_SLINGSHOT_MIN);
+      gProjectiles.AimTarget(fUnit.PositionF, fOpponent, pt_SlingRock, fUnit, RANGE_SLINGSHOT_MAX, RANGE_SLINGSHOT_MIN);
       TKMUnitWarrior(fUnit).SetLastShootTime; //Record last time the warrior shot
     end;
 end;

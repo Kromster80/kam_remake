@@ -212,7 +212,7 @@ begin
                               AddError('ct_SetHouse failed, can not place house at ' + TypeToString(KMPoint(P[1]+1, P[2]+1)));
     ct_SetHouseDamage:  if fLastHand >= 0 then //Skip false-positives for skipped players
                           if fLastHouse <> nil then
-                            fLastHouse.AddDamage(-1, min(P[0],high(word)), fParsingMode = mpm_Editor)
+                            fLastHouse.AddDamage(Min(P[0], High(Word)), nil, fParsingMode = mpm_Editor)
                           else
                             AddError('ct_SetHouseDamage without prior declaration of House');
     ct_SetUnit:         begin

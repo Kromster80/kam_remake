@@ -226,6 +226,8 @@ end;
 //aHouse is our house that was attacked
 procedure TKMHandAI.HouseAttackNotification(aHouse: TKMHouse; aAttacker: TKMUnitWarrior);
 begin
+  fScripting.ProcHouseDamaged(aHouse, aAttacker);
+
   case gHands[fOwner].PlayerType of
     hndHuman:
       begin

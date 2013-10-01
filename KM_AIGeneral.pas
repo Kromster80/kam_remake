@@ -437,6 +437,10 @@ var
 begin
   if gHands[fOwner].PlayerType = hndHuman then Exit;
 
+  //Attacker may be already dying (e.g. killed by script)
+  //We could retaliate against his whole group however
+  if (aAttacker = nil) or aAttacker.IsDeadOrDying then Exit;
+
   //todo: Right now "idle" troops (without an assigned defence position) will do nothing (no attacking, defending, etc.)
   //Any defence position that is within their defence radius of this threat will retaliate against it
   for I := 0 to fDefencePositions.Count - 1 do

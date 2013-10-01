@@ -45,17 +45,17 @@ const
 
 
 { TTaskAttackHouse }
-constructor TTaskAttackHouse.Create(aWarrior: TKMUnitWarrior; aHouse:TKMHouse);
+constructor TTaskAttackHouse.Create(aWarrior: TKMUnitWarrior; aHouse: TKMHouse);
 begin
   inherited Create(aWarrior);
   fTaskName := utn_AttackHouse;
   fHouse := aHouse.GetHousePointer;
-  fDestroyingHouse := false;
+  fDestroyingHouse := False;
   LocID  := 0;
 end;
 
 
-constructor TTaskAttackHouse.Load(LoadStream:TKMemoryStream);
+constructor TTaskAttackHouse.Load(LoadStream: TKMemoryStream);
 begin
   inherited;
   LoadStream.Read(fHouse, 4);
@@ -67,7 +67,7 @@ end;
 procedure TTaskAttackHouse.SyncLoad;
 begin
   inherited;
-  fHouse := gHands.GetHouseByUID(cardinal(fHouse));
+  fHouse := gHands.GetHouseByUID(Cardinal(fHouse));
 end;
 
 
@@ -78,7 +78,7 @@ begin
 end;
 
 
-function TTaskAttackHouse.WalkShouldAbandon:boolean;
+function TTaskAttackHouse.WalkShouldAbandon: Boolean;
 begin
   Result := fHouse.IsDestroyed;
 end;
@@ -156,8 +156,6 @@ begin
          end;
        end;
     2: begin
-         //Let the house know it is being attacked
-         gHands[fHouse.Owner].AI.HouseAttackNotification(fHouse, TKMUnitWarrior(fUnit));
          fDestroyingHouse := True;
          if IsRanged then
            SetActionLockedStay(FIRING_DELAY, ua_Work, False, 0, 0) //Start shooting
@@ -171,22 +169,22 @@ begin
            //Shooting range is not important now, houses don't walk (except Howl's Moving Castle perhaps)
            //todo: Slingers (rogues) should launch rock part on SLINGSHOT_FIRING_DELAY like they do in ActionFight (animation looks wrong now)
            case UnitType of
-             ut_Arbaletman: gProjectiles.AimTarget(PositionF, fHouse, pt_Bolt, Owner, RANGE_ARBALETMAN_MAX, RANGE_ARBALETMAN_MIN);
-             ut_Bowman:     gProjectiles.AimTarget(PositionF, fHouse, pt_Arrow, Owner, RANGE_BOWMAN_MAX, RANGE_BOWMAN_MIN);
-             ut_Slingshot:  gProjectiles.AimTarget(PositionF, fHouse, pt_SlingRock, Owner, RANGE_SLINGSHOT_MAX, RANGE_SLINGSHOT_MIN);
-             else Assert(false, 'Unknown shooter');
+             ut_Arbaletman: gProjectiles.AimTarget(PositionF, fHouse, pt_Bolt, fUnit, RANGE_ARBALETMAN_MAX, RANGE_ARBALETMAN_MIN);
+             ut_Bowman:     gProjectiles.AimTarget(PositionF, fHouse, pt_Arrow, fUnit, RANGE_BOWMAN_MAX, RANGE_BOWMAN_MIN);
+             ut_Slingshot:  gProjectiles.AimTarget(PositionF, fHouse, pt_SlingRock, fUnit, RANGE_SLINGSHOT_MAX, RANGE_SLINGSHOT_MIN);
+             else           Assert(false, 'Unknown shooter');
            end;
            SetLastShootTime; //Record last time the warrior shot
            AnimLength := fResource.UnitDat[UnitType].UnitAnim[ua_Work, Direction].Count;
-           SetActionLockedStay(AnimLength-FIRING_DELAY,ua_Work,false,0,FIRING_DELAY); //Reload for next attack
+           SetActionLockedStay(AnimLength - FIRING_DELAY, ua_Work, False, 0, FIRING_DELAY); //Reload for next attack
            fPhase := 0; //Go for another shot (will be 1 after inc below)
          end
          else
          begin
-           SetActionLockedStay(6,ua_Work,false,0,6); //Pause for next attack
+           SetActionLockedStay(6, ua_Work, False, 0, 6); // Pause for next attack
 
            //All melee units do 2 damage per strike
-           fHouse.AddDamage(fUnit.Owner, 2);
+           fHouse.AddDamage(2, fUnit);
 
            //Play a sound. We should not use KaMRandom here because sound playback depends on FOW and is individual for each player
            if MySpectator.FogOfWar.CheckTileRevelation(GetPosition.X, GetPosition.Y) >= 255 then
@@ -197,7 +195,7 @@ begin
        end;
   end;
 
-  inc(fPhase);
+  Inc(fPhase);
 end;
 
 
