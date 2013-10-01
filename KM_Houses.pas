@@ -663,8 +663,6 @@ begin
   if IsDestroyed then
     Exit;
 
-  gHands[Owner].AI.HouseAttackNotification(Self, TKMUnitWarrior(aAttacker));
-
   //(NoGlyph houses MaxHealth = 0, they get destroyed instantly)
   fDamage := Math.min(fDamage + aAmount, MaxHealth);
   if IsComplete then
@@ -675,6 +673,9 @@ begin
     //Update fire if the house is complete
     UpdateDamage;
   end;
+
+  //Let AI and script know when the damage is already applied, so they see actual state
+  gHands[Owner].AI.HouseAttackNotification(Self, TKMUnitWarrior(aAttacker));
 
   if aAttacker <> nil then
     attackerHand := TKMUnitWarrior(aAttacker).Owner
