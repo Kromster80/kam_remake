@@ -927,7 +927,7 @@ begin
   if fFishCount > 1 then
     Dec(fFishCount)
   else
-    KillUnit(-1, True, False);
+    KillUnit(PLAYER_NONE, True, False);
 end;
 
 
@@ -967,7 +967,7 @@ begin
   if (not gTerrain.CheckPassability(fCurrPosition, DesiredPassability))
   or gTerrain.CheckAnimalIsStuck(fCurrPosition, DesiredPassability) then
   begin
-    KillUnit(-1, True, False); //Animal is stuck so it dies
+    KillUnit(PLAYER_NONE, True, False); //Animal is stuck so it dies
     Exit;
   end;
 
@@ -1041,7 +1041,7 @@ begin
   gTerrain.UnitAdd(NextPosition,Self);
 
   //The area around the unit should be visible at the start of the mission
-  if InRange(fOwner, 0, MAX_HANDS-1) then //Not animals
+  if InRange(fOwner, 0, MAX_HANDS - 1) then //Not animals
     gHands.RevealForTeam(fOwner, fCurrPosition, fResource.UnitDat[fUnitType].Sight, FOG_OF_WAR_MAX);
 end;
 
@@ -1177,17 +1177,17 @@ begin
 
   if aRemoveTileUsage then gTerrain.UnitRem(fNextPosition); //Must happen before we nil NextPosition
 
-  fIsDead       := true;
+  fIsDead       := True;
   fThought      := th_None;
   fPosition     := KMPointF(0,0);
   fCurrPosition := KMPoint(0,0);
   fPrevPosition := fCurrPosition;
   fNextPosition := fCurrPosition;
-  fOwner        := -1;
+  fOwner        := PLAYER_NONE;
   //Do not reset the unit type when they die as we still need to know during Load
   //fUnitType     := ut_None;
   fDirection    := dir_NA;
-  fVisible      := false;
+  fVisible      := False;
   fCondition    := 0;
   AnimStep      := 0;
   FreeAndNil(fCurrentAction);
@@ -1693,7 +1693,7 @@ begin
         if (gHands <> nil) and (fOwner <> PLAYER_NONE) then
         begin
           gHands[fOwner].Stats.UnitLost(fUnitType);
-          fScripting.ProcUnitDied(Self, -1);
+          fScripting.ProcUnitDied(Self, PLAYER_NONE);
         end;
         CloseUnit(False); //Close the unit without removing tile usage (because this unit was in a house it has none)
         Result := true;
@@ -1950,7 +1950,7 @@ begin
 
   //Unit killing could be postponed by few ticks, hence fCondition could be <0
   if fCondition <= 0 then
-    KillUnit(-1, True, False);
+    KillUnit(PLAYER_NONE, True, False);
 
   //We only need to update fog of war regularly if we're using dynamic fog of war, otherwise only update it when the unit moves
   if DYNAMIC_FOG_OF_WAR and (fTicker mod 10 = 0) then
@@ -2045,8 +2045,8 @@ destructor TUnitTask.Destroy;
 begin
   fUnit.Thought := th_None; //Stop any thoughts
   gHands.CleanUpUnitPointer(fUnit);
-  fPhase        := high(byte)-1; //-1 so that if it is increased on the next run it won't overrun before exiting
-  fPhase2       := high(byte)-1;
+  fPhase        := High(Byte) - 1; //-1 so that if it is increased on the next run it won't overrun before exiting
+  fPhase2       := High(Byte) - 1;
   inherited;
 end;
 

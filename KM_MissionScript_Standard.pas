@@ -157,7 +157,7 @@ begin
                           if fPlayerEnabled[P[0]] then
                             fLastHand := P[0]
                           else
-                            fLastHand := -1; //Lets us skip this player
+                            fLastHand := PLAYER_NONE; //Lets us skip this player
                           fLastHouse := nil;
                           fLastTroop := nil;
                         end;
@@ -566,12 +566,14 @@ var
         0:   SaveString := SaveString + EolA + aText //Put a line break every 4 commands
         else SaveString := SaveString + ' ' + aText; //Just put spaces so commands "layer"
       end;
-      inc(CommandLayerCount);
+      Inc(CommandLayerCount);
     end
   end;
 
   procedure AddCommand(aCommand: TKMCommandType; aComParam: TKMCommandParamType; aParams: array of Integer); overload;
-  var OutData: AnsiString; I:integer;
+  var
+    OutData: AnsiString;
+    I: Integer;
   begin
     OutData := '!' + COMMANDVALUES[aCommand];
 
@@ -585,7 +587,9 @@ var
   end;
 
   procedure AddCommand(aCommand: TKMCommandType; aComParam: TAIAttackParamType; aParams: array of Integer); overload;
-  var OutData: AnsiString; I:integer;
+  var
+    OutData: AnsiString;
+    I: Integer;
   begin
     OutData := '!' + COMMANDVALUES[aCommand] + ' ' + AI_ATTACK_PARAMS[aComParam];
 
@@ -642,7 +646,7 @@ begin
     AddData(''); //NL
 
     //Human specific, e.g. goals, center screen (though all players can have it, only human can use it)
-    for K:=0 to gHands[I].AI.Goals.Count-1 do
+    for K := 0 to gHands[I].AI.Goals.Count - 1 do
       with gHands[I].AI.Goals[K] do
       begin
         if (GoalType = glt_Victory) or (GoalType = glt_None) then //For now treat none same as normal goal, we can add new command for it later
@@ -686,7 +690,7 @@ begin
         AddCommand(ct_AIDefence, [Position.Loc.X-1,Position.Loc.Y-1,byte(Position.Dir)-1,KaMGroupType[GroupType],Radius,byte(DefenceType)]);
     AddData(''); //NL
     AddData(''); //NL
-    for K:=0 to gHands[I].AI.General.Attacks.Count - 1 do
+    for K := 0 to gHands[I].AI.General.Attacks.Count - 1 do
       with gHands[I].AI.General.Attacks[K] do
       begin
         AddCommand(ct_AIAttack, cpt_Type, [KaMAttackType[AttackType]]);
@@ -835,7 +839,7 @@ begin
 
   //Animals, wares to all, etc. go here
   AddData('//Animals');
-  for I:=0 to gHands.PlayerAnimals.Units.Count-1 do
+  for I := 0 to gHands.PlayerAnimals.Units.Count - 1 do
   begin
     U := gHands.PlayerAnimals.Units[I];
     AddCommand(ct_SetUnit, [UnitTypeToOldIndex[U.UnitType], U.GetPosition.X-1, U.GetPosition.Y-1]);
@@ -851,7 +855,7 @@ begin
   closefile(f);
 
   //Encode it
-  for I:=1 to Length(SaveString) do
+  for I := 1 to Length(SaveString) do
     SaveString[I] := AnsiChar(Byte(SaveString[I]) xor 239);
 
   //Write it

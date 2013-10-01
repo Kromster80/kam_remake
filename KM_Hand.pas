@@ -53,8 +53,8 @@ type
     fPlayerType: THandType;
     fFlagColor: Cardinal;
     fCenterScreen: TKMPoint;
-    fAlliances: array [0..MAX_HANDS-1] of TAllianceType;
-    fShareFOW: array [0..MAX_HANDS-1] of Boolean;
+    fAlliances: array [0 .. MAX_HANDS - 1] of TAllianceType;
+    fShareFOW: array [0 .. MAX_HANDS - 1] of Boolean;
 
     function GetColorIndex: Byte;
 
@@ -506,8 +506,8 @@ begin
       begin
         Result := Result and (gHands[J].fBuildList.FieldworksList.HasField(KMPoint(Tx,Ty)) = ft_None);
         //Surrounding tiles must not be a house
-        for S:=-1 to 1 do
-          for T:=-1 to 1 do
+        for S := -1 to 1 do
+          for T := -1 to 1 do
             Result := Result and not gHands[J].fBuildList.HousePlanList.HasPlan(KMPoint(Tx+S,Ty+T));
       end;
   end;
@@ -875,7 +875,7 @@ begin
     begin
       Stats.HouseLost(aHouse.HouseType);
 
-      if aFrom <> -1 then
+      if aFrom <> PLAYER_NONE then
         gHands[aFrom].Stats.HouseDestroyed(aHouse.HouseType);
     end;
 
@@ -1190,7 +1190,7 @@ end;
 procedure TKMHand.UnitDied(aUnit: TKMUnit; aFrom: THandIndex);
 begin
   Stats.UnitLost(aUnit.UnitType);
-  if aFrom <> -1 then
+  if aFrom <> PLAYER_NONE then
     gHands[aFrom].Stats.UnitKilled(aUnit.UnitType);
 
   //Call script event after updating statistics

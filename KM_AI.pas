@@ -136,10 +136,10 @@ procedure TKMHandAI.CheckGoals;
   function GoalConditionSatisfied(aGoal: TKMGoal): Boolean;
   var Stat: TKMHandStats;
   begin
-    Assert((aGoal.GoalCondition = gc_Time) or (aGoal.HandIndex <> -1), 'Only gc_Time can have nil Player');
+    Assert((aGoal.GoalCondition = gc_Time) or (aGoal.HandIndex <> PLAYER_NONE), 'Only gc_Time can have nil Player');
 
     Result := False;
-    if aGoal.HandIndex <> -1 then
+    if aGoal.HandIndex <> PLAYER_NONE then
       Stat := gHands[aGoal.HandIndex].Stats
     else
       Stat := nil;

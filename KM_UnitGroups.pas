@@ -1337,7 +1337,7 @@ begin
   NewMembers.Add(Members[0]);
 
   for I := 1 to fMembers.Count - 1 do
-    NewMembers.Add(fMembers[NewOrder[I-1]+1]);
+    NewMembers.Add(fMembers[NewOrder[I - 1] + 1]);
 
   fMembers.Free;
   fMembers := NewMembers;
@@ -1528,10 +1528,11 @@ end;
 
 
 function TKMUnitGroups.GetGroupByUID(aUID: Integer): TKMUnitGroup;
-var I: Integer;
+var
+  I: Integer;
 begin
   Result := nil;
-  for I := 0 to Count-1 do
+  for I := 0 to Count - 1 do
     if aUID = Groups[I].UID then
     begin
       Result := Groups[I];

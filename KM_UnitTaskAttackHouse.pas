@@ -4,7 +4,8 @@ interface
 uses Classes, SysUtils, Math,
   KM_CommonClasses, KM_Defaults, KM_Utils, KM_Houses, KM_Units, KM_Units_Warrior, KM_Points;
 
-  {Attack a house}
+
+//Attack a house
 type
   TTaskAttackHouse = class(TUnitTask)
   private

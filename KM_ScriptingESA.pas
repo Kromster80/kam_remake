@@ -521,9 +521,10 @@ end;
 
 
 function TKMScriptStates.HouseAt(aX, aY: Word): Integer;
-var H: TKMHouse;
+var
+  H: TKMHouse;
 begin
-  Result := -1;
+  Result := UID_NONE;
   if gTerrain.TileInMapCoords(aX,aY) then
   begin
     H := gHands.HousesHitTest(aX, aY);
@@ -539,9 +540,10 @@ end;
 
 
 function TKMScriptStates.HousePositionX(aHouseID: Integer): Integer;
-var H: TKMHouse;
+var
+  H: TKMHouse;
 begin
-  Result := -1;
+  Result := UID_NONE;
   if aHouseID > 0 then
   begin
     H := fIDCache.GetHouse(aHouseID);
@@ -554,9 +556,10 @@ end;
 
 
 function TKMScriptStates.HousePositionY(aHouseID: Integer): Integer;
-var H: TKMHouse;
+var
+  H: TKMHouse;
 begin
-  Result := -1;
+  Result := UID_NONE;
   if aHouseID > 0 then
   begin
     H := fIDCache.GetHouse(aHouseID);
@@ -569,7 +572,8 @@ end;
 
 
 function TKMScriptStates.HouseDestroyed(aHouseID: Integer): Boolean;
-var H: TKMHouse;
+var
+  H: TKMHouse;
 begin
   Result := True;
   if aHouseID > 0 then
@@ -584,9 +588,10 @@ end;
 
 
 function TKMScriptStates.HouseOwner(aHouseID: Integer): Integer;
-var H: TKMHouse;
+var
+  H: TKMHouse;
 begin
-  Result := -1;
+  Result := PLAYER_NONE;
   if aHouseID > 0 then
   begin
     H := fIDCache.GetHouse(aHouseID);
@@ -598,15 +603,17 @@ begin
 end;
 
 
+//Get the house type
 function TKMScriptStates.HouseType(aHouseID: Integer): Integer;
-var H: TKMHouse;
+var
+  H: TKMHouse;
 begin
   Result := -1;
   if aHouseID > 0 then
   begin
     H := fIDCache.GetHouse(aHouseID);
     if H <> nil then
-      Result := HouseTypeToIndex[H.HouseType]-1;
+      Result := HouseTypeToIndex[H.HouseType] - 1;
   end
   else
     LogError('States.HouseType', [aHouseID]);
@@ -615,7 +622,8 @@ end;
 
 //Get the unit type in Schools queue
 function TKMScriptStates.HouseSchoolQueue(aHouseID, QueueIndex: Integer): Integer;
-var H: TKMHouse;
+var
+  H: TKMHouse;
 begin
   Result := -1;
   if (aHouseID > 0) and InRange(QueueIndex, 0, 5) then
@@ -654,7 +662,8 @@ end;
 
 
 function TKMScriptStates.HouseWoodcutterChopOnly(aHouseID: Integer): Boolean;
-var H: TKMHouse;
+var
+  H: TKMHouse;
 begin
   Result := False;
   if aHouseID > 0 then
@@ -671,6 +680,7 @@ end;
 function TKMScriptStates.IsFieldAt(aPlayer: ShortInt; X, Y: Word): Boolean;
 begin
   Result := False;
+  //-1 stands for any player
   if InRange(aPlayer, -1, gHands.Count - 1) and gTerrain.TileInMapCoords(X, Y) then
     Result := gTerrain.TileIsCornField(KMPoint(X,Y))
               and ((aPlayer = -1) or (gTerrain.Land[Y, X].TileOwner = aPlayer))
@@ -682,6 +692,7 @@ end;
 function TKMScriptStates.IsWinefieldAt(aPlayer: ShortInt; X, Y: Word): Boolean;
 begin
   Result := False;
+  //-1 stands for any player
   if InRange(aPlayer, -1, gHands.Count - 1) and gTerrain.TileInMapCoords(X, Y) then
     Result := gTerrain.TileIsWineField(KMPoint(X,Y))
               and ((aPlayer = -1) or (gTerrain.Land[Y, X].TileOwner = aPlayer))
@@ -693,6 +704,7 @@ end;
 function TKMScriptStates.IsRoadAt(aPlayer: ShortInt; X, Y: Word): Boolean;
 begin
   Result := False;
+  //-1 stands for any player
   if InRange(aPlayer, -1, gHands.Count - 1) and gTerrain.TileInMapCoords(X, Y) then
     Result := (gTerrain.Land[Y,X].TileOverlay = to_Road)
               and ((aPlayer = -1) or (gTerrain.Land[Y, X].TileOwner = aPlayer))
@@ -722,9 +734,10 @@ end;
 
 
 function TKMScriptStates.HouseDamage(aHouseID: Integer): Integer;
-var H: TKMHouse;
+var
+  H: TKMHouse;
 begin
-  Result := -1;
+  Result := -1; //-1 if house id is invalid
   if aHouseID > 0 then
   begin
     H := fIDCache.GetHouse(aHouseID);
@@ -737,7 +750,8 @@ end;
 
 
 function TKMScriptStates.HouseRepair(aHouseID: Integer): Boolean;
-var H: TKMHouse;
+var
+  H: TKMHouse;
 begin
   Result := False;
   if aHouseID > 0 then
@@ -752,7 +766,8 @@ end;
 
 
 function TKMScriptStates.HouseDeliveryBlocked(aHouseID: Integer): Boolean;
-var H: TKMHouse;
+var
+  H: TKMHouse;
 begin
   Result := True;
   if aHouseID > 0 then
@@ -771,7 +786,7 @@ var
   H: TKMHouse;
   Res: TWareType;
 begin
-  Result := -1;
+  Result := -1; //-1 if house id is invalid
   Res := WareIndexToType[aResource];
   if (aHouseID > 0) and (Res in [WARE_MIN..WARE_MAX]) then
   begin
@@ -785,7 +800,8 @@ end;
 
 
 function TKMScriptStates.HouseHasOccupant(aHouseID: Integer): Boolean;
-var H: TKMHouse;
+var
+  H: TKMHouse;
 begin
   Result := False;
   if aHouseID > 0 then
@@ -800,7 +816,8 @@ end;
 
 
 function TKMScriptStates.HouseIsComplete(aHouseID: Integer): Boolean;
-var H: TKMHouse;
+var
+  H: TKMHouse;
 begin
   Result := False;
   if aHouseID > 0 then
@@ -839,9 +856,10 @@ end;
 
 
 function TKMScriptStates.UnitAt(aX, aY: Word): Integer;
-var U: TKMUnit;
+var
+  U: TKMUnit;
 begin
-  Result := -1;
+  Result := UID_NONE;
   if gTerrain.TileInMapCoords(aX,aY) then
   begin
     U := gTerrain.UnitsHitTest(aX, aY);
@@ -857,9 +875,10 @@ end;
 
 
 function TKMScriptStates.UnitPositionX(aUnitID: Integer): Integer;
-var U: TKMUnit;
+var
+  U: TKMUnit;
 begin
-  Result := -1;
+  Result := -1; //-1 if unit id is invalid
   if aUnitID > 0 then
   begin
     U := fIDCache.GetUnit(aUnitID);
@@ -872,9 +891,10 @@ end;
 
 
 function TKMScriptStates.UnitPositionY(aUnitID: Integer): Integer;
-var U: TKMUnit;
+var
+  U: TKMUnit;
 begin
-  Result := -1;
+  Result := -1; //-1 if unit id is invalid
   if aUnitID > 0 then
   begin
     U := fIDCache.GetUnit(aUnitID);
@@ -887,7 +907,8 @@ end;
 
 
 function TKMScriptStates.UnitDead(aUnitID: Integer): Boolean;
-var U: TKMUnit;
+var
+  U: TKMUnit;
 begin
   Result := True;
   if aUnitID > 0 then
@@ -902,9 +923,10 @@ end;
 
 
 function TKMScriptStates.UnitOwner(aUnitID: Integer): Integer;
-var U: TKMUnit;
+var
+  U: TKMUnit;
 begin
-  Result := -1;
+  Result := PLAYER_NONE;
   if aUnitID > 0 then
   begin
     U := fIDCache.GetUnit(aUnitID);
@@ -917,14 +939,15 @@ end;
 
 
 function TKMScriptStates.UnitDirection(aUnitID: Integer): Integer;
-var U: TKMUnit;
+var
+  U: TKMUnit;
 begin
-  Result := -1;
+  Result := -1;//-1 if unit id is invalid
   if aUnitID > 0 then
   begin
     U := fIDCache.GetUnit(aUnitID);
     if U <> nil then
-      Result := Byte(U.Direction)-1;
+      Result := Byte(U.Direction) - 1;
   end
   else
     LogError('States.UnitDirection', [aUnitID]);
@@ -932,9 +955,10 @@ end;
 
 
 function TKMScriptStates.UnitType(aUnitID: Integer): Integer;
-var U: TKMUnit;
+var
+  U: TKMUnit;
 begin
-  Result := -1;
+  Result := -1; //-1 if unit id is invalid
   if aUnitID > 0 then
   begin
     U := fIDCache.GetUnit(aUnitID);
@@ -947,9 +971,10 @@ end;
 
 
 function TKMScriptStates.UnitHunger(aUnitID: Integer): Integer;
-var U: TKMUnit;
+var
+  U: TKMUnit;
 begin
-  Result := -1;
+  Result := -1; //-1 if unit id is invalid
   if aUnitID > 0 then
   begin
     U := fIDCache.GetUnit(aUnitID);
@@ -962,9 +987,10 @@ end;
 
 
 function TKMScriptStates.UnitCarrying(aUnitID: Integer): Integer;
-var U: TKMUnit;
+var
+  U: TKMUnit;
 begin
-  Result := -1;
+  Result := -1; //-1 if unit id is invalid
   if aUnitID > 0 then
   begin
     U := fIDCache.GetUnit(aUnitID);
@@ -989,7 +1015,8 @@ end;
 
 
 function TKMScriptStates.GroupAt(aX, aY: Word): Integer;
-var G: TKMUnitGroup;
+var
+  G: TKMUnitGroup;
 begin
   G := gHands.GroupsHitTest(aX, aY);
   if (G <> nil) and not G.IsDead then
@@ -998,14 +1025,16 @@ begin
     fIDCache.CacheGroup(G, G.UID); //Improves cache efficiency since G will probably be accessed soon
   end
   else
-    Result := -1;
+    Result := UID_NONE;
 end;
 
 
 function TKMScriptStates.UnitsGroup(aUnitID: Integer): Integer;
-var U: TKMUnit; G: TKMUnitGroup;
+var
+  U: TKMUnit;
+  G: TKMUnitGroup;
 begin
-  Result := -1;
+  Result := UID_NONE;
   if aUnitID > 0 then
   begin
     U := fIDCache.GetUnit(aUnitID);
@@ -1025,7 +1054,8 @@ end;
 
 
 function TKMScriptStates.GroupDead(aGroupID: Integer): Boolean;
-var G: TKMUnitGroup;
+var
+  G: TKMUnitGroup;
 begin
   Result := True;
   if aGroupID > 0 then
@@ -1040,9 +1070,10 @@ end;
 
 
 function TKMScriptStates.GroupOwner(aGroupID: Integer): Integer;
-var G: TKMUnitGroup;
+var
+  G: TKMUnitGroup;
 begin
-  Result := -1;
+  Result := PLAYER_NONE;
   if aGroupID > 0 then
   begin
     G := fIDCache.GetGroup(aGroupID);
@@ -1055,7 +1086,8 @@ end;
 
 
 function TKMScriptStates.GroupMemberCount(aGroupID: Integer): Integer;
-var G: TKMUnitGroup;
+var
+  G: TKMUnitGroup;
 begin
   Result := 0;
   if aGroupID > 0 then
@@ -1070,7 +1102,8 @@ end;
 
 
 function TKMScriptStates.GroupColumnCount(aGroupID: Integer): Integer;
-var G: TKMUnitGroup;
+var
+  G: TKMUnitGroup;
 begin
   Result := 0;
   if aGroupID > 0 then
@@ -1085,9 +1118,10 @@ end;
 
 
 function TKMScriptStates.GroupMember(aGroupID, aMemberIndex: Integer): Integer;
-var G: TKMUnitGroup;
+var
+  G: TKMUnitGroup;
 begin
-  Result := 0;
+  Result := UID_NONE;
   if aGroupID > 0 then
   begin
     G := fIDCache.GetGroup(aGroupID);
@@ -1111,7 +1145,7 @@ end;
 { TKMScriptActions }
 constructor TKMScriptActions.Create(aIDCache: TKMScriptingIdCache);
 begin
-  Inherited Create;
+  inherited Create;
   fIDCache := aIDCache;
 end;
 
@@ -1150,7 +1184,8 @@ end;
 //Sets all player IDs in aVictors to victorious, and all their team members if aTeamVictory is true.
 //All other players are set to defeated.
 procedure TKMScriptActions.PlayerWin(const aVictors: array of Integer; aTeamVictory: Boolean);
-var I,K: Integer;
+var
+  I, K: Integer;
 begin
   //Verify all input parameters
   for I := 0 to Length(aVictors) - 1 do
@@ -1178,20 +1213,22 @@ end;
 
 
 procedure TKMScriptActions.PlayerWareDistribution(aPlayer, aWareType, aHouseType, aAmount: Byte);
-var Res: TWareType;
+var
+  W: TWareType;
 begin
-  Res := WareIndexToType[aWareType];
-  if InRange(aPlayer, 0, gHands.Count - 1) and (Res in [wt_Steel, wt_Coal, wt_Wood, wt_Corn])
+  W := WareIndexToType[aWareType];
+  if InRange(aPlayer, 0, gHands.Count - 1) and (W in [wt_Steel, wt_Coal, wt_Wood, wt_Corn])
   and (aHouseType in [Low(HouseIndexToType) .. High(HouseIndexToType)])
   and InRange(aAmount, 0, 5) then
-    gHands[aPlayer].Stats.Ratio[Res, HouseIndexToType[aHouseType]] := aAmount
+    gHands[aPlayer].Stats.Ratio[W, HouseIndexToType[aHouseType]] := aAmount
   else
     LogError('Actions.PlayerWareDistribution', [aPlayer, aWareType, aHouseType, aAmount]);
 end;
 
 
 procedure TKMScriptActions.PlayerAllianceChange(aPlayer1, aPlayer2: Byte; aCompliment, aAllied: Boolean);
-const ALLIED: array[Boolean] of TAllianceType = (at_Enemy, at_Ally);
+const
+  ALLIED: array [Boolean] of TAllianceType = (at_Enemy, at_Ally);
 begin
   //Verify all input parameters
   if InRange(aPlayer1, 0, gHands.Count - 1)
@@ -1226,9 +1263,10 @@ end;
 
 
 procedure TKMScriptActions.PlayWAV(aPlayer: ShortInt; const aFileName: AnsiString; Volume: Single);
-var fullFileName: UnicodeString;
+var
+  fullFileName: UnicodeString;
 begin
-  if (aPlayer <> MySpectator.HandIndex) and (aPlayer <> -1) then Exit;
+  if (aPlayer <> MySpectator.HandIndex) and (aPlayer <> PLAYER_NONE) then Exit;
 
   fullFileName := ExeDir + Format(SFXPath, [aFileName]);
   //Silently ignore missing files (player might choose to delete annoying sounds from scripts if he likes)
@@ -1244,7 +1282,7 @@ procedure TKMScriptActions.PlayWAVAtLocation(aPlayer: ShortInt; const aFileName:
 var
   fullFileName: UnicodeString;
 begin
-  if (aPlayer <> MySpectator.HandIndex) and (aPlayer <> -1) then Exit;
+  if (aPlayer <> MySpectator.HandIndex) and (aPlayer <> PLAYER_NONE) then Exit;
 
   fullFileName := ExeDir + Format(SFXPath, [aFileName]);
   //Silently ignore missing files (player might choose to delete annoying sounds from scripts if he likes)
@@ -1257,9 +1295,10 @@ end;
 
 
 function TKMScriptActions.GiveGroup(aPlayer, aType, X,Y, aDir, aCount, aColumns: Word): Integer;
-var G: TKMUnitGroup;
+var
+  G: TKMUnitGroup;
 begin
-  Result := -1;
+  Result := UID_NONE;
   //Verify all input parameters
   if InRange(aPlayer, 0, gHands.Count - 1)
   and (aType in [UnitTypeToIndex[WARRIOR_MIN]..UnitTypeToIndex[WARRIOR_MAX]])
@@ -1285,7 +1324,7 @@ function TKMScriptActions.GiveUnit(aPlayer, aType, X, Y, aDir: Word): Integer;
 var
   U: TKMUnit;
 begin
-  Result := -1;
+  Result := UID_NONE;
 
   //Verify all input parameters
   if InRange(aPlayer, 0, gHands.Count - 1)
@@ -1310,7 +1349,7 @@ function TKMScriptActions.GiveHouse(aPlayer, aHouseType, X,Y: Integer): Integer;
 var
   H: TKMHouse;
 begin
-  Result := -1;
+  Result := UID_NONE;
 
   //Verify all input parameters
   if InRange(aPlayer, 0, gHands.Count - 1)
@@ -1355,7 +1394,7 @@ function TKMScriptActions.GiveAnimal(aType, X, Y: Word): Integer;
 var
   U: TKMUnit;
 begin
-  Result := -1;
+  Result := UID_NONE;
 
   //Verify all input parameters
   if (aType in [UnitTypeToIndex[ANIMAL_MIN] .. UnitTypeToIndex[ANIMAL_MAX]])
@@ -1479,7 +1518,7 @@ end;
 //Input text is ANSI with libx codes to substitute
 procedure TKMScriptActions.ShowMsg(aPlayer: Shortint; aText: AnsiString);
 begin
-  if (aPlayer = MySpectator.HandIndex) or (aPlayer = -1) then
+  if (aPlayer = MySpectator.HandIndex) or (aPlayer = PLAYER_NONE) then
     gGame.ShowMessage(mkText, UnicodeString(aText), KMPoint(0,0));
 end;
 
@@ -1487,7 +1526,7 @@ end;
 //Input text is ANSI with libx codes to substitute
 procedure TKMScriptActions.ShowMsgFormatted(aPlayer: Shortint; aText: AnsiString; Params: array of const);
 begin
-  if (aPlayer = MySpectator.HandIndex) or (aPlayer = -1) then
+  if (aPlayer = MySpectator.HandIndex) or (aPlayer = PLAYER_NONE) then
     gGame.ShowMessageFormatted(mkText, UnicodeString(aText), KMPoint(0,0), Params);
 end;
 
@@ -1497,7 +1536,7 @@ procedure TKMScriptActions.ShowMsgGoto(aPlayer: Shortint; aX, aY: Word; aText: A
 begin
   if gTerrain.TileInMapCoords(aX, aY) then
   begin
-    if (aPlayer = MySpectator.HandIndex) or (aPlayer = -1) then
+    if (aPlayer = MySpectator.HandIndex) or (aPlayer = PLAYER_NONE) then
       gGame.ShowMessage(mkText, UnicodeString(aText), KMPoint(aX,aY));
   end
   else
@@ -1510,7 +1549,7 @@ procedure TKMScriptActions.ShowMsgGotoFormatted(aPlayer: Shortint; aX, aY: Word;
 begin
   if gTerrain.TileInMapCoords(aX, aY) then
   begin
-    if (aPlayer = MySpectator.HandIndex) or (aPlayer = -1) then
+    if (aPlayer = MySpectator.HandIndex) or (aPlayer = PLAYER_NONE) then
       gGame.ShowMessageFormatted(mkText, UnicodeString(aText), KMPoint(aX,aY), Params);
   end
   else
@@ -1589,7 +1628,7 @@ begin
   begin
     H := fIDCache.GetHouse(aHouseID);
     if H <> nil then
-      H.DemolishHouse(-1, aSilent);
+      H.DemolishHouse(PLAYER_NONE, aSilent);
   end
   else
     LogError('Actions.HouseDestroy', [aHouseID]);
@@ -1649,7 +1688,8 @@ end;
 
 
 procedure TKMScriptActions.HouseDisableUnoccupiedMessage(aHouseID: Integer; aDisabled: Boolean);
-var H: TKMHouse;
+var
+  H: TKMHouse;
 begin
   if aHouseID > 0 then
   begin
@@ -1663,8 +1703,10 @@ end;
 
 
 procedure TKMScriptActions.HouseWoodcutterChopOnly(aHouseID: Integer; aChopOnly: Boolean);
-var H: TKMHouse;
-const CHOP_ONLY: array[Boolean] of TWoodcutterMode = (wcm_ChopAndPlant, wcm_Chop);
+const
+  CHOP_ONLY: array [Boolean] of TWoodcutterMode = (wcm_ChopAndPlant, wcm_Chop);
+var
+  H: TKMHouse;
 begin
   if aHouseID > 0 then
   begin
@@ -1735,7 +1777,8 @@ end;
 
 
 function TKMScriptActions.HouseSchoolQueueAdd(aHouseID: Integer; aUnitType: Integer; aCount: Integer): Integer;
-var H: TKMHouse;
+var
+  H: TKMHouse;
 begin
   Result := 0;
   if (aHouseID > 0)
@@ -1751,7 +1794,8 @@ end;
 
 
 function TKMScriptActions.HouseBarracksEquip(aHouseID: Integer; aUnitType: Integer; aCount: Integer): Integer;
-var H: TKMHouse;
+var
+  H: TKMHouse;
 begin
   Result := 0;
   if (aHouseID > 0)
@@ -1769,7 +1813,7 @@ end;
 procedure TKMScriptActions.OverlayTextSet(aPlayer: Shortint; aText: AnsiString);
 begin
   //Text from script should be only ANSI Latin, but UI is Unicode, so we switch it
-  if (aPlayer = MySpectator.HandIndex) or (aPlayer = -1) then
+  if (aPlayer = MySpectator.HandIndex) or (aPlayer = PLAYER_NONE) then
     gGame.ShowOverlay(UnicodeString(aText));
 end;
 
@@ -1777,7 +1821,7 @@ end;
 procedure TKMScriptActions.OverlayTextSetFormatted(aPlayer: Shortint; aText: AnsiString; Params: array of const);
 begin
   //Text from script should be only ANSI Latin, but UI is Unicode, so we switch it
-  if (aPlayer = MySpectator.HandIndex) or (aPlayer = -1) then
+  if (aPlayer = MySpectator.HandIndex) or (aPlayer = PLAYER_NONE) then
     gGame.ShowOverlayFormatted(UnicodeString(aText), Params);
 end;
 
@@ -1785,7 +1829,7 @@ end;
 procedure TKMScriptActions.OverlayTextAppend(aPlayer: Shortint; aText: AnsiString);
 begin
   //Text from script should be only ANSI Latin, but UI is Unicode, so we switch it
-  if (aPlayer = MySpectator.HandIndex) or (aPlayer = -1) then
+  if (aPlayer = MySpectator.HandIndex) or (aPlayer = PLAYER_NONE) then
     gGame.OverlayAppend(UnicodeString(aText));
 end;
 
@@ -1793,7 +1837,7 @@ end;
 procedure TKMScriptActions.OverlayTextAppendFormatted(aPlayer: Shortint; aText: AnsiString; Params: array of const);
 begin
   //Text from script should be only ANSI Latin, but UI is Unicode, so we switch it
-  if (aPlayer = MySpectator.HandIndex) or (aPlayer = -1) then
+  if (aPlayer = MySpectator.HandIndex) or (aPlayer = PLAYER_NONE) then
     gGame.OverlayAppendFormatted(UnicodeString(aText), Params);
 end;
 
@@ -1899,7 +1943,8 @@ end;
 
 
 procedure TKMScriptActions.UnitHungerSet(aUnitID, aHungerLevel: Integer);
-var U: TKMUnit;
+var
+  U: TKMUnit;
 begin
   aHungerLevel := Round(aHungerLevel / CONDITION_PACE);
   if (aUnitID > 0) and InRange(aHungerLevel, 0, UNIT_MAX_CONDITION) then
@@ -1914,7 +1959,8 @@ end;
 
 
 function TKMScriptActions.UnitDirectionSet(aUnitID, aDirection: Integer): Boolean;
-var U: TKMUnit;
+var
+  U: TKMUnit;
 begin
   Result := False;
   if (aUnitID > 0) and (TKMDirection(aDirection+1) in [dir_N..dir_NW]) then
@@ -1933,7 +1979,8 @@ end;
 
 
 function TKMScriptActions.UnitOrderWalk(aUnitID: Integer; X, Y: Word): Boolean;
-var U: TKMUnit;
+var
+  U: TKMUnit;
 begin
   Result := False;
 
@@ -1967,7 +2014,7 @@ begin
     U := fIDCache.GetUnit(aUnitID);
     if U <> nil then
       //Force delay to let the unit choose when to die, because this could be called in the middle of an event
-      U.KillUnit(-1, not aSilent, True);
+      U.KillUnit(PLAYER_NONE, not aSilent, True);
   end
   else
     LogError('Actions.UnitKill', [aUnitID]);
@@ -1975,11 +2022,12 @@ end;
 
 
 procedure TKMScriptActions.GroupOrderWalk(aGroupID: Integer; X, Y, aDirection: Word);
-var G: TKMUnitGroup;
+var
+  G: TKMUnitGroup;
 begin
   if (aGroupID > 0)
-  and gTerrain.TileInMapCoords(X,Y)
-  and (TKMDirection(aDirection+1) in [dir_N..dir_NW]) then
+  and gTerrain.TileInMapCoords(X, Y)
+  and (TKMDirection(aDirection + 1) in [dir_N..dir_NW]) then
   begin
     G := fIDCache.GetGroup(aGroupID);
     if (G <> nil) and G.CanWalkTo(KMPoint(X,Y), 0) then
@@ -2091,7 +2139,7 @@ function TKMScriptActions.GroupOrderSplit(aGroupID: Integer): Integer;
 var
   G, G2: TKMUnitGroup;
 begin
-  Result := -1;
+  Result := UID_NONE;
   if (aGroupID > 0) then
   begin
     G := fIDCache.GetGroup(aGroupID);

@@ -264,7 +264,7 @@ begin
         //Will hit the target in X..X-1 ticks (this ensures it only happens once)
         //Can't use InRange cos it might get called twice due to <= X <= comparison
         if MySpectator.FogOfWar.CheckRevelation(fTarget) >= 255 then
-          if (fLength - HTicks*fSpeed <= fPosition) and (fPosition < fLength - (HTicks-1)*fSpeed) then
+          if (fLength - HTicks*fSpeed <= fPosition) and (fPosition < fLength - (HTicks - 1) * fSpeed) then
             gSoundPlayer.Play(ProjectileHitSounds[fType], fTarget);
 
         if fPosition >= fLength then

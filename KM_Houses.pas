@@ -401,7 +401,7 @@ begin
       gHands[fOwner].Stats.WareConsumed(R, fResourceOut[I]);
   end;
 
-  gTerrain.SetHouse(fPosition, fHouseType, hsNone, -1);
+  gTerrain.SetHouse(fPosition, fHouseType, hsNone, PLAYER_NONE);
 
   //Leave rubble
   if not IsSilent then
@@ -431,7 +431,7 @@ var
 begin
   Assert(gGame.GameMode = gmMapEd);
   //We have to remove the house THEN check to see if we can place it again so we can put it on the old position
-  gTerrain.SetHouse(fPosition, fHouseType, hsNone, -1);
+  gTerrain.SetHouse(fPosition, fHouseType, hsNone, PLAYER_NONE);
   gTerrain.RemRoad(GetEntrance);
   if gHands[MySpectator.HandIndex].CanAddHousePlan(aPos, HouseType) then
   begin
@@ -1576,13 +1576,14 @@ end;
 
 
 procedure TKMHouseTower.Paint;
-var I, K: Integer;
+var
+  I, K: Integer;
 begin
   inherited;
 
   if SHOW_ATTACK_RADIUS then
-    for I := -Round(RANGE_WATCHTOWER_MAX)-1 to Round(RANGE_WATCHTOWER_MAX) do
-    for K := -Round(RANGE_WATCHTOWER_MAX)-1 to Round(RANGE_WATCHTOWER_MAX) do
+    for I := -Round(RANGE_WATCHTOWER_MAX) - 1 to Round(RANGE_WATCHTOWER_MAX) do
+    for K := -Round(RANGE_WATCHTOWER_MAX) - 1 to Round(RANGE_WATCHTOWER_MAX) do
     if InRange(GetLength(I, K), RANGE_WATCHTOWER_MIN, RANGE_WATCHTOWER_MAX) then
     if gTerrain.TileInMapCoords(GetPosition.X+K, GetPosition.Y+I) then
       fRenderAux.Quad(GetPosition.X+K, GetPosition.Y+I, $40FFFFFF);

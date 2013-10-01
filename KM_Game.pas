@@ -155,6 +155,9 @@ type
   end;
 
 
+const
+  UID_NONE: Integer = -1;
+
 var
   gGame: TKMGame;
 
@@ -310,7 +313,7 @@ begin
                   PlayerEnabled[fNetworking.NetPlayers[I].StartLocation - 1] := True;
 
                 //Fixed AIs are always enabled (e.g. coop missions)
-                for I := 0 to fNetworking.MapInfo.LocCount-1 do
+                for I := 0 to fNetworking.MapInfo.LocCount - 1 do
                   if fNetworking.MapInfo.CanBeAI[I] and not fNetworking.MapInfo.CanBeHuman[I] then
                     PlayerEnabled[I] := True;
               end;
@@ -455,7 +458,7 @@ begin
   if (fNetworking.SelectGameKind = ngk_Map) and not fNetworking.MapInfo.IsCoop then
     UpdateMultiplayerTeams;
 
-  MySpectator := TKMSpectator.Create(fNetworking.NetPlayers[fNetworking.MyIndex].StartLocation-1);
+  MySpectator := TKMSpectator.Create(fNetworking.NetPlayers[fNetworking.MyIndex].StartLocation - 1);
 
   //We cannot remove a player from a save (as they might be interacting with other players)
 
@@ -936,9 +939,9 @@ const
   step = 8765423;
 begin
   //UIDs have the following properties:
-  // - allow -1 to indicate no UID
+  // - allow -1 to indicate no UID (const UID_NONE = 0)
   // - fit within 24bit (we can use that much for RGB colorcoding in unit picking)
-  // - Start from 1, so that black colorcode can be detected and then re-mapped to -1
+  // - Start from 1, so that black colorcode can be detected in render and then re-mapped to -1
 
   fUIDTracker := (fUIDTracker + step) mod max_value + 1; //1..N range, 0 is nothing for colorpicker
   Result := fUIDTracker;

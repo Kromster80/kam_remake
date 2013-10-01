@@ -824,7 +824,7 @@ procedure TKMScripting.Load(LoadStream: TKMemoryStream);
       btRecord:     begin
                       LoadStream.Read(ElemCount);
                       Assert(ElemCount = TPSTypeRec_Record(aType).FieldTypes.Count, 'Script record element count mismatches saved count');
-                      for I := 0 to ElemCount-1 do
+                      for I := 0 to ElemCount - 1 do
                       begin
                         Offset := Cardinal(TPSTypeRec_Record(aType).RealFieldOffsets[I]);
                         LoadVar(Pointer(IPointer(Src) + Offset), TPSTypeRec_Record(aType).FieldTypes[I]);
@@ -883,7 +883,7 @@ procedure TKMScripting.Save(SaveStream: TKMemoryStream);
       btStaticArray:begin
                       ElemCount := TPSTypeRec_StaticArray(aType).Size;
                       SaveStream.Write(ElemCount);
-                      for I:=0 to ElemCount-1 do
+                      for I := 0 to ElemCount - 1 do
                       begin
                         Offset := TPSTypeRec_Array(aType).ArrayType.RealSize * I;
                         SaveVar(Pointer(IPointer(Src) + Offset), TPSTypeRec_Array(aType).ArrayType);
@@ -892,7 +892,7 @@ procedure TKMScripting.Save(SaveStream: TKMemoryStream);
       btArray:      begin
                       ElemCount := PSDynArrayGetLength(Pointer(Src^), aType);
                       SaveStream.Write(ElemCount);
-                      for I:=0 to ElemCount-1 do
+                      for I := 0 to ElemCount - 1 do
                       begin
                         Offset := TPSTypeRec_Array(aType).ArrayType.RealSize * I;
                         SaveVar(Pointer(IPointer(Src^) + Offset), TPSTypeRec_Array(aType).ArrayType);
@@ -901,7 +901,7 @@ procedure TKMScripting.Save(SaveStream: TKMemoryStream);
       btRecord:     begin
                       ElemCount := TPSTypeRec_Record(aType).FieldTypes.Count;
                       SaveStream.Write(ElemCount);
-                      for I := 0 to ElemCount-1 do
+                      for I := 0 to ElemCount - 1 do
                       begin
                         Offset := Cardinal(TPSTypeRec_Record(aType).RealFieldOffsets[I]);
                         SaveVar(Pointer(IPointer(Src) + Offset), TPSTypeRec_Record(aType).FieldTypes[I]);
