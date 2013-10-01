@@ -227,7 +227,7 @@ begin
 
     if fFightDelay > 0 then
     begin
-      dec(fFightDelay);
+      Dec(fFightDelay);
       Result := True; //do not increment AnimStep, just exit;
       Exit;
     end;
@@ -260,7 +260,7 @@ var
   IsHit: Boolean;
   Damage: Word;
 begin
-  Result := false;
+  Result := False;
   //Melee units place hit on this step
   if Step = STRIKE_STEP then
   begin
@@ -275,7 +275,7 @@ begin
 
     IsHit := (Damage >= KaMRandom(101)); //Damage is a % chance to hit
     if IsHit then
-      fOpponent.HitPointsDecrease(1, fUnit.Owner);
+      fOpponent.HitPointsDecrease(1, fUnit);
 
     MakeSound(IsHit); //Different sounds for hit and for miss
   end;
@@ -320,7 +320,7 @@ begin
     begin
       //The vertex is being used so we can't fight
       Result := ActDone;
-      exit;
+      Exit;
     end;
 
   if Step = 1 then

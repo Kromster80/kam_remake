@@ -3,6 +3,7 @@ Implemented:
  5778	Actions.AIEquipRate(aPlayer: Byte; aType: Byte; aRate: Word)
  5871	Event OnHousePlanPlaced(aPlayer: Byte; aX, aY: Word; aType: Byte)
  5882	Event OnHouseDamaged(aHouse, aAttacker: Integer);
+ 5884	Event OnUnitWounded(aUnit, aAttacker: Integer);
 
 Accepted:
 	Closest house/unit/group to given XY of certain player and type
@@ -29,7 +30,6 @@ Proposed:
 	Way to add/remove recruits directly from barracks
 	ChangeMapTile
 	States.HousePlanAt(X, Y) - returns aPlanID.
-	OnUnitAttacked
 	More options for on-screen text (background color, alignment, font, size, etc.)
 	States.PlayerIsAI(Index): Boolean;
 	Actions.AddDefensePosition, RemDefensePosition

@@ -149,7 +149,7 @@ type
     function GetUnitActText: UnicodeString;
     property Condition: Integer read fCondition write fCondition;
     procedure SetOwner(aOwner: THandIndex);
-    procedure HitPointsDecrease(aAmount: Byte; aFrom: THandIndex);
+    procedure HitPointsDecrease(aAmount: Byte; aAttacker: TKMUnit);
     property HitPointsMax: Byte read GetHitPointsMax;
     procedure CancelUnitTask;
     property Visible: Boolean read fVisible write fVisible;
@@ -1273,7 +1273,7 @@ end;
 
 
 //Return TRUE if unit was killed
-procedure TKMUnit.HitPointsDecrease(aAmount: Byte; aFrom: THandIndex);
+procedure TKMUnit.HitPointsDecrease(aAmount: Byte; aAttacker: TKMUnit);
 begin
   Assert(aAmount > 0, '0 damage should be handled outside so not to reset HPCounter');
 
@@ -1281,11 +1281,16 @@ begin
   if fHitPoints = HitPointsMax then
     fHitPointCounter := 1;
 
-  // Sign of aAmount does not affect (how come it ever did 0_o)
   fHitPoints := Max(fHitPoints - aAmount, 0);
+
+  fScripting.ProcUnitWounded(Self, aAttacker);
+
+  //Make sure to kill only once
   if (fHitPoints = 0) and not IsDeadOrDying then
-    //Make sure to kill only once
-    KillUnit(aFrom, True, False);
+    if aAttacker <> nil then
+      KillUnit(aAttacker.Owner, True, False)
+    else
+      KillUnit(PLAYER_NONE, True, False)
 end;
 
 

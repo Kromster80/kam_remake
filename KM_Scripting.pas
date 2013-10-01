@@ -44,6 +44,7 @@ type
     procedure ProcTick;
     procedure ProcUnitDied(aUnit: TKMUnit; aKillerOwner: THandIndex);
     procedure ProcUnitTrained(aUnit: TKMUnit);
+    procedure ProcUnitWounded(aUnit, aAttacker: TKMUnit);
     procedure ProcWarriorEquipped(aUnit: TKMUnit; aGroup: TKMUnitGroup);
 
     procedure Save(SaveStream: TKMemoryStream);
@@ -306,7 +307,7 @@ end;
   A result type of 0 means no result}
 function TKMScripting.ScriptOnExportCheck(Sender: TPSPascalCompiler; Proc: TPSInternalProcedure; const ProcDecl: AnsiString): Boolean;
 const
-  Procs: array [0..10] of record
+  Procs: array [0..11] of record
     Names: AnsiString;
     ParamCount: Byte;
     Typ: array [0..4] of Byte;
@@ -323,6 +324,7 @@ const
   (Names: 'ONTICK';            ParamCount: 0; Typ: (0, 0,     0,     0,     0    ); Dir: (pmIn, pmIn, pmIn, pmIn)),
   (Names: 'ONUNITDIED';        ParamCount: 2; Typ: (0, btS32, btS32, 0,     0    ); Dir: (pmIn, pmIn, pmIn, pmIn)),
   (Names: 'ONUNITTRAINED';     ParamCount: 1; Typ: (0, btS32, 0,     0,     0    ); Dir: (pmIn, pmIn, pmIn, pmIn)),
+  (Names: 'ONUNITWOUNDED';     ParamCount: 2; Typ: (0, btS32, btS32, 0,     0    ); Dir: (pmIn, pmIn, pmIn, pmIn)),
   (Names: 'ONWARRIOREQUIPPED'; ParamCount: 2; Typ: (0, btS32, btS32, 0,     0    ); Dir: (pmIn, pmIn, pmIn, pmIn))
   );
 var
@@ -651,7 +653,7 @@ begin
     end
     else
       //House was damaged, but we don't know by whom (e.g. by script command)
-      TestFunc(aHouse.UID, -1);
+      TestFunc(aHouse.UID, PLAYER_NONE);
   end;
 end;
 
@@ -681,6 +683,21 @@ begin
 end;
 
 
+procedure TKMScripting.ProcUnitDied(aUnit: TKMUnit; aKillerOwner: THandIndex);
+var
+  TestFunc: TKMEvent2I;
+begin
+  //Check if event handler (procedure) exists and run it
+  //Store unit by its KaM index to keep it consistent with DAT scripts
+  TestFunc := TKMEvent2I(fExec.GetProcAsMethodN('ONUNITDIED'));
+  if @TestFunc <> nil then
+  begin
+    fIDCache.CacheUnit(aUnit, aUnit.UID); //Improves cache efficiency since aUnit will probably be accessed soon
+    TestFunc(aUnit.UID, aKillerOwner);
+  end;
+end;
+
+
 procedure TKMScripting.ProcUnitTrained(aUnit: TKMUnit);
 var
   TestFunc: TKMEvent1I;
@@ -696,17 +713,23 @@ begin
 end;
 
 
-procedure TKMScripting.ProcUnitDied(aUnit: TKMUnit; aKillerOwner: THandIndex);
+procedure TKMScripting.ProcUnitWounded(aUnit, aAttacker: TKMUnit);
 var
   TestFunc: TKMEvent2I;
 begin
   //Check if event handler (procedure) exists and run it
   //Store unit by its KaM index to keep it consistent with DAT scripts
-  TestFunc := TKMEvent2I(fExec.GetProcAsMethodN('ONUNITDIED'));
+  TestFunc := TKMEvent2I(fExec.GetProcAsMethodN('ONUNITWOUNDED'));
   if @TestFunc <> nil then
   begin
     fIDCache.CacheUnit(aUnit, aUnit.UID); //Improves cache efficiency since aUnit will probably be accessed soon
-    TestFunc(aUnit.UID, aKillerOwner);
+    if aAttacker <> nil then
+    begin
+      fIDCache.CacheUnit(aAttacker, aAttacker.UID); //Improves cache efficiency since aAttacker will probably be accessed soon
+      TestFunc(aUnit.UID, aAttacker.UID);
+    end
+    else
+      TestFunc(aUnit.UID, PLAYER_NONE);
   end;
 end;
 

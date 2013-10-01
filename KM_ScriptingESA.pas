@@ -1959,7 +1959,8 @@ end;
 
 
 procedure TKMScriptActions.UnitKill(aUnitID: Integer; aSilent: Boolean);
-var U: TKMUnit;
+var
+  U: TKMUnit;
 begin
   if (aUnitID > 0) then
   begin

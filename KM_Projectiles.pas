@@ -287,7 +287,7 @@ begin
                               Damage := Damage div Math.max(fResource.UnitDat[U.UnitType].GetDefenceVsProjectiles, 1); //Max is not needed, but animals have 0 defence
                               if (FRIENDLY_FIRE or (gHands.CheckAlliance(fOwner.Owner, U.Owner)= at_Enemy))
                               and (Damage >= KaMRandom(101)) then
-                                U.HitPointsDecrease(1, fOwner.Owner);
+                                U.HitPointsDecrease(1, fOwner);
                             end
                             else
                             begin
@@ -300,7 +300,7 @@ begin
               pt_TowerRock: if (U <> nil) and not U.IsDeadOrDying and U.Visible
                             and not (U is TKMUnitAnimal)
                             and (FRIENDLY_FIRE or (gHands.CheckAlliance(fOwner.Owner, U.Owner)= at_Enemy)) then
-                              U.HitPointsDecrease(U.HitPointsMax, fOwner.Owner); //Instant death
+                              U.HitPointsDecrease(U.HitPointsMax, fOwner); //Instant death
             end;
           end;
           RemItem(I);
