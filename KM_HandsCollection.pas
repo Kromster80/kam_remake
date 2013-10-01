@@ -7,7 +7,7 @@ uses
   KM_Hand, KM_HandSpectator, KM_Utils, KM_Points, KM_Units_Warrior;
 
 
-{ Players are identified by their starting location }
+//Hands are identified by their starting location
 type
   TKMHandsCollection = class
   private

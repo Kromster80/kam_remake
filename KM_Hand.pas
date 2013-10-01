@@ -49,7 +49,7 @@ type
     fStats: TKMHandStats;
     fUnitGroups: TKMUnitGroups;
 
-    fOwnerNikname: AnsiString;
+    fOwnerNikname: AnsiString; //Multiplayer owner nikname
     fPlayerType: THandType;
     fFlagColor: Cardinal;
     fCenterScreen: TKMPoint;
@@ -414,13 +414,13 @@ end;
 //Lay out all roads at once to save time on Terrain lighting/passability recalculations
 procedure TKMHand.AfterMissionInit(aFlattenRoads: Boolean);
 begin
-  if fRoadsList <> nil then
-  begin
-    gTerrain.SetRoads(fRoadsList, fHandIndex, not aFlattenRoads); //If we are flattening roads that will update WalkConnect anyway
-    if aFlattenRoads then
-      gTerrain.FlattenTerrain(fRoadsList);
-    FreeAndNil(fRoadsList);
-  end;
+  Assert(fRoadsList <> nil);
+
+  gTerrain.SetRoads(fRoadsList, fHandIndex, not aFlattenRoads); //If we are flattening roads that will update WalkConnect anyway
+  if aFlattenRoads then
+    gTerrain.FlattenTerrain(fRoadsList);
+
+  FreeAndNil(fRoadsList);
 
   fAI.Mayor.AfterMissionInit;
 end;
