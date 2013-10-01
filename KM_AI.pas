@@ -39,7 +39,7 @@ type
     property WonOrLost: TWonOrLost read fWonOrLost;
     procedure OwnerUpdate(aPlayer: THandIndex);
     procedure HouseAttackNotification(aHouse: TKMHouse; aAttacker: TKMUnitWarrior);
-    procedure UnitAttackNotification(aUnit: TKMUnit; aAttacker: TKMUnitWarrior);
+    procedure UnitAttackNotification(aUnit: TKMUnit; aAttacker: TKMUnit);
 
     procedure Save(SaveStream: TKMemoryStream);
     procedure Load(LoadStream: TKMemoryStream);
@@ -242,7 +242,7 @@ end;
 
 
 //aUnit is our unit that was attacked
-procedure TKMHandAI.UnitAttackNotification(aUnit: TKMUnit; aAttacker: TKMUnitWarrior);
+procedure TKMHandAI.UnitAttackNotification(aUnit: TKMUnit; aAttacker: TKMUnit);
 const
   NotifyKind: array [Boolean] of TAttackNotification = (an_Citizens, an_Troops);
 var
@@ -255,7 +255,7 @@ begin
         gGame.GamePlayInterface.Alerts.AddFight(aUnit.PositionF, fOwner, NotifyKind[aUnit is TKMUnitWarrior]);
     hndComputer:
       begin
-        //If we are attacked, then we should counter attack the attacker!
+        //If we are attacked, then we should counter attack the attacker (except if he is a recruit in tower)
         if aUnit is TKMUnitWarrior then
         begin
           Group := gHands[fOwner].UnitGroups.GetGroupByMember(TKMUnitWarrior(aUnit));

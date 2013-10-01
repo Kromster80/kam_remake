@@ -177,6 +177,9 @@ begin
     end;
 
     Result := AddItem(aStart, aTarget.PositionF, Target, Speed, Arc, aMaxRange, aProjType, aOwner);
+
+    //Tell the Opponent that he is under attack (when arrows are in the air)
+    gHands[aTarget.Owner].AI.UnitAttackNotification(aTarget, aOwner);
   end else
     Result := 0;
 end;

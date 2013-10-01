@@ -182,7 +182,7 @@ begin
   begin
     //After killing an opponent there is a very high chance that there is another enemy to be fought immediately
     //Try to start fighting that enemy by reusing this FightAction, rather than destroying it and making a new one
-    Locked := false; //Fight can be interrupted by FindEnemy, otherwise it will always return nil!
+    Locked := False; //Fight can be interrupted by FindEnemy, otherwise it will always return nil!
     gHands.CleanUpUnitPointer(fOpponent); //We are finished with the old opponent
     fOpponent := TKMUnitWarrior(fUnit).FindEnemy; //Find a new opponent
     if fOpponent <> nil then
@@ -211,9 +211,10 @@ end;
 
 
 //A result of true means exit from Execute
-function TUnitActionFight.ExecuteProcessRanged(Step:byte):boolean;
+function TUnitActionFight.ExecuteProcessRanged(Step: Byte): Boolean;
 begin
-  Result := false;
+  Result := False;
+
   if Step = FIRING_DELAY then
   begin
     if fFightDelay = -1 then //Initialize
@@ -231,20 +232,22 @@ begin
       Result := True; //do not increment AnimStep, just exit;
       Exit;
     end;
-    if fUnit.UnitType = ut_Slingshot then MakeSound(false);
+
+    if fUnit.UnitType = ut_Slingshot then MakeSound(False);
     TKMUnitWarrior(fUnit).SetLastShootTime; //Record last time the warrior shot
 
     //Fire the arrow
     case fUnit.UnitType of
-      ut_Arbaletman: gProjectiles.AimTarget(fUnit.PositionF, fOpponent, pt_Bolt, fUnit, RANGE_ARBALETMAN_MAX, RANGE_ARBALETMAN_MIN);
-      ut_Bowman:     gProjectiles.AimTarget(fUnit.PositionF, fOpponent, pt_Arrow, fUnit, RANGE_BOWMAN_MAX, RANGE_BOWMAN_MIN);
-      ut_Slingshot:  ;
-      else Assert(false, 'Unknown shooter');
+      ut_Arbaletman:  gProjectiles.AimTarget(fUnit.PositionF, fOpponent, pt_Bolt, fUnit, RANGE_ARBALETMAN_MAX, RANGE_ARBALETMAN_MIN);
+      ut_Bowman:      gProjectiles.AimTarget(fUnit.PositionF, fOpponent, pt_Arrow, fUnit, RANGE_BOWMAN_MAX, RANGE_BOWMAN_MIN);
+      ut_Slingshot:   ;
+      else            Assert(False, 'Unknown shooter');
     end;
 
     fFightDelay := -1; //Reset
   end;
 
+  //todo: @Lewin: Looks like this can be adjoined with above?
   if Step = SLINGSHOT_FIRING_DELAY then
     if fUnit.UnitType = ut_Slingshot then
     begin
@@ -261,6 +264,17 @@ var
   Damage: Word;
 begin
   Result := False;
+
+  if Step = 1 then
+  begin
+    //Tell the Opponent we are attacking him
+    gHands[fOpponent.Owner].AI.UnitAttackNotification(fOpponent, TKMUnitWarrior(fUnit));
+
+    //Tell our AI that we are in a battle and might need assistance! (only for melee battles against warriors)
+    if (fOpponent is TKMUnitWarrior) and not TKMUnitWarrior(fUnit).IsRanged then
+      gHands[fUnit.Owner].AI.UnitAttackNotification(fUnit, TKMUnitWarrior(fOpponent));
+  end;
+
   //Melee units place hit on this step
   if Step = STRIKE_STEP then
   begin
@@ -307,8 +321,8 @@ begin
   Step  := fUnit.AnimStep mod Cycle;
 
   Result := ExecuteValidateOpponent(Step);
-  if Result = ActDone then exit;
-  Step  := fUnit.AnimStep mod Cycle; //Can be changed by ExecuteValidateOpponent, so recalculate it
+  if Result = ActDone then Exit;
+  Step := fUnit.AnimStep mod Cycle; //Can be changed by ExecuteValidateOpponent, so recalculate it
 
   //Opponent can walk next to us, keep facing him
   if Step = 0 then //Only change direction between strikes, otherwise it looks odd
@@ -322,16 +336,6 @@ begin
       Result := ActDone;
       Exit;
     end;
-
-  if Step = 1 then
-  begin
-    //Tell the Opponent we are attacking him
-    gHands[fOpponent.Owner].AI.UnitAttackNotification(fOpponent, TKMUnitWarrior(fUnit));
-
-    //Tell our AI that we are in a battle and might need assistance! (only for melee battles against warriors)
-    if (fOpponent is TKMUnitWarrior) and not TKMUnitWarrior(fUnit).IsRanged then
-      gHands[fUnit.Owner].AI.UnitAttackNotification(fUnit, TKMUnitWarrior(fOpponent));
-  end;
 
   if TKMUnitWarrior(fUnit).IsRanged then
   begin

@@ -11,10 +11,10 @@
  +	Script would not allow to play WAV files with anything except lower case letters and digits
  +	Random seed should be different before each game
  +	Attacking an animal through script command would crash a game
+ +	AIs should retaliate when the arrows are in the air, not while the archer is just aiming
 	Armour smithy has shields as 2nd ouput, armour workshop has shields as 1st output. Would make sense to match them (note: simply swapping in KM_ResourceHouses causes game logic to be swapped with GUI)
 	Armour smithy has iron as 1st input, weapon smithy has iron as 2nd input (iron/coal swapped). Would make sense to match them (note: simpply swapping in KM_ResourceHouses causes game logic to be swapped with GUI)
 	Deliveries should use the actual walking route length (opposed to Radius)
-	AIs should retaliate when the arrow is in mid flight or when it lands, not while the archer is still aiming/firing
 	Archers should step backwards when too close to attack target
 	Replays sometimes end up with a mismatch while watching them, cause unknown
 	AI attacks make the game lag (by using too much CPU in pathfinding ?). Vortamic is especially bad.

@@ -4,7 +4,7 @@ interface
 uses
   Classes, KromUtils, Math, SysUtils,
   KM_Defaults, KM_CommonClasses, KM_Points, KM_AISetup, KM_AIDefensePos,
-  KM_UnitGroups, KM_Units_Warrior, KM_AIAttacks;
+  KM_UnitGroups, KM_Units, KM_AIAttacks;
 
 
 type
@@ -30,7 +30,7 @@ type
     procedure OwnerUpdate(aPlayer: THandIndex);
     property Attacks: TAIAttacks read fAttacks;
     property DefencePositions: TAIDefencePositions read fDefencePositions;
-    procedure RetaliateAgainstThreat(aAttacker: TKMUnitWarrior);
+    procedure RetaliateAgainstThreat(aAttacker: TKMUnit);
     procedure WarriorEquipped(aGroup: TKMUnitGroup);
 
     procedure UpdateState(aTick: Cardinal);
@@ -42,7 +42,7 @@ type
 
 implementation
 uses KM_HandsCollection, KM_Hand, KM_Terrain, KM_Game, KM_HouseBarracks,
-  KM_AIFields, KM_NavMesh, KM_Houses, KM_Units, KM_Utils, KM_ResHouses;
+  KM_AIFields, KM_NavMesh, KM_Houses, KM_Utils, KM_ResHouses;
 
 
 const
@@ -430,7 +430,7 @@ begin
 end;
 
 
-procedure TKMGeneral.RetaliateAgainstThreat(aAttacker: TKMUnitWarrior);
+procedure TKMGeneral.RetaliateAgainstThreat(aAttacker: TKMUnit);
 var
   I: Integer;
   Group: TKMUnitGroup;
@@ -439,7 +439,7 @@ begin
 
   //Attacker may be already dying (e.g. killed by script)
   //We could retaliate against his whole group however
-  if (aAttacker = nil) or aAttacker.IsDeadOrDying then Exit;
+  if (aAttacker = nil) or aAttacker.IsDeadOrDying or (aAttacker is TKMUnitRecruit) then Exit;
 
   //todo: Right now "idle" troops (without an assigned defence position) will do nothing (no attacking, defending, etc.)
   //Any defence position that is within their defence radius of this threat will retaliate against it
