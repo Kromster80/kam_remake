@@ -51,7 +51,7 @@ type
 implementation
 uses
   KM_Game, KM_HandsCollection, KM_Hand, KM_HandStats,
-  KM_ResSound, KM_Scripting, KM_ResHouses;
+  KM_ResSound, KM_ScriptingESA, KM_ResHouses;
 
 
 { TKMHandAI }
@@ -91,7 +91,7 @@ begin
     gGame.PlayerDefeat(fOwner);
 
     //Script may have additional event processors
-    fScripting.ProcPlayerDefeated(fOwner);
+    gScriptEvents.ProcPlayerDefeated(fOwner);
   end;
 end;
 
@@ -110,7 +110,7 @@ begin
       gGame.PlayerVictory(fOwner);
 
     //Script may have additional event processors
-    fScripting.ProcPlayerVictory(fOwner);
+    gScriptEvents.ProcPlayerVictory(fOwner);
   end;
 end;
 
@@ -226,7 +226,7 @@ end;
 //aHouse is our house that was attacked
 procedure TKMHandAI.HouseAttackNotification(aHouse: TKMHouse; aAttacker: TKMUnitWarrior);
 begin
-  fScripting.ProcHouseDamaged(aHouse, aAttacker);
+  gScriptEvents.ProcHouseDamaged(aHouse, aAttacker);
 
   case gHands[fOwner].PlayerType of
     hndHuman:

@@ -264,7 +264,7 @@ type
 
 implementation
 uses
-  KM_CommonTypes, KM_Game, KM_RenderPool, KM_RenderAux, KM_ResTexts, KM_Scripting,
+  KM_CommonTypes, KM_Game, KM_RenderPool, KM_RenderAux, KM_ResTexts, KM_ScriptingESA,
   KM_HandsCollection, KM_FogOfWar, KM_Units_Warrior, KM_Resource, KM_ResUnits, KM_HouseInn,
 
   KM_UnitActionAbandonWalk,
@@ -1211,7 +1211,7 @@ begin
 
   //From this moment onwards the unit is guaranteed to die (no way to avoid it even with KillASAP), so
   //signal to our owner that we have died (doesn't have to be assigned since f.e. animals don't use it)
-  //This must be called before actually killing the unit because fScripting uses it
+  //This must be called before actually killing the unit because gScriptEvets needs to access it
   //and script is not allowed to touch dead/dying/KillASAP units
   if Assigned(OnUnitDied) then
     OnUnitDied(Self, aFrom);
@@ -1283,7 +1283,7 @@ begin
 
   fHitPoints := Max(fHitPoints - aAmount, 0);
 
-  fScripting.ProcUnitWounded(Self, aAttacker);
+  gScriptEvents.ProcUnitWounded(Self, aAttacker);
 
   //Make sure to kill only once
   if (fHitPoints = 0) and not IsDeadOrDying then
@@ -1693,7 +1693,7 @@ begin
         if (gHands <> nil) and (fOwner <> PLAYER_NONE) then
         begin
           gHands[fOwner].Stats.UnitLost(fUnitType);
-          fScripting.ProcUnitDied(Self, PLAYER_NONE);
+          gScriptEvents.ProcUnitDied(Self, PLAYER_NONE);
         end;
         CloseUnit(False); //Close the unit without removing tile usage (because this unit was in a house it has none)
         Result := true;

@@ -4,8 +4,8 @@ interface
 uses Classes, KromUtils, SysUtils, Math,
   KM_CommonClasses, KM_Defaults, KM_Points,
   KM_ArmyEvaluation, KM_BuildList, KM_DeliverQueue, KM_FogOfWar,
-  KM_HouseCollection, KM_Houses, KM_HouseInn, KM_Terrain, KM_AI, KM_HandStats, KM_Units, KM_UnitsCollection, KM_Units_Warrior, KM_UnitGroups,
-  KM_ResHouses;
+  KM_HouseCollection, KM_Houses, KM_HouseInn, KM_Terrain, KM_AI, KM_HandStats,
+  KM_Units, KM_UnitsCollection, KM_Units_Warrior, KM_UnitGroups, KM_ResHouses;
 
 
 type
@@ -149,7 +149,7 @@ type
 
 implementation
 uses KM_HandsCollection, KM_Resource, KM_ResSound, KM_Sound, KM_Game,
-   KM_ResTexts, KM_AIFields, KM_Scripting;
+   KM_ResTexts, KM_AIFields, KM_ScriptingESA;
 
 
 const
@@ -322,7 +322,7 @@ begin
       //Scripting doesn't care about scouts added this way.
       //It could cause issues if the scripter assumes the warrior came from the player's barracks.
       //The event is "OnWarriorEquipped" not "OnWarriorCreated".
-      //fScripting.ProcWarriorEquipped(Result, G);
+      //fScriptingESA.ProcWarriorEquipped(Result, G);
     end;
 end;
 
@@ -355,7 +355,7 @@ begin
 
   //Warriors don't trigger "OnTrained" event, they trigger "WarriorEquipped" in WarriorWalkedOut below
   if not (aUnit is TKMUnitWarrior) then
-    fScripting.ProcUnitTrained(aUnit);
+    gScriptEvents.ProcUnitTrained(aUnit);
 
   fStats.UnitCreated(aUnit.UnitType, True);
 end;
@@ -372,7 +372,7 @@ begin
     AI.General.WarriorEquipped(G);
     G := UnitGroups.GetGroupByMember(aUnit); //AI might assign warrior to different group
   end;
-  fScripting.ProcWarriorEquipped(aUnit, G);
+  gScriptEvents.ProcWarriorEquipped(aUnit, G);
 end;
 
 
@@ -695,7 +695,7 @@ begin
 
   fBuildList.HousePlanList.AddPlan(aHouseType, Loc);
   fStats.HousePlanned(aHouseType);
-  fScripting.ProcHousePlanPlaced(fHandIndex, Loc.X, Loc.Y, aHouseType);
+  gScriptEvents.ProcHousePlanPlaced(fHandIndex, Loc.X, Loc.Y, aHouseType);
 
   if (HandIndex = MySpectator.HandIndex) and not gGame.IsReplay then
     gSoundPlayer.Play(sfx_placemarker);
@@ -880,7 +880,7 @@ begin
     end;
 
   //Scripting events happen AFTER updating statistics
-  fScripting.ProcHouseDestroyed(aHouse, aFrom);
+  gScriptEvents.ProcHouseDestroyed(aHouse, aFrom);
 
   //MySpectator is nil during loading, when houses can be destroyed at the start
   if MySpectator <> nil then
@@ -1194,7 +1194,7 @@ begin
     gHands[aFrom].Stats.UnitKilled(aUnit.UnitType);
 
   //Call script event after updating statistics
-  fScripting.ProcUnitDied(aUnit, aFrom);
+  gScriptEvents.ProcUnitDied(aUnit, aFrom);
 
   //MySpectator is nil during loading
   if MySpectator <> nil then

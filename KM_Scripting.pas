@@ -34,33 +34,11 @@ type
     procedure LoadFromFile(aFileName: string);
     procedure ExportDataToText;
 
-    procedure ProcHouseBuilt(aHouse: TKMHouse);
-    procedure ProcHousePlanPlaced(aPlayer: THandIndex; aX, aY: Word; aType: THouseType);
-    procedure ProcHouseDamaged(aHouse: TKMHouse; aAttacker: TKMUnit);
-    procedure ProcHouseDestroyed(aHouse: TKMHouse; aDestroyerIndex: THandIndex);
-    procedure ProcMissionStart;
-    procedure ProcPlayerDefeated(aPlayer: THandIndex);
-    procedure ProcPlayerVictory(aPlayer: THandIndex);
-    procedure ProcTick;
-    procedure ProcUnitDied(aUnit: TKMUnit; aKillerOwner: THandIndex);
-    procedure ProcUnitTrained(aUnit: TKMUnit);
-    procedure ProcUnitWounded(aUnit, aAttacker: TKMUnit);
-    procedure ProcWarriorEquipped(aUnit: TKMUnit; aGroup: TKMUnitGroup);
-
     procedure Save(SaveStream: TKMemoryStream);
     procedure Load(LoadStream: TKMemoryStream);
 
     procedure UpdateState;
   end;
-
-
-  TKMEvent = procedure of object;
-  TKMEvent1I = procedure (aIndex: Integer) of object;
-  TKMEvent2I = procedure (aIndex, aParam: Integer) of object;
-  TKMEvent4I = procedure (aIndex, aParam1, aParam2, aParam3: Integer) of object;
-
-var
-  fScripting: TKMScripting;
 
 
 const
@@ -83,6 +61,7 @@ begin
   inherited;
   fExec := TPSExec.Create;  // Create an instance of the executer.
   fIDCache := TKMScriptingIdCache.Create;
+  gScriptEvents := TKMScriptEvents.Create(fExec, fIDCache);
   fStates := TKMScriptStates.Create(fIDCache);
   fActions := TKMScriptActions.Create(fIDCache);
 end;
@@ -90,6 +69,7 @@ end;
 
 destructor TKMScripting.Destroy;
 begin
+  FreeAndNil(gScriptEvents);
   FreeAndNil(fStates);
   FreeAndNil(fActions);
   FreeAndNil(fIDCache);
@@ -599,179 +579,6 @@ begin
 end;
 
 
-procedure TKMScripting.ProcMissionStart;
-var
-  TestFunc: TKMEvent;
-begin
-  //Check if event handler (procedure) exists and run it
-  TestFunc := TKMEvent(fExec.GetProcAsMethodN('ONMISSIONSTART'));
-  if @TestFunc <> nil then
-    TestFunc;
-end;
-
-
-procedure TKMScripting.ProcTick;
-var
-  TestFunc: TKMEvent;
-begin
-  //Check if event handler (procedure) exists and run it
-  TestFunc := TKMEvent(fExec.GetProcAsMethodN('ONTICK'));
-  if @TestFunc <> nil then
-    TestFunc;
-end;
-
-
-procedure TKMScripting.ProcHouseBuilt(aHouse: TKMHouse);
-var
-  TestFunc: TKMEvent1I;
-begin
-  //Check if event handler (procedure) exists and run it
-  //Store house by its KaM index to keep it consistent with DAT scripts
-  TestFunc := TKMEvent1I(fExec.GetProcAsMethodN('ONHOUSEBUILT'));
-  if @TestFunc <> nil then
-  begin
-    fIDCache.CacheHouse(aHouse, aHouse.UID); //Improves cache efficiency since aHouse will probably be accessed soon
-    TestFunc(aHouse.UID);
-  end;
-end;
-
-
-procedure TKMScripting.ProcHouseDamaged(aHouse: TKMHouse; aAttacker: TKMUnit);
-var
-  TestFunc: TKMEvent2I;
-begin
-  //Check if event handler (procedure) exists and run it
-  //Store house by its KaM index to keep it consistent with DAT scripts
-  TestFunc := TKMEvent2I(fExec.GetProcAsMethodN('ONHOUSEDAMAGED'));
-  if @TestFunc <> nil then
-  begin
-    fIDCache.CacheHouse(aHouse, aHouse.UID); //Improves cache efficiency since aHouse will probably be accessed soon
-    if aAttacker <> nil then
-    begin
-      fIDCache.CacheUnit(aAttacker, aAttacker.UID); //Improves cache efficiency since aAttacker will probably be accessed soon
-      TestFunc(aHouse.UID, aAttacker.UID);
-    end
-    else
-      //House was damaged, but we don't know by whom (e.g. by script command)
-      TestFunc(aHouse.UID, PLAYER_NONE);
-  end;
-end;
-
-
-procedure TKMScripting.ProcHouseDestroyed(aHouse: TKMHouse; aDestroyerIndex: THandIndex);
-var
-  TestFunc: TKMEvent2I;
-begin
-  //Check if event handler (procedure) exists and run it
-  //Store house by its KaM index to keep it consistent with DAT scripts
-  TestFunc := TKMEvent2I(fExec.GetProcAsMethodN('ONHOUSEDESTROYED'));
-  if @TestFunc <> nil then
-  begin
-    fIDCache.CacheHouse(aHouse, aHouse.UID); //Improves cache efficiency since aHouse will probably be accessed soon
-    TestFunc(aHouse.UID, aDestroyerIndex);
-  end;
-end;
-
-
-procedure TKMScripting.ProcHousePlanPlaced(aPlayer: THandIndex; aX, aY: Word; aType: THouseType);
-var
-  TestFunc: TKMEvent4I;
-begin
-  TestFunc := TKMEvent4I(fExec.GetProcAsMethodN('ONHOUSEPLANPLACED'));
-  if @TestFunc <> nil then
-    TestFunc(aPlayer, aX, aY, HouseTypeToIndex[aType]);
-end;
-
-
-procedure TKMScripting.ProcUnitDied(aUnit: TKMUnit; aKillerOwner: THandIndex);
-var
-  TestFunc: TKMEvent2I;
-begin
-  //Check if event handler (procedure) exists and run it
-  //Store unit by its KaM index to keep it consistent with DAT scripts
-  TestFunc := TKMEvent2I(fExec.GetProcAsMethodN('ONUNITDIED'));
-  if @TestFunc <> nil then
-  begin
-    fIDCache.CacheUnit(aUnit, aUnit.UID); //Improves cache efficiency since aUnit will probably be accessed soon
-    TestFunc(aUnit.UID, aKillerOwner);
-  end;
-end;
-
-
-procedure TKMScripting.ProcUnitTrained(aUnit: TKMUnit);
-var
-  TestFunc: TKMEvent1I;
-begin
-  //Check if event handler (procedure) exists and run it
-  //Store unit by its KaM index to keep it consistent with DAT scripts
-  TestFunc := TKMEvent1I(fExec.GetProcAsMethodN('ONUNITTRAINED'));
-  if @TestFunc <> nil then
-  begin
-    fIDCache.CacheUnit(aUnit, aUnit.UID); //Improves cache efficiency since aUnit will probably be accessed soon
-    TestFunc(aUnit.UID);
-  end;
-end;
-
-
-procedure TKMScripting.ProcUnitWounded(aUnit, aAttacker: TKMUnit);
-var
-  TestFunc: TKMEvent2I;
-begin
-  //Check if event handler (procedure) exists and run it
-  //Store unit by its KaM index to keep it consistent with DAT scripts
-  TestFunc := TKMEvent2I(fExec.GetProcAsMethodN('ONUNITWOUNDED'));
-  if @TestFunc <> nil then
-  begin
-    fIDCache.CacheUnit(aUnit, aUnit.UID); //Improves cache efficiency since aUnit will probably be accessed soon
-    if aAttacker <> nil then
-    begin
-      fIDCache.CacheUnit(aAttacker, aAttacker.UID); //Improves cache efficiency since aAttacker will probably be accessed soon
-      TestFunc(aUnit.UID, aAttacker.UID);
-    end
-    else
-      TestFunc(aUnit.UID, PLAYER_NONE);
-  end;
-end;
-
-
-procedure TKMScripting.ProcWarriorEquipped(aUnit: TKMUnit; aGroup: TKMUnitGroup);
-var
-  TestFunc: TKMEvent2I;
-begin
-  //Check if event handler (procedure) exists and run it
-  //Store unit by its KaM index to keep it consistent with DAT scripts
-  TestFunc := TKMEvent2I(fExec.GetProcAsMethodN('ONWARRIOREQUIPPED'));
-  if @TestFunc <> nil then
-  begin
-    fIDCache.CacheUnit(aUnit, aUnit.UID); //Improves cache efficiency since aUnit will probably be accessed soon
-    fIDCache.CacheGroup(aGroup, aGroup.UID);
-    TestFunc(aUnit.UID, aGroup.UID);
-  end;
-end;
-
-
-procedure TKMScripting.ProcPlayerDefeated(aPlayer: THandIndex);
-var
-  TestFunc: TKMEvent1I;
-begin
-  //Check if event handler (procedure) exists and run it
-  TestFunc := TKMEvent1I(fExec.GetProcAsMethodN('ONPLAYERDEFEATED'));
-  if @TestFunc <> nil then
-    TestFunc(aPlayer);
-end;
-
-
-procedure TKMScripting.ProcPlayerVictory(aPlayer: THandIndex);
-var
-  TestFunc: TKMEvent1I;
-begin
-  //Check if event handler (procedure) exists and run it
-  TestFunc := TKMEvent1I(fExec.GetProcAsMethodN('ONPLAYERVICTORY'));
-  if @TestFunc <> nil then
-    TestFunc(aPlayer);
-end;
-
-
 procedure TKMScripting.ExportDataToText;
 var
   s: string;
@@ -941,7 +748,7 @@ end;
 
 procedure TKMScripting.UpdateState;
 begin
-  ProcTick;
+  gScriptEvents.ProcTick;
   fIDCache.UpdateState;
 end;
 

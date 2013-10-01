@@ -207,14 +207,15 @@ type
 
 implementation
 uses
-  KM_CommonTypes, KM_RenderPool, KM_RenderAux, KM_Units, KM_Units_Warrior, KM_Scripting,
+  KM_CommonTypes, KM_RenderPool, KM_RenderAux, KM_Units, KM_Units_Warrior, KM_ScriptingESA,
   KM_HandsCollection, KM_ResSound, KM_Sound, KM_Game, KM_ResTexts,
   KM_Resource, KM_Utils, KM_FogOfWar, KM_AI;
 
 
 { TKMHouse }
 constructor TKMHouse.Create(aUID: Integer; aHouseType: THouseType; PosX, PosY: Integer; aOwner: THandIndex; aBuildState: THouseBuildState);
-var I: Byte;
+var
+  I: Byte;
 begin
   Assert((PosX <> 0) and (PosY <> 0)); // Can create only on map
 
@@ -237,21 +238,21 @@ begin
   DoorwayUse        := 0;
   fWareDelivery     := True;
 
-  for i:=1 to 4 do
+  for I := 1 to 4 do
   begin
-    fResourceIn[i]  := 0;
-    fResourceDeliveryCount[i] := 0;
-    fResourceOut[i] := 0;
-    fResourceOrder[i]:=0;
+    fResourceIn[I] := 0;
+    fResourceDeliveryCount[I] := 0;
+    fResourceOut[I] := 0;
+    fResourceOrder[I] :=0;
   end;
 
-  fIsDestroyed      := false;
+  fIsDestroyed := False;
   RemoveRoadWhenDemolish := gTerrain.Land[GetEntrance.Y, GetEntrance.X].TileOverlay <> to_Road;
-  fPointerCount     := 0;
-  fTimeSinceUnoccupiedReminder   := TIME_BETWEEN_MESSAGES;
+  fPointerCount := 0;
+  fTimeSinceUnoccupiedReminder := TIME_BETWEEN_MESSAGES;
 
   fUID := aUID;
-  ResourceDepletedMsgIssued := false;
+  ResourceDepletedMsgIssued := False;
 
   if aBuildState = hbs_Done then //House was placed on map already Built e.g. in mission maker
   begin
@@ -632,7 +633,7 @@ begin
     fBuildState := hbs_Done;
     gHands[fOwner].Stats.HouseEnded(fHouseType);
     Activate(True);
-    fScripting.ProcHouseBuilt(Self);
+    gScriptEvents.ProcHouseBuilt(Self);
     //House was damaged while under construction, so set the repair mode now it is complete
     if (fDamage > 0) and BuildingRepair then
       gHands[fOwner].BuildList.RepairList.AddHouse(Self);

@@ -9,7 +9,7 @@ uses
   KM_CommonTypes, KM_Defaults, KM_Points,
   KM_GameInputProcess, KM_GameOptions,
   KM_InterfaceDefaults, KM_InterfaceGame, KM_InterfaceMapEditor, KM_InterfaceGamePlay,
-  KM_MapEditor, KM_Networking,
+  KM_MapEditor, KM_Networking, KM_Scripting,
   KM_PathFinding, KM_PathFindingAStarOld, KM_PathFindingAStarNew, KM_PathFindingJPS,
   KM_PerfLog, KM_Projectiles, KM_Render, KM_ResTexts;
 
@@ -36,6 +36,7 @@ type
     fGamePlayInterface: TKMGamePlayInterface;
     fMapEditorInterface: TKMapEdInterface;
     fMapEditor: TKMMapEditor;
+    fScripting: TKMScripting;
 
     fIsExiting: Boolean; //Set this to true on Exit and unit/house pointers will be released without cross-checking
     fIsPaused: Boolean;
@@ -167,8 +168,8 @@ uses
   KM_CommonClasses, KM_Log, KM_Utils,
   KM_ArmyEvaluation, KM_GameApp, KM_GameInfo, KM_MissionScript, KM_MissionScript_Standard,
   KM_Hand, KM_HandSpectator, KM_HandsCollection, KM_RenderPool, KM_Resource, KM_ResCursors,
-  KM_ResSound, KM_Terrain, KM_AIFields, KM_Maps, KM_Sound,
-  KM_Scripting, KM_GameInputProcess_Single, KM_GameInputProcess_Multi, KM_Main;
+  KM_ResSound, KM_Terrain, KM_AIFields, KM_Maps, KM_Sound, KM_ScriptingESA,
+  KM_GameInputProcess_Single, KM_GameInputProcess_Multi, KM_Main;
 
 
 //Create template for the Game
@@ -413,7 +414,7 @@ begin
     SaveGame(SaveName('basesave', 'bas', IsMultiplayer));
 
   //MissionStart goes after basesave to keep it pure (repeats on Load of basesave)
-  fScripting.ProcMissionStart;
+  gScriptEvents.ProcMissionStart;
 
   //When everything is ready we can update UI
   fActiveInterface.SyncUI;
@@ -1252,7 +1253,7 @@ begin
 
   //Repeat mission init if necessary
   if fGameTickCount = 0 then
-    fScripting.ProcMissionStart;
+    gScriptEvents.ProcMissionStart;
 
   //When everything is ready we can update UI
   fActiveInterface.SyncUI;

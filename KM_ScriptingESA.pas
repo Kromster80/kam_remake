@@ -2,8 +2,8 @@ unit KM_ScriptingESA;
 {$I KaM_Remake.inc}
 interface
 uses
-  Classes, Math, SysUtils, StrUtils,
-  KM_CommonTypes, KM_Defaults, KM_Points, KM_Houses, KM_ScriptingIdCache, KM_Units, KM_UnitGroups;
+  Classes, Math, SysUtils, StrUtils, uPSRuntime,
+  KM_CommonTypes, KM_Defaults, KM_Points, KM_Houses, KM_ScriptingIdCache, KM_Units, KM_UnitGroups, KM_ResHouses;
 
 
   //Two classes exposed to scripting States and Actions
@@ -18,6 +18,28 @@ uses
   //2. Add method declaration to Compiler (TKMScripting.ScriptOnUses)
   //3. Add method name to Runtime (TKMScripting.LinkRuntime)
 type
+  TKMScriptEvents = class
+  private
+    fExec: TPSExec;
+    fIDCache: TKMScriptingIdCache;
+  public
+    constructor Create(aExec: TPSExec; aIDCache: TKMScriptingIdCache);
+
+    procedure ProcHouseBuilt(aHouse: TKMHouse);
+    procedure ProcHousePlanPlaced(aPlayer: THandIndex; aX, aY: Word; aType: THouseType);
+    procedure ProcHouseDamaged(aHouse: TKMHouse; aAttacker: TKMUnit);
+    procedure ProcHouseDestroyed(aHouse: TKMHouse; aDestroyerIndex: THandIndex);
+    procedure ProcMissionStart;
+    procedure ProcPlayerDefeated(aPlayer: THandIndex);
+    procedure ProcPlayerVictory(aPlayer: THandIndex);
+    procedure ProcTick;
+    procedure ProcUnitDied(aUnit: TKMUnit; aKillerOwner: THandIndex);
+    procedure ProcUnitTrained(aUnit: TKMUnit);
+    procedure ProcUnitWounded(aUnit, aAttacker: TKMUnit);
+    procedure ProcWarriorEquipped(aUnit: TKMUnit; aGroup: TKMUnitGroup);
+  end;
+
+
   TKMScriptStates = class
   private
     fIDCache: TKMScriptingIdCache;
@@ -179,10 +201,21 @@ type
   end;
 
 
+var
+  gScriptEvents: TKMScriptEvents;
+
+
 implementation
 uses KM_AI, KM_Terrain, KM_Game, KM_FogOfWar, KM_HandsCollection, KM_Units_Warrior,
-  KM_HouseBarracks, KM_HouseSchool, KM_ResUnits, KM_ResWares, KM_ResHouses,
+  KM_HouseBarracks, KM_HouseSchool, KM_ResUnits, KM_ResWares,
   KM_Log, KM_Utils, KM_Resource, KM_UnitTaskSelfTrain, KM_Sound;
+
+
+type
+  TKMEvent = procedure of object;
+  TKMEvent1I = procedure (aIndex: Integer) of object;
+  TKMEvent2I = procedure (aIndex, aParam: Integer) of object;
+  TKMEvent4I = procedure (aIndex, aParam1, aParam2, aParam3: Integer) of object;
 
 
   //We need to check all input parameters as could be wildly off range due to
@@ -190,10 +223,194 @@ uses KM_AI, KM_Terrain, KM_Game, KM_FogOfWar, KM_HandsCollection, KM_Units_Warri
   // - skip silently and log
   // - report to player
 
+
+{ TKMScriptEvents }
+constructor TKMScriptEvents.Create(aExec: TPSExec; aIDCache: TKMScriptingIdCache);
+begin
+  inherited Create;
+
+  fExec := aExec;
+  fIDCache := aIDCache;
+end;
+
+
+procedure TKMScriptEvents.ProcMissionStart;
+var
+  TestFunc: TKMEvent;
+begin
+  //Check if event handler (procedure) exists and run it
+  TestFunc := TKMEvent(fExec.GetProcAsMethodN('ONMISSIONSTART'));
+  if @TestFunc <> nil then
+    TestFunc;
+end;
+
+
+procedure TKMScriptEvents.ProcTick;
+var
+  TestFunc: TKMEvent;
+begin
+  //Check if event handler (procedure) exists and run it
+  TestFunc := TKMEvent(fExec.GetProcAsMethodN('ONTICK'));
+  if @TestFunc <> nil then
+    TestFunc;
+end;
+
+
+procedure TKMScriptEvents.ProcHouseBuilt(aHouse: TKMHouse);
+var
+  TestFunc: TKMEvent1I;
+begin
+  //Check if event handler (procedure) exists and run it
+  //Store house by its KaM index to keep it consistent with DAT scripts
+  TestFunc := TKMEvent1I(fExec.GetProcAsMethodN('ONHOUSEBUILT'));
+  if @TestFunc <> nil then
+  begin
+    fIDCache.CacheHouse(aHouse, aHouse.UID); //Improves cache efficiency since aHouse will probably be accessed soon
+    TestFunc(aHouse.UID);
+  end;
+end;
+
+
+procedure TKMScriptEvents.ProcHouseDamaged(aHouse: TKMHouse; aAttacker: TKMUnit);
+var
+  TestFunc: TKMEvent2I;
+begin
+  //Check if event handler (procedure) exists and run it
+  //Store house by its KaM index to keep it consistent with DAT scripts
+  TestFunc := TKMEvent2I(fExec.GetProcAsMethodN('ONHOUSEDAMAGED'));
+  if @TestFunc <> nil then
+  begin
+    fIDCache.CacheHouse(aHouse, aHouse.UID); //Improves cache efficiency since aHouse will probably be accessed soon
+    if aAttacker <> nil then
+    begin
+      fIDCache.CacheUnit(aAttacker, aAttacker.UID); //Improves cache efficiency since aAttacker will probably be accessed soon
+      TestFunc(aHouse.UID, aAttacker.UID);
+    end
+    else
+      //House was damaged, but we don't know by whom (e.g. by script command)
+      TestFunc(aHouse.UID, PLAYER_NONE);
+  end;
+end;
+
+
+procedure TKMScriptEvents.ProcHouseDestroyed(aHouse: TKMHouse; aDestroyerIndex: THandIndex);
+var
+  TestFunc: TKMEvent2I;
+begin
+  //Check if event handler (procedure) exists and run it
+  //Store house by its KaM index to keep it consistent with DAT scripts
+  TestFunc := TKMEvent2I(fExec.GetProcAsMethodN('ONHOUSEDESTROYED'));
+  if @TestFunc <> nil then
+  begin
+    fIDCache.CacheHouse(aHouse, aHouse.UID); //Improves cache efficiency since aHouse will probably be accessed soon
+    TestFunc(aHouse.UID, aDestroyerIndex);
+  end;
+end;
+
+
+procedure TKMScriptEvents.ProcHousePlanPlaced(aPlayer: THandIndex; aX, aY: Word; aType: THouseType);
+var
+  TestFunc: TKMEvent4I;
+begin
+  TestFunc := TKMEvent4I(fExec.GetProcAsMethodN('ONHOUSEPLANPLACED'));
+  if @TestFunc <> nil then
+    TestFunc(aPlayer, aX, aY, HouseTypeToIndex[aType]);
+end;
+
+
+procedure TKMScriptEvents.ProcUnitDied(aUnit: TKMUnit; aKillerOwner: THandIndex);
+var
+  TestFunc: TKMEvent2I;
+begin
+  //Check if event handler (procedure) exists and run it
+  //Store unit by its KaM index to keep it consistent with DAT scripts
+  TestFunc := TKMEvent2I(fExec.GetProcAsMethodN('ONUNITDIED'));
+  if @TestFunc <> nil then
+  begin
+    fIDCache.CacheUnit(aUnit, aUnit.UID); //Improves cache efficiency since aUnit will probably be accessed soon
+    TestFunc(aUnit.UID, aKillerOwner);
+  end;
+end;
+
+
+procedure TKMScriptEvents.ProcUnitTrained(aUnit: TKMUnit);
+var
+  TestFunc: TKMEvent1I;
+begin
+  //Check if event handler (procedure) exists and run it
+  //Store unit by its KaM index to keep it consistent with DAT scripts
+  TestFunc := TKMEvent1I(fExec.GetProcAsMethodN('ONUNITTRAINED'));
+  if @TestFunc <> nil then
+  begin
+    fIDCache.CacheUnit(aUnit, aUnit.UID); //Improves cache efficiency since aUnit will probably be accessed soon
+    TestFunc(aUnit.UID);
+  end;
+end;
+
+
+procedure TKMScriptEvents.ProcUnitWounded(aUnit, aAttacker: TKMUnit);
+var
+  TestFunc: TKMEvent2I;
+begin
+  //Check if event handler (procedure) exists and run it
+  //Store unit by its KaM index to keep it consistent with DAT scripts
+  TestFunc := TKMEvent2I(fExec.GetProcAsMethodN('ONUNITWOUNDED'));
+  if @TestFunc <> nil then
+  begin
+    fIDCache.CacheUnit(aUnit, aUnit.UID); //Improves cache efficiency since aUnit will probably be accessed soon
+    if aAttacker <> nil then
+    begin
+      fIDCache.CacheUnit(aAttacker, aAttacker.UID); //Improves cache efficiency since aAttacker will probably be accessed soon
+      TestFunc(aUnit.UID, aAttacker.UID);
+    end
+    else
+      TestFunc(aUnit.UID, PLAYER_NONE);
+  end;
+end;
+
+
+procedure TKMScriptEvents.ProcWarriorEquipped(aUnit: TKMUnit; aGroup: TKMUnitGroup);
+var
+  TestFunc: TKMEvent2I;
+begin
+  //Check if event handler (procedure) exists and run it
+  //Store unit by its KaM index to keep it consistent with DAT scripts
+  TestFunc := TKMEvent2I(fExec.GetProcAsMethodN('ONWARRIOREQUIPPED'));
+  if @TestFunc <> nil then
+  begin
+    fIDCache.CacheUnit(aUnit, aUnit.UID); //Improves cache efficiency since aUnit will probably be accessed soon
+    fIDCache.CacheGroup(aGroup, aGroup.UID);
+    TestFunc(aUnit.UID, aGroup.UID);
+  end;
+end;
+
+
+procedure TKMScriptEvents.ProcPlayerDefeated(aPlayer: THandIndex);
+var
+  TestFunc: TKMEvent1I;
+begin
+  //Check if event handler (procedure) exists and run it
+  TestFunc := TKMEvent1I(fExec.GetProcAsMethodN('ONPLAYERDEFEATED'));
+  if @TestFunc <> nil then
+    TestFunc(aPlayer);
+end;
+
+
+procedure TKMScriptEvents.ProcPlayerVictory(aPlayer: THandIndex);
+var
+  TestFunc: TKMEvent1I;
+begin
+  //Check if event handler (procedure) exists and run it
+  TestFunc := TKMEvent1I(fExec.GetProcAsMethodN('ONPLAYERVICTORY'));
+  if @TestFunc <> nil then
+    TestFunc(aPlayer);
+end;
+
+
 { TKMScriptStates }
 constructor TKMScriptStates.Create(aIDCache: TKMScriptingIdCache);
 begin
-  Inherited Create;
+  inherited Create;
   fIDCache := aIDCache;
 end;
 
