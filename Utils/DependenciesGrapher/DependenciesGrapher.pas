@@ -1,484 +1,377 @@
 unit DependenciesGrapher;
-
 interface
-
-uses Winapi.Windows, System.SysUtils, System.Classes, System.StrUtils;
+uses Winapi.Windows, System.SysUtils, System.Classes, System.StrUtils,
+  XMLDoc, XMLIntf,
+  Generics.Collections, Generics.Defaults;
 
 type
+  TUnit = record
+    UnitName: string;
+    UnitPath: string;
+  end;
+
+  TUseSection = (usInterface, usImplementation);
+
+  TUse = record
+    Master, Slave: Integer;
+    Section: TUseSection;
+  end;
+
   TDependenciesGrapher = class
   private
-    unitForAnalyse : TStringList;
-    unitAnalysed : TStringList;
-    nonSystemUnit : TStringList;
-    nonSystemUnitFile : TStringList;
-    graph : array of array of integer;
-    fileOfTextStrList : TStringList;
+    fRootPath: string;
+    fSearchPaths: TStringList;
+    fUnits: TList<TUnit>;
+    fUses: TList<TUse>;
+
     fileOfText : string;
     fileOfTextPos : integer;
-    analyseProgress : integer;
-    unitNumberToLoad : integer;
-    unitNumberLoaded : integer;
-    ShouldCancel: Boolean;
-    procedure ScanDpr( filename : string );
-    function ReadWord() : string;
-    procedure ScanForAllUnits( path : string; quickscan : boolean );
-    procedure ScanForUnitsInDir( path : string; quickscan : boolean );
-    procedure ScanUnitName( filename : string );
-    procedure Analyse();
-    procedure ScanForDep( path : string; id : integer );
-    function GetUnitId( name : string ) : integer;
-    function IsUnitInAnalyseList( name : string ) : boolean;
-    function IsUnitAnalysed( name : string ) : boolean;
-    procedure SkipToUses();
-    procedure ReadDepAndFillGraph( id : integer; dep_type : integer );
-    procedure RefactorFileText();
-    procedure LoadFile( filename : string );
-    function CheckEOF() : boolean;
-    procedure CutSymbol( s : string; var str : string );
+
+    function ExpandPath(aName, aPath: string): string;
+    procedure ExpandPaths;
+    procedure BuildEdges;
+    procedure ExtractDependencies(aIndex: Integer; aSection: TUseSection);
+
+    procedure ScanDpr(filename: string);
+    function ReadWord: string;
+    procedure SkipToUses;
+    procedure RefactorFileText(var aText: string);
+    procedure LoadFile(filename: string);
+    function CheckEOF: Boolean;
   public
-    constructor Create();
-    destructor Free();
-    procedure Cancel();
-    procedure BuildGraph( pathToDpr : string );
-    procedure PrintOutput( path : string );
-    function GetAnalyseProgress() : integer;
+    constructor Create;
+    destructor Destroy; override;
+    procedure BuildGraph(pathToDpr: string);
+    procedure ExportAsCsv(path: string);
   end;
+
 
 implementation
 
-constructor TDependenciesGrapher.Create();
+
+function MakeUnit(aName, aPath: string): TUnit;
+begin
+  Result.UnitName := aName;
+  Result.UnitPath := aPath;
+end;
+
+
+function MakeUse(aId1, aId2: Integer; aSect: TUseSection): TUse;
+begin
+  Result.Master := aId1;
+  Result.Slave := aId2;
+  Result.Section := aSect;
+end;
+
+
+constructor TDependenciesGrapher.Create;
 begin
   inherited Create;
-  unitForAnalyse := TStringList.Create();
-  unitAnalysed := TStringList.Create();
-  nonSystemUnit := TStringList.Create();
-  nonSystemUnitFile := TStringList.Create();
-  fileOfTextStrList := TStringList.Create();
+
+  fSearchPaths := TStringList.Create;
+  fUnits := TList<TUnit>.Create;
+  fUses := TList<TUse>.Create;
 end;
 
-destructor TDependenciesGrapher.Free();
+
+destructor TDependenciesGrapher.Destroy;
 begin
-  unitForAnalyse.Free();
-  unitAnalysed.Free();
-  nonSystemUnit.Free();
-  nonSystemUnitFile.Free();
-  fileOfTextStrList.Free();
-  //inherited Free;
+  fSearchPaths.Free;
+  fUnits.Free;
+  fUses.Free;
+
+  inherited;
 end;
 
-procedure TDependenciesGrapher.Cancel();
-begin
-  ShouldCancel := true;
-end;
 
-function TDependenciesGrapher.GetAnalyseProgress() : integer;
-begin
-  Result := analyseProgress;
-end;
-
-procedure TDependenciesGrapher.BuildGraph( pathToDpr : string );
-var path : string;
-    i : integer;
-begin
-  path := ExtractFilePath( pathToDpr );
-  ScanForAllUnits( path, true );
-  unitNumberToLoad := unitNumberToLoad * 2; // Units in project are loaded twice
-  ScanForAllUnits( path, false );
-  if ShouldCancel then
-    exit;
-  ScanDpr( pathToDpr );
-  Analyse();
-  analyseProgress := 100;
-end;
-
-procedure TDependenciesGrapher.ScanDpr( filename : string );
+procedure TDependenciesGrapher.BuildGraph(pathToDpr: string);
 var
-    str, path : string;
-    lastUnitId, del_pos : integer;
-    i: integer;
+  xml: IXMLDocument;
+  N: IXMLNode;
 begin
-  path := ExtractFilePath( filename );
-  LoadFile( filename );
-  SkipToUses();
+  fRootPath := ExtractFilePath(pathToDpr);
 
+  //Acquire search paths
+  {xml := TXMLDocument.Create(nil);
+  xml.Active := True;
+  xml.LoadFromFile(pathToDpr);
+
+  N := xml.ChildNodes['Root'];
+  N := N.ChildNodes['Info'];}
+  fSearchPaths.Append('');
+
+  //Get list of files from DPR
+  ScanDpr(ChangeFileExt(pathToDpr, '.dpr'));
+
+  ExpandPaths;
+  BuildEdges;
+end;
+
+
+procedure TDependenciesGrapher.ScanDpr(filename: string);
+var
+  str: string;
+  strUnit, strPath: string;
+begin
+  LoadFile(filename);
+  SkipToUses;
+
+  repeat
+    //Unit name
+    str := ReadWord;
+    strUnit := str;
+
+    // ',' ';' or in
+    str := ReadWord;
+    Assert(SameText(str, 'in') or (str = ',') or (str = ';'));
+
+    //Unit path follows
+    if SameText(str, 'in') then
+    begin
+      str := ReadWord;
+      Assert((str[1] = #39));
+      strPath := StringReplace(str, '''', '', [rfReplaceAll]);
+      str := ReadWord; //, or ;
+    end;
+
+    fUnits.Add(MakeUnit(strUnit, strPath));
+    strUnit := '';
+    strPath := '';
+
+  until SameText(str, ';');
+end;
+
+
+//Guess files location
+function TDependenciesGrapher.ExpandPath(aName, aPath: string): string;
+begin
+  //todo: include Search paths
+  if ((aPath = '') and FileExists(fRootPath + aName + '.pas')) then
+    Result := fRootPath + aName + '.pas'
+  else
+  if ((aPath <> '') and FileExists(fRootPath + aPath)) then
+    Result := fRootPath + aPath
+  else
+    Result := '';
+end;
+
+
+procedure TDependenciesGrapher.ExpandPaths;
+var
+  I: Integer;
+begin
+  for I := 0 to fUnits.Count - 1 do
+    fUnits[I] := MakeUnit(fUnits[I].UnitName, ExpandPath(fUnits[I].UnitName, fUnits[I].UnitPath));
+end;
+
+
+procedure TDependenciesGrapher.BuildEdges;
+var
+  I: Integer;
+begin
+  I := -1;
+  while I < fUnits.Count - 1 do
+  begin
+    Inc(I);
+
+    if fUnits[I].UnitPath = '' then Continue;
+
+    LoadFile(fUnits[I].UnitPath);
+
+    SkipToUses;
+
+    if CheckEOF then
+      Continue;
+
+    ExtractDependencies(I, usInterface);
+
+    SkipToUses;
+
+    if CheckEOF then
+      Continue;
+
+    ExtractDependencies(I, usImplementation);
+  end;
+end;
+
+
+procedure TDependenciesGrapher.ExtractDependencies(aIndex: Integer; aSection: TUseSection);
+var
+  str: string;
+  I, K: Integer;
+begin
   repeat
     str := ReadWord;
 
-    if( not ( SameText( str , 'in' ) ) ) then
+    K := -1;
+    for I := 0 to fUnits.Count - 1 do
+    if SameText(fUnits[I].UnitName, str) then
     begin
-      if ( str[1] <> #39 ) and ( str[length(str)] <> ',' ) then
-      begin
-        unitForAnalyse.Add( str );
-      end;
-      if ( str[1] = #39 ) then
-      begin
-        CutSymbol( #39, str );
-        CutSymbol( #39, str );
-        CutSymbol( ',', str );
-        CutSymbol( ';', str );
-        for I := 0 to nonSystemUnit.Count - 1   do
-        begin
-          if nonSystemUnit[i] = unitForAnalyse[ unitForAnalyse.Count - 1] then
-            nonSystemUnitFile[i] := path + str;
-        end;
-      end;
+      K := I;
+      Break;
     end;
-  until SameText(str, 'begin');
-  unitForAnalyse.Delete( unitForAnalyse.Count - 1 );
+
+    //Append new file to the list
+    if K = -1 then
+    begin
+      fUnits.Add(MakeUnit(str, ExpandPath(str, '')));
+      K := fUnits.Count - 1;
+    end;
+
+    fUses.Add(MakeUse(aIndex, K, aSection));
+
+    str := ReadWord;
+    Assert((str = ',') or (str = ';'));
+  until (str = ';');
 end;
 
-procedure TDependenciesGrapher.CutSymbol( s : string; var str : string );
-var delPos : integer;
+
+procedure TDependenciesGrapher.LoadFile(filename: string);
+var
+  S: TStringList;
 begin
-  delPos := PosEx( s, str );
-  if delPos > 0 then
-    Delete( str, delPos, 1 );
+  S := TStringList.Create;
+  try
+    S.LoadFromFile(filename);
+
+    fileOfTextPos := 1;
+    fileOfText := S.Text;
+
+    RefactorFileText(fileOfText);
+  finally
+    S.Free;
+  end;
 end;
 
-procedure TDependenciesGrapher.LoadFile( filename : string );
-begin
-  fileOfTextStrList.LoadFromFile( filename );
-  RefactorFileText();
-end;
-
-procedure TDependenciesGrapher.RefactorFileText();
+procedure TDependenciesGrapher.RefactorFileText(var aText: string);
 var
   i, j: Integer;
 begin
-  fileOfText := fileOfTextStrList.Text;
-  fileOfTextPos := 1;
+  // Inserting whitespaces around ',' and ';'
+  aText := StringReplace(aText, ',', ' , ', [rfReplaceAll]);
+  aText := StringReplace(aText, ';', ' ; ', [rfReplaceAll]);
 
-  if ShouldCancel then
-    exit;
-
-  // Inserting whitespaces after all ',' and ';'
-  i := 1;
-  while i < Length( fileOfText )  do
-  begin
-    if ( fileOfText[i] = ',' ) or ( fileOfText[i] = ';' ) then
-      insert( ' ', fileOfText, i + 1 );
-    inc(i);
-  end;
-
-  if ShouldCancel then
-    exit;
-
-  // Deleting {} comments
+  // Delete {} comments
   i := 0;
   repeat
-    i := PosEx( '{', fileOfText, i + 1 );
+    i := PosEx('{', aText, i + 1);
     if i > 0 then
     begin
-      j := PosEx( '}', fileOfText, i + 1 );
+      j := PosEx('}', aText, i + 1);
       if j > 0 then
-        delete( fileOfText, i, j - i + 1 );
+        delete(aText, i, j - i + 1);
     end;
   until i = 0;
 
-  if ShouldCancel then
-    exit;
-
-  // Deleting (* *) comments
-  i := 0;
+  // Delete (* *) comments
+  i:= 0;
   repeat
-    i := PosEx( '(*', fileOfText, i + 1 );
+    i:= PosEx('(*', aText, i + 1);
     if i > 0 then
     begin
-      j := PosEx( '*)', fileOfText, i + 1 );
+      j:= PosEx('*)', aText, i + 1);
       if j > 0 then
-        delete( fileOfText, i, j - i + 2 );
+        delete(aText, i, j - i + 2);
     end;
   until i = 0;
 
-  if ShouldCancel then
-    exit;
-
-  // Deleting // comments
-  i := 0;
+  // Delete // comments
   repeat
-    i := PosEx( '//', fileOfText );
+    i:= PosEx('//', aText);
     if i > 0 then
     begin
-      j := PosEx( #13#10, fileOfText, i );
+      j:= PosEx(#13#10, aText, i);
       if j > 0 then
-        delete( fileOfText, i, j - i + 2 )
+        delete(aText, i, j - i + 2)
       else
       begin
-        j := PosEx( #10, fileOfText, i );
+        j:= PosEx(#10, aText, i);
         if j > 0 then
-          delete( fileOfText, i, j - i + 1 );
+          delete(aText, i, j - i + 1);
       end;
     end;
   until i = 0;
 
-  if ShouldCancel then
-    exit;
-
   //Remove eol symbols (irregardless of EOL-style)
-  fileOfText := StringReplace(fileOfText, #10, '', [rfReplaceAll, rfIgnoreCase]);
-  fileOfText := StringReplace(fileOfText, #13, '', [rfReplaceAll, rfIgnoreCase]);
+  aText:= StringReplace(aText, #10, ' ', [rfReplaceAll, rfIgnoreCase]);
+  aText:= StringReplace(aText, #13, ' ', [rfReplaceAll, rfIgnoreCase]);
 
-  if ShouldCancel then
-    exit;
-
-  // Deleting extra whitespaces
-  i := 1;
-  while i < Length( fileOfText )  do
+  // Delete extra whitespaces
+  i:= 1;
+  while i < Length(aText)  do
   begin
-    if ( fileOfText[i] = ' ' ) then
+    if (aText[i] = ' ') then
     begin
-      j := i;
-      while fileOfText[j] = ' ' do
+      j:= i;
+      while aText[j] = ' ' do
         inc(j);
-      delete( fileOfText, i, j - i - 1 );
+      delete(aText, i, j - i - 1);
     end;
     inc(i);
   end;
 
-  if ShouldCancel then
-    exit;
-
   // File cannot start with a whitespace
-  if fileOfText[1] = ' ' then
-    delete( fileOfText, 1, 1 );
+  if aText[1] = ' ' then
+    delete(aText, 1, 1);
 end;
 
-procedure TDependenciesGrapher.SkipToUses();
-var str : string;
+procedure TDependenciesGrapher.SkipToUses;
+var str: string;
 begin
   repeat
-    str := ReadWord;
-  until SameText(str, 'uses') or CheckEOF();
+    str:= ReadWord;
+  until SameText(str, 'uses') or CheckEOF;
 end;
 
-function TDependenciesGrapher.ReadWord() : string;
+function TDependenciesGrapher.ReadWord: string;
 var
-    str : string;
+  str: string;
 begin
   str := '';
   if CheckEOF then
   begin
     ReadWord := '';
-    exit;
+    Exit;
   end;
 
-  while not ( FileOfText[fileOfTextPos] = ' ' ) do
+  while not (FileOfText[fileOfTextPos] = ' ') do
   begin
     str := str + FileOfText[fileOfTextPos];
-    inc(fileOfTextPos);
+    Inc(fileOfTextPos);
   end;
 
-  inc(fileOfTextPos);
+  Inc(fileOfTextPos);
 
   ReadWord := str;
 end;
 
-function TDependenciesGrapher.CheckEOF() : boolean;
+function TDependenciesGrapher.CheckEOF: Boolean;
 begin
-  Result := false;
-  if fileOfTextPos >= Length( FileOfText ) then
-    Result := true;
+  Result:= false;
+  if fileOfTextPos >= Length(FileOfText) then
+    Result:= True;
 end;
 
-procedure TDependenciesGrapher.ScanForAllUnits( path : string; quickscan : boolean );
+procedure TDependenciesGrapher.ExportAsCsv(path: string);
 var
-    searchRec : TSearchRec;
+  I: Integer;
+  K: TUse;
+  S: TStringList;
 begin
-  ScanForUnitsInDir( path, quickscan );
+  S := TStringList.Create;
 
-  searchRec.Name := '';
-  FindFirst( path + '*', faDirectory, searchRec );  // searchRec.Name = '.'
-  FindNext( searchRec );  // searchRec.Name = '..'
-  while FindNext( searchRec ) = 0 do
-  begin
-    ScanForUnitsInDir( path + searchRec.Name + '\', quickscan  );
-  end;
+  S.Append('id;name');
+  for I := 0 to fUnits.Count - 1 do
+    S.Append(IntToStr(I) + ';' + fUnits[I].UnitName);
+
+  S.Append('');
+  S.Append('id1;id2;type');
+  for K in fUses do
+    S.Append(IntToStr(K.Master) + ';' + IntToStr(K.Slave) + ';' + IntToStr(Byte(K.Section) + 1));
+
+  S.SaveToFile(path);
 end;
 
-procedure TDependenciesGrapher.ScanForUnitsInDir( path : string; quickscan : boolean );
-var fileData : TWIN32FindData;
-    seachInfo : WinAPI.Windows.THandle;
-begin
-  fileData.cFileName := '';
-  seachInfo := FindFirstFile( pchar(path + '*.pas'), fileData );
-  if seachInfo = INVALID_HANDLE_VALUE then
-    exit;
-  inc(unitNumberToLoad);
-  if not quickscan then
-    ScanUnitName( path + fileData.cFileName );
-
-  while FindNextFile( seachInfo, fileData )  do
-  begin
-    inc(unitNumberToLoad);
-    if not quickscan then
-      ScanUnitName( path + fileData.cFileName );
-  end;
-end;
-
-procedure TDependenciesGrapher.ScanUnitName( filename : string );
-var str : string;
-    i : integer;
-begin
-  if ShouldCancel then
-    exit;
-  LoadFile( filename );
-  if ShouldCancel then
-    exit;
-  inc(unitNumberLoaded);
-  analyseProgress := ( unitNumberLoaded * 100 ) div unitNumberToLoad;
-
-  str := ReadWord;
-  assert( SameText( str, 'unit' ) );
-  str := ReadWord;
-  i := length(str);
-  while str[i] <> ';' do
-    dec(i);
-  delete( str, i, length(str) - i + 1 );  // delete ';'
-  nonSystemUnit.Add( str );
-  nonSystemUnitFile.Add( filename );
-
-end;
-
-procedure TDependenciesGrapher.Analyse();
-var
-    nonSysUnId : integer;
-    i, j: Integer;
-begin
-
-  SetLength( graph, nonSystemUnit.Count, nonSystemUnit.Count );
-
-  repeat
-    unitAnalysed.Add( unitForAnalyse[unitForAnalyse.Count-1] );
-    unitForAnalyse.Delete( unitForAnalyse.Count-1 );
-
-    nonSysUnId := GetUnitId( unitAnalysed[unitAnalysed.Count-1] );
-
-    ScanForDep( nonSystemUnitFile[nonSysUnId], nonSysUnId );
-  until unitForAnalyse.Count = 0;
-end;
-
-procedure TDependenciesGrapher.ScanForDep( path : string; id : integer );
-var
-    str : string;
-    stop : boolean;
-begin
-  assert( id >= 0 );
-  LoadFile( path );
-
-  SkipToUses();
-
-  if CheckEOF() then
-    exit;
-
-  ReadDepAndFillGraph( id, 1 );  // interface type
-
-  SkipToUses();
-
-  if CheckEOF() then
-    exit;
-
-  ReadDepAndFillGraph( id, 2 );  // implementation type
-
-end;
-
-procedure TDependenciesGrapher.ReadDepAndFillGraph( id : integer; dep_type : integer );
-var stop : boolean;
-    str : string;
-    dep_id : integer;
-begin
-  stop := false;
-  repeat
-    str := ReadWord;
-
-    if (str[length(str)] = ';') or (str[length(str)] = ',') then
-    begin
-      if ( pos( ';', str ) > 0 ) then
-        stop := true;
-      delete( str, length(str), 1 );  // delete ';' or ','
-    end;
-
-    if ( length(str) > 0 ) then
-    begin
-      dep_id := GetUnitId( str );
-
-      if dep_id >= 0 then
-      begin
-        graph[id][dep_id] := dep_type;
-        if ( not IsUnitInAnalyseList( str ) ) and ( not IsUnitAnalysed( str ) ) then
-        begin
-            unitForAnalyse.Add( str );
-        end;
-      end;
-    end;
-  until stop;
-end;
-
-function TDependenciesGrapher.GetUnitId( name : string ) : integer;
-var res, i : integer;
-begin
-  res := -1;
-  for i := 0 to nonSystemUnit.Count - 1 do
-  begin
-    if SameText( nonSystemUnit[i], name ) then
-      res := i;
-  end;
-  GetUnitId := res;
-end;
-
-function TDependenciesGrapher.IsUnitInAnalyseList( name : string ) : boolean;
-var i : integer;
-    res : boolean;
-begin
-  res := false;
-  for i := 0 to unitForAnalyse.Count - 1 do
-  begin
-    if SameText( unitForAnalyse[i], name ) then
-      res := true;
-  end;
-  IsUnitInAnalyseList := res;
-end;
-
-function TDependenciesGrapher.IsUnitAnalysed( name : string ) : boolean;
-var i : integer;
-    res : boolean;
-begin
-  res := false;
-  for i := 0 to unitAnalysed.Count - 1 do
-  begin
-    if SameText( unitAnalysed[i], name ) then
-      res := true;
-  end;
-  IsUnitAnalysed := res;
-end;
-
-procedure TDependenciesGrapher.PrintOutput( path : string );
-var i, j : integer;
-    id : integer;
-    f : text;
-begin
-  if ShouldCancel then Exit;
-
-  assignFile( f, path );
-  rewrite( f );
-
-  writeln( f, 'id;name' );
-  for i := 0 to nonSystemUnit.Count - 1 do
-    writeln( f, i, ';' ,nonSystemUnit[i] );
-
-  writeln(f);
-  writeln( f, 'id1;id2;type' );
-  for i := 0 to unitAnalysed.Count - 1 do
-  begin
-    id := GetUnitId( unitAnalysed[i] );
-    for j := 0 to nonSystemUnit.Count - 1 do
-    begin
-      if graph[id][j] > 0 then
-        writeln( f, id, ';', j, ';', graph[id][j] );
-    end;
-  end;
-
-  close( f );
-end;
 
 
 end.

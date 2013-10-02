@@ -1,118 +1,59 @@
 unit Unit1;
 interface
 uses
-  SysUtils, Classes, Controls, Forms, Dialogs, StdCtrls, DependenciesGrapher,
-  Vcl.ComCtrls, Vcl.ExtCtrls;
+  Vcl.Forms, Vcl.StdCtrls, Vcl.Controls, Vcl.ExtCtrls, Vcl.Dialogs, Vcl.ComCtrls,
+  System.Classes, System.SysUtils,
+  DependenciesGrapher;
 
 
 type
   TForm1 = class(TForm)
-    ButChooseDpr: TButton;
-    OpenDialog: TOpenDialog;
-    ButBuildGraph: TButton;
+    btnSelectDpr: TButton;
+    odSelectProject: TOpenDialog;
+    btnExportCsv: TButton;
     ChConsSystem: TCheckBox;
-    ProgressBar: TProgressBar;
+    pbProgress: TProgressBar;
     Timer: TTimer;
-    procedure ButChooseDprClick(Sender: TObject);
-    procedure ButBuildGraphClick(Sender: TObject);
-    procedure TimerTimer(Sender: TObject);
-    procedure FormClose(Sender: TObject; var Action: TCloseAction);
+    procedure btnSelectDprClick(Sender: TObject);
+    procedure btnExportCsvClick(Sender: TObject);
   end;
 
-  TDepGraphThread = class(TThread)
-  private
-    fDprFile: string;
-    DepGraph : TDependenciesGrapher;
-  protected
-    constructor Create(aSuspended: Boolean; aDprFile: string);
-    procedure Execute; override;
-    function Progress: Integer;
-    procedure DoTerminate; override;
-  end;
 
 var
   Form1: TForm1;
-  DepGraphThread: TDepGraphThread;
+  DepGraph : TDependenciesGrapher;
 
 
 implementation
 {$R *.dfm}
 
 
-constructor TDepGraphThread.Create(aSuspended: Boolean; aDprFile: string);
+procedure TForm1.btnSelectDprClick(Sender: TObject);
 begin
-  inherited Create(aSuspended);
+  odSelectProject.FileName := ExpandFileName('..\..\KaM_Remake.dproj');
+  //if not odSelectProject.Execute then Exit;
 
-  fDprFile := aDprFile;
-end;
+  odSelectProject.InitialDir := ExpandFileName(ExtractFilePath(Application.ExeName) + '..\..\');
 
+  Assert(SameText(ExtractFileExt(odSelectProject.FileName), '.dproj'));
 
-procedure TDepGraphThread.DoTerminate;
-begin
-  inherited;
-
-  if DepGraph <> nil then
-    DepGraph.Cancel();
-end;
-
-
-procedure TDepGraphThread.Execute;
-begin
   DepGraph := TDependenciesGrapher.Create;
+  DepGraph.BuildGraph(odSelectProject.FileName);
 
-  DepGraph.BuildGraph(fDprFile);
-  DepGraph.PrintOutput(ExtractFilePath(fDprFile) + 'dependencies.csv');
-
-  FreeAndNil(DepGraph);
-end;
-
-
-function TDepGraphThread.Progress: Integer;
-begin
-  Result := 0;
-
-  if DepGraph <> nil then
-    Result := DepGraph.GetAnalyseProgress;
-end;
-
-
-procedure TForm1.TimerTimer(Sender: TObject);
-begin
-  ProgressBar.Position := DepGraphThread.Progress;
-end;
-
-
-procedure TForm1.ButChooseDprClick(Sender: TObject);
-begin
-  if not OpenDialog.Execute then
-    Exit;
-
-  OpenDialog.InitialDir := ExpandFileName(ExtractFilePath(Application.ExeName) + '..\..\');
-
-  Assert(SameText(ExtractFileExt(OpenDialog.FileName), '.dpr'));
-
-  ButChooseDpr.Visible := False;
-  ButBuildGraph.Visible := True;
+  btnSelectDpr.Enabled := False;
+  btnExportCsv.Enabled := True;
+  btnExportCsv.SetFocus;
   ChConsSystem.Visible := True;
-  ProgressBar.Visible := True;
 end;
 
 
-procedure TForm1.FormClose(Sender: TObject; var Action: TCloseAction);
-begin
-  if DepGraphThread <> nil then
-  begin
-    if DepGraphThread.DepGraph <> nil then
-      DepGraphThread.DepGraph.Cancel();
-    DepGraphThread.Terminate;
-    DepGraphThread.WaitFor;
-  end;
-end;
-
-procedure TForm1.ButBuildGraphClick(Sender: TObject);
+procedure TForm1.btnExportCsvClick(Sender: TObject);
 begin
   Timer.Enabled := True;
-  DepGraphThread := TDepGraphThread.Create(False, OpenDialog.FileName);
+
+  DepGraph.ExportAsCsv(ExtractFilePath(odSelectProject.FileName) + 'dependencies.csv');
+
+  FreeAndNil(DepGraph);
 end;
 
 

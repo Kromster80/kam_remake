@@ -1,4 +1,4 @@
-rmdir /S /Q __history logs backup
+rmdir /S /Q __history logs backup dcu
 
 erase /F /Q /S *.~* *.ddp *.drc *.dcp *.dcu
 erase /F /Q /S *.o *.or *.ppu *.compiled *.local
