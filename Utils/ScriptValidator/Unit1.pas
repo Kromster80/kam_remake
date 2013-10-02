@@ -17,6 +17,8 @@ type
     procedure FormCreate(Sender: TObject);
     procedure btnBrowseClick(Sender: TObject);
     procedure btnValidateClick(Sender: TObject);
+  private
+    fScripting: TKMScripting;
   end;
 
 

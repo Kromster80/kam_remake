@@ -52,7 +52,10 @@ begin
     for I := 0 to PathToMaps.Count - 1 do
     begin
       try
-        fGameApp.NewSingleMap(PathToMaps[I], '');
+        if Pos('\MapsMP\', PathToMaps[I]) <> 0 then
+          fGameApp.NewMultiplayerMap(PathToMaps[I])
+        else
+          fGameApp.NewSingleMap(PathToMaps[I], '');
 
         //Warnings and Errors are written into the Log
       except

@@ -3,12 +3,13 @@ unit TestKM_UnitActionGoInOut;
 interface
 uses
   TestFramework, KM_Units, KM_Points, KM_CommonClasses, Classes, KromUtils, SysUtils,
-  KM_Defaults, KM_UnitActionGoInOut, KM_Houses;
+  KM_Defaults, KM_UnitActionGoInOut, KM_Houses, KM_Scripting;
 
 type
   // Test methods for class TUnitActionGoInOut
   TestTUnitActionGoInOut = class(TTestCase)
   strict private
+    fScripting: TKMScripting;
     fUnit: TKMUnit;
     fHouse: TKMHouse;
     FUnitActionGoInOut: TUnitActionGoInOut;
@@ -33,6 +34,7 @@ begin
   gLog := TKMLog.Create(ExtractFilePath(ParamStr(0)) + 'log.log');
   fResource := TResource.Create(nil, nil, nil);
   fResource.LoadMainResources;
+  fScripting := TKMScripting.Create;
   gTerrain := TKMTerrain.Create;
   gTerrain.MakeNewMap(32, 32, False);
   gHands := TKMHandsCollection.Create;
@@ -50,6 +52,7 @@ begin
   FUnitActionGoInOut.Free;
   gHands.Free;
   gTerrain.Free;
+  fScripting.Free;
   fResource.Free;
   gLog.Free;
   FUnitActionGoInOut := nil;
@@ -70,7 +73,7 @@ begin
     for K := 0 to I do
       FUnitActionGoInOut.Execute;
 
-    fUnit.HitPointsDecrease(255, PLAYER_NONE);
+    fUnit.HitPointsDecrease(255, nil);
     FUnitActionGoInOut.Execute;
     TearDown;
   end;

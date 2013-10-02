@@ -8,6 +8,8 @@ uses
 
 type
   TestKMScripting = class(TTestCase)
+  private
+    fScripting: TKMScripting;
   public
     procedure SetUp; override;
     procedure TearDown; override;

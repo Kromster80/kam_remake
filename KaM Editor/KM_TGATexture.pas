@@ -21,7 +21,7 @@ uses
   {$IFDEF Unix} LCLIntf, LCLType, {$ENDIF}
   {$IFDEF FPC} GL, {$ENDIF}
   SysUtils, Classes, dglOpenGL
-  {$IFDEF WDC}, ZLibEx {$ENDIF}
+  {$IFDEF WDC}, ZLib {$ENDIF}
   {$IFDEF FPC}, zstream {$ENDIF}
   ;
 

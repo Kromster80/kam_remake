@@ -13,6 +13,8 @@ object Form1: TForm1
   Font.Style = []
   OldCreateOrder = False
   OnCreate = FormCreate
+  ExplicitWidth = 320
+  ExplicitHeight = 240
   DesignSize = (
     593
     346)

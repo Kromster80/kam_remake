@@ -3,8 +3,8 @@ program RXXEditor;
 uses
   Forms,
   RXXEditorForm in 'RXXEditorForm.pas' {RXXForm1},
-  KM_ResSprites in '..\..\KM_ResSprites.pas',
-  KM_ResSpritesEdit in '..\..\KM_ResSpritesEdit.pas';
+  KM_ResSprites in '..\..\src\res\KM_ResSprites.pas',
+  KM_ResSpritesEdit in '..\..\src\res\KM_ResSpritesEdit.pas';
 
 {$IFDEF WDC}
 {$R *.res}

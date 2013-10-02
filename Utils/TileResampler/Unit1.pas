@@ -5,7 +5,7 @@ uses
   Forms, Controls, StdCtrls, Classes, SysUtils, Dialogs, KromUtils, PNGImage
   {$IFDEF MSWindows}, Windows {$ENDIF}
   {$IFDEF Unix}, LCLType {$ENDIF}
-  {$IFDEF WDC}, ZLibEx {$ENDIF}
+  {$IFDEF WDC}, ZLib {$ENDIF}
   {$IFDEF FPC} ,LResources, zstream, fileutil {$ENDIF}
   ;
 
@@ -135,7 +135,7 @@ begin
 
   OutputStream := TFileStream.Create(OpenDialog1.FileName+'.tmp', fmCreate);
   {$IFDEF WDC}
-  CompressionStream := TZCompressionStream.Create(OutputStream, zcMax);
+  CompressionStream := TZCompressionStream.Create(clMax, OutputStream);
   {$ENDIF}
   {$IFDEF FPC}
   CompressionStream := TCompressionStream.Create(clMax, OutputStream);
