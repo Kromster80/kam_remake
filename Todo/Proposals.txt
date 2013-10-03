@@ -46,7 +46,6 @@ We can discuss them in dialog-style and maybe move to GC issues later on
 		Clicking on allied soldiers shows a button that enables one to feed his ally's
 		Ability to set your default color next to your name on MP page (it will be selected in the lobby if available)
 		Allow saving from within replays. This would let you create a save of a game at a certain moment and continue playing from there, which could be good for practice (e.g. town building) or fun.
-		A way to order +100 weapons at weapon makers (shift + click?)
 		Invisible links between water bodies to connect water under bridges
 		Allow to start Remake with commandline parameters to autoconnect to MP server .\KamRemake.exe -ip 10.3.6.241 -port 2325 -room 0
 	L	Serfs that are f.e. taking corn to the mill should claim/lock a flour in the output before arriving, rather than only checking it when arriving (which usually means another serf takes it)

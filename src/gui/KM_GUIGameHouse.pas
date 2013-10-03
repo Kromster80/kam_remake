@@ -162,8 +162,8 @@ begin
         ResRow_Order[I].RX := rxGui;
         ResRow_Order[I].OrderRem.OnClickShift := House_OrderClick;
         ResRow_Order[I].OrderAdd.OnClickShift := House_OrderClick;
-        ResRow_Order[I].OrderRem.Hint          := gResTexts[TX_HOUSE_ORDER_DEC_HINT];
-        ResRow_Order[I].OrderAdd.Hint          := gResTexts[TX_HOUSE_ORDER_INC_HINT];
+        ResRow_Order[I].OrderRem.Hint         := gResTexts[TX_HOUSE_ORDER_DEC_HINT];
+        ResRow_Order[I].OrderAdd.Hint         := gResTexts[TX_HOUSE_ORDER_INC_HINT];
         ResRow_Order[I].OrderRem.OnMouseWheel := House_OrderWheel;
         ResRow_Order[I].OrderAdd.OnMouseWheel := House_OrderWheel;
         ResRow_Order[I].OnMouseWheel          := House_OrderWheel;
@@ -238,14 +238,16 @@ begin
 
   Inc(LineH, 10);
 
-  Label_Market_FromAmount := TKMLabel.Create(Panel_HouseMarket, 53, LineH, '', fnt_Grey, taCenter);
   Button_Market_Remove := TKMButton.Create(Panel_HouseMarket, TB_WIDTH div 2 - 20, LineH, 20, 20, '-', bsGame);
-  Button_Market_Remove.OnClickShift := House_MarketOrderClick;
   Button_Market_Remove.Hint := gResTexts[TX_HOUSES_MARKET_HINT_REM];
+  Button_Market_Remove.OnClickShift := House_MarketOrderClick;
+
   Button_Market_Add := TKMButton.Create(Panel_HouseMarket, TB_WIDTH div 2, LineH, 20, 20, '+', bsGame);
   Button_Market_Add.Hint := gResTexts[TX_HOUSES_MARKET_HINT_ADD];
   Button_Market_Add.OnClickShift := House_MarketOrderClick;
-  Label_Market_ToAmount := TKMLabel.Create(Panel_HouseMarket, 127, LineH, '', fnt_Grey, taCenter);
+
+  Label_Market_FromAmount := TKMLabel.Create(Panel_HouseMarket,  53, LineH, '', fnt_Grey, taCenter);
+  Label_Market_ToAmount   := TKMLabel.Create(Panel_HouseMarket, 127, LineH, '', fnt_Grey, taCenter);
 end;
 
 
@@ -353,15 +355,15 @@ begin
 
     Label_Barracks_Unit := TKMLabel.Create(Panel_HouseBarracks, 0, 96, TB_WIDTH, 0, '', fnt_Outline, taCenter);
 
-    Image_Barracks_Left :=TKMImage.Create(Panel_HouseBarracks,  0,116,54,80,535);
+    Image_Barracks_Left  := TKMImage.Create(Panel_HouseBarracks,  0,116,54,80,535);
     Image_Barracks_Left.Disable;
-    Image_Barracks_Train:=TKMImage.Create(Panel_HouseBarracks, 62,116,54,80,536);
-    Image_Barracks_Right:=TKMImage.Create(Panel_HouseBarracks,124,116,54,80,537);
+    Image_Barracks_Train := TKMImage.Create(Panel_HouseBarracks, 62,116,54,80,536);
+    Image_Barracks_Right := TKMImage.Create(Panel_HouseBarracks,124,116,54,80,537);
     Image_Barracks_Right.Disable;
 
-    Button_Barracks_Left :=TKMButton.Create(Panel_HouseBarracks,  0,222,54,40,35, rxGui, bsGame);
-    Button_Barracks_Train:=TKMButton.Create(Panel_HouseBarracks, 62,222,54,40,42, rxGui, bsGame);
-    Button_Barracks_Right:=TKMButton.Create(Panel_HouseBarracks,124,222,54,40,36, rxGui, bsGame);
+    Button_Barracks_Left  := TKMButton.Create(Panel_HouseBarracks,  0,222,54,40,35, rxGui, bsGame);
+    Button_Barracks_Train := TKMButton.Create(Panel_HouseBarracks, 62,222,54,40,42, rxGui, bsGame);
+    Button_Barracks_Right := TKMButton.Create(Panel_HouseBarracks,124,222,54,40,36, rxGui, bsGame);
     Button_Barracks_Left.OnClickShift := House_BarracksUnitChange;
     Button_Barracks_Train.OnClickShift := House_BarracksUnitChange;
     Button_Barracks_Right.OnClickShift := House_BarracksUnitChange;
@@ -820,8 +822,8 @@ begin
   if (ssRight in Shift) and (Sender = Button_School_Left) then fLastSchoolUnit := 0;
   if (ssRight in Shift) and (Sender = Button_School_Right) then fLastSchoolUnit := High(School_Order);
 
-  if (Sender=Button_School_Left)and(fLastSchoolUnit > 0) then dec(fLastSchoolUnit);
-  if (Sender=Button_School_Right)and(fLastSchoolUnit < High(School_Order)) then inc(fLastSchoolUnit);
+  if (Sender = Button_School_Left) and (fLastSchoolUnit > 0) then Dec(fLastSchoolUnit);
+  if (Sender = Button_School_Right) and (fLastSchoolUnit < High(School_Order)) then Inc(fLastSchoolUnit);
 
   if Sender = Button_School_Train then //Add unit to training queue
     gGame.GameInputProcess.CmdHouse(gic_HouseSchoolTrain, School, School_Order[fLastSchoolUnit], GetMultiplicator(Shift));
@@ -848,14 +850,14 @@ begin
   Button_School_Train.Enabled := not School.QueueIsFull;
   Button_School_Left.Enabled := fLastSchoolUnit > 0;
   Button_School_Right.Enabled := fLastSchoolUnit < High(School_Order);
-  Image_School_Left.Visible:= Button_School_Left.Enabled;
-  Image_School_Right.Visible:= Button_School_Right.Enabled;
+  Image_School_Left.Visible := Button_School_Left.Enabled;
+  Image_School_Right.Visible := Button_School_Right.Enabled;
 
   if fLastSchoolUnit > 0 then
-    Image_School_Left.TexID:= fResource.UnitDat[School_Order[fLastSchoolUnit-1]].GUIScroll;
+    Image_School_Left.TexID := fResource.UnitDat[School_Order[fLastSchoolUnit-1]].GUIScroll;
 
-  Label_School_Unit.Caption:=fResource.UnitDat[School_Order[fLastSchoolUnit]].GUIName;
-  Image_School_Train.TexID:=fResource.UnitDat[School_Order[fLastSchoolUnit]].GUIScroll;
+  Label_School_Unit.Caption := fResource.UnitDat[School_Order[fLastSchoolUnit]].GUIName;
+  Image_School_Train.TexID := fResource.UnitDat[School_Order[fLastSchoolUnit]].GUIScroll;
 
   if fLastSchoolUnit < High(School_Order) then
     Image_School_Right.TexID:=fResource.UnitDat[School_Order[fLastSchoolUnit+1]].GUIScroll;
@@ -873,10 +875,10 @@ begin
 
   //Right click clears entire queue after this item.
   //In that case we remove the same id repeatedly because they're automatically move along
-  if Shift = [ssLeft] then
+  if ssLeft in Shift then
     gGame.GameInputProcess.CmdHouse(gic_HouseRemoveTrain, School, id)
   else
-  if Shift = [ssRight] then
+  if ssRight in Shift then
     for I := School.QueueLength - 1 downto id do
       gGame.GameInputProcess.CmdHouse(gic_HouseRemoveTrain, School, I);
 

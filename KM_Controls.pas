@@ -1453,8 +1453,16 @@ begin
     if (Button = mbLeft) and Assigned(fOnDoubleClick) then
       fTimeOfLastClick := TimeGet;
 
-    if ((Button = mbLeft) or (Button = mbRight)) and Assigned(fOnClickEither) then
-      fOnClickEither(Self, Button) //TODO: Pick proper event combination here and below
+    if Assigned(fOnClickShift) then
+    begin
+      //Append mouse buttons to Shift since it does not includes them in MouseUp event
+      case Button of
+        mbLeft:   Shift := Shift + [ssLeft];
+        mbMiddle: Shift := Shift + [ssMiddle];
+        mbRight:  Shift := Shift + [ssRight];
+      end;
+      fOnClickShift(Self, Shift)
+    end
     else
     if (Button = mbLeft) and Assigned(fOnClick) then
       fOnClick(Self)

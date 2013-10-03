@@ -52,6 +52,7 @@ Improvements:
  +	L	Allow to specify localized player names for the missions
  +	L	Game will flash on task bar when new chat message arrives
  +	L	Set random seed on game start (for MP it needs to be decided by host and synced before the game starts)
+ +	L	A way to order +100 weapons at weapon makers and other places (shift + left-click)
 	Dismiss button to make units walk into the school and disappear (gold is not refunded)
 	L	Simple dedicated server form which lets you set the properties of the INI for the server and start it [gemGreg]
 	L	Placing houses in MP should put a temp/fake visual markup until the real one can be added to make it appear responsive
