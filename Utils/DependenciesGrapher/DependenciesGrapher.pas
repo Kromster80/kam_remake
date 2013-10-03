@@ -1,7 +1,7 @@
 unit DependenciesGrapher;
 interface
 uses Winapi.Windows, System.SysUtils, System.Classes, System.StrUtils,
-  XMLDoc, XMLIntf,
+  XMLDoc, XMLDom, XMLIntf,
   Generics.Collections, Generics.Defaults;
 
 type
@@ -41,8 +41,9 @@ type
   public
     constructor Create;
     destructor Destroy; override;
-    procedure BuildGraph(pathToDpr: string);
+    procedure LoadDproj(aPath: string);
     procedure ExportAsCsv(path: string);
+    procedure ExportAsGraphml(path: string); //yEd format
   end;
 
 
@@ -64,6 +65,7 @@ begin
 end;
 
 
+{ TDependenciesGrapher }
 constructor TDependenciesGrapher.Create;
 begin
   inherited Create;
@@ -84,12 +86,12 @@ begin
 end;
 
 
-procedure TDependenciesGrapher.BuildGraph(pathToDpr: string);
+procedure TDependenciesGrapher.LoadDproj(aPath: string);
 var
   xml: IXMLDocument;
   N: IXMLNode;
 begin
-  fRootPath := ExtractFilePath(pathToDpr);
+  fRootPath := ExtractFilePath(aPath);
 
   //Acquire search paths
   {xml := TXMLDocument.Create(nil);
@@ -101,7 +103,7 @@ begin
   fSearchPaths.Append('');
 
   //Get list of files from DPR
-  ScanDpr(ChangeFileExt(pathToDpr, '.dpr'));
+  ScanDpr(ChangeFileExt(aPath, '.dpr'));
 
   ExpandPaths;
   BuildEdges;
@@ -372,6 +374,67 @@ begin
   S.SaveToFile(path);
 end;
 
+
+procedure TDependenciesGrapher.ExportAsGraphml(path: string);
+const
+  COL: array [TUseSection] of Cardinal = ($000000, $808080);
+var
+  I: Integer;
+  xml: IXMLDocument;
+  graphml, key, graph, node, edge, line, data: IXMLNode;
+begin
+  //Internally GraphML is an XML document
+  xml := TXMLDocument.Create(nil);
+  xml.Active := True;
+  xml.Version := '1.0';
+  xml.Encoding := 'UTF-8';
+  xml.StandAlone := 'no';
+  xml.Options := [doNodeAutoIndent];
+
+  graphml := xml.AddChild('graphml');
+  graphml.Attributes['xmlns:y'] := 'http://www.yworks.com/xml/graphml';
+  graphml.Attributes['xmlns:yed'] := 'http://www.yworks.com/xml/yed/3';
+
+  key := graphml.AddChild('key');
+  key.Attributes['id'] := 'd0';
+  key.Attributes['for'] := 'node';
+  key.Attributes['yfiles.type'] := 'nodegraphics';
+
+  key := graphml.AddChild('key');
+  key.Attributes['id'] := 'd1';
+  key.Attributes['for'] := 'edge';
+  key.Attributes['yfiles.type'] := 'edgegraphics';
+
+  graph := graphml.AddChild('graph');
+  graph.Attributes['edgedefault'] := 'directed';
+
+  for I := 0 to fUnits.Count - 1 do
+  begin
+    node := graph.AddChild('node');
+    node.Attributes['id'] := 'n' + IntToStr(I);
+
+    data := node.AddChild('data');
+    data.Attributes['key'] := 'd0';
+    data.AddChild('y:ShapeNode').AddChild('y:NodeLabel').Text := fUnits[I].UnitName;
+  end;
+
+  for I := 0 to fUses.Count - 1 do
+  begin
+    edge := graph.AddChild('edge');
+    edge.Attributes['id'] := 'e' + IntToStr(I);
+    edge.Attributes['source'] := 'n' + IntToStr(fUses[I].Master);
+    edge.Attributes['target'] := 'n' + IntToStr(fUses[I].Slave);
+
+    data := edge.AddChild('data');
+    data.Attributes['key'] := 'd1';
+    line := data.AddChild('y:PolyLineEdge');
+    line.AddChild('y:LineStyle').Attributes['color'] := '#' + IntToHex(COL[fUses[I].Section], 6);
+    line.AddChild('y:Arrows').Attributes['target'] := 'standard';
+  end;
+
+  xml.SaveToFile(path);
+  xml.Active := False;
+end;
 
 
 end.

@@ -5,7 +5,7 @@ object Form1: TForm1
   BorderStyle = bsDialog
   Caption = 'Dependencies Grapher'
   ClientHeight = 153
-  ClientWidth = 233
+  ClientWidth = 389
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -49,6 +49,16 @@ object Form1: TForm1
     Width = 153
     Height = 17
     TabOrder = 3
+  end
+  object btnExportGraphml: TButton
+    Left = 200
+    Top = 112
+    Width = 153
+    Height = 33
+    Caption = 'Export as GraphML'
+    Enabled = False
+    TabOrder = 4
+    OnClick = btnExportGraphmlClick
   end
   object odSelectProject: TOpenDialog
     Filter = 'Delphi Project|*.dpr'
