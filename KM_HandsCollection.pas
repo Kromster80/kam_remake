@@ -105,14 +105,28 @@ end;
 
 procedure TKMHandsCollection.AddPlayers(aCount: Byte);
 var
-  I: Integer;
+  I, K: Integer;
 begin
-  Assert(fCount+aCount <= MAX_HANDS);
+  Assert(fCount + aCount <= MAX_HANDS);
 
   SetLength(fHandsList, fCount + aCount);
 
   for I := fCount to fCount + aCount - 1 do
     fHandsList[I] := TKMHand.Create(I);
+
+  //Default alliance settings for new players:
+  //Existing players treat any new players as enemies
+  for I := 0 to fCount - 1 do
+    for K := fCount to fCount + aCount - 1 do
+      fHandsList[I].Alliances[K] := at_Enemy;
+
+  //New players treat all players as enemies except self
+  for I := fCount to fCount + aCount - 1 do
+  begin
+    for K := 0 to MAX_HANDS - 1 do
+      fHandsList[I].Alliances[K] := at_Enemy;
+    fHandsList[I].Alliances[I] := at_Ally;
+  end;
 
   fCount := fCount + aCount;
 end;
@@ -145,26 +159,27 @@ end;
 //Remove player 'aIndex'
 //Accessed only by MapEditor when it needs to remove empty players before saving a map
 procedure TKMHandsCollection.RemovePlayer(aIndex: THandIndex);
-var i,k:integer;
+var
+  I, K: Integer;
 begin
   //Remove other players goals using this player
-  for i:=0 to fCount-1 do
-    fHandsList[i].AI.Goals.RemoveReference(aIndex);
+  for I := 0 to fCount - 1 do
+    fHandsList[I].AI.Goals.RemoveReference(aIndex);
 
   FreeThenNil(fHandsList[aIndex]);
 
-  for i:=aIndex to fCount-2 do
+  for I := aIndex to fCount - 2 do
   begin
-    fHandsList[i] := fHandsList[i+1];
-    fHandsList[i].SetPlayerID(i);
+    fHandsList[I] := fHandsList[I + 1];
+    fHandsList[I].SetHandIndex(I);
   end;
 
-  dec(fCount);
+  Dec(fCount);
   SetLength(fHandsList, fCount);
 
-  for i:=0 to fCount-1 do
-    for k:=aIndex to fCount-1 do
-      fHandsList[i].Alliances[k] := fHandsList[i].Alliances[k+1];
+  for I := 0 to fCount - 1 do
+    for K := aIndex to fCount - 1 do
+      fHandsList[I].Alliances[K] := fHandsList[I].Alliances[K + 1];
 
   gTerrain.RemovePlayer(aIndex);
 end;

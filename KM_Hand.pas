@@ -82,7 +82,7 @@ type
     property ArmyEval: TKMArmyEvaluation read fArmyEval;
     property UnitGroups: TKMUnitGroups read fUnitGroups;
 
-    procedure SetPlayerID(aNewIndex: THandIndex);
+    procedure SetHandIndex(aNewIndex: THandIndex);
     procedure SetOwnerNikname(aName: AnsiString); //MP owner nikname (empty in SP)
     function OwnerName: UnicodeString; //Universal owner name
     function HasAssets: Boolean;
@@ -148,8 +148,9 @@ type
 
 
 implementation
-uses KM_HandsCollection, KM_Resource, KM_ResSound, KM_Sound, KM_Game,
-   KM_ResTexts, KM_AIFields, KM_ScriptingESA;
+uses
+  KM_HandsCollection, KM_Resource, KM_ResSound, KM_Sound, KM_Game,
+  KM_ResTexts, KM_AIFields, KM_ScriptingESA;
 
 
 const
@@ -231,7 +232,8 @@ end;
 
 { TKMHand }
 constructor TKMHand.Create(aHandIndex: THandIndex);
-var I: Integer;
+var
+  I: Integer;
 begin
   inherited Create(aHandIndex);
 
@@ -250,10 +252,7 @@ begin
   fOwnerNikname := '';
   fPlayerType   := hndComputer;
   for I := 0 to MAX_HANDS - 1 do
-  begin
-    fAlliances[I] := at_Enemy; //Everyone is enemy by default
     fShareFOW[I] := True; //Share FOW between allies by default (it only affects allied players)
-  end;
 
   fFlagColor := DefaultTeamColors[fHandIndex]; //Init with default color, later replaced by Script
 end;
@@ -426,7 +425,7 @@ begin
 end;
 
 
-procedure TKMHand.SetPlayerID(aNewIndex: THandIndex);
+procedure TKMHand.SetHandIndex(aNewIndex: THandIndex);
 begin
   fHandIndex := aNewIndex;
   fUnits.OwnerUpdate(aNewIndex);
