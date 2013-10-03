@@ -33,13 +33,13 @@ var
 
 implementation
 {$IFDEF WDC} {$R *.dfm} {$ENDIF}
-
-
-uses KM_Unit1, KM_ReadGFX1, KM_Form_NewMap, KM_LoadDAT;
+uses
+  KM_Unit1, KM_ReadGFX1, KM_Form_NewMap, KM_LoadDAT;
 
 
 procedure TFormLoading.FormCreate(Sender: TObject);
-var InputParam:string;
+var
+  InputParam: string;
 begin
   Form1.Hide;
   ExeDir := ExtractFilePath(Application.ExeName);
@@ -53,24 +53,27 @@ begin
   SetRenderFrame(Form1.Panel1.Handle, h_DC, h_RC);
   Form1.RenderInit;
 
-  BuildFont(h_DC,16);
-  DecimalSeparator:='.';
+  BuildFont(h_DC, 16);
+  {$IFDEF WDC}FormatSettings.{$ENDIF}DecimalSeparator := '.';
 
-  if ReadGFX(ExeDir) then begin
+  if ReadGFX(ExeDir) then
+  begin
     MakeObjectsGFX(nil);
     MakeHousesGFX(nil);
-  end else begin
+  end
+  else
+  begin
     MessageBox(FormLoading.Handle, 'Objects tab is disabled', 'Warning', MB_OK or MB_ICONWARNING);
-    Form1.ObjBlock.Enabled:=false;
-    Form1.ObjErase.Enabled:=false;
-    Form1.ObjPallete.Enabled:=false;
-    Form1.ObjPalleteScroll.Enabled:=false;
+    Form1.ObjBlock.Enabled := false;
+    Form1.ObjErase.Enabled := false;
+    Form1.ObjPallete.Enabled := false;
+    Form1.ObjPalleteScroll.Enabled := false;
   end;
 
   Hide;
   DoClientAreaResize(Form1);
   Form1.Show;
-  Form1.WindowState:=wsMaximized;
+  Form1.WindowState := wsMaximized;
 
   InputParam:=ExtractOpenedFileName(cmdline);
   if FileExists(InputParam) then

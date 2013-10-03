@@ -295,7 +295,7 @@ begin
   begin
     Label_Hint.Caption := TKMControl(Sender).Hint;
     Bevel_HintBG.Show;
-    Bevel_HintBG.Width := 8 + fResource.Fonts.GetTextSize(Label_Hint.Caption, Label_Hint.Font).X;
+    Bevel_HintBG.Width := 8 + gResource.Fonts.GetTextSize(Label_Hint.Caption, Label_Hint.Font).X;
   end;
 
   fPrevHint := Sender;
@@ -639,7 +639,7 @@ begin
      fDragScrollingCursorPos.Y := Y;
      fDragScrollingViewportPos.X := fViewport.Position.X;
      fDragScrollingViewportPos.Y := fViewport.Position.Y;
-     fResource.Cursors.Cursor := kmc_Drag;
+     gResource.Cursors.Cursor := kmc_Drag;
      Exit;
   end;
 
@@ -671,8 +671,8 @@ begin
   if fMyControls.CtrlOver <> nil then
   begin
     //kmc_Edit and kmc_DragUp are handled by Controls.MouseMove (it will reset them when required)
-    if not fViewport.Scrolling and not (fResource.Cursors.Cursor in [kmc_Edit,kmc_DragUp]) then
-      fResource.Cursors.Cursor := kmc_Default;
+    if not fViewport.Scrolling and not (gResource.Cursors.Cursor in [kmc_Edit,kmc_DragUp]) then
+      gResource.Cursors.Cursor := kmc_Default;
     GameCursor.SState := []; //Don't do real-time elevate when the mouse is over controls, only terrain
     Exit;
   end
@@ -684,13 +684,13 @@ begin
   begin
     Marker := gGame.MapEditor.HitTest(GameCursor.Cell.X, GameCursor.Cell.Y);
     if Marker.MarkerType <> mtNone then
-      fResource.Cursors.Cursor := kmc_Info
+      gResource.Cursors.Cursor := kmc_Info
     else
     if MySpectator.HitTestCursor <> nil then
-      fResource.Cursors.Cursor := kmc_Info
+      gResource.Cursors.Cursor := kmc_Info
     else
     if not fViewport.Scrolling then
-      fResource.Cursors.Cursor := kmc_Default;
+      gResource.Cursors.Cursor := kmc_Default;
   end;
 
   Label_Coordinates.Caption := Format('X: %d, Y: %d', [GameCursor.Cell.X, GameCursor.Cell.Y]);
@@ -709,7 +709,7 @@ begin
     if Button = mbMiddle then
     begin
       fDragScrolling := False;
-      fResource.Cursors.Cursor := kmc_Default; //Reset cursor
+      gResource.Cursors.Cursor := kmc_Default; //Reset cursor
       fMain.ApplyCursorRestriction;
     end;
     Exit;

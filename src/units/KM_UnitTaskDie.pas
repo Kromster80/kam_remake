@@ -71,7 +71,7 @@ begin
               SetActionLockedStay(0, ua_Walk, False)
             else
             begin
-              SequenceLength := fResource.UnitDat[UnitType].UnitAnim[ua_Die, Direction].Count;
+              SequenceLength := gResource.UnitDat[UnitType].UnitAnim[ua_Die, Direction].Count;
               SetActionLockedStay(SequenceLength, ua_Die, False);
               //Do not play sounds if unit is invisible to MySpectator
               //We should not use KaMRandom below this line because sound playback depends on FOW and is individual for each player

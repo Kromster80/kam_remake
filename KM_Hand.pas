@@ -486,12 +486,12 @@ begin
   Result := gTerrain.CanPlaceHouse(aLoc, aHouseType);
   if not Result then Exit;
 
-  HA := fResource.HouseDat[aHouseType].BuildArea;
+  HA := gResource.HouseDat[aHouseType].BuildArea;
   for I := 1 to 4 do
   for K := 1 to 4 do
   if HA[I,K] <> 0 then
   begin
-    Tx := aLoc.X - fResource.HouseDat[aHouseType].EntranceOffsetX + K - 3;
+    Tx := aLoc.X - gResource.HouseDat[aHouseType].EntranceOffsetX + K - 3;
     Ty := aLoc.Y + I - 4;
     //AI ignores FOW (this function is used from scripting)
     Result := Result and gTerrain.TileInMapCoords(Tx, Ty, 1)
@@ -528,8 +528,8 @@ begin
     Exit;
 
   //Perform additional cheks for AI
-  HA := fResource.HouseDat[aHouseType].BuildArea;
-  EnterOff := fResource.HouseDat[aHouseType].EntranceOffsetX;
+  HA := gResource.HouseDat[aHouseType].BuildArea;
+  EnterOff := gResource.HouseDat[aHouseType].EntranceOffsetX;
   for I := 1 to 4 do
   for K := 1 to 4 do
   if HA[I,K] <> 0 then
@@ -689,7 +689,7 @@ procedure TKMHand.AddHousePlan(aHouseType: THouseType; aLoc: TKMPoint);
 var
   Loc: TKMPoint;
 begin
-  Loc.X := aLoc.X - fResource.HouseDat[aHouseType].EntranceOffsetX;
+  Loc.X := aLoc.X - gResource.HouseDat[aHouseType].EntranceOffsetX;
   Loc.Y := aLoc.Y;
 
   fBuildList.HousePlanList.AddPlan(aHouseType, Loc);
@@ -924,7 +924,7 @@ var
 begin
   Result := 3; //3 = Black which can be the default when a non-palette 32 bit color value is used
   for I := 0 to 255 do
-    if fResource.Palettes.DefDal.Color32(I) = fFlagColor then
+    if gResource.Palettes.DefDal.Color32(I) = fFlagColor then
       Result := I;
 end;
 
@@ -1051,14 +1051,14 @@ begin
   gTerrain.GetHouseMarks(aLoc, aHouseType, aList);
 
   //Override marks if there are House/FieldPlans (only we know about our plans) and or FogOfWar
-  HA := fResource.HouseDat[aHouseType].BuildArea;
+  HA := gResource.HouseDat[aHouseType].BuildArea;
 
   for I := 1 to 4 do for K := 1 to 4 do
   if (HA[I,K] <> 0)
-  and gTerrain.TileInMapCoords(aLoc.X+K-3-fResource.HouseDat[aHouseType].EntranceOffsetX, aLoc.Y+I-4, 1) then
+  and gTerrain.TileInMapCoords(aLoc.X+K-3-gResource.HouseDat[aHouseType].EntranceOffsetX, aLoc.Y+I-4, 1) then
   begin
     //This can't be done earlier since values can be off-map
-    P2 := KMPoint(aLoc.X+K-3-fResource.HouseDat[aHouseType].EntranceOffsetX, aLoc.Y+I-4);
+    P2 := KMPoint(aLoc.X+K-3-gResource.HouseDat[aHouseType].EntranceOffsetX, aLoc.Y+I-4);
 
     //Forbid planning on unrevealed areas and fieldplans
     AllowBuild := (fFogOfWar.CheckTileRevelation(P2.X, P2.Y) > 0);

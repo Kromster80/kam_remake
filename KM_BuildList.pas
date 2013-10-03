@@ -1,9 +1,10 @@
 unit KM_BuildList;
 {$I KaM_Remake.inc}
 interface
-uses Classes, SysUtils, KromUtils, Math,
-    KM_CommonClasses, KM_Defaults, KM_Houses, KM_Units, KM_Points,
-    KM_ResHouses;
+uses
+  Classes, SysUtils, KromUtils, Math,
+  KM_CommonClasses, KM_Defaults, KM_Houses, KM_Units, KM_Points,
+  KM_ResHouses;
 
 
 type
@@ -186,7 +187,8 @@ type
 
 
 implementation
-uses KM_HandsCollection, KM_Resource;
+uses
+  KM_HandsCollection, KM_Resource;
 
 
 const
@@ -697,7 +699,7 @@ var
 begin
   Result := False;
   Best := MaxSingle;
-  HD := fResource.HouseDat;
+  HD := gResource.HouseDat;
 
   for I := 0 to fPlansCount - 1 do
   if (fPlans[I].HouseType <> ht_None)
@@ -733,7 +735,7 @@ begin
   if (fPlans[I].HouseType <> ht_None)
   and ((aLoc.X - fPlans[I].Loc.X + 3 in [1..4]) and
        (aLoc.Y - fPlans[I].Loc.Y + 4 in [1..4]) and
-       (fResource.HouseDat[fPlans[I].HouseType].BuildArea[aLoc.Y - fPlans[I].Loc.Y + 4, aLoc.X - fPlans[I].Loc.X + 3] <> 0))
+       (gResource.HouseDat[fPlans[I].HouseType].BuildArea[aLoc.Y - fPlans[I].Loc.Y + 4, aLoc.X - fPlans[I].Loc.X + 3] <> 0))
   then
   begin
     Result := True;
@@ -750,7 +752,7 @@ begin
   if (fPlans[I].HouseType <> ht_None)
   and ((aLoc.X - fPlans[I].Loc.X + 3 in [1..4]) and
        (aLoc.Y - fPlans[I].Loc.Y + 4 in [1..4]) and
-       (fResource.HouseDat[fPlans[I].HouseType].BuildArea[aLoc.Y - fPlans[I].Loc.Y + 4, aLoc.X - fPlans[I].Loc.X + 3] <> 0))
+       (gResource.HouseDat[fPlans[I].HouseType].BuildArea[aLoc.Y - fPlans[I].Loc.Y + 4, aLoc.X - fPlans[I].Loc.X + 3] <> 0))
   then
   begin
     if fPlans[I].Worker <> nil then
@@ -770,7 +772,7 @@ begin
   if (fPlans[I].HouseType <> ht_None)
   and ((aLoc.X - fPlans[I].Loc.X + 3 in [1..4]) and
        (aLoc.Y - fPlans[I].Loc.Y + 4 in [1..4]) and
-       (fResource.HouseDat[fPlans[I].HouseType].BuildArea[aLoc.Y - fPlans[I].Loc.Y + 4, aLoc.X - fPlans[I].Loc.X + 3] <> 0))
+       (gResource.HouseDat[fPlans[I].HouseType].BuildArea[aLoc.Y - fPlans[I].Loc.Y + 4, aLoc.X - fPlans[I].Loc.X + 3] <> 0))
   then
   begin
     Result := fPlans[I].HouseType;
@@ -802,7 +804,7 @@ begin
     and InRange(fPlans[I].Loc.X - 2, Rect.Left, Rect.Right)
     and InRange(fPlans[I].Loc.Y - 2, Rect.Top, Rect.Bottom) then
     begin
-      HA := fResource.HouseDat[fPlans[I].HouseType].BuildArea;
+      HA := gResource.HouseDat[fPlans[I].HouseType].BuildArea;
 
       for J := 1 to 4 do for K := 1 to 4 do
       if HA[J,K] <> 0 then
@@ -835,7 +837,7 @@ begin
   if (fPlans[I].HouseType <> ht_None)
   and InRange(fPlans[I].Loc.X - 2, Rect.Left, Rect.Right)
   and InRange(fPlans[I].Loc.Y - 2, Rect.Top, Rect.Bottom) then
-    aList.Add(KMPoint(fPlans[I].Loc.X + fResource.HouseDat[fPlans[I].HouseType].EntranceOffsetX, fPlans[I].Loc.Y), Byte(fPlans[I].HouseType));
+    aList.Add(KMPoint(fPlans[I].Loc.X + gResource.HouseDat[fPlans[I].HouseType].EntranceOffsetX, fPlans[I].Loc.Y), Byte(fPlans[I].HouseType));
 end;
 
 

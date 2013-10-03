@@ -636,7 +636,7 @@ begin
 
     for I := WARFARE_MIN to WARFARE_MAX do
     if WeaponUsed(I) then
-      S := S + Format('%s: %.2f - %.2f|', [fResource.Wares[I].Title,
+      S := S + Format('%s: %.2f - %.2f|', [gResource.Wares[I].Title,
                                                   Warfare[I].Production,
                                                   Warfare[I].Demand]);
 
@@ -836,7 +836,7 @@ begin
   finally
     fAdviceText := 'Advice: ';
     for I := 0 to High(fAdvice) do
-      fAdviceText := fAdviceText + fResource.HouseDat[fAdvice[I]].HouseName + IfThen(I < High(fAdvice), ', ', '.');
+      fAdviceText := fAdviceText + gResource.HouseDat[fAdvice[I]].HouseName + IfThen(I < High(fAdvice), ', ', '.');
   end;
 end;
 

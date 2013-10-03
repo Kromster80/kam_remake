@@ -59,8 +59,8 @@ begin
   for I := Low(TKMRatioTab) to High(TKMRatioTab) do
   begin
     Button_Ratios[I]         := TKMButton.Create(Panel_Ratios, Byte(I) * 40, 20, 32, 32, 0, rxGui, bsGame);
-    Button_Ratios[I].TexID   := fResource.Wares[ResRatioType[I]].GUIIcon;
-    Button_Ratios[I].Hint    := fResource.Wares[ResRatioType[I]].Title;
+    Button_Ratios[I].TexID   := gResource.Wares[ResRatioType[I]].GUIIcon;
+    Button_Ratios[I].Hint    := gResource.Wares[ResRatioType[I]].Title;
     Button_Ratios[I].Tag     := Byte(I);
     Button_Ratios[I].OnClick := RatioTabClick;
   end;
@@ -98,8 +98,8 @@ begin
 
   fActiveTab := aTab;
 
-  Image_RatioHead.TexID := fResource.Wares[ResRatioType[fActiveTab]].GUIIcon;//Show resource icon
-  Label_RatioHead.Caption := fResource.Wares[ResRatioType[fActiveTab]].Title;
+  Image_RatioHead.TexID := gResource.Wares[ResRatioType[fActiveTab]].GUIIcon;//Show resource icon
+  Label_RatioHead.Caption := gResource.Wares[ResRatioType[fActiveTab]].Title;
   Image_RatioHead.Show;
   Label_RatioHead.Show;
 
@@ -110,8 +110,8 @@ begin
     if (not gHands[MySpectator.HandIndex].Stats.HouseBlocked[HT])
     or (gHands[MySpectator.HandIndex].Stats.GetHouseQty(HT) > 0) then
     begin
-      Image_RatioPic[I].TexID := fResource.HouseDat[HT].GUIIcon;
-      TrackBar_RatioValue[I].Caption := fResource.HouseDat[HT].HouseName;
+      Image_RatioPic[I].TexID := gResource.HouseDat[HT].GUIIcon;
+      TrackBar_RatioValue[I].Caption := gResource.HouseDat[HT].HouseName;
       TrackBar_RatioValue[I].Position := gHands[MySpectator.HandIndex].Stats.Ratio[ResRatioType[fActiveTab], HT];
       TrackBar_RatioValue[I].Enable;
     end else begin

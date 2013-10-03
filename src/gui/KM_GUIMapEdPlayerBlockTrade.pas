@@ -41,8 +41,8 @@ begin
   for I := 1 to STORE_RES_COUNT do
   begin
     Button_BlockTrade[I] := TKMButtonFlat.Create(Panel_BlockTrade, ((I-1) mod 5)*37, 30 + ((I-1) div 5)*37,33,33, 0);
-    Button_BlockTrade[I].TexID := fResource.Wares[StoreResType[I]].GUIIcon;
-    Button_BlockTrade[I].Hint := fResource.Wares[StoreResType[I]].Title;
+    Button_BlockTrade[I].TexID := gResource.Wares[StoreResType[I]].GUIIcon;
+    Button_BlockTrade[I].Hint := gResource.Wares[StoreResType[I]].Title;
     Button_BlockTrade[I].OnClick := Player_BlockTradeClick;
     Button_BlockTrade[I].Tag := I;
     Image_BlockTrade[I] := TKMImage.Create(Panel_BlockTrade, ((I-1) mod 5)*37 + 13, 30 + ((I-1) div 5)*37 + 13, 16, 16, 0, rxGuiMain);

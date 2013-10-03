@@ -25,8 +25,8 @@ begin
   ExeDir := ExtractFilePath(ParamStr(0)) + '..\';
 
   gLog := TKMLog.Create(ExtractFilePath(ParamStr(0)) + 'Temp\temp.log');
-  fResource := TResource.Create(nil, nil, nil);
-  fResource.LoadMainResources;
+  gResource := TKMResource.Create(nil, nil, nil);
+  gResource.LoadMainResources;
   gTerrain := TKMTerrain.Create;
   fAIFields := TKMAIFields.Create;
 end;
@@ -35,7 +35,7 @@ procedure TestTKMAIFields.TearDown;
 begin
   fAIFields.Free;
   gTerrain.Free;
-  fResource.Free;
+  FreeAndNil(gResource);
   gLog.Free;
 end;
 

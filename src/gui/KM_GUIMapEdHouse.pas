@@ -107,9 +107,9 @@ begin
     for I := 1 to STORE_RES_COUNT do
     begin
       Button_Store[I] := TKMButtonFlat.Create(Panel_HouseStore, 2 + ((I-1)mod 5)*36,8+((I-1)div 5)*42,32,36,0);
-      Button_Store[I].TexID := fResource.Wares[StoreResType[I]].GUIIcon;
+      Button_Store[I].TexID := gResource.Wares[StoreResType[I]].GUIIcon;
       Button_Store[I].Tag := I;
-      Button_Store[I].Hint := fResource.Wares[StoreResType[I]].Title;
+      Button_Store[I].Hint := gResource.Wares[StoreResType[I]].Title;
       Button_Store[I].OnClick := StoreSelectWare;
     end;
 
@@ -139,11 +139,11 @@ begin
     begin
       Button_Barracks[I]:=TKMButtonFlat.Create(Panel_HouseBarracks, ((I-1)mod 6)*31,8+((I-1)div 6)*42,28,38,0);
       Button_Barracks[I].Tag := I;
-      Button_Barracks[I].TexID := fResource.Wares[BarracksResType[I]].GUIIcon;
+      Button_Barracks[I].TexID := gResource.Wares[BarracksResType[I]].GUIIcon;
       Button_Barracks[I].TexOffsetX := 1;
       Button_Barracks[I].TexOffsetY := 1;
       Button_Barracks[I].CapOffsetY := 2;
-      Button_Barracks[I].Hint := fResource.Wares[BarracksResType[I]].Title;
+      Button_Barracks[I].Hint := gResource.Wares[BarracksResType[I]].Title;
       Button_Barracks[I].OnClick := BarracksSelectWare;
     end;
     Button_BarracksDec100     := TKMButton.Create(Panel_HouseBarracks,108,218,20,20,'<', bsGame);
@@ -183,14 +183,14 @@ begin
   fHouse := aHouse;
   if fHouse = nil then Exit;
 
-  HouseDat := fResource.HouseDat[fHouse.HouseType];
+  HouseDat := gResource.HouseDat[fHouse.HouseType];
 
   {Common data}
   Label_House.Caption := HouseDat.HouseName;
   Image_House_Logo.TexID := HouseDat.GUIIcon;
-  Image_House_Worker.TexID := fResource.UnitDat[HouseDat.OwnerType].GUIIcon;
+  Image_House_Worker.TexID := gResource.UnitDat[HouseDat.OwnerType].GUIIcon;
   Image_House_Worker.FlagColor := gHands[fHouse.Owner].FlagColor;
-  Image_House_Worker.Hint := fResource.UnitDat[HouseDat.OwnerType].GUIName;
+  Image_House_Worker.Hint := gResource.UnitDat[HouseDat.OwnerType].GUIName;
   Image_House_Worker.Visible := HouseDat.OwnerType <> ut_None;
   KMHealthBar_House.Caption := IntToStr(Round(fHouse.GetHealth)) + '/' + IntToStr(HouseDat.MaxHealth);
   KMHealthBar_House.Position := fHouse.GetHealth / HouseDat.MaxHealth;
@@ -199,11 +199,11 @@ begin
   for I := 0 to 3 do
   begin
     Res := HouseDat.ResInput[I+1];
-    if fResource.Wares[Res].IsValid then
+    if gResource.Wares[Res].IsValid then
     begin
-      ResRow_Resource[I].TexID := fResource.Wares[Res].GUIIcon;
-      ResRow_Resource[I].Caption := fResource.Wares[Res].Title;
-      ResRow_Resource[I].Hint := fResource.Wares[Res].Title;
+      ResRow_Resource[I].TexID := gResource.Wares[Res].GUIIcon;
+      ResRow_Resource[I].Caption := gResource.Wares[Res].Title;
+      ResRow_Resource[I].Hint := gResource.Wares[Res].Title;
       ResRow_Resource[I].WareCount := fHouse.CheckResIn(Res);
       ResRow_Resource[I].OrderCount := fHouse.CheckResIn(Res);
       ResRow_Resource[I].Show;
@@ -268,7 +268,7 @@ begin
   if Sender = Button_HouseHealthDec then fHouse.AddDamage(GetMultiplicator(Shift) * 5, nil, True);
   if Sender = Button_HouseHealthInc then fHouse.AddRepair(GetMultiplicator(Shift) * 5);
 
-  HouseDat := fResource.HouseDat[fHouse.HouseType];
+  HouseDat := gResource.HouseDat[fHouse.HouseType];
 
   for I := 0 to 3 do
   begin

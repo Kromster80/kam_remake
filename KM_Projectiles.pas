@@ -284,10 +284,10 @@ begin
                             and (KMLengthSqr(fShotFrom, U.PositionF) <= Sqr(fMaxLength)) then
                             begin
                               Damage := 0;
-                              if fType = pt_Arrow then Damage := fResource.UnitDat[ut_Bowman].Attack;
-                              if fType = pt_Bolt then Damage := fResource.UnitDat[ut_Arbaletman].Attack;
-                              if fType = pt_SlingRock then Damage := fResource.UnitDat[ut_Slingshot].Attack;
-                              Damage := Damage div Math.max(fResource.UnitDat[U.UnitType].GetDefenceVsProjectiles, 1); //Max is not needed, but animals have 0 defence
+                              if fType = pt_Arrow then Damage := gResource.UnitDat[ut_Bowman].Attack;
+                              if fType = pt_Bolt then Damage := gResource.UnitDat[ut_Arbaletman].Attack;
+                              if fType = pt_SlingRock then Damage := gResource.UnitDat[ut_Slingshot].Attack;
+                              Damage := Damage div Math.max(gResource.UnitDat[U.UnitType].GetDefenceVsProjectiles, 1); //Max is not needed, but animals have 0 defence
                               if (FRIENDLY_FIRE or (gHands.CheckAlliance(fOwner.Owner, U.Owner)= at_Enemy))
                               and (Damage >= KaMRandom(101)) then
                                 U.HitPointsDecrease(1, fOwner);

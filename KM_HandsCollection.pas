@@ -71,7 +71,8 @@ var
 
 
 implementation
-uses KM_Game, KM_Log, KM_Resource, KM_ResHouses, KM_AIFields;
+uses
+  KM_Game, KM_Log, KM_Resource, KM_ResHouses, KM_AIFields;
 
 
 { TKMHandsCollection }
@@ -410,7 +411,7 @@ var
   Pass: TPassability; //temp for required passability
 begin
   Result := False; // if function fails to find valid position
-  Pass := fResource.UnitDat[aUnitType].AllowedPassability;
+  Pass := gResource.UnitDat[aUnitType].AllowedPassability;
 
   for I := 0 to 255 do
   begin

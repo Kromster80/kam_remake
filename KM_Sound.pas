@@ -255,7 +255,7 @@ end;
 procedure TKMSoundPlayer.Play(SoundID: TSoundFXNew; Loc: TKMPoint; Attenuated:boolean=true; Volume:single=1; FadeMusic:boolean=false);
 begin
   if SKIP_SOUND or not fIsSoundInitialized then Exit;
-  PlayWave(fResource.Sounds.FileOfNewSFX(SoundID), KMPointF(Loc), Attenuated, Volume, FadeMusic);
+  PlayWave(gResource.Sounds.FileOfNewSFX(SoundID), KMPointF(Loc), Attenuated, Volume, FadeMusic);
 end;
 
 
@@ -371,9 +371,9 @@ begin
   else
   begin
     ID := word(SoundID);
-    W := fResource.Sounds.fWaves[ID];
+    W := gResource.Sounds.fWaves[ID];
 
-    Assert(W.IsLoaded and (ID <= fResource.Sounds.fWavesCount), 'Sounds.dat seems to be short');
+    Assert(W.IsLoaded and (ID <= gResource.Sounds.fWavesCount), 'Sounds.dat seems to be short');
     AlBufferData(fSound[FreeBuf].ALBuffer, AL_FORMAT_MONO8, @W.Data[0], W.Head.DataSize, W.Head.SampleRate);
     WAVsize := W.Head.FileSize;
     WAVfreq := W.Head.BytesPerSecond;
@@ -432,7 +432,7 @@ begin
   if not (aUnitType in [CITIZEN_MIN..CITIZEN_MAX]) then Exit;
 
   HasLoc := not KMSamePointF(aLoc, KMPointF(0,0));
-  Wave := fResource.Sounds.FileOfCitizen(aUnitType, aSound);
+  Wave := gResource.Sounds.FileOfCitizen(aUnitType, aSound);
   if FileExists(Wave) then
     PlayWave(Wave, aLoc, HasLoc, 1 + 3*byte(HasLoc)); //Attenuate sounds when aLoc is valid
 end;
@@ -445,9 +445,9 @@ var
 begin
   if SKIP_SOUND or not fIsSoundInitialized then Exit;
 
-  Count := fResource.Sounds.NotificationSoundCount[aSound];
+  Count := gResource.Sounds.NotificationSoundCount[aSound];
 
-  Wave := fResource.Sounds.FileOfNotification(aSound, Random(Count));
+  Wave := gResource.Sounds.FileOfNotification(aSound, Random(Count));
   if FileExists(Wave) then
     PlayWave(Wave, KMPointF(0,0), False, 1);
 end;
@@ -478,10 +478,10 @@ begin
   if SKIP_SOUND or not fIsSoundInitialized then Exit;
   if not (aUnitType in [WARRIOR_MIN..WARRIOR_MAX]) then Exit;
 
-  Count := fResource.Sounds.WarriorSoundCount[aUnitType, aSound];
+  Count := gResource.Sounds.WarriorSoundCount[aUnitType, aSound];
 
   HasLoc := not KMSamePointF(aLoc, KMPointF(0,0));
-  Wave := fResource.Sounds.FileOfWarrior(aUnitType, aSound, Random(Count));
+  Wave := gResource.Sounds.FileOfWarrior(aUnitType, aSound, Random(Count));
   if FileExists(Wave) then
     PlayWave(Wave, aLoc, HasLoc, 1 + 3*byte(HasLoc)); //Attenuate sounds when aLoc is valid
 end;

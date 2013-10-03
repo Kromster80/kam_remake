@@ -57,7 +57,7 @@ begin
     begin
       HT := StatPlan[I].HouseType[K];
       Stat_HousePic[HT] := TKMImage.Create(Panel_StatBlock[I], OffX, 0, House_Width, 30, 41); //Filled with [?] at start
-      Stat_HousePic[HT].Hint := fResource.HouseDat[HT].HouseName;
+      Stat_HousePic[HT].Hint := gResource.HouseDat[HT].HouseName;
       Stat_HousePic[HT].ImageCenter;
       Stat_HouseWip[HT] := TKMLabel.Create(Panel_StatBlock[I], OffX + House_Width  ,  0,  '', fnt_Grey, taRight);
       Stat_HouseWip[HT].Hitable := False;
@@ -70,8 +70,8 @@ begin
     if StatPlan[I].UnitType[K] <> ut_None then
     begin
       UT := StatPlan[I].UnitType[K];
-      Stat_UnitPic[UT] := TKMImage.Create(Panel_StatBlock[I], OffX, 0, Unit_Width, 30, fResource.UnitDat[UT].GUIIcon);
-      Stat_UnitPic[UT].Hint := fResource.UnitDat[UT].GUIName;
+      Stat_UnitPic[UT] := TKMImage.Create(Panel_StatBlock[I], OffX, 0, Unit_Width, 30, gResource.UnitDat[UT].GUIIcon);
+      Stat_UnitPic[UT].Hint := gResource.UnitDat[UT].GUIName;
       Stat_UnitPic[UT].ImageCenter;
       Stat_UnitWip[UT] := TKMLabel.Create(Panel_StatBlock[I], OffX + Unit_Width  ,  0,  '', fnt_Grey, taRight);
       Stat_UnitWip[UT].Hitable := False;
@@ -143,8 +143,8 @@ begin
     Stat_HouseWip[HT].Caption := IfThen(Tmp2 = 0, '', '+' + IntToStr(Tmp2));
     if gHands[MySpectator.HandIndex].Stats.GetCanBuild(HT) or (Tmp > 0) then
     begin
-      Stat_HousePic[HT].TexID := fResource.HouseDat[HT].GUIIcon;
-      Stat_HousePic[HT].Hint := fResource.HouseDat[HT].HouseName;
+      Stat_HousePic[HT].TexID := gResource.HouseDat[HT].GUIIcon;
+      Stat_HousePic[HT].Hint := gResource.HouseDat[HT].HouseName;
     end
     else
     begin
@@ -159,7 +159,7 @@ begin
     Tmp2 := 0;//fPlayers[MySpectator.PlayerIndex].Stats.GetUnitWip(UT);
     Stat_UnitQty[UT].Caption := IfThen(Tmp  = 0, '-', IntToStr(Tmp));
     Stat_UnitWip[UT].Caption := IfThen(Tmp2 = 0, '', '+' + IntToStr(Tmp2));
-    Stat_UnitPic[UT].Hint := fResource.UnitDat[UT].GUIName;
+    Stat_UnitPic[UT].Hint := gResource.UnitDat[UT].GUIName;
     Stat_UnitPic[UT].FlagColor := gHands[MySpectator.HandIndex].FlagColor;
   end;
 end;

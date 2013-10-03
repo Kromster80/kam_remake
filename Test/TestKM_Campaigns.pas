@@ -47,12 +47,12 @@ begin
   ExeDir := ExtractFilePath(ParamStr(0)) + '..\';
   FKMCampaign := TKMCampaign.Create;
   gLog := TKMLog.Create(ExtractFilePath(ParamStr(0)) + 'Temp\temp.log');
-  fResource := TResource.Create(nil, nil, nil);
+  gResource := TKMResource.Create(nil, nil, nil);
 end;
 
 procedure TestTKMCampaign.TearDown;
 begin
-  fResource.Free;
+  gResource.Free;
   gLog.Free;
   FKMCampaign.Free;
   FKMCampaign := nil;
@@ -114,15 +114,15 @@ begin
   ExeDir := ExtractFilePath(ParamStr(0)) + '..\';
   gLog := TKMLog.Create(ExtractFilePath(ParamStr(0)) + 'Temp\log.tmp');
 
-  fResource := TResource.Create(nil, nil, nil);
-  fResource.LoadLocaleResources(DEFAULT_LOCALE);
+  gResource := TKMResource.Create(nil, nil, nil);
+  gResource.LoadLocaleResources(DEFAULT_LOCALE);
 
   fCampaigns := TKMCampaignsCollection.Create;
 end;
 
 procedure TestTKMCampaignsCollection.TearDown;
 begin
-  FreeAndNil(fResource);
+  FreeAndNil(gResource);
   FreeAndNil(gLog);
   FreeAndNil(fCampaigns);
 end;

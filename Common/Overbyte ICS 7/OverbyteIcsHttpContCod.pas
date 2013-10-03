@@ -513,9 +513,9 @@ begin
                     QualStr := FormatFloat('0.###', ContItem.Quality);
                     { Force the point as decimal separator }
                     {$IF Defined(VER240) or Defined(VER250) or Defined(VER260)}
-                      if TFormatSettings.Create.DecimalSeparator <> '.' then
+                      if FormatSettings.DecimalSeparator <> '.' then
                       begin
-                          DecPos := Pos(TFormatSettings.Create.DecimalSeparator, QualStr);
+                          DecPos := Pos(FormatSettings.DecimalSeparator, QualStr);
                           if DecPos > 0 then
                               QualStr[DecPos] := '.';
                       end;

@@ -156,7 +156,7 @@ procedure TKMHandStats.UpdateReqDone(aType: THouseType);
 var H: THouseType;
 begin
   for H := HOUSE_MIN to HOUSE_MAX do
-    if fResource.HouseDat[H].ReleasedBy = aType then
+    if gResource.HouseDat[H].ReleasedBy = aType then
       fHouseUnlocked[H] := True;
 end;
 
@@ -257,7 +257,7 @@ begin
                     Inc(Wares[R].Produced, aCount);
       WARE_MIN..
       WARE_MAX:   Inc(Wares[aRes].Produced, aCount);
-      else        Assert(False, 'Cant''t add produced ware ' + fResource.Wares[aRes].Title);
+      else        Assert(False, 'Cant''t add produced ware ' + gResource.Wares[aRes].Title);
     end;
 end;
 

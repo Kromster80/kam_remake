@@ -146,15 +146,15 @@ begin
     ct_SetCurrPlayer:   fLastHand := P[0];
     ct_SetHouse:        if InRange(P[0], Low(HouseIndexToType), High(HouseIndexToType)) then
                         begin
-                          RevealCircle(P[1]+1, P[2]+1, fResource.HouseDat[HouseIndexToType[P[0]]].Sight);
-                          HA := fResource.HouseDat[HouseIndexToType[P[0]]].BuildArea;
+                          RevealCircle(P[1]+1, P[2]+1, gResource.HouseDat[HouseIndexToType[P[0]]].Sight);
+                          HA := gResource.HouseDat[HouseIndexToType[P[0]]].BuildArea;
                           for i:=1 to 4 do for k:=1 to 4 do
                             if HA[i,k]<>0 then
                               if InRange(P[1]+1+k-3, 1, fMapX) and InRange(P[2]+1+i-4, 1, fMapY) then
                                 SetOwner(P[1]+1+k-3, P[2]+1+i-4);
                         end;
     ct_SetMapColor:     if InRange(fLastHand, 0, MAX_HANDS-1) then
-                          fHandPreview[fLastHand].Color := fResource.Palettes.DefDal.Color32(P[0]);
+                          fHandPreview[fLastHand].Color := gResource.Palettes.DefDal.Color32(P[0]);
     ct_CenterScreen:    fHandPreview[fLastHand].StartingLoc := KMPoint(P[0]+1,P[1]+1);
     ct_HumanPlayer:     //Default human player can be human, obviously
                         fHandPreview[P[0]].CanHuman := True;
@@ -172,7 +172,7 @@ begin
     ct_SetUnit:         if not (UnitOldIndexToType[P[0]] in [ANIMAL_MIN..ANIMAL_MAX]) then //Skip animals
                         begin
                           SetOwner(P[1]+1, P[2]+1);
-                          RevealCircle(P[1]+1, P[2]+1, fResource.UnitDat.UnitsDat[UnitOldIndexToType[P[0]]].Sight);
+                          RevealCircle(P[1]+1, P[2]+1, gResource.UnitDat.UnitsDat[UnitOldIndexToType[P[0]]].Sight);
                         end;
     ct_SetStock:        begin
                           //Set Store and roads below
@@ -188,7 +188,7 @@ begin
                             if Valid then
                             begin
                               SetOwner(Loc.X,Loc.Y);
-                              RevealCircle(P[1]+1, P[2]+1, fResource.UnitDat.UnitsDat[UnitOldIndexToType[P[0]]].Sight);
+                              RevealCircle(P[1]+1, P[2]+1, gResource.UnitDat.UnitsDat[UnitOldIndexToType[P[0]]].Sight);
                             end;
                           end;
     ct_ClearUp:         begin

@@ -102,7 +102,7 @@ begin
                             fMapInfo.Alliances[fLastHand, P[0]] := at_Enemy;
     ct_SetMapColor:     if fLastHand >= 0 then
                           //For now simply use the minimap color for all color, it is too hard to load all 8 shades from ct_SetNewRemap
-                          fMapInfo.FlagColors[fLastHand] := fResource.Palettes.DefDal.Color32(P[0]);
+                          fMapInfo.FlagColors[fLastHand] := gResource.Palettes.DefDal.Color32(P[0]);
   end;
 
   Result := True;

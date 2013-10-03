@@ -223,7 +223,7 @@ begin
       for I := 0 to High(G) do
         if G[I] <> 0 then
         begin
-          Chart_Wares.AddLine(fResource.Wares[R].Title, fResource.Wares[R].GUIColor or $FF000000, G);
+          Chart_Wares.AddLine(gResource.Wares[R].Title, gResource.Wares[R].GUIColor or $FF000000, G);
           Break;
         end;
     end;

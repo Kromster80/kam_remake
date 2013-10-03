@@ -57,9 +57,9 @@ begin
   TKMLabel.Create(Panel_Build,0,65,TB_WIDTH,0,gResTexts[TX_MAPED_HOUSES_TITLE],fnt_Outline,taCenter);
   for I:=1 to GUI_HOUSE_COUNT do
     if GUIHouseOrder[I] <> ht_None then begin
-      Button_Build[I] := TKMButtonFlat.Create(Panel_Build, ((I-1) mod 5)*37,83+((I-1) div 5)*37,33,33,fResource.HouseDat[GUIHouseOrder[I]].GUIIcon);
+      Button_Build[I] := TKMButtonFlat.Create(Panel_Build, ((I-1) mod 5)*37,83+((I-1) div 5)*37,33,33,gResource.HouseDat[GUIHouseOrder[I]].GUIIcon);
       Button_Build[I].OnClick := Town_BuildChange;
-      Button_Build[I].Hint := fResource.HouseDat[GUIHouseOrder[I]].HouseName;
+      Button_Build[I].Hint := gResource.HouseDat[GUIHouseOrder[I]].HouseName;
     end;
 end;
 

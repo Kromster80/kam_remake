@@ -132,7 +132,7 @@ procedure TKMGUIGameChat.Chat_MenuSelect(aItem: Integer);
     txtWidth: Word;
   begin
     //Update button width according to selected item
-    txtWidth := fResource.Fonts.GetTextSize(aCaption, Button_ChatRecipient.Font).X;
+    txtWidth := gResource.Fonts.GetTextSize(aCaption, Button_ChatRecipient.Font).X;
     txtWidth := Max(MIN_SIZE, txtWidth + 10); //Apply minimum size
 
     if aColor <> 0 then

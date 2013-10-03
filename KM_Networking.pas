@@ -953,7 +953,7 @@ end;
 function TKMNetworking.CalculateGameCRC:Cardinal;
 begin
   //CRC checks are done on the data we already loaded, not the files on HDD which can change.
-  Result := fResource.GetDATCRC;
+  Result := gResource.GetDATCRC;
 
   //For debugging/testing it's useful to skip this check sometimes (but defines .dat files should always be checked)
   if not SKIP_EXE_CRC then

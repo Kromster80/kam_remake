@@ -138,7 +138,7 @@ begin
   inherited Create;
 
   for RT := Low(TRXType) to High(TRXType) do
-    fRXData[RT] := fResource.Sprites[RT].RXData;
+    fRXData[RT] := gResource.Sprites[RT].RXData;
 
   fRender := aRender;
   fViewport := aViewport;
@@ -532,7 +532,7 @@ var
   R: TRXData;
 begin
   R := fRXData[rxGui];
-  Id := fResource.HouseDat[aHouse].TabletIcon;
+  Id := gResource.HouseDat[aHouse].TabletIcon;
 
   gX := Loc.X + (R.Pivot[Id].X + R.Size[Id].X / 2) / CELL_SIZE_PX - 0.5;
   gY := Loc.Y + (R.Pivot[Id].Y + R.Size[Id].Y) / CELL_SIZE_PX - 0.45;
@@ -551,7 +551,7 @@ var
   CornerX, CornerY: Single;
 begin
   R := fRXData[rxHouses];
-  BS := fResource.HouseDat[aHouse].BuildSupply;
+  BS := gResource.HouseDat[aHouse].BuildSupply;
   if Wood <> 0 then
   begin
     Id := 260 + Wood - 1;
@@ -580,9 +580,9 @@ var
 begin
   R := fRXData[rxHouses];
 
-  PicWood := fResource.HouseDat[aHouse].WoodPic + 1;
-  PicStone := fResource.HouseDat[aHouse].StonePic + 1;
-  PicSnow := fResource.HouseDat[aHouse].SnowPic + 1;
+  PicWood := gResource.HouseDat[aHouse].WoodPic + 1;
+  PicStone := gResource.HouseDat[aHouse].StonePic + 1;
+  PicSnow := gResource.HouseDat[aHouse].SnowPic + 1;
 
   GroundWood := R.Pivot[PicWood].Y + R.Size[PicWood].Y;
   GroundStone := R.Pivot[PicStone].Y + R.Size[PicStone].Y;
@@ -634,7 +634,7 @@ begin
   for AT := Low(THouseActionType) to High(THouseActionType) do
   if AT in aActSet then
   begin
-    A := fResource.HouseDat[aHouse].Anim[AT];
+    A := gResource.HouseDat[aHouse].Anim[AT];
     if A.Count > 0 then
     begin
       Id := A.Step[AnimStep mod Byte(A.Count) + 1] + 1;
@@ -670,7 +670,7 @@ begin
   for i := 1 to 4 do
   if (R1[i - 1]) > 0 then
   begin
-    Id := fResource.HouseDat[aHouse].SupplyIn[i, Min(R1[i - 1], 5)] + 1;
+    Id := gResource.HouseDat[aHouse].SupplyIn[i, Min(R1[i - 1], 5)] + 1;
     AddHouseSupplySprite(Id);
   end;
 
@@ -681,12 +681,12 @@ begin
     if aHouse in [ht_WeaponSmithy, ht_ArmorSmithy, ht_WeaponWorkshop, ht_ArmorWorkshop] then
       for k := 1 to Min(R2[i - 1], 5) do
       begin
-        Id := fResource.HouseDat[aHouse].SupplyOut[i, k] + 1;
+        Id := gResource.HouseDat[aHouse].SupplyOut[i, k] + 1;
         AddHouseSupplySprite(Id);
       end
     else
     begin
-      Id := fResource.HouseDat[aHouse].SupplyOut[i, Min(R2[i - 1], 5)] + 1;
+      Id := gResource.HouseDat[aHouse].SupplyOut[i, Min(R2[i - 1], 5)] + 1;
       AddHouseSupplySprite(Id);
     end;
   end;
@@ -724,7 +724,7 @@ var
 begin
   R := fRXData[aRX];
 
-  A := fResource.HouseDat.BeastAnim[aHouse,BeastId,BeastAge];
+  A := gResource.HouseDat.BeastAnim[aHouse,BeastId,BeastAge];
 
   Id := A.Step[AnimStep mod Byte(A.Count) + 1] + 1;
   CornerX := Loc.X + (A.MoveX + R.Pivot[Id].X) / CELL_SIZE_PX - 1;
@@ -750,11 +750,11 @@ begin
   if FOW <= 128 then Exit; //Don't render objects which are behind FOW
 
   case aProj of
-    pt_Arrow:     with fResource.UnitDat[ut_Bowman].UnitAnim[ua_Spec, aDir] do
+    pt_Arrow:     with gResource.UnitDat[ut_Bowman].UnitAnim[ua_Spec, aDir] do
                     Id := Step[Round(Min(aFlight, 1) * Count) + 1] + 1;
-    pt_Bolt:      with fResource.UnitDat[ut_Arbaletman].UnitAnim[ua_Spec, aDir] do
+    pt_Bolt:      with gResource.UnitDat[ut_Arbaletman].UnitAnim[ua_Spec, aDir] do
                     Id := Step[Round(Min(aFlight, 1) * Count) + 1] + 1;
-    pt_SlingRock: with fResource.UnitDat[ut_Slingshot].UnitAnim[ua_Spec, aDir] do
+    pt_SlingRock: with gResource.UnitDat[ut_Slingshot].UnitAnim[ua_Spec, aDir] do
                     Id := Step[Round(Min(aFlight, 1) * Count) + 1] + 1;
     pt_TowerRock: Id := ProjectileBounds[aProj, 1] + 1;
     else          Id := 1; //Nothing?
@@ -782,7 +782,7 @@ var
   A: TKMAnimLoop;
   R: TRXData;
 begin
-  A := fResource.UnitDat[aUnit].UnitAnim[aAct, aDir];
+  A := gResource.UnitDat[aUnit].UnitAnim[aAct, aDir];
   Id := A.Step[StepId mod Byte(A.Count) + 1] + 1;
   Id0 := A.Step[UnitStillFrames[aDir] mod Byte(A.Count) + 1] + 1;
   if Id <= 0 then exit;
@@ -816,7 +816,7 @@ var
   A: TKMAnimLoop;
   R: TRXData;
 begin
-  A := fResource.UnitDat[aUnit].UnitAnim[aAct, aDir];
+  A := gResource.UnitDat[aUnit].UnitAnim[aAct, aDir];
   Id := A.Step[StepId mod Byte(A.Count) + 1] + 1;
   if Id <= 0 then exit;
   R := fRXData[rxUnits];
@@ -837,7 +837,7 @@ var
   A: TKMAnimLoop;
   R: TRXData;
 begin
-  A := fResource.UnitDat.SerfCarry[aCarry, aDir];
+  A := gResource.UnitDat.SerfCarry[aCarry, aDir];
   Id := A.Step[StepId mod Byte(A.Count) + 1] + 1;
   if Id <= 0 then Exit;
   R := fRXData[rxUnits];
@@ -862,7 +862,7 @@ begin
   R := fRXData[rxUnits];
 
   //Unit position
-  A := fResource.UnitDat[aUnit].UnitAnim[aAct, aDir];
+  A := gResource.UnitDat[aUnit].UnitAnim[aAct, aDir];
   Id0 := A.Step[UnitStillFrames[aDir] mod Byte(A.Count) + 1] + 1;
 
   //Units feet
@@ -904,14 +904,14 @@ begin
   R := fRXData[rxUnits];
 
   //Unit position
-  A := fResource.UnitDat[aUnit].UnitAnim[aAct, aDir];
+  A := gResource.UnitDat[aUnit].UnitAnim[aAct, aDir];
   Id0 := A.Step[UnitStillFrames[aDir] mod Byte(A.Count) + 1] + 1;
 
   //Units feet
   Ground := pY + (R.Pivot[Id0].Y + R.Size[Id0].Y) / CELL_SIZE_PX;
 
   //Flag position
-  A := fResource.UnitDat[aUnit].UnitAnim[ua_WalkArm, aDir];
+  A := gResource.UnitDat[aUnit].UnitAnim[ua_WalkArm, aDir];
   IdFlag := A.Step[FlagAnim mod Byte(A.Count) + 1] + 1;
   if IdFlag <= 0 then Exit;
 
@@ -926,7 +926,7 @@ procedure TRenderPool.AddUnitWithDefaultArm(aUnit: TUnitType; aUID: Integer; aAc
 begin
   if aUnit = ut_Fish then aAct := FishCountAct[5]; //In map editor always render 5 fish
   AddUnit(aUnit, aUID, aAct, aDir, StepId, pX, pY, FlagColor, True, DoImmediateRender, Deleting);
-  if fResource.UnitDat[aUnit].SupportsAction(ua_WalkArm) then
+  if gResource.UnitDat[aUnit].SupportsAction(ua_WalkArm) then
     AddUnit(aUnit, aUID, ua_WalkArm, aDir, StepId, pX, pY, FlagColor, True, DoImmediateRender, Deleting);
 end;
 
@@ -1167,7 +1167,7 @@ begin
   fHouseOutline.Clear;
 
   Loc := aHouse.GetPosition;
-  fResource.HouseDat[aHouse.HouseType].Outline(fHouseOutline);
+  gResource.HouseDat[aHouse.HouseType].Outline(fHouseOutline);
 
   glColor3f(0, 1, 1);
   glBegin(GL_LINE_LOOP);

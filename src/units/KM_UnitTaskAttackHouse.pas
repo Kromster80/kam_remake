@@ -127,7 +127,7 @@ begin
              Delay := BOWMEN_AIMING_DELAY_MIN+KaMRandom(BOWMEN_AIMING_DELAY_ADD);
 
            //Prevent rate of fire exploit by making archers pause for longer if they shot recently
-           Cycle := max(fResource.UnitDat[UnitType].UnitAnim[ua_Work, Direction].Count, 1);
+           Cycle := max(gResource.UnitDat[UnitType].UnitAnim[ua_Work, Direction].Count, 1);
            if NeedsToReload(Cycle) then
              Delay := Delay + Cycle-(gGame.GameTickCount-LastShootTime);
 
@@ -176,7 +176,7 @@ begin
              else           Assert(false, 'Unknown shooter');
            end;
            SetLastShootTime; //Record last time the warrior shot
-           AnimLength := fResource.UnitDat[UnitType].UnitAnim[ua_Work, Direction].Count;
+           AnimLength := gResource.UnitDat[UnitType].UnitAnim[ua_Work, Direction].Count;
            SetActionLockedStay(AnimLength - FIRING_DELAY, ua_Work, False, 0, FIRING_DELAY); //Reload for next attack
            fPhase := 0; //Go for another shot (will be 1 after inc below)
          end

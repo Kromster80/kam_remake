@@ -97,9 +97,9 @@ begin
   end;
 
   if gTerrain.HasUnit(PlaceTo) then
-    raise ELocError.Create('No space for ' + fResource.UnitDat[aUnitType].GUIName +
+    raise ELocError.Create('No space for ' + gResource.UnitDat[aUnitType].GUIName +
                            ' at ' + TypeToString(aLoc) +
-                           ', tile is already occupied by ' + fResource.UnitDat[TKMUnit(gTerrain.Land[PlaceTo.Y,PlaceTo.X].IsUnit).UnitType].GUIName,
+                           ', tile is already occupied by ' + gResource.UnitDat[TKMUnit(gTerrain.Land[PlaceTo.Y,PlaceTo.X].IsUnit).UnitType].GUIName,
                            PlaceTo);
 
   ID := gGame.GetNewUID;
@@ -112,7 +112,7 @@ begin
     ut_Recruit:                       Result := TKMUnitRecruit.Create(ID, aUnitType, PlaceTo, aOwner);
     WARRIOR_MIN..WARRIOR_MAX:         Result := TKMUnitWarrior.Create(ID, aUnitType, PlaceTo, aOwner);
     ANIMAL_MIN..ANIMAL_MAX:           Result := TKMUnitAnimal.Create(ID, aUnitType, PlaceTo, aOwner);
-    else                              raise ELocError.Create('Add ' + fResource.UnitDat[aUnitType].GUIName, PlaceTo);
+    else                              raise ELocError.Create('Add ' + gResource.UnitDat[aUnitType].GUIName, PlaceTo);
   end;
 
   if Result <> nil then

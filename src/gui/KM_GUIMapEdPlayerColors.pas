@@ -41,7 +41,7 @@ begin
   TKMBevel.Create(Panel_Color, 0, 30, TB_WIDTH, 180);
   ColorSwatch_Color := TKMColorSwatch.Create(Panel_Color, 2, 32, 16, 16, 11);
   for I := 0 to 255 do
-    Col[I] := fResource.Palettes.DefDal.Color32(I);
+    Col[I] := gResource.Palettes.DefDal.Color32(I);
   ColorSwatch_Color.SetColors(Col);
   ColorSwatch_Color.OnClick := Player_ColorClick;
 end;

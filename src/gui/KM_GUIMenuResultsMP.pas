@@ -474,9 +474,9 @@ begin
     if gHands[K].Enabled
     and not gHands[K].Stats.ChartWaresEmpty(R) then
     begin
-      Columnbox_Wares.AddItem(MakeListRow(['', fResource.Wares[R].Title],
+      Columnbox_Wares.AddItem(MakeListRow(['', gResource.Wares[R].Title],
                                           [$FFFFFFFF, $FFFFFFFF],
-                                          [MakePic(rxGui, fResource.Wares[R].GUIIcon), MakePic(rxGui, 0)],
+                                          [MakePic(rxGui, gResource.Wares[R].GUIIcon), MakePic(rxGui, 0)],
                                           Byte(R)));
       Break;
     end;
@@ -489,7 +489,7 @@ begin
     Chart_MPWares[R].Clear;
     Chart_MPWares[R].MaxLength := 0;
     Chart_MPWares[R].MaxTime := gGame.GameTickCount div 10;
-    Chart_MPWares[R].Caption := gResTexts[TX_GRAPH_TITLE_RESOURCES] + ' - ' + fResource.Wares[R].Title;
+    Chart_MPWares[R].Caption := gResTexts[TX_GRAPH_TITLE_RESOURCES] + ' - ' + gResource.Wares[R].Title;
 
     for I := 0 to gHands.Count - 1 do
     with gHands[I] do

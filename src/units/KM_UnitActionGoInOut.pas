@@ -250,9 +250,9 @@ function TUnitActionGoInOut.GetDoorwaySlide(aCheck: TCheckAxis): Single;
 var Offset: Integer;
 begin
   if aCheck = ax_X then
-    Offset := fResource.HouseDat[fHouse.HouseType].EntranceOffsetXpx - CELL_SIZE_PX div 2
+    Offset := gResource.HouseDat[fHouse.HouseType].EntranceOffsetXpx - CELL_SIZE_PX div 2
   else
-    Offset := fResource.HouseDat[fHouse.HouseType].EntranceOffsetYpx;
+    Offset := gResource.HouseDat[fHouse.HouseType].EntranceOffsetYpx;
 
   if (fHouse = nil) or not fHasStarted then
     Result := 0
@@ -334,7 +334,7 @@ begin
     fUnit.IsExchanging := (fHouse.DoorwayUse > 1);
 
   Assert((fHouse = nil) or KMSamePoint(fDoor, fHouse.GetEntrance)); //Must always go in/out the entrance of the house
-  Distance := fResource.UnitDat[fUnit.UnitType].Speed;
+  Distance := gResource.UnitDat[fUnit.UnitType].Speed;
 
   //Actual speed is slower if we are moving diagonally, due to the fact we are moving in X and Y
   if (fStreet.X - fDoor.X <> 0) then

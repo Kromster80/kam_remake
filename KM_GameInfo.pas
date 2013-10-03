@@ -96,7 +96,7 @@ var I: Integer;
 begin
   SaveStream.WriteA('KaM_GameInfo');
   SaveStream.WriteA(GAME_REVISION); //Save current revision
-  SaveStream.Write(fResource.GetDATCRC);
+  SaveStream.Write(gResource.GetDATCRC);
 
   SaveStream.WriteW(Title); //GameName
   SaveStream.Write(TickCount);
@@ -121,7 +121,7 @@ end;
 
 function TKMGameInfo.IsValid(aCheckDATCRC: Boolean): Boolean;
 begin
-  Result := (PlayerCount > 0) and (not aCheckDATCRC or (DATCRC = fResource.GetDATCRC));
+  Result := (PlayerCount > 0) and (not aCheckDATCRC or (DATCRC = gResource.GetDATCRC));
 end;
 
 

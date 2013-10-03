@@ -143,9 +143,9 @@ begin
           x0 := Max(K-1, 1);
           y2 := Min(I+1, fMapY);
           Light := Round(EnsureRange((TileHeight - (fParser.MapPreview[K,y2].TileHeight + fParser.MapPreview[x0,I].TileHeight)/2)/22, -1, 1)*64);
-          fBase[N] := Byte(EnsureRange(fResource.Tileset.TileColor[TileID].R+Light, 0, 255)) +
-                      Byte(EnsureRange(fResource.Tileset.TileColor[TileID].G+Light, 0, 255)) shl 8 +
-                      Byte(EnsureRange(fResource.Tileset.TileColor[TileID].B+Light, 0, 255)) shl 16 or $FF000000;
+          fBase[N] := Byte(EnsureRange(gResource.Tileset.TileColor[TileID].R+Light, 0, 255)) +
+                      Byte(EnsureRange(gResource.Tileset.TileColor[TileID].G+Light, 0, 255)) shl 8 +
+                      Byte(EnsureRange(gResource.Tileset.TileColor[TileID].B+Light, 0, 255)) shl 16 or $FF000000;
         end;
     end;
 end;
@@ -224,14 +224,14 @@ begin
           if U.Owner <> PLAYER_ANIMAL then
             fBase[I*fMapX + K] := gHands[U.Owner].FlagColor
           else
-            fBase[I*fMapX + K] := fResource.UnitDat[U.UnitType].MinimapColor
+            fBase[I*fMapX + K] := gResource.UnitDat[U.UnitType].MinimapColor
         else
         begin
           ID := fMyTerrain.Land[I+1,K+1].Terrain;
           Light := Round(fMyTerrain.Land[I+1,K+1].Light*64)-(255-FOW); //it's -255..255 range now
-          fBase[I*fMapX + K] := Byte(EnsureRange(fResource.Tileset.TileColor[ID].R+Light,0,255)) +
-                                Byte(EnsureRange(fResource.Tileset.TileColor[ID].G+Light,0,255)) shl 8 +
-                                Byte(EnsureRange(fResource.Tileset.TileColor[ID].B+Light,0,255)) shl 16 or $FF000000;
+          fBase[I*fMapX + K] := Byte(EnsureRange(gResource.Tileset.TileColor[ID].R+Light,0,255)) +
+                                Byte(EnsureRange(gResource.Tileset.TileColor[ID].G+Light,0,255)) shl 8 +
+                                Byte(EnsureRange(gResource.Tileset.TileColor[ID].B+Light,0,255)) shl 16 or $FF000000;
         end;
       end;
   end;

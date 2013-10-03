@@ -104,8 +104,8 @@ begin
 
   fRender       := TRender.Create(aRenderControl, aScreenX, aScreenY, aVSync);
 
-  fResource := TResource.Create(fRender, aLS, aLT);
-  fResource.LoadMainResources(fGameSettings.Locale);
+  gResource := TKMResource.Create(fRender, aLS, aLT);
+  gResource.LoadMainResources(fGameSettings.Locale);
 
   //Show the message if user has old OpenGL drivers (pre-1.4)
   if fRender.IsOldGLVersion then
@@ -164,7 +164,7 @@ begin
   FreeThenNil(fCampaigns);
   FreeThenNil(fGameSettings);
   FreeThenNil(fMainMenuInterface);
-  FreeThenNil(fResource);
+  FreeThenNil(gResource);
   FreeThenNil(gSoundPlayer);
   FreeThenNil(fMusicLib);
   FreeThenNil(gResTexts);
@@ -201,7 +201,7 @@ begin
   FreeAndNil(fMainMenuInterface);
 
   //Recreate resources that use Locale info
-  fResource.LoadLocaleResources(fGameSettings.Locale);
+  gResource.LoadLocaleResources(fGameSettings.Locale);
 
   {$IFDEF USE_MAD_EXCEPT}fExceptions.LoadTranslation;{$ENDIF}
 
@@ -337,8 +337,8 @@ begin
   Render(False);
 
   GameLoadingStep(gResTexts[TX_MENU_LOADING_DEFINITIONS]);
-  fResource.OnLoadingText := GameLoadingStep;
-  fResource.LoadGameResources(fGameSettings.AlphaShadows);
+  gResource.OnLoadingText := GameLoadingStep;
+  gResource.LoadGameResources(fGameSettings.AlphaShadows);
 
   GameLoadingStep(gResTexts[TX_MENU_LOADING_INITIALIZING]);
 
@@ -664,7 +664,7 @@ end;
 
 function TKMGameApp.CheckDATConsistency: Boolean;
 begin
-  Result := ALLOW_MP_MODS or (fResource.GetDATCRC = $4F5458E6); //That's the magic CRC of official .dat files
+  Result := ALLOW_MP_MODS or (gResource.GetDATCRC = $4F5458E6); //That's the magic CRC of official .dat files
 end;
 
 

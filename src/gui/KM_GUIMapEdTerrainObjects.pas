@@ -80,7 +80,7 @@ var
   I: Integer;
 begin
   fCountCompact := 0;
-  for I := 0 to fResource.MapElements.Count - 1 do
+  for I := 0 to gResource.MapElements.Count - 1 do
   if (MapElem[I].Anim.Count > 0) and (MapElem[I].Anim.Step[1] > 0)
   and (MapElem[I].Stump = -1) and (I <> 61) then //Hide falling trees and invisible wall (61)
   begin

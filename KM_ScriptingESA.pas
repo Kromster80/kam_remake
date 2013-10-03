@@ -867,7 +867,7 @@ begin
     H := fIDCache.GetHouse(aHouseID);
     if (H <> nil) then
       for I := 1 to 4 do
-        if fResource.HouseDat[H.HouseType].ResOutput[I] = Res then
+        if gResource.HouseDat[H.HouseType].ResOutput[I] = Res then
         begin
           Result := H.ResOrder[I];
           Exit;
@@ -1573,7 +1573,7 @@ begin
   and (aHouseType in [Low(HouseIndexToType) .. High(HouseIndexToType)])
   and gTerrain.TileInMapCoords(X, Y) then
   begin
-    if gTerrain.CanPlaceHouseFromScript(HouseIndexToType[aHouseType], KMPoint(X - fResource.HouseDat[HouseIndexToType[aHouseType]].EntranceOffsetX, Y)) then
+    if gTerrain.CanPlaceHouseFromScript(HouseIndexToType[aHouseType], KMPoint(X - gResource.HouseDat[HouseIndexToType[aHouseType]].EntranceOffsetX, Y)) then
     begin
       H := gHands[aPlayer].AddHouse(HouseIndexToType[aHouseType], X, Y, True);
       if H = nil then Exit;
@@ -1967,7 +1967,7 @@ begin
     H := fIDCache.GetHouse(aHouseID);
     if (H <> nil) then
       for I := 1 to 4 do
-        if fResource.HouseDat[H.HouseType].ResOutput[I] = Res then
+        if gResource.HouseDat[H.HouseType].ResOutput[I] = Res then
         begin
           H.ResOrder[I] := aAmount;
           Exit;

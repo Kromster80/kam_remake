@@ -1807,11 +1807,11 @@ end;
 procedure TKMLabel.ReformatText;
 begin
   if fAutoWrap then
-    fText := fResource.Fonts.WordWrap(fCaption, fFont, Width, True, False)
+    fText := gResource.Fonts.WordWrap(fCaption, fFont, Width, True, False)
   else
     fText := fCaption;
 
-  fTextSize := fResource.Fonts.GetTextSize(fText, fFont);
+  fTextSize := gResource.Fonts.GetTextSize(fText, fFont);
 end;
 
 
@@ -2194,7 +2194,7 @@ begin
   fCaption    := aCaption;
   ShapeColor  := aShapeColor;
   fFont       := aFont;
-  fFontHeight := fResource.Fonts.FontData[fFont].BaseHeight + 2;
+  fFontHeight := gResource.Fonts.FontData[fFont].BaseHeight + 2;
   FontColor   := $FFFFFFFF;
 end;
 
@@ -2251,7 +2251,7 @@ begin
   begin
     //Remove characters to the left of fLeftIndex
     RText := Copy(fText, fLeftIndex+1, Length(fText));
-    while fCursorPos-fLeftIndex > fResource.Fonts.CharsThatFit(RText, fFont, Width-8) do
+    while fCursorPos-fLeftIndex > gResource.Fonts.CharsThatFit(RText, fFont, Width-8) do
     begin
       Inc(fLeftIndex);
       //Remove characters to the left of fLeftIndex
@@ -2412,7 +2412,7 @@ begin
   if (csFocus in State) and ((TimeGet div 500) mod 2 = 0) then
   begin
     SetLength(RText, CursorPos - fLeftIndex);
-    OffX := AbsLeft + 2 + fResource.Fonts.GetTextSize(RText, fFont).X;
+    OffX := AbsLeft + 2 + gResource.Fonts.GetTextSize(RText, fFont).X;
     TKMRenderUI.WriteShape(OffX, AbsTop+2, 3, Height-4, Col, $FF000000);
   end;
 end;
@@ -2444,7 +2444,7 @@ begin
   inherited;
   if fEnabled then Col:=$FFFFFFFF else Col:=$FF888888;
 
-  CheckSize := fResource.Fonts.GetTextSize('I', fFont).Y + 1;
+  CheckSize := gResource.Fonts.GetTextSize('I', fFont).Y + 1;
 
   TKMRenderUI.WriteBevel(AbsLeft, AbsTop, CheckSize-4, CheckSize-4, 1, 0.3);
 
@@ -2517,7 +2517,7 @@ begin
   if Count = 0 then Exit; //Avoid dividing by zero
 
   LineHeight := Round(fHeight / Count);
-  CheckSize := fResource.Fonts.GetTextSize('I', fFont).Y + 1;
+  CheckSize := gResource.Fonts.GetTextSize('I', fFont).Y + 1;
 
   for I := 0 to Count - 1 do
   begin
@@ -2588,7 +2588,7 @@ var
   W: Word;
 begin
   // Text width + padding + buttons
-  W := fResource.Fonts.GetTextSize(IntToStr(aValueMax), fnt_Grey).X + 16 + 20 + 20;
+  W := gResource.Fonts.GetTextSize(IntToStr(aValueMax), fnt_Grey).X + 16 + 20 + 20;
 
   inherited Create(aParent, aLeft, aTop, W, 20);
 
@@ -2748,7 +2748,7 @@ begin
   begin
     //Remove characters to the left of fLeftIndex
     RText := Copy(fText, fLeftIndex+1, Length(fText));
-    while fCursorPos-fLeftIndex > fResource.Fonts.CharsThatFit(RText, fFont, Width-8) do
+    while fCursorPos-fLeftIndex > gResource.Fonts.CharsThatFit(RText, fFont, Width-8) do
     begin
       Inc(fLeftIndex);
       //Remove characters to the left of fLeftIndex
@@ -2826,7 +2826,7 @@ begin
   if (csFocus in State) and ((TimeGet div 500) mod 2 = 0) then
   begin
     SetLength(RText, CursorPos - fLeftIndex);
-    OffX := AbsLeft + 22 + fResource.Fonts.GetTextSize(RText, fFont).X;
+    OffX := AbsLeft + 22 + gResource.Fonts.GetTextSize(RText, fFont).X;
     TKMRenderUI.WriteShape(OffX, AbsTop+2, 3, Height-4, Col, $FF000000);
   end;
 end;
@@ -2893,7 +2893,7 @@ begin
   fTrackHeight := 20;
   Position := (fMinValue + fMaxValue) div 2;
   Caption := '';
-  ThumbWidth := fResource.Fonts.GetTextSize(IntToStr(MaxValue), fFont).X + 24;
+  ThumbWidth := gResource.Fonts.GetTextSize(IntToStr(MaxValue), fFont).X + 24;
 
   Font := fnt_Metal;
   Step := 1;
@@ -2965,7 +2965,7 @@ begin
   TKMRenderUI.WriteBevel(AbsLeft+2,AbsTop+fTrackTop+2,Width-4,fTrackHeight-4);
   ThumbPos := Round(Mix (0, Width - ThumbWidth - 4, 1-(Position-fMinValue) / (fMaxValue - fMinValue)));
 
-  ThumbHeight := fResource.Sprites[rxGui].RXData.Size[132].Y;
+  ThumbHeight := gResource.Sprites[rxGui].RXData.Size[132].Y;
 
   TKMRenderUI.WritePicture(AbsLeft + ThumbPos + 2, AbsTop+fTrackTop, ThumbWidth, ThumbHeight, [akLeft,akRight], rxGui, 132);
   TKMRenderUI.WriteText(AbsLeft + ThumbPos + ThumbWidth div 2 + 2, AbsTop+fTrackTop+3, 0, ThumbText, fnt_Metal, taCenter, TextColor[fEnabled]);
@@ -3299,7 +3299,7 @@ var
   newText: UnicodeString;
 begin
   if fAutoWrap then
-    newText := fResource.Fonts.WordWrap(fText, fFont, fWidth - fScrollBar.Width - 8, True, IndentAfterNL)
+    newText := gResource.Fonts.WordWrap(fText, fFont, fWidth - fScrollBar.Width - 8, True, IndentAfterNL)
   else
     newText := fText;
 
@@ -3720,7 +3720,7 @@ begin
       TKMRenderUI.WritePicture(ColumnLeft + 4, AbsTop, ColumnWidth - 8, Height, [], fColumns[I].Glyph.RX, fColumns[I].Glyph.ID)
     else
     begin
-      TextSize := fResource.Fonts.GetTextSize(fColumns[I].Caption, fFont);
+      TextSize := gResource.Fonts.GetTextSize(fColumns[I].Caption, fFont);
       TKMRenderUI.WriteText(ColumnLeft + 4, AbsTop + (Height - TextSize.Y) div 2 + 2, ColumnWidth - 8, fColumns[I].Caption, fFont, fTextAlign);
     end;
 
@@ -4123,7 +4123,7 @@ begin
     if Rows[aIndex].Cells[I].Caption <> '' then
       if Rows[aIndex].Cells[I].Hint <> '' then
       begin
-        TextSize := fResource.Fonts.GetTextSize(Rows[aIndex].Cells[I].Caption, fFont);
+        TextSize := gResource.Fonts.GetTextSize(Rows[aIndex].Cells[I].Caption, fFont);
         TKMRenderUI.WriteText(X + 4 + fHeader.Columns[I].Offset,
                             Y + 4,
                             AvailWidth,
@@ -4136,7 +4136,7 @@ begin
                             fColumns[I].HintFont, fColumns[I].TextAlign, $FFB0B0B0);
       end else
       begin
-        TextSize := fResource.Fonts.GetTextSize(Rows[aIndex].Cells[I].Caption, fFont);
+        TextSize := gResource.Fonts.GetTextSize(Rows[aIndex].Cells[I].Caption, fFont);
         if HighlightOnMouseOver and (csOver in State) and (fMouseOverRow = aIndex) then
           Color := Rows[aIndex].Cells[I].HighlightColor //Brighten(Rows[aIndex].Cells[I].Color)
         else
@@ -5496,15 +5496,15 @@ begin
     CtrlOver.MouseMove(X, Y, Shift);
 
   //The Game hides cursor when using DirectionSelector, don't spoil it
-  if fResource.Cursors.Cursor <> kmc_Invisible then
+  if gResource.Cursors.Cursor <> kmc_Invisible then
     if CtrlOver is TKMEdit then
-      fResource.Cursors.Cursor := kmc_Edit
+      gResource.Cursors.Cursor := kmc_Edit
     else
     if CtrlOver is TKMDragger then
-      fResource.Cursors.Cursor := kmc_DragUp
+      gResource.Cursors.Cursor := kmc_DragUp
     else
-      if fResource.Cursors.Cursor in [kmc_Edit, kmc_DragUp] then
-        fResource.Cursors.Cursor := kmc_Default; //Reset the cursor from these two special cursors
+      if gResource.Cursors.Cursor in [kmc_Edit, kmc_DragUp] then
+        gResource.Cursors.Cursor := kmc_Default; //Reset the cursor from these two special cursors
 
   HintControl := HitControl(X, Y, True); //Include disabled controls
   if (CtrlDown = nil) and (HintControl <> nil) and Assigned(fOnHint) then

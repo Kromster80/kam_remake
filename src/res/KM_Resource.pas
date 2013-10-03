@@ -20,13 +20,12 @@ uses
 
 
 type
-  TDataLoadingState = (dls_None, dls_Menu, dls_All); //Resources are loaded in 2 steps, for menu and the rest
+  TResourceLoadState = (rlsNone, rlsMenu, rlsAll); //Resources are loaded in 2 steps, for menu and the rest
 
-
-  TResource = class
+  TKMResource = class
   private
     fRender: TRender;
-    fDataState: TDataLoadingState;
+    fDataState: TResourceLoadState;
     fCursors: TKMCursors;
     fFonts: TKMResourceFont;
     fHouseDat: TKMHouseDatCollection;
@@ -53,7 +52,7 @@ type
     procedure LoadLocaleResources(aLocale: AnsiString = '');
     procedure LoadGameResources(aAlphaShadows: boolean);
 
-    property DataState: TDataLoadingState read fDataState;
+    property DataState: TResourceLoadState read fDataState;
     property Cursors: TKMCursors read fCursors;
     property HouseDat: TKMHouseDatCollection read fHouseDat;
     property MapElements: TKMMapElements read fMapElements;
@@ -72,18 +71,20 @@ type
 
 
   var
-    fResource: TResource;
+    gResource: TKMResource;
 
 
 implementation
-uses KromUtils, KM_Log, KM_Points, KM_ResTexts;
+uses
+  KromUtils, KM_Log, KM_Points, KM_ResTexts;
 
 
-{ TResource }
-constructor TResource.Create(aRender: TRender; aLS: TEvent; aLT: TUnicodeStringEvent);
+{ TKMResource }
+constructor TKMResource.Create(aRender: TRender; aLS: TEvent; aLT: TUnicodeStringEvent);
 begin
   inherited Create;
-  fDataState := dls_None;
+
+  fDataState := rlsNone;
   gLog.AddTime('Resource loading state - None');
 
   fRender := aRender;
@@ -92,7 +93,7 @@ begin
 end;
 
 
-destructor TResource.Destroy;
+destructor TKMResource.Destroy;
 begin
   FreeAndNil(fCursors);
   FreeAndNil(fHouseDat);
@@ -110,20 +111,20 @@ begin
 end;
 
 
-procedure TResource.StepRefresh;
+procedure TKMResource.StepRefresh;
 begin
   if Assigned(OnLoadingStep) then OnLoadingStep;
 end;
 
 
-procedure TResource.StepCaption(const aCaption: UnicodeString);
+procedure TKMResource.StepCaption(const aCaption: UnicodeString);
 begin
   if Assigned(OnLoadingText) then OnLoadingText(aCaption);
 end;
 
 
 //CRC of data files that can cause inconsitencies
-function TResource.GetDATCRC: Cardinal;
+function TKMResource.GetDATCRC: Cardinal;
 begin
   Result := HouseDat.CRC xor
             UnitDat.CRC xor
@@ -132,7 +133,7 @@ begin
 end;
 
 
-procedure TResource.LoadMainResources(aLocale: AnsiString = '');
+procedure TKMResource.LoadMainResources(aLocale: AnsiString = '');
 begin
   Assert(SKIP_RENDER or (fRender <> nil), 'fRenderSetup should be init before ReadGFX to be able access OpenGL');
 
@@ -168,14 +169,14 @@ begin
 
   StepRefresh;
   gLog.AddTime('ReadGFX is done');
-  fDataState := dls_Menu;
+  fDataState := rlsMenu;
   gLog.AddTime('Resource loading state - Menu');
 
   LoadLocaleResources(aLocale);
 end;
 
 
-procedure TResource.LoadLocaleResources(aLocale: AnsiString = '');
+procedure TKMResource.LoadLocaleResources(aLocale: AnsiString = '');
 begin
   FreeAndNil(gResLocales);
   FreeAndNil(gResTexts);
@@ -190,23 +191,23 @@ begin
 end;
 
 
-procedure TResource.LoadGameResources(aAlphaShadows: Boolean);
+procedure TKMResource.LoadGameResources(aAlphaShadows: Boolean);
 begin
   Assert(fRender <> nil, 'fRender inits OpenGL and we need OpenGL to make textures');
 
-  if (fDataState <> dls_All) or (aAlphaShadows <> fSprites.AlphaShadows) then
+  if (fDataState <> rlsAll) or (aAlphaShadows <> fSprites.AlphaShadows) then
   begin
     fSprites.LoadGameResources(aAlphaShadows);
     fSprites.ClearTemp;
   end;
 
-  fDataState := dls_All;
+  fDataState := rlsAll;
   gLog.AddTime('Resource loading state - Game');
 end;
 
 
 //Export Units graphics categorized by Unit and Action
-procedure TResource.ExportUnitAnim;
+procedure TKMResource.ExportUnitAnim;
 var
   Folder: string;
   Bmp: TBitmap;
@@ -303,7 +304,7 @@ end;
 
 
 //Export Houses graphics categorized by House and Action
-procedure TResource.ExportHouseAnim;
+procedure TKMResource.ExportHouseAnim;
 var
   Folder: string;
   Bmp: TBitmap;
@@ -379,7 +380,7 @@ end;
 
 
 //Export Trees graphics categorized by ID
-procedure TResource.ExportTreeAnim;
+procedure TKMResource.ExportTreeAnim;
 var
   RXData: TRXData;
   Folder: string;
