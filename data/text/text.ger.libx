@@ -1,19 +1,16 @@
-
-MaxID:697
-
-0:Sägewerk
+ï»¿0:SÃ¤gewerk
 1:Eisenschmelze
 2:Waffenschmiede
 3:Kohlebergwerk
 4:Eisenmine
 5:Goldmine
-6:Fischerhütte
-7:Bäckerei
+6:FischerhÃ¼tte
+7:BÃ¤ckerei
 8:Bauernhof
-9:Holzfällerhütte
-10:Rüstungsschmiede
+9:HolzfÃ¤llerhÃ¼tte
+10:RÃ¼stungsschmiede
 11:Lagerhaus
-12:Ställe
+12:StÃ¤lle
 13:Schulhaus
 14:Steinbruch
 15:Goldschmelze
@@ -21,9 +18,9 @@ MaxID:697
 17:Wachturm
 18:Rathaus
 19:Waffenwerkstatt
-20:Rüstungswerkstatt
+20:RÃ¼stungswerkstatt
 21:Kaserne
-22:Mühle
+22:MÃ¼hle
 23:Kriegswerkstatt
 24:Metzgerei
 25:Gerberei
@@ -31,7 +28,7 @@ MaxID:697
 27:Gasthof
 28:Weingut
 29:Markthalle
-30:Baumstämme
+30:BaumstÃ¤mme
 31:Steine
 32:Nutzholz
 33:Eisenerz
@@ -39,18 +36,18 @@ MaxID:697
 35:Kohle
 36:Eisen
 37:Gold
-38:Weinfässer
+38:WeinfÃ¤sser
 39:Korn
 40:Brote
 41:Mehl
 42:Leder
-43:Würste
+43:WÃ¼rste
 44:Schweine
-45:Häute
+45:HÃ¤ute
 46:Holzschild
 47:Eisenschild
-48:Lederrüstung
-49:Eisenrüstung
+48:LederrÃ¼stung
+49:EisenrÃ¼stung
 50:Handaxt
 51:Schwert
 52:Lanze
@@ -60,12 +57,12 @@ MaxID:697
 56:Pferde
 57:Fische
 58:Gehilfe
-59:Holzfäller
+59:HolzfÃ¤ller
 60:Bergmann
-61:Viehzüchter
+61:ViehzÃ¼chter
 62:Bauer/Winzer
 63:Schreiner
-64:Bäcker/Müller
+64:BÃ¤cker/MÃ¼ller
 65:Metzger/Gerber
 66:Fischer
 67:Bauarbeiter
@@ -74,13 +71,13 @@ MaxID:697
 70:Schmelzer
 71:Rekrut
 72:Miliz
-73:Axtkämpfer
-74:Schwertkämpfer
-75:Bogenschützen
-76:Armbrustschützen
-77:Lanzenträger
+73:AxtkÃ¤mpfer
+74:SchwertkÃ¤mpfer
+75:BogenschÃ¼tzen
+76:ArmbrustschÃ¼tzen
+77:LanzentrÃ¤ger
 78:Pikenier
-79:Späher
+79:SpÃ¤her
 80:Rittergarde
 81:Barbar
 82:Rebell
@@ -89,25 +86,25 @@ MaxID:697
 85:Vagabund
 86:Katapult
 87:Balliste
-88:Der Gehilfe versorgt Ihre Gebäude mit den benötig- ten Rohstoffen.||Beachten Sie dabei, dass eine Straßenverbindung zwischen den Häusern bestehen muss.
-89:Um Baumstämme für das Sägewerk zu produzieren, benötigen Sie den Holzfäller.||Der Holzfäller forstet den Wald selbstständig wieder auf.
-90:Der Bergmann fördert Erze in der Kohlen-, Eisen- und Goldmine.
-91:In der Schweine- und Pferdezucht züchtet der Viehzüchter mit Hilfe von Korn das Vieh.
-92:Der Bauer säht und erntet Korn in dem Bauernhof.||Außerdem keltert er Wein im Weingut.
-93:Der Schreiner arbeitet in dem Sägewerk, in der Waffen- und Rüstungs- werkstatt, wo er Waffen und Rüstungen aus Holz herstellt.||Zusätzlich fertigt der Schreiner Katapulte und Ballisten in der Kriegs- werkstatt an.
-94:Der Bäcker backt Brot in der Bäckerei.||Zusätzlich verarbeitet er Korn zu Mehl in der Windmühle.
-95:Der Metzger produziert Würste in der Metzgerei und Leder in der Gerberei.
-96:Der Fischer fängt Fische in naheliegenden Gewässern.
-97:Der Bauarbeiter errichtet Gebäude und Straßen. Setzen Sie die Markier- ungen und er erfüllt Ihre Aufträge auto- matisch.||Außerdem repariert er beschädigte Häuser.
-98:Damit Ihre Bauarbeiter genügend Steine zum Errichten von Straßen und Häusern haben, baut der Steinmetz Steine ab.
-99:Schwere Rüstungen und Waffen werden von dem Schmied in der Waffen- und Rüstungsschmiede hergestellt.
+88:Der Gehilfe versorgt Ihre GebÃ¤ude mit den benÃ¶tig- ten Rohstoffen.||Beachten Sie dabei, dass eine StraÃŸenverbindung zwischen den HÃ¤usern bestehen muss.
+89:Um BaumstÃ¤mme fÃ¼r das SÃ¤gewerk zu produzieren, benÃ¶tigen Sie den HolzfÃ¤ller.||Der HolzfÃ¤ller forstet den Wald selbststÃ¤ndig wieder auf.
+90:Der Bergmann fÃ¶rdert Erze in der Kohlen-, Eisen- und Goldmine.
+91:In der Schweine- und Pferdezucht zÃ¼chtet der ViehzÃ¼chter mit Hilfe von Korn das Vieh.
+92:Der Bauer sÃ¤ht und erntet Korn in dem Bauernhof.||AuÃŸerdem keltert er Wein im Weingut.
+93:Der Schreiner arbeitet in dem SÃ¤gewerk, in der Waffen- und RÃ¼stungs- werkstatt, wo er Waffen und RÃ¼stungen aus Holz herstellt.||ZusÃ¤tzlich fertigt der Schreiner Katapulte und Ballisten in der Kriegs- werkstatt an.
+94:Der BÃ¤cker backt Brot in der BÃ¤ckerei.||ZusÃ¤tzlich verarbeitet er Korn zu Mehl in der WindmÃ¼hle.
+95:Der Metzger produziert WÃ¼rste in der Metzgerei und Leder in der Gerberei.
+96:Der Fischer fÃ¤ngt Fische in naheliegenden GewÃ¤ssern.
+97:Der Bauarbeiter errichtet GebÃ¤ude und StraÃŸen. Setzen Sie die Markier- ungen und er erfÃ¼llt Ihre AuftrÃ¤ge auto- matisch.||AuÃŸerdem repariert er beschÃ¤digte HÃ¤user.
+98:Damit Ihre Bauarbeiter genÃ¼gend Steine zum Errichten von StraÃŸen und HÃ¤usern haben, baut der Steinmetz Steine ab.
+99:Schwere RÃ¼stungen und Waffen werden von dem Schmied in der Waffen- und RÃ¼stungsschmiede hergestellt.
 100:Der Schmelzer produziert aus Gold- und Eisenerz Goldtruhen, bzw. Eisen.
-101:Der Rekrut kann in der Kaserne zu einem Soldaten ausgerüstet werden.||Außerdem besetzt er den Wachturm.
+101:Der Rekrut kann in der Kaserne zu einem Soldaten ausgerÃ¼stet werden.||AuÃŸerdem besetzt er den Wachturm.
 102:Zur Bauauswahl
 103:Zur Warenverteilung
 104:Zur Statistik
 105:Zu den Optionen
-106:Zurück
+106:ZurÃ¼ck
 107:Bauauswahl
 108:Waren-|verteilung
 109:Statistik
@@ -116,48 +113,48 @@ MaxID:697
 112:Spiel speichern
 113:Wollen Sie|diese Mission|wirklich beenden?
 114:Mission beenden
-115:Zurück
+115:ZurÃ¼ck
 116:Einstellungen
 117:Editor beenden
-118:Geräusche
-119:Lautstärke ändern
-120:Lautstärke ändern
+118:GerÃ¤usche
+119:LautstÃ¤rke Ã¤ndern
+120:LautstÃ¤rke Ã¤ndern
 121:Musik
 122:Musik ein-/ausschalten
 123:AutoSave
 124:CD-Player
 125:Vorheriges Lied
-126:Nächstes Lied
-127:Abreißen
-128:Abreißen von Häusern/Markierungen
-129:Straße bauen
-130:Straßenbau
-131:Acker pflügen
+126:NÃ¤chstes Lied
+127:AbreiÃŸen
+128:AbreiÃŸen von HÃ¤usern/Markierungen
+129:StraÃŸe bauen
+130:StraÃŸenbau
+131:Acker pflÃ¼gen
 132:Ackerbau
 133:Weinfeld anlegen
 134:Weinfeld
 135:Abbrechen
 136:Derzeitige Ausbildung abbrechen
-137:Vorrätig:
-138:Vorräte:
+137:VorrÃ¤tig:
+138:VorrÃ¤te:
 139:Zustand:
 140:Liefert
-141:Das Gebäude wird|derzeit noch errichtet
-142:Zerstören
-143:Wollen Sie das Gebäude|wirklich abreißen?
-144:Zerstört ausgewähltes Gebäude
+141:Das GebÃ¤ude wird|derzeit noch errichtet
+142:ZerstÃ¶ren
+143:Wollen Sie das GebÃ¤ude|wirklich abreiÃŸen?
+144:ZerstÃ¶rt ausgewÃ¤hltes GebÃ¤ude
 145:Bestellmenge erniedrigen
-146:Bestellmenge erhöhen
+146:Bestellmenge erhÃ¶hen
 147:Vorheriger Einheitentyp
-148:Nächster Einheitentyp
-149:Aktuellen Einheitentyp ausrüsten
-150:Nächster Beruf
+148:NÃ¤chster Einheitentyp
+149:Aktuellen Einheitentyp ausrÃ¼sten
+150:NÃ¤chster Beruf
 151:Vorherigen Beruf
-152:Zur Warteschlange hinzufügen
+152:Zur Warteschlange hinzufÃ¼gen
 153:Warenlieferung ein-/ausschalten
 154:Kosten:
 155:Hausreparatur ein-/ausschalten
-156:Gebäude derzeit nicht verfügbar
+156:GebÃ¤ude derzeit nicht verfÃ¼gbar
 157:Ausdauer
 158:Truppe linksum drehen
 159:Truppe rechtsum drehen
@@ -165,46 +162,46 @@ MaxID:697
 161:Truppe senden ('s')
 162:Truppe mit Nahrung versorgen
 163:Sturmangriff starten
-164:Eine Reihe hinzufügen
+164:Eine Reihe hinzufÃ¼gen
 165:Eine Reihe abziehen
-166:Zielgruppe|wählen
+166:Zielgruppe|wÃ¤hlen
 167:Abbruch
-168:Löschen
-169:Löscht die aktuelle Nachricht
+168:LÃ¶schen
+169:LÃ¶scht die aktuelle Nachricht
 170:Gehe zu
 171:Springt zur Position der aktuellen Nachricht
-172:Schließen
-173:Fenster schließen
-174:Euer Steinmetz erreicht keine weiteren Steinbestände.
-175:Euer Kohlebergwerk ist erschöpft.
-176:Euer Eisenbergwerk ist erschöpft.
-177:Euer Goldbergwerk ist erschöpft.
-178:Der Holzfäller erreicht keine weiteren Baumbestände.
+172:SchlieÃŸen
+173:Fenster schlieÃŸen
+174:Euer Steinmetz erreicht keine weiteren SteinbestÃ¤nde.
+175:Euer Kohlebergwerk ist erschÃ¶pft.
+176:Euer Eisenbergwerk ist erschÃ¶pft.
+177:Euer Goldbergwerk ist erschÃ¶pft.
+178:Der HolzfÃ¤ller erreicht keine weiteren BaumbestÃ¤nde.
 179:Dieses Haus ist nicht bewohnt.
 180:Diese Truppe ist sehr hungrig, sie sollte sehr bald Nahrung bekommen!
 181:PAUSE
 182:Beliefert
-183:Baut Straße
-184:Pflügt Acker
+183:Baut StraÃŸe
+184:PflÃ¼gt Acker
 185:Legt Weinfeld an
 186:Planiert Baustelle
-187:Errichtet Gebäude
-188:Repariert Gebäude
+187:Errichtet GebÃ¤ude
+188:Repariert GebÃ¤ude
 189:Geht nach Hause
 190:Geht ins Wirtshaus
-191:Attackiert Gebäude
-192:Beschießt Gegner
+191:Attackiert GebÃ¤ude
+192:BeschieÃŸt Gegner
 193:Im Gefecht.
 194:Sturmangriff!
 195:Im Gefecht
 196:Unterwegs
 197:Keine Aufgabe
 198:Baut Granit ab
-199:Säet Korn
+199:SÃ¤et Korn
 200:Erntet Weizen
 201:Erntet Weinbeeren
 202:Angelt Fisch
-203:Fällt Baum
+203:FÃ¤llt Baum
 204:Pflanzt Baum
 205:Spirit
 206:Busy
@@ -213,7 +210,7 @@ MaxID:697
 209:Middleage Guitar
 210:Landsknechte
 211:Die Prinzessin
-212:Die Königin
+212:Die KÃ¶nigin
 213:Auf dem Markt
 214:Auf dem Felde
 215:Tanz am Hof
@@ -224,7 +221,7 @@ MaxID:697
 220:Entree
 221:Deep Blue
 222:Struggle
-223:Quartier des Königs
+223:Quartier des KÃ¶nigs
 224:Aristokratie
 225:Am Hafen
 226:Reise
@@ -233,7 +230,7 @@ MaxID:697
 229:Kampagne starten
 230:Einzelmission spielen
 231:Mission starten
-232:Zurück zum Hauptmenü
+232:ZurÃ¼ck zum HauptmenÃ¼
 233:Spielstand laden
 234:Multiplayerspiel
 235:Optionen
@@ -241,44 +238,44 @@ MaxID:697
 237:Programm verlassen
 238:Weiter
 239:Mission wiederholen
-240:Auflösung:
-241:Nicht unterstützt
-242:Nicht unterstützt
+240:AuflÃ¶sung:
+241:Nicht unterstÃ¼tzt
+242:Nicht unterstÃ¼tzt
 243:MISSION GEWONNEN!
 244:MISSION VERLOREN!
 245:Verlorene Einheiten:
 246:Besiegte Einheiten:
-247:Verlorene Gebäude:
-248:Zerstörte Gebäude:
-249:Errichtete Gebäude:
+247:Verlorene GebÃ¤ude:
+248:ZerstÃ¶rte GebÃ¤ude:
+249:Errichtete GebÃ¤ude:
 250:Ausgebildete Einheiten:
 251:Produzierte Waffen:
-252:Ausgerüstete Soldaten:
+252:AusgerÃ¼stete Soldaten:
 253:Spieldauer:
 254:Statistiken
 255:Wirtschaft
-256:Bürger|ausgebildet
-257:Bürger|verloren
+256:BÃ¼rger|ausgebildet
+257:BÃ¼rger|verloren
 258:Soldaten|ausgehoben
 259:Soldaten|verloren
 260:Soldaten|besiegt
-261:Gebäude|errichtet
-262:Gebäude|verloren
-263:Gebäude|zerstört
+261:GebÃ¤ude|errichtet
+262:GebÃ¤ude|verloren
+263:GebÃ¤ude|zerstÃ¶rt
 264:Waren|produziert
 265:Waffen|produziert
 266:Armee
-267:Bürger
-268:Gebäude
+267:BÃ¼rger
+268:GebÃ¤ude
 269:Ressourcen
 270:Produzierte Ressourcen
 272:Du
 273:Spieler %d
-274:Zurück zum Multiplayer
-275:Zurück zu den Replays
+274:ZurÃ¼ck zum Multiplayer
+275:ZurÃ¼ck zu den Replays
 276:Alles
 278:Nahrung
-279:JOYMANIA ENTERTAINMENT||PROGRAMMIERUNG:|Peter Ohlmann||SPIELGRAFIK:|Adam Sprys||LEVELDESIGN:|Adam Sprys|Andre Quaß||TONSCHNITT UND -MISCHUNG:|Tonstudio Mannheim||MUSIK:|Gerd Hofmann|Joachim Schäfer|Jürgen Rebhann|Klaus Staendike|Steffen Schüngel||ILLUSTRATIONEN:|Boleslaw Kasza|Christoph Werner||ZUXXEZ ENTERTAINMENT AG||PRODUCER:|Uwe Schäfer||HANDBUCH:|Peter Ohlmann|Uwe Schäfer||BETA TESTING:|Peter Ohlmann|Adam Sprys|Alexandra Constandache|Dirk P. Hassinger|Achim Heidelauf|Uwe Schäfer|Ingrid Schäfer|Dirk U. Jantz|Ion Constandache|Yaman Egeli|Roman Eich|Iris Mocsnek|Anke Jantz|Paul Hassinger|Liza Hassinger||GAMES DIRECTOR:|Achim Heidelauf||PUBLISHED BY:|BlackStar Interactive||CUTSCENES:||LEITUNG:|Slawomir Jedrzejewski||Kajetan Czarnecki|Wojciech Drazek|Daniel Duplaga|Rafal Januszkiewicz|Andrzej Rams|Piotr Rulka|Krzysztof Rybczynski|Grzegorz Wisniwski||SPRECHER:|Claus Boyen (Erzähler)||Tim Timmermann|Peter Houska|Dirk Mühlbach|Ralf Ditze|Gerhard Piske|Gernot Wassmann||HANDBUCH SATZ+DESIGN:|Uwe Schäfer|Alexandra Constandache||HANDBUCH TEXTE:|Peter Ohlmann|Uwe Schäfer||ARTWORK:|Boleslaw Kasza|Adam Sprys||ERÖFFNUNGSANIMATION:|Uwe Schäfer|Christian Bigalk|Zusätzliches 3D-Modelling:|Niels Horstmann||BESONDEREN DANK AN:|Tadeusz Zuber|Dieter Ohlmann|Alexandra Constandache|Ingrid Schäfer
+279:JOYMANIA ENTERTAINMENT||PROGRAMMIERUNG:|Peter Ohlmann||SPIELGRAFIK:|Adam Sprys||LEVELDESIGN:|Adam Sprys|Andre QuaÃŸ||TONSCHNITT UND -MISCHUNG:|Tonstudio Mannheim||MUSIK:|Gerd Hofmann|Joachim SchÃ¤fer|JÃ¼rgen Rebhann|Klaus Staendike|Steffen SchÃ¼ngel||ILLUSTRATIONEN:|Boleslaw Kasza|Christoph Werner||ZUXXEZ ENTERTAINMENT AG||PRODUCER:|Uwe SchÃ¤fer||HANDBUCH:|Peter Ohlmann|Uwe SchÃ¤fer||BETA TESTING:|Peter Ohlmann|Adam Sprys|Alexandra Constandache|Dirk P. Hassinger|Achim Heidelauf|Uwe SchÃ¤fer|Ingrid SchÃ¤fer|Dirk U. Jantz|Ion Constandache|Yaman Egeli|Roman Eich|Iris Mocsnek|Anke Jantz|Paul Hassinger|Liza Hassinger||GAMES DIRECTOR:|Achim Heidelauf||PUBLISHED BY:|BlackStar Interactive||CUTSCENES:||LEITUNG:|Slawomir Jedrzejewski||Kajetan Czarnecki|Wojciech Drazek|Daniel Duplaga|Rafal Januszkiewicz|Andrzej Rams|Piotr Rulka|Krzysztof Rybczynski|Grzegorz Wisniwski||SPRECHER:|Claus Boyen (ErzÃ¤hler)||Tim Timmermann|Peter Houska|Dirk MÃ¼hlbach|Ralf Ditze|Gerhard Piske|Gernot Wassmann||HANDBUCH SATZ+DESIGN:|Uwe SchÃ¤fer|Alexandra Constandache||HANDBUCH TEXTE:|Peter Ohlmann|Uwe SchÃ¤fer||ARTWORK:|Boleslaw Kasza|Adam Sprys||ERÃ–FFNUNGSANIMATION:|Uwe SchÃ¤fer|Christian Bigalk|ZusÃ¤tzliches 3D-Modelling:|Niels Horstmann||BESONDEREN DANK AN:|Tadeusz Zuber|Dieter Ohlmann|Alexandra Constandache|Ingrid SchÃ¤fer
 280:Mission abgebrochen
 281:Replay beendet
 282:Aufbaututorial
@@ -287,18 +284,18 @@ MaxID:697
 285:Karteneditor
 286:Mission starten
 287:Szenario
-288:Größe
+288:GrÃ¶ÃŸe
 289:Siegbedingung:
 290:Niederlagebedingung:
-291:Verbündete:
+291:VerbÃ¼ndete:
 292:Gegner:
 293:Zeit
-294:Kartengröße
+294:KartengrÃ¶ÃŸe
 295:Breite
-296:Höhe
+296:HÃ¶he
 297:Neue Karte erstellen
 298:Vorhandene Karten
-299:Vorhandene Karte öffnen
+299:Vorhandene Karte Ã¶ffnen
 301:Steuerung:
 302:Spieleinstellungen:
 303:Sound:
@@ -307,21 +304,21 @@ MaxID:697
 306:Helligkeit
 307:Vertical Sync
 308:Vollbild
-309:Übernehmen
+309:Ãœbernehmen
 310:Sprache:
-311:Schatten Qualität:
+311:Schatten QualitÃ¤t:
 312:Niedrig
 313:Hoch
 314:Lade... Bitte warten
 315:Ein Fehler ist aufgetreten!
 316:Neue Lokalisierung laden
-317:Gespeicherte Spielstände
+317:Gespeicherte SpielstÃ¤nde
 318:Name
 319:Beschreibung
 320:Laden
-321:Löschen
-322:Spielstand wirklich löschen?
-323:Löschen
+321:LÃ¶schen
+322:Spielstand wirklich lÃ¶schen?
+323:LÃ¶schen
 324:Abbrechen
 325:Titel
 326:Missionen
@@ -334,50 +331,50 @@ MaxID:697
 333:Spiel beenden
 334:Replay beendet
 335:Weiter betrachten
-336:Zurück zum Menü
-337:Nicht verfügbar
-338:%s drücken zum Weiterspielen.
+336:ZurÃ¼ck zum MenÃ¼
+337:Nicht verfÃ¼gbar
+338:%s drÃ¼cken zum Weiterspielen.
 339:Spielerinfo
 340:Chat
 341:Name schon vorhand.
 342:Ersetzen
 343:Speichern
 344:Laden
-345:Alte OpenGL Version ermittelt! Das Spiel könnte langsam und/oder mit Grafikfehlern laufen.
+345:Alte OpenGL Version ermittelt! Das Spiel kÃ¶nnte langsam und/oder mit Grafikfehlern laufen.
 346:Bitte Grafikkartentreiber aktualisieren!
 347:Netzwerkfehler:
 348:Fehler: Bitte Spielername eingeben
-349:Fehler: Der Spielername muss kürzer sein als %d Zeichen.
-350:Fehler: Spielername enthält nicht erlaubte Zeichen.
+349:Fehler: Der Spielername muss kÃ¼rzer sein als %d Zeichen.
+350:Fehler: Spielername enthÃ¤lt nicht erlaubte Zeichen.
 351:Verbindung fehlgeschlagen: %s
 352:Du bist nicht verbunden.
 353:Mission %d
 354:Nachrichten
-355:Diese Fischerhütte ist zu weit vom Wasser entfernt!
-356:Dieser Fischer erreicht keine weiteren Fischbestände mehr!
+355:Diese FischerhÃ¼tte ist zu weit vom Wasser entfernt!
+356:Dieser Fischer erreicht keine weiteren FischbestÃ¤nde mehr!
 357:Starte Replay neu
 358:Replay pausieren
-359:1 Schritt vorwärts
+359:1 Schritt vorwÃ¤rts
 360:Replay fortsetzen
 361:Replay beenden
 363:Alles anzeigen
-364:Benutze die linke Maustaste um die Ware auszuwählen, die getauscht werden soll.
-365:Benutze die rechte Maustaste um die Ware auszuwählen, die getauscht werden soll.
+364:Benutze die linke Maustaste um die Ware auszuwÃ¤hlen, die getauscht werden soll.
+365:Benutze die rechte Maustaste um die Ware auszuwÃ¤hlen, die getauscht werden soll.
 366:Von x%d
 367:Zu x%d
-368:Gelände bearbeiten
+368:GelÃ¤nde bearbeiten
 369:Kacheln
-370:Höhen
+370:HÃ¶hen
 371:Kacheln
 372:Objekte
-373:Höhen
+373:HÃ¶hen
 374:Pinsel Form
-375:Größe
-376:Verschieben um die Pinselgröße zu ändern
+375:GrÃ¶ÃŸe
+376:Verschieben um die PinselgrÃ¶ÃŸe zu Ã¤ndern
 377:Anstieg
-378:Verschieben um Steigung zu ändern: 1 = Plateau ... 15 = Spitze
+378:Verschieben um Steigung zu Ã¤ndern: 1 = Plateau ... 15 = Spitze
 379:Geschwindigkeit
-380:Verschieben um Geschwindigkeit der Steigung zu ändern: 1 = langsam ... 15 = sehr schnell
+380:Verschieben um Geschwindigkeit der Steigung zu Ã¤ndern: 1 = langsam ... 15 = sehr schnell
 381:Runder Pinsel
 382:Eckiger Pinsel
 383:Anheben / Absenken
@@ -385,35 +382,35 @@ MaxID:697
 385:Anheben (Linksklick) / Absenken (Rechtsklick)
 386:Ansteigen (Linksklick) / Ebnen (Rechtsklick)
 387:Pinsel
-388:Elemente zufällig
-389:Ausrichtung zufällig
-390:Anklicken für eine zufällige Ausrichtung der Kacheln. Mit Rechtsklick wird die Kachel gedreht.
-391:Rechte Maustaste um die ausgewählte Kachel zu drehen
+388:Elemente zufÃ¤llig
+389:Ausrichtung zufÃ¤llig
+390:Anklicken fÃ¼r eine zufÃ¤llige Ausrichtung der Kacheln. Mit Rechtsklick wird die Kachel gedreht.
+391:Rechte Maustaste um die ausgewÃ¤hlte Kachel zu drehen
 392:Gehen blockieren
 393:Entferne Objekte
-394:Häuser bearbeiten
+394:HÃ¤user bearbeiten
 395:Optische Skripte
 396:Globale Skripte
-397:Menü
+397:MenÃ¼
 398:Objekte
 399:Vorkommen anzeigen
 400:Einheiten anzeigen
-401:Gebäude anzeigen
+401:GebÃ¤ude anzeigen
 402:Objekte anzeigen
 403:Begehbarkeit anzeigen
-404:Alle nicht gespeicherten|Änderungen gehen verloren!
+404:Alle nicht gespeicherten|Ã„nderungen gehen verloren!
 405:Abbrechen
 406:Laden
 407:Lade Karte
 408:Abbrechen
 409:Speichern
-410:Überschreiben
+410:Ãœberschreiben
 411:Karte existiert bereits
 412:Spieler:
 413:Standard
 414:Spieler Typ
 415:Symmetrisch
-416:Bündnisse
+416:BÃ¼ndnisse
 417:Taktik
 418:Normal
 419:Art der Mission
@@ -424,23 +421,23 @@ MaxID:697
 424:Einen Teil der Karte sichtbar machen.
 425:Nebel/Sichtbarkeit
 426:Handelserlaubnis
-427:Gebäude Bauerlaubnis
+427:GebÃ¤ude Bauerlaubnis
 428:Farben
 429:Siegbedingung
 430:Nachricht
 431:Zeit
 432:Spieler
-433:Wirt. Gebäude
+433:Wirt. GebÃ¤ude
 434:Gehilfen & Schulen
-435:Militär
+435:MilitÃ¤r
 436:Unbekannt
 437:Truppen
-438:Gebäude
+438:GebÃ¤ude
 439:Zeit
 440:Aufbau Tutorial
 441:Keine
 442:Bedingung
-443:Überleben
+443:Ãœberleben
 444:Sieger
 445:Keine
 446:Typ
@@ -450,7 +447,7 @@ MaxID:697
 450:Reihen
 451:Menge
 452:Truppen Formationen
-453:Ändere Formation
+453:Ã„ndere Formation
 454:Setze ein Limit wie viele Soldaten die KI haben darf.
 455:Wie viele Soldaten die KI auf einmal haben kann.
 456:Soldatenlimit
@@ -458,9 +455,9 @@ MaxID:697
 458:Rekruten in Kaserne
 459:Position
 460:Spez. Position
-461:Nähestes Haus 2
-462:Nähestes Haus 1
-463:Näheste Einheit
+461:NÃ¤hestes Haus 2
+462:NÃ¤hestes Haus 1
+463:NÃ¤heste Einheit
 464:Nimm alle
 465:Gruppen Anzahl
 466:Angriff Einstellungen
@@ -468,7 +465,7 @@ MaxID:697
 468:Wiederholt
 469:Einmalig
 470:Reiter
-471:Schützen
+471:SchÃ¼tzen
 472:Lanzer
 473:Infanterie
 475:Ziel
@@ -484,15 +481,15 @@ MaxID:697
 485:Platziere die Verteidigungsposition der KI.
 486:KI Verteidigung
 487:Arbeiter
-488:Gehilfen pro 10 Häuser
-489:Repariert Gebäude
-490:Errichtet Gebäude
+488:Gehilfen pro 10 HÃ¤user
+489:Repariert GebÃ¤ude
+490:Errichtet GebÃ¤ude
 491:KI Einstellungen
-492:Gebäude
+492:GebÃ¤ude
 493:Felder
-496:Terrain einfügen
+496:Terrain einfÃ¼gen
 497:Terrain kopieren
-498:Kopieren / Einfügen
+498:Kopieren / EinfÃ¼gen
 499:Neue Mission
 500:Spielername
 501:Status:
@@ -503,14 +500,14 @@ MaxID:697
 506:Erstelle lokalen Server
 507:Erstelle Internet Server
 508:Abbrechen
-509:Finde Server über IP
+509:Finde Server Ã¼ber IP
 510:FINDE SERVER
 511:Adresse
 512:Port
 513:Raum
 514:Verbinde
 515:Abbrechen
-516:Passwortgeschützter Raum
+516:PasswortgeschÃ¼tzter Raum
 517:Passwort
 518:Servername
 519:Status
@@ -521,7 +518,7 @@ MaxID:697
 524:Spielerliste:
 525:Beitreten
 526:Verbinde, bitte warten...
-527:Lade Ankündigung...
+527:Lade AnkÃ¼ndigung...
 528:Aktualisiere...
 529:Spieler
 530:Startposition
@@ -532,12 +529,12 @@ MaxID:697
 535:Ping / FPS
 536:Aufklappen
 537:Computer
-538:Wähle...
-539:Zufällig
+538:WÃ¤hle...
+539:ZufÃ¤llig
 540:Keine Info vorhanden.
 541:Spielstand laden
-542:Wähle eine Karte...
-543:Spielstand wählen...
+542:WÃ¤hle eine Karte...
+543:Spielstand wÃ¤hlen...
 544:Lobby verlassen
 545:Bereit!
 546:Nicht bereit
@@ -551,15 +548,15 @@ MaxID:697
 554:Raum Einstellungen
 556:Gebannt
 557:Kicken
-558:Zufällige Vergabe der Locations innerhalb der Teams
+558:ZufÃ¤llige Vergabe der Locations innerhalb der Teams
 559:Beschreibung
 560:Optionen
 561:Standort %d
-562:Fehler: Bitte übernimm einen Spieler aus dem Spielstand!
-563:Fehler: Karte konnte nicht geladen werden oder keine Karte ausgewählt!
+562:Fehler: Bitte Ã¼bernimm einen Spieler aus dem Spielstand!
+563:Fehler: Karte konnte nicht geladen werden oder keine Karte ausgewÃ¤hlt!
 564:Kann nicht starten: %s.
 565:Es ist noch nicht jeder bereit zu starten.
-567:Der Server hat dir die Hostingrechte übertragen.
+567:Der Server hat dir die Hostingrechte Ã¼bertragen.
 568:Spiel gestartet
 569:Aufbau
 570:Gefecht
@@ -568,7 +565,7 @@ MaxID:697
 573:Einstellungen:
 574:Friedenszeit (in Minuten):
 575:Leer
-576:Host übernimmt Spieler Setup.
+576:Host Ã¼bernimmt Spieler Setup.
 577:Warte auf Spieler:
 578:Alle
 579:Team
@@ -577,15 +574,15 @@ MaxID:697
 582:PROGRAMMIERUNG:
 583:WEITERE PROGRAMMIERUNG:
 584:WEITERE GRAFIKEN:
-585:ZUSÄTZLICHE SOUNDEFFEKTE:
-586:ZUSÄTZLICHE MUSIK:
-587:ZUSÄTZLICHE ÜBERSETZUNGEN:
+585:ZUSÃ„TZLICHE SOUNDEFFEKTE:
+586:ZUSÃ„TZLICHE MUSIK:
+587:ZUSÃ„TZLICHE ÃœBERSETZUNGEN:
 588:BESONDERER DANK AN:
 589:Mehrspieler Karten
 590:Einzelspieler Karten
 591:Scrollgeschw.
 592:Keinen Server gefunden.
-593:Lieder zufällig
+593:Lieder zufÃ¤llig
 594:Spielinfo:
 595:-
 596:Lobby
@@ -594,8 +591,8 @@ MaxID:697
 599:Aufbau & Gefecht
 600:Gefecht
 601:Bereit
-602:Falsche Version des Protokolls: %s. Benötigt wird: %s!
-603:Erhöhe Warenanzahl
+602:Falsche Version des Protokolls: %s. BenÃ¶tigt wird: %s!
+603:ErhÃ¶he Warenanzahl
 604:Verringere Warenanzahl
 605:Spiel wird gespeichert...
 606:%s wurde besiegt!
@@ -608,36 +605,36 @@ MaxID:697
 613:Soll dieser Spieler dauerhaft entfernt werden?
 614:Abbrechen
 615:Mit dieser Ware kann in dieser Mission nicht gehandelt werden.
-616:Pflanzen & fällen
-617:Nur fällen
-618:Aktion während der Friedenszeit nicht möglich.
+616:Pflanzen & fÃ¤llen
+617:Nur fÃ¤llen
+618:Aktion wÃ¤hrend der Friedenszeit nicht mÃ¶glich.
 619:Friedenszeit verbleibend: %s
-620:Der Frieden ist vorüber. Zu den Waffen!
+620:Der Frieden ist vorÃ¼ber. Zu den Waffen!
 621:Spieldauer:|%s
 622:Truppe anhalten ('%s')
 623:Truppen verbinden ('%s')
 624:Truppe trennen ('%s')
 625:Replays
 626:Replay anzeigen
-627:Nicht unterstütztes Format %s!
-628:Nicht unterstützte Version %s!
-629:Nicht unterstützte Modifikationen
-630:Ein Fehler trat während der Syntaxanalyse in Datei %s auf.
+627:Nicht unterstÃ¼tztes Format %s!
+628:Nicht unterstÃ¼tzte Version %s!
+629:Nicht unterstÃ¼tzte Modifikationen
+630:Ein Fehler trat wÃ¤hrend der Syntaxanalyse in Datei %s auf.
 631:Initialisierung
 632:Skript
 633:Einheiten
-634:Gebäude
-635:Bäume
+634:GebÃ¤ude
+635:BÃ¤ume
 636:Definitionen
 637:Texturen
 638:Karte nicht gefunden: %s
 639:Spielstand nicht gefunden: %s
-640:Kartendateien stimmen nicht mit denen des Hosts überein: %s
-641:Spielstanddatei stimmt nicht mit der des Hosts überein: %s
-642:Das Replay läuft instabil wegen einem Konsistenz Check. Das ist ein bekannter Fehler, der sich auf die Wiedergabe von Replays auswirkt. Möchtest du dennoch weiterhin zuschauen?
+640:Kartendateien stimmen nicht mit denen des Hosts Ã¼berein: %s
+641:Spielstanddatei stimmt nicht mit der des Hosts Ã¼berein: %s
+642:Das Replay lÃ¤uft instabil wegen einem Konsistenz Check. Das ist ein bekannter Fehler, der sich auf die Wiedergabe von Replays auswirkt. MÃ¶chtest du dennoch weiterhin zuschauen?
 643:Du kannst nur eine Instanz des Spiels im Multiplayer starten.
 644:Modifikationen am Spiel sind nicht erlaubt im Multiplayer.|Bitte Spiel neuinstallieren um original Dateien wiederherzustellen.
-645:Ein Fehler trat innerhalb des Programms auf. Bitte klicke auf "Bug Report senden", damit wir das Problem näher betrachten können. Danke für Deine Hilfe!
+645:Ein Fehler trat innerhalb des Programms auf. Bitte klicke auf "Bug Report senden", damit wir das Problem nÃ¤her betrachten kÃ¶nnen. Danke fÃ¼r Deine Hilfe!
 646:Bug Report senden
 647:Zeige unbearbeite Daten
 648:Programm fortsetzen
@@ -650,30 +647,30 @@ MaxID:697
 655:Fehler Details
 656:In welcher Situation trat der Fehler auf? Kannst du uns weitere Informationen geben?
 657:Screenshot
-658:Screenshot zum Bug Report anhängen
-659:(klicken um Bild zu ändern)
+658:Screenshot zum Bug Report anhÃ¤ngen
+659:(klicken um Bild zu Ã¤ndern)
 660:Report senden
 661:Abbrechen
 662:Bug Report wird gesendet...
 663:Verbinde zu Server...
 664:Daten werden gesendet...
-665:Der Bug Report konnte nicht gesendet werden! Unsere Server scheinen alle überlastet zu sein. Bitte versuche es später erneut.
+665:Der Bug Report konnte nicht gesendet werden! Unsere Server scheinen alle Ã¼berlastet zu sein. Bitte versuche es spÃ¤ter erneut.
 666:Information
 667:Bitte gedulde Dich einen Augenblick...
 668:Karte speichern
-669:Stellt Verzögerung ein, wann KI mit der Ausbildung von Rekruten beginnt.
+669:Stellt VerzÃ¶gerung ein, wann KI mit der Ausbildung von Rekruten beginnt.
 670:Start Rekrut. (Min.)
 673:Kopieren
-674:Einfügen
-675:Bestätigen
+674:EinfÃ¼gen
+675:BestÃ¤tigen
 676:Abbrechen
 679:Ziehe einen Rahmen um ein Gebiet auf der Karte.
 680:KI Verteidigung
 681:Aus
 682:Radius
 683:Entferne aktuelles Sichtfeld
-684:Zurück zur Nebel Übersichtsseite
-685:Schließen
+684:ZurÃ¼ck zur Nebel Ãœbersichtsseite
+685:SchlieÃŸen
 686:Befehl
 687:Keiner
 688:Angriffspunkt
@@ -681,8 +678,8 @@ MaxID:697
 690:Richtung
 691:Deckung
 692:Front
-693:Radius / Größe
+693:Radius / GrÃ¶ÃŸe
 694:Entferne die aktuelle Verteidigungsposition.
-695:Zurück zur Verteidigungsübersicht.
+695:ZurÃ¼ck zur VerteidigungsÃ¼bersicht.
 696:Verteid. Position
 697:Einheiten
