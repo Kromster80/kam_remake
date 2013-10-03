@@ -21,19 +21,19 @@ type
 
     procedure House_Demolish(Sender: TObject);
     procedure House_RepairToggle(Sender: TObject);
-    procedure House_OrderClick(Sender: TObject; AButton: TMouseButton);
+    procedure House_OrderClick(Sender: TObject; Shift: TShiftState);
     procedure House_OrderWheel(Sender: TObject; WheelDelta: Integer);
     procedure House_WareDeliveryToggle(Sender: TObject);
 
     procedure House_BarracksAcceptFlag(Sender: TObject);
-    procedure House_BarracksUnitChange(Sender: TObject; AButton: TMouseButton);
+    procedure House_BarracksUnitChange(Sender: TObject; Shift: TShiftState);
 
     procedure House_MarketFill(aMarket: TKMHouseMarket);
-    procedure House_MarketOrderClick(Sender: TObject; AButton: TMouseButton);
-    procedure House_MarketSelect(Sender: TObject; AButton: TMouseButton);
+    procedure House_MarketOrderClick(Sender: TObject; Shift: TShiftState);
+    procedure House_MarketSelect(Sender: TObject; Shift: TShiftState);
 
-    procedure House_SchoolUnitChange(Sender: TObject; AButton: TMouseButton);
-    procedure House_SchoolUnitRemove(Sender: TObject; AButton: TMouseButton);
+    procedure House_SchoolUnitChange(Sender: TObject; Shift: TShiftState);
+    procedure House_SchoolUnitRemove(Sender: TObject; Shift: TShiftState);
 
     procedure House_StoreAcceptFlag(Sender: TObject);
     procedure House_StoreFill;
@@ -101,7 +101,7 @@ type
 
 implementation
 uses KM_Game, KM_GameInputProcess,
-  KM_HouseBarracks, KM_HouseSchool, KM_HandsCollection, KM_RenderUI,
+  KM_HouseBarracks, KM_HouseSchool, KM_HandsCollection, KM_RenderUI, KM_Utils,
   KM_Resource, KM_ResFonts, KM_ResHouses, KM_ResTexts, KM_ResUnits, KM_ResWares;
 
 
@@ -160,8 +160,8 @@ begin
 
         ResRow_Order[I] := TKMWareOrderRow.Create(Panel_House_Common, 0, 0, TB_WIDTH, 21);
         ResRow_Order[I].RX := rxGui;
-        ResRow_Order[I].OrderRem.OnClickEither := House_OrderClick;
-        ResRow_Order[I].OrderAdd.OnClickEither := House_OrderClick;
+        ResRow_Order[I].OrderRem.OnClickShift := House_OrderClick;
+        ResRow_Order[I].OrderAdd.OnClickShift := House_OrderClick;
         ResRow_Order[I].OrderRem.Hint          := gResTexts[TX_HOUSE_ORDER_DEC_HINT];
         ResRow_Order[I].OrderAdd.Hint          := gResTexts[TX_HOUSE_ORDER_INC_HINT];
         ResRow_Order[I].OrderRem.OnMouseWheel := House_OrderWheel;
@@ -195,7 +195,7 @@ begin
     Button_Market[I].TexID := fResource.Wares[StoreResType[I+1]].GUIIcon;
     Button_Market[I].Hint := fResource.Wares[StoreResType[I+1]].Title;
     Button_Market[I].Tag := Byte(StoreResType[I+1]);
-    Button_Market[I].OnClickEither := House_MarketSelect;
+    Button_Market[I].OnClickShift := House_MarketSelect;
   end;
 
   Shape_Market_From := TKMShape.Create(Panel_HouseMarket, 0, 0, 26, 30);
@@ -240,11 +240,11 @@ begin
 
   Label_Market_FromAmount := TKMLabel.Create(Panel_HouseMarket, 53, LineH, '', fnt_Grey, taCenter);
   Button_Market_Remove := TKMButton.Create(Panel_HouseMarket, TB_WIDTH div 2 - 20, LineH, 20, 20, '-', bsGame);
-  Button_Market_Remove.OnClickEither := House_MarketOrderClick;
+  Button_Market_Remove.OnClickShift := House_MarketOrderClick;
   Button_Market_Remove.Hint := gResTexts[TX_HOUSES_MARKET_HINT_REM];
   Button_Market_Add := TKMButton.Create(Panel_HouseMarket, TB_WIDTH div 2, LineH, 20, 20, '+', bsGame);
   Button_Market_Add.Hint := gResTexts[TX_HOUSES_MARKET_HINT_ADD];
-  Button_Market_Add.OnClickEither := House_MarketOrderClick;
+  Button_Market_Add.OnClickShift := House_MarketOrderClick;
   Label_Market_ToAmount := TKMLabel.Create(Panel_HouseMarket, 127, LineH, '', fnt_Grey, taCenter);
 end;
 
@@ -289,13 +289,13 @@ begin
     Button_School_UnitWIP := TKMButton.Create(Panel_House_School,  0,48,32,32,0, rxGui, bsGame);
     Button_School_UnitWIP.Hint := gResTexts[TX_HOUSE_SCHOOL_WIP_HINT];
     Button_School_UnitWIP.Tag := 0;
-    Button_School_UnitWIP.OnClickEither := House_SchoolUnitRemove;
+    Button_School_UnitWIP.OnClickShift := House_SchoolUnitRemove;
     Button_School_UnitWIPBar := TKMPercentBar.Create(Panel_House_School,34,54,146,20);
     for I := 1 to 5 do
     begin
       Button_School_UnitPlan[i] := TKMButtonFlat.Create(Panel_House_School, (I-1) * 36, 80, 32, 32, 0);
       Button_School_UnitPlan[i].Tag := I;
-      Button_School_UnitPlan[i].OnClickEither := House_SchoolUnitRemove;
+      Button_School_UnitPlan[i].OnClickShift := House_SchoolUnitRemove;
     end;
 
     Label_School_Unit := TKMLabel.Create(Panel_House_School,   0,116,TB_WIDTH,30,'',fnt_Outline,taCenter);
@@ -307,12 +307,12 @@ begin
     Button_School_Left  := TKMButton.Create(Panel_House_School,  0,222,54,40,35, rxGui, bsGame);
     Button_School_Train := TKMButton.Create(Panel_House_School, 62,222,54,40,42, rxGui, bsGame);
     Button_School_Right := TKMButton.Create(Panel_House_School,124,222,54,40,36, rxGui, bsGame);
-    Button_School_Left.OnClickEither:=House_SchoolUnitChange;
-    Button_School_Train.OnClickEither:=House_SchoolUnitChange;
-    Button_School_Right.OnClickEither:=House_SchoolUnitChange;
-    Button_School_Left.Hint :=gResTexts[TX_HOUSE_SCHOOL_PREV_HINT];
-    Button_School_Train.Hint:=gResTexts[TX_HOUSE_SCHOOL_TRAIN_HINT];
-    Button_School_Right.Hint:=gResTexts[TX_HOUSE_SCHOOL_NEXT_HINT];
+    Button_School_Left.OnClickShift  := House_SchoolUnitChange;
+    Button_School_Train.OnClickShift := House_SchoolUnitChange;
+    Button_School_Right.OnClickShift := House_SchoolUnitChange;
+    Button_School_Left.Hint  := gResTexts[TX_HOUSE_SCHOOL_PREV_HINT];
+    Button_School_Train.Hint := gResTexts[TX_HOUSE_SCHOOL_TRAIN_HINT];
+    Button_School_Right.Hint := gResTexts[TX_HOUSE_SCHOOL_NEXT_HINT];
 end;
 
 
@@ -362,9 +362,9 @@ begin
     Button_Barracks_Left :=TKMButton.Create(Panel_HouseBarracks,  0,222,54,40,35, rxGui, bsGame);
     Button_Barracks_Train:=TKMButton.Create(Panel_HouseBarracks, 62,222,54,40,42, rxGui, bsGame);
     Button_Barracks_Right:=TKMButton.Create(Panel_HouseBarracks,124,222,54,40,36, rxGui, bsGame);
-    Button_Barracks_Left.OnClickEither := House_BarracksUnitChange;
-    Button_Barracks_Train.OnClickEither := House_BarracksUnitChange;
-    Button_Barracks_Right.OnClickEither := House_BarracksUnitChange;
+    Button_Barracks_Left.OnClickShift := House_BarracksUnitChange;
+    Button_Barracks_Train.OnClickShift := House_BarracksUnitChange;
+    Button_Barracks_Right.OnClickShift := House_BarracksUnitChange;
     Button_Barracks_Left.Hint := gResTexts[TX_HOUSE_BARRACKS_PREV_HINT];
     Button_Barracks_Train.Hint := gResTexts[TX_HOUSE_BARRACKS_TRAIN_HINT];
     Button_Barracks_Right.Hint := gResTexts[TX_HOUSE_BARRACKS_NEXT_HINT];
@@ -494,13 +494,13 @@ begin
           Image_School_Left.FlagColor  := gHands[aHouse.Owner].FlagColor;
           Image_School_Right.FlagColor := gHands[aHouse.Owner].FlagColor;
           Image_School_Train.FlagColor := gHands[aHouse.Owner].FlagColor;
-          House_SchoolUnitChange(nil, mbLeft);
+          House_SchoolUnitChange(nil, []);
           Panel_House_School.Show;
         end;
 
     ht_Barracks:
         begin
-          House_BarracksUnitChange(nil, mbLeft);
+          House_BarracksUnitChange(nil, []);
           Panel_HouseBarracks.Show;
         end;
 
@@ -674,7 +674,7 @@ begin
 end;
 
 
-procedure TKMGUIGameHouse.House_OrderClick(Sender: TObject; AButton: TMouseButton);
+procedure TKMGUIGameHouse.House_OrderClick(Sender: TObject; Shift: TShiftState);
 var
   I: Integer;
   H: TKMHouse;
@@ -685,9 +685,9 @@ begin
 
   for I := 1 to 4 do begin
     if Sender = ResRow_Order[I].OrderRem then
-      gGame.GameInputProcess.CmdHouse(gic_HouseOrderProduct, H, I, -ORDER_CLICK_AMOUNT[AButton]);
+      gGame.GameInputProcess.CmdHouse(gic_HouseOrderProduct, H, I, -GetMultiplicator(Shift));
     if Sender = ResRow_Order[I].OrderAdd then
-      gGame.GameInputProcess.CmdHouse(gic_HouseOrderProduct, H, I, ORDER_CLICK_AMOUNT[AButton]);
+      gGame.GameInputProcess.CmdHouse(gic_HouseOrderProduct, H, I, GetMultiplicator(Shift));
   end;
 end;
 
@@ -745,7 +745,7 @@ begin
 end;
 
 
-procedure TKMGUIGameHouse.House_BarracksUnitChange(Sender: TObject; AButton: TMouseButton);
+procedure TKMGUIGameHouse.House_BarracksUnitChange(Sender: TObject; Shift: TShiftState);
 var
   I, K, Tmp: Integer;
   Barracks: TKMHouseBarracks;
@@ -781,17 +781,14 @@ begin
   Button_BarracksRecruit.Down := True; //Recruit is always enabled, all troops require one
 
 
-  if (Sender=Button_Barracks_Left) and (AButton = mbRight) then fLastBarracksUnit := 0;
-  if (Sender=Button_Barracks_Right) and (AButton = mbRight) then fLastBarracksUnit := High(Barracks_Order);
+  if (Sender=Button_Barracks_Left) and (ssRight in Shift) then fLastBarracksUnit := 0;
+  if (Sender=Button_Barracks_Right) and (ssRight in Shift) then fLastBarracksUnit := High(Barracks_Order);
 
   if (Sender=Button_Barracks_Left)and(fLastBarracksUnit > 0) then dec(fLastBarracksUnit);
   if (Sender=Button_Barracks_Right)and(fLastBarracksUnit < High(Barracks_Order)) then inc(fLastBarracksUnit);
 
-  if Sender=Button_Barracks_Train then //Equip unit
-    if AButton = mbLeft then
-      gGame.GameInputProcess.CmdHouse(gic_HouseBarracksEquip, Barracks, Barracks_Order[fLastBarracksUnit], 1)
-    else if AButton = mbRight then
-      gGame.GameInputProcess.CmdHouse(gic_HouseBarracksEquip, Barracks, Barracks_Order[fLastBarracksUnit], 10);
+  if Sender = Button_Barracks_Train then //Equip unit
+    gGame.GameInputProcess.CmdHouse(gic_HouseBarracksEquip, Barracks, Barracks_Order[fLastBarracksUnit], GetMultiplicator(Shift));
 
   Button_Barracks_Train.Enabled := Barracks.CanEquip(Barracks_Order[fLastBarracksUnit]);
   Button_Barracks_Left.Enabled := fLastBarracksUnit > 0;
@@ -811,7 +808,7 @@ end;
 
 
 {Process click on Left-Train-Right buttons of School}
-procedure TKMGUIGameHouse.House_SchoolUnitChange(Sender: TObject; AButton: TMouseButton);
+procedure TKMGUIGameHouse.House_SchoolUnitChange(Sender: TObject; Shift: TShiftState);
 var
   I: Byte;
   School: TKMHouseSchool;
@@ -820,17 +817,14 @@ begin
   if not (MySpectator.Selected is TKMHouseSchool) then exit;
   School := TKMHouseSchool(MySpectator.Selected);
 
-  if (AButton = mbRight) and (Sender=Button_School_Left) then fLastSchoolUnit := 0;
-  if (AButton = mbRight) and (Sender=Button_School_Right) then fLastSchoolUnit := High(School_Order);
+  if (ssRight in Shift) and (Sender = Button_School_Left) then fLastSchoolUnit := 0;
+  if (ssRight in Shift) and (Sender = Button_School_Right) then fLastSchoolUnit := High(School_Order);
 
   if (Sender=Button_School_Left)and(fLastSchoolUnit > 0) then dec(fLastSchoolUnit);
   if (Sender=Button_School_Right)and(fLastSchoolUnit < High(School_Order)) then inc(fLastSchoolUnit);
 
-  if Sender=Button_School_Train then //Add unit to training queue
-    if AButton = mbLeft then
-      gGame.GameInputProcess.CmdHouse(gic_HouseSchoolTrain, School, School_Order[fLastSchoolUnit], 1)
-    else if AButton = mbRight then
-      gGame.GameInputProcess.CmdHouse(gic_HouseSchoolTrain, School, School_Order[fLastSchoolUnit], 6);
+  if Sender = Button_School_Train then //Add unit to training queue
+    gGame.GameInputProcess.CmdHouse(gic_HouseSchoolTrain, School, School_Order[fLastSchoolUnit], GetMultiplicator(Shift));
 
   if School.Queue[0] <> ut_None then
     Button_School_UnitWIP.TexID := fResource.UnitDat[School.Queue[0]].GUIIcon
@@ -869,7 +863,7 @@ end;
 
 
 {Process click on Remove-from-queue buttons of School}
-procedure TKMGUIGameHouse.House_SchoolUnitRemove(Sender: TObject; AButton: TMouseButton);
+procedure TKMGUIGameHouse.House_SchoolUnitRemove(Sender: TObject; Shift: TShiftState);
 var
   School: TKMHouseSchool;
   I, id: Integer;
@@ -879,12 +873,14 @@ begin
 
   //Right click clears entire queue after this item.
   //In that case we remove the same id repeatedly because they're automatically move along
-  case AButton of
-    mbLeft:  gGame.GameInputProcess.CmdHouse(gic_HouseRemoveTrain, School, id);
-    mbRight: for I := School.QueueLength - 1 downto id do
-               gGame.GameInputProcess.CmdHouse(gic_HouseRemoveTrain, School, I);
-  end;
-  House_SchoolUnitChange(nil, mbLeft);
+  if Shift = [ssLeft] then
+    gGame.GameInputProcess.CmdHouse(gic_HouseRemoveTrain, School, id)
+  else
+  if Shift = [ssRight] then
+    for I := School.QueueLength - 1 downto id do
+      gGame.GameInputProcess.CmdHouse(gic_HouseRemoveTrain, School, I);
+
+  House_SchoolUnitChange(nil, []);
 end;
 
 
@@ -971,30 +967,32 @@ begin
 end;
 
 
-procedure TKMGUIGameHouse.House_MarketOrderClick(Sender: TObject; AButton: TMouseButton);
-var M: TKMHouseMarket;
+procedure TKMGUIGameHouse.House_MarketOrderClick(Sender: TObject; Shift: TShiftState);
+var
+  M: TKMHouseMarket;
 begin
   if not (MySpectator.Selected is TKMHouseMarket) then Exit;
 
   M := TKMHouseMarket(MySpectator.Selected);
 
   if Sender = Button_Market_Remove then
-    gGame.GameInputProcess.CmdHouse(gic_HouseOrderProduct, M, 1, -ORDER_CLICK_AMOUNT[AButton]);
+    gGame.GameInputProcess.CmdHouse(gic_HouseOrderProduct, M, 1, -GetMultiplicator(Shift));
   if Sender = Button_Market_Add then
-    gGame.GameInputProcess.CmdHouse(gic_HouseOrderProduct, M, 1, ORDER_CLICK_AMOUNT[AButton]);
+    gGame.GameInputProcess.CmdHouse(gic_HouseOrderProduct, M, 1, GetMultiplicator(Shift));
 end;
 
 
-procedure TKMGUIGameHouse.House_MarketSelect(Sender: TObject; AButton: TMouseButton);
-var M: TKMHouseMarket;
+procedure TKMGUIGameHouse.House_MarketSelect(Sender: TObject; Shift: TShiftState);
+var
+  M: TKMHouseMarket;
 begin
   if not (MySpectator.Selected is TKMHouseMarket) then Exit;
 
   M := TKMHouseMarket(MySpectator.Selected);
 
-  if aButton = mbLeft then
+  if Shift = [ssLeft] then
     gGame.GameInputProcess.CmdHouse(gic_HouseMarketFrom, M, TWareType(TKMButtonFlat(Sender).Tag));
-  if aButton = mbRight then
+  if Shift = [ssRight] then
     gGame.GameInputProcess.CmdHouse(gic_HouseMarketTo, M, TWareType(TKMButtonFlat(Sender).Tag));
 
   House_MarketFill(M); //Update costs and order count
@@ -1002,7 +1000,8 @@ end;
 
 
 procedure TKMGUIGameHouse.House_StoreFill;
-var I, Tmp: Integer;
+var
+  I, Tmp: Integer;
 begin
   if MySpectator.Selected = nil then Exit;
   if not (MySpectator.Selected is TKMHouseStore) then Exit;

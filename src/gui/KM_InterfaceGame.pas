@@ -136,8 +136,6 @@ const
 
 
   //Amounts for placing orders
-  //In FPC there are 5 TMouseButtons
-  ORDER_CLICK_AMOUNT: array [TMouseButton] of Byte = (1, 10, 0 {$IFDEF FPC}, 0, 0{$ENDIF});
   ORDER_WHEEL_AMOUNT = 5;
 
   MARKET_RES_HEIGHT = 35;

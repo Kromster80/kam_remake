@@ -2,6 +2,7 @@ unit KM_HouseSchool;
 {$I KaM_Remake.inc}
 interface
 uses
+  Math,
   KM_CommonClasses, KM_Defaults,
   KM_ResHouses, KM_ResWares, KM_Houses;
 
@@ -95,10 +96,11 @@ end;
 //aCount allows to add several units at once (but not more than Schools queue can fit)
 //Returns the number of units successfully added to the queue
 function TKMHouseSchool.AddUnitToQueue(aUnit: TUnitType; aCount: Byte): Byte;
-var I, K: Integer;
+var
+  I, K: Integer;
 begin
   Result := 0;
-  for K := 1 to aCount do
+  for K := 1 to Min(aCount, Length(fQueue)) do
   for I := 1 to High(fQueue) do
   if fQueue[I] = ut_None then
   begin

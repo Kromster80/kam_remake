@@ -13,7 +13,7 @@ type
     fGroup: TKMUnitGroup;
 
     procedure Unit_ArmyChange1(Sender: TObject); overload;
-    procedure Unit_ArmyChange2(Sender: TObject; AButton: TMouseButton); overload;
+    procedure Unit_ArmyChange2(Sender: TObject; Shift: TShiftState); overload;
   protected
     Panel_Unit: TKMPanel;
     Label_UnitName: TKMLabel;
@@ -44,7 +44,7 @@ type
 
 implementation
 uses
-  KM_HandsCollection, KM_RenderUI, KM_Resource, KM_ResFonts, KM_ResTexts;
+  KM_HandsCollection, KM_RenderUI, KM_Resource, KM_ResFonts, KM_ResTexts, KM_Utils;
 
 
 { TKMMapEdUnit }
@@ -75,9 +75,9 @@ begin
   Button_ArmyDec      := TKMButton.Create(Panel_Army,  0,92,56,40,'-', bsGame);
   Button_ArmyFood     := TKMButton.Create(Panel_Army, 62,92,56,40,29, rxGui, bsGame);
   Button_ArmyInc      := TKMButton.Create(Panel_Army,124,92,56,40,'+', bsGame);
-  Button_ArmyDec.OnClickEither  := Unit_ArmyChange2;
-  Button_ArmyFood.OnClick       := Unit_ArmyChange1;
-  Button_ArmyInc.OnClickEither  := Unit_ArmyChange2;
+  Button_ArmyDec.OnClickShift := Unit_ArmyChange2;
+  Button_ArmyFood.OnClick     := Unit_ArmyChange1;
+  Button_ArmyInc.OnClickShift := Unit_ArmyChange2;
 
   //Group order
   //todo: Orders should be placed with a cursor (but keep numeric input as well?)
@@ -196,14 +196,14 @@ begin
 end;
 
 
-procedure TKMMapEdUnit.Unit_ArmyChange2(Sender: TObject; AButton: TMouseButton);
+procedure TKMMapEdUnit.Unit_ArmyChange2(Sender: TObject; Shift: TShiftState);
 var
   NewCount: Integer;
 begin
   if Sender = Button_ArmyDec then //Decrease
-    NewCount := fGroup.MapEdCount - ORDER_CLICK_AMOUNT[AButton]
+    NewCount := fGroup.MapEdCount - GetMultiplicator(Shift)
   else //Increase
-    NewCount := fGroup.MapEdCount + ORDER_CLICK_AMOUNT[AButton];
+    NewCount := fGroup.MapEdCount + GetMultiplicator(Shift);
 
   fGroup.MapEdCount := EnsureRange(NewCount, 1, 200); //Limit max members
   ImageStack_Army.SetCount(fGroup.MapEdCount, fGroup.UnitsPerRow, fGroup.UnitsPerRow div 2);

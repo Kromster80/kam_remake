@@ -16,13 +16,13 @@ type
     procedure Create_Store;
     procedure Create_Barracks;
 
-    procedure HouseChange(Sender: TObject; AButton: TMouseButton);
+    procedure HouseChange(Sender: TObject; Shift: TShiftState);
     procedure BarracksRefresh(Sender: TObject);
     procedure BarracksSelectWare(Sender: TObject);
-    procedure BarracksChange(Sender: TObject; AButton: TMouseButton);
+    procedure BarracksChange(Sender: TObject; Shift: TShiftState);
     procedure StoreRefresh(Sender: TObject);
     procedure StoreSelectWare(Sender: TObject);
-    procedure StoreChange(Sender: TObject; AButton: TMouseButton);
+    procedure StoreChange(Sender: TObject; Shift: TShiftState);
   protected
     Panel_House: TKMPanel;
     Label_House: TKMLabel;
@@ -56,7 +56,7 @@ type
 implementation
 uses
   KM_HandsCollection, KM_ResTexts, KM_Resource, KM_RenderUI,
-  KM_ResWares, KM_HouseBarracks, KM_ResFonts;
+  KM_ResWares, KM_HouseBarracks, KM_ResFonts, KM_Utils;
 
 
 { TKMMapEdHouse }
@@ -81,8 +81,8 @@ begin
     KMHealthBar_House := TKMPercentBar.Create(Panel_House, 100, 53, 60, 20);
     Button_HouseHealthDec := TKMButton.Create(Panel_House, 80, 53, 20, 20, '-', bsGame);
     Button_HouseHealthInc := TKMButton.Create(Panel_House, 160, 53, 20, 20, '+', bsGame);
-    Button_HouseHealthDec.OnClickEither := HouseChange;
-    Button_HouseHealthInc.OnClickEither := HouseChange;
+    Button_HouseHealthDec.OnClickShift := HouseChange;
+    Button_HouseHealthInc.OnClickShift := HouseChange;
 
     Label_House_Supply := TKMLabel.Create(Panel_House, 0, 85, TB_WIDTH, 0, gResTexts[TX_HOUSE_SUPPLIES], fnt_Grey, taCenter);
 
@@ -90,8 +90,8 @@ begin
     begin
       ResRow_Resource[I] := TKMWareOrderRow.Create(Panel_House, 0, 105 + I * 25, TB_WIDTH, 20);
       ResRow_Resource[I].RX := rxGui;
-      ResRow_Resource[I].OrderAdd.OnClickEither := HouseChange;
-      ResRow_Resource[I].OrderRem.OnClickEither := HouseChange;
+      ResRow_Resource[I].OrderAdd.OnClickShift := HouseChange;
+      ResRow_Resource[I].OrderRem.OnClickShift := HouseChange;
     end;
 
   Create_Store;
@@ -122,10 +122,10 @@ begin
     Button_StoreInc100.Tag  := 100;
     Button_StoreInc       := TKMButton.Create(Panel_HouseStore,168,238,20,20,'+', bsGame);
     Button_StoreInc.Tag   := 1;
-    Button_StoreDec100.OnClickEither := StoreChange;
-    Button_StoreDec.OnClickEither    := StoreChange;
-    Button_StoreInc100.OnClickEither := StoreChange;
-    Button_StoreInc.OnClickEither    := StoreChange;
+    Button_StoreDec100.OnClickShift := StoreChange;
+    Button_StoreDec.OnClickShift    := StoreChange;
+    Button_StoreInc100.OnClickShift := StoreChange;
+    Button_StoreInc.OnClickShift    := StoreChange;
 end;
 
 
@@ -155,10 +155,10 @@ begin
     Button_BarracksInc100.Tag := 100;
     Button_BarracksInc      := TKMButton.Create(Panel_HouseBarracks,168,238,20,20,'+', bsGame);
     Button_BarracksInc.Tag  := 1;
-    Button_BarracksDec100.OnClickEither := BarracksChange;
-    Button_BarracksDec.OnClickEither    := BarracksChange;
-    Button_BarracksInc100.OnClickEither := BarracksChange;
-    Button_BarracksInc.OnClickEither    := BarracksChange;
+    Button_BarracksDec100.OnClickShift := BarracksChange;
+    Button_BarracksDec.OnClickShift    := BarracksChange;
+    Button_BarracksInc100.OnClickShift := BarracksChange;
+    Button_BarracksInc.OnClickShift    := BarracksChange;
 end;
 
 
@@ -258,15 +258,15 @@ begin
 end;
 
 
-procedure TKMMapEdHouse.HouseChange(Sender: TObject; AButton: TMouseButton);
+procedure TKMMapEdHouse.HouseChange(Sender: TObject; Shift: TShiftState);
 var
   I: Integer;
   Res: TWareType;
   NewCount: Integer;
   HouseDat: TKMHouseDatClass;
 begin
-  if Sender = Button_HouseHealthDec then fHouse.AddDamage(ORDER_CLICK_AMOUNT[AButton] * 5, nil, True);
-  if Sender = Button_HouseHealthInc then fHouse.AddRepair(ORDER_CLICK_AMOUNT[AButton] * 5);
+  if Sender = Button_HouseHealthDec then fHouse.AddDamage(GetMultiplicator(Shift) * 5, nil, True);
+  if Sender = Button_HouseHealthInc then fHouse.AddRepair(GetMultiplicator(Shift) * 5);
 
   HouseDat := fResource.HouseDat[fHouse.HouseType];
 
@@ -276,13 +276,13 @@ begin
 
     if Sender = ResRow_Resource[I].OrderAdd then
     begin
-      NewCount := Math.Min(ORDER_CLICK_AMOUNT[aButton], MAX_WARES_IN_HOUSE - fHouse.CheckResIn(Res));
+      NewCount := Math.Min(GetMultiplicator(Shift), MAX_WARES_IN_HOUSE - fHouse.CheckResIn(Res));
       fHouse.ResAddToIn(Res, NewCount);
     end;
 
     if Sender = ResRow_Resource[I].OrderRem then
     begin
-      NewCount := Math.Min(ORDER_CLICK_AMOUNT[aButton], fHouse.CheckResIn(Res));
+      NewCount := Math.Min(GetMultiplicator(Shift), fHouse.CheckResIn(Res));
       fHouse.ResTakeFromIn(Res, NewCount);
     end;
 
@@ -296,22 +296,24 @@ end;
 
 
 procedure TKMMapEdHouse.BarracksSelectWare(Sender: TObject);
-var I: Integer;
+var
+  I: Integer;
 begin
   if not Panel_HouseBarracks.Visible then exit;
   if not (Sender is TKMButtonFlat) then exit; //Only FlatButtons
   if TKMButtonFlat(Sender).Tag = 0 then exit; //with set Tag
 
-  for I:=1 to BARRACKS_RES_COUNT do
+  for I := 1 to BARRACKS_RES_COUNT do
     Button_Barracks[I].Down := False;
   TKMButtonFlat(Sender).Down := True;
   fBarracksItem := TKMButtonFlat(Sender).Tag;
-  BarracksChange(Sender, mbLeft);
+  BarracksChange(Sender, []);
 end;
 
 
 procedure TKMMapEdHouse.StoreSelectWare(Sender: TObject);
-var I: Integer;
+var
+  I: Integer;
 begin
   if not Panel_HouseStore.Visible then exit;
   if not (Sender is TKMButtonFlat) then exit; //Only FlatButtons
@@ -322,11 +324,11 @@ begin
 
   TKMButtonFlat(Sender).Down := True;
   fStorehouseItem := TKMButtonFlat(Sender).Tag;
-  StoreChange(Sender, mbLeft);
+  StoreChange(Sender, []);
 end;
 
 
-procedure TKMMapEdHouse.BarracksChange(Sender: TObject; AButton: TMouseButton);
+procedure TKMMapEdHouse.BarracksChange(Sender: TObject; Shift: TShiftState);
 var
   Res: TWareType;
   Barracks: TKMHouseBarracks;
@@ -335,13 +337,15 @@ begin
   Res := BarracksResType[fBarracksItem];
   Barracks := TKMHouseBarracks(fHouse);
 
-  if (Sender = Button_BarracksDec100) or (Sender = Button_BarracksDec) then begin
-    NewCount := Math.Min(Barracks.CheckResIn(Res), ORDER_CLICK_AMOUNT[aButton] * TKMButton(Sender).Tag);
+  if (Sender = Button_BarracksDec100) or (Sender = Button_BarracksDec) then
+  begin
+    NewCount := Math.Min(Barracks.CheckResIn(Res), GetMultiplicator(Shift) * TKMButton(Sender).Tag);
     Barracks.ResTakeFromOut(Res, NewCount);
   end;
 
-  if (Sender = Button_BarracksInc100) or (Sender = Button_BarracksInc) then begin
-    NewCount := Math.Min(High(Word) - Barracks.CheckResIn(Res), ORDER_CLICK_AMOUNT[aButton] * TKMButton(Sender).Tag);
+  if (Sender = Button_BarracksInc100) or (Sender = Button_BarracksInc) then
+  begin
+    NewCount := Math.Min(High(Word) - Barracks.CheckResIn(Res), GetMultiplicator(Shift) * TKMButton(Sender).Tag);
     Barracks.ResAddToIn(Res, NewCount);
   end;
 
@@ -350,7 +354,7 @@ begin
 end;
 
 
-procedure TKMMapEdHouse.StoreChange(Sender: TObject; AButton: TMouseButton);
+procedure TKMMapEdHouse.StoreChange(Sender: TObject; Shift: TShiftState);
 var
   Res: TWareType;
   Store: TKMHouseStore;
@@ -361,13 +365,13 @@ begin
 
   //We need to take no more than it is there, thats part of bugtracking idea
   if (Sender = Button_StoreDec100) or (Sender = Button_StoreDec) then begin
-    NewCount := Math.Min(Store.CheckResIn(Res), ORDER_CLICK_AMOUNT[aButton]*TKMButton(Sender).Tag);
+    NewCount := Math.Min(Store.CheckResIn(Res), GetMultiplicator(Shift) * TKMButton(Sender).Tag);
     Store.ResTakeFromOut(Res, NewCount);
   end;
 
   //We can always add any amount of resource, it will be capped by Store
   if (Sender = Button_StoreInc100) or (Sender = Button_StoreInc) then
-    Store.ResAddToIn(Res, ORDER_CLICK_AMOUNT[aButton]*TKMButton(Sender).Tag);
+    Store.ResAddToIn(Res, GetMultiplicator(Shift) * TKMButton(Sender).Tag);
 
   Label_Store_WareCount.Caption := inttostr(Store.CheckResIn(Res));
   StoreRefresh(nil);

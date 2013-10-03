@@ -9,6 +9,7 @@ uses
     KM_RenderUI, KM_ResFonts, KM_Minimap, KM_Viewport;
 
 type
+  TNotifyEventShift = procedure(Sender: TObject; Shift: TShiftState) of object;
   TNotifyEventMB = procedure(Sender: TObject; AButton: TMouseButton) of object;
   TNotifyEventMW = procedure(Sender: TObject; WheelDelta: Integer) of object;
   TNotifyEventKey = procedure(Sender: TObject; Key: Word) of object;
@@ -86,7 +87,7 @@ type
     fTimeOfLastClick: Cardinal; //Required to handle double-clicks
 
     fOnClick: TNotifyEvent;
-    fOnClickEither: TNotifyEventMB;
+    fOnClickShift: TNotifyEventShift;
     fOnClickRight: TPointEvent;
     fOnDoubleClick: TNotifyEvent;
     fOnMouseWheel: TNotifyEventMW;
@@ -155,7 +156,7 @@ type
     procedure MouseWheel(Sender: TObject; WheelDelta: Integer); virtual;
 
     property OnClick: TNotifyEvent read fOnClick write fOnClick;
-    property OnClickEither: TNotifyEventMB read fOnClickEither write fOnClickEither;
+    property OnClickShift: TNotifyEventShift read fOnClickShift write fOnClickShift;
     property OnClickRight: TPointEvent read fOnClickRight write fOnClickRight;
     property OnDoubleClick: TNotifyEvent read fOnDoubleClick write fOnDoubleClick;
     property OnMouseWheel: TNotifyEventMW read fOnMouseWheel write fOnMouseWheel;
@@ -513,7 +514,7 @@ type
     fValue: Integer;
     fCursorPos: Integer;
     fLeftIndex: Integer; //The position of the character shown left-most when text does not fit
-    procedure ButtonClick(Sender: TObject; AButton: TMouseButton);
+    procedure ButtonClick(Sender: TObject; Shift: TShiftState);
     procedure SetCursorPos(aPos: Integer);
     function MaxLength: Byte;
     procedure SetValue(aValue: Integer);
@@ -1453,7 +1454,7 @@ begin
       fTimeOfLastClick := TimeGet;
 
     if ((Button = mbLeft) or (Button = mbRight)) and Assigned(fOnClickEither) then
-      fOnClickEither(Self, Button)
+      fOnClickEither(Self, Button) //TODO: Pick proper event combination here and below
     else
     if (Button = mbLeft) and Assigned(fOnClick) then
       fOnClick(Self)
@@ -2591,8 +2592,8 @@ begin
 
   fButtonDec := TKMButton.Create(aParent, aLeft,           aTop, 20, 20, '-', bsGame);
   fButtonInc := TKMButton.Create(aParent, aLeft + W - 20,  aTop, 20, 20, '+', bsGame);
-  fButtonDec.OnClickEither := ButtonClick;
-  fButtonInc.OnClickEither := ButtonClick;
+  fButtonDec.OnClickShift := ButtonClick;
+  fButtonInc.OnClickShift := ButtonClick;
 end;
 
 
@@ -2688,13 +2689,13 @@ begin
 end;
 
 
-procedure TKMNumericEdit.ButtonClick(Sender: TObject; AButton: TMouseButton);
+procedure TKMNumericEdit.ButtonClick(Sender: TObject; Shift: TShiftState);
 begin
   if Sender = fButtonDec then
-    Value := Value - Byte(AButton = mbLeft) - Byte(AButton = mbRight) * 10
+    Value := Value - GetMultiplicator(Shift)
   else
   if Sender = fButtonInc then
-    Value := Value + Byte(AButton = mbLeft) + Byte(AButton = mbRight) * 10
+    Value := Value + GetMultiplicator(Shift)
   else
     Exit;
 

@@ -47,6 +47,7 @@ uses Classes, DateUtils, Math, SysUtils, KM_Defaults, KM_Points
   procedure KMSwapInt(var A,B:integer); overload;
   procedure KMSwapInt(var A,B:cardinal); overload;
 
+  function GetMultiplicator(aShift: TShiftState): Word;
 
 implementation
 
@@ -546,6 +547,12 @@ end;
 function KaMRandomS(Range_Both_Directions:single):single; overload;
 begin
   Result := KaMRandom(round(Range_Both_Directions*20000)+1)/10000-Range_Both_Directions;
+end;
+
+
+function GetMultiplicator(aShift: TShiftState): Word;
+begin
+  Result := Byte(aShift = [ssLeft]) + Byte(aShift = [ssRight]) * 10 + Byte(aShift = [ssShift, ssLeft]) * 100
 end;
 
 
