@@ -5,6 +5,8 @@ uses Winapi.Windows, System.SysUtils, System.Classes, System.StrUtils,
   Generics.Collections, Generics.Defaults;
 
 type
+  TProgressEvent = procedure(aProgress: Single) of object;
+
   TUnit = record
     UnitName: string;
     UnitPath: string;
@@ -19,6 +21,7 @@ type
 
   TDependenciesGrapher = class
   private
+    fOnProgress: TProgressEvent;
     fRootPath: string;
     fSearchPaths: TStringList;
     fUnits: TList<TUnit>;
@@ -41,7 +44,7 @@ type
   public
     constructor Create;
     destructor Destroy; override;
-    procedure LoadDproj(aPath: string);
+    procedure LoadDproj(aPath: string; aOnProgress: TProgressEvent);
     procedure ExportAsCsv(path: string);
     procedure ExportAsGraphml(path: string); //yEd format
   end;
@@ -86,12 +89,13 @@ begin
 end;
 
 
-procedure TDependenciesGrapher.LoadDproj(aPath: string);
+procedure TDependenciesGrapher.LoadDproj(aPath: string; aOnProgress: TProgressEvent);
 var
   xml: IXMLDocument;
   N: IXMLNode;
 begin
   fRootPath := ExtractFilePath(aPath);
+  fOnProgress := aOnProgress;
 
   //Acquire search paths
   {xml := TXMLDocument.Create(nil);
@@ -176,6 +180,9 @@ begin
   begin
     Inc(I);
 
+    if Assigned(fOnProgress) then
+      fOnProgress(I / fUnits.Count);
+
     if fUnits[I].UnitPath = '' then Continue;
 
     LoadFile(fUnits[I].UnitPath);
@@ -247,81 +254,84 @@ end;
 
 procedure TDependenciesGrapher.RefactorFileText(var aText: string);
 var
-  i, j: Integer;
+  I, K: Integer;
+  keepWhite: Boolean;
 begin
   // Inserting whitespaces around ',' and ';'
   aText := StringReplace(aText, ',', ' , ', [rfReplaceAll]);
   aText := StringReplace(aText, ';', ' ; ', [rfReplaceAll]);
 
-  // Delete {} comments
-  i := 0;
+  // Delete // comments first (section comments dont work in them)
   repeat
-    i := PosEx('{', aText, i + 1);
-    if i > 0 then
+    I := PosEx('//', aText);
+    if I > 0 then
     begin
-      j := PosEx('}', aText, i + 1);
-      if j > 0 then
-        delete(aText, i, j - i + 1);
-    end;
-  until i = 0;
-
-  // Delete (* *) comments
-  i:= 0;
-  repeat
-    i:= PosEx('(*', aText, i + 1);
-    if i > 0 then
-    begin
-      j:= PosEx('*)', aText, i + 1);
-      if j > 0 then
-        delete(aText, i, j - i + 2);
-    end;
-  until i = 0;
-
-  // Delete // comments
-  repeat
-    i:= PosEx('//', aText);
-    if i > 0 then
-    begin
-      j:= PosEx(#13#10, aText, i);
-      if j > 0 then
-        delete(aText, i, j - i + 2)
+      K:= PosEx(#13#10, aText, I);
+      if K > 0 then
+        delete(aText, I, K - I + 2)
       else
       begin
-        j:= PosEx(#10, aText, i);
-        if j > 0 then
-          delete(aText, i, j - i + 1);
+        K := PosEx(#10, aText, I);
+        if K > 0 then
+          delete(aText, I, K - I + 1);
       end;
     end;
-  until i = 0;
+  until (I = 0);
+
+  // Delete (* *) comments
+  I := 0;
+  repeat
+    I:= PosEx('(*', aText, I + 1);
+    if I > 0 then
+    begin
+      K := PosEx('*)', aText, I + 1);
+      if K > 0 then
+        delete(aText, I, K - I + 2);
+    end;
+  until (I = 0);
+
+  // Delete {} comments
+  I := 0;
+  repeat
+    I := PosEx('{', aText, I + 1);
+    if I > 0 then
+    begin
+      K := PosEx('}', aText, I + 1);
+      if K > 0 then
+        delete(aText, I, K - I + 1);
+    end;
+  until (I = 0);
 
   //Remove eol symbols (irregardless of EOL-style)
-  aText:= StringReplace(aText, #10, ' ', [rfReplaceAll, rfIgnoreCase]);
-  aText:= StringReplace(aText, #13, ' ', [rfReplaceAll, rfIgnoreCase]);
+  for I := 1 to Length(aText) do
+    if (aText[I] = #10) or (aText[I] = #13) then
+      aText[I] := ' ';
 
-  // Delete extra whitespaces
-  i:= 1;
-  while i < Length(aText)  do
+  //Delete series of extra whitespaces
+  K := 1;
+  keepWhite := False;
+  for I := 1 to Length(aText) do
   begin
-    if (aText[i] = ' ') then
+    if keepWhite or (aText[I] <> ' ') then
     begin
-      j:= i;
-      while aText[j] = ' ' do
-        inc(j);
-      delete(aText, i, j - i - 1);
+      aText[K] := aText[I];
+      inc(K);
     end;
-    inc(i);
-  end;
 
-  // File cannot start with a whitespace
-  if aText[1] = ' ' then
-    delete(aText, 1, 1);
+    if keepWhite then
+      keepWhite := False;
+
+    if (aText[I] <> ' ') then
+      keepWhite := True;
+  end;
+  SetLength(aText, K-1);
 end;
 
 procedure TDependenciesGrapher.SkipToUses;
 var str: string;
 begin
   repeat
-    str:= ReadWord;
+    str := ReadWord;
   until SameText(str, 'uses') or CheckEOF;
 end;
 

@@ -13,11 +13,12 @@ type
     btnExportCsv: TButton;
     ChConsSystem: TCheckBox;
     pbProgress: TProgressBar;
-    Timer: TTimer;
     btnExportGraphml: TButton;
     procedure btnSelectDprClick(Sender: TObject);
     procedure btnExportCsvClick(Sender: TObject);
     procedure btnExportGraphmlClick(Sender: TObject);
+  private
+    procedure ProggessValue(aProgress: Single);
   end;
 
 
@@ -40,7 +41,7 @@ begin
   Assert(SameText(ExtractFileExt(odSelectProject.FileName), '.dproj'));
 
   DepGraph := TDependenciesGrapher.Create;
-  DepGraph.LoadDproj(odSelectProject.FileName);
+  DepGraph.LoadDproj(odSelectProject.FileName, ProggessValue);
 
   btnSelectDpr.Enabled := False;
   btnExportCsv.Enabled := True;
@@ -49,10 +50,14 @@ begin
 end;
 
 
+procedure TForm1.ProggessValue(aProgress: Single);
+begin
+  pbProgress.Position := Round(aProgress * pbProgress.Max);
+end;
+
+
 procedure TForm1.btnExportCsvClick(Sender: TObject);
 begin
-  Timer.Enabled := True;
-
   DepGraph.ExportAsCsv(ExtractFilePath(odSelectProject.FileName) + 'dependencies.csv');
 
   FreeAndNil(DepGraph);
@@ -61,8 +66,6 @@ end;
 
 procedure TForm1.btnExportGraphmlClick(Sender: TObject);
 begin
-  Timer.Enabled := True;
-
   DepGraph.ExportAsGraphml(ExtractFilePath(odSelectProject.FileName) + 'dependencies.graphml');
 
   FreeAndNil(DepGraph);

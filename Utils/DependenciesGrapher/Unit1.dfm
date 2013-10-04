@@ -4,7 +4,7 @@ object Form1: TForm1
   BorderIcons = [biSystemMenu, biMinimize]
   BorderStyle = bsDialog
   Caption = 'Dependencies Grapher'
-  ClientHeight = 153
+  ClientHeight = 161
   ClientWidth = 389
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -18,7 +18,7 @@ object Form1: TForm1
   object btnSelectDpr: TButton
     Left = 40
     Top = 8
-    Width = 153
+    Width = 313
     Height = 33
     Caption = 'Select Delphi Project ...'
     TabOrder = 0
@@ -26,7 +26,7 @@ object Form1: TForm1
   end
   object btnExportCsv: TButton
     Left = 40
-    Top = 112
+    Top = 120
     Width = 153
     Height = 33
     Caption = 'Export as CSV'
@@ -36,7 +36,7 @@ object Form1: TForm1
   end
   object ChConsSystem: TCheckBox
     Left = 39
-    Top = 87
+    Top = 95
     Width = 122
     Height = 13
     Caption = 'Include system units'
@@ -46,13 +46,15 @@ object Form1: TForm1
   object pbProgress: TProgressBar
     Left = 40
     Top = 56
-    Width = 153
-    Height = 17
+    Width = 313
+    Height = 25
+    Max = 200
+    Smooth = True
     TabOrder = 3
   end
   object btnExportGraphml: TButton
     Left = 200
-    Top = 112
+    Top = 120
     Width = 153
     Height = 33
     Caption = 'Export as GraphML'
@@ -63,11 +65,5 @@ object Form1: TForm1
   object odSelectProject: TOpenDialog
     Filter = 'Delphi Project|*.dpr'
     Top = 8
-  end
-  object Timer: TTimer
-    Enabled = False
-    Interval = 10
-    Left = 200
-    Top = 48
   end
 end
