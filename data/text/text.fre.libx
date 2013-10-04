@@ -1,36 +1,33 @@
-
-MaxID:697
-
-0:Scierie
+Ôªø0:Scierie
 1:Fonderie
 2:Forge d'Armes
 3:Mine de Charbon
 4:Mine de Fer
 5:Mine d'Or
-6:Hutte du PÍcheur
+6:Hutte du P–∫cheur
 7:Fournil
 8:Ferme
-9:Cabane du B˚cheron
+9:Cabane du B—ãcheron
 10:Forge d'Armures
-11:EntrepÙt
-12:…curies
-13:…cole
-14:CarriËre
-15:Atelier MonÈtaire
+11:Entrep—Ñt
+12:–ôcuries
+13:–ôcole
+14:Carri–∏re
+15:Atelier Mon–πtaire
 16:Porcherie
 17:Tour de Guet
-18:HÙtel de Ville
+18:H—Ñtel de Ville
 19:Atelier d'Armes
 20:Atelier d'Armures
-21:Ch‚teau
+21:Ch–≤teau
 22:Moulin
-23:Atelier de SiËge
+23:Atelier de Si–∏ge
 24:Charcuterie
 25:Tannerie
 26:Salle d'Armes
 27:Auberge
 28:Chai
-29:Place du MarchÈ
+29:Place du March–π
 30:Tronc d'Arbre
 31:Pierre
 32:Planche
@@ -40,47 +37,47 @@ MaxID:697
 36:Fer
 37:Caisse d'Or
 38:Barrique de Vin
-39:BlÈ
+39:Bl–π
 40:Miche de Pain
 41:Farine
 42:Cuir
 43:Saucisse
-44:Porc DÈpecÈ
+44:Porc D–πpec–π
 45:Peau
 46:Bouclier de Bois
 47:Bouclier de Fer
 48:Armure de Cuir
 49:Armure de Fer
 50:Hache
-51:…pÈe
+51:–ôp–πe
 52:Lance
 53:Hallebarde
 54:Arc
-55:ArbalËte
+55:Arbal–∏te
 56:Cheval
 57:Poisson
 58:Serf
-59:B˚cheron
+59:B—ãcheron
 60:Mineur
-61:…leveur
+61:–ôleveur
 62:Paysan
 63:Charpentier
 64:Boulanger
 65:Charcutier
-66:PÍcheur
-67:MaÁon
+66:P–∫cheur
+67:Ma–∑on
 68:Tailleur de Pierres
 69:Forgeron
-70:MÈtallurgiste
+70:M–πtallurgiste
 71:Recrue
 72:Milicien
 73:Fantassin
-74:…pÈiste
+74:–ôp–πiste
 75:Archer
-76:ArbalÈtrier
+76:Arbal–πtrier
 77:Lancier
 78:Hallebardier
-79:Cav. LÈgËre
+79:Cav. L–πg–∏re
 80:Chevalier
 81:Barbare
 82:Rebelle
@@ -89,47 +86,47 @@ MaxID:697
 85:Vagabond
 86:Catapulte
 87:Baliste
-88:Les serfs livrent les matiËres premiËres nÈcessaires ‡ vos constructions.||Notez qu'il doit exister une route reliant les diffÈrents b‚timents.
-89:Pour obtenir les troncs d'arbres qui seront utilisÈs par la scierie, il faut un b˚cheron.||Le b˚cheron assure par ailleurs le reboisement.
+88:Les serfs livrent les mati–∏res premi–∏res n–πcessaires –∞ vos constructions.||Notez qu'il doit exister une route reliant les diff–πrents b–≤timents.
+89:Pour obtenir les troncs d'arbres qui seront utilis–πs par la scierie, il faut un b—ãcheron.||Le b—ãcheron assure par ailleurs le reboisement.
 90:Le mineur extrait du charbon, des minerais de fer et d'or dans les mines.
-91:¿ la porcherie et aux Ècuries, l'Èleveur nourrit les bÍtes avec du blÈ.
-92:Le paysan sËme et rÈcolte le blÈ ‡ la ferme.||Il fait aussi du vin dans le chai.
-93:Le charpentier travaille ‡ la scierie, ‡ l'atelier d'armes et ‡ l'atelier d'armures.||Il construit Ègalement des catapultes et des balistes dans l'atelier de siËge.
+91:–ê la porcherie et aux –πcuries, l'–πleveur nourrit les b–∫tes avec du bl–π.
+92:Le paysan s–∏me et r–πcolte le bl–π –∞ la ferme.||Il fait aussi du vin dans le chai.
+93:Le charpentier travaille –∞ la scierie, –∞ l'atelier d'armes et –∞ l'atelier d'armures.||Il construit –πgalement des catapultes et des balistes dans l'atelier de si–∏ge.
 94:Le boulanger cuit du pain au fournil.||Il fait aussi de la farine au moulin.
-95:Le charcutier fait des saucisses ‡ la charcuterie et du cuir ‡ la tannerie.
-96:Le pÍcheur pÍche du poisson dans les eaux environnantes.
-97:Le maÁon construit des b‚timents et des routes. SÈlectionnez simplement l'emplacement que vous avez choisi et il exÈcutera automatiquement vos ordres.||Il rÈpare Ègalement les b‚timents endommagÈs.
-98:Afin de fournir suffisamment de pierres ‡ vos maÁons pour construire des routes et des b‚timents, le tailleur de pierres extrait des blocs de pierres et les taille.
-99:Les armures et les armes lourdes sont fabriquÈes par les forgerons ‡ la forge d'armures et ‡ la forge d'armes.
-100:Le mÈtallurgiste produit des caisses d'or et des barres de fer ‡ partir du minerai extrait dans les mines d'or et de fer.
-101:Dans l'enceinte du ch‚teau, la recrue est ÈquipÈe et entraÓnÈe.||Elle se poste Ègalement dans la tour de guet.
-102:SÈlection d'un B‚timent
-103:RÈpartition des MatiËres PremiËres
+95:Le charcutier fait des saucisses –∞ la charcuterie et du cuir –∞ la tannerie.
+96:Le p–∫cheur p–∫che du poisson dans les eaux environnantes.
+97:Le ma–∑on construit des b–≤timents et des routes. S–πlectionnez simplement l'emplacement que vous avez choisi et il ex–πcutera automatiquement vos ordres.||Il r–πpare –πgalement les b–≤timents endommag–πs.
+98:Afin de fournir suffisamment de pierres –∞ vos ma–∑ons pour construire des routes et des b–≤timents, le tailleur de pierres extrait des blocs de pierres et les taille.
+99:Les armures et les armes lourdes sont fabriqu–πes par les forgerons –∞ la forge d'armures et –∞ la forge d'armes.
+100:Le m–πtallurgiste produit des caisses d'or et des barres de fer –∞ partir du minerai extrait dans les mines d'or et de fer.
+101:Dans l'enceinte du ch–≤teau, la recrue est –πquip–πe et entra–æn–πe.||Elle se poste –πgalement dans la tour de guet.
+102:S–πlection d'un B–≤timent
+103:R–πpartition des Mati–∏res Premi–∏res
 104:Statistiques
 105:Options
 106:Retour
-107:SÈlection|B‚timent
-108:RÈpartition|MatiËres|PremiËres
+107:S–πlection|B–≤timent
+108:R–πpartition|Mati–∏res|Premi–∏res
 109:Statistiques
 110:Options
 111:Charger Partie
 112:Enregistrer Partie
-113: tes-vous s˚r(e)|de vouloir quitter|cette mission ?
+113:–ötes-vous s—ãr(e)|de vouloir quitter|cette mission ?
 114:Quitter la Mission
 115:Annuler
-116:ParamËtres
-117:Quitter l'…diteur
+116:Param–∏tres
+117:Quitter l'–ôditeur
 118:Effets Sonores
-119:RÈgler le volume
-120:RÈgler le volume
+119:R–πgler le volume
+120:R–πgler le volume
 121:Musique
 122:Musique Oui/Non
 123:Sauvegarde Auto.
 124:Lecteur de Musique
-125:Morceau prÈcÈdent
+125:Morceau pr–πc–πdent
 126:Morceau suivant
-127:DÈmolir
-128:DÈmolition/Annulation
+127:D–πmolir
+128:D–πmolition/Annulation
 129:Construire une Route
 130:Construire des Routes
 131:Labourer un Champ
@@ -140,70 +137,70 @@ MaxID:697
 136:Annuler l'apprentissage en cours
 137:Besoins :
 138:Production :
-139:…tat :
+139:–ôtat :
 140:Produits
-141:B‚timent en|construction
-142:DÈmolir
-143:Voulez-vous vraiment|dÈmolir ce b‚timent ?
-144:DÈmolir le b‚timent sÈlectionnÈ
-145:RÈduire la commande
+141:B–≤timent en|construction
+142:D–πmolir
+143:Voulez-vous vraiment|d–πmolir ce b–≤timent ?
+144:D–πmolir le b–≤timent s–πlectionn–π
+145:R–πduire la commande
 146:Augmenter la commande
-147:UnitÈ prÈcÈdente
-148:UnitÈ suivante
-149:…quiper l'unitÈ sÈlectionnÈe
-150:CatÈgorie suivante
-151:CatÈgorie prÈcÈdente
-152:Ajouter ‡ la liste
+147:Unit–π pr–πc–πdente
+148:Unit–π suivante
+149:–ôquiper l'unit–π s–πlectionn–πe
+150:Cat–πgorie suivante
+151:Cat–πgorie pr–πc–πdente
+152:Ajouter –∞ la liste
 153:Livraison de marchandises Oui/Non
-154:Co˚t :
-155:RÈparation du b‚timent Oui/Non
-156:B‚timent indisponible actuellement
-157:SantÈ
-158:Pivoter ‡ gauche
-159:Pivoter ‡ droite
+154:Co—ãt :
+155:R–πparation du b–≤timent Oui/Non
+156:B–≤timent indisponible actuellement
+157:Sant–π
+158:Pivoter –∞ gauche
+159:Pivoter –∞ droite
 160:Attaquer ('a')
 161:Envoyer les Troupes ('d')
 162:Ravitailler les Troupes
 163:Attaquer : Charger !
 164:Changer la Formation : Ajouter un rang
 165:Changer la Formation : Enlever un rang
-166:SÈlectionner|l'autre unitÈ
+166:S–πlectionner|l'autre unit–π
 167:Annuler
 168:Supprimer
 169:Supprimer ce message
 170:Centrer
-171:Centrer l'Ècran sur l'objet de ce message
+171:Centrer l'–πcran sur l'objet de ce message
 172:Fermer
 173:Refermer ce message
-174:Votre tailleur de pierres ne peut plus rien tirer de cette carriËre.
-175:Vos gisements de charbon sont ÈpuisÈs.
-176:Vos gisements de fer sont ÈpuisÈs.
-177:Vos gisements d'or sont ÈpuisÈs.
-178:Votre b˚cheron ne peut plus trouver d'arbres ‡ couper.
-179:Ce b‚timent est inoccupÈ.
-180:Ces troupes sont affamÈes, vous devriez les nourrir !
+174:Votre tailleur de pierres ne peut plus rien tirer de cette carri–∏re.
+175:Vos gisements de charbon sont –πpuis–πs.
+176:Vos gisements de fer sont –πpuis–πs.
+177:Vos gisements d'or sont –πpuis–πs.
+178:Votre b—ãcheron ne peut plus trouver d'arbres –∞ couper.
+179:Ce b–≤timent est inoccup–π.
+180:Ces troupes sont affam–πes, vous devriez les nourrir !
 181:PAUSE
-182:DÈlivre
+182:D–πlivre
 183:Construit une route
 184:Laboure un champ
 185:Plante une vigne
 186:Aplatit l'emplacement
-187:Construit un b‚timent
-188:RÈpare un b‚timent
-189:DÈplacement vers son b‚timent
-190:DÈplacement vers l'auberge
-191:Attaque un b‚timent
+187:Construit un b–≤timent
+188:R–πpare un b–≤timent
+189:D–πplacement vers son b–≤timent
+190:D–πplacement vers l'auberge
+191:Attaque un b–≤timent
 192:Tire
 193:Combat
 194:Charge
 195:Attaque
 196:Mouvement
-197:InoccupÈ
+197:Inoccup–π
 198:Extrait de la pierre
-199:SËme du blÈ
-200:RÈcolte du blÈ
-201:RÈcolte des raisins
-202:PÍche du poisson
+199:S–∏me du bl–π
+200:R–πcolte du bl–π
+201:R–πcolte des raisins
+202:P–∫che du poisson
 203:Abat un arbre
 204:Plante un arbre
 205:Spirit
@@ -230,49 +227,49 @@ MaxID:697
 226:Journey
 227:Campagnes
 228:Campagnes
-229:DÈbuter !
-230:SÈlectionner une Mission
-231:DÈbuter !
+229:D–πbuter !
+230:S–πlectionner une Mission
+231:D–πbuter !
 232:Retour au Menu
-233:Charger une Partie EnregistrÈe
+233:Charger une Partie Enregistr–πe
 234:Multijoueur
 235:Options
-236:CrÈdits
+236:Cr–πdits
 237:Quitter
 238:Continuer
 239:Recommencer la Mission
-240:RÈsolution :
-241:Non supportÈe
-242:Non supportÈ
+240:R–πsolution :
+241:Non support–πe
+242:Non support–π
 243:VICTOIRE !
 244:DEFAITE !
-245:UnitÈs perdues :
-246:UnitÈs ÈliminÈes :
-247:B‚timents perdus :
-248:B‚timents dÈtruits :
-249:B‚timents construits :
-250:UnitÈs formÈes :
-251:Armes fabriquÈes :
-252:Soldats entraÓnÈs :
+245:Unit–πs perdues :
+246:Unit–πs –πlimin–πes :
+247:B–≤timents perdus :
+248:B–≤timents d–πtruits :
+249:B–≤timents construits :
+250:Unit–πs form–πes :
+251:Armes fabriqu–πes :
+252:Soldats entra–æn–πs :
 253:Mission accomplie en :
 254:Statistiques
-255:…conomie
-256:UnitÈs|formÈes
-257:UnitÈs|perdues
-258:Soldats|entraÓnÈs
+255:–ôconomie
+256:Unit–πs|form–πes
+257:Unit–πs|perdues
+258:Soldats|entra–æn–πs
 259:Soldats|perdus
-260:Soldats|ÈliminÈs
-261:B‚timents|construits
-262:B‚timents|perdus
-263:B‚timents|dÈtruits
+260:Soldats|–πlimin–πs
+261:B–≤timents|construits
+262:B–≤timents|perdus
+263:B–≤timents|d–πtruits
 264:Marchandises|produites
-265:Armes|fabriquÈes
-266:ArmÈe
+265:Armes|fabriqu–πes
+266:Arm–πe
 267:Citoyens
-268:B‚timents
+268:B–≤timents
 269:Ressources
 270:Ressources produites
-271:Pas de donnÈes
+271:Pas de donn–πes
 272:Vous
 273:Joueur %d
 274:Retour au Multijoueur
@@ -280,39 +277,39 @@ MaxID:697
 276:Toutes
 277:Militaire
 278:Nourriture
-279:JOYMANIA ENTERTAINMENT||PROGRAMMATION :|Peter Ohlmann||GRAPHISMES :|Adam Sprys||CONCEPTION DES NIVEAUX :|Adam Sprys|Andre Quaﬂ||MIXAGE ET …DITION AUDIO :|Tonstudio Mannheim||MUSIQUE D'AMBIANCE :|Gerd Hofmann|Joachim Sch‰fer|J¸rgen Rebhann|Klaus Staendike|Steffen Sch¸ngel||ILLUSTRATIONS :|Boleslaw Kasza|Christoph Werner||ZUXXEZ ENTERTAINMENT AG||PRODUCTEUR :|Uwe Sch‰fer||MANUEL :|Peter Ohlmann|Uwe Sch‰fer||B TA TEST :|Peter Ohlmann|Adam Sprys|Alexandra Constandache|Dirk P. Hassinger|Achim Heidelauf|Uwe Sch‰fer|Ingrid Sch‰fer|Dirk U. Jantz|Ion Constandache|Yaman Egeli|Roman Eich|Iris Mocsnek|Anke Jantz|Paul Hassinger|Liza Hassinger||RESPONSABLE DU D…VELOPPEMENT :|Achim Heidelauf||PUBLICATION :|TopWare Interactive||CIN…MATIQUES :||DIRECTION :|Slawomir Jedrzejewski||Kajetan Czarnecki|Wojciech Drazek|Daniel Duplaga|Rafal Januszkiewicz|Andrzej Rams|Piotr Rulka|Krzysztof Rybczynski|Grzegorz Wisniwski||VOIX :|Claus Boyen (Narrateur)||Tim Timmermann|Peter Houska|Dirk M¸hlbach|Ralf Ditze|Gerhard Piske|Gernot Wassmann||ARTWORK :|Boleslaw Kasza|Adam Sprys||ANIMATION :|Uwe Sch‰fer|Christian Bigalk|ModÈlisation 3D Additionnelle :|Niels Horstmann||REMERCIEMENTS PARTICULIERS ¿ :|Tadeusz Zuber|Dieter Ohlmann|Alexandra Constandache|Ingrid Sch‰fer|Andrea Rumpelt
-280:Mission AnnulÈe
-281:Replay terminÈ
+279:JOYMANIA ENTERTAINMENT||PROGRAMMATION :|Peter Ohlmann||GRAPHISMES :|Adam Sprys||CONCEPTION DES NIVEAUX :|Adam Sprys|Andre Qua–Ø||MIXAGE ET –ôDITION AUDIO :|Tonstudio Mannheim||MUSIQUE D'AMBIANCE :|Gerd Hofmann|Joachim Sch–¥fer|J—årgen Rebhann|Klaus Staendike|Steffen Sch—ångel||ILLUSTRATIONS :|Boleslaw Kasza|Christoph Werner||ZUXXEZ ENTERTAINMENT AG||PRODUCTEUR :|Uwe Sch–¥fer||MANUEL :|Peter Ohlmann|Uwe Sch–¥fer||B–öTA TEST :|Peter Ohlmann|Adam Sprys|Alexandra Constandache|Dirk P. Hassinger|Achim Heidelauf|Uwe Sch–¥fer|Ingrid Sch–¥fer|Dirk U. Jantz|Ion Constandache|Yaman Egeli|Roman Eich|Iris Mocsnek|Anke Jantz|Paul Hassinger|Liza Hassinger||RESPONSABLE DU D–ôVELOPPEMENT :|Achim Heidelauf||PUBLICATION :|TopWare Interactive||CIN–ôMATIQUES :||DIRECTION :|Slawomir Jedrzejewski||Kajetan Czarnecki|Wojciech Drazek|Daniel Duplaga|Rafal Januszkiewicz|Andrzej Rams|Piotr Rulka|Krzysztof Rybczynski|Grzegorz Wisniwski||VOIX :|Claus Boyen (Narrateur)||Tim Timmermann|Peter Houska|Dirk M—åhlbach|Ralf Ditze|Gerhard Piske|Gernot Wassmann||ARTWORK :|Boleslaw Kasza|Adam Sprys||ANIMATION :|Uwe Sch–¥fer|Christian Bigalk|Mod–πlisation 3D Additionnelle :|Niels Horstmann||REMERCIEMENTS PARTICULIERS –ê :|Tadeusz Zuber|Dieter Ohlmann|Alexandra Constandache|Ingrid Sch–¥fer|Andrea Rumpelt
+280:Mission Annul–πe
+281:Replay termin–π
 282:Tutoriel de Construction
 283:Tutoriel de Bataille
 284:Jouer en Solo
-285:…diteur de Cartes
-286:DÈbuter !
+285:–ôditeur de Cartes
+286:D–πbuter !
 287:Titre
 288:Taille
 289:Condition de Victoire :
-290:Condition de DÈfaite :
-291:AlliÈs :
+290:Condition de D–πfaite :
+291:Alli–πs :
 292:Ennemis :
 293:Temps
 294:Taille de la Carte :
 295:Largeur
 296:Hauteur
-297:CrÈer une Carte
+297:Cr–πer une Carte
 298:Cartes Existantes :
 299:Charger une Carte Existante
 300:Position
-301:ContrÙles :
-302:JouabilitÈ :
+301:Contr—Ñles :
+302:Jouabilit–π :
 303:Effets Sonores :
-304:DÈsactiver la musique
+304:D–πsactiver la musique
 305:Graphismes :
-306:LuminositÈ
+306:Luminosit–π
 307:Synchronisation verticale
-308:Plein …cran
+308:Plein –ôcran
 309:Appliquer
 310:Langage :
-311:QualitÈ de l'Ombre :
+311:Qualit–π de l'Ombre :
 312:Basse
 313:Haute
 314:Chargement... Veuillez patienter
@@ -323,41 +320,41 @@ MaxID:697
 319:Description
 320:Charger
 321:Supprimer
-322: tes-vous s˚r(e) de vouloir supprimer cette sauvegarde ?
+322:–ötes-vous s—ãr(e) de vouloir supprimer cette sauvegarde ?
 323:Supprimer
 324:Annuler
 325:Titre
 326:Cartes
-327:DÈbloquÈes
-328:Vous avez GagnÈ !
-329:Continuer ‡ Jouer
+327:D–πbloqu–πes
+328:Vous avez Gagn–π !
+329:Continuer –∞ Jouer
 330:Victoire !
 331:Vous avez Perdu !
-332:Continuer ‡ Regarder
-333:DÈfaite !
-334:Le replay est terminÈ
-335:Continuer ‡ Regarder
+332:Continuer –∞ Regarder
+333:D–πfaite !
+334:Le replay est termin–π
+335:Continuer –∞ Regarder
 336:Quitter au Menu
 337:Non disponible
 338:Appuyer sur %s pour reprendre le jeu
 339:Infos sur les joueurs
 340:Chat
-341:Fichier dÈj‡ existant
-342:…craser
+341:Fichier d–πj–∞ existant
+342:–ôcraser
 343:Enregistrer
 344:Charger
-345:Une ancienne version d'OpenGL a ÈtÈ dÈtectÈe, le jeu peut Ítre lent et/ou avec des dÈfauts graphiques.
-346:Veuillez mettre ‡ jour votre pilote graphique pour obtenir une meilleure performance.
-347:Erreur rÈseau :
-348:Erreur : Le nom du joueur doit contenir au moins un caractËre.
-349:Erreur : Le nom du joueur ne peut pas contenir plus de %d caractËres.
-350:Erreur : Le nom du joueur ne peut pas contenir de caractËres interdits.
-351:Connexion ÈchouÈe : %s.
-352:Vous vous Ítes dÈconnectÈ.
+345:Une ancienne version d'OpenGL a –πt–π d–πtect–πe, le jeu peut –∫tre lent et/ou avec des d–πfauts graphiques.
+346:Veuillez mettre –∞ jour votre pilote graphique pour obtenir une meilleure performance.
+347:Erreur r–πseau :
+348:Erreur : Le nom du joueur doit contenir au moins un caract–∏re.
+349:Erreur : Le nom du joueur ne peut pas contenir plus de %d caract–∏res.
+350:Erreur : Le nom du joueur ne peut pas contenir de caract–∏res interdits.
+351:Connexion –πchou–πe : %s.
+352:Vous vous –∫tes d–πconnect–π.
 353:Mission %d
 354:Liste des messages
-355:La hutte de votre pÍcheur est trop ÈloignÈe de l'eau.
-356:Votre pÍcheur ne peut plus trouver de poissons ‡ pÍcher.
+355:La hutte de votre p–∫cheur est trop –πloign–πe de l'eau.
+356:Votre p–∫cheur ne peut plus trouver de poissons –∞ p–∫cher.
 357:Relancer le replay
 358:Suspendre
 359:Avancer d"une frame
@@ -365,11 +362,11 @@ MaxID:697
 361:Stopper le replay
 362:Activer la vue par joueur
 363:Montrer tout le monde
-364:Utilisez le bouton gauche de la souris pour sÈlectionner une marchandise ‡ Èchanger
-365:Utilisez le bouton droit de la souris pour sÈlectionner une marchandise ‡ Èchanger
+364:Utilisez le bouton gauche de la souris pour s–πlectionner une marchandise –∞ –πchanger
+365:Utilisez le bouton droit de la souris pour s–πlectionner une marchandise –∞ –πchanger
 366:De : %dx
-367:‡ : %dx
-368:…dition du Terrain
+367:–∞ : %dx
+368:–ôdition du Terrain
 369:Brosses
 370:Reliefs
 371:Tiles
@@ -381,18 +378,18 @@ MaxID:697
 377:Variation
 378:Glisser pour changer la variation de hauteur : 1 = plateau ... 15 = pic
 379:Vitesse
-380:Glisser pour changer la vitesse de l'ÈlÈvation : 1 = lent ... 15 = trËs rapide
+380:Glisser pour changer la vitesse de l'–πl–πvation : 1 = lent ... 15 = tr–∏s rapide
 381:Brosse en cercle
-382:Brosse en carrÈ
-383:…lever / Baisser
-384:InÈgaliser / Aplatir
-385:…lever (clic gauche) / Baisser (clic droit)
-386:InÈgaliser (clic gauche) / Aplatir (clic droit)
+382:Brosse en carr–π
+383:–ôlever / Baisser
+384:In–πgaliser / Aplatir
+385:–ôlever (clic gauche) / Baisser (clic droit)
+386:In–πgaliser (clic gauche) / Aplatir (clic droit)
 387:Brosse
-388:…lements alÈatoires
-389:Orientation alÈatoire
-390:Cocher pour une direction alÈatoire des cases ou utiliser le clic droit pour effectuer une rotation de la case selectionnÈe
-391:Utiliser le clic droit pour effectuer une rotation de la case selectionnÈe
+388:–ôlements al–πatoires
+389:Orientation al–πatoire
+390:Cocher pour une direction al–πatoire des cases ou utiliser le clic droit pour effectuer une rotation de la case selectionn–πe
+391:Utiliser le clic droit pour effectuer une rotation de la case selectionn–πe
 392:Bloquer les mouvements
 393:Enlever un objet
 394:Planification du Village
@@ -401,41 +398,41 @@ MaxID:697
 397:Menu
 398:Objets
 399:Montrer les gisements
-400:Montrer les unitÈs
+400:Montrer les unit–πs
 401:Montrer les maisons
 402:Montrer les objets
-403:Montrer la passabilitÈ
-404:Tout changement|non sauvegardÈ sera perdu
+403:Montrer la passabilit–π
+404:Tout changement|non sauvegard–π sera perdu
 405:Annuler
 406:Charger
 407:Charger Carte
 408:Annuler
 409:Sauvegarder
-410:…craser
-411:La carte existe dÈj‡
+410:–ôcraser
+411:La carte existe d–πj–∞
 412:Joueurs :
-413:DÈfaut
+413:D–πfaut
 414:Type de joueur
-415:SymÈtrique
+415:Sym–πtrique
 416:Alliances
 417:Tactique
 418:Normale
 419:Mode de mission
-420:Aller ‡ la position
-421:Centrer l'Ècran au dÈbut de la mission
-422:Centrer l'Ècran
-423:Tout rÈvÈler
-424:RÈvËle une portion de la carte
-425:RÈveler brouillard
+420:Aller –∞ la position
+421:Centrer l'–πcran au d–πbut de la mission
+422:Centrer l'–πcran
+423:Tout r–πv–πler
+424:R–πv–∏le une portion de la carte
+425:R–πveler brouillard
 426:Bloquer le commerce
-427:Bloquer/DÈverouiller des maisons
+427:Bloquer/D–πverouiller des maisons
 428:Couleurs
 429:Buts
 430:Msg.
 431:Temps
 432:Joueur
-433:Batiments Èconomiques
-434:Serfs et Ècoles
+433:Batiments –πconomiques
+434:Serfs et –πcoles
 435:Possessions militaires
 436:Inconnu
 437:Troupes
@@ -454,61 +451,61 @@ MaxID:697
 450:Colonnes
 451:Nombre
 452:Formation de la troupe
-453:…diter les formations
+453:–ôditer les formations
 454:Limiter le nombre de soldats que l'IA peut avoir
-455:Combien de soldats l'IA peut avoir en mÍme temps
+455:Combien de soldats l'IA peut avoir en m–∫me temps
 456:Max. de soldats
-457:Combien de recrues l'IA doit avoir au ch‚teau
-458:Recrues par Ch‚teau
+457:Combien de recrues l'IA doit avoir au ch–≤teau
+458:Recrues par Ch–≤teau
 459:Positions
 460:Position perso.
-461:B‚t. le + proche 2
-462:B‚t. le + proche 1
+461:B–≤t. le + proche 2
+462:B–≤t. le + proche 1
 463:Unit. la + proche
 464:Tout prendre
 465:Nombre de groupes
 466:Infos d'attaque
-467:DÈlai (s)
-468:RÈpÈt.
+467:D–πlai (s)
+468:R–πp–πt.
 469:1 fois
 470:Cavalerie
 471:Distance
 472:Anticavalerie
-473:MÈlÈe
+473:M–πl–πe
 474:Pos.
 475:Cible
 476:Hommes
-477:DÈlai
+477:D–πlai
 478:Type
 479:Attaque auto
 480:Attaques IA
-481:Taux d'Èquip. cuir
-482:Taux d'Èquip. fer
-483:AutodÈfense
-484:L'IA crÈe et gËre les positions de dÈfense automatiquement
-485:Placer une position de dÈfense IA
-486:Positions de dÈfense IA
-487:MaÁons
+481:Taux d'–πquip. cuir
+482:Taux d'–πquip. fer
+483:Autod–πfense
+484:L'IA cr–πe et g–∏re les positions de d–πfense automatiquement
+485:Placer une position de d–πfense IA
+486:Positions de d–πfense IA
+487:Ma–∑ons
 488:Serfs par 10 maisons
-489:AutorÈparer
+489:Autor–πparer
 490:Auto construction
-491:ParamËtres IA
+491:Param–∏tres IA
 492:Maisons
 493:Routes
-494:Tourne la sÈlection verticalement
-495:Tourne la sÈlection horizontalement
+494:Tourne la s–πlection verticalement
+495:Tourne la s–πlection horizontalement
 496:Copier terrain
 497:Copie le terrain
 498:Copier/Coller
 499:Nouvelle Mission
 500:Nom du Joueur :
 501:Statut :
-502:CrÈer un Serveur
-503:CR…ER UN SERVEUR
+502:Cr–πer un Serveur
+503:CR–ôER UN SERVEUR
 504:Nom :
 505:Port :
-506:CrÈer un Serveur Local
-507:CrÈer un Serveur Internet
+506:Cr–πer un Serveur Local
+507:Cr–πer un Serveur Internet
 508:Annuler
 509:Trouver un Serveur par IP
 510:TROUVER UN SERVEUR
@@ -517,162 +514,162 @@ MaxID:697
 513:Salle :
 514:Connexion
 515:Annuler
-516:Salle protÈgÈe par Mot de Passe
+516:Salle prot–πg–πe par Mot de Passe
 517:Mot de Passe
 518:Nom du Serveur
-519:…tat
+519:–ôtat
 520:Joueurs
 521:Ping
 522:Rafraichir la Liste des Serveurs
-523:D…TAILS DU SERVEUR
+523:D–ôTAILS DU SERVEUR
 524:Liste des Joueurs :
 525:Joindre
 526:Connexion, veuillez patienter...
 527:Chargement des annonces...
 528:Rafraichissement...
 529:Liste des Joueurs
-530:Position de DÈpart
+530:Position de D–πpart
 531:Alliance
 532:Couleur
-533:PrÍt
+533:Pr–∫t
 534:Ping
 535:Ping / FPS
 536:Libre
 537:Joueur IA
-538:SÈlect...
-539:AlÈatoire
+538:S–πlect...
+539:Al–πatoire
 540:Aucune
-541:Partie EnregistrÈe
-542:SÈlect. une mission...
-543:SÈlect. une sauvegarde...
-544:Quitter la PrÈparation
-545:PrÍt
-546:Non PrÍt
-547:DÈbuter !
+541:Partie Enregistr–πe
+542:S–πlect. une mission...
+543:S–πlect. une sauvegarde...
+544:Quitter la Pr–πparation
+545:Pr–∫t
+546:Non Pr–∫t
+547:D–πbuter !
 548:Vitesse du jeu (temps de paix)
 549:Vitesse du jeu
 550:OK
 551:Annuler
 552:Description
 553:Mot de Passe
-554:ParamËtres de la Salle
-555:DÈfinir comme hÙte
+554:Param–∏tres de la Salle
+555:D–πfinir comme h—Ñte
 556:Bannir
 557:Exclure
-558:Positions alÈatoire dans chaque Èquipe
+558:Positions al–πatoire dans chaque –πquipe
 559:Description
 560:Options
 561:Position %d
-562:Erreur : Veuillez sÈlectionner un joueur de la sauvegarde pour le contrÙler.
-563:Erreur : Le chargement de la carte a ÈchouÈ ou aucune carte n'a ÈtÈ sÈlectionnÈe.
-564:Impossible de dÈbuter : %s.
-565:Tout le monde n'est pas prÍt pour dÈbuter.
-566:Impossible d'assigner une position alÈatoire.
-567:Le Serveur vous a attribuÈ les droits d'hÈbergement.
-568:La partie a dÈbutÈ !
-569:DÈveloppement
+562:Erreur : Veuillez s–πlectionner un joueur de la sauvegarde pour le contr—Ñler.
+563:Erreur : Le chargement de la carte a –πchou–π ou aucune carte n'a –πt–π s–πlectionn–πe.
+564:Impossible de d–πbuter : %s.
+565:Tout le monde n'est pas pr–∫t pour d–πbuter.
+566:Impossible d'assigner une position al–πatoire.
+567:Le Serveur vous a attribu–π les droits d'h–πbergement.
+568:La partie a d–πbut–π !
+569:D–πveloppement
 570:Bataille
-571:Carte CoopÈrative
-572:Carte SpÈciale
+571:Carte Coop–πrative
+572:Carte Sp–πciale
 573:Options de Jeu :
 574:Temps de Paix (minutes)
-575:FermÈ
-576:L'hÙte configure les joueurs
+575:Ferm–π
+576:L'h—Ñte configure les joueurs
 577:Attente des Joueurs :
 578:Tous
-579:…quipe
-580:CrÈdits de KaM Remake
-581:CrÈdits Originaux de Knights & Merchants
+579:–ôquipe
+580:Cr–πdits de KaM Remake
+581:Cr–πdits Originaux de Knights & Merchants
 582:PROGRAMMATION :
 583:PROGRAMMATION ADDITIONNELLE :
 584:GRAPHISMES ADDITIONNELS :
 585:EFFETS SONORES ADDITIONNELS :
 586:MUSIQUES ADDITIONNELLES :
 587:TRADUCTIONS ADDITIONNELLES :
-588:REMERCIMENTS SP…CIAUX ¿ :
+588:REMERCIMENTS SP–ôCIAUX –ê :
 589:Cartes Multijoueur
 590:Cartes Solo
-591:Vitesse de dÈfilement
-592:Aucun serveur n'a ÈtÈ trouvÈ
-593:Lecture alÈatoire
+591:Vitesse de d–πfilement
+592:Aucun serveur n'a –πt–π trouv–π
+593:Lecture al–πatoire
 594:Informations sur la Partie :
 595:-
-596:PrÈparation
+596:Pr–πparation
 597:Chargement
 598:Partie
-599:DÈveloppement
+599:D–πveloppement
 600:Bataille
-601:PrÍt
+601:Pr–∫t
 602:Mauvaise version du protocole : %s. Le Serveur utilise la version : %s.
-603:Augmenter le nombre d'Èchanges
-604:RÈduire le nombre d'Èchanges
+603:Augmenter le nombre d'–πchanges
+604:R–πduire le nombre d'–πchanges
 605:Enregistrement de la partie...
 606:%s a perdu !
 607:Abandonner ces Joueurs
-608:L'hÙte sera autorisÈ ‡ abandonner ces joueurs aprËs %d secondes.
-609:L'hÙte est dÈsormais autorisÈ ‡ abandonner ces joueurs.
-610:L'hÙte (%s) a quittÈ.
-611:La connexion vers le serveur a ÈtÈ perdue. Tentative de reconnexion...
-612: tes-vous s˚r(e) de vouloir quitter ?
-613: tes-vous s˚r(e) de vouloir abandonner ces joueurs ?
+608:L'h—Ñte sera autoris–π –∞ abandonner ces joueurs apr–∏s %d secondes.
+609:L'h—Ñte est d–πsormais autoris–π –∞ abandonner ces joueurs.
+610:L'h—Ñte (%s) a quitt–π.
+611:La connexion vers le serveur a –πt–π perdue. Tentative de reconnexion...
+612:–ötes-vous s—ãr(e) de vouloir quitter ?
+613:–ötes-vous s—ãr(e) de vouloir abandonner ces joueurs ?
 614:Annuler
-615:L'Èchange de cette ressource est indisponible dans cette mission
+615:L'–πchange de cette ressource est indisponible dans cette mission
 616:Planter et Abattre
 617:Abattre Seulement
-618:Vous n'Ítes pas autorisÈ ‡ faire cela pendant le temps de paix.
+618:Vous n'–∫tes pas autoris–π –∞ faire cela pendant le temps de paix.
 619:Temps de Paix restant : %s
-620:Le temps de paix est terminÈ. ¿ vos armes !
+620:Le temps de paix est termin–π. –ê vos armes !
 621:Temps de Jeu :|%s
 622:Halte ('%s')
-623:Regrouper les UnitÈs ('%s')
-624:Scinder les UnitÈs ('%s')
+623:Regrouper les Unit–πs ('%s')
+624:Scinder les Unit–πs ('%s')
 625:Lecteur de Replay
 626:Voir le Replay
-627:Format non supportÈ %s
-628:Version non supportÈe %s
-629:Modifications non supportÈes
+627:Format non support–π %s
+628:Version non support–πe %s
+629:Modifications non support–πes
 630:Une erreur est survenue lors de l'analyse du fichier %s.
 631:initialisation
 632:script
-633:unitÈs
-634:b‚timents
+633:unit–πs
+634:b–≤timents
 635:arbres
-636:dÈfinitions
+636:d–πfinitions
 637:tileset
-638:Carte non trouvÈe : %s
-639:Sauvegarde non trouvÈe : %s
-640:Les fichiers de la mission ne sont pas les mÍmes que ceux de l'hÙte : %s
-641:Le fichier de sauvegarde n'est pas le mÍme que celui de l'hÙte : %s
-642:Le replay a ÈchouÈ ‡ une vÈrification de consistance. C'est un bug connu qui affecte la lecture de plusieurs replays. Voulez-vous continuer ‡ le regarder ?
-643:Vous ne pouvez qu'avoir une instance du jeu en mode multijoueur ‡ la fois.
-644:Les modifications du jeu ne sont pas autorisÈes en multijoueur.|Veuillez le rÈinstaller pour restaurer les fichiers originaux.
-645:Une erreur s'est produite dans l'application. Veuillez cliquer sur Envoyer le Rapport de Bug pour que nous puissions examiner ce problËme. Merci pour votre aide !
+638:Carte non trouv–πe : %s
+639:Sauvegarde non trouv–πe : %s
+640:Les fichiers de la mission ne sont pas les m–∫mes que ceux de l'h—Ñte : %s
+641:Le fichier de sauvegarde n'est pas le m–∫me que celui de l'h—Ñte : %s
+642:Le replay a –πchou–π –∞ une v–πrification de consistance. C'est un bug connu qui affecte la lecture de plusieurs replays. Voulez-vous continuer –∞ le regarder ?
+643:Vous ne pouvez qu'avoir une instance du jeu en mode multijoueur –∞ la fois.
+644:Les modifications du jeu ne sont pas autoris–πes en multijoueur.|Veuillez le r–πinstaller pour restaurer les fichiers originaux.
+645:Une erreur s'est produite dans l'application. Veuillez cliquer sur Envoyer le Rapport de Bug pour que nous puissions examiner ce probl–∏me. Merci pour votre aide !
 646:Envoyer le Rapport de Bug
-647:Afficher les DonnÈes Brutes
+647:Afficher les Donn–πes Brutes
 648:Reprendre l'Application
 649:Quitter l'Application
 650:Suivant
-651:DÈtails de Contact
+651:D–πtails de Contact
 652:Votre nom : (optionnel)
 653:Votre email : (optionnel)
 654:Se souvenir de moi
-655:DÈtails de l'Erreur
-656:Dans quelle situation l'erreur se produit-elle ? Pouvez-vous fournir toute information supplÈmentaire ? (en anglais de prÈfÈrence)
-657:Capture d'Ècran
-658:Joindre une capture d'Ècran au rapport de bug
+655:D–πtails de l'Erreur
+656:Dans quelle situation l'erreur se produit-elle ? Pouvez-vous fournir toute information suppl–πmentaire ? (en anglais de pr–πf–πrence)
+657:Capture d'–πcran
+658:Joindre une capture d'–πcran au rapport de bug
 659:(cliquez pour modifier l'image)
 660:Envoyer le Rapport
 661:Annuler
 662:Envoi du rapport de bug...
 663:Connexion au serveur...
-664:Envoi des donnÈes...
-665:L'envoi du rapport de crash a ÈchouÈ ! Notre serveur Ètait peut-Ítre occupÈ, veuillez rÈessayer l'envoi ‡ nouveau.
+664:Envoi des donn–πes...
+665:L'envoi du rapport de crash a –πchou–π ! Notre serveur –πtait peut-–∫tre occup–π, veuillez r–πessayer l'envoi –∞ nouveau.
 666:Information
 667:Veuillez patienter un moment...
 668:Sauvegarder Carte
-669:DÈlai en minutes avant que l'IA ne commence ‡ entraÓner des recrues
+669:D–πlai en minutes avant que l'IA ne commence –∞ entra–æner des recrues
 670:Delai recrues (mins)
-671:Permet de choisir une direction commune ‡ un corps de cases d'eau connectÈes
+671:Permet de choisir une direction commune –∞ un corps de cases d'eau connect–πes
 672:Eau magique
 673:Copier
 674:Coller
@@ -680,22 +677,22 @@ MaxID:697
 676:Annuler coller
 677:Tourner verticalement
 678:Tourner horizontalement
-679:Glissez pour sÈlectionner une zone de la carte
-680:Options dÈfense IA
+679:Glissez pour s–πlectionner une zone de la carte
+680:Options d–πfense IA
 681:Off
 682:Rayon
-683:DÈtruire le rÈvÈlateur actuel
-684:Retourner ‡ la page pour rÈvÈler le brouillard
+683:D–πtruire le r–πv–πlateur actuel
+684:Retourner –∞ la page pour r–πv–πler le brouillard
 685:Fermer
 686:Ordre de groupe
 687:Aucun
 688:Attaquer position
 689:Marcher vers
 690:Direction
-691:Ligne arriËre
+691:Ligne arri–∏re
 692:Ligne de front
-693:Rayon de dÈfense
-694:Supprimer la position de dÈfense actuelle
-695:Retourner ‡ la page dÈfense
-696:Positions de dÈfense
-697:UnitÈs
+693:Rayon de d–πfense
+694:Supprimer la position de d–πfense actuelle
+695:Retourner –∞ la page d–πfense
+696:Positions de d–πfense
+697:Unit–πs

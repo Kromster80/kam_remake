@@ -2,7 +2,7 @@ unit Unit_Text;
 {$I ..\..\KaM_Remake.inc}
 interface
 uses
-  Classes, Controls, Dialogs, ExtCtrls, FileCtrl, Forms, Graphics, Math,
+  Classes, Controls, Dialogs, ExtCtrls, FileCtrl, Forms, Graphics, Math, KromUtils,
   StdCtrls, StrUtils, SysUtils, Windows, KM_ResLocales;
 
 
@@ -60,7 +60,8 @@ const
 
 
 procedure TTextManager.Load(aTextPath: string; aConstPath: string);
-var I: Integer;
+var
+  I: Integer;
 begin
   SetLength(fConsts, 0);
   SetLength(fTexts, 0);
@@ -80,7 +81,8 @@ end;
 
 
 procedure TTextManager.Save(aTextPath: string; aConstPath: string);
-var I: Integer;
+var
+  I: Integer;
 begin
   if fUseConsts then
     SaveTextLibraryConsts(aConstPath);
@@ -248,7 +250,7 @@ begin
 
   Assert(topId <= 1024, 'Dont allow too many strings for no reason');
 
-  fTextsTopId := Max(fTextsTopId, topId);
+  fTextsTopId := Max(fTextsTopId, topId, ConstCount);
 
   SetLength(fTexts, fTextsTopId + 1, gResLocales.Count);
 
@@ -279,6 +281,7 @@ var
   s: string;
 begin
   SL := TStringList.Create;
+  SL.DefaultEncoding := TEncoding.UTF8;
 
   for I := 0 to fTextsTopId do
   if I <= High(fTexts) then

@@ -1,56 +1,53 @@
-
-MaxID:697
-
-0:Lentpjûvë
-1:Geleşies kalvë
-2:Ginklø kalvë
+ï»¿0:LentpjÑ‹vĞ»
+1:GeleÑies kalvĞ»
+2:GinklÑˆ kalvĞ»
 3:Anglies kasykla
-4:Geleşies kasykla
+4:GeleÑies kasykla
 5:Aukso kasykla
-6:Şvejo namai
+6:Ğ®vejo namai
 7:Kepykla
 8:Ferma
-9:Medkirèio namai
-10:Ğarvø kalvë
-11:Sandëlis
-12:Arklidës
+9:MedkirĞ¸io namai
+10:Ğ arvÑˆ kalvĞ»
+11:SandĞ»lis
+12:ArklidĞ»s
 13:Mokykla
 14:Akmens kasykla
 15:Metalurgo namai
-16:Kiauliø ferma
-17:Bokğtas
-18:Miesto halë
-19:Ginklø dirbtuvës
-20:Ğarvø dirbtuvës
-21:Kareivinës
-22:Malûnas
-23:Apgulties dirbtuvës
-24:Mësinë
-25:Odø gamykla
-26:Treniruoèiø halë
+16:KiauliÑˆ ferma
+17:BokÑ€tas
+18:Miesto halĞ»
+19:GinklÑˆ dirbtuvĞ»s
+20:Ğ arvÑˆ dirbtuvĞ»s
+21:KareivinĞ»s
+22:MalÑ‹nas
+23:Apgulties dirbtuvĞ»s
+24:MĞ»sinĞ»
+25:OdÑˆ gamykla
+26:TreniruoĞ¸iÑˆ halĞ»
 27:Valgykla
 28:Vyno spaudykla
-29:Turgavietë
-30:Ràstai
+29:TurgavietĞ»
+30:RĞ°stai
 31:Akmenys
 32:Lenta
-33:Geleşies rûda
-34:Aukso rûda
+33:GeleÑies rÑ‹da
+34:Aukso rÑ‹da
 35:Anglis
-36:Geleşis
+36:GeleÑis
 37:Auksas
-38:Vyno statinës
-39:Grûdai
+38:Vyno statinĞ»s
+39:GrÑ‹dai
 40:Kepalai
 41:Miltai
-42:Iğdirbta oda
-43:Değros
-44:Kiaulës
+42:IÑ€dirbta oda
+43:DeÑ€ros
+44:KiaulĞ»s
 45:Odos
 46:Medinis skydas
-47:Geleşinis skydas
-48:Odiniai ğarvai
-49:Geleşiniai ğarvai
+47:GeleÑinis skydas
+48:Odiniai Ñ€arvai
+49:GeleÑiniai Ñ€arvai
 50:Kirvis
 51:Kalavijas
 52:Ietis
@@ -58,16 +55,16 @@ MaxID:697
 54:Lankas
 55:Arbaletas
 56:Arkliai
-57:Şuvis
-58:Neğëjas
+57:Ğ®uvis
+58:NeÑ€Ğ»jas
 59:Medkirtys
-60:Ğachtininkas
-61:Gyvuliø augintojas
+60:Ğ achtininkas
+61:GyvuliÑˆ augintojas
 62:Fermeris
 63:Stalius
-64:Kepëjas
-65:Mësininkas
-66:Şvejas
+64:KepĞ»jas
+65:MĞ»sininkas
+66:Ğ®vejas
 67:Statybininkas
 68:Kalnakasys
 69:Kalvis
@@ -83,102 +80,102 @@ MaxID:697
 79:Skautas
 80:Riteris
 81:Barbaras
-82:Sukilëlis
-83:Plëğikas
+82:SukilĞ»lis
+83:PlĞ»Ñ€ikas
 84:Kovotojas
 85:Klajoklis
 86:Katapulta
 87:Balista
-88:Neğëjas aprûpina jûsø pastatus reikalingomis şaliavomis.||Takas turi bûti tarp pastatø.
-89:Norint iğgauti ràstus lentpjûvei, reikalingas medkirtys.||Medkirtys sodina medşius savarankiğkai.
-90:Ğachtininkas iğgauna iğkasenas iğ anglies, geleşies ir aukso ğachtø.
-91:Gyvuliø augintojas naudoja grûdus veisiant kiaules fermoje ir arklius arklidëse.
-92:Fermeris sodina ir pjauna grûdus fermoje.||Be to, jis spaudşia vynà vyno spaudykloje.
-93:Stalius dirba lentpjûvëje, ginklø bei ğarvø dirbtuvëje.||Be to, jis stato katapultas ir balistas apgulties dirbtuvëje.
-94:Kepëjas mala grûdus malûne.||Jis taip pat kepa duonà kepykloje.
-95:Mësininkas gamina değras mësinëje ir iğdirba odà odø gamykloje.
-96:Şvejas şvejoja şuvis vandens telkiniuose.
-97:Statybininkas stato pastatus ir kasa takus. Paşymëk norimà vietà ir jis dirbs automatiğkai.||Be to, jis remontuoja pastatus.
-98:Kalnakasys aprûpina statybininkus akmeniu statant pastatus ir kasant takus.
-99:Kalvis kaldina geleşinius ginklus ir ğarvus ginklø ir ğarvø kalvëse.
-100:Metalurgas naudoja anglá lydant auksà ir geleşá.
-101:Rekrutas gali tapti kareiviu kareivinëse.||Jis taip pat uşima bokğtà.
-102:Á pastatø sàrağà
-103:Á resursø paskirstymà
-104:Á statistikà
-105:Á nustatymus
+88:NeÑ€Ğ»jas aprÑ‹pina jÑ‹sÑˆ pastatus reikalingomis Ñaliavomis.||Takas turi bÑ‹ti tarp pastatÑˆ.
+89:Norint iÑ€gauti rĞ°stus lentpjÑ‹vei, reikalingas medkirtys.||Medkirtys sodina medÑius savarankiÑ€kai.
+90:Ğ achtininkas iÑ€gauna iÑ€kasenas iÑ€ anglies, geleÑies ir aukso Ñ€achtÑˆ.
+91:GyvuliÑˆ augintojas naudoja grÑ‹dus veisiant kiaules fermoje ir arklius arklidĞ»se.
+92:Fermeris sodina ir pjauna grÑ‹dus fermoje.||Be to, jis spaudÑia vynĞ° vyno spaudykloje.
+93:Stalius dirba lentpjÑ‹vĞ»je, ginklÑˆ bei Ñ€arvÑˆ dirbtuvĞ»je.||Be to, jis stato katapultas ir balistas apgulties dirbtuvĞ»je.
+94:KepĞ»jas mala grÑ‹dus malÑ‹ne.||Jis taip pat kepa duonĞ° kepykloje.
+95:MĞ»sininkas gamina deÑ€ras mĞ»sinĞ»je ir iÑ€dirba odĞ° odÑˆ gamykloje.
+96:Ğ®vejas Ñvejoja Ñuvis vandens telkiniuose.
+97:Statybininkas stato pastatus ir kasa takus. PaÑymĞ»k norimĞ° vietĞ° ir jis dirbs automatiÑ€kai.||Be to, jis remontuoja pastatus.
+98:Kalnakasys aprÑ‹pina statybininkus akmeniu statant pastatus ir kasant takus.
+99:Kalvis kaldina geleÑinius ginklus ir Ñ€arvus ginklÑˆ ir Ñ€arvÑˆ kalvĞ»se.
+100:Metalurgas naudoja anglĞ± lydant auksĞ° ir geleÑĞ±.
+101:Rekrutas gali tapti kareiviu kareivinĞ»se.||Jis taip pat uÑima bokÑ€tĞ°.
+102:Ğ‘ pastatÑˆ sĞ°raÑ€Ğ°
+103:Ğ‘ resursÑˆ paskirstymĞ°
+104:Ğ‘ statistikĞ°
+105:Ğ‘ nustatymus
 106:Atgal
 107:Pastato|Pasirinkimas
-108:Resursø|Paskirstymas
+108:ResursÑˆ|Paskirstymas
 109:Statistika
 110:Nustatymai
-111:Ákelti Şaidimà
-112:Iğsaugoti Şaidimà
-113:Ar tikrai norite|baigti ğià|misijà?
-114:Baigti Misijà
+111:Ğ‘kelti Ğ®aidimĞ°
+112:IÑ€saugoti Ğ®aidimĞ°
+113:Ar tikrai norite|baigti Ñ€iĞ°|misijĞ°?
+114:Baigti MisijĞ°
 115:Atgal
 116:Nuostatos
 118:Garso efektai
-119:Keisto garsà
-120:Keisto garsà
+119:Keisto garsĞ°
+120:Keisto garsĞ°
 121:Muzika
-122:Muzika áj./iğj.
-123:Autoiğsaugojimas
+122:Muzika Ğ±j./iÑ€j.
+123:AutoiÑ€saugojimas
 124:Muzikos Grotuvas
 125:Ankstesnis takelis
 126:Sekantis takelis
 127:Sunaikinti
-128:Pağalinti pastatus/şymëjimus
-129:Kasti takà
+128:PaÑ€alinti pastatus/ÑymĞ»jimus
+129:Kasti takĞ°
 130:Kasti takus
-131:Iğarti laukà
-132:Iğarti laukus
-133:Iğdëstyti vyno laukà
-134:Iğdëstyti vyno laukus
-135:Atğaukti
-136:Stabdyti mokymà
+131:IÑ€arti laukĞ°
+132:IÑ€arti laukus
+133:IÑ€dĞ»styti vyno laukĞ°
+134:IÑ€dĞ»styti vyno laukus
+135:AtÑ€aukti
+136:Stabdyti mokymĞ°
 137:Reikia:
-139:Bûklë:
+139:BÑ‹klĞ»:
 140:Gamina
 141:Pastatas|statomas
 142:Sugriauti
-143:Tikrai norite sunaikinti|ğá pastatà?
-144:Sugriauti pasirinktà pastatà
-145:Sumaşinti uşsakymo kieká
-146:Padidinti uşsakymo kieká
+143:Tikrai norite sunaikinti|Ñ€Ğ± pastatĞ°?
+144:Sugriauti pasirinktĞ° pastatĞ°
+145:SumaÑinti uÑsakymo kiekĞ±
+146:Padidinti uÑsakymo kiekĞ±
 147:Ankstesnis karys
 148:Sekantis karys
-149:Parengti dabartiná kará
+149:Parengti dabartinĞ± karĞ±
 150:Sekanti profesija
-151:Ankstesnë profesija
-152:Pridëti á eilæ
+151:AnkstesnĞ» profesija
+152:PridĞ»ti Ğ± eilĞ¶
 154:Kainuoja:
-155:Áj./iğj. namo remontà
+155:Ğ‘j./iÑ€j. namo remontĞ°
 156:Pastatas dabar negalimas
-157:Bûklë
-158:Pasisukti kairën
-159:Pasisukti değinën
+157:BÑ‹klĞ»
+158:Pasisukti kairĞ»n
+159:Pasisukti deÑ€inĞ»n
 160:Pulti ('a')
-161:Iğskirti bûrá ('d')
-162:Pamaitinti bûrá
-163:Pradëti ğturmavimà
-164:Pridëti linijà
-165:Panaikinti linijà
-166:Pasirinkti|grupæ
-167:Atğaukti
-168:Iğtrinti
-169:Iğtrina dabartinæ şinutæ
-170:Eiti á
-171:Perğoka á şinutës vietà
-172:Uşdaryti
-173:Uşdaro langà
-174:Jûsø kalnakasys negali iğgauti akmens.
-175:Tavo anglies ğaltinis iğseko.
-176:Tavo geleşies ğaltinis iğseko.
-177:Tavo aukso ğaltinis iğseko.
-179:Ğitas namas negyvenamas.
-180:Ğitas bûrys labai alkanas, jis turi greitai gauti valgyti!
-181:PAUZË
+161:IÑ€skirti bÑ‹rĞ± ('d')
+162:Pamaitinti bÑ‹rĞ±
+163:PradĞ»ti Ñ€turmavimĞ°
+164:PridĞ»ti linijĞ°
+165:Panaikinti linijĞ°
+166:Pasirinkti|grupĞ¶
+167:AtÑ€aukti
+168:IÑ€trinti
+169:IÑ€trina dabartinĞ¶ ÑinutĞ¶
+170:Eiti Ğ±
+171:PerÑ€oka Ğ± ÑinutĞ»s vietĞ°
+172:UÑdaryti
+173:UÑdaro langĞ°
+174:JÑ‹sÑˆ kalnakasys negali iÑ€gauti akmens.
+175:Tavo anglies Ñ€altinis iÑ€seko.
+176:Tavo geleÑies Ñ€altinis iÑ€seko.
+177:Tavo aukso Ñ€altinis iÑ€seko.
+179:Ğ itas namas negyvenamas.
+180:Ğ itas bÑ‹rys labai alkanas, jis turi greitai gauti valgyti!
+181:PAUZĞ›
 205:Spirit
 206:Busy
 207:Middle Ages Horn
@@ -201,230 +198,230 @@ MaxID:697
 224:Aristocracy
 225:At the Harbor
 226:Journey
-230:Şaisti Vienam
-232:Atgal á Meniu
-233:Ákelti Şaidimà
-234:Şaisti Internete
+230:Ğ®aisti Vienam
+232:Atgal Ğ± Meniu
+233:Ğ‘kelti Ğ®aidimĞ°
+234:Ğ®aisti Internete
 235:Nustatymai
 236:Kreditai
-237:Iğeiti
-238:Tæsti
-239:Şaisti iğ Naujo
+237:IÑ€eiti
+238:TĞ¶sti
+239:Ğ®aisti iÑ€ Naujo
 240:Rezoliucija:
 241:Nepalaikoma
 242:Nepalaikoma
-243:PERGALË!
-244:PRALAIMËJIMAS!
-245:Vienetø prarasta:
-246:Vienetø nugalëta:
-247:Pastatø prarasta:
-248:Pastatø sunaikinta:
-249:Pastatø pastatyta:
-250:Vienetø treniruota:
-251:Pagaminta ginklø:
-252:Treniruota kariø:
-253:Misija ávykdyta per:
-256:Treniruota|gyventojø
-257:Prarasta|gyventojø
-258:Paruoğta|kariø
-259:Prarasta|kariø
-261:Pastatyta|pastatø
-262:Prarasta|pastatø
-263:Sunaikinta|pastatø
-264:Pagaminta|prekiø
-265:Pagaminta|ginklø
-279:JOYMANIA ENTERTAINMENT||PROGRAMAVIMAS:|Peter Ohlmann||ŞAIDIMO GRAFIKOS:|Adam Sprys||LYGIØ DIZAINAS:|Adam Sprys|Andre Quaß||GARSO REDAGAVIMAS IR MAIĞYMAS:|Tonstudio Mannheim||MUZIKA:|Gerd Hofmann|Joachim Schäfer|Jürgen Rebhann|Klaus Staendike|Steffen Schüngel||ILIUSTRACIJOS:|Boleslaw Kasza|Christoph Werner||ZUXXEZ ENTERTAINMENT AG||GAMINTOJAS:|Uwe Schäfer||ŞINYNAS:|Peter Ohlmann|Uwe Schäfer||BETA TESTAVIMAS:|Peter Ohlmann|Adam Sprys|Alexandra Constandache|Dirk P. Hassinger|Achim Heidelauf|Uwe Schäfer|Ingrid Schäfer|Dirk U. Jantz|Ion Constandache|Yaman Egeli|Roman Eich|Iris Mocsnek|Anke Jantz|Paul Hassinger|Liza Hassinger||ŞAIDIMØ DIREKTORIUS:|Achim Heidelauf||IĞLEIDO:|TopWare Interactive||VAIZDAI:||DIREKCIJA:|Slawomir Jedrzejewski||Kajetan Czarnecki|Wojciech Drazek|Daniel Duplaga|Rafal Januszkiewicz|Andrzej Rams|Piotr Rulka|Krzysztof Rybczynski|Grzegorz Wisniwski||BALSAI:|Claus Boyen (Storyteller)||Tim Timmermann|Peter Houska|Dirk Mühlbach|Ralf Ditze|Gerhard Piske|Gernot Wassmann||ARTWORK:|Boleslaw Kasza|Adam Sprys||PRADINË ANIMACIJA:|Uwe Schäfer|Christian Bigalk|Additional 3D-Modelling:|Niels Horstmann||SPECIALÛS DËKOJIMAI:|Tadeusz Zuber|Dieter Ohlmann|Alexandra Constandache|Ingrid Schäfer|Andrea Rumpelt
-280:Misija atğaukta
+243:PERGALĞ›!
+244:PRALAIMĞ›JIMAS!
+245:VienetÑˆ prarasta:
+246:VienetÑˆ nugalĞ»ta:
+247:PastatÑˆ prarasta:
+248:PastatÑˆ sunaikinta:
+249:PastatÑˆ pastatyta:
+250:VienetÑˆ treniruota:
+251:Pagaminta ginklÑˆ:
+252:Treniruota kariÑˆ:
+253:Misija Ğ±vykdyta per:
+256:Treniruota|gyventojÑˆ
+257:Prarasta|gyventojÑˆ
+258:ParuoÑ€ta|kariÑˆ
+259:Prarasta|kariÑˆ
+261:Pastatyta|pastatÑˆ
+262:Prarasta|pastatÑˆ
+263:Sunaikinta|pastatÑˆ
+264:Pagaminta|prekiÑˆ
+265:Pagaminta|ginklÑˆ
+279:JOYMANIA ENTERTAINMENT||PROGRAMAVIMAS:|Peter Ohlmann||Ğ®AIDIMO GRAFIKOS:|Adam Sprys||LYGIĞ¨ DIZAINAS:|Adam Sprys|Andre QuaĞ¯||GARSO REDAGAVIMAS IR MAIĞ YMAS:|Tonstudio Mannheim||MUZIKA:|Gerd Hofmann|Joachim SchĞ´fer|JÑŒrgen Rebhann|Klaus Staendike|Steffen SchÑŒngel||ILIUSTRACIJOS:|Boleslaw Kasza|Christoph Werner||ZUXXEZ ENTERTAINMENT AG||GAMINTOJAS:|Uwe SchĞ´fer||Ğ®INYNAS:|Peter Ohlmann|Uwe SchĞ´fer||BETA TESTAVIMAS:|Peter Ohlmann|Adam Sprys|Alexandra Constandache|Dirk P. Hassinger|Achim Heidelauf|Uwe SchĞ´fer|Ingrid SchĞ´fer|Dirk U. Jantz|Ion Constandache|Yaman Egeli|Roman Eich|Iris Mocsnek|Anke Jantz|Paul Hassinger|Liza Hassinger||Ğ®AIDIMĞ¨ DIREKTORIUS:|Achim Heidelauf||IĞ LEIDO:|TopWare Interactive||VAIZDAI:||DIREKCIJA:|Slawomir Jedrzejewski||Kajetan Czarnecki|Wojciech Drazek|Daniel Duplaga|Rafal Januszkiewicz|Andrzej Rams|Piotr Rulka|Krzysztof Rybczynski|Grzegorz Wisniwski||BALSAI:|Claus Boyen (Storyteller)||Tim Timmermann|Peter Houska|Dirk MÑŒhlbach|Ralf Ditze|Gerhard Piske|Gernot Wassmann||ARTWORK:|Boleslaw Kasza|Adam Sprys||PRADINĞ› ANIMACIJA:|Uwe SchĞ´fer|Christian Bigalk|Additional 3D-Modelling:|Niels Horstmann||SPECIALĞ«S DĞ›KOJIMAI:|Tadeusz Zuber|Dieter Ohlmann|Alexandra Constandache|Ingrid SchĞ´fer|Andrea Rumpelt
+280:Misija atÑ€aukta
 282:Miesto Mokymas
-283:Mûğio Mokymas
-284:Vieno Şaidëjo Reşimas
-285:Şemëlapio Redaktorius
-286:Pradëti Misijà
+283:MÑ‹Ñ€io Mokymas
+284:Vieno Ğ®aidĞ»jo ReÑimas
+285:Ğ®emĞ»lapio Redaktorius
+286:PradĞ»ti MisijĞ°
 287:Titulas
 288:Dydis
-289:Pergalës bûklë:
-290:Pralaimëjimo bûklë:
-291:Sàjungininkai:
-292:Prieğai:
-294:Naujas şemëlapio dydis
+289:PergalĞ»s bÑ‹klĞ»:
+290:PralaimĞ»jimo bÑ‹klĞ»:
+291:SĞ°jungininkai:
+292:PrieÑ€ai:
+294:Naujas ÑemĞ»lapio dydis
 295:Plotis
-296:Aukğtis
-297:Sukurti Naujà Şemëlapá
-298:Galimi şemëlapiai
-299:Ákelti Esanti Şemëlapá
+296:AukÑ€tis
+297:Sukurti NaujĞ° Ğ®emĞ»lapĞ±
+298:Galimi ÑemĞ»lapiai
+299:Ğ‘kelti Esanti Ğ®emĞ»lapĞ±
 301:Valdymai:
-302:Şaidimas:
+302:Ğ®aidimas:
 303:Garsas:
-304:Iğj. muzika
+304:IÑ€j. muzika
 305:Grafikos:
-306:Ryğkumas
+306:RyÑ€kumas
 308:Visas ekranas
 309:Tinkinti
 310:Kalba:
-311:Ğeğëliø Kokybë:
-312:Şema
-313:Aukğta
-314:Kraunama... Prağome palaukti
-315:Ávyko Klaida!
+311:Ğ eÑ€Ğ»liÑˆ KokybĞ»:
+312:Ğ®ema
+313:AukÑ€ta
+314:Kraunama... PraÑ€ome palaukti
+315:Ğ‘vyko Klaida!
 316:Kraunama nauja vieta
-317:Iğsaugoti şaidimai
+317:IÑ€saugoti Ñaidimai
 318:Failo vardas
-319:Aprağymas
-320:Ákelti
-321:Iğtrinti
-322:Ar tikrai norite iğtrinti ğá árağà?
-323:Iğtrinti
-324:Atğaukti
-328:Tu laimëjai!
-329:Şaisti toliau
-330:Pergalë!
-331:Tu pralaimëjai!
-332:Şiûrëti toliau
-333:Pralaimëjimas
-334:Pakartojimas baigësi
-335:Şiûrëti Toliau
-336:Iğeiti á Meniu
+319:ApraÑ€ymas
+320:Ğ‘kelti
+321:IÑ€trinti
+322:Ar tikrai norite iÑ€trinti Ñ€Ğ± Ğ±raÑ€Ğ°?
+323:IÑ€trinti
+324:AtÑ€aukti
+328:Tu laimĞ»jai!
+329:Ğ®aisti toliau
+330:PergalĞ»!
+331:Tu pralaimĞ»jai!
+332:Ğ®iÑ‹rĞ»ti toliau
+333:PralaimĞ»jimas
+334:Pakartojimas baigĞ»si
+335:Ğ®iÑ‹rĞ»ti Toliau
+336:IÑ€eiti Ğ± Meniu
 337:Neprieinamas
-338:Spausk %s norint tæsti şaidimà
-339:Şaidëjø informacija
+338:Spausk %s norint tĞ¶sti ÑaidimĞ°
+339:Ğ®aidĞ»jÑˆ informacija
 340:Pokalbis
-341:Árağas jau egzistuoja
-342:Perrağyti
-343:Iğsaugoti
-344:Ákelti
-345:Aptikta sena OpenGL versija, şaidimas gali bûti lëtas ir/arba su grafikos trikèiais
-347:Ryğio klaida:
-348:Klaida: Şaidëjo vardas negali bûti tuğèias
-349:Klaida: Şaidëjo vardas neturi bûti ilgesnis nei %d simboliai
-350:Klaida: Şaidëjo varde yra negalimi simboliai
+341:Ğ‘raÑ€as jau egzistuoja
+342:PerraÑ€yti
+343:IÑ€saugoti
+344:Ğ‘kelti
+345:Aptikta sena OpenGL versija, Ñaidimas gali bÑ‹ti lĞ»tas ir/arba su grafikos trikĞ¸iais
+347:RyÑ€io klaida:
+348:Klaida: Ğ®aidĞ»jo vardas negali bÑ‹ti tuÑ€Ğ¸ias
+349:Klaida: Ğ®aidĞ»jo vardas neturi bÑ‹ti ilgesnis nei %d simboliai
+350:Klaida: Ğ®aidĞ»jo varde yra negalimi simboliai
 351:Prisijungimas nepavyko: %s
 352:Tu atsijungei
 353:Misija %d
-355:Tavo şvejo namas per toli nuo vandens.
-356:Tavo şvejas nepasiekia şuvø vandenyje.
-364:Paspausk kairyjá pelës klaviğà, kad pasirinkti prekæ
-365:Paspausk değiná pelës klaviğà, kad pasirinkti prekæ
-366:Iğ x%d
-367:Á x%d
-368:Pavirğiaus redagavimas
+355:Tavo Ñvejo namas per toli nuo vandens.
+356:Tavo Ñvejas nepasiekia ÑuvÑˆ vandenyje.
+364:Paspausk kairyjĞ± pelĞ»s klaviÑ€Ğ°, kad pasirinkti prekĞ¶
+365:Paspausk deÑ€inĞ± pelĞ»s klaviÑ€Ğ°, kad pasirinkti prekĞ¶
+366:IÑ€ x%d
+367:Ğ‘ x%d
+368:PavirÑ€iaus redagavimas
 394:Kaimo planavimas
 395:Vizualiniai skriptai
 396:Globalinis skriptingas
 397:Meniu
 499:Nauja Misija
-500:Şaidëjo vardas
-501:Bûsena:
-502:Sukurti Serverá
-503:SUKURTI SERVERÁ
+500:Ğ®aidĞ»jo vardas
+501:BÑ‹sena:
+502:Sukurti ServerĞ±
+503:SUKURTI SERVERĞ‘
 504:Pavadinimas
 505:Portas
-506:Sukurti Vietiná Serverá
-507:Sukurti Internetiná Serverá
-508:Atğaukti
-509:Rasti Serverá
-510:RASTI SERVERÁ
+506:Sukurti VietinĞ± ServerĞ±
+507:Sukurti InternetinĞ± ServerĞ±
+508:AtÑ€aukti
+509:Rasti ServerĞ±
+510:RASTI SERVERĞ‘
 511:Adresas
 512:Portas
 513:Kambarys
-514:Rasti Serverá
-515:Atğaukti
+514:Rasti ServerĞ±
+515:AtÑ€aukti
 518:Serverio pavadinimas
-519:Bûsena
-520:Şaidëjai
+519:BÑ‹sena
+520:Ğ®aidĞ»jai
 521:Pingas
-522:Atnaujinti Serveriø Sàrağà
-523:SERVERIO DETALËS
-524:Şaidëjø sàrağas:
+522:Atnaujinti ServeriÑˆ SĞ°raÑ€Ğ°
+523:SERVERIO DETALĞ›S
+524:Ğ®aidĞ»jÑˆ sĞ°raÑ€as:
 525:Prisijungti
-526:Jungiamasi, prağome palaukti ...
+526:Jungiamasi, praÑ€ome palaukti ...
 527:Kraunami paskelbimai...
 528:Atnaujinama...
-529:Şaidëjø sàrağas
-530:Pradinë vieta
+529:Ğ®aidĞ»jÑˆ sĞ°raÑ€as
+530:PradinĞ» vieta
 531:Komanda
 532:Spalva
-533:Pasiruoğæs
+533:PasiruoÑ€Ğ¶s
 534:Pingas
 536:Laisva
 537:Kompiuteris
 538:Pasirinkti...
 539:Atsitiktinis
-540:Nëra
-541:Iğsaugotas Şaidimas
-542:Pasirinkti şemëlapá...
-543:Pasirinkti árağà...
-544:Iğeiti iğ laukimo
-545:Pasiruoğæs
-546:Nepasiruoğæs
-547:Pradëti!
+540:NĞ»ra
+541:IÑ€saugotas Ğ®aidimas
+542:Pasirinkti ÑemĞ»lapĞ±...
+543:Pasirinkti Ğ±raÑ€Ğ°...
+544:IÑ€eiti iÑ€ laukimo
+545:PasiruoÑ€Ğ¶s
+546:NepasiruoÑ€Ğ¶s
+547:PradĞ»ti!
 561:Vieta %d
-562:Klaida: Prağome pasirinkti şaidëjà iğ árağo, kad valdyti
-563:Klaida: Nepavyko ákelti şemëlapá arba jis neparinktas
-564:Negalima pradëti: %s
-565:Ne visi pasiruoğæ pradëti
-567:Serveris perleido kûrimo teises mums
-568:Şaidimas prasidëjo
-569:Statybø Şemëlapis
-570:Kovojimo Şemëlapis
-571:Kooperatyvinis Şemëlapis
-573:Şaidimo nustatymai:
-574:Taikos laikas (minutës)
-575:Uşdaryta
-576:Kûrëjas tvarko nustatymus
-577:Laukiama şaidëjø:
+562:Klaida: PraÑ€ome pasirinkti ÑaidĞ»jĞ° iÑ€ Ğ±raÑ€o, kad valdyti
+563:Klaida: Nepavyko Ğ±kelti ÑemĞ»lapĞ± arba jis neparinktas
+564:Negalima pradĞ»ti: %s
+565:Ne visi pasiruoÑ€Ğ¶ pradĞ»ti
+567:Serveris perleido kÑ‹rimo teises mums
+568:Ğ®aidimas prasidĞ»jo
+569:StatybÑˆ Ğ®emĞ»lapis
+570:Kovojimo Ğ®emĞ»lapis
+571:Kooperatyvinis Ğ®emĞ»lapis
+573:Ğ®aidimo nustatymai:
+574:Taikos laikas (minutĞ»s)
+575:UÑdaryta
+576:KÑ‹rĞ»jas tvarko nustatymus
+577:Laukiama ÑaidĞ»jÑˆ:
 580:KaM Remake Kreditai
-581:Originalûs Knights & Merchants Kreditai
+581:OriginalÑ‹s Knights & Merchants Kreditai
 582:PROGRAMAVIMAS:
 583:PAPILDOMAS PROGRAMAVIMAS:
 584:PAPILDOMOS GRAFIKOS:
 585:PAPILDOMI GARSAI:
 587:PAPILDOMI VERTIMAI:
-588:SPECIALI PADËKA:
-589:Şemëlapiai keliems
-590:Şemëlapiai vienam
+588:SPECIALI PADĞ›KA:
+589:Ğ®emĞ»lapiai keliems
+590:Ğ®emĞ»lapiai vienam
 591:Slinkimo greitis
-592:Serveriø nerasta
-593:Maiğyti takelius
-594:Şaidimo informacija:
+592:ServeriÑˆ nerasta
+593:MaiÑ€yti takelius
+594:Ğ®aidimo informacija:
 595:-
 596:Laukiama
 597:Kraunasi
-598:Şaidimas
+598:Ğ®aidimas
 599:Statymas ir Kovojimas
 600:Kovojimas
-601:Pasiruoğæs
+601:PasiruoÑ€Ğ¶s
 602:Klaidinga protokolo versija: %s. Serveris naudoja: %s
-603:Padidinti mainoma kieká
-604:Sumaşinti mainoma kieká
-605:Şaidimas iğsaugojamas...
-606:%s buvo nugalëtas!
-607:Iğmesti Şaidëjus
-608:Kûrëjas galës iğmesti tuos şaidëjus po %d sekundşiø
-609:Kûrëjas jau gali iğmesti ğiuos şaidëjus
-610:Kûrëjas (%s) iğëjo
-611:Ryğys nutrûko. Bandoma persijungti...
-612:Ar tikrai nori iğeiti?
-613:Ar tikrai nori iğmesti ğiuos şaidëjus visam laikui?
-614:Atğaukti
-615:Ğio resurso negalima mainyti ğioje misijoje
+603:Padidinti mainoma kiekĞ±
+604:SumaÑinti mainoma kiekĞ±
+605:Ğ®aidimas iÑ€saugojamas...
+606:%s buvo nugalĞ»tas!
+607:IÑ€mesti Ğ®aidĞ»jus
+608:KÑ‹rĞ»jas galĞ»s iÑ€mesti tuos ÑaidĞ»jus po %d sekundÑiÑˆ
+609:KÑ‹rĞ»jas jau gali iÑ€mesti Ñ€iuos ÑaidĞ»jus
+610:KÑ‹rĞ»jas (%s) iÑ€Ğ»jo
+611:RyÑ€ys nutrÑ‹ko. Bandoma persijungti...
+612:Ar tikrai nori iÑ€eiti?
+613:Ar tikrai nori iÑ€mesti Ñ€iuos ÑaidĞ»jus visam laikui?
+614:AtÑ€aukti
+615:Ğ io resurso negalima mainyti Ñ€ioje misijoje
 616:Sodinti ir kirsti
 617:Tik kirsti
-618:Tu negali daryti ğito taikos metu
+618:Tu negali daryti Ñ€ito taikos metu
 619:Taikos laiko liko: %s
-620:Taikos laikas baigësi. Prie ginklø!
-621:Şaidimo laikas:|%s
-622:Sustabdyti bûrá ('%s')
-623:Sujungti bûrá ('%s')
-624:Atskirti bûrá ('%s')
-625:Pakartojimø Grotuvas
-626:Rodyti Pakartojimà
+620:Taikos laikas baigĞ»si. Prie ginklÑˆ!
+621:Ğ®aidimo laikas:|%s
+622:Sustabdyti bÑ‹rĞ± ('%s')
+623:Sujungti bÑ‹rĞ± ('%s')
+624:Atskirti bÑ‹rĞ± ('%s')
+625:PakartojimÑˆ Grotuvas
+626:Rodyti PakartojimĞ°
 627:Nepalaikomas formatas %s
 628:Nepalaikoma versija %s
-630:Ávyko klaida nagrinëjant failà %s
+630:Ğ‘vyko klaida nagrinĞ»jant failĞ° %s
 631:inicializuojama
 632:skriptas
 633:vienetai
 634:namai
-635:medşiai
-636:reikğmës
+635:medÑiai
+636:reikÑ€mĞ»s
 637:pagrindai

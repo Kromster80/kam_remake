@@ -1,701 +1,698 @@
-
-MaxID:697
-
-0:Pila
-1:Hu na elezo
-2:Kovárna zbraní
-3:Uhelnı dùl
-4:eleznı dùl
-5:Zlatı dùl
-6:Rybárna
-7:Pekárna
+ï»¿0:Pila
+1:HuÑœ na Ñ›elezo
+2:KovĞ±rna zbranĞ½
+3:UhelnÑ dÑ‰l
+4:Ğ‹eleznÑ dÑ‰l
+5:ZlatÑ dÑ‰l
+6:RybĞ±rna
+7:PekĞ±rna
 8:Farma
-9:Døevorubeckı srub
-10:Kovárna brnìní
-11:Skladištì
-12:Stáje
-13:Škola
-14:Kameníkova chıše
-15:Zlatnická hu
-16:Vepøín
-17:Vì
+9:DÑˆevorubeckÑ srub
+10:KovĞ±rna brnĞ¼nĞ½
+11:SkladiÑ™tĞ¼
+12:StĞ±je
+13:Ğ‰kola
+14:KamenĞ½kova chÑÑ™e
+15:ZlatnickĞ± huÑœ
+16:VepÑˆĞ½n
+17:VĞ¼Ñ›
 18:Radnice
-19:Vırobna zbraní
-20:Vırobna brnìní
+19:VÑrobna zbranĞ½
+20:VÑrobna brnĞ¼nĞ½
 21:Hrad
-22:Mlın
-23:Vırobna obléhacích strojù
-24:Øeznictví
-25:Koeluna
-26:Vıcviková hala
+22:MlÑn
+23:VÑrobna oblĞ¹hacĞ½ch strojÑ‰
+24:Ğ¨eznictvĞ½
+25:KoÑ›eluÑ›na
+26:VÑcvikovĞ± hala
 27:Hostinec
 28:Vinice
-29:Trištì
-30:Kmeny stromù
-31:Kamení
+29:TrÑ›iÑ™tĞ¼
+30:Kmeny stromÑ‰
+31:KamenĞ½
 32:Prkna
-33:elezná ruda
-34:Zlatá ruda
-35:Uhlí
-36:elezo
+33:Ğ‹eleznĞ± ruda
+34:ZlatĞ± ruda
+35:UhlĞ½
+36:Ğ‹elezo
 37:Zlato
-38:Víno
-39:Obilí
-40:Bochníky
+38:VĞ½no
+39:ObilĞ½
+40:BochnĞ½ky
 41:Mouka
-42:Kùe
-43:Klobásy
+42:KÑ‰Ñ›e
+43:KlobĞ±sy
 44:Prasata
-45:Usnì
-46:Døevìné štíty
-47:elezné štíty
-48:Koená brnìní
-49:elezná brnìní
+45:UsnĞ¼
+46:DÑˆevĞ¼nĞ¹ Ñ™tĞ½ty
+47:Ğ‹eleznĞ¹ Ñ™tĞ½ty
+48:KoÑ›enĞ± brnĞ¼nĞ½
+49:Ğ‹eleznĞ± brnĞ¼nĞ½
 50:Sekery
-51:Meèe
-52:Kopí
+51:MeĞ¸e
+52:KopĞ½
 53:Halapartny
 54:Luky
-55:Kuše
-56:Konì
+55:KuÑ™e
+56:KonĞ¼
 57:Ryby
-58:Nevolník
-59:Døevorubec
-60:Horník
-61:Chovatel zvíøat
-62:Farmáø
-63:Tesaø
-64:Pekaø
-65:Øezník
-66:Rybáø
-67:Dìlník
-68:Kameník
-69:Kováø
-70:Hutník
+58:NevolnĞ½k
+59:DÑˆevorubec
+60:HornĞ½k
+61:Chovatel zvĞ½Ñˆat
+62:FarmĞ±Ñˆ
+63:TesaÑˆ
+64:PekaÑˆ
+65:Ğ¨eznĞ½k
+66:RybĞ±Ñˆ
+67:DĞ¼lnĞ½k
+68:KamenĞ½k
+69:KovĞ±Ñˆ
+70:HutnĞ½k
 71:Rekrut
 72:Domobrana
-73:Sekerník
-74:Bojovník s meèem
-75:Luèišník
-76:Støelec z kuše
-77:Kopiník
-78:Halapartník
-79:Zvìd
-80:Rytíø
+73:SekernĞ½k
+74:BojovnĞ½k s meĞ¸em
+75:LuĞ¸iÑ™nĞ½k
+76:StÑˆelec z kuÑ™e
+77:KopinĞ½k
+78:HalapartnĞ½k
+79:ZvĞ¼d
+80:RytĞ½Ñˆ
 81:Barbar
 82:Rebel
-83:Støelec z praku
-84:Bojovník
-85:Tulák
+83:StÑˆelec z praku
+84:BojovnĞ½k
+85:TulĞ±k
 86:Katapult
 87:Balista
-88:Nevolníci zásobují vaše budovy nezbytnımi surovinami.||Mezi budovami musí existovat cesty.
-89:Døevorubec produkuje kmeny stromù, které se dále zpracovávají v pile na prkna.||Døevorubec se také stará o opìtovné zalesnìní.
-90:Horník tìí uhlí, elezo nebo zlato v pøíslušném dole.
-91:Chovatel zvíøat chová prasata nebo konì. Krmí je obilím.
-92:Farmáøi sází a sklízejí obilí a hrozny na farmách a vinicích.
-93:Tesaø pracuje na pile, ve vırobnì zbraní a vırobnì brnìní.||Staví také katapulty a balisty ve vırobnì obléhacích strojù.
-94:Pekaø mele obilí na mouku ve mlınì a peèe chleba v pekárnì.
-95:Øezník vyrábí klobásy v øeznictví a kùi v koelunì.
-96:Rybáø chytá ryby v øekách a moøích.||Pozor, ne kadá voda je plná ryb.
-97:Dìlník staví budovy a cesty. Jednoduše zadejte co má postavit a vše vykoná automaticky.||Také opravuje poškozené budovy.
-98:Kameník láme a otesává surovı kámen na kámen vhodnı ke stavbám budov a cest.
-99:Kováø vyrábí zbranì a zbroje v kovárnách zbraní a brnìní.
-100:Slévaè pouívá uhlí k vırobì zlata a eleza z rud.
-101:Pomocí hradu mùete vycvièit z rekrutù hlavní typy vojákù.||Nebo obsluhuje vìe.
-102:Ke stavbì budov
-103:K distribuci materiálu
-104:Ke statistikám
-105:K nastavení
-106:Zpìt
-107:Vıbìr|Budov
-108:Distribuce|Materiálu
+88:NevolnĞ½ci zĞ±sobujĞ½ vaÑ™e budovy nezbytnÑmi surovinami.||Mezi budovami musĞ½ existovat cesty.
+89:DÑˆevorubec produkuje kmeny stromÑ‰, kterĞ¹ se dĞ±le zpracovĞ±vajĞ½ v pile na prkna.||DÑˆevorubec se takĞ¹ starĞ± o opĞ¼tovnĞ¹ zalesnĞ¼nĞ½.
+90:HornĞ½k tĞ¼Ñ›Ğ½ uhlĞ½, Ñ›elezo nebo zlato v pÑˆĞ½sluÑ™nĞ¹m dole.
+91:Chovatel zvĞ½Ñˆat chovĞ± prasata nebo konĞ¼. KrmĞ½ je obilĞ½m.
+92:FarmĞ±Ñˆi sĞ±zĞ½ a sklĞ½zejĞ½ obilĞ½ a hrozny na farmĞ±ch a vinicĞ½ch.
+93:TesaÑˆ pracuje na pile, ve vÑrobnĞ¼ zbranĞ½ a vÑrobnĞ¼ brnĞ¼nĞ½.||StavĞ½ takĞ¹ katapulty a balisty ve vÑrobnĞ¼ oblĞ¹hacĞ½ch strojÑ‰.
+94:PekaÑˆ mele obilĞ½ na mouku ve mlÑnĞ¼ a peĞ¸e chleba v pekĞ±rnĞ¼.
+95:Ğ¨eznĞ½k vyrĞ±bĞ½ klobĞ±sy v ÑˆeznictvĞ½ a kÑ‰Ñ›i v koÑ›eluÑ›nĞ¼.
+96:RybĞ±Ñˆ chytĞ± ryby v ÑˆekĞ±ch a moÑˆĞ½ch.||Pozor, ne kaÑ›dĞ± voda je plnĞ± ryb.
+97:DĞ¼lnĞ½k stavĞ½ budovy a cesty. JednoduÑ™e zadejte co mĞ± postavit a vÑ™e vykonĞ± automaticky.||TakĞ¹ opravuje poÑ™kozenĞ¹ budovy.
+98:KamenĞ½k lĞ±me a otesĞ±vĞ± surovÑ kĞ±men na kĞ±men vhodnÑ ke stavbĞ±m budov a cest.
+99:KovĞ±Ñˆ vyrĞ±bĞ½ zbranĞ¼ a zbroje v kovĞ±rnĞ±ch zbranĞ½ a brnĞ¼nĞ½.
+100:SlĞ¹vaĞ¸ pouÑ›Ğ½vĞ± uhlĞ½ k vÑrobĞ¼ zlata a Ñ›eleza z rud.
+101:PomocĞ½ hradu mÑ‰Ñ›ete vycviĞ¸it z rekrutÑ‰ hlavnĞ½ typy vojĞ±kÑ‰.||Nebo obsluhuje vĞ¼Ñ›e.
+102:Ke stavbĞ¼ budov
+103:K distribuci materiĞ±lu
+104:Ke statistikĞ±m
+105:K nastavenĞ½
+106:ZpĞ¼t
+107:VÑbĞ¼r|Budov
+108:Distribuce|MateriĞ±lu
 109:Statistika
-110:Nastavení
-111:Nahrát hru
-112:Uloit hru
-113:Jste si jistı, e|chcete opustit|tuto misi?
+110:NastavenĞ½
+111:NahrĞ±t hru
+112:UloÑ›it hru
+113:Jste si jistÑ, Ñ›e|chcete opustit|tuto misi?
 114:Opustit Misi
-115:Zpìt
-116:Nastavení
-117:Ukonèit editor
+115:ZpĞ¼t
+116:NastavenĞ½
+117:UkonĞ¸it editor
 118:SFX
-119:Zmìnit hlasitost
-120:Zmìnit hlasitost
+119:ZmĞ¼nit hlasitost
+120:ZmĞ¼nit hlasitost
 121:Hudba
 122:Hudba zapnuta/vypnuta
-123:Auto ukládání
-124:Pøehrávaè hudby
-125:Pøedchozí skladba
-126:Další skladba
+123:Auto uklĞ±dĞ±nĞ½
+124:PÑˆehrĞ±vaĞ¸ hudby
+125:PÑˆedchozĞ½ skladba
+126:DalÑ™Ğ½ skladba
 127:Zbourat
 128:Zbourat budovu
 129:Postavit cestu
 130:Postavit pole
 131:Zorat pole
 132:Pole
-133:Zaloit vinici
-134:Vinné pole
-135:Zpìt
-136:Zrušit souèasnı vıcvik
-137:Potøeby:
-138:Zásoby:
+133:ZaloÑ›it vinici
+134:VinnĞ¹ pole
+135:ZpĞ¼t
+136:ZruÑ™it souĞ¸asnÑ vÑcvik
+137:PotÑˆeby:
+138:ZĞ±soby:
 139:Stav:
-140:Dodávka
-141:Budova ve|vıstavbì
-142:Znièit
+140:DodĞ±vka
+141:Budova ve|vÑstavbĞ¼
+142:ZniĞ¸it
 143:Chcete opravdu|zbourat tuto budovu?
 144:Zbourat vybranou budovu
-145:Zmenšit poèet
-146:Zvıšit poèet
-147:Pøedchozí typ vojáka
-148:Následující typ vojáka
-149:Vybavit aktuální typ vojáka
-150:Další profese
-151:Pøedchozí profese
-152:Pøidat do fronty
-153:Vypnout/Zapnout dodávku zboí
+145:ZmenÑ™it poĞ¸et
+146:ZvÑÑ™it poĞ¸et
+147:PÑˆedchozĞ½ typ vojĞ±ka
+148:NĞ±sledujĞ½cĞ½ typ vojĞ±ka
+149:Vybavit aktuĞ±lnĞ½ typ vojĞ±ka
+150:DalÑ™Ğ½ profese
+151:PÑˆedchozĞ½ profese
+152:PÑˆidat do fronty
+153:Vypnout/Zapnout dodĞ±vku zboÑ›Ğ½
 154:Cena:
 155:Vypnout/Zapnout opravu budovy
-156:Budova je aktuálnì nedostupná
+156:Budova je aktuĞ±lnĞ¼ nedostupnĞ±
 157:Stav
-158:Otoèit vlevo
-159:Otoèit vpravo
-160:Útok ('a')
+158:OtoĞ¸it vlevo
+159:OtoĞ¸it vpravo
+160:Ğªtok ('a')
 161:Poslat ('d')
 162:Nakrmit
-163:Náhlı útok
-164:Pøidat sloupec
+163:NĞ±hlÑ ÑŠtok
+164:PÑˆidat sloupec
 165:Ubrat sloupec
 166:Zvolit|skupinu
-167:Zrušit
+167:ZruÑ™it
 168:Smazat
-169:Smazat aktuální zprávu
-170:Jít na
-171:Jít na aktuální pozici zprávy
-172:Zavøít
-173:Zavøit okno
-174:Váš kameník nemùe sehnat další zásoby kamení
-175:Váš uhelnı dùl se zdá bıt vyèerpanı.
-176:Váš eleznı dùl se zdá bıt vyèerpanı.
-177:Váš zlatı dùl se zdá bıt vyèerpanı.
-178:Váš døevorubec nemùe najít ádné další stromy k pokácení
-179:Tato budova není obydlena.
-180:Tito vojáci jsou hladoví, mìli by dostat co nejrychleji nìco k jídlu!
+169:Smazat aktuĞ±lnĞ½ zprĞ±vu
+170:JĞ½t na
+171:JĞ½t na aktuĞ±lnĞ½ pozici zprĞ±vy
+172:ZavÑˆĞ½t
+173:ZavÑˆit okno
+174:VĞ±Ñ™ kamenĞ½k nemÑ‰Ñ›e sehnat dalÑ™Ğ½ zĞ±soby kamenĞ½
+175:VĞ±Ñ™ uhelnÑ dÑ‰l se zdĞ± bÑt vyĞ¸erpanÑ.
+176:VĞ±Ñ™ Ñ›eleznÑ dÑ‰l se zdĞ± bÑt vyĞ¸erpanÑ.
+177:VĞ±Ñ™ zlatÑ dÑ‰l se zdĞ± bÑt vyĞ¸erpanÑ.
+178:VĞ±Ñ™ dÑˆevorubec nemÑ‰Ñ›e najĞ½t Ñ›Ğ±dnĞ¹ dalÑ™Ğ½ stromy k pokĞ±cenĞ½
+179:Tato budova nenĞ½ obydlena.
+180:Tito vojĞ±ci jsou hladovĞ½, mĞ¼li by dostat co nejrychleji nĞ¼co k jĞ½dlu!
 181:PAUZE
-182:Dodávka
-183:Staví cestu
+182:DodĞ±vka
+183:StavĞ½ cestu
 184:Kope pole
 185:Buduje vinici
-186:Zarovnává terén
-187:Staví dùm
-188:Opravuje dùm
-189:Jde domù
+186:ZarovnĞ±vĞ± terĞ¹n
+187:StavĞ½ dÑ‰m
+188:Opravuje dÑ‰m
+189:Jde domÑ‰
 190:Jde do hostince
-191:Útoèí na dùm
-192:Støílí
+191:ĞªtoĞ¸Ğ½ na dÑ‰m
+192:StÑˆĞ½lĞ½
 193:Bojuje
-194:Náhlı útok
-195:Útoèí
-196:Pøemisuje se
-197:Neèinnı
-198:Tìí kámen
-199:Zasévá obilí
-200:Sklízí obilí
-201:Trhá hrozny
-202:Rybaøí
-203:Kácí strom
-204:Sází strom
-205:Pøízrak
-206:Rušnı
-207:Støedovìkı roh
+194:NĞ±hlÑ ÑŠtok
+195:ĞªtoĞ¸Ğ½
+196:PÑˆemisÑœuje se
+197:NeĞ¸innÑ
+198:TĞ¼Ñ›Ğ½ kĞ±men
+199:ZasĞ¹vĞ± obilĞ½
+200:SklĞ½zĞ½ obilĞ½
+201:TrhĞ± hrozny
+202:RybaÑˆĞ½
+203:KĞ±cĞ½ strom
+204:SĞ±zĞ½ strom
+205:PÑˆĞ½zrak
+206:RuÑ™nÑ
+207:StÑˆedovĞ¼kÑ roh
 208:Jaro
-209:Flétna
-210:oldák
+209:FlĞ¹tna
+210:Ğ‹oldĞ±k
 211:Princezna
-212:Královna
-213:Na trišti
-214:Na bojišti
-215:Dvorní tanec
-216:Armáda
-217:Na hradì
-218:Fanfáry
-219:Na dvoøe
-220:Hlavní pochod
-221:Tmavì modrá
-222:Zápas
-223:Na zámku
-224:U šlechty
-225:V pøístavu
-226:Na cestì
-227:Kampanì
-228:Kampanì
-229:Zaèít kampaò!
-230:Hrát samostatnou mapu
+212:KrĞ±lovna
+213:Na trÑ›iÑ™ti
+214:Na bojiÑ™ti
+215:DvornĞ½ tanec
+216:ArmĞ±da
+217:Na hradĞ¼
+218:FanfĞ±ry
+219:Na dvoÑˆe
+220:HlavnĞ½ pochod
+221:TmavĞ¼ modrĞ±
+222:ZĞ±pas
+223:Na zĞ±mku
+224:U Ñ™lechty
+225:V pÑˆĞ½stavu
+226:Na cestĞ¼
+227:KampanĞ¼
+228:KampanĞ¼
+229:ZaĞ¸Ğ½t kampaÑ‚!
+230:HrĞ±t samostatnou mapu
 231:Start
-232:Zpìt do menu
-233:Nahrát uloenou hru
-234:Hra pro více hráèù
-235:Nastavení
-236:Autoøi
+232:ZpĞ¼t do menu
+233:NahrĞ±t uloÑ›enou hru
+234:Hra pro vĞ½ce hrĞ±Ğ¸Ñ‰
+235:NastavenĞ½
+236:AutoÑˆi
 237:Konec hry
-238:Pokraèovat
+238:PokraĞ¸ovat
 239:Restart mise
-240:Rozlišení:
-241:Není podporováno
-242:Není podporována
-243:VÍTÌZSTVÍ!
+240:RozliÑ™enĞ½:
+241:NenĞ½ podporovĞ±no
+242:NenĞ½ podporovĞ±na
+243:VĞTĞœZSTVĞ!
 244:PROHRA!
 245:Ztraceno jednotek:
-246:Znièeno jednotek:
+246:ZniĞ¸eno jednotek:
 247:Ztraceno budov:
-248:Znièeno budov:
+248:ZniĞ¸eno budov:
 249:Postaveno budov:
-250:Vytrénováno jednotek:
-251:Vyrobeno zbraní:
-252:Vytrénováno vojákù:
-253:Mise dokonèena za:
+250:VytrĞ¹novĞ±no jednotek:
+251:Vyrobeno zbranĞ½:
+252:VytrĞ¹novĞ±no vojĞ±kÑ‰:
+253:Mise dokonĞ¸ena za:
 254:Statistiky
 255:Ekonomika
-256:Vycvièeno|obèanù
-257:Ztraceno|obèanù
-258:Vycvièeno|vojákù
-259:Ztraceno|vojákù
-260:Poraeno vojákù
+256:VycviĞ¸eno|obĞ¸anÑ‰
+257:Ztraceno|obĞ¸anÑ‰
+258:VycviĞ¸eno|vojĞ±kÑ‰
+259:Ztraceno|vojĞ±kÑ‰
+260:PoraÑ›eno vojĞ±kÑ‰
 261:Postaveno|budov
 262:Ztraceno|budov
-263:Znièeno|budov
-264:Vytvoøeno|produktù
-265:Vyrobeno|zbraní
+263:ZniĞ¸eno|budov
+264:VytvoÑˆeno|produktÑ‰
+265:Vyrobeno|zbranĞ½
 266:Vojsko
-267:Obèané
+267:ObĞ¸anĞ¹
 268:Stavby
 269:Zdroje
-270:Vyprodukováno zdrojù
-271:ádná data
+270:VyprodukovĞ±no zdrojÑ‰
+271:Ğ‹Ğ±dnĞ± data
 272:Ty
-273:Hráè %d
-274:Zpìt do Multiplayeru
-275:Zpìt k Záznamùm
-276:Vše
-277:Vojenství
-278:Jídlo
-279:JOYMANIA ENTERTAINMENT||PROGRAMOVÁNÍ:|Peter Ohlmann||GRAFIKA HRY:|Adam Sprys||NÁVRH MISÍ:|Adam Sprys|Andre Quaß||EDITACE ZVUKU A MIXOVÁNÍ:|Tonstudio Mannheim||HUDBA:|Gerd Hofmann|Joachim Schäfer|Jürgen Rebhann|Klaus Staendike|Steffen Schüngel||ILUSTRACE:|Boleslaw Kasza|Christoph Werner||ZUXXEZ ENTERTAINMENT AG||PRODUCENT:|Uwe Schäfer||MANUAL:|Peter Ohlmann|Uwe Schäfer||BETA TESTOVÁNÍ:|Peter Ohlmann|Adam Sprys|Alexandra Constandache|Dirk P. Hassinger|Achim Heidelauf|Uwe Schäfer|Ingrid Schäfer|Dirk U. Jantz|Ion Constandache|Yaman Egeli|Roman Eich|Iris Mocsnek|Anke Jantz|Paul Hassinger|Liza Hassinger||HERNÍ REISÉR:|Achim Heidelauf||PUBLIKOVÁNO:|TopWare Interactive||VIDEA:||REIE:|Slawomir Jedrzejewski||Kajetan Czarnecki|Wojciech Drazek|Daniel Duplaga|Rafal Januszkiewicz|Andrzej Rams|Piotr Rulka|Krzysztof Rybczynski|Grzegorz Wisniwski||DABING:|Claus Boyen (Vypravìè)||Tim Timmermann|Peter Houska|Dirk Mühlbach|Ralf Ditze|Gerhard Piske|Gernot Wassmann||ARTWORK:|Boleslaw Kasza|Adam Sprys||ÚVODNÍ VIDEO:|Uwe Schäfer|Christian Bigalk|Additional 3D-Modelling:|Niels Horstmann||PODÌKOVÁNÍ:|Tadeusz Zuber|Dieter Ohlmann|Alexandra Constandache|Ingrid Schäfer|Andrea Rumpelt||1.60 PATCH|'SERVICE RELEASE 3'||KOORDINACE:|Tommi Räsänen (Litude)||PROGRAMOVÁNÍ:|Lewin Hodgman|Stephen Hodgman|Tommi Räsänen (Litude)||ÚPRAVA MISÍ:|Joost Bandsma (The Dark Lord)|Lewin Hodgman|Tommi Räsänen (Litude)||ÚPRAVA GRAFIKY:|Harold Aptroot||ZVUKOVÉ EFEKTY:|Lewin Hodgman|Mitchell Hodgman||OPRAVY TEXTÙ:|Jakub Z. (kuba11100)|Jeroen Bos (JBSnorro)|Joost Bandsma (The Dark Lord)|Lars Stienen (Thunderwolf)|Lewin Hodgman|Tommi Räsänen (Litude)||PØEKLAD:|Alexander B. (AZA)|Attila Arnold (The Knight)|Jakub Z. (kuba11100)|Joost Bandsma (The Dark Lord)|Lars Stienen (Thunderwolf)|'Merchator'|'Nick'|'M4RC0'||BETA TESTOVÁNÍ:|Attila Arnold (The Knight)|Jakub Z. (kuba11100)|Lars Stienen (Thunderwolf)|'Michailoff'
-280:Mise ukonèena
-281:Pøehrávání zkonèilo
-282:Vıuka stavby
-283:Vıuka boje
-284:Hra pro jednoho hráèe
+273:HrĞ±Ğ¸ %d
+274:ZpĞ¼t do Multiplayeru
+275:ZpĞ¼t k ZĞ±znamÑ‰m
+276:VÑ™e
+277:VojenstvĞ½
+278:JĞ½dlo
+279:JOYMANIA ENTERTAINMENT||PROGRAMOVĞ‘NĞ:|Peter Ohlmann||GRAFIKA HRY:|Adam Sprys||NĞ‘VRH MISĞ:|Adam Sprys|Andre QuaĞ¯||EDITACE ZVUKU A MIXOVĞ‘NĞ:|Tonstudio Mannheim||HUDBA:|Gerd Hofmann|Joachim SchĞ´fer|JÑŒrgen Rebhann|Klaus Staendike|Steffen SchÑŒngel||ILUSTRACE:|Boleslaw Kasza|Christoph Werner||ZUXXEZ ENTERTAINMENT AG||PRODUCENT:|Uwe SchĞ´fer||MANUAL:|Peter Ohlmann|Uwe SchĞ´fer||BETA TESTOVĞ‘NĞ:|Peter Ohlmann|Adam Sprys|Alexandra Constandache|Dirk P. Hassinger|Achim Heidelauf|Uwe SchĞ´fer|Ingrid SchĞ´fer|Dirk U. Jantz|Ion Constandache|Yaman Egeli|Roman Eich|Iris Mocsnek|Anke Jantz|Paul Hassinger|Liza Hassinger||HERNĞ REĞ‹ISĞ™R:|Achim Heidelauf||PUBLIKOVĞ‘NO:|TopWare Interactive||VIDEA:||REĞ‹IE:|Slawomir Jedrzejewski||Kajetan Czarnecki|Wojciech Drazek|Daniel Duplaga|Rafal Januszkiewicz|Andrzej Rams|Piotr Rulka|Krzysztof Rybczynski|Grzegorz Wisniwski||DABING:|Claus Boyen (VypravĞ¼Ğ¸)||Tim Timmermann|Peter Houska|Dirk MÑŒhlbach|Ralf Ditze|Gerhard Piske|Gernot Wassmann||ARTWORK:|Boleslaw Kasza|Adam Sprys||ĞªVODNĞ VIDEO:|Uwe SchĞ´fer|Christian Bigalk|Additional 3D-Modelling:|Niels Horstmann||PODĞœKOVĞ‘NĞ:|Tadeusz Zuber|Dieter Ohlmann|Alexandra Constandache|Ingrid SchĞ´fer|Andrea Rumpelt||1.60 PATCH|'SERVICE RELEASE 3'||KOORDINACE:|Tommi RĞ´sĞ´nen (Litude)||PROGRAMOVĞ‘NĞ:|Lewin Hodgman|Stephen Hodgman|Tommi RĞ´sĞ´nen (Litude)||ĞªPRAVA MISĞ:|Joost Bandsma (The Dark Lord)|Lewin Hodgman|Tommi RĞ´sĞ´nen (Litude)||ĞªPRAVA GRAFIKY:|Harold Aptroot||ZVUKOVĞ™ EFEKTY:|Lewin Hodgman|Mitchell Hodgman||OPRAVY TEXTĞ©:|Jakub Z. (kuba11100)|Jeroen Bos (JBSnorro)|Joost Bandsma (The Dark Lord)|Lars Stienen (Thunderwolf)|Lewin Hodgman|Tommi RĞ´sĞ´nen (Litude)||PĞ¨EKLAD:|Alexander B. (AZA)|Attila Arnold (The Knight)|Jakub Z. (kuba11100)|Joost Bandsma (The Dark Lord)|Lars Stienen (Thunderwolf)|'Merchator'|'Nick'|'M4RC0'||BETA TESTOVĞ‘NĞ:|Attila Arnold (The Knight)|Jakub Z. (kuba11100)|Lars Stienen (Thunderwolf)|'Michailoff'
+280:Mise ukonĞ¸ena
+281:PÑˆehrĞ±vĞ±nĞ½ zkonĞ¸ilo
+282:VÑuka stavby
+283:VÑuka boje
+284:Hra pro jednoho hrĞ±Ğ¸e
 285:Editor mapy
-286:Zaèít misi
-287:Název
+286:ZaĞ¸Ğ½t misi
+287:NĞ±zev
 288:Velikost
-289:Podmínky vítìzství:
-290:Podmínky poráky:
+289:PodmĞ½nky vĞ½tĞ¼zstvĞ½:
+290:PodmĞ½nky porĞ±Ñ›ky:
 291:Spojenci:
-292:Nepøátelé:
-293:Èas
-294:Velikost nové mapy
-295:Šíøka
-296:Vıška
-297:Vytvoøit novou mapu
-298:Dostupné mapy
-299:Naèíst existující mapu
+292:NepÑˆĞ±telĞ¹:
+293:Ğ˜as
+294:Velikost novĞ¹ mapy
+295:Ğ‰Ğ½Ñˆka
+296:VÑÑ™ka
+297:VytvoÑˆit novou mapu
+298:DostupnĞ¹ mapy
+299:NaĞ¸Ğ½st existujĞ½cĞ½ mapu
 300:Pozice
-301:Ovládání:
+301:OvlĞ±dĞ±nĞ½:
 302:Hra:
 303:Zvuk:
 304:Vypnout hudbu
 305:Grafika:
 306:Jas
-307:Vertikální synchronizace
-308:Celá obrazovka
-309:Pouít
+307:VertikĞ±lnĞ½ synchronizace
+308:CelĞ± obrazovka
+309:PouÑ›Ğ½t
 310:Jazyk:
-311:Kvalita stínù:
-312:Nízká
-313:Vysoká
-314:Nahrávám... Prosím èekejte
-315:Došlo k chybì!
-316:Nahrávám novou lokalizaci
-317:Seznam uloenıch her
-318:Jméno souboru
+311:Kvalita stĞ½nÑ‰:
+312:NĞ½zkĞ±
+313:VysokĞ±
+314:NahrĞ±vĞ±m... ProsĞ½m Ğ¸ekejte
+315:DoÑ™lo k chybĞ¼!
+316:NahrĞ±vĞ±m novou lokalizaci
+317:Seznam uloÑ›enÑch her
+318:JmĞ¹no souboru
 319:Popis
-320:Naèíst
+320:NaĞ¸Ğ½st
 321:Odstranit
-322:Opravdu chcete odstranit tuto uloenou hru?
+322:Opravdu chcete odstranit tuto uloÑ›enou hru?
 323:Odstranit
 324:Storno
-325:Název
+325:NĞ±zev
 326:Mapy
-327:Odemèeno
-328:Zvítìzil jste!
-329:Pokraèovat ve høe
-330:Vítìzství!
-331:Prohrál jste!
-332:Pokraèovat
-333:Poráka
-334:Pøehrávání skonèilo
-335:Pokraèovat
-336:Zpìt do menu
-337:Nedostupné
-338:Stisknìte %s pro pokraèování ve høe
-339:Informace o hráèích
+327:OdemĞ¸eno
+328:ZvĞ½tĞ¼zil jste!
+329:PokraĞ¸ovat ve hÑˆe
+330:VĞ½tĞ¼zstvĞ½!
+331:ProhrĞ±l jste!
+332:PokraĞ¸ovat
+333:PorĞ±Ñ›ka
+334:PÑˆehrĞ±vĞ±nĞ½ skonĞ¸ilo
+335:PokraĞ¸ovat
+336:ZpĞ¼t do menu
+337:NedostupnĞ¹
+338:StisknĞ¼te %s pro pokraĞ¸ovĞ±nĞ½ ve hÑˆe
+339:Informace o hrĞ±Ğ¸Ğ½ch
 340:Chat
-341:Uloená hra ji existuje
-342:Pøepsat
-343:Uloit
-344:Naèíst
-345:Detekována stará verze OpenGL, hra mùe bìet pomalu a/nebo s grafickımi chybami
-346:Prosím aktualizujte svoje ovladaèe pro dosaení lepšího vıkonu.
-347:Síová chyba:
-348:Chyba: Musíte zadat svoje jméno
-349:Chyba: Jméno hráèe nesmí mít více ne %d znakù
-350:Chyba: Jméno hráèe obsahuje nepovolené znaky
-351:Spojení se nezdaøilo: %s
+341:UloÑ›enĞ± hra jiÑ› existuje
+342:PÑˆepsat
+343:UloÑ›it
+344:NaĞ¸Ğ½st
+345:DetekovĞ±na starĞ± verze OpenGL, hra mÑ‰Ñ›e bĞ¼Ñ›et pomalu a/nebo s grafickÑmi chybami
+346:ProsĞ½m aktualizujte svoje ovladaĞ¸e pro dosaÑ›enĞ½ lepÑ™Ğ½ho vÑkonu.
+347:SĞ½ÑœovĞ± chyba:
+348:Chyba: MusĞ½te zadat svoje jmĞ¹no
+349:Chyba: JmĞ¹no hrĞ±Ğ¸e nesmĞ½ mĞ½t vĞ½ce neÑ› %d znakÑ‰
+350:Chyba: JmĞ¹no hrĞ±Ğ¸e obsahuje nepovolenĞ¹ znaky
+351:SpojenĞ½ se nezdaÑˆilo: %s
 352:Byl jste odpojen
 353:Mise %d
-354:Zpráva
-355:Váš rybáø je pøíliš daleko od vody.
-356:Váš rybáø nemùe chytit ádné další ryby ve vodì, kterou má poblí.
-357:Restartovat pøehrávání
+354:ZprĞ±va
+355:VĞ±Ñ™ rybĞ±Ñˆ je pÑˆĞ½liÑ™ daleko od vody.
+356:VĞ±Ñ™ rybĞ±Ñˆ nemÑ‰Ñ›e chytit Ñ›Ğ±dnĞ¹ dalÑ™Ğ½ ryby ve vodĞ¼, kterou mĞ± poblĞ½Ñ›.
+357:Restartovat pÑˆehrĞ±vĞ±nĞ½
 358:Pozastavit
-359:Pøehrávat po krocích
-360:pokraèovat v pøehrávání
-361:Ukonèit pøehrávání
-362:Pøepnout perspektivu hráèe
-363:Ukázat vše
-364:Pouijte levé tlaèítko myši pro vıbìr zboí
-365:Pouijte pravé tlaèítko myši k vıbìru zboí
-366:Dám x%d
+359:PÑˆehrĞ±vat po krocĞ½ch
+360:pokraĞ¸ovat v pÑˆehrĞ±vĞ±nĞ½
+361:UkonĞ¸it pÑˆehrĞ±vĞ±nĞ½
+362:PÑˆepnout perspektivu hrĞ±Ğ¸e
+363:UkĞ±zat vÑ™e
+364:PouÑ›ijte levĞ¹ tlaĞ¸Ğ½tko myÑ™i pro vÑbĞ¼r zboÑ›Ğ½
+365:PouÑ›ijte pravĞ¹ tlaĞ¸Ğ½tko myÑ™i k vÑbĞ¼ru zboÑ›Ğ½
+366:DĞ±m x%d
 367:Chci x%d
-368:Editace terénu
-369:Štetce
-370:Vıšky
-371:Dladice
+368:Editace terĞ¹nu
+369:Ğ‰tetce
+370:VÑÑ™ky
+371:DlaÑ›dice
 372:Objekty
-373:Vıšky
-374:Ostrost štìtce
+373:VÑÑ™ky
+374:Ostrost Ñ™tĞ¼tce
 375:Velikost
-376:Posunutím zmìníte ostrost štetce
+376:PosunutĞ½m zmĞ¼nĞ½te ostrost Ñ™tetce
 377:Sklon
-378:Posunutím zmìníte sklon: 1 = ploché ... 15 = špièaté
+378:PosunutĞ½m zmĞ¼nĞ½te sklon: 1 = plochĞ¹ ... 15 = Ñ™piĞ¸atĞ¹
 379:Rychlost
-380:Posuòte pro zmìnu rychlosti soupání: 1 = pomalé ... 15 = velmi rychlé
-381:Kruhovı štìtec
-382:Ètvercovı štìtec
-383:Zvıšit / sníit
-384:Rozbrázdit / Zarovnat
-385:Zvıšit (levé tlaèítko) / Sníit (pravé tlaèítko)
-386:Rozbrázdit (levé tlaèítko) / Zarovnat (pravé tlaèítko)
-387:Štìtec
-388:Náhodné elementy
-389:Náhodnı smìr
-390:Zaškrtni pro náhodnı smìr dladice nebo klikni pravım tlaèítkem myši k otáèení vybrané dladice
-391:Klikni pravım tlaèítkem pro otoèení vybrané dladice
-392:Zakázat chùzi
+380:PosuÑ‚te pro zmĞ¼nu rychlosti soupĞ±nĞ½: 1 = pomalĞ¹ ... 15 = velmi rychlĞ¹
+381:KruhovÑ Ñ™tĞ¼tec
+382:Ğ˜tvercovÑ Ñ™tĞ¼tec
+383:ZvÑÑ™it / snĞ½Ñ›it
+384:RozbrĞ±zdit / Zarovnat
+385:ZvÑÑ™it (levĞ¹ tlaĞ¸Ğ½tko) / SnĞ½Ñ›it (pravĞ¹ tlaĞ¸Ğ½tko)
+386:RozbrĞ±zdit (levĞ¹ tlaĞ¸Ğ½tko) / Zarovnat (pravĞ¹ tlaĞ¸Ğ½tko)
+387:Ğ‰tĞ¼tec
+388:NĞ±hodnĞ¹ elementy
+389:NĞ±hodnÑ smĞ¼r
+390:ZaÑ™krtni pro nĞ±hodnÑ smĞ¼r dlaÑ›dice nebo klikni pravÑm tlaĞ¸Ğ½tkem myÑ™i k otĞ±Ğ¸enĞ½ vybranĞ¹ dlaÑ›dice
+391:Klikni pravÑm tlaĞ¸Ğ½tkem pro otoĞ¸enĞ½ vybranĞ¹ dlaÑ›dice
+392:ZakĞ±zat chÑ‰zi
 393:Odstranit objekt
-394:Plánování vesnice
-395:Vizualní skripty
-396:Všeobecné skriptování
+394:PlĞ±novĞ±nĞ½ vesnice
+395:VizualnĞ½ skripty
+396:VÑ™eobecnĞ¹ skriptovĞ±nĞ½
 397:Menu
 398:Objekty
-399:Zobrazit nalezištì
+399:Zobrazit naleziÑ™tĞ¼
 400:Zobrazit jednotky
 401:Zobrazit budovy
 402:Zobrazit objekty
-403:Zobrazit prùchodnost
-404:Neuloené zmìny|zmìny budou ztraceny
+403:Zobrazit prÑ‰chodnost
+404:NeuloÑ›enĞ¹ zmĞ¼ny|zmĞ¼ny budou ztraceny
 405:Storno
-406:Naèíst
-407:Naèíst mapu
+406:NaĞ¸Ğ½st
+407:NaĞ¸Ğ½st mapu
 408:Storno
-409:Uloit
-410:Pøepsat
-411:Mapa u existuje
-412:Hráèi:
-413:Vıchozí
-414:Typy hráèù
-415:Symetrická
+409:UloÑ›it
+410:PÑˆepsat
+411:Mapa uÑ› existuje
+412:HrĞ±Ğ¸i:
+413:VÑchozĞ½
+414:Typy hrĞ±Ğ¸Ñ‰
+415:SymetrickĞ±
 416:Aliance
 417:Taktika
-418:Normální
-419:Mód mise
-420:Pøejít na pozici
-421:Vycentrovat obrazovku na poèátku mise
+418:NormĞ±lnĞ½
+419:MÑƒd mise
+420:PÑˆejĞ½t na pozici
+421:Vycentrovat obrazovku na poĞ¸Ğ±tku mise
 422:Vycentrovat obrazovku
-423:Odhalit vše
-424:Odhalit èást mapy
+423:Odhalit vÑ™e
+424:Odhalit Ğ¸Ğ±st mapy
 425:Prozkoumat mlhu
 426:Zablokovat ochod
 427:Zablokovat/odblokovat domy
 428:Barvy
-429:Cíl
+429:CĞ½l
 430:Zpr.
-431:Èas
-432:Hráè
-433:Ekonomické stavby
-434:Nevolníci a školy
-435:Vojenské vìci
-436:Neznámé
+431:Ğ˜as
+432:HrĞ±Ğ¸
+433:EkonomickĞ¹ stavby
+434:NevolnĞ½ci a Ñ™koly
+435:VojenskĞ¹ vĞ¼ci
+436:NeznĞ±mĞ¹
 437:Vojsko
 438:Budovy
-439:Èas
-440:Udìlej Tutoriál
-441:ádná
-442:Podmínka
-443:Pøeít
-444:Vítìzství
+439:Ğ˜as
+440:UdĞ¼lej TutoriĞ±l
+441:Ğ‹Ğ±dnĞ±
+442:PodmĞ½nka
+443:PÑˆeÑ›Ğ½t
+444:VĞ½tĞ¼zstvĞ½
 445:Nic
 446:Typ
-447:Cíle
+447:CĞ½le
 448:OK
 449:Storno
 450:Sloupce
-451:Poèet
-452:Formace oddílu
+451:PoĞ¸et
+452:Formace oddĞ½lu
 453:Upravit formace
-454:Nastavit limit poètu vojákù pro poèítaè
-455:Kolik vojákù mùe mít poèítaè najednou
-456:Nastavit max. vojákù
-457:Kolik rekrutù má mít poèítaè ve hradu
+454:Nastavit limit poĞ¸tu vojĞ±kÑ‰ pro poĞ¸Ğ½taĞ¸
+455:Kolik vojĞ±kÑ‰ mÑ‰Ñ›e mĞ½t poĞ¸Ğ½taĞ¸ najednou
+456:Nastavit max. vojĞ±kÑ‰
+457:Kolik rekrutÑ‰ mĞ± mĞ½t poĞ¸Ğ½taĞ¸ ve hradu
 458:Rekruti na Hrad
 459:Pozice
-460:Specifická pozice
-461:Nejbliší budova 2
-462:Nejbliší budova 1
-463:Nejbliší jednotka
-464:Vzít vše
-465:Poèet skupin
-466:Info o útoku
-467:Prodlení, s
-468:Opakování
-469:Jednorázovı
-470:Jízda
-471:Støelectvo
-472:Proti jízdì
-473:Na blízko
+460:SpecifickĞ± pozice
+461:NejbliÑ›Ñ™Ğ½ budova 2
+462:NejbliÑ›Ñ™Ğ½ budova 1
+463:NejbliÑ›Ñ™Ğ½ jednotka
+464:VzĞ½t vÑ™e
+465:PoĞ¸et skupin
+466:Info o ÑŠtoku
+467:ProdlenĞ½, s
+468:OpakovĞ±nĞ½
+469:JednorĞ±zovÑ
+470:JĞ½zda
+471:StÑˆelectvo
+472:Proti jĞ½zdĞ¼
+473:Na blĞ½zko
 474:Poz.
-475:Cíl
-476:Lidé
-477:Prodlení
+475:CĞ½l
+476:LidĞ¹
+477:ProdlenĞ½
 478:Typ
-479:Aoto útok
-480:Utoky poèítaèe
-481:Rychlost vıroby koenıch
-482:Rychlost vıroby eleznıch
+479:Aoto ÑŠtok
+480:Utoky poĞ¸Ğ½taĞ¸e
+481:Rychlost vÑroby koÑ›enÑch
+482:Rychlost vÑroby Ñ›eleznÑch
 483:Autoobrana
-484:Poèítaè vytváøí a spravuje obranné pozice automaticky
-485:Umístit obrannou pozici pro poèítaè
-486:Obranné pozice poèítaèe
+484:PoĞ¸Ğ½taĞ¸ vytvĞ±ÑˆĞ½ a spravuje obrannĞ¹ pozice automaticky
+485:UmĞ½stit obrannou pozici pro poĞ¸Ğ½taĞ¸
+486:ObrannĞ¹ pozice poĞ¸Ğ½taĞ¸e
 487:Pracanti
-488:Nevolníci na 10 domù
+488:NevolnĞ½ci na 10 domÑ‰
 489:Autooprava
-490:Autostavìní
-491:Nastavení poèítaèe
+490:AutostavĞ¼nĞ½
+491:NastavenĞ½ poĞ¸Ğ½taĞ¸e
 492:Domy
-493:Práce na cestì
-494:Vıbìr vertikálního pøevrácení
-495:Vıbìr horizontálního pøevrácení
-496:Vloit terén
-497:Kopírovat terén
-498:Kopírovat/vloit
-499:Nová mise
-500:Jméno hráèe
+493:PrĞ±ce na cestĞ¼
+494:VÑbĞ¼r vertikĞ±lnĞ½ho pÑˆevrĞ±cenĞ½
+495:VÑbĞ¼r horizontĞ±lnĞ½ho pÑˆevrĞ±cenĞ½
+496:VloÑ›it terĞ¹n
+497:KopĞ½rovat terĞ¹n
+498:KopĞ½rovat/vloÑ›it
+499:NovĞ± mise
+500:JmĞ¹no hrĞ±Ğ¸e
 501:Status:
-502:Zaloit Server
-503:VYTVOØIT SERVER
-504:Jméno
+502:ZaloÑ›it Server
+503:VYTVOĞ¨IT SERVER
+504:JmĞ¹no
 505:Port
-506:Vytvoøit lokální server
-507:Vytvoøit internetovı server
+506:VytvoÑˆit lokĞ±lnĞ½ server
+507:VytvoÑˆit internetovÑ server
 508:Cancel
-509:Pøipojit se pomocí IP
-510:NAJÍT SERVER
+509:PÑˆipojit se pomocĞ½ IP
+510:NAJĞT SERVER
 511:IP Adresa
 512:Port
-513:Místnost:
-514:Pøipojit se
+513:MĞ½stnost:
+514:PÑˆipojit se
 515:Cancel
-516:Místnost chránìna heslem
+516:MĞ½stnost chrĞ±nĞ¼na heslem
 517:Heslo
-518:Jméno serveru
+518:JmĞ¹no serveru
 519:Stav
-520:Hráèi
+520:HrĞ±Ğ¸i
 521:Ping
-522:Obnovit seznam serverù
+522:Obnovit seznam serverÑ‰
 523:DETAILY SERVERU
-524:Seznam hráèù:
-525:Pøipojit
-526:Pøipojuji se, prosím èekejte...
-527:Naèítám...
+524:Seznam hrĞ±Ğ¸Ñ‰:
+525:PÑˆipojit
+526:PÑˆipojuji se, prosĞ½m Ğ¸ekejte...
+527:NaĞ¸Ğ½tĞ±m...
 528:Obnovuji...
-529:Seznam hráèù
+529:Seznam hrĞ±Ğ¸Ñ‰
 530:Pozice
-531:Tım
+531:TÑm
 532:Barva
-533:Pøipraven
+533:PÑˆipraven
 534:Ping
 535:Ping / FPS
-536:Otevøeno
-537:Poèítaè
+536:OtevÑˆeno
+537:PoĞ¸Ğ½taĞ¸
 538:Vybrat...
-539:Náhodné
-540:Prázdné
-541:Uloená hra
+539:NĞ±hodnĞ¹
+540:PrĞ±zdnĞ¹
+541:UloÑ›enĞ± hra
 542:Vyberte mapu...
-543:Vyberte uloenou hru...
-544:Opustit nabídku
-545:Pøipraven
-546:Není pøipraven
-547:Zaèít!
-548:Rychlost hry (v dobì míru)
+543:Vyberte uloÑ›enou hru...
+544:Opustit nabĞ½dku
+545:PÑˆipraven
+546:NenĞ½ pÑˆipraven
+547:ZaĞ¸Ğ½t!
+548:Rychlost hry (v dobĞ¼ mĞ½ru)
 549:Rychlost hry
 550:OK
 551:Storno
 552:Popis
 553:Heslo
-554:Nastavení místnosti
-555:Urèit jako hostitele
+554:NastavenĞ½ mĞ½stnosti
+555:UrĞ¸it jako hostitele
 556:Ban
 557:Vykopnout
-558:Náhodné lokace s ohledem na tımy
+558:NĞ±hodnĞ¹ lokace s ohledem na tÑmy
 559:Popis
-560:Nastavení
+560:NastavenĞ½
 561:Pozice %d
-562:Chyba: Vyberte, prosím, hráèe z uloené hry
-563:Chyba: Mapa nelze naèíst nebo nebyla vybrána
-564:Nelze zaèít: %s
-565:Nìkdo není pøipraven ke startu
-566:Nemlze pøiøadit náhodné pozice
-567:Server vám pøiøadil hostovací práva
-568:Hra ji zaèala
-569:Stavìní
-570:Bojování
+562:Chyba: Vyberte, prosĞ½m, hrĞ±Ğ¸e z uloÑ›enĞ¹ hry
+563:Chyba: Mapa nelze naĞ¸Ğ½st nebo nebyla vybrĞ±na
+564:Nelze zaĞ¸Ğ½t: %s
+565:NĞ¼kdo nenĞ½ pÑˆipraven ke startu
+566:Nemlze pÑˆiÑˆadit nĞ±hodnĞ¹ pozice
+567:Server vĞ±m pÑˆiÑˆadil hostovacĞ½ prĞ±va
+568:Hra jiÑ› zaĞ¸ala
+569:StavĞ¼nĞ½
+570:BojovĞ±nĞ½
 571:Kooperace
-572:Speciální mapy
-573:Nastavení hry:
-574:Doba míru (minuty)
-575:Zavøeno
-576:Hostitel urèuje nastavení hráèe
-577:Èekám na ostatní hráèe:
-578:Všem
-579:Tımu
-580:KaM Remake Autoøi
-581:Autoøi Knights & Merchants
-582:PROGRAMOVÁNÍ:
-583:DALŠÍ PROGRAMOVÁNÍ:
-584:DALŠÍ GRAFIKA:
-585:OSTATNÍ ZVUKY:
-586:DALŠÍ HUDBA:
-587:DALŠÍ PØEKLAD:
-588:SPECIÁLNÍ PODÌKOVÁNÍ:
-589:Multiplayerové mapy
-590:Singelplayerové mapy
+572:SpeciĞ±lnĞ½ mapy
+573:NastavenĞ½ hry:
+574:Doba mĞ½ru (minuty)
+575:ZavÑˆeno
+576:Hostitel urĞ¸uje nastavenĞ½ hrĞ±Ğ¸e
+577:Ğ˜ekĞ±m na ostatnĞ½ hrĞ±Ğ¸e:
+578:VÑ™em
+579:TÑmu
+580:KaM Remake AutoÑˆi
+581:AutoÑˆi Knights & Merchants
+582:PROGRAMOVĞ‘NĞ:
+583:DALĞ‰Ğ PROGRAMOVĞ‘NĞ:
+584:DALĞ‰Ğ GRAFIKA:
+585:OSTATNĞ ZVUKY:
+586:DALĞ‰Ğ HUDBA:
+587:DALĞ‰Ğ PĞ¨EKLAD:
+588:SPECIĞ‘LNĞ PODĞœKOVĞ‘NĞ:
+589:MultiplayerovĞ¹ mapy
+590:SingelplayerovĞ¹ mapy
 591:Rychlost obrazu
-592:Nenalezeny ádné servery
-593:Pøeházet skladby
-594:Info o høe:
+592:Nenalezeny Ñ›Ğ±dnĞ¹ servery
+593:PÑˆehĞ±zet skladby
+594:Info o hÑˆe:
 595:-
 596:Lobby
-597:Naèítání
+597:NaĞ¸Ğ½tĞ±nĞ½
 598:Hra
-599:Stavìní & Bojování
-600:Bojování
-601:Pøipraven
-602:Odlišná verze: %s. Server pouívá: %s
-603:Zvıšit mnoství
-604:Sníit mnoství
-605:Ukládám hru...
-606:%s byl poraen!
-607:Vyhodit hráèe
-608:Hostitel bude moci vyhodit tyto hráèe za %d sekund
-609:Hostitel nyní mùe vyhodit tyto hráèe
+599:StavĞ¼nĞ½ & BojovĞ±nĞ½
+600:BojovĞ±nĞ½
+601:PÑˆipraven
+602:OdliÑ™nĞ± verze: %s. Server pouÑ›Ğ½vĞ±: %s
+603:ZvÑÑ™it mnoÑ›stvĞ½
+604:SnĞ½Ñ›it mnoÑ›stvĞ½
+605:UklĞ±dĞ±m hru...
+606:%s byl poraÑ›en!
+607:Vyhodit hrĞ±Ğ¸e
+608:Hostitel bude moci vyhodit tyto hrĞ±Ğ¸e za %d sekund
+609:Hostitel nynĞ½ mÑ‰Ñ›e vyhodit tyto hrĞ±Ğ¸e
 610:Hostitel (%s) se odpojil
-611:Spojení se serverem bylo ztraceno. Pokouším se opìt navázat spojení...
-612:Opravdu chcete skonèit?
-613:Jste si jistı, e chcete vyhodit tyto hráèe ze hry?
+611:SpojenĞ½ se serverem bylo ztraceno. PokouÑ™Ğ½m se opĞ¼t navĞ±zat spojenĞ½...
+612:Opravdu chcete skonĞ¸it?
+613:Jste si jistÑ, Ñ›e chcete vyhodit tyto hrĞ±Ğ¸e ze hry?
 614:Storno
-615:Obchodování s tímto zboím není moné v této misi.
-616:Sázet a kácet
-617:Pouze kácet
-618:V období míru je toto zakázáno!
-619:Konec období míru za: %s
-620:Konec období míru. Do zbranì!
-621:Èas hry:|%s
-622:Zastavit oddíl ('%s')
-623:Spojit oddíl ('%s')
-624:Samostatnı voják ('%s')
-625:Záznamy ze hry
-626:Ukázat záznam
-627:Nepodporovanı formát %s
-628:Nepodporovaná verze %s
-629:Nepodporované modifikace
-630:Nastala chyba pøi analıze souboru %s
+615:ObchodovĞ±nĞ½ s tĞ½mto zboÑ›Ğ½m nenĞ½ moÑ›nĞ¹ v tĞ¹to misi.
+616:SĞ±zet a kĞ±cet
+617:Pouze kĞ±cet
+618:V obdobĞ½ mĞ½ru je toto zakĞ±zĞ±no!
+619:Konec obdobĞ½ mĞ½ru za: %s
+620:Konec obdobĞ½ mĞ½ru. Do zbranĞ¼!
+621:Ğ˜as hry:|%s
+622:Zastavit oddĞ½l ('%s')
+623:Spojit oddĞ½l ('%s')
+624:SamostatnÑ vojĞ±k ('%s')
+625:ZĞ±znamy ze hry
+626:UkĞ±zat zĞ±znam
+627:NepodporovanÑ formĞ±t %s
+628:NepodporovanĞ± verze %s
+629:NepodporovanĞ¹ modifikace
+630:Nastala chyba pÑˆi analÑze souboru %s
 631:inicializuje se
 632:skript
 633:jednotky
 634:domy
 635:stromy
 636:skripty
-637:textury terénu
+637:textury terĞ¹nu
 638:Mapa nenalezena: %s
-639:Uloená hra nenalezena: %s
+639:UloÑ›enĞ± hra nenalezena: %s
 640:Mapa se neshoduje s hostitelem: %s
-641:Uloená hra se neshoduje s hostitelem: %s
-642:Záznam ze hry neprošel testem celistvosti. Toto je známá chyba, která mùe ovlivnit pøehrávání nìkterıch záznamù. Chcete pokraèovat v pøehrávání?
-643:KaM Remake mùete mít v multplayeru spuštìnı jen jednou.
-644:Modifikace hry nejsou povoleny v multiplayeru.|Prosím pøeinstalujte hru k obnovení pùvodních souborù.
-645:Nastala chyba. Prosím kliknìte na tlaèítko Poslat zprávu o chybì abychom zjistili, co se stalo
-646:Poslat zprávu o chybì
-647:Ukázat nezpracovaná data
-648:Zpìt do aplikace
-649:Ukonèit Aplikaci
-650:Další
+641:UloÑ›enĞ± hra se neshoduje s hostitelem: %s
+642:ZĞ±znam ze hry neproÑ™el testem celistvosti. Toto je znĞ±mĞ± chyba, kterĞ± mÑ‰Ñ›e ovlivnit pÑˆehrĞ±vĞ±nĞ½ nĞ¼kterÑch zĞ±znamÑ‰. Chcete pokraĞ¸ovat v pÑˆehrĞ±vĞ±nĞ½?
+643:KaM Remake mÑ‰Ñ›ete mĞ½t v multplayeru spuÑ™tĞ¼nÑ jen jednou.
+644:Modifikace hry nejsou povoleny v multiplayeru.|ProsĞ½m pÑˆeinstalujte hru k obnovenĞ½ pÑ‰vodnĞ½ch souborÑ‰.
+645:Nastala chyba. ProsĞ½m kliknĞ¼te na tlaĞ¸Ğ½tko Poslat zprĞ±vu o chybĞ¼ abychom zjistili, co se stalo
+646:Poslat zprĞ±vu o chybĞ¼
+647:UkĞ±zat nezpracovanĞ± data
+648:ZpĞ¼t do aplikace
+649:UkonĞ¸it Aplikaci
+650:DalÑ™Ğ½
 651:Detaily kontaktu
-652:Vaše jméno: (nepovinné)
-653:Váš email: (nepovinnı)
-654:Pamatovat mì
+652:VaÑ™e jmĞ¹no: (nepovinnĞ¹)
+653:VĞ±Ñ™ email: (nepovinnÑ)
+654:Pamatovat mĞ¼
 655:Detaily chyby
-656:Pøi jaké situaci tato chyba nastala? Mùete poskytnout další informace?
-657:Sejmutí obrazovky
-658:Pøipojit snímek obrazovky k hlášení o chybì
-659:(kliknout pro úpravu obrázku)
-660:Podat Zprávu
+656:PÑˆi jakĞ¹ situaci tato chyba nastala? MÑ‰Ñ›ete poskytnout dalÑ™Ğ½ informace?
+657:SejmutĞ½ obrazovky
+658:PÑˆipojit snĞ½mek obrazovky k hlĞ±Ñ™enĞ½ o chybĞ¼
+659:(kliknout pro ÑŠpravu obrĞ±zku)
+660:Podat ZprĞ±vu
 661:Cancel
-662:Odesílám hlášení o chybì
-663:Pøipojuji se k serveru...
-664:Odesílám data...
-665:Odesílání hlášení o chybì bylo neúspìšné! Náš server mùe bıt zaneprázdnìn, prosím zkuste to odeslat znovu.
+662:OdesĞ½lĞ±m hlĞ±Ñ™enĞ½ o chybĞ¼
+663:PÑˆipojuji se k serveru...
+664:OdesĞ½lĞ±m data...
+665:OdesĞ½lĞ±nĞ½ hlĞ±Ñ™enĞ½ o chybĞ¼ bylo neÑŠspĞ¼Ñ™nĞ¹! NĞ±Ñ™ server mÑ‰Ñ›e bÑt zaneprĞ±zdnĞ¼n, prosĞ½m zkuste to odeslat znovu.
 666:Informace
-667:Prosím èekejte...
-668:Uloit mapu
-669:Prodlení v minutách ne poèítaè zaène vyrábìt rekruty
-670:Prodlení rekrutù (min)
-671:Nastaví smìr pro všechny dladice ze kterıch se skládá voda
-672:Èarovná voda
-673:Kopírovat
-674:Vloit
-675:Pouít vloení
-676:Zrušit vloení
-677:Pøevrátit vertikálnì
-678:Pøevrátit horizontálnì
-679:Táhnout pro vybrání místa na mapì
-680:Nastavení obrany poèítaèe
+667:ProsĞ½m Ğ¸ekejte...
+668:UloÑ›it mapu
+669:ProdlenĞ½ v minutĞ±ch neÑ› poĞ¸Ğ½taĞ¸ zaĞ¸ne vyrĞ±bĞ¼t rekruty
+670:ProdlenĞ½ rekrutÑ‰ (min)
+671:NastavĞ½ smĞ¼r pro vÑ™echny dlaÑ›dice ze kterÑch se sklĞ±dĞ± voda
+672:Ğ˜arovnĞ± voda
+673:KopĞ½rovat
+674:VloÑ›it
+675:PouÑ›Ğ½t vloÑ›enĞ½
+676:ZruÑ™it vloÑ›enĞ½
+677:PÑˆevrĞ±tit vertikĞ±lnĞ¼
+678:PÑˆevrĞ±tit horizontĞ±lnĞ¼
+679:TĞ±hnout pro vybrĞ±nĞ½ mĞ½sta na mapĞ¼
+680:NastavenĞ½ obrany poĞ¸Ğ½taĞ¸e
 681:Vyp
-682:Rádius
-683:Smazat aktuálního prùzkumníka
-684:Návrat na stránku prozkoumání mlhy
-685:Zavøít
-686:Rozkaz skupinì
-687:ádnı
-688:Utoèná pozice
-689:Jít
-690:Smìr
-691:Zadní linie
-692:Pøední linie
-693:Obrannı rádius
+682:RĞ±dius
+683:Smazat aktuĞ±lnĞ½ho prÑ‰zkumnĞ½ka
+684:NĞ±vrat na strĞ±nku prozkoumĞ±nĞ½ mlhy
+685:ZavÑˆĞ½t
+686:Rozkaz skupinĞ¼
+687:Ğ‹Ğ±dnÑ
+688:UtoĞ¸nĞ± pozice
+689:JĞ½t
+690:SmĞ¼r
+691:ZadnĞ½ linie
+692:PÑˆednĞ½ linie
+693:ObrannÑ rĞ±dius
 694:Smazat tuto obrannou pozici
-695:Návrat na stránku obrana
-696:Obranná pozice
+695:NĞ±vrat na strĞ±nku obrana
+696:ObrannĞ± pozice
 697:Jednotky

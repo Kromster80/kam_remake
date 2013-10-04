@@ -1,7 +1,4 @@
-
-MaxID:697
-
-0:Segheria
+Ôªø0:Segheria
 1:Fonderia
 2:Forgia d'armi
 3:Miniera di carbone
@@ -95,14 +92,14 @@ MaxID:697
 91:L'allevatore accudisce e nutre il bestiame nelle stalle e negli allevamenti.
 92:Il contadino pianta e miete il grano nelle fattorie.||Raccoglie inoltre l'uva dai vigneti e si occupa della vendemmia nella cantina.
 93:Il carpentiere lavora nella segheria e nelle botteghe d'armi ed armature.||Costruisce inoltre balliste e catapulte nell'officina d'assedio.
-94:Il fornaio cuoce il pane nel forno.||PuÚ anche macinare il grano nel mulino per ottenere la farina.
+94:Il fornaio cuoce il pane nel forno.||Pu—Ç anche macinare il grano nel mulino per ottenere la farina.
 95:Il macellaio produce salsicce nel mattatoio e cuoio nella conceria.
 96:Il pescatore cattura i pesci dai vicini corsi d'acqua.
-97:L'operaio costruisce edifici e strade. Dovrai soltanto pianificare i lavori e lui porter‡ avanti automaticamente i tuoi ordini.||PuÚ anche riparare gli edifici danneggiati.
-98:Lo scalpellino taglia e sagoma la pietra grezza per fornire ai tuoi operai il materiale che servir‡ a costruire le strade e gli edifici.
+97:L'operaio costruisce edifici e strade. Dovrai soltanto pianificare i lavori e lui porter–∞ avanti automaticamente i tuoi ordini.||Pu—Ç anche riparare gli edifici danneggiati.
+98:Lo scalpellino taglia e sagoma la pietra grezza per fornire ai tuoi operai il materiale che servir–∞ a costruire le strade e gli edifici.
 99:Tra il calore e le fiamme delle forge, il fabbro crea armi e corazze per il tuo esercito.
 100:Il fonditore usa il carbone per raffinare l'oro ed il ferro grezzi.
-101:Nella caserma, la recluta riceve l'addestramento e l'equipaggiamento per diventare un soldato.||PuÚ anche presidiare le torri di guardia.
+101:Nella caserma, la recluta riceve l'addestramento e l'equipaggiamento per diventare un soldato.||Pu—Ç anche presidiare le torri di guardia.
 102:Pianificazione degli edifici
 103:Distribuzione delle risorse
 104:Statistiche
@@ -123,7 +120,7 @@ MaxID:697
 119:Cambia il volume
 120:Cambia il volume
 121:Musica
-122:Musica sÏ/no
+122:Musica s–º/no
 123:Salvat. autom.
 124:Lettore musicale
 125:Traccia precedente
@@ -146,17 +143,17 @@ MaxID:697
 142:Demolisci
 143:Vuoi davvero demolire|questo edificio?
 144:Demolisci l'edificio selezionato
-145:Riduci entit‡ dell'ordine
-146:Aumenta entit‡ dell'ordine
-147:Tipo di unit‡ precedente
-148:Tipo di unit‡ successivo
-149:Equipaggia questa unit‡
+145:Riduci entit–∞ dell'ordine
+146:Aumenta entit–∞ dell'ordine
+147:Tipo di unit–∞ precedente
+148:Tipo di unit–∞ successivo
+149:Equipaggia questa unit–∞
 150:Professione successiva
 151:Professione precedente
 152:Aggiungi alla coda
-153:Consegna merci sÏ/no
+153:Consegna merci s–º/no
 154:Costo:
-155:Riparazione sÏ/no
+155:Riparazione s–º/no
 156:Edificio attualmente non disponibile
 157:Condizioni
 158:Ruota truppa verso sinistra
@@ -180,8 +177,8 @@ MaxID:697
 176:I filoni della tua miniera di ferro sono esauriti.
 177:I filoni della tua miniera d'oro sono esauriti.
 178:Il tuo taglialegna non riesce a trovare altri alberi da abbattere
-179:Questo edificio non Ë occupato.
-180:Questi soldati sono molto affamati, devono mangiare al pi˘ presto!
+179:Questo edificio non –∏ occupato.
+180:Questi soldati sono molto affamati, devono mangiare al pi—â presto!
 181:PAUSA
 182:Trasporta della merce
 183:Pavimenta una strada
@@ -246,12 +243,12 @@ MaxID:697
 242:Non supportata
 243:VITTORIA!
 244:SCONFITTA!
-245:Unit‡ perse:
-246:Unit‡ uccise:
+245:Unit–∞ perse:
+246:Unit–∞ uccise:
 247:Edifici persi:
 248:Edifici distrutti:
 249:Edifici costruiti:
-250:Unit‡ addestrate:
+250:Unit–∞ addestrate:
 251:Armi forgiate:
 252:Soldati addestrati:
 253:Missione completata in:
@@ -280,7 +277,7 @@ MaxID:697
 276:Tutto
 277:Militare
 278:Cibo
-279:JOYMANIA ENTERTAINMENT||PROGRAMMAZIONE:|Peter Ohlmann||GRAFICA:|Adam Sprys||LIVELLI:|Adam Sprys|Andre Quaﬂ||EDITING E MIXING AUDIO:|Tonstudio Mannheim||MUSICHE:|Gerd Hofmann|Joachim Sch‰fer|J¸rgen Rebhann|Klaus Staendike|Steffen Sch¸ngel||ILLUSTRAZIONI:|Boleslaw Kasza|Christoph Werner||ZUXXEZ ENTERTAINMENT AG||PRODUCER:|Uwe Sch‰fer||MANUALE:|Peter Ohlmann|Uwe Sch‰fer||BETA TESTING:|Peter Ohlmann|Adam Sprys|Alexandra Constandache|Dirk P. Hassinger|Achim Heidelauf|Uwe Sch‰fer|Ingrid Sch‰fer|Dirk U. Jantz|Ion Constandache|Yaman Egeli|Roman Eich|Iris Mocsnek|Anke Jantz|Paul Hassinger|Liza Hassinger||GAMES DIRECTOR:|Achim Heidelauf||PUBBLICATO DA:|TopWare Interactive||CUTSCENES:||DIREZIONE:|Slawomir Jedrzejewski||Kajetan Czarnecki|Wojciech Drazek|Daniel Duplaga|Rafal Januszkiewicz|Andrzej Rams|Piotr Rulka|Krzysztof Rybczynski|Grzegorz Wisniwski||VOCE:|Claus Boyen (Narratore)||Tim Timmermann|Peter Houska|Dirk M¸hlbach|Ralf Ditze|Gerhard Piske|Gernot Wassmann||ARTWORK:|Boleslaw Kasza|Adam Sprys||ANIMAZIONE D'APERTURA:|Uwe Sch‰fer|Christian Bigalk|Additional 3D-Modelling:|Niels Horstmann||RINGRAZIAMENTI SPECIALI:|Tadeusz Zuber|Dieter Ohlmann|Alexandra Constandache|Ingrid Sch‰fer|Andrea Rumpelt
+279:JOYMANIA ENTERTAINMENT||PROGRAMMAZIONE:|Peter Ohlmann||GRAFICA:|Adam Sprys||LIVELLI:|Adam Sprys|Andre Qua–Ø||EDITING E MIXING AUDIO:|Tonstudio Mannheim||MUSICHE:|Gerd Hofmann|Joachim Sch–¥fer|J—årgen Rebhann|Klaus Staendike|Steffen Sch—ångel||ILLUSTRAZIONI:|Boleslaw Kasza|Christoph Werner||ZUXXEZ ENTERTAINMENT AG||PRODUCER:|Uwe Sch–¥fer||MANUALE:|Peter Ohlmann|Uwe Sch–¥fer||BETA TESTING:|Peter Ohlmann|Adam Sprys|Alexandra Constandache|Dirk P. Hassinger|Achim Heidelauf|Uwe Sch–¥fer|Ingrid Sch–¥fer|Dirk U. Jantz|Ion Constandache|Yaman Egeli|Roman Eich|Iris Mocsnek|Anke Jantz|Paul Hassinger|Liza Hassinger||GAMES DIRECTOR:|Achim Heidelauf||PUBBLICATO DA:|TopWare Interactive||CUTSCENES:||DIREZIONE:|Slawomir Jedrzejewski||Kajetan Czarnecki|Wojciech Drazek|Daniel Duplaga|Rafal Januszkiewicz|Andrzej Rams|Piotr Rulka|Krzysztof Rybczynski|Grzegorz Wisniwski||VOCE:|Claus Boyen (Narratore)||Tim Timmermann|Peter Houska|Dirk M—åhlbach|Ralf Ditze|Gerhard Piske|Gernot Wassmann||ARTWORK:|Boleslaw Kasza|Adam Sprys||ANIMAZIONE D'APERTURA:|Uwe Sch–¥fer|Christian Bigalk|Additional 3D-Modelling:|Niels Horstmann||RINGRAZIAMENTI SPECIALI:|Tadeusz Zuber|Dieter Ohlmann|Alexandra Constandache|Ingrid Sch–¥fer|Andrea Rumpelt
 280:Missione annullata
 281:Replay terminato
 282:Tutorial di gestione del villaggio
@@ -307,16 +304,16 @@ MaxID:697
 303:Opzioni Audio:
 304:Niente musica
 305:Opzioni Grafiche:
-306:Luminosit‡
+306:Luminosit–∞
 307:Sincronia Verticale
 308:Schermo intero
 309:Applica
 310:Lingua:
-311:Qualit‡ delle ombre:
+311:Qualit–∞ delle ombre:
 312:Bassa
 313:Alta
 314:In caricamento...
-315:Si Ë verificato un errore!
+315:Si –∏ verificato un errore!
 316:Nuova localizzazione in caricamento
 317:Partite salvate
 318:Nome del file
@@ -342,21 +339,21 @@ MaxID:697
 338:Premi %s per riprendere il gioco
 339:Info giocatori
 340:Chat
-341:Esiste gi‡
+341:Esiste gi–∞
 342:Sovrascrivi
 343:Salva
 344:Carica
 345:Rilevata una versione di OpenGL non aggiornata, il gioco potrebbe funzionare a rilento e/o con errori della grafica.
 346:Per favore, aggiorna i tuoi driver video per migliorare le prestazioni.
 347:Errore di rete:
-348:Errore: Il nome del giocatore non puÚ essere vuoto
-349:Errore: il nome non dev'essere pi˘ lungo di %d caratteri
+348:Errore: Il nome del giocatore non pu—Ç essere vuoto
+349:Errore: il nome non dev'essere pi—â lungo di %d caratteri
 350:Errore: il nome contiene caratteri non supportati
 351:Connessione fallita: %s
 352:Sei stato disconnesso
 353:Missione %d
 354:Registro dei messaggi
-355:La tua capanna del pescatore Ë troppo lontana dalla riva.
+355:La tua capanna del pescatore –∏ troppo lontana dalla riva.
 356:Il tuo pescatore non riesce a trovare altri pesci nelle vicinanze.
 357:Riavvia replay
 358:Interrompi replay
@@ -380,8 +377,8 @@ MaxID:697
 376:Scorri per cambiare le dimensioni del pennello
 377:Pendenza
 378:Scorri per cambiare la pendenza: 1 = plateau ... 15 = picco
-379:Velocit‡
-380:Scorri per cambiare la velocit‡ 1 = lenta... 15 = molto veloce
+379:Velocit–∞
+380:Scorri per cambiare la velocit–∞ 1 = lenta... 15 = molto veloce
 381:Pennello circolare
 382:Pennello quadrato
 383:Alza / Abbassa
@@ -393,7 +390,7 @@ MaxID:697
 389:Direzione Casuale
 390:Spunta per avere direzione casuale o fai click destro per ruotare il tassello
 391:Usa il click destro per ruotare il tassello selezionato
-392:Accesso vietato alle unit‡
+392:Accesso vietato alle unit–∞
 393:Rimuovi un oggetto
 394:Pianificazione del villaggio
 395:Impostazioni giocatore
@@ -401,10 +398,10 @@ MaxID:697
 397:Menu
 398:Oggetti
 399:Mostra depositi
-400:Mostra unit‡
+400:Mostra unit–∞
 401:Mostra edifici
 402:Mostra oggetti
-403:Mostra accessibilit‡
+403:Mostra accessibilit–∞
 404:Le modifiche non|salvate saranno|perdute
 405:Annulla
 406:Carica
@@ -412,7 +409,7 @@ MaxID:697
 408:Annulla
 409:Salva
 410:Sovrascrivi
-411:La mappa esiste gi‡
+411:La mappa esiste gi–∞
 412:Giocatori:
 413:Predef.
 414:Tipi di giocatore
@@ -456,7 +453,7 @@ MaxID:697
 452:Formazioni
 453:Modifica formazioni
 454:Imposta un limite al numero di soldati dell'IA
-455:Quanti soldati l'IA puÚ avere in un dato momento
+455:Quanti soldati l'IA pu—Ç avere in un dato momento
 456:Massimo di soldati
 457:Quante reclute l'IA dovrebbe mantenere in caserma
 458:Reclute per caserma
@@ -464,7 +461,7 @@ MaxID:697
 460:Posizione
 461:Edificio vicino 2
 462:Edificio vicino 1
-463:Unit‡ vicina
+463:Unit–∞ vicina
 464:Tutti
 465:Dimensioni del gruppo
 466:Informazioni sull'attacco
@@ -482,8 +479,8 @@ MaxID:697
 478:Tipo
 479:Attacco automatico
 480:IA - Offensive
-481:Unit‡ con cuoio
-482:Unit‡ con ferro
+481:Unit–∞ con cuoio
+482:Unit–∞ con ferro
 483:Difesa automatica
 484:L'IA crea e gestisce autonomamente le posizioni da difendere
 485:Seleziona una posizione per l'IA da difendere
@@ -549,8 +546,8 @@ MaxID:697
 545:Pronto
 546:Non pronto
 547:Inizia!
-548:Velocit‡ di gioco (tempo di pace)
-549:Velocit‡ di gioco
+548:Velocit–∞ di gioco (tempo di pace)
+549:Velocit–∞ di gioco
 550:OK
 551:Annulla
 552:Descrizione
@@ -603,25 +600,25 @@ MaxID:697
 599:Costruisci e Combatti
 600:Battaglia
 601:Pronto
-602:La versione del protocollo Ë sbagliata: %s. Il server usa: %s
-603:Aumenta quantit‡ di merce da scambiare
-604:Diminuisci quantit‡ di merce da scambiare
+602:La versione del protocollo –∏ sbagliata: %s. Il server usa: %s
+603:Aumenta quantit–∞ di merce da scambiare
+604:Diminuisci quantit–∞ di merce da scambiare
 605:Salvataggio in corso...
-606:%s Ë stato sconfitto!
+606:%s –∏ stato sconfitto!
 607:Caccia Giocatori
-608:L'host potr‡ cacciare questi giocatori tra %d secondi
-609:L'host puÚ ora cacciare questi giocatori
+608:L'host potr–∞ cacciare questi giocatori tra %d secondi
+609:L'host pu—Ç ora cacciare questi giocatori
 610:L'host (%s) ha abbandonato la partita
 611:Connessione col server perduta. Tentativo di riconnessione in corso...
 612:Sicuro di voler uscire?
 613:Sicuro di voler cacciare permanentemente questi giocatori?
 614:Annulla
-615:In questa missione non Ë possibile scambiare questa risorsa
+615:In questa missione non –∏ possibile scambiare questa risorsa
 616:Pianta e abbatti
 617:Abbatti solamente
 618:Non puoi farlo in tempo di pace
 619:Tempo di pace rimanente: %s
-620:Il tempo della pace Ë finito. Alle armi!
+620:Il tempo della pace –∏ finito. Alle armi!
 621:Tempo di gioco:|%s
 622:Ferma truppa ('%s')
 623:Unisci truppe ('%s')
@@ -631,10 +628,10 @@ MaxID:697
 627:Formato %s non supportato
 628:Versione %s non supportata
 629:Modificazioni non supportate
-630:Si Ë verificato un errore durante l'analisi del file %s
+630:Si –∏ verificato un errore durante l'analisi del file %s
 631:inizializzazione
 632:script
-633:unit‡
+633:unit–∞
 634:edifici
 635:alberi
 636:definizioni
@@ -643,10 +640,10 @@ MaxID:697
 639:Salvataggio non trovato: %s
 640:File non compatibili con l'host per la mappa: %s
 641:File non compatibile con l'host per il salvataggio: %s
-642:Il replay ha fallito un controllo di coerenza. Questo Ë un problema noto che affligge alcuni replay. Vuoi continuare a guardarlo?
-643:Una sola sessione di gioco per volta puÚ essere avviata in modalit‡ multiplayer
+642:Il replay ha fallito un controllo di coerenza. Questo –∏ un problema noto che affligge alcuni replay. Vuoi continuare a guardarlo?
+643:Una sola sessione di gioco per volta pu—Ç essere avviata in modalit–∞ multiplayer
 644:Modifiche al gioco non sono permesse in multigiocatore.|Si prega di reinstallare per ripristinare i file originali.
-645:Si Ë verificato un errore. Per favore, clicca su "Invia segnalazione" per permetterci di sapere del problema e risolverlo. Grazie per l'aiuto!
+645:Si –∏ verificato un errore. Per favore, clicca su "Invia segnalazione" per permetterci di sapere del problema e risolverlo. Grazie per l'aiuto!
 646:Invia segnalazione
 647:Mostra dati grezzi
 648:Riprendi applicazione
@@ -657,7 +654,7 @@ MaxID:697
 653:La tua email: (facoltativo)
 654:Ricordati di me
 655:Dettagli dell'errore
-656:In che situazione si Ë verificato l'errore? Potresti fornire informazioni aggiuntive? (preferibilmente in Inglese)
+656:In che situazione si –∏ verificato l'errore? Potresti fornire informazioni aggiuntive? (preferibilmente in Inglese)
 657:Screenshot
 658:Allega uno screenshot alla segnalazione
 659:(clicca per modificare l'immagine)
@@ -698,4 +695,4 @@ MaxID:697
 694:Cancella questa posizione da difendere
 695:Torna alla pagina di difesa IA
 696:Posizione da difendere
-697:Unit‡
+697:Unit–∞

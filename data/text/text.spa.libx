@@ -1,22 +1,19 @@
-
-MaxID:697
-
-0:Aserradero
-1:FundiciÛn de hierro
-2:HerrerÌa de armas
-3:Mina de carbÛn
+Ôªø0:Aserradero
+1:Fundici—Én de hierro
+2:Herrer–Ωa de armas
+3:Mina de carb—Én
 4:Mina de hierro
 5:Mina de oro
 6:Casa del pescador
-7:PanaderÌa
+7:Panader–Ωa
 8:Granero
-9:CabaÒa del lenador
-10:HerrerÌa de armaduras
-11:AlmacÈn
+9:Caba—Åa del lenador
+10:Herrer–Ωa de armaduras
+11:Almac–πn
 12:Cuadras
 13:Escuela
 14:Cantera
-15:FundiciÛn de oro
+15:Fundici—Én de oro
 16:Criadero de cerdos
 17:Atalaya
 18:Ayuntamiento
@@ -24,10 +21,10 @@ MaxID:697
 20:Taller de armaduras
 21:Cuartel
 22:Molino
-23:Taller de vehÌculos
-24:CarnicerÌa
-25:CurtidurÌa
-26:Casa de formaciÛn
+23:Taller de veh–Ωculos
+24:Carnicer–Ωa
+25:Curtidur–Ωa
+26:Casa de formaci—Én
 27:Comedor
 28:Lagar
 29:Mercado
@@ -36,7 +33,7 @@ MaxID:697
 32:Madera
 33:Mineral de hierro
 34:Mineral de oro
-35:CarbÛn
+35:Carb—Én
 36:Hierro
 37:Oro
 38:Barriles de vino
@@ -60,7 +57,7 @@ MaxID:697
 56:Caballos
 57:Peces
 58:Ayudante
-59:LeÒador
+59:Le—Åador
 60:Minero
 61:Ganadero
 62:Campesino/Viticultor
@@ -68,7 +65,7 @@ MaxID:697
 64:Panadero/Molinero
 65:Carnicero/Curtidor
 66:Pescador
-67:AlbaÒil
+67:Alba—Åil
 68:Cantero
 69:Herrero
 70:Fundidor
@@ -80,88 +77,88 @@ MaxID:697
 76:Ballestero
 77:Lancero
 78:Piquero
-79:VigÌa
-80:CaballerÌa
-81:B·rbaro
+79:Vig–Ωa
+80:Caballer–Ωa
+81:B–±rbaro
 82:Rebelde
 83:Hondero
 84:Guerrero
 85:Vagabundo
 86:Catapulta
 87:Balista
-88:El ayudante abastece los edificios con las materias necesarias.||Tenga en cuenta que deber· haber un camino construÌdo de casa a casa.
-89:Para abastecer el aserradero con troncos necesita al leÒador.||El leÒador foresta de nuevo el terreno.
-90:El minero extrae mine- rales de las minas de carbÛn, de hierro y de oro.
-91:En ganadero crÌa cerdos y caballos en los criaderos, aliment·ndolos con cereales.
-92:El campesino siembra y cosecha el grano en el campo.||Adem·s pisa la uva en la viÒa.
+88:El ayudante abastece los edificios con las materias necesarias.||Tenga en cuenta que deber–± haber un camino constru–Ωdo de casa a casa.
+89:Para abastecer el aserradero con troncos necesita al le—Åador.||El le—Åador foresta de nuevo el terreno.
+90:El minero extrae mine- rales de las minas de carb—Én, de hierro y de oro.
+91:En ganadero cr–Ωa cerdos y caballos en los criaderos, aliment–±ndolos con cereales.
+92:El campesino siembra y cosecha el grano en el campo.||Adem–±s pisa la uva en la vi—Åa.
 93:El carpintero trabaja en el aserradero, en el taller de armas y en el taller de armaduras.
-94:El panadero cuece el pan en la panaderÌa.||Adem·s produce harina moliendo el grano en el molino.
-95:El carnicero produce chorizos en la carnicerÌa y cuero en la curtidurÌa.
+94:El panadero cuece el pan en la panader–Ωa.||Adem–±s produce harina moliendo el grano en el molino.
+95:El carnicero produce chorizos en la carnicer–Ωa y cuero en la curtidur–Ωa.
 96:El pescador pesca peces en las aguas cercanas.
-97:El albaÒil construye edificios y calles. IndÌquele, situando las marcas en el lugar deseado, donde ha de construÌr. Adem·s repara los edificios daÒados.
-98:Para que los albaÒiles tengan suficientes piedras para construÌr calles y edificios, el cantero labra las piedras.
-99:El herrero elabora armaduras pesadas y armas en la herreÌa de armas y de armaduras.
+97:El alba—Åil construye edificios y calles. Ind–Ωquele, situando las marcas en el lugar deseado, donde ha de constru–Ωr. Adem–±s repara los edificios da—Åados.
+98:Para que los alba—Åiles tengan suficientes piedras para constru–Ωr calles y edificios, el cantero labra las piedras.
+99:El herrero elabora armaduras pesadas y armas en la herre–Ωa de armas y de armaduras.
 100:El fundidor produce hierro, arcas de oro y de hierro.
-101:El recluta en el cuartel es equipado con las armas necesarias para luchar como soldado.||Adem·s ocupa la atalaya.
-102:ConstrucciÛn
+101:El recluta en el cuartel es equipado con las armas necesarias para luchar como soldado.||Adem–±s ocupa la atalaya.
+102:Construcci—Én
 103:Reparto de materiales
-104:EstadÌstica
+104:Estad–Ωstica
 105:Opciones
 106:Volver
-107:ConstrucciÛn
+107:Construcci—Én
 108:Reparto de|materiales
-109:EstadÌstica
+109:Estad–Ωstica
 110:Opciones
 111:Cargar juego
 112:Guardar juego
-113:øDe veras Vos|dese·is abandonar|a vuestro pueblo?
-114:Finalizar la misiÛn
+113:—óDe veras Vos|dese–±is abandonar|a vuestro pueblo?
+114:Finalizar la misi—Én
 115:Volver
 116:Ajustes
 117:Quitar Editor
 118:Ambiente
 119:Modificar volumen
 120:Modificar volumen
-121:M˙sica
-122:M˙sica si/no.
+121:M—äsica
+122:M—äsica si/no.
 123:Autoalmacenar
-124:CanciÛn:
-125:CanciÛn anterior
-126:PrÛxima canciÛn
+124:Canci—Én:
+125:Canci—Én anterior
+126:Pr—Éxima canci—Én
 127:Derribar
 128:Derribar edificios/marcas
-129:ConstruÌr calle
-130:ConstrucciÛn de calles
+129:Constru–Ωr calle
+130:Construcci—Én de calles
 131:Arar campo
 132:Agricultura
-133:Plantar viÒas
-134:ViÒa
+133:Plantar vi—Åas
+134:Vi—Åa
 135:Suspender
-136:Suspender formaciÛn actual.
+136:Suspender formaci—Én actual.
 137:Reservas:
 138:Suministros:
 139:Estado:
 140:Suministra
-141:En construcciÛn.
+141:En construcci—Én.
 142:Derribar
-143:øDe veras Vos dese·is|derribar el edificio?
+143:—óDe veras Vos dese–±is|derribar el edificio?
 144:Derribar edificio seleccionado.
 145:Reducir pedido
 146:Aumentar pedido
 147:Anterior tipo de unidad.
-148:PrÛximo tipo de unidad.
+148:Pr—Éximo tipo de unidad.
 149:Equipar unidad actual.
-150:PrÛximo oficio.
+150:Pr—Éximo oficio.
 151:Anterior oficio.
 152:A la cola.
-153:ON/OFF Suministro de mercancÌas.
-154:Coste de producciÛn:
-155:ON/OFF ReparaciÛn del edificio.
+153:ON/OFF Suministro de mercanc–Ωas.
+154:Coste de producci—Én:
+155:ON/OFF Reparaci—Én del edificio.
 156:Edificio no disponible de momento.
 157:Aguante
 158:Girar a la izquierda
 159:Girar a la derecha
-160:°Asalto! ('a')
+160:–éAsalto! ('a')
 161:Enviar tropa. ('d')
 162:Abastecer con alimentos a la tropa.
 163:Iniciar asalto.
@@ -175,13 +172,13 @@ MaxID:697
 171:Te posiciona en el lugar descrito.
 172:Cancelar
 173:Cerrar mensaje.
-174:El cantero ya no puede picar m·s piedras.
-175:La mina de carbÛn se ha agotado.
+174:El cantero ya no puede picar m–±s piedras.
+175:La mina de carb—Én se ha agotado.
 176:La mina de hierro se ha agotado.
 177:La mina de oro se ha agotado.
-178:El leÒador no puede encontrar mas ·rboles caidos
-179:Esta casa est· desocupada.
-180:°Esta tropa est· hambrienta, deberÌa comer algo cuanto antes!
+178:El le—Åador no puede encontrar mas –±rboles caidos
+179:Esta casa est–± desocupada.
+180:–éEsta tropa est–± hambrienta, deber–Ωa comer algo cuanto antes!
 181:PAUSA
 182:Entregando
 183:Construyendo carretera
@@ -195,29 +192,29 @@ MaxID:697
 191:Atacando casa
 192:Disparando
 193:Luchando
-194:Ataque rel·mpago
+194:Ataque rel–±mpago
 195:Atacando
 196:Moviendo
 197:Inactivo
-198:MinerÌa de piedras
+198:Miner–Ωa de piedras
 199:Sembrando maiz
 200:Cosechando el maiz
 201:Cosechando uvas
 202:Pescando
-203:Cortando ·rbol
-204:Plantando ·rbol
-205:EspÌritu
+203:Cortando –±rbol
+204:Plantando –±rbol
+205:Esp–Ωritu
 206:Laboriosos
 207:Cuerno medieval
 208:La Primavera
-209:La˙d
+209:La—äd
 210:Los Soldados
 211:La princesa
 212:La reina
 213:En el mercado
 214:En el campo
 215:Baile en la corte
-216:El EjÈrcito
+216:El Ej–πrcito
 217:En el castillo
 218:Clarines
 219:La corte
@@ -228,35 +225,35 @@ MaxID:697
 224:Aristocracia
 225:En el Puerto
 226:Viaje
-227:CampaÒas
-228:CampaÒas
-229:°Empezar campaÒa!
+227:Campa—Åas
+228:Campa—Åas
+229:–éEmpezar campa—Åa!
 230:Jugar en un mapa simple
 231:Comenzar mapa
-232:Ir al men˙
+232:Ir al men—ä
 233:Cargar partida
 234:Multijugador
 235:Opciones
-236:CrÈditos
+236:Cr–πditos
 237:Salir
 238:Continuar
-239:Repetir misiÛn
-240:ResoluciÛn:
+239:Repetir misi—Én
+240:Resoluci—Én:
 241:No soportada
 242:No soportada
-243:°VICTORIA!
-244:°DERROTA!
+243:–éVICTORIA!
+244:–éDERROTA!
 245:Unidades perdidas:
 246:Unidades vencidas:
 247:Edificios perdidos:
 248:Edificios destruidos:
-249:Edificios construÌdos:
+249:Edificios constru–Ωdos:
 250:Unidades formadas:
 251:Armas producidas:
 252:Soldados equipados:
-253:DuraciÛn del juego:
+253:Duraci—Én del juego:
 254:Estadisticas
-255:EconomÌa
+255:Econom–Ωa
 256:Civiles|entrenados
 257:Civiles|Perdidos
 258:Soldados|equipados
@@ -266,28 +263,28 @@ MaxID:697
 262:Edificios|perdidos
 263:Edificios|destruidos
 264:Materiales|producidos
-265:Armas|ProduciÛn
-266:EjÈrcito
+265:Armas|Produci—Én
+266:Ej–πrcito
 267:Ciudadanos
 268:Casas
 269:Recursos
 270:Recursos producidos
 271:Sin datos
-272:T˙
+272:T—ä
 273:Jugador %d
 274:Volver a Multijugador
 275:Volver a Repeticiones
 276:Todo
 277:Guerra
 278:Comida
-279:JOYMANIA ENTERTAINMENT||PROGRAMACI”N:|Peter Ohlmann||GRAFICOS DEL JUEGO:|Adam Sprys||DISE—O DE NIVEL:|Adam Sprys|Andre Quaﬂ||M⁄SICA DEL JUEGO:|Gerd Hofmann|Joachim Sch‰fer|J¸rgen Rebhann|Klaus Staendike|Steffen Sch¸ngel||ILUSTRACIONES:|Boleslaw Kasza|Christoph Werner||ZUXXEZ ENTERTAINMENT AG||PRODUCTOR:|Uwe Sch‰fer||MANUAL:|Peter Ohlmann|Uwe Sch‰fer||PRUEBAS BETA:|Alexandra Constandache|Dirk P. Hassinger|Achim Heidelauf|Uwe Sch‰fer|Ingrid Sch‰fer|Dirk U. Jantz|Ion Constandache|Yaman Egeli|Roman Eich|Iris Mocsnek|Anke Jantz|Liza Hassinger|Paul Hassinger||DIRECTOR:|Achim Heidelauf||ESCENAS CINEM¡TICAS:||Slawomir Jedrzejewski||Kajetan Czarnecki|Wojciech Drazek|Daniel Duplaga|Rafal Januszkiewicz|Andrzej Rams|Piotr Rulka|Krzysztof Rybczynski|Grzegorz Wisniwski||VOCES:|Claus Boyen (Storyteller)||Tim Timmermann|Peter Houska|Dirk M¸hlbach|Ralf Ditze|Gerhard Piske|Gernot Wassmann||ILUSTRACIONES:|Boleslaw Kasza|Adam Sprys||ANIMACI”N DE INTRUDUCCI”N:|Uwe Sch‰fer|Christian Bigalk|MODELADO 3D ADICIONAL:|Niels Horstmann||GRACIAS A:|Tadeusz Zuber|Dieter Ohlmann|Alexandra Constandache|Ingrid Sch‰fer
-280:MisiÛn Cancelada
-281:RepeticiÛn del final
-282:Tutorial de ConstruciÛn
+279:JOYMANIA ENTERTAINMENT||PROGRAMACI–£N:|Peter Ohlmann||GRAFICOS DEL JUEGO:|Adam Sprys||DISE–°O DE NIVEL:|Adam Sprys|Andre Qua–Ø||M–™SICA DEL JUEGO:|Gerd Hofmann|Joachim Sch–¥fer|J—årgen Rebhann|Klaus Staendike|Steffen Sch—ångel||ILUSTRACIONES:|Boleslaw Kasza|Christoph Werner||ZUXXEZ ENTERTAINMENT AG||PRODUCTOR:|Uwe Sch–¥fer||MANUAL:|Peter Ohlmann|Uwe Sch–¥fer||PRUEBAS BETA:|Alexandra Constandache|Dirk P. Hassinger|Achim Heidelauf|Uwe Sch–¥fer|Ingrid Sch–¥fer|Dirk U. Jantz|Ion Constandache|Yaman Egeli|Roman Eich|Iris Mocsnek|Anke Jantz|Liza Hassinger|Paul Hassinger||DIRECTOR:|Achim Heidelauf||ESCENAS CINEM–ëTICAS:||Slawomir Jedrzejewski||Kajetan Czarnecki|Wojciech Drazek|Daniel Duplaga|Rafal Januszkiewicz|Andrzej Rams|Piotr Rulka|Krzysztof Rybczynski|Grzegorz Wisniwski||VOCES:|Claus Boyen (Storyteller)||Tim Timmermann|Peter Houska|Dirk M—åhlbach|Ralf Ditze|Gerhard Piske|Gernot Wassmann||ILUSTRACIONES:|Boleslaw Kasza|Adam Sprys||ANIMACI–£N DE INTRUDUCCI–£N:|Uwe Sch–¥fer|Christian Bigalk|MODELADO 3D ADICIONAL:|Niels Horstmann||GRACIAS A:|Tadeusz Zuber|Dieter Ohlmann|Alexandra Constandache|Ingrid Sch–¥fer
+280:Misi—Én Cancelada
+281:Repetici—Én del final
+282:Tutorial de Construci—Én
 283:Tutorial de Batalla
 284:Un Solo Jugador
 285:Editor de mapas
-286:Empezar misiÛn
+286:Empezar misi—Én
 287:Nombre
 288:Med.
 289:Condiciones de Victoria:
@@ -301,14 +298,14 @@ MaxID:697
 297:Crear nuevo mapa
 298:Mapa disponible
 299:Cargar mapa
-300:LocalizaciÛn
+300:Localizaci—Én
 301:Controles:
 302:Juego:
 303:Sonido:
-304:Desactivar m˙sica
-305:Gr·ficos:
+304:Desactivar m—äsica
+305:Gr–±ficos:
 306:Brillo
-307:SincronizaciÛn|Vertical
+307:Sincronizaci—Én|Vertical
 308:Pantalla completa
 309:Aplicar
 310:Lenguaje:
@@ -320,24 +317,24 @@ MaxID:697
 316:Cargando nueva partida local
 317:Lista de partidas guardadas
 318:Nombre de archivo
-319:DescripciÛn
+319:Descripci—Én
 320:Cargar
 321:Borrar
-322:øEstas seguro de que quieres eliminar la partida guardada?
+322:—óEstas seguro de que quieres eliminar la partida guardada?
 323:Eliminar
 324:Cancelar
-325:TÌtulo
+325:T–Ωtulo
 326:Mapas
 327:Desbloqueado
-328:° Victoria !
+328:–é Victoria !
 329:Continuar Jugando
-330:°Victoria!
-331:°Has perdido!
+330:–éVictoria!
+331:–éHas perdido!
 332:Continuar...
 333:Derrota
-334:La repeticiÛn ha terminado
+334:La repetici—Én ha terminado
 335:Continuar
-336:Regresar al Men˙
+336:Regresar al Men—ä
 337:No disponible
 338:Presiona %s para continuar el juego
 339:Informacion de jugadores
@@ -346,27 +343,27 @@ MaxID:697
 342:Sobrescribir
 343:Salvar
 344:Cargar
-345:Se ha detectado una versiÛn antigua de OpenGL, el juego puede ejecutarse lentamente y / o con defectos gr·ficos
-346:Por favor, actualice los controladores de gr·ficos para obtener un mejor rendimiento
+345:Se ha detectado una versi—Én antigua de OpenGL, el juego puede ejecutarse lentamente y / o con defectos gr–±ficos
+346:Por favor, actualice los controladores de gr–±ficos para obtener un mejor rendimiento
 347:Error en la red:
 348:Error: Nombre del jugador no puede estar en blanco
-349:Error: El nombre no debe tener m·s %d caracteres de largo
+349:Error: El nombre no debe tener m–±s %d caracteres de largo
 350:Error: El nombre del jugador tiene caracteres no permitidos
-351:ConexiÛn fallida: %s
+351:Conexi—Én fallida: %s
 352:Te has desconectado
-353:MisiÛn %d
+353:Misi—Én %d
 354:Registro de mensajes
 355:El pescador no puede pescar tan lejos del agua.
-356:El pescador no puede pescar, no hay m·s peces en el agua.
-357:Reiniciar repeticiÛn
-358:Pausar repeticiÛn
-359:Paso 1 seÒar adelante
-360:Reanudar la reproducciÛn en pausa
-361:Quitar repeticiÛn
+356:El pescador no puede pescar, no hay m–±s peces en el agua.
+357:Reiniciar repetici—Én
+358:Pausar repetici—Én
+359:Paso 1 se—Åar adelante
+360:Reanudar la reproducci—Én en pausa
+361:Quitar repetici—Én
 362:Alternar perspectiva del jugador
 363:Ver todo
-364:Usa el botÛn izquierdo para selecionar la mercancia a tratar
-365:Usa el botÛn derecho para selecionar la mercancia a tratar
+364:Usa el bot—Én izquierdo para selecionar la mercancia a tratar
+365:Usa el bot—Én derecho para selecionar la mercancia a tratar
 366:De x%d
 367:A x%d
 368:Editar terreno
@@ -376,13 +373,13 @@ MaxID:697
 372:Objetivos
 373:Alturas
 374:Forma del pincel
-375:TamaÒo
-376:Deslice para cambiar el tamaÒo del pincel
+375:Tama—Åo
+376:Deslice para cambiar el tama—Åo del pincel
 377:Pendiente
-378:Deslice para cambiar la pendiente de elevaciÛn: 1 = meseta ... 15 = m·ximo
+378:Deslice para cambiar la pendiente de elevaci—Én: 1 = meseta ... 15 = m–±ximo
 379:Velocidad
-380:Deslice para cambiar la velocidad de elevaciÛn: 1 = lento ... 15 = muy r·pido
-381:Pincel en forma de cÌrculo
+380:Deslice para cambiar la velocidad de elevaci—Én: 1 = lento ... 15 = muy r–±pido
+381:Pincel en forma de c–Ωrculo
 382:Pincel forma cuadrada
 383:Elevar / Bajar
 384:Sin ecualizar / Acoplar
@@ -390,22 +387,22 @@ MaxID:697
 386:Igualar (clic izquierdo) / Acoplar (clic derecho)
 387:Pincel
 388:Elementos aleatorios
-389:DirecciÛn aleatoria
-390:SeÒal para direccionar las baldosas al azar o utilizar el botÛn derecho para girar la pieza seleccionada
-391:Use el botÛn derecho para girar la pieza seleccionada
+389:Direcci—Én aleatoria
+390:Se—Åal para direccionar las baldosas al azar o utilizar el bot—Én derecho para girar la pieza seleccionada
+391:Use el bot—Én derecho para girar la pieza seleccionada
 392:Bloquear caminar
 393:Eliminar un objeto
 394:Planificar el pueblo
-395:ConfiguraciÛnes visuales
+395:Configuraci—Énes visuales
 396:Configuraciones globales
-397:Men˙
+397:Men—ä
 398:Objetos
-399:Mostrar depÛsitos
+399:Mostrar dep—Ésitos
 400:Mostrar unidades
 401:Mostrar casas
 402:Mostrar objetos
 403:Ver transitabilidad
-404:Los datos no guardados|se perder·n
+404:Los datos no guardados|se perder–±n
 405:Cancelar
 406:Cargar
 407:Cargar Mapa
@@ -418,11 +415,11 @@ MaxID:697
 414:Tipo de Jugadores
 415:Simetrico
 416:Alianzas
-417:T·ctica
+417:T–±ctica
 418:Normal
-419:Modo MisiÛn
-420:Saltar a la localizaciÛn
-421:Centrar pantalla en el comienzo de la misiÛn
+419:Modo Misi—Én
+420:Saltar a la localizaci—Én
+421:Centrar pantalla en el comienzo de la misi—Én
 422:Centrar pantalla
 423:Revelar todo
 424:Revelar una parte del mapa
@@ -434,14 +431,14 @@ MaxID:697
 430:Msg.
 431:Tiempo
 432:Jugador
-433:EconomÌa de edificios
+433:Econom–Ωa de edificios
 434:Siervos y escuelas
 435:Recursos militares
 436:Desconocido
 437:Tropas
 438:Edificios
 439:Tiempo
-440:Tutorial de construcciÛn
+440:Tutorial de construcci—Én
 441:Ninguno
 442:Condiciones
 443:Sobrevivir
@@ -453,21 +450,21 @@ MaxID:697
 449:Cancelar
 450:Columnas
 451:Cuenta
-452:FormaciÛn de tropas
+452:Formaci—Én de tropas
 453:Editar formaciones
-454:Establecer un lÌmite en el n˙mero de soldados de la AI puede tener
-455:Cu·ntos soldados AI puede tener a la vez
-456:Ajuste m·x. soldados
+454:Establecer un l–Ωmite en el n—ämero de soldados de la AI puede tener
+455:Cu–±ntos soldados AI puede tener a la vez
+456:Ajuste m–±x. soldados
 457:Cuantos reclutas debe la Ai tener en los barracones
 458:Reclutas para Barracas
-459:PosiciÛn
-460:PosiciÛn personalizada
-461:Casa m·s cercana 2
-462:Casa m·s cercana 1
-463:Unidad m·s cercana
+459:Posici—Én
+460:Posici—Én personalizada
+461:Casa m–±s cercana 2
+462:Casa m–±s cercana 1
+463:Unidad m–±s cercana
 464:Tomar todo
 465:Recuento de grupo
-466:InformaciÛn de Ataque
+466:Informaci—Én de Ataque
 467:Retraso, s
 468:Repitiendo
 469:Una vez
@@ -485,22 +482,22 @@ MaxID:697
 481:Equipar tasa de cuero
 482:Equipar tasa de hierro
 483:Autodefensa
-484:La AI crea y gestiona la posiciÛn de defensa automaticamente
-485:Lugar de la posiciÛn de la defensa para la AI
-486:Defensa de posiciÛn AI
+484:La AI crea y gestiona la posici—Én de defensa automaticamente
+485:Lugar de la posici—Én de la defensa para la AI
+486:Defensa de posici—Én AI
 487:Trabajadores
 488:Sirvientes por 10 casas
 489:Autoreparar
-490:AutoconstrucciÛn
+490:Autoconstrucci—Én
 491:AI Ajustes
 492:Casas
-493:ConstrucciÛn terreno
-494:Voltear la selecciÛn verticalmente
-495:Voltear selecciÛn horizontalmente
+493:Construcci—Én terreno
+494:Voltear la selecci—Én verticalmente
+495:Voltear selecci—Én horizontalmente
 496:Pegar terreno
 497:Copiar terreno
 498:Copiar/pegar
-499:Nueva MisiÛn
+499:Nueva Misi—Én
 500:Nombre de jugador
 501:Estado:
 502:Crear Servidor
@@ -512,13 +509,13 @@ MaxID:697
 508:Cancelar
 509:Encuentra servidor por IP
 510:ENCONTRAR SERVIDOR
-511:DirecciÛn
+511:Direcci—Én
 512:Puerta
 513:Sala
 514:Conectar
 515:Cancelar
-516:Sala protegida por contraseÒa
-517:ContraseÒa
+516:Sala protegida por contrase—Åa
+517:Contrase—Åa
 518:Nombre del servidor
 519:Estado
 520:Jugadores
@@ -548,46 +545,46 @@ MaxID:697
 544:Salir de la sala
 545:Listo
 546:No estoy listo
-547:°Empezar!
+547:–éEmpezar!
 548:Velocidad de juego (tiempo de paz)
 549:Velocidad de juego
 550:OK
 551:Cancelar
-552:DescripciÛn
-553:ContraseÒa
+552:Descripci—Én
+553:Contrase—Åa
 554:Ajustes de la sala
 555:Ajuste para alojar
 556:Banear
 557:Expulsar
-558:SelecciÛn aleatoria de las ubicaciones en los equipos
-559:DescripciÛn
+558:Selecci—Én aleatoria de las ubicaciones en los equipos
+559:Descripci—Én
 560:Opciones
-561:LocalizaciÛn %d
+561:Localizaci—Én %d
 562:Error: Por favor seleciona un jugador para tomar el control
 563:Error: El mapa no se puede cargar o no has seleccionado el mapa
 564:No se puede iniciar: %s
 565:Todos deben estar preparados para empezar
 566:No es posible asignar ubicaciones aleatorias
-567:El servidor te ha asignado como anfitriÛn
+567:El servidor te ha asignado como anfitri—Én
 568:El juego a comenzado
-569:Mapa de construcciÛn
+569:Mapa de construcci—Én
 570:Mapa de lucha
 571:Mapa cooperativo
 572:Mapa especial
 573:Opciones de juego:
 574:Tiempo de paz (en minutos)
 575:Cerrado
-576:El AnfitriÛn hace la configuraciÛn
+576:El Anfitri—Én hace la configuraci—Én
 577:Esperando a los jugadores:
 578:Todo
 579:Equipo
-580:KaM Remake CrÈditos
-581:CrÈditos originales Knights & Merchants
+580:KaM Remake Cr–πditos
+581:Cr–πditos originales Knights & Merchants
 582:PROGRAMADOR:
 583:PROGRAMADORES ADICIONALES:
-584:GR¡FICOS ADICIONALES:
+584:GR–ëFICOS ADICIONALES:
 585:SONIDOS ADICIONALES:
-586:M⁄SICA ADICIONAL:
+586:M–™SICA ADICIONAL:
 587:TRADUCIONES ADICIONALES:
 588:ESPECIALES GRACIAS A:
 589:Mapas Multijugador
@@ -595,7 +592,7 @@ MaxID:697
 591:Velocidad de desplazamiento
 592:Servidores no encontrados
 593:Pistas aleatorias
-594:InformaciÛn de la partida:
+594:Informaci—Én de la partida:
 595:-
 596:En la Sala
 597:Cargando
@@ -603,61 +600,61 @@ MaxID:697
 599:Construir y Luchar
 600:Luchar
 601:Listo
-602:VersiÛn incorrecta: %s. Este juego utiliza la versiÛn: %s
+602:Versi—Én incorrecta: %s. Este juego utiliza la versi—Én: %s
 603:Aumentar cantidad
 604:Disminuir cantidad
 605:Guardado el juego...
-606:°%s ha sido derrotado!
+606:–é%s ha sido derrotado!
 607:Caida de jugadores
-608:El anfitriÛn dejar· caer a los jugadores pasados %d segundos
-609:El anfitriÛn permite la caida de estos jugadores
-610:El AnfitriÛn (%s) ha abandonado la partida
-611:La conexiÛn con el servidor se ha perdido. Intentar volver a conectar...
-612:øEst·s seguro que deseas salir del juego?
-613:øEst·s seguro de que deseas expulsar de forma permantente a estos jugadores?
+608:El anfitri—Én dejar–± caer a los jugadores pasados %d segundos
+609:El anfitri—Én permite la caida de estos jugadores
+610:El Anfitri—Én (%s) ha abandonado la partida
+611:La conexi—Én con el servidor se ha perdido. Intentar volver a conectar...
+612:—óEst–±s seguro que deseas salir del juego?
+613:—óEst–±s seguro de que deseas expulsar de forma permantente a estos jugadores?
 614:Cancelar
-615:Comerciar este recurso no est· disponible en esta misiÛn
+615:Comerciar este recurso no est–± disponible en esta misi—Én
 616:Planta y tala
-617:SÛlo tala
-618:No est· permitido hacer eso en tiempos de paz.
+617:S—Élo tala
+618:No est–± permitido hacer eso en tiempos de paz.
 619:Tiempo de paz restante: %s
-620:El tiempo de paz se ha terminado. °Prepara tus armas!
+620:El tiempo de paz se ha terminado. –éPrepara tus armas!
 621:Tiempo de juego:|%s
 622:Parar tropas ('%s')
 623:Unir tropas ('%s')
 624:Separar tropas ('%s')
 625:Ver Repeticiones
-626:Ver RepeticiÛn
-627:Formato no v·lido %s
-628:VersiÛn no v·lida %s
+626:Ver Repetici—Én
+627:Formato no v–±lido %s
+628:Versi—Én no v–±lida %s
 629:Modificaciones no admitidas
 630:Se ha producido un error al analizar el archivo %s
 631:iniciando
-632:guiÛn
+632:gui—Én
 633:unidades
 634:casas
-635:·rboles
+635:–±rboles
 636:definiciones
 637:conjunto de baldosas
 638:Mapa no encontrado: %s
 639:Partida guardada no encontrada: %s
-640:El archivo del mapa no corresponde con el del AnfitriÛn: %s
-641:El archivo guardado no coincide con el archivo guardado del AnfitriÛn: %s
-642:La repeticiÛn ha fallado en una comprobaciÛn de coherencia. Este es un problema conocido que afecta la reproducciÛn de algunas repeticiones. øDesea continuar viendo?
-643:SÛlo puede tener una instancia del juego en el modo multijugador a la vez
+640:El archivo del mapa no corresponde con el del Anfitri—Én: %s
+641:El archivo guardado no coincide con el archivo guardado del Anfitri—Én: %s
+642:La repetici—Én ha fallado en una comprobaci—Én de coherencia. Este es un problema conocido que afecta la reproducci—Én de algunas repeticiones. —óDesea continuar viendo?
+643:S—Élo puede tener una instancia del juego en el modo multijugador a la vez
 644:Las modificaciones en el juego no se permite en el modo multijugador |. Vuelva a instalar para restaurar los archivos originales.
-645:Se ha producido un error en la aplicaciÛn. Por favor, haga clic en Enviar informe de errores para que podamos investigar este asunto. °Gracias por su ayuda!
+645:Se ha producido un error en la aplicaci—Én. Por favor, haga clic en Enviar informe de errores para que podamos investigar este asunto. –éGracias por su ayuda!
 646:Enviar informe de errores
 647:Mostrar datos sin procesar
-648:Reanudar aplicaciÛn
-649:Finalizar aplicaciÛn
+648:Reanudar aplicaci—Én
+649:Finalizar aplicaci—Én
 650:Siguiente
 651:Detalles del contacto
 652:Su nombre: (opcional)
-653:Su correo electrÛnico: (opcional)
-654:RecuÈrdame
+653:Su correo electr—Énico: (opcional)
+654:Recu–πrdame
 655:Detalles del error
-656:øEn quÈ situaciÛn se produjo el error? øPuede proporcionar alguna informaciÛn adicional? (InglÈs preferentemente)
+656:—óEn qu–π situaci—Én se produjo el error? —óPuede proporcionar alguna informaci—Én adicional? (Ingl–πs preferentemente)
 657:Captura de pantalla
 658:Adjuntar una imagen de pantalla al informe del fallo
 659:(click para editar imagen)
@@ -666,36 +663,36 @@ MaxID:697
 662:Enviando informe del fallo...
 663:Conectando al servidor...
 664:Enviando datos...
-665:El envÌo del informe del error ha fallado! El servidor puede estar ocupado, intente enviarlo de nuevo.
-666:InformaciÛn
+665:El env–Ωo del informe del error ha fallado! El servidor puede estar ocupado, intente enviarlo de nuevo.
+666:Informaci—Én
 667:Por favor espera un momento...
 668:Salvar Mapa
 669:Retraso en minutos antes de que la AI comienza a entrenar reclutas
 670:Retraso en reclutar (minutos)
-671:Establece la direcciÛn de todas las baldosas en la superficie del agua
-672:Agua m·gica
+671:Establece la direcci—Én de todas las baldosas en la superficie del agua
+672:Agua m–±gica
 673:Copiar
 674:Pegar
 675:Pegar aplicar
 676:Cancelar pegar
 677:Voltear verticalmente
 678:Voltear horizontalmente
-679:Arrastre para seleccionar un ·rea en el mapa
-680:OpciÛn de defensa AI
+679:Arrastre para seleccionar un –±rea en el mapa
+680:Opci—Én de defensa AI
 681:Apagado
 682:Radio
 683:Eliminar revelador actual
-684:Volver a la p·gina de la revelaciÛn de la niebla
+684:Volver a la p–±gina de la revelaci—Én de la niebla
 685:Cerrado
 686:Orden de grupo
 687:Ninguno
-688:PosiciÛn de Ataque
+688:Posici—Én de Ataque
 689:Caminar a
-690:DirecciÛn
-691:Regresar lÌnea
-692:Primera lÌnea
+690:Direcci—Én
+691:Regresar l–Ωnea
+692:Primera l–Ωnea
 693:Radio de defensa
-694:Eliminar la posiciÛn actual de defensa
-695:Volver a la p·gina de defensa
-696:PosiciÛn defensiba
+694:Eliminar la posici—Én actual de defensa
+695:Volver a la p–±gina de defensa
+696:Posici—Én defensiba
 697:Unidades

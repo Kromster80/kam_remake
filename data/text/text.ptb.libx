@@ -1,10 +1,7 @@
-
-MaxID:697
-
-0:Serraria
+Ôªø0:Serraria
 1:Forja de ferro
 2:Forja de armas
-3:Mina de carv„o
+3:Mina de carv–≥o
 4:Mina de ferro
 5:Mina de ouro
 6:Cabana do pescador
@@ -12,11 +9,11 @@ MaxID:697
 8:Fazenda
 9:Lenhador
 10:Forja de armaduras
-11:ArmazÈm
-12:Est·bulos
+11:Armaz–πm
+12:Est–±bulos
 13:Escola
 14:Pedreira
-15:Casa de fundiÁ„o
+15:Casa de fundi–∑–≥o
 16:Fazenda de porcos
 17:Torre de vigia
 18:Prefeitura
@@ -25,23 +22,23 @@ MaxID:697
 21:Quartel
 22:Moinho
 23:Oficina para armas de cerco
-24:AÁougue
+24:A–∑ougue
 25:Curtume
-26:EdifÌcio de treinamento
+26:Edif–Ωcio de treinamento
 27:Pousada
 28:Vinhedo
 29:Mercado
-30:Troncos de ·rvores
+30:Troncos de –±rvores
 31:Pedras
 32:Madeira
-33:MinÈrio de ferro
-34:MinÈrio de ouro
-35:Carv„o
+33:Min–πrio de ferro
+34:Min–πrio de ouro
+35:Carv–≥o
 36:Ferro
 37:Ouro
 38:Barris de vinho
 39:Milho
-40:P„es
+40:P–≥es
 41:Farinha
 42:Couro
 43:Salsichas
@@ -53,8 +50,8 @@ MaxID:697
 49:Armadura de ferro
 50:Machado
 51:Espada
-52:LanÁa
-53:LanÁa de aÁo
+52:Lan–∑a
+53:Lan–∑a de a–∑o
 54:Arco
 55:Besta
 56:Cavalos
@@ -66,69 +63,69 @@ MaxID:697
 62:Agricultor
 63:Carpinteiro
 64:Padeiro
-65:AÁougueiro
+65:A–∑ougueiro
 66:Pescador
-67:Oper·rio
+67:Oper–±rio
 68:Pedreiro
 69:Ferreiro
-70:Metal˙rgico
+70:Metal—ärgico
 71:Recruta
-72:MilÌcia
+72:Mil–Ωcia
 73:Lutador de machado
 74:Lutador de espada
 75:Arqueiro
 76:Besteiro
 77:Lanceiro
-78:Lanceiro de aÁo
+78:Lanceiro de a–∑o
 79:Explorador
 80:Cavaleiro Real
-81:B·rbaro
+81:B–±rbaro
 82:Rebelde
 83:Trapaceiro
 84:Guerreiro
 85:Vagabundo
 86:Catapulta
 87:Balista
-88:Os servos levar„o os suprimentos de suas contruÁıes com a matÈria-prima necess·ria.||Note que deve existir uma ligaÁ„o com a estrada entre os edifÌcios
-89:Para produzir troncos de ·rvores para a serraria, vocÍ precisa de um lenhador.||O lenhador corta e planta ·rvores de forma independente.
-90:O mineiro retira minÈrio das minas de carv„o, ferro e ouro.
-91:O criador de animais usa milho para criar porcos no curral de suÌnos e cavalos nos est·bulos.
-92:O agricultor planta e colhe milho na fazenda.||Ele tambÈm produz vinho na vinÌcola.
-93:O carpinteiro trabalha na serraria, na oficina de armas e na oficina de armaduras.||Ele tambÈm constrÛi catapultas e balistas  na oficina de armas de cerco.
-94:O padeiro transforma milho em farinha no moinho.||Ele tambÈm assa p„o na padaria.
-95:O aÁougueiro faz salsichas no aÁougue e tambÈm talhos de couro no curtume.
-96:O pescador pesca peixes nas ·guas das proximidades.
-97:O trabalhador constrÛi edifÌcios e estradas. Basta destacar o seu local preferido e ele vai executar os seus comandos automaticamente.||Ele tambÈm repara edifÌcios danificados.
-98:Para suprir seus trabalhadores com material suficiente para construÁ„o de estradas e edifÌcios, o pedreiro vai cortar e lapidar pedras.
+88:Os servos levar–≥o os suprimentos de suas contru–∑—Öes com a mat–πria-prima necess–±ria.||Note que deve existir uma liga–∑–≥o com a estrada entre os edif–Ωcios
+89:Para produzir troncos de –±rvores para a serraria, voc–∫ precisa de um lenhador.||O lenhador corta e planta –±rvores de forma independente.
+90:O mineiro retira min–πrio das minas de carv–≥o, ferro e ouro.
+91:O criador de animais usa milho para criar porcos no curral de su–Ωnos e cavalos nos est–±bulos.
+92:O agricultor planta e colhe milho na fazenda.||Ele tamb–πm produz vinho na vin–Ωcola.
+93:O carpinteiro trabalha na serraria, na oficina de armas e na oficina de armaduras.||Ele tamb–πm constr—Éi catapultas e balistas  na oficina de armas de cerco.
+94:O padeiro transforma milho em farinha no moinho.||Ele tamb–πm assa p–≥o na padaria.
+95:O a–∑ougueiro faz salsichas no a–∑ougue e tamb–πm talhos de couro no curtume.
+96:O pescador pesca peixes nas –±guas das proximidades.
+97:O trabalhador constr—Éi edif–Ωcios e estradas. Basta destacar o seu local preferido e ele vai executar os seus comandos automaticamente.||Ele tamb–πm repara edif–Ωcios danificados.
+98:Para suprir seus trabalhadores com material suficiente para constru–∑–≥o de estradas e edif–Ωcios, o pedreiro vai cortar e lapidar pedras.
 99:O ferreiro forja armas e armaduras de ferro.
-100:O metal˙rgico usa carv„o para refinar ouro e minÈrio de ferro.
-101:O recruta pode ser equipado como um soldado nos quartÈis.||Ele tambÈm ocupa a torre de vigia.
-102:Para seleÁ„o dos edifÌcios
-103:Para distribuiÁ„o de mercadorias
-104:Para estatÌsticas
-105:Para opÁıes
+100:O metal—ärgico usa carv–≥o para refinar ouro e min–πrio de ferro.
+101:O recruta pode ser equipado como um soldado nos quart–πis.||Ele tamb–πm ocupa a torre de vigia.
+102:Para sele–∑–≥o dos edif–Ωcios
+103:Para distribui–∑–≥o de mercadorias
+104:Para estat–Ωsticas
+105:Para op–∑—Öes
 106:Voltar
-107:EdifÌcios|SeleÁ„o
-108:DistribuiÁ„o|de mercadorias
-109:EstatÌsticas
-110:OpÁıes
+107:Edif–Ωcios|Sele–∑–≥o
+108:Distribui–∑–≥o|de mercadorias
+109:Estat–Ωsticas
+110:Op–∑—Öes
 111:Carregar
 112:Salvar
-113:VocÍ tem certeza|de que quer terminar|esta miss„o?
-114:Terminar miss„o
+113:Voc–∫ tem certeza|de que quer terminar|esta miss–≥o?
+114:Terminar miss–≥o
 115:Voltar
-116:ConfiguraÁıes
+116:Configura–∑—Öes
 118:SFX
 119:Alterar o Volume
 120:Alterar o Volume
-121:M˙sica
-122:Ligar/desligar m˙sica
+121:M—äsica
+122:Ligar/desligar m—äsica
 123:Salvar automaticamente
-124:Reprodutor de m˙sica
+124:Reprodutor de m—äsica
 125:Faixa anterior
-126:PrÛxima faixa
+126:Pr—Éxima faixa
 127:Demolir
-128:Remover EdifÌcios
+128:Remover Edif–Ωcios
 129:Construir rua
 130:Construir ruas
 131:Arar campo
@@ -138,27 +135,27 @@ MaxID:697
 135:Cancelar
 136:Cancelar treinamento atual
 137:Necessidades:
-139:CondiÁ„o:
+139:Condi–∑–≥o:
 140:Estoque
-141:Casa em|construÁ„o
+141:Casa em|constru–∑–≥o
 142:Destruir
-143:VocÍ quer realmente|demolir esta construÁ„o?
-144:Destruir edifÌcio selecionado
+143:Voc–∫ quer realmente|demolir esta constru–∑–≥o?
+144:Destruir edif–Ωcio selecionado
 145:Diminuir valor do pedido
 146:Aumentar valor do pedido
 147:Tipo de soldado anterior
-148:PrÛximo tipo de soldado
+148:Pr—Éximo tipo de soldado
 149:Equipar tipo de soldado atual
-150:PrÛxima profiss„o
-151:Profiss„o anterior
-152:Adicionar ‡ fila
+150:Pr—Éxima profiss–≥o
+151:Profiss–≥o anterior
+152:Adicionar –∞ fila
 153:ativar/desativar entrega de mercadorias
 154:Custo:
 155:ativar/desativar reparo da casa
-156:EdifÌcio n„o disponÌvel no momento
-157:CondiÁ„o
-158:Virar tropa ‡ esquerda
-159:Virar tropa ‡ direita
+156:Edif–Ωcio n–≥o dispon–Ωvel no momento
+157:Condi–∑–≥o
+158:Virar tropa –∞ esquerda
+159:Virar tropa –∞ direita
 160:Atacar ('a')
 161:Enviar tropa ('d')
 162:Alimentar tropa
@@ -170,16 +167,16 @@ MaxID:697
 168:Excluir
 169:Excluir mensagem atual
 170:Ir para
-171:Ir para a posiÁ„o atual da mensagem
+171:Ir para a posi–∑–≥o atual da mensagem
 172:Fechar
 173:Fechar janela
-174:O seu pedreiro n„o consegue mais alcanÁar nenhuma reserva de pedra.
-175:Sua mina de carv„o se esgotou.
+174:O seu pedreiro n–≥o consegue mais alcan–∑ar nenhuma reserva de pedra.
+175:Sua mina de carv–≥o se esgotou.
 176:Sua mina de ferro se esgotou.
 177:Sua mina de ouro se esgotou.
-178:Seu lenhador n„o consegue mais encontrar ·rvores para cortar e foi instruÌdo a n„o plantar mais ·rvores
-179:Esta casa n„o est· ocupada.
-180:Esta tropa est· realmente com fome, È melhor eles se alimentarem logo!
+178:Seu lenhador n–≥o consegue mais encontrar –±rvores para cortar e foi instru–Ωdo a n–≥o plantar mais –±rvores
+179:Esta casa n–≥o est–± ocupada.
+180:Esta tropa est–± realmente com fome, –π melhor eles se alimentarem logo!
 181:PAUSAR
 182:Transportando
 183:Construindo Estrada
@@ -202,20 +199,20 @@ MaxID:697
 200:Cultivando milho
 201:Cultivando uvas
 202:Pescando
-203:Cortando ·rvore
-204:Plantando ·rvore
-205:EspÌrito
+203:Cortando –±rvore
+204:Plantando –±rvore
+205:Esp–Ωrito
 206:Ocupado
-207:Chifre da idade mÈdia
+207:Chifre da idade m–πdia
 208:Primavera
-209:Ala˙de
-210:Mercen·rio
+209:Ala—äde
+210:Mercen–±rio
 211:A Princesa
 212:A Rainha
 213:No mercado
 214:No campo de batalha
-215:DanÁa da corte
-216:O ExÈrcito
+215:Dan–∑a da corte
+216:O Ex–πrcito
 217:No Castelo
 218:Fanfarras
 219:Na Corte
@@ -228,61 +225,61 @@ MaxID:697
 226:Jornada
 227:Campanhas
 229:Iniciar Campanha!
-230:Jogar um Mapa ⁄nico
+230:Jogar um Mapa –™nico
 231:Iniciar Mapa
 232:Voltar ao Menu
 233:Carregar um jogo salvo
 234:Multi-jogador
-235:OpÁıes
-236:CrÈditos
+235:Op–∑—Öes
+236:Cr–πditos
 237:Encerrar Aplicativo
 238:Continuar
-239:Reiniciar Miss„o
-240:ResoluÁ„o:
-241:N„o suportado
-242:N„o suportado
-243:VIT”RIA!
+239:Reiniciar Miss–≥o
+240:Resolu–∑–≥o:
+241:N–≥o suportado
+242:N–≥o suportado
+243:VIT–£RIA!
 244:PERDEU!
 245:Unidades perdidas:
 246:Unidades derrotadas:
-247:EdifÌcios perdidos:
-248:EdifÌcios destruÌdos:
-249:EdifÌcios construÌdos:
+247:Edif–Ωcios perdidos:
+248:Edif–Ωcios destru–Ωdos:
+249:Edif–Ωcios constru–Ωdos:
 250:Unidades treinadas:
 251:Armas produzidas:
 252:Soldados treinados:
-253:Miss„o completada em:
-254:EstatÌsticas
+253:Miss–≥o completada em:
+254:Estat–Ωsticas
 255:Economia
-256:Aldeıes|treinados
-257:Aldeıes|perdidos
+256:Alde—Öes|treinados
+257:Alde—Öes|perdidos
 258:Soldados|equipados
 259:Soldados|perdidos
 260:Soldados|derrotados
-261:EdifÌcios|construÌdos
-262:EdifÌcios|perdidos
-263:EdifÌcios|destruÌdos
+261:Edif–Ωcios|constru–Ωdos
+262:Edif–Ωcios|perdidos
+263:Edif–Ωcios|destru–Ωdos
 264:Mercadoria| produzida
 265:Armas|Produzidas
-266:ExÈrcito
-267:Aldeıes
+266:Ex–πrcito
+267:Alde—Öes
 268:Casas
 269:Recursos
 270:Recursos Produzidos
-272:VocÍ
+272:Voc–∫
 273:Jogador %d
-279:JOYMANIA ENTERTAINMENT||PROGRAMADOR:|Peter Ohlmann||EFEITOS GR¡FICOS:|Adam Sprys||DESIGN DE LEVELS:|Adam Sprys|Andre Quaﬂ||EDI«√O E MIXAGEM DE SOM:|Tonstudio Mannheim||MUSICAS:|Gerd Hofmann|Joachim Sch‰fer|J¸rgen Rebhann|Klaus Staendike|Steffen Sch¸ngel||ILUSTRA«’ES:|Boleslaw Kasza|Christoph Werner||ZUXXEZ ENTERTAINMENT AG||PRODU«√O:|Uwe Sch‰fer||MANUAL:|Peter Ohlmann|Uwe Sch‰fer||BETA TESTING:|Peter Ohlmann|Adam Sprys|Alexandra Constandache|Dirk P. Hassinger|Achim Heidelauf|Uwe Sch‰fer|Ingrid Sch‰fer|Dirk U. Jantz|Ion Constandache|Yaman Egeli|Roman Eich|Iris Mocsnek|Anke Jantz|Paul Hassinger|Liza Hassinger||DIRETOR GERAL:|Achim Heidelauf||PUBLICADO POR:|TopWare Interactive||DIRE«√O DE CUTSCENES:|Slawomir Jedrzejewski||Kajetan Czarnecki|Wojciech Drazek|Daniel Duplaga|Rafal Januszkiewicz|Andrzej Rams|Piotr Rulka|Krzysztof Rybczynski|Grzegorz Wisniwski||VOZES:|Claus Boyen (Storyteller)||Tim Timmermann|Peter Houska|Dirk M¸hlbach|Ralf Ditze|Gerhard Piske|Gernot Wassmann||TRABALHO DE ARTES:|Boleslaw Kasza|Adam Sprys||ANIMA«√O INICIAL:|Uwe Sch‰fer|Christian Bigalk|Additional 3D-Modelling:|Niels Horstmann||AGRADECIMENTOS ESPECIAIS:|Tadeusz Zuber|Dieter Ohlmann|Alexandra Constandache|Ingrid Sch‰fer|Andrea Rumpelt
-280:Miss„o cancelada
+279:JOYMANIA ENTERTAINMENT||PROGRAMADOR:|Peter Ohlmann||EFEITOS GR–ëFICOS:|Adam Sprys||DESIGN DE LEVELS:|Adam Sprys|Andre Qua–Ø||EDI–ó–ìO E MIXAGEM DE SOM:|Tonstudio Mannheim||MUSICAS:|Gerd Hofmann|Joachim Sch–¥fer|J—årgen Rebhann|Klaus Staendike|Steffen Sch—ångel||ILUSTRA–ó–•ES:|Boleslaw Kasza|Christoph Werner||ZUXXEZ ENTERTAINMENT AG||PRODU–ó–ìO:|Uwe Sch–¥fer||MANUAL:|Peter Ohlmann|Uwe Sch–¥fer||BETA TESTING:|Peter Ohlmann|Adam Sprys|Alexandra Constandache|Dirk P. Hassinger|Achim Heidelauf|Uwe Sch–¥fer|Ingrid Sch–¥fer|Dirk U. Jantz|Ion Constandache|Yaman Egeli|Roman Eich|Iris Mocsnek|Anke Jantz|Paul Hassinger|Liza Hassinger||DIRETOR GERAL:|Achim Heidelauf||PUBLICADO POR:|TopWare Interactive||DIRE–ó–ìO DE CUTSCENES:|Slawomir Jedrzejewski||Kajetan Czarnecki|Wojciech Drazek|Daniel Duplaga|Rafal Januszkiewicz|Andrzej Rams|Piotr Rulka|Krzysztof Rybczynski|Grzegorz Wisniwski||VOZES:|Claus Boyen (Storyteller)||Tim Timmermann|Peter Houska|Dirk M—åhlbach|Ralf Ditze|Gerhard Piske|Gernot Wassmann||TRABALHO DE ARTES:|Boleslaw Kasza|Adam Sprys||ANIMA–ó–ìO INICIAL:|Uwe Sch–¥fer|Christian Bigalk|Additional 3D-Modelling:|Niels Horstmann||AGRADECIMENTOS ESPECIAIS:|Tadeusz Zuber|Dieter Ohlmann|Alexandra Constandache|Ingrid Sch–¥fer|Andrea Rumpelt
+280:Miss–≥o cancelada
 281:Fim do replay
 282:Tutorial da cidade
 283:Tutorial de batalha
-284:⁄nico jogador
+284:–™nico jogador
 285:Editor de Mapas
-286:Iniciar Miss„o
-287:TÌtulo
+286:Iniciar Miss–≥o
+287:T–Ωtulo
 288:Tamanho
-289:CondiÁ„o para ganhar:
-290:CondiÁ„o para a derrota:
+289:Condi–∑–≥o para ganhar:
+290:Condi–∑–≥o para a derrota:
 291:Aliados:
 292:Inimigos:
 293:Tempo
@@ -290,13 +287,13 @@ MaxID:697
 295:Largura
 296:Altura
 297:Criar novo mapa
-298:Mapas disponÌveis
+298:Mapas dispon–Ωveis
 299:Carregar um mapa existente
 301:Controles:
 302:Em jogo:
 303:Som:
-304:Desativar m˙sica
-305:Gr·ficos:
+304:Desativar m—äsica
+305:Gr–±ficos:
 306:Brilho
 308:Tela Cheia
 309:Aplicar
@@ -309,50 +306,50 @@ MaxID:697
 316:Carregando novo local
 317:Lista de jogos salvos
 318:Nome de arquivo
-319:DescriÁ„o
+319:Descri–∑–≥o
 320:Carregar
 321:Deletar
-322:VocÍ quer mesmo deletar este jogo salvo?
+322:Voc–∫ quer mesmo deletar este jogo salvo?
 323:Deletar
 324:Cancelar
-325:TÌtulo
+325:T–Ωtulo
 326:Mapas
 327:Desbloqueado
-328:VocÍ venceu!
+328:Voc–∫ venceu!
 329:Continuar jogando
-330:VitÛria!
-331:VocÍ perdeu!
+330:Vit—Éria!
+331:Voc–∫ perdeu!
 332:Continuar assistindo
 333:Derrotado
 334:Replay acabou
 335:Continuar assistindo
 336:Sair para o Menu
-337:IndisponÌvel
+337:Indispon–Ωvel
 338:Pressione %s para continuar o jogo
-339:InformaÁıes dos jogadores
+339:Informa–∑—Öes dos jogadores
 340:Bate-papo
-341:J· existe um jogo salvo
+341:J–± existe um jogo salvo
 342:Sobrescrever
 343:Salvar
 344:Carregar
-345:Uma vers„o antiga do OpenGL foi detectada, o jogo poder· apresentar falhas gr·ficas
-346:Por favor atualize os seus drivers gr·ficos para ter um melhor desempenho
+345:Uma vers–≥o antiga do OpenGL foi detectada, o jogo poder–± apresentar falhas gr–±ficas
+346:Por favor atualize os seus drivers gr–±ficos para ter um melhor desempenho
 347:Erro de rede
-348:Erro: Nome do jogador n„o pode ficar em branco
+348:Erro: Nome do jogador n–≥o pode ficar em branco
 349:Erro: Jogador %d tem um nome muito longo
-350:Erro: Jogador contÈm caracteres ilegais
-351:Conex„o falhou: %s
-352:VocÍ foi desconectado
-353:Miss„o %d
-355:A cabana do seu pescador est· muito longe da ·gua.
-356:Seu pescador n„o consegue mais pescar nenhum peixe nas ·guas prÛximas.
+350:Erro: Jogador cont–πm caracteres ilegais
+351:Conex–≥o falhou: %s
+352:Voc–∫ foi desconectado
+353:Miss–≥o %d
+355:A cabana do seu pescador est–± muito longe da –±gua.
+356:Seu pescador n–≥o consegue mais pescar nenhum peixe nas –±guas pr—Éximas.
 357:Reiniciar replay
 358:Pausar replay
-359:AvanÁar um marco
+359:Avan–∑ar um marco
 360:Continuar replay pausado
 361:Sair do replay
-364:Use o bot„o esquerdo do mouse para selecionar a mercadoria a ser trocada(enviada).
-365:Use o bot„o direito do mouse para selecionar a mercadoria a ser trocada(recebida)
+364:Use o bot–≥o esquerdo do mouse para selecionar a mercadoria a ser trocada(enviada).
+365:Use o bot–≥o direito do mouse para selecionar a mercadoria a ser trocada(recebida)
 366:De x%d
 367:Para x%d
 368:Editar terreno
@@ -364,24 +361,24 @@ MaxID:697
 375:Tamanho
 376:Arraste para mudar o tamanho da escova
 377:Subida
-378:Arraste para mudar a elevaÁ„o da subida: 1-planalto 15-pico
+378:Arraste para mudar a eleva–∑–≥o da subida: 1-planalto 15-pico
 379:Velocidade
-380:Arraste para alterar a velocidade da elevaÁ„o 1 = devagar ... 15 = muito r·pido
+380:Arraste para alterar a velocidade da eleva–∑–≥o 1 = devagar ... 15 = muito r–±pido
 381:Escova circular
 382:Escova quadrada
 383:Elevar/Abaixar
 384:Desnivelar/Aplainar
-385:Elevar(bot„o esquerdo)/Abaixar(bot„o direito)
-386:Desnivelar(bot„o esquerdo)/Aplainar(bot„o direito)
-389:DireÁ„o aleatÛria
-390:Manter direÁ„o aleatÛria do piso ou clique com o bot„o direito para girar o piso selecionado
-391:Clique com o bot„o direito para girar o piso selecionado
+385:Elevar(bot–≥o esquerdo)/Abaixar(bot–≥o direito)
+386:Desnivelar(bot–≥o esquerdo)/Aplainar(bot–≥o direito)
+389:Dire–∑–≥o aleat—Éria
+390:Manter dire–∑–≥o aleat—Éria do piso ou clique com o bot–≥o direito para girar o piso selecionado
+391:Clique com o bot–≥o direito para girar o piso selecionado
 393:Remover objeto
 394:Planejamento da vila
 395:Roteiro visual
 396:Roteiro global
 397:Menu
-499:Nova Miss„o
+499:Nova Miss–≥o
 500:Nome do jogador
 501:Estado:
 502:Criar servidor
@@ -393,7 +390,7 @@ MaxID:697
 508:Cancelar
 509:Procurar servidor por IP
 510:PROCURAR SERVIDOR
-511:EndereÁo
+511:Endere–∑o
 512:Porta
 513:Sala
 514:Conectar
@@ -407,7 +404,7 @@ MaxID:697
 524:Lista de jogadores:
 525:Entrar
 526:Conectando, por favor aguarde...
-527:Carregando an˙ncios...
+527:Carregando an—äncios...
 528:Recarregando...
 529:Lista de Jogadores
 530:Iniciar local
@@ -418,7 +415,7 @@ MaxID:697
 536:Aberto
 537:Jogador CPU
 538:Selecionar..
-539:AleatÛrio
+539:Aleat—Ério
 540:Nenhum
 541:Jogo Salvo
 542:Selecionar um mapa...
@@ -429,34 +426,34 @@ MaxID:697
 547:Iniciar!
 561:Lugar %d
 562:Erro: Por favor,  selecione um jogador do salvo para controlar
-563:Erro: Falha no mapa ou mapa n„o carregado
-564:N„o È possÌvel iniciar: %s
-565:Alguns jogadores n„o est„o prontos para iniciar
-567:O servidor atribuiu direitos de hospedagem para nÛs
+563:Erro: Falha no mapa ou mapa n–≥o carregado
+564:N–≥o –π poss–Ωvel iniciar: %s
+565:Alguns jogadores n–≥o est–≥o prontos para iniciar
+567:O servidor atribuiu direitos de hospedagem para n—És
 568:O jogo iniciou
-569:Mapa de construÁ„o
+569:Mapa de constru–∑–≥o
 570:Mapa de luta
 571:Mapa cooperativo
-573:OpÁıes do Jogo:
+573:Op–∑—Öes do Jogo:
 574:Tempo de paz (Minutos)
 575:Fechado
-576:Administrador faz configuraÁ„o do jogo
+576:Administrador faz configura–∑–≥o do jogo
 577:Aguardando jogadores:
-580:CrÈditos do KaM Remake
-581:CrÈditos Originais do Knights & Merchants
+580:Cr–πditos do KaM Remake
+581:Cr–πditos Originais do Knights & Merchants
 582:PROGRAMADORES:
 583:PROGRAMADORES ADICIONAIS:
-584:GR¡FICOS ADICIONAIS:
+584:GR–ëFICOS ADICIONAIS:
 585:SONS ADICIONAIS:
-586:M⁄SICA ADICIONAL
-587:TRADU«’ES ADICIONAIS:
+586:M–™SICA ADICIONAL
+587:TRADU–ó–•ES ADICIONAIS:
 588:AGRADECIMENTOS ESPECIAIS:
 589:Mapas multi-jogador
 590:Mapas singleplayer
 591:Velocidade do Rolamento
-592:Sem servidores! Verifique|a conex„o com a internet.
+592:Sem servidores! Verifique|a conex–≥o com a internet.
 593:Misturar as faixas
-594:InformaÁ„o do jogo:
+594:Informa–∑–≥o do jogo:
 595:-
 596:Aguardando
 597:Carregando
@@ -464,69 +461,69 @@ MaxID:697
 599:Construir e lutar
 600:Lutar
 601:Pronto
-602:Vers„o do protocolo errado: %s. Servidor usa: %s
-603:Aumentar a quantidade de comÈrcio
-604:Diminuir a quantidade de comÈrcio
+602:Vers–≥o do protocolo errado: %s. Servidor usa: %s
+603:Aumentar a quantidade de com–πrcio
+604:Diminuir a quantidade de com–πrcio
 605:Salvando Jogo...
 606:%s foi derrotado!
 607:Retirar Jogadores
 608:O administrador pode retirar o jogador depois de %d segundos
 609:O administrador pode agora descartar os jogadores:
 610:O administrador (%s) saiu do jogo
-611:A conex„o com o servidor foi perdida. Tentando se reconectar...
-612:VocÍ tem certeza que quer sair?
-613:VocÍ tem certeza que quer tirar este jogador permanentemente?
+611:A conex–≥o com o servidor foi perdida. Tentando se reconectar...
+612:Voc–∫ tem certeza que quer sair?
+613:Voc–∫ tem certeza que quer tirar este jogador permanentemente?
 614:Cancelar
-615:Este recurso n„o est· disponÌvel nesta miss„o
+615:Este recurso n–≥o est–± dispon–Ωvel nesta miss–≥o
 616:Plantar e cortar
 617:Somente cortar
-618:VocÍ est· em tempo de paz. N„o pode usar soldados!
+618:Voc–∫ est–± em tempo de paz. N–≥o pode usar soldados!
 619:Tempo de paz faltando: %s
-620:O tempo de paz acabou. ¿s armas!
+620:O tempo de paz acabou. –ês armas!
 621:Tempo do jogo:|%s
 622:Parar tropa ('%s')
 623:Juntar tropa ('%s')
 624:Separar tropa ('%s')
 625:Ver replays
 626:Ver Replay
-627:Formato n„o suportado %s
-628:Vers„o n„o suportada %s
-629:ModificaÁıes n„o suportadas
+627:Formato n–≥o suportado %s
+628:Vers–≥o n–≥o suportada %s
+629:Modifica–∑—Öes n–≥o suportadas
 630:Um erro aconteceu com o arquivo: %s
 631:Inicializando
 632:Roteiro
 633:unidades
 634:Casas
-635:¡rvores
-636:DefiniÁıes
+635:–ërvores
+636:Defini–∑—Öes
 637:Def. texturas
-638:Mapa n„o encontrado: %s
-639:Salvo n„o encontrado: %s
-640:Arquivo do mapa n„o coincide com o administrador para o : %s
-641:Arquivo de Salvo n„o coincide com o administrador para o: %s
-642:O replay falhou em uma verificaÁ„o de consistÍncia. Este È um bug conhecido, que afeta a reproduÁ„o de alguns replays. VocÍ quer continuar a ver?
-643:VocÍ sÛ pode ter uma inst‚ncia do jogo no modo multi-jogador cada vez
-644:ModificaÁıes para o jogo n„o s„o permitidas no modo multi-jogador.|Reinstale para restaurar os arquivos originais.
-645:Ocorreu um erro na aplicaÁ„o. Por favor, clique em Enviar relatÛrio de erros para que possamos investigar esta quest„o. Obrigado por sua ajuda!
-646:Enviar relatÛrio de erros
+638:Mapa n–≥o encontrado: %s
+639:Salvo n–≥o encontrado: %s
+640:Arquivo do mapa n–≥o coincide com o administrador para o : %s
+641:Arquivo de Salvo n–≥o coincide com o administrador para o: %s
+642:O replay falhou em uma verifica–∑–≥o de consist–∫ncia. Este –π um bug conhecido, que afeta a reprodu–∑–≥o de alguns replays. Voc–∫ quer continuar a ver?
+643:Voc–∫ s—É pode ter uma inst–≤ncia do jogo no modo multi-jogador cada vez
+644:Modifica–∑—Öes para o jogo n–≥o s–≥o permitidas no modo multi-jogador.|Reinstale para restaurar os arquivos originais.
+645:Ocorreu um erro na aplica–∑–≥o. Por favor, clique em Enviar relat—Ério de erros para que possamos investigar esta quest–≥o. Obrigado por sua ajuda!
+646:Enviar relat—Ério de erros
 647:Mostrar Dados Brutos
 648:Continuar aplicativo
 649:Encerrar aplicativo
-650:PrÛximo
+650:Pr—Éximo
 651:Detalhes do contato
 652:Seu nome: (Opcional)
 653:Seu e-mail:(Opcional)
 654:Lembre-me
 655:Detalhes do erro
-656:Em qual situaÁ„o ocorreu o erro? VocÍ pode nos fornecer alguma informaÁ„o adicional? (em inglÍs, preferencialmente)
+656:Em qual situa–∑–≥o ocorreu o erro? Voc–∫ pode nos fornecer alguma informa–∑–≥o adicional? (em ingl–∫s, preferencialmente)
 657:Screenshot
-658:Anexar uma imagem para o relatÛrio de bug
+658:Anexar uma imagem para o relat—Ério de bug
 659:(Clique para editar a imagem)
-660:Enviar relatÛrio
+660:Enviar relat—Ério
 661:Cancelar
-662:Enviando relatÛrio de erros...
+662:Enviando relat—Ério de erros...
 663:Conectando-se ao servidor...
 664:Enviando dados ...
-665:O envio do relatÛrio de acidente falhou! Nosso servidor pode estar ocupado, por favor, tente enviar novamente.
-666:InformaÁ„o
+665:O envio do relat—Ério de acidente falhou! Nosso servidor pode estar ocupado, por favor, tente enviar novamente.
+666:Informa–∑–≥o
 667:Por favor, espere um momento...

@@ -335,15 +335,14 @@ begin
   if IsValid then
     //Result := GetEnumName(TypeInfo(TUnitType), Integer(fUnitType))
     case fUnitType of
-      ut_Wolf:        Result := 'Wolf';
-      ut_Fish:        Result := 'Fish';
-      ut_Watersnake:  Result := 'Watersnake';
-      ut_Seastar:     Result := 'Seastar';
-      ut_Crab:        Result := 'Crab';
-      ut_Waterflower: Result := 'Waterflower';
-      ut_Waterleaf:   Result := 'Waterleaf';
-      ut_Duck:        Result := 'Duck';
-      //todo: Add to TextLib
+      ut_Wolf:        Result := gResTexts[TX_UNITS_WOLF];
+      ut_Fish:        Result := gResTexts[TX_UNITS_FISH];
+      ut_Watersnake:  Result := gResTexts[TX_UNITS_WATERSNAKE];
+      ut_Seastar:     Result := gResTexts[TX_UNITS_SEASTAR];
+      ut_Crab:        Result := gResTexts[TX_UNITS_CRAB];
+      ut_Waterflower: Result := gResTexts[TX_UNITS_WATERFLOWER];
+      ut_Waterleaf:   Result := gResTexts[TX_UNITS_WATERLEAF];
+      ut_Duck:        Result := gResTexts[TX_UNITS_DUCK];
       else            Result := gResTexts[TX_UNITS_NAMES__29 + UnitTypeToIndex[fUnitType]];
     end
   else
@@ -362,7 +361,8 @@ end;
 
 { TKMUnitsDatCollection }
 constructor TKMUnitDatCollection.Create;
-var U:TUnitType;
+var
+  U: TUnitType;
 begin
   inherited;
 

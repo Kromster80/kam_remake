@@ -41,7 +41,7 @@
 		</PropertyGroup>
 		<PropertyGroup Condition="'$(Base)'!=''">
 			<Manifest_File>None</Manifest_File>
-			<DCC_UnitSearchPath>..\..\;..\..\src;..\..\src\gui;..\..\src\houses;..\..\src\res;..\..\src\units;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
+			<DCC_UnitSearchPath>..\..\;..\..\src;..\..\src\gui;..\..\src\houses;..\..\src\res;..\..\src\units;..\..\Common;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
 			<Icon_MainIcon>TranslationManager_Icon.ico</Icon_MainIcon>
 			<DCC_SymbolReferenceInfo>1</DCC_SymbolReferenceInfo>
 			<VerInfo_Locale>3081</VerInfo_Locale>

@@ -1,14 +1,11 @@
-
-MaxID:697
-
-0:Saekaater
+ï»¿0:Saekaater
 1:Sepikoda
 2:Relva sepikoda
-3:Söekaevandus
+3:SÑ†ekaevandus
 4:Rauakaevandus
 5:Kullakaevandus
 6:Kaluri onn
-7:Pagariäri
+7:PagariĞ´ri
 8:Talu
 9:Puuraiduri onn
 10:Raudturvise sepikoda
@@ -25,10 +22,10 @@ MaxID:697
 21:Kasarmu
 22:Veski
 23:Vallutusseadmetekoda
-24:Lihunikuäri
+24:LihunikuĞ´ri
 25:Nahaparkimiskoda
 26:Treening saal
-27:Kõrts
+27:KÑ…rts
 28:Viinamarjaistandus
 29:Turuplats
 30:Puu palk
@@ -36,10 +33,10 @@ MaxID:697
 32:Laudpuit
 33:Raua maak
 34:Kulla maak
-35:Süsi
+35:SÑŒsi
 36:Raud
 37:Kuld
-38:Veini tünnid
+38:Veini tÑŒnnid
 39:Rukkis
 40:Leivad
 41:Jahu
@@ -51,18 +48,18 @@ MaxID:697
 47:Raudkilp
 48:Nahkturvis
 49:Raudturvis
-50:Käsikirves
-51:Mõõk
+50:KĞ´sikirves
+51:MÑ…Ñ…k
 52:Oda
 53:Piik
 54:Vibu
 55:Amb
 56:Hobused
 57:Kala
-58:Pärisori
+58:PĞ´risori
 59:Puuraidur
 60:Kaevur
-61:Tõuaretaja
+61:TÑ…uaretaja
 62:Talupoeg
 63:Puusepp
 64:Pagar
@@ -73,178 +70,178 @@ MaxID:697
 69:Sepp
 70:Kullassepp
 71:Nekrut
-72:Rahvaväelane
+72:RahvavĞ´elane
 73:Kirve kandja
-74:Mõõga kandja
-75:Vibukütt
+74:MÑ…Ñ…ga kandja
+75:VibukÑŒtt
 76:Ambur
 77:Oda kandja
 78:Piigi kandja
 79:Skaut
-80:Rüütel
+80:RÑŒÑŒtel
 81:Barbar
-82:Mässaja
+82:MĞ´ssaja
 83:Kelm
-84:Sõdalane
-85:Hulkur sõdalane
+84:SÑ…dalane
+85:Hulkur sÑ…dalane
 86:Katapult
 87:Ballista
-88:Pärisori veab laiali kaubad ja resursse.||Majad peavad olema ühendatud teedega.
+88:PĞ´risori veab laiali kaubad ja resursse.||Majad peavad olema ÑŒhendatud teedega.
 89:Palkide tootmiseks saekaatrile, on Teil vaja puuraidurit.||Puuraidur taasistutab metsa ise.
-90:Kaevandaja kaevab süsi, raua ja kulla maake kaevandustes.
-91:Tõuaretaja kasutab rukkist, et kasvatada sigu sealaudas ja hobuseid tallides.
-92:Talupoeg istutab ja korjab rukkist põllul.||Lisaks toodab ta veel veini veiniistanduses.
-93:Puusepp tötab seakaatris, relvakojas ja Turvisekoda.||Lisaks ta ehitab katapulte ja balistasid vallutusseadmetekojas.
-94:Pagar jahvatab rukkise jahuks.||Lisaks küpsetab leiba pagariäris.
-95:Lihunik teeb vorste lihunikuäris ja parknahka nahaparkimiskojas.
-96:Kalamees püüab kalu lähedal asuvatest vetest.
-97:Ehitaja ehitab maju ja teesid. Lihtsalt märgi ehitus objekti asukoht ja ehitaja tegutseb automaatselt.||Ta parandab ka kahjustatud majasid.
-98:Ehitajate varustamiseks on vajalik kiviraidur, kes lõikab kivid õigesse suurusesse.
-99:Sepp sepistab raudrelvasid ja raudrüüsid relva ja raudturvise sepikodades.
-100:Kullassepp kasutab sütt kulla ja raua maagi töötlemiseks.
-101:Nekrutit saab varustada kasarmus.||Lisaks töötab ta vahitornis.
+90:Kaevandaja kaevab sÑŒsi, raua ja kulla maake kaevandustes.
+91:TÑ…uaretaja kasutab rukkist, et kasvatada sigu sealaudas ja hobuseid tallides.
+92:Talupoeg istutab ja korjab rukkist pÑ…llul.||Lisaks toodab ta veel veini veiniistanduses.
+93:Puusepp tÑ†tab seakaatris, relvakojas ja Turvisekoda.||Lisaks ta ehitab katapulte ja balistasid vallutusseadmetekojas.
+94:Pagar jahvatab rukkise jahuks.||Lisaks kÑŒpsetab leiba pagariĞ´ris.
+95:Lihunik teeb vorste lihunikuĞ´ris ja parknahka nahaparkimiskojas.
+96:Kalamees pÑŒÑŒab kalu lĞ´hedal asuvatest vetest.
+97:Ehitaja ehitab maju ja teesid. Lihtsalt mĞ´rgi ehitus objekti asukoht ja ehitaja tegutseb automaatselt.||Ta parandab ka kahjustatud majasid.
+98:Ehitajate varustamiseks on vajalik kiviraidur, kes lÑ…ikab kivid Ñ…igesse suurusesse.
+99:Sepp sepistab raudrelvasid ja raudrÑŒÑŒsid relva ja raudturvise sepikodades.
+100:Kullassepp kasutab sÑŒtt kulla ja raua maagi tÑ†Ñ†tlemiseks.
+101:Nekrutit saab varustada kasarmus.||Lisaks tÑ†Ñ†tab ta vahitornis.
 102:Majade valikusse
 103:Kaupade jaguneminemisse
 104:Statistikasse
-105:Sättetesse
+105:SĞ´ttetesse
 106:Tagasi minek
 107:Maja|Valik
 108:Kaupade|jagunemine
 109:Statistika
-110:Sätted
-111:Lae Mäng
-112:Salvesta Mäng
+110:SĞ´tted
+111:Lae MĞ´ng
+112:Salvesta MĞ´ng
 113:Oled kindel,|et tahad lahkuda |sellest missioonist?
-114:Lõpeta Missioon
+114:LÑ…peta Missioon
 115:Mine tagasi
-116:Sätted
-118:Ümbruskonna heli
+116:SĞ´tted
+118:Ğ¬mbruskonna heli
 119:Muuda helitugevust
 120:Muuda helitugevust
 121:Muusika
 122:Muusika lahti/kinni
 123:Automaatsalvestis
-124:Muusika Mängija
+124:Muusika MĞ´ngija
 125:Eelmine lugu
 126:Uus lugu
 127:Lammuta
-128:Eemalda ehitised/väljatoodud
+128:Eemalda ehitised/vĞ´ljatoodud
 129:Ehita tee
 130:Ehita teed
-131:Künna põldu
-132:Künna põldusid
-133:Määra viinamarjapõld
-134:Määra viinamarjapõllud
-135:Tühista
-136:Tühista hetkeline treening
+131:KÑŒnna pÑ…ldu
+132:KÑŒnna pÑ…ldusid
+133:MĞ´Ğ´ra viinamarjapÑ…ld
+134:MĞ´Ğ´ra viinamarjapÑ…llud
+135:TÑŒhista
+136:TÑŒhista hetkeline treening
 137:Vaja minev:
 139:Olek:
 140:Valmistab:
 141:Maja|ehitamisel
-142:Hävita
+142:HĞ´vita
 143:Kas oled kindel et soovid |lammutada seda maja?
-144:Hävita valitud maja
-145:Vähenda tellimuse arv
+144:HĞ´vita valitud maja
+145:VĞ´henda tellimuse arv
 146:Suurenda tellimuse arv
-147:Eelmine sõduri tüüp
-148:Järgmine sõduri tüüp
-149:Varusta hetke sõduri tüüp
-150:Järgmine amet
+147:Eelmine sÑ…duri tÑŒÑŒp
+148:JĞ´rgmine sÑ…duri tÑŒÑŒp
+149:Varusta hetke sÑ…duri tÑŒÑŒp
+150:JĞ´rgmine amet
 151:Eelmine amet
-152:Lisa järjekorda
+152:Lisa jĞ´rjekorda
 153:Luba/keela kauba vedu
 154:Hind:
 155:Luba/keela maja parandus
 156:Maja ei ole saadaval hetkel
 157:Olek
-158:Keera sõdur vasakule
-159:Keera sõdur paremale
-160:Ründa ('a')
-161:Saada sõdur ('d')
+158:Keera sÑ…dur vasakule
+159:Keera sÑ…dur paremale
+160:RÑŒnda ('a')
+161:Saada sÑ…dur ('d')
 162:Varusta toiduga
-163:Välkrünnak
+163:VĞ´lkrÑŒnnak
 164:Lisa rida
-165:Vähenda rida
+165:VĞ´henda rida
 166:Valige|grupp
-167:Tühista
+167:TÑŒhista
 168:Kustuta
-169:Kustuta hetke sõnumi
+169:Kustuta hetke sÑ…numi
 170:Mine
-171:Liigub hetkese sõnumi kohani
+171:Liigub hetkese sÑ…numi kohani
 172:Sulge
 173:Sulgeb akna
-174:Sinu kiviraidur ei pääse kivini.
-175:Sinu söekaevanduses on süsi lõppenud.
-176:Sinu rauakaevanduses on raud lõppenud.
-177:Sinu kullakaevanduses on kuld lõppenud.
+174:Sinu kiviraidur ei pĞ´Ğ´se kivini.
+175:Sinu sÑ†ekaevanduses on sÑŒsi lÑ…ppenud.
+176:Sinu rauakaevanduses on raud lÑ…ppenud.
+177:Sinu kullakaevanduses on kuld lÑ…ppenud.
 179:See maja on asustamatta.
-180:Sinu sõdurid on väga näljased, anna neile midagi süüa!
+180:Sinu sÑ…durid on vĞ´ga nĞ´ljased, anna neile midagi sÑŒÑŒa!
 181:PAUS
 205:Vaim
-206:Hõivatud
+206:HÑ…ivatud
 207:Keskaegne pasun
 208:Kevad
 209:Lauto
-210:Palgasõdur
+210:PalgasÑ…dur
 211:Printsess
 212:Kuninganna
 213:Turul
-214:Lahinguväljal
-215:Õukonna tants
+214:LahinguvĞ´ljal
+215:Ğ¥ukonna tants
 216:Armee
 217:Lossis
 218:Laadad
-219:Õukonnas
+219:Ğ¥ukonnas
 220:Sisseastumine
-221:Sügav sinine
+221:SÑŒgav sinine
 222:Rabelema
 223:Kuninglik koda
 224:Aristokraatia
 225:Sadamas
-226:Rännak
-230:Mängi üksikkaarti
+226:RĞ´nnak
+230:MĞ´ngi ÑŒksikkaarti
 231:Alusta kaarti
-232:Tagasi menüüsse
-233:Lae salvestatud mäng
-234:Võrgumäng
-235:Sätted
-236:Lõputiitrid
-237:Lahku mängust
-238:Jätka
-239:Taaskäivita missioon
+232:Tagasi menÑŒÑŒsse
+233:Lae salvestatud mĞ´ng
+234:VÑ…rgumĞ´ng
+235:SĞ´tted
+236:LÑ…putiitrid
+237:Lahku mĞ´ngust
+238:JĞ´tka
+239:TaaskĞ´ivita missioon
 240:Resolutsioon:
 241:Pole toetatud
 242:Pole toetatud
-243:VÕIT!
+243:VĞ¥IT!
 244:KAOTUS!
-245:Kaotatud üksused:
-246:Hävitatud üksused:
+245:Kaotatud ÑŒksused:
+246:HĞ´vitatud ÑŒksused:
 247:Kaotatud ehitised:
-248:Hävitatud ehitised:
+248:HĞ´vitatud ehitised:
 249:Ehitatud ehitised:
-250:Treenitud üksused:
+250:Treenitud ÑŒksused:
 251:Relvi toodetud:
-252:Sõdureid treenitud:
-253:Missioon lõpetatud:
+252:SÑ…dureid treenitud:
+253:Missioon lÑ…petatud:
 256:Elanikke|treenitud
 257:Elanikke|kaotatud
-258:Sõdureid|relvastatud
-259:Sõdureid|kaotatud
+258:SÑ…dureid|relvastatud
+259:SÑ…dureid|kaotatud
 261:Ehitisi|ehitatud
 262:Ehitised|kaotatud
-263:Ehitisi|hävitatud
+263:Ehitisi|hĞ´vitatud
 264:Kaupu|toodetud
 265:Relvi|toodetud
-279:JOYMANIA ENTERTAINMENT||PROGRAMEERIMINE:|Peter Ohlmann||MÄNGU GRAAFIKA:|Adam Sprys||TASEME KUJUNDUS:|Adam Sprys|Andre Quaß||HELI TÖÖTLUS JA MIKSIMINE:|Tonstudio Mannheim||MUUSIKA:|Gerd Hofmann|Joachim Schäfer|Jürgen Rebhann|Klaus Staendike|Steffen Schüngel||KAUNISTUSED:|Boleslaw Kasza|Christoph Werner||ZUXXEZ ENTERTAINMENT AG||PRODUTSEERIA:|Uwe Schäfer||JUHEND:|Peter Ohlmann|Uwe Schäfer||BETA TESTIJAD:|Peter Ohlmann|Adam Sprys|Alexandra Constandache|Dirk P. Hassinger|Achim Heidelauf|Uwe Schäfer|Ingrid Schäfer|Dirk U. Jantz|Ion Constandache|Yaman Egeli|Roman Eich|Iris Mocsnek|Anke Jantz|Paul Hassinger|Liza Hassinger||MÄNGU JUHENDAJA:|Achim Heidelauf||VÄLJASTAJA:|TopWare Interactive||VAHETSEENID:||JUHATAMINE:|Slawomir Jedrzejewski||Kajetan Czarnecki|Wojciech Drazek|Daniel Duplaga|Rafal Januszkiewicz|Andrzej Rams|Piotr Rulka|Krzysztof Rybczynski|Grzegorz Wisniwski||HÄÄLED:|Claus Boyen (Jutustaja)||Tim Timmermann|Peter Houska|Dirk Mühlbach|Ralf Ditze|Gerhard Piske|Gernot Wassmann||KUNSTITÖÖD:|Boleslaw Kasza|Adam Sprys||AVA-ANIMATSIOON:|Uwe Schäfer|Christian Bigalk|Additional 3D-Modelling:|Niels Horstmann||ERI TÄNUD:|Tadeusz Zuber|Dieter Ohlmann|Alexandra Constandache|Ingrid Schäfer|Andrea Rumpelt
+279:JOYMANIA ENTERTAINMENT||PROGRAMEERIMINE:|Peter Ohlmann||MĞ”NGU GRAAFIKA:|Adam Sprys||TASEME KUJUNDUS:|Adam Sprys|Andre QuaĞ¯||HELI TĞ¦Ğ¦TLUS JA MIKSIMINE:|Tonstudio Mannheim||MUUSIKA:|Gerd Hofmann|Joachim SchĞ´fer|JÑŒrgen Rebhann|Klaus Staendike|Steffen SchÑŒngel||KAUNISTUSED:|Boleslaw Kasza|Christoph Werner||ZUXXEZ ENTERTAINMENT AG||PRODUTSEERIA:|Uwe SchĞ´fer||JUHEND:|Peter Ohlmann|Uwe SchĞ´fer||BETA TESTIJAD:|Peter Ohlmann|Adam Sprys|Alexandra Constandache|Dirk P. Hassinger|Achim Heidelauf|Uwe SchĞ´fer|Ingrid SchĞ´fer|Dirk U. Jantz|Ion Constandache|Yaman Egeli|Roman Eich|Iris Mocsnek|Anke Jantz|Paul Hassinger|Liza Hassinger||MĞ”NGU JUHENDAJA:|Achim Heidelauf||VĞ”LJASTAJA:|TopWare Interactive||VAHETSEENID:||JUHATAMINE:|Slawomir Jedrzejewski||Kajetan Czarnecki|Wojciech Drazek|Daniel Duplaga|Rafal Januszkiewicz|Andrzej Rams|Piotr Rulka|Krzysztof Rybczynski|Grzegorz Wisniwski||HĞ”Ğ”LED:|Claus Boyen (Jutustaja)||Tim Timmermann|Peter Houska|Dirk MÑŒhlbach|Ralf Ditze|Gerhard Piske|Gernot Wassmann||KUNSTITĞ¦Ğ¦D:|Boleslaw Kasza|Adam Sprys||AVA-ANIMATSIOON:|Uwe SchĞ´fer|Christian Bigalk|Additional 3D-Modelling:|Niels Horstmann||ERI TĞ”NUD:|Tadeusz Zuber|Dieter Ohlmann|Alexandra Constandache|Ingrid SchĞ´fer|Andrea Rumpelt
 280:Missioon katkestatud
 282:Linna ehitamise tutvustus
-283:Võitluse tutvustus
-284:Üksikmäng
+283:VÑ…itluse tutvustus
+284:Ğ¬ksikmĞ´ng
 285:Kaardi ehitamine
 286:Alusta missiooni
 287:Pealkiri
 288:Suurus
-289:Võitmise tingimused:
+289:VÑ…itmise tingimused:
 290:Kaotamise tingimused:
 291:Liitlased:
 292:Vaenlased:
@@ -255,21 +252,21 @@ MaxID:697
 298:Olemas olevad kaardid
 299:Lae olemas olev kaart
 301:Juhtimisseaded:
-302:Mängu seaded
+302:MĞ´ngu seaded
 303:Heli:
 304:Vaigista muusika
 305:Graafika:
 306:Heledus
-308:Täisekraan
+308:TĞ´isekraan
 309:Kinnita
 310:Keel:
 311:Varju kvaliteet:
 312:Madal
-313:Kõrge
+313:KÑ…rge
 314:Toimub laadimine... Palun oodake
 315:Viga on esinenud!
 316:Uue lokaadi laadimine
-317:Salvestatud mängude list
+317:Salvestatud mĞ´ngude list
 318:Faili nimi
 319:Iseloomustus
 320:Lae
@@ -277,45 +274,45 @@ MaxID:697
 322:Oled kindel, et soovid seda salvestust kustutada?
 323:Kustuta
 324:Loobu
-328:Sa Võitsid!
-329:Jätka mängu
-330:Võit!
+328:Sa VÑ…itsid!
+329:JĞ´tka mĞ´ngu
+330:VÑ…it!
 331:Sa kaotasid!
-332:Jätka vaatamist
+332:JĞ´tka vaatamist
 333:Kaotus
-334:Kordus on lõppenud
-335:Jätka vaatamist
-336:Lahku menüüni
+334:Kordus on lÑ…ppenud
+335:JĞ´tka vaatamist
+336:Lahku menÑŒÑŒni
 337:Pole saadaval
-338:Vajuta %s, et jätkata mängu
-339:Mängijate info
+338:Vajuta %s, et jĞ´tkata mĞ´ngu
+339:MĞ´ngijate info
 340:Vestlus
-341:Salvesta üle juba olemasolev
-342:Kirjuta üle
+341:Salvesta ÑŒle juba olemasolev
+342:Kirjuta ÑŒle
 343:Salvesta
 344:Lae
-345:Vana OpelGL versioon avastatud, mäng võib töötada aeglaselt ja/või graafika vigadega
-346:Palun uuendage oma videokaardi drivereid, et saada parem jõudlus.
-347:Võrgu viga:
-348:Viga: Mängija nimi ei saa olla tühi
-349:Viga: Mängija nimi ei tohi olla pikem kui %d tähemärki
-350:Viga: Mängija nimi sisaldab keelatud tähemärke
-351:Ühenduse viga: %s
-352:Ühendus on kaotatud
+345:Vana OpelGL versioon avastatud, mĞ´ng vÑ…ib tÑ†Ñ†tada aeglaselt ja/vÑ…i graafika vigadega
+346:Palun uuendage oma videokaardi drivereid, et saada parem jÑ…udlus.
+347:VÑ…rgu viga:
+348:Viga: MĞ´ngija nimi ei saa olla tÑŒhi
+349:Viga: MĞ´ngija nimi ei tohi olla pikem kui %d tĞ´hemĞ´rki
+350:Viga: MĞ´ngija nimi sisaldab keelatud tĞ´hemĞ´rke
+351:Ğ¬henduse viga: %s
+352:Ğ¬hendus on kaotatud
 353:Missioon %d
 355:Su kalastus onn on veest liiga kaugel.
-356:Sinu kalamees ei saa rohkem püüda kala lähedal olevatest vetest.
+356:Sinu kalamees ei saa rohkem pÑŒÑŒda kala lĞ´hedal olevatest vetest.
 364:Kasuta vasakut hiireklahvi, et valida toode, mida vahetada
 365:Kasuta paremat hiireklahvi, et valida toodet, mida vahetada
 366:Millest: x%d
 367:Milleks: x%d
 368:Pinnastiku kujundamine
-394:Küla planeerimine
+394:KÑŒla planeerimine
 395:Visuaalsed skriptid
 396:Globaalsed skriptid
-397:Menüü
+397:MenÑŒÑŒ
 499:Uus Missioon
-500:Mängija nimi
+500:MĞ´ngija nimi
 501:Staatus:
 502:Loo Server
 503:LOO SERVER
@@ -323,37 +320,37 @@ MaxID:697
 505:Port
 506:Loo Kohalik Server
 507:Loo Interneti Server
-508:Tühista
-509:Leia Server IP Järgi
+508:TÑŒhista
+509:Leia Server IP JĞ´rgi
 510:LEIA SERVER
 511:Aadress
 512:Port
 513:Tuba
-514:Ühenda
-515:Tühista
+514:Ğ¬henda
+515:TÑŒhista
 518:Serveri nimi
 519:Olek
-520:Mängijad
+520:MĞ´ngijad
 521:Ping
-522:Värskenda Serverite nimekirja
+522:VĞ´rskenda Serverite nimekirja
 523:SERVERI DETAILID
-524:Mängijad:
+524:MĞ´ngijad:
 525:Liitu
-526:Toimub ühendamine, palun oodake ...
+526:Toimub ÑŒhendamine, palun oodake ...
 527:Toimub teadete laadimine...
 528:Uuendamine...
-529:Mängijad
+529:MĞ´ngijad
 530:Algne asukoht
 531:Meeskond
-532:Värv
+532:VĞ´rv
 533:Valmis
 534:Ping
 536:Avatud
-537:Mängib arvuti
+537:MĞ´ngib arvuti
 538:Vali...
 539:Suvaline
-540:Ühtegi
-541:Salvestatud Mäng
+540:Ğ¬htegi
+541:Salvestatud MĞ´ng
 542:Vali kaart...
 543:Vali salvestus...
 544:Lahku eesruumi
@@ -361,64 +358,64 @@ MaxID:697
 546:Pole valmis
 547:Alusta!
 561:Asukoht %d
-562:Viga: Palun vali mängija salvestisest, et teda kontrollida
-563:Viga: Kaardi laadimine ebaõnnestus või ühtegi kaarti ei ole valitud
+562:Viga: Palun vali mĞ´ngija salvestisest, et teda kontrollida
+563:Viga: Kaardi laadimine ebaÑ…nnestus vÑ…i ÑŒhtegi kaarti ei ole valitud
 564:Ei saa alustada: %s
-565:Kõik ei ole valmis alustama
-567:Server on juhtimis õiused meile määranud
-568:Mänguga on alustatud
+565:KÑ…ik ei ole valmis alustama
+567:Server on juhtimis Ñ…iused meile mĞ´Ğ´ranud
+568:MĞ´nguga on alustatud
 569:Ehitamise Kaart
-570:Võitlemise Kaart
-571:Koostöö kaart
-573:Mängu seaded:
+570:VÑ…itlemise Kaart
+571:KoostÑ†Ñ† kaart
+573:MĞ´ngu seaded:
 574:Rahuaeg (minutid)
 575:Suletud
-576:Mängujuht seadistab
-577:Mängijate ootamine:
-580:KaM Remake Lõputiitrid
-581:Originaalsed Knights & Merchants Lõputiitrid
+576:MĞ´ngujuht seadistab
+577:MĞ´ngijate ootamine:
+580:KaM Remake LÑ…putiitrid
+581:Originaalsed Knights & Merchants LÑ…putiitrid
 582:PROGRAMMEERIMINE:
 583:LISA PROGRAMMEERIMINE:
 584:LISA GRAAFIKA:
 585:LISA HELID:
-587:LISA TÕLKED:
-588:SUURED TÄNUD:
-589:Võrgumängu kaardid
-590:Üksikmängu kaardid
+587:LISA TĞ¥LKED:
+588:SUURED TĞ”NUD:
+589:VÑ…rgumĞ´ngu kaardid
+590:Ğ¬ksikmĞ´ngu kaardid
 591:Rulliku kiirus
 592:Servereid ei leitud
 593:Suva lood
-594:Mängu informatsioon:
+594:MĞ´ngu informatsioon:
 595:-
 596:Eesruum
 597:Toimub Laadmine
-598:Mäng
-599:Ehitamine ja Võitlemine
-600:Võitlemine
+598:MĞ´ng
+599:Ehitamine ja VÑ…itlemine
+600:VÑ…itlemine
 601:Valmis
 602:Vale protokolli versioon: %s. Server kasutab: %s
-603:Tõsta kauba hulka
-604:Vähenda kauba hulka
-605:Mängu salvestamine...
+603:TÑ…sta kauba hulka
+604:VĞ´henda kauba hulka
+605:MĞ´ngu salvestamine...
 606:%s kaotas!
-607:Elimineeri mängijaid
-608:Mängu juht võib elimineerida mängijaid pärast %d sekundit
-609:Mängu juht võib nüüd elimineerida neid mängijaid
-610:Mängujuht (%s) on lahkunud
-611:Ühendus sevreriga on kaotatud. Taasühendamine...
+607:Elimineeri mĞ´ngijaid
+608:MĞ´ngu juht vÑ…ib elimineerida mĞ´ngijaid pĞ´rast %d sekundit
+609:MĞ´ngu juht vÑ…ib nÑŒÑŒd elimineerida neid mĞ´ngijaid
+610:MĞ´ngujuht (%s) on lahkunud
+611:Ğ¬hendus sevreriga on kaotatud. TaasÑŒhendamine...
 612:Oled kindel, et soovid lahkuda?
-613:Oled kindel, et soovid lõplikult elimineerida neid mängijaid?
-614:Tühista
-615:Selle ressurssi vahetamine pole võimalik selles missioonis
+613:Oled kindel, et soovid lÑ…plikult elimineerida neid mĞ´ngijaid?
+614:TÑŒhista
+615:Selle ressurssi vahetamine pole vÑ…imalik selles missioonis
 616:Istuta ja langeta
 617:Ainult langeta
 618:Sa ei saa seda teha rahuajal
-619:Rahuaega jäänud: %s
-620:Rahuaeg on lõppenud. Relvadele!
-621:Mängu aeg:|%s
-622:Peata sõdur ('%s')
-623:Lisa sõdur ('%s')
-624:Jaga sõdurid ('%s')
+619:Rahuaega jĞ´Ğ´nud: %s
+620:Rahuaeg on lÑ…ppenud. Relvadele!
+621:MĞ´ngu aeg:|%s
+622:Peata sÑ…dur ('%s')
+623:Lisa sÑ…dur ('%s')
+624:Jaga sÑ…durid ('%s')
 625:Korduse vaatamine
 626:Vaata kordust
 627:Toeta formaat %s
@@ -426,26 +423,26 @@ MaxID:697
 630:Liigendamise viga on esinenud failis %s
 631:alustamine
 632:skript
-633:üksused
+633:ÑŒksused
 634:majad
 635:puud
 636:definitsioonid
 637:ruudustik
 638:Kaarti ei leitud: %s
 639:Salvestist ei leitud: %s
-640:Kaardi failid ei ühildu mängujuhi kaardi failidega: %s
-641:Salvestise failid ei ühildu mängujuhi salvestise failidega: %s
-642:Kordusvaade on läbi kukkunud järjepidevus kontrollist. See probleem võib mõjutada teie kordusvaadet. Kas soovite edasi vaadata?
-645:Viga on tekkinud programmis. Palun vajutage Saatke Vea Teade nuppu, et me saaksime uurida probleemi. Täname abi eest!
+640:Kaardi failid ei ÑŒhildu mĞ´ngujuhi kaardi failidega: %s
+641:Salvestise failid ei ÑŒhildu mĞ´ngujuhi salvestise failidega: %s
+642:Kordusvaade on lĞ´bi kukkunud jĞ´rjepidevus kontrollist. See probleem vÑ…ib mÑ…jutada teie kordusvaadet. Kas soovite edasi vaadata?
+645:Viga on tekkinud programmis. Palun vajutage Saatke Vea Teade nuppu, et me saaksime uurida probleemi. TĞ´name abi eest!
 646:Saatke Vea Teade
-647:Näita Tooreid Andmeid
-648:Jätkake Programmi
+647:NĞ´ita Tooreid Andmeid
+648:JĞ´tkake Programmi
 649:Peatage Programm
-650:Järgmine
+650:JĞ´rgmine
 651:Kontakti Detailid
 652:Teie nimi:(Valikuline)
 653:Teie email:(valikuline)
-654:Mäleta mind
+654:MĞ´leta mind
 655:Vea Detailid
 656:Millises olukorras viga esines? Kas te saate lisa infot sellele lisada?
 657:Ekraanipilt
@@ -454,8 +451,8 @@ MaxID:697
 660:Saatke Teade
 661:Katkesta
 662:Saadan vea teadet...
-663:Ühendan serveriga...
+663:Ğ¬hendan serveriga...
 664:Saadan andmeid...
-665:Vea teate saatmine ebaõnnestus! Meie server võib olla hõivatud, palun proovige uuesti.
+665:Vea teate saatmine ebaÑ…nnestus! Meie server vÑ…ib olla hÑ…ivatud, palun proovige uuesti.
 666:Informatsioon
 667:Palun oodake moment...

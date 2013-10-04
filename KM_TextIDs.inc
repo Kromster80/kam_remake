@@ -88,6 +88,14 @@ TX_UNITS_WARRIOR = 84; //Warrior
 TX_UNITS_VAGABOND = 85; //Vagabond
 TX_UNITS_CATAPULT = 86; //Catapult
 TX_UNITS_BALLISTA = 87; //Ballista
+TX_UNITS_WOLF = 698; //Wolf
+TX_UNITS_FISH = 699; //Fish
+TX_UNITS_WATERSNAKE = 700; //Watersnake
+TX_UNITS_SEASTAR = 701; //Seastar
+TX_UNITS_CRAB = 702; //Crab
+TX_UNITS_WATERFLOWER = 703; //Waterflower
+TX_UNITS_WATERLEAF = 704; //Waterleaf
+TX_UNITS_DUCK = 705; //Duck
 
 TX_UNITS_DESCRIPTIONS__13 = 88; //The serf supplies your buildings with the necessary raw materials.||Note that a connecting road must exist between the buildings.
 TX_UNITS_DESCRIPTIONS_WOODCUTTER = 89; //To produce tree trunks for the sawmill, you need the woodcutter.||The woodcutter carries out reforesting independently.
@@ -290,7 +298,7 @@ TX_RESOURCES_ALL = 276; //All
 TX_RESOURCES_WARFARE = 277; //Warfare
 TX_RESOURCES_FOOD = 278; //Food
 
-TX_CREDITS_TEXT = 279; //JOYMANIA ENTERTAINMENT||PROGRAMMING:|Peter Ohlmann||GAME GRAPHICS:|Adam Sprys||LEVEL DESIGN:|Adam Sprys|André Quaß||SOUND EDITING AND MIXING:|Tonstudio Mannheim||MUSIC:|Gerd Hofmann|Joachim Schäfer|Jürgen Rebhann|Klaus Staendike|Steffen Schüngel||ILLUSTRATIONS:|Boleslaw Kasza|Christoph Werner||TRANSLATION:|Ronnie Shankland|Patricia Bellantuono|Andrea Rumpelt|||ZUXXEZ ENTERTAINMENT AG||PRODUCER:|Uwe Schäfer||MANUAL:|Peter Ohlmann|Uwe Schäfer||BETA TESTING:|Peter Ohlmann|Adam Sprys|Alexandra Constandache|Dirk P. Hassinger|Achim Heidelauf|Uwe Schäfer|Ingrid Schäfer|Dirk U. Jantz|Ion Constandache|Yaman Egeli|Roman Eich|Iris Mocsnek|Anke Jantz|Paul Hassinger|Liza Hassinger||GAMES DIRECTOR:|Achim Heidelauf||PUBLISHED BY:|TopWare Interactive||CUTSCENES:||DIRECTION:|Slawomir Jedrzejewski||Kajetan Czarnecki|Wojciech Drazek|Daniel Duplaga|Rafal Januszkiewicz|Andrzej Rams|Piotr Rulka|Krzysztof Rybczynski|Grzegorz Wisniewski||VOICES:|Claus Boyen (Storyteller)||Tim Timmermann|Peter Houska|Dirk Mühlbach|Ralf Ditze|Gerhard Piske|Gernot Wassmann||ARTWORK:|Boleslaw Kasza|Adam Sprys||OPENING ANIMATION:|Uwe Schäfer|Christian Bigalk|Additional 3D-Modelling:|Niels Horstmann||SPECIAL THANKS TO:|Tadeusz Zuber|Dieter Ohlmann|Alexandra Constandache|Ingrid Schäfer
+TX_CREDITS_TEXT = 279; //JOYMANIA ENTERTAINMENT||PROGRAMMING:|Peter Ohlmann||GAME GRAPHICS:|Adam Sprys||LEVEL DESIGN:|Adam Sprys|Andre Qua?||SOUND EDITING AND MIXING:|Tonstudio Mannheim||MUSIC:|Gerd Hofmann|Joachim Schafer|Jurgen Rebhann|Klaus Staendike|Steffen Schungel||ILLUSTRATIONS:|Boleslaw Kasza|Christoph Werner||TRANSLATION:|Ronnie Shankland|Patricia Bellantuono|Andrea Rumpelt|||ZUXXEZ ENTERTAINMENT AG||PRODUCER:|Uwe Schafer||MANUAL:|Peter Ohlmann|Uwe Schafer||BETA TESTING:|Peter Ohlmann|Adam Sprys|Alexandra Constandache|Dirk P. Hassinger|Achim Heidelauf|Uwe Schafer|Ingrid Schafer|Dirk U. Jantz|Ion Constandache|Yaman Egeli|Roman Eich|Iris Mocsnek|Anke Jantz|Paul Hassinger|Liza Hassinger||GAMES DIRECTOR:|Achim Heidelauf||PUBLISHED BY:|TopWare Interactive||CUTSCENES:||DIRECTION:|Slawomir Jedrzejewski||Kajetan Czarnecki|Wojciech Drazek|Daniel Duplaga|Rafal Januszkiewicz|Andrzej Rams|Piotr Rulka|Krzysztof Rybczynski|Grzegorz Wisniewski||VOICES:|Claus Boyen (Storyteller)||Tim Timmermann|Peter Houska|Dirk Muhlbach|Ralf Ditze|Gerhard Piske|Gernot Wassmann||ARTWORK:|Boleslaw Kasza|Adam Sprys||OPENING ANIMATION:|Uwe Schafer|Christian Bigalk|Additional 3D-Modelling:|Niels Horstmann||SPECIAL THANKS TO:|Tadeusz Zuber|Dieter Ohlmann|Alexandra Constandache|Ingrid Schafer
 
 TX_MENU_MISSION_CANCELED = 280; //Mission canceled
 TX_MENU_REPLAY_ENDED = 281; //Replay ended

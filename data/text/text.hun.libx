@@ -1,508 +1,505 @@
-
-MaxID:697
-
-0:Fûrészmalom
-1:Vasolvasztó
-2:Fegyverkovács
-3:Szénbánya
-4:Vasércbánya
-5:Aranybánya
-6:Horgászház
-7:Pékség
-8:Földmûves háza
-9:Favágókunyhó
-10:Páncélkovács
-11:Raktár
-12:Istálló
+ï»¿0:FÑ‹rĞ¹szmalom
+1:VasolvasztÑƒ
+2:FegyverkovĞ±cs
+3:SzĞ¹nbĞ±nya
+4:VasĞ¹rcbĞ±nya
+5:AranybĞ±nya
+6:HorgĞ±szhĞ±z
+7:PĞ¹ksĞ¹g
+8:FÑ†ldmÑ‹ves hĞ±za
+9:FavĞ±gÑƒkunyhÑƒ
+10:PĞ±ncĞ¹lkovĞ±cs
+11:RaktĞ±r
+12:IstĞ±llÑƒ
 13:Iskola
-14:Kõfejtõ
-15:Öntöde
-16:Sertéshizlalda
-17:Õrtorony
-18:Városháza
-19:Fegyvermûhely
-20:Páncélmûhely
-21:Erõd
+14:KÑ…fejtÑ…
+15:Ğ¦ntÑ†de
+16:SertĞ¹shizlalda
+17:Ğ¥rtorony
+18:VĞ±roshĞ±za
+19:FegyvermÑ‹hely
+20:PĞ±ncĞ¹lmÑ‹hely
+21:ErÑ…d
 22:Malom
-23:Jármûgyár
-24:Vágóhíd
-25:Tímármûhely
-26:Gyakorlóterem
-27:Fogadó
-28:Pincészet
-29:Piactér
-30:Farönk
-31:Kõ
+23:JĞ±rmÑ‹gyĞ±r
+24:VĞ±gÑƒhĞ½d
+25:TĞ½mĞ±rmÑ‹hely
+26:GyakorlÑƒterem
+27:FogadÑƒ
+28:PincĞ¹szet
+29:PiactĞ¹r
+30:FarÑ†nk
+31:KÑ…
 32:Gerenda
-33:Vasérc
-34:Aranyérc
-35:Szén
+33:VasĞ¹rc
+34:AranyĞ¹rc
+35:SzĞ¹n
 36:Nyersvas
 37:Arany
-38:Boroshordó
+38:BoroshordÑƒ
 39:Gabona
-40:Kenyér
+40:KenyĞ¹r
 41:Liszt
-42:Bõr
-43:Kolbász
-44:Sertés
-45:Nyersbõr
+42:BÑ…r
+43:KolbĞ±sz
+44:SertĞ¹s
+45:NyersbÑ…r
 46:Fapajzs
-47:Acélpajzs
-48:Bõrpáncél
-49:Acélvért
+47:AcĞ¹lpajzs
+48:BÑ…rpĞ±ncĞ¹l
+49:AcĞ¹lvĞ¹rt
 50:Fejsze
 51:Kard
-52:Lándzsa
+52:LĞ±ndzsa
 53:Pika
-54:Hosszúíj
-55:Számszeríj
-56:Ló
+54:HosszÑŠĞ½j
+55:SzĞ±mszerĞ½j
+56:LÑƒ
 57:Hal
 58:Inas
-59:Favágó
-60:Bányász
-61:Állattenyésztõ
-62:Földmûves/Vincellér
+59:FavĞ±gÑƒ
+60:BĞ±nyĞ±sz
+61:Ğ‘llattenyĞ¹sztÑ…
+62:FÑ†ldmÑ‹ves/VincellĞ¹r
 63:Asztalos
-64:Pék/Molnár
-65:Hentes/Tímár
-66:Horgász
-67:Munkás
-68:Kõfaragó
-69:Kovács
-70:Kohász
-71:Újonc
-72:Nemzetõr
-73:Fejszés
-74:Kardforgató
-75:Íjász
-76:Számszeríjász
-77:Lándzsás
-78:Pikás
-79:Felderítõ
+64:PĞ¹k/MolnĞ±r
+65:Hentes/TĞ½mĞ±r
+66:HorgĞ±sz
+67:MunkĞ±s
+68:KÑ…faragÑƒ
+69:KovĞ±cs
+70:KohĞ±sz
+71:Ğªjonc
+72:NemzetÑ…r
+73:FejszĞ¹s
+74:KardforgatÑƒ
+75:ĞjĞ±sz
+76:SzĞ±mszerĞ½jĞ±sz
+77:LĞ±ndzsĞ±s
+78:PikĞ±s
+79:FelderĞ½tÑ…
 80:Lovag
-81:Barbár
-82:Lázadó
-83:Gazfickó
+81:BarbĞ±r
+82:LĞ±zadÑƒ
+83:GazfickÑƒ
 84:Harcos
-85:Csavargó
+85:CsavargÑƒ
 86:Katapult
-87:Dárdavetõ
-88:Az inasok szállítják a szükséges nyersanya- gokat az épületek között.||Az épületeket mindig úttal kell összekötni.
-89:A fûrészmalom részére a favágó vágja a farönköket.||A kivágott erdõt önállóan újratelepíti.
-90:A bányász fejti az ércet a szén-, vas- és arany- bányában.
-91:Az állattenyésztõ gabona felhasználásával neveli a sertéseket és a lovakat a hizlaldában és az istállóban.
-92:A földmûves gabonát vet és arat háza környékén.||A vincellér préseli a szõlõt a pincészetben.
-93:Az asztalos a fûrészma- lomban, a fegyver- és páncélmûhelyben dolgozik.||Az asztalos a jármûké- szítõ üzemben dárdavetõt és katapultot készít.
-94:A pék kenyérrel látja el a lakosságot.||A molnár lisztet õröl a malomban.
-95:A hentes készíti a kol- bászt a vágóhídon.||A tímár állítja elõ a bõrt a mûhelyében.
-96:A horgász fogja ki a halakat a közeli vizekbõl.
-97:A munkás építi az utakat és az épületeket, felszántja a termõföldet és szõlõt telepít. Egyszerûen jelöld ki a helyet, és automatikusan végrehajtja a parancsodat. A megsérült épületek javítására is képes, ha ezt engedélyezed az adott épületnél.
-98:A kõfaragó biztosítja a kõutánpótlást a munkások számára.
-99:A kovács készíti a nehézfegyvereket és -páncélokat a mûhelyekben.
-100:Az kohász arany- rudakat és nyersvasat önt az ércekbõl.
-101:Az újoncok az erõdben, felszerelésük után válnak katonákká.||Õk teljesítenek szolgálatot az õrtornyokban is.
-102:Építmények
-103:Áruelosztás
+87:DĞ±rdavetÑ…
+88:Az inasok szĞ±llĞ½tjĞ±k a szÑŒksĞ¹ges nyersanya- gokat az Ğ¹pÑŒletek kÑ†zÑ†tt.||Az Ğ¹pÑŒleteket mindig ÑŠttal kell Ñ†sszekÑ†tni.
+89:A fÑ‹rĞ¹szmalom rĞ¹szĞ¹re a favĞ±gÑƒ vĞ±gja a farÑ†nkÑ†ket.||A kivĞ±gott erdÑ…t Ñ†nĞ±llÑƒan ÑŠjratelepĞ½ti.
+90:A bĞ±nyĞ±sz fejti az Ğ¹rcet a szĞ¹n-, vas- Ğ¹s arany- bĞ±nyĞ±ban.
+91:Az Ğ±llattenyĞ¹sztÑ… gabona felhasznĞ±lĞ±sĞ±val neveli a sertĞ¹seket Ğ¹s a lovakat a hizlaldĞ±ban Ğ¹s az istĞ±llÑƒban.
+92:A fÑ†ldmÑ‹ves gabonĞ±t vet Ğ¹s arat hĞ±za kÑ†rnyĞ¹kĞ¹n.||A vincellĞ¹r prĞ¹seli a szÑ…lÑ…t a pincĞ¹szetben.
+93:Az asztalos a fÑ‹rĞ¹szma- lomban, a fegyver- Ğ¹s pĞ±ncĞ¹lmÑ‹helyben dolgozik.||Az asztalos a jĞ±rmÑ‹kĞ¹- szĞ½tÑ… ÑŒzemben dĞ±rdavetÑ…t Ğ¹s katapultot kĞ¹szĞ½t.
+94:A pĞ¹k kenyĞ¹rrel lĞ±tja el a lakossĞ±got.||A molnĞ±r lisztet Ñ…rÑ†l a malomban.
+95:A hentes kĞ¹szĞ½ti a kol- bĞ±szt a vĞ±gÑƒhĞ½don.||A tĞ½mĞ±r Ğ±llĞ½tja elÑ… a bÑ…rt a mÑ‹helyĞ¹ben.
+96:A horgĞ±sz fogja ki a halakat a kÑ†zeli vizekbÑ…l.
+97:A munkĞ±s Ğ¹pĞ½ti az utakat Ğ¹s az Ğ¹pÑŒleteket, felszĞ±ntja a termÑ…fÑ†ldet Ğ¹s szÑ…lÑ…t telepĞ½t. EgyszerÑ‹en jelÑ†ld ki a helyet, Ğ¹s automatikusan vĞ¹grehajtja a parancsodat. A megsĞ¹rÑŒlt Ğ¹pÑŒletek javĞ½tĞ±sĞ±ra is kĞ¹pes, ha ezt engedĞ¹lyezed az adott Ğ¹pÑŒletnĞ¹l.
+98:A kÑ…faragÑƒ biztosĞ½tja a kÑ…utĞ±npÑƒtlĞ±st a munkĞ±sok szĞ±mĞ±ra.
+99:A kovĞ±cs kĞ¹szĞ½ti a nehĞ¹zfegyvereket Ğ¹s -pĞ±ncĞ¹lokat a mÑ‹helyekben.
+100:Az kohĞ±sz arany- rudakat Ğ¹s nyersvasat Ñ†nt az Ğ¹rcekbÑ…l.
+101:Az ÑŠjoncok az erÑ…dben, felszerelĞ¹sÑŒk utĞ±n vĞ±lnak katonĞ±kkĞ±.||Ğ¥k teljesĞ½tenek szolgĞ±latot az Ñ…rtornyokban is.
+102:Ğ™pĞ½tmĞ¹nyek
+103:Ğ‘ruelosztĞ±s
 104:Statisztika
-105:Opciók
+105:OpciÑƒk
 106:Vissza
-107:Építmény|kiválasztása
-108:Áruk|elosztása
+107:Ğ™pĞ½tmĞ¹ny|kivĞ±lasztĞ±sa
+108:Ğ‘ruk|elosztĞ±sa
 109:Statisztika
-110:Opciók
-111:Játék betöltése
-112:Játék kimentése
-113:Valóban|ki akarsz lépni|ebbõl a küldetésbõl?
-114:Kilépés
+110:OpciÑƒk
+111:JĞ±tĞ¹k betÑ†ltĞ¹se
+112:JĞ±tĞ¹k kimentĞ¹se
+113:ValÑƒban|ki akarsz lĞ¹pni|ebbÑ…l a kÑŒldetĞ¹sbÑ…l?
+114:KilĞ¹pĞ¹s
 115:Vissza
-116:Beállítások
+116:BeĞ±llĞ½tĞ±sok
 118:Hangok
-119:Hangerõ
-120:Hangerõ
+119:HangerÑ…
+120:HangerÑ…
 121:Zene
 122:Zene be/ki
-123:Automata mentés
-124:Zenelejátszó
-125:Elõzõ zene
-126:Következõ zene
+123:Automata mentĞ¹s
+124:ZenelejĞ±tszÑƒ
+125:ElÑ…zÑ… zene
+126:KÑ†vetkezÑ… zene
 127:Lerombol
-128:Épület kijelölés megszüntetése
-129:Útépítés
-130:Útépítés
-131:Szántás
-132:Földmûvelés
-133:Szõlõtelepítés
-134:Szõlõtelepítés
-135:Mégsem
-136:Gyakorlat leállítása
-137:Szükséges:
-139:Állapot:
-140:Szállít
-141:Építés alatt
-142:Lerombolás
-143:Valóban lerombolod|ezt az épületet?
-144:A kijelölt épület lerombolása
-145:Mennyiség csökkentése
-146:Mennyiség növelése
-147:Elõzõ egység
-148:Következõ egység
-149:Az aktuális egység felszerelése
-150:Következõ szakma
-151:Elõzõ szakma
-152:Beállít a sorba
-153:Áruszállítás be/ki
+128:Ğ™pÑŒlet kijelÑ†lĞ¹s megszÑŒntetĞ¹se
+129:ĞªtĞ¹pĞ½tĞ¹s
+130:ĞªtĞ¹pĞ½tĞ¹s
+131:SzĞ±ntĞ±s
+132:FÑ†ldmÑ‹velĞ¹s
+133:SzÑ…lÑ…telepĞ½tĞ¹s
+134:SzÑ…lÑ…telepĞ½tĞ¹s
+135:MĞ¹gsem
+136:Gyakorlat leĞ±llĞ½tĞ±sa
+137:SzÑŒksĞ¹ges:
+139:Ğ‘llapot:
+140:SzĞ±llĞ½t
+141:Ğ™pĞ½tĞ¹s alatt
+142:LerombolĞ±s
+143:ValÑƒban lerombolod|ezt az Ğ¹pÑŒletet?
+144:A kijelÑ†lt Ğ¹pÑŒlet lerombolĞ±sa
+145:MennyisĞ¹g csÑ†kkentĞ¹se
+146:MennyisĞ¹g nÑ†velĞ¹se
+147:ElÑ…zÑ… egysĞ¹g
+148:KÑ†vetkezÑ… egysĞ¹g
+149:Az aktuĞ±lis egysĞ¹g felszerelĞ¹se
+150:KÑ†vetkezÑ… szakma
+151:ElÑ…zÑ… szakma
+152:BeĞ±llĞ½t a sorba
+153:Ğ‘ruszĞ±llĞ½tĞ±s be/ki
 154:Zsold:
-155:Épületjavítás be/ki
-156:Most nem építhetõ
-157:Jóllakottság
-158:Balra át!
-159:Jobbra át!
-160:Támadás! ('a')
-161:Csapat mozgatása ('s')
-162:Csapat élelmezése
-163:Roham indítása
-164:Alakzatban sorakozó
-165:Alakzatváltás
-166:Jelöld ki a|csapatot
-167:Kilépés
-168:Törlés
-169:Aktuális üzenet törlése
-170:Oda lép
-171:Az aktuális üzenet helyszínére ugrik
-172:Bezár
-173:Ablak bezárása
-174:A kõfaragód nem képes több követ kifejteni.
-175:Szénbányád kimerült.
-176:Vasércbányád kimerült.
-177:Aranybányád kimerült.
-179:Ez a ház nincs birtokba véve.
-180:Ez a csapat valóban éhes, legjobb lenne gyorsan enni adni nekik!
-181:SZÜNET
-182:Szállít
-183:Utat épít
-184:Felássa a területet
-185:Szõlõtõkét ültet
-186:Ház területet egyenget
-187:Házat épít
-188:Házat javít
+155:Ğ™pÑŒletjavĞ½tĞ±s be/ki
+156:Most nem Ğ¹pĞ½thetÑ…
+157:JÑƒllakottsĞ±g
+158:Balra Ğ±t!
+159:Jobbra Ğ±t!
+160:TĞ±madĞ±s! ('a')
+161:Csapat mozgatĞ±sa ('s')
+162:Csapat Ğ¹lelmezĞ¹se
+163:Roham indĞ½tĞ±sa
+164:Alakzatban sorakozÑƒ
+165:AlakzatvĞ±ltĞ±s
+166:JelÑ†ld ki a|csapatot
+167:KilĞ¹pĞ¹s
+168:TÑ†rlĞ¹s
+169:AktuĞ±lis ÑŒzenet tÑ†rlĞ¹se
+170:Oda lĞ¹p
+171:Az aktuĞ±lis ÑŒzenet helyszĞ½nĞ¹re ugrik
+172:BezĞ±r
+173:Ablak bezĞ±rĞ±sa
+174:A kÑ…faragÑƒd nem kĞ¹pes tÑ†bb kÑ†vet kifejteni.
+175:SzĞ¹nbĞ±nyĞ±d kimerÑŒlt.
+176:VasĞ¹rcbĞ±nyĞ±d kimerÑŒlt.
+177:AranybĞ±nyĞ±d kimerÑŒlt.
+179:Ez a hĞ±z nincs birtokba vĞ¹ve.
+180:Ez a csapat valÑƒban Ğ¹hes, legjobb lenne gyorsan enni adni nekik!
+181:SZĞ¬NET
+182:SzĞ±llĞ½t
+183:Utat Ğ¹pĞ½t
+184:FelĞ±ssa a terÑŒletet
+185:SzÑ…lÑ…tÑ…kĞ¹t ÑŒltet
+186:HĞ±z terÑŒletet egyenget
+187:HĞ±zat Ğ¹pĞ½t
+188:HĞ±zat javĞ½t
 189:Hazamegy
 190:Enni megy
-191:Házat támad
-192:Tüzel
+191:HĞ±zat tĞ±mad
+192:TÑŒzel
 193:Harcol
 194:Rohamoz
-195:Támad
+195:TĞ±mad
 196:Megy
-197:Várakozik
-198:Követ bányász
-199:Gabonát ültet
-200:Gabonát arat
-201:Szõlõt szüretel
-202:Halászik
-203:Fát vág
-204:Fát ültet
+197:VĞ±rakozik
+198:KÑ†vet bĞ±nyĞ±sz
+199:GabonĞ±t ÑŒltet
+200:GabonĞ±t arat
+201:SzÑ…lÑ…t szÑŒretel
+202:HalĞ±szik
+203:FĞ±t vĞ±g
+204:FĞ±t ÑŒltet
 205:Szellem
 206:Munka
-207:Középkori kürt
+207:KÑ†zĞ¹pkori kÑŒrt
 208:Tavasz
 209:Lant
 210:Zsoldos
-211:A Hercegnö
-212:A Királynö
+211:A HercegnÑ†
+212:A KirĞ±lynÑ†
 213:A piacon
-214:A csatamezön
-215:Udvari tánc
+214:A csatamezÑ†n
+215:Udvari tĞ±nc
 216:A hadsereg
-217:A kastélyban
-218:Fanfárok
+217:A kastĞ¹lyban
+218:FanfĞ±rok
 219:Az Udvarban
-220:Föfogás
-221:Mélykék
+220:FÑ†fogĞ±s
+221:MĞ¹lykĞ¹k
 222:Csata
-223:Királyi Negyedek
-224:Arisztokrácia
-225:A kikötõnél
-226:Utazás
-227:Hadjáratok
-229:Hadjárat Indítása!
-230:Egyéni küldetés
-231:Játék indítása
-232:Vissza a menübe
-233:Játék betöltése
-234:Hálózati játék
-235:Opciók
-236:Készítõk
-237:Kilépés a programból
-238:Tovább
-239:A küldetés újrajátszása
-240:Felbontás:
-241:Nem támogatott
-242:Nem támogatott
-243:GYÕZELEM!
-244:VERESÉG!
-245:Elveszített egységek:
-246:Legyõzött egységek:
-247:Elveszített épületek:
-248:Lerombolt épületek:
-249:Felépített épületek:
-250:Kiképzett egységek:
-251:Gyártott fegyverek:
-252:Kiképzett katonák:
-253:Küldetés idõtartama:
+223:KirĞ±lyi Negyedek
+224:ArisztokrĞ±cia
+225:A kikÑ†tÑ…nĞ¹l
+226:UtazĞ±s
+227:HadjĞ±ratok
+229:HadjĞ±rat IndĞ½tĞ±sa!
+230:EgyĞ¹ni kÑŒldetĞ¹s
+231:JĞ±tĞ¹k indĞ½tĞ±sa
+232:Vissza a menÑŒbe
+233:JĞ±tĞ¹k betÑ†ltĞ¹se
+234:HĞ±lÑƒzati jĞ±tĞ¹k
+235:OpciÑƒk
+236:KĞ¹szĞ½tÑ…k
+237:KilĞ¹pĞ¹s a programbÑƒl
+238:TovĞ±bb
+239:A kÑŒldetĞ¹s ÑŠjrajĞ±tszĞ±sa
+240:FelbontĞ±s:
+241:Nem tĞ±mogatott
+242:Nem tĞ±mogatott
+243:GYĞ¥ZELEM!
+244:VERESĞ™G!
+245:ElveszĞ½tett egysĞ¹gek:
+246:LegyÑ…zÑ†tt egysĞ¹gek:
+247:ElveszĞ½tett Ğ¹pÑŒletek:
+248:Lerombolt Ğ¹pÑŒletek:
+249:FelĞ¹pĞ½tett Ğ¹pÑŒletek:
+250:KikĞ¹pzett egysĞ¹gek:
+251:GyĞ±rtott fegyverek:
+252:KikĞ¹pzett katonĞ±k:
+253:KÑŒldetĞ¹s idÑ…tartama:
 254:Statisztika
-255:Gazdaság
-256:Polgárok|képzett
-257:Polgárok|elvesztett
-258:Katonák|felszerelt
-259:Katonák|elvesztett
-260:Katonák|legyõzött
-261:Épületek|építve
-262:Épületek|elvesztve
-263:Épületek|megsemmisítve
-264:Áruk|elõállítva
-265:Fegyverek|elõállítva
+255:GazdasĞ±g
+256:PolgĞ±rok|kĞ¹pzett
+257:PolgĞ±rok|elvesztett
+258:KatonĞ±k|felszerelt
+259:KatonĞ±k|elvesztett
+260:KatonĞ±k|legyÑ…zÑ†tt
+261:Ğ™pÑŒletek|Ğ¹pĞ½tve
+262:Ğ™pÑŒletek|elvesztve
+263:Ğ™pÑŒletek|megsemmisĞ½tve
+264:Ğ‘ruk|elÑ…Ğ±llĞ½tva
+265:Fegyverek|elÑ…Ğ±llĞ½tva
 266:Hadsereg
 267:Lakosok
-268:Házak
+268:HĞ±zak
 269:Nyersanyagok
 270:Termelt nyersanyagok
 272:Te
-273:Játékos %d
-279:JOYMANIA ENTERTAINMENT||PROGRAMOZÁS:|Peter Ohlmann||JÁTÉK GRAFIKA:|Adam Sprys||PÁLYATERVEZÉS:|Adam Sprys|André Quass||HANGSZERKESZTÉS ÉS|KEVERÉS:|Tonstudio Mannheim||ZENE:|Gerd Hofmann|Joachim Schäfer|Jürgen Rebhann|Klaus Staendike|Steffen Schüngel||ILLUSZTRÁCIÓK:|Boleslaw Kasza|Christoph Werner||ZUXXEZ ENTERTAINMENT AG||GYÁRTÁSVEZETÕ:|Uwe Schäfer||SZÖVEG:|Peter Ohlmann|Uwe Schäfer||BÉTA TESZT:|Peter Ohlmann|Adam Sprys|Alexandra Constandache|Dirk P. Hassinger|Achim Heidelauf|Uwe Schäfer|Ingrid Schäfer|Dirk U. Jantz|Ion Constandache|Yaman Egeli|Roman Eich|Iris Mocsnek|Anke Jantz|Paul Hassinger|Liza Hassinger||JÁTÉK IGAZGATÓ:|Achim Heidelauf||ÁTVEZETÕK:||IGAZGATÓ:|Slawomir Jedrzejewski||Kajetan Czarnecki|Wojciech Drazek|Daniel Duplaga|Rafal Januszkiewicz|Andrzej Rams|Piotr Rulka|Krzysztof Rybczynski|Grzegorz Wisniewski||HANGOK:|Claus Boysen (Mesélö)||Tim Timmermann|Peter Houska|Dirk Mühlbach|Ralf Ditze|Gerhard Piske|Gernot Wassmann||KÉZIKÖNYV GRAFIKÁI:|Uwe Schäfer|Alexandra Constandache||KÉZIKÖNYV SZÖVEGEI:|Peter Ohlmann|Uwe Schäfer||MÛREMEK:|Boleslaw Kasza|Adam Sprys||ANIMÁCIÓK:|Uwe Schäfer|Christian Bigalk|További 3D Modellezés:|Niels Horstmann||KÖSZÖNET TOVÁBI|MUNKATÁRSAINKNAK:|Tadeusz Zuber|Dieter Ohlmann|Alexandra Constandache|Ingrid Schäfer|Andrea Rumpelt
-280:Küldetés megszakítva
-281:Visszajátszás véget ért
-282:Oktató Küldetés (Város)
-283:Oktató Küldetés (Csata)
-284:Egyjátékos mód
-285:Pálya Szerkesztõ
-286:Küldetés Indítása
-287:Cím
-288:Méret
-289:Gyõzelmi feltétel:
-290:Vereség feltétel:
-291:Szövetségesek:
-292:Elenségek:
-293:Idõ
-294:Térkép mérete
-295:Szélesség
-296:Magasság
-297:Új Térkép Készítése
-298:Elérhetõ térképek
-299:Térkép Betöltése
-301:Vezérlõk:
-302:Játékmenet:
+273:JĞ±tĞ¹kos %d
+279:JOYMANIA ENTERTAINMENT||PROGRAMOZĞ‘S:|Peter Ohlmann||JĞ‘TĞ™K GRAFIKA:|Adam Sprys||PĞ‘LYATERVEZĞ™S:|Adam Sprys|AndrĞ¹ Quass||HANGSZERKESZTĞ™S Ğ™S|KEVERĞ™S:|Tonstudio Mannheim||ZENE:|Gerd Hofmann|Joachim SchĞ´fer|JÑŒrgen Rebhann|Klaus Staendike|Steffen SchÑŒngel||ILLUSZTRĞ‘CIĞ£K:|Boleslaw Kasza|Christoph Werner||ZUXXEZ ENTERTAINMENT AG||GYĞ‘RTĞ‘SVEZETĞ¥:|Uwe SchĞ´fer||SZĞ¦VEG:|Peter Ohlmann|Uwe SchĞ´fer||BĞ™TA TESZT:|Peter Ohlmann|Adam Sprys|Alexandra Constandache|Dirk P. Hassinger|Achim Heidelauf|Uwe SchĞ´fer|Ingrid SchĞ´fer|Dirk U. Jantz|Ion Constandache|Yaman Egeli|Roman Eich|Iris Mocsnek|Anke Jantz|Paul Hassinger|Liza Hassinger||JĞ‘TĞ™K IGAZGATĞ£:|Achim Heidelauf||Ğ‘TVEZETĞ¥K:||IGAZGATĞ£:|Slawomir Jedrzejewski||Kajetan Czarnecki|Wojciech Drazek|Daniel Duplaga|Rafal Januszkiewicz|Andrzej Rams|Piotr Rulka|Krzysztof Rybczynski|Grzegorz Wisniewski||HANGOK:|Claus Boysen (MesĞ¹lÑ†)||Tim Timmermann|Peter Houska|Dirk MÑŒhlbach|Ralf Ditze|Gerhard Piske|Gernot Wassmann||KĞ™ZIKĞ¦NYV GRAFIKĞ‘I:|Uwe SchĞ´fer|Alexandra Constandache||KĞ™ZIKĞ¦NYV SZĞ¦VEGEI:|Peter Ohlmann|Uwe SchĞ´fer||MĞ«REMEK:|Boleslaw Kasza|Adam Sprys||ANIMĞ‘CIĞ£K:|Uwe SchĞ´fer|Christian Bigalk|TovĞ±bbi 3D ModellezĞ¹s:|Niels Horstmann||KĞ¦SZĞ¦NET TOVĞ‘BI|MUNKATĞ‘RSAINKNAK:|Tadeusz Zuber|Dieter Ohlmann|Alexandra Constandache|Ingrid SchĞ´fer|Andrea Rumpelt
+280:KÑŒldetĞ¹s megszakĞ½tva
+281:VisszajĞ±tszĞ±s vĞ¹get Ğ¹rt
+282:OktatÑƒ KÑŒldetĞ¹s (VĞ±ros)
+283:OktatÑƒ KÑŒldetĞ¹s (Csata)
+284:EgyjĞ±tĞ¹kos mÑƒd
+285:PĞ±lya SzerkesztÑ…
+286:KÑŒldetĞ¹s IndĞ½tĞ±sa
+287:CĞ½m
+288:MĞ¹ret
+289:GyÑ…zelmi feltĞ¹tel:
+290:VeresĞ¹g feltĞ¹tel:
+291:SzÑ†vetsĞ¹gesek:
+292:ElensĞ¹gek:
+293:IdÑ…
+294:TĞ¹rkĞ¹p mĞ¹rete
+295:SzĞ¹lessĞ¹g
+296:MagassĞ±g
+297:Ğªj TĞ¹rkĞ¹p KĞ¹szĞ½tĞ¹se
+298:ElĞ¹rhetÑ… tĞ¹rkĞ¹pek
+299:TĞ¹rkĞ¹p BetÑ†ltĞ¹se
+301:VezĞ¹rlÑ…k:
+302:JĞ±tĞ¹kmenet:
 303:Hangok:
-304:Zene kikapcsolása
+304:Zene kikapcsolĞ±sa
 305:Grafika:
-306:Fényerõsség
-308:Teljes képernyõ
+306:FĞ¹nyerÑ…ssĞ¹g
+308:Teljes kĞ¹pernyÑ…
 309:Alkalmaz
 310:Nyelv:
-311:Árnyék Minõsége:
+311:Ğ‘rnyĞ¹k MinÑ…sĞ¹ge:
 312:Alacsony
 313:Magas
-314:Betöltés... Kérem várjon
-315:Hiba történt!
-316:Új nyelv betöltése
-317:Mentett állások
-318:Fájlnév
-319:Leírás
-320:Töltés
-321:Törlés
-322:Biztosan akarod törölni ezt a mentett állást?
-323:Törlés
-324:Mégse
-325:Cím
-326:Pályák
+314:BetÑ†ltĞ¹s... KĞ¹rem vĞ±rjon
+315:Hiba tÑ†rtĞ¹nt!
+316:Ğªj nyelv betÑ†ltĞ¹se
+317:Mentett Ğ±llĞ±sok
+318:FĞ±jlnĞ¹v
+319:LeĞ½rĞ±s
+320:TÑ†ltĞ¹s
+321:TÑ†rlĞ¹s
+322:Biztosan akarod tÑ†rÑ†lni ezt a mentett Ğ±llĞ±st?
+323:TÑ†rlĞ¹s
+324:MĞ¹gse
+325:CĞ½m
+326:PĞ±lyĞ±k
 327:Feloldva
-328:Megnyerted a játékot!
-329:Játék folytatása
-330:Gyõzelem!
-331:Elvesztetted a játékot!
-332:Játék megfigyelése
-333:Vereség
-334:A visszajátszás végetért
-335:Játék megfigyelése
-336:Vissza a menübe
-337:Nem elérhetõ
-338:Nyomj %s billentyût a játék folytatásához
-339:Játékos információk
+328:Megnyerted a jĞ±tĞ¹kot!
+329:JĞ±tĞ¹k folytatĞ±sa
+330:GyÑ…zelem!
+331:Elvesztetted a jĞ±tĞ¹kot!
+332:JĞ±tĞ¹k megfigyelĞ¹se
+333:VeresĞ¹g
+334:A visszajĞ±tszĞ±s vĞ¹getĞ¹rt
+335:JĞ±tĞ¹k megfigyelĞ¹se
+336:Vissza a menÑŒbe
+337:Nem elĞ¹rhetÑ…
+338:Nyomj %s billentyÑ‹t a jĞ±tĞ¹k folytatĞ±sĞ±hoz
+339:JĞ±tĞ¹kos informĞ±ciÑƒk
 340:Chat
-341:A mentett állás már létezik
-342:Felülír
-343:Mentés
-344:Töltés
-345:Régi OpenGL verzió érzékelve, a játék lassabban futhat és/vagy Grafikus hibák történhetnek
-346:Kérlek frissítsd a videokártya drivereidet a jobb teljesítményért
-347:Hálózati hiba:
-348:Hiba: A játékos neve nem lehet üres
-349:Hiba: A Játékos neve nem lehet %d karakternél hosszabb
-350:Hiba: A játékos neve érvénytelen karaktereket tartalmaz
-351:Kapcsolódási hiba: %s
+341:A mentett Ğ±llĞ±s mĞ±r lĞ¹tezik
+342:FelÑŒlĞ½r
+343:MentĞ¹s
+344:TÑ†ltĞ¹s
+345:RĞ¹gi OpenGL verziÑƒ Ğ¹rzĞ¹kelve, a jĞ±tĞ¹k lassabban futhat Ğ¹s/vagy Grafikus hibĞ±k tÑ†rtĞ¹nhetnek
+346:KĞ¹rlek frissĞ½tsd a videokĞ±rtya drivereidet a jobb teljesĞ½tmĞ¹nyĞ¹rt
+347:HĞ±lÑƒzati hiba:
+348:Hiba: A jĞ±tĞ¹kos neve nem lehet ÑŒres
+349:Hiba: A JĞ±tĞ¹kos neve nem lehet %d karakternĞ¹l hosszabb
+350:Hiba: A jĞ±tĞ¹kos neve Ğ¹rvĞ¹nytelen karaktereket tartalmaz
+351:KapcsolÑƒdĞ±si hiba: %s
 352:Megszakadt a kapcsolat
-353:Küldetés %d
-355:A halászkunyhód túl messze van a víztõl.
-356:A halászod nem tud több halat fogni a közeli vízbõl.
-357:Visszajátszás újraindítása
-358:Visszajátszás megállítása
-359:1 egységet léptet elõre
-360:Megállított visszajátszás folytatása
-361:Kilépés a visszajátszásból
-364:Eladni kívánt áru kiválasztása a bal egér gombal
-365:Vásárolni kívánt áru kiválasztása a jobb egér gombal
+353:KÑŒldetĞ¹s %d
+355:A halĞ±szkunyhÑƒd tÑŠl messze van a vĞ½ztÑ…l.
+356:A halĞ±szod nem tud tÑ†bb halat fogni a kÑ†zeli vĞ½zbÑ…l.
+357:VisszajĞ±tszĞ±s ÑŠjraindĞ½tĞ±sa
+358:VisszajĞ±tszĞ±s megĞ±llĞ½tĞ±sa
+359:1 egysĞ¹get lĞ¹ptet elÑ…re
+360:MegĞ±llĞ½tott visszajĞ±tszĞ±s folytatĞ±sa
+361:KilĞ¹pĞ¹s a visszajĞ±tszĞ±sbÑƒl
+364:Eladni kĞ½vĞ±nt Ğ±ru kivĞ±lasztĞ±sa a bal egĞ¹r gombal
+365:VĞ±sĞ±rolni kĞ½vĞ±nt Ğ±ru kivĞ±lasztĞ±sa a jobb egĞ¹r gombal
 366:Elad x%d
 367:Vesz x%d
-368:Tereprendezés
-394:Település tervezés
-395:Vizuális szkriptek
-396:Globális szkriptek
-397:Menü
-499:Új Küldetés
-500:Játékos neve
-501:Állapot:
-502:Szerver Készítése
-503:SZERVER LÉTREHOZÁSA
-504:Szerver név
+368:TereprendezĞ¹s
+394:TelepÑŒlĞ¹s tervezĞ¹s
+395:VizuĞ±lis szkriptek
+396:GlobĞ±lis szkriptek
+397:MenÑŒ
+499:Ğªj KÑŒldetĞ¹s
+500:JĞ±tĞ¹kos neve
+501:Ğ‘llapot:
+502:Szerver KĞ¹szĞ½tĞ¹se
+503:SZERVER LĞ™TREHOZĞ‘SA
+504:Szerver nĞ¹v
 505:Port
-506:Lokális Szerver Létrehozása
-507:Internet Szerver Létrehozás
-508:Mégsem
-509:Szerver keresése IP alapján
-510:SZERVER KERESÉSE
-511:Cím
+506:LokĞ±lis Szerver LĞ¹trehozĞ±sa
+507:Internet Szerver LĞ¹trehozĞ±s
+508:MĞ¹gsem
+509:Szerver keresĞ¹se IP alapjĞ±n
+510:SZERVER KERESĞ™SE
+511:CĞ½m
 512:Port
 513:Szoba
-514:Kapcsolódás
-515:Mégsem
-518:Szerver név
-519:Állapot
-520:Játékosok
+514:KapcsolÑƒdĞ±s
+515:MĞ¹gsem
+518:Szerver nĞ¹v
+519:Ğ‘llapot
+520:JĞ±tĞ¹kosok
 521:Ping
-522:Szerver Lista Frissítése
-523:Szerver Részletek
-524:Játékos lisa:
-525:Csatlakozás
-526:Kapcsolódás, kérem várjon ...
-527:Események töltése...
-528:Frissítés...
-529:Játékosok
-530:Kezdõhely
+522:Szerver Lista FrissĞ½tĞ¹se
+523:Szerver RĞ¹szletek
+524:JĞ±tĞ¹kos lisa:
+525:CsatlakozĞ±s
+526:KapcsolÑƒdĞ±s, kĞ¹rem vĞ±rjon ...
+527:EsemĞ¹nyek tÑ†ltĞ¹se...
+528:FrissĞ½tĞ¹s...
+529:JĞ±tĞ¹kosok
+530:KezdÑ…hely
 531:Csapat
-532:Szín
-533:Kész
+532:SzĞ½n
+533:KĞ¹sz
 534:Ping
 536:Nyitva
-537:Számítógép
-538:Válassz...
-539:Véletlen
+537:SzĞ±mĞ½tÑƒgĞ¹p
+538:VĞ±lassz...
+539:VĞ¹letlen
 540:Nincs
-541:Mentett játék
-542:Válassz egy térképet...
-543:Válassz egy mentést...
-544:Kilépés
-545:Kész
-546:Nincs kész
-547:Indítás!
-561:Kezdõhely %d
-562:Hiba: Kérem válasszon egy játékost a mentésbõl, hogy irányíthassa
-563:Hiba: Nem sikerült betölteni a térképet vagy nincs térkép kiválasztva
-564:Nem lehet indítani: %s
-565:Nem áll mindenki készen a kezdésre
-567:A szerver átadta a házigazda szerepét nekünk
-568:A játék elkezdõdött
-569:Építkezés
+541:Mentett jĞ±tĞ¹k
+542:VĞ±lassz egy tĞ¹rkĞ¹pet...
+543:VĞ±lassz egy mentĞ¹st...
+544:KilĞ¹pĞ¹s
+545:KĞ¹sz
+546:Nincs kĞ¹sz
+547:IndĞ½tĞ±s!
+561:KezdÑ…hely %d
+562:Hiba: KĞ¹rem vĞ±lasszon egy jĞ±tĞ¹kost a mentĞ¹sbÑ…l, hogy irĞ±nyĞ½thassa
+563:Hiba: Nem sikerÑŒlt betÑ†lteni a tĞ¹rkĞ¹pet vagy nincs tĞ¹rkĞ¹p kivĞ±lasztva
+564:Nem lehet indĞ½tani: %s
+565:Nem Ğ±ll mindenki kĞ¹szen a kezdĞ¹sre
+567:A szerver Ğ±tadta a hĞ±zigazda szerepĞ¹t nekÑŒnk
+568:A jĞ±tĞ¹k elkezdÑ…dÑ†tt
+569:Ğ™pĞ½tkezĞ¹s
 570:Csata
-571:Kooperatív
-573:Játék beállítások:
-574:Békeidõ (percben)
-575:Zárva
-576:A hoszt állítja be a játékosokat
-577:Várakozás a játékosokra:
-580:KaM Remake Készítõk
-581:Eredeti Knights & Merchants Készítõk
-582:PROGRAMOZÁS:
-583:TOVÁBBI PROGRAMOZÁS:
-584:TOVÁBBI GRAFIKA:
-585:TOVÁBBI HANGOK:
-586:TOVÁBBI ZENE:
-587:TOVÁBBI FORDÍTÓK:
-588:KÜLÖN KÖSZÖNET:
-589:Többjátékos pályák
-590:Egyjátékos pályák
-591:Görgetési sebesség
-592:Nem található szerver
-593:Véletlenszerû zenelejátszás
-594:Játék információ
+571:KooperatĞ½v
+573:JĞ±tĞ¹k beĞ±llĞ½tĞ±sok:
+574:BĞ¹keidÑ… (percben)
+575:ZĞ±rva
+576:A hoszt Ğ±llĞ½tja be a jĞ±tĞ¹kosokat
+577:VĞ±rakozĞ±s a jĞ±tĞ¹kosokra:
+580:KaM Remake KĞ¹szĞ½tÑ…k
+581:Eredeti Knights & Merchants KĞ¹szĞ½tÑ…k
+582:PROGRAMOZĞ‘S:
+583:TOVĞ‘BBI PROGRAMOZĞ‘S:
+584:TOVĞ‘BBI GRAFIKA:
+585:TOVĞ‘BBI HANGOK:
+586:TOVĞ‘BBI ZENE:
+587:TOVĞ‘BBI FORDĞTĞ£K:
+588:KĞ¬LĞ¦N KĞ¦SZĞ¦NET:
+589:TÑ†bbjĞ±tĞ¹kos pĞ±lyĞ±k
+590:EgyjĞ±tĞ¹kos pĞ±lyĞ±k
+591:GÑ†rgetĞ¹si sebessĞ¹g
+592:Nem talĞ±lhatÑƒ szerver
+593:VĞ¹letlenszerÑ‹ zenelejĞ±tszĞ±s
+594:JĞ±tĞ¹k informĞ±ciÑƒ
 595:-
 596:Lobby
-597:Betöltés
-598:Játék
-599:Építkezés és Csata
+597:BetÑ†ltĞ¹s
+598:JĞ±tĞ¹k
+599:Ğ™pĞ½tkezĞ¹s Ğ¹s Csata
 600:Csata
-601:Kész
-602:Hibás protokol verzió: %s. A szerver által használt: %s
-603:Mennyiség növelése
-604:Mennyiség csökkentése
-605:Játék mentése...
-606:%s megsemmisült!
-607:Játékos kidobása
-608:A hosztnak lehetõsége lesz ezeket a játékosokat kidobni a játékból %d másodperc múlva
-609:A hoszt most már kidobhatja ezeket a játékosokat
-610:A hoszt (%s) kilépett a játékból
-611:A kapcsolat a szerverhez elveszett. Újracsatlakozás folyamatban...
-612:Biztosan ki szeretnél lépni?
-613:Biztos véglegesen ki szeretnéd zárni ezeket a játékosokat?
-614:Mégsem
-615:Ennek a nyersanyagnak a kereskedelme ezen a pályán nem engedélyezett
-616:Ültet és kivág
-617:Csak kivág
-618:Nem tehetsz ilyet békeidõben
-619:Békeidõbõl hátra van: %s
-620:A békeidõ végetért. Fegyverbe!
-621:Játék idõ:|%s
-622:Csapat állj ('%s')
-623:Csapatok összekapcsolása ('%s')
-624:Csapatok szétválasztása ('%s')
-625:Visszajátszások
-626:Visszajátszás megtekintése
-627:Nem támogatott formátum %s
-628:Nem támogatott verzió %s
-630:Hiba történt a %s fájl beolvasása közben
-631:felkészülés
+601:KĞ¹sz
+602:HibĞ±s protokol verziÑƒ: %s. A szerver Ğ±ltal hasznĞ±lt: %s
+603:MennyisĞ¹g nÑ†velĞ¹se
+604:MennyisĞ¹g csÑ†kkentĞ¹se
+605:JĞ±tĞ¹k mentĞ¹se...
+606:%s megsemmisÑŒlt!
+607:JĞ±tĞ¹kos kidobĞ±sa
+608:A hosztnak lehetÑ…sĞ¹ge lesz ezeket a jĞ±tĞ¹kosokat kidobni a jĞ±tĞ¹kbÑƒl %d mĞ±sodperc mÑŠlva
+609:A hoszt most mĞ±r kidobhatja ezeket a jĞ±tĞ¹kosokat
+610:A hoszt (%s) kilĞ¹pett a jĞ±tĞ¹kbÑƒl
+611:A kapcsolat a szerverhez elveszett. ĞªjracsatlakozĞ±s folyamatban...
+612:Biztosan ki szeretnĞ¹l lĞ¹pni?
+613:Biztos vĞ¹glegesen ki szeretnĞ¹d zĞ±rni ezeket a jĞ±tĞ¹kosokat?
+614:MĞ¹gsem
+615:Ennek a nyersanyagnak a kereskedelme ezen a pĞ±lyĞ±n nem engedĞ¹lyezett
+616:Ğ¬ltet Ğ¹s kivĞ±g
+617:Csak kivĞ±g
+618:Nem tehetsz ilyet bĞ¹keidÑ…ben
+619:BĞ¹keidÑ…bÑ…l hĞ±tra van: %s
+620:A bĞ¹keidÑ… vĞ¹getĞ¹rt. Fegyverbe!
+621:JĞ±tĞ¹k idÑ…:|%s
+622:Csapat Ğ±llj ('%s')
+623:Csapatok Ñ†sszekapcsolĞ±sa ('%s')
+624:Csapatok szĞ¹tvĞ±lasztĞ±sa ('%s')
+625:VisszajĞ±tszĞ±sok
+626:VisszajĞ±tszĞ±s megtekintĞ¹se
+627:Nem tĞ±mogatott formĞ±tum %s
+628:Nem tĞ±mogatott verziÑƒ %s
+630:Hiba tÑ†rtĞ¹nt a %s fĞ±jl beolvasĞ±sa kÑ†zben
+631:felkĞ¹szÑŒlĞ¹s
 632:szkript
-633:egységek
-634:házak
-635:fák
-636:definíciók
-637:terep grafikák
-638:Térkép nem található: %s
-639:Mentés nem található: %s
-640:A térkép verziószáma nem egyezik a szerver térképverziójával: %s
-641:A mentés nem egyezik a szerver mentésével: %s
-642:Az összetétel ellenõrzés nem sikerült a visszajátszásnál. Ez egy ismert hiba, ami hatással van némelyik visszajátszásra. Szeretnéd folytatni a megtekintést?
-643:Csak egyetlen példányt futtathatsz a játékból többjátékos módban egyszerre
-645:Hiba történt az alkalmazásban. Kérlek kattints Hibajelentés Küldésére, hogy utánajárhassunk a problémának. Köszönjük a segítséged!
-646:Hibajelentés Küldése
-647:Nyers Adatok Megtekintése
-648:Alkalmazás Folytatása
-649:Alkalmazás Bezárása
-650:Következõ
+633:egysĞ¹gek
+634:hĞ±zak
+635:fĞ±k
+636:definĞ½ciÑƒk
+637:terep grafikĞ±k
+638:TĞ¹rkĞ¹p nem talĞ±lhatÑƒ: %s
+639:MentĞ¹s nem talĞ±lhatÑƒ: %s
+640:A tĞ¹rkĞ¹p verziÑƒszĞ±ma nem egyezik a szerver tĞ¹rkĞ¹pverziÑƒjĞ±val: %s
+641:A mentĞ¹s nem egyezik a szerver mentĞ¹sĞ¹vel: %s
+642:Az Ñ†sszetĞ¹tel ellenÑ…rzĞ¹s nem sikerÑŒlt a visszajĞ±tszĞ±snĞ±l. Ez egy ismert hiba, ami hatĞ±ssal van nĞ¹melyik visszajĞ±tszĞ±sra. SzeretnĞ¹d folytatni a megtekintĞ¹st?
+643:Csak egyetlen pĞ¹ldĞ±nyt futtathatsz a jĞ±tĞ¹kbÑƒl tÑ†bbjĞ±tĞ¹kos mÑƒdban egyszerre
+645:Hiba tÑ†rtĞ¹nt az alkalmazĞ±sban. KĞ¹rlek kattints HibajelentĞ¹s KÑŒldĞ¹sĞ¹re, hogy utĞ±najĞ±rhassunk a problĞ¹mĞ±nak. KÑ†szÑ†njÑŒk a segĞ½tsĞ¹ged!
+646:HibajelentĞ¹s KÑŒldĞ¹se
+647:Nyers Adatok MegtekintĞ¹se
+648:AlkalmazĞ±s FolytatĞ±sa
+649:AlkalmazĞ±s BezĞ±rĞ±sa
+650:KÑ†vetkezÑ…
 651:Kapcsolati Adatok
-652:A neved: (opcionális)
-653:Az email címed: (opcionális)
-654:Emlékezz rám
-655:Hiba Részletei
-656:Milyen helyzetben történt a hiba? Meg tudnál adni további információkat? (Lehetõleg angolul)
-657:Képernyõmentés
-658:Képernyõmentés hozzáadása a hibajelentéshez
-659:(kattints a kép szerkesztéséhez)
-660:Jelentés Küldése
-661:Mégsem
-662:Hibajelentés küldése folyamatban...
-663:Kapcsolódás a szerverhez...
-664:Adatok küldése...
-665:A hibajelentés elküldése sikertelen! A szerverünk valószínûleg túlterhelt, kérlek próbáld meg újra.
-666:Információ
-667:Kérlek várj egy pillanatot...
+652:A neved: (opcionĞ±lis)
+653:Az email cĞ½med: (opcionĞ±lis)
+654:EmlĞ¹kezz rĞ±m
+655:Hiba RĞ¹szletei
+656:Milyen helyzetben tÑ†rtĞ¹nt a hiba? Meg tudnĞ±l adni tovĞ±bbi informĞ±ciÑƒkat? (LehetÑ…leg angolul)
+657:KĞ¹pernyÑ…mentĞ¹s
+658:KĞ¹pernyÑ…mentĞ¹s hozzĞ±adĞ±sa a hibajelentĞ¹shez
+659:(kattints a kĞ¹p szerkesztĞ¹sĞ¹hez)
+660:JelentĞ¹s KÑŒldĞ¹se
+661:MĞ¹gsem
+662:HibajelentĞ¹s kÑŒldĞ¹se folyamatban...
+663:KapcsolÑƒdĞ±s a szerverhez...
+664:Adatok kÑŒldĞ¹se...
+665:A hibajelentĞ¹s elkÑŒldĞ¹se sikertelen! A szerverÑŒnk valÑƒszĞ½nÑ‹leg tÑŠlterhelt, kĞ¹rlek prÑƒbĞ±ld meg ÑŠjra.
+666:InformĞ±ciÑƒ
+667:KĞ¹rlek vĞ±rj egy pillanatot...
