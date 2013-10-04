@@ -709,7 +709,7 @@ end;
 
 procedure TKMTerrainPainter.InitEmpty;
 var
-  I,K: Integer;
+  I, K: Integer;
 begin
   InitSize(gTerrain.MapX, gTerrain.MapY);
 
@@ -723,11 +723,14 @@ end;
 //Skip the KaM data and load MapEd vertice info
 procedure TKMTerrainPainter.LoadFromFile(aFileName: UnicodeString);
 var
-  I,K: Integer;
+  I, K: Integer;
   TerType: ShortInt; //Krom's editor saves terrain kind as ShortInt
   S: TKMemoryStream;
-  NewX,NewY: Integer;
-  ResHead: packed record x1:word; Allocated,Qty1,Qty2,x5,Len17:integer; end;
+  NewX, NewY: Integer;
+  ResHead: packed record
+    x1: Word;
+    Allocated, Qty1, Qty2, x5, Len17: Integer;
+  end;
   Chunk: AnsiString;
   MapEdChunkFound: Boolean;
 begin
@@ -841,7 +844,7 @@ end;
 
 procedure TKMTerrainPainter.MakeCheckpoint;
 var
-  I,K: Integer;
+  I, K: Integer;
 begin
   //Get next pos in circular buffer
   fUndoPos := (fUndoPos + 1) mod MAX_UNDO;
@@ -906,7 +909,7 @@ end;
 
 procedure TKMTerrainPainter.CheckpointToTerrain;
 var
-  I,K: Integer;
+  I, K: Integer;
 begin
   for I := 1 to gTerrain.MapY do
   for K := 1 to gTerrain.MapX do

@@ -523,7 +523,8 @@ end;
 
 //Will return the field as the game should see it, ignoring all fakes.
 function TKMFieldworksList.HasField(aLoc: TKMPoint): TFieldType;
-var I: Integer;
+var
+  I: Integer;
 begin
   Result := ft_None;
 
@@ -540,7 +541,9 @@ end;
 //Fake fields are shown when the command has not yet been processed, and
 //real fields which the user deleted are hidden with the FakeDeletedFields array
 function TKMFieldworksList.HasFakeField(aLoc: TKMPoint): TFieldType;
-var I,K: Integer; Found: Boolean;
+var
+  I, K: Integer;
+  Found: Boolean;
 begin
   Result := ft_None;
 
@@ -602,7 +605,8 @@ end;
 
 
 procedure TKMFieldworksList.Load(LoadStream: TKMemoryStream);
-var I: Integer;
+var
+  I: Integer;
 begin
   LoadStream.ReadAssert('FieldworksList');
 
@@ -619,7 +623,8 @@ end;
 
 
 procedure TKMFieldworksList.SyncLoad;
-var I: Integer;
+var
+  I: Integer;
 begin
   for I := 0 to fFieldsCount - 1 do
     fFields[I].Worker := gHands.GetUnitByUID(Cardinal(fFields[I].Worker));
@@ -628,7 +633,8 @@ end;
 
 { TKMHousePlanList }
 procedure TKMHousePlanList.AddPlan(aHouseType: THouseType; aLoc: TKMPoint);
-var I: Integer;
+var
+  I: Integer;
 begin
   I := 0;
   while (I < fPlansCount) and (fPlans[I].JobStatus <> js_Empty) do
@@ -671,7 +677,8 @@ end;
 
 
 function TKMHousePlanList.GetAvailableJobsCount:Integer;
-var I: Integer;
+var
+  I: Integer;
 begin
   Result := 0;
   for I := 0 to fPlansCount - 1 do
@@ -1255,7 +1262,7 @@ procedure TKMBuildList.AssignHouses;
 var
   I, AvailableWorkers, AvailableJobs, JobID: Integer;
   MyBid: Single;
-  BestWorker:TKMUnitWorker;
+  BestWorker: TKMUnitWorker;
 begin
   AvailableWorkers := GetIdleWorkerCount;
   AvailableJobs := fHouseList.GetAvailableJobsCount;
@@ -1285,7 +1292,7 @@ procedure TKMBuildList.AssignRepairs;
 var
   I, AvailableWorkers, AvailableJobs, JobID: Integer;
   MyBid: Single;
-  BestWorker:TKMUnitWorker;
+  BestWorker: TKMUnitWorker;
 begin
   AvailableWorkers := GetIdleWorkerCount;
   AvailableJobs := fRepairList.GetAvailableJobsCount;
