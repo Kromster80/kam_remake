@@ -2,7 +2,6 @@ unit KM_Campaigns;
 {$I KaM_Remake.inc}
 interface
 uses
-  {$IFDEF WDC}AnsiStrings, {$ENDIF}
   Classes, KromUtils, Math, SysUtils,
   KM_CommonClasses, KM_Pics, KM_Points, KM_ResTexts, KM_ResLocales;
 
@@ -275,7 +274,7 @@ end;
 
 
 { TKMCampaign }
-constructor TKMCampaign.Create;//(const aShortTitle: AnsiString; aMapCount:byte; aBackRX: TRXType; aBackID:word);
+constructor TKMCampaign.Create;
 begin
   inherited;
 
@@ -305,8 +304,9 @@ begin
   M := TKMemoryStream.Create;
   M.LoadFromFile(aFileName);
 
-  //Convert old AnsiString into new Cardinal format
+  //Convert old AnsiString into new [0..2] Byte format
   M.ReadBytes(cmp);
+  Assert(Length(cmp) = 3);
   fCampaignId[0] := cmp[0];
   fCampaignId[1] := cmp[1];
   fCampaignId[2] := cmp[2];
