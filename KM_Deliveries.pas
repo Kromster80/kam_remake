@@ -1,4 +1,4 @@
-unit KM_DeliverQueue;
+unit KM_Deliveries;
 {$I KaM_Remake.inc}
 interface
 uses Classes, SysUtils, KromUtils, Math,

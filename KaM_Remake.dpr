@@ -36,7 +36,7 @@ uses
   KM_Controls in 'KM_Controls.pas',
   KM_DedicatedServer in 'KM_DedicatedServer.pas',
   KM_Defaults in 'KM_Defaults.pas',
-  KM_DeliverQueue in 'KM_DeliverQueue.pas',
+  KM_Deliveries in 'KM_Deliveries.pas',
   {$IFDEF USE_MAD_EXCEPT}KM_Exceptions in 'KM_Exceptions.pas',{$ENDIF}
   KM_FileIO in 'KM_FileIO.pas',
   KM_FogOfWar in 'KM_FogOfWar.pas',
