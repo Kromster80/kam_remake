@@ -2572,7 +2572,7 @@ begin
 
     //Group can walk to allies units place
     if Obj is TKMUnit then
-      canWalkTo := (gHands.CheckAlliance(MySpectator.HandIndex, TKMUnit(Obj).Owner) = at_Ally);
+      canWalkTo := (gHands[MySpectator.HandIndex].Alliances[TKMUnit(Obj).Owner] = at_Ally);
 
     //Can't walk on to a house
     if Obj is TKMHouse then
@@ -2748,8 +2748,8 @@ begin
   and not fReplay and not HasLostMPGame
   and (MySpectator.FogOfWar.CheckTileRevelation(GameCursor.Cell.X, GameCursor.Cell.Y) > 0) then
   begin
-    if ((Obj is TKMUnit) and (gHands.CheckAlliance(MySpectator.HandIndex, TKMUnit(Obj).Owner) = at_Enemy))
-    or ((Obj is TKMHouse) and (gHands.CheckAlliance(MySpectator.HandIndex, TKMHouse(Obj).Owner) = at_Enemy)) then
+    if ((Obj is TKMUnit) and (gHands[MySpectator.HandIndex].Alliances[TKMUnit(Obj).Owner] = at_Enemy))
+    or ((Obj is TKMHouse) and (gHands[MySpectator.HandIndex].Alliances[TKMHouse(Obj).Owner] = at_Enemy)) then
       gResource.Cursors.Cursor := kmc_Attack
     else
       if not fViewport.Scrolling then
@@ -2958,14 +2958,14 @@ begin
           begin
             //Try to Attack unit
             Obj := MySpectator.HitTestCursor;
-            if (Obj is TKMUnit) and (gHands.CheckAlliance(MySpectator.HandIndex, TKMUnit(Obj).Owner) = at_Enemy) then
+            if (Obj is TKMUnit) and (gHands[MySpectator.HandIndex].Alliances[TKMUnit(Obj).Owner] = at_Enemy) then
             begin
               gGame.GameInputProcess.CmdArmy(gic_ArmyAttackUnit, Group, TKMUnit(Obj));
               gSoundPlayer.PlayWarrior(Group.UnitType, sp_Attack);
             end
             else
             //If there's no unit - try to Attack house
-            if (Obj is TKMHouse) and (gHands.CheckAlliance(MySpectator.HandIndex, TKMHouse(Obj).Owner) = at_Enemy) then
+            if (Obj is TKMHouse) and (gHands[MySpectator.HandIndex].Alliances[TKMHouse(Obj).Owner] = at_Enemy) then
             begin
               gGame.GameInputProcess.CmdArmy(gic_ArmyAttackHouse, Group, TKMHouse(Obj));
               gSoundPlayer.PlayWarrior(Group.UnitType, sp_Attack);

@@ -14,13 +14,13 @@ type
     fCount: Byte;
     fHandsList: array of TKMHand;
     fPlayerAnimals: TKMHandAnimals;
-    function GetPlayer(aIndex: Integer): TKMHand;
+    function GetHand(aIndex: Integer): TKMHand;
   public
     constructor Create;
     destructor Destroy; override;
 
     property Count: Byte read fCount;
-    property Player[aIndex: Integer]: TKMHand read GetPlayer; default;
+    property Hands[aIndex: Integer]: TKMHand read GetHand; default;
     property PlayerAnimals: TKMHandAnimals read fPlayerAnimals;
 
     procedure AddPlayers(aCount: Byte); //Batch add several players
@@ -31,7 +31,7 @@ type
     function HousesHitTest(X,Y: Integer): TKMHouse;
     function UnitsHitTest(X, Y: Integer): TKMUnit;
     function GroupsHitTest(X, Y: Integer): TKMUnitGroup;
-    function GetClosestUnit(aLoc: TKMPoint; aIndex: THandIndex; aAlliance: TAllianceType): TKMUnit;
+    function GetClosestUnit(aLoc: TKMPoint; aExceptHand: THandIndex; aAlliance: TAllianceType): TKMUnit;
     function GetClosestHouse(aLoc: TKMPoint; aIndex: THandIndex; aAlliance: TAllianceType; aOnlyCompleted: Boolean = True): TKMHouse;
     function DistanceToEnemyTowers(aLoc: TKMPoint; aIndex: THandIndex): Single;
     procedure GetUnitsInRect(aRect: TKMRect; List: TList);
@@ -97,7 +97,7 @@ begin
 end;
 
 
-function TKMHandsCollection.GetPlayer(aIndex: Integer): TKMHand;
+function TKMHandsCollection.GetHand(aIndex: Integer): TKMHand;
 begin
   Assert(InRange(aIndex, 0, fCount-1));
   Result := fHandsList[aIndex];
@@ -228,7 +228,7 @@ begin
 end;
 
 
-function TKMHandsCollection.GetClosestUnit(aLoc: TKMPoint; aIndex: THandIndex; aAlliance: TAllianceType): TKMUnit;
+function TKMHandsCollection.GetClosestUnit(aLoc: TKMPoint; aExceptHand: THandIndex; aAlliance: TAllianceType): TKMUnit;
 var
   I: Integer;
   U: TKMUnit;
@@ -236,7 +236,7 @@ begin
   Result := nil;
 
   for I := 0 to fCount - 1 do
-  if (aIndex <> I) and (CheckAlliance(aIndex, I) = aAlliance) then
+  if (I <> aExceptHand) and (fHandsList[aExceptHand].Alliances[I] = aAlliance) then
   begin
     U := fHandsList[I].Units.GetClosestUnit(aLoc);
     if (U <> nil)
@@ -256,7 +256,7 @@ begin
 
   //Check all players
   for I := 0 to fCount - 1 do
-  if (aIndex <> I) and (Player[aIndex].Alliances[I] = aAlliance) then
+  if (aIndex <> I) and (Hands[aIndex].Alliances[I] = aAlliance) then
   begin
     H := fHandsList[I].Houses.FindHouse(ht_Any, aLoc.X, aLoc.Y, 1, aOnlyCompleted);
     if (H <> nil) and ((Result = nil) or (H.GetDistance(aLoc) < Result.GetDistance(aLoc))) then
@@ -273,7 +273,7 @@ var
 begin
   Result := MaxSingle;
   for I := 0 to fCount - 1 do
-  if (aIndex <> I) and (Player[aIndex].Alliances[I] = at_Enemy) then
+  if (aIndex <> I) and (Hands[aIndex].Alliances[I] = at_Enemy) then
   begin
     for K := fHandsList[I].Houses.Count - 1 downto 0 do
     begin
