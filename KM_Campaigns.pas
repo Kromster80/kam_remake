@@ -13,6 +13,10 @@ const
 
 type
   TBriefingCorner = (bcBottomRight, bcBottomLeft);
+  //Unique campaign identification, stored as 3 ANSI letters (TSK, TPR, etc)
+  //3 bytes are used to avoid string types issues
+  TKMCampaignId = array [0..2] of Byte;
+
 
   TKMCampaign = class
   private
@@ -22,7 +26,7 @@ type
     fUnlockedMap: Byte;
 
     //Saved in CMP
-    fShortTitle: AnsiString; //Used to identify the campaign
+    fCampaignId: TKMCampaignId; //Used to identify the campaign
     fBackGroundPic: TKMPic;
     fMapCount: Byte;
     procedure SetUnlockedMap(aValue: Byte);
@@ -43,7 +47,8 @@ type
 
     property BackGroundPic: TKMPic read fBackGroundPic write fBackGroundPic;
     property MapCount: Byte read fMapCount write SetMapCount;
-    property ShortTitle: AnsiString read fShortTitle write fShortTitle;
+    property CampaignId: TKMCampaignId read fCampaignId write fCampaignId;
+    function CampName: UnicodeString;
     property UnlockedMap: Byte read fUnlockedMap write SetUnlockedMap;
 
     function CampaignTitle: UnicodeString;
@@ -77,11 +82,14 @@ type
     property ActiveCampaign: TKMCampaign read fActiveCampaign;// write fActiveCampaign;
     function Count: Integer;
     property Campaigns[aIndex: Integer]: TKMCampaign read GetCampaign; default;
-    function CampaignByTitle(const aShortTitle: AnsiString): TKMCampaign;
+    function CampaignById(const aCampaignId: TKMCampaignId): TKMCampaign;
     procedure SetActive(aCampaign: TKMCampaign; aMap: Byte);
     procedure UnlockNextMap;
   end;
 
+
+const
+  NO_CAMPAIGN: TKMCampaignId = (0, 0, 0);
 
 implementation
 uses KM_Defaults, KM_Resource, KM_ResSprites, KM_Log;
@@ -159,9 +167,9 @@ procedure TKMCampaignsCollection.LoadProgress(const aFileName: UnicodeString);
 var
   M: TKMemoryStream;
   C: TKMCampaign;
-  I, CampCount: Integer;
-  CampName: AnsiString;
-  Unlocked: Byte;
+  I, campCount: Integer;
+  campName: TKMCampaignId;
+  unlocked: Byte;
 begin
   if not FileExists(aFileName) then Exit;
 
@@ -172,14 +180,14 @@ begin
     M.Read(I); //Check for wrong file format
     if I <> CAMP_HEADER then Exit; //All campaigns will be kept in initial state
 
-    M.Read(CampCount);
-    for I := 0 to CampCount - 1 do
+    M.Read(campCount);
+    for I := 0 to campCount - 1 do
     begin
-      M.ReadA(CampName);
-      M.Read(Unlocked);
-      C := CampaignByTitle(AnsiString(CampName));
+      M.Read(campName, sizeOf(TKMCampaignId));
+      M.Read(unlocked);
+      C := CampaignById(campName);
       if C <> nil then
-        C.UnlockedMap := Unlocked;
+        C.UnlockedMap := unlocked;
     end;
   finally
     M.Free;
@@ -201,7 +209,7 @@ begin
     M.Write(Count);
     for I := 0 to Count - 1 do
     begin
-      M.WriteA(Campaigns[I].ShortTitle);
+      M.Write(Campaigns[I].CampaignId, SizeOf(TKMCampaignId));
       M.Write(Campaigns[I].UnlockedMap);
     end;
 
@@ -220,13 +228,15 @@ begin
 end;
 
 
-function TKMCampaignsCollection.CampaignByTitle(const aShortTitle: AnsiString): TKMCampaign;
+function TKMCampaignsCollection.CampaignById(const aCampaignId: TKMCampaignId): TKMCampaign;
 var
   I: Integer;
 begin
   Result := nil;
   for I := 0 to Count - 1 do
-    if {$IFDEF WDC}AnsiStrings.{$ENDIF}SameText(Campaigns[I].ShortTitle, aShortTitle) then
+    if (Campaigns[I].CampaignId[0] = aCampaignId[0])
+    and (Campaigns[I].CampaignId[1] = aCampaignId[1])
+    and (Campaigns[I].CampaignId[2] = aCampaignId[2]) then
       Result := Campaigns[I];
 end;
 
@@ -239,23 +249,27 @@ end;
 
 
 procedure TKMCampaignsCollection.Load(LoadStream: TKMemoryStream);
-var s: AnsiString;
+var
+  cmp: TKMCampaignId;
 begin
   LoadStream.ReadAssert('CampaignInfo');
-  LoadStream.ReadA(s);
-  fActiveCampaign := CampaignByTitle(s);
+  LoadStream.Read(cmp, SizeOf(TKMCampaignId));
+  fActiveCampaign := CampaignById(cmp);
   LoadStream.Read(fActiveCampaignMap);
   //If loaded savegame references to missing campaign it will be treated as single-map (fActiveCampaign = nil)
 end;
 
 
 procedure TKMCampaignsCollection.Save(SaveStream: TKMemoryStream);
+var
+  cmp: TKMCampaignId;
 begin
   SaveStream.WriteA('CampaignInfo');
+
   if fActiveCampaign <> nil then
-    SaveStream.WriteA(fActiveCampaign.ShortTitle)
-  else
-    SaveStream.WriteA('');
+    cmp := fActiveCampaign.CampaignId;
+
+  SaveStream.Write(cmp, SizeOf(TKMCampaignId));
   SaveStream.Write(fActiveCampaignMap);
 end;
 
@@ -284,13 +298,19 @@ procedure TKMCampaign.LoadFromFile(aFileName: UnicodeString);
 var
   M: TKMemoryStream;
   I, K: Integer;
+  cmp: TBytes;
 begin
   if not FileExists(aFileName) then Exit;
 
   M := TKMemoryStream.Create;
   M.LoadFromFile(aFileName);
 
-  M.ReadA(fShortTitle);
+  //Convert old AnsiString into new Cardinal format
+  M.ReadBytes(cmp);
+  fCampaignId[0] := cmp[0];
+  fCampaignId[1] := cmp[1];
+  fCampaignId[2] := cmp[2];
+
   M.Read(fMapCount);
   SetLength(Maps, fMapCount);
 
@@ -311,11 +331,16 @@ procedure TKMCampaign.SaveToFile(aFileName: UnicodeString);
 var
   M: TKMemoryStream;
   I, K: Integer;
+  cmp: TBytes;
 begin
   Assert(aFileName <> '');
 
   M := TKMemoryStream.Create;
-  M.WriteA(fShortTitle);
+  SetLength(cmp, 3);
+  cmp[0] := fCampaignId[0];
+  cmp[1] := fCampaignId[1];
+  cmp[2] := fCampaignId[2];
+  M.WriteBytes(cmp);
   M.Write(fMapCount);
 
   for I := 0 to fMapCount - 1 do
@@ -389,6 +414,12 @@ begin
 end;
 
 
+function TKMCampaign.CampName: UnicodeString;
+begin
+  Result := WideChar(fCampaignId[0]) + WideChar(fCampaignId[1]) + WideChar(fCampaignId[2]);
+end;
+
+
 function TKMCampaign.CampaignDescription: UnicodeString;
 begin
   Result := fTextLib[2];
@@ -397,8 +428,8 @@ end;
 
 function TKMCampaign.MissionFile(aIndex: Byte): UnicodeString;
 begin
-  Result := fPath + UnicodeString(fShortTitle) + Format('%.2d', [aIndex + 1]) + PathDelim +
-            UnicodeString(fShortTitle) + Format('%.2d', [aIndex + 1]) + '.dat';
+  Result := fPath + CampName + Format('%.2d', [aIndex + 1]) + PathDelim +
+            CampName + Format('%.2d', [aIndex + 1]) + '.dat';
 end;
 
 
@@ -418,16 +449,16 @@ end;
 
 function TKMCampaign.BreifingAudioFile(aIndex: Byte): UnicodeString;
 begin
-  Result := fPath + UnicodeString(fShortTitle) + Format('%.2d', [aIndex+1]) + PathDelim +
-            UnicodeString(fShortTitle) + Format('%.2d', [aIndex + 1]) + '.' + UnicodeString(gResLocales.UserLocale) + '.mp3';
+  Result := fPath + CampName + Format('%.2d', [aIndex+1]) + PathDelim +
+            CampName + Format('%.2d', [aIndex + 1]) + '.' + UnicodeString(gResLocales.UserLocale) + '.mp3';
 
   if not FileExists(Result) then
-    Result := fPath + UnicodeString(fShortTitle) + Format('%.2d', [aIndex+1]) + PathDelim +
-              UnicodeString(fShortTitle) + Format('%.2d', [aIndex + 1]) + '.' + UnicodeString(gResLocales.FallbackLocale) + '.mp3';
+    Result := fPath + CampName + Format('%.2d', [aIndex+1]) + PathDelim +
+              CampName + Format('%.2d', [aIndex + 1]) + '.' + UnicodeString(gResLocales.FallbackLocale) + '.mp3';
 
   if not FileExists(Result) then
-    Result := fPath + UnicodeString(fShortTitle) + Format('%.2d', [aIndex+1]) + PathDelim +
-              UnicodeString(fShortTitle) + Format('%.2d', [aIndex + 1]) + '.' + UnicodeString(gResLocales.DefaultLocale) + '.mp3';
+    Result := fPath + CampName + Format('%.2d', [aIndex+1]) + PathDelim +
+              CampName + Format('%.2d', [aIndex + 1]) + '.' + UnicodeString(gResLocales.DefaultLocale) + '.mp3';
 end;
 
 

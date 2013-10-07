@@ -48,9 +48,8 @@ begin
     ColumnBox_Camps := TKMColumnBox.Create(Panel_CampSelect, 80, 180, 575, 360, fnt_Grey, bsMenu);
     ColumnBox_Camps.SetColumns(fnt_Outline, [gResTexts[TX_MENU_CAMPAIGNS_TITLE],
                                              gResTexts[TX_MENU_CAMPAIGNS_MAPS_COUNT],
-                                             gResTexts[TX_MENU_CAMPAIGNS_MAPS_UNLOCKED],
-                                             ''], //Hidden column with campaign shortname
-                                             [0, 305, 440, 575]);
+                                             gResTexts[TX_MENU_CAMPAIGNS_MAPS_UNLOCKED]],
+                                             [0, 305, 440]);
     ColumnBox_Camps.Anchors := [];
     ColumnBox_Camps.SearchColumn := 0;
     ColumnBox_Camps.OnChange := ListChange;
@@ -89,8 +88,8 @@ begin
   for I := 0 to Camps.Count - 1 do
   with Camps[I] do
     ColumnBox_Camps.AddItem(MakeListRow(
-                        [CampaignTitle, IntToStr(MapCount), IntToStr(UnlockedMap+1), UnicodeString(ShortTitle)],
-                        [$FFFFFFFF, $FFFFFFFF, $FFFFFFFF, $00FFFFFF]));
+                        [CampaignTitle, IntToStr(MapCount), IntToStr(UnlockedMap+1)],
+                        [$FFFFFFFF, $FFFFFFFF, $FFFFFFFF], I));
 
   Button_Camp_Start.Disable;
 end;
@@ -98,12 +97,12 @@ end;
 
 procedure TKMMenuCampaigns.ListChange(Sender: TObject);
 var
-  CmpName: AnsiString;
+  cmp: TKMCampaignId;
   Camp: TKMCampaign;
 begin
   Button_Camp_Start.Enable;
-  CmpName := AnsiString(ColumnBox_Camps.Rows[ColumnBox_Camps.ItemIndex].Cells[3].Caption);
-  Camp := fGameApp.Campaigns.CampaignByTitle(CmpName);
+  cmp := fGameApp.Campaigns[ColumnBox_Camps.Rows[ColumnBox_Camps.ItemIndex].Tag].CampaignId;
+  Camp := fGameApp.Campaigns.CampaignById(cmp);
 
   Image_CampsPreview.RX := Camp.BackGroundPic.RX;
   Image_CampsPreview.TexID := Camp.BackGroundPic.ID;
@@ -114,12 +113,12 @@ end;
 
 procedure TKMMenuCampaigns.StartClick(Sender: TObject);
 var
-  CmpName: UnicodeString;
+  cmp: UnicodeString;
 begin
-  //Get the caption and pass it to Campaign selection menu (it will be casted to AnsiString there)
+  //Get the caption and pass it to Campaign selection menu (it will be casted to TKMCampaignName there)
   //so that we avoid cast/uncast/cast along the event chain
-  CmpName := ColumnBox_Camps.Rows[ColumnBox_Camps.ItemIndex].Cells[3].Caption;
-  fOnPageChange(gpCampaign, CmpName);
+  cmp := fGameApp.Campaigns[ColumnBox_Camps.Rows[ColumnBox_Camps.ItemIndex].Tag].CampName;
+  fOnPageChange(gpCampaign, cmp);
 end;
 
 

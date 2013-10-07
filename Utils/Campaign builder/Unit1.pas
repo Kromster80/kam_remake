@@ -210,7 +210,7 @@ begin
     Exit;
   end;
 
-  if Length(Trim(C.ShortTitle)) <> 3 then
+  if Length(Trim(C.CampName)) <> 3 then
   begin
     ShowMessage('Campaign short title must be 3 characters');
     Exit;
@@ -273,10 +273,15 @@ end;
 
 
 procedure TForm1.edtShortNameChange(Sender: TObject);
+var
+  cmp: TKMCampaignId;
 begin
   if fUpdating then Exit;
 
-  C.ShortTitle := AnsiString(edtShortName.Text);
+  cmp[0] := Ord(edtShortName.Text[1]);
+  cmp[1] := Ord(edtShortName.Text[2]);
+  cmp[2] := Ord(edtShortName.Text[3]);
+  C.CampaignId := cmp;
 
   //Shortname may be used as mapname in List
   UpdateList;
@@ -372,14 +377,14 @@ var
 begin
   fUpdating := True;
 
-  edtShortName.Text := C.ShortTitle;
+  edtShortName.Text := C.CampName;
   seMapCount.Value := C.MapCount;
 
   tvList.Items.Clear;
 
   for I := 0 to C.MapCount - 1 do
   begin
-    N := tvList.Items.AddChild(nil, C.ShortTitle + ' mission ' + IntToStr(I + 1));
+    N := tvList.Items.AddChild(nil, C.CampName + ' mission ' + IntToStr(I + 1));
     if fSelectedMap = I then
       N.Selected := True;
 

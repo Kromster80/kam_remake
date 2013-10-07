@@ -4,7 +4,7 @@ interface
 uses
   Controls, SysUtils,
   KM_Controls, KM_Defaults, KM_Pics,
-  KM_InterfaceDefaults;
+  KM_InterfaceDefaults, KM_Campaigns;
 
 
 type
@@ -21,7 +21,7 @@ type
     fRepeatGameName: UnicodeString;
     fRepeatMission: UnicodeString;
     fRepeatSave: UnicodeString;
-    fRepeatCampName: AnsiString;
+    fRepeatCampName: TKMCampaignId;
     fRepeatCampMap: Byte;
     fRepeatLocation: Byte;
     fRepeatColor: Cardinal;

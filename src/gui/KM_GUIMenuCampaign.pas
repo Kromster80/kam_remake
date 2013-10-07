@@ -35,7 +35,7 @@ type
 
     procedure MouseMove(Shift: TShiftState; X,Y: Integer);
     procedure Resize(X, Y: Word);
-    procedure Show(aCampaign: AnsiString);
+    procedure Show(aCampaign: TKMCampaignId);
   end;
 
 
@@ -200,9 +200,9 @@ begin
 end;
 
 
-procedure TKMMenuCampaign.Show(aCampaign: AnsiString);
+procedure TKMMenuCampaign.Show(aCampaign: TKMCampaignId);
 begin
-  Campaign_Set(fGameApp.Campaigns.CampaignByTitle(aCampaign));
+  Campaign_Set(fGameApp.Campaigns.CampaignById(aCampaign));
 
   //Refresh;
   Panel_Campaign.Show;

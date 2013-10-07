@@ -64,7 +64,7 @@ begin
 
   Check(FKMCampaign.MapCount = 20);
   Check(FKMCampaign.Maps[0].NodeCount > 0);
-  Check(FKMCampaign.ShortTitle <> '');
+  Check(FKMCampaign.CampName <> '');
   Check(FKMCampaign.UnlockedMap = 0);
   Check(FKMCampaign.MissionFile(0) <> '');
 

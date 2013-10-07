@@ -9,6 +9,8 @@ type
   { Extended with custom Read/Write commands which accept various types without asking for their length}
   TKMemoryStream = class(TMemoryStream)
   public
+    {$DEFINE PERMIT_ANSI_STRING}
+    {$IFDEF PERMIT_ANSI_STRING}
     //Legacy format for campaigns info, maxlength 65k ansichars
     procedure ReadA(out Value: AnsiString); reintroduce; overload;
     procedure WriteA(const Value: AnsiString); reintroduce; overload;
@@ -18,6 +20,11 @@ type
     //Ansistrings saved by PascalScript into savegame
     procedure ReadHugeString(out Value: AnsiString);
     procedure WriteHugeString(const Value: AnsiString);
+    {$ENDIF}
+
+    //Replacement of ReadAnsi for legacy use (campaign Ids (short names) in CMP)
+    procedure ReadBytes(out Value: TBytes);
+    procedure WriteBytes(const Value: TBytes);
 
     //Unicode strings
     procedure ReadW(out Value: UnicodeString); reintroduce; overload;
@@ -158,6 +165,16 @@ end;
 
 
 { TKMemoryStream }
+{$IFDEF PERMIT_ANSI_STRING}
+procedure TKMemoryStream.ReadA(out Value: AnsiString);
+var I: Word;
+begin
+  Read(I, SizeOf(I));
+  SetLength(Value, I);
+  if I > 0 then
+    Read(Pointer(Value)^, I);
+end;
+
 procedure TKMemoryStream.WriteA(const Value: AnsiString);
 var I: Word;
 begin
@@ -167,6 +184,14 @@ begin
   inherited Write(Pointer(Value)^, I);
 end;
 
+procedure TKMemoryStream.ReadHugeString(out Value: AnsiString);
+var I: Cardinal;
+begin
+  Read(I, SizeOf(I));
+  SetLength(Value, I);
+  if I > 0 then
+    Read(Pointer(Value)^, I);
+end;
 
 procedure TKMemoryStream.WriteHugeString(const Value: AnsiString);
 var I: Cardinal;
@@ -176,6 +201,14 @@ begin
   if I = 0 then Exit;
   inherited Write(Pointer(Value)^, I);
 end;
+
+procedure TKMemoryStream.ReadAssert(const Value: AnsiString);
+var S: AnsiString;
+begin
+  ReadA(s);
+  Assert(s = Value, 'TKMemoryStream.Read <> Value: '+Value);
+end;
+{$ENDIF}
 
 
 procedure TKMemoryStream.WriteW(const Value: UnicodeString);
@@ -187,6 +220,25 @@ begin
   inherited Write(Pointer(Value)^, I * SizeOf(WideChar));
 end;
 
+procedure TKMemoryStream.ReadBytes(out Value: TBytes);
+var
+  I: Word;
+begin
+  Read(I, SizeOf(I));
+  SetLength(Value, I);
+  if I > 0 then
+    Read(Pointer(Value)^, I);
+end;
+
+procedure TKMemoryStream.WriteBytes(const Value: TBytes);
+var
+  I: Word;
+begin
+  I := Length(Value);
+  inherited Write(I, SizeOf(I));
+  if I = 0 then Exit;
+  inherited Write(Pointer(Value)^, I);
+end;
 
 procedure TKMemoryStream.Write(const Value: TKMPointDir);
 begin
@@ -217,25 +269,6 @@ begin Result := inherited Write(Value, SizeOf(Value)); end;
 function TKMemoryStream.Write(const Value:shortint): Longint;
 begin Result := inherited Write(Value, SizeOf(Value)); end;
 
-
-procedure TKMemoryStream.ReadA(out Value: AnsiString);
-var I: Word;
-begin
-  Read(I, SizeOf(I));
-  SetLength(Value, I);
-  if I > 0 then
-    Read(Pointer(Value)^, I);
-end;
-
-
-procedure TKMemoryStream.ReadHugeString(out Value: AnsiString);
-var I: Cardinal;
-begin
-  Read(I, SizeOf(I));
-  SetLength(Value, I);
-  if I > 0 then
-    Read(Pointer(Value)^, I);
-end;
 
 procedure TKMemoryStream.ReadW(out Value: UnicodeString);
 var I: Word;
@@ -275,14 +308,6 @@ function TKMemoryStream.Read(out Value:word): Longint;
 begin Result := inherited Read(Value, SizeOf(Value)); end;
 function TKMemoryStream.Read(out Value:shortint): Longint;
 begin Result := inherited Read(Value, SizeOf(Value)); end;
-
-
-procedure TKMemoryStream.ReadAssert(const Value: AnsiString);
-var S: AnsiString;
-begin
-  ReadA(s);
-  Assert(s = Value, 'TKMemoryStream.Read <> Value: '+Value);
-end;
 
 
 { TKMPointList }

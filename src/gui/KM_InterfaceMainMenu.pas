@@ -68,7 +68,8 @@ type
 
 
 implementation
-uses KM_ResTexts, KM_GameApp, KM_Log, KM_Networking, KM_RenderUI, KM_ResFonts;
+uses
+  KM_ResTexts, KM_Campaigns, KM_GameApp, KM_Log, KM_Networking, KM_RenderUI, KM_ResFonts;
 
 
 { TKMMainMenuInterface }
@@ -203,6 +204,7 @@ end;
 procedure TKMMainMenuInterface.PageChange(Dest: TKMMenuPage; aText: UnicodeString = '');
 var
   I: Integer;
+  cmp: TKMCampaignId;
 begin
   Label_Version.Caption := GAME_VERSION + ' / ' + fGameApp.RenderVersion;
 
@@ -226,7 +228,12 @@ begin
                       else
                         Assert(False);
                     end;
-    gpCampaign:     fMenuCampaign.Show(AnsiString(aText));
+    gpCampaign:     begin
+                      cmp[0] := Ord(aText[1]);
+                      cmp[1] := Ord(aText[2]);
+                      cmp[2] := Ord(aText[3]);
+                      fMenuCampaign.Show(cmp);
+                    end;
     gpCampSelect:   fMenuCampaigns.Show;
     gpCredits:      fMenuCredits.Show;
     gpOptions:      fMenuOptions.Show;

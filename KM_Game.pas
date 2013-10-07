@@ -9,7 +9,7 @@ uses
   KM_CommonTypes, KM_Defaults, KM_Points,
   KM_GameInputProcess, KM_GameOptions,
   KM_InterfaceDefaults, KM_InterfaceGame, KM_InterfaceMapEditor, KM_InterfaceGamePlay,
-  KM_MapEditor, KM_Networking, KM_Scripting,
+  KM_MapEditor, KM_Networking, KM_Scripting, KM_Campaigns,
   KM_PathFinding, KM_PathFindingAStarOld, KM_PathFindingAStarNew, KM_PathFindingJPS,
   KM_PerfLog, KM_Projectiles, KM_Render, KM_ResTexts;
 
@@ -50,7 +50,7 @@ type
 
   //Should be saved
     fCampaignMap: Byte;         //Which campaign map it is, so we can unlock next one on victory
-    fCampaignName: AnsiString;  //Is this a game part of some campaign
+    fCampaignName: TKMCampaignId;  //Is this a game part of some campaign
     fGameName: UnicodeString;
     fGameTickCount: Cardinal;
     fUIDTracker: Cardinal;       //Units-Houses tracker, to issue unique IDs
@@ -78,7 +78,7 @@ type
     constructor Create(aGameMode: TGameMode; aRender: TRender; aNetworking: TKMNetworking);
     destructor Destroy; override;
 
-    procedure GameStart(aMissionFile, aGameName: UnicodeString; aCampName: AnsiString; aCampMap: Byte; aLocation: ShortInt; aColor: Cardinal); overload;
+    procedure GameStart(aMissionFile, aGameName: UnicodeString; aCampName: TKMCampaignId; aCampMap: Byte; aLocation: ShortInt; aColor: Cardinal); overload;
     procedure GameStart(aSizeX, aSizeY: Integer); overload;
     procedure Load(const aPathName: UnicodeString);
 
@@ -112,7 +112,7 @@ type
     procedure OverlayAppendFormatted(aText: UnicodeString; aParams: array of const);
     property GameTickCount:cardinal read fGameTickCount;
     property GameName: UnicodeString read fGameName;
-    property CampaignName: AnsiString read fCampaignName;
+    property CampaignName: TKMCampaignId read fCampaignName;
     property CampaignMap: Byte read fCampaignMap;
     property GameSpeed: Single read fGameSpeed;
     function PlayerLoc: Byte;
@@ -282,7 +282,7 @@ end;
 
 
 //New mission
-procedure TKMGame.GameStart(aMissionFile, aGameName: UnicodeString; aCampName: AnsiString; aCampMap: Byte; aLocation: ShortInt; aColor: Cardinal);
+procedure TKMGame.GameStart(aMissionFile, aGameName: UnicodeString; aCampName: TKMCampaignId; aCampMap: Byte; aLocation: ShortInt; aColor: Cardinal);
 const
   GAME_PARSE: array [TGameMode] of TMissionParsingMode = (
     mpm_Single, mpm_Multi, mpm_Editor, mpm_Single, mpm_Single);
@@ -1066,7 +1066,7 @@ begin
       fGamePlayInterface.SaveMinimap(SaveStream);
 
     //We need to know which campaign to display after victory
-    SaveStream.WriteA(fCampaignName);
+    SaveStream.Write(fCampaignName, SizeOf(TKMCampaignId));
     SaveStream.Write(fCampaignMap);
 
     //We need to know which mission/savegame to try to restart
@@ -1189,7 +1189,7 @@ begin
     fGamePlayInterface.LoadMinimap(LoadStream);
 
   //We need to know which campaign to display after victory
-  LoadStream.ReadA(fCampaignName);
+  LoadStream.Read(fCampaignName, SizeOf(TKMCampaignId));
   LoadStream.Read(fCampaignMap);
 
   //We need to know which mission/savegame to try to restart
