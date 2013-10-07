@@ -269,11 +269,13 @@ end;
 
 
 procedure TKMMenuResultsSP.Create_Results(aParent: TKMPanel);
-const StatText: array [1..9] of Word = (
+const
+  StatText: array [1..9] of Word = (
     TX_RESULTS_UNITS_LOST,      TX_RESULTS_UNITS_DEFEATED,  TX_RESULTS_HOUSES_LOST,
     TX_RESULTS_HOUSES_DESTROYED,TX_RESULTS_HOUSES_BUILT,    TX_RESULTS_UNITS_TRAINED,
     TX_RESULTS_WEAPONS_MADE,    TX_RESULTS_SOLDIERS_TRAINED,TX_RESULTS_MISSION_TIME);
-var I, Adv: Integer;
+var
+  I, Adv: Integer;
 begin
   Panel_Results := TKMPanel.Create(aParent,0,0,aParent.Width, aParent.Height);
   Panel_Results.AnchorsStretch;
@@ -367,13 +369,13 @@ begin
       Chart_Wares.Anchors := [akLeft];
     end;
 
-    Button_ResultsBack := TKMButton.Create(Panel_Results,30,610,220,30,gResTexts[TX_MENU_BACK],bsMenu);
+    Button_ResultsBack := TKMButton.Create(Panel_Results, 30, 610, 220, 30, gResTexts[TX_MENU_BACK], bsMenu);
     Button_ResultsBack.Anchors := [akLeft];
     Button_ResultsBack.OnClick := BackClick;
-    Button_ResultsRepeat := TKMButton.Create(Panel_Results,270,610,220,30,gResTexts[TX_MENU_MISSION_REPEAT],bsMenu);
+    Button_ResultsRepeat := TKMButton.Create(Panel_Results, 270, 610, 220, 30, gResTexts[TX_MENU_MISSION_REPEAT], bsMenu);
     Button_ResultsRepeat.Anchors := [akLeft];
     Button_ResultsRepeat.OnClick := RepeatClick;
-    Button_ResultsContinue := TKMButton.Create(Panel_Results,510,610,220,30,gResTexts[TX_MENU_MISSION_NEXT],bsMenu);
+    Button_ResultsContinue := TKMButton.Create(Panel_Results, 510, 610, 220, 30, gResTexts[TX_MENU_MISSION_NEXT], bsMenu);
     Button_ResultsContinue.Anchors := [akLeft];
     Button_ResultsContinue.OnClick := ContinueClick;
 end;

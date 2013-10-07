@@ -424,7 +424,7 @@ begin
       begin
         PlacePoint := T; // Assign if all test are passed
         Result := True;
-        exit;
+        Exit;
       end;
     end;
   end;
@@ -473,7 +473,8 @@ end;
 
 //MapEd procedure to remove any house under cursor
 procedure TKMHandsCollection.RemAnyHouse(Position: TKMPoint);
-var I: Integer;
+var
+  I: Integer;
 begin
   for I := 0 to fCount - 1 do
     fHandsList[I].RemHouse(Position, true, true);
@@ -482,7 +483,8 @@ end;
 
 //MapEd procedure to remove any unit under cursor
 procedure TKMHandsCollection.RemAnyUnit(Position: TKMPoint);
-var I: Integer;
+var
+  I: Integer;
 begin
   for I := 0 to fCount - 1 do
     fHandsList[I].RemGroup(Position);
@@ -495,7 +497,8 @@ end;
 //Reveal portion of terrain for said player and his allies (if they share vision)
 //In singleplayer KaM sometimes you should not see your allies till some time
 procedure TKMHandsCollection.RevealForTeam(aPlayer: THandIndex; Pos: TKMPoint; Radius, Amount: Word);
-var I: Integer;
+var
+  I: Integer;
 begin
   fHandsList[aPlayer].FogOfWar.RevealCircle(Pos,Radius,Amount);
 
@@ -507,7 +510,8 @@ end;
 
 //Synchronize FOW between players (e.g. when alliances change)
 procedure TKMHandsCollection.SyncFogOfWar;
-var I,K: Integer;
+var
+  I, K: Integer;
 begin
   for I := 0 to fCount - 1 do
   for K := 0 to fCount - 1 do
@@ -517,7 +521,8 @@ end;
 
 
 procedure TKMHandsCollection.AddDefaultGoalsToAll(aMissionMode: TKMissionMode);
-var I: Integer;
+var
+  I: Integer;
 begin
   for I := 0 to fCount - 1 do
     fHandsList[I].AI.AddDefaultGoals(aMissionMode <> mm_Tactic);
@@ -559,7 +564,8 @@ end;
 
 
 procedure TKMHandsCollection.SyncLoad;
-var I: Integer;
+var
+  I: Integer;
 begin
   for I := 0 to fCount - 1 do
     fHandsList[I].SyncLoad;
@@ -569,7 +575,8 @@ end;
 
 
 procedure TKMHandsCollection.IncAnimStep;
-var I: Integer;
+var
+  I: Integer;
 begin
   for I := 0 to fCount - 1 do
     fHandsList[I].IncAnimStep;
@@ -592,7 +599,8 @@ end;
 
 
 procedure TKMHandsCollection.Paint(aRect: TKMRect);
-var I: Integer;
+var
+  I: Integer;
 begin
   for I := 0 to fCount - 1 do
     fHandsList[I].Paint(aRect);
