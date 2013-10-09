@@ -1,7 +1,8 @@
 unit KM_Minimap;
 {$I KaM_Remake.inc}
 interface
-uses Classes, dglOpenGL, KromUtils, KromOGLUtils, Math, SysUtils,
+uses
+  Classes, KromUtils, KromOGLUtils, Math, SysUtils,
   KM_CommonClasses, KM_CommonTypes, KM_Defaults, KM_Points, KM_Utils,
   KM_MissionScript_Preview, KM_Render, KM_Terrain, KM_Alerts;
 
@@ -25,6 +26,7 @@ type
     fWidthPOT: Word;
     fHeightPOT: Word;
     procedure ApplySepia;
+    procedure Resize(aX, aY: Word);
     procedure UpdateMinimapFromGame;
     procedure UpdateMinimapFromParser(aRevealAll:Boolean);
     procedure UpdateTexture;
@@ -79,17 +81,12 @@ end;
 
 //Load map in a direct way, should be used only when in Menu
 procedure TKMMinimap.LoadFromMission(aMissionPath: string; const aRevealFor: array of THandIndex);
-var I: Integer;
+var
+  I: Integer;
 begin
   fParser.LoadMission(aMissionPath, aRevealFor);
 
-  fMapX := fParser.MapX - 1;
-  fMapY := fParser.MapY - 1;
-  SetLength(fBase, fMapX * fMapY);
-  fWidthPOT := MakePOT(fMapX);
-  fHeightPOT := MakePOT(fMapY);
-  fMapTex.U := fMapX / fWidthPOT;
-  fMapTex.V := fMapY / fHeightPOT;
+  Resize(fParser.MapX - 1, fParser.MapY - 1);
 
   for I := 0 to MAX_HANDS - 1 do
   begin
@@ -101,16 +98,12 @@ end;
 
 
 procedure TKMMinimap.LoadFromTerrain;
-var I: Integer;
+var
+  I: Integer;
 begin
   fMyTerrain := gTerrain;
-  fMapX := fMyTerrain.MapX - 1;
-  fMapY := fMyTerrain.MapY - 1;
-  SetLength(fBase, fMapX * fMapY);
-  fWidthPOT := MakePOT(fMapX);
-  fHeightPOT := MakePOT(fMapY);
-  fMapTex.U := fMapX / fWidthPOT;
-  fMapTex.V := fMapY / fHeightPOT;
+
+  Resize(fMyTerrain.MapX - 1, fMyTerrain.MapY - 1);
 
   for I := 0 to MAX_HANDS - 1 do
   begin
@@ -118,6 +111,18 @@ begin
     HandLocs[I] := KMPoint(0,0);
     HandShow[I] := False;
   end;
+end;
+
+
+procedure TKMMinimap.Resize(aX, aY: Word);
+begin
+  fMapX := aX;
+  fMapY := aY;
+  SetLength(fBase, fMapX * fMapY);
+  fWidthPOT := MakePOT(fMapX);
+  fHeightPOT := MakePOT(fMapY);
+  fMapTex.U := fMapX / fWidthPOT;
+  fMapTex.V := fMapY / fHeightPOT;
 end;
 
 
@@ -327,10 +332,8 @@ begin
     LoadStream.Read(HandShow[I]);
   end;
 
-  fWidthPOT := MakePOT(fMapX);
-  fHeightPOT := MakePOT(fMapY);
-  fMapTex.U := fMapX / fWidthPOT;
-  fMapTex.V := fMapY / fHeightPOT;
+  //Resize will update UV bounds. Resizing fBase is ok since the size does not changes
+  Resize(fMapX, fMapY);
 
   if fMapX * fMapY = 0 then Exit;
 
