@@ -2557,7 +2557,7 @@ procedure TKMPercentBar.Paint;
 begin
   inherited;
 
-  TKMRenderUI.WritePercentBar(AbsLeft,AbsTop,Width,Height, fSeam, fPosition);
+  TKMRenderUI.WritePercentBar(AbsLeft, AbsTop, Width, Height, fPosition, fSeam);
 
   //Now draw text over the bar, if it is required
   if Caption <> '' then

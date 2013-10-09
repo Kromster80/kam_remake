@@ -1994,7 +1994,7 @@ begin
 
   //If we get to this point then it means that common part is done and now
   //we can perform unit-specific activities (ask for job, etc..)
-  Result := false;
+  Result := False;
 end;
 
 
@@ -2016,18 +2016,20 @@ end;
 constructor TUnitTask.Create(aUnit: TKMUnit);
 begin
   inherited Create;
+
   fTaskName := utn_Unknown;
   Assert(aUnit <> nil);
   fUnit := aUnit.GetUnitPointer;
-  fUnit.SetActionLockedStay(0,ua_Walk);
-  fPhase    := 0;
-  fPhase2   := 0;
+  fUnit.SetActionLockedStay(0, ua_Walk);
+  fPhase  := 0;
+  fPhase2 := 0;
 end;
 
 
 constructor TUnitTask.Load(LoadStream: TKMemoryStream);
 begin
   inherited Create;
+
   LoadStream.Read(fTaskName, SizeOf(fTaskName));
   LoadStream.Read(fUnit, 4);//Substitute it with reference on SyncLoad
   LoadStream.Read(fPhase);

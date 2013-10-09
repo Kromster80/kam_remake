@@ -18,18 +18,18 @@ type
     class procedure SetupClipY        (Y1,Y2: SmallInt);
     class procedure ReleaseClipX;
     class procedure ReleaseClipY;
-    class procedure Write3DButton     (PosX,PosY,SizeX,SizeY: SmallInt; aRX: TRXType; aID: Word; aFlagColor: TColor4; State: TButtonStateSet; aStyle: TButtonStyle);
-    class procedure WriteBevel        (X, Y, W, H: SmallInt; aEdgeAlpha: Single = 1; aBackAlpha: Single = 0.5);
-    class procedure WritePercentBar   (PosX,PosY,SizeX,SizeY:SmallInt; aSeam: Single; aPos: Single);
-    class procedure WritePicture      (PosX,PosY,SizeX,SizeY: SmallInt; aAnchors: TAnchors; aRX: TRXType; aID: Word; Enabled: Boolean = True; aColor: TColor4 = $FFFF00FF; aLightness: Single = 0);
-    class procedure WritePlot         (PosX,PosY,SizeX,SizeY: SmallInt; aValues: TKMCardinalArray; aMaxValue: Cardinal; aColor: TColor4; LineWidth: Byte);
-    class procedure WriteOutline      (PosX,PosY,SizeX,SizeY,LineWidth: SmallInt; Col: TColor4);
-    class procedure WriteShape        (PosX,PosY,SizeX,SizeY:smallint; Col:TColor4; Outline: TColor4 = $00000000);
-    class procedure WriteLine         (X1,Y1,X2,Y2: Single; aCol: TColor4; aPattern: Word = $FFFF);
-    class procedure WriteText         (X,Y,W: smallint; aText: string; aFont: TKMFont; aAlign: TTextAlign; aColor: TColor4 = $FFFFFFFF; aIgnoreMarkup:Boolean = False; aShowMarkup:Boolean=False);
-    class procedure WriteTexture      (PosX,PosY,SizeX,SizeY:smallint; aTexture: TTexture; aCol: TColor4);
-    class procedure WriteCircle       (PosX,PosY: SmallInt; Rad: Byte; aFillCol: TColor4);
-    class procedure WriteShadow       (PosX,PosY,SizeX,SizeY: SmallInt; aBlur: Byte; aCol: TColor4);
+    class procedure Write3DButton     (aLeft, aTop, aWidth, aHeight: SmallInt; aRX: TRXType; aID: Word; aFlagColor: TColor4; aState: TButtonStateSet; aStyle: TButtonStyle);
+    class procedure WriteBevel        (aLeft, aTop, aWidth, aHeight: SmallInt; aEdgeAlpha: Single = 1; aBackAlpha: Single = 0.5);
+    class procedure WritePercentBar   (aLeft, aTop, aWidth, aHeight: SmallInt; aPos: Single; aSeam: Single);
+    class procedure WritePicture      (aLeft, aTop, aWidth, aHeight: SmallInt; aAnchors: TAnchors; aRX: TRXType; aID: Word; aEnabled: Boolean = True; aColor: TColor4 = $FFFF00FF; aLightness: Single = 0);
+    class procedure WritePlot         (aLeft, aTop, aWidth, aHeight: SmallInt; aValues: TKMCardinalArray; aMaxValue: Cardinal; aColor: TColor4; aLineWidth: Byte);
+    class procedure WriteOutline      (aLeft, aTop, aWidth, aHeight, aLineWidth: SmallInt; Col: TColor4);
+    class procedure WriteShape        (aLeft, aTop, aWidth, aHeight: SmallInt; Col: TColor4; Outline: TColor4 = $00000000);
+    class procedure WriteLine         (aFromX, aFromY, aToX, aToY: Single; aCol: TColor4; aPattern: Word = $FFFF);
+    class procedure WriteText         (aLeft, aTop, aWidth: SmallInt; aText: string; aFont: TKMFont; aAlign: TTextAlign; aColor: TColor4 = $FFFFFFFF; aIgnoreMarkup: Boolean = False; aShowMarkup: Boolean = False);
+    class procedure WriteTexture      (aLeft, aTop, aWidth, aHeight: SmallInt; aTexture: TTexture; aCol: TColor4);
+    class procedure WriteCircle       (aCenterX, aCenterY: SmallInt; aRadius: Byte; aFillColor: TColor4);
+    class procedure WriteShadow       (aLeft, aTop, aWidth, aHeight: SmallInt; aBlur: Byte; aCol: TColor4);
   end;
 
 
@@ -81,7 +81,7 @@ begin
 end;
 
 
-class procedure TKMRenderUI.Write3DButton(PosX,PosY,SizeX,SizeY: SmallInt; aRX: TRXType; aID: Word; aFlagColor: TColor4; State: TButtonStateSet; aStyle: TButtonStyle);
+class procedure TKMRenderUI.Write3DButton(aLeft, aTop, aWidth, aHeight: SmallInt; aRX: TRXType; aID: Word; aFlagColor: TColor4; aState: TButtonStateSet; aStyle: TButtonStyle);
 var
   Down: Byte;
   Chamfer: Byte;
@@ -101,20 +101,20 @@ begin
     BackID := 402; //Gui-402 is a stone background
   end;
 
-  Down := Byte(bsDown in State);
+  Down := Byte(bsDown in aState);
 
   with GFXData[BackRX, BackID] do
   with GFXData[BackRX, BackID].Tex do
   if PxWidth * PxHeight <> 0 then //Make sure data was loaded properly
   begin
-    A.X := u1 + (u2 - u1) * (PosX - Down) / 2 / PxWidth;
-    B.X := u1 + (u2 - u1) * (PosX + SizeX - Down) / 2 / PxWidth;
-    A.Y := v1 + (v2 - v1) * (PosY - Down) / 2 / PxHeight;
-    B.Y := v1 + (v2 - v1) * (PosY + SizeY - Down) / 2 / PxHeight;
-    A.X := A.X - (u2 - u1) * ((PosX + SizeX div 2) div PxWidth) / 2;
-    B.X := B.X - (u2 - u1) * ((PosX + SizeX div 2) div PxWidth) / 2;
-    A.Y := A.Y - (v2 - v1) * ((PosY + SizeY div 2) div PxHeight) / 2;
-    B.Y := B.Y - (v2 - v1) * ((PosY + SizeY div 2) div PxHeight) / 2;
+    A.X := u1 + (u2 - u1) * (aLeft - Down) / 2 / PxWidth;
+    B.X := u1 + (u2 - u1) * (aLeft + aWidth - Down) / 2 / PxWidth;
+    A.Y := v1 + (v2 - v1) * (aTop - Down) / 2 / PxHeight;
+    B.Y := v1 + (v2 - v1) * (aTop + aHeight - Down) / 2 / PxHeight;
+    A.X := A.X - (u2 - u1) * ((aLeft + aWidth div 2) div PxWidth) / 2;
+    B.X := B.X - (u2 - u1) * ((aLeft + aWidth div 2) div PxWidth) / 2;
+    A.Y := A.Y - (v2 - v1) * ((aTop + aHeight div 2) div PxHeight) / 2;
+    B.Y := B.Y - (v2 - v1) * ((aTop + aHeight div 2) div PxHeight) / 2;
     A.X := EnsureRange(A.X, u1, u2);
     B.X := EnsureRange(B.X, u1, u2);
     A.Y := EnsureRange(A.Y, v1, v2);
@@ -122,16 +122,16 @@ begin
   end;
 
   glPushMatrix;
-    glTranslatef(PosX, PosY, 0);
+    glTranslatef(aLeft, aTop, 0);
 
       //Background
       glColor4f(1, 1, 1, 1);
       glBindTexture(GL_TEXTURE_2D, GFXData[BackRX, BackID].Tex.ID);
       glBegin(GL_QUADS);
         glTexCoord2f(A.x,A.y); glVertex2f(0,0);
-        glTexCoord2f(B.x,A.y); glVertex2f(SizeX,0);
-        glTexCoord2f(B.x,B.y); glVertex2f(SizeX,SizeY);
-        glTexCoord2f(A.x,B.y); glVertex2f(0,SizeY);
+        glTexCoord2f(B.x,A.y); glVertex2f(aWidth,0);
+        glTexCoord2f(B.x,B.y); glVertex2f(aWidth,aHeight);
+        glTexCoord2f(A.x,B.y); glVertex2f(0,aHeight);
       glEnd;
 
       //Render beveled edges
@@ -139,13 +139,13 @@ begin
 
       c1 := 1 - Down;
       c2 := Down;
-      Chamfer := 2 + Byte(Min(SizeX, SizeY) > 25);
+      Chamfer := 2 + Byte(Min(aWidth, aHeight) > 25);
 
       glPushMatrix;
         //Scale to save on XY+/-Inset coordinates calculations
-        glScalef(SizeX, SizeY, 0);
-        InsetX := Chamfer / SizeX;
-        InsetY := Chamfer / SizeY;
+        glScalef(aWidth, aHeight, 0);
+        InsetX := Chamfer / aWidth;
+        InsetY := Chamfer / aHeight;
         glBegin(GL_QUADS);
           glColor4f(c1,c1,c1,0.7); glkQuad(0, 0, 1,        0,        1-InsetX, 0+InsetY, 0+InsetX, 0+InsetY);
           glColor4f(c1,c1,c1,0.6); glkQuad(0, 0, 0+InsetX, 0+InsetY, 0+InsetX, 1-InsetY, 0,        1       );
@@ -158,24 +158,24 @@ begin
     if aID <> 0 then
     begin
       glColor4f(1, 1, 1, 1);
-      WritePicture(Down, Down, SizeX, SizeY, [], aRX, aID, True, aFlagColor);
+      WritePicture(Down, Down, aWidth, aHeight, [], aRX, aID, True, aFlagColor);
     end;
 
     //Render MouseOver highlight
-    if bsOver in State then
+    if bsOver in aState then
     begin
       glColor4f(1, 1, 1, 0.15);
       glBegin(GL_QUADS);
-        glkRect(0, 0, SizeX, SizeY);
+        glkRect(0, 0, aWidth, aHeight);
       glEnd;
     end;
 
     //Render darklight when Disabled
-    if bsDisabled in State then
+    if bsDisabled in aState then
     begin
       glColor4f(0, 0, 0, 0.5);
       glBegin(GL_QUADS);
-        glkRect(0, 0, SizeX, SizeY);
+        glkRect(0, 0, aWidth, aHeight);
       glEnd;
     end;
 
@@ -183,16 +183,16 @@ begin
 end;
 
 
-class procedure TKMRenderUI.WriteBevel(X, Y, W, H: SmallInt; aEdgeAlpha: Single = 1; aBackAlpha: Single = 0.5);
+class procedure TKMRenderUI.WriteBevel(aLeft, aTop, aWidth, aHeight: SmallInt; aEdgeAlpha: Single = 1; aBackAlpha: Single = 0.5);
 begin
-  if (W < 0) or (H < 0) then Exit;
+  if (aWidth < 0) or (aHeight < 0) then Exit;
   glPushMatrix;
-    glTranslatef(X, Y, 0);
+    glTranslatef(aLeft, aTop, 0);
 
     //Background
     glColor4f(0, 0, 0, aBackAlpha);
     glBegin(GL_QUADS);
-      glkRect(1, 1, W-1, H-1);
+      glkRect(1, 1, aWidth-1, aHeight-1);
     glEnd;
 
     //2 Thin outlines rendered on top of background to avoid inset calculations
@@ -202,25 +202,25 @@ begin
       glBlendFunc(GL_DST_COLOR, GL_ONE);
       glColor3f(0.75 * aEdgeAlpha, 0.75 * aEdgeAlpha, 0.75 * aEdgeAlpha);
       glBegin(GL_LINE_STRIP);
-        glVertex2f(W-0.5, 0.5);
-        glVertex2f(W-0.5, H-0.5);
-        glVertex2f(0.5, H-0.5);
+        glVertex2f(aWidth-0.5, 0.5);
+        glVertex2f(aWidth-0.5, aHeight-0.5);
+        glVertex2f(0.5, aHeight-0.5);
       glEnd;
 
       //Dark edge
       glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
       glColor4f(0, 0, 0, aEdgeAlpha);
       glBegin(GL_LINE_STRIP);
-        glVertex2f(0.5, H-0.5);
+        glVertex2f(0.5, aHeight-0.5);
         glVertex2f(0.5, 0.5);
-        glVertex2f(W-0.5, 0.5);
+        glVertex2f(aWidth-0.5, 0.5);
       glEnd;
     end;
   glPopMatrix;
 end;
 
 
-class procedure TKMRenderUI.WritePercentBar(PosX,PosY,SizeX,SizeY:SmallInt; aSeam: Single; aPos: Single);
+class procedure TKMRenderUI.WritePercentBar(aLeft,aTop,aWidth,aHeight: SmallInt; aPos: Single; aSeam: Single);
 const
   BAR_COLOR_GREEN: TColor4 = $FF00AA26;
   BAR_COLOR_BLUE: TColor4 = $FFBBAA00;
@@ -228,46 +228,46 @@ var
   BarWidth: Word;
 begin
   glPushMatrix;
-    glTranslatef(PosX, PosY, 0);
+    glTranslatef(aLeft, aTop, 0);
 
-    WriteBevel(0, 0, SizeX, SizeY);
+    WriteBevel(0, 0, aWidth, aHeight);
 
     //At least 2px wide to show up from under the shadow
-    BarWidth := Round((SizeX - 2) * (aPos)) + 2;
+    BarWidth := Round((aWidth - 2) * (aPos)) + 2;
     glColor4ubv(@BAR_COLOR_GREEN);
     glBegin(GL_QUADS);
-      glkRect(1, 1, BarWidth-1, SizeY-1);
+      glkRect(1, 1, BarWidth-1, aHeight-1);
     glEnd;
 
     if (aSeam > 0) then
     begin
       //At least 2px wide to show up from under the shadow
-      BarWidth := Round((SizeX - 2) * Min(aPos, aSeam)) + 2;
+      BarWidth := Round((aWidth - 2) * Min(aPos, aSeam)) + 2;
       glColor4ubv(@BAR_COLOR_BLUE);
       glBegin(GL_QUADS);
-        glkRect(1, 1, BarWidth-1, SizeY-1);
+        glkRect(1, 1, BarWidth-1, aHeight-1);
       glEnd;
 
       //Skip the seam if it matches high border
       if (aSeam < 1) then
-        WriteOutline(Round(aSeam * (SizeX - 2)) + 1, 1, 1, SizeY-2, 1, $FFFFFFFF);
+        WriteOutline(Round(aSeam * (aWidth - 2)) + 1, 1, 1, aHeight-2, 1, $FFFFFFFF);
     end;
 
     //Draw shadow on top and left of the bar, just like real one
     glColor4f(0,0,0,0.5); //Set semi-transparent black
     glBegin(GL_LINE_STRIP); //List vertices, order is important
-      glVertex2f(1.5,SizeY-1.5);
+      glVertex2f(1.5,aHeight-1.5);
       glVertex2f(1.5,1.5);
-      glVertex2f(SizeX-1.5,1.5);
-      glVertex2f(SizeX-1.5,2.5);
+      glVertex2f(aWidth-1.5,1.5);
+      glVertex2f(aWidth-1.5,2.5);
       glVertex2f(2.5,2.5);
-      glVertex2f(2.5,SizeY-1.5);
+      glVertex2f(2.5,aHeight-1.5);
     glEnd;
   glPopMatrix;
 end;
 
 
-class procedure TKMRenderUI.WritePicture(PosX,PosY,SizeX,SizeY: SmallInt; aAnchors: TAnchors; aRX: TRXType; aID: Word; Enabled: Boolean = True; aColor: TColor4 = $FFFF00FF; aLightness: Single = 0);
+class procedure TKMRenderUI.WritePicture(aLeft, aTop, aWidth, aHeight: SmallInt; aAnchors: TAnchors; aRX: TRXType; aID: Word; aEnabled: Boolean = True; aColor: TColor4 = $FFFF00FF; aLightness: Single = 0);
 var
   OffX, OffY: Integer;
   DrawWidth, DrawHeight: Integer;
@@ -281,36 +281,36 @@ begin
 
   //Both aAnchors means that we will need to stretch the image
   if (akLeft in aAnchors) and (akRight in aAnchors) then
-    DrawWidth := SizeX
+    DrawWidth := aWidth
   else
   if akLeft in aAnchors then
     //Use defaults
   else
   if akRight in aAnchors then
-    OffX := SizeX - DrawWidth
+    OffX := aWidth - DrawWidth
   else
     //No aAnchors means: draw the image in center
-    OffX := (SizeX - DrawWidth) div 2;
+    OffX := (aWidth - DrawWidth) div 2;
 
   if (akTop in aAnchors) and (akBottom in aAnchors) then
-    DrawHeight  := SizeY
+    DrawHeight  := aHeight
   else
   if akTop in aAnchors then
     //Use defaults
   else
   if akBottom in aAnchors then
-    OffY := SizeY - DrawHeight
+    OffY := aHeight - DrawHeight
   else
-    OffY := (SizeY - DrawHeight) div 2;
+    OffY := (aHeight - DrawHeight) div 2;
 
   with GFXData[aRX, aID] do
   begin
     glPushMatrix;
-      glTranslatef(PosX + OffX, PosY + OffY, 0);
+      glTranslatef(aLeft + OffX, aTop + OffY, 0);
 
       //Base layer
       glBindTexture(GL_TEXTURE_2D, Tex.ID);
-      if Enabled then glColor3f(1,1,1) else glColor3f(0.33,0.33,0.33);
+      if aEnabled then glColor3f(1,1,1) else glColor3f(0.33,0.33,0.33);
       glBegin(GL_QUADS);
         glTexCoord2f(Tex.u1,Tex.v1); glVertex2f(0            , 0             );
         glTexCoord2f(Tex.u2,Tex.v1); glVertex2f(0 + DrawWidth, 0             );
@@ -322,7 +322,7 @@ begin
       if Alt.ID <> 0 then
       begin
         glBindTexture(GL_TEXTURE_2D, Alt.ID);
-        if Enabled then
+        if aEnabled then
           glColor3ub(aColor AND $FF, aColor SHR 8 AND $FF, aColor SHR 16 AND $FF)
         else
           glColor3f(aColor AND $FF / 768, aColor SHR 8 AND $FF / 768, aColor SHR 16 AND $FF / 768);
@@ -358,56 +358,56 @@ begin
 end;
 
 
-class procedure TKMRenderUI.WritePlot(PosX,PosY,SizeX,SizeY: SmallInt; aValues: TKMCardinalArray; aMaxValue: Cardinal; aColor: TColor4; LineWidth: Byte);
+class procedure TKMRenderUI.WritePlot(aLeft,aTop,aWidth,aHeight: SmallInt; aValues: TKMCardinalArray; aMaxValue: Cardinal; aColor: TColor4; aLineWidth: Byte);
 var
   I: Integer;
 begin
   glPushAttrib(GL_LINE_BIT);
   glPushMatrix;
     //glEnable(GL_LINE_SMOOTH); //Smooth lines actually look odd in KaM
-    glTranslatef(PosX, PosY, 0);
-    glLineWidth(LineWidth);
+    glTranslatef(aLeft, aTop, 0);
+    glLineWidth(aLineWidth);
     glColor4ubv(@aColor);
     glBegin(GL_LINE_STRIP);
       for I := 0 to High(aValues) do
-        glVertex2f(I / High(aValues) * SizeX, SizeY - aValues[I] / aMaxValue * SizeY);
+        glVertex2f(I / High(aValues) * aWidth, aHeight - aValues[I] / aMaxValue * aHeight);
     glEnd;
   glPopAttrib;
   glPopMatrix;
 end;
 
 
-class procedure TKMRenderUI.WriteOutline(PosX,PosY,SizeX,SizeY,LineWidth:smallint; Col:TColor4);
+class procedure TKMRenderUI.WriteOutline(aLeft, aTop, aWidth, aHeight, aLineWidth: SmallInt; Col: TColor4);
 begin
-  if LineWidth = 0 then Exit;
+  if aLineWidth = 0 then Exit;
   glPushAttrib(GL_LINE_BIT);
-    glLineWidth(LineWidth);
+    glLineWidth(aLineWidth);
     glColor4ubv(@Col);
     glBegin(GL_LINE_LOOP);
-      glkRect(PosX+LineWidth/2, PosY+LineWidth/2, PosX+SizeX-LineWidth/2, PosY+SizeY-LineWidth/2);
+      glkRect(aLeft + aLineWidth / 2, aTop + aLineWidth / 2, aLeft + aWidth - aLineWidth / 2, aTop + aHeight - aLineWidth / 2);
     glEnd;
   glPopAttrib;
 end;
 
 
 //Renders plane with given color and optional 1px outline
-class procedure TKMRenderUI.WriteShape(PosX,PosY,SizeX,SizeY:smallint; Col:TColor4; Outline: TColor4 = $00000000);
+class procedure TKMRenderUI.WriteShape(aLeft, aTop, aWidth, aHeight: SmallInt; Col: TColor4; Outline: TColor4 = $00000000);
 begin
   glPushAttrib(GL_LINE_BIT);
     glColor4ubv(@Col);
     glBegin(GL_QUADS);
-      glkRect(PosX, PosY, PosX+SizeX, PosY+SizeY);
+      glkRect(aLeft, aTop, aLeft + aWidth, aTop + aHeight);
     glEnd;
     glLineWidth(1);
     glColor4ubv(@Outline);
     glBegin(GL_LINE_LOOP);
-      glkRect(PosX+0.5,PosY+0.5,PosX+SizeX-0.5,PosY+SizeY-0.5);
+      glkRect(aLeft + 0.5, aTop + 0.5, aLeft + aWidth - 0.5, aTop + aHeight - 0.5);
     glEnd;
   glPopAttrib;
 end;
 
 
-class procedure TKMRenderUI.WriteLine(X1,Y1,X2,Y2: Single; aCol: TColor4; aPattern: Word = $FFFF);
+class procedure TKMRenderUI.WriteLine(aFromX, aFromY, aToX, aToY: Single; aCol: TColor4; aPattern: Word = $FFFF);
 begin
   glColor4ubv(@aCol);
 
@@ -415,8 +415,8 @@ begin
   glLineStipple(2, aPattern);
 
   glBegin(GL_LINES);
-    glVertex2f(x1, y1);
-    glVertex2f(x2, y2);
+    glVertex2f(aFromX, aFromY);
+    glVertex2f(aToX, aToY);
   glEnd;
   glDisable(GL_LINE_STIPPLE);
 end;
@@ -424,7 +424,7 @@ end;
 
 {Renders a line of text}
 {By default color must be non-transparent white}
-class procedure TKMRenderUI.WriteText(X,Y,W: smallint; aText: string; aFont: TKMFont; aAlign: TTextAlign; aColor: TColor4 = $FFFFFFFF; aIgnoreMarkup:Boolean = False; aShowMarkup:Boolean = False);
+class procedure TKMRenderUI.WriteText(aLeft, aTop, aWidth: SmallInt; aText: string; aFont: TKMFont; aAlign: TTextAlign; aColor: TColor4 = $FFFFFFFF; aIgnoreMarkup: Boolean = False; aShowMarkup: Boolean = False);
 var
   I, K: Integer;
   LineCount,AdvX,AdvY,LineHeight,BlockWidth: Integer;
@@ -439,8 +439,8 @@ var
 begin
   if (aText = '') or (aColor = $00000000) then Exit;
 
-  if W <> 0 then
-    SetupClipX(X, X + W);
+  if aWidth <> 0 then
+    SetupClipX(aLeft, aLeft + aWidth);
 
   //Look for [$FFFFFF][] patterns that markup text color
   I := 0;
@@ -509,12 +509,12 @@ begin
     BlockWidth := Math.max(BlockWidth, LineWidth[I]);
 
   case aAlign of
-    taLeft:   AdvX := X;
-    taCenter: AdvX := X + (W - LineWidth[1]) div 2;
-    taRight:  AdvX := X + W - LineWidth[1];
-    else      AdvX := X;
+    taLeft:   AdvX := aLeft;
+    taCenter: AdvX := aLeft + (aWidth - LineWidth[1]) div 2;
+    taRight:  AdvX := aLeft + aWidth - LineWidth[1];
+    else      AdvX := aLeft;
   end;
-  AdvY := Y;
+  AdvY := aTop;
   LineCount := 1;
 
   glColor4ubv(@aColor);
@@ -547,9 +547,9 @@ begin
               Inc(AdvY, LineHeight);
               Inc(LineCount);
               case aAlign of
-                taLeft:   AdvX := X;
-                taCenter: AdvX := X + (W - LineWidth[LineCount]) div 2;
-                taRight:  AdvX := X + W - LineWidth[LineCount];
+                taLeft:   AdvX := aLeft;
+                taCenter: AdvX := aLeft + (aWidth - LineWidth[LineCount]) div 2;
+                taRight:  AdvX := aLeft + aWidth - LineWidth[LineCount];
               end;
             end;
       else  begin
@@ -577,9 +577,9 @@ begin
   begin
     glPushMatrix;
       case aAlign of
-        taLeft:   glTranslatef(X,                          Y, 0);
-        taCenter: glTranslatef(X + (W - BlockWidth) div 2, Y, 0);
-        taRight:  glTranslatef(X + (W - BlockWidth),       Y, 0);
+        taLeft:   glTranslatef(aLeft,                          aTop, 0);
+        taCenter: glTranslatef(aLeft + (aWidth - BlockWidth) div 2, aTop, 0);
+        taRight:  glTranslatef(aLeft + (aWidth - BlockWidth),       aTop, 0);
       end;
 
       glColor4f(1,0,0,0.5);
@@ -603,40 +603,40 @@ begin
 end;
 
 
-class procedure TKMRenderUI.WriteTexture(PosX,PosY,SizeX,SizeY:smallint; aTexture: TTexture; aCol: TColor4);
+class procedure TKMRenderUI.WriteTexture(aLeft, aTop, aWidth, aHeight: SmallInt; aTexture: TTexture; aCol: TColor4);
 begin
   glBindTexture(GL_TEXTURE_2D, aTexture.Tex);
 
   glColor4ubv(@aCol);
   glBegin(GL_QUADS);
-    glTexCoord2f(0, 0);                   glVertex2f(PosX, PosY);
-    glTexCoord2f(aTexture.U, 0);          glVertex2f(PosX+SizeX, PosY);
-    glTexCoord2f(aTexture.U, aTexture.V); glVertex2f(PosX+SizeX, PosY+SizeY);
-    glTexCoord2f(0, aTexture.V);          glVertex2f(PosX, PosY+SizeY);
+    glTexCoord2f(0, 0);                   glVertex2f(aLeft, aTop);
+    glTexCoord2f(aTexture.U, 0);          glVertex2f(aLeft+aWidth, aTop);
+    glTexCoord2f(aTexture.U, aTexture.V); glVertex2f(aLeft+aWidth, aTop+aHeight);
+    glTexCoord2f(0, aTexture.V);          glVertex2f(aLeft, aTop+aHeight);
   glEnd;
 
   glBindTexture(GL_TEXTURE_2D, 0);
 end;
 
 
-class procedure TKMRenderUI.WriteCircle(PosX,PosY: SmallInt; Rad: Byte; aFillCol: TColor4);
+class procedure TKMRenderUI.WriteCircle(aCenterX, aCenterY: SmallInt; aRadius: Byte; aFillColor: TColor4);
 var
   Ang: Single;
   I: Byte;
 begin
-  if Rad = 0 then Exit;
-  glColor4ubv(@aFillCol);
+  if aRadius = 0 then Exit;
+  glColor4ubv(@aFillColor);
   glBegin(GL_POLYGON);
     for I := 0 to 15 do
     begin
       Ang := I / 8 * Pi;
-      glVertex2f(PosX + Sin(Ang) * Rad, PosY + Cos(Ang) * Rad);
+      glVertex2f(aCenterX + Sin(Ang) * aRadius, aCenterY + Cos(Ang) * aRadius);
     end;
   glEnd;
 end;
 
 
-class procedure TKMRenderUI.WriteShadow(PosX, PosY, SizeX, SizeY: SmallInt; aBlur: Byte; aCol: TColor4);
+class procedure TKMRenderUI.WriteShadow(aLeft, aTop, aWidth, aHeight: SmallInt; aBlur: Byte; aCol: TColor4);
   procedure DoNode(aX, aY: Single; aColor: TColor4);
   begin
     glColor4ubv(@aColor);
@@ -650,11 +650,11 @@ begin
 
   glPushMatrix;
     //Slightly shifted shadow looks nicer
-    glTranslatef(PosX + aBlur / 8, PosY + aBlur / 6, 0);
+    glTranslatef(aLeft + aBlur / 8, aTop + aBlur / 6, 0);
 
     glColor4ubv(@aCol);
     glBegin(GL_QUADS);
-      glkRect(0, 0, SizeX, SizeY);
+      glkRect(0, 0, aWidth, aHeight);
     glEnd;
 
     glBegin(GL_QUAD_STRIP);
@@ -665,26 +665,26 @@ begin
       DoNode(0, -aBlur, bCol);
       DoNode(0, 0, aCol);
 
-      DoNode(SizeX, -aBlur, bCol);
-      DoNode(SizeX, 0, aCol);
-      DoNode(SizeX + aBlur * 0.7, -aBlur * 0.7, bCol);
-      DoNode(SizeX, 0, aCol);
-      DoNode(SizeX + aBlur, 0, bCol);
-      DoNode(SizeX, 0, aCol);
+      DoNode(aWidth, -aBlur, bCol);
+      DoNode(aWidth, 0, aCol);
+      DoNode(aWidth + aBlur * 0.7, -aBlur * 0.7, bCol);
+      DoNode(aWidth, 0, aCol);
+      DoNode(aWidth + aBlur, 0, bCol);
+      DoNode(aWidth, 0, aCol);
 
-      DoNode(SizeX + aBlur, SizeY, bCol);
-      DoNode(SizeX, SizeY, aCol);
-      DoNode(SizeX + aBlur * 0.7, SizeY + aBlur * 0.7, bCol);
-      DoNode(SizeX, SizeY, aCol);
-      DoNode(SizeX, SizeY + aBlur, bCol);
-      DoNode(SizeX, SizeY, aCol);
+      DoNode(aWidth + aBlur, aHeight, bCol);
+      DoNode(aWidth, aHeight, aCol);
+      DoNode(aWidth + aBlur * 0.7, aHeight + aBlur * 0.7, bCol);
+      DoNode(aWidth, aHeight, aCol);
+      DoNode(aWidth, aHeight + aBlur, bCol);
+      DoNode(aWidth, aHeight, aCol);
 
-      DoNode(0, SizeY + aBlur, bCol);
-      DoNode(0, SizeY, aCol);
-      DoNode(-aBlur * 0.7, SizeY + aBlur * 0.7, bCol);
-      DoNode(0, SizeY, aCol);
-      DoNode(-aBlur, SizeY, bCol);
-      DoNode(0, SizeY, aCol);
+      DoNode(0, aHeight + aBlur, bCol);
+      DoNode(0, aHeight, aCol);
+      DoNode(-aBlur * 0.7, aHeight + aBlur * 0.7, bCol);
+      DoNode(0, aHeight, aCol);
+      DoNode(-aBlur, aHeight, bCol);
+      DoNode(0, aHeight, aCol);
 
       DoNode(-aBlur, 0, bCol);
       DoNode(0, 0, aCol);
