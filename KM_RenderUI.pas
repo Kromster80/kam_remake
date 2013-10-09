@@ -1,14 +1,14 @@
 ﻿unit KM_RenderUI;
 {$I KaM_Remake.inc}
 interface
-uses dglOpenGL, Controls, Graphics, Math, KromOGLUtils, StrUtils, SysUtils,
+uses dglOpenGL, Controls, Math, KromOGLUtils, StrUtils, SysUtils,
   KM_Defaults, KM_CommonTypes, KM_Points, KM_Pics,
   KM_ResFonts, KM_ResSprites;
 
 type
   TTextAlign = (taLeft, taCenter, taRight);
   TButtonStateSet = set of (bsOver, bsDown, bsDisabled);
-  TButtonStyle = (bsMenu, bsGame); //Menu buttons are metal, game buttons are stone
+  TKMButtonStyle = (bsMenu, bsGame); //Menu buttons are metal, game buttons are stone
 
   //Dont do taps and fit because pixel graphics aren't supposed to be stretched
   //paStretch used only a couple of time when we need to scale large menu elements
@@ -18,7 +18,7 @@ type
     class procedure SetupClipY        (Y1,Y2: SmallInt);
     class procedure ReleaseClipX;
     class procedure ReleaseClipY;
-    class procedure Write3DButton     (aLeft, aTop, aWidth, aHeight: SmallInt; aRX: TRXType; aID: Word; aFlagColor: TColor4; aState: TButtonStateSet; aStyle: TButtonStyle);
+    class procedure Write3DButton     (aLeft, aTop, aWidth, aHeight: SmallInt; aRX: TRXType; aID: Word; aFlagColor: TColor4; aState: TButtonStateSet; aStyle: TKMButtonStyle);
     class procedure WriteBevel        (aLeft, aTop, aWidth, aHeight: SmallInt; aEdgeAlpha: Single = 1; aBackAlpha: Single = 0.5);
     class procedure WritePercentBar   (aLeft, aTop, aWidth, aHeight: SmallInt; aPos: Single; aSeam: Single);
     class procedure WritePicture      (aLeft, aTop, aWidth, aHeight: SmallInt; aAnchors: TAnchors; aRX: TRXType; aID: Word; aEnabled: Boolean = True; aColor: TColor4 = $FFFF00FF; aLightness: Single = 0);
@@ -81,7 +81,7 @@ begin
 end;
 
 
-class procedure TKMRenderUI.Write3DButton(aLeft, aTop, aWidth, aHeight: SmallInt; aRX: TRXType; aID: Word; aFlagColor: TColor4; aState: TButtonStateSet; aStyle: TButtonStyle);
+class procedure TKMRenderUI.Write3DButton(aLeft, aTop, aWidth, aHeight: SmallInt; aRX: TRXType; aID: Word; aFlagColor: TColor4; aState: TButtonStateSet; aStyle: TKMButtonStyle);
 var
   Down: Byte;
   Chamfer: Byte;

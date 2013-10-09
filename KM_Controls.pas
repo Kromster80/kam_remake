@@ -313,7 +313,7 @@ type
   TKMButton = class(TKMControl)
   private
     fTextAlign: TTextAlign;
-    fStyle: TButtonStyle;
+    fStyle: TKMButtonStyle;
     fRX: TRXType;
   public
     Caption: UnicodeString;
@@ -321,8 +321,8 @@ type
     Font: TKMFont;
     MakesSound: Boolean;
     TexID: Word;
-    constructor Create(aParent: TKMPanel; aLeft, aTop, aWidth, aHeight: Integer; aTexID: Word; aRX: TRXType; aStyle: TButtonStyle); overload;
-    constructor Create(aParent: TKMPanel; aLeft, aTop, aWidth, aHeight: Integer; aCaption: UnicodeString; aStyle: TButtonStyle); overload;
+    constructor Create(aParent: TKMPanel; aLeft, aTop, aWidth, aHeight: Integer; aTexID: Word; aRX: TRXType; aStyle: TKMButtonStyle); overload;
+    constructor Create(aParent: TKMPanel; aLeft, aTop, aWidth, aHeight: Integer; aCaption: UnicodeString; aStyle: TKMButtonStyle); overload;
     function Click: Boolean; //Try to click a button and return TRUE if succeded
     procedure MouseUp(X,Y: Integer; Shift: TShiftState; Button: TMouseButton); override;
     procedure Paint; override;
@@ -605,7 +605,7 @@ type
   TKMScrollBar = class(TKMPanel)
   private
     fScrollAxis: TScrollAxis;
-    fStyle: TButtonStyle;
+    fStyle: TKMButtonStyle;
     fMinValue: Integer;
     fMaxValue: Integer;
     fPosition: Integer;
@@ -630,7 +630,7 @@ type
     BackAlpha: Single; //Alpha of background (usually 0.5, dropbox 1)
     EdgeAlpha: Single; //Alpha of background outline (usually 1)
 
-    constructor Create(aParent: TKMPanel; aLeft, aTop, aWidth, aHeight: Integer; aScrollAxis: TScrollAxis; aStyle: TButtonStyle);
+    constructor Create(aParent: TKMPanel; aLeft, aTop, aWidth, aHeight: Integer; aScrollAxis: TScrollAxis; aStyle: TKMButtonStyle);
     property MinValue: Integer read fMinValue write SetMinValue;
     property MaxValue: Integer read fMaxValue write SetMaxValue;
     property Position: Integer read fPosition write SetPosition;
@@ -665,7 +665,7 @@ type
     procedure SetVisible(aValue: Boolean); override;
   public
     ItemTags: array of Integer;
-    constructor Create(aParent: TKMPanel; aLeft, aTop, aWidth, aHeight: Integer; aFont: TKMFont; aStyle: TButtonStyle);
+    constructor Create(aParent: TKMPanel; aLeft, aTop, aWidth, aHeight: Integer; aFont: TKMFont; aStyle: TKMButtonStyle);
     destructor Destroy; override;
 
     property AutoHideScrollBar: boolean read fAutoHideScrollBar write SetAutoHideScrollBar;
@@ -795,7 +795,7 @@ type
     HighlightOnMouseOver: Boolean;
     Rows: array of TKMListRow; //Exposed to public since we need to edit sub-fields
 
-    constructor Create(aParent: TKMPanel; aLeft, aTop, aWidth, aHeight: Integer; aFont: TKMFont; aStyle: TButtonStyle);
+    constructor Create(aParent: TKMPanel; aLeft, aTop, aWidth, aHeight: Integer; aFont: TKMFont; aStyle: TKMButtonStyle);
     destructor Destroy; override;
 
     procedure SetColumns(aHeaderFont: TKMFont; aCaptions: array of string; aOffsets: array of Word);
@@ -855,7 +855,7 @@ type
     procedure SetEnabled(aValue: Boolean); override;
     procedure SetVisible(aValue: Boolean); override;
   public
-    constructor Create(aParent: TKMPanel; aLeft, aTop, aWidth, aHeight: Integer; aFont: TKMFont; aStyle: TButtonStyle);
+    constructor Create(aParent: TKMPanel; aLeft, aTop, aWidth, aHeight: Integer; aFont: TKMFont; aStyle: TKMButtonStyle);
 
     procedure Clear; virtual; abstract;
     function Count: Integer; virtual; abstract;
@@ -888,7 +888,7 @@ type
     procedure SetEnabled(aValue: Boolean); override;
     procedure SetVisible(aValue: Boolean); override;
   public
-    constructor Create(aParent: TKMPanel; aLeft, aTop, aWidth, aHeight: Integer; aFont: TKMFont; aDefaultCaption: UnicodeString; aStyle: TButtonStyle);
+    constructor Create(aParent: TKMPanel; aLeft, aTop, aWidth, aHeight: Integer; aFont: TKMFont; aDefaultCaption: UnicodeString; aStyle: TKMButtonStyle);
     procedure Clear; override;
     function Count: Integer; override;
     procedure Add(aItem: UnicodeString; aTag: Integer=0);
@@ -924,7 +924,7 @@ type
     procedure SetVisible(aValue: Boolean); override;
   public
     FadeImageWhenDisabled: Boolean;
-    constructor Create(aParent: TKMPanel; aLeft, aTop, aWidth, aHeight: Integer; aFont: TKMFont; aDefaultCaption: UnicodeString; aStyle: TButtonStyle);
+    constructor Create(aParent: TKMPanel; aLeft, aTop, aWidth, aHeight: Integer; aFont: TKMFont; aDefaultCaption: UnicodeString; aStyle: TKMButtonStyle);
     procedure Add(aItem: TKMListRow);
     procedure Clear; override;
     function Count: Integer; override;
@@ -988,7 +988,7 @@ type
     procedure SetVisible(aValue: Boolean); override;
     procedure SetEnabled(aValue: Boolean); override;
   public
-    constructor Create(aParent: TKMPanel; aLeft, aTop, aWidth, aHeight: Integer; aFont: TKMFont; aStyle: TButtonStyle);
+    constructor Create(aParent: TKMPanel; aLeft, aTop, aWidth, aHeight: Integer; aFont: TKMFont; aStyle: TKMButtonStyle);
     destructor Destroy; override;
 
     procedure Add(const aItem: UnicodeString);
@@ -2058,7 +2058,7 @@ end;
 
 
 { TKMButton }
-constructor TKMButton.Create(aParent: TKMPanel; aLeft, aTop, aWidth, aHeight: Integer; aTexID: Word; aRX: TRXType; aStyle: TButtonStyle);
+constructor TKMButton.Create(aParent: TKMPanel; aLeft, aTop, aWidth, aHeight: Integer; aTexID: Word; aRX: TRXType; aStyle: TKMButtonStyle);
 begin
   inherited Create(aParent, aLeft, aTop, aWidth, aHeight);
   fRX         := aRX;
@@ -2071,7 +2071,7 @@ end;
 
 
 {Different version of button, with caption on it instead of image}
-constructor TKMButton.Create(aParent: TKMPanel; aLeft, aTop, aWidth, aHeight: Integer; aCaption: UnicodeString; aStyle: TButtonStyle);
+constructor TKMButton.Create(aParent: TKMPanel; aLeft, aTop, aWidth, aHeight: Integer; aCaption: UnicodeString; aStyle: TKMButtonStyle);
 begin
   inherited Create(aParent, aLeft, aTop, aWidth, aHeight);
   TexID       := 0;
@@ -2973,7 +2973,7 @@ end;
 
 
 { TKMScrollBar }
-constructor TKMScrollBar.Create(aParent: TKMPanel; aLeft, aTop, aWidth, aHeight: Integer; aScrollAxis: TScrollAxis; aStyle: TButtonStyle);
+constructor TKMScrollBar.Create(aParent: TKMPanel; aLeft, aTop, aWidth, aHeight: Integer; aScrollAxis: TScrollAxis; aStyle: TKMButtonStyle);
 begin
   inherited Create(aParent, aLeft, aTop, aWidth, aHeight);
   BackAlpha := 0.5;
@@ -3194,7 +3194,7 @@ end;
 
 
 { TKMMemo }
-constructor TKMMemo.Create(aParent: TKMPanel; aLeft, aTop, aWidth, aHeight: Integer; aFont: TKMFont; aStyle: TButtonStyle);
+constructor TKMMemo.Create(aParent: TKMPanel; aLeft, aTop, aWidth, aHeight: Integer; aFont: TKMFont; aStyle: TKMButtonStyle);
 begin
   inherited Create(aParent, aLeft, aTop, aWidth, aHeight);
   fItemHeight := 20;
@@ -3378,7 +3378,7 @@ end;
 
 
 { TKMListBox }
-constructor TKMListBox.Create(aParent: TKMPanel; aLeft, aTop, aWidth, aHeight: Integer; aFont: TKMFont; aStyle: TButtonStyle);
+constructor TKMListBox.Create(aParent: TKMPanel; aLeft, aTop, aWidth, aHeight: Integer; aFont: TKMFont; aStyle: TKMButtonStyle);
 begin
   inherited Create(aParent, aLeft, aTop, aWidth, aHeight);
   fBackAlpha := 0.5;
@@ -3734,7 +3734,7 @@ end;
 
 
 { TKMColumnListBox }
-constructor TKMColumnBox.Create(aParent: TKMPanel; aLeft, aTop, aWidth, aHeight: Integer; aFont: TKMFont; aStyle: TButtonStyle);
+constructor TKMColumnBox.Create(aParent: TKMPanel; aLeft, aTop, aWidth, aHeight: Integer; aFont: TKMFont; aStyle: TKMButtonStyle);
 const DEF_HEADER_HEIGHT = 24;
 begin
   inherited Create(aParent, aLeft, aTop, aWidth, aHeight);
@@ -4279,7 +4279,7 @@ end;
 
 
 { TKMDropCommon }
-constructor TKMDropCommon.Create(aParent: TKMPanel; aLeft, aTop, aWidth, aHeight: Integer; aFont: TKMFont; aStyle: TButtonStyle);
+constructor TKMDropCommon.Create(aParent: TKMPanel; aLeft, aTop, aWidth, aHeight: Integer; aFont: TKMFont; aStyle: TKMButtonStyle);
 var
   P: TKMPanel;
 begin
@@ -4381,7 +4381,7 @@ end;
 
 
 { TKMDropList }
-constructor TKMDropList.Create(aParent: TKMPanel; aLeft, aTop, aWidth, aHeight: Integer; aFont: TKMFont; aDefaultCaption: UnicodeString; aStyle: TButtonStyle);
+constructor TKMDropList.Create(aParent: TKMPanel; aLeft, aTop, aWidth, aHeight: Integer; aFont: TKMFont; aDefaultCaption: UnicodeString; aStyle: TKMButtonStyle);
 var P: TKMPanel;
 begin
   inherited Create(aParent, aLeft, aTop, aWidth, aHeight, aFont, aStyle);
@@ -4553,7 +4553,7 @@ end;
 
 
 { TKMDropColumns }
-constructor TKMDropColumns.Create(aParent: TKMPanel; aLeft, aTop, aWidth, aHeight: Integer; aFont: TKMFont; aDefaultCaption: UnicodeString; aStyle: TButtonStyle);
+constructor TKMDropColumns.Create(aParent: TKMPanel; aLeft, aTop, aWidth, aHeight: Integer; aFont: TKMFont; aDefaultCaption: UnicodeString; aStyle: TKMButtonStyle);
 var P: TKMPanel;
 begin
   inherited Create(aParent, aLeft, aTop, aWidth, aHeight, aFont, aStyle);
