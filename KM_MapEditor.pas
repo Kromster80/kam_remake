@@ -325,7 +325,7 @@ begin
   begin
     Loc := fRevealers[I][K];
     case aLayer of
-      plTerrain:  fRenderAux.CircleOnTerrain(Loc.X, Loc.Y,
+      plTerrain:  gRenderAux.CircleOnTerrain(Loc.X, Loc.Y,
                                            fRevealers[I].Tag[K],
                                            gHands[I].FlagColor and $20FFFFFF,
                                            gHands[I].FlagColor);
@@ -339,7 +339,7 @@ begin
   begin
     Loc := gHands[I].CenterScreen;
     case aLayer of
-      plTerrain:  fRenderAux.SquareOnTerrain(Loc.X - 3, Loc.Y - 2.5,
+      plTerrain:  gRenderAux.SquareOnTerrain(Loc.X - 3, Loc.Y - 2.5,
                                              Loc.X + 2, Loc.Y + 1.5,
                                              gHands[I].FlagColor);
       plCursors:  fRenderPool.RenderSpriteOnTile(Loc,
@@ -368,8 +368,8 @@ begin
     G := TKMUnitGroup(MySpectator.Selected);
     if G.MapEdOrder.Order <> ioNoOrder then
     begin
-      fRenderAux.Quad(G.MapEdOrder.Pos.Loc.X, G.MapEdOrder.Pos.Loc.Y, $40FF00FF);
-      fRenderAux.LineOnTerrain(G.Position.X - 0.5, G.Position.Y - 0.5, G.MapEdOrder.Pos.Loc.X - 0.5, G.MapEdOrder.Pos.Loc.Y - 0.5, $FF0000FF);
+      gRenderAux.Quad(G.MapEdOrder.Pos.Loc.X, G.MapEdOrder.Pos.Loc.Y, $40FF00FF);
+      gRenderAux.LineOnTerrain(G.Position.X - 0.5, G.Position.Y - 0.5, G.MapEdOrder.Pos.Loc.X - 0.5, G.MapEdOrder.Pos.Loc.Y - 0.5, $FF0000FF);
     end;
   end;
 end;

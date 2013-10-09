@@ -40,22 +40,24 @@ type
     property RendererVersion: UnicodeString read fOpenGL_Version;
     function IsOldGLVersion: Boolean;
     procedure DoPrintScreen(aFileName: string);
-    procedure Resize(Width, Height: Integer);
+    procedure Resize(aWidth, aHeight: Integer);
 
     property ScreenX: Word read fScreenX;
     property ScreenY: Word read fScreenY;
     property Blind: Boolean read fBlind;
 
     procedure BeginFrame;
-    procedure RenderBrightness(Value: Byte);
+    procedure RenderBrightness(aValue: Byte);
     procedure EndFrame;
   end;
 
 
 implementation
-uses KM_Log;
+uses
+  KM_Log;
 
 
+{ TRender }
 constructor TRender.Create(aRenderControl: TKMRenderControl; ScreenX,ScreenY: Integer; aVSync: Boolean);
 begin
   inherited Create;
@@ -67,6 +69,17 @@ begin
   begin
     fRenderControl.CreateRenderContext;
 
+    glClearColor(0, 0, 0, 0); 	   //Background
+    glClearStencil(0);
+    glDepthFunc(GL_LEQUAL);
+    glShadeModel(GL_SMOOTH);                 //Enables Smooth Color Shading
+    glPolygonMode(GL_FRONT, GL_FILL);
+    glEnable(GL_NORMALIZE);
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); //Set alpha mode
+    glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
+    glEnable(GL_COLOR_MATERIAL);                 //Enable Materials
+    glEnable(GL_TEXTURE_2D);                     // Enable Texture Mapping
     glDisable(GL_LIGHTING); //We don't need it
     //glEnable(GL_CULL_FACE);
     //glCullFace(GL_FRONT);
@@ -90,12 +103,12 @@ begin
 end;
 
 
-procedure TRender.Resize(Width, Height: Integer);
+procedure TRender.Resize(aWidth, aHeight: Integer);
 begin
   if fBlind then Exit;
 
-  fScreenX := max(Width, 1);
-  fScreenY := max(Height, 1);
+  fScreenX := max(aWidth, 1);
+  fScreenY := max(aHeight, 1);
   glViewport(0, 0, fScreenX, fScreenY);
 end;
 
@@ -119,7 +132,8 @@ end;
 
 
 class function TRender.GenerateTextureCommon: GLuint;
-var Texture: GLuint;
+var
+  Texture: GLuint;
 begin
   Result := 0;
   if not Assigned(glGenTextures) then Exit;
@@ -241,16 +255,16 @@ end;
 
 
 //Render highlight overlay to make whole picture look brighter (more saturated)
-procedure TRender.RenderBrightness(Value: Byte);
+procedure TRender.RenderBrightness(aValue: Byte);
 begin
   if fBlind then Exit;
 
   //There will be no change to image anyway
-  if Value = 0 then Exit;
+  if aValue = 0 then Exit;
 
   glLoadIdentity;
   glBlendFunc(GL_DST_COLOR, GL_ONE);
-  glColor4f(Value/20, Value/20, Value/20, Value/20);
+  glColor4f(aValue/20, aValue/20, aValue/20, aValue/20);
   glBegin(GL_QUADS);
     glkRect(0, 0, ScreenX, ScreenY);
   glEnd;

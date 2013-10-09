@@ -145,7 +145,7 @@ begin
 
   fRenderList     := TRenderList.Create;
   fRenderTerrain  := TRenderTerrain.Create;
-  fRenderAux      := TRenderAux.Create;
+  gRenderAux      := TRenderAux.Create;
 
   fFieldsList     := TKMPointTagList.Create;
   fHousePlansList := TKMPointDirList.Create;
@@ -167,7 +167,7 @@ begin
   //fSampleHouse.Free;
   fRenderList.Free;
   fRenderTerrain.Free;
-  fRenderAux.Free;
+  gRenderAux.Free;
 
   inherited;
 end;
@@ -334,19 +334,19 @@ begin
 
       for I := aRect.Top to aRect.Bottom do
       for K := aRect.Left to aRect.Right do
-        fRenderAux.Text(K, I, IntToStr(gTerrain.Land[I,K].WalkConnect[wcWalk]), $FFFFFFFF);
+        gRenderAux.Text(K, I, IntToStr(gTerrain.Land[I,K].WalkConnect[wcWalk]), $FFFFFFFF);
 
     glPopAttrib;
   end;
 
   if SHOW_TERRAIN_WIRES then
-    fRenderAux.Wires(aRect);
+    gRenderAux.Wires(aRect);
 
   if SHOW_TERRAIN_PASS <> 0 then
-    fRenderAux.Passability(aRect, SHOW_TERRAIN_PASS);
+    gRenderAux.Passability(aRect, SHOW_TERRAIN_PASS);
 
   if SHOW_UNIT_MOVEMENT then
-    fRenderAux.UnitMoves(aRect);
+    gRenderAux.UnitMoves(aRect);
 end;
 
 
@@ -430,7 +430,7 @@ begin
     //Render as a red outline in map editor mode
     if gGame.IsMapEditor then
     begin
-      fRenderAux.Quad(LocX, LocY, $600000FF);
+      gRenderAux.Quad(LocX, LocY, $600000FF);
       RenderWireTile(KMPoint(LocX, LocY), $800000FF);
     end;
   end
@@ -803,8 +803,8 @@ begin
   if SHOW_UNIT_MOVEMENT then
   if NewInst then
   begin
-    fRenderAux.DotOnTerrain(pX, pY, FlagColor);
-    fRenderAux.Dot(CornerX, CornerY, $FF000080);
+    gRenderAux.DotOnTerrain(pX, pY, FlagColor);
+    gRenderAux.Dot(CornerX, CornerY, $FF000080);
   end;
 end;
 
@@ -1276,7 +1276,7 @@ begin
                     Rad := GameCursor.MapEdSize;
                     if Rad = 0 then
                       //brush size smaller than one cell
-                      fRenderAux.DotOnTerrain(Round(F.X), Round(F.Y), $FF80FF80)
+                      gRenderAux.DotOnTerrain(Round(F.X), Round(F.Y), $FF80FF80)
                     else
                     //There are two brush types here, even and odd size
                     if Rad mod 2 = 1 then
@@ -1326,11 +1326,11 @@ begin
                       end;
                       Tmp := Power(Abs(Tmp), (Slope + 1) / 6) * Sign(Tmp); //Modify slopes curve
                       Tmp := EnsureRange(Tmp * 2.5, 0, 1); //*2.5 makes dots more visible
-                      fRenderAux.DotOnTerrain(K, I, $FF or (Round(Tmp*255) shl 24));
+                      gRenderAux.DotOnTerrain(K, I, $FF or (Round(Tmp*255) shl 24));
                     end;
                     case GameCursor.MapEdShape of
-                      hsCircle: fRenderAux.CircleOnTerrain(round(F.X), round(F.Y), Rad, $00000000,  $FFFFFFFF);
-                      hsSquare: fRenderAux.SquareOnTerrain(round(F.X) - Rad, round(F.Y) - Rad, round(F.X + Rad), round(F.Y) + Rad, $FFFFFFFF);
+                      hsCircle: gRenderAux.CircleOnTerrain(round(F.X), round(F.Y), Rad, $00000000,  $FFFFFFFF);
+                      hsSquare: gRenderAux.SquareOnTerrain(round(F.X) - Rad, round(F.Y) - Rad, round(F.X + Rad), round(F.Y) + Rad, $FFFFFFFF);
                     end;
                   end;
     cmUnits:      if (GameCursor.Mode = cmUnits) and (GameCursor.Tag1 = 255) then
@@ -1347,7 +1347,7 @@ begin
     cmMarkers:    case GameCursor.Tag1 of
                     MARKER_REVEAL:        begin
                                             RenderSpriteOnTile(P, 394, gHands[MySpectator.HandIndex].FlagColor);
-                                            fRenderAux.CircleOnTerrain(P.X, P.Y,
+                                            gRenderAux.CircleOnTerrain(P.X, P.Y,
                                              GameCursor.MapEdSize,
                                              gHands[MySpectator.HandIndex].FlagColor AND $10FFFFFF,
                                              gHands[MySpectator.HandIndex].FlagColor);

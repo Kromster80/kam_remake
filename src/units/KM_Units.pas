@@ -996,7 +996,7 @@ begin
 
   //Make fish/watersnakes more visible in the MapEd
   if (gGame.GameMode = gmMapEd) and (fUnitType in [ut_Fish, ut_Watersnake, ut_Seastar]) then
-    fRenderAux.Circle(fPosition.X - 0.5,
+    gRenderAux.Circle(fPosition.X - 0.5,
                       gTerrain.FlatToHeight(fPosition.X - 0.5, fPosition.Y - 0.5),
                       0.5, $30FF8000, $60FF8000);
 
@@ -2008,7 +2008,7 @@ begin
     fCurrentAction.Paint;
 
   if SHOW_POINTER_DOTS then
-    fRenderAux.UnitPointers(fPosition.X + 0.5 + GetSlide(ax_X), fPosition.Y + 1   + GetSlide(ax_Y), fPointerCount);
+    gRenderAux.UnitPointers(fPosition.X + 0.5 + GetSlide(ax_X), fPosition.Y + 1   + GetSlide(ax_Y), fPointerCount);
 end;
 
 

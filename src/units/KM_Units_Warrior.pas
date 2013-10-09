@@ -753,7 +753,7 @@ begin
     for K := -Round(GetFightMaxRange) - 1 to Round(GetFightMaxRange) do
     if InRange(GetLength(I, K), GetFightMinRange, GetFightMaxRange) then
     if gTerrain.TileInMapCoords(GetPosition.X + K, GetPosition.Y + I) then
-      fRenderAux.Quad(GetPosition.X + K, GetPosition.Y + I, $40FFFFFF);
+      gRenderAux.Quad(GetPosition.X + K, GetPosition.Y + I, $40FFFFFF);
 end;
 
 

@@ -1179,7 +1179,7 @@ end;
 procedure TUnitActionWalkTo.Paint;
 begin
   if SHOW_UNIT_ROUTES then
-    fRenderAux.UnitRoute(NodeList, NodePos, byte(fUnit.UnitType));
+    gRenderAux.UnitRoute(NodeList, NodePos, byte(fUnit.UnitType));
 end;
 
 

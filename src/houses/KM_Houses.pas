@@ -1267,7 +1267,7 @@ begin
   end;
 
   if SHOW_POINTER_DOTS then
-    fRenderAux.UnitPointers(fPosition.X + 0.5, fPosition.Y + 1, fPointerCount);
+    gRenderAux.UnitPointers(fPosition.X + 0.5, fPosition.Y + 1, fPointerCount);
 end;
 
 
@@ -1587,7 +1587,7 @@ begin
     for K := -Round(RANGE_WATCHTOWER_MAX) - 1 to Round(RANGE_WATCHTOWER_MAX) do
     if InRange(GetLength(I, K), RANGE_WATCHTOWER_MIN, RANGE_WATCHTOWER_MAX) then
     if gTerrain.TileInMapCoords(GetPosition.X+K, GetPosition.Y+I) then
-      fRenderAux.Quad(GetPosition.X+K, GetPosition.Y+I, $40FFFFFF);
+      gRenderAux.Quad(GetPosition.X+K, GetPosition.Y+I, $40FFFFFF);
 end;
 
 

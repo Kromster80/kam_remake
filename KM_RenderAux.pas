@@ -6,78 +6,80 @@ uses
   KM_Defaults, KM_CommonClasses, KM_Points;
 
 type
+  //Debug symbols render
   TRenderAux = class
   private
     procedure RenderDot(pX, pY: Single; Size: Single = 0.05);
-    procedure RenderDotOnTile(pX,pY:single);
-    procedure RenderLine(x1,y1,x2,y2:single);
-    procedure RenderQuad(pX,pY:integer);
+    procedure RenderDotOnTile(pX, pY: Single);
+    procedure RenderLine(x1, y1, x2, y2: Single);
+    procedure RenderQuad(pX, pY: Integer);
   public
-    procedure Circle(x,y,rad: Single; Fill,Line: TColor4);
-    procedure CircleOnTerrain(X, Y, Rad: Single; Fill, Line: TColor4);
-    procedure Dot(X,Y: Single; aCol: TColor4; aSize: Single = 0.05);
-    procedure DotOnTerrain(X,Y: Single; aCol: TColor4);
-    procedure LineOnTerrain(X1,Y1,X2,Y2: Single; aCol: TColor4; aPattern: Word = $FFFF); overload;
-    procedure LineOnTerrain(A,B: TKMPoint; aCol: TColor4; aPattern: Word = $FFFF); overload;
-    procedure LineOnTerrain(A,B: TKMPointI; aCol: TColor4; aPattern: Word = $FFFF); overload;
-    procedure LineOnTerrain(A,B: TKMPointF; aCol: TColor4; aPattern: Word = $FFFF); overload;
+    procedure Circle(x, y, rad: Single; Fill, Line: TColor4);
+    procedure CircleOnTerrain(x, y, rad: Single; Fill, Line: TColor4);
+    procedure Dot(x, y: Single; aCol: TColor4; aSize: Single = 0.05);
+    procedure DotOnTerrain(x, y: Single; aCol: TColor4);
+    procedure LineOnTerrain(x1, y1, x2, y2: Single; aCol: TColor4; aPattern: Word = $FFFF); overload;
+    procedure LineOnTerrain(A, B: TKMPoint; aCol: TColor4; aPattern: Word = $FFFF); overload;
+    procedure LineOnTerrain(A, B: TKMPointI; aCol: TColor4; aPattern: Word = $FFFF); overload;
+    procedure LineOnTerrain(A, B: TKMPointF; aCol: TColor4; aPattern: Word = $FFFF); overload;
     procedure Line(A, B: TKMPoint; aCol: TColor4; aPattern: Word = $FFFF); overload;
     procedure Line(A, B: TKMPointI; aCol: TColor4; aPattern: Word = $FFFF); overload;
     procedure Line(A, B: TKMPointF; aCol: TColor4; aPattern: Word = $FFFF); overload;
-    procedure Line(X1,Y1,X2,Y2: Single; aCol: TColor4; aPattern: Word = $FFFF); overload;
-    procedure Triangle(X1,Y1,X2,Y2,X3,Y3: Single; aCol: TColor4);
-    procedure TriangleOnTerrain(X1,Y1,X2,Y2,X3,Y3: Single; aCol: TColor4);
+    procedure Line(x1, y1, x2, y2: Single; aCol: TColor4; aPattern: Word = $FFFF); overload;
+    procedure Triangle(x1, y1, x2, y2, X3, Y3: Single; aCol: TColor4);
+    procedure TriangleOnTerrain(x1, y1, x2, y2, X3, Y3: Single; aCol: TColor4);
     procedure Passability(aRect: TKMRect; aPass: Byte);
-    procedure Projectile(x1,y1,x2,y2: Single);
-    procedure Quad(pX,pY: Integer; aCol: TColor4);
-    procedure SquareOnTerrain(X1, Y1, X2, Y2: Single; aLineColor: TColor4);
+    procedure Projectile(x1, y1, x2, y2: Single);
+    procedure Quad(pX, pY: Integer; aCol: TColor4);
+    procedure SquareOnTerrain(x1, y1, x2, y2: Single; aLineColor: TColor4);
     procedure Text(pX, pY: Integer; const aText: string; aCol: TColor4);
     procedure UnitMoves(aRect: TKMRect);
-    procedure UnitPointers(pX,pY: Single; Count: Integer);
+    procedure UnitPointers(pX, pY: Single; Count: Integer);
     procedure UnitRoute(NodeList: TKMPointList; Pos: Integer; aUnitType: Byte);
     procedure Wires(aRect: TKMRect);
   end;
 
 
 var
-  fRenderAux: TRenderAux;
+  gRenderAux: TRenderAux;
 
 
 implementation
-uses KM_Terrain;
+uses
+  KM_Terrain;
 
 
-{Simple dot to know where it actualy is}
+//Simple dot to know where it actualy is
 procedure TRenderAux.RenderDot(pX, pY: Single; Size: Single = 0.05);
 begin
+  //Render as quad to control the size of it
   glBegin(GL_QUADS);
     glkRect(pX - Size, pY + Size, pX + Size, pY - Size);
   glEnd;
 end;
 
 
-procedure TRenderAux.RenderDotOnTile(pX,pY: Single);
+procedure TRenderAux.RenderDotOnTile(pX, pY: Single);
 begin
-  pY := gTerrain.FlatToHeight(pX,pY);
+  pY := gTerrain.FlatToHeight(pX, pY);
   glBegin(GL_QUADS);
-    glkRect(pX,pY,pX+0.1,pY-0.1);
+    glkRect(pX, pY, pX + 0.1, pY - 0.1);
   glEnd;
 end;
 
 
-procedure TRenderAux.RenderLine(x1,y1,x2,y2:single);
+procedure TRenderAux.RenderLine(x1, y1, x2, y2: Single);
 begin
   glBegin(GL_LINES);
-    glVertex2f(x1, gTerrain.FlatToHeight(x1,y1));
-    glVertex2f(x2, gTerrain.FlatToHeight(x2,y2));
+    glVertex2f(x1, gTerrain.FlatToHeight(x1, y1));
+    glVertex2f(x2, gTerrain.FlatToHeight(x2, y2));
   glEnd;
 end;
 
 
-{Used for internal things like overlays, etc..}
-procedure TRenderAux.RenderQuad(pX,pY:Integer);
+procedure TRenderAux.RenderQuad(pX, pY: Integer);
 begin
-  if not gTerrain.TileInMapCoords(pX,pY) then exit;
+  if not gTerrain.TileInMapCoords(pX, pY) then exit;
 
   glBegin(GL_QUADS);
     with gTerrain do
@@ -89,12 +91,14 @@ begin
 end;
 
 
-procedure TRenderAux.Circle(X,Y,Rad: Single; Fill,Line: TColor4);
-const SEC_COUNT = 20;
-var I: Integer;
+procedure TRenderAux.Circle(x, y, rad: Single; Fill, Line: TColor4);
+const
+  SEC_COUNT = 20;
+var
+  I: Integer;
 begin
   glPushMatrix;
-    glTranslatef(X,Y,0);
+    glTranslatef(X, Y, 0);
     glColor4ubv(@Fill);
     glBegin(GL_POLYGON);
       for I := -SEC_COUNT to SEC_COUNT do
@@ -114,8 +118,11 @@ end;
 
 
 procedure TRenderAux.CircleOnTerrain(X, Y, Rad: Single; Fill, Line: TColor4);
-const SEC_COUNT = 24;
-var I: Integer; C,S: Single;
+const
+  SEC_COUNT = 24;
+var
+  I: Integer;
+  C,S: Single;
 begin
   glColor4ubv(@Fill);
   glBegin(GL_POLYGON);
@@ -139,7 +146,8 @@ end;
 
 
 procedure TRenderAux.SquareOnTerrain(X1, Y1, X2, Y2: Single; aLineColor: TColor4);
-var I: Integer;
+var
+  I: Integer;
 begin
   glColor4ubv(@aLineColor);
   glBegin(GL_LINE_LOOP);
@@ -163,14 +171,14 @@ begin
 end;
 
 
-procedure TRenderAux.DotOnTerrain(X,Y:single; aCol:TColor4);
+procedure TRenderAux.DotOnTerrain(x, y: Single; aCol: TColor4);
 begin
   glColor4ubv(@aCol);
   RenderDot(X,gTerrain.FlatToHeight(X, Y));
 end;
 
 
-procedure TRenderAux.LineOnTerrain(X1,Y1,X2,Y2: Single; aCol: TColor4; aPattern: Word = $FFFF);
+procedure TRenderAux.LineOnTerrain(x1, y1, x2, y2: Single; aCol: TColor4; aPattern: Word = $FFFF);
 begin
   glColor4ubv(@aCol);
   glEnable(GL_LINE_STIPPLE);
@@ -236,7 +244,7 @@ begin
 end;
 
 
-procedure TRenderAux.Triangle(X1,Y1,X2,Y2,X3,Y3: Single; aCol: TColor4);
+procedure TRenderAux.Triangle(x1, y1, x2, y2, X3, Y3: Single; aCol: TColor4);
 begin
   glColor4ubv(@aCol);
 
@@ -248,7 +256,7 @@ begin
 end;
 
 
-procedure TRenderAux.TriangleOnTerrain(X1,Y1,X2,Y2,X3,Y3: Single; aCol: TColor4);
+procedure TRenderAux.TriangleOnTerrain(x1, y1, x2, y2, X3, Y3: Single; aCol: TColor4);
 begin
   glColor4ubv(@aCol);
 
@@ -261,7 +269,8 @@ end;
 
 
 procedure TRenderAux.Passability(aRect: TKMRect; aPass: Byte);
-var I,K: Integer;
+var
+  I, K: Integer;
 begin
   if aPass <> 0 then
   begin
@@ -274,20 +283,20 @@ begin
 end;
 
 
-procedure TRenderAux.Projectile(x1,y1,x2,y2:single);
+procedure TRenderAux.Projectile(x1, y1, x2, y2: Single);
 begin
   glColor4f(1, 1, 0, 1);
-  RenderDot(x1,y1);
+  RenderDot(x1, y1);
   glColor4f(1, 0, 0, 1);
-  RenderDot(x2,y2,0.1);
-  RenderLine(x1,y1,x2,y2);
+  RenderDot(x2, y2, 0.1);
+  RenderLine(x1, y1, x2, y2);
 end;
 
 
-procedure TRenderAux.Quad(pX,pY:integer; aCol:TColor4);
+procedure TRenderAux.Quad(pX, pY: Integer; aCol: TColor4);
 begin
   glColor4ubv(@aCol);
-  RenderQuad(pX,pY);
+  RenderQuad(pX, pY);
 end;
 
 
@@ -300,7 +309,9 @@ end;
 
 
 procedure TRenderAux.UnitMoves(aRect: TKMRect);
-var I,K: Integer; VertexUsage: Byte;
+var
+  I, K: Integer;
+  VertexUsage: Byte;
 begin
   for I := aRect.Top to aRect.Bottom do
   for K := aRect.Left to aRect.Right do
@@ -321,7 +332,8 @@ end;
 
 
 procedure TRenderAux.UnitPointers(pX,pY: Single; Count: Integer);
-var I: Integer;
+var
+  I: Integer;
 begin
   for I := 1 to Count do
     RenderDot(pX+I/5, gTerrain.FlatToHeight(pX,pY));

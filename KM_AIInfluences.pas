@@ -377,7 +377,7 @@ begin
       J := GetBestOwner(K,I);
       if J <> PLAYER_NONE then
         Col := (gHands[J].FlagColor and $FFFFFF) or (Influence[J,I,K] shl 24);
-      fRenderAux.Quad(K, I, Col);
+      gRenderAux.Quad(K, I, Col);
     end;
 
   if OVERLAY_OWNERSHIP then
@@ -390,7 +390,7 @@ begin
         Col := (gHands[J].FlagColor and $FFFFFF)
                 or (Ownership[J,I,K] shl 24)
                 or ((Byte(InRange(Ownership[J,I,K], OWN_THRESHOLD, OWN_MARGIN)) * 255) shl 24);
-      fRenderAux.Quad(K, I, Col);
+      gRenderAux.Quad(K, I, Col);
     end;
 
   if OVERLAY_AVOID then
@@ -398,7 +398,7 @@ begin
     for K := aRect.Left to aRect.Right do
     begin
       Col := AvoidBuilding[I,K] * 65793 or $80000000;
-      fRenderAux.Quad(K, I, Col);
+      gRenderAux.Quad(K, I, Col);
     end;
 end;
 

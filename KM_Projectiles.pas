@@ -361,12 +361,12 @@ begin
 
       if SHOW_PROJECTILES then
       begin
-        fRenderAux.Projectile(fItems[I].fScreenStart.X,
+        gRenderAux.Projectile(fItems[I].fScreenStart.X,
                               fItems[I].fScreenStart.Y,
                               fItems[I].fScreenEnd.X,
                               fItems[I].fScreenEnd.Y);
 
-        fRenderAux.Projectile(fItems[I].fAim.X,
+        gRenderAux.Projectile(fItems[I].fAim.X,
                               fItems[I].fAim.Y,
                               fItems[I].fTarget.X,
                               fItems[I].fTarget.Y);
