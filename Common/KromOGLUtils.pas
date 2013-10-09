@@ -11,35 +11,36 @@ uses
   SysUtils, Forms, KromUtils;
 
 {$IFDEF Unix}
-type HGLRC = integer;
-type PFD_DRAW_TO_WINDOW = integer;
-type PFD_SUPPORT_OPENGL = integer;
-type PFD_DOUBLEBUFFER = integer;
-type PFD_TYPE_RGBA = integer;
-type PFD_MAIN_PLANE = integer;
+type HGLRC = Integer;
+type PFD_DRAW_TO_WINDOW = Integer;
+type PFD_SUPPORT_OPENGL = Integer;
+type PFD_DOUBLEBUFFER = Integer;
+type PFD_TYPE_RGBA = Integer;
+type PFD_MAIN_PLANE = Integer;
 {$ENDIF}
 
 type
-    TColor4 = Cardinal;
-    TTexture = record Tex: Cardinal; U,V: Single; end;
+  TColor4 = Cardinal;
+  TTexture = record Tex: Cardinal; U, V: Single; end;
 
-    procedure SetRenderFrame(RenderFrame:HWND; out h_DC: HDC; out h_RC: HGLRC);
-    procedure SetRenderFrameAA(DummyFrame,RenderFrame:HWND; AntiAliasing:byte; out h_DC: HDC; out h_RC: HGLRC);
+  procedure SetRenderFrame(RenderFrame: HWND; out h_DC: HDC; out h_RC: HGLRC);
+  procedure SetRenderFrameAA(DummyFrame, RenderFrame: HWND; AntiAliasing: Byte; out h_DC: HDC; out h_RC: HGLRC);
 
-    procedure BuildFont(h_DC:HDC; FontSize:integer; FontWeight:word=FW_NORMAL);
-    procedure glPrint(text: AnsiString);
-    procedure glkScale(x:single);
-    procedure glkQuad(Ax,Ay,Bx,By,Cx,Cy,Dx,Dy:single);
-    procedure glkRect(Ax,Ay,Bx,By:single);
-    procedure SetupVSync(aVSync:boolean);
+  procedure BuildFont(h_DC: HDC; FontSize: Integer; FontWeight: Word = FW_NORMAL);
+  procedure glPrint(text: AnsiString);
+  procedure glkScale(x: Single);
+  procedure glkQuad(Ax, Ay, Bx, By, Cx, Cy, Dx, Dy: Single);
+  procedure glkRect(Ax, Ay, Bx, By: Single);
+  procedure SetupVSync(aVSync: Boolean);
 
 
 implementation
 
-function SetDCPixelFormat(h_DC:HDC; PixelFormat:Integer):boolean;
+
+function SetDCPixelFormat(h_DC: HDC; PixelFormat: Integer): Boolean;
 var
   nPixelFormat: Integer;
-  PixelDepth:integer;
+  PixelDepth: Integer;
   {$IFDEF MSWINDOWS}
   pfd: TPixelFormatDescriptor;
   {$ENDIF}
@@ -85,14 +86,14 @@ begin
   if nPixelFormat = 0 then begin
     MessageBox(0, 'Unable to find a suitable pixel format', 'Error', MB_OK or MB_ICONERROR);
     Result := false;
-    exit;
+    Exit;
   end;
 
   //Even with known pixel format we still need to supply some PFD structure
   if not SetPixelFormat(h_DC, nPixelFormat, @pfd) then begin
     MessageBox(0, 'Unable to set the pixel format', 'Error', MB_OK or MB_ICONERROR);
     Result := false;
-    exit;
+    Exit;
   end;
 
   Result := true;
@@ -101,10 +102,10 @@ begin
 end;
 
 
-function GetMultisamplePixelFormat(h_dc: HDC; AntiAliasing:byte): integer;
+function GetMultisamplePixelFormat(h_DC: HDC; AntiAliasing: Byte): Integer;
 var
-  pixelFormat: integer;
-  ValidFormat: boolean;
+  pixelFormat: Integer;
+  ValidFormat: Boolean;
   NumFormats: GLUint;
   iAttributes: array of GLint;
 begin
@@ -140,19 +141,19 @@ begin
   repeat
     iAttributes[19] := AntiAliasing;
     {$IFDEF MSWINDOWS}
-    ValidFormat := wglChoosePixelFormatARB(h_dc, @iattributes[0], nil, 1, @pixelFormat, @NumFormats);
+    ValidFormat := wglChoosePixelFormatARB(h_dc, @iAttributes[0], nil, 1, @pixelFormat, @NumFormats);
     {$ENDIF}
     if ValidFormat and (NumFormats >= 1) then
     begin
       Result := pixelFormat;
-      exit;
+      Exit;
     end;
     AntiAliasing := AntiAliasing div 2;
   until(AntiAliasing < 2);
 end;
 
 
-procedure SetContexts(RenderFrame:HWND; PixelFormat:integer; out h_DC: HDC; out h_RC: HGLRC);
+procedure SetContexts(RenderFrame: HWND; PixelFormat: Integer; out h_DC: HDC; out h_RC: HGLRC);
 begin
   {$IFDEF MSWINDOWS}
   h_DC := GetDC(RenderFrame);
@@ -160,30 +161,30 @@ begin
   if h_DC = 0 then
   begin
     MessageBox(HWND(nil), 'Unable to get a device context', 'Error', MB_OK or MB_ICONERROR);
-    exit;
+    Exit;
   end;
 
   if not SetDCPixelFormat(h_DC, PixelFormat) then
-    exit;
+    Exit;
 
   h_RC := wglCreateContext(h_DC);
   if h_RC = 0 then
   begin
     MessageBox(HWND(nil), 'Unable to create an OpenGL rendering context', 'Error', MB_OK or MB_ICONERROR);
-    exit;
+    Exit;
   end;
 
   if not wglMakeCurrent(h_DC, h_RC) then
 
   begin
     MessageBox(HWND(nil), 'Unable to activate OpenGL rendering context', 'Error', MB_OK or MB_ICONERROR);
-    exit;
+    Exit;
   end;
   {$ENDIF}
 end;
 
 
-procedure SetRenderFrame(RenderFrame:HWND; out h_DC: HDC; out h_RC: HGLRC);
+procedure SetRenderFrame(RenderFrame: HWND; out h_DC: HDC; out h_RC: HGLRC);
 begin
   InitOpenGL;
   SetContexts(RenderFrame, 0, h_DC, h_RC);
@@ -200,8 +201,9 @@ Fortunately, this context does not need to be our final context. All we need to 
 context to get function pointers, then use those functions directly. Unfortunately, Windows does not
 allow recreation of a rendering context within a single HWND. We must destroy previous HWND context
 and create final HWND context after we are finished with the dummy context.}
-procedure SetRenderFrameAA(DummyFrame,RenderFrame:HWND; AntiAliasing:byte; out h_DC: HDC; out h_RC: HGLRC);
-var PixelFormat:integer;
+procedure SetRenderFrameAA(DummyFrame, RenderFrame: HWND; AntiAliasing: Byte; out h_DC: HDC; out h_RC: HGLRC);
+var
+  PixelFormat: Integer;
 begin
   InitOpenGL;
   SetContexts(DummyFrame, 0, h_DC, h_RC);
@@ -219,8 +221,9 @@ begin
 end;
 
 
-procedure BuildFont(h_DC:HDC; FontSize:integer; FontWeight:word=FW_NORMAL);
-var Font: HFONT;
+procedure BuildFont(h_DC: HDC; FontSize: Integer; FontWeight: Word = FW_NORMAL);
+var
+  Font: HFONT;
 begin
 //New parameter FontSize=16
   font:=CreateFont(-abs(FontSize),0,0,0,FontWeight,0,0,0,ANSI_CHARSET,
@@ -239,7 +242,7 @@ end;
 
 procedure glPrint(text: AnsiString);
 begin
-  if text = '' then exit;
+  if text = '' then Exit;
   glPushAttrib(GL_LIST_BIT);
   glListBase(20000);
   glCallLists(length(text),GL_UNSIGNED_BYTE,Pchar(@text[1]));
@@ -247,33 +250,33 @@ begin
 end;
 
 
-procedure glkScale(x:single);
+procedure glkScale(x: Single);
 begin
-  glScalef(x,x,x);
+  glScalef(x, x, x);
 end;
 
 
-procedure glkQuad(Ax,Ay,Bx,By,Cx,Cy,Dx,Dy:single);
+procedure glkQuad(Ax, Ay, Bx, By, Cx, Cy, Dx, Dy: Single);
 begin
-  glvertex2f(Ax,Ay);
-  glvertex2f(Bx,By);
-  glvertex2f(Cx,Cy);
-  glvertex2f(Dx,Dy);
+  glvertex2f(Ax, Ay);
+  glvertex2f(Bx, By);
+  glvertex2f(Cx, Cy);
+  glvertex2f(Dx, Dy);
 end;
 
 
-{Same as glkQuad, but requires on TopLeft and BottomRight coords}
-procedure glkRect(Ax,Ay,Bx,By:single);
+//Same as glkQuad, but requires on TopLeft and BottomRight coords
+procedure glkRect(Ax, Ay, Bx, By: Single);
 begin
-  glvertex2f(Ax,Ay);
-  glvertex2f(Bx,Ay);
-  glvertex2f(Bx,By);
-  glvertex2f(Ax,By);
+  glvertex2f(Ax, Ay);
+  glvertex2f(Bx, Ay);
+  glvertex2f(Bx, By);
+  glvertex2f(Ax, By);
 end;
 
 
-//@Vitautas: This function is used to enable/disable V-Sync
-procedure SetupVSync(aVSync:boolean);
+//This function is used to enable/disable V-Sync
+procedure SetupVSync(aVSync: Boolean);
 begin
   {$IFDEF MSWindows}
   if WGL_EXT_swap_control then

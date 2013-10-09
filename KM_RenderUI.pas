@@ -6,19 +6,17 @@ uses dglOpenGL, Controls, Math, KromOGLUtils, StrUtils, SysUtils,
   KM_ResFonts, KM_ResSprites;
 
 type
-  TTextAlign = (taLeft, taCenter, taRight);
-  TButtonStateSet = set of (bsOver, bsDown, bsDisabled);
+  TKMTextAlign = (taLeft, taCenter, taRight);
+  TKMButtonStateSet = set of (bsOver, bsDown, bsDisabled);
   TKMButtonStyle = (bsMenu, bsGame); //Menu buttons are metal, game buttons are stone
 
-  //Dont do taps and fit because pixel graphics aren't supposed to be stretched
-  //paStretch used only a couple of time when we need to scale large menu elements
   TKMRenderUI = class
   public
     class procedure SetupClipX        (X1,X2: SmallInt);
     class procedure SetupClipY        (Y1,Y2: SmallInt);
     class procedure ReleaseClipX;
     class procedure ReleaseClipY;
-    class procedure Write3DButton     (aLeft, aTop, aWidth, aHeight: SmallInt; aRX: TRXType; aID: Word; aFlagColor: TColor4; aState: TButtonStateSet; aStyle: TKMButtonStyle);
+    class procedure Write3DButton     (aLeft, aTop, aWidth, aHeight: SmallInt; aRX: TRXType; aID: Word; aFlagColor: TColor4; aState: TKMButtonStateSet; aStyle: TKMButtonStyle);
     class procedure WriteBevel        (aLeft, aTop, aWidth, aHeight: SmallInt; aEdgeAlpha: Single = 1; aBackAlpha: Single = 0.5);
     class procedure WritePercentBar   (aLeft, aTop, aWidth, aHeight: SmallInt; aPos: Single; aSeam: Single);
     class procedure WritePicture      (aLeft, aTop, aWidth, aHeight: SmallInt; aAnchors: TAnchors; aRX: TRXType; aID: Word; aEnabled: Boolean = True; aColor: TColor4 = $FFFF00FF; aLightness: Single = 0);
@@ -26,7 +24,7 @@ type
     class procedure WriteOutline      (aLeft, aTop, aWidth, aHeight, aLineWidth: SmallInt; Col: TColor4);
     class procedure WriteShape        (aLeft, aTop, aWidth, aHeight: SmallInt; Col: TColor4; Outline: TColor4 = $00000000);
     class procedure WriteLine         (aFromX, aFromY, aToX, aToY: Single; aCol: TColor4; aPattern: Word = $FFFF);
-    class procedure WriteText         (aLeft, aTop, aWidth: SmallInt; aText: string; aFont: TKMFont; aAlign: TTextAlign; aColor: TColor4 = $FFFFFFFF; aIgnoreMarkup: Boolean = False; aShowMarkup: Boolean = False);
+    class procedure WriteText         (aLeft, aTop, aWidth: SmallInt; aText: string; aFont: TKMFont; aAlign: TKMTextAlign; aColor: TColor4 = $FFFFFFFF; aIgnoreMarkup: Boolean = False; aShowMarkup: Boolean = False);
     class procedure WriteTexture      (aLeft, aTop, aWidth, aHeight: SmallInt; aTexture: TTexture; aCol: TColor4);
     class procedure WriteCircle       (aCenterX, aCenterY: SmallInt; aRadius: Byte; aFillColor: TColor4);
     class procedure WriteShadow       (aLeft, aTop, aWidth, aHeight: SmallInt; aBlur: Byte; aCol: TColor4);
@@ -81,7 +79,7 @@ begin
 end;
 
 
-class procedure TKMRenderUI.Write3DButton(aLeft, aTop, aWidth, aHeight: SmallInt; aRX: TRXType; aID: Word; aFlagColor: TColor4; aState: TButtonStateSet; aStyle: TKMButtonStyle);
+class procedure TKMRenderUI.Write3DButton(aLeft, aTop, aWidth, aHeight: SmallInt; aRX: TRXType; aID: Word; aFlagColor: TColor4; aState: TKMButtonStateSet; aStyle: TKMButtonStyle);
 var
   Down: Byte;
   Chamfer: Byte;
@@ -424,7 +422,7 @@ end;
 
 {Renders a line of text}
 {By default color must be non-transparent white}
-class procedure TKMRenderUI.WriteText(aLeft, aTop, aWidth: SmallInt; aText: string; aFont: TKMFont; aAlign: TTextAlign; aColor: TColor4 = $FFFFFFFF; aIgnoreMarkup: Boolean = False; aShowMarkup: Boolean = False);
+class procedure TKMRenderUI.WriteText(aLeft, aTop, aWidth: SmallInt; aText: string; aFont: TKMFont; aAlign: TKMTextAlign; aColor: TColor4 = $FFFFFFFF; aIgnoreMarkup: Boolean = False; aShowMarkup: Boolean = False);
 var
   I, K: Integer;
   LineCount,AdvX,AdvY,LineHeight,BlockWidth: Integer;

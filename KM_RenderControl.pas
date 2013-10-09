@@ -103,7 +103,7 @@ implementation
 {$IFDEF Unix}
   procedure TKMRenderControl.DoOnResize;
   begin
-    Inherited;
+    inherited;
     if Assigned(OnResize) then
       OnResize(Width, Height);
   end;

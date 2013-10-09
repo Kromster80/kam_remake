@@ -216,7 +216,7 @@ type
     fFontColor: TColor4; //Usually white (self-colored)
     fCaption: UnicodeString; //Original text
     fText: UnicodeString; //Reformatted text
-    fTextAlign: TTextAlign;
+    fTextAlign: TKMTextAlign;
     fTextSize: TKMPoint;
     fStrikethrough: Boolean;
     function TextLeft: Integer;
@@ -224,8 +224,8 @@ type
     procedure SetAutoWrap(aValue: boolean);
     procedure ReformatText;
   public
-    constructor Create(aParent: TKMPanel; aLeft, aTop, aWidth, aHeight: Integer; aCaption: UnicodeString; aFont: TKMFont; aTextAlign: TTextAlign); overload;
-    constructor Create(aParent: TKMPanel; aLeft,aTop: Integer; aCaption: UnicodeString; aFont: TKMFont; aTextAlign: TTextAlign); overload;
+    constructor Create(aParent: TKMPanel; aLeft, aTop, aWidth, aHeight: Integer; aCaption: UnicodeString; aFont: TKMFont; aTextAlign: TKMTextAlign); overload;
+    constructor Create(aParent: TKMPanel; aLeft,aTop: Integer; aCaption: UnicodeString; aFont: TKMFont; aTextAlign: TKMTextAlign); overload;
     function HitTest(X, Y: Integer; aIncludeDisabled: Boolean=false): Boolean; override;
     property AutoWrap: boolean read fAutoWrap write SetAutoWrap; //Whether to automatically wrap text within given text area width
     property Caption: UnicodeString read fCaption write SetCaption;
@@ -241,7 +241,7 @@ type
   TKMLabelScroll = class(TKMLabel)
   public
     SmoothScrollToTop: cardinal; //Delta between this and TimeGetTime affects vertical position
-    constructor Create(aParent: TKMPanel; aLeft, aTop, aWidth, aHeight: Integer; aCaption: UnicodeString; aFont: TKMFont; aTextAlign: TTextAlign);
+    constructor Create(aParent: TKMPanel; aLeft, aTop, aWidth, aHeight: Integer; aCaption: UnicodeString; aFont: TKMFont; aTextAlign: TKMTextAlign);
     procedure Paint; override;
   end;
 
@@ -312,7 +312,7 @@ type
   {3DButton}
   TKMButton = class(TKMControl)
   private
-    fTextAlign: TTextAlign;
+    fTextAlign: TKMTextAlign;
     fStyle: TKMButtonStyle;
     fRX: TRXType;
   public
@@ -479,7 +479,7 @@ type
   private
     fFont: TKMFont;
     fPosition: Single;
-    fTextAlign: TTextAlign;
+    fTextAlign: TKMTextAlign;
     fSeam: Single;
     procedure SetPosition(aValue: Single);
     procedure SetSeam(aValue: Single);
@@ -705,7 +705,7 @@ type
     fColumnHighlight: Integer;
     fSortIndex: Integer;
     fSortDirection: TSortDirection;
-    fTextAlign: TTextAlign;
+    fTextAlign: TKMTextAlign;
     function GetColumnIndex(X: Integer): Integer;
     function GetColumn(aIndex: Integer): TKMListHeaderColumn;
     procedure ClearColumns;
@@ -725,7 +725,7 @@ type
     property Columns[aIndex: Integer]: TKMListHeaderColumn read GetColumn;
     property SortIndex: Integer read fSortIndex write fSortIndex;
     property SortDirection: TSortDirection read fSortDirection write fSortDirection;
-    property TextAlign: TTextAlign read fTextAlign write fTextAlign;
+    property TextAlign: TKMTextAlign read fTextAlign write fTextAlign;
 
     procedure MouseMove(X,Y: Integer; Shift: TShiftState); override;
     procedure Paint; override;
@@ -745,7 +745,7 @@ type
   TKMListColumn = class
     Font: TKMFont;
     HintFont: TKMFont;
-    TextAlign: TTextAlign;
+    TextAlign: TKMTextAlign;
   end;
 
   TKMColumnBox = class(TKMControl)
@@ -1747,7 +1747,7 @@ end;
 
 
 { TKMLabel }
-constructor TKMLabel.Create(aParent: TKMPanel; aLeft, aTop, aWidth, aHeight: Integer; aCaption: UnicodeString; aFont: TKMFont; aTextAlign: TTextAlign);
+constructor TKMLabel.Create(aParent: TKMPanel; aLeft, aTop, aWidth, aHeight: Integer; aCaption: UnicodeString; aFont: TKMFont; aTextAlign: TKMTextAlign);
 begin
   inherited Create(aParent, aLeft, aTop, aWidth, aHeight);
   fFont := aFont;
@@ -1759,7 +1759,7 @@ end;
 
 
 //Same as above but with width/height ommitted, as in most cases we don't know/don't care
-constructor TKMLabel.Create(aParent: TKMPanel; aLeft, aTop: Integer; aCaption: UnicodeString; aFont: TKMFont; aTextAlign: TTextAlign);
+constructor TKMLabel.Create(aParent: TKMPanel; aLeft, aTop: Integer; aCaption: UnicodeString; aFont: TKMFont; aTextAlign: TKMTextAlign);
 begin
   inherited Create(aParent, aLeft, aTop, 0, 0);
   fFont := aFont;
@@ -1832,7 +1832,7 @@ end;
 
 
 { TKMLabelScroll }
-constructor TKMLabelScroll.Create(aParent: TKMPanel; aLeft, aTop, aWidth, aHeight: Integer; aCaption: UnicodeString; aFont: TKMFont; aTextAlign: TTextAlign);
+constructor TKMLabelScroll.Create(aParent: TKMPanel; aLeft, aTop, aWidth, aHeight: Integer; aCaption: UnicodeString; aFont: TKMFont; aTextAlign: TKMTextAlign);
 begin
   inherited Create(aParent, aLeft, aTop, aWidth, aHeight, aCaption, aFont, aTextAlign);
   SmoothScrollToTop := 0; //Disabled by default
@@ -2116,7 +2116,7 @@ end;
 procedure TKMButton.Paint;
 var
   Col: TColor4;
-  StateSet: TButtonStateSet;
+  StateSet: TKMButtonStateSet;
 begin
   inherited;
   StateSet := [];
@@ -3171,7 +3171,7 @@ end;
 
 procedure TKMScrollBar.Paint;
 var
-  ButtonState: TButtonStateSet;
+  ButtonState: TKMButtonStateSet;
 begin
   inherited;
 
@@ -5040,7 +5040,7 @@ end;
 
 procedure TKMDragger.Paint;
 var
-  StateSet: TButtonStateSet;
+  StateSet: TKMButtonStateSet;
 begin
   inherited;
   StateSet := [];
