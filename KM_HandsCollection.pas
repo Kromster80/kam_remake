@@ -31,7 +31,7 @@ type
     function HousesHitTest(X,Y: Integer): TKMHouse;
     function UnitsHitTest(X, Y: Integer): TKMUnit;
     function GroupsHitTest(X, Y: Integer): TKMUnitGroup;
-    function GetClosestUnit(aLoc: TKMPoint; aExceptHand: THandIndex; aAlliance: TAllianceType): TKMUnit;
+    function GetClosestUnit(aLoc: TKMPoint; aIndex: THandIndex; aAlliance: TAllianceType): TKMUnit;
     function GetClosestHouse(aLoc: TKMPoint; aIndex: THandIndex; aAlliance: TAllianceType; aOnlyCompleted: Boolean = True): TKMHouse;
     function DistanceToEnemyTowers(aLoc: TKMPoint; aIndex: THandIndex): Single;
     procedure GetUnitsInRect(aRect: TKMRect; List: TList);
@@ -228,7 +228,8 @@ begin
 end;
 
 
-function TKMHandsCollection.GetClosestUnit(aLoc: TKMPoint; aExceptHand: THandIndex; aAlliance: TAllianceType): TKMUnit;
+//Check opponents for closest Unit with given Alliance setting
+function TKMHandsCollection.GetClosestUnit(aLoc: TKMPoint; aIndex: THandIndex; aAlliance: TAllianceType): TKMUnit;
 var
   I: Integer;
   U: TKMUnit;
@@ -236,7 +237,7 @@ begin
   Result := nil;
 
   for I := 0 to fCount - 1 do
-  if (I <> aExceptHand) and (fHandsList[aExceptHand].Alliances[I] = aAlliance) then
+  if (I <> aIndex) and (fHandsList[aIndex].Alliances[I] = aAlliance) then
   begin
     U := fHandsList[I].Units.GetClosestUnit(aLoc);
     if (U <> nil)
@@ -246,7 +247,8 @@ begin
 end;
 
 
-//Get closest house. Note: we check by house cells, not by entrance
+//Check opponents for closest House with given Alliance setting
+//Note: we check by house cells, not by entrance
 function TKMHandsCollection.GetClosestHouse(aLoc: TKMPoint; aIndex: THandIndex; aAlliance: TAllianceType; aOnlyCompleted: Boolean = True): TKMHouse;
 var
   I: Integer;
