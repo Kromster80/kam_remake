@@ -63,7 +63,7 @@ object Form1: TForm1
     OnClick = btnExportGraphmlClick
   end
   object odSelectProject: TOpenDialog
-    Filter = 'Delphi Project|*.dpr'
+    Filter = 'Delphi Project|*.dproj'
     Top = 8
   end
 end
