@@ -168,7 +168,7 @@ unit libZPlay;
 interface
 
 uses
-  Windows, SysUtils, Classes, Graphics;
+  Windows, SysUtils, Classes, Vcl.Graphics;
 
 
 type  TSettingID = (

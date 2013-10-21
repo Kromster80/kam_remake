@@ -4,7 +4,7 @@ interface
 uses
   {$IFDEF MSWindows} Windows, {$ENDIF}
   {$IFDEF Unix} LCLIntf, LCLType, {$ENDIF}
-  Controls, Math, StrUtils, SysUtils,
+  Math, StrUtils, SysUtils,
   KM_Controls, KM_Defaults, KM_InterfaceDefaults, KM_InterfaceGame;
 
 

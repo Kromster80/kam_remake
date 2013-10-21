@@ -109,7 +109,7 @@ uses
 {$IFDEF WIN32}
   Windows,
 {$IFNDEF NOFORMS}
-  Forms,
+  Vcl.Forms,
 {$ENDIF}
 {$ENDIF}
   OverbyteIcsTypes, OverbyteIcsLibrary;

@@ -2,7 +2,7 @@
 {$I KaM_Remake.inc}
 interface
 uses
-  Controls, Math, StrUtils, SysUtils,
+  Math, StrUtils, SysUtils,
   KM_Controls, KM_Defaults,
   KM_InterfaceGame, KM_ResHouses;
 

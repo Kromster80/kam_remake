@@ -110,7 +110,7 @@ uses
 {$IFDEF WIN32}
   Windows, Classes, Messages,
 {$IFNDEF NOFORMS}
-  Forms,
+  Vcl.Forms,
 {$ENDIF}
   SysUtils,
 {$ENDIF}
@@ -1615,7 +1615,7 @@ end;
 {$IFNDEF NOFORMS}
 function Application : TApplication;
 begin
-    Result := Forms.Application;
+    Result := Vcl.Forms.Application;
 end;
 {$ENDIF}
 {$ENDIF WIN32}

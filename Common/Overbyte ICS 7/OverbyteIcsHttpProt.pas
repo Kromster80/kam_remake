@@ -480,7 +480,7 @@ uses
 {$ENDIF}
     SysUtils, Classes,
 {$IFNDEF NOFORMS}
-    Forms, Controls,
+    Vcl.Forms, Vcl.Controls,
 {$ENDIF}
 { You must define USE_SSL so that SSL code is included in the component.   }
 { Either in OverbyteIcsDefs.inc or in the project/package options.         }
