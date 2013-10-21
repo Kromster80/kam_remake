@@ -44,7 +44,7 @@ var
 
 
 implementation
-uses KM_MissionScript;
+uses KM_Campaigns, KM_MissionScript;
 {$R *.dfm}
 
 
@@ -165,15 +165,17 @@ end;
 
 //Export message goals into EVT files to allow to rig them easily
 procedure TForm1.Button3Click(Sender: TObject);
+const
+  cmp: TKMCampaignId = (Byte('T'), Byte('P'), Byte('R'));
 var
   I: Integer;
 begin
   ControlsEnable(False);
   SetUp;
 
-  for I := 0 to fGameApp.Campaigns.CampaignByTitle('TPR').MapCount - 1 do
+  for I := 0 to fGameApp.Campaigns.CampaignById(cmp).MapCount - 1 do
   begin
-    fGameApp.NewCampaignMap(fGameApp.Campaigns.CampaignByTitle('TPR'), I);
+    fGameApp.NewCampaignMap(fGameApp.Campaigns.CampaignById(cmp), I);
 
     gHands[0].AI.Goals.ExportMessages(ExtractFilePath(ParamStr(0)) + Format('TPR%.2d.evt', [I+1]));
 

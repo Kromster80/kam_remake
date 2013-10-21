@@ -9,6 +9,7 @@
 {$IFDEF VER260} {$DEFINE WDC} {$ENDIF} //Define Windows Delphi XE5 compiler
 {.$DEFINE FPC} //Define Free Pascal compiler (defined automatically by Lazarus)
 
+//Lazarus compiler specific settings
 {$IFDEF FPC}
   //Set FPC to work in Delphi mode
   {$MODE Delphi}
@@ -21,6 +22,7 @@
   {$ENDIF}
 {$ENDIF}
 
+//Delphi compiler specific settings
 {$IFDEF WDC}
   //Project can be compiled without madExcept features (if you dont have madExcept installed)
   {.$DEFINE USE_MAD_EXCEPT}

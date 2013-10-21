@@ -305,13 +305,15 @@ begin
 end;
 
 procedure TKMVas01.Execute(aRun: Integer);
+const
+  cmp: TKMCampaignId = (Byte('V'), Byte('A'), Byte('S'));
 var
   C: TKMCampaign;
   T: Cardinal;
 begin
   inherited;
 
-  C := fGameApp.Campaigns.CampaignByTitle('VAS');
+  C := fGameApp.Campaigns.CampaignById(cmp);
   fGameApp.NewCampaignMap(C, 1);
 
   //Don't set random seed or the replay won't work
