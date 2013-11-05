@@ -20,6 +20,8 @@ type
 
     procedure StartClick(Sender: TObject);
     procedure MapTypeChange(Sender: TObject);
+    procedure SizeChangeByRadio(Sender: TObject);
+    procedure SizeChangeByEdit(Sender: TObject);
     procedure ListUpdate;
     procedure ScanUpdate(Sender: TObject);
     procedure SortUpdate(Sender: TObject);
@@ -36,6 +38,8 @@ type
       Radio_MapEd_MapType: TKMRadioGroup;
       MinimapView_MapEd: TKMMinimapView;
       Button_MapEdBack,Button_MapEd_Create,Button_MapEd_Load: TKMButton;
+      NumEdit_MapSizeX: TKMNumericEdit;
+      NumEdit_MapSizeY: TKMNumericEdit;
   public
     constructor Create(aParent: TKMPanel; aOnPageChange: TGUIEventText);
     destructor Destroy; override;
@@ -55,7 +59,8 @@ const
 
 { TKMGUIMainMapEditor }
 constructor TKMMenuMapEditor.Create(aParent: TKMPanel; aOnPageChange: TGUIEventText);
-var I: Integer;
+var
+  I: Integer;
 begin
   inherited Create;
 
@@ -67,26 +72,36 @@ begin
 
   Panel_MapEd:=TKMPanel.Create(aParent, 0, 0, aParent.Width, aParent.Height);
   Panel_MapEd.AnchorsStretch;
-    Panel_MapEdSizeXY := TKMPanel.Create(Panel_MapEd, 80, 160, 200, 400);
+    Panel_MapEdSizeXY := TKMPanel.Create(Panel_MapEd, 80, 135, 200, 400);
     Panel_MapEdSizeXY.Anchors := [anLeft];
       TKMLabel.Create(Panel_MapEdSizeXY, 6, 0, 188, 20, gResTexts[TX_MENU_NEW_MAP_SIZE], fnt_Outline, taLeft);
-      TKMBevel.Create(Panel_MapEdSizeXY, 0, 20, 200, 370);
+      TKMBevel.Create(Panel_MapEdSizeXY, 0, 20, 200, 397);
       TKMLabel.Create(Panel_MapEdSizeXY, 8, 27, 88, 20, gResTexts[TX_MENU_MAP_WIDTH], fnt_Outline, taLeft);
       TKMLabel.Create(Panel_MapEdSizeXY, 108, 27, 88, 20, gResTexts[TX_MENU_MAP_HEIGHT], fnt_Outline, taLeft);
 
       Radio_MapEdSizeX := TKMRadioGroup.Create(Panel_MapEdSizeXY, 10, 52, 88, 332, fnt_Metal);
       Radio_MapEdSizeY := TKMRadioGroup.Create(Panel_MapEdSizeXY, 110, 52, 88, 332, fnt_Metal);
-      for I := 1 to MAPSIZES_COUNT do begin
+      for I := 1 to MAPSIZES_COUNT do
+      begin
         Radio_MapEdSizeX.Add(IntToStr(MapSize[I]));
         Radio_MapEdSizeY.Add(IntToStr(MapSize[I]));
       end;
       Radio_MapEdSizeX.ItemIndex := 2; //64
       Radio_MapEdSizeY.ItemIndex := 2; //64
 
-      Button_MapEd_Create := TKMButton.Create(Panel_MapEdSizeXY, 0, 400, 200, 30, gResTexts[TX_MENU_MAP_CREATE_NEW_MAP], bsMenu);
+      Radio_MapEdSizeX.OnChange := SizeChangeByRadio;
+      Radio_MapEdSizeY.OnChange := SizeChangeByRadio;
+      NumEdit_MapSizeX := TKMNumericEdit.Create(Panel_MapEdSizeXY, 8, 386, 32, 256);
+      NumEdit_MapSizeY := TKMNumericEdit.Create(Panel_MapEdSizeXY, 108, 386, 32, 256);
+      NumEdit_MapSizeX.Value := 64;
+      NumEdit_MapSizeY.Value := 64;
+      NumEdit_MapSizeX.OnChange := SizeChangeByEdit;
+      NumEdit_MapSizeY.OnChange := SizeChangeByEdit;
+
+      Button_MapEd_Create := TKMButton.Create(Panel_MapEdSizeXY, 0, 427, 200, 30, gResTexts[TX_MENU_MAP_CREATE_NEW_MAP], bsMenu);
       Button_MapEd_Create.OnClick := StartClick;
 
-    Panel_MapEdLoad := TKMPanel.Create(Panel_MapEd, 300, 160, 620, 500);
+    Panel_MapEdLoad := TKMPanel.Create(Panel_MapEd, 300, 135, 620, 500);
     Panel_MapEdLoad.Anchors := [anLeft];
       TKMLabel.Create(Panel_MapEdLoad, 6, 0, 288, 20, gResTexts[TX_MENU_MAP_AVAILABLE], fnt_Outline, taLeft);
       TKMBevel.Create(Panel_MapEdLoad, 0, 20, 300, 50);
@@ -95,18 +110,18 @@ begin
       Radio_MapEd_MapType.Add(gResTexts[TX_MENU_MAPED_SPMAPS]);
       Radio_MapEd_MapType.Add(gResTexts[TX_MENU_MAPED_MPMAPS]);
       Radio_MapEd_MapType.OnChange := MapTypeChange;
-      ColumnBox_MapEd := TKMColumnBox.Create(Panel_MapEdLoad, 0, 80, 440, 310, fnt_Metal,  bsMenu);
+      ColumnBox_MapEd := TKMColumnBox.Create(Panel_MapEdLoad, 0, 80, 440, 338, fnt_Metal,  bsMenu);
       ColumnBox_MapEd.SetColumns(fnt_Outline, [gResTexts[TX_MENU_MAP_TITLE], '#', gResTexts[TX_MENU_MAP_SIZE]], [0, 310, 340]);
       ColumnBox_MapEd.SearchColumn := 0;
       ColumnBox_MapEd.OnColumnClick := ColumnClick;
       ColumnBox_MapEd.OnChange := SelectMap;
       ColumnBox_MapEd.OnDoubleClick := StartClick;
-      Button_MapEd_Load := TKMButton.Create(Panel_MapEdLoad, 0, 400, 300, 30, gResTexts[TX_MENU_MAP_LOAD_EXISTING], bsMenu);
+      Button_MapEd_Load := TKMButton.Create(Panel_MapEdLoad, 0, 427, 400, 30, gResTexts[TX_MENU_MAP_LOAD_EXISTING], bsMenu);
       Button_MapEd_Load.OnClick := StartClick;
       TKMBevel.Create(Panel_MapEdLoad, 448, 80, 199, 199);
       MinimapView_MapEd := TKMMinimapView.Create(Panel_MapEdLoad, 452, 84, 191, 191);
 
-    Button_MapEdBack := TKMButton.Create(Panel_MapEd, 80, 620, 220, 30, gResTexts[TX_MENU_BACK], bsMenu);
+    Button_MapEdBack := TKMButton.Create(Panel_MapEd, 80, 630, 220, 30, gResTexts[TX_MENU_BACK], bsMenu);
     Button_MapEdBack.Anchors := [anLeft];
     Button_MapEdBack.OnClick := BackClick;
 end;
@@ -127,10 +142,11 @@ var
   ID: Integer;
   Maps: TKMapsCollection;
 begin
+  //Create new map (NumEdits hold actual dimensions)
   if Sender = Button_MapEd_Create then
   begin
-    MapEdSizeX := MapSize[Radio_MapEdSizeX.ItemIndex+1];
-    MapEdSizeY := MapSize[Radio_MapEdSizeY.ItemIndex+1];
+    MapEdSizeX := NumEdit_MapSizeX.Value;
+    MapEdSizeY := NumEdit_MapSizeY.Value;
     fGameApp.NewMapEditor('', MapEdSizeX, MapEdSizeY);
   end;
 
@@ -152,6 +168,32 @@ begin
       fGameApp.NewMapEditor(Maps[ID].FullPath('.dat'), 0, 0);
     Maps.Unlock;
   end;
+end;
+
+
+procedure TKMMenuMapEditor.SizeChangeByEdit(Sender: TObject);
+var
+  I: Integer;
+begin
+  Radio_MapEdSizeX.ItemIndex := -1;
+  Radio_MapEdSizeY.ItemIndex := -1;
+
+  for I := 1 to MAPSIZES_COUNT do
+  if NumEdit_MapSizeX.Value = MapSize[I] then
+    Radio_MapEdSizeX.ItemIndex := I - 1;
+
+  for I := 1 to MAPSIZES_COUNT do
+  if NumEdit_MapSizeY.Value = MapSize[I] then
+    Radio_MapEdSizeY.ItemIndex := I - 1;
+end;
+
+
+procedure TKMMenuMapEditor.SizeChangeByRadio(Sender: TObject);
+begin
+  if Radio_MapEdSizeX.ItemIndex <> -1 then
+    NumEdit_MapSizeX.Value := MapSize[Radio_MapEdSizeX.ItemIndex + 1];
+  if Radio_MapEdSizeY.ItemIndex <> -1 then
+    NumEdit_MapSizeY.Value := MapSize[Radio_MapEdSizeY.ItemIndex + 1];
 end;
 
 
