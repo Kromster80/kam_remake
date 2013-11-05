@@ -113,7 +113,7 @@ begin
                                                   Half,
                                                   aParent.Height - PAD_VERT*2,
                                                   fnt_Metal, bsMenu);
-    ColumnBox_SingleMaps.Anchors := [akTop, akBottom];
+    ColumnBox_SingleMaps.Anchors := [anTop, anBottom];
     ColumnBox_SingleMaps.SetColumns(fnt_Outline, ['', '', gResTexts[TX_MENU_MAP_TITLE], gResTexts[TX_MENU_MAP_SIZE]], [0, 50, 100, 380]);
     ColumnBox_SingleMaps.Columns[2].Font := fnt_Metal;
     ColumnBox_SingleMaps.Columns[2].HintFont := fnt_Grey;
@@ -131,33 +131,33 @@ begin
     ColumnBox_SingleMaps.OnDoubleClick := StartClick;
 
     Panel_SingleDesc := TKMPanel.Create(Panel_Single, PAD_SIDE, PAD_VERT, Half, aParent.Height - PAD_VERT*2);
-    Panel_SingleDesc.Anchors := [akTop, akBottom];
+    Panel_SingleDesc.Anchors := [anTop, anBottom];
 
       //Description
       Label_SingleTitle := TKMLabel.Create(Panel_SingleDesc, Half div 2, 0, '', fnt_Outline, taCenter);
       Memo_SingleDesc  := TKMMemo.Create(Panel_SingleDesc, 0, 20, Half, 300, fnt_Metal, bsMenu);
-      Memo_SingleDesc.Anchors := [akTop, akBottom];
+      Memo_SingleDesc.Anchors := [anTop, anBottom];
       Memo_SingleDesc.AutoWrap := True;
 
       //Minimap preview
       B := TKMBevel.Create(Panel_SingleDesc, 0, 330, 195, 195);
-      B.Anchors := [akLeft, akBottom];
+      B.Anchors := [anLeft, anBottom];
       MinimapView_Single := TKMMinimapView.Create(Panel_SingleDesc, 2, 332, 191, 191);
-      MinimapView_Single.Anchors := [akLeft, akBottom];
+      MinimapView_Single.Anchors := [anLeft, anBottom];
       MinimapView_Single.OnLocClick := MinimapLocClick;
 
       //Setup (loc and flag placed alongside just like in MP lobby)
       //Other setup settings can go below
       L := TKMLabel.Create(Panel_SingleDesc, 200, 330, 150, 20, gResTexts[TX_LOBBY_HEADER_STARTLOCATION], fnt_Metal, taLeft);
-      L.Anchors := [akLeft, akBottom];
+      L.Anchors := [anLeft, anBottom];
       DropBox_SingleLoc := TKMDropList.Create(Panel_SingleDesc, 200, 350, 150, 20, fnt_Metal, gResTexts[TX_MENU_MAP_LOCATION], bsMenu);
-      DropBox_SingleLoc.Anchors := [akLeft, akBottom];
+      DropBox_SingleLoc.Anchors := [anLeft, anBottom];
       DropBox_SingleLoc.OnChange := OptionsChange;
 
       L := TKMLabel.Create(Panel_SingleDesc, 360, 330, 80, 20, gResTexts[TX_LOBBY_HEADER_FLAGCOLOR], fnt_Metal, taLeft);
-      L.Anchors := [akLeft, akBottom];
+      L.Anchors := [anLeft, anBottom];
       DropBox_SingleColor := TKMDropColumns.Create(Panel_SingleDesc, 360, 350, 80, 20, fnt_Grey, '', bsMenu);
-      DropBox_SingleColor.Anchors := [akLeft, akBottom];
+      DropBox_SingleColor.Anchors := [anLeft, anBottom];
       DropBox_SingleColor.SetColumns(fnt_Outline, [''], [0]);
       DropBox_SingleColor.List.ShowHeader := False;
       DropBox_SingleColor.FadeImageWhenDisabled := False;
@@ -166,54 +166,54 @@ begin
 
       //Goals
       B := TKMBevel.Create(Panel_SingleDesc, 0, 530, Half, 30);
-      B.Anchors := [akLeft, akBottom];
+      B.Anchors := [anLeft, anBottom];
       L := TKMLabel.Create(Panel_SingleDesc, 4, 538, 190, 30, gResTexts[TX_MENU_WIN_CONDITION], fnt_Metal, taLeft);
-      L.Anchors := [akLeft, akBottom];
+      L.Anchors := [anLeft, anBottom];
       B := TKMBevel.Create(Panel_SingleDesc, 0, 560, Half, 30);
-      B.Anchors := [akLeft, akBottom];
+      B.Anchors := [anLeft, anBottom];
       L := TKMLabel.Create(Panel_SingleDesc, 4, 568, 190, 30, gResTexts[TX_MENU_DEFEAT_CONDITION], fnt_Metal, taLeft);
-      L.Anchors := [akLeft, akBottom];
+      L.Anchors := [anLeft, anBottom];
       for I := 0 to MAX_UI_GOALS - 1 do
       begin
         Image_SingleVictGoal[I] := TKMImage.Create(Panel_SingleDesc, 200 + I*35, 530, 30, 30, 41);
-        Image_SingleVictGoal[I].Anchors := [akLeft, akBottom];
+        Image_SingleVictGoal[I].Anchors := [anLeft, anBottom];
         Image_SingleVictGoal[I].ImageCenter;
         Label_SingleVictGoal[I] := TKMLabel.Create(Panel_SingleDesc, 215 + I*35, 535, '', fnt_Grey, taCenter);
-        Label_SingleVictGoal[I].Anchors := [akLeft, akBottom];
+        Label_SingleVictGoal[I].Anchors := [anLeft, anBottom];
         Image_SingleVictGoalSt[I] := TKMImage.Create(Panel_SingleDesc, 217 + I*35, 545, 20, 20, 371, rxGui);
-        Image_SingleVictGoalSt[I].Anchors := [akLeft, akBottom];
+        Image_SingleVictGoalSt[I].Anchors := [anLeft, anBottom];
 
         Image_SingleSurvGoal[I] := TKMImage.Create(Panel_SingleDesc, 200 + I*35, 560, 30, 30, 41);
-        Image_SingleSurvGoal[I].Anchors := [akLeft, akBottom];
+        Image_SingleSurvGoal[I].Anchors := [anLeft, anBottom];
         Image_SingleSurvGoal[I].ImageCenter;
         Label_SingleSurvGoal[I] := TKMLabel.Create(Panel_SingleDesc, 215 + I*35, 565, '', fnt_Grey, taCenter);
-        Label_SingleSurvGoal[I].Anchors := [akLeft, akBottom];
+        Label_SingleSurvGoal[I].Anchors := [anLeft, anBottom];
         Image_SingleSurvGoalSt[I] := TKMImage.Create(Panel_SingleDesc, 218 + I*35, 575, 20, 20, 44, rxGui);
-        Image_SingleSurvGoalSt[I].Anchors := [akLeft, akBottom];
+        Image_SingleSurvGoalSt[I].Anchors := [anLeft, anBottom];
       end;
 
       //Alliances
       B := TKMBevel.Create(Panel_SingleDesc, 0, 590, Half, 20);
-      B.Anchors := [akLeft, akBottom];
+      B.Anchors := [anLeft, anBottom];
       L := TKMLabel.Create(Panel_SingleDesc, 4, 594, 190, 20, gResTexts[TX_MENU_ALLIES], fnt_Metal, taLeft);
-      L.Anchors := [akLeft, akBottom];
+      L.Anchors := [anLeft, anBottom];
       B := TKMBevel.Create(Panel_SingleDesc, 0, 610, Half, 20);
-      B.Anchors := [akLeft, akBottom];
+      B.Anchors := [anLeft, anBottom];
       L := TKMLabel.Create(Panel_SingleDesc, 4, 614, 190, 20, gResTexts[TX_MENU_ENEMIES], fnt_Metal, taLeft);
-      L.Anchors := [akLeft, akBottom];
+      L.Anchors := [anLeft, anBottom];
       for I := 0 to MAX_HANDS - 1 do
       begin
         Image_SingleAllies[I] := TKMImage.Create(Panel_SingleDesc, 200 + I*32, 590, 50, 20, 30, rxGuiMain);
-        Image_SingleAllies[I].Anchors := [akLeft, akBottom];
+        Image_SingleAllies[I].Anchors := [anLeft, anBottom];
         Image_SingleEnemies[I] := TKMImage.Create(Panel_SingleDesc, 200 + I*32, 610, 50, 20, 30, rxGuiMain);
-        Image_SingleEnemies[I].Anchors := [akLeft, akBottom];
+        Image_SingleEnemies[I].Anchors := [anLeft, anBottom];
       end;
 
     Button_SingleBack := TKMButton.Create(Panel_Single, 45, aParent.Height - PAD_VERT - 30, 220, 30, gResTexts[TX_MENU_BACK], bsMenu);
-    Button_SingleBack.Anchors := [akLeft, akBottom];
+    Button_SingleBack.Anchors := [anLeft, anBottom];
     Button_SingleBack.OnClick := BackClick;
     Button_SingleStart := TKMButton.Create(Panel_Single, 270, aParent.Height - PAD_VERT - 30, 220, 30, gResTexts[TX_MENU_SINGLE_START_MAP], bsMenu);
-    Button_SingleStart.Anchors := [akLeft, akBottom];
+    Button_SingleStart.Anchors := [anLeft, anBottom];
     Button_SingleStart.OnClick := StartClick;
 end;
 

@@ -523,12 +523,12 @@ begin
     end;
 
     Label_ResultsMP := TKMLabel.Create(Panel_ResultsMP,62,125,900,20,NO_TEXT,fnt_Metal,taCenter);
-    Label_ResultsMP.Anchors := [akLeft];
+    Label_ResultsMP.Anchors := [anLeft];
 
     Button_MPResultsBars := TKMButtonFlat.Create(Panel_ResultsMP, 160, 155, 176, 20, 8, rxGuiMain);
     Button_MPResultsBars.TexOffsetX := -78;
     Button_MPResultsBars.TexOffsetY := 6;
-    Button_MPResultsBars.Anchors := [akLeft];
+    Button_MPResultsBars.Anchors := [anLeft];
     Button_MPResultsBars.Caption := gResTexts[TX_RESULTS_STATISTICS];
     Button_MPResultsBars.CapOffsetY := -11;
     Button_MPResultsBars.OnClick := TabChange;
@@ -536,7 +536,7 @@ begin
     Button_MPResultsArmy := TKMButtonFlat.Create(Panel_ResultsMP, 340, 155, 176, 20, 53, rxGui);
     Button_MPResultsArmy.TexOffsetX := -76;
     Button_MPResultsArmy.TexOffsetY := 6;
-    Button_MPResultsArmy.Anchors := [akLeft];
+    Button_MPResultsArmy.Anchors := [anLeft];
     Button_MPResultsArmy.Caption := gResTexts[TX_GRAPH_ARMY];
     Button_MPResultsArmy.CapOffsetY := -11;
     Button_MPResultsArmy.OnClick := TabChange;
@@ -544,7 +544,7 @@ begin
     Button_MPResultsEconomy := TKMButtonFlat.Create(Panel_ResultsMP, 520, 155, 176, 20, 589, rxGui);
     Button_MPResultsEconomy.TexOffsetX := -72;
     Button_MPResultsEconomy.TexOffsetY := 6;
-    Button_MPResultsEconomy.Anchors := [akLeft];
+    Button_MPResultsEconomy.Anchors := [anLeft];
     Button_MPResultsEconomy.Caption := gResTexts[TX_RESULTS_ECONOMY];
     Button_MPResultsEconomy.CapOffsetY := -11;
     Button_MPResultsEconomy.OnClick := TabChange;
@@ -552,7 +552,7 @@ begin
     Button_MPResultsWares := TKMButtonFlat.Create(Panel_ResultsMP, 700, 155, 176, 20, 360, rxGui);
     Button_MPResultsWares.TexOffsetX := -77;
     Button_MPResultsWares.TexOffsetY := 6;
-    Button_MPResultsWares.Anchors := [akLeft];
+    Button_MPResultsWares.Anchors := [anLeft];
     Button_MPResultsWares.Caption := gResTexts[TX_GRAPH_RESOURCES];
     Button_MPResultsWares.CapOffsetY := -11;
     Button_MPResultsWares.OnClick := TabChange;
@@ -560,24 +560,24 @@ begin
     CreateBars(Panel_ResultsMP);
 
     Panel_ChartsMP := TKMPanel.Create(Panel_ResultsMP, 0, PANES_TOP, 1024, 560);
-    Panel_ChartsMP.Anchors := [akLeft];
+    Panel_ChartsMP.Anchors := [anLeft];
 
       Chart_MPArmy := TKMChart.Create(Panel_ChartsMP, 62, 0, 900, 435);
       Chart_MPArmy.Caption := gResTexts[TX_GRAPH_ARMY];
-      Chart_MPArmy.Anchors := [akLeft];
+      Chart_MPArmy.Anchors := [anLeft];
 
       Chart_MPCitizens := TKMChart.Create(Panel_ChartsMP, 62, 0, 900, 200);
       Chart_MPCitizens.Caption := gResTexts[TX_GRAPH_CITIZENS];
-      Chart_MPCitizens.Anchors := [akLeft];
+      Chart_MPCitizens.Anchors := [anLeft];
 
       Chart_MPHouses := TKMChart.Create(Panel_ChartsMP, 62, 235, 900, 200);
       Chart_MPHouses.Caption := gResTexts[TX_GRAPH_HOUSES];
-      Chart_MPHouses.Anchors := [akLeft];
+      Chart_MPHouses.Anchors := [anLeft];
 
     CreateChartWares(Panel_ResultsMP);
 
     Button_ResultsMPBack := TKMButton.Create(Panel_ResultsMP, 100, 630, 220, 30, NO_TEXT, bsMenu);
-    Button_ResultsMPBack.Anchors := [akLeft];
+    Button_ResultsMPBack.Anchors := [anLeft];
     Button_ResultsMPBack.OnClick := BackClick;
 end;
 

@@ -47,17 +47,17 @@ begin
   fOnChange := aOnChange;
 
   Panel_Extra := TKMPanel.Create(aParent, TOOLBAR_WIDTH, aParent.Height - 190, 600, 190);
-  Panel_Extra.Anchors := [akLeft, akBottom];
+  Panel_Extra.Anchors := [anLeft, anBottom];
   Panel_Extra.Hide;
 
   with TKMImage.Create(Panel_Extra, 0, 0, 600, 190, 409) do
   begin
-    Anchors := [akLeft, akTop, akBottom];
-    ImageAnchors := [akLeft, akRight, akTop];
+    Anchors := [anLeft, anTop, anBottom];
+    ImageAnchors := [anLeft, anRight, anTop];
   end;
 
   Image_ExtraClose := TKMImage.Create(Panel_Extra, 600 - 76, 24, 32, 32, 52);
-  Image_ExtraClose.Anchors := [akTop, akRight];
+  Image_ExtraClose.Anchors := [anTop, anRight];
   Image_ExtraClose.Hint := gResTexts[TX_MSG_CLOSE_HINT];
   Image_ExtraClose.OnClick := Extra_Close;
   Image_ExtraClose.HighlightOnMouseOver := True;

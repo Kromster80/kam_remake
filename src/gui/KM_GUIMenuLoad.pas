@@ -63,7 +63,7 @@ begin
     TKMLabel.Create(Panel_Load, aParent.Width div 2, 50, gResTexts[TX_MENU_LOAD_LIST], fnt_Outline, taCenter);
 
     ColumnBox_Load := TKMColumnBox.Create(Panel_Load, 62, 86, 700, 485, fnt_Metal, bsMenu);
-    ColumnBox_Load.Anchors := [akLeft,akTop,akBottom];
+    ColumnBox_Load.Anchors := [anLeft,anTop,anBottom];
     ColumnBox_Load.SetColumns(fnt_Outline, [gResTexts[TX_MENU_LOAD_FILE], gResTexts[TX_MENU_LOAD_DESCRIPTION]], [0, 300]);
     ColumnBox_Load.SearchColumn := 0;
     ColumnBox_Load.OnColumnClick := Load_Sort;
@@ -71,29 +71,29 @@ begin
     ColumnBox_Load.OnDoubleClick := LoadClick;
 
     Button_Load := TKMButton.Create(Panel_Load,337,590,350,30,gResTexts[TX_MENU_LOAD_LOAD], bsMenu);
-    Button_Load.Anchors := [akLeft,akBottom];
+    Button_Load.Anchors := [anLeft,anBottom];
     Button_Load.OnClick := LoadClick;
 
     Button_Delete := TKMButton.Create(Panel_Load, 337, 624, 350, 30, gResTexts[TX_MENU_LOAD_DELETE], bsMenu);
-    Button_Delete.Anchors := [akLeft,akBottom];
+    Button_Delete.Anchors := [anLeft,anBottom];
     Button_Delete.OnClick := Load_Delete_Click;
 
     Label_DeleteConfirm := TKMLabel.Create(Panel_Load, aParent.Width div 2, 634, gResTexts[TX_MENU_LOAD_DELETE_CONFIRM], fnt_Outline, taCenter);
-    Label_DeleteConfirm.Anchors := [akLeft,akBottom];
+    Label_DeleteConfirm.Anchors := [anLeft,anBottom];
     Button_DeleteYes := TKMButton.Create(Panel_Load, 337, 660, 170, 30, gResTexts[TX_MENU_LOAD_DELETE_DELETE], bsMenu);
-    Button_DeleteYes.Anchors := [akLeft,akBottom];
+    Button_DeleteYes.Anchors := [anLeft,anBottom];
     Button_DeleteYes.OnClick := Load_Delete_Click;
     Button_DeleteNo  := TKMButton.Create(Panel_Load, 517, 660, 170, 30, gResTexts[TX_MENU_LOAD_DELETE_CANCEL], bsMenu);
-    Button_DeleteNo.Anchors := [akLeft,akBottom];
+    Button_DeleteNo.Anchors := [anLeft,anBottom];
     Button_DeleteNo.OnClick := Load_Delete_Click;
 
     Button_LoadBack := TKMButton.Create(Panel_Load, 337, 700, 350, 30, gResTexts[TX_MENU_BACK], bsMenu);
-    Button_LoadBack.Anchors := [akLeft,akBottom];
+    Button_LoadBack.Anchors := [anLeft,anBottom];
     Button_LoadBack.OnClick := BackClick;
 
-    with TKMBevel.Create(Panel_Load, 785, 226, 199, 199) do Anchors := [akLeft];
+    with TKMBevel.Create(Panel_Load, 785, 226, 199, 199) do Anchors := [anLeft];
     MinimapView_Load := TKMMinimapView.Create(Panel_Load,789,230,191,191);
-    MinimapView_Load.Anchors := [akLeft];
+    MinimapView_Load.Anchors := [anLeft];
 end;
 
 

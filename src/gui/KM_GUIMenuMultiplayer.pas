@@ -190,39 +190,39 @@ begin
 
     //Master server announcement
     Memo_MP_Announcement := TKMMemo.Create(Panel_MultiPlayer, 45, 45, 620, 189, fnt_Grey, bsMenu);
-    Memo_MP_Announcement.Anchors := [akLeft, akTop];
+    Memo_MP_Announcement.Anchors := [anLeft, anTop];
     Memo_MP_Announcement.AutoWrap := True;
     Memo_MP_Announcement.ItemHeight := 16;
 
     //List of available servers
     ColumnBox_Servers := TKMColumnBox.Create(Panel_MultiPlayer,45,240,620,465,fnt_Metal, bsMenu);
-    ColumnBox_Servers.Anchors := [akLeft, akTop, akBottom];
+    ColumnBox_Servers.Anchors := [anLeft, anTop, anBottom];
     ColumnBox_Servers.Focusable := True;
     ColumnBox_Servers.SetColumns(fnt_Outline, ['','',gResTexts[TX_MP_MENU_SERVERLIST_NAME],gResTexts[TX_MP_MENU_SERVERLIST_STATE],gResTexts[TX_MP_MENU_SERVERLIST_PLAYERS],gResTexts[TX_MP_MENU_SERVERLIST_PING]],[0,20,40,300,430,525]);
     ColumnBox_Servers.OnColumnClick := MP_ServersSort;
     ColumnBox_Servers.OnChange := MP_ServersClick;
     ColumnBox_Servers.OnDoubleClick := MP_ServersDoubleClick;
     Label_Servers_Status := TKMLabel.Create(Panel_MultiPlayer, 45+310, 240+230, '', fnt_Grey, taCenter);
-    Label_Servers_Status.Anchors := [akLeft];
+    Label_Servers_Status.Anchors := [anLeft];
     Label_Servers_Status.Hide;
 
     //Server details area
     Panel_MPServerDetails := TKMPanel.Create(Panel_MultiPlayer, 675, 240, 320, 465);
-    Panel_MPServerDetails.Anchors := [akLeft, akTop, akBottom];
+    Panel_MPServerDetails.Anchors := [anLeft, anTop, anBottom];
       with TKMBevel.Create(Panel_MPServerDetails, 0, 0, 320, 465) do AnchorsStretch;
       TKMLabel.Create(Panel_MPServerDetails, 8, 6, 304, 20, gResTexts[TX_MP_MENU_HEADER_SERVER_DETAILS], fnt_Outline, taCenter);
       TKMLabel.Create(Panel_MPServerDetails, 8, 30, 304, 20, gResTexts[TX_MP_MENU_GAME_INFORMATION], fnt_Outline, taLeft);
       Label_MP_Desc := TKMLabel.Create(Panel_MPServerDetails, 8, 50, 304, 80, '', fnt_Metal, taLeft);
       TKMLabel.Create(Panel_MPServerDetails, 8, 110, 304, 20, gResTexts[TX_MP_MENU_PLAYER_LIST], fnt_Outline, taLeft);
       Label_MP_Players := TKMLabel.Create(Panel_MPServerDetails, 8, 130, 304, 340, '', fnt_Metal, taLeft);
-      Label_MP_Players.Anchors := [akLeft, akTop, akBottom];
+      Label_MP_Players.Anchors := [anLeft, anTop, anBottom];
 
     Button_MP_Back    := TKMButton.Create(Panel_MultiPlayer,  45, 720, 220, 30, gResTexts[TX_MENU_BACK], bsMenu);
     Button_MP_Refresh := TKMButton.Create(Panel_MultiPlayer, 275, 720, 390, 30,gResTexts[TX_MP_MENU_REFRESH_SERVER_LIST], bsMenu);
     Button_MP_GetIn   := TKMButton.Create(Panel_MultiPlayer, 675, 720, 320, 30,gResTexts[TX_MP_MENU_SERVER_JOIN],  bsMenu);
-    Button_MP_Back.Anchors    := [akLeft, akBottom];
-    Button_MP_Refresh.Anchors := [akLeft, akBottom];
-    Button_MP_GetIn.Anchors   := [akLeft, akBottom];
+    Button_MP_Back.Anchors    := [anLeft, anBottom];
+    Button_MP_Refresh.Anchors := [anLeft, anBottom];
+    Button_MP_GetIn.Anchors   := [anLeft, anBottom];
     Button_MP_Back.OnClick    := BackClick;
     Button_MP_Refresh.OnClick := MP_ServersRefresh;
     Button_MP_GetIn.OnClick   := MP_GetInClick;

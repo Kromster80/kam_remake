@@ -50,26 +50,26 @@ uses KM_Main, KM_RenderUI, KM_ResTexts, KM_Game, KM_GameApp, KM_Utils,
 constructor TKMGUIGameChat.Create(aParent: TKMPanel);
 begin
   Panel_Chat := TKMPanel.Create(aParent, TOOLBAR_WIDTH, aParent.Height - MESSAGE_AREA_HEIGHT, 600, MESSAGE_AREA_HEIGHT);
-  Panel_Chat.Anchors := [akLeft, akBottom];
+  Panel_Chat.Anchors := [anLeft, anBottom];
   Panel_Chat.Hide;
 
     Image_Chat := TKMImage.Create(Panel_Chat, 0, 0, 600, 500, 409);
-    Image_Chat.Anchors := [akLeft,akTop,akBottom];
+    Image_Chat.Anchors := [anLeft,anTop,anBottom];
 
     //Allow to resize chat area height
     Dragger_Chat := TKMDragger.Create(Panel_Chat, 45, 36, 600-130, 10);
-    Dragger_Chat.Anchors := [akTop];
+    Dragger_Chat.Anchors := [anTop];
     Dragger_Chat.SetBounds(0, -MESSAGE_AREA_RESIZE_Y, 0, 0);
     Dragger_Chat.OnMove := Chat_Resize;
 
     Memo_ChatText := TKMMemo.Create(Panel_Chat,45,50,600-85,101, fnt_Arial, bsGame);
-    Memo_ChatText.Anchors := [akLeft, akTop, akRight, akBottom];
+    Memo_ChatText.Anchors := [anLeft, anTop, anRight, anBottom];
     Memo_ChatText.AutoWrap := True;
     Memo_ChatText.IndentAfterNL := True; //Don't let players fake system messages
     Memo_ChatText.ScrollDown := True;
 
     Edit_ChatMsg := TKMEdit.Create(Panel_Chat, 75, 154, 380, 20, fnt_Arial);
-    Edit_ChatMsg.Anchors := [akLeft, akRight, akBottom];
+    Edit_ChatMsg.Anchors := [anLeft, anRight, anBottom];
     Edit_ChatMsg.OnKeyDown := Chat_Post;
     Edit_ChatMsg.Text := '';
     Edit_ChatMsg.ShowColors := True;
@@ -78,16 +78,16 @@ begin
     Button_ChatRecipient.Font := fnt_Grey;
     Button_ChatRecipient.CapOffsetY := -11;
     Button_ChatRecipient.OnClick := Chat_MenuShow;
-    Button_ChatRecipient.Anchors := [akRight, akBottom];
+    Button_ChatRecipient.Anchors := [anRight, anBottom];
 
     Image_ChatClose := TKMImage.Create(Panel_Chat, 600-80, 18, 32, 32, 52);
-    Image_ChatClose.Anchors := [akTop, akRight];
+    Image_ChatClose.Anchors := [anTop, anRight];
     Image_ChatClose.Hint := gResTexts[TX_MSG_CLOSE_HINT];
     Image_ChatClose.OnClick := Chat_Close;
     Image_ChatClose.HighlightOnMouseOver := True;
 
     Menu_Chat := TKMPopUpMenu.Create(aParent, 120);
-    Menu_Chat.Anchors := [akLeft, akBottom];
+    Menu_Chat.Anchors := [anLeft, anBottom];
     //Menu gets populated right before show
     Menu_Chat.AddItem(NO_TEXT);
     Menu_Chat.OnClick := Chat_MenuClick;

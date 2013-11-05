@@ -68,7 +68,7 @@ begin
   Panel_MapEd:=TKMPanel.Create(aParent, 0, 0, aParent.Width, aParent.Height);
   Panel_MapEd.AnchorsStretch;
     Panel_MapEdSizeXY := TKMPanel.Create(Panel_MapEd, 80, 160, 200, 400);
-    Panel_MapEdSizeXY.Anchors := [akLeft];
+    Panel_MapEdSizeXY.Anchors := [anLeft];
       TKMLabel.Create(Panel_MapEdSizeXY, 6, 0, 188, 20, gResTexts[TX_MENU_NEW_MAP_SIZE], fnt_Outline, taLeft);
       TKMBevel.Create(Panel_MapEdSizeXY, 0, 20, 200, 370);
       TKMLabel.Create(Panel_MapEdSizeXY, 8, 27, 88, 20, gResTexts[TX_MENU_MAP_WIDTH], fnt_Outline, taLeft);
@@ -87,7 +87,7 @@ begin
       Button_MapEd_Create.OnClick := StartClick;
 
     Panel_MapEdLoad := TKMPanel.Create(Panel_MapEd, 300, 160, 620, 500);
-    Panel_MapEdLoad.Anchors := [akLeft];
+    Panel_MapEdLoad.Anchors := [anLeft];
       TKMLabel.Create(Panel_MapEdLoad, 6, 0, 288, 20, gResTexts[TX_MENU_MAP_AVAILABLE], fnt_Outline, taLeft);
       TKMBevel.Create(Panel_MapEdLoad, 0, 20, 300, 50);
       Radio_MapEd_MapType := TKMRadioGroup.Create(Panel_MapEdLoad,8,28,286,40,fnt_Grey);
@@ -107,7 +107,7 @@ begin
       MinimapView_MapEd := TKMMinimapView.Create(Panel_MapEdLoad, 452, 84, 191, 191);
 
     Button_MapEdBack := TKMButton.Create(Panel_MapEd, 80, 620, 220, 30, gResTexts[TX_MENU_BACK], bsMenu);
-    Button_MapEdBack.Anchors := [akLeft];
+    Button_MapEdBack.Anchors := [anLeft];
     Button_MapEdBack.OnClick := BackClick;
 end;
 

@@ -69,7 +69,7 @@ type
   TKMControl = class
   private
     fParent: TKMPanel;
-    fAnchors: TAnchors;
+    fAnchors: TKMAnchorsSet;
 
     //Left and Top are floating-point to allow to precisely store controls position
     //when Anchors [] are used. Cos that means that control must be centered
@@ -115,7 +115,7 @@ type
     procedure SetWidth(aValue: Integer); virtual;
     procedure SetVisible(aValue: Boolean); virtual;
     procedure SetEnabled(aValue: Boolean); virtual;
-    procedure SetAnchors(aValue: TAnchors); virtual;
+    procedure SetAnchors(aValue: TKMAnchorsSet); virtual;
   public
     Hitable: Boolean; //Can this control be hit with the cursor?
     Focusable: Boolean; //Can this control have focus (e.g. TKMEdit sets this true)
@@ -136,7 +136,7 @@ type
     property Top: Integer read GetTop write SetTop;
     property Width: Integer read GetWidth write SetWidth;
     property Height: Integer read GetHeight write SetHeight;
-    property Anchors: TAnchors read fAnchors write SetAnchors;
+    property Anchors: TKMAnchorsSet read fAnchors write SetAnchors;
     property Enabled: Boolean read fEnabled write SetEnabled;
     property Visible: Boolean read GetVisible write SetVisible;
     procedure Enable;
@@ -253,7 +253,7 @@ type
     fTexID: Word;
     fFlagColor: TColor4;
   public
-    ImageAnchors: TAnchors;
+    ImageAnchors: TKMAnchorsSet;
     Highlight: Boolean;
     HighlightOnMouseOver: Boolean;
     Lightness: Single;
@@ -984,7 +984,7 @@ type
   protected
     procedure SetHeight(aValue: Integer); override;
     procedure SetWidth(aValue: Integer); override;
-    procedure SetAnchors(aValue: TAnchors); override;
+    procedure SetAnchors(aValue: TKMAnchorsSet); override;
     procedure SetVisible(aValue: Boolean); override;
     procedure SetEnabled(aValue: Boolean); override;
   public
@@ -1198,7 +1198,7 @@ begin
   fTop      := aTop;
   fWidth    := aWidth;
   fHeight   := aHeight;
-  Anchors   := [akLeft, akTop];
+  Anchors   := [anLeft, anTop];
   State     := [];
   fEnabled  := True;
   fVisible  := True;
@@ -1486,7 +1486,7 @@ begin
 end;
 
 
-procedure TKMControl.SetAnchors(aValue: TAnchors);
+procedure TKMControl.SetAnchors(aValue: TKMAnchorsSet);
 begin
   fAnchors := aValue;
 end;
@@ -1518,7 +1518,7 @@ end;
 
 procedure TKMControl.Hide;    begin Visible := False; end;
 procedure TKMControl.AnchorsCenter;  begin Anchors := []; end;
-procedure TKMControl.AnchorsStretch; begin Anchors := [akLeft, akTop, akRight, akBottom]; end;
+procedure TKMControl.AnchorsStretch; begin Anchors := [anLeft, anTop, anRight, anBottom]; end;
 
 
 function TKMControl.MasterParent: TKMPanel;
@@ -1576,13 +1576,13 @@ var
   I: Integer;
 begin
   for I := 0 to ChildCount - 1 do
-    if (akTop in Childs[I].Anchors) and (akBottom in Childs[I].Anchors) then
+    if (anTop in Childs[I].Anchors) and (anBottom in Childs[I].Anchors) then
       Childs[I].Height := Childs[I].Height + (aValue - fHeight)
     else
-    if akTop in Childs[I].Anchors then
+    if anTop in Childs[I].Anchors then
       //Do nothing
     else
-    if akBottom in Childs[I].Anchors then
+    if anBottom in Childs[I].Anchors then
       Childs[I].SetTopF(Childs[I].fTop + (aValue - fHeight))
     else
       Childs[I].SetTopF(Childs[I].fTop + (aValue - fHeight) / 2);
@@ -1596,13 +1596,13 @@ var
   I: Integer;
 begin
   for I := 0 to ChildCount - 1 do
-    if (akLeft in Childs[I].Anchors) and (akRight in Childs[I].Anchors) then
+    if (anLeft in Childs[I].Anchors) and (anRight in Childs[I].Anchors) then
       Childs[I].Width := Childs[I].Width + (aValue - fWidth)
     else
-    if akLeft in Childs[I].Anchors then
+    if anLeft in Childs[I].Anchors then
       //Do nothing
     else
-    if akRight in Childs[I].Anchors then
+    if anRight in Childs[I].Anchors then
       Childs[I].SetLeftF(Childs[I].fLeft + (aValue - fWidth))
     else
       Childs[I].SetLeftF(Childs[I].fLeft + (aValue - fWidth) / 2);
@@ -1860,7 +1860,7 @@ begin
   fRX := aRX;
   fTexID := aTexID;
   fFlagColor := $FFFF00FF;
-  ImageAnchors := [akLeft, akTop];
+  ImageAnchors := [anLeft, anTop];
   Highlight := false;
   HighlightOnMouseOver := false;
 end;
@@ -1887,7 +1887,7 @@ end;
 
 procedure TKMImage.ImageStretch;
 begin
-  ImageAnchors := [akLeft, akRight, akTop, akBottom]; //Stretch image to fit
+  ImageAnchors := [anLeft, anRight, anTop, anBottom]; //Stretch image to fit
 end;
 
 
@@ -1970,7 +1970,7 @@ begin
 
     TKMRenderUI.WritePicture(AbsLeft + CenterX + OffsetX * (I mod fColumns),
                             AbsTop + CenterY + OffsetY * (I div fColumns),
-                            fDrawWidth, fDrawHeight, [akLeft, akTop, akRight, akBottom], fRX, texID, fEnabled);
+                            fDrawWidth, fDrawHeight, [anLeft, anTop, anRight, anBottom], fRX, texID, fEnabled);
   end;
 end;
 
@@ -2967,7 +2967,7 @@ begin
 
   ThumbHeight := gResource.Sprites[rxGui].RXData.Size[132].Y;
 
-  TKMRenderUI.WritePicture(AbsLeft + ThumbPos + 2, AbsTop+fTrackTop, ThumbWidth, ThumbHeight, [akLeft,akRight], rxGui, 132);
+  TKMRenderUI.WritePicture(AbsLeft + ThumbPos + 2, AbsTop+fTrackTop, ThumbWidth, ThumbHeight, [anLeft,anRight], rxGui, 132);
   TKMRenderUI.WriteText(AbsLeft + ThumbPos + ThumbWidth div 2 + 2, AbsTop+fTrackTop+3, 0, ThumbText, fnt_Metal, taCenter, TextColor[fEnabled]);
 end;
 
@@ -2988,15 +2988,15 @@ begin
   begin
     fScrollDec := TKMButton.Create(Self, 0, 0, aWidth, aWidth, 591, rxGui, aStyle);
     fScrollInc := TKMButton.Create(Self, 0, aHeight-aWidth, aWidth, aWidth, 590, rxGui, aStyle);
-    fScrollDec.Anchors := [akLeft, akTop, akRight];
-    fScrollInc.Anchors := [akLeft, akRight, akBottom];
+    fScrollDec.Anchors := [anLeft, anTop, anRight];
+    fScrollInc.Anchors := [anLeft, anRight, anBottom];
   end;
   if aScrollAxis = sa_Horizontal then
   begin
     fScrollDec := TKMButton.Create(Self, 0, 0, aHeight, aHeight, 2, rxGui, aStyle);
     fScrollInc := TKMButton.Create(Self, aWidth-aHeight, 0, aHeight, aHeight, 3, rxGui, aStyle);
-    fScrollDec.Anchors := [akLeft, akTop, akBottom];
-    fScrollInc.Anchors := [akTop, akRight, akBottom];
+    fScrollDec.Anchors := [anLeft, anTop, anBottom];
+    fScrollInc.Anchors := [anTop, anRight, anBottom];
   end;
   fScrollDec.OnClick := DecPosition;
   fScrollDec.OnMouseWheel := MouseWheel;
@@ -3229,7 +3229,7 @@ begin
 end;
 
 
-procedure TKMMemo.SetAnchors(aValue: TAnchors);
+procedure TKMMemo.SetAnchors(aValue: TKMAnchorsSet);
 begin
   inherited;
   //Scrollbar is nil during TKMControl.Create

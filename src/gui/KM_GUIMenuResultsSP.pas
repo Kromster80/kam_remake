@@ -293,10 +293,10 @@ begin
     end;
 
     Label_Results := TKMLabel.Create(Panel_Results,62,140,900,20,NO_TEXT,fnt_Metal,taCenter);
-    Label_Results.Anchors := [akLeft];
+    Label_Results.Anchors := [anLeft];
 
     Panel_Stats := TKMPanel.Create(Panel_Results, 30, 216, 360, 354);
-    Panel_Stats.Anchors := [akLeft];
+    Panel_Stats.Anchors := [anLeft];
 
       //Backplate for column results
       with TKMImage.Create(Panel_Stats, 0, 0, 360, 354, 3, rxGuiMain) do
@@ -318,12 +318,12 @@ begin
     if DISPLAY_CHARTS_RESULT then
     begin
       Panel_StatsCharts := TKMPanel.Create(Panel_Results, 410, 170, 610, 420);
-      Panel_StatsCharts.Anchors := [akLeft];
+      Panel_StatsCharts.Anchors := [anLeft];
 
       Button_ResultsArmy := TKMButtonFlat.Create(Panel_StatsCharts, 40, 0, 208, 20, 53, rxGui);
       Button_ResultsArmy.TexOffsetX := -91;
       Button_ResultsArmy.TexOffsetY := 7;
-      Button_ResultsArmy.Anchors := [akLeft];
+      Button_ResultsArmy.Anchors := [anLeft];
       Button_ResultsArmy.Caption := gResTexts[TX_GRAPH_ARMY];
       Button_ResultsArmy.CapOffsetY := -11;
       Button_ResultsArmy.OnClick := GraphToggle;
@@ -331,7 +331,7 @@ begin
       Button_ResultsCitizens := TKMButtonFlat.Create(Panel_StatsCharts, 40, 22, 208, 20, 588, rxGui);
       Button_ResultsCitizens.TexOffsetX := -92;
       Button_ResultsCitizens.TexOffsetY := 6;
-      Button_ResultsCitizens.Anchors := [akLeft];
+      Button_ResultsCitizens.Anchors := [anLeft];
       Button_ResultsCitizens.Caption := gResTexts[TX_GRAPH_CITIZENS];
       Button_ResultsCitizens.CapOffsetY := -11;
       Button_ResultsCitizens.OnClick := GraphToggle;
@@ -339,7 +339,7 @@ begin
       Button_ResultsHouses := TKMButtonFlat.Create(Panel_StatsCharts, 252, 0, 208, 20, 587, rxGui);
       Button_ResultsHouses.TexOffsetX := -93;
       Button_ResultsHouses.TexOffsetY := 6;
-      Button_ResultsHouses.Anchors := [akLeft];
+      Button_ResultsHouses.Anchors := [anLeft];
       Button_ResultsHouses.Caption := gResTexts[TX_GRAPH_HOUSES];
       Button_ResultsHouses.CapOffsetY := -11;
       Button_ResultsHouses.OnClick := GraphToggle;
@@ -347,36 +347,36 @@ begin
       Button_ResultsWares := TKMButtonFlat.Create(Panel_StatsCharts, 252, 22, 208, 20, 360, rxGui);
       Button_ResultsWares.TexOffsetX := -93;
       Button_ResultsWares.TexOffsetY := 6;
-      Button_ResultsWares.Anchors := [akLeft];
+      Button_ResultsWares.Anchors := [anLeft];
       Button_ResultsWares.Caption := gResTexts[TX_GRAPH_RESOURCES];
       Button_ResultsWares.CapOffsetY := -11;
       Button_ResultsWares.OnClick := GraphToggle;
 
       Chart_Army := TKMChart.Create(Panel_StatsCharts, 0, 46, 610, 374);
       Chart_Army.Caption := gResTexts[TX_GRAPH_ARMY];
-      Chart_Army.Anchors := [akLeft];
+      Chart_Army.Anchors := [anLeft];
 
       Chart_Citizens := TKMChart.Create(Panel_StatsCharts, 0, 46, 610, 374);
       Chart_Citizens.Caption := gResTexts[TX_GRAPH_CITIZENS];
-      Chart_Citizens.Anchors := [akLeft];
+      Chart_Citizens.Anchors := [anLeft];
 
       Chart_Houses := TKMChart.Create(Panel_StatsCharts, 0, 46, 610, 374);
       Chart_Houses.Caption := gResTexts[TX_GRAPH_HOUSES];
-      Chart_Houses.Anchors := [akLeft];
+      Chart_Houses.Anchors := [anLeft];
 
       Chart_Wares := TKMChart.Create(Panel_StatsCharts, 0, 46, 610, 374);
       Chart_Wares.Caption := gResTexts[TX_GRAPH_TITLE_RESOURCES];
-      Chart_Wares.Anchors := [akLeft];
+      Chart_Wares.Anchors := [anLeft];
     end;
 
     Button_ResultsBack := TKMButton.Create(Panel_Results, 30, 610, 220, 30, gResTexts[TX_MENU_BACK], bsMenu);
-    Button_ResultsBack.Anchors := [akLeft];
+    Button_ResultsBack.Anchors := [anLeft];
     Button_ResultsBack.OnClick := BackClick;
     Button_ResultsRepeat := TKMButton.Create(Panel_Results, 270, 610, 220, 30, gResTexts[TX_MENU_MISSION_REPEAT], bsMenu);
-    Button_ResultsRepeat.Anchors := [akLeft];
+    Button_ResultsRepeat.Anchors := [anLeft];
     Button_ResultsRepeat.OnClick := RepeatClick;
     Button_ResultsContinue := TKMButton.Create(Panel_Results, 510, 610, 220, 30, gResTexts[TX_MENU_MISSION_NEXT], bsMenu);
-    Button_ResultsContinue.Anchors := [akLeft];
+    Button_ResultsContinue.Anchors := [anLeft];
     Button_ResultsContinue.OnClick := ContinueClick;
 end;
 

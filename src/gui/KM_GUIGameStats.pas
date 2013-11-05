@@ -28,7 +28,8 @@ type
 
 
 implementation
-uses KM_RenderUI, KM_HandsCollection, KM_ResTexts, KM_Resource, KM_ResFonts;
+uses
+  KM_RenderUI, KM_HandsCollection, KM_ResTexts, KM_Resource, KM_ResFonts;
 
 
 { TKMGUIGameStats }
@@ -43,7 +44,7 @@ var
   OffX: Integer;
 begin
   Panel_Stats := TKMPanel.Create(aParent, TB_PAD, 44, TB_WIDTH, 332);
-  Panel_Stats.Anchors := [akLeft, akTop, akBottom];
+  Panel_Stats.Anchors := [anLeft, anTop, anBottom];
 
   for I := 0 to High(StatPlan) do
   begin

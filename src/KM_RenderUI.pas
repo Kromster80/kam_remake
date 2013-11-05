@@ -6,9 +6,11 @@ uses dglOpenGL, Controls, Math, KromOGLUtils, StrUtils, SysUtils,
   KM_ResFonts, KM_ResSprites;
 
 type
-  TKMTextAlign = (taLeft, taCenter, taRight);
+  TKMAnchors = (anLeft, anTop, anRight, anBottom);
+  TKMAnchorsSet = set of TKMAnchors;
   TKMButtonStateSet = set of (bsOver, bsDown, bsDisabled);
   TKMButtonStyle = (bsMenu, bsGame); //Menu buttons are metal, game buttons are stone
+  TKMTextAlign = (taLeft, taCenter, taRight);
 
   TKMRenderUI = class
   public
@@ -19,7 +21,7 @@ type
     class procedure Write3DButton     (aLeft, aTop, aWidth, aHeight: SmallInt; aRX: TRXType; aID: Word; aFlagColor: TColor4; aState: TKMButtonStateSet; aStyle: TKMButtonStyle);
     class procedure WriteBevel        (aLeft, aTop, aWidth, aHeight: SmallInt; aEdgeAlpha: Single = 1; aBackAlpha: Single = 0.5);
     class procedure WritePercentBar   (aLeft, aTop, aWidth, aHeight: SmallInt; aPos: Single; aSeam: Single);
-    class procedure WritePicture      (aLeft, aTop, aWidth, aHeight: SmallInt; aAnchors: TAnchors; aRX: TRXType; aID: Word; aEnabled: Boolean = True; aColor: TColor4 = $FFFF00FF; aLightness: Single = 0);
+    class procedure WritePicture      (aLeft, aTop, aWidth, aHeight: SmallInt; aAnchors: TKMAnchorsSet; aRX: TRXType; aID: Word; aEnabled: Boolean = True; aColor: TColor4 = $FFFF00FF; aLightness: Single = 0);
     class procedure WritePlot         (aLeft, aTop, aWidth, aHeight: SmallInt; aValues: TKMCardinalArray; aMaxValue: Cardinal; aColor: TColor4; aLineWidth: Byte);
     class procedure WriteOutline      (aLeft, aTop, aWidth, aHeight, aLineWidth: SmallInt; Col: TColor4);
     class procedure WriteShape        (aLeft, aTop, aWidth, aHeight: SmallInt; Col: TColor4; Outline: TColor4 = $00000000);
@@ -32,7 +34,8 @@ type
 
 
 implementation
-uses KM_Resource;
+uses
+  KM_Resource;
 
 
 //X axis uses planes 0,1 and Y axis uses planes 2,3, so that they don't interfere when both axis are
@@ -265,7 +268,7 @@ begin
 end;
 
 
-class procedure TKMRenderUI.WritePicture(aLeft, aTop, aWidth, aHeight: SmallInt; aAnchors: TAnchors; aRX: TRXType; aID: Word; aEnabled: Boolean = True; aColor: TColor4 = $FFFF00FF; aLightness: Single = 0);
+class procedure TKMRenderUI.WritePicture(aLeft, aTop, aWidth, aHeight: SmallInt; aAnchors: TKMAnchorsSet; aRX: TRXType; aID: Word; aEnabled: Boolean = True; aColor: TColor4 = $FFFF00FF; aLightness: Single = 0);
 var
   OffX, OffY: Integer;
   DrawWidth, DrawHeight: Integer;
@@ -278,25 +281,25 @@ begin
   DrawHeight  := GFXData[aRX, aID].PxHeight;
 
   //Both aAnchors means that we will need to stretch the image
-  if (akLeft in aAnchors) and (akRight in aAnchors) then
+  if (anLeft in aAnchors) and (anRight in aAnchors) then
     DrawWidth := aWidth
   else
-  if akLeft in aAnchors then
+  if anLeft in aAnchors then
     //Use defaults
   else
-  if akRight in aAnchors then
+  if anRight in aAnchors then
     OffX := aWidth - DrawWidth
   else
     //No aAnchors means: draw the image in center
     OffX := (aWidth - DrawWidth) div 2;
 
-  if (akTop in aAnchors) and (akBottom in aAnchors) then
+  if (anTop in aAnchors) and (anBottom in aAnchors) then
     DrawHeight  := aHeight
   else
-  if akTop in aAnchors then
+  if anTop in aAnchors then
     //Use defaults
   else
-  if akBottom in aAnchors then
+  if anBottom in aAnchors then
     OffY := aHeight - DrawHeight
   else
     OffY := (aHeight - DrawHeight) div 2;

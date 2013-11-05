@@ -57,22 +57,22 @@ begin
     gResTexts[TX_CREDITS_ADDITIONAL_TRANSLATIONS]+'|'+gResLocales.TranslatorCredits+'|'+
     gResTexts[TX_CREDITS_SPECIAL]+'|KaM Community members'
     ,fnt_Grey,taCenter);
-    Label_Credits_Remake.Anchors := [akLeft,akTop,akBottom];
+    Label_Credits_Remake.Anchors := [anLeft,anTop,anBottom];
 
     TKMLabel.Create(Panel_Credits, aParent.Width div 2 + OFFSET, 70, gResTexts[TX_CREDITS_ORIGINAL], fnt_Outline, taCenter);
     Label_Credits_KaM := TKMLabelScroll.Create(Panel_Credits, aParent.Width div 2 + OFFSET, 110, 0, aParent.Height - 130, gResTexts[TX_CREDITS_TEXT], fnt_Grey, taCenter);
-    Label_Credits_KaM.Anchors := [akLeft,akTop,akBottom];
+    Label_Credits_KaM.Anchors := [anLeft,anTop,anBottom];
 
     Button_CreditsHomepage:=TKMButton.Create(Panel_Credits,400,610,224,30, '[$F8A070]www.kamremake.com[]', bsMenu);
-    Button_CreditsHomepage.Anchors := [akLeft,akBottom];
+    Button_CreditsHomepage.Anchors := [anLeft,anBottom];
     Button_CreditsHomepage.OnClick := LinkClick;
 
     Button_CreditsFacebook:=TKMButton.Create(Panel_Credits,400,646,224,30, '[$F8A070]Facebook[]', bsMenu);
-    Button_CreditsFacebook.Anchors := [akLeft,akBottom];
+    Button_CreditsFacebook.Anchors := [anLeft,anBottom];
     Button_CreditsFacebook.OnClick := LinkClick;
 
     Button_CreditsBack:=TKMButton.Create(Panel_Credits,400,700,224,30,gResTexts[TX_MENU_BACK],bsMenu);
-    Button_CreditsBack.Anchors := [akLeft,akBottom];
+    Button_CreditsBack.Anchors := [anLeft,anBottom];
     Button_CreditsBack.OnClick := BackClick;
 end;
 

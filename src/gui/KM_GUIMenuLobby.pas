@@ -229,7 +229,7 @@ begin
 
     //Chat area
     Memo_LobbyPosts := TKMMemo.Create(Panel_Lobby, 30, 338, CW, 342, fnt_Arial, bsMenu);
-    Memo_LobbyPosts.Anchors := [akLeft, akTop, akBottom];
+    Memo_LobbyPosts.Anchors := [anLeft, anTop, anBottom];
     Memo_LobbyPosts.AutoWrap := True;
     Memo_LobbyPosts.IndentAfterNL := True; //Don't let players fake system messages
     Memo_LobbyPosts.ScrollDown := True;
@@ -237,16 +237,16 @@ begin
     Button_LobbyPost.CapOffsetY := -11;
     Button_LobbyPost.Font := fnt_Grey;
     Button_LobbyPost.OnClick := ChatMenuShow;
-    Button_LobbyPost.Anchors := [akLeft, akBottom];
+    Button_LobbyPost.Anchors := [anLeft, anBottom];
 
     Edit_LobbyPost := TKMEdit.Create(Panel_Lobby, 60, 683, CW, 20, fnt_Arial);
     Edit_LobbyPost.OnKeyDown := PostKeyDown;
-    Edit_LobbyPost.Anchors := [akLeft, akBottom];
+    Edit_LobbyPost.Anchors := [anLeft, anBottom];
     Edit_LobbyPost.ShowColors := True;
 
     //Setup
     Panel_LobbySetup := TKMPanel.Create(Panel_Lobby, 725, 30, 270, 712);
-    Panel_LobbySetup.Anchors := [akLeft, akTop, akBottom];
+    Panel_LobbySetup.Anchors := [anLeft, anTop, anBottom];
       with TKMBevel.Create(Panel_LobbySetup,  0,  0, 270, 712) do AnchorsStretch;
       Radio_LobbyMapType := TKMRadioGroup.Create(Panel_LobbySetup, 10, 10, 250, 80, fnt_Metal);
       Radio_LobbyMapType.Add(gResTexts[TX_LOBBY_MAP_BUILD]);
@@ -279,43 +279,43 @@ begin
       Button_LobbyTabOptions.Hide;
 
       Panel_LobbySetupDesc := TKMPanel.Create(Panel_LobbySetup, 0, 324, 270, 218);
-      Panel_LobbySetupDesc.Anchors := [akLeft, akTop, akBottom];
+      Panel_LobbySetupDesc.Anchors := [anLeft, anTop, anBottom];
         Memo_LobbyMapDesc := TKMMemo.Create(Panel_LobbySetupDesc, 10, 0, 250, 218, fnt_Game, bsMenu);
-        Memo_LobbyMapDesc.Anchors := [akLeft,akTop,akBottom];
+        Memo_LobbyMapDesc.Anchors := [anLeft,anTop,anBottom];
         Memo_LobbyMapDesc.AutoWrap := True;
         Memo_LobbyMapDesc.ItemHeight := 16;
 
       Panel_LobbySetupOptions := TKMPanel.Create(Panel_LobbySetup, 0, 542, 270, 170);
-      Panel_LobbySetupOptions.Anchors := [akLeft,akBottom];
-        with TKMLabel.Create(Panel_LobbySetupOptions, 10, 4, 250, 20, gResTexts[TX_LOBBY_GAME_OPTIONS], fnt_Outline, taLeft) do Anchors := [akLeft,akBottom];
+      Panel_LobbySetupOptions.Anchors := [anLeft,anBottom];
+        with TKMLabel.Create(Panel_LobbySetupOptions, 10, 4, 250, 20, gResTexts[TX_LOBBY_GAME_OPTIONS], fnt_Outline, taLeft) do Anchors := [anLeft,anBottom];
         TrackBar_LobbyPeacetime := TKMTrackBar.Create(Panel_LobbySetupOptions, 10, 26, 250, 0, 120);
-        TrackBar_LobbyPeacetime.Anchors := [akLeft,akBottom];
+        TrackBar_LobbyPeacetime.Anchors := [anLeft,anBottom];
         TrackBar_LobbyPeacetime.Caption := gResTexts[TX_LOBBY_PEACETIME];
         TrackBar_LobbyPeacetime.Step := 5; //Round to 5min steps
         TrackBar_LobbyPeacetime.OnChange := GameOptionsChange;
 
         TrackBar_LobbySpeedPT := TKMTrackBar.Create(Panel_LobbySetupOptions, 10, 72, 250, 1, 5);
-        TrackBar_LobbySpeedPT.Anchors := [akLeft,akBottom];
+        TrackBar_LobbySpeedPT.Anchors := [anLeft,anBottom];
         TrackBar_LobbySpeedPT.Caption := gResTexts[TX_LOBBY_GAMESPEED_PEACETIME];
         TrackBar_LobbySpeedPT.ThumbWidth := 45; //Enough to fit 'x2.5'
         TrackBar_LobbySpeedPT.OnChange := GameOptionsChange;
 
         TrackBar_LobbySpeedAfterPT := TKMTrackBar.Create(Panel_LobbySetupOptions, 10, 116, 250, 1, 5);
-        TrackBar_LobbySpeedAfterPT.Anchors := [akLeft,akBottom];
+        TrackBar_LobbySpeedAfterPT.Anchors := [anLeft,anBottom];
         TrackBar_LobbySpeedAfterPT.Caption := gResTexts[TX_LOBBY_GAMESPEED];
         TrackBar_LobbySpeedAfterPT.ThumbWidth := 45; //Enough to fit 'x2.5'
         TrackBar_LobbySpeedAfterPT.OnChange := GameOptionsChange;
 
     Button_LobbyBack := TKMButton.Create(Panel_Lobby, 30, 712, 220, 30, gResTexts[TX_LOBBY_QUIT], bsMenu);
-    Button_LobbyBack.Anchors := [akLeft, akBottom];
+    Button_LobbyBack.Anchors := [anLeft, anBottom];
     Button_LobbyBack.OnClick := BackClick;
 
     Button_LobbyChangeSettings := TKMButton.Create(Panel_Lobby, 265, 712, 220, 30, gResTexts[TX_LOBBY_ROOMSETTINGS], bsMenu);
-    Button_LobbyChangeSettings.Anchors := [akLeft, akBottom];
+    Button_LobbyChangeSettings.Anchors := [anLeft, anBottom];
     Button_LobbyChangeSettings.OnClick := SettingsClick;
 
     Button_LobbyStart := TKMButton.Create(Panel_Lobby, 500, 712, 220, 30, NO_TEXT, bsMenu);
-    Button_LobbyStart.Anchors := [akLeft, akBottom];
+    Button_LobbyStart.Anchors := [anLeft, anBottom];
     Button_LobbyStart.OnClick := StartClick;
 end;
 
@@ -323,7 +323,7 @@ end;
 procedure TKMMenuLobby.CreateChatMenu(aParent: TKMPanel);
 begin
   Menu_Chat := TKMPopUpMenu.Create(aParent, 120);
-  Menu_Chat.Anchors := [akLeft, akBottom];
+  Menu_Chat.Anchors := [anLeft, anBottom];
   //Menu gets populated right before show
   Menu_Chat.AddItem(NO_TEXT);
   Menu_Chat.OnClick := ChatMenuClick;

@@ -34,17 +34,17 @@ begin
   inherited Create;
 
   Panel_Message := TKMPanel.Create(aParent, TOOLBAR_WIDTH, aParent.Height - 190, aParent.Width - TOOLBAR_WIDTH, 190);
-  Panel_Message.Anchors := [akLeft, akBottom];
+  Panel_Message.Anchors := [anLeft, anBottom];
   Panel_Message.Hide;
 
   with TKMImage.Create(Panel_Message, 0, 0, 800, 190, 409) do
   begin
-    Anchors := [akLeft, akTop, akBottom];
+    Anchors := [anLeft, anTop, anBottom];
     ImageStretch;
   end;
 
   Image_MessageClose := TKMImage.Create(Panel_Message, 800-35, 20, 32, 32, 52);
-  Image_MessageClose.Anchors := [akTop, akRight];
+  Image_MessageClose.Anchors := [anTop, anRight];
   Image_MessageClose.Hint := gResTexts[TX_MSG_CLOSE_HINT];
   Image_MessageClose.OnClick := Message_Close;
   Image_MessageClose.HighlightOnMouseOver := True;

@@ -146,11 +146,11 @@ begin
   Button_PlayerSelect[0].Down := True; //First player selected by default
 
   Image_Extra := TKMImage.Create(Panel_Main, TOOLBAR_WIDTH, Panel_Main.Height - 48, 30, 48, 494);
-  Image_Extra.Anchors := [akLeft, akBottom];
+  Image_Extra.Anchors := [anLeft, anBottom];
   Image_Extra.HighlightOnMouseOver := True;
   Image_Extra.OnClick := Message_Click;
   Image_Message := TKMImage.Create(Panel_Main, TOOLBAR_WIDTH, Panel_Main.Height - 48*2, 30, 48, 496);
-  Image_Message.Anchors := [akLeft, akBottom];
+  Image_Message.Anchors := [anLeft, anBottom];
   Image_Message.HighlightOnMouseOver := True;
   Image_Message.OnClick := Message_Click;
   Image_Message.Hide; //Hidden by default, only visible when a message is shown
@@ -202,9 +202,9 @@ begin
   Bevel_HintBG := TKMBevel.Create(Panel_Main,224+32,Panel_Main.Height-23,300,21);
   Bevel_HintBG.BackAlpha := 0.5;
   Bevel_HintBG.Hide;
-  Bevel_HintBG.Anchors := [akLeft, akBottom];
+  Bevel_HintBG.Anchors := [anLeft, anBottom];
   Label_Hint := TKMLabel.Create(Panel_Main, 224 + 36, Panel_Main.Height - 21, 0, 0, '', fnt_Outline, taLeft);
-  Label_Hint.Anchors := [akLeft, akBottom];
+  Label_Hint.Anchors := [anLeft, anBottom];
 
   fMyControls.OnHint := DisplayHint;
 

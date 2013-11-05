@@ -80,12 +80,12 @@ begin
     with TKMImage.Create(Panel_Options,705,220,round(207*1.3),round(295*1.3),6,rxGuiMain) do
     begin
       ImageStretch;
-      Anchors := [akLeft];
+      Anchors := [anLeft];
     end;
 
     //Controls section
     Panel_Options_Ctrl:=TKMPanel.Create(Panel_Options,120,130,220,80);
-    Panel_Options_Ctrl.Anchors := [akLeft];
+    Panel_Options_Ctrl.Anchors := [anLeft];
       TKMLabel.Create(Panel_Options_Ctrl,6,0,288,20,gResTexts[TX_MENU_OPTIONS_CONTROLS],fnt_Outline,taLeft);
       TKMBevel.Create(Panel_Options_Ctrl,0,20,220,60);
 
@@ -95,7 +95,7 @@ begin
 
     //Gameplay section
     Panel_Options_Game:=TKMPanel.Create(Panel_Options,120,230,220,50);
-    Panel_Options_Game.Anchors := [akLeft];
+    Panel_Options_Game.Anchors := [anLeft];
       TKMLabel.Create(Panel_Options_Game,6,0,188,20,gResTexts[TX_MENU_OPTIONS_GAMEPLAY],fnt_Outline,taLeft);
       TKMBevel.Create(Panel_Options_Game,0,20,220,30);
 
@@ -104,7 +104,7 @@ begin
 
     //Graphics section
     Panel_Options_GFX:=TKMPanel.Create(Panel_Options,360,300,220,178);
-    Panel_Options_GFX.Anchors := [akLeft];
+    Panel_Options_GFX.Anchors := [anLeft];
       TKMLabel.Create(Panel_Options_GFX,6,0,188,20,gResTexts[TX_MENU_OPTIONS_GRAPHICS],fnt_Outline,taLeft);
       TKMBevel.Create(Panel_Options_GFX,0,20,220,158);
       TrackBar_Options_Brightness:=TKMTrackBar.Create(Panel_Options_GFX,10,27,180,OPT_SLIDER_MIN,OPT_SLIDER_MAX);
@@ -120,7 +120,7 @@ begin
 
     //SFX section
     Panel_Options_Sound:=TKMPanel.Create(Panel_Options,120,300,220,167);
-    Panel_Options_Sound.Anchors := [akLeft];
+    Panel_Options_Sound.Anchors := [anLeft];
       TKMLabel.Create(Panel_Options_Sound,6,0,188,20,gResTexts[TX_MENU_OPTIONS_SOUND],fnt_Outline,taLeft);
       TKMBevel.Create(Panel_Options_Sound,0,20,220,147);
 
@@ -137,7 +137,7 @@ begin
 
     //Resolutions section
     Panel_Options_Res := TKMPanel.Create(Panel_Options, 360, 130, 210, 160);
-    Panel_Options_Res.Anchors := [akLeft];
+    Panel_Options_Res.Anchors := [anLeft];
       TKMLabel.Create(Panel_Options_Res, 6, 0, 188, 20, gResTexts[TX_MENU_OPTIONS_RESOLUTION], fnt_Outline, taLeft);
       TKMBevel.Create(Panel_Options_Res, 0, 20, 220, 140);
 
@@ -155,7 +155,7 @@ begin
 
     //Language section
     Panel_Options_Lang:=TKMPanel.Create(Panel_Options,600,130,240,30+gResLocales.Count*20);
-    Panel_Options_Lang.Anchors := [akLeft];
+    Panel_Options_Lang.Anchors := [anLeft];
       TKMLabel.Create(Panel_Options_Lang,6,0,242,20,gResTexts[TX_MENU_OPTIONS_LANGUAGE],fnt_Outline,taLeft);
       TKMBevel.Create(Panel_Options_Lang,0,20,260,10+gResLocales.Count*20);
 
@@ -172,7 +172,7 @@ begin
 
     //Back button
     Button_Options_Back:=TKMButton.Create(Panel_Options,120,630,220,30,gResTexts[TX_MENU_BACK],bsMenu);
-    Button_Options_Back.Anchors := [akLeft];
+    Button_Options_Back.Anchors := [anLeft];
     Button_Options_Back.OnClick := BackClick;
 end;
 

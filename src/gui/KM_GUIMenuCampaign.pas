@@ -73,23 +73,23 @@ begin
     end;
 
   Panel_CampScroll := TKMPanel.Create(Panel_Campaign, 0, 0, 360, 430);
-  Panel_CampScroll.Anchors := [akLeft,akBottom];
+  Panel_CampScroll.Anchors := [anLeft,anBottom];
 
     Image_Scroll := TKMImage.Create(Panel_CampScroll, 0, 0, 360, 430, 410, rxGui);
     Image_Scroll.ClipToBounds := True;
     Image_Scroll.AnchorsStretch;
-    Image_Scroll.ImageAnchors := [akLeft, akRight, akTop];
+    Image_Scroll.ImageAnchors := [anLeft, anRight, anTop];
     Label_CampaignTitle := TKMLabel.Create(Panel_CampScroll, 130, 46, 100, 20, NO_TEXT, fnt_Outline, taCenter);
 
     Label_CampaignText := TKMLabel.Create(Panel_CampScroll, 20, 70, 325, 310, NO_TEXT, fnt_Antiqua, taLeft);
     Label_CampaignText.AutoWrap := true;
 
   Button_CampaignStart := TKMButton.Create(Panel_Campaign, aParent.Width-220-20, aParent.Height-50, 220, 30, gResTexts[TX_MENU_START_MISSION], bsMenu);
-  Button_CampaignStart.Anchors := [akLeft,akBottom];
+  Button_CampaignStart.Anchors := [anLeft,anBottom];
   Button_CampaignStart.OnClick := StartClick;
 
   Button_CampaignBack := TKMButton.Create(Panel_Campaign, 20, aParent.Height-50, 220, 30, gResTexts[TX_MENU_BACK], bsMenu);
-  Button_CampaignBack.Anchors := [akLeft,akBottom];
+  Button_CampaignBack.Anchors := [anLeft,anBottom];
   Button_CampaignBack.OnClick := BackClick;
 end;
 

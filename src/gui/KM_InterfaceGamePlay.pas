@@ -723,9 +723,9 @@ begin
   Bevel_HintBG.BackAlpha := 0.5;
   Bevel_HintBG.EdgeAlpha := 0.5;
   Bevel_HintBG.Hide;
-  Bevel_HintBG.Anchors := [akLeft, akBottom];
+  Bevel_HintBG.Anchors := [anLeft, anBottom];
   Label_Hint := TKMLabel.Create(Panel_Main,224+40,Panel_Main.Height-21,0,0,'',fnt_Outline,taLeft);
-  Label_Hint.Anchors := [akLeft, akBottom];
+  Label_Hint.Anchors := [anLeft, anBottom];
 
   //Controls without a hint will reset the Hint to ''
   fMyControls.OnHint := DisplayHint;
@@ -891,24 +891,24 @@ var
   I: Integer;
 begin
   Image_MPChat := TKMImage.Create(Panel_Main,TOOLBAR_WIDTH,Panel_Main.Height-48,30,48,494);
-  Image_MPChat.Anchors := [akLeft, akBottom];
+  Image_MPChat.Anchors := [anLeft, anBottom];
   Image_MPChat.HighlightOnMouseOver := true;
   Image_MPChat.Hint := gResTexts[TX_GAMEPLAY_CHAT_HINT];
   Image_MPChat.OnClick := Chat_Click;
   Label_MPChatUnread := TKMLabel.Create(Panel_Main,TOOLBAR_WIDTH,Panel_Main.Height-30,30,36,'',fnt_Outline,taCenter);
   Label_MPChatUnread.FontColor := $FF0000FF; //Red
-  Label_MPChatUnread.Anchors := [akLeft, akBottom];
+  Label_MPChatUnread.Anchors := [anLeft, anBottom];
   Label_MPChatUnread.Hitable := false; //Clicks should only go to the image, not the flashing label
   Label_MPChatUnread.AutoWrap := true;
 
   Image_MPAllies := TKMImage.Create(Panel_Main,TOOLBAR_WIDTH,Panel_Main.Height-48*2,30,48,496);
-  Image_MPAllies.Anchors := [akLeft, akBottom];
+  Image_MPAllies.Anchors := [anLeft, anBottom];
   Image_MPAllies.HighlightOnMouseOver := True;
   Image_MPAllies.Hint := gResTexts[TX_GAMEPLAY_PLAYERS_HINT];
   Image_MPAllies.OnClick := Allies_Click;
 
   Image_MessageLog := TKMImage.Create(Panel_Main,TOOLBAR_WIDTH,Panel_Main.Height - 48 - IfThen(fMultiplayer, 48*2),30,48,495);
-  Image_MessageLog.Anchors := [akLeft, akBottom];
+  Image_MessageLog.Anchors := [anLeft, anBottom];
   Image_MessageLog.HighlightOnMouseOver := true;
   Image_MessageLog.Hint := gResTexts[TX_GAME_MESSAGE_LOG];
   Image_MessageLog.OnClick := MessageLog_Click;
@@ -918,7 +918,7 @@ begin
   begin
     Image_Message[I] := TKMImage.Create(Panel_Main, TOOLBAR_WIDTH, 0, 30, 48, 495);
     Image_Message[I].Top := Panel_Main.Height - 48 - I * 48 - IfThen(fMultiplayer and not fReplay, 48 * 2);
-    Image_Message[I].Anchors := [akLeft, akBottom];
+    Image_Message[I].Anchors := [anLeft, anBottom];
     Image_Message[I].Disable;
     Image_Message[I].Hide;
     Image_Message[I].HighlightOnMouseOver := True;
@@ -963,7 +963,7 @@ end;
 procedure TKMGamePlayInterface.Create_Message;
 begin
   Panel_Message := TKMPanel.Create(Panel_Main, TOOLBAR_WIDTH, Panel_Main.Height - MESSAGE_AREA_HEIGHT, 600, MESSAGE_AREA_HEIGHT);
-  Panel_Message.Anchors := [akLeft, akBottom];
+  Panel_Message.Anchors := [anLeft, anBottom];
   Panel_Message.Hide; //Hide it now because it doesn't get hidden by SwitchPage
 
     TKMImage.Create(Panel_Message, 0, 0, 600, 500, 409);
@@ -983,7 +983,7 @@ begin
     Button_MessageDelete.MakesSound := False; //Don't play default Click as these buttons use sfx_MessageClose
 
     Image_MessageClose := TKMImage.Create(Panel_Message, 600 - 76, 24, 32, 32, 52);
-    Image_MessageClose.Anchors := [akTop, akLeft];
+    Image_MessageClose.Anchors := [anTop, anLeft];
     Image_MessageClose.Hint := gResTexts[TX_MSG_CLOSE_HINT];
     Image_MessageClose.OnClick := Message_Close;
     Image_MessageClose.HighlightOnMouseOver := True;
@@ -1000,19 +1000,19 @@ begin
   H := 20 * MAX_LOG_MSGS + 2; //+2 for some margin at the bottom
 
   Panel_MessageLog := TKMPanel.Create(Panel_Main, TOOLBAR_WIDTH, Panel_Main.Height - (H + 65 + 20), 600, H + 65 + 20);
-  Panel_MessageLog.Anchors := [akLeft, akBottom];
+  Panel_MessageLog.Anchors := [anLeft, anBottom];
   Panel_MessageLog.Hide; //Hide it now because it doesn't get hidden by SwitchPage
 
     TKMImage.Create(Panel_MessageLog, 0, 0, 600, 500, 409);
 
     Image_MessageLogClose := TKMImage.Create(Panel_MessageLog, 600 - 76, 24, 32, 32, 52);
-    Image_MessageLogClose.Anchors := [akTop, akLeft];
+    Image_MessageLogClose.Anchors := [anTop, anLeft];
     Image_MessageLogClose.Hint := gResTexts[TX_MSG_CLOSE_HINT];
     Image_MessageLogClose.OnClick := MessageLog_Close;
     Image_MessageLogClose.HighlightOnMouseOver := True;
 
     ColumnBox_MessageLog := TKMColumnBox.Create(Panel_MessageLog, 45, 60, 600 - 90, H, fnt_Grey, bsGame);
-    ColumnBox_MessageLog.Anchors := [akLeft, akTop, akRight, akBottom];
+    ColumnBox_MessageLog.Anchors := [anLeft, anTop, anRight, anBottom];
     ColumnBox_MessageLog.SetColumns(fnt_Outline, ['Icon', 'Message'], [0, 25]);
     ColumnBox_MessageLog.ShowHeader := False;
     ColumnBox_MessageLog.HideSelection := True;
@@ -1078,10 +1078,10 @@ procedure TKMGamePlayInterface.Create_Allies;
 var I,K: Integer;
 begin
   Panel_Allies := TKMPanel.Create(Panel_Main, TOOLBAR_WIDTH, Panel_Main.Height - MESSAGE_AREA_HEIGHT, 800, MESSAGE_AREA_HEIGHT);
-  Panel_Allies.Anchors := [akLeft, akBottom];
+  Panel_Allies.Anchors := [anLeft, anBottom];
   Panel_Allies.Hide;
 
-    with TKMImage.Create(Panel_Allies,0,0,800,190,409) do ImageAnchors := [akLeft, akRight, akTop];
+    with TKMImage.Create(Panel_Allies,0,0,800,190,409) do ImageAnchors := [anLeft, anRight, anTop];
 
     Label_PeacetimeRemaining := TKMLabel.Create(Panel_Allies,400,20,'',fnt_Outline,taCenter);
 
