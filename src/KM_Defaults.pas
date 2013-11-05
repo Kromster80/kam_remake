@@ -23,7 +23,7 @@ const
   MIN_RESOLUTION_WIDTH  = 1024;         //Lowest supported resolution X
   MIN_RESOLUTION_HEIGHT = 576;          //Lowest supported resolution Y
 
-  GAME_REVISION         = 'r5894';       //Should be updated for every release (each time save format is changed)
+  GAME_REVISION         = 'r5920';       //Should be updated for every release (each time save format is changed)
   GAME_VERSION          = 'Next Demo ' + GAME_REVISION;       //Game version string displayed in menu corner
   NET_PROTOCOL_REVISON  = GAME_REVISION;     //Clients of this version may connect to the dedicated server
 
@@ -42,7 +42,7 @@ var
   FREE_POINTERS         :Boolean = True;  //If True, units/houses will be freed and removed from the list once they are no longer needed
   CAP_MAX_FPS           :Boolean = True;  //Should limit rendering performance to avoid GPU overheating (disable to measure debug performance)
   CRASH_ON_REPLAY       :Boolean = True;  //Crash as soon as replay consistency fails (random numbers mismatch)
-  BLOCK_DUPLICATE_APP   :Boolean = False;  //Do not allow to run multiple games at once (to prevent MP cheating)
+  BLOCK_DUPLICATE_APP   :Boolean = True;  //Do not allow to run multiple games at once (to prevent MP cheating)
 
   //Implemented
   DO_UNIT_INTERACTION   :Boolean = True; //Debug for unit interaction
@@ -116,9 +116,9 @@ var
   {Gameplay cheats}
   UNLOCK_CAMPAIGN_MAPS  :Boolean = False; //Unlock more maps for debug
   REDUCE_SHOOTING_RANGE :Boolean = False; //Reduce shooting range for debug
-  MULTIPLAYER_CHEATS    :Boolean = True; //Allow cheats and debug overlays (e.g. CanWalk) in Multiplayer
-  DEBUG_CHEATS          :Boolean = True; //Cheats for debug (place scout and reveal map) which can be turned On from menu
-  MULTIPLAYER_SPEEDUP   :Boolean = True; //Allow you to use F8 to speed up multiplayer for debugging (only effects local client)
+  MULTIPLAYER_CHEATS    :Boolean = False; //Allow cheats and debug overlays (e.g. CanWalk) in Multiplayer
+  DEBUG_CHEATS          :Boolean = False; //Cheats for debug (place scout and reveal map) which can be turned On from menu
+  MULTIPLAYER_SPEEDUP   :Boolean = False; //Allow you to use F8 to speed up multiplayer for debugging (only effects local client)
   SKIP_EXE_CRC          :Boolean = False; //Don't check KaM_Remake.exe CRC before MP game (useful for testing with different versions)
   ALLOW_MP_MODS         :Boolean = False; //Don't let people enter MP mode if they are using mods (unit.dat, house.dat, etc.)
   ALLOW_TAKE_AI_PLAYERS :Boolean = False; //Allow to load SP maps without Human player (usefull for AI testing)
