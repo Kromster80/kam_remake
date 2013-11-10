@@ -50,6 +50,12 @@ const
   SC_ARMY_HALT = 'H';
   SC_ARMY_SPLIT = 'S';
   SC_ARMY_LINK = 'L';
+  SC_ARMY_FOOD = 'F';
+  SC_ARMY_STORM = 'X';
+  SC_ARMY_ADD_LINE = VK_ADD;           // +
+  SC_ARMY_DEL_LINE = VK_SUBTRACT;      // -
+  SC_ARMY_ROTATE_CW = VK_OEM_PERIOD;   // >
+  SC_ARMY_ROTATE_CCW = VK_OEM_COMMA;   // <
 
   SC_DEBUG_REVEALMAP = 'M';
   SC_DEBUG_VICTORY = 'V';

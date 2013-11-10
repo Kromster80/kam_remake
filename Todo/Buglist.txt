@@ -12,6 +12,7 @@
  +	Random seed should be different before each game
  +	Attacking an animal through script command would crash a game
  +	AIs should retaliate when the arrows are in the air, not while the archer is just aiming
+ +      Limit save name length (long names can cause crash)
 	Armour smithy has shields as 2nd ouput, armour workshop has shields as 1st output. Would make sense to match them (note: simply swapping in KM_ResourceHouses causes game logic to be swapped with GUI)
 	Armour smithy has iron as 1st input, weapon smithy has iron as 2nd input (iron/coal swapped). Would make sense to match them (note: simpply swapping in KM_ResourceHouses causes game logic to be swapped with GUI)
 	Deliveries should use the actual walking route length (opposed to Radius)
@@ -56,7 +57,9 @@ Improvements:
  +	L	Game will flash on task bar when new chat message arrives
  +	L	Set random seed on game start (for MP it needs to be decided by host and synced before the game starts)
  +	L	A way to order +100 weapons at weapon makers and other places (shift + left-click)
-	Dismiss button to make units walk into the school and disappear (gold is not refunded)
+ +      L       MapEd: Allow custom map sizes
+ +      L       Shortcuts for all soldier buttons: , & . to rotate, + & - to add/withdraw lines, x to charge, f for food
+	        Dismiss button to make units walk into the school and disappear (gold is not refunded)
 	L	Simple dedicated server form which lets you set the properties of the INI for the server and start it [gemGreg]
 	L	Placing houses in MP should put a temp/fake visual markup until the real one can be added to make it appear responsive
 	L	Ctrl+C/V to copy chat messages with e.g. links or quotes
@@ -84,7 +87,6 @@ Improvements:
 	LM	Place all the roads for all players, then all the houses for all players, then all the units for all players from the script, repositioning units that are on houses and do floodfill for houses once at the end rather than for each house
 	L	Changing teams in multiplayer
 			Lewin: When joining a team the team members must "accept" you before it occurs. Leaving a team must also require acceptance I guess, otherwise you can walk into an ally's village and become his enemy, and some people would surely do this. We might also need a "lock teams" option in the lobby for this to work.
-	L	Shortcuts for all soldier buttons: , & . to rotate, [ & ] to add/withdraw lines, x to charge, f for food?
 	L	Ability to mark maps as a favourite (gold star) so they appear at the top of the list (find your favourite maps without scrolling through whole list)
 	L	Add an option to give hosting rights to another player in lobby
 	L	Option in the lobby to select starting with a small village, everything up to sawmill (placed automatically by city builder?)

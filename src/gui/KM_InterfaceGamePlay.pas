@@ -1149,6 +1149,7 @@ begin
     //Edit field created first to pick a focus on panel show
     Edit_Save := TKMEdit.Create(Panel_Save, 0, 235, TB_WIDTH, 20, fnt_Metal);
     Edit_Save.AllowedChars := acFileName;
+    Edit_Save.MaxLen := MAX_SAVENAME_LENGTH;
     Edit_Save.OnChange := Menu_Save_EditChange;
 
     ListBox_Save := TKMListBox.Create(Panel_Save, 0, 4, TB_WIDTH, 220, fnt_Metal, bsGame);
@@ -2493,10 +2494,18 @@ begin
                     else
                       Selection_Select(Key);
 
-    // Army shortcuts from KaM
-    Ord(SC_ARMY_HALT):   if Panel_Army.Visible and not SelectingTroopDirection then Button_Army_Stop.Click;
-    Ord(SC_ARMY_LINK):   if Panel_Army.Visible and not SelectingTroopDirection then Button_Army_Join.Click;
-    Ord(SC_ARMY_SPLIT):  if Panel_Army.Visible and not SelectingTroopDirection then Button_Army_Split.Click;
+    //Standard army shortcuts from KaM
+    Ord(SC_ARMY_HALT):        if Panel_Army.Visible and not SelectingTroopDirection then Button_Army_Stop.Click;
+    Ord(SC_ARMY_LINK):        if Panel_Army.Visible and not SelectingTroopDirection then Button_Army_Join.Click;
+    Ord(SC_ARMY_SPLIT):       if Panel_Army.Visible and not SelectingTroopDirection then Button_Army_Split.Click;
+
+    //Additional hotkeys for all group orders
+    Ord(SC_ARMY_FOOD):        if Panel_Army.Visible and not SelectingTroopDirection then Button_Army_Feed.Click;
+    Ord(SC_ARMY_STORM):       if Panel_Army.Visible and Button_Army_Storm.Enabled and not SelectingTroopDirection then Button_Army_Storm.Click;
+    Ord(SC_ARMY_ADD_LINE):    if Panel_Army.Visible and not SelectingTroopDirection then Button_Army_ForDown.Click;
+    Ord(SC_ARMY_DEL_LINE):    if Panel_Army.Visible and not SelectingTroopDirection then Button_Army_ForUp.Click;
+    Ord(SC_ARMY_ROTATE_CW):   if Panel_Army.Visible and not SelectingTroopDirection then Button_Army_RotCW.Click;
+    Ord(SC_ARMY_ROTATE_CCW):  if Panel_Army.Visible and not SelectingTroopDirection then Button_Army_RotCCW.Click;
 
     //General function keys
     Ord(SC_PAUSE):  if not fMultiplayer then SetPause(True); //Display pause overlay

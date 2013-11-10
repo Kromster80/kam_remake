@@ -30,7 +30,7 @@ type
 
 implementation
 uses
-  KM_Game, KM_RenderUI, KM_ResFonts, KM_ResTexts, KM_InterfaceGame;
+  KM_Game, KM_RenderUI, KM_ResFonts, KM_ResTexts, KM_InterfaceGame, KM_InterfaceDefaults;
 
 
 { TKMMapEdMenuSave }
@@ -49,6 +49,7 @@ begin
   Radio_Save_MapType.OnChange := Menu_SaveClick;
   TKMLabel.Create(Panel_Save,0,90,TB_WIDTH,20,gResTexts[TX_MAPED_SAVE_TITLE],fnt_Outline,taCenter);
   Edit_SaveName       := TKMEdit.Create(Panel_Save,0,110,TB_WIDTH,20, fnt_Grey);
+  Edit_SaveName.MaxLen := MAX_SAVENAME_LENGTH;
   Edit_SaveName.AllowedChars := acFileName;
   Label_SaveExists    := TKMLabel.Create(Panel_Save,0,140,TB_WIDTH,0,gResTexts[TX_MAPED_SAVE_EXISTS],fnt_Outline,taCenter);
   CheckBox_SaveExists := TKMCheckBox.Create(Panel_Save,0,160,TB_WIDTH,20,gResTexts[TX_MAPED_SAVE_OVERWRITE], fnt_Metal);
