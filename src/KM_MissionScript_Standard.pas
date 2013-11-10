@@ -556,7 +556,7 @@ var
   ReleaseAllHouses: Boolean;
   SaveString: AnsiString;
 
-  procedure AddData(aText: AnsiString);
+  procedure AddData(aText: string);
   begin
     if CommandLayerCount = -1 then //No layering
       SaveString := SaveString + aText + EolA //Add to the string normally
@@ -605,7 +605,6 @@ var
   end;
 
 begin
-
   //Put data into stream
   SaveString := '';
   CommandLayerCount := -1; //Some commands (road/fields) are layered so the file is easier to read (not so many lines)
@@ -847,9 +846,10 @@ begin
   AddData(''); //NL
 
   //Similar footer to one in Lewin's Editor, useful so ppl know what mission was made with.
-  AddData('//This mission was made with KaM Remake Map Editor version '+GAME_VERSION+' at '+AnsiString(DateTimeToStr(Now)));
+  AddData('//This mission was made with KaM Remake Map Editor version ' + GAME_VERSION + ' at ' + DateTimeToStr(Now));
 
   //Write uncoded file for debug
+
   assignfile(f, aFileName+'.txt'); rewrite(f);
   write(f, SaveString);
   closefile(f);

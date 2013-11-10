@@ -121,12 +121,14 @@ begin
   begin
     //Flip selected
     gGame.MapEditor.Selection.Selection_Flip(fa_Horizontal);
+    gGame.MapEditor.TerrainPainter.MakeCheckpoint;
   end
   else
   if Sender = Button_SelectFlipV then
   begin
     //Flip selected
     gGame.MapEditor.Selection.Selection_Flip(fa_Vertical);
+    gGame.MapEditor.TerrainPainter.MakeCheckpoint;
   end;
 end;
 

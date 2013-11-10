@@ -251,10 +251,6 @@ begin
                               end;
               end;
     mbRight:  case GameCursor.Mode of
-                cmTiles:    begin
-                              GameCursor.MapEdDir := (GameCursor.MapEdDir + 1) mod 4; //Rotate tile direction
-                              fTerrainPainter.MakeCheckpoint;
-                            end;
                 cmElevate,
                 cmEqualize: begin
                               //Actual change was made in UpdateStateIdle, we just register it is done here
