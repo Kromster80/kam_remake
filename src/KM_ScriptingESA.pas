@@ -124,8 +124,13 @@ type
     SFXPath: UnicodeString;  //Relative to EXE (safe to use in Save, cos it is the same for all MP players)
     constructor Create(aIDCache: TKMScriptingIdCache);
 
-    procedure AIRecruitLimit(aPlayer, aLimit: Byte);
+    procedure AIAutoBuild(aPlayer: Byte; aAuto: Boolean);
+    procedure AIAutoDefence(aPlayer: Byte; aAuto: Boolean);    
+    procedure AIBuildersLimit(aPlayer, aLimit: Byte);
     procedure AIEquipRate(aPlayer: Byte; aType: Byte; aRate: Word);
+    procedure AIRecruitDelay(aPlayer: Byte; aDelay: Cardinal);
+    procedure AIRecruitLimit(aPlayer, aLimit: Byte);
+    procedure AISerfsFactor(aPlayer, aLimit: Byte);
 
     function  GiveAnimal(aType, X,Y: Word): Integer;
     function  GiveGroup(aPlayer, aType, X,Y, aDir, aCount, aColumns: Word): Integer;
@@ -458,7 +463,7 @@ end;
 
 function TKMScriptStates.PeaceTime: Cardinal;
 begin
-  Result := 600*gGame.GameOptions.Peacetime;
+  Result := 600 * gGame.GameOptions.Peacetime;
 end;
 
 
@@ -490,7 +495,8 @@ end;
 
 
 function TKMScriptStates.StatPlayerCount: Integer;
-var I: Integer;
+var
+  I: Integer;
 begin
   Result := 0;
   for I := 0 to gHands.Count - 1 do
@@ -1585,12 +1591,30 @@ begin
 end;
 
 
-procedure TKMScriptActions.AIRecruitLimit(aPlayer, aLimit: Byte);
+procedure TKMScriptActions.AIAutoBuild(aPlayer: Byte; aAuto: Boolean);
 begin
   if InRange(aPlayer, 0, gHands.Count - 1) then
-    gHands[aPlayer].AI.Setup.RecruitCount := aLimit
+    gHands[aPlayer].AI.Setup.AutoBuild := aAuto
   else
-    LogError('Actions.AIRecruitLimit', [aPlayer, aLimit]);
+    LogError('Actions.AIAutoBuild', [aPlayer]);
+end;
+
+
+procedure TKMScriptActions.AIAutoDefence(aPlayer: Byte; aAuto: Boolean);
+begin
+  if InRange(aPlayer, 0, gHands.Count - 1) then
+    gHands[aPlayer].AI.Setup.AutoDefend := aAuto
+  else
+    LogError('Actions.AIAutoDefence', [aPlayer]);
+end;
+
+
+procedure TKMScriptActions.AIBuildersLimit(aPlayer, aLimit: Byte);
+begin
+  if InRange(aPlayer, 0, gHands.Count - 1) then
+    gHands[aPlayer].AI.Setup.WorkerCount := aLimit
+  else
+    LogError('Actions.AIBuildersLimit', [aPlayer, aLimit]);
 end;
 
 
@@ -1604,6 +1628,33 @@ begin
     end
   else
     LogError('Actions.AIEquipRate', [aPlayer, aType, aRate]);
+end;
+
+
+procedure TKMScriptActions.AIRecruitDelay(aPlayer: Byte; aDelay: Cardinal);
+begin
+  if InRange(aPlayer, 0, gHands.Count - 1) then
+    gHands[aPlayer].AI.Setup.RecruitDelay := aDelay
+  else
+    LogError('Actions.AIRecruitDelay', [aPlayer, aDelay]);
+end;
+
+
+procedure TKMScriptActions.AIRecruitLimit(aPlayer, aLimit: Byte);
+begin
+  if InRange(aPlayer, 0, gHands.Count - 1) then
+    gHands[aPlayer].AI.Setup.RecruitCount := aLimit
+  else
+    LogError('Actions.AIRecruitLimit', [aPlayer, aLimit]);
+end;
+
+
+procedure TKMScriptActions.AISerfsFactor(aPlayer, aLimit: Byte);
+begin
+  if InRange(aPlayer, 0, gHands.Count - 1) then
+    gHands[aPlayer].AI.Setup.SerfsPerHouse := aLimit
+  else
+    LogError('Actions.AISerfsFactor', [aPlayer, aLimit]);
 end;
 
 

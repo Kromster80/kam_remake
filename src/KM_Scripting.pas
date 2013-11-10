@@ -184,8 +184,13 @@ begin
 
     with Sender.AddClassN(nil, AnsiString(fActions.ClassName)) do
     begin
-      RegisterMethod('procedure AIRecruitLimit(aPlayer, aLimit: Byte)');
+      RegisterMethod('procedure AIAutoBuild(aPlayer: Byte; aAuto: Boolean)');
+      RegisterMethod('procedure AIAutoDefence(aPlayer: Byte; aAuto: Boolean)');
+      RegisterMethod('procedure AIBuildersLimit(aPlayer, aLimit: Byte)');
       RegisterMethod('procedure AIEquipRate(aPlayer: Byte; aType: Byte; aRate: Word)');
+      RegisterMethod('procedure AIRecruitDelay(aPlayer, aDelay: Cardinal)');
+      RegisterMethod('procedure AIRecruitLimit(aPlayer, aLimit: Byte)');
+      RegisterMethod('procedure AISerfsFactor(aPlayer, aLimit: Byte)');
 
       RegisterMethod('procedure FogCoverAll(aPlayer: Byte)');
       RegisterMethod('procedure FogCoverCircle(aPlayer, X, Y, aRadius: Word)');
@@ -465,8 +470,13 @@ begin
 
     with ClassImp.Add(TKMScriptActions) do
     begin
-      RegisterMethod(@TKMScriptActions.AIRecruitLimit,    'AIRECRUITLIMIT');
+      RegisterMethod(@TKMScriptActions.AIAutoBuild,       'AIAUTOBUILD');
+      RegisterMethod(@TKMScriptActions.AIAutoDefence,     'AIAUTODEFENCE');
+      RegisterMethod(@TKMScriptActions.AIBuildersLimit,   'AIBUILDERSLIMIT');
       RegisterMethod(@TKMScriptActions.AIEquipRate,       'AIEQUIPRATE');
+      RegisterMethod(@TKMScriptActions.AIRecruitDelay,    'AIRECRUITDELAY');
+      RegisterMethod(@TKMScriptActions.AIRecruitLimit,    'AIRECRUITLIMIT');
+      RegisterMethod(@TKMScriptActions.AISerfsFactor,     'AISERFSFACTOR');
 
       RegisterMethod(@TKMScriptActions.FogCoverAll,       'FOGCOVERALL');
       RegisterMethod(@TKMScriptActions.FogCoverCircle,    'FOGCOVERCIRCLE');
