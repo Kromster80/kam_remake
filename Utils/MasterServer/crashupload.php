@@ -59,7 +59,7 @@
   {
     $headers = 'Content-Type: text/plain; charset="iso-8859-2"'."\n".
              "Content-Transfer-Encoding: 8bit"."\n".
-			 "From: KaM Remake Server <lewin@hodgman.id.au>"."\n";
+			 "From: KaM Remake Server <contact@kamremake.com>"."\n";
     mail ("contact@kamremake.com,lewin@hodgman.id.au", "Crash Report ".$_REQUEST["rev"], $ToSend, $headers);
 	echo "Done";
   }

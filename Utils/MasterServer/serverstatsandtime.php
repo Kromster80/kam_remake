@@ -1,13 +1,20 @@
 <?php
-include_once("serverlib.php");
-include_once("consts.php");
-global $BASE_URL;
-$format = "";
-if(isset($_REQUEST["format"])) $format = $_REQUEST["format"];
+include_once("serverstats.php");
+include_once("servertime.php");
 
-echo file_get_contents($BASE_URL.'serverstats.php?format='.$format);
-echo '<BR><BR>
+function ServerStatsAndTime($format)
+{
+    ServerStats($format);
+    echo '<BR><BR>
 Total player-time:
 <BR>';
-echo file_get_contents($BASE_URL.'servertime.php?format='.$format);
+    ServerTime($format);
+}
+
+//If we were called directly
+if ( basename(__FILE__) == basename($_SERVER["SCRIPT_FILENAME"]) ) {
+    $format = "";
+    if(isset($_REQUEST["format"])) $format = $_REQUEST["format"];
+    ServerStatsAndTime($format);
+}
 ?>
