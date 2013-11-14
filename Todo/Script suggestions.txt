@@ -4,6 +4,14 @@ Implemented:
  5871	Event OnHousePlanPlaced(aPlayer: Byte; aX, aY: Word; aType: Byte)
  5882	Event OnHouseDamaged(aHouse, aAttacker: Integer);
  5884	Event OnUnitWounded(aUnit, aAttacker: Integer);
+ 5924   Actions.AIAutoBuild(aPlayer: Byte, aAuto: Boolean)
+ 5924   Actions.AIAutoDefence(aPlayer: Byte; aAuto: Boolean)
+ 5924   Actions.AIRecruitsDelay(aPlayer: Byte, aDelay: Cardinal)
+ 5924   Actions.AISerfsFactor(aPlayer, aLimit: Byte)
+ 5924   Actions.AIWorkersLimit(aPlayer, aLimit: Byte)
+ 5927   States.PlayerIsAI(aPlayer: Byte): Boolean
+ 5927   Actions.RemoveField(X, Y: Word)
+ 5927   Actions.RemoveRoad(X, Y: Word)
 
 Accepted:
 	Closest house/unit/group to given XY of certain player and type
@@ -31,7 +39,6 @@ Proposed:
 	ChangeMapTile
 	States.HousePlanAt(X, Y) - returns aPlanID.
 	More options for on-screen text (background color, alignment, font, size, etc.)
-	States.PlayerIsAI(Index): Boolean;
 	Actions.AddDefensePosition, RemDefensePosition
 	States.HouseCanReachResources: boolean (for mines, fisher and woodcutters)
 	HousePlanType(aPlanID), returns the type of the house plan.
@@ -43,13 +50,7 @@ Proposed:
 	Add flag to allow to kill units with death animation, but without sound
 
 	Actions.AI_enable(PlayerID; Enable:Boolean); //Auto-feed, etc
-	Actions.AI_autoBuild(PlayerID; Enable:Boolean); 
 	Actions.AI_autoRepair(PlayerID; Enable:Boolean); 
-	Actions.AI_serfsPer10Houses(PlayerID, SerfsPer10Houses:Integer); 
-	Actions.AI_workers(PlayerID, Workers:Integer); 
-	Actions.AI_autodefence(PlayerID; Enable:Boolean); 
-	Actions.AI_recruitsPerBarrack(PlayerID, RecrutsPerBarrack:Integer); 
-	Actions.AI_recruitsDelay(PlayerID, Minutes:Integer); 
 	Actions.AI_maxSoldiers(PlayerID, Threshold:Integer); 
 	Actions.AI_setFormations(PlayerID, MeleeCount, MeleeColumns, AntihorseCount, AntihorseColumns, RangedCount, RangedColumns, MountedCount, MountedColumns); 
 	Actions.AI_startAttack(PlayerID, TargetX, TargetY, ArmyCount, MeleeGroups, AntihorseGroups, RangedGroups, MountedGroups); 

@@ -87,6 +87,7 @@ type
     function PlayerGetAllUnits(aPlayer: Byte): TIntegerArray;
     function PlayerGetAllHouses(aPlayer: Byte): TIntegerArray;
     function PlayerGetAllGroups(aPlayer: Byte): TIntegerArray;
+    function PlayerIsAI(aPlayer: Byte): Boolean;
     function PlayerName(aPlayer: Byte): UnicodeString;
     function PlayerColorText(aPlayer: Byte): UnicodeString;
     function PlayerVictorious(aPlayer: Byte): Boolean;
@@ -193,6 +194,9 @@ type
     procedure PlayWAV(aPlayer: ShortInt; const aFileName: AnsiString; Volume: Single);
     procedure PlayWAVAtLocation(aPlayer: ShortInt; const aFileName: AnsiString; Volume: Single; X, Y: Word);
 
+    procedure RemoveField(X, Y: Word);
+    procedure RemoveRoad(X, Y: Word);
+
     procedure SetTradeAllowed(aPlayer, aResType: Word; aAllowed: Boolean);
     procedure ShowMsg(aPlayer: Shortint; aText: AnsiString);
     procedure ShowMsgFormatted(aPlayer: Shortint; aText: AnsiString; Params: array of const);
@@ -213,7 +217,7 @@ var
 implementation
 uses KM_AI, KM_Terrain, KM_Game, KM_FogOfWar, KM_HandsCollection, KM_Units_Warrior,
   KM_HouseBarracks, KM_HouseSchool, KM_ResUnits, KM_ResWares,
-  KM_Log, KM_Utils, KM_Resource, KM_UnitTaskSelfTrain, KM_Sound;
+  KM_Log, KM_Utils, KM_Resource, KM_UnitTaskSelfTrain, KM_Sound, KM_Hand;
 
 
 type
@@ -635,6 +639,18 @@ begin
   else
   begin
     LogError('States.PlayerGetAllGroups', [aPlayer]);
+  end;
+end;
+
+
+function TKMScriptStates.PlayerIsAI(aPlayer: Byte): Boolean;
+begin
+  if InRange(aPlayer, 0, gHands.Count - 1) then
+    Result := gHands[aPlayer].PlayerType = hndComputer
+  else
+  begin
+    Result := False;
+    Logerror('States.PlayerIsAI', [aPlayer]);
   end;
 end;
 
@@ -1514,6 +1530,30 @@ begin
     gSoundPlayer.PlayWAVFromScript(fullFileName, KMPoint(X,Y), True, Volume)
   else
     LogError('Actions.PlayWAVAtLocation: ' + UnicodeString(aFileName), [X, Y]);
+end;
+
+
+procedure TKMScriptActions.RemoveField(X, Y :Word);
+var
+  Pos: TKMPoint;
+begin
+  Pos := KMPoint(X, Y);
+  if gTerrain.TileInMapCoords(X, Y) and (gTerrain.TileIsCornField(Pos) or gTerrain.TileIsWineField(Pos)) then
+    gTerrain.RemField(Pos)
+  else
+    LogError('Actions.RemoveField', [X, Y]);
+end;
+
+
+procedure TKMScriptActions.RemoveRoad(X, Y: Word);
+var
+  Pos: TKMPoint;
+begin
+  Pos := KMPoint(X, Y);
+  if gTerrain.TileInMapCoords(X, Y) then
+    gTerrain.RemRoad(Pos)
+  else
+    LogError('Actions.RemoveRoad', [X, Y]);
 end;
 
 

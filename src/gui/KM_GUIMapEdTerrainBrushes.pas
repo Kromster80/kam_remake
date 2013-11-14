@@ -53,7 +53,8 @@ begin
   Panel_Brushes := TKMPanel.Create(aParent, 0, 28, TB_WIDTH, 400);
 
   TKMLabel.Create(Panel_Brushes, 0, PAGE_TITLE_Y, TB_WIDTH, 0, gResTexts[TX_MAPED_TERRAIN_BRUSH], fnt_Outline, taCenter);
-  BrushSize   := TKMTrackBar.Create(Panel_Brushes, 0, 30, 100, 0, 12);
+  BrushSize   := TKMTrackBar.Create(Panel_Brushes, 0, 30, 100, 0, 32);
+  BrushSize.Position := 4;
   BrushSize.OnChange := BrushChange;
   BrushCircle := TKMButtonFlat.Create(Panel_Brushes, 106, 28, 24, 24, 592);
   BrushCircle.Hint := gResTexts[TX_MAPED_TERRAIN_HEIGHTS_CIRCLE];

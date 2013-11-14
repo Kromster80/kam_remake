@@ -13,6 +13,8 @@
  +	Attacking an animal through script command would crash a game
  +	AIs should retaliate when the arrows are in the air, not while the archer is just aiming
  +      Limit save name length (long names can cause crash)
+ +      Fixed winefield bug (MapEd did not save grapes objects)
+ +      Increased max terrain brush size to 32
 	Armour smithy has shields as 2nd ouput, armour workshop has shields as 1st output. Would make sense to match them (note: simply swapping in KM_ResourceHouses causes game logic to be swapped with GUI)
 	Armour smithy has iron as 1st input, weapon smithy has iron as 2nd input (iron/coal swapped). Would make sense to match them (note: simpply swapping in KM_ResourceHouses causes game logic to be swapped with GUI)
 	Deliveries should use the actual walking route length (opposed to Radius)
@@ -59,6 +61,7 @@ Improvements:
  +	L	A way to order +100 weapons at weapon makers and other places (shift + left-click)
  +      L       MapEd: Allow custom map sizes
  +      L       Shortcuts for all soldier buttons: , & . to rotate, + & - to add/withdraw lines, x to charge, f for food
+ +      L       MapEd: Randomize terrain tiles when creating a new map
 	        Dismiss button to make units walk into the school and disappear (gold is not refunded)
 	L	Simple dedicated server form which lets you set the properties of the INI for the server and start it [gemGreg]
 	L	Placing houses in MP should put a temp/fake visual markup until the real one can be added to make it appear responsive
@@ -149,7 +152,7 @@ Fixed in r5503:
  +	Replays would mismatch if a player attempted to use a storehouse cheat pattern (the cheat was allowed in the replay causing a mismatch)
  +	Listbox scrollbars jump when trying to drag them by upper/lower thumb edge
  +	AI attack scripts carried uninitialized values (e.g. delay) over from previous attacks
- +	Limit chat messgae to some sane amount of characters (256) to avoid spam
+ +	Limit chat message to some sane amount of characters (256) to avoid spam
  +	Clicking on the splash screen registers the click on the main menu once it is loaded
  +	XML status output from the server sometimes contained invalid characters in player names (now they are escaped correctly)
  

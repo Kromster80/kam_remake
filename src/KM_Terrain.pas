@@ -217,8 +217,9 @@ var
 
 
 implementation
-uses KM_Log, KM_HandsCollection, KM_TerrainWalkConnect,
-  KM_Resource, KM_Units, KM_ResSound, KM_Sound, KM_UnitActionStay, KM_Units_Warrior;
+uses
+  KM_Log, KM_HandsCollection, KM_TerrainWalkConnect, KM_Resource, KM_Units,
+  KM_ResSound, KM_Sound, KM_UnitActionStay, KM_Units_Warrior, KM_TerrainPainter;
 
 
 { TKMTerrain }
@@ -250,9 +251,13 @@ begin
 
   for I := 1 to fMapY do
   for K := 1 to fMapX do
-  with Land[I,K] do
+  with Land[I, K] do
   begin
-    Terrain      := 0;
+    //Apply some random tiles for artisticity
+    if KaMRandom(5) = 0 then
+      Terrain      := RandomTiling[tkGrass, Random(RandomTiling[tkGrass, 0]) + 1]
+    else
+      Terrain      := 0;
     Height       := 30 + KaMRandom(7);  //variation in Height
     Rotation     := KaMRandom(4);  //Make it random
     Obj          := 255;             //none
@@ -266,7 +271,7 @@ begin
     IsUnit       := nil;
     IsVertexUnit := vu_None;
     FieldAge     := 0;
-    TreeAge      := IfThen(ObjectIsChopableTree(KMPoint(K,I), caAgeFull), TREE_AGE_FULL, 0);
+    TreeAge      := IfThen(ObjectIsChopableTree(KMPoint(K, I), caAgeFull), TREE_AGE_FULL, 0);
     Fence        := fncNone;
     FenceSide    := 0;
   end;
@@ -380,11 +385,7 @@ begin
 
       S.Write(c0,1); //unknown
 
-      //Don't save winefield objects as they are part of the DAT not map
-      if TileIsWineField(KMPoint(k,i)) then
-        S.Write(cF,1)
-      else
-        S.Write(Land[i,k].Obj);
+      S.Write(Land[i,k].Obj);
 
       S.Write(cF,1); //Passability?
 

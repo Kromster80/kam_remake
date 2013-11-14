@@ -154,6 +154,7 @@ begin
       RegisterMethod('function PlayerGetAllUnits(aPlayer: Byte): TIntegerArray');
       RegisterMethod('function PlayerGetAllHouses(aPlayer: Byte): TIntegerArray');
       RegisterMethod('function PlayerGetAllGroups(aPlayer: Byte): TIntegerArray');
+      RegisterMethod('function PlayerIsAI(aPlayer: Byte): Boolean');
       RegisterMethod('function PlayerName(aPlayer: Byte): UnicodeString');
       RegisterMethod('function PlayerVictorious(aPlayer: Byte): Boolean');
       RegisterMethod('function PlayerWareDistribution(aPlayer, aWareType, aHouseType: Byte): Byte');
@@ -252,6 +253,9 @@ begin
 
       RegisterMethod('procedure PlayWAV(aPlayer: ShortInt; const aFileName: AnsiString; Volume: Single)');
       RegisterMethod('procedure PlayWAVAtLocation(aPlayer: ShortInt; const aFileName: AnsiString; Volume: Single; X, Y: Word)');
+
+      RegisterMethod('procedure RemoveField(X, Y: Word)');
+      RegisterMethod('procedure RemoveRoad(X, Y: Word)');
 
       RegisterMethod('procedure SetTradeAllowed(aPlayer, aResType: Word; aAllowed: Boolean)');
       RegisterMethod('procedure ShowMsg(aPlayer: ShortInt; aText: AnsiString)');
@@ -440,6 +444,7 @@ begin
       RegisterMethod(@TKMScriptStates.PlayerGetAllUnits,    'PLAYERGETALLUNITS');
       RegisterMethod(@TKMScriptStates.PlayerGetAllHouses,   'PLAYERGETALLHOUSES');
       RegisterMethod(@TKMScriptStates.PlayerGetAllGroups,   'PLAYERGETALLGROUPS');
+      RegisterMethod(@TKMScriptStates.PlayerIsAI,           'PLAYERISAI');
       RegisterMethod(@TKMScriptStates.PlayerName,           'PLAYERNAME');
       RegisterMethod(@TKMScriptStates.PlayerVictorious,     'PLAYERVICTORIOUS');
       RegisterMethod(@TKMScriptStates.PlayerWareDistribution,'PLAYERWAREDISTRIBUTION');
@@ -538,6 +543,9 @@ begin
 
       RegisterMethod(@TKMScriptActions.PlayWAV,           'PLAYWAV');
       RegisterMethod(@TKMScriptActions.PlayWAVAtLocation, 'PLAYWAVATLOCATION');
+
+      RegisterMethod(@TKMScriptActions.RemoveField,       'REMOVEFIELD');
+      RegisterMethod(@TKMScriptActions.RemoveRoad,        'REMOVEROAD');
 
       RegisterMethod(@TKMScriptActions.SetTradeAllowed, 'SETTRADEALLOWED');
       RegisterMethod(@TKMScriptActions.ShowMsg,         'SHOWMSG');
