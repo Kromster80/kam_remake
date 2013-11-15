@@ -24,13 +24,8 @@ const
 
 
 //This unit must not know about KromUtils because it is used by the Linux Dedicated servers
-//and KromUtils is not Linux compatible. Therefore these two functions are copied directly from KromUtils.
-function CharInSet(C: AnsiChar; S: TSetOfAnsiChar): Boolean; overload;
-begin
-  Result := C in S;
-end;
-
-function CharInSet(C: WideChar; S: TSetOfAnsiChar): Boolean; overload;
+//and KromUtils is not Linux compatible. Therefore this function is copied directly from KromUtils.
+function CharInSet(C: WideChar; S: TSetOfAnsiChar): Boolean;
 begin
   Result := (Ord(C) <= High(Byte)) and (AnsiChar(C) in S);
 end;

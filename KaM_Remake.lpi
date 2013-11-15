@@ -38,13 +38,14 @@
         <PackageName Value="LCL"/>
       </Item1>
     </RequiredPackages>
-    <Units Count="154">
+    <Units Count="156">
       <Unit0>
         <Filename Value="KaM_Remake.dpr"/>
         <IsPartOfProject Value="True"/>
-        <EditorIndex Value="18"/>
+        <IsVisibleTab Value="True"/>
+        <EditorIndex Value="0"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="182"/>
+        <TopLine Value="1"/>
         <CursorPos X="1" Y="221"/>
         <UsageCount Value="27"/>
         <Loaded Value="True"/>
@@ -104,12 +105,10 @@
         <Filename Value="KM_Campaigns.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="KM_Campaigns"/>
-        <EditorIndex Value="48"/>
         <WindowIndex Value="0"/>
         <TopLine Value="205"/>
         <CursorPos X="46" Y="229"/>
         <UsageCount Value="27"/>
-        <Loaded Value="True"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit6>
       <Unit7>
@@ -136,24 +135,20 @@
         <Filename Value="KM_Controls.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="KM_Controls"/>
-        <EditorIndex Value="33"/>
         <WindowIndex Value="0"/>
         <TopLine Value="4090"/>
         <CursorPos X="47" Y="4114"/>
         <UsageCount Value="27"/>
-        <Loaded Value="True"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit9>
       <Unit10>
         <Filename Value="KM_DedicatedServer.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="KM_DedicatedServer"/>
-        <EditorIndex Value="55"/>
         <WindowIndex Value="0"/>
         <TopLine Value="16"/>
         <CursorPos X="14" Y="34"/>
         <UsageCount Value="27"/>
-        <Loaded Value="True"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit10>
       <Unit11>
@@ -170,24 +165,20 @@
         <Filename Value="KM_DeliverQueue.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="KM_DeliverQueue"/>
-        <EditorIndex Value="26"/>
         <WindowIndex Value="0"/>
         <TopLine Value="45"/>
         <CursorPos X="36" Y="64"/>
         <UsageCount Value="27"/>
-        <Loaded Value="True"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit12>
       <Unit13>
         <Filename Value="KM_FogOfWar.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="KM_FogOfWar"/>
-        <EditorIndex Value="21"/>
         <WindowIndex Value="0"/>
         <TopLine Value="46"/>
         <CursorPos X="45" Y="58"/>
         <UsageCount Value="27"/>
-        <Loaded Value="True"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit13>
       <Unit14>
@@ -203,48 +194,40 @@
         <Filename Value="KM_InterfaceDefaults.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="KM_InterfaceDefaults"/>
-        <EditorIndex Value="2"/>
         <WindowIndex Value="0"/>
         <TopLine Value="184"/>
         <CursorPos X="1" Y="192"/>
         <UsageCount Value="27"/>
-        <Loaded Value="True"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit15>
       <Unit16>
         <Filename Value="KM_InterfaceGamePlay.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="KM_InterfaceGamePlay"/>
-        <EditorIndex Value="13"/>
         <WindowIndex Value="0"/>
         <TopLine Value="30"/>
         <CursorPos X="33" Y="52"/>
         <UsageCount Value="27"/>
-        <Loaded Value="True"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit16>
       <Unit17>
         <Filename Value="KM_InterfaceMainMenu.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="KM_InterfaceMainMenu"/>
-        <EditorIndex Value="0"/>
         <WindowIndex Value="0"/>
         <TopLine Value="66"/>
         <CursorPos X="1" Y="67"/>
         <UsageCount Value="27"/>
-        <Loaded Value="True"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit17>
       <Unit18>
         <Filename Value="KM_InterfaceMapEditor.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="KM_InterfaceMapEditor"/>
-        <EditorIndex Value="27"/>
         <WindowIndex Value="0"/>
         <TopLine Value="820"/>
         <CursorPos X="14" Y="819"/>
         <UsageCount Value="27"/>
-        <Loaded Value="True"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit18>
       <Unit19>
@@ -261,12 +244,10 @@
         <Filename Value="KM_Game.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="KM_Game"/>
-        <EditorIndex Value="7"/>
         <WindowIndex Value="0"/>
         <TopLine Value="114"/>
         <CursorPos X="40" Y="137"/>
         <UsageCount Value="27"/>
-        <Loaded Value="True"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit20>
       <Unit21>
@@ -343,24 +324,20 @@
         <Filename Value="KM_Log.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="KM_Log"/>
-        <EditorIndex Value="51"/>
         <WindowIndex Value="0"/>
         <TopLine Value="110"/>
         <CursorPos X="56" Y="112"/>
         <UsageCount Value="27"/>
-        <Loaded Value="True"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit28>
       <Unit29>
         <Filename Value="KM_MapEditor.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="KM_MapEditor"/>
-        <EditorIndex Value="15"/>
         <WindowIndex Value="0"/>
         <TopLine Value="355"/>
         <CursorPos X="21" Y="384"/>
         <UsageCount Value="27"/>
-        <Loaded Value="True"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit29>
       <Unit30>
@@ -396,12 +373,10 @@
         <Filename Value="KM_Music.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="KM_Music"/>
-        <EditorIndex Value="8"/>
         <WindowIndex Value="0"/>
         <TopLine Value="215"/>
         <CursorPos X="30" Y="224"/>
         <UsageCount Value="27"/>
-        <Loaded Value="True"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit33>
       <Unit34>
@@ -428,12 +403,10 @@
         <Filename Value="KM_Networking.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="KM_Networking"/>
-        <EditorIndex Value="50"/>
         <WindowIndex Value="0"/>
         <TopLine Value="695"/>
         <CursorPos X="30" Y="695"/>
         <UsageCount Value="27"/>
-        <Loaded Value="True"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit36>
       <Unit37>
@@ -450,12 +423,10 @@
         <Filename Value="KM_NetPlayersList.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="KM_NetPlayersList"/>
-        <EditorIndex Value="29"/>
         <WindowIndex Value="0"/>
         <TopLine Value="853"/>
         <CursorPos X="1" Y="884"/>
         <UsageCount Value="27"/>
-        <Loaded Value="True"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit38>
       <Unit39>
@@ -522,13 +493,10 @@
         <Filename Value="KM_Points.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="KM_Points"/>
-        <IsVisibleTab Value="True"/>
-        <EditorIndex Value="16"/>
         <WindowIndex Value="0"/>
         <TopLine Value="372"/>
         <CursorPos X="86" Y="414"/>
         <UsageCount Value="27"/>
-        <Loaded Value="True"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit45>
       <Unit46>
@@ -574,12 +542,10 @@
         <Filename Value="KM_Resource.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="KM_Resource"/>
-        <EditorIndex Value="47"/>
         <WindowIndex Value="0"/>
         <TopLine Value="92"/>
         <CursorPos X="62" Y="111"/>
         <UsageCount Value="27"/>
-        <Loaded Value="True"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit50>
       <Unit51>
@@ -686,12 +652,10 @@
         <Filename Value="KM_Settings.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="KM_Settings"/>
-        <EditorIndex Value="45"/>
         <WindowIndex Value="0"/>
         <TopLine Value="486"/>
         <CursorPos X="70" Y="527"/>
         <UsageCount Value="27"/>
-        <Loaded Value="True"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit61>
       <Unit62>
@@ -788,24 +752,20 @@
         <Filename Value="KM_UnitActionWalkTo.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="KM_UnitActionWalkTo"/>
-        <EditorIndex Value="30"/>
         <WindowIndex Value="0"/>
         <TopLine Value="668"/>
         <CursorPos X="3" Y="674"/>
         <UsageCount Value="27"/>
-        <Loaded Value="True"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit71>
       <Unit72>
         <Filename Value="KM_Units.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="KM_Units"/>
-        <EditorIndex Value="22"/>
         <WindowIndex Value="0"/>
         <TopLine Value="1461"/>
         <CursorPos X="3" Y="1461"/>
         <UsageCount Value="27"/>
-        <Loaded Value="True"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit72>
       <Unit73>
@@ -971,35 +931,29 @@
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
         <UnitName Value="KM_FormMain"/>
-        <EditorIndex Value="19"/>
         <WindowIndex Value="0"/>
         <TopLine Value="154"/>
         <CursorPos X="1" Y="185"/>
         <UsageCount Value="25"/>
-        <Loaded Value="True"/>
         <LoadedDesigner Value="True"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit89>
       <Unit90>
         <Filename Value="KaM_Remake.inc"/>
-        <EditorIndex Value="34"/>
         <WindowIndex Value="0"/>
         <TopLine Value="1"/>
         <CursorPos X="3" Y="14"/>
         <UsageCount Value="11"/>
-        <Loaded Value="True"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit90>
       <Unit91>
         <Filename Value="KM_Main.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="KM_Main"/>
-        <EditorIndex Value="9"/>
         <WindowIndex Value="0"/>
         <TopLine Value="264"/>
         <CursorPos X="1" Y="286"/>
         <UsageCount Value="26"/>
-        <Loaded Value="True"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit91>
       <Unit92>
@@ -1047,12 +1001,10 @@
       </Unit97>
       <Unit98>
         <Filename Value="C:\lazarus\lcl\include\control.inc"/>
-        <EditorIndex Value="20"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="3665"/>
-        <CursorPos X="1" Y="3688"/>
+        <TopLine Value="3625"/>
+        <CursorPos X="1" Y="3640"/>
         <UsageCount Value="10"/>
-        <Loaded Value="True"/>
       </Unit98>
       <Unit99>
         <Filename Value="C:\lazarus\lcl\widgetset\wscontrols.pp"/>
@@ -1109,12 +1061,10 @@
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
         <UnitName Value="KM_FormLoading"/>
-        <EditorIndex Value="10"/>
         <WindowIndex Value="0"/>
         <TopLine Value="16"/>
         <CursorPos X="62" Y="41"/>
         <UsageCount Value="25"/>
-        <Loaded Value="True"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit105>
       <Unit106>
@@ -1145,12 +1095,10 @@
         <Filename Value="KM_Maps.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="KM_Maps"/>
-        <EditorIndex Value="40"/>
         <WindowIndex Value="0"/>
         <TopLine Value="516"/>
         <CursorPos X="41" Y="539"/>
         <UsageCount Value="25"/>
-        <Loaded Value="True"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit110>
       <Unit111>
@@ -1187,12 +1135,10 @@
         <Filename Value="KM_RenderPool.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="KM_RenderPool"/>
-        <EditorIndex Value="32"/>
         <WindowIndex Value="0"/>
         <TopLine Value="90"/>
         <CursorPos X="88" Y="90"/>
         <UsageCount Value="25"/>
-        <Loaded Value="True"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit116>
       <Unit117>
@@ -1225,22 +1171,18 @@
       <Unit120>
         <Filename Value="KM_Scripting.pas"/>
         <UnitName Value="KM_Scripting"/>
-        <EditorIndex Value="11"/>
         <WindowIndex Value="0"/>
         <TopLine Value="1"/>
         <CursorPos X="18" Y="5"/>
         <UsageCount Value="11"/>
-        <Loaded Value="True"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit120>
       <Unit121>
         <Filename Value="Common\pascalscript\Source\PascalScript.inc"/>
-        <EditorIndex Value="12"/>
         <WindowIndex Value="0"/>
         <TopLine Value="36"/>
         <CursorPos X="25" Y="53"/>
         <UsageCount Value="11"/>
-        <Loaded Value="True"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit121>
       <Unit122>
@@ -1278,56 +1220,46 @@
       <Unit126>
         <Filename Value="KM_FileIO.pas"/>
         <UnitName Value="KM_FileIO"/>
-        <EditorIndex Value="46"/>
         <WindowIndex Value="0"/>
         <TopLine Value="1"/>
         <CursorPos X="3" Y="5"/>
         <UsageCount Value="11"/>
-        <Loaded Value="True"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit126>
       <Unit127>
         <Filename Value="KM_CommonTypes.pas"/>
         <UnitName Value="KM_CommonTypes"/>
-        <EditorIndex Value="56"/>
         <WindowIndex Value="0"/>
         <TopLine Value="1"/>
         <CursorPos X="3" Y="17"/>
         <UsageCount Value="11"/>
-        <Loaded Value="True"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit127>
       <Unit128>
         <Filename Value="KM_GUIMenuLobby.pas"/>
         <UnitName Value="KM_GUIMenuLobby"/>
-        <EditorIndex Value="52"/>
         <WindowIndex Value="0"/>
         <TopLine Value="1410"/>
         <CursorPos X="38" Y="1440"/>
         <UsageCount Value="11"/>
-        <Loaded Value="True"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit128>
       <Unit129>
         <Filename Value="KM_GameApp.pas"/>
         <UnitName Value="KM_GameApp"/>
-        <EditorIndex Value="54"/>
         <WindowIndex Value="0"/>
         <TopLine Value="107"/>
         <CursorPos X="1" Y="128"/>
         <UsageCount Value="11"/>
-        <Loaded Value="True"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit129>
       <Unit130>
         <Filename Value="KM_UnitGroups.pas"/>
         <UnitName Value="KM_UnitGroups"/>
-        <EditorIndex Value="25"/>
         <WindowIndex Value="0"/>
         <TopLine Value="56"/>
         <CursorPos X="34" Y="74"/>
         <UsageCount Value="11"/>
-        <Loaded Value="True"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit130>
       <Unit131>
@@ -1342,364 +1274,226 @@
       <Unit132>
         <Filename Value="KM_HouseMarket.pas"/>
         <UnitName Value="KM_HouseMarket"/>
-        <EditorIndex Value="28"/>
         <WindowIndex Value="0"/>
         <TopLine Value="3"/>
         <CursorPos X="26" Y="22"/>
         <UsageCount Value="11"/>
-        <Loaded Value="True"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit132>
       <Unit133>
         <Filename Value="KM_Resolutions.pas"/>
         <UnitName Value="KM_Resolutions"/>
-        <EditorIndex Value="23"/>
         <WindowIndex Value="0"/>
         <TopLine Value="222"/>
         <CursorPos X="3" Y="228"/>
         <UsageCount Value="11"/>
-        <Loaded Value="True"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit133>
       <Unit134>
         <Filename Value="KM_PNG.pas"/>
         <UnitName Value="KM_PNG"/>
-        <EditorIndex Value="24"/>
         <WindowIndex Value="0"/>
         <TopLine Value="72"/>
         <CursorPos X="31" Y="86"/>
         <UsageCount Value="11"/>
-        <Loaded Value="True"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit134>
       <Unit135>
         <Filename Value="Common\OBJLoader.pas"/>
         <UnitName Value="OBJLoader"/>
-        <EditorIndex Value="41"/>
         <WindowIndex Value="0"/>
         <TopLine Value="70"/>
         <CursorPos X="73" Y="94"/>
         <UsageCount Value="11"/>
-        <Loaded Value="True"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit135>
       <Unit136>
         <Filename Value="KM_TerrainPainter.pas"/>
         <UnitName Value="KM_TerrainPainter"/>
-        <EditorIndex Value="44"/>
         <WindowIndex Value="0"/>
         <TopLine Value="785"/>
         <CursorPos X="46" Y="812"/>
         <UsageCount Value="11"/>
-        <Loaded Value="True"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit136>
       <Unit137>
         <Filename Value="Common\LNet\lws2tcpip.pp"/>
         <UnitName Value="lws2tcpip"/>
-        <EditorIndex Value="31"/>
         <WindowIndex Value="0"/>
         <TopLine Value="14"/>
         <CursorPos X="24" Y="33"/>
         <UsageCount Value="11"/>
-        <Loaded Value="True"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit137>
       <Unit138>
         <Filename Value="KM_GUIMenuResultsMP.pas"/>
         <UnitName Value="KM_GUIMenuResultsMP"/>
-        <EditorIndex Value="53"/>
         <WindowIndex Value="0"/>
         <TopLine Value="64"/>
         <CursorPos X="3" Y="83"/>
         <UsageCount Value="11"/>
-        <Loaded Value="True"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit138>
       <Unit139>
         <Filename Value="KM_GUIMenuReplays.pas"/>
         <UnitName Value="KM_GUIMenuReplays"/>
-        <EditorIndex Value="4"/>
         <WindowIndex Value="0"/>
         <TopLine Value="7"/>
         <CursorPos X="28" Y="26"/>
         <UsageCount Value="11"/>
-        <Loaded Value="True"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit139>
       <Unit140>
         <Filename Value="KM_GUIMenuMultiplayer.pas"/>
         <UnitName Value="KM_GUIMenuMultiplayer"/>
-        <EditorIndex Value="5"/>
         <WindowIndex Value="0"/>
         <TopLine Value="72"/>
         <CursorPos X="36" Y="91"/>
         <UsageCount Value="11"/>
-        <Loaded Value="True"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit140>
       <Unit141>
         <Filename Value="KM_GUIMenuMapEditor.pas"/>
         <UnitName Value="KM_GUIMenuMapEditor"/>
-        <EditorIndex Value="6"/>
         <WindowIndex Value="0"/>
         <TopLine Value="30"/>
         <CursorPos X="21" Y="49"/>
         <UsageCount Value="11"/>
-        <Loaded Value="True"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit141>
       <Unit142>
         <Filename Value="KM_HouseBarracks.pas"/>
         <UnitName Value="KM_HouseBarracks"/>
-        <EditorIndex Value="17"/>
         <WindowIndex Value="0"/>
         <TopLine Value="42"/>
         <CursorPos X="36" Y="48"/>
         <UsageCount Value="11"/>
-        <Loaded Value="True"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit142>
       <Unit143>
         <Filename Value="Common\BGRABitmap\bgrafilters.pas"/>
         <UnitName Value="BGRAFilters"/>
-        <EditorIndex Value="35"/>
         <WindowIndex Value="0"/>
         <TopLine Value="246"/>
         <CursorPos X="10" Y="261"/>
         <UsageCount Value="11"/>
-        <Loaded Value="True"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit143>
       <Unit144>
         <Filename Value="KM_ResFonts.pas"/>
         <UnitName Value="KM_ResFonts"/>
-        <EditorIndex Value="36"/>
         <WindowIndex Value="0"/>
         <TopLine Value="293"/>
         <CursorPos X="1" Y="315"/>
         <UsageCount Value="11"/>
-        <Loaded Value="True"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit144>
       <Unit145>
         <Filename Value="KM_ResTexts.pas"/>
         <UnitName Value="KM_ResTexts"/>
-        <EditorIndex Value="37"/>
         <WindowIndex Value="0"/>
         <TopLine Value="1"/>
         <CursorPos X="1" Y="1"/>
         <UsageCount Value="11"/>
-        <Loaded Value="True"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit145>
       <Unit146>
         <Filename Value="C:\lazarus\fpc\2.6.2\source\rtl\objpas\strutils.pp"/>
         <UnitName Value="strutils"/>
-        <EditorIndex Value="39"/>
         <WindowIndex Value="0"/>
         <TopLine Value="166"/>
         <CursorPos X="1" Y="1"/>
         <UsageCount Value="11"/>
-        <Loaded Value="True"/>
       </Unit146>
       <Unit147>
         <Filename Value="Common\KromUtils.pas"/>
         <UnitName Value="KromUtils"/>
-        <EditorIndex Value="38"/>
         <WindowIndex Value="0"/>
         <TopLine Value="452"/>
         <CursorPos X="1" Y="470"/>
         <UsageCount Value="11"/>
-        <Loaded Value="True"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit147>
       <Unit148>
         <Filename Value="C:\lazarus\fpc\2.6.2\source\rtl\objpas\sysutils\sysinth.inc"/>
-        <EditorIndex Value="43"/>
         <WindowIndex Value="0"/>
         <TopLine Value="9"/>
         <CursorPos X="75" Y="40"/>
         <UsageCount Value="10"/>
-        <Loaded Value="True"/>
       </Unit148>
       <Unit149>
         <Filename Value="KM_TerrainSelection.pas"/>
         <UnitName Value="KM_TerrainSelection"/>
-        <EditorIndex Value="42"/>
         <WindowIndex Value="0"/>
         <TopLine Value="44"/>
         <CursorPos X="38" Y="71"/>
         <UsageCount Value="10"/>
-        <Loaded Value="True"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit149>
       <Unit150>
         <Filename Value="Common\URLUtils.pas"/>
         <UnitName Value="URLUtils"/>
-        <EditorIndex Value="49"/>
         <WindowIndex Value="0"/>
         <TopLine Value="1"/>
         <CursorPos X="25" Y="9"/>
         <UsageCount Value="10"/>
-        <Loaded Value="True"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit150>
       <Unit151>
         <Filename Value="KM_GUIMenuMain.pas"/>
         <UnitName Value="KM_GUIMenuMain"/>
-        <EditorIndex Value="1"/>
         <WindowIndex Value="0"/>
         <TopLine Value="24"/>
         <CursorPos X="17" Y="48"/>
         <UsageCount Value="10"/>
-        <Loaded Value="True"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit151>
       <Unit152>
         <Filename Value="Common\pascalscript\Source\uPSRuntime.pas"/>
         <UnitName Value="uPSRuntime"/>
-        <EditorIndex Value="3"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="9765"/>
-        <CursorPos X="6" Y="9789"/>
+        <TopLine Value="9764"/>
+        <CursorPos X="11" Y="9770"/>
         <UsageCount Value="10"/>
-        <Loaded Value="True"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit152>
       <Unit153>
         <Filename Value="KM_Minimap.pas"/>
         <UnitName Value="KM_Minimap"/>
-        <EditorIndex Value="14"/>
         <WindowIndex Value="0"/>
         <TopLine Value="258"/>
         <CursorPos X="28" Y="283"/>
         <UsageCount Value="10"/>
-        <Loaded Value="True"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit153>
+      <Unit154>
+        <Filename Value="Common\libZPlay.pas"/>
+        <UnitName Value="libZPlay"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="902"/>
+        <CursorPos X="142" Y="911"/>
+        <UsageCount Value="10"/>
+        <DefaultSyntaxHighlighter Value="Delphi"/>
+      </Unit154>
+      <Unit155>
+        <Filename Value="src\KM_Main.pas"/>
+        <UnitName Value="KM_Main"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="344"/>
+        <CursorPos X="15" Y="366"/>
+        <UsageCount Value="10"/>
+        <DefaultSyntaxHighlighter Value="Delphi"/>
+      </Unit155>
     </Units>
-    <JumpHistory Count="30" HistoryIndex="29">
+    <JumpHistory Count="2" HistoryIndex="1">
       <Position1>
-        <Filename Value="KM_Main.pas"/>
-        <Caret Line="220" Column="43" TopLine="207"/>
+        <Filename Value="KaM_Remake.dpr"/>
+        <Caret Line="221" Column="1" TopLine="182"/>
       </Position1>
       <Position2>
-        <Filename Value="KM_Main.pas"/>
-        <Caret Line="291" Column="46" TopLine="267"/>
+        <Filename Value="KaM_Remake.dpr"/>
+        <Caret Line="221" Column="1" TopLine="182"/>
       </Position2>
-      <Position3>
-        <Filename Value="KM_Main.pas"/>
-        <Caret Line="47" Column="77" TopLine="24"/>
-      </Position3>
-      <Position4>
-        <Filename Value="Common\KromUtils.pas"/>
-        <Caret Line="464" Column="3" TopLine="452"/>
-      </Position4>
-      <Position5>
-        <Filename Value="Common\KromUtils.pas"/>
-        <Caret Line="63" Column="3" TopLine="47"/>
-      </Position5>
-      <Position6>
-        <Filename Value="Common\KromUtils.pas"/>
-        <Caret Line="470" Column="1" TopLine="452"/>
-      </Position6>
-      <Position7>
-        <Filename Value="KM_FormMain.pas"/>
-        <Caret Line="99" Column="25" TopLine="92"/>
-      </Position7>
-      <Position8>
-        <Filename Value="KM_FormMain.pas"/>
-        <Caret Line="168" Column="49" TopLine="131"/>
-      </Position8>
-      <Position9>
-        <Filename Value="KM_FormMain.pas"/>
-        <Caret Line="1" Column="1" TopLine="1"/>
-      </Position9>
-      <Position10>
-        <Filename Value="KM_InterfaceDefaults.pas"/>
-        <Caret Line="192" Column="11" TopLine="184"/>
-      </Position10>
-      <Position11>
-        <Filename Value="KM_InterfaceDefaults.pas"/>
-        <Caret Line="190" Column="19" TopLine="184"/>
-      </Position11>
-      <Position12>
-        <Filename Value="KM_InterfaceDefaults.pas"/>
-        <Caret Line="201" Column="11" TopLine="184"/>
-      </Position12>
-      <Position13>
-        <Filename Value="KM_InterfaceDefaults.pas"/>
-        <Caret Line="217" Column="1" TopLine="184"/>
-      </Position13>
-      <Position14>
-        <Filename Value="KM_InterfaceDefaults.pas"/>
-        <Caret Line="192" Column="1" TopLine="184"/>
-      </Position14>
-      <Position15>
-        <Filename Value="KM_InterfaceMainMenu.pas"/>
-        <Caret Line="78" Column="1" TopLine="67"/>
-      </Position15>
-      <Position16>
-        <Filename Value="KM_GameApp.pas"/>
-        <Caret Line="128" Column="1" TopLine="107"/>
-      </Position16>
-      <Position17>
-        <Filename Value="KM_Main.pas"/>
-        <Caret Line="291" Column="1" TopLine="269"/>
-      </Position17>
-      <Position18>
-        <Filename Value="KM_Main.pas"/>
-        <Caret Line="121" Column="1" TopLine="100"/>
-      </Position18>
-      <Position19>
-        <Filename Value="KaM_Remake.dpr"/>
-        <Caret Line="221" Column="1" TopLine="182"/>
-      </Position19>
-      <Position20>
-        <Filename Value="KM_Main.pas"/>
-        <Caret Line="291" Column="1" TopLine="268"/>
-      </Position20>
-      <Position21>
-        <Filename Value="KM_Main.pas"/>
-        <Caret Line="286" Column="49" TopLine="268"/>
-      </Position21>
-      <Position22>
-        <Filename Value="KM_Main.pas"/>
-        <Caret Line="121" Column="1" TopLine="97"/>
-      </Position22>
-      <Position23>
-        <Filename Value="KaM_Remake.dpr"/>
-        <Caret Line="221" Column="1" TopLine="182"/>
-      </Position23>
-      <Position24>
-        <Filename Value="KM_FormMain.pas"/>
-        <Caret Line="186" Column="18" TopLine="148"/>
-      </Position24>
-      <Position25>
-        <Filename Value="KM_Main.pas"/>
-        <Caret Line="286" Column="1" TopLine="264"/>
-      </Position25>
-      <Position26>
-        <Filename Value="KM_FormMain.pas"/>
-        <Caret Line="542" Column="3" TopLine="539"/>
-      </Position26>
-      <Position27>
-        <Filename Value="KM_FormMain.pas"/>
-        <Caret Line="557" Column="1" TopLine="534"/>
-      </Position27>
-      <Position28>
-        <Filename Value="KM_InterfaceMainMenu.pas"/>
-        <Caret Line="100" Column="1" TopLine="90"/>
-      </Position28>
-      <Position29>
-        <Filename Value="KM_InterfaceMainMenu.pas"/>
-        <Caret Line="1" Column="1" TopLine="1"/>
-      </Position29>
-      <Position30>
-        <Filename Value="KM_FormMain.pas"/>
-        <Caret Line="554" Column="7" TopLine="534"/>
-      </Position30>
     </JumpHistory>
   </ProjectOptions>
   <CompilerOptions>

@@ -164,11 +164,14 @@
 
 
 unit libZPlay;
-
+{$I ..\KaM_Remake.inc}
 interface
 
 uses
-  Windows, SysUtils, Classes, Vcl.Graphics;
+  Windows, SysUtils, Classes
+  {$IFDEF WDC}, VCL.Graphics {$ENDIF}
+  {$IFDEF FPC}, Graphics {$ENDIF}
+  ;
 
 
 type  TSettingID = (
