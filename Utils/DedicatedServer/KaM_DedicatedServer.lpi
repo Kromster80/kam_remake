@@ -10,7 +10,6 @@
       <MainUnit Value="0"/>
       <ResourceType Value="res"/>
       <UseXPManifest Value="True"/>
-      <Icon Value="0"/>
       <ActiveWindowIndexAtStart Value="0"/>
     </General>
     <i18n>
@@ -32,7 +31,12 @@
         <FormatVersion Value="1"/>
       </local>
     </RunParams>
-    <Units Count="7">
+    <RequiredPackages Count="1">
+      <Item1>
+        <PackageName Value="LCL"/>
+      </Item1>
+    </RequiredPackages>
+    <Units Count="21">
       <Unit0>
         <Filename Value="KaM_DedicatedServer.dpr"/>
         <IsPartOfProject Value="True"/>
@@ -41,8 +45,8 @@
         <EditorIndex Value="0"/>
         <WindowIndex Value="0"/>
         <TopLine Value="1"/>
-        <CursorPos X="1" Y="1"/>
-        <UsageCount Value="20"/>
+        <CursorPos X="34" Y="1"/>
+        <UsageCount Value="29"/>
         <Loaded Value="True"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit0>
@@ -52,16 +56,16 @@
         <WindowIndex Value="0"/>
         <TopLine Value="59"/>
         <CursorPos X="15" Y="4"/>
-        <UsageCount Value="10"/>
+        <UsageCount Value="9"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit1>
       <Unit2>
         <Filename Value="..\..\Common\KromUtils.pas"/>
         <UnitName Value="KromUtils"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="69"/>
-        <CursorPos X="39" Y="74"/>
-        <UsageCount Value="10"/>
+        <TopLine Value="253"/>
+        <CursorPos X="26" Y="278"/>
+        <UsageCount Value="14"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit2>
       <Unit3>
@@ -70,7 +74,7 @@
         <WindowIndex Value="0"/>
         <TopLine Value="15"/>
         <CursorPos X="2" Y="30"/>
-        <UsageCount Value="10"/>
+        <UsageCount Value="9"/>
       </Unit3>
       <Unit4>
         <Filename Value="..\..\KM_DedicatedServer.pas"/>
@@ -78,7 +82,7 @@
         <WindowIndex Value="0"/>
         <TopLine Value="1"/>
         <CursorPos X="29" Y="70"/>
-        <UsageCount Value="10"/>
+        <UsageCount Value="9"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit4>
       <Unit5>
@@ -87,7 +91,7 @@
         <WindowIndex Value="0"/>
         <TopLine Value="385"/>
         <CursorPos X="37" Y="400"/>
-        <UsageCount Value="10"/>
+        <UsageCount Value="9"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit5>
       <Unit6>
@@ -96,18 +100,153 @@
         <WindowIndex Value="0"/>
         <TopLine Value="460"/>
         <CursorPos X="51" Y="478"/>
-        <UsageCount Value="10"/>
+        <UsageCount Value="9"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit6>
+      <Unit7>
+        <Filename Value="..\..\src\KM_Utils.pas"/>
+        <UnitName Value="KM_Utils"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="93"/>
+        <CursorPos X="75" Y="103"/>
+        <UsageCount Value="14"/>
+        <DefaultSyntaxHighlighter Value="Delphi"/>
+      </Unit7>
+      <Unit8>
+        <Filename Value="..\..\src\KM_Points.pas"/>
+        <UnitName Value="KM_Points"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="1"/>
+        <CursorPos X="100" Y="2"/>
+        <UsageCount Value="14"/>
+        <DefaultSyntaxHighlighter Value="Delphi"/>
+      </Unit8>
+      <Unit9>
+        <Filename Value="..\..\src\KM_Settings.pas"/>
+        <UnitName Value="KM_Settings"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="10"/>
+        <CursorPos X="126" Y="17"/>
+        <UsageCount Value="14"/>
+        <DefaultSyntaxHighlighter Value="Delphi"/>
+      </Unit9>
+      <Unit10>
+        <Filename Value="..\..\src\KM_DedicatedServer.pas"/>
+        <UnitName Value="KM_DedicatedServer"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="1"/>
+        <CursorPos X="22" Y="5"/>
+        <UsageCount Value="14"/>
+        <DefaultSyntaxHighlighter Value="Delphi"/>
+      </Unit10>
+      <Unit11>
+        <Filename Value="KM_ServerEventHandler.pas"/>
+        <UnitName Value="KM_ServerEventHandler"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="1"/>
+        <CursorPos X="23" Y="5"/>
+        <UsageCount Value="14"/>
+        <DefaultSyntaxHighlighter Value="Delphi"/>
+      </Unit11>
+      <Unit12>
+        <Filename Value="C:\usr\lib64\lazarus\lcl\widgetset\wsimglist.pp"/>
+        <UnitName Value="WSImgList"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="250"/>
+        <CursorPos X="10" Y="266"/>
+        <UsageCount Value="9"/>
+      </Unit12>
+      <Unit13>
+        <Filename Value="..\..\src\KM_Log.pas"/>
+        <UnitName Value="KM_Log"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="61"/>
+        <CursorPos X="121" Y="77"/>
+        <UsageCount Value="14"/>
+        <DefaultSyntaxHighlighter Value="Delphi"/>
+      </Unit13>
+      <Unit14>
+        <Filename Value="..\..\src\KM_CommonClasses.pas"/>
+        <UnitName Value="KM_CommonClasses"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="1"/>
+        <CursorPos X="35" Y="3"/>
+        <UsageCount Value="14"/>
+        <DefaultSyntaxHighlighter Value="Delphi"/>
+      </Unit14>
+      <Unit15>
+        <Filename Value="C:\lazarus\fpc\2.6.0\source\rtl\objpas\sysutils\filutilh.inc"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="74"/>
+        <CursorPos X="10" Y="89"/>
+        <UsageCount Value="9"/>
+      </Unit15>
+      <Unit16>
+        <Filename Value="..\..\src\KM_CommonTypes.pas"/>
+        <UnitName Value="KM_CommonTypes"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="1"/>
+        <CursorPos X="82" Y="2"/>
+        <UsageCount Value="14"/>
+        <DefaultSyntaxHighlighter Value="Delphi"/>
+      </Unit16>
+      <Unit17>
+        <Filename Value="..\..\Common\URLUtils.pas"/>
+        <UnitName Value="URLUtils"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="154"/>
+        <CursorPos X="20" Y="169"/>
+        <UsageCount Value="14"/>
+        <DefaultSyntaxHighlighter Value="Delphi"/>
+      </Unit17>
+      <Unit18>
+        <Filename Value="C:\lazarus\fpc\2.6.2\source\rtl\win\wininc\defines.inc"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="1"/>
+        <CursorPos X="6" Y="83"/>
+        <UsageCount Value="9"/>
+      </Unit18>
+      <Unit19>
+        <Filename Value="C:\lazarus\fpc\2.6.2\source\rtl\win32\classes.pp"/>
+        <UnitName Value="Classes"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="174"/>
+        <CursorPos X="1" Y="1"/>
+        <UsageCount Value="9"/>
+      </Unit19>
+      <Unit20>
+        <Filename Value="C:\lazarus\fpc\2.6.2\source\rtl\objpas\sysutils\filutilh.inc"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="84"/>
+        <CursorPos X="10" Y="114"/>
+        <UsageCount Value="10"/>
+      </Unit20>
     </Units>
-    <JumpHistory Count="0" HistoryIndex="-1"/>
+    <JumpHistory Count="4" HistoryIndex="3">
+      <Position1>
+        <Filename Value="KaM_DedicatedServer.dpr"/>
+        <Caret Line="52" Column="23" TopLine="38"/>
+      </Position1>
+      <Position2>
+        <Filename Value="KaM_DedicatedServer.dpr"/>
+        <Caret Line="21" Column="35" TopLine="10"/>
+      </Position2>
+      <Position3>
+        <Filename Value="KaM_DedicatedServer.dpr"/>
+        <Caret Line="21" Column="35" TopLine="10"/>
+      </Position3>
+      <Position4>
+        <Filename Value="KaM_DedicatedServer.dpr"/>
+        <Caret Line="189" Column="1" TopLine="159"/>
+      </Position4>
+    </JumpHistory>
   </ProjectOptions>
   <CompilerOptions>
-    <Version Value="9"/>
+    <Version Value="11"/>
     <PathDelim Value="\"/>
     <SearchPaths>
-      <IncludeFiles Value="..\..;..\..\Common;..\..\Common\LNet;$(ProjOutDir)"/>
-      <OtherUnitFiles Value="..\..;..\..\Common;..\..\Common\LNet"/>
+      <IncludeFiles Value="..\..;..\..\src;..\..\src\res;..\..\Common;..\..\Common\LNet;$(ProjOutDir)"/>
+      <OtherUnitFiles Value="..\..;..\..\src;..\..\src\res;..\..\Common;..\..\Common\LNet"/>
     </SearchPaths>
     <Parsing>
       <SyntaxOptions>

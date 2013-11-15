@@ -10,7 +10,7 @@ type
   TKMServerEventHandler = class
     constructor Create;
     destructor Destroy; override;
-    procedure ServerStatusMessage(const aData: string);
+    procedure ServerStatusMessage(const aData: UnicodeString);
   end;
 
 
@@ -33,7 +33,7 @@ begin
 end;
 
 
-procedure TKMServerEventHandler.ServerStatusMessage(const aData: string);
+procedure TKMServerEventHandler.ServerStatusMessage(const aData: UnicodeString);
 begin
   Writeln(FormatDateTime('yyyy-mm-dd hh-nn-ss ', Now) + aData);
   gLog.AddTime(aData);

@@ -6,7 +6,7 @@
 unit URLUtils;
 
 interface
-uses SysUtils, KromUtils;
+uses SysUtils;
 
 
   procedure ParseURL(const url : String; var Proto, User, Pass, Host, Port, Path : String);
@@ -17,8 +17,24 @@ implementation
 
 type
     TCharSet = set of AnsiChar;
+    TSetOfAnsiChar = set of AnsiChar;
 const
     UriProtocolSchemeAllowedChars : TCharSet = ['a'..'z','0'..'9','+','-','.'];
+
+
+
+//This unit must not know about KromUtils because it is used by the Linux Dedicated servers
+//and KromUtils is not Linux compatible. Therefore these two functions are copied directly from KromUtils.
+function CharInSet(C: AnsiChar; S: TSetOfAnsiChar): Boolean; overload;
+begin
+  Result := C in S;
+end;
+
+function CharInSet(C: WideChar; S: TSetOfAnsiChar): Boolean; overload;
+begin
+  Result := (Ord(C) <= High(Byte)) and (AnsiChar(C) in S);
+end;
+
 
 
 function UrlEncode(S : String) : String;
@@ -28,7 +44,7 @@ begin
     Result := '';
     for I := 1 to Length(S) do
     begin
-        if KromUtils.CharInSet(S[I], ['0'..'9', 'A'..'Z', 'a'..'z']) then
+        if CharInSet(S[I], ['0'..'9', 'A'..'Z', 'a'..'z']) then
             Result := Result + S[I]
         else
             Result := Result + '%' + IntToHex(Ord(S[I]), 2);
@@ -150,7 +166,7 @@ begin
     if p <> 0 then begin
         S := LowerCase(Copy(url, 1, p - 1));
         for i := 1 to Length(S) do begin
-            if not KromUtils.CharInSet(S[i], UriProtocolSchemeAllowedChars) then begin
+            if not CharInSet(S[i], UriProtocolSchemeAllowedChars) then begin
                 q := i;
                 Break;
             end;
