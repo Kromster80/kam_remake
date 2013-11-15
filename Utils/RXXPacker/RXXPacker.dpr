@@ -7,7 +7,7 @@ uses
   KM_PNG in '..\..\Common\KM_PNG.pas',
   KM_ResSprites in '..\..\src\res\KM_ResSprites.pas',
   KM_ResSpritesEdit in '..\..\src\res\KM_ResSpritesEdit.pas',
-  KM_SoftShadows in '..\..\KM_SoftShadows.pas';
+  KM_SoftShadows in '..\..\src\KM_SoftShadows.pas';
 
 {$IFDEF WDC}
 {$R *.res}

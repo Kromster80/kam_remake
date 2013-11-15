@@ -86,7 +86,7 @@
 			<DCCReference Include="..\..\Common\KM_PNG.pas"/>
 			<DCCReference Include="..\..\src\res\KM_ResSprites.pas"/>
 			<DCCReference Include="..\..\src\res\KM_ResSpritesEdit.pas"/>
-			<DCCReference Include="..\..\KM_SoftShadows.pas"/>
+			<DCCReference Include="..\..\src\KM_SoftShadows.pas"/>
 			<None Include="Profiling\AQtimeModule1.aqt"/>
 			<BuildConfiguration Include="Debug">
 				<Key>Cfg_2</Key>
