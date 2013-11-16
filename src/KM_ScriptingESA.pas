@@ -59,6 +59,7 @@ type
     function GroupMember(aGroupID, aMemberIndex: Integer): Integer;
     function GroupMemberCount(aGroupID: Integer): Integer;
     function GroupOwner(aGroupID: Integer): Integer;
+    function GroupType(aGroupID: Integer): Integer;
 
     function HouseAt(aX, aY: Word): Integer;
     function HouseDamage(aHouseID: Integer): Integer;
@@ -126,12 +127,15 @@ type
     constructor Create(aIDCache: TKMScriptingIdCache);
 
     procedure AIAutoBuild(aPlayer: Byte; aAuto: Boolean);
-    procedure AIAutoDefence(aPlayer: Byte; aAuto: Boolean);    
+    procedure AIAutoDefence(aPlayer: Byte; aAuto: Boolean);
+    procedure AIAutoRepair(aPlayer: Byte; aAuto: Boolean);
     procedure AIBuildersLimit(aPlayer, aLimit: Byte);
+    procedure AIDefencePositionAdd(aPlayer: Byte; X, Y: Integer; aDir, aGroupType: Byte; aRadius: Word; aDefType: Byte);
     procedure AIEquipRate(aPlayer: Byte; aType: Byte; aRate: Word);
     procedure AIRecruitDelay(aPlayer: Byte; aDelay: Cardinal);
     procedure AIRecruitLimit(aPlayer, aLimit: Byte);
     procedure AISerfsFactor(aPlayer, aLimit: Byte);
+    procedure AISoldiersLimit(aPlayer: Byte; aLimit: Integer);
 
     function  GiveAnimal(aType, X,Y: Word): Integer;
     function  GiveGroup(aPlayer, aType, X,Y, aDir, aCount, aColumns: Word): Integer;
@@ -216,8 +220,8 @@ var
 
 implementation
 uses KM_AI, KM_Terrain, KM_Game, KM_FogOfWar, KM_HandsCollection, KM_Units_Warrior,
-  KM_HouseBarracks, KM_HouseSchool, KM_ResUnits, KM_ResWares,
-  KM_Log, KM_Utils, KM_Resource, KM_UnitTaskSelfTrain, KM_Sound, KM_Hand;
+  KM_HouseBarracks, KM_HouseSchool, KM_ResUnits, KM_ResWares, KM_Log, KM_Utils,
+  KM_Resource, KM_UnitTaskSelfTrain, KM_Sound, KM_Hand, KM_AIDefensePos;
 
 
 type
@@ -650,7 +654,7 @@ begin
   else
   begin
     Result := False;
-    Logerror('States.PlayerIsAI', [aPlayer]);
+    LogError('States.PlayerIsAI', [aPlayer]);
   end;
 end;
 
@@ -1013,7 +1017,7 @@ begin
   begin
     H := fIDCache.GetHouse(aHouseID);
     if H <> nil then
-      Result := H.WareDelivery;
+      Result := (not H.WareDelivery);
   end
   else
     LogError('States.HouseDeliveryBlocked', [aHouseID]);
@@ -1321,6 +1325,22 @@ begin
   end
   else
     LogError('States.GroupOwner', [aGroupID]);
+end;
+
+
+function TKMScriptStates.GroupType(aGroupID: Integer): Integer;
+var
+  G: TKMUnitGroup;
+begin
+  Result := -1;
+  if aGroupID > 0 then
+  begin
+    G := fIDCache.GetGroup(aGroupID);
+    if G <> nil then
+      Result := Byte(G.GroupType);
+  end
+  else
+    LogError('States.GroupType', [aGroupID]);
 end;
 
 
@@ -1636,7 +1656,7 @@ begin
   if InRange(aPlayer, 0, gHands.Count - 1) then
     gHands[aPlayer].AI.Setup.AutoBuild := aAuto
   else
-    LogError('Actions.AIAutoBuild', [aPlayer]);
+    LogError('Actions.AIAutoBuild', [aPlayer, Byte(aAuto)]);
 end;
 
 
@@ -1645,7 +1665,16 @@ begin
   if InRange(aPlayer, 0, gHands.Count - 1) then
     gHands[aPlayer].AI.Setup.AutoDefend := aAuto
   else
-    LogError('Actions.AIAutoDefence', [aPlayer]);
+    LogError('Actions.AIAutoDefence', [aPlayer, Byte(aAuto)]);
+end;
+
+
+procedure TKMScriptActions.AIAutoRepair(aPlayer: Byte; aAuto: Boolean);
+begin
+   if InRange(aPlayer, 0, gHands.Count - 1) then
+     gHands[aPlayer].AI.Mayor.AutoRepair := aAuto
+   else
+     LogError('Actions.AIAutoRepair', [aPlayer, Byte(aAuto)]);
 end;
 
 
@@ -1656,6 +1685,19 @@ begin
   else
     LogError('Actions.AIBuildersLimit', [aPlayer, aLimit]);
 end;
+
+
+procedure TKMScriptActions.AIDefencePositionAdd(aPlayer: Byte; X: Integer; Y: Integer; aDir: Byte; aGroupType: Byte; aRadius: Word; aDefType: Byte);
+begin
+  if InRange(aPlayer, 0, gHands.Count - 1)
+  and (TAIDefencePosType(aDefType) in [adt_FrontLine..adt_BackLine])
+  and (TGroupType(aGroupType) in [gt_Melee..gt_Mounted])
+  and (TKMDirection(aDir+1) in [dir_N..dir_NW])
+  and (gTerrain.TileInMapCoords(X, Y)) then
+    gHands[aPlayer].AI.General.DefencePositions.Add(KMPointDir(X, Y, TKMDirection(aDir + 1)), TGroupType(aGroupType), aRadius, TAIDefencePosType(aDefType))
+  else
+    LogError('Actions.AIDefencePositionAdd', [aPlayer, X, Y, aDir, aGroupType, aRadius, aDefType]);
+ end;
 
 
 procedure TKMScriptActions.AIEquipRate(aPlayer: Byte; aType: Byte; aRate: Word);
@@ -1695,6 +1737,16 @@ begin
     gHands[aPlayer].AI.Setup.SerfsPerHouse := aLimit
   else
     LogError('Actions.AISerfsFactor', [aPlayer, aLimit]);
+end;
+
+
+procedure TKMScriptActions.AISoldiersLimit(aPlayer: Byte; aLimit: Integer);
+begin
+  if InRange(aPlayer, 0, gHands.Count - 1)
+  and (aLimit >= -1) then                       //-1 means unlimited; else MaxSoldiers = aLimit
+    gHands[aPlayer].AI.Setup.MaxSoldiers := aLimit
+  else
+    LogError('Actions.AIMaxSoldiers', [aPlayer, aLimit]);
 end;
 
 
@@ -2435,7 +2487,7 @@ begin
   begin
     G := fIDCache.GetGroup(aGroupID);
     G2 := fIDCache.GetGroup(aDestGroupID);
-    if (G <> nil) and (G2 <> nil) then
+    if (G <> nil) and (G2 <> nil) and (G.Owner = G2.Owner) then  //Check group owners to prevent "DNA Modifications" ;D
       G.OrderLinkTo(G2, True);
   end
   else

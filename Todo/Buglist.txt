@@ -15,6 +15,8 @@
  +      Limit save name length (long names can cause crash)
  +      Fixed winefield bug (MapEd did not save grapes objects)
  +      Increased max terrain brush size to 32
+ +  	Scripts should not allow to link players warriors to other players group
+ +      In-house enable/disable ware delivery in script worked in reverse
 	Armour smithy has shields as 2nd ouput, armour workshop has shields as 1st output. Would make sense to match them (note: simply swapping in KM_ResourceHouses causes game logic to be swapped with GUI)
 	Armour smithy has iron as 1st input, weapon smithy has iron as 2nd input (iron/coal swapped). Would make sense to match them (note: simpply swapping in KM_ResourceHouses causes game logic to be swapped with GUI)
 	Deliveries should use the actual walking route length (opposed to Radius)
@@ -41,8 +43,6 @@
 	When citizen walks into a house he should be deselected
 	AIAttacks bug (AI attacks mulfunction after 12min.rar)
 	Player alliance towards self is inconsistent, especially in MP and when accessing from script (should be Ally always!)
-	Scripts allow to link players warriors to other players group
-	In-house enable/disable ware delivery in script works in reverse
 	Make wood to building sites to be delivered first
 
 	Water looks ugly brown when you zoom out too far due to water tiles having brown checkerboard pattern (anti-aliasing won't help)
@@ -93,6 +93,7 @@ Improvements:
 	L	Ability to mark maps as a favourite (gold star) so they appear at the top of the list (find your favourite maps without scrolling through whole list)
 	L	Add an option to give hosting rights to another player in lobby
 	L	Option in the lobby to select starting with a small village, everything up to sawmill (placed automatically by city builder?)
+                        Andreus: What about adding some village planning modes, like in KAM MissionEditor (Nothing, Buildings, Buildings and troops)?
 	L	Rally point for the barracks (with new beacon/flag)
 	L	House not occupied message should mention which house it is ("This farm is not occupied"). Hard to work around plurals and fem/masc forms
 	L	Add script command to allow to add recruits into the Barracks in MapEd (only Barracks for simplicity, other houses dont need it)
@@ -109,6 +110,8 @@ Improvements:
 	L	Message when weaponmaker has complete his order
 	L	Allow to copy opponents nikname into buffer (through players menu > Copy?)
 	L	Save wares distribution ratios between games
+        L       Shortcut key to jump to point where ally has made a beacon
+        L       Allow to customize and save hotkeys settings
 
 	L	MapEd: Allow to toggle trees/objects opacity (make them partially visible) [Marcin]
 	L	MapEd: Allow to toggle AI defence positions display

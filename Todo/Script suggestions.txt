@@ -12,6 +12,10 @@ Implemented:
  5927   States.PlayerIsAI(aPlayer: Byte): Boolean
  5927   Actions.RemoveField(X, Y: Word)
  5927   Actions.RemoveRoad(X, Y: Word)
+ 5932   Actions.AIAutoRepair(aPlayer: Byte; aAuto: Boolean)
+ 5932   Actions.AISoldiersLimit(aPlayer: Byte; aLimit: Integer)
+ 5932   Actions.AIDefensePositionAdd(aPlayer: Byte; X: Integer; Y: Integer; aDir: Byte; aGroupType: Byte; aRadius: Word; aDefType: Byte) 
+ 5932   States.GroupType(aGroupID: Integer) - returns type of certain group (melee, ranged...)
 
 Accepted:
 	Closest house/unit/group to given XY of certain player and type
@@ -34,24 +38,20 @@ Proposed:
 	Removing wares from houses (only if serfs haven't reserved them)
 	DelayedExecution(delay, function, params)
 	Forbiden areas where players can't move their troops
-	GroupKillAll, GroupSetHunder (both can be implemented in script fairly easily, do we still provide them?)
+	GroupKillAll, GroupSetHunger (both can be implemented in script fairly easily, do we still provide them?)
 	Way to add/remove recruits directly from barracks
 	ChangeMapTile
 	States.HousePlanAt(X, Y) - returns aPlanID.
 	More options for on-screen text (background color, alignment, font, size, etc.)
-	Actions.AddDefensePosition, RemDefensePosition
 	States.HouseCanReachResources: boolean (for mines, fisher and woodcutters)
 	HousePlanType(aPlanID), returns the type of the house plan.
 	OnRoadPlanPut(X,Y,Typ) (also with versions for fields and wine)
 	States.GroupAtDefPos(PlayerID, PositionID)
-	Actions.AddDefPos(PlayerID, UnitType, X, Y, facing direction, defence radius, frontline: boolean)
-	Actions.RemDefPos(PlayerID, PositionID)
+	Actions.RemDefensePosition(PlayerID, PositionID)
 	Allow high volume boost for positional script sounds (currently limited to 1.0) since they are much quieter than non-positional sounds
 	Add flag to allow to kill units with death animation, but without sound
 
 	Actions.AI_enable(PlayerID; Enable:Boolean); //Auto-feed, etc
-	Actions.AI_autoRepair(PlayerID; Enable:Boolean); 
-	Actions.AI_maxSoldiers(PlayerID, Threshold:Integer); 
 	Actions.AI_setFormations(PlayerID, MeleeCount, MeleeColumns, AntihorseCount, AntihorseColumns, RangedCount, RangedColumns, MountedCount, MountedColumns); 
 	Actions.AI_startAttack(PlayerID, TargetX, TargetY, ArmyCount, MeleeGroups, AntihorseGroups, RangedGroups, MountedGroups); 
 	States.AI_closestEnemyUnit(PlayerID):Integer; 
@@ -61,8 +61,9 @@ Proposed:
 	States.Path_closestHouse(X, Y):Integer; 
 	OnGroupHungry(aGroupID); 
 	BlockCamera, block player from changing the view/zoom
-	Change player color
+        Change player color
 	Actions.GroupOrderAttackGroup(AttackersGroupID, GroupToAttackID: Integer)
+        States.HouseOccupant(aHouseType: Word) - returns type of unit which works in certan house
 
 
 Rejected:	

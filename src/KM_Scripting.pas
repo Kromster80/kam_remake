@@ -125,6 +125,7 @@ begin
       RegisterMethod('function GroupMemberCount(aGroupID: Integer): Integer');
       RegisterMethod('function GroupColumnCount(aGroupID: Integer): Integer');
       RegisterMethod('function GroupOwner(aGroupID: Integer): Integer');
+      RegisterMethod('function GroupType(aGroupID: Integer): Integer');
 
       RegisterMethod('function HouseAt(aX, aY: Word): Integer');
       RegisterMethod('function HouseDamage(aHouseID: Integer): Integer');
@@ -185,13 +186,16 @@ begin
 
     with Sender.AddClassN(nil, AnsiString(fActions.ClassName)) do
     begin
+      RegisterMethod('procedure AIDefencePositionAdd(aPlayer: Byte; X, Y: Integer; aDir, aGroupType: Byte; aRadius: Word; aDefType: Byte)');
       RegisterMethod('procedure AIAutoBuild(aPlayer: Byte; aAuto: Boolean)');
       RegisterMethod('procedure AIAutoDefence(aPlayer: Byte; aAuto: Boolean)');
+      RegisterMethod('procedure AIAutoRepair(aPlayer: Byte; aAuto: Boolean)');
       RegisterMethod('procedure AIBuildersLimit(aPlayer, aLimit: Byte)');
       RegisterMethod('procedure AIEquipRate(aPlayer: Byte; aType: Byte; aRate: Word)');
       RegisterMethod('procedure AIRecruitDelay(aPlayer, aDelay: Cardinal)');
       RegisterMethod('procedure AIRecruitLimit(aPlayer, aLimit: Byte)');
       RegisterMethod('procedure AISerfsFactor(aPlayer, aLimit: Byte)');
+      RegisterMethod('procedure AISoldiersLimit(aPlayer: Byte; aLimit: Integer)');
 
       RegisterMethod('procedure FogCoverAll(aPlayer: Byte)');
       RegisterMethod('procedure FogCoverCircle(aPlayer, X, Y, aRadius: Word)');
@@ -415,6 +419,7 @@ begin
       RegisterMethod(@TKMScriptStates.GroupColumnCount, 'GROUPCOLUMNCOUNT');
       RegisterMethod(@TKMScriptStates.GroupMemberCount, 'GROUPMEMBERCOUNT');
       RegisterMethod(@TKMScriptStates.GroupOwner,       'GROUPOWNER');
+      RegisterMethod(@TKMScriptStates.GroupType,        'GROUPTYPE');
 
       RegisterMethod(@TKMScriptStates.HouseAt,              'HOUSEAT');
       RegisterMethod(@TKMScriptStates.HouseDamage,          'HOUSEDAMAGE');
@@ -477,11 +482,14 @@ begin
     begin
       RegisterMethod(@TKMScriptActions.AIAutoBuild,       'AIAUTOBUILD');
       RegisterMethod(@TKMScriptActions.AIAutoDefence,     'AIAUTODEFENCE');
+      RegisterMethod(@TKMScriptActions.AIAutoRepair,      'AIAUTOREPAIR');
       RegisterMethod(@TKMScriptActions.AIBuildersLimit,   'AIBUILDERSLIMIT');
+      RegisterMethod(@TKMScriptActions.AIDefencePositionAdd,'AIDEFENCEPOSITIONADD');
       RegisterMethod(@TKMScriptActions.AIEquipRate,       'AIEQUIPRATE');
       RegisterMethod(@TKMScriptActions.AIRecruitDelay,    'AIRECRUITDELAY');
       RegisterMethod(@TKMScriptActions.AIRecruitLimit,    'AIRECRUITLIMIT');
       RegisterMethod(@TKMScriptActions.AISerfsFactor,     'AISERFSFACTOR');
+      RegisterMethod(@TKMScriptActions.AISoldiersLimit,   'AISOLDIERSLIMIT');
 
       RegisterMethod(@TKMScriptActions.FogCoverAll,       'FOGCOVERALL');
       RegisterMethod(@TKMScriptActions.FogCoverCircle,    'FOGCOVERCIRCLE');
