@@ -62,6 +62,7 @@ type
     function GroupType(aGroupID: Integer): Integer;
 
     function HouseAt(aX, aY: Word): Integer;
+    function HouseCanReachResources(aHouseID: Integer): Boolean;
     function HouseDamage(aHouseID: Integer): Integer;
     function HouseDeliveryBlocked(aHouseID: Integer): Boolean;
     function HouseDestroyed(aHouseID: Integer): Boolean;
@@ -132,6 +133,7 @@ type
     procedure AIBuildersLimit(aPlayer, aLimit: Byte);
     procedure AIDefencePositionAdd(aPlayer: Byte; X, Y: Integer; aDir, aGroupType: Byte; aRadius: Word; aDefType: Byte);
     procedure AIEquipRate(aPlayer: Byte; aType: Byte; aRate: Word);
+    procedure AIGroupsFormationSet(aPlayer, aType: Byte; aCount, aColumns: Word);
     procedure AIRecruitDelay(aPlayer: Byte; aDelay: Cardinal);
     procedure AIRecruitLimit(aPlayer, aLimit: Byte);
     procedure AISerfsFactor(aPlayer, aLimit: Byte);
@@ -151,6 +153,8 @@ type
     procedure FogRevealAll(aPlayer: Byte);
     procedure FogRevealCircle(aPlayer, X, Y, aRadius: Word);
 
+    procedure GroupHungerSet(aGroupID, aHungerLevel: Integer);
+    procedure GroupKillAll(aGroupID: Integer; aSilent: Boolean);
     procedure GroupOrderAttackHouse(aGroupID, aHouseID: Integer);
     procedure GroupOrderAttackUnit(aGroupID, aUnitID: Integer);
     procedure GroupOrderFood(aGroupID: Integer);
@@ -190,6 +194,7 @@ type
 
     procedure PlayerAllianceChange(aPlayer1, aPlayer2: Byte; aCompliment, aAllied: Boolean);
     procedure PlayerAddDefaultGoals(aPlayer: Byte; aBuildings: Boolean);
+    procedure PlayerCenterScreenSet(aPlayer: Byte; X, Y: Integer);
     procedure PlayerDefeat(aPlayer: Word);
     procedure PlayerShareFog(aPlayer1, aPlayer2: Word; aShare: Boolean);
     procedure PlayerWareDistribution(aPlayer, aWareType, aHouseType, aAmount: Byte);
@@ -207,6 +212,7 @@ type
     procedure ShowMsgGoto(aPlayer: Shortint; aX, aY: Word; aText: AnsiString);
     procedure ShowMsgGotoFormatted(aPlayer: Shortint; aX, aY: Word; aText: AnsiString; Params: array of const);
 
+    procedure UnitBlock(aPlayer: Byte; aType: Word; aBlock: Boolean);
     function  UnitDirectionSet(aUnitID, aDirection: Integer): Boolean;
     procedure UnitHungerSet(aUnitID, aHungerLevel: Integer);
     procedure UnitKill(aUnitID: Integer; aSilent: Boolean);
@@ -760,6 +766,22 @@ begin
     Result := False;
     LogError('States.PlayerEnabled', [aPlayer]);
   end;
+end;
+
+
+function TKMScriptStates.HouseCanReachResources(aHouseID: Integer): Boolean;
+var
+  H: TKMHouse;
+begin
+  Result := False;
+  if aHouseID > 0 then
+  begin
+    H := fIDCache.GetHouse(aHouseID);
+    if H <> nil then
+      Result := not H.ResourceDepletedMsgIssued;
+  end
+  else
+    LogError('States.HouseCanReachResources', [aHouseID]);
 end;
 
 
@@ -1521,6 +1543,19 @@ begin
 end;
 
 
+procedure TKMScriptActions.PlayerCenterScreenSet(aPlayer: Byte; X: Integer; Y: Integer); //todo: add scrolling block time
+begin
+  if InRange(aPlayer, 0, gHands.Count - 1)
+  and gTerrain.TileInMapCoords(X, Y) then
+  begin
+    gGame.ActiveInterface.Viewport.Position := KMPointF(X, Y);
+    gGame.ActiveInterface.Viewport.Zoom := 1;
+  end
+  else
+    LogError('Actions.PlayerCenterScreenSet', [aPlayer, X, Y]);
+end;
+
+
 procedure TKMScriptActions.PlayWAV(aPlayer: ShortInt; const aFileName: AnsiString; Volume: Single);
 var
   fullFileName: UnicodeString;
@@ -1713,6 +1748,24 @@ begin
 end;
 
 
+procedure TKMScriptActions.AIGroupsFormationSet(aPlayer, aType: Byte; aCount, aColumns: Word);
+var
+  gt: TGroupType;
+begin
+  if InRange(aPlayer, 0, gHands.Count - 1)
+  and InRange(aType, 0, 3)
+  and (aCount > 0) and (aColumns > 0) then
+  begin
+    gt := TGroupType(aType);
+
+    gHands[aPlayer].AI.General.DefencePositions.TroopFormations[gt].NumUnits := aCount;
+    gHands[aPlayer].AI.General.DefencePositions.TroopFormations[gt].UnitsPerRow := aColumns;
+  end
+  else
+    LogError('Actions.AIGroupsFormationSet', [aPlayer, aType, aCount, aColumns]);
+end;
+
+
 procedure TKMScriptActions.AIRecruitDelay(aPlayer: Byte; aDelay: Cardinal);
 begin
   if InRange(aPlayer, 0, gHands.Count - 1) then
@@ -1746,7 +1799,7 @@ begin
   and (aLimit >= -1) then                       //-1 means unlimited; else MaxSoldiers = aLimit
     gHands[aPlayer].AI.Setup.MaxSoldiers := aLimit
   else
-    LogError('Actions.AIMaxSoldiers', [aPlayer, aLimit]);
+    LogError('Actions.AISoldiersLimit', [aPlayer, aLimit]);
 end;
 
 
@@ -2302,6 +2355,16 @@ begin
 end;
 
 
+procedure TKMScriptActions.UnitBlock(aPlayer: Byte; aType: Word; aBlock: Boolean);
+begin
+  if InRange(aPlayer, 0, gHands.Count - 1)
+  and (aType in [Low(UnitIndexToType) .. High(UnitIndexToType)]) then
+    gHands[aPlayer].Stats.UnitBlocked[UnitIndexToType[aType]] := aBlock
+  else
+    LogError('Actions.UnitBlock', [aPlayer, aType, Byte(aBlock)]);
+end;
+
+
 procedure TKMScriptActions.UnitHungerSet(aUnitID, aHungerLevel: Integer);
 var
   U: TKMUnit;
@@ -2378,6 +2441,42 @@ begin
   end
   else
     LogError('Actions.UnitKill', [aUnitID]);
+end;
+
+
+procedure TKMScriptActions.GroupHungerSet(aGroupID, aHungerLevel: Integer);
+var
+  G: TKMUnitGroup;
+  I: Integer;
+begin
+  aHungerLevel := Round(aHungerLevel / CONDITION_PACE);
+  if (aGroupID > 0) and InRange(aHungerLevel, 0, UNIT_MAX_CONDITION) then
+  begin
+    G := fIDCache.GetGroup(aGroupID);
+    if G <> nil then
+      for I := 0 to G.Count - 1 do
+        if (G.Members[I] <> nil) and (not G.Members[I].IsDeadOrDying) then
+          G.Members[I].Condition := aHungerLevel;
+  end
+  else
+    LogError('Actions.GroupHungerSet', [aGroupID, aHungerLevel]);
+end;
+
+
+procedure TKMScriptActions.GroupKillAll(aGroupID: Integer; aSilent: Boolean);
+var
+  G: TKMUnitGroup;
+  I: Integer;
+begin
+  if (aGroupID > 0) then
+  begin
+    G := fIDCache.GetGroup(aGroupID);
+    if G <> nil then
+      for I := G.Count - 1 downto 0 do
+        G.Members[I].KillUnit(PLAYER_NONE, not aSilent, True);
+  end
+  else
+    LogError('Actions.GroupKillAll', [aGroupID]);
 end;
 
 

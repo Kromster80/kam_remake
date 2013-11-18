@@ -16,6 +16,13 @@ Implemented:
  5932   Actions.AISoldiersLimit(aPlayer: Byte; aLimit: Integer)
  5932   Actions.AIDefensePositionAdd(aPlayer: Byte; X: Integer; Y: Integer; aDir: Byte; aGroupType: Byte; aRadius: Word; aDefType: Byte) 
  5932   States.GroupType(aGroupID: Integer) - returns type of certain group (melee, ranged...)
+ 5934   States.HouseCanReachResources(aHouseID: Integer): Boolean
+ 5934   Actions.AIGroupsFormationSet(aPlayer, aType: Byte; aCount, aColumns: Word)
+ 5934   Actions.GroupHungerSet(aGroupID, aHungerLevel: Integer)
+ 5934   Actions.GroupKillAll(aGroupID: Integer; aSilent: Boolean)
+ 5934   Actions.PlayerCenterScreenSet(aPlayer: Byte; X, Y: Integer)
+ 5934   Actions.UnitBlock(aPlayer: Byte; aType: Word; aBlock: Boolean)
+
 
 Accepted:
 	Closest house/unit/group to given XY of certain player and type
@@ -32,18 +39,15 @@ Proposed:
 	Render sprite onto map (from provided RXX file)
 	Render sprite overlaid on the screen like TKMImage (from provided RXX file)
 	Change which player MySpectator is viewing/controlling
-	Center player screen
 	Block player from moving the viewport or selecting anything (cutscene mode)
 	Select unit/house/group in the player's UI
 	Removing wares from houses (only if serfs haven't reserved them)
 	DelayedExecution(delay, function, params)
 	Forbiden areas where players can't move their troops
-	GroupKillAll, GroupSetHunger (both can be implemented in script fairly easily, do we still provide them?)
 	Way to add/remove recruits directly from barracks
 	ChangeMapTile
 	States.HousePlanAt(X, Y) - returns aPlanID.
 	More options for on-screen text (background color, alignment, font, size, etc.)
-	States.HouseCanReachResources: boolean (for mines, fisher and woodcutters)
 	HousePlanType(aPlanID), returns the type of the house plan.
 	OnRoadPlanPut(X,Y,Typ) (also with versions for fields and wine)
 	States.GroupAtDefPos(PlayerID, PositionID)
@@ -52,7 +56,6 @@ Proposed:
 	Add flag to allow to kill units with death animation, but without sound
 
 	Actions.AI_enable(PlayerID; Enable:Boolean); //Auto-feed, etc
-	Actions.AI_setFormations(PlayerID, MeleeCount, MeleeColumns, AntihorseCount, AntihorseColumns, RangedCount, RangedColumns, MountedCount, MountedColumns); 
 	Actions.AI_startAttack(PlayerID, TargetX, TargetY, ArmyCount, MeleeGroups, AntihorseGroups, RangedGroups, MountedGroups); 
 	States.AI_closestEnemyUnit(PlayerID):Integer; 
 	States.AI_closestEnemyHouse(PlayerID):Integer 

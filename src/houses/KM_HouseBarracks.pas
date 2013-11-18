@@ -180,13 +180,14 @@ end;
 
 
 function TKMHouseBarracks.CanEquip(aUnitType: TUnitType): Boolean;
-var I: Integer;
+var
+  I: Integer;
 begin
   Result := RecruitsCount > 0; //Can't equip anything without recruits
 
   for I := 1 to 4 do
   if TroopCost[aUnitType, I] <> wt_None then //Can't equip if we don't have a required resource
-    Result := Result and (fResourceCount[TroopCost[aUnitType, I]] > 0);
+    Result := Result and (fResourceCount[TroopCost[aUnitType, I]] > 0) and (not gHands[MySpectator.HandIndex].Stats.UnitBlocked[aUnitType]);
 end;
 
 

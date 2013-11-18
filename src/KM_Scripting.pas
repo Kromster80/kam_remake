@@ -128,6 +128,7 @@ begin
       RegisterMethod('function GroupType(aGroupID: Integer): Integer');
 
       RegisterMethod('function HouseAt(aX, aY: Word): Integer');
+      RegisterMethod('function HouseCanReachResources(aHouseID: Integer): Boolean)');
       RegisterMethod('function HouseDamage(aHouseID: Integer): Integer');
       RegisterMethod('function HouseDeliveryBlocked(aHouseID: Integer): Boolean');
       RegisterMethod('function HouseDestroyed(aHouseID: Integer): Boolean');
@@ -186,12 +187,13 @@ begin
 
     with Sender.AddClassN(nil, AnsiString(fActions.ClassName)) do
     begin
-      RegisterMethod('procedure AIDefencePositionAdd(aPlayer: Byte; X, Y: Integer; aDir, aGroupType: Byte; aRadius: Word; aDefType: Byte)');
       RegisterMethod('procedure AIAutoBuild(aPlayer: Byte; aAuto: Boolean)');
       RegisterMethod('procedure AIAutoDefence(aPlayer: Byte; aAuto: Boolean)');
       RegisterMethod('procedure AIAutoRepair(aPlayer: Byte; aAuto: Boolean)');
       RegisterMethod('procedure AIBuildersLimit(aPlayer, aLimit: Byte)');
+      RegisterMethod('procedure AIDefencePositionAdd(aPlayer: Byte; X, Y: Integer; aDir, aGroupType: Byte; aRadius: Word; aDefType: Byte)');
       RegisterMethod('procedure AIEquipRate(aPlayer: Byte; aType: Byte; aRate: Word)');
+      RegisterMethod('procedure AIGroupsFormationSet(aPlayer, aType: Byte; aCount, aColumns: Word)');
       RegisterMethod('procedure AIRecruitDelay(aPlayer, aDelay: Cardinal)');
       RegisterMethod('procedure AIRecruitLimit(aPlayer, aLimit: Byte)');
       RegisterMethod('procedure AISerfsFactor(aPlayer, aLimit: Byte)');
@@ -211,6 +213,8 @@ begin
       RegisterMethod('procedure GiveWares(aPlayer, aType, aCount: Word)');
       RegisterMethod('procedure GiveWeapons(aPlayer, aType, aCount: Word)');
 
+      RegisterMethod('procedure GroupHungerSet(aGroupID, aHungerLevel: Integer)');
+      RegisterMethod('procedure GroupKillAll(aGroupID: Integer; aSilent: Boolean)');
       RegisterMethod('procedure GroupOrderAttackHouse(aGroupID, aHouseID: Integer)');
       RegisterMethod('procedure GroupOrderAttackUnit(aGroupID, aUnitID: Integer)');
       RegisterMethod('procedure GroupOrderFood(aGroupID: Integer)');
@@ -250,6 +254,7 @@ begin
 
       RegisterMethod('procedure PlayerAddDefaultGoals(aPlayer: Byte; aBuildings: Boolean)');
       RegisterMethod('procedure PlayerAllianceChange(aPlayer1, aPlayer2: Byte; aCompliment, aAllied: Boolean)');
+      RegisterMethod('procedure PlayerCenterScreenSet(aPlayer: Byte; X, Y: Integer)');
       RegisterMethod('procedure PlayerDefeat(aPlayer: Word)');
       RegisterMethod('procedure PlayerShareFog(aPlayer1, aPlayer2: Word; aShare: Boolean)');
       RegisterMethod('procedure PlayerWareDistribution(aPlayer, aWareType, aHouseType, aAmount: Byte)');
@@ -267,6 +272,7 @@ begin
       RegisterMethod('procedure ShowMsgGoto(aPlayer: Shortint; aX, aY: Word; aText: AnsiString)');
       RegisterMethod('procedure ShowMsgGotoFormatted(aPlayer: Shortint; aX, aY: Word; aText: AnsiString; Params: array of const)');
 
+      RegisterMethod('procedure UnitBlock(aPlayer: Byte; aType: Word; aBlock: Boolean)');
       RegisterMethod('function  UnitDirectionSet(aUnitID, aDirection: Integer): Boolean');
       RegisterMethod('procedure UnitHungerSet(aUnitID, aHungerLevel: Integer)');
       RegisterMethod('procedure UnitKill(aUnitID: Integer; aSilent: Boolean)');
@@ -422,6 +428,7 @@ begin
       RegisterMethod(@TKMScriptStates.GroupType,        'GROUPTYPE');
 
       RegisterMethod(@TKMScriptStates.HouseAt,              'HOUSEAT');
+      RegisterMethod(@TKMScriptStates.HouseCanReachResources,'HOUSECANREACHRESOURCES');
       RegisterMethod(@TKMScriptStates.HouseDamage,          'HOUSEDAMAGE');
       RegisterMethod(@TKMScriptStates.HouseDeliveryBlocked, 'HOUSEDELIVERYBLOCKED');
       RegisterMethod(@TKMScriptStates.HouseDestroyed,       'HOUSEDESTROYED');
@@ -486,6 +493,7 @@ begin
       RegisterMethod(@TKMScriptActions.AIBuildersLimit,   'AIBUILDERSLIMIT');
       RegisterMethod(@TKMScriptActions.AIDefencePositionAdd,'AIDEFENCEPOSITIONADD');
       RegisterMethod(@TKMScriptActions.AIEquipRate,       'AIEQUIPRATE');
+      RegisterMethod(@TKMScriptActions.AIGroupsFormationSet, 'AIGROUPSFORMATIONSET)');
       RegisterMethod(@TKMScriptActions.AIRecruitDelay,    'AIRECRUITDELAY');
       RegisterMethod(@TKMScriptActions.AIRecruitLimit,    'AIRECRUITLIMIT');
       RegisterMethod(@TKMScriptActions.AISerfsFactor,     'AISERFSFACTOR');
@@ -505,6 +513,8 @@ begin
       RegisterMethod(@TKMScriptActions.GiveWares,     'GIVEWARES');
       RegisterMethod(@TKMScriptActions.GiveWeapons,   'GIVEWEAPONS');
 
+      RegisterMethod(@TKMScriptActions.GroupHungerSet,        'GROUPHUNGERSET');
+      RegisterMethod(@TKMScriptActions.GroupKillAll,          'GROUPKILLALL');
       RegisterMethod(@TKMScriptActions.GroupOrderAttackHouse, 'GROUPORDERATTACKHOUSE');
       RegisterMethod(@TKMScriptActions.GroupOrderAttackUnit,  'GROUPORDERATTACKUNIT');
       RegisterMethod(@TKMScriptActions.GroupOrderFood,        'GROUPORDERFOOD');
@@ -544,6 +554,7 @@ begin
 
       RegisterMethod(@TKMScriptActions.PlayerAllianceChange,  'PLAYERALLIANCECHANGE');
       RegisterMethod(@TKMScriptActions.PlayerAddDefaultGoals, 'PLAYERADDDEFAULTGOALS');
+      RegisterMethod(@TKMScriptActions.PlayerCenterScreenSet, 'PLAYERCENTERSCREENSET');
       RegisterMethod(@TKMScriptActions.PlayerDefeat,          'PLAYERDEFEAT');
       RegisterMethod(@TKMScriptActions.PlayerShareFog,        'PLAYERSHAREFOG');
       RegisterMethod(@TKMScriptActions.PlayerWareDistribution,'PLAYERWAREDISTRIBUTION');
@@ -561,6 +572,7 @@ begin
       RegisterMethod(@TKMScriptActions.ShowMsgGoto,     'SHOWMSGGOTO');
       RegisterMethod(@TKMScriptActions.ShowMsgGotoFormatted,'SHOWMSGGOTOFORMATTED');
 
+      RegisterMethod(@TKMScriptActions.UnitBlock,         'UNITBLOCK');
       RegisterMethod(@TKMScriptActions.UnitDirectionSet,  'UNITDIRECTIONSET');
       RegisterMethod(@TKMScriptActions.UnitHungerSet,     'UNITHUNGERSET');
       RegisterMethod(@TKMScriptActions.UnitKill,          'UNITKILL');

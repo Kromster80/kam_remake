@@ -801,8 +801,15 @@ begin
   if fLastBarracksUnit > 0 then
     Image_Barracks_Left.TexID := gResource.UnitDat[Barracks_Order[fLastBarracksUnit-1]].GUIScroll;
 
-  Label_Barracks_Unit.Caption := gResource.UnitDat[Barracks_Order[fLastBarracksUnit]].GUIName;
   Image_Barracks_Train.TexID := gResource.UnitDat[Barracks_Order[fLastBarracksUnit]].GUIScroll;
+  Label_Barracks_Unit.Caption := gResource.UnitDat[Barracks_Order[fLastBarracksUnit]].GUIName;
+
+  Image_Barracks_Train.Enabled := (not gHands[MySpectator.HandIndex].Stats.UnitBlocked[UnitIndexToType[fLastBarracksUnit + 14]]);
+
+  if not gHands[MySpectator.HandIndex].Stats.UnitBlocked[UnitIndexToType[fLastBarracksUnit + 14]] then
+    Button_Barracks_Train.Hint := gResTexts[TX_HOUSE_BARRACKS_TRAIN_HINT]
+  else
+    Button_Barracks_Train.Hint := 'This soldier type is not available';
 
   if fLastBarracksUnit < High(Barracks_Order) then
     Image_Barracks_Right.TexID := gResource.UnitDat[Barracks_Order[fLastBarracksUnit+1]].GUIScroll;
@@ -847,7 +854,7 @@ begin
       Button_School_UnitPlan[I].Hint:='';
     end;
 
-  Button_School_Train.Enabled := not School.QueueIsFull;
+  Button_School_Train.Enabled := (not School.QueueIsFull) and (not gHands[MySpectator.HandIndex].Stats.UnitBlocked[School_Order[fLastSchoolUnit]]);
   Button_School_Left.Enabled := fLastSchoolUnit > 0;
   Button_School_Right.Enabled := fLastSchoolUnit < High(School_Order);
   Image_School_Left.Visible := Button_School_Left.Enabled;
@@ -859,8 +866,15 @@ begin
   Label_School_Unit.Caption := gResource.UnitDat[School_Order[fLastSchoolUnit]].GUIName;
   Image_School_Train.TexID := gResource.UnitDat[School_Order[fLastSchoolUnit]].GUIScroll;
 
+  Image_School_Train.Enabled := (not gHands[MySpectator.HandIndex].Stats.UnitBlocked[School_Order[fLastSchoolUnit]]);
+
+  if not gHands[MySpectator.HandIndex].Stats.UnitBlocked[School_Order[fLastSchoolUnit]] then
+    Button_School_Train.Hint := gResTexts[TX_HOUSE_SCHOOL_TRAIN_HINT]
+  else
+    Button_School_Train.Hint := 'This unit type is not available';
+
   if fLastSchoolUnit < High(School_Order) then
-    Image_School_Right.TexID:=gResource.UnitDat[School_Order[fLastSchoolUnit+1]].GUIScroll;
+    Image_School_Right.TexID := gResource.UnitDat[School_Order[fLastSchoolUnit+1]].GUIScroll;
 end;
 
 

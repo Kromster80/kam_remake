@@ -55,6 +55,7 @@ type
   public
     HouseBlocked: array [THouseType] of Boolean; //Allowance derived from mission script
     HouseGranted: array [THouseType] of Boolean; //Allowance derived from mission script
+    UnitBlocked: array [TUnitType] of Boolean;   //Allowance derived from mission script
 
     AllowToTrade: array [WARE_MIN..WARE_MAX] of Boolean; //Allowance derived from mission script
     constructor Create;
@@ -125,19 +126,20 @@ uses KM_Resource;
 const
   //These have been adjusted slightly from the old KaM defaults.
   //The number means how many items should be in houses input max, and also affects delivery priority.
-  DistributionDefaults: array[1..4,1..4]of byte = (
-    (5,5,0,0),
-    (5,3,4,4),
-    (3,4,0,0),
-    (4,5,3,0)
-    );
+  DistributionDefaults: array [1..4, 1..4] of Byte = (
+    (5, 5, 0, 0),
+    (5, 3, 4, 4),
+    (3, 4, 0, 0),
+    (4, 5, 3, 0)
+  );
 
 
 { TKMHandStats }
 constructor TKMHandStats.Create;
 var
   W: TWareType;
-  I,K: Integer;
+  U: TUnitType;
+  I, K: Integer;
 begin
   inherited;
 
@@ -147,8 +149,8 @@ begin
   //Release Store at the start of the game by default
   fHouseUnlocked[ht_Store] := True;
 
-  for I:=1 to 4 do for K:=1 to 4 do
-    fResourceRatios[I,K] := DistributionDefaults[I,K];
+  for I := 1 to 4 do for K := 1 to 4 do
+    fResourceRatios[I, K] := DistributionDefaults[I, K];
 end;
 
 
@@ -663,6 +665,7 @@ begin
   SaveStream.Write(fResourceRatios, SizeOf(fResourceRatios));
   SaveStream.Write(HouseBlocked, SizeOf(HouseBlocked));
   SaveStream.Write(HouseGranted, SizeOf(HouseGranted));
+  SaveStream.Write(UnitBlocked, SizeOf(UnitBlocked));
   SaveStream.Write(AllowToTrade, SizeOf(AllowToTrade));
   SaveStream.Write(fHouseUnlocked, SizeOf(fHouseUnlocked));
 
@@ -679,7 +682,8 @@ end;
 
 
 procedure TKMHandStats.Load(LoadStream: TKMemoryStream);
-var R: TWareType;
+var
+  I: TWareType;
 begin
   LoadStream.ReadAssert('PlayerStats');
   LoadStream.Read(Houses, SizeOf(Houses));
@@ -688,6 +692,7 @@ begin
   LoadStream.Read(fResourceRatios, SizeOf(fResourceRatios));
   LoadStream.Read(HouseBlocked, SizeOf(HouseBlocked));
   LoadStream.Read(HouseGranted, SizeOf(HouseGranted));
+  LoadStream.Read(UnitBlocked, SizeOf(UnitBlocked));
   LoadStream.Read(AllowToTrade, SizeOf(AllowToTrade));
   LoadStream.Read(fHouseUnlocked, SizeOf(fHouseUnlocked));
 
@@ -701,17 +706,18 @@ begin
     LoadStream.Read(fChartHouses[0], SizeOf(fChartHouses[0]) * fChartCount);
     LoadStream.Read(fChartCitizens[0], SizeOf(fChartCitizens[0]) * fChartCount);
     LoadStream.Read(fChartArmy[0], SizeOf(fChartArmy[0]) * fChartCount);
-    for R := WARE_MIN to WARE_MAX do
+    for I := WARE_MIN to WARE_MAX do
     begin
-      SetLength(fChartWares[R], fChartCount);
-      LoadStream.Read(fChartWares[R][0], SizeOf(fChartWares[R][0]) * fChartCount);
+      SetLength(fChartWares[I], fChartCount);
+      LoadStream.Read(fChartWares[I][0], SizeOf(fChartWares[I][0]) * fChartCount);
     end;
   end;
 end;
 
 
 procedure TKMHandStats.UpdateState;
-var I: TWareType;
+var
+  I: TWareType;
 begin
   if not DISPLAY_CHARTS_RESULT then Exit;
 
