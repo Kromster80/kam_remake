@@ -1546,7 +1546,8 @@ end;
 procedure TKMScriptActions.PlayerCenterScreenSet(aPlayer: Byte; X: Integer; Y: Integer); //todo: add scrolling block time
 begin
   if InRange(aPlayer, 0, gHands.Count - 1)
-  and gTerrain.TileInMapCoords(X, Y) then
+  and gTerrain.TileInMapCoords(X, Y)
+  and (aPlayer = MySpectator.HandIndex) then
   begin
     gGame.ActiveInterface.Viewport.Position := KMPointF(X, Y);
     gGame.ActiveInterface.Viewport.Zoom := 1;
