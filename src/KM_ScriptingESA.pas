@@ -1501,7 +1501,10 @@ begin
   if InRange(aPlayer, 0, gHands.Count - 1) and (W in [wt_Steel, wt_Coal, wt_Wood, wt_Corn])
   and (aHouseType in [Low(HouseIndexToType) .. High(HouseIndexToType)])
   and InRange(aAmount, 0, 5) then
-    gHands[aPlayer].Stats.Ratio[W, HouseIndexToType[aHouseType]] := aAmount
+  begin
+    gHands[aPlayer].Stats.Ratio[W, HouseIndexToType[aHouseType]] := aAmount;
+    gHands[aPlayer].Houses.UpdateResRequest;
+  end
   else
     LogError('Actions.PlayerWareDistribution', [aPlayer, aWareType, aHouseType, aAmount]);
 end;
