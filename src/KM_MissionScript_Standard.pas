@@ -323,6 +323,11 @@ begin
                           if WareIndexToType[P[0]] in [WARE_MIN..WARE_MAX] then
                             gHands[fLastHand].Stats.AllowToTrade[WareIndexToType[P[0]]] := false;
                         end;
+    ct_BlockUnit:       if fLastHand <> PLAYER_NONE then
+                        begin
+                          if UnitIndexToType[P[0]] in [HUMANS_MIN..HUMANS_MAX] then
+                            gHands[fLastHand].Stats.UnitBlocked[UnitIndexToType[P[0]]] := True;
+                        end;
     ct_BlockHouse:      if fLastHand <> PLAYER_NONE then
                         begin
                           if InRange(P[0], Low(HouseIndexToType), High(HouseIndexToType)) then
@@ -555,6 +560,7 @@ var
   HT: THouseType;
   ReleaseAllHouses: Boolean;
   SaveString: AnsiString;
+  UT: TUnitType;
 
   procedure AddData(aText: string);
   begin
@@ -739,6 +745,11 @@ begin
     end;
     if ReleaseAllHouses then
       AddCommand(ct_ReleaseAllHouses, []);
+
+    //Block units
+    for UT := HUMANS_MIN to HUMANS_MAX do
+      if gHands[I].Stats.UnitBlocked[UT] then
+        AddCommand(ct_BlockUnit, [UnitTypeToIndex[UT]]);
 
     //Block trades
     for Res := WARE_MIN to WARE_MAX do

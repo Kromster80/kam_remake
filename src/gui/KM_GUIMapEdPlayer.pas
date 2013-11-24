@@ -6,12 +6,13 @@ uses
    KM_Controls, KM_Defaults, KM_Pics,
    KM_GUIMapEdPlayerBlockHouse,
    KM_GUIMapEdPlayerBlockTrade,
+   KM_GUIMapEdPlayerBlockUnit,
    KM_GUIMapEdPlayerColors,
    KM_GUIMapEdPlayerGoals,
    KM_GUIMapEdPlayerView;
 
 type
-  TKMPlayerTab = (ptGoals, ptColor, ptBlockHouse, ptBlockTrade, ptView);
+  TKMPlayerTab = (ptGoals, ptColor, ptBlockHouse, ptBlockTrade, ptBlockUnit, ptView);
 
   TKMMapEdPlayer = class
   private
@@ -19,6 +20,7 @@ type
 
     fGuiPlayerBlockHouse: TKMMapEdPlayerBlockHouse;
     fGuiPlayerBlockTrade: TKMMapEdPlayerBlockTrade;
+    fGuiPlayerBlockUnit: TKMMapEdPlayerBlockUnit;
     fGuiPlayerColors: TKMMapEdPlayerColors;
     fGuiPlayerView: TKMMapEdPlayerView;
 
@@ -48,13 +50,14 @@ uses
 { TKMMapEdPlayer }
 constructor TKMMapEdPlayer.Create(aParent: TKMPanel; aOnPageChange: TNotifyEvent);
 const
-  TabGlyph: array [TKMPlayerTab] of Word    = (8,         1159,     38,    327,   393);
-  TabRXX  : array [TKMPlayerTab] of TRXType = (rxGuiMain, rxHouses, rxGui, rxGui, rxGui);
+  TabGlyph: array [TKMPlayerTab] of Word    = (8,         1159,     38,    327,   141,   393);
+  TabRXX  : array [TKMPlayerTab] of TRXType = (rxGuiMain, rxHouses, rxGui, rxGui, rxGui, rxGui);
   TabHint : array [TKMPlayerTab] of Word = (
     TX_MAPED_GOALS,
     TX_MAPED_PLAYER_COLORS,
     TX_MAPED_BLOCK_HOUSES,
     TX_MAPED_BLOCK_TRADE,
+    TX_MAPED_UNITS,
     TX_MAPED_FOG);
 var
   PT: TKMPlayerTab;
@@ -76,6 +79,7 @@ begin
   fGuiPlayerColors := TKMMapEdPlayerColors.Create(Panel_Player);
   fGuiPlayerBlockHouse := TKMMapEdPlayerBlockHouse.Create(Panel_Player);
   fGuiPlayerBlockTrade := TKMMapEdPlayerBlockTrade.Create(Panel_Player);
+  fGuiPlayerBlockUnit := TKMMapEdPlayerBlockUnit.Create(Panel_Player);
   fGuiPlayerView := TKMMapEdPlayerView.Create(Panel_Player);
 end;
 
@@ -86,6 +90,7 @@ begin
   fGuiPlayerColors.Free;
   fGuiPlayerBlockHouse.Free;
   fGuiPlayerBlockTrade.Free;
+  fGuiPlayerBlockUnit.Free;
   fGuiPlayerView.Free;
 
   inherited;
@@ -103,6 +108,7 @@ begin
   fGuiPlayerColors.Hide;
   fGuiPlayerBlockHouse.Hide;
   fGuiPlayerBlockTrade.Hide;
+  fGuiPlayerBlockUnit.Hide;
   fGuiPlayerView.Hide;
 
   if (Sender = Button_Player[ptGoals]) then
@@ -116,6 +122,9 @@ begin
   else
   if (Sender = Button_Player[ptBlockTrade]) then
     fGuiPlayerBlockTrade.Show
+  else
+  if (Sender = Button_Player[ptBlockUnit]) then
+    fGuiPlayerBlockUnit.Show
   else
   if (Sender = Button_Player[ptView]) then
     fGuiPlayerView.Show;
@@ -132,6 +141,7 @@ begin
     ptColor:      fGuiPlayerColors.Show;
     ptBlockHouse: fGuiPlayerBlockHouse.Show;
     ptBlockTrade: fGuiPlayerBlockTrade.Show;
+    ptBlockUnit:  fGuiPlayerBlockUnit.Show;
     ptView:       fGuiPlayerView.Show;
   end;
 end;
@@ -150,6 +160,7 @@ begin
     ptColor:      Result := fGuiPlayerColors.Visible;
     ptBlockHouse: Result := fGuiPlayerBlockHouse.Visible;
     ptBlockTrade: Result := fGuiPlayerBlockTrade.Visible;
+    ptBlockUnit:  Result := fGuiPlayerBlockUnit.Visible;
     ptView:       Result := fGuiPlayerView.Visible;
     else          Result := False;
   end;
@@ -161,6 +172,7 @@ begin
   if fGuiPlayerGoals.Visible then fGuiPlayerGoals.Show;
   if fGuiPlayerBlockHouse.Visible then fGuiPlayerBlockHouse.Show;
   if fGuiPlayerBlockTrade.Visible then fGuiPlayerBlockTrade.Show;
+  if fGuiPlayerBlockUnit.Visible then fGuiPlayerBlockUnit.Show;
   if fGuiPlayerView.Visible then fGuiPlayerView.Show;
 
   UpdatePlayerColor;

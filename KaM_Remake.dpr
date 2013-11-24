@@ -69,6 +69,7 @@ uses
   KM_GUIMapEdPlayer in 'src\gui\KM_GUIMapEdPlayer.pas',
   KM_GUIMapEdPlayerBlockHouse in 'src\gui\KM_GUIMapEdPlayerBlockHouse.pas',
   KM_GUIMapEdPlayerBlockTrade in 'src\gui\KM_GUIMapEdPlayerBlockTrade.pas',
+  KM_GUIMapEdPlayerBlockUnit in 'src\gui\KM_GUIMapEdPlayerBlockUnit.pas',
   KM_GUIMapEdPlayerColors in 'src\gui\KM_GUIMapEdPlayerColors.pas',
   KM_GUIMapEdPlayerGoals in 'src\gui\KM_GUIMapEdPlayerGoals.pas',
   KM_GUIMapEdPlayerView in 'src\gui\KM_GUIMapEdPlayerView.pas',

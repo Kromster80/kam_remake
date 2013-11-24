@@ -45,7 +45,7 @@ begin
     Button_BlockTrade[I].Hint := gResource.Wares[StoreResType[I]].Title;
     Button_BlockTrade[I].OnClick := Player_BlockTradeClick;
     Button_BlockTrade[I].Tag := I;
-    Image_BlockTrade[I] := TKMImage.Create(Panel_BlockTrade, ((I-1) mod 5)*37 + 13, 30 + ((I-1) div 5)*37 + 13, 16, 16, 0, rxGuiMain);
+    Image_BlockTrade[I] := TKMImage.Create(Panel_BlockTrade, ((I-1) mod 5)*37 + 15, 30 + ((I-1) div 5)*37 + 15, 16, 16, 0, rxGuiMain);
     Image_BlockTrade[I].Hitable := False;
     Image_BlockTrade[I].ImageCenter;
   end;

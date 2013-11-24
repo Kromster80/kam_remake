@@ -45,7 +45,7 @@ begin
     Button_BlockHouse[I].Hint := gResource.HouseDat[GUIHouseOrder[I]].HouseName;
     Button_BlockHouse[I].OnClick := Player_BlockHouseClick;
     Button_BlockHouse[I].Tag := I;
-    Image_BlockHouse[I] := TKMImage.Create(Panel_BlockHouse, ((I-1) mod 5)*37 + 13, 30 + ((I-1) div 5)*37 + 13, 16, 16, 0, rxGuiMain);
+    Image_BlockHouse[I] := TKMImage.Create(Panel_BlockHouse, ((I-1) mod 5)*37 + 15, 30 + ((I-1) div 5)*37 + 15, 16, 16, 0, rxGuiMain);
     Image_BlockHouse[I].Hitable := False;
     Image_BlockHouse[I].ImageCenter;
   end;
