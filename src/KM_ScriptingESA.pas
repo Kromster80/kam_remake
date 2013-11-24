@@ -142,7 +142,6 @@ type
     procedure CinematicStart(aPlayer: Byte);
     procedure CinematicEnd(aPlayer: Byte);
     procedure CinematicPanTo(aPlayer: Byte; X, Y, Duration: Word);
-    procedure CinematicJumpTo(aPlayer: Byte; X, Y: Word);
 
     function  GiveAnimal(aType, X,Y: Word): Integer;
     function  GiveGroup(aPlayer, aType, X,Y, aDir, aCount, aColumns: Word): Integer;
@@ -1470,20 +1469,6 @@ begin
 end;
 
 
-procedure TKMScriptActions.CinematicJumpTo(aPlayer: Byte; X, Y: Word);
-begin
-  if InRange(aPlayer, 0, gHands.Count - 1)
-  and gTerrain.TileInMapCoords(X, Y)
-  and gHands[aPlayer].InCinematic then
-  begin
-    if aPlayer = MySpectator.HandIndex then
-      gGame.GamePlayInterface.Viewport.Position := KMPointF(X, Y);
-  end
-  else
-    LogError('Actions.CinematicJumpTo', [aPlayer, X, Y]);
-end;
-
-
 procedure TKMScriptActions.CinematicPanTo(aPlayer: Byte; X, Y, Duration: Word);
 begin
   if InRange(aPlayer, 0, gHands.Count - 1)
@@ -1491,8 +1476,13 @@ begin
   and gHands[aPlayer].InCinematic then
   begin
     if aPlayer = MySpectator.HandIndex then
-      //Duration is in ticks (1/10 sec), viewport wants miliseconds (1/1000 sec)
-      gGame.GamePlayInterface.Viewport.PanTo(KMPointF(X, Y), Duration*100);
+    begin
+      if Duration = 0 then
+        gGame.GamePlayInterface.Viewport.Position := KMPointF(X, Y)
+      else
+        //Duration is in ticks (1/10 sec), viewport wants miliseconds (1/1000 sec)
+        gGame.GamePlayInterface.Viewport.PanTo(KMPointF(X, Y), Duration*100);
+    end;
   end
   else
     LogError('Actions.CinematicPanTo', [aPlayer, X, Y, Duration]);

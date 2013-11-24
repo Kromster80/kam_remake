@@ -202,7 +202,6 @@ begin
       RegisterMethod('procedure CinematicStart(aPlayer: Byte)');
       RegisterMethod('procedure CinematicEnd(aPlayer: Byte)');
       RegisterMethod('procedure CinematicPanTo(aPlayer: Byte; X, Y, Duration: Word)');
-      RegisterMethod('procedure CinematicJumpTo(aPlayer: Byte; X, Y: Word)');
 
       RegisterMethod('procedure FogCoverAll(aPlayer: Byte)');
       RegisterMethod('procedure FogCoverCircle(aPlayer, X, Y, aRadius: Word)');
@@ -506,7 +505,6 @@ begin
       RegisterMethod(@TKMScriptActions.CinematicStart,    'CINEMATICSTART');
       RegisterMethod(@TKMScriptActions.CinematicEnd,      'CINEMATICEND');
       RegisterMethod(@TKMScriptActions.CinematicPanTo,    'CINEMATICPANTO');
-      RegisterMethod(@TKMScriptActions.CinematicJumpTo,   'CINEMATICJUMPTO');
 
       RegisterMethod(@TKMScriptActions.FogCoverAll,       'FOGCOVERALL');
       RegisterMethod(@TKMScriptActions.FogCoverCircle,    'FOGCOVERCIRCLE');
