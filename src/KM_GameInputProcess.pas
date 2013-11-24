@@ -90,6 +90,7 @@ const
     gic_ArmyAttackUnit, gic_ArmyAttackHouse, gic_ArmyHalt, gic_ArmyFormation,
     gic_ArmyWalk, gic_ArmyStorm, gic_HouseBarracksEquip];
   AllowedAfterDefeat: set of TGameInputCommandType = [gic_GameAlertBeacon, gic_GameSave, gic_TempDoNothing];
+  AllowedInCinematic: set of TGameInputCommandType = [gic_GameAlertBeacon, gic_GameSave, gic_TempDoNothing];
 
 type
   TGameInputCommand = record
@@ -309,6 +310,10 @@ begin
 
     //No commands allowed after a player has lost (this is a fall back in case players try to cheat)
     if not (aCommand.CommandType in AllowedAfterDefeat) and gGame.IsMultiplayer and (P.AI.WonOrLost = wol_Lost) then
+      Exit;
+
+    //Most commands blocked during cinematic (this is a fall back in case players try to cheat)
+    if not (aCommand.CommandType in AllowedInCinematic) and (P.InCinematic) then
       Exit;
 
     case CommandType of

@@ -17,6 +17,8 @@ type
     fViewportClip: TPoint;
     fViewRect: TKMRect;
     fZoom: Single;
+    fPanTo, fPanFrom: TKMPointF;
+    fPanDuration, fPanProgress: Cardinal;
     function GetPosition: TKMPointF;
     procedure SetPosition(Value: TKMPointF);
     procedure SetZoom(aZoom: Single);
@@ -37,11 +39,12 @@ type
     function GetMinimapClip: TKMRect;
     procedure ReleaseScrollKeys;
     function MapToScreen(aMapLoc: TKMPointF): TKMPointI;
+    procedure PanTo(aLoc: TKMPointF; aDuration: Cardinal);
 
     procedure Save(SaveStream: TKMemoryStream);
     procedure Load(LoadStream: TKMemoryStream);
 
-    procedure UpdateStateIdle(aFrameTime: Cardinal);
+    procedure UpdateStateIdle(aFrameTime: Cardinal; aInCinematic: Boolean);
   end;
 
 
@@ -162,9 +165,18 @@ begin
 end;
 
 
+procedure TViewport.PanTo(aLoc: TKMPointF; aDuration: Cardinal);
+begin
+  fPanTo := aLoc;
+  fPanFrom := fPosition;
+  fPanDuration := aDuration;
+  fPanProgress := 0;
+end;
+
+
 //Here we must test each edge to see if we need to scroll in that direction
 //We scroll at SCROLLSPEED per 100 ms. That constant is defined in KM_Defaults
-procedure TViewport.UpdateStateIdle(aFrameTime: Cardinal);
+procedure TViewport.UpdateStateIdle(aFrameTime: Cardinal; aInCinematic: Boolean);
 const
   DirectionsBitfield: array [0..15] of TKMCursor = (
     kmc_Default, kmc_Scroll6, kmc_Scroll0, kmc_Scroll7,
@@ -178,6 +190,23 @@ var
   I: Byte;
   MousePos: TPoint;
 begin
+  //Cinematics do not allow normal scrolling. The camera will be set and panned with script commands
+  if aInCinematic then
+  begin
+    if fPanDuration <> 0 then
+    begin
+      Inc(fPanProgress, aFrameTime);
+      if fPanProgress > fPanDuration then
+      begin
+        SetPosition(fPanTo); //Pan ended
+        fPanDuration := 0; //Not panning
+      end
+      else
+        SetPosition(KMLerp(fPanFrom, fPanTo, fPanProgress / fPanDuration));
+    end;
+    Exit;
+  end;
+
   {$IFDEF MSWindows}
     //Don't use Mouse.CursorPos, it will throw an EOSError (code 5: access denied) in some cases when
     //the OS doesn't want us controling the mouse, or possibly when the mouse is reset in some way.

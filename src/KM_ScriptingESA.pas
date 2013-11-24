@@ -139,6 +139,11 @@ type
     procedure AISerfsFactor(aPlayer, aLimit: Byte);
     procedure AISoldiersLimit(aPlayer: Byte; aLimit: Integer);
 
+    procedure CinematicStart(aPlayer: Byte);
+    procedure CinematicEnd(aPlayer: Byte);
+    procedure CinematicPanTo(aPlayer: Byte; X, Y, Duration: Word);
+    procedure CinematicJumpTo(aPlayer: Byte; X, Y: Word);
+
     function  GiveAnimal(aType, X,Y: Word): Integer;
     function  GiveGroup(aPlayer, aType, X,Y, aDir, aCount, aColumns: Word): Integer;
     function  GiveHouse(aPlayer, aHouseType, X,Y: Integer): Integer;
@@ -194,7 +199,6 @@ type
 
     procedure PlayerAllianceChange(aPlayer1, aPlayer2: Byte; aCompliment, aAllied: Boolean);
     procedure PlayerAddDefaultGoals(aPlayer: Byte; aBuildings: Boolean);
-    procedure PlayerCenterScreenSet(aPlayer: Byte; X, Y: Integer);
     procedure PlayerDefeat(aPlayer: Word);
     procedure PlayerShareFog(aPlayer1, aPlayer2: Word; aShare: Boolean);
     procedure PlayerWareDistribution(aPlayer, aWareType, aHouseType, aAmount: Byte);
@@ -1442,6 +1446,59 @@ begin
 end;
 
 
+procedure TKMScriptActions.CinematicStart(aPlayer: Byte);
+begin
+  if InRange(aPlayer, 0, gHands.Count - 1) then
+  begin
+    gHands[aPlayer].InCinematic := True;
+    gGame.GamePlayInterface.CinematicUpdate;
+  end
+  else
+    LogError('Actions.CinematicStart', [aPlayer]);
+end;
+
+
+procedure TKMScriptActions.CinematicEnd(aPlayer: Byte);
+begin
+  if InRange(aPlayer, 0, gHands.Count - 1) then
+  begin
+    gHands[aPlayer].InCinematic := False;
+    gGame.GamePlayInterface.CinematicUpdate;
+  end
+  else
+    LogError('Actions.CinematicEnd', [aPlayer]);
+end;
+
+
+procedure TKMScriptActions.CinematicJumpTo(aPlayer: Byte; X, Y: Word);
+begin
+  if InRange(aPlayer, 0, gHands.Count - 1)
+  and gTerrain.TileInMapCoords(X, Y)
+  and gHands[aPlayer].InCinematic then
+  begin
+    if aPlayer = MySpectator.HandIndex then
+      gGame.GamePlayInterface.Viewport.Position := KMPointF(X, Y);
+  end
+  else
+    LogError('Actions.CinematicJumpTo', [aPlayer, X, Y]);
+end;
+
+
+procedure TKMScriptActions.CinematicPanTo(aPlayer: Byte; X, Y, Duration: Word);
+begin
+  if InRange(aPlayer, 0, gHands.Count - 1)
+  and gTerrain.TileInMapCoords(X, Y)
+  and gHands[aPlayer].InCinematic then
+  begin
+    if aPlayer = MySpectator.HandIndex then
+      //Duration is in ticks (1/10 sec), viewport wants miliseconds (1/1000 sec)
+      gGame.GamePlayInterface.Viewport.PanTo(KMPointF(X, Y), Duration*100);
+  end
+  else
+    LogError('Actions.CinematicPanTo', [aPlayer, X, Y, Duration]);
+end;
+
+
 procedure TKMScriptActions.PlayerDefeat(aPlayer: Word);
 begin
   //Verify all input parameters
@@ -1543,20 +1600,6 @@ begin
   end
   else
     LogError('Actions.PlayerAddDefaultGoals', [aPlayer, Byte(aBuildings)]);
-end;
-
-
-procedure TKMScriptActions.PlayerCenterScreenSet(aPlayer: Byte; X: Integer; Y: Integer); //todo: add scrolling block time
-begin
-  if InRange(aPlayer, 0, gHands.Count - 1)
-  and gTerrain.TileInMapCoords(X, Y)
-  and (aPlayer = MySpectator.HandIndex) then
-  begin
-    gGame.ActiveInterface.Viewport.Position := KMPointF(X, Y);
-    gGame.ActiveInterface.Viewport.Zoom := 1;
-  end
-  else
-    LogError('Actions.PlayerCenterScreenSet', [aPlayer, X, Y]);
 end;
 
 

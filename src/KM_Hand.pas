@@ -69,6 +69,7 @@ type
     procedure WarriorWalkedOut(aUnit: TKMUnitWarrior);
   public
     Enabled: Boolean;
+    InCinematic: Boolean;
 
     constructor Create(aHandIndex: THandIndex);
     destructor Destroy; override;
@@ -1096,6 +1097,7 @@ end;
 procedure TKMHand.Save(SaveStream: TKMemoryStream);
 begin
   SaveStream.Write(Enabled);
+  SaveStream.Write(InCinematic);
   if not Enabled then Exit;
 
   inherited;
@@ -1120,6 +1122,7 @@ end;
 procedure TKMHand.Load(LoadStream: TKMemoryStream);
 begin
   LoadStream.Read(Enabled);
+  LoadStream.Read(InCinematic);
   if not Enabled then Exit;
 
   inherited;

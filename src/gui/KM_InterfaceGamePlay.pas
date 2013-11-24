@@ -276,6 +276,7 @@ type
     procedure AlliesOnPlayerSetup(Sender: TObject);
     procedure AlliesOnPingInfo(Sender: TObject);
     procedure AlliesTeamChange(Sender: TObject);
+    procedure CinematicUpdate;
 
     property Alerts: TKMAlerts read fAlerts;
 
@@ -613,6 +614,9 @@ end;
 //Update viewport position when user interacts with minimap
 procedure TKMGamePlayInterface.Minimap_Update(Sender: TObject; const X,Y: Integer);
 begin
+  if gHands[MySpectator.HandIndex].InCinematic then
+    Exit;
+
   fViewport.Position := KMPointF(X,Y);
 end;
 
@@ -1327,6 +1331,29 @@ begin
 end;
 
 
+procedure TKMGamePlayInterface.CinematicUpdate;
+begin
+  if gHands[MySpectator.HandIndex].InCinematic then
+  begin
+    MySpectator.Selected := nil;
+    //Close panels unless it is an allowed menu
+    if not Panel_Menu.Visible and not Panel_Load.Visible and not Panel_Save.Visible
+    and not Panel_Settings.Visible and not Panel_Quit.Visible and not fGuiGameStats.Visible then
+      SwitchPage(nil);
+
+    fDragScrolling := False;
+    fJoiningGroups := False;
+    ReleaseDirectionSelector;
+    gResource.Cursors.Cursor := kmc_Default; //Might have been scrolling or joining groups
+    SetMenuState(gGame.MissionMode = mm_Tactic); //Disabled main buttons
+  end
+  else
+  begin
+    SetMenuState(gGame.MissionMode = mm_Tactic); //Enable main buttons
+  end;
+end;
+
+
 procedure TKMGamePlayInterface.Allies_Click(Sender: TObject);
 begin
   if Panel_Allies.Visible then
@@ -1935,8 +1962,8 @@ procedure TKMGamePlayInterface.SetMenuState(aTactic: Boolean);
 var
   I: Integer;
 begin
-  Button_Main[tbBuild].Enabled := not aTactic and not fReplay and not HasLostMPGame;
-  Button_Main[tbRatio].Enabled := not aTactic and not fReplay and not HasLostMPGame;
+  Button_Main[tbBuild].Enabled := not aTactic and not fReplay and not HasLostMPGame and not gHands[MySpectator.HandIndex].InCinematic;
+  Button_Main[tbRatio].Enabled := not aTactic and not fReplay and not HasLostMPGame and not gHands[MySpectator.HandIndex].InCinematic;
   Button_Main[tbStats].Enabled := not aTactic;
 
   //No loading during multiplayer games
@@ -2233,6 +2260,9 @@ end;
 procedure TKMGamePlayInterface.Selection_Select(aKey: Word);
 var Key: Integer; OldSelected: TObject;
 begin
+  if gHands[MySpectator.HandIndex].InCinematic then
+    Exit;
+
   Key := aKey - Ord('0');
   if not InRange(Key, 0, 9) then Exit;
 
@@ -2539,7 +2569,8 @@ var
 begin
   fMyControls.MouseDown(X, Y, Shift, Button);
 
-  if (gGame.IsPaused and not fReplay) or (fMyControls.CtrlOver <> nil) then
+  if (gGame.IsPaused and not fReplay) or (fMyControls.CtrlOver <> nil)
+  or gHands[MySpectator.HandIndex].InCinematic then
     Exit;
 
   if (Button = mbMiddle) then
@@ -2745,16 +2776,18 @@ begin
     Exit;
   end;
 
-  //Only own units can be selected
-  if ((Obj is TKMUnit) and (TKMUnit(Obj).Owner = MySpectator.HandIndex))
-  or ((Obj is TKMHouse) and (TKMHouse(Obj).Owner = MySpectator.HandIndex)) then
-  begin
-    gResource.Cursors.Cursor := kmc_Info;
-    Exit;
-  end;
+  if not gHands[MySpectator.HandIndex].InCinematic then
+    //Only own units can be selected
+    if ((Obj is TKMUnit) and (TKMUnit(Obj).Owner = MySpectator.HandIndex))
+    or ((Obj is TKMHouse) and (TKMHouse(Obj).Owner = MySpectator.HandIndex)) then
+    begin
+      gResource.Cursors.Cursor := kmc_Info;
+      Exit;
+    end;
 
   if (MySpectator.Selected is TKMUnitGroup)
   and not fReplay and not HasLostMPGame
+  and not gHands[MySpectator.HandIndex].InCinematic
   and (MySpectator.FogOfWar.CheckTileRevelation(GameCursor.Cell.X, GameCursor.Cell.Y) > 0) then
   begin
     if ((Obj is TKMUnit) and (gHands[MySpectator.HandIndex].Alliances[TKMUnit(Obj).Owner] = at_Enemy))
@@ -2861,7 +2894,9 @@ begin
                 if OldSelected is TKMUnitGroup then
                   OldSelectedUnit := TKMUnitGroup(MySpectator.Selected).SelectedUnit;
 
-                MySpectator.UpdateSelect;
+                //Don't allow selecting during a cinematic
+                if not gHands[MySpectator.HandIndex].InCinematic then
+                  MySpectator.UpdateSelect;
 
                 //In a replay we want in-game statistics (and other things) to be shown for the owner of the last select object
                 if fReplay then
@@ -3164,7 +3199,7 @@ end;
 procedure TKMGamePlayInterface.UpdateStateIdle(aFrameTime: Cardinal);
 begin
   //Check to see if we need to scroll
-  fViewport.UpdateStateIdle(aFrameTime);
+  fViewport.UpdateStateIdle(aFrameTime, gHands[MySpectator.HandIndex].InCinematic);
 end;
 
 

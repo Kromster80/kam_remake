@@ -327,7 +327,7 @@ end;
 procedure TKMapEdInterface.UpdateStateIdle(aFrameTime: Cardinal);
 begin
   //Check to see if we need to scroll
-  fViewport.UpdateStateIdle(aFrameTime);
+  fViewport.UpdateStateIdle(aFrameTime, False);
 end;
 
 

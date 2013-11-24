@@ -199,6 +199,11 @@ begin
       RegisterMethod('procedure AISerfsFactor(aPlayer, aLimit: Byte)');
       RegisterMethod('procedure AISoldiersLimit(aPlayer: Byte; aLimit: Integer)');
 
+      RegisterMethod('procedure CinematicStart(aPlayer: Byte)');
+      RegisterMethod('procedure CinematicEnd(aPlayer: Byte)');
+      RegisterMethod('procedure CinematicPanTo(aPlayer: Byte; X, Y, Duration: Word)');
+      RegisterMethod('procedure CinematicJumpTo(aPlayer: Byte; X, Y: Word)');
+
       RegisterMethod('procedure FogCoverAll(aPlayer: Byte)');
       RegisterMethod('procedure FogCoverCircle(aPlayer, X, Y, aRadius: Word)');
       RegisterMethod('procedure FogCoverRect(aPlayer, X1, Y1, X2, Y2: Word)');
@@ -254,7 +259,6 @@ begin
 
       RegisterMethod('procedure PlayerAddDefaultGoals(aPlayer: Byte; aBuildings: Boolean)');
       RegisterMethod('procedure PlayerAllianceChange(aPlayer1, aPlayer2: Byte; aCompliment, aAllied: Boolean)');
-      RegisterMethod('procedure PlayerCenterScreenSet(aPlayer: Byte; X, Y: Integer)');
       RegisterMethod('procedure PlayerDefeat(aPlayer: Word)');
       RegisterMethod('procedure PlayerShareFog(aPlayer1, aPlayer2: Word; aShare: Boolean)');
       RegisterMethod('procedure PlayerWareDistribution(aPlayer, aWareType, aHouseType, aAmount: Byte)');
@@ -487,17 +491,22 @@ begin
 
     with ClassImp.Add(TKMScriptActions) do
     begin
-      RegisterMethod(@TKMScriptActions.AIAutoBuild,       'AIAUTOBUILD');
-      RegisterMethod(@TKMScriptActions.AIAutoDefence,     'AIAUTODEFENCE');
-      RegisterMethod(@TKMScriptActions.AIAutoRepair,      'AIAUTOREPAIR');
-      RegisterMethod(@TKMScriptActions.AIBuildersLimit,   'AIBUILDERSLIMIT');
-      RegisterMethod(@TKMScriptActions.AIDefencePositionAdd,'AIDEFENCEPOSITIONADD');
-      RegisterMethod(@TKMScriptActions.AIEquipRate,       'AIEQUIPRATE');
+      RegisterMethod(@TKMScriptActions.AIAutoBuild,          'AIAUTOBUILD');
+      RegisterMethod(@TKMScriptActions.AIAutoDefence,        'AIAUTODEFENCE');
+      RegisterMethod(@TKMScriptActions.AIAutoRepair,         'AIAUTOREPAIR');
+      RegisterMethod(@TKMScriptActions.AIBuildersLimit,      'AIBUILDERSLIMIT');
+      RegisterMethod(@TKMScriptActions.AIDefencePositionAdd, 'AIDEFENCEPOSITIONADD');
+      RegisterMethod(@TKMScriptActions.AIEquipRate,          'AIEQUIPRATE');
       RegisterMethod(@TKMScriptActions.AIGroupsFormationSet, 'AIGROUPSFORMATIONSET)');
-      RegisterMethod(@TKMScriptActions.AIRecruitDelay,    'AIRECRUITDELAY');
-      RegisterMethod(@TKMScriptActions.AIRecruitLimit,    'AIRECRUITLIMIT');
-      RegisterMethod(@TKMScriptActions.AISerfsFactor,     'AISERFSFACTOR');
-      RegisterMethod(@TKMScriptActions.AISoldiersLimit,   'AISOLDIERSLIMIT');
+      RegisterMethod(@TKMScriptActions.AIRecruitDelay,       'AIRECRUITDELAY');
+      RegisterMethod(@TKMScriptActions.AIRecruitLimit,       'AIRECRUITLIMIT');
+      RegisterMethod(@TKMScriptActions.AISerfsFactor,        'AISERFSFACTOR');
+      RegisterMethod(@TKMScriptActions.AISoldiersLimit,      'AISOLDIERSLIMIT');
+
+      RegisterMethod(@TKMScriptActions.CinematicStart,    'CINEMATICSTART');
+      RegisterMethod(@TKMScriptActions.CinematicEnd,      'CINEMATICEND');
+      RegisterMethod(@TKMScriptActions.CinematicPanTo,    'CINEMATICPANTO');
+      RegisterMethod(@TKMScriptActions.CinematicJumpTo,   'CINEMATICJUMPTO');
 
       RegisterMethod(@TKMScriptActions.FogCoverAll,       'FOGCOVERALL');
       RegisterMethod(@TKMScriptActions.FogCoverCircle,    'FOGCOVERCIRCLE');
@@ -554,7 +563,6 @@ begin
 
       RegisterMethod(@TKMScriptActions.PlayerAllianceChange,  'PLAYERALLIANCECHANGE');
       RegisterMethod(@TKMScriptActions.PlayerAddDefaultGoals, 'PLAYERADDDEFAULTGOALS');
-      RegisterMethod(@TKMScriptActions.PlayerCenterScreenSet, 'PLAYERCENTERSCREENSET');
       RegisterMethod(@TKMScriptActions.PlayerDefeat,          'PLAYERDEFEAT');
       RegisterMethod(@TKMScriptActions.PlayerShareFog,        'PLAYERSHAREFOG');
       RegisterMethod(@TKMScriptActions.PlayerWareDistribution,'PLAYERWAREDISTRIBUTION');
