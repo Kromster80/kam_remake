@@ -18,6 +18,7 @@
  +  	Scripts should not allow to link players warriors to other players group
  +      In-house enable/disable ware delivery in script worked in reverse
  +      Actions.PlayerWareDistribution did not update house orders, so houses didn't notice that the distribution has changed
+ +      Integer overflow in stats caused by counting stone/wood as consumed twice when an incomplete house was destroyed
 	Armour smithy has shields as 2nd ouput, armour workshop has shields as 1st output. Would make sense to match them (note: simply swapping in KM_ResourceHouses causes game logic to be swapped with GUI)
 	Armour smithy has iron as 1st input, weapon smithy has iron as 2nd input (iron/coal swapped). Would make sense to match them (note: simpply swapping in KM_ResourceHouses causes game logic to be swapped with GUI)
 	Deliveries should use the actual walking route length (opposed to Radius)

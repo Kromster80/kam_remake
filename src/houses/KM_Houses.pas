@@ -389,8 +389,8 @@ begin
   if (fBuildState > hbs_NoGlyph) and not IsSilent then
     gSoundPlayer.Play(sfx_HouseDestroy, fPosition);
 
-  gHands[fOwner].Stats.WareConsumed(wt_Wood, fBuildSupplyWood);
-  gHands[fOwner].Stats.WareConsumed(wt_Stone, fBuildSupplyStone);
+  //NOTE: We don't run Stats.WareConsumed on fBuildSupplyWood/Stone as the
+  //delivery task already did that upon delivery (this was the cause of a bug)
 
   for I := 1 to 4 do
   begin
