@@ -19,6 +19,7 @@
  +      In-house enable/disable ware delivery in script worked in reverse
  +      Actions.PlayerWareDistribution did not update house orders, so houses didn't notice that the distribution has changed
  +      Integer overflow in stats caused by counting stone/wood as consumed twice when an incomplete house was destroyed
+ +      Fixed "Unsupported global variable type 28" error in dynamic scripts when using UnicodeString
 	Armour smithy has shields as 2nd ouput, armour workshop has shields as 1st output. Would make sense to match them (note: simply swapping in KM_ResourceHouses causes game logic to be swapped with GUI)
 	Armour smithy has iron as 1st input, weapon smithy has iron as 2nd input (iron/coal swapped). Would make sense to match them (note: simpply swapping in KM_ResourceHouses causes game logic to be swapped with GUI)
 	Deliveries should use the actual walking route length (opposed to Radius)
@@ -46,7 +47,7 @@
 	AIAttacks bug (AI attacks mulfunction after 12min.rar)
 	Player alliance towards self is inconsistent, especially in MP and when accessing from script (should be Ally always!)
 	Make wood to building sites to be delivered first
-    TSK 5: ally sometimes sends his troops to the enemy base causing you to lose (after the enemy attacks?)
+        TSK 5: ally sometimes sends his troops to the enemy base causing you to lose (after the enemy attacks?)
 
 	Water looks ugly brown when you zoom out too far due to water tiles having brown checkerboard pattern (anti-aliasing won't help)
 	Wooden house frames flicking on Onboard Intel HD Family Chipset (see images "Hidden House Frame Intel Onboard 1.jpg")
@@ -65,6 +66,7 @@ Improvements:
  +      L       MapEd: Allow custom map sizes
  +      L       Shortcuts for all soldier buttons: , & . to rotate, + & - to add/withdraw lines, x to charge, f for food
  +      L       MapEd: Randomize terrain tiles when creating a new map
+ +      L       Allow cinematics in dynamic scripts
 	        Dismiss button to make units walk into the school and disappear (gold is not refunded)
 	L	Simple dedicated server form which lets you set the properties of the INI for the server and start it [gemGreg]
 	L	Placing houses in MP should put a temp/fake visual markup until the real one can be added to make it appear responsive

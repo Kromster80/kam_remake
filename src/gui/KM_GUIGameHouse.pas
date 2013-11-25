@@ -809,7 +809,7 @@ begin
   if not gHands[MySpectator.HandIndex].Stats.UnitBlocked[UnitIndexToType[fLastBarracksUnit + 14]] then
     Button_Barracks_Train.Hint := gResTexts[TX_HOUSE_BARRACKS_TRAIN_HINT]
   else
-    Button_Barracks_Train.Hint := 'This soldier type is not available';
+    Button_Barracks_Train.Hint := gResTexts[TX_HOUSE_BARRACKS_TRAIN_DISABLED_HINT];
 
   if fLastBarracksUnit < High(Barracks_Order) then
     Image_Barracks_Right.TexID := gResource.UnitDat[Barracks_Order[fLastBarracksUnit+1]].GUIScroll;
@@ -871,7 +871,7 @@ begin
   if not gHands[MySpectator.HandIndex].Stats.UnitBlocked[School_Order[fLastSchoolUnit]] then
     Button_School_Train.Hint := gResTexts[TX_HOUSE_SCHOOL_TRAIN_HINT]
   else
-    Button_School_Train.Hint := 'This unit type is not available';
+    Button_School_Train.Hint := gResTexts[TX_HOUSE_SCHOOL_TRAIN_DISABLED_HINT];
 
   if fLastSchoolUnit < High(School_Order) then
     Image_School_Right.TexID := gResource.UnitDat[School_Order[fLastSchoolUnit+1]].GUIScroll;

@@ -46,6 +46,11 @@ type
     procedure LogError(aFuncName: string; const aValues: array of Integer);
   public
     constructor Create(aIDCache: TKMScriptingIdCache);
+
+    function ClosestGroup(aPlayer, X, Y: Integer): Integer;
+    function ClosestHouse(aPlayer, X, Y: Integer): Integer;
+    function ClosestUnit(aPlayer, X, Y: Integer): Integer;
+
     function GameTime: Cardinal;
     function PeaceTime: Cardinal;
     function KaMRandom: Single;
@@ -68,6 +73,7 @@ type
     function HouseDestroyed(aHouseID: Integer): Boolean;
     function HouseHasOccupant(aHouseID: Integer): Boolean;
     function HouseIsComplete(aHouseID: Integer): Boolean;
+    function HouseOccupant(aHouseID: Integer): Integer;
     function HouseOwner(aHouseID: Integer): Integer;
     function HousePositionX(aHouseID: Integer): Integer;
     function HousePositionY(aHouseID: Integer): Integer;
@@ -445,6 +451,54 @@ begin
   for I := Low(aValues) to High(aValues) do
     Values := Values + IntToStr(aValues[I]) + IfThen(I<>High(aValues), ', ');
   gLog.AddTime('Mistake in script usage ' + aFuncName + ': ' + Values);
+end;
+
+
+function TKMScriptStates.ClosestGroup(aPlayer, X, Y: Integer): Integer;
+var G: TKMUnitGroup;
+begin
+  Result := -1;
+  if InRange(aPlayer, 0, gHands.Count - 1)
+  and gTerrain.TileInMapCoords(X, Y) then
+  begin
+    gHands[aPlayer].UnitGroups.GetClosestGroup(KMPoint(X,Y));
+    if G <> nil then
+      Result := G.UID;
+  end
+  else
+    LogError('States.ClosestGroup', [aPlayer, X, Y]);
+end;
+
+
+function TKMScriptStates.ClosestHouse(aPlayer, X, Y: Integer): Integer;
+var H: TKMHouse;
+begin
+  Result := -1;
+  if InRange(aPlayer, 0, gHands.Count - 1)
+  and gTerrain.TileInMapCoords(X, Y) then
+  begin
+    H := gHands[aPlayer].Houses.FindHouse(ht_Any, X, Y);
+    if H <> nil then
+      Result := H.UID;
+  end
+  else
+    LogError('States.ClosestHouse', [aPlayer, X, Y]);
+end;
+
+
+function TKMScriptStates.ClosestUnit(aPlayer, X, Y: Integer): Integer;
+var U: TKMUnit;
+begin
+  Result := -1;
+  if InRange(aPlayer, 0, gHands.Count - 1)
+  and gTerrain.TileInMapCoords(X, Y) then
+  begin
+    U := gHands[aPlayer].Units.GetClosestUnit(KMPoint(X,Y));
+    if U <> nil then
+      Result := U.UID;
+  end
+  else
+    LogError('States.ClosestUnit', [aPlayer, X, Y]);
 end;
 
 
@@ -852,6 +906,22 @@ begin
   end
   else
     LogError('States.HouseDestroyed', [aHouseID]);
+end;
+
+
+function TKMScriptStates.HouseOccupant(aHouseID: Integer): Integer;
+var
+  H: TKMHouse;
+begin
+  Result := -1;
+  if aHouseID > 0 then
+  begin
+    H := fIDCache.GetHouse(aHouseID);
+    if H <> nil then
+      Result := UnitTypeToIndex[gResource.HouseDat[H.HouseType].OwnerType];
+  end
+  else
+    LogError('States.HouseOccupant', [aHouseID]);
 end;
 
 

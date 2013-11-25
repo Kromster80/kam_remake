@@ -20,12 +20,17 @@ Implemented:
  5934   Actions.AIGroupsFormationSet(aPlayer, aType: Byte; aCount, aColumns: Word)
  5934   Actions.GroupHungerSet(aGroupID, aHungerLevel: Integer)
  5934   Actions.GroupKillAll(aGroupID: Integer; aSilent: Boolean)
- 5934   Actions.PlayerCenterScreenSet(aPlayer: Byte; X, Y: Integer)
  5934   Actions.UnitBlock(aPlayer: Byte; aType: Word; aBlock: Boolean)
+ 5938   Actions.CinematicStart(aPlayer: Byte);
+ 5938   Actions.CinematicEnd(aPlayer: Byte);
+ 5938   Actions.CinematicPanTo(aPlayer: Byte; X, Y, Duration: Word);
+ 5943   States.ClosestGroup(aPlayer, X, Y: Integer): Integer
+ 5943   States.ClosestHouse(aPlayer, X, Y: Integer): Integer
+ 5943   States.ClosestUnit(aPlayer, X, Y: Integer): Integer
+ 5943   States.HouseOccupant(aHouseID: Integer): Integer
 
 
 Accepted:
-	Closest house/unit/group to given XY of certain player and type
 	Change house/unit/group owner
 	Allow to query count of placed house plans
 	DisplayText(text, player_id, timeout) to show announcements that will be gone after timeout (for TD and etc.)
@@ -43,7 +48,7 @@ Proposed:
 	Select unit/house/group in the player's UI
 	Removing wares from houses (only if serfs haven't reserved them)
 	DelayedExecution(delay, function, params)
-	Forbiden areas where players can't move their troops
+	Forbidden areas where players can't move their troops
 	Way to add/remove recruits directly from barracks
 	ChangeMapTile
 	States.HousePlanAt(X, Y) - returns aPlanID.
@@ -63,10 +68,9 @@ Proposed:
 	States.Path_closestUnit(X, Y):Integer; 
 	States.Path_closestHouse(X, Y):Integer; 
 	OnGroupHungry(aGroupID); 
-	BlockCamera, block player from changing the view/zoom
         Change player color
 	Actions.GroupOrderAttackGroup(AttackersGroupID, GroupToAttackID: Integer)
-        States.HouseOccupant(aHouseType: Word) - returns type of unit which works in certan house
+        OnConsoleInput event
 
 
 Rejected:	

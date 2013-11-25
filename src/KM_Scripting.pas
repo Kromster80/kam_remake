@@ -47,6 +47,7 @@ const
     btS32, //Integer
     btSingle, //Single
     btString, //string
+    btUnicodeString,
     btStaticArray, btArray, //Static and Dynamic Arrays
     btRecord, btSet];
 
@@ -112,6 +113,10 @@ begin
     begin
       Sender.AddTypeS('TIntegerArray', 'array of Integer'); //Needed for PlayerGetAllUnits
 
+      RegisterMethod('function ClosestGroup(aPlayer, X, Y: Integer): Integer');
+      RegisterMethod('function ClosestHouse(aPlayer, X, Y: Integer): Integer');
+      RegisterMethod('function ClosestUnit(aPlayer, X, Y: Integer): Integer');
+
       RegisterMethod('function GameTime: Cardinal');
       RegisterMethod('function KaMRandom: Single');
       RegisterMethod('function KaMRandomI(aMax:Integer): Integer');
@@ -134,6 +139,7 @@ begin
       RegisterMethod('function HouseDestroyed(aHouseID: Integer): Boolean');
       RegisterMethod('function HouseHasOccupant(aHouseID: Integer): Boolean');
       RegisterMethod('function HouseIsComplete(aHouseID: Integer): Boolean');
+      RegisterMethod('function HouseOccupant(aHouseID: Integer): Integer');
       RegisterMethod('function HouseOwner(aHouseID: Integer): Integer');
       RegisterMethod('function HousePositionX(aHouseID: Integer): Integer');
       RegisterMethod('function HousePositionY(aHouseID: Integer): Integer');
@@ -415,6 +421,11 @@ begin
     //Register classes and their exposed methods to Runtime (must be uppercase)
     with ClassImp.Add(TKMScriptStates) do
     begin
+
+      RegisterMethod(@TKMScriptStates.ClosestGroup,   'CLOSESTGROUP');
+      RegisterMethod(@TKMScriptStates.ClosestHouse,   'CLOSESTHOUSE');
+      RegisterMethod(@TKMScriptStates.ClosestUnit,    'CLOSESTUNIT');
+
       RegisterMethod(@TKMScriptStates.GameTime,       'GAMETIME');
       RegisterMethod(@TKMScriptStates.KaMRandom,      'KAMRANDOM');
       RegisterMethod(@TKMScriptStates.KaMRandomI,     'KAMRANDOMI');
@@ -430,39 +441,40 @@ begin
       RegisterMethod(@TKMScriptStates.GroupOwner,       'GROUPOWNER');
       RegisterMethod(@TKMScriptStates.GroupType,        'GROUPTYPE');
 
-      RegisterMethod(@TKMScriptStates.HouseAt,              'HOUSEAT');
-      RegisterMethod(@TKMScriptStates.HouseCanReachResources,'HOUSECANREACHRESOURCES');
-      RegisterMethod(@TKMScriptStates.HouseDamage,          'HOUSEDAMAGE');
-      RegisterMethod(@TKMScriptStates.HouseDeliveryBlocked, 'HOUSEDELIVERYBLOCKED');
-      RegisterMethod(@TKMScriptStates.HouseDestroyed,       'HOUSEDESTROYED');
-      RegisterMethod(@TKMScriptStates.HouseHasOccupant,     'HOUSEHASOCCUPANT');
-      RegisterMethod(@TKMScriptStates.HouseIsComplete,      'HOUSEISCOMPLETE');
-      RegisterMethod(@TKMScriptStates.HouseOwner,           'HOUSEOWNER');
-      RegisterMethod(@TKMScriptStates.HousePositionX,       'HOUSEPOSITIONX');
-      RegisterMethod(@TKMScriptStates.HousePositionY,       'HOUSEPOSITIONY');
-      RegisterMethod(@TKMScriptStates.HouseRepair,          'HOUSEREPAIR');
-      RegisterMethod(@TKMScriptStates.HouseResourceAmount,  'HOUSERESOURCEAMOUNT');
-      RegisterMethod(@TKMScriptStates.HouseType,            'HOUSETYPE');
+      RegisterMethod(@TKMScriptStates.HouseAt,                 'HOUSEAT');
+      RegisterMethod(@TKMScriptStates.HouseCanReachResources,  'HOUSECANREACHRESOURCES');
+      RegisterMethod(@TKMScriptStates.HouseDamage,             'HOUSEDAMAGE');
+      RegisterMethod(@TKMScriptStates.HouseDeliveryBlocked,    'HOUSEDELIVERYBLOCKED');
+      RegisterMethod(@TKMScriptStates.HouseDestroyed,          'HOUSEDESTROYED');
+      RegisterMethod(@TKMScriptStates.HouseHasOccupant,        'HOUSEHASOCCUPANT');
+      RegisterMethod(@TKMScriptStates.HouseIsComplete,         'HOUSEISCOMPLETE');
+      RegisterMethod(@TKMScriptStates.HouseOccupant,           'HOUSEOCCUPANT');
+      RegisterMethod(@TKMScriptStates.HouseOwner,              'HOUSEOWNER');
+      RegisterMethod(@TKMScriptStates.HousePositionX,          'HOUSEPOSITIONX');
+      RegisterMethod(@TKMScriptStates.HousePositionY,          'HOUSEPOSITIONY');
+      RegisterMethod(@TKMScriptStates.HouseRepair,             'HOUSEREPAIR');
+      RegisterMethod(@TKMScriptStates.HouseResourceAmount,     'HOUSERESOURCEAMOUNT');
+      RegisterMethod(@TKMScriptStates.HouseType,               'HOUSETYPE');
       RegisterMethod(@TKMScriptStates.HouseWoodcutterChopOnly, 'HOUSEWOODCUTTERCHOPONLY');
-      RegisterMethod(@TKMScriptStates.HouseWareBlocked,     'HOUSEWAREBLOCKED');
-      RegisterMethod(@TKMScriptStates.HouseSchoolQueue,     'HOUSESCHOOLQUEUE');
-      RegisterMethod(@TKMScriptStates.HouseWeaponsOrdered,  'HOUSEWEAPONSORDERED');
+      RegisterMethod(@TKMScriptStates.HouseWareBlocked,        'HOUSEWAREBLOCKED');
+      RegisterMethod(@TKMScriptStates.HouseSchoolQueue,        'HOUSESCHOOLQUEUE');
+      RegisterMethod(@TKMScriptStates.HouseWeaponsOrdered,     'HOUSEWEAPONSORDERED');
 
       RegisterMethod(@TKMScriptStates.IsFieldAt,            'ISFIELDAT');
       RegisterMethod(@TKMScriptStates.IsWinefieldAt,        'ISWINEFIELDAT');
       RegisterMethod(@TKMScriptStates.IsRoadAt,             'ISROADAT');
 
-      RegisterMethod(@TKMScriptStates.PlayerAllianceCheck,  'PLAYERALLIANCECHECK');
-      RegisterMethod(@TKMScriptStates.PlayerColorText,      'PLAYERCOLORTEXT');
-      RegisterMethod(@TKMScriptStates.PlayerDefeated,       'PLAYERDEFEATED');
-      RegisterMethod(@TKMScriptStates.PlayerEnabled,        'PLAYERENABLED');
-      RegisterMethod(@TKMScriptStates.PlayerGetAllUnits,    'PLAYERGETALLUNITS');
-      RegisterMethod(@TKMScriptStates.PlayerGetAllHouses,   'PLAYERGETALLHOUSES');
-      RegisterMethod(@TKMScriptStates.PlayerGetAllGroups,   'PLAYERGETALLGROUPS');
-      RegisterMethod(@TKMScriptStates.PlayerIsAI,           'PLAYERISAI');
-      RegisterMethod(@TKMScriptStates.PlayerName,           'PLAYERNAME');
-      RegisterMethod(@TKMScriptStates.PlayerVictorious,     'PLAYERVICTORIOUS');
-      RegisterMethod(@TKMScriptStates.PlayerWareDistribution,'PLAYERWAREDISTRIBUTION');
+      RegisterMethod(@TKMScriptStates.PlayerAllianceCheck,    'PLAYERALLIANCECHECK');
+      RegisterMethod(@TKMScriptStates.PlayerColorText,        'PLAYERCOLORTEXT');
+      RegisterMethod(@TKMScriptStates.PlayerDefeated,         'PLAYERDEFEATED');
+      RegisterMethod(@TKMScriptStates.PlayerEnabled,          'PLAYERENABLED');
+      RegisterMethod(@TKMScriptStates.PlayerGetAllUnits,      'PLAYERGETALLUNITS');
+      RegisterMethod(@TKMScriptStates.PlayerGetAllHouses,     'PLAYERGETALLHOUSES');
+      RegisterMethod(@TKMScriptStates.PlayerGetAllGroups,     'PLAYERGETALLGROUPS');
+      RegisterMethod(@TKMScriptStates.PlayerIsAI,             'PLAYERISAI');
+      RegisterMethod(@TKMScriptStates.PlayerName,             'PLAYERNAME');
+      RegisterMethod(@TKMScriptStates.PlayerVictorious,       'PLAYERVICTORIOUS');
+      RegisterMethod(@TKMScriptStates.PlayerWareDistribution, 'PLAYERWAREDISTRIBUTION');
 
       RegisterMethod(@TKMScriptStates.StatArmyCount,              'STATARMYCOUNT');
       RegisterMethod(@TKMScriptStates.StatCitizenCount,           'STATCITIZENCOUNT');
@@ -532,12 +544,12 @@ begin
       RegisterMethod(@TKMScriptActions.GroupOrderWalk,        'GROUPORDERWALK');
       RegisterMethod(@TKMScriptActions.GroupSetFormation,     'GROUPSETFORMATION');
 
-      RegisterMethod(@TKMScriptActions.HouseAllow,              'HOUSEALLOW');
-      RegisterMethod(@TKMScriptActions.HouseAddDamage,          'HOUSEADDDAMAGE');
-      RegisterMethod(@TKMScriptActions.HouseAddRepair,          'HOUSEADDREPAIR');
-      RegisterMethod(@TKMScriptActions.HouseAddWaresTo,         'HOUSEADDWARESTO');
-      RegisterMethod(@TKMScriptActions.HouseBarracksEquip,      'HOUSEBARRACKSEQUIP');
-      RegisterMethod(@TKMScriptActions.HouseDeliveryBlock,      'HOUSEDELIVERYBLOCK');
+      RegisterMethod(@TKMScriptActions.HouseAllow,                    'HOUSEALLOW');
+      RegisterMethod(@TKMScriptActions.HouseAddDamage,                'HOUSEADDDAMAGE');
+      RegisterMethod(@TKMScriptActions.HouseAddRepair,                'HOUSEADDREPAIR');
+      RegisterMethod(@TKMScriptActions.HouseAddWaresTo,               'HOUSEADDWARESTO');
+      RegisterMethod(@TKMScriptActions.HouseBarracksEquip,            'HOUSEBARRACKSEQUIP');
+      RegisterMethod(@TKMScriptActions.HouseDeliveryBlock,            'HOUSEDELIVERYBLOCK');
       RegisterMethod(@TKMScriptActions.HouseDisableUnoccupiedMessage, 'HOUSEDISABLEUNOCCUPIEDMESSAGE');
       RegisterMethod(@TKMScriptActions.HouseDestroy,            'HOUSEDESTROY');
       RegisterMethod(@TKMScriptActions.HouseRepairEnable,       'HOUSEREPAIRENABLE');
@@ -572,11 +584,11 @@ begin
       RegisterMethod(@TKMScriptActions.RemoveField,       'REMOVEFIELD');
       RegisterMethod(@TKMScriptActions.RemoveRoad,        'REMOVEROAD');
 
-      RegisterMethod(@TKMScriptActions.SetTradeAllowed, 'SETTRADEALLOWED');
-      RegisterMethod(@TKMScriptActions.ShowMsg,         'SHOWMSG');
-      RegisterMethod(@TKMScriptActions.ShowMsgFormatted,'SHOWMSGFORMATTED');
-      RegisterMethod(@TKMScriptActions.ShowMsgGoto,     'SHOWMSGGOTO');
-      RegisterMethod(@TKMScriptActions.ShowMsgGotoFormatted,'SHOWMSGGOTOFORMATTED');
+      RegisterMethod(@TKMScriptActions.SetTradeAllowed,       'SETTRADEALLOWED');
+      RegisterMethod(@TKMScriptActions.ShowMsg,               'SHOWMSG');
+      RegisterMethod(@TKMScriptActions.ShowMsgFormatted,      'SHOWMSGFORMATTED');
+      RegisterMethod(@TKMScriptActions.ShowMsgGoto,           'SHOWMSGGOTO');
+      RegisterMethod(@TKMScriptActions.ShowMsgGotoFormatted,  'SHOWMSGGOTOFORMATTED');
 
       RegisterMethod(@TKMScriptActions.UnitBlock,         'UNITBLOCK');
       RegisterMethod(@TKMScriptActions.UnitDirectionSet,  'UNITDIRECTIONSET');
@@ -650,10 +662,11 @@ procedure TKMScripting.Load(LoadStream: TKMemoryStream);
   begin
     //See uPSRuntime line 1630 for algo idea
     case aType.BaseType of
-      btU8:  LoadStream.Read(tbtu8(Src^)); //Byte, Boolean
-      btS32: LoadStream.Read(tbts32(Src^)); //Integer
-      btSingle: LoadStream.Read(tbtsingle(Src^));
-      btString: LoadStream.ReadA(tbtString(Src^));
+      btU8:            LoadStream.Read(tbtu8(Src^)); //Byte, Boolean
+      btS32:           LoadStream.Read(tbts32(Src^)); //Integer
+      btSingle:        LoadStream.Read(tbtsingle(Src^));
+      btString:        LoadStream.ReadA(tbtString(Src^));
+      btUnicodeString: LoadStream.ReadW(tbtUnicodeString(Src^));
       btStaticArray:begin
                       LoadStream.Read(ElemCount);
                       Assert(ElemCount = TPSTypeRec_StaticArray(aType).Size, 'Script array element count mismatches saved count');
@@ -727,10 +740,11 @@ procedure TKMScripting.Save(SaveStream: TKMemoryStream);
   begin
     //See uPSRuntime line 1630 for algo idea
     case aType.BaseType of
-      btU8:         SaveStream.Write(tbtu8(Src^)); //Byte, Boolean
-      btS32:        SaveStream.Write(tbts32(Src^)); //Integer
-      btSingle:     SaveStream.Write(tbtsingle(Src^));
-      btString:     SaveStream.WriteA(tbtString(Src^));
+      btU8:            SaveStream.Write(tbtu8(Src^)); //Byte, Boolean
+      btS32:           SaveStream.Write(tbts32(Src^)); //Integer
+      btSingle:        SaveStream.Write(tbtsingle(Src^));
+      btString:        SaveStream.WriteA(tbtString(Src^));
+      btUnicodeString: SaveStream.WriteW(tbtUnicodeString(Src^));
       btStaticArray:begin
                       ElemCount := TPSTypeRec_StaticArray(aType).Size;
                       SaveStream.Write(ElemCount);

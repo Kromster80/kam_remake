@@ -39,7 +39,7 @@ begin
   inherited Create;
 
   Panel_BlockUnit := TKMPanel.Create(aParent, 0, 28, TB_WIDTH, 400);
-  TKMLabel.Create(Panel_BlockUnit, 0, PAGE_TITLE_Y, TB_WIDTH, 0, 'Block units', fnt_Outline, taCenter);
+  TKMLabel.Create(Panel_BlockUnit, 0, PAGE_TITLE_Y, TB_WIDTH, 0, gResTexts[TX_MAPED_BLOCK_UNITS], fnt_Outline, taCenter);
   for I := 0 to High(Button_BlockUnit) do
   begin
     Button_BlockUnit[I] := TKMButtonFlat.Create(Panel_BlockUnit, (I mod 5)*37,30+(I div 5)*37,33,33,gResource.UnitDat[School_Order[I]].GUIIcon);
