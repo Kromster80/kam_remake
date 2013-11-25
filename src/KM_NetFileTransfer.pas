@@ -10,12 +10,15 @@ type
   TKMFileSender = class
   private
     fReceiverIndex: Integer;
+    fChunksInFlight: Byte;
     fSendStream: TKMemoryStream;
     procedure AddFileToStream(aFileName, aPostFix, aExt: UnicodeString);
   public
     constructor Create(aType: TKMTransferType; aName: UnicodeString; aReceiverIndex: Integer);
     destructor Destroy; override;
     procedure WriteChunk(aStream: TKMemoryStream; aLength: Cardinal);
+    procedure AckReceived;
+    function CanSend: Boolean;
     function StreamEnd: Boolean;
     property ReceiverIndex: Integer read fReceiverIndex;
   end;
@@ -35,6 +38,8 @@ type
   end;
 
 implementation
+uses
+  KM_NetworkTypes;
 
 const
   //TODO: Add LIBX and WAV support for maps
@@ -54,7 +59,10 @@ end;
 
 { TKMFileSender }
 constructor TKMFileSender.Create(aType: TKMTransferType; aName: UnicodeString; aReceiverIndex: Integer);
-var I: Integer; FileName: UnicodeString; F: TSearchRec;
+var
+  I: Integer;
+  FileName: UnicodeString;
+  F: TSearchRec;
 begin
   inherited Create;
   fReceiverIndex := aReceiverIndex;
@@ -102,6 +110,18 @@ begin
 end;
 
 
+procedure TKMFileSender.AckReceived;
+begin
+  Dec(fChunksInFlight);
+end;
+
+
+function TKMFileSender.CanSend: Boolean;
+begin
+  Result := fChunksInFlight <= MAX_CHUNKS_BEFORE_ACK;
+end;
+
+
 procedure TKMFileSender.AddFileToStream(aFileName, aPostFix, aExt: UnicodeString);
 var FileStream: TKMemoryStream;
 begin
@@ -128,6 +148,7 @@ begin
   aStream.Write(aLength);
   aStream.Write(Cardinal(fSendStream.Position));
   aStream.CopyFrom(fSendStream, aLength);
+  Inc(fChunksInFlight);
 end;
 
 

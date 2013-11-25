@@ -25,7 +25,7 @@ type
     constructor Create;
     destructor Destroy; override;
     function MyIPString:string;
-    function BufferCountLow: Boolean;
+    function GetBufferSpace: Integer;
     procedure ConnectTo(const aAddress:string; const aPort:string);
     procedure Disconnect;
     procedure SendData(aData:pointer; aLength:cardinal);
@@ -101,9 +101,9 @@ begin
 end;
 
 
-function TKMNetClientOverbyte.BufferCountLow: Boolean;
+function TKMNetClientOverbyte.GetBufferSpace: Integer;
 begin
-  Result := fSocket.BufferedByteCount < 10240; //Less than 10kb in buffer
+  Result := fSocket.BufSize - fSocket.BufferedByteCount;
 end;
 
 
@@ -115,6 +115,8 @@ begin
   begin
     fOnConnectSucceed(Self);
     fSocket.SetTcpNoDelayOption; //Send packets ASAP (disables Nagle's algorithm)
+    fSocket.SocketSndBufSize := 65535; //WinSock buffer should be bigger than internal buffer
+    fSocket.BufSize := 32768;
   end;
 end;
 

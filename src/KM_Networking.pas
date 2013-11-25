@@ -27,7 +27,7 @@ const
     [mk_AskToJoin,mk_ClientLost,mk_ReassignHost,mk_Disconnect,mk_Ping,mk_PingInfo,mk_PlayersList,
      mk_StartingLocQuery,mk_SetTeam,mk_FlagColorQuery,mk_ResetMap,mk_MapSelect,mk_MapCRC,mk_SaveSelect,
      mk_SaveCRC,mk_ReadyToStart,mk_Start,mk_Text,mk_Kicked,mk_LangCode,mk_GameOptions,mk_ServerName,
-     mk_Password,mk_FileRequest,mk_FileChunk,mk_FileEnd],
+     mk_Password,mk_FileRequest,mk_FileChunk,mk_FileEnd,mk_FileAck],
     //lgs_Loading
     [mk_AskToJoin,mk_ClientLost,mk_ReassignHost,mk_Disconnect,mk_Ping,mk_PingInfo,mk_PlayersList,
      mk_ReadyToPlay,mk_Play,mk_Text,mk_Kicked],
@@ -1197,8 +1197,15 @@ begin
               if not IsHost then
               begin
                 if fFileReceiver <> nil then
+                begin
                   fFileReceiver.DataReceived(M);
+                  PacketSend(aSenderIndex, mk_FileAck);
+                end;
               end;
+
+      mk_FileAck:
+              if IsHost and (fFileSender <> nil) then
+                fFileSender.AckReceived;
 
       mk_FileEnd:
               if not IsHost then
@@ -1266,6 +1273,8 @@ begin
                 M.Read(tmpInteger);
                 if IsHost then
                 begin
+                  if (fFileSender <> nil) and (fFileSender.ReceiverIndex = tmpInteger) then
+                    FreeAndNil(fFileSender);
                   PlayerIndex := fNetPlayers.ServerToLocal(tmpInteger);
                   if PlayerIndex = -1 then exit; //Has already disconnected or not from our room
                   if not fNetPlayers[PlayerIndex].Dropped then
@@ -1302,6 +1311,8 @@ begin
               case fNetPlayerKind of
                 lpk_Host:
                     begin
+                      if (fFileSender <> nil) and (fFileSender.ReceiverIndex = aSenderIndex) then
+                        FreeAndNil(fFileSender);
                       if fNetPlayers.ServerToLocal(aSenderIndex) = -1 then exit; //Has already disconnected
                       PostMessage(UnicodeString(fNetPlayers[fNetPlayers.ServerToLocal(aSenderIndex)].Nikname)+' has quit');
                       if fNetGameState in [lgs_Loading, lgs_Game] then
@@ -1798,7 +1809,7 @@ begin
 
   //TODO: Move this somewhere else?
   //File sending
-  if (fFileSender <> nil) and (fNetClient.BufferCountLow) then
+  while (fFileSender <> nil) and fFileSender.CanSend and (fNetClient.GetBufferSpace > FILE_CHUNK_SIZE) do
   begin
     Stream := TKMemoryStream.Create;
     fFileSender.WriteChunk(Stream, FILE_CHUNK_SIZE);
