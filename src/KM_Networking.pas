@@ -5,7 +5,7 @@ uses
   {$IFDEF Unix} LCLIntf, {$ENDIF}
   Classes, SysUtils, TypInfo, Forms, KromUtils,
   KM_CommonClasses, KM_CommonTypes, KM_NetworkClasses, KM_NetworkTypes, KM_Defaults,
-  KM_Saves, KM_GameOptions, KM_ResLocales,
+  KM_Saves, KM_GameOptions, KM_ResLocales, KM_NetFileTransfer,
   KM_Maps, KM_NetPlayersList, KM_DedicatedServer, KM_NetClient, KM_ServerQuery;
 
 type
@@ -26,7 +26,8 @@ const
     //lgs_Lobby
     [mk_AskToJoin,mk_ClientLost,mk_ReassignHost,mk_Disconnect,mk_Ping,mk_PingInfo,mk_PlayersList,
      mk_StartingLocQuery,mk_SetTeam,mk_FlagColorQuery,mk_ResetMap,mk_MapSelect,mk_MapCRC,mk_SaveSelect,
-     mk_SaveCRC,mk_ReadyToStart,mk_Start,mk_Text,mk_Kicked,mk_LangCode,mk_GameOptions,mk_ServerName,mk_Password],
+     mk_SaveCRC,mk_ReadyToStart,mk_Start,mk_Text,mk_Kicked,mk_LangCode,mk_GameOptions,mk_ServerName,
+     mk_Password,mk_FileRequest,mk_FileChunk,mk_FileEnd],
     //lgs_Loading
     [mk_AskToJoin,mk_ClientLost,mk_ReassignHost,mk_Disconnect,mk_Ping,mk_PingInfo,mk_PlayersList,
      mk_ReadyToPlay,mk_Play,mk_Text,mk_Kicked],
@@ -73,6 +74,11 @@ type
     fSelectGameKind: TNetGameKind;
     fNetGameOptions: TKMGameOptions;
 
+    fFileSender: TKMFileSender;
+    fFileReceiver: TKMFileReceiver;
+    fMissingFileType: TNetGameKind;
+    fMissingFileName: UnicodeString;
+
     fOnJoinSucc: TNotifyEvent;
     fOnJoinFail: TUnicodeStringEvent;
     fOnJoinPassword: TNotifyEvent;
@@ -99,7 +105,7 @@ type
     procedure TryPlayGame;
     procedure PlayGame;
     procedure SetGameState(aState: TNetGameState);
-    procedure SendMapOrSave;
+    procedure SendMapOrSave(Recipient: Integer = NET_ADDRESS_OTHERS);
     procedure DoReconnection;
     procedure PlayerJoined(aServerIndex: Integer; aPlayerName: AnsiString);
     function CalculateGameCRC:Cardinal;
@@ -356,6 +362,8 @@ begin
 
   FreeAndNil(fMapInfo);
   FreeAndNil(fSaveInfo);
+  FreeAndNil(fFileSender);
+  FreeAndNil(fFileReceiver);
 
   fSelectGameKind := ngk_None;
 end;
@@ -418,18 +426,18 @@ begin
 end;
 
 
-procedure TKMNetworking.SendMapOrSave;
+procedure TKMNetworking.SendMapOrSave(Recipient: Integer = NET_ADDRESS_OTHERS);
 begin
   case fSelectGameKind of
     ngk_Save: begin
-                PacketSendW(NET_ADDRESS_OTHERS, mk_SaveSelect, fSaveInfo.FileName);
-                PacketSend(NET_ADDRESS_OTHERS, mk_SaveCRC, Integer(fSaveInfo.CRC));
+                PacketSendW(Recipient, mk_SaveSelect, fSaveInfo.FileName);
+                PacketSend(Recipient, mk_SaveCRC, Integer(fSaveInfo.CRC));
               end;
     ngk_Map:  begin
-                PacketSendW(NET_ADDRESS_OTHERS, mk_MapSelect, fMapInfo.FileName);
-                PacketSend(NET_ADDRESS_OTHERS, mk_MapCRC, Integer(fMapInfo.CRC));
+                PacketSendW(Recipient, mk_MapSelect, fMapInfo.FileName);
+                PacketSend(Recipient, mk_MapCRC, Integer(fMapInfo.CRC));
               end;
-    else      PacketSend(NET_ADDRESS_OTHERS, mk_ResetMap);
+    else      PacketSend(Recipient, mk_ResetMap);
   end;
 end;
 
@@ -1169,6 +1177,39 @@ begin
                   PacketSend(aSenderIndex, mk_ReqPassword);
               end;
 
+      mk_FileRequest:
+              //TODO: Allow multiple transfers at once
+              if IsHost and (fFileSender = nil) then
+              begin
+                //Validate request and set up file sender
+                M.ReadW(tmpStringW);
+                case fSelectGameKind of
+                  ngk_Map:  if tmpStringW = MapInfo.FileName then
+                              fFileSender := TKMFileSender.Create(kttMap, MapInfo.FileName, aSenderIndex);
+                  ngk_Save: if tmpStringW = SaveInfo.FileName then
+                              fFileSender := TKMFileSender.Create(kttSave, SaveInfo.FileName, aSenderIndex);
+                end;
+                if fFileSender = nil then
+                  PacketSend(aSenderIndex, mk_FileEnd); //Abort
+              end;
+
+      mk_FileChunk:
+              if not IsHost then
+              begin
+                if fFileReceiver <> nil then
+                  fFileReceiver.DataReceived(M);
+              end;
+
+      mk_FileEnd:
+              if not IsHost then
+              begin
+                if fFileReceiver <> nil then
+                begin
+                  fFileReceiver.TransferComplete;
+                  FreeAndNil(fFileReceiver);
+                end;
+              end;
+
       mk_LangCode:
               begin
                 M.ReadA(tmpStringA);
@@ -1305,6 +1346,7 @@ begin
 
                   fPassword := '';
                   fDescription := '';
+                  FreeAndNil(fFileReceiver);
                   fOnMPGameInfoChanged(Self);
                   SendPlayerListAndRefreshPlayersSetup;
                   PostMessage('Hosting rights reassigned to '+UnicodeString(fMyNikname));
@@ -1384,6 +1426,16 @@ begin
                     PostMessage('Error: '+UnicodeString(fMyNikname)+' does not have the map '+fMapInfo.FileName);
                     tmpStringW := Format(gResTexts[TX_MAP_DOESNT_EXIST], [fMapInfo.FileName]);
                   end;
+                  fMissingFileType := ngk_Map;
+                  fMissingFileName := fMapInfo.FileName;
+
+                  //For now always request the file
+                  if fFileReceiver = nil then
+                  begin
+                    fFileReceiver := TKMFileReceiver.Create(kttMap, fMissingFileName);
+                    PacketSendW(NET_ADDRESS_HOST, mk_FileRequest, fMissingFileName);
+                  end;
+
                   FreeAndNil(fMapInfo);
                   fSelectGameKind := ngk_None;
                   if fMyIndex <> -1 then //In the process of joining
@@ -1420,6 +1472,16 @@ begin
                     PostMessage('Error: ' + UnicodeString(fMyNikname) + ' does not have the save ' + fSaveInfo.FileName);
                     tmpStringW := Format(gResTexts[TX_SAVE_DOESNT_EXIST],[fSaveInfo.FileName]);
                   end;
+                  fMissingFileType := ngk_Save;
+                  fMissingFileName := fSaveInfo.FileName;
+
+                  //For now always request the file
+                  if fFileReceiver = nil then
+                  begin
+                    fFileReceiver := TKMFileReceiver.Create(kttSave, fMissingFileName);
+                    PacketSendW(NET_ADDRESS_HOST, mk_FileRequest, fMissingFileName);
+                  end;
+
                   FreeAndNil(fSaveInfo);
                   fSelectGameKind := ngk_None;
                   if fMyIndex <> -1 then //In the process of joining
@@ -1727,11 +1789,29 @@ end;
 
 
 procedure TKMNetworking.UpdateStateIdle;
+var Stream: TKMemoryStream;
 begin
   fNetServer.UpdateState; //Server measures pings etc.
   //LNet requires network update calls unless it is being used as visual components
   fNetClient.UpdateStateIdle;
   fServerQuery.UpdateStateIdle;
+
+  //TODO: Move this somewhere else?
+  //File sending
+  if (fFileSender <> nil) and (fNetClient.BufferCountLow) then
+  begin
+    Stream := TKMemoryStream.Create;
+    fFileSender.WriteChunk(Stream, FILE_CHUNK_SIZE);
+    PacketSend(fFileSender.ReceiverIndex, mk_FileChunk, Stream);
+    Stream.Free;
+    if fFileSender.StreamEnd then
+    begin
+      PacketSend(fFileSender.ReceiverIndex, mk_FileEnd);
+      SendMapOrSave(fFileSender.ReceiverIndex);
+      SendPlayerListAndRefreshPlayersSetup(fFileSender.ReceiverIndex);
+      FreeAndNil(fFileSender);
+    end;
+  end;
 end;
 
 

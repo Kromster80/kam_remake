@@ -10,7 +10,8 @@ const
   NET_ADDRESS_HOST = -3;    //Sender/Recipient
   NET_ADDRESS_SERVER = -4;  //Sender/Recipient
 
-  MAX_PACKET_SIZE = 10240; //10kb. Maximum length of a KM packet
+  MAX_PACKET_SIZE = 20480; //20kb. Maximum length of a KM packet
+  FILE_CHUNK_SIZE = 10240; //10kb. Size of chunks that a file is sent in (must be smaller than MAX_PACKET_SIZE)
 
   //Client-Server-Client exchange packets. Each packet is a certain type
 type
@@ -75,7 +76,11 @@ type
     mk_Text,            //Clients exchange text messages
 
     mk_ReqPassword,     //Host requests joiner to send password
-    mk_Password         //Joiner sends password to host
+    mk_Password,        //Joiner sends password to host
+
+    mk_FileRequest,     //Joiner requests host to send file
+    mk_FileChunk,       //Host sends chunk of file to joiner
+    mk_FileEnd          //Host informs joiner that the whole file has been sent
     );
 
 
@@ -134,7 +139,11 @@ const
     pfBinary,   //mk_Commands
     pfString,   //mk_Text
     pfNoData,   //mk_ReqPassword
-    pfBinary    //mk_Password
+    pfBinary,   //mk_Password
+    pfString,   //mk_FileRequest
+    pfBinary,   //mk_FileChunk
+    pfNoData    //mk_FileEnd
+
   );
 
 

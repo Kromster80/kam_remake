@@ -24,7 +24,8 @@ type
   public
     constructor Create;
     destructor Destroy; override;
-    function MyIPString:string;  
+    function MyIPString:string;
+    function BufferCountLow: Boolean;
     procedure ConnectTo(const aAddress:string; const aPort:string);
     procedure Disconnect;
     procedure SendData(aData:pointer; aLength:cardinal);
@@ -97,6 +98,12 @@ procedure TKMNetClientOverbyte.SendData(aData:pointer; aLength:cardinal);
 begin
   if fSocket.State = wsConnected then //Sometimes this occurs just before disconnect/reconnect
     fSocket.Send(aData, aLength);
+end;
+
+
+function TKMNetClientOverbyte.BufferCountLow: Boolean;
+begin
+  Result := fSocket.BufferedByteCount < 10240; //Less than 10kb in buffer
 end;
 
 
