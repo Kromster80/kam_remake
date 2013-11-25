@@ -142,6 +142,7 @@ uses
   KM_NetClient in 'src\KM_NetClient.pas',
   {$IFDEF WDC} KM_NetClientOverbyte in 'src\KM_NetClientOverbyte.pas', {$ENDIF}
   {$IFDEF FPC} KM_NetClientLNet in 'src\KM_NetClientLNet.pas', {$ENDIF}
+  KM_NetFileTransfer in 'src\KM_NetFileTransfer.pas',
   KM_NetServer in 'src\KM_NetServer.pas',
   {$IFDEF WDC} KM_NetServerOverbyte in 'src\KM_NetServerOverbyte.pas', {$ENDIF}
   {$IFDEF FPC} KM_NetServerLNet in 'src\KM_NetServerLNet.pas', {$ENDIF}

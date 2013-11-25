@@ -1336,6 +1336,7 @@ begin
       mk_ReassignHost:
               begin
                 M.Read(tmpInteger);
+                FreeAndNil(fFileReceiver); //Transfer is aborted if host disconnects
                 if tmpInteger = fMyIndexOnServer then
                 begin
                   //We are now the host
@@ -1357,7 +1358,6 @@ begin
 
                   fPassword := '';
                   fDescription := '';
-                  FreeAndNil(fFileReceiver);
                   fOnMPGameInfoChanged(Self);
                   SendPlayerListAndRefreshPlayersSetup;
                   PostMessage('Hosting rights reassigned to '+UnicodeString(fMyNikname));

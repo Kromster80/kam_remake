@@ -30,6 +30,10 @@ type
     procedure ReadW(out Value: UnicodeString); reintroduce; overload;
     procedure WriteW(const Value: UnicodeString); reintroduce; overload;
 
+    //ZLib's decompression streams don't work with the normal TStreams.CopyFrom since
+    //it uses ReadBuffer. This procedure will work when Source is a TDecompressionStream
+    procedure CopyFromDecompression(Source: TStream);
+
     procedure Write(const Value:TKMPointDir ); reintroduce; overload;
     function Write(const Value:TKMDirection): Longint; reintroduce; overload;
     function Write(const Value:TKMPoint ): Longint; reintroduce; overload;
@@ -308,6 +312,28 @@ function TKMemoryStream.Read(out Value:word): Longint;
 begin Result := inherited Read(Value, SizeOf(Value)); end;
 function TKMemoryStream.Read(out Value:shortint): Longint;
 begin Result := inherited Read(Value, SizeOf(Value)); end;
+
+
+procedure TKMemoryStream.CopyFromDecompression(Source: TStream);
+const
+  MaxBufSize = $F000;
+var
+  Count: Integer;
+  Buffer: PByte;
+begin
+  Source.Position := 0;
+  GetMem(Buffer, MaxBufSize);
+  try
+    Count := Source.Read(Buffer^, MaxBufSize);
+    while Count > 0 do
+    begin
+      WriteBuffer(Buffer^, Count);
+      Count := Source.Read(Buffer^, MaxBufSize);
+    end;
+  finally
+    FreeMem(Buffer, MaxBufSize);
+  end;
+end;
 
 
 { TKMPointList }

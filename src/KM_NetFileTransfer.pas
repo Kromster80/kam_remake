@@ -1,8 +1,10 @@
 unit KM_NetFileTransfer;
-
+{$I KaM_Remake.inc}
 interface
 uses
-  SysUtils, KM_Defaults, KM_CommonClasses;
+  SysUtils, KM_Defaults, KM_CommonClasses
+  {$IFDEF FPC}, zstream {$ENDIF}
+  {$IFDEF WDC}, ZLib {$ENDIF};
 
 type
   TKMTransferType = (kttMap, kttSave);
@@ -63,6 +65,8 @@ var
   I: Integer;
   FileName: UnicodeString;
   F: TSearchRec;
+  SourceStream: TKMemoryStream;
+  CompressionStream: TCompressionStream;
 begin
   inherited Create;
   fReceiverIndex := aReceiverIndex;
@@ -99,6 +103,14 @@ begin
                  AddFileToStream(FileName, '', VALID_SAVE_EXTENSIONS[I]);
              end;
   end;
+  //Compress fSendStream
+  SourceStream := fSendStream;
+  fSendStream := TKMemoryStream.Create;
+  CompressionStream := TCompressionStream.Create(fSendStream);
+  CompressionStream.CopyFrom(SourceStream, 0);
+  //fSendStream now contains the compressed data from SourceStream
+  CompressionStream.Free;
+  SourceStream.Free;
   fSendStream.Position := 0;
 end;
 
@@ -260,36 +272,48 @@ var
   ReadName, Ext, Postfix, FileName: UnicodeString;
   ReadSize: Cardinal;
   FileStream: TKMemoryStream;
+  DecompressionStream: TDecompressionStream;
+  ReadStream: TKMemoryStream;
 begin
   if fReceiveStream.Size = 0 then Exit; //Transfer was aborted
 
+  //Decompress the stream
   fReceiveStream.Position := 0;
-  fReceiveStream.ReadAssert('Transfer');
-  fReceiveStream.Read(ReadType, SizeOf(ReadType));
+  DecompressionStream := TDecompressionStream.Create(fReceiveStream);
+  //We need custom methods like ReadAssert, ReadW, etc. so we need to read from a TKMemoryStream
+  ReadStream := TKMemoryStream.Create;
+  ReadStream.CopyFromDecompression(DecompressionStream);
+  DecompressionStream.Free;
+  ReadStream.Position := 0;
+
+  //Read from the stream
+  ReadStream.ReadAssert('Transfer');
+  ReadStream.Read(ReadType, SizeOf(ReadType));
   Assert(ReadType = fType, 'Unexpected transfer type received');
-  fReceiveStream.ReadW(ReadName);
+  ReadStream.ReadW(ReadName);
   Assert(ReadName = fName, 'Unexpected transfer name received');
 
   ClearExistingFiles;
 
   //Load each file
-  while fReceiveStream.Position < fReceiveStream.Size do
+  while ReadStream.Position < ReadStream.Size do
   begin
-    fReceiveStream.ReadAssert('FileStart');
-    fReceiveStream.ReadW(Postfix);
-    fReceiveStream.ReadW(Ext);
+    ReadStream.ReadAssert('FileStart');
+    ReadStream.ReadW(Postfix);
+    ReadStream.ReadW(Ext);
     //Check EXT is valid (so we don't allow EXEs and stuff)
     Assert(ValidExtension(Ext), 'Unexpected file extension received');
 
-    fReceiveStream.Read(ReadSize);
+    ReadStream.Read(ReadSize);
     FileStream := TKMemoryStream.Create;
-    FileStream.CopyFrom(fReceiveStream, ReadSize);
+    FileStream.CopyFrom(ReadStream, ReadSize);
 
     FileName := GetFullFileName(fType, fName, Postfix, Ext);
     Assert(not FileExists(FileName), 'Transfer file already exists');
     FileStream.SaveToFile(FileName);
     FileStream.Free;
   end;
+  ReadStream.Free;
 end;
 
 end.
