@@ -30,13 +30,15 @@ type
     fReceiveStream: TKMemoryStream;
     fType: TKMTransferType;
     fName: UnicodeString;
+    fTotalSize: Cardinal;
     procedure ClearExistingFiles;
     function ValidExtension(Ext: UnicodeString): Boolean;
   public
     constructor Create(aType: TKMTransferType; aName: UnicodeString);
     destructor Destroy; override;
     procedure DataReceived(aStream: TKMemoryStream);
-    procedure TransferComplete;
+    property Name: UnicodeString read fName;
+    function ProcessTransfer: Boolean;
   end;
 
 implementation
@@ -158,7 +160,7 @@ begin
 
   aStream.WriteA('FileChunk');
   aStream.Write(aLength);
-  aStream.Write(Cardinal(fSendStream.Position));
+  aStream.Write(Cardinal(fSendStream.Size)); //Every chunk includes the total transfer size
   aStream.CopyFrom(fSendStream, aLength);
   Inc(fChunksInFlight);
 end;
@@ -188,11 +190,11 @@ end;
 
 
 procedure TKMFileReceiver.DataReceived(aStream: TKMemoryStream);
-var ChunkSize, tmp: Cardinal;
+var ChunkSize: Cardinal;
 begin
   aStream.ReadAssert('FileChunk');
   aStream.Read(ChunkSize);
-  aStream.Read(tmp);
+  aStream.Read(fTotalSize); //Every chunk includes the total transfer size
   Assert(aStream.Size - aStream.Position = ChunkSize, 'Chunk corrupted');
   fReceiveStream.CopyFrom(aStream, ChunkSize);
 end;
@@ -266,7 +268,7 @@ begin
 end;
 
 
-procedure TKMFileReceiver.TransferComplete;
+function TKMFileReceiver.ProcessTransfer: Boolean;
 var
   ReadType: TKMTransferType;
   ReadName, Ext, Postfix, FileName: UnicodeString;
@@ -275,6 +277,7 @@ var
   DecompressionStream: TDecompressionStream;
   ReadStream: TKMemoryStream;
 begin
+  Result := False;
   if fReceiveStream.Size = 0 then Exit; //Transfer was aborted
 
   //Decompress the stream
@@ -314,6 +317,7 @@ begin
     FileStream.Free;
   end;
   ReadStream.Free;
+  Result := True;
 end;
 
 end.

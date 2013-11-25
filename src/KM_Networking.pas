@@ -1194,13 +1194,10 @@ begin
               end;
 
       mk_FileChunk:
-              if not IsHost then
+              if not IsHost and (fFileReceiver <> nil) then
               begin
-                if fFileReceiver <> nil then
-                begin
-                  fFileReceiver.DataReceived(M);
-                  PacketSend(aSenderIndex, mk_FileAck);
-                end;
+                fFileReceiver.DataReceived(M);
+                PacketSend(aSenderIndex, mk_FileAck);
               end;
 
       mk_FileAck:
@@ -1208,13 +1205,11 @@ begin
                 fFileSender.AckReceived;
 
       mk_FileEnd:
-              if not IsHost then
+              if not IsHost and (fFileReceiver <> nil) then
               begin
-                if fFileReceiver <> nil then
-                begin
-                  fFileReceiver.TransferComplete;
-                  FreeAndNil(fFileReceiver);
-                end;
+                if fFileReceiver.ProcessTransfer then
+                  PostMessage(UnicodeString(fMyNikname) + ' successfully downloaded ' + fFileReceiver.Name);
+                FreeAndNil(fFileReceiver);
               end;
 
       mk_LangCode:
@@ -1429,12 +1424,12 @@ begin
                 begin
                   if fMapInfo.IsValid then
                   begin
-                    PostMessage('Error: '+UnicodeString(fMyNikname)+' has a different version of the map '+fMapInfo.FileName);
+                    PostMessage(UnicodeString(fMyNikname)+' has a different version of the map '+fMapInfo.FileName);
                     tmpStringW := Format(gResTexts[TX_MAP_WRONG_VERSION], [fMapInfo.FileName]);
                   end
                   else
                   begin
-                    PostMessage('Error: '+UnicodeString(fMyNikname)+' does not have the map '+fMapInfo.FileName);
+                    PostMessage(UnicodeString(fMyNikname)+' does not have the map '+fMapInfo.FileName);
                     tmpStringW := Format(gResTexts[TX_MAP_DOESNT_EXIST], [fMapInfo.FileName]);
                   end;
                   fMissingFileType := ngk_Map;
@@ -1475,12 +1470,12 @@ begin
                 begin
                   if fSaveInfo.IsValid then
                   begin
-                    PostMessage('Error: ' + UnicodeString(fMyNikname) + ' has a different version of the save ' + fSaveInfo.FileName);
+                    PostMessage(UnicodeString(fMyNikname) + ' has a different version of the save ' + fSaveInfo.FileName);
                     tmpStringW := Format(gResTexts[TX_SAVE_WRONG_VERSION],[fSaveInfo.FileName]);
                   end
                   else
                   begin
-                    PostMessage('Error: ' + UnicodeString(fMyNikname) + ' does not have the save ' + fSaveInfo.FileName);
+                    PostMessage(UnicodeString(fMyNikname) + ' does not have the save ' + fSaveInfo.FileName);
                     tmpStringW := Format(gResTexts[TX_SAVE_DOESNT_EXIST],[fSaveInfo.FileName]);
                   end;
                   fMissingFileType := ngk_Save;
