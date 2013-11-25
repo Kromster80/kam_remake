@@ -4331,8 +4331,7 @@ end;
 
 procedure TKMDropCommon.ListClick(Sender: TObject);
 begin
-  if (ItemIndex <> -1) then
-    if Assigned(fOnChange) then fOnChange(Self);
+  //No need to call fOnChange here since ListChange was already called
   ListHide(nil);
 end;
 
