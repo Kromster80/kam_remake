@@ -171,6 +171,9 @@ begin
   fPanFrom := fPosition;
   fPanDuration := aDuration;
   fPanProgress := 0;
+  //Panning will be skipped when duration is zero
+  if aDuration = 0 then
+    SetPosition(aLoc);
 end;
 
 
