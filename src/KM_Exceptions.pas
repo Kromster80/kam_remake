@@ -22,7 +22,7 @@ var
 
 implementation
 uses
-  KM_Log, KM_Defaults, KM_TextLibrary, KM_Points, KM_Game, KM_CommonClasses;
+  KM_Log, KM_Defaults, KM_ResTexts, KM_Points, KM_Game, KM_CommonClasses;
 
 
 { TKMExceptions }
@@ -37,51 +37,50 @@ end;
 
 procedure TKMExceptions.LoadTranslation;
 begin
-  MESettings.ExceptMsg          := fTextLibrary[TX_ERROR_MESSAGE];
-  MESettings.SendBtnCaption     := fTextLibrary[TX_ERROR_SEND];
-  MESettings.ShowBtnCaption     := fTextLibrary[TX_ERROR_SHOW_DATA];
-  MESettings.CloseBtnCaption    := fTextLibrary[TX_ERROR_TERMINATE];
-  MESettings.ContinueBtnCaption := fTextLibrary[TX_ERROR_RESUME];
-  MESettings.SendBoxTitle       := fTextLibrary[TX_ERROR_SENDING_TITLE];
-  MESettings.SendMailMsg        := fTextLibrary[TX_ERROR_SENDING_DATA];
-  MESettings.SendAttachMsg      := fTextLibrary[TX_ERROR_SENDING_DATA];
-  MESettings.SendFinalizeMsg    := fTextLibrary[TX_ERROR_SENDING_DATA];
-  MESettings.PrepareAttachMsg   := fTextLibrary[TX_ERROR_SENDING_CONNECTING];
-  MESettings.ConnectMsg         := fTextLibrary[TX_ERROR_SENDING_CONNECTING];
-  MESettings.AuthMsg            := fTextLibrary[TX_ERROR_SENDING_CONNECTING];
-  MESettings.SendFailureMsg     := fTextLibrary[TX_ERROR_SENDING_FAILED];
-  MESettings.PleaseWaitTitle    := fTextLibrary[TX_ERROR_WAIT_TITLEBAR];
-  MESettings.PleaseWaitText     := fTextLibrary[TX_ERROR_WAIT_MESSAGE];
+  MESettings.ExceptMsg          := gResTexts[TX_ERROR_MESSAGE];
+  MESettings.SendBtnCaption     := gResTexts[TX_ERROR_SEND];
+  MESettings.ShowBtnCaption     := gResTexts[TX_ERROR_SHOW_DATA];
+  MESettings.CloseBtnCaption    := gResTexts[TX_ERROR_TERMINATE];
+  MESettings.ContinueBtnCaption := gResTexts[TX_ERROR_RESUME];
+  MESettings.SendBoxTitle       := gResTexts[TX_ERROR_SENDING_TITLE];
+  MESettings.SendMailMsg        := gResTexts[TX_ERROR_SENDING_DATA];
+  MESettings.SendAttachMsg      := gResTexts[TX_ERROR_SENDING_DATA];
+  MESettings.SendFinalizeMsg    := gResTexts[TX_ERROR_SENDING_DATA];
+  MESettings.PrepareAttachMsg   := gResTexts[TX_ERROR_SENDING_CONNECTING];
+  MESettings.ConnectMsg         := gResTexts[TX_ERROR_SENDING_CONNECTING];
+  MESettings.SendFailureMsg     := gResTexts[TX_ERROR_SENDING_FAILED];
+  MESettings.PleaseWaitTitle    := gResTexts[TX_ERROR_WAIT_TITLEBAR];
+  MESettings.PleaseWaitText     := gResTexts[TX_ERROR_WAIT_MESSAGE];
 end;
 
 
 //We have to load the translations for the send assistant when it is created, that's the only way
 procedure DoCreateAssistant(const assistant: INVAssistant; const exception: IUnknown);
 begin
-  if fTextLibrary = nil then Exit; //If the exception happens before translations are loaded
+  if gResTexts = nil then Exit; //If the exception happens before translations are loaded
   if assistant.FormCount = 3 then //That's how we know it's the send assistant, not one of the others (which we currently don't use)
   begin
-    assistant.Title := fTextLibrary[TX_ERROR_SEND];
+    assistant.Title := gResTexts[TX_ERROR_SEND];
     //Contact details form
-    assistant.Forms[0].Message := fTextLibrary[TX_ERROR_SEND_CONTACT];
-    assistant.Forms[0].nvLabel('Label1').Caption := fTextLibrary[TX_ERROR_SEND_NAME];
-    assistant.Forms[0].nvLabel('Label2').Caption := fTextLibrary[TX_ERROR_SEND_EMAIL];
-    assistant.Forms[0].nvCheckBox('MemCheck').Caption := fTextLibrary[TX_ERROR_SEND_REMEMBER];
-    assistant.Forms[0].ContinueButton.Caption := fTextLibrary[TX_ERROR_SEND_NEXT];
-    assistant.Forms[0].CancelButton.Caption := fTextLibrary[TX_ERROR_SEND_CANCEL];
+    assistant.Forms[0].Message := gResTexts[TX_ERROR_SEND_CONTACT];
+    assistant.Forms[0].nvLabel('Label1').Caption := gResTexts[TX_ERROR_SEND_NAME];
+    assistant.Forms[0].nvLabel('Label2').Caption := gResTexts[TX_ERROR_SEND_EMAIL];
+    assistant.Forms[0].nvCheckBox('MemCheck').Caption := gResTexts[TX_ERROR_SEND_REMEMBER];
+    assistant.Forms[0].ContinueButton.Caption := gResTexts[TX_ERROR_SEND_NEXT];
+    assistant.Forms[0].CancelButton.Caption := gResTexts[TX_ERROR_SEND_CANCEL];
 
     //Error details form
-    assistant.Forms[1].Message := fTextLibrary[TX_ERROR_SEND_DETAILS];
-    assistant.Forms[1].nvLabel('Label1').Caption := fTextLibrary[TX_ERROR_SEND_DETAILS_MESSAGE];
-    assistant.Forms[1].ContinueButton.Caption := fTextLibrary[TX_ERROR_SEND_NEXT];
-    assistant.Forms[1].CancelButton.Caption := fTextLibrary[TX_ERROR_SEND_CANCEL];
+    assistant.Forms[1].Message := gResTexts[TX_ERROR_SEND_DETAILS];
+    assistant.Forms[1].nvLabel('Label1').Caption := gResTexts[TX_ERROR_SEND_DETAILS_MESSAGE];
+    assistant.Forms[1].ContinueButton.Caption := gResTexts[TX_ERROR_SEND_NEXT];
+    assistant.Forms[1].CancelButton.Caption := gResTexts[TX_ERROR_SEND_CANCEL];
 
     //Screenshot form
-    assistant.Forms[2].Message := fTextLibrary[TX_ERROR_SEND_SCREENSHOT];
-    assistant.Forms[2].nvCheckBox('AttachCheck').Caption := fTextLibrary[TX_ERROR_SEND_SCREENSHOT_MESSAGE];
-    assistant.Forms[2].nvLabel('Label1').Caption := fTextLibrary[TX_ERROR_SEND_SCREENSHOT_EDIT];
-    assistant.Forms[2].ContinueButton.Caption := fTextLibrary[TX_ERROR_SEND_SEND];
-    assistant.Forms[2].CancelButton.Caption := fTextLibrary[TX_ERROR_SEND_CANCEL];
+    assistant.Forms[2].Message := gResTexts[TX_ERROR_SEND_SCREENSHOT];
+    assistant.Forms[2].nvCheckBox('AttachCheck').Caption := gResTexts[TX_ERROR_SEND_SCREENSHOT_MESSAGE];
+    assistant.Forms[2].nvLabel('Label1').Caption := gResTexts[TX_ERROR_SEND_SCREENSHOT_EDIT];
+    assistant.Forms[2].ContinueButton.Caption := gResTexts[TX_ERROR_SEND_SEND];
+    assistant.Forms[2].CancelButton.Caption := gResTexts[TX_ERROR_SEND_CANCEL];
   end;
 end;
 
@@ -99,10 +98,10 @@ begin
 
   //Append the exception message on a new paragraph of the dialog. It might be useful to the user (e.g. file permissions wrong)
   //and sometimes people send us a screenshot of the crash report window, it would be nice to know what the error was from that.
-  if fTextLibrary <> nil then
-    ExceptIntf.ExceptMsg := fTextLibrary[TX_ERROR_MESSAGE]+#13#10+#13#10+LogMessage
+  if gResTexts <> nil then
+    ExceptIntf.ExceptMsg := gResTexts[TX_ERROR_MESSAGE]+#13#10+#13#10+LogMessage
   else
-    //Still need a sensible message if fTextLibrary failed to load for some reason. ENG is default
+    //Still need a sensible message if gResTexts failed to load for some reason. ENG is default
     ExceptIntf.ExceptMsg := 'An error occurred in the application. Please click Send Bug Report so we can investigate this issue. Thanks for your help!'+#13#10+#13#10+LogMessage;
 
   //We want to add some of our own files to the report
@@ -110,7 +109,7 @@ begin
   MESettings.BugReportZip := CrashFile; //Exception info also goes in the zip
   MESettings.ScreenShotZip := CrashFile; //Screenshot also goes in the zip
 
-  if fGame <> nil then fGame.AttachCrashReport(ExceptIntf, CrashFile);
+  if gGame <> nil then gGame.AttachCrashReport(ExceptIntf, CrashFile);
 
   //Do the log after fGame because fGame adds stuff to the log
   if gLog <> nil then ExceptIntf.AdditionalAttachments.Add(gLog.LogPath, '', CrashFile);

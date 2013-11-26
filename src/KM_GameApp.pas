@@ -100,12 +100,12 @@ begin
 
   fGameSettings := TGameSettings.Create;
 
-  {$IFDEF USE_MAD_EXCEPT}fExceptions.LoadTranslation;{$ENDIF}
-
   fRender       := TRender.Create(aRenderControl, aScreenX, aScreenY, aVSync);
 
   gResource := TKMResource.Create(fRender, aLS, aLT);
   gResource.LoadMainResources(fGameSettings.Locale);
+
+  {$IFDEF USE_MAD_EXCEPT}fExceptions.LoadTranslation;{$ENDIF}
 
   //Show the message if user has old OpenGL drivers (pre-1.4)
   if fRender.IsOldGLVersion then
