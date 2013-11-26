@@ -384,7 +384,9 @@ begin
     end;
 
   //If we miss a few random checks during reconnections no one cares, inconsistencies will be detected as soon as it is over
-  if fNetworking.Connected then SendRandomCheck(aTick);
+  //To reduce network load, send random checks once every 10 ticks
+  if fNetworking.Connected and (aTick mod 10 = 1) then
+    SendRandomCheck(aTick);
 
   //It is possible that we have already recieved other player's random checks, if so check them now
   for I := 0 to gHands.Count-1 do
