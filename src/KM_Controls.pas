@@ -4542,9 +4542,14 @@ end;
 
 
 procedure TKMDropList.Paint;
-var Col: TColor4;
+var Col: TColor4; P: TKMPanel;
 begin
   inherited;
+
+  //Hacky solution to keep the list at the right place
+  P := MasterParent;
+  fList.Left := AbsLeft-P.AbsLeft;
+  fList.Top := AbsTop+Height-P.AbsTop;
 
   if fEnabled then Col:=$FFFFFFFF else Col:=$FF888888;
   TKMRenderUI.WriteText(AbsLeft+4, AbsTop+4, Width-8, fCaption, fFont, taLeft, Col);
@@ -4627,6 +4632,7 @@ end;
 
 procedure TKMDropColumns.SetDropWidth(aDropWidth: Integer);
 begin
+  fDropWidth := aDropWidth;
   fList.AbsLeft := AbsLeft + Width - aDropWidth;
   fList.Width := aDropWidth;
 end;
@@ -4692,9 +4698,15 @@ end;
 
 
 procedure TKMDropColumns.Paint;
-var Col: TColor4;
+var Col: TColor4; P: TKMPanel;
 begin
   inherited;
+
+  //Hacky solution to keep the list at the right place
+  P := MasterParent;
+  fList.Left := AbsLeft + Width - DropWidth - P.AbsLeft;
+  fList.Top := AbsTop+Height-P.AbsTop;
+
   TKMRenderUI.WriteBevel(AbsLeft, AbsTop, Width, Height);
   if fEnabled then Col:=$FFFFFFFF else Col:=$FF888888;
 
@@ -4793,9 +4805,15 @@ end;
 
 
 procedure TKMDropColors.Paint;
-var Col: TColor4;
+var Col: TColor4; P: TKMPanel;
 begin
   inherited;
+
+  //Hacky solution to keep the swatch at the right place
+  P := MasterParent;
+  fSwatch.Left := AbsLeft-P.AbsLeft;
+  fSwatch.Top := AbsTop+Height-P.AbsTop;
+
   TKMRenderUI.WriteBevel(AbsLeft, AbsTop, Width-fButton.Width, Height);
   TKMRenderUI.WriteShape(AbsLeft+2, AbsTop+1, Width-fButton.Width-3, Height-2, fSwatch.GetColor);
   if (fRandomCaption <> '') and (fSwatch.ColorIndex = 0) then
