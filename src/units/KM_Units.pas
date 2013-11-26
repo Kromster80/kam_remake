@@ -356,7 +356,7 @@ begin
                           //(it's very annoying if they do)
                           Result := True;
                           for I := 0 to gHands.Count - 1 do
-                            if (I = fOwner) or (gHands[fOwner].Alliances[I] = at_Ally) then
+                            if gHands[fOwner].Alliances[I] = at_Ally then
                               Result := Result and not gHands[I].BuildList.HousePlanList.HasPlan(aLoc);
                         end;
     else Result := True;

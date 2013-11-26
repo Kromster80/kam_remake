@@ -349,7 +349,10 @@ begin
     GoalsSurviveCount[I] := 0;
     SetLength(GoalsSurvive[I], 0);
     for K:=0 to MAX_HANDS-1 do
-      Alliances[I,K] := at_Enemy;
+      if I = K then
+        Alliances[I,K] := at_Ally
+      else
+        Alliances[I,K] := at_Enemy;
   end;
 end;
 

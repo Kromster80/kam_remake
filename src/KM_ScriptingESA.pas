@@ -1594,7 +1594,7 @@ begin
       gHands[aVictors[I]].AI.Victory;
       if aTeamVictory then
         for K := 0 to gHands.Count - 1 do
-          if gHands[K].Enabled and (gHands[aVictors[I]].Alliances[K] = at_Ally) then
+          if gHands[K].Enabled and (I <> K) and (gHands[aVictors[I]].Alliances[K] = at_Ally) then
             gHands[K].AI.Victory;
     end;
 
@@ -1628,7 +1628,8 @@ const
 begin
   //Verify all input parameters
   if InRange(aPlayer1, 0, gHands.Count - 1)
-  and InRange(aPlayer2, 0, gHands.Count - 1) then
+  and InRange(aPlayer2, 0, gHands.Count - 1)
+  and (aPlayer1 <> aPlayer2) then
   begin
     gHands[aPlayer1].Alliances[aPlayer2] := ALLIED[aAllied];
     if aAllied then

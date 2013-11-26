@@ -411,7 +411,7 @@ begin
                           gHands[fLastHand].AI.Setup.AutoDefend := True;
     ct_AIStartPosition: if fLastHand <> PLAYER_NONE then
                           gHands[fLastHand].AI.Setup.StartPosition := KMPoint(P[0]+1,P[1]+1);
-    ct_SetAlliance:     if (fLastHand <> PLAYER_NONE) and fPlayerEnabled[P[0]] then
+    ct_SetAlliance:     if (fLastHand <> PLAYER_NONE) and fPlayerEnabled[P[0]] and (P[0] <> fLastHand) then
                           if P[1] = 1 then
                             gHands[fLastHand].Alliances[P[0]] := at_Ally
                           else

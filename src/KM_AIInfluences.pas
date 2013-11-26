@@ -250,7 +250,7 @@ begin
     if T <> 0 then
     begin
       for H := 0 to gHands.Count - 1 do
-      if (H <> aIndex) and (gHands[aIndex].Alliances[H] = at_Enemy) then
+      if gHands[aIndex].Alliances[H] = at_Enemy then
         T := T - Influence[H, I, K] div INFLUENCE_ENEMY_DIV;
 
       Ownership[aIndex, I, K] := Max(T, 0);

@@ -498,8 +498,9 @@ begin
       PlayerK := fNetworking.NetPlayers[K].StartLocation - 1; //PlayerID is 0 based
 
       //Players are allies if they belong to same team (team 0 means free-for-all)
-      if (fNetworking.NetPlayers[I].Team <> 0)
-      and (fNetworking.NetPlayers[I].Team = fNetworking.NetPlayers[K].Team) then
+      if (I = K)
+      or ((fNetworking.NetPlayers[I].Team <> 0)
+      and (fNetworking.NetPlayers[I].Team = fNetworking.NetPlayers[K].Team)) then
         PlayerI.Alliances[PlayerK] := at_Ally
       else
         PlayerI.Alliances[PlayerK] := at_Enemy;

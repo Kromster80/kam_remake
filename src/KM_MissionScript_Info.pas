@@ -95,7 +95,7 @@ begin
                             fMapInfo.AddGoal(glt_Survive, fLastHand, TGoalCondition(P[0]), TGoalStatus(P[1]), -1)
                           else
                             fMapInfo.AddGoal(glt_Survive, fLastHand, TGoalCondition(P[0]), TGoalStatus(P[1]), P[3]);
-    ct_SetAlliance:     if (fLastHand >= 0) then
+    ct_SetAlliance:     if (fLastHand >= 0) and (P[0] <> fLastHand) then //Can't be enemies with yourself
                           if P[1] = 1 then
                             fMapInfo.Alliances[fLastHand, P[0]] := at_Ally
                           else

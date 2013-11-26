@@ -121,7 +121,7 @@ begin
   Reset;
 
   for I := 0 to gHands.Count - 1 do
-  if (I <> fOwner) and gHands[I].Enabled
+  if gHands[I].Enabled
   and (gHands[fOwner].Alliances[I] = at_Enemy) then
     EvaluatePower(I);
 end;

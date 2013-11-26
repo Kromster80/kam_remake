@@ -122,7 +122,7 @@ var
 begin
   SetLength(Enemies, 0);
   for I := 0 to gHands.Count - 1 do
-    if (I <> fOwner) and (gHands[fOwner].Alliances[I] = at_Enemy) then
+    if gHands[fOwner].Alliances[I] = at_Enemy then
     begin
       SetLength(Enemies, Length(Enemies)+1);
       Enemies[High(Enemies)] := I;

@@ -275,7 +275,7 @@ var
 begin
   Result := MaxSingle;
   for I := 0 to fCount - 1 do
-  if (aIndex <> I) and (Hands[aIndex].Alliances[I] = at_Enemy) then
+  if Hands[aIndex].Alliances[I] = at_Enemy then
   begin
     for K := fHandsList[I].Houses.Count - 1 downto 0 do
     begin
@@ -439,8 +439,7 @@ function TKMHandsCollection.CheckAlliance(aPlay1,aPlay2: THandIndex): TAllianceT
 begin
   Result := at_Ally;
 
-  //TODO: if pla1=pla2 should be written in players alliance array, not a special case!
-  if (aPlay1 = PLAYER_ANIMAL) or (aPlay2 = PLAYER_ANIMAL) or (aPlay1 = aPlay2) then
+  if (aPlay1 = PLAYER_ANIMAL) or (aPlay2 = PLAYER_ANIMAL) then
     Exit;
 
   Result := fHandsList[aPlay1].Alliances[aPlay2];
