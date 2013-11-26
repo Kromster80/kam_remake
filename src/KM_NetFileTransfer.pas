@@ -6,7 +6,11 @@ uses
   {$IFDEF FPC}, zstream {$ENDIF}
   {$IFDEF WDC}, ZLib {$ENDIF};
 
+const MAX_TRANSFERS = 8; //One for each player
 type
+  TTransferEvent = procedure(aClientIndex: Integer) of object;
+  TTransferPacketEvent = procedure(aClientIndex: Integer; aStream: TKMemoryStream; out BufferSpace: Integer) of object;
+  TTransferProgressEvent = procedure(Total, Progress: Cardinal) of object;
   TKMTransferType = (kttMap, kttSave);
 
   TKMFileSender = class
@@ -31,6 +35,7 @@ type
     fType: TKMTransferType;
     fName: UnicodeString;
     fTotalSize: Cardinal;
+    fReceivedSize: Cardinal;
     procedure ClearExistingFiles;
     function ValidExtension(Ext: UnicodeString): Boolean;
   public
@@ -38,7 +43,25 @@ type
     destructor Destroy; override;
     procedure DataReceived(aStream: TKMemoryStream);
     property Name: UnicodeString read fName;
+    property TotalSize: Cardinal read fTotalSize;
+    property ReceivedSize: Cardinal read fReceivedSize;
     function ProcessTransfer: Boolean;
+  end;
+
+  TKMFileSenderManager = class
+  private
+    fSenders: array[1..MAX_TRANSFERS] of TKMFileSender;
+    fOnTransferCompleted: TTransferEvent;
+    fOnTransferPacket: TTransferPacketEvent;
+  public
+    destructor Destroy; override;
+    function StartNewSend(aType: TKMTransferType; aName: UnicodeString; aReceiverIndex: Integer): Boolean;
+    procedure AbortAllTransfers;
+    procedure AckReceived(aReceiverIndex: Integer);
+    procedure ClientDisconnected(aReceiverIndex: Integer);
+    procedure UpdateStateIdle(SendBufferSpace: Integer);
+    property OnTransferCompleted: TTransferEvent write fOnTransferCompleted;
+    property OnTransferPacket: TTransferPacketEvent write fOnTransferPacket;
   end;
 
 implementation
@@ -73,7 +96,7 @@ begin
   inherited Create;
   fReceiverIndex := aReceiverIndex;
   fSendStream := TKMemoryStream.Create;
-  fSendStream.WriteA('Transfer');
+  fSendStream.WriteA('TransferCompressed');
   fSendStream.Write(aType, SizeOf(aType));
   fSendStream.WriteW(aName);
   //Fill stream with data to be sent
@@ -108,6 +131,7 @@ begin
   //Compress fSendStream
   SourceStream := fSendStream;
   fSendStream := TKMemoryStream.Create;
+  fSendStream.WriteA('Transfer');
   CompressionStream := TCompressionStream.Create(fSendStream);
   CompressionStream.CopyFrom(SourceStream, 0);
   //fSendStream now contains the compressed data from SourceStream
@@ -132,7 +156,7 @@ end;
 
 function TKMFileSender.CanSend: Boolean;
 begin
-  Result := fChunksInFlight <= MAX_CHUNKS_BEFORE_ACK;
+  Result := fChunksInFlight < MAX_CHUNKS_BEFORE_ACK;
 end;
 
 
@@ -197,6 +221,7 @@ begin
   aStream.Read(fTotalSize); //Every chunk includes the total transfer size
   Assert(aStream.Size - aStream.Position = ChunkSize, 'Chunk corrupted');
   fReceiveStream.CopyFrom(aStream, ChunkSize);
+  fReceivedSize := fReceivedSize + ChunkSize;
 end;
 
 
@@ -282,6 +307,7 @@ begin
 
   //Decompress the stream
   fReceiveStream.Position := 0;
+  fReceiveStream.ReadAssert('Transfer');
   DecompressionStream := TDecompressionStream.Create(fReceiveStream);
   //We need custom methods like ReadAssert, ReadW, etc. so we need to read from a TKMemoryStream
   ReadStream := TKMemoryStream.Create;
@@ -290,7 +316,7 @@ begin
   ReadStream.Position := 0;
 
   //Read from the stream
-  ReadStream.ReadAssert('Transfer');
+  ReadStream.ReadAssert('TransferCompressed');
   ReadStream.Read(ReadType, SizeOf(ReadType));
   Assert(ReadType = fType, 'Unexpected transfer type received');
   ReadStream.ReadW(ReadName);
@@ -318,6 +344,77 @@ begin
   end;
   ReadStream.Free;
   Result := True;
+end;
+
+{ TKMFileSenderManager }
+procedure TKMFileSenderManager.AbortAllTransfers;
+var I: Integer;
+begin
+  for I := Low(fSenders) to High(fSenders) do
+    FreeAndNil(fSenders[I]);
+end;
+
+procedure TKMFileSenderManager.AckReceived(aReceiverIndex: Integer);
+var I: Integer;
+begin
+  for I := Low(fSenders) to High(fSenders) do
+    if (fSenders[I] <> nil) and (fSenders[I].ReceiverIndex = aReceiverIndex) then
+      fSenders[I].AckReceived;
+end;
+
+procedure TKMFileSenderManager.ClientDisconnected(aReceiverIndex: Integer);
+var I: Integer;
+begin
+  for I := Low(fSenders) to High(fSenders) do
+    if (fSenders[I] <> nil) and (fSenders[I].ReceiverIndex = aReceiverIndex) then
+      FreeAndNil(fSenders[I]);
+end;
+
+destructor TKMFileSenderManager.Destroy;
+var I: Integer;
+begin
+  for I := Low(fSenders) to High(fSenders) do
+    FreeAndNil(fSenders[I]);
+  inherited;
+end;
+
+function TKMFileSenderManager.StartNewSend(aType: TKMTransferType; aName: UnicodeString; aReceiverIndex: Integer): Boolean;
+var I: Integer;
+begin
+  for I := Low(fSenders) to High(fSenders) do
+    if (fSenders[I] = nil) or (fSenders[I].ReceiverIndex = aReceiverIndex) then
+    begin
+      if fSenders[I] <> nil then
+        //There is an existing transfer to this client, so free it
+        fSenders[I].Free;
+
+      fSenders[I] := TKMFileSender.Create(aType, aName, aReceiverIndex);
+      Result := True;
+      Exit;
+    end;
+  Result := False;
+end;
+
+procedure TKMFileSenderManager.UpdateStateIdle(SendBufferSpace: Integer);
+var
+  I: Integer;
+  Stream: TKMemoryStream;
+  ClientIndex: Integer;
+begin
+  for I := Low(fSenders) to High(fSenders) do
+    while (fSenders[I] <> nil) and fSenders[I].CanSend and (SendBufferSpace > FILE_CHUNK_SIZE) do
+    begin
+      Stream := TKMemoryStream.Create;
+      fSenders[I].WriteChunk(Stream, FILE_CHUNK_SIZE);
+      fOnTransferPacket(fSenders[I].ReceiverIndex, Stream, SendBufferSpace); //Updates SendBufferSpace
+      Stream.Free;
+      if fSenders[I].StreamEnd then
+      begin
+        ClientIndex := fSenders[I].ReceiverIndex;
+        FreeAndNil(fSenders[I]); //We must free it before calling OnTransferCompleted
+        fOnTransferCompleted(ClientIndex);
+      end;
+    end;
 end;
 
 end.

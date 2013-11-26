@@ -33,6 +33,7 @@ type
     procedure Reset(aKind: TNetPlayerKind; aPreserveMessage: Boolean = False; aPreserveMaps: Boolean = False);
     procedure GameOptionsTabSwitch(Sender: TObject);
     procedure GameOptionsChange(Sender: TObject);
+    procedure FileDownloadClick(Sender: TObject);
 
     procedure ChatMenuSelect(aItem: Integer);
     procedure ChatMenuClick(Sender: TObject);
@@ -60,6 +61,7 @@ type
     procedure Lobby_OnPingInfo(Sender: TObject);
     procedure Lobby_OnPlayersSetup(Sender: TObject);
     procedure Lobby_OnReassignedToHost(Sender: TObject);
+    procedure Lobby_OnFileTransferProgress(aTotal, aProgress: Cardinal);
 
     function DetectMapType: Integer;
     procedure BackClick(Sender: TObject);
@@ -95,7 +97,11 @@ type
         Radio_LobbyMapType: TKMRadioGroup;
         DropCol_LobbyMaps: TKMDropColumns;
         Label_LobbyMapName: TKMLabel;
-        MinimapView_Lobby: TKMMinimapView;
+        Panel_LobbySetupTransfer: TKMPanel;
+          Button_LobbySetupDownload: TKMButton;
+          PercentBar_LobbySetupProgress: TKMPercentBar;
+        Panel_LobbySetupMinimap: TKMPanel;
+          MinimapView_Lobby: TKMMinimapView;
         Button_LobbyTabDesc, Button_LobbyTabOptions: TKMButton;
         Panel_LobbySetupDesc: TKMPanel;
           Memo_LobbyMapDesc: TKMMemo;
@@ -266,10 +272,17 @@ begin
       DropCol_LobbyMaps.OnChange := MapChange;
       Label_LobbyMapName := TKMLabel.Create(Panel_LobbySetup, 10, 95, 250, 20, '', fnt_Metal, taLeft);
 
-      TKMBevel.Create(Panel_LobbySetup, 35, 120, 199, 199);
-      MinimapView_Lobby := TKMMinimapView.Create(Panel_LobbySetup, 39, 124, 191, 191);
-      MinimapView_Lobby.ShowLocs := True; //In the minimap we want player locations to be shown
-      MinimapView_Lobby.OnLocClick := MinimapLocClick;
+      Panel_LobbySetupMinimap := TKMPanel.Create(Panel_LobbySetup, 0, 120, 270, 200);
+        TKMBevel.Create(Panel_LobbySetupMinimap, 35, 0, 199, 199);
+        MinimapView_Lobby := TKMMinimapView.Create(Panel_LobbySetupMinimap, 39, 4, 191, 191);
+        MinimapView_Lobby.ShowLocs := True; //In the minimap we want player locations to be shown
+        MinimapView_Lobby.OnLocClick := MinimapLocClick;
+
+      Panel_LobbySetupTransfer := TKMPanel.Create(Panel_LobbySetup, 0, 120, 270, 200);
+        Button_LobbySetupDownload := TKMButton.Create(Panel_LobbySetupTransfer, 10, 0, 250, 30, 'Download', bsMenu);
+        Button_LobbySetupDownload.OnClick := FileDownloadClick;
+        PercentBar_LobbySetupProgress := TKMPercentBar.Create(Panel_LobbySetupTransfer, 10, 0, 250, 20, fnt_Game);
+      Panel_LobbySetupTransfer.Hide;
 
       Button_LobbyTabDesc := TKMButton.Create(Panel_LobbySetup, 10, 324, 125, 20, gResTexts[TX_LOBBY_MAP_DESCRIPTION], bsMenu);
       Button_LobbyTabDesc.OnClick := GameOptionsTabSwitch;
@@ -506,6 +519,7 @@ begin
   //fNetworking.OnStartSave - already assigned in fGameApp when Net is created
   fNetworking.OnDisconnect   := Lobby_OnDisconnect;
   fNetworking.OnReassignedHost := Lobby_OnReassignedToHost;
+  fNetworking.OnFileTransferProgress := Lobby_OnFileTransferProgress;
 
   ChatMenuSelect(-1); //All
 
@@ -659,6 +673,15 @@ begin
 
   //Refresh the data to controls
   Lobby_OnGameOptions(nil);
+end;
+
+
+procedure TKMMenuLobby.FileDownloadClick(Sender: TObject);
+begin
+  fNetworking.RequestFileTransfer;
+  Button_LobbySetupDownload.Hide;
+  Lobby_OnFileTransferProgress(1, 0);
+  PercentBar_LobbySetupProgress.Caption := 'downloading...';
 end;
 
 
@@ -1046,7 +1069,7 @@ begin
 
   //The Sender is nil in Reset_Lobby when we are not connected
   if Sender <> nil then
-    fNetworking.SelectNoMap(gResTexts[TX_LOBBY_MAP_NONE]);
+    fNetworking.SelectNoMap('');
 end;
 
 
@@ -1278,6 +1301,10 @@ begin
   TrackBar_LobbySpeedAfterPT.Enabled := fNetworking.IsHost and (fNetworking.SelectGameKind = ngk_Map) and fNetworking.MapInfo.IsValid;
   CheckBox_LobbyRandomizeTeamLocations.Enabled := fNetworking.IsHost and (fNetworking.SelectGameKind <> ngk_Save);
 
+  //In case it was hidden during file transfer
+  Panel_LobbySetupTransfer.Hide;
+  Panel_LobbySetupMinimap.Show;
+
   //Don't reset the selection if no map is selected
   if ((fNetworking.SelectGameKind = ngk_Map) and fNetworking.MapInfo.IsValid)
   or ((fNetworking.SelectGameKind = ngk_Save) and fNetworking.SaveInfo.IsValid) then
@@ -1286,12 +1313,20 @@ begin
   case fNetworking.SelectGameKind of
     ngk_None: begin
                 Memo_LobbyMapDesc.Clear;
-                if aData = gResTexts[TX_LOBBY_MAP_NONE] then
-                  Label_LobbyMapName.Caption := aData
+                if aData = '' then
+                  Label_LobbyMapName.Caption := gResTexts[TX_LOBBY_MAP_NONE]
                 else
                 begin
-                  Label_LobbyMapName.Caption := '';
+                  Label_LobbyMapName.Caption := fNetworking.MissingFileName;
                   Memo_LobbyMapDesc.Text := aData; //aData is some error message
+                  if fNetworking.MissingFileType = ngk_Save then
+                    Radio_LobbyMapType.ItemIndex := 4
+                  else
+                    Radio_LobbyMapType.ItemIndex := 0;
+                  Panel_LobbySetupMinimap.Hide;
+                  Panel_LobbySetupTransfer.Show;
+                  Button_LobbySetupDownload.Show;
+                  Lobby_OnFileTransferProgress(0, 0); //Reset progress bar
                 end;
               end;
     ngk_Save: begin
@@ -1406,6 +1441,19 @@ begin
   gSoundPlayer.Play(sfxn_Error);
 
   fOnPageChange(gpMultiplayer, aData);
+end;
+
+
+procedure TKMMenuLobby.Lobby_OnFileTransferProgress(aTotal, aProgress: Cardinal);
+begin
+  if aTotal = 0 then
+    PercentBar_LobbySetupProgress.Hide
+  else
+  begin
+    PercentBar_LobbySetupProgress.Show;
+    PercentBar_LobbySetupProgress.Position := aProgress / aTotal;
+    PercentBar_LobbySetupProgress.Caption := IntToStr(aProgress div 1024) + 'kb / ' + IntToStr(aTotal div 1024) + 'kb';
+  end;
 end;
 
 

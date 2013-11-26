@@ -103,7 +103,10 @@ end;
 
 function TKMNetClientOverbyte.GetBufferSpace: Integer;
 begin
-  Result := fSocket.BufSize - fSocket.BufferedByteCount;
+  if (fSocket <> nil) and (fSocket.State = wsConnected) then
+    Result := fSocket.BufSize - fSocket.BufferedByteCount
+  else
+    Result := 0;
 end;
 
 

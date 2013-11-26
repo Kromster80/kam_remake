@@ -74,8 +74,8 @@ type
     fSelectGameKind: TNetGameKind;
     fNetGameOptions: TKMGameOptions;
 
-    fFileSender: TKMFileSender;
     fFileReceiver: TKMFileReceiver;
+    fFileSenderManager: TKMFileSenderManager;
     fMissingFileType: TNetGameKind;
     fMissingFileName: UnicodeString;
 
@@ -85,6 +85,7 @@ type
     fOnJoinAssignedHost: TNotifyEvent;
     fOnHostFail: TUnicodeStringEvent;
     fOnReassignedHost: TNotifyEvent;
+    fOnFileTransferProgress: TTransferProgressEvent;
     fOnTextMessage: TUnicodeStringEvent;
     fOnPlayersSetup: TNotifyEvent;
     fOnGameOptions: TNotifyEvent;
@@ -109,6 +110,9 @@ type
     procedure DoReconnection;
     procedure PlayerJoined(aServerIndex: Integer; aPlayerName: AnsiString);
     function CalculateGameCRC:Cardinal;
+
+    procedure TransferOnCompleted(aClientIndex: Integer);
+    procedure TransferOnPacket(aClientIndex: Integer; aStream: TKMemoryStream; out BufferSpace: Integer);
 
     procedure ConnectSucceed(Sender:TObject);
     procedure ConnectFailed(const S: string);
@@ -158,6 +162,7 @@ type
     procedure StartClick; //All required arguments are in our class
     procedure SendPlayerListAndRefreshPlayersSetup(aPlayerIndex:integer = NET_ADDRESS_OTHERS);
     procedure SendGameOptions;
+    procedure RequestFileTransfer;
 
     //Common
     procedure ConsoleCommand(aText: UnicodeString);
@@ -172,6 +177,8 @@ type
     property SelectGameKind: TNetGameKind read fSelectGameKind;
     property NetPlayers:TKMNetPlayersList read fNetPlayers;
     property LastProcessedTick:cardinal write fLastProcessedTick;
+    property MissingFileType: TNetGameKind read fMissingFileType;
+    property MissingFileName: UnicodeString read fMissingFileName;
     procedure GameCreated;
     procedure SendCommands(aStream: TKMemoryStream; aPlayerIndex: THandIndex = -1);
     procedure AttemptReconnection;
@@ -182,6 +189,7 @@ type
     property OnHostFail: TUnicodeStringEvent write fOnHostFail;         //Server failed to start (already running a server?)
     property OnJoinAssignedHost:TNotifyEvent write fOnJoinAssignedHost; //We were assigned hosting rights upon connection
     property OnReassignedHost:TNotifyEvent write fOnReassignedHost;     //We were reassigned hosting rights when the host quit
+    property OnFileTransferProgress:TTransferProgressEvent write fOnFileTransferProgress;
 
     property OnPlayersSetup: TNotifyEvent write fOnPlayersSetup; //Player list updated
     property OnGameOptions: TNotifyEvent write fOnGameOptions; //Game options updated
@@ -219,6 +227,9 @@ begin
   fNetPlayers := TKMNetPlayersList.Create;
   fServerQuery := TKMServerQuery.Create(aMasterServerAddress);
   fNetGameOptions := TKMGameOptions.Create;
+  fFileSenderManager := TKMFileSenderManager.Create;
+  fFileSenderManager.OnTransferCompleted := TransferOnCompleted;
+  fFileSenderManager.OnTransferPacket := TransferOnPacket;
 end;
 
 
@@ -228,6 +239,7 @@ begin
   fNetServer.Free;
   fNetClient.Free;
   fServerQuery.Free;
+  fFileSenderManager.Free;
   FreeAndNil(fMapInfo);
   FreeAndNil(fSaveInfo);
   FreeAndNil(fNetGameOptions);
@@ -362,8 +374,8 @@ begin
 
   FreeAndNil(fMapInfo);
   FreeAndNil(fSaveInfo);
-  FreeAndNil(fFileSender);
   FreeAndNil(fFileReceiver);
+  fFileSenderManager.AbortAllTransfers;
 
   fSelectGameKind := ngk_None;
 end;
@@ -481,6 +493,7 @@ begin
 
   FreeAndNil(fMapInfo);
   FreeAndNil(fSaveInfo);
+  fFileSenderManager.AbortAllTransfers; //Any ongoing transfer is cancelled
 
   PacketSend(NET_ADDRESS_OTHERS, mk_ResetMap);
   fNetPlayers.ResetLocAndReady; //Reset start locations
@@ -516,6 +529,7 @@ begin
 
   fSelectGameKind := ngk_Map;
   fNetPlayers[fMyIndex].ReadyToStart := True;
+  fFileSenderManager.AbortAllTransfers; //Any ongoing transfer is cancelled
 
   SendMapOrSave;
 
@@ -555,6 +569,7 @@ begin
   fNetPlayers[fMyIndex].ReadyToStart := True;
   //Randomise locations within team is disabled for saves
   NetPlayers.RandomizeTeamLocations := False;
+  fFileSenderManager.AbortAllTransfers; //Any ongoing transfer is cancelled
 
   SendMapOrSave;
   MatchPlayersToSave; //Don't match players if it's not a valid save
@@ -800,6 +815,22 @@ begin
 end;
 
 
+procedure TKMNetworking.RequestFileTransfer;
+begin
+  if fFileReceiver = nil then
+    case fMissingFileType of
+      ngk_Map:  begin
+                  fFileReceiver := TKMFileReceiver.Create(kttMap, fMissingFileName);
+                  PacketSendW(NET_ADDRESS_HOST, mk_FileRequest, fMissingFileName);
+                end;
+      ngk_Save: begin
+                  fFileReceiver := TKMFileReceiver.Create(kttSave, fMissingFileName);
+                  PacketSendW(NET_ADDRESS_HOST, mk_FileRequest, fMissingFileName);
+                end;
+    end;
+end;
+
+
 procedure TKMNetworking.ConsoleCommand(aText: UnicodeString);
 var
   s,PlayerID: Integer;
@@ -949,7 +980,7 @@ begin
   PacketSend(aServerIndex, mk_GameCRC, Integer(CalculateGameCRC));
   fNetPlayers.AddPlayer(aPlayerName, aServerIndex, '');
   PacketSend(aServerIndex, mk_AllowToJoin);
-  SendMapOrSave; //Send the map first so it doesn't override starting locs
+  SendMapOrSave(aServerIndex); //Send the map first so it doesn't override starting locs
 
   if fSelectGameKind = ngk_Save then MatchPlayersToSave(fNetPlayers.ServerToLocal(aServerIndex)); //Match only this player
   SendPlayerListAndRefreshPlayersSetup;
@@ -1178,19 +1209,18 @@ begin
               end;
 
       mk_FileRequest:
-              //TODO: Allow multiple transfers at once
-              if IsHost and (fFileSender = nil) then
+              if IsHost then
               begin
                 //Validate request and set up file sender
                 M.ReadW(tmpStringW);
                 case fSelectGameKind of
-                  ngk_Map:  if tmpStringW = MapInfo.FileName then
-                              fFileSender := TKMFileSender.Create(kttMap, MapInfo.FileName, aSenderIndex);
-                  ngk_Save: if tmpStringW = SaveInfo.FileName then
-                              fFileSender := TKMFileSender.Create(kttSave, SaveInfo.FileName, aSenderIndex);
+                  ngk_Map:  if (tmpStringW <> MapInfo.FileName)
+                            or not fFileSenderManager.StartNewSend(kttMap, MapInfo.FileName, aSenderIndex) then
+                              PacketSend(aSenderIndex, mk_FileEnd); //Abort
+                  ngk_Save: if (tmpStringW <> SaveInfo.FileName)
+                            or not fFileSenderManager.StartNewSend(kttSave, SaveInfo.FileName, aSenderIndex) then
+                              PacketSend(aSenderIndex, mk_FileEnd); //Abort
                 end;
-                if fFileSender = nil then
-                  PacketSend(aSenderIndex, mk_FileEnd); //Abort
               end;
 
       mk_FileChunk:
@@ -1198,11 +1228,13 @@ begin
               begin
                 fFileReceiver.DataReceived(M);
                 PacketSend(aSenderIndex, mk_FileAck);
+                if Assigned(fOnFileTransferProgress) then
+                  fOnFileTransferProgress(fFileReceiver.TotalSize, fFileReceiver.ReceivedSize);
               end;
 
       mk_FileAck:
-              if IsHost and (fFileSender <> nil) then
-                fFileSender.AckReceived;
+              if IsHost then
+                fFileSenderManager.AckReceived(aSenderIndex);
 
       mk_FileEnd:
               if not IsHost and (fFileReceiver <> nil) then
@@ -1268,8 +1300,7 @@ begin
                 M.Read(tmpInteger);
                 if IsHost then
                 begin
-                  if (fFileSender <> nil) and (fFileSender.ReceiverIndex = tmpInteger) then
-                    FreeAndNil(fFileSender);
+                  fFileSenderManager.ClientDisconnected(tmpInteger);
                   PlayerIndex := fNetPlayers.ServerToLocal(tmpInteger);
                   if PlayerIndex = -1 then exit; //Has already disconnected or not from our room
                   if not fNetPlayers[PlayerIndex].Dropped then
@@ -1306,8 +1337,7 @@ begin
               case fNetPlayerKind of
                 lpk_Host:
                     begin
-                      if (fFileSender <> nil) and (fFileSender.ReceiverIndex = aSenderIndex) then
-                        FreeAndNil(fFileSender);
+                      fFileSenderManager.ClientDisconnected(aSenderIndex);
                       if fNetPlayers.ServerToLocal(aSenderIndex) = -1 then exit; //Has already disconnected
                       PostMessage(UnicodeString(fNetPlayers[fNetPlayers.ServerToLocal(aSenderIndex)].Nikname)+' has quit');
                       if fNetGameState in [lgs_Loading, lgs_Game] then
@@ -1395,16 +1425,18 @@ begin
 
       mk_ResetMap:
               begin
+                FreeAndNil(fFileReceiver); //Any ongoing transfer is cancelled
                 fSelectGameKind := ngk_None;
                 FreeAndNil(fMapInfo);
                 FreeAndNil(fSaveInfo);
                 fNetPlayers.ResetLocAndReady;
-                if Assigned(fOnMapName) then fOnMapName(gResTexts[TX_LOBBY_MAP_NONE]);
+                if Assigned(fOnMapName) then fOnMapName('');
               end;
 
       mk_MapSelect:
               if fNetPlayerKind = lpk_Joiner then
               begin
+                FreeAndNil(fFileReceiver); //Any ongoing transfer is cancelled
                 M.ReadW(tmpStringW);
                 fSelectGameKind := ngk_Map;
                 FreeAndNil(fMapInfo);
@@ -1435,13 +1467,6 @@ begin
                   fMissingFileType := ngk_Map;
                   fMissingFileName := fMapInfo.FileName;
 
-                  //For now always request the file
-                  if fFileReceiver = nil then
-                  begin
-                    fFileReceiver := TKMFileReceiver.Create(kttMap, fMissingFileName);
-                    PacketSendW(NET_ADDRESS_HOST, mk_FileRequest, fMissingFileName);
-                  end;
-
                   FreeAndNil(fMapInfo);
                   fSelectGameKind := ngk_None;
                   if fMyIndex <> -1 then //In the process of joining
@@ -1453,6 +1478,7 @@ begin
       mk_SaveSelect:
               if fNetPlayerKind = lpk_Joiner then
               begin
+                FreeAndNil(fFileReceiver); //Any ongoing transfer is cancelled
                 M.ReadW(tmpStringW);
                 fSelectGameKind := ngk_Save;
                 FreeAndNil(fSaveInfo);
@@ -1480,13 +1506,6 @@ begin
                   end;
                   fMissingFileType := ngk_Save;
                   fMissingFileName := fSaveInfo.FileName;
-
-                  //For now always request the file
-                  if fFileReceiver = nil then
-                  begin
-                    fFileReceiver := TKMFileReceiver.Create(kttSave, fMissingFileName);
-                    PacketSendW(NET_ADDRESS_HOST, mk_FileRequest, fMissingFileName);
-                  end;
 
                   FreeAndNil(fSaveInfo);
                   fSelectGameKind := ngk_None;
@@ -1782,6 +1801,21 @@ begin
 end;
 
 
+procedure TKMNetworking.TransferOnCompleted(aClientIndex: Integer);
+begin
+  PacketSend(aClientIndex, mk_FileEnd);
+  SendMapOrSave(aClientIndex);
+  SendPlayerListAndRefreshPlayersSetup(aClientIndex);
+end;
+
+
+procedure TKMNetworking.TransferOnPacket(aClientIndex: Integer; aStream: TKMemoryStream; out BufferSpace: Integer);
+begin
+  PacketSend(aClientIndex, mk_FileChunk, aStream);
+  BufferSpace := fNetClient.GetBufferSpace;
+end;
+
+
 procedure TKMNetworking.UpdateState(aTick: cardinal);
 begin
   //Reconnection delay
@@ -1795,29 +1829,12 @@ end;
 
 
 procedure TKMNetworking.UpdateStateIdle;
-var Stream: TKMemoryStream;
 begin
   fNetServer.UpdateState; //Server measures pings etc.
   //LNet requires network update calls unless it is being used as visual components
   fNetClient.UpdateStateIdle;
   fServerQuery.UpdateStateIdle;
-
-  //TODO: Move this somewhere else?
-  //File sending
-  while (fFileSender <> nil) and fFileSender.CanSend and (fNetClient.GetBufferSpace > FILE_CHUNK_SIZE) do
-  begin
-    Stream := TKMemoryStream.Create;
-    fFileSender.WriteChunk(Stream, FILE_CHUNK_SIZE);
-    PacketSend(fFileSender.ReceiverIndex, mk_FileChunk, Stream);
-    Stream.Free;
-    if fFileSender.StreamEnd then
-    begin
-      PacketSend(fFileSender.ReceiverIndex, mk_FileEnd);
-      SendMapOrSave(fFileSender.ReceiverIndex);
-      SendPlayerListAndRefreshPlayersSetup(fFileSender.ReceiverIndex);
-      FreeAndNil(fFileSender);
-    end;
-  end;
+  fFileSenderManager.UpdateStateIdle(fNetClient.GetBufferSpace);
 end;
 
 
