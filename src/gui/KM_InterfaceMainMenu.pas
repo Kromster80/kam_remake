@@ -161,6 +161,8 @@ end;
 procedure TKMMainMenuInterface.Resize(X, Y: Word);
 begin
   inherited;
+  Panel_Menu.Height := Min(Panel_Main.Height, MENU_DESIGN_Y);
+  Panel_Menu.Top := (Panel_Main.Height - Panel_Menu.Height) div 2;
 
   //Needs to resize the map and move flag positions accordingly
   fMenuCampaign.Resize(X, Y);
