@@ -6,13 +6,13 @@ Future
 	Lookout tower [Krom]
 	Futureproof and update MP protocol
 	Multiplayer trading (from a new building "Trading Post"?)
-	File transfer in multiplayer for missions and saves [Lewin]
 	Improved MapEd
 	Checkpoints in replays for fast fwd/rwd
 
 Next Demo
  +	Select objects by shape
  +	Undo/Redo in MapEd terrain editing
+ +	File transfer in multiplayer for missions and saves [Lewin]
 	Unicode
 
 

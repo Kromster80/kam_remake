@@ -67,6 +67,8 @@ Improvements:
  +      L       Shortcuts for all soldier buttons: , & . to rotate, + & - to add/withdraw lines, x to charge, f for food
  +      L       MapEd: Randomize terrain tiles when creating a new map
  +      L       Allow cinematics in dynamic scripts
+ +  M   File transfers in multiplayer lobby
+ +	L	Master server use MySQL for storage rather than .txt files
 	        Dismiss button to make units walk into the school and disappear (gold is not refunded)
 	L	Simple dedicated server form which lets you set the properties of the INI for the server and start it [gemGreg]
 	L	Placing houses in MP should put a temp/fake visual markup until the real one can be added to make it appear responsive
@@ -74,7 +76,6 @@ Improvements:
 	L	The story message on campaign map should fade when you move mouse over it, without jumping
 	L	Mutltiplayer spectator mode
 	L	256x256 icons for EXE (for vista/7/8 users)
-	L	Master server use MySQL for storage rather than .txt files
 	L	Chat logs
 	L	Evacuate wares from barracks
 	L	Some way to delete multiplayer saves from within the KaM Remake
