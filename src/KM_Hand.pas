@@ -999,7 +999,7 @@ var
 begin
   //Include self and allies
   for I := 0 to gHands.Count - 1 do
-    if (gHands[fHandIndex].Alliances[I] = at_Ally) then
+    if (I = fHandIndex) or (gHands[fHandIndex].Alliances[I] = at_Ally) then
       gHands[I].BuildList.FieldworksList.GetFields(aList, aRect, aIncludeFake);
 end;
 
@@ -1010,7 +1010,7 @@ var
 begin
   //Include self and allies
   for I := 0 to gHands.Count - 1 do
-    if (gHands[fHandIndex].Alliances[I] = at_Ally) then
+    if (I = fHandIndex) or (gHands[fHandIndex].Alliances[I] = at_Ally) then
       gHands[I].BuildList.HousePlanList.GetOutlines(aList, aRect);
 end;
 
@@ -1021,7 +1021,7 @@ var
 begin
   //Include self and allies
   for I := 0 to gHands.Count - 1 do
-    if (gHands[fHandIndex].Alliances[I] = at_Ally) then
+    if (I = fHandIndex) or (gHands[fHandIndex].Alliances[I] = at_Ally) then
       gHands[I].BuildList.HousePlanList.GetTablets(aList, aRect);
 end;
 
@@ -1064,7 +1064,7 @@ begin
     //This tile must not contain fields/houses of allied players or self
     if AllowBuild then
     for J := 0 to gHands.Count - 1 do
-    if (gHands[fHandIndex].Alliances[J] = at_Ally)
+    if ((J = fHandIndex) or (gHands[fHandIndex].Alliances[J] = at_Ally))
     and ((gHands[J].fBuildList.FieldworksList.HasField(P2) <> ft_None)
        or gHands[J].fBuildList.HousePlanList.HasPlan(P2)) then
        AllowBuild := False;
@@ -1074,7 +1074,7 @@ begin
     for S := -1 to 1 do for T := -1 to 1 do
       if (S<>0) or (T<>0) then //This is a surrounding tile, not the actual tile
         for J := 0 to gHands.Count - 1 do
-          if (gHands[fHandIndex].Alliances[J] = at_Ally)
+          if ((J = fHandIndex) or (gHands[fHandIndex].Alliances[J] = at_Ally))
           and gHands[J].fBuildList.HousePlanList.HasPlan(KMPoint(P2.X+S,P2.Y+T)) then
           begin
             BlockPoint(KMPoint(P2.X+S,P2.Y+T), TC_BLOCK); //Block surrounding points

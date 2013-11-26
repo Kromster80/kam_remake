@@ -709,7 +709,7 @@ end;
 
 procedure TRenderTerrain.RenderMarkup(pX, pY: Word; aFieldType: TFieldType);
 const
-  MarkupTex: array [TFieldType] of Word = (0, 105, 107, 108, 111);
+  MarkupTex: array [TFieldType] of Word = (0, 105, 107, 0, 108);
 var
   ID: Integer;
   UVa,UVb: TKMPointF;
