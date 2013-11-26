@@ -138,7 +138,6 @@ const
 constructor TKMHandStats.Create;
 var
   W: TWareType;
-  U: TUnitType;
   I, K: Integer;
 begin
   inherited;

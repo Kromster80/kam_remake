@@ -461,7 +461,7 @@ begin
   if InRange(aPlayer, 0, gHands.Count - 1)
   and gTerrain.TileInMapCoords(X, Y) then
   begin
-    gHands[aPlayer].UnitGroups.GetClosestGroup(KMPoint(X,Y));
+    G := gHands[aPlayer].UnitGroups.GetClosestGroup(KMPoint(X,Y));
     if G <> nil then
       Result := G.UID;
   end
