@@ -437,12 +437,10 @@ end;
 e.g. Play1 may be allied with Play2, but Play2 may be enemy to Play1}
 function TKMHandsCollection.CheckAlliance(aPlay1,aPlay2: THandIndex): TAllianceType;
 begin
-  Result := at_Ally;
-
   if (aPlay1 = PLAYER_ANIMAL) or (aPlay2 = PLAYER_ANIMAL) then
-    Exit;
-
-  Result := fHandsList[aPlay1].Alliances[aPlay2];
+    Result := at_Ally //In KaM animals are always friendly
+  else
+    Result := fHandsList[aPlay1].Alliances[aPlay2];
 end;
 
 
