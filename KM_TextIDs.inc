@@ -637,6 +637,9 @@ TX_LOBBY_GAME_OPTIONS = 573; //Game options:
 TX_LOBBY_PEACETIME = 574; //Peacetime (minutes)
 TX_LOBBY_SLOT_CLOSED = 575; //Closed
 TX_LOBBY_HOST_DOES_SETUP = 576; //Host does player setup
+TX_LOBBY_DOWNLOAD = 736; //Download
+TX_LOBBY_DOWNLOADING = 737; //downloading...
+TX_LOBBY_DOWNLOAD_OVERWRITE = 738; //Overwrite existing files
 
 TX_MULTIPLAYER_WAITING = 577; //Waiting for players:
 TX_CHAT_ALL = 578; //All
