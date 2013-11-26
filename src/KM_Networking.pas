@@ -78,6 +78,7 @@ type
     fFileSenderManager: TKMFileSenderManager;
     fMissingFileType: TNetGameKind;
     fMissingFileName: UnicodeString;
+    fMissingFileExists: Boolean;
 
     fOnJoinSucc: TNotifyEvent;
     fOnJoinFail: TUnicodeStringEvent;
@@ -179,6 +180,7 @@ type
     property LastProcessedTick:cardinal write fLastProcessedTick;
     property MissingFileType: TNetGameKind read fMissingFileType;
     property MissingFileName: UnicodeString read fMissingFileName;
+    property MissingFileExists: Boolean read fMissingFileExists;
     procedure GameCreated;
     procedure SendCommands(aStream: TKMemoryStream; aPlayerIndex: THandIndex = -1);
     procedure AttemptReconnection;
@@ -1458,11 +1460,13 @@ begin
                   begin
                     PostMessage(UnicodeString(fMyNikname)+' has a different version of the map '+fMapInfo.FileName);
                     tmpStringW := Format(gResTexts[TX_MAP_WRONG_VERSION], [fMapInfo.FileName]);
+                    fMissingFileExists := True;
                   end
                   else
                   begin
                     PostMessage(UnicodeString(fMyNikname)+' does not have the map '+fMapInfo.FileName);
                     tmpStringW := Format(gResTexts[TX_MAP_DOESNT_EXIST], [fMapInfo.FileName]);
+                    fMissingFileExists := False;
                   end;
                   fMissingFileType := ngk_Map;
                   fMissingFileName := fMapInfo.FileName;
@@ -1498,11 +1502,13 @@ begin
                   begin
                     PostMessage(UnicodeString(fMyNikname) + ' has a different version of the save ' + fSaveInfo.FileName);
                     tmpStringW := Format(gResTexts[TX_SAVE_WRONG_VERSION],[fSaveInfo.FileName]);
+                    fMissingFileExists := True;
                   end
                   else
                   begin
                     PostMessage(UnicodeString(fMyNikname) + ' does not have the save ' + fSaveInfo.FileName);
                     tmpStringW := Format(gResTexts[TX_SAVE_DOESNT_EXIST],[fSaveInfo.FileName]);
+                    fMissingFileExists := False;
                   end;
                   fMissingFileType := ngk_Save;
                   fMissingFileName := fSaveInfo.FileName;

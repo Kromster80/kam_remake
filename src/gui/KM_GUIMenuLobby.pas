@@ -100,6 +100,7 @@ type
         Panel_LobbySetupTransfer: TKMPanel;
           Button_LobbySetupDownload: TKMButton;
           PercentBar_LobbySetupProgress: TKMPercentBar;
+          CheckBox_LobbySetupOverwrite: TKMCheckbox;
         Panel_LobbySetupMinimap: TKMPanel;
           MinimapView_Lobby: TKMMinimapView;
         Button_LobbyTabDesc, Button_LobbyTabOptions: TKMButton;
@@ -279,9 +280,11 @@ begin
         MinimapView_Lobby.OnLocClick := MinimapLocClick;
 
       Panel_LobbySetupTransfer := TKMPanel.Create(Panel_LobbySetup, 0, 120, 270, 200);
+        CheckBox_LobbySetupOverwrite := TKMCheckbox.Create(Panel_LobbySetupTransfer, 10, 0, 250, 16, 'Overwrite existing files', fnt_Game);
+        CheckBox_LobbySetupOverwrite.OnClick := FileDownloadClick;
         Button_LobbySetupDownload := TKMButton.Create(Panel_LobbySetupTransfer, 10, 0, 250, 30, 'Download', bsMenu);
         Button_LobbySetupDownload.OnClick := FileDownloadClick;
-        PercentBar_LobbySetupProgress := TKMPercentBar.Create(Panel_LobbySetupTransfer, 10, 0, 250, 20, fnt_Game);
+        PercentBar_LobbySetupProgress := TKMPercentBar.Create(Panel_LobbySetupTransfer, 10, 0, 250, 24, fnt_Game);
       Panel_LobbySetupTransfer.Hide;
 
       Button_LobbyTabDesc := TKMButton.Create(Panel_LobbySetup, 10, 324, 125, 20, gResTexts[TX_LOBBY_MAP_DESCRIPTION], bsMenu);
@@ -678,10 +681,16 @@ end;
 
 procedure TKMMenuLobby.FileDownloadClick(Sender: TObject);
 begin
-  fNetworking.RequestFileTransfer;
-  Button_LobbySetupDownload.Hide;
-  Lobby_OnFileTransferProgress(1, 0);
-  PercentBar_LobbySetupProgress.Caption := 'downloading...';
+  if Sender = Button_LobbySetupDownload then
+  begin
+    fNetworking.RequestFileTransfer;
+    Button_LobbySetupDownload.Hide;
+    CheckBox_LobbySetupOverwrite.Hide;
+    Lobby_OnFileTransferProgress(1, 0);
+    PercentBar_LobbySetupProgress.Caption := 'downloading...';
+  end;
+  if Sender = CheckBox_LobbySetupOverwrite then
+    Button_LobbySetupDownload.Enabled := CheckBox_LobbySetupOverwrite.Checked;
 end;
 
 
@@ -1327,6 +1336,19 @@ begin
                   Panel_LobbySetupTransfer.Show;
                   Button_LobbySetupDownload.Show;
                   Lobby_OnFileTransferProgress(0, 0); //Reset progress bar
+                  if fNetworking.MissingFileExists then
+                  begin
+                    CheckBox_LobbySetupOverwrite.Show;
+                    CheckBox_LobbySetupOverwrite.Checked := False;
+                    Button_LobbySetupDownload.Disable;
+                    Button_LobbySetupDownload.Top := 20;
+                  end
+                  else
+                  begin
+                    CheckBox_LobbySetupOverwrite.Hide;
+                    Button_LobbySetupDownload.Enable;
+                    Button_LobbySetupDownload.Top := 0;
+                  end;
                 end;
               end;
     ngk_Save: begin
