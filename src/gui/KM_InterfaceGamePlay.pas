@@ -134,6 +134,7 @@ type
   protected
     Sidebar_Top: TKMImage;
     Sidebar_Middle: TKMImage;
+    Sidebar_Bottom: array of TKMImage;
     MinimapView: TKMMinimapView;
     Label_DebugInfo, Label_Hint: TKMLabel;
     Bevel_HintBG: TKMBevel;
@@ -1036,17 +1037,15 @@ const
                                              TX_MENU_TAB_HINT_STATISTICS, TX_MENU_TAB_HINT_OPTIONS);
 var
   T: TKMTabButtons;
+  I: Integer;
 begin
   Panel_Controls := TKMPanel.Create(Panel_Main, 0, 368, 224, 376);
   //Resized manually on .Resize to be most efficient in space management
 
     //We need several of these to cover max of 1534x2560 (vertically oriented)
-    TKMImage.Create(Panel_Controls, 0,    0, 224, 400, 404);
-    TKMImage.Create(Panel_Controls, 0,  400, 224, 400, 404);
-    TKMImage.Create(Panel_Controls, 0,  800, 224, 400, 404);
-    TKMImage.Create(Panel_Controls, 0, 1200, 224, 400, 404);
-    TKMImage.Create(Panel_Controls, 0, 1600, 224, 400, 404);
-    TKMImage.Create(Panel_Controls, 0, 2000, 224, 400, 404);
+    SetLength(Sidebar_Bottom, 6);
+    for I := Low(Sidebar_Bottom) to High(Sidebar_Bottom) do
+      Sidebar_Bottom[I] := TKMImage.Create(Panel_Controls, 0, 400*I, 224, 400, 404);
 
     //Main 4 buttons
     for T := Low(TKMTabButtons) to High(TKMTabButtons) do begin
@@ -1332,6 +1331,7 @@ end;
 
 
 procedure TKMGamePlayInterface.CinematicUpdate;
+var I: Integer;
 begin
   if gHands[MySpectator.HandIndex].InCinematic then
   begin
@@ -1346,10 +1346,22 @@ begin
     ReleaseDirectionSelector;
     gResource.Cursors.Cursor := kmc_Default; //Might have been scrolling or joining groups
     SetMenuState(gGame.MissionMode = mm_Tactic); //Disabled main buttons
+
+    MinimapView.Disable;
+    Sidebar_Top.Disable;
+    Sidebar_Middle.Disable;
+    for I := Low(Sidebar_Bottom) to High(Sidebar_Bottom) do
+      Sidebar_Bottom[I].Disable;
   end
   else
   begin
     SetMenuState(gGame.MissionMode = mm_Tactic); //Enable main buttons
+
+    MinimapView.Enable;
+    Sidebar_Top.Enable;
+    Sidebar_Middle.Enable;
+    for I := Low(Sidebar_Bottom) to High(Sidebar_Bottom) do
+      Sidebar_Bottom[I].Enable;
   end;
 end;
 
