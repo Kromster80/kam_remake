@@ -51,7 +51,7 @@ type
 implementation
 uses
   KM_Game, KM_HandsCollection, KM_Hand, KM_HandStats,
-  KM_ResSound, KM_ScriptingESA, KM_ResHouses;
+  KM_ResSound, KM_ScriptingESA, KM_ResHouses, KM_Alerts;
 
 
 { TKMHandAI }
@@ -233,7 +233,7 @@ begin
       begin
         //No fight alerts in replays, and only show alerts for ourselves
         if (not gGame.IsReplay) and (fOwner = MySpectator.HandIndex) then
-          gGame.GamePlayInterface.Alerts.AddFight(KMPointF(aHouse.GetPosition), fOwner, an_Town);
+          gGame.GamePlayInterface.Alerts.AddFight(KMPointF(aHouse.GetPosition), fOwner, an_Town, gGame.GameTickCount + ALERT_DURATION[atFight]);
       end;
     hndComputer:
       fGeneral.RetaliateAgainstThreat(aAttacker);
@@ -252,7 +252,7 @@ begin
     hndHuman:
       //No fight alerts in replays, and only show alerts for ourselves
       if not gGame.IsReplay and (fOwner = MySpectator.HandIndex) then
-        gGame.GamePlayInterface.Alerts.AddFight(aUnit.PositionF, fOwner, NotifyKind[aUnit is TKMUnitWarrior]);
+        gGame.GamePlayInterface.Alerts.AddFight(aUnit.PositionF, fOwner, NotifyKind[aUnit is TKMUnitWarrior], gGame.GameTickCount + ALERT_DURATION[atFight]);
     hndComputer:
       begin
         //If we are attacked, then we should counter attack the attacker (except if he is a recruit in tower)

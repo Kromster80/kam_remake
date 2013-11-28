@@ -4,10 +4,13 @@ interface
 uses Classes, SysUtils,
   KM_Defaults, KM_Pics, KM_Points, KM_ResSound, KM_Viewport;
 
-
 type
   TAlertType = (atBeacon, atFight);
 
+const
+  ALERT_DURATION: array [TAlertType] of Byte = (80, 60); //Typical beacon duration after which it will be gone
+
+type
   TKMAlert = class
   private
     fAlertType: TAlertType;
@@ -21,7 +24,7 @@ type
     function GetVisibleMinimap: Boolean; virtual; abstract;
     function GetVisibleTerrain: Boolean; virtual; abstract;
   public
-    constructor Create(aAlertType: TAlertType; aLoc: TKMPointF; aOwner: THandIndex; aTick: Cardinal);
+    constructor Create(aAlertType: TAlertType; aLoc: TKMPointF; aOwner: THandIndex; aExpiry: Cardinal);
 
     property AlertType: TAlertType read fAlertType;
     property Loc: TKMPointF read fLoc;
@@ -43,7 +46,6 @@ type
   //lived and last only a few seconds
   TKMAlerts = class
   private
-    fTickCounter: Integer;
     fViewport: TViewport;
     fList: TList;
     function GetAlert(aIndex: Integer): TKMAlert;
@@ -51,8 +53,8 @@ type
   public
     constructor Create(aViewport: TViewport);
     destructor Destroy; override;
-    procedure AddBeacon(aLoc: TKMPointF; aOwner: THandIndex);
-    procedure AddFight(aLoc: TKMPointF; aPlayer: THandIndex; aAsset: TAttackNotification);
+    procedure AddBeacon(aLoc: TKMPointF; aOwner: THandIndex; aShowUntil: Cardinal);
+    procedure AddFight(aLoc: TKMPointF; aPlayer: THandIndex; aAsset: TAttackNotification; aShowUntil: Cardinal);
     property Count: Integer read GetCount;
     property Items[aIndex: Integer]: TKMAlert read GetAlert; default;
     procedure Paint(aPass: Byte);
@@ -74,7 +76,7 @@ type
     function GetVisibleMinimap: Boolean; override;
     function GetVisibleTerrain: Boolean; override;
   public
-    constructor Create(aLoc: TKMPointF; aOwner: THandIndex; aTick: Cardinal);
+    constructor Create(aLoc: TKMPointF; aOwner: THandIndex; aExpiry: Cardinal);
   end;
 
   TKMAlertAttacked = class(TKMAlert)
@@ -88,29 +90,28 @@ type
     function GetVisibleMinimap: Boolean; override;
     function GetVisibleTerrain: Boolean; override;
   public
-    constructor Create(aLoc: TKMPointF; aOwner: THandIndex; aAsset: TAttackNotification; aTick: Cardinal);
+    constructor Create(aLoc: TKMPointF; aOwner: THandIndex; aAsset: TAttackNotification; aExpiry: Cardinal);
     property Asset: TAttackNotification read fAsset;
-    procedure Refresh(aTick: Cardinal);
+    procedure Refresh(aExpiry: Cardinal);
     procedure Update(const aView: TKMRect); override;
   end;
 
 
 const
-  ALERT_DURATION: array [TAlertType] of Byte = (80, 60); //Typical beacon duration after which it will be gone
   FIGHT_DISTANCE = 24; //Fights this far apart are treated as separate
   INTERVAL_ATTACKED_MSG = 20; //Time between audio messages saying you are being attacked
   MAX_BEACONS = 5; //Maximum number of simultanious beacons per player
 
 
 { TKMAlert }
-constructor TKMAlert.Create(aAlertType: TAlertType; aLoc: TKMPointF; aOwner: THandIndex; aTick: Cardinal);
+constructor TKMAlert.Create(aAlertType: TAlertType; aLoc: TKMPointF; aOwner: THandIndex; aExpiry: Cardinal);
 begin
   inherited Create;
 
   fAlertType := aAlertType;
   fLoc := aLoc;
   fOwner := aOwner;
-  fExpiration := aTick + ALERT_DURATION[fAlertType];
+  fExpiration := aExpiry;
 end;
 
 
@@ -127,9 +128,9 @@ end;
 
 
 { TKMAlertBeacon }
-constructor TKMAlertBeacon.Create(aLoc: TKMPointF; aOwner: THandIndex; aTick: Cardinal);
+constructor TKMAlertBeacon.Create(aLoc: TKMPointF; aOwner: THandIndex; aExpiry: Cardinal);
 begin
-  inherited Create(atBeacon, aLoc, aOwner, aTick);
+  inherited Create(atBeacon, aLoc, aOwner, aExpiry);
 end;
 
 
@@ -167,9 +168,9 @@ end;
 
 
 { TKMAlertFight }
-constructor TKMAlertAttacked.Create(aLoc: TKMPointF; aOwner: THandIndex; aAsset: TAttackNotification; aTick: Cardinal);
+constructor TKMAlertAttacked.Create(aLoc: TKMPointF; aOwner: THandIndex; aAsset: TAttackNotification; aExpiry: Cardinal);
 begin
-  inherited Create(atFight, aLoc, aOwner, aTick);
+  inherited Create(atFight, aLoc, aOwner, aExpiry);
 
   fAsset := aAsset;
   fLastLookedAt := High(Byte) - 1;
@@ -211,9 +212,9 @@ begin
 end;
 
 
-procedure TKMAlertAttacked.Refresh(aTick: Cardinal);
+procedure TKMAlertAttacked.Refresh(aExpiry: Cardinal);
 begin
-  fExpiration := aTick + ALERT_DURATION[fAlertType];
+  fExpiration := aExpiry;
 end;
 
 
@@ -276,7 +277,7 @@ end;
 
 
 //Ally has placed a beacon for ue
-procedure TKMAlerts.AddBeacon(aLoc: TKMPointF; aOwner: THandIndex);
+procedure TKMAlerts.AddBeacon(aLoc: TKMPointF; aOwner: THandIndex; aShowUntil: Cardinal);
   procedure RemoveExcessBeacons;
   var
     I, OldestID, Count: Integer;
@@ -303,13 +304,13 @@ procedure TKMAlerts.AddBeacon(aLoc: TKMPointF; aOwner: THandIndex);
 begin
   //If this player has too many beacons remove his oldest one
   RemoveExcessBeacons;
-  fList.Add(TKMAlertBeacon.Create(aLoc, aOwner, fTickCounter));
+  fList.Add(TKMAlertBeacon.Create(aLoc, aOwner, aShowUntil));
   gSoundPlayer.Play(sfxn_Beacon);
 end;
 
 
 //Player belongings signal that they are under attack
-procedure TKMAlerts.AddFight(aLoc: TKMPointF; aPlayer: THandIndex; aAsset: TAttackNotification);
+procedure TKMAlerts.AddFight(aLoc: TKMPointF; aPlayer: THandIndex; aAsset: TAttackNotification; aShowUntil: Cardinal);
 var
   I: Integer;
 begin
@@ -320,12 +321,12 @@ begin
         if (Owner = aPlayer) and (Asset = aAsset)
         and (KMLength(Loc, aLoc) < FIGHT_DISTANCE) then
         begin
-          Refresh(fTickCounter);
+          Refresh(aShowUntil);
           Exit;
         end;
 
   //Otherwise create a new alert
-  fList.Add(TKMAlertAttacked.Create(aLoc, aPlayer, aAsset, fTickCounter));
+  fList.Add(TKMAlertAttacked.Create(aLoc, aPlayer, aAsset, aShowUntil));
 end;
 
 

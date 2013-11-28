@@ -171,7 +171,7 @@ type
 
 
 implementation
-uses KM_Game, KM_HouseMarket, KM_HandsCollection, KM_Hand, KM_ResTexts, KM_Utils, KM_AI, KM_HouseBarracks, KM_HouseSchool;
+uses KM_Game, KM_HouseMarket, KM_HandsCollection, KM_Hand, KM_ResTexts, KM_Utils, KM_AI, KM_HouseBarracks, KM_HouseSchool, KM_Alerts;
 
 
 procedure SaveCommandToMemoryStream(aCommand: TGameInputCommand; aMemoryStream: TKMemoryStream);
@@ -377,7 +377,7 @@ begin
       gic_GameAlertBeacon:        if fReplayState = gipRecording then //Beacons don't show up in replay
                                     //Beacons are only for allies
                                     if gHands.CheckAlliance(Params[3], MySpectator.HandIndex) = at_Ally then
-                                      gGame.GamePlayInterface.Alerts.AddBeacon(KMPointF(Params[1]/10,Params[2]/10), Params[3]);
+                                      gGame.GamePlayInterface.Alerts.AddBeacon(KMPointF(Params[1]/10,Params[2]/10), Params[3], gGame.GameTickCount + ALERT_DURATION[atBeacon]);
       else                        Assert(false);
     end;
   end;
