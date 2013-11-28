@@ -611,7 +611,8 @@ begin
       if aMakeSound and not gGame.IsReplay
       and (HandIndex = MySpectator.HandIndex) then
         gSoundPlayer.Play(sfx_placemarker);
-      fBuildList.FieldworksList.AddField(aLoc, aFieldType)
+      fBuildList.FieldworksList.AddField(aLoc, aFieldType);
+      gScriptEvents.ProcPlanPlaced(fHandIndex, aLoc.X, aLoc.Y, aFieldType);
     end
     else
     begin

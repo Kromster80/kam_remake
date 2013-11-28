@@ -30,6 +30,7 @@ type
     procedure ProcHouseDamaged(aHouse: TKMHouse; aAttacker: TKMUnit);
     procedure ProcHouseDestroyed(aHouse: TKMHouse; aDestroyerIndex: THandIndex);
     procedure ProcMissionStart;
+    procedure ProcPlanPlaced(aPlayer: THandIndex; aX, aY: Word; aPlanType: TFieldType);
     procedure ProcPlayerDefeated(aPlayer: THandIndex);
     procedure ProcPlayerVictory(aPlayer: THandIndex);
     procedure ProcTick;
@@ -243,6 +244,7 @@ type
   TKMEvent = procedure of object;
   TKMEvent1I = procedure (aIndex: Integer) of object;
   TKMEvent2I = procedure (aIndex, aParam: Integer) of object;
+  TKMEvent3I = procedure (aIndex, aParam1, aParam2: Integer) of object;
   TKMEvent4I = procedure (aIndex, aParam1, aParam2, aParam3: Integer) of object;
 
 
@@ -342,7 +344,7 @@ var
 begin
   TestFunc := TKMEvent4I(fExec.GetProcAsMethodN('ONHOUSEPLANPLACED'));
   if @TestFunc <> nil then
-    TestFunc(aPlayer, aX, aY, HouseTypeToIndex[aType]);
+    TestFunc(aPlayer, aX + gResource.HouseDat[aType].EntranceOffsetX, aY, HouseTypeToIndex[aType] - 1);
 end;
 
 
@@ -392,7 +394,7 @@ begin
       TestFunc(aUnit.UID, aAttacker.UID);
     end
     else
-      TestFunc(aUnit.UID, PLAYER_NONE);
+      TestFunc(aUnit.UID, -1);
   end;
 end;
 
@@ -410,6 +412,21 @@ begin
     fIDCache.CacheGroup(aGroup, aGroup.UID);
     TestFunc(aUnit.UID, aGroup.UID);
   end;
+end;
+
+
+procedure TKMScriptEvents.ProcPlanPlaced(aPlayer: THandIndex; aX, aY: Word; aPlanType: TFieldType);
+var
+  TestFunc: TKMEvent3I;
+begin
+  case aPlanType of
+    ft_Road: TestFunc := TKMEvent3I(fExec.GetProcAsMethodN('ONPLANROAD'));
+    ft_Wine: TestFunc := TKMEvent3I(fExec.GetProcAsMethodN('ONPLANFIELD'));
+    ft_Corn: TestFunc := TKMEvent3I(fExec.GetProcAsMethodN('ONPLANWINEFIELD'));
+    else     Assert(False);
+  end;
+  if @TestFunc <> nil then
+    TestFunc(aPlayer, aX, aY);
 end;
 
 

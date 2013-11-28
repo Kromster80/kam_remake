@@ -4,6 +4,7 @@ Implemented:
  5871	Event OnHousePlanPlaced(aPlayer: Byte; aX, aY: Word; aType: Byte)
  5882	Event OnHouseDamaged(aHouse, aAttacker: Integer);
  5884	Event OnUnitWounded(aUnit, aAttacker: Integer);
+ 5964   Events OnPlanRoad, OnPlanField, OnPlanWinefield (aPlayer, aX, aY: Integer)
  5924   Actions.AIAutoBuild(aPlayer: Byte, aAuto: Boolean)
  5924   Actions.AIAutoDefence(aPlayer: Byte; aAuto: Boolean)
  5924   Actions.AIRecruitsDelay(aPlayer: Byte, aDelay: Cardinal)

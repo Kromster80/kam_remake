@@ -315,7 +315,7 @@ end;
   A result type of 0 means no result}
 function TKMScripting.ScriptOnExportCheck(Sender: TPSPascalCompiler; Proc: TPSInternalProcedure; const ProcDecl: AnsiString): Boolean;
 const
-  Procs: array [0..11] of record
+  Procs: array [0..14] of record
     Names: AnsiString;
     ParamCount: Byte;
     Typ: array [0..4] of Byte;
@@ -327,6 +327,9 @@ const
   (Names: 'ONHOUSEDESTROYED';  ParamCount: 2; Typ: (0, btS32, btS32, 0,     0    ); Dir: (pmIn, pmIn, pmIn, pmIn)),
   (Names: 'ONHOUSEPLANPLACED'; ParamCount: 4; Typ: (0, btS32, btS32, btS32, btS32); Dir: (pmIn, pmIn, pmIn, pmIn)),
   (Names: 'ONMISSIONSTART';    ParamCount: 0; Typ: (0, 0,     0,     0,     0    ); Dir: (pmIn, pmIn, pmIn, pmIn)),
+  (Names: 'ONPLANROAD';        ParamCount: 3; Typ: (0, btS32, btS32, btS32, 0    ); Dir: (pmIn, pmIn, pmIn, pmIn)),
+  (Names: 'ONPLANFIELD';       ParamCount: 3; Typ: (0, btS32, btS32, btS32, 0    ); Dir: (pmIn, pmIn, pmIn, pmIn)),
+  (Names: 'ONPLANWINEFIELD';   ParamCount: 3; Typ: (0, btS32, btS32, btS32, 0    ); Dir: (pmIn, pmIn, pmIn, pmIn)),
   (Names: 'ONPLAYERDEFEATED';  ParamCount: 1; Typ: (0, btS32, 0,     0,     0    ); Dir: (pmIn, pmIn, pmIn, pmIn)),
   (Names: 'ONPLAYERVICTORY';   ParamCount: 1; Typ: (0, btS32, 0,     0,     0    ); Dir: (pmIn, pmIn, pmIn, pmIn)),
   (Names: 'ONTICK';            ParamCount: 0; Typ: (0, 0,     0,     0,     0    ); Dir: (pmIn, pmIn, pmIn, pmIn)),
