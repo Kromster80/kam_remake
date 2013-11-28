@@ -1,505 +1,505 @@
-﻿0:Fыrйszmalom
-1:Vasolvasztу
-2:Fegyverkovбcs
-3:Szйnbбnya
-4:Vasйrcbбnya
-5:Aranybбnya
-6:Horgбszhбz
-7:Pйksйg
-8:Fцldmыves hбza
-9:Favбgуkunyhу
-10:Pбncйlkovбcs
-11:Raktбr
-12:Istбllу
+﻿0:Fűrészmalom
+1:Vasolvasztó
+2:Fegyverkovács
+3:Szénbánya
+4:Vasércbánya
+5:Aranybánya
+6:Horgászház
+7:Pékség
+8:Földműves háza
+9:Favágókunyhó
+10:Páncélkovács
+11:Raktár
+12:Istálló
 13:Iskola
-14:Kхfejtх
-15:Цntцde
-16:Sertйshizlalda
-17:Хrtorony
-18:Vбroshбza
-19:Fegyvermыhely
-20:Pбncйlmыhely
-21:Erхd
+14:Kőfejtő
+15:Öntöde
+16:Sertéshizlalda
+17:Őrtorony
+18:Városháza
+19:Fegyverműhely
+20:Páncélműhely
+21:Erőd
 22:Malom
-23:Jбrmыgyбr
-24:Vбgуhнd
-25:Tнmбrmыhely
-26:Gyakorlуterem
-27:Fogadу
-28:Pincйszet
-29:Piactйr
-30:Farцnk
-31:Kх
+23:Járműgyár
+24:Vágóhíd
+25:Tímárműhely
+26:Gyakorlóterem
+27:Fogadó
+28:Pincészet
+29:Piactér
+30:Farönk
+31:Kő
 32:Gerenda
-33:Vasйrc
-34:Aranyйrc
-35:Szйn
+33:Vasérc
+34:Aranyérc
+35:Szén
 36:Nyersvas
 37:Arany
-38:Boroshordу
+38:Boroshordó
 39:Gabona
-40:Kenyйr
+40:Kenyér
 41:Liszt
-42:Bхr
-43:Kolbбsz
-44:Sertйs
-45:Nyersbхr
+42:Bőr
+43:Kolbász
+44:Sertés
+45:Nyersbőr
 46:Fapajzs
-47:Acйlpajzs
-48:Bхrpбncйl
-49:Acйlvйrt
+47:Acélpajzs
+48:Bőrpáncél
+49:Acélvért
 50:Fejsze
 51:Kard
-52:Lбndzsa
+52:Lándzsa
 53:Pika
-54:Hosszънj
-55:Szбmszerнj
-56:Lу
+54:Hosszúíj
+55:Számszeríj
+56:Ló
 57:Hal
 58:Inas
-59:Favбgу
-60:Bбnyбsz
-61:Бllattenyйsztх
-62:Fцldmыves/Vincellйr
+59:Favágó
+60:Bányász
+61:Állattenyésztő
+62:Földműves/Vincellér
 63:Asztalos
-64:Pйk/Molnбr
-65:Hentes/Tнmбr
-66:Horgбsz
-67:Munkбs
-68:Kхfaragу
-69:Kovбcs
-70:Kohбsz
-71:Ъjonc
-72:Nemzetхr
-73:Fejszйs
-74:Kardforgatу
-75:Нjбsz
-76:Szбmszerнjбsz
-77:Lбndzsбs
-78:Pikбs
-79:Felderнtх
+64:Pék/Molnár
+65:Hentes/Tímár
+66:Horgász
+67:Munkás
+68:Kőfaragó
+69:Kovács
+70:Kohász
+71:Újonc
+72:Nemzetőr
+73:Fejszés
+74:Kardforgató
+75:Íjász
+76:Számszeríjász
+77:Lándzsás
+78:Pikás
+79:Felderítő
 80:Lovag
-81:Barbбr
-82:Lбzadу
-83:Gazfickу
+81:Barbár
+82:Lázadó
+83:Gazfickó
 84:Harcos
-85:Csavargу
+85:Csavargó
 86:Katapult
-87:Dбrdavetх
-88:Az inasok szбllнtjбk a szьksйges nyersanya- gokat az йpьletek kцzцtt.||Az йpьleteket mindig ъttal kell цsszekцtni.
-89:A fыrйszmalom rйszйre a favбgу vбgja a farцnkцket.||A kivбgott erdхt цnбllуan ъjratelepнti.
-90:A bбnyбsz fejti az йrcet a szйn-, vas- йs arany- bбnyбban.
-91:Az бllattenyйsztх gabona felhasznбlбsбval neveli a sertйseket йs a lovakat a hizlaldбban йs az istбllуban.
-92:A fцldmыves gabonбt vet йs arat hбza kцrnyйkйn.||A vincellйr prйseli a szхlхt a pincйszetben.
-93:Az asztalos a fыrйszma- lomban, a fegyver- йs pбncйlmыhelyben dolgozik.||Az asztalos a jбrmыkй- szнtх ьzemben dбrdavetхt йs katapultot kйszнt.
-94:A pйk kenyйrrel lбtja el a lakossбgot.||A molnбr lisztet хrцl a malomban.
-95:A hentes kйszнti a kol- bбszt a vбgуhнdon.||A tнmбr бllнtja elх a bхrt a mыhelyйben.
-96:A horgбsz fogja ki a halakat a kцzeli vizekbхl.
-97:A munkбs йpнti az utakat йs az йpьleteket, felszбntja a termхfцldet йs szхlхt telepнt. Egyszerыen jelцld ki a helyet, йs automatikusan vйgrehajtja a parancsodat. A megsйrьlt йpьletek javнtбsбra is kйpes, ha ezt engedйlyezed az adott йpьletnйl.
-98:A kхfaragу biztosнtja a kхutбnpуtlбst a munkбsok szбmбra.
-99:A kovбcs kйszнti a nehйzfegyvereket йs -pбncйlokat a mыhelyekben.
-100:Az kohбsz arany- rudakat йs nyersvasat цnt az йrcekbхl.
-101:Az ъjoncok az erхdben, felszerelйsьk utбn vбlnak katonбkkб.||Хk teljesнtenek szolgбlatot az хrtornyokban is.
-102:Йpнtmйnyek
-103:Бruelosztбs
+87:Dárdavető
+88:Az inasok szállítják a szükséges nyersanya- gokat az épületek között.||Az épületeket mindig úttal kell összekötni.
+89:A fűrészmalom részére a favágó vágja a farönköket.||A kivágott erdőt önállóan újratelepíti.
+90:A bányász fejti az ércet a szén-, vas- és arany- bányában.
+91:Az állattenyésztő gabona felhasználásával neveli a sertéseket és a lovakat a hizlaldában és az istállóban.
+92:A földműves gabonát vet és arat háza környékén.||A vincellér préseli a szőlőt a pincészetben.
+93:Az asztalos a fűrészma- lomban, a fegyver- és páncélműhelyben dolgozik.||Az asztalos a járműké- szítő üzemben dárdavetőt és katapultot készít.
+94:A pék kenyérrel látja el a lakosságot.||A molnár lisztet őröl a malomban.
+95:A hentes készíti a kol- bászt a vágóhídon.||A tímár állítja elő a bőrt a műhelyében.
+96:A horgász fogja ki a halakat a közeli vizekből.
+97:A munkás építi az utakat és az épületeket, felszántja a termőföldet és szőlőt telepít. Egyszerűen jelöld ki a helyet, és automatikusan végrehajtja a parancsodat. A megsérült épületek javítására is képes, ha ezt engedélyezed az adott épületnél.
+98:A kőfaragó biztosítja a kőutánpótlást a munkások számára.
+99:A kovács készíti a nehézfegyvereket és -páncélokat a műhelyekben.
+100:Az kohász arany- rudakat és nyersvasat önt az ércekből.
+101:Az újoncok az erődben, felszerelésük után válnak katonákká.||Ők teljesítenek szolgálatot az őrtornyokban is.
+102:Építmények
+103:Áruelosztás
 104:Statisztika
-105:Opciуk
+105:Opciók
 106:Vissza
-107:Йpнtmйny|kivбlasztбsa
-108:Бruk|elosztбsa
+107:Építmény|kiválasztása
+108:Áruk|elosztása
 109:Statisztika
-110:Opciуk
-111:Jбtйk betцltйse
-112:Jбtйk kimentйse
-113:Valуban|ki akarsz lйpni|ebbхl a kьldetйsbхl?
-114:Kilйpйs
+110:Opciók
+111:Játék betöltése
+112:Játék kimentése
+113:Valóban|ki akarsz lépni|ebből a küldetésből?
+114:Kilépés
 115:Vissza
-116:Beбllнtбsok
+116:Beállítások
 118:Hangok
-119:Hangerх
-120:Hangerх
+119:Hangerő
+120:Hangerő
 121:Zene
 122:Zene be/ki
-123:Automata mentйs
-124:Zenelejбtszу
-125:Elхzх zene
-126:Kцvetkezх zene
+123:Automata mentés
+124:Zenelejátszó
+125:Előző zene
+126:Következő zene
 127:Lerombol
-128:Йpьlet kijelцlйs megszьntetйse
-129:Ъtйpнtйs
-130:Ъtйpнtйs
-131:Szбntбs
-132:Fцldmыvelйs
-133:Szхlхtelepнtйs
-134:Szхlхtelepнtйs
-135:Mйgsem
-136:Gyakorlat leбllнtбsa
-137:Szьksйges:
-139:Бllapot:
-140:Szбllнt
-141:Йpнtйs alatt
-142:Lerombolбs
-143:Valуban lerombolod|ezt az йpьletet?
-144:A kijelцlt йpьlet lerombolбsa
-145:Mennyisйg csцkkentйse
-146:Mennyisйg nцvelйse
-147:Elхzх egysйg
-148:Kцvetkezх egysйg
-149:Az aktuбlis egysйg felszerelйse
-150:Kцvetkezх szakma
-151:Elхzх szakma
-152:Beбllнt a sorba
-153:Бruszбllнtбs be/ki
+128:Épület kijelölés megszüntetése
+129:Útépítés
+130:Útépítés
+131:Szántás
+132:Földművelés
+133:Szőlőtelepítés
+134:Szőlőtelepítés
+135:Mégsem
+136:Gyakorlat leállítása
+137:Szükséges:
+139:Állapot:
+140:Szállít
+141:Építés alatt
+142:Lerombolás
+143:Valóban lerombolod|ezt az épületet?
+144:A kijelölt épület lerombolása
+145:Mennyiség csökkentése
+146:Mennyiség növelése
+147:Előző egység
+148:Következő egység
+149:Az aktuális egység felszerelése
+150:Következő szakma
+151:Előző szakma
+152:Beállít a sorba
+153:Áruszállítás be/ki
 154:Zsold:
-155:Йpьletjavнtбs be/ki
-156:Most nem йpнthetх
-157:Jуllakottsбg
-158:Balra бt!
-159:Jobbra бt!
-160:Tбmadбs! ('a')
-161:Csapat mozgatбsa ('s')
-162:Csapat йlelmezйse
-163:Roham indнtбsa
-164:Alakzatban sorakozу
-165:Alakzatvбltбs
-166:Jelцld ki a|csapatot
-167:Kilйpйs
-168:Tцrlйs
-169:Aktuбlis ьzenet tцrlйse
-170:Oda lйp
-171:Az aktuбlis ьzenet helyszнnйre ugrik
-172:Bezбr
-173:Ablak bezбrбsa
-174:A kхfaragуd nem kйpes tцbb kцvet kifejteni.
-175:Szйnbбnyбd kimerьlt.
-176:Vasйrcbбnyбd kimerьlt.
-177:Aranybбnyбd kimerьlt.
-179:Ez a hбz nincs birtokba vйve.
-180:Ez a csapat valуban йhes, legjobb lenne gyorsan enni adni nekik!
-181:SZЬNET
-182:Szбllнt
-183:Utat йpнt
-184:Felбssa a terьletet
-185:Szхlхtхkйt ьltet
-186:Hбz terьletet egyenget
-187:Hбzat йpнt
-188:Hбzat javнt
+155:Épületjavítás be/ki
+156:Most nem építhető
+157:Jóllakottság
+158:Balra át!
+159:Jobbra át!
+160:Támadás! ('a')
+161:Csapat mozgatása ('s')
+162:Csapat élelmezése
+163:Roham indítása
+164:Alakzatban sorakozó
+165:Alakzatváltás
+166:Jelöld ki a|csapatot
+167:Kilépés
+168:Törlés
+169:Aktuális üzenet törlése
+170:Oda lép
+171:Az aktuális üzenet helyszínére ugrik
+172:Bezár
+173:Ablak bezárása
+174:A kőfaragód nem képes több követ kifejteni.
+175:Szénbányád kimerült.
+176:Vasércbányád kimerült.
+177:Aranybányád kimerült.
+179:Ez a ház nincs birtokba véve.
+180:Ez a csapat valóban éhes, legjobb lenne gyorsan enni adni nekik!
+181:SZÜNET
+182:Szállít
+183:Utat épít
+184:Felássa a területet
+185:Szőlőtőkét ültet
+186:Ház területet egyenget
+187:Házat épít
+188:Házat javít
 189:Hazamegy
 190:Enni megy
-191:Hбzat tбmad
-192:Tьzel
+191:Házat támad
+192:Tüzel
 193:Harcol
 194:Rohamoz
-195:Tбmad
+195:Támad
 196:Megy
-197:Vбrakozik
-198:Kцvet bбnyбsz
-199:Gabonбt ьltet
-200:Gabonбt arat
-201:Szхlхt szьretel
-202:Halбszik
-203:Fбt vбg
-204:Fбt ьltet
+197:Várakozik
+198:Követ bányász
+199:Gabonát ültet
+200:Gabonát arat
+201:Szőlőt szüretel
+202:Halászik
+203:Fát vág
+204:Fát ültet
 205:Szellem
 206:Munka
-207:Kцzйpkori kьrt
+207:Középkori kürt
 208:Tavasz
 209:Lant
 210:Zsoldos
-211:A Hercegnц
-212:A Kirбlynц
+211:A Hercegnö
+212:A Királynö
 213:A piacon
-214:A csatamezцn
-215:Udvari tбnc
+214:A csatamezön
+215:Udvari tánc
 216:A hadsereg
-217:A kastйlyban
-218:Fanfбrok
+217:A kastélyban
+218:Fanfárok
 219:Az Udvarban
-220:Fцfogбs
-221:Mйlykйk
+220:Föfogás
+221:Mélykék
 222:Csata
-223:Kirбlyi Negyedek
-224:Arisztokrбcia
-225:A kikцtхnйl
-226:Utazбs
-227:Hadjбratok
-229:Hadjбrat Indнtбsa!
-230:Egyйni kьldetйs
-231:Jбtйk indнtбsa
-232:Vissza a menьbe
-233:Jбtйk betцltйse
-234:Hбlуzati jбtйk
-235:Opciуk
-236:Kйszнtхk
-237:Kilйpйs a programbуl
-238:Tovбbb
-239:A kьldetйs ъjrajбtszбsa
-240:Felbontбs:
-241:Nem tбmogatott
-242:Nem tбmogatott
-243:GYХZELEM!
-244:VERESЙG!
-245:Elveszнtett egysйgek:
-246:Legyхzцtt egysйgek:
-247:Elveszнtett йpьletek:
-248:Lerombolt йpьletek:
-249:Felйpнtett йpьletek:
-250:Kikйpzett egysйgek:
-251:Gyбrtott fegyverek:
-252:Kikйpzett katonбk:
-253:Kьldetйs idхtartama:
+223:Királyi Negyedek
+224:Arisztokrácia
+225:A kikötőnél
+226:Utazás
+227:Hadjáratok
+229:Hadjárat Indítása!
+230:Egyéni küldetés
+231:Játék indítása
+232:Vissza a menübe
+233:Játék betöltése
+234:Hálózati játék
+235:Opciók
+236:Készítők
+237:Kilépés a programból
+238:Tovább
+239:A küldetés újrajátszása
+240:Felbontás:
+241:Nem támogatott
+242:Nem támogatott
+243:GYŐZELEM!
+244:VERESÉG!
+245:Elveszített egységek:
+246:Legyőzött egységek:
+247:Elveszített épületek:
+248:Lerombolt épületek:
+249:Felépített épületek:
+250:Kiképzett egységek:
+251:Gyártott fegyverek:
+252:Kiképzett katonák:
+253:Küldetés időtartama:
 254:Statisztika
-255:Gazdasбg
-256:Polgбrok|kйpzett
-257:Polgбrok|elvesztett
-258:Katonбk|felszerelt
-259:Katonбk|elvesztett
-260:Katonбk|legyхzцtt
-261:Йpьletek|йpнtve
-262:Йpьletek|elvesztve
-263:Йpьletek|megsemmisнtve
-264:Бruk|elхбllнtva
-265:Fegyverek|elхбllнtva
+255:Gazdaság
+256:Polgárok|képzett
+257:Polgárok|elvesztett
+258:Katonák|felszerelt
+259:Katonák|elvesztett
+260:Katonák|legyőzött
+261:Épületek|építve
+262:Épületek|elvesztve
+263:Épületek|megsemmisítve
+264:Áruk|előállítva
+265:Fegyverek|előállítva
 266:Hadsereg
 267:Lakosok
-268:Hбzak
+268:Házak
 269:Nyersanyagok
 270:Termelt nyersanyagok
 272:Te
-273:Jбtйkos %d
-279:JOYMANIA ENTERTAINMENT||PROGRAMOZБS:|Peter Ohlmann||JБTЙK GRAFIKA:|Adam Sprys||PБLYATERVEZЙS:|Adam Sprys|Andrй Quass||HANGSZERKESZTЙS ЙS|KEVERЙS:|Tonstudio Mannheim||ZENE:|Gerd Hofmann|Joachim Schдfer|Jьrgen Rebhann|Klaus Staendike|Steffen Schьngel||ILLUSZTRБCIУK:|Boleslaw Kasza|Christoph Werner||ZUXXEZ ENTERTAINMENT AG||GYБRTБSVEZETХ:|Uwe Schдfer||SZЦVEG:|Peter Ohlmann|Uwe Schдfer||BЙTA TESZT:|Peter Ohlmann|Adam Sprys|Alexandra Constandache|Dirk P. Hassinger|Achim Heidelauf|Uwe Schдfer|Ingrid Schдfer|Dirk U. Jantz|Ion Constandache|Yaman Egeli|Roman Eich|Iris Mocsnek|Anke Jantz|Paul Hassinger|Liza Hassinger||JБTЙK IGAZGATУ:|Achim Heidelauf||БTVEZETХK:||IGAZGATУ:|Slawomir Jedrzejewski||Kajetan Czarnecki|Wojciech Drazek|Daniel Duplaga|Rafal Januszkiewicz|Andrzej Rams|Piotr Rulka|Krzysztof Rybczynski|Grzegorz Wisniewski||HANGOK:|Claus Boysen (Mesйlц)||Tim Timmermann|Peter Houska|Dirk Mьhlbach|Ralf Ditze|Gerhard Piske|Gernot Wassmann||KЙZIKЦNYV GRAFIKБI:|Uwe Schдfer|Alexandra Constandache||KЙZIKЦNYV SZЦVEGEI:|Peter Ohlmann|Uwe Schдfer||MЫREMEK:|Boleslaw Kasza|Adam Sprys||ANIMБCIУK:|Uwe Schдfer|Christian Bigalk|Tovбbbi 3D Modellezйs:|Niels Horstmann||KЦSZЦNET TOVБBI|MUNKATБRSAINKNAK:|Tadeusz Zuber|Dieter Ohlmann|Alexandra Constandache|Ingrid Schдfer|Andrea Rumpelt
-280:Kьldetйs megszakнtva
-281:Visszajбtszбs vйget йrt
-282:Oktatу Kьldetйs (Vбros)
-283:Oktatу Kьldetйs (Csata)
-284:Egyjбtйkos mуd
-285:Pбlya Szerkesztх
-286:Kьldetйs Indнtбsa
-287:Cнm
-288:Mйret
-289:Gyхzelmi feltйtel:
-290:Veresйg feltйtel:
-291:Szцvetsйgesek:
-292:Elensйgek:
-293:Idх
-294:Tйrkйp mйrete
-295:Szйlessйg
-296:Magassбg
-297:Ъj Tйrkйp Kйszнtйse
-298:Elйrhetх tйrkйpek
-299:Tйrkйp Betцltйse
-301:Vezйrlхk:
-302:Jбtйkmenet:
+273:Játékos %d
+279:JOYMANIA ENTERTAINMENT||PROGRAMOZÁS:|Peter Ohlmann||JÁTÉK GRAFIKA:|Adam Sprys||PÁLYATERVEZÉS:|Adam Sprys|André Quass||HANGSZERKESZTÉS ÉS|KEVERÉS:|Tonstudio Mannheim||ZENE:|Gerd Hofmann|Joachim Schäfer|Jürgen Rebhann|Klaus Staendike|Steffen Schüngel||ILLUSZTRÁCIÓK:|Boleslaw Kasza|Christoph Werner||ZUXXEZ ENTERTAINMENT AG||GYÁRTÁSVEZETŐ:|Uwe Schäfer||SZÖVEG:|Peter Ohlmann|Uwe Schäfer||BÉTA TESZT:|Peter Ohlmann|Adam Sprys|Alexandra Constandache|Dirk P. Hassinger|Achim Heidelauf|Uwe Schäfer|Ingrid Schäfer|Dirk U. Jantz|Ion Constandache|Yaman Egeli|Roman Eich|Iris Mocsnek|Anke Jantz|Paul Hassinger|Liza Hassinger||JÁTÉK IGAZGATÓ:|Achim Heidelauf||ÁTVEZETŐK:||IGAZGATÓ:|Slawomir Jedrzejewski||Kajetan Czarnecki|Wojciech Drazek|Daniel Duplaga|Rafal Januszkiewicz|Andrzej Rams|Piotr Rulka|Krzysztof Rybczynski|Grzegorz Wisniewski||HANGOK:|Claus Boysen (Mesélö)||Tim Timmermann|Peter Houska|Dirk Mühlbach|Ralf Ditze|Gerhard Piske|Gernot Wassmann||KÉZIKÖNYV GRAFIKÁI:|Uwe Schäfer|Alexandra Constandache||KÉZIKÖNYV SZÖVEGEI:|Peter Ohlmann|Uwe Schäfer||MŰREMEK:|Boleslaw Kasza|Adam Sprys||ANIMÁCIÓK:|Uwe Schäfer|Christian Bigalk|További 3D Modellezés:|Niels Horstmann||KÖSZÖNET TOVÁBI|MUNKATÁRSAINKNAK:|Tadeusz Zuber|Dieter Ohlmann|Alexandra Constandache|Ingrid Schäfer|Andrea Rumpelt
+280:Küldetés megszakítva
+281:Visszajátszás véget ért
+282:Oktató Küldetés (Város)
+283:Oktató Küldetés (Csata)
+284:Egyjátékos mód
+285:Pálya Szerkesztő
+286:Küldetés Indítása
+287:Cím
+288:Méret
+289:Győzelmi feltétel:
+290:Vereség feltétel:
+291:Szövetségesek:
+292:Elenségek:
+293:Idő
+294:Térkép mérete
+295:Szélesség
+296:Magasság
+297:Új Térkép Készítése
+298:Elérhető térképek
+299:Térkép Betöltése
+301:Vezérlők:
+302:Játékmenet:
 303:Hangok:
-304:Zene kikapcsolбsa
+304:Zene kikapcsolása
 305:Grafika:
-306:Fйnyerхssйg
-308:Teljes kйpernyх
+306:Fényerősség
+308:Teljes képernyő
 309:Alkalmaz
 310:Nyelv:
-311:Бrnyйk Minхsйge:
+311:Árnyék Minősége:
 312:Alacsony
 313:Magas
-314:Betцltйs... Kйrem vбrjon
-315:Hiba tцrtйnt!
-316:Ъj nyelv betцltйse
-317:Mentett бllбsok
-318:Fбjlnйv
-319:Leнrбs
-320:Tцltйs
-321:Tцrlйs
-322:Biztosan akarod tцrцlni ezt a mentett бllбst?
-323:Tцrlйs
-324:Mйgse
-325:Cнm
-326:Pбlyбk
+314:Betöltés... Kérem várjon
+315:Hiba történt!
+316:Új nyelv betöltése
+317:Mentett állások
+318:Fájlnév
+319:Leírás
+320:Töltés
+321:Törlés
+322:Biztosan akarod törölni ezt a mentett állást?
+323:Törlés
+324:Mégse
+325:Cím
+326:Pályák
 327:Feloldva
-328:Megnyerted a jбtйkot!
-329:Jбtйk folytatбsa
-330:Gyхzelem!
-331:Elvesztetted a jбtйkot!
-332:Jбtйk megfigyelйse
-333:Veresйg
-334:A visszajбtszбs vйgetйrt
-335:Jбtйk megfigyelйse
-336:Vissza a menьbe
-337:Nem elйrhetх
-338:Nyomj %s billentyыt a jбtйk folytatбsбhoz
-339:Jбtйkos informбciуk
+328:Megnyerted a játékot!
+329:Játék folytatása
+330:Győzelem!
+331:Elvesztetted a játékot!
+332:Játék megfigyelése
+333:Vereség
+334:A visszajátszás végetért
+335:Játék megfigyelése
+336:Vissza a menübe
+337:Nem elérhető
+338:Nyomj %s billentyűt a játék folytatásához
+339:Játékos információk
 340:Chat
-341:A mentett бllбs mбr lйtezik
-342:Felьlнr
-343:Mentйs
-344:Tцltйs
-345:Rйgi OpenGL verziу йrzйkelve, a jбtйk lassabban futhat йs/vagy Grafikus hibбk tцrtйnhetnek
-346:Kйrlek frissнtsd a videokбrtya drivereidet a jobb teljesнtmйnyйrt
-347:Hбlуzati hiba:
-348:Hiba: A jбtйkos neve nem lehet ьres
-349:Hiba: A Jбtйkos neve nem lehet %d karakternйl hosszabb
-350:Hiba: A jбtйkos neve йrvйnytelen karaktereket tartalmaz
-351:Kapcsolуdбsi hiba: %s
+341:A mentett állás már létezik
+342:Felülír
+343:Mentés
+344:Töltés
+345:Régi OpenGL verzió érzékelve, a játék lassabban futhat és/vagy Grafikus hibák történhetnek
+346:Kérlek frissítsd a videokártya drivereidet a jobb teljesítményért
+347:Hálózati hiba:
+348:Hiba: A játékos neve nem lehet üres
+349:Hiba: A Játékos neve nem lehet %d karakternél hosszabb
+350:Hiba: A játékos neve érvénytelen karaktereket tartalmaz
+351:Kapcsolódási hiba: %s
 352:Megszakadt a kapcsolat
-353:Kьldetйs %d
-355:A halбszkunyhуd tъl messze van a vнztхl.
-356:A halбszod nem tud tцbb halat fogni a kцzeli vнzbхl.
-357:Visszajбtszбs ъjraindнtбsa
-358:Visszajбtszбs megбllнtбsa
-359:1 egysйget lйptet elхre
-360:Megбllнtott visszajбtszбs folytatбsa
-361:Kilйpйs a visszajбtszбsbуl
-364:Eladni kнvбnt бru kivбlasztбsa a bal egйr gombal
-365:Vбsбrolni kнvбnt бru kivбlasztбsa a jobb egйr gombal
+353:Küldetés %d
+355:A halászkunyhód túl messze van a víztől.
+356:A halászod nem tud több halat fogni a közeli vízből.
+357:Visszajátszás újraindítása
+358:Visszajátszás megállítása
+359:1 egységet léptet előre
+360:Megállított visszajátszás folytatása
+361:Kilépés a visszajátszásból
+364:Eladni kívánt áru kiválasztása a bal egér gombal
+365:Vásárolni kívánt áru kiválasztása a jobb egér gombal
 366:Elad x%d
 367:Vesz x%d
-368:Tereprendezйs
-394:Telepьlйs tervezйs
-395:Vizuбlis szkriptek
-396:Globбlis szkriptek
-397:Menь
-499:Ъj Kьldetйs
-500:Jбtйkos neve
-501:Бllapot:
-502:Szerver Kйszнtйse
-503:SZERVER LЙTREHOZБSA
-504:Szerver nйv
+368:Tereprendezés
+394:Település tervezés
+395:Vizuális szkriptek
+396:Globális szkriptek
+397:Menü
+499:Új Küldetés
+500:Játékos neve
+501:Állapot:
+502:Szerver Készítése
+503:SZERVER LÉTREHOZÁSA
+504:Szerver név
 505:Port
-506:Lokбlis Szerver Lйtrehozбsa
-507:Internet Szerver Lйtrehozбs
-508:Mйgsem
-509:Szerver keresйse IP alapjбn
-510:SZERVER KERESЙSE
-511:Cнm
+506:Lokális Szerver Létrehozása
+507:Internet Szerver Létrehozás
+508:Mégsem
+509:Szerver keresése IP alapján
+510:SZERVER KERESÉSE
+511:Cím
 512:Port
 513:Szoba
-514:Kapcsolуdбs
-515:Mйgsem
-518:Szerver nйv
-519:Бllapot
-520:Jбtйkosok
+514:Kapcsolódás
+515:Mégsem
+518:Szerver név
+519:Állapot
+520:Játékosok
 521:Ping
-522:Szerver Lista Frissнtйse
-523:Szerver Rйszletek
-524:Jбtйkos lisa:
-525:Csatlakozбs
-526:Kapcsolуdбs, kйrem vбrjon ...
-527:Esemйnyek tцltйse...
-528:Frissнtйs...
-529:Jбtйkosok
-530:Kezdхhely
+522:Szerver Lista Frissítése
+523:Szerver Részletek
+524:Játékos lisa:
+525:Csatlakozás
+526:Kapcsolódás, kérem várjon ...
+527:Események töltése...
+528:Frissítés...
+529:Játékosok
+530:Kezdőhely
 531:Csapat
-532:Szнn
-533:Kйsz
+532:Szín
+533:Kész
 534:Ping
 536:Nyitva
-537:Szбmнtуgйp
-538:Vбlassz...
-539:Vйletlen
+537:Számítógép
+538:Válassz...
+539:Véletlen
 540:Nincs
-541:Mentett jбtйk
-542:Vбlassz egy tйrkйpet...
-543:Vбlassz egy mentйst...
-544:Kilйpйs
-545:Kйsz
-546:Nincs kйsz
-547:Indнtбs!
-561:Kezdхhely %d
-562:Hiba: Kйrem vбlasszon egy jбtйkost a mentйsbхl, hogy irбnyнthassa
-563:Hiba: Nem sikerьlt betцlteni a tйrkйpet vagy nincs tйrkйp kivбlasztva
-564:Nem lehet indнtani: %s
-565:Nem бll mindenki kйszen a kezdйsre
-567:A szerver бtadta a hбzigazda szerepйt nekьnk
-568:A jбtйk elkezdхdцtt
-569:Йpнtkezйs
+541:Mentett játék
+542:Válassz egy térképet...
+543:Válassz egy mentést...
+544:Kilépés
+545:Kész
+546:Nincs kész
+547:Indítás!
+561:Kezdőhely %d
+562:Hiba: Kérem válasszon egy játékost a mentésből, hogy irányíthassa
+563:Hiba: Nem sikerült betölteni a térképet vagy nincs térkép kiválasztva
+564:Nem lehet indítani: %s
+565:Nem áll mindenki készen a kezdésre
+567:A szerver átadta a házigazda szerepét nekünk
+568:A játék elkezdődött
+569:Építkezés
 570:Csata
-571:Kooperatнv
-573:Jбtйk beбllнtбsok:
-574:Bйkeidх (percben)
-575:Zбrva
-576:A hoszt бllнtja be a jбtйkosokat
-577:Vбrakozбs a jбtйkosokra:
-580:KaM Remake Kйszнtхk
-581:Eredeti Knights & Merchants Kйszнtхk
-582:PROGRAMOZБS:
-583:TOVБBBI PROGRAMOZБS:
-584:TOVБBBI GRAFIKA:
-585:TOVБBBI HANGOK:
-586:TOVБBBI ZENE:
-587:TOVБBBI FORDНTУK:
-588:KЬLЦN KЦSZЦNET:
-589:Tцbbjбtйkos pбlyбk
-590:Egyjбtйkos pбlyбk
-591:Gцrgetйsi sebessйg
-592:Nem talбlhatу szerver
-593:Vйletlenszerы zenelejбtszбs
-594:Jбtйk informбciу
+571:Kooperatív
+573:Játék beállítások:
+574:Békeidő (percben)
+575:Zárva
+576:A hoszt állítja be a játékosokat
+577:Várakozás a játékosokra:
+580:KaM Remake Készítők
+581:Eredeti Knights & Merchants Készítők
+582:PROGRAMOZÁS:
+583:TOVÁBBI PROGRAMOZÁS:
+584:TOVÁBBI GRAFIKA:
+585:TOVÁBBI HANGOK:
+586:TOVÁBBI ZENE:
+587:TOVÁBBI FORDÍTÓK:
+588:KÜLÖN KÖSZÖNET:
+589:Többjátékos pályák
+590:Egyjátékos pályák
+591:Görgetési sebesség
+592:Nem található szerver
+593:Véletlenszerű zenelejátszás
+594:Játék információ
 595:-
 596:Lobby
-597:Betцltйs
-598:Jбtйk
-599:Йpнtkezйs йs Csata
+597:Betöltés
+598:Játék
+599:Építkezés és Csata
 600:Csata
-601:Kйsz
-602:Hibбs protokol verziу: %s. A szerver бltal hasznбlt: %s
-603:Mennyisйg nцvelйse
-604:Mennyisйg csцkkentйse
-605:Jбtйk mentйse...
-606:%s megsemmisьlt!
-607:Jбtйkos kidobбsa
-608:A hosztnak lehetхsйge lesz ezeket a jбtйkosokat kidobni a jбtйkbуl %d mбsodperc mъlva
-609:A hoszt most mбr kidobhatja ezeket a jбtйkosokat
-610:A hoszt (%s) kilйpett a jбtйkbуl
-611:A kapcsolat a szerverhez elveszett. Ъjracsatlakozбs folyamatban...
-612:Biztosan ki szeretnйl lйpni?
-613:Biztos vйglegesen ki szeretnйd zбrni ezeket a jбtйkosokat?
-614:Mйgsem
-615:Ennek a nyersanyagnak a kereskedelme ezen a pбlyбn nem engedйlyezett
-616:Ьltet йs kivбg
-617:Csak kivбg
-618:Nem tehetsz ilyet bйkeidхben
-619:Bйkeidхbхl hбtra van: %s
-620:A bйkeidх vйgetйrt. Fegyverbe!
-621:Jбtйk idх:|%s
-622:Csapat бllj ('%s')
-623:Csapatok цsszekapcsolбsa ('%s')
-624:Csapatok szйtvбlasztбsa ('%s')
-625:Visszajбtszбsok
-626:Visszajбtszбs megtekintйse
-627:Nem tбmogatott formбtum %s
-628:Nem tбmogatott verziу %s
-630:Hiba tцrtйnt a %s fбjl beolvasбsa kцzben
-631:felkйszьlйs
+601:Kész
+602:Hibás protokol verzió: %s. A szerver által használt: %s
+603:Mennyiség növelése
+604:Mennyiség csökkentése
+605:Játék mentése...
+606:%s megsemmisült!
+607:Játékos kidobása
+608:A hosztnak lehetősége lesz ezeket a játékosokat kidobni a játékból %d másodperc múlva
+609:A hoszt most már kidobhatja ezeket a játékosokat
+610:A hoszt (%s) kilépett a játékból
+611:A kapcsolat a szerverhez elveszett. Újracsatlakozás folyamatban...
+612:Biztosan ki szeretnél lépni?
+613:Biztos véglegesen ki szeretnéd zárni ezeket a játékosokat?
+614:Mégsem
+615:Ennek a nyersanyagnak a kereskedelme ezen a pályán nem engedélyezett
+616:Ültet és kivág
+617:Csak kivág
+618:Nem tehetsz ilyet békeidőben
+619:Békeidőből hátra van: %s
+620:A békeidő végetért. Fegyverbe!
+621:Játék idő:|%s
+622:Csapat állj ('%s')
+623:Csapatok összekapcsolása ('%s')
+624:Csapatok szétválasztása ('%s')
+625:Visszajátszások
+626:Visszajátszás megtekintése
+627:Nem támogatott formátum %s
+628:Nem támogatott verzió %s
+630:Hiba történt a %s fájl beolvasása közben
+631:felkészülés
 632:szkript
-633:egysйgek
-634:hбzak
-635:fбk
-636:definнciуk
-637:terep grafikбk
-638:Tйrkйp nem talбlhatу: %s
-639:Mentйs nem talбlhatу: %s
-640:A tйrkйp verziуszбma nem egyezik a szerver tйrkйpverziуjбval: %s
-641:A mentйs nem egyezik a szerver mentйsйvel: %s
-642:Az цsszetйtel ellenхrzйs nem sikerьlt a visszajбtszбsnбl. Ez egy ismert hiba, ami hatбssal van nйmelyik visszajбtszбsra. Szeretnйd folytatni a megtekintйst?
-643:Csak egyetlen pйldбnyt futtathatsz a jбtйkbуl tцbbjбtйkos mуdban egyszerre
-645:Hiba tцrtйnt az alkalmazбsban. Kйrlek kattints Hibajelentйs Kьldйsйre, hogy utбnajбrhassunk a problйmбnak. Kцszцnjьk a segнtsйged!
-646:Hibajelentйs Kьldйse
-647:Nyers Adatok Megtekintйse
-648:Alkalmazбs Folytatбsa
-649:Alkalmazбs Bezбrбsa
-650:Kцvetkezх
+633:egységek
+634:házak
+635:fák
+636:definíciók
+637:terep grafikák
+638:Térkép nem található: %s
+639:Mentés nem található: %s
+640:A térkép verziószáma nem egyezik a szerver térképverziójával: %s
+641:A mentés nem egyezik a szerver mentésével: %s
+642:Az összetétel ellenőrzés nem sikerült a visszajátszásnál. Ez egy ismert hiba, ami hatással van némelyik visszajátszásra. Szeretnéd folytatni a megtekintést?
+643:Csak egyetlen példányt futtathatsz a játékból többjátékos módban egyszerre
+645:Hiba történt az alkalmazásban. Kérlek kattints Hibajelentés Küldésére, hogy utánajárhassunk a problémának. Köszönjük a segítséged!
+646:Hibajelentés Küldése
+647:Nyers Adatok Megtekintése
+648:Alkalmazás Folytatása
+649:Alkalmazás Bezárása
+650:Következő
 651:Kapcsolati Adatok
-652:A neved: (opcionбlis)
-653:Az email cнmed: (opcionбlis)
-654:Emlйkezz rбm
-655:Hiba Rйszletei
-656:Milyen helyzetben tцrtйnt a hiba? Meg tudnбl adni tovбbbi informбciуkat? (Lehetхleg angolul)
-657:Kйpernyхmentйs
-658:Kйpernyхmentйs hozzбadбsa a hibajelentйshez
-659:(kattints a kйp szerkesztйsйhez)
-660:Jelentйs Kьldйse
-661:Mйgsem
-662:Hibajelentйs kьldйse folyamatban...
-663:Kapcsolуdбs a szerverhez...
-664:Adatok kьldйse...
-665:A hibajelentйs elkьldйse sikertelen! A szerverьnk valуszнnыleg tъlterhelt, kйrlek prуbбld meg ъjra.
-666:Informбciу
-667:Kйrlek vбrj egy pillanatot...
+652:A neved: (opcionális)
+653:Az email címed: (opcionális)
+654:Emlékezz rám
+655:Hiba Részletei
+656:Milyen helyzetben történt a hiba? Meg tudnál adni további információkat? (Lehetőleg angolul)
+657:Képernyőmentés
+658:Képernyőmentés hozzáadása a hibajelentéshez
+659:(kattints a kép szerkesztéséhez)
+660:Jelentés Küldése
+661:Mégsem
+662:Hibajelentés küldése folyamatban...
+663:Kapcsolódás a szerverhez...
+664:Adatok küldése...
+665:A hibajelentés elküldése sikertelen! A szerverünk valószínűleg túlterhelt, kérlek próbáld meg újra.
+666:Információ
+667:Kérlek várj egy pillanatot...

@@ -4,30 +4,30 @@
 3:Mine de Charbon
 4:Mine de Fer
 5:Mine d'Or
-6:Hutte du Pкcheur
+6:Hutte du Pêcheur
 7:Fournil
 8:Ferme
-9:Cabane du Bыcheron
+9:Cabane du Bûcheron
 10:Forge d'Armures
-11:Entrepфt
-12:Йcuries
-13:Йcole
-14:Carriиre
-15:Atelier Monйtaire
+11:Entrepôt
+12:Écuries
+13:École
+14:Carrière
+15:Atelier Monétaire
 16:Porcherie
 17:Tour de Guet
-18:Hфtel de Ville
+18:Hôtel de Ville
 19:Atelier d'Armes
 20:Atelier d'Armures
-21:Chвteau
+21:Château
 22:Moulin
-23:Atelier de Siиge
+23:Atelier de Siège
 24:Charcuterie
 25:Tannerie
 26:Salle d'Armes
 27:Auberge
 28:Chai
-29:Place du Marchй
+29:Place du Marché
 30:Tronc d'Arbre
 31:Pierre
 32:Planche
@@ -37,47 +37,47 @@
 36:Fer
 37:Caisse d'Or
 38:Barrique de Vin
-39:Blй
+39:Blé
 40:Miche de Pain
 41:Farine
 42:Cuir
 43:Saucisse
-44:Porc Dйpecй
+44:Porc Dépecé
 45:Peau
 46:Bouclier de Bois
 47:Bouclier de Fer
 48:Armure de Cuir
 49:Armure de Fer
 50:Hache
-51:Йpйe
+51:Épée
 52:Lance
 53:Hallebarde
 54:Arc
-55:Arbalиte
+55:Arbalète
 56:Cheval
 57:Poisson
 58:Serf
-59:Bыcheron
+59:Bûcheron
 60:Mineur
-61:Йleveur
+61:Éleveur
 62:Paysan
 63:Charpentier
 64:Boulanger
 65:Charcutier
-66:Pкcheur
-67:Maзon
+66:Pêcheur
+67:Maçon
 68:Tailleur de Pierres
 69:Forgeron
-70:Mйtallurgiste
+70:Métallurgiste
 71:Recrue
 72:Milicien
 73:Fantassin
-74:Йpйiste
+74:Épéiste
 75:Archer
-76:Arbalйtrier
+76:Arbalétrier
 77:Lancier
 78:Hallebardier
-79:Cav. Lйgиre
+79:Cav. Légère
 80:Chevalier
 81:Barbare
 82:Rebelle
@@ -86,47 +86,47 @@
 85:Vagabond
 86:Catapulte
 87:Baliste
-88:Les serfs livrent les matiиres premiиres nйcessaires а vos constructions.||Notez qu'il doit exister une route reliant les diffйrents bвtiments.
-89:Pour obtenir les troncs d'arbres qui seront utilisйs par la scierie, il faut un bыcheron.||Le bыcheron assure par ailleurs le reboisement.
+88:Les serfs livrent les matières premières nécessaires à vos constructions.||Notez qu'il doit exister une route reliant les différents bâtiments.
+89:Pour obtenir les troncs d'arbres qui seront utilisés par la scierie, il faut un bûcheron.||Le bûcheron assure par ailleurs le reboisement.
 90:Le mineur extrait du charbon, des minerais de fer et d'or dans les mines.
-91:А la porcherie et aux йcuries, l'йleveur nourrit les bкtes avec du blй.
-92:Le paysan sиme et rйcolte le blй а la ferme.||Il fait aussi du vin dans le chai.
-93:Le charpentier travaille а la scierie, а l'atelier d'armes et а l'atelier d'armures.||Il construit йgalement des catapultes et des balistes dans l'atelier de siиge.
+91:À la porcherie et aux écuries, l'éleveur nourrit les bêtes avec du blé.
+92:Le paysan sème et récolte le blé à la ferme.||Il fait aussi du vin dans le chai.
+93:Le charpentier travaille à la scierie, à l'atelier d'armes et à l'atelier d'armures.||Il construit également des catapultes et des balistes dans l'atelier de siège.
 94:Le boulanger cuit du pain au fournil.||Il fait aussi de la farine au moulin.
-95:Le charcutier fait des saucisses а la charcuterie et du cuir а la tannerie.
-96:Le pкcheur pкche du poisson dans les eaux environnantes.
-97:Le maзon construit des bвtiments et des routes. Sйlectionnez simplement l'emplacement que vous avez choisi et il exйcutera automatiquement vos ordres.||Il rйpare йgalement les bвtiments endommagйs.
-98:Afin de fournir suffisamment de pierres а vos maзons pour construire des routes et des bвtiments, le tailleur de pierres extrait des blocs de pierres et les taille.
-99:Les armures et les armes lourdes sont fabriquйes par les forgerons а la forge d'armures et а la forge d'armes.
-100:Le mйtallurgiste produit des caisses d'or et des barres de fer а partir du minerai extrait dans les mines d'or et de fer.
-101:Dans l'enceinte du chвteau, la recrue est йquipйe et entraоnйe.||Elle se poste йgalement dans la tour de guet.
-102:Sйlection d'un Bвtiment
-103:Rйpartition des Matiиres Premiиres
+95:Le charcutier fait des saucisses à la charcuterie et du cuir à la tannerie.
+96:Le pêcheur pêche du poisson dans les eaux environnantes.
+97:Le maçon construit des bâtiments et des routes. Sélectionnez simplement l'emplacement que vous avez choisi et il exécutera automatiquement vos ordres.||Il répare également les bâtiments endommagés.
+98:Afin de fournir suffisamment de pierres à vos maçons pour construire des routes et des bâtiments, le tailleur de pierres extrait des blocs de pierres et les taille.
+99:Les armures et les armes lourdes sont fabriquées par les forgerons à la forge d'armures et à la forge d'armes.
+100:Le métallurgiste produit des caisses d'or et des barres de fer à partir du minerai extrait dans les mines d'or et de fer.
+101:Dans l'enceinte du château, la recrue est équipée et entraînée.||Elle se poste également dans la tour de guet.
+102:Sélection d'un Bâtiment
+103:Répartition des Matières Premières
 104:Statistiques
 105:Options
 106:Retour
-107:Sйlection|Bвtiment
-108:Rйpartition|Matiиres|Premiиres
+107:Sélection|Bâtiment
+108:Répartition|Matières|Premières
 109:Statistiques
 110:Options
 111:Charger Partie
 112:Enregistrer Partie
-113:Кtes-vous sыr(e)|de vouloir quitter|cette mission ?
+113:Êtes-vous sûr(e)|de vouloir quitter|cette mission ?
 114:Quitter la Mission
 115:Annuler
-116:Paramиtres
-117:Quitter l'Йditeur
+116:Paramètres
+117:Quitter l'Éditeur
 118:Effets Sonores
-119:Rйgler le volume
-120:Rйgler le volume
+119:Régler le volume
+120:Régler le volume
 121:Musique
 122:Musique Oui/Non
 123:Sauvegarde Auto.
 124:Lecteur de Musique
-125:Morceau prйcйdent
+125:Morceau précédent
 126:Morceau suivant
-127:Dйmolir
-128:Dйmolition/Annulation
+127:Démolir
+128:Démolition/Annulation
 129:Construire une Route
 130:Construire des Routes
 131:Labourer un Champ
@@ -137,70 +137,70 @@
 136:Annuler l'apprentissage en cours
 137:Besoins :
 138:Production :
-139:Йtat :
+139:État :
 140:Produits
-141:Bвtiment en|construction
-142:Dйmolir
-143:Voulez-vous vraiment|dйmolir ce bвtiment ?
-144:Dйmolir le bвtiment sйlectionnй
-145:Rйduire la commande
+141:Bâtiment en|construction
+142:Démolir
+143:Voulez-vous vraiment|démolir ce bâtiment ?
+144:Démolir le bâtiment sélectionné
+145:Réduire la commande
 146:Augmenter la commande
-147:Unitй prйcйdente
-148:Unitй suivante
-149:Йquiper l'unitй sйlectionnйe
-150:Catйgorie suivante
-151:Catйgorie prйcйdente
-152:Ajouter а la liste
+147:Unité précédente
+148:Unité suivante
+149:Équiper l'unité sélectionnée
+150:Catégorie suivante
+151:Catégorie précédente
+152:Ajouter à la liste
 153:Livraison de marchandises Oui/Non
-154:Coыt :
-155:Rйparation du bвtiment Oui/Non
-156:Bвtiment indisponible actuellement
-157:Santй
-158:Pivoter а gauche
-159:Pivoter а droite
+154:Coût :
+155:Réparation du bâtiment Oui/Non
+156:Bâtiment indisponible actuellement
+157:Santé
+158:Pivoter à gauche
+159:Pivoter à droite
 160:Attaquer ('a')
 161:Envoyer les Troupes ('d')
 162:Ravitailler les Troupes
 163:Attaquer : Charger !
 164:Changer la Formation : Ajouter un rang
 165:Changer la Formation : Enlever un rang
-166:Sйlectionner|l'autre unitй
+166:Sélectionner|l'autre unité
 167:Annuler
 168:Supprimer
 169:Supprimer ce message
 170:Centrer
-171:Centrer l'йcran sur l'objet de ce message
+171:Centrer l'écran sur l'objet de ce message
 172:Fermer
 173:Refermer ce message
-174:Votre tailleur de pierres ne peut plus rien tirer de cette carriиre.
-175:Vos gisements de charbon sont йpuisйs.
-176:Vos gisements de fer sont йpuisйs.
-177:Vos gisements d'or sont йpuisйs.
-178:Votre bыcheron ne peut plus trouver d'arbres а couper.
-179:Ce bвtiment est inoccupй.
-180:Ces troupes sont affamйes, vous devriez les nourrir !
+174:Votre tailleur de pierres ne peut plus rien tirer de cette carrière.
+175:Vos gisements de charbon sont épuisés.
+176:Vos gisements de fer sont épuisés.
+177:Vos gisements d'or sont épuisés.
+178:Votre bûcheron ne peut plus trouver d'arbres à couper.
+179:Ce bâtiment est inoccupé.
+180:Ces troupes sont affamées, vous devriez les nourrir !
 181:PAUSE
-182:Dйlivre
+182:Délivre
 183:Construit une route
 184:Laboure un champ
 185:Plante une vigne
 186:Aplatit l'emplacement
-187:Construit un bвtiment
-188:Rйpare un bвtiment
-189:Dйplacement vers son bвtiment
-190:Dйplacement vers l'auberge
-191:Attaque un bвtiment
+187:Construit un bâtiment
+188:Répare un bâtiment
+189:Déplacement vers son bâtiment
+190:Déplacement vers l'auberge
+191:Attaque un bâtiment
 192:Tire
 193:Combat
 194:Charge
 195:Attaque
 196:Mouvement
-197:Inoccupй
+197:Inoccupé
 198:Extrait de la pierre
-199:Sиme du blй
-200:Rйcolte du blй
-201:Rйcolte des raisins
-202:Pкche du poisson
+199:Sème du blé
+200:Récolte du blé
+201:Récolte des raisins
+202:Pêche du poisson
 203:Abat un arbre
 204:Plante un arbre
 205:Spirit
@@ -227,49 +227,49 @@
 226:Journey
 227:Campagnes
 228:Campagnes
-229:Dйbuter !
-230:Sйlectionner une Mission
-231:Dйbuter !
+229:Débuter !
+230:Sélectionner une Mission
+231:Débuter !
 232:Retour au Menu
-233:Charger une Partie Enregistrйe
+233:Charger une Partie Enregistrée
 234:Multijoueur
 235:Options
-236:Crйdits
+236:Crédits
 237:Quitter
 238:Continuer
 239:Recommencer la Mission
-240:Rйsolution :
-241:Non supportйe
-242:Non supportй
+240:Résolution :
+241:Non supportée
+242:Non supporté
 243:VICTOIRE !
 244:DEFAITE !
-245:Unitйs perdues :
-246:Unitйs йliminйes :
-247:Bвtiments perdus :
-248:Bвtiments dйtruits :
-249:Bвtiments construits :
-250:Unitйs formйes :
-251:Armes fabriquйes :
-252:Soldats entraоnйs :
+245:Unités perdues :
+246:Unités éliminées :
+247:Bâtiments perdus :
+248:Bâtiments détruits :
+249:Bâtiments construits :
+250:Unités formées :
+251:Armes fabriquées :
+252:Soldats entraînés :
 253:Mission accomplie en :
 254:Statistiques
-255:Йconomie
-256:Unitйs|formйes
-257:Unitйs|perdues
-258:Soldats|entraоnйs
+255:Économie
+256:Unités|formées
+257:Unités|perdues
+258:Soldats|entraînés
 259:Soldats|perdus
-260:Soldats|йliminйs
-261:Bвtiments|construits
-262:Bвtiments|perdus
-263:Bвtiments|dйtruits
+260:Soldats|éliminés
+261:Bâtiments|construits
+262:Bâtiments|perdus
+263:Bâtiments|détruits
 264:Marchandises|produites
-265:Armes|fabriquйes
-266:Armйe
+265:Armes|fabriquées
+266:Armée
 267:Citoyens
-268:Bвtiments
+268:Bâtiments
 269:Ressources
 270:Ressources produites
-271:Pas de donnйes
+271:Pas de données
 272:Vous
 273:Joueur %d
 274:Retour au Multijoueur
@@ -277,39 +277,39 @@
 276:Toutes
 277:Militaire
 278:Nourriture
-279:JOYMANIA ENTERTAINMENT||PROGRAMMATION :|Peter Ohlmann||GRAPHISMES :|Adam Sprys||CONCEPTION DES NIVEAUX :|Adam Sprys|Andre QuaЯ||MIXAGE ET ЙDITION AUDIO :|Tonstudio Mannheim||MUSIQUE D'AMBIANCE :|Gerd Hofmann|Joachim Schдfer|Jьrgen Rebhann|Klaus Staendike|Steffen Schьngel||ILLUSTRATIONS :|Boleslaw Kasza|Christoph Werner||ZUXXEZ ENTERTAINMENT AG||PRODUCTEUR :|Uwe Schдfer||MANUEL :|Peter Ohlmann|Uwe Schдfer||BКTA TEST :|Peter Ohlmann|Adam Sprys|Alexandra Constandache|Dirk P. Hassinger|Achim Heidelauf|Uwe Schдfer|Ingrid Schдfer|Dirk U. Jantz|Ion Constandache|Yaman Egeli|Roman Eich|Iris Mocsnek|Anke Jantz|Paul Hassinger|Liza Hassinger||RESPONSABLE DU DЙVELOPPEMENT :|Achim Heidelauf||PUBLICATION :|TopWare Interactive||CINЙMATIQUES :||DIRECTION :|Slawomir Jedrzejewski||Kajetan Czarnecki|Wojciech Drazek|Daniel Duplaga|Rafal Januszkiewicz|Andrzej Rams|Piotr Rulka|Krzysztof Rybczynski|Grzegorz Wisniwski||VOIX :|Claus Boyen (Narrateur)||Tim Timmermann|Peter Houska|Dirk Mьhlbach|Ralf Ditze|Gerhard Piske|Gernot Wassmann||ARTWORK :|Boleslaw Kasza|Adam Sprys||ANIMATION :|Uwe Schдfer|Christian Bigalk|Modйlisation 3D Additionnelle :|Niels Horstmann||REMERCIEMENTS PARTICULIERS А :|Tadeusz Zuber|Dieter Ohlmann|Alexandra Constandache|Ingrid Schдfer|Andrea Rumpelt
-280:Mission Annulйe
-281:Replay terminй
+279:JOYMANIA ENTERTAINMENT||PROGRAMMATION :|Peter Ohlmann||GRAPHISMES :|Adam Sprys||CONCEPTION DES NIVEAUX :|Adam Sprys|Andre Quaß||MIXAGE ET ÉDITION AUDIO :|Tonstudio Mannheim||MUSIQUE D'AMBIANCE :|Gerd Hofmann|Joachim Schäfer|Jürgen Rebhann|Klaus Staendike|Steffen Schüngel||ILLUSTRATIONS :|Boleslaw Kasza|Christoph Werner||ZUXXEZ ENTERTAINMENT AG||PRODUCTEUR :|Uwe Schäfer||MANUEL :|Peter Ohlmann|Uwe Schäfer||BÊTA TEST :|Peter Ohlmann|Adam Sprys|Alexandra Constandache|Dirk P. Hassinger|Achim Heidelauf|Uwe Schäfer|Ingrid Schäfer|Dirk U. Jantz|Ion Constandache|Yaman Egeli|Roman Eich|Iris Mocsnek|Anke Jantz|Paul Hassinger|Liza Hassinger||RESPONSABLE DU DÉVELOPPEMENT :|Achim Heidelauf||PUBLICATION :|TopWare Interactive||CINÉMATIQUES :||DIRECTION :|Slawomir Jedrzejewski||Kajetan Czarnecki|Wojciech Drazek|Daniel Duplaga|Rafal Januszkiewicz|Andrzej Rams|Piotr Rulka|Krzysztof Rybczynski|Grzegorz Wisniwski||VOIX :|Claus Boyen (Narrateur)||Tim Timmermann|Peter Houska|Dirk Mühlbach|Ralf Ditze|Gerhard Piske|Gernot Wassmann||ARTWORK :|Boleslaw Kasza|Adam Sprys||ANIMATION :|Uwe Schäfer|Christian Bigalk|Modélisation 3D Additionnelle :|Niels Horstmann||REMERCIEMENTS PARTICULIERS À :|Tadeusz Zuber|Dieter Ohlmann|Alexandra Constandache|Ingrid Schäfer|Andrea Rumpelt
+280:Mission Annulée
+281:Replay terminé
 282:Tutoriel de Construction
 283:Tutoriel de Bataille
 284:Jouer en Solo
-285:Йditeur de Cartes
-286:Dйbuter !
+285:Éditeur de Cartes
+286:Débuter !
 287:Titre
 288:Taille
 289:Condition de Victoire :
-290:Condition de Dйfaite :
-291:Alliйs :
+290:Condition de Défaite :
+291:Alliés :
 292:Ennemis :
 293:Temps
 294:Taille de la Carte :
 295:Largeur
 296:Hauteur
-297:Crйer une Carte
+297:Créer une Carte
 298:Cartes Existantes :
 299:Charger une Carte Existante
 300:Position
-301:Contrфles :
-302:Jouabilitй :
+301:Contrôles :
+302:Jouabilité :
 303:Effets Sonores :
-304:Dйsactiver la musique
+304:Désactiver la musique
 305:Graphismes :
-306:Luminositй
+306:Luminosité
 307:Synchronisation verticale
-308:Plein Йcran
+308:Plein Écran
 309:Appliquer
 310:Langage :
-311:Qualitй de l'Ombre :
+311:Qualité de l'Ombre :
 312:Basse
 313:Haute
 314:Chargement... Veuillez patienter
@@ -320,41 +320,41 @@
 319:Description
 320:Charger
 321:Supprimer
-322:Кtes-vous sыr(e) de vouloir supprimer cette sauvegarde ?
+322:Êtes-vous sûr(e) de vouloir supprimer cette sauvegarde ?
 323:Supprimer
 324:Annuler
 325:Titre
 326:Cartes
-327:Dйbloquйes
-328:Vous avez Gagnй !
-329:Continuer а Jouer
+327:Débloquées
+328:Vous avez Gagné !
+329:Continuer à Jouer
 330:Victoire !
 331:Vous avez Perdu !
-332:Continuer а Regarder
-333:Dйfaite !
-334:Le replay est terminй
-335:Continuer а Regarder
+332:Continuer à Regarder
+333:Défaite !
+334:Le replay est terminé
+335:Continuer à Regarder
 336:Quitter au Menu
 337:Non disponible
 338:Appuyer sur %s pour reprendre le jeu
 339:Infos sur les joueurs
 340:Chat
-341:Fichier dйjа existant
-342:Йcraser
+341:Fichier déjà existant
+342:Écraser
 343:Enregistrer
 344:Charger
-345:Une ancienne version d'OpenGL a йtй dйtectйe, le jeu peut кtre lent et/ou avec des dйfauts graphiques.
-346:Veuillez mettre а jour votre pilote graphique pour obtenir une meilleure performance.
-347:Erreur rйseau :
-348:Erreur : Le nom du joueur doit contenir au moins un caractиre.
-349:Erreur : Le nom du joueur ne peut pas contenir plus de %d caractиres.
-350:Erreur : Le nom du joueur ne peut pas contenir de caractиres interdits.
-351:Connexion йchouйe : %s.
-352:Vous vous кtes dйconnectй.
+345:Une ancienne version d'OpenGL a été détectée, le jeu peut être lent et/ou avec des défauts graphiques.
+346:Veuillez mettre à jour votre pilote graphique pour obtenir une meilleure performance.
+347:Erreur réseau :
+348:Erreur : Le nom du joueur doit contenir au moins un caractère.
+349:Erreur : Le nom du joueur ne peut pas contenir plus de %d caractères.
+350:Erreur : Le nom du joueur ne peut pas contenir de caractères interdits.
+351:Connexion échouée : %s.
+352:Vous vous êtes déconnecté.
 353:Mission %d
 354:Liste des messages
-355:La hutte de votre pкcheur est trop йloignйe de l'eau.
-356:Votre pкcheur ne peut plus trouver de poissons а pкcher.
+355:La hutte de votre pêcheur est trop éloignée de l'eau.
+356:Votre pêcheur ne peut plus trouver de poissons à pêcher.
 357:Relancer le replay
 358:Suspendre
 359:Avancer d"une frame
@@ -362,11 +362,11 @@
 361:Stopper le replay
 362:Activer la vue par joueur
 363:Montrer tout le monde
-364:Utilisez le bouton gauche de la souris pour sйlectionner une marchandise а йchanger
-365:Utilisez le bouton droit de la souris pour sйlectionner une marchandise а йchanger
+364:Utilisez le bouton gauche de la souris pour sélectionner une marchandise à échanger
+365:Utilisez le bouton droit de la souris pour sélectionner une marchandise à échanger
 366:De : %dx
-367:а : %dx
-368:Йdition du Terrain
+367:à : %dx
+368:Édition du Terrain
 369:Brosses
 370:Reliefs
 371:Tiles
@@ -378,18 +378,18 @@
 377:Variation
 378:Glisser pour changer la variation de hauteur : 1 = plateau ... 15 = pic
 379:Vitesse
-380:Glisser pour changer la vitesse de l'йlйvation : 1 = lent ... 15 = trиs rapide
+380:Glisser pour changer la vitesse de l'élévation : 1 = lent ... 15 = très rapide
 381:Brosse en cercle
-382:Brosse en carrй
-383:Йlever / Baisser
-384:Inйgaliser / Aplatir
-385:Йlever (clic gauche) / Baisser (clic droit)
-386:Inйgaliser (clic gauche) / Aplatir (clic droit)
+382:Brosse en carré
+383:Élever / Baisser
+384:Inégaliser / Aplatir
+385:Élever (clic gauche) / Baisser (clic droit)
+386:Inégaliser (clic gauche) / Aplatir (clic droit)
 387:Brosse
-388:Йlements alйatoires
-389:Orientation alйatoire
-390:Cocher pour une direction alйatoire des cases ou utiliser le clic droit pour effectuer une rotation de la case selectionnйe
-391:Utiliser le clic droit pour effectuer une rotation de la case selectionnйe
+388:Élements aléatoires
+389:Orientation aléatoire
+390:Cocher pour une direction aléatoire des cases ou utiliser le clic droit pour effectuer une rotation de la case selectionnée
+391:Utiliser le clic droit pour effectuer une rotation de la case selectionnée
 392:Bloquer les mouvements
 393:Enlever un objet
 394:Planification du Village
@@ -398,41 +398,41 @@
 397:Menu
 398:Objets
 399:Montrer les gisements
-400:Montrer les unitйs
+400:Montrer les unités
 401:Montrer les maisons
 402:Montrer les objets
-403:Montrer la passabilitй
-404:Tout changement|non sauvegardй sera perdu
+403:Montrer la passabilité
+404:Tout changement|non sauvegardé sera perdu
 405:Annuler
 406:Charger
 407:Charger Carte
 408:Annuler
 409:Sauvegarder
-410:Йcraser
-411:La carte existe dйjа
+410:Écraser
+411:La carte existe déjà
 412:Joueurs :
-413:Dйfaut
+413:Défaut
 414:Type de joueur
-415:Symйtrique
+415:Symétrique
 416:Alliances
 417:Tactique
 418:Normale
 419:Mode de mission
-420:Aller а la position
-421:Centrer l'йcran au dйbut de la mission
-422:Centrer l'йcran
-423:Tout rйvйler
-424:Rйvиle une portion de la carte
-425:Rйveler brouillard
+420:Aller à la position
+421:Centrer l'écran au début de la mission
+422:Centrer l'écran
+423:Tout révéler
+424:Révèle une portion de la carte
+425:Réveler brouillard
 426:Bloquer le commerce
-427:Bloquer/Dйverouiller des maisons
+427:Bloquer/Déverouiller des maisons
 428:Couleurs
 429:Buts
 430:Msg.
 431:Temps
 432:Joueur
-433:Batiments йconomiques
-434:Serfs et йcoles
+433:Batiments économiques
+434:Serfs et écoles
 435:Possessions militaires
 436:Inconnu
 437:Troupes
@@ -451,61 +451,61 @@
 450:Colonnes
 451:Nombre
 452:Formation de la troupe
-453:Йditer les formations
+453:Éditer les formations
 454:Limiter le nombre de soldats que l'IA peut avoir
-455:Combien de soldats l'IA peut avoir en mкme temps
+455:Combien de soldats l'IA peut avoir en même temps
 456:Max. de soldats
-457:Combien de recrues l'IA doit avoir au chвteau
-458:Recrues par Chвteau
+457:Combien de recrues l'IA doit avoir au château
+458:Recrues par Château
 459:Positions
 460:Position perso.
-461:Bвt. le + proche 2
-462:Bвt. le + proche 1
+461:Bât. le + proche 2
+462:Bât. le + proche 1
 463:Unit. la + proche
 464:Tout prendre
 465:Nombre de groupes
 466:Infos d'attaque
-467:Dйlai (s)
-468:Rйpйt.
+467:Délai (s)
+468:Répét.
 469:1 fois
 470:Cavalerie
 471:Distance
 472:Anticavalerie
-473:Mйlйe
+473:Mélée
 474:Pos.
 475:Cible
 476:Hommes
-477:Dйlai
+477:Délai
 478:Type
 479:Attaque auto
 480:Attaques IA
-481:Taux d'йquip. cuir
-482:Taux d'йquip. fer
-483:Autodйfense
-484:L'IA crйe et gиre les positions de dйfense automatiquement
-485:Placer une position de dйfense IA
-486:Positions de dйfense IA
-487:Maзons
+481:Taux d'équip. cuir
+482:Taux d'équip. fer
+483:Autodéfense
+484:L'IA crée et gère les positions de défense automatiquement
+485:Placer une position de défense IA
+486:Positions de défense IA
+487:Maçons
 488:Serfs par 10 maisons
-489:Autorйparer
+489:Autoréparer
 490:Auto construction
-491:Paramиtres IA
+491:Paramètres IA
 492:Maisons
 493:Routes
-494:Tourne la sйlection verticalement
-495:Tourne la sйlection horizontalement
+494:Tourne la sélection verticalement
+495:Tourne la sélection horizontalement
 496:Copier terrain
 497:Copie le terrain
 498:Copier/Coller
 499:Nouvelle Mission
 500:Nom du Joueur :
 501:Statut :
-502:Crйer un Serveur
-503:CRЙER UN SERVEUR
+502:Créer un Serveur
+503:CRÉER UN SERVEUR
 504:Nom :
 505:Port :
-506:Crйer un Serveur Local
-507:Crйer un Serveur Internet
+506:Créer un Serveur Local
+507:Créer un Serveur Internet
 508:Annuler
 509:Trouver un Serveur par IP
 510:TROUVER UN SERVEUR
@@ -514,162 +514,162 @@
 513:Salle :
 514:Connexion
 515:Annuler
-516:Salle protйgйe par Mot de Passe
+516:Salle protégée par Mot de Passe
 517:Mot de Passe
 518:Nom du Serveur
-519:Йtat
+519:État
 520:Joueurs
 521:Ping
 522:Rafraichir la Liste des Serveurs
-523:DЙTAILS DU SERVEUR
+523:DÉTAILS DU SERVEUR
 524:Liste des Joueurs :
 525:Joindre
 526:Connexion, veuillez patienter...
 527:Chargement des annonces...
 528:Rafraichissement...
 529:Liste des Joueurs
-530:Position de Dйpart
+530:Position de Départ
 531:Alliance
 532:Couleur
-533:Prкt
+533:Prêt
 534:Ping
 535:Ping / FPS
 536:Libre
 537:Joueur IA
-538:Sйlect...
-539:Alйatoire
+538:Sélect...
+539:Aléatoire
 540:Aucune
-541:Partie Enregistrйe
-542:Sйlect. une mission...
-543:Sйlect. une sauvegarde...
-544:Quitter la Prйparation
-545:Prкt
-546:Non Prкt
-547:Dйbuter !
+541:Partie Enregistrée
+542:Sélect. une mission...
+543:Sélect. une sauvegarde...
+544:Quitter la Préparation
+545:Prêt
+546:Non Prêt
+547:Débuter !
 548:Vitesse du jeu (temps de paix)
 549:Vitesse du jeu
 550:OK
 551:Annuler
 552:Description
 553:Mot de Passe
-554:Paramиtres de la Salle
-555:Dйfinir comme hфte
+554:Paramètres de la Salle
+555:Définir comme hôte
 556:Bannir
 557:Exclure
-558:Positions alйatoire dans chaque йquipe
+558:Positions aléatoire dans chaque équipe
 559:Description
 560:Options
 561:Position %d
-562:Erreur : Veuillez sйlectionner un joueur de la sauvegarde pour le contrфler.
-563:Erreur : Le chargement de la carte a йchouй ou aucune carte n'a йtй sйlectionnйe.
-564:Impossible de dйbuter : %s.
-565:Tout le monde n'est pas prкt pour dйbuter.
-566:Impossible d'assigner une position alйatoire.
-567:Le Serveur vous a attribuй les droits d'hйbergement.
-568:La partie a dйbutй !
-569:Dйveloppement
+562:Erreur : Veuillez sélectionner un joueur de la sauvegarde pour le contrôler.
+563:Erreur : Le chargement de la carte a échoué ou aucune carte n'a été sélectionnée.
+564:Impossible de débuter : %s.
+565:Tout le monde n'est pas prêt pour débuter.
+566:Impossible d'assigner une position aléatoire.
+567:Le Serveur vous a attribué les droits d'hébergement.
+568:La partie a débuté !
+569:Développement
 570:Bataille
-571:Carte Coopйrative
-572:Carte Spйciale
+571:Carte Coopérative
+572:Carte Spéciale
 573:Options de Jeu :
 574:Temps de Paix (minutes)
-575:Fermй
-576:L'hфte configure les joueurs
+575:Fermé
+576:L'hôte configure les joueurs
 577:Attente des Joueurs :
 578:Tous
-579:Йquipe
-580:Crйdits de KaM Remake
-581:Crйdits Originaux de Knights & Merchants
+579:Équipe
+580:Crédits de KaM Remake
+581:Crédits Originaux de Knights & Merchants
 582:PROGRAMMATION :
 583:PROGRAMMATION ADDITIONNELLE :
 584:GRAPHISMES ADDITIONNELS :
 585:EFFETS SONORES ADDITIONNELS :
 586:MUSIQUES ADDITIONNELLES :
 587:TRADUCTIONS ADDITIONNELLES :
-588:REMERCIMENTS SPЙCIAUX А :
+588:REMERCIMENTS SPÉCIAUX À :
 589:Cartes Multijoueur
 590:Cartes Solo
-591:Vitesse de dйfilement
-592:Aucun serveur n'a йtй trouvй
-593:Lecture alйatoire
+591:Vitesse de défilement
+592:Aucun serveur n'a été trouvé
+593:Lecture aléatoire
 594:Informations sur la Partie :
 595:-
-596:Prйparation
+596:Préparation
 597:Chargement
 598:Partie
-599:Dйveloppement
+599:Développement
 600:Bataille
-601:Prкt
+601:Prêt
 602:Mauvaise version du protocole : %s. Le Serveur utilise la version : %s.
-603:Augmenter le nombre d'йchanges
-604:Rйduire le nombre d'йchanges
+603:Augmenter le nombre d'échanges
+604:Réduire le nombre d'échanges
 605:Enregistrement de la partie...
 606:%s a perdu !
 607:Abandonner ces Joueurs
-608:L'hфte sera autorisй а abandonner ces joueurs aprиs %d secondes.
-609:L'hфte est dйsormais autorisй а abandonner ces joueurs.
-610:L'hфte (%s) a quittй.
-611:La connexion vers le serveur a йtй perdue. Tentative de reconnexion...
-612:Кtes-vous sыr(e) de vouloir quitter ?
-613:Кtes-vous sыr(e) de vouloir abandonner ces joueurs ?
+608:L'hôte sera autorisé à abandonner ces joueurs après %d secondes.
+609:L'hôte est désormais autorisé à abandonner ces joueurs.
+610:L'hôte (%s) a quitté.
+611:La connexion vers le serveur a été perdue. Tentative de reconnexion...
+612:Êtes-vous sûr(e) de vouloir quitter ?
+613:Êtes-vous sûr(e) de vouloir abandonner ces joueurs ?
 614:Annuler
-615:L'йchange de cette ressource est indisponible dans cette mission
+615:L'échange de cette ressource est indisponible dans cette mission
 616:Planter et Abattre
 617:Abattre Seulement
-618:Vous n'кtes pas autorisй а faire cela pendant le temps de paix.
+618:Vous n'êtes pas autorisé à faire cela pendant le temps de paix.
 619:Temps de Paix restant : %s
-620:Le temps de paix est terminй. А vos armes !
+620:Le temps de paix est terminé. À vos armes !
 621:Temps de Jeu :|%s
 622:Halte ('%s')
-623:Regrouper les Unitйs ('%s')
-624:Scinder les Unitйs ('%s')
+623:Regrouper les Unités ('%s')
+624:Scinder les Unités ('%s')
 625:Lecteur de Replay
 626:Voir le Replay
-627:Format non supportй %s
-628:Version non supportйe %s
-629:Modifications non supportйes
+627:Format non supporté %s
+628:Version non supportée %s
+629:Modifications non supportées
 630:Une erreur est survenue lors de l'analyse du fichier %s.
 631:initialisation
 632:script
-633:unitйs
-634:bвtiments
+633:unités
+634:bâtiments
 635:arbres
-636:dйfinitions
+636:définitions
 637:tileset
-638:Carte non trouvйe : %s
-639:Sauvegarde non trouvйe : %s
-640:Les fichiers de la mission ne sont pas les mкmes que ceux de l'hфte : %s
-641:Le fichier de sauvegarde n'est pas le mкme que celui de l'hфte : %s
-642:Le replay a йchouй а une vйrification de consistance. C'est un bug connu qui affecte la lecture de plusieurs replays. Voulez-vous continuer а le regarder ?
-643:Vous ne pouvez qu'avoir une instance du jeu en mode multijoueur а la fois.
-644:Les modifications du jeu ne sont pas autorisйes en multijoueur.|Veuillez le rйinstaller pour restaurer les fichiers originaux.
-645:Une erreur s'est produite dans l'application. Veuillez cliquer sur Envoyer le Rapport de Bug pour que nous puissions examiner ce problиme. Merci pour votre aide !
+638:Carte non trouvée : %s
+639:Sauvegarde non trouvée : %s
+640:Les fichiers de la mission ne sont pas les mêmes que ceux de l'hôte : %s
+641:Le fichier de sauvegarde n'est pas le même que celui de l'hôte : %s
+642:Le replay a échoué à une vérification de consistance. C'est un bug connu qui affecte la lecture de plusieurs replays. Voulez-vous continuer à le regarder ?
+643:Vous ne pouvez qu'avoir une instance du jeu en mode multijoueur à la fois.
+644:Les modifications du jeu ne sont pas autorisées en multijoueur.|Veuillez le réinstaller pour restaurer les fichiers originaux.
+645:Une erreur s'est produite dans l'application. Veuillez cliquer sur Envoyer le Rapport de Bug pour que nous puissions examiner ce problème. Merci pour votre aide !
 646:Envoyer le Rapport de Bug
-647:Afficher les Donnйes Brutes
+647:Afficher les Données Brutes
 648:Reprendre l'Application
 649:Quitter l'Application
 650:Suivant
-651:Dйtails de Contact
+651:Détails de Contact
 652:Votre nom : (optionnel)
 653:Votre email : (optionnel)
 654:Se souvenir de moi
-655:Dйtails de l'Erreur
-656:Dans quelle situation l'erreur se produit-elle ? Pouvez-vous fournir toute information supplйmentaire ? (en anglais de prйfйrence)
-657:Capture d'йcran
-658:Joindre une capture d'йcran au rapport de bug
+655:Détails de l'Erreur
+656:Dans quelle situation l'erreur se produit-elle ? Pouvez-vous fournir toute information supplémentaire ? (en anglais de préférence)
+657:Capture d'écran
+658:Joindre une capture d'écran au rapport de bug
 659:(cliquez pour modifier l'image)
 660:Envoyer le Rapport
 661:Annuler
 662:Envoi du rapport de bug...
 663:Connexion au serveur...
-664:Envoi des donnйes...
-665:L'envoi du rapport de crash a йchouй ! Notre serveur йtait peut-кtre occupй, veuillez rйessayer l'envoi а nouveau.
+664:Envoi des données...
+665:L'envoi du rapport de crash a échoué ! Notre serveur était peut-être occupé, veuillez réessayer l'envoi à nouveau.
 666:Information
 667:Veuillez patienter un moment...
 668:Sauvegarder Carte
-669:Dйlai en minutes avant que l'IA ne commence а entraоner des recrues
+669:Délai en minutes avant que l'IA ne commence à entraîner des recrues
 670:Delai recrues (mins)
-671:Permet de choisir une direction commune а un corps de cases d'eau connectйes
+671:Permet de choisir une direction commune à un corps de cases d'eau connectées
 672:Eau magique
 673:Copier
 674:Coller
@@ -677,22 +677,22 @@
 676:Annuler coller
 677:Tourner verticalement
 678:Tourner horizontalement
-679:Glissez pour sйlectionner une zone de la carte
-680:Options dйfense IA
+679:Glissez pour sélectionner une zone de la carte
+680:Options défense IA
 681:Off
 682:Rayon
-683:Dйtruire le rйvйlateur actuel
-684:Retourner а la page pour rйvйler le brouillard
+683:Détruire le révélateur actuel
+684:Retourner à la page pour révéler le brouillard
 685:Fermer
 686:Ordre de groupe
 687:Aucun
 688:Attaquer position
 689:Marcher vers
 690:Direction
-691:Ligne arriиre
+691:Ligne arrière
 692:Ligne de front
-693:Rayon de dйfense
-694:Supprimer la position de dйfense actuelle
-695:Retourner а la page dйfense
-696:Positions de dйfense
-697:Unitйs
+693:Rayon de défense
+694:Supprimer la position de défense actuelle
+695:Retourner à la page défense
+696:Positions de défense
+697:Unités

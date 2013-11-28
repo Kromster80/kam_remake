@@ -1,7 +1,7 @@
 ﻿0:Serraria
 1:Forja de ferro
 2:Forja de armas
-3:Mina de carvгo
+3:Mina de carvão
 4:Mina de ferro
 5:Mina de ouro
 6:Cabana do pescador
@@ -9,11 +9,11 @@
 8:Fazenda
 9:Lenhador
 10:Forja de armaduras
-11:Armazйm
-12:Estбbulos
+11:Armazém
+12:Estábulos
 13:Escola
 14:Pedreira
-15:Casa de fundiзгo
+15:Casa de fundição
 16:Fazenda de porcos
 17:Torre de vigia
 18:Prefeitura
@@ -22,23 +22,23 @@
 21:Quartel
 22:Moinho
 23:Oficina para armas de cerco
-24:Aзougue
+24:Açougue
 25:Curtume
-26:Edifнcio de treinamento
+26:Edifício de treinamento
 27:Pousada
 28:Vinhedo
 29:Mercado
-30:Troncos de бrvores
+30:Troncos de árvores
 31:Pedras
 32:Madeira
-33:Minйrio de ferro
-34:Minйrio de ouro
-35:Carvгo
+33:Minério de ferro
+34:Minério de ouro
+35:Carvão
 36:Ferro
 37:Ouro
 38:Barris de vinho
 39:Milho
-40:Pгes
+40:Pães
 41:Farinha
 42:Couro
 43:Salsichas
@@ -50,8 +50,8 @@
 49:Armadura de ferro
 50:Machado
 51:Espada
-52:Lanзa
-53:Lanзa de aзo
+52:Lança
+53:Lança de aço
 54:Arco
 55:Besta
 56:Cavalos
@@ -63,69 +63,69 @@
 62:Agricultor
 63:Carpinteiro
 64:Padeiro
-65:Aзougueiro
+65:Açougueiro
 66:Pescador
-67:Operбrio
+67:Operário
 68:Pedreiro
 69:Ferreiro
-70:Metalъrgico
+70:Metalúrgico
 71:Recruta
-72:Milнcia
+72:Milícia
 73:Lutador de machado
 74:Lutador de espada
 75:Arqueiro
 76:Besteiro
 77:Lanceiro
-78:Lanceiro de aзo
+78:Lanceiro de aço
 79:Explorador
 80:Cavaleiro Real
-81:Bбrbaro
+81:Bárbaro
 82:Rebelde
 83:Trapaceiro
 84:Guerreiro
 85:Vagabundo
 86:Catapulta
 87:Balista
-88:Os servos levarгo os suprimentos de suas contruзхes com a matйria-prima necessбria.||Note que deve existir uma ligaзгo com a estrada entre os edifнcios
-89:Para produzir troncos de бrvores para a serraria, vocк precisa de um lenhador.||O lenhador corta e planta бrvores de forma independente.
-90:O mineiro retira minйrio das minas de carvгo, ferro e ouro.
-91:O criador de animais usa milho para criar porcos no curral de suнnos e cavalos nos estбbulos.
-92:O agricultor planta e colhe milho na fazenda.||Ele tambйm produz vinho na vinнcola.
-93:O carpinteiro trabalha na serraria, na oficina de armas e na oficina de armaduras.||Ele tambйm constrуi catapultas e balistas  na oficina de armas de cerco.
-94:O padeiro transforma milho em farinha no moinho.||Ele tambйm assa pгo na padaria.
-95:O aзougueiro faz salsichas no aзougue e tambйm talhos de couro no curtume.
-96:O pescador pesca peixes nas бguas das proximidades.
-97:O trabalhador constrуi edifнcios e estradas. Basta destacar o seu local preferido e ele vai executar os seus comandos automaticamente.||Ele tambйm repara edifнcios danificados.
-98:Para suprir seus trabalhadores com material suficiente para construзгo de estradas e edifнcios, o pedreiro vai cortar e lapidar pedras.
+88:Os servos levarão os suprimentos de suas contruções com a matéria-prima necessária.||Note que deve existir uma ligação com a estrada entre os edifícios
+89:Para produzir troncos de árvores para a serraria, você precisa de um lenhador.||O lenhador corta e planta árvores de forma independente.
+90:O mineiro retira minério das minas de carvão, ferro e ouro.
+91:O criador de animais usa milho para criar porcos no curral de suínos e cavalos nos estábulos.
+92:O agricultor planta e colhe milho na fazenda.||Ele também produz vinho na vinícola.
+93:O carpinteiro trabalha na serraria, na oficina de armas e na oficina de armaduras.||Ele também constrói catapultas e balistas  na oficina de armas de cerco.
+94:O padeiro transforma milho em farinha no moinho.||Ele também assa pão na padaria.
+95:O açougueiro faz salsichas no açougue e também talhos de couro no curtume.
+96:O pescador pesca peixes nas águas das proximidades.
+97:O trabalhador constrói edifícios e estradas. Basta destacar o seu local preferido e ele vai executar os seus comandos automaticamente.||Ele também repara edifícios danificados.
+98:Para suprir seus trabalhadores com material suficiente para construção de estradas e edifícios, o pedreiro vai cortar e lapidar pedras.
 99:O ferreiro forja armas e armaduras de ferro.
-100:O metalъrgico usa carvгo para refinar ouro e minйrio de ferro.
-101:O recruta pode ser equipado como um soldado nos quartйis.||Ele tambйm ocupa a torre de vigia.
-102:Para seleзгo dos edifнcios
-103:Para distribuiзгo de mercadorias
-104:Para estatнsticas
-105:Para opзхes
+100:O metalúrgico usa carvão para refinar ouro e minério de ferro.
+101:O recruta pode ser equipado como um soldado nos quartéis.||Ele também ocupa a torre de vigia.
+102:Para seleção dos edifícios
+103:Para distribuição de mercadorias
+104:Para estatísticas
+105:Para opções
 106:Voltar
-107:Edifнcios|Seleзгo
-108:Distribuiзгo|de mercadorias
-109:Estatнsticas
-110:Opзхes
+107:Edifícios|Seleção
+108:Distribuição|de mercadorias
+109:Estatísticas
+110:Opções
 111:Carregar
 112:Salvar
-113:Vocк tem certeza|de que quer terminar|esta missгo?
-114:Terminar missгo
+113:Você tem certeza|de que quer terminar|esta missão?
+114:Terminar missão
 115:Voltar
-116:Configuraзхes
+116:Configurações
 118:SFX
 119:Alterar o Volume
 120:Alterar o Volume
-121:Mъsica
-122:Ligar/desligar mъsica
+121:Música
+122:Ligar/desligar música
 123:Salvar automaticamente
-124:Reprodutor de mъsica
+124:Reprodutor de música
 125:Faixa anterior
-126:Prуxima faixa
+126:Próxima faixa
 127:Demolir
-128:Remover Edifнcios
+128:Remover Edifícios
 129:Construir rua
 130:Construir ruas
 131:Arar campo
@@ -135,27 +135,27 @@
 135:Cancelar
 136:Cancelar treinamento atual
 137:Necessidades:
-139:Condiзгo:
+139:Condição:
 140:Estoque
-141:Casa em|construзгo
+141:Casa em|construção
 142:Destruir
-143:Vocк quer realmente|demolir esta construзгo?
-144:Destruir edifнcio selecionado
+143:Você quer realmente|demolir esta construção?
+144:Destruir edifício selecionado
 145:Diminuir valor do pedido
 146:Aumentar valor do pedido
 147:Tipo de soldado anterior
-148:Prуximo tipo de soldado
+148:Próximo tipo de soldado
 149:Equipar tipo de soldado atual
-150:Prуxima profissгo
-151:Profissгo anterior
-152:Adicionar а fila
+150:Próxima profissão
+151:Profissão anterior
+152:Adicionar à fila
 153:ativar/desativar entrega de mercadorias
 154:Custo:
 155:ativar/desativar reparo da casa
-156:Edifнcio nгo disponнvel no momento
-157:Condiзгo
-158:Virar tropa а esquerda
-159:Virar tropa а direita
+156:Edifício não disponível no momento
+157:Condição
+158:Virar tropa à esquerda
+159:Virar tropa à direita
 160:Atacar ('a')
 161:Enviar tropa ('d')
 162:Alimentar tropa
@@ -167,16 +167,16 @@
 168:Excluir
 169:Excluir mensagem atual
 170:Ir para
-171:Ir para a posiзгo atual da mensagem
+171:Ir para a posição atual da mensagem
 172:Fechar
 173:Fechar janela
-174:O seu pedreiro nгo consegue mais alcanзar nenhuma reserva de pedra.
-175:Sua mina de carvгo se esgotou.
+174:O seu pedreiro não consegue mais alcançar nenhuma reserva de pedra.
+175:Sua mina de carvão se esgotou.
 176:Sua mina de ferro se esgotou.
 177:Sua mina de ouro se esgotou.
-178:Seu lenhador nгo consegue mais encontrar бrvores para cortar e foi instruнdo a nгo plantar mais бrvores
-179:Esta casa nгo estб ocupada.
-180:Esta tropa estб realmente com fome, й melhor eles se alimentarem logo!
+178:Seu lenhador não consegue mais encontrar árvores para cortar e foi instruído a não plantar mais árvores
+179:Esta casa não está ocupada.
+180:Esta tropa está realmente com fome, é melhor eles se alimentarem logo!
 181:PAUSAR
 182:Transportando
 183:Construindo Estrada
@@ -199,20 +199,20 @@
 200:Cultivando milho
 201:Cultivando uvas
 202:Pescando
-203:Cortando бrvore
-204:Plantando бrvore
-205:Espнrito
+203:Cortando árvore
+204:Plantando árvore
+205:Espírito
 206:Ocupado
-207:Chifre da idade mйdia
+207:Chifre da idade média
 208:Primavera
-209:Alaъde
-210:Mercenбrio
+209:Alaúde
+210:Mercenário
 211:A Princesa
 212:A Rainha
 213:No mercado
 214:No campo de batalha
-215:Danзa da corte
-216:O Exйrcito
+215:Dança da corte
+216:O Exército
 217:No Castelo
 218:Fanfarras
 219:Na Corte
@@ -225,61 +225,61 @@
 226:Jornada
 227:Campanhas
 229:Iniciar Campanha!
-230:Jogar um Mapa Ъnico
+230:Jogar um Mapa Único
 231:Iniciar Mapa
 232:Voltar ao Menu
 233:Carregar um jogo salvo
 234:Multi-jogador
-235:Opзхes
-236:Crйditos
+235:Opções
+236:Créditos
 237:Encerrar Aplicativo
 238:Continuar
-239:Reiniciar Missгo
-240:Resoluзгo:
-241:Nгo suportado
-242:Nгo suportado
-243:VITУRIA!
+239:Reiniciar Missão
+240:Resolução:
+241:Não suportado
+242:Não suportado
+243:VITÓRIA!
 244:PERDEU!
 245:Unidades perdidas:
 246:Unidades derrotadas:
-247:Edifнcios perdidos:
-248:Edifнcios destruнdos:
-249:Edifнcios construнdos:
+247:Edifícios perdidos:
+248:Edifícios destruídos:
+249:Edifícios construídos:
 250:Unidades treinadas:
 251:Armas produzidas:
 252:Soldados treinados:
-253:Missгo completada em:
-254:Estatнsticas
+253:Missão completada em:
+254:Estatísticas
 255:Economia
-256:Aldeхes|treinados
-257:Aldeхes|perdidos
+256:Aldeões|treinados
+257:Aldeões|perdidos
 258:Soldados|equipados
 259:Soldados|perdidos
 260:Soldados|derrotados
-261:Edifнcios|construнdos
-262:Edifнcios|perdidos
-263:Edifнcios|destruнdos
+261:Edifícios|construídos
+262:Edifícios|perdidos
+263:Edifícios|destruídos
 264:Mercadoria| produzida
 265:Armas|Produzidas
-266:Exйrcito
-267:Aldeхes
+266:Exército
+267:Aldeões
 268:Casas
 269:Recursos
 270:Recursos Produzidos
-272:Vocк
+272:Você
 273:Jogador %d
-279:JOYMANIA ENTERTAINMENT||PROGRAMADOR:|Peter Ohlmann||EFEITOS GRБFICOS:|Adam Sprys||DESIGN DE LEVELS:|Adam Sprys|Andre QuaЯ||EDIЗГO E MIXAGEM DE SOM:|Tonstudio Mannheim||MUSICAS:|Gerd Hofmann|Joachim Schдfer|Jьrgen Rebhann|Klaus Staendike|Steffen Schьngel||ILUSTRAЗХES:|Boleslaw Kasza|Christoph Werner||ZUXXEZ ENTERTAINMENT AG||PRODUЗГO:|Uwe Schдfer||MANUAL:|Peter Ohlmann|Uwe Schдfer||BETA TESTING:|Peter Ohlmann|Adam Sprys|Alexandra Constandache|Dirk P. Hassinger|Achim Heidelauf|Uwe Schдfer|Ingrid Schдfer|Dirk U. Jantz|Ion Constandache|Yaman Egeli|Roman Eich|Iris Mocsnek|Anke Jantz|Paul Hassinger|Liza Hassinger||DIRETOR GERAL:|Achim Heidelauf||PUBLICADO POR:|TopWare Interactive||DIREЗГO DE CUTSCENES:|Slawomir Jedrzejewski||Kajetan Czarnecki|Wojciech Drazek|Daniel Duplaga|Rafal Januszkiewicz|Andrzej Rams|Piotr Rulka|Krzysztof Rybczynski|Grzegorz Wisniwski||VOZES:|Claus Boyen (Storyteller)||Tim Timmermann|Peter Houska|Dirk Mьhlbach|Ralf Ditze|Gerhard Piske|Gernot Wassmann||TRABALHO DE ARTES:|Boleslaw Kasza|Adam Sprys||ANIMAЗГO INICIAL:|Uwe Schдfer|Christian Bigalk|Additional 3D-Modelling:|Niels Horstmann||AGRADECIMENTOS ESPECIAIS:|Tadeusz Zuber|Dieter Ohlmann|Alexandra Constandache|Ingrid Schдfer|Andrea Rumpelt
-280:Missгo cancelada
+279:JOYMANIA ENTERTAINMENT||PROGRAMADOR:|Peter Ohlmann||EFEITOS GRÁFICOS:|Adam Sprys||DESIGN DE LEVELS:|Adam Sprys|Andre Quaß||EDIÇÃO E MIXAGEM DE SOM:|Tonstudio Mannheim||MUSICAS:|Gerd Hofmann|Joachim Schäfer|Jürgen Rebhann|Klaus Staendike|Steffen Schüngel||ILUSTRAÇÕES:|Boleslaw Kasza|Christoph Werner||ZUXXEZ ENTERTAINMENT AG||PRODUÇÃO:|Uwe Schäfer||MANUAL:|Peter Ohlmann|Uwe Schäfer||BETA TESTING:|Peter Ohlmann|Adam Sprys|Alexandra Constandache|Dirk P. Hassinger|Achim Heidelauf|Uwe Schäfer|Ingrid Schäfer|Dirk U. Jantz|Ion Constandache|Yaman Egeli|Roman Eich|Iris Mocsnek|Anke Jantz|Paul Hassinger|Liza Hassinger||DIRETOR GERAL:|Achim Heidelauf||PUBLICADO POR:|TopWare Interactive||DIREÇÃO DE CUTSCENES:|Slawomir Jedrzejewski||Kajetan Czarnecki|Wojciech Drazek|Daniel Duplaga|Rafal Januszkiewicz|Andrzej Rams|Piotr Rulka|Krzysztof Rybczynski|Grzegorz Wisniwski||VOZES:|Claus Boyen (Storyteller)||Tim Timmermann|Peter Houska|Dirk Mühlbach|Ralf Ditze|Gerhard Piske|Gernot Wassmann||TRABALHO DE ARTES:|Boleslaw Kasza|Adam Sprys||ANIMAÇÃO INICIAL:|Uwe Schäfer|Christian Bigalk|Additional 3D-Modelling:|Niels Horstmann||AGRADECIMENTOS ESPECIAIS:|Tadeusz Zuber|Dieter Ohlmann|Alexandra Constandache|Ingrid Schäfer|Andrea Rumpelt
+280:Missão cancelada
 281:Fim do replay
 282:Tutorial da cidade
 283:Tutorial de batalha
-284:Ъnico jogador
+284:Único jogador
 285:Editor de Mapas
-286:Iniciar Missгo
-287:Tнtulo
+286:Iniciar Missão
+287:Título
 288:Tamanho
-289:Condiзгo para ganhar:
-290:Condiзгo para a derrota:
+289:Condição para ganhar:
+290:Condição para a derrota:
 291:Aliados:
 292:Inimigos:
 293:Tempo
@@ -287,13 +287,13 @@
 295:Largura
 296:Altura
 297:Criar novo mapa
-298:Mapas disponнveis
+298:Mapas disponíveis
 299:Carregar um mapa existente
 301:Controles:
 302:Em jogo:
 303:Som:
-304:Desativar mъsica
-305:Grбficos:
+304:Desativar música
+305:Gráficos:
 306:Brilho
 308:Tela Cheia
 309:Aplicar
@@ -306,50 +306,50 @@
 316:Carregando novo local
 317:Lista de jogos salvos
 318:Nome de arquivo
-319:Descriзгo
+319:Descrição
 320:Carregar
 321:Deletar
-322:Vocк quer mesmo deletar este jogo salvo?
+322:Você quer mesmo deletar este jogo salvo?
 323:Deletar
 324:Cancelar
-325:Tнtulo
+325:Título
 326:Mapas
 327:Desbloqueado
-328:Vocк venceu!
+328:Você venceu!
 329:Continuar jogando
-330:Vitуria!
-331:Vocк perdeu!
+330:Vitória!
+331:Você perdeu!
 332:Continuar assistindo
 333:Derrotado
 334:Replay acabou
 335:Continuar assistindo
 336:Sair para o Menu
-337:Indisponнvel
+337:Indisponível
 338:Pressione %s para continuar o jogo
-339:Informaзхes dos jogadores
+339:Informações dos jogadores
 340:Bate-papo
-341:Jб existe um jogo salvo
+341:Já existe um jogo salvo
 342:Sobrescrever
 343:Salvar
 344:Carregar
-345:Uma versгo antiga do OpenGL foi detectada, o jogo poderб apresentar falhas grбficas
-346:Por favor atualize os seus drivers grбficos para ter um melhor desempenho
+345:Uma versão antiga do OpenGL foi detectada, o jogo poderá apresentar falhas gráficas
+346:Por favor atualize os seus drivers gráficos para ter um melhor desempenho
 347:Erro de rede
-348:Erro: Nome do jogador nгo pode ficar em branco
+348:Erro: Nome do jogador não pode ficar em branco
 349:Erro: Jogador %d tem um nome muito longo
-350:Erro: Jogador contйm caracteres ilegais
-351:Conexгo falhou: %s
-352:Vocк foi desconectado
-353:Missгo %d
-355:A cabana do seu pescador estб muito longe da бgua.
-356:Seu pescador nгo consegue mais pescar nenhum peixe nas бguas prуximas.
+350:Erro: Jogador contém caracteres ilegais
+351:Conexão falhou: %s
+352:Você foi desconectado
+353:Missão %d
+355:A cabana do seu pescador está muito longe da água.
+356:Seu pescador não consegue mais pescar nenhum peixe nas águas próximas.
 357:Reiniciar replay
 358:Pausar replay
-359:Avanзar um marco
+359:Avançar um marco
 360:Continuar replay pausado
 361:Sair do replay
-364:Use o botгo esquerdo do mouse para selecionar a mercadoria a ser trocada(enviada).
-365:Use o botгo direito do mouse para selecionar a mercadoria a ser trocada(recebida)
+364:Use o botão esquerdo do mouse para selecionar a mercadoria a ser trocada(enviada).
+365:Use o botão direito do mouse para selecionar a mercadoria a ser trocada(recebida)
 366:De x%d
 367:Para x%d
 368:Editar terreno
@@ -361,24 +361,24 @@
 375:Tamanho
 376:Arraste para mudar o tamanho da escova
 377:Subida
-378:Arraste para mudar a elevaзгo da subida: 1-planalto 15-pico
+378:Arraste para mudar a elevação da subida: 1-planalto 15-pico
 379:Velocidade
-380:Arraste para alterar a velocidade da elevaзгo 1 = devagar ... 15 = muito rбpido
+380:Arraste para alterar a velocidade da elevação 1 = devagar ... 15 = muito rápido
 381:Escova circular
 382:Escova quadrada
 383:Elevar/Abaixar
 384:Desnivelar/Aplainar
-385:Elevar(botгo esquerdo)/Abaixar(botгo direito)
-386:Desnivelar(botгo esquerdo)/Aplainar(botгo direito)
-389:Direзгo aleatуria
-390:Manter direзгo aleatуria do piso ou clique com o botгo direito para girar o piso selecionado
-391:Clique com o botгo direito para girar o piso selecionado
+385:Elevar(botão esquerdo)/Abaixar(botão direito)
+386:Desnivelar(botão esquerdo)/Aplainar(botão direito)
+389:Direção aleatória
+390:Manter direção aleatória do piso ou clique com o botão direito para girar o piso selecionado
+391:Clique com o botão direito para girar o piso selecionado
 393:Remover objeto
 394:Planejamento da vila
 395:Roteiro visual
 396:Roteiro global
 397:Menu
-499:Nova Missгo
+499:Nova Missão
 500:Nome do jogador
 501:Estado:
 502:Criar servidor
@@ -390,7 +390,7 @@
 508:Cancelar
 509:Procurar servidor por IP
 510:PROCURAR SERVIDOR
-511:Endereзo
+511:Endereço
 512:Porta
 513:Sala
 514:Conectar
@@ -404,7 +404,7 @@
 524:Lista de jogadores:
 525:Entrar
 526:Conectando, por favor aguarde...
-527:Carregando anъncios...
+527:Carregando anúncios...
 528:Recarregando...
 529:Lista de Jogadores
 530:Iniciar local
@@ -415,7 +415,7 @@
 536:Aberto
 537:Jogador CPU
 538:Selecionar..
-539:Aleatуrio
+539:Aleatório
 540:Nenhum
 541:Jogo Salvo
 542:Selecionar um mapa...
@@ -426,34 +426,34 @@
 547:Iniciar!
 561:Lugar %d
 562:Erro: Por favor,  selecione um jogador do salvo para controlar
-563:Erro: Falha no mapa ou mapa nгo carregado
-564:Nгo й possнvel iniciar: %s
-565:Alguns jogadores nгo estгo prontos para iniciar
-567:O servidor atribuiu direitos de hospedagem para nуs
+563:Erro: Falha no mapa ou mapa não carregado
+564:Não é possível iniciar: %s
+565:Alguns jogadores não estão prontos para iniciar
+567:O servidor atribuiu direitos de hospedagem para nós
 568:O jogo iniciou
-569:Mapa de construзгo
+569:Mapa de construção
 570:Mapa de luta
 571:Mapa cooperativo
-573:Opзхes do Jogo:
+573:Opções do Jogo:
 574:Tempo de paz (Minutos)
 575:Fechado
-576:Administrador faz configuraзгo do jogo
+576:Administrador faz configuração do jogo
 577:Aguardando jogadores:
-580:Crйditos do KaM Remake
-581:Crйditos Originais do Knights & Merchants
+580:Créditos do KaM Remake
+581:Créditos Originais do Knights & Merchants
 582:PROGRAMADORES:
 583:PROGRAMADORES ADICIONAIS:
-584:GRБFICOS ADICIONAIS:
+584:GRÁFICOS ADICIONAIS:
 585:SONS ADICIONAIS:
-586:MЪSICA ADICIONAL
-587:TRADUЗХES ADICIONAIS:
+586:MÚSICA ADICIONAL
+587:TRADUÇÕES ADICIONAIS:
 588:AGRADECIMENTOS ESPECIAIS:
 589:Mapas multi-jogador
 590:Mapas singleplayer
 591:Velocidade do Rolamento
-592:Sem servidores! Verifique|a conexгo com a internet.
+592:Sem servidores! Verifique|a conexão com a internet.
 593:Misturar as faixas
-594:Informaзгo do jogo:
+594:Informação do jogo:
 595:-
 596:Aguardando
 597:Carregando
@@ -461,69 +461,69 @@
 599:Construir e lutar
 600:Lutar
 601:Pronto
-602:Versгo do protocolo errado: %s. Servidor usa: %s
-603:Aumentar a quantidade de comйrcio
-604:Diminuir a quantidade de comйrcio
+602:Versão do protocolo errado: %s. Servidor usa: %s
+603:Aumentar a quantidade de comércio
+604:Diminuir a quantidade de comércio
 605:Salvando Jogo...
 606:%s foi derrotado!
 607:Retirar Jogadores
 608:O administrador pode retirar o jogador depois de %d segundos
 609:O administrador pode agora descartar os jogadores:
 610:O administrador (%s) saiu do jogo
-611:A conexгo com o servidor foi perdida. Tentando se reconectar...
-612:Vocк tem certeza que quer sair?
-613:Vocк tem certeza que quer tirar este jogador permanentemente?
+611:A conexão com o servidor foi perdida. Tentando se reconectar...
+612:Você tem certeza que quer sair?
+613:Você tem certeza que quer tirar este jogador permanentemente?
 614:Cancelar
-615:Este recurso nгo estб disponнvel nesta missгo
+615:Este recurso não está disponível nesta missão
 616:Plantar e cortar
 617:Somente cortar
-618:Vocк estб em tempo de paz. Nгo pode usar soldados!
+618:Você está em tempo de paz. Não pode usar soldados!
 619:Tempo de paz faltando: %s
-620:O tempo de paz acabou. Аs armas!
+620:O tempo de paz acabou. Às armas!
 621:Tempo do jogo:|%s
 622:Parar tropa ('%s')
 623:Juntar tropa ('%s')
 624:Separar tropa ('%s')
 625:Ver replays
 626:Ver Replay
-627:Formato nгo suportado %s
-628:Versгo nгo suportada %s
-629:Modificaзхes nгo suportadas
+627:Formato não suportado %s
+628:Versão não suportada %s
+629:Modificações não suportadas
 630:Um erro aconteceu com o arquivo: %s
 631:Inicializando
 632:Roteiro
 633:unidades
 634:Casas
-635:Бrvores
-636:Definiзхes
+635:Árvores
+636:Definições
 637:Def. texturas
-638:Mapa nгo encontrado: %s
-639:Salvo nгo encontrado: %s
-640:Arquivo do mapa nгo coincide com o administrador para o : %s
-641:Arquivo de Salvo nгo coincide com o administrador para o: %s
-642:O replay falhou em uma verificaзгo de consistкncia. Este й um bug conhecido, que afeta a reproduзгo de alguns replays. Vocк quer continuar a ver?
-643:Vocк sу pode ter uma instвncia do jogo no modo multi-jogador cada vez
-644:Modificaзхes para o jogo nгo sгo permitidas no modo multi-jogador.|Reinstale para restaurar os arquivos originais.
-645:Ocorreu um erro na aplicaзгo. Por favor, clique em Enviar relatуrio de erros para que possamos investigar esta questгo. Obrigado por sua ajuda!
-646:Enviar relatуrio de erros
+638:Mapa não encontrado: %s
+639:Salvo não encontrado: %s
+640:Arquivo do mapa não coincide com o administrador para o : %s
+641:Arquivo de Salvo não coincide com o administrador para o: %s
+642:O replay falhou em uma verificação de consistência. Este é um bug conhecido, que afeta a reprodução de alguns replays. Você quer continuar a ver?
+643:Você só pode ter uma instância do jogo no modo multi-jogador cada vez
+644:Modificações para o jogo não são permitidas no modo multi-jogador.|Reinstale para restaurar os arquivos originais.
+645:Ocorreu um erro na aplicação. Por favor, clique em Enviar relatório de erros para que possamos investigar esta questão. Obrigado por sua ajuda!
+646:Enviar relatório de erros
 647:Mostrar Dados Brutos
 648:Continuar aplicativo
 649:Encerrar aplicativo
-650:Prуximo
+650:Próximo
 651:Detalhes do contato
 652:Seu nome: (Opcional)
 653:Seu e-mail:(Opcional)
 654:Lembre-me
 655:Detalhes do erro
-656:Em qual situaзгo ocorreu o erro? Vocк pode nos fornecer alguma informaзгo adicional? (em inglкs, preferencialmente)
+656:Em qual situação ocorreu o erro? Você pode nos fornecer alguma informação adicional? (em inglês, preferencialmente)
 657:Screenshot
-658:Anexar uma imagem para o relatуrio de bug
+658:Anexar uma imagem para o relatório de bug
 659:(Clique para editar a imagem)
-660:Enviar relatуrio
+660:Enviar relatório
 661:Cancelar
-662:Enviando relatуrio de erros...
+662:Enviando relatório de erros...
 663:Conectando-se ao servidor...
 664:Enviando dados ...
-665:O envio do relatуrio de acidente falhou! Nosso servidor pode estar ocupado, por favor, tente enviar novamente.
-666:Informaзгo
+665:O envio do relatório de acidente falhou! Nosso servidor pode estar ocupado, por favor, tente enviar novamente.
+666:Informação
 667:Por favor, espere um momento...

@@ -111,8 +111,8 @@
 110:Opties
 111:Spel laden
 112:Spel opslaan
-113:Wilt u|deze missie|werkelijk beлindigen?
-114:Missie beлindigen
+113:Wilt u|deze missie|werkelijk beëindigen?
+114:Missie beëindigen
 115:Terug
 116:Instellingen
 117:Kaartbewerker afsluiten
@@ -277,7 +277,7 @@
 276:Alles
 277:Oorlogsvoering
 278:Voedsel
-279:JOYMANIA ENTERTAINMENT||PROGRAMMERING:|Peter Ohlmann||SPELGRAFIEK:|Adam Sprys||LEVELDESIGN:|Adam Sprys|Andre QuaЯ||GELUIDSMONTAGE:|Tonstudio Mannheim||MUZIEK:|Gerd Hofmann|Joachim Schдfer|Jьrgen Rebhann|Klaus Staendike|Steffen Schьngel||ILLUSTRATIES:|Boleslaw Kasza|Christoph Werner|||ZUXXEZ ENTERTAINMENT AG||PRODUCER:|Uwe Schдfer||HANDBOEK:|Peter Ohlmann|Uwe Schдfer||BETA TESTING:|Alexandra Constandache|Dirk P. Hassinger|Achim Heidelauf|Uwe Schдfer|Ingrid Schдfer|Dirk U. Jantz|Ion Constandache|Yaman Egeli|Roman Eich|Iris Mocsnek|Anke Jantz|Liza Hassinger|Paul Hassinger||GAMES DIRECTOR:|Achim Heidelauf||PUBLISHED BY:|Best Buys Interactive||CUTSCENES:||DIRECTION:|Slawomir Jedrzejewski||Kajetan Czarnecki|Wojciech Drazek|Daniel Duplaga|Rafal Januszkiewicz|Andrzej Rams|Piotr Rulka|Krzysztof Rybczynski|Grzegorz Wisniwski||STEMMEN:|Claus Boyen (Verteller)||Tim Timmermann|Peter Houska|Dirk Mьhlbach|Ralf Ditze|Gerhard Piske|Gernot Wassmann||HANDBOEK ONTWERP:|Uwe Schдfer|Alexandra Constandache||HANDBOEK TEKSTEN:|Peter Ohlmann|Uwe Schдfer||ARTWORK:|Boleslaw Kasza|Adam Sprys||OPENINGSANIMATIE:|Uwe Schдfer|Christian Bigalk|Aanvullende 3D-Modelling:|Niels Horstmann||SPECIALE DANK AAN:|Tadeusz Zuber|Dieter Ohlmann|Alexandra Constandache|Ingrid Schдfer|Andrea Rumpelt|Frits van Ens
+279:JOYMANIA ENTERTAINMENT||PROGRAMMERING:|Peter Ohlmann||SPELGRAFIEK:|Adam Sprys||LEVELDESIGN:|Adam Sprys|Andre Quaß||GELUIDSMONTAGE:|Tonstudio Mannheim||MUZIEK:|Gerd Hofmann|Joachim Schäfer|Jürgen Rebhann|Klaus Staendike|Steffen Schüngel||ILLUSTRATIES:|Boleslaw Kasza|Christoph Werner|||ZUXXEZ ENTERTAINMENT AG||PRODUCER:|Uwe Schäfer||HANDBOEK:|Peter Ohlmann|Uwe Schäfer||BETA TESTING:|Alexandra Constandache|Dirk P. Hassinger|Achim Heidelauf|Uwe Schäfer|Ingrid Schäfer|Dirk U. Jantz|Ion Constandache|Yaman Egeli|Roman Eich|Iris Mocsnek|Anke Jantz|Liza Hassinger|Paul Hassinger||GAMES DIRECTOR:|Achim Heidelauf||PUBLISHED BY:|Best Buys Interactive||CUTSCENES:||DIRECTION:|Slawomir Jedrzejewski||Kajetan Czarnecki|Wojciech Drazek|Daniel Duplaga|Rafal Januszkiewicz|Andrzej Rams|Piotr Rulka|Krzysztof Rybczynski|Grzegorz Wisniwski||STEMMEN:|Claus Boyen (Verteller)||Tim Timmermann|Peter Houska|Dirk Mühlbach|Ralf Ditze|Gerhard Piske|Gernot Wassmann||HANDBOEK ONTWERP:|Uwe Schäfer|Alexandra Constandache||HANDBOEK TEKSTEN:|Peter Ohlmann|Uwe Schäfer||ARTWORK:|Boleslaw Kasza|Adam Sprys||OPENINGSANIMATIE:|Uwe Schäfer|Christian Bigalk|Aanvullende 3D-Modelling:|Niels Horstmann||SPECIALE DANK AAN:|Tadeusz Zuber|Dieter Ohlmann|Alexandra Constandache|Ingrid Schäfer|Andrea Rumpelt|Frits van Ens
 280:Missie geannuleerd
 281:Einde herhaling
 282:Stad oefenscenario
@@ -295,7 +295,7 @@
 294:Nieuwe kaartgrootte
 295:Breedte
 296:Hoogte
-297:Nieuwe kaart creлren
+297:Nieuwe kaart creëren
 298:Beschikbare kaarten
 299:Bestaande kaart inladen
 300:Locatie
@@ -332,7 +332,7 @@
 331:Je hebt verloren!
 332:Blijven kijken
 333:Nederlaag
-334:Herhaling is geлindigd
+334:Herhaling is geëindigd
 335:Blijven kijken
 336:Afsluiten naar menu
 337:Niet beschikbaar
@@ -359,7 +359,7 @@
 358:Herhaling pauzeren
 359:1 Tick vooruit
 360:Herhaling hervatten
-361:Herhaling beлindigen
+361:Herhaling beëindigen
 362:Individueel spelersperspectief inschakelen
 363:Alles weergeven
 364:Gebruik de linkermuisknop om de goederen te selecteren
@@ -482,7 +482,7 @@
 481:Uitrustingsratio leer
 482:Uitrustingsratio ijzer
 483:Autoverdediging
-484:AI creлert en beheert verdedigingsposities automatisch
+484:AI creëert en beheert verdedigingsposities automatisch
 485:Plaats verdedigingspositie voor AI
 486:AI verdedigingsposities
 487:Bouwvakkers
@@ -495,8 +495,8 @@
 494:Selectie verticaal spiegelen
 495:Selectie horizontaal spiegelen
 496:Terrein plakken
-497:Terrein kopiлren
-498:Kopiлren/plakken
+497:Terrein kopiëren
+498:Kopiëren/plakken
 499:Nieuwe missie
 500:Spelernaam
 501:Status:
@@ -641,13 +641,13 @@
 640:Kaartbestanden zijn niet gelijk aan die van de host: %s
 641:Opgeslagen bestand is niet gelijk aan dat van de host: %s
 642:De herhaling is gefaald op een consistentie controle. Dit is een bekende fout die effect heeft op het afspelen van sommige herhalingen. Wil je doorgaan met het kijken van de herhaling?
-643:Je mag maar ййn instantie van het spel actief hebben tijdens multiplayer
+643:Je mag maar één instantie van het spel actief hebben tijdens multiplayer
 644:Aanpassingen aan het spel zijn niet toegestaan in multiplayer.|Herinstalleer het spel om de originele bestanden te herstellen.
 645:Er is een fout opgetreden in de applicatie. Klik op "Foutenrapport verzenden" zodat we de fout kunnen onderzoeken. Bedankt voor je hulp!
 646:Foutenrapport verzenden
 647:Ruwe data weergeven
 648:Applicatie hervatten
-649:Applicatie beлindigen
+649:Applicatie beëindigen
 650:Volgende
 651:Contact details
 652:Je naam (optioneel):
@@ -671,7 +671,7 @@
 670:Rekruteringsvertraging (min.)
 671:Zet de richting voor alle tegels in een waterlichaam
 672:Magisch water
-673:Kopiлren
+673:Kopiëren
 674:Plakken
 675:Plakken toepassen
 676:Plakken annuleren

@@ -1,47 +1,47 @@
-﻿0:Tвmplгrie
-1:Fierгrie
-2:Fierгrie de arme
-3:Minг de cгrbune
-4:Minг de fier
-5:Minг de aur
-6:Pescгrie
-7:Brutгrie
-8:Fermг
+﻿0:Tâmplărie
+1:Fierărie
+2:Fierărie de arme
+3:Mină de cărbune
+4:Mină de fier
+5:Mină de aur
+6:Pescărie
+7:Brutărie
+8:Fermă
 9:Canton
-10:Fierгrie de armuri
+10:Fierărie de armuri
 11:Depozit
 12:Grajduri
-13:Scoalг
-14:Carierг de piatrг
+13:Scoală
+14:Carieră de piatră
 15:Metalurgie
-16:Fermг de porci
+16:Fermă de porci
 17:Turn de veghere
-18:Primгrie
+18:Primărie
 19:Atelier de arme
 20:Atelier de armuri
-21:Cazarmг
-22:Moarг
+21:Cazarmă
+22:Moară
 23:Atelier arme de asediu
-24:Mгcelгrie
-25:Tгbгcгrie
-26:Salг de antrenamente
+24:Măcelărie
+25:Tăbăcărie
+26:Sală de antrenamente
 27:Han
 28:Podgorie
-29:Piatг
+29:Piată
 30:Busteni
 31:Pietre
-32:Blanг
+32:Blană
 33:Minereu de fier
 34:Minereu de aur
-35:Cгrbune
+35:Cărbune
 36:Fier
 37:Aur
 38:Butoaie de vin
-39:Grвu
-40:Pвini
-41:Fгinг
+39:Grâu
+40:Pâini
+41:Făină
 42:Piele
-43:Cвrnati
+43:Cârnati
 44:Porci
 45:Piei
 46:Scuturi de lemn
@@ -50,20 +50,20 @@
 49:Armuri de fier
 50:Secure
 51:Sabie
-52:Sulitг
+52:Sulită
 53:Lance
 54:Arc
-55:Arbaletг
+55:Arbaletă
 56:Cai
 57:Peste
 58:Sclav
-59:Pгdurar
+59:Pădurar
 60:Miner
-61:Crescгtor de animale
+61:Crescător de animale
 62:Fermier
 63:Dulgher
 64:Brutar
-65:Mгcelar
+65:Măcelar
 66:Pescar
 67:Muncitor
 68:Pietrar
@@ -71,370 +71,370 @@
 70:Metalurgist
 71:Recrut
 72:Ostas
-73:Luptгtor cu secure
+73:Luptător cu secure
 74:Spadasin
 75:Arcas
 76:Arbaletist
-77:Lгncier
+77:Lăncier
 78:Halebard
 79:Cercetas
 80:Cavaler
 81:Barbar
 82:Rebel
-83:Tвlhar
-84:Rгzboinic
+83:Tâlhar
+84:Războinic
 85:Vagabond
-86:Catapultг
-87:Balistг
-88:Sclavii оti aprovizioneazг clгdirile cu materialele necesare. Trebuie sг existe un drum care leagг clгdirile.
-89:Pentru a produce busteni pentru fabrica de blanг ai nevoie de pгdurar.||Pгdurarul continuг sг replanteze zona cu pomi, singur.
-90:Minerul extrage minereu din minele de cгrbune, fier si aur.
-91:Оngrijitorul de animale folosete grвu pentru a creste porci оn ferma de porci si cai in grajduri.
-92:Fermierul planteazг si recolteazг grвu la fermг.||Produce si vin la podgorie.
-93:Dulgherul lucreazг la fabrica de blanг, atelierul de arme si armuri. De asemenea el construieste catapulte si baliste in atelierul pentru arme de asediu.
-94:Brutarul macinг grвul оn fгinг la moarг.||De asemenea coace pвinea la brutгrie.
-95:Mгcelarul face cвrnati la mгcelгrie si piei la tгbгcгrie.
-96:Pescarul prinde pesti оn apele din apropiere.
-97:Muncitorul construieste clгdiri si drumuri. Doar selectezi locatia doritг si el iti va indeplini automat ordinele. De asemenea el reparг si clгdirile deteriorate.
-98:Pentru a aproviziona muncitorii cu suficiente materiale pentru construirea drumurilor si clгdirilor, pietrarul va tгia si ciopli pietre.
-99:Fierarul fгureste arme si armuri de fier in fierгriile de armuri si arme.
-100:Metalurgistul foloseste cгrbune pentru a rafina minereul de fier si aur.
-101:Recrutul poate fi echipat ca soldat in cazarmг.||El poate sг ocupe si turnurile de veghere.
-102:Construirea clгdirilor
-103:Distributia mгrfii
+86:Catapultă
+87:Balistă
+88:Sclavii îti aprovizionează clădirile cu materialele necesare. Trebuie să existe un drum care leagă clădirile.
+89:Pentru a produce busteni pentru fabrica de blană ai nevoie de pădurar.||Pădurarul continuă să replanteze zona cu pomi, singur.
+90:Minerul extrage minereu din minele de cărbune, fier si aur.
+91:Îngrijitorul de animale folosete grâu pentru a creste porci în ferma de porci si cai in grajduri.
+92:Fermierul plantează si recoltează grâu la fermă.||Produce si vin la podgorie.
+93:Dulgherul lucrează la fabrica de blană, atelierul de arme si armuri. De asemenea el construieste catapulte si baliste in atelierul pentru arme de asediu.
+94:Brutarul macină grâul în făină la moară.||De asemenea coace pâinea la brutărie.
+95:Măcelarul face cârnati la măcelărie si piei la tăbăcărie.
+96:Pescarul prinde pesti în apele din apropiere.
+97:Muncitorul construieste clădiri si drumuri. Doar selectezi locatia dorită si el iti va indeplini automat ordinele. De asemenea el repară si clădirile deteriorate.
+98:Pentru a aproviziona muncitorii cu suficiente materiale pentru construirea drumurilor si clădirilor, pietrarul va tăia si ciopli pietre.
+99:Fierarul făureste arme si armuri de fier in fierăriile de armuri si arme.
+100:Metalurgistul foloseste cărbune pentru a rafina minereul de fier si aur.
+101:Recrutul poate fi echipat ca soldat in cazarmă.||El poate să ocupe si turnurile de veghere.
+102:Construirea clădirilor
+103:Distributia mărfii
 104:Statistici
 105:Optiuni
 106:Inapoi
-107:Selectarea|Clгdirii
-108:Distributia|Mгrfii
+107:Selectarea|Clădirii
+108:Distributia|Mărfii
 109:Statistici
 110:Optiuni
-111:Оncarcг joc
+111:Încarcă joc
 112:Salvare joc
-113:Esti sigur ca vrei|sa renunti la|aceastг misiune?
-114:Renuntг la misiune
-115:Оnapoi
-116:Setгri
+113:Esti sigur ca vrei|sa renunti la|această misiune?
+114:Renuntă la misiune
+115:Înapoi
+116:Setări
 118:Sunet
-119:Modificг volumul
-120:Modificг volumul
+119:Modifică volumul
+120:Modifică volumul
 121:Muzica
 122:Muzica pornit/oprit
-123:Salvare automatг
+123:Salvare automată
 124:Music Player
-125:Melodia anterioarг
-126:Melodia urmгtoare
-127:Demoleazг
-128:Sterge clгdirea
+125:Melodia anterioară
+126:Melodia următoare
+127:Demolează
+128:Sterge clădirea
 129:Construieste drum
 130:Construieste drumuri
-131:Construieste cвmp arat
-132:Cвmpuri arate.
-133:Planteazг vitг de vie
-134:Planteazг structura|pentru vitг de vie
-135:Anuleazг
-136:Anuleazг
-137:Necesitг:
+131:Construieste câmp arat
+132:Câmpuri arate.
+133:Plantează vită de vie
+134:Plantează structura|pentru vită de vie
+135:Anulează
+136:Anulează
+137:Necesită:
 138:Resurse:
 139:Conditie:
 140:Produce
 141:Casa sub|constructie
 142:Distruge
-143:Esti sigur cг vrei sa|demolezi aceastг clгdire?
-144:Distruge clгdirea selectatг
-145:Micsoreazг numгrul
-146:Mгreste numгrul
+143:Esti sigur că vrei sa|demolezi această clădire?
+144:Distruge clădirea selectată
+145:Micsorează numărul
+146:Măreste numărul
 147:Precedentul tip de soldat
-148:Urmгtorul tip de soldat
-149:Echipeazг acest soldat
-150:Profesia urmгtoare
-151:Profesia anterioarг
-152:Adaugг in listг
-153:Porneste/Opreste livrarea de marfг
-154:Inchide/Deschide clгdirea
-155:Schimbг pornit/oprit reparatia aceste case
-156:Clгdire nedisponibilг оn acest moment
+148:Următorul tip de soldat
+149:Echipează acest soldat
+150:Profesia următoare
+151:Profesia anterioară
+152:Adaugă in listă
+153:Porneste/Opreste livrarea de marfă
+154:Inchide/Deschide clădirea
+155:Schimbă pornit/oprit reparatia aceste case
+156:Clădire nedisponibilă în acest moment
 157:Conditie
-158:Roteste trupa la stвnga
+158:Roteste trupa la stânga
 159:Roteste trupa la dreapta
-160:Atacг('a')
+160:Atacă('a')
 161:Trimite trupa('d')
-162:Aprovizioneaza trupa cu mвncare
-163:Atac furtunг
-164:Adaugг linie
+162:Aprovizioneaza trupa cu mâncare
+163:Atac furtună
+164:Adaugă linie
 165:Retrage linie
-166:Selecteaza|grupeazг
-167:Anuleazг
+166:Selecteaza|grupează
+167:Anulează
 168:Sterge
 169:Sterge acest mesaj
 170:Mergi la
 171:Sare la pozitia mesajului curent
-172:Оnchide
-173:Оnchide fereastra
-174:Pietrarul tгu nu mai gгseste piatrг.
-175:Mina ta de cгrbune este epuizatг.
-176:Mina ta de fier este epuizatг.
-177:Mina ta de aur este epuizatг.
-178:Pгdurarul tгu nu mai gгseste copaci de tгiat si a fost instruit de tine sг nu mai planteze copaci
-179:Aceastг casг nu este ocupatг.
-180:Acestei trupe chiar оi este foame, trebuie sг mгnвnce repede ceva!
-181:PAUZГ
-182:Livreazг
+172:Închide
+173:Închide fereastra
+174:Pietrarul tău nu mai găseste piatră.
+175:Mina ta de cărbune este epuizată.
+176:Mina ta de fier este epuizată.
+177:Mina ta de aur este epuizată.
+178:Pădurarul tău nu mai găseste copaci de tăiat si a fost instruit de tine să nu mai planteze copaci
+179:Această casă nu este ocupată.
+180:Acestei trupe chiar îi este foame, trebuie să mănânce repede ceva!
+181:PAUZĂ
+182:Livrează
 183:Construieste drum
-184:Sapг locas
-185:Construieste vitг de vie
-186:Оndreaptг locul pentru construit
-187:Construieste clгdire
-188:Reparг clгdire
-189:Merge acasг
+184:Sapă locas
+185:Construieste vită de vie
+186:Îndreaptă locul pentru construit
+187:Construieste clădire
+188:Repară clădire
+189:Merge acasă
 190:Merge la han
-191:Atacг clгdire
+191:Atacă clădire
 192:Trage
-193:Se luptг
-194:Atac furtunг
-195:Atacг
-196:Se miscг
-197:Stг
-198:Adunг piatrг
-199:Coseste grвu
-200:Recolteazг grвu
+193:Se luptă
+194:Atac furtună
+195:Atacă
+196:Se miscă
+197:Stă
+198:Adună piatră
+199:Coseste grâu
+200:Recoltează grâu
 201:Culege struguri
 202:Pescuieste
 203:Taie copaci
-204:Planteazг copaci
+204:Plantează copaci
 205:Spiritul
 206:Ocupat
 207:Cornul Evului Mediu
-208:Primгvara
-209:Lгuta
+208:Primăvara
+209:Lăuta
 210:Mercenarul
 211:Printesa
 212:Regina
-213:Оn piatг
-214:Pe cвmpul de luptг
-215:Dans оn curte
+213:În piată
+214:Pe câmpul de luptă
+215:Dans în curte
 216:Armata
-217:Оn castel
+217:În castel
 218:Fanfara
 219:La curte
 220:Intrarea
-221:Albastrul оnchis
+221:Albastrul închis
 222:Lupta
 223:Camerele regale
 224:Aristocratia
 225:La port
-226:Cгlгtoria
+226:Călătoria
 227:Campanii
 228:Campanii
 229:Porneste Campania
-230:Joacг Single Map
+230:Joacă Single Map
 231:Porneste Harta
-232:Оnapoi la Meniu
-233:Оncarcг joc salvat
+232:Înapoi la Meniu
+233:Încarcă joc salvat
 234:Multiplayer
 235:Optiuni
 236:Credite
 237:Iesire
-238:Continuг
-239:Restarteazг Misiunea
+238:Continuă
+239:Restartează Misiunea
 240:Rezolutia:
 241:Nu este suportat
 242:Nu este suportat
 243:VICTORIE!
-244:ОNFRВNGERE!
-245:Unitгti pierdute:
-246:Unitгti оnfrвnte:
-247:Clгdiri pierdute:
-248:Clгdiri distruse:
-249:Clгdiri construite:
-250:Unitгti produse:
+244:ÎNFRÂNGERE!
+245:Unităti pierdute:
+246:Unităti înfrânte:
+247:Clădiri pierdute:
+248:Clădiri distruse:
+249:Clădiri construite:
+250:Unităti produse:
 251:Arme produse:
 252:Soldati produsi:
-253:Misiune terminatг оn:
+253:Misiune terminată în:
 254:Statistici
 255:Economie
-256:Cetгteni|produsi
-257:Cetгteni|pierduti
+256:Cetăteni|produsi
+257:Cetăteni|pierduti
 258:Soldati|Echipati
 259:Soldati|pierduti
-260:Soldati|Оinfrвnti
-261:Clгdiri|construite
-262:Clгdiri|pierdute
-263:Clгdiri|distruse
-264:Mгrfuri|produse
+260:Soldati|Îinfrânti
+261:Clădiri|construite
+262:Clădiri|pierdute
+263:Clădiri|distruse
+264:Mărfuri|produse
 265:Arme|produse
-266:Armatг
-267:Cetгteni
-268:Clгdiri
+266:Armată
+267:Cetăteni
+268:Clădiri
 269:Resurse
 270:Bunuri produse
-271:Fгrг date
+271:Fără date
 272:Tu
-273:Jucгtorul %d
-274:Оnapoi la Multiplayer
-275:Оnapoi la Replay-uri
+273:Jucătorul %d
+274:Înapoi la Multiplayer
+275:Înapoi la Replay-uri
 276:Toate
-277:Resurse luptг
-278:Mвncare
-279:JOYMANIA ENTERTAINMENT||PROGRAMMING:|Peter Ohlmann||GAME GRAPHICS:|Adam Sprys||LEVEL DESIGN:|Adam Sprys|Andre QuaЯ||SOUND EDITING AND MIXING:|Tonstudio Mannheim||MUSIC:|Gerd Hofmann|Joachim Schдfer|Jьrgen Rebhann|Klaus Staendike|Steffen Schьngel||ILLUSTRATIONS:|Boleslaw Kasza|Christoph Werner||ZUXXEZ ENTERTAINMENT AG||PRODUCER:|Uwe Schдfer||MANUAL:|Peter Ohlmann|Uwe Schдfer||BETA TESTING:|Peter Ohlmann|Adam Sprys|Alexandra Constandache|Dirk P. Hassinger|Achim Heidelauf|Uwe Schдfer|Ingrid Schдfer|Dirk U. Jantz|Ion Constandache|Yaman Egeli|Roman Eich|Iris Mocsnek|Anke Jantz|Paul Hassinger|Liza Hassinger||GAMES DIRECTOR:|Achim Heidelauf||PUBLISHED BY:|TopWare Interactive||CUTSCENES:||DIRECTION:|Slawomir Jedrzejewski||Kajetan Czarnecki|Wojciech Drazek|Daniel Duplaga|Rafal Januszkiewicz|Andrzej Rams|Piotr Rulka|Krzysztof Rybczynski|Grzegorz Wisniwski||VOICES:|Claus Boyen (Storyteller)||Tim Timmermann|Peter Houska|Dirk Mьhlbach|Ralf Ditze|Gerhard Piske|Gernot Wassmann||ARTWORK:|Boleslaw Kasza|Adam Sprys||OPENING ANIMATION:|Uwe Schдfer|Christian Bigalk|Additional 3D-Modelling:|Niels Horstmann||MULTUMIRI SPECIALE LUI:|Tadeusz Zuber|Dieter Ohlmann|Alexandra Constandache|Ingrid Schдfer|Andrea Rumpelt
-280:Misiune anulatг
-281:Inregistrare terminatг
+277:Resurse luptă
+278:Mâncare
+279:JOYMANIA ENTERTAINMENT||PROGRAMMING:|Peter Ohlmann||GAME GRAPHICS:|Adam Sprys||LEVEL DESIGN:|Adam Sprys|Andre Quaß||SOUND EDITING AND MIXING:|Tonstudio Mannheim||MUSIC:|Gerd Hofmann|Joachim Schäfer|Jürgen Rebhann|Klaus Staendike|Steffen Schüngel||ILLUSTRATIONS:|Boleslaw Kasza|Christoph Werner||ZUXXEZ ENTERTAINMENT AG||PRODUCER:|Uwe Schäfer||MANUAL:|Peter Ohlmann|Uwe Schäfer||BETA TESTING:|Peter Ohlmann|Adam Sprys|Alexandra Constandache|Dirk P. Hassinger|Achim Heidelauf|Uwe Schäfer|Ingrid Schäfer|Dirk U. Jantz|Ion Constandache|Yaman Egeli|Roman Eich|Iris Mocsnek|Anke Jantz|Paul Hassinger|Liza Hassinger||GAMES DIRECTOR:|Achim Heidelauf||PUBLISHED BY:|TopWare Interactive||CUTSCENES:||DIRECTION:|Slawomir Jedrzejewski||Kajetan Czarnecki|Wojciech Drazek|Daniel Duplaga|Rafal Januszkiewicz|Andrzej Rams|Piotr Rulka|Krzysztof Rybczynski|Grzegorz Wisniwski||VOICES:|Claus Boyen (Storyteller)||Tim Timmermann|Peter Houska|Dirk Mühlbach|Ralf Ditze|Gerhard Piske|Gernot Wassmann||ARTWORK:|Boleslaw Kasza|Adam Sprys||OPENING ANIMATION:|Uwe Schäfer|Christian Bigalk|Additional 3D-Modelling:|Niels Horstmann||MULTUMIRI SPECIALE LUI:|Tadeusz Zuber|Dieter Ohlmann|Alexandra Constandache|Ingrid Schäfer|Andrea Rumpelt
+280:Misiune anulată
+281:Inregistrare terminată
 282:Tutorial oras
-283:Tutorial de luptг
+283:Tutorial de luptă
 284:Single Player
-285:Editor de hгrti
+285:Editor de hărti
 286:Porneste Misiunea
 287:Titlu
 288:Dimensiune
 289:Conditii victorie:
-290:Conditii оnfrвngere:
+290:Conditii înfrângere:
 291:Aliati:
 292:Inamici:
 293:Timp
 294:Dimensiune noua a hartii
 295:Lungime
-296:Lгtime
-297:Creeazг hartг nouг
-298:Hгrti disponibile
-299:Оncarcг o hartг disponibilг
+296:Lătime
+297:Creează hartă nouă
+298:Hărti disponibile
+299:Încarcă o hartă disponibilă
 300:Locatia
 301:Controale:
 302:Gameplay:
 303:Sunet:
-304:Dezactiveazг muzica
-305:Graficг:
+304:Dezactivează muzica
+305:Grafică:
 306:Luminozitate
 307:Vertical Sync
 308:Ecran plin
-309:Aplicг
+309:Aplică
 310:Limba:
 311:Calitatea umbrelor:
-312:Micг
+312:Mică
 313:Mare
-314:Оncгrcare... Te rog asteaptг
-315:A apгrut o eroare!
-316:Оncгrcare locatie nouг
-317:Listг de jocuri salvate
+314:Încărcare... Te rog asteaptă
+315:A apărut o eroare!
+316:Încărcare locatie nouă
+317:Listă de jocuri salvate
 318:Numele fisierului
 319:Descriere
-320:Оncгrcare
+320:Încărcare
 321:Stergere
-322:Esti sigur cг vrei sг stergi aceastг salvare?
+322:Esti sigur că vrei să stergi această salvare?
 323:Sterge
-324:Anuleazг
+324:Anulează
 325:Titlu
-326:Hгrti
+326:Hărti
 327:Deblocat
-328:Ai cвstigat!
-329:Continuг sг joci
+328:Ai câstigat!
+329:Continuă să joci
 330:Victorie!
 331:Ai pierdut!
-332:Continuг sг privesti
-333:Оnfrвngere
+332:Continuă să privesti
+333:Înfrângere
 334:Replay-ul s-a terminat
-335:Continuг sг privesti
-336:Iesi оn Meniu
+335:Continuă să privesti
+336:Iesi în Meniu
 337:Nedisponibil
-338:Apasг %s pentru a continua jocul
-339:Info jucгtori
+338:Apasă %s pentru a continua jocul
+339:Info jucători
 340:Chat
-341:Salvarea existг deja
+341:Salvarea există deja
 342:Suprascrie
-343:Salveazг
-344:Оncarcг
-345:Versiune veche de OpenGL detectatг, jocul poate rula incet si/sau cu erori grafice
-346:Te rugгm sг оti upgradezi driverl video pentru o performatг mai bunг.
+343:Salvează
+344:Încarcă
+345:Versiune veche de OpenGL detectată, jocul poate rula incet si/sau cu erori grafice
+346:Te rugăm să îti upgradezi driverl video pentru o performată mai bună.
 347:Eroare de retea:
-348:Eroare: Numele jucгtorului nu poate fi gol
-349:Eroare: Numele jucгtorului nu trebuie sг fie mai mare de %d caractere
-350:Eroare: Numele jucгtorului contine caractere invalide
-351:Conexiune esuatг: %s
+348:Eroare: Numele jucătorului nu poate fi gol
+349:Eroare: Numele jucătorului nu trebuie să fie mai mare de %d caractere
+350:Eroare: Numele jucătorului contine caractere invalide
+351:Conexiune esuată: %s
 352:Te-ai deconectat
 353:Misiune %d
 354:Mesaje
-355:Pescгria ta este prea departe de apг.
-356:Pescarul tгu nu mai poate prinde peste оn apele din apropiere.
+355:Pescăria ta este prea departe de apă.
+356:Pescarul tău nu mai poate prinde peste în apele din apropiere.
 357:Restarteaza replay-ul
-358:Pauzг replay
-359:Pasul 1 оnainte
-360:Reporneste inregistrarea pauzatг
-361:Renuntг la replay
-362:Schimbг perspectiva individuala a jucгtorilor
-363:Aratг tot
-364:Foloseste butonul stвng al mouse-ului pentru a selecta resursa de facut comert
+358:Pauză replay
+359:Pasul 1 înainte
+360:Reporneste inregistrarea pauzată
+361:Renuntă la replay
+362:Schimbă perspectiva individuala a jucătorilor
+363:Arată tot
+364:Foloseste butonul stâng al mouse-ului pentru a selecta resursa de facut comert
 365:Foloseste butonul drept al mouse-ului pentru a selecta resursa de facut comert
 366:De la x%d
 367:La x%d
 368:Editor de teren
 369:Pensule
-370:Оnгltimi
-371:Pгtrat
+370:Înăltimi
+371:Pătrat
 372:Obiecte
-373:Inгltimi
+373:Inăltimi
 374:Forma pensulei
 375:Dimensiune
 376:Trage pentru a schimba dimensiunea pensulei
-377:Pantг
+377:Pantă
 378:Trage pentru a schimba panta: 1 = platou ... 15 = culme
 379:Viteza
 380:Trage pentru a schimba viteza: 1 = incet ... 15 = foarte rapid
 381:Cerc-forma pensulei
-382:Pгtrat-forma pensulei
-383:Ridicг / Coboarг
+382:Pătrat-forma pensulei
+383:Ridică / Coboară
 384:Neregulat / Plat
-385:Ridicг (click stвnga) / Coboarг (click dreapta)
-386:Neregulat (click stвnga)/ Plat (click dreapta)
-387:Pensulг
+385:Ridică (click stânga) / Coboară (click dreapta)
+386:Neregulat (click stânga)/ Plat (click dreapta)
+387:Pensulă
 388:Elemente aleatoare
 389:Directii aleatoare
-390:Atinge pentru directie aleatoare a pгtratului sau click dreapta pentru a roti
-391:Foloseste click dreapta pentru a roti pгtratul selectat
+390:Atinge pentru directie aleatoare a pătratului sau click dreapta pentru a roti
+391:Foloseste click dreapta pentru a roti pătratul selectat
 392:Blocheaza deplasarea
 393:Sterge un obiect
-394:Plгnuirea satului
+394:Plănuirea satului
 395:Script-uri vizuale
 396:Scripturi globale
 397:Meniu
 398:Obiecte
-399:Aratг depozite
-400:Aratг unitгti
-401:Aratг clгdiri
-402:Aratг obiecte
-403:Aratг trecerea
-404:Toate schimbгrile|nesalvate vor fi pierdute
-405:Anuleazг
-406:Оncarcг
-407:Оncarcг harta
-408:Anuleazг
-409:Salveazг
-410:Оnlocuieste
-411:Harta existг deja
-412:Jucгtori:
+399:Arată depozite
+400:Arată unităti
+401:Arată clădiri
+402:Arată obiecte
+403:Arată trecerea
+404:Toate schimbările|nesalvate vor fi pierdute
+405:Anulează
+406:Încarcă
+407:Încarcă harta
+408:Anulează
+409:Salvează
+410:Înlocuieste
+411:Harta există deja
+412:Jucători:
 413:Default
-414:Tipul jucгtorului
+414:Tipul jucătorului
 415:Simetrice
 416:Aliante
 417:Tactic
 418:Normal
 420:Sari la locatia
-421:Centreazг ecranul la inceputul misiunii
-422:Centreazг ecranul
-423:Aratг tot
-424:Aratг o portiune din hartг
-425:Aratг ceata
-426:Blocheazг comertul
-427:Blocheaza/deblockeazг clгdirea
+421:Centrează ecranul la inceputul misiunii
+422:Centrează ecranul
+423:Arată tot
+424:Arată o portiune din hartă
+425:Arată ceata
+426:Blochează comertul
+427:Blocheaza/deblockează clădirea
 428:Culori
 429:Obiectiv
 430:Mesaj
 431:Timp
-432:Jucгtor
-433:Clгdiri economie
+432:Jucător
+433:Clădiri economie
 434:Sclavi si scoli
 435:Obiective militare
 436:Necunoscut
 437:Trupe
-438:Clгdiri
+438:Clădiri
 439:Timp
 440:Construieste tutorial
 441:Nimic
@@ -445,87 +445,87 @@
 446:Tipul
 447:Obiective
 448:OK
-449:Anuleazг
+449:Anulează
 450:Coloane
-451:Numгr
+451:Număr
 452:Formatii pentru trupe
 453:Editeaza formatiile
-455:Cвti soldati poate avea AI-ul
-456:Seteazг nr maxim de soldati
-457:Cвti recruti poate avea AI-ul оn cazarmг
-458:Recruti pe cazarmг
+455:Câti soldati poate avea AI-ul
+456:Setează nr maxim de soldati
+457:Câti recruti poate avea AI-ul în cazarmă
+458:Recruti pe cazarmă
 459:Pozitia
-460:Pozitie preferentiatг
-461:Clгdirea cea mai apropiatг 2
-462:Clгdirea cea mai apropiatг 1
-463:Cea mai apropiatг unitate
+460:Pozitie preferentiată
+461:Clădirea cea mai apropiată 2
+462:Clădirea cea mai apropiată 1
+463:Cea mai apropiată unitate
 464:Ia tot
 465:Numarul grupei
 466:Informatii despre atac
-467:Оntвrzierea, s
+467:Întârzierea, s
 468:Repetat
 469:Odata
-470:Cгlare
-471:De la distantг
+470:Călare
+471:De la distantă
 472:Anti-cavalerie
 473:Corp la corp
 474:Loc.
 475:Tinta
 476:Oameni
-477:Оntвrziere
+477:Întârziere
 478:Tip
 479:Autoatac
-480:AI-ul atacг
+480:AI-ul atacă
 481:Echipeaza cu piele
 482:Echipeaza cu fier
-483:Autoapгrare
-484:AI-ul creazг si оntretine automat pozitiile defensive
-485:Plaseazг pozitiile defensive pentru AI
+483:Autoapărare
+484:AI-ul crează si întretine automat pozitiile defensive
+485:Plasează pozitiile defensive pentru AI
 486:Pozitiile defensive ale AI-ului
 487:Muncitori
 488:Sclavi pe 10 case
-489:Autoreparг
+489:Autorepară
 490:Autoconstruieste
-491:Setгri AI
-492:Clгdiri
+491:Setări AI
+492:Clădiri
 493:Drum
-494:Lipeste teren vertical оntors
-495:Lipeste teren orizontal оntors
+494:Lipeste teren vertical întors
+495:Lipeste teren orizontal întors
 496:Lipeste teren
-497:Copiazг teren
-498:Copiazг/Lipeste
-499:Misiune Nouг
-500:Numele jucгtorului
+497:Copiază teren
+498:Copiază/Lipeste
+499:Misiune Nouă
+500:Numele jucătorului
 501:Status:
-502:Creazг server
-503:CREAZГ SERVER
+502:Crează server
+503:CREAZĂ SERVER
 504:Nume
 505:Port
-506:Creazг Server Local
-507:Creazг Server de Internet
-508:Anuleazг
-509:Cautг Server dupa IP
-510:CAUTГ SERVER
-511:Adresг
+506:Crează Server Local
+507:Crează Server de Internet
+508:Anulează
+509:Caută Server dupa IP
+510:CAUTĂ SERVER
+511:Adresă
 512:Port
-513:Camerг
-514:Conecteazг-te
-515:Anuleazг
-516:Camerг protejatг cu parolг
-517:Parolг
+513:Cameră
+514:Conectează-te
+515:Anulează
+516:Cameră protejată cu parolă
+517:Parolă
 518:Nume server
 519:Stare
-520:Jucгtori
+520:Jucători
 521:Ping
-522:Reоmprospгteazг Lista de Servere
+522:Reîmprospătează Lista de Servere
 523:DETALII SERVER
 524:Lista jucatorilor:
-525:Intrг
-526:Conectare, te rog asteaptг...
-527:Incгrcare anunturi...
-528:Reоmprospгtare...
-529:Lista jucгtorilor
-530:Locatii de оnceput
+525:Intră
+526:Conectare, te rog asteaptă...
+527:Incărcare anunturi...
+528:Reîmprospătare...
+529:Lista jucătorilor
+530:Locatii de început
 531:Echipa
 532:Culoarea
 533:Gata
@@ -537,8 +537,8 @@
 539:Aleator
 540:Nici una
 541:Joc Salvat
-542:Selectare hartг...
-543:Selecteazг o salvare...
+542:Selectare hartă...
+543:Selectează o salvare...
 544:Iesi din Lobby
 545:Gata
 546:Nu sunt gata
@@ -546,120 +546,120 @@
 548:Viteza jocului (pe timp de pace)
 549:Viteza jocului
 550:OK
-551:Anuleazг
+551:Anulează
 552:Descriere
-553:Parolг
-554:Setгrile camerei
-555:Seteazг gazda
-556:Baneazг
+553:Parolă
+554:Setările camerei
+555:Setează gazda
+556:Banează
 557:Kick
-558:Ordonг la оntвmplare locatiile din echipг
+558:Ordonă la întâmplare locatiile din echipă
 559:Descriere
 560:Optiuni
 561:Locatie %d
-562:Eroare: Te rog selecteazг un jucгtor din salvare pentru control
-563:Eroare: Harta nu s-a оncгrcat sau nu e selectatг nici o hartг
+562:Eroare: Te rog selectează un jucător din salvare pentru control
+563:Eroare: Harta nu s-a încărcat sau nu e selectată nici o hartă
 564:Nu pot porni %s
-565:Nu sunt gata toti jucгtorii
+565:Nu sunt gata toti jucătorii
 566:Nu se pot atribui locatii aleatoare
-567:Serverul a alocat drepturile de gazdг
-568:Jocul a оnceput
-569:Hartг de construit
-570:Hartг de luptг
-571:Hartг cooperativг
-572:Hartг specialг
+567:Serverul a alocat drepturile de gazdă
+568:Jocul a început
+569:Hartă de construit
+570:Hartă de luptă
+571:Hartă cooperativă
+572:Hartă specială
 573:Optiuni joc:
 574:Timp de pace (minute)
-575:Оnchis
-576:Gazda face setarea jucгtorilor
-577:Asteptare dupг jucгtorii:
+575:Închis
+576:Gazda face setarea jucătorilor
+577:Asteptare după jucătorii:
 578:Toti
-579:Echipг
+579:Echipă
 580:Credite KaM Remake
 581:Credite Knights & Merchants Original
 582:PROGRAMAREA:
-583:PROGRAMARE ADITIONALГ:
-584:GRAFICГ ADITIONALГ:
+583:PROGRAMARE ADITIONALĂ:
+584:GRAFICĂ ADITIONALĂ:
 585:Sunete aditionale:
-586:ALTГ MUZICГ:
+586:ALTĂ MUZICĂ:
 587:TRADUCERI ADITIONALE:
 588:MULTUMIRI SPECIALE:
-589:Hгrti multiplayer
-590:Hгrti Singleplayer
+589:Hărti multiplayer
+590:Hărti Singleplayer
 591:Viteza derulare
-592:Nici un server gгsit
-593:Amestecг melodii
+592:Nici un server găsit
+593:Amestecă melodii
 594:Informatii joc:
 595:-
 596:Lobby
-597:Оncгrcare
+597:Încărcare
 598:Joc
-599:Construire si Luptг
-600:Luptг
+599:Construire si Luptă
+600:Luptă
 601:Gata
-602:Versiune de protocol gresitг: %s. Serverul foloseste: %s
-603:Mгreste comertul
-604:Micsoreazг comertul
+602:Versiune de protocol gresită: %s. Serverul foloseste: %s
+603:Măreste comertul
+604:Micsorează comertul
 605:Salvare joc...
-606:%s a fost оnfrвnt!
-607:Picг jucгtorii
-608:Gazda va putea pica jucгtorii dupa %d secunde
-609:Gazda nu poate pica acesti jucгtori
+606:%s a fost înfrânt!
+607:Pică jucătorii
+608:Gazda va putea pica jucătorii dupa %d secunde
+609:Gazda nu poate pica acesti jucători
 610:Gazda (%s) a iesit
-611:Conexiunea cu serverul s-a pierdut. Оncercare de reconectare...
-612:Esti sigur cг vrei sг iesi?
-613:Esti sigr cг vrei sa pici definitiv acesti jucгtori?
-614:Anuleazг
-615:Comertul cu aceastг resursг nu e valabil оn aceastг misiune
-616:Planteazг si taie
+611:Conexiunea cu serverul s-a pierdut. Încercare de reconectare...
+612:Esti sigur că vrei să iesi?
+613:Esti sigr că vrei sa pici definitiv acesti jucători?
+614:Anulează
+615:Comertul cu această resursă nu e valabil în această misiune
+616:Plantează si taie
 617:Doar taie
-618:Nu ai voie sг faci asta pe timp de pace
-619:Timp de pace rгmas: %s
+618:Nu ai voie să faci asta pe timp de pace
+619:Timp de pace rămas: %s
 620:Pacea s-a terminat. La arme!
 621:Timpul in joc:|%s
-622:Oprire trupг ('%s')
-623:Alгturare trupг ('%s')
-624:Separare trupг ('%s')
+622:Oprire trupă ('%s')
+623:Alăturare trupă ('%s')
+624:Separare trupă ('%s')
 625:Vizualizatorul de Replay-uri
 626:Vezi Replay
 627:Format nesuportat %s
-628:Versiune nesuportatг %s
-629:Modificгri nesuportate
-630:A apгrut o eroare in timp ce se parsa fisierul %s
+628:Versiune nesuportată %s
+629:Modificări nesuportate
+630:A apărut o eroare in timp ce se parsa fisierul %s
 631:initializare
 632:script
-633:unitгti
+633:unităti
 634:case
 635:copaci
 636:definitii
 637:tileset
-638:Harta nu a fost gгsitг: %s
-639:Salvarea nu a fost gгsitг: %s
-640:Fisierele hгrtii tale nu se potrivesc cu cele ale gazdei: %s
+638:Harta nu a fost găsită: %s
+639:Salvarea nu a fost găsită: %s
+640:Fisierele hărtii tale nu se potrivesc cu cele ale gazdei: %s
 641:Salvarea ta nu se potriveste cu cea a hostului: %s
-642:Replay-ul are o eroare de verificare a consistentei. Acest bug e cunoscut ca o eroare a replay-urilor. Vrei sг continui sг privesti?
-643:Doar o instantг multiplayer a jocului este permisг
-644:Nu sunt permise modificгri ale jocului in modul multiplayer.|Reinstaleazp pentru a reveni la fisierele originale.
-645:A apгrut o eroare оn aplicatie. Te rugгm sг ne trimiti detaliile acestei erori pentru a o putea investiga. Multumim pentru ajutor!
+642:Replay-ul are o eroare de verificare a consistentei. Acest bug e cunoscut ca o eroare a replay-urilor. Vrei să continui să privesti?
+643:Doar o instantă multiplayer a jocului este permisă
+644:Nu sunt permise modificări ale jocului in modul multiplayer.|Reinstaleazp pentru a reveni la fisierele originale.
+645:A apărut o eroare în aplicatie. Te rugăm să ne trimiti detaliile acestei erori pentru a o putea investiga. Multumim pentru ajutor!
 646:Trimite datele erorii
-647:Aratг datele
-648:Rezumг aplicatia
+647:Arată datele
+648:Rezumă aplicatia
 649:Opreste aplicatia
-650:Urmгtorul
+650:Următorul
 651:Date de contact
-652:Numele tгu: (optional)
-653:email-ul tгu: (optional)
-654:Tine-mг minte
+652:Numele tău: (optional)
+653:email-ul tău: (optional)
+654:Tine-mă minte
 655:Detaliile erorii
-656:In ce situatie a apгrut eroarea? Ne poti da date suplimentare?
+656:In ce situatie a apărut eroarea? Ne poti da date suplimentare?
 657:Captura de ecran
-658:Ataseazг o capturг de ecran acestei erori
+658:Atasează o captură de ecran acestei erori
 659:(click pentru a edita imaginea)
 660:Trimite raportul
-661:Anuleazг
+661:Anulează
 662:Trimitere raportul erorii
 663:Conectare la server...
 664:Trimitere date...
-665:Trimiterea raportului a esuat! Serverul nostru poate fo prea оncгrcat, te rugгm sг incerci din nou.
+665:Trimiterea raportului a esuat! Serverul nostru poate fo prea încărcat, te rugăm să incerci din nou.
 666:Informatii
-667:Te rugгm sг astepti un moment...
+667:Te rugăm să astepti un moment...

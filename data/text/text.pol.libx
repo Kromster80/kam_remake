@@ -1,28 +1,28 @@
 ﻿0:Tartak
 1:Dymarka
-2:Kuџnia Pіatnerska
-3:Kopalnia Wкgla
-4:Kopalnia Їelaza
-5:Kopalnia Zіota
+2:Kuźnia Płatnerska
+3:Kopalnia Węgla
+4:Kopalnia Żelaza
+5:Kopalnia Złota
 6:Chatka Rybacka
 7:Piekarnia
 8:Gospodarstwo
-9:Leњniczуwka
-10:Kuџnia Zbroi
+9:Leśniczówka
+10:Kuźnia Zbroi
 11:Spichrz
 12:Stajnia
-13:Szkoіa
-14:Kamienioіom
+13:Szkoła
+14:Kamieniołom
 15:Mennica
 16:Chlew
-17:Wieїa Obronna
+17:Wieża Obronna
 18:Ratusz
-19:Warsztat Pіatnerski
+19:Warsztat Płatnerski
 20:Warsztat Pancerzy
 21:Warownia
-22:Mіyn
+22:Młyn
 23:Warsztat Wojenny
-24:Rzeџnia
+24:Rzeźnia
 25:Garbarnia
 26:Sala treningowa
 27:Gospoda
@@ -31,107 +31,107 @@
 30:Pnie drzew
 31:Kamienie
 32:Drewno
-33:Ruda їelaza
-34:Ruda zіota
-35:Wкgiel
-36:Їelazo
-37:Zіoto
+33:Ruda żelaza
+34:Ruda złota
+35:Węgiel
+36:Żelazo
+37:Złoto
 38:Wino
 39:Ziarno
 40:Chleb
-41:M№ka
-42:Rulony skуry
-43:Kieіbasa
-44:Њwinie
-45:Pіaty skуry
+41:Mąka
+42:Rulony skóry
+43:Kiełbasa
+44:Świnie
+45:Płaty skóry
 46:Drewniana tarcza
-47:Їelazna tarcza
+47:Żelazna tarcza
 48:Pancerz
 49:Zbroja
-50:Topуr
+50:Topór
 51:Miecz
 52:Lanca
 53:Halabarda
-54:Јuk
+54:Łuk
 55:Kusza
 56:Konie
 57:Ryby
 58:Pomocnik
 59:Drwal
-60:Gуrnik
+60:Górnik
 61:Hodowca
-62:Chіop
-63:Cieњla
-64:Mіynarz/Piekarz
-65:Rzeџnik/Garbarz
+62:Chłop
+63:Cieśla
+64:Młynarz/Piekarz
+65:Rzeźnik/Garbarz
 66:Rybak
 67:Budowniczy
 68:Kamieniarz
 69:Kowal
 70:Hutnik
 71:Rekrut
-72:Їoіdak
+72:Żołdak
 73:Topornik
 74:Piechur z mieczem
-75:Јucznik
+75:Łucznik
 76:Kusznik
-77:Piechur z lanc№
+77:Piechur z lancą
 78:Pikinier
 79:Lekka jazda
-80:Ciкїka jazda
-81:Barbarzyсca
+80:Ciężka jazda
+81:Barbarzyńca
 82:Rebeliant
-83:Pachoіek
+83:Pachołek
 84:Wojownik
-85:Wіуczкga
+85:Włóczęga
 86:Katapulta
 87:Balista
-88:Pomocnik zaopatruje Twoje budynki w niezbкdne surowce.||Pamiкtaj, їe budynki musz№ byж poі№czone ze sob№ ulicami.
-89:Aby zdobyж pnie drzew dla Tartaku, potrzebujesz Drwala.||Drwal sam ponownie zalesia wykarczowane poіacie lasu.
-90:Gуrnik wydobywa rudy w Kopalni Wкgla, Їelaza i Zіota.
-91:W Chlewie i w Stajni Hodowca hoduje њwinie i konie, karmi№c je ziarnem.
-92:Chіop sieje i zbiera zboїe w Gospodarstwie.||Oprуcz tego wytіacza wino w Winnicy.
-93:Cieњla pracuje w Tartaku Warsztacie Pіatnerskim i w Warsztacie Pancerzy.||Oprуcz tego Cieњla buduje katapulty i balisty w Warsztacie Wojennym.
-94:Piekarz piecze chleb w Piekarni.||Dodatkowo przerabia w Mіynie ziarno na m№kк.
-95:Rzeџnik wyrabia kieіbasy w Rzeџni i wyprawia skуrк w Garbarni.
-96:Rybak іowi ryby w pobliskich zbiornikach wodnych.
+88:Pomocnik zaopatruje Twoje budynki w niezbędne surowce.||Pamiętaj, że budynki muszą być połączone ze sobą ulicami.
+89:Aby zdobyć pnie drzew dla Tartaku, potrzebujesz Drwala.||Drwal sam ponownie zalesia wykarczowane połacie lasu.
+90:Górnik wydobywa rudy w Kopalni Węgla, Żelaza i Złota.
+91:W Chlewie i w Stajni Hodowca hoduje świnie i konie, karmiąc je ziarnem.
+92:Chłop sieje i zbiera zboże w Gospodarstwie.||Oprócz tego wytłacza wino w Winnicy.
+93:Cieśla pracuje w Tartaku Warsztacie Płatnerskim i w Warsztacie Pancerzy.||Oprócz tego Cieśla buduje katapulty i balisty w Warsztacie Wojennym.
+94:Piekarz piecze chleb w Piekarni.||Dodatkowo przerabia w Młynie ziarno na mąkę.
+95:Rzeźnik wyrabia kiełbasy w Rzeźni i wyprawia skórę w Garbarni.
+96:Rybak łowi ryby w pobliskich zbiornikach wodnych.
 97:Budowniczy buduje budynki i ulice. Zaznacz wybrane miejsca, a on automatycznie zrealizuje twoje polecenia.||Poza tym naprawia uszkodzone budynki.
-98:Aby Twoi Budowniczy mieli wystarczaj№c№ iloњж budulca do budowy ulic i domуw, Kamieniarz eksploatuje kamieс.
-99:Kowal wytwarza cieїkiк pancerze i broс w Kuџni Pіatnerskiej i w Kuџni Zbroi.
-100:Hutnik produkuje z rudy zіota i їelaza sztaby zіota i stal.
-101:Rekrut otrzymuje w Warowni їoіnierskie wyposaїenie.||Oprуcz tego peіni wartк na Wieїy Straїniczej.
-102:Wybуr budynkуw
-103:Podziaі towarуw
+98:Aby Twoi Budowniczy mieli wystarczającą ilość budulca do budowy ulic i domów, Kamieniarz eksploatuje kamień.
+99:Kowal wytwarza cieżkię pancerze i broń w Kuźni Płatnerskiej i w Kuźni Zbroi.
+100:Hutnik produkuje z rudy złota i żelaza sztaby złota i stal.
+101:Rekrut otrzymuje w Warowni żołnierskie wyposażenie.||Oprócz tego pełni wartę na Wieży Strażniczej.
+102:Wybór budynków
+103:Podział towarów
 104:Statystyka
 105:Opcje
-106:Powrуt
-107:Wybуr|budynkуw
-108:Podziaі|towarуw
+106:Powrót
+107:Wybór|budynków
+108:Podział|towarów
 109:Statystyka
 110:Opcje
-111:Zaіaduj grк
-112:Zapisz grк
-113:Czy jesteњ pewien,|їe chcesz|zakoсczyж grк?
-114:Zakoсcz grк
-115:Powrуt
+111:Załaduj grę
+112:Zapisz grę
+113:Czy jesteś pewien,|że chcesz|zakończyć grę?
+114:Zakończ grę
+115:Powrót
 116:Ustawienia
 117:Zamknij Edytor
-118:Odgіosy
-119:Zmiana gіoњnoњci
-120:Zmiana gіoњnoњci
+118:Odgłosy
+119:Zmiana głośności
+120:Zmiana głośności
 121:Muzyka
-122:Wі№czyж/wyі№czyж muzykк
+122:Włączyć/wyłączyć muzykę
 123:Autozapis
 124:Odtwarzacz muzyki
-125:Poprzedni utwуr
-126:Nastкpny utwуr
+125:Poprzedni utwór
+126:Następny utwór
 127:Burzenie
-128:Burzenie budynkуw i znacznikуw
+128:Burzenie budynków i znaczników
 129:Buduj ulice
 130:Budowanie ulic
 131:Oraj pole
-132:Zakіadanie pola
-133:Zaіуї winnicк
+132:Zakładanie pola
+133:Załóż winnicę
 134:Winnica
 135:Anuluj
 136:Anuluj aktualne przyuczanie
@@ -141,50 +141,50 @@
 140:Dostarcza
 141:Budynek w budowie
 142:Zniszcz
-143:Czy jesteњ pewien,|їe chcesz|zburzyж budynek?
+143:Czy jesteś pewien,|że chcesz|zburzyć budynek?
 144:Niszczy wybrany budynek
-145:Zmniejsz zamуwienie
-146:Zwiкksz zamуwienie
+145:Zmniejsz zamówienie
+146:Zwiększ zamówienie
 147:Poprzedni typ jednostki
-148:Nastкpny typ jednostki
-149:Uzbrуj aktualny typ jednostki
-150:Nastкpny zawуd
-151:Poprzedni zawуd
+148:Następny typ jednostki
+149:Uzbrój aktualny typ jednostki
+150:Następny zawód
+151:Poprzedni zawód
 152:Dodaj do kolejki
-153:Dostawa towarуw wі№cz/wyі№cz
+153:Dostawa towarów włącz/wyłącz
 154:Koszty:
-155:Naprawa budynku wі№cz/wyі№cz
-156:Budynek obecnie niedostкpny
-157:Wytrzymaіoњж
-158:Obrуж oddziaі w lewo
-159:Obrуж oddziaі w prawo
+155:Naprawa budynku włącz/wyłącz
+156:Budynek obecnie niedostępny
+157:Wytrzymałość
+158:Obróć oddział w lewo
+159:Obróć oddział w prawo
 160:Atakuj ('a')
-161:Wyњlij oddziaі ('d')
-162:Zaopatrz oddziaі w їywnoњж
-163:Rozpoczкcie szturmu
+161:Wyślij oddział ('d')
+162:Zaopatrz oddział w żywność
+163:Rozpoczęcie szturmu
 164:Dodaj szereg
-165:Usuс szereg
-166:Wybierz|grupк docelow№
+165:Usuń szereg
+166:Wybierz|grupę docelową
 167:Anuluj
-168:Usuс
-169:Usuwa aktualn№ wiadomoњж
-170:Idџ do
-171:Skacze do pozycji aktualnej wiadomoњci
+168:Usuń
+169:Usuwa aktualną wiadomość
+170:Idź do
+171:Skacze do pozycji aktualnej wiadomości
 172:Zamknij
 173:Zamknij okno
-174:Twуj Kamieniarz nie znalazі dalszych pokіadуw kamienia.
-175:Zasoby Twojej Kopalni Wкgla s№ wyczerpane.
-176:Zasoby Twojej Kopalni Їelaza s№ wyczerpane.
-177:Zasoby Twojej Kopalni Zіota s№ wyczerpane.
-178:Twуj drwal nie moїe znaleџж їadnych drzew do њciкcia
+174:Twój Kamieniarz nie znalazł dalszych pokładów kamienia.
+175:Zasoby Twojej Kopalni Węgla są wyczerpane.
+176:Zasoby Twojej Kopalni Żelaza są wyczerpane.
+177:Zasoby Twojej Kopalni Złota są wyczerpane.
+178:Twój drwal nie może znaleźć żadnych drzew do ścięcia
 179:Ten budynek nie ma gospodarza.
-180:Ten oddziaі jest bardzo gіodny! Dostarcz im szybko їywnoњжi!
+180:Ten oddział jest bardzo głodny! Dostarcz im szybko żywnośći!
 181:PAUZA
 182:Dostarcza towary
-183:Buduje drogк
+183:Buduje drogę
 184:Orze pole
 185:Konstruuje winnice
-186:Wyrуwnuje teren pod dom
+186:Wyrównuje teren pod dom
 187:Buduje dom
 188:Naprawia budynek
 189:Idzie do domu
@@ -196,12 +196,12 @@
 195:Atakuje
 196:Idzie
 197:Odpoczywa
-198:Wydobywa kamieс
-199:Sieje zboїe
-200:Zbiera zboїe
+198:Wydobywa kamień
+199:Sieje zboże
+200:Zbiera zboże
 201:Zbiera winogrona
-202:Јowi ryby
-203:Њcina drzewa
+202:Łowi ryby
+203:Ścina drzewa
 204:Sadzi drzewa
 205:Spirit
 206:Busy
@@ -227,65 +227,65 @@
 226:Journey
 227:Kampanie
 228:Kampanie
-229:Zacznij Kampaniк
-230:Rozegraj jedn№ misjк
-231:Zacznij misjк
-232:Gіуwne menu
-233:Zaіaduj grк
+229:Zacznij Kampanię
+230:Rozegraj jedną misję
+231:Zacznij misję
+232:Główne menu
+233:Załaduj grę
 234:Gra w sieci
 235:Opcje
 236:Autorzy
-237:Zakoсcz grк
+237:Zakończ grę
 238:Dalej
-239:Powtуrz misjк
-240:Rozdzielczoњж:
-241:Nie obsіugiwane
-242:Nie obsіugiwane
-243:MISJA WYPEЈNIONA!
-244:MISJA NIEWYPEЈNIONA!
+239:Powtórz misję
+240:Rozdzielczość:
+241:Nie obsługiwane
+242:Nie obsługiwane
+243:MISJA WYPEŁNIONA!
+244:MISJA NIEWYPEŁNIONA!
 245:Utracone jednostki:
 246:Pokonane jednostki:
 247:Utracone budynki:
 248:Zburzone budynki:
 249:Zbudowane budynki:
 250:Wyszkolone jednostki:
-251:Wyprodukowana broс:
-252:Wyposaїeni wojownicy:
+251:Wyprodukowana broń:
+252:Wyposażeni wojownicy:
 253:Czas trwania gry:
 254:Statystyki
 255:Ekonomia
 256:Poddani|wyszkoleni
 257:Poddani|straceni
-258:Їoіnierze|wyszkoleni
-259:Їoіnierze|straceni
-260:Їoіnierze|pokonani
+258:Żołnierze|wyszkoleni
+259:Żołnierze|straceni
+260:Żołnierze|pokonani
 261:Budynki|wybudowane
 262:Budynki|utracone
 263:Budynki|zniszczone
 264:Towary|wyprodukowane
-265:Broс|wyprodukowana
+265:Broń|wyprodukowana
 266:Armia
-267:Mieszkaсcy
+267:Mieszkańcy
 268:Domy
 269:Surowce
 270:Wyprodukowane surowce
 271:Brak danych
 272:Ty
 273:Gracz %d
-274:Wrуж do Gry wieloosobowej
-275:Wrуж do Powtуrek
+274:Wróć do Gry wieloosobowej
+275:Wróć do Powtórek
 276:Wszystko
 277:Wojenne
 278:Jedzenie
-279:JOYMANIA ENTERTAINMENT||PROGRAMOWANIE:|Peter Ohlmann||GRAFIKA:|Adam Sprys||MISJE:|Adam Sprys|Andrй QuaЯ||DЏWIКKI:|Tonstudio Mannheim||MUZYKA:|Gerd Hofmann|Joachim Schдfer|Jьrgen Rebhann|Klaus Staendike|Steffen Schьngel||ILUSTRACJE:|Bolesіaw Kasza|Christoph Werner||ZUXXEZ ENTERTAINMENT AG||PRODUCENT:|Uwe Schдfer||INSTRUKCJA:|Peter Ohlmann|Uwe Schдfer||BETA-TESTERZY:|Peter Ohlmann|Adam Sprys|Alexandra Constandache|Dirk P. Hassinger|Achim Heidelauf|Uwe Schдfer|Ingrid Schдfer|Dirk U. Jantz|Ion Constandache|Yaman Egeli|Roman Eich|Iris Mocsnek|Anke Jantz|Paul Hassinger|Liza Hassinger||NADZУR PRODUKCJI:|Achim Heidelauf||WYDAWCA:|TopWare Poland||FILMY:||NADZУR PRODUKCJI:|Sіawomir Jкdrzejewski||Kajetan Czarnecki|Wojciech Drazek|Daniel Duplaga|Rafaі Januszkiewicz|Andrzej Rams|Piotr Rulka|Krzysztof Rybczyсski|Grzegorz Wiњniewski||GЈOSУW UЇYCZYLI:|Zbigniew Abrachamowicz|Wіadysіaw Aniszewski|Jerzy Batycki|Kazimierz Czapla|Bartosz Dziedzic|Ireneusz Ogrodziсski|Grzegorz Sikora|Janusz Siwy|Tomasz Sylwestrzak|Piotr Tomaszewski|Robert Wdaniec||PROJEKT INSTRUKCJI:|Uwe Schдfer|Alexandra Constandache||TREЊЖ INSTRUKCJI:|Peter Ohlmann|Uwe Schдfer||ILUSTRACJE:|Bolesіaw Kasza|Adam Sprys||INTRO:|Uwe Schдfer|Christian Bigalk|Dodatkowe Modelowanie 3D:|Niels Horstmann||SPECJALNE|PODZIКKOWANIA DLA:|Tadeusz Zuber|Dieter Ohlmann|Alexandra Constandache|Ingrid Schдfer|Andrea Rumpelt
+279:JOYMANIA ENTERTAINMENT||PROGRAMOWANIE:|Peter Ohlmann||GRAFIKA:|Adam Sprys||MISJE:|Adam Sprys|André Quaß||DŹWIĘKI:|Tonstudio Mannheim||MUZYKA:|Gerd Hofmann|Joachim Schäfer|Jürgen Rebhann|Klaus Staendike|Steffen Schüngel||ILUSTRACJE:|Bolesław Kasza|Christoph Werner||ZUXXEZ ENTERTAINMENT AG||PRODUCENT:|Uwe Schäfer||INSTRUKCJA:|Peter Ohlmann|Uwe Schäfer||BETA-TESTERZY:|Peter Ohlmann|Adam Sprys|Alexandra Constandache|Dirk P. Hassinger|Achim Heidelauf|Uwe Schäfer|Ingrid Schäfer|Dirk U. Jantz|Ion Constandache|Yaman Egeli|Roman Eich|Iris Mocsnek|Anke Jantz|Paul Hassinger|Liza Hassinger||NADZÓR PRODUKCJI:|Achim Heidelauf||WYDAWCA:|TopWare Poland||FILMY:||NADZÓR PRODUKCJI:|Sławomir Jędrzejewski||Kajetan Czarnecki|Wojciech Drazek|Daniel Duplaga|Rafał Januszkiewicz|Andrzej Rams|Piotr Rulka|Krzysztof Rybczyński|Grzegorz Wiśniewski||GŁOSÓW UŻYCZYLI:|Zbigniew Abrachamowicz|Władysław Aniszewski|Jerzy Batycki|Kazimierz Czapla|Bartosz Dziedzic|Ireneusz Ogrodziński|Grzegorz Sikora|Janusz Siwy|Tomasz Sylwestrzak|Piotr Tomaszewski|Robert Wdaniec||PROJEKT INSTRUKCJI:|Uwe Schäfer|Alexandra Constandache||TREŚĆ INSTRUKCJI:|Peter Ohlmann|Uwe Schäfer||ILUSTRACJE:|Bolesław Kasza|Adam Sprys||INTRO:|Uwe Schäfer|Christian Bigalk|Dodatkowe Modelowanie 3D:|Niels Horstmann||SPECJALNE|PODZIĘKOWANIA DLA:|Tadeusz Zuber|Dieter Ohlmann|Alexandra Constandache|Ingrid Schäfer|Andrea Rumpelt
 280:Misja anulowana
-281:Powtуrka zakoсczona
-282:Samouczek zarz№dzania miastem
+281:Powtórka zakończona
+282:Samouczek zarządzania miastem
 283:Samouczek dowodzenia podczas bitwy
 284:Jeden Gracz
 285:Edytor Map
 286:Rozpocznij Misje
-287:Tytuі
+287:Tytuł
 288:Rozmiar
 289:Warunki wygranej:
 290:Warunki przegranej:
@@ -293,157 +293,157 @@
 292:Wrogowie:
 293:Czas
 294:Rozmiar nowej mapy
-295:Szerokoњж
-296:Wysokoњж
-297:Stwуrz Now№ Mapк
-298:Dostкpne mapy
-299:Zaіaduj Istniej№c№ Mapк
-300:Poіoїenie
+295:Szerokość
+296:Wysokość
+297:Stwórz Nową Mapę
+298:Dostępne mapy
+299:Załaduj Istniejącą Mapę
+300:Położenie
 301:Kontrola:
 302:Rozgrywka:
-303:Dџwiкk
-304:Wyі№cz muzykк
+303:Dźwięk
+304:Wyłącz muzykę
 305:Grafika:
-306:Jasnoњж:
+306:Jasność:
 307:Synchronizacja Pionowa
-308:Peіny Ekran:
+308:Pełny Ekran:
 309:Zastosuj
-310:Jкzyk:
-311:Jakoњж cieni:
+310:Język:
+311:Jakość cieni:
 312:Niska
 313:Wysoka
-314:Јadowanie... Proszк czekaж
-315:Wyst№piі Bі№d!
-316:Јadowanie nowej lokalizacji
+314:Ładowanie... Proszę czekać
+315:Wystąpił Błąd!
+316:Ładowanie nowej lokalizacji
 317:Lista zapisanych gier
 318:Nazwa pliku
 319:Opis
-320:Zaіaduj
-321:Usuс
-322:Jesteњ pewny їe chcesz usun№ж ten zapis?
-323:Usuс
+320:Załaduj
+321:Usuń
+322:Jesteś pewny że chcesz usunąć ten zapis?
+323:Usuń
 324:Anuluj
-325:Tytuі
+325:Tytuł
 326:Mapy
 327:Odblokowane
-328:Wygraіeњ!
-329:Kontynuuj grк
-330:Zwyciкstwo!
-331:Przegraіeњ!
-332:Kontynuuj ogl№danie
-333:Poraїka
-334:Powtуrka siк zakoсczyіa
-335:Kontynuuj ogl№danie
-336:Wyjdџ do menu
-337:Niedostкpne
-338:Naciњnij %s aby wznowiж grк
+328:Wygrałeś!
+329:Kontynuuj grę
+330:Zwycięstwo!
+331:Przegrałeś!
+332:Kontynuuj oglądanie
+333:Porażka
+334:Powtórka się zakończyła
+335:Kontynuuj oglądanie
+336:Wyjdź do menu
+337:Niedostępne
+338:Naciśnij %s aby wznowić grę
 339:Informacje gracza
 340:Czat
-341:Zapis juї istnieje
-342:Zast№p
+341:Zapis już istnieje
+342:Zastąp
 343:Zapisz
-344:Zaіaduj
-345:Wykryto star№ wersjк OpenGL, gra moїe dziaіaж wolno i/lub z bікdami grafiki.
-346:Proszк zaktualizuj sterowniki karty graficznej aby uzyskaж wiкksz№ wydajnoњж.
-347:Bі№d sieci:
-348:Bі№d: Nie wpisaіeњ imienia
-349:Bі№d: Nazwa gracza nie moїe byж dіuїsza niї %d znakуw
-350:Bі№d: Nazwa gracza zawiera niedozwolone znaki
-351:Poі№czenie nie powiodіo siк: %s
-352:Zostaіeњ rozі№czony
+344:Załaduj
+345:Wykryto starą wersję OpenGL, gra może działać wolno i/lub z błędami grafiki.
+346:Proszę zaktualizuj sterowniki karty graficznej aby uzyskać większą wydajność.
+347:Błąd sieci:
+348:Błąd: Nie wpisałeś imienia
+349:Błąd: Nazwa gracza nie może być dłuższa niż %d znaków
+350:Błąd: Nazwa gracza zawiera niedozwolone znaki
+351:Połączenie nie powiodło się: %s
+352:Zostałeś rozłączony
 353:Misja %d
-354:Dziennik wiadomoњci
+354:Dziennik wiadomości
 355:Twoja Chata rybaka jest zbyt daleko od wody.
-356:Twуj rybak nie moїe zіowiж wiкcej ryb w pobliskich zbiornikach wodnych.
-357:Uruchom ponownie powtуrkк
-358:Wstrzymaj powtуrkк
+356:Twój rybak nie może złowić więcej ryb w pobliskich zbiornikach wodnych.
+357:Uruchom ponownie powtórkę
+358:Wstrzymaj powtórkę
 359:Jeden krok do przodu
-360:Wznуw wstrzyman№ powtуrkк
-361:Zamknij powtуrkк
-362:Przeі№cz na perspektywк gracza
-363:Pokaї wszystko
-364:Uїyj lewego przycisku myszy, aby wybraж towar do handlu
-365:Uїyj prawego przycisku myszy, aby wybraж towar do handlu
+360:Wznów wstrzymaną powtórkę
+361:Zamknij powtórkę
+362:Przełącz na perspektywę gracza
+363:Pokaż wszystko
+364:Użyj lewego przycisku myszy, aby wybrać towar do handlu
+365:Użyj prawego przycisku myszy, aby wybrać towar do handlu
 366:Z x%d
 367:Na x%d
 368:Edycja terenu
-369:Pкdzle
-370:Wysokoњci
-371:Pіytki
+369:Pędzle
+370:Wysokości
+371:Płytki
 372:Obiekty
-373:Wysokoњci
-374:Ksztaіt pкdzla
+373:Wysokości
+374:Kształt pędzla
 375:Rozmiar
-376:Przesuс, aby zmieniж rozmiar pкdzla
+376:Przesuń, aby zmienić rozmiar pędzla
 377:Zbocze
-378:Przesuс, aby zmieniж wysokoњж zbocza: 1 = pіaski ... 15 = szczyt
-379:Szybkoњж
-380:Przesuс, aby zmieniж prкdkoњж podnoszenia: 1 = wolno ... 15 = bardzo szybko
-381:Okr№gіy pкdzel
-382:Kwadratowy pкdzel
-383:Podniesienie / Obniїenie
-384:Pofaіdowanie / Wyrуwnanie
-385:Podnieњ (lewy przycisk) /Obniї (prawy przycisk)
-386:Pofaіduj (lewy przycisk)/Wyrуwnaj (prawy przycisk)
-387:Pкdzel
+378:Przesuń, aby zmienić wysokość zbocza: 1 = płaski ... 15 = szczyt
+379:Szybkość
+380:Przesuń, aby zmienić prędkość podnoszenia: 1 = wolno ... 15 = bardzo szybko
+381:Okrągły pędzel
+382:Kwadratowy pędzel
+383:Podniesienie / Obniżenie
+384:Pofałdowanie / Wyrównanie
+385:Podnieś (lewy przycisk) /Obniż (prawy przycisk)
+386:Pofałduj (lewy przycisk)/Wyrównaj (prawy przycisk)
+387:Pędzel
 388:Losowe elementy
 389:Losowy kierunek
-390:Zaznacz dla losowego kierunku pіytki lub kliknij prawym przyciskiem myszy, aby obrуciж wybrany pіytkк
-391:Uїyj prawego przycisku, aby obrуciж wybran№ pіytkк
-392:Zablokuj przejњcie
-393:Usuс obiekt
+390:Zaznacz dla losowego kierunku płytki lub kliknij prawym przyciskiem myszy, aby obrócić wybrany płytkę
+391:Użyj prawego przycisku, aby obrócić wybraną płytkę
+392:Zablokuj przejście
+393:Usuń obiekt
 394:Planowanie osady
 395:Skrypty wizualne
 396:Skryptowanie globalne
 397:Menu
 398:Obiekty
-399:Pokaї magazyny
-400:Pokaї jednostki
-401:Pokaї budynki
-402:Pokaї obiekty
-403:Pokaї przejњcia
-404:Wszystkie niezapisane|zmiany zostan№ utracone
+399:Pokaż magazyny
+400:Pokaż jednostki
+401:Pokaż budynki
+402:Pokaż obiekty
+403:Pokaż przejścia
+404:Wszystkie niezapisane|zmiany zostaną utracone
 405:Anuluj
 406:Wczytaj
-407:Wczytaj mapк
+407:Wczytaj mapę
 408:Anuluj
 409:Zapisz
 410:Nadpisz
-411:Mapa juї istnieje
+411:Mapa już istnieje
 412:Gracze:
-413:Domyњlnie
+413:Domyślnie
 414:Rodzaj gracza
 415:Symetrycznie
 416:Sojusze
 417:Taktyczna
 418:Normalny
 419:Tryb misji
-420:Przejdџ do lokalizacji
-421:Њrodek ekranu na pocz№tku misji
-422:Њrodek ekranu
-423:Odsіoс wszystko
-424:Odsіoс czкњж mapy
-425:Odsіoс mgік
+420:Przejdź do lokalizacji
+421:Środek ekranu na początku misji
+422:Środek ekranu
+423:Odsłoń wszystko
+424:Odsłoń część mapy
+425:Odsłoń mgłę
 426:Zablokuj handel
 427:Zablokuj/odblokuj budynki
 428:Kolory
 429:Cel
-430:Wiadomoњж
+430:Wiadomość
 431:Czas
 432:Gracz
 433:Budynki ekonomiczne
-434:Pomocnicy i szkoіy
+434:Pomocnicy i szkoły
 435:Cele wojskowe
 436:Nieznany
 437:Wojsko
 438:Budynki
 439:Czas
 440:Samouczek Budowania
-441:Їaden
+441:Żaden
 442:Warunek
 443:Przetrwanie
-444:Zwyciкstwo
-445:Їaden
+444:Zwycięstwo
+445:Żaden
 446:Typ
 447:Cele
 448:OK
@@ -452,84 +452,84 @@
 451:Liczba
 452:Formacje Wojsk
 453:Edytuj formacje
-454:Ustaw limit liczby їoіnierzy ktуrych moїe mieж AI
-455:Ilu їoіnierzy AI moїe mieж jednoczeњnie
-456:Ustaw maksymaln№ liczbк їoіnierzy
-457:Ile rekrutуw AI powinien mieж w Warowni
-458:Rekrutуw na Warowniк
+454:Ustaw limit liczby żołnierzy których może mieć AI
+455:Ilu żołnierzy AI może mieć jednocześnie
+456:Ustaw maksymalną liczbę żołnierzy
+457:Ile rekrutów AI powinien mieć w Warowni
+458:Rekrutów na Warownię
 459:Pozycja
 460:Niestandardowa pozycja
-461:Najbliїszy dom 2
-462:Najbliїszy dom 1
-463:Najbliїsza jednostka
+461:Najbliższy dom 2
+462:Najbliższy dom 1
+463:Najbliższa jednostka
 464:Zabierz wszystkich
-465:Liczba oddziaіуw
+465:Liczba oddziałów
 466:Informacje o ataku
-467:Opуџnienie, s
+467:Opóźnienie, s
 468:Powtarzany
 469:Raz
 470:Jazda
-471:Walcz№cy na dystans
+471:Walczący na dystans
 472:Anty-jazda
-473:Walcz№cy wrкcz
+473:Walczący wręcz
 474:Loc.
 475:Cel
 476:Ludzi
-477:Opуџnienie
+477:Opóźnienie
 478:typ
 479:Automatyczny atak
 480:Ataki AI
-481:Wyposaїyж w orкї skуrzany
-482:Wyposaїyж w orкї їalazny
+481:Wyposażyć w oręż skórzany
+482:Wyposażyć w oręż żalazny
 483:Automatyczna obrona
-484:AI tworzy i zarz№dza pozycjami obrony automatycznie
-485:Umieњж pozycje obrony dla AI
+484:AI tworzy i zarządza pozycjami obrony automatycznie
+485:Umieść pozycje obrony dla AI
 486:Pozycje obrony AI
 487:Robotnicy
-488:Pomocnikуw na 10 budynkуw
+488:Pomocników na 10 budynków
 489:Automatyczne naprawianie
 490:Automatyczne bydowanie
 491:Ustawienia AI
 492:Budynki
 493:Prace drogowe
-494:Odwrуж zaznaczone w pionie
-495:Odwrуж zaznaczone w poziomie
+494:Odwróć zaznaczone w pionie
+495:Odwróć zaznaczone w poziomie
 496:Wklej teren
 497:Skopiuj teren
 498:Kopiuj/wklej
 499:Nowa Misja
-500:Imiк gracza
+500:Imię gracza
 501:Status:
-502:Utwуrz Serwer
-503:STWУRZ SERWER
+502:Utwórz Serwer
+503:STWÓRZ SERWER
 504:Nazwa
 505:Port
-506:Stwуrz serwer lokalny
-507:Stwуrz serwer internetowy
+506:Stwórz serwer lokalny
+507:Stwórz serwer internetowy
 508:Anuluj
-509:Znajdџ Serwer przez IP
-510:ZNAJDЏ SERWER
+509:Znajdź Serwer przez IP
+510:ZNAJDŹ SERWER
 511:Adres
 512:Port
-513:Pokуj
-514:Poі№cz
+513:Pokój
+514:Połącz
 515:Anuluj
-516:Pokуj chroniony hasіem
-517:Hasіo
+516:Pokój chroniony hasłem
+517:Hasło
 518:Nazwa Serwera
 519:Stan
 520:Gracze
 521:Ping
-522:Odњwieї Listк Serwerуw
-523:SZCZEGУЈY SERWERA
+522:Odśwież Listę Serwerów
+523:SZCZEGÓŁY SERWERA
 524:Lista graczy:
-525:Doі№cz
-526:Ј№czenie, proszк czekaж...
-527:Јadowanie ogіoszeс...
-528:Odњwieїanie...
+525:Dołącz
+526:Łączenie, proszę czekać...
+527:Ładowanie ogłoszeń...
+528:Odświeżanie...
 529:Lista graczy
-530:Lokalizacja pocz№tkowa
-531:Druїyna
+530:Lokalizacja początkowa
+531:Drużyna
 532:Kolor
 533:Gotowy
 534:Ping
@@ -538,97 +538,97 @@
 537:Komputer
 538:Wybierz...
 539:Przypadkowe
-540:Їadna
+540:Żadna
 541:Zapisane Gry
-542:Wybierz mapк...
+542:Wybierz mapę...
 543:Wybierz zapis...
-544:Wyjdџ
+544:Wyjdź
 545:Gotowy
 546:Nie gotowy
 547:Start!
-548:Prкdkoњж gry (czas pokoju)
-549:Prкdkoњж gry
+548:Prędkość gry (czas pokoju)
+549:Prędkość gry
 550:OK
 551:Anuluj
 552:Opis
-553:Hasіo
+553:Hasło
 554:Ustawienia pokoju
 555:Oddaj hosta
 556:Zbanuj
-557:Wyrzuж
-558:Przydziel losowo lokalizacje w druїynach
+557:Wyrzuć
+558:Przydziel losowo lokalizacje w drużynach
 559:Opis
 560:Opcje
 561:Lokacja %d
-562:Bі№d: Wybierz gracza z zapisu do kontrolowania
-563:Bі№d: Nie udaіo siк zaіadowaж mapy lub nie wybrano mapy
-564:Nie moїna rozpocz№ж: %s
-565:Nie wszyscy s№ gotowi do rozpoczкcia
-566:Nie moїna przydzieliж losowej lokalizacji
-567:Serwer przypisaі prawa hosta do nas
-568:Gra rozpoczкta
+562:Błąd: Wybierz gracza z zapisu do kontrolowania
+563:Błąd: Nie udało się załadować mapy lub nie wybrano mapy
+564:Nie można rozpocząć: %s
+565:Nie wszyscy są gotowi do rozpoczęcia
+566:Nie można przydzielić losowej lokalizacji
+567:Serwer przypisał prawa hosta do nas
+568:Gra rozpoczęta
 569:Mapa Ekonomiczna
 570:Mapa Taktyczna
 571:Mapa Kooperacyjna
 572:Mapa specjalna
 573:Opcje gry:
 574:Okres pokojowy (minuty)
-575:Zamkniкte
+575:Zamknięte
 576:Host konfiguruje gracza
 577:Oczekiwanie na graczy:
 578:Wszyscy
-579:Druїyna
+579:Drużyna
 580:Autorzy KaM Remake
 581:Autorzy Oryginalnego Knights & Merchants
 582:PROGRAMOWANIE:
 583:DODATKOWE PROGRAMOWANIE:
 584:DODATKOWE GRAFIKI;
-585:DODATKOWE DЏWIКKI:
+585:DODATKOWE DŹWIĘKI:
 586:DODATKOWA MUZYKA:
-587:DODATKOWE TЈUMACZENIE:
-588:SPECJALNE PODZIКKOWANIA DLA:
+587:DODATKOWE TŁUMACZENIE:
+588:SPECJALNE PODZIĘKOWANIA DLA:
 589:Mapy dla wielu graczy
 590:Mapy dla jednego gracza
-591:Prкdkoњж przewijania
-592:Nie znaleziono serwerуw
+591:Prędkość przewijania
+592:Nie znaleziono serwerów
 593:Wymieszaj utwory
 594:Informacje o grze:
 595:-
 596:Lobby
-597:Јadowanie
+597:Ładowanie
 598:Gra
 599:Budowa i Walka
 600:Walka
 601:Gotowy
-602:Zіa wersja protokoіu: %s. Serwer uїywa: %s
-603:Zwiкksz iloњж towarуw
-604:Zmniejsz iloњж towarуw
+602:Zła wersja protokołu: %s. Serwer używa: %s
+603:Zwiększ ilość towarów
+604:Zmniejsz ilość towarów
 605:Zapisywanie gry...
-606:%s zostaі pokonany!
-607:Wyrzuж graczy
-608:Host bкdzie mуgі wyrzuciж tych graczy za %d sekund
-609:Host moїe juї wyrzuciж tych graczy
-610:Host (%s) wyszedі
-611:Poі№czenie z serwerem zostaіo utracone. Prуba ponownego poі№czenia ...
-612:Czy na pewno chcesz wyjњж?
-613:Czy na pewno chcesz bezpowrotnie wyrzuciж tych graczy?
+606:%s został pokonany!
+607:Wyrzuć graczy
+608:Host będzie mógł wyrzucić tych graczy za %d sekund
+609:Host może już wyrzucić tych graczy
+610:Host (%s) wyszedł
+611:Połączenie z serwerem zostało utracone. Próba ponownego połączenia ...
+612:Czy na pewno chcesz wyjść?
+613:Czy na pewno chcesz bezpowrotnie wyrzucić tych graczy?
 614:Anuluj
-615:Handlowanie tym zasobem jest nie moїliwe w tej misji
-616:Sadџ i њcinaj
-617:Tylko њcinaj
-618:Nie masz prawa tego robiж w okresie pokoju
-619:Pozostaіy okres pokojowy: %s
-620:Okres pokojowy min№і. Do broni!
+615:Handlowanie tym zasobem jest nie możliwe w tej misji
+616:Sadź i ścinaj
+617:Tylko ścinaj
+618:Nie masz prawa tego robić w okresie pokoju
+619:Pozostały okres pokojowy: %s
+620:Okres pokojowy minął. Do broni!
 621:Czas gry:|%s
-622:Zatrzymaj oddziaі i formuj szyk ('%s')
-623:Poі№cz oddziaіy ('%s')
-624:Rozdziel oddziaі ('%s')
-625:Podgl№d Powtуrek
-626:Zobacz powtуrkк
+622:Zatrzymaj oddział i formuj szyk ('%s')
+623:Połącz oddziały ('%s')
+624:Rozdziel oddział ('%s')
+625:Podgląd Powtórek
+626:Zobacz powtórkę
 627:Niewspierany format %s
 628:Niewspierana wersja %s
 629:Niewspierana modyfikacja
-630:Wyst№piі bі№d podczas przetwarzania pliku %s
+630:Wystąpił błąd podczas przetwarzania pliku %s
 631:inicjowanie
 632:skrypt
 633:jednostki
@@ -638,61 +638,61 @@
 637:grafiki terenu
 638:Mapy nie odnaleziono: %s
 639:Zapisu nie odnaleziono: %s
-640:Pliki mapy nie zgadzaj№ siк z map№ hosta: %s
-641:Plik zapisu nie zgadza siк z zapisem hosta: %s
-642:Powtуrka wykazaіa niespуjnoњж podczas sprawdzania. Jest to znany bі№d, ktуry wpіywa na odtwarzanie niektуrych powtуrek. Czy chcesz kontynuowaж ogl№danie?
-643:Moїesz mieж tylko jedn№ otwart№ grк w trybie wieloosobowym naraz.
-644:Modyfikacje gry nie s№ dozwolone w trybie wieloosobowym. | Zainstaluj ponownie, aby przywrуciж oryginalne pliki.
-645:Wyst№piі bі№d w aplikacji. Proszк klikn№ж Wyњlij Raport o Bікdach, abyњmy mogli zbadaж ten problem. Dziкkujemy za pomoc!
-646:Wyњlij Raport o Bікdach
-647:Pokaї Dane Pierwotne
-648:Wznуw Aplikacjк
-649:Zakoсcz Aplikacjк
-650:Nastкpny
+640:Pliki mapy nie zgadzają się z mapą hosta: %s
+641:Plik zapisu nie zgadza się z zapisem hosta: %s
+642:Powtórka wykazała niespójność podczas sprawdzania. Jest to znany błąd, który wpływa na odtwarzanie niektórych powtórek. Czy chcesz kontynuować oglądanie?
+643:Możesz mieć tylko jedną otwartą grę w trybie wieloosobowym naraz.
+644:Modyfikacje gry nie są dozwolone w trybie wieloosobowym. | Zainstaluj ponownie, aby przywrócić oryginalne pliki.
+645:Wystąpił błąd w aplikacji. Proszę kliknąć Wyślij Raport o Błędach, abyśmy mogli zbadać ten problem. Dziękujemy za pomoc!
+646:Wyślij Raport o Błędach
+647:Pokaż Dane Pierwotne
+648:Wznów Aplikację
+649:Zakończ Aplikację
+650:Następny
 651:Dane Kontaktowe
-652:Twoje imiк: (opcjonalnie)
-653:Twуj email: (opcjonalnie)
-654:Zapamiкtaj mnie
-655:Szczegуіy Bікdu
-656:W jakiej sytuacji wystкpuje bі№d? Moїesz podaж dodatkowe informacje? (preferowany agielski)
+652:Twoje imię: (opcjonalnie)
+653:Twój email: (opcjonalnie)
+654:Zapamiętaj mnie
+655:Szczegóły Błędu
+656:W jakiej sytuacji występuje błąd? Możesz podać dodatkowe informacje? (preferowany agielski)
 657:Zrzut Ekranu
-658:Doі№cz zrzut ekranu do raportu o bікdzie
-659:(kliknij, aby edytowaж obraz)
-660:Wyњlij Raport
+658:Dołącz zrzut ekranu do raportu o błędzie
+659:(kliknij, aby edytować obraz)
+660:Wyślij Raport
 661:Anuluj
-662:Wysyіanie raportu o bікdzie...
-663:Ј№czenie z serwerem...
-664:Wysyіanie danych...
-665:Wysyіanie raportu o awarii nie powiodіo siк! Nasz serwer moїe byж zajкty, proszк sprуbowaж wysіaж go ponownie.
+662:Wysyłanie raportu o błędzie...
+663:Łączenie z serwerem...
+664:Wysyłanie danych...
+665:Wysyłanie raportu o awarii nie powiodło się! Nasz serwer może być zajęty, proszę spróbować wysłać go ponownie.
 666:Informacja
-667:Proszк czekaж...
-668:Zapisz mapк
-669:Opуџnienie w minutach zanim AI zacznie szkolenie rekrutуw
-670:Opуџnienie rekrutacji (min)
-671:Ustawia kierunek dla wszystkich pіytek w zbiorniku wodnym
+667:Proszę czekać...
+668:Zapisz mapę
+669:Opóźnienie w minutach zanim AI zacznie szkolenie rekrutów
+670:Opóźnienie rekrutacji (min)
+671:Ustawia kierunek dla wszystkich płytek w zbiorniku wodnym
 672:Magiczna woda
 673:Kopiuj
 674:Wklej
-675:Potwierdџ wklejenie
+675:Potwierdź wklejenie
 676:Anuluj wklejenie
-677:Odwrуж w pionie
-678:Odwrуж w poziomie
-679:Przeci№gnij, aby zaznaczyж obszar na mapie
+677:Odwróć w pionie
+678:Odwróć w poziomie
+679:Przeciągnij, aby zaznaczyć obszar na mapie
 680:Opcje obrony AI
-681:Wyі.
-682:Promieс
-683:Usuс bieї№cy odsіaniacz
-684:Powrуt do widoku odkrytej mgіy
+681:Wył.
+682:Promień
+683:Usuń bieżący odsłaniacz
+684:Powrót do widoku odkrytej mgły
 685:Zamknij
-686:Kolejnoњж oddziaіуw
-687:Їaden
+686:Kolejność oddziałów
+687:Żaden
 688:Pozycja ataku
-689:Idџ do
+689:Idź do
 690:Kierunek
-691:Odwуd
+691:Odwód
 692:Linia frontu
-693:Promieс obrony
-694:Usuс aktualn№ pozycjк obrony
-695:Powrуt do widoku obrony
+693:Promień obrony
+694:Usuń aktualną pozycję obrony
+695:Powrót do widoku obrony
 696:Pozycja obrony
 697:Jednostki
