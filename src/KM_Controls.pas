@@ -4196,7 +4196,7 @@ end;
 { TKMPopUpMenu }
 constructor TKMPopUpMenu.Create(aParent: TKMPanel; aWidth: Integer);
 begin
-  inherited Create(aParent.MasterParent, 0, 0, aWidth, 0);
+  inherited Create(aParent, 0, 0, aWidth, 0);
 
   fShapeBG := TKMShape.Create(Self, 0, 0, aParent.Width, aParent.Height);
   fShapeBG.AnchorsStretch;
@@ -4242,7 +4242,7 @@ end;
 
 procedure TKMPopUpMenu.AddItem(aCaption: UnicodeString; aTag: Integer = 0);
 begin
-  fList.AddItem(MakeListRow([aCaption], [aTag]));
+  fList.AddItem(MakeListRow([aCaption], aTag));
   Height := fList.ItemHeight * fList.RowCount;
 end;
 
