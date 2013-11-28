@@ -64,6 +64,7 @@ type
     property MainMenuInterface: TKMMainMenuInterface read fMainMenuInterface;
     property MusicLib: TMusicLib read fMusicLib;
     property Networking: TKMNetworking read fNetworking;
+    property GlobalTickCount: Cardinal read fGlobalTickCount;
 
     procedure KeyDown(Key: Word; Shift: TShiftState);
     procedure KeyPress(Key: Char);
