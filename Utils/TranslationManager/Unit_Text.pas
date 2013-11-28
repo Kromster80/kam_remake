@@ -3,7 +3,7 @@ unit Unit_Text;
 interface
 uses
   Classes, Controls, Dialogs, ExtCtrls, FileCtrl, Forms, Graphics, Math, KromUtils,
-  StdCtrls, StrUtils, SysUtils, Windows, KM_ResLocales;
+  StdCtrls, StrUtils, SysUtils, Windows, KM_ResLocales, KM_FileIO;
 
 
 type
@@ -26,7 +26,7 @@ type
     function GetText(aIndex: Integer): TStringArray;
 
     procedure LoadConsts(aConstPath: string);
-    procedure LoadText(aTextPath: string; TranslationID: integer);
+    procedure LoadText(aTextPath: string; TranslationID: integer; aCodePage: Word);
     procedure AddMissingConsts;
     procedure SaveTextLibraryConsts(aFileName: string);
     procedure SaveTranslation(aTextPath: string; TranslationID: integer);
@@ -73,7 +73,7 @@ begin
     LoadConsts(aConstPath);
 
   for I := 0 to gResLocales.Count - 1 do
-    LoadText(Format(aTextPath, [gResLocales[I].Code]), I);
+    LoadText(Format(aTextPath, [gResLocales[I].Code]), I, gResLocales[I].FontCodepage);
 
   if fUseConsts then
     AddMissingConsts;
@@ -227,7 +227,7 @@ begin
 end;
 
 
-procedure TTextManager.LoadText(aTextPath: string; TranslationID: Integer);
+procedure TTextManager.LoadText(aTextPath: string; TranslationID: Integer; aCodePage: Word);
 var
   SL: TStringList;
   firstDelimiter, topId: Integer;
@@ -237,7 +237,7 @@ begin
   if not FileExists(aTextPath) then Exit;
 
   SL := TStringList.Create;
-  SL.LoadFromFile(aTextPath);
+  SL.Text := ReadTextU(aTextPath, aCodePage);
 
   for I := SL.Count - 1 downto 0 do
   begin
