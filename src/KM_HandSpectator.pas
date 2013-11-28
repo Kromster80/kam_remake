@@ -38,7 +38,7 @@ type
 
 
 implementation
-uses KM_HandsCollection, KM_Game, KM_UnitGroups, KM_GameCursor, KM_Units_Warrior;
+uses KM_HandsCollection, KM_Game, KM_Houses, KM_Units, KM_UnitGroups, KM_GameCursor, KM_Units_Warrior;
 
 
 { TKMSpectator }
@@ -92,10 +92,16 @@ end;
 function TKMSpectator.HitTestCursor: TObject;
 begin
   Result := gHands.GetUnitByUID(GameCursor.ObjectUID);
+  if (Result is TKMUnit) and TKMUnit(Result).IsDeadOrDying then
+    Result := nil;
 
   //If there's no unit try pick a house on the Cell below
   if Result = nil then
+  begin
     Result := gHands.HousesHitTest(GameCursor.Cell.X, GameCursor.Cell.Y);
+    if (Result is TKMHouse) and TKMHouse(Result).IsDestroyed then
+      Result := nil;
+  end;
 end;
 
 
@@ -103,36 +109,51 @@ end;
 procedure TKMSpectator.UpdateSelect;
 var
   G: TKMUnitGroup;
+  NewSelected: TObject;
 begin
   //In-game player can select only own Units
   if gGame.IsReplay or gGame.IsMapEditor then
-    Selected := gHands.GetUnitByUID(GameCursor.ObjectUID)
+    NewSelected := gHands.GetUnitByUID(GameCursor.ObjectUID)
   else
-    Selected := gHands[fHandIndex].Units.GetUnitByUID(GameCursor.ObjectUID);
+    NewSelected := gHands[fHandIndex].Units.GetUnitByUID(GameCursor.ObjectUID);
+
+  //Don't allow the player to select dead units
+  if (NewSelected is TKMUnit) and TKMUnit(NewSelected).IsDeadOrDying then
+    NewSelected := nil;
 
   //If Id belongs to some Warrior, try to select his group instead
-  if Selected is TKMUnitWarrior then
+  if NewSelected is TKMUnitWarrior then
   begin
     if gGame.IsReplay or gGame.IsMapEditor then
-      G := gHands.GetGroupByMember(TKMUnitWarrior(Selected))
+      G := gHands.GetGroupByMember(TKMUnitWarrior(NewSelected))
     else
-      G := gHands[fHandIndex].UnitGroups.GetGroupByMember(TKMUnitWarrior(Selected));
+      G := gHands[fHandIndex].UnitGroups.GetGroupByMember(TKMUnitWarrior(NewSelected));
 
     //Warrior might not be assigned to a group while walking out of the Barracks
     if G <> nil then
-      Selected := G;
+      NewSelected := G;
   end;
 
   //Update selected groups selected unit
-  if Selected is TKMUnitGroup then
-    TKMUnitGroup(Selected).SelectedUnit := TKMUnitGroup(Selected).MemberByUID(GameCursor.ObjectUID);
+  if NewSelected is TKMUnitGroup then
+    TKMUnitGroup(NewSelected).SelectedUnit := TKMUnitGroup(NewSelected).MemberByUID(GameCursor.ObjectUID);
 
   //If there's no unit try pick a house on the Cell below
-  if Selected = nil then
+  if NewSelected = nil then
+  begin
     if gGame.IsReplay or gGame.IsMapEditor then
-      Selected := gHands.HousesHitTest(GameCursor.Cell.X, GameCursor.Cell.Y)
+      NewSelected := gHands.HousesHitTest(GameCursor.Cell.X, GameCursor.Cell.Y)
     else
-      Selected := gHands[fHandIndex].HousesHitTest(GameCursor.Cell.X, GameCursor.Cell.Y);
+      NewSelected := gHands[fHandIndex].HousesHitTest(GameCursor.Cell.X, GameCursor.Cell.Y);
+
+    //Don't allow the player to select destroyed houses
+    if (NewSelected is TKMHouse) and TKMHouse(NewSelected).IsDestroyed then
+      NewSelected := nil;
+  end;
+
+  //Don't clear the old selection unless we found something new
+  if NewSelected <> nil then
+    Selected := NewSelected;
 end;
 
 
