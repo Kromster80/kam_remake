@@ -35,7 +35,7 @@ type
     property Radius: Integer read fRadius write fRadius; //If fighting (or houses being attacked) occurs within this radius from this defence position, this group will get involved
 
     property CurrentGroup: TKMUnitGroup read fCurrentGroup write SetCurrentGroup;
-    function CanAccept(aGroup: TKMUnitGroup): Boolean;
+    function CanAccept(aGroup: TKMUnitGroup; aMaxUnits: Integer): Boolean;
     procedure Save(SaveStream: TKMemoryStream);
     procedure SyncLoad;
     procedure UpdateState;
@@ -156,7 +156,7 @@ begin
 end;
 
 
-function TAIDefencePosition.CanAccept(aGroup: TKMUnitGroup): Boolean;
+function TAIDefencePosition.CanAccept(aGroup: TKMUnitGroup; aMaxUnits: Integer): Boolean;
 begin
   Result := (fGroupType = UnitGroups[aGroup.UnitType]);
 
@@ -166,7 +166,9 @@ begin
   Result := (CurrentGroup = nil) or
             (aGroup.Count = 1);
   //@Lewin: Plz check me here, KaM did not linked big groups to filled Positions?
-  //(CurrentGroup.Count + aGroup.Count <= TroopFormations[fGroupType].NumUnits);
+  //@Krom: That's correct. To be deleted
+
+  Result := Result and ((CurrentGroup = nil) or (CurrentGroup.Count < aMaxUnits));
 end;
 
 
@@ -256,7 +258,7 @@ begin
 
   //Try to link to existing group
   for I := 0 to Count - 1 do
-  if Positions[I].CanAccept(aGroup) then
+  if Positions[I].CanAccept(aGroup, TroopFormations[aGroup.GroupType].NumUnits) then
   begin
     //Take closest position that is empty or requries restocking
     Distance := KMLengthSqr(aGroup.Position, Positions[I].Position.Loc);
