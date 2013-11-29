@@ -223,6 +223,7 @@ begin
       RegisterMethod('procedure GiveWares(aPlayer, aType, aCount: Word)');
       RegisterMethod('procedure GiveWeapons(aPlayer, aType, aCount: Word)');
 
+      RegisterMethod('procedure GroupDisableHungryMessage(aGroupID: Integer; aDisable: Boolean)');
       RegisterMethod('procedure GroupHungerSet(aGroupID, aHungerLevel: Integer)');
       RegisterMethod('procedure GroupKillAll(aGroupID: Integer; aSilent: Boolean)');
       RegisterMethod('procedure GroupOrderAttackHouse(aGroupID, aHouseID: Integer)');
@@ -535,17 +536,18 @@ begin
       RegisterMethod(@TKMScriptActions.GiveWares,     'GIVEWARES');
       RegisterMethod(@TKMScriptActions.GiveWeapons,   'GIVEWEAPONS');
 
-      RegisterMethod(@TKMScriptActions.GroupHungerSet,        'GROUPHUNGERSET');
-      RegisterMethod(@TKMScriptActions.GroupKillAll,          'GROUPKILLALL');
-      RegisterMethod(@TKMScriptActions.GroupOrderAttackHouse, 'GROUPORDERATTACKHOUSE');
-      RegisterMethod(@TKMScriptActions.GroupOrderAttackUnit,  'GROUPORDERATTACKUNIT');
-      RegisterMethod(@TKMScriptActions.GroupOrderFood,        'GROUPORDERFOOD');
-      RegisterMethod(@TKMScriptActions.GroupOrderHalt,        'GROUPORDERHALT');
-      RegisterMethod(@TKMScriptActions.GroupOrderLink,        'GROUPORDERLINK');
-      RegisterMethod(@TKMScriptActions.GroupOrderSplit,       'GROUPORDERSPLIT');
-      RegisterMethod(@TKMScriptActions.GroupOrderStorm,       'GROUPORDERSTORM');
-      RegisterMethod(@TKMScriptActions.GroupOrderWalk,        'GROUPORDERWALK');
-      RegisterMethod(@TKMScriptActions.GroupSetFormation,     'GROUPSETFORMATION');
+      RegisterMethod(@TKMScriptActions.GroupDisableHungryMessage, 'GROUPDISABLEHUNGRYMESSAGE');
+      RegisterMethod(@TKMScriptActions.GroupHungerSet,            'GROUPHUNGERSET');
+      RegisterMethod(@TKMScriptActions.GroupKillAll,              'GROUPKILLALL');
+      RegisterMethod(@TKMScriptActions.GroupOrderAttackHouse,     'GROUPORDERATTACKHOUSE');
+      RegisterMethod(@TKMScriptActions.GroupOrderAttackUnit,      'GROUPORDERATTACKUNIT');
+      RegisterMethod(@TKMScriptActions.GroupOrderFood,            'GROUPORDERFOOD');
+      RegisterMethod(@TKMScriptActions.GroupOrderHalt,            'GROUPORDERHALT');
+      RegisterMethod(@TKMScriptActions.GroupOrderLink,            'GROUPORDERLINK');
+      RegisterMethod(@TKMScriptActions.GroupOrderSplit,           'GROUPORDERSPLIT');
+      RegisterMethod(@TKMScriptActions.GroupOrderStorm,           'GROUPORDERSTORM');
+      RegisterMethod(@TKMScriptActions.GroupOrderWalk,            'GROUPORDERWALK');
+      RegisterMethod(@TKMScriptActions.GroupSetFormation,         'GROUPSETFORMATION');
 
       RegisterMethod(@TKMScriptActions.HouseAllow,                    'HOUSEALLOW');
       RegisterMethod(@TKMScriptActions.HouseAddDamage,                'HOUSEADDDAMAGE');

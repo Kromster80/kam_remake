@@ -38,6 +38,7 @@ type
     fUnitsPerRow: Word;
     fTimeSinceHungryReminder: Integer;
     fGroupType: TGroupType;
+    fDisableHungerMessage: Boolean;
 
     fOrder: TKMGroupOrder; //Remember last order incase we need to repeat it (e.g. to joined members)
     fOrderLoc: TKMPointDir; //Dir is the direction to face after order
@@ -123,6 +124,7 @@ type
     property SelectedUnit: TKMUnitWarrior read fSelected write SetSelected;
     property Condition: Integer read GetCondition write SetCondition;
     property Order: TKMGroupOrder read fOrder;
+    property DisableHungerMessage: Boolean read fDisableHungerMessage write fDisableHungerMessage;
 
     property OrderTargetUnit: TKMUnit read GetOrderTargetUnit write SetOrderTargetUnit;
     property OrderTargetGroup: TKMUnitGroup read GetOrderTargetGroup;
@@ -304,6 +306,7 @@ begin
   LoadStream.Read(fTicker);
   LoadStream.Read(fTimeSinceHungryReminder);
   LoadStream.Read(fUnitsPerRow);
+  LoadStream.Read(fDisableHungerMessage);
 end;
 
 
@@ -387,6 +390,7 @@ begin
   SaveStream.Write(fTicker);
   SaveStream.Write(fTimeSinceHungryReminder);
   SaveStream.Write(fUnitsPerRow);
+  SaveStream.Write(fDisableHungerMessage);
 end;
 
 
@@ -1278,7 +1282,7 @@ begin
     if fTimeSinceHungryReminder < 1 then
     begin
       //Hide messages for wrong player, in replays, and if we have lost
-      if (Owner = MySpectator.HandIndex) and not gGame.IsReplay and (gHands[fOwner].AI.WonOrLost <> wol_Lost) then
+      if (Owner = MySpectator.HandIndex) and not gGame.IsReplay and (gHands[fOwner].AI.WonOrLost <> wol_Lost) and not fDisableHungerMessage then
         gGame.ShowMessage(mkUnit, gResTexts[TX_MSG_TROOP_HUNGRY], Position);
       fTimeSinceHungryReminder := TIME_BETWEEN_MESSAGES; //Don't show one again until it is time
     end;
