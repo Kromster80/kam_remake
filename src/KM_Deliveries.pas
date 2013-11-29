@@ -27,7 +27,7 @@ type
     Importance: TDemandImportance; //How important demand is, e.g. Workers and building sites should be di_High
     Loc_House: TKMHouse;
     Loc_Unit: TKMUnit;
-    BeingPerformed: Boolean;
+    BeingPerformed: Cardinal; //Can be performed multiple times for dt_Always
     IsDeleted: Boolean; //So we don't get pointer issues
   end;
 
@@ -422,7 +422,7 @@ begin
   for i:=1 to fDemandCount do
   if fDemand[i].Loc_House=aHouse then
   begin
-    if fDemand[i].BeingPerformed then
+    if fDemand[i].BeingPerformed > 0 then
       //Can't free it yet, some serf is using it
       fDemand[i].IsDeleted := true
     else
@@ -441,7 +441,7 @@ begin
   for i:=1 to fDemandCount do
   if fDemand[i].Loc_Unit=aUnit then
   begin
-    if fDemand[i].BeingPerformed then
+    if fDemand[i].BeingPerformed > 0 then
       //Can't free it yet, some serf is using it
       fDemand[i].IsDeleted := true
     else
@@ -460,7 +460,7 @@ begin
   assert(aHouse <> nil);
   for i:=1 to fDemandCount do
     if (fDemand[i].Loc_House = aHouse) and (fDemand[i].Ware = aResource) then
-      if not fDemand[i].BeingPerformed then
+      if fDemand[i].BeingPerformed = 0 then
       begin
         CloseDemand(i); //Clear up demand
         inc(Result);
@@ -493,7 +493,7 @@ begin
       DemandType:=aType; //Once or Always
       Ware:=aResource;
       Importance:=aImp;
-      assert((not IsDeleted) and (not BeingPerformed)); //Make sure this item has been closed properly, if not there is a flaw
+      assert((not IsDeleted) and (BeingPerformed = 0)); //Make sure this item has been closed properly, if not there is a flaw
 
       //Gold to Schools
       if (Ware = wt_Gold)
@@ -522,7 +522,8 @@ begin
             ((fDemand[iD].Ware = wt_Food) and (fOffer[iO].Ware in [wt_Bread, wt_Sausages, wt_Wine, wt_Fish]));
 
   //If Demand and Offer aren't reserved already
-  Result := Result and ((not fDemand[iD].BeingPerformed) and (aIgnoreOffer or (fOffer[iO].BeingPerformed < fOffer[iO].Count)));
+  Result := Result and (((fDemand[iD].DemandType = dt_Always) or (fDemand[iD].BeingPerformed = 0))
+                   and (aIgnoreOffer or (fOffer[iO].BeingPerformed < fOffer[iO].Count)));
 
   //If Demand and Offer aren't deleted
   Result := Result and (not fDemand[iD].IsDeleted) and (aIgnoreOffer or not fOffer[iO].IsDeleted);
@@ -709,9 +710,19 @@ begin
   OldD := fQueue[aDeliveryID].DemandID;
 
   //By default we keep the old demand, so that's our starting bid
-  BestBid := CalculateBid(iO, OldD, nil);
   BestD := OldD;
-  BestImportance := fDemand[OldD].Importance;
+  if not fDemand[OldD].IsDeleted then
+  begin
+    BestBid := CalculateBid(iO, OldD, nil);
+    BestImportance := fDemand[OldD].Importance;
+  end
+  else
+  begin
+    //Our old demand is no longer valid (e.g. house destroyed), so give it minimum weight
+    //If no other demands are found we can still return this invalid one, TaskDelivery handles that
+    BestBid := MaxSingle;
+    BestImportance := diNorm;
+  end;
 
   for iD := 1 to fDemandCount do
     if (fDemand[iD].Ware <> wt_None)
@@ -731,15 +742,13 @@ begin
   if BestD <> OldD then
   begin
     //Remove old demand
-    fDemand[OldD].BeingPerformed := False;
-    if fDemand[OldD].IsDeleted then
+    Dec(fDemand[OldD].BeingPerformed);
+    if (fDemand[OldD].BeingPerformed = 0) and fDemand[OldD].IsDeleted then
       CloseDemand(OldD);
 
     //Take new demand
     fQueue[aDeliveryID].DemandID := BestD;
-    //Store never has enough demand performed
-    if (fDemand[BestD].Loc_House = nil) or (fDemand[BestD].DemandType <> dt_Always) then
-      fDemand[BestD].BeingPerformed := True; //Places a virtual "Reserved" sign on Demand
+    Inc(fDemand[BestD].BeingPerformed); //Places a virtual "Reserved" sign on Demand
   end;
   //Return chosen unit and house
   aToHouse := fDemand[BestD].Loc_House;
@@ -800,11 +809,8 @@ begin
   fQueue[i].OfferID:=iO;
   fQueue[i].JobStatus:=js_Taken;
 
-  inc(fOffer[iO].BeingPerformed); //Places a virtual "Reserved" sign on Offer
-  fDemand[iD].BeingPerformed:=true; //Places a virtual "Reserved" sign on Demand
-
-  //Store never has enough demand performed
-  if (fDemand[iD].Loc_House<>nil)and(fDemand[iD].DemandType = dt_Always) then fDemand[iD].BeingPerformed:=false;
+  Inc(fOffer[iO].BeingPerformed); //Places a virtual "Reserved" sign on Offer
+  Inc(fDemand[iD].BeingPerformed); //Places a virtual "Reserved" sign on Demand
 
   if WRITE_DELIVERY_LOG then gLog.AddTime('Creating delivery ID', i);
 
@@ -844,10 +850,11 @@ begin
   iD:=fQueue[aID].DemandID;
   fQueue[aID].DemandID:=0; //We don't need it any more
 
-  fDemand[iD].BeingPerformed:=false; //Remove reservation
+  Dec(fDemand[iD].BeingPerformed); //Remove reservation
 
-  if fDemand[iD].DemandType=dt_Once then
-    CloseDemand(iD); //Remove resource from Demand list
+  if (fDemand[iD].DemandType = dt_Once)
+  or (fDemand[iD].IsDeleted and (fDemand[iD].BeingPerformed = 0)) then
+    CloseDemand(iD) //Remove resource from Demand list
 end;
 
 
@@ -867,8 +874,8 @@ begin
 
   if fQueue[aID].DemandID <> 0 then
   begin
-    fDemand[fQueue[aID].DemandID].BeingPerformed := False;
-    if fDemand[fQueue[aID].DemandID].IsDeleted then
+    Dec(fDemand[fQueue[aID].DemandID].BeingPerformed);
+    if fDemand[fQueue[aID].DemandID].IsDeleted and (fDemand[fQueue[aID].DemandID].BeingPerformed = 0) then
       CloseDemand(fQueue[aID].DemandID);
   end;
 
@@ -889,7 +896,7 @@ end;
 
 procedure TKMDeliverQueue.CloseDemand(aID:integer);
 begin
-  assert(not fDemand[aID].BeingPerformed);
+  assert(fDemand[aID].BeingPerformed = 0);
   fDemand[aID].Ware := wt_None;
   fDemand[aID].DemandType := dt_Once;
   fDemand[aID].Importance := diNorm;
