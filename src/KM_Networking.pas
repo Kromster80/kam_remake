@@ -26,14 +26,14 @@ const
     //lgs_Lobby
     [mk_AskToJoin,mk_ClientLost,mk_ReassignHost,mk_Disconnect,mk_Ping,mk_PingInfo,mk_PlayersList,
      mk_StartingLocQuery,mk_SetTeam,mk_FlagColorQuery,mk_ResetMap,mk_MapSelect,mk_MapCRC,mk_SaveSelect,
-     mk_SaveCRC,mk_ReadyToStart,mk_Start,mk_Text,mk_Kicked,mk_LangCode,mk_GameOptions,mk_ServerName,
+     mk_SaveCRC,mk_ReadyToStart,mk_Start,mk_TextChat,mk_Kicked,mk_LangCode,mk_GameOptions,mk_ServerName,
      mk_Password,mk_FileRequest,mk_FileChunk,mk_FileEnd,mk_FileAck,mk_TextTranslated],
     //lgs_Loading
     [mk_AskToJoin,mk_ClientLost,mk_ReassignHost,mk_Disconnect,mk_Ping,mk_PingInfo,mk_PlayersList,
-     mk_ReadyToPlay,mk_Play,mk_Text,mk_Kicked,mk_TextTranslated],
+     mk_ReadyToPlay,mk_Play,mk_TextChat,mk_Kicked,mk_TextTranslated],
     //lgs_Game
     [mk_AskToJoin,mk_ClientLost,mk_ReassignHost,mk_Disconnect,mk_Ping,mk_PingInfo,mk_FPS,mk_PlayersList,
-     mk_Commands,mk_Text,mk_ResyncFromTick,mk_AskToReconnect,mk_Kicked,mk_ClientReconnected,mk_TextTranslated],
+     mk_Commands,mk_TextChat,mk_ResyncFromTick,mk_AskToReconnect,mk_Kicked,mk_ClientReconnected,mk_TextTranslated],
     //lgs_Reconnecting
     [mk_HostingRights,mk_IndexOnServer,mk_GameVersion,mk_WelcomeMessage,mk_Ping,mk_FPS,mk_ConnectedToRoom,
      mk_PingInfo,mk_PlayersList,mk_ReconnectionAccepted,mk_RefuseReconnect,mk_Kicked]
@@ -167,8 +167,8 @@ type
 
     //Common
     procedure ConsoleCommand(aText: UnicodeString);
-    procedure PostMessage(aText: UnicodeString; aShowName:boolean=false; aTeamOnly:boolean=false; aRecipientServerIndex:Integer=-1); overload;
-    procedure PostMessage(aTextID: Integer; aText1: UnicodeString=''; aText2: UnicodeString = ''; aRecipient:Integer=NET_ADDRESS_ALL); overload;
+    procedure PostMessage(aTextID: Integer; aText1: UnicodeString=''; aText2: UnicodeString = ''; aRecipient:Integer=NET_ADDRESS_ALL);
+    procedure PostChat(aText: UnicodeString; aTeamOnly: Boolean; aRecipientServerIndex: Integer=-1); overload;
     procedure PostLocalMessage(aText: UnicodeString; aMakeSound:boolean=true);
     procedure AnnounceGameInfo(aGameTime: TDateTime; aMap: UnicodeString);
 
@@ -882,55 +882,35 @@ end;
 
 //We route the message through Server to ensure everyone sees messages in the same order
 //with exact same timestamps (possibly added by Server?)
-procedure TKMNetworking.PostMessage(aText: UnicodeString; aShowName: Boolean = False; aTeamOnly: Boolean = False; aRecipientServerIndex: Integer = -1);
-
-  function GetRecipientName: AnsiString;
-  var
-    I: Integer;
-  begin
-    I := NetPlayers.ServerToLocal(aRecipientServerIndex);
-    if I <> -1 then
-      Result := NetPlayers[I].Nikname
-    else
-      Result := '';
-  end;
-
+procedure TKMNetworking.PostChat(aText: UnicodeString; aTeamOnly: Boolean; aRecipientServerIndex: Integer=-1);
 var
   I: Integer;
-  NameText: UnicodeString;
+  M: TKMemoryStream;
 begin
-  if aShowName then
-  begin
-    if NetPlayers[fMyIndex].FlagColorID <> 0 then
-      NameText := UnicodeString(WrapColorA(fMyNikname, FlagColorToTextColor(NetPlayers[fMyIndex].FlagColor)))
-    else
-      NameText := UnicodeString(fMyNikname);
+  M := TKMemoryStream.Create;
+  M.Write(aRecipientServerIndex);
+  M.Write(aTeamOnly);
+  M.WriteW(aText);
 
-    if aTeamOnly then
-      aText := NameText + ' [$66FF66](Team)[]: ' + aText
-    else
-      if aRecipientServerIndex <> -1 then
-        aText := NameText + ' [$00B9FF](Whisper to ' + UnicodeString(GetRecipientName) + ')[]: ' + aText
-      else
-        aText := NameText + ' (All): ' + aText;
-  end;
-  if not aTeamOnly then
+  if aTeamOnly then
   begin
-    if aRecipientServerIndex <> -1 then
-    begin
-      PacketSendW(aRecipientServerIndex, mk_Text, aText); //Send to specific player
-      PacketSendW(fMyIndexOnServer, mk_Text, aText); //Send to self as well so the player sees it
-    end
-    else
-      PacketSendW(NET_ADDRESS_ALL, mk_Text, aText) //Send to all
-  end
-  else
     if NetPlayers[fMyIndex].Team = 0 then
-      PacketSendW(fMyIndexOnServer, mk_Text, aText) //Send to self only if we have no team
+      PacketSend(fMyIndexOnServer, mk_TextChat, M) //Send to self only if we have no team
     else
       for I := 1 to NetPlayers.Count do
         if (NetPlayers[I].Team = NetPlayers[fMyIndex].Team) and NetPlayers[I].IsHuman and (NetPlayers[I].IndexOnServer <> -1) then
-          PacketSendW(NetPlayers[I].IndexOnServer, mk_Text, aText); //Send to each player on team (includes self)
+          PacketSend(NetPlayers[I].IndexOnServer, mk_TextChat, M); //Send to each player on team (includes self)
+  end
+  else
+    if aRecipientServerIndex <> -1 then
+    begin
+      PacketSend(aRecipientServerIndex, mk_TextChat, M); //Send to specific player
+      PacketSend(fMyIndexOnServer, mk_TextChat, M); //Send to self as well so the player sees it
+    end
+    else
+      PacketSend(NET_ADDRESS_ALL, mk_TextChat, M); //Send to all
+
+  M.Free;
 end;
 
 
@@ -1039,9 +1019,10 @@ var
   Kind: TKMessageKind;
   err: UnicodeString;
   tmpInteger: Integer;
+  tmpBoolean: Boolean;
   tmpStringA, replyStringA: AnsiString;
   tmpStringW, replyStringW: UnicodeString;
-  LocID,TeamID,ColorID,PlayerIndex: Integer;
+  I,LocID,TeamID,ColorID,PlayerIndex: Integer;
 begin
   Assert(aLength >= 1, 'Unexpectedly short message'); //Kind, Message
   if not Connected then Exit;
@@ -1644,18 +1625,45 @@ begin
                 PacketSend(tmpInteger, mk_ResyncFromTick, Integer(fLastProcessedTick));
               end;
 
-      mk_Text:
-              begin
-                M.ReadW(tmpStringW);
-                PostLocalMessage(tmpStringW);
-              end;
-
       mk_TextTranslated:
               begin
                 M.Read(tmpInteger);
                 M.ReadW(tmpStringW);
                 M.ReadW(replyStringW);
                 PostLocalMessage(Format(gResTexts[tmpInteger], [tmpStringW, replyStringW]));
+              end;
+
+      mk_TextChat:
+              begin
+                M.Read(PlayerIndex);
+                M.Read(tmpBoolean); //IsToTeam
+                M.ReadW(tmpStringW);
+
+                if tmpBoolean then //IsToTeam
+                  tmpStringW := ' [$66FF66]('+gResTexts[TX_CHAT_TEAM]+')[]: ' + tmpStringW
+                else
+                  if PlayerIndex <> -1 then
+                  begin
+                    I := NetPlayers.ServerToLocal(PlayerIndex);
+                    if I <> -1 then
+                      tmpStringA := NetPlayers[I].Nikname
+                    else
+                      tmpStringA := '';
+                    tmpStringW := ' [$00B9FF](' + Format(gResTexts[TX_CHAT_WHISPER_TO], [UnicodeString(tmpStringA)]) + ')[]: ' + tmpStringW;
+                  end
+                  else
+                    tmpStringW := ' ('+gResTexts[TX_CHAT_ALL]+'): ' + tmpStringW;
+
+                PlayerIndex := fNetPlayers.ServerToLocal(aSenderIndex);
+                if PlayerIndex <> -1 then
+                begin
+                  if NetPlayers[PlayerIndex].FlagColorID <> 0 then
+                    tmpStringW := UnicodeString(WrapColorA(NetPlayers[PlayerIndex].Nikname, FlagColorToTextColor(NetPlayers[PlayerIndex].FlagColor))) + tmpStringW
+                  else
+                    tmpStringW := UnicodeString(NetPlayers[PlayerIndex].Nikname) + tmpStringW;
+
+                  PostLocalMessage(tmpStringW);
+                end;
               end;
     end;
 

@@ -106,9 +106,9 @@ begin
   if (Key = VK_RETURN) and (Trim(Edit_ChatMsg.Text) <> '') and (gGame.Networking <> nil) then
   begin
     if fChatMode in [cmAll, cmTeam] then
-      gGame.Networking.PostMessage(Edit_ChatMsg.Text, True, fChatMode = cmTeam);
+      gGame.Networking.PostChat(Edit_ChatMsg.Text, fChatMode = cmTeam);
     if fChatMode = cmWhisper then
-      gGame.Networking.PostMessage(Edit_ChatMsg.Text, True, False, fChatWhisperRecipient);
+      gGame.Networking.PostChat(Edit_ChatMsg.Text, False, fChatWhisperRecipient);
     Edit_ChatMsg.Text := '';
   end;
 end;

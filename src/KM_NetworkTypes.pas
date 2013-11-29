@@ -74,7 +74,6 @@ type
     mk_ClientReconnected, //Host tells other players the index of a reconnected client
 
     mk_Commands,        //Clients exchange commands for next ticks
-    mk_Text,            //Clients exchange text messages
     mk_TextTranslated,  //Clients exchange translated text (system messages)
     mk_TextChat,        //Clients exchange chat messages
 
@@ -141,7 +140,6 @@ const
     pfNoData,   //mk_ReconnectionAccepted
     pfNumber,   //mk_ClientReconnected
     pfBinary,   //mk_Commands
-    pfString,   //mk_Text
     pfBinary,   //mk_TextTranslated
     pfBinary,   //mk_TextChat
     pfNoData,   //mk_ReqPassword

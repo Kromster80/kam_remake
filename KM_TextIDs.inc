@@ -644,6 +644,7 @@ TX_LOBBY_DOWNLOAD_OVERWRITE = 738; //Overwrite existing files
 TX_MULTIPLAYER_WAITING = 577; //Waiting for players:
 TX_CHAT_ALL = 578; //All
 TX_CHAT_TEAM = 579; //Team
+TX_CHAT_WHISPER_TO = 765; //Whisper to %s
 TX_NET_LOST_CONNECTION = 739; //%s lost connection
 TX_NET_HAS_QUIT = 740; //%s has quit
 TX_NET_HAS_RECONNECTED = 741; //%s has reconnected

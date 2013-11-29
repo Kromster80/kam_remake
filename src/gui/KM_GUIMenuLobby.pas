@@ -1439,9 +1439,9 @@ begin
   end;}
 
   if fChatMode in [cmAll, cmTeam] then
-    fNetworking.PostMessage(ChatMessage, True, fChatMode = cmTeam);
+    fNetworking.PostChat(ChatMessage, fChatMode = cmTeam);
   if fChatMode = cmWhisper then
-    fNetworking.PostMessage(ChatMessage, True, False, fChatWhisperRecipient);
+    fNetworking.PostChat(ChatMessage, False, fChatWhisperRecipient);
 
   Edit_LobbyPost.Text := '';
 end;
