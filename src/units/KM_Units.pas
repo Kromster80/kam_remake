@@ -947,6 +947,13 @@ begin
   if fCurrentAction=nil then
     raise ELocError.Create(gResource.UnitDat[UnitType].GUIName + ' has no action at start of TKMUnitAnimal.UpdateState', fCurrPosition);
 
+  if fKillASAP then
+  begin
+    DoKill(fKillASAPShowAnimation);
+    fKillASAP := False;
+    Exit;
+  end;
+
   case fCurrentAction.Execute of
     ActContinues: exit;
     ActDone:      FreeAndNil(fCurrentAction);

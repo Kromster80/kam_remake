@@ -29,6 +29,9 @@ Implemented:
  5943   States.ClosestHouse(aPlayer, X, Y: Integer): Integer
  5943   States.ClosestUnit(aPlayer, X, Y: Integer): Integer
  5943   States.HouseOccupant(aHouseID: Integer): Integer
+ 5964   OnPlanRoad, OnPlanField, OnPlanWinefield
+ 5976   Actions.GroupDisableHungryMessage
+ 5978   UnitKill now works for animals
 
 
 Accepted:
@@ -37,7 +40,6 @@ Accepted:
 	DisplayText(text, player_id, timeout) to show announcements that will be gone after timeout (for TD and etc.)
 	Split a specific warrior out of a group
 	Looping option for PlayWAV (useful for ambient sounds at a location)
-	UnitKill should work for animals (doesn't work because they don't check fKillASAP during UpdateState)
 
 
 Proposed:
@@ -55,7 +57,6 @@ Proposed:
 	States.HousePlanAt(X, Y) - returns aPlanID.
 	More options for on-screen text (background color, alignment, font, size, etc.)
 	HousePlanType(aPlanID), returns the type of the house plan.
-	OnRoadPlanPut(X,Y,Typ) (also with versions for fields and wine)
 	States.GroupAtDefPos(PlayerID, PositionID)
 	Actions.RemDefensePosition(PlayerID, PositionID)
 	Allow high volume boost for positional script sounds (currently limited to 1.0) since they are much quieter than non-positional sounds
