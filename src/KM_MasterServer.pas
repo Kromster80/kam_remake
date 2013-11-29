@@ -34,7 +34,7 @@ type
     property OnAnnouncements: TGetStrProc write fOnAnnouncements;
     procedure AnnounceServer(aName, aPort: string; aPlayerCount, aTTL: Integer);
     procedure QueryServer;
-    procedure FetchAnnouncements(const aLang: string);
+    procedure FetchAnnouncements(const aLang: AnsiString);
     procedure SendMapInfo(const aMapName: string; aPlayerCount: Integer);
     procedure UpdateStateIdle;
 
@@ -107,7 +107,7 @@ begin
 end;
 
 
-procedure TKMMasterServer.FetchAnnouncements(const aLang: string);
+procedure TKMMasterServer.FetchAnnouncements(const aLang: AnsiString);
 begin
   fHTTPAnnouncementsClient.OnReceive := ReceiveAnnouncements;
   fHTTPAnnouncementsClient.GetURL(fMasterServerAddress+'announcements.php?lang='+UrlEncode(aLang)+'&rev='+UrlEncode(NET_PROTOCOL_REVISON)+'&coderev='+UrlEncode(GAME_REVISION));

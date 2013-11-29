@@ -565,7 +565,7 @@
 564:Cannot start: %s
 565:Not everyone is ready to start
 566:Unable to assign random locations
-567:Server has assigned hosting rights to us
+567:Server has assigned hosting rights to you
 568:Game started
 569:Building Map
 570:Fighting Map
@@ -710,3 +710,26 @@
 736:Download
 737:downloading...
 738:Overwrite existing files
+739:%s lost connection
+740:%s has quit
+741:%s has reconnected
+742:Cannot join while the game is in progress
+743:Room is full. No more players can join the game
+744:Player with the same name has already joined the room
+745:%s successfully downloaded %s
+746:Error: %s has different data files to the host and so cannot join this game
+747:Your data files do not match the host
+748:Hosting rights reassigned to %s
+749:%s has a different version of %s
+750:%s does not have %s
+751:Query timed out
+752:The host dropped %s from the game
+753:%s was kicked by the host
+754:Attempting to reconnect to the game...
+755:%s has joined
+756:Reconnection failed: %s
+757:The host decided to continue playing without you :(
+758:Disconnected by the server: Timeout detected
+759:You were kicked by the host
+760:Server stopped responding
+761:Invalid room number

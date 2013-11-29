@@ -75,6 +75,8 @@ type
 
     mk_Commands,        //Clients exchange commands for next ticks
     mk_Text,            //Clients exchange text messages
+    mk_TextTranslated,  //Clients exchange translated text (system messages)
+    mk_TextChat,        //Clients exchange chat messages
 
     mk_ReqPassword,     //Host requests joiner to send password
     mk_Password,        //Joiner sends password to host
@@ -97,7 +99,7 @@ const
   NetPacketType: array [TKMessageKind] of TKMPacketFormat =
   ( pfString,   //mk_AskToJoin
     pfNoData,   //mk_AllowToJoin
-    pfString,   //mk_RefuseToJoin
+    pfNumber,   //mk_RefuseToJoin
     pfNoData,   //mk_HostingRights
     pfNumber,   //mk_IndexOnServer
     pfNumber,   //mk_ClientLost
@@ -109,7 +111,7 @@ const
     pfNumber,   //mk_ConnectedToRoom
     pfBinary,   //mk_SetGameInfo
     pfNumber,   //mk_KickPlayer
-    pfString,   //mk_Kicked
+    pfNumber,   //mk_Kicked
     pfString,   //mk_LangCode
     pfNumber,   //mk_GameCRC
     pfNoData,   //mk_GetServerInfo
@@ -134,12 +136,14 @@ const
     pfNoData,   //mk_ReadyToPlay
     pfNoData,   //mk_Play
     pfString,   //mk_AskToReconnect
-    pfString,   //mk_RefuseReconnect
+    pfNumber,   //mk_RefuseReconnect
     pfNumber,   //mk_ResyncFromTick
     pfNoData,   //mk_ReconnectionAccepted
     pfNumber,   //mk_ClientReconnected
     pfBinary,   //mk_Commands
     pfString,   //mk_Text
+    pfBinary,   //mk_TextTranslated
+    pfBinary,   //mk_TextChat
     pfNoData,   //mk_ReqPassword
     pfBinary,   //mk_Password
     pfString,   //mk_FileRequest

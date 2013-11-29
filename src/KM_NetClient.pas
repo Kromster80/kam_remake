@@ -36,7 +36,7 @@ type
 
     fOnConnectSucceed: TNotifyEvent;
     fOnConnectFailed: TGetStrProc;
-    fOnForcedDisconnect: TGetStrProc;
+    fOnForcedDisconnect: TNotifyEvent;
     fOnRecieveData: TNotifySenderDataEvent;
     fOnStatusMessage: TGetStrProc;
     procedure Error(const S: string);
@@ -57,7 +57,7 @@ type
     property OnConnectFailed: TGetStrProc write fOnConnectFailed; //Signal fail and text description
 
     procedure Disconnect; //Disconnect from server
-    property OnForcedDisconnect: TGetStrProc write fOnForcedDisconnect; //Signal we were forcelly disconnected
+    property OnForcedDisconnect: TNotifyEvent write fOnForcedDisconnect; //Signal we were forcelly disconnected
 
     property OnRecieveData: TNotifySenderDataEvent write fOnRecieveData;
     procedure SendData(aSender, aRecepient: Integer; aData: Pointer; aLength: Cardinal);
@@ -163,7 +163,7 @@ begin
     if Assigned(fOnStatusMessage) then
       fOnStatusMessage('Client: Forced disconnect');
     if Assigned(fOnForcedDisconnect) then
-      fOnForcedDisconnect('Server stopped responding');
+      fOnForcedDisconnect(Self);
   end;
   fConnected := false;
 end;

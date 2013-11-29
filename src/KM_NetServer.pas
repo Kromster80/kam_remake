@@ -125,6 +125,9 @@ type
 
 implementation
 
+const
+  //Server needs to use some text constants locally but can't know about gResTexts
+  {$I KM_TextIDs.inc}
 
 { TKMServerClient }
 constructor TKMServerClient.Create(aHandle, aRoom: Integer);
@@ -308,7 +311,7 @@ begin
       if GetTimeSince(fClientList[I].fPingStarted) > fKickTimeout*1000 then
       begin
         Status('Client timed out '+inttostr(fClientList[I].fHandle));
-        SendMessageA(fClientList[I].fHandle, mk_Kicked, 'Disconnected by the server: Timeout detected');
+        SendMessage(fClientList[I].fHandle, mk_Kicked, TX_NET_KICK_TIMEOUT);
         fServer.Kick(fClientList[I].fHandle);
       end;
 
@@ -371,7 +374,7 @@ begin
   begin
     if not AddNewRoom then //Create a new room for this client
     begin
-      SendMessageA(aHandle, mk_RefuseToJoin, 'Room limit reached');
+      SendMessage(aHandle, mk_RefuseToJoin, TX_NET_INVALID_ROOM);
       fServer.Kick(aHandle);
       Exit;
     end;
@@ -382,7 +385,7 @@ begin
       aRoom := GetFirstAvailableRoom; //Take the first one which has a space (or create a new one if none have spaces)
       if aRoom = -1 then //No rooms available
       begin
-        SendMessageA(aHandle, mk_RefuseToJoin, 'Server is full');
+        SendMessage(aHandle, mk_RefuseToJoin, TX_NET_INVALID_ROOM);
         fServer.Kick(aHandle);
         Exit;
       end;
@@ -391,7 +394,7 @@ begin
       //If the room is outside the valid range
       if not InRange(aRoom,0,fRoomCount-1) then
       begin
-        SendMessageA(aHandle, mk_RefuseToJoin, 'Invalid room number');
+        SendMessage(aHandle, mk_RefuseToJoin, TX_NET_INVALID_ROOM);
         fServer.Kick(aHandle);
         Exit;
       end;
@@ -581,7 +584,7 @@ begin
               M.Read(tmpInteger);
               if fClientList.GetByHandle(tmpInteger) <> nil then
               begin
-                SendMessageA(tmpInteger, mk_Kicked, 'You were kicked by the host');
+                SendMessage(tmpInteger, mk_Kicked, TX_NET_KICK_BY_HOST);
                 fServer.Kick(tmpInteger);
               end;
             end;

@@ -27,13 +27,13 @@ const
     [mk_AskToJoin,mk_ClientLost,mk_ReassignHost,mk_Disconnect,mk_Ping,mk_PingInfo,mk_PlayersList,
      mk_StartingLocQuery,mk_SetTeam,mk_FlagColorQuery,mk_ResetMap,mk_MapSelect,mk_MapCRC,mk_SaveSelect,
      mk_SaveCRC,mk_ReadyToStart,mk_Start,mk_Text,mk_Kicked,mk_LangCode,mk_GameOptions,mk_ServerName,
-     mk_Password,mk_FileRequest,mk_FileChunk,mk_FileEnd,mk_FileAck],
+     mk_Password,mk_FileRequest,mk_FileChunk,mk_FileEnd,mk_FileAck,mk_TextTranslated],
     //lgs_Loading
     [mk_AskToJoin,mk_ClientLost,mk_ReassignHost,mk_Disconnect,mk_Ping,mk_PingInfo,mk_PlayersList,
-     mk_ReadyToPlay,mk_Play,mk_Text,mk_Kicked],
+     mk_ReadyToPlay,mk_Play,mk_Text,mk_Kicked,mk_TextTranslated],
     //lgs_Game
     [mk_AskToJoin,mk_ClientLost,mk_ReassignHost,mk_Disconnect,mk_Ping,mk_PingInfo,mk_FPS,mk_PlayersList,
-     mk_Commands,mk_Text,mk_ResyncFromTick,mk_AskToReconnect,mk_Kicked,mk_ClientReconnected],
+     mk_Commands,mk_Text,mk_ResyncFromTick,mk_AskToReconnect,mk_Kicked,mk_ClientReconnected,mk_TextTranslated],
     //lgs_Reconnecting
     [mk_HostingRights,mk_IndexOnServer,mk_GameVersion,mk_WelcomeMessage,mk_Ping,mk_FPS,mk_ConnectedToRoom,
      mk_PingInfo,mk_PlayersList,mk_ReconnectionAccepted,mk_RefuseReconnect,mk_Kicked]
@@ -102,7 +102,7 @@ type
     fOnResyncFromTick: TResyncEvent;
 
     procedure DecodePingInfo(aStream: TKMemoryStream);
-    procedure ForcedDisconnect(const S: string);
+    procedure ForcedDisconnect(Sender: TObject);
     procedure StartGame;
     procedure TryPlayGame;
     procedure PlayGame;
@@ -167,7 +167,8 @@ type
 
     //Common
     procedure ConsoleCommand(aText: UnicodeString);
-    procedure PostMessage(aText: UnicodeString; aShowName:boolean=false; aTeamOnly:boolean=false; aRecipientServerIndex:Integer=-1);
+    procedure PostMessage(aText: UnicodeString; aShowName:boolean=false; aTeamOnly:boolean=false; aRecipientServerIndex:Integer=-1); overload;
+    procedure PostMessage(aTextID: Integer; aText1: UnicodeString=''; aText2: UnicodeString = ''; aRecipient:Integer=NET_ADDRESS_ALL); overload;
     procedure PostLocalMessage(aText: UnicodeString; aMakeSound:boolean=true);
     procedure AnnounceGameInfo(aGameTime: TDateTime; aMap: UnicodeString);
 
@@ -394,15 +395,15 @@ begin
     //Make sure this player is properly disconnected from the server
     PacketSend(NET_ADDRESS_SERVER, mk_KickPlayer, ServerIndex);
     NetPlayers.DropPlayer(ServerIndex);
-    PostMessage('The host dropped ' + UnicodeString(NetPlayers[I].Nikname) + ' from the game');
+    PostMessage(TX_NET_DROPPED, UnicodeString(NetPlayers[I].Nikname));
   end;
   SendPlayerListAndRefreshPlayersSetup;
 end;
 
 
-procedure TKMNetworking.ForcedDisconnect(const S: string);
+procedure TKMNetworking.ForcedDisconnect(Sender: TObject);
 begin
-  fOnDisconnect(S);
+  fOnDisconnect(gResTexts[TX_NET_SERVER_STOPPED]);
 end;
 
 
@@ -652,7 +653,7 @@ procedure TKMNetworking.KickPlayer(aPlayerIndex: Integer);
 begin
   Assert(IsHost, 'Only host is allowed to kick players out');
   PacketSend(NET_ADDRESS_SERVER, mk_KickPlayer, fNetPlayers[aPlayerIndex].IndexOnServer);
-  PostMessage(UnicodeString(fNetPlayers[aPlayerIndex].Nikname) + ' was kicked by the host');
+  PostMessage(TX_NET_KICKED, UnicodeString(fNetPlayers[aPlayerIndex].Nikname));
 end;
 
 
@@ -933,6 +934,18 @@ begin
 end;
 
 
+procedure TKMNetworking.PostMessage(aTextID: Integer; aText1: UnicodeString=''; aText2: UnicodeString = ''; aRecipient:Integer=NET_ADDRESS_ALL);
+var M: TKMemoryStream;
+begin
+  M := TKMemoryStream.Create;
+  M.Write(aTextID);
+  M.WriteW(aText1);
+  M.WriteW(aText2);
+  PacketSend(aRecipient, mk_TextTranslated, M);
+  M.Free;
+end;
+
+
 procedure TKMNetworking.PostLocalMessage(aText: UnicodeString; aMakeSound:boolean=true);
 begin
   if Assigned(fOnTextMessage) then
@@ -968,7 +981,7 @@ var TempMyIndex:integer;
 begin
   if WRITE_RECONNECT_LOG then gLog.AddTime(Format('DoReconnection: %s',[fMyNikname]));
   fReconnectRequested := 0;
-  PostLocalMessage('Attempting to reconnect to the game...');
+  PostLocalMessage(gResTexts[TX_NET_RECONNECTING]);
   //Stop the previous connection without calling Self.Disconnect as that frees everything
   fNetClient.Disconnect;
   TempMyIndex := fMyIndex;
@@ -987,7 +1000,7 @@ begin
   if fSelectGameKind = ngk_Save then MatchPlayersToSave(fNetPlayers.ServerToLocal(aServerIndex)); //Match only this player
   SendPlayerListAndRefreshPlayersSetup;
   SendGameOptions;
-  PostMessage(UnicodeString(aPlayerName) + ' has joined');
+  PostMessage(TX_NET_HAS_JOINED, UnicodeString(aPlayerName));
 end;
 
 
@@ -1149,38 +1162,43 @@ begin
               begin
                 M.ReadA(tmpStringA);
                 PlayerIndex := fNetPlayers.NiknameToLocal(tmpStringA);
-                replyStringA := fNetPlayers.CheckCanReconnect(PlayerIndex);
-                if WRITE_RECONNECT_LOG then gLog.AddTime(UnicodeString(tmpStringA) + ' asked to reconnect: ' + UnicodeString(replyStringA));
-                if replyStringA = '' then
+                tmpInteger := fNetPlayers.CheckCanReconnect(PlayerIndex);
+                if tmpInteger = -1 then
                 begin
-                  PostMessage(UnicodeString(tmpStringA) + ' has reconnected');
+                  if WRITE_RECONNECT_LOG then gLog.AddTime(UnicodeString(tmpStringA) + ' successfully reconnected');
                   fNetPlayers[PlayerIndex].SetIndexOnServer := aSenderIndex; //They will have a new index
                   fNetPlayers[PlayerIndex].Connected := True; //This player is now back online
                   SendPlayerListAndRefreshPlayersSetup;
                   PacketSend(aSenderIndex, mk_ReconnectionAccepted); //Tell this client they are back in the game
                   PacketSend(NET_ADDRESS_OTHERS, mk_ClientReconnected, aSenderIndex); //Tell everyone to ask him to resync
                   PacketSend(aSenderIndex, mk_ResyncFromTick, Integer(fLastProcessedTick)); //Ask him to resync us
+                  PostMessage(TX_NET_HAS_RECONNECTED, UnicodeString(tmpStringA));
                 end
                 else
-                  PacketSendA(aSenderIndex, mk_RefuseReconnect, replyStringA);
+                begin
+                  if WRITE_RECONNECT_LOG then gLog.AddTime(UnicodeString(tmpStringA) + ' asked to reconnect: ' + IntToStr(tmpInteger));
+                  PacketSend(aSenderIndex, mk_RefuseReconnect, tmpInteger);
+                end;
               end;
 
       mk_RefuseReconnect:
               begin
-                M.ReadW(tmpStringW);
-                PostLocalMessage('Reconnection failed: ' + tmpStringW);
+                M.Read(tmpInteger);
+                //If the result is < 1 is means silently ignore and keep retrying
+                if tmpInteger > 0 then
+                  PostLocalMessage(Format(gResTexts[TX_NET_RECONNECTION_FAILED], [gResTexts[tmpInteger]]));
                 if Assigned(fOnJoinFail) then
-                  fOnJoinFail(tmpStringW);
+                  fOnJoinFail('');
               end;
 
       mk_AskToJoin:
               if IsHost then
               begin
                 M.ReadA(tmpStringA);
-                replyStringA := fNetPlayers.CheckCanJoin(tmpStringA, aSenderIndex);
-                if (replyStringA = '') and (fNetGameState <> lgs_Lobby) then
-                  replyStringA := 'Cannot join while the game is in progress';
-                if replyStringA = '' then
+                tmpInteger := fNetPlayers.CheckCanJoin(tmpStringA, aSenderIndex);
+                if (tmpInteger = -1) and (fNetGameState <> lgs_Lobby) then
+                  tmpInteger := TX_NET_GAME_IN_PROGRESS;
+                if tmpInteger = -1 then
                 begin
                   if fPassword = '' then
                     PlayerJoined(aSenderIndex, tmpStringA)
@@ -1188,7 +1206,7 @@ begin
                     PacketSend(aSenderIndex, mk_ReqPassword);
                 end
                 else
-                  PacketSendA(aSenderIndex, mk_RefuseToJoin, replyStringA);
+                  PacketSend(aSenderIndex, mk_RefuseToJoin, tmpInteger);
               end;
 
       mk_Password:
@@ -1198,13 +1216,13 @@ begin
                 if tmpStringA = fPassword then
                 begin
                   M.ReadA(tmpStringA); //Player name
-                  replyStringA := fNetPlayers.CheckCanJoin(tmpStringA, aSenderIndex);
-                  if (replyStringA = '') and (fNetGameState <> lgs_Lobby) then
-                    replyStringA := 'Cannot join while the game is in progress';
-                  if replyStringA = '' then
+                  tmpInteger := fNetPlayers.CheckCanJoin(tmpStringA, aSenderIndex);
+                  if (tmpInteger = -1) and (fNetGameState <> lgs_Lobby) then
+                    tmpInteger := TX_NET_GAME_IN_PROGRESS;
+                  if tmpInteger = -1 then
                     PlayerJoined(aSenderIndex, tmpStringA)
                   else
-                    PacketSendA(aSenderIndex, mk_RefuseToJoin, replyStringA);
+                    PacketSend(aSenderIndex, mk_RefuseToJoin, tmpInteger);
                 end
                 else
                   PacketSend(aSenderIndex, mk_ReqPassword);
@@ -1242,7 +1260,7 @@ begin
               if not IsHost and (fFileReceiver <> nil) then
               begin
                 if fFileReceiver.ProcessTransfer then
-                  PostMessage(UnicodeString(fMyNikname) + ' successfully downloaded ' + fFileReceiver.Name);
+                  PostMessage(TX_NET_SUCCESSFULLY_DOWNLOADED, UnicodeString(fMyNikname), fFileReceiver.Name);
                 FreeAndNil(fFileReceiver);
               end;
 
@@ -1268,9 +1286,9 @@ begin
       mk_RefuseToJoin:
               if fNetPlayerKind = lpk_Joiner then
               begin
-                M.ReadA(tmpStringA);
+                M.Read(tmpInteger);
                 fNetClient.Disconnect;
-                fOnJoinFail(UnicodeString(tmpStringA));
+                fOnJoinFail(gResTexts[tmpInteger]);
               end;
 
       mk_ReqPassword:
@@ -1285,16 +1303,15 @@ begin
                 M.Read(tmpInteger);
                 if Cardinal(tmpInteger) <> CalculateGameCRC then
                 begin
-                  replyStringW := 'Error: '+UnicodeString(fMyNikname)+' has different data files to the host and so cannot join this game';
-                  PacketSendW(NET_ADDRESS_OTHERS, mk_Text, replyStringW);
-                  fOnJoinFail('Your data files do not match the host');
+                  PostMessage(TX_NET_JOIN_DATA_FILES, UnicodeString(fMyNikname));
+                  fOnJoinFail(gResTexts[TX_NET_YOUR_DATA_FILES]);
                 end;
               end;
 
       mk_Kicked:
               begin
-                M.ReadA(tmpStringA);
-                fOnDisconnect(UnicodeString(tmpStringA));
+                M.Read(tmpInteger);
+                fOnDisconnect(gResTexts[tmpInteger]);
               end;
 
       mk_ClientLost:
@@ -1307,7 +1324,7 @@ begin
                   if PlayerIndex = -1 then exit; //Has already disconnected or not from our room
                   if not fNetPlayers[PlayerIndex].Dropped then
                   begin
-                    PostMessage(UnicodeString(fNetPlayers[PlayerIndex].Nikname)+' lost connection');
+                    PostMessage(TX_NET_LOST_CONNECTION, UnicodeString(fNetPlayers[PlayerIndex].Nikname));
                     if WRITE_RECONNECT_LOG then gLog.AddTime(UnicodeString(fNetPlayers[PlayerIndex].Nikname)+' lost connection');
                   end;
                   if fNetGameState = lgs_Game then
@@ -1341,7 +1358,7 @@ begin
                     begin
                       fFileSenderManager.ClientDisconnected(aSenderIndex);
                       if fNetPlayers.ServerToLocal(aSenderIndex) = -1 then exit; //Has already disconnected
-                      PostMessage(UnicodeString(fNetPlayers[fNetPlayers.ServerToLocal(aSenderIndex)].Nikname)+' has quit');
+                      PostMessage(TX_NET_HAS_QUIT, UnicodeString(fNetPlayers[fNetPlayers.ServerToLocal(aSenderIndex)].Nikname));
                       if fNetGameState in [lgs_Loading, lgs_Game] then
                         fNetPlayers.DropPlayer(aSenderIndex)
                       else
@@ -1387,7 +1404,7 @@ begin
                   fDescription := '';
                   fOnMPGameInfoChanged(Self);
                   SendPlayerListAndRefreshPlayersSetup;
-                  PostMessage('Hosting rights reassigned to '+UnicodeString(fMyNikname));
+                  PostMessage(TX_NET_HOSTING_RIGHTS, UnicodeString(fMyNikname));
                   if WRITE_RECONNECT_LOG then gLog.AddTime('Hosting rights reassigned to us ('+UnicodeString(fMyNikname)+')');
                 end;
               end;
@@ -1458,13 +1475,13 @@ begin
                 begin
                   if fMapInfo.IsValid then
                   begin
-                    PostMessage(UnicodeString(fMyNikname)+' has a different version of the map '+fMapInfo.FileName);
+                    PostMessage(TX_NET_DIFFERENT_VERSION, UnicodeString(fMyNikname), fMapInfo.FileName);
                     tmpStringW := Format(gResTexts[TX_MAP_WRONG_VERSION], [fMapInfo.FileName]);
                     fMissingFileExists := True;
                   end
                   else
                   begin
-                    PostMessage(UnicodeString(fMyNikname)+' does not have the map '+fMapInfo.FileName);
+                    PostMessage(TX_NET_MISSING_FILES, UnicodeString(fMyNikname), fMapInfo.FileName);
                     tmpStringW := Format(gResTexts[TX_MAP_DOESNT_EXIST], [fMapInfo.FileName]);
                     fMissingFileExists := False;
                   end;
@@ -1500,13 +1517,13 @@ begin
                 begin
                   if fSaveInfo.IsValid then
                   begin
-                    PostMessage(UnicodeString(fMyNikname) + ' has a different version of the save ' + fSaveInfo.FileName);
+                    PostMessage(TX_NET_DIFFERENT_VERSION, UnicodeString(fMyNikname), fSaveInfo.FileName);
                     tmpStringW := Format(gResTexts[TX_SAVE_WRONG_VERSION],[fSaveInfo.FileName]);
                     fMissingFileExists := True;
                   end
                   else
                   begin
-                    PostMessage(UnicodeString(fMyNikname) + ' does not have the save ' + fSaveInfo.FileName);
+                    PostMessage(TX_NET_MISSING_FILES, UnicodeString(fMyNikname), fSaveInfo.FileName);
                     tmpStringW := Format(gResTexts[TX_SAVE_DOESNT_EXIST],[fSaveInfo.FileName]);
                     fMissingFileExists := False;
                   end;
@@ -1612,7 +1629,6 @@ begin
               begin
                 //The host has accepted us back into the game!
                 if WRITE_RECONNECT_LOG then gLog.AddTime('Reconnection Accepted');
-                PostLocalMessage('Successfully reconnected to the game');
                 SetGameState(lgs_Game); //Game is now running once again
                 fReconnectRequested := 0; //Cancel any retry in progress
                 //Request all other clients to resync us
@@ -1632,6 +1648,14 @@ begin
               begin
                 M.ReadW(tmpStringW);
                 PostLocalMessage(tmpStringW);
+              end;
+
+      mk_TextTranslated:
+              begin
+                M.Read(tmpInteger);
+                M.ReadW(tmpStringW);
+                M.ReadW(replyStringW);
+                PostLocalMessage(Format(gResTexts[tmpInteger], [tmpStringW, replyStringW]));
               end;
     end;
 
@@ -1830,7 +1854,7 @@ begin
   if fNetGameState in [lgs_Connecting,lgs_Reconnecting,lgs_Query] then
     if (GetTimeSince(fJoinTimeout) > JOIN_TIMEOUT) and not fEnteringPassword
     and (fReconnectRequested = 0) then
-      if Assigned(fOnJoinFail) then fOnJoinFail('Query timed out');
+      if Assigned(fOnJoinFail) then fOnJoinFail(gResTexts[TX_NET_QUERY_TIMED_OUT]);
 end;
 
 

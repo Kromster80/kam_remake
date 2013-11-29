@@ -531,7 +531,6 @@ begin
   if fNetworking.NetGameState in [lgs_Game, lgs_Reconnecting] then
   begin
     if WRITE_RECONNECT_LOG then gLog.AddTime('GameMPDisconnect: '+aData);
-    fNetworking.PostLocalMessage('Connection failed: '+aData,false); //Debugging that should be removed later
     fNetworking.OnJoinFail := GameMPDisconnect; //If the connection fails (e.g. timeout) then try again
     fNetworking.OnJoinAssignedHost := nil;
     fNetworking.OnJoinSucc := nil;

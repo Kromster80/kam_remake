@@ -86,8 +86,8 @@ type
     function StartingLocToLocal(aLoc: Integer): Integer;
     function PlayerIndexToLocal(aIndex: THandIndex): Integer;
 
-    function CheckCanJoin(aNik: AnsiString; aIndexOnServer: Integer): AnsiString;
-    function CheckCanReconnect(aLocalIndex: Integer): AnsiString;
+    function CheckCanJoin(aNik: AnsiString; aIndexOnServer: Integer): Integer;
+    function CheckCanReconnect(aLocalIndex: Integer): Integer;
     function LocAvailable(aIndex: Integer): Boolean;
     function ColorAvailable(aIndex: Integer): Boolean;
     function AllReady: Boolean;
@@ -511,37 +511,37 @@ end;
 
 
 //See if player can join our game
-function TKMNetPlayersList.CheckCanJoin(aNik: AnsiString; aIndexOnServer: Integer): AnsiString;
+function TKMNetPlayersList.CheckCanJoin(aNik: AnsiString; aIndexOnServer: Integer): Integer;
 begin
   if fCount >= MAX_HANDS then
-    Result := 'Room is full. No more players can join the game'
+    Result := TX_NET_ROOM_FULL
   else
   if ServerToLocal(aIndexOnServer) <> -1 then
-    Result := 'Player with the same index has already joined the game, please retry'
+    Result := TX_NET_SAME_NAME
   else
   if NiknameToLocal(aNik) <> -1 then
-    Result := 'Player with the same name has already joined the game, please retry'
+    Result := TX_NET_SAME_NAME
   else
   if (aNik = 'AI Player') or (aNik = 'Closed') then
-    Result := 'Special slot names can not be used'
+    Result := TX_NET_SAME_NAME
   else
-    Result := '';
+    Result := -1;
 end;
 
 
 //See if player can join our game
-function TKMNetPlayersList.CheckCanReconnect(aLocalIndex: Integer): AnsiString;
+function TKMNetPlayersList.CheckCanReconnect(aLocalIndex: Integer): Integer;
 begin
   if aLocalIndex = -1 then
-    Result := 'Unknown nickname'
+    Result := -2 //Silent failure, client should try again
   else
   if Player[aLocalIndex].Connected then
-    Result := 'Your previous connection has not yet been dropped, please try again in a moment'
+    Result := -2 //Silent failure, client should try again
   else
   if Player[aLocalIndex].Dropped then
-    Result := 'The host decided to continue playing without you :('
+    Result := TX_NET_RECONNECTION_DROPPED
   else
-    Result := '';
+    Result := -1; //Success
 end;
 
 
