@@ -21,6 +21,8 @@
  +      Integer overflow in stats caused by counting stone/wood as consumed twice when an incomplete house was destroyed
  +      Fixed "Unsupported global variable type 28" error in dynamic scripts when using UnicodeString
  +      Crash during delivery if ToHouse was destroyed while the serf was inside FromHouse
+ +      Network system messages are now translated
+ +      Player alliance towards self is inconsistent, especially in MP and when accessing from script (should be Ally always!)
 	Armour smithy has shields as 2nd ouput, armour workshop has shields as 1st output. Would make sense to match them (note: simply swapping in KM_ResourceHouses causes game logic to be swapped with GUI)
 	Armour smithy has iron as 1st input, weapon smithy has iron as 2nd input (iron/coal swapped). Would make sense to match them (note: simpply swapping in KM_ResourceHouses causes game logic to be swapped with GUI)
 	Deliveries should use the actual walking route length (opposed to Radius)
@@ -42,11 +44,9 @@
 	TSK15 - AI does not build because stone is too far away (AI builder is incomplete)
 	Terrain brushes in MapEd erase corn/wine fields (should try to preserve them)
 	Woodcutter would cut a missing tree on a corn field (replaced with corn while he is chopping)
-	Look into translating texts returned from Net status and others that are hardcoded in 3rd party libs we use (pas files)
 	Towers attack range is uneven (should be measured from towers middle, not the recruit location in BR corner)
 	When citizen walks into a house he should be deselected
 	AIAttacks bug (AI attacks mulfunction after 12min.rar)
-	Player alliance towards self is inconsistent, especially in MP and when accessing from script (should be Ally always!)
 	Make wood to building sites to be delivered first
         TSK 5: ally sometimes sends his troops to the enemy base causing you to lose (after the enemy attacks?)
 
@@ -85,7 +85,7 @@ Improvements:
 	L	Add support for 1024x600 (1280x720) resolution in the map editor
 	L	Pack textures into atlases with regard to GPU max supported texture resolution (512 or 1024 px)
 	L	Clicking and holding on the add/subtract buttons in weapons workshops could increase the number to save repeated clicking
-	L	Multiplayer in-game player list and lobby description ordered (grouped) by teams [Lewin, implemented?]
+	L	Multiplayer in-game player list and lobby description ordered (grouped) by teams [Lewin, implemented? Krom, no currently there's no order/grouping by teams in the player list]
 	M	New column in load/replays menus: Date/time (stored internally in save format since file modified date is not very trustworthy) [Marcin]
 	L	New command !SKIP_HOUSE. If I want a map with no stone, then after building the inn the woodcutter and tower should become available (skips the stonemason)
 	M	Pause in multiplayer (pause by everyone and unpause by at least 2 other players)

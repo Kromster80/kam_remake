@@ -1332,7 +1332,7 @@ begin
                     else
                     begin
                       fGameInputProcess.WaitingForConfirmation(fGameTickCount);
-                      if TGameInputProcess_Multi(fGameInputProcess).GetNumberConsecutiveWaits > 5 then
+                      if TGameInputProcess_Multi(fGameInputProcess).GetNumberConsecutiveWaits > 10 then
                         WaitingPlayersDisplay(True);
                     end;
                     fGameInputProcess.UpdateState(fGameTickCount); //Do maintenance
