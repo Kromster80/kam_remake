@@ -2577,7 +2577,8 @@ begin
   inherited;
   TKMRenderUI.WriteBevel(AbsLeft,AbsTop,Width,Height);
   TKMRenderUI.WriteText(AbsLeft + 4, AbsTop + 3, Width-8, Caption, fnt_Game, taLeft, $FFE0E0E0);
-  for I := 0 to WareCount - 1 do
+  //Render in reverse order so the rightmost resource is on top (otherwise lighting looks wrong)
+  for I := WareCount - 1 downto 0 do
     TKMRenderUI.WritePicture(AbsLeft + Width - 18 - I * 14, AbsTop + 3, 14, 14, [], RX, TexID);
 end;
 
