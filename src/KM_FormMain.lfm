@@ -5,7 +5,7 @@ object FormMain: TFormMain
   Width = 521
   HelpType = htKeyword
   BorderStyle = bsNone
-  ClientHeight = 512
+  ClientHeight = 503
   ClientWidth = 521
   Color = clBtnFace
   Font.Color = clWindowText
@@ -24,8 +24,8 @@ object FormMain: TFormMain
   LCLVersion = '1.0.12.0'
   object StatusBar1: TStatusBar
     Left = 0
-    Height = 23
-    Top = 489
+    Height = 28
+    Top = 475
     Width = 521
     Panels = <    
       item
@@ -55,7 +55,7 @@ object FormMain: TFormMain
     Width = 193
     Anchors = [akTop, akRight]
     Caption = ' Development controls '
-    ClientHeight = 471
+    ClientHeight = 467
     ClientWidth = 189
     TabOrder = 1
     object GroupBox4: TGroupBox
@@ -64,38 +64,38 @@ object FormMain: TFormMain
       Top = 392
       Width = 177
       Caption = ' Graphics tweaks '
-      ClientHeight = 71
+      ClientHeight = 67
       ClientWidth = 173
       TabOrder = 5
       object Label3: TLabel
         Left = 100
-        Height = 14
+        Height = 17
         Top = 16
-        Width = 28
+        Width = 36
         Caption = 'Angle'
         ParentColor = False
       end
       object Label4: TLabel
         Left = 100
-        Height = 14
+        Height = 17
         Top = 32
-        Width = 28
+        Width = 36
         Caption = 'Angle'
         ParentColor = False
       end
       object Label1: TLabel
         Left = 100
-        Height = 14
+        Height = 17
         Top = 64
-        Width = 61
+        Width = 78
         Caption = 'Building step'
         ParentColor = False
       end
       object Label7: TLabel
         Left = 100
-        Height = 14
+        Height = 17
         Top = 48
-        Width = 28
+        Width = 36
         Caption = 'Angle'
         ParentColor = False
       end
@@ -163,23 +163,23 @@ object FormMain: TFormMain
       Top = 336
       Width = 177
       Caption = ' User Interface '
-      ClientHeight = 39
+      ClientHeight = 35
       ClientWidth = 173
       TabOrder = 4
       object chkUIControlsBounds: TCheckBox
         Left = 8
-        Height = 19
+        Height = 23
         Top = 16
-        Width = 96
+        Width = 121
         Caption = 'Controls bounds'
         OnClick = ControlsUpdate
         TabOrder = 0
       end
       object chkUITextBounds: TCheckBox
         Left = 8
-        Height = 19
+        Height = 23
         Top = 32
-        Width = 79
+        Width = 98
         Caption = 'Text bounds'
         OnClick = ControlsUpdate
         TabOrder = 1
@@ -187,9 +187,9 @@ object FormMain: TFormMain
     end
     object chkSuperSpeed: TCheckBox
       Left = 8
-      Height = 19
+      Height = 23
       Top = 80
-      Width = 77
+      Width = 95
       Caption = 'Speed x300'
       OnClick = chkSuperSpeedClick
       TabOrder = 0
@@ -209,7 +209,7 @@ object FormMain: TFormMain
       ChildSizing.ShrinkVertical = crsScaleChilds
       ChildSizing.Layout = cclLeftToRightThenTopToBottom
       ChildSizing.ControlsPerLine = 4
-      ClientHeight = 39
+      ClientHeight = 35
       ClientWidth = 173
       Columns = 4
       ItemIndex = 0
@@ -241,59 +241,59 @@ object FormMain: TFormMain
       Top = 200
       Width = 177
       Caption = ' AI '
-      ClientHeight = 119
+      ClientHeight = 115
       ClientWidth = 173
       TabOrder = 3
       object Label5: TLabel
         Left = 108
-        Height = 14
+        Height = 17
         Top = 100
-        Width = 33
+        Width = 42
         Caption = 'Margin'
         ParentColor = False
         Visible = False
       end
       object Label6: TLabel
         Left = 108
-        Height = 14
+        Height = 17
         Top = 116
-        Width = 48
+        Width = 62
         Caption = 'Threshold'
         ParentColor = False
         Visible = False
       end
       object chkShowOwnership: TCheckBox
         Left = 8
-        Height = 19
+        Height = 23
         Top = 48
-        Width = 98
+        Width = 121
         Caption = 'Show ownership'
         OnClick = ControlsUpdate
         TabOrder = 0
       end
       object chkShowNavMesh: TCheckBox
         Left = 8
-        Height = 19
+        Height = 23
         Top = 64
-        Width = 93
+        Width = 115
         Caption = 'Show navmesh'
         OnClick = ControlsUpdate
         TabOrder = 1
       end
       object chkShowAvoid: TCheckBox
         Left = 8
-        Height = 19
+        Height = 23
         Top = 32
-        Width = 115
+        Width = 144
         Caption = 'Show avoid building'
         OnClick = ControlsUpdate
         TabOrder = 2
       end
       object chkShowBalance: TCheckBox
         Left = 8
-        Height = 19
+        Height = 23
         Top = 16
-        Width = 101
+        Width = 124
         Caption = 'Show AI balance'
         OnClick = ControlsUpdate
         TabOrder = 3
@@ -328,9 +328,9 @@ object FormMain: TFormMain
       end
       object chkShowDefences: TCheckBox
         Left = 8
-        Height = 19
+        Height = 23
         Top = 80
-        Width = 94
+        Width = 116
         Caption = 'Show defences'
         OnClick = ControlsUpdate
         TabOrder = 6
@@ -342,14 +342,14 @@ object FormMain: TFormMain
       Top = 104
       Width = 177
       Caption = ' Debug render '
-      ClientHeight = 79
+      ClientHeight = 75
       ClientWidth = 173
       TabOrder = 6
       object Label2: TLabel
         Left = 100
-        Height = 14
+        Height = 17
         Top = 16
-        Width = 50
+        Width = 67
         Caption = 'Passability'
         ParentColor = False
       end
@@ -368,27 +368,27 @@ object FormMain: TFormMain
       end
       object chkShowRoutes: TCheckBox
         Left = 8
-        Height = 19
+        Height = 23
         Top = 56
-        Width = 99
+        Width = 120
         Caption = 'Show unit routes'
         OnClick = ControlsUpdate
         TabOrder = 1
       end
       object chkShowWires: TCheckBox
         Left = 8
-        Height = 19
+        Height = 23
         Top = 40
-        Width = 106
+        Width = 131
         Caption = 'Show terrain wires'
         OnClick = ControlsUpdate
         TabOrder = 2
       end
       object chkSelectionBuffer: TCheckBox
         Left = 8
-        Height = 19
+        Height = 23
         Top = 72
-        Width = 122
+        Width = 150
         Caption = 'Show selection buffer'
         OnClick = ControlsUpdate
         TabOrder = 3
@@ -443,12 +443,10 @@ object FormMain: TFormMain
       object ExportMenuPages: TMenuItem
         Caption = 'Export Menu Pages'
         Visible = False
-        OnClick = Debug_ExportMenuPagesClick
       end
       object ExportGamePages: TMenuItem
         Caption = 'Export Game Pages'
         Visible = False
-        OnClick = Debug_ExportGamePagesClick
       end
     end
     object Export1: TMenuItem

@@ -132,7 +132,7 @@ begin
   SourceStream := fSendStream;
   fSendStream := TKMemoryStream.Create;
   fSendStream.WriteA('Transfer');
-  CompressionStream := TCompressionStream.Create(fSendStream);
+  CompressionStream := TCompressionStream.Create(cldefault, fSendStream);
   CompressionStream.CopyFrom(SourceStream, 0);
   //fSendStream now contains the compressed data from SourceStream
   CompressionStream.Free;

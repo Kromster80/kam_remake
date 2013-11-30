@@ -1,18 +1,24 @@
 unit KM_NetClientLNet;
 {$I KaM_Remake.inc}
 interface
-uses Classes, SysUtils, LNet, dialogs;
+uses Classes, Math, SysUtils, LNet, dialogs;
 
 
 { This unit knows nothing about KaM, it's just a puppet in hands of KM_ClientControl,
 doing all the low level work on TCP. So we can replace this unit with other TCP client
 without KaM even noticing. }
+const
+  MAX_SEND_BUFFER = 1048576; //1 MB
+
 type
   TNotifyDataEvent = procedure(aData:pointer; aLength:cardinal)of object;
 
   TKMNetClientLNet = class
   private
     fSocket:TLTCP;
+    fBuffer: array of byte;
+    fBufferLen: Cardinal;
+
     fOnError:TGetStrProc;
     fOnConnectSucceed:TNotifyEvent;
     fOnConnectFailed:TGetStrProc;
@@ -22,10 +28,16 @@ type
     procedure Disconnected(aSocket: TLSocket);
     procedure Receive(aSocket: TLSocket);
     procedure Error(const msg: string; aSocket: TLSocket);
+    procedure CanSend(aSocket: TLSocket);
+
+    procedure PutInBuffer(aData:pointer; aLength:cardinal);
+    procedure AttemptSend;
+    function BufferFull: Boolean;
   public
     constructor Create;
     destructor Destroy; override;
-    function MyIPString:string;  
+    function MyIPString:string;
+    function GetBufferSpace: Integer;
     procedure ConnectTo(const aAddress:string; const aPort:string);
     procedure Disconnect;
     procedure SendData(aData:pointer; aLength:cardinal);
@@ -60,6 +72,13 @@ begin
 end;
 
 
+function TKMNetClientLNet.GetBufferSpace: Integer;
+begin
+  if fSocket <> nil then
+    Result := Math.Max(32768 - fBufferLen, 0); //Only report that we have a 32kb buffer, works best for file transfers (same as overbyte)
+end;
+
+
 procedure TKMNetClientLNet.ConnectTo(const aAddress:string; const aPort:string);
 begin
   FreeAndNil(fSocket);
@@ -88,11 +107,52 @@ begin
 end;
 
 
+procedure TKMNetClientLNet.PutInBuffer(aData:pointer; aLength:cardinal);
+begin
+  SetLength(fBuffer, fBufferLen + aLength);
+  Move(aData^, fBuffer[fBufferLen], aLength);
+  fBufferLen := fBufferLen + aLength;
+end;
+
+
+procedure TKMNetClientLNet.AttemptSend;
+var LenSent: Integer;
+begin
+  if fBufferLen <= 0 then Exit;
+
+  LenSent := fSocket.Send(fBuffer[0], fBufferLen);
+
+  if LenSent > 0 then
+  begin
+    fBufferLen := fBufferLen - LenSent;
+    if fBufferLen > 0 then
+      Move(fBuffer[LenSent], fBuffer[0], fBufferLen);
+  end;
+end;
+
+function TKMNetClientLNet.BufferFull: Boolean;
+begin
+  Result := fBufferLen >= MAX_SEND_BUFFER;
+end;
+
 procedure TKMNetClientLNet.SendData(aData:pointer; aLength:cardinal);
 begin
   if fSocket.Connected then
-    if fSocket.Send(aData^, aLength) < aLength then
-      fOnError('LNet Server: Failed to send packet');
+  begin
+    if BufferFull then
+    begin
+      fOnError('LNet Client Error: Send buffer full');
+      Exit;
+    end;
+    PutInBuffer(aData, aLength);
+    AttemptSend;
+  end;
+end;
+
+
+procedure TKMNetClientLNet.CanSend(aSocket: TLSocket);
+begin
+  AttemptSend;
 end;
 
 

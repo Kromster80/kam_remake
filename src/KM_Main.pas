@@ -345,9 +345,12 @@ end;
 
 
 procedure TKMMain.FlashingStart;
+{$IFNDEF FPC}
 var
   flashInfo: TFlashWInfo;
+{$ENDIF}
 begin
+  {$IFNDEF FPC}
   if (GetForeGroundWindow <> fMain.FormMain.Handle) then
   begin
     flashInfo.cbSize := 20;
@@ -358,13 +361,17 @@ begin
     fFlashing := True;
     FlashWindowEx(flashInfo);
   end
+  {$ENDIF}
 end;
 
 
 procedure TKMMain.FlashingStop;
+{$IFNDEF FPC}
 var
   flashInfo: TFlashWInfo;
+{$ENDIF}
 begin
+  {$IFNDEF FPC}
   if fFlashing then
   begin
     flashInfo.cbSize := 20;
@@ -375,6 +382,7 @@ begin
     fFlashing := False;
     FlashWindowEx(flashInfo);
   end
+  {$ENDIF}
 end;
 
 
