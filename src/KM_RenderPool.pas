@@ -1403,6 +1403,8 @@ end;
 
 //Sort all items in list from top-right to bottom-left
 procedure TRenderList.SortRenderList;
+var
+  RenderOrderAux: TSmallIntArray;
 
   procedure DoQuickSort(aLo, aHi: Integer);
   var
@@ -1426,10 +1428,65 @@ procedure TRenderList.SortRenderList;
     if Lo < aHi then DoQuickSort(Lo, aHi);
   end;
 
+  procedure Merge(aStart, aMid, aEnd: Integer);
+  var I, A, B: Integer;
+  begin
+    A := aStart;
+    B := aMid;
+    for I := aStart to aEnd - 1 do
+      if (A < aMid) and ((B >= aEnd)
+      or (RenderList[RenderOrderAux[A]].Feet.Y <= RenderList[RenderOrderAux[B]].Feet.Y)) then
+      begin
+        RenderOrder[I] := RenderOrderAux[A];
+        Inc(A);
+      end else begin
+        RenderOrder[I] := RenderOrderAux[B];
+        Inc(B);
+      end;
+  end;
+
+  //The same as Merge, but RenderOrder and RenderOrderAux are switched
+  procedure MergeAux(aStart, aMid, aEnd: Integer);
+  var I, A, B: Integer;
+  begin
+    A := aStart;
+    B := aMid;
+    for I := aStart to aEnd-1 do
+      if (A < aMid) and ((B >= aEnd)
+      or (RenderList[RenderOrder[A]].Feet.Y <= RenderList[RenderOrder[B]].Feet.Y)) then
+      begin
+        RenderOrderAux[I] := RenderOrder[A];
+        Inc(A);
+      end else begin
+        RenderOrderAux[I] := RenderOrder[B];
+        Inc(B);
+      end;
+  end;
+
+  //aUseAux tells us which array to store results in, it should flip each recurse
+  procedure DoMergeSort(aStart, aEnd: Integer; aUseAux: Boolean);
+  var Mid: Integer;
+  begin
+    if aEnd - aStart < 2 then Exit;
+    Mid := (aStart + aEnd) div 2;
+    DoMergeSort(aStart, Mid, not aUseAux);
+    DoMergeSort(Mid, aEnd, not aUseAux);
+    if aUseAux then
+      MergeAux(aStart, Mid, aEnd)
+    else
+      Merge(aStart, Mid, aEnd);
+  end;
+
 begin
   ClipRenderList;
   if fCount > 0 then
-    DoQuickSort(0, Length(RenderOrder) - 1);
+  begin
+    SetLength(RenderOrderAux, Length(RenderOrder));
+    Move(RenderOrder[0], RenderOrderAux[0], Length(RenderOrder)*SizeOf(RenderOrder[0]));
+    //Quicksort is unstable which causes Z fighting, so we use mergesort
+    DoMergeSort(0, Length(RenderOrder), False);
+    //DoQuickSort(0, Length(RenderOrder) - 1);
+  end;
 end;
 
 
