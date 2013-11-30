@@ -116,6 +116,8 @@ end;
 procedure TKMMapEdPlayerView.Show;
 begin
   Panel_PlayerView.Show;
+  Button_PlayerCenterScreen.Caption := TypeToString(gHands[MySpectator.HandIndex].CenterScreen);
+  CheckBox_RevealAll.Checked := gGame.MapEditor.RevealAll[MySpectator.HandIndex];
 end;
 
 

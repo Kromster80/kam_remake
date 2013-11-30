@@ -239,7 +239,7 @@ begin
                                 MARKER_DEFENCE:       gHands[MySpectator.HandIndex].AI.General.DefencePositions.Add(KMPointDir(P, dir_N), gt_Melee, 10, adt_FrontLine);
                                 MARKER_CENTERSCREEN:  begin
                                                         gHands[MySpectator.HandIndex].CenterScreen := P;
-                                                        //Update XY display
+                                                        //Updating XY display is done in InterfaceMapEd
                                                       end;
                               end;
                 cmErase:      begin

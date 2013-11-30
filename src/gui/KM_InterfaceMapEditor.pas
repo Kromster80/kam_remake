@@ -483,9 +483,9 @@ procedure TKMapEdInterface.Player_UpdatePages;
 begin
   //Update players info on pages
   //Colors are updated as well
-
-  if fGuiTown.Visible then fGuiTown.ChangePlayer;
-  if fGuiPlayer.Visible then fGuiPlayer.ChangePlayer;
+  //Update regardless of whether the panels are visible, since the user could open then at any time
+  fGuiTown.ChangePlayer;
+  fGuiPlayer.ChangePlayer;
 end;
 
 
@@ -784,6 +784,10 @@ begin
   UpdateGameCursor(X, Y, Shift); //Updates the shift state
 
   gGame.MapEditor.MouseUp(Button);
+
+  //Update the XY coordinates of the Center Screen button
+  if (GameCursor.Mode = cmMarkers) and (GameCursor.Tag1 = MARKER_CENTERSCREEN) then
+    fGuiPlayer.ChangePlayer; //Forces an update
 end;
 
 

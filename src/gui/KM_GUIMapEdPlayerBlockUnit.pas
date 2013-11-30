@@ -23,6 +23,7 @@ type
     procedure Show;
     function Visible: Boolean;
     procedure Hide;
+    procedure UpdatePlayerColor;
   end;
 
 
@@ -125,6 +126,20 @@ begin
     else
       Image_BlockWarriors[K].TexID := 24;
   end;
+end;
+
+
+procedure TKMMapEdPlayerBlockUnit.UpdatePlayerColor;
+var
+  I: Integer;
+  Col: Cardinal;
+begin
+  Col := gHands[MySpectator.HandIndex].FlagColor;
+
+  for I := Low(Button_BlockUnit) to High(Button_BlockUnit) do
+    Button_BlockUnit[I].FlagColor := Col;
+  for I := Low(Button_BlockWarriors) to High(Button_BlockWarriors) do
+    Button_BlockWarriors[I].FlagColor := Col;
 end;
 
 

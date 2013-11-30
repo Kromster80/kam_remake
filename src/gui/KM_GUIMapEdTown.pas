@@ -42,7 +42,7 @@ type
 implementation
 uses
   KM_Hand, KM_HandsCollection, KM_ResTexts, KM_GameCursor,
-  KM_InterfaceGame, KM_RenderUI;
+  KM_InterfaceGame, KM_RenderUI, KM_Game;
 
 
 { TKMMapEdTown }
@@ -160,13 +160,13 @@ procedure TKMMapEdTown.ChangePlayer;
 var
   isAI: Boolean;
 begin
-  isAI := (gHands[MySpectator.HandIndex].PlayerType = hndComputer);
+  isAI := gGame.MapEditor.PlayerAI[MySpectator.HandIndex];
 
   Button_Town[ttScript].Enabled := isAI;
   Button_Town[ttDefences].Enabled := isAI;
   Button_Town[ttOffence].Enabled := isAI;
 
-  if isAi and (fGuiScript.Visible or fGuiDefence.Visible or fGuiOffence.Visible) then
+  if not isAi and (fGuiScript.Visible or fGuiDefence.Visible or fGuiOffence.Visible) then
     PageChange(Button_Town[ttHouses]);
 
   if fGuiScript.Visible then fGuiScript.Show;

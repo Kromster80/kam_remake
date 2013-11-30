@@ -287,6 +287,7 @@ begin
     end;
 
     ResRow_Resource[I].OrderCount := fHouse.CheckResIn(Res);
+    ResRow_Resource[I].WareCount := fHouse.CheckResIn(Res);
 
   end;
 
