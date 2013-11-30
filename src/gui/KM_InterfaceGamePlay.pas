@@ -1323,8 +1323,6 @@ begin
     Message_Close(nil);
     MessageLog_Close(nil);
     Label_MPChatUnread.Caption := ''; //No unread messages
-    gSoundPlayer.Play(sfxn_MPChatOpen);
-
     fGuiGameChat.Show;
   end;
 end;
@@ -2502,7 +2500,13 @@ begin
     VK_DELETE:            Button_MessageDelete.Click;
     VK_RETURN:            //Enter is the shortcut to bring up chat in multiplayer
                           if fMultiplayer and not fGuiGameChat.Visible then
+                          begin
+                            Allies_Close(nil);
+                            Message_Close(nil);
+                            MessageLog_Close(nil);
+                            Label_MPChatUnread.Caption := ''; //No unread messages
                             fGuiGameChat.Show;
+                          end;
     VK_ESCAPE:            begin
                             //Progressively hide open elements on Esc
                             if fJoiningGroups then
