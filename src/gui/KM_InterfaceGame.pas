@@ -23,7 +23,7 @@ type
 
     procedure MouseWheel(Shift: TShiftState; WheelDelta: Integer; X,Y: Integer); override;
 
-    procedure SyncUI; virtual;
+    procedure SyncUI(aMoveViewport: Boolean = True); virtual;
     procedure SyncUIView(aCenter: TKMPointF; aZoom: Single = 1);
     procedure UpdateGameCursor(X, Y: Integer; Shift: TShiftState);
     procedure UpdateStateIdle(aFrameTime: Cardinal); virtual; abstract;
@@ -197,13 +197,16 @@ begin
 end;
 
 
-procedure TKMUserInterfaceGame.SyncUI;
+procedure TKMUserInterfaceGame.SyncUI(aMoveViewport: Boolean = True);
 begin
   fMinimap.LoadFromTerrain;
   fMinimap.Update(False);
 
-  fViewport.ResizeMap(gTerrain.MapX, gTerrain.MapY, gTerrain.TopHill / CELL_SIZE_PX);
-  fViewport.ResetZoom;
+  if aMoveViewport then
+  begin
+    fViewport.ResizeMap(gTerrain.MapX, gTerrain.MapY, gTerrain.TopHill / CELL_SIZE_PX);
+    fViewport.ResetZoom;
+  end;
 end;
 
 

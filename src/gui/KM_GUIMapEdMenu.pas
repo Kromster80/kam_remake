@@ -26,6 +26,7 @@ type
     constructor Create(aParent: TKMPanel);
     destructor Destroy; override;
 
+    procedure SetLoadMode(aMultiplayer:boolean);
     procedure Show;
     procedure Hide;
     function Visible: Boolean;
@@ -119,6 +120,13 @@ end;
 procedure TKMMapEdMenu.UpdateState;
 begin
   fGuiMenuLoad.UpdateState;
+end;
+
+
+procedure TKMMapEdMenu.SetLoadMode(aMultiplayer:boolean);
+begin
+  fGuiMenuLoad.SetLoadMode(aMultiplayer);
+  fGuiMenuSave.SetLoadMode(aMultiplayer);
 end;
 
 

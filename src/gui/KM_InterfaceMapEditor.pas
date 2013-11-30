@@ -87,8 +87,9 @@ type
     procedure MouseMove(Shift: TShiftState; X,Y: Integer); override;
     procedure MouseUp(Button: TMouseButton; Shift: TShiftState; X,Y: Integer); override;
     procedure Resize(X,Y: Word); override;
+    procedure SetLoadMode(aMultiplayer:boolean);
 
-    procedure SyncUI; override;
+    procedure SyncUI(aMoveViewport: Boolean = True); override;
     procedure UpdateState(aTickCount: Cardinal); override;
     procedure UpdateStateIdle(aFrameTime: Cardinal); override;
     procedure Paint; override;
@@ -332,12 +333,13 @@ end;
 
 
 //Update UI state according to game state
-procedure TKMapEdInterface.SyncUI;
+procedure TKMapEdInterface.SyncUI(aMoveViewport: Boolean = True);
 var
   I: Integer;
 begin
   inherited;
-  fViewport.Position := KMPointF(gTerrain.MapX / 2, gTerrain.MapY / 2);
+  if aMoveViewport then
+    fViewport.Position := KMPointF(gTerrain.MapX / 2, gTerrain.MapY / 2);
 
   MinimapView.SetMinimap(fMinimap);
   MinimapView.SetViewport(fViewport);
@@ -790,6 +792,12 @@ begin
   inherited;
 
   fViewport.Resize(X, Y);
+end;
+
+
+procedure TKMapEdInterface.SetLoadMode(aMultiplayer:boolean);
+begin
+  fGuiMenu.SetLoadMode(aMultiplayer);
 end;
 
 

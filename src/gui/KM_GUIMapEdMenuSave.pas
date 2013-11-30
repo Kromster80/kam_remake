@@ -23,6 +23,7 @@ type
   public
     constructor Create(aParent: TKMPanel; aOnDone: TNotifyEvent);
 
+    procedure SetLoadMode(aMultiplayer:boolean);
     procedure Show;
     procedure Hide;
   end;
@@ -84,7 +85,7 @@ begin
     gGame.SaveMapEditor(SaveName);
 
     //Player colors and mapname has changed
-    gGame.ActiveInterface.SyncUI;
+    gGame.ActiveInterface.SyncUI(False); //Don't move the viewport
 
     fOnDone(Self);
   end;
@@ -102,14 +103,18 @@ end;
 
 procedure TKMMapEdMenuSave.Show;
 begin
-  if gGame.MapEditor.HumanCount > 1 then
-    Radio_Save_MapType.ItemIndex := 1
-  else
-    Radio_Save_MapType.ItemIndex := 0;
-
   Edit_SaveName.Text := gGame.GameName;
   Menu_SaveClick(Edit_SaveName);
   Panel_Save.Show;
+end;
+
+
+procedure TKMMapEdMenuSave.SetLoadMode(aMultiplayer: Boolean);
+begin
+  if aMultiplayer then
+    Radio_Save_MapType.ItemIndex := 1
+  else
+    Radio_Save_MapType.ItemIndex := 0;
 end;
 
 

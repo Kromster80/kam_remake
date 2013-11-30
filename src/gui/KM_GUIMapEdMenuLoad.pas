@@ -27,6 +27,7 @@ type
     constructor Create(aParent: TKMPanel; aOnDone: TNotifyEvent);
     destructor Destroy; override;
 
+    procedure SetLoadMode(aMultiplayer:boolean);
     procedure Show;
     procedure Hide;
     procedure UpdateState;
@@ -35,7 +36,7 @@ type
 
 implementation
 uses
-  KM_ResTexts, KM_Game, KM_GameApp, KM_RenderUI, KM_ResFonts, KM_InterfaceGame;
+  KM_ResTexts, KM_Game, KM_GameApp, KM_RenderUI, KM_ResFonts, KM_InterfaceGame, KM_InterfaceMapEditor;
 
 
 { TKMMapEdMenuLoad }
@@ -88,6 +89,11 @@ begin
     MapName := ListBox_Load.Item[ListBox_Load.ItemIndex];
     IsMulti := Radio_Load_MapType.ItemIndex = 1;
     fGameApp.NewMapEditor(TKMapsCollection.FullPath(MapName, '.dat', IsMulti), 0, 0);
+
+    //Keep MP/SP selected in the map editor interface
+    //(if mission failed to load we would have fGame = nil)
+    if (gGame <> nil) and (gGame.ActiveInterface is TKMapEdInterface) then
+      TKMapEdInterface(gGame.ActiveInterface).SetLoadMode(IsMulti);
   end
   else
   if Sender = Button_LoadCancel then
@@ -163,11 +169,6 @@ end;
 
 procedure TKMMapEdMenuLoad.Show;
 begin
-  if gGame.MapEditor.HumanCount > 1 then
-    Radio_Load_MapType.ItemIndex := 1
-  else
-    Radio_Load_MapType.ItemIndex := 0;
-
   Menu_LoadUpdate;
   Panel_Load.Show;
 end;
@@ -177,6 +178,15 @@ procedure TKMMapEdMenuLoad.UpdateState;
 begin
   if fMaps <> nil then fMaps.UpdateState;
   if fMapsMP <> nil then fMapsMP.UpdateState;
+end;
+
+
+procedure TKMMapEdMenuLoad.SetLoadMode(aMultiplayer: Boolean);
+begin
+  if aMultiplayer then
+    Radio_Load_MapType.ItemIndex := 1
+  else
+    Radio_Load_MapType.ItemIndex := 0;
 end;
 
 

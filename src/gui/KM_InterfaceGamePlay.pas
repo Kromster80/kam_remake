@@ -294,7 +294,7 @@ type
     procedure MouseMove(Shift: TShiftState; X,Y: Integer); override;
     procedure MouseUp(Button: TMouseButton; Shift: TShiftState; X,Y: Integer); override;
     procedure Resize(X,Y: Word); override;
-    procedure SyncUI; override;
+    procedure SyncUI(aMoveViewport: Boolean = True); override;
     procedure UpdateState(aTickCount: Cardinal); override;
     procedure UpdateStateIdle(aFrameTime: Cardinal); override;
     procedure Paint; override;
@@ -3085,7 +3085,7 @@ begin
 end;
 
 
-procedure TKMGamePlayInterface.SyncUI;
+procedure TKMGamePlayInterface.SyncUI(aMoveViewport: Boolean = True);
 begin
   inherited;
 

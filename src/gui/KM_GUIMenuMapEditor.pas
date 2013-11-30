@@ -49,7 +49,7 @@ type
 
 
 implementation
-uses KM_ResTexts, KM_GameApp, KM_RenderUI, KM_ResFonts;
+uses KM_ResTexts, KM_Game, KM_GameApp, KM_RenderUI, KM_ResFonts, KM_InterfaceMapEditor;
 
 
 const
@@ -167,6 +167,11 @@ begin
     Maps.Lock;
       fGameApp.NewMapEditor(Maps[ID].FullPath('.dat'), 0, 0);
     Maps.Unlock;
+
+    //Keep MP/SP selected in the map editor interface
+    //(if mission failed to load we would have fGame = nil)
+    if (gGame <> nil) and (gGame.ActiveInterface is TKMapEdInterface) then
+      TKMapEdInterface(gGame.ActiveInterface).SetLoadMode(Radio_MapEd_MapType.ItemIndex = 1);
   end;
 end;
 
