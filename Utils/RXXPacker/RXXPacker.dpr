@@ -4,7 +4,7 @@ uses
   Forms,
   {$IFDEF FPC}Interfaces,{$ENDIF}
   RXXPackerForm in 'RXXPackerForm.pas' {RXXForm1},
-  KM_PNG in '..\..\Common\KM_PNG.pas',
+  KM_PNG in '..\..\src\KM_PNG.pas',
   KM_ResSprites in '..\..\src\res\KM_ResSprites.pas',
   KM_ResSpritesEdit in '..\..\src\res\KM_ResSpritesEdit.pas',
   KM_SoftShadows in '..\..\src\KM_SoftShadows.pas';
