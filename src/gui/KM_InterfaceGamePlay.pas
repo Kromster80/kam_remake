@@ -116,6 +116,7 @@ type
     procedure Menu_Load_ListClick(Sender: TObject);
     procedure Menu_Load_Click(Sender: TObject);
     procedure Selection_Assign(aKey: Word; aObject: TObject);
+    procedure Selection_Link(aKey: Word; aObject: TObject);
     procedure Selection_Select(aKey: Word);
     procedure SwitchPage(Sender: TObject);
     procedure DisplayHint(Sender: TObject);
@@ -2267,6 +2268,20 @@ begin
 end;
 
 
+procedure TKMGamePlayInterface.Selection_Link(aKey: Word; aObject: TObject);
+var Key: Integer; G: TKMUnitGroup;
+begin
+  Key := aKey - Ord('0');
+  G := gHands.GetGroupByUID(fSelection[Key]);
+  if (aObject <> G) and (aObject is TKMUnitGroup) and (G is TKMUnitGroup)
+  and (TKMUnitGroup(aObject).GroupType = G.GroupType) then
+  begin
+    gSoundPlayer.PlayWarrior(TKMUnitGroup(aObject).UnitType, sp_Join); //In SP joining is instant, aObject does not exist after that
+    gGame.GameInputProcess.CmdArmy(gic_ArmyLink, TKMUnitGroup(aObject), G);
+  end;
+end;
+
+
 procedure TKMGamePlayInterface.Selection_Select(aKey: Word);
 var Key: Integer; OldSelected: TObject;
 begin
@@ -2538,7 +2553,10 @@ begin
                     if (ssCtrl in Shift) then
                       Selection_Assign(Key, MySpectator.Selected)
                     else
-                      Selection_Select(Key);
+                      if (ssShift in Shift) then
+                        Selection_Link(Key, MySpectator.Selected)
+                      else
+                        Selection_Select(Key);
 
     //Standard army shortcuts from KaM
     Ord(SC_ARMY_HALT):        if Panel_Army.Visible and not SelectingTroopDirection then Button_Army_Stop.Click;
