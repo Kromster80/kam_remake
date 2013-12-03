@@ -55,6 +55,7 @@ type
     procedure Kick(aHandle:integer);
     procedure UpdateStateIdle;
     function GetMaxHandle:integer;
+    function GetIP(aHandle:integer): string;
     property OnError:TGetStrProc write fOnError;
     property OnClientConnect:THandleEvent write fOnClientConnect;
     property OnClientDisconnect:THandleEvent write fOnClientDisconnect;
@@ -287,6 +288,19 @@ begin
 
   if fListening and not fSocketServer.Connected then
     raise Exception.Create('Server is no longer listening! Server will restart.');
+end;
+
+
+function TKMNetServerLNet.GetIP(aHandle:integer): string;
+begin
+  Result := '';
+  fSocketServer.IterReset;
+  while fSocketServer.IterNext do
+    if (fSocketServer.Iterator.UserData <> nil) and (TClientInfo(fSocketServer.Iterator.UserData).Tag = aHandle) then
+    begin
+      Result := fSocketServer.Iterator.PeerAddress;
+      Exit; //Only one client should have this handle
+    end;
 end;
 
 

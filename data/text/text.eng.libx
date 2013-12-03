@@ -554,7 +554,7 @@
 553:Password
 554:Room settings
 555:Set to host
-556:Ban
+556:Ban from this lobby
 557:Kick
 558:Randomize locations within teams
 559:Description
@@ -734,3 +734,7 @@
 760:Server stopped responding
 761:Invalid room number
 765:Whisper to %s
+766:%s was banned from this lobby by the host
+767:You were banned by the host
+768:Reset all bans
+769:The host reset all bans for this lobby

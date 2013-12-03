@@ -33,6 +33,8 @@ type
     mk_ConnectedToRoom, //Server tells a client they have been successfully added to a room
     mk_SetGameInfo,     //Host tells the server the player list, map, etc to be reported to queries
     mk_KickPlayer,      //Host askes the server to kick someone
+    mk_BanPlayer,       //Host askes the server to ban someone from this room
+    mk_ResetBans,       //Host askes the server to reset the ban list for this room
     mk_Kicked,          //Server tells a client they were kicked just before disconnecting then
     mk_LangCode,        //Client tells host his language code
     mk_GameCRC,         //Host tells a joining client CRC of main data files so he can decide whether to join
@@ -110,6 +112,8 @@ const
     pfNumber,   //mk_ConnectedToRoom
     pfBinary,   //mk_SetGameInfo
     pfNumber,   //mk_KickPlayer
+    pfNumber,   //mk_BanPlayer
+    pfNoData,   //mk_ResetBans
     pfNumber,   //mk_Kicked
     pfString,   //mk_LangCode
     pfNumber,   //mk_GameCRC

@@ -70,6 +70,8 @@ Improvements:
  +      L       Allow cinematics in dynamic scripts
  +  M   File transfers in multiplayer lobby
  +	L	Master server use MySQL for storage rather than .txt files
+ +	L	Shift+3 joins the selected warrior group to the group assigned to hotkey 3 (Starcraft style)
+ +  L   The host can ban players from the lobby (only from this lobby, it is not a permanent ban)
 	        Dismiss button to make units walk into the school and disappear (gold is not refunded)
 	L	Simple dedicated server form which lets you set the properties of the INI for the server and start it [gemGreg]
 	L	Placing houses in MP should put a temp/fake visual markup until the real one can be added to make it appear responsive
@@ -106,7 +108,6 @@ Improvements:
 	L	Add script command to allow to add recruits into the Barracks in MapEd (only Barracks for simplicity, other houses dont need it)
 	L	Allow dedicated servers to optionally specify their IP in the INI file (some servers have multiple IP addresses, the external one the master server sees might not be the correct one)
 	L	Icon before the server name: Swords/house/floppy for battle/build/save (save icon only shown while in lobby)
-	L	Shift+3 joins the selected warrior group to the group assigned to hotkey 3 (Starcraft style)
 	L	Maplist takes too long to load on first run, scrollbar moves irritatingly while maps are being added
 	L	Save last selected item in lists (load game, mp, maped list, savegames, etc)
 	L	Right-click on a unit in Schools queue to move that unit to the front of the queue (currently RMB is "remove to here")

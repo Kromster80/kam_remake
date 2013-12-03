@@ -154,6 +154,8 @@ type
     procedure SelectTeam(aIndex:integer; aPlayerIndex:integer);
     procedure SelectColor(aIndex:integer; aPlayerIndex:integer);
     procedure KickPlayer(aPlayerIndex:integer);
+    procedure BanPlayer(aPlayerIndex:integer);
+    procedure ResetBans;
     procedure SendPassword(aPassword: AnsiString);
     procedure SetPassword(aPassword: AnsiString);
     property Password: AnsiString read fPassword;
@@ -654,6 +656,21 @@ begin
   Assert(IsHost, 'Only host is allowed to kick players out');
   PacketSend(NET_ADDRESS_SERVER, mk_KickPlayer, fNetPlayers[aPlayerIndex].IndexOnServer);
   PostMessage(TX_NET_KICKED, UnicodeString(fNetPlayers[aPlayerIndex].Nikname));
+end;
+
+
+procedure TKMNetworking.BanPlayer(aPlayerIndex: Integer);
+begin
+  Assert(IsHost, 'Only host is allowed to ban players');
+  PacketSend(NET_ADDRESS_SERVER, mk_BanPlayer, fNetPlayers[aPlayerIndex].IndexOnServer);
+  PostMessage(TX_NET_BANNED, UnicodeString(fNetPlayers[aPlayerIndex].Nikname));
+end;
+
+
+procedure TKMNetworking.ResetBans;
+begin
+  PacketSend(NET_ADDRESS_SERVER, mk_ResetBans);
+  PostMessage(TX_NET_BANS_RESET);
 end;
 
 

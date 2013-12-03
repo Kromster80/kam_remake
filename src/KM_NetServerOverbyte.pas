@@ -34,6 +34,7 @@ type
     procedure StopListening;
     procedure SendData(aHandle:integer; aData:pointer; aLength:cardinal);
     procedure Kick(aHandle:integer);
+    function GetIP(aHandle:integer): string;
     function GetMaxHandle:integer;
     property OnError:TGetStrProc write fOnError;
     property OnClientConnect:THandleEvent write fOnClientConnect;
@@ -171,6 +172,20 @@ begin
     begin
       if fSocketServer.Client[i].State <> wsClosed then //Sometimes this occurs just before ClientDisconnect
         fSocketServer.Client[i].Close;
+      Exit; //Only one client should have this handle
+    end;
+end;
+
+
+function TKMNetServerOverbyte.GetIP(aHandle:integer): string;
+var i:integer;
+begin
+  Result := '';
+  for i:=0 to fSocketServer.ClientCount-1 do
+    if fSocketServer.Client[i].Tag = aHandle then
+    begin
+      if fSocketServer.Client[i].State <> wsClosed then //Sometimes this occurs just before ClientDisconnect
+        Result := fSocketServer.Client[i].GetPeerAddr;
       Exit; //Only one client should have this handle
     end;
 end;

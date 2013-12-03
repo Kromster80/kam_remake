@@ -72,6 +72,7 @@ type
       Panel_LobbySettings: TKMPanel;
         Edit_LobbyDescription: TKMEdit;
         Edit_LobbyPassword: TKMEdit;
+        Button_LobbySettingsResetBans: TKMButton;
         Button_LobbySettingsSave: TKMButton;
         Button_LobbySettingsCancel: TKMButton;
 
@@ -338,7 +339,7 @@ end;
 
 procedure TKMMenuLobby.CreateChatMenu(aParent: TKMPanel);
 begin
-  Menu_Chat := TKMPopUpMenu.Create(aParent, 120);
+  Menu_Chat := TKMPopUpMenu.Create(aParent, 140);
   Menu_Chat.Anchors := [anLeft, anBottom];
   //Menu gets populated right before show
   Menu_Chat.AddItem(NO_TEXT);
@@ -348,9 +349,9 @@ end;
 
 procedure TKMMenuLobby.CreatePlayerMenu(aParent: TKMPanel);
 begin
-  Menu_Host := TKMPopUpMenu.Create(aParent, 120);
+  Menu_Host := TKMPopUpMenu.Create(aParent, 220);
   Menu_Host.AddItem(gResTexts[TX_LOBBY_PLAYER_KICK]);
-  //Menu_Host.AddItem(fTextMain[TX_LOBBY_PLAYER_BAN]);
+  Menu_Host.AddItem(gResTexts[TX_LOBBY_PLAYER_BAN]);
   //Menu_Host.AddItem(fTextMain[TX_LOBBY_PLAYER_SETHOST]);
   Menu_Host.OnClick := PlayerMenuClick;
 end;
@@ -373,9 +374,12 @@ begin
     Edit_LobbyPassword := TKMEdit.Create(Panel_LobbySettings, 20, 120, 152, 20, fnt_Grey);
     Edit_LobbyPassword.AllowedChars := acText;
 
-    Button_LobbySettingsSave := TKMButton.Create(Panel_LobbySettings, 20, 160, 280, 30, gResTexts[TX_LOBBY_ROOM_OK], bsMenu);
+    Button_LobbySettingsResetBans := TKMButton.Create(Panel_LobbySettings, 20, 160, 200, 20, gResTexts[TX_LOBBY_RESET_BANS], bsMenu);
+    Button_LobbySettingsResetBans.OnClick := SettingsClick;
+
+    Button_LobbySettingsSave := TKMButton.Create(Panel_LobbySettings, 20, 210, 280, 30, gResTexts[TX_LOBBY_ROOM_OK], bsMenu);
     Button_LobbySettingsSave.OnClick := SettingsClick;
-    Button_LobbySettingsCancel := TKMButton.Create(Panel_LobbySettings, 20, 200, 280, 30, gResTexts[TX_LOBBY_ROOM_CANCEL], bsMenu);
+    Button_LobbySettingsCancel := TKMButton.Create(Panel_LobbySettings, 20, 250, 280, 30, gResTexts[TX_LOBBY_ROOM_CANCEL], bsMenu);
     Button_LobbySettingsCancel.OnClick := SettingsClick;
 end;
 
@@ -725,8 +729,9 @@ begin
   if (Sender = Menu_Host) and (Menu_Host.ItemIndex = 0) then
     fNetworking.KickPlayer(id);
 
-  //todo: Ban
-  //if (Sender = Menu_Host) and (ListBox_PlayerMenuHost.ItemIndex = 1) then
+  //Ban
+  if (Sender = Menu_Host) and (Menu_Host.ItemIndex = 1) then
+    fNetworking.BanPlayer(id);
 
   //todo: Set to host
   //if (Sender = Menu_Host) and (ListBox_PlayerMenuHost.ItemIndex = 2) then
@@ -1500,6 +1505,11 @@ begin
     Edit_LobbyDescription.Text := fNetworking.Description;
     Edit_LobbyPassword.Text := UnicodeString(fNetworking.Password);
     Panel_LobbySettings.Show;
+  end;
+
+  if Sender = Button_LobbySettingsResetBans then
+  begin
+    fNetworking.ResetBans;
   end;
 
   if Sender = Button_LobbySettingsCancel then

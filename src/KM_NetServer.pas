@@ -83,6 +83,7 @@ type
     fEmptyGameInfo: TMPGameInfo;
     fRoomInfo:array of record
                          HostHandle:integer;
+                         BannedIPs: array of string;
                          GameInfo:TMPGameInfo;
                        end;
 
@@ -106,6 +107,7 @@ type
     function GetRoomClientsCount(aRoom:integer):integer;
     function GetFirstRoomClient(aRoom:integer):integer;
     procedure AddClientToRoom(aHandle, aRoom:integer);
+    procedure BanPlayerFromRoom(aHandle, aRoom:integer);
     procedure SaveHTMLStatus;
   public
     constructor Create(aMaxRooms:word; aKickTimeout: Word; aHTMLStatusFile, aWelcomeMessage: UnicodeString);
@@ -269,7 +271,11 @@ begin
   fOnStatusMessage := nil;
   fServer.StopListening;
   fListening := false;
-  for i:=0 to fRoomCount-1 do FreeAndNil(fRoomInfo[i].GameInfo);
+  for i:=0 to fRoomCount-1 do
+  begin
+    FreeAndNil(fRoomInfo[i].GameInfo);
+    SetLength(fRoomInfo[i].BannedIPs, 0);
+  end;
   SetLength(fRoomInfo,0);
   fRoomCount := 0;
 end;
@@ -367,6 +373,7 @@ end;
 
 
 procedure TKMNetServer.AddClientToRoom(aHandle, aRoom: Integer);
+var I: Integer;
 begin
   if fClientList.GetByHandle(aHandle).Room <> -1 then exit; //Changing rooms is not allowed yet
 
@@ -399,6 +406,15 @@ begin
         Exit;
       end;
 
+  //Make sure the client is not banned by host from this room
+  for I:=0 to Length(fRoomInfo[aRoom].BannedIPs)-1 do
+    if fRoomInfo[aRoom].BannedIPs[I] = fServer.GetIP(aHandle) then
+    begin
+      SendMessage(aHandle, mk_RefuseToJoin, TX_NET_BANNED_BY_HOST);
+      fServer.Kick(aHandle);
+      Exit;
+    end;
+
   Status('Client '+inttostr(aHandle)+' has connected to room '+inttostr(aRoom));
   fClientList.GetByHandle(aHandle).Room := aRoom;
 
@@ -413,6 +429,13 @@ begin
   SendMessage(aHandle, mk_ConnectedToRoom, aRoom);
   MeasurePings;
   SaveHTMLStatus;
+end;
+
+
+procedure TKMNetServer.BanPlayerFromRoom(aHandle, aRoom:integer);
+begin
+  SetLength(fRoomInfo[aRoom].BannedIPs, Length(fRoomInfo[aRoom].BannedIPs)+1);
+  fRoomInfo[aRoom].BannedIPs[Length(fRoomInfo[aRoom].BannedIPs)-1] := fServer.GetIP(aHandle);
 end;
 
 
@@ -444,6 +467,7 @@ begin
       fRoomInfo[Room].HostHandle := NET_ADDRESS_EMPTY; //Room is now empty so we don't need a new host
       fRoomInfo[Room].GameInfo.Free;
       fRoomInfo[Room].GameInfo := TMPGameInfo.Create;
+      SetLength(fRoomInfo[Room].BannedIPs, 0);
     end
     else
     begin
@@ -587,6 +611,22 @@ begin
                 SendMessage(tmpInteger, mk_Kicked, TX_NET_KICK_BY_HOST);
                 fServer.Kick(tmpInteger);
               end;
+            end;
+    mk_BanPlayer:
+            begin
+              M.Read(tmpInteger);
+              if fClientList.GetByHandle(tmpInteger) <> nil then
+              begin
+                RoomId := fClientList.GetByHandle(aSenderHandle).Room;
+                BanPlayerFromRoom(tmpInteger, RoomId);
+                SendMessage(tmpInteger, mk_Kicked, TX_NET_BANNED_BY_HOST);
+                fServer.Kick(tmpInteger);
+              end;
+            end;
+    mk_ResetBans:
+            begin
+              RoomId := fClientList.GetByHandle(aSenderHandle).Room;
+              SetLength(fRoomInfo[RoomId].BannedIPs, 0);
             end;
     mk_GetServerInfo:
             begin
@@ -738,6 +778,7 @@ begin
   SetLength(fRoomInfo,fRoomCount);
   fRoomInfo[fRoomCount-1].HostHandle := NET_ADDRESS_EMPTY;
   fRoomInfo[fRoomCount-1].GameInfo := TMPGameInfo.Create;
+  SetLength(fRoomInfo[fRoomCount-1].BannedIPs, 0);
 end;
 
 
