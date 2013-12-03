@@ -140,10 +140,12 @@ type
     function GetMaxInRes: Word;
     procedure ResAddToIn(aWare: TWareType; aCount: Word = 1; aFromScript: Boolean = False); virtual; //override for School and etc..
     procedure ResAddToOut(aWare: TWareType; const aCount: Integer = 1);
+    procedure ResAddToEitherFromScript(aWare: TWareType; aCount: Integer);
     procedure ResAddToBuild(aWare: TWareType);
     procedure ResTakeFromIn(aWare: TWareType; aCount: Byte = 1);
     procedure ResTakeFromOut(aWare: TWareType; const aCount: Word = 1); virtual;
     function ResCanAddToIn(aRes: TWareType): Boolean; virtual;
+    function ResCanAddToOut(aRes: TWareType): Boolean;
     property ResOrder[aId: Byte]: Integer read GetResOrder write SetResOrder;
 
     procedure Save(SaveStream: TKMemoryStream); virtual;
@@ -954,6 +956,31 @@ begin
 end;
 
 
+procedure TKMHouse.ResAddToEitherFromScript(aWare: TWareType; aCount: Integer);
+var I: Integer;
+begin
+  for I := 1 to 4 do
+  begin
+    //No range checking required as ResAddToIn does that
+    //If ResCanAddToIn, add it immediately and exit (e.g. store)
+    if ResCanAddToIn(aWare) or (aWare = gResource.HouseDat[fHouseType].ResInput[I]) then
+    begin
+      ResAddToIn(aWare, aCount, True);
+      Exit;
+    end;
+    //Don't allow output to be overfilled from script. This is not checked
+    //in ResAddToOut because e.g. stonemason is allowed to overfill it slightly)
+    if (aWare = gResource.HouseDat[fHouseType].ResOutput[I])
+    and (fResourceOut[I] < 5) then
+    begin
+      aCount := Min(aCount, 5-fResourceOut[I]);
+      ResAddToOut(aWare, aCount);
+      Exit;
+    end;
+  end;
+end;
+
+
 {Add resources to building process}
 procedure TKMHouse.ResAddToBuild(aWare: TWareType);
 begin
@@ -970,8 +997,18 @@ var I: Integer;
 begin
   Result := False;
   for I := 1 to 4 do
-  if aRes = gResource.HouseDat[fHouseType].ResInput[I] then
-    Result := True;
+    if aRes = gResource.HouseDat[fHouseType].ResInput[I] then
+      Result := True;
+end;
+
+
+function TKMHouse.ResCanAddToOut(aRes: TWareType): Boolean;
+var I: Integer;
+begin
+  Result := False;
+  for I := 1 to 4 do
+    if aRes = gResource.HouseDat[fHouseType].ResOutput[I] then
+      Result := True;
 end;
 
 

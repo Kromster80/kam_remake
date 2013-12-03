@@ -2182,9 +2182,9 @@ begin
   begin
     H := fIDCache.GetHouse(aHouseID);
     if H <> nil then
-      if H.ResCanAddToIn(Res) then
+      if H.ResCanAddToIn(Res) or H.ResCanAddToOut(Res) then
       begin
-        H.ResAddToIn(Res, aCount, True);
+        H.ResAddToEitherFromScript(Res, aCount);
         gHands[H.Owner].Stats.WareProduced(Res, aCount);
       end
       else
