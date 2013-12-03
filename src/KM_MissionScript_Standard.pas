@@ -288,9 +288,9 @@ begin
                           if Qty = -1 then Qty := High(Word); //-1 means maximum resources
 
                           H := gHands[fLastHand].FindHouse(HouseIndexToType[P[0]], P[1]);
-                          if (H <> nil) and H.ResCanAddToIn(WareIndexToType[P[2]]) then
+                          if (H <> nil) and (H.ResCanAddToIn(WareIndexToType[P[2]]) or H.ResCanAddToOut(WareIndexToType[P[2]])) then
                           begin
-                            H.ResAddToIn(WareIndexToType[P[2]], Qty, True);
+                            H.ResAddToEitherFromScript(WareIndexToType[P[2]], Qty);
                             gHands[fLastHand].Stats.WareInitial(WareIndexToType[P[2]], Qty);
                           end;
                         end;
@@ -299,9 +299,9 @@ begin
                           Qty := EnsureRange(P[1], -1, High(Word)); //Sometimes user can define it to be 999999
                           if Qty = -1 then Qty := High(Word); //-1 means maximum resources
 
-                          if (fLastHouse <> nil) and fLastHouse.ResCanAddToIn(WareIndexToType[P[0]]) then
+                          if (fLastHouse <> nil) and (fLastHouse.ResCanAddToIn(WareIndexToType[P[0]]) or fLastHouse.ResCanAddToOut(WareIndexToType[P[0]])) then
                           begin
-                            fLastHouse.ResAddToIn(WareIndexToType[P[0]], Qty, True);
+                            fLastHouse.ResAddToEitherFromScript(WareIndexToType[P[0]], Qty);
                             gHands[fLastHand].Stats.WareInitial(WareIndexToType[P[0]], Qty);
                           end
                           else
@@ -791,8 +791,12 @@ begin
         end
         else
           for Res := WARE_MIN to WARE_MAX do
+          begin
             if H.CheckResIn(Res) > 0 then
               AddCommand(ct_AddWareToLast, [WareTypeToIndex[Res], H.CheckResIn(Res)]);
+            if H.CheckResOut(Res) > 0 then
+              AddCommand(ct_AddWareToLast, [WareTypeToIndex[Res], H.CheckResOut(Res)]);
+          end;
       end;
     end;
     AddData(''); //NL

@@ -149,7 +149,6 @@ TX_BUILD_WINE_HINT = 134; //Lay out wine fields
 TX_HOUSE_DEMOLISH_NO = 135; //Cancel
 TX_HOUSE_SCHOOL_WIP_HINT = 136; //Cancel current training
 TX_HOUSE_NEEDS = 137; //Needs:
-TX_HOUSE_SUPPLIES = 138; //Supplies:
 TX_HOUSE_CONDITION = 139; //Condition:
 TX_HOUSE_DELIVERS = 140; //Delivers
 TX_HOUSE_UNDER_CONSTRUCTION = 141; //House under|construction

@@ -72,6 +72,7 @@ Improvements:
  +	L	Master server use MySQL for storage rather than .txt files
  +	L	Shift+3 joins the selected warrior group to the group assigned to hotkey 3 (Starcraft style)
  +  L   The host can ban players from the lobby (only from this lobby, it is not a permanent ban)
+ +  L   MapEd and script let you add out wares to houses (e.g. stone to stonemason)
 	        Dismiss button to make units walk into the school and disappear (gold is not refunded)
 	L	Simple dedicated server form which lets you set the properties of the INI for the server and start it [gemGreg]
 	L	Placing houses in MP should put a temp/fake visual markup until the real one can be added to make it appear responsive

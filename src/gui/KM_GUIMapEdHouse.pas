@@ -30,8 +30,9 @@ type
     Label_HouseHealth: TKMLabel;
     KMHealthBar_House: TKMPercentBar;
     Button_HouseHealthDec, Button_HouseHealthInc: TKMButton;
-    Label_House_Supply: TKMLabel;
-    ResRow_Resource: array [0..3] of TKMWareOrderRow;
+    Label_House_Input, Label_House_Output: TKMLabel;
+    ResRow_Resource_Input: array [0..3] of TKMWareOrderRow;
+    ResRow_Resource_Output: array [0..3] of TKMWareOrderRow;
 
     Panel_HouseStore: TKMPanel;
     Button_Store: array [1..STORE_RES_COUNT] of TKMButtonFlat;
@@ -84,14 +85,22 @@ begin
     Button_HouseHealthDec.OnClickShift := HouseChange;
     Button_HouseHealthInc.OnClickShift := HouseChange;
 
-    Label_House_Supply := TKMLabel.Create(Panel_House, 0, 85, TB_WIDTH, 0, gResTexts[TX_HOUSE_SUPPLIES], fnt_Grey, taCenter);
+    Label_House_Input := TKMLabel.Create(Panel_House, 0, 85, TB_WIDTH, 0, gResTexts[TX_HOUSE_NEEDS], fnt_Grey, taCenter);
 
     for I := 0 to 3 do
     begin
-      ResRow_Resource[I] := TKMWareOrderRow.Create(Panel_House, 0, 105 + I * 25, TB_WIDTH, 20);
-      ResRow_Resource[I].RX := rxGui;
-      ResRow_Resource[I].OrderAdd.OnClickShift := HouseChange;
-      ResRow_Resource[I].OrderRem.OnClickShift := HouseChange;
+      ResRow_Resource_Input[I] := TKMWareOrderRow.Create(Panel_House, 0, 105 + I * 25, TB_WIDTH, 20);
+      ResRow_Resource_Input[I].RX := rxGui;
+      ResRow_Resource_Input[I].OrderAdd.OnClickShift := HouseChange;
+      ResRow_Resource_Input[I].OrderRem.OnClickShift := HouseChange;
+    end;
+    Label_House_Output := TKMLabel.Create(Panel_House, 0, 155, TB_WIDTH, 0, gResTexts[TX_HOUSE_DELIVERS]+':', fnt_Grey, taCenter);
+    for I := 0 to 3 do
+    begin
+      ResRow_Resource_Output[I] := TKMWareOrderRow.Create(Panel_House, 0, 175 + I * 25, TB_WIDTH, 20);
+      ResRow_Resource_Output[I].RX := rxGui;
+      ResRow_Resource_Output[I].OrderAdd.OnClickShift := HouseChange;
+      ResRow_Resource_Output[I].OrderRem.OnClickShift := HouseChange;
     end;
 
   Create_Store;
@@ -195,22 +204,40 @@ begin
   KMHealthBar_House.Caption := IntToStr(Round(fHouse.GetHealth)) + '/' + IntToStr(HouseDat.MaxHealth);
   KMHealthBar_House.Position := fHouse.GetHealth / HouseDat.MaxHealth;
 
-  Label_House_Supply.Hide;
+  Label_House_Input.Hide;
   for I := 0 to 3 do
   begin
     Res := HouseDat.ResInput[I+1];
     if gResource.Wares[Res].IsValid then
     begin
-      ResRow_Resource[I].TexID := gResource.Wares[Res].GUIIcon;
-      ResRow_Resource[I].Caption := gResource.Wares[Res].Title;
-      ResRow_Resource[I].Hint := gResource.Wares[Res].Title;
-      ResRow_Resource[I].WareCount := fHouse.CheckResIn(Res);
-      ResRow_Resource[I].OrderCount := fHouse.CheckResIn(Res);
-      ResRow_Resource[I].Show;
-      Label_House_Supply.Show;
+      ResRow_Resource_Input[I].TexID := gResource.Wares[Res].GUIIcon;
+      ResRow_Resource_Input[I].Caption := gResource.Wares[Res].Title;
+      ResRow_Resource_Input[I].Hint := gResource.Wares[Res].Title;
+      ResRow_Resource_Input[I].WareCount := fHouse.CheckResIn(Res);
+      ResRow_Resource_Input[I].OrderCount := fHouse.CheckResIn(Res);
+      ResRow_Resource_Input[I].Show;
+      Label_House_Input.Show;
     end
     else
-      ResRow_Resource[I].Hide;
+      ResRow_Resource_Input[I].Hide;
+  end;
+
+  Label_House_Output.Hide;
+  for I := 0 to 3 do
+  begin
+    Res := HouseDat.ResOutput[I+1];
+    if gResource.Wares[Res].IsValid then
+    begin
+      ResRow_Resource_Output[I].TexID := gResource.Wares[Res].GUIIcon;
+      ResRow_Resource_Output[I].Caption := gResource.Wares[Res].Title;
+      ResRow_Resource_Output[I].Hint := gResource.Wares[Res].Title;
+      ResRow_Resource_Output[I].WareCount := fHouse.CheckResOut(Res);
+      ResRow_Resource_Output[I].OrderCount := fHouse.CheckResOut(Res);
+      ResRow_Resource_Output[I].Show;
+      Label_House_Output.Show;
+    end
+    else
+      ResRow_Resource_Output[I].Hide;
   end;
 
   case fHouse.HouseType of
@@ -274,21 +301,40 @@ begin
   begin
     Res := HouseDat.ResInput[I+1];
 
-    if Sender = ResRow_Resource[I].OrderAdd then
+    if Sender = ResRow_Resource_Input[I].OrderAdd then
     begin
       NewCount := Math.Min(GetMultiplicator(Shift), MAX_WARES_IN_HOUSE - fHouse.CheckResIn(Res));
       fHouse.ResAddToIn(Res, NewCount);
     end;
 
-    if Sender = ResRow_Resource[I].OrderRem then
+    if Sender = ResRow_Resource_Input[I].OrderRem then
     begin
       NewCount := Math.Min(GetMultiplicator(Shift), fHouse.CheckResIn(Res));
       fHouse.ResTakeFromIn(Res, NewCount);
     end;
 
-    ResRow_Resource[I].OrderCount := fHouse.CheckResIn(Res);
-    ResRow_Resource[I].WareCount := fHouse.CheckResIn(Res);
+    ResRow_Resource_Input[I].OrderCount := fHouse.CheckResIn(Res);
+    ResRow_Resource_Input[I].WareCount := fHouse.CheckResIn(Res);
+  end;
 
+  for I := 0 to 3 do
+  begin
+    Res := HouseDat.ResOutput[I+1];
+
+    if Sender = ResRow_Resource_Output[I].OrderAdd then
+    begin
+      NewCount := Math.Min(GetMultiplicator(Shift), MAX_WARES_IN_HOUSE - fHouse.CheckResOut(Res));
+      fHouse.ResAddToOut(Res, NewCount);
+    end;
+
+    if Sender = ResRow_Resource_Output[I].OrderRem then
+    begin
+      NewCount := Math.Min(GetMultiplicator(Shift), fHouse.CheckResOut(Res));
+      fHouse.ResTakeFromOut(Res, NewCount);
+    end;
+
+    ResRow_Resource_Output[I].OrderCount := fHouse.CheckResOut(Res);
+    ResRow_Resource_Output[I].WareCount := fHouse.CheckResOut(Res);
   end;
 
   KMHealthBar_House.Caption := IntToStr(Round(fHouse.GetHealth)) + '/' + IntToStr(HouseDat.MaxHealth);
