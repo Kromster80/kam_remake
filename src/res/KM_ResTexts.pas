@@ -55,7 +55,7 @@ type
 
 var
   //All games texts accessible from everywhere
-  gResTexts: TKMTextLibrarySingle;
+  gResTexts: TKMTextLibraryMulti;
 
 
 implementation

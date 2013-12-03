@@ -184,7 +184,7 @@ begin
 
   gResLocales := TKMLocales.Create(ExeDir + 'data' + PathDelim + 'locales.txt', aLocale);
 
-  gResTexts := TKMTextLibrarySingle.Create;
+  gResTexts := TKMTextLibraryMulti.Create;
   gResTexts.LoadLocale(ExeDir + 'data' + PathDelim + 'text' + PathDelim + 'text.%s.libx');
 
   fSounds := TKMResSounds.Create(gResLocales.UserLocale, gResLocales.FallbackLocale, gResLocales.DefaultLocale);
