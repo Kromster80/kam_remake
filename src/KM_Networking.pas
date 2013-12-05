@@ -266,7 +266,7 @@ end;
 
 function TKMNetworking.IsReconnecting:boolean;
 begin
-  Result := (fNetGameState = lgs_Reconnecting);
+  Result := (fNetGameState = lgs_Reconnecting) or (fReconnectRequested <> 0);
 end;
 
 
@@ -904,6 +904,10 @@ var
   I: Integer;
   M: TKMemoryStream;
 begin
+  //Sending chat during reconnections at best causes messages to be lost and at worst causes crashes due to intermediate connecting states
+  if IsReconnecting then
+    Exit; //Fallback in case UI check fails
+
   M := TKMemoryStream.Create;
   M.Write(aRecipientServerIndex);
   M.Write(aTeamOnly);

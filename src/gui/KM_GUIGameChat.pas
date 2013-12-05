@@ -103,7 +103,10 @@ end;
 
 procedure TKMGUIGameChat.Chat_Post(Sender: TObject; Key: Word);
 begin
-  if (Key = VK_RETURN) and (Trim(Edit_ChatMsg.Text) <> '') and (gGame.Networking <> nil) then
+  //Sending chat during reconnections at best causes messages to be lost and at worst causes
+  //crashes due to intermediate connecting states. Therefore we block sending completely.
+  if (Key = VK_RETURN) and (Trim(Edit_ChatMsg.Text) <> '')
+  and (gGame.Networking <> nil) and not gGame.Networking.IsReconnecting then
   begin
     if fChatMode in [cmAll, cmTeam] then
       gGame.Networking.PostChat(Edit_ChatMsg.Text, fChatMode = cmTeam);
