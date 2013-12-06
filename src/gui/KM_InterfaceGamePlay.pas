@@ -397,7 +397,7 @@ begin
     //Don't tell everyone in the game that we are saving yet, as the command hasn't been processed
     gGame.GameInputProcess.CmdGame(gic_GameSave, SaveName, UTCNow) //Timestamp is synchronised between players
   else
-    gGame.Save(SaveName);
+    gGame.Save(SaveName, UTCNow);
 
   fSaves.TerminateScan; //stop scan as it is no longer needed
   SwitchPage(nil); //Close save menu after saving

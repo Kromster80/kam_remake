@@ -66,7 +66,7 @@ begin
     Radio_Replays_Type.Add(gResTexts[TX_MENU_MAPED_MPMAPS]);
     Radio_Replays_Type.OnChange := Replay_TypeChange;
 
-    ColumnBox_Replays := TKMColumnBox.Create(Panel_Replays, 22, 150, 770, 485, fnt_Metal, bsMenu);
+    ColumnBox_Replays := TKMColumnBox.Create(Panel_Replays, 22, 150, 770, 535, fnt_Metal, bsMenu);
     ColumnBox_Replays.SetColumns(fnt_Outline, [gResTexts[TX_MENU_LOAD_FILE], gResTexts[TX_MENU_LOAD_DATE], gResTexts[TX_MENU_LOAD_DESCRIPTION]], [0, 250, 430]);
     ColumnBox_Replays.Anchors := [anLeft,anTop,anBottom];
     ColumnBox_Replays.SearchColumn := 0;
@@ -78,11 +78,11 @@ begin
     MinimapView_Replay := TKMMinimapView.Create(Panel_Replays,809,294,191,191);
     MinimapView_Replay.Anchors := [anLeft];
 
-    Button_ReplaysBack := TKMButton.Create(Panel_Replays, 22, 660, 335, 30, gResTexts[TX_MENU_BACK], bsMenu);
+    Button_ReplaysBack := TKMButton.Create(Panel_Replays, 22, 700, 335, 30, gResTexts[TX_MENU_BACK], bsMenu);
     Button_ReplaysBack.Anchors := [anLeft,anBottom];
     Button_ReplaysBack.OnClick := BackClick;
 
-    Button_ReplaysPlay := TKMButton.Create(Panel_Replays,457, 660, 335, 30, gResTexts[TX_MENU_VIEW_REPLAY], bsMenu);
+    Button_ReplaysPlay := TKMButton.Create(Panel_Replays,457, 700, 335, 30, gResTexts[TX_MENU_VIEW_REPLAY], bsMenu);
     Button_ReplaysPlay.Anchors := [anLeft,anBottom];
     Button_ReplaysPlay.OnClick := Replays_Play;
 end;

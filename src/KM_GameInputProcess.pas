@@ -71,6 +71,7 @@ type
     gic_GameAlertBeacon,            //Signal alert (beacon)
     gic_GamePause,
     gic_GameSave,
+    gic_GameAutoSave,
     gic_GameTeamChange,
 
     //VI.      Cheatcodes affecting gameplay (props)
@@ -89,8 +90,8 @@ const
   BlockedByPeaceTime: set of TGameInputCommandType = [gic_ArmySplit, gic_ArmyLink,
     gic_ArmyAttackUnit, gic_ArmyAttackHouse, gic_ArmyHalt, gic_ArmyFormation,
     gic_ArmyWalk, gic_ArmyStorm, gic_HouseBarracksEquip];
-  AllowedAfterDefeat: set of TGameInputCommandType = [gic_GameAlertBeacon, gic_GameSave, gic_TempDoNothing];
-  AllowedInCinematic: set of TGameInputCommandType = [gic_GameAlertBeacon, gic_GameSave, gic_TempDoNothing];
+  AllowedAfterDefeat: set of TGameInputCommandType = [gic_GameAlertBeacon, gic_GameSave, gic_GameAutoSave, gic_TempDoNothing];
+  AllowedInCinematic: set of TGameInputCommandType = [gic_GameAlertBeacon, gic_GameSave, gic_GameAutoSave, gic_TempDoNothing];
 
 type
   TGameInputCommand = record
@@ -149,6 +150,7 @@ type
 
     procedure CmdGame(aCommandType: TGameInputCommandType; aValue:boolean); overload;
     procedure CmdGame(aCommandType: TGameInputCommandType; aValue: UnicodeString; aDateTime: TDateTime); overload;
+    procedure CmdGame(aCommandType: TGameInputCommandType; aDateTime: TDateTime); overload;
     procedure CmdGame(aCommandType: TGameInputCommandType; aPlayer, aTeam:integer); overload;
     procedure CmdGame(aCommandType: TGameInputCommandType; aLoc: TKMPointF; aPlayer: THandIndex); overload;
 
@@ -371,6 +373,8 @@ begin
                                       //Tell the player we have saved the game
                                       gGame.Networking.PostLocalMessage(gResTexts[TX_MULTIPLAYER_SAVING_GAME]);
                                   end;
+      gic_GameAutoSave:           if (fReplayState = gipRecording) and fGameApp.GameSettings.Autosave then
+                                    gGame.AutoSave(DateTimeParam); //Timestamp is synchronised
       gic_GameTeamChange:         begin
                                     //Currently unused, disabled to prevent potential exploitation
                                     {fGame.Networking.NetPlayers[Params[1]].Team := Params[2];
@@ -527,6 +531,13 @@ procedure TGameInputProcess.CmdGame(aCommandType: TGameInputCommandType; aValue:
 begin
   Assert(aCommandType = gic_GameSave);
   TakeCommand(MakeCommand(aCommandType, aValue, aDateTime));
+end;
+
+
+procedure TGameInputProcess.CmdGame(aCommandType: TGameInputCommandType; aDateTime: TDateTime);
+begin
+  Assert(aCommandType = gic_GameAutoSave);
+  TakeCommand(MakeCommand(aCommandType, '', aDateTime));
 end;
 
 

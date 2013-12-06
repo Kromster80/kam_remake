@@ -59,7 +59,7 @@ type
 
     procedure GameMPDisconnect(const aData: UnicodeString);
     procedure MultiplayerRig;
-    procedure SaveGame(const aPathName: UnicodeString; aTimestamp: TDateTime = -1);
+    procedure SaveGame(const aPathName: UnicodeString; aTimestamp: TDateTime);
     procedure UpdatePeaceTime;
     function WaitingPlayersList: TKMByteArray;
   public
@@ -93,7 +93,7 @@ type
     procedure WaitingPlayersDisplay(aWaiting: Boolean);
     procedure WaitingPlayersDrop;
 
-    procedure AutoSave;
+    procedure AutoSave(aTimestamp: TDateTime);
     procedure SaveMapEditor(const aPathName: UnicodeString);
     procedure RestartReplay; //Restart the replay but keep current viewport position/zoom
 
@@ -142,7 +142,7 @@ type
     property MapEditor: TKMMapEditor read fMapEditor;
     property TextMission: TKMTextLibraryMulti read fTextMission;
 
-    procedure Save(const aSaveName: UnicodeString; aTimestamp: TDateTime = -1);
+    procedure Save(const aSaveName: UnicodeString; aTimestamp: TDateTime);
     {$IFDEF USE_MAD_EXCEPT}
     procedure AttachCrashReport(const ExceptIntf: IMEException; aZipFile: UnicodeString);
     {$ENDIF}
@@ -411,7 +411,7 @@ begin
   //until after user saves it, but we need to attach replay base to it.
   //Basesave is sort of temp we save to HDD instead of keeping in RAM
   if fGameMode in [gmSingle, gmMulti] then
-    SaveGame(SaveName('basesave', 'bas', IsMultiplayer));
+    SaveGame(SaveName('basesave', 'bas', IsMultiplayer), UTCNow);
 
   //MissionStart goes after basesave to keep it pure (repeats on Load of basesave)
   gScriptEvents.ProcMissionStart;
@@ -561,7 +561,7 @@ begin
   try
     if fGameMode in [gmSingle, gmMulti] then
     begin
-      Save('crashreport');
+      Save('crashreport', UTCNow);
       AttachFile(SaveName('crashreport', 'sav', IsMultiplayer));
       AttachFile(SaveName('crashreport', 'bas', IsMultiplayer));
       AttachFile(SaveName('crashreport', 'rpl', IsMultiplayer));
@@ -747,11 +747,11 @@ begin
 end;
 
 
-procedure TKMGame.AutoSave;
+procedure TKMGame.AutoSave(aTimestamp: TDateTime);
 var
   I: Integer;
 begin
-  Save('autosave'); //Save to temp file
+  Save('autosave', aTimestamp); //Save to temp file
 
   //Delete last autosave and shift remaining by 1 position back
   DeleteFile(SaveName('autosave' + Int2Fix(AUTOSAVE_COUNT, 2), 'sav', IsMultiplayer));
@@ -1001,16 +1001,13 @@ end;
 
 
 //Saves the game in all its glory
-procedure TKMGame.SaveGame(const aPathName: UnicodeString; aTimestamp: TDateTime = -1);
+procedure TKMGame.SaveGame(const aPathName: UnicodeString; aTimestamp: TDateTime);
 var
   SaveStream: TKMemoryStream;
   fGameInfo: TKMGameInfo;
   I, netIndex: Integer;
 begin
   gLog.AddTime('Saving game: ' + aPathName);
-
-  if aTimestamp < 0 then
-    aTimestamp := UTCNow; //Normally we want to use UTCNow, but in MP we must syncronise it
 
   if fGameMode in [gmMapEd, gmReplaySingle, gmReplayMulti] then
   begin
@@ -1117,7 +1114,7 @@ end;
 
 
 //Saves game by provided name
-procedure TKMGame.Save(const aSaveName: UnicodeString; aTimestamp: TDateTime = -1);
+procedure TKMGame.Save(const aSaveName: UnicodeString; aTimestamp: TDateTime);
 var
   fullPath: UnicodeString;
 begin
@@ -1322,8 +1319,17 @@ begin
 
                       //Each 1min of gameplay time
                       //Don't autosave if the game was put on hold during this tick
-                      if (fGameTickCount mod 600 = 0) and fGameApp.GameSettings.Autosave then
-                        AutoSave;
+                      if fGameTickCount mod 600 = 0 then
+                      begin
+                        if IsMultiplayer then
+                        begin
+                          if fNetworking.IsHost then
+                            fGameInputProcess.CmdGame(gic_GameAutoSave, UTCNow) //Timestamp must be synchronised
+                        end
+                        else
+                          if fGameApp.GameSettings.Autosave then
+                            AutoSave(UTCNow);
+                      end;
 
                       //if (fGameTickCount mod 10 = 0) then
                       //  SaveGame(ExeDir + 'SavesLog'+PathDelim + int2fix(fGameTickCount, 6));
