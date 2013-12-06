@@ -1,7 +1,7 @@
 var i : Integer;
 var j : Integer;
-var playerNames : Array[0..7] of String; 
-var playerColors : Array[0..7] of String;
+var playerNames : Array[0..7] of AnsiString;
+var playerColors : Array[0..7] of AnsiString;
 var playerKills : Array[0..7] of Integer;
 
 procedure OnMissionStart;

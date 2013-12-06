@@ -44,7 +44,7 @@ type // needed to enable passing by reference in functions
   arr_scr = array[1..LOCATIONS_TOTAL] of array[1..NUM_FLAGS] of integer;
   arr_hus = array[1..26] of integer; // houses; needed for cityscatter
   arrb_fct = array[1..4] of boolean; // number of fact flags
-  str_loc = array[1..LOCATIONS_TOTAL] of string; // text-GUI storage
+  str_loc = array[1..LOCATIONS_TOTAL] of AnsiString; // text-GUI storage
   arrb_flg = array[1..NUM_FLAGS] of boolean; // text-GUI check wether the flag has been assigned yet (then playername), else the goal score is displayed
   TLoc = (undef, p1, p2, p3, p4, p5, p6, p7, p8);
   arr_tloc = array[0..LOCATIONS_TOTAL] of set of TLoc;
@@ -83,7 +83,7 @@ var
   BALANCER_DISP: integer;
   TEAMGAME: boolean;
   // text GUI text blocks - updating them is asynchronous to displaying them, so they need to be cached here
-  TEXT_HEAD: string;
+  TEXT_HEAD: AnsiString;
   TEXT_BODY: str_loc;
 
 ///
@@ -114,13 +114,13 @@ end;
 //
 // formats display time to be 'h:mm:ss'
 //
-function FormatTimeString(sec: integer; hours: boolean): string;
+function FormatTimeString(sec: integer; hours: boolean): AnsiString;
 var
   s: integer; // seconds
   m: integer; // minutes
   h: integer; // hours
-  mz: string; // separator h/m
-  sz: string; // separator m/s
+  mz: AnsiString; // separator h/m
+  sz: AnsiString; // separator m/s
 begin
   s := sec mod 60;
   m := ((sec - s) div 60) mod 60;
@@ -134,7 +134,7 @@ end;
 //
 // corrects for unreadable colors (like white that matches normal text)
 //
-function PlayerColorsCorrected(loc: integer): string;
+function PlayerColorsCorrected(loc: integer): AnsiString;
 begin
   RESULT := '';
   if (loc > 0) AND (loc <= LOCATIONS_TOTAL) then RESULT := States.PlayerColorText(loc - 1);
@@ -148,7 +148,7 @@ end;
 //
 // makes '[$bbggrr]name' (without the trailing []) out of a location and replaces white
 //
-function PlayerColorName(loc: integer): string;
+function PlayerColorName(loc: integer): AnsiString;
 begin
   RESULT := '';
   if (loc > 0) AND (loc <= LOCATIONS_TOTAL) then RESULT := '[$' + PlayerColorsCorrected(loc) + ']' + States.PlayerName(loc - 1); // color correction must be an extra function because it's also for final flag score only
@@ -369,7 +369,7 @@ end;
 //
 // creates the text for the teamed up final flags
 //
-function TeamFinalFlagText(loc: integer; flg: integer): string;
+function TeamFinalFlagText(loc: integer; flg: integer): AnsiString;
 var
   i: integer;
   k: integer;
@@ -427,10 +427,10 @@ end;
 //
 // creates match timer (if there's no leader) and countdown (if there's a leader)
 //
-function UpdateTextTail: string;
+function UpdateTextTail: AnsiString;
 var
   timeuntilwin: integer;
-  textcolor: string;
+  textcolor: AnsiString;
   lt: TLoc;
   multi: boolean;
 begin
@@ -519,10 +519,10 @@ procedure UpdateTextFlags(loc: integer);
 var
   flg: integer;
   i: integer;
-  txtfact: string;
-  txtfuture: string;
-  txtfirst: string;
-  txtfinal: string;
+  txtfact: AnsiString;
+  txtfuture: AnsiString;
+  txtfirst: AnsiString;
+  txtfinal: AnsiString;
 begin
   if (loc < 1) OR (loc > LOCATIONS_TOTAL) then EXIT;
   txtfact := ' |<$21>';

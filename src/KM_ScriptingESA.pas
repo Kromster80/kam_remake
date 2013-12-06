@@ -52,12 +52,9 @@ type
     function ClosestHouse(aPlayer, X, Y: Integer): Integer;
     function ClosestUnit(aPlayer, X, Y: Integer): Integer;
 
-    function GameTime: Cardinal;
-    function PeaceTime: Cardinal;
-    function KaMRandom: Single;
-    function KaMRandomI(aMax: Integer): Integer;
-
     function FogRevealed(aPlayer: Byte; aX, aY: Word): Boolean;
+
+    function GameTime: Cardinal;
 
     function GroupAt(aX, aY: Word): Integer;
     function GroupColumnCount(aGroupID: Integer): Integer;
@@ -74,7 +71,7 @@ type
     function HouseDestroyed(aHouseID: Integer): Boolean;
     function HouseHasOccupant(aHouseID: Integer): Boolean;
     function HouseIsComplete(aHouseID: Integer): Boolean;
-    function HouseOccupant(aHouseID: Integer): Integer;
+    function HouseTypeToOccupantType(aHouseType: Integer): Integer;
     function HouseOwner(aHouseID: Integer): Integer;
     function HousePositionX(aHouseID: Integer): Integer;
     function HousePositionY(aHouseID: Integer): Integer;
@@ -90,6 +87,10 @@ type
     function IsWinefieldAt(aPlayer: ShortInt; X, Y: Word): Boolean;
     function IsRoadAt(aPlayer: ShortInt; X, Y: Word): Boolean;
 
+    function KaMRandom: Single;
+    function KaMRandomI(aMax: Integer): Integer;
+    function PeaceTime: Cardinal;
+
     function PlayerAllianceCheck(aPlayer1, aPlayer2: Byte): Boolean;
     function PlayerDefeated(aPlayer: Byte): Boolean;
     function PlayerEnabled(aPlayer: Byte): Boolean;
@@ -97,8 +98,8 @@ type
     function PlayerGetAllHouses(aPlayer: Byte): TIntegerArray;
     function PlayerGetAllGroups(aPlayer: Byte): TIntegerArray;
     function PlayerIsAI(aPlayer: Byte): Boolean;
-    function PlayerName(aPlayer: Byte): UnicodeString;
-    function PlayerColorText(aPlayer: Byte): UnicodeString;
+    function PlayerName(aPlayer: Byte): AnsiString;
+    function PlayerColorText(aPlayer: Byte): AnsiString;
     function PlayerVictorious(aPlayer: Byte): Boolean;
     function PlayerWareDistribution(aPlayer, aWareType, aHouseType: Byte): Byte;
 
@@ -113,17 +114,18 @@ type
     function StatUnitTypeCount(aPlayer, aUnitType: Byte): Integer;
 
     function UnitAt(aX, aY: Word): Integer;
+    function UnitCarrying(aUnitID: Integer): Integer;
     function UnitDead(aUnitID: Integer): Boolean;
     function UnitDirection(aUnitID: Integer): Integer;
+    function UnitHome(aUnitID: Integer): Integer;
     function UnitHunger(aUnitID: Integer): Integer;
-    function UnitCarrying(aUnitID: Integer): Integer;
     function UnitLowHunger: Integer;
     function UnitMaxHunger: Integer;
     function UnitOwner(aUnitID: Integer): Integer;
     function UnitPositionX(aUnitID: Integer): Integer;
     function UnitPositionY(aUnitID: Integer): Integer;
-    function UnitType(aUnitID: Integer): Integer;
     function UnitsGroup(aUnitID: Integer): Integer;
+    function UnitType(aUnitID: Integer): Integer;
   end;
 
   TKMScriptActions = class
@@ -137,13 +139,13 @@ type
     procedure AIAutoBuild(aPlayer: Byte; aAuto: Boolean);
     procedure AIAutoDefence(aPlayer: Byte; aAuto: Boolean);
     procedure AIAutoRepair(aPlayer: Byte; aAuto: Boolean);
-    procedure AIBuildersLimit(aPlayer, aLimit: Byte);
+    procedure AILaborerLimit(aPlayer, aLimit: Byte);
     procedure AIDefencePositionAdd(aPlayer: Byte; X, Y: Integer; aDir, aGroupType: Byte; aRadius: Word; aDefType: Byte);
     procedure AIEquipRate(aPlayer: Byte; aType: Byte; aRate: Word);
     procedure AIGroupsFormationSet(aPlayer, aType: Byte; aCount, aColumns: Word);
     procedure AIRecruitDelay(aPlayer: Byte; aDelay: Cardinal);
     procedure AIRecruitLimit(aPlayer, aLimit: Byte);
-    procedure AISerfsFactor(aPlayer, aLimit: Byte);
+    procedure AISerfsPerHouse(aPlayer: Byte; aSerfs: Single);
     procedure AISoldiersLimit(aPlayer: Byte; aLimit: Integer);
 
     procedure CinematicStart(aPlayer: Byte);
@@ -811,10 +813,10 @@ begin
 end;
 
 
-function TKMScriptStates.PlayerName(aPlayer: Byte): UnicodeString;
+function TKMScriptStates.PlayerName(aPlayer: Byte): AnsiString;
 begin
   if InRange(aPlayer, 0, gHands.Count - 1) then
-    Result := gHands[aPlayer].OwnerName
+    Result := AnsiString(gHands[aPlayer].OwnerName)
   else
   begin
     Result := '';
@@ -823,7 +825,7 @@ begin
 end;
 
 
-function TKMScriptStates.PlayerColorText(aPlayer: Byte): UnicodeString;
+function TKMScriptStates.PlayerColorText(aPlayer: Byte): AnsiString;
 begin
   if InRange(aPlayer, 0, gHands.Count - 1) then
     Result := Format('%.6x', [FlagColorToTextColor(gHands[aPlayer].FlagColor) and $FFFFFF])
@@ -930,19 +932,17 @@ begin
 end;
 
 
-function TKMScriptStates.HouseOccupant(aHouseID: Integer): Integer;
+function TKMScriptStates.HouseTypeToOccupantType(aHouseType: Integer): Integer;
 var
   H: TKMHouse;
 begin
   Result := -1;
-  if aHouseID > 0 then
+  if aHouseType in [Low(HouseIndexToType)..High(HouseIndexToType)] then
   begin
-    H := fIDCache.GetHouse(aHouseID);
-    if H <> nil then
-      Result := UnitTypeToIndex[gResource.HouseDat[H.HouseType].OwnerType];
+    Result := UnitTypeToIndex[gResource.HouseDat[HouseIndexToType[aHouseType]].OwnerType];
   end
   else
-    LogError('States.HouseOccupant', [aHouseID]);
+    LogError('States.HouseTypeToOccupantType', [aHouseType]);
 end;
 
 
@@ -1358,6 +1358,30 @@ begin
   end
   else
     LogError('States.UnitCarrying', [aUnitID]);
+end;
+
+
+function TKMScriptStates.UnitHome(aUnitID: Integer): Integer;
+var
+  U: TKMUnit;
+  H: TKMHouse;
+begin
+  Result := -1;
+  if aUnitID > 0 then
+  begin
+    U := fIDCache.GetUnit(aUnitID);
+    if (U <> nil) then
+    begin
+      H := U.GetHome;
+      if (H <> nil) and not H.IsDestroyed then
+      begin
+        Result := H.UID;
+        fIDCache.CacheHouse(H, H.UID); //Improves cache efficiency since H will probably be accessed soon
+      end;
+    end;
+  end
+  else
+    LogError('States.UnitHome', [aUnitID]);
 end;
 
 
@@ -1837,12 +1861,12 @@ begin
 end;
 
 
-procedure TKMScriptActions.AIBuildersLimit(aPlayer, aLimit: Byte);
+procedure TKMScriptActions.AILaborerLimit(aPlayer, aLimit: Byte);
 begin
   if InRange(aPlayer, 0, gHands.Count - 1) then
     gHands[aPlayer].AI.Setup.WorkerCount := aLimit
   else
-    LogError('Actions.AIBuildersLimit', [aPlayer, aLimit]);
+    LogError('Actions.AILaborerLimit', [aPlayer, aLimit]);
 end;
 
 
@@ -1881,7 +1905,6 @@ begin
   and (aCount > 0) and (aColumns > 0) then
   begin
     gt := TGroupType(aType);
-
     gHands[aPlayer].AI.General.DefencePositions.TroopFormations[gt].NumUnits := aCount;
     gHands[aPlayer].AI.General.DefencePositions.TroopFormations[gt].UnitsPerRow := aColumns;
   end
@@ -1908,12 +1931,12 @@ begin
 end;
 
 
-procedure TKMScriptActions.AISerfsFactor(aPlayer, aLimit: Byte);
+procedure TKMScriptActions.AISerfsPerHouse(aPlayer, aSerfs: Byte);
 begin
   if InRange(aPlayer, 0, gHands.Count - 1) then
-    gHands[aPlayer].AI.Setup.SerfsPerHouse := aLimit
+    gHands[aPlayer].AI.Setup.SerfsPerHouse := aSerfs
   else
-    LogError('Actions.AISerfsFactor', [aPlayer, aLimit]);
+    LogError('Actions.AISerfsPerHouse', [aPlayer, aSerfs]);
 end;
 
 

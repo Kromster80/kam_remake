@@ -19,7 +19,6 @@
  +      In-house enable/disable ware delivery in script worked in reverse
  +      Actions.PlayerWareDistribution did not update house orders, so houses didn't notice that the distribution has changed
  +      Integer overflow in stats caused by counting stone/wood as consumed twice when an incomplete house was destroyed
- +      Fixed "Unsupported global variable type 28" error in dynamic scripts when using UnicodeString
  +      Crash during delivery if ToHouse was destroyed while the serf was inside FromHouse
  +      Network system messages are now translated
  +      Player alliance towards self is inconsistent, especially in MP and when accessing from script (should be Ally always!)
@@ -133,6 +132,7 @@ Improvements:
 	L	MapEd: An option to hide roads/fields, so you can view just the terrain while you edit it
 	M	MapEd: "Sync all" checkbox when adding wares to a house which makes it the same for all houses of that type
  
+ -	Fixed "Unsupported global variable type 28" error in dynamic scripts when using UnicodeString (no need to use unicode, use AnsiString)
  -	Make units turn around without skipping inbetween directions (instead of immediate direction change)
  -	Unexpectedly high ping values (not our problem usually)
  -	One type of pine tree cannot be cut (same as KaM, there are not even sprites for it falling down)

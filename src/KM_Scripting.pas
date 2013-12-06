@@ -46,8 +46,7 @@ const
     btU8, //Byte, Boolean, Enums
     btS32, //Integer
     btSingle, //Single
-    btString, //string
-    btUnicodeString,
+    btString, //Means AnsiString in PascalScript. No need for scripts to use Unicode since LIBX files take care of that.
     btStaticArray, btArray, //Static and Dynamic Arrays
     btRecord, btSet];
 
@@ -139,7 +138,7 @@ begin
       RegisterMethod('function HouseDestroyed(aHouseID: Integer): Boolean');
       RegisterMethod('function HouseHasOccupant(aHouseID: Integer): Boolean');
       RegisterMethod('function HouseIsComplete(aHouseID: Integer): Boolean');
-      RegisterMethod('function HouseOccupant(aHouseID: Integer): Integer');
+      RegisterMethod('function HouseTypeToOccupantType(aHouseID: Integer): Integer');
       RegisterMethod('function HouseOwner(aHouseID: Integer): Integer');
       RegisterMethod('function HousePositionX(aHouseID: Integer): Integer');
       RegisterMethod('function HousePositionY(aHouseID: Integer): Integer');
@@ -156,14 +155,14 @@ begin
       RegisterMethod('function IsRoadAt(aPlayer: ShortInt; X, Y: Word): Boolean');
 
       RegisterMethod('function PlayerAllianceCheck(aPlayer1, aPlayer2: Byte): Boolean');
-      RegisterMethod('function PlayerColorText(aPlayer: Byte): UnicodeString');
+      RegisterMethod('function PlayerColorText(aPlayer: Byte): AnsiString');
       RegisterMethod('function PlayerDefeated(aPlayer: Byte): Boolean');
       RegisterMethod('function PlayerEnabled(aPlayer: Byte): Boolean');
       RegisterMethod('function PlayerGetAllUnits(aPlayer: Byte): TIntegerArray');
       RegisterMethod('function PlayerGetAllHouses(aPlayer: Byte): TIntegerArray');
       RegisterMethod('function PlayerGetAllGroups(aPlayer: Byte): TIntegerArray');
       RegisterMethod('function PlayerIsAI(aPlayer: Byte): Boolean');
-      RegisterMethod('function PlayerName(aPlayer: Byte): UnicodeString');
+      RegisterMethod('function PlayerName(aPlayer: Byte): AnsiString');
       RegisterMethod('function PlayerVictorious(aPlayer: Byte): Boolean');
       RegisterMethod('function PlayerWareDistribution(aPlayer, aWareType, aHouseType: Byte): Byte');
 
@@ -179,6 +178,7 @@ begin
 
       RegisterMethod('function UnitAt(aX, aY: Word): Integer');
       RegisterMethod('function UnitDead(aUnitID: Integer): Boolean');
+      RegisterMethod('function UnitHome(aUnitID: Integer): Integer');
       RegisterMethod('function UnitHunger(aUnitID: Integer): Integer');
       RegisterMethod('function UnitCarrying(aUnitID: Integer): Integer');
       RegisterMethod('function UnitLowHunger: Integer');
@@ -202,7 +202,7 @@ begin
       RegisterMethod('procedure AIGroupsFormationSet(aPlayer, aType: Byte; aCount, aColumns: Word)');
       RegisterMethod('procedure AIRecruitDelay(aPlayer, aDelay: Cardinal)');
       RegisterMethod('procedure AIRecruitLimit(aPlayer, aLimit: Byte)');
-      RegisterMethod('procedure AISerfsFactor(aPlayer, aLimit: Byte)');
+      RegisterMethod('procedure AISerfsFactor(aPlayer: Byte; aLimit: Single)');
       RegisterMethod('procedure AISoldiersLimit(aPlayer: Byte; aLimit: Integer)');
 
       RegisterMethod('procedure CinematicStart(aPlayer: Byte)');
@@ -452,7 +452,7 @@ begin
       RegisterMethod(@TKMScriptStates.HouseDestroyed,          'HOUSEDESTROYED');
       RegisterMethod(@TKMScriptStates.HouseHasOccupant,        'HOUSEHASOCCUPANT');
       RegisterMethod(@TKMScriptStates.HouseIsComplete,         'HOUSEISCOMPLETE');
-      RegisterMethod(@TKMScriptStates.HouseOccupant,           'HOUSEOCCUPANT');
+      RegisterMethod(@TKMScriptStates.HouseTypeToOccupantType, 'HOUSETYPETOOCCUPANTTYPE');
       RegisterMethod(@TKMScriptStates.HouseOwner,              'HOUSEOWNER');
       RegisterMethod(@TKMScriptStates.HousePositionX,          'HOUSEPOSITIONX');
       RegisterMethod(@TKMScriptStates.HousePositionY,          'HOUSEPOSITIONY');
@@ -509,13 +509,13 @@ begin
       RegisterMethod(@TKMScriptActions.AIAutoBuild,          'AIAUTOBUILD');
       RegisterMethod(@TKMScriptActions.AIAutoDefence,        'AIAUTODEFENCE');
       RegisterMethod(@TKMScriptActions.AIAutoRepair,         'AIAUTOREPAIR');
-      RegisterMethod(@TKMScriptActions.AIBuildersLimit,      'AIBUILDERSLIMIT');
+      RegisterMethod(@TKMScriptActions.AILaborerLimit,       'AILABORERLIMIT');
       RegisterMethod(@TKMScriptActions.AIDefencePositionAdd, 'AIDEFENCEPOSITIONADD');
       RegisterMethod(@TKMScriptActions.AIEquipRate,          'AIEQUIPRATE');
       RegisterMethod(@TKMScriptActions.AIGroupsFormationSet, 'AIGROUPSFORMATIONSET)');
       RegisterMethod(@TKMScriptActions.AIRecruitDelay,       'AIRECRUITDELAY');
       RegisterMethod(@TKMScriptActions.AIRecruitLimit,       'AIRECRUITLIMIT');
-      RegisterMethod(@TKMScriptActions.AISerfsFactor,        'AISERFSFACTOR');
+      RegisterMethod(@TKMScriptActions.AISerfsPerHouse,      'AISERFSPERHOUSE');
       RegisterMethod(@TKMScriptActions.AISoldiersLimit,      'AISOLDIERSLIMIT');
 
       RegisterMethod(@TKMScriptActions.CinematicStart,    'CINEMATICSTART');
@@ -671,7 +671,6 @@ procedure TKMScripting.Load(LoadStream: TKMemoryStream);
       btS32:           LoadStream.Read(tbts32(Src^)); //Integer
       btSingle:        LoadStream.Read(tbtsingle(Src^));
       btString:        LoadStream.ReadA(tbtString(Src^));
-      btUnicodeString: LoadStream.ReadW(tbtUnicodeString(Src^));
       btStaticArray:begin
                       LoadStream.Read(ElemCount);
                       Assert(ElemCount = TPSTypeRec_StaticArray(aType).Size, 'Script array element count mismatches saved count');
@@ -749,7 +748,6 @@ procedure TKMScripting.Save(SaveStream: TKMemoryStream);
       btS32:           SaveStream.Write(tbts32(Src^)); //Integer
       btSingle:        SaveStream.Write(tbtsingle(Src^));
       btString:        SaveStream.WriteA(tbtString(Src^));
-      btUnicodeString: SaveStream.WriteW(tbtUnicodeString(Src^));
       btStaticArray:begin
                       ElemCount := TPSTypeRec_StaticArray(aType).Size;
                       SaveStream.Write(ElemCount);
