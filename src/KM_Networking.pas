@@ -91,6 +91,7 @@ type
     fOnPlayersSetup: TNotifyEvent;
     fOnGameOptions: TNotifyEvent;
     fOnMapName: TUnicodeStringEvent;
+    fOnMapMissing: TUnicodeStringEvent;
     fOnStartMap: TUnicodeStringEvent;
     fOnStartSave: TUnicodeStringEvent;
     fOnPlay: TNotifyEvent;
@@ -199,6 +200,7 @@ type
     property OnPlayersSetup: TNotifyEvent write fOnPlayersSetup; //Player list updated
     property OnGameOptions: TNotifyEvent write fOnGameOptions; //Game options updated
     property OnMapName: TUnicodeStringEvent write fOnMapName;           //Map name updated
+    property OnMapMissing: TUnicodeStringEvent write fOnMapMissing;           //Map missing
     property OnStartMap: TUnicodeStringEvent write fOnStartMap;       //Start the game
     property OnStartSave: TUnicodeStringEvent write fOnStartSave;       //Load the game
     property OnPlay:TNotifyEvent write fOnPlay;                 //Start the gameplay
@@ -365,6 +367,7 @@ begin
   fOnTextMessage := nil;
   fOnPlayersSetup := nil;
   fOnMapName := nil;
+  fOnMapMissing := nil;
   fOnCommands := nil;
   fOnResyncFromTick := nil;
   fOnDisconnect := nil;
@@ -548,6 +551,7 @@ end;
 //Tell other players which save we will be using
 //Players will reset their starting locations and "Ready" status on their own
 procedure TKMNetworking.SelectSave(const aName: UnicodeString);
+var Error: UnicodeString;
 begin
   Assert(IsHost, 'Only host can select saves');
 
@@ -558,7 +562,8 @@ begin
 
   if not fSaveInfo.IsValid then
   begin
-    SelectNoMap(fSaveInfo.Info.Title); //State the error, e.g. wrong version
+    Error := fSaveInfo.Info.Title; //Make a copy since fSaveInfo is freed in SelectNoMap
+    SelectNoMap(Error); //State the error, e.g. wrong version
     Exit;
   end;
 
@@ -1494,7 +1499,7 @@ begin
                   fSelectGameKind := ngk_None;
                   if fMyIndex <> -1 then //In the process of joining
                     fNetPlayers[fMyIndex].ReadyToStart := false;
-                  if Assigned(fOnMapName) then fOnMapName(tmpStringW);
+                  if Assigned(fOnMapMissing) then fOnMapMissing(tmpStringW);
                 end
               end;
 
@@ -1536,7 +1541,7 @@ begin
                   fSelectGameKind := ngk_None;
                   if fMyIndex <> -1 then //In the process of joining
                     fNetPlayers[fMyIndex].ReadyToStart := False;
-                  if Assigned(fOnMapName) then fOnMapName(tmpStringW);
+                  if Assigned(fOnMapMissing) then fOnMapMissing(tmpStringW);
                 end;
               end;
 

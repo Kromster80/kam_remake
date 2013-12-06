@@ -395,7 +395,7 @@ begin
   fLastSaveName := SaveName; //Do this before saving so it is included in the save
   if fMultiplayer then
     //Don't tell everyone in the game that we are saving yet, as the command hasn't been processed
-    gGame.GameInputProcess.CmdGame(gic_GameSave, SaveName)
+    gGame.GameInputProcess.CmdGame(gic_GameSave, SaveName, UTCNow) //Timestamp is synchronised between players
   else
     gGame.Save(SaveName);
 

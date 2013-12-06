@@ -1,9 +1,14 @@
 unit KM_Utils;
 {$I KaM_Remake.inc}
 interface
-uses Classes, DateUtils, Math, SysUtils, KM_Defaults, KM_Points
+uses
+  Classes, DateUtils, Math, SysUtils, KM_Defaults, KM_Points
   {$IFDEF MSWindows}
+  ,Windows
   ,MMSystem //Required for TimeGet which is defined locally because this unit must NOT know about KromUtils as it is not Linux compatible (and this unit is used in Linux dedicated servers)
+  {$ENDIF}
+  {$IFDEF Unix}
+  ,unix, baseunix
   {$ENDIF}
   ;
 
@@ -36,6 +41,8 @@ uses Classes, DateUtils, Math, SysUtils, KM_Defaults, KM_Points
 
   function TimeGet: Cardinal;
   function GetTimeSince(aTime: Cardinal): Cardinal;
+  function UTCNow: TDateTime;
+  function UTCToLocal(Input: TDateTime): TDateTime;
 
   function MapSizeText(X,Y: Word): UnicodeString;
 
@@ -120,6 +127,75 @@ begin
   //TimeGet will loop back to zero after ~49 days since system start
   Result := (Int64(TimeGet) - Int64(aTime) + Int64(High(Cardinal))) mod Int64(High(Cardinal));
 end;
+
+
+function UTCNow: TDateTime;
+{$IFDEF MSWindows}
+var st: TSystemTime;
+begin
+  GetSystemTime(st);
+  Result := SystemTimeToDateTime(st);
+end;
+{$ENDIF}
+{$IFDEF Unix}
+var
+  TimeVal: TTimeVal;
+  TimeZone: PTimeZone;
+  a: Double;
+begin
+  TimeZone := nil;
+  fpGetTimeOfDay(@TimeVal, TimeZone);
+  // Convert to milliseconds
+  a := (TimeVal.tv_sec * 1000.0) + (TimeVal.tv_usec / 1000.0);
+  Result := (a / MSecsPerDay) + UnixDateDelta;
+end;
+{$ENDIF}
+
+
+function UTCToLocal(Input: TDateTime): TDateTime;
+{$IFDEF WDC}
+begin
+  Result := TTimeZone.Local.ToLocalTime(Input);
+end;
+{$ENDIF}
+//There seems to be no easy way to do this in FPC without an external library
+//From: http://lists.lazarus.freepascal.org/pipermail/lazarus/2010-September/055568.html
+{$IFDEF FPC}
+var
+  TZOffset: Integer;
+  {$IFDEF MSWINDOWS}
+  BiasType: Byte;
+  TZInfo: TTimeZoneInformation;
+  {$ENDIF}
+begin
+  Result := Input;
+  {$IFDEF MSWINDOWS}
+  BiasType := GetTimeZoneInformation(TZInfo);
+  if (BiasType=0) then
+    Exit; //No timezone so return the input
+
+  // Determine offset in effect for DateTime UT.
+  if (BiasType=2) then
+    TZOffset := TZInfo.Bias + TZInfo.DaylightBias
+  else
+    TZOffset := TZInfo.Bias + TZInfo.StandardBias;
+  {$ENDIF}
+  {$IFDEF UNIX}
+    TZOffset := -Tzseconds div 60;
+  {$ENDIF}
+
+  // Apply offset.
+  if (TZOffset > 0) then
+    // Time zones west of Greenwich.
+    Result := Input - EncodeTime(TZOffset div 60, TZOffset mod 60, 0, 0)
+  else if (TZOffset = 0) then
+    // Time Zone = Greenwich.
+    Result := Input
+  else if (TZOffset < 0) then
+    // Time zones east of Greenwich.
+    Result := Input + EncodeTime(Abs(TZOffset) div 60, Abs(TZOffset) mod 60, 0, 0);
+end;
+{$ENDIF}
 
 
 function MapSizeText(X,Y: Word): UnicodeString;
@@ -269,8 +345,8 @@ begin
   G := aG / 255;
   B := aB / 255;
 
-  Vmin := min(R, min(G, B));
-  Vmax := max(R, max(G, B));
+  Vmin := Math.min(R, Math.min(G, B));
+  Vmax := Math.max(R, Math.max(G, B));
   Vdlt := Vmax - Vmin;
   oB := (Vmax + Vmin) / 2;
   if Vdlt = 0 then
@@ -395,8 +471,8 @@ begin
   ConvertRGB2HSB(aColor and $FF, aColor shr 8 and $FF, aColor shr 16 and $FF, Hue, Sat, Bri);
 
   //Desaturate and lighten
-  Sat := Min(Sat, 0.93);
-  Bri := Max(Bri + 0.1, 0.2);
+  Sat := Math.Min(Sat, 0.93);
+  Bri := Math.Max(Bri + 0.1, 0.2);
   ConvertHSB2RGB(Hue, Sat, Bri, R, G, B);
 
   //Preserve transparency value

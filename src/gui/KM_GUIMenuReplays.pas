@@ -2,8 +2,8 @@ unit KM_GUIMenuReplays;
 {$I KaM_Remake.inc}
 interface
 uses
-  Controls, Math,
-  KM_Controls, KM_Saves, KM_InterfaceDefaults, KM_Minimap;
+  SysUtils, Controls, Math,
+  KM_Utils, KM_Controls, KM_Saves, KM_InterfaceDefaults, KM_Minimap;
 
 
 type
@@ -59,30 +59,30 @@ begin
 
     TKMLabel.Create(Panel_Replays, aParent.Width div 2, 50, gResTexts[TX_MENU_LOAD_LIST], fnt_Outline, taCenter);
 
-    TKMBevel.Create(Panel_Replays, 62, 86, 680, 50);
-    Radio_Replays_Type := TKMRadioGroup.Create(Panel_Replays,70,94,300,40,fnt_Grey);
+    TKMBevel.Create(Panel_Replays, 22, 86, 770, 50);
+    Radio_Replays_Type := TKMRadioGroup.Create(Panel_Replays,30,94,300,40,fnt_Grey);
     Radio_Replays_Type.ItemIndex := 0;
     Radio_Replays_Type.Add(gResTexts[TX_MENU_MAPED_SPMAPS]);
     Radio_Replays_Type.Add(gResTexts[TX_MENU_MAPED_MPMAPS]);
     Radio_Replays_Type.OnChange := Replay_TypeChange;
 
-    ColumnBox_Replays := TKMColumnBox.Create(Panel_Replays, 62, 150, 680, 485, fnt_Metal, bsMenu);
-    ColumnBox_Replays.SetColumns(fnt_Outline, [gResTexts[TX_MENU_LOAD_FILE], gResTexts[TX_MENU_LOAD_DESCRIPTION]], [0, 300]);
+    ColumnBox_Replays := TKMColumnBox.Create(Panel_Replays, 22, 150, 770, 485, fnt_Metal, bsMenu);
+    ColumnBox_Replays.SetColumns(fnt_Outline, [gResTexts[TX_MENU_LOAD_FILE], gResTexts[TX_MENU_LOAD_DATE], gResTexts[TX_MENU_LOAD_DESCRIPTION]], [0, 250, 430]);
     ColumnBox_Replays.Anchors := [anLeft,anTop,anBottom];
     ColumnBox_Replays.SearchColumn := 0;
     ColumnBox_Replays.OnChange := Replays_ListClick;
     ColumnBox_Replays.OnColumnClick := Replays_Sort;
     ColumnBox_Replays.OnDoubleClick := Replays_Play;
 
-    with TKMBevel.Create(Panel_Replays, 763, 290, 199, 199) do Anchors := [anLeft];
-    MinimapView_Replay := TKMMinimapView.Create(Panel_Replays,767,294,191,191);
+    with TKMBevel.Create(Panel_Replays, 805, 290, 199, 199) do Anchors := [anLeft];
+    MinimapView_Replay := TKMMinimapView.Create(Panel_Replays,809,294,191,191);
     MinimapView_Replay.Anchors := [anLeft];
 
-    Button_ReplaysBack := TKMButton.Create(Panel_Replays, 62, 660, 335, 30, gResTexts[TX_MENU_BACK], bsMenu);
+    Button_ReplaysBack := TKMButton.Create(Panel_Replays, 22, 660, 335, 30, gResTexts[TX_MENU_BACK], bsMenu);
     Button_ReplaysBack.Anchors := [anLeft,anBottom];
     Button_ReplaysBack.OnClick := BackClick;
 
-    Button_ReplaysPlay := TKMButton.Create(Panel_Replays,407, 660, 335, 30, gResTexts[TX_MENU_VIEW_REPLAY], bsMenu);
+    Button_ReplaysPlay := TKMButton.Create(Panel_Replays,457, 660, 335, 30, gResTexts[TX_MENU_VIEW_REPLAY], bsMenu);
     Button_ReplaysPlay.Anchors := [anLeft,anBottom];
     Button_ReplaysPlay.OnClick := Replays_Play;
 end;
@@ -155,8 +155,8 @@ begin
   try
     for I := 0 to fSaves.Count - 1 do
       ColumnBox_Replays.AddItem(MakeListRow(
-                           [fSaves[I].FileName, fSaves[I].Info.GetTitleWithTime],
-                           [$FFFFFFFF, $FFFFFFFF]));
+                           [fSaves[I].FileName, fSaves[i].Info.GetSaveTimestamp, fSaves[I].Info.GetTitleWithTime],
+                           [$FFFFFFFF, $FFFFFFFF, $FFFFFFFF]));
 
     for I := 0 to fSaves.Count - 1 do
       if (fSaves[I].CRC = fLastSaveCRC) then
@@ -187,8 +187,13 @@ begin
           fSaves.Sort(smByFileNameDesc, Replays_SortUpdate)
         else
           fSaves.Sort(smByFileNameAsc, Replays_SortUpdate);
-    //Sorting by description goes A..Z by default
+    //Sorting by description goes Old..New by default
     1:  if ColumnBox_Replays.SortDirection = sdDown then
+          fSaves.Sort(smByDateDesc, Replays_SortUpdate)
+        else
+          fSaves.Sort(smByDateAsc, Replays_SortUpdate);
+    //Sorting by description goes A..Z by default
+    2:  if ColumnBox_Replays.SortDirection = sdDown then
           fSaves.Sort(smByDescriptionDesc, Replays_SortUpdate)
         else
           fSaves.Sort(smByDescriptionAsc, Replays_SortUpdate);

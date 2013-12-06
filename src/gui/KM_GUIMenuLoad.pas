@@ -2,8 +2,8 @@ unit KM_GUIMenuLoad;
 {$I KaM_Remake.inc}
 interface
 uses
-  Controls, Math,
-  KM_Controls, KM_Saves, KM_InterfaceDefaults, KM_Minimap;
+  Controls, Math, SysUtils,
+  KM_Utils, KM_Controls, KM_Saves, KM_InterfaceDefaults, KM_Minimap;
 
 
 type
@@ -62,9 +62,9 @@ begin
 
     TKMLabel.Create(Panel_Load, aParent.Width div 2, 50, gResTexts[TX_MENU_LOAD_LIST], fnt_Outline, taCenter);
 
-    ColumnBox_Load := TKMColumnBox.Create(Panel_Load, 62, 86, 700, 485, fnt_Metal, bsMenu);
+    ColumnBox_Load := TKMColumnBox.Create(Panel_Load, 22, 86, 770, 485, fnt_Metal, bsMenu);
     ColumnBox_Load.Anchors := [anLeft,anTop,anBottom];
-    ColumnBox_Load.SetColumns(fnt_Outline, [gResTexts[TX_MENU_LOAD_FILE], gResTexts[TX_MENU_LOAD_DESCRIPTION]], [0, 300]);
+    ColumnBox_Load.SetColumns(fnt_Outline, [gResTexts[TX_MENU_LOAD_FILE], gResTexts[TX_MENU_LOAD_DATE], gResTexts[TX_MENU_LOAD_DESCRIPTION]], [0, 250, 430]);
     ColumnBox_Load.SearchColumn := 0;
     ColumnBox_Load.OnColumnClick := Load_Sort;
     ColumnBox_Load.OnChange := Load_ListClick;
@@ -91,8 +91,8 @@ begin
     Button_LoadBack.Anchors := [anLeft,anBottom];
     Button_LoadBack.OnClick := BackClick;
 
-    with TKMBevel.Create(Panel_Load, 785, 226, 199, 199) do Anchors := [anLeft];
-    MinimapView_Load := TKMMinimapView.Create(Panel_Load,789,230,191,191);
+    with TKMBevel.Create(Panel_Load, 805, 226, 199, 199) do Anchors := [anLeft];
+    MinimapView_Load := TKMMinimapView.Create(Panel_Load,809,230,191,191);
     MinimapView_Load.Anchors := [anLeft];
 end;
 
@@ -190,8 +190,8 @@ begin
   try
     for I := 0 to fSaves.Count - 1 do
       ColumnBox_Load.AddItem(MakeListRow(
-                        [fSaves[i].FileName, fSaves[I].Info.GetTitleWithTime],
-                        [$FFFFFFFF, $FFFFFFFF]));
+                        [fSaves[i].FileName, fSaves[i].Info.GetSaveTimestamp, fSaves[I].Info.GetTitleWithTime],
+                        [$FFFFFFFF, $FFFFFFFF, $FFFFFFFF]));
 
     //IDs of saves could changed, so use CRC to check which one was selected
     for I := 0 to fSaves.Count - 1 do
@@ -226,8 +226,13 @@ begin
           fSaves.Sort(smByFileNameDesc, Load_SortUpdate)
         else
           fSaves.Sort(smByFileNameAsc, Load_SortUpdate);
-    //Sorting by description goes A..Z by default
+    //Sorting by description goes Old..New by default
     1:  if ColumnBox_Load.SortDirection = sdDown then
+          fSaves.Sort(smByDateDesc, Load_SortUpdate)
+        else
+          fSaves.Sort(smByDateAsc, Load_SortUpdate);
+    //Sorting by description goes A..Z by default
+    2:  if ColumnBox_Load.SortDirection = sdDown then
           fSaves.Sort(smByDescriptionDesc, Load_SortUpdate)
         else
           fSaves.Sort(smByDescriptionAsc, Load_SortUpdate);

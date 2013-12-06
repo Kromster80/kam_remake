@@ -97,6 +97,7 @@ type
     CommandType: TGameInputCommandType;
     Params: array[1..MAX_PARAMS]of integer;
     TextParam: UnicodeString;
+    DateTimeParam: TDateTime;
     HandIndex: THandIndex; //Player for which the command is to be issued. (Needed for multiplayer and other reasons)
   end;
 
@@ -118,7 +119,7 @@ type
     end;
 
     function MakeCommand(aGIC: TGameInputCommandType; const aParam: array of integer): TGameInputCommand; overload;
-    function MakeCommand(aGIC: TGameInputCommandType; const aTextParam: UnicodeString): TGameInputCommand; overload;
+    function MakeCommand(aGIC: TGameInputCommandType; const aTextParam: UnicodeString; aDateTimeParam: TDateTime): TGameInputCommand; overload;
     procedure TakeCommand(aCommand: TGameInputCommand); virtual; abstract;
     procedure ExecCommand(aCommand: TGameInputCommand);
     procedure StoreCommand(aCommand: TGameInputCommand);
@@ -147,7 +148,7 @@ type
     procedure CmdRatio(aCommandType: TGameInputCommandType; aRes: TWareType; aHouseType: THouseType; aValue:integer);
 
     procedure CmdGame(aCommandType: TGameInputCommandType; aValue:boolean); overload;
-    procedure CmdGame(aCommandType: TGameInputCommandType; aValue: string); overload;
+    procedure CmdGame(aCommandType: TGameInputCommandType; aValue: UnicodeString; aDateTime: TDateTime); overload;
     procedure CmdGame(aCommandType: TGameInputCommandType; aPlayer, aTeam:integer); overload;
     procedure CmdGame(aCommandType: TGameInputCommandType; aLoc: TKMPointF; aPlayer: THandIndex); overload;
 
@@ -181,6 +182,7 @@ begin
     aMemoryStream.Write(CommandType, SizeOf(CommandType));
     aMemoryStream.Write(Params, SizeOf(Params));
     aMemoryStream.WriteW(TextParam);
+    aMemoryStream.Write(DateTimeParam);
     aMemoryStream.Write(HandIndex);
   end;
 end;
@@ -193,6 +195,7 @@ begin
     aMemoryStream.Read(CommandType, SizeOf(CommandType));
     aMemoryStream.Read(Params, SizeOf(Params));
     aMemoryStream.ReadW(TextParam);
+    aMemoryStream.Read(DateTimeParam);
     aMemoryStream.Read(HandIndex);
   end;
 end;
@@ -228,10 +231,11 @@ begin
     Result.Params[I+1] := MaxInt;
 
   Result.TextParam := '';
+  Result.DateTimeParam := 0;
 end;
 
 
-function TGameInputProcess.MakeCommand(aGIC: TGameInputCommandType; const aTextParam: UnicodeString): TGameInputCommand;
+function TGameInputProcess.MakeCommand(aGIC: TGameInputCommandType; const aTextParam: UnicodeString; aDateTimeParam: TDateTime): TGameInputCommand;
 var
   I: Integer;
 begin
@@ -242,6 +246,7 @@ begin
     Result.Params[I] := MaxInt;
 
   Result.TextParam := aTextParam;
+  Result.DateTimeParam := aDateTimeParam;
 end;
 
 
@@ -361,7 +366,7 @@ begin
       gic_GamePause:              ;//if fReplayState = gipRecording then fGame.fGamePlayInterface.SetPause(boolean(Params[1]));
       gic_GameSave:               if fReplayState = gipRecording then
                                   begin
-                                    gGame.Save(TextParam);
+                                    gGame.Save(TextParam, DateTimeParam); //Timestamp is synchronised
                                     if gGame.IsMultiplayer then
                                       //Tell the player we have saved the game
                                       gGame.Networking.PostLocalMessage(gResTexts[TX_MULTIPLAYER_SAVING_GAME]);
@@ -518,10 +523,10 @@ begin
 end;
 
 
-procedure TGameInputProcess.CmdGame(aCommandType: TGameInputCommandType; aValue: string);
+procedure TGameInputProcess.CmdGame(aCommandType: TGameInputCommandType; aValue: UnicodeString; aDateTime: TDateTime);
 begin
   Assert(aCommandType = gic_GameSave);
-  TakeCommand(MakeCommand(aCommandType, aValue));
+  TakeCommand(MakeCommand(aCommandType, aValue, aDateTime));
 end;
 
 

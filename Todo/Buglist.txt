@@ -73,6 +73,7 @@ Improvements:
  +	L	Shift+3 joins the selected warrior group to the group assigned to hotkey 3 (Starcraft style)
  +  L   The host can ban players from the lobby (only from this lobby, it is not a permanent ban)
  +  L   MapEd and script let you add out wares to houses (e.g. stone to stonemason)
+ +	M	New column in load/replays menus: Date/time (stored internally in save format since file modified date is not very trustworthy)
 	        Dismiss button to make units walk into the school and disappear (gold is not refunded)
 	L	Simple dedicated server form which lets you set the properties of the INI for the server and start it [gemGreg]
 	L	Placing houses in MP should put a temp/fake visual markup until the real one can be added to make it appear responsive
@@ -89,7 +90,6 @@ Improvements:
 	L	Pack textures into atlases with regard to GPU max supported texture resolution (512 or 1024 px)
 	L	Clicking and holding on the add/subtract buttons in weapons workshops could increase the number to save repeated clicking
 	L	Multiplayer in-game player list and lobby description ordered (grouped) by teams [Lewin, implemented? Krom, no currently there's no order/grouping by teams in the player list]
-	M	New column in load/replays menus: Date/time (stored internally in save format since file modified date is not very trustworthy) [Marcin]
 	L	New command !SKIP_HOUSE. If I want a map with no stone, then after building the inn the woodcutter and tower should become available (skips the stonemason)
 	M	Pause in multiplayer (pause by everyone and unpause by at least 2 other players)
 	L	"Checkpoints" in replays every 20 minutes or so to allow skipping forwards/backwards (zips entire game state which can be loaded)

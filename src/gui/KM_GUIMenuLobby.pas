@@ -57,6 +57,7 @@ type
     procedure Lobby_OnDisconnect(const aData: UnicodeString);
     procedure Lobby_OnGameOptions(Sender: TObject);
     procedure Lobby_OnMapName(const aData: UnicodeString);
+    procedure Lobby_OnMapMissing(const aData: UnicodeString);
     procedure Lobby_OnMessage(const aText: UnicodeString);
     procedure Lobby_OnPingInfo(Sender: TObject);
     procedure Lobby_OnPlayersSetup(Sender: TObject);
@@ -521,6 +522,7 @@ begin
   fNetworking.OnPlayersSetup := Lobby_OnPlayersSetup;
   fNetworking.OnGameOptions  := Lobby_OnGameOptions;
   fNetworking.OnMapName      := Lobby_OnMapName;
+  fNetworking.OnMapMissing   := Lobby_OnMapMissing;
   fNetworking.OnPingInfo     := Lobby_OnPingInfo;
   //fNetworking.OnStartMap - already assigned in fGameApp when Net is created
   //fNetworking.OnStartSave - already assigned in fGameApp when Net is created
@@ -1063,16 +1065,16 @@ begin
     3:  //Special map Map
         begin
           fMapsMP.Refresh(MapList_ScanUpdate);
+          DropCol_LobbyMaps.DropWidth := 430;
           DropCol_LobbyMaps.DefaultCaption := gResTexts[TX_LOBBY_MAP_SELECT];
-          DropCol_LobbyMaps.List.Header.Columns[0].Caption := gResTexts[TX_MENU_MAP_TITLE];
-          DropCol_LobbyMaps.List.Header.Columns[2].Caption := gResTexts[TX_MENU_MAP_SIZE];
+          DropCol_LobbyMaps.SetColumns(fnt_Outline, [gResTexts[TX_MENU_MAP_TITLE], '#', gResTexts[TX_MENU_MAP_SIZE]], [0, 290, 320]);
         end;
     4:  //Saved Game
         begin
           fSavesMP.Refresh(MapList_ScanUpdate, True);
+          DropCol_LobbyMaps.DropWidth := 600;
           DropCol_LobbyMaps.DefaultCaption := gResTexts[TX_LOBBY_MAP_SELECT_SAVED];
-          DropCol_LobbyMaps.List.Header.Columns[0].Caption := gResTexts[TX_MENU_LOAD_FILE];
-          DropCol_LobbyMaps.List.Header.Columns[2].Caption := gResTexts[TX_MENU_SAVE_TIME];
+          DropCol_LobbyMaps.SetColumns(fnt_Outline, [gResTexts[TX_MENU_LOAD_FILE], '#', gResTexts[TX_MENU_SAVE_TIME], gResTexts[TX_MENU_LOAD_DATE]], [0, 290, 320, 430]);
         end;
     else
         begin
@@ -1206,9 +1208,10 @@ begin
     if fSavesMP[I].IsValid then
       DropCol_LobbyMaps.Add(MakeListRow([fSavesMP[I].FileName,
                                          IntToStr(fSavesMP[I].Info.PlayerCount),
-                                         fSavesMP[I].Info.GetTimeText], I))
+                                         fSavesMP[I].Info.GetTimeText,
+                                         fSavesMP[I].Info.GetSaveTimestamp], I))
     else
-      DropCol_LobbyMaps.Add(MakeListRow([fSavesMP[I].FileName, '', ''], I));
+      DropCol_LobbyMaps.Add(MakeListRow([fSavesMP[I].FileName, '', '', ''], I));
 
     //Restore previously selected save
     if PrevSave <> '' then
@@ -1331,29 +1334,8 @@ begin
                   Label_LobbyMapName.Caption := gResTexts[TX_LOBBY_MAP_NONE]
                 else
                 begin
-                  Label_LobbyMapName.Caption := fNetworking.MissingFileName;
-                  Memo_LobbyMapDesc.Text := aData; //aData is some error message
-                  if fNetworking.MissingFileType = ngk_Save then
-                    Radio_LobbyMapType.ItemIndex := 4
-                  else
-                    Radio_LobbyMapType.ItemIndex := 0;
-                  Panel_LobbySetupMinimap.Hide;
-                  Panel_LobbySetupTransfer.Show;
-                  Button_LobbySetupDownload.Show;
-                  Lobby_OnFileTransferProgress(0, 0); //Reset progress bar
-                  if fNetworking.MissingFileExists then
-                  begin
-                    CheckBox_LobbySetupOverwrite.Show;
-                    CheckBox_LobbySetupOverwrite.Checked := False;
-                    Button_LobbySetupDownload.Disable;
-                    Button_LobbySetupDownload.Top := 20;
-                  end
-                  else
-                  begin
-                    CheckBox_LobbySetupOverwrite.Hide;
-                    Button_LobbySetupDownload.Enable;
-                    Button_LobbySetupDownload.Top := 0;
-                  end;
+                  Memo_LobbyMapDesc.Add(aData);
+                  Label_LobbyMapName.Caption := aData; //Some error message
                 end;
               end;
     ngk_Save: begin
@@ -1377,6 +1359,41 @@ begin
                 Label_LobbyMapName.Caption := M.FileName;
                 Memo_LobbyMapDesc.Text := M.BigDesc;
             end;
+  end;
+end;
+
+
+procedure TKMMenuLobby.Lobby_OnMapMissing(const aData: UnicodeString);
+begin
+  //Common settings
+  MinimapView_Lobby.Visible := (fNetworking.SelectGameKind = ngk_Map) and fNetworking.MapInfo.IsValid;
+  TrackBar_LobbyPeacetime.Enabled := fNetworking.IsHost and (fNetworking.SelectGameKind = ngk_Map) and fNetworking.MapInfo.IsValid and not fNetworking.MapInfo.IsCoop;
+  TrackBar_LobbySpeedPT.Enabled := (TrackBar_LobbyPeacetime.Position > 0) and fNetworking.IsHost and (fNetworking.SelectGameKind = ngk_Map) and fNetworking.MapInfo.IsValid;
+  TrackBar_LobbySpeedAfterPT.Enabled := fNetworking.IsHost and (fNetworking.SelectGameKind = ngk_Map) and fNetworking.MapInfo.IsValid;
+  CheckBox_LobbyRandomizeTeamLocations.Enabled := fNetworking.IsHost and (fNetworking.SelectGameKind <> ngk_Save);
+
+  Label_LobbyMapName.Caption := fNetworking.MissingFileName;
+  Memo_LobbyMapDesc.Text := aData; //aData is some error message
+  if fNetworking.MissingFileType = ngk_Save then
+    Radio_LobbyMapType.ItemIndex := 4
+  else
+    Radio_LobbyMapType.ItemIndex := 0;
+  Panel_LobbySetupMinimap.Hide;
+  Panel_LobbySetupTransfer.Show;
+  Button_LobbySetupDownload.Show;
+  Lobby_OnFileTransferProgress(0, 0); //Reset progress bar
+  if fNetworking.MissingFileExists then
+  begin
+    CheckBox_LobbySetupOverwrite.Show;
+    CheckBox_LobbySetupOverwrite.Checked := False;
+    Button_LobbySetupDownload.Disable;
+    Button_LobbySetupDownload.Top := 20;
+  end
+  else
+  begin
+    CheckBox_LobbySetupOverwrite.Hide;
+    Button_LobbySetupDownload.Enable;
+    Button_LobbySetupDownload.Top := 0;
   end;
 end;
 

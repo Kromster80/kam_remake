@@ -11,6 +11,7 @@ type
     smByFileNameAsc, smByFileNameDesc,
     smByDescriptionAsc, smByDescriptionDesc,
     smByTimeAsc, smByTimeDesc,
+    smByDateAsc, smByDateDesc,
     smByPlayerCountAsc, smByPlayerCountDesc);
 
   TKMSaveInfo = class;
@@ -280,6 +281,8 @@ procedure TKMSavesCollection.DoSort;
       smByDescriptionDesc: Result := CompareText(A.Info.GetTitleWithTime, B.Info.GetTitleWithTime) > 0;
       smByTimeAsc:         Result := A.Info.TickCount < B.Info.TickCount;
       smByTimeDesc:        Result := A.Info.TickCount > B.Info.TickCount;
+      smByDateAsc:         Result := A.Info.SaveTimestamp > B.Info.SaveTimestamp;
+      smByDateDesc:        Result := A.Info.SaveTimestamp < B.Info.SaveTimestamp;
       smByPlayerCountAsc:  Result := A.Info.PlayerCount < B.Info.PlayerCount;
       smByPlayerCountDesc: Result := A.Info.PlayerCount > B.Info.PlayerCount;
     end;

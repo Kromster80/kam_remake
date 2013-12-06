@@ -341,6 +341,7 @@ TX_MENU_ERROR = 315; //An Error Has Occurred!
 TX_MENU_NEW_LOCALE = 316; //Loading new locale
 TX_MENU_LOAD_LIST = 317; //List of savegames
 TX_MENU_LOAD_FILE = 318; //File name
+TX_MENU_LOAD_DATE = 770; //Date
 TX_MENU_LOAD_DESCRIPTION = 319; //Description
 TX_MENU_LOAD_LOAD = 320; //Load
 TX_MENU_LOAD_DELETE = 321; //Delete

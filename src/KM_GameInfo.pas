@@ -14,7 +14,8 @@ type
     Title: UnicodeString; //Used for campaigns and to store in savegames
     Version: AnsiString; //Savegame version, yet unused in maps, they always have actual version
     DATCRC: Cardinal; //CRC of defines .dat files
-    TickCount: Cardinal;
+    TickCount: Cardinal; //Current tick count of the game (unused for maps)
+    SaveTimestamp: TDateTime; //UTC time when the save was created (unused for maps)
     MissionMode: TKMissionMode; //Fighting or Build-a-City map
     MapSizeX, MapSizeY: Integer;
     VictoryCondition: UnicodeString;
@@ -41,6 +42,7 @@ type
     function MissionModeText: UnicodeString;
     function GetTimeText: UnicodeString;
     function GetTitleWithTime: UnicodeString;
+    function GetSaveTimestamp: UnicodeString;
   end;
 
 
@@ -72,6 +74,7 @@ begin
 
   LoadStream.ReadW(Title); //GameName
   LoadStream.Read(TickCount); //TickCount
+  LoadStream.Read(SaveTimestamp);
   LoadStream.Read(MissionMode, SizeOf(MissionMode));
   LoadStream.Read(MapSizeX);
   LoadStream.Read(MapSizeY);
@@ -100,6 +103,7 @@ begin
 
   SaveStream.WriteW(Title); //GameName
   SaveStream.Write(TickCount);
+  SaveStream.Write(SaveTimestamp);
   SaveStream.Write(MissionMode, SizeOf(MissionMode));
   SaveStream.Write(MapSizeX);
   SaveStream.Write(MapSizeY);
@@ -191,6 +195,12 @@ begin
     Result := Title + ' ' + TimeToString(TickCount/24/60/60/10)
   else
     Result := Title;
+end;
+
+
+function TKMGameInfo.GetSaveTimestamp: UnicodeString;
+begin
+  Result := FormatDateTime('ddddd t', UTCToLocal(SaveTimestamp));
 end;
 
 

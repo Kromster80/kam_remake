@@ -59,7 +59,7 @@ type
 
     procedure GameMPDisconnect(const aData: UnicodeString);
     procedure MultiplayerRig;
-    procedure SaveGame(const aPathName: UnicodeString);
+    procedure SaveGame(const aPathName: UnicodeString; aTimestamp: TDateTime = -1);
     procedure UpdatePeaceTime;
     function WaitingPlayersList: TKMByteArray;
   public
@@ -142,7 +142,7 @@ type
     property MapEditor: TKMMapEditor read fMapEditor;
     property TextMission: TKMTextLibraryMulti read fTextMission;
 
-    procedure Save(const aSaveName: UnicodeString);
+    procedure Save(const aSaveName: UnicodeString; aTimestamp: TDateTime = -1);
     {$IFDEF USE_MAD_EXCEPT}
     procedure AttachCrashReport(const ExceptIntf: IMEException; aZipFile: UnicodeString);
     {$ENDIF}
@@ -1001,13 +1001,16 @@ end;
 
 
 //Saves the game in all its glory
-procedure TKMGame.SaveGame(const aPathName: UnicodeString);
+procedure TKMGame.SaveGame(const aPathName: UnicodeString; aTimestamp: TDateTime = -1);
 var
   SaveStream: TKMemoryStream;
   fGameInfo: TKMGameInfo;
   I, netIndex: Integer;
 begin
   gLog.AddTime('Saving game: ' + aPathName);
+
+  if aTimestamp < 0 then
+    aTimestamp := UTCNow; //Normally we want to use UTCNow, but in MP we must syncronise it
 
   if fGameMode in [gmMapEd, gmReplaySingle, gmReplayMulti] then
   begin
@@ -1020,6 +1023,7 @@ begin
     fGameInfo := TKMGameInfo.Create;
     fGameInfo.Title := fGameName;
     fGameInfo.TickCount := fGameTickCount;
+    fGameInfo.SaveTimestamp := aTimestamp;
     fGameInfo.MissionMode := fMissionMode;
     fGameInfo.MapSizeX := gTerrain.MapX;
     fGameInfo.MapSizeY := gTerrain.MapY;
@@ -1113,14 +1117,14 @@ end;
 
 
 //Saves game by provided name
-procedure TKMGame.Save(const aSaveName: UnicodeString);
+procedure TKMGame.Save(const aSaveName: UnicodeString; aTimestamp: TDateTime = -1);
 var
   fullPath: UnicodeString;
 begin
   //Convert name to full path+name
   fullPath := SaveName(aSaveName, 'sav', IsMultiplayer);
 
-  SaveGame(fullPath);
+  SaveGame(fullPath, aTimestamp);
 
   //Remember which savegame to try to restart (if game was not saved before)
   fSaveFile := ExtractRelativePath(ExeDir, fullPath);
