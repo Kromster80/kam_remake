@@ -196,7 +196,7 @@ begin
       RegisterMethod('procedure AIAutoBuild(aPlayer: Byte; aAuto: Boolean)');
       RegisterMethod('procedure AIAutoDefence(aPlayer: Byte; aAuto: Boolean)');
       RegisterMethod('procedure AIAutoRepair(aPlayer: Byte; aAuto: Boolean)');
-      RegisterMethod('procedure AIBuildersLimit(aPlayer, aLimit: Byte)');
+      RegisterMethod('procedure AIWorkerLimit(aPlayer, aLimit: Byte)');
       RegisterMethod('procedure AIDefencePositionAdd(aPlayer: Byte; X, Y: Integer; aDir, aGroupType: Byte; aRadius: Word; aDefType: Byte)');
       RegisterMethod('procedure AIEquipRate(aPlayer: Byte; aType: Byte; aRate: Word)');
       RegisterMethod('procedure AIGroupsFormationSet(aPlayer, aType: Byte; aCount, aColumns: Word)');
@@ -509,7 +509,7 @@ begin
       RegisterMethod(@TKMScriptActions.AIAutoBuild,          'AIAUTOBUILD');
       RegisterMethod(@TKMScriptActions.AIAutoDefence,        'AIAUTODEFENCE');
       RegisterMethod(@TKMScriptActions.AIAutoRepair,         'AIAUTOREPAIR');
-      RegisterMethod(@TKMScriptActions.AILaborerLimit,       'AILABORERLIMIT');
+      RegisterMethod(@TKMScriptActions.AIWorkerLimit,        'AIWORKERLIMIT');
       RegisterMethod(@TKMScriptActions.AIDefencePositionAdd, 'AIDEFENCEPOSITIONADD');
       RegisterMethod(@TKMScriptActions.AIEquipRate,          'AIEQUIPRATE');
       RegisterMethod(@TKMScriptActions.AIGroupsFormationSet, 'AIGROUPSFORMATIONSET)');

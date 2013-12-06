@@ -1702,6 +1702,9 @@ begin
           gHands[fOwner].Stats.UnitLost(fUnitType);
           gScriptEvents.ProcUnitDied(Self, PLAYER_NONE);
         end;
+        //These must be freed before running CloseUnit because task destructors sometimes need access to unit properties
+        SetAction(nil);
+        FreeAndNil(fUnitTask);
         CloseUnit(False); //Close the unit without removing tile usage (because this unit was in a house it has none)
         Result := true;
         exit;

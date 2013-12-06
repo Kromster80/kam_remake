@@ -42,8 +42,8 @@ procedure TKMScriptingIdCache.CacheUnit(aUnit: TKMUnit; aUID: Integer);
 var I: ShortInt;
 begin
   for I := Low(fUnitCache) to High(fUnitCache) do
-  if fUnitCache[I].UID = aUID then
-    Exit; //Already in cache
+    if fUnitCache[I].UID = aUID then
+      Exit; //Already in cache
 
   //We need to release pointer if we remove unit from cache
   if fUnitCache[fUnitLastAdded].U <> nil then
@@ -108,13 +108,13 @@ function TKMScriptingIdCache.GetUnit(aUID: Integer): TKMUnit;
 var I: ShortInt;
 begin
   for I := Low(fUnitCache) to High(fUnitCache) do
-  if fUnitCache[I].UID = aUID then
-  begin
-    Result := fUnitCache[I].U;
-    if (Result <> nil) and Result.IsDeadOrDying then
-      Result := nil;
-    Exit;
-  end;
+    if fUnitCache[I].UID = aUID then
+    begin
+      Result := fUnitCache[I].U;
+      if (Result <> nil) and Result.IsDeadOrDying then
+        Result := nil;
+      Exit;
+    end;
 
   //Not found so do lookup and add it to the cache
   Result := gHands.GetUnitByUID(aUID);
@@ -129,11 +129,13 @@ function TKMScriptingIdCache.GetHouse(aUID:Integer): TKMHouse;
 var I: ShortInt;
 begin
   for I := Low(fHouseCache) to High(fHouseCache) do
-  if fHouseCache[I].UID = aUID then
-  begin
-    Result := fHouseCache[I].H;
-    Exit;
-  end;
+    if fHouseCache[I].UID = aUID then
+    begin
+      Result := fHouseCache[I].H;
+      if (Result <> nil) and Result.IsDestroyed then
+        Result := nil;
+      Exit;
+    end;
 
   //Not found so do lookup and add it to the cache
   Result := gHands.GetHouseByUID(aUID);
@@ -151,6 +153,8 @@ begin
   if fGroupCache[I].UID = aUID then
   begin
     Result := fGroupCache[I].G;
+    if (Result <> nil) and Result.IsDead then
+      Result := nil;
     Exit;
   end;
 

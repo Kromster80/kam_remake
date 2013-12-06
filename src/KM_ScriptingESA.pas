@@ -139,7 +139,7 @@ type
     procedure AIAutoBuild(aPlayer: Byte; aAuto: Boolean);
     procedure AIAutoDefence(aPlayer: Byte; aAuto: Boolean);
     procedure AIAutoRepair(aPlayer: Byte; aAuto: Boolean);
-    procedure AILaborerLimit(aPlayer, aLimit: Byte);
+    procedure AIWorkerLimit(aPlayer, aLimit: Byte);
     procedure AIDefencePositionAdd(aPlayer: Byte; X, Y: Integer; aDir, aGroupType: Byte; aRadius: Word; aDefType: Byte);
     procedure AIEquipRate(aPlayer: Byte; aType: Byte; aRate: Word);
     procedure AIGroupsFormationSet(aPlayer, aType: Byte; aCount, aColumns: Word);
@@ -1861,12 +1861,12 @@ begin
 end;
 
 
-procedure TKMScriptActions.AILaborerLimit(aPlayer, aLimit: Byte);
+procedure TKMScriptActions.AIWorkerLimit(aPlayer, aLimit: Byte);
 begin
   if InRange(aPlayer, 0, gHands.Count - 1) then
     gHands[aPlayer].AI.Setup.WorkerCount := aLimit
   else
-    LogError('Actions.AILaborerLimit', [aPlayer, aLimit]);
+    LogError('Actions.AIWorkerLimit', [aPlayer, aLimit]);
 end;
 
 
@@ -1931,12 +1931,12 @@ begin
 end;
 
 
-procedure TKMScriptActions.AISerfsPerHouse(aPlayer, aSerfs: Byte);
+procedure TKMScriptActions.AISerfsPerHouse(aPlayer: Byte; aSerfs: Single);
 begin
   if InRange(aPlayer, 0, gHands.Count - 1) then
     gHands[aPlayer].AI.Setup.SerfsPerHouse := aSerfs
   else
-    LogError('Actions.AISerfsPerHouse', [aPlayer, aSerfs]);
+    LogError('Actions.AISerfsPerHouse', [aPlayer]);
 end;
 
 

@@ -421,8 +421,9 @@ begin
     if gTerrain.TileInMapCoords(P.X,P.Y) then
     begin
       T := KMPoint(P);
-      if gTerrain.CheckPassability(T, Pass) and (gTerrain.GetWalkConnectID(T) = RequiredWalkConnect)
-      and not gTerrain.HasUnit(T) then
+      if gTerrain.CheckPassability(T, Pass) and not gTerrain.HasUnit(T)
+      //If RequiredWalkConnect is invalid (0) it means we don't care
+      and ((RequiredWalkConnect = 0) or (gTerrain.GetWalkConnectID(T) = RequiredWalkConnect)) then
       begin
         PlacePoint := T; // Assign if all test are passed
         Result := True;
