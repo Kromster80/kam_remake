@@ -2,7 +2,7 @@ unit KM_Viewport;
 {$I KaM_Remake.inc}
 interface
 uses Math, classes, Controls, {$IFDEF MSWindows} Windows, {$ENDIF}
-  KM_CommonClasses, KM_Points;
+  KromUtils, KM_CommonClasses, KM_Points;
 
 type
   { Here should be viewport routines }
@@ -12,8 +12,7 @@ type
     fTopHill: Single;
     fPosition: TKMPointF;
     fScrolling: Boolean;
-    fPrevScrollAdv: array [0..24] of Single;
-    fPrevScrollPos: Byte;
+    fScrollStarted: Cardinal;
     fViewportClip: TPoint;
     fViewRect: TKMRect;
     fZoom: Single;
@@ -49,7 +48,7 @@ type
 
 
 implementation
-uses KM_Defaults, KM_Sound, KM_GameApp, KM_Main, KM_Resource, KM_ResCursors;
+uses KM_Defaults, KM_Utils, KM_Sound, KM_GameApp, KM_Main, KM_Resource, KM_ResCursors;
 
 
 constructor TViewport.Create(aWidth, aHeight: Integer);
@@ -187,6 +186,7 @@ const
     kmc_Scroll4, kmc_Scroll5, kmc_Default, kmc_Default,
     kmc_Scroll3, kmc_Default, kmc_Default, kmc_Default);
 var
+  TimeSinceStarted: Cardinal;
   ScrollAdv: Single;
   CursorPoint: TKMPointI;
   ScreenBounds: TRect;
@@ -232,10 +232,10 @@ begin
      not ScrollKeyUp    and
      not ScrollKeyRight and
      not ScrollKeyDown  and
-     not (CursorPoint.X <= ScreenBounds.Left + SCROLLFLEX) and
-     not (CursorPoint.Y <= ScreenBounds.Top + SCROLLFLEX) and
-     not (CursorPoint.X >= ScreenBounds.Right -1-SCROLLFLEX) and
-     not (CursorPoint.Y >= ScreenBounds.Bottom-1-SCROLLFLEX)) then
+     not (CursorPoint.X <= ScreenBounds.Left + SCROLL_FLEX) and
+     not (CursorPoint.Y <= ScreenBounds.Top + SCROLL_FLEX) and
+     not (CursorPoint.X >= ScreenBounds.Right -1-SCROLL_FLEX) and
+     not (CursorPoint.Y >= ScreenBounds.Bottom-1-SCROLL_FLEX)) then
   begin
     //Stop the scrolling (e.g. if the form loses focus due to other application popping up)
     ReleaseScrollKeys;
@@ -244,16 +244,20 @@ begin
     if (gResource.Cursors.Cursor in [kmc_Scroll0 .. kmc_Scroll7]) then
       gResource.Cursors.Cursor := kmc_Default;
 
+    fScrollStarted := 0;
     Exit;
   end;
 
-  ScrollAdv := (SCROLLSPEED + fGameApp.GameSettings.ScrollSpeed / 3) * aFrameTime / 100; //1-5 tiles per second
+  ScrollAdv := (SCROLL_SPEED + fGameApp.GameSettings.ScrollSpeed / 5) * aFrameTime / 100;
 
-  fPrevScrollPos := (fPrevScrollPos + 1) mod Length(fPrevScrollAdv); //Position in ring-buffer
-  fPrevScrollAdv[fPrevScrollPos] := ScrollAdv; //Replace oldest value
-  for I := Low(fPrevScrollAdv) to High(fPrevScrollAdv) do //Compute average
-    ScrollAdv := ScrollAdv + fPrevScrollAdv[I];
-  ScrollAdv := ScrollAdv / Length(fPrevScrollAdv);
+  if SCROLL_ACCEL then
+  begin
+    if fScrollStarted = 0 then
+      fScrollStarted := TimeGet;
+    TimeSinceStarted := GetTimeSince(fScrollStarted);
+    if TimeSinceStarted < SCROLL_ACCEL_TIME then
+      ScrollAdv := Mix(ScrollAdv, 0, TimeSinceStarted / SCROLL_ACCEL_TIME);
+  end;
 
   I := 0; //That is our bitfield variable for directions, 0..12 range
   //    3 2 6  These are directions
@@ -266,10 +270,10 @@ begin
   if ScrollKeyRight then fPosition.X := fPosition.X + ScrollAdv;
   if ScrollKeyDown  then fPosition.Y := fPosition.Y + ScrollAdv;
   //Mouse
-  if CursorPoint.X <= ScreenBounds.Left   + SCROLLFLEX then begin inc(I,1); fPosition.X := fPosition.X - ScrollAdv*(1+(ScreenBounds.Left   - CursorPoint.X)/SCROLLFLEX); end;
-  if CursorPoint.Y <= ScreenBounds.Top    + SCROLLFLEX then begin inc(I,2); fPosition.Y := fPosition.Y - ScrollAdv*(1+(ScreenBounds.Top    - CursorPoint.Y)/SCROLLFLEX); end;
-  if CursorPoint.X >= ScreenBounds.Right -1-SCROLLFLEX then begin inc(I,4); fPosition.X := fPosition.X + ScrollAdv*(1-(ScreenBounds.Right -1-CursorPoint.X)/SCROLLFLEX); end;
-  if CursorPoint.Y >= ScreenBounds.Bottom-1-SCROLLFLEX then begin inc(I,8); fPosition.Y := fPosition.Y + ScrollAdv*(1-(ScreenBounds.Bottom-1-CursorPoint.Y)/SCROLLFLEX); end;
+  if CursorPoint.X <= ScreenBounds.Left   + SCROLL_FLEX then begin inc(I,1); fPosition.X := fPosition.X - ScrollAdv*(1+(ScreenBounds.Left   - CursorPoint.X)/SCROLL_FLEX); end;
+  if CursorPoint.Y <= ScreenBounds.Top    + SCROLL_FLEX then begin inc(I,2); fPosition.Y := fPosition.Y - ScrollAdv*(1+(ScreenBounds.Top    - CursorPoint.Y)/SCROLL_FLEX); end;
+  if CursorPoint.X >= ScreenBounds.Right -1-SCROLL_FLEX then begin inc(I,4); fPosition.X := fPosition.X + ScrollAdv*(1-(ScreenBounds.Right -1-CursorPoint.X)/SCROLL_FLEX); end;
+  if CursorPoint.Y >= ScreenBounds.Bottom-1-SCROLL_FLEX then begin inc(I,8); fPosition.Y := fPosition.Y + ScrollAdv*(1-(ScreenBounds.Bottom-1-CursorPoint.Y)/SCROLL_FLEX); end;
 
   //Now do actual the scrolling, if needed
   fScrolling := I <> 0;
