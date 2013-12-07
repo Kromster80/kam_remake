@@ -41,6 +41,7 @@ type
     function GetMiningRange: Byte;
     function GetSpeed: Single;
     function GetUnitAnim(aAction: TUnitActionType; aDir: TKMDirection): TKMAnimLoop;
+    function GetUnitTextID: Integer;
     function GetUnitName: UnicodeString;
   public
     constructor Create(aType: TUnitType);
@@ -67,6 +68,7 @@ type
     function SupportsAction(aAct: TUnitActionType):boolean;
     property UnitAnim[aAction:TUnitActionType; aDir:TKMDirection]: TKMAnimLoop read GetUnitAnim;
     property GUIName: UnicodeString read GetUnitName;
+    property GUITextID: Integer read GetUnitTextID;
   end;
 
 
@@ -330,21 +332,29 @@ begin
 end;
 
 
+function TKMUnitDatClass.GetUnitTextID: Integer;
+begin
+  if IsValid then
+    case fUnitType of
+      ut_Wolf:        Result := TX_UNITS_WOLF;
+      ut_Fish:        Result := TX_UNITS_FISH;
+      ut_Watersnake:  Result := TX_UNITS_WATERSNAKE;
+      ut_Seastar:     Result := TX_UNITS_SEASTAR;
+      ut_Crab:        Result := TX_UNITS_CRAB;
+      ut_Waterflower: Result := TX_UNITS_WATERFLOWER;
+      ut_Waterleaf:   Result := TX_UNITS_WATERLEAF;
+      ut_Duck:        Result := TX_UNITS_DUCK;
+      else            Result := TX_UNITS_NAMES__29 + UnitTypeToIndex[fUnitType];
+    end
+  else
+    Result := -1;
+end;
+
+
 function TKMUnitDatClass.GetUnitName: UnicodeString;
 begin
   if IsValid then
-    //Result := GetEnumName(TypeInfo(TUnitType), Integer(fUnitType))
-    case fUnitType of
-      ut_Wolf:        Result := gResTexts[TX_UNITS_WOLF];
-      ut_Fish:        Result := gResTexts[TX_UNITS_FISH];
-      ut_Watersnake:  Result := gResTexts[TX_UNITS_WATERSNAKE];
-      ut_Seastar:     Result := gResTexts[TX_UNITS_SEASTAR];
-      ut_Crab:        Result := gResTexts[TX_UNITS_CRAB];
-      ut_Waterflower: Result := gResTexts[TX_UNITS_WATERFLOWER];
-      ut_Waterleaf:   Result := gResTexts[TX_UNITS_WATERLEAF];
-      ut_Duck:        Result := gResTexts[TX_UNITS_DUCK];
-      else            Result := gResTexts[TX_UNITS_NAMES__29 + UnitTypeToIndex[fUnitType]];
-    end
+    Result := gResTexts[GetUnitTextID]
   else
     Result := 'N/A';
 end;

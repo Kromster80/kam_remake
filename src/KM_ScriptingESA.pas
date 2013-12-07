@@ -79,6 +79,7 @@ type
     function HouseResourceAmount(aHouseID, aResource: Integer): Integer;
     function HouseSchoolQueue(aHouseID, QueueIndex: Integer): Integer;
     function HouseType(aHouseID: Integer): Integer;
+    function HouseTypeName(aHouseType: Byte): AnsiString;
     function HouseWareBlocked(aHouseID, aWareType: Integer): Boolean;
     function HouseWeaponsOrdered(aHouseID, aWareType: Integer): Integer;
     function HouseWoodcutterChopOnly(aHouseID: Integer): Boolean;
@@ -126,6 +127,8 @@ type
     function UnitPositionY(aUnitID: Integer): Integer;
     function UnitsGroup(aUnitID: Integer): Integer;
     function UnitType(aUnitID: Integer): Integer;
+    function UnitTypeName(aUnitType: Byte): AnsiString;
+    function WareTypeName(aWareType: Byte): AnsiString;
   end;
 
   TKMScriptActions = class
@@ -979,6 +982,18 @@ begin
 end;
 
 
+function TKMScriptStates.HouseTypeName(aHouseType: Byte): AnsiString;
+begin
+  if (aHouseType in [Low(HouseIndexToType) .. High(HouseIndexToType)]) then
+    Result := '<%' + IntToStr(gResource.HouseDat[HouseIndexToType[aHouseType]].HouseNameTextID) + '>'
+  else
+  begin
+    Result := '';
+    LogError('States.HouseTypeName', [aHouseType]);
+  end;
+end;
+
+
 //Get the unit type in Schools queue
 function TKMScriptStates.HouseSchoolQueue(aHouseID, QueueIndex: Integer): Integer;
 var
@@ -1326,6 +1341,30 @@ begin
   end
   else
     LogError('States.UnitType', [aUnitID]);
+end;
+
+
+function TKMScriptStates.UnitTypeName(aUnitType: Byte): AnsiString;
+begin
+  if (aUnitType in [Low(UnitIndexToType) .. High(UnitIndexToType)]) then
+    Result := '<%' + IntToStr(gResource.UnitDat[UnitIndexToType[aUnitType]].GUITextID) + '>'
+  else
+  begin
+    Result := '';
+    LogError('States.UnitTypeName', [aUnitType]);
+  end;
+end;
+
+
+function TKMScriptStates.WareTypeName(aWareType: Byte): AnsiString;
+begin
+  if (aWareType in [Low(WareIndexToType) .. High(WareIndexToType)]) then
+    Result := '<%' + IntToStr(gResource.Wares[WareIndexToType[aWareType]].TextID) + '>'
+  else
+  begin
+    Result := '';
+    LogError('States.WareTypeName', [aWareType]);
+  end;
 end;
 
 

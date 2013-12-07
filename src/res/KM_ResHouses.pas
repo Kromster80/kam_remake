@@ -99,6 +99,7 @@ type
     property DoesOrders:boolean read GetDoesOrders;
     property GUIIcon:word read GetGUIIcon;
     property HouseName: UnicodeString read GetHouseName;
+    property HouseNameTextID: Integer read fNameTextID;
     property ReleasedBy: THouseType read GetReleasedBy;
     property ResInput: THouseRes read GetResInput;
     property ResOutput: THouseRes read GetResOutput;

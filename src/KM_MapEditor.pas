@@ -285,14 +285,15 @@ begin
   P := GameCursor.Cell;
 
   if aLayer = plCursors then
-  //With Buildings tab see if we can remove Fields or Houses
-  if (GameCursor.Mode = cmErase)
-  and (    gTerrain.TileIsCornField(P)
-           or gTerrain.TileIsWineField(P)
-           or (gTerrain.Land[P.Y,P.X].TileOverlay=to_Road)
-           or (gHands.HousesHitTest(P.X, P.Y) <> nil))
-  then
-    fRenderPool.RenderWireTile(P, $FFFFFF00); //Cyan quad
+    //With Buildings tab see if we can remove Fields or Houses
+    if GameCursor.Mode = cmErase then
+      if gTerrain.TileIsCornField(P)
+      or gTerrain.TileIsWineField(P)
+      or (gTerrain.Land[P.Y,P.X].TileOverlay=to_Road)
+      or (gHands.HousesHitTest(P.X, P.Y) <> nil) then
+        fRenderPool.RenderWireTile(P, $FFFFFF00) //Cyan quad
+      else
+        fRenderPool.RenderSpriteOnTile(P, TC_BLOCK); //Red X
 
 
   if mlDefences in fVisibleLayers then

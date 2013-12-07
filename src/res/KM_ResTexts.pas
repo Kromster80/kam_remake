@@ -45,7 +45,7 @@ type
   public
     constructor Create;
     procedure LoadLocale(aPathTemplate: string); //All locales for Mission strings
-    function ParseTextMarkup(const aText: UnicodeString): UnicodeString;
+    function ParseTextMarkup(const aText: UnicodeString; aTagSym: Char): UnicodeString;
     function HasText(aIndex: Word): Boolean;
     property Texts[aIndex: Word]: UnicodeString read GetTexts; default;
     procedure Save(aStream: TKMemoryStream);
@@ -218,7 +218,7 @@ end;
 
 //Dynamic Scripts should not have access to the actual strings (script variables should be identical for all MP players)
 //Take the string and replace every occurence of <$tag> with corresponding text from LibX
-function TKMTextLibraryMulti.ParseTextMarkup(const aText: UnicodeString): UnicodeString;
+function TKMTextLibraryMulti.ParseTextMarkup(const aText: UnicodeString; aTagSym: Char): UnicodeString;
 var
   I, ID, Last: Integer;
 begin
@@ -226,7 +226,7 @@ begin
   I := 1;
   while I <= Length(aText) do
   begin
-    if (I + 3 <= Length(aText)) and (aText[I] = '<') and (aText[I+1] = '$') then
+    if (I + 3 <= Length(aText)) and (aText[I] = '<') and (aText[I+1] = aTagSym) then
     begin
       Last := PosEx('>', aText, I);
       ID := StrToIntDef(Copy(aText, I+2, Last-(I+2)), -1);

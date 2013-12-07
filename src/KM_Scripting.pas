@@ -146,6 +146,7 @@ begin
       RegisterMethod('function HouseResourceAmount(aHouseID, aResource: Integer): Integer');
       RegisterMethod('function HouseSchoolQueue(aHouseID, QueueIndex: Integer): Integer');
       RegisterMethod('function HouseType(aHouseID: Integer): Integer');
+      RegisterMethod('function HouseTypeName(aHouseType: Byte): AnsiString');
       RegisterMethod('function HouseWoodcutterChopOnly(aHouseID: Integer): Boolean');
       RegisterMethod('function HouseWareBlocked(aHouseID, aWareType: Integer): Boolean');
       RegisterMethod('function HouseWeaponsOrdered(aHouseID, aWareType: Integer): Integer');
@@ -189,6 +190,8 @@ begin
       RegisterMethod('function UnitType(aUnitID: Integer): Integer');
       RegisterMethod('function UnitDirection(aUnitID: Integer): Integer');
       RegisterMethod('function UnitsGroup(aUnitID: Integer): Integer');
+      RegisterMethod('function UnitTypeName(aUnitType: Byte): AnsiString');
+      RegisterMethod('function WareTypeName(aWareType: Byte): AnsiString');
     end;
 
     with Sender.AddClassN(nil, AnsiString(fActions.ClassName)) do
@@ -459,6 +462,7 @@ begin
       RegisterMethod(@TKMScriptStates.HouseRepair,             'HOUSEREPAIR');
       RegisterMethod(@TKMScriptStates.HouseResourceAmount,     'HOUSERESOURCEAMOUNT');
       RegisterMethod(@TKMScriptStates.HouseType,               'HOUSETYPE');
+      RegisterMethod(@TKMScriptStates.HouseTypeName,           'HOUSETYPENAME');
       RegisterMethod(@TKMScriptStates.HouseWoodcutterChopOnly, 'HOUSEWOODCUTTERCHOPONLY');
       RegisterMethod(@TKMScriptStates.HouseWareBlocked,        'HOUSEWAREBLOCKED');
       RegisterMethod(@TKMScriptStates.HouseSchoolQueue,        'HOUSESCHOOLQUEUE');
@@ -502,6 +506,8 @@ begin
       RegisterMethod(@TKMScriptStates.UnitType,       'UNITTYPE');
       RegisterMethod(@TKMScriptStates.UnitDirection,  'UNITDIRECTION');
       RegisterMethod(@TKMScriptStates.UnitsGroup,     'UNITSGROUP');
+      RegisterMethod(@TKMScriptStates.UnitTypeName,   'UNITTYPENAME');
+      RegisterMethod(@TKMScriptStates.WareTypeName,   'WARETYPENAME');
     end;
 
     with ClassImp.Add(TKMScriptActions) do

@@ -57,6 +57,7 @@ type
     fMissionFile: UnicodeString;   //Relative pathname to mission we are playing, so it gets saved to crashreport
     fMissionMode: TKMissionMode;
 
+    function ParseTextMarkup(aText: UnicodeString): UnicodeString;
     procedure GameMPDisconnect(const aData: UnicodeString);
     procedure MultiplayerRig;
     procedure SaveGame(const aPathName: UnicodeString; aTimestamp: TDateTime);
@@ -862,9 +863,16 @@ begin
 end;
 
 
+function TKMGame.ParseTextMarkup(aText: UnicodeString): UnicodeString;
+begin
+  Result := fTextMission.ParseTextMarkup(aText, '$');
+  Result := gResTexts.ParseTextMarkup(Result, '%');
+end;
+
+
 procedure TKMGame.ShowMessage(aKind: TKMMessageKind; aText: UnicodeString; aLoc: TKMPoint);
 begin
-  fGamePlayInterface.MessageIssue(aKind, fTextMission.ParseTextMarkup(aText), aLoc);
+  fGamePlayInterface.MessageIssue(aKind, ParseTextMarkup(aText), aLoc);
 end;
 
 
@@ -873,14 +881,14 @@ var S: UnicodeString;
 begin
   //We must parse for text markup before AND after running Format, since individual format
   //parameters can contain strings that need parsing (see Annie's Garden for an example)
-  S := fTextMission.ParseTextMarkup(Format(fTextMission.ParseTextMarkup(aText), aParams));
+  S := ParseTextMarkup(Format(ParseTextMarkup(aText), aParams));
   fGamePlayInterface.MessageIssue(aKind, S, aLoc);
 end;
 
 
 procedure TKMGame.ShowOverlay(aText: UnicodeString);
 begin
-  fGamePlayInterface.SetScriptedOverlay(fTextMission.ParseTextMarkup(aText));
+  fGamePlayInterface.SetScriptedOverlay(ParseTextMarkup(aText));
 end;
 
 
@@ -889,14 +897,14 @@ var S: UnicodeString;
 begin
   //We must parse for text markup before AND after running Format, since individual format
   //parameters can contain strings that need parsing (see Annie's Garden for an example)
-  S := fTextMission.ParseTextMarkup(Format(fTextMission.ParseTextMarkup(aText), aParams));
+  S := ParseTextMarkup(Format(ParseTextMarkup(aText), aParams));
   fGamePlayInterface.SetScriptedOverlay(S);
 end;
 
 
 procedure TKMGame.OverlayAppend(aText: UnicodeString);
 begin
-  fGamePlayInterface.AppendScriptedOverlay(fTextMission.ParseTextMarkup(aText));
+  fGamePlayInterface.AppendScriptedOverlay(ParseTextMarkup(aText));
 end;
 
 
@@ -905,7 +913,7 @@ var S: UnicodeString;
 begin
   //We must parse for text markup before AND after running Format, since individual format
   //parameters can contain strings that need parsing (see Annie's Garden for an example)
-  S := fTextMission.ParseTextMarkup(Format(fTextMission.ParseTextMarkup(aText), aParams));
+  S := ParseTextMarkup(Format(ParseTextMarkup(aText), aParams));
   fGamePlayInterface.AppendScriptedOverlay(S);
 end;
 

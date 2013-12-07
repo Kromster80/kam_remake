@@ -22,6 +22,7 @@ type
     fType: TWareType;
     fMarketPrice: Single;
     function GetGUIIcon: Word;
+    function GetTextID: Integer;
     function GetTitle: UnicodeString;
     function GetGUIColor: Cardinal;
   public
@@ -31,6 +32,7 @@ type
     property GUIIcon: Word read GetGUIIcon;
     property MarketPrice: Single read fMarketPrice;
     property Title: UnicodeString read GetTitle;
+    property TextID: Integer read GetTextID;
   end;
 
   TKMWaresList = class
@@ -244,15 +246,24 @@ begin
 end;
 
 
-function TKMWare.GetTitle: UnicodeString;
+function TKMWare.GetTextID: Integer;
 begin
   case fType of
-    WARE_MIN..WARE_MAX: Result := gResTexts[TX_RESOURCES_NAMES__27 + WareTypeToIndex[fType]];
-    wt_All:             Result := gResTexts[TX_RESOURCES_ALL];
-    wt_Warfare:         Result := gResTexts[TX_RESOURCES_WARFARE];
-    wt_Food:            Result := gResTexts[TX_RESOURCES_FOOD];
-    else                Result := 'N/A';
+    WARE_MIN..WARE_MAX: Result := TX_RESOURCES_NAMES__27 + WareTypeToIndex[fType];
+    wt_All:             Result := TX_RESOURCES_ALL;
+    wt_Warfare:         Result := TX_RESOURCES_WARFARE;
+    wt_Food:            Result := TX_RESOURCES_FOOD;
+    else                Result := -1;
   end;
+end;
+
+
+function TKMWare.GetTitle: UnicodeString;
+begin
+  if GetTextID <> -1 then
+    Result := gResTexts[GetTextID]
+  else
+    Result := 'N/A';
 end;
 
 
