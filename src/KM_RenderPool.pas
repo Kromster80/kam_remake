@@ -262,10 +262,11 @@ begin
     fRenderList.SortRenderList;
     fRenderList.Render(rtScreen);
 
+    fRenderTerrain.RenderFOW(MySpectator.FogOfWar, False);
+
+    //Alerts second pass is rendered after FOW
     if gGame.GamePlayInterface <> nil then
       gGame.GamePlayInterface.Alerts.Paint(1);
-
-    fRenderTerrain.RenderFOW(MySpectator.FogOfWar, False);
 
     //Cursor overlays (including blue-wire plans), go on top of everything
     RenderForegroundUI;
