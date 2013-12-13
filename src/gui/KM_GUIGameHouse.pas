@@ -462,6 +462,8 @@ begin
   Image_House_Worker.Enabled := aHouse.GetHasOwner;
   Image_House_Worker.Visible := gResource.HouseDat[aHouse.HouseType].OwnerType <> ut_None;
   Button_HouseWaresBlock.Enabled := gResource.HouseDat[aHouse.HouseType].AcceptsWares;
+  Button_HouseWaresBlock.Show;
+  Button_HouseRepair.Show;
   if aHouse.BuildingRepair then Button_HouseRepair.TexID:=39 else Button_HouseRepair.TexID:=40;
   if aHouse.WareDelivery then Button_HouseWaresBlock.TexID:=37 else Button_HouseWaresBlock.TexID:=38;
   Label_House_UnderConstruction.Hide;

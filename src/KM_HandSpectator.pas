@@ -131,7 +131,9 @@ begin
 
     //Warrior might not be assigned to a group while walking out of the Barracks
     if G <> nil then
-      NewSelected := G;
+      NewSelected := G
+    else
+      NewSelected := nil; //Can't select warriors until they have been assigned a group
   end;
 
   //Update selected groups selected unit
