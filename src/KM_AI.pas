@@ -256,19 +256,23 @@ begin
     hndComputer:
       begin
         //If we are attacked, then we should counter attack the attacker (except if he is a recruit in tower)
-        if aUnit is TKMUnitWarrior then
+        if aAttacker is TKMUnitWarrior then
         begin
-          Group := gHands[fOwner].UnitGroups.GetGroupByMember(TKMUnitWarrior(aUnit));
-          //It's ok for the group to be nil, the warrior could still be walking out of the barracks
-          if (Group <> nil) and not Group.IsDead then
-            //If we are already in the process of attacking something, don't change our minds,
-            //otherwise you can make a unit walk backwards and forwards forever between two groups of archers
-            if not Group.InFight then
-              //Make sure the group could possibly reach the offenders
-              if Group.CanWalkTo(aAttacker.GetPosition, Group.FightMaxRange) then
-                Group.OrderAttackUnit(aAttacker, True);
+          fGeneral.RetaliateAgainstThreat(aAttacker); //Nearby soldiers should come to assist
+          //If we are a warrior we can also attack that unit ourselves
+          if aUnit is TKMUnitWarrior then
+          begin
+            Group := gHands[fOwner].UnitGroups.GetGroupByMember(TKMUnitWarrior(aUnit));
+            //It's ok for the group to be nil, the warrior could still be walking out of the barracks
+            if (Group <> nil) and not Group.IsDead then
+              //If we are already in the process of attacking something, don't change our minds,
+              //otherwise you can make a unit walk backwards and forwards forever between two groups of archers
+              if not Group.InFight then
+                //Make sure the group could possibly reach the offenders
+                if Group.CanWalkTo(aAttacker.GetPosition, Group.FightMaxRange) then
+                  Group.OrderAttackUnit(aAttacker, True);
+          end;
         end;
-        fGeneral.RetaliateAgainstThreat(aAttacker); //Nearby soldiers should come to assist
       end;
   end;
 end;

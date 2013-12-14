@@ -1336,7 +1336,7 @@ begin
                         end
                         else
                           if fGameApp.GameSettings.Autosave then
-                            AutoSave(UTCNow);
+                            fGameInputProcess.CmdGame(gic_GameAutoSave, UTCNow);
                       end;
 
                       //if (fGameTickCount mod 10 = 0) then

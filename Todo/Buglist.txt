@@ -24,6 +24,7 @@
  +      Player alliance towards self is inconsistent, especially in MP and when accessing from script (should be Ally always!)
  +      Block sending chat during reconnection to prevent messages being lost or causing errors (when fMyIndexOnServer is out of date)
  +      Beacons did not render on unrevealed areas
+ +      Singleplayer replays ended at the last player command rather than when they were saved (use gic_GameSave in SP too)
 	Armour smithy has shields as 2nd ouput, armour workshop has shields as 1st output. Would make sense to match them (note: simply swapping in KM_ResourceHouses causes game logic to be swapped with GUI)
 	Armour smithy has iron as 1st input, weapon smithy has iron as 2nd input (iron/coal swapped). Would make sense to match them (note: simpply swapping in KM_ResourceHouses causes game logic to be swapped with GUI)
 	Deliveries should use the actual walking route length (opposed to Radius)

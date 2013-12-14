@@ -393,11 +393,7 @@ begin
   if SaveName = '' then Exit;
 
   fLastSaveName := SaveName; //Do this before saving so it is included in the save
-  if fMultiplayer then
-    //Don't tell everyone in the game that we are saving yet, as the command hasn't been processed
-    gGame.GameInputProcess.CmdGame(gic_GameSave, SaveName, UTCNow) //Timestamp is synchronised between players
-  else
-    gGame.Save(SaveName, UTCNow);
+  gGame.GameInputProcess.CmdGame(gic_GameSave, SaveName, UTCNow); //Timestamp is synchronised between players
 
   fSaves.TerminateScan; //stop scan as it is no longer needed
   SwitchPage(nil); //Close save menu after saving
@@ -2812,8 +2808,8 @@ begin
 
   if not gHands[MySpectator.HandIndex].InCinematic then
     //Only own units can be selected
-    if ((Obj is TKMUnit) and (TKMUnit(Obj).Owner = MySpectator.HandIndex))
-    or ((Obj is TKMHouse) and (TKMHouse(Obj).Owner = MySpectator.HandIndex)) then
+    if ((Obj is TKMUnit) and ((TKMUnit(Obj).Owner = MySpectator.HandIndex) or fReplay))
+    or ((Obj is TKMHouse) and ((TKMHouse(Obj).Owner = MySpectator.HandIndex) or fReplay)) then
     begin
       gResource.Cursors.Cursor := kmc_Info;
       Exit;
