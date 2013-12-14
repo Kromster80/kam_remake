@@ -2456,7 +2456,7 @@ begin
     //Check surrounding tiles for another house that overlaps
     for L := -1 to 1 do
     for M := -1 to 1 do
-    if TileInMapCoords(TX+M, TY+L) and (Land[TY+L, TX+M].TileLock <> tlNone) then
+    if TileInMapCoords(TX+M, TY+L) and (Land[TY+L, TX+M].TileLock in [tlFenced,tlDigged,tlHouse]) then
       Result := False;
 
     //Check if there are units below placed BEFORE the house is added
