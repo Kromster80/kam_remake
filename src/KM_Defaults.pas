@@ -24,7 +24,7 @@ const
   MIN_RESOLUTION_WIDTH  = 1024;         //Lowest supported resolution X
   MIN_RESOLUTION_HEIGHT = 576;          //Lowest supported resolution Y
 
-  GAME_REVISION         = 'r6006';       //Should be updated for every release (each time save format is changed)
+  GAME_REVISION         = 'r6008';       //Should be updated for every release (each time save format is changed)
   GAME_VERSION          = 'Next Demo ' + GAME_REVISION + ' Nightly';       //Game version string displayed in menu corner
   NET_PROTOCOL_REVISON  = GAME_REVISION;     //Clients of this version may connect to the dedicated server
 
