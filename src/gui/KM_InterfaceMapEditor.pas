@@ -593,10 +593,12 @@ begin
   end;
 
   //Scrolling
-  if Key = VK_LEFT  then fViewport.ScrollKeyLeft  := True;
-  if Key = VK_RIGHT then fViewport.ScrollKeyRight := True;
-  if Key = VK_UP    then fViewport.ScrollKeyUp    := True;
-  if Key = VK_DOWN  then fViewport.ScrollKeyDown  := True;
+  if Key = VK_LEFT          then fViewport.ScrollKeyLeft  := True;
+  if Key = VK_RIGHT         then fViewport.ScrollKeyRight := True;
+  if Key = VK_UP            then fViewport.ScrollKeyUp    := True;
+  if Key = VK_DOWN          then fViewport.ScrollKeyDown  := True;
+  if Key = Ord(SC_ZOOM_IN)  then fViewport.ZoomKeyIn   := True;
+  if Key = Ord(SC_ZOOM_OUT) then fViewport.ZoomKeyOut := True;
 end;
 
 
@@ -609,10 +611,12 @@ begin
     Button_Main[Key-48].Click;
 
   //Scrolling
-  if Key = VK_LEFT  then fViewport.ScrollKeyLeft  := False;
-  if Key = VK_RIGHT then fViewport.ScrollKeyRight := False;
-  if Key = VK_UP    then fViewport.ScrollKeyUp    := False;
-  if Key = VK_DOWN  then fViewport.ScrollKeyDown  := False;
+  if Key = VK_LEFT          then fViewport.ScrollKeyLeft  := False;
+  if Key = VK_RIGHT         then fViewport.ScrollKeyRight := False;
+  if Key = VK_UP            then fViewport.ScrollKeyUp    := False;
+  if Key = VK_DOWN          then fViewport.ScrollKeyDown  := False;
+  if Key = Ord(SC_ZOOM_IN)  then fViewport.ZoomKeyIn   := False;
+  if Key = Ord(SC_ZOOM_OUT) then fViewport.ZoomKeyOut := False;
 
   //Backspace resets the zoom and view, similar to other RTS games like Dawn of War.
   //This is useful because it is hard to find default zoom using the scroll wheel, and if not zoomed 100% things can be scaled oddly (like shadows)

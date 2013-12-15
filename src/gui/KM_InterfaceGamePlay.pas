@@ -1286,14 +1286,14 @@ begin
     Button_Army_GoTo.Hint     := gResTexts[TX_ARMY_GOTO_HINT];
     Button_Army_Stop.Hint     := Format(gResTexts[TX_TROOP_HALT_HINT], [SC_ARMY_HALT]);
     Button_Army_Attack.Hint   := gResTexts[TX_ARMY_ATTACK_HINT];
-    Button_Army_RotCW.Hint    := gResTexts[TX_ARMY_ROTATE_CW_HINT];
-    Button_Army_Storm.Hint    := gResTexts[TX_ARMY_STORM_HINT];
-    Button_Army_RotCCW.Hint   := gResTexts[TX_ARMY_ROTATE_CCW_HINT];
-    Button_Army_ForDown.Hint  := gResTexts[TX_ARMY_LINE_ADD_HINT];
-    Button_Army_ForUp.Hint    := gResTexts[TX_ARMY_LINE_REM_HINT];
+    Button_Army_RotCW.Hint    := gResTexts[TX_ARMY_ROTATE_CW_HINT] + ' (''' + SC_ARMY_ROTATE_CW_CHAR + ''')';
+    Button_Army_Storm.Hint    := gResTexts[TX_ARMY_STORM_HINT] + ' (''' + SC_ARMY_STORM + ''')';
+    Button_Army_RotCCW.Hint   := gResTexts[TX_ARMY_ROTATE_CCW_HINT] + ' (''' + SC_ARMY_ROTATE_CCW_CHAR + ''')';
+    Button_Army_ForDown.Hint  := gResTexts[TX_ARMY_LINE_ADD_HINT] + ' (''' + SC_ARMY_ADD_LINE_CHAR + ''')';
+    Button_Army_ForUp.Hint    := gResTexts[TX_ARMY_LINE_REM_HINT] + ' (''' + SC_ARMY_DEL_LINE_CHAR + ''')';
     Button_Army_Split.Hint    := Format(gResTexts[TX_TROOP_SPLIT_HINT], [SC_ARMY_SPLIT]);
     Button_Army_Join.Hint     := Format(gResTexts[TX_TROOP_LINK_HINT], [SC_ARMY_LINK]);
-    Button_Army_Feed.Hint     := gResTexts[TX_ARMY_FEED_HINT];
+    Button_Army_Feed.Hint     := gResTexts[TX_ARMY_FEED_HINT] + ' (''' + SC_ARMY_FOOD + ''')';
     Button_Unit_Dismiss.Hint  := 'Dismiss unit';
 
     {Army controls...
@@ -2439,10 +2439,12 @@ begin
   end;
 
   case Key of
-    VK_LEFT:  fViewport.ScrollKeyLeft  := True;
-    VK_RIGHT: fViewport.ScrollKeyRight := True;
-    VK_UP:    fViewport.ScrollKeyUp    := True;
-    VK_DOWN:  fViewport.ScrollKeyDown  := True;
+    VK_LEFT:          fViewport.ScrollKeyLeft  := True;
+    VK_RIGHT:         fViewport.ScrollKeyRight := True;
+    VK_UP:            fViewport.ScrollKeyUp    := True;
+    VK_DOWN:          fViewport.ScrollKeyDown  := True;
+    Ord(SC_ZOOM_IN):  fViewport.ZoomKeyIn      := True;
+    Ord(SC_ZOOM_OUT): fViewport.ZoomKeyOut     := True;
     //As we don't have names for teams in SP we only allow showing team names in MP or MP replays
     Ord(SC_SHOW_TEAMS): if fMultiplayer or (gGame.GameMode = gmReplayMulti) then //Only MP replays
     begin
@@ -2480,11 +2482,13 @@ begin
 
   case Key of
     //Scrolling
-    VK_LEFT:  fViewport.ScrollKeyLeft  := False;
-    VK_RIGHT: fViewport.ScrollKeyRight := False;
-    VK_UP:    fViewport.ScrollKeyUp    := False;
-    VK_DOWN:  fViewport.ScrollKeyDown  := False;
-    VK_BACK:  fViewport.ResetZoom;
+    VK_LEFT:          fViewport.ScrollKeyLeft  := False;
+    VK_RIGHT:         fViewport.ScrollKeyRight := False;
+    VK_UP:            fViewport.ScrollKeyUp    := False;
+    VK_DOWN:          fViewport.ScrollKeyDown  := False;
+    Ord(SC_ZOOM_IN):  fViewport.ZoomKeyIn      := False;
+    Ord(SC_ZOOM_OUT): fViewport.ZoomKeyOut     := False;
+    VK_BACK:          fViewport.ResetZoom;
 
     Ord(SC_SHOW_TEAMS):  fShowTeamNames := False;
   end;

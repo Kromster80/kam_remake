@@ -52,10 +52,14 @@ const
   SC_ARMY_LINK = 'L';
   SC_ARMY_FOOD = 'F';
   SC_ARMY_STORM = 'X';
-  SC_ARMY_ADD_LINE = VK_ADD;           // +
-  SC_ARMY_DEL_LINE = VK_SUBTRACT;      // -
+  SC_ARMY_ADD_LINE = VK_OEM_PLUS;      // +
+  SC_ARMY_ADD_LINE_CHAR = '+'; //Used in hint
+  SC_ARMY_DEL_LINE = VK_OEM_MINUS;     // -
+  SC_ARMY_DEL_LINE_CHAR = '-'; //Used in hint
   SC_ARMY_ROTATE_CW = VK_OEM_PERIOD;   // >
+  SC_ARMY_ROTATE_CW_CHAR = '.'; //Used in hint
   SC_ARMY_ROTATE_CCW = VK_OEM_COMMA;   // <
+  SC_ARMY_ROTATE_CCW_CHAR = ','; //Used in hint
 
   SC_DEBUG_REVEALMAP = 'M';
   SC_DEBUG_VICTORY = 'V';
@@ -65,6 +69,8 @@ const
   SC_BEACON = 'B';
   SC_PAUSE = 'P';
   SC_SHOW_TEAMS = 'T';
+  SC_ZOOM_IN = VK_NEXT; //PageDown
+  SC_ZOOM_OUT = VK_PRIOR; //PageUp
 
   //
   GUI_HOUSE_COUNT = 27;   //Number of KaM houses to show in GUI

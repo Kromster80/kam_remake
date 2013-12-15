@@ -22,7 +22,7 @@ type
     procedure SetPosition(Value: TKMPointF);
     procedure SetZoom(aZoom: Single);
   public
-    ScrollKeyLeft, ScrollKeyRight, ScrollKeyUp, ScrollKeyDown: boolean;
+    ScrollKeyLeft, ScrollKeyRight, ScrollKeyUp, ScrollKeyDown, ZoomKeyIn, ZoomKeyOut: boolean;
     constructor Create(aWidth, aHeight: Integer);
 
     property Position: TKMPointF read GetPosition write SetPosition;
@@ -154,6 +154,8 @@ begin
   ScrollKeyRight := false;
   ScrollKeyUp    := false;
   ScrollKeyDown  := false;
+  ZoomKeyIn      := false;
+  ZoomKeyOut     := false;
 end;
 
 
@@ -187,7 +189,7 @@ const
     kmc_Scroll3, kmc_Default, kmc_Default, kmc_Default);
 var
   TimeSinceStarted: Cardinal;
-  ScrollAdv: Single;
+  ScrollAdv, ZoomAdv: Single;
   CursorPoint: TKMPointI;
   ScreenBounds: TRect;
   I: Byte;
@@ -232,6 +234,8 @@ begin
      not ScrollKeyUp    and
      not ScrollKeyRight and
      not ScrollKeyDown  and
+     not ZoomKeyIn      and
+     not ZoomKeyOut     and
      not (CursorPoint.X <= ScreenBounds.Left + SCROLL_FLEX) and
      not (CursorPoint.Y <= ScreenBounds.Top + SCROLL_FLEX) and
      not (CursorPoint.X >= ScreenBounds.Right -1-SCROLL_FLEX) and
@@ -249,6 +253,7 @@ begin
   end;
 
   ScrollAdv := (SCROLL_SPEED + fGameApp.GameSettings.ScrollSpeed / 5) * aFrameTime / 100;
+  ZoomAdv := (0.2 + fGameApp.GameSettings.ScrollSpeed / 20) * aFrameTime / 1000;
 
   if SCROLL_ACCEL then
   begin
@@ -269,6 +274,8 @@ begin
   if ScrollKeyUp    then fPosition.Y := fPosition.Y - ScrollAdv;
   if ScrollKeyRight then fPosition.X := fPosition.X + ScrollAdv;
   if ScrollKeyDown  then fPosition.Y := fPosition.Y + ScrollAdv;
+  if ZoomKeyIn      then fZoom := fZoom + ZoomAdv;
+  if ZoomKeyOut     then fZoom := fZoom - ZoomAdv;
   //Mouse
   if CursorPoint.X <= ScreenBounds.Left   + SCROLL_FLEX then begin inc(I,1); fPosition.X := fPosition.X - ScrollAdv*(1+(ScreenBounds.Left   - CursorPoint.X)/SCROLL_FLEX); end;
   if CursorPoint.Y <= ScreenBounds.Top    + SCROLL_FLEX then begin inc(I,2); fPosition.Y := fPosition.Y - ScrollAdv*(1+(ScreenBounds.Top    - CursorPoint.Y)/SCROLL_FLEX); end;
@@ -283,6 +290,7 @@ begin
     if (gResource.Cursors.Cursor in [kmc_Scroll0 .. kmc_Scroll7]) then
       gResource.Cursors.Cursor := kmc_Default;
 
+  SetZoom(fZoom); //EnsureRanges
   SetPosition(fPosition); //EnsureRanges
 end;
 
