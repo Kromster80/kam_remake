@@ -13,7 +13,7 @@ type
     FontCodepage: Word;
     FlagSpriteID: Integer;
     FallbackLocale: AnsiString;
-    TranslatorCredit: string;
+    TranslatorCredit: UnicodeString;
   end;
 
   TKMLocales = class
@@ -75,7 +75,7 @@ begin
 end;
 
 
-function TKMLocales.ParseLine(aLine: string; out aLocale: TKMLocaleInfo): Boolean;
+function TKMLocales.ParseLine(aLine: UnicodeString; out aLocale: TKMLocaleInfo): Boolean;
 const
   PARAM_COUNT = 6;
 var

@@ -1,4 +1,4 @@
-//Code, Title,                Codepage, FlagSpriteID, Fallback Locale, TranslatorCredit
+﻿//Code, Title,                Codepage, FlagSpriteID, Fallback Locale, TranslatorCredit
 
 bel,    Belarusian,           1251,     71,           ,                Mik0
 ptb,    Brazilian Portuguese, 1252,     48,           ,                |Vinycius Maia & Edson Hoffmann Junior
@@ -15,11 +15,11 @@ ita,    Italian,              1252,     50,           ,                Esthlos
 jpn,    Japanese,             1252,     72,           ,                Guilherme Antunes da Silva
 lit,    Lithuanian,           1257,     67,           ,                Audrius Arlauskas (Zaero)
 nor,    Norwegian,            1252,     70,           ,                Tokicchi
-pol,    Polish,               1250,     47,           ,                Przemyslaw Pietras
+pol,    Polish,               1250,     47,           ,                Przemysław Pietras
 rom,    Romanian,             1250,     66,           ,                mucormucedo
 rus,    Russian,              1251,     54,           ,                Krom
-svk,    Slovak,               1250,     52,           cze,             Robert Marko
-spa,    Spanish,              1252,     53,           ,                Oscar
+svk,    Slovak,               1250,     52,           cze,             Róbert Marko
+spa,    Spanish,              1252,     53,           ,                Óscar
 swe,    Swedish,              1252,     56,           ,                Edvin Linge
-tur,    Turkish,              1254,     76,           ,                Ugur Yildirim
+tur,    Turkish,              1254,     76,           ,                Uğur Yıldırım
 ukr,    Ukrainian,            1251,     68,           ,                Mulberry
