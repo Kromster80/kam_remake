@@ -32,6 +32,7 @@ Implemented:
  5964   OnPlanRoad, OnPlanField, OnPlanWinefield
  5976   Actions.GroupDisableHungryMessage
  5978   UnitKill now works for animals
+ 6015   Actions.HouseTakeWaresFrom
 
 
 Accepted:
@@ -49,7 +50,6 @@ Proposed:
 	Change which player MySpectator is viewing/controlling
 	Block player from moving the viewport or selecting anything (cutscene mode)
 	Select unit/house/group in the player's UI
-	Removing wares from houses (only if serfs haven't reserved them)
 	DelayedExecution(delay, function, params)
 	Forbidden areas where players can't move their troops
 	Way to add/remove recruits directly from barracks

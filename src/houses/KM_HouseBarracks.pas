@@ -24,11 +24,11 @@ type
     procedure Activate(aWasBuilt: Boolean); override;
     procedure DemolishHouse(aFrom: THandIndex; IsSilent: Boolean = False); override;
     procedure ResAddToIn(aWare: TWareType; aCount: Word = 1; aFromScript: Boolean = False); override;
-    procedure ResTakeFromOut(aWare: TWareType; const aCount: Word = 1); override;
+    procedure ResTakeFromOut(aWare: TWareType; aCount: Word = 1; aFromScript: Boolean = False); override;
     function CheckResIn(aWare: TWareType): Word; override;
     function ResCanAddToIn(aRes: TWareType): Boolean; override;
 
-    function CanTakeResOut(aWare: TWareType): Boolean;
+    function ResOutputAvailable(aRes: TWareType; const aCount: Word): Boolean; override;
     function CanEquip(aUnitType: TUnitType): Boolean;
     function RecruitsCount: Integer;
     procedure RecruitsAdd(aUnit: Pointer);
@@ -157,17 +157,20 @@ begin
 end;
 
 
-procedure TKMHouseBarracks.ResTakeFromOut(aWare: TWareType; const aCount: Word=1);
+procedure TKMHouseBarracks.ResTakeFromOut(aWare: TWareType; aCount: Word = 1; aFromScript: Boolean = False);
 begin
+  //Script might try to take too many
+  if aFromScript then
+    aCount := Min(aCount, fResourceCount[aWare]);
   Assert(aCount <= fResourceCount[aWare]);
   dec(fResourceCount[aWare], aCount);
 end;
 
 
-function TKMHouseBarracks.CanTakeResOut(aWare: TWareType): Boolean;
+function TKMHouseBarracks.ResOutputAvailable(aRes: TWareType; const aCount: Word): Boolean;
 begin
-  Assert(aWare in [WARFARE_MIN .. WARFARE_MAX]);
-  Result := (fResourceCount[aWare] > 0);
+  Assert(aRes in [WARFARE_MIN .. WARFARE_MAX]);
+  Result := (fResourceCount[aRes] >= aCount);
 end;
 
 

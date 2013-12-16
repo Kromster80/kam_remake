@@ -193,6 +193,7 @@ type
     procedure HouseRepairEnable(aHouseID: Integer; aRepairEnabled: Boolean);
     function  HouseSchoolQueueAdd(aHouseID: Integer; aUnitType: Integer; aCount: Integer): Integer;
     procedure HouseSchoolQueueRemove(aHouseID, QueueIndex: Integer);
+    procedure HouseTakeWaresFrom(aHouseID: Integer; aType, aCount: Word);
     procedure HouseUnlock(aPlayer, aHouseType: Word);
     procedure HouseWoodcutterChopOnly(aHouseID: Integer; aChopOnly: Boolean);
     procedure HouseWareBlock(aHouseID, aWareType: Integer; aBlocked: Boolean);
@@ -2255,6 +2256,34 @@ begin
   end
   else
     LogError('Actions.HouseAddWaresTo', [aHouseID, aType, aCount]);
+end;
+
+
+procedure TKMScriptActions.HouseTakeWaresFrom(aHouseID: Integer; aType, aCount: Word);
+var
+  H: TKMHouse;
+  Res: TWareType;
+begin
+  Res := WareIndexToType[aType];
+  if (aHouseID > 0) then
+  begin
+    H := fIDCache.GetHouse(aHouseID);
+    if H <> nil then
+      //Store/barracks mix input/output (add to input, take from output) so we must process them together
+      if H.ResCanAddToIn(Res) or H.ResCanAddToOut(Res) then
+      begin
+        //Range checking is done within ResTakeFromIn and ResTakeFromOut when aFromScript=True
+        //Only one will succeed, we don't care which one it is
+        H.ResTakeFromIn(Res, aCount, True);
+        H.ResTakeFromOut(Res, aCount, True);
+        gHands[H.Owner].Stats.WareConsumed(Res, aCount);
+      end
+      else
+        LogError('Actions.HouseTakeWaresFrom wrong ware type', [aHouseID, aType, aCount]);
+    //Silently ignore if house doesn't exist
+  end
+  else
+    LogError('Actions.HouseTakeWaresFrom', [aHouseID, aType, aCount]);
 end;
 
 

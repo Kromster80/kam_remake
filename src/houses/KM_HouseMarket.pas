@@ -36,8 +36,9 @@ type
     function GetResTotal(aResource: TWareType): Word; overload;
     function CheckResIn(aResource: TWareType): Word; override;
     procedure ResAddToIn(aResource: TWareType; aCount: Word=1; aFromScript: Boolean=false); override;
-    procedure ResTakeFromOut(aResource: TWareType; const aCount: Word=1); override;
+    procedure ResTakeFromOut(aWare: TWareType; aCount: Word = 1; aFromScript: Boolean = False); override;
     function ResCanAddToIn(aRes: TWareType): Boolean; override;
+    function ResOutputAvailable(aRes: TWareType; const aCount: Word): Boolean; override;
 
     procedure Save(SaveStream: TKMemoryStream); override;
     procedure Paint; override;
@@ -151,6 +152,13 @@ begin
 end;
 
 
+function TKMHouseMarket.ResOutputAvailable(aRes: TWareType; const aCount: Word): Boolean;
+begin
+  Assert(aRes in [WARE_MIN..WARE_MAX]);
+  Result := (fMarketResOut[aRes] >= aCount);
+end;
+
+
 procedure TKMHouseMarket.AttemptExchange;
 var TradeCount: Word;
 begin
@@ -174,11 +182,14 @@ begin
 end;
 
 
-procedure TKMHouseMarket.ResTakeFromOut(aResource: TWareType; const aCount: Word = 1);
+procedure TKMHouseMarket.ResTakeFromOut(aWare: TWareType; aCount: Word = 1; aFromScript: Boolean = False);
 begin
-  Assert(aCount <= fMarketResOut[aResource]);
+  //Script might try to take too many
+  if aFromScript then
+    aCount := Min(aCount, fMarketResOut[aWare]);
+  Assert(aCount <= fMarketResOut[aWare]);
 
-  dec(fMarketResOut[aResource], aCount);
+  dec(fMarketResOut[aWare], aCount);
 end;
 
 

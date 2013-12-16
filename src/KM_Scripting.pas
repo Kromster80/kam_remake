@@ -250,6 +250,7 @@ begin
       RegisterMethod('procedure HouseRepairEnable(aHouseID: Integer; aRepairEnabled: Boolean)');
       RegisterMethod('function  HouseSchoolQueueAdd(aHouseID: Integer; aUnitType: Integer; aCount: Integer): Integer');
       RegisterMethod('procedure HouseSchoolQueueRemove(aHouseID, QueueIndex: Integer)');
+      RegisterMethod('procedure HouseTakeWaresFrom(aHouseID: Integer; aType, aCount: Word)');
       RegisterMethod('procedure HouseUnlock(aPlayer, aHouseType: Word)');
       RegisterMethod('procedure HouseWoodcutterChopOnly(aHouseID: Integer; aChopOnly: Boolean)');
       RegisterMethod('procedure HouseWareBlock(aHouseID, aWareType: Integer; aBlocked: Boolean)');
@@ -566,6 +567,7 @@ begin
       RegisterMethod(@TKMScriptActions.HouseRepairEnable,       'HOUSEREPAIRENABLE');
       RegisterMethod(@TKMScriptActions.HouseSchoolQueueAdd,     'HOUSESCHOOLQUEUEADD');
       RegisterMethod(@TKMScriptActions.HouseSchoolQueueRemove,  'HOUSESCHOOLQUEUEREMOVE');
+      RegisterMethod(@TKMScriptActions.HouseTakeWaresFrom,      'HOUSETAKEWARESFROM');
       RegisterMethod(@TKMScriptActions.HouseUnlock,             'HOUSEUNLOCK');
       RegisterMethod(@TKMScriptActions.HouseWoodcutterChopOnly, 'HOUSEWOODCUTTERCHOPONLY');
       RegisterMethod(@TKMScriptActions.HouseWareBlock,          'HOUSEWAREBLOCK');

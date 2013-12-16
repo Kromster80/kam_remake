@@ -183,7 +183,8 @@ begin
         end;
     2:  begin
           //Barracks can consume the resource (by equipping) before we arrive
-          if (fFrom is TKMHouseBarracks) and not TKMHouseBarracks(fFrom).CanTakeResOut(fWareType) then
+          //All houses can have resources taken away by script at any moment
+          if not fFrom.ResOutputAvailable(fWareType, 1) then
           begin
             SetActionGoIn(ua_Walk, gd_GoOutside, fFrom); //Step back out
             fPhase := 99; //Exit next run

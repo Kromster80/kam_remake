@@ -142,10 +142,11 @@ type
     procedure ResAddToOut(aWare: TWareType; const aCount: Integer = 1);
     procedure ResAddToEitherFromScript(aWare: TWareType; aCount: Integer);
     procedure ResAddToBuild(aWare: TWareType);
-    procedure ResTakeFromIn(aWare: TWareType; aCount: Byte = 1);
-    procedure ResTakeFromOut(aWare: TWareType; const aCount: Word = 1); virtual;
+    procedure ResTakeFromIn(aWare: TWareType; aCount: Byte = 1; aFromScript: Boolean = False);
+    procedure ResTakeFromOut(aWare: TWareType; aCount: Word = 1; aFromScript: Boolean = False); virtual;
     function ResCanAddToIn(aRes: TWareType): Boolean; virtual;
     function ResCanAddToOut(aRes: TWareType): Boolean;
+    function ResOutputAvailable(aRes: TWareType; const aCount: Word): Boolean; virtual;
     property ResOrder[aId: Byte]: Integer read GetResOrder write SetResOrder;
 
     procedure Save(SaveStream: TKMemoryStream); virtual;
@@ -183,8 +184,9 @@ type
     procedure ToggleAcceptFlag(aRes: TWareType);
     procedure ResAddToIn(aWare: TWareType; aCount: Word = 1; aFromScript: Boolean = False); override;
     function CheckResIn(aWare: TWareType): Word; override;
-    procedure ResTakeFromOut(aWare: TWareType; const aCount: Word = 1); override;
+    procedure ResTakeFromOut(aWare: TWareType; aCount: Word = 1; aFromScript: Boolean = False); override;
     function ResCanAddToIn(aRes: TWareType): Boolean; override;
+    function ResOutputAvailable(aRes: TWareType; const aCount: Word): Boolean; override;
     procedure Save(SaveStream: TKMemoryStream); override;
   end;
 
@@ -1012,8 +1014,18 @@ begin
 end;
 
 
+function TKMHouse.ResOutputAvailable(aRes: TWareType; const aCount: Word): Boolean;
+var I: Integer;
+begin
+  Result := False;
+  for I := 1 to 4 do
+    if aRes = gResource.HouseDat[fHouseType].ResOutput[I] then
+      Result := fResourceOut[I] >= aCount;
+end;
+
+
 //Take resource from Input and order more of that kind if DistributionRatios allow
-procedure TKMHouse.ResTakeFromIn(aWare: TWareType; aCount: Byte=1);
+procedure TKMHouse.ResTakeFromIn(aWare: TWareType; aCount: Byte=1; aFromScript: Boolean = False);
 var I,K: Integer;
 begin
   Assert(aWare <> wt_None);
@@ -1021,9 +1033,15 @@ begin
   for I := 1 to 4 do
   if aWare = gResource.HouseDat[fHouseType].ResInput[I] then
   begin
+    if aFromScript then
+      //Script might try to take too many
+      aCount := Min(aCount, fResourceIn[I])
+    else
+      //Serf delivered it here so keep track of how many are ordered
+      fResourceDeliveryCount[I] := Max(fResourceDeliveryCount[I] - aCount, 0);
+
     Assert(fResourceIn[I] >= aCount, 'fResourceIn[i] < 0');
     Dec(fResourceIn[I], aCount);
-    fResourceDeliveryCount[I] := Max(fResourceDeliveryCount[I] - aCount, 0);
     //Only request a new resource if it is allowed by the distribution of wares for our parent player
     for K := 1 to aCount do
       if fResourceDeliveryCount[I] < GetResDistribution(I) then
@@ -1036,7 +1054,7 @@ begin
 end;
 
 
-procedure TKMHouse.ResTakeFromOut(aWare: TWareType; const aCount: Word=1);
+procedure TKMHouse.ResTakeFromOut(aWare: TWareType; aCount: Word=1; aFromScript: Boolean = False);
 var i:integer;
 begin
   Assert(aWare<>wt_None);
@@ -1044,6 +1062,9 @@ begin
   for i:=1 to 4 do
   if aWare = gResource.HouseDat[fHouseType].ResOutput[i] then
   begin
+    //Script might try to take too many
+    if aFromScript then
+      aCount := Min(aCount, fResourceOut[i]);
     Assert(aCount <= fResourceOut[i]);
     dec(fResourceOut[i], aCount);
     exit;
@@ -1428,6 +1449,13 @@ begin
 end;
 
 
+function TKMHouseStore.ResOutputAvailable(aRes: TWareType; const aCount: Word): Boolean;
+begin
+  Assert(aRes in [WARE_MIN..WARE_MAX]);
+  Result := (ResourceCount[aRes] >= aCount);
+end;
+
+
 function TKMHouseStore.CheckResIn(aWare: TWareType): Word;
 begin
   if aWare in [WARE_MIN..WARE_MAX] then
@@ -1451,8 +1479,11 @@ begin
 end;
 
 
-procedure TKMHouseStore.ResTakeFromOut(aWare: TWareType; const aCount: Word=1);
+procedure TKMHouseStore.ResTakeFromOut(aWare: TWareType; aCount: Word=1; aFromScript: Boolean = False);
 begin
+  //Script might try to take too many
+  if aFromScript then
+    aCount := Min(aCount, ResourceCount[aWare]);
   Assert(aCount <= ResourceCount[aWare]);
 
   Dec(ResourceCount[aWare], aCount);
