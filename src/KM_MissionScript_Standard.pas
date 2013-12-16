@@ -501,7 +501,13 @@ begin
                           //Save the attack to the AI assets
                           gHands[fLastHand].AI.General.Attacks.AddAttack(fAIAttack);
 
-                          //Reset values before next Attack processing
+                          //For KaM compatability we do NOT reset values before next Attack processing
+                          //by default. In KaM values must be carried over since many missions rely on
+                          //this. When we save AI attacks we use ct_ClearAIAttack to clear it manually
+                          //FillChar(fAIAttack, SizeOf(fAIAttack), #0);
+                        end;
+    ct_ClearAIAttack:   if fLastHand <> PLAYER_NONE then
+                        begin
                           FillChar(fAIAttack, SizeOf(fAIAttack), #0);
                         end;
 
@@ -717,6 +723,7 @@ begin
           AddCommand(ct_AIAttack,cpt_Range, [Range]);
 
         AddCommand(ct_CopyAIAttack, [K]); //Store attack with ID number
+        AddCommand(ct_ClearAIAttack, []); //Clear values so they don't carry over to next attack
         AddData(''); //NL
       end;
     AddData(''); //NL
