@@ -628,13 +628,11 @@ end;
 
 
 function TKMScriptStates.PlayerWareDistribution(aPlayer, aWareType, aHouseType: Byte): Byte;
-var
-  Res: TWareType;
 begin
-  Res := WareIndexToType[aWareType];
-  if InRange(aPlayer, 0, gHands.Count - 1) and (Res in [WARE_MIN..WARE_MAX])
+  if InRange(aPlayer, 0, gHands.Count - 1)
+  and(aWareType in [Low(WareIndexToType) .. High(WareIndexToType)])
   and (aHouseType in [Low(HouseIndexToType) .. High(HouseIndexToType)]) then
-    Result := gHands[aPlayer].Stats.Ratio[Res, HouseIndexToType[aHouseType]]
+    Result := gHands[aPlayer].Stats.Ratio[WareIndexToType[aWareType], HouseIndexToType[aHouseType]]
   else
   begin
     Result := 0;
@@ -937,8 +935,6 @@ end;
 
 
 function TKMScriptStates.HouseTypeToOccupantType(aHouseType: Integer): Integer;
-var
-  H: TKMHouse;
 begin
   Result := -1;
   if aHouseType in [Low(HouseIndexToType)..High(HouseIndexToType)] then
@@ -1019,9 +1015,9 @@ var
   I: Integer;
 begin
   Result := 0;
-  Res := WareIndexToType[aWareType];
-  if (aHouseID > 0) and (Res in [WARE_MIN..WARE_MAX]) then
+  if (aHouseID > 0) and (aWareType in [Low(WareIndexToType)..High(WareIndexToType)]) then
   begin
+    Res := WareIndexToType[aWareType];
     H := fIDCache.GetHouse(aHouseID);
     if (H <> nil) then
       for I := 1 to 4 do
@@ -1094,9 +1090,9 @@ var
   Res: TWareType;
 begin
   Result := False;
-  Res := WareIndexToType[aWareType];
-  if (aHouseID > 0) and (Res in [WARE_MIN..WARE_MAX]) then
+  if (aHouseID > 0) and (aWareType in [Low(WareIndexToType)..High(WareIndexToType)]) then
   begin
+    Res := WareIndexToType[aWareType];
     H := fIDCache.GetHouse(aHouseID);
     if (H is TKMHouseStore) then
       Result := TKMHouseStore(H).NotAcceptFlag[Res];
@@ -1162,9 +1158,9 @@ var
   Res: TWareType;
 begin
   Result := -1; //-1 if house id is invalid
-  Res := WareIndexToType[aResource];
-  if (aHouseID > 0) and (Res in [WARE_MIN..WARE_MAX]) then
+  if (aHouseID > 0) and (aResource in [Low(WareIndexToType)..High(WareIndexToType)]) then
   begin
+    Res := WareIndexToType[aResource];
     H := fIDCache.GetHouse(aHouseID);
     if H <> nil then
       Result := H.CheckResIn(Res) + H.CheckResOut(Res); //Count both in and out
@@ -1691,15 +1687,14 @@ end;
 
 
 procedure TKMScriptActions.PlayerWareDistribution(aPlayer, aWareType, aHouseType, aAmount: Byte);
-var
-  W: TWareType;
 begin
-  W := WareIndexToType[aWareType];
-  if InRange(aPlayer, 0, gHands.Count - 1) and (W in [wt_Steel, wt_Coal, wt_Wood, wt_Corn])
+  if (aWareType in [Low(WareIndexToType) .. High(WareIndexToType)])
+  and (WareIndexToType[aWareType] in [wt_Steel, wt_Coal, wt_Wood, wt_Corn])
   and (aHouseType in [Low(HouseIndexToType) .. High(HouseIndexToType)])
+  and InRange(aPlayer, 0, gHands.Count - 1) 
   and InRange(aAmount, 0, 5) then
   begin
-    gHands[aPlayer].Stats.Ratio[W, HouseIndexToType[aHouseType]] := aAmount;
+    gHands[aPlayer].Stats.Ratio[WareIndexToType[aWareType], HouseIndexToType[aHouseType]] := aAmount;
     gHands[aPlayer].Houses.UpdateResRequest;
   end
   else
@@ -2039,6 +2034,7 @@ begin
   //Verify all input parameters
   if InRange(aPlayer, 0, gHands.Count - 1)
   and InRange(aCount, 0, High(Word))
+  and (aType in [Low(WareIndexToType) .. High(WareIndexToType)])
   and (WareIndexToType[aType] in [WARFARE_MIN .. WARFARE_MAX]) then
   begin
     H := gHands[aPlayer].FindHouse(ht_Barracks, 1);
@@ -2240,9 +2236,9 @@ var
   H: TKMHouse;
   Res: TWareType;
 begin
-  Res := WareIndexToType[aType];
-  if (aHouseID > 0) then
+  if (aHouseID > 0) and (aType in [Low(WareIndexToType)..High(WareIndexToType)]) then
   begin
+    Res := WareIndexToType[aType];
     H := fIDCache.GetHouse(aHouseID);
     if H <> nil then
       if H.ResCanAddToIn(Res) or H.ResCanAddToOut(Res) then
@@ -2264,9 +2260,9 @@ var
   H: TKMHouse;
   Res: TWareType;
 begin
-  Res := WareIndexToType[aType];
-  if (aHouseID > 0) then
+  if (aHouseID > 0) and (aType in [Low(WareIndexToType)..High(WareIndexToType)]) then
   begin
+    Res := WareIndexToType[aType];
     H := fIDCache.GetHouse(aHouseID);
     if H <> nil then
       //Store/barracks mix input/output (add to input, take from output) so we must process them together
@@ -2351,9 +2347,10 @@ var
   H: TKMHouse;
   Res: TWareType;
 begin
-  Res := WareIndexToType[aWareType];
-  if (aHouseID > 0) and (Res in [WARE_MIN..WARE_MAX]) then
+  if (aHouseID > 0)
+  and (aWareType in [Low(WareIndexToType) .. High(WareIndexToType)]) then
   begin
+    Res := WareIndexToType[aWareType];
     H := fIDCache.GetHouse(aHouseID);
     if H is TKMHouseStore then
       TKMHouseStore(H).NotAcceptFlag[Res] := aBlocked;
@@ -2371,9 +2368,10 @@ var
   Res: TWareType;
   I: Integer;
 begin
-  Res := WareIndexToType[aWareType];
-  if (aHouseID > 0) and (Res in [WARE_MIN..WARE_MAX]) and InRange(aAmount, 0, MAX_WARES_ORDER) then
+  if (aHouseID > 0) and InRange(aAmount, 0, MAX_WARES_ORDER)
+  and (aWareType in [Low(WareIndexToType) .. High(WareIndexToType)]) then
   begin
+    Res := WareIndexToType[aWareType];
     H := fIDCache.GetHouse(aHouseID);
     if (H <> nil) then
       for I := 1 to 4 do
