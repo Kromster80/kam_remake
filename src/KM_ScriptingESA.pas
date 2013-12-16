@@ -2276,7 +2276,6 @@ begin
         //Only one will succeed, we don't care which one it is
         H.ResTakeFromIn(Res, aCount, True);
         H.ResTakeFromOut(Res, aCount, True);
-        gHands[H.Owner].Stats.WareConsumed(Res, aCount);
       end
       else
         LogError('Actions.HouseTakeWaresFrom wrong ware type', [aHouseID, aType, aCount]);

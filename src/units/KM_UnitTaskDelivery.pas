@@ -122,9 +122,9 @@ function TTaskDeliver.WalkShouldAbandon: Boolean;
 begin
   Result := false;
 
-  //After step 2 we don't care if From is destroyed
+  //After step 2 we don't care if From is destroyed or doesn't have the ware
   if fPhase <= 2 then
-    Result := Result or fFrom.IsDestroyed;
+    Result := Result or fFrom.IsDestroyed or not fFrom.ResOutputAvailable(fWareType, 1);
 
   //Until we implement "wares recycling" we just abandon the delivery if target is destroyed/dead
   if (fDeliverKind = dk_ToHouse) and (fPhase <= 8) then

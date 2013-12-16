@@ -167,8 +167,12 @@ begin
 
   fUnitWip := nil;
   fQueue[0] := ut_None; //Clear the unit in training
-  ResTakeFromIn(wt_Gold); //Do the goldtaking
-  gHands[fOwner].Stats.WareConsumed(wt_Gold);
+  //Script command might have taken the gold while we were training, in which case ignore it (either way, gold is consumed)
+  if CheckResIn(wt_Gold) > 0 then
+  begin
+    ResTakeFromIn(wt_Gold); //Do the goldtaking
+    gHands[fOwner].Stats.WareConsumed(wt_Gold);
+  end;
   fHideOneGold := False;
   fTrainProgress := 0;
 

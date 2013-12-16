@@ -142,7 +142,7 @@ type
     procedure ResAddToOut(aWare: TWareType; const aCount: Integer = 1);
     procedure ResAddToEitherFromScript(aWare: TWareType; aCount: Integer);
     procedure ResAddToBuild(aWare: TWareType);
-    procedure ResTakeFromIn(aWare: TWareType; aCount: Byte = 1; aFromScript: Boolean = False);
+    procedure ResTakeFromIn(aWare: TWareType; aCount: Word = 1; aFromScript: Boolean = False);
     procedure ResTakeFromOut(aWare: TWareType; aCount: Word = 1; aFromScript: Boolean = False); virtual;
     function ResCanAddToIn(aRes: TWareType): Boolean; virtual;
     function ResCanAddToOut(aRes: TWareType): Boolean;
@@ -1025,7 +1025,7 @@ end;
 
 
 //Take resource from Input and order more of that kind if DistributionRatios allow
-procedure TKMHouse.ResTakeFromIn(aWare: TWareType; aCount: Byte=1; aFromScript: Boolean = False);
+procedure TKMHouse.ResTakeFromIn(aWare: TWareType; aCount: Word=1; aFromScript: Boolean = False);
 var I,K: Integer;
 begin
   Assert(aWare <> wt_None);
@@ -1034,8 +1034,11 @@ begin
   if aWare = gResource.HouseDat[fHouseType].ResInput[I] then
   begin
     if aFromScript then
+    begin
       //Script might try to take too many
-      aCount := Min(aCount, fResourceIn[I])
+      aCount := Min(aCount, fResourceIn[I]);
+      gHands[Owner].Stats.WareConsumed(aWare, aCount);
+    end
     else
       //Serf delivered it here so keep track of how many are ordered
       fResourceDeliveryCount[I] := Max(fResourceDeliveryCount[I] - aCount, 0);
@@ -1062,9 +1065,11 @@ begin
   for i:=1 to 4 do
   if aWare = gResource.HouseDat[fHouseType].ResOutput[i] then
   begin
-    //Script might try to take too many
     if aFromScript then
+    begin
       aCount := Min(aCount, fResourceOut[i]);
+      gHands[Owner].Stats.WareConsumed(aWare, aCount);
+    end;
     Assert(aCount <= fResourceOut[i]);
     dec(fResourceOut[i], aCount);
     exit;
@@ -1481,9 +1486,11 @@ end;
 
 procedure TKMHouseStore.ResTakeFromOut(aWare: TWareType; aCount: Word=1; aFromScript: Boolean = False);
 begin
-  //Script might try to take too many
   if aFromScript then
+  begin
     aCount := Min(aCount, ResourceCount[aWare]);
+    gHands[Owner].Stats.WareConsumed(aWare, aCount);
+  end;
   Assert(aCount <= ResourceCount[aWare]);
 
   Dec(ResourceCount[aWare], aCount);

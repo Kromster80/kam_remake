@@ -184,9 +184,11 @@ end;
 
 procedure TKMHouseMarket.ResTakeFromOut(aWare: TWareType; aCount: Word = 1; aFromScript: Boolean = False);
 begin
-  //Script might try to take too many
   if aFromScript then
+  begin
     aCount := Min(aCount, fMarketResOut[aWare]);
+    gHands[Owner].Stats.WareConsumed(aWare, aCount);
+  end;
   Assert(aCount <= fMarketResOut[aWare]);
 
   dec(fMarketResOut[aWare], aCount);
