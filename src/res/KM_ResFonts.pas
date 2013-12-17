@@ -94,7 +94,7 @@ type
 
     function WordWrap(aText: UnicodeString; aFont: TKMFont; aMaxPxWidth: Integer; aForced: Boolean; aIndentAfterNL: Boolean): UnicodeString;
     function CharsThatFit(const aText: UnicodeString; aFont: TKMFont; aMaxPxWidth: integer): integer;
-    function GetTextSize(const aText: UnicodeString; Fnt: TKMFont): TKMPoint;
+    function GetTextSize(const aText: UnicodeString; Fnt: TKMFont; aCountMarkup: Boolean = False): TKMPoint;
 
     procedure LoadFonts;
     procedure ExportFonts;
@@ -556,7 +556,23 @@ begin
 end;
 
 
-function TKMResourceFont.GetTextSize(const aText: UnicodeString; Fnt: TKMFont): TKMPoint;
+function TKMResourceFont.GetTextSize(const aText: UnicodeString; Fnt: TKMFont; aCountMarkup: Boolean = False): TKMPoint;
+
+  function GetCharWidth(aChar: WideChar; aCharSpacing: Integer): Integer;
+  begin
+    if aChar = #124 then
+      Result := 0
+    else
+      if aChar = #32 then
+        Result := fFontData[Fnt].WordSpacing
+      else
+        if fFontData[Fnt].Used[Ord(aChar)] <> 0 then
+          Result := fFontData[Fnt].Letters[Ord(aChar)].Width + aCharSpacing
+        else
+          //Missing characters get rendered as ? so we should count their width as that too
+          Result := fFontData[Fnt].Letters[Ord('?')].Width + aCharSpacing;
+  end;
+
 var
   I: Integer;
   CharSpacing, LineCount, TmpColor: Integer;
@@ -578,20 +594,21 @@ begin
   I := 1;
   while I <= Length(aText) do
   begin
-    //Ignore color markups [$FFFFFF][]
-    if (aText[I]='[') and (I+1 <= Length(aText)) and (aText[I+1]=']') then
-      Inc(I) //Skip past this markup
+    if aCountMarkup then
+      //Count all characters including markup
+      Inc(LineWidth[LineCount], GetCharWidth(aText[I], CharSpacing))
     else
-      if (aText[I]='[') and (I+8 <= Length(aText))
-      and (aText[I+1] = '$') and (aText[I+8]=']')
-      and TryStrToInt(Copy(aText, I+1, 7), TmpColor) then
-        Inc(I,8) //Skip past this markup
+      //Ignore color markups [$FFFFFF][]
+      if (aText[I]='[') and (I+1 <= Length(aText)) and (aText[I+1]=']') then
+        Inc(I) //Skip past this markup
       else
-        if aText[I] <> #124 then
-          if aText[I] = #32 then
-            Inc(LineWidth[LineCount], fFontData[Fnt].WordSpacing)
-          else
-            Inc(LineWidth[LineCount], fFontData[Fnt].Letters[Ord(aText[I])].Width + CharSpacing);
+        if (aText[I]='[') and (I+8 <= Length(aText))
+        and (aText[I+1] = '$') and (aText[I+8]=']')
+        and TryStrToInt(Copy(aText, I+1, 7), TmpColor) then
+          Inc(I,8) //Skip past this markup
+        else
+          //Not markup so count width normally
+          Inc(LineWidth[LineCount], GetCharWidth(aText[I], CharSpacing));
 
     if (aText[I] = #124) or (I = Length(aText)) then
     begin // If EOL or aText end

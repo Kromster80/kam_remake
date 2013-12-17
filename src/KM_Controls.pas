@@ -2412,7 +2412,7 @@ begin
   if (csFocus in State) and ((TimeGet div 500) mod 2 = 0) then
   begin
     SetLength(RText, CursorPos - fLeftIndex);
-    OffX := AbsLeft + 2 + gResource.Fonts.GetTextSize(RText, fFont).X;
+    OffX := AbsLeft + 2 + gResource.Fonts.GetTextSize(RText, fFont, True).X;
     TKMRenderUI.WriteShape(OffX, AbsTop+2, 3, Height-4, Col, $FF000000);
   end;
 end;
