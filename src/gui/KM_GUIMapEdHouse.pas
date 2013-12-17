@@ -27,7 +27,6 @@ type
     Panel_House: TKMPanel;
     Label_House: TKMLabel;
     Image_House_Logo, Image_House_Worker: TKMImage;
-    Label_HouseHealth: TKMLabel;
     KMHealthBar_House: TKMPercentBar;
     Button_HouseHealthDec, Button_HouseHealthInc: TKMButton;
     Label_House_Input, Label_House_Output: TKMLabel;
@@ -77,8 +76,6 @@ begin
     Image_House_Logo.ImageCenter;
     Image_House_Worker := TKMImage.Create(Panel_House, 30, 41, 32, 32, 141);
     Image_House_Worker.ImageCenter;
-    Label_HouseHealth := TKMLabel.Create(Panel_House, 100, 41, 60, 20, gResTexts[TX_HOUSE_CONDITION], fnt_Mini, taCenter);
-    Label_HouseHealth.FontColor := $FFE0E0E0;
     KMHealthBar_House := TKMPercentBar.Create(Panel_House, 100, 53, 60, 20);
     Button_HouseHealthDec := TKMButton.Create(Panel_House, 80, 53, 20, 20, '-', bsGame);
     Button_HouseHealthInc := TKMButton.Create(Panel_House, 160, 53, 20, 20, '+', bsGame);

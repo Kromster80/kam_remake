@@ -45,7 +45,6 @@ type
       Button_HouseWaresBlock,Button_HouseRepair: TKMButton;
       Image_House_Logo,Image_House_Worker: TKMImage;
       HealthBar_House: TKMPercentBar;
-      Label_HouseHealth: TKMLabel;
 
     Panel_House_Common: TKMPanel;
       Label_Common_Demand,Label_Common_Offer,Label_Common_Costs,
@@ -125,8 +124,6 @@ begin
     Image_House_Logo.ImageCenter;
     Image_House_Worker := TKMImage.Create(Panel_House,90,41,32,32,141);
     Image_House_Worker.ImageCenter;
-    Label_HouseHealth := TKMLabel.Create(Panel_House,120,45,55,15,gResTexts[TX_HOUSE_CONDITION],fnt_Mini,taCenter);
-    Label_HouseHealth.FontColor := $FFE0E0E0;
 
     HealthBar_House := TKMPercentBar.Create(Panel_House,120,57,55,15);
     Label_House_UnderConstruction := TKMLabel.Create(Panel_House,0,110,TB_WIDTH,0,gResTexts[TX_HOUSE_UNDER_CONSTRUCTION],fnt_Grey,taCenter);
