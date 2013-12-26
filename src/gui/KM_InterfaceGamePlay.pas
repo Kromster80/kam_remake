@@ -1058,7 +1058,7 @@ begin
     Label_MenuTitle.AutoWrap := True;
 
   fGuiGameBuild := TKMGUIGameBuild.Create(Panel_Controls);
-  fGuiGameRatios := TKMGUIGameRatios.Create(Panel_Controls);
+  fGuiGameRatios := TKMGUIGameRatios.Create(Panel_Controls, fReplay);
   fGuiGameStats := TKMGUIGameStats.Create(Panel_Controls);
   Create_Menu;
     Create_Save;
@@ -1970,7 +1970,7 @@ var
   I: Integer;
 begin
   Button_Main[tbBuild].Enabled := not aTactic and not fReplay and not HasLostMPGame and not gHands[MySpectator.HandIndex].InCinematic;
-  Button_Main[tbRatio].Enabled := not aTactic and not fReplay and not HasLostMPGame and not gHands[MySpectator.HandIndex].InCinematic;
+  Button_Main[tbRatio].Enabled := not aTactic and fReplay or (not HasLostMPGame and not gHands[MySpectator.HandIndex].InCinematic);
   Button_Main[tbStats].Enabled := not aTactic;
 
   //No loading during multiplayer games
@@ -1996,7 +1996,7 @@ begin
     Dropbox_ReplayFOW.Add(gResTexts[TX_REPLAY_SHOW_ALL], -1);
     for I := 0 to gHands.Count - 1 do
     if gHands[I].Enabled and (gHands[I].PlayerType = hndHuman) then
-        Dropbox_ReplayFOW.Add(WrapColor(gHands[I].OwnerName, FlagColorToTextColor(gHands[I].FlagColor)));
+        Dropbox_ReplayFOW.Add(WrapColor(gHands[I].OwnerName, FlagColorToTextColor(gHands[I].FlagColor)), I);
     Dropbox_ReplayFOW.ItemIndex := 0;
   end;
 end;
@@ -2942,6 +2942,7 @@ begin
                 if (MySpectator.Selected is TKMHouse) then
                 begin
                   HidePages;
+                  SwitchPage(nil); //Hide main back button if we were in e.g. stats
                   fGuiGameHouse.Show(TKMHouse(MySpectator.Selected), False);
                 end;
 
@@ -2992,6 +2993,7 @@ begin
                 begin
                   MySpectator.Selected := H; //Select the house irregardless of unit below/above
                   HidePages;
+                  SwitchPage(nil); //Hide main back button if we were in e.g. stats
                   fGuiGameHouse.Show(H, True);
                   gSoundPlayer.Play(sfx_Click);
                 end
@@ -3145,6 +3147,7 @@ begin
     if MySpectator.Selected is TKMHouse then
     begin
       HidePages;
+      SwitchPage(nil); //Hide main back button if we were in e.g. stats
       fGuiGameHouse.Show(TKMHouse(MySpectator.Selected));
     end
     else
@@ -3180,6 +3183,7 @@ begin
 
   //Keep on updating these menu pages as game data keeps on changing
   if fGuiGameBuild.Visible then fGuiGameBuild.UpdateState;
+  if fGuiGameRatios.Visible and fReplay then fGuiGameRatios.UpdateState;
   if fGuiGameStats.Visible then fGuiGameStats.UpdateState;
   if Panel_Menu.Visible then Menu_Update;
 

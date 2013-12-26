@@ -430,7 +430,6 @@ begin
     Image_House_Worker.Show;
     Image_House_Worker.Enable;
     HealthBar_House.Show;
-    Label_HouseHealth.Show;
     Panel_House.Show;
     Exit;
   end;
@@ -451,7 +450,6 @@ begin
     Image_House_Worker.Visible := gResource.HouseDat[aHouse.HouseType].OwnerType <> ut_None;
     Image_House_Worker.Enable;
     HealthBar_House.Show;
-    Label_HouseHealth.Show;
     Panel_House.Show;
     Exit;
   end;

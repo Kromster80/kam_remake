@@ -12,6 +12,7 @@ type
   TKMGUIGameRatios = class
   private
     fActiveTab: TKMRatioTab; //Active resource distribution tab
+    fReplay: Boolean;
 
     procedure RatioTabClick(Sender: TObject);
     procedure RatioTabSet(aTab: TKMRatioTab);
@@ -24,11 +25,12 @@ type
     Image_RatioPic: array [0..3] of TKMImage;
     TrackBar_RatioValue: array [0..3] of TKMTrackBar;
   public
-    constructor Create(aParent: TKMPanel);
+    constructor Create(aParent: TKMPanel; aReplay: Boolean);
 
     procedure Show;
     procedure Hide;
     function Visible: Boolean;
+    procedure UpdateState;
   end;
 
 
@@ -49,11 +51,12 @@ const
 
 
 { TKMGUIGameRatios }
-constructor TKMGUIGameRatios.Create(aParent: TKMPanel);
+constructor TKMGUIGameRatios.Create(aParent: TKMPanel; aReplay: Boolean);
 var
   I: TKMRatioTab;
   K: Integer;
 begin
+  fReplay := aReplay;
   Panel_Ratios:=TKMPanel.Create(aParent, TB_PAD, 44, TB_WIDTH, 332);
 
   for I := Low(TKMRatioTab) to High(TKMRatioTab) do
@@ -75,6 +78,7 @@ begin
     TrackBar_RatioValue[K].Font     := fnt_Grey; //fnt_Metal doesn't fit the text
     TrackBar_RatioValue[K].Tag      := K;
     TrackBar_RatioValue[K].OnChange := RatiosChange;
+    TrackBar_RatioValue[K].Enabled := not fReplay;
   end;
 end;
 
@@ -113,7 +117,7 @@ begin
       Image_RatioPic[I].TexID := gResource.HouseDat[HT].GUIIcon;
       TrackBar_RatioValue[I].Caption := gResource.HouseDat[HT].HouseName;
       TrackBar_RatioValue[I].Position := gHands[MySpectator.HandIndex].Stats.Ratio[ResRatioType[fActiveTab], HT];
-      TrackBar_RatioValue[I].Enable;
+      TrackBar_RatioValue[I].Enabled := not fReplay;
     end else begin
       Image_RatioPic[I].TexID := 41; //Question mark
       TrackBar_RatioValue[I].Caption := gResTexts[TX_GAMEPLAY_NOT_AVAILABLE];
@@ -155,6 +159,12 @@ end;
 function TKMGUIGameRatios.Visible: Boolean;
 begin
   Result := Panel_Ratios.Visible;
+end;
+
+
+procedure TKMGUIGameRatios.UpdateState;
+begin
+  RatioTabSet(fActiveTab);
 end;
 
 
