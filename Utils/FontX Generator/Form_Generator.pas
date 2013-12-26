@@ -80,7 +80,7 @@ end;
 procedure TForm1.btnGenerateClick(Sender: TObject);
 var
   chars: UnicodeString;
-  useChars: array of WideChar;
+  useChars: TWideCharArray;
   fntStyle: TFontStyles;
 begin
   FreeAndNil(Fnt);
@@ -150,7 +150,12 @@ begin
   for I := Low(CN_CHARS) to High(CN_CHARS) do
     uniText := uniText + WideChar(CN_CHARS[I]);
 
+  //Chinese
   for I := 19968 to 40870 do
+    uniText := uniText + WideChar(I);
+
+  //Japanese Hiragana and Katakana
+  for I := 12352 to 12543 do
     uniText := uniText + WideChar(I);
 
   {$IFDEF WDC}

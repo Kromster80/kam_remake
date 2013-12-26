@@ -11,13 +11,14 @@ uses
 
 
 type
+  TWideCharArray = array of WideChar;
   //Child class that has the advanced editing methods
   TKMFontDataEdit = class(TKMFontData)
   private
     fTexPadding: Byte;
     function GetTexData(aIndex: Integer): TKMCardinalArray;
   public
-    procedure CreateFont(aFontName: string; aFontSize: Byte; aFontStyle: TFontStyles; aAntialias: Boolean; const aChars: array of WideChar);
+    procedure CreateFont(aFontName: string; aFontSize: Byte; aFontStyle: TFontStyles; aAntialias: Boolean; const aChars: TWideCharArray);
     procedure CollateFonts(aFonts: array of TKMFontDataEdit);
     procedure ExportGridPng(const aFilename: string; aPadding: TRect);
     procedure ImportGridPng(const aFilename: string);
@@ -51,7 +52,7 @@ const
 
 
 { TKMFontDataEdit }
-procedure TKMFontDataEdit.CreateFont(aFontName: string; aFontSize: Byte; aFontStyle: TFontStyles; aAntialias: Boolean; const aChars: array of WideChar);
+procedure TKMFontDataEdit.CreateFont(aFontName: string; aFontSize: Byte; aFontStyle: TFontStyles; aAntialias: Boolean; const aChars: TWideCharArray);
 const
   FONT_INTERLINE = 5; //Spacing between lines of text
 var

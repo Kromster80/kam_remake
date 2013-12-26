@@ -10,7 +10,7 @@ function db_init($con) {
 	$queryCreateTable = "CREATE TABLE IF NOT EXISTS Servers (
 		IP VARCHAR(64) NOT NULL,
 		Port INT(6) unsigned NOT NULL,
-		Name VARCHAR(64) NOT NULL,
+		Name VARCHAR(256) NOT NULL,
 		Players INT(4) NOT NULL,
 		Pingable INT(1) NOT NULL,
 		Dedicated TINYINT(1) NOT NULL,
