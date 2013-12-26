@@ -30,6 +30,7 @@ function CollectChars(aProgress: TUnicodeStringEvent): UnicodeString;
       PathToMaps.Add(aExeDir + 'Maps' + PathDelim);
       PathToMaps.Add(aExeDir + 'MapsMP' + PathDelim);
       PathToMaps.Add(aExeDir + 'Tutorials' + PathDelim);
+      PathToMaps.Add(aExeDir + 'TextSamples' + PathDelim);
       PathToMaps.Add(aExeDir + 'data' + PathDelim + 'text' + PathDelim);
 
       //Include all campaigns maps

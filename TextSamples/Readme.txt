@@ -1,0 +1,1 @@
+This folder contains LIBX files with all the unicode characters that are needed by that language. The FontX Generator uses this to include all characters in the unicode fonts. All other .LIBX files used by the game are also scanned.
