@@ -178,7 +178,7 @@ begin
   //Hiragana (3040 - 309f)
   //Katakana (30a0 - 30ff)       - 12543
 
-  for I := 12288 to 12543 do
+  for I := $3000 to $30ff do
     uniText := uniText + WideChar(I);
 
   {$IFDEF WDC}
