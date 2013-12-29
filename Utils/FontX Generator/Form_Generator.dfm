@@ -2,7 +2,7 @@ object Form1: TForm1
   Left = 438
   Top = 169
   Caption = 'Form1'
-  ClientHeight = 689
+  ClientHeight = 625
   ClientWidth = 801
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -15,7 +15,7 @@ object Form1: TForm1
   OnDestroy = FormDestroy
   DesignSize = (
     801
-    689)
+    625)
   PixelsPerInch = 96
   TextHeight = 16
   object Label4: TLabel
@@ -32,13 +32,13 @@ object Form1: TForm1
     Left = 280
     Top = 24
     Width = 512
-    Height = 656
+    Height = 592
     Anchors = [akLeft, akTop, akRight, akBottom]
     ExplicitHeight = 512
   end
   object Label6: TLabel
     Left = 16
-    Top = 544
+    Top = 504
     Width = 62
     Height = 16
     Caption = 'Atlas index'
@@ -48,110 +48,47 @@ object Form1: TForm1
   end
   object btnSave: TButton
     Left = 144
-    Top = 624
+    Top = 560
     Width = 129
     Height = 57
     Anchors = [akLeft, akBottom]
     Caption = 'Save font ...'
     TabOrder = 0
     OnClick = btnSaveClick
+    ExplicitTop = 624
   end
   object btnExportTex: TButton
     Left = 8
-    Top = 624
+    Top = 560
     Width = 129
     Height = 25
     Anchors = [akLeft, akBottom]
     Caption = 'Export texture ...'
     TabOrder = 1
     OnClick = btnExportTexClick
+    ExplicitTop = 624
   end
   object btnImportTex: TButton
     Left = 8
-    Top = 656
+    Top = 592
     Width = 129
     Height = 25
     Anchors = [akLeft, akBottom]
     Caption = 'Import texture ...'
     TabOrder = 2
     OnClick = btnImportTexClick
-  end
-  object GroupBox1: TGroupBox
-    Left = 8
-    Top = 8
-    Width = 265
-    Height = 113
-    Caption = ' Texture atlas '
-    TabOrder = 3
-    object Label5: TLabel
-      Left = 152
-      Top = 16
-      Width = 45
-      Height = 16
-      Caption = 'Padding'
-      Color = clBtnFace
-      ParentColor = False
-      Transparent = False
-    end
-    object sePadding: TSpinEdit
-      Left = 152
-      Top = 32
-      Width = 49
-      Height = 26
-      MaxValue = 8
-      MinValue = 0
-      TabOrder = 0
-      Value = 1
-    end
-    object rgSizeX: TRadioGroup
-      Left = 14
-      Top = 16
-      Width = 59
-      Height = 89
-      Caption = ' Size X '
-      ItemIndex = 1
-      Items.Strings = (
-        '128'
-        '256'
-        '512'
-        '1024'
-        '2048')
-      TabOrder = 1
-    end
-    object rgSizeY: TRadioGroup
-      Left = 80
-      Top = 16
-      Width = 65
-      Height = 89
-      Caption = ' Size Y '
-      ItemIndex = 1
-      Items.Strings = (
-        '128'
-        '256'
-        '512'
-        '1024'
-        '2048')
-      TabOrder = 2
-    end
-    object cbCells: TCheckBox
-      Left = 152
-      Top = 64
-      Width = 81
-      Height = 20
-      Caption = 'Show cells'
-      TabOrder = 3
-    end
+    ExplicitTop = 656
   end
   object GroupBox2: TGroupBox
     Left = 8
-    Top = 128
+    Top = 8
     Width = 265
-    Height = 401
+    Height = 481
     Caption = ' Generate from scratch '
-    TabOrder = 4
+    TabOrder = 3
     object Label1: TLabel
       Left = 8
-      Top = 144
+      Top = 56
       Width = 92
       Height = 16
       Caption = 'Used characters'
@@ -161,7 +98,7 @@ object Form1: TForm1
     end
     object Label2: TLabel
       Left = 8
-      Top = 24
+      Top = 280
       Width = 61
       Height = 16
       Caption = 'Font name'
@@ -171,7 +108,7 @@ object Form1: TForm1
     end
     object Label3: TLabel
       Left = 144
-      Top = 24
+      Top = 280
       Width = 51
       Height = 16
       Caption = 'Font size'
@@ -179,10 +116,30 @@ object Form1: TForm1
       ParentColor = False
       Transparent = False
     end
+    object Label5: TLabel
+      Left = 144
+      Top = 344
+      Width = 45
+      Height = 16
+      Caption = 'Padding'
+      Color = clBtnFace
+      ParentColor = False
+      Transparent = False
+    end
+    object Label7: TLabel
+      Left = 8
+      Top = 328
+      Width = 90
+      Height = 16
+      Caption = 'Atlas properties'
+      Color = clBtnFace
+      ParentColor = False
+      Transparent = False
+    end
     object btnGenerate: TButton
-      Left = 136
-      Top = 368
-      Width = 121
+      Left = 8
+      Top = 440
+      Width = 249
       Height = 25
       Caption = 'Generate font'
       TabOrder = 0
@@ -190,7 +147,7 @@ object Form1: TForm1
     end
     object Memo1: TMemo
       Left = 8
-      Top = 160
+      Top = 72
       Width = 249
       Height = 201
       Font.Charset = 4
@@ -218,7 +175,7 @@ object Form1: TForm1
     end
     object seFontSize: TSpinEdit
       Left = 144
-      Top = 40
+      Top = 296
       Width = 49
       Height = 26
       MaxValue = 24
@@ -228,7 +185,7 @@ object Form1: TForm1
     end
     object cbBold: TCheckBox
       Left = 200
-      Top = 32
+      Top = 288
       Width = 44
       Height = 20
       Caption = 'Bold'
@@ -236,7 +193,7 @@ object Form1: TForm1
     end
     object cbItalic: TCheckBox
       Left = 200
-      Top = 48
+      Top = 304
       Width = 47
       Height = 20
       Caption = 'Italic'
@@ -244,26 +201,16 @@ object Form1: TForm1
     end
     object btnCollectChars: TButton
       Left = 8
-      Top = 112
+      Top = 24
       Width = 121
       Height = 25
       Caption = 'Collect "libx" chars'
       TabOrder = 5
       OnClick = btnCollectCharsClick
     end
-    object cbAntialias: TCheckBox
-      Left = 8
-      Top = 72
-      Width = 73
-      Height = 20
-      Caption = 'Antialias'
-      Checked = True
-      State = cbChecked
-      TabOrder = 6
-    end
     object cbFontName: TComboBox
       Left = 8
-      Top = 40
+      Top = 296
       Width = 129
       Height = 24
       DropDownCount = 24
@@ -271,20 +218,78 @@ object Form1: TForm1
     end
     object btnSetRange: TButton
       Left = 136
-      Top = 112
+      Top = 24
       Width = 121
       Height = 25
       Caption = 'Chinese range'
       TabOrder = 8
       OnClick = btnSetRangeClick
     end
+    object rgSizeX: TRadioGroup
+      Left = 6
+      Top = 344
+      Width = 59
+      Height = 89
+      Caption = ' Size X '
+      ItemIndex = 1
+      Items.Strings = (
+        '128'
+        '256'
+        '512'
+        '1024'
+        '2048')
+      TabOrder = 9
+    end
+    object rgSizeY: TRadioGroup
+      Left = 72
+      Top = 344
+      Width = 65
+      Height = 89
+      Caption = ' Size Y '
+      ItemIndex = 1
+      Items.Strings = (
+        '128'
+        '256'
+        '512'
+        '1024'
+        '2048')
+      TabOrder = 10
+    end
+    object sePadding: TSpinEdit
+      Left = 144
+      Top = 360
+      Width = 49
+      Height = 26
+      MaxValue = 8
+      MinValue = 0
+      TabOrder = 11
+      Value = 1
+    end
+    object cbCells: TCheckBox
+      Left = 144
+      Top = 392
+      Width = 81
+      Height = 20
+      Caption = 'Show cells'
+      TabOrder = 12
+    end
+    object cbAntialias: TCheckBox
+      Left = 144
+      Top = 408
+      Width = 105
+      Height = 20
+      Caption = 'Antialias letters'
+      Checked = True
+      State = cbChecked
+      TabOrder = 6
+    end
   end
   object tbAtlas: TTrackBar
     Left = 8
-    Top = 560
+    Top = 520
     Width = 150
     Height = 33
-    TabOrder = 5
+    TabOrder = 4
     OnChange = tbAtlasChange
   end
   object dlgSave: TSaveDialog
