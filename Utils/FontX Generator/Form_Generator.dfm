@@ -2,7 +2,7 @@ object Form1: TForm1
   Left = 438
   Top = 169
   Caption = 'Form1'
-  ClientHeight = 625
+  ClientHeight = 641
   ClientWidth = 801
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -15,7 +15,7 @@ object Form1: TForm1
   OnDestroy = FormDestroy
   DesignSize = (
     801
-    625)
+    641)
   PixelsPerInch = 96
   TextHeight = 16
   object Label4: TLabel
@@ -32,13 +32,13 @@ object Form1: TForm1
     Left = 280
     Top = 24
     Width = 512
-    Height = 592
+    Height = 608
     Anchors = [akLeft, akTop, akRight, akBottom]
     ExplicitHeight = 512
   end
   object Label6: TLabel
     Left = 16
-    Top = 504
+    Top = 520
     Width = 62
     Height = 16
     Caption = 'Atlas index'
@@ -48,7 +48,7 @@ object Form1: TForm1
   end
   object btnSave: TButton
     Left = 144
-    Top = 560
+    Top = 576
     Width = 129
     Height = 57
     Anchors = [akLeft, akBottom]
@@ -59,7 +59,7 @@ object Form1: TForm1
   end
   object btnExportTex: TButton
     Left = 8
-    Top = 560
+    Top = 576
     Width = 129
     Height = 25
     Anchors = [akLeft, akBottom]
@@ -70,7 +70,7 @@ object Form1: TForm1
   end
   object btnImportTex: TButton
     Left = 8
-    Top = 592
+    Top = 608
     Width = 129
     Height = 25
     Anchors = [akLeft, akBottom]
@@ -83,12 +83,12 @@ object Form1: TForm1
     Left = 8
     Top = 8
     Width = 265
-    Height = 481
+    Height = 497
     Caption = ' Generate from scratch '
     TabOrder = 3
     object Label1: TLabel
       Left = 8
-      Top = 56
+      Top = 72
       Width = 92
       Height = 16
       Caption = 'Used characters'
@@ -98,7 +98,7 @@ object Form1: TForm1
     end
     object Label2: TLabel
       Left = 8
-      Top = 280
+      Top = 296
       Width = 61
       Height = 16
       Caption = 'Font name'
@@ -108,7 +108,7 @@ object Form1: TForm1
     end
     object Label3: TLabel
       Left = 144
-      Top = 280
+      Top = 296
       Width = 51
       Height = 16
       Caption = 'Font size'
@@ -118,7 +118,7 @@ object Form1: TForm1
     end
     object Label5: TLabel
       Left = 144
-      Top = 344
+      Top = 360
       Width = 45
       Height = 16
       Caption = 'Padding'
@@ -128,7 +128,7 @@ object Form1: TForm1
     end
     object Label7: TLabel
       Left = 8
-      Top = 328
+      Top = 344
       Width = 90
       Height = 16
       Caption = 'Atlas properties'
@@ -138,7 +138,7 @@ object Form1: TForm1
     end
     object btnGenerate: TButton
       Left = 8
-      Top = 440
+      Top = 456
       Width = 249
       Height = 25
       Caption = 'Generate font'
@@ -147,7 +147,7 @@ object Form1: TForm1
     end
     object Memo1: TMemo
       Left = 8
-      Top = 72
+      Top = 88
       Width = 249
       Height = 201
       Font.Charset = 4
@@ -175,7 +175,7 @@ object Form1: TForm1
     end
     object seFontSize: TSpinEdit
       Left = 144
-      Top = 296
+      Top = 312
       Width = 49
       Height = 26
       MaxValue = 24
@@ -185,7 +185,7 @@ object Form1: TForm1
     end
     object cbBold: TCheckBox
       Left = 200
-      Top = 288
+      Top = 304
       Width = 44
       Height = 20
       Caption = 'Bold'
@@ -193,7 +193,7 @@ object Form1: TForm1
     end
     object cbItalic: TCheckBox
       Left = 200
-      Top = 304
+      Top = 320
       Width = 47
       Height = 20
       Caption = 'Italic'
@@ -210,24 +210,24 @@ object Form1: TForm1
     end
     object cbFontName: TComboBox
       Left = 8
-      Top = 296
+      Top = 312
       Width = 129
       Height = 24
       DropDownCount = 24
       TabOrder = 7
     end
-    object btnSetRange: TButton
+    object btnChnRange: TButton
       Left = 136
       Top = 24
       Width = 121
       Height = 25
       Caption = 'Chinese range'
       TabOrder = 8
-      OnClick = btnSetRangeClick
+      OnClick = btnChnRangeClick
     end
     object rgSizeX: TRadioGroup
       Left = 6
-      Top = 344
+      Top = 360
       Width = 59
       Height = 89
       Caption = ' Size X '
@@ -242,7 +242,7 @@ object Form1: TForm1
     end
     object rgSizeY: TRadioGroup
       Left = 72
-      Top = 344
+      Top = 360
       Width = 65
       Height = 89
       Caption = ' Size Y '
@@ -257,7 +257,7 @@ object Form1: TForm1
     end
     object sePadding: TSpinEdit
       Left = 144
-      Top = 360
+      Top = 376
       Width = 49
       Height = 26
       MaxValue = 8
@@ -267,7 +267,7 @@ object Form1: TForm1
     end
     object cbCells: TCheckBox
       Left = 144
-      Top = 392
+      Top = 408
       Width = 81
       Height = 20
       Caption = 'Show cells'
@@ -275,7 +275,7 @@ object Form1: TForm1
     end
     object cbAntialias: TCheckBox
       Left = 144
-      Top = 408
+      Top = 424
       Width = 105
       Height = 20
       Caption = 'Antialias letters'
@@ -283,10 +283,19 @@ object Form1: TForm1
       State = cbChecked
       TabOrder = 6
     end
+    object btnJpnRange: TButton
+      Left = 136
+      Top = 48
+      Width = 121
+      Height = 25
+      Caption = 'Japanese range'
+      TabOrder = 13
+      OnClick = btnJpnRangeClick
+    end
   end
   object tbAtlas: TTrackBar
     Left = 8
-    Top = 520
+    Top = 536
     Width = 150
     Height = 33
     TabOrder = 4
