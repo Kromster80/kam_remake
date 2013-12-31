@@ -397,8 +397,10 @@ end;
 
 
 procedure TKMMenuResultsSP.ContinueClick(Sender: TObject);
+var TheCampaign: UnicodeString;
 begin
-  fOnPageChange(gpCampaign);
+  TheCampaign := Char(fRepeatCampName[0]) + Char(fRepeatCampName[1]) + Char(fRepeatCampName[2]);
+  fOnPageChange(gpCampaign, TheCampaign);
 end;
 
 
