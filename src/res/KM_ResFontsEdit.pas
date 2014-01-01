@@ -48,7 +48,7 @@ implementation
 uses KM_PNG;
 
 const
-  BG_COLOR = $FFAF6B6B;
+  BG_COLOR = $00FFFFFF; //Transparent
 
 
 { TKMFontDataEdit }
@@ -355,7 +355,8 @@ begin
       cX := K * cellX + M;
       cY := I * cellY + L;
 
-      if pngData[cY * pngWidth + cX] <> BG_COLOR then
+      //Ignore fully transparent areas
+      if pngData[cY * pngWidth + cX] and $FF000000 > $00 then
       begin
         chMaxX := Math.Max(chMaxX, M);
         chMaxY := Math.Max(chMaxY, L);
