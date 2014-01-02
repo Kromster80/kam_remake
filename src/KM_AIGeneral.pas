@@ -212,7 +212,6 @@ begin
     Group := gHands[fOwner].UnitGroups[I];
 
     if not Group.IsDead
-    and not Group.InFight
     and Group.IsIdleToAI then
     begin
       //Check hunger and order food
@@ -448,7 +447,6 @@ begin
     Group := fDefencePositions[I].CurrentGroup;
     if (Group <> nil)
     and not Group.IsDead
-    and not Group.InFight
     and Group.IsIdleToAI
     //@Lewin: Is it right that Group defends against attackers within the Rad
     //rather than defending property within the Rad?

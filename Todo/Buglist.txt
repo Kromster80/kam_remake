@@ -27,6 +27,7 @@
  +      Singleplayer replays ended at the last player command rather than when they were saved (use gic_GameSave in SP too)
  +      Actions.GiveHouse failed when there was a worker building a field or road next to the house
  +      Strange AI behaviour in campaign missions due to AI attack values not carrying over like they do in KaM
+ +      AI warriors should attack enemies when they are within 4 tiles, to prevent sneaking into AI village
 	Armour smithy has shields as 2nd ouput, armour workshop has shields as 1st output. Would make sense to match them (note: simply swapping in KM_ResourceHouses causes game logic to be swapped with GUI)
 	Armour smithy has iron as 1st input, weapon smithy has iron as 2nd input (iron/coal swapped). Would make sense to match them (note: simpply swapping in KM_ResourceHouses causes game logic to be swapped with GUI)
 	Deliveries should use the actual walking route length (opposed to Radius)

@@ -20,6 +20,7 @@ type
     StartPosition: TKMPoint; //Defines roughly where to defend and build around
     TownDefence: Integer; //-1 means not used or default
     WorkerCount: Byte;
+    AutoAttackRange: Byte;
 
     constructor Create;
     function GetEquipRate(aUnit: TUnitType): Word;
@@ -53,6 +54,7 @@ begin
   SerfsPerHouse := 1;
   StartPosition := KMPoint(1,1);
   TownDefence := 100; //In KaM 100 is standard, although we don't completely understand this command
+  AutoAttackRange := 4; //Measured in TPR
 end;
 
 
@@ -96,6 +98,7 @@ begin
   SaveStream.Write(StartPosition);
   SaveStream.Write(TownDefence);
   SaveStream.Write(WorkerCount);
+  SaveStream.Write(AutoAttackRange);
 end;
 
 
@@ -114,6 +117,7 @@ begin
   LoadStream.Read(StartPosition);
   LoadStream.Read(TownDefence);
   LoadStream.Read(WorkerCount);
+  LoadStream.Read(AutoAttackRange);
 end;
 
 

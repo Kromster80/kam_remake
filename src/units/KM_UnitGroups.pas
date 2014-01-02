@@ -832,10 +832,16 @@ end;
 
 function TKMUnitGroup.IsIdleToAI: Boolean;
 begin
+  //First check that the previous order has completed
   if fOrder = goWalkTo then
     Result := (KMLengthDiag(Position, fOrderLoc.Loc) < 2)
   else
     Result := (fOrder = goNone);
+
+  //Even fighting citizens should also stop the AI repositioning the group
+  Result := Result and not InFight(True);
+  //Also wait until we have dealt with all offenders
+  Result := Result and (fOffenders.Count = 0);
 end;
 
 

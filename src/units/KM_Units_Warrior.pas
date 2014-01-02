@@ -95,7 +95,7 @@ type
 implementation
 uses KM_ResTexts, KM_HandsCollection, KM_RenderPool, KM_RenderAux, KM_UnitTaskAttackHouse,
   KM_UnitActionAbandonWalk, KM_UnitActionFight, KM_UnitActionGoInOut, KM_UnitActionWalkTo, KM_UnitActionStay,
-  KM_UnitActionStormAttack, KM_Resource, KM_ResUnits,
+  KM_UnitActionStormAttack, KM_Resource, KM_ResUnits, KM_Hand,
   KM_ResWares, KM_Game, KM_ResHouses;
 
 
@@ -486,14 +486,19 @@ begin
   if NewEnemy <> nil then
   begin
     OnPickedFight(Self, NewEnemy);
-    FightEnemy(NewEnemy);
+    //If the target is close enough attack it now, otherwise OnPickedFight will handle it through Group.OffendersList
+    //Remember that AI's AutoAttackRange feature means a melee warrior can pick a fight with someone out of range
+    if WithinFightRange(NewEnemy.GetPosition) then
+      FightEnemy(NewEnemy);
     Result := True; //Found someone
   end;
 end;
 
 
 function TKMUnitWarrior.FindEnemy: TKMUnit;
-var TestDir: TKMDirection;
+var
+  TestDir: TKMDirection;
+  Range: Single;
 begin
   Result := nil; //No one to fight
   if not CanInterruptAction then exit;
@@ -518,8 +523,13 @@ begin
   else
     TestDir := dir_NA;
 
+  Range := GetFightMaxRange(true);
+  //AI has an "auto attack range" for melee like in TSK/TPR so you can't sneak past them (when idle)
+  if not IsRanged and IsIdle and (gHands[fOwner].PlayerType = hndComputer) then
+    Range := Max(Range, gHands[fOwner].AI.Setup.AutoAttackRange);
+
   //This function should not be run too often, as it will take some time to execute (e.g. with lots of warriors in the range area to check)
-  Result := gTerrain.UnitsHitTestWithinRad(GetPosition, GetFightMinRange, GetFightMaxRange(true), Owner, at_Enemy, TestDir, not RANDOM_TARGETS);
+  Result := gTerrain.UnitsHitTestWithinRad(GetPosition, GetFightMinRange, Range, Owner, at_Enemy, TestDir, not RANDOM_TARGETS);
 
   //Only stop attacking a house if it's a warrior
   if (fUnitTask <> nil) and (fUnitTask is TTaskAttackHouse) and (GetUnitAction is TUnitActionStay) and not (Result is TKMUnitWarrior) then
