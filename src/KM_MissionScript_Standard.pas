@@ -43,14 +43,14 @@ uses KM_HandsCollection, KM_Hand, KM_AI, KM_AIDefensePos, KM_TerrainPainter,
 
 type
   TKMCommandParamType = (cpt_Unknown=0, cpt_Recruits, cpt_Constructors, cpt_WorkerFactor, cpt_RecruitCount, cpt_TownDefence,
-                         cpt_MaxSoldier, cpt_EquipRate, cpt_EquipRateIron, cpt_EquipRateLeather, cpt_AttackFactor, cpt_TroopParam);
+                         cpt_MaxSoldier, cpt_EquipRate, cpt_EquipRateIron, cpt_EquipRateLeather, cpt_AutoAttackRange, cpt_AttackFactor, cpt_TroopParam);
 
   TAIAttackParamType = (cpt_Type, cpt_TotalAmount, cpt_Counter, cpt_Range, cpt_TroopAmount, cpt_Target, cpt_Position, cpt_TakeAll);
 
 const
   PARAMVALUES: array [TKMCommandParamType] of AnsiString = (
     '', 'RECRUTS', 'CONSTRUCTORS', 'WORKER_FACTOR', 'RECRUT_COUNT', 'TOWN_DEFENSE',
-    'MAX_SOLDIER', 'EQUIP_RATE', 'EQUIP_RATE_IRON', 'EQUIP_RATE_LEATHER', 'ATTACK_FACTOR', 'TROUP_PARAM');
+    'MAX_SOLDIER', 'EQUIP_RATE', 'EQUIP_RATE_IRON', 'EQUIP_RATE_LEATHER', 'AUTO_ATTACK_RANGE', 'ATTACK_FACTOR', 'TROUP_PARAM');
 
   AI_ATTACK_PARAMS: array [TAIAttackParamType] of AnsiString = (
     'TYPE', 'TOTAL_AMOUNT', 'COUNTER', 'RANGE', 'TROUP_AMOUNT', 'TARGET', 'POSITION', 'TAKEALL');
@@ -386,6 +386,7 @@ begin
                           if TextParam = PARAMVALUES[cpt_WorkerFactor] then iPlayerAI.Setup.SerfsPerHouse := (10/Max(P[1],1));
                           if TextParam = PARAMVALUES[cpt_RecruitCount] then iPlayerAI.Setup.RecruitDelay  := P[1];
                           if TextParam = PARAMVALUES[cpt_TownDefence]  then iPlayerAI.Setup.TownDefence   := P[1];
+                          if TextParam = PARAMVALUES[cpt_AutoAttackRange] then iPlayerAI.Setup.AutoAttackRange := P[1];
                           if TextParam = PARAMVALUES[cpt_MaxSoldier]   then iPlayerAI.Setup.MaxSoldiers   := P[1];
                           if TextParam = PARAMVALUES[cpt_EquipRate]    then //Now depreciated, kept for backwards compatibility
                           begin
@@ -685,6 +686,7 @@ begin
     AddCommand(ct_AICharacter,cpt_WorkerFactor, [Round(10 / gHands[I].AI.Setup.SerfsPerHouse)]);
     AddCommand(ct_AICharacter,cpt_Constructors, [gHands[I].AI.Setup.WorkerCount]);
     AddCommand(ct_AICharacter,cpt_TownDefence, [gHands[I].AI.Setup.TownDefence]);
+    AddCommand(ct_AICharacter,cpt_AutoAttackRange, [gHands[I].AI.Setup.AutoAttackRange]);
     //Only store if a limit is in place (high is the default)
     if gHands[I].AI.Setup.MaxSoldiers <> -1 then
       AddCommand(ct_AICharacter,cpt_MaxSoldier, [gHands[I].AI.Setup.MaxSoldiers]);
