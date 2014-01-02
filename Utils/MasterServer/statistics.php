@@ -32,7 +32,7 @@ function StatsUpdate($con, $rev) {
 	}
 }
 
-function GetServerGraph($con, $rev, $type, $size = array(500, 200), $timespan = array(0, 0), $numperiods = 0, $Format='') {
+function GetServerGraph($con, $rev, $type, $size = array(500, 200), $timespan = array(0, 0), $numperiods = 0, $Format='', $name='') {
 	global $STATS_PERIOD;
 	
 	date_default_timezone_set("UTC");
@@ -91,7 +91,7 @@ function GetServerGraph($con, $rev, $type, $size = array(500, 200), $timespan = 
 	$Timestamps.= 't('.strtotime($LastTimestamp).",$showdates)";
 	//$Timestamps.= 't('.strtok($Stats[count($Stats) - 1], ',').')';
 
-	$xticks = ($tto - $tsince) / $STATS_PERIOD / $period;
+	$xticks = $numperiods-3;
 	
 	if($Format == 'kamclub') {
 		$ServersTitle = 'Сервера';
@@ -102,7 +102,7 @@ function GetServerGraph($con, $rev, $type, $size = array(500, 200), $timespan = 
 	}
 	
 	return 
-	'<canvas id="Stats" width="'.$width.'" height="'.$height.'">[No canvas support]</canvas><script>
+	'<canvas id="Stats'.$name.'" width="'.$width.'" height="'.$height.'">[No canvas support]</canvas><script>
 		function t(ts,d) {
 			var date = new Date(ts * 1000);
 			if(d) {
@@ -115,8 +115,8 @@ function GetServerGraph($con, $rev, $type, $size = array(500, 200), $timespan = 
 				return hours+":"+minutes;
 			}
 		}
-        window.onload = function () {
-            var line = new RGraph.Line("Stats", ['.$ServerLine.'], ['.$PlayerLine.']);
+        window.addEventListener(\'load\', function () {
+            var line = new RGraph.Line("Stats'.$name.'", ['.$ServerLine.'], ['.$PlayerLine.']);
             line.Set("chart.linewidth", 2);
             line.Set("chart.colors", ["red", "black"]);
             //line.Set("chart.title", "Statistics");
@@ -133,7 +133,7 @@ function GetServerGraph($con, $rev, $type, $size = array(500, 200), $timespan = 
 			line.Set("chart.ymax", '.(($CountMax + 5) * 1.2).');
 			line.Set("chart.text.font", "Calibri, MS Sans Serif, Arial, sans-serif");
             line.Draw();
-        }
+        });
     </script>';	
 }
 
@@ -147,6 +147,10 @@ if(isset($_REQUEST["rev"])) {
 $Type = "";
 if(isset($_REQUEST["rev"])) {
 	$Type = $con->real_escape_string($_REQUEST["type"]);
+}
+$name = "";
+if(isset($_REQUEST["name"])) {
+	$name = $con->real_escape_string($_REQUEST["name"]);
 }
 
 if ( basename(__FILE__) == basename($_SERVER["SCRIPT_FILENAME"]) ) { //if we have been called directly
@@ -163,14 +167,14 @@ if ( basename(__FILE__) == basename($_SERVER["SCRIPT_FILENAME"]) ) { //if we hav
 			<script src="RGraph/libraries/RGraph.common.core.js" ></script><script src="RGraph/libraries/RGraph.line.js">
 			</script><!--[if IE 8]><script src="RGraph/excanvas/excanvas.original.js"></script><![endif]--></head><body>';
 		echo GetServerGraph($con, $Rev, $Type, array($con->real_escape_string($_REQUEST["width"]), $con->real_escape_string($_REQUEST["height"])), 
-			array($con->real_escape_string($_REQUEST["since"]), $con->real_escape_string($_REQUEST["to"])), $con->real_escape_string($_REQUEST["period"]), $format);
+			array($con->real_escape_string($_REQUEST["since"]), $con->real_escape_string($_REQUEST["to"])), $con->real_escape_string($_REQUEST["period"]), $format, $name);
 		if (isset($_REQUEST["html"])) echo '</body></html>';
 	} 
 	else if (isset($_REQUEST["default"])) {
 		echo '<!doctype html><html><head><META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=UTF-8">
 		<script src="RGraph/libraries/RGraph.common.core.js" ></script><script src="RGraph/libraries/RGraph.line.js">
 		</script><!--[if IE 8]><script src="RGraph/excanvas/excanvas.original.js"></script><![endif]--></head><body>';
-		echo GetServerGraph($con, $Rev, $Type, array(512,256), array(time() - 24*60*60, time()), 28, $format);
+		echo GetServerGraph($con, $Rev, $Type, array(512,256), array(time() - 24*60*60, time()), 28, $format, $name);
 		echo '</body></html>';
 	} 
 	else echo '<!doctype html><html><head></head><body><form><p>All textfields are mandatory!</p>
