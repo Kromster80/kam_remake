@@ -92,6 +92,7 @@ type
     property FontData[aIndex: TKMFont]: TKMFontData read GetFontData;
     class function GuessPalette(aFileName: string): TKMPal;
 
+    function GetCharWidth(aChar: WideChar; aFont: TKMFont): Integer;
     function WordWrap(aText: UnicodeString; aFont: TKMFont; aMaxPxWidth: Integer; aForced: Boolean; aIndentAfterNL: Boolean): UnicodeString;
     function CharsThatFit(const aText: UnicodeString; aFont: TKMFont; aMaxPxWidth: integer): integer;
     function GetTextSize(const aText: UnicodeString; Fnt: TKMFont; aCountMarkup: Boolean = False): TKMPoint;
@@ -466,12 +467,28 @@ begin
 end;
 
 
+function TKMResourceFont.GetCharWidth(aChar: WideChar; aFont: TKMFont): Integer;
+begin
+  if aChar = #124 then
+    Result := 0
+  else
+    if aChar = #32 then
+      Result := fFontData[aFont].WordSpacing
+    else
+      if fFontData[aFont].Used[Ord(aChar)] <> 0 then
+        Result := fFontData[aFont].Letters[Ord(aChar)].Width + fFontData[aFont].CharSpacing
+      else
+        //Missing characters get rendered as ? so we should count their width as that too
+        Result := fFontData[aFont].Letters[Ord('?')].Width + fFontData[aFont].CharSpacing;
+end;
+
+
 function TKMResourceFont.WordWrap(aText: UnicodeString; aFont: TKMFont; aMaxPxWidth: Integer; aForced: Boolean; aIndentAfterNL: Boolean): UnicodeString;
 const
   INDENT = '   ';
 var
   I: Integer;
-  CharSpacing, LastWrappable: Integer;
+  LastWrappable: Integer;
   LastWrappableIsSpace: Boolean;
   AdvX, PrevX: Integer;
   TmpColor: Integer;
@@ -482,7 +499,6 @@ begin
   PrevX := 0;
   LastWrappable := -1;
   LastWrappableIsSpace := False;
-  CharSpacing := fFontData[aFont].CharSpacing; //Spacing between letters, this varies between fonts
 
   I := 1;
   while I <= Length(aText) do
@@ -506,8 +522,7 @@ begin
       and TryStrToInt(Copy(aText, I+1, 7), TmpColor) then
         Inc(I,8) //Skip past this markup
       else
-        if aText[I]=#32 then Inc(AdvX, fFontData[aFont].WordSpacing)
-                        else Inc(AdvX, fFontData[aFont].Letters[Ord(aText[I])].Width + CharSpacing);
+        Inc(AdvX, GetCharWidth(aText[I], aFont));
 
     if (aText[I]=#32) or (aText[I]=#124) then
     begin
@@ -560,8 +575,7 @@ begin
 
   for I := 1 to Length(aText) do
   begin
-    if aText[I] = #32 then Inc(AdvX, fFontData[aFont].WordSpacing)
-                      else Inc(AdvX, fFontData[aFont].Letters[Ord(aText[I])].Width + CharSpacing);
+    Inc(AdvX, GetCharWidth(aText[I], aFont));
 
     if (AdvX > aMaxPxWidth) then
     begin
@@ -573,22 +587,6 @@ end;
 
 
 function TKMResourceFont.GetTextSize(const aText: UnicodeString; Fnt: TKMFont; aCountMarkup: Boolean = False): TKMPoint;
-
-  function GetCharWidth(aChar: WideChar; aCharSpacing: Integer): Integer;
-  begin
-    if aChar = #124 then
-      Result := 0
-    else
-      if aChar = #32 then
-        Result := fFontData[Fnt].WordSpacing
-      else
-        if fFontData[Fnt].Used[Ord(aChar)] <> 0 then
-          Result := fFontData[Fnt].Letters[Ord(aChar)].Width + aCharSpacing
-        else
-          //Missing characters get rendered as ? so we should count their width as that too
-          Result := fFontData[Fnt].Letters[Ord('?')].Width + aCharSpacing;
-  end;
-
 var
   I: Integer;
   CharSpacing, LineCount, TmpColor: Integer;
@@ -612,7 +610,7 @@ begin
   begin
     if aCountMarkup then
       //Count all characters including markup
-      Inc(LineWidth[LineCount], GetCharWidth(aText[I], CharSpacing))
+      Inc(LineWidth[LineCount], GetCharWidth(aText[I], Fnt))
     else
       //Ignore color markups [$FFFFFF][]
       if (aText[I]='[') and (I+1 <= Length(aText)) and (aText[I+1]=']') then
@@ -624,7 +622,7 @@ begin
           Inc(I,8) //Skip past this markup
         else
           //Not markup so count width normally
-          Inc(LineWidth[LineCount], GetCharWidth(aText[I], CharSpacing));
+          Inc(LineWidth[LineCount], GetCharWidth(aText[I], Fnt));
 
     if (aText[I] = #124) or (I = Length(aText)) then
     begin // If EOL or aText end
