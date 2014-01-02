@@ -471,7 +471,8 @@ const
   INDENT = '   ';
 var
   I: Integer;
-  CharSpacing, LastSpace: Integer;
+  CharSpacing, LastWrappable: Integer;
+  LastWrappableIsSpace: Boolean;
   AdvX, PrevX: Integer;
   TmpColor: Integer;
 begin
@@ -479,12 +480,23 @@ begin
 
   AdvX := 0;
   PrevX := 0;
-  LastSpace := -1;
+  LastWrappable := -1;
+  LastWrappableIsSpace := False;
   CharSpacing := fFontData[aFont].CharSpacing; //Spacing between letters, this varies between fonts
 
   I := 1;
   while I <= Length(aText) do
   begin
+    //Chinese/Japanese characters (not punctuation) can always be wrapped before
+    //Check this before we update AdvX since we are allowing wrapping before this char
+    if ((Ord(aText[I]) >= 19968) and (Ord(aText[I]) <= 40870))
+    or ((Ord(aText[I]) >= $3040) and (Ord(aText[I]) <= $30ff)) then
+    begin
+      LastWrappable := I;
+      PrevX := AdvX; //AdvX does not include this char yet, since we are wrapping before it
+      LastWrappableIsSpace := False;
+    end;
+
     //Ignore color markups [$FFFFFF][]
     if (aText[I]='[') and (I+1 <= Length(aText)) and (aText[I+1]=']') then
       inc(I) //Skip past this markup
@@ -499,29 +511,33 @@ begin
 
     if (aText[I]=#32) or (aText[I]=#124) then
     begin
-      LastSpace := I;
+      LastWrappable := I;
       PrevX := AdvX;
+      LastWrappableIsSpace := True;
     end;
 
     //This algorithm is not perfect, somehow line width is not within SizeX, but very rare
-    if ((AdvX > aMaxPxWidth)and(LastSpace<>-1))or(aText[I]=#124) then
+    if ((AdvX > aMaxPxWidth)and(LastWrappable<>-1))or(aText[I]=#124) then
     begin
       if (aText[I] <> #124) and aIndentAfterNL then
       begin
-        Insert(INDENT, aText, LastSpace+1);
+        Insert(INDENT, aText, LastWrappable);
         Inc(I, Length(INDENT));
         Inc(AdvX, Length(INDENT)*fFontData[aFont].WordSpacing);
       end;
-      aText[LastSpace] := #124; //Replace last whitespace with EOL
+      if LastWrappableIsSpace then
+        aText[LastWrappable] := #124 //Replace last whitespace with EOL
+      else
+        Insert(#124, aText, LastWrappable+1); //Insert EOL after last wrappable char
       dec(AdvX, PrevX); //Subtract width since replaced whitespace
-      LastSpace := -1;
+      LastWrappable := -1;
     end;
     //Force an EOL part way through a word
-    if aForced and (AdvX > aMaxPxWidth) and (LastSpace = -1) then
+    if aForced and (AdvX > aMaxPxWidth) and (LastWrappable = -1) then
     begin
       Insert(#124, aText, I); //Insert an EOL before this character
       AdvX := 0;
-      LastSpace := -1;
+      LastWrappable := -1;
       if aIndentAfterNL then
       begin
         Insert(INDENT, aText, I+1);
@@ -545,7 +561,7 @@ begin
   for I := 1 to Length(aText) do
   begin
     if aText[I] = #32 then Inc(AdvX, fFontData[aFont].WordSpacing)
-                      else Inc(AdvX, fFontData[aFont].Letters[byte(aText[I])].Width + CharSpacing);
+                      else Inc(AdvX, fFontData[aFont].Letters[Ord(aText[I])].Width + CharSpacing);
 
     if (AdvX > aMaxPxWidth) then
     begin
