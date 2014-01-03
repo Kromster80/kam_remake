@@ -14,6 +14,7 @@ type
     fBeastID: Byte;
     fWorkPlan: TUnitWorkPlan;
     function ResourceExists: Boolean;
+    function ResourceTileIsLocked: Boolean;
     function ChooseToCutOrPlant: TPlantAct;
     procedure FindAnotherWorkPlan;
   public
@@ -65,7 +66,7 @@ begin
   Result := false;
   Assert(fUnit is TKMUnitCitizen);
   if fPhase = 2 then //Unit is walking to mine-position
-    Result := gTerrain.TileIsLocked(WorkPlan.Loc) or //If someone takes our place
+    Result := ResourceTileIsLocked or //If someone takes our place
               not ResourceExists or //Resource has gone
               not TKMUnitCitizen(fUnit).CanWorkAt(WorkPlan.Loc, WorkPlan.GatheringScript);
 end;
@@ -139,6 +140,23 @@ begin
     fPhase := 99; //Abandon as there is no other work plan available (Exit the task on next update)
     fUnit.SetActionLockedStay(0, WorkPlan.ActionWalkTo);
   end;
+end;
+
+
+function TTaskMining.ResourceTileIsLocked: Boolean;
+var P: TKMPoint;
+begin
+  if WorkPlan.GatheringScript = gs_WoodCutterCut then
+  begin
+    P := KMGetVertexTile(WorkPlan.Loc, WorkPlan.WorkDir);
+    //Check all tiles around the tree, like we do in TKMTerrain.FindTree
+    Result := gTerrain.TileIsLocked(P)
+      or ((P.X > 1) and gTerrain.TileIsLocked(KMPoint(P.X-1, P.Y))) //if K=1, K-1 will be off map
+      or ((P.Y > 1) and gTerrain.TileIsLocked(KMPoint(P.X, P.Y-1)))
+      or ((P.X > 1) and (P.Y > 1) and gTerrain.TileIsLocked(KMPoint(P.X-1, P.Y-1)))
+  end
+  else
+    Result := gTerrain.TileIsLocked(WorkPlan.Loc);
 end;
 
 
