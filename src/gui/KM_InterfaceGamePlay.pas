@@ -1970,7 +1970,7 @@ var
   I: Integer;
 begin
   Button_Main[tbBuild].Enabled := not aTactic and not fReplay and not HasLostMPGame and not gHands[MySpectator.HandIndex].InCinematic;
-  Button_Main[tbRatio].Enabled := not aTactic and fReplay or (not HasLostMPGame and not gHands[MySpectator.HandIndex].InCinematic);
+  Button_Main[tbRatio].Enabled := not aTactic and (fReplay or (not HasLostMPGame and not gHands[MySpectator.HandIndex].InCinematic));
   Button_Main[tbStats].Enabled := not aTactic;
 
   //No loading during multiplayer games

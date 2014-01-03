@@ -452,6 +452,9 @@ begin
     //rather than defending property within the Rad?
     //Think of archer, he attacks property in AI defense radius, but stands utself outside of the radius
     //should AI retaliate against him or not?
+    //@Krom: Yes it's right the way it is now. It should be the attacker not the victim.
+    //Otherwise the AI sends much more groups when you shoot them with 1 bowmen in the campaigns.
+    //Right now it seems to be working almost the same as in the original game.
     and (KMLengthDiag(Group.Position, aAttacker.GetPosition) <= fDefencePositions[I].Radius) then
       Group.OrderAttackUnit(aAttacker, True);
   end;
