@@ -23,7 +23,7 @@ type
     fUserLocale: AnsiString;
     procedure LoadLocales(const aFile: string);
     procedure SetUserLocale(aLocale: AnsiString);
-    function ParseLine(aLine: string; out aLocale: TKMLocaleInfo): Boolean;
+    function ParseLine(aLine: UnicodeString; out aLocale: TKMLocaleInfo): Boolean;
     function GetLocaleByIndex(aIndex: Integer): TKMLocaleInfo;
   public
     FallbackLocale: AnsiString;
@@ -213,4 +213,4 @@ begin
 end;
 
 
-end.
+end.

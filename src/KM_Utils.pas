@@ -8,7 +8,7 @@ uses
   ,MMSystem //Required for TimeGet which is defined locally because this unit must NOT know about KromUtils as it is not Linux compatible (and this unit is used in Linux dedicated servers)
   {$ENDIF}
   {$IFDEF Unix}
-  ,unix, baseunix
+  ,unix, baseunix, UnixUtil
   {$ENDIF}
   ;
 
