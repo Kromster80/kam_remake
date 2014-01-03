@@ -18,10 +18,10 @@ type
     procedure CircleOnTerrain(x, y, rad: Single; Fill, Line: TColor4);
     procedure Dot(x, y: Single; aCol: TColor4; aSize: Single = 0.05);
     procedure DotOnTerrain(x, y: Single; aCol: TColor4);
-    procedure LineOnTerrain(x1, y1, x2, y2: Single; aCol: TColor4; aPattern: Word = $FFFF); overload;
-    procedure LineOnTerrain(A, B: TKMPoint; aCol: TColor4; aPattern: Word = $FFFF); overload;
-    procedure LineOnTerrain(A, B: TKMPointI; aCol: TColor4; aPattern: Word = $FFFF); overload;
-    procedure LineOnTerrain(A, B: TKMPointF; aCol: TColor4; aPattern: Word = $FFFF); overload;
+    procedure LineOnTerrain(x1, y1, x2, y2: Single; aCol: TColor4; aPattern: Word = $FFFF; aDots: Boolean = True); overload;
+    procedure LineOnTerrain(A, B: TKMPoint; aCol: TColor4; aPattern: Word = $FFFF; aDots: Boolean = True); overload;
+    procedure LineOnTerrain(A, B: TKMPointI; aCol: TColor4; aPattern: Word = $FFFF; aDots: Boolean = True); overload;
+    procedure LineOnTerrain(A, B: TKMPointF; aCol: TColor4; aPattern: Word = $FFFF; aDots: Boolean = True); overload;
     procedure Line(A, B: TKMPoint; aCol: TColor4; aPattern: Word = $FFFF); overload;
     procedure Line(A, B: TKMPointI; aCol: TColor4; aPattern: Word = $FFFF); overload;
     procedure Line(A, B: TKMPointF; aCol: TColor4; aPattern: Word = $FFFF); overload;
@@ -178,33 +178,36 @@ begin
 end;
 
 
-procedure TRenderAux.LineOnTerrain(x1, y1, x2, y2: Single; aCol: TColor4; aPattern: Word = $FFFF);
+procedure TRenderAux.LineOnTerrain(x1, y1, x2, y2: Single; aCol: TColor4; aPattern: Word = $FFFF; aDots: Boolean = True);
 begin
   glColor4ubv(@aCol);
   glEnable(GL_LINE_STIPPLE);
   glLineStipple(2, aPattern);
   RenderLine(X1,Y1,X2,Y2);
   glDisable(GL_LINE_STIPPLE);
-  RenderDot(X1, gTerrain.FlatToHeight(X1, Y1));
-  RenderDot(X2, gTerrain.FlatToHeight(X2, Y2));
+  if aDots then
+  begin
+    RenderDot(X1, gTerrain.FlatToHeight(X1, Y1));
+    RenderDot(X2, gTerrain.FlatToHeight(X2, Y2));
+  end;
 end;
 
 
-procedure TRenderAux.LineOnTerrain(A,B: TKMPoint; aCol: TColor4; aPattern: Word = $FFFF);
+procedure TRenderAux.LineOnTerrain(A,B: TKMPoint; aCol: TColor4; aPattern: Word = $FFFF; aDots: Boolean = True);
 begin
-  LineOnTerrain(A.X, A.Y, B.X, B.Y, aCol);
+  LineOnTerrain(A.X, A.Y, B.X, B.Y, aCol, aPattern, aDots);
 end;
 
 
-procedure TRenderAux.LineOnTerrain(A,B: TKMPointI; aCol: TColor4; aPattern: Word = $FFFF);
+procedure TRenderAux.LineOnTerrain(A,B: TKMPointI; aCol: TColor4; aPattern: Word = $FFFF; aDots: Boolean = True);
 begin
-  LineOnTerrain(A.X, A.Y, B.X, B.Y, aCol);
+  LineOnTerrain(A.X, A.Y, B.X, B.Y, aCol, aPattern, aDots);
 end;
 
 
-procedure TRenderAux.LineOnTerrain(A,B: TKMPointF; aCol: TColor4; aPattern: Word = $FFFF);
+procedure TRenderAux.LineOnTerrain(A,B: TKMPointF; aCol: TColor4; aPattern: Word = $FFFF; aDots: Boolean = True);
 begin
-  LineOnTerrain(A.X, A.Y, B.X, B.Y, aCol);
+  LineOnTerrain(A.X, A.Y, B.X, B.Y, aCol, aPattern, aDots);
 end;
 
 

@@ -83,6 +83,7 @@ type
     //Terrain rendering sub-class
     procedure CollectPlans(aRect: TKMRect);
     procedure CollectTerrainObjects(aRect: TKMRect; aAnimStep: Cardinal);
+    procedure CollectRallyPoints;
 
     procedure RenderWireHousePlan(P: TKMPoint; aHouseType: THouseType);
   public
@@ -128,7 +129,7 @@ var
 
 implementation
 uses KM_CommonTypes, KM_RenderAux, KM_HandsCollection, KM_Game, KM_Sound, KM_Resource, KM_ResUnits,
-  KM_ResMapElements, KM_Units, KM_AIFields, KM_TerrainPainter, KM_GameCursor;
+  KM_ResMapElements, KM_Units, KM_AIFields, KM_TerrainPainter, KM_GameCursor, KM_HouseBarracks;
 
 
 constructor TRenderPool.Create(aViewport: TViewport; aRender: TRender);
@@ -252,6 +253,7 @@ begin
     //Sprites are added by Terrain/Players/Projectiles, then sorted by position
     fRenderList.Clear;
     CollectTerrainObjects(ClipRect, gTerrain.AnimStep);
+    CollectRallyPoints;
 
     gHands.Paint(ClipRect); //Units and houses
     gProjectiles.Paint;
@@ -396,6 +398,19 @@ begin
 
   for I := 0 to fTabletsList.Count - 1 do
     AddHouseTablet(THouseType(fTabletsList.Tag[I]), fTabletsList[I]);
+end;
+
+
+procedure TRenderPool.CollectRallyPoints;
+var B: TKMHouseBarracks;
+begin
+  if not (MySpectator.Selected is TKMHouseBarracks) then Exit;
+  B := TKMHouseBarracks(MySpectator.Selected);
+  if B.IsRallyPointSet then
+  begin
+    AddAlert(KMPointF(B.RallyPoint.X-0.5, B.RallyPoint.Y-0.5), 249, gHands[MySpectator.HandIndex].FlagColor);
+    gRenderAux.LineOnTerrain(B.GetEntrance.X-0.5, B.GetEntrance.Y-0.5, B.RallyPoint.X-0.5, B.RallyPoint.Y-0.5, gHands[MySpectator.HandIndex].FlagColor, $FFFF, False);
+  end;
 end;
 
 

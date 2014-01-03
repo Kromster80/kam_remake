@@ -637,6 +637,13 @@ begin
       gSoundPlayer.PlayWarrior(Group.UnitType, sp_Move);
     end;
   end;
+  if (MySpectator.Selected is TKMHouseBarracks) then
+  begin
+    if gTerrain.Route_CanBeMade(KMPointBelow(TKMHouse(MySpectator.Selected).GetEntrance), Loc, canWalk, 0) then
+      gGame.GameInputProcess.CmdHouse(gic_HouseBarracksRally, TKMHouse(MySpectator.Selected), Loc)
+    else
+      gSoundPlayer.Play(sfx_CantPlace, Loc, False, 4);
+  end;
 end;
 
 
