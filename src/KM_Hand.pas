@@ -151,7 +151,7 @@ type
 implementation
 uses
   KM_HandsCollection, KM_Resource, KM_ResSound, KM_Sound, KM_Game,
-  KM_ResTexts, KM_AIFields, KM_ScriptingESA;
+  KM_ResTexts, KM_AIFields, KM_ScriptingESA, KM_HouseBarracks;
 
 
 const
@@ -363,7 +363,7 @@ end;
 
 
 procedure TKMHand.WarriorWalkedOut(aUnit: TKMUnitWarrior);
-var G: TKMUnitGroup;
+var G: TKMUnitGroup; H: TKMHouse;
 begin
   G := fUnitGroups.WarriorTrained(aUnit);
   Assert(G <> nil, 'It is certain that equipped warrior creates or finds some group to join to');
@@ -372,7 +372,16 @@ begin
   begin
     AI.General.WarriorEquipped(G);
     G := UnitGroups.GetGroupByMember(aUnit); //AI might assign warrior to different group
-  end;
+  end
+  else
+    if G.Count = 1 then
+    begin
+      //If player is human and this is the first warrior in the group, send it to the rally point
+      H := HousesHitTest(aUnit.GetPosition.X, aUnit.GetPosition.Y-1);
+      if (H is TKMHouseBarracks) and TKMHouseBarracks(H).IsRallyPointSet
+      and G.CanWalkTo(TKMHouseBarracks(H).RallyPoint, 0) then
+        G.OrderWalk(TKMHouseBarracks(H).RallyPoint, True);
+    end;
   gScriptEvents.ProcWarriorEquipped(aUnit, G);
 end;
 

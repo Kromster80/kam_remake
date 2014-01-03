@@ -3,7 +3,7 @@ unit KM_HouseBarracks;
 interface
 uses
   Classes, Math, Types,
-  KM_CommonClasses, KM_Defaults,
+  KM_CommonClasses, KM_Defaults, KM_Points,
   KM_Houses, KM_ResHouses, KM_ResWares;
 
 
@@ -15,6 +15,7 @@ type
     fResourceCount: array [WARFARE_MIN..WARFARE_MAX] of Word;
   public
     NotAcceptFlag: array [WARFARE_MIN .. WARFARE_MAX] of Boolean;
+    RallyPoint: TKMPoint;
     constructor Create(aUID: Integer; aHouseType: THouseType; PosX, PosY: Integer; aOwner: THandIndex; aBuildState: THouseBuildState);
     constructor Load(LoadStream: TKMemoryStream); override;
     procedure Save(SaveStream: TKMemoryStream); override;
@@ -34,6 +35,7 @@ type
     procedure RecruitsAdd(aUnit: Pointer);
     procedure RecruitsRemove(aUnit: Pointer);
     procedure ToggleAcceptFlag(aRes: TWareType);
+    function IsRallyPointSet: Boolean;
     function Equip(aUnitType: TUnitType; aCount: Byte): Byte;
   end;
 
@@ -48,6 +50,7 @@ constructor TKMHouseBarracks.Create(aUID: Integer; aHouseType: THouseType; PosX,
 begin
   inherited;
   fRecruitsList := TList.Create;
+  RallyPoint := KMPointBelow(GetEntrance);
 end;
 
 
@@ -66,6 +69,7 @@ begin
     fRecruitsList.Add(U);
   end;
   LoadStream.Read(NotAcceptFlag, SizeOf(NotAcceptFlag));
+  LoadStream.Read(RallyPoint);
 end;
 
 
@@ -184,6 +188,12 @@ begin
 end;
 
 
+function TKMHouseBarracks.IsRallyPointSet: Boolean;
+begin
+   Result := not KMSamePoint(RallyPoint, KMPointBelow(GetEntrance));
+end;
+
+
 function TKMHouseBarracks.CanEquip(aUnitType: TUnitType): Boolean;
 var
   I: Integer;
@@ -249,6 +259,7 @@ begin
   for I := 0 to RecruitsCount - 1 do
     SaveStream.Write(TKMUnit(fRecruitsList.Items[I]).UID); //Store ID
   SaveStream.Write(NotAcceptFlag, SizeOf(NotAcceptFlag));
+  SaveStream.Write(RallyPoint);
 end;
 
 

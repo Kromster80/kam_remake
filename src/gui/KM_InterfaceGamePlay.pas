@@ -304,7 +304,7 @@ type
 
 implementation
 uses KM_Main, KM_GameInputProcess, KM_GameInputProcess_Multi, KM_AI, KM_RenderUI, KM_GameCursor,
-  KM_HandsCollection, KM_Hand, KM_RenderPool, KM_ResTexts, KM_Game, KM_GameApp,
+  KM_HandsCollection, KM_Hand, KM_RenderPool, KM_ResTexts, KM_Game, KM_GameApp, KM_HouseBarracks,
   KM_Utils, KM_ResLocales, KM_ResSound, KM_Resource, KM_Log, KM_ResCursors, KM_ResFonts,
   KM_ResSprites, KM_ResUnits, KM_ResWares, KM_FogOfWar, KM_Sound, KM_NetPlayersList;
 
@@ -3022,6 +3022,15 @@ begin
         begin
           Army_HideJoinMenu(nil);
           Exit; //Don't order troops too
+        end;
+
+        if (MySpectator.Selected is TKMHouseBarracks) then
+        begin
+          if gTerrain.Route_CanBeMade(KMPointBelow(TKMHouse(MySpectator.Selected).GetEntrance), P, canWalk, 0) then
+            gGame.GameInputProcess.CmdHouse(gic_HouseBarracksRally, TKMHouse(MySpectator.Selected), P)
+          else
+            gSoundPlayer.Play(sfx_CantPlace, P, False, 4);
+          Exit;
         end;
 
         //Process warrior commands

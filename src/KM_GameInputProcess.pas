@@ -62,6 +62,7 @@ type
     gic_HouseSchoolTrain,         //Place an order to train citizen
     gic_HouseBarracksAcceptFlag,  //Control wares delivery to barracks
     gic_HouseBarracksEquip,       //Place an order to train warrior
+    gic_HouseBarracksRally,       //Set the rally point for the barracks
     gic_HouseRemoveTrain,         //Remove unit being trained from School
 
     //IV.     Delivery ratios changes (and other game-global settings)
@@ -145,6 +146,7 @@ type
     procedure CmdHouse(aCommandType: TGameInputCommandType; aHouse: TKMHouse; aWoodcutterMode: TWoodcutterMode); overload;
     procedure CmdHouse(aCommandType: TGameInputCommandType; aHouse: TKMHouse; aUnitType: TUnitType; aCount:byte); overload;
     procedure CmdHouse(aCommandType: TGameInputCommandType; aHouse: TKMHouse; aItem: Integer); overload;
+    procedure CmdHouse(aCommandType: TGameInputCommandType; aHouse: TKMHouse; aLoc: TKMPoint); overload;
 
     procedure CmdRatio(aCommandType: TGameInputCommandType; aRes: TWareType; aHouseType: THouseType; aValue:integer);
 
@@ -296,7 +298,7 @@ begin
         Exit;
     end;
     if CommandType in [gic_HouseRepairToggle, gic_HouseDeliveryToggle,
-      gic_HouseOrderProduct, gic_HouseMarketFrom, gic_HouseMarketTo,
+      gic_HouseOrderProduct, gic_HouseMarketFrom, gic_HouseMarketTo, gic_HouseBarracksRally,
       gic_HouseStoreAcceptFlag, gic_HouseBarracksAcceptFlag, gic_HouseBarracksEquip,
       gic_HouseSchoolTrain, gic_HouseRemoveTrain, gic_HouseWoodcutterMode] then
     begin
@@ -350,6 +352,7 @@ begin
       gic_HouseWoodcutterMode:    TKMHouseWoodcutters(SrcHouse).WoodcutterMode := TWoodcutterMode(Params[2]);
       gic_HouseBarracksAcceptFlag:TKMHouseBarracks(SrcHouse).ToggleAcceptFlag(TWareType(Params[2]));
       gic_HouseBarracksEquip:     TKMHouseBarracks(SrcHouse).Equip(TUnitType(Params[2]), Params[3]);
+      gic_HouseBarracksRally:     TKMHouseBarracks(SrcHouse).RallyPoint := KMPoint(Params[2], Params[3]);
       gic_HouseSchoolTrain:       TKMHouseSchool(SrcHouse).AddUnitToQueue(TUnitType(Params[2]), Params[3]);
       gic_HouseRemoveTrain:       TKMHouseSchool(SrcHouse).RemUnitFromQueue(Params[2]);
 
@@ -510,6 +513,14 @@ begin
   Assert(aCommandType = gic_HouseRemoveTrain);
   Assert(aHouse is TKMHouseSchool);
   TakeCommand(MakeCommand(aCommandType, [aHouse.UID, aItem]));
+end;
+
+
+procedure TGameInputProcess.CmdHouse(aCommandType: TGameInputCommandType; aHouse: TKMHouse; aLoc: TKMPoint);
+begin
+  Assert(aCommandType = gic_HouseBarracksRally);
+  Assert(aHouse is TKMHouseBarracks);
+  TakeCommand(MakeCommand(aCommandType, [aHouse.UID, aLoc.X, aLoc.Y]));
 end;
 
 
