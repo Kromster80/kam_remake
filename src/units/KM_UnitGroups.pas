@@ -1582,6 +1582,8 @@ begin
                      //Link to other group
                      Result := gHands[aUnit.Owner].UnitGroups.GetGroupByMember(LinkUnit);
                      Result.AddMember(aUnit);
+                     //Form a square (rather than a long snake like in TSK/TPR)
+                     Result.UnitsPerRow := Ceil(Sqrt(Result.Count));
                      Result.OrderRepeat;
                    end
                    else
