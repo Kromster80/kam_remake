@@ -96,6 +96,7 @@ begin
           SetActionLockedStay(9, ua_Walk);
          end;
       6: begin
+          fUnit.SetInHouse(fSchool); //Put him in the school, so if it is destroyed while he is inside he is placed somewhere
           SetActionGoIn(ua_Walk, gd_GoOutside, fSchool);
           fSchool.UnitTrainingComplete(fUnit);
           if Assigned(fUnit.OnUnitTrained) then
