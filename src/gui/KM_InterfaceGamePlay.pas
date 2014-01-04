@@ -21,13 +21,13 @@ const
 
 type
   TKMTabButtons = (tbBuild, tbRatio, tbStats, tbMenu);
+  TUIMode = (umSP, umMP, umReplay, umSpectate);
 
   TKMGamePlayInterface = class (TKMUserInterfaceGame)
   private
     fAlerts: TKMAlerts;
 
-    fMultiplayer: Boolean; //Multiplayer UI has slightly different layout
-    fReplay: Boolean; //Replay UI has slightly different layout
+    fUIMode: TUIMode;
     fSave_Selected: Integer; //Save selected from list (needed because of scanning)
 
     fGuiGameBuild: TKMGUIGameBuild;
@@ -332,7 +332,7 @@ begin
   begin
     ListBox_Save.ItemIndex := -1;
     fSave_Selected := -1;
-    CheckBox_SaveExists.Enabled := FileExists(gGame.SaveName(Edit_Save.Text, 'sav', fMultiplayer));
+    CheckBox_SaveExists.Enabled := FileExists(gGame.SaveName(Edit_Save.Text, 'sav', (fUIMode in [umMP, umSpectate])));
     Label_SaveExists.Visible := CheckBox_SaveExists.Enabled;
     CheckBox_SaveExists.Checked := False;
     //we should protect ourselves from empty names and whitespaces at beggining and at end of name
@@ -532,7 +532,7 @@ begin
     fSaves.TerminateScan;
     Menu_Save_RefreshList(nil); //need to call it at last one time to setup GUI even if there are no saves
     //Initiate refresh and process each new save added
-    fSaves.Refresh(Menu_Save_RefreshList, fMultiplayer);
+    fSaves.Refresh(Menu_Save_RefreshList, (fUIMode in [umMP, umSpectate]));
     Panel_Save.Show;
     Label_MenuTitle.Caption := gResTexts[TX_MENU_SAVE_GAME];
   end else
@@ -543,7 +543,7 @@ begin
     fSaves.TerminateScan;
     Menu_Load_RefreshList(nil); //need to call it at least one time to setup GUI even if there are no saves
     //Initiate refresh and process each new save added
-    fSaves.Refresh(Menu_Load_RefreshList, fMultiplayer);
+    fSaves.Refresh(Menu_Load_RefreshList, (fUIMode in [umMP, umSpectate]));
     Panel_Load.Show;
     Label_MenuTitle.Caption := gResTexts[TX_MENU_LOAD_GAME];
   end else
@@ -628,7 +628,8 @@ begin
   if not gTerrain.TileInMapCoords(Loc.X, Loc.Y) then Exit; //Must be inside map
 
   //Send move order, if applicable
-  if (MySpectator.Selected is TKMUnitGroup) and not fJoiningGroups and not fPlacingBeacon and not fReplay and not HasLostMPGame then
+  if (MySpectator.Selected is TKMUnitGroup) and not fJoiningGroups and not fPlacingBeacon
+  and (fUIMode in [umSP, umMP]) and not HasLostMPGame then
   begin
     Group := TKMUnitGroup(MySpectator.Selected);
     if Group.CanWalkTo(Loc, 0) then
@@ -663,8 +664,14 @@ begin
   fAlerts := TKMAlerts.Create(fViewport);
   fRenderPool := TRenderPool.Create(fViewport, aRender);
 
-  fMultiplayer := aMultiplayer;
-  fReplay := aReplay;
+  if aReplay then
+    fUIMode := umReplay
+  else
+    if aMultiplayer then
+      fUIMode := umMP
+    else
+      fUIMode := umSP;
+
   //Instruct to use global Terrain
   fLastSaveName := '';
   fJoiningGroups := False;
@@ -916,7 +923,7 @@ begin
   Image_MPAllies.Hint := gResTexts[TX_GAMEPLAY_PLAYERS_HINT];
   Image_MPAllies.OnClick := Allies_Click;
 
-  Image_MessageLog := TKMImage.Create(Panel_Main,TOOLBAR_WIDTH,Panel_Main.Height - 48 - IfThen(fMultiplayer, 48*2),30,48,495);
+  Image_MessageLog := TKMImage.Create(Panel_Main,TOOLBAR_WIDTH,Panel_Main.Height - 48 - IfThen(fUIMode in [umMP, umSpectate], 48*2),30,48,495);
   Image_MessageLog.Anchors := [anLeft, anBottom];
   Image_MessageLog.HighlightOnMouseOver := true;
   Image_MessageLog.Hint := gResTexts[TX_GAME_MESSAGE_LOG];
@@ -926,7 +933,7 @@ begin
   for I := 0 to MAX_VISIBLE_MSGS do
   begin
     Image_Message[I] := TKMImage.Create(Panel_Main, TOOLBAR_WIDTH, 0, 30, 48, 495);
-    Image_Message[I].Top := Panel_Main.Height - 48 - I * 48 - IfThen(fMultiplayer and not fReplay, 48 * 2);
+    Image_Message[I].Top := Panel_Main.Height - 48 - I * 48 - IfThen(fUIMode in [umMP, umSpectate], 48 * 2);
     Image_Message[I].Anchors := [anLeft, anBottom];
     Image_Message[I].Disable;
     Image_Message[I].Hide;
@@ -1065,7 +1072,7 @@ begin
     Label_MenuTitle.AutoWrap := True;
 
   fGuiGameBuild := TKMGUIGameBuild.Create(Panel_Controls);
-  fGuiGameRatios := TKMGUIGameRatios.Create(Panel_Controls, fReplay);
+  fGuiGameRatios := TKMGUIGameRatios.Create(Panel_Controls, fUIMode in [umSP, umMP]);
   fGuiGameStats := TKMGUIGameStats.Create(Panel_Controls);
   Create_Menu;
     Create_Save;
@@ -1922,7 +1929,7 @@ var
   I: Integer;
   Pad: Integer;
 begin
-  Pad := Byte(fMultiplayer and not fReplay) * 2 +
+  Pad := Byte(fUIMode in [umMP, umSpectate]) * 2 +
          Byte(Image_MessageLog.Visible);
   for I := 0 to MAX_VISIBLE_MSGS do
     Image_Message[I].Top := Panel_Main.Height - 48 - (I + Pad) * 48;
@@ -1956,7 +1963,7 @@ end;
 procedure TKMGamePlayInterface.Army_ActivateControls(aGroup: TKMUnitGroup);
 var AcceptOrders: Boolean;
 begin
-  AcceptOrders := aGroup.CanTakeOrders and not fReplay and not HasLostMPGame;
+  AcceptOrders := aGroup.CanTakeOrders and (fUIMode in [umSP, umMP]) and not HasLostMPGame;
 
   //Button_Army_GoTo.Enabled    := AcceptOrders;
   Button_Army_Stop.Enabled    := AcceptOrders;
@@ -1976,28 +1983,28 @@ procedure TKMGamePlayInterface.SetMenuState(aTactic: Boolean);
 var
   I: Integer;
 begin
-  Button_Main[tbBuild].Enabled := not aTactic and not fReplay and not HasLostMPGame and not gHands[MySpectator.HandIndex].InCinematic;
-  Button_Main[tbRatio].Enabled := not aTactic and (fReplay or (not HasLostMPGame and not gHands[MySpectator.HandIndex].InCinematic));
+  Button_Main[tbBuild].Enabled := not aTactic and (fUIMode in [umSP, umMP]) and not HasLostMPGame and not gHands[MySpectator.HandIndex].InCinematic;
+  Button_Main[tbRatio].Enabled := not aTactic and ((fUIMode in [umReplay, umSpectate]) or (not HasLostMPGame and not gHands[MySpectator.HandIndex].InCinematic));
   Button_Main[tbStats].Enabled := not aTactic;
 
   //No loading during multiplayer games
-  Button_Menu_Load.Enabled := not fMultiplayer and not fReplay;
-  Button_Menu_Save.Enabled := not fReplay;
-  Button_Menu_Quit.Enabled := not fReplay;
+  Button_Menu_Load.Enabled := fUIMode = umSP;
+  Button_Menu_Save.Enabled := fUIMode in [umSP, umMP, umSpectate];
+  Button_Menu_Quit.Enabled := fUIMode in [umSP, umMP, umSpectate];
 
   //Toggle gameplay options
-  CheckBox_Settings_Autosave.Enabled := not fReplay;
+  CheckBox_Settings_Autosave.Enabled := fUIMode in [umSP, umMP, umSpectate];
 
   //Chat and Allies setup should be accessible only in Multiplayer
-  Image_MPChat.Visible       := fMultiplayer and not fReplay;
-  Label_MPChatUnread.Visible := fMultiplayer and not fReplay;
-  Image_MPAllies.Visible     := fMultiplayer and not fReplay;
+  Image_MPChat.Visible       := fUIMode in [umMP, umSpectate];
+  Label_MPChatUnread.Visible := fUIMode in [umMP, umSpectate];
+  Image_MPAllies.Visible     := fUIMode in [umMP, umSpectate];
 
   //Message stack is visible in Replay as it shows which messages player got
   //and does not affect replay consistency
 
-  Panel_ReplayCtrl.Visible := fReplay;
-  if fReplay then
+  Panel_ReplayCtrl.Visible := fUIMode = umReplay;
+  if fUIMode = umReplay then
   begin
     Dropbox_ReplayFOW.Clear;
     Dropbox_ReplayFOW.Add(gResTexts[TX_REPLAY_SHOW_ALL], -1);
@@ -2237,7 +2244,7 @@ end;
 
 function TKMGamePlayInterface.HasLostMPGame: Boolean;
 begin
-  Result := fMultiplayer and (gHands[MySpectator.HandIndex].AI.WonOrLost = wol_Lost);
+  Result := (fUIMode = umMP) and (gHands[MySpectator.HandIndex].AI.WonOrLost = wol_Lost);
 end;
 
 
@@ -2305,7 +2312,7 @@ begin
         MySpectator.Selected := nil; //Don't select dead/dying units
         Exit;
       end;
-      if (OldSelected <> MySpectator.Selected) and not fReplay and not HasLostMPGame then
+      if (OldSelected <> MySpectator.Selected) and (fUIMode in [umSP, umMP]) and not HasLostMPGame then
         gSoundPlayer.PlayCitizen(TKMUnit(MySpectator.Selected).UnitType, sp_Select);
       //Selecting a unit twice is the shortcut to center on that unit
       if OldSelected = MySpectator.Selected then
@@ -2334,7 +2341,7 @@ begin
           Exit;
         end;
         TKMUnitGroup(MySpectator.Selected).SelectFlagBearer;
-        if (OldSelected <> MySpectator.Selected) and not fReplay and not HasLostMPGame then
+        if (OldSelected <> MySpectator.Selected) and (fUIMode in [umSP, umMP]) and not HasLostMPGame then
           gSoundPlayer.PlayWarrior(TKMUnitGroup(MySpectator.Selected).SelectedUnit.UnitType, sp_Select);
         //Selecting a group twice is the shortcut to center on that group
         if OldSelected = MySpectator.Selected then
@@ -2437,7 +2444,7 @@ end;
 procedure TKMGamePlayInterface.KeyDown(Key: Word; Shift: TShiftState);
 var Rect: TKMRect;
 begin
-  if gGame.IsPaused and not fReplay then Exit;
+  if gGame.IsPaused and (fUIMode in [umSP, umMP]) then Exit;
 
   if fMyControls.KeyDown(Key, Shift) then
   begin
@@ -2453,7 +2460,7 @@ begin
     Ord(SC_ZOOM_IN):  fViewport.ZoomKeyIn      := True;
     Ord(SC_ZOOM_OUT): fViewport.ZoomKeyOut     := True;
     //As we don't have names for teams in SP we only allow showing team names in MP or MP replays
-    Ord(SC_SHOW_TEAMS): if fMultiplayer or (gGame.GameMode = gmReplayMulti) then //Only MP replays
+    Ord(SC_SHOW_TEAMS): if (fUIMode in [umMP, umSpectate]) or (gGame.GameMode = gmReplayMulti) then //Only MP replays
     begin
       fShowTeamNames := True;
       //Update it immediately so there's no 300ms lag after pressing the key
@@ -2470,7 +2477,7 @@ end;
 //Ignore all keys if game is on 'Pause'
 procedure TKMGamePlayInterface.KeyUp(Key: Word; Shift: TShiftState);
 begin
-  if gGame.IsPaused and not fMultiplayer and not fReplay then
+  if gGame.IsPaused and (fUIMode = umSP) then
   begin
     if Key = Ord(SC_PAUSE) then
       SetPause(False);
@@ -2479,7 +2486,7 @@ begin
 
   if fMyControls.KeyUp(Key, Shift) then Exit;
 
-  if fReplay and (Key = Ord(SC_PAUSE)) then
+  if (fUIMode = umReplay) and (Key = Ord(SC_PAUSE)) then
   begin
     if Button_ReplayPause.Enabled then
       ReplayClick(Button_ReplayPause)
@@ -2500,7 +2507,7 @@ begin
     Ord(SC_SHOW_TEAMS):  fShowTeamNames := False;
   end;
 
-  if not gGame.IsMultiplayer or MULTIPLAYER_SPEEDUP then
+  if (fUIMode in [umSP, umReplay]) or MULTIPLAYER_SPEEDUP then
   case Key of
     //Game speed/pause: Not available in multiplayer mode
     VK_F5:    gGame.SetGameSpeed(1, False);
@@ -2512,7 +2519,7 @@ begin
   //All the following keys don't work in Replay, because they alter game state
   //which is nonsense
   //thus the easy way to make that is to exit now
-  if fReplay then Exit;
+  if (fUIMode in [umReplay, umSpectate]) then Exit;
 
   case Key of
     //Messages
@@ -2521,7 +2528,7 @@ begin
                           ;
     VK_DELETE:            Button_MessageDelete.Click;
     VK_RETURN:            //Enter is the shortcut to bring up chat in multiplayer
-                          if fMultiplayer and not fGuiGameChat.Visible then
+                          if (fUIMode in [umMP, umSpectate]) and not fGuiGameChat.Visible then
                           begin
                             Allies_Close(nil);
                             Message_Close(nil);
@@ -2579,7 +2586,7 @@ begin
     Ord(SC_ARMY_ROTATE_CCW):  if Panel_Army.Visible and not SelectingTroopDirection then Button_Army_RotCCW.Click;
 
     //General function keys
-    Ord(SC_PAUSE):  if not fMultiplayer then SetPause(True); //Display pause overlay
+    Ord(SC_PAUSE):  if (fUIMode = umSP) then SetPause(True); //Display pause overlay
     Ord(SC_BEACON): if not SelectingTroopDirection then
                     begin
                       fPlacingBeacon := True;
@@ -2589,7 +2596,7 @@ begin
   end;
 
   {Temporary cheat codes}
-  if DEBUG_CHEATS and (MULTIPLAYER_CHEATS or not fMultiplayer) then
+  if DEBUG_CHEATS and (MULTIPLAYER_CHEATS or (fUIMode = umSP)) then
   case Key of
     Ord(SC_DEBUG_REVEALMAP): gGame.GameInputProcess.CmdTemp(gic_TempRevealMap);
     Ord(SC_DEBUG_VICTORY):   begin gGame.PlayerVictory(MySpectator.HandIndex); Exit; end;
@@ -2610,7 +2617,7 @@ var
 begin
   fMyControls.MouseDown(X, Y, Shift, Button);
 
-  if (gGame.IsPaused and not fReplay) or (fMyControls.CtrlOver <> nil)
+  if (gGame.IsPaused and (fUIMode in [umSP, umMP])) or (fMyControls.CtrlOver <> nil)
   or gHands[MySpectator.HandIndex].InCinematic then
     Exit;
 
@@ -2640,7 +2647,7 @@ begin
 
   //See if we can show DirectionSelector
   if (Button = mbRight)
-  and not fReplay
+  and (fUIMode in [umSP, umMP])
   and not HasLostMPGame
   and not fJoiningGroups
   and not fPlacingBeacon
@@ -2728,7 +2735,7 @@ begin
   else
     DisplayHint(nil); //Clear shown hint
 
-  if gGame.IsPaused and not fReplay then Exit;
+  if gGame.IsPaused and (fUIMode in [umSP, umMP]) then Exit;
 
   if SelectingTroopDirection then
   begin
@@ -2819,15 +2826,15 @@ begin
 
   if not gHands[MySpectator.HandIndex].InCinematic then
     //Only own units can be selected
-    if ((Obj is TKMUnit) and ((TKMUnit(Obj).Owner = MySpectator.HandIndex) or fReplay))
-    or ((Obj is TKMHouse) and ((TKMHouse(Obj).Owner = MySpectator.HandIndex) or fReplay)) then
+    if ((Obj is TKMUnit) and ((TKMUnit(Obj).Owner = MySpectator.HandIndex) or (fUIMode in [umReplay, umSpectate])))
+    or ((Obj is TKMHouse) and ((TKMHouse(Obj).Owner = MySpectator.HandIndex) or (fUIMode in [umReplay, umSpectate]))) then
     begin
       gResource.Cursors.Cursor := kmc_Info;
       Exit;
     end;
 
   if (MySpectator.Selected is TKMUnitGroup)
-  and not fReplay and not HasLostMPGame
+  and (fUIMode in [umSP, umMP]) and not HasLostMPGame
   and not gHands[MySpectator.HandIndex].InCinematic
   and (MySpectator.FogOfWar.CheckTileRevelation(GameCursor.Cell.X, GameCursor.Cell.Y) > 0) then
   begin
@@ -2879,7 +2886,7 @@ begin
     Exit;
   end;
 
-  if gGame.IsPaused and not fReplay then Exit;
+  if gGame.IsPaused and (fUIMode in [umSP, umMP]) then Exit;
 
   P := GameCursor.Cell; //It's used in many places here
 
@@ -2940,7 +2947,7 @@ begin
                   MySpectator.UpdateSelect;
 
                 //In a replay we want in-game statistics (and other things) to be shown for the owner of the last select object
-                if fReplay then
+                if fUIMode in [umReplay, umSpectate] then
                 begin
                   if MySpectator.Selected is TKMHouse then MySpectator.HandIndex := TKMHouse(MySpectator.Selected).Owner;
                   if MySpectator.Selected is TKMUnit  then MySpectator.HandIndex := TKMUnit (MySpectator.Selected).Owner;
@@ -2956,7 +2963,7 @@ begin
                 if (MySpectator.Selected is TKMUnit) then
                 begin
                   ShowUnitInfo(TKMUnit(MySpectator.Selected));
-                  if not fReplay and not HasLostMPGame
+                  if (fUIMode in [umSP, umMP]) and not HasLostMPGame
                   and (OldSelected <> MySpectator.Selected) then
                     gSoundPlayer.PlayCitizen(TKMUnit(MySpectator.Selected).UnitType, sp_Select);
                 end;
@@ -2965,7 +2972,7 @@ begin
                 begin
                   Group := TKMUnitGroup(MySpectator.Selected);
                   ShowGroupInfo(Group);
-                  if not fReplay and not HasLostMPGame
+                  if (fUIMode in [umSP, umMP]) and not HasLostMPGame
                   and ((OldSelected <> Group) or (OldSelectedUnit <> Group.SelectedUnit)) then
                     gSoundPlayer.PlayWarrior(Group.SelectedUnit.UnitType, sp_Select);
                 end;
@@ -3041,7 +3048,7 @@ begin
         end;
 
         //Process warrior commands
-        if not fReplay
+        if (fUIMode in [umSP, umMP])
         and not HasLostMPGame
         and not fJoiningGroups
         and not fPlacingBeacon
@@ -3181,7 +3188,7 @@ begin
     Label_PeacetimeRemaining.Caption := '';
 
   //Update replay counters
-  if fReplay then
+  if fUIMode = umReplay then
   begin
     //Replays can continue after end, keep the bar in 0..1 range
     PercentBar_Replay.Seam := Min(gGame.GameOptions.Peacetime * 600 / Max(gGame.GameInputProcess.GetLastTick,1), 1);
@@ -3199,16 +3206,16 @@ begin
 
   //Keep on updating these menu pages as game data keeps on changing
   if fGuiGameBuild.Visible then fGuiGameBuild.UpdateState;
-  if fGuiGameRatios.Visible and fReplay then fGuiGameRatios.UpdateState;
+  if fGuiGameRatios.Visible and (fUIMode in [umReplay, umSpectate]) then fGuiGameRatios.UpdateState;
   if fGuiGameStats.Visible then fGuiGameStats.UpdateState;
   if Panel_Menu.Visible then Menu_Update;
 
   //Update message stack
   //Flash unread message display
-  Label_MPChatUnread.Visible := fMultiplayer and (Label_MPChatUnread.Caption <> '') and not (aTickCount mod 10 < 5);
+  Label_MPChatUnread.Visible := (fUIMode in [umMP, umSpectate]) and (Label_MPChatUnread.Caption <> '') and not (aTickCount mod 10 < 5);
   Image_MPChat.Highlight := fGuiGameChat.Visible or (Label_MPChatUnread.Visible and (Label_MPChatUnread.Caption <> ''));
   Image_MPAllies.Highlight := Panel_Allies.Visible;
-  if not fReplay and not Image_MessageLog.Visible and (fMessageList.CountLog > 0) then
+  if (fUIMode in [umSP, umMP]) and not Image_MessageLog.Visible and (fMessageList.CountLog > 0) then
   begin
     Image_MessageLog.Show;
     MessageStack_UpdatePositions;
@@ -3277,7 +3284,7 @@ begin
   if SHOW_CMDQUEUE_COUNT then
     S := S + IntToStr(gGame.GameInputProcess.Count) + ' commands stored|';
 
-  if SHOW_NETWORK_DELAY and fMultiplayer then
+  if SHOW_NETWORK_DELAY and (fUIMode in [umMP, umSpectate]) then
     S := S + 'Network delay: ' + IntToStr(TGameInputProcess_Multi(gGame.GameInputProcess).GetNetworkDelay) + '|';
 
   if DISPLAY_SOUNDS then
