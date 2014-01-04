@@ -507,6 +507,11 @@ var
   I,K: Integer;
   Fog: PKMByte2Array;
 begin
+  //todo: @Krom: Trees at the top of the map are fully visible above the top tile row
+  //      of the map if any other part of the tree is visible: http://i.imgur.com/Dx0JlgX.jpg
+  //      I guess we need to render FOW a few rows above the top of the map too (and left/right edges?)
+  //      But only when the top row of the map is not revealed, otherwise trees will get
+  //      their tops chopped off even if they are all revealed
   if aFOW is TKMFogOfWarOpen then Exit;
 
   glColor4f(1, 1, 1, 1);
