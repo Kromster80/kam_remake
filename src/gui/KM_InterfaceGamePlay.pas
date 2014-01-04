@@ -163,7 +163,9 @@ type
       Button_ReplayStep: TKMButton;
       Button_ReplayResume: TKMButton;
       Button_ReplayExit: TKMButton;
+    Panel_ReplayFOW: TKMPanel;
       Dropbox_ReplayFOW: TKMDropList;
+      Checkbox_ReplayFOW: TKMCheckBox;
     Panel_Allies: TKMPanel;
       Label_PeacetimeRemaining: TKMLabel;
       Image_AlliesFlag:array [0..MAX_HANDS-1] of TKMImage;
@@ -962,9 +964,12 @@ begin
     Button_ReplayStep.Disable; //Initial state
     Button_ReplayResume.Disable; //Initial state
 
-    Dropbox_ReplayFOW := TKMDropList.Create(Panel_ReplayCtrl, 0, 50, 160, 20, fnt_Metal, '', bsGame);
+  Panel_ReplayFOW := TKMPanel.Create(Panel_Main, 320, 58, 160, 60);
+    Dropbox_ReplayFOW := TKMDropList.Create(Panel_ReplayFOW, 0, 0, 160, 20, fnt_Metal, '', bsGame);
     Dropbox_ReplayFOW.Hint := gResTexts[TX_REPLAY_PLAYER_PERSPECTIVE];
     Dropbox_ReplayFOW.OnChange := ReplayClick;
+    Checkbox_ReplayFOW := TKMCheckBox.Create(Panel_ReplayFOW, 0, 25, 160, 20, gResTexts[TX_REPLAY_SHOW_FOG], fnt_Metal);
+    Checkbox_ReplayFOW.OnClick := ReplayClick;
 end;
 
 
@@ -1780,7 +1785,20 @@ begin
 
   if (Sender = Dropbox_ReplayFOW) then
   begin
-    MySpectator.FOWIndex := Dropbox_ReplayFOW.GetTag(Dropbox_ReplayFOW.ItemIndex);
+    MySpectator.HandIndex := Dropbox_ReplayFOW.GetTag(Dropbox_ReplayFOW.ItemIndex);
+    if Checkbox_ReplayFOW.Checked then
+      MySpectator.FOWIndex := MySpectator.HandIndex
+    else
+      MySpectator.FOWIndex := -1;
+    fMinimap.Update(False); //Force update right now so FOW doesn't appear to lag
+  end;
+
+  if (Sender = Checkbox_ReplayFOW) then
+  begin
+    if Checkbox_ReplayFOW.Checked then
+      MySpectator.FOWIndex := MySpectator.HandIndex
+    else
+      MySpectator.FOWIndex := -1;
     fMinimap.Update(False); //Force update right now so FOW doesn't appear to lag
   end;
 end;
@@ -1997,12 +2015,14 @@ begin
   //and does not affect replay consistency
 
   Panel_ReplayCtrl.Visible := fUIMode = umReplay;
-  if fUIMode = umReplay then
+  Panel_ReplayFOW.Visible := fUIMode in [umSpectate, umReplay];
+  Panel_ReplayFOW.Top := IfThen(fUIMode = umSpectate, 8, 58);
+  if fUIMode in [umSpectate, umReplay] then
   begin
+    Checkbox_ReplayFOW.Checked := False;
     Dropbox_ReplayFOW.Clear;
-    Dropbox_ReplayFOW.Add(gResTexts[TX_REPLAY_SHOW_ALL], -1);
     for I := 0 to gHands.Count - 1 do
-    if gHands[I].Enabled and (gHands[I].PlayerType = hndHuman) then
+    if gHands[I].Enabled then
         Dropbox_ReplayFOW.Add(WrapColor(gHands[I].OwnerName, FlagColorToTextColor(gHands[I].FlagColor)), I);
     Dropbox_ReplayFOW.ItemIndex := 0;
   end;
@@ -2386,7 +2406,7 @@ begin
     begin
       Label_AlliesPlayer[I].FontColor := $FFFFFFFF; //Spectators are white
       DropBox_AlliesTeam[I].ItemIndex := 0;
-      Label_AlliesTeam[I].Caption := 'Spectate';
+      Label_AlliesTeam[I].Caption := gResTexts[TX_LOBBY_SPECTATOR];
     end
     else
     begin
@@ -2953,6 +2973,12 @@ begin
                 begin
                   if MySpectator.Selected is TKMHouse then MySpectator.HandIndex := TKMHouse(MySpectator.Selected).Owner;
                   if MySpectator.Selected is TKMUnit  then MySpectator.HandIndex := TKMUnit (MySpectator.Selected).Owner;
+                  Dropbox_ReplayFOW.SelectByTag(MySpectator.HandIndex);
+                  if Checkbox_ReplayFOW.Checked then
+                    MySpectator.FOWIndex := MySpectator.HandIndex
+                  else
+                    MySpectator.FOWIndex := -1;
+                  fMinimap.Update(False); //Force update right now so FOW doesn't appear to lag
                 end;
 
                 if (MySpectator.Selected is TKMHouse) then

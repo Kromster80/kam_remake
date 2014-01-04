@@ -484,6 +484,7 @@ begin
       if fSaveInfo.Info.Enabled[K-1]
       and ((I = aPlayerID) or (aPlayerID = -1)) //-1 means update all players
       and fNetPlayers.LocAvailable(K)
+      and fNetPlayers[I].IsHuman
       and (fNetPlayers[I].Nikname = fSaveInfo.Info.OwnerNikname[K-1]) then
       begin
         fNetPlayers[I].StartLocation := K;
@@ -810,7 +811,7 @@ begin
   //In saves we should load team and color from the SaveInfo
   if (fNetGameState = lgs_Lobby) and (fSelectGameKind = ngk_Save) then
     for i:=1 to NetPlayers.Count do
-      if NetPlayers[i].StartLocation <> 0 then
+      if (NetPlayers[i].StartLocation <> LOC_RANDOM) and (NetPlayers[i].StartLocation <> LOC_SPECTATE) then
       begin
         NetPlayers[i].FlagColorID := fSaveInfo.Info.ColorID[NetPlayers[i].StartLocation-1];
         NetPlayers[i].Team := fSaveInfo.Info.Team[NetPlayers[i].StartLocation-1];

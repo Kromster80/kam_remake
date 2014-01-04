@@ -359,7 +359,6 @@
 360:Resume paused replay
 361:Quit replay
 362:Toggle individual player perspective
-363:Show all
 364:Use the left mouse button to select the ware to trade
 365:Use the right mouse button to select the ware to trade
 366:From x%d
@@ -737,3 +736,6 @@
 768:Reset all bans
 769:The host reset all bans for this lobby
 770:Date
+771:Show fog
+772:Spectate
+773:Spectator

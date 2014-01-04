@@ -387,7 +387,7 @@ TX_REPLAY_STEP = 359; //Step 1 tick forward
 TX_REPLAY_RESUME = 360; //Resume paused replay
 TX_REPLAY_QUIT = 361; //Quit replay
 TX_REPLAY_PLAYER_PERSPECTIVE = 362; //Toggle individual player perspective
-TX_REPLAY_SHOW_ALL = 363; //Show all
+TX_REPLAY_SHOW_FOG = 771; //Show fog
 
 TX_HOUSES_MARKET_SELECT_LEFT = 364; //Use the left mouse button to select the ware to trade
 TX_HOUSES_MARKET_SELECT_RIGHT = 365; //Use the right mouse button to select the ware to trade
@@ -621,6 +621,8 @@ TX_LOBBY_RANDOMIZE_LOCATIONS = 558; //Randomize locations within teams
 TX_LOBBY_MAP_DESCRIPTION = 559; //Description
 TX_LOBBY_OPTIONS = 560; //Options
 TX_LOBBY_LOCATION_X = 561; //Location %d
+TX_LOBBY_SPECTATE = 772; //Spectate
+TX_LOBBY_SPECTATOR = 773; //Spectator
 TX_LOBBY_ERROR_SELECT_PLAYER = 562; //Error: Please select a player from the save to control
 TX_LOBBY_ERROR_NO_MAP = 563; //Error: Map failed to load or no map selected
 TX_LOBBY_CANNOT_START = 564; //Cannot start: %s

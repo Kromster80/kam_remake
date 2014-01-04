@@ -910,7 +910,7 @@ begin
                       and (fNetworking.SaveInfo.Info.CanBeHuman[K] or ALLOW_TAKE_AI_PLAYERS) then
                         DropBox_LobbyLoc[I].Add(UnicodeString(fNetworking.SaveInfo.Info.OwnerNikname[K]), K+1);
                   if CurPlayer.IsHuman then
-                    DropBox_LobbyLoc[I].Add('Spectate', LOC_SPECTATE);
+                    DropBox_LobbyLoc[I].Add(gResTexts[TX_LOBBY_SPECTATE], LOC_SPECTATE);
                 end;
       ngk_Map:  begin
                   IsValid := fNetworking.MapInfo.IsValid;
@@ -930,7 +930,7 @@ begin
                       DropBox_LobbyLoc[I].Add(LocationName, K+1);
                     end;
                   if CurPlayer.IsHuman then
-                    DropBox_LobbyLoc[I].Add('Spectate', LOC_SPECTATE);
+                    DropBox_LobbyLoc[I].Add(gResTexts[TX_LOBBY_SPECTATE], LOC_SPECTATE);
                 end;
     end;
 
@@ -980,6 +980,11 @@ begin
     Label_LobbyPlayer[I].Hide;
     DropBox_LobbyPlayerSlot[I].Show;
     DropBox_LobbyPlayerSlot[I].ItemIndex := 0; //Open
+    DropBox_LobbyLoc[I].Clear;
+    if fNetworking.SelectGameKind = ngk_Save then
+      DropBox_LobbyLoc[I].Add(gResTexts[TX_LOBBY_SELECT], LOC_RANDOM)
+    else
+      DropBox_LobbyLoc[I].Add(gResTexts[TX_LOBBY_RANDOM], LOC_RANDOM);
     DropBox_LobbyLoc[I].ItemIndex := 0;
     DropBox_LobbyTeam[I].ItemIndex := 0;
     DropBox_LobbyColors[I].ItemIndex := 0;
