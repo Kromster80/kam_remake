@@ -93,6 +93,7 @@ const
     gic_ArmyWalk, gic_ArmyStorm, gic_HouseBarracksEquip];
   AllowedAfterDefeat: set of TGameInputCommandType = [gic_GameAlertBeacon, gic_GameSave, gic_GameAutoSave, gic_TempDoNothing];
   AllowedInCinematic: set of TGameInputCommandType = [gic_GameAlertBeacon, gic_GameSave, gic_GameAutoSave, gic_TempDoNothing];
+  AllowedBySpectators: set of TGameInputCommandType = [gic_GameAlertBeacon, gic_GameSave, gic_GameAutoSave, gic_TempDoNothing];
 
 type
   TGameInputCommand = record

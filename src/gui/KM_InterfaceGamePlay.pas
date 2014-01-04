@@ -258,7 +258,7 @@ type
         Button_Army_Join_Cancel: TKMButton;
         Label_Army_Join_Message: TKMLabel;
   public
-    constructor Create(aRender: TRender; aMultiplayer, aReplay: Boolean); reintroduce;
+    constructor Create(aRender: TRender; aUIMode: TUIMode); reintroduce;
     destructor Destroy; override;
     procedure ShowUnitInfo(Sender: TKMUnit; aAskDismiss:boolean=false);
     procedure ShowGroupInfo(Sender: TKMUnitGroup);
@@ -656,21 +656,14 @@ begin
 end;
 
 
-constructor TKMGamePlayInterface.Create(aRender: TRender; aMultiplayer, aReplay: Boolean);
+constructor TKMGamePlayInterface.Create(aRender: TRender; aUIMode: TUIMode);
 var S: TKMShape;
 begin
   inherited Create(aRender);
+  fUIMode := aUIMode;
 
   fAlerts := TKMAlerts.Create(fViewport);
   fRenderPool := TRenderPool.Create(fViewport, aRender);
-
-  if aReplay then
-    fUIMode := umReplay
-  else
-    if aMultiplayer then
-      fUIMode := umMP
-    else
-      fUIMode := umSP;
 
   //Instruct to use global Terrain
   fLastSaveName := '';
@@ -2389,17 +2382,26 @@ begin
     end;
 
     Label_AlliesPlayer[I].Caption := UnicodeString(gGame.Networking.NetPlayers[I+1].Nikname);
-    Label_AlliesPlayer[I].FontColor := gHands[gGame.Networking.NetPlayers[I+1].StartLocation - 1].FlagColor;
-    DropBox_AlliesTeam[I].ItemIndex := gGame.Networking.NetPlayers[I+1].Team;
+    if gGame.Networking.NetPlayers[I+1].IsSpectator then
+    begin
+      Label_AlliesPlayer[I].FontColor := $FFFFFFFF; //Spectators are white
+      DropBox_AlliesTeam[I].ItemIndex := 0;
+      Label_AlliesTeam[I].Caption := 'Spectate';
+    end
+    else
+    begin
+      Label_AlliesPlayer[I].FontColor := gHands[gGame.Networking.NetPlayers[I+1].StartLocation - 1].FlagColor;
+      DropBox_AlliesTeam[I].ItemIndex := gGame.Networking.NetPlayers[I+1].Team;
+      if gGame.Networking.NetPlayers[I+1].Team = 0 then
+        Label_AlliesTeam[I].Caption := '-'
+      else
+        Label_AlliesTeam[I].Caption := IntToStr(gGame.Networking.NetPlayers[I+1].Team);
+    end;
     //Strikethrough for disconnected players
     Image_AlliesFlag[I].Enabled := not gGame.Networking.NetPlayers[I+1].Dropped;
     Label_AlliesPlayer[I].Strikethrough := gGame.Networking.NetPlayers[I+1].Dropped;
     Label_AlliesTeam[I].Strikethrough := gGame.Networking.NetPlayers[I+1].Dropped;
     Label_AlliesPing[I].Strikethrough := gGame.Networking.NetPlayers[I+1].Dropped;
-    if gGame.Networking.NetPlayers[I+1].Team = 0 then
-      Label_AlliesTeam[I].Caption := '-'
-    else
-      Label_AlliesTeam[I].Caption := IntToStr(gGame.Networking.NetPlayers[I+1].Team);
     DropBox_AlliesTeam[I].Enabled := (I+1 = gGame.Networking.MyIndex); //Our index
     DropBox_AlliesTeam[I].Hide; //Use label for demos until we fix exploits
   end;
@@ -2519,7 +2521,7 @@ begin
   //All the following keys don't work in Replay, because they alter game state
   //which is nonsense
   //thus the easy way to make that is to exit now
-  if (fUIMode in [umReplay, umSpectate]) then Exit;
+  if fUIMode = umReplay then Exit;
 
   case Key of
     //Messages

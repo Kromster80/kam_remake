@@ -51,8 +51,8 @@ type
     procedure NewCampaignMap(aCampaign: TKMCampaign; aMap: Byte);
     procedure NewSingleMap(aMissionFile, aGameName: UnicodeString; aDesiredLoc: ShortInt = -1; aDesiredColor: Cardinal = $00000000);
     procedure NewSingleSave(aSaveName: UnicodeString);
-    procedure NewMultiplayerMap(const aFileName: UnicodeString);
-    procedure NewMultiplayerSave(const aSaveName: UnicodeString);
+    procedure NewMultiplayerMap(const aFileName: UnicodeString; Spectating: Boolean);
+    procedure NewMultiplayerSave(const aSaveName: UnicodeString; Spectating: Boolean);
     procedure NewRestartLast(aGameName, aMission, aSave: UnicodeString; aCampName: TKMCampaignId; aCampMap: Byte; aLocation: Byte; aColor: Cardinal);
     procedure NewEmptyMap(aSizeX, aSizeY: Integer);
     procedure NewMapEditor(const aFileName: UnicodeString; aSizeX, aSizeY: Integer);
@@ -372,7 +372,7 @@ begin
                       //so we know which menu to show next and unlock next map
                       fCampaigns.SetActive(fCampaigns.CampaignById(gGame.CampaignName), gGame.CampaignMap);
 
-                      if (gGame.GameMode in [gmMulti, gmReplayMulti]) or MP_RESULTS_IN_SP then
+                      if (gGame.GameMode in [gmMulti, gmMultiSpectate, gmReplayMulti]) or MP_RESULTS_IN_SP then
                         fMainMenuInterface.ShowResultsMP(aMsg)
                       else
                         fMainMenuInterface.ShowResultsSP(aMsg);
@@ -509,9 +509,14 @@ begin
 end;
 
 
-procedure TKMGameApp.NewMultiplayerMap(const aFileName: UnicodeString);
+procedure TKMGameApp.NewMultiplayerMap(const aFileName: UnicodeString; Spectating: Boolean);
+var GameMode: TGameMode;
 begin
-  LoadGameFromScript(TKMapsCollection.FullPath(aFileName, '.dat', True), aFileName, NO_CAMPAIGN, 0, gmMulti, 0, 0);
+  if Spectating then
+    GameMode := gmMultiSpectate
+  else
+    GameMode := gmMulti;
+  LoadGameFromScript(TKMapsCollection.FullPath(aFileName, '.dat', True), aFileName, NO_CAMPAIGN, 0, GameMode, 0, 0);
 
   //Copy text from lobby to in-game chat
   gGame.GamePlayInterface.SetChatText(fMainMenuInterface.GetChatText);
@@ -519,11 +524,16 @@ begin
 end;
 
 
-procedure TKMGameApp.NewMultiplayerSave(const aSaveName: UnicodeString);
+procedure TKMGameApp.NewMultiplayerSave(const aSaveName: UnicodeString; Spectating: Boolean);
+var GameMode: TGameMode;
 begin
+  if Spectating then
+    GameMode := gmMultiSpectate
+  else
+    GameMode := gmMulti;
   //Convert SaveName to local FilePath
   //aFileName is the same for all players, but Path to it is different
-  LoadGameFromSave(SaveName(aSaveName, 'sav', True), gmMulti);
+  LoadGameFromSave(SaveName(aSaveName, 'sav', True), GameMode);
 
   //Copy the chat and typed lobby message to the in-game chat
   gGame.GamePlayInterface.SetChatText(fMainMenuInterface.GetChatText);

@@ -92,8 +92,8 @@ type
     fOnGameOptions: TNotifyEvent;
     fOnMapName: TUnicodeStringEvent;
     fOnMapMissing: TUnicodeStringEvent;
-    fOnStartMap: TUnicodeStringEvent;
-    fOnStartSave: TUnicodeStringEvent;
+    fOnStartMap: TGameStartEvent;
+    fOnStartSave: TGameStartEvent;
     fOnPlay: TNotifyEvent;
     fOnReadyToPlay: TNotifyEvent;
     fOnDisconnect: TUnicodeStringEvent;
@@ -186,7 +186,7 @@ type
     property MissingFileName: UnicodeString read fMissingFileName;
     property MissingFileExists: Boolean read fMissingFileExists;
     procedure GameCreated;
-    procedure SendCommands(aStream: TKMemoryStream; aPlayerIndex: THandIndex = -1);
+    procedure SendCommands(aStream: TKMemoryStream; aPlayerIndex: ShortInt = -1);
     procedure AttemptReconnection;
 
     property OnJoinSucc:TNotifyEvent write fOnJoinSucc;         //We were allowed to join
@@ -201,8 +201,8 @@ type
     property OnGameOptions: TNotifyEvent write fOnGameOptions; //Game options updated
     property OnMapName: TUnicodeStringEvent write fOnMapName;           //Map name updated
     property OnMapMissing: TUnicodeStringEvent write fOnMapMissing;           //Map missing
-    property OnStartMap: TUnicodeStringEvent write fOnStartMap;       //Start the game
-    property OnStartSave: TUnicodeStringEvent write fOnStartSave;       //Load the game
+    property OnStartMap: TGameStartEvent write fOnStartMap;       //Start the game
+    property OnStartSave: TGameStartEvent write fOnStartSave;       //Load the game
     property OnPlay:TNotifyEvent write fOnPlay;                 //Start the gameplay
     property OnReadyToPlay:TNotifyEvent write fOnReadyToPlay;   //Update the list of players ready to play
     property OnPingInfo:TNotifyEvent write fOnPingInfo;         //Ping info updated
@@ -608,7 +608,7 @@ begin
   end;
 
   //If someone else has this index, switch them (only when HostDoesSetup)
-  if IsHost and fNetPlayers.HostDoesSetup and (aIndex <> 0) then //0 means random, don't switch that
+  if IsHost and fNetPlayers.HostDoesSetup and (aIndex <> LOC_RANDOM) and (aIndex <> LOC_SPECTATE) then
   begin
     NetPlayerIndex := fNetPlayers.StartingLocToLocal(aIndex);
     if NetPlayerIndex <> -1 then
@@ -617,6 +617,13 @@ begin
 
   //Host makes rules, Joiner will get confirmation from Host
   fNetPlayers[aPlayerIndex].StartLocation := aIndex; //Use aPlayerIndex not fMyIndex because it could be an AI
+
+  //Spectators can't have team or color
+  if aIndex = LOC_SPECTATE then
+  begin
+    fNetPlayers[aPlayerIndex].Team := 0;
+    fNetPlayers[aPlayerIndex].FlagColorID := 0;
+  end;
 
   case fNetPlayerKind of
     lpk_Host:   SendPlayerListAndRefreshPlayersSetup;
@@ -735,7 +742,7 @@ begin
     ngk_Save: begin
                 Result := fNetPlayers.AllReady and fSaveInfo.IsValid;
                 for i:=1 to fNetPlayers.Count do //In saves everyone must chose a location
-                  Result := Result and ((fNetPlayers[i].StartLocation <> 0) or fNetPlayers[i].IsClosed);
+                  Result := Result and ((fNetPlayers[i].StartLocation <> LOC_RANDOM) or fNetPlayers[i].IsClosed);
               end;
     else      Result := False;
   end;
@@ -963,16 +970,14 @@ end;
 
 
 //Send our commands to either to all players, or to specified one
-procedure TKMNetworking.SendCommands(aStream: TKMemoryStream; aPlayerIndex: THandIndex = -1);
+procedure TKMNetworking.SendCommands(aStream: TKMemoryStream; aPlayerIndex: ShortInt = -1);
 var
   I: Integer;
 begin
   if aPlayerIndex = -1 then
     PacketSend(NET_ADDRESS_OTHERS, mk_Commands, aStream)
   else
-  for I := 1 to fNetPlayers.Count do
-    if fNetPlayers[I].StartLocation - 1 = aPlayerIndex then
-      PacketSend(fNetPlayers[I].IndexOnServer, mk_Commands, aStream);
+    PacketSend(fNetPlayers[aPlayerIndex].IndexOnServer, mk_Commands, aStream);
 end;
 
 
@@ -1628,7 +1633,7 @@ begin
                 if Assigned(fOnResyncFromTick) and (PlayerIndex<>-1) then
                 begin
                   if WRITE_RECONNECT_LOG then gLog.AddTime('Resyncing player ' + UnicodeString(fNetPlayers[PlayerIndex].Nikname));
-                  fOnResyncFromTick(fNetPlayers[PlayerIndex].StartLocation - 1, Cardinal(tmpInteger));
+                  fOnResyncFromTick(PlayerIndex, Cardinal(tmpInteger));
                 end;
               end;
 
@@ -1786,8 +1791,8 @@ begin
   fIgnorePings := -1; //Ignore all pings until we have finished loading
 
   case fSelectGameKind of
-    ngk_Map:  fOnStartMap(fMapInfo.FileName);
-    ngk_Save: fOnStartSave(fSaveInfo.FileName);
+    ngk_Map:  fOnStartMap(fMapInfo.FileName, fNetPlayers[fMyIndex].IsSpectator);
+    ngk_Save: fOnStartSave(fSaveInfo.FileName, fNetPlayers[fMyIndex].IsSpectator);
     else      Assert(False);
   end;
 end;

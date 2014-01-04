@@ -215,7 +215,7 @@ begin
         DropBox_LobbyPlayerSlot[I].OnChange := PlayersSetupChange;
 
         DropBox_LobbyLoc[I] := TKMDropList.Create(Panel_LobbyPlayers, C2, OffY, 150, 20, fnt_Grey, '', bsMenu);
-        DropBox_LobbyLoc[I].Add(gResTexts[TX_LOBBY_RANDOM], 0);
+        DropBox_LobbyLoc[I].Add(gResTexts[TX_LOBBY_RANDOM], LOC_RANDOM);
         DropBox_LobbyLoc[I].OnChange := PlayersSetupChange;
 
         DropBox_LobbyTeam[I] := TKMDropList.Create(Panel_LobbyPlayers, C3, OffY, 80, 20, fnt_Grey, '', bsMenu);
@@ -900,19 +900,21 @@ begin
     IsValid := False;
     DropBox_LobbyLoc[I].Clear;
     case fNetworking.SelectGameKind of
-      ngk_None: DropBox_LobbyLoc[I].Add(gResTexts[TX_LOBBY_RANDOM], 0);
+      ngk_None: DropBox_LobbyLoc[I].Add(gResTexts[TX_LOBBY_RANDOM], LOC_RANDOM);
       ngk_Save: begin
                   IsValid := fNetworking.SaveInfo.IsValid;
-                  DropBox_LobbyLoc[I].Add(gResTexts[TX_LOBBY_SELECT], 0);
+                  DropBox_LobbyLoc[I].Add(gResTexts[TX_LOBBY_SELECT], LOC_RANDOM);
                   if CurPlayer.IsHuman then //Cannot add AIs to MP save, they are filled automatically
                     for K := 0 to fNetworking.SaveInfo.Info.PlayerCount - 1 do
                       if fNetworking.SaveInfo.Info.Enabled[K]
                       and (fNetworking.SaveInfo.Info.CanBeHuman[K] or ALLOW_TAKE_AI_PLAYERS) then
                         DropBox_LobbyLoc[I].Add(UnicodeString(fNetworking.SaveInfo.Info.OwnerNikname[K]), K+1);
+                  if CurPlayer.IsHuman then
+                    DropBox_LobbyLoc[I].Add('Spectate', LOC_SPECTATE);
                 end;
       ngk_Map:  begin
                   IsValid := fNetworking.MapInfo.IsValid;
-                  DropBox_LobbyLoc[I].Add(gResTexts[TX_LOBBY_RANDOM], 0);
+                  DropBox_LobbyLoc[I].Add(gResTexts[TX_LOBBY_RANDOM], LOC_RANDOM);
 
                   for K := 0 to fNetworking.MapInfo.LocCount - 1 do
                     //AI-only locations should not be listed for AIs in lobby, since those ones are
@@ -927,6 +929,8 @@ begin
                         LocationName := '[$707070]' + LocationName + '[]';
                       DropBox_LobbyLoc[I].Add(LocationName, K+1);
                     end;
+                  if CurPlayer.IsHuman then
+                    DropBox_LobbyLoc[I].Add('Spectate', LOC_SPECTATE);
                 end;
     end;
 
@@ -957,8 +961,8 @@ begin
                     not CurPlayer.IsClosed);
     DropBox_LobbyLoc[I].Enabled := (CanEdit or HostCanEdit);
     //Can't change color or teams in a loaded save
-    DropBox_LobbyTeam[I].Enabled := (CanEdit or HostCanEdit) and not IsSave and not IsCoop;
-    DropBox_LobbyColors[I].Enabled := (CanEdit or (MyNik and not CurPlayer.ReadyToStart)) and not IsSave;
+    DropBox_LobbyTeam[I].Enabled := (CanEdit or HostCanEdit) and not IsSave and not IsCoop and not CurPlayer.IsSpectator;
+    DropBox_LobbyColors[I].Enabled := (CanEdit or (MyNik and not CurPlayer.ReadyToStart)) and not IsSave and not CurPlayer.IsSpectator;
     if MyNik and not fNetworking.IsHost then
     begin
       if CurPlayer.ReadyToStart then

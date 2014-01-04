@@ -6,6 +6,8 @@ uses Classes, KromUtils, StrUtils, Math, SysUtils,
 
 const
   PING_COUNT = 20; //Number of pings to store and take the maximum over for latency calculation (pings are measured once per second)
+  LOC_RANDOM = 0;
+  LOC_SPECTATE = -1;
 
 type
   TNetPlayerType = (nptHuman, nptComputer, nptClosed);
@@ -25,7 +27,7 @@ type
     function GetNiknameColored: AnsiString;
   public
     PlayerNetType: TNetPlayerType; //Human, Computer, Closed
-    StartLocation: Integer;  //Start location, 0 means random
+    StartLocation: Integer;  //Start location, 0 means random, -1 means spectate
     Team: Integer;
     ReadyToStart: Boolean;
     ReadyToPlay: Boolean;
@@ -39,6 +41,7 @@ type
     function IsHuman: Boolean;
     function IsComputer: Boolean;
     function IsClosed: Boolean;
+    function IsSpectator: Boolean;
     function GetPlayerType: THandType;
     function SlotName: UnicodeString; //Player name if it's human or computer or closed
     property Nikname: AnsiString read fNikname; //Human player nikname (ANSI-Latin)
@@ -188,6 +191,12 @@ begin
 end;
 
 
+function TKMNetPlayerInfo.IsSpectator: Boolean;
+begin
+  Result := StartLocation = LOC_SPECTATE;
+end;
+
+
 function TKMNetPlayerInfo.GetPlayerType: THandType;
 const
   PlayerTypes: array [TNetPlayerType] of THandType = (hndHuman, hndComputer, hndComputer);
@@ -318,16 +327,17 @@ begin
   //Allocate available colors
   K := 0;
   for I := 1 to fCount do
-  if fNetPlayers[I].FlagColorID = 0 then
-  begin
-    Inc(K);
-    if K <= ColorCount then
-      fNetPlayers[I].FlagColorID := AvailableColor[K];
-  end;
+    if not fNetPlayers[I].IsSpectator and (fNetPlayers[I].FlagColorID = 0) then
+    begin
+      Inc(K);
+      if K <= ColorCount then
+        fNetPlayers[I].FlagColorID := AvailableColor[K];
+    end;
 
   //Check for odd players
   for I := 1 to fCount do
-    Assert(fNetPlayers[I].FlagColorID <> 0, 'Everyone should have a color now!');
+    if not fNetPlayers[I].IsSpectator then
+      Assert(fNetPlayers[I].FlagColorID <> 0, 'Everyone should have a color now!');
 end;
 
 
@@ -549,7 +559,7 @@ function TKMNetPlayersList.LocAvailable(aIndex: Integer): Boolean;
 var I: Integer;
 begin
   Result := True;
-  if aIndex = 0 then Exit;
+  if (aIndex = LOC_RANDOM) or (aIndex = LOC_SPECTATE) then Exit;
 
   for I := 1 to fCount do
     Result := Result and (aIndex <> fNetPlayers[I].StartLocation);
@@ -708,7 +718,7 @@ function TKMNetPlayersList.ValidateSetup(aHumanUsableLocs, aAIUsableLocs: TPlaye
 
 var
   I, K, J: Integer;
-  UsedLoc: array of Boolean;
+  UsedLoc: array[1..MAX_HANDS] of Boolean;
   AvailableLocHuman, AvailableLocBoth: array [1..MAX_HANDS] of Byte;
   LocHumanCount, LocBothCount: Byte;
   TmpLocHumanCount, TmpLocBothCount: Byte;
@@ -721,22 +731,29 @@ begin
     Exit;
   end;
 
-  //All wrong start locations will be reset to "undefined"
   for I := 1 to fCount do
-    if ((fNetPlayers[I].PlayerNetType = nptHuman) and not IsHumanLoc(fNetPlayers[I].StartLocation))
-    or ((fNetPlayers[I].PlayerNetType = nptComputer) and not IsAILoc(fNetPlayers[I].StartLocation)) then
-      fNetPlayers[I].StartLocation := 0;
+    if fNetPlayers[I].IsSpectator then
+      Assert((fNetPlayers[I].PlayerNetType = nptHuman), 'Only humans can spectate');
 
-  SetLength(UsedLoc, MAX_HANDS + 1); //01..MAX_PLAYERS, all false
+  //All wrong start locations will be reset to random (fallback since UI should block that anyway)
+  for I := 1 to fCount do
+    if (fNetPlayers[I].StartLocation <> LOC_RANDOM) and (fNetPlayers[I].StartLocation <> LOC_SPECTATE) then
+      if ((fNetPlayers[I].PlayerNetType = nptHuman) and not IsHumanLoc(fNetPlayers[I].StartLocation))
+      or ((fNetPlayers[I].PlayerNetType = nptComputer) and not IsAILoc(fNetPlayers[I].StartLocation)) then
+        fNetPlayers[I].StartLocation := LOC_RANDOM;
+
   for I := 1 to MAX_HANDS do
     UsedLoc[I] := False;
 
-  //Remember all used locations and drop duplicates
+  //Remember all used locations and drop duplicates (fallback since UI should block that anyway)
   for I := 1 to fCount do
-    if UsedLoc[fNetPlayers[I].StartLocation] then
-      fNetPlayers[I].StartLocation := 0
-    else
-      UsedLoc[fNetPlayers[I].StartLocation] := true;
+    if (fNetPlayers[I].StartLocation <> LOC_RANDOM) and (fNetPlayers[I].StartLocation <> LOC_SPECTATE) then
+    begin
+      if UsedLoc[fNetPlayers[I].StartLocation] then
+        fNetPlayers[I].StartLocation := LOC_RANDOM
+      else
+        UsedLoc[fNetPlayers[I].StartLocation] := true;
+    end;
 
   //Collect available locations in a list
   LocHumanCount := 0;
@@ -761,7 +778,7 @@ begin
   TmpLocHumanCount := LocHumanCount;
   TmpLocBothCount := LocBothCount;
   for I := 1 to fCount do
-    if (fNetPlayers[I].StartLocation = 0) and (fNetPlayers[I].PlayerNetType <> nptClosed) then
+    if (fNetPlayers[I].StartLocation = LOC_RANDOM) and (fNetPlayers[I].PlayerNetType <> nptClosed) then
     begin
       if (fNetPlayers[I].PlayerNetType = nptHuman) and (TmpLocHumanCount > 0) then
         Dec(TmpLocHumanCount)
@@ -786,7 +803,7 @@ begin
 
   //First assign Human only available locations, after that assign mixed ones together
   for I := 1 to fCount do
-    if (fNetPlayers[I].StartLocation = 0) and (fNetPlayers[I].PlayerNetType = nptHuman) and (LocHumanCount > 0) then
+    if (fNetPlayers[I].StartLocation = LOC_RANDOM) and (fNetPlayers[I].PlayerNetType = nptHuman) and (LocHumanCount > 0) then
     begin
       fNetPlayers[I].StartLocation := AvailableLocHuman[LocHumanCount];
       Dec(LocHumanCount);
@@ -794,7 +811,7 @@ begin
 
   //Now allocate locations that can be human or AI
   for I := 1 to fCount do
-    if fNetPlayers[I].StartLocation = 0 then
+    if fNetPlayers[I].StartLocation = LOC_RANDOM then
     begin
       Assert(LocBothCount > 0, 'Not enough locations to allocate');
       fNetPlayers[I].StartLocation := AvailableLocBoth[LocBothCount];
@@ -803,7 +820,7 @@ begin
 
   //Check for odd players
   for I := 1 to fCount do
-    Assert(fNetPlayers[I].StartLocation <> 0, 'Everyone should have a starting location!');
+    Assert(fNetPlayers[I].StartLocation <> LOC_RANDOM, 'Everyone should have a starting location!');
 
   //Shuffle locations within each team if requested
   if RandomizeTeamLocations then
@@ -811,7 +828,7 @@ begin
     begin
       SetLength(TeamLocs, 0); //Reset
       for K := 1 to fCount do
-        if fNetPlayers[K].Team = I then
+        if (fNetPlayers[K].Team = I) and not fNetPlayers[K].IsSpectator then
         begin
           SetLength(TeamLocs, Length(TeamLocs)+1);
           TeamLocs[Length(TeamLocs)-1] := fNetPlayers[K].StartLocation;
@@ -822,7 +839,7 @@ begin
       //Assign each location back to a player
       J := 0;
       for K := 1 to fCount do
-        if fNetPlayers[K].Team = I then
+        if (fNetPlayers[K].Team = I) and not fNetPlayers[K].IsSpectator then
         begin
           fNetPlayers[K].StartLocation := TeamLocs[J];
           Inc(J);

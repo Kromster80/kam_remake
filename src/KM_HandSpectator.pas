@@ -65,7 +65,7 @@ end;
 function TKMSpectator.FogOfWar: TKMFogOfWarCommon;
 begin
   //fGame = nil in Tests
-  if (gGame <> nil) and (gGame.IsReplay or gGame.IsMapEditor) then
+  if (gGame <> nil) and (gGame.GameMode in [gmMultiSpectate, gmMapEd, gmReplaySingle, gmReplayMulti]) then
     if FOWIndex = -1 then
       Result := fFogOfWar
     else
@@ -112,7 +112,7 @@ var
   NewSelected: TObject;
 begin
   //In-game player can select only own Units
-  if gGame.IsReplay or gGame.IsMapEditor then
+  if gGame.GameMode in [gmMultiSpectate, gmMapEd, gmReplaySingle, gmReplayMulti] then
     NewSelected := gHands.GetUnitByUID(GameCursor.ObjectUID)
   else
     NewSelected := gHands[fHandIndex].Units.GetUnitByUID(GameCursor.ObjectUID);
@@ -124,7 +124,7 @@ begin
   //If Id belongs to some Warrior, try to select his group instead
   if NewSelected is TKMUnitWarrior then
   begin
-    if gGame.IsReplay or gGame.IsMapEditor then
+    if gGame.GameMode in [gmMultiSpectate, gmMapEd, gmReplaySingle, gmReplayMulti]  then
       G := gHands.GetGroupByMember(TKMUnitWarrior(NewSelected))
     else
       G := gHands[fHandIndex].UnitGroups.GetGroupByMember(TKMUnitWarrior(NewSelected));
@@ -143,7 +143,7 @@ begin
   //If there's no unit try pick a house on the Cell below
   if NewSelected = nil then
   begin
-    if gGame.IsReplay or gGame.IsMapEditor then
+    if gGame.GameMode in [gmMultiSpectate, gmMapEd, gmReplaySingle, gmReplayMulti]  then
       NewSelected := gHands.HousesHitTest(GameCursor.Cell.X, GameCursor.Cell.Y)
     else
       NewSelected := gHands[fHandIndex].HousesHitTest(GameCursor.Cell.X, GameCursor.Cell.Y);
@@ -176,10 +176,10 @@ end;
 
 procedure TKMSpectator.SetHandIndex(const Value: THandIndex);
 begin
-  Assert((MULTIPLAYER_CHEATS or not gGame.IsMultiplayer) or gGame.IsReplay or gGame.IsMapEditor);
+  Assert(MULTIPLAYER_CHEATS or (gGame.GameMode <> gmMulti));
   fHandIndex := Value;
 
-  if not gGame.IsReplay and not gGame.IsMapEditor then
+  if not (gGame.GameMode in [gmMultiSpectate, gmMapEd, gmReplaySingle, gmReplayMulti]) then
     Selected := nil;
 end;
 

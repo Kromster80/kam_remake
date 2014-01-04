@@ -617,7 +617,7 @@ begin
   else
     if CanAddFieldPlan(aLoc, aFieldType) then
     begin
-      if aMakeSound and not gGame.IsReplay
+      if aMakeSound and not (gGame.GameMode in [gmMultiSpectate, gmReplaySingle, gmReplayMulti])
       and (HandIndex = MySpectator.HandIndex) then
         gSoundPlayer.Play(sfx_placemarker);
       fBuildList.FieldworksList.AddField(aLoc, aFieldType);
@@ -625,7 +625,7 @@ begin
     end
     else
     begin
-      if aMakeSound and not gGame.IsReplay
+      if aMakeSound and not (gGame.GameMode in [gmMultiSpectate, gmReplaySingle, gmReplayMulti])
       and (HandIndex = MySpectator.HandIndex) then
         gSoundPlayer.Play(sfx_CantPlace, 4);
       if Plan = ft_None then //If we can't build because there's some other plan, that's ok
@@ -708,7 +708,7 @@ begin
   fStats.HousePlanned(aHouseType);
   gScriptEvents.ProcHousePlanPlaced(fHandIndex, Loc.X, Loc.Y, aHouseType);
 
-  if (HandIndex = MySpectator.HandIndex) and not gGame.IsReplay then
+  if (HandIndex = MySpectator.HandIndex) and not (gGame.GameMode in [gmMultiSpectate, gmReplaySingle, gmReplayMulti]) then
     gSoundPlayer.Play(sfx_placemarker);
 end;
 
@@ -747,7 +747,7 @@ begin
 
   fBuildList.HousePlanList.RemPlan(Position);
   fStats.HousePlanRemoved(HT);
-  if (HandIndex = MySpectator.HandIndex) and not gGame.IsReplay then
+  if (HandIndex = MySpectator.HandIndex) and not (gGame.GameMode in [gmMultiSpectate, gmReplaySingle, gmReplayMulti]) then
     gSoundPlayer.Play(sfx_Click);
 end;
 
@@ -756,7 +756,9 @@ end;
 procedure TKMHand.RemFieldPlan(Position: TKMPoint; aMakeSound: Boolean);
 begin
   fBuildList.FieldworksList.RemFieldPlan(Position);
-  if aMakeSound and not gGame.IsReplay and (HandIndex = MySpectator.HandIndex) then gSoundPlayer.Play(sfx_Click);
+  if aMakeSound and not (gGame.GameMode in [gmMultiSpectate, gmReplaySingle, gmReplayMulti])
+  and (HandIndex = MySpectator.HandIndex) then
+    gSoundPlayer.Play(sfx_Click);
 end;
 
 

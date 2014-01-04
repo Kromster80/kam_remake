@@ -387,7 +387,7 @@ begin
 
   //Tablets on house plans, for self and allies
   fTabletsList.Clear;
-  if gGame.IsReplay then
+  if gGame.GameMode in [gmMultiSpectate, gmReplaySingle, gmReplayMulti] then
     if MySpectator.FOWIndex = -1 then
       for I := 0 to gHands.Count - 1 do
         gHands[I].GetPlansTablets(fTabletsList, aRect)
@@ -409,7 +409,7 @@ begin
   if B.IsRallyPointSet then
   begin
     AddAlert(KMPointF(B.RallyPoint.X-0.5, B.RallyPoint.Y-0.5), 249, gHands[MySpectator.HandIndex].FlagColor);
-    gRenderAux.LineOnTerrain(B.GetEntrance.X-0.5, B.GetEntrance.Y-0.5, B.RallyPoint.X-0.5, B.RallyPoint.Y-0.5, gHands[MySpectator.HandIndex].FlagColor, $FFFF, False);
+    gRenderAux.LineOnTerrain(B.GetEntrance.X-0.5, B.GetEntrance.Y-0.5, B.RallyPoint.X-0.5, B.RallyPoint.Y-0.5, gHands[MySpectator.HandIndex].FlagColor, $F0F0, False);
   end;
 end;
 
@@ -1124,7 +1124,7 @@ begin
   fHousePlansList.Clear;
 
   //Collect field plans (road, corn, wine)
-  if gGame.IsReplay then
+  if gGame.GameMode in [gmMultiSpectate, gmReplaySingle, gmReplayMulti] then
   begin
     if MySpectator.FOWIndex = -1 then
       for I := 0 to gHands.Count - 1 do
@@ -1140,7 +1140,7 @@ begin
   end;
 
   //House plans for self and allies
-  if gGame.IsReplay then
+  if gGame.GameMode in [gmMultiSpectate, gmReplaySingle, gmReplayMulti] then
   begin
     if MySpectator.FOWIndex = -1 then
       for I := 0 to gHands.Count - 1 do

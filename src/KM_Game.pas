@@ -17,6 +17,7 @@ type
   TGameMode = (
     gmSingle,
     gmMulti,        //Different GIP, networking,
+    gmMultiSpectate,
     gmMapEd,        //Army handling, lite updates,
     gmReplaySingle, //No input, different results screen to gmReplayMulti
     gmReplayMulti   //No input, different results screen to gmReplaySingle
@@ -177,6 +178,7 @@ uses
 //aRender - who will be rendering the Game session
 //aNetworking - access to MP stuff
 constructor TKMGame.Create(aGameMode: TGameMode; aRender: TRender; aNetworking: TKMNetworking);
+const UIMode: array[TGameMode] of TUIMode = (umSP, umMP, umSpectate, umSP, umReplay, umReplay);
 begin
   inherited Create;
 
@@ -199,7 +201,7 @@ begin
   end
   else
   begin
-    fGamePlayInterface := TKMGamePlayInterface.Create(aRender, IsMultiplayer, IsReplay);
+    fGamePlayInterface := TKMGamePlayInterface.Create(aRender, UIMode[fGameMode]);
     fActiveInterface := fGamePlayInterface;
   end;
 
@@ -243,7 +245,7 @@ begin
   fIsExiting := True;
 
   //if (fGameInputProcess <> nil) and (fGameInputProcess.ReplayState = gipRecording) then
-  //  fGameInputProcess.SaveToFile(SaveName('basesave', 'rpl', fGameMode = gmMulti));
+  //  fGameInputProcess.SaveToFile(SaveName('basesave', 'rpl', fGameMode in [gmMulti, gmMultiSpectate]));
 
   if DO_PERF_LOGGING and (fPerfLog <> nil) then
     fPerfLog.SaveToFile(ExeDir + 'Logs' + PathDelim + 'PerfLog.txt');
@@ -286,7 +288,7 @@ end;
 procedure TKMGame.GameStart(aMissionFile, aGameName: UnicodeString; aCampName: TKMCampaignId; aCampMap: Byte; aLocation: ShortInt; aColor: Cardinal);
 const
   GAME_PARSE: array [TGameMode] of TMissionParsingMode = (
-    mpm_Single, mpm_Multi, mpm_Editor, mpm_Single, mpm_Single);
+    mpm_Single, mpm_Multi, mpm_Multi, mpm_Editor, mpm_Single, mpm_Single);
 var
   I: Integer;
   ParseMode: TMissionParsingMode;
@@ -294,7 +296,7 @@ var
   Parser: TMissionParserStandard;
 begin
   gLog.AddTime('GameStart');
-  Assert(fGameMode in [gmMulti, gmMapEd, gmSingle]);
+  Assert(fGameMode in [gmMulti, gmMultiSpectate, gmMapEd, gmSingle]);
 
   fGameName := aGameName;
   fCampaignName := aCampName;
@@ -308,11 +310,13 @@ begin
   //Disable players in MP to skip their assets from loading by MissionParser
   //In SP all players are enabled by default
   case fGameMode of
-    gmMulti:  begin
+    gmMulti, gmMultiSpectate:
+              begin
                 FillChar(PlayerEnabled, SizeOf(PlayerEnabled), #0);
                 for I := 1 to fNetworking.NetPlayers.Count do
-                  //PlayerID is 0 based
-                  PlayerEnabled[fNetworking.NetPlayers[I].StartLocation - 1] := True;
+                  if not fNetworking.NetPlayers[I].IsSpectator then
+                    //PlayerID is 0 based
+                    PlayerEnabled[fNetworking.NetPlayers[I].StartLocation - 1] := True;
 
                 //Fixed AIs are always enabled (e.g. coop missions)
                 for I := 0 to fNetworking.MapInfo.LocCount - 1 do
@@ -382,7 +386,8 @@ begin
 
 
   case fGameMode of
-    gmMulti:  begin
+    gmMulti, gmMultiSpectate:
+              begin
                 fGameInputProcess := TGameInputProcess_Multi.Create(gipRecording, fNetworking);
                 fTextMission := TKMTextLibraryMulti.Create;
                 fTextMission.LoadLocale(ChangeFileExt(aMissionFile, '.%s.libx'));
@@ -397,7 +402,7 @@ begin
 
   gLog.AddTime('Gameplay recording initialized', True);
 
-  if fGameMode = gmMulti then
+  if fGameMode in [gmMulti, gmMultiSpectate] then
     MultiplayerRig;
 
   gHands.AfterMissionInit(True);
@@ -411,7 +416,7 @@ begin
   //We need to make basesave.bas since we don't know the savegame name
   //until after user saves it, but we need to attach replay base to it.
   //Basesave is sort of temp we save to HDD instead of keeping in RAM
-  if fGameMode in [gmSingle, gmMulti] then
+  if fGameMode in [gmSingle, gmMulti, gmMultiSpectate] then
     SaveGame(SaveName('basesave', 'bas', IsMultiplayer), UTCNow);
 
   //MissionStart goes after basesave to keep it pure (repeats on Load of basesave)
@@ -446,21 +451,28 @@ begin
 
   //Assign existing NetPlayers(1..N) to map players(0..N-1)
   for I := 1 to fNetworking.NetPlayers.Count do
-  begin
-    handIndex := fNetworking.NetPlayers[I].StartLocation - 1;
-    gHands[handIndex].PlayerType := fNetworking.NetPlayers[I].GetPlayerType;
-    gHands[handIndex].FlagColor := fNetworking.NetPlayers[I].FlagColor;
+    if not fNetworking.NetPlayers[I].IsSpectator then
+    begin
+      handIndex := fNetworking.NetPlayers[I].StartLocation - 1;
+      gHands[handIndex].PlayerType := fNetworking.NetPlayers[I].GetPlayerType;
+      gHands[handIndex].FlagColor := fNetworking.NetPlayers[I].FlagColor;
 
-    //Set owners name so we can write it into savegame/replay
-    gHands[handIndex].SetOwnerNikname(fNetworking.NetPlayers[I].Nikname);
-  end;
+      //Set owners name so we can write it into savegame/replay
+      gHands[handIndex].SetOwnerNikname(fNetworking.NetPlayers[I].Nikname);
+    end;
 
   //Setup alliances
   //We mirror Lobby team setup on to alliances. Savegame and coop has the setup already
   if (fNetworking.SelectGameKind = ngk_Map) and not fNetworking.MapInfo.IsCoop then
     UpdateMultiplayerTeams;
 
-  MySpectator := TKMSpectator.Create(fNetworking.NetPlayers[fNetworking.MyIndex].StartLocation - 1);
+  if fNetworking.NetPlayers[fNetworking.MyIndex].IsSpectator then
+  begin
+    MySpectator := TKMSpectator.Create(0);
+    MySpectator.FOWIndex := PLAYER_NONE; //Show all by default while spectating
+  end
+  else
+    MySpectator := TKMSpectator.Create(fNetworking.NetPlayers[fNetworking.MyIndex].StartLocation - 1);
 
   //We cannot remove a player from a save (as they might be interacting with other players)
 
@@ -492,21 +504,23 @@ var
   PlayerK: Integer;
 begin
   for I := 1 to fNetworking.NetPlayers.Count do
-  begin
-    PlayerI := gHands[fNetworking.NetPlayers[I].StartLocation - 1]; //PlayerID is 0 based
-    for K := 1 to fNetworking.NetPlayers.Count do
+    if not fNetworking.NetPlayers[I].IsSpectator then
     begin
-      PlayerK := fNetworking.NetPlayers[K].StartLocation - 1; //PlayerID is 0 based
+      PlayerI := gHands[fNetworking.NetPlayers[I].StartLocation - 1]; //PlayerID is 0 based
+      for K := 1 to fNetworking.NetPlayers.Count do
+        if not fNetworking.NetPlayers[K].IsSpectator then
+        begin
+          PlayerK := fNetworking.NetPlayers[K].StartLocation - 1; //PlayerID is 0 based
 
-      //Players are allies if they belong to same team (team 0 means free-for-all)
-      if (I = K)
-      or ((fNetworking.NetPlayers[I].Team <> 0)
-      and (fNetworking.NetPlayers[I].Team = fNetworking.NetPlayers[K].Team)) then
-        PlayerI.Alliances[PlayerK] := at_Ally
-      else
-        PlayerI.Alliances[PlayerK] := at_Enemy;
+          //Players are allies if they belong to same team (team 0 means free-for-all)
+          if (I = K)
+          or ((fNetworking.NetPlayers[I].Team <> 0)
+          and (fNetworking.NetPlayers[I].Team = fNetworking.NetPlayers[K].Team)) then
+            PlayerI.Alliances[PlayerK] := at_Ally
+          else
+            PlayerI.Alliances[PlayerK] := at_Enemy;
+        end;
     end;
-  end;
 end;
 
 
@@ -560,7 +574,7 @@ begin
 
   //Attempt to save the game, but if the state is too messed up it might fail
   try
-    if fGameMode in [gmSingle, gmMulti] then
+    if fGameMode in [gmSingle, gmMulti, gmMultiSpectate] then
     begin
       Save('crashreport', UTCNow);
       AttachFile(SaveName('crashreport', 'sav', IsMultiplayer));
@@ -655,7 +669,7 @@ end;
 procedure TKMGame.PlayerDefeat(aPlayerIndex: THandIndex);
 begin
   //We have not thought of anything to display on players defeat in Replay
-  if IsReplay then
+  if gGame.GameMode in [gmMultiSpectate, gmReplaySingle, gmReplayMulti] then
     Exit;
 
   if aPlayerIndex = MySpectator.HandIndex then
@@ -853,7 +867,7 @@ end;
 //We often need to see if game is MP
 function TKMGame.IsMultiplayer: Boolean;
 begin
-  Result := fGameMode = gmMulti;
+  Result := fGameMode in [gmMulti, gmMultiSpectate];
 end;
 
 
@@ -929,10 +943,10 @@ var
   PeaceTicksRemaining: Cardinal;
 begin
   PeaceTicksRemaining := Max(0, Int64((fGameOptions.Peacetime * 600)) - fGameTickCount);
-  if (PeaceTicksRemaining = 1) and (fGameMode in [gmMulti,gmReplayMulti]) then
+  if (PeaceTicksRemaining = 1) and (fGameMode in [gmMulti, gmMultiSpectate, gmReplayMulti]) then
   begin
     gSoundPlayer.Play(sfxn_Peacetime, 1, True); //Fades music
-    if fGameMode = gmMulti then
+    if fGameMode in [gmMulti, gmMultiSpectate] then
     begin
       SetGameSpeed(fGameOptions.SpeedAfterPT, False);
       fNetworking.PostLocalMessage(gResTexts[TX_MP_PEACETIME_OVER], false);
@@ -1089,7 +1103,7 @@ begin
       SaveStream.Write(PlayOnState, SizeOf(PlayOnState));
 
     gTerrain.Save(SaveStream); //Saves the map
-    gHands.Save(SaveStream, fGameMode = gmMulti); //Saves all players properties individually
+    gHands.Save(SaveStream, fGameMode in [gmMulti, gmMultiSpectate]); //Saves all players properties individually
     if not IsMultiplayer then
       MySpectator.Save(SaveStream);
     fAIFields.Save(SaveStream);
@@ -1226,7 +1240,7 @@ begin
   fTextMission := TKMTextLibraryMulti.Create;
   fTextMission.Load(LoadStream);
 
-  if IsReplay then
+  if gGame.GameMode in [gmMultiSpectate, gmReplaySingle, gmReplayMulti] then
     MySpectator.FOWIndex := PLAYER_NONE; //Show all by default in replays
 
   //Multiplayer saves don't have this piece of information. Its valid only for MyPlayer
@@ -1237,7 +1251,7 @@ begin
   if IsReplay then
     fGameInputProcess := TGameInputProcess_Single.Create(gipReplaying) //Replay
   else
-    if fGameMode = gmMulti then
+    if fGameMode in [gmMulti, gmMultiSpectate] then
       fGameInputProcess := TGameInputProcess_Multi.Create(gipRecording, fNetworking) //Multiplayer
     else
       fGameInputProcess := TGameInputProcess_Single.Create(gipRecording); //Singleplayer
@@ -1249,12 +1263,12 @@ begin
   gTerrain.SyncLoad;
   gProjectiles.SyncLoad;
 
-  if fGameMode = gmMulti then
+  if fGameMode in [gmMulti, gmMultiSpectate] then
     MultiplayerRig;
 
   SetKaMSeed(LoadedSeed);
 
-  if fGameMode in [gmSingle, gmMulti] then
+  if fGameMode in [gmSingle, gmMulti, gmMultiSpectate] then
   begin
     DeleteFile(SaveName('basesave', 'bas', IsMultiplayer));
     CopyFile(PChar(ChangeFileExt(aPathName, '.bas')), PChar(SaveName('basesave', 'bas', IsMultiplayer)), False);
@@ -1290,8 +1304,8 @@ begin
   if fIsPaused then Exit;
 
   case fGameMode of
-    gmSingle, gmMulti:
-                  if not (fGameMode = gmMulti) or (fNetworking.NetGameState <> lgs_Loading) then
+    gmSingle, gmMulti, gmMultiSpectate:
+                  if not (fGameMode in [gmMulti, gmMultiSpectate]) or (fNetworking.NetGameState <> lgs_Loading) then
                   for I := 1 to fGameSpeedMultiplier do
                   begin
                     if fGameInputProcess.CommandsConfirmed(fGameTickCount+1) then
@@ -1303,9 +1317,10 @@ begin
                         WaitingPlayersDisplay(False);
 
                       Inc(fGameTickCount); //Thats our tick counter for gameplay events
-                      if (fGameMode = gmMulti) then fNetworking.LastProcessedTick := fGameTickCount;
+                      if (fGameMode in [gmMulti, gmMultiSpectate]) then
+                        fNetworking.LastProcessedTick := fGameTickCount;
                       //Tell the master server about our game on the specific tick (host only)
-                      if (fGameMode = gmMulti) and fNetworking.IsHost and (
+                      if (fGameMode in [gmMulti, gmMultiSpectate]) and fNetworking.IsHost and (
                          ((fMissionMode = mm_Normal) and (fGameTickCount = ANNOUNCE_BUILD_MAP)) or
                          ((fMissionMode = mm_Tactic) and (fGameTickCount = ANNOUNCE_BATTLE_MAP))) then
                         fNetworking.ServerQuery.SendMapInfo(fGameName, fNetworking.NetPlayers.GetConnectedCount);

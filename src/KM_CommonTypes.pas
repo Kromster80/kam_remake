@@ -18,7 +18,8 @@ type
   TPointEvent = procedure (Sender: TObject; const X,Y: Integer) of object;
   TIntegerEvent = procedure (aValue: Integer) of object;
   TUnicodeStringEvent = procedure (const aData: UnicodeString) of object;
-  TResyncEvent = procedure (aSender: Integer; aTick: cardinal) of object;
+  TGameStartEvent = procedure (const aData: UnicodeString; Spectating: Boolean) of object;
+  TResyncEvent = procedure (aSender: ShortInt; aTick: cardinal) of object;
   TIntegerStringEvent = procedure (aValue: Integer; const aText: UnicodeString) of object;
 
   TKMAnimLoop = packed record

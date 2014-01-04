@@ -1287,8 +1287,9 @@ begin
     dec(fTimeSinceHungryReminder, HUNGER_CHECK_FREQ);
     if fTimeSinceHungryReminder < 1 then
     begin
-      //Hide messages for wrong player, in replays, and if we have lost
-      if (Owner = MySpectator.HandIndex) and not gGame.IsReplay and (gHands[fOwner].AI.WonOrLost <> wol_Lost) and not fDisableHungerMessage then
+      //Hide messages for wrong player, in replays/spectating, and if we have lost
+      if (Owner = MySpectator.HandIndex) and (gHands[fOwner].AI.WonOrLost <> wol_Lost)
+      and not (gGame.GameMode in [gmMultiSpectate, gmReplaySingle, gmReplayMulti]) and not fDisableHungerMessage then
         gGame.ShowMessage(mkUnit, gResTexts[TX_MSG_TROOP_HUNGRY], Position);
       fTimeSinceHungryReminder := TIME_BETWEEN_MESSAGES; //Don't show one again until it is time
     end;

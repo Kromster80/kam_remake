@@ -231,8 +231,9 @@ begin
   case gHands[fOwner].PlayerType of
     hndHuman:
       begin
-        //No fight alerts in replays, and only show alerts for ourselves
-        if (not gGame.IsReplay) and (fOwner = MySpectator.HandIndex) then
+        //No fight alerts in replays/spectating, and only show alerts for ourselves
+        if not (gGame.GameMode in [gmMultiSpectate, gmReplaySingle, gmReplayMulti])
+        and (fOwner = MySpectator.HandIndex) then
           gGame.GamePlayInterface.Alerts.AddFight(KMPointF(aHouse.GetPosition), fOwner, an_Town, fGameApp.GlobalTickCount + ALERT_DURATION[atFight]);
       end;
     hndComputer:
@@ -251,7 +252,8 @@ begin
   case gHands[fOwner].PlayerType of
     hndHuman:
       //No fight alerts in replays, and only show alerts for ourselves
-      if not gGame.IsReplay and (fOwner = MySpectator.HandIndex) then
+      if not (gGame.GameMode in [gmMultiSpectate, gmReplaySingle, gmReplayMulti])
+      and (fOwner = MySpectator.HandIndex) then
         gGame.GamePlayInterface.Alerts.AddFight(aUnit.PositionF, fOwner, NotifyKind[aUnit is TKMUnitWarrior], fGameApp.GlobalTickCount + ALERT_DURATION[atFight]);
     hndComputer:
       begin

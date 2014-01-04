@@ -1272,8 +1272,9 @@ begin
     Dec(fTimeSinceUnoccupiedReminder);
     if fTimeSinceUnoccupiedReminder = 0 then
     begin
-      //Hide messages for wrong player, in replays, and if we have lost
-      if (fOwner = MySpectator.HandIndex) and not gGame.IsReplay and (gHands[fOwner].AI.WonOrLost <> wol_Lost) then
+      //Hide messages for wrong player, in replays/spectating, and if we have lost
+      if (fOwner = MySpectator.HandIndex) and (gHands[fOwner].AI.WonOrLost <> wol_Lost)
+      and not (gGame.GameMode in [gmMultiSpectate, gmReplaySingle, gmReplayMulti]) then
       begin
         //HouseName := fResource.HouseDat[HouseType].HouseName;
         //We can't paste houses name instead of %s like that because of plurals and feminine/masculine attrib
@@ -1514,7 +1515,7 @@ begin
   Assert(aRes in [WARE_MIN .. WARE_MAX]); //Dunno why thats happening sometimes..
 
   //We need to skip cheats in MP replays too, not just MP games, so don't use fGame.IsMultiplayer
-  if CHEATS_ENABLED and (MULTIPLAYER_CHEATS or not (gGame.GameMode in [gmMulti, gmReplayMulti])) then
+  if CHEATS_ENABLED and (MULTIPLAYER_CHEATS or not (gGame.GameMode in [gmMulti, gmMultiSpectate, gmReplayMulti])) then
   begin
     ApplyCheat := True;
 
