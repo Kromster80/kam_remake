@@ -168,11 +168,11 @@ type
       Checkbox_ReplayFOW: TKMCheckBox;
     Panel_Allies: TKMPanel;
       Label_PeacetimeRemaining: TKMLabel;
-      Image_AlliesFlag:array [0..MAX_HANDS-1] of TKMImage;
-      Label_AlliesPlayer:array [0..MAX_HANDS-1] of TKMLabel;
-      DropBox_AlliesTeam:array [0..MAX_HANDS-1] of TKMDropList;
-      Label_AlliesTeam:array [0..MAX_HANDS-1] of TKMLabel;
-      Label_AlliesPing:array [0..MAX_HANDS-1] of TKMLabel;
+      Image_AlliesFlag:array [0..MAX_LOBBY_SLOTS-1] of TKMImage;
+      Label_AlliesPlayer:array [0..MAX_LOBBY_SLOTS-1] of TKMLabel;
+      DropBox_AlliesTeam:array [0..MAX_LOBBY_SLOTS-1] of TKMDropList;
+      Label_AlliesTeam:array [0..MAX_LOBBY_SLOTS-1] of TKMLabel;
+      Label_AlliesPing:array [0..MAX_LOBBY_SLOTS-1] of TKMLabel;
       Image_AlliesClose: TKMImage;
     Panel_Message: TKMPanel;
       Label_MessageText: TKMLabel;
@@ -1088,6 +1088,7 @@ end;
 {Allies page}
 procedure TKMGamePlayInterface.Create_Allies;
 var I,K: Integer;
+const ROWS = 5;
 begin
   Panel_Allies := TKMPanel.Create(Panel_Main, TOOLBAR_WIDTH, Panel_Main.Height - MESSAGE_AREA_HEIGHT, 800, MESSAGE_AREA_HEIGHT);
   Panel_Allies.Anchors := [anLeft, anBottom];
@@ -1097,24 +1098,24 @@ begin
 
     Label_PeacetimeRemaining := TKMLabel.Create(Panel_Allies,400,20,'',fnt_Outline,taCenter);
 
-    for I := 0 to MAX_HANDS - 1 do
+    for I := 0 to MAX_LOBBY_SLOTS - 1 do
     begin
-      if (I mod 4) = 0 then //Header for each column
+      if (I mod ROWS) = 0 then //Header for each column
       begin
-        TKMLabel.Create(Panel_Allies,  70+(I div 4)*380, 60, 140, 20, gResTexts[TX_LOBBY_HEADER_PLAYERS], fnt_Outline, taLeft);
-        TKMLabel.Create(Panel_Allies, 220+(I div 4)*380, 60, 140, 20, gResTexts[TX_LOBBY_HEADER_TEAM], fnt_Outline, taLeft);
-        TKMLabel.Create(Panel_Allies, 350+(I div 4)*380, 60, gResTexts[TX_LOBBY_HEADER_PINGFPS], fnt_Outline, taCenter);
+        TKMLabel.Create(Panel_Allies,  70+(I div ROWS)*380, 60, 140, 20, gResTexts[TX_LOBBY_HEADER_PLAYERS], fnt_Outline, taLeft);
+        TKMLabel.Create(Panel_Allies, 220+(I div ROWS)*380, 60, 140, 20, gResTexts[TX_LOBBY_HEADER_TEAM], fnt_Outline, taLeft);
+        TKMLabel.Create(Panel_Allies, 350+(I div ROWS)*380, 60, gResTexts[TX_LOBBY_HEADER_PINGFPS], fnt_Outline, taCenter);
       end;
-      Image_AlliesFlag[I] := TKMImage.Create(Panel_Allies,       50+(I div 4)*380, 82+(I mod 4)*24, 16,  11,  0, rxGuiMain);
-      Label_AlliesPlayer[I] := TKMLabel.Create(Panel_Allies,     70+(I div 4)*380, 80+(I mod 4)*24, 140, 20, '', fnt_Grey, taLeft);
-      Label_AlliesTeam[I]   := TKMLabel.Create(Panel_Allies,    220+(I div 4)*380, 80+(I mod 4)*24, 120, 20, '', fnt_Grey, taLeft);
-      DropBox_AlliesTeam[I] := TKMDropList.Create(Panel_Allies, 220+(I div 4)*380, 80+(I mod 4)*24, 120, 20, fnt_Grey, '', bsGame);
+      Image_AlliesFlag[I] := TKMImage.Create(Panel_Allies,       50+(I div ROWS)*380, 82+(I mod ROWS)*20, 16,  11,  0, rxGuiMain);
+      Label_AlliesPlayer[I] := TKMLabel.Create(Panel_Allies,     70+(I div ROWS)*380, 80+(I mod ROWS)*20, 140, 20, '', fnt_Grey, taLeft);
+      Label_AlliesTeam[I]   := TKMLabel.Create(Panel_Allies,    220+(I div ROWS)*380, 80+(I mod ROWS)*20, 120, 20, '', fnt_Grey, taLeft);
+      DropBox_AlliesTeam[I] := TKMDropList.Create(Panel_Allies, 220+(I div ROWS)*380, 80+(I mod ROWS)*20, 120, 20, fnt_Grey, '', bsGame);
       DropBox_AlliesTeam[I].Hide; //Use label for demos until we fix exploits
       DropBox_AlliesTeam[I].Add('-');
       for K := 1 to 4 do DropBox_AlliesTeam[I].Add(IntToStr(K));
       DropBox_AlliesTeam[I].OnChange := AlliesTeamChange;
       DropBox_AlliesTeam[I].DropUp := True; //Doesn't fit if it drops down
-      Label_AlliesPing[I]   := TKMLabel.Create(Panel_Allies,   350+(I div 4)*380, 80+(I mod 4)*24, '', fnt_Grey, taCenter);
+      Label_AlliesPing[I] := TKMLabel.Create(Panel_Allies,   350+(I div ROWS)*380, 80+(I mod ROWS)*20, '', fnt_Grey, taCenter);
     end;
 
     Image_AlliesClose:=TKMImage.Create(Panel_Allies,800-97,24,32,32,52,rxGui);
@@ -2401,7 +2402,11 @@ begin
         Image_AlliesFlag[I].TexID := 0;
     end;
 
-    Label_AlliesPlayer[I].Caption := UnicodeString(gGame.Networking.NetPlayers[I+1].Nikname);
+    if gGame.Networking.NetPlayers[I+1].IsHuman then
+      Label_AlliesPlayer[I].Caption := UnicodeString(gGame.Networking.NetPlayers[I+1].Nikname)
+    else
+      Label_AlliesPlayer[I].Caption := gHands[gGame.Networking.NetPlayers[I+1].StartLocation-1].OwnerName;
+
     if gGame.Networking.NetPlayers[I+1].IsSpectator then
     begin
       Label_AlliesPlayer[I].FontColor := $FFFFFFFF; //Spectators are white
@@ -2426,7 +2431,7 @@ begin
     DropBox_AlliesTeam[I].Hide; //Use label for demos until we fix exploits
   end;
 
-  for I := gGame.Networking.NetPlayers.Count to MAX_HANDS - 1 do
+  for I := gGame.Networking.NetPlayers.Count to MAX_LOBBY_SLOTS - 1 do
   begin
     Label_AlliesPlayer[I].Hide;
     DropBox_AlliesTeam[I].Hide;
@@ -2441,7 +2446,7 @@ var
   ping: Word;
   fps: Cardinal;
 begin
-  for I := 0 to MAX_HANDS - 1 do
+  for I := 0 to MAX_LOBBY_SLOTS - 1 do
     if (I < gGame.Networking.NetPlayers.Count) and (gGame.Networking.NetPlayers[I+1].IsHuman) then
     begin
       ping := gGame.Networking.NetPlayers[I+1].GetInstantPing;
@@ -2457,7 +2462,7 @@ end;
 procedure TKMGamePlayInterface.AlliesTeamChange(Sender: TObject);
 var I: Integer;
 begin
-  for I := 0 to MAX_HANDS - 1 do
+  for I := 0 to MAX_LOBBY_SLOTS - 1 do
     if (Sender = DropBox_AlliesTeam[I]) and DropBox_AlliesTeam[I].Enabled then
       gGame.GameInputProcess.CmdGame(gic_GameTeamChange, I+1, DropBox_AlliesTeam[I].ItemIndex);
 end;

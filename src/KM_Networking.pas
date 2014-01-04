@@ -99,7 +99,7 @@ type
     fOnDisconnect: TUnicodeStringEvent;
     fOnPingInfo: TNotifyEvent;
     fOnMPGameInfoChanged: TNotifyEvent;
-    fOnCommands: TStreamEvent;
+    fOnCommands: TStreamIntEvent;
     fOnResyncFromTick: TResyncEvent;
 
     procedure DecodePingInfo(aStream: TKMemoryStream);
@@ -209,7 +209,7 @@ type
     property OnMPGameInfoChanged:TNotifyEvent write fOnMPGameInfoChanged;
 
     property OnDisconnect: TUnicodeStringEvent write fOnDisconnect;     //Lost connection, was kicked
-    property OnCommands: TStreamEvent write fOnCommands;        //Recieved GIP commands
+    property OnCommands: TStreamIntEvent write fOnCommands;        //Recieved GIP commands
     property OnResyncFromTick:TResyncEvent write fOnResyncFromTick;
 
     property OnTextMessage: TUnicodeStringEvent write fOnTextMessage;   //Text message recieved
@@ -474,7 +474,7 @@ begin
       fNetPlayers[I].StartLocation := 0;
 
     for I := 1 to MAX_HANDS - fSaveInfo.Info.HumanCount - fNetPlayers.GetClosedCount do
-      if fNetPlayers.Count < MAX_HANDS then
+      if fNetPlayers.Count < MAX_LOBBY_SLOTS then
         fNetPlayers.AddClosedPlayer; //Close unused slots
   end;
 
@@ -1623,7 +1623,7 @@ begin
               begin
                 PlayerIndex := fNetPlayers.ServerToLocal(aSenderIndex);
                 if (PlayerIndex<>-1) and not fNetPlayers[PlayerIndex].Dropped then
-                  if Assigned(fOnCommands) then fOnCommands(M);
+                  if Assigned(fOnCommands) then fOnCommands(M, PlayerIndex);
               end;
 
       mk_ResyncFromTick:

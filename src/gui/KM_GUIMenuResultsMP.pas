@@ -189,10 +189,14 @@ begin
   if Columnbox_Wares.ItemIndex = -1 then
   begin
     Label_NoWareData.Show;
+    Columnbox_Wares.Hide;
+    for I := Low(TWareType) to High(TWareType) do
+      Chart_MPWares[I].Hide;
     Exit;
   end;
 
   Label_NoWareData.Hide;
+  Columnbox_Wares.Show;
 
   R := TWareType(Columnbox_Wares.Rows[Columnbox_Wares.ItemIndex].Tag);
 

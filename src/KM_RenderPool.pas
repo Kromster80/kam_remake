@@ -1128,7 +1128,8 @@ begin
   begin
     if MySpectator.FOWIndex = -1 then
       for I := 0 to gHands.Count - 1 do
-        gHands[I].GetFieldPlans(fFieldsList, aRect, False)
+        //Don't use Hand.GetFieldPlans as it will give us plans multiple times for allies
+        gHands[I].BuildList.FieldworksList.GetFields(fFieldsList, aRect, False)
     else
       gHands[MySpectator.FOWIndex].GetFieldPlans(fFieldsList, aRect, False)
   end
@@ -1144,7 +1145,8 @@ begin
   begin
     if MySpectator.FOWIndex = -1 then
       for I := 0 to gHands.Count - 1 do
-        gHands[I].GetHousePlans(fHousePlansList, aRect)
+        //Don't use Hand.GetHousePlans as it will give us plans multiple times for allies
+        gHands[I].BuildList.HousePlanList.GetOutlines(fHousePlansList, aRect)
     else
       gHands[MySpectator.FOWIndex].GetHousePlans(fHousePlansList, aRect)
   end

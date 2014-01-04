@@ -61,7 +61,7 @@ type
   TKMNetPlayersList = class
   private
     fCount: Integer;
-    fNetPlayers: array [1 .. MAX_HANDS] of TKMNetPlayerInfo;
+    fNetPlayers: array [1..MAX_LOBBY_SLOTS] of TKMNetPlayerInfo;
     function GetPlayer(aIndex: Integer): TKMNetPlayerInfo;
     procedure ValidateColors;
     procedure RemAllClosedPlayers;
@@ -263,7 +263,7 @@ constructor TKMNetPlayersList.Create;
 var I: Integer;
 begin
   inherited;
-  for I := 1 to MAX_HANDS do
+  for I := 1 to MAX_LOBBY_SLOTS do
     fNetPlayers[I] := TKMNetPlayerInfo.Create;
 end;
 
@@ -271,7 +271,7 @@ end;
 destructor TKMNetPlayersList.Destroy;
 var I: Integer;
 begin
-  for I := 1 to MAX_HANDS do
+  for I := 1 to MAX_LOBBY_SLOTS do
     fNetPlayers[I].Free;
   inherited;
 end;
@@ -353,7 +353,7 @@ end;
 
 procedure TKMNetPlayersList.AddPlayer(aNik: AnsiString; aIndexOnServer: Integer; const aLang: AnsiString);
 begin
-  Assert(fCount <= MAX_HANDS, 'Can''t add player');
+  Assert(fCount <= MAX_LOBBY_SLOTS, 'Can''t add player');
   Inc(fCount);
   fNetPlayers[fCount].fNikname := aNik;
   fNetPlayers[fCount].fLangCode := aLang;
@@ -375,7 +375,7 @@ procedure TKMNetPlayersList.AddAIPlayer(aSlot: Integer = -1);
 begin
   if aSlot = -1 then
   begin
-    Assert(fCount <= MAX_HANDS, 'Can''t add AI player');
+    Assert(fCount <= MAX_LOBBY_SLOTS, 'Can''t add AI player');
     Inc(fCount);
     aSlot := fCount;
   end;
@@ -398,7 +398,7 @@ procedure TKMNetPlayersList.AddClosedPlayer(aSlot: Integer = -1);
 begin
   if aSlot = -1 then
   begin
-    Assert(fCount <= MAX_HANDS, 'Can''t add closed player');
+    Assert(fCount <= MAX_LOBBY_SLOTS, 'Can''t add closed player');
     Inc(fCount);
     aSlot := fCount;
   end;
@@ -523,7 +523,7 @@ end;
 //See if player can join our game
 function TKMNetPlayersList.CheckCanJoin(aNik: AnsiString; aIndexOnServer: Integer): Integer;
 begin
-  if fCount >= MAX_HANDS then
+  if fCount >= MAX_LOBBY_SLOTS then
     Result := TX_NET_ROOM_FULL
   else
   if ServerToLocal(aIndexOnServer) <> -1 then
@@ -620,7 +620,7 @@ function TKMNetPlayersList.GetNotReadyToPlayPlayers: TKMByteArray;
 var
   I, K: Integer;
 begin
-  SetLength(Result, MAX_HANDS);
+  SetLength(Result, MAX_LOBBY_SLOTS);
 
   K := 0;
   for I := 1 to fCount do

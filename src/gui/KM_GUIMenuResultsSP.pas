@@ -178,7 +178,7 @@ begin
     for I := 0 to gHands.Count - 1 do
     with gHands[I] do
       if PlayerType = hndComputer then
-        AddToTempGraph(OwnerName, FlagColor, Stats.ChartArmy)
+        AddToTempGraph(OwnerName(False), FlagColor, Stats.ChartArmy)
       else
         Chart_Army.AddLine(OwnerName, FlagColor, Stats.ChartArmy);
 
@@ -191,7 +191,7 @@ begin
     for I := 0 to gHands.Count - 1 do
     with gHands[I] do
       if PlayerType = hndComputer then
-        AddToTempGraph(OwnerName, FlagColor, Stats.ChartCitizens)
+        AddToTempGraph(OwnerName(False), FlagColor, Stats.ChartCitizens)
       else
       begin
         Chart_Citizens.AddLine(OwnerName, FlagColor, Stats.ChartCitizens);
@@ -208,7 +208,7 @@ begin
     for I := 0 to gHands.Count - 1 do
     with gHands[I] do
       if PlayerType = hndComputer then
-        AddToTempGraph(OwnerName, FlagColor, Stats.ChartHouses)
+        AddToTempGraph(OwnerName(False), FlagColor, Stats.ChartHouses)
       else
         Chart_Houses.AddLine(OwnerName, FlagColor, Stats.ChartHouses);
 

@@ -85,7 +85,7 @@ type
 
     procedure SetHandIndex(aNewIndex: THandIndex);
     procedure SetOwnerNikname(aName: AnsiString); //MP owner nikname (empty in SP)
-    function OwnerName: UnicodeString; //Universal owner name
+    function OwnerName(aNumberedAIs: Boolean = True): UnicodeString; //Universal owner name
     function HasAssets: Boolean;
     property PlayerType: THandType read fPlayerType write fPlayerType; //Is it Human or AI
     property FlagColor: Cardinal read fFlagColor write fFlagColor;
@@ -943,13 +943,16 @@ begin
 end;
 
 
-function TKMHand.OwnerName: UnicodeString;
+function TKMHand.OwnerName(aNumberedAIs: Boolean = True): UnicodeString;
 begin
   //Default names
   if PlayerType = hndHuman then
     Result := gResTexts[TX_PLAYER_YOU]
   else
-    Result := Format(gResTexts[TX_PLAYER_X], [fHandIndex + 1]);
+    if aNumberedAIs then
+      Result := Format(gResTexts[TX_PLAYER_X], [fHandIndex + 1])
+    else
+      Result := gResTexts[TX_LOBBY_SLOT_AI_PLAYER];
 
   //Try to take player name from mission text if we are in SP
   //Do not use names in MP ot avoid confusion of AI players with real player niknames

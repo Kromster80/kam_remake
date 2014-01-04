@@ -86,14 +86,14 @@ type
       Panel_LobbyPlayers: TKMPanel;
         CheckBox_LobbyHostControl: TKMCheckBox;
         CheckBox_LobbyRandomizeTeamLocations: TKMCheckBox;
-        Image_LobbyFlag: array [0..MAX_HANDS-1] of TKMImage;
-        DropBox_LobbyPlayerSlot: array [0..MAX_HANDS-1] of TKMDropList;
-        Label_LobbyPlayer: array [0..MAX_HANDS-1] of TKMLabel;
-        DropBox_LobbyLoc: array [0..MAX_HANDS-1] of TKMDropList;
-        DropBox_LobbyTeam: array [0..MAX_HANDS-1] of TKMDropList;
-        DropBox_LobbyColors: array [0..MAX_HANDS-1] of TKMDropColumns;
-        Image_LobbyReady: array [0..MAX_HANDS-1] of TKMImage;
-        Label_LobbyPing: array [0..MAX_HANDS-1] of TKMLabel;
+        Image_LobbyFlag: array [0..MAX_LOBBY_SLOTS-1] of TKMImage;
+        DropBox_LobbyPlayerSlot: array [0..MAX_LOBBY_SLOTS-1] of TKMDropList;
+        Label_LobbyPlayer: array [0..MAX_LOBBY_SLOTS-1] of TKMLabel;
+        DropBox_LobbyLoc: array [0..MAX_LOBBY_SLOTS-1] of TKMDropList;
+        DropBox_LobbyTeam: array [0..MAX_LOBBY_SLOTS-1] of TKMDropList;
+        DropBox_LobbyColors: array [0..MAX_LOBBY_SLOTS-1] of TKMDropColumns;
+        Image_LobbyReady: array [0..MAX_LOBBY_SLOTS-1] of TKMImage;
+        Label_LobbyPing: array [0..MAX_LOBBY_SLOTS-1] of TKMLabel;
 
       Panel_LobbySetup: TKMPanel;
         Radio_LobbyMapType: TKMRadioGroup;
@@ -179,8 +179,8 @@ begin
       Label_LobbyServerName := TKMLabel.Create(Panel_LobbyServerName, 10, 10, CW-20, 20, '', fnt_Metal, taLeft);
 
     //Players
-    Panel_LobbyPlayers := TKMPanel.Create(Panel_Lobby, 30, 65, CW, 268);
-      TKMBevel.Create(Panel_LobbyPlayers,  0,  0, CW, 268);
+    Panel_LobbyPlayers := TKMPanel.Create(Panel_Lobby, 30, 65, CW, 316);
+      TKMBevel.Create(Panel_LobbyPlayers,  0,  0, CW, 316);
 
       CheckBox_LobbyHostControl := TKMCheckBox.Create(Panel_LobbyPlayers, 10, 10, 450, 20, gResTexts[TX_LOBBY_HOST_DOES_SETUP], fnt_Metal);
       CheckBox_LobbyHostControl.OnClick := PlayersSetupChange;
@@ -196,7 +196,7 @@ begin
       TKMLabel.Create(Panel_LobbyPlayers, C5, 50, gResTexts[TX_LOBBY_HEADER_READY], fnt_Outline, taCenter);
       TKMLabel.Create(Panel_LobbyPlayers, C6, 50, gResTexts[TX_LOBBY_HEADER_PING], fnt_Outline, taCenter);
 
-      for I := 0 to MAX_HANDS - 1 do
+      for I := 0 to MAX_LOBBY_SLOTS - 1 do
       begin
         OffY := 70 + I * 24;
         Image_LobbyFlag[I] := TKMImage.Create(Panel_LobbyPlayers, 10, OffY, 20, 20, 0, rxGuiMain);
@@ -237,7 +237,7 @@ begin
       end;
 
     //Chat area
-    Memo_LobbyPosts := TKMMemo.Create(Panel_Lobby, 30, 338, CW, 342, fnt_Arial, bsMenu);
+    Memo_LobbyPosts := TKMMemo.Create(Panel_Lobby, 30, 386, CW, 294, fnt_Arial, bsMenu);
     Memo_LobbyPosts.Anchors := [anLeft, anTop, anBottom];
     Memo_LobbyPosts.AutoWrap := True;
     Memo_LobbyPosts.IndentAfterNL := True; //Don't let players fake system messages
@@ -603,7 +603,7 @@ var I: Integer;
 begin
   Label_LobbyServerName.Caption := '';
 
-  for I := 0 to MAX_HANDS - 1 do
+  for I := 0 to MAX_LOBBY_SLOTS - 1 do
   begin
     Label_LobbyPlayer[I].Caption := '.';
     Label_LobbyPlayer[I].FontColor := $FFFFFFFF;
@@ -783,7 +783,7 @@ begin
     fNetworking.SendPlayerListAndRefreshPlayersSetup;
   end;
 
-  for I := 0 to MAX_HANDS - 1 do
+  for I := 0 to MAX_LOBBY_SLOTS - 1 do
   begin
     //Starting location
     if (Sender = DropBox_LobbyLoc[I]) and DropBox_LobbyLoc[I].Enabled then
@@ -973,7 +973,7 @@ begin
   end;
 
   //Disable rest of the players
-  for I := fNetworking.NetPlayers.Count to MAX_HANDS - 1 do
+  for I := fNetworking.NetPlayers.Count to MAX_LOBBY_SLOTS - 1 do
   begin
     Label_LobbyPlayer[I].Caption := '';
     Image_LobbyFlag[I].TexID := 0;
@@ -1046,7 +1046,7 @@ procedure TKMMenuLobby.Lobby_OnPingInfo(Sender: TObject);
 var
   I: Integer;
 begin
-  for I := 0 to MAX_HANDS - 1 do
+  for I := 0 to MAX_LOBBY_SLOTS - 1 do
     if (fNetworking.Connected) and (I < fNetworking.NetPlayers.Count) and
        (fNetworking.NetPlayers[I+1].IsHuman) then
     begin

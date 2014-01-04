@@ -64,6 +64,7 @@ type
   end;
 
   TStreamEvent = procedure (aData: TKMemoryStream) of object;
+  TStreamIntEvent = procedure (aData: TKMemoryStream; aSenderIndex: ShortInt) of object;
 
 
   //TKMList owns items and frees them when they are deleted from the list
