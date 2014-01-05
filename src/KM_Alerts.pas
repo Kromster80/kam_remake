@@ -63,7 +63,7 @@ type
 
 
 implementation
-uses KM_HandsCollection, KM_RenderPool, KM_Sound;
+uses KM_HandsCollection, KM_RenderPool, KM_Sound, KM_FogOfWar;
 
 
 type
@@ -150,7 +150,10 @@ end;
 
 function TKMAlertBeacon.GetTeamColor: Cardinal;
 begin
-  Result := gHands[fOwner].FlagColor;
+  if fOwner = -1 then
+    Result := $FFFFFFFF //Spectators in multiplayer don't have a HandIndex
+  else
+    Result := gHands[fOwner].FlagColor;
 end;
 
 
@@ -349,9 +352,9 @@ begin
   begin
     case aPass of
       0:  if MySpectator.FogOfWar.CheckRevelation(Items[I].Loc) > 0 then
-            fRenderPool.AddAlert(Items[I].Loc, Items[I].TexTerrain.ID, gHands[Items[I].Owner].FlagColor);
-      1:  if MySpectator.FogOfWar.CheckRevelation(Items[I].Loc) = 0 then
-            fRenderPool.RenderSpriteOnTerrain(Items[I].Loc, Items[I].TexTerrain.ID, gHands[Items[I].Owner].FlagColor);
+            fRenderPool.AddAlert(Items[I].Loc, Items[I].TexTerrain.ID, Items[I].TeamColor);
+      1:  if MySpectator.FogOfWar.CheckRevelation(Items[I].Loc) < FOG_OF_WAR_MAX then
+            fRenderPool.RenderSpriteOnTerrain(Items[I].Loc, Items[I].TexTerrain.ID, Items[I].TeamColor);
     end;
   end;
 end;

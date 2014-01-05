@@ -1220,7 +1220,7 @@ begin
   //if not gTerrain.TileInMapCoords(aLoc.X, aLoc.Y) then Exit;
 
   pX := aLoc.X + fRXData[rxGui].Pivot[aId].X / CELL_SIZE_PX;
-  pY := gTerrain.FlatToHeight(aLoc.X, aLoc.Y) -
+  pY := gTerrain.FlatToHeight(aLoc.X, aLoc.Y) +
         fRXData[rxGui].Pivot[aId].Y / CELL_SIZE_PX;
   RenderSprite(rxGui, aId, 0, False, pX, pY, aFlagColor, 255);
 end;

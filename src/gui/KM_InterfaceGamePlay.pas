@@ -79,6 +79,7 @@ type
     procedure Create_Unit;
 
     procedure Beacon_Cancel;
+    procedure Beacon_Place(aLoc: TKMPointF);
     procedure Army_ActivateControls(aGroup: TKMUnitGroup);
     procedure Army_HideJoinMenu(Sender: TObject);
     procedure Army_Issue_Order(Sender: TObject);
@@ -652,9 +653,8 @@ end;
 
 procedure TKMGamePlayInterface.Minimap_Click(Sender: TObject; const X,Y:integer);
 begin
-  if not fPlacingBeacon then Exit;
-  gGame.GameInputProcess.CmdGame(gic_GameAlertBeacon, KMPointF(X,Y), MySpectator.HandIndex);
-  Beacon_Cancel;
+  if fPlacingBeacon then
+    Beacon_Place(KMPointF(X,Y));
 end;
 
 
@@ -1972,6 +1972,18 @@ begin
 end;
 
 
+procedure TKMGamePlayInterface.Beacon_Place(aLoc: TKMPointF);
+begin
+  //In replays we show the beacon directly without GIP. In replays we use -1 for hand index
+  case fUIMode of
+    umReplay:   Alerts.AddBeacon(aLoc, MySpectator.HandIndex, fGameApp.GlobalTickCount + ALERT_DURATION[atBeacon]);
+    umSpectate: gGame.GameInputProcess.CmdGame(gic_GameAlertBeacon, aLoc, -1);
+    else        gGame.GameInputProcess.CmdGame(gic_GameAlertBeacon, aLoc, MySpectator.HandIndex);
+  end;
+  Beacon_Cancel;
+end;
+
+
 procedure TKMGamePlayInterface.Army_ActivateControls(aGroup: TKMUnitGroup);
 var AcceptOrders: Boolean;
 begin
@@ -2521,6 +2533,7 @@ begin
       ReplayClick(Button_ReplayResume);
   end;
 
+  //These keys are allowed during replays
   case Key of
     //Scrolling
     VK_LEFT:          fViewport.ScrollKeyLeft  := False;
@@ -2532,6 +2545,48 @@ begin
     VK_BACK:          fViewport.ResetZoom;
 
     Ord(SC_SHOW_TEAMS):  fShowTeamNames := False;
+    Ord(SC_BEACON): if not SelectingTroopDirection then
+                    begin
+                      fPlacingBeacon := True;
+                      MinimapView.ClickableOnce := True;
+                      gResource.Cursors.Cursor := kmc_Beacon;
+                    end;
+
+    VK_ESCAPE:            begin
+                            //Progressively hide open elements on Esc
+                            if fJoiningGroups then
+                              Army_HideJoinMenu(nil)
+                            else
+                            if ShownMessage <> -1 then
+                              Message_Close(nil)
+                            else
+                            if fGuiGameChat.Visible then
+                              fGuiGameChat.Hide
+                            else
+                            if Panel_Allies.Visible then
+                              Allies_Close(nil)
+                            else
+                            if Panel_MessageLog.Visible then
+                              MessageLog_Close(nil)
+                            else
+                            if Button_Back.Visible then
+                              SwitchPage(Button_Back);
+                          end;
+
+    Ord(SC_SELECT_LOW)..Ord(SC_SELECT_HIGH):
+                    if (ssCtrl in Shift) then
+                      Selection_Assign(Key, MySpectator.Selected)
+                    else
+                      if (ssShift in Shift) and (fUIMode in [umSP, umMP]) then
+                        Selection_Link(Key, MySpectator.Selected)
+                      else
+                        Selection_Select(Key);
+
+    //Menu shortcuts
+    SC_MENU_BUILD:  Button_Main[tbBuild].Click;
+    SC_MENU_RATIO:  Button_Main[tbRatio].Click;
+    SC_MENU_STATS:  Button_Main[tbStats].Click;
+    SC_MENU_MENU:   Button_Main[tbMenu].Click;
   end;
 
   if (fUIMode in [umSP, umReplay]) or MULTIPLAYER_SPEEDUP then
@@ -2563,41 +2618,6 @@ begin
                             Label_MPChatUnread.Caption := ''; //No unread messages
                             fGuiGameChat.Show;
                           end;
-    VK_ESCAPE:            begin
-                            //Progressively hide open elements on Esc
-                            if fJoiningGroups then
-                              Army_HideJoinMenu(nil)
-                            else
-                            if ShownMessage <> -1 then
-                              Message_Close(nil)
-                            else
-                            if fGuiGameChat.Visible then
-                              fGuiGameChat.Hide
-                            else
-                            if Panel_Allies.Visible then
-                              Allies_Close(nil)
-                            else
-                            if Panel_MessageLog.Visible then
-                              MessageLog_Close(nil)
-                            else
-                            if Button_Back.Visible then
-                              SwitchPage(Button_Back);
-                          end;
-
-    //Menu shortcuts
-    SC_MENU_BUILD:  Button_Main[tbBuild].Click;
-    SC_MENU_RATIO:  Button_Main[tbRatio].Click;
-    SC_MENU_STATS:  Button_Main[tbStats].Click;
-    SC_MENU_MENU:   Button_Main[tbMenu].Click;
-
-    Ord(SC_SELECT_LOW)..Ord(SC_SELECT_HIGH):
-                    if (ssCtrl in Shift) then
-                      Selection_Assign(Key, MySpectator.Selected)
-                    else
-                      if (ssShift in Shift) then
-                        Selection_Link(Key, MySpectator.Selected)
-                      else
-                        Selection_Select(Key);
 
     //Standard army shortcuts from KaM
     Ord(SC_ARMY_HALT):        if Panel_Army.Visible and not SelectingTroopDirection then Button_Army_Stop.Click;
@@ -2614,12 +2634,6 @@ begin
 
     //General function keys
     Ord(SC_PAUSE):  if (fUIMode = umSP) then SetPause(True); //Display pause overlay
-    Ord(SC_BEACON): if not SelectingTroopDirection then
-                    begin
-                      fPlacingBeacon := True;
-                      MinimapView.ClickableOnce := True;
-                      gResource.Cursors.Cursor := kmc_Beacon;
-                    end;
   end;
 
   {Temporary cheat codes}
@@ -2946,8 +2960,7 @@ begin
 
         if fPlacingBeacon then
         begin
-          gGame.GameInputProcess.CmdGame(gic_GameAlertBeacon, GameCursor.Float, MySpectator.HandIndex);
-          Beacon_Cancel;
+          Beacon_Place(GameCursor.Float);
           Exit;
         end;
 
