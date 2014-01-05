@@ -24,7 +24,7 @@ const
   MIN_RESOLUTION_WIDTH  = 1024;         //Lowest supported resolution X
   MIN_RESOLUTION_HEIGHT = 576;          //Lowest supported resolution Y
 
-  GAME_REVISION         = 'r6048';       //Should be updated for every release (each time save format is changed)
+  GAME_REVISION         = 'r6060';       //Should be updated for every release (each time save format is changed)
   GAME_VERSION          = 'Next Demo ' + GAME_REVISION + ' Nightly';       //Game version string displayed in menu corner
   NET_PROTOCOL_REVISON  = GAME_REVISION;     //Clients of this version may connect to the dedicated server
 
@@ -142,6 +142,7 @@ const
 
 const
   MAX_HANDS       = 8;    //Maximum players per map
+  MAX_LOBBY_SLOTS = 10;
   MAX_AI_PLANS      = 4;    //How many houses AI is allowed to plan at once (after establishing Materials supply)
   AUTOSAVE_COUNT    = 3;    //How many autosaves to backup
 

@@ -747,6 +747,12 @@ begin
               end;
     else      Result := False;
   end;
+  //At least one player must NOT be a spectator or closed
+  for i:=1 to fNetPlayers.Count do
+    if not fNetPlayers[i].IsSpectator and not fNetPlayers[i].IsClosed then
+      Exit; //Exit with result from above
+  //If we reached here then all players are spectators and the game cannot start
+  Result := False;
 end;
 
 
