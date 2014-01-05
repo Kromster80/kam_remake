@@ -17,8 +17,7 @@ type
     Panel_Defence: TKMPanel;
     Button_DefencePosAdd: TKMButtonFlat;
     CheckBox_AutoDefence: TKMCheckBox;
-    TrackBar_EquipRateLeather: TKMTrackBar;
-    TrackBar_EquipRateIron: TKMTrackBar;
+    TrackBar_AutoAttackRange: TKMTrackBar;
     TrackBar_RecruitCount: TKMTrackBar;
     TrackBar_MaxSoldiers: TKMTrackBar;
     CheckBox_MaxSoldiers: TKMCheckBox;
@@ -56,37 +55,32 @@ begin
   CheckBox_AutoDefence.Hint := gResTexts[TX_MAPED_AI_DEFENSE_AUTO_HINT];
   CheckBox_AutoDefence.OnClick := Town_DefenceChange;
 
-  TrackBar_EquipRateLeather := TKMTrackBar.Create(Panel_Defence, 0, 120, TB_WIDTH, 10, 300);
-  TrackBar_EquipRateLeather.Caption := gResTexts[TX_MAPED_AI_DEFENSE_EQUIP_LEATHER];
-  TrackBar_EquipRateLeather.Step := 5;
-  TrackBar_EquipRateLeather.OnChange := Town_DefenceChange;
+  TrackBar_AutoAttackRange := TKMTrackBar.Create(Panel_Defence, 0, 116, TB_WIDTH, 1, 20);
+  TrackBar_AutoAttackRange.Caption := 'Auto attack range';
+  TrackBar_AutoAttackRange.Hint := 'AI groups will automatically attack if you are closer than this many tiles';
+  TrackBar_AutoAttackRange.OnChange := Town_DefenceChange;
 
-  TrackBar_EquipRateIron := TKMTrackBar.Create(Panel_Defence, 0, 164, TB_WIDTH, 10, 300);
-  TrackBar_EquipRateIron.Caption := gResTexts[TX_MAPED_AI_DEFENSE_EQUIP_IRON];
-  TrackBar_EquipRateIron.Step := 5;
-  TrackBar_EquipRateIron.OnChange := Town_DefenceChange;
-
-  TrackBar_RecruitCount := TKMTrackBar.Create(Panel_Defence, 0, 208, TB_WIDTH, 1, 20);
+  TrackBar_RecruitCount := TKMTrackBar.Create(Panel_Defence, 0, 166, TB_WIDTH, 1, 20);
   TrackBar_RecruitCount.Caption := gResTexts[TX_MAPED_AI_RECRUITS];
   TrackBar_RecruitCount.Hint := gResTexts[TX_MAPED_AI_RECRUITS_HINT];
   TrackBar_RecruitCount.OnChange := Town_DefenceChange;
 
-  TrackBar_RecruitDelay := TKMTrackBar.Create(Panel_Defence, 0, 252, TB_WIDTH, 0, 500);
+  TrackBar_RecruitDelay := TKMTrackBar.Create(Panel_Defence, 0, 210, TB_WIDTH, 0, 500);
   TrackBar_RecruitDelay.Caption := gResTexts[TX_MAPED_AI_RECRUIT_DELAY];
   TrackBar_RecruitDelay.Hint := gResTexts[TX_MAPED_AI_RECRUIT_DELAY_HINT];
   TrackBar_RecruitDelay.Step := 5;
   TrackBar_RecruitDelay.OnChange := Town_DefenceChange;
 
-  CheckBox_MaxSoldiers := TKMCheckBox.Create(Panel_Defence, 0, 296, TB_WIDTH, 20, gResTexts[TX_MAPED_AI_MAX_SOLDIERS], fnt_Metal);
+  CheckBox_MaxSoldiers := TKMCheckBox.Create(Panel_Defence, 0, 254, TB_WIDTH, 20, gResTexts[TX_MAPED_AI_MAX_SOLDIERS], fnt_Metal);
   CheckBox_MaxSoldiers.Hint := gResTexts[TX_MAPED_AI_MAX_SOLDIERS_ENABLE_HINT];
   CheckBox_MaxSoldiers.OnClick := Town_DefenceChange;
-  TrackBar_MaxSoldiers := TKMTrackBar.Create(Panel_Defence, 20, 314, TB_WIDTH - 20, 0, 500);
+  TrackBar_MaxSoldiers := TKMTrackBar.Create(Panel_Defence, 20, 272, TB_WIDTH - 20, 0, 500);
   TrackBar_MaxSoldiers.Caption := '';
   TrackBar_MaxSoldiers.Hint := gResTexts[TX_MAPED_AI_MAX_SOLDIERS_HINT];
   TrackBar_MaxSoldiers.Step := 5;
   TrackBar_MaxSoldiers.OnChange := Town_DefenceChange;
 
-  Button_EditFormations := TKMButton.Create(Panel_Defence, 0, 344, TB_WIDTH, 25, gResTexts[TX_MAPED_AI_FORMATIONS], bsGame);
+  Button_EditFormations := TKMButton.Create(Panel_Defence, 0, 302, TB_WIDTH, 25, gResTexts[TX_MAPED_AI_FORMATIONS], bsGame);
   Button_EditFormations.OnClick := Town_DefenceFormations;
 end;
 
@@ -112,8 +106,7 @@ end;
 procedure TKMMapEdTownDefence.Town_DefenceChange(Sender: TObject);
 begin
   gHands[MySpectator.HandIndex].AI.Setup.AutoDefend := CheckBox_AutoDefence.Checked;
-  gHands[MySpectator.HandIndex].AI.Setup.EquipRateLeather := TrackBar_EquipRateLeather.Position * 10;
-  gHands[MySpectator.HandIndex].AI.Setup.EquipRateIron := TrackBar_EquipRateIron.Position * 10;
+  gHands[MySpectator.HandIndex].AI.Setup.AutoAttackRange := TrackBar_AutoAttackRange.Position;
   gHands[MySpectator.HandIndex].AI.Setup.RecruitCount := TrackBar_RecruitCount.Position;
   gHands[MySpectator.HandIndex].AI.Setup.RecruitDelay := TrackBar_RecruitDelay.Position * 600;
 
@@ -135,8 +128,7 @@ end;
 procedure TKMMapEdTownDefence.Town_DefenceRefresh;
 begin
   CheckBox_AutoDefence.Checked := gHands[MySpectator.HandIndex].AI.Setup.AutoDefend;
-  TrackBar_EquipRateLeather.Position := gHands[MySpectator.HandIndex].AI.Setup.EquipRateLeather div 10;
-  TrackBar_EquipRateIron.Position := gHands[MySpectator.HandIndex].AI.Setup.EquipRateIron div 10;
+  TrackBar_AutoAttackRange.Position := gHands[MySpectator.HandIndex].AI.Setup.AutoAttackRange;
   TrackBar_RecruitCount.Position := gHands[MySpectator.HandIndex].AI.Setup.RecruitCount;
   TrackBar_RecruitDelay.Position := Round(gHands[MySpectator.HandIndex].AI.Setup.RecruitDelay / 600);
 

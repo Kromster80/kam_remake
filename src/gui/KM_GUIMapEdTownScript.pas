@@ -16,6 +16,8 @@ type
     CheckBox_AutoRepair: TKMCheckBox;
     TrackBar_SerfsPer10Houses: TKMTrackBar;
     TrackBar_WorkerCount: TKMTrackBar;
+    TrackBar_EquipRateLeather: TKMTrackBar;
+    TrackBar_EquipRateIron: TKMTrackBar;
   public
     constructor Create(aParent: TKMPanel);
 
@@ -47,6 +49,16 @@ begin
   TrackBar_WorkerCount := TKMTrackBar.Create(Panel_Script, 0, 110, TB_WIDTH, 0, 30);
   TrackBar_WorkerCount.Caption := gResTexts[TX_MAPED_AI_WORKERS];
   TrackBar_WorkerCount.OnChange := Town_ScriptChange;
+
+  TrackBar_EquipRateLeather := TKMTrackBar.Create(Panel_Script, 0, 156, TB_WIDTH, 10, 300);
+  TrackBar_EquipRateLeather.Caption := gResTexts[TX_MAPED_AI_DEFENSE_EQUIP_LEATHER];
+  TrackBar_EquipRateLeather.Step := 5;
+  TrackBar_EquipRateLeather.OnChange := Town_ScriptChange;
+
+  TrackBar_EquipRateIron := TKMTrackBar.Create(Panel_Script, 0, 200, TB_WIDTH, 10, 300);
+  TrackBar_EquipRateIron.Caption := gResTexts[TX_MAPED_AI_DEFENSE_EQUIP_IRON];
+  TrackBar_EquipRateIron.Step := 5;
+  TrackBar_EquipRateIron.OnChange := Town_ScriptChange;
 end;
 
 
@@ -56,6 +68,8 @@ begin
   CheckBox_AutoRepair.Checked := gHands[MySpectator.HandIndex].AI.Mayor.AutoRepair;
   TrackBar_SerfsPer10Houses.Position := Round(10*gHands[MySpectator.HandIndex].AI.Setup.SerfsPerHouse);
   TrackBar_WorkerCount.Position := gHands[MySpectator.HandIndex].AI.Setup.WorkerCount;
+  TrackBar_EquipRateLeather.Position := gHands[MySpectator.HandIndex].AI.Setup.EquipRateLeather div 10;
+  TrackBar_EquipRateIron.Position := gHands[MySpectator.HandIndex].AI.Setup.EquipRateIron div 10;
 end;
 
 
@@ -65,6 +79,8 @@ begin
   gHands[MySpectator.HandIndex].AI.Mayor.AutoRepair := CheckBox_AutoRepair.Checked;
   gHands[MySpectator.HandIndex].AI.Setup.SerfsPerHouse := TrackBar_SerfsPer10Houses.Position / 10;
   gHands[MySpectator.HandIndex].AI.Setup.WorkerCount := TrackBar_WorkerCount.Position;
+  gHands[MySpectator.HandIndex].AI.Setup.EquipRateLeather := TrackBar_EquipRateLeather.Position * 10;
+  gHands[MySpectator.HandIndex].AI.Setup.EquipRateIron := TrackBar_EquipRateIron.Position * 10;
 end;
 
 
