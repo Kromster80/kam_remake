@@ -410,6 +410,8 @@ begin
                           gHands[fLastHand].AI.Setup.AutoAttack := True;
     ct_AIAutoDefend:    if fLastHand <> PLAYER_NONE then
                           gHands[fLastHand].AI.Setup.AutoDefend := True;
+    ct_AIDefendAllies:  if fLastHand <> PLAYER_NONE then
+                          gHands[fLastHand].AI.Setup.DefendAllies := True;
     ct_AIStartPosition: if fLastHand <> PLAYER_NONE then
                           gHands[fLastHand].AI.Setup.StartPosition := KMPoint(P[0]+1,P[1]+1);
     ct_SetAlliance:     if (fLastHand <> PLAYER_NONE) and fPlayerEnabled[P[0]] and (P[0] <> fLastHand) then
@@ -682,6 +684,7 @@ begin
     if gHands[I].AI.Mayor.AutoRepair then    AddCommand(ct_AIAutoRepair, []);
     if gHands[I].AI.Setup.AutoAttack then    AddCommand(ct_AIAutoAttack, []);
     if gHands[I].AI.Setup.AutoDefend then    AddCommand(ct_AIAutoDefend, []);
+    if gHands[I].AI.Setup.DefendAllies then  AddCommand(ct_AIDefendAllies, []);
     AddCommand(ct_AICharacter,cpt_Recruits, [gHands[I].AI.Setup.RecruitCount]);
     AddCommand(ct_AICharacter,cpt_WorkerFactor, [Round(10 / gHands[I].AI.Setup.SerfsPerHouse)]);
     AddCommand(ct_AICharacter,cpt_Constructors, [gHands[I].AI.Setup.WorkerCount]);

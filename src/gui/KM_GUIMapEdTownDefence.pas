@@ -17,6 +17,7 @@ type
     Panel_Defence: TKMPanel;
     Button_DefencePosAdd: TKMButtonFlat;
     CheckBox_AutoDefence: TKMCheckBox;
+    CheckBox_DefendAllies: TKMCheckBox;
     TrackBar_AutoAttackRange: TKMTrackBar;
     TrackBar_RecruitCount: TKMTrackBar;
     TrackBar_MaxSoldiers: TKMTrackBar;
@@ -55,32 +56,36 @@ begin
   CheckBox_AutoDefence.Hint := gResTexts[TX_MAPED_AI_DEFENSE_AUTO_HINT];
   CheckBox_AutoDefence.OnClick := Town_DefenceChange;
 
-  TrackBar_AutoAttackRange := TKMTrackBar.Create(Panel_Defence, 0, 116, TB_WIDTH, 1, 20);
-  TrackBar_AutoAttackRange.Caption := 'Auto attack range';
-  TrackBar_AutoAttackRange.Hint := 'AI groups will automatically attack if you are closer than this many tiles';
+  CheckBox_DefendAllies := TKMCheckBox.Create(Panel_Defence, 0, 110, TB_WIDTH, 20, gResTexts[TX_MAPED_AI_DEFEND_ALLIES], fnt_Metal);
+  CheckBox_DefendAllies.Hint := gResTexts[TX_MAPED_AI_DEFEND_ALLIES_HINT];
+  CheckBox_DefendAllies.OnClick := Town_DefenceChange;
+
+  TrackBar_AutoAttackRange := TKMTrackBar.Create(Panel_Defence, 0, 136, TB_WIDTH, 1, 20);
+  TrackBar_AutoAttackRange.Caption := gResTexts[TX_MAPED_AI_AUTO_ATTACK];
+  TrackBar_AutoAttackRange.Hint := gResTexts[TX_MAPED_AI_AUTO_ATTACK_HINT];
   TrackBar_AutoAttackRange.OnChange := Town_DefenceChange;
 
-  TrackBar_RecruitCount := TKMTrackBar.Create(Panel_Defence, 0, 166, TB_WIDTH, 1, 20);
+  TrackBar_RecruitCount := TKMTrackBar.Create(Panel_Defence, 0, 186, TB_WIDTH, 1, 20);
   TrackBar_RecruitCount.Caption := gResTexts[TX_MAPED_AI_RECRUITS];
   TrackBar_RecruitCount.Hint := gResTexts[TX_MAPED_AI_RECRUITS_HINT];
   TrackBar_RecruitCount.OnChange := Town_DefenceChange;
 
-  TrackBar_RecruitDelay := TKMTrackBar.Create(Panel_Defence, 0, 210, TB_WIDTH, 0, 500);
+  TrackBar_RecruitDelay := TKMTrackBar.Create(Panel_Defence, 0, 230, TB_WIDTH, 0, 500);
   TrackBar_RecruitDelay.Caption := gResTexts[TX_MAPED_AI_RECRUIT_DELAY];
   TrackBar_RecruitDelay.Hint := gResTexts[TX_MAPED_AI_RECRUIT_DELAY_HINT];
   TrackBar_RecruitDelay.Step := 5;
   TrackBar_RecruitDelay.OnChange := Town_DefenceChange;
 
-  CheckBox_MaxSoldiers := TKMCheckBox.Create(Panel_Defence, 0, 254, TB_WIDTH, 20, gResTexts[TX_MAPED_AI_MAX_SOLDIERS], fnt_Metal);
+  CheckBox_MaxSoldiers := TKMCheckBox.Create(Panel_Defence, 0, 274, TB_WIDTH, 20, gResTexts[TX_MAPED_AI_MAX_SOLDIERS], fnt_Metal);
   CheckBox_MaxSoldiers.Hint := gResTexts[TX_MAPED_AI_MAX_SOLDIERS_ENABLE_HINT];
   CheckBox_MaxSoldiers.OnClick := Town_DefenceChange;
-  TrackBar_MaxSoldiers := TKMTrackBar.Create(Panel_Defence, 20, 272, TB_WIDTH - 20, 0, 500);
+  TrackBar_MaxSoldiers := TKMTrackBar.Create(Panel_Defence, 20, 292, TB_WIDTH - 20, 0, 500);
   TrackBar_MaxSoldiers.Caption := '';
   TrackBar_MaxSoldiers.Hint := gResTexts[TX_MAPED_AI_MAX_SOLDIERS_HINT];
   TrackBar_MaxSoldiers.Step := 5;
   TrackBar_MaxSoldiers.OnChange := Town_DefenceChange;
 
-  Button_EditFormations := TKMButton.Create(Panel_Defence, 0, 302, TB_WIDTH, 25, gResTexts[TX_MAPED_AI_FORMATIONS], bsGame);
+  Button_EditFormations := TKMButton.Create(Panel_Defence, 0, 322, TB_WIDTH, 25, gResTexts[TX_MAPED_AI_FORMATIONS], bsGame);
   Button_EditFormations.OnClick := Town_DefenceFormations;
 end;
 
@@ -106,6 +111,7 @@ end;
 procedure TKMMapEdTownDefence.Town_DefenceChange(Sender: TObject);
 begin
   gHands[MySpectator.HandIndex].AI.Setup.AutoDefend := CheckBox_AutoDefence.Checked;
+  gHands[MySpectator.HandIndex].AI.Setup.DefendAllies := CheckBox_DefendAllies.Checked;
   gHands[MySpectator.HandIndex].AI.Setup.AutoAttackRange := TrackBar_AutoAttackRange.Position;
   gHands[MySpectator.HandIndex].AI.Setup.RecruitCount := TrackBar_RecruitCount.Position;
   gHands[MySpectator.HandIndex].AI.Setup.RecruitDelay := TrackBar_RecruitDelay.Position * 600;
@@ -128,6 +134,7 @@ end;
 procedure TKMMapEdTownDefence.Town_DefenceRefresh;
 begin
   CheckBox_AutoDefence.Checked := gHands[MySpectator.HandIndex].AI.Setup.AutoDefend;
+  CheckBox_DefendAllies.Checked := gHands[MySpectator.HandIndex].AI.Setup.DefendAllies;
   TrackBar_AutoAttackRange.Position := gHands[MySpectator.HandIndex].AI.Setup.AutoAttackRange;
   TrackBar_RecruitCount.Position := gHands[MySpectator.HandIndex].AI.Setup.RecruitCount;
   TrackBar_RecruitDelay.Position := Round(gHands[MySpectator.HandIndex].AI.Setup.RecruitDelay / 600);

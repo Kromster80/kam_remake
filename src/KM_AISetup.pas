@@ -12,6 +12,7 @@ type
     AutoAttack: Boolean;
     AutoBuild: Boolean;
     AutoDefend: Boolean;
+    DefendAllies: Boolean;
     EquipRateLeather, EquipRateIron: Word; //Number of ticks between soldiers being equipped. Seperated into Leather/Iron to keep KaM compatibility.
     MaxSoldiers: Integer; //-1 means not used or default
     RecruitDelay: Cardinal; //Recruits (for barracks) can only be trained after this many ticks
@@ -44,6 +45,7 @@ begin
   AutoBuild := True; //In KaM it is On by default, and most missions turn it off
   AutoAttack := False; //It did not exist in KaM, we add it, Off by default
   AutoDefend := False; //It did not exist in KaM, we add it, Off by default
+  DefendAllies := False; //It did not exist in KaM, we add it, Off by default (tested by Lewin, AI doesn't defend allies in TPR)
 
   EquipRateIron := 500; //Measured in KaM: AI equips 1 iron soldier every ~50 seconds
   EquipRateLeather := 1000; //Measured in KaM: AI equips 1 leather soldier every ~100 seconds (if no iron one was already equipped)
@@ -89,6 +91,7 @@ begin
   SaveStream.Write(AutoAttack);
   SaveStream.Write(AutoBuild);
   SaveStream.Write(AutoDefend);
+  SaveStream.Write(DefendAllies);
   SaveStream.Write(EquipRateLeather);
   SaveStream.Write(EquipRateIron);
   SaveStream.Write(MaxSoldiers);
@@ -108,6 +111,7 @@ begin
   LoadStream.Read(AutoAttack);
   LoadStream.Read(AutoBuild);
   LoadStream.Read(AutoDefend);
+  LoadStream.Read(DefendAllies);
   LoadStream.Read(EquipRateLeather);
   LoadStream.Read(EquipRateIron);
   LoadStream.Read(MaxSoldiers);

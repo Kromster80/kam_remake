@@ -226,6 +226,7 @@ end;
 
 //aHouse is our house that was attacked
 procedure TKMHandAI.HouseAttackNotification(aHouse: TKMHouse; aAttacker: TKMUnitWarrior);
+var I: Integer;
 begin
   gScriptEvents.ProcHouseDamaged(aHouse, aAttacker);
 
@@ -238,7 +239,14 @@ begin
           gGame.GamePlayInterface.Alerts.AddFight(KMPointF(aHouse.GetPosition), fOwner, an_Town, fGameApp.GlobalTickCount + ALERT_DURATION[atFight]);
       end;
     hndComputer:
-      fGeneral.RetaliateAgainstThreat(aAttacker);
+      begin
+        fGeneral.RetaliateAgainstThreat(aAttacker);
+        //Our allies might like to help us too
+        for I := 0 to gHands.Count-1 do
+          if gHands[I].Enabled and (gHands[I].PlayerType = hndComputer)
+          and (gHands.CheckAlliance(I, fOwner) = at_Ally) and gHands[I].AI.Setup.DefendAllies then
+            gHands[I].AI.General.RetaliateAgainstThreat(aAttacker);
+      end;
   end;
 end;
 
@@ -249,6 +257,7 @@ const
   NotifyKind: array [Boolean] of TAttackNotification = (an_Citizens, an_Troops);
 var
   Group: TKMUnitGroup;
+  I: Integer;
 begin
   case gHands[fOwner].PlayerType of
     hndHuman:
@@ -262,6 +271,13 @@ begin
         if aAttacker is TKMUnitWarrior then
         begin
           fGeneral.RetaliateAgainstThreat(aAttacker); //Nearby soldiers should come to assist
+
+          //Our allies might like to help us too
+          for I := 0 to gHands.Count-1 do
+            if gHands[I].Enabled and (gHands[I].PlayerType = hndComputer)
+            and (gHands.CheckAlliance(I, fOwner) = at_Ally) and gHands[I].AI.Setup.DefendAllies then
+              gHands[I].AI.General.RetaliateAgainstThreat(aAttacker);
+
           //If we are a warrior we can also attack that unit ourselves
           if aUnit is TKMUnitWarrior then
           begin

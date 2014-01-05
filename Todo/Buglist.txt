@@ -27,7 +27,7 @@
  +      Singleplayer replays ended at the last player command rather than when they were saved (use gic_GameSave in SP too)
  +      Actions.GiveHouse failed when there was a worker building a field or road next to the house
  +      Strange AI behaviour in campaign missions due to AI attack values not carrying over like they do in KaM
- +      AI warriors should attack enemies when they are within 4 tiles, to prevent sneaking into AI village (!SET_AI_CHARACTER AUTO_ATTACK_RANGE)
+ +      AI warriors should attack enemies when they are within 4 tiles, to prevent sneaking into AI village (can be set in MapEd)
 	Armour smithy has shields as 2nd ouput, armour workshop has shields as 1st output. Would make sense to match them (note: simply swapping in KM_ResourceHouses causes game logic to be swapped with GUI)
 	Armour smithy has iron as 1st input, weapon smithy has iron as 2nd input (iron/coal swapped). Would make sense to match them (note: simpply swapping in KM_ResourceHouses causes game logic to be swapped with GUI)
 	Deliveries should use the actual walking route length (opposed to Radius)
@@ -83,6 +83,7 @@ Improvements:
  +	L	Rally point for the barracks
  +  L   Warriors leaving the barracks will form a square formation rather than a long snake like in TSK/TPR
  +  L   Multiplayer spectating
+ +  L   MapEd option to enable the AI to retaliate against allies' assets being attacked like they do for themselves
 	        Dismiss button to make units walk into the school and disappear (gold is not refunded)
 	L	Simple dedicated server form which lets you set the properties of the INI for the server and start it [gemGreg]
 	L	Placing houses in MP should put a temp/fake visual markup until the real one can be added to make it appear responsive
@@ -127,7 +128,6 @@ Improvements:
 	L	Save wares distribution ratios between games
         L       Shortcut key to jump to point where ally has made a beacon
         L       Allow to customize and save hotkeys settings
-    L   Static script command to enable the AI to retaliate against allies' assets being attack like they do for themselves
 
 	L	MapEd: Allow to toggle trees/objects opacity (make them partially visible) [Marcin]
 	L	MapEd: Allow to toggle AI defence positions display

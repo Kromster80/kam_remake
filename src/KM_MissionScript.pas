@@ -19,7 +19,7 @@ type
                     ct_SetUnit,ct_SetRoad,ct_SetField,ct_SetWinefield,ct_SetStock,ct_AddWare,ct_SetAlliance,
                     ct_SetHouseDamage,ct_SetUnitByStock,ct_SetGroup,ct_SetGroupFood,ct_SendGroup,
                     ct_AttackPosition,ct_AddWareToSecond,ct_AddWareTo,ct_AddWareToLast,ct_AddWareToAll,ct_AddWeapon,ct_AICharacter,
-                    ct_AINoBuild,ct_AIAutoRepair,ct_AIAutoAttack,ct_AIAutoDefend,ct_AIStartPosition,ct_AIDefence,ct_AIAttack,
+                    ct_AINoBuild,ct_AIAutoRepair,ct_AIAutoAttack,ct_AIAutoDefend,ct_AIDefendAllies,ct_AIStartPosition,ct_AIDefence,ct_AIAttack,
                     ct_CopyAIAttack,ct_ClearAIAttack);
 
 const
@@ -41,7 +41,7 @@ const
     'SET_WINEFIELD','SET_STOCK','ADD_WARE','SET_ALLIANCE','SET_HOUSE_DAMAGE','SET_UNIT_BY_STOCK',
     'SET_GROUP','SET_GROUP_FOOD','SEND_GROUP','ATTACK_POSITION','ADD_WARE_TO_SECOND',
     'ADD_WARE_TO','ADD_WARE_TO_LAST','ADD_WARE_TO_ALL','ADD_WEAPON','SET_AI_CHARACTER',
-    'SET_AI_NO_BUILD','SET_AI_AUTO_REPAIR','SET_AI_AUTO_ATTACK','SET_AI_AUTO_DEFEND','SET_AI_START_POSITION','SET_AI_DEFENSE','SET_AI_ATTACK',
+    'SET_AI_NO_BUILD','SET_AI_AUTO_REPAIR','SET_AI_AUTO_ATTACK','SET_AI_AUTO_DEFEND','SET_AI_DEFEND_ALLIES','SET_AI_START_POSITION','SET_AI_DEFENSE','SET_AI_ATTACK',
     'COPY_AI_ATTACK','CLEAR_AI_ATTACK');
 
 type
