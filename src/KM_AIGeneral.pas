@@ -288,8 +288,7 @@ begin
   begin
     Group := gHands[fOwner].UnitGroups[I];
     if not Group.IsDead
-    and not Group.InFight
-    and not (Group.Order in [goAttackUnit, goAttackHouse, goStorm]) then
+    and Group.IsIdleToAI(True) then
     begin
       DP := fDefencePositions.FindPositionOf(Group);
       if (DP = nil) or (DP.DefenceType = adt_BackLine) then

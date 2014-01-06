@@ -103,7 +103,7 @@ type
     function InFight(aCountCitizens: Boolean = False): Boolean; //Fighting and can't take any orders from player
     function IsAttackingHouse: Boolean; //Attacking house
     function IsAttackingUnit: Boolean;
-    function IsIdleToAI: Boolean;
+    function IsIdleToAI(aAllowWalking: Boolean = False): Boolean;
     function IsPositioned(aLoc: TKMPoint; Dir: TKMDirection): Boolean;
     function CanTakeOrders: Boolean;
     function CanWalkTo(aTo: TKMPoint; aDistance: Single): Boolean;
@@ -830,11 +830,11 @@ begin
 end;
 
 
-function TKMUnitGroup.IsIdleToAI: Boolean;
+function TKMUnitGroup.IsIdleToAI(aAllowWalking: Boolean = False): Boolean;
 begin
   //First check that the previous order has completed
   if fOrder = goWalkTo then
-    Result := (KMLengthDiag(Position, fOrderLoc.Loc) < 2)
+    Result := aAllowWalking or (KMLengthDiag(Position, fOrderLoc.Loc) < 2)
   else
     Result := (fOrder = goNone);
 
