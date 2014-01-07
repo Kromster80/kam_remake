@@ -1974,11 +1974,11 @@ end;
 
 procedure TKMGamePlayInterface.Beacon_Place(aLoc: TKMPointF);
 begin
-  //In replays we show the beacon directly without GIP. In replays we use -1 for hand index
+  //In replays we show the beacon directly without GIP. In spectator we use -1 for hand index
   case fUIMode of
-    umReplay:   Alerts.AddBeacon(aLoc, MySpectator.HandIndex, fGameApp.GlobalTickCount + ALERT_DURATION[atBeacon]);
-    umSpectate: gGame.GameInputProcess.CmdGame(gic_GameAlertBeacon, aLoc, -1);
-    else        gGame.GameInputProcess.CmdGame(gic_GameAlertBeacon, aLoc, MySpectator.HandIndex);
+    umReplay:   Alerts.AddBeacon(aLoc, MySpectator.HandIndex, gHands[MySpectator.HandIndex].FlagColor, fGameApp.GlobalTickCount + ALERT_DURATION[atBeacon]);
+    umSpectate: gGame.GameInputProcess.CmdGame(gic_GameAlertBeacon, aLoc, -1, gGame.Networking.NetPlayers[gGame.Networking.MyIndex].FlagColor);
+    else        gGame.GameInputProcess.CmdGame(gic_GameAlertBeacon, aLoc, MySpectator.HandIndex, gHands[MySpectator.HandIndex].FlagColor);
   end;
   Beacon_Cancel;
 end;
@@ -2421,7 +2421,7 @@ begin
 
     if gGame.Networking.NetPlayers[I+1].IsSpectator then
     begin
-      Label_AlliesPlayer[I].FontColor := $FFFFFFFF; //Spectators are white
+      Label_AlliesPlayer[I].FontColor := gGame.Networking.NetPlayers[I+1].FlagColor;
       DropBox_AlliesTeam[I].ItemIndex := 0;
       Label_AlliesTeam[I].Caption := gResTexts[TX_LOBBY_SPECTATOR];
     end
@@ -2989,8 +2989,9 @@ begin
                 //In a replay we want in-game statistics (and other things) to be shown for the owner of the last select object
                 if fUIMode in [umReplay, umSpectate] then
                 begin
-                  if MySpectator.Selected is TKMHouse then MySpectator.HandIndex := TKMHouse(MySpectator.Selected).Owner;
-                  if MySpectator.Selected is TKMUnit  then MySpectator.HandIndex := TKMUnit (MySpectator.Selected).Owner;
+                  if MySpectator.Selected is TKMHouse      then MySpectator.HandIndex := TKMHouse    (MySpectator.Selected).Owner;
+                  if MySpectator.Selected is TKMUnit       then MySpectator.HandIndex := TKMUnit     (MySpectator.Selected).Owner;
+                  if MySpectator.Selected is TKMUnitGroup  then MySpectator.HandIndex := TKMUnitGroup(MySpectator.Selected).Owner;
                   Dropbox_ReplayFOW.SelectByTag(MySpectator.HandIndex);
                   if Checkbox_ReplayFOW.Checked then
                     MySpectator.FOWIndex := MySpectator.HandIndex

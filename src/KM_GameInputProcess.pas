@@ -155,7 +155,7 @@ type
     procedure CmdGame(aCommandType: TGameInputCommandType; aValue: UnicodeString; aDateTime: TDateTime); overload;
     procedure CmdGame(aCommandType: TGameInputCommandType; aDateTime: TDateTime); overload;
     procedure CmdGame(aCommandType: TGameInputCommandType; aPlayer, aTeam:integer); overload;
-    procedure CmdGame(aCommandType: TGameInputCommandType; aLoc: TKMPointF; aPlayer: THandIndex); overload;
+    procedure CmdGame(aCommandType: TGameInputCommandType; aLoc: TKMPointF; aOwner: THandIndex; aColor: Cardinal); overload;
 
     procedure CmdTemp(aCommandType: TGameInputCommandType; aLoc: TKMPoint); overload;
     procedure CmdTemp(aCommandType: TGameInputCommandType); overload;
@@ -391,7 +391,7 @@ begin
                                     if ((Params[3] = -1) and (gGame.GameMode = gmMultiSpectate)) //HandIndex of -1 means it is for spectators
                                     or ((Params[3] <> -1) and (gGame.GameMode <> gmMultiSpectate) //Spectators shouldn't see player beacons
                                         and (gHands.CheckAlliance(Params[3], MySpectator.HandIndex) = at_Ally)) then
-                                      gGame.GamePlayInterface.Alerts.AddBeacon(KMPointF(Params[1]/10,Params[2]/10), Params[3], fGameApp.GlobalTickCount + ALERT_DURATION[atBeacon]);
+                                     gGame.GamePlayInterface.Alerts.AddBeacon(KMPointF(Params[1]/10,Params[2]/10), Params[3], (Params[4] or $FF000000), fGameApp.GlobalTickCount + ALERT_DURATION[atBeacon]);
       else                        Assert(false);
     end;
   end;
@@ -561,10 +561,10 @@ begin
 end;
 
 
-procedure TGameInputProcess.CmdGame(aCommandType: TGameInputCommandType; aLoc: TKMPointF; aPlayer: THandIndex);
+procedure TGameInputProcess.CmdGame(aCommandType: TGameInputCommandType; aLoc: TKMPointF; aOwner: THandIndex; aColor: Cardinal);
 begin
   Assert(aCommandType = gic_GameAlertBeacon);
-  TakeCommand(MakeCommand(aCommandType, [Round(aLoc.X * 10), Round(aLoc.Y * 10), aPlayer]));
+  TakeCommand(MakeCommand(aCommandType, [Round(aLoc.X * 10), Round(aLoc.Y * 10), aOwner, (aColor and $FFFFFF)]));
 end;
 
 

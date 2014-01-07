@@ -53,7 +53,7 @@ type
   public
     constructor Create(aViewport: TViewport);
     destructor Destroy; override;
-    procedure AddBeacon(aLoc: TKMPointF; aOwner: THandIndex; aShowUntil: Cardinal);
+    procedure AddBeacon(aLoc: TKMPointF; aOwner: THandIndex; aColor: Cardinal; aShowUntil: Cardinal);
     procedure AddFight(aLoc: TKMPointF; aPlayer: THandIndex; aAsset: TAttackNotification; aShowUntil: Cardinal);
     property Count: Integer read GetCount;
     property Items[aIndex: Integer]: TKMAlert read GetAlert; default;
@@ -69,6 +69,8 @@ uses KM_HandsCollection, KM_RenderPool, KM_Sound, KM_FogOfWar;
 type
   //These classes are only accessed locally, hence they aren't interfaced
   TKMAlertBeacon = class(TKMAlert)
+  private
+    fFlagColor: Cardinal; //Spectators don't have hand so fOwner isn't enough
   protected
     function GetTexMinimap: TKMPic; override;
     function GetTexTerrain: TKMPic; override;
@@ -76,7 +78,7 @@ type
     function GetVisibleMinimap: Boolean; override;
     function GetVisibleTerrain: Boolean; override;
   public
-    constructor Create(aLoc: TKMPointF; aOwner: THandIndex; aExpiry: Cardinal);
+    constructor Create(aLoc: TKMPointF; aOwner: THandIndex; aColor: Cardinal; aExpiry: Cardinal);
   end;
 
   TKMAlertAttacked = class(TKMAlert)
@@ -128,9 +130,10 @@ end;
 
 
 { TKMAlertBeacon }
-constructor TKMAlertBeacon.Create(aLoc: TKMPointF; aOwner: THandIndex; aExpiry: Cardinal);
+constructor TKMAlertBeacon.Create(aLoc: TKMPointF; aOwner: THandIndex; aColor: Cardinal; aExpiry: Cardinal);
 begin
   inherited Create(atBeacon, aLoc, aOwner, aExpiry);
+  fFlagColor := aColor;
 end;
 
 
@@ -150,10 +153,7 @@ end;
 
 function TKMAlertBeacon.GetTeamColor: Cardinal;
 begin
-  if fOwner = -1 then
-    Result := $FFFFFFFF //Spectators in multiplayer don't have a HandIndex
-  else
-    Result := gHands[fOwner].FlagColor;
+  Result := fFlagColor;
 end;
 
 
@@ -280,7 +280,7 @@ end;
 
 
 //Ally has placed a beacon for ue
-procedure TKMAlerts.AddBeacon(aLoc: TKMPointF; aOwner: THandIndex; aShowUntil: Cardinal);
+procedure TKMAlerts.AddBeacon(aLoc: TKMPointF; aOwner: THandIndex; aColor: Cardinal; aShowUntil: Cardinal);
   procedure RemoveExcessBeacons;
   var
     I, OldestID, Count: Integer;
@@ -307,7 +307,7 @@ procedure TKMAlerts.AddBeacon(aLoc: TKMPointF; aOwner: THandIndex; aShowUntil: C
 begin
   //If this player has too many beacons remove his oldest one
   RemoveExcessBeacons;
-  fList.Add(TKMAlertBeacon.Create(aLoc, aOwner, aShowUntil));
+  fList.Add(TKMAlertBeacon.Create(aLoc, aOwner, aColor, aShowUntil));
   gSoundPlayer.Play(sfxn_Beacon);
 end;
 

@@ -327,7 +327,7 @@ begin
   //Allocate available colors
   K := 0;
   for I := 1 to fCount do
-    if not fNetPlayers[I].IsSpectator and (fNetPlayers[I].FlagColorID = 0) then
+    if fNetPlayers[I].FlagColorID = 0 then
     begin
       Inc(K);
       if K <= ColorCount then
@@ -336,8 +336,7 @@ begin
 
   //Check for odd players
   for I := 1 to fCount do
-    if not fNetPlayers[I].IsSpectator then
-      Assert(fNetPlayers[I].FlagColorID <> 0, 'Everyone should have a color now!');
+    Assert(fNetPlayers[I].FlagColorID <> 0, 'Everyone should have a color now!');
 end;
 
 

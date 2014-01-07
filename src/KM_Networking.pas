@@ -613,18 +613,20 @@ begin
   begin
     NetPlayerIndex := fNetPlayers.StartingLocToLocal(aIndex);
     if NetPlayerIndex <> -1 then
+    begin
       fNetPlayers[NetPlayerIndex].StartLocation := fNetPlayers[aPlayerIndex].StartLocation;
+      //Spectators can't have team
+      if fNetPlayers[NetPlayerIndex].StartLocation = LOC_SPECTATE then
+        fNetPlayers[NetPlayerIndex].Team := 0;
+    end;
   end;
 
   //Host makes rules, Joiner will get confirmation from Host
   fNetPlayers[aPlayerIndex].StartLocation := aIndex; //Use aPlayerIndex not fMyIndex because it could be an AI
 
-  //Spectators can't have team or color
+  //Spectators can't have team
   if aIndex = LOC_SPECTATE then
-  begin
     fNetPlayers[aPlayerIndex].Team := 0;
-    fNetPlayers[aPlayerIndex].FlagColorID := 0;
-  end;
 
   case fNetPlayerKind of
     lpk_Host:   SendPlayerListAndRefreshPlayersSetup;
@@ -1568,7 +1570,11 @@ begin
                    )
                 and fNetPlayers.LocAvailable(LocID) then
                 begin //Update Players setup
-                  fNetPlayers[fNetPlayers.ServerToLocal(aSenderIndex)].StartLocation := LocID;
+                  PlayerIndex := fNetPlayers.ServerToLocal(aSenderIndex);
+                  fNetPlayers[PlayerIndex].StartLocation := LocID;
+                  //Spectators can't have team
+                  if LocID = LOC_SPECTATE then
+                    fNetPlayers[PlayerIndex].Team := 0;
                   SendPlayerListAndRefreshPlayersSetup;
                 end
                 else //Quietly refuse

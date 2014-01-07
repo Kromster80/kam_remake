@@ -962,7 +962,7 @@ begin
     DropBox_LobbyLoc[I].Enabled := (CanEdit or HostCanEdit);
     //Can't change color or teams in a loaded save
     DropBox_LobbyTeam[I].Enabled := (CanEdit or HostCanEdit) and not IsSave and not IsCoop and not CurPlayer.IsSpectator;
-    DropBox_LobbyColors[I].Enabled := (CanEdit or (MyNik and not CurPlayer.ReadyToStart)) and not IsSave and not CurPlayer.IsSpectator;
+    DropBox_LobbyColors[I].Enabled := (CanEdit or (MyNik and not CurPlayer.ReadyToStart)) and not IsSave;
     if MyNik and not fNetworking.IsHost then
     begin
       if CurPlayer.ReadyToStart then
