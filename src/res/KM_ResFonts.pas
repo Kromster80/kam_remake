@@ -567,11 +567,10 @@ end;
 
 
 function TKMResourceFont.CharsThatFit(const aText: UnicodeString; aFont: TKMFont; aMaxPxWidth:integer):integer;
-var I, CharSpacing, AdvX: Integer;
+var I, AdvX: Integer;
 begin
   AdvX := 0;
   Result := Length(aText);
-  CharSpacing := fFontData[aFont].CharSpacing; //Spacing between letters, this varies between fonts
 
   for I := 1 to Length(aText) do
   begin

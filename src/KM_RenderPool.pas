@@ -83,7 +83,7 @@ type
     //Terrain rendering sub-class
     procedure CollectPlans(aRect: TKMRect);
     procedure CollectTerrainObjects(aRect: TKMRect; aAnimStep: Cardinal);
-    procedure CollectRallyPoints;
+    procedure PaintRallyPoints(aPass: Byte);
 
     procedure RenderWireHousePlan(P: TKMPoint; aHouseType: THouseType);
   public
@@ -129,7 +129,7 @@ var
 
 implementation
 uses KM_CommonTypes, KM_RenderAux, KM_HandsCollection, KM_Game, KM_Sound, KM_Resource, KM_ResUnits,
-  KM_ResMapElements, KM_Units, KM_AIFields, KM_TerrainPainter, KM_GameCursor, KM_HouseBarracks;
+  KM_ResMapElements, KM_Units, KM_AIFields, KM_TerrainPainter, KM_GameCursor, KM_HouseBarracks, KM_FogOfWar;
 
 
 constructor TRenderPool.Create(aViewport: TViewport; aRender: TRender);
@@ -253,7 +253,7 @@ begin
     //Sprites are added by Terrain/Players/Projectiles, then sorted by position
     fRenderList.Clear;
     CollectTerrainObjects(ClipRect, gTerrain.AnimStep);
-    CollectRallyPoints;
+    PaintRallyPoints(0);
 
     gHands.Paint(ClipRect); //Units and houses
     gProjectiles.Paint;
@@ -266,7 +266,8 @@ begin
 
     fRenderTerrain.RenderFOW(MySpectator.FogOfWar, False);
 
-    //Alerts second pass is rendered after FOW
+    //Alerts/rally second pass is rendered after FOW
+    PaintRallyPoints(1);
     if gGame.GamePlayInterface <> nil then
       gGame.GamePlayInterface.Alerts.Paint(1);
 
@@ -401,15 +402,23 @@ begin
 end;
 
 
-procedure TRenderPool.CollectRallyPoints;
-var B: TKMHouseBarracks;
+procedure TRenderPool.PaintRallyPoints(aPass: Byte);
+var B: TKMHouseBarracks; P: TKMPointF;
 begin
   if not (MySpectator.Selected is TKMHouseBarracks) then Exit;
   B := TKMHouseBarracks(MySpectator.Selected);
+  P := KMPointF(B.RallyPoint.X-0.5, B.RallyPoint.Y-0.5);
   if B.IsRallyPointSet then
   begin
-    AddAlert(KMPointF(B.RallyPoint.X-0.5, B.RallyPoint.Y-0.5), 249, gHands[MySpectator.HandIndex].FlagColor);
-    gRenderAux.LineOnTerrain(B.GetEntrance.X-0.5, B.GetEntrance.Y-0.5, B.RallyPoint.X-0.5, B.RallyPoint.Y-0.5, gHands[MySpectator.HandIndex].FlagColor, $F0F0, False);
+    case aPass of
+      0: begin
+           AddAlert(P, 249, gHands[MySpectator.HandIndex].FlagColor);
+           gRenderAux.LineOnTerrain(B.GetEntrance.X-0.5, B.GetEntrance.Y-0.5, P.X, P.Y, gHands[MySpectator.HandIndex].FlagColor, $F0F0, False);
+         end;
+      1: if MySpectator.FogOfWar.CheckRevelation(P) < FOG_OF_WAR_MAX then
+           fRenderPool.RenderSpriteOnTerrain(P, 249, gHands[MySpectator.HandIndex].FlagColor);
+    end;
+
   end;
 end;
 

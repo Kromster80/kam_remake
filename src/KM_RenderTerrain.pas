@@ -22,6 +22,7 @@ type
     fInd: array of Integer;
     fVtxShd: GLUint;
     fIndShd: GLUint;
+    fTileUVLookup: array[0..255, 0..3] of TUVRect;
     function GetTileUV(Index: Word; Rot: Byte): TUVRect;
     procedure UpdateVBO(aFOW: TKMFogOfWarCommon);
     procedure DoTiles;
@@ -50,11 +51,15 @@ uses KM_Render;
 
 constructor TRenderTerrain.Create;
 var
-  I: Integer;
+  I, K: Integer;
   pData: array [0..255] of Cardinal;
 begin
   inherited;
   if SKIP_RENDER then Exit;
+
+  for I := 0 to 255 do
+    for K := 0 to 3 do
+      fTileUVLookup[I, K] := GetTileUV(I, K);
 
   //Generate gradient programmatically
   //KaM uses [0..255] gradients
@@ -228,9 +233,12 @@ begin
   for I := fClipRect.Top to fClipRect.Bottom do
   for K := fClipRect.Left to fClipRect.Right do
   begin
-    glBindTexture(GL_TEXTURE_2D, GFXData[rxTiles, Land[I,K].Terrain+1].Tex.ID);
-    glBegin(GL_TRIANGLE_FAN);
-    TexC := GetTileUV(Land[I,K].Terrain, Land[I,K].Rotation);
+    with Land[I,K] do
+    begin
+      glBindTexture(GL_TEXTURE_2D, GFXData[rxTiles, Terrain+1].Tex.ID);
+      glBegin(GL_TRIANGLE_FAN);
+      TexC := fTileUVLookup[Terrain, Rotation mod 4];
+    end;
 
     glColor4f(1,1,1,1);
     if RENDER_3D then
