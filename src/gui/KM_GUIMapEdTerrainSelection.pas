@@ -43,31 +43,31 @@ begin
   Panel_Selection := TKMPanel.Create(aParent, 0, 28, TB_WIDTH, 400);
 
   TKMLabel.Create(Panel_Selection, 0, PAGE_TITLE_Y, TB_WIDTH, 0, gResTexts[TX_MAPED_COPY_TITLE], fnt_Outline, taCenter);
-  Button_SelectCopy := TKMButton.Create(Panel_Selection, 20, 30, TB_WIDTH - 40, 20, gResTexts[TX_MAPED_COPY], bsGame);
+  Button_SelectCopy := TKMButton.Create(Panel_Selection, 10, 30, TB_WIDTH - 20, 20, gResTexts[TX_MAPED_COPY], bsGame);
   Button_SelectCopy.Hint := gResTexts[TX_MAPED_COPY_COPY_HINT];
   Button_SelectCopy.OnClick := SelectionClick;
 
-  Button_SelectPaste := TKMButton.Create(Panel_Selection, 20, 60, TB_WIDTH - 40, 20, gResTexts[TX_MAPED_PASTE], bsGame);
+  Button_SelectPaste := TKMButton.Create(Panel_Selection, 10, 60, TB_WIDTH - 20, 20, gResTexts[TX_MAPED_PASTE], bsGame);
   Button_SelectPaste.Hint := gResTexts[TX_MAPED_COPY_PASTE_HINT];
   Button_SelectPaste.OnClick := SelectionClick;
 
-  Button_SelectPasteApply := TKMButton.Create(Panel_Selection, 20, 90, TB_WIDTH - 40, 20, gResTexts[TX_MAPED_PASTE_APPLY], bsGame);
+  Button_SelectPasteApply := TKMButton.Create(Panel_Selection, 10, 90, TB_WIDTH - 20, 20, gResTexts[TX_MAPED_PASTE_APPLY], bsGame);
   Button_SelectPasteApply.Hint := gResTexts[TX_MAPED_COPY_PASTE_HINT];
   Button_SelectPasteApply.OnClick := SelectionClick;
 
-  Button_SelectPasteCancel := TKMButton.Create(Panel_Selection, 20, 120, TB_WIDTH - 40, 20, gResTexts[TX_MAPED_PASTE_CANCEL], bsGame);
+  Button_SelectPasteCancel := TKMButton.Create(Panel_Selection, 10, 120, TB_WIDTH - 20, 20, gResTexts[TX_MAPED_PASTE_CANCEL], bsGame);
   Button_SelectPasteCancel.Hint := gResTexts[TX_MAPED_COPY_PASTE_HINT];
   Button_SelectPasteCancel.OnClick := SelectionClick;
 
-  Button_SelectFlipH := TKMButton.Create(Panel_Selection, 20, 150, TB_WIDTH - 40, 20, gResTexts[TX_MAPED_COPY_PASTE_HFLIP], bsGame);
+  Button_SelectFlipH := TKMButton.Create(Panel_Selection, 10, 180, TB_WIDTH - 20, 20, gResTexts[TX_MAPED_COPY_PASTE_HFLIP], bsGame);
   Button_SelectFlipH.Hint := gResTexts[TX_MAPED_COPY_PASTE_HFLIP_HINT];
   Button_SelectFlipH.OnClick := SelectionClick;
 
-  Button_SelectFlipV := TKMButton.Create(Panel_Selection, 20, 180, TB_WIDTH - 40, 20, gResTexts[TX_MAPED_COPY_PASTE_VFLIP], bsGame);
+  Button_SelectFlipV := TKMButton.Create(Panel_Selection, 10, 210, TB_WIDTH - 20, 20, gResTexts[TX_MAPED_COPY_PASTE_VFLIP], bsGame);
   Button_SelectFlipV.Hint := gResTexts[TX_MAPED_COPY_PASTE_VFLIP_HINT];
   Button_SelectFlipV.OnClick := SelectionClick;
 
-  with TKMLabel.Create(Panel_Selection, 8, 230, TB_WIDTH-16, 80, gResTexts[TX_MAPED_COPY_SELECT_HINT], fnt_Grey, taLeft) do
+  with TKMLabel.Create(Panel_Selection, 8, 250, TB_WIDTH-16, 80, gResTexts[TX_MAPED_COPY_SELECT_HINT], fnt_Grey, taLeft) do
     AutoWrap := True;
 end;
 
@@ -93,6 +93,8 @@ begin
     Button_SelectPasteCancel.Enable;
     Button_SelectCopy.Disable;
     Button_SelectPaste.Disable;
+    Button_SelectFlipH.Disable;
+    Button_SelectFlipV.Disable;
   end
   else
   if Sender = Button_SelectPasteApply then
@@ -105,6 +107,8 @@ begin
     Button_SelectPasteCancel.Disable;
     Button_SelectCopy.Enable;
     Button_SelectPaste.Enable;
+    Button_SelectFlipH.Enable;
+    Button_SelectFlipV.Enable;
   end
   else
   if Sender = Button_SelectPasteCancel then
@@ -115,6 +119,8 @@ begin
     Button_SelectPasteCancel.Disable;
     Button_SelectCopy.Enable;
     Button_SelectPaste.Enable;
+    Button_SelectFlipH.Enable;
+    Button_SelectFlipV.Enable;
   end
   else
   if Sender = Button_SelectFlipH then

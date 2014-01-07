@@ -133,7 +133,7 @@ begin
     if ObjID < fCountCompact then
     begin
       ObjectsTable[I].TexID := MapElem[fCompactToMapElem[ObjID]].Anim.Step[1] + 1;
-      ObjectsTable[I].Caption := IntToStr(ObjID);
+      ObjectsTable[I].Caption := IntToStr(fCompactToMapElem[ObjID]);
       ObjectsTable[I].Enable;
     end
     else
