@@ -391,7 +391,7 @@ begin
                                     if ((Params[3] = -1) and (gGame.GameMode = gmMultiSpectate)) //HandIndex of -1 means it is for spectators
                                     or ((Params[3] <> -1) and (gGame.GameMode <> gmMultiSpectate) //Spectators shouldn't see player beacons
                                         and (gHands.CheckAlliance(Params[3], MySpectator.HandIndex) = at_Ally)) then
-                                     gGame.GamePlayInterface.Alerts.AddBeacon(KMPointF(Params[1]/10,Params[2]/10), Params[3], (Params[4] or $FF000000), fGameApp.GlobalTickCount + ALERT_DURATION[atBeacon]);
+                                      gGame.GamePlayInterface.Alerts.AddBeacon(KMPointF(Params[1]/10,Params[2]/10), Params[3], (Params[4] or $FF000000), fGameApp.GlobalTickCount + ALERT_DURATION[atBeacon]);
       else                        Assert(false);
     end;
   end;

@@ -28,6 +28,7 @@
  +      Actions.GiveHouse failed when there was a worker building a field or road next to the house
  +      Strange AI behaviour in campaign missions due to AI attack values not carrying over like they do in KaM
  +      AI warriors should attack enemies when they are within 4 tiles, to prevent sneaking into AI village (can be set in MapEd)
+ +      Terrain brushes in MapEd erase corn/wine fields (should preserve them)
 	Armour smithy has shields as 2nd ouput, armour workshop has shields as 1st output. Would make sense to match them (note: simply swapping in KM_ResourceHouses causes game logic to be swapped with GUI)
 	Armour smithy has iron as 1st input, weapon smithy has iron as 2nd input (iron/coal swapped). Would make sense to match them (note: simpply swapping in KM_ResourceHouses causes game logic to be swapped with GUI)
 	Deliveries should use the actual walking route length (opposed to Radius)
@@ -46,7 +47,6 @@
 	If just one player cannot run the game smoothly MP will lag for everyone in his game. For example if you zoom out a lot you will get a poor frame rate and your game will run at < 10 ticks per second forcing other players down to that speed. The lagger's ping will not look any different. Maybe have a way to indicate to that player and the others on the server that he is causing the lag? Our planned 2x speed in MP will make this much worse as some computers will lag more.
 	There's no message in MP when you defeat AI opponent (if you defeat human opponent it shows one)
 	TSK15 - AI does not build because stone is too far away (AI builder is incomplete)
-	Terrain brushes in MapEd erase corn/wine fields (should try to preserve them)
 	Woodcutter would cut a missing tree on a corn field (replaced with corn while he is chopping)
 	Towers attack range is uneven (should be measured from towers middle, not the recruit location in BR corner)
 	When citizen walks into a house he should be deselected

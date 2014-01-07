@@ -8,12 +8,14 @@ Future
 	Multiplayer trading (from a new building "Trading Post"?)
 	Improved MapEd
 	Checkpoints in replays for fast fwd/rwd
+	Checkbox to allow allies to share group/house control (or two players controling one hand)
 
 Next Demo
  +	Select objects by shape
  +	Undo/Redo in MapEd terrain editing
  +	File transfer in multiplayer for missions and saves [Lewin]
-	Unicode
+ +	Unicode
+ +	Multiplayer spectating
 
 
 Scripting Demo (r5503) - 2013-06-23
