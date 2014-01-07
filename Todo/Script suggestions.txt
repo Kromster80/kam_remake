@@ -33,6 +33,7 @@ Implemented:
  5976   Actions.GroupDisableHungryMessage
  5978   UnitKill now works for animals
  6015   Actions.HouseTakeWaresFrom
+ 6067   Actions.Log
 
 
 Accepted:

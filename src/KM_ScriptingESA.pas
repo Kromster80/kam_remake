@@ -199,6 +199,8 @@ type
     procedure HouseWareBlock(aHouseID, aWareType: Integer; aBlocked: Boolean);
     procedure HouseWeaponsOrderSet(aHouseID, aWareType, aAmount: Integer);
 
+    procedure Log(aText: AnsiString);
+
     procedure OverlayTextSet(aPlayer: Shortint; aText: AnsiString);
     procedure OverlayTextSetFormatted(aPlayer: Shortint; aText: AnsiString; Params: array of const);
     procedure OverlayTextAppend(aPlayer: Shortint; aText: AnsiString);
@@ -2432,6 +2434,12 @@ begin
   end
   else
     LogError('Actions.HouseBarracksEquip', [aHouseID, aUnitType]);
+end;
+
+
+procedure TKMScriptActions.Log(aText: AnsiString);
+begin
+  gLog.AddTime('Script: '+aText);
 end;
 
 

@@ -255,6 +255,7 @@ begin
       RegisterMethod('procedure HouseWoodcutterChopOnly(aHouseID: Integer; aChopOnly: Boolean)');
       RegisterMethod('procedure HouseWareBlock(aHouseID, aWareType: Integer; aBlocked: Boolean)');
       RegisterMethod('procedure HouseWeaponsOrderSet(aHouseID, aWareType, aAmount: Integer)');
+      RegisterMethod('procedure Log(aText: AnsiString)');
 
       RegisterMethod('procedure OverlayTextSet(aPlayer: Shortint; aText: AnsiString)');
       RegisterMethod('procedure OverlayTextSetFormatted(aPlayer: Shortint; aText: AnsiString; Params: array of const)');
@@ -572,6 +573,8 @@ begin
       RegisterMethod(@TKMScriptActions.HouseWoodcutterChopOnly, 'HOUSEWOODCUTTERCHOPONLY');
       RegisterMethod(@TKMScriptActions.HouseWareBlock,          'HOUSEWAREBLOCK');
       RegisterMethod(@TKMScriptActions.HouseWeaponsOrderSet,    'HOUSEWEAPONSORDERSET');
+
+      RegisterMethod(@TKMScriptActions.Log, 'LOG');
 
       RegisterMethod(@TKMScriptActions.OverlayTextSet,             'OVERLAYTEXTSET');
       RegisterMethod(@TKMScriptActions.OverlayTextSetFormatted,    'OVERLAYTEXTSETFORMATTED');
