@@ -1344,7 +1344,7 @@ begin
   fNextPosition := aLoc;
   //If we're not using dynamic fog of war we only need to update it when the unit steps on a new tile
   if not DYNAMIC_FOG_OF_WAR and (fOwner <> PLAYER_ANIMAL) then
-    gHands.RevealForTeam(fOwner, fCurrPosition, gResource.UnitDat[fUnitType].Sight, FOG_OF_WAR_INC);
+    gHands.RevealForTeam(fOwner, fCurrPosition, gResource.UnitDat[fUnitType].Sight, FOG_OF_WAR_MAX);
 end;
 
 
