@@ -78,7 +78,7 @@ type
     fItems: array [TUnitType] of TKMUnitDatClass;
     fSerfCarry: array [WARE_MIN..WARE_MAX, dir_N..dir_NW] of TKMAnimLoop;
     function LoadUnitsDat(aPath: UnicodeString): Cardinal;
-    function GetUnitDat(aType: TUnitType): TKMUnitDatClass;
+    function GetUnitDat(aType: TUnitType): TKMUnitDatClass; inline;
     function GetSerfCarry(aType: TWareType; aDir: TKMDirection): TKMAnimLoop;
   public
     constructor Create;

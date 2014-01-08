@@ -78,8 +78,8 @@ type
   private
     fCount: Integer;
     fItems: array of TKMPoint; //0..Count-1
-    function GetPoint(aIndex: Integer): TKMPoint;
-    procedure SetPoint(aIndex: Integer; const aValue: TKMPoint); //1..Count
+    function GetPoint(aIndex: Integer): TKMPoint; inline;
+    procedure SetPoint(aIndex: Integer; const aValue: TKMPoint); inline; //1..Count
   public
     constructor Create;
 

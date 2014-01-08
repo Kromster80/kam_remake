@@ -19,10 +19,10 @@ type
     fInfluence: array of Byte; //Each players area of influence
     fOwnership: array of Byte;
 
-    function GetInfluence(aPlayer: Byte; Y,X: Word): Byte;
-    procedure SetInfluence(aPlayer: Byte; Y,X: Word; aInfluence: Byte);
-    function GetOwnership(aPlayer: Byte; Y,X: Word): Byte;
-    procedure SetOwnership(aPlayer: Byte; Y,X: Word; aOwnership: Byte);
+    function GetInfluence(aPlayer: Byte; Y,X: Word): Byte; inline;
+    procedure SetInfluence(aPlayer: Byte; Y,X: Word; aInfluence: Byte); inline;
+    function GetOwnership(aPlayer: Byte; Y,X: Word): Byte; inline;
+    procedure SetOwnership(aPlayer: Byte; Y,X: Word; aOwnership: Byte); inline;
 
     property Influence[aPlayer: Byte; Y,X: Word]: Byte read GetInfluence write SetInfluence;
 
@@ -74,6 +74,30 @@ begin
 end;
 
 
+function TKMInfluences.GetInfluence(aPlayer: Byte; Y,X: Word): Byte;
+begin
+  Result := fInfluence[aPlayer*fMapX*fMapY + Y*fMapX + X];
+end;
+
+
+procedure TKMInfluences.SetInfluence(aPlayer: Byte; Y,X: Word; aInfluence: Byte);
+begin
+  fInfluence[aPlayer*fMapX*fMapY + Y*fMapX + X] := aInfluence;
+end;
+
+
+function TKMInfluences.GetOwnership(aPlayer: Byte; Y,X: Word): Byte;
+begin
+  Result := fOwnership[aPlayer*fMapX*fMapY + Y*fMapX + X];
+end;
+
+
+procedure TKMInfluences.SetOwnership(aPlayer: Byte; Y,X: Word; aOwnership: Byte);
+begin
+  fOwnership[aPlayer*fMapX*fMapY + Y*fMapX + X] := aOwnership;
+end;
+
+
 //Return index of player who has most influence on this tile, or none
 function TKMInfluences.GetBestOwner(X, Y: Word): THandIndex;
 var
@@ -112,30 +136,6 @@ begin
     UpdateDirectInfluence(I);
     UpdateOwnershipInfluence(I);
   end;
-end;
-
-
-function TKMInfluences.GetInfluence(aPlayer: Byte; Y,X: Word): Byte;
-begin
-  Result := fInfluence[aPlayer*fMapX*fMapY + Y*fMapX + X];
-end;
-
-
-procedure TKMInfluences.SetInfluence(aPlayer: Byte; Y,X: Word; aInfluence: Byte);
-begin
-  fInfluence[aPlayer*fMapX*fMapY + Y*fMapX + X] := aInfluence;
-end;
-
-
-function TKMInfluences.GetOwnership(aPlayer: Byte; Y,X: Word): Byte;
-begin
-  Result := fOwnership[aPlayer*fMapX*fMapY + Y*fMapX + X];
-end;
-
-
-procedure TKMInfluences.SetOwnership(aPlayer: Byte; Y,X: Word; aOwnership: Byte);
-begin
-  fOwnership[aPlayer*fMapX*fMapY + Y*fMapX + X] := aOwnership;
 end;
 
 

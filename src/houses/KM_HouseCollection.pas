@@ -11,7 +11,7 @@ type
   private
     fHouses: TKMList; //Private to hide methods we don't want to expose
     function AddToCollection(aHouseType: THouseType; PosX,PosY: Integer; aOwner: THandIndex; aHBS: THouseBuildState):TKMHouse;
-    function GetHouse(aIndex: Integer): TKMHouse;
+    function GetHouse(aIndex: Integer): TKMHouse; inline;
     function GetCount: Integer;
   public
     constructor Create;

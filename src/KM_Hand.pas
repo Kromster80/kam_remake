@@ -58,8 +58,8 @@ type
 
     function GetColorIndex: Byte;
 
-    function  GetAlliances(aIndex: Integer): TAllianceType;
-    procedure SetAlliances(aIndex: Integer; aValue: TAllianceType);
+    function  GetAlliances(aIndex: Integer): TAllianceType; inline;
+    procedure SetAlliances(aIndex: Integer; aValue: TAllianceType); inline;
     function  GetShareFOW(aIndex: Integer): Boolean;
     procedure SetShareFOW(aIndex: Integer; aValue: Boolean);
     procedure GroupDied(aGroup: TKMUnitGroup);

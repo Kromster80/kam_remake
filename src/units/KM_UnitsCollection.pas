@@ -15,7 +15,7 @@ type
   TKMUnitsCollection = class
   private
     fUnits: TKMList;
-    function GetUnit(aIndex: Integer): TKMUnit;
+    function GetUnit(aIndex: Integer): TKMUnit; inline;
     function GetCount: Integer;
   public
     constructor Create;

@@ -121,7 +121,7 @@ type
     fBeastAnim: array [1..2,1..5,1..3] of TKMAnimLoop;
     fMarketBeastAnim: array [1..3] of TKMAnimLoop;
     function LoadHouseDat(aPath: string): Cardinal;
-    function GetHouseDat(aType: THouseType): TKMHouseDatClass;
+    function GetHouseDat(aType: THouseType): TKMHouseDatClass; inline;
     function GetBeastAnim(aType: THouseType; aBeast, aAge:integer): TKMAnimLoop;
   public
     constructor Create;

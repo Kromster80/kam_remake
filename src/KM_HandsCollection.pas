@@ -14,7 +14,7 @@ type
     fCount: Byte;
     fHandsList: array of TKMHand;
     fPlayerAnimals: TKMHandAnimals;
-    function GetHand(aIndex: Integer): TKMHand;
+    function GetHand(aIndex: Integer): TKMHand; inline;
   public
     constructor Create;
     destructor Destroy; override;
@@ -99,7 +99,8 @@ end;
 
 function TKMHandsCollection.GetHand(aIndex: Integer): TKMHand;
 begin
-  Assert(InRange(aIndex, 0, fCount-1));
+  //We have Range Checks enabled so such an error will be caught and reported already
+  //Assert(InRange(aIndex, 0, fCount-1));
   Result := fHandsList[aIndex];
 end;
 
