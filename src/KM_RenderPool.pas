@@ -603,6 +603,8 @@ var
   PicWood, PicStone, PicSnow: Integer;
   CornerX, CornerY, GroundWood, GroundStone, gX, gY: Single;
 begin
+  if aWoodStep = 0 then Exit;
+
   R := fRXData[rxHouses];
 
   PicWood := gResource.HouseDat[aHouse].WoodPic + 1;
@@ -616,17 +618,23 @@ begin
   gY := aLoc.Y + Max(GroundWood, GroundStone) / CELL_SIZE_PX - 1.5;
 
   //Wood part of the house (may be seen below Stone part, e.g. Sawmill)
-  CornerX := aLoc.X + R.Pivot[PicWood].X / CELL_SIZE_PX;
-  CornerY := aLoc.Y + (R.Pivot[PicWood].Y + R.Size[PicWood].Y) / CELL_SIZE_PX
+  CornerX := aLoc.X + R.Pivot[PicWood].X / CELL_SIZE_PX - 1;
+  CornerY := aLoc.Y + (R.Pivot[PicWood].Y + R.Size[PicWood].Y) / CELL_SIZE_PX - 1
                    - gTerrain.Land[aLoc.Y + 1, aLoc.X].Height / CELL_HEIGHT_DIV;
+
+  //If it's fully built we can render without alpha
+  if aWoodStep = 1 then aWoodStep := -1;
   fRenderList.AddSpriteG(rxHouses, PicWood, 0, CornerX, CornerY, gX, gY, $0, aWoodStep);
 
   //Stone
   if aStoneStep > 0 then
   begin
-    CornerX := aLoc.X + R.Pivot[PicStone].X / CELL_SIZE_PX;
-    CornerY := aLoc.Y + (R.Pivot[PicStone].Y + R.Size[PicStone].Y) / CELL_SIZE_PX
+    CornerX := aLoc.X + R.Pivot[PicStone].X / CELL_SIZE_PX - 1;
+    CornerY := aLoc.Y + (R.Pivot[PicStone].Y + R.Size[PicStone].Y) / CELL_SIZE_PX - 1
                      - gTerrain.Land[aLoc.Y + 1, aLoc.X].Height / CELL_HEIGHT_DIV;
+
+    //If it's fully built we can render without alpha
+    if aStoneStep = 1 then aStoneStep := -1;
     fRenderList.AddSprite(rxHouses, PicStone, 0, CornerX, CornerY, $0, aStoneStep);
   end;
 
@@ -635,8 +643,8 @@ begin
   and (aSnowStep > 0)
   and (PicSnow <> 0) then
   begin
-    CornerX := aLoc.X + R.Pivot[PicSnow].X / CELL_SIZE_PX;
-    CornerY := aLoc.Y + (R.Pivot[PicSnow].Y + R.Size[PicSnow].Y) / CELL_SIZE_PX
+    CornerX := aLoc.X + R.Pivot[PicSnow].X / CELL_SIZE_PX - 1;
+    CornerY := aLoc.Y + (R.Pivot[PicSnow].Y + R.Size[PicSnow].Y) / CELL_SIZE_PX - 1
                      - gTerrain.Land[aLoc.Y + 1, aLoc.X].Height / CELL_HEIGHT_DIV;
     fRenderList.AddSprite(rxHouses, PicSnow, 0, CornerX, CornerY, $0, aSnowStep);
   end;
@@ -1068,10 +1076,10 @@ begin
       glColor3f(1, 1, 1);
       glBindTexture(GL_TEXTURE_2D, Alt.Id);
       glBegin(GL_QUADS);
-        glTexCoord2f(Alt.u1,Alt.v2); glVertex2f(pX-1                     ,pY-1         );
-        glTexCoord2f(Alt.u2,Alt.v2); glVertex2f(pX-1+pxWidth/CELL_SIZE_PX,pY-1         );
-        glTexCoord2f(Alt.u2,Alt.v1); glVertex2f(pX-1+pxWidth/CELL_SIZE_PX,pY-1-pxHeight/CELL_SIZE_PX);
-        glTexCoord2f(Alt.u1,Alt.v1); glVertex2f(pX-1                     ,pY-1-pxHeight/CELL_SIZE_PX);
+        glTexCoord2f(Alt.u1,Alt.v2); glVertex2f(pX                     ,pY         );
+        glTexCoord2f(Alt.u2,Alt.v2); glVertex2f(pX+pxWidth/CELL_SIZE_PX,pY         );
+        glTexCoord2f(Alt.u2,Alt.v1); glVertex2f(pX+pxWidth/CELL_SIZE_PX,pY-pxHeight/CELL_SIZE_PX);
+        glTexCoord2f(Alt.u1,Alt.v1); glVertex2f(pX                     ,pY-pxHeight/CELL_SIZE_PX);
       glEnd;
       glBindTexture(GL_TEXTURE_2D, 0);
     end;
@@ -1087,10 +1095,10 @@ begin
           glColor3f(1, 1, 1);
           glBindTexture(GL_TEXTURE_2D, Alt.Id);
           glBegin(GL_QUADS);
-            glTexCoord2f(Alt.u1,Alt.v2); glVertex2f(X2-1                     ,Y2-1         );
-            glTexCoord2f(Alt.u2,Alt.v2); glVertex2f(X2-1+pxWidth/CELL_SIZE_PX,Y2-1         );
-            glTexCoord2f(Alt.u2,Alt.v1); glVertex2f(X2-1+pxWidth/CELL_SIZE_PX,Y2-1-pxHeight/CELL_SIZE_PX);
-            glTexCoord2f(Alt.u1,Alt.v1); glVertex2f(X2-1                     ,Y2-1-pxHeight/CELL_SIZE_PX);
+            glTexCoord2f(Alt.u1,Alt.v2); glVertex2f(X2                     ,Y2         );
+            glTexCoord2f(Alt.u2,Alt.v2); glVertex2f(X2+pxWidth/CELL_SIZE_PX,Y2         );
+            glTexCoord2f(Alt.u2,Alt.v1); glVertex2f(X2+pxWidth/CELL_SIZE_PX,Y2-pxHeight/CELL_SIZE_PX);
+            glTexCoord2f(Alt.u1,Alt.v1); glVertex2f(X2                     ,Y2-pxHeight/CELL_SIZE_PX);
           glEnd;
           glBindTexture(GL_TEXTURE_2D, 0);
         end;
@@ -1113,10 +1121,10 @@ begin
 
     glBindTexture(GL_TEXTURE_2D, Tex.Id);
     glBegin(GL_QUADS);
-      glTexCoord2f(Tex.u1,Tex.v2); glVertex2f(pX-1                     ,pY-1         );
-      glTexCoord2f(Tex.u2,Tex.v2); glVertex2f(pX-1+pxWidth/CELL_SIZE_PX,pY-1         );
-      glTexCoord2f(Tex.u2,Tex.v1); glVertex2f(pX-1+pxWidth/CELL_SIZE_PX,pY-1-pxHeight/CELL_SIZE_PX);
-      glTexCoord2f(Tex.u1,Tex.v1); glVertex2f(pX-1                     ,pY-1-pxHeight/CELL_SIZE_PX);
+      glTexCoord2f(Tex.u1,Tex.v2); glVertex2f(pX                     ,pY         );
+      glTexCoord2f(Tex.u2,Tex.v2); glVertex2f(pX+pxWidth/CELL_SIZE_PX,pY         );
+      glTexCoord2f(Tex.u2,Tex.v1); glVertex2f(pX+pxWidth/CELL_SIZE_PX,pY-pxHeight/CELL_SIZE_PX);
+      glTexCoord2f(Tex.u1,Tex.v1); glVertex2f(pX                     ,pY-pxHeight/CELL_SIZE_PX);
     glEnd;
     glBindTexture(GL_TEXTURE_2D, 0);
   end;
