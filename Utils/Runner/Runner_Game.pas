@@ -192,11 +192,16 @@ procedure TKMRunnerAIBuild.Execute(aRun: Integer);
 begin
   fGameApp.NewSingleMap(ExtractFilePath(ParamStr(0)) + '..\..\Maps\AcrossDesert\AcrossDesert.dat', 'Across the Desert');
 
+  gHands[MySpectator.HandIndex].FogOfWar.RevealEverything;
+  fGameApp.Game.GamePlayInterface.Viewport.PanTo(KMPointF(25, 25), 0);
+  fGameApp.Game.GamePlayInterface.Viewport.Zoom := 0.25;
+
+
   SetKaMSeed(aRun + 1);
 
   SimulateGame;
 
-  fGameApp.Game.Save('AI Build #' + IntToStr(aRun));
+  fGameApp.Game.Save('AI Build #' + IntToStr(aRun), Now);
 
   {fResults.Value[aRun, 0] := gHands[0].Stats.GetWarriorsTrained;
   fResults.Value[aRun, 1] := gHands[1].Stats.GetWarriorsTrained;

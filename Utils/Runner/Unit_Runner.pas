@@ -3,7 +3,7 @@ unit Unit_Runner;
 interface
 uses Classes, Math, SysUtils,
   KM_Defaults, KM_CommonClasses, KM_CommonTypes, KromUtils,
-  KM_GameApp, KM_ResLocales, KM_Log, KM_ResTexts, KM_Utils;
+  KM_GameApp, KM_ResLocales, KM_Log, KM_ResTexts, KM_Utils, KM_RenderControl;
 
 
 type
@@ -22,6 +22,7 @@ type
 
   TKMRunnerCommon = class
   protected
+    fRenderTarget: TKMRenderControl;
     fRun: Integer;
     fResults: TKMRunResults;
     procedure SetUp; virtual;
@@ -31,6 +32,7 @@ type
     procedure ProcessRunResults;
   public
     OnProgress: TUnicodeStringEvent;
+    constructor Create(aRenderTarget: TKMRenderControl); reintroduce;
     function Run(aCount: Integer): TKMRunResults;
   end;
 
@@ -50,6 +52,14 @@ end;
 
 
 { TKMRunnerCommon }
+constructor TKMRunnerCommon.Create(aRenderTarget: TKMRenderControl);
+begin
+  inherited Create;
+
+  fRenderTarget := aRenderTarget;
+end;
+
+
 function TKMRunnerCommon.Run(aCount: Integer): TKMRunResults;
 var
   I: Integer;
@@ -111,11 +121,11 @@ end;
 
 procedure TKMRunnerCommon.SetUp;
 begin
-  SKIP_RENDER := True;
+  SKIP_RENDER := (fRenderTarget = nil);
   SKIP_SOUND := True;
   ExeDir := ExtractFilePath(ParamStr(0)) + '..\..\';
   //gLog := TKMLog.Create(ExtractFilePath(ParamStr(0)) + 'temp.log');
-  fGameApp := TKMGameApp.Create(nil, 1024, 768, False, nil, nil, nil, True);
+  fGameApp := TKMGameApp.Create(fRenderTarget, fRenderTarget.Width, fRenderTarget.Height, False, nil, nil, nil, True);
   fGameApp.GameSettings.Autosave := False;
 end;
 
@@ -136,6 +146,7 @@ begin
     fResults.Times[fRun, I] := TimeGet;
 
     fGameApp.Game.UpdateGame(nil);
+    fGameApp.Render(False);
 
     fResults.Times[fRun, I] := TimeGet - fResults.Times[fRun, I];
 

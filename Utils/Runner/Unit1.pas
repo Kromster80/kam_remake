@@ -3,13 +3,12 @@ unit Unit1;
 interface
 uses
   Forms, Controls, StdCtrls, Spin, ExtCtrls, Classes, SysUtils, Graphics, Types, Math, Windows,
-  Unit_Runner, Vcl.ComCtrls;
+  Unit_Runner, Vcl.ComCtrls, KM_RenderControl;
 
 
 type
   TForm2 = class(TForm)
     Button1: TButton;
-    Memo1: TMemo;
     seCycles: TSpinEdit;
     Label1: TLabel;
     ListBox1: TListBox;
@@ -24,6 +23,10 @@ type
     Image2: TImage;
     Image3: TImage;
     Label3: TLabel;
+    TabSheet4: TTabSheet;
+    Memo1: TMemo;
+    Render: TTabSheet;
+    Panel1: TPanel;
     procedure FormCreate(Sender: TObject);
     procedure Button1Click(Sender: TObject);
     procedure PageControl1Change(Sender: TObject);
@@ -34,6 +37,7 @@ type
     fX: array of TLabel;
     fResults: TKMRunResults;
     fRunTime: string;
+    RenderArea: TKMRenderControl;
     procedure RunnerProgress(const aValue: string);
     procedure RefreshResults(aImg: TImage);
     procedure RefreshDistribution(aImg: TImage);
@@ -69,6 +73,11 @@ procedure TForm2.FormCreate(Sender: TObject);
 var
   I: Integer;
 begin
+  RenderArea := TKMRenderControl.Create(Panel1);
+  RenderArea.Parent := Panel1;
+  RenderArea.Align := alClient;
+  RenderArea.Color := clMaroon;
+
   for I := 0 to High(RunnerList) do
     ListBox1.Items.Append(RunnerList[I].ClassName);
 end;
@@ -115,7 +124,7 @@ begin
   Button1.Enabled := False;
   try
     RunnerClass := RunnerList[ID];
-    Runner := RunnerClass.Create;
+    Runner := RunnerClass.Create(RenderArea);
     Runner.OnProgress := RunnerProgress;
     try
       T := GetTickCount;
