@@ -16,11 +16,13 @@ type
     fHighlightEnd: Cardinal; //Highlight has a short time to live
     fSelected: TObject;
     fFOWIndex: THandIndex; //Unit/House/Group selected by player and shown in UI
-    fFogOfWar: TKMFogOfWarOpen; //Stub for MapEd
+    fFogOfWarOpen: TKMFogOfWarOpen; //Stub for MapEd
+    fFogOfWar: TKMFogOfWarCommon; //Pointer to current FOW view, updated by UpdateFogOfWarIndex
     procedure SetHighlight(Value: TObject);
     procedure SetSelected(Value: TObject);
     procedure SetHandIndex(const Value: THandIndex);
     procedure SetFOWIndex(const Value: THandIndex);
+    procedure UpdateFogOfWarIndex;
   public
     constructor Create(aHandIndex: THandIndex);
     destructor Destroy; override;
@@ -28,7 +30,7 @@ type
     property Selected: TObject read fSelected write SetSelected;
     property HandIndex: THandIndex read fHandIndex write SetHandIndex;
     property FOWIndex: THandIndex read fFOWIndex write SetFOWIndex;
-    function FogOfWar: TKMFogOfWarCommon; //Which FOW we want to see
+    property FogOfWar: TKMFogOfWarCommon read fFogOfWar;
     function HitTestCursor: TObject;
     procedure UpdateSelect;
     procedure Load(LoadStream: TKMemoryStream);
@@ -49,7 +51,8 @@ begin
   fHandIndex := aHandIndex;
 
   //Stub that always returns REVEALED
-  fFogOfWar := TKMFogOfWarOpen.Create;
+  fFogOfWarOpen := TKMFogOfWarOpen.Create;
+  UpdateFogOfWarIndex;
 end;
 
 
@@ -57,21 +60,21 @@ destructor TKMSpectator.Destroy;
 begin
   Highlight := nil;
   Selected := nil;
-  fFogOfWar.Free;
+  fFogOfWarOpen.Free;
   inherited;
 end;
 
 
-function TKMSpectator.FogOfWar: TKMFogOfWarCommon;
+procedure TKMSpectator.UpdateFogOfWarIndex;
 begin
   //fGame = nil in Tests
   if (gGame <> nil) and (gGame.GameMode in [gmMultiSpectate, gmMapEd, gmReplaySingle, gmReplayMulti]) then
     if FOWIndex = -1 then
-      Result := fFogOfWar
+      fFogOfWar := fFogOfWarOpen
     else
-      Result := gHands[FOWIndex].FogOfWar
+      fFogOfWar := gHands[FOWIndex].FogOfWar
   else
-    Result := gHands[HandIndex].FogOfWar;
+    fFogOfWar := gHands[HandIndex].FogOfWar;
 end;
 
 
@@ -162,6 +165,7 @@ end;
 procedure TKMSpectator.SetFOWIndex(const Value: THandIndex);
 begin
   fFOWIndex := Value;
+  UpdateFogOfWarIndex;
 end;
 
 
@@ -181,6 +185,8 @@ begin
 
   if not (gGame.GameMode in [gmMultiSpectate, gmMapEd, gmReplaySingle, gmReplayMulti]) then
     Selected := nil;
+
+  UpdateFogOfWarIndex;
 end;
 
 
@@ -197,6 +203,10 @@ begin
   //Hide the highlight
   if TimeGet > fHighlightEnd then
     fHighlight := nil;
+  //Units should be deselected when they go inside a house
+  if Selected is TKMUnit then
+    if not TKMUnit(Selected).Visible then
+      Selected := nil;
 end;
 
 

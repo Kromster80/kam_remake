@@ -29,6 +29,7 @@
  +      Strange AI behaviour in campaign missions due to AI attack values not carrying over like they do in KaM
  +      AI warriors should attack enemies when they are within 4 tiles, to prevent sneaking into AI village (can be set in MapEd)
  +      Terrain brushes in MapEd erase corn/wine fields (should preserve them)
+ +      When citizen walks into a house he should be deselected
 	Armour smithy has shields as 2nd ouput, armour workshop has shields as 1st output. Would make sense to match them (note: simply swapping in KM_ResourceHouses causes game logic to be swapped with GUI)
 	Armour smithy has iron as 1st input, weapon smithy has iron as 2nd input (iron/coal swapped). Would make sense to match them (note: simpply swapping in KM_ResourceHouses causes game logic to be swapped with GUI)
 	Deliveries should use the actual walking route length (opposed to Radius)
@@ -49,7 +50,6 @@
 	TSK15 - AI does not build because stone is too far away (AI builder is incomplete)
 	Woodcutter would cut a missing tree on a corn field (replaced with corn while he is chopping)
 	Towers attack range is uneven (should be measured from towers middle, not the recruit location in BR corner)
-	When citizen walks into a house he should be deselected
 	AIAttacks bug (AI attacks mulfunction after 12min.rar)
 	Make wood to building sites to be delivered first
         TSK 5: ally sometimes sends his troops to the enemy base causing you to lose (after the enemy attacks?)
