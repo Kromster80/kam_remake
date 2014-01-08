@@ -193,9 +193,8 @@ begin
   fGameApp.NewSingleMap(ExtractFilePath(ParamStr(0)) + '..\..\Maps\AcrossDesert\AcrossDesert.dat', 'Across the Desert');
 
   gHands[MySpectator.HandIndex].FogOfWar.RevealEverything;
-  fGameApp.Game.GamePlayInterface.Viewport.PanTo(KMPointF(25, 25), 0);
+  fGameApp.Game.GamePlayInterface.Viewport.PanTo(KMPointF(136, 25), 0);
   fGameApp.Game.GamePlayInterface.Viewport.Zoom := 0.25;
-
 
   SetKaMSeed(aRun + 1);
 

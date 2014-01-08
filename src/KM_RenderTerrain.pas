@@ -163,8 +163,8 @@ begin
   else
     Fog := nil;
 
-  SizeX := fClipRect.Right - fClipRect.Left;
-  SizeY := fClipRect.Bottom - fClipRect.Top;
+  SizeX := Max(fClipRect.Right - fClipRect.Left, 0);
+  SizeY := Max(fClipRect.Bottom - fClipRect.Top, 0);
   H := 0;
   SetLength(fPos, (SizeX + 2) * 2 * (SizeY + 1));
   with gTerrain do

@@ -120,12 +120,25 @@ end;
 
 
 procedure TKMRunnerCommon.SetUp;
+var
+  tgtWidth, tgtHeight: Word;
 begin
   SKIP_RENDER := (fRenderTarget = nil);
   SKIP_SOUND := True;
   ExeDir := ExtractFilePath(ParamStr(0)) + '..\..\';
   //gLog := TKMLog.Create(ExtractFilePath(ParamStr(0)) + 'temp.log');
-  fGameApp := TKMGameApp.Create(fRenderTarget, fRenderTarget.Width, fRenderTarget.Height, False, nil, nil, nil, True);
+
+  if fRenderTarget = nil then
+  begin
+    tgtWidth := 1024;
+    tgtHeight := 768;
+  end else
+  begin
+    tgtWidth := fRenderTarget.Width;
+    tgtHeight := fRenderTarget.Height;
+  end;
+
+  fGameApp := TKMGameApp.Create(fRenderTarget, tgtWidth, tgtHeight, False, nil, nil, nil, True);
   fGameApp.GameSettings.Autosave := False;
 end;
 

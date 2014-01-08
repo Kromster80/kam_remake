@@ -27,6 +27,7 @@ type
     Memo1: TMemo;
     Render: TTabSheet;
     Panel1: TPanel;
+    chkRender: TCheckBox;
     procedure FormCreate(Sender: TObject);
     procedure Button1Click(Sender: TObject);
     procedure PageControl1Change(Sender: TObject);
@@ -124,7 +125,12 @@ begin
   Button1.Enabled := False;
   try
     RunnerClass := RunnerList[ID];
-    Runner := RunnerClass.Create(RenderArea);
+
+    if chkRender.Checked then
+      Runner := RunnerClass.Create(RenderArea)
+    else
+      Runner := RunnerClass.Create(nil);
+
     Runner.OnProgress := RunnerProgress;
     try
       T := GetTickCount;

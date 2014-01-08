@@ -3,7 +3,7 @@ object Form2: TForm2
   Top = 169
   Caption = 'Form2'
   ClientHeight = 641
-  ClientWidth = 913
+  ClientWidth = 1097
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -13,7 +13,7 @@ object Form2: TForm2
   OldCreateOrder = False
   OnCreate = FormCreate
   DesignSize = (
-    913
+    1097
     641)
   PixelsPerInch = 96
   TextHeight = 13
@@ -60,7 +60,7 @@ object Form2: TForm2
   end
   object Memo2: TMemo
     Left = 8
-    Top = 184
+    Top = 256
     Width = 185
     Height = 137
     BorderStyle = bsNone
@@ -82,24 +82,25 @@ object Form2: TForm2
   object PageControl1: TPageControl
     Left = 208
     Top = 8
-    Width = 697
+    Width = 881
     Height = 625
     ActivePage = Render
     Anchors = [akLeft, akRight, akBottom]
     TabOrder = 4
     OnChange = PageControl1Change
+    ExplicitWidth = 697
     object TabSheet1: TTabSheet
       Caption = 'Results'
       OnResize = TabSheetResize
       ExplicitWidth = 681
       ExplicitHeight = 301
       DesignSize = (
-        689
+        873
         597)
       object Image1: TImage
         Left = 40
         Top = 8
-        Width = 641
+        Width = 825
         Height = 569
         Anchors = [akLeft, akTop, akRight, akBottom]
         ExplicitWidth = 633
@@ -113,12 +114,12 @@ object Form2: TForm2
       ExplicitWidth = 681
       ExplicitHeight = 301
       DesignSize = (
-        689
+        873
         597)
       object Image2: TImage
         Left = 40
         Top = 8
-        Width = 641
+        Width = 825
         Height = 569
         Anchors = [akLeft, akTop, akRight, akBottom]
         ExplicitWidth = 633
@@ -132,19 +133,19 @@ object Form2: TForm2
       ExplicitWidth = 681
       ExplicitHeight = 301
       DesignSize = (
-        689
+        873
         597)
       object Image3: TImage
         Left = 40
         Top = 8
-        Width = 641
+        Width = 825
         Height = 569
         Anchors = [akLeft, akTop, akRight, akBottom]
         ExplicitWidth = 633
         ExplicitHeight = 273
       end
       object Label3: TLabel
-        Left = 536
+        Left = 720
         Top = 8
         Width = 47
         Height = 13
@@ -153,7 +154,7 @@ object Form2: TForm2
         ExplicitLeft = 528
       end
       object TrackBar1: TTrackBar
-        Left = 528
+        Left = 712
         Top = 24
         Width = 150
         Height = 33
@@ -162,7 +163,6 @@ object Form2: TForm2
         Position = 10
         TabOrder = 0
         OnChange = TrackBar1Change
-        ExplicitLeft = 520
       end
     end
     object TabSheet4: TTabSheet
@@ -170,17 +170,17 @@ object Form2: TForm2
       ImageIndex = 3
       ExplicitWidth = 681
       ExplicitHeight = 301
-      DesignSize = (
-        689
-        597)
       object Memo1: TMemo
-        Left = 8
-        Top = 304
-        Width = 665
-        Height = 289
-        Anchors = [akLeft, akBottom]
+        Left = 0
+        Top = 0
+        Width = 873
+        Height = 597
+        Align = alClient
         TabOrder = 0
+        ExplicitLeft = 8
         ExplicitTop = 8
+        ExplicitWidth = 665
+        ExplicitHeight = 289
       end
     end
     object Render: TTabSheet
@@ -191,7 +191,7 @@ object Form2: TForm2
       object Panel1: TPanel
         Left = 0
         Top = 0
-        Width = 689
+        Width = 873
         Height = 597
         Align = alClient
         Caption = 'Panel1'
@@ -202,5 +202,15 @@ object Form2: TForm2
         ExplicitHeight = 161
       end
     end
+  end
+  object chkRender: TCheckBox
+    Left = 8
+    Top = 176
+    Width = 57
+    Height = 17
+    Caption = 'Render'
+    Checked = True
+    State = cbChecked
+    TabOrder = 5
   end
 end
