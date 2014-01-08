@@ -1,694 +1,739 @@
-﻿0:Seizaisho
-1:Tetsu kajiba
-2:Buki kajiba
-3:Sekitan kouzan
-4:Tetsu kouzan
-5:Kin kouzan
-6:Ryoushi no koya
-7:Pan ya
-8:Noujou
-9:Kikori no koya
-10:Yoroi kajiba
-11:Souko
-12:Kyuusha
-13:Gakkou
-14:Saisekijou
-15:Zouhei ba
-16:Butagoya
-17:Tou
-18:Machiyakuba
-19:Buki koubou
-20:Yoroi koubou
-21:Heisha
-22:Fuusha
-23:Koujouki koubou
-24:So-se-ji ya
-25:Hikaku koujou
-26:Doujou
-27:Yadoya
-28:Budou en
-29:Kouekisho
-30:Miki
-31:Ishi
-32:Mokuzai
-33:Tekkou
-34:Kin kouseki
-35:Sekitan
-36:Tetsu
-37:Kane
-38:Budoushu
-39:Kokumotsu
-40:Pan
-41:Komugiko
-42:Hikaku
-43:So-se-ji
-44:Buta
-45:Kawa
-46:Ki no tate
-47:Tetsu de tate
-48:Kawa de yoroi
-49:Tetsu de yoroi
-50:Ono
-51:Katana
-52:Nagayari
-53:Hoko
-54:Nagayumi
-55:Ishiyumi
-56:Uma
-57:Sakana
-58:Noudo
-59:Kikori
-60:Koufu
-61:Doubutsu nouka
-62:Nouka
-63:Daiku
-64:Pan shokunin
-65:Nikuya
-66:Ryoushi
-67:Roudousha
-68:Ishiku
-69:Kajiya
-70:Yakingakusha
-71:Gun no shinkaiin
-72:Minpei
-73:Ono hei
-74:Kenshi
-75:Shashu
-76:Ishiyumi hei
-77:Soukihei
-78:Hoko hei
-79:Sekkou
-80:Kishi
-81:Yabanjin
-82:Hangyakusha
-83:Akutou
-84:Senshi
-85:Furousha
-86:Touseki ki
-87:Gun no barisuta
-88:Noudo wa tatemono ni, hitsuyouna genzairyou o kyoukyuu suru.||Aida tatemono wa renraku no douro ni aranakereba narimasen ni chuui shite kudasai.
-89:Miki o tsukurimasu to genryou toshite mokkousho ni tsukau niwa,||kikori ga hitsuyouna desu.Kikori ga dokuritsu ni shinrin o saiuemasu.
-90:Fukou wa kin to sekitan to tetsu kouzan kara kouseki o torimasu.
-91:Butagoya ni buta o matawa kyuusha ni uma o sodateru niwa, doubutsu nouka wa kokumotsu o tsukarimasu
-92:Nouka wa noujou ni kokumotsu o maite karitorimasu.||Kare mo budou en ni budoushu o tsukaimasu.
-93:Daiku wa seizaisho ya buki koubou ya yoroi koubou ni hatarakimasu.||Kare mo touseki ki to baruisuta o houi ki koubou ni kumitatemasu.
-94:Pan shokunin wa fuusha ni kokumotsu o hiite komugiko o tsukaimasu.||Kare mo pan ya ni pan o yakimasu.
-95:Nikuya wa so-se-ji to hikaku o tsukaimasu.
-96:Ryoushi wa moyori no kawa ni tsurimasu.
-97:Roudousha wa kenzou ya douro o kouchiku shimasu. Suki na basho o tanni kyouchou suru to anata no meirei o jidouteki ni shitagaimasu.||Kare mo hason shite iru tatemono o shuuri shimasu.
-98:Kenzou ya douro o kouchiku suru niwa, roudousha ni shizai o kyoukyuu suru tame ni, ishiku wa ishi kiridashite taira ni nariremasu.
-99:Kajiya wa tetsu de buki to yoroi o kajiba ni kitaemasu.
-100:Yakingakusha wa sekitan o tsukuru to,  kin to tetsu kouseki o seisei shimasu.
-101:Gun no shinkaiin wa heisha ni heishi toshite soubi dekimasu.||Kare mo bourou ni sumu koto ga dekimasu.
-102:Kenzou no sentaku e
-103:Genryou no bunpu e
-104:Toukei e
-105:Opushon e
-106:Modorimasu
-107:Kenzou|Sentaku
-108:Genryou|no bunpu
-109:Toukei
-110:Opushon
-111:Ge-mu o ro-do
-112:Gemu o hozon
-113:Hontou ni ninmu|o haki|shitai ka.
-114:Ninmu o haki shimasu
-115:Modorimasu
-116:Settei
-117:Henshuusha ga saremasu
-118:Tokusatsu
-119:Onryou o henkou shimasu
-120:Onryou o henkou shimasu
-121:Ongaku
-122:Ongaku on/ofu
-123:Jidouteki na hozon
-124:Ongaku pure-ya-
-125:Mae no torakku
-126:Tsugi no torakku
-127:Hakai
-128:Tatemono/kyouchou nozokimasu
-129:Douro o tatemasu
-130:Douro o tatemasu
-131:Hatake o tagayashimasu
-132:Hatake o tagayashimasu
-133:Budou hatake o shikimasu
-134:Budou hatake o shikimasu
-135:Torikeshi
-136:Genzai kenshuu o teishi shimasu
-137:Hitsuyou:
-140:Todokemasu
-141:Kouji chuu|tatemono
-142:Horobosu
-143:Hontou ni tatemono o| horoboshitai ka.
-144:Yotte iru tatemono o hakai shimasu
-145:Chuumon ryou herashimasu
-146:Chuumon ryou fuyashimasu
-147:Mae no heishi no shurui
-148:Tsugi no heishi no shurui
-149:Kono heishi o soubi shimasu
-150:Tsugi no shokugyou
-151:Mae no shokugyou
-152:Narabi ni tsuika suru
-153:Genzaryou o todokeru koto ga dekimasu / dekimasen
-154:Hiyou:
-155:Shuufuku ga dekimasu/dekimasen
-156:Imaya kenzou wa riyou dekimasen
-157:Joutai
-158:Sasetsu shimasu
-159:Migi ni magarimasu
-160:Osoimasu ('a')
-161:Guntai ni ikasemasu ('d')
-162:Guntai ni tabesasemasu
-163:Arashi kougeki shimasu
-164:Retsu o kuwaeru
-165:Retsu o nozokimasu
-166:Shuudan o |yorimasu
-167:Torikeshi
-168:Sakujo
-169:Tsuushin o nozokimasu
-170:Ako e ikimasu
-171:Genzai tsuushin no basho e ikimasu
-172:Tojimasu
-173:Uindou o shimemasu
-174:Sekkou wa soreijou ishi shigen o todokimasen.
-175:Kouzan no sekitansou wa tsukaikirarete iru.
-176:Tetsu kouzan no koumyaku wa tsukaikirarete iru.
-177:Kin kouzan no koumyaku wa tsukaikirarete iru.
-178:Kikori wa ki o ochiru tame ni mitsukete inai
-179:Kaoku ni daremo suminai.
-180:Kono guntai wa hijou ni uete imasu.
-181:Ge-mu o yamete imasu
-182:Todokete imasu
-183:Douro o kumitate imasu
-184:Hatake o tagayashite imasu
-185:Budou hatake o tsukutte imasu
-186:Kenchiku genba o taira ni natte imasu
-187:Kenzou o tatte imasu
-188:Ie o tsukurotte imasu
-189:Ie o itte imasu
-190:Yado e itte imasu
-191:Kenzou o semete imasu
-192:Hassha shite imasu
-193:Tatakatte imasu
-194:Arashi kougeki
-195:Osotte imasu
-196:Aruite imasu
-197:Taikichuu
-198:Ishi o hikinuite imasu
-199:Maite imasu
-200:Kokumotsu o karitotte imasu
-201:Budou o shuukaku shite imasu
-202:Tsutte imasu
-203:Ki o kiritaoshite imasu
-204:Ki o uete imasu
-205:Seishin
-206:Isogashii
-207:Chuusei tsunobue
-208:Haru
-209:Ryu-to
-210:Youhei
-211:Oujo
-212:Joou
-213:Ichiba e
-214:Senjou e
-215:Kyuutei no buyou
-216:Guntai
-217:Shiro e
-218:Fanfa-ru
-219:Saibansho e
-220:Nyuujou
-221:Massao
-222:Funtou
-223:Ouritsu no chiku
-224:Kizoku kaikyuu
-225:Minato e
-226:Ryokou
-227:Juugun
-228:Juugun
-229:Ensei o hajimeru!
-230:Tandoku no chizu ni hairu
-231:Chizu o hajimeru
-232:Ichiran ni modoru
-233:Hozon shite iru ge-mu o ro-do shimasu
-234:Ikutsuka no oukoku
-235:Opushon
-236:Kaihatsusha
-237:Sarimasu
-238:Tsudzukeru
-239:Sai tameshimasu
-240:Bunkainou:
-241:Gokansei ga nai
-242:Gokansei ga nai
-243:SENSHOU!
-244:HAISEN!
-245:Ushinatta butai:
-246:Datou shimashita butai:
-247:Ushinatta tatemono:
-248:Hakai shimashita tatemono:
-249:Koushimashita tatemono:
-250:Shikomimashita butai:
-251:Tsukurimashita buki:
-252:Shikomimashita heishi:
-253:Itsumade ninmu o nashitogeta:
-254:Toukei
-255:Kenzai
-256:Shikonda|shimin
-257:Ushinatta|shimin
-258:Soubi shimashita|heishi
-259:Ushinatta|heishi
-260:Taoshita|heishi
-261:Tatemashita |tatemono
-262:Ushinatta|tatemono
-263:Hakai shimashita|tatemono
-264:Tsukutta|shouhin
-265:Tsukutta|buki
-266:Guntai
-267:Shimin
-268:Tatemono
-269:Shigen
-270:Tsukutta shigen
-271:Jouhou nashi
-272:Anata
-273:Kokuou %d
-274:"Ikutsa no oukoku" ni modoru
-275:"Saien shichousha" ni modoru
-276:Subete
-277:Sensou
-278:Shokuhin
-279:JOYMANIA ENTERTAINMENT||PUROGURAMINGU:|Peter Ohlmann||GE-MU GURAFIKUSU:|Adam Sprys||REBERU NO SEKKEI:|Adam Sprys|André Quaß||OTO NO HENKOU MATAWA MIKKUSU:|Tonstudio Mannheim||ONGAKU:|Gerd Hofmann|Joachim Schäfer|Jügen Rebhann|Klaus Staendike|Steffen Schügel||SHASHIN:|Boleslaw Kasza|Christoph Werner||HON YAKU:|Ronnie Shankland|Patricia Bellantuono|Andrea Rumpelt|||ZUXXEZ ENTERTAINMENT AG||SEISANSHA:|Uwe Schäfer||SETSUMEISHO:|Peter Ohlmann|Uwe Schäfer||BE-TA SHIREN:|Peter Ohlmann|Adam Sprys|Alexandra Constandache|Dirk P. Hassinger|Achim Heidelauf|Uwe Schäfer|Ingrid Schäfer|Dirk U. Jantz|Ion Constandache|Yaman Egeli|Roman Eich|Iris Mocsnek|Anke Jantz|Paul Hassinger|Liza Hassinger||GE-MU NO SHOCHOU:|Achim Heidelauf||HOKKOUSHA:|TopWare Interactive||DOUGA:||KANRI:|Slawomir Jedrzejewski||Kajetan Czarnecki|Wojciech Drazek|Daniel Duplaga|Rafal Januszkiewicz|Andrzej Rams|Piotr Rulka|Krzysztof Rybczynski|Grzegorz Wisniewski||ONSEI:|Claus Boyen (Kataribe)||Tim Timmermann|Peter Houska|Dirk Mülbach|Ralf Ditze|Gerhard Piske|Gernot Wassmann||GEIJUTSUSAKUHIN:|Boleslaw Kasza|Adam Sprys||KAISHI NO DOUGA:|Uwe Schäfer|Christian Bigalk|Tuika no 3D zoukei:|Niels Horstmann||TOKUBETSU NA KANSHA:|Tadeusz Zuber|Dieter Ohlmann|Alexandra Constandache|Ingrid Schäfer
-280:Ninmu o haki mashita
-281:Saien o oeta
-282:Machi gakushuuyou
-283:Sentou gakushuuyou
-284:Tandoku no oukoku
-285:Chizu no henshusha
-286:Ninmu o hajimeru
-287:Hyoudai
-288:Sunbou
-289:Katsu niwa:
-290:Makeru niwa:
-291:Doumeikoku:
-292:Teki:
-293:Jikan
-294:Atarashii chizu no ookisa
-295:Haba
-296:Takasa
-297:Shinki na chizu o tsukuru
-298:Shiyoukanou  na chizu
-299:Kison no chizu o ro-do shimasu
-300:Basho
-301:Chousetsu:
-302:Ge-mu pure-:
-303:Oto:
-304:Ongaku o mukou |ni naru
-305:Gurafikosu:
-306:Akarusa
-307:Suichoku na douki
-308:Zengamen
-309:Tekiyou
-310:Gengo
-311:Kage no hinjitsu:
-312:Hikui
-313:Takasa
-314:Setsuzokuchuu... Matte kudasai
-315:Mondai o hassei shimashita!
-316:Atarashii roke-ru o ro-do shite imasu
-317:Hozon shita ge-mu no ichiranhyou
-318:Fairu no namae
-319:Setsumei
-320:Ro-do shimasu
-321:Sakujo shimasu
-322:Hontou ni hozon shite iru ge-mu o keshitai desu ka?
-323:Sakujo shimasu
-324:Torikeshi
-325:Daimei
-326:Chizu
-327:Genzai
-328:Anata ga katta!
-329:Pure- shitsudzukeshimasu
-330:Senshou!
-331:Anata ga maketa!
-332:Mitsudzukeru
-333:Haisen
-334:Saien shimashita
-335:Mitsudzukeru
-336:Ichiran ni modoru
-337:Riyou dekimasen
-338:%s botan o oshimasu to ge-mu o pure- shitsudzukeru
-339:Kokuou no jouhou
-340:Hanashi basho
-341:Hozon shite iru ge-mu sudeni sonzai shimasu
-342:Uwagaki shimasu
-343:Hozon shimasu
-344:Ro-do shimasu
-345:Furui OpenGL ba-jon o kenshutsu shimashita. Ge-mu wa osoku ugokasareru kamo shiremasen  oyobi/matawa  gurafikusu kekkan ga hyotto shitara misemasu.
-346:Gurafiku doraiba wa koushin sarete kudasai to gyouseki ga kaizen shimasu
-347:Nettuwa-ku mondai:
-348:Mondai: Oukoku no namae o kuusho wa aru koto ga dekimasen.
-349:Mondai: Kokuou no namae hou ga %d moji yori nagai desu
-350:Mondai: Kokuou no namae wa ihou na moji  o fukunde imasu
-351:Setsuzoku o kakashita: %s
-352:Anata no setsuzoku o setsudan saremashita
-353:Ninmu %d
-354:Rogu no dengon
-355:Anata no ryoushi no koya wa kawa kara, hijou ni tooku desu.
-356:Ryoushi wa moyori no kawa ni soreijou sakana o tsurimasen.
-357:Saien o saikaishi shimasu
-358:Saien o yamemasu
-359:Sukoshi susumimasu
-360:Saien o tsudzukemasu
-361:Saien o yoshimasu
-362:Koko no kokuou no shiten o yorimasu
-364:Akinau koto ga dekimasu, hidari no botan o kurikku suru to shouhin o yorimasu.
-365:Akinau koto ga dekimasu, migi no botan o kurikku suru to shouhin o yorimasu.
-366:%d ko no shouhin kara
-367:%d ko no shouhin madenara
-368:Chikei o heishuu shimasu
-369:Hake
-370:Oka
-371:Kawara
-372:Mono
-373:Takasa
-374:Hake no keijou
-375:Sunpou
-376:Zureru to hake no ookisa o henkou shimasu.
-377:Shamen
-378:Zureru to shamen no hyoukou o henkou shimasu: 1 = kougen ... 15 = mine
-379:Sokudo
-380:Zureru to ageru koto sokudo o henkou shimasu: 1 = osoi... 15 = hayai
-381:Marugata hake
-382:Seihoukei hake
-383:Agaru / sagaru
-384:Dekoboko / taira ni naru
-385:Agaru (hidari no kurikko) / Sagaru (migi no kurikko)
-386:Dekoboko (hidari no kurikko) / taira (migi no kurikko) ni narimasu
-387:Efude
-388:Detarame na|youso
-389:Detarame na houkou
-390:Ma-ku suru to detarame na kawara no houkou matawa, yotte iru kawara o mawaraseru tame ni, migi no kurikku shimasu.
-391:Migi no kurikku shimasu to yotte iru kawara o mawarasemasu.
-392:Toho ga habamerasu
-393:Mono o torinozokimasu
-394:Mura no kikaku
-395:Bijuaru yakuwari
-396:Sekaiteki na yakuwari
-397:Ichiran
-398:Mono
-399:Genbutsu o miseru
-400:Butai o miseru
-401:Kaoku o miseru
-402:Mono o miseru
-403:Tsuuka o miseru
-404:Hozon shite inai |henkou ga ushinawaremasu
-405:Torikeshi
-406:Ro-do
-407:Chizu ga ro-do saremasu
-408:Torikeshi
-409:Hozon
-410:Uwagaki
-411:Chizu ga sude ni arimasu
-412:Kokuou:
-413:Kitei
-414:Koukuou no shurui
-415:Taishousei
-416:Doumei
-417:Senjutsu
-418:Seijou
-419:Ninmu no mo-do
-420:Basho e ikimasu
-421:Ninmu no kaishi gamen o chuushin ni okimasu
-422:Gamen no shouten
-423:Subete o arawashimasu
-424:Chizu no bubun o arawashimasu
-425:Kiri ga arawareru
-426:Baibai ga kinshi saremasu
-427:Kaoku ga kinshi saremasu/yurusaremasu
-428:Iro
-429:Mokuhyou
-430:Dengon
-431:Jikan
-432:Kokuou
-433:Keizai no kenzou
-434:Noudo to gakkou
-435:Gun no shisan
-436:Fumei
-437:Guntai
-438:Tatemono
-439:Jikan
-440:Machi gakushuuyou
-441:Nashi
-442:Joutai
-443:Seizon
-444:Shouri
-445:Nashi
-446:Shurui
-447:Mokuhyou
-448:Hai
-449:Torikeshi
-450:Retsu
-451:Kazoeru
-452:Gun you
-453:Gun you o henkou shimasu
-454:Ikura jinkoushi no heishi wa  iru koto ga dekimasu nowa kettei
-455:Ikura heishi wa iru koto ga dekimasu
-456:Heishi no saidaigen
-457:Ikura shinkaiin wa jinkoushin no heisha ni iru koto ga dekimasu
-458:Heisha goto ni gun no shinkaiin
-459:Basho
-460:Jishin no basho
-461:Ichiban chikai kaoku 2
-462:Ichiban chikai kaoku 1
-463:Ichiban chikai butai
-464:Subete ga toremasu
-465:Butai goukei
-466:Kougeki setsumei
-467:Okure, byou
-468:Kurikaeshite imasu
-469:Ichido
-470:Kishu
-471:Shageki jin
-472:Uma han heishi
-473:Hohei
-474:Basho
-475:Taishou
-476:Hito
-477:Chien
-478:Shurui
-479:Jidou no kougeki
-480:Jinkouchinou no kougeki
-481:Kawa no soubi shimasu ritsu
-482:Tetsu no soubi shimasu ritsu
-483:Jidou no bouei
-484:Jinkouchinou wa shubi no basho ga jidouteki ni tsukawarete kanri saremasu
-485:Jinkouchinou no tame no shubi no basho o okimasu
-486:Jinkouchinou no shubi no basho
-487:Shokunin
-488:Jyuu ya atari noudo
-489:Jidou no shuufuku
-490:Jidou no kouchiku
-491:Jinkouchinou no settei
-492:Kaoku
-493:Douro kouji
-494:Suichou na kaiten no sentou
-495:Suihei na kaiten no sentou
-496:Chikei o haritsuke
-497:Chikei o copi-
-498:Copi- /haritsuke
-499:Shinki na ninmu
-500:Kokuou no namae
-501:Joutai:
-502:Se-ba o tsukuru
-503:SE-BA O TSUKURIMASU
-504:Namae
-505:Po-to
-506:Genchi no se-ba o tsukurimasu
-507:Inta-netto se-ba o tsukurimasu
-508:Torikeshimasu
-509:IP de se-ba o mitsukeru
-510:Se-ba o mitsukeru
-511:Basho
-512:Po-to
-513:Heya
-514:Setsuzoku shimasu
-515:Torikeshimasu
-516:Pasuwa-do de hogo shiteru machiaishitsu
-517:Pasuwa-do
-518:Se-ba no namae
-519:Joutai
-520:Kokuou
-521:Pingu
-522:Se-ba no meibo o sai yomikomu
-523:SE-BA SHOUSAI
-524:Kokuou meibo:
-525:Kuwawaru
-526:Setsuzokuchuu, matte kudasai ...
-527:Happyou o ro-do shite imasu...
-528:Yomikonde imasu...
-529:Shidousha no meibo
-530:Kaishi no basho
-531:Chi-mu
-532:Iro
-533:Junbi
-534:Pingu
-535:Pingu/FPS
-536:Hiraite iru
-537:Jinkouchinou kokuou
-538:Yorimasu..
-539:Futokutei
-540:Nashi
-541:Hozon shita ge-mu
-542:Chizu o yorimasu...
-543:Ge-mu o yorimasu
-544:Soto e demasu
-545:Totonotte iru
-546:Junbi shite imasen
-547:Hajimaru!
-548:Ge-mu no sokudo(heiji)
-549:Ge-mu no sokudo
-550:Hai
-551:Torikeshi
-552:Setsumei
-553:Pasuwa-do
-554:Machiaishitsu no settei
-555:Hosuto no kettei
-557:Jomei
-558:Basho ga chi-mu inai detarame ni naru
-559:Setsumei
-560:Settei
-561:Basho %d
-562:Mondai: oukoku o seigyo suru tame ni, hozon shite iru ge-mu no kokuou o yotte kudasai
-563:Mondai: Chizu wa yoraremasen soretomo ro-do o kakashimashita
-564:Kaishi dekimasen: %s
-565:Daremoja arimasen wa kaishi no tame ni junbishite imasu
-566:Detarame basho ga kubareru dekimasen
-567:Seba wa wareware ni hosuto kenri o yuzurimashita
-568:Ge-mu o hajimemashita
-569:Tatsukoto chizu
-570:Kougeki chizu
-571:Kyouryoku no chizu
-572:Tokubetsu na chizu
-573:Ge-mu no settei:
-574:Heiji (fun)
-575:Tojite iru
-576:Hosuto dake wa oukoku o kamaemasu
-577:Kokuou o matte imasu:
-578:Subete
-579:Chi-mu
-580:Tsukurinaoshita "Kishi ya chounin" no guntai
-581:Dokuji no "Kishi ya chounin" no guntai
-582:PUROGURAMINGU:
-583:TSUIKA NO PUROGURAMINGU:
-584:TSUIKA NO GURAFIKKUSU:
-585:TSUIKA NO OTO:
-586:TSUIKA NO ONGAKU:
-587:TSUIKA NO HON YAKU:
-588:TOKUBETSU NA KANSHA:
-589:Ikutsuka no kokuou no chizu
-590:Tandoku no kokuen no chizu
-591:Sukuro-ru sokudo
-592:Nani mo mitsukemasen deshita
-593:|Detarame na yoru
-594:Ge-mu no jouhou:
+﻿0:製材所
+1:鉄鍛冶場
+2:武器鍛冶場
+3:石炭鉱山
+4:鉄鉱山
+5:金鉱山
+6:漁師の小屋
+7:パン屋
+8:農場
+9:木こりの小屋
+10:鎧鍛冶場
+11:倉庫
+12:馬小屋
+13:学校
+14:採石場
+15:造幣場
+16:豚小屋
+17:塔
+18:町の役場
+19:武器工房
+20:鎧工房
+21:兵舎
+22:風車
+23:攻城器工房
+24:肉屋
+25:皮革工場
+26:道場
+27:宿屋
+28:ブドウ園
+29:交易所
+30:幹
+31:石
+32:木材
+33:鉄鉱
+34:金鉱石
+35:石炭
+36:鉄
+37:金
+38:葡萄酒
+39:穀物
+40:パン
+41:小麦粉
+42:皮革
+43:ソーセージ
+44:豚
+45:革
+46:木の盾
+47:鉄で盾
+48:革で鎧
+49:鉄で鎧
+50:斧
+51:刀
+52:長槍
+53:矛
+54:長弓
+55:石弓
+56:馬
+57:魚
+58:農奴
+59:木こり
+60:坑夫
+61:動物農家
+62:農家
+63:大工
+64:パン職人
+65:とさつにん
+66:漁師
+67:労働者
+68:石工
+69:鍛冶屋人
+70:冶金学者
+71:軍の新会員
+72:民兵
+73:斧兵
+74:剣士
+75:射手
+76:石弓兵
+77:槍騎兵
+78:矛兵
+79:斥候
+80:騎士
+81:野蛮人
+82:反逆者
+83:悪党
+84:戦士
+85:浮浪者
+86:投石機
+87:軍のバリスタ
+88:農奴は建物に必要な原材料を供給します。||間に建物は連絡の道路にあらなければなりませんに注意してください。
+89:幹を作りますと原料として木工所に使うには，木こりが必要です。||木こりが独立に森林を再植えます。
+90:坑夫は金と石炭と鉄鉱山から鉱石を取ります。
+91:豚小屋に豚をまたは馬小屋に馬を育てるには，動物農家は穀物を使います。
+92:農家は農場に穀物を蒔いて刈り取ります。||彼もブドウ園に葡萄酒使います。
+93:大工は製材所や武器工房や鎧工房に働きます。||彼も投石器とバルィスタを包囲器工房に組み立てます。
+94:パン職人は風車に穀物を挽いて小麦粉を使います。||彼もパン屋にパンを焼きます。
+95:とさつにんは肉屋にソーセージを使って皮革工場に皮革を使います。
+96:漁師は最寄の川に釣ります。
+97:労働者は建造や道路を構築します。好きな場所を単に強調するとアナタの命令を自動的に従います。||彼も破損してい建物をる修理します。
+98:建造や道路を構築するには，労働者に資材を供給するために，石工は石を切り出して平らになりれます。
+99:鍛冶屋は鉄で武器と鎧を鍛冶場に鍛えます。
+100:金鉱石と鉄鉱石を精製しますと冶金学者は石炭を使います。
+101:軍の新会員は兵舎に兵士として装備できます。||彼も望楼に住むことができます。
+102:建造の選択へ
+103:原料の分布へ
+104:統計へ
+105:オプションへ
+106:戻ります
+107:建造|選択
+108:原料|の分布
+109:統計
+110:オプション
+111:ゲームをロード
+112:ゲームを保存
+113:本当に任務|を破棄|したいか。
+114:任務を破棄します
+115:戻ります
+116:設定
+117:編集者がされます
+118:特撮
+119:音量を変更します
+120:音量を変更します
+121:音楽
+122:音楽オン〜オフ
+123:自動的な保存
+124:音楽プレーヤー
+125:前のトラック
+126:次のトラック
+127:破壊
+128:建物/強調除きます
+129:道路を建てます
+130:道路を建てます
+131:畑を耕します
+132:畑を耕します
+133:ブドウ畑を敷きます
+134:ブドウ畑を敷きます
+135:取り消し
+136:現在研修を停止します
+137:必要 :
+140:届けます
+141:工事中|建物
+142:滅ぼす
+143:本当に建物を| 滅ぼしたいか。
+144:選っている建物を破壊します
+145:注文量を減らします
+146:注文量を増やします
+147:前の兵士の種類
+148:次の兵士の種類
+149:この兵士を装備します
+150:次の職業
+151:前の職業
+152:並びに追加します
+153:原材料を届けることができます〜できません
+154:費用 :
+155:修復ができます〜できません
+156:今や建造利用できません
+157:状態
+158:左折します
+159:右に曲がります
+160:襲います「a」
+161:軍隊に行かせます「d」
+162:軍隊に食べさせます
+163:嵐攻撃します
+164:列を加える
+165:列を除きます
+166:集団を|選ります
+167:取り消し
+168:削除
+169:通信を除きます
+170:あこへ行きます
+171:現在通信の場所へ行きます
+172:閉じます
+173:ウインドウを閉めます
+174:石工はそれ以上の石資源を届きません。
+175:鉱山の石炭層は使い切られている。
+176:鉄鉱山の鉱脈は使い切られている。
+177:金鉱山の鉱脈は使い切られている。
+178:木こりは木が落ちるために見つけていない
+179:家屋に誰も住みない。
+180:この軍隊は非常に飢えています！
+181:ゲームを止めています
+182:届けています
+183:道路を組み立ています
+184:畑を耕しています
+185:ブドウ畑を作っています
+186:建築現場を平らになっています
+187:建造を立っています
+188:家を繕っています
+189:家を行っています
+190:宿へ行っています
+191:建造を攻めています
+192:発射しています
+193:戦っています
+194:嵐攻撃
+195:襲っています
+196:歩いています
+197:待機中
+198:石を切り出しています
+199:蒔いています
+200:穀物を刈り取っています
+201:ブドウを収穫しています
+202:釣っています
+203:木を切り倒しています
+204:木を植えています
+205:精神
+206:忙しい
+207:中世の角笛
+208:春
+209:リュート
+210:傭兵
+211:王女
+212:女王
+213:市場へ
+214:戦場へ
+215:宮廷の舞踊
+216:軍隊
+217:城へ
+218:ファンファーレ
+219:裁判所へ
+220:入場
+221:真っ青
+222:奮闘
+223:王立の地区
+224:貴族の階級
+225:港へ
+226:旅行
+227:従軍
+228:従軍
+229:遠征を始める！
+230:単独の地図に入っています
+231:地図を始める
+232:一覧に戻ります
+233:保存しているゲームをロードします
+234:いくつかの王国
+235:オプション
+236:開発者
+237:去ります
+238:続けます
+239:再試します
+240:分解能 :
+241:互換性がない
+242:互換性がない
+243:戦勝！
+244:敗戦！
+245:失った部隊 :
+246:打倒しました部隊 :
+247:失った建物 :
+248:破壊しました建物 :
+249:構築しました建物 :
+250:仕込みました部隊 :
+251:作りました武器 :
+252:仕込みました兵士 :
+253:いつまで任務を成し遂げた :
+254:統計
+255:経済
+256:仕込んだ|市民
+257:失った|市民
+258:装備しました|兵士
+259:失った|兵士
+260:倒した|兵士
+261:立てました|建物
+262:失った|建物
+263:破壊しました|建物
+264:作った|商品
+265:作った|武器
+266:軍隊
+267:市民
+268:建物
+269:資源
+270:作った資源
+271:情報なし
+272:アナタ
+273:国王 %d
+274:「いくつかの王国」に戻ります
+275:「再演視聴者」に戻ります
+276:全て
+277:戦争
+278:食品
+279:JOYMANIA ENTERTAINMENT||プログラミング :|Peter Ohlmann||ゲームのグラフィクス :|Adam Sprys||レベルの設計 :|Adam Sprys|André Quaß||音の変更またはミックス :|Tonstudio Mannheim||音楽 :|Gerd Hofmann|Joachim Schäfer|Jügen Rebhann|Klaus Staendike|Steffen Schügel||写真 :|Boleslaw Kasza|Christoph Werner||翻訳 :|Ronnie Shankland|Patricia Bellantuono|Andrea Rumpelt|||ZUXXEZ ENTERTAINMENT AG||生産者 :|Uwe Schäfer||説明書 :|Peter Ohlmann|Uwe Schäfer||ベータ試練 :|Peter Ohlmann|Adam Sprys|Alexandra Constandache|Dirk P. Hassinger|Achim Heidelauf|Uwe Schäfer|Ingrid Schäfer|Dirk U. Jantz|Ion Constandache|Yaman Egeli|Roman Eich|Iris Mocsnek|Anke Jantz|Paul Hassinger|Liza Hassinger||ゲームの所長 :|Achim Heidelauf||出版社 :|TopWare Interactive||動画 :||管理 :|Slawomir Jedrzejewski||Kajetan Czarnecki|Wojciech Drazek|Daniel Duplaga|Rafal Januszkiewicz|Andrzej Rams|Piotr Rulka|Krzysztof Rybczynski|Grzegorz Wisniewski||音声 :|Claus Boyen (Kataribe)||Tim Timmermann|Peter Houska|Dirk Mülbach|Ralf Ditze|Gerhard Piske|Gernot Wassmann||芸術作品 :|Boleslaw Kasza|Adam Sprys||開始の動画 :|Uwe Schäfer|Christian Bigalk|Tuika no 3D zoukei:|Niels Horstmann||特別な感謝 :|Tadeusz Zuber|Dieter Ohlmann|Alexandra Constandache|Ingrid Schäfer
+280:任務を破棄しました
+281:再演を終えた
+282:町の学習用
+283:戦闘の学習用
+284:単独の王国
+285:地図の編集者
+286:任務を始める
+287:表題
+288:寸法
+289:勝つには :
+290:負けるには :
+291:同盟国 :
+292:敵国 :
+293:時間
+294:新しい地図の大きさ
+295:幅
+296:高さ
+297:新規な地図を作る
+298:使用可能な地図
+299:既存の地図をロードします
+300:場所
+301:調節 :
+302:ゲームプレー :
+303:音 :
+304:音楽を無効になる
+305:グラフィックス :
+306:明るさ
+307:垂直な同期化
+308:全画面
+309:適用
+310:言語
+311:影の品質 :
+312:低い
+313:高さ
+314:接続……待ってください
+315:問題を発生しました！
+316:新しいロケールをロードしています
+317:保存したゲームの一覧表
+318:ファイルの名前
+319:説明
+320:ロードします
+321:削除します
+322:本当に保存しているゲームを消したいですか。
+323:削除します
+324:取り消し
+325:題名
+326:地図
+327:開いている
+328:アナタは勝った！
+329:フレーし続けます
+330:戦勝！
+331:アナタは負けた！
+332:見続けます
+333:敗戦
+334:再演を終えました
+335:見続けます
+336:一覧に戻ります
+337:利用できません
+338:%sボタンを押しますとゲームをプレーし続けます
+339:国王の情報
+340:話場所
+341:保存しているゲーム既に存在します
+342:上書きします
+343:保存します
+344:ロードします
+345:古いOpenGLバージョンを検出しました。ゲームは遅く動かされるかもしれませんおよび〜または多分グラフィックス欠陥がひょっと現れます。
+346:グラフィックスドライバが更新されてくださいと業績は改善します
+347:ネットワークの問題 :
+348:問題 : 王国の名前を空所はあることができません
+349:問題 : 国王の名前ほうが%d文字より長いです
+350:問題 : 国王の名前は違法な文字を含んでいます
+351:接続を欠かした : %s
+352:アナタの接続が切断されました
+353:任務%d
+354:伝言のログ
+355:アナタの漁師の小屋は川から，非常に遠くです。
+356:漁師は最寄の川にそれ以上の魚を釣りません。
+357:再演を再開始します
+358:再演を止めます
+359:少し進みます
+360:再演を続けます
+361:再演を止します
+362:ここの国王の視点を選ります
+363:全てを見せます
+364:商うことができますには左のボタンをクリックすると商品を選ります。
+365:商うことができますには右のボタンをクリックすると商品を選ります。
+366:%d個の商品から
+367:%d個の商品までなら
+368:地形を編集します
+369:刷毛
+370:丘
+371:瓦
+372:物
+373:高さ
+374:刷毛の形状
+375:寸法
+376:ずれると刷毛の大きさを変更します
+377:斜面
+378:ずれると斜面の標高を変更します : 一高原……十五峰
+379:速度
+380:ずれると上げることの速度変更します : 一遅い……十五早い
+381:丸型刷毛
+382:正方形刷毛
+383:上がる〜下がる
+384:凸凹〜平らになる
+385:上がる「左のクリック」〜下がる「右のクリック」
+386:凸凹「左のクリック」〜平らになります「右のクリック」
+387:絵筆
+388:出鱈目な要素
+389:出鱈目な方向
+390:マークすると出鱈目な瓦の方向または，選っている瓦を回らせるために，右のクリックします。
+391:右のクリックしますと選っている瓦が回らせます。
+392:徒歩が阻まれます
+393:物を取り除きます
+394:村の企画
+395:ビジュアルな役割
+396:世界的な役割
+397:一覧
+398:物
+399:現物をみせる
+400:部隊を見せる
+401:家屋を見せる
+402:物を見せる
+403:通過を見せる
+404:保存していない|変更が失われます
+405:取り消し
+406:ロード
+407:地図がロードされます
+408:取り消し
+409:保存
+410:上書き
+411:地図が既にあります
+412:国王 :
+413:既定
+414:国王の種類
+415:対称的
+416:同盟
+417:戦術
+418:正常
+419:任務のモード
+420:場所へ行きます
+421:任務の開始画面を中心に起きます
+422:画面の商店
+423:全てが現します
+424:地図の部分が現します
+425:霧が現れる
+426:売買が禁止されます
+427:家屋の禁止〜許可
+428:色
+429:目標
+430:伝言
+431:時間
+432:国王
+433:経済の建造
+434:農奴と学校
+435:軍の資産
+436:不明
+437:軍隊
+438:建物
+439:時間
+440:町学習用
+441:なし
+442:状態
+443:生存
+444:勝利
+445:なし
+446:種類
+447:目標
+448:はい
+449:取り消し
+450:列
+451:数える
+452:軍容
+453:軍容を変更します
+454:いくら人工知能の兵士はいることができますのは決定
+455:いくら兵士はいることができます
+456:兵士の最大限
+457:いくら新会員は人工知能の兵舎にいることができます
+458:兵舎ごとに新会員
+459:場所
+460:自身の場所
+461:一番近い家屋二
+462:一番近い家屋一
+463:一番近い部隊
+464:全てが取れます
+465:部隊の合計
+466:攻撃の説明
+467:遅れ，秒
+468:繰り返しています
+469:一度
+470:騎手
+471:射撃人
+472:反馬兵士
+473:歩兵
+474:場所
+475:対象
+476:人
+477:遅延
+478:種類
+479:自動の攻撃
+480:人工知能の攻撃
+481:革の装備します率
+482:鉄の装備します率
+483:自動の防衛
+484:人工知能は守備の場所が自動的に使われて管理されます
+485:人工知能のための守備の場所を起きます
+486:人工知能の守備の場所
+487:職人
+488:十屋当り農奴
+489:自動の修復
+490:自動の構築
+491:人工知能の設定
+492:家屋
+493:道路の工事
+494:垂直な回転の選択
+495:水平な回転の選択
+496:地形を貼り付ける
+497:地形をコピーする
+498:コピー〜貼り付け
+499:新規な任務
+500:国王の名前
+501:状態 :
+502:サーバを作ります
+503:サーバを作ります
+504:名前
+505:ポート
+506:現地のサーバを作ります
+507:インターネットサーバを作る
+508:取り消します
+509:IPでサーバを見つける
+510:サーバを見つける
+511:場所
+512:ポート
+513:部屋
+514:接続します
+515:取り消します
+516:パスワードで保護している待合室
+517:パスワード
+518:セーバの名前
+519:状態
+520:国王
+521:ピング
+522:セーバの名簿を再読み込みます
+523:セーバの詳細
+524:国王の名簿:
+525:加わります
+526:接続中，待ってください……
+527:発表をロードしています……
+528:読み込んでいます……
+529:指導者の名簿
+530:開始の場所
+531:チーム
+532:色
+533:準備
+534:ピング
+535:ピング〜FPS
+536:開いている
+537:人工知能の国王
+538:選ります……
+539:不特定
+540:なし
+541:保存したゲーム
+542:地図を選ります……
+543:ゲームを選ります……
+544:外へ出ます
+545:整っています
+546:準備していません
+547:始まる！
+548:ゲームの速度「平時」
+549:ゲームの速度
+550:はい
+551:取り消し
+552:説明
+553:パスワード
+554:待合室の設定
+555:ホストの決定
+556:待合室から禁止します
+557:除名
+558:場所がチーム以内出鱈目になる
+559:説明
+560:設定
+561:場所 : %d
+562:問題 : 王国を制御するために，保存しているゲームの国王を選ってください
+563:問題 : 地図が選られませんそれともロードを欠かしました
+564:開始できません : %s
+565:誰もじゃありませんは開始のために準備しています
+566:出鱈目場所が配布できません
+567:サーバはアナタにホスト権利を譲りました
+568:ゲームを始めました
+569:建つこと地図
+570:攻撃の地図
+571:協力の地図
+572:特別な地図
+573:ゲームの設定 :
+574:平時「分」
+575:閉じている
+576:ホストだけは王国を構えます
+577:国王を待っています :
+578:全て
+579:チーム
+580:「KaM Remake」のクレジットタイトル
+581:独自の「Knights & Merchants」のクレジットタイトル
+582:プログラミング :
+583:追加のプログラミング :
+584:追加のグラフィックス :
+585:追加の音 :
+586:追加の音楽 :
+587:追加の翻訳 :
+588:特別な感謝 :
+589:いくつかの国王の地図
+590:単独の国王の地図
+591:スクロールの速度
+592:何も見つけませんでした
+593:出鱈目な選ります
+594:ゲームの情報 :
 595:-
-596:Kyuusokujo
-597:Ro-do shite imasu
-598:Ge-mu
-599:Tatsukoto ya kougeki
-600:Kougeki
-601:Junbi shite imasu
-602:Warui purotocoru ba-jon: %s. Se-ba wa %s o tsukatte imasu
-603:Bouekigaku o fuyashimasu
-604:Bouekigaku o herashimasu
-605:Hozon shite imasu...
-606:%s o taosaremashita!
-607:Oukoku o oroshimasu
-608:Hosuto wa %d byou nochi ni kokuou o oroshimasu
-609:Imaya hosuto wa kokuou o dasemasu
-610:Hosuto (%s) wa demashita
-611:Seba eno setsuzoku wa ushinaemashita. Sai setsuzoku shitemite imasu...
-612:Hontou ni demasu ka.
-613:Hontou ni oukoku wa koukyuuteki ni dasasetai ka.
-614:Torikeshimasu
-615:Kono ninmu ni kono shigen o akinau koto ga dekimasen
-616:Uete taoshimasu
-617:Kiritaosu dake
-618:Heiji no aidajuu ni kono dousa wa yurusasemasen!
-619:Nokotte imasu heiji: %s
-620:Heiji wa owarimashita. Anata no buki o tsukatte!
-621:Ge-mu no jikan:|%s
-622:Guntai  ni tomaraseru ('%s')
-623:Guntai ni kuwawaraseru ('%s')
-624:Guntai o wakemasu ('%s')
-625:Saien shichousha
-626:Saien o shichou shimasu
-627:Hitaiou no kakuchoushi %s
-628:Hitaiou no ba-jon %s
-629:Hitaiou no henkou
-630:Fairu %s wa asshuku sarete imashi nagara, mondai ga saisei shimashita
-631:Shokika shite imasu
-632:Yakuwari
-633:Butai
-634:Kenzou
-635:Ki
-636:Teigi
-637:Jimen no kawara
-638:Chizu o mitsukeraremasen: %s
-639:Hozon shite iru fairu o mitsukeraremasen: %s
-640:Anata no chizu wa hosuto no chizu o chigaimasu: %s
-641:Anata no hozon shite iru fairu wa hosuto no hozon shite iru fairu o chigaimasu: %s
-642:Saien wa ikkansei kenshou o kakashimashita. Kono shirarete iru bugu wa jakkan no saien o jama shimasu .Mitaitsudzukemasu ka.
-643:Tandoku na ikutsuka no oukoku modo de insutansu wa ichido ni ugokasemasu
-644:Ge-mu henkou wa ikutsuka no oukoku modo ni yurushimasen.|Sai insuto-ru shite kudasai to henkou shite imasen chizu o modoshimasu.
-645:Mondai wa apurike-shon de okitta. Wareware wa chousa ga dekimasu niwa "Bugu houkoku o soushin shimasu" botan o oshite kudasai. Anata no tedasuke o kanshi shimasu!
-646:Bugu houkoku o soushin shimasu
-647:Nama no jouhou o misemasu
-648:Apurike-shon o tsudzukemasu
-649:Apurike-shon o shuuryou shimasu
-650:Tsugi
-651:Sesshoku no shousai
-652:Anata no namae: (zuii)
-653:Anata no meru: (zuii)
-654:Watashi o oboerarete kudasai
-655:Mondai no shousai
-656:Donna joukyou ni mondai o saisei shimashita ka. Tsuika no jouhou o kyoukyuu suremasu ka. (Eigo dake)
-657:Sukuri-nshottu
-658:Bugu houkoku soushin ni sukuri-nshottu o tenpu shimasu
-659:(Kurikku suru to shashin o henshuu shimasu)
-660:Houkoku o okurimasu
-661:Torikesu
-662:Bugu houkoku o soushin shite imasu...
-663:Se-ba ni setsuzoku shite imasu...
-664:Jouhou o okutte imasu...
-665:Kurasshu houkoku soushin o kakashimashita! Wareware no se-ba wa hyotto suru to isogashii desu, soushin o futatabi tameshite kudasai.
-666:Jouhou
-667:Chotto matte kudasai...
-668:Chizu ga hozon saremasu
-669:Ikura hun ato ni jinkouchinou wa shinkaiin o shikomihajimeru
-670:Shinkaiin okure (hun)
-671:Suiiki ni subete no kawara houkou o kettei shimasu
-672:Mahou no mizu
-673:Copi-
-674:Haritsuke
-675:Haritsuke no tekiyou
-676:Haritsuke no torikeshi
-677:Suichou ni mawasu
-678:Suihei ni mawasu
-679:Doraggu suru to chizu no ryouiki ga yorimasu
-680:Jinkouchinou no shubi settei
-681:Nashi
-682:Hankei
-683:Genzai no keiji ga sakujo saremasu
-684:Kiri no kougai pe-gi e modorimasu
-685:Tojimasu
-686:Butai no chuumon
-687:Nashi
-688:Basho ga osoimasu
-689:E aruimasu
-690:Houkou
-691:Ushiro no sen
-692:Zensen
-693:Shubi no hankei
-694:Kono shubi no basho o sakujo shimasu
-695:Shubi no pe-ji he modorimasu
-696:Shubi no basho
-697:Butai
+596:休息所
+597:ロードしています
+598:ゲーム
+599:建つことや攻撃
+600:攻撃
+601:準備しています
+602:悪いプロトコルのバージョン : %s。サーバは%sを使っています
+603:貿易額を増やします
+604:貿易額を減らします
+605:保存しています……
+606:%sが倒されました！
+607:王国を下ろします
+608:ホストは%d秒後に国王を降ろします
+609:今やホストは国王が出せます
+610:ホスト「%s」は出ました
+611:サーバへの接続は失えました。再接続してみています……
+612:本当に出たいですか。
+613:本当に王国が恒久的に出させたいですか。
+614:取り消します
+615:この任務にこの資源を商うことができません
+616:植えて倒します
+617:切り倒すだけ
+618:平時の間中にこの動作は許させません！
+619:残っています平時 : %s
+620:平時は終わりました。アナタの武器を使って！
+621:ゲームの時間 :|%s
+622:軍隊に止まらせる「%s」
+623:軍隊に加わります「%s」
+624:軍隊を分けます「%s」
+625:再演の視聴者
+626:再演を視聴します
+627:非対応の拡張子 : %s
+628:非対応のバージョン : %s
+629:非対応の変更
+630:ファイル%sわ圧縮されていましながら，問題が発生しました
+631:初期化しています
+632:役割
+633:部隊
+634:建造
+635:木
+636:定義
+637:地面の瓦
+638:地図が見つけられません : %s
+639:保存しているファイルが見つけられません : %s
+640:アナタの地図はホストの地図と違います : %s
+641:アナタの保存しているファイルはホストのと違います : %s
+642:再演は一貫性検証ーを欠かしました。この知られているバグは若干の再演を邪魔します。見たい続けますか。
+643:単独ないくつかの王国モードでインスタンスは一度に動かせます
+644:ゲームの変更はいくつかの王国モードに許しません。|再インストールしてくださいと変更していません地図を戻します。
+645:問題はアプリケーションで起きた。我々は調査ができますには「バグの報告を送信します」ボタンを押してください。アナタの手助けを感謝します！
+646:バグの報告を送信します
+647:生の情報を見せます
+648:アプリケーションを続けます
+649:アプリケーションを終了します
+650:次
+651:接触の詳細
+652:アナタの名前 :「随意」
+653:アナタのメール :「随意」
+654:私が覚えれてください
+655:問題の詳細
+656:どんな状況に問題を発生しましたか。追加の情報を供給すれますか。「英語だけ」
+657:スクリーンショット
+658:バグの報告にスクリーンショットを添付します
+659:「クリックすると写真を編集します」
+660:報告を送ります
+661:取り消す
+662:バグの報告を送信しています……
+663:サーバに接続しています……
+664:情報を送っています……
+665:クラッシュの報告を欠かしました！我々のサーバはひょっとすると忙しいです，送信を再び試してください
+666:情報
+667:ちょっと待ってください……
+668:地図が保存されます
+669:いくら分後に人工知能は新会員を仕込み始める
+670:新会員の遅れ「分」
+671:水域に全ての瓦の方向を決定します
+672:魔法の水
+673:コピー
+674:貼り付け
+675:貼り付けの適用
+676:貼り付けの破棄
+677:垂直に回す
+678:水平に回す
+679:ドラッグすると地図の領域が選られます
+680:人工知能の守備の設定
+681:なし
+682:半径
+683:現在の啓示が削除されます
+684:霧の啓示ページへ戻ります
+685:閉じます
+686:部隊の注文
+687:なし
+688:襲います場所
+689:へ歩います
+690:方向
+691:後ろの線
+692:前線
+693:守備の半径
+694:この守備の場所を削除します
+695:守備のページへ戻ります
+696:守備の場所
+697:部隊
+698:オオカミ
+699:魚
+700:水生のヘビ
+701:ヒトデ
+702:カニ
+703:水生の花
+704:水に葉
+705:カモ
+706:この兵士の種類は利用可能ではありません
+707:この部隊の種類は利用可能ではありません
+708:部隊が禁止されます
+736:ダウンロード
+737:ダウンロードしています……
+738:存在のファイル上書きされます
+739:%sは接続を失った
+740:%sは出ました
+741:%sは再接続しました
+742:プレーしていまゲームに加わることができません
+743:待合室はいっぱいです。ゲームに追加の国王が加われることができません
+744:同名の国王がこの待合室に加われた
+745:%sは%sを首尾よくダウンロードした
+746:問題 : %sはのデータパィルはホストと異なる，であるからこのゲームが加われません
+747:アナタのデータパィルはホストと異なる
+748:%sにホストの権利を割り当ています
+749:%sは別な%sのバージョンが持たれます
+750:%sは%sが持たれません
+751:クエリはタイムアウトしている
+752:ホストは%sが出せました
+753:ホストは%sが除名されました
+754:ゲームに再接続しようとしています……
+755:%sは加われます
+756:再接続が失敗された : %s
+757:ホストはアナタ抜きでプレーし続けることにします :(
+758:サーバから切り離されました : タイムアウトを検出しました
+759:ホストはアナタが除名されました
+760:サーバは応答なしです
+761:待合室の数は無効です
+765:%sにささやいます
+766:ホストは待合室から%sが禁止させました
+767:ホストはアナタが禁止させました
+768:全ての禁止はリセットされます
+769:ホストは待合室の全ての禁止はリセットされました
+770:年月日
