@@ -832,7 +832,7 @@ end;
 function TKMScriptStates.PlayerColorText(aPlayer: Byte): AnsiString;
 begin
   if InRange(aPlayer, 0, gHands.Count - 1) then
-    Result := Format('%.6x', [FlagColorToTextColor(gHands[aPlayer].FlagColor) and $FFFFFF])
+    Result := AnsiString(Format('%.6x', [FlagColorToTextColor(gHands[aPlayer].FlagColor) and $FFFFFF]))
   else
   begin
     Result := '';
@@ -984,7 +984,7 @@ end;
 function TKMScriptStates.HouseTypeName(aHouseType: Byte): AnsiString;
 begin
   if (aHouseType in [Low(HouseIndexToType) .. High(HouseIndexToType)]) then
-    Result := '<%' + IntToStr(gResource.HouseDat[HouseIndexToType[aHouseType]].HouseNameTextID) + '>'
+    Result := '<%' + AnsiString(IntToStr(gResource.HouseDat[HouseIndexToType[aHouseType]].HouseNameTextID)) + '>'
   else
   begin
     Result := '';
@@ -1346,7 +1346,7 @@ end;
 function TKMScriptStates.UnitTypeName(aUnitType: Byte): AnsiString;
 begin
   if (aUnitType in [Low(UnitIndexToType) .. High(UnitIndexToType)]) then
-    Result := '<%' + IntToStr(gResource.UnitDat[UnitIndexToType[aUnitType]].GUITextID) + '>'
+    Result := '<%' + AnsiString(IntToStr(gResource.UnitDat[UnitIndexToType[aUnitType]].GUITextID)) + '>'
   else
   begin
     Result := '';
@@ -1358,7 +1358,7 @@ end;
 function TKMScriptStates.WareTypeName(aWareType: Byte): AnsiString;
 begin
   if (aWareType in [Low(WareIndexToType) .. High(WareIndexToType)]) then
-    Result := '<%' + IntToStr(gResource.Wares[WareIndexToType[aWareType]].TextID) + '>'
+    Result := '<%' + AnsiString(IntToStr(gResource.Wares[WareIndexToType[aWareType]].TextID)) + '>'
   else
   begin
     Result := '';
@@ -2439,7 +2439,7 @@ end;
 
 procedure TKMScriptActions.Log(aText: AnsiString);
 begin
-  gLog.AddTime('Script: '+aText);
+  gLog.AddTime('Script: '+UnicodeString(aText));
 end;
 
 

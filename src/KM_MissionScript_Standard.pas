@@ -571,7 +571,7 @@ var
   SaveString: AnsiString;
   UT: TUnitType;
 
-  procedure AddData(aText: string);
+  procedure AddData(aText: AnsiString);
   begin
     if CommandLayerCount = -1 then //No layering
       SaveString := SaveString + aText + EolA //Add to the string normally
@@ -873,7 +873,7 @@ begin
   AddData(''); //NL
 
   //Similar footer to one in Lewin's Editor, useful so ppl know what mission was made with.
-  AddData('//This mission was made with KaM Remake Map Editor version ' + GAME_VERSION + ' at ' + DateTimeToStr(Now));
+  AddData('//This mission was made with KaM Remake Map Editor version ' + GAME_VERSION + ' at ' + AnsiString(DateTimeToStr(Now)));
 
   //Write uncoded file for debug
 

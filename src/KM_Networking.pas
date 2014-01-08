@@ -980,8 +980,6 @@ end;
 
 //Send our commands to either to all players, or to specified one
 procedure TKMNetworking.SendCommands(aStream: TKMemoryStream; aPlayerIndex: ShortInt = -1);
-var
-  I: Integer;
 begin
   if aPlayerIndex = -1 then
     PacketSend(NET_ADDRESS_OTHERS, mk_Commands, aStream)

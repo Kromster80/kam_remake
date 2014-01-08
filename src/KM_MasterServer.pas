@@ -110,7 +110,7 @@ end;
 procedure TKMMasterServer.FetchAnnouncements(const aLang: AnsiString);
 begin
   fHTTPAnnouncementsClient.OnReceive := ReceiveAnnouncements;
-  fHTTPAnnouncementsClient.GetURL(fMasterServerAddress+'announcements.php?lang='+UrlEncode(aLang)+'&rev='+UrlEncode(NET_PROTOCOL_REVISON)+'&coderev='+UrlEncode(GAME_REVISION));
+  fHTTPAnnouncementsClient.GetURL(fMasterServerAddress+'announcements.php?lang='+UrlEncode(UnicodeString(aLang))+'&rev='+UrlEncode(NET_PROTOCOL_REVISON)+'&coderev='+UrlEncode(GAME_REVISION));
 end;
 
 

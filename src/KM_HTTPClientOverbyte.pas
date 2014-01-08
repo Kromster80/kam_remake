@@ -72,7 +72,7 @@ begin
   end;
 
   if Assigned(fOnGetCompleted) then
-    fOnGetCompleted(RcvdText);
+    fOnGetCompleted(UnicodeString(RcvdText));
 end;
 
 
