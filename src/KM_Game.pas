@@ -668,26 +668,28 @@ end;
 
 procedure TKMGame.PlayerDefeat(aPlayerIndex: THandIndex);
 begin
-  //We have not thought of anything to display on players defeat in Replay
-  if gGame.GameMode in [gmMultiSpectate, gmReplaySingle, gmReplayMulti] then
-    Exit;
+  case GameMode of
+    gmSingle: if aPlayerIndex = MySpectator.HandIndex then
+              begin
+                gSoundPlayer.Play(sfxn_Defeat, 1, True); //Fade music
+                RequestGameHold(gr_Defeat);
+              end;
 
-  if aPlayerIndex = MySpectator.HandIndex then
-    gSoundPlayer.Play(sfxn_Defeat, 1, True); //Fade music
+    gmMulti: begin
+               fNetworking.PostLocalMessage(Format(gResTexts[TX_MULTIPLAYER_PLAYER_DEFEATED],
+                                                   [gHands[aPlayerIndex].OwnerName]));
+               if aPlayerIndex = MySpectator.HandIndex then
+               begin
+                 gSoundPlayer.Play(sfxn_Defeat, 1, True); //Fade music
+                 PlayOnState := gr_Defeat;
+                 fGamePlayInterface.ShowMPPlayMore(gr_Defeat);
+               end;
+             end;
 
-  if fGameMode = gmMulti then
-  begin
-    fNetworking.PostLocalMessage(Format(gResTexts[TX_MULTIPLAYER_PLAYER_DEFEATED],
-                                        [gHands[aPlayerIndex].OwnerName]));
-    if aPlayerIndex = MySpectator.HandIndex then
-    begin
-      PlayOnState := gr_Defeat;
-      fGamePlayInterface.ShowMPPlayMore(gr_Defeat);
-    end;
-  end
-  else
-  if aPlayerIndex = MySpectator.HandIndex then
-    RequestGameHold(gr_Defeat);
+    gmMultiSpectate: fNetworking.PostLocalMessage(Format(gResTexts[TX_MULTIPLAYER_PLAYER_DEFEATED],
+                                                  [gHands[aPlayerIndex].OwnerName]));
+    //We have not thought of anything to display on players defeat in Replay
+  end;
 end;
 
 

@@ -1300,7 +1300,6 @@ begin
               begin
                 fOnJoinSucc(Self); //Enter lobby
                 SetGameState(lgs_Lobby);
-                gSoundPlayer.Play(sfxn_MPChatMessage); //Sound for joining the lobby
                 if fWelcomeMessage <> '' then PostLocalMessage(fWelcomeMessage,false);
                 PacketSendA(NET_ADDRESS_HOST, mk_LangCode, gResLocales.UserLocale);
               end;
