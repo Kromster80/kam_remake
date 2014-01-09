@@ -99,6 +99,7 @@ type
     function GetNotReadyToPlayPlayers: TKMByteArray;
     function GetAICount: Integer;
     function GetClosedCount: Integer;
+    function GetSpectatorCount: Integer;
     function GetConnectedCount: Integer;
 
     procedure ResetLocAndReady;
@@ -653,6 +654,16 @@ begin
 end;
 
 
+function TKMNetPlayersList.GetSpectatorCount:integer;
+var I: Integer;
+begin
+  Result := 0;
+  for i:=1 to fCount do
+    if fNetPlayers[i].IsSpectator then
+      inc(Result);
+end;
+
+
 function TKMNetPlayersList.GetConnectedCount:integer;
 var I: Integer;
 begin
@@ -668,7 +679,8 @@ var I: Integer;
 begin
   for i:=1 to fCount do
   begin
-    fNetPlayers[i].StartLocation := 0;
+    if fNetPlayers[i].StartLocation <> LOC_SPECTATE then
+      fNetPlayers[i].StartLocation := LOC_RANDOM;
     if fNetPlayers[i].PlayerNetType = nptHuman then //AI/closed players are always ready
       fNetPlayers[i].ReadyToStart := false;
   end;

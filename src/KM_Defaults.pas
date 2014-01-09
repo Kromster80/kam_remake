@@ -43,7 +43,7 @@ var
   FREE_POINTERS         :Boolean = True;  //If True, units/houses will be freed and removed from the list once they are no longer needed
   CAP_MAX_FPS           :Boolean = True;  //Should limit rendering performance to avoid GPU overheating (disable to measure debug performance)
   CRASH_ON_REPLAY       :Boolean = True;  //Crash as soon as replay consistency fails (random numbers mismatch)
-  BLOCK_DUPLICATE_APP   :Boolean = True;  //Do not allow to run multiple games at once (to prevent MP cheating)
+  BLOCK_DUPLICATE_APP   :Boolean = False;  //Do not allow to run multiple games at once (to prevent MP cheating)
 
   //Implemented
   DO_UNIT_INTERACTION   :Boolean = True; //Debug for unit interaction
@@ -141,11 +141,13 @@ const
   MAX_WARES_ORDER     = 999;  //Number of max allowed items to be ordered in production houses (Weapon/Armor/etc)
 
 const
-  MAX_HANDS         = 12;    //Maximum players (human or AI) per map
-  MAX_LOBBY_PLAYERS = 8;    //Maximum number of players (not spectators) allowed in the lobby. Map can have additional AI locations up to MAX_HANDS (for co-op).
-  MAX_LOBBY_SLOTS   = 10;   //Slots available in lobby. Additional slots can be used by spectators
-  MAX_AI_PLANS      = 4;    //How many houses AI is allowed to plan at once (after establishing Materials supply)
-  AUTOSAVE_COUNT    = 3;    //How many autosaves to backup
+  MAX_HANDS            = 12; //Maximum players (human or AI) per map
+  MAX_LOBBY_PLAYERS    = 8;  //Maximum number of players (not spectators) allowed in the lobby. Map can have additional AI locations up to MAX_HANDS (for co-op).
+  MAX_LOBBY_SPECTATORS = 2;  //Slots available in lobby. Additional slots can be used by spectators
+  MAX_LOBBY_SLOTS = MAX_LOBBY_PLAYERS + MAX_LOBBY_SPECTATORS;
+
+  MAX_AI_PLANS         = 4;  //How many houses AI is allowed to plan at once (after establishing Materials supply)
+  AUTOSAVE_COUNT       = 3;  //How many autosaves to backup
 
 var
   HITPOINT_RESTORE_PACE: Word = 100;         //1 hitpoint is restored to units every X ticks (using Humbelum's advice)

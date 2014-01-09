@@ -25,6 +25,11 @@ type
     fChatMode: TChatMode;
     fChatWhisperRecipient: Integer; //Server index of the player who will receive the whisper
 
+    fLocalToNetPlayers: array[1..MAX_LOBBY_SLOTS] of Integer;
+    fNetPlayersToLocal: array[1..MAX_LOBBY_SLOTS] of Integer;
+
+    procedure UpdateMappings;
+
     procedure CreateControls(aParent: TKMPanel);
     procedure CreateChatMenu(aParent: TKMPanel);
     procedure CreatePlayerMenu(aParent: TKMPanel);
@@ -86,14 +91,14 @@ type
       Panel_LobbyPlayers: TKMPanel;
         CheckBox_LobbyHostControl: TKMCheckBox;
         CheckBox_LobbyRandomizeTeamLocations: TKMCheckBox;
-        Image_LobbyFlag: array [0..MAX_LOBBY_SLOTS-1] of TKMImage;
-        DropBox_LobbyPlayerSlot: array [0..MAX_LOBBY_SLOTS-1] of TKMDropList;
-        Label_LobbyPlayer: array [0..MAX_LOBBY_SLOTS-1] of TKMLabel;
-        DropBox_LobbyLoc: array [0..MAX_LOBBY_SLOTS-1] of TKMDropList;
-        DropBox_LobbyTeam: array [0..MAX_LOBBY_SLOTS-1] of TKMDropList;
-        DropBox_LobbyColors: array [0..MAX_LOBBY_SLOTS-1] of TKMDropColumns;
-        Image_LobbyReady: array [0..MAX_LOBBY_SLOTS-1] of TKMImage;
-        Label_LobbyPing: array [0..MAX_LOBBY_SLOTS-1] of TKMLabel;
+        Image_LobbyFlag: array [1..MAX_LOBBY_SLOTS] of TKMImage;
+        DropBox_LobbyPlayerSlot: array [1..MAX_LOBBY_SLOTS] of TKMDropList;
+        Label_LobbyPlayer: array [1..MAX_LOBBY_SLOTS] of TKMLabel;
+        DropBox_LobbyLoc: array [1..MAX_LOBBY_SLOTS] of TKMDropList;
+        DropBox_LobbyTeam: array [1..MAX_LOBBY_SLOTS] of TKMDropList;
+        DropBox_LobbyColors: array [1..MAX_LOBBY_SLOTS] of TKMDropColumns;
+        Image_LobbyReady: array [1..MAX_LOBBY_SLOTS] of TKMImage;
+        Label_LobbyPing: array [1..MAX_LOBBY_SLOTS] of TKMLabel;
 
       Panel_LobbySetup: TKMPanel;
         Radio_LobbyMapType: TKMRadioGroup;
@@ -164,6 +169,37 @@ begin
 end;
 
 
+procedure TKMMenuLobby.UpdateMappings;
+var I, K: Integer;
+begin
+  //First empty everything
+  for I:=1 to MAX_LOBBY_SLOTS do
+  begin
+    fLocalToNetPlayers[I] := -1;
+    fNetPlayersToLocal[I] := -1;
+  end;
+  K := 1;
+  //First pass: Normal players
+  for I:=1 to fNetworking.NetPlayers.Count do
+    if not fNetworking.NetPlayers[I].IsSpectator then
+    begin
+      fLocalToNetPlayers[K] := I;
+      fNetPlayersToLocal[I] := K;
+      Inc(K);
+    end;
+  //Second pass: Spectators, place them at the end
+  K := MAX_LOBBY_SLOTS - fNetworking.NetPlayers.GetSpectatorCount + 1;
+  Assert((fNetworking.NetPlayers.GetSpectatorCount = 0) or (fLocalToNetPlayers[K] = -1), 'Too many spectators');
+  for I:=1 to fNetworking.NetPlayers.Count do
+    if fNetworking.NetPlayers[I].IsSpectator then
+    begin
+      fLocalToNetPlayers[K] := I;
+      fNetPlayersToLocal[I] := K;
+      Inc(K);
+    end;
+end;
+
+
 procedure TKMMenuLobby.CreateControls(aParent: TKMPanel);
 const
   CW = 690; C1 = 35; C2 = 195; C3 = 355; C4 = 445; C5 = 570; C6 = 650;
@@ -196,9 +232,9 @@ begin
       TKMLabel.Create(Panel_LobbyPlayers, C5, 50, gResTexts[TX_LOBBY_HEADER_READY], fnt_Outline, taCenter);
       TKMLabel.Create(Panel_LobbyPlayers, C6, 50, gResTexts[TX_LOBBY_HEADER_PING], fnt_Outline, taCenter);
 
-      for I := 0 to MAX_LOBBY_SLOTS - 1 do
+      for I := 1 to MAX_LOBBY_SLOTS do
       begin
-        OffY := 70 + I * 24;
+        OffY := 70 + (I-1) * 24;
         Image_LobbyFlag[I] := TKMImage.Create(Panel_LobbyPlayers, 10, OffY, 20, 20, 0, rxGuiMain);
         Image_LobbyFlag[I].ImageCenter;
         Image_LobbyFlag[I].Tag := I+1; //Required for PlayerMenuShow
@@ -208,9 +244,17 @@ begin
         Label_LobbyPlayer[I].Hide;
 
         DropBox_LobbyPlayerSlot[I] := TKMDropList.Create(Panel_LobbyPlayers, C1, OffY, 150, 20, fnt_Grey, '', bsMenu);
-        DropBox_LobbyPlayerSlot[I].Add(gResTexts[TX_LOBBY_SLOT_OPEN]); //Player can join into this slot
-        DropBox_LobbyPlayerSlot[I].Add(gResTexts[TX_LOBBY_SLOT_CLOSED]); //Closed, nobody can join it
-        DropBox_LobbyPlayerSlot[I].Add(gResTexts[TX_LOBBY_SLOT_AI_PLAYER]); //This slot is an AI player
+        if I <= MAX_LOBBY_PLAYERS then
+        begin
+          DropBox_LobbyPlayerSlot[I].Add(gResTexts[TX_LOBBY_SLOT_OPEN]); //Player can join into this slot
+          DropBox_LobbyPlayerSlot[I].Add(gResTexts[TX_LOBBY_SLOT_CLOSED]); //Closed, nobody can join it
+          DropBox_LobbyPlayerSlot[I].Add(gResTexts[TX_LOBBY_SLOT_AI_PLAYER]); //This slot is an AI player
+        end
+        else
+        begin
+          DropBox_LobbyPlayerSlot[I].Add(gResTexts[TX_LOBBY_SPECTATOR]);
+          DropBox_LobbyPlayerSlot[I].Add(gResTexts[TX_LOBBY_SLOT_CLOSED]);
+        end;
         DropBox_LobbyPlayerSlot[I].ItemIndex := 0; //Open
         DropBox_LobbyPlayerSlot[I].OnChange := PlayersSetupChange;
 
@@ -603,7 +647,7 @@ var I: Integer;
 begin
   Label_LobbyServerName.Caption := '';
 
-  for I := 0 to MAX_LOBBY_SLOTS - 1 do
+  for I := 1 to MAX_LOBBY_SLOTS do
   begin
     Label_LobbyPlayer[I].Caption := '.';
     Label_LobbyPlayer[I].FontColor := $FFFFFFFF;
@@ -768,7 +812,7 @@ end;
 //Host will reply with OnPlayersSetup event and data will be actualized.
 procedure TKMMenuLobby.PlayersSetupChange(Sender: TObject);
 var
-  I: Integer;
+  I, NetI: Integer;
 begin
   //Host control toggle
   if Sender = CheckBox_LobbyHostControl then
@@ -783,56 +827,64 @@ begin
     fNetworking.SendPlayerListAndRefreshPlayersSetup;
   end;
 
-  for I := 0 to MAX_LOBBY_SLOTS - 1 do
+  for I := 1 to MAX_LOBBY_SLOTS do
   begin
+    NetI := fLocalToNetPlayers[I];
     //Starting location
     if (Sender = DropBox_LobbyLoc[I]) and DropBox_LobbyLoc[I].Enabled then
     begin
-      fNetworking.SelectLoc(DropBox_LobbyLoc[I].GetSelectedTag, I+1);
+      fNetworking.SelectLoc(DropBox_LobbyLoc[I].GetSelectedTag, NetI);
       //Host with HostDoesSetup could have given us some location we don't know about from a map/save we don't have
       if fNetworking.SelectGameKind <> ngk_None then
-        DropBox_LobbyLoc[I].SelectByTag(fNetworking.NetPlayers[I+1].StartLocation);
+        DropBox_LobbyLoc[I].SelectByTag(fNetworking.NetPlayers[NetI].StartLocation);
     end;
 
     //Team
     if (Sender = DropBox_LobbyTeam[I]) and DropBox_LobbyTeam[I].Enabled then
-      fNetworking.SelectTeam(DropBox_LobbyTeam[I].ItemIndex, I+1);
+      fNetworking.SelectTeam(DropBox_LobbyTeam[I].ItemIndex, NetI);
 
     //Color
     if (Sender = DropBox_LobbyColors[I]) and DropBox_LobbyColors[I].Enabled then
     begin
-      fNetworking.SelectColor(DropBox_LobbyColors[I].ItemIndex, I+1);
-      DropBox_LobbyColors[I].ItemIndex := fNetworking.NetPlayers[I+1].FlagColorID;
+      fNetworking.SelectColor(DropBox_LobbyColors[I].ItemIndex, NetI);
+      DropBox_LobbyColors[I].ItemIndex := fNetworking.NetPlayers[NetI].FlagColorID;
     end;
 
     if Sender = DropBox_LobbyPlayerSlot[I] then
     begin
       //Modify an existing player
-      if (I < fNetworking.NetPlayers.Count) then
+      if (NetI <= fNetworking.NetPlayers.Count) then
       begin
         case DropBox_LobbyPlayerSlot[I].ItemIndex of
           0: //Open
             begin
-              if fNetworking.NetPlayers[I+1].IsComputer
-              or fNetworking.NetPlayers[I+1].IsClosed then
-                fNetworking.NetPlayers.RemPlayer(I+1);
+              if fNetworking.NetPlayers[NetI].IsComputer
+              or fNetworking.NetPlayers[NetI].IsClosed then
+                fNetworking.NetPlayers.RemPlayer(NetI);
             end;
           1: //Closed
-            fNetworking.NetPlayers.AddClosedPlayer(I+1); //Replace it
+            fNetworking.NetPlayers.AddClosedPlayer(NetI); //Replace it
           2: //AI
-            fNetworking.NetPlayers.AddAIPlayer(I+1); //Replace it
+            fNetworking.NetPlayers.AddAIPlayer(NetI); //Replace it
         end;
       end
       else
       begin
-        //Add a new player
-        if DropBox_LobbyPlayerSlot[I].ItemIndex = 1 then //Closed
-          fNetworking.NetPlayers.AddClosedPlayer;
-        if DropBox_LobbyPlayerSlot[I].ItemIndex = 2 then //AI
+        if I > MAX_LOBBY_PLAYERS then
         begin
-          fNetworking.NetPlayers.AddAIPlayer;
-          if fNetworking.SelectGameKind = ngk_Save then
-            fNetworking.MatchPlayersToSave(fNetworking.NetPlayers.Count); //Match new AI player in save
+          //These are spectator only slots
+          case DropBox_LobbyPlayerSlot[I].ItemIndex of
+            0: ;
+            1: ;
+          end;
+        end
+        else
+        begin
+          //Add a new player
+          case DropBox_LobbyPlayerSlot[I].ItemIndex of
+            1: fNetworking.NetPlayers.AddClosedPlayer;
+            2: fNetworking.NetPlayers.AddAIPlayer;
+          end;
         end;
       end;
 
@@ -850,14 +902,46 @@ var
   MyNik, CanEdit, HostCanEdit, IsSave, IsCoop, IsValid: Boolean;
   CurPlayer: TKMNetPlayerInfo;
   LocationName: string;
+  FirstUnused: Boolean;
 begin
+  UpdateMappings;
+
   IsSave := fNetworking.SelectGameKind = ngk_Save;
   IsCoop := (fNetworking.SelectGameKind = ngk_Map) and (fNetworking.MapInfo.IsCoop);
 
-  //Go through active players first
-  for I := 0 to fNetworking.NetPlayers.Count - 1 do
+  FirstUnused := True;
+  for I := 1 to MAX_LOBBY_SLOTS do
+  if fLocalToNetPlayers[I] = -1 then
   begin
-    CurPlayer := fNetworking.NetPlayers[I+1];
+    //This player is unused
+    Label_LobbyPlayer[I].Caption := '';
+    Image_LobbyFlag[I].TexID := 0;
+    Label_LobbyPlayer[I].Hide;
+    DropBox_LobbyPlayerSlot[I].Show;
+    DropBox_LobbyPlayerSlot[I].ItemIndex := 0; //Open
+    DropBox_LobbyLoc[I].Clear;
+    if fNetworking.SelectGameKind = ngk_Save then
+      DropBox_LobbyLoc[I].Add(gResTexts[TX_LOBBY_SELECT], LOC_RANDOM)
+    else
+      DropBox_LobbyLoc[I].Add(gResTexts[TX_LOBBY_RANDOM], LOC_RANDOM);
+    DropBox_LobbyLoc[I].ItemIndex := 0;
+    DropBox_LobbyTeam[I].ItemIndex := 0;
+    DropBox_LobbyColors[I].ItemIndex := 0;
+    //Only host may change player slots, and only the first unused slot may be changed (so there are no gaps in net players list)
+    DropBox_LobbyPlayerSlot[I].Enabled := fNetworking.IsHost and FirstUnused;
+    FirstUnused := False;
+    Image_LobbyReady[I].TexID := 0; //Hidden
+    DropBox_LobbyLoc[I].Disable;
+    DropBox_LobbyTeam[I].Disable;
+    DropBox_LobbyColors[I].Disable;
+    DropBox_LobbyTeam[I].Visible := I <= MAX_LOBBY_PLAYERS;
+  end
+  else
+  begin
+    //This player is used
+    CurPlayer := fNetworking.NetPlayers[fLocalToNetPlayers[I]];
+
+    DropBox_LobbyTeam[I].Visible := not CurPlayer.IsSpectator; //Spectators don't get a team
 
     //Flag icon
     if CurPlayer.IsComputer then
@@ -909,8 +993,6 @@ begin
                       if fNetworking.SaveInfo.Info.Enabled[K]
                       and (fNetworking.SaveInfo.Info.CanBeHuman[K] or ALLOW_TAKE_AI_PLAYERS) then
                         DropBox_LobbyLoc[I].Add(UnicodeString(fNetworking.SaveInfo.Info.OwnerNikname[K]), K+1);
-                  if CurPlayer.IsHuman then
-                    DropBox_LobbyLoc[I].Add(gResTexts[TX_LOBBY_SPECTATE], LOC_SPECTATE);
                 end;
       ngk_Map:  begin
                   IsValid := fNetworking.MapInfo.IsValid;
@@ -925,16 +1007,16 @@ begin
                       LocationName := fNetworking.MapInfo.LocationName(K);
                       //Disable taken locations
                       if not fNetworking.NetPlayers.LocAvailable(K+1)
-                      and (fNetworking.NetPlayers[I+1].StartLocation <> K+1) then
+                      and (CurPlayer.StartLocation <> K+1) then
                         LocationName := '[$707070]' + LocationName + '[]';
                       DropBox_LobbyLoc[I].Add(LocationName, K+1);
                     end;
-                  if CurPlayer.IsHuman then
-                    DropBox_LobbyLoc[I].Add(gResTexts[TX_LOBBY_SPECTATE], LOC_SPECTATE);
                 end;
     end;
+    if CurPlayer.IsHuman then
+      DropBox_LobbyLoc[I].Add(gResTexts[TX_LOBBY_SPECTATE], LOC_SPECTATE);
 
-    if IsValid then
+    if IsValid or CurPlayer.IsSpectator then
       DropBox_LobbyLoc[I].SelectByTag(CurPlayer.StartLocation)
     else
       DropBox_LobbyLoc[I].ItemIndex := 0;
@@ -951,7 +1033,7 @@ begin
     else
       Image_LobbyReady[I].TexID := 32+Byte(CurPlayer.ReadyToStart);
 
-    MyNik := (I+1 = fNetworking.MyIndex); //Our index
+    MyNik := (fLocalToNetPlayers[I] = fNetworking.MyIndex); //Our index
     //We are allowed to edit if it is our nickname and we are set as NOT ready,
     //or we are the host and this player is an AI
     CanEdit := (MyNik and (fNetworking.IsHost or not fNetworking.NetPlayers.HostDoesSetup) and
@@ -960,40 +1042,16 @@ begin
     HostCanEdit := (fNetworking.IsHost and fNetworking.NetPlayers.HostDoesSetup and
                     not CurPlayer.IsClosed);
     DropBox_LobbyLoc[I].Enabled := (CanEdit or HostCanEdit);
-    //Can't change color or teams in a loaded save
+    //Can't change color or teams in a loaded save (spectators can set color)
     DropBox_LobbyTeam[I].Enabled := (CanEdit or HostCanEdit) and not IsSave and not IsCoop and not CurPlayer.IsSpectator;
-    DropBox_LobbyColors[I].Enabled := (CanEdit or (MyNik and not CurPlayer.ReadyToStart)) and not IsSave;
+    DropBox_LobbyColors[I].Enabled := (CanEdit or (MyNik and not CurPlayer.ReadyToStart)) and (not IsSave or CurPlayer.IsSpectator);
     if MyNik and not fNetworking.IsHost then
     begin
       if CurPlayer.ReadyToStart then
         Button_LobbyStart.Caption := gResTexts[TX_LOBBY_NOT_READY]
       else
         Button_LobbyStart.Caption := gResTexts[TX_LOBBY_READY];
-    end
-  end;
-
-  //Disable rest of the players
-  for I := fNetworking.NetPlayers.Count to MAX_LOBBY_SLOTS - 1 do
-  begin
-    Label_LobbyPlayer[I].Caption := '';
-    Image_LobbyFlag[I].TexID := 0;
-    Label_LobbyPlayer[I].Hide;
-    DropBox_LobbyPlayerSlot[I].Show;
-    DropBox_LobbyPlayerSlot[I].ItemIndex := 0; //Open
-    DropBox_LobbyLoc[I].Clear;
-    if fNetworking.SelectGameKind = ngk_Save then
-      DropBox_LobbyLoc[I].Add(gResTexts[TX_LOBBY_SELECT], LOC_RANDOM)
-    else
-      DropBox_LobbyLoc[I].Add(gResTexts[TX_LOBBY_RANDOM], LOC_RANDOM);
-    DropBox_LobbyLoc[I].ItemIndex := 0;
-    DropBox_LobbyTeam[I].ItemIndex := 0;
-    DropBox_LobbyColors[I].ItemIndex := 0;
-    //Only host may change player slots, and only the first unused slot may be changed (so there are no gaps in net players list)
-    DropBox_LobbyPlayerSlot[I].Enabled := fNetworking.IsHost and (I = fNetworking.NetPlayers.Count);
-    Image_LobbyReady[I].TexID := 0; //Hidden
-    DropBox_LobbyLoc[I].Disable;
-    DropBox_LobbyTeam[I].Disable;
-    DropBox_LobbyColors[I].Disable;
+    end;
   end;
 
   //Update the minimap preivew with player colors
@@ -1046,12 +1104,12 @@ procedure TKMMenuLobby.Lobby_OnPingInfo(Sender: TObject);
 var
   I: Integer;
 begin
-  for I := 0 to MAX_LOBBY_SLOTS - 1 do
-    if (fNetworking.Connected) and (I < fNetworking.NetPlayers.Count) and
-       (fNetworking.NetPlayers[I+1].IsHuman) then
+  for I := 1 to MAX_LOBBY_SLOTS do
+    if (fNetworking.Connected) and (fLocalToNetPlayers[I] <> -1) and
+       (fNetworking.NetPlayers[fLocalToNetPlayers[I]].IsHuman) then
     begin
-      Label_LobbyPing[I].Caption := IntToStr(fNetworking.NetPlayers[I+1].GetInstantPing);
-      Label_LobbyPing[I].FontColor := GetPingColor(fNetworking.NetPlayers[I+1].GetInstantPing);
+      Label_LobbyPing[I].Caption := IntToStr(fNetworking.NetPlayers[fLocalToNetPlayers[I]].GetInstantPing);
+      Label_LobbyPing[I].FontColor := GetPingColor(fNetworking.NetPlayers[fLocalToNetPlayers[I]].GetInstantPing);
     end
     else
       Label_LobbyPing[I].Caption := '';

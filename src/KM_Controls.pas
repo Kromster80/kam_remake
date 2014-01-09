@@ -4461,6 +4461,8 @@ procedure TKMDropList.SetEnabled(aValue: Boolean);
 begin
   inherited;
   fList.Enabled := aValue;
+  if not aValue and fList.Visible then
+    ListHide(nil);
 end;
 
 

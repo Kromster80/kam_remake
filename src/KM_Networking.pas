@@ -396,11 +396,11 @@ begin
   Assert(IsHost, 'Only the host is allowed to drop players');
   for I := Low(aPlayers) to High(aPlayers) do
   begin
-    ServerIndex := NetPlayers[I].IndexOnServer;
+    ServerIndex := NetPlayers[aPlayers[I]].IndexOnServer;
     //Make sure this player is properly disconnected from the server
     PacketSend(NET_ADDRESS_SERVER, mk_KickPlayer, ServerIndex);
     NetPlayers.DropPlayer(ServerIndex);
-    PostMessage(TX_NET_DROPPED, UnicodeString(NetPlayers[I].Nikname));
+    PostMessage(TX_NET_DROPPED, UnicodeString(NetPlayers[aPlayers[I]].Nikname));
   end;
   SendPlayerListAndRefreshPlayersSetup;
 end;
@@ -595,18 +595,20 @@ end;
 //Tell other players which start position we would like to use
 //Each players choice should be unique
 procedure TKMNetworking.SelectLoc(aIndex:integer; aPlayerIndex:integer);
-var LocAvailable:Boolean; NetPlayerIndex: Integer;
+var NetPlayerIndex: Integer;
 begin
-  //Check if position can be taken before sending
-  LocAvailable := fNetPlayers.LocAvailable(aIndex);
-  if ((fSelectGameKind = ngk_Map) and ((not fMapInfo.IsValid) or (aIndex > fMapInfo.LocCount))) or
-     ((fSelectGameKind = ngk_Save) and ((not fSaveInfo.IsValid) or (aIndex > fSaveInfo.Info.PlayerCount))) or
-     (fSelectGameKind = ngk_None) or
-     (not LocAvailable and (not IsHost or not fNetPlayers.HostDoesSetup)) then
-  begin
-    if Assigned(fOnPlayersSetup) then fOnPlayersSetup(Self);
-    Exit;
-  end;
+  //Check if position can be taken before doing anything
+  if aIndex <> LOC_SPECTATE then
+    if (aIndex <> LOC_RANDOM) and
+        (((fSelectGameKind = ngk_Map) and ((not fMapInfo.IsValid) or (aIndex > fMapInfo.LocCount))) or
+         ((fSelectGameKind = ngk_Save) and ((not fSaveInfo.IsValid) or (aIndex > fSaveInfo.Info.PlayerCount))) or
+         (fSelectGameKind = ngk_None) or
+         (not fNetPlayers.LocAvailable(aIndex) and (not IsHost or not fNetPlayers.HostDoesSetup))
+        ) or (NetPlayers.Count-NetPlayers.GetSpectatorCount-NetPlayers.GetClosedCount >= MAX_LOBBY_PLAYERS) then
+    begin
+      if Assigned(fOnPlayersSetup) then fOnPlayersSetup(Self);
+      Exit;
+    end;
 
   //If someone else has this index, switch them (only when HostDoesSetup)
   if IsHost and fNetPlayers.HostDoesSetup and (aIndex <> LOC_RANDOM) and (aIndex <> LOC_SPECTATE) then
@@ -621,15 +623,16 @@ begin
     end;
   end;
 
-  //Host makes rules, Joiner will get confirmation from Host
-  fNetPlayers[aPlayerIndex].StartLocation := aIndex; //Use aPlayerIndex not fMyIndex because it could be an AI
-
-  //Spectators can't have team
-  if aIndex = LOC_SPECTATE then
-    fNetPlayers[aPlayerIndex].Team := 0;
-
   case fNetPlayerKind of
-    lpk_Host:   SendPlayerListAndRefreshPlayersSetup;
+    lpk_Host:   begin
+                  //Host makes rules, Joiner will get confirmation from Host
+                  fNetPlayers[aPlayerIndex].StartLocation := aIndex; //Use aPlayerIndex not fMyIndex because it could be an AI
+
+                  if aIndex = LOC_SPECTATE then
+                    fNetPlayers[aPlayerIndex].Team := 0; //Spectators can't have team
+
+                  SendPlayerListAndRefreshPlayersSetup;
+                end;
     lpk_Joiner: PacketSend(NET_ADDRESS_HOST, mk_StartingLocQuery, aIndex);
   end;
 end;
@@ -1563,9 +1566,11 @@ begin
                 M.Read(tmpInteger);
                 LocID := tmpInteger;
                 if (
-                    ((fSelectGameKind = ngk_Map) and (fMapInfo <> nil) and fMapInfo.IsValid and (LocID <= fMapInfo.LocCount))
+                    (LocID = LOC_SPECTATE) or (LocID = LOC_RANDOM)
+                 or ((fSelectGameKind = ngk_Map) and (fMapInfo <> nil) and fMapInfo.IsValid and (LocID <= fMapInfo.LocCount))
                  or ((fSelectGameKind = ngk_Save) and (fSaveInfo <> nil) and fSaveInfo.IsValid and (LocID <= fSaveInfo.Info.PlayerCount))
                    )
+                and ((LocID = LOC_SPECTATE) or (NetPlayers.Count-NetPlayers.GetSpectatorCount-NetPlayers.GetClosedCount < MAX_LOBBY_PLAYERS))
                 and fNetPlayers.LocAvailable(LocID) then
                 begin //Update Players setup
                   PlayerIndex := fNetPlayers.ServerToLocal(aSenderIndex);

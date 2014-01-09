@@ -648,9 +648,9 @@ begin
     gGame.GameInputProcess.CmdBuild(gic_BuildRemoveHouse, TKMHouse(MySpectator.Selected).GetPosition);
     MySpectator.Selected := nil; //fPlayers.Selected MUST be reset before calling ShowHouseInfo
     Panel_House.Hide; //Simpliest way to reset page and ShownHouse
-  end else
-    fAskDemolish := False;
+  end;
 
+  fAskDemolish := False;
   OnHouseDemolish; //Return to build menu
 end;
 
