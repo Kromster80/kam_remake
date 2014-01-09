@@ -1043,7 +1043,13 @@ begin
                   begin
                     Land[Loc.Y,Loc.X].Terrain  := 55;
                     Land[Loc.Y,Loc.X].Rotation := 0;
-                    CutGrapes(Loc); //Set object and age
+                    //If object is already wine then set the field age (some maps start with wine placed)
+                    case Land[Loc.Y,Loc.X].Obj of
+                      55: Land[Loc.Y,Loc.X].FieldAge := WINE_AGE_1;
+                      56: Land[Loc.Y,Loc.X].FieldAge := WINE_AGE_2;
+                      57: Land[Loc.Y,Loc.X].FieldAge := WINE_AGE_FULL;
+                      else CutGrapes(Loc); //Set object and age
+                    end;
                   end;
     ft_InitWine:  begin
                     Land[Loc.Y,Loc.X].Terrain  := 55;
