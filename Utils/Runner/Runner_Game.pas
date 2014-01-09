@@ -299,7 +299,7 @@ procedure TKMVas01.SetUp;
 begin
   inherited;
   fResults.ValueCount := 1;
-  fResults.TimesCount := 20*60*10;
+  fResults.TimesCount := 2*60*10;
 end;
 
 procedure TKMVas01.TearDown;
@@ -319,6 +319,10 @@ begin
 
   C := fGameApp.Campaigns.CampaignById(cmp);
   fGameApp.NewCampaignMap(C, 1);
+
+  MySpectator.FOWIndex := -1;
+  fGameApp.Game.GamePlayInterface.Viewport.PanTo(KMPointF(162, 26), 0);
+  fGameApp.Game.GamePlayInterface.Viewport.Zoom := 0.5;
 
   //Don't set random seed or the replay won't work
 
