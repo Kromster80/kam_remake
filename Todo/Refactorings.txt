@@ -1,11 +1,8 @@
 
-
 	Add seperate folder for SP maps that do not go into releases (MapsTest)
 		1st attempt failed. We need to add parent folder to map addressing. We can also split MapsMP by modes (MapsMPEconomy, MapsMPFight, etc)
 
 	Tool that generates the Release folder and a Diff with new or modified files from the previous release folder
-
-	Implement real fog of war by combining layers and fow mask
 
 	Rework render layers so that cursor logic is in corresponding UI modules
 
@@ -26,8 +23,6 @@
 	Networking needs refactoring, maybe we can split it into common, lobby and gameplay parts
 
 	Replace indexing of terrain and net parts from 1..N to a convenient 0..N-1
-
-	Tryout displaying 3D objects on terrain
 
 	See about adding achievements to the game
 		That does not work well because we cant properly count reloaded games (add UID to each game?)
