@@ -141,8 +141,9 @@ const
   MAX_WARES_ORDER     = 999;  //Number of max allowed items to be ordered in production houses (Weapon/Armor/etc)
 
 const
-  MAX_HANDS       = 8;    //Maximum players per map
-  MAX_LOBBY_SLOTS = 10;
+  MAX_HANDS         = 12;    //Maximum players (human or AI) per map
+  MAX_LOBBY_PLAYERS = 8;    //Maximum number of players (not spectators) allowed in the lobby. Map can have additional AI locations up to MAX_HANDS (for co-op).
+  MAX_LOBBY_SLOTS   = 10;   //Slots available in lobby. Additional slots can be used by spectators
   MAX_AI_PLANS      = 4;    //How many houses AI is allowed to plan at once (after establishing Materials supply)
   AUTOSAVE_COUNT    = 3;    //How many autosaves to backup
 
@@ -624,7 +625,11 @@ const
   $FF07FFFF, //Yellow
   $FF577B7B, //Grey
   $FF000000, //Black
-  $FF000000  //Black
+  $FF000000,  //Black
+  $FF2383FB, //Orange
+  $FFFF0707, //Blue
+  $FF0BE73F, //Light green
+  $FFFFFFFF  //White
   );
 
   //Interface Colors used for coloring status messages

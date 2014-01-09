@@ -833,7 +833,7 @@ end;
 //Does the player has any assets (without assets player is harmless)
 function TKMHand.HasAssets: Boolean;
 begin
-  Result := (Units.Count > 0) or (Houses.Count > 0);
+  Result := (GetFieldsCount > 0) or (Units.Count > 0) or (Houses.Count > 0);
 end;
 
 

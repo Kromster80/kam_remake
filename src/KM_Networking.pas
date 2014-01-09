@@ -473,7 +473,7 @@ begin
     for I := 1 to fNetPlayers.Count do
       fNetPlayers[I].StartLocation := 0;
 
-    for I := 1 to MAX_HANDS - fSaveInfo.Info.HumanCount - fNetPlayers.GetClosedCount do
+    for I := 1 to MAX_LOBBY_SLOTS - fSaveInfo.Info.HumanCount - fNetPlayers.GetClosedCount do
       if fNetPlayers.Count < MAX_LOBBY_SLOTS then
         fNetPlayers.AddClosedPlayer; //Close unused slots
   end;

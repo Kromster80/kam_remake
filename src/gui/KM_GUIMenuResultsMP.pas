@@ -37,9 +37,9 @@ type
       Label_ResultsMP: TKMLabel;
       Panel_Bars: TKMPanel;
         Panel_BarsUpper, Panel_BarsLower: TKMPanel;
-          Label_ResultsPlayerName1, Label_ResultsPlayerName2: array [0 .. MAX_HANDS - 1] of TKMLabel;
-          Bar_Results: array [0 .. MAX_HANDS - 1, 0 .. 9] of TKMPercentBar;
-          Image_ResultsRosette: array [0 .. MAX_HANDS - 1, 0 .. 9] of TKMImage;
+          Label_ResultsPlayerName1, Label_ResultsPlayerName2: array [0 .. MAX_LOBBY_PLAYERS - 1] of TKMLabel;
+          Bar_Results: array [0 .. MAX_LOBBY_PLAYERS - 1, 0 .. 9] of TKMPercentBar;
+          Image_ResultsRosette: array [0 .. MAX_LOBBY_PLAYERS - 1, 0 .. 9] of TKMImage;
       Panel_ChartsMP: TKMPanel;
         Chart_MPArmy: TKMChart;
         Chart_MPCitizens: TKMChart;
@@ -98,14 +98,14 @@ begin
     Panel_BarsUpper := TKMPanel.Create(Panel_Bars, 0, 0, 900, 215);
     Panel_BarsUpper.Anchors := [];
 
-      for I := 0 to MAX_HANDS - 1 do
+      for I := 0 to MAX_LOBBY_PLAYERS - 1 do
         Label_ResultsPlayerName1[I] := TKMLabel.Create(Panel_BarsUpper, 0, 38+I*BAR_ROW_HEIGHT, 150, 20, '', fnt_Metal, taLeft);
 
       for K := 0 to 4 do
       begin
         with TKMLabel.Create(Panel_BarsUpper, 160 + BarStep*K, 0, BarWidth+6, 40, gResTexts[Columns1[K]], fnt_Metal, taCenter) do
           AutoWrap := True;
-        for I:=0 to MAX_HANDS - 1 do
+        for I:=0 to MAX_LOBBY_PLAYERS - 1 do
         begin
           Bar_Results[I,K] := TKMPercentBar.Create(Panel_BarsUpper, 160 + K*BarStep, 35+I*BAR_ROW_HEIGHT, BarWidth, 20, fnt_Grey);
           Bar_Results[I,K].TextYOffset := -3;
@@ -116,14 +116,14 @@ begin
     Panel_BarsLower := TKMPanel.Create(Panel_Bars, 0, 220, 900, 180);
     Panel_BarsLower.Anchors := [];
 
-      for I := 0 to MAX_HANDS - 1 do
+      for I := 0 to MAX_LOBBY_PLAYERS - 1 do
         Label_ResultsPlayerName2[I] := TKMLabel.Create(Panel_BarsLower, 0, 38+I*BAR_ROW_HEIGHT, 150, 20, '', fnt_Metal, taLeft);
 
       for K := 0 to 4 do
       begin
         with TKMLabel.Create(Panel_BarsLower, 160 + BarStep*K, 0, BarWidth+6, 40, gResTexts[Columns2[K]], fnt_Metal, taCenter) do
           AutoWrap := True;
-        for I := 0 to MAX_HANDS - 1 do
+        for I := 0 to MAX_LOBBY_PLAYERS - 1 do
         begin
           Bar_Results[I,K+5] := TKMPercentBar.Create(Panel_BarsLower, 160 + K*BarStep, 35+I*BAR_ROW_HEIGHT, BarWidth, 20, fnt_Grey);
           Bar_Results[I,K+5].TextYOffset := -3;
@@ -235,7 +235,7 @@ begin
 
   //Get player count to compact their data output
   fEnabledPlayers := 0;
-  for I := 0 to gHands.Count - 1 do
+  for I := 0 to Min(MAX_LOBBY_PLAYERS, gHands.Count) - 1 do
     if gHands[I].Enabled then
       Inc(fEnabledPlayers);
 
@@ -278,10 +278,10 @@ var
   Totals: array [0..9] of Cardinal;
 begin
   //Update visibility depending on players count (note, players may be sparsed)
-  for I := 0 to MAX_HANDS - 1 do
+  for I := 0 to MAX_LOBBY_PLAYERS - 1 do
     SetPlayerControls(I, False); //Disable them all to start
   Index := 0;
-  for I := 0 to gHands.Count - 1 do
+  for I := 0 to Min(MAX_LOBBY_PLAYERS, gHands.Count) - 1 do
     if gHands[I].Enabled then
     begin
       SetPlayerControls(Index, True); //Enable used ones
@@ -309,7 +309,7 @@ begin
   FillChar(Totals, SizeOf(Totals), #0);
 
   //Calculate bests for each "section"
-  for I := 0 to gHands.Count - 1 do
+  for I := 0 to Min(MAX_LOBBY_PLAYERS, gHands.Count) - 1 do
     if gHands[I].Enabled then
       with gHands[I].Stats do
       begin
@@ -339,7 +339,7 @@ begin
 
   //Fill in raw values
   Index := 0;
-  for I := 0 to gHands.Count - 1 do
+  for I := 0 to Min(MAX_LOBBY_PLAYERS, gHands.Count) - 1 do
     if gHands[I].Enabled then
     begin
 

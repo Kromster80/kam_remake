@@ -145,15 +145,17 @@ begin
 end;
 
 
-//We assume that if player has no assets it is unused and can be removed, so that remaining players
-//will be tightly packed and mission info will display correct player count
+//We assume that if player has no assets it is unused and can be removed from end
+//Don't remove players in the middle, if user uses players 1 and 8 then 2..7 are kept
 //Accessed only by MapEditor when it needs to remove empty players before saving a map
 procedure TKMHandsCollection.RemoveEmptyPlayers;
 var
   I: Integer;
 begin
   for I := Count - 1 downto 0 do
-    if fHandsList[I].GetFieldsCount + fHandsList[I].Houses.Count + fHandsList[I].Units.Count = 0 then
+    if fHandsList[I].HasAssets then
+      Exit //Exit as soon as we find a player with assets
+    else
       RemovePlayer(I);
 end;
 

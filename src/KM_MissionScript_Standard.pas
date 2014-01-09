@@ -146,7 +146,14 @@ begin
                           gHands.AddPlayers(P[0]);
                           //Set players to enabled/disabled
                           for I := 0 to gHands.Count - 1 do
+                          begin
                             gHands[i].Enabled := fPlayerEnabled[i];
+                            if fParsingMode = mpm_Editor then
+                            begin
+                              gGame.MapEditor.PlayerHuman[I] := False;
+                              gGame.MapEditor.PlayerAI[I] := False;
+                            end;
+                          end;
                         end;
     ct_SetTactic:       begin
                           //Default is mm_Normal

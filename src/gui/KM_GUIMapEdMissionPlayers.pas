@@ -65,8 +65,6 @@ begin
     CheckBox_PlayerTypes[I, 1].Enabled := gHands[I].HasAssets;
     CheckBox_PlayerTypes[I, 2].Enabled := gHands[I].HasAssets;
 
-
-
     CheckBox_PlayerTypes[I, 0].Checked := gHands[I].HasAssets and (gGame.MapEditor.DefaultHuman = I);
     CheckBox_PlayerTypes[I, 1].Checked := gHands[I].HasAssets and gGame.MapEditor.PlayerHuman[I];
     CheckBox_PlayerTypes[I, 2].Checked := gHands[I].HasAssets and gGame.MapEditor.PlayerAI[I];
