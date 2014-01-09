@@ -62,6 +62,7 @@
 
 Improvements:
  +	M	Noticeably improved render performance when zoomed out
+ +	M	Noticeably improved render performance when there are many houses on the screen
  +	L	Serfs check for a better delivery destination when arriving at the From house (due to state of village changing)
  +	M	MapEd: Copy/paste works between multiple instances of the editor using Windows clipboard
  +	L	Allow to specify localized player names for the missions

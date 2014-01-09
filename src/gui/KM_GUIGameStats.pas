@@ -150,7 +150,7 @@ begin
     else
     begin
       Stat_HousePic[HT].TexID := 41;
-      Stat_HousePic[HT].Hint := gResTexts[TX_HOUSE_NOT_AVAIABLE]; //Building not available
+      Stat_HousePic[HT].Hint := gResTexts[TX_HOUSE_NOT_AVAILABLE]; //Building not available
     end;
   end;
 

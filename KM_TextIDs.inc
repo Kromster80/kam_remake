@@ -168,7 +168,7 @@ TX_HOUSE_TOGGLE_DELIVERS_HINT = 153; //Switch on/off delivery of wares
 
 TX_HOUSE_WARE_COSTS = 154; //Cost:
 TX_HOUSE_TOGGLE_REPAIR_HINT = 155; //Switch on/off house repair
-TX_HOUSE_NOT_AVAIABLE = 156; //Building not available at this time
+TX_HOUSE_NOT_AVAILABLE = 156; //Building not available at this time
 TX_UNIT_CONDITION = 157; //Condition
 TX_ARMY_ROTATE_CCW_HINT = 158; //Turn troop left
 TX_ARMY_ROTATE_CW_HINT = 159; //Turn troop right

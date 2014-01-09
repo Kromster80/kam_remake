@@ -170,7 +170,7 @@ begin
   begin
     Button_Build[I].OnClick := nil;
     Button_Build[I].TexID := 41;
-    Button_Build[I].Hint := gResTexts[TX_HOUSE_NOT_AVAIABLE]; //Building not available
+    Button_Build[I].Hint := gResTexts[TX_HOUSE_NOT_AVAILABLE]; //Building not available
   end;
 end;
 
