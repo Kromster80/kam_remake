@@ -601,7 +601,19 @@ procedure TRenderPool.AddHouse(aHouse: THouseType; aLoc: TKMPoint; aWoodStep, aS
 var
   R: TRXData;
   PicWood, PicStone, PicSnow: Integer;
-  CornerX, CornerY, GroundWood, GroundStone, gX, gY: Single;
+  GroundWood, GroundStone, gX, gY: Single;
+
+  function CornerX(aPic: Integer): Single;
+  begin
+    Result := aLoc.X + R.Pivot[aPic].X / CELL_SIZE_PX - 1;
+  end;
+
+  function CornerY(aPic: Integer): Single;
+  begin
+    Result := aLoc.Y + (R.Pivot[aPic].Y + R.Size[aPic].Y) / CELL_SIZE_PX - 1
+                     - gTerrain.Land[aLoc.Y + 1, aLoc.X].Height / CELL_HEIGHT_DIV;
+  end;
+
 begin
   if aWoodStep = 0 then Exit;
 
@@ -617,36 +629,34 @@ begin
   gX := aLoc.X + (R.Pivot[PicWood].X + R.Size[PicWood].X / 2) / CELL_SIZE_PX - 1;
   gY := aLoc.Y + Max(GroundWood, GroundStone) / CELL_SIZE_PX - 1.5;
 
-  //Wood part of the house (may be seen below Stone part, e.g. Sawmill)
-  CornerX := aLoc.X + R.Pivot[PicWood].X / CELL_SIZE_PX - 1;
-  CornerY := aLoc.Y + (R.Pivot[PicWood].Y + R.Size[PicWood].Y) / CELL_SIZE_PX - 1
-                   - gTerrain.Land[aLoc.Y + 1, aLoc.X].Height / CELL_HEIGHT_DIV;
-
   //If it's fully built we can render without alpha
-  if aWoodStep = 1 then aWoodStep := -1;
-  fRenderList.AddSpriteG(rxHouses, PicWood, 0, CornerX, CornerY, gX, gY, $0, aWoodStep);
-
-  //Stone
-  if aStoneStep > 0 then
+  if (aWoodStep = 1) and (aStoneStep = 1) then
   begin
-    CornerX := aLoc.X + R.Pivot[PicStone].X / CELL_SIZE_PX - 1;
-    CornerY := aLoc.Y + (R.Pivot[PicStone].Y + R.Size[PicStone].Y) / CELL_SIZE_PX - 1
-                     - gTerrain.Land[aLoc.Y + 1, aLoc.X].Height / CELL_HEIGHT_DIV;
-
-    //If it's fully built we can render without alpha
-    if aStoneStep = 1 then aStoneStep := -1;
-    fRenderList.AddSprite(rxHouses, PicStone, 0, CornerX, CornerY, $0, aStoneStep);
-  end;
-
-  //Snow
-  if SNOW_HOUSES
-  and (aSnowStep > 0)
-  and (PicSnow <> 0) then
+    //Snow only happens on fully built houses
+    if SNOW_HOUSES
+    and (aSnowStep > 0)
+    and (PicSnow <> 0) then
+    begin
+      //If snow is 100% we only need to render snow sprite
+      if aSnowStep = 1 then
+        fRenderList.AddSpriteG(rxHouses, PicSnow, 0, CornerX(PicSnow), CornerY(PicSnow), gX, gY, $0)
+      else
+      begin
+        //Render stone with snow blended on top using AlphaTest
+        //todo: Shadow shouldn't get rendered twice
+        fRenderList.AddSpriteG(rxHouses, PicStone, 0, CornerX(PicStone), CornerY(PicStone), gX, gY, $0);
+        fRenderList.AddSpriteG(rxHouses, PicSnow, 0, CornerX(PicSnow), CornerY(PicSnow), gX, gY, $0, aSnowStep);
+      end;
+    end
+    else
+      fRenderList.AddSpriteG(rxHouses, PicStone, 0, CornerX(PicStone), CornerY(PicStone), gX, gY, $0);
+  end
+  else
   begin
-    CornerX := aLoc.X + R.Pivot[PicSnow].X / CELL_SIZE_PX - 1;
-    CornerY := aLoc.Y + (R.Pivot[PicSnow].Y + R.Size[PicSnow].Y) / CELL_SIZE_PX - 1
-                     - gTerrain.Land[aLoc.Y + 1, aLoc.X].Height / CELL_HEIGHT_DIV;
-    fRenderList.AddSprite(rxHouses, PicSnow, 0, CornerX, CornerY, $0, aSnowStep);
+    //Wood part of the house (may be seen below Stone part before construction is complete, e.g. Sawmill)
+    fRenderList.AddSpriteG(rxHouses, PicWood, 0, CornerX(PicWood), CornerY(PicWood), gX, gY, $0, aWoodStep);
+    if aStoneStep > 0 then
+      fRenderList.AddSprite(rxHouses, PicStone, 0, CornerX(PicStone), CornerY(PicStone), $0, aStoneStep);
   end;
 end;
 
