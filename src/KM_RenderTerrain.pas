@@ -18,11 +18,11 @@ type
     fTextG: GLuint; //Shading gradient for lighting
     fTextB: GLuint; //Contrast BW for FOW over color-coder
     fUseVBO: Boolean; //Wherever to render terrain through VBO (faster but needs GL1.5) or DrawCalls (slower but needs only GL1.1)
-    fPos: array of TVertice;
-    fInd: array of Integer;
+    fTilesVtx: array of TVertice;
+    fTilesInd: array of Integer;
     fVtxShd: GLUint;
     fIndShd: GLUint;
-    fTileUVLookup: array[0..255, 0..3] of TUVRect;
+    fTileUVLookup: array [0..255, 0..3] of TUVRect;
     function GetTileUV(Index: Word; Rot: Byte): TUVRect;
     procedure UpdateVBO(aFOW: TKMFogOfWarCommon);
     procedure DoTiles;
@@ -57,6 +57,7 @@ begin
   inherited;
   if SKIP_RENDER then Exit;
 
+  //Tiles UV lookup for faster access. Only base tileset for smaller size
   for I := 0 to 255 do
     for K := 0 to 3 do
       fTileUVLookup[I, K] := GetTileUV(I, K);
@@ -138,6 +139,9 @@ begin
     SwapInt(TexO[2], TexO[4]);
   end;
 
+  // Rotate by 270 degrees = 90 + 180
+
+  //Apply rotation
   with GFXData[rxTiles, Index+1] do
   begin
     Result[TexO[1], 1] := Tex.u1; Result[TexO[1], 2] := Tex.v1;
@@ -166,7 +170,7 @@ begin
   SizeX := Max(fClipRect.Right - fClipRect.Left, 0);
   SizeY := Max(fClipRect.Bottom - fClipRect.Top, 0);
   H := 0;
-  SetLength(fPos, (SizeX + 2) * 2 * (SizeY + 1));
+  SetLength(fTilesVtx, (SizeX + 2) * 2 * (SizeY + 1));
   with gTerrain do
   if (MapX > 0) and (MapY > 0) then
   for I := 0 to SizeY do
@@ -174,50 +178,50 @@ begin
   begin
     tX := K + fClipRect.Left;
     tY := I + fClipRect.Top;
-    fPos[H+0].X := tX-1;
-    fPos[H+0].Y := tY-1 - Land[tY, tX].Height / CELL_HEIGHT_DIV;
-    fPos[H+0].Z := tY - 1;
-    fPos[H+0].ULit := Land[tY, tX].Light;
-    fPos[H+0].UShd := -Land[tY, tX].Light;
+    fTilesVtx[H+0].X := tX-1;
+    fTilesVtx[H+0].Y := tY-1 - Land[tY, tX].Height / CELL_HEIGHT_DIV;
+    fTilesVtx[H+0].Z := tY - 1;
+    fTilesVtx[H+0].ULit := Land[tY, tX].Light;
+    fTilesVtx[H+0].UShd := -Land[tY, tX].Light;
     if Fog <> nil then
-      fPos[H+0].UFow := Fog^[tY-1, tX-1] / 256
+      fTilesVtx[H+0].UFow := Fog^[tY-1, tX-1] / 256
     else
-      fPos[H+0].UFow := 255;
+      fTilesVtx[H+0].UFow := 255;
 
     tY := I + fClipRect.Top + 1;
-    fPos[H+1].X := tX-1;
-    fPos[H+1].Y := tY-1 - Land[tY, tX].Height / CELL_HEIGHT_DIV;
-    fPos[H+1].Z := tY - 2;
-    fPos[H+1].ULit := Land[tY, tX].Light;
-    fPos[H+1].UShd := -Land[tY, tX].Light;
+    fTilesVtx[H+1].X := tX-1;
+    fTilesVtx[H+1].Y := tY-1 - Land[tY, tX].Height / CELL_HEIGHT_DIV;
+    fTilesVtx[H+1].Z := tY - 2;
+    fTilesVtx[H+1].ULit := Land[tY, tX].Light;
+    fTilesVtx[H+1].UShd := -Land[tY, tX].Light;
     if Fog <> nil then
-      fPos[H+1].UFow := Fog^[tY-1, tX-1] / 256
+      fTilesVtx[H+1].UFow := Fog^[tY-1, tX-1] / 256
     else
-      fPos[H+1].UFow := 255;
+      fTilesVtx[H+1].UFow := 255;
 
     H := H + 2;
   end;
 
   H := 0;
-  SetLength(fInd, (SizeX+1) * (SizeY+1) * 6);
+  SetLength(fTilesInd, (SizeX+1) * (SizeY+1) * 6);
   for I := 0 to SizeY do
   for K := 0 to SizeX do
   begin
     Row := I * (SizeX + 2) * 2;
-    fInd[H+0] := Row + K * 2;
-    fInd[H+1] := Row + K * 2 + 1;
-    fInd[H+2] := Row + K * 2 + 3;
-    fInd[H+3] := Row + K * 2;
-    fInd[H+4] := Row + K * 2 + 3;
-    fInd[H+5] := Row + K * 2 + 2;
+    fTilesInd[H+0] := Row + K * 2;
+    fTilesInd[H+1] := Row + K * 2 + 1;
+    fTilesInd[H+2] := Row + K * 2 + 3;
+    fTilesInd[H+3] := Row + K * 2;
+    fTilesInd[H+4] := Row + K * 2 + 3;
+    fTilesInd[H+5] := Row + K * 2 + 2;
     H := H + 6;
   end;
 
   glBindBuffer(GL_ARRAY_BUFFER, fVtxShd);
-  glBufferData(GL_ARRAY_BUFFER, Length(fPos) * SizeOf(TVertice), @fPos[0].X, GL_STREAM_DRAW);
+  glBufferData(GL_ARRAY_BUFFER, Length(fTilesVtx) * SizeOf(TVertice), @fTilesVtx[0].X, GL_STREAM_DRAW);
 
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, fIndShd);
-  glBufferData(GL_ELEMENT_ARRAY_BUFFER, Length(fInd) * SizeOf(fInd[0]), @fInd[0], GL_STREAM_DRAW);
+  glBufferData(GL_ELEMENT_ARRAY_BUFFER, Length(fTilesInd) * SizeOf(fTilesInd[0]), @fTilesInd[0], GL_STREAM_DRAW);
 end;
 
 
@@ -411,7 +415,7 @@ begin
     glTexCoordPointer(1, GL_FLOAT, SizeOf(TVertice), Pointer(12));
 
     //Here and above OGL requests Pointer, but in fact it's just a number (offset within Array)
-    glDrawElements(GL_TRIANGLES, Length(fInd), GL_UNSIGNED_INT, Pointer(0));
+    glDrawElements(GL_TRIANGLES, Length(fTilesInd), GL_UNSIGNED_INT, Pointer(0));
 
     glDisableClientState(GL_VERTEX_ARRAY);
     glDisableClientState(GL_TEXTURE_COORD_ARRAY);
@@ -464,7 +468,7 @@ begin
     glTexCoordPointer(1, GL_FLOAT, SizeOf(TVertice), Pointer(16));
 
     //Here and above OGL requests Pointer, but in fact it's just a number (offset within Array)
-    glDrawElements(GL_TRIANGLES, Length(fInd), GL_UNSIGNED_INT, Pointer(0));
+    glDrawElements(GL_TRIANGLES, Length(fTilesInd), GL_UNSIGNED_INT, Pointer(0));
 
     glDisableClientState(GL_VERTEX_ARRAY);
     glDisableClientState(GL_TEXTURE_COORD_ARRAY);
@@ -546,7 +550,7 @@ begin
     glTexCoordPointer(1, GL_FLOAT, SizeOf(TVertice), Pointer(20));
 
     //Here and above OGL requests Pointer, but in fact it's just a number (offset within Array)
-    glDrawElements(GL_TRIANGLES, Length(fInd), GL_UNSIGNED_INT, Pointer(0));
+    glDrawElements(GL_TRIANGLES, Length(fTilesInd), GL_UNSIGNED_INT, Pointer(0));
 
     glDisableClientState(GL_VERTEX_ARRAY);
     glDisableClientState(GL_TEXTURE_COORD_ARRAY);
@@ -625,7 +629,7 @@ begin
   glColor4f(1, 1, 1, 1);
 
   glBindTexture(GL_TEXTURE_2D, GFXData[rxTiles, Index + 1].Tex.ID);
-  TexC := GetTileUV(Index, Rot);
+  TexC := fTileUVLookup[Index, Rot];
 
   glBegin(GL_TRIANGLE_FAN);
     with gTerrain do
