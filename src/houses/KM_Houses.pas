@@ -679,18 +679,21 @@ begin
     UpdateDamage;
   end;
 
-  //Let AI and script know when the damage is already applied, so they see actual state
-  gHands[Owner].AI.HouseAttackNotification(Self, TKMUnitWarrior(aAttacker));
+  if gGame.GameMode <> gmMapEd then
+  begin
+    //Let AI and script know when the damage is already applied, so they see actual state
+    gHands[Owner].AI.HouseAttackNotification(Self, TKMUnitWarrior(aAttacker));
 
-  if aAttacker <> nil then
-    attackerHand := TKMUnitWarrior(aAttacker).Owner
-  else
-    attackerHand := PLAYER_NONE;
+    if aAttacker <> nil then
+      attackerHand := TKMUnitWarrior(aAttacker).Owner
+    else
+      attackerHand := PLAYER_NONE;
 
-  //Properly release house assets
-  //Do not remove house in Editor just yet, mapmaker might increase the hp again
-  if (GetHealth = 0) and not aIsEditor then
-    DemolishHouse(attackerHand);
+    //Properly release house assets
+    //Do not remove house in Editor just yet, mapmaker might increase the hp again
+    if (GetHealth = 0) and not aIsEditor then
+      DemolishHouse(attackerHand);
+  end;
 end;
 
 

@@ -280,7 +280,6 @@ end;
 
 
 procedure TKMNetPlayersList.Clear;
-var I: Integer;
 begin
   HostDoesSetup := False;
   RandomizeTeamLocations := False;

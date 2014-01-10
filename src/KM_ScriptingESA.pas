@@ -246,7 +246,7 @@ var
 implementation
 uses KM_AI, KM_Terrain, KM_Game, KM_FogOfWar, KM_HandsCollection, KM_Units_Warrior,
   KM_HouseBarracks, KM_HouseSchool, KM_ResUnits, KM_ResWares, KM_Log, KM_Utils,
-  KM_Resource, KM_UnitTaskSelfTrain, KM_Sound, KM_Hand, KM_AIDefensePos;
+  KM_Resource, KM_UnitTaskSelfTrain, KM_Sound, KM_Hand, KM_AIDefensePos, KM_CommonClasses;
 
 
 type
