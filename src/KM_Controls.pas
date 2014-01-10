@@ -660,6 +660,8 @@ type
     procedure UpdateScrollBar;
     function GetItem(aIndex: Integer): UnicodeString;
   protected
+    procedure SetLeft(aValue: Integer); override;
+    procedure SetTop(aValue: Integer); override;
     procedure SetHeight(aValue: Integer); override;
     procedure SetEnabled(aValue: Boolean); override;
     procedure SetVisible(aValue: Boolean); override;
@@ -988,6 +990,7 @@ type
     procedure SetAnchors(aValue: TKMAnchorsSet); override;
     procedure SetVisible(aValue: Boolean); override;
     procedure SetEnabled(aValue: Boolean); override;
+    procedure SetTop(aValue: Integer); override;
   public
     constructor Create(aParent: TKMPanel; aLeft, aTop, aWidth, aHeight: Integer; aFont: TKMFont; aStyle: TKMButtonStyle);
     destructor Destroy; override;
@@ -3269,6 +3272,13 @@ begin
 end;
 
 
+procedure TKMMemo.SetTop(aValue: Integer);
+begin
+  inherited;
+  fScrollBar.Top := Top;
+end;
+
+
 procedure TKMMemo.SetAutoWrap(const Value: boolean);
 begin
   fAutoWrap := Value;
@@ -3400,6 +3410,20 @@ destructor TKMListBox.Destroy;
 begin
   fItems.Free;
   inherited;
+end;
+
+
+procedure TKMListBox.SetLeft(aValue: Integer);
+begin
+  inherited;
+  fScrollBar.Left := Left + Width - fScrollBar.Width;
+end;
+
+
+procedure TKMListBox.SetTop(aValue: Integer);
+begin
+  inherited;
+  fScrollBar.Top := Top;
 end;
 
 

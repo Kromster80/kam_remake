@@ -1065,6 +1065,10 @@ begin
   if fNetPlayers[aPlayer].IsSpectator and (aLoc <> LOC_SPECTATE) then
     Result := Result and (NetPlayers.Count-NetPlayers.GetSpectatorCount < MAX_LOBBY_PLAYERS);
 
+  //Can't be a spectator if they are disabled
+  if (aLoc = LOC_SPECTATE) and not fNetPlayers.SpectatorsAllowed then
+    Result := False;
+
   //If we are trying to be a spectator and aren't one already, make sure there is an open spectator slot
   if (aLoc = LOC_SPECTATE) and not fNetPlayers[aPlayer].IsSpectator then
     Result := Result and ((NetPlayers.SpectatorSlotsOpen = MAX_LOBBY_SPECTATORS) //Means infinite spectators allowed

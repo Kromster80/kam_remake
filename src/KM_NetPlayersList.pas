@@ -64,6 +64,7 @@ type
   public
     HostDoesSetup: Boolean; //Gives host absolute control over locations/teams (not colors)
     RandomizeTeamLocations: Boolean; //When the game starts locations are shuffled within each team
+    SpectatorsAllowed: Boolean;
     SpectatorSlotsOpen: ShortInt;
     constructor Create;
     destructor Destroy; override;
@@ -261,6 +262,7 @@ constructor TKMNetPlayersList.Create;
 var I: Integer;
 begin
   inherited;
+  SpectatorSlotsOpen := MAX_LOBBY_SPECTATORS;
   for I := 1 to MAX_LOBBY_SLOTS do
     fNetPlayers[I] := TKMNetPlayerInfo.Create;
 end;
@@ -279,7 +281,8 @@ procedure TKMNetPlayersList.Clear;
 begin
   HostDoesSetup := False;
   RandomizeTeamLocations := False;
-  SpectatorSlotsOpen := 0;
+  SpectatorsAllowed := False;
+  SpectatorSlotsOpen := MAX_LOBBY_SPECTATORS;
   fCount := 0;
 end;
 
@@ -538,7 +541,8 @@ begin
     Result := TX_NET_SAME_NAME
   else
   //If this player must take a spectator spot, check that one is open
-  if (fCount-GetSpectatorCount >= MAX_LOBBY_PLAYERS) and (SpectatorSlotsOpen-GetSpectatorCount <= 0) then
+  if (fCount-GetSpectatorCount >= MAX_LOBBY_PLAYERS)
+  and ((SpectatorSlotsOpen-GetSpectatorCount <= 0) or not SpectatorsAllowed) then
     Result := TX_NET_ROOM_FULL
   else
     Result := -1;
@@ -877,6 +881,7 @@ var
 begin
   aStream.Write(HostDoesSetup);
   aStream.Write(RandomizeTeamLocations);
+  aStream.Write(SpectatorsAllowed);
   aStream.Write(SpectatorSlotsOpen);
   aStream.Write(fCount);
   for I := 1 to fCount do
@@ -890,6 +895,7 @@ var
 begin
   aStream.Read(HostDoesSetup);
   aStream.Read(RandomizeTeamLocations);
+  aStream.Read(SpectatorsAllowed);
   aStream.Read(SpectatorSlotsOpen);
   aStream.Read(fCount);
   for I := 1 to fCount do

@@ -91,8 +91,10 @@ type
         Label_LobbyServerName: TKMLabel;
 
       Panel_LobbyPlayers: TKMPanel;
+        Bevel_LobbyPlayers: TKMBevel;
         CheckBox_LobbyHostControl: TKMCheckBox;
         CheckBox_LobbyRandomizeTeamLocations: TKMCheckBox;
+        CheckBox_Spectators: TKMCheckBox;
         Label_Spectators: TKMLabel;
         Image_LobbyFlag: array [1..MAX_LOBBY_SLOTS] of TKMImage;
         DropBox_LobbyPlayerSlot: array [1..MAX_LOBBY_SLOTS] of TKMDropList;
@@ -243,13 +245,13 @@ begin
     DivideRow := MAX_LOBBY_PLAYERS;
   for I := 1 to MAX_LOBBY_SLOTS do
   begin
-    OffY := 70 + (I-1) * 24;
+    OffY := 88 + (I-1) * 24;
 
     if I = DivideRow+1 then
-      Label_Spectators.Top := OffY+6;
+      Label_Spectators.Top := OffY+12;
 
     if I > DivideRow then
-      Inc(OffY, 26);
+      Inc(OffY, 32);
 
     Image_LobbyFlag[I].Top         := OffY;
     Label_LobbyPlayer[I].Top       := OffY+2;
@@ -260,6 +262,20 @@ begin
     Image_LobbyReady[I].Top        := OffY;
     Label_LobbyPing[I].Top         := OffY;
   end;
+  if (fNetworking <> nil) and (fNetworking.NetPlayers <> nil)
+  and fNetworking.NetPlayers.SpectatorsAllowed then
+  begin
+    Panel_LobbyPlayers.Height := 364;
+    Label_Spectators.Show;
+  end
+  else
+  begin
+    Panel_LobbyPlayers.Height := 284;
+    Label_Spectators.Hide;
+  end;
+  Bevel_LobbyPlayers.Height := Panel_LobbyPlayers.Height;
+  Memo_LobbyPosts.Top := Panel_LobbyPlayers.Top + Panel_LobbyPlayers.Height + 5;
+  Memo_LobbyPosts.Height := Edit_LobbyPost.Top - Memo_LobbyPosts.Top - 2;
 end;
 
 
@@ -279,7 +295,7 @@ begin
 
     //Players
     Panel_LobbyPlayers := TKMPanel.Create(Panel_Lobby, 30, 61, CW, 340);
-      TKMBevel.Create(Panel_LobbyPlayers,  0,  0, CW, 340);
+      Bevel_LobbyPlayers := TKMBevel.Create(Panel_LobbyPlayers,  0,  0, CW, 340);
 
       CheckBox_LobbyHostControl := TKMCheckBox.Create(Panel_LobbyPlayers, 10, 10, CW-20, 20, gResTexts[TX_LOBBY_HOST_DOES_SETUP], fnt_Metal);
       CheckBox_LobbyHostControl.OnClick := PlayersSetupChange;
@@ -287,19 +303,22 @@ begin
       CheckBox_LobbyRandomizeTeamLocations := TKMCheckBox.Create(Panel_LobbyPlayers, 10, 28, CW-20, 20, gResTexts[TX_LOBBY_RANDOMIZE_LOCATIONS], fnt_Metal);
       CheckBox_LobbyRandomizeTeamLocations.OnClick := PlayersSetupChange;
 
+      CheckBox_Spectators := TKMCheckbox.Create(Panel_LobbyPlayers, 10, 46, CW-20, 20, gResTexts[TX_LOBBY_ALLOW_SPECTATORS], fnt_Metal);
+      CheckBox_Spectators.OnClick := PlayersSetupChange;
+
       //Column titles
-      TKMLabel.Create(Panel_LobbyPlayers, C1, 50, 150,  20, gResTexts[TX_LOBBY_HEADER_PLAYERS], fnt_Outline, taLeft);
-      TKMLabel.Create(Panel_LobbyPlayers, C2, 50, 150,  20, gResTexts[TX_LOBBY_HEADER_STARTLOCATION], fnt_Outline, taLeft);
-      TKMLabel.Create(Panel_LobbyPlayers, C3, 50,  80,  20, gResTexts[TX_LOBBY_HEADER_TEAM], fnt_Outline, taLeft);
-      TKMLabel.Create(Panel_LobbyPlayers, C4, 50,  80,  20, gResTexts[TX_LOBBY_HEADER_FLAGCOLOR], fnt_Outline, taLeft);
-      TKMLabel.Create(Panel_LobbyPlayers, C5, 50, gResTexts[TX_LOBBY_HEADER_READY], fnt_Outline, taCenter);
-      TKMLabel.Create(Panel_LobbyPlayers, C6, 50, gResTexts[TX_LOBBY_HEADER_PING], fnt_Outline, taCenter);
+      TKMLabel.Create(Panel_LobbyPlayers, C1, 68, 150,  20, gResTexts[TX_LOBBY_HEADER_PLAYERS], fnt_Outline, taLeft);
+      TKMLabel.Create(Panel_LobbyPlayers, C2, 68, 150,  20, gResTexts[TX_LOBBY_HEADER_STARTLOCATION], fnt_Outline, taLeft);
+      TKMLabel.Create(Panel_LobbyPlayers, C3, 68,  80,  20, gResTexts[TX_LOBBY_HEADER_TEAM], fnt_Outline, taLeft);
+      TKMLabel.Create(Panel_LobbyPlayers, C4, 68,  80,  20, gResTexts[TX_LOBBY_HEADER_FLAGCOLOR], fnt_Outline, taLeft);
+      TKMLabel.Create(Panel_LobbyPlayers, C5, 68, gResTexts[TX_LOBBY_HEADER_READY], fnt_Outline, taCenter);
+      TKMLabel.Create(Panel_LobbyPlayers, C6, 68, gResTexts[TX_LOBBY_HEADER_PING], fnt_Outline, taCenter);
 
       Label_Spectators := TKMLabel.Create(Panel_LobbyPlayers, C1, 50, 150, 20, gResTexts[TX_LOBBY_HEADER_SPECTATORS], fnt_Outline, taLeft);
 
       for I := 1 to MAX_LOBBY_SLOTS do
       begin
-        OffY := 70 + (I-1) * 24;
+        OffY := 88 + (I-1) * 24;
         Image_LobbyFlag[I] := TKMImage.Create(Panel_LobbyPlayers, 10, OffY, 20, 20, 0, rxGuiMain);
         Image_LobbyFlag[I].ImageCenter;
         Image_LobbyFlag[I].Tag := I; //Required for PlayerMenuShow
@@ -351,21 +370,22 @@ begin
     Memo_LobbyPosts.AutoWrap := True;
     Memo_LobbyPosts.IndentAfterNL := True; //Don't let players fake system messages
     Memo_LobbyPosts.ScrollDown := True;
-    Button_LobbyPost := TKMButtonFlat.Create(Panel_Lobby, 30, 690, 30, 22, 0);
+
+    Button_LobbyPost := TKMButtonFlat.Create(Panel_Lobby, 30, 696, 30, 22, 0);
     Button_LobbyPost.CapOffsetY := -11;
     Button_LobbyPost.Font := fnt_Grey;
     Button_LobbyPost.OnClick := ChatMenuShow;
     Button_LobbyPost.Anchors := [anLeft, anBottom];
 
-    Edit_LobbyPost := TKMEdit.Create(Panel_Lobby, 60, 690, CW, 22, fnt_Arial);
+    Edit_LobbyPost := TKMEdit.Create(Panel_Lobby, 60, 696, CW, 22, fnt_Arial);
     Edit_LobbyPost.OnKeyDown := PostKeyDown;
     Edit_LobbyPost.Anchors := [anLeft, anBottom];
     Edit_LobbyPost.ShowColors := True;
 
     //Setup
-    Panel_LobbySetup := TKMPanel.Create(Panel_Lobby, 725, 30, 270, 720);
+    Panel_LobbySetup := TKMPanel.Create(Panel_Lobby, 725, 30, 270, 723);
     Panel_LobbySetup.Anchors := [anLeft, anTop, anBottom];
-      with TKMBevel.Create(Panel_LobbySetup,  0,  0, 270, 720) do AnchorsStretch;
+      with TKMBevel.Create(Panel_LobbySetup,  0,  0, 270, 723) do AnchorsStretch;
       Radio_LobbyMapType := TKMRadioGroup.Create(Panel_LobbySetup, 10, 10, 250, 80, fnt_Metal);
       Radio_LobbyMapType.Add(gResTexts[TX_LOBBY_MAP_BUILD]);
       Radio_LobbyMapType.Add(gResTexts[TX_LOBBY_MAP_FIGHT]);
@@ -433,15 +453,15 @@ begin
         TrackBar_LobbySpeedAfterPT.ThumbWidth := 45; //Enough to fit 'x2.5'
         TrackBar_LobbySpeedAfterPT.OnChange := GameOptionsChange;
 
-    Button_LobbyBack := TKMButton.Create(Panel_Lobby, 30, 720, 220, 30, gResTexts[TX_LOBBY_QUIT], bsMenu);
+    Button_LobbyBack := TKMButton.Create(Panel_Lobby, 30, 723, 220, 30, gResTexts[TX_LOBBY_QUIT], bsMenu);
     Button_LobbyBack.Anchors := [anLeft, anBottom];
     Button_LobbyBack.OnClick := BackClick;
 
-    Button_LobbyChangeSettings := TKMButton.Create(Panel_Lobby, 265, 720, 220, 30, gResTexts[TX_LOBBY_ROOMSETTINGS], bsMenu);
+    Button_LobbyChangeSettings := TKMButton.Create(Panel_Lobby, 265, 723, 220, 30, gResTexts[TX_LOBBY_ROOMSETTINGS], bsMenu);
     Button_LobbyChangeSettings.Anchors := [anLeft, anBottom];
     Button_LobbyChangeSettings.OnClick := SettingsClick;
 
-    Button_LobbyStart := TKMButton.Create(Panel_Lobby, 500, 720, 220, 30, NO_TEXT, bsMenu);
+    Button_LobbyStart := TKMButton.Create(Panel_Lobby, 500, 723, 220, 30, NO_TEXT, bsMenu);
     Button_LobbyStart.Anchors := [anLeft, anBottom];
     Button_LobbyStart.OnClick := StartClick;
 
@@ -675,7 +695,7 @@ begin
   begin
     //Not enough space, so enabled tabbed view
     Panel_LobbySetupDesc.Top := 350;
-    Panel_LobbySetupDesc.Height := aMainHeight-420;
+    Panel_LobbySetupDesc.Height := aMainHeight-406;
     Panel_LobbySetupOptions.Top := 350;
     Button_LobbyTabDesc.Show;
     Button_LobbyTabOptions.Show;
@@ -771,6 +791,7 @@ begin
     TrackBar_LobbySpeedAfterPT.Disable;
     CheckBox_LobbyHostControl.Enable;
     CheckBox_LobbyRandomizeTeamLocations.Enable;
+    CheckBox_Spectators.Enable;
     Button_LobbyChangeSettings.Show;
   end
   else //Setup for Joiner
@@ -786,6 +807,7 @@ begin
     TrackBar_LobbySpeedAfterPT.Disable;
     CheckBox_LobbyHostControl.Disable;
     CheckBox_LobbyRandomizeTeamLocations.Disable;
+    CheckBox_Spectators.Disable;
     Button_LobbyChangeSettings.Hide;
   end;
 end;
@@ -904,6 +926,20 @@ begin
     fNetworking.SendPlayerListAndRefreshPlayersSetup;
   end;
 
+  if Sender = CheckBox_Spectators then
+  begin
+    if not CheckBox_Spectators.Checked and (fNetworking.NetPlayers.GetSpectatorCount > 0) then
+    begin
+      fNetworking.PostLocalMessage(gResTexts[TX_LOBBY_CANNOT_DISABLE_SPECTATORS]);
+      CheckBox_Spectators.Checked := True;
+    end
+    else
+    begin
+      fNetworking.NetPlayers.SpectatorsAllowed := CheckBox_Spectators.Checked;
+      fNetworking.SendPlayerListAndRefreshPlayersSetup;
+    end;
+  end;
+
   for I := 1 to MAX_LOBBY_SLOTS do
   begin
     NetI := fLocalToNetPlayers[I];
@@ -1017,6 +1053,10 @@ begin
       end;
       DropBox_LobbyLoc[I].Clear;
       DropBox_LobbyLoc[I].Add(gResTexts[TX_LOBBY_SPECTATE], LOC_SPECTATE);
+
+      DropBox_LobbyPlayerSlot[I].Visible := fNetworking.NetPlayers.SpectatorsAllowed;
+      DropBox_LobbyLoc[I].Visible        := fNetworking.NetPlayers.SpectatorsAllowed;
+      DropBox_LobbyColors[I].Visible     := fNetworking.NetPlayers.SpectatorsAllowed;
     end
     else
     begin
@@ -1046,6 +1086,8 @@ begin
     CurPlayer := fNetworking.NetPlayers[fLocalToNetPlayers[I]];
 
     DropBox_LobbyTeam[I].Visible := not CurPlayer.IsSpectator; //Spectators don't get a team
+    DropBox_LobbyLoc[I].Show;
+    DropBox_LobbyColors[I].Show;
 
     //Flag icon
     if CurPlayer.IsComputer then
@@ -1112,7 +1154,7 @@ begin
                       AddLocation(fNetworking.MapInfo.LocationName(K), I, K+1);
                 end;
     end;
-    if CurPlayer.IsHuman then
+    if CurPlayer.IsHuman and fNetworking.NetPlayers.SpectatorsAllowed then
       AddLocation(gResTexts[TX_LOBBY_SPECTATE], I, LOC_SPECTATE);
 
     if IsValid or CurPlayer.IsSpectator then
@@ -1193,6 +1235,7 @@ begin
 
   CheckBox_LobbyHostControl.Checked := fNetworking.NetPlayers.HostDoesSetup;
   CheckBox_LobbyRandomizeTeamLocations.Checked := fNetworking.NetPlayers.RandomizeTeamLocations;
+  CheckBox_Spectators.Checked := fNetworking.NetPlayers.SpectatorsAllowed;
   if fNetworking.IsHost then
     Button_LobbyStart.Enabled := fNetworking.CanStart;
 
