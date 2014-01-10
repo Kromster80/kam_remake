@@ -7,8 +7,11 @@ uses
 
 type
   TUVRect = array [1 .. 4, 1 .. 2] of Single; // Texture UV coordinates
-  TVertice = record
+  TTileVertice = record
     X, Y, Z, ULit, UShd, UFow: Single;
+  end;
+  TFOWVertice = record
+    X, Y, Z, UFow: Single;
   end;
 
   //Render terrain without sprites
@@ -18,7 +21,9 @@ type
     fTextG: GLuint; //Shading gradient for lighting
     fTextB: GLuint; //Contrast BW for FOW over color-coder
     fUseVBO: Boolean; //Wherever to render terrain through VBO (faster but needs GL1.5) or DrawCalls (slower but needs only GL1.1)
-    fTilesVtx: array of TVertice;
+    fFrameVtx: array of TFOWVertice;
+    fFrameInd: array of Integer;
+    fTilesVtx: array of TTileVertice; //Vertice cache for tiles
     fTilesInd: array of Integer;
     fVtxShd: GLUint;
     fIndShd: GLUint;
@@ -216,12 +221,6 @@ begin
     fTilesInd[H+5] := Row + K * 2 + 2;
     H := H + 6;
   end;
-
-  glBindBuffer(GL_ARRAY_BUFFER, fVtxShd);
-  glBufferData(GL_ARRAY_BUFFER, Length(fTilesVtx) * SizeOf(TVertice), @fTilesVtx[0].X, GL_STREAM_DRAW);
-
-  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, fIndShd);
-  glBufferData(GL_ELEMENT_ARRAY_BUFFER, Length(fTilesInd) * SizeOf(fTilesInd[0]), @fTilesInd[0], GL_STREAM_DRAW);
 end;
 
 
@@ -409,10 +408,10 @@ begin
   begin
     //Setup vertex and UV layout and offsets
     glEnableClientState(GL_VERTEX_ARRAY);
-    glVertexPointer(3, GL_FLOAT, SizeOf(TVertice), Pointer(0));
+    glVertexPointer(3, GL_FLOAT, SizeOf(TTileVertice), Pointer(0));
     glClientActiveTexture(GL_TEXTURE0);
     glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-    glTexCoordPointer(1, GL_FLOAT, SizeOf(TVertice), Pointer(12));
+    glTexCoordPointer(1, GL_FLOAT, SizeOf(TTileVertice), Pointer(12));
 
     //Here and above OGL requests Pointer, but in fact it's just a number (offset within Array)
     glDrawElements(GL_TRIANGLES, Length(fTilesInd), GL_UNSIGNED_INT, Pointer(0));
@@ -462,10 +461,10 @@ begin
   begin
     //Setup vertex and UV layout and offsets
     glEnableClientState(GL_VERTEX_ARRAY);
-    glVertexPointer(3, GL_FLOAT, SizeOf(TVertice), Pointer(0));
+    glVertexPointer(3, GL_FLOAT, SizeOf(TTileVertice), Pointer(0));
     glClientActiveTexture(GL_TEXTURE0);
     glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-    glTexCoordPointer(1, GL_FLOAT, SizeOf(TVertice), Pointer(16));
+    glTexCoordPointer(1, GL_FLOAT, SizeOf(TTileVertice), Pointer(16));
 
     //Here and above OGL requests Pointer, but in fact it's just a number (offset within Array)
     glDrawElements(GL_TRIANGLES, Length(fTilesInd), GL_UNSIGNED_INT, Pointer(0));
@@ -544,10 +543,10 @@ begin
   begin
     //Setup vertex and UV layout and offsets
     glEnableClientState(GL_VERTEX_ARRAY);
-    glVertexPointer(3, GL_FLOAT, SizeOf(TVertice), Pointer(0));
+    glVertexPointer(3, GL_FLOAT, SizeOf(TTileVertice), Pointer(0));
     glClientActiveTexture(GL_TEXTURE0);
     glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-    glTexCoordPointer(1, GL_FLOAT, SizeOf(TVertice), Pointer(20));
+    glTexCoordPointer(1, GL_FLOAT, SizeOf(TTileVertice), Pointer(20));
 
     //Here and above OGL requests Pointer, but in fact it's just a number (offset within Array)
     glDrawElements(GL_TRIANGLES, Length(fTilesInd), GL_UNSIGNED_INT, Pointer(0));
@@ -607,6 +606,12 @@ begin
   fUseVBO := VBOSupported and not RENDER_3D;
 
   UpdateVBO(aFOW);
+
+  glBindBuffer(GL_ARRAY_BUFFER, fVtxShd);
+  glBufferData(GL_ARRAY_BUFFER, Length(fTilesVtx) * SizeOf(TTileVertice), @fTilesVtx[0].X, GL_STREAM_DRAW);
+
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, fIndShd);
+  glBufferData(GL_ELEMENT_ARRAY_BUFFER, Length(fTilesInd) * SizeOf(fTilesInd[0]), @fTilesInd[0], GL_STREAM_DRAW);
 
   DoTiles;
   DoOverlays;
