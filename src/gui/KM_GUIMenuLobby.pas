@@ -29,6 +29,7 @@ type
     fNetPlayersToLocal: array[1..MAX_LOBBY_SLOTS] of Integer;
 
     procedure UpdateMappings;
+    procedure UpdateSpectatorDivide;
 
     procedure CreateControls(aParent: TKMPanel);
     procedure CreateChatMenu(aParent: TKMPanel);
@@ -91,6 +92,7 @@ type
       Panel_LobbyPlayers: TKMPanel;
         CheckBox_LobbyHostControl: TKMCheckBox;
         CheckBox_LobbyRandomizeTeamLocations: TKMCheckBox;
+        Label_Spectators: TKMLabel;
         Image_LobbyFlag: array [1..MAX_LOBBY_SLOTS] of TKMImage;
         DropBox_LobbyPlayerSlot: array [1..MAX_LOBBY_SLOTS] of TKMDropList;
         Label_LobbyPlayer: array [1..MAX_LOBBY_SLOTS] of TKMLabel;
@@ -170,11 +172,14 @@ end;
 
 
 procedure TKMMenuLobby.UpdateMappings;
-var I, K: Integer;
+var
+  I, K: Integer;
+  OldLocalToNetPlayers: array[1..MAX_LOBBY_SLOTS] of Integer;
 begin
   //First empty everything
   for I:=1 to MAX_LOBBY_SLOTS do
   begin
+    OldLocalToNetPlayers[I] := fLocalToNetPlayers[I];
     fLocalToNetPlayers[I] := -1;
     fNetPlayersToLocal[I] := -1;
   end;
@@ -197,6 +202,46 @@ begin
       fNetPlayersToLocal[I] := K;
       Inc(K);
     end;
+
+  //If a player has moved slots on the list the dropboxes can get stuck open
+  for I:=1 to MAX_LOBBY_SLOTS do
+    if OldLocalToNetPlayers[I] <> fLocalToNetPlayers[I] then
+    begin
+      DropBox_LobbyPlayerSlot[I].CloseList;
+      DropBox_LobbyLoc[I].CloseList;
+      DropBox_LobbyTeam[I].CloseList;
+      DropBox_LobbyColors[I].CloseList;
+    end;
+end;
+
+
+procedure TKMMenuLobby.UpdateSpectatorDivide;
+var
+  I, DivideRow, OffY: Integer;
+begin
+  if (fNetworking <> nil) and (fNetworking.NetPlayers <> nil) then
+    DivideRow := MAX_LOBBY_SLOTS - Max(MAX_LOBBY_SPECTATORS, fNetworking.NetPlayers.GetSpectatorCount)
+  else
+    DivideRow := MAX_LOBBY_PLAYERS;
+  for I := 1 to MAX_LOBBY_SLOTS do
+  begin
+    OffY := 70 + (I-1) * 24;
+
+    if I = DivideRow+1 then
+      Label_Spectators.Top := OffY+6;
+
+    if I > DivideRow then
+      Inc(OffY, 26);
+
+    Image_LobbyFlag[I].Top         := OffY;
+    Label_LobbyPlayer[I].Top       := OffY+2;
+    DropBox_LobbyPlayerSlot[I].Top := OffY;
+    DropBox_LobbyLoc[I].Top        := OffY;
+    DropBox_LobbyTeam[I].Top       := OffY;
+    DropBox_LobbyColors[I].Top     := OffY;
+    Image_LobbyReady[I].Top        := OffY;
+    Label_LobbyPing[I].Top         := OffY;
+  end;
 end;
 
 
@@ -210,18 +255,18 @@ begin
   Panel_Lobby.AnchorsStretch;
 
     //Server Name
-    Panel_LobbyServerName := TKMPanel.Create(Panel_Lobby, 30, 30, CW, 30);
-      TKMBevel.Create(Panel_LobbyServerName,   0,  0, CW, 30);
-      Label_LobbyServerName := TKMLabel.Create(Panel_LobbyServerName, 10, 10, CW-20, 20, '', fnt_Metal, taLeft);
+    Panel_LobbyServerName := TKMPanel.Create(Panel_Lobby, 30, 30, CW, 26);
+      TKMBevel.Create(Panel_LobbyServerName,   0,  0, CW, 26);
+      Label_LobbyServerName := TKMLabel.Create(Panel_LobbyServerName, 10, 7, CW-20, 20, '', fnt_Metal, taLeft);
 
     //Players
-    Panel_LobbyPlayers := TKMPanel.Create(Panel_Lobby, 30, 65, CW, 316);
-      TKMBevel.Create(Panel_LobbyPlayers,  0,  0, CW, 316);
+    Panel_LobbyPlayers := TKMPanel.Create(Panel_Lobby, 30, 61, CW, 340);
+      TKMBevel.Create(Panel_LobbyPlayers,  0,  0, CW, 340);
 
-      CheckBox_LobbyHostControl := TKMCheckBox.Create(Panel_LobbyPlayers, 10, 10, 450, 20, gResTexts[TX_LOBBY_HOST_DOES_SETUP], fnt_Metal);
+      CheckBox_LobbyHostControl := TKMCheckBox.Create(Panel_LobbyPlayers, 10, 10, CW-20, 20, gResTexts[TX_LOBBY_HOST_DOES_SETUP], fnt_Metal);
       CheckBox_LobbyHostControl.OnClick := PlayersSetupChange;
 
-      CheckBox_LobbyRandomizeTeamLocations := TKMCheckBox.Create(Panel_LobbyPlayers, 10, 28, 450, 20, gResTexts[TX_LOBBY_RANDOMIZE_LOCATIONS], fnt_Metal);
+      CheckBox_LobbyRandomizeTeamLocations := TKMCheckBox.Create(Panel_LobbyPlayers, 10, 28, CW-20, 20, gResTexts[TX_LOBBY_RANDOMIZE_LOCATIONS], fnt_Metal);
       CheckBox_LobbyRandomizeTeamLocations.OnClick := PlayersSetupChange;
 
       //Column titles
@@ -232,12 +277,14 @@ begin
       TKMLabel.Create(Panel_LobbyPlayers, C5, 50, gResTexts[TX_LOBBY_HEADER_READY], fnt_Outline, taCenter);
       TKMLabel.Create(Panel_LobbyPlayers, C6, 50, gResTexts[TX_LOBBY_HEADER_PING], fnt_Outline, taCenter);
 
+      Label_Spectators := TKMLabel.Create(Panel_LobbyPlayers, C1, 50, 150, 20, 'Spectators', fnt_Outline, taLeft);
+
       for I := 1 to MAX_LOBBY_SLOTS do
       begin
         OffY := 70 + (I-1) * 24;
         Image_LobbyFlag[I] := TKMImage.Create(Panel_LobbyPlayers, 10, OffY, 20, 20, 0, rxGuiMain);
         Image_LobbyFlag[I].ImageCenter;
-        Image_LobbyFlag[I].Tag := I+1; //Required for PlayerMenuShow
+        Image_LobbyFlag[I].Tag := I; //Required for PlayerMenuShow
         Image_LobbyFlag[I].OnClick := PlayerMenuShow;
 
         Label_LobbyPlayer[I] := TKMLabel.Create(Panel_LobbyPlayers, C1, OffY+2, 150, 20, '', fnt_Grey, taLeft);
@@ -252,7 +299,7 @@ begin
         end
         else
         begin
-          DropBox_LobbyPlayerSlot[I].Add(gResTexts[TX_LOBBY_SPECTATOR]);
+          DropBox_LobbyPlayerSlot[I].Add(gResTexts[TX_LOBBY_SLOT_OPEN]);
           DropBox_LobbyPlayerSlot[I].Add(gResTexts[TX_LOBBY_SLOT_CLOSED]);
         end;
         DropBox_LobbyPlayerSlot[I].ItemIndex := 0; //Open
@@ -281,7 +328,7 @@ begin
       end;
 
     //Chat area
-    Memo_LobbyPosts := TKMMemo.Create(Panel_Lobby, 30, 386, CW, 302, fnt_Arial, bsMenu);
+    Memo_LobbyPosts := TKMMemo.Create(Panel_Lobby, 30, 406, CW, 282, fnt_Arial, bsMenu);
     Memo_LobbyPosts.Anchors := [anLeft, anTop, anBottom];
     Memo_LobbyPosts.AutoWrap := True;
     Memo_LobbyPosts.IndentAfterNL := True; //Don't let players fake system messages
@@ -379,6 +426,8 @@ begin
     Button_LobbyStart := TKMButton.Create(Panel_Lobby, 500, 720, 220, 30, NO_TEXT, bsMenu);
     Button_LobbyStart.Anchors := [anLeft, anBottom];
     Button_LobbyStart.OnClick := StartClick;
+
+  UpdateSpectatorDivide;
 end;
 
 
@@ -791,15 +840,15 @@ begin
   ctrl := TKMControl(Sender);
 
   //Only human players (excluding ourselves) have the player menu
-  if not fNetworking.NetPlayers[ctrl.Tag].IsHuman //No menu for AI players
-  or (fNetworking.MyIndex = ctrl.Tag) //No menu for ourselves
+  if not fNetworking.NetPlayers[fLocalToNetPlayers[ctrl.Tag]].IsHuman //No menu for AI players
+  or (fNetworking.MyIndex = fLocalToNetPlayers[ctrl.Tag]) //No menu for ourselves
   or not fNetworking.IsHost //Only host gets to use the menu (for now)
-  or not fNetworking.NetPlayers[ctrl.Tag].Connected then //Don't show menu for empty slots
+  or not fNetworking.NetPlayers[fLocalToNetPlayers[ctrl.Tag]].Connected then //Don't show menu for empty slots
     Exit;
 
   //Remember which player it is by his server index
   //since order of players can change. If someone above leaves we still have the proper Id
-  Menu_Host.Tag := fNetworking.NetPlayers[ctrl.Tag].IndexOnServer;
+  Menu_Host.Tag := fNetworking.NetPlayers[fLocalToNetPlayers[ctrl.Tag]].IndexOnServer;
 
   //Position the menu next to the icon, but do not overlap players name
   Menu_Host.ShowAt(ctrl.AbsLeft, ctrl.AbsTop + ctrl.Height);
@@ -853,7 +902,7 @@ begin
     if Sender = DropBox_LobbyPlayerSlot[I] then
     begin
       //Modify an existing player
-      if (NetI <= fNetworking.NetPlayers.Count) then
+      if (NetI <> -1) and (NetI <= fNetworking.NetPlayers.Count) then
       begin
         case DropBox_LobbyPlayerSlot[I].ItemIndex of
           0: //Open
@@ -874,8 +923,8 @@ begin
         begin
           //These are spectator only slots
           case DropBox_LobbyPlayerSlot[I].ItemIndex of
-            0: ;
-            1: ;
+            0: fNetworking.NetPlayers.SpectatorSlotsOpen := MAX_LOBBY_SLOTS - I + 1;
+            1: fNetworking.NetPlayers.SpectatorSlotsOpen := MAX_LOBBY_SLOTS - I;
           end;
         end
         else
@@ -887,7 +936,7 @@ begin
           end;
         end;
       end;
-
+      DropBox_LobbyPlayerSlot[I].CloseList; //We may have cause player list to rearrange
       fNetworking.SendPlayerListAndRefreshPlayersSetup;
     end;
   end;
@@ -897,11 +946,18 @@ end;
 //Players list has been updated
 //We should reflect it to UI
 procedure TKMMenuLobby.Lobby_OnPlayersSetup(Sender: TObject);
+
+  procedure AddLocation(LocationName: UnicodeString; aIndex, aLocation: Integer);
+  begin
+    if not fNetworking.CanTakeLocation(fLocalToNetPlayers[aIndex], aLocation, False) then
+      LocationName := '[$707070]' + LocationName + '[]';
+    DropBox_LobbyLoc[aIndex].Add(LocationName, aLocation);
+  end;
+
 var
   I,K,ID,LocaleID: Integer;
   MyNik, CanEdit, HostCanEdit, IsSave, IsCoop, IsValid: Boolean;
   CurPlayer: TKMNetPlayerInfo;
-  LocationName: string;
   FirstUnused: Boolean;
 begin
   UpdateMappings;
@@ -918,18 +974,38 @@ begin
     Image_LobbyFlag[I].TexID := 0;
     Label_LobbyPlayer[I].Hide;
     DropBox_LobbyPlayerSlot[I].Show;
-    DropBox_LobbyPlayerSlot[I].ItemIndex := 0; //Open
-    DropBox_LobbyLoc[I].Clear;
-    if fNetworking.SelectGameKind = ngk_Save then
-      DropBox_LobbyLoc[I].Add(gResTexts[TX_LOBBY_SELECT], LOC_RANDOM)
+    if I > MAX_LOBBY_PLAYERS then
+    begin
+      //Spectator slots. Is this one open?
+      if MAX_LOBBY_SLOTS - I < fNetworking.NetPlayers.SpectatorSlotsOpen then
+      begin
+        DropBox_LobbyPlayerSlot[I].ItemIndex := 0; //Spectator
+        DropBox_LobbyPlayerSlot[I].Enabled := fNetworking.IsHost and (MAX_LOBBY_SLOTS - I + 1 = fNetworking.NetPlayers.SpectatorSlotsOpen);
+      end
+      else
+      begin
+        DropBox_LobbyPlayerSlot[I].ItemIndex := 1; //Closed
+        DropBox_LobbyPlayerSlot[I].Enabled := fNetworking.IsHost and (MAX_LOBBY_SLOTS - I = fNetworking.NetPlayers.SpectatorSlotsOpen);
+      end;
+      DropBox_LobbyLoc[I].Clear;
+      DropBox_LobbyLoc[I].Add(gResTexts[TX_LOBBY_SPECTATE], LOC_SPECTATE);
+    end
     else
-      DropBox_LobbyLoc[I].Add(gResTexts[TX_LOBBY_RANDOM], LOC_RANDOM);
+    begin
+      DropBox_LobbyPlayerSlot[I].ItemIndex := 0; //Open
+      //Only host may change player slots, and only the first unused slot may be changed (so there are no gaps in net players list)
+      DropBox_LobbyPlayerSlot[I].Enabled := fNetworking.IsHost and FirstUnused;
+      FirstUnused := False;
+
+      DropBox_LobbyLoc[I].Clear;
+      if fNetworking.SelectGameKind = ngk_Save then
+        DropBox_LobbyLoc[I].Add(gResTexts[TX_LOBBY_SELECT], LOC_RANDOM)
+      else
+        DropBox_LobbyLoc[I].Add(gResTexts[TX_LOBBY_RANDOM], LOC_RANDOM);
+    end;
     DropBox_LobbyLoc[I].ItemIndex := 0;
     DropBox_LobbyTeam[I].ItemIndex := 0;
     DropBox_LobbyColors[I].ItemIndex := 0;
-    //Only host may change player slots, and only the first unused slot may be changed (so there are no gaps in net players list)
-    DropBox_LobbyPlayerSlot[I].Enabled := fNetworking.IsHost and FirstUnused;
-    FirstUnused := False;
     Image_LobbyReady[I].TexID := 0; //Hidden
     DropBox_LobbyLoc[I].Disable;
     DropBox_LobbyTeam[I].Disable;
@@ -961,6 +1037,7 @@ begin
       Label_LobbyPlayer[I].Hide;
       DropBox_LobbyPlayerSlot[I].Enable;
       DropBox_LobbyPlayerSlot[I].Show;
+      Assert(I <= MAX_LOBBY_PLAYERS, 'Spectator slots can''t have AI or closed');
       if CurPlayer.IsComputer then
         DropBox_LobbyPlayerSlot[I].ItemIndex := 2 //AI
       else
@@ -984,37 +1061,31 @@ begin
     IsValid := False;
     DropBox_LobbyLoc[I].Clear;
     case fNetworking.SelectGameKind of
-      ngk_None: DropBox_LobbyLoc[I].Add(gResTexts[TX_LOBBY_RANDOM], LOC_RANDOM);
+      ngk_None: AddLocation(gResTexts[TX_LOBBY_RANDOM], I, LOC_RANDOM);
       ngk_Save: begin
                   IsValid := fNetworking.SaveInfo.IsValid;
-                  DropBox_LobbyLoc[I].Add(gResTexts[TX_LOBBY_SELECT], LOC_RANDOM);
+                  AddLocation(gResTexts[TX_LOBBY_SELECT], I, LOC_RANDOM);
+
                   if CurPlayer.IsHuman then //Cannot add AIs to MP save, they are filled automatically
                     for K := 0 to fNetworking.SaveInfo.Info.PlayerCount - 1 do
                       if fNetworking.SaveInfo.Info.Enabled[K]
                       and (fNetworking.SaveInfo.Info.CanBeHuman[K] or ALLOW_TAKE_AI_PLAYERS) then
-                        DropBox_LobbyLoc[I].Add(UnicodeString(fNetworking.SaveInfo.Info.OwnerNikname[K]), K+1);
+                        AddLocation(UnicodeString(fNetworking.SaveInfo.Info.OwnerNikname[K]), I, K+1);
                 end;
       ngk_Map:  begin
                   IsValid := fNetworking.MapInfo.IsValid;
-                  DropBox_LobbyLoc[I].Add(gResTexts[TX_LOBBY_RANDOM], LOC_RANDOM);
+                  AddLocation(gResTexts[TX_LOBBY_RANDOM], I, LOC_RANDOM);
 
                   for K := 0 to fNetworking.MapInfo.LocCount - 1 do
                     //AI-only locations should not be listed for AIs in lobby, since those ones are
                     //automatically added when the game starts (so AI checks CanBeHuman too)
                     if (CurPlayer.IsHuman and (fNetworking.MapInfo.CanBeHuman[K] or ALLOW_TAKE_AI_PLAYERS))
                     or (CurPlayer.IsComputer and fNetworking.MapInfo.CanBeHuman[K] and fNetworking.MapInfo.CanBeAI[K]) then
-                    begin
-                      LocationName := fNetworking.MapInfo.LocationName(K);
-                      //Disable taken locations
-                      if not fNetworking.NetPlayers.LocAvailable(K+1)
-                      and (CurPlayer.StartLocation <> K+1) then
-                        LocationName := '[$707070]' + LocationName + '[]';
-                      DropBox_LobbyLoc[I].Add(LocationName, K+1);
-                    end;
+                      AddLocation(fNetworking.MapInfo.LocationName(K), I, K+1);
                 end;
     end;
     if CurPlayer.IsHuman then
-      DropBox_LobbyLoc[I].Add(gResTexts[TX_LOBBY_SPECTATE], LOC_SPECTATE);
+      AddLocation(gResTexts[TX_LOBBY_SPECTATE], I, LOC_SPECTATE);
 
     if IsValid or CurPlayer.IsSpectator then
       DropBox_LobbyLoc[I].SelectByTag(CurPlayer.StartLocation)
@@ -1096,7 +1167,8 @@ begin
   CheckBox_LobbyRandomizeTeamLocations.Checked := fNetworking.NetPlayers.RandomizeTeamLocations;
   if fNetworking.IsHost then
     Button_LobbyStart.Enabled := fNetworking.CanStart;
-  //If the game can't be started the text message with explanation will appear in chat area
+
+  UpdateSpectatorDivide;
 end;
 
 

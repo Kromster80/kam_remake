@@ -859,6 +859,7 @@ type
 
     procedure Clear; virtual; abstract;
     function Count: Integer; virtual; abstract;
+    procedure CloseList;
 
     property DropCount: Byte read fDropCount write fDropCount;
     property DropUp: Boolean read fDropUp write fDropUp;
@@ -4357,6 +4358,12 @@ begin
 end;
 
 
+procedure TKMDropCommon.CloseList;
+begin
+  ListHide(nil);
+end;
+
+
 procedure TKMDropCommon.SetTop(aValue: Integer);
 begin
   inherited;
@@ -5513,7 +5520,7 @@ begin
   CtrlOver := HitControl(X,Y);
 
   //User is dragging some Ctrl (e.g. scrollbar) and went away from Ctrl bounds
-  if CtrlDown <> nil then
+  if (CtrlDown <> nil) and CtrlDown.Visible then
     CtrlDown.MouseMove(X, Y, Shift)
   else
   if CtrlOver <> nil then

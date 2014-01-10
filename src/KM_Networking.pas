@@ -163,6 +163,7 @@ type
     property Description: UnicodeString read fDescription write SetDescription;
     function ReadyToStart:boolean;
     function CanStart:boolean;
+    function CanTakeLocation(aPlayer, aLoc: Integer; AllowSwapping: Boolean): Boolean;
     procedure StartClick; //All required arguments are in our class
     procedure SendPlayerListAndRefreshPlayersSetup(aPlayerIndex:integer = NET_ADDRESS_OTHERS);
     procedure SendGameOptions;
@@ -471,10 +472,11 @@ begin
   begin
     //If we are matching all then reset them all first so we don't get clashes
     for I := 1 to fNetPlayers.Count do
-      fNetPlayers[I].StartLocation := 0;
+      if not fNetPlayers[I].IsSpectator then
+        fNetPlayers[I].StartLocation := LOC_RANDOM;
 
-    for I := 1 to MAX_LOBBY_SLOTS - fSaveInfo.Info.HumanCount - fNetPlayers.GetClosedCount do
-      if fNetPlayers.Count < MAX_LOBBY_SLOTS then
+    for I := 1 to MAX_LOBBY_PLAYERS - fSaveInfo.Info.HumanCount + fNetPlayers.GetSpectatorCount - fNetPlayers.GetClosedCount do
+      if fNetPlayers.Count - fNetPlayers.GetSpectatorCount < MAX_LOBBY_PLAYERS then
         fNetPlayers.AddClosedPlayer; //Close unused slots
   end;
 
@@ -485,6 +487,7 @@ begin
       and ((I = aPlayerID) or (aPlayerID = -1)) //-1 means update all players
       and fNetPlayers.LocAvailable(K)
       and fNetPlayers[I].IsHuman
+      and not fNetPlayers[I].IsSpectator
       and (fNetPlayers[I].Nikname = fSaveInfo.Info.OwnerNikname[K-1]) then
       begin
         fNetPlayers[I].StartLocation := K;
@@ -598,17 +601,11 @@ procedure TKMNetworking.SelectLoc(aIndex:integer; aPlayerIndex:integer);
 var NetPlayerIndex: Integer;
 begin
   //Check if position can be taken before doing anything
-  if aIndex <> LOC_SPECTATE then
-    if (aIndex <> LOC_RANDOM) and
-        (((fSelectGameKind = ngk_Map) and ((not fMapInfo.IsValid) or (aIndex > fMapInfo.LocCount))) or
-         ((fSelectGameKind = ngk_Save) and ((not fSaveInfo.IsValid) or (aIndex > fSaveInfo.Info.PlayerCount))) or
-         (fSelectGameKind = ngk_None) or
-         (not fNetPlayers.LocAvailable(aIndex) and (not IsHost or not fNetPlayers.HostDoesSetup))
-        ) or (NetPlayers.Count-NetPlayers.GetSpectatorCount-NetPlayers.GetClosedCount >= MAX_LOBBY_PLAYERS) then
-    begin
-      if Assigned(fOnPlayersSetup) then fOnPlayersSetup(Self);
-      Exit;
-    end;
+  if not CanTakeLocation(aPlayerIndex, aIndex, IsHost and fNetPlayers.HostDoesSetup) then
+  begin
+    if Assigned(fOnPlayersSetup) then fOnPlayersSetup(Self);
+    Exit;
+  end;
 
   //If someone else has this index, switch them (only when HostDoesSetup)
   if IsHost and fNetPlayers.HostDoesSetup and (aIndex <> LOC_RANDOM) and (aIndex <> LOC_SPECTATE) then
@@ -1033,6 +1030,32 @@ begin
   //For debugging/testing it's useful to skip this check sometimes (but defines .dat files should always be checked)
   if not SKIP_EXE_CRC then
     Result := Result xor Adler32CRC(Application.ExeName);
+end;
+
+
+function TKMNetworking.CanTakeLocation(aPlayer, aLoc: Integer; AllowSwapping: Boolean): Boolean;
+begin
+  Result := True;
+  if (aLoc <> LOC_SPECTATE) and (aLoc <> LOC_RANDOM) then
+    case fSelectGameKind of
+      ngk_Map:  Result := (fMapInfo <> nil) and fMapInfo.IsValid and (aLoc <= fMapInfo.LocCount);
+      ngk_Save: Result := (fSaveInfo <> nil) and fSaveInfo.IsValid and (aLoc <= fSaveInfo.Info.PlayerCount);
+      ngk_None: Result := False;
+    end;
+
+  //If we are currently a spectator wanting to be a non-spectator, make sure there is a slot for us
+  if fNetPlayers[aPlayer].IsSpectator and (aLoc <> LOC_SPECTATE) then
+    Result := Result and (NetPlayers.Count-NetPlayers.GetSpectatorCount < MAX_LOBBY_PLAYERS);
+
+  //If we are trying to be a spectator and aren't one already, make sure there is an open spectator slot
+  if (aLoc = LOC_SPECTATE) and not fNetPlayers[aPlayer].IsSpectator then
+    Result := Result and ((NetPlayers.SpectatorSlotsOpen = MAX_LOBBY_SPECTATORS) //Means infinite spectators allowed
+                          or (NetPlayers.SpectatorSlotsOpen-NetPlayers.GetSpectatorCount > 0));
+
+  //Check with NetPlayers that the location isn't taken already, unless it's our current location
+  //Host may be allowed to swap when HostDoesSetup is set, meaning it doesn't matter if loc is taken
+  if (aLoc <> fNetPlayers[aPlayer].StartLocation) and not AllowSwapping then
+    Result := Result and fNetPlayers.LocAvailable(aLoc);
 end;
 
 
@@ -1564,15 +1587,9 @@ begin
               begin
                 M.Read(tmpInteger);
                 LocID := tmpInteger;
-                if (
-                    (LocID = LOC_SPECTATE) or (LocID = LOC_RANDOM)
-                 or ((fSelectGameKind = ngk_Map) and (fMapInfo <> nil) and fMapInfo.IsValid and (LocID <= fMapInfo.LocCount))
-                 or ((fSelectGameKind = ngk_Save) and (fSaveInfo <> nil) and fSaveInfo.IsValid and (LocID <= fSaveInfo.Info.PlayerCount))
-                   )
-                and ((LocID = LOC_SPECTATE) or (NetPlayers.Count-NetPlayers.GetSpectatorCount-NetPlayers.GetClosedCount < MAX_LOBBY_PLAYERS))
-                and fNetPlayers.LocAvailable(LocID) then
+                PlayerIndex := fNetPlayers.ServerToLocal(aSenderIndex);
+                if CanTakeLocation(PlayerIndex, LocID, False) then
                 begin //Update Players setup
-                  PlayerIndex := fNetPlayers.ServerToLocal(aSenderIndex);
                   fNetPlayers[PlayerIndex].StartLocation := LocID;
                   //Spectators can't have team
                   if LocID = LOC_SPECTATE then

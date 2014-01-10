@@ -68,6 +68,7 @@ type
   public
     HostDoesSetup: Boolean; //Gives host absolute control over locations/teams (not colors)
     RandomizeTeamLocations: Boolean; //When the game starts locations are shuffled within each team
+    SpectatorSlotsOpen: ShortInt;
     constructor Create;
     destructor Destroy; override;
     procedure Clear;
@@ -279,9 +280,11 @@ end;
 
 
 procedure TKMNetPlayersList.Clear;
+var I: Integer;
 begin
   HostDoesSetup := False;
   RandomizeTeamLocations := False;
+  SpectatorSlotsOpen := 0;
   fCount := 0;
 end;
 
@@ -362,12 +365,16 @@ begin
   //fPlayers[fCount].PlayerIndex := nil;
   fNetPlayers[fCount].Team := 0;
   fNetPlayers[fCount].FlagColorID := 0;
-  fNetPlayers[fCount].StartLocation := 0;
   fNetPlayers[fCount].ReadyToStart := false;
   fNetPlayers[fCount].ReadyToPlay := false;
   fNetPlayers[fCount].Connected := true;
   fNetPlayers[fCount].Dropped := false;
   fNetPlayers[fCount].ResetPingRecord;
+  //Check if this player must go in a spectator slot
+  if fCount-GetSpectatorCount > MAX_LOBBY_PLAYERS then
+    fNetPlayers[fCount].StartLocation := LOC_SPECTATE
+  else
+    fNetPlayers[fCount].StartLocation := LOC_RANDOM;
 end;
 
 
@@ -534,6 +541,10 @@ begin
   else
   if (aNik = 'AI Player') or (aNik = 'Closed') then
     Result := TX_NET_SAME_NAME
+  else
+  //If this player must take a spectator spot, check that one is open
+  if (fCount-GetSpectatorCount >= MAX_LOBBY_PLAYERS) and (SpectatorSlotsOpen-GetSpectatorCount <= 0) then
+    Result := TX_NET_ROOM_FULL
   else
     Result := -1;
 end;
@@ -871,6 +882,7 @@ var
 begin
   aStream.Write(HostDoesSetup);
   aStream.Write(RandomizeTeamLocations);
+  aStream.Write(SpectatorSlotsOpen);
   aStream.Write(fCount);
   for I := 1 to fCount do
     fNetPlayers[I].Save(aStream);
@@ -883,6 +895,7 @@ var
 begin
   aStream.Read(HostDoesSetup);
   aStream.Read(RandomizeTeamLocations);
+  aStream.Read(SpectatorSlotsOpen);
   aStream.Read(fCount);
   for I := 1 to fCount do
     fNetPlayers[I].Load(aStream);
