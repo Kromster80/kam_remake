@@ -85,6 +85,7 @@ Improvements:
  +  L   Warriors leaving the barracks will form a square formation rather than a long snake like in TSK/TPR
  +  L   Multiplayer spectating
  +  L   MapEd option to enable the AI to retaliate against allies' assets being attacked like they do for themselves
+ +	L	Multiplayer in-game player list ordered by teams
 	        Dismiss button to make units walk into the school and disappear (gold is not refunded)
 	L	Simple dedicated server form which lets you set the properties of the INI for the server and start it [gemGreg]
 	L	Placing houses in MP should put a temp/fake visual markup until the real one can be added to make it appear responsive
@@ -98,7 +99,6 @@ Improvements:
 	L	Add support for 1024x600 (1280x720) resolution in the map editor
 	L	Pack textures into atlases with regard to GPU max supported texture resolution (512 or 1024 px)
 	L	Clicking and holding on the add/subtract buttons in weapons workshops could increase the number to save repeated clicking
-	L	Multiplayer in-game player list and lobby description ordered (grouped) by teams [Lewin, implemented? Krom, no currently there's no order/grouping by teams in the player list]
 	L	New command !SKIP_HOUSE. If I want a map with no stone, then after building the inn the woodcutter and tower should become available (skips the stonemason)
 	M	Pause in multiplayer (pause by everyone and unpause by at least 2 other players)
 	L	"Checkpoints" in replays every 20 minutes or so to allow skipping forwards/backwards (zips entire game state which can be loaded)
