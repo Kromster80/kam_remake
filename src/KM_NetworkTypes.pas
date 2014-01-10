@@ -34,6 +34,7 @@ type
     mk_SetGameInfo,     //Host tells the server the player list, map, etc to be reported to queries
     mk_KickPlayer,      //Host askes the server to kick someone
     mk_BanPlayer,       //Host askes the server to ban someone from this room
+    mk_GiveHost,        //Host askes the server to reassign host
     mk_ResetBans,       //Host askes the server to reset the ban list for this room
     mk_Kicked,          //Server tells a client they were kicked just before disconnecting then
     mk_LangCode,        //Client tells host his language code
@@ -113,6 +114,7 @@ const
     pfBinary,   //mk_SetGameInfo
     pfNumber,   //mk_KickPlayer
     pfNumber,   //mk_BanPlayer
+    pfNumber,   //mk_GiveHost
     pfNoData,   //mk_ResetBans
     pfNumber,   //mk_Kicked
     pfString,   //mk_LangCode
@@ -159,10 +161,12 @@ const
 type
   TMPGameState = (mgsNone, mgsLobby, mgsLoading, mgsGame);
   TKMServerType = (mstClient, mstDedicated);
+  TNetPlayerType = (nptHuman, nptComputer, nptClosed);
 
 const
   //Used in the dedicated server display as it does not care about translations (translated ones are in KM_TextLibrary)
   GameStateText: array [TMPGameState] of UnicodeString = ('None', 'Lobby', 'Loading', 'Game');
+  NetPlayerTypeName: array [TNetPlayerType] of UnicodeString = ('Human', 'AI Player', 'Closed');
   ServerTypePic: array [TKMServerType] of Word = (74, 75);
 
 

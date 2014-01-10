@@ -68,6 +68,7 @@ type
     procedure Lobby_OnPingInfo(Sender: TObject);
     procedure Lobby_OnPlayersSetup(Sender: TObject);
     procedure Lobby_OnReassignedToHost(Sender: TObject);
+    procedure Lobby_OnReassignedToJoiner(Sender: TObject);
     procedure Lobby_OnFileTransferProgress(aTotal, aProgress: Cardinal);
 
     function DetectMapType: Integer;
@@ -184,20 +185,37 @@ begin
     fNetPlayersToLocal[I] := -1;
   end;
   K := 1;
-  //First pass: Normal players
+
+  //Host (unless host is spectator)
+  if (fNetworking.HostIndex <> -1) and not fNetworking.NetPlayers[fNetworking.HostIndex].IsSpectator then
+  begin
+    fLocalToNetPlayers[K] := fNetworking.HostIndex;
+    fNetPlayersToLocal[fNetworking.HostIndex] := K;
+    Inc(K);
+  end;
+
+  //Normal players
   for I:=1 to fNetworking.NetPlayers.Count do
-    if not fNetworking.NetPlayers[I].IsSpectator then
+    if (I <> fNetworking.HostIndex) and not fNetworking.NetPlayers[I].IsSpectator then
     begin
       fLocalToNetPlayers[K] := I;
       fNetPlayersToLocal[I] := K;
       Inc(K);
     end;
-  //Second pass: Spectators, place them at the end
+
+  //Host if spectator, always goes at the end
+  if (fNetworking.HostIndex <> -1) and fNetworking.NetPlayers[fNetworking.HostIndex].IsSpectator then
+  begin
+    fLocalToNetPlayers[MAX_LOBBY_SLOTS] := fNetworking.HostIndex;
+    fNetPlayersToLocal[fNetworking.HostIndex] := MAX_LOBBY_SLOTS;
+  end;
+
+  //Spectators, place them at the end
   K := MAX_LOBBY_SLOTS - fNetworking.NetPlayers.GetSpectatorCount + 1;
-  Assert((fNetworking.NetPlayers.GetSpectatorCount = 0) or (fLocalToNetPlayers[K] = -1), 'Too many spectators');
   for I:=1 to fNetworking.NetPlayers.Count do
-    if fNetworking.NetPlayers[I].IsSpectator then
+    if (I <> fNetworking.HostIndex) and fNetworking.NetPlayers[I].IsSpectator then
     begin
+      Assert((K <= MAX_LOBBY_SLOTS) and (fLocalToNetPlayers[K] = -1), 'Too many spectators');
       fLocalToNetPlayers[K] := I;
       fNetPlayersToLocal[I] := K;
       Inc(K);
@@ -277,7 +295,7 @@ begin
       TKMLabel.Create(Panel_LobbyPlayers, C5, 50, gResTexts[TX_LOBBY_HEADER_READY], fnt_Outline, taCenter);
       TKMLabel.Create(Panel_LobbyPlayers, C6, 50, gResTexts[TX_LOBBY_HEADER_PING], fnt_Outline, taCenter);
 
-      Label_Spectators := TKMLabel.Create(Panel_LobbyPlayers, C1, 50, 150, 20, 'Spectators', fnt_Outline, taLeft);
+      Label_Spectators := TKMLabel.Create(Panel_LobbyPlayers, C1, 50, 150, 20, gResTexts[TX_LOBBY_HEADER_SPECTATORS], fnt_Outline, taLeft);
 
       for I := 1 to MAX_LOBBY_SLOTS do
       begin
@@ -446,7 +464,7 @@ begin
   Menu_Host := TKMPopUpMenu.Create(aParent, 220);
   Menu_Host.AddItem(gResTexts[TX_LOBBY_PLAYER_KICK]);
   Menu_Host.AddItem(gResTexts[TX_LOBBY_PLAYER_BAN]);
-  //Menu_Host.AddItem(fTextMain[TX_LOBBY_PLAYER_SETHOST]);
+  Menu_Host.AddItem(gResTexts[TX_LOBBY_PLAYER_SET_HOST]);
   Menu_Host.OnClick := PlayerMenuClick;
 end;
 
@@ -466,7 +484,7 @@ begin
 
     TKMLabel.Create(Panel_LobbySettings, 20, 100, 156, 20, gResTexts[TX_LOBBY_ROOM_PASSWORD], fnt_Outline, taLeft);
     Edit_LobbyPassword := TKMEdit.Create(Panel_LobbySettings, 20, 120, 152, 20, fnt_Grey);
-    Edit_LobbyPassword.AllowedChars := acText;
+    Edit_LobbyPassword.AllowedChars := acANSI7; //Passwords are basic ANSI so everyone can type them
 
     Button_LobbySettingsResetBans := TKMButton.Create(Panel_LobbySettings, 20, 160, 200, 20, gResTexts[TX_LOBBY_RESET_BANS], bsMenu);
     Button_LobbySettingsResetBans.OnClick := SettingsClick;
@@ -604,10 +622,17 @@ end;
 
 
 procedure TKMMenuLobby.Show(aKind: TNetPlayerKind; aNetworking: TKMNetworking; aMainHeight: Word);
+var I: Integer;
 begin
   fNetworking := aNetworking;
 
   Reset(aKind);
+
+  for I := 1 to MAX_LOBBY_SLOTS do
+  begin
+    fLocalToNetPlayers[I] := -1;
+    fNetPlayersToLocal[I] := -1;
+  end;
 
   //Events binding is the same for Host and Joiner because of stand-alone Server
   //E.g. If Server fails, Host can be disconnected from it as well as a Joiner
@@ -621,6 +646,7 @@ begin
   //fNetworking.OnStartSave - already assigned in fGameApp when Net is created
   fNetworking.OnDisconnect   := Lobby_OnDisconnect;
   fNetworking.OnReassignedHost := Lobby_OnReassignedToHost;
+  fNetworking.OnReassignedJoiner := Lobby_OnReassignedToJoiner;
   fNetworking.OnFileTransferProgress := Lobby_OnFileTransferProgress;
 
   ChatMenuSelect(-1); //All
@@ -828,8 +854,9 @@ begin
   if (Sender = Menu_Host) and (Menu_Host.ItemIndex = 1) then
     fNetworking.BanPlayer(id);
 
-  //todo: Set to host
-  //if (Sender = Menu_Host) and (ListBox_PlayerMenuHost.ItemIndex = 2) then
+  //Set to host
+  if (Sender = Menu_Host) and (Menu_Host.ItemIndex = 2) then
+    fNetworking.SetToHost(id);
 end;
 
 
@@ -838,6 +865,7 @@ var
   ctrl: TKMControl;
 begin
   ctrl := TKMControl(Sender);
+  if fLocalToNetPlayers[ctrl.Tag] = -1 then Exit;
 
   //Only human players (excluding ourselves) have the player menu
   if not fNetworking.NetPlayers[fLocalToNetPlayers[ctrl.Tag]].IsHuman //No menu for AI players
@@ -1244,7 +1272,7 @@ begin
     fNetworking.SelectLoc(aValue+1, I);
     //Host with HostDoesSetup could have given us some location we don't know about from a map/save we don't have
     if fNetworking.SelectGameKind <> ngk_None then
-      DropBox_LobbyLoc[I-1].SelectByTag(fNetworking.NetPlayers[I].StartLocation);
+      DropBox_LobbyLoc[fNetPlayersToLocal[I]].SelectByTag(fNetworking.NetPlayers[I].StartLocation);
   end;
 end;
 
@@ -1270,6 +1298,16 @@ end;
 
 
 procedure TKMMenuLobby.RefreshMapList(aJumpToSelected:Boolean);
+  procedure SelectByName(aName: UnicodeString);
+  var I: Integer;
+  begin
+    for I := 0 to DropCol_LobbyMaps.Count - 1 do
+      if DropCol_LobbyMaps.Item[I].Cells[0].Caption = aName then
+      begin
+        DropCol_LobbyMaps.ItemIndex := I;
+        Break;
+      end;
+  end;
 var
   I, PrevTop: Integer;
   PrevMap: string;
@@ -1323,10 +1361,24 @@ begin
     if DropCol_LobbyMaps.List.ItemIndex > DropCol_LobbyMaps.List.TopIndex + DropCol_LobbyMaps.List.GetVisibleRows - 1 then
       DropCol_LobbyMaps.List.TopIndex := DropCol_LobbyMaps.List.ItemIndex - DropCol_LobbyMaps.List.GetVisibleRows + 1;
   end;
+
+  //After being reassigned to host we may need to reselect the map
+  if (DropCol_LobbyMaps.ItemIndex = -1) and (fNetworking.SelectGameKind = ngk_Map) then
+    SelectByName(fNetworking.MapInfo.FileName);
 end;
 
 
 procedure TKMMenuLobby.RefreshSaveList(aJumpToSelected: Boolean);
+  procedure SelectByName(aName: UnicodeString);
+  var I: Integer;
+  begin
+    for I := 0 to DropCol_LobbyMaps.Count - 1 do
+      if DropCol_LobbyMaps.Item[I].Cells[0].Caption = aName then
+      begin
+        DropCol_LobbyMaps.ItemIndex := I;
+        Break;
+      end;
+  end;
 var
   I, PrevTop: Integer;
   PrevSave: string;
@@ -1372,6 +1424,10 @@ begin
     if DropCol_LobbyMaps.List.ItemIndex > DropCol_LobbyMaps.List.TopIndex + DropCol_LobbyMaps.List.GetVisibleRows - 1 then
       DropCol_LobbyMaps.List.TopIndex := DropCol_LobbyMaps.List.ItemIndex - DropCol_LobbyMaps.List.GetVisibleRows + 1;
   end;
+
+  //After being reassigned to host we may need to reselect the save
+  if (DropCol_LobbyMaps.ItemIndex = -1) and (fNetworking.SelectGameKind = ngk_Save) then
+    SelectByName(fNetworking.SaveInfo.FileName);
 end;
 
 
@@ -1539,43 +1595,28 @@ end;
 
 //We have been assigned to be the host of the game because the host disconnected. Reopen lobby page in correct mode.
 procedure TKMMenuLobby.Lobby_OnReassignedToHost(Sender: TObject);
-  procedure SelectByName(aName: string);
-  var I: Integer;
-  begin
-    DropCol_LobbyMaps.ItemIndex := -1;
-    for I := 0 to DropCol_LobbyMaps.Count - 1 do
-      if DropCol_LobbyMaps.Item[I].Cells[0].Caption = aName then
-      begin
-        DropCol_LobbyMaps.ItemIndex := I;
-        Break;
-      end;
-  end;
-var
-  OldMapType: Integer;
 begin
   Reset(lpk_Host, True, True); //Will reset the lobby page into host mode, preserving messages/maps
-  OldMapType := Radio_LobbyMapType.ItemIndex;
 
   //Pick correct position of map type selector
   Radio_LobbyMapType.ItemIndex := DetectMapType;
 
-  //Don't force rescanning all the maps unless the map type changed or no map was selected
-  if (Radio_LobbyMapType.ItemIndex <> OldMapType) or (DropCol_LobbyMaps.ItemIndex = -1) then
-    MapTypeChange(nil)
-  else
-    RefreshMapList(False); //Just fill the list from fMapMP
-
-  case fNetworking.SelectGameKind of
-    ngk_Map:  SelectByName(fNetworking.MapInfo.FileName);
-    ngk_Save: SelectByName(fNetworking.SaveInfo.FileName);
-  end;
-
+  MapTypeChange(nil);
   Lobby_OnGameOptions(nil);
 
   case fNetworking.SelectGameKind of
     ngk_Map:  Lobby_OnMapName(fNetworking.MapInfo.FileName);
     ngk_Save: Lobby_OnMapName(fNetworking.SaveInfo.FileName);
   end;
+end;
+
+
+procedure TKMMenuLobby.Lobby_OnReassignedToJoiner(Sender: TObject);
+begin
+  Reset(lpk_Joiner, True, True); //Will reset the lobby page into host mode, preserving messages/maps
+
+  //Pick correct position of map type selector
+  Radio_LobbyMapType.ItemIndex := DetectMapType;
 end;
 
 

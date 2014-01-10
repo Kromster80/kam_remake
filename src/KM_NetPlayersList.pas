@@ -2,15 +2,12 @@ unit KM_NetPlayersList;
 {$I KaM_Remake.inc}
 interface
 uses Classes, KromUtils, StrUtils, Math, SysUtils,
-  KM_CommonClasses, KM_CommonTypes, KM_Defaults, KM_Hand, KM_ResLocales;
+  KM_CommonClasses, KM_CommonTypes, KM_Defaults, KM_Hand, KM_ResLocales, KM_NetworkTypes;
 
 const
   PING_COUNT = 20; //Number of pings to store and take the maximum over for latency calculation (pings are measured once per second)
   LOC_RANDOM = 0;
   LOC_SPECTATE = -1;
-
-type
-  TNetPlayerType = (nptHuman, nptComputer, nptClosed);
 
 type
   //Multiplayer info that is filled in Lobby before TKMPlayers are created (thats why it has many mirror fields)
@@ -22,7 +19,6 @@ type
     fFlagColorID: Integer;    //Flag color, 0 means random
     fPings: array[0 .. PING_COUNT-1] of Word; //Ring buffer
     fPingPos: Byte;
-    function GetFlagColor: Cardinal;
     procedure SetLangCode(const aCode: AnsiString);
     function GetNiknameColored: AnsiString;
   public
@@ -49,7 +45,7 @@ type
     property LangCode: AnsiString read fLangCode write SetLangCode;
     property IndexOnServer: Integer read fIndexOnServer;
     property SetIndexOnServer: Integer write fIndexOnServer;
-    property FlagColor: Cardinal read GetFlagColor;
+    function FlagColor(aDefault: Cardinal = $FF000000): Cardinal;
     property FlagColorID: Integer read fFlagColorID write fFlagColorID;
 
     procedure Save(SaveStream: TKMemoryStream);
@@ -134,12 +130,12 @@ begin
 end;
 
 
-function TKMNetPlayerInfo.GetFlagColor: Cardinal;
+function TKMNetPlayerInfo.FlagColor(aDefault: Cardinal = $FF000000): Cardinal;
 begin
   if fFlagColorID <> 0 then
     Result := MP_TEAM_COLORS[fFlagColorID]
   else
-    Result := $FF000000; //Black
+    Result := aDefault; //Black by default
 end;
 
 

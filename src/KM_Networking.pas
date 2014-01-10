@@ -65,6 +65,7 @@ type
     fEnteringPassword: Boolean;
     fMyIndexOnServer: integer;
     fMyIndex: integer; // In NetPlayers list
+    fHostIndex: Integer; //In NetPlayers list
     fIgnorePings: integer; // During loading ping measurements will be high, so discard them. (when networking is threaded this might be unnecessary)
     fJoinTimeout: cardinal;
     fNetPlayers: TKMNetPlayersList;
@@ -86,6 +87,7 @@ type
     fOnJoinAssignedHost: TNotifyEvent;
     fOnHostFail: TUnicodeStringEvent;
     fOnReassignedHost: TNotifyEvent;
+    fOnReassignedJoiner: TNotifyEvent;
     fOnFileTransferProgress: TTransferProgressEvent;
     fOnTextMessage: TUnicodeStringEvent;
     fOnPlayersSetup: TNotifyEvent;
@@ -130,6 +132,7 @@ type
     destructor Destroy; override;
 
     property MyIndex: Integer read fMyIndex;
+    property HostIndex: Integer read fHostIndex;
     property NetGameState: TNetGameState read fNetGameState;
     function MyIPString:string;
     property ServerName: UnicodeString read fServerName;
@@ -156,6 +159,7 @@ type
     procedure SelectColor(aIndex:integer; aPlayerIndex:integer);
     procedure KickPlayer(aPlayerIndex:integer);
     procedure BanPlayer(aPlayerIndex:integer);
+    procedure SetToHost(aPlayerIndex:integer);
     procedure ResetBans;
     procedure SendPassword(aPassword: AnsiString);
     procedure SetPassword(aPassword: AnsiString);
@@ -196,6 +200,7 @@ type
     property OnHostFail: TUnicodeStringEvent write fOnHostFail;         //Server failed to start (already running a server?)
     property OnJoinAssignedHost:TNotifyEvent write fOnJoinAssignedHost; //We were assigned hosting rights upon connection
     property OnReassignedHost:TNotifyEvent write fOnReassignedHost;     //We were reassigned hosting rights when the host quit
+    property OnReassignedJoiner:TNotifyEvent write fOnReassignedJoiner; //We were reassigned to a joiner from host
     property OnFileTransferProgress:TTransferProgressEvent write fOnFileTransferProgress;
 
     property OnPlayersSetup: TNotifyEvent write fOnPlayersSetup; //Player list updated
@@ -308,6 +313,7 @@ begin
   fIgnorePings := 0; //Accept pings
   fJoinTimeout := TimeGet;
   fMyIndex := -1; //Host will send us PlayerList and we will get our index from there
+  fHostIndex := -1;
   fMyIndexOnServer := -1; //Assigned by Server
   fRoomToJoin := aRoom;
   if aIsReconnection then
@@ -374,6 +380,7 @@ begin
   fOnDisconnect := nil;
   fOnPingInfo := nil;
   fOnReassignedHost := nil;
+  fOnReassignedJoiner := nil;
   fWelcomeMessage := '';
 
   fNetPlayers.Clear;
@@ -682,6 +689,13 @@ begin
 end;
 
 
+procedure TKMNetworking.SetToHost(aPlayerIndex: Integer);
+begin
+  Assert(IsHost, 'Only host is allowed to promote players');
+  PacketSend(NET_ADDRESS_SERVER, mk_GiveHost, fNetPlayers[aPlayerIndex].IndexOnServer);
+end;
+
+
 procedure TKMNetworking.ResetBans;
 begin
   PacketSend(NET_ADDRESS_SERVER, mk_ResetBans);
@@ -793,6 +807,7 @@ begin
 
   //ValidateSetup removes closed players if successful, so our index changes
   fMyIndex := fNetPlayers.NiknameToLocal(fMyNikname);
+  fHostIndex := fMyIndex;
 
   //Init random seed for all the players
   fNetGameOptions.RandomSeed := RandomRange(1, 2147483646);
@@ -801,6 +816,7 @@ begin
   SendGameOptions;
 
   M := TKMemoryStream.Create;
+  M.Write(fHostIndex);
   fNetPlayers.SaveToStream(M);
   PacketSend(NET_ADDRESS_OTHERS, mk_Start, M);
   M.Free;
@@ -831,10 +847,12 @@ begin
       end;
 
   fMyIndex := fNetPlayers.NiknameToLocal(fMyNikname); //The host's index can change when players are removed
+  fHostIndex := fMyIndex;
 
   fOnMPGameInfoChanged(Self); //Tell the server about the changes
 
   M := TKMemoryStream.Create;
+  M.Write(fHostIndex);
   fNetPlayers.SaveToStream(M);
   PacketSend(aPlayerIndex, mk_PlayersList, M);
   M.Free;
@@ -873,11 +891,11 @@ end;
 
 
 procedure TKMNetworking.ConsoleCommand(aText: UnicodeString);
-var
+{var
   s,PlayerID: Integer;
-  ConsoleCmd: UnicodeString;
+  ConsoleCmd: UnicodeString;}
 begin
-  PostLocalMessage('[$808080]' + aText + '[]');
+  {PostLocalMessage('[$808080]' + aText + '[]');
   s := PosEx(' ', aText);
   if s = 0 then s := Length(aText) + 1;
 
@@ -914,7 +932,7 @@ begin
   else
   begin
     PostLocalMessage('Unknown console command "' + aText + '". Type /help for more info', False);
-  end;
+  end;}
 end;
 
 
@@ -1188,6 +1206,7 @@ begin
                         begin
                           fNetPlayers.AddPlayer(fMyNikname, fMyIndexOnServer, gResLocales.UserLocale);
                           fMyIndex := fNetPlayers.NiknameToLocal(fMyNikname);
+                          fHostIndex := fMyIndex;
                           fNetPlayers[fMyIndex].ReadyToStart := True;
                           if Assigned(fOnPlayersSetup) then fOnPlayersSetup(Self);
                           SetGameState(lgs_Lobby);
@@ -1424,12 +1443,21 @@ begin
       mk_ReassignHost:
               begin
                 M.Read(tmpInteger);
-                FreeAndNil(fFileReceiver); //Transfer is aborted if host disconnects
+                FreeAndNil(fFileReceiver); //Transfer is aborted if host disconnects/changes
+                if IsHost then
+                begin
+                  //We are no longer the host
+                  fFileSenderManager.AbortAllTransfers;
+                  fNetPlayerKind := lpk_Joiner;
+                  if Assigned(fOnReassignedJoiner) then fOnReassignedJoiner(Self); //Lobby/game might need to know
+                  if Assigned(fOnPlayersSetup) then fOnPlayersSetup(Self);
+                end;
                 if tmpInteger = fMyIndexOnServer then
                 begin
                   //We are now the host
                   fNetPlayerKind := lpk_Host;
                   fMyIndex := fNetPlayers.NiknameToLocal(fMyNikname);
+                  fHostIndex := MyIndex;
                   if Assigned(fOnReassignedHost) then fOnReassignedHost(Self); //Lobby/game might need to know that we are now hosting
 
                   case fNetGameState of
@@ -1474,6 +1502,7 @@ begin
       mk_PlayersList:
               if fNetPlayerKind = lpk_Joiner then
               begin
+                M.Read(fHostIndex);
                 fNetPlayers.LoadFromStream(M); //Our index could have changed on players add/removal
                 fMyIndex := fNetPlayers.NiknameToLocal(fMyNikname);
                 if Assigned(fOnPlayersSetup) then fOnPlayersSetup(Self);
@@ -1635,6 +1664,7 @@ begin
       mk_Start:
               if fNetPlayerKind = lpk_Joiner then
               begin
+                M.Read(fHostIndex);
                 fNetPlayers.LoadFromStream(M);
                 fMyIndex := fNetPlayers.NiknameToLocal(fMyNikname);
                 StartGame;
@@ -1869,6 +1899,7 @@ procedure TKMNetworking.AnnounceGameInfo(aGameTime: TDateTime; aMap: UnicodeStri
 var
   MPGameInfo: TMPGameInfo;
   M: TKMemoryStream;
+  I, K: Integer;
 begin
   //Only one player per game should send the info - Host
   if not IsHost then Exit;
@@ -1889,8 +1920,26 @@ begin
     MPGameInfo.GameTime := aGameTime;
     MPGameInfo.GameState := NetMPGameState[fNetGameState];
     MPGameInfo.PasswordLocked := (fPassword <> '');
-    MPGameInfo.Players := fNetPlayers.GetSlotNames;
-    MPGameInfo.PlayerCount := fNetPlayers.GetConnectedCount;
+    MPGameInfo.PlayerCount := NetPlayers.Count;
+
+    K := 1;
+    if HostIndex <> -1 then
+    begin
+      MPGameInfo.Players[K].Name := NetPlayers[HostIndex].Nikname;
+      MPGameInfo.Players[K].Color := NetPlayers[HostIndex].FlagColor($FFFFFFFF);
+      MPGameInfo.Players[K].Connected := NetPlayers[HostIndex].Connected;
+      MPGameInfo.Players[K].PlayerType := NetPlayers[HostIndex].PlayerNetType;
+      Inc(K);
+    end;
+    for I := 1 to NetPlayers.Count do
+      if I <> HostIndex then
+      begin
+        MPGameInfo.Players[K].Name := NetPlayers[I].Nikname;
+        MPGameInfo.Players[K].Color := NetPlayers[I].FlagColor($FFFFFFFF);
+        MPGameInfo.Players[K].Connected := NetPlayers[I].Connected;
+        MPGameInfo.Players[K].PlayerType := NetPlayers[I].PlayerNetType;
+        Inc(K);
+      end;
 
     M := TKMemoryStream.Create;
     MPGameInfo.SaveToStream(M);

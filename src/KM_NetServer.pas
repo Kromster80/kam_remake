@@ -623,6 +623,16 @@ begin
                 fServer.Kick(tmpInteger);
               end;
             end;
+    mk_GiveHost:
+            begin
+              M.Read(tmpInteger);
+              if fClientList.GetByHandle(tmpInteger) <> nil then
+              begin
+                RoomId := fClientList.GetByHandle(aSenderHandle).Room;
+                fRoomInfo[RoomId].HostHandle := tmpInteger;
+                SendMessage(NET_ADDRESS_ALL, mk_ReassignHost, tmpInteger); //Tell everyone about the new host
+              end;
+            end;
     mk_ResetBans:
             begin
               RoomId := fClientList.GetByHandle(aSenderHandle).Room;
@@ -836,10 +846,9 @@ procedure TKMNetServer.SaveHTMLStatus;
     end;
   end;
 
-  function GetPlayersHTML(i:integer):string;
+  function ColorToText(aCol: Cardinal): string;
   begin
-    Result := XMLEscape(fRoomInfo[i].GameInfo.Players);
-    Result := StringReplace(Result,'|',', ',[rfReplaceAll]);
+    Result := '#' + IntToHex(aCol and $FF, 2) + IntToHex((aCol shr 8) and $FF, 2) + IntToHex((aCol shr 16) and $FF, 2);
   end;
 
 var
@@ -848,7 +857,6 @@ var
   HTML: string;
   RoomCountNode, PlayerCountNode, Node: TXmlNode;
   MyFile:TextFile;
-  Players: TStringList;
 begin
   if fHTMLStatusFile = '' then exit; //Means do not write status
 
@@ -856,7 +864,6 @@ begin
   PlayerCount := 0;
 
   XML := TXmlVerySimple.Create;
-  Players := TStringList.Create;
 
   try
     //HTML header
@@ -883,7 +890,7 @@ begin
                        '</TD><TD>'+IntToStr(fRoomInfo[i].GameInfo.PlayerCount)+
                        '</TD><TD>'+XMLEscape(fRoomInfo[i].GameInfo.Map)+
                        '&nbsp;</TD><TD>'+XMLEscape(fRoomInfo[i].GameInfo.GetFormattedTime)+
-                       '&nbsp;</TD><TD>'+GetPlayersHTML(i)+'</TD></TR>'+sLineBreak;
+                       '&nbsp;</TD><TD>'+XMLEscape(fRoomInfo[i].GameInfo.PlayersList)+'</TD></TR>'+sLineBreak;
         //XML room info
         Node := XML.Root.AddChild('room');
         Node.Attribute['id'] := IntToStr(i);
@@ -893,10 +900,14 @@ begin
         Node.AddChild('gametime').Text := fRoomInfo[i].GameInfo.GetFormattedTime;
         with Node.AddChild('players') do
         begin
-          Players.Clear;
-          ParseDelimited(fRoomInfo[i].GameInfo.Players, '|', Players);
-          for k:=0 to Players.Count-1 do
-            AddChild('player').Text := Players[k];
+          for k:=1 to fRoomInfo[i].GameInfo.PlayerCount do
+            with AddChild('player') do
+            begin
+              Text := fRoomInfo[i].GameInfo.Players[k].Name;
+              SetAttribute('color', ColorToText(fRoomInfo[i].GameInfo.Players[k].Color));
+              SetAttribute('connected', BoolToStr(fRoomInfo[i].GameInfo.Players[k].Connected));
+              SetAttribute('type', NetPlayerTypeName[fRoomInfo[i].GameInfo.Players[k].PlayerType]);
+            end;
         end;
       end;
     //Set counts in XML
@@ -917,7 +928,6 @@ begin
     //Write XML
     XML.SaveToFile(ChangeFileExt(fHTMLStatusFile,'.xml'));
   finally
-    Players.Free;
     XML.Free;
   end;
 end;

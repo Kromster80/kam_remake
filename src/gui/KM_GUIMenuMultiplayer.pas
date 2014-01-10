@@ -60,7 +60,7 @@ type
       Button_MP_FindServer: TKMButton;
       Panel_MPServerDetails: TKMPanel;
         Label_MP_Desc: TKMLabel;
-        Label_MP_Players: TKMLabel;
+        Label_MP_Players: array[1..MAX_LOBBY_SLOTS] of TKMLabel;
 
       //PopUps
       Panel_MPCreateServer: TKMPanel;
@@ -83,6 +83,7 @@ type
     constructor Create(aParent: TKMPanel; aOnPageChange: TGUIEventText);
 
     procedure Show(aText: UnicodeString);
+    procedure Resize(X, Y: Word);
   end;
 
 
@@ -157,6 +158,7 @@ constructor TKMMenuMultiplayer.Create(aParent: TKMPanel; aOnPageChange: TGUIEven
       Button_MP_PasswordCancel := TKMButton.Create(Panel_MPPassword, 20, 150, 280, 30, gResTexts[TX_MP_MENU_FIND_SERVER_CANCEL], bsMenu);
       Button_MP_PasswordCancel.OnClick := MP_PasswordClick;
   end;
+var I: Integer;
 begin
   inherited Create;
 
@@ -214,8 +216,11 @@ begin
       TKMLabel.Create(Panel_MPServerDetails, 8, 30, 304, 20, gResTexts[TX_MP_MENU_GAME_INFORMATION], fnt_Outline, taLeft);
       Label_MP_Desc := TKMLabel.Create(Panel_MPServerDetails, 8, 50, 304, 80, '', fnt_Metal, taLeft);
       TKMLabel.Create(Panel_MPServerDetails, 8, 110, 304, 20, gResTexts[TX_MP_MENU_PLAYER_LIST], fnt_Outline, taLeft);
-      Label_MP_Players := TKMLabel.Create(Panel_MPServerDetails, 8, 130, 304, 340, '', fnt_Metal, taLeft);
-      Label_MP_Players.Anchors := [anLeft, anTop, anBottom];
+      for I := 1 to MAX_LOBBY_SLOTS do
+      begin
+        Label_MP_Players[I] := TKMLabel.Create(Panel_MPServerDetails, 8 + 156*((I-1) div 8), 130 + 20*((I-1) mod 8), 150, 20, '', fnt_Metal, taLeft);
+        Label_MP_Players[I].Anchors := [anLeft, anTop, anBottom];
+      end;
 
     Button_MP_Back    := TKMButton.Create(Panel_MultiPlayer,  45, 720, 220, 30, gResTexts[TX_MENU_BACK], bsMenu);
     Button_MP_Refresh := TKMButton.Create(Panel_MultiPlayer, 275, 720, 390, 30,gResTexts[TX_MP_MENU_REFRESH_SERVER_LIST], bsMenu);
@@ -226,6 +231,19 @@ begin
     Button_MP_Back.OnClick    := BackClick;
     Button_MP_Refresh.OnClick := MP_ServersRefresh;
     Button_MP_GetIn.OnClick   := MP_GetInClick;
+end;
+
+
+procedure TKMMenuMultiplayer.Resize(X, Y: Word);
+var Rows, I: Integer;
+begin
+  //How many rows could fit
+  Rows := (Panel_MPServerDetails.Height - Label_MP_Players[1].Top) div 20;
+  for I := 1 to MAX_LOBBY_SLOTS do
+  begin
+    Label_MP_Players[I].Left := 8 + 156*((I-1) div Rows);
+    Label_MP_Players[I].Top := 130 + 20*((I-1) mod Rows);
+  end;
 end;
 
 
@@ -341,12 +359,14 @@ end;
 
 
 procedure TKMMenuMultiplayer.MP_ServersRefresh(Sender: TObject);
+var I: Integer;
 begin
   fGameApp.Networking.ServerQuery.OnListUpdated := MP_ServersUpdateList;
   fGameApp.Networking.ServerQuery.RefreshList;
   ColumnBox_Servers.Clear;
   Label_MP_Desc.Caption := '';
-  Label_MP_Players.Caption := '';
+  for I := 1 to MAX_LOBBY_SLOTS do
+    Label_MP_Players[I].Caption := '';
 
   //Do not use 'Show' here as it will also make the parent panel visible
   //which could be already hidden if player switched pages
@@ -387,7 +407,7 @@ begin
       //Only show # if Server has more than 1 Room
       DisplayName := IfThen(R.OnlyRoom, S.Name, S.Name + ' #' + IntToStr(R.RoomID + 1));
       ColumnBox_Servers.AddItem(
-      MakeListRow(['', '', DisplayName, gResTexts[GameStateTextIDs[R.GameInfo.GameState]], IntToStr(R.GameInfo.PlayerCount), IntToStr(S.Ping)],
+      MakeListRow(['', '', DisplayName, gResTexts[GameStateTextIDs[R.GameInfo.GameState]], IntToStr(R.GameInfo.ConnectedPlayerCount), IntToStr(S.Ping)],
                   [$FFFFFFFF, $FFFFFFFF, $FFFFFFFF, $FFFFFFFF, $FFFFFFFF, GetPingColor(S.Ping)],
                   [MakePic(rxGuiMain, ServerTypePic[S.ServerType]), MakePic(rxGuiMain, IfThen(R.GameInfo.PasswordLocked, 73, 0)), MakePic(rxGuiMain,0), MakePic(rxGuiMain,0), MakePic(rxGuiMain,0), MakePic(rxGuiMain,0)],
                   I));
@@ -465,7 +485,7 @@ end;
 
 
 procedure TKMMenuMultiplayer.MP_ServersClick(Sender: TObject);
-var ID: Integer;
+var I, ID: Integer;
 begin
   ID := ColumnBox_Servers.ItemIndex;
   if (ID = -1) or (ColumnBox_Servers.Rows[ID].Tag = -1) then
@@ -473,7 +493,8 @@ begin
     fServerSelected := False;
     Button_MP_GetIn.Disable;
     Label_MP_Desc.Caption := '';
-    Label_MP_Players.Caption := '';
+    for I := 1 to MAX_LOBBY_SLOTS do
+      Label_MP_Players[I].Caption := '';
     Exit;
   end;
 
@@ -490,7 +511,19 @@ begin
   //Append map and time on lines below the description
   Label_MP_Desc.Caption := Label_MP_Desc.Caption + fSelectedRoomInfo.GameInfo.Map + '|';
   Label_MP_Desc.Caption := Label_MP_Desc.Caption + fSelectedRoomInfo.GameInfo.GetFormattedTime;
-  Label_MP_Players.Caption := fSelectedRoomInfo.GameInfo.Players;
+
+  for I := 1 to MAX_LOBBY_SLOTS do
+    if I <= fSelectedRoomInfo.GameInfo.PlayerCount then
+    begin
+      Label_MP_Players[I].Caption := UnicodeString(fSelectedRoomInfo.GameInfo.FormattedPlayerName(I));
+      Label_MP_Players[I].FontColor := FlagColorToTextColor(fSelectedRoomInfo.GameInfo.Players[I].Color);
+      Label_MP_Players[I].Strikethrough := not fSelectedRoomInfo.GameInfo.Players[I].Connected;
+    end
+    else
+    begin
+      Label_MP_Players[I].Caption := '';
+      Label_MP_Players[I].Strikethrough := False;
+    end;
 end;
 
 

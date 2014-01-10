@@ -490,6 +490,7 @@ begin
   fNetworking.OnPingInfo       := fGamePlayInterface.AlliesOnPingInfo;
   fNetworking.OnDisconnect     := GameMPDisconnect; //For auto reconnecting
   fNetworking.OnReassignedHost := nil; //So it is no longer assigned to a lobby event
+  fNetworking.OnReassignedJoiner := nil; //So it is no longer assigned to a lobby event
   fNetworking.GameCreated;
 
   if fNetworking.Connected and (fNetworking.NetGameState = lgs_Loading) then

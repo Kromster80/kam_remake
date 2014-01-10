@@ -166,6 +166,7 @@ begin
 
   //Needs to resize the map and move flag positions accordingly
   fMenuCampaign.Resize(X, Y);
+  fMenuMultiplayer.Resize(X, Y);
 
   //Needs to swap map description / game settings on low resolution displays
   fMenuLobby.Lobby_Resize(Panel_Menu.Height);

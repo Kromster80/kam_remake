@@ -743,3 +743,5 @@
 775:AI groups will automatically attack if you are closer than this many tiles
 776:Defend allies
 777:If enabled the AI will defend units and houses of allies as if they were its own
+778:Spectators
+779:Promote to host
