@@ -87,7 +87,7 @@ var I: Integer;
 begin
   Result := '';
   for I := 1 to PlayerCount do
-    Result := Result + Players[I].Name + IfThen(I < PlayerCount, ', ');
+    Result := Result + UnicodeString(Players[I].Name) + IfThen(I < PlayerCount, ', ');
 end;
 
 

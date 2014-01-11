@@ -903,7 +903,7 @@ begin
           for k:=1 to fRoomInfo[i].GameInfo.PlayerCount do
             with AddChild('player') do
             begin
-              Text := fRoomInfo[i].GameInfo.Players[k].Name;
+              Text := UnicodeString(fRoomInfo[i].GameInfo.Players[k].Name);
               SetAttribute('color', ColorToText(fRoomInfo[i].GameInfo.Players[k].Color));
               SetAttribute('connected', BoolToStr(fRoomInfo[i].GameInfo.Players[k].Connected));
               SetAttribute('type', NetPlayerTypeName[fRoomInfo[i].GameInfo.Players[k].PlayerType]);

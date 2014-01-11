@@ -758,15 +758,18 @@ begin
     Label_LobbyPlayer[I].FontColor := $FFFFFFFF;
     Image_LobbyFlag[I].TexID := 0;
     Label_LobbyPlayer[I].Hide;
-    DropBox_LobbyPlayerSlot[I].Show;
+    DropBox_LobbyPlayerSlot[I].Visible := I <= MAX_LOBBY_PLAYERS; //Spectators hidden initially
     DropBox_LobbyPlayerSlot[I].Disable;
+    DropBox_LobbyPlayerSlot[I].ItemIndex := 0; //Open
     DropBox_LobbyLoc[I].ItemIndex := 0;
     DropBox_LobbyLoc[I].Disable;
+    DropBox_LobbyLoc[I].Visible := I <= MAX_LOBBY_PLAYERS; //Spectators hidden initially
     DropBox_LobbyTeam[I].Disable;
     DropBox_LobbyTeam[I].ItemIndex := 0;
+    DropBox_LobbyTeam[I].Visible := I <= MAX_LOBBY_PLAYERS; //Spectators hidden initially
     DropBox_LobbyColors[I].Disable;
     DropBox_LobbyColors[I].ItemIndex := 0;
-    DropBox_LobbyPlayerSlot[I].ItemIndex := 0; //Open
+    DropBox_LobbyColors[I].Visible := I <= MAX_LOBBY_PLAYERS; //Spectators hidden initially
     Image_LobbyReady[I].TexID := 0;
     Label_LobbyPing[I].Caption := '';
   end;
@@ -820,6 +823,7 @@ begin
     CheckBox_Spectators.Disable;
     Button_LobbyChangeSettings.Hide;
   end;
+  UpdateSpectatorDivide;
 end;
 
 

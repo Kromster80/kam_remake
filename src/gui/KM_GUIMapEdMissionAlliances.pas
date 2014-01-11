@@ -39,11 +39,11 @@ begin
   TKMLabel.Create(Panel_Alliances, 0, PAGE_TITLE_Y, TB_WIDTH, 0, gResTexts[TX_MAPED_ALLIANCE], fnt_Outline, taCenter);
   for I := 0 to MAX_HANDS - 1 do
   begin
-    TKMLabel.Create(Panel_Alliances, 24 + I * 20, 30, 20, 20, IntToStr(I + 1), fnt_Metal, taLeft);
-    TKMLabel.Create(Panel_Alliances, 4, 46 + I * 25, 20, 20, IntToStr(I + 1), fnt_Metal, taLeft);
+    TKMLabel.Create(Panel_Alliances, 20 + I * 15, 30, IntToStr(I + 1), fnt_Grey, taCenter);
+    TKMLabel.Create(Panel_Alliances, 0, 46 + I * 22, IntToStr(I + 1), fnt_Grey, taLeft);
     for K := 0 to MAX_HANDS - 1 do
     begin
-      CheckBox_Alliances[I,K] := TKMCheckBox.Create(Panel_Alliances, 20 + K * 20, 46 + I * 25, 20, 20, '', fnt_Metal);
+      CheckBox_Alliances[I,K] := TKMCheckBox.Create(Panel_Alliances, 12 + K * 15, 46 + I * 22, 20, 20, '', fnt_Metal);
       CheckBox_Alliances[I,K].Tag       := I * MAX_HANDS + K;
       CheckBox_Alliances[I,K].OnClick   := Mission_AlliancesChange;
     end;
@@ -51,7 +51,7 @@ begin
 
   //It does not have OnClick event for a reason:
   // - we don't have a rule to make alliances symmetrical yet
-  CheckBox_AlliancesSym := TKMCheckBox.Create(Panel_Alliances, 20, 50 + MAX_HANDS * 25, TB_WIDTH, 20, gResTexts[TX_MAPED_ALLIANCE_SYMMETRIC], fnt_Metal);
+  CheckBox_AlliancesSym := TKMCheckBox.Create(Panel_Alliances, 12, 50 + MAX_HANDS * 22, TB_WIDTH, 20, gResTexts[TX_MAPED_ALLIANCE_SYMMETRIC], fnt_Metal);
   CheckBox_AlliancesSym.Checked := True;
   CheckBox_AlliancesSym.Disable;
 end;
