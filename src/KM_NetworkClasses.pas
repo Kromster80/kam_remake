@@ -25,12 +25,11 @@ type
     procedure SaveToStream(aStream: TKMemoryStream);
     function PlayersList: string;
     function ConnectedPlayerCount: Byte;
-    function FormattedPlayerName(aIndex: Integer): UnicodeString;
   end;
 
 
 implementation
-uses KM_Utils, KM_ResTexts;
+uses KM_Utils;
 
 
 { TMPGameInfo }
@@ -98,16 +97,6 @@ begin
   for I := 1 to PlayerCount do
     if Players[I].Connected and (Players[I].PlayerType = nptHuman) then
       Inc(Result);
-end;
-
-
-function TMPGameInfo.FormattedPlayerName(aIndex: Integer): UnicodeString;
-begin
-  case Players[aIndex].PlayerType of
-    nptHuman:    Result := UnicodeString(Players[aIndex].Name);
-    nptComputer: Result := gResTexts[TX_LOBBY_SLOT_AI_PLAYER];
-    nptClosed:   Result := gResTexts[TX_LOBBY_SLOT_CLOSED];
-  end;
 end;
 
 

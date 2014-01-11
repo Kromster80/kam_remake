@@ -515,7 +515,11 @@ begin
   for I := 1 to MAX_LOBBY_SLOTS do
     if I <= fSelectedRoomInfo.GameInfo.PlayerCount then
     begin
-      Label_MP_Players[I].Caption := UnicodeString(fSelectedRoomInfo.GameInfo.FormattedPlayerName(I));
+      case fSelectedRoomInfo.GameInfo.Players[I].PlayerType of
+        nptHuman:    Label_MP_Players[I].Caption := UnicodeString(fSelectedRoomInfo.GameInfo.Players[I].Name);
+        nptComputer: Label_MP_Players[I].Caption := gResTexts[TX_LOBBY_SLOT_AI_PLAYER];
+        nptClosed:   Label_MP_Players[I].Caption := gResTexts[TX_LOBBY_SLOT_CLOSED];
+      end;
       Label_MP_Players[I].FontColor := FlagColorToTextColor(fSelectedRoomInfo.GameInfo.Players[I].Color);
       Label_MP_Players[I].Strikethrough := not fSelectedRoomInfo.GameInfo.Players[I].Connected;
     end
