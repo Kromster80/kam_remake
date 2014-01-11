@@ -7,9 +7,10 @@ type
   TKMHTTPClientLNet = class
   private
     fHTTPClient: TLHTTPClient;
-    HTTPBuffer: string;
+    HTTPBuffer: AnsiString;
     fOnError: TGetStrProc;
     fOnGetCompleted: TGetStrProc;
+    fIsUTF8: Boolean;
     procedure HTTPClientDoneInput(ASocket: TLHTTPClientSocket);
     procedure HTTPClientError(const msg: string; aSocket: TLSocket);
     function HTTPClientInput(ASocket: TLHTTPClientSocket; ABuffer: PChar; ASize: Integer): Integer;
@@ -17,7 +18,7 @@ type
     constructor Create;
     destructor Destroy; override;
 
-    procedure GetURL(aURL: string);
+    procedure GetURL(aURL: string; aIsUTF8: Boolean);
     procedure UpdateStateIdle;
 
     property OnError: TGetStrProc write fOnError;
@@ -45,10 +46,11 @@ begin
 end;
 
 
-procedure TKMHTTPClientLNet.GetURL(aURL: string);
+procedure TKMHTTPClientLNet.GetURL(aURL: string; aIsUTF8: Boolean);
 var
   Proto, User, Pass, Host, Port, Path: string;
 begin
+  fIsUTF8 := aIsUTF8;
   fHTTPClient.Disconnect(true); //If we were doing something, stop it
   HTTPBuffer := '';
   ParseURL(aURL, Proto, User, Pass, Host, Port, Path);
@@ -60,10 +62,15 @@ end;
 
 
 procedure TKMHTTPClientLNet.HTTPClientDoneInput(ASocket: TLHTTPClientSocket);
+var ReturnString: UnicodeString;
 begin
   aSocket.Disconnect;
+  if fIsUTF8 then
+    ReturnString := UTF8Decode(HTTPBuffer)
+  else
+    ReturnString := UnicodeString(HTTPBuffer);
   if Assigned(fOnGetCompleted) then
-    fOnGetCompleted(HTTPBuffer);
+    fOnGetCompleted(ReturnString);
   HTTPBuffer := '';
 end;
 

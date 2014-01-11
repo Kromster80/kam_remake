@@ -96,21 +96,26 @@ begin
   fHTTPClient.GetURL(fMasterServerAddress+'serveradd.php?name='+UrlEncode(aName)+'&port='+UrlEncode(aPort)
                      +'&playercount='+UrlEncode(IntToStr(aPlayerCount))+'&ttl='+UrlEncode(IntToStr(aTTL))
                      +'&rev='+UrlEncode(NET_PROTOCOL_REVISON)+'&coderev='+UrlEncode(GAME_REVISION)
-                     +'&os='+UrlEncode(OS)+'&compiler='+UrlEncode(COMPILER)+'&dedicated='+UrlEncode(IntToStr(byte(fIsDedicated))));
+                     +'&os='+UrlEncode(OS)+'&compiler='+UrlEncode(COMPILER)+'&dedicated='+UrlEncode(IntToStr(byte(fIsDedicated)))
+                     , False); //Result doesn't matter so ANSI is fine
 end;
 
 
 procedure TKMMasterServer.QueryServer;
 begin
   fHTTPClient.OnReceive := ReceiveServerList;
-  fHTTPClient.GetURL(fMasterServerAddress+'serverquery.php?rev='+UrlEncode(NET_PROTOCOL_REVISON)+'&coderev='+UrlEncode(GAME_REVISION));
+  fHTTPClient.GetURL(fMasterServerAddress+'serverquery.php?rev='+UrlEncode(NET_PROTOCOL_REVISON)+'&coderev='+UrlEncode(GAME_REVISION)
+                     , False); //For now server list is ANSI only
 end;
 
 
 procedure TKMMasterServer.FetchAnnouncements(const aLang: AnsiString);
 begin
   fHTTPAnnouncementsClient.OnReceive := ReceiveAnnouncements;
-  fHTTPAnnouncementsClient.GetURL(fMasterServerAddress+'announcements.php?lang='+UrlEncode(UnicodeString(aLang))+'&rev='+UrlEncode(NET_PROTOCOL_REVISON)+'&coderev='+UrlEncode(GAME_REVISION));
+  fHTTPAnnouncementsClient.GetURL(fMasterServerAddress+'announcements.php?lang='
+       +UrlEncode(UnicodeString(aLang))+'&rev='+UrlEncode(NET_PROTOCOL_REVISON)
+       +'&coderev='+UrlEncode(GAME_REVISION)
+       , True); //Announcements are in UTF8
 end;
 
 
@@ -120,7 +125,8 @@ begin
   fHTTPMapsClient.GetURL(fMasterServerAddress+'maps.php?map='+UrlEncode(aMapName)
                          +'&playercount='+UrlEncode(IntToStr(aPlayerCount))
                          +'&rev='+UrlEncode(NET_PROTOCOL_REVISON)
-                         +'&coderev='+UrlEncode(GAME_REVISION));
+                         +'&coderev='+UrlEncode(GAME_REVISION)
+                         , False); //Result doesn't matter so ANSI is fine
 end;
 
 

@@ -10,12 +10,13 @@ type
     fHTTPClient: THTTPCli;
     fOnError: TGetStrProc;
     fOnGetCompleted: TGetStrProc;
+    fIsUTF8: Boolean;
     procedure RequestDone(Sender: TObject; RqType: THttpRequest; ErrCode: Word);
   public
     constructor Create;
     destructor Destroy; override;
 
-    procedure GetURL(aURL: string);
+    procedure GetURL(aURL: string; aIsUTF8: Boolean);
 
     property OnError: TGetStrProc write fOnError;
     property OnGetCompleted: TGetStrProc write fOnGetCompleted;
@@ -42,8 +43,9 @@ begin
 end;
 
 
-procedure TKMHTTPClientOverbyte.GetURL(aURL: string);
+procedure TKMHTTPClientOverbyte.GetURL(aURL: string; aIsUTF8: Boolean);
 begin
+  fIsUTF8 := aIsUTF8;
   fHTTPClient.Abort; //If we were doing something, stop it
   TMemoryStream(fHTTPClient.RcvdStream).Clear;
   fHTTPClient.URL := aURL;
@@ -54,6 +56,7 @@ end;
 procedure TKMHTTPClientOverbyte.RequestDone(Sender: TObject; RqType: THttpRequest; ErrCode: Word);
 var
   RcvdText: AnsiString;
+  ReturnText: UnicodeString;
 begin
   if RqType <> httpGET then exit;
   if ErrCode <> 0 then
@@ -71,8 +74,13 @@ begin
     TMemoryStream(fHTTPClient.RcvdStream).Clear;
   end;
 
+  if fIsUTF8 then
+    ReturnText := UTF8ToUnicodeString(RcvdText)
+  else
+    ReturnText := UnicodeString(RcvdText);
+
   if Assigned(fOnGetCompleted) then
-    fOnGetCompleted(UnicodeString(RcvdText));
+    fOnGetCompleted(ReturnText);
 end;
 
 
