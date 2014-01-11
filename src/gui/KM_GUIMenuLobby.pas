@@ -930,7 +930,7 @@ begin
   begin
     if not CheckBox_Spectators.Checked and (fNetworking.NetPlayers.GetSpectatorCount > 0) then
     begin
-      fNetworking.PostLocalMessage(gResTexts[TX_LOBBY_CANNOT_DISABLE_SPECTATORS]);
+      fNetworking.PostLocalMessage(gResTexts[TX_LOBBY_CANNOT_DISABLE_SPECTATORS], csSystem);
       CheckBox_Spectators.Checked := True;
     end
     else

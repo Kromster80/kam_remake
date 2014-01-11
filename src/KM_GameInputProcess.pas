@@ -177,7 +177,7 @@ type
 
 
 implementation
-uses KM_Game, KM_HouseMarket, KM_HandsCollection, KM_Hand, KM_ResTexts, KM_Utils, KM_AI, KM_HouseBarracks, KM_HouseSchool, KM_Alerts, KM_GameApp;
+uses KM_Game, KM_HouseMarket, KM_HandsCollection, KM_Hand, KM_ResTexts, KM_Utils, KM_AI, KM_HouseBarracks, KM_HouseSchool, KM_Alerts, KM_GameApp, KM_Networking;
 
 
 procedure SaveCommandToMemoryStream(aCommand: TGameInputCommand; aMemoryStream: TKMemoryStream);
@@ -375,7 +375,7 @@ begin
                                     gGame.Save(TextParam, DateTimeParam); //Timestamp is synchronised
                                     if gGame.IsMultiplayer then
                                       //Tell the player we have saved the game
-                                      gGame.Networking.PostLocalMessage(gResTexts[TX_MULTIPLAYER_SAVING_GAME]);
+                                      gGame.Networking.PostLocalMessage(gResTexts[TX_MULTIPLAYER_SAVING_GAME], csSaveGame);
                                   end;
       gic_GameAutoSave:           if (fReplayState = gipRecording) and fGameApp.GameSettings.Autosave then
                                     gGame.AutoSave(DateTimeParam); //Timestamp is synchronised

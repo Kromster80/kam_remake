@@ -12,6 +12,7 @@ type
   TNetPlayerKind = (lpk_Host, lpk_Joiner);
   TNetGameState = (lgs_None, lgs_Connecting, lgs_Query, lgs_Lobby, lgs_Loading, lgs_Game, lgs_Reconnecting);
   TNetGameKind = (ngk_None, ngk_Map, ngk_Save);
+  TChatSound = (csNone, csJoin, csLeave, csSystem, csGameStart, csSaveGame, csChat, csChatWhisper, csChatTeam);
 
 const
   NetMPGameState:array[TNetGameState] of TMPGameState = (mgsNone, mgsNone, mgsNone, mgsLobby, mgsLoading, mgsGame, mgsGame);
@@ -175,9 +176,9 @@ type
 
     //Common
     procedure ConsoleCommand(aText: UnicodeString);
-    procedure PostMessage(aTextID: Integer; aText1: UnicodeString=''; aText2: UnicodeString = ''; aRecipient:Integer=NET_ADDRESS_ALL);
+    procedure PostMessage(aTextID: Integer; aSound: TChatSound; aText1: UnicodeString=''; aText2: UnicodeString = ''; aRecipient:Integer=NET_ADDRESS_ALL);
     procedure PostChat(aText: UnicodeString; aTeamOnly: Boolean; aRecipientServerIndex: Integer=-1); overload;
-    procedure PostLocalMessage(aText: UnicodeString; aMakeSound:boolean=true);
+    procedure PostLocalMessage(aText: UnicodeString; aSound: TChatSound);
     procedure AnnounceGameInfo(aGameTime: TDateTime; aMap: UnicodeString);
 
     //Gameplay
@@ -408,7 +409,7 @@ begin
     //Make sure this player is properly disconnected from the server
     PacketSend(NET_ADDRESS_SERVER, mk_KickPlayer, ServerIndex);
     NetPlayers.DropPlayer(ServerIndex);
-    PostMessage(TX_NET_DROPPED, UnicodeString(NetPlayers[aPlayers[I]].Nikname));
+    PostMessage(TX_NET_DROPPED, csLeave, UnicodeString(NetPlayers[aPlayers[I]].Nikname));
   end;
   SendPlayerListAndRefreshPlayersSetup;
 end;
@@ -676,16 +677,18 @@ end;
 procedure TKMNetworking.KickPlayer(aPlayerIndex: Integer);
 begin
   Assert(IsHost, 'Only host is allowed to kick players out');
+  //No need to play a sound, server will do that when it announces that player disconnected
+  PostMessage(TX_NET_KICKED, csNone, UnicodeString(fNetPlayers[aPlayerIndex].Nikname));
   PacketSend(NET_ADDRESS_SERVER, mk_KickPlayer, fNetPlayers[aPlayerIndex].IndexOnServer);
-  PostMessage(TX_NET_KICKED, UnicodeString(fNetPlayers[aPlayerIndex].Nikname));
 end;
 
 
 procedure TKMNetworking.BanPlayer(aPlayerIndex: Integer);
 begin
   Assert(IsHost, 'Only host is allowed to ban players');
+  //No need to play a sound, server will do that when it announces that player disconnected
+  PostMessage(TX_NET_BANNED, csNone, UnicodeString(fNetPlayers[aPlayerIndex].Nikname));
   PacketSend(NET_ADDRESS_SERVER, mk_BanPlayer, fNetPlayers[aPlayerIndex].IndexOnServer);
-  PostMessage(TX_NET_BANNED, UnicodeString(fNetPlayers[aPlayerIndex].Nikname));
 end;
 
 
@@ -699,7 +702,7 @@ end;
 procedure TKMNetworking.ResetBans;
 begin
   PacketSend(NET_ADDRESS_SERVER, mk_ResetBans);
-  PostMessage(TX_NET_BANS_RESET);
+  PostMessage(TX_NET_BANS_RESET, csSystem);
 end;
 
 
@@ -731,7 +734,7 @@ function TKMNetworking.ReadyToStart:boolean;
 begin
   if (fSelectGameKind = ngk_Save) and (fNetPlayers[fMyIndex].StartLocation = 0) then
   begin
-    PostLocalMessage(gResTexts[TX_LOBBY_ERROR_SELECT_PLAYER]);
+    PostLocalMessage(gResTexts[TX_LOBBY_ERROR_SELECT_PLAYER], csSystem);
     Result := false;
     Exit;
   end;
@@ -745,7 +748,7 @@ begin
   end
   else
   begin
-    PostLocalMessage(gResTexts[TX_LOBBY_ERROR_NO_MAP]);
+    PostLocalMessage(gResTexts[TX_LOBBY_ERROR_NO_MAP], csSystem);
     Result := false;
   end;
 end;
@@ -801,7 +804,7 @@ begin
   end;
   if not fNetPlayers.ValidateSetup(HumanUsableLocs, AIUsableLocs, ErrorMessage) then
   begin
-    PostLocalMessage(Format(gResTexts[TX_LOBBY_CANNOT_START], [ErrorMessage]));
+    PostLocalMessage(Format(gResTexts[TX_LOBBY_CANNOT_START], [ErrorMessage]), csSystem);
     Exit;
   end;
 
@@ -974,11 +977,12 @@ begin
 end;
 
 
-procedure TKMNetworking.PostMessage(aTextID: Integer; aText1: UnicodeString=''; aText2: UnicodeString = ''; aRecipient:Integer=NET_ADDRESS_ALL);
+procedure TKMNetworking.PostMessage(aTextID: Integer; aSound: TChatSound; aText1: UnicodeString=''; aText2: UnicodeString = ''; aRecipient:Integer=NET_ADDRESS_ALL);
 var M: TKMemoryStream;
 begin
   M := TKMemoryStream.Create;
   M.Write(aTextID);
+  M.Write(aSound, SizeOf(aSound));
   M.WriteW(aText1);
   M.WriteW(aText2);
   PacketSend(aRecipient, mk_TextTranslated, M);
@@ -986,12 +990,22 @@ begin
 end;
 
 
-procedure TKMNetworking.PostLocalMessage(aText: UnicodeString; aMakeSound:boolean=true);
+procedure TKMNetworking.PostLocalMessage(aText: UnicodeString; aSound: TChatSound);
+const
+  ChatSound: array[TChatSound] of TSoundFXNew = (sfxn_MPChatSystem, //csNone
+                                                 sfxn_MPChatSystem, //csJoin
+                                                 sfxn_MPChatSystem, //csLeave
+                                                 sfxn_MPChatSystem, //csSystem
+                                                 sfxn_MPChatSystem, //csGameStart
+                                                 sfxn_MPChatSystem, //csSaveGame
+                                                 sfxn_MPChatMessage,//csChat
+                                                 sfxn_MPChatTeam,   //csChatTeam
+                                                 sfxn_MPChatTeam);  //csChatWhisper
 begin
   if Assigned(fOnTextMessage) then
   begin
     fOnTextMessage(aText);
-    if aMakeSound then gSoundPlayer.Play(sfxn_MPChatMessage);
+    if aSound <> csNone then gSoundPlayer.Play(ChatSound[aSound]);
   end;
 end;
 
@@ -1017,7 +1031,7 @@ var TempMyIndex:integer;
 begin
   if WRITE_RECONNECT_LOG then gLog.AddTime(Format('DoReconnection: %s',[fMyNikname]));
   fReconnectRequested := 0;
-  PostLocalMessage(gResTexts[TX_NET_RECONNECTING]);
+  PostLocalMessage(gResTexts[TX_NET_RECONNECTING], csSystem);
   //Stop the previous connection without calling Self.Disconnect as that frees everything
   fNetClient.Disconnect;
   TempMyIndex := fMyIndex;
@@ -1036,7 +1050,7 @@ begin
   if fSelectGameKind = ngk_Save then MatchPlayersToSave(fNetPlayers.ServerToLocal(aServerIndex)); //Match only this player
   SendPlayerListAndRefreshPlayersSetup;
   SendGameOptions;
-  PostMessage(TX_NET_HAS_JOINED, UnicodeString(aPlayerName));
+  PostMessage(TX_NET_HAS_JOINED, csJoin, UnicodeString(aPlayerName));
 end;
 
 
@@ -1109,6 +1123,7 @@ var
   tmpStringA, replyStringA: AnsiString;
   tmpStringW, replyStringW: UnicodeString;
   I,LocID,TeamID,ColorID,PlayerIndex: Integer;
+  ChatSound: TChatSound;
 begin
   Assert(aLength >= 1, 'Unexpectedly short message'); //Kind, Message
   if not Connected then Exit;
@@ -1129,13 +1144,13 @@ begin
           GetEnumName(TypeInfo(TNetGameState), Integer(fNetGameState)) + '): ' +
           GetEnumName(TypeInfo(TKMessageKind), Integer(Kind));
         gLog.AddTime(err);
-        PostLocalMessage('Error: ' + err);
+        PostLocalMessage('Error: ' + err, csSystem);
       end;
       Exit;
     end;
 
     if NET_SHOW_EACH_MSG and not (Kind in [mk_Ping, mk_PingInfo, mk_FPS]) then
-      PostLocalMessage(GetEnumName(TypeInfo(TKMessageKind), Integer(Kind)));
+      PostLocalMessage(GetEnumName(TypeInfo(TKMessageKind), Integer(Kind)), csNone);
 
     case Kind of
       mk_GameVersion:
@@ -1170,7 +1185,7 @@ begin
                 if Assigned(fOnJoinAssignedHost) then
                   fOnJoinAssignedHost(Self);
 
-                PostLocalMessage(gResTexts[TX_LOBBY_HOST_RIGHTS], False);
+                PostLocalMessage(gResTexts[TX_LOBBY_HOST_RIGHTS], csNone);
               end;
 
       mk_IndexOnServer:
@@ -1214,8 +1229,8 @@ begin
                           fNetPlayers[fMyIndex].ReadyToStart := True;
                           if Assigned(fOnPlayersSetup) then fOnPlayersSetup(Self);
                           SetGameState(lgs_Lobby);
-                          gSoundPlayer.Play(sfxn_MPChatMessage); //Sound for joining the lobby
-                          if fWelcomeMessage <> '' then PostLocalMessage(fWelcomeMessage, false);
+                          gSoundPlayer.Play(sfxn_MPChatSystem); //Sound for joining the lobby
+                          if fWelcomeMessage <> '' then PostLocalMessage(fWelcomeMessage, csNone);
                         end;
                     lpk_Joiner:
                     begin
@@ -1240,7 +1255,7 @@ begin
                   PacketSend(aSenderIndex, mk_ReconnectionAccepted); //Tell this client they are back in the game
                   PacketSend(NET_ADDRESS_OTHERS, mk_ClientReconnected, aSenderIndex); //Tell everyone to ask him to resync
                   PacketSend(aSenderIndex, mk_ResyncFromTick, Integer(fLastProcessedTick)); //Ask him to resync us
-                  PostMessage(TX_NET_HAS_RECONNECTED, UnicodeString(tmpStringA));
+                  PostMessage(TX_NET_HAS_RECONNECTED, csJoin, UnicodeString(tmpStringA));
                 end
                 else
                 begin
@@ -1254,7 +1269,7 @@ begin
                 M.Read(tmpInteger);
                 //If the result is < 1 is means silently ignore and keep retrying
                 if tmpInteger > 0 then
-                  PostLocalMessage(Format(gResTexts[TX_NET_RECONNECTION_FAILED], [gResTexts[tmpInteger]]));
+                  PostLocalMessage(Format(gResTexts[TX_NET_RECONNECTION_FAILED], [gResTexts[tmpInteger]]), csSystem);
                 if Assigned(fOnJoinFail) then
                   fOnJoinFail('');
               end;
@@ -1328,7 +1343,7 @@ begin
               if not IsHost and (fFileReceiver <> nil) then
               begin
                 if fFileReceiver.ProcessTransfer then
-                  PostMessage(TX_NET_SUCCESSFULLY_DOWNLOADED, UnicodeString(fMyNikname), fFileReceiver.Name);
+                  PostMessage(TX_NET_SUCCESSFULLY_DOWNLOADED, csSystem, UnicodeString(fMyNikname), fFileReceiver.Name);
                 FreeAndNil(fFileReceiver);
               end;
 
@@ -1346,7 +1361,8 @@ begin
               begin
                 fOnJoinSucc(Self); //Enter lobby
                 SetGameState(lgs_Lobby);
-                if fWelcomeMessage <> '' then PostLocalMessage(fWelcomeMessage,false);
+                //No need to play a sound here, host will send "<player> has joined" message
+                if fWelcomeMessage <> '' then PostLocalMessage(fWelcomeMessage, csNone);
                 PacketSendA(NET_ADDRESS_HOST, mk_LangCode, gResLocales.UserLocale);
               end;
 
@@ -1370,7 +1386,7 @@ begin
                 M.Read(tmpInteger);
                 if Cardinal(tmpInteger) <> CalculateGameCRC then
                 begin
-                  PostMessage(TX_NET_JOIN_DATA_FILES, UnicodeString(fMyNikname));
+                  PostMessage(TX_NET_JOIN_DATA_FILES, csSystem, UnicodeString(fMyNikname));
                   fOnJoinFail(gResTexts[TX_NET_YOUR_DATA_FILES]);
                 end;
               end;
@@ -1391,7 +1407,7 @@ begin
                   if PlayerIndex = -1 then exit; //Has already disconnected or not from our room
                   if not fNetPlayers[PlayerIndex].Dropped then
                   begin
-                    PostMessage(TX_NET_LOST_CONNECTION, UnicodeString(fNetPlayers[PlayerIndex].Nikname));
+                    PostMessage(TX_NET_LOST_CONNECTION, csLeave, UnicodeString(fNetPlayers[PlayerIndex].Nikname));
                     if WRITE_RECONNECT_LOG then gLog.AddTime(UnicodeString(fNetPlayers[PlayerIndex].Nikname)+' lost connection');
                   end;
                   if fNetGameState = lgs_Game then
@@ -1425,7 +1441,7 @@ begin
                     begin
                       fFileSenderManager.ClientDisconnected(aSenderIndex);
                       if fNetPlayers.ServerToLocal(aSenderIndex) = -1 then exit; //Has already disconnected
-                      PostMessage(TX_NET_HAS_QUIT, UnicodeString(fNetPlayers[fNetPlayers.ServerToLocal(aSenderIndex)].Nikname));
+                      PostMessage(TX_NET_HAS_QUIT, csLeave, UnicodeString(fNetPlayers[fNetPlayers.ServerToLocal(aSenderIndex)].Nikname));
                       if fNetGameState in [lgs_Loading, lgs_Game] then
                         fNetPlayers.DropPlayer(aSenderIndex)
                       else
@@ -1436,7 +1452,7 @@ begin
                     begin
                       PlayerIndex := fNetPlayers.ServerToLocal(aSenderIndex);
                       if PlayerIndex = -1 then exit; //Has already disconnected
-                      PostLocalMessage(Format(gResTexts[TX_MULTIPLAYER_HOST_DISCONNECTED], [fNetPlayers[PlayerIndex].Nikname]));
+                      PostLocalMessage(Format(gResTexts[TX_MULTIPLAYER_HOST_DISCONNECTED], [fNetPlayers[PlayerIndex].Nikname]), csLeave);
                       if fNetGameState in [lgs_Loading, lgs_Game] then
                         fNetPlayers.DropPlayer(aSenderIndex)
                       else
@@ -1480,7 +1496,7 @@ begin
                   fDescription := '';
                   fOnMPGameInfoChanged(Self);
                   SendPlayerListAndRefreshPlayersSetup;
-                  PostMessage(TX_NET_HOSTING_RIGHTS, UnicodeString(fMyNikname));
+                  PostMessage(TX_NET_HOSTING_RIGHTS, csSystem, UnicodeString(fMyNikname));
                   if WRITE_RECONNECT_LOG then gLog.AddTime('Hosting rights reassigned to us ('+UnicodeString(fMyNikname)+')');
                 end;
               end;
@@ -1552,13 +1568,13 @@ begin
                 begin
                   if fMapInfo.IsValid then
                   begin
-                    PostMessage(TX_NET_DIFFERENT_VERSION, UnicodeString(fMyNikname), fMapInfo.FileName);
+                    PostMessage(TX_NET_DIFFERENT_VERSION, csSystem, UnicodeString(fMyNikname), fMapInfo.FileName);
                     tmpStringW := Format(gResTexts[TX_MAP_WRONG_VERSION], [fMapInfo.FileName]);
                     fMissingFileExists := True;
                   end
                   else
                   begin
-                    PostMessage(TX_NET_MISSING_FILES, UnicodeString(fMyNikname), fMapInfo.FileName);
+                    PostMessage(TX_NET_MISSING_FILES, csSystem, UnicodeString(fMyNikname), fMapInfo.FileName);
                     tmpStringW := Format(gResTexts[TX_MAP_DOESNT_EXIST], [fMapInfo.FileName]);
                     fMissingFileExists := False;
                   end;
@@ -1594,13 +1610,13 @@ begin
                 begin
                   if fSaveInfo.IsValid then
                   begin
-                    PostMessage(TX_NET_DIFFERENT_VERSION, UnicodeString(fMyNikname), fSaveInfo.FileName);
+                    PostMessage(TX_NET_DIFFERENT_VERSION, csSystem, UnicodeString(fMyNikname), fSaveInfo.FileName);
                     tmpStringW := Format(gResTexts[TX_SAVE_WRONG_VERSION],[fSaveInfo.FileName]);
                     fMissingFileExists := True;
                   end
                   else
                   begin
-                    PostMessage(TX_NET_MISSING_FILES, UnicodeString(fMyNikname), fSaveInfo.FileName);
+                    PostMessage(TX_NET_MISSING_FILES, csSystem, UnicodeString(fMyNikname), fSaveInfo.FileName);
                     tmpStringW := Format(gResTexts[TX_SAVE_DOESNT_EXIST],[fSaveInfo.FileName]);
                     fMissingFileExists := False;
                   end;
@@ -1725,9 +1741,10 @@ begin
       mk_TextTranslated:
               begin
                 M.Read(tmpInteger);
+                M.Read(ChatSound, SizeOf(ChatSound));
                 M.ReadW(tmpStringW);
                 M.ReadW(replyStringW);
-                PostLocalMessage(Format(gResTexts[tmpInteger], [tmpStringW, replyStringW]));
+                PostLocalMessage(Format(gResTexts[tmpInteger], [tmpStringW, replyStringW]), ChatSound);
               end;
 
       mk_TextChat:
@@ -1737,10 +1754,14 @@ begin
                 M.ReadW(tmpStringW);
 
                 if tmpBoolean then //IsToTeam
-                  tmpStringW := ' [$66FF66]('+gResTexts[TX_CHAT_TEAM]+')[]: ' + tmpStringW
+                begin
+                  tmpStringW := ' [$66FF66]('+gResTexts[TX_CHAT_TEAM]+')[]: ' + tmpStringW;
+                  ChatSound := csChatTeam;
+                end
                 else
                   if PlayerIndex <> -1 then
                   begin
+                    ChatSound := csChatWhisper;
                     I := NetPlayers.ServerToLocal(PlayerIndex);
                     if I <> -1 then
                       tmpStringA := NetPlayers[I].Nikname
@@ -1749,7 +1770,10 @@ begin
                     tmpStringW := ' [$00B9FF](' + Format(gResTexts[TX_CHAT_WHISPER_TO], [UnicodeString(tmpStringA)]) + ')[]: ' + tmpStringW;
                   end
                   else
+                  begin
                     tmpStringW := ' ('+gResTexts[TX_CHAT_ALL]+'): ' + tmpStringW;
+                    ChatSound := csChat;
+                  end;
 
                 PlayerIndex := fNetPlayers.ServerToLocal(aSenderIndex);
                 if PlayerIndex <> -1 then
@@ -1759,7 +1783,7 @@ begin
                   else
                     tmpStringW := UnicodeString(NetPlayers[PlayerIndex].Nikname) + tmpStringW;
 
-                  PostLocalMessage(tmpStringW);
+                  PostLocalMessage(tmpStringW, ChatSound);
                 end;
               end;
     end;
@@ -1852,7 +1876,7 @@ end;
 
 procedure TKMNetworking.StartGame;
 begin
-  PostLocalMessage(gResTexts[TX_LOBBY_GAME_STARTED], False);
+  PostLocalMessage(gResTexts[TX_LOBBY_GAME_STARTED], csGameStart);
   SetGameState(lgs_Loading); //Loading has begun (no further players allowed to join)
   fIgnorePings := -1; //Ignore all pings until we have finished loading
 

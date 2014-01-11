@@ -678,7 +678,7 @@ begin
 
     gmMulti: begin
                fNetworking.PostLocalMessage(Format(gResTexts[TX_MULTIPLAYER_PLAYER_DEFEATED],
-                                                   [gHands[aPlayerIndex].OwnerName]));
+                                                   [gHands[aPlayerIndex].OwnerName]), csSystem);
                if aPlayerIndex = MySpectator.HandIndex then
                begin
                  gSoundPlayer.Play(sfxn_Defeat, 1, True); //Fade music
@@ -688,7 +688,7 @@ begin
              end;
 
     gmMultiSpectate: fNetworking.PostLocalMessage(Format(gResTexts[TX_MULTIPLAYER_PLAYER_DEFEATED],
-                                                  [gHands[aPlayerIndex].OwnerName]));
+                                                  [gHands[aPlayerIndex].OwnerName]), csSystem);
     //We have not thought of anything to display on players defeat in Replay
   end;
 end;
@@ -952,7 +952,7 @@ begin
     if fGameMode in [gmMulti, gmMultiSpectate] then
     begin
       SetGameSpeed(fGameOptions.SpeedAfterPT, False);
-      fNetworking.PostLocalMessage(gResTexts[TX_MP_PEACETIME_OVER], false);
+      fNetworking.PostLocalMessage(gResTexts[TX_MP_PEACETIME_OVER], csNone);
     end;
   end;
 end;
