@@ -96,6 +96,7 @@ type
         CheckBox_LobbyRandomizeTeamLocations: TKMCheckBox;
         CheckBox_Spectators: TKMCheckBox;
         Label_Spectators: TKMLabel;
+        Image_HostStar: TKMImage;
         Image_LobbyFlag: array [1..MAX_LOBBY_SLOTS] of TKMImage;
         DropBox_LobbyPlayerSlot: array [1..MAX_LOBBY_SLOTS] of TKMDropList;
         Label_LobbyPlayer: array [1..MAX_LOBBY_SLOTS] of TKMLabel;
@@ -239,6 +240,7 @@ procedure TKMMenuLobby.UpdateSpectatorDivide;
 var
   I, DivideRow, OffY: Integer;
 begin
+  Image_HostStar.Hide; //In case host is unknown
   if (fNetworking <> nil) and (fNetworking.NetPlayers <> nil) then
     DivideRow := MAX_LOBBY_SLOTS - Max(MAX_LOBBY_SPECTATORS, fNetworking.NetPlayers.GetSpectatorCount)
   else
@@ -261,6 +263,12 @@ begin
     DropBox_LobbyColors[I].Top     := OffY;
     Image_LobbyReady[I].Top        := OffY;
     Label_LobbyPing[I].Top         := OffY;
+
+    if (fNetworking <> nil) and (fLocalToNetPlayers[I] = fNetworking.HostIndex) then
+    begin
+      Image_HostStar.Top := OffY+2;
+      Image_HostStar.Show;
+    end;
   end;
   if (fNetworking <> nil) and (fNetworking.NetPlayers <> nil)
   and fNetworking.NetPlayers.SpectatorsAllowed then
@@ -315,6 +323,8 @@ begin
       TKMLabel.Create(Panel_LobbyPlayers, C6, 68, gResTexts[TX_LOBBY_HEADER_PING], fnt_Outline, taCenter);
 
       Label_Spectators := TKMLabel.Create(Panel_LobbyPlayers, C1, 50, 150, 20, gResTexts[TX_LOBBY_HEADER_SPECTATORS], fnt_Outline, taLeft);
+      Image_HostStar := TKMImage.Create(Panel_LobbyPlayers, C2-20, 50, 20, 20, 77, rxGuiMain);
+      Image_HostStar.Hide;
 
       for I := 1 to MAX_LOBBY_SLOTS do
       begin
