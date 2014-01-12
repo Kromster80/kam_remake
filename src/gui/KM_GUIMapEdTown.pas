@@ -134,6 +134,9 @@ begin
     ttDefences: fGuiDefence.Show;
     ttOffence:  fGuiOffence.Show;
   end;
+
+  //Signal that active page has changed, that may affect layers visibility
+  fOnPageChange(Self);
 end;
 
 
@@ -182,9 +185,6 @@ begin
   //Update colors
   Button_Town[ttUnits].FlagColor := gHands[MySpectator.HandIndex].FlagColor;
   fGuiUnits.UpdatePlayerColor;
-
-  //Signal that active page has changed, that may affect layers visibility
-  fOnPageChange(Self);
 end;
 
 

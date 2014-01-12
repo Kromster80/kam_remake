@@ -293,10 +293,13 @@ begin
   if Sender = Button_HouseHealthInc then fHouse.AddRepair(GetMultiplicator(Shift) * 5);
 
   HouseDat := gResource.HouseDat[fHouse.HouseType];
+  KMHealthBar_House.Caption := IntToStr(Round(fHouse.GetHealth)) + '/' + IntToStr(HouseDat.MaxHealth);
+  KMHealthBar_House.Position := fHouse.GetHealth / HouseDat.MaxHealth;
 
   for I := 0 to 3 do
   begin
     Res := HouseDat.ResInput[I+1];
+    if not (Res in [WARE_MIN..WARE_MAX]) then Continue;
 
     if Sender = ResRow_Resource_Input[I].OrderAdd then
     begin
@@ -317,6 +320,7 @@ begin
   for I := 0 to 3 do
   begin
     Res := HouseDat.ResOutput[I+1];
+    if not (Res in [WARE_MIN..WARE_MAX]) then Continue;
 
     if Sender = ResRow_Resource_Output[I].OrderAdd then
     begin
@@ -333,9 +337,6 @@ begin
     ResRow_Resource_Output[I].OrderCount := fHouse.CheckResOut(Res);
     ResRow_Resource_Output[I].WareCount := fHouse.CheckResOut(Res);
   end;
-
-  KMHealthBar_House.Caption := IntToStr(Round(fHouse.GetHealth)) + '/' + IntToStr(HouseDat.MaxHealth);
-  KMHealthBar_House.Position := fHouse.GetHealth / HouseDat.MaxHealth;
 end;
 
 
