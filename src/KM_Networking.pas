@@ -1463,7 +1463,11 @@ begin
       mk_ReassignHost:
               begin
                 M.Read(tmpInteger);
-                FreeAndNil(fFileReceiver); //Transfer is aborted if host disconnects/changes
+                if fFileReceiver <> nil then
+                begin
+                  FreeAndNil(fFileReceiver); //Transfer is aborted if host disconnects/changes
+                  if Assigned(fOnMapMissing) then fOnMapMissing(tmpStringW); //Reset, otherwise it will freeze in "downloading" state
+                end;
                 if IsHost then
                 begin
                   //We are no longer the host
@@ -1495,6 +1499,10 @@ begin
                   fPassword := '';
                   fDescription := '';
                   fOnMPGameInfoChanged(Self);
+                  if (fSelectGameKind = ngk_None)
+                  or ((fSelectGameKind = ngk_Map)  and not MapInfo.IsValid)
+                  or ((fSelectGameKind = ngk_Save) and not SaveInfo.IsValid) then
+                    SelectNoMap(''); //In case the previous host had the map and we don't
                   SendPlayerListAndRefreshPlayersSetup;
                   PostMessage(TX_NET_HOSTING_RIGHTS, csSystem, UnicodeString(fMyNikname));
                   if WRITE_RECONNECT_LOG then gLog.AddTime('Hosting rights reassigned to us ('+UnicodeString(fMyNikname)+')');

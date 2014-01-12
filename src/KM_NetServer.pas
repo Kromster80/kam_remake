@@ -97,6 +97,7 @@ type
     procedure SendMessageA(aRecipient: Integer; aKind: TKMessageKind; aText: AnsiString);
     procedure SendMessageW(aRecipient: Integer; aKind: TKMessageKind; aText: UnicodeString);
     procedure SendMessage(aRecipient: Integer; aKind: TKMessageKind; aStream: TKMemoryStream); overload;
+    procedure SendMessageToRoom(aKind: TKMessageKind; aRoom: Integer; aParam: Integer);
     procedure SendMessageAct(aRecipient: Integer; aKind: TKMessageKind; aStream: TKMemoryStream);
     procedure RecieveMessage(aSenderHandle:integer; aData:pointer; aLength:cardinal);
     procedure DataAvailable(aHandle:integer; aData:pointer; aLength:cardinal);
@@ -472,7 +473,7 @@ begin
     else
     begin
       fRoomInfo[Room].HostHandle := GetFirstRoomClient(Room); //Assign hosting rights to the first client in the room
-      SendMessage(NET_ADDRESS_ALL, mk_ReassignHost, fRoomInfo[Room].HostHandle); //Tell everyone about the new host
+      SendMessageToRoom(mk_ReassignHost, Room, fRoomInfo[Room].HostHandle); //Tell everyone about the new host
       Status('Reassigned hosting rights for room '+inttostr(Room)+' to '+inttostr(fRoomInfo[Room].HostHandle));
     end;
   end;
@@ -527,6 +528,16 @@ procedure TKMNetServer.SendMessage(aRecipient: Integer; aKind: TKMessageKind; aS
 begin
   //Send stream without changes
   SendMessageAct(aRecipient, aKind, aStream);
+end;
+
+
+procedure TKMNetServer.SendMessageToRoom(aKind: TKMessageKind; aRoom: Integer; aParam: Integer);
+var I: Integer;
+begin
+  //Iterate backwards because sometimes calling Send results in ClientDisconnect (LNet only?)
+  for I := fClientList.Count-1 downto 0 do
+    if fClientList[i].Room = aRoom then
+      SendMessage(fClientList[i].Handle, aKind, aParam);
 end;
 
 
@@ -630,7 +641,7 @@ begin
               begin
                 RoomId := fClientList.GetByHandle(aSenderHandle).Room;
                 fRoomInfo[RoomId].HostHandle := tmpInteger;
-                SendMessage(NET_ADDRESS_ALL, mk_ReassignHost, tmpInteger); //Tell everyone about the new host
+                SendMessageToRoom(mk_ReassignHost, RoomId, tmpInteger); //Tell everyone about the new host
               end;
             end;
     mk_ResetBans:
