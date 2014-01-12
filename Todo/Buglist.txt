@@ -86,6 +86,7 @@ Improvements:
  +  L   Multiplayer spectating
  +  L   MapEd option to enable the AI to retaliate against allies' assets being attacked like they do for themselves
  +	L	Multiplayer in-game player list ordered by teams
+ +  L   When archers are ordered to attack by right clicking enemy unit, they will walk into range in formation not spread out
 	        Dismiss button to make units walk into the school and disappear (gold is not refunded)
 	L	Simple dedicated server form which lets you set the properties of the INI for the server and start it [gemGreg]
 	L	Placing houses in MP should put a temp/fake visual markup until the real one can be added to make it appear responsive

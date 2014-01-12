@@ -746,7 +746,32 @@ begin
                         OrderExecuted := (OrderTargetUnit = nil);
 
                         if not OrderExecuted then
-                          OrderAttackUnit(fOrderTargetUnit, False);
+                          //If our leader is out of range (enemy has walked away) we need to walk closer
+                          if (KMLength(fOrderLoc.Loc, OrderTargetUnit.GetPosition) > Members[0].GetFightMaxRange) then
+                            OrderAttackUnit(fOrderTargetUnit, False)
+                          else
+                            //Our leader is in range so each member should get into position
+                            for I := 0 to Count - 1 do
+                            if Members[I].IsIdle then
+                            begin
+                              P := GetMemberLoc(I);
+                              if KMSamePoint(Members[I].GetPosition, P.Loc)
+                              or (KMLength(Members[I].GetPosition, OrderTargetUnit.GetPosition) <= Members[I].GetFightMaxRange) then
+                              begin
+                                //We are at the right spot, so face towards enemy
+                                Members[I].Direction := KMGetDirection(Members[I].GetPosition, OrderTargetUnit.GetPosition);
+                                Members[I].FaceDir := Members[I].Direction;
+                                if not Members[I].CheckForEnemy then
+                                  //If we are too close to shoot, make sure the animation still frame is still updated
+                                  Members[I].SetActionStay(10, ua_Walk);
+                              end
+                              else
+                              begin
+                                //Too far away. Walk to the enemy in our formation
+                                Members[I].OrderWalk(P.Loc, P.Exact);
+                                Members[I].FaceDir := fOrderLoc.Dir;
+                              end;
+                            end;
                       end
                       else
                       begin
@@ -787,7 +812,7 @@ begin
   if OrderExecuted then
   begin
     for I := 0 to Count - 1 do
-    if fOrderLoc.Dir <> dir_NA then
+    if (fOrderLoc.Dir <> dir_NA) and Members[I].IsIdle then //Don't change direction whilst f.e. walking
       Members[I].Direction := fOrderLoc.Dir;
     OrderNone;
   end;
@@ -921,6 +946,8 @@ end;
 procedure TKMUnitGroup.OrderAttackUnit(aUnit: TKMUnit; aClearOffenders: Boolean);
 var
   I: Integer;
+  NodeList: TKMPointList;
+  P: TKMPointExact;
 begin
   Assert(aUnit <> nil);
 
@@ -935,27 +962,64 @@ begin
 
   if IsRanged then
   begin
-    //Update Order
+    //Ranged units should walk in formation to within range of the enemy
     fOrder := goAttackUnit;
-    fOrderLoc := KMPointDir(aUnit.NextPosition, dir_NA); //Remember where unit stand
     OrderTargetUnit := aUnit;
 
-    for I := 0 to Count - 1 do
-    if Members[I].IsIdle then
+    //First choose fOrderLoc, which is where the leader will stand to shoot
+    if (KMLength(Members[0].GetPosition, OrderTargetUnit.GetPosition) > Members[0].GetFightMaxRange) then
     begin
-      Members[I].FaceDir := dir_NA; //Tells archer it's okay to shoot enemies in any direction
+      NodeList := TKMPointList.Create;
+      if gGame.Pathfinding.Route_Make(Members[0].GetPosition, OrderTargetUnit.NextPosition, [canWalk], Members[0].GetFightMaxRange, nil, NodeList) then
+      begin
+        fOrderLoc.Loc := NodeList[NodeList.Count-1];
+        fOrderLoc.Dir := KMGetDirection(NodeList[NodeList.Count-1], OrderTargetUnit.NextPosition);
+        HungarianReorderMembers; //We are about to get them to walk to fOrderLoc
+      end
+      else
+      begin
+        OrderTargetUnit := nil; //Target cannot be reached, so abort completely
+        fOrder := goNone;
+        NodeList.Free;
+        Exit;
+      end;
+      NodeList.Free;
+    end
+    else
+    begin
+      fOrderLoc.Loc := Members[0].GetPosition; //Leader is already within range
+      fOrderLoc.Dir := KMGetDirection(Members[0].GetPosition, OrderTargetUnit.NextPosition);
+    end;
+
+    //Next assign positions for each member (including leader)
+    for I := 0 to Count - 1 do
+    begin
       //Check target in range, and if not - chase it / back up from it
-      if (KMLength(Members[I].GetPosition, OrderTargetUnit.GetPosition) > Members[I].GetFightMaxRange) then
-        //Too far away
-        //Walk to the enemy
-        Members[I].SetActionWalkToUnit(fOrderTargetUnit, Members[I].GetFightMaxRange)
+      P := GetMemberLoc(I);
+      if not KMSamePoint(Members[I].GetPosition, P.Loc)
+      and((KMLength(Members[I].NextPosition, OrderTargetUnit.GetPosition) > Members[I].GetFightMaxRange)
+       or (KMLength(Members[I].NextPosition, OrderTargetUnit.GetPosition) < Members[I].GetFightMinRange)) then
+      begin
+        //Too far/close. Walk to the enemy in formation
+        Members[I].OrderWalk(P.Loc, P.Exact);
+        Members[I].FaceDir := fOrderLoc.Dir;
+      end
       else
-      if (KMLength(Members[I].GetPosition, OrderTargetUnit.GetPosition) < Members[I].GetFightMinRange) then
-        //Archer is too close, back up
-        Members[I].SetActionWalkFromUnit(fOrderTargetUnit, Members[I].GetFightMinRange)
-      else
-        //WithinRange
-        Members[I].OrderFight(OrderTargetUnit);
+        if not Members[I].IsIdle then
+        begin
+          Members[I].OrderWalk(Members[I].NextPosition, True); //We are at the right spot already, just need to abandon what we are doing
+          Members[I].FaceDir := fOrderLoc.Dir;
+        end
+        else
+        begin
+          //We are within range, so face towards the enemy
+          //Don't fight this specific enemy, giving archers exact targets is too abusable in MP. Choose random target in that direction.
+          Members[I].Direction := KMGetDirection(Members[I].GetPosition, aUnit.GetPosition);
+          Members[I].FaceDir := Members[I].Direction;
+          if not Members[I].CheckForEnemy then
+            //If we are too close to shoot, make sure the animation still frame is still updated
+            Members[I].SetActionStay(10, ua_Walk);
+        end;
     end;
   end
   else
