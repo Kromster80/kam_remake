@@ -60,6 +60,8 @@ type
     fSnowStep: Single;
 
     fIsDestroyed: Boolean;
+    fIsBeingDemolished: Boolean; //To prevent script calling HouseDestroy on same house within OnHouseDestroyed action.
+                                 //Not saved because it is set and used within the same tick only.
     RemoveRoadWhenDemolish: Boolean;
     fPointerCount: Cardinal;
     fTimeSinceUnoccupiedReminder: Integer;
@@ -381,10 +383,11 @@ end;
 procedure TKMHouse.DemolishHouse(aFrom: THandIndex; IsSilent: Boolean = False);
 var I: Integer; R: TWareType;
 begin
-  if IsDestroyed then Exit;
+  if IsDestroyed or fIsBeingDemolished then Exit;
 
-  //We must do this before setting fIsDestroyed for scripting
-  OnDestroyed(Self, aFrom);
+  fIsBeingDemolished := True; //Make sure script doesn't try to demolish this house again during event
+  OnDestroyed(Self, aFrom); //We must do this before setting fIsDestroyed for scripting
+  fIsBeingDemolished := False; //No longer required
 
   //If anyone still has a pointer to the house he should check for IsDestroyed flag
   fIsDestroyed := True;
@@ -637,10 +640,11 @@ begin
     fBuildState := hbs_Done;
     gHands[fOwner].Stats.HouseEnded(fHouseType);
     Activate(True);
-    gScriptEvents.ProcHouseBuilt(Self);
     //House was damaged while under construction, so set the repair mode now it is complete
     if (fDamage > 0) and BuildingRepair then
       gHands[fOwner].BuildList.RepairList.AddHouse(Self);
+
+    gScriptEvents.ProcHouseBuilt(Self); //At the end since it could destroy this house
   end;
 end;
 
@@ -683,6 +687,7 @@ begin
   begin
     //Let AI and script know when the damage is already applied, so they see actual state
     gHands[Owner].AI.HouseAttackNotification(Self, TKMUnitWarrior(aAttacker));
+    if fIsDestroyed then Exit; //Script event might destroy this house
 
     if aAttacker <> nil then
       attackerHand := TKMUnitWarrior(aAttacker).Owner

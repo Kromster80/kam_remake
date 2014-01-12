@@ -430,8 +430,8 @@ var
 begin
   case aPlanType of
     ft_Road: TestFunc := TKMEvent3I(fExec.GetProcAsMethodN('ONPLANROAD'));
-    ft_Wine: TestFunc := TKMEvent3I(fExec.GetProcAsMethodN('ONPLANFIELD'));
-    ft_Corn: TestFunc := TKMEvent3I(fExec.GetProcAsMethodN('ONPLANWINEFIELD'));
+    ft_Corn: TestFunc := TKMEvent3I(fExec.GetProcAsMethodN('ONPLANFIELD'));
+    ft_Wine: TestFunc := TKMEvent3I(fExec.GetProcAsMethodN('ONPLANWINEFIELD'));
     else     begin
                Assert(False);
                Exit; //Make compiler happy

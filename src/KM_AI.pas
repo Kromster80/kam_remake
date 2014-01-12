@@ -228,8 +228,6 @@ end;
 procedure TKMHandAI.HouseAttackNotification(aHouse: TKMHouse; aAttacker: TKMUnitWarrior);
 var I: Integer;
 begin
-  gScriptEvents.ProcHouseDamaged(aHouse, aAttacker);
-
   case gHands[fOwner].PlayerType of
     hndHuman:
       begin
@@ -248,6 +246,8 @@ begin
             gHands[I].AI.General.RetaliateAgainstThreat(aAttacker);
       end;
   end;
+
+  gScriptEvents.ProcHouseDamaged(aHouse, aAttacker); //At the end since it could destroy the house
 end;
 
 
