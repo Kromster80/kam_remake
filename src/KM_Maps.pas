@@ -584,6 +584,7 @@ begin
     fScanner := nil;
     fScanning := False;
   end;
+  fUpdateNeeded := False; //If the scan was terminated we should not run fOnRefresh next UpdateState
 end;
 
 

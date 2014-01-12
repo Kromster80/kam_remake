@@ -264,7 +264,12 @@ begin
   if (Sender = Button_Main[2]) then fGuiTown.Show(ttHouses) else
   if (Sender = Button_Main[3]) then fGuiPlayer.Show(ptGoals) else
   if (Sender = Button_Main[4]) then fGuiMission.Show(mtMode) else
-  if (Sender = Button_Main[5]) then fGuiMenu.Show;
+  if (Sender = Button_Main[5]) then
+  begin
+    fGuiMenu.Show;
+    //Signal that active page has changed, that may affect layers visibility
+    PageChanged(fGuiMenu);
+  end;
 end;
 
 

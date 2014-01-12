@@ -41,6 +41,7 @@ type
     procedure Selection_PasteCancel;
     procedure Selection_Flip(aAxis: TKMFlipAxis);
 
+    function TileWithinPastePreview(aX, aY: Word): Boolean;
     procedure Paint(aLayer: TKMPaintLayer; aClipRect: TKMRect);
   end;
 
@@ -367,6 +368,12 @@ begin
 end;
 
 
+function TKMSelection.TileWithinPastePreview(aX, aY: Word): Boolean;
+begin
+  Result := (fSelectionMode = smPasting) and KMInRect(KMPoint(aX, aY), KMRectShinkTopLeft(fSelectionRect));
+end;
+
+
 procedure TKMSelection.Paint(aLayer: TKMPaintLayer; aClipRect: TKMRect);
 var
   Sx, Sy: Word;
@@ -384,7 +391,9 @@ begin
       smPasting:    begin
                       for I := 0 to Sy - 1 do
                       for K := 0 to Sx - 1 do
-                      if KMInRect(KMPoint(aClipRect.Left+K+1, aClipRect.Top+I+1), aClipRect) then
+                       //Check TileInMapCoords first since KMInRect can't handle negative coordinates
+                      if gTerrain.TileInMapCoords(fSelectionRect.Left+K+1, fSelectionRect.Top+I+1)
+                      and KMInRect(KMPoint(fSelectionRect.Left+K+1, fSelectionRect.Top+I+1), aClipRect) then
                         fRenderPool.RenderTerrain.RenderTile(fSelectionBuffer[I,K].Terrain, fSelectionRect.Left+K+1, fSelectionRect.Top+I+1, fSelectionBuffer[I,K].Rotation);
 
                       gRenderAux.SquareOnTerrain(fSelectionRect.Left, fSelectionRect.Top, fSelectionRect.Right, fSelectionRect.Bottom, $FF0000FF);
@@ -396,8 +405,9 @@ begin
     begin
       for I := 0 to Sy - 1 do
       for K := 0 to Sx - 1 do
-        if (fSelectionBuffer[I,K].Obj <> 255)
-        and KMInRect(KMPoint(aClipRect.Left+K+1, aClipRect.Top+I+1), aClipRect) then
+        //Check TileInMapCoords first since KMInRect can't handle negative coordinates
+        if (fSelectionBuffer[I,K].Obj <> 255) and gTerrain.TileInMapCoords(fSelectionRect.Left+K+1, fSelectionRect.Top+I+1)
+        and KMInRect(KMPoint(fSelectionRect.Left+K+1, fSelectionRect.Top+I+1), aClipRect) then
           fRenderPool.RenderMapElement(fSelectionBuffer[I,K].Obj, 0, fSelectionRect.Left+K+1, fSelectionRect.Top+I+1, True);
     end;
 end;

@@ -634,7 +634,7 @@ begin
   glColor4f(1, 1, 1, 1);
 
   glBindTexture(GL_TEXTURE_2D, GFXData[rxTiles, Index + 1].Tex.ID);
-  TexC := fTileUVLookup[Index, Rot];
+  TexC := fTileUVLookup[Index, Rot mod 4];
 
   glBegin(GL_TRIANGLE_FAN);
     with gTerrain do

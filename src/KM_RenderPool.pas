@@ -368,7 +368,10 @@ begin
   for I := aRect.Top to aRect.Bottom do
   for K := aRect.Left to aRect.Right do
   begin
-    if Land[I, K].Obj <> 255 then
+    if (Land[I, K].Obj <> 255)
+    //In the map editor we shouldn't render terrain objects within the paste preview
+    and (not gGame.IsMapEditor or not (mlSelection in gGame.MapEditor.VisibleLayers)
+         or not gGame.MapEditor.Selection.TileWithinPastePreview(K, I)) then
       RenderMapElement(Land[I, K].Obj, AnimStep, K, I);
 
     //Fake wine objects for MapEd

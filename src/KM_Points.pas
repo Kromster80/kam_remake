@@ -58,6 +58,7 @@ type
   function KMRectRound(aRect: TKMRectF): TKMRect;
   function KMRectGrow(aRect: TKMRect; aInset: Integer): TKMRect;
   function KMRectGrowTopLeft(aRect: TKMRect): TKMRect;
+  function KMRectShinkTopLeft(aRect: TKMRect): TKMRect;
   function KMRectGrowBottomRight(aRect: TKMRect): TKMRect;
   function KMClipRect(aRect: TKMRect; X1,Y1,X2,Y2: Word): TKMRect;
   function KMInRect(aPoint: TKMPoint; aRect: TKMRect): Boolean; overload;
@@ -314,6 +315,15 @@ begin
   Result.Left   := aRect.Left - 1;
   Result.Right  := aRect.Right;
   Result.Top    := aRect.Top  - 1;
+  Result.Bottom := aRect.Bottom;
+end;
+
+
+function KMRectShinkTopLeft(aRect: TKMRect): TKMRect;
+begin
+  Result.Left   := aRect.Left + 1;
+  Result.Right  := aRect.Right;
+  Result.Top    := aRect.Top  + 1;
   Result.Bottom := aRect.Bottom;
 end;
 

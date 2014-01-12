@@ -290,6 +290,7 @@ var
   I, K: Integer;
   S: TKMemoryStream;
   NewX, NewY: Integer;
+  Rot: Byte;
 begin
   fMapX := 0;
   fMapY := 0;
@@ -327,7 +328,8 @@ begin
       S.Read(Land[I,K].Terrain); //1
       S.Seek(1, soFromCurrent);
       S.Read(Land[I,K].Height); //3
-      S.Read(Land[I,K].Rotation); //4
+      S.Read(Rot); //4
+      Land[I,K].Rotation := Rot mod 4; //Some original KaM maps have Rot > 3, mod 4 gives right result
       S.Seek(1, soFromCurrent);
       S.Read(Land[I,K].Obj); //6
       S.Seek(17, soFromCurrent);

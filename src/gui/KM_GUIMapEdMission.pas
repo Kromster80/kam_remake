@@ -110,6 +110,9 @@ begin
     mtAlliances:  fGuiMissionAlliances.Show;
     mtPlayers:    fGuiMissionPlayers.Show;
   end;
+
+  //Signal that active page has changed, that may affect layers visibility
+  fOnPageChange(Self);
 end;
 
 

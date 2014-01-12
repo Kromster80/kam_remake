@@ -141,9 +141,17 @@ end;
 
 procedure TKMMapEdTerrainSelection.Show;
 begin
+  GameCursor.Mode := cmSelection;
+  GameCursor.Tag1 := 0;
+  gGame.MapEditor.Selection.Selection_PasteCancel; //Could be leftover from last time we were visible
+
   Button_SelectPasteApply.Disable;
   Button_SelectPasteCancel.Disable;
-  SelectionClick(Button_SelectCopy);
+  Button_SelectCopy.Enable;
+  Button_SelectFlipH.Enable;
+  Button_SelectFlipV.Enable;
+  Button_SelectPaste.Enabled := gGame.MapEditor.Selection.Selection_DataInBuffer;
+
   Panel_Selection.Show;
 end;
 

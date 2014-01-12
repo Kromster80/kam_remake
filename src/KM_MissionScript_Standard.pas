@@ -564,7 +564,6 @@ procedure TMissionParserStandard.SaveDATFile(const aFileName: string);
 const
   COMMANDLAYERS = 4;
 var
-  f: textfile;
   I: longint; //longint because it is used for encoding entire output, which will limit the file size
   K,iX,iY,CommandLayerCount: Integer;
   StoreCount, BarracksCount: Integer;
@@ -576,6 +575,7 @@ var
   HT: THouseType;
   ReleaseAllHouses: Boolean;
   SaveString: AnsiString;
+  SaveStream: TFileStream;
   UT: TUnitType;
 
   procedure AddData(aText: AnsiString);
@@ -883,19 +883,17 @@ begin
   AddData('//This mission was made with KaM Remake Map Editor version ' + GAME_VERSION + ' at ' + AnsiString(DateTimeToStr(Now)));
 
   //Write uncoded file for debug
-
-  assignfile(f, aFileName+'.txt'); rewrite(f);
-  write(f, SaveString);
-  closefile(f);
+  SaveStream := TFileStream.Create(aFileName+'.txt', fmCreate);
+  SaveStream.WriteBuffer(SaveString[1], Length(SaveString));
+  SaveStream.Free;
 
   //Encode it
   for I := 1 to Length(SaveString) do
     SaveString[I] := AnsiChar(Byte(SaveString[I]) xor 239);
 
-  //Write it
-  assignfile(f, aFileName); rewrite(f);
-  write(f, SaveString);
-  closefile(f);
+  SaveStream := TFileStream.Create(aFileName, fmCreate);
+  SaveStream.WriteBuffer(SaveString[1], Length(SaveString));
+  SaveStream.Free;
 end;
 
 
