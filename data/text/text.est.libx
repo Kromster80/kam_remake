@@ -115,6 +115,7 @@
 114:Lõpeta Missioon
 115:Mine tagasi
 116:Sätted
+117:Välju Kaardihaldurist
 118:Ümbruskonna heli
 119:Muuda helitugevust
 120:Muuda helitugevust
@@ -173,9 +174,33 @@
 175:Sinu söekaevanduses on süsi lõppenud.
 176:Sinu rauakaevanduses on raud lõppenud.
 177:Sinu kullakaevanduses on kuld lõppenud.
+178:Puuraidur ei leia rohkem puid langetada
 179:See maja on asustamatta.
 180:Sinu sõdurid on väga näljased, anna neile midagi süüa!
 181:PAUS
+182:Toob
+183:Ehitab teed
+184:Kaevab põldu
+185:Ehitab viinamarajapõldu
+186:Ühtlustab majaalust maad
+187:Ehitab maja
+188:Parandab maja
+189:Läheb koju
+190:Läheb kõrtsu
+191:Ründab maja
+192:Tulistab
+193:Võitleb
+194:Tormirünnak
+195:Ründab
+196:Liigub
+197:Paigal
+198:Kaevab kivi
+199:Jahvatab vilja
+200:Lõikab vilja
+201:Korjab viinamarjasid
+202:Kalastab
+203:Langetab puitu
+204:Istutab puitu
 205:Vaim
 206:Hõivatud
 207:Keskaegne pasun
@@ -198,6 +223,9 @@
 224:Aristokraatia
 225:Sadamas
 226:Rännak
+227:Kampaaniad
+228:Kampaaniad
+229:Alusta Kampaania!
 230:Mängi üksikkaarti
 231:Alusta kaarti
 232:Tagasi menüüsse
@@ -222,17 +250,34 @@
 251:Relvi toodetud:
 252:Sõdureid treenitud:
 253:Missioon lõpetatud:
+254:Statistika
+255:Majandus
 256:Elanikke|treenitud
 257:Elanikke|kaotatud
 258:Sõdureid|relvastatud
 259:Sõdureid|kaotatud
+260:Sõdureid|Hävitatud
 261:Ehitisi|ehitatud
 262:Ehitised|kaotatud
 263:Ehitisi|hävitatud
 264:Kaupu|toodetud
 265:Relvi|toodetud
+266:Armee
+267:Elanikke
+268:Majad
+269:Varud
+270:Varusid toodetud
+271:Pole infot
+272:Sina
+273:Mängija %d
+274:Tagasi Võrgumängu
+275:Tagasi Kordusmängijasse
+276:Kõik
+277:Sõjavarustus
+278:Toit
 279:JOYMANIA ENTERTAINMENT||PROGRAMEERIMINE:|Peter Ohlmann||MÄNGU GRAAFIKA:|Adam Sprys||TASEME KUJUNDUS:|Adam Sprys|Andre Quaß||HELI TÖÖTLUS JA MIKSIMINE:|Tonstudio Mannheim||MUUSIKA:|Gerd Hofmann|Joachim Schäfer|Jürgen Rebhann|Klaus Staendike|Steffen Schüngel||KAUNISTUSED:|Boleslaw Kasza|Christoph Werner||ZUXXEZ ENTERTAINMENT AG||PRODUTSEERIA:|Uwe Schäfer||JUHEND:|Peter Ohlmann|Uwe Schäfer||BETA TESTIJAD:|Peter Ohlmann|Adam Sprys|Alexandra Constandache|Dirk P. Hassinger|Achim Heidelauf|Uwe Schäfer|Ingrid Schäfer|Dirk U. Jantz|Ion Constandache|Yaman Egeli|Roman Eich|Iris Mocsnek|Anke Jantz|Paul Hassinger|Liza Hassinger||MÄNGU JUHENDAJA:|Achim Heidelauf||VÄLJASTAJA:|TopWare Interactive||VAHETSEENID:||JUHATAMINE:|Slawomir Jedrzejewski||Kajetan Czarnecki|Wojciech Drazek|Daniel Duplaga|Rafal Januszkiewicz|Andrzej Rams|Piotr Rulka|Krzysztof Rybczynski|Grzegorz Wisniwski||HÄÄLED:|Claus Boyen (Jutustaja)||Tim Timmermann|Peter Houska|Dirk Mühlbach|Ralf Ditze|Gerhard Piske|Gernot Wassmann||KUNSTITÖÖD:|Boleslaw Kasza|Adam Sprys||AVA-ANIMATSIOON:|Uwe Schäfer|Christian Bigalk|Additional 3D-Modelling:|Niels Horstmann||ERI TÄNUD:|Tadeusz Zuber|Dieter Ohlmann|Alexandra Constandache|Ingrid Schäfer|Andrea Rumpelt
 280:Missioon katkestatud
+281:Tagasimäng lõppes
 282:Linna ehitamise tutvustus
 283:Võitluse tutvustus
 284:Üksikmäng
@@ -244,18 +289,21 @@
 290:Kaotamise tingimused:
 291:Liitlased:
 292:Vaenlased:
+293:Aeg
 294:Uus kaardi suurus
 295:Laius
 296:Pikkus
 297:Loo uus kaart
 298:Olemas olevad kaardid
 299:Lae olemas olev kaart
+300:Asukoht
 301:Juhtimisseaded:
 302:Mängu seaded
 303:Heli:
 304:Vaigista muusika
 305:Graafika:
 306:Heledus
+307:Vertikaalne sünkroon
 308:Täisekraan
 309:Kinnita
 310:Keel:
@@ -273,6 +321,9 @@
 322:Oled kindel, et soovid seda salvestust kustutada?
 323:Kustuta
 324:Loobu
+325:Pealkiri
+326:Kaardid
+327:Avatud
 328:Sa Võitsid!
 329:Jätka mängu
 330:Võit!
@@ -299,17 +350,150 @@
 351:Ühenduse viga: %s
 352:Ühendus on kaotatud
 353:Missioon %d
+354:Sõnumi logi
 355:Su kalastus onn on veest liiga kaugel.
 356:Sinu kalamees ei saa rohkem püüda kala lähedal olevatest vetest.
+357:Taasalusta tagasimäng
+358:Peata tagasimäng
+359:Liigu 1 võrra edasi
+360:Jätka peatatud tagasimäng
+361:Välju tagasimängust
+362:Näita iga mängijat eraldi
+363:Näita kõiki
 364:Kasuta vasakut hiireklahvi, et valida toode, mida vahetada
 365:Kasuta paremat hiireklahvi, et valida toodet, mida vahetada
 366:Millest: x%d
 367:Milleks: x%d
 368:Pinnastiku kujundamine
+369:Pintslid
+370:Kõrgused
+371:Ruudustik
+372:Objektid
+373:Kõrgused
+374:Pintslite kuju
+375:Suurus
+376:Liiguta et muuta pintsli suurust
+377:Kallak
+378:Liiguta et muuta kallaku teravust: 1= madal ... 15 = järsk
+379:Kiirus
+380:Liiguta et muuta kallaku kiirust: 1 = aeglane ... 15 = kiire
+382:Ruuduline pintsel
+383:Tõsta/Madalda
+384:Ebaühtlusta/ Tasasta
+385:Tõsta (vasak klikk) / Madalda (parem klikk)
+386:Ebaühtlusta (vasak klikk)/ Tasanda (parem klikk)
+387:Pintsel
+388:Suva elemendid
+389:Suva suund
+390:Pane linnuke kui soovid suva suunalisi maastikuruudustikku või parema klikkiga keerad neid ise
+391:Parema klikkiga saab keerata valitud maastikuruudukest
+392:Keela kõndimine
+393:Eemalda objekt
 394:Küla planeerimine
 395:Visuaalsed skriptid
 396:Globaalsed skriptid
 397:Menüü
+398:Objektid
+399:Näita maake
+400:Näita üksuseid
+401:Näita majasid
+402:Näita objekte
+403:Vaata möödvust
+404:Kõik salvestamata|muutused kaovad
+405:Katkesta
+406:Lae
+407:Lae Kaart
+408:Katkesta
+409:Salvesta
+410:Kirjuta üle
+411:Kaart juba eksisteerib
+412:Mängijad:
+413:Tavaliselt
+414:Mängijate tüübid
+415:Sümmeetriline
+416:Liidud
+417:Taktika
+418:Normaalne
+419:Missiooni laad
+420:Liigu sihtkohta
+421:Ekraan keskele missiooni alguses
+422:Keskele ekraan
+423:Paljasta kõik
+424:Avalda osa kaardist
+425:Eemalda sõjaudu
+426:Blokeeri kauplemine
+427:Blokeeri/Vabasta majad
+428:Värvid
+429:Eesmärk
+430:SMS.
+431:Aeg
+432:Mängija
+433:Majanduslikud majad
+434:Pärisorjad ja koolid
+435:Militaar vara
+436:Teadmata
+437:Sõdurid
+438:Majad
+439:Aeg
+440:Ehitamise õpetus
+441:Mitte miski
+442:Tingimus
+443:Jää ellu
+444:Võit
+445:Mitte miski
+446:Tüüp
+447:Eesmärgid
+448:OK
+449:Katkesta
+450:Veerud
+451:Arv
+452:Sõjaväelaste formatsioon
+453:Muuda formatsiooni
+454:Sea liimit, kui palju sõjaväelaseid võib AI'l olla
+455:Sea kui palju sõdureid võib AI korraga teha
+456:Pane maksimum sõdureid
+457:Pane kui palju värvatuid võib AI'l kasarmus olla
+458:Värvatuid kasarmus
+459:Positsioon
+460:Eri positsioon
+461:Lähim maja 2
+462:Lähim maja 1
+463:Lähim üksus
+464:Võta kõik
+465:Grupi arv
+466:Ründamis info
+467:Viivitus s.
+468:Kordamine
+469:Kohe
+470:Saduldatud
+471:Kaugmaa
+472:Hobuse vastane
+473:Jalgsirünnak
+474:Asu
+475:Sihtmärk
+476:Mehed
+477:Viivitus
+478:Tüüp
+479:Automaatnerünnak
+480:AI ründab
+481:Varusta vastavas koguses nahaga
+482:Varusta vastavas koguses rauaga
+483:Automaatkaitse
+484:Ai rajab ja varustab kaitse positsioone automaatselt
+485:Pane paika kaitsepositsioonid AI'le
+486:AI kaitse positsioonid
+487:Töölised
+488:Pärisorjasid 10 maja kohta
+489:Automaat parandamine
+490:Automaatne ehitamine
+491:AI seaded
+492:Majad
+493:Tee tööd
+494:Vertikaalselt keeramise valik
+495:Horisontaalselt keeramise valik
+496:Aseta maastik
+497:Kopeeri maastik
+498:Kopeeri/aseta
 499:Uus Missioon
 500:Mängija nimi
 501:Staatus:
@@ -327,6 +511,8 @@
 513:Tuba
 514:Ühenda
 515:Tühista
+516:Salasõnaga kaitstud mäng
+517:Salasõna
 518:Serveri nimi
 519:Olek
 520:Mängijad
@@ -344,6 +530,7 @@
 532:Värv
 533:Valmis
 534:Ping
+535:Ping/FPS
 536:Avatud
 537:Mängib arvuti
 538:Vali...
@@ -356,27 +543,45 @@
 545:Valmis
 546:Pole valmis
 547:Alusta!
+548:Mängu kiirus (rahu aeg)
+549:Mängu kiirus
+550:OK
+551:Katkesta
+552:Kirjeldus
+553:Salasõna
+554:Mängu seaded:
+555:Määra võõrustaja
+556:Eemalda mängust
+557:Löö välja
+558:Suvasta kohad mängijatel
+559:Kirjeldus
+560:Seaded
 561:Asukoht %d
 562:Viga: Palun vali mängija salvestisest, et teda kontrollida
 563:Viga: Kaardi laadimine ebaõnnestus või ühtegi kaarti ei ole valitud
 564:Ei saa alustada: %s
 565:Kõik ei ole valmis alustama
+566:Ei ole võimalik suva kohtasid määrata
 567:Server on juhtimis õiused meile määranud
 568:Mänguga on alustatud
 569:Ehitamise Kaart
 570:Võitlemise Kaart
 571:Koostöö kaart
+572:Eri kaart
 573:Mängu seaded:
 574:Rahuaeg (minutid)
 575:Suletud
 576:Mängujuht seadistab
 577:Mängijate ootamine:
+578:Kõik
+579:Meeskond
 580:KaM Remake Lõputiitrid
 581:Originaalsed Knights & Merchants Lõputiitrid
 582:PROGRAMMEERIMINE:
 583:LISA PROGRAMMEERIMINE:
 584:LISA GRAAFIKA:
 585:LISA HELID:
+586:LISA MUUSIKA:
 587:LISA TÕLKED:
 588:SUURED TÄNUD:
 589:Võrgumängu kaardid
@@ -419,6 +624,7 @@
 626:Vaata kordust
 627:Toeta formaat %s
 628:Toetamata versioon %s
+629:Toetamata modifikatsioonid
 630:Liigendamise viga on esinenud failis %s
 631:alustamine
 632:skript
@@ -432,6 +638,8 @@
 640:Kaardi failid ei ühildu mängujuhi kaardi failidega: %s
 641:Salvestise failid ei ühildu mängujuhi salvestise failidega: %s
 642:Kordusvaade on läbi kukkunud järjepidevus kontrollist. See probleem võib mõjutada teie kordusvaadet. Kas soovite edasi vaadata?
+643:Sul võib üks juhtum mängu jooksul olla mitmikmängu tüübi korral korraga
+644:Modifikatsioonid pole mitmikmängu puhul lubatud.|Palun taasta orginaal failid.
 645:Viga on tekkinud programmis. Palun vajutage Saatke Vea Teade nuppu, et me saaksime uurida probleemi. Täname abi eest!
 646:Saatke Vea Teade
 647:Näita Tooreid Andmeid
@@ -455,3 +663,75 @@
 665:Vea teate saatmine ebaõnnestus! Meie server võib olla hõivatud, palun proovige uuesti.
 666:Informatsioon
 667:Palun oodake moment...
+668:Salvesta Kaart
+669:Viivitus minutites enne kui AI hakkab sõdureid tootma
+670:Värvamise viivitus (minutites)
+671:Pane paika vee suund
+672:Maagiline vesi
+673:Kopeeri
+674:Aseta
+675:Aseta kinnita
+676:Aseta katkesta
+677:Keera vertikaalselt
+678:Keera horisontaalselt
+679:Vea valitud alale kaardil
+680:AI kaitse seaded
+681:Kinni
+683:Kustuta praegune sõjaudu eemaldaja
+684:Tagasi sõjaudu eemaldaja lehele
+685:Kinni
+686:Grupi käsk
+687:mitte ükski
+688:Ründa positsiooni
+689:Kõnni sinna
+690:Suund
+691:Tagumine liin
+692:Esimene liin
+693:Kaitse raadius
+694:Kustuta praegune kaitsepositsioon
+695:Liigu tagasi kaitse leheküljele
+696:Kaitse positsioon
+697:Üksused
+698:Hunt
+699:Kala
+700:Vesimadu
+701:Meritäht
+702:Krabi
+703:Vesilill
+704:Vesileht
+705:Part
+706:Sõduri tüüp pole saadaval
+707:Karakter pole saadaval
+708:Blokeeri üksuseid
+736:Allalaadimine
+737:laeb alla....
+738:Kirjutan üle failid
+739:%s kaotas ühenduse
+740:%s lahkus
+741:%s ühendus uuesti
+742:Ei saa liituda kui mäng on aktiivne
+743:Mänguruum on täis. Rohkem mängijaid ei saa liituda
+744:Mängija sama nimega on liitunud
+745:%s edukalt laadis alla %s
+746:Viga. %s on erinevad data failid kui võõrustajal ja ei saa liituda
+747:Sinu data failid ei ühildu võõrustajaga
+748:Võõrustaja õigused antud %s
+749:%s on erinev versioon kui %s
+750:%s ei oma %s
+751:Küsitav ajast väljas
+752:Võõrustaja jättis mängust välja %s
+753:Võõrustaja lõi jalaga p***e mängijale %s
+754:Üritan uuesti mängu ühenduda.....
+755:%s liitus
+756:Uuesti ühendumine ebaõnnestus: %s
+757:Võõrustaja otsustas ilma sinuta edasi mängida :(
+758:Ebaõnnestunud ühendamine serveriga: Aegunud ühendus
+759:Sind löödi võõrustaja poolt välja.
+760:Server ei vasta
+761:Puudulik mänguruumi number
+765:Sosista %s
+766:Võõrustaja blokeeris mängija %s
+767:Sind on blokeeritud võõrustaja poolt
+768:Tühista kõik blokeeringud
+769:Võõrustaja eemaldas kõik blokeeringud sellele eelruumile
+770:Kuupäev
