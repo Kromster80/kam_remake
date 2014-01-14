@@ -1481,11 +1481,12 @@ begin
                   //We are now the host
                   fNetPlayerKind := lpk_Host;
                   fMyIndex := fNetPlayers.NiknameToLocal(fMyNikname);
-                  fHostIndex := MyIndex;
                   if Assigned(fOnReassignedHost) then fOnReassignedHost(Self); //Lobby/game might need to know that we are now hosting
 
                   case fNetGameState of
                     lgs_Lobby:   begin
+                                   if InRange(fHostIndex, 1, fNetPlayers.Count) then
+                                     fNetPlayers[fHostIndex].ReadyToStart := False; //Old host is not ready anymore
                                    fNetPlayers[fMyIndex].ReadyToStart := True; //The host is always ready
                                    fNetPlayers.SetAIReady; //Set all AI players to ready
                                    SendGameOptions; //Only needs to be sent when in the lobby. Our version becomes standard.
@@ -1496,6 +1497,7 @@ begin
                                  end;
                   end;
 
+                  fHostIndex := MyIndex; //Set it down here as it is used above
                   fPassword := '';
                   fDescription := '';
                   fOnMPGameInfoChanged(Self);
