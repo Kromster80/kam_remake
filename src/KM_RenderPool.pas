@@ -1402,6 +1402,7 @@ begin
                                           end;
                     MARKER_DEFENCE:       RenderSpriteOnTile(P, 519, gHands[MySpectator.HandIndex].FlagColor);
                     MARKER_CENTERSCREEN:  RenderSpriteOnTile(P, 391, gHands[MySpectator.HandIndex].FlagColor);
+                    MARKER_AISTART:       RenderSpriteOnTile(P, 390, gHands[MySpectator.HandIndex].FlagColor);
                   end;
   end;
 

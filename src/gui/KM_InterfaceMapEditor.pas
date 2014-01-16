@@ -378,6 +378,9 @@ begin
   if fGuiPlayer.Visible(ptView) or fGuiMarkerReveal.Visible then
     gGame.MapEditor.VisibleLayers := gGame.MapEditor.VisibleLayers + [mlRevealFOW, mlCenterScreen];
 
+  if fGuiTown.Visible(ttScript) then
+    gGame.MapEditor.VisibleLayers := gGame.MapEditor.VisibleLayers + [mlAIStart];
+
   if fGuiTown.Visible(ttDefences) or fGuiMarkerDefence.Visible then
     gGame.MapEditor.VisibleLayers := gGame.MapEditor.VisibleLayers + [mlDefences];
 

@@ -1049,7 +1049,8 @@ begin
                     case Land[Loc.Y,Loc.X].Obj of
                       55: Land[Loc.Y,Loc.X].FieldAge := WINE_AGE_1;
                       56: Land[Loc.Y,Loc.X].FieldAge := WINE_AGE_2;
-                      57: Land[Loc.Y,Loc.X].FieldAge := WINE_AGE_FULL;
+                          //-1 because it is increased in update state, otherwise it wouldn't be noticed
+                      57: Land[Loc.Y,Loc.X].FieldAge := WINE_AGE_FULL-1;
                       else CutGrapes(Loc); //Set object and age
                     end;
                   end;

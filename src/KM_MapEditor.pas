@@ -241,6 +241,7 @@ begin
                                                         gHands[MySpectator.HandIndex].CenterScreen := P;
                                                         //Updating XY display is done in InterfaceMapEd
                                                       end;
+                                MARKER_AISTART:       gHands[MySpectator.HandIndex].AI.Setup.StartPosition := P;
                               end;
                 cmErase:      begin
                                 gHands.RemAnyHouse(P);
@@ -334,14 +335,27 @@ begin
 
   if mlCenterScreen in fVisibleLayers then
   for I := 0 to gHands.Count - 1 do
+  if gHands[I].HasAssets then
   begin
     Loc := gHands[I].CenterScreen;
     case aLayer of
       plTerrain:  gRenderAux.SquareOnTerrain(Loc.X - 3, Loc.Y - 2.5,
                                              Loc.X + 2, Loc.Y + 1.5,
                                              gHands[I].FlagColor);
-      plCursors:  fRenderPool.RenderSpriteOnTile(Loc,
-                      391, gHands[I].FlagColor);
+      plCursors:  fRenderPool.RenderSpriteOnTile(Loc, 391, gHands[I].FlagColor);
+    end;
+  end;
+
+  if mlAIStart in fVisibleLayers then
+  for I := 0 to gHands.Count - 1 do
+  if gHands[I].HasAssets then
+  begin
+    Loc := gHands[I].AI.Setup.StartPosition;
+    case aLayer of
+      plTerrain:  gRenderAux.SquareOnTerrain(Loc.X - 3, Loc.Y - 2.5,
+                                             Loc.X + 2, Loc.Y + 1.5,
+                                             gHands[I].FlagColor);
+      plCursors:  fRenderPool.RenderSpriteOnTile(Loc, 390, gHands[I].FlagColor);
     end;
   end;
 

@@ -248,6 +248,7 @@ const
   MARKER_REVEAL = 1;
   MARKER_DEFENCE = 2;
   MARKER_CENTERSCREEN = 3;
+  MARKER_AISTART = 4;
 
 const
   MAPED_TILES_X = 6;
@@ -570,6 +571,7 @@ type
     mlDefences,
     mlRevealFOW,
     mlCenterScreen,
+    mlAIStart,
     mlSelection,
     mlWaterFlow);  //Enum representing mapEditor visible layers
   TMapEdLayerSet = set of TMapEdLayer;                                   //Set of above enum

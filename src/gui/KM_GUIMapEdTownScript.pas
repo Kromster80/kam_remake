@@ -18,6 +18,7 @@ type
     TrackBar_WorkerCount: TKMTrackBar;
     TrackBar_EquipRateLeather: TKMTrackBar;
     TrackBar_EquipRateIron: TKMTrackBar;
+    Button_AIStart: TKMButtonFlat;
   public
     constructor Create(aParent: TKMPanel);
 
@@ -29,7 +30,7 @@ type
 
 implementation
 uses
-  KM_HandsCollection, KM_ResTexts, KM_RenderUI, KM_ResFonts, KM_InterfaceGame;
+  KM_HandsCollection, KM_ResTexts, KM_RenderUI, KM_ResFonts, KM_InterfaceGame, KM_GameCursor, KM_Defaults, KM_Pics;
 
 
 { TKMMapEdTownScript }
@@ -59,6 +60,11 @@ begin
   TrackBar_EquipRateIron.Caption := gResTexts[TX_MAPED_AI_DEFENSE_EQUIP_IRON];
   TrackBar_EquipRateIron.Step := 5;
   TrackBar_EquipRateIron.OnChange := Town_ScriptChange;
+
+  TKMLabel.Create(Panel_Script, 0, 250, gResTexts[TX_MAPED_AI_START], fnt_Metal, taLeft);
+  Button_AIStart         := TKMButtonFlat.Create(Panel_Script, 0, 270, 33, 33, 62, rxGuiMain);
+  Button_AIStart.Hint    := gResTexts[TX_MAPED_AI_START_HINT];
+  Button_AIStart.OnClick := Town_ScriptChange;
 end;
 
 
@@ -81,6 +87,20 @@ begin
   gHands[MySpectator.HandIndex].AI.Setup.WorkerCount := TrackBar_WorkerCount.Position;
   gHands[MySpectator.HandIndex].AI.Setup.EquipRateLeather := TrackBar_EquipRateLeather.Position * 10;
   gHands[MySpectator.HandIndex].AI.Setup.EquipRateIron := TrackBar_EquipRateIron.Position * 10;
+
+  if Sender = Button_AIStart then
+    Button_AIStart.Down := not Button_AIStart.Down;
+
+  if Button_AIStart.Down then
+  begin
+    GameCursor.Mode := cmMarkers;
+    GameCursor.Tag1 := MARKER_AISTART;
+  end
+  else
+  begin
+    GameCursor.Mode := cmNone;
+    GameCursor.Tag1 := 0;
+  end;
 end;
 
 
@@ -92,6 +112,7 @@ end;
 
 procedure TKMMapEdTownScript.Show;
 begin
+  Button_AIStart.Down := False;
   Town_ScriptRefresh;
   Panel_Script.Show;
 end;

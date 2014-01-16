@@ -749,3 +749,5 @@
 781:Cannot disable spectators: Spectators list must be empty
 782:Redo
 783:Undo
+784:Sets the AI start position which is used for targeting AI attacks
+785:AI start position
