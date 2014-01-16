@@ -429,6 +429,9 @@ begin
   FreeAndNil(fCurrentAction);
 
   //Leave disposing of units inside the house to themselves
+
+  //Notify the script that the house is now completely gone
+  gScriptEvents.ProcHouseAfterDestroyed(HouseType, Owner, GetEntrance.X, GetEntrance.Y);
 end;
 
 

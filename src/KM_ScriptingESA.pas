@@ -25,6 +25,7 @@ type
   public
     constructor Create(aExec: TPSExec; aIDCache: TKMScriptingIdCache);
 
+    procedure ProcHouseAfterDestroyed(aHouseType: THouseType; aOwner: THandIndex; aX, aY: Word);
     procedure ProcHouseBuilt(aHouse: TKMHouse);
     procedure ProcHousePlanPlaced(aPlayer: THandIndex; aX, aY: Word; aType: THouseType);
     procedure ProcHouseDamaged(aHouse: TKMHouse; aAttacker: TKMUnit);
@@ -34,6 +35,7 @@ type
     procedure ProcPlayerDefeated(aPlayer: THandIndex);
     procedure ProcPlayerVictory(aPlayer: THandIndex);
     procedure ProcTick;
+    procedure ProcUnitAfterDied(aUnitType: TUnitType; aOwner: THandIndex; aX, aY: Word);
     procedure ProcUnitDied(aUnit: TKMUnit; aKillerOwner: THandIndex);
     procedure ProcUnitTrained(aUnit: TKMUnit);
     procedure ProcUnitWounded(aUnit, aAttacker: TKMUnit);
@@ -347,6 +349,18 @@ begin
 end;
 
 
+procedure TKMScriptEvents.ProcHouseAfterDestroyed(aHouseType: THouseType; aOwner: THandIndex; aX, aY: Word);
+var
+  TestFunc: TKMEvent4I;
+begin
+  //Check if event handler (procedure) exists and run it
+  //Store house by its KaM index to keep it consistent with DAT scripts
+  TestFunc := TKMEvent4I(fExec.GetProcAsMethodN('ONHOUSEAFTERDESTROYED'));
+  if @TestFunc <> nil then
+    TestFunc(HouseTypeToIndex[aHouseType] - 1, aOwner, aX, aY);
+end;
+
+
 procedure TKMScriptEvents.ProcHousePlanPlaced(aPlayer: THandIndex; aX, aY: Word; aType: THouseType);
 var
   TestFunc: TKMEvent4I;
@@ -362,13 +376,23 @@ var
   TestFunc: TKMEvent2I;
 begin
   //Check if event handler (procedure) exists and run it
-  //Store unit by its KaM index to keep it consistent with DAT scripts
   TestFunc := TKMEvent2I(fExec.GetProcAsMethodN('ONUNITDIED'));
   if @TestFunc <> nil then
   begin
     fIDCache.CacheUnit(aUnit, aUnit.UID); //Improves cache efficiency since aUnit will probably be accessed soon
     TestFunc(aUnit.UID, aKillerOwner);
   end;
+end;
+
+
+procedure TKMScriptEvents.ProcUnitAfterDied(aUnitType: TUnitType; aOwner: THandIndex; aX, aY: Word);
+var
+  TestFunc: TKMEvent4I;
+begin
+  //Check if event handler (procedure) exists and run it
+  TestFunc := TKMEvent4I(fExec.GetProcAsMethodN('ONUNITAFTERDIED'));
+  if @TestFunc <> nil then
+    TestFunc(UnitTypeToIndex[aUnitType], aOwner, aX, aY);
 end;
 
 

@@ -34,6 +34,7 @@ Implemented:
  5978   UnitKill now works for animals
  6015   Actions.HouseTakeWaresFrom
  6067   Actions.Log
+ 6114   OnHouseAfterDestroyed, OnUnitAfterDied
 
 
 Accepted:

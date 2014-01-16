@@ -17,7 +17,7 @@ type
 
 
 implementation
-uses KM_ResSound, KM_Sound, KM_HandsCollection, KM_Resource, KM_Units_Warrior;
+uses KM_ResSound, KM_Sound, KM_HandsCollection, KM_Resource, KM_Units_Warrior, KM_ScriptingESA;
 
 
 { TTaskDie }
@@ -50,7 +50,11 @@ end;
 
 
 function TTaskDie.Execute: TTaskResult;
-var SequenceLength: SmallInt;
+var
+  SequenceLength: SmallInt;
+  TempOwner: THandIndex;
+  TempUnitType: TUnitType;
+  TempX, TempY: Word;
 begin
   Result := TaskContinues;
   with fUnit do
@@ -85,7 +89,18 @@ begin
             end;
           end;
     else  begin
+            //Store them before they get lost forever
+            TempOwner := fUnit.Owner;
+            TempUnitType := fUnit.UnitType;
+            TempX := fUnit.GetPosition.X;
+            TempY := fUnit.GetPosition.Y;
+
             fUnit.CloseUnit;          //This will FreeAndNil the Task and mark unit as "closed"
+
+            //Can't run this in CloseUnit since it is used from other places like barracks equipping and we only want it for normal deaths
+            //Notify the script that the unit is now gone from the game
+            gScriptEvents.ProcUnitAfterDied(TempUnitType, TempOwner, TempX, TempY);
+
             Result := TaskContinues;  //Running UpdateState will exit without further changes
             Exit;                     //Next UpdateState won't happen cos unit is "closed"
           end;
