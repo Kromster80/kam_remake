@@ -26,7 +26,7 @@ type
 
     function GetRevealer(aIndex: Byte): TKMPointTagList;
   public
-    //ActiveMarker: TKMMapEdMarker;
+    ActiveMarker: TKMMapEdMarker;
 
     RevealAll: array [0..MAX_HANDS-1] of Boolean;
     DefaultHuman: THandIndex;
@@ -298,22 +298,23 @@ begin
 
   if mlDefences in fVisibleLayers then
   begin
-    if aLayer = plCursors then
-      for I := 0 to gHands.Count - 1 do
-      for K := 0 to gHands[I].AI.General.DefencePositions.Count - 1 do
-      begin
-        DP := gHands[I].AI.General.DefencePositions[K];
-        fRenderPool.RenderSpriteOnTile(DP.Position.Loc, 510 + Byte(DP.Position.Dir), gHands[I].FlagColor);
-      end;
-
-    {if ActiveMarker.MarkerType = mtDefence then
-    if InRange(ActiveMarker.Index, 0, gPlayers[ActiveMarker.Owner].AI.General.DefencePositions.Count - 1) then
-    begin
-      DP := gPlayers[ActiveMarker.Owner].AI.General.DefencePositions[ActiveMarker.Index];
-      fRenderAux.CircleOnTerrain(DP.Position.Loc.X, DP.Position.Loc.Y, DP.Radius,
-                                 gPlayers[ActiveMarker.Owner].FlagColor AND $20FFFF80,
-                                 gPlayers[ActiveMarker.Owner].FlagColor);
-    end;}
+    case aLayer of
+      plCursors:  for I := 0 to gHands.Count - 1 do
+                  for K := 0 to gHands[I].AI.General.DefencePositions.Count - 1 do
+                  begin
+                    DP := gHands[I].AI.General.DefencePositions[K];
+                    fRenderPool.RenderSpriteOnTile(DP.Position.Loc, 510 + Byte(DP.Position.Dir), gHands[I].FlagColor);
+                  end;
+      plTerrain:  if ActiveMarker.MarkerType = mtDefence then
+                    //Render the radius only for the selected defence position, otherwise it's too much overlap
+                    if InRange(ActiveMarker.Index, 0, gHands[ActiveMarker.Owner].AI.General.DefencePositions.Count - 1) then
+                    begin
+                      DP := gHands[ActiveMarker.Owner].AI.General.DefencePositions[ActiveMarker.Index];
+                      gRenderAux.CircleOnTerrain(DP.Position.Loc.X-0.5, DP.Position.Loc.Y-0.5, DP.Radius,
+                                                 gHands[ActiveMarker.Owner].FlagColor AND $40FFFF80,
+                                                 gHands[ActiveMarker.Owner].FlagColor);
+                    end;
+    end;
   end;
 
   if mlRevealFOW in fVisibleLayers then
@@ -322,7 +323,7 @@ begin
   begin
     Loc := fRevealers[I][K];
     case aLayer of
-      plTerrain:  gRenderAux.CircleOnTerrain(Loc.X, Loc.Y,
+      plTerrain:  gRenderAux.CircleOnTerrain(Loc.X-0.5, Loc.Y-0.5,
                                            fRevealers[I].Tag[K],
                                            gHands[I].FlagColor and $20FFFFFF,
                                            gHands[I].FlagColor);

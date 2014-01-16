@@ -429,7 +429,7 @@ end;
 
 procedure TKMapEdInterface.ShowMarkerInfo(aMarker: TKMMapEdMarker);
 begin
-  //fGame.MapEditor.ActiveMarker := aMarker;
+  gGame.MapEditor.ActiveMarker := aMarker;
   Assert((aMarker.MarkerType <> mtNone) and (aMarker.Owner <> PLAYER_NONE) and (aMarker.Index <> -1));
 
   Player_SetActive(aMarker.Owner);
@@ -457,10 +457,16 @@ end;
 //When marker page is done we want to return to markers control page
 procedure TKMapEdInterface.Marker_Done(Sender: TObject);
 begin
+  gGame.MapEditor.ActiveMarker.MarkerType := mtNone;
   if Sender = fGuiMarkerReveal then
   begin
     HidePages;
     fGuiPlayer.Show(ptView);
+  end;
+  if Sender = fGuiMarkerDefence then
+  begin
+    HidePages;
+    fGuiTown.Show(ttDefences);
   end;
 end;
 
@@ -739,7 +745,10 @@ begin
                 //since they are rendered ontop of Houses/Objects
                 Marker := gGame.MapEditor.HitTest(GameCursor.Cell.X, GameCursor.Cell.Y);
                 if Marker.MarkerType <> mtNone then
-                  ShowMarkerInfo(Marker)
+                begin
+                  ShowMarkerInfo(Marker);
+                  MySpectator.Selected := nil; //We might have had a unit/group/house selected
+                end
                 else
                 begin
                   MySpectator.UpdateSelect;
@@ -864,7 +873,7 @@ begin
 
         if KMInRect(ScreenLoc, fViewport.ViewRect) then
         begin
-          PaintTextInShape(IntToStr(K+1), ScreenLoc.X, ScreenLoc.Y - 15, DefenceLine[DP.DefenceType]);
+          PaintTextInShape(IntToStr(K+1), ScreenLoc.X, ScreenLoc.Y - 22, DefenceLine[DP.DefenceType]);
           TKMRenderUI.WritePicture(ScreenLoc.X, ScreenLoc.Y, 0, 0, [], rxGui, GROUP_IMG[DP.GroupType]);
         end;
       end;
