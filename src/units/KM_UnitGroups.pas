@@ -656,6 +656,7 @@ procedure TKMUnitGroup.CheckForFight;
 var
   I,K: Integer;
   U: TKMUnit;
+  FightWasOrdered: Boolean;
 begin
   //Verify we still have foes
   for I := fOffenders.Count - 1 downto 0 do
@@ -673,16 +674,26 @@ begin
 
   if IsRanged then
   begin
+    FightWasOrdered := False;
     for I := 0 to Count - 1 do
-    if not Members[I].InFight then
-      //If there are several enemies within range, shooting any of the offenders is first priority
-      //If there are no offenders in range then CheckForEnemy will pick a new target
-      for K := 0 to fOffenders.Count - 1 do
-      if Members[I].WithinFightRange(TKMUnitWarrior(fOffenders[K]).GetPosition) then
-        Members[I].OrderFight(TKMUnitWarrior(fOffenders[K]))
-      else
-        //Archers stay still and attack enemies only within their attack range
-        //without walking to/from them
+      if not Members[I].InFight then
+        //If there are several enemies within range, shooting any of the offenders is first priority
+        //If there are no offenders in range then CheckForEnemy will pick a new target
+        //Archers stay still and attack enemies only within their range without walking to/from them
+        for K := 0 to fOffenders.Count - 1 do
+          if Members[I].WithinFightRange(TKMUnitWarrior(fOffenders[K]).GetPosition) then
+          begin
+            Members[I].OrderFight(TKMUnitWarrior(fOffenders[K]));
+            FightWasOrdered := True;
+          end;
+
+    //If nobody in the group is in a fight and all offenders are out of range then clear offenders
+    //(archers should forget about out of range offenders since they won't walk to them like melee)
+    if not FightWasOrdered and not InFight then
+    begin
+      fOffenders.Clear;
+      OrderRepeat;
+    end;
   end
   else
   begin
