@@ -827,7 +827,12 @@ begin
         if gTerrain.Land[iY,iX].TileOwner = gHands[I].HandIndex then
         begin
           if gTerrain.Land[iY,iX].TileOverlay = to_Road then
-            AddCommand(ct_SetRoad, [iX-1,iY-1]);
+          begin
+            H := gHands.HousesHitTest(iX, iY);
+            //Don't place road under the entrance of houses (it will be placed there if the house is destroyed on mission start)
+            if (H = nil) or not KMSamePoint(H.GetEntrance, KMPoint(iX, iY)) then
+              AddCommand(ct_SetRoad, [iX-1,iY-1]);
+          end;
           if gTerrain.TileIsCornField(KMPoint(iX,iY)) then
             AddCommand(ct_SetField, [iX-1,iY-1]);
           if gTerrain.TileIsWineField(KMPoint(iX,iY)) then
