@@ -2162,6 +2162,12 @@ procedure TKMTerrain.FlattenTerrain(Loc: TKMPoint; aUpdateWalkConnects: Boolean 
       FlattenTerrain(KMPoint(aX,aY), False); //WalkConnect should be done at the end
   end;
 
+  function CanElevateAt(aX, aY: Word): Boolean;
+  begin
+    //Passability does not get set for the row below the bottom/right edges
+    Result := (CanElevate in Land[aY, aX].Passability) or (aX = fMapX) or (aY = fMapY);
+  end;
+
 var
   VertsFactored: Integer;
 
@@ -2200,10 +2206,10 @@ begin
   Assert(VertsFactored <> 0); //Non-neighbour verts will always be factored
   Avg := Round(Avg / VertsFactored);
 
-  if CanElevate in Land[Loc.Y  ,Loc.X  ].Passability then Land[Loc.Y  ,Loc.X  ].Height := Mix(Avg, Land[Loc.Y  ,Loc.X  ].Height, 0.5);
-  if CanElevate in Land[Loc.Y  ,Loc.X+1].Passability then Land[Loc.Y  ,Loc.X+1].Height := Mix(Avg, Land[Loc.Y  ,Loc.X+1].Height, 0.5);
-  if CanElevate in Land[Loc.Y+1,Loc.X  ].Passability then Land[Loc.Y+1,Loc.X  ].Height := Mix(Avg, Land[Loc.Y+1,Loc.X  ].Height, 0.5);
-  if CanElevate in Land[Loc.Y+1,Loc.X+1].Passability then Land[Loc.Y+1,Loc.X+1].Height := Mix(Avg, Land[Loc.Y+1,Loc.X+1].Height, 0.5);
+  if CanElevateAt(Loc.X  , Loc.Y  ) then Land[Loc.Y  ,Loc.X  ].Height := Mix(Avg, Land[Loc.Y  ,Loc.X  ].Height, 0.5);
+  if CanElevateAt(Loc.X+1, Loc.Y  ) then Land[Loc.Y  ,Loc.X+1].Height := Mix(Avg, Land[Loc.Y  ,Loc.X+1].Height, 0.5);
+  if CanElevateAt(Loc.X  , Loc.Y+1) then Land[Loc.Y+1,Loc.X  ].Height := Mix(Avg, Land[Loc.Y+1,Loc.X  ].Height, 0.5);
+  if CanElevateAt(Loc.X+1, Loc.Y+1) then Land[Loc.Y+1,Loc.X+1].Height := Mix(Avg, Land[Loc.Y+1,Loc.X+1].Height, 0.5);
 
   //All 9 tiles around and including this one could have become unwalkable and made a unit stuck, so check them all
   for I := Max(Loc.Y-1, 1) to Min(Loc.Y+1, fMapY-1) do
