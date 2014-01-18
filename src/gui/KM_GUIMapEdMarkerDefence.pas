@@ -13,6 +13,7 @@ type
     fIndex: Integer;
     fOnDone: TNotifyEvent;
     procedure Marker_Change(Sender: TObject);
+    procedure Marker_UpdateOrder(Sender: TObject; Shift: TShiftState);
   protected
     Panel_MarkerDefence: TKMPanel;
     Label_MarkerType: TKMLabel;
@@ -20,6 +21,8 @@ type
     DropList_DefenceGroup: TKMDropList;
     DropList_DefenceType: TKMDropList;
     TrackBar_DefenceRad: TKMTrackBar;
+    Label_Priority: TKMLabel;
+    Button_Priority_Inc, Button_Priority_Dec: TKMButton;
     Button_DefenceCW, Button_DefenceCCW: TKMButton;
     Button_DefenceDelete: TKMButton;
     Button_DefenceClose: TKMButton;
@@ -37,7 +40,7 @@ type
 
 implementation
 uses
-  KM_HandsCollection, KM_ResTexts,
+  KM_HandsCollection, KM_ResTexts, KM_Game, KM_CommonClasses,
   KM_RenderUI, KM_ResFonts, KM_AIDefensePos;
 
 
@@ -66,14 +69,22 @@ begin
   TrackBar_DefenceRad := TKMTrackBar.Create(Panel_MarkerDefence, 0, 115, TB_WIDTH, 1, 128);
   TrackBar_DefenceRad.Caption := gResTexts[TX_MAPED_AI_DEFENCE_RADIUS];
   TrackBar_DefenceRad.OnChange := Marker_Change;
-  Button_DefenceCCW  := TKMButton.Create(Panel_MarkerDefence, 0, 165, 50, 35, 23, rxGui, bsGame);
+
+  TKMLabel.Create(Panel_MarkerDefence, 0, 165, gResTexts[TX_MAPED_AI_DEFENCE_PRIORITY_ORDER], fnt_Metal, taLeft);
+  Label_Priority := TKMLabel.Create(Panel_MarkerDefence, 20, 185+2, 20, 0, '', fnt_Grey, taCenter);
+  Button_Priority_Dec := TKMButton.Create(Panel_MarkerDefence, 0, 185, 20, 20, '-', bsGame);
+  Button_Priority_Inc := TKMButton.Create(Panel_MarkerDefence, 40, 185, 20, 20, '+', bsGame);
+  Button_Priority_Dec.OnClickShift := Marker_UpdateOrder;
+  Button_Priority_Inc.OnClickShift := Marker_UpdateOrder;
+
+  Button_DefenceCCW  := TKMButton.Create(Panel_MarkerDefence, 0, 235, 50, 35, 23, rxGui, bsGame);
   Button_DefenceCCW.OnClick := Marker_Change;
-  Button_DefenceCW := TKMButton.Create(Panel_MarkerDefence, 130, 165, 50, 35, 24, rxGui, bsGame);
+  Button_DefenceCW := TKMButton.Create(Panel_MarkerDefence, 130, 235, 50, 35, 24, rxGui, bsGame);
   Button_DefenceCW.OnClick := Marker_Change;
-  Button_DefenceDelete := TKMButton.Create(Panel_MarkerDefence, 0, 210, 25, 25, 340, rxGui, bsGame);
+  Button_DefenceDelete := TKMButton.Create(Panel_MarkerDefence, 0, 280, 25, 25, 340, rxGui, bsGame);
   Button_DefenceDelete.Hint := gResTexts[TX_MAPED_AI_DEFENCE_DELETE_HINT];
   Button_DefenceDelete.OnClick := Marker_Change;
-  Button_DefenceClose := TKMButton.Create(Panel_MarkerDefence, TB_WIDTH-100, 210, 100, 25, gResTexts[TX_MAPED_CLOSE], bsGame);
+  Button_DefenceClose := TKMButton.Create(Panel_MarkerDefence, TB_WIDTH-100, 280, 100, 25, gResTexts[TX_MAPED_CLOSE], bsGame);
   Button_DefenceClose.Hint := gResTexts[TX_MAPED_AI_DEFENCE_CLOSE_HINT];
   Button_DefenceClose.OnClick := Marker_Change;
 end;
@@ -108,6 +119,33 @@ begin
 end;
 
 
+procedure TKMMapEdMarkerDefence.Marker_UpdateOrder(Sender: TObject; Shift: TShiftState);
+var I: Integer;
+begin
+  if Sender = Button_Priority_Inc then
+    for I := 1 to 1 + 9*Byte(ssRight in Shift) do
+      if fIndex < gHands[fOwner].AI.General.DefencePositions.Count-1 then
+      begin
+        gHands[fOwner].AI.General.DefencePositions.MoveUp(fIndex);
+        Inc(fIndex);
+        Label_Priority.Caption := IntToStr(fIndex + 1);
+      end;
+
+  if Sender = Button_Priority_Dec then
+    for I := 1 to 1 + 9*Byte(ssRight in Shift) do
+      if fIndex > 0 then
+      begin
+        gHands[fOwner].AI.General.DefencePositions.MoveDown(fIndex);
+        Dec(fIndex);
+      end;
+
+  Label_Priority.Caption := IntToStr(fIndex + 1);
+  Button_Priority_Inc.Enabled := fIndex < gHands[fOwner].AI.General.DefencePositions.Count-1;
+  Button_Priority_Dec.Enabled := fIndex > 0;
+  gGame.MapEditor.ActiveMarker.Index := fIndex;
+end;
+
+
 procedure TKMMapEdMarkerDefence.Show(aPlayer: THandIndex; aIndex: Integer);
 begin
   fOwner := aPlayer;
@@ -118,6 +156,7 @@ begin
   DropList_DefenceGroup.ItemIndex := Byte(gHands[fOwner].AI.General.DefencePositions[fIndex].GroupType);
   DropList_DefenceType.ItemIndex := Byte(gHands[fOwner].AI.General.DefencePositions[fIndex].DefenceType);
   TrackBar_DefenceRad.Position := gHands[fOwner].AI.General.DefencePositions[fIndex].Radius;
+  Marker_UpdateOrder(nil, []);
 
   Panel_MarkerDefence.Show;
 end;

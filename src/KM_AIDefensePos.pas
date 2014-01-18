@@ -45,8 +45,8 @@ type
   TAIDefencePositions = class
   private
     fPositions: TKMList;
-    function GetPosition(aIndex: Integer): TAIDefencePosition;
-    function GetCount: Integer;
+    function GetPosition(aIndex: Integer): TAIDefencePosition; inline;
+    function GetCount: Integer; inline;
   public
     //Defines how defending troops will be formatted. 0 means leave unchanged.
     TroopFormations: array [TGroupType] of TKMFormation;
@@ -63,6 +63,9 @@ type
     function FindPlaceForGroup(aGroup: TKMUnitGroup; aTakeClosest: Boolean): Boolean;
     procedure RestockPositionWith(aDefenceGroup, aGroup: TKMUnitGroup);
     function FindPositionOf(aGroup: TKMUnitGroup): TAIDefencePosition;
+
+    procedure MoveUp(aIndex: Integer);
+    procedure MoveDown(aIndex: Integer);
 
     procedure Save(SaveStream: TKMemoryStream);
     procedure Load(LoadStream: TKMemoryStream);
@@ -318,6 +321,20 @@ begin
     Result := Positions[I];
     Break;
   end;
+end;
+
+
+procedure TAIDefencePositions.MoveUp(aIndex: Integer);
+begin
+  if aIndex < Count-1 then
+    fPositions.Exchange(aIndex, aIndex+1);
+end;
+
+
+procedure TAIDefencePositions.MoveDown(aIndex: Integer);
+begin
+  if aIndex > 0 then
+    fPositions.Exchange(aIndex, aIndex-1);
 end;
 
 

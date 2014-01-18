@@ -99,7 +99,7 @@ type
 implementation
 uses
   KM_HandsCollection, KM_ResTexts, KM_Game, KM_Main, KM_GameCursor, KM_RenderPool,
-  KM_Resource, KM_TerrainDeposits, KM_ResCursors, KM_GameApp,
+  KM_Resource, KM_TerrainDeposits, KM_ResCursors, KM_GameApp, KM_Utils,
   KM_AIDefensePos, KM_RenderUI, KM_ResFonts;
 
 const
@@ -828,7 +828,7 @@ end;
 
 //UI should paint only controls
 procedure TKMapEdInterface.Paint;
-  procedure PaintTextInShape(aText: string; X,Y: SmallInt; aLineColor: Cardinal);
+  procedure PaintTextInShape(aText: string; X,Y: SmallInt; aLineColor: Cardinal; aTextColor: Cardinal);
   var
     W: Integer;
   begin
@@ -838,7 +838,7 @@ procedure TKMapEdInterface.Paint;
     TKMRenderUI.WriteOutline(X - W div 2, Y - 10, W, 20, 2, aLineColor);
 
     //Paint the label on top of the background
-    TKMRenderUI.WriteText(X, Y - 7, 0, aText, fnt_Metal, taCenter, $FFFFFFFF);
+    TKMRenderUI.WriteText(X, Y - 7, 0, aText, fnt_Metal, taCenter, aTextColor);
   end;
 const
   DefenceLine: array [TAIDefencePosType] of Cardinal = ($FF80FF00, $FFFF8000);
@@ -861,7 +861,7 @@ begin
 
         //At extreme zoom coords may become out of range of SmallInt used in controls painting
         if KMInRect(ScreenLoc, fViewport.ViewRect) then
-          PaintTextInShape(IntToStr(gGame.MapEditor.Deposits.Amount[R, I]), ScreenLoc.X, ScreenLoc.Y, DEPOSIT_COLORS[R]);
+          PaintTextInShape(IntToStr(gGame.MapEditor.Deposits.Amount[R, I]), ScreenLoc.X, ScreenLoc.Y, DEPOSIT_COLORS[R], $FFFFFFFF);
       end;
   end;
 
@@ -876,7 +876,7 @@ begin
 
         if KMInRect(ScreenLoc, fViewport.ViewRect) then
         begin
-          PaintTextInShape(IntToStr(K+1), ScreenLoc.X, ScreenLoc.Y - 22, DefenceLine[DP.DefenceType]);
+          PaintTextInShape(IntToStr(K+1), ScreenLoc.X, ScreenLoc.Y - 22, DefenceLine[DP.DefenceType], FlagColorToTextColor(gHands[I].FlagColor));
           TKMRenderUI.WritePicture(ScreenLoc.X, ScreenLoc.Y, 0, 0, [], rxGui, GROUP_IMG[DP.GroupType]);
         end;
       end;
