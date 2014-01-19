@@ -14,6 +14,7 @@ type
     fRecruitsList: TList;
     fResourceCount: array [WARFARE_MIN..WARFARE_MAX] of Word;
   public
+    MapEdRecruitCount: Word; //Only used by MapEd
     NotAcceptFlag: array [WARFARE_MIN .. WARFARE_MAX] of Boolean;
     RallyPoint: TKMPoint;
     constructor Create(aUID: Integer; aHouseType: THouseType; PosX, PosY: Integer; aOwner: THandIndex; aBuildState: THouseBuildState);
@@ -37,6 +38,7 @@ type
     procedure ToggleAcceptFlag(aRes: TWareType);
     function IsRallyPointSet: Boolean;
     function Equip(aUnitType: TUnitType; aCount: Byte): Byte;
+    procedure CreateRecruitInside(aIsMapEd: Boolean);
   end;
 
 
@@ -244,6 +246,22 @@ begin
     if Assigned(Soldier.OnUnitTrained) then
       Soldier.OnUnitTrained(Soldier);
     Inc(Result);
+  end;
+end;
+
+
+procedure TKMHouseBarracks.CreateRecruitInside(aIsMapEd: Boolean);
+var U: TKMUnit;
+begin
+  if aIsMapEd then
+    Inc(MapEdRecruitCount)
+  else
+  begin
+    U := gHands[fOwner].TrainUnit(ut_Recruit, GetEntrance);
+    U.Visible := False;
+    U.SetInHouse(Self);
+    RecruitsAdd(U);
+    gHands[fOwner].Stats.UnitCreated(ut_Recruit, False);
   end;
 end;
 

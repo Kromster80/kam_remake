@@ -37,7 +37,7 @@ type
 
 
 implementation
-uses KM_HandsCollection, KM_Hand, KM_AI, KM_AIDefensePos, KM_TerrainPainter,
+uses KM_HandsCollection, KM_Hand, KM_AI, KM_AIDefensePos, KM_TerrainPainter, KM_HouseBarracks,
   KM_Resource, KM_ResHouses, KM_ResUnits, KM_ResWares, KM_Game, KM_Units_Warrior;
 
 
@@ -219,7 +219,10 @@ begin
                               AddError('ct_SetHouse failed, can not place house at ' + TypeToString(KMPoint(P[1]+1, P[2]+1)));
     ct_SetHouseDamage:  if fLastHand <> PLAYER_NONE then //Skip false-positives for skipped players
                           if fLastHouse <> nil then
-                            fLastHouse.AddDamage(Min(P[0], High(Word)), nil, fParsingMode = mpm_Editor)
+                          begin
+                            if not fLastHouse.IsDestroyed then //Could be destroyed already by damage
+                              fLastHouse.AddDamage(Min(P[0], High(Word)), nil, fParsingMode = mpm_Editor)
+                          end
                           else
                             AddError('ct_SetHouseDamage without prior declaration of House');
     ct_SetUnit:         begin
@@ -238,6 +241,19 @@ begin
                             if H <> nil then
                               gHands[fLastHand].AddUnit(UnitOldIndexToType[P[0]], KMPoint(H.GetEntrance.X, H.GetEntrance.Y+1));
                           end;
+    ct_UnitAddToLast:   if fLastHand <> PLAYER_NONE then
+                          if fLastHouse <> nil then
+                          begin
+                            if (fLastHouse is TKMHouseBarracks) and (P[0] = UnitTypeToOldIndex[ut_Recruit]) then
+                            begin
+                              if not fLastHouse.IsDestroyed then //Could be destroyed already by damage
+                                TKMHouseBarracks(fLastHouse).CreateRecruitInside(fParsingMode = mpm_Editor);
+                            end
+                            else
+                              AddError('ct_UnitAddToLast only supports barracks and recruits so far');
+                          end
+                          else
+                            AddError('ct_UnitAddToLast without prior declaration of House');
     ct_SetRoad:         if fLastHand <> PLAYER_NONE then
                           gHands[fLastHand].AddRoadToList(KMPoint(P[0]+1,P[1]+1));
     ct_SetField:        if fLastHand <> PLAYER_NONE then
@@ -308,8 +324,11 @@ begin
 
                           if (fLastHouse <> nil) and (fLastHouse.ResCanAddToIn(WareIndexToType[P[0]]) or fLastHouse.ResCanAddToOut(WareIndexToType[P[0]])) then
                           begin
-                            fLastHouse.ResAddToEitherFromScript(WareIndexToType[P[0]], Qty);
-                            gHands[fLastHand].Stats.WareInitial(WareIndexToType[P[0]], Qty);
+                            if not fLastHouse.IsDestroyed then //Could be destroyed already by damage
+                            begin
+                              fLastHouse.ResAddToEitherFromScript(WareIndexToType[P[0]], Qty);
+                              gHands[fLastHand].Stats.WareInitial(WareIndexToType[P[0]], Qty);
+                            end;
                           end
                           else
                             AddError('ct_AddWareToLast without prior declaration of House');
@@ -567,7 +586,7 @@ const
   COMMANDLAYERS = 4;
 var
   I: longint; //longint because it is used for encoding entire output, which will limit the file size
-  K,iX,iY,CommandLayerCount: Integer;
+  K,J,iX,iY,CommandLayerCount: Integer;
   StoreCount, BarracksCount: Integer;
   Res: TWareType;
   G: TGroupType;
@@ -788,6 +807,10 @@ begin
         AddCommand(ct_SetHouse, [HouseTypeToIndex[H.HouseType]-1, H.GetPosition.X-1, H.GetPosition.Y-1]);
         if H.IsDamaged then
           AddCommand(ct_SetHouseDamage, [H.GetDamage]);
+
+        if H is TKMHouseBarracks then
+          for J := 1 to TKMHouseBarracks(H).MapEdRecruitCount do
+            AddCommand(ct_UnitAddToLast, [UnitTypeToOldIndex[ut_Recruit]]);
 
         //Process any wares in this house
         //First two Stores use special KaM commands

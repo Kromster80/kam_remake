@@ -87,6 +87,7 @@ Improvements:
  +  L   MapEd option to enable the AI to retaliate against allies' assets being attacked like they do for themselves
  +	L	Multiplayer in-game player list ordered by teams
  +  L   When archers are ordered to attack by right clicking enemy unit, they will walk into range in formation not spread out
+ +	L	Add script command to allow to add recruits into the Barracks in MapEd (only Barracks for simplicity, other houses dont need it)
 	        Dismiss button to make units walk into the school and disappear (gold is not refunded)
 	L	Simple dedicated server form which lets you set the properties of the INI for the server and start it [gemGreg]
 	L	Placing houses in MP should put a temp/fake visual markup until the real one can be added to make it appear responsive
@@ -115,7 +116,6 @@ Improvements:
 	L	Option in the lobby to select starting with a small village, everything up to sawmill (placed automatically by city builder?)
                         Andreus: What about adding some village planning modes, like in KAM MissionEditor (Nothing, Buildings, Buildings and troops)?
 	L	House not occupied message should mention which house it is ("This farm is not occupied"). Hard to work around plurals and fem/masc forms
-	L	Add script command to allow to add recruits into the Barracks in MapEd (only Barracks for simplicity, other houses dont need it)
 	L	Allow dedicated servers to optionally specify their IP in the INI file (some servers have multiple IP addresses, the external one the master server sees might not be the correct one)
 	L	Icon before the server name: Swords/house/floppy for battle/build/save (save icon only shown while in lobby)
 	L	Maplist takes too long to load on first run, scrollbar moves irritatingly while maps are being added

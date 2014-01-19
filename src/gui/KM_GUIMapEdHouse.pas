@@ -11,7 +11,7 @@ type
     fHouse: TKMHouse;
 
     fStorehouseItem: Byte; //Selected ware in storehouse
-    fBarracksItem: Byte; //Selected ware in barracks
+    fBarracksItem: ShortInt; //Selected ware in barracks, or -1 for recruit
 
     procedure Create_Store;
     procedure Create_Barracks;
@@ -41,6 +41,7 @@ type
 
     Panel_HouseBarracks: TKMPanel;
     Button_Barracks: array [1..BARRACKS_RES_COUNT] of TKMButtonFlat;
+    Button_Barracks_Recruit: TKMButtonFlat;
     Label_Barracks_WareCount: TKMLabel;
     Button_BarracksDec100, Button_BarracksDec: TKMButton;
     Button_BarracksInc100, Button_BarracksInc: TKMButton;
@@ -152,6 +153,15 @@ begin
       Button_Barracks[I].Hint := gResource.Wares[BarracksResType[I]].Title;
       Button_Barracks[I].OnClick := BarracksSelectWare;
     end;
+    Button_Barracks_Recruit := TKMButtonFlat.Create(Panel_HouseBarracks, (BARRACKS_RES_COUNT mod 6)*31,8+(BARRACKS_RES_COUNT div 6)*42,28,38,0);
+    Button_Barracks_Recruit.Tag := -1;
+    Button_Barracks_Recruit.TexOffsetX := 1;
+    Button_Barracks_Recruit.TexOffsetY := 1;
+    Button_Barracks_Recruit.CapOffsetY := 2;
+    Button_Barracks_Recruit.TexID := gResource.UnitDat[ut_Recruit].GUIIcon;
+    Button_Barracks_Recruit.Hint := gResource.UnitDat[ut_Recruit].GUIName;
+    Button_Barracks_Recruit.OnClick := BarracksSelectWare;
+
     Button_BarracksDec100     := TKMButton.Create(Panel_HouseBarracks,108,218,20,20,'<', bsGame);
     Button_BarracksDec100.Tag := 100;
     Button_BarracksDec        := TKMButton.Create(Panel_HouseBarracks,108,238,20,20,'-', bsGame);
@@ -249,6 +259,7 @@ begin
                     BarracksRefresh(nil);
                     //In the barrack the recruit icon is always enabled
                     Image_House_Worker.Enable;
+                    Button_Barracks_Recruit.FlagColor := gHands[fHouse.Owner].FlagColor;
                     //Reselect the ware so the display is updated
                     BarracksSelectWare(Button_Barracks[fBarracksItem]);
                   end;
@@ -279,6 +290,8 @@ begin
     Tmp := TKMHouseBarracks(fHouse).CheckResIn(BarracksResType[I]);
     Button_Barracks[I].Caption := IfThen(Tmp = 0, '-', IntToStr(Tmp));
   end;
+  Tmp := TKMHouseBarracks(fHouse).MapEdRecruitCount;
+  Button_Barracks_Recruit.Caption := IfThen(Tmp = 0, '-', IntToStr(Tmp));
 end;
 
 
@@ -348,6 +361,7 @@ begin
   if not (Sender is TKMButtonFlat) then exit; //Only FlatButtons
   if TKMButtonFlat(Sender).Tag = 0 then exit; //with set Tag
 
+  Button_Barracks_Recruit.Down := False;
   for I := 1 to BARRACKS_RES_COUNT do
     Button_Barracks[I].Down := False;
   TKMButtonFlat(Sender).Down := True;
@@ -379,22 +393,37 @@ var
   Barracks: TKMHouseBarracks;
   NewCount: Word;
 begin
-  Res := BarracksResType[fBarracksItem];
   Barracks := TKMHouseBarracks(fHouse);
-
-  if (Sender = Button_BarracksDec100) or (Sender = Button_BarracksDec) then
+  if fBarracksItem = -1 then
   begin
-    NewCount := Math.Min(Barracks.CheckResIn(Res), GetMultiplicator(Shift) * TKMButton(Sender).Tag);
-    Barracks.ResTakeFromOut(Res, NewCount);
-  end;
+    //Recruits
+    if (Sender = Button_BarracksDec100) or (Sender = Button_BarracksDec) then
+      Barracks.MapEdRecruitCount := Math.Max(0, Barracks.MapEdRecruitCount - GetMultiplicator(Shift) * TKMButton(Sender).Tag);
 
-  if (Sender = Button_BarracksInc100) or (Sender = Button_BarracksInc) then
+    if (Sender = Button_BarracksInc100) or (Sender = Button_BarracksInc) then
+      Barracks.MapEdRecruitCount := Math.Min(High(Word), Barracks.MapEdRecruitCount + GetMultiplicator(Shift) * TKMButton(Sender).Tag);
+
+    Label_Barracks_WareCount.Caption := IntToStr(Barracks.MapEdRecruitCount);
+  end
+  else
   begin
-    NewCount := Math.Min(High(Word) - Barracks.CheckResIn(Res), GetMultiplicator(Shift) * TKMButton(Sender).Tag);
-    Barracks.ResAddToIn(Res, NewCount);
-  end;
+    //Wares
+    Res := BarracksResType[fBarracksItem];
 
-  Label_Barracks_WareCount.Caption := IntToStr(Barracks.CheckResIn(Res));
+    if (Sender = Button_BarracksDec100) or (Sender = Button_BarracksDec) then
+    begin
+      NewCount := Math.Min(Barracks.CheckResIn(Res), GetMultiplicator(Shift) * TKMButton(Sender).Tag);
+      Barracks.ResTakeFromOut(Res, NewCount);
+    end;
+
+    if (Sender = Button_BarracksInc100) or (Sender = Button_BarracksInc) then
+    begin
+      NewCount := Math.Min(High(Word) - Barracks.CheckResIn(Res), GetMultiplicator(Shift) * TKMButton(Sender).Tag);
+      Barracks.ResAddToIn(Res, NewCount);
+    end;
+
+    Label_Barracks_WareCount.Caption := IntToStr(Barracks.CheckResIn(Res));
+  end;
   BarracksRefresh(nil);
 end;
 
