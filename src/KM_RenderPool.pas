@@ -22,7 +22,6 @@ type
     NewInst: Boolean;
     TeamColor: Cardinal;
     AlphaStep: Single; //Only appliable to HouseBuild
-    FOWvalue: Byte; // Fog of War thickness
   end;
 
   TSmallIntArray = array of smallint;
@@ -74,8 +73,8 @@ type
     //Terrain overlay cursors rendering (incl. sprites highlighting)
     procedure RenderForegroundUI;
 
-    procedure RenderSprite(aRX: TRXType; aId: Word; aUID: Integer; aUseUID: Boolean; pX, pY: Single; Col: TColor4; aFOW: Byte; HighlightRed: Boolean = False);
-    procedure RenderSpriteAlphaTest(aRX: TRXType; aId: Word; aWoodProgress: Single; pX, pY: Single; aFOW: Byte; aId2: Word = 0; aStoneProgress: Single = 0; X2: Single = 0; Y2: Single = 0);
+    procedure RenderSprite(aRX: TRXType; aId: Word; aUID: Integer; aUseUID: Boolean; pX, pY: Single; Col: TColor4; HighlightRed: Boolean = False);
+    procedure RenderSpriteAlphaTest(aRX: TRXType; aId: Word; aWoodProgress: Single; pX, pY: Single; aId2: Word = 0; aStoneProgress: Single = 0; X2: Single = 0; Y2: Single = 0);
     procedure RenderMapElement1(aIndex: Byte; AnimStep: Cardinal; LocX,LocY: Integer; DoImmediateRender: Boolean = False; Deleting: Boolean = False);
     procedure RenderMapElement4(aIndex: Byte; AnimStep: Cardinal; pX,pY: Integer; IsDouble: Boolean; DoImmediateRender: Boolean = False; Deleting: Boolean = False);
     procedure RenderHouseOutline(aHouse: TKMHouse);
@@ -466,10 +465,12 @@ begin
   begin
     if MapElem[aIndex].Anim.Count = 0 then Exit;
 
+    if DYNAMIC_FOG_OF_WAR then
+    begin
+      FOW := MySpectator.FogOfWar.CheckTileRevelation(LocX,LocY);
+      if FOW <= 128 then AnimStep := 0; //Stop animation
+    end;
     A := MapElem[aIndex].Anim;
-    FOW := MySpectator.FogOfWar.CheckTileRevelation(LocX,LocY);
-    if FOW = 0 then exit; //Don't render objects which are unexplored
-    if FOW <= 128 then AnimStep := 0; //Stop animation
     Id := A.Step[AnimStep mod Byte(A.Count) +1]+1;
     Id0 := A.Step[1] + 1;
     if Id <= 0 then exit;
@@ -484,7 +485,7 @@ begin
     if not DoImmediateRender then
       fRenderList.AddSpriteG(rxTrees, Id, 0, CornerX, CornerY, gX, gY)
     else
-      RenderSprite(rxTrees, Id, 0, False, CornerX, CornerY, $FFFFFFFF, 255, Deleting);
+      RenderSprite(rxTrees, Id, 0, False, CornerX, CornerY, $FFFFFFFF, Deleting);
   end;
 end;
 
@@ -512,14 +513,17 @@ var
     if not DoImmediateRender then
       fRenderList.AddSpriteG(rxTrees, Id, 0, CornerX, CornerY, gX, gY)
     else
-      RenderSprite(rxTrees, Id, 0, False, CornerX, CornerY, $FFFFFFFF, 255, Deleting);
+      RenderSprite(rxTrees, Id, 0, False, CornerX, CornerY, $FFFFFFFF, Deleting);
   end;
 
 var
   FOW: Byte;
 begin
-  FOW := MySpectator.FogOfWar.CheckTileRevelation(pX, pY);
-  if FOW <= 128 then AnimStep := 0; //Stop animation
+  if DYNAMIC_FOG_OF_WAR then
+  begin
+    FOW := MySpectator.FogOfWar.CheckTileRevelation(pX, pY);
+    if FOW <= 128 then AnimStep := 0; //Stop animation
+  end;
 
   R := fRXData[rxTrees];
   if IsDouble then
@@ -792,8 +796,11 @@ begin
   //We don't care about off-map arrows, but still we get TKMPoint error if X/Y gets negative
   if not gTerrain.TileInMapCoords(Round(aRenderPos.X), Round(aRenderPos.Y)) then Exit;
 
-  FOW := MySpectator.FogOfWar.CheckRevelation(aRenderPos);
-  if FOW <= 128 then Exit; //Don't render objects which are behind FOW
+  if DYNAMIC_FOG_OF_WAR then
+  begin
+    FOW := MySpectator.FogOfWar.CheckRevelation(aRenderPos);
+    if FOW <= 128 then Exit; //Don't render objects which are behind FOW
+  end;
 
   case aProj of
     pt_Arrow:     with gResource.UnitDat[ut_Bowman].UnitAnim[ua_Spec, aDir] do
@@ -839,7 +846,7 @@ begin
   Ground := pY + (R.Pivot[Id0].Y + R.Size[Id0].Y) / CELL_SIZE_PX;
 
   if DoImmediateRender then
-    RenderSprite(rxUnits, Id, 0, False, CornerX, CornerY, FlagColor, 255, Deleting)
+    RenderSprite(rxUnits, Id, 0, False, CornerX, CornerY, FlagColor, Deleting)
   else
     if NewInst then
       fRenderList.AddSpriteG(rxUnits, Id, aUID, CornerX, CornerY, pX, Ground, FlagColor)
@@ -1012,9 +1019,7 @@ end;}
 
 
 procedure TRenderPool.RenderSprite(aRX: TRXType; aId: Word; aUID: Integer; aUseUID: Boolean;
-  pX,pY: Single; Col: TColor4; aFOW: Byte; HighlightRed: Boolean = False);
-var
-  F: TColor4;
+  pX,pY: Single; Col: TColor4; HighlightRed: Boolean = False);
 begin
   with GFXData[aRX, aId] do
   begin
@@ -1023,7 +1028,8 @@ begin
     if aUseUID then
       glColor4ub(aUID and $FF, aUID shr 8 and $FF, aUID shr 16 and $FF, 255)
     else
-      glColor4ub(aFOW, aFOW, aFOW, 255);
+      //FOW is rendered over the top so no need to make sprites black anymore
+      glColor4ub(255, 255, 255, 255);
 
     glBindTexture(GL_TEXTURE_2D, Tex.Id);
     if HighlightRed then glColor3f(1,0,0);
@@ -1035,16 +1041,10 @@ begin
     glEnd;
   end;
 
-  if (GFXData[aRX, aId].Alt.Id <> 0) and (aFOW <> 0) and not aUseUID then
+  if (GFXData[aRX, aId].Alt.Id <> 0) and not aUseUID then
   with GFXData[aRX, aId] do
-  //Don't render colorflags if they aren't visible cos of FOW
   begin
-    //Multiply RGB component of flag color by FOW
-    F := ((Col and $FF) * aFOW shr 8) or
-         ((((Col shr 8) and $FF) * aFOW shr 8) shl 8) or
-         ((((Col shr 16) and $FF) * aFOW shr 8) shl 16) or
-         Col and $FF000000;
-    glColor4ubv(@F);
+    glColor4ubv(@Col);
     glBindTexture(GL_TEXTURE_2D, Alt.Id);
     glBegin(GL_QUADS);
       glTexCoord2f(Alt.u1, Alt.v2); glVertex2f(pX                     , pY                      );
@@ -1064,7 +1064,7 @@ end;
 //  If there are two masks then we need to render sprite only there
 //where its mask is white AND where second mask is black
 procedure TRenderPool.RenderSpriteAlphaTest(
-  aRX: TRXType; aId: Word; aWoodProgress: Single; pX, pY: Single; aFOW: Byte;
+  aRX: TRXType; aId: Word; aWoodProgress: Single; pX, pY: Single;
   aId2: Word = 0; aStoneProgress: Single = 0; X2: Single = 0; Y2: Single = 0);
 begin
   glClear(GL_STENCIL_BUFFER_BIT);
@@ -1130,7 +1130,8 @@ begin
   //Render sprite
   with GFXData[aRX,aId] do
   begin
-    glColor4ub(aFOW, aFOW, aFOW, 255);
+    //FOW is rendered over the top so no need to make sprites black anymore
+    glColor4ub(255, 255, 255, 255);
 
     glBindTexture(GL_TEXTURE_2D, Tex.Id);
     glBegin(GL_QUADS);
@@ -1239,7 +1240,7 @@ begin
   pX := aLoc.X - 0.5 + fRXData[rxGui].Pivot[aId].X / CELL_SIZE_PX;
   pY := gTerrain.FlatToHeight(aLoc.X - 0.5, aLoc.Y - 0.5) -
         fRXData[rxGui].Pivot[aId].Y / CELL_SIZE_PX;
-  RenderSprite(rxGui, aId, 0, False, pX, pY, aFlagColor, 255);
+  RenderSprite(rxGui, aId, 0, False, pX, pY, aFlagColor);
 end;
 
 
@@ -1252,7 +1253,7 @@ begin
   pX := aLoc.X + fRXData[rxGui].Pivot[aId].X / CELL_SIZE_PX;
   pY := gTerrain.FlatToHeight(aLoc.X, aLoc.Y) +
         fRXData[rxGui].Pivot[aId].Y / CELL_SIZE_PX;
-  RenderSprite(rxGui, aId, 0, False, pX, pY, aFlagColor, 255);
+  RenderSprite(rxGui, aId, 0, False, pX, pY, aFlagColor);
 end;
 
 
@@ -1442,10 +1443,7 @@ begin
     begin
       RenderOrder[J] := I;
       inc(J);
-      RenderList[I].FOWvalue := MySpectator.FogOfWar.CheckRevelation(RenderList[I].Feet);
-    end
-    else
-      RenderList[I].FOWvalue := RenderList[I-1].FOWvalue; //Take from previous
+    end;
   SetLength(RenderOrder, J);
 end;
 
@@ -1593,7 +1591,7 @@ begin
     useUid := (aTarget = rtSelection);
     uid := Sp1.UID * Byte(useUid);
 
-    fRenderPool.RenderSprite(Sp1.RX, Sp1.Id, uid, useUid, Sp1.Loc.X, Sp1.Loc.Y, Sp1.TeamColor, Sp1.FOWvalue);
+    fRenderPool.RenderSprite(Sp1.RX, Sp1.Id, uid, useUid, Sp1.Loc.X, Sp1.Loc.Y, Sp1.TeamColor);
   end
   else
   if (aTarget = rtScreen) then
@@ -1603,10 +1601,10 @@ begin
 
     //Check if next comes our child, Stone layer
     if not Sp2.NewInst and (Sp2.AlphaStep > 0) then
-      fRenderPool.RenderSpriteAlphaTest(Sp1.RX, Sp1.Id, Sp1.AlphaStep, Sp1.Loc.X, Sp1.Loc.Y, Sp1.FOWvalue,
+      fRenderPool.RenderSpriteAlphaTest(Sp1.RX, Sp1.Id, Sp1.AlphaStep, Sp1.Loc.X, Sp1.Loc.Y,
                                                 Sp2.Id, Sp2.AlphaStep, Sp2.Loc.X, Sp2.Loc.Y)
     else
-      fRenderPool.RenderSpriteAlphaTest(Sp1.RX, Sp1.Id, Sp1.AlphaStep, Sp1.Loc.X, Sp1.Loc.Y, Sp1.FOWvalue);
+      fRenderPool.RenderSpriteAlphaTest(Sp1.RX, Sp1.Id, Sp1.AlphaStep, Sp1.Loc.X, Sp1.Loc.Y);
   end;
 
   if SHOW_GROUND_LINES and Sp1.NewInst then
