@@ -446,7 +446,7 @@ begin
     Group := fDefencePositions[I].CurrentGroup;
     if (Group <> nil)
     and not Group.IsDead
-    and Group.IsIdleToAI
+    and Group.IsIdleToAI(True) //Units walking to their defence position can retaliate (but not if pursuing an enemy)
     //@Lewin: Is it right that Group defends against attackers within the Rad
     //rather than defending property within the Rad?
     //Think of archer, he attacks property in AI defense radius, but stands utself outside of the radius
