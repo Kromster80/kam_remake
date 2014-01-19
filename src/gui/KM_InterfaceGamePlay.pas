@@ -365,14 +365,6 @@ begin
   PrevTop := ListBox_Save.TopIndex;
   ListBox_Save.Clear;
 
-  if fSaves.ScanFinished then
-  begin
-    if fLastSaveName = '' then
-      Edit_Save.Text := gGame.GameName
-    else
-      Edit_Save.Text := fLastSaveName;
-  end;
-
   if (Sender = fSaves) then
     Menu_Save_EditChange(fSaves)
   else
@@ -544,6 +536,10 @@ begin
     fSaves.Refresh(Menu_Save_RefreshList, (fUIMode in [umMP, umSpectate]));
     Panel_Save.Show;
     Label_MenuTitle.Caption := gResTexts[TX_MENU_SAVE_GAME];
+    if fLastSaveName = '' then
+      Edit_Save.Text := gGame.GameName
+    else
+      Edit_Save.Text := fLastSaveName;
   end else
 
   if Sender = Button_Menu_Load then begin
