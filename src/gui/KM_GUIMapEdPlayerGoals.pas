@@ -69,6 +69,8 @@ var
   G: TKMGoal;
 begin
   FillChar(G, SizeOf(G), #0);
+  G.GoalType := glt_Victory;
+  G.GoalCondition := gc_Buildings;
   gHands[MySpectator.HandIndex].AI.Goals.AddGoal(G);
 
   Goals_Refresh;

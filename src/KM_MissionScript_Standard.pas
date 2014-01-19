@@ -456,10 +456,12 @@ begin
                           and fPlayerEnabled[P[3]] then
                           begin
                             if not (TGoalCondition(P[0]) in GoalsSupported) then
-                              AddError('Goal type ' + GoalConditionStr[TGoalCondition(P[0])] + ' is deprecated');
-                            if (P[2] <> 0) then
-                              AddError('Goals messages are deprecated. Use .script instead');
-                            gHands[fLastHand].AI.Goals.AddGoal(glt_Victory, TGoalCondition(P[0]), TGoalStatus(P[1]), 0, P[2], P[3]);
+                              AddError('Goal type ' + GoalConditionStr[TGoalCondition(P[0])] + ' is deprecated')
+                            else
+                              if (P[2] <> 0) then
+                                AddError('Goals messages are deprecated. Use .script instead')
+                              else
+                                gHands[fLastHand].AI.Goals.AddGoal(glt_Victory, TGoalCondition(P[0]), TGoalStatus(P[1]), 0, P[2], P[3]);
                           end;
                         end;
     ct_AddLostGoal:     if fLastHand <> PLAYER_NONE then

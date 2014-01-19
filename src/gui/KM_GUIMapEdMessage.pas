@@ -33,23 +33,23 @@ constructor TKMMapEdMessage.Create(aParent: TKMPanel);
 begin
   inherited Create;
 
-  Panel_Message := TKMPanel.Create(aParent, TOOLBAR_WIDTH, aParent.Height - 190, aParent.Width - TOOLBAR_WIDTH, 190);
+  Panel_Message := TKMPanel.Create(aParent, TOOLBAR_WIDTH+30, aParent.Height - 190, 600, 190);
   Panel_Message.Anchors := [anLeft, anBottom];
   Panel_Message.Hide;
 
-  with TKMImage.Create(Panel_Message, 0, 0, 800, 190, 409) do
+  with TKMImage.Create(Panel_Message, 0, 0, 600, 190, 409) do
   begin
     Anchors := [anLeft, anTop, anBottom];
-    ImageStretch;
+    ImageAnchors := [anLeft, anRight, anTop];
   end;
 
-  Image_MessageClose := TKMImage.Create(Panel_Message, 800-35, 20, 32, 32, 52);
+  Image_MessageClose := TKMImage.Create(Panel_Message, 600 - 76, 24, 32, 32, 52);
   Image_MessageClose.Anchors := [anTop, anRight];
   Image_MessageClose.Hint := gResTexts[TX_MSG_CLOSE_HINT];
   Image_MessageClose.OnClick := Message_Close;
   Image_MessageClose.HighlightOnMouseOver := True;
 
-  Label_Message := TKMLabel.Create(Panel_Message, 40, 50, 7000, 0, '', fnt_Grey, taLeft);
+  Label_Message := TKMLabel.Create(Panel_Message, 40, 60, 7000, 0, '', fnt_Grey, taLeft);
 end;
 
 

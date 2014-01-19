@@ -61,7 +61,7 @@ begin
 
   TKMLabel.Create(Panel_Goal, 20, 40, 100, 0, gResTexts[TX_MAPED_GOALS_TYPE], fnt_Metal, taLeft);
   Radio_GoalType := TKMRadioGroup.Create(Panel_Goal, 20, 60, 100, 60, fnt_Metal);
-  Radio_GoalType.Add(gResTexts[TX_MAPED_GOALS_TYPE_NONE]);
+  Radio_GoalType.Add(gResTexts[TX_MAPED_GOALS_TYPE_NONE], False);
   Radio_GoalType.Add(gResTexts[TX_MAPED_GOALS_TYPE_VICTORY]);
   Radio_GoalType.Add(gResTexts[TX_MAPED_GOALS_TYPE_SURVIVE]);
   Radio_GoalType.OnChange := Goal_Change;
