@@ -102,6 +102,8 @@ type
 
     procedure ResetLocAndReady;
     procedure SetAIReady;
+    procedure RemAllAIs;
+    procedure RemDisconnectedPlayers;
     function ValidateSetup(aHumanUsableLocs, aAIUsableLocs: TPlayerIndexArray; out ErrorMsg: UnicodeString): Boolean;
 
     //Import/Export
@@ -706,6 +708,24 @@ begin
       fNetPlayers[i].ReadyToStart := true;
       fNetPlayers[i].ReadyToPlay := true;
     end;
+end;
+
+
+procedure TKMNetPlayersList.RemAllAIs;
+var I: Integer;
+begin
+  for I := fCount downto 1 do
+    if Player[I].IsComputer then
+      RemPlayer(I);
+end;
+
+
+procedure TKMNetPlayersList.RemDisconnectedPlayers;
+var I: Integer;
+begin
+  for I := fCount downto 1 do
+    if not Player[I].Connected then
+      RemPlayer(I);
 end;
 
 

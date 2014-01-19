@@ -206,6 +206,8 @@ const
   CHARTS_SAMPLING_FOR_ECONOMY = 450; //Each 45sec
   CHARTS_SAMPLING_FOR_TACTICS = 50; //Each 5sec, cos average game length is much shorter
 
+  RETURN_TO_LOBBY_SAVE = 'paused';
+
 type
   THandIndex = {type} ShortInt;
   TPlayerArray = array [0..MAX_HANDS-1] of THandIndex;

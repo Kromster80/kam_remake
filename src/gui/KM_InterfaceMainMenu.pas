@@ -52,9 +52,12 @@ type
     procedure AppendLoadingText(const aText: string);
     procedure ShowResultsMP(aMsg: TGameResultMsg);
     procedure ShowResultsSP(aMsg: TGameResultMsg);
-    function GetChatText: string;
-    function GetChatMessages: string;
+    function GetChatText: UnicodeString;
+    function GetChatMessages: UnicodeString;
+    procedure SetChatText(const aString: UnicodeString);
+    procedure SetChatMessages(const aString: UnicodeString);
     procedure ExportPages(aPath: string); override;
+    procedure ReturnToLobby(const aSaveName: UnicodeString);
 
     procedure KeyDown(Key:Word; Shift: TShiftState); override;
     procedure KeyUp(Key:Word; Shift: TShiftState); override;
@@ -179,16 +182,28 @@ begin
 end;
 
 
-function TKMMainMenuInterface.GetChatText: string;
+function TKMMainMenuInterface.GetChatText: UnicodeString;
 begin
   Result := fMenuLobby.GetChatText;
 end;
 
 
 //Access chat messages history to copy it over to gameplay chat
-function TKMMainMenuInterface.GetChatMessages: string;
+function TKMMainMenuInterface.GetChatMessages: UnicodeString;
 begin
   Result := fMenuLobby.GetChatMessages;
+end;
+
+
+procedure TKMMainMenuInterface.SetChatText(const aString: UnicodeString);
+begin
+  fMenuLobby.SetChatText(aString);
+end;
+
+
+procedure TKMMainMenuInterface.SetChatMessages(const aString: UnicodeString);
+begin
+  fMenuLobby.SetChatMessages(aString);
 end;
 
 
@@ -271,6 +286,17 @@ begin
 
       fGameApp.PrintScreen(path + 'Panel' + int2fix(I, 3) + '.jpg');
     end;
+end;
+
+
+procedure TKMMainMenuInterface.ReturnToLobby(const aSaveName: UnicodeString);
+begin
+  if fGameApp.Networking.IsHost then
+    PageChange(gpLobby, 'HOST')
+  else
+    PageChange(gpLobby, 'JOIN');
+
+  fMenuLobby.ReturnToLobby(aSaveName);
 end;
 
 

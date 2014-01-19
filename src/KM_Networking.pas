@@ -33,7 +33,7 @@ const
     [mk_AskToJoin,mk_ClientLost,mk_ReassignHost,mk_Disconnect,mk_Ping,mk_PingInfo,mk_PlayersList,
      mk_ReadyToPlay,mk_Play,mk_TextChat,mk_Kicked,mk_TextTranslated],
     //lgs_Game
-    [mk_AskToJoin,mk_ClientLost,mk_ReassignHost,mk_Disconnect,mk_Ping,mk_PingInfo,mk_FPS,mk_PlayersList,
+    [mk_AskToJoin,mk_ClientLost,mk_ReassignHost,mk_Disconnect,mk_Ping,mk_PingInfo,mk_FPS,mk_PlayersList,mk_ReturnToLobby,
      mk_Commands,mk_TextChat,mk_ResyncFromTick,mk_AskToReconnect,mk_Kicked,mk_ClientReconnected,mk_TextTranslated],
     //lgs_Reconnecting
     [mk_HostingRights,mk_IndexOnServer,mk_GameVersion,mk_WelcomeMessage,mk_Ping,mk_FPS,mk_ConnectedToRoom,
@@ -81,6 +81,7 @@ type
     fMissingFileType: TNetGameKind;
     fMissingFileName: UnicodeString;
     fMissingFileExists: Boolean;
+    fAcceptReturnToLobbySave: Boolean;
 
     fOnJoinSucc: TNotifyEvent;
     fOnJoinFail: TUnicodeStringEvent;
@@ -94,9 +95,10 @@ type
     fOnPlayersSetup: TNotifyEvent;
     fOnGameOptions: TNotifyEvent;
     fOnMapName: TUnicodeStringEvent;
-    fOnMapMissing: TUnicodeStringEvent;
+    fOnMapMissing: TUnicodeStringBoolEvent;
     fOnStartMap: TGameStartEvent;
     fOnStartSave: TGameStartEvent;
+    fOnReturnToLobby: TNotifyEvent;
     fOnPlay: TNotifyEvent;
     fOnReadyToPlay: TNotifyEvent;
     fOnDisconnect: TUnicodeStringEvent;
@@ -194,6 +196,7 @@ type
     procedure GameCreated;
     procedure SendCommands(aStream: TKMemoryStream; aPlayerIndex: ShortInt = -1);
     procedure AttemptReconnection;
+    procedure ReturnToLobby;
 
     property OnJoinSucc:TNotifyEvent write fOnJoinSucc;         //We were allowed to join
     property OnJoinFail: TUnicodeStringEvent write fOnJoinFail;         //We were refused to join
@@ -207,9 +210,10 @@ type
     property OnPlayersSetup: TNotifyEvent write fOnPlayersSetup; //Player list updated
     property OnGameOptions: TNotifyEvent write fOnGameOptions; //Game options updated
     property OnMapName: TUnicodeStringEvent write fOnMapName;           //Map name updated
-    property OnMapMissing: TUnicodeStringEvent write fOnMapMissing;           //Map missing
+    property OnMapMissing: TUnicodeStringBoolEvent write fOnMapMissing;           //Map missing
     property OnStartMap: TGameStartEvent write fOnStartMap;       //Start the game
     property OnStartSave: TGameStartEvent write fOnStartSave;       //Load the game
+    property OnReturnToLobby: TNotifyEvent write fOnReturnToLobby;
     property OnPlay:TNotifyEvent write fOnPlay;                 //Start the gameplay
     property OnReadyToPlay:TNotifyEvent write fOnReadyToPlay;   //Update the list of players ready to play
     property OnPingInfo:TNotifyEvent write fOnPingInfo;         //Ping info updated
@@ -1119,7 +1123,7 @@ var
   Kind: TKMessageKind;
   err: UnicodeString;
   tmpInteger: Integer;
-  tmpBoolean: Boolean;
+  tmpBoolean, AutoAcceptTransfer: Boolean;
   tmpStringA, replyStringA: AnsiString;
   tmpStringW, replyStringW: UnicodeString;
   I,LocID,TeamID,ColorID,PlayerIndex: Integer;
@@ -1143,8 +1147,9 @@ begin
         err := 'Received a packet not intended for this state (' +
           GetEnumName(TypeInfo(TNetGameState), Integer(fNetGameState)) + '): ' +
           GetEnumName(TypeInfo(TKMessageKind), Integer(Kind));
+        //These warnings sometimes happen when returning to lobby, log them but don't show user
         gLog.AddTime(err);
-        PostLocalMessage('Error: ' + err, csSystem);
+        //PostLocalMessage('Error: ' + err, csSystem);
       end;
       Exit;
     end;
@@ -1342,7 +1347,7 @@ begin
       mk_FileEnd:
               if not IsHost and (fFileReceiver <> nil) then
               begin
-                if fFileReceiver.ProcessTransfer then
+                if fFileReceiver.ProcessTransfer and not fFileReceiver.Silent then
                   PostMessage(TX_NET_SUCCESSFULLY_DOWNLOADED, csSystem, UnicodeString(fMyNikname), fFileReceiver.Name);
                 FreeAndNil(fFileReceiver);
               end;
@@ -1466,7 +1471,7 @@ begin
                 if fFileReceiver <> nil then
                 begin
                   FreeAndNil(fFileReceiver); //Transfer is aborted if host disconnects/changes
-                  if Assigned(fOnMapMissing) then fOnMapMissing(tmpStringW); //Reset, otherwise it will freeze in "downloading" state
+                  if Assigned(fOnMapMissing) then fOnMapMissing(tmpStringW, False); //Reset, otherwise it will freeze in "downloading" state
                 end;
                 if IsHost then
                 begin
@@ -1595,8 +1600,9 @@ begin
                   fSelectGameKind := ngk_None;
                   if fMyIndex <> -1 then //In the process of joining
                     fNetPlayers[fMyIndex].ReadyToStart := false;
-                  if Assigned(fOnMapMissing) then fOnMapMissing(tmpStringW);
-                end
+                  if Assigned(fOnMapMissing) then fOnMapMissing(tmpStringW, False);
+                end;
+                fAcceptReturnToLobbySave := False;
               end;
 
       mk_SaveSelect:
@@ -1618,15 +1624,19 @@ begin
                 M.Read(tmpInteger);
                 if Integer(fSaveInfo.CRC) <> tmpInteger then
                 begin
+                  //If this is the save for returning to the lobby we should accept the transfer
+                  AutoAcceptTransfer := fAcceptReturnToLobbySave and (fSaveInfo.FileName = RETURN_TO_LOBBY_SAVE);
                   if fSaveInfo.IsValid then
                   begin
-                    PostMessage(TX_NET_DIFFERENT_VERSION, csSystem, UnicodeString(fMyNikname), fSaveInfo.FileName);
+                    if not AutoAcceptTransfer then
+                      PostMessage(TX_NET_DIFFERENT_VERSION, csSystem, UnicodeString(fMyNikname), fSaveInfo.FileName);
                     tmpStringW := Format(gResTexts[TX_SAVE_WRONG_VERSION],[fSaveInfo.FileName]);
                     fMissingFileExists := True;
                   end
                   else
                   begin
-                    PostMessage(TX_NET_MISSING_FILES, csSystem, UnicodeString(fMyNikname), fSaveInfo.FileName);
+                    if not AutoAcceptTransfer then
+                      PostMessage(TX_NET_MISSING_FILES, csSystem, UnicodeString(fMyNikname), fSaveInfo.FileName);
                     tmpStringW := Format(gResTexts[TX_SAVE_DOESNT_EXIST],[fSaveInfo.FileName]);
                     fMissingFileExists := False;
                   end;
@@ -1637,8 +1647,11 @@ begin
                   fSelectGameKind := ngk_None;
                   if fMyIndex <> -1 then //In the process of joining
                     fNetPlayers[fMyIndex].ReadyToStart := False;
-                  if Assigned(fOnMapMissing) then fOnMapMissing(tmpStringW);
+                  if Assigned(fOnMapMissing) then fOnMapMissing(tmpStringW, AutoAcceptTransfer);
+                  if (fFileReceiver <> nil) and AutoAcceptTransfer then
+                    fFileReceiver.Silent := True;
                 end;
+                fAcceptReturnToLobbySave := False; //Don't auto accept next save transfer
               end;
 
       mk_StartingLocQuery:
@@ -1683,6 +1696,11 @@ begin
                 else //Quietly refuse
                   SendPlayerListAndRefreshPlayersSetup(aSenderIndex);
               end;
+
+      mk_ReturnToLobby:
+              if not IsHost then
+                if Assigned(fOnReturnToLobby) then
+                  fOnReturnToLobby(Self);
 
       mk_ReadyToStart:
               if IsHost then
@@ -2030,6 +2048,27 @@ procedure TKMNetworking.FPSMeasurement(aFPS: Cardinal);
 begin
   if fNetGameState = lgs_Game then
     PacketSend(NET_ADDRESS_ALL, mk_FPS, Integer(aFPS));
+end;
+
+
+procedure TKMNetworking.ReturnToLobby;
+begin
+  //Clear events that were used by Game
+  fOnCommands := nil;
+  fOnResyncFromTick := nil;
+  fOnPlay := nil;
+  fOnReadyToPlay := nil;
+
+  fNetGameState := lgs_Lobby;
+  if IsHost then
+  begin
+    PacketSend(NET_ADDRESS_OTHERS, mk_ReturnToLobby);
+    NetPlayers.RemAllAIs; //AIs are included automatically when you start the save
+    NetPlayers.RemDisconnectedPlayers; //Disconnected players must not be shown in lobby
+    //Don't refresh player setup here since events aren't attached to lobby yet
+  end
+  else
+    fAcceptReturnToLobbySave := True; //Expect transfer from host
 end;
 
 

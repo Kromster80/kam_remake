@@ -63,7 +63,7 @@ type
     procedure Lobby_OnDisconnect(const aData: UnicodeString);
     procedure Lobby_OnGameOptions(Sender: TObject);
     procedure Lobby_OnMapName(const aData: UnicodeString);
-    procedure Lobby_OnMapMissing(const aData: UnicodeString);
+    procedure Lobby_OnMapMissing(const aData: UnicodeString; aStartTransfer: Boolean);
     procedure Lobby_OnMessage(const aText: UnicodeString);
     procedure Lobby_OnPingInfo(Sender: TObject);
     procedure Lobby_OnPlayersSetup(Sender: TObject);
@@ -134,10 +134,13 @@ type
     constructor Create(aParent: TKMPanel; aOnPageChange: TGUIEventText);
     destructor Destroy; override;
 
-    function GetChatText: string;
-    function GetChatMessages: string;
+    function GetChatText: UnicodeString;
+    function GetChatMessages: UnicodeString;
+    procedure SetChatText(const aString: UnicodeString);
+    procedure SetChatMessages(const aString: UnicodeString);
     procedure Show(aKind: TNetPlayerKind; aNetworking: TKMNetworking; aMainHeight: Word);
     procedure Lobby_Resize(aMainHeight: Word);
+    procedure ReturnToLobby(const aSaveName: UnicodeString);
     procedure UpdateState;
   end;
 
@@ -638,16 +641,29 @@ end;
 
 
 //Access text that user was typing to copy it over to gameplay chat
-function TKMMenuLobby.GetChatText: string;
+function TKMMenuLobby.GetChatText: UnicodeString;
 begin
   Result := Edit_LobbyPost.Text;
 end;
 
 
 //Access chat messages history to copy it over to gameplay chat
-function TKMMenuLobby.GetChatMessages: string;
+function TKMMenuLobby.GetChatMessages: UnicodeString;
 begin
   Result := Memo_LobbyPosts.Text;
+end;
+
+
+procedure TKMMenuLobby.SetChatText(const aString: UnicodeString);
+begin
+  Edit_LobbyPost.Text := aString;
+end;
+
+
+procedure TKMMenuLobby.SetChatMessages(const aString: UnicodeString);
+begin
+  Memo_LobbyPosts.Text := aString;
+  Memo_LobbyPosts.ScrollToBottom;
 end;
 
 
@@ -1615,7 +1631,7 @@ begin
 end;
 
 
-procedure TKMMenuLobby.Lobby_OnMapMissing(const aData: UnicodeString);
+procedure TKMMenuLobby.Lobby_OnMapMissing(const aData: UnicodeString; aStartTransfer: Boolean);
 begin
   //Common settings
   MinimapView_Lobby.Visible := (fNetworking.SelectGameKind = ngk_Map) and fNetworking.MapInfo.IsValid;
@@ -1647,6 +1663,8 @@ begin
     Button_LobbySetupDownload.Enable;
     Button_LobbySetupDownload.Top := 0;
   end;
+  if aStartTransfer then
+    FileDownloadClick(Button_LobbySetupDownload);
 end;
 
 
@@ -1776,6 +1794,22 @@ begin
     Panel_LobbySettings.Hide;
     fNetworking.Description := Edit_LobbyDescription.Text;
     fNetworking.SetPassword(AnsiString(Edit_LobbyPassword.Text));
+  end;
+end;
+
+
+procedure TKMMenuLobby.ReturnToLobby(const aSaveName: UnicodeString);
+begin
+  Radio_LobbyMapType.ItemIndex := 4; //Save
+  MapTypeChange(nil);
+  Lobby_OnGameOptions(nil);
+  if fNetworking.IsHost then
+  begin
+    fNetworking.SelectSave(aSaveName);
+    //Make sure the save was successfully selected
+    Radio_LobbyMapType.ItemIndex := DetectMapType;
+    if fNetworking.SelectGameKind = ngk_Save then
+      Lobby_OnMapName(aSaveName);
   end;
 end;
 

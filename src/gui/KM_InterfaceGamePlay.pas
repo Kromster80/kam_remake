@@ -126,6 +126,7 @@ type
     procedure MPPlayMoreClick(Sender: TObject);
     procedure NetWaitClick(Sender: TObject);
     procedure ReplayClick(Sender: TObject);
+    procedure ReturnToLobbyClick(Sender: TObject);
     procedure Allies_Close(Sender: TObject);
     procedure AlliesUpdateMapping;
     procedure Menu_Update;
@@ -171,6 +172,7 @@ type
       Checkbox_ReplayFOW: TKMCheckBox;
     Panel_Allies: TKMPanel;
       Label_PeacetimeRemaining: TKMLabel;
+      Image_AlliesHostStar: TKMImage;
       Image_AlliesFlag:array [0..MAX_LOBBY_SLOTS-1] of TKMImage;
       Label_AlliesPlayer:array [0..MAX_LOBBY_SLOTS-1] of TKMLabel;
       DropBox_AlliesTeam:array [0..MAX_LOBBY_SLOTS-1] of TKMDropList;
@@ -212,7 +214,7 @@ type
           Label_NetWaitConfirm: TKMLabel;
           Button_NetConfirmYes,Button_NetConfirmNo: TKMButton;
     Panel_Menu: TKMPanel;
-      Button_Menu_Save,Button_Menu_Load,Button_Menu_Settings,Button_Menu_Quit,Button_Menu_TrackUp,Button_Menu_TrackDown: TKMButton;
+      Button_Menu_Save,Button_Menu_Load,Button_Menu_ReturnLobby,Button_Menu_Settings,Button_Menu_Quit,Button_Menu_TrackUp,Button_Menu_TrackDown: TKMButton;
       Label_Menu_Track, Label_GameTime: TKMLabel;
 
       Panel_Save: TKMPanel;
@@ -277,6 +279,8 @@ type
     procedure SetScriptedOverlay(aText: UnicodeString);
     procedure AppendScriptedOverlay(aText: UnicodeString);
     procedure ReleaseDirectionSelector;
+    function GetChatText: UnicodeString;
+    function GetChatMessages: UnicodeString;
     procedure SetChatText(const aString: UnicodeString);
     procedure SetChatMessages(const aString: UnicodeString);
     procedure ChatMessage(const aData: UnicodeString);
@@ -1099,6 +1103,8 @@ begin
     with TKMImage.Create(Panel_Allies,0,0,800,190,409) do ImageAnchors := [anLeft, anRight, anTop];
 
     Label_PeacetimeRemaining := TKMLabel.Create(Panel_Allies,400,20,'',fnt_Outline,taCenter);
+    Image_AlliesHostStar := TKMImage.Create(Panel_Allies, 50, 82, 20, 20, 77, rxGuiMain);
+    Image_AlliesHostStar.Hide;
 
     for I := 0 to MAX_LOBBY_SLOTS - 1 do
     begin
@@ -1134,6 +1140,14 @@ begin
   Button_Menu_Load := TKMButton.Create(Panel_Menu, 0, 20, TB_WIDTH, 30, gResTexts[TX_MENU_LOAD_GAME], bsGame);
   Button_Menu_Load.OnClick := SwitchPage;
   Button_Menu_Load.Hint := gResTexts[TX_MENU_LOAD_GAME];
+  Button_Menu_Load.Visible := not (fUIMode in [umMP, umSpectate]);
+
+  Button_Menu_ReturnLobby := TKMButton.Create(Panel_Menu, 0, 20, TB_WIDTH, 30, 'Return to lobby', bsGame);
+  Button_Menu_ReturnLobby.OnClick := ReturnToLobbyClick;
+  Button_Menu_ReturnLobby.Hint := 'Returns this room to the lobby. The game can then be resumed or changed';
+  Button_Menu_ReturnLobby.Visible := fUIMode in [umMP, umSpectate];
+  Button_Menu_ReturnLobby.Disable; //Will be enabled later when we are sure who is host
+
   Button_Menu_Save := TKMButton.Create(Panel_Menu, 0, 60, TB_WIDTH, 30, gResTexts[TX_MENU_SAVE_GAME], bsGame);
   Button_Menu_Save.OnClick := SwitchPage;
   Button_Menu_Save.Hint := gResTexts[TX_MENU_SAVE_GAME];
@@ -1835,6 +1849,12 @@ begin
 end;
 
 
+procedure TKMGamePlayInterface.ReturnToLobbyClick(Sender: TObject);
+begin
+  fGameApp.StopGameReturnToLobby(Self);
+end;
+
+
 procedure TKMGamePlayInterface.MessageIssue(aKind: TKMMessageKind; aText: UnicodeString);
 begin
   fMessageList.Add(aKind, aText, KMPoint(0,0));
@@ -2304,12 +2324,32 @@ begin
 end;
 
 
+//Access text that user was typing to copy it over to lobby chat
+function TKMGamePlayInterface.GetChatText: UnicodeString;
+begin
+  Result := fGuiGameChat.GetChatText;
+end;
+
+
+//Access chat messages history to copy it over to lobby chat
+function TKMGamePlayInterface.GetChatMessages: UnicodeString;
+begin
+  Result := fGuiGameChat.GetChatMessages;
+end;
+
+
 procedure TKMGamePlayInterface.SetChatText(const aString: UnicodeString);
 begin
   fGuiGameChat.SetChatText(aString);
 
   if aString <> '' then
     fGuiGameChat.Show;
+end;
+
+
+procedure TKMGamePlayInterface.SetChatMessages(const aString: UnicodeString);
+begin
+  fGuiGameChat.SetChatMessages(aString);
 end;
 
 
@@ -2411,12 +2451,6 @@ begin
 end;
 
 
-procedure TKMGamePlayInterface.SetChatMessages(const aString: UnicodeString);
-begin
-  fGuiGameChat.SetChatMessages(aString);
-end;
-
-
 procedure TKMGamePlayInterface.ChatMessage(const aData: UnicodeString);
 begin
   fGuiGameChat.ChatMessage(aData);
@@ -2430,6 +2464,8 @@ procedure TKMGamePlayInterface.AlliesOnPlayerSetup(Sender: TObject);
 var
   I, NetI, LocaleID: Integer;
 begin
+  Image_AlliesHostStar.Hide;
+  Button_Menu_ReturnLobby.Enabled := gGame.Networking.IsHost;
   AlliesUpdateMapping;
   for I := 0 to MAX_LOBBY_SLOTS-1 do
   begin
@@ -2452,6 +2488,12 @@ begin
           Image_AlliesFlag[I].TexID := gResLocales[LocaleID].FlagSpriteID
         else
           Image_AlliesFlag[I].TexID := 0;
+      end;
+      if gGame.Networking.HostIndex = NetI then
+      begin
+        Image_AlliesHostStar.Show;
+        Image_AlliesHostStar.Left := 190+(I div 5)*380;
+        Image_AlliesHostStar.Top := 80+(I mod 5)*20;
       end;
 
       if gGame.Networking.NetPlayers[NetI].IsHuman then

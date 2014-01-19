@@ -33,6 +33,8 @@ type
 
     procedure SetChatText(const aString: UnicodeString);
     procedure SetChatMessages(const aString: UnicodeString);
+    function GetChatText: UnicodeString;
+    function GetChatMessages: UnicodeString;
     procedure ChatMessage(const aData: UnicodeString);
 
     procedure Show;
@@ -215,6 +217,20 @@ begin
   C := TKMControl(Sender);
   //Position the menu next to the icon, but do not overlap players name
   Menu_Chat.ShowAt(C.AbsLeft, C.AbsTop - Menu_Chat.Height);
+end;
+
+
+//Access text that user was typing to copy it over to lobby chat
+function TKMGUIGameChat.GetChatText: UnicodeString;
+begin
+  Result := Edit_ChatMsg.Text;
+end;
+
+
+//Access chat messages history to copy it over to lobby chat
+function TKMGUIGameChat.GetChatMessages: UnicodeString;
+begin
+  Result := Memo_ChatText.Text;
 end;
 
 

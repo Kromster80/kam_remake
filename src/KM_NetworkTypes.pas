@@ -67,6 +67,7 @@ type
     mk_SaveCRC,         //Host tells clients what the CRC of the save should be
     mk_ReadyToStart,    //Joiner tells he's ready to play the game
     mk_Start,           //Host says to start the game
+    mk_ReturnToLobby,   //Host tells joiners to return to the lobby
 
     mk_ReadyToPlay,     //Joiner tells Host he has loaded the map and clock can start
     mk_Play,            //Host tells everyone that the game may begin
@@ -138,6 +139,7 @@ const
     pfNumber,   //mk_SaveCRC
     pfNoData,   //mk_ReadyToStart
     pfBinary,   //mk_Start
+    pfNoData,   //mk_ReturnToLobby
     pfNoData,   //mk_ReadyToPlay
     pfNoData,   //mk_Play
     pfString,   //mk_AskToReconnect

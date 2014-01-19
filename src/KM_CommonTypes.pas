@@ -18,6 +18,7 @@ type
   TPointEvent = procedure (Sender: TObject; const X,Y: Integer) of object;
   TIntegerEvent = procedure (aValue: Integer) of object;
   TUnicodeStringEvent = procedure (const aData: UnicodeString) of object;
+  TUnicodeStringBoolEvent = procedure (const aData: UnicodeString; aBool: Boolean) of object;
   TGameStartEvent = procedure (const aData: UnicodeString; Spectating: Boolean) of object;
   TResyncEvent = procedure (aSender: ShortInt; aTick: cardinal) of object;
   TIntegerStringEvent = procedure (aValue: Integer; const aText: UnicodeString) of object;
