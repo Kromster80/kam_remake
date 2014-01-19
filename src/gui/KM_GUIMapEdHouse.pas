@@ -261,7 +261,10 @@ begin
                     Image_House_Worker.Enable;
                     Button_Barracks_Recruit.FlagColor := gHands[fHouse.Owner].FlagColor;
                     //Reselect the ware so the display is updated
-                    BarracksSelectWare(Button_Barracks[fBarracksItem]);
+                    if fBarracksItem = -1 then
+                      BarracksSelectWare(Button_Barracks_Recruit)
+                    else
+                      BarracksSelectWare(Button_Barracks[fBarracksItem]);
                   end;
     ht_TownHall:;
     else          Panel_House.Show;

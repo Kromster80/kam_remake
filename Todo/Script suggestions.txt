@@ -35,6 +35,7 @@ Implemented:
  6015   Actions.HouseTakeWaresFrom
  6067   Actions.Log
  6114   OnHouseAfterDestroyed, OnUnitAfterDied
+ 6126   Actions.HouseBarracksGiveRecruit
 
 
 Accepted:

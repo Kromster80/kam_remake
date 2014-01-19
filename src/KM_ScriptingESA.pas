@@ -189,6 +189,7 @@ type
     procedure HouseAddWaresTo(aHouseID: Integer; aType, aCount: Word);
     procedure HouseAllow(aPlayer, aHouseType: Word; aAllowed: Boolean);
     function  HouseBarracksEquip(aHouseID: Integer; aUnitType: Integer; aCount: Integer): Integer;
+    procedure HouseBarracksGiveRecruit(aHouseID: Integer);
     procedure HouseDestroy(aHouseID: Integer; aSilent: Boolean);
     procedure HouseDeliveryBlock(aHouseID: Integer; aDeliveryBlocked: Boolean);
     procedure HouseDisableUnoccupiedMessage(aHouseID: Integer; aDisabled: Boolean);
@@ -2458,6 +2459,21 @@ begin
   end
   else
     LogError('Actions.HouseBarracksEquip', [aHouseID, aUnitType]);
+end;
+
+
+procedure TKMScriptActions.HouseBarracksGiveRecruit(aHouseID: Integer);
+var
+  H: TKMHouse;
+begin
+  if aHouseID > 0 then
+  begin
+    H := fIDCache.GetHouse(aHouseID);
+    if (H <> nil) and (H is TKMHouseBarracks) then
+      TKMHouseBarracks(H).CreateRecruitInside(False);
+  end
+  else
+    LogError('Actions.HouseBarracksGiveRecruit', [aHouseID]);
 end;
 
 

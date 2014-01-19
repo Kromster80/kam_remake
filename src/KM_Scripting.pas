@@ -244,6 +244,7 @@ begin
       RegisterMethod('procedure HouseAddWaresTo(aHouseID: Integer; aType, aCount: Word)');
       RegisterMethod('procedure HouseAllow(aPlayer, aHouseType: Word; aAllowed: Boolean)');
       RegisterMethod('function  HouseBarracksEquip(aHouseID: Integer; aUnitType: Integer; aCount: Integer): Integer');
+      RegisterMethod('procedure HouseBarracksGiveRecruit(aHouseID: Integer)');
       RegisterMethod('procedure HouseDeliveryBlock(aHouseID: Integer; aDeliveryBlocked: Boolean)');
       RegisterMethod('procedure HouseDestroy(aHouseID: Integer; aSilent: Boolean)');
       RegisterMethod('procedure HouseDisableUnoccupiedMessage(aHouseID: Integer; aDisabled: Boolean)');
@@ -564,6 +565,7 @@ begin
       RegisterMethod(@TKMScriptActions.HouseAddRepair,                'HOUSEADDREPAIR');
       RegisterMethod(@TKMScriptActions.HouseAddWaresTo,               'HOUSEADDWARESTO');
       RegisterMethod(@TKMScriptActions.HouseBarracksEquip,            'HOUSEBARRACKSEQUIP');
+      RegisterMethod(@TKMScriptActions.HouseBarracksGiveRecruit,      'HOUSEBARRACKSGIVERECRUIT');
       RegisterMethod(@TKMScriptActions.HouseDeliveryBlock,            'HOUSEDELIVERYBLOCK');
       RegisterMethod(@TKMScriptActions.HouseDisableUnoccupiedMessage, 'HOUSEDISABLEUNOCCUPIEDMESSAGE');
       RegisterMethod(@TKMScriptActions.HouseDestroy,            'HOUSEDESTROY');
