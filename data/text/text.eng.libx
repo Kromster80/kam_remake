@@ -454,15 +454,11 @@
 456:Set max. soldiers
 457:How many recruits AI should have in barracks
 458:Recruits per Barracks
-459:Position
 460:Custom position
-461:Closest house 2
-462:Closest house 1
 463:Closest unit
 464:Take all
 465:Group count
 466:Attack info
-467:Delay, s
 468:Repeating
 469:Once
 470:Mounted
@@ -752,3 +748,7 @@
 784:Sets the AI start position which is used for targeting AI attacks
 785:AI start position
 786:Order
+788:Initial delay (seconds)
+789:Soldiers required
+790:Closest house from army
+791:Closest house from start position

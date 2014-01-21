@@ -132,7 +132,7 @@ end;
 procedure TKMMapEdTownOffence.Attacks_Refresh;
 const
   Typ: array [TAIAttackType] of string = ('O', 'R');
-  Tgt: array [TAIAttackTarget] of string = ('U', 'H1', 'H2', 'Pos');
+  Tgt: array [TAIAttackTarget] of string = ('U', 'HA', 'HS', 'Pos');
 var
   I: Integer;
   A: TAIAttack;
