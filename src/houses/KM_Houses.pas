@@ -1079,7 +1079,11 @@ begin
     if aFromScript then
     begin
       aCount := Min(aCount, fResourceOut[i]);
-      gHands[Owner].Stats.WareConsumed(aWare, aCount);
+      if aCount > 0 then
+      begin
+        gHands[fOwner].Stats.WareConsumed(aWare, aCount);
+        gHands[fOwner].Deliveries.Queue.RemOffer(Self, aWare, aCount);
+      end;
     end;
     Assert(aCount <= fResourceOut[i]);
     dec(fResourceOut[i], aCount);
@@ -1501,7 +1505,11 @@ begin
   if aFromScript then
   begin
     aCount := Min(aCount, ResourceCount[aWare]);
-    gHands[Owner].Stats.WareConsumed(aWare, aCount);
+    if aCount > 0 then
+    begin
+      gHands[fOwner].Stats.WareConsumed(aWare, aCount);
+      gHands[fOwner].Deliveries.Queue.RemOffer(Self, aWare, aCount);
+    end;
   end;
   Assert(aCount <= ResourceCount[aWare]);
 

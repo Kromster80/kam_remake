@@ -2329,7 +2329,7 @@ begin
   if aHouseID > 0 then
   begin
     H := fIDCache.GetHouse(aHouseID);
-    if (H <> nil) then
+    if (H <> nil) and gResource.HouseDat[H.HouseType].AcceptsWares then
       H.WareDelivery := not aDeliveryBlocked;
   end
   else

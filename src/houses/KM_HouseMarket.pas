@@ -187,7 +187,11 @@ begin
   if aFromScript then
   begin
     aCount := Min(aCount, fMarketResOut[aWare]);
-    gHands[Owner].Stats.WareConsumed(aWare, aCount);
+    if aCount > 0 then
+    begin
+      gHands[fOwner].Stats.WareConsumed(aWare, aCount);
+      gHands[fOwner].Deliveries.Queue.RemOffer(Self, aWare, aCount);
+    end;
   end;
   Assert(aCount <= fMarketResOut[aWare]);
 
