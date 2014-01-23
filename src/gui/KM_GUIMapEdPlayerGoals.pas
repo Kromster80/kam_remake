@@ -50,9 +50,7 @@ begin
   ColumnBox_Goals.SetColumns(fnt_Outline,
     [gResTexts[TX_MAPED_GOALS_TYPE],
      gResTexts[TX_MAPED_GOALS_CONDITION],
-     gResTexts[TX_MAPED_GOALS_PLAYER],
-     gResTexts[TX_MAPED_GOALS_TIME],
-     gResTexts[TX_MAPED_GOALS_MESSAGE]], [0, 20, 120, 140, 160]);
+     gResTexts[TX_MAPED_GOALS_PLAYER]], [0, 25, 155]);
   ColumnBox_Goals.OnClick := Goals_ListClick;
   ColumnBox_Goals.OnDoubleClick := Goals_ListDoubleClick;
 
@@ -130,9 +128,10 @@ end;
 procedure TKMMapEdPlayerGoals.Goals_Refresh;
 const
   Typ: array [TGoalType] of string = ('-', 'V', 'S');
-  Cnd: array [TGoalCondition] of string = (
-    'None', 'BuildTutorial', 'Time', 'Buildings', 'Troops', 'Unknown',
-    'MilitaryAssets', 'SerfsAndSchools', 'EconomyBuildings');
+  Cnd: array [TGoalCondition] of Integer = (
+    TX_MAPED_GOALS_CONDITION_NONE, TX_MAPED_GOALS_CONDITION_TUTORIAL, TX_MAPED_GOALS_CONDITION_TIME,
+    TX_MAPED_GOALS_CONDITION_BUILDS, TX_MAPED_GOALS_CONDITION_TROOPS, TX_MAPED_GOALS_CONDITION_UNKNOWN,
+    TX_MAPED_GOALS_CONDITION_ASSETS, TX_MAPED_GOALS_CONDITION_SERFS, TX_MAPED_GOALS_CONDITION_ECONOMY);
 var
   I: Integer;
   G: TKMGoal;
@@ -143,10 +142,8 @@ begin
   begin
     G := gHands[MySpectator.HandIndex].AI.Goals[I];
     ColumnBox_Goals.AddItem(MakeListRow([Typ[G.GoalType],
-                                    Cnd[G.GoalCondition],
-                                    IntToStr(G.HandIndex + 1),
-                                    IntToStr(G.GoalTime div 10),
-                                    IntToStr(G.MessageToShow)]));
+                                    gResTexts[Cnd[G.GoalCondition]],
+                                    IntToStr(G.HandIndex + 1)]));
   end;
 
   Goals_ListClick(nil);

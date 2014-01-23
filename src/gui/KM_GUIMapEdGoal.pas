@@ -19,8 +19,6 @@ type
     Image_GoalFlag: TKMImage;
     Radio_GoalType: TKMRadioGroup;
     Radio_GoalCondition: TKMRadioGroup;
-    NumEdit_GoalTime: TKMNumericEdit;
-    NumEdit_GoalMessage: TKMNumericEdit;
     NumEdit_GoalPlayer: TKMNumericEdit;
     Button_GoalOk: TKMButton;
     Button_GoalCancel: TKMButton;
@@ -59,15 +57,15 @@ begin
 
   Image_GoalFlag := TKMImage.Create(Panel_Goal, 10, 10, 0, 0, 30, rxGuiMain);
 
-  TKMLabel.Create(Panel_Goal, 20, 40, 100, 0, gResTexts[TX_MAPED_GOALS_TYPE], fnt_Metal, taLeft);
-  Radio_GoalType := TKMRadioGroup.Create(Panel_Goal, 20, 60, 100, 60, fnt_Metal);
+  TKMLabel.Create(Panel_Goal, 20, 40, 160, 0, gResTexts[TX_MAPED_GOALS_TYPE], fnt_Metal, taLeft);
+  Radio_GoalType := TKMRadioGroup.Create(Panel_Goal, 20, 60, 160, 60, fnt_Metal);
   Radio_GoalType.Add(gResTexts[TX_MAPED_GOALS_TYPE_NONE], False);
   Radio_GoalType.Add(gResTexts[TX_MAPED_GOALS_TYPE_VICTORY]);
   Radio_GoalType.Add(gResTexts[TX_MAPED_GOALS_TYPE_SURVIVE]);
   Radio_GoalType.OnChange := Goal_Change;
 
-  TKMLabel.Create(Panel_Goal, 140, 40, 180, 0, gResTexts[TX_MAPED_GOALS_CONDITION], fnt_Metal, taLeft);
-  Radio_GoalCondition := TKMRadioGroup.Create(Panel_Goal, 140, 60, 180, 180, fnt_Metal);
+  TKMLabel.Create(Panel_Goal, 200, 40, 280, 0, gResTexts[TX_MAPED_GOALS_CONDITION], fnt_Metal, taLeft);
+  Radio_GoalCondition := TKMRadioGroup.Create(Panel_Goal, 200, 60, 280, 180, fnt_Metal);
   Radio_GoalCondition.Add(gResTexts[TX_MAPED_GOALS_CONDITION_NONE], False);
   Radio_GoalCondition.Add(gResTexts[TX_MAPED_GOALS_CONDITION_TUTORIAL], False);
   Radio_GoalCondition.Add(gResTexts[TX_MAPED_GOALS_CONDITION_TIME], False);
@@ -79,19 +77,9 @@ begin
   Radio_GoalCondition.Add(gResTexts[TX_MAPED_GOALS_CONDITION_ECONOMY]);
   Radio_GoalCondition.OnChange := Goal_Change;
 
-  TKMLabel.Create(Panel_Goal, 330, 40, gResTexts[TX_MAPED_GOALS_PLAYER], fnt_Metal, taLeft);
-  NumEdit_GoalPlayer := TKMNumericEdit.Create(Panel_Goal, 330, 60, 1, MAX_HANDS);
+  TKMLabel.Create(Panel_Goal, 480, 40, gResTexts[TX_MAPED_GOALS_PLAYER], fnt_Metal, taLeft);
+  NumEdit_GoalPlayer := TKMNumericEdit.Create(Panel_Goal, 480, 60, 1, MAX_HANDS);
   NumEdit_GoalPlayer.OnChange := Goal_Change;
-
-  TKMLabel.Create(Panel_Goal, 480, 40, gResTexts[TX_MAPED_GOALS_TIME], fnt_Metal, taLeft);
-  NumEdit_GoalTime := TKMNumericEdit.Create(Panel_Goal, 480, 60, 0, 32767);
-  NumEdit_GoalTime.OnChange := Goal_Change;
-  NumEdit_GoalTime.SharedHint := 'This setting is deprecated, use scripts instead';
-
-  TKMLabel.Create(Panel_Goal, 480, 90, gResTexts[TX_MAPED_GOALS_MESSAGE], fnt_Metal, taLeft);
-  NumEdit_GoalMessage := TKMNumericEdit.Create(Panel_Goal, 480, 110, 0, 0);
-  NumEdit_GoalMessage.SharedHint := 'This setting is deprecated, use scripts instead';
-  NumEdit_GoalMessage.Disable;
 
   Button_GoalOk := TKMButton.Create(Panel_Goal, SIZE_X-20-320-10, SIZE_Y - 50, 160, 30, gResTexts[TX_MAPED_OK], bsMenu);
   Button_GoalOk.OnClick := Goal_Close;
@@ -104,8 +92,6 @@ procedure TKMMapEdGoal.Goal_Change(Sender: TObject);
 begin
   //Settings get saved on close, now we just toggle fields
   //because certain combinations can't coexist
-
-  NumEdit_GoalTime.Enabled := TGoalCondition(Radio_GoalCondition.ItemIndex) = gc_Time;
   NumEdit_GoalPlayer.Enabled := TGoalCondition(Radio_GoalCondition.ItemIndex) <> gc_Time;
 end;
 
@@ -123,8 +109,6 @@ begin
       G.GoalStatus := gs_True
     else
       G.GoalStatus := gs_False;
-    G.GoalTime := NumEdit_GoalTime.Value * 10;
-    G.MessageToShow := NumEdit_GoalMessage.Value;
     G.HandIndex := NumEdit_GoalPlayer.Value - 1;
 
     gHands[fOwner].AI.Goals[fIndex] := G;
@@ -141,8 +125,6 @@ begin
 
   Radio_GoalType.ItemIndex := Byte(aGoal.GoalType);
   Radio_GoalCondition.ItemIndex := Byte(aGoal.GoalCondition);
-  NumEdit_GoalTime.Value := aGoal.GoalTime div 10;
-  NumEdit_GoalMessage.Value := aGoal.MessageToShow;
   NumEdit_GoalPlayer.Value := aGoal.HandIndex + 1;
 
   //Certain values disable certain controls

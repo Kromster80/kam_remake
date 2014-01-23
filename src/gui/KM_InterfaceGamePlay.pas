@@ -540,6 +540,7 @@ begin
       Edit_Save.Text := gGame.GameName
     else
       Edit_Save.Text := fLastSaveName;
+    Menu_Save_EditChange(nil); //Displays "confirm overwrite" message if necessary
   end else
 
   if Sender = Button_Menu_Load then begin
@@ -2487,7 +2488,7 @@ begin
       end;
       if gGame.Networking.HostIndex = NetI then
       begin
-        Image_AlliesHostStar.Show;
+        Image_AlliesHostStar.Visible := True;
         Image_AlliesHostStar.Left := 190+(I div 5)*380;
         Image_AlliesHostStar.Top := 80+(I mod 5)*20;
       end;
