@@ -359,7 +359,6 @@
 360:Jätka peatatud tagasimäng
 361:Välju tagasimängust
 362:Näita iga mängijat eraldi
-363:Näita kõiki
 364:Kasuta vasakut hiireklahvi, et valida toode, mida vahetada
 365:Kasuta paremat hiireklahvi, et valida toodet, mida vahetada
 366:Millest: x%d
@@ -386,7 +385,6 @@
 388:Suva elemendid
 389:Suva suund
 390:Pane linnuke kui soovid suva suunalisi maastikuruudustikku või parema klikkiga keerad neid ise
-391:Parema klikkiga saab keerata valitud maastikuruudukest
 392:Keela kõndimine
 393:Eemalda objekt
 394:Küla planeerimine
@@ -425,8 +423,6 @@
 427:Blokeeri/Vabasta majad
 428:Värvid
 429:Eesmärk
-430:SMS.
-431:Aeg
 432:Mängija
 433:Majanduslikud majad
 434:Pärisorjad ja koolid
@@ -546,7 +542,6 @@
 552:Kirjeldus
 553:Salasõna
 554:Mängu seaded:
-555:Määra võõrustaja
 556:Eemalda mängust
 557:Löö välja
 558:Suvasta kohad mängijatel

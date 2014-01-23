@@ -5,7 +5,7 @@ uses
   Classes, Controls, Dialogs, ExtCtrls, Forms, Graphics, Math, Menus,
   {$IFDEF MSWINDOWS} ComCtrls, FileCtrl, {$ENDIF}
   StdCtrls, StrUtils, Windows, SysUtils, CheckLst, INIFiles,
-  KM_Defaults, KM_ResLocales, Unit_Text, Unit_PathManager;
+  KM_Defaults, KM_FileIO, KM_ResLocales, Unit_Text, Unit_PathManager;
 
 const
   //Disables insert, delete, compact, sort, etc. functions
@@ -714,29 +714,45 @@ end;
 
 procedure TForm1.btnUnusedClick(Sender: TObject);
 var
-  I: Integer;
-  SearchRec: TSearchRec;
   ConstList: TStringList;
-  PasFile: TMemoryStream;
-  PasString: AnsiString;
+
+  procedure CheckPasFiles(aDir: string);
+  var
+    I: Integer;
+    SearchRec: TSearchRec;
+    PasString: AnsiString;
+  begin
+    if FindFirst(aDir + '*.*', faAnyFile or faDirectory, SearchRec) = 0 then
+    begin
+      repeat
+        if ((SearchRec.Attr and faDirectory) <> 0) then
+        begin
+          if (SearchRec.Name <> '.') and (SearchRec.Name <> '..') then
+            CheckPasFiles(aDir + SearchRec.Name + '\'); //Check subfolder recursively
+          Continue;
+        end;
+        if not EndsStr('.pas', SearchRec.Name) then Continue;
+
+        PasString := ReadTextA(aDir + SearchRec.Name);
+        for I := ConstList.Count - 1 downto 0 do
+        if Pos(ConstList[I], PasString) <> 0 then
+          ConstList.Delete(I);
+      until (FindNext(SearchRec) <> 0);
+      FindClose(SearchRec);
+    end;
+  end;
+
+var
+  I: Integer;
 begin
   ConstList := TStringList.Create;
-  PasFile := TMemoryStream.Create;
   try
     //Prepare list of all constants we will be looking for
     for I := 0 to fTextManager.ConstCount - 1 do
       ConstList.Append(fTextManager.Consts[I].ConstName);
 
     //Check all *.pas files
-    FindFirst(fWorkDir + '*.pas', faAnyFile - faDirectory, SearchRec);
-    repeat
-      PasFile.LoadFromFile(fWorkDir + SearchRec.Name);
-      SetString(PasString, PChar(PasFile.Memory), PasFile.Size);
-      for I := ConstList.Count - 1 downto 0 do
-      if Pos(ConstList[I], PasString) <> 0 then
-        ConstList.Delete(I);
-    until (FindNext(SearchRec) <> 0);
-    FindClose(SearchRec);
+    CheckPasFiles(fWorkDir + 'src\');
 
     //Remove duplicate EOLs (keep section separators)
     for I := ConstList.Count - 2 downto 0 do
@@ -746,7 +762,6 @@ begin
     ConstList.SaveToFile(fWorkDir + 'TM_unused.txt');
     ShowMessage(ConstList.Text);
   finally
-    PasFile.Free;
     ConstList.Free;
   end;
 end;

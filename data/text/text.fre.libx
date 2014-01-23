@@ -386,7 +386,6 @@
 388:Élements aléatoires
 389:Orientation aléatoire
 390:Cocher pour une direction aléatoire des cases ou utiliser le clic droit pour effectuer une rotation de la case selectionnée
-391:Utiliser le clic droit pour effectuer une rotation de la case selectionnée
 392:Bloquer les mouvements
 393:Enlever un objet
 394:Planification du Village
@@ -425,8 +424,6 @@
 427:Bloquer/Déverouiller des maisons
 428:Couleurs
 429:Buts
-430:Msg.
-431:Temps
 432:Joueur
 433:Batiments économiques
 434:Serfs et écoles
@@ -546,7 +543,6 @@
 552:Description
 553:Mot de Passe
 554:Paramètres de la Salle
-555:Définir comme hôte
 557:Exclure
 558:Positions aléatoire dans chaque équipe
 559:Description

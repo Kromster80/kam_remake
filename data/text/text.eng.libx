@@ -386,7 +386,6 @@
 388:Random elements
 389:Random Direction
 390:Tick for randomized tile direction or use right click to rotate the selected tile
-391:Use right click to rotate the selected tile
 392:Block walking
 393:Remove an object
 394:Village planning
@@ -425,8 +424,6 @@
 427:Block/release houses
 428:Colors
 429:Goal
-430:Msg.
-431:Time
 432:Player
 433:Economy buildings
 434:Serfs and schools
@@ -546,7 +543,6 @@
 552:Description
 553:Password
 554:Room settings
-555:Set to host
 556:Ban from this lobby
 557:Kick
 558:Randomize locations within teams

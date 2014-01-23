@@ -386,7 +386,6 @@
 388:Elementos aleatorios
 389:Dirección aleatoria
 390:Señal para direccionar las baldosas al azar o utilizar el botón derecho para girar la pieza seleccionada
-391:Use el botón derecho para girar la pieza seleccionada
 392:Bloquear caminar
 393:Eliminar un objeto
 394:Planificar el pueblo
@@ -425,8 +424,6 @@
 427:Boloquear/liberar casas
 428:Colores
 429:Objetivo
-430:Msg.
-431:Tiempo
 432:Jugador
 433:Economía de edificios
 434:Siervos y escuelas
@@ -546,7 +543,6 @@
 552:Descripción
 553:Contraseña
 554:Ajustes de la sala
-555:Ajuste para alojar
 557:Expulsar
 558:Selección aleatoria de las ubicaciones en los equipos
 559:Descripción
