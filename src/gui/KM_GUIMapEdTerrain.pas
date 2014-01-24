@@ -65,7 +65,7 @@ begin
 
   fOnPageChange := aOnPageChange;
 
-  Panel_Terrain := TKMPanel.Create(aParent, 0, 45, TB_WIDTH, 28);
+  Panel_Terrain := TKMPanel.Create(aParent, 0, 45, TB_WIDTH, 50);
     for I := Low(TKMTerrainTab) to High(TKMTerrainTab) do
     begin
       Button_Terrain[I] := TKMButton.Create(Panel_Terrain, SMALL_PAD_W * Byte(I), 0, SMALL_TAB_W, SMALL_TAB_H, BtnGlyph[I], rxGui, bsGame);
@@ -73,10 +73,10 @@ begin
       Button_Terrain[I].OnClick := PageChange;
     end;
 
-    Button_TerrainUndo := TKMButton.Create(Panel_Terrain, 160, 0, 20, 20, '<', bsGame);
+    Button_TerrainUndo := TKMButton.Create(Panel_Terrain, 155, 0, 15, 26, '<', bsGame);
     Button_TerrainUndo.Hint := gResTexts[TX_MAPED_UNDO_HINT];
     Button_TerrainUndo.OnClick := UnRedoClick;
-    Button_TerrainRedo := TKMButton.Create(Panel_Terrain, 180, 0, 20, 20, '>', bsGame);
+    Button_TerrainRedo := TKMButton.Create(Panel_Terrain, 170, 0, 15, 26, '>', bsGame);
     Button_TerrainRedo.Hint := gResTexts[TX_MAPED_REDO_HINT];
     Button_TerrainRedo.OnClick := UnRedoClick;
 

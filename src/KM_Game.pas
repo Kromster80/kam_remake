@@ -405,7 +405,7 @@ begin
   if fGameMode in [gmMulti, gmMultiSpectate] then
     MultiplayerRig;
 
-  gHands.AfterMissionInit(True);
+  gHands.AfterMissionInit(fGameMode <> gmMapEd); //Don't flatten roads in MapEd
 
   //Random after StartGame and ViewReplay should match
   if IsMultiplayer then

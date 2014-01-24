@@ -678,8 +678,6 @@
 688:Attack position
 689:Walk to
 690:Direction
-691:Back line
-692:Front line
 693:Defence radius
 694:Delete current defence position
 695:Return to the defence page
@@ -748,3 +746,5 @@
 789:Soldiers required
 790:Closest house from army
 791:Closest house from start position
+792:Attackers
+793:Defenders
