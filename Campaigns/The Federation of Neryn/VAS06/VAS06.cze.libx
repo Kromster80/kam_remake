@@ -1,8 +1,5 @@
-
-MaxID:4
-
-0:Chyba skryptu!|Cesta/budova nemohla bát postavena, nebo byla znièena bìhem stavìní.|Mìli byste restartovat misi...
-1:Naše jednotky se dostaly na ostrov.|Drte pozice! Urèitì se budou snait zabrat Vaši vesnici.
-2:Nepøátelská hlídka drí spojence v zálivu. Váš první úkol je znièit nepøátelskou hlídku. Èím døíve tak uèiníte, tím lépe. Je velmi pravdìpodobné, e koèovníci dodají svım jednotkám posily.
-3:Osvobodil jste Angersheim. Obyvatelé se pokusí nám pomoci. Pozor na nepøátelské jednotky, naši nepøátelé nebudou spokojeni s vaším konáním.
-4:Kamenité hory budou brzy vyèerpáné, take si budete moci rozšíøit základnu na jih. Pouijte uhlí na západì pro zásobení produkce zlata. Nicménì, dejte pozor, abyste neztìovali  Angersheimu rùst mìsta.
+ï»¿0:Chyba skriptovÃ¡nÃ­!| Cesta/budova nemohla bÃ½t postavena, nebo byla zniÄena bÄ›hem stavÄ›nÃ­.| MÄ›l/a byste restartovat misi...
+1:Jednotky pÅ™istÃ¡ly na ostrovÄ›, drÅ¾te pozice a braÅˆte vaÅ¡i vesnici za kaÅ¾dou cenu!
+2:NepÅ™Ã¡telskÃ¡ hlÃ­dka drÅ¾Ã­ spojence v zÃ¡livu, musÃ­te ji zniÄit. ÄŒÃ­m dÅ™Ã­ve, tÃ­m lÃ©pe. Je velmi pravdÄ›podobnÃ©, Å¾e koÄovnÃ­ci dodajÃ­ svÃ½m jednotkÃ¡m posily!
+3:Osvobodil jste Angersheim a jeho obyvatelÃ© se vÃ¡m pokusÃ­ pomoci. Dejte pozor na nepÅ™Ã¡telskÃ© jednotky!
+4:KamennÃ© hory budou jiÅ¾ brzy vyÄerpanÃ©, takÅ¾e budete moci rozÅ¡Ã­Å™it zÃ¡kladnu na jih. PouÅ¾ijte uhlÃ­ na zÃ¡padÄ› pro zÃ¡sobenÃ­ zlatnickÃ½ch dÃ­len. Dejte vÅ¡ak pozor, abyste nepÅ™ekÃ¡Å¾el rÅ¯stu Angersheimu.

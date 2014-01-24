@@ -4,7 +4,7 @@ bel,    Belarusian,           1251,     71,           ,                Mik0
 ptb,    Brazilian Portuguese, 1252,     48,           ,                |Vinycius Maia & Edson Hoffmann Junior
 bul,    Bulgarian,            1251,     58,           ,                Christian & Boyan
 chn,    Chinese,              1252,     69,           ,                [CN] Team
-cze,    Czech,                1250,     49,           svk,             Jolinar_CZ, Milan Molnar & Jan Minarik
+cze,    Czech,                1250,     49,           svk,             Jolinar_CZ, Milan Molnar,|Jan Minarik & Vatrix
 dut,    Dutch,                1252,     55,           ,                xzaz & Tom
 eng,    English,              1252,     45,           ,
 est,    Estonian,             1252,     59,           ,                Ingvar & Eva
