@@ -790,9 +790,12 @@ begin
     Label_LobbyPing[I].Caption := '';
   end;
 
-  if not aPreserveMessage then Memo_LobbyPosts.Clear;
-  Edit_LobbyPost.Text := '';
-  ChatMenuSelect(-1); //All
+  if not aPreserveMessage then
+  begin
+    Memo_LobbyPosts.Clear;
+    Edit_LobbyPost.Text := '';
+    ChatMenuSelect(-1); //All
+  end;
 
   Label_LobbyMapName.Caption := '';
   Memo_LobbyMapDesc.Clear;

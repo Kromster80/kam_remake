@@ -50,6 +50,7 @@ begin
 
   CheckBox_AutoAttack := TKMCheckBox.Create(Panel_Offence, 0, 30, TB_WIDTH, 20, gResTexts[TX_MAPED_AI_ATTACK_AUTO], fnt_Metal);
   CheckBox_AutoAttack.Disable;
+  CheckBox_AutoAttack.Hide; //Not implemented yet
 
   ColumnBox_Attacks := TKMColumnBox.Create(Panel_Offence, 0, 50, TB_WIDTH, 210, fnt_Game, bsGame);
   ColumnBox_Attacks.SetColumns(fnt_Outline,
