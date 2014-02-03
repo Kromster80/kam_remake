@@ -45,7 +45,6 @@ Accepted:
 	Split a specific warrior out of a group
 	Looping option for PlayWAV (useful for ambient sounds at a location)
 
-
 Proposed:
 	Change position/alignment/font of overlay text
 	Render sprite onto map (from provided RXX file)
@@ -64,6 +63,7 @@ Proposed:
 	Actions.RemDefensePosition(PlayerID, PositionID)
 	Allow high volume boost for positional script sounds (currently limited to 1.0) since they are much quieter than non-positional sounds
 	Add flag to allow to kill units with death animation, but without sound
+	Add parameter to WAV playback to mute music while its playing
 
 	Actions.AI_enable(PlayerID; Enable:Boolean); //Auto-feed, etc
 	Actions.AI_startAttack(PlayerID, TargetX, TargetY, ArmyCount, MeleeGroups, AntihorseGroups, RangedGroups, MountedGroups); 
@@ -73,11 +73,12 @@ Proposed:
 	States.Path_closestUnit(X, Y):Integer; 
 	States.Path_closestHouse(X, Y):Integer; 
 	OnGroupHungry(aGroupID); 
-        Change player color
 	Actions.GroupOrderAttackGroup(AttackersGroupID, GroupToAttackID: Integer)
         OnConsoleInput event
         GroupLock - Blocks player from giving orders to the group
+	Actions.TimerStart(aTimerID, aTimeout: Integer); Events.OnTimer(aTimerID: Integer);
 
 
 Rejected:	
 	Actions.SetAIName (Player names can be written in libx, changing names during the game sounds like inconsistency)
+        Change player color (changing colors during the game sounds like inconsistency)
