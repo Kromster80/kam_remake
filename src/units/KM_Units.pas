@@ -143,6 +143,7 @@ type
     property DesiredPassability: TPassability read GetDesiredPassability;
     property Owner: THandIndex read fOwner;
     property GetHome: TKMHouse read fHome;
+    procedure SetHome(aHome: TKMHouse);
     property GetUnitAction: TUnitAction read fCurrentAction;
     property UnitTask: TUnitTask read fUnitTask;
     property UnitType: TUnitType read fUnitType;
@@ -1559,6 +1560,14 @@ begin
     SetActionAbandonWalk(NextPosition, ua_Walk)
   else
     SetActionLockedStay(0, ua_Walk); //Error
+end;
+
+
+//Used by barracks when creating a recruit inside
+procedure TKMUnit.SetHome(aHome: TKMHouse);
+begin
+  gHands.CleanUpHousePointer(fHome);
+  fHome := aHome.GetHousePointer;
 end;
 
 

@@ -264,6 +264,7 @@ begin
     U := gHands[fOwner].TrainUnit(ut_Recruit, GetEntrance);
     U.Visible := False;
     U.SetInHouse(Self);
+    U.SetHome(Self); //When walking out Home is used to remove recruit from barracks
     RecruitsAdd(U);
     gHands[fOwner].Stats.UnitCreated(ut_Recruit, False);
   end;
