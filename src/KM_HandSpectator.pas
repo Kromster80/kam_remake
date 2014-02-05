@@ -81,6 +81,7 @@ end;
 procedure TKMSpectator.Load(LoadStream: TKMemoryStream);
 begin
   LoadStream.Read(fHandIndex);
+  UpdateFogOfWarIndex;
 end;
 
 
