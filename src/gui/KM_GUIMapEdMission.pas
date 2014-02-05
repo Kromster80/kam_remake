@@ -28,6 +28,7 @@ type
     destructor Destroy; override;
 
     procedure Show(aPage: TKMMissionTab);
+    procedure ShowIndex(aIndex: Byte);
     function Visible(aPage: TKMMissionTab): Boolean; overload;
     function Visible: Boolean; overload;
   end;
@@ -113,6 +114,16 @@ begin
 
   //Signal that active page has changed, that may affect layers visibility
   fOnPageChange(Self);
+end;
+
+
+procedure TKMMapEdMission.ShowIndex(aIndex: Byte);
+begin
+  if aIndex in [Byte(Low(TKMMissionTab))..Byte(High(TKMMissionTab))] then
+  begin
+    PageChange(nil); //Hide existing pages
+    Show(TKMMissionTab(aIndex));
+  end;
 end;
 
 

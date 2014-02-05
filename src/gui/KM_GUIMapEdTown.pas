@@ -32,6 +32,7 @@ type
     destructor Destroy; override;
 
     procedure Show(aPage: TKMTownTab);
+    procedure ShowIndex(aIndex: Byte);
     function Visible(aPage: TKMTownTab): Boolean; overload;
     function Visible: Boolean; overload;
     procedure ChangePlayer;
@@ -137,6 +138,16 @@ begin
 
   //Signal that active page has changed, that may affect layers visibility
   fOnPageChange(Self);
+end;
+
+
+procedure TKMMapEdTown.ShowIndex(aIndex: Byte);
+begin
+  if aIndex in [Byte(Low(TKMTownTab))..Byte(High(TKMTownTab))] then
+  begin
+    PageChange(nil); //Hide existing pages
+    Show(TKMTownTab(aIndex));
+  end;
 end;
 
 

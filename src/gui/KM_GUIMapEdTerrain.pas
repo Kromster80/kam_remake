@@ -35,8 +35,10 @@ type
   public
     constructor Create(aParent: TKMPanel; aOnPageChange: TNotifyEvent);
     destructor Destroy; override;
+    procedure KeyUp(Key: Word; Shift: TShiftState);
 
     procedure Show(aTab: TKMTerrainTab);
+    procedure ShowIndex(aIndex: Byte);
     function Visible(aPage: TKMTerrainTab): Boolean; overload;
     function Visible: Boolean; overload;
     procedure UpdateState;
@@ -100,6 +102,17 @@ begin
 end;
 
 
+procedure TKMMapEdTerrain.KeyUp(Key: Word; Shift: TShiftState);
+begin
+  if (ssCtrl in Shift) and (Key = Ord('Y')) then Button_TerrainRedo.Click; //Ctrl+Y = Redo
+  if (ssCtrl in Shift) and (Key = Ord('Z')) then
+    if ssShift in Shift then
+      Button_TerrainUndo.Click //Ctrl+Shift+Z = Redo
+    else
+      Button_TerrainUndo.Click; //Ctrl+Z = Undo
+end;
+
+
 procedure TKMMapEdTerrain.PageChange(Sender: TObject);
 begin
   //Reset cursor mode
@@ -150,6 +163,13 @@ procedure TKMMapEdTerrain.Show(aTab: TKMTerrainTab);
 begin
   Panel_Terrain.Show;
   PageChange(Button_Terrain[aTab]);
+end;
+
+
+procedure TKMMapEdTerrain.ShowIndex(aIndex: Byte);
+begin
+  if aIndex in [Byte(Low(TKMTerrainTab))..Byte(High(TKMTerrainTab))] then
+    Show(TKMTerrainTab(aIndex));
 end;
 
 

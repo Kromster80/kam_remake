@@ -602,8 +602,8 @@ begin
 
   if Key = VK_ESCAPE then
   begin
-    fGuiMessage.Hide;
-    fGuiExtras.Hide;
+    if fGuiMessage.Visible then fGuiMessage.Hide;
+    if fGuiExtras.Visible then fGuiExtras.Hide;
   end;
 
   //Scrolling
@@ -620,9 +620,19 @@ procedure TKMapEdInterface.KeyUp(Key: Word; Shift: TShiftState);
 begin
   if fMyControls.KeyUp(Key, Shift) then Exit; //Handled by Controls
 
-  //1-5 game menu shortcuts
-  if Key in [49..53] then
-    Button_Main[Key-48].Click;
+  //F1-F5 menu shortcuts
+  if Key = VK_F1 then Button_Main[1].Click;
+  if Key = VK_F2 then Button_Main[2].Click;
+  if Key = VK_F3 then Button_Main[3].Click;
+  if Key = VK_F4 then Button_Main[4].Click;
+  if Key = VK_F5 then Button_Main[5].Click;
+
+  //1-6 submenu shortcuts
+  if Key in [49..54] then
+    if fGuiTerrain.Visible then fGuiTerrain.ShowIndex(Key-49) else
+    if fGuiTown.Visible    then fGuiTown.ShowIndex(Key-49) else
+    if fGuiPlayer.Visible  then fGuiPlayer.ShowIndex(Key-49) else
+    if fGuiMission.Visible then fGuiMission.ShowIndex(Key-49);
 
   //Scrolling
   if Key = VK_LEFT          then fViewport.ScrollKeyLeft  := False;
@@ -631,6 +641,9 @@ begin
   if Key = VK_DOWN          then fViewport.ScrollKeyDown  := False;
   if Key = Ord(SC_ZOOM_IN)  then fViewport.ZoomKeyIn   := False;
   if Key = Ord(SC_ZOOM_OUT) then fViewport.ZoomKeyOut := False;
+
+  //For undo/redo shortcuts
+  if fGuiTerrain.Visible then fGuiTerrain.KeyUp(Key, Shift);
 
   //Backspace resets the zoom and view, similar to other RTS games like Dawn of War.
   //This is useful because it is hard to find default zoom using the scroll wheel, and if not zoomed 100% things can be scaled oddly (like shadows)
