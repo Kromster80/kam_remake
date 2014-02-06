@@ -29,6 +29,7 @@ type
     property AlertType: TAlertType read fAlertType;
     property Loc: TKMPointF read fLoc;
     property Owner: THandIndex read fOwner;
+    property Expiration: Cardinal read fExpiration;
     property TexMinimap: TKMPic read GetTexMinimap;
     property TexTerrain: TKMPic read GetTexTerrain;
     property TeamColor: Cardinal read GetTeamColor;
@@ -55,6 +56,7 @@ type
     destructor Destroy; override;
     procedure AddBeacon(aLoc: TKMPointF; aOwner: THandIndex; aColor: Cardinal; aShowUntil: Cardinal);
     procedure AddFight(aLoc: TKMPointF; aPlayer: THandIndex; aAsset: TAttackNotification; aShowUntil: Cardinal);
+    function GetLatestAlert: TKMAlert;
     property Count: Integer read GetCount;
     property Items[aIndex: Integer]: TKMAlert read GetAlert; default;
     procedure Paint(aPass: Byte);
@@ -330,6 +332,22 @@ begin
 
   //Otherwise create a new alert
   fList.Add(TKMAlertAttacked.Create(aLoc, aPlayer, aAsset, aShowUntil));
+end;
+
+
+function TKMAlerts.GetLatestAlert: TKMAlert;
+var
+  I: Integer;
+  Best: Cardinal;
+begin
+  Result := nil;
+  for I := 0 to fList.Count - 1 do
+    if TKMAlert(Items[I]).GetVisibleMinimap then
+      if (Result = nil) or (TKMAlert(Items[I]).Expiration >= Best) then
+      begin
+        Result := TKMAlert(Items[I]);
+        Best := TKMAlert(Items[I]).Expiration;
+      end;
 end;
 
 

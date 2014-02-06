@@ -88,6 +88,7 @@ Improvements:
  +	L	Multiplayer in-game player list ordered by teams
  +  L   When archers are ordered to attack by right clicking enemy unit, they will walk into range in formation not spread out
  +	L	Add script command to allow to add recruits into the Barracks in MapEd (only Barracks for simplicity, other houses dont need it)
+ +  L   Pressing spacebar will center the screen on the latest alert (beacon or under attack)
 	        Dismiss button to make units walk into the school and disappear (gold is not refunded)
 	L	Simple dedicated server form which lets you set the properties of the INI for the server and start it [gemGreg]
 	L	Placing houses in MP should put a temp/fake visual markup until the real one can be added to make it appear responsive

@@ -2592,6 +2592,7 @@ end;
 //thats why MyControls.KeyUp is only in gsRunning clause
 //Ignore all keys if game is on 'Pause'
 procedure TKMGamePlayInterface.KeyUp(Key: Word; Shift: TShiftState);
+var LastAlert: TKMAlert;
 begin
   if gGame.IsPaused and (fUIMode = umSP) then
   begin
@@ -2682,9 +2683,12 @@ begin
 
   case Key of
     //Messages
-    VK_SPACE:             //In KaM spacebar centers you on the message
-                          //Button_MessageGoTo.Click
-                          ;
+    VK_SPACE:             begin
+                            //Spacebar centers you on the latest alert
+                            LastAlert := fAlerts.GetLatestAlert;
+                            if LastAlert <> nil then
+                              fViewport.Position := LastAlert.Loc;
+                          end;
     VK_DELETE:            Button_MessageDelete.Click;
     VK_RETURN:            //Enter is the shortcut to bring up chat in multiplayer
                           if (fUIMode in [umMP, umSpectate]) and not fGuiGameChat.Visible then
