@@ -551,9 +551,13 @@ begin
     GameMode := gmMulti;
   LoadGameFromScript(TKMapsCollection.FullPath(aFileName, '.dat', True), aFileName, NO_CAMPAIGN, 0, GameMode, 0, 0);
 
-  //Copy text from lobby to in-game chat
-  gGame.GamePlayInterface.SetChatText(fMainMenuInterface.GetChatText);
-  gGame.GamePlayInterface.SetChatMessages(fMainMenuInterface.GetChatMessages);
+  //Starting the game might have failed (e.g. fatal script error)
+  if gGame <> nil then
+  begin
+    //Copy text from lobby to in-game chat
+    gGame.GamePlayInterface.SetChatText(fMainMenuInterface.GetChatText);
+    gGame.GamePlayInterface.SetChatMessages(fMainMenuInterface.GetChatMessages);
+  end;
 end;
 
 

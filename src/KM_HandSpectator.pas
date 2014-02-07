@@ -96,7 +96,8 @@ end;
 function TKMSpectator.HitTestCursor: TObject;
 begin
   Result := gHands.GetUnitByUID(GameCursor.ObjectUID);
-  if (Result is TKMUnit) and TKMUnit(Result).IsDeadOrDying then
+  if ((Result is TKMUnit) and TKMUnit(Result).IsDeadOrDying)
+  or (Result is TKMUnitAnimal) then
     Result := nil;
 
   //If there's no unit try pick a house on the Cell below
@@ -122,7 +123,8 @@ begin
     NewSelected := gHands[fHandIndex].Units.GetUnitByUID(GameCursor.ObjectUID);
 
   //Don't allow the player to select dead units
-  if (NewSelected is TKMUnit) and TKMUnit(NewSelected).IsDeadOrDying then
+  if ((NewSelected is TKMUnit) and TKMUnit(NewSelected).IsDeadOrDying)
+  or (NewSelected is TKMUnitAnimal) then //...or animals
     NewSelected := nil;
 
   //If Id belongs to some Warrior, try to select his group instead
