@@ -220,11 +220,13 @@ end;
 
 procedure TKMGameApp.Resize(X,Y: Integer);
 begin
-  fRender.Resize(X, Y);
+  //fRender can be nil if this event occurs inside fGameApp.Destroy (happened in crash report)
+  if fRender <> nil then fRender.Resize(X, Y);
 
   //Main menu is invisible while in game, but it still exists and when we return to it
   //it must be properly sized (player could resize the screen while playing)
-  fMainMenuInterface.Resize(X, Y);
+  //fMainMenuInterface can be nil if this event occurs inside fGameApp.Destroy (happened in crash report)
+  if fMainMenuInterface <> nil then fMainMenuInterface.Resize(X, Y);
 
   if gGame <> nil then gGame.ActiveInterface.Resize(X, Y);
 end;
