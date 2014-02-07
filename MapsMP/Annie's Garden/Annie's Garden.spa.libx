@@ -6,6 +6,6 @@ MaxID:8
 3:Centro de la colina
 4:La muralla
 5:Los pilares
-6:% s está sin reclamar
-7:% s está en manos de [$% s]% s []
-8:% d las localizaciones están ocupadas por% s | Tiempo hasta la victoria 0,2% d:% .2 d
+6:%s está sin reclamar
+7:%s está en manos de [$%s]%s[]
+8:%d las localizaciones están ocupadas por %s| Tiempo hasta la victoria %.2d:%.2d

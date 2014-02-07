@@ -2149,8 +2149,13 @@ end;
 //Input text is ANSI with libx codes to substitute
 procedure TKMScriptActions.ShowMsgFormatted(aPlayer: Shortint; aText: AnsiString; Params: array of const);
 begin
-  if (aPlayer = MySpectator.HandIndex) or (aPlayer = PLAYER_NONE) then
-    gGame.ShowMessageFormatted(mkText, UnicodeString(aText), KMPoint(0,0), Params);
+  try
+    if (aPlayer = MySpectator.HandIndex) or (aPlayer = PLAYER_NONE) then
+      gGame.ShowMessageFormatted(mkText, UnicodeString(aText), KMPoint(0,0), Params);
+  except
+    //Format may throw an exception
+    on E: EConvertError do LogError('Actions.ShowMsgFormatted: '+E.Message, []);
+  end;
 end;
 
 
@@ -2170,13 +2175,18 @@ end;
 //Input text is ANSI with libx codes to substitute
 procedure TKMScriptActions.ShowMsgGotoFormatted(aPlayer: Shortint; aX, aY: Word; aText: AnsiString; Params: array of const);
 begin
-  if gTerrain.TileInMapCoords(aX, aY) then
-  begin
-    if (aPlayer = MySpectator.HandIndex) or (aPlayer = PLAYER_NONE) then
-      gGame.ShowMessageFormatted(mkText, UnicodeString(aText), KMPoint(aX,aY), Params);
-  end
-  else
-    LogError('Actions.ShowMsgGotoFormatted', [aPlayer, aX, aY]);
+  try
+    if gTerrain.TileInMapCoords(aX, aY) then
+    begin
+      if (aPlayer = MySpectator.HandIndex) or (aPlayer = PLAYER_NONE) then
+        gGame.ShowMessageFormatted(mkText, UnicodeString(aText), KMPoint(aX,aY), Params);
+    end
+    else
+      LogError('Actions.ShowMsgGotoFormatted', [aPlayer, aX, aY]);
+  except
+    //Format may throw an exception
+    on E: EConvertError do LogError('Actions.ShowMsgGotoFormatted: '+E.Message, []);
+  end;
 end;
 
 
@@ -2493,9 +2503,14 @@ end;
 
 procedure TKMScriptActions.OverlayTextSetFormatted(aPlayer: Shortint; aText: AnsiString; Params: array of const);
 begin
-  //Text from script should be only ANSI Latin, but UI is Unicode, so we switch it
-  if (aPlayer = MySpectator.HandIndex) or (aPlayer = PLAYER_NONE) then
-    gGame.ShowOverlayFormatted(UnicodeString(aText), Params);
+  try
+    //Text from script should be only ANSI Latin, but UI is Unicode, so we switch it
+    if (aPlayer = MySpectator.HandIndex) or (aPlayer = PLAYER_NONE) then
+      gGame.ShowOverlayFormatted(UnicodeString(aText), Params);
+  except
+    //Format may throw an exception
+    on E: EConvertError do LogError('Actions.OverlayTextSetFormatted: '+E.Message, []);
+  end;
 end;
 
 
@@ -2509,9 +2524,14 @@ end;
 
 procedure TKMScriptActions.OverlayTextAppendFormatted(aPlayer: Shortint; aText: AnsiString; Params: array of const);
 begin
-  //Text from script should be only ANSI Latin, but UI is Unicode, so we switch it
-  if (aPlayer = MySpectator.HandIndex) or (aPlayer = PLAYER_NONE) then
-    gGame.OverlayAppendFormatted(UnicodeString(aText), Params);
+  try
+    //Text from script should be only ANSI Latin, but UI is Unicode, so we switch it
+    if (aPlayer = MySpectator.HandIndex) or (aPlayer = PLAYER_NONE) then
+      gGame.OverlayAppendFormatted(UnicodeString(aText), Params);
+  except
+    //Format may throw an exception
+    on E: EConvertError do LogError('Actions.OverlayTextAppendFormatted: '+E.Message, []);
+  end;
 end;
 
 
