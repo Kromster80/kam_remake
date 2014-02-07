@@ -70,29 +70,46 @@ begin
   fSelectionRect.Top    := Trunc(Math.Min(fSelectionRectF.Top, fSelectionRectF.Bottom));
   fSelectionRect.Right  := Ceil(Math.Max(fSelectionRectF.Left, fSelectionRectF.Right));
   fSelectionRect.Bottom := Ceil(Math.Max(fSelectionRectF.Top, fSelectionRectF.Bottom));
+  //Selection must be at least one tile
+  if fSelectionRect.Left = fSelectionRect.Right then Inc(fSelectionRect.Right);
+  if fSelectionRect.Top = fSelectionRect.Bottom then Inc(fSelectionRect.Bottom);
 end;
 
 
 procedure TKMSelection.Selection_Resize;
 var
   RectO: TKMRect;
+  CursorFloat: TKMPointF;
+  CursorCell: TKMPoint;
+  MoveX, MoveY: Integer;
 begin
+  //Last row/col of the map is not visible or selectable
+  CursorFloat.X := EnsureRange(GameCursor.Float.X, 0.1, gTerrain.MapX-1 - 0.1);
+  CursorFloat.Y := EnsureRange(GameCursor.Float.Y, 0.1, gTerrain.MapY-1 - 0.1);
+  CursorCell.X := EnsureRange(GameCursor.Cell.X, 1, gTerrain.MapX-1);
+  CursorCell.Y := EnsureRange(GameCursor.Cell.Y, 1, gTerrain.MapY-1);
+
   case fSelectionEdit of
     seNone:       ;
     seNewRect:    begin
-                    fSelectionRectF.Right := GameCursor.Float.X;
-                    fSelectionRectF.Bottom := GameCursor.Float.Y;
+                    fSelectionRectF.Right := CursorFloat.X;
+                    fSelectionRectF.Bottom := CursorFloat.Y;
                   end;
-    seResizeX1:   fSelectionRectF.Left := GameCursor.Float.X;
-    seResizeY1:   fSelectionRectF.Top := GameCursor.Float.Y;
-    seResizeX2:   fSelectionRectF.Right := GameCursor.Float.X;
-    seResizeY2:   fSelectionRectF.Bottom := GameCursor.Float.Y;
+    seResizeX1:   fSelectionRectF.Left := CursorFloat.X;
+    seResizeY1:   fSelectionRectF.Top := CursorFloat.Y;
+    seResizeX2:   fSelectionRectF.Right := CursorFloat.X;
+    seResizeY2:   fSelectionRectF.Bottom := CursorFloat.Y;
     seMove:       begin
-                    RectO := KMRectMove(fSelectionRect, GameCursor.Cell.X - fSelPrevX, GameCursor.Cell.Y - fSelPrevY);
+                    MoveX := CursorCell.X - fSelPrevX;
+                    MoveY := CursorCell.Y - fSelPrevY;
+                    //Don't allow the selection to be moved out of the map bounds
+                    MoveX := EnsureRange(MoveX, -fSelectionRect.Left, gTerrain.MapX-1-fSelectionRect.Right);
+                    MoveY := EnsureRange(MoveY, -fSelectionRect.Top, gTerrain.MapY-1-fSelectionRect.Bottom);
+                    RectO := KMRectMove(fSelectionRect, MoveX, MoveY);
                     fSelectionRectF := KMRectF(RectO);
 
-                    fSelPrevX := GameCursor.Cell.X;
-                    fSelPrevY := GameCursor.Cell.Y;
+                    fSelPrevX := CursorCell.X;
+                    fSelPrevY := CursorCell.Y;
                   end;
   end;
 
@@ -103,53 +120,62 @@ end;
 procedure TKMSelection.Selection_Start;
 const
   EDGE = 0.25;
+var
+  CursorFloat: TKMPointF;
+  CursorCell: TKMPoint;
 begin
+  //Last row/col of the map is not visible or selectable
+  CursorFloat.X := EnsureRange(GameCursor.Float.X, 0.1, gTerrain.MapX-1 - 0.1);
+  CursorFloat.Y := EnsureRange(GameCursor.Float.Y, 0.1, gTerrain.MapY-1 - 0.1);
+  CursorCell.X := EnsureRange(GameCursor.Cell.X, 1, gTerrain.MapX-1);
+  CursorCell.Y := EnsureRange(GameCursor.Cell.Y, 1, gTerrain.MapY-1);
+
   if fSelectionMode = smSelecting then
   begin
-    if InRange(GameCursor.Float.Y, fSelectionRect.Top, fSelectionRect.Bottom)
-    and (Abs(GameCursor.Float.X - fSelectionRect.Left) < EDGE) then
+    if InRange(CursorFloat.Y, fSelectionRect.Top, fSelectionRect.Bottom)
+    and (Abs(CursorFloat.X - fSelectionRect.Left) < EDGE) then
       fSelectionEdit := seResizeX1
     else
-    if InRange(GameCursor.Float.Y, fSelectionRect.Top, fSelectionRect.Bottom)
-    and (Abs(GameCursor.Float.X - fSelectionRect.Right) < EDGE) then
+    if InRange(CursorFloat.Y, fSelectionRect.Top, fSelectionRect.Bottom)
+    and (Abs(CursorFloat.X - fSelectionRect.Right) < EDGE) then
       fSelectionEdit := seResizeX2
     else
-    if InRange(GameCursor.Float.X, fSelectionRect.Left, fSelectionRect.Right)
-    and (Abs(GameCursor.Float.Y - fSelectionRect.Top) < EDGE) then
+    if InRange(CursorFloat.X, fSelectionRect.Left, fSelectionRect.Right)
+    and (Abs(CursorFloat.Y - fSelectionRect.Top) < EDGE) then
       fSelectionEdit := seResizeY1
     else
-    if InRange(GameCursor.Float.X, fSelectionRect.Left, fSelectionRect.Right)
-    and (Abs(GameCursor.Float.Y - fSelectionRect.Bottom) < EDGE) then
+    if InRange(CursorFloat.X, fSelectionRect.Left, fSelectionRect.Right)
+    and (Abs(CursorFloat.Y - fSelectionRect.Bottom) < EDGE) then
       fSelectionEdit := seResizeY2
     else
-    if KMInRect(GameCursor.Float, fSelectionRect) then
+    if KMInRect(CursorFloat, fSelectionRect) then
     begin
       fSelectionEdit := seMove;
-      fSelPrevX := GameCursor.Cell.X;
-      fSelPrevY := GameCursor.Cell.Y;
+      fSelPrevX := CursorCell.X;
+      fSelPrevY := CursorCell.Y;
     end
     else
     begin
       fSelectionEdit := seNewRect;
-      fSelectionRectF := KMRectF(GameCursor.Float);
+      fSelectionRectF := KMRectF(CursorFloat);
       Selection_SyncCellRect;
     end;
   end
   else
   begin
-    if KMInRect(GameCursor.Float, fSelectionRect) then
+    if KMInRect(CursorFloat, fSelectionRect) then
     begin
       fSelectionEdit := seMove;
       //Grab and move
-      fSelPrevX := GameCursor.Cell.X;
-      fSelPrevY := GameCursor.Cell.Y;
+      fSelPrevX := CursorCell.X;
+      fSelPrevY := CursorCell.Y;
     end
     else
     begin
       fSelectionEdit := seMove;
       //Selection edge will jump to under cursor
-      fSelPrevX := EnsureRange(GameCursor.Cell.X, fSelectionRect.Left + 1, fSelectionRect.Right);
-      fSelPrevY := EnsureRange(GameCursor.Cell.Y, fSelectionRect.Top + 1, fSelectionRect.Bottom);
+      fSelPrevX := EnsureRange(CursorCell.X, fSelectionRect.Left + 1, fSelectionRect.Right);
+      fSelPrevY := EnsureRange(CursorCell.Y, fSelectionRect.Top + 1, fSelectionRect.Bottom);
     end;
   end;
 end;

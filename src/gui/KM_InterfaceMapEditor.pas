@@ -30,6 +30,7 @@ type
     fDragScrolling: Boolean;
     fDragScrollingCursorPos: TPoint;
     fDragScrollingViewportPos: TKMPointF;
+    fMouseDownOnMap: Boolean;
 
     fGuiHouse: TKMMapEdHouse;
     fGuiUnit: TKMMapEdUnit;
@@ -238,6 +239,8 @@ begin
   fGuiMarkerDefence.Free;
   fGuiMarkerReveal.Free;
   fGuiMenu.Free;
+  fGuiMessage.Free;
+  fGuiUnit.Free;
 
   SHOW_TERRAIN_WIRES := false; //Don't show it in-game if they left it on in MapEd
   SHOW_TERRAIN_PASS := 0; //Don't show it in-game if they left it on in MapEd
@@ -708,6 +711,9 @@ begin
   else
     DisplayHint(nil); //Clear shown hint
 
+  if (ssLeft in Shift) or (ssRight in Shift) then
+    fMouseDownOnMap := True;
+
   UpdateGameCursor(X,Y,Shift);
   if GameCursor.Mode = cmNone then
   begin
@@ -746,9 +752,17 @@ begin
 
   if fMyControls.CtrlOver <> nil then
   begin
+    //Still need to make checkpoint if painting and released over controls
+    if fMouseDownOnMap then
+    begin
+      gGame.MapEditor.MouseUp(Button, False);
+      fMouseDownOnMap := False;
+    end;
     fMyControls.MouseUp(X,Y,Shift,Button);
     Exit; //We could have caused fGame reinit, so exit at once
   end;
+
+  fMouseDownOnMap := False;
 
   case Button of
     mbLeft:   if GameCursor.Mode = cmNone then
@@ -813,7 +827,7 @@ begin
 
   UpdateGameCursor(X, Y, Shift); //Updates the shift state
 
-  gGame.MapEditor.MouseUp(Button);
+  gGame.MapEditor.MouseUp(Button, True);
 
   //Update the XY coordinates of the Center Screen button
   if (GameCursor.Mode = cmMarkers) and (GameCursor.Tag1 = MARKER_CENTERSCREEN) then

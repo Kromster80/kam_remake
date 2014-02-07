@@ -43,7 +43,7 @@ type
     function HumanCount: Integer;
     procedure MouseDown(Button: TMouseButton);
     procedure MouseMove;
-    procedure MouseUp(Button: TMouseButton);
+    procedure MouseUp(Button: TMouseButton; aOverMap: Boolean);
     procedure Update;
     procedure UpdateStateIdle;
     procedure Paint(aLayer: TKMPaintLayer; aClipRect: TKMRect);
@@ -191,10 +191,19 @@ begin
 end;
 
 
-procedure TKMMapEditor.MouseUp(Button: TMouseButton);
+procedure TKMMapEditor.MouseUp(Button: TMouseButton; aOverMap: Boolean);
 var
   P: TKMPoint;
 begin
+  //If the mouse is released over controls, most actions don't happen
+  if not aOverMap then
+  begin
+    //Still need to make a checkpoint since painting has now stopped
+    if GameCursor.Mode in [cmElevate, cmEqualize, cmBrush, cmObjects, cmTiles] then
+      fTerrainPainter.MakeCheckpoint;
+    Exit;
+  end;
+
   P := GameCursor.Cell; //Get cursor position tile-wise
   case Button of
     mbLeft:   case GameCursor.Mode of
