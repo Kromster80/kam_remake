@@ -14,6 +14,7 @@ type
   TKMGameApp = class
   private
     fGlobalTickCount: Cardinal;
+    fIsExiting: Boolean;
 
     fCampaigns: TKMCampaignsCollection;
     fGameSettings: TGameSettings;
@@ -152,6 +153,10 @@ end;
 { Destroy what was created }
 destructor TKMGameApp.Destroy;
 begin
+  //Freeing network sockets and OpenAL can result in events like Resize/Paint occuring (seen in crash reports)
+  //Set fIsExiting so we know to skip them
+  fIsExiting := True;
+
   //We might have crashed part way through .Create, so we can't assume ANYTHING exists here.
   //Doing so causes a 2nd exception which overrides 1st. Hence check <> nil on everything except Free (TObject.Free does that already)
 
@@ -170,11 +175,9 @@ begin
   FreeThenNil(gSoundPlayer);
   FreeThenNil(fMusicLib);
   FreeThenNil(gResTexts);
+  FreeAndNil(fNetworking);
 
   FreeThenNil(fRender);
-
-  //Freeing network sockets can result in events like Resize occuring. Do it last so everything is nil.
-  FreeAndNil(fNetworking);
 
   inherited;
 end;
@@ -222,13 +225,12 @@ end;
 
 procedure TKMGameApp.Resize(X,Y: Integer);
 begin
-  //fRender can be nil if this event occurs inside fGameApp.Destroy (happened in crash report)
-  if fRender <> nil then fRender.Resize(X, Y);
+  if fIsExiting then Exit;
+  fRender.Resize(X, Y);
 
   //Main menu is invisible while in game, but it still exists and when we return to it
   //it must be properly sized (player could resize the screen while playing)
-  //fMainMenuInterface can be nil if this event occurs inside fGameApp.Destroy (happened in crash report)
-  if fMainMenuInterface <> nil then fMainMenuInterface.Resize(X, Y);
+  fMainMenuInterface.Resize(X, Y);
 
   if gGame <> nil then gGame.ActiveInterface.Resize(X, Y);
 end;
@@ -643,6 +645,7 @@ end;
 procedure TKMGameApp.Render(aForPrintScreen: Boolean);
 begin
   if SKIP_RENDER then Exit;
+  if fIsExiting then Exit;
   if fRender.Blind then Exit;
   if not fTimerUI.Enabled then Exit; //Don't render while toggling locale
 

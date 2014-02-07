@@ -341,6 +341,7 @@ var
   Best: Cardinal;
 begin
   Result := nil;
+  Best := 0; //Makes compiler happy
   for I := 0 to fList.Count - 1 do
     if TKMAlert(Items[I]).GetVisibleMinimap then
       if (Result = nil) or (TKMAlert(Items[I]).Expiration >= Best) then
