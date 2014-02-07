@@ -17,6 +17,11 @@ if(($Rev == "r3374") || ($Rev == "r3252") || ($Rev == "r3311") || ($Rev == "r381
   die('[$0000FF]THE SCRIPTING DEMO IS OUT![]||This release candidate is now redundant. Please download the release from www.kamremake.com||Thanks again for your help testing!');
 }
 
+if($Rev == "r6157")
+{
+  die('Welcome to the Winter Tournament Beta!');
+}
+
 //First see if they are up to date
 if($Rev != $MAIN_VERSION)
 {
@@ -24,7 +29,9 @@ if($Rev != $MAIN_VERSION)
 }
 else
 {
-    echo 'Did you know we have an official forum? Read about the latest developments to the KaM Remake, discuss your ideas and get responses from developers, see the latest fan-made maps, and take part in community events like tournaments and beta testing. Visit our forum at:|[$F8A070]knightsandmerchants.net/forum[]||Don\'t forget to try out some of the special multiplayer missions which use dynamic scripts to create new game modes and objectives.||Enjoy playing KaM Remake? Please consider [$00EEFF]donating[] to help cover our running costs and support future development. Visit [$F8A070]www.kamremake.com/donations[]';
+    echo 'The community is organising a [$00CC74]2vs2 tournament[]. Show your KaM skill in front of [$FF78A5]live stream audiences[]! Registrations close 5th February so find a partner and enter soon :) More information at [$F8A070]www.kamremake.com[]||Want to socialise with a community of KaM players, or talk with your friends while you play? Join the KaM community teamspeak server! More information at:|[$F8A070]http://kamts.eu[]||Enjoy playing KaM Remake? Please consider [$00EEFF]donating[] to help cover our running costs and support future development. Visit [$F8A070]www.kamremake.com/donations[]';
+    //echo 'Want to socialise with a community of KaM players, or talk with your friends while you play? Join the KaM community teamspeak server! More information at:|[$F8A070]http://kamts.eu[]||Don\'t forget to try out some of the special multiplayer missions which use dynamic scripts to create new game modes and objectives.||Enjoy playing KaM Remake? Please consider [$00EEFF]donating[] to help cover our running costs and support future development. Visit [$F8A070]www.kamremake.com/donations[]';
+    //echo 'Did you know we have an official forum? Read about the latest developments to the KaM Remake, discuss your ideas and get responses from developers, see the latest fan-made maps, and take part in community events like tournaments and beta testing. Visit our forum at:|[$F8A070]knightsandmerchants.net/forum[]||Don\'t forget to try out some of the special multiplayer missions which use dynamic scripts to create new game modes and objectives.||Enjoy playing KaM Remake? Please consider [$00EEFF]donating[] to help cover our running costs and support future development. Visit [$F8A070]www.kamremake.com/donations[]';
 	//echo 'We have upgraded to a [$009BEE]new server[] so you should notice the server list is refreshing faster! Read more at [$F8A070]www.kamremake.com[]||Don\'t forget to try out some of the special multiplayer missions which use dynamic scripts to create new game modes and objectives.||Enjoy playing KaM Remake? Please consider [$00EEFF]donating[] to help cover our running costs and support future development. Visit [$F8A070]www.kamremake.com/donations[]';
 	//echo 'The 2 vs 2 Powah Tournament has begun! Go to [$F8A070]www.kamremake.com[] to find out more!||Can you help translate our website [$F8A070]www.kamremake.com[]? We need volunteers to help translate it into any language. Please contact us through our website.';
 	//echo 'Powah Tour (Florek, Mulberry, To) are organising a tournament! Go to [$F8A070]www.kamremake.com[] to find out more!||Can you help translate our website [$F8A070]www.kamremake.com[]? We need volunteers to help translate it into any language. Please contact us through our website.';
