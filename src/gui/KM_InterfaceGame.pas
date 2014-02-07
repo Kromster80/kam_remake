@@ -4,7 +4,7 @@ interface
 uses
   {$IFDEF MSWindows} Windows, {$ENDIF}
   {$IFDEF Unix} LCLType, {$ENDIF}
-  Controls, Classes, Math, KM_Defaults, KM_Controls, KM_Points,
+  SysUtils, Controls, Classes, Math, KM_Defaults, KM_Controls, KM_Points,
   KM_InterfaceDefaults,
   KM_GameCursor, KM_Render, KM_Minimap, KM_Viewport, KM_ResHouses, KM_ResWares;
 
@@ -17,6 +17,7 @@ type
     fViewport: TViewport;
   public
     constructor Create(aRender: TRender); reintroduce;
+    destructor Destroy; override;
 
     property Minimap: TKMMinimap read fMinimap;
     property Viewport: TViewport read fViewport;
@@ -177,6 +178,16 @@ begin
 
   fMinimap := TKMMinimap.Create(False, False);
   fViewport := TViewport.Create(aRender.ScreenX, aRender.ScreenY);
+  fRenderPool := TRenderPool.Create(fViewport, aRender);
+end;
+
+
+destructor TKMUserInterfaceGame.Destroy;
+begin
+  FreeAndNil(fMinimap);
+  FreeAndNil(fViewport);
+  FreeAndNil(fRenderPool);
+  Inherited;
 end;
 
 

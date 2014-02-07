@@ -131,6 +131,7 @@ destructor TKMMenuMapEditor.Destroy;
 begin
   fMaps.Free;
   fMapsMP.Free;
+  fMinimap.Free;
 
   inherited;
 end;

@@ -264,8 +264,8 @@ begin
   FreeThenNil(fMapEditorInterface);
 
   FreeAndNil(fGameInputProcess);
-  FreeAndNil(fRenderPool);
   FreeAndNil(fGameOptions);
+  FreeAndNil(fTextMission);
 
   if DO_PERF_LOGGING then fPerfLog.Free;
 
@@ -303,7 +303,7 @@ begin
   fCampaignMap := aCampMap;
   fMissionFile := ExtractRelativePath(ExeDir, aMissionFile);
   fSaveFile := '';
-  MySpectator := nil; //In case somebody looks at it while parsing DAT, e.g. destroyed houses
+  FreeAndNil(MySpectator); //In case somebody looks at it while parsing DAT, e.g. destroyed houses
 
   gLog.AddTime('Loading DAT file: ' + aMissionFile);
 
@@ -466,6 +466,7 @@ begin
   if (fNetworking.SelectGameKind = ngk_Map) and not fNetworking.MapInfo.IsCoop then
     UpdateMultiplayerTeams;
 
+  FreeAndNil(MySpectator); //May have been created earlier
   if fNetworking.NetPlayers[fNetworking.MyIndex].IsSpectator then
   begin
     MySpectator := TKMSpectator.Create(0);

@@ -170,9 +170,11 @@ begin
   FreeThenNil(gSoundPlayer);
   FreeThenNil(fMusicLib);
   FreeThenNil(gResTexts);
-  FreeAndNil(fNetworking);
 
   FreeThenNil(fRender);
+
+  //Freeing network sockets can result in events like Resize occuring. Do it last so everything is nil.
+  FreeAndNil(fNetworking);
 
   inherited;
 end;

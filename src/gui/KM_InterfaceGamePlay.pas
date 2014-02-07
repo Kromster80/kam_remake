@@ -668,7 +668,6 @@ begin
   fUIMode := aUIMode;
 
   fAlerts := TKMAlerts.Create(fViewport);
-  fRenderPool := TRenderPool.Create(fViewport, aRender);
 
   //Instruct to use global Terrain
   fLastSaveName := '';
@@ -768,9 +767,6 @@ destructor TKMGamePlayInterface.Destroy;
 begin
   ReleaseDirectionSelector; //Make sure we don't exit leaving the cursor restrained
 
-  FreeAndNil(fViewport);
-  FreeAndNil(fMinimap);
-
   fGuiGameBuild.Free;
   fGuiGameChat.Free;
   fGuiGameHouse.Free;
@@ -780,6 +776,7 @@ begin
   fMessageList.Free;
   fSaves.Free;
   fTeamNames.Free;
+  fAlerts.Free;
   inherited;
 end;
 

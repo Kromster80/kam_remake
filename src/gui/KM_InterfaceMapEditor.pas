@@ -117,7 +117,6 @@ begin
   inherited;
 
   fMinimap.PaintVirtualGroups := True;
-  fRenderPool := TRenderPool.Create(fViewport, aRender);
 
   fDragScrolling := False;
   fDragScrollingCursorPos.X := 0;
@@ -227,9 +226,6 @@ end;
 
 destructor TKMapEdInterface.Destroy;
 begin
-  FreeAndNil(fViewport);
-  FreeAndNil(fMinimap);
-
   fGuiHouse.Free;
   fGuiTerrain.Free;
   fGuiTown.Free;
