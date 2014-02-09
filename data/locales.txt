@@ -13,6 +13,7 @@ ger,    German,               1252,     46,           ,                The Knigh
 hun,    Hungarian,            1250,     57,           ,                Osi Attila (Jecy)
 ita,    Italian,              1252,     50,           ,                Esthlos
 jpn,    Japanese,             1252,     72,           ,                Guilherme Antunes da Silva
+kor,    Korean,               1252,     78,           ,                
 lit,    Lithuanian,           1257,     67,           ,                Audrius Arlauskas (Zaero)
 nor,    Norwegian,            1252,     70,           ,                Tokicchi
 pol,    Polish,               1250,     47,           ,                Przemysław Pietras
