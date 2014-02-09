@@ -30,6 +30,7 @@
  +      AI warriors should attack enemies when they are within 4 tiles, to prevent sneaking into AI village (can be set in MapEd)
  +      Terrain brushes in MapEd erase corn/wine fields (should preserve them)
  +      When citizen walks into a house he should be deselected
+ +	Make wood to building sites to be delivered first
 	Armour smithy has shields as 2nd ouput, armour workshop has shields as 1st output. Would make sense to match them (note: simply swapping in KM_ResourceHouses causes game logic to be swapped with GUI)
 	Armour smithy has iron as 1st input, weapon smithy has iron as 2nd input (iron/coal swapped). Would make sense to match them (note: simpply swapping in KM_ResourceHouses causes game logic to be swapped with GUI)
 	Deliveries should use the actual walking route length (opposed to Radius)
@@ -51,8 +52,8 @@
 	Woodcutter would cut a missing tree on a corn field (replaced with corn while he is chopping)
 	Towers attack range is uneven (should be measured from towers middle, not the recruit location in BR corner)
 	AIAttacks bug (AI attacks mulfunction after 12min.rar)
-	Make wood to building sites to be delivered first
         TSK 5: ally sometimes sends his troops to the enemy base causing you to lose (after the enemy attacks?)
+	Wood/Stone on building sites render on top of trees in front of them
 
 	Water looks ugly brown when you zoom out too far due to water tiles having brown checkerboard pattern (anti-aliasing won't help)
 	Wooden house frames flicking on Onboard Intel HD Family Chipset (see images "Hidden House Frame Intel Onboard 1.jpg")
