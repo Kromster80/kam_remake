@@ -113,7 +113,7 @@ begin
     if fChatMode in [cmAll, cmTeam] then
       gGame.Networking.PostChat(Edit_ChatMsg.Text, fChatMode = cmTeam);
     if fChatMode = cmWhisper then
-      gGame.Networking.PostChat(Edit_ChatMsg.Text, False, fChatWhisperRecipient);
+      gGame.Networking.PostChat(Edit_ChatMsg.Text, False, gGame.Networking.NetPlayers[fChatWhisperRecipient].IndexOnServer);
     Edit_ChatMsg.Text := '';
   end;
 end;
@@ -173,7 +173,7 @@ begin
               Edit_ChatMsg.OutlineColor := $FF00B9FF;
               with gGame.Networking.NetPlayers[I] do
               begin
-                fChatWhisperRecipient := IndexOnServer;
+                fChatWhisperRecipient := I;
                 UpdateButtonCaption(UnicodeString(Nikname), IfThen(FlagColorID <> 0, FlagColorToTextColor(FlagColor), 0));
               end;
             end;

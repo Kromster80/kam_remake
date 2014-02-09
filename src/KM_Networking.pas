@@ -487,7 +487,7 @@ begin
       if not fNetPlayers[I].IsSpectator then
         fNetPlayers[I].StartLocation := LOC_RANDOM;
 
-    for I := 1 to MAX_LOBBY_PLAYERS - fSaveInfo.Info.HumanCount + fNetPlayers.GetSpectatorCount - fNetPlayers.GetClosedCount do
+    for I := 1 to MAX_LOBBY_PLAYERS - fSaveInfo.Info.HumanCount - fNetPlayers.GetClosedCount do
       if fNetPlayers.Count - fNetPlayers.GetSpectatorCount < MAX_LOBBY_PLAYERS then
         fNetPlayers.AddClosedPlayer; //Close unused slots
   end;
@@ -848,10 +848,8 @@ begin
         NetPlayers[i].Team := fSaveInfo.Info.Team[NetPlayers[i].StartLocation-1];
       end
       else
-      begin
-        NetPlayers[i].FlagColorID := 0;
+        //Spectators may still change their color
         NetPlayers[i].Team := 0;
-      end;
 
   fMyIndex := fNetPlayers.NiknameToLocal(fMyNikname); //The host's index can change when players are removed
   fHostIndex := fMyIndex;
