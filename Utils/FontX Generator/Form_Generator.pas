@@ -39,6 +39,7 @@ type
     cbCells: TCheckBox;
     Label7: TLabel;
     btnJpnRange: TButton;
+    btnKorRange: TButton;
     procedure btnGenerateClick(Sender: TObject);
     procedure btnSaveClick(Sender: TObject);
     procedure btnExportTexClick(Sender: TObject);
@@ -50,6 +51,7 @@ type
     procedure btnChnRangeClick(Sender: TObject);
     procedure tbAtlasChange(Sender: TObject);
     procedure btnJpnRangeClick(Sender: TObject);
+    procedure btnKorRangeClick(Sender: TObject);
   private
     Fnt: TKMFontDataEdit;
   end;
@@ -190,6 +192,38 @@ begin
   {$ENDIF}
 end;
 
+
+procedure TForm1.btnKorRangeClick(Sender: TObject);
+var
+  uniText: UnicodeString;
+  I: Word;
+begin
+  uniText := '';
+
+  //Hangul Jamo
+  for I := $1100 to $11FF do
+    uniText := uniText + WideChar(I);
+
+  //Hangul Compatibility Jamo
+  for I := $3130 to $318F do
+    uniText := uniText + WideChar(I);
+
+  //Hangul Syllables
+  for I := $AC00 to $D7A3 do
+    uniText := uniText + WideChar(I);
+
+  //Punctuation
+  uniText := uniText + WideChar($302E);
+  uniText := uniText + WideChar($302F);
+
+  {$IFDEF WDC}
+    Memo1.Text := uniText;
+  {$ENDIF}
+  {$IFDEF FPC}
+    //FPC controls need utf8 strings
+    Memo1.Text := UTF8Encode(uniText);
+  {$ENDIF}
+end;
 
 procedure TForm1.btnCollectCharsClick(Sender: TObject);
 var

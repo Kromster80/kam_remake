@@ -292,6 +292,15 @@ object Form1: TForm1
       TabOrder = 13
       OnClick = btnJpnRangeClick
     end
+    object btnKorRange: TButton
+      Left = 8
+      Top = 48
+      Width = 121
+      Height = 25
+      Caption = 'Korean range'
+      TabOrder = 14
+      OnClick = btnKorRangeClick
+    end
   end
   object tbAtlas: TTrackBar
     Left = 8
