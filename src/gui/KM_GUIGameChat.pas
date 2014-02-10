@@ -270,6 +270,7 @@ begin
   if Panel_Chat.Visible then
     gSoundPlayer.Play(sfxn_MPChatClose);
   Panel_Chat.Hide;
+  Menu_Chat.HideMenu;
 end;
 
 

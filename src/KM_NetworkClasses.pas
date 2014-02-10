@@ -24,12 +24,13 @@ type
     procedure LoadFromStream(aStream: TKMemoryStream);
     procedure SaveToStream(aStream: TKMemoryStream);
     function PlayersList: string;
+    function HTMLPlayersList: string;
     function ConnectedPlayerCount: Byte;
   end;
 
 
 implementation
-uses KM_Utils;
+uses VerySimpleXML, KM_Utils;
 
 
 { TMPGameInfo }
@@ -87,6 +88,22 @@ begin
   Result := '';
   for I := 1 to PlayerCount do
     Result := Result + UnicodeString(Players[I].Name) + IfThen(I < PlayerCount, ', ');
+end;
+
+
+//This function should do its own XML escaping
+function TMPGameInfo.HTMLPlayersList: string;
+var I: Integer;
+begin
+  Result := '';
+  for I := 1 to PlayerCount do
+    if Players[I].PlayerType = nptHuman then
+    begin
+      if Result <> '' then Result := Result + ', ';
+      if not Players[I].Connected then Result := Result + '<strike>';
+      Result := Result + XMLEscape(UnicodeString(Players[I].Name));
+      if not Players[I].Connected then Result := Result + '</strike>';
+    end;
 end;
 
 

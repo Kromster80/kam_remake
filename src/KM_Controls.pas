@@ -1028,6 +1028,7 @@ type
     property ItemIndex: Integer read GetItemIndex write SetItemIndex;
     property ItemTags[aIndex: Integer]: Integer read GetItemTag;
     procedure ShowAt(X,Y: Integer);
+    procedure HideMenu;
   end;
 
 
@@ -4287,6 +4288,12 @@ begin
   Hide;
   fList.Hide;
   fShapeBG.Hide;
+end;
+
+
+procedure TKMPopUpMenu.HideMenu;
+begin
+  MenuHide(nil);
 end;
 
 

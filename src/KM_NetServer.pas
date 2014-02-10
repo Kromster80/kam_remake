@@ -862,17 +862,20 @@ procedure TKMNetServer.SaveHTMLStatus;
     Result := '#' + IntToHex(aCol and $FF, 2) + IntToHex((aCol shr 8) and $FF, 2) + IntToHex((aCol shr 16) and $FF, 2);
   end;
 
+const
+  BOOL_TEXT: array[Boolean] of string = ('0', '1');
 var
-  i,k,PlayerCount,RoomCount:integer;
+  i,k,PlayerCount,ClientCount,RoomCount:integer;
   XML: TXmlVerySimple;
   HTML: string;
-  RoomCountNode, PlayerCountNode, Node: TXmlNode;
+  RoomCountNode, ClientCountNode, PlayerCountNode, Node: TXmlNode;
   MyFile:TextFile;
 begin
   if fHTMLStatusFile = '' then exit; //Means do not write status
 
   RoomCount := 0;
   PlayerCount := 0;
+  ClientCount := 0;
 
   XML := TXmlVerySimple.Create;
 
@@ -888,6 +891,7 @@ begin
     XML.Root.NodeName := 'server';
     RoomCountNode := XML.Root.AddChild('roomcount'); //Set it later
     PlayerCountNode := XML.Root.AddChild('playercount');
+    ClientCountNode := XML.Root.AddChild('clientcount');
     XML.Root.AddChild('bytessent').Text := IntToStr(BytesTX);
     XML.Root.AddChild('bytesreceived').Text := IntToStr(BytesRX);
 
@@ -895,13 +899,15 @@ begin
       if GetRoomClientsCount(i) > 0 then
       begin
         inc(RoomCount);
-        inc(PlayerCount,fRoomInfo[i].GameInfo.PlayerCount);
+        inc(PlayerCount, fRoomInfo[i].GameInfo.PlayerCount);
+        inc(ClientCount, fRoomInfo[i].GameInfo.ConnectedPlayerCount);
         //HTML room info
         HTML := HTML + '<TR><TD>'+IntToStr(i)+'</TD><TD>'+XMLEscape(GameStateText[fRoomInfo[i].GameInfo.GameState])+
-                       '</TD><TD>'+IntToStr(fRoomInfo[i].GameInfo.PlayerCount)+
+                       '</TD><TD>'+IntToStr(fRoomInfo[i].GameInfo.ConnectedPlayerCount)+
                        '</TD><TD>'+XMLEscape(fRoomInfo[i].GameInfo.Map)+
                        '&nbsp;</TD><TD>'+XMLEscape(fRoomInfo[i].GameInfo.GetFormattedTime)+
-                       '&nbsp;</TD><TD>'+XMLEscape(fRoomInfo[i].GameInfo.PlayersList)+'</TD></TR>'+sLineBreak;
+                       //HTMLPlayersList does escaping itself
+                       '&nbsp;</TD><TD>'+fRoomInfo[i].GameInfo.HTMLPlayersList+'</TD></TR>'+sLineBreak;
         //XML room info
         Node := XML.Root.AddChild('room');
         Node.Attribute['id'] := IntToStr(i);
@@ -916,7 +922,7 @@ begin
             begin
               Text := UnicodeString(fRoomInfo[i].GameInfo.Players[k].Name);
               SetAttribute('color', ColorToText(fRoomInfo[i].GameInfo.Players[k].Color));
-              SetAttribute('connected', BoolToStr(fRoomInfo[i].GameInfo.Players[k].Connected));
+              SetAttribute('connected', BOOL_TEXT[fRoomInfo[i].GameInfo.Players[k].Connected]);
               SetAttribute('type', NetPlayerTypeName[fRoomInfo[i].GameInfo.Players[k].PlayerType]);
             end;
         end;
@@ -924,6 +930,7 @@ begin
     //Set counts in XML
     RoomCountNode.Text := IntToStr(RoomCount);
     PlayerCountNode.Text := IntToStr(PlayerCount);
+    ClientCountNode.Text := IntToStr(ClientCount);
 
     //HTML footer
     HTML := HTML + '</TABLE>'+sLineBreak+
