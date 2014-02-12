@@ -132,7 +132,7 @@ const
 { TKMapInfo }
 constructor TKMapInfo.Create(const aFolder: string; aStrictParsing, aIsMultiplayer: Boolean);
 var
-  st, DatFile, MapFile, ScriptFile: string;
+  st, DatFile, MapFile, ScriptFile, TxtFile: string;
   DatCRC, OthersCRC: Cardinal;
   ft: TextFile;
   fMissionParser: TMissionParserInfo;
@@ -147,6 +147,7 @@ begin
   DatFile := fPath + fFileName + '.dat';
   MapFile := fPath + fFileName + '.map';
   ScriptFile := fPath + fFileName + '.script'; //Needed for CRC
+  TxtFile := fPath + fFileName + '.txt'; //Needed for CRC
 
   if not FileExists(DatFile) then Exit;
 
@@ -161,7 +162,7 @@ begin
   //.map file CRC is the slowest, so only calculate it if necessary
   OthersCRC := 0; //Supresses incorrect warning by Delphi
   if fStrictParsing then
-    OthersCRC := Adler32CRC(MapFile) xor Adler32CRC(ScriptFile);
+    OthersCRC := Adler32CRC(MapFile) xor Adler32CRC(ScriptFile) xor Adler32CRC(TxtFile);
 
   //Does the map need to be fully rescanned? (.mi cache is outdated?)
   if (fVersion <> GAME_REVISION) or
@@ -171,7 +172,7 @@ begin
   begin
     //Calculate OthersCRC if it wasn't calculated before
     if not fStrictParsing then
-      OthersCRC := Adler32CRC(MapFile) xor Adler32CRC(ScriptFile);
+      OthersCRC := Adler32CRC(MapFile) xor Adler32CRC(ScriptFile) xor Adler32CRC(TxtFile);
 
     fCRC := DatCRC xor OthersCRC;
     fDatCRC := DatCRC;
