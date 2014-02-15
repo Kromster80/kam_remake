@@ -1,0 +1,18 @@
+http://www.knightsandmerchants.net/forum/viewtopic.php?f=24&t=794&start=1980#p35674
+
+To Lewin and Krom,
+
+Sorry it took so long for me to write this, but I made a small list of improvements for the AI, some of which might be "easy" to implement or modify. These are only suggestions that would improve the AI and are not requests or demands in any way.
+
+    Incorporate storm attacks in the units that possess this option to have more effective pursuits against human player decoy troops.
+    For town defense, currently if an AI troop group is moving to a specific position (for example, to replace a group which has just been lured out of the village or has died from hunger), it will not respond to any attacks on the village or villagers until it has reached its destination. Make it so that they are not bound to reach their assigned position when their village is being attacked.
+    When a human player decoy is killed, make the AI more sensitive so that if there are any human player troops in their "radius line of sight", that is, the same distance they have to detect serfs being killed in their village by snipers, they pursue them if these human player troops are closer to the AI's post locations than they (the AI troops) are.
+    When pursuing a decoy or fleeing army, set a time limit on how long they pursue him. The greater the distance between the human player decoy and the AI, the shorter the time limit should be dynamically adjusted to. If the distance decreases after the AI are programmed to return home (the human decoy turns around and goes back towards the AI village or the returning AI troops), make the AI again pursue until a certain distance is made and a certain amount of time has passed. Obviously the ultimate time limit for such a pursuit pattern is when the AI troops get hungry.
+
+    Lastly, with this, make all AI groups independent. That is, xbows and swords should return home faster than knights, for example.
+
+    When pursuing a human player decoy and other human player units come within their "line of sight", have them stop and attack them and forget about the decoy and attack them instead.
+    This one might be something for the future, but for town defense, have the AI detect which type of units are attacking and send the rival troop type to kill them (e.g. if you attack with knights, the AI should attack you with pikes if it has any nearby). In fact, perhaps the AI should rotate its troops accordingly before you even attack their town...when you get within a certain distance, the AI will rotate its troops so that the opening which your troops are nearest will have to face the rival troop type.
+
+
+And, as I mentioned in another thread, the AI villages should increase their army's size. I played TSK04 for 4.5 hours, but the number of AI troops after that much development time = the initial army of AI troops at the beginning of the game.
