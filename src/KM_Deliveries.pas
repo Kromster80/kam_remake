@@ -554,7 +554,8 @@ begin
       I := 1;
       repeat
         B := TKMHouseBarracks(gHands[fDemand[iD].Loc_House.Owner].FindHouse(ht_Barracks, I));
-        if (B <> nil) and (not B.NotAcceptFlag[fOffer[iO].Ware]) then
+        //If the barracks will take the ware, don't allow the store to take it (disallow current delivery)
+        if (B <> nil) and B.WareDelivery and not B.NotAcceptFlag[fOffer[iO].Ware] then
         begin
           Result := False;
           Break;
