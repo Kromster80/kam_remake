@@ -44,6 +44,8 @@ Accepted:
 	DisplayText(text, player_id, timeout) to show announcements that will be gone after timeout (for TD and etc.)
 	Split a specific warrior out of a group
 	Looping option for PlayWAV (useful for ambient sounds at a location)
+    States.HouseUncloked(aPlayer, aType: integer): Boolean - returns true if specific player can build specific house type.
+    Way to highlight menu buttons (4 main tabs, build buttons), houses, units, etc. for the tutorial
 
 Proposed:
 	Change position/alignment/font of overlay text
