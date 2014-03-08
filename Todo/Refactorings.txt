@@ -6,8 +6,6 @@
 
 	Rework render layers so that cursor logic is in corresponding UI modules
 
-	Unicode fonts support and unicode font generator
-
 	Switch completely to Unicode compilation? (means dropping Delphi 7)
 
 	Smooth shadows generator for user override sprites in Sprites folder

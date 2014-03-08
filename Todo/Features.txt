@@ -9,7 +9,7 @@ Future
 	Improved MapEd
 	Checkpoints in replays for fast fwd/rwd
 	Checkbox to allow allies to share group/house control (or two players controling one hand)
-    When a server shuts down clients should automatically switch servers so the game can continue
+	When a server shuts down clients should automatically switch servers so the game can continue
 
 Next Demo
  +	Select objects by shape
