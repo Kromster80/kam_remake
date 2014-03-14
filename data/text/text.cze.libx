@@ -203,21 +203,21 @@
 204:Sází
 205:Přízrak
 206:Rušný
-207:Středověký roh
-208:Jaro
-209:Flétna
+207:Středověká trubka
+208:Pramen
+209:Loutna
 210:Žoldák
 211:Princezna
 212:Královna
 213:Na tržišti
-214:Na bojišti
+214:Na bitevním poli
 215:Dvorní tanec
 216:Armáda
-217:Na hradě
+217:Ve hradu
 218:Fanfáry
 219:Na dvoře
-220:Hlavní pochod
-221:Tmavě modrá
+220:Hlavní chod
+221:Tmavá modř
 222:Zápas
 223:Na zámku
 224:U šlechty
@@ -741,6 +741,10 @@
 783:Zpět
 784:Nastaví startovací pozici počítače, která je používána pro určení útoků
 785:Startovací pozice AI
-786:Rozkaz
+786:Pořadí
 788:Prodlení (s)
 789:Potřební vojáci
+790:Nejbližší dům k armádě
+791:Nejbližší dům ke startovací pozici
+792:Útočníci
+793:Obránci
