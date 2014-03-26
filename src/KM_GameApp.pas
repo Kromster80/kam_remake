@@ -691,16 +691,19 @@ end;
 
 procedure TKMGameApp.PrintScreen(aFilename: UnicodeString = '');
 var
-  s: string;
+  strDate, strName: string;
 begin
   Render(True);
   if aFilename = '' then
   begin
-    DateTimeToString(s, 'yyyy-mm-dd hh-nn-ss', Now); //2007-12-23 15-24-33
-    fRender.DoPrintScreen(ExeDir + 'KaM ' + s + '.jpg');
+    DateTimeToString(strDate, 'yyyy-mm-dd hh-nn-ss', Now); //2007-12-23 15-24-33
+    strName := ExeDir + 'screenshots\KaM Remake ' + strDate + '.jpg';
   end
   else
-    fRender.DoPrintScreen(aFilename);
+    strName := aFilename;
+
+  ForceDirectories(ExtractFilePath(strName));
+  fRender.DoPrintScreen(strName);
 end;
 
 
