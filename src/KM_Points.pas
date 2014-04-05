@@ -421,7 +421,7 @@ end;
 
 function KMGetDirection(FromPos, ToPos: TKMPoint): TKMDirection;
 begin
-  Result := KMGetDirection(ToPos.X - FromPos.X, ToPos.Y - FromPos.Y);
+  Result := KMGetDirection(Integer(ToPos.X - FromPos.X), Integer(ToPos.Y - FromPos.Y));
 end;
 
 
