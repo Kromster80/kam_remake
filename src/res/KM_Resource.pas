@@ -162,6 +162,9 @@ begin
 
   fSprites.ClearTemp;
 
+  // Locale info is needed for DAT export
+  LoadLocaleResources(aLocale);
+
   fWares := TKMWaresList.Create;
   fHouseDat := TKMHouseDatCollection.Create;
   fUnitDat := TKMUnitDatCollection.Create;
@@ -171,8 +174,6 @@ begin
   gLog.AddTime('ReadGFX is done');
   fDataState := rlsMenu;
   gLog.AddTime('Resource loading state - Menu');
-
-  LoadLocaleResources(aLocale);
 end;
 
 

@@ -384,7 +384,7 @@ begin
     fItems[U] := TKMUnitDatClass.Create(U);
 
   fCRC := LoadUnitsDat(ExeDir+'data' + PathDelim + 'defines' + PathDelim + 'unit.dat');
-  //ExportCSV(ExeDir+'Houses.csv');
+  //ExportCSV(ExeDir+'units.csv');
 end;
 
 
@@ -401,8 +401,8 @@ end;
 procedure TKMUnitDatCollection.ExportCSV(aPath: UnicodeString);
 var ft:textfile; ii:TUnitType;
 begin
-    AssignFile(ft,ExeDir+'UnitDAT.csv'); rewrite(ft);
-    writeln(ft,'Name;HitPoints;Attack;AttackHorse;x4;Defence;Speed;x7;Sight;x9;x10;CanWalkOut;x11;');
+    AssignFile(ft,aPath); rewrite(ft);
+    writeln(ft,'Name;HitPoints;Attack;AttackHorse;Defence;Speed;Sight;');
     for ii:=Low(TUnitType) to High(TUnitType) do
     if UnitsDat[ii].IsValid then
     begin
