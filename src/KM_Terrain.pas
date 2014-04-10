@@ -128,6 +128,7 @@ type
     procedure FallTree(Loc: TKMPoint);
     procedure ChopTree(Loc: TKMPoint);
     procedure RemoveObject(Loc: TKMPoint);
+    procedure RemoveObjectsKilledByRoad(Loc: TKMPoint);
 
     procedure SowCorn(Loc: TKMPoint);
     procedure CutCorn(Loc: TKMPoint);
@@ -944,6 +945,9 @@ begin
     Land[aList[I].Y, aList[I].X].TileOwner   := aOwner;
     Land[aList[I].Y, aList[I].X].TileOverlay := to_Road;
     Land[aList[I].Y, aList[I].X].FieldAge    := 0;
+    if MapElem[Land[aList[I].Y, aList[I].X].Obj].WineOrCorn then
+      RemoveObject(aList[I]);
+    RemoveObjectsKilledByRoad(aList[I]);
     UpdateFences(aList[I]);
   end;
 
@@ -1575,6 +1579,82 @@ begin
   end;
 end;
 
+
+procedure TKMTerrain.RemoveObjectsKilledByRoad(Loc: TKMPoint);
+{  function TileIsRoad(X,Y: Integer) : Boolean;
+  begin
+    Result := TileInMapCoords(X, Y) and (Land[Y, X].TileOverlay = to_Road)
+  end;
+
+  procedure RemoveIfCorner(Loc: TKMPoint);
+  begin
+    if MapElem[Land[Loc.Y,Loc.X].Obj].KillByRoad = kbrNWCorner then
+      RemoveObject(Loc);
+  end;
+
+  procedure RemoveIfWest(Loc: TKMPoint);
+  begin
+    if MapElem[Land[Loc.Y,Loc.X].Obj].KillByRoad = kbrWest then
+      RemoveObject(Loc);
+  end;
+
+var NWCorner, NECorner, SWCorner, SECorner, WNeighbour, ENeighbour : Integer;}
+begin
+{  NWCorner := 0;  NECorner := 0;  SWCorner := 0;  SECorner := 0;
+  WNeighbour := 0;  ENeighbour := 0;
+
+  if TileIsRoad(Loc.X - 1, Loc.Y - 1) then  //North_west
+  begin
+    Inc(NWCorner);
+  end;
+  if TileIsRoad(Loc.X, Loc.Y - 1) then      //North
+  begin
+    Inc(NWCorner);
+    Inc(NECorner);
+  end;
+  if TileIsRoad(Loc.X + 1, Loc.Y - 1) then  //North_east
+  begin
+    Inc(NECorner);
+  end;
+  if TileIsRoad(Loc.X + 1, Loc.Y) then      //East
+  begin
+    Inc(NECorner);
+    Inc(ENeighbour);
+    Inc(SECorner);
+  end;
+  if TileIsRoad(Loc.X + 1, Loc.Y + 1) then  //South_east
+  begin
+    Inc(SECorner);
+  end;
+  if TileIsRoad(Loc.X, Loc.Y + 1) then      //South
+  begin
+    Inc(SWCorner);
+    Inc(SECorner);
+  end;
+  if TileIsRoad(Loc.X - 1, Loc.Y + 1) then  //South_west
+  begin
+    Inc(SWCorner);
+  end;
+  if TileIsRoad(Loc.X - 1, Loc.Y) then      //West
+  begin
+    Inc(NWCorner);
+    Inc(WNeighbour);
+    Inc(SWCorner);
+  end;
+
+  if (NWCorner = 3) then
+    RemoveIfCorner(Loc);
+  if (NECorner = 3) then
+    RemoveIfCorner(KMPoint(Loc.X + 1, Loc.Y));
+  if (SWCorner = 3) then
+    RemoveIfCorner(KMPoint(Loc.X, Loc.Y + 1));
+  if (SECorner = 3) then
+    RemoveIfCorner(KMPoint(Loc.X + 1, Loc.Y + 1));
+  if (WNeighbour = 1) then
+    RemoveIfWest(Loc);
+  if (ENeighbour = 1) then
+    RemoveIfWest(KMPoint(Loc.X + 1, Loc.Y));}
+end;
 
 procedure TKMTerrain.SowCorn(Loc: TKMPoint);
 begin

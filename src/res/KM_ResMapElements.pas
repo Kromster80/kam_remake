@@ -7,6 +7,7 @@ uses
 
 
 type
+  TKMKillByRoad = (kbrNever, kbrNWCorner, kbrWest);
   TKMMapElement = packed record
     Anim: TKMAnimLoop;          //Animation loop info
     CuttableTree: LongBool;     //This tree can be cut by a woodcutter
@@ -17,6 +18,7 @@ type
     DontPlantNear: LongBool;    //This object can't be planted within one tile of
     Stump: ShortInt;            //Tree stump ID
     CanBeRemoved: LongBool;     //Can be removed in favor of building house
+    KillByRoad: TKMKillByRoad;  //Object will be removed if these neighboring tiles are roads
   end;
 
   TKMMapElements = class
@@ -80,22 +82,46 @@ const
   WINE_AGE_2 = 3400 div TERRAIN_PACE;
   WINE_AGE_FULL = 5000 div TERRAIN_PACE; //Wine ready to be harvested
 
-
 implementation
 
+const
+  ObjKillByRoads : array [Byte] of Byte = (
+    1, 2, 2, 2, 2, 2, 1, 1, 0, 0, 2, 2, 2, 1, 1, 1,
+    1, 2, 2, 2, 1, 2, 2, 2, 2, 1, 1, 1, 1, 1, 1, 1,
+    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0,
+    0, 0, 0, 0, 0, 1, 2, 1, 1, 1, 1, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 2, 2, 0, 0, 1, 0, 1, 1, 1, 1, 0, 2, 2, 2,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
 
 { TKMMapElements }
 //Reading map elements properties and animation data
 procedure TKMMapElements.LoadFromFile(const FileName: string);
+const
+  ELEMENT_SIZE = 99; // Old size of TKMMapElement (before we have added our fields to it)
 var
   S: TMemoryStream;
+  I: Integer;
 begin
   if not FileExists(FileName) then Exit;
 
   S := TMemoryStream.Create;
   S.LoadFromFile(FileName);
-  S.Read(MapElem[0], 255 * SizeOf(TKMMapElement));
-  fCount := S.Size div SizeOf(TKMMapElement); //254 by default
+  for I := Low(MapElem) to High(MapElem) do
+  begin
+    S.Read(MapElem[I], ELEMENT_SIZE);
+    MapElem[I].KillByRoad := TKMKillByRoad(ObjKillByRoads[I]);
+  end;
+  fCount := S.Size div ELEMENT_SIZE; //254 by default
   fCRC := Adler32CRC(S);
   S.Free;
 
