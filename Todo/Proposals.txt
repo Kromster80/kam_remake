@@ -57,6 +57,7 @@ We can discuss them in dialog-style and maybe move to GC issues later on
 		Add "Attack ground" for archers
 		Remove current group button in MapEd in Groups panel
 		Toggle feed button for troops between "feed" and "cancel"
+		MP chat, option to write to Spectators only
 
 
 REJECTED:
