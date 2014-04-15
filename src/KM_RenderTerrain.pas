@@ -21,8 +21,6 @@ type
     fTextG: GLuint; //Shading gradient for lighting
     fTextB: GLuint; //Contrast BW for FOW over color-coder
     fUseVBO: Boolean; //Wherever to render terrain through VBO (faster but needs GL1.5) or DrawCalls (slower but needs only GL1.1)
-    fFrameVtx: array of TFOWVertice;
-    fFrameInd: array of Integer;
     fTilesVtx: array of TTileVertice; //Vertice cache for tiles
     fTilesInd: array of Integer;
     fVtxShd: GLUint;

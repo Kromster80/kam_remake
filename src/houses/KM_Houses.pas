@@ -1310,19 +1310,19 @@ end;
 procedure TKMHouse.Paint;
 var
   H: TKMHouseDatClass;
-  Progress: Single;
+  progress: Single;
 begin
   H := gResource.HouseDat[fHouseType];
   case fBuildState of
     hbs_NoGlyph:; //Nothing
     hbs_Wood:   begin
-                  Progress := fBuildingProgress / 50 / H.WoodCost;
-                  fRenderPool.AddHouse(fHouseType, fPosition, Progress, 0, 0);
+                  progress := fBuildingProgress / 50 / H.WoodCost;
+                  fRenderPool.AddHouse(fHouseType, fPosition, progress, 0, 0);
                   fRenderPool.AddHouseBuildSupply(fHouseType, fPosition, fBuildSupplyWood, fBuildSupplyStone);
                 end;
     hbs_Stone:  begin
-                  Progress := (fBuildingProgress / 50 - H.WoodCost) / H.StoneCost;
-                  fRenderPool.AddHouse(fHouseType, fPosition, 1, Progress, 0);
+                  progress := (fBuildingProgress / 50 - H.WoodCost) / H.StoneCost;
+                  fRenderPool.AddHouse(fHouseType, fPosition, 1, progress, 0);
                   fRenderPool.AddHouseBuildSupply(fHouseType, fPosition, fBuildSupplyWood, fBuildSupplyStone);
                 end;
     else        begin

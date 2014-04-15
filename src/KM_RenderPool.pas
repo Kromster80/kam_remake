@@ -575,30 +575,32 @@ end;
 
 
 //Render house build supply
-procedure TRenderPool.AddHouseBuildSupply(aHouse: THouseType; Loc: TKMPoint; Wood,Stone: Byte);
+procedure TRenderPool.AddHouseBuildSupply(aHouse: THouseType; Loc: TKMPoint; Wood, Stone: Byte);
 var
-  R: TRXData;
-  Id: Integer;
-  BS: THouseBuildSupply;
-  CornerX, CornerY: Single;
+  rx: TRXData;
+  id: Integer;
+  supply: THouseBuildSupply;
+  cornerX, cornerY: Single;
 begin
-  R := fRXData[rxHouses];
-  BS := gResource.HouseDat[aHouse].BuildSupply;
+  rx := fRXData[rxHouses];
+  supply := gResource.HouseDat[aHouse].BuildSupply;
+
   if Wood <> 0 then
   begin
-    Id := 260 + Wood - 1;
-    CornerX := Loc.X + BS[1, Wood].MoveX / CELL_SIZE_PX - 1;
-    CornerY := Loc.Y + (BS[1, Wood].MoveY + R.Size[Id].Y) / CELL_SIZE_PX - 1
+    id := 260 + Wood - 1;
+    cornerX := Loc.X + supply[1, Wood].MoveX / CELL_SIZE_PX - 1;
+    cornerY := Loc.Y + (supply[1, Wood].MoveY + rx.Size[id].Y) / CELL_SIZE_PX - 1
                      - gTerrain.Land[Loc.Y + 1, Loc.X].Height / CELL_HEIGHT_DIV;
-    fRenderList.AddSprite(rxHouses, Id, 0, CornerX, CornerY);
+    fRenderList.AddSprite(rxHouses, id, 0, cornerX, cornerY);
   end;
+
   if Stone <> 0 then
   begin
-    Id := 267 + Stone - 1;
-    CornerX := Loc.X + BS[2, Stone].MoveX / CELL_SIZE_PX - 1;
-    CornerY := Loc.Y + (BS[2, Stone].MoveY + R.Size[Id].Y) / CELL_SIZE_PX - 1
+    id := 267 + Stone - 1;
+    cornerX := Loc.X + supply[2, Stone].MoveX / CELL_SIZE_PX - 1;
+    cornerY := Loc.Y + (supply[2, Stone].MoveY + rx.Size[id].Y) / CELL_SIZE_PX - 1
                      - gTerrain.Land[Loc.Y + 1, Loc.X].Height / CELL_HEIGHT_DIV;
-    fRenderList.AddSprite(rxHouses, Id, 0, CornerX, CornerY);
+    fRenderList.AddSprite(rxHouses, id, 0, cornerX, cornerY);
   end;
 end;
 
@@ -698,45 +700,48 @@ begin
 end;
 
 
-procedure TRenderPool.AddHouseSupply(aHouse: THouseType; Loc: TKMPoint; const R1,R2:array of byte);
-var Id,i,k: Integer;
+procedure TRenderPool.AddHouseSupply(aHouse: THouseType; Loc: TKMPoint; const R1, R2: array of Byte);
+var
+  Id,I,K: Integer;
   R: TRXData;
 
   procedure AddHouseSupplySprite(aId: Integer);
-  var CornerX,CornerY: Single;
+  var
+    CornerX, CornerY: Single;
   begin
-    if aId > 0 then
-    begin
-      CornerX := Loc.X + R.Pivot[aId].X / CELL_SIZE_PX - 1;
-      CornerY := Loc.Y + (R.Pivot[aId].Y + R.Size[aId].Y) / CELL_SIZE_PX - 1
-                       - gTerrain.Land[Loc.Y + 1, Loc.X].Height / CELL_HEIGHT_DIV;
-      fRenderList.AddSprite(rxHouses, aId, 0, CornerX, CornerY);
-    end;
+    if aId = 0 then Exit;
+
+    CornerX := Loc.X + R.Pivot[aId].X / CELL_SIZE_PX - 1;
+    CornerY := Loc.Y + (R.Pivot[aId].Y + R.Size[aId].Y) / CELL_SIZE_PX - 1
+                     - gTerrain.Land[Loc.Y + 1, Loc.X].Height / CELL_HEIGHT_DIV;
+    fRenderList.AddSprite(rxHouses, aId, 0, CornerX, CornerY);
   end;
 
 begin
   R := fRXData[rxHouses];
 
-  for i := 1 to 4 do
-  if (R1[i - 1]) > 0 then
+  for I := 1 to 4 do
+  if (R1[I - 1]) > 0 then
   begin
-    Id := gResource.HouseDat[aHouse].SupplyIn[i, Min(R1[i - 1], 5)] + 1;
+    Id := gResource.HouseDat[aHouse].SupplyIn[I, Min(R1[I - 1], 5)] + 1;
     AddHouseSupplySprite(Id);
   end;
 
-  for i := 1 to 4 do
-  if (R2[i - 1]) > 0 then
+  for I := 1 to 4 do
+  if (R2[I - 1]) > 0 then
   begin
-    //Exception for some houses that render layered
+    //Exception for houses whose wares are layered
     if aHouse in [ht_WeaponSmithy, ht_ArmorSmithy, ht_WeaponWorkshop, ht_ArmorWorkshop] then
-      for k := 1 to Min(R2[i - 1], 5) do
+    begin
+      for K := 1 to Min(R2[I - 1], 5) do
       begin
-        Id := gResource.HouseDat[aHouse].SupplyOut[i, k] + 1;
+        Id := gResource.HouseDat[aHouse].SupplyOut[I, K] + 1;
         AddHouseSupplySprite(Id);
       end
+    end
     else
     begin
-      Id := gResource.HouseDat[aHouse].SupplyOut[i, Min(R2[i - 1], 5)] + 1;
+      Id := gResource.HouseDat[aHouse].SupplyOut[I, Min(R2[I - 1], 5)] + 1;
       AddHouseSupplySprite(Id);
     end;
   end;
