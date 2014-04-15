@@ -53,7 +53,7 @@ begin
     begin
       try
         if Pos('\MapsMP\', PathToMaps[I]) <> 0 then
-          fGameApp.NewMultiplayerMap(PathToMaps[I])
+          fGameApp.NewMultiplayerMap(PathToMaps[I], False)
         else
           fGameApp.NewSingleMap(PathToMaps[I], '');
 
