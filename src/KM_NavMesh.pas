@@ -236,7 +236,7 @@ begin
   //Bring triangulated mesh back
   SetLength(fNodes, fNodeCount);
   for I := 0 to fNodeCount - 1 do
-    fNodes[I].Loc := KMPoint(fRawMesh.Vertices[I]);
+    fNodes[I].Loc := fRawMesh.Vertices[I];
 
   SetLength(fPolygons, fPolyCount);
   for I := 0 to fPolyCount - 1 do

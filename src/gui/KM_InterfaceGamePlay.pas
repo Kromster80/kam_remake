@@ -3434,7 +3434,7 @@ var
   U: TKMUnit;
   UnitLoc: TKMPointF;
   MapLoc: TKMPointF;
-  ScreenLoc: TKMPointI;
+  ScreenLoc: TKMPoint;
 begin
   if fShowTeamNames then
   begin

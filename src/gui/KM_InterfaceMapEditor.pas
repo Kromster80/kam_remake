@@ -870,7 +870,7 @@ var
   R: TRawDeposit;
   DP: TAIDefencePosition;
   LocF: TKMPointF;
-  ScreenLoc: TKMPointI;
+  ScreenLoc: TKMPoint;
 begin
   if mlDeposits in gGame.MapEditor.VisibleLayers then
   begin

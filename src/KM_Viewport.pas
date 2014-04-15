@@ -37,7 +37,7 @@ type
     function GetClip: TKMRect; //returns visible area dimensions in map space
     function GetMinimapClip: TKMRect;
     procedure ReleaseScrollKeys;
-    function MapToScreen(aMapLoc: TKMPointF): TKMPointI;
+    function MapToScreen(aMapLoc: TKMPointF): TKMPoint;
     procedure PanTo(aLoc: TKMPointF; aDuration: Cardinal);
 
     procedure Save(SaveStream: TKMemoryStream);
@@ -159,7 +159,7 @@ begin
 end;
 
 
-function TViewport.MapToScreen(aMapLoc: TKMPointF): TKMPointI;
+function TViewport.MapToScreen(aMapLoc: TKMPointF): TKMPoint;
 begin
   Result.X := Round((aMapLoc.X - fPosition.X) * CELL_SIZE_PX * fZoom + fViewRect.Right / 2 + TOOLBAR_WIDTH / 2);
   Result.Y := Round((aMapLoc.Y - fPosition.Y) * CELL_SIZE_PX * fZoom + fViewRect.Bottom / 2);
@@ -190,7 +190,7 @@ const
 var
   TimeSinceStarted: Cardinal;
   ScrollAdv, ZoomAdv: Single;
-  CursorPoint: TKMPointI;
+  CursorPoint: TKMPoint;
   ScreenBounds: TRect;
   I: Byte;
   MousePos: TPoint;

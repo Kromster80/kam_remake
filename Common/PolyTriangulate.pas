@@ -10,14 +10,14 @@ uses KM_Points, Math;
 const
   maxpolypoint = 100;
 
-procedure Triangulate(pts: TKMPointIArray; Count: Byte; var Tris: array of Word; out TCount: Word);
+procedure Triangulate(pts: TKMPointArray; Count: Byte; var Tris: array of Word; out TCount: Word);
 
 
 implementation
 
 
 type
-  Tpoints = array [1 .. maxpolypoint] of TKMPointI;
+  Tpoints = array [1 .. maxpolypoint] of TKMPoint;
 
   Tvector = record
     x, y, dx, dy: smallInt;
@@ -256,7 +256,7 @@ loop2:
 end;
 
 
-procedure Triangulate(pts: TKMPointIArray; Count: Byte; var Tris: array of Word; out TCount: Word);
+procedure Triangulate(pts: TKMPointArray; Count: Byte; var Tris: array of Word; out TCount: Word);
 var
   I: Integer;
   K: Integer;

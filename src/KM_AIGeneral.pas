@@ -338,7 +338,7 @@ var
   I, K: Integer;
   Locs: TKMPointDirTagList;
   Loc: TKMPoint;
-  LocI: TKMPointI;
+  LocI: TKMPoint;
   FaceDir: TKMDirection;
   SegLength, Ratio: Single;
   DefCount: Byte;

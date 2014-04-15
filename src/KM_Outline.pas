@@ -99,7 +99,7 @@ var
       begin
         if Length(Nodes) <= Count then
           SetLength(Nodes, Count + 32);
-        Nodes[Count] := KMPointI(X, Y);
+        Nodes[Count] := KMPoint(X, Y);
         Inc(Count);
       end;
     until((X = aStartX) and (Y = aStartY));

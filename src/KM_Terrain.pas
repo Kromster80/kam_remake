@@ -1519,7 +1519,7 @@ function TKMTerrain.CatchFish(aLoc: TKMPointDir; TestOnly: Boolean = False): Boo
 var MyFish: TKMUnitAnimal;
 begin
   //Here we are catching fish in the tile 1 in the direction
-  aLoc.Loc := KMPoint(KMGetPointInDir(aLoc.Loc, aLoc.Dir));
+  aLoc.Loc := KMGetPointInDir(aLoc.Loc, aLoc.Dir);
   MyFish := gHands.PlayerAnimals.GetFishInWaterBody(Land[aLoc.Loc.Y, aLoc.Loc.X].WalkConnect[wcFish], not TestOnly);
   Result := (MyFish <> nil);
   if (not TestOnly) and (MyFish <> nil) then MyFish.ReduceFish; //This will reduce the count or kill it (if they're all gone)
@@ -2093,7 +2093,7 @@ function TKMTerrain.GetClosestTile(TargetLoc, OriginLoc: TKMPoint; aPass: TPassa
 const TestDepth = 255;
 var
   i:integer;
-  P: TKMPointI;
+  P: TKMPoint;
   T: TKMPoint;
   WalkConnectID: integer;
   wcType: TWalkConnect;

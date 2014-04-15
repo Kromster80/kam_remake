@@ -657,7 +657,7 @@ begin
       Result := true; //Means exit DoUnitInteraction
       exit;
     end;
-    inc(fInteractionCount);
+    Inc(fInteractionCount);
     Explanation := 'We were pushed and are now waiting for a space to clear for us';
     ExplanationLogAdd;
     Result := true; //Means exit DoUnitInteraction
@@ -666,10 +666,11 @@ end;
 
 
 function TUnitActionWalkTo.IntSolutionDodge(fOpponent:TKMUnit; HighestInteractionCount:integer):boolean;
-var I: Byte; //Test 2 options really
-    TempPos: TKMPointI;
-    OpponentNextNextPos: TKMPoint;
-    fAltOpponent:TKMUnit;
+var
+  I: Byte; //Test 2 options really
+  TempPos: TKMPoint;
+  OpponentNextNextPos: TKMPoint;
+  fAltOpponent:TKMUnit;
 begin
   //If there is a unit on one of the tiles either side of target that wants to swap, do so
   Result := false;
@@ -688,7 +689,7 @@ begin
       and gTerrain.CanWalkDiagonaly(fUnit.GetPosition, TempPos.X, TempPos.Y)
       and (GetEffectivePassability in gTerrain.Land[TempPos.Y, TempPos.X].Passability) then
 
-        if gTerrain.HasUnit(KMPoint(TempPos)) then //Now see if it has a unit
+        if gTerrain.HasUnit(TempPos) then //Now see if it has a unit
         begin
           //There is a unit here, first find our alternate opponent
           fAltOpponent := gTerrain.UnitsHitTest(TempPos.X, TempPos.Y);
@@ -699,7 +700,7 @@ begin
             and (not TUnitActionWalkTo(fAltOpponent.GetUnitAction).fDoesWalking)
             and ((not KMStepIsDiag(fUnit.NextPosition,NodeList[NodePos+1])) //Isn't diagonal
             or ((KMStepIsDiag(fUnit.NextPosition,NodeList[NodePos+1])       //...or is diagonal and...
-            and not gTerrain.HasVertexUnit(KMGetDiagVertex(fUnit.GetPosition, KMPoint(TempPos)))))) then //...vertex is free
+            and not gTerrain.HasVertexUnit(KMGetDiagVertex(fUnit.GetPosition, TempPos))))) then //...vertex is free
             if TUnitActionWalkTo(fAltOpponent.GetUnitAction).GetNextNextPosition(OpponentNextNextPos) then
               if KMSamePoint(OpponentNextNextPos, fUnit.GetPosition) then //Now see if they want to exchange with us
               begin
@@ -709,7 +710,7 @@ begin
                 Explanation:='Unit on tile next to target tile wants to swap. Performing an exchange';
                 ExplanationLogAdd;
                 fDoExchange := true;
-                ChangeStepTo(KMPoint(TempPos));
+                ChangeStepTo(TempPos);
                 //They both will exchange next tick
                 Result := true; //Means exit DoUnitInteraction
                 exit; //Once we've found a solution, do NOT check the other alternative dodge position (when for loop i=1)

@@ -32,9 +32,9 @@ type
     procedure SetMapCount(aValue: Byte);
   public
     Maps: array of record
-      Flag: TKMPoint;
+      Flag: TKMPointW;
       NodeCount: Byte;
-      Nodes: array [0 .. MAX_CAMP_NODES - 1] of TKMPoint;
+      Nodes: array [0 .. MAX_CAMP_NODES - 1] of TKMPointW;
       TextPos: TBriefingCorner;
     end;
     constructor Create;

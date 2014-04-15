@@ -20,10 +20,8 @@ type
     procedure DotOnTerrain(x, y: Single; aCol: TColor4);
     procedure LineOnTerrain(x1, y1, x2, y2: Single; aCol: TColor4; aPattern: Word = $FFFF; aDots: Boolean = True); overload;
     procedure LineOnTerrain(A, B: TKMPoint; aCol: TColor4; aPattern: Word = $FFFF; aDots: Boolean = True); overload;
-    procedure LineOnTerrain(A, B: TKMPointI; aCol: TColor4; aPattern: Word = $FFFF; aDots: Boolean = True); overload;
     procedure LineOnTerrain(A, B: TKMPointF; aCol: TColor4; aPattern: Word = $FFFF; aDots: Boolean = True); overload;
     procedure Line(A, B: TKMPoint; aCol: TColor4; aPattern: Word = $FFFF); overload;
-    procedure Line(A, B: TKMPointI; aCol: TColor4; aPattern: Word = $FFFF); overload;
     procedure Line(A, B: TKMPointF; aCol: TColor4; aPattern: Word = $FFFF); overload;
     procedure Line(x1, y1, x2, y2: Single; aCol: TColor4; aPattern: Word = $FFFF); overload;
     procedure Triangle(x1, y1, x2, y2, X3, Y3: Single; aCol: TColor4);
@@ -199,12 +197,6 @@ begin
 end;
 
 
-procedure TRenderAux.LineOnTerrain(A,B: TKMPointI; aCol: TColor4; aPattern: Word = $FFFF; aDots: Boolean = True);
-begin
-  LineOnTerrain(A.X, A.Y, B.X, B.Y, aCol, aPattern, aDots);
-end;
-
-
 procedure TRenderAux.LineOnTerrain(A,B: TKMPointF; aCol: TColor4; aPattern: Word = $FFFF; aDots: Boolean = True);
 begin
   LineOnTerrain(A.X, A.Y, B.X, B.Y, aCol, aPattern, aDots);
@@ -212,12 +204,6 @@ end;
 
 
 procedure TRenderAux.Line(A, B: TKMPoint; aCol: TColor4; aPattern: Word = $FFFF);
-begin
-  Line(A.X, A.Y, B.X, B.Y, aCol, aPattern);
-end;
-
-
-procedure TRenderAux.Line(A, B: TKMPointI; aCol: TColor4; aPattern: Word = $FFFF);
 begin
   Line(A.X, A.Y, B.X, B.Y, aCol, aPattern);
 end;

@@ -5,7 +5,7 @@ uses Classes, KM_Defaults, KM_Points;
 
 var
   GameCursor: record
-    Pixel: TKMPointI;      //Cursor position in screen-space
+    Pixel: TKMPoint;      //Cursor position in screen-space
     Float: TKMPointF;     //Precise cursor position in map coords
     Cell: TKMPoint;       //Cursor position cell
     SState: TShiftState;  //Thats actually used to see if Left or Right mouse button is pressed

@@ -167,7 +167,7 @@ var
   R: TRawDeposit;
   AreaID: Integer;
   AreaSize: array of Integer;
-  AreaPos: array of TKMPointI; //Used as accumulator
+  AreaPos: TKMPointArray; //Used as accumulator
 begin
   for J := Low(aMat) to High(aMat) do
   begin

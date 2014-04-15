@@ -8,7 +8,7 @@ uses
 type
   TKMNodesArray = record
     Count: Integer;
-    Nodes: TKMPointIArray;
+    Nodes: TKMPointArray;
   end;
 
   TKMShapesArray = record
@@ -76,16 +76,16 @@ end;
 
 procedure TKMSimplifyShapes.Simplify(aShape, aFrom, aTo: Integer; aErrorSqr: Single; aForceSplit: Boolean = False);
 var
-  InLoop: TKMPointIArray;
+  InLoop: TKMPointArray;
   I: Integer;
   MaxDistI: Integer;
   MaxDistSqr: Single;
   NodeDistSqr, TestDot, Tmp: Single;
   DistSqr: Single;
-  Node1, Node2: TKMPointI;
+  Node1, Node2: TKMPoint;
   TestPos: TKMPointF;
-  NodeVect, TestVect: TKMPointI;
-  TestP: TKMPointI;
+  NodeVect, TestVect: TKMPoint;
+  TestP: TKMPoint;
 begin
   InLoop := fIn.Shape[aShape].Nodes;
 
@@ -197,7 +197,7 @@ var
   Corners: array of ShortInt;
   N0, N1, N2: Integer;
   FirstCorner: Integer;
-  TmpNode: TKMPointI;
+  TmpNode: TKMPoint;
   TmpCorn: ShortInt;
   Count1, Count2: Integer;
   Best: Single;
@@ -308,7 +308,7 @@ procedure TKMSimplifyShapes.FixDegenerateShapes;
 var
   I, K: Integer;
   Prev: Integer;
-  Node1, Node2: TKMPointI;
+  Node1, Node2: TKMPoint;
   A, B: Integer;
   Best: Single;
 begin
@@ -384,7 +384,7 @@ var
 
   //Segments should not intersect or touch except for the start/end
   procedure CheckIntersect(L1, N1, N2, L2, N3, N4: Integer);
-  var A,B,C,D: TKMPointI;
+  var A,B,C,D: TKMPoint;
   begin
     A := fIn.Shape[L1].Nodes[N1 mod fIn.Shape[L1].Count];
     B := fIn.Shape[L1].Nodes[N2 mod fIn.Shape[L1].Count];
@@ -502,7 +502,7 @@ procedure SimplifyStraights(const aIn: TKMShapesArray; aRect: TKMRect; var aOut:
   procedure SimplifyStraights2(const aIn: TKMNodesArray; var aOut: TKMNodesArray);
   var
     K: Integer;
-    P0, P1, P2: TKMPointI;
+    P0, P1, P2: TKMPoint;
     NodesOnEdge: Boolean;
     NodesOnLine: Boolean;
     KeepNode: Boolean;
@@ -544,7 +544,7 @@ begin
 end;
 
 
-procedure ForceEdge(var aTriMesh: TKMTriMesh; A,B: TKMPointI; aSkipMissing: Boolean);
+procedure ForceEdge(var aTriMesh: TKMTriMesh; A,B: TKMPoint; aSkipMissing: Boolean);
 var
   Edges: array [0..1] of array of SmallInt;
   Loop: array of Word;
@@ -572,7 +572,7 @@ var
   end;
 
   procedure TriangulateLoop;
-  var L: Integer; V: TKMPointIArray; PCount: Word; Pols: array of Word;
+  var L: Integer; V: TKMPointArray; PCount: Word; Pols: array of Word;
   begin
     SetLength(V, LoopCount);
     SetLength(Pols, (LoopCount - 2) * 3);
@@ -695,7 +695,7 @@ procedure ForceOutlines(var aTriMesh: TKMTriMesh; aRect: TKMRect; fSimpleOutline
   end;
 
 var
-  Tmp: TKMPointIArray;
+  Tmp: TKMPointArray;
 
   procedure SortAndApply(aX: Boolean);
   var

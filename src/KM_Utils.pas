@@ -15,7 +15,7 @@ uses
   function KMGetCursorDirection(X,Y: integer): TKMDirection;
 
   function GetPositionInGroup2(OriginX, OriginY: Word; aDir: TKMDirection; aIndex, aUnitPerRow: Word; MapX, MapY: Word; out aTargetCanBeReached: Boolean): TKMPoint;
-  function GetPositionFromIndex(aOrigin: TKMPoint; aIndex: Byte): TKMPointI;
+  function GetPositionFromIndex(aOrigin: TKMPoint; aIndex: Byte): TKMPoint;
 
   function FixDelim(const aString: UnicodeString): UnicodeString;
 
@@ -265,7 +265,7 @@ end;
 
 
 //See Docs\GetPositionFromIndex.xls for explanation
-function GetPositionFromIndex(aOrigin: TKMPoint; aIndex: Byte): TKMPointI;
+function GetPositionFromIndex(aOrigin: TKMPoint; aIndex: Byte): TKMPoint;
 const
   Rings: array[1..10] of Word =
 //Ring#  1  2  3  4   5   6   7    8    9    10

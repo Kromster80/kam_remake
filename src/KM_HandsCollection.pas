@@ -411,8 +411,7 @@ end;
 function TKMHandsCollection.FindPlaceForUnit(PosX,PosY:integer; aUnitType: TUnitType; out PlacePoint: TKMPoint; RequiredWalkConnect:byte):Boolean;
 var
   I: Integer;
-  P: TKMPointI;
-  T: TKMPoint;
+  P: TKMPoint;
   Pass: TPassability; //temp for required passability
 begin
   Result := False; // if function fails to find valid position
@@ -420,15 +419,14 @@ begin
 
   for I := 0 to 255 do
   begin
-    P := GetPositionFromIndex(KMPoint(PosX,PosY), I);
-    if gTerrain.TileInMapCoords(P.X,P.Y) then
+    P := GetPositionFromIndex(KMPoint(PosX, PosY), I);
+    if gTerrain.TileInMapCoords(P.X, P.Y) then
     begin
-      T := KMPoint(P);
-      if gTerrain.CheckPassability(T, Pass) and not gTerrain.HasUnit(T)
+      if gTerrain.CheckPassability(P, Pass) and not gTerrain.HasUnit(P)
       //If RequiredWalkConnect is invalid (0) it means we don't care
-      and ((RequiredWalkConnect = 0) or (gTerrain.GetWalkConnectID(T) = RequiredWalkConnect)) then
+      and ((RequiredWalkConnect = 0) or (gTerrain.GetWalkConnectID(P) = RequiredWalkConnect)) then
       begin
-        PlacePoint := T; // Assign if all test are passed
+        PlacePoint := P; // Assign if all test are passed
         Result := True;
         Exit;
       end;

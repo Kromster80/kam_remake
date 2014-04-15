@@ -33,7 +33,7 @@ type
     xc,yc,r: Double;
   end;
 
-  TDVertexArray = array [0..MAX_VERTICES] of TKMPointI;
+  TDVertexArray = array [0..MAX_VERTICES] of TKMPoint;
   PVertexArray = ^TDVertexArray;
 
   TDTriangleArray = array [0..MAX_TRIANGLES] of TDTriangle;
@@ -370,7 +370,7 @@ procedure TDelaunay.QuickSort(var A: PVertexArray; aLow,aHigh: Integer);
   var
     Lo, Hi: Integer;
     Mid: Double;
-    T: TKMPointI;
+    T: TKMPoint;
   begin
     Lo := iLo;
     Hi := iHi;

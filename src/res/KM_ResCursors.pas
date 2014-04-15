@@ -24,7 +24,7 @@ type
   public
     procedure MakeCursors(aSprites: TKMSpritePack);
     property Cursor: TKMCursor read GetCursor write SetCursor;
-    function CursorOffset(aDir: TKMDirection): TKMPointI;
+    function CursorOffset(aDir: TKMDirection): TKMPoint;
     function CursorTexID(aDir: TKMDirection): Integer;
   end;
 
@@ -149,7 +149,7 @@ end;
 
 
 //Return cursor offset for given direction, which is a signed(!) value
-function TKMCursors.CursorOffset(aDir: TKMDirection): TKMPointI;
+function TKMCursors.CursorOffset(aDir: TKMDirection): TKMPoint;
 begin
   Result.X := fRXData.Pivot[Cursors[TKMCursorDirections[aDir]]].X;
   Result.Y := fRXData.Pivot[Cursors[TKMCursorDirections[aDir]]].Y;

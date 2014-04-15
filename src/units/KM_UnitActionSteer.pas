@@ -97,7 +97,7 @@ var
 begin
   Inc(fDesireToSteer);
   //Default is the next tile in the direction we're going
-  Loc := KMPoint(KMGetPointInDir(fUnit.GetPosition, fUnit.Direction));
+  Loc := KMGetPointInDir(fUnit.GetPosition, fUnit.Direction);
   //Decide whether we should change direction or not
   if (KaMRandom(10) < fDesireToSteer)
   or not fUnit.CanStepTo(Loc.X, Loc.Y, fUnit.DesiredPassability) then
