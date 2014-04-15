@@ -1,3 +1,5 @@
+Long-stretch goals that impact gameplay
+
 Distant future
 	Fog of war
 	Networking in separate thread to minimize lags

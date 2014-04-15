@@ -1,4 +1,5 @@
-Here is a list of graphical problems relating to snow houses. Most can be fixed by removing backgrounds from house overlays, keeping shadows (using chessboard style) where possible.
+Here is a list of graphical problems relating to snow houses.
+Most can be fixed by removing backgrounds from house overlays, keeping shadows (using chessboard style) where possible.
 
 
 Backgrounds to remove from house overlays

@@ -1,3 +1,4 @@
+Internal refactorings that don't affect gameplay, but might be needed for the projects future development
 
 	Add seperate folder for SP maps that do not go into releases (MapsTest)
 		1st attempt failed. We need to add parent folder to map addressing. We can also split MapsMP by modes (MapsMPEconomy, MapsMPFight, etc)
@@ -28,3 +29,5 @@
 	Try out making roadfinder aware of houses it connects (to prefer relevant houses)
 
 	Make TKMPoint use Integers throughout the code (they are noticeably faster)
+
+	Split network protocol (commands) into server-client level (queries, rooms, connecting, disconnecting) and game level (lobby, gameplay)

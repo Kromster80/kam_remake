@@ -1,5 +1,6 @@
 ﻿Since r5503:
 <===================================================================================>
+Bugs:
  +	Actions.GroupOrderSplit returned the original group ID, not the new one
  +	Delivery importance would be ignored in cases where you have more available serfs than available deliveries
  +	Storm attacking soldiers would sometimes pass by enemies instead of stopping to fight them
@@ -12,25 +13,25 @@
  +	Random seed should be different before each game
  +	Attacking an animal through script command would crash a game
  +	AIs should retaliate when the arrows are in the air, not while the archer is just aiming
- +      Limit save name length (long names can cause crash)
- +      Fixed winefield bug (MapEd did not save grapes objects)
- +      Increased max terrain brush size to 32
- +  	Scripts should not allow to link players warriors to other players group
- +      In-house enable/disable ware delivery in script worked in reverse
- +      Actions.PlayerWareDistribution did not update house orders, so houses didn't notice that the distribution has changed
- +      Integer overflow in stats caused by counting stone/wood as consumed twice when an incomplete house was destroyed
- +      Crash during delivery if ToHouse was destroyed while the serf was inside FromHouse
- +      Network system messages are now translated
- +      Player alliance towards self is inconsistent, especially in MP and when accessing from script (should be Ally always!)
- +      Block sending chat during reconnection to prevent messages being lost or causing errors (when fMyIndexOnServer is out of date)
- +      Beacons did not render on unrevealed areas
- +      Singleplayer replays ended at the last player command rather than when they were saved (use gic_GameSave in SP too)
- +      Actions.GiveHouse failed when there was a worker building a field or road next to the house
- +      Strange AI behaviour in campaign missions due to AI attack values not carrying over like they do in KaM
- +      AI warriors should attack enemies when they are within 4 tiles, to prevent sneaking into AI village (can be set in MapEd)
- +      Terrain brushes in MapEd erase corn/wine fields (should preserve them)
- +      When citizen walks into a house he should be deselected
- +	Make wood to building sites to be delivered first
+ +	Limit save name length (long names can cause crash)
+ +	Fixed winefield bug (MapEd did not save grapes objects)
+ +	Increased max terrain brush size to 32
+ +	Scripts should not allow to link players warriors to other players group
+ +	In-house enable/disable ware delivery in script worked in reverse
+ +	Actions.PlayerWareDistribution did not update house orders, so houses didn't notice that the distribution has changed
+ +	Integer overflow in stats caused by counting stone/wood as consumed twice when an incomplete house was destroyed
+ +	Crash during delivery if ToHouse was destroyed while the serf was inside FromHouse
+ +	Network system messages are now translated
+ +	Player alliance towards self is inconsistent, especially in MP and when accessing from script (should be Ally always!)
+ +	Block sending chat during reconnection to prevent messages being lost or causing errors (when fMyIndexOnServer is out of date)
+ +	Beacons did not render on unrevealed areas
+ +	Singleplayer replays ended at the last player command rather than when they were saved (use gic_GameSave in SP too)
+ +	Actions.GiveHouse failed when there was a worker building a field or road next to the house
+ +	Strange AI behaviour in campaign missions due to AI attack values not carrying over like they do in KaM
+ +	AI warriors should attack enemies when they are within 4 tiles, to prevent sneaking into AI village (can be set in MapEd)
+ +	Terrain brushes in MapEd erase corn/wine fields (should preserve them)
+ +	When citizen walks into a house he should be deselected
+ +	Make wood to be delivered first to building sites
 	Armour smithy has shields as 2nd ouput, armour workshop has shields as 1st output. Would make sense to match them (note: simply swapping in KM_ResourceHouses causes game logic to be swapped with GUI)
 	Armour smithy has iron as 1st input, weapon smithy has iron as 2nd input (iron/coal swapped). Would make sense to match them (note: simpply swapping in KM_ResourceHouses causes game logic to be swapped with GUI)
 	Deliveries should use the actual walking route length (opposed to Radius)
@@ -52,13 +53,12 @@
 	Woodcutter would cut a missing tree on a corn field (replaced with corn while he is chopping)
 	Towers attack range is uneven (should be measured from towers middle, not the recruit location in BR corner)
 	AIAttacks bug (AI attacks mulfunction after 12min.rar)
-        TSK 5: ally sometimes sends his troops to the enemy base causing you to lose (after the enemy attacks?)
+	TSK 5: ally sometimes sends his troops to the enemy base causing you to lose (after the enemy attacks?)
 	Wood/Stone on building sites render on top of trees in front of them
 
 	Water looks ugly brown when you zoom out too far due to water tiles having brown checkerboard pattern (anti-aliasing won't help)
 	Wooden house frames flicking on Onboard Intel HD Family Chipset (see images "Hidden House Frame Intel Onboard 1.jpg")
 	Colored rectangle below cursor
-
 
 
 Improvements:
@@ -70,28 +70,28 @@ Improvements:
  +	L	Game will flash on task bar when new chat message arrives
  +	L	Set random seed on game start (for MP it needs to be decided by host and synced before the game starts)
  +	L	A way to order +100 weapons at weapon makers and other places (shift + left-click)
- +      L       MapEd: Allow custom map sizes
- +      L       Shortcuts for all soldier buttons: , & . to rotate, + & - to add/withdraw lines, x to charge, f for food
- +      L       MapEd: Randomize terrain tiles when creating a new map
- +      L       Allow cinematics in dynamic scripts
- +  M   File transfers in multiplayer lobby
+ +	L	MapEd: Allow custom map sizes
+ +	L	Shortcuts for all soldier buttons: , & . to rotate, + & - to add/withdraw lines, x to charge, f for food
+ +	L	MapEd: Randomize terrain tiles when creating a new map
+ +	L	Allow cinematics in dynamic scripts
+ +	M	File transfers in multiplayer lobby
  +	L	Master server use MySQL for storage rather than .txt files
  +	L	Shift+3 joins the selected warrior group to the group assigned to hotkey 3 (Starcraft style)
- +  L   The host can ban players from the lobby (only from this lobby, it is not a permanent ban)
- +  L   MapEd and script let you add out wares to houses (e.g. stone to stonemason)
+ +	L	The host can ban players from the lobby (only from this lobby, it is not a permanent ban)
+ +	L	MapEd and script let you add out wares to houses (e.g. stone to stonemason)
  +	M	New column in load/replays menus: Date/time (stored internally in save format since file modified date is not very trustworthy)
  +	L	Keyboard shortcuts to zoom for people without a scrollwheel (page up/page down)
- +  L   Distribution of wares is viewable during replays
+ +	L	Distribution of wares is viewable during replays
  +	L	Rally point for the barracks
- +  L   Warriors leaving the barracks will form a square formation rather than a long snake like in TSK/TPR
- +  L   Multiplayer spectating
- +  L   MapEd option to enable the AI to retaliate against allies' assets being attacked like they do for themselves
+ +	L	Warriors leaving the barracks will form a square formation rather than a long snake like in TSK/TPR
+ +	L	Multiplayer spectating
+ +	L	MapEd option to enable the AI to retaliate against allies' assets being attacked like they do for themselves
  +	L	Multiplayer in-game player list ordered by teams
- +  L   When archers are ordered to attack by right clicking enemy unit, they will walk into range in formation not spread out
+ +	L	When archers are ordered to attack by right clicking enemy unit, they will walk into range in formation not spread out
  +	L	Add script command to allow to add recruits into the Barracks in MapEd (only Barracks for simplicity, other houses dont need it)
- +  L   Pressing spacebar will center the screen on the latest alert (beacon or under attack)
+ +	L	Pressing spacebar will center the screen on the latest alert (beacon or under attack)
  +	L	Save screenshots into own folder called "screenshots"
-	        Dismiss button to make units walk into the school and disappear (gold is not refunded)
+		Dismiss button to make units walk into the school and disappear (gold is not refunded)
 	L	Simple dedicated server form which lets you set the properties of the INI for the server and start it [gemGreg]
 	L	Placing houses in MP should put a temp/fake visual markup until the real one can be added to make it appear responsive
 	L	Ctrl+C/V to copy chat messages with e.g. links or quotes
@@ -117,7 +117,7 @@ Improvements:
 	L	Ability to mark maps as a favourite (gold star) so they appear at the top of the list (find your favourite maps without scrolling through whole list)
 	L	Add an option to give hosting rights to another player in lobby
 	L	Option in the lobby to select starting with a small village, everything up to sawmill (placed automatically by city builder?)
-                        Andreus: What about adding some village planning modes, like in KAM MissionEditor (Nothing, Buildings, Buildings and troops)?
+				Andreus: What about adding some village planning modes, like in KAM MissionEditor (Nothing, Buildings, Buildings and troops)?
 	L	House not occupied message should mention which house it is ("This farm is not occupied"). Hard to work around plurals and fem/masc forms
 	L	Allow dedicated servers to optionally specify their IP in the INI file (some servers have multiple IP addresses, the external one the master server sees might not be the correct one)
 	L	Icon before the server name: Swords/house/floppy for battle/build/save (save icon only shown while in lobby)
@@ -131,8 +131,8 @@ Improvements:
 	L	Message when weaponmaker has complete his order
 	L	Allow to copy opponents nikname into buffer (through players menu > Copy?)
 	L	Save wares distribution ratios between games
-        L       Shortcut key to jump to point where ally has made a beacon
-        L       Allow to customize and save hotkeys settings
+	L	Shortcut key to jump to point where ally has made a beacon
+	L	Allow to customize and save hotkeys settings
 
 	L	MapEd: Allow to toggle trees/objects opacity (make them partially visible) [Marcin]
 	L	MapEd: Allow to toggle AI defence positions display
@@ -144,7 +144,8 @@ Improvements:
 	L	MapEd: Add size to Object delete brush (possibly in a new tab where artistic brushes will be)
 	L	MapEd: An option to hide roads/fields, so you can view just the terrain while you edit it
 	M	MapEd: "Sync all" checkbox when adding wares to a house which makes it the same for all houses of that type
-    L   MapEd: Pipette tool like in Photoshop to select the type of tile under the cursor (ctrl+click while in tile mode?)
+	L	MapEd: Pipette tool like in Photoshop to select the type of tile under the cursor (ctrl+click while in tile mode?)
+	L	Add a button into barracks UI to allow to set a rally point
  
  -	Fixed "Unsupported global variable type 28" error in dynamic scripts when using UnicodeString (no need to use unicode, use AnsiString)
  -	Make units turn around without skipping inbetween directions (instead of immediate direction change)
@@ -153,7 +154,7 @@ Improvements:
  -	The ingame briefing texture is too short, see attached picture
  -	Serfs should take wares back or to suitable house if destination is destroyed
  -	In window mode, the taskbar is over the game window. (thats what it supposed to be, use fullscreen instead)
- - 	Warriors attacking enemy citizens don't listen to orders (thats a feature)
+ -	Warriors attacking enemy citizens don't listen to orders (thats a feature)
  -	Many texts will not change if I change the language in options menu (we are always working on it)
 
 
@@ -480,8 +481,8 @@ Fixed in r2411:
 Bugs:
  +	Mining stone from tiles close to map upper edge caused a crash
  +	When woodcutter goes to chop a tree and sees on spot that tree was just chopped he should look for different tree (no planting though!)
- + 	In multiplayer there are still roads on the map for players that were deleted because they are not playing
- + 	Setting the number of wares in a storehouse/barracks in the MapEd to a negative number will cause a crash
+ +	In multiplayer there are still roads on the map for players that were deleted because they are not playing
+ +	Setting the number of wares in a storehouse/barracks in the MapEd to a negative number will cause a crash
  +	"Taking wrong resource from Serf" crashes fixed
  +	Save correct number of players from MapEd
  +	RangeCheckError in TSK campaign screen when selecting 7th mission

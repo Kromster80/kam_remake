@@ -1,29 +1,30 @@
-Ideas that have not been decided. Should be moved to Bugslist.txt when a decision is made
-We can discuss them in dialog-style and maybe move to GC issues later on
+These are proposals and ideas that have not been decided yet.
+If we doubt about something or don't have an agreement about it - idea goes here.
+We can discuss proposals in dialog-style
+Once an agreement is made or implementation details are made - item is moved to Bugslist.txt improvements section or Refactorings.txt
+
 <===================================================================================>
+
 	L	Add lookout tower armed with endless arrows
 	L	Show the mining radius of the selected house or house that you are placing
 			Krom: Idea is okay. We need to display mining "strength" (think coalmine) as well, in some nice way, also show ranges of all houses of the same king to allow player to plan his mining better (e.g. avoid overlaps). Iron/Gold don't need this mostly, but Coal/Fish/Towers - do.
-			Krom: Another note - mining radies should show effective range with regard to walking legth.
+			Krom: Another note - mining radies should show effective range with regard to walking length.
 			Lewin: Yes showing walking length shouldn't be a problem, we can use GetTilesWithinDistance and highlight the returned tiles. We'll need to "cache" the list so we don't call GetTilesWithinDistance every time we paint (or maybe 1-2ms doesn't matter so much?)
-	L	Gameplay mutators in multiplayer: no iron, no archers, no market, no towers, etc. Host can select multiple mutators.
 	L	People can cheat in MP during peacetime by digging a house/road over an enemy road or free land (block houses on enemy territory during peacetime?)
 			Krom: Easiest implementation seems to be floodfill from towns until areas make borders
 			Lewin: Agreed.
 	L	AI warriors should automatically engage enemies within 3-4 tiles (happens in KaM?)
 			Krom: 2 tiles seems quite enough to me
-	L	Split network protocol (commands) into server-client level (queries, rooms, connecting, disconnecting) and game level (lobby, gameplay) [Lewin]
-			Relates to security and futureproofing
 	L	When player leaves allow his allies to take control over his village and army
 	L	Make lobby flag selection using list of countries that speak that language. With English you could choose USA, UK, AU, NZ. With Spanish you could choose Spain, Argentina, Chille.
 			Lewin: Sounds ok. Means we need to include ~200 flags I guess, but with RXX packing that's no big problem.
 			Krom: Flag represents locale, language that the player can read/type, not an actual location.
 			Lewin: The problem is languages don't have flags, countries do. The best we can do is use the country of origin for the flag (e.g. Spain not Argentina, UK not US) Although people use the flag to assume where you are from.
-	L	Add a button into MapEd to allow quickplay the map
+	L	Add a button into MapEd to allow quickplay current map
 	L	Change army counts in charts and statistics to army power (e.g. knights worth more than militia)
 	L	Allow dedicated server host to do announcements (e.g. server will be closed in 5min, plz save and quit)
 	L	Add shortcut keys to common messsages in MP (defend here, attack, check ur base, etc.)
-		Allow to cancel builders tasks (e.g. roadbuilding)
+		Allow to cancel wip builders tasks (e.g. roadbuilding)
 		Sound notification when MP game starts (some players join the lobby, hit ready and alt-tab waiting for game to start)
 		Warriors should resume their last attack order after a fight "ends", so if you ask cavalry to attack archers they do not stop and stand still as soon as the first one dies because the others are not within direct reach. Probably all orders should be remembered and resumed after a fight, so if you ask a warrior to move somewhere and he bumps into a bowman, after killing him he should continue on his way.
 			Krom: Is it requested only for Attack orders, or Walk too?
@@ -32,18 +33,15 @@ We can discuss them in dialog-style and maybe move to GC issues later on
 	L	Add a "seperate one unit from the group" button for scouting etc. (we can rearrange interface due to unused move/attack buttons)
 	L	Add a way to feed only <30% hungry units
 		Switch beacon from B to more convenient Alt+Click as in other RTS?
-		Waypoint for the barracks. So that warriors go to a specific point instead of crowding in front of the barracks
 		Using TAB to toggle between houses of same kind
 
 		In-game player list should show who is defeated (shown seperately to who is disconnected which is already shown by strikethrough)
 		Allow to build fields over winefields, allow to destruct own fields and roads by workers.
-		KaM Launcher that will do automatic game client updates
 		Allow to mute certain players in lobby/game
 			Krom: Sounds like half-measure against trolls
 		Add "plant-only" option to the woodcutter, useful if the woodcutter has some trees but you don't need them cut yet, also for getting your woodcutters in different phases so they are not all choppping/planting in sync (less efficient)
-		Display in MP players list who was defeated (with a new icon?)
-		Experiment with adding new terrain objects (Pawel's dandelion, unused sprite in Trees.rx). I think there are currently less than 255 objects so maybe we can just insert them in some of the free slots?
 		Clicking on allied soldiers shows a button that enables one to feed his ally's
+		Toggle feed button for troops between "feed" and "cancel"
 		Ability to set your default color next to your name on MP page (it will be selected in the lobby if available)
 		Allow saving from within replays. This would let you create a save of a game at a certain moment and continue playing from there, which could be good for practice (e.g. town building) or fun.
 		Invisible links between water bodies to connect water under bridges
@@ -51,13 +49,15 @@ We can discuss them in dialog-style and maybe move to GC issues later on
 	L	Serfs that are f.e. taking corn to the mill should claim/lock a flour in the output before arriving, rather than only checking it when arriving (which usually means another serf takes it)
 			Krom: I dont think this is a good idea, that could slow deliveries down
 			Lewin: IMO it won't in almost all cases, it allows serfs to be more efficiently allocated. Remember that only 1 item is locked per serf bringing an item there, so only a few items will get locked. Right now it's very annoying when a serf drops something off and doesn't take an item out, and a serf from a long way away is made to walk there and take it instead. It also reduces overall traffic on the road networks. I think we could test it on Rayzel's map and see whether it's more efficient (compare overall productivity and average number of idle serfs?).
-	L	Pressing tab should cycle to next edit box (needs TabOrder like Delphi controls?)
+			Krom: Yeah, but think about opposite situation, when ware is locked by a unit far away, and there are closer units that can take it
+	L	Pressing tab should cycle to next edit box (needs TabOrder like Delphi controls?), pressing Enter - click default button
 		Placing beacons in replays for educational purposes (e.g. while making a video for youtube)
 		Limit rate of the message notification sound to avoid sound spam when you lost many villagers
 		Add "Attack ground" for archers
 		Remove current group button in MapEd in Groups panel
-		Toggle feed button for troops between "feed" and "cancel"
 		MP chat, option to write to Spectators only
+		Minimap modes to see allies in green, enemies in red
+		Show warriors types icons when T key is held
 
 
 REJECTED:
@@ -77,3 +77,5 @@ REJECTED:
 		Krom: That could be too much detail without real need
  -	Add fan-made section where fans could add LOLCat, Welsh, Simple English, Funny and other translations with fallback to existing locale
  - 	Select multiple saves at once to be deleted (click+drag or hold shift/ctrl)
+ -	Gameplay mutators in multiplayer: no iron, no archers, no market, no towers, etc. Host can select multiple mutators. (will fragmentate multiplayer too much)
+ -		KaM Launcher that will do automatic game client updates (much complication over nothing)

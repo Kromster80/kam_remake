@@ -4,38 +4,38 @@ Implemented:
  5871	Event OnHousePlanPlaced(aPlayer: Byte; aX, aY: Word; aType: Byte)
  5882	Event OnHouseDamaged(aHouse, aAttacker: Integer);
  5884	Event OnUnitWounded(aUnit, aAttacker: Integer);
- 5964   Events OnPlanRoad, OnPlanField, OnPlanWinefield (aPlayer, aX, aY: Integer)
- 5924   Actions.AIAutoBuild(aPlayer: Byte, aAuto: Boolean)
- 5924   Actions.AIAutoDefence(aPlayer: Byte; aAuto: Boolean)
- 5924   Actions.AIRecruitsDelay(aPlayer: Byte, aDelay: Cardinal)
- 5924   Actions.AISerfsFactor(aPlayer, aLimit: Byte)
- 5924   Actions.AIWorkersLimit(aPlayer, aLimit: Byte)
- 5927   States.PlayerIsAI(aPlayer: Byte): Boolean
- 5927   Actions.RemoveField(X, Y: Word)
- 5927   Actions.RemoveRoad(X, Y: Word)
- 5932   Actions.AIAutoRepair(aPlayer: Byte; aAuto: Boolean)
- 5932   Actions.AISoldiersLimit(aPlayer: Byte; aLimit: Integer)
- 5932   Actions.AIDefensePositionAdd(aPlayer: Byte; X: Integer; Y: Integer; aDir: Byte; aGroupType: Byte; aRadius: Word; aDefType: Byte) 
- 5932   States.GroupType(aGroupID: Integer) - returns type of certain group (melee, ranged...)
- 5934   States.HouseCanReachResources(aHouseID: Integer): Boolean
- 5934   Actions.AIGroupsFormationSet(aPlayer, aType: Byte; aCount, aColumns: Word)
- 5934   Actions.GroupHungerSet(aGroupID, aHungerLevel: Integer)
- 5934   Actions.GroupKillAll(aGroupID: Integer; aSilent: Boolean)
- 5934   Actions.UnitBlock(aPlayer: Byte; aType: Word; aBlock: Boolean)
- 5938   Actions.CinematicStart(aPlayer: Byte);
- 5938   Actions.CinematicEnd(aPlayer: Byte);
- 5938   Actions.CinematicPanTo(aPlayer: Byte; X, Y, Duration: Word);
- 5943   States.ClosestGroup(aPlayer, X, Y: Integer): Integer
- 5943   States.ClosestHouse(aPlayer, X, Y: Integer): Integer
- 5943   States.ClosestUnit(aPlayer, X, Y: Integer): Integer
- 5943   States.HouseOccupant(aHouseID: Integer): Integer
- 5964   OnPlanRoad, OnPlanField, OnPlanWinefield
- 5976   Actions.GroupDisableHungryMessage
- 5978   UnitKill now works for animals
- 6015   Actions.HouseTakeWaresFrom
- 6067   Actions.Log
- 6114   OnHouseAfterDestroyed, OnUnitAfterDied
- 6126   Actions.HouseBarracksGiveRecruit
+ 5964	Events OnPlanRoad, OnPlanField, OnPlanWinefield (aPlayer, aX, aY: Integer)
+ 5924	Actions.AIAutoBuild(aPlayer: Byte, aAuto: Boolean)
+ 5924	Actions.AIAutoDefence(aPlayer: Byte; aAuto: Boolean)
+ 5924	Actions.AIRecruitsDelay(aPlayer: Byte, aDelay: Cardinal)
+ 5924	Actions.AISerfsFactor(aPlayer, aLimit: Byte)
+ 5924	Actions.AIWorkersLimit(aPlayer, aLimit: Byte)
+ 5927	States.PlayerIsAI(aPlayer: Byte): Boolean
+ 5927	Actions.RemoveField(X, Y: Word)
+ 5927	Actions.RemoveRoad(X, Y: Word)
+ 5932	Actions.AIAutoRepair(aPlayer: Byte; aAuto: Boolean)
+ 5932	Actions.AISoldiersLimit(aPlayer: Byte; aLimit: Integer)
+ 5932	Actions.AIDefensePositionAdd(aPlayer: Byte; X: Integer; Y: Integer; aDir: Byte; aGroupType: Byte; aRadius: Word; aDefType: Byte) 
+ 5932	States.GroupType(aGroupID: Integer) - returns type of certain group (melee, ranged...)
+ 5934	States.HouseCanReachResources(aHouseID: Integer): Boolean
+ 5934	Actions.AIGroupsFormationSet(aPlayer, aType: Byte; aCount, aColumns: Word)
+ 5934	Actions.GroupHungerSet(aGroupID, aHungerLevel: Integer)
+ 5934	Actions.GroupKillAll(aGroupID: Integer; aSilent: Boolean)
+ 5934	Actions.UnitBlock(aPlayer: Byte; aType: Word; aBlock: Boolean)
+ 5938	Actions.CinematicStart(aPlayer: Byte);
+ 5938	Actions.CinematicEnd(aPlayer: Byte);
+ 5938	Actions.CinematicPanTo(aPlayer: Byte; X, Y, Duration: Word);
+ 5943	States.ClosestGroup(aPlayer, X, Y: Integer): Integer
+ 5943	States.ClosestHouse(aPlayer, X, Y: Integer): Integer
+ 5943	States.ClosestUnit(aPlayer, X, Y: Integer): Integer
+ 5943	States.HouseOccupant(aHouseID: Integer): Integer
+ 5964	OnPlanRoad, OnPlanField, OnPlanWinefield
+ 5976	Actions.GroupDisableHungryMessage
+ 5978	UnitKill now works for animals
+ 6015	Actions.HouseTakeWaresFrom
+ 6067	Actions.Log
+ 6114	OnHouseAfterDestroyed, OnUnitAfterDied
+ 6126	Actions.HouseBarracksGiveRecruit
 
 
 Accepted:
@@ -44,8 +44,8 @@ Accepted:
 	DisplayText(text, player_id, timeout) to show announcements that will be gone after timeout (for TD and etc.)
 	Split a specific warrior out of a group
 	Looping option for PlayWAV (useful for ambient sounds at a location)
-    States.HouseUncloked(aPlayer, aType: integer): Boolean - returns true if specific player can build specific house type.
-    Way to highlight menu buttons (4 main tabs, build buttons), houses, units, etc. for the tutorial
+	States.HouseUnlocked(aPlayer, aType: integer): Boolean - returns true if specific player can build specific house type.
+	Way to highlight menu buttons (4 main tabs, build buttons), houses, units, etc. for the tutorial?
 
 Proposed:
 	Change position/alignment/font of overlay text
@@ -76,11 +76,11 @@ Proposed:
 	States.Path_closestHouse(X, Y):Integer; 
 	OnGroupHungry(aGroupID); 
 	Actions.GroupOrderAttackGroup(AttackersGroupID, GroupToAttackID: Integer)
-        OnConsoleInput event
-        GroupLock - Blocks player from giving orders to the group
+		  OnConsoleInput event
+		  GroupLock - Blocks player from giving orders to the group
 	Actions.TimerStart(aTimerID, aTimeout: Integer); Events.OnTimer(aTimerID: Integer);
+	Change player color (changing colors during the game sounds like inconsistency)
 
 
 Rejected:	
 	Actions.SetAIName (Player names can be written in libx, changing names during the game sounds like inconsistency)
-        Change player color (changing colors during the game sounds like inconsistency)
