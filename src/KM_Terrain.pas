@@ -1581,15 +1581,9 @@ end;
 
 
 procedure TKMTerrain.RemoveObjectsKilledByRoad(Loc: TKMPoint);
-{  function TileIsRoad(X,Y: Integer) : Boolean;
+  function TileIsRoad(X,Y: Integer): Boolean;
   begin
-    Result := TileInMapCoords(X, Y) and (Land[Y, X].TileOverlay = to_Road)
-  end;
-
-  procedure RemoveIfCorner(Loc: TKMPoint);
-  begin
-    if MapElem[Land[Loc.Y,Loc.X].Obj].KillByRoad = kbrNWCorner then
-      RemoveObject(Loc);
+    Result := TileInMapCoords(X, Y) and (Land[Y, X].TileOverlay = to_Road);
   end;
 
   procedure RemoveIfWest(Loc: TKMPoint);
@@ -1598,63 +1592,30 @@ procedure TKMTerrain.RemoveObjectsKilledByRoad(Loc: TKMPoint);
       RemoveObject(Loc);
   end;
 
-var NWCorner, NECorner, SWCorner, SECorner, WNeighbour, ENeighbour : Integer;}
+  procedure KillByRoadCorner(Loc: TKMPoint);
+  begin
+    // Check object type first, cos checking roads is more expensive
+    if (MapElem[Land[Loc.Y,Loc.X].Obj].KillByRoad = kbrNWCorner)
+    and (TileIsRoad(Loc.X - 1, Loc.Y)) and (TileIsRoad(Loc.X - 1, Loc.Y - 1))
+    and (TileIsRoad(Loc.X, Loc.Y - 1)) and (TileIsRoad(Loc.X, Loc.Y)) then
+      RemoveObject(Loc);
+  end;
 begin
-{  NWCorner := 0;  NECorner := 0;  SWCorner := 0;  SECorner := 0;
-  WNeighbour := 0;  ENeighbour := 0;
+  // Objects killed when surrounded with road on all 4 sides
+  // Check for quads this tile affects
+  KillByRoadCorner(Loc);
+  KillByRoadCorner(KMPoint(Loc.X + 1, Loc.Y));
+  KillByRoadCorner(KMPoint(Loc.X, Loc.Y + 1));
+  KillByRoadCorner(KMPoint(Loc.X + 1, Loc.Y + 1));
 
-  if TileIsRoad(Loc.X - 1, Loc.Y - 1) then  //North_west
-  begin
-    Inc(NWCorner);
-  end;
-  if TileIsRoad(Loc.X, Loc.Y - 1) then      //North
-  begin
-    Inc(NWCorner);
-    Inc(NECorner);
-  end;
-  if TileIsRoad(Loc.X + 1, Loc.Y - 1) then  //North_east
-  begin
-    Inc(NECorner);
-  end;
-  if TileIsRoad(Loc.X + 1, Loc.Y) then      //East
-  begin
-    Inc(NECorner);
-    Inc(ENeighbour);
-    Inc(SECorner);
-  end;
-  if TileIsRoad(Loc.X + 1, Loc.Y + 1) then  //South_east
-  begin
-    Inc(SECorner);
-  end;
-  if TileIsRoad(Loc.X, Loc.Y + 1) then      //South
-  begin
-    Inc(SWCorner);
-    Inc(SECorner);
-  end;
-  if TileIsRoad(Loc.X - 1, Loc.Y + 1) then  //South_west
-  begin
-    Inc(SWCorner);
-  end;
-  if TileIsRoad(Loc.X - 1, Loc.Y) then      //West
-  begin
-    Inc(NWCorner);
-    Inc(WNeighbour);
-    Inc(SWCorner);
-  end;
-
-  if (NWCorner = 3) then
-    RemoveIfCorner(Loc);
-  if (NECorner = 3) then
-    RemoveIfCorner(KMPoint(Loc.X + 1, Loc.Y));
-  if (SWCorner = 3) then
-    RemoveIfCorner(KMPoint(Loc.X, Loc.Y + 1));
-  if (SECorner = 3) then
-    RemoveIfCorner(KMPoint(Loc.X + 1, Loc.Y + 1));
-  if (WNeighbour = 1) then
+  // Objects killed by roads on sides only
+  // Check 2 tiles this tile affects
+  if TileIsRoad(Loc.X - 1, Loc.Y) then
     RemoveIfWest(Loc);
-  if (ENeighbour = 1) then
-    RemoveIfWest(KMPoint(Loc.X + 1, Loc.Y));}
+  if TileIsRoad(Loc.X + 1, Loc.Y) then
+    RemoveIfWest(KMPoint(Loc.X + 1, Loc.Y));
 end;
+
 
 procedure TKMTerrain.SowCorn(Loc: TKMPoint);
 begin
