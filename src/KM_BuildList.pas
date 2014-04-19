@@ -955,7 +955,8 @@ begin
   Result := -1;
   aBid := MaxSingle;
   for I := 0 to fHousesCount - 1 do
-  if fHouses[I].House <> nil then
+  if (fHouses[I].House <> nil)
+  and (fHouses[I].Assigned < MAX_WORKERS[fHouses[i].House.HouseType]) then
   begin
     NewBid := KMLengthDiag(aWorker.GetPosition, fHouses[I].House.GetPosition);
     NewBid := NewBid + fHouses[I].Assigned * BID_MODIF;
@@ -1309,7 +1310,8 @@ begin
   end
   else
     for I := 0 to fRepairList.fHousesCount - 1 do
-      if fRepairList.fHouses[i].House <> nil then
+      if (fRepairList.fHouses[i].House <> nil)
+      and(fRepairList.fHouses[I].Assigned < MAX_WORKERS[fRepairList.fHouses[i].House.HouseType]) then
       begin
         BestWorker := GetBestWorker(KMPointBelow(fRepairList.fHouses[I].House.GetEntrance));
         if BestWorker <> nil then fRepairList.GiveTask(I, BestWorker);
@@ -1339,10 +1341,13 @@ begin
   //2. Fieldworks
   //3. Houses
   //4. Repairs
+  //However we decided to make repairs the highest priority since the player has absolute control over it
+  //(they can switch repair off at any time) and only a limited number of workers can be assigned to each
+  //repair job (same as for building houses)
+  AssignRepairs;
   AssignHousePlans;
   AssignFieldworks;
   AssignHouses;
-  AssignRepairs;
 end;
 
 
