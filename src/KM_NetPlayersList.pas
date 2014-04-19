@@ -693,7 +693,8 @@ begin
   begin
     if fNetPlayers[i].StartLocation <> LOC_SPECTATE then
       fNetPlayers[i].StartLocation := LOC_RANDOM;
-    if fNetPlayers[i].PlayerNetType = nptHuman then //AI/closed players are always ready
+    //AI/closed players are always ready, spectator ready status is not reset by map change
+    if (fNetPlayers[i].PlayerNetType = nptHuman) and (fNetPlayers[i].StartLocation <> LOC_SPECTATE) then
       fNetPlayers[i].ReadyToStart := false;
   end;
 end;

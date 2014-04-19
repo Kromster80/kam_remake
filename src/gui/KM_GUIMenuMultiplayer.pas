@@ -243,6 +243,7 @@ begin
   begin
     Label_MP_Players[I].Left := 8 + 156*((I-1) div Rows);
     Label_MP_Players[I].Top := 130 + 20*((I-1) mod Rows);
+    Label_MP_Players[I].Width := IfThen(Rows < MAX_LOBBY_SLOTS, 150, 304);
   end;
 end;
 
