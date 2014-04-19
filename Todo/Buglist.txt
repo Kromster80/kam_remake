@@ -91,6 +91,7 @@ Improvements:
  +	L	Add script command to allow to add recruits into the Barracks in MapEd (only Barracks for simplicity, other houses dont need it)
  +	L	Pressing spacebar will center the screen on the latest alert (beacon or under attack)
  +	L	Save screenshots into own folder called "screenshots"
+ +	L	Add an option to give hosting rights to another player in lobby
 		Dismiss button to make units walk into the school and disappear (gold is not refunded)
 	L	Simple dedicated server form which lets you set the properties of the INI for the server and start it [gemGreg]
 	L	Placing houses in MP should put a temp/fake visual markup until the real one can be added to make it appear responsive
@@ -115,7 +116,6 @@ Improvements:
 	L	Changing teams in multiplayer
 			Lewin: When joining a team the team members must "accept" you before it occurs. Leaving a team must also require acceptance I guess, otherwise you can walk into an ally's village and become his enemy, and some people would surely do this. We might also need a "lock teams" option in the lobby for this to work.
 	L	Ability to mark maps as a favourite (gold star) so they appear at the top of the list (find your favourite maps without scrolling through whole list)
-	L	Add an option to give hosting rights to another player in lobby
 	L	Option in the lobby to select starting with a small village, everything up to sawmill (placed automatically by city builder?)
 				Andreus: What about adding some village planning modes, like in KAM MissionEditor (Nothing, Buildings, Buildings and troops)?
 	L	House not occupied message should mention which house it is ("This farm is not occupied"). Hard to work around plurals and fem/masc forms
@@ -131,7 +131,6 @@ Improvements:
 	L	Message when weaponmaker has complete his order
 	L	Allow to copy opponents nikname into buffer (through players menu > Copy?)
 	L	Save wares distribution ratios between games
-	L	Shortcut key to jump to point where ally has made a beacon
 	L	Allow to customize and save hotkeys settings
 
 	L	MapEd: Allow to toggle trees/objects opacity (make them partially visible) [Marcin]
