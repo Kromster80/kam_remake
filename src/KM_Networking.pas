@@ -626,9 +626,14 @@ begin
     if NetPlayerIndex <> -1 then
     begin
       fNetPlayers[NetPlayerIndex].StartLocation := fNetPlayers[aPlayerIndex].StartLocation;
+
       //Spectators can't have team
       if fNetPlayers[NetPlayerIndex].StartLocation = LOC_SPECTATE then
         fNetPlayers[NetPlayerIndex].Team := 0;
+
+      //If host pushes player to a different loc, the player should be set to not ready (they must agree to change)
+      if (NetPlayerIndex <> fMyIndex) and not fNetPlayers[NetPlayerIndex].IsComputer then
+        fNetPlayers[NetPlayerIndex].ReadyToStart := False;
     end;
   end;
 
@@ -636,6 +641,10 @@ begin
     lpk_Host:   begin
                   //Host makes rules, Joiner will get confirmation from Host
                   fNetPlayers[aPlayerIndex].StartLocation := aIndex; //Use aPlayerIndex not fMyIndex because it could be an AI
+
+                  //If host pushes player to a different loc, the player should be set to not ready (they must agree to change)
+                  if (aPlayerIndex <> fMyIndex) and not fNetPlayers[aPlayerIndex].IsComputer then
+                    fNetPlayers[aPlayerIndex].ReadyToStart := False;
 
                   if aIndex = LOC_SPECTATE then
                     fNetPlayers[aPlayerIndex].Team := 0; //Spectators can't have team
@@ -653,7 +662,13 @@ begin
   fNetPlayers[aPlayerIndex].Team := aIndex; //Use aPlayerIndex not fMyIndex because it could be an AI
 
   case fNetPlayerKind of
-    lpk_Host:   SendPlayerListAndRefreshPlayersSetup;
+    lpk_Host:   begin
+                  //If host pushes player to a different team, the player should be set to not ready (they must agree to change)
+                  if (aPlayerIndex <> fMyIndex) and not fNetPlayers[aPlayerIndex].IsComputer then
+                    fNetPlayers[aPlayerIndex].ReadyToStart := False;
+
+                  SendPlayerListAndRefreshPlayersSetup;
+                end;
     lpk_Joiner: PacketSend(NET_ADDRESS_HOST, mk_SetTeam, aIndex);
   end;
 end;
