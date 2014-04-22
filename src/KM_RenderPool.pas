@@ -1584,11 +1584,12 @@ procedure TRenderList.SendToRender(aId: Integer; aTarget: TKMRenderTarget);
 var
   Sp1, Sp2: TKMRenderSprite;
   uid: Integer;
-  useUid: Boolean;
+  useUid, Sp2Exists: Boolean;
 begin
   //Shortcuts to Sprites info
   Sp1 := RenderList[aId];
-  if (aId + 1 < fCount) then
+  Sp2Exists := (aId + 1 < fCount);
+  if Sp2Exists then
     Sp2 := RenderList[aId + 1];
 
   if Sp1.AlphaStep = -1 then
@@ -1605,7 +1606,7 @@ begin
     //Wooden part where it is occluded (so that smooth shadows dont overlay)
 
     //Check if next comes our child, Stone layer
-    if not Sp2.NewInst and (Sp2.AlphaStep > 0) then
+    if Sp2Exists and not Sp2.NewInst and (Sp2.AlphaStep > 0) then
       fRenderPool.RenderSpriteAlphaTest(Sp1.RX, Sp1.Id, Sp1.AlphaStep, Sp1.Loc.X, Sp1.Loc.Y,
                                                 Sp2.Id, Sp2.AlphaStep, Sp2.Loc.X, Sp2.Loc.Y)
     else
