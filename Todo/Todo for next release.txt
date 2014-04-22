@@ -7,6 +7,7 @@ Bugs:
 	Improve AI attacks as The Dark Lord suggested
 	Goals in the MapEd are ignored and cause a warning due to MessageID not being 0
 	Hotkeys (1..9) are not saved rehosting the savegame in MP
+	File transfers needs to not overwrite the original maps in some way (folder for downloaded maps separate from "official" ones?)
  -	After fish depletion message appears "Fisherman too far from the water" [Can't reproduce. Maybe translation mistake or something blocked path to the water so it was too far away?]
 
 Features:
