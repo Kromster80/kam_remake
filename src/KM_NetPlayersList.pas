@@ -101,6 +101,7 @@ type
     function GetConnectedCount: Integer;
 
     procedure ResetLocAndReady;
+    procedure ResetReady;
     procedure SetAIReady;
     procedure RemAllAIs;
     procedure RemDisconnectedPlayers;
@@ -697,6 +698,16 @@ begin
     if (fNetPlayers[i].PlayerNetType = nptHuman) and (fNetPlayers[i].StartLocation <> LOC_SPECTATE) then
       fNetPlayers[i].ReadyToStart := false;
   end;
+end;
+
+
+procedure TKMNetPlayersList.ResetReady;
+var I: Integer;
+begin
+  for i:=1 to fCount do
+    //AI/closed players are always ready, spectator ready status is not reset by options change
+    if (fNetPlayers[i].PlayerNetType = nptHuman) and (fNetPlayers[i].StartLocation <> LOC_SPECTATE) then
+      fNetPlayers[i].ReadyToStart := False;
 end;
 
 

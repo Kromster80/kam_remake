@@ -848,11 +848,10 @@ end;
 
 procedure TKMMenuLobby.GameOptionsChange(Sender: TObject);
 begin
-  //Set the peacetime length (up to 300min)
-  fNetworking.NetGameOptions.Peacetime := EnsureRange(TrackBar_LobbyPeacetime.Position, 0, 300);
-  fNetworking.NetGameOptions.SpeedPT := (TrackBar_LobbySpeedPT.Position - 1) / 2 + 1;
-  fNetworking.NetGameOptions.SpeedAfterPT := (TrackBar_LobbySpeedAfterPT.Position - 1) / 2 + 1;
-  fNetworking.SendGameOptions;
+  //Update the game options
+  fNetworking.UpdateGameOptions(EnsureRange(TrackBar_LobbyPeacetime.Position, 0, 300),
+                                (TrackBar_LobbySpeedPT.Position - 1) / 2 + 1,
+                                (TrackBar_LobbySpeedAfterPT.Position - 1) / 2 + 1);
 
   //Refresh the data to controls
   Lobby_OnGameOptions(nil);

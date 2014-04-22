@@ -173,6 +173,7 @@ type
     function CanTakeLocation(aPlayer, aLoc: Integer; AllowSwapping: Boolean): Boolean;
     procedure StartClick; //All required arguments are in our class
     procedure SendPlayerListAndRefreshPlayersSetup(aPlayerIndex:integer = NET_ADDRESS_OTHERS);
+    procedure UpdateGameOptions(aPeacetime: Word; aSpeedPT, aSpeedAfterPT: Single);
     procedure SendGameOptions;
     procedure RequestFileTransfer;
 
@@ -878,6 +879,20 @@ begin
   M.Free;
 
   if Assigned(fOnPlayersSetup) then fOnPlayersSetup(Self);
+end;
+
+
+procedure TKMNetworking.UpdateGameOptions(aPeacetime: Word; aSpeedPT, aSpeedAfterPT: Single);
+begin
+  fNetGameOptions.Peacetime := aPeacetime;
+  fNetGameOptions.SpeedPT := aSpeedPT;
+  fNetGameOptions.SpeedAfterPT := aSpeedAfterPT;
+
+  fNetPlayers.ResetReady;
+  fNetPlayers[fMyIndex].ReadyToStart := True;
+
+  SendGameOptions;
+  SendPlayerListAndRefreshPlayersSetup;
 end;
 
 
