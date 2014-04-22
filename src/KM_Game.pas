@@ -1289,9 +1289,14 @@ begin
   //When everything is ready we can update UI
   fActiveInterface.SyncUI;
 
-  //MP does not saves view position cos of save identity for all players
   if SaveIsMultiplayer then
+  begin
+    //MP does not saves view position cos of save identity for all players
     fActiveInterface.SyncUIView(KMPointF(gHands[MySpectator.HandIndex].CenterScreen));
+    //In MP saves hotkeys can't be saved by UI, they must be network synced
+    if fGameMode in [gmSingle, gmMulti] then
+      fGamePlayInterface.LoadHotkeysFromHand;
+  end;
 
   gLog.AddTime('Loading game', True);
 

@@ -288,6 +288,7 @@ type
     procedure AlliesOnPingInfo(Sender: TObject);
     procedure AlliesTeamChange(Sender: TObject);
     procedure CinematicUpdate;
+    procedure LoadHotkeysFromHand;
 
     property Alerts: TKMAlerts read fAlerts;
 
@@ -662,7 +663,7 @@ end;
 
 
 constructor TKMGamePlayInterface.Create(aRender: TRender; aUIMode: TUIMode);
-var S: TKMShape;
+var S: TKMShape; I: Integer;
 begin
   inherited Create(aRender);
   fUIMode := aUIMode;
@@ -682,6 +683,8 @@ begin
   SelectingDirPosition.X := 0;
   SelectingDirPosition.Y := 0;
   ShownMessage := -1; //0 is the first message, -1 is invalid
+  for I := 0 to 9 do
+    fSelection[I] := -1; //Not set
 
   fMessageList := TKMMessageList.Create;
   fSaves := TKMSavesCollection.Create;
@@ -1381,6 +1384,15 @@ begin
     for I := Low(Sidebar_Bottom) to High(Sidebar_Bottom) do
       Sidebar_Bottom[I].Enable;
   end;
+end;
+
+
+//Used when loading MP save since hotkeys must be network synced
+procedure TKMGamePlayInterface.LoadHotkeysFromHand;
+var I: Integer;
+begin
+  for I := 0 to 9 do
+    fSelection[I] := gHands[MySpectator.HandIndex].SelectionHotkeys[I];
 end;
 
 
@@ -2365,6 +2377,8 @@ begin
     fSelection[Key] := TKMUnitGroup(aObject).UID
   else
     fSelection[Key] := -1;
+
+  gGame.GameInputProcess.CmdGame(gic_GameHotkeySet, Key, fSelection[Key]);
 end;
 
 

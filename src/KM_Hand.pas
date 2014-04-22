@@ -71,6 +71,9 @@ type
     Enabled: Boolean;
     InCinematic: Boolean;
 
+    //Used for syncing hotkeys in multiplayer saves only. UI keeps local value to avoid GIP delays
+    SelectionHotkeys: array[0..9] of Integer;
+
     constructor Create(aHandIndex: THandIndex);
     destructor Destroy; override;
 
@@ -254,6 +257,8 @@ begin
   fPlayerType   := hndComputer;
   for I := 0 to MAX_HANDS - 1 do
     fShareFOW[I] := True; //Share FOW between allies by default (it only affects allied players)
+  for I := 0 to 9 do
+    SelectionHotkeys[I] := -1; //Not set
 
   fAlliances[fHandIndex] := at_Ally; //Others are set to enemy by default
   fFlagColor := DefaultTeamColors[fHandIndex]; //Init with default color, later replaced by Script
@@ -1132,6 +1137,7 @@ begin
   SaveStream.Write(fShareFOW, SizeOf(fShareFOW));
   SaveStream.Write(fCenterScreen);
   SaveStream.Write(fFlagColor);
+  SaveStream.Write(SelectionHotkeys, SizeOf(SelectionHotkeys));
 end;
 
 
@@ -1157,6 +1163,7 @@ begin
   LoadStream.Read(fShareFOW, SizeOf(fShareFOW));
   LoadStream.Read(fCenterScreen);
   LoadStream.Read(fFlagColor);
+  LoadStream.Read(SelectionHotkeys, SizeOf(SelectionHotkeys));
 end;
 
 

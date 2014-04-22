@@ -74,6 +74,7 @@ type
     gic_GameSave,
     gic_GameAutoSave,
     gic_GameTeamChange,
+    gic_GameHotkeySet,  //Hotkeys are synced for MP saves (UI keeps local copy to avoid GIP delays)
 
     //VI.      Cheatcodes affecting gameplay (props)
 
@@ -154,7 +155,7 @@ type
     procedure CmdGame(aCommandType: TGameInputCommandType; aValue:boolean); overload;
     procedure CmdGame(aCommandType: TGameInputCommandType; aValue: UnicodeString; aDateTime: TDateTime); overload;
     procedure CmdGame(aCommandType: TGameInputCommandType; aDateTime: TDateTime); overload;
-    procedure CmdGame(aCommandType: TGameInputCommandType; aPlayer, aTeam:integer); overload;
+    procedure CmdGame(aCommandType: TGameInputCommandType; aParam1, aParam2: Integer); overload;
     procedure CmdGame(aCommandType: TGameInputCommandType; aLoc: TKMPointF; aOwner: THandIndex; aColor: Cardinal); overload;
 
     procedure CmdTemp(aCommandType: TGameInputCommandType; aLoc: TKMPoint); overload;
@@ -392,6 +393,7 @@ begin
                                     or ((Params[3] <> -1) and (gGame.GameMode <> gmMultiSpectate) //Spectators shouldn't see player beacons
                                         and (gHands.CheckAlliance(Params[3], MySpectator.HandIndex) = at_Ally)) then
                                       gGame.GamePlayInterface.Alerts.AddBeacon(KMPointF(Params[1]/10,Params[2]/10), Params[3], (Params[4] or $FF000000), fGameApp.GlobalTickCount + ALERT_DURATION[atBeacon]);
+      gic_GameHotkeySet:          P.SelectionHotkeys[Params[1]] := Params[2];
       else                        Assert(false);
     end;
   end;
@@ -554,10 +556,10 @@ begin
 end;
 
 
-procedure TGameInputProcess.CmdGame(aCommandType: TGameInputCommandType; aPlayer, aTeam: integer);
+procedure TGameInputProcess.CmdGame(aCommandType: TGameInputCommandType; aParam1, aParam2: Integer);
 begin
-  Assert(aCommandType = gic_GameTeamChange);
-  TakeCommand(MakeCommand(aCommandType, [aPlayer,aTeam]));
+  Assert(aCommandType in [gic_GameTeamChange, gic_GameHotkeySet]);
+  TakeCommand(MakeCommand(aCommandType, [aParam1, aParam2]));
 end;
 
 

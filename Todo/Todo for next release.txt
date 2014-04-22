@@ -3,10 +3,10 @@ Bugs:
  +	In scripted maps using PlayerShareFog, after loading a multiplayer save fog is changed
  +	When returning to lobby existing spectators should be set as ready
  +	Houses sometimes become partially invisible during construction. When construction is finished the house returns to normal
+ +	Hotkeys (1..9) are not saved rehosting the savegame in MP
 	Trees, houses and units near the top row of the map may be visible in places where they overhang the top row of the map
 	Improve AI attacks as The Dark Lord suggested
 	Goals in the MapEd are ignored and cause a warning due to MessageID not being 0
-	Hotkeys (1..9) are not saved rehosting the savegame in MP
 	File transfers needs to not overwrite the original maps in some way (folder for downloaded maps separate from "official" ones?)
  -	After fish depletion message appears "Fisherman too far from the water" [Can't reproduce. Maybe translation mistake or something blocked path to the water so it was too far away?]
 
