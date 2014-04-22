@@ -379,7 +379,7 @@ TX_GAME_ERROR_DISCONNECT = 352; //You have disconnected
 TX_GAME_MISSION = 353; //Mission %d
 TX_GAME_MESSAGE_LOG = 354; //Message log
 TX_MSG_FISHERMAN_TOO_FAR = 355; //Your fisherman's hut is too far away from the water.
-TX_MSG_FISHERMAN_CANNOT_CATCH = 356; //Your fisherman cannot catch any further fish in the nearby water bodies.
+TX_MSG_FISHERMAN_CANNOT_CATCH = 356; //Your fisherman cannot catch any further fish in nearby water.
 
 TX_REPLAY_RESTART = 357; //Restart replay
 TX_REPLAY_PAUSE = 358; //Pause replay
