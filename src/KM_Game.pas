@@ -477,7 +477,11 @@ begin
 
   //We cannot remove a player from a save (as they might be interacting with other players)
 
-  gHands.SyncFogOfWar; //Syncs fog of war revelation between players AFTER alliances
+  //FOW should never be synced for saves, it should be left like it was when the save was
+  //created otherwise it can cause issues in special maps using PlayerShareFog
+  if fNetworking.SelectGameKind <> ngk_Save then
+    gHands.SyncFogOfWar; //Syncs fog of war revelation between players AFTER alliances
+
   //Multiplayer missions don't have goals yet, so add the defaults (except for special/coop missions)
   if (fNetworking.SelectGameKind = ngk_Map)
   and not fNetworking.MapInfo.IsSpecial and not fNetworking.MapInfo.IsCoop then

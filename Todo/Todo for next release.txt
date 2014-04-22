@@ -1,5 +1,6 @@
 
 Bugs:
+ +	In scripted maps using PlayerShareFog, after loading a multiplayer save fog is changed
 	Houses sometimes become partially invisible during construction. When construction is finished the house returns to normal
 	Trees, houses and units near the top row of the map may be visible in places where they overhang the top row of the map
 	Improve AI attacks as The Dark Lord suggested
