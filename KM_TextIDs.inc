@@ -245,6 +245,7 @@ TX_MUSIC_JOURNEY = 226; //Journey
 TX_MENU_CAMPAIGNS = 227; //Campaigns
 TX_MENU_CAMP_HEADER = 228; //Campaigns
 TX_MENU_CAMP_START = 229; //Start Campaign!
+TX_MENU_CAMP_HINT = 795; //To play a previously unlocked campaign mission, select the mission flag on the campaign briefing map
 TX_MENU_SINGLE_MAP = 230; //Play Single Map
 TX_MENU_SINGLE_START_MAP = 231; //Start Map
 TX_MENU_BACK = 232; //Back to Menu
