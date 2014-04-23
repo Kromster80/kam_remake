@@ -9,7 +9,6 @@ uses
 
 
 type
-  TChatMode = (cmAll, cmTeam, cmWhisper);
   TKMMenuPage = (gpMainMenu,
                     gpSinglePlayer,
                       gpCampaign,

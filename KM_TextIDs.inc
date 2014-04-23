@@ -655,6 +655,7 @@ TX_LOBBY_RESET_BANS = 768; //Reset all bans
 TX_MULTIPLAYER_WAITING = 577; //Waiting for players:
 TX_CHAT_ALL = 578; //All
 TX_CHAT_TEAM = 579; //Team
+TX_CHAT_SPECTATORS = 794; //Spectators
 TX_CHAT_WHISPER_TO = 765; //Whisper to %s
 TX_NET_LOST_CONNECTION = 739; //%s lost connection
 TX_NET_HAS_QUIT = 740; //%s has quit

@@ -13,6 +13,7 @@ type
   TNetGameState = (lgs_None, lgs_Connecting, lgs_Query, lgs_Lobby, lgs_Loading, lgs_Game, lgs_Reconnecting);
   TNetGameKind = (ngk_None, ngk_Map, ngk_Save);
   TChatSound = (csNone, csJoin, csLeave, csSystem, csGameStart, csSaveGame, csChat, csChatWhisper, csChatTeam);
+  TChatMode = (cmAll, cmTeam, cmSpectators, cmWhisper);
 
 const
   NetMPGameState:array[TNetGameState] of TMPGameState = (mgsNone, mgsNone, mgsNone, mgsLobby, mgsLoading, mgsGame, mgsGame);
@@ -180,7 +181,7 @@ type
     //Common
     procedure ConsoleCommand(aText: UnicodeString);
     procedure PostMessage(aTextID: Integer; aSound: TChatSound; aText1: UnicodeString=''; aText2: UnicodeString = ''; aRecipient:Integer=NET_ADDRESS_ALL);
-    procedure PostChat(aText: UnicodeString; aTeamOnly: Boolean; aRecipientServerIndex: Integer=-1); overload;
+    procedure PostChat(aText: UnicodeString; aMode: TChatMode; aRecipientServerIndex: Integer=-1); overload;
     procedure PostLocalMessage(aText: UnicodeString; aSound: TChatSound);
     procedure AnnounceGameInfo(aGameTime: TDateTime; aMap: UnicodeString);
 
@@ -973,7 +974,7 @@ end;
 
 //We route the message through Server to ensure everyone sees messages in the same order
 //with exact same timestamps (possibly added by Server?)
-procedure TKMNetworking.PostChat(aText: UnicodeString; aTeamOnly: Boolean; aRecipientServerIndex: Integer=-1);
+procedure TKMNetworking.PostChat(aText: UnicodeString; aMode: TChatMode; aRecipientServerIndex: Integer=-1);
 var
   I: Integer;
   M: TKMemoryStream;
@@ -983,28 +984,33 @@ begin
     Exit; //Fallback in case UI check fails
 
   M := TKMemoryStream.Create;
+  M.Write(aMode, SizeOf(aMode));
   M.Write(aRecipientServerIndex);
-  M.Write(aTeamOnly);
   M.WriteW(aText);
 
-  if aTeamOnly then
-  begin
-    if NetPlayers[fMyIndex].Team = 0 then
-      PacketSend(fMyIndexOnServer, mk_TextChat, M) //Send to self only if we have no team
-    else
-      for I := 1 to NetPlayers.Count do
-        if (NetPlayers[I].Team = NetPlayers[fMyIndex].Team) and NetPlayers[I].IsHuman and (NetPlayers[I].IndexOnServer <> -1) then
-          PacketSend(NetPlayers[I].IndexOnServer, mk_TextChat, M); //Send to each player on team (includes self)
-  end
-  else
-    if aRecipientServerIndex <> -1 then
-    begin
-      PacketSend(aRecipientServerIndex, mk_TextChat, M); //Send to specific player
-      PacketSend(fMyIndexOnServer, mk_TextChat, M); //Send to self as well so the player sees it
-    end
-    else
-      PacketSend(NET_ADDRESS_ALL, mk_TextChat, M); //Send to all
+  case aMode of
+    cmTeam:
+      if NetPlayers[fMyIndex].Team = 0 then
+        PacketSend(fMyIndexOnServer, mk_TextChat, M) //Send to self only if we have no team
+      else
+        for I := 1 to NetPlayers.Count do
+          if (NetPlayers[I].Team = NetPlayers[fMyIndex].Team) and NetPlayers[I].IsHuman and (NetPlayers[I].IndexOnServer <> -1) then
+            PacketSend(NetPlayers[I].IndexOnServer, mk_TextChat, M); //Send to each player on team (includes self)
 
+    cmSpectators:
+      for I := 1 to NetPlayers.Count do
+        if NetPlayers[I].IsSpectator and NetPlayers[I].IsHuman and (NetPlayers[I].IndexOnServer <> -1) then
+          PacketSend(NetPlayers[I].IndexOnServer, mk_TextChat, M); //Send to each spectator (includes self)
+
+    cmWhisper:
+      begin
+        PacketSend(aRecipientServerIndex, mk_TextChat, M); //Send to specific player
+        PacketSend(fMyIndexOnServer, mk_TextChat, M); //Send to self as well so the player sees it
+      end;
+
+    cmAll:
+      PacketSend(NET_ADDRESS_ALL, mk_TextChat, M); //Send to all;
+  end;
   M.Free;
 end;
 
@@ -1154,6 +1160,7 @@ var
   tmpBoolean, AutoAcceptTransfer: Boolean;
   tmpStringA, replyStringA: AnsiString;
   tmpStringW, replyStringW: UnicodeString;
+  tmpChatMode: TChatMode;
   I,LocID,TeamID,ColorID,PlayerIndex: Integer;
   ChatSound: TChatSound;
 begin
@@ -1805,31 +1812,40 @@ begin
 
       mk_TextChat:
               begin
+                M.Read(tmpChatMode, SizeOf(tmpChatMode));
                 M.Read(PlayerIndex);
-                M.Read(tmpBoolean); //IsToTeam
                 M.ReadW(tmpStringW);
 
-                if tmpBoolean then //IsToTeam
-                begin
-                  tmpStringW := ' [$66FF66]('+gResTexts[TX_CHAT_TEAM]+')[]: ' + tmpStringW;
-                  ChatSound := csChatTeam;
-                end
-                else
-                  if PlayerIndex <> -1 then
-                  begin
-                    ChatSound := csChatWhisper;
-                    I := NetPlayers.ServerToLocal(PlayerIndex);
-                    if I <> -1 then
-                      tmpStringA := NetPlayers[I].Nikname
-                    else
-                      tmpStringA := '';
-                    tmpStringW := ' [$00B9FF](' + Format(gResTexts[TX_CHAT_WHISPER_TO], [UnicodeString(tmpStringA)]) + ')[]: ' + tmpStringW;
-                  end
-                  else
-                  begin
-                    tmpStringW := ' ('+gResTexts[TX_CHAT_ALL]+'): ' + tmpStringW;
-                    ChatSound := csChat;
-                  end;
+                case tmpChatMode of
+                  cmTeam:
+                    begin
+                      tmpStringW := ' [$66FF66]('+gResTexts[TX_CHAT_TEAM]+')[]: ' + tmpStringW;
+                      ChatSound := csChatTeam;
+                    end;
+
+                  cmSpectators:
+                    begin
+                      tmpStringW := ' [$66FF66]('+gResTexts[TX_CHAT_SPECTATORS]+')[]: ' + tmpStringW;
+                      ChatSound := csChatTeam;
+                    end;
+
+                  cmWhisper:
+                    begin
+                      ChatSound := csChatWhisper;
+                      I := NetPlayers.ServerToLocal(PlayerIndex);
+                      if I <> -1 then
+                        tmpStringA := NetPlayers[I].Nikname
+                      else
+                        tmpStringA := '';
+                      tmpStringW := ' [$00B9FF](' + Format(gResTexts[TX_CHAT_WHISPER_TO], [UnicodeString(tmpStringA)]) + ')[]: ' + tmpStringW;
+                    end;
+
+                  cmAll:
+                    begin
+                      tmpStringW := ' ('+gResTexts[TX_CHAT_ALL]+'): ' + tmpStringW;
+                      ChatSound := csChat;
+                    end;
+                end;
 
                 PlayerIndex := fNetPlayers.ServerToLocal(aSenderIndex);
                 if PlayerIndex <> -1 then

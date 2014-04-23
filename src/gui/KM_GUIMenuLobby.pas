@@ -566,21 +566,30 @@ begin
       Edit_LobbyPost.OutlineColor := $FF66FF66;
     end
     else
-    //Whisper
-    begin
-      I := fNetworking.NetPlayers.ServerToLocal(aItem);
-      if I <> -1 then
+      //Spectators
+      if aItem = -3 then
       begin
-        fChatMode := cmWhisper;
+        fChatMode := cmSpectators;
+        UpdateButtonCaption(gResTexts[TX_CHAT_SPECTATORS], $FF66FF66);
         Edit_LobbyPost.DrawOutline := True;
-        Edit_LobbyPost.OutlineColor := $FF00B9FF;
-        with fNetworking.NetPlayers[I] do
+        Edit_LobbyPost.OutlineColor := $FF66FF66;
+      end
+      else
+      //Whisper
+      begin
+        I := fNetworking.NetPlayers.ServerToLocal(aItem);
+        if I <> -1 then
         begin
-          fChatWhisperRecipient := IndexOnServer;
-          UpdateButtonCaption(UnicodeString(Nikname), IfThen(FlagColorID <> 0, FlagColorToTextColor(FlagColor), 0));
+          fChatMode := cmWhisper;
+          Edit_LobbyPost.DrawOutline := True;
+          Edit_LobbyPost.OutlineColor := $FF00B9FF;
+          with fNetworking.NetPlayers[I] do
+          begin
+            fChatWhisperRecipient := IndexOnServer;
+            UpdateButtonCaption(UnicodeString(Nikname), IfThen(FlagColorID <> 0, FlagColorToTextColor(FlagColor), 0));
+          end;
         end;
       end;
-    end;
 end;
 
 
@@ -601,9 +610,14 @@ begin
   Menu_Chat.Clear;
 
   Menu_Chat.AddItem(gResTexts[TX_CHAT_ALL], -1);
+
   //Only show "Team" if the player is on a team
   if fNetworking.NetPlayers[fNetworking.MyIndex].Team <> 0 then
     Menu_Chat.AddItem('[$66FF66]' + gResTexts[TX_CHAT_TEAM], -2);
+
+  //Only show "Spectators" if the player is a spectator
+  if fNetworking.NetPlayers[fNetworking.MyIndex].IsSpectator then
+    Menu_Chat.AddItem('[$66FF66]' + gResTexts[TX_CHAT_SPECTATORS], -3);
 
   for I := 1 to fNetworking.NetPlayers.Count do
   if I <> fNetworking.MyIndex then //Can't whisper to yourself
@@ -1717,11 +1731,7 @@ begin
       Delete(ChatMessage, 1, 1); //Remove one of the /'s
   end;}
 
-  if fChatMode in [cmAll, cmTeam] then
-    fNetworking.PostChat(ChatMessage, fChatMode = cmTeam);
-  if fChatMode = cmWhisper then
-    fNetworking.PostChat(ChatMessage, False, fChatWhisperRecipient);
-
+  fNetworking.PostChat(ChatMessage, fChatMode, fChatWhisperRecipient);
   Edit_LobbyPost.Text := '';
 end;
 

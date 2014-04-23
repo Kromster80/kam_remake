@@ -5,7 +5,7 @@ uses
   {$IFDEF MSWindows} Windows, {$ENDIF}
   {$IFDEF Unix} LCLIntf, LCLType, {$ENDIF}
   Math, StrUtils, SysUtils,
-  KM_Controls, KM_Defaults, KM_InterfaceDefaults, KM_InterfaceGame;
+  KM_Controls, KM_Defaults, KM_InterfaceDefaults, KM_InterfaceGame, KM_Networking;
 
 
 type
@@ -110,10 +110,10 @@ begin
   if (Key = VK_RETURN) and (Trim(Edit_ChatMsg.Text) <> '')
   and (gGame.Networking <> nil) and not gGame.Networking.IsReconnecting then
   begin
-    if fChatMode in [cmAll, cmTeam] then
-      gGame.Networking.PostChat(Edit_ChatMsg.Text, fChatMode = cmTeam);
     if fChatMode = cmWhisper then
-      gGame.Networking.PostChat(Edit_ChatMsg.Text, False, gGame.Networking.NetPlayers[fChatWhisperRecipient].IndexOnServer);
+      gGame.Networking.PostChat(Edit_ChatMsg.Text, fChatMode, gGame.Networking.NetPlayers[fChatWhisperRecipient].IndexOnServer)
+    else
+      gGame.Networking.PostChat(Edit_ChatMsg.Text, fChatMode);
     Edit_ChatMsg.Text := '';
   end;
 end;
@@ -164,6 +164,12 @@ begin
             Edit_ChatMsg.DrawOutline := True;
             Edit_ChatMsg.OutlineColor := $FF66FF66;
           end;
+    -3:   begin //Spectators
+            fChatMode := cmSpectators;
+            UpdateButtonCaption(gResTexts[TX_CHAT_SPECTATORS], $FF66FF66);
+            Edit_ChatMsg.DrawOutline := True;
+            Edit_ChatMsg.OutlineColor := $FF66FF66;
+          end;
     else  begin //Whisper to player
             I := gGame.Networking.NetPlayers.ServerToLocal(aItem);
             if I <> -1 then
@@ -203,6 +209,10 @@ begin
   //Only show "Team" if the player is on a team
   if gGame.Networking.NetPlayers[gGame.Networking.MyIndex].Team <> 0 then
     Menu_Chat.AddItem('[$66FF66]' + gResTexts[TX_CHAT_TEAM], -2);
+
+  //Only show "Spectator" if the player is a spectator
+  if gGame.Networking.NetPlayers[gGame.Networking.MyIndex].IsSpectator then
+    Menu_Chat.AddItem('[$66FF66]' + gResTexts[TX_CHAT_SPECTATORS], -3);
 
   //Fill
   for I := 1 to gGame.Networking.NetPlayers.Count do

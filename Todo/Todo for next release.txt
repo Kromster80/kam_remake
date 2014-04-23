@@ -11,7 +11,7 @@ Bugs:
  -	After fish depletion message appears "Fisherman too far from the water" [Can't reproduce. Maybe translation mistake or something blocked path to the water so it was too far away?]
 
 Features:
+ +	Spectator chat channel (like team)
 	"Return to Lobby" makes it too easy for host to abuse/troll. Needs to be a vote or something similar
-	Spectator chat channel (like team)
 	Hint on campaign menu to explain that you can select flags (nobody finds this feature without asking)
     
