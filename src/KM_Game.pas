@@ -469,7 +469,15 @@ begin
   FreeAndNil(MySpectator); //May have been created earlier
   if fNetworking.NetPlayers[fNetworking.MyIndex].IsSpectator then
   begin
-    MySpectator := TKMSpectator.Create(0);
+    //Find the first enabled hand to be spectating initially
+    handIndex := 0;
+    for I := 0 to gHands.Count - 1 do
+      if gHands[I].Enabled then
+      begin
+        handIndex := I;
+        Break;
+      end;
+    MySpectator := TKMSpectator.Create(handIndex);
     MySpectator.FOWIndex := PLAYER_NONE; //Show all by default while spectating
   end
   else
