@@ -43,7 +43,7 @@ type
 
 
 implementation
-uses KM_GameApp, KM_ResTexts, KM_RenderUI, KM_ResFonts;
+uses KM_GameApp, KM_ResTexts, KM_RenderUI, KM_ResFonts, KM_Sound, KM_ResSound;
 
 const
   FLAG_LABEL_OFFSET_X = 10;
@@ -74,6 +74,7 @@ begin
       Image_CampaignFlags[I].Tag := I;
 
       Label_CampaignFlags[I] := TKMLabel.Create(Panel_Campaign_Flags, aParent.Width, aParent.Height, IntToStr(I+1), fnt_Mini, taCenter);
+      Label_CampaignFlags[I].FontColor := $FFD0D0D0;
       Label_CampaignFlags[I].Hitable := False;
     end;
     for I := 0 to High(Image_CampaignSubNode) do
@@ -100,7 +101,7 @@ begin
     Label_CampaignText := TKMLabel.Create(Panel_CampScroll, 20, 70, 325, 310, NO_TEXT, fnt_Antiqua, taLeft);
     Label_CampaignText.AutoWrap := true;
 
-  Image_ScrollRestore := TKMImage.Create(Panel_Campaign, aParent.Width-20-30, aParent.Height-50-48, 30, 48, 496);
+  Image_ScrollRestore := TKMImage.Create(Panel_Campaign, aParent.Width-20-30, aParent.Height-50-48, 30, 48, 491);
   Image_ScrollRestore.Anchors := [anBottom, anRight];
   Image_ScrollRestore.OnClick := Scroll_Toggle;
   Image_ScrollRestore.HighlightOnMouseOver := True;
@@ -245,6 +246,10 @@ procedure TKMMenuCampaign.Scroll_Toggle(Sender: TObject);
 begin
   Panel_CampScroll.Visible := not Panel_CampScroll.Visible;
   Image_ScrollRestore.Visible := not Panel_CampScroll.Visible;
+  if Panel_CampScroll.Visible then
+    gSoundPlayer.Play(sfx_MessageOpen)
+  else
+    gSoundPlayer.Play(sfx_MessageClose);
 end;
 
 
