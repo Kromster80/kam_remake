@@ -87,7 +87,9 @@ type
     mk_FileRequest,     //Joiner requests host to send file
     mk_FileChunk,       //Host sends chunk of file to joiner
     mk_FileAck,         //Joiner tells host he received a chunk
-    mk_FileEnd          //Host informs joiner that the whole file has been sent
+    mk_FileEnd,         //Host informs joiner that the whole file has been sent
+
+    mk_Vote             //Joiner tells host his vote
     );
 
 
@@ -155,8 +157,8 @@ const
     pfString,   //mk_FileRequest
     pfBinary,   //mk_FileChunk
     pfNoData,   //mk_FileAck
-    pfNoData    //mk_FileEnd
-
+    pfNoData,   //mk_FileEnd
+    pfNoData    //mk_Vote
   );
 
 

@@ -58,6 +58,7 @@ Once an agreement is made or implementation details are made - item is moved to 
 		MP chat, option to write to Spectators only
 		Minimap modes to see allies in green, enemies in red
 		Show warriors types icons when T key is held
+		Campaign builder could allow overriding the map flag/dot icons (or at least change their colors)
 
 
 REJECTED:

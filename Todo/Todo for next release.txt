@@ -14,5 +14,5 @@ Bugs:
 Features:
  +	Spectator chat channel (like team)
  +	Hint on campaign menu to explain that you can select flags (nobody finds this feature without asking)
-	"Return to Lobby" makes it too easy for host to abuse/troll. Needs to be a vote or something similar
+ +	"Return to Lobby" needs to be a vote
     

@@ -30,6 +30,7 @@ type
     Connected: Boolean;      //Player is still connected
     Dropped: Boolean;        //Host elected to continue play without this player
     FPS: Cardinal;
+    VotedYes: Boolean;
     procedure AddPing(aPing: Word);
     procedure ResetPingRecord;
     function GetInstantPing: Word;
@@ -66,6 +67,7 @@ type
     RandomizeTeamLocations: Boolean; //When the game starts locations are shuffled within each team
     SpectatorsAllowed: Boolean;
     SpectatorSlotsOpen: ShortInt;
+    VoteActive: Boolean;
     constructor Create;
     destructor Destroy; override;
     procedure Clear;
@@ -99,9 +101,11 @@ type
     function GetClosedCount: Integer;
     function GetSpectatorCount: Integer;
     function GetConnectedCount: Integer;
+    function FurtherVotesNeededForMajority: Integer;
 
     procedure ResetLocAndReady;
     procedure ResetReady;
+    procedure ResetVote;
     procedure SetAIReady;
     procedure RemAllAIs;
     procedure RemDisconnectedPlayers;
@@ -241,6 +245,7 @@ begin
   LoadStream.Read(ReadyToPlay);
   LoadStream.Read(Connected);
   LoadStream.Read(Dropped);
+  LoadStream.Read(VotedYes);
 end;
 
 
@@ -257,6 +262,7 @@ begin
   SaveStream.Write(ReadyToPlay);
   SaveStream.Write(Connected);
   SaveStream.Write(Dropped);
+  SaveStream.Write(VotedYes);
 end;
 
 
@@ -687,6 +693,22 @@ begin
 end;
 
 
+function TKMNetPlayersList.FurtherVotesNeededForMajority: Integer;
+var I, VotedYes, Total: Integer;
+begin
+  Total := 0;
+  VotedYes := 0;
+  for I:=1 to fCount do
+    if (fNetPlayers[I].PlayerNetType = nptHuman) and (fNetPlayers[I].StartLocation <> LOC_SPECTATE) then
+    begin
+      Inc(Total);
+      if fNetPlayers[I].VotedYes then
+        Inc(VotedYes);
+    end;
+  Result := (Total div 2) + 1 - VotedYes;
+end;
+
+
 procedure TKMNetPlayersList.ResetLocAndReady;
 var I: Integer;
 begin
@@ -708,6 +730,15 @@ begin
     //AI/closed players are always ready, spectator ready status is not reset by options change
     if (fNetPlayers[i].PlayerNetType = nptHuman) and (fNetPlayers[i].StartLocation <> LOC_SPECTATE) then
       fNetPlayers[i].ReadyToStart := False;
+end;
+
+
+procedure TKMNetPlayersList.ResetVote;
+var I: Integer;
+begin
+  VoteActive := False;
+  for i:=1 to fCount do
+    fNetPlayers[i].VotedYes := False;
 end;
 
 
@@ -915,6 +946,7 @@ begin
   aStream.Write(RandomizeTeamLocations);
   aStream.Write(SpectatorsAllowed);
   aStream.Write(SpectatorSlotsOpen);
+  aStream.Write(VoteActive);
   aStream.Write(fCount);
   for I := 1 to fCount do
     fNetPlayers[I].Save(aStream);
@@ -929,6 +961,7 @@ begin
   aStream.Read(RandomizeTeamLocations);
   aStream.Read(SpectatorsAllowed);
   aStream.Read(SpectatorSlotsOpen);
+  aStream.Read(VoteActive);
   aStream.Read(fCount);
   for I := 1 to fCount do
     fNetPlayers[I].Load(aStream);

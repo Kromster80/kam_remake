@@ -750,3 +750,8 @@
 793:Defenders
 794:Spectators
 795:To play a previously unlocked campaign mission, select the mission flag on the campaign briefing map
+796:%s voted to return to the lobby (need %s more votes)
+797:Vote to return this room to the lobby. The game can then be resumed or changed
+798:Vote Go to Lobby
+799:%s voted to return to the lobby (vote passed)
+800:The vote to return to the lobby failed

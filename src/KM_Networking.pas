@@ -32,10 +32,10 @@ const
      mk_Password,mk_FileRequest,mk_FileChunk,mk_FileEnd,mk_FileAck,mk_TextTranslated],
     //lgs_Loading
     [mk_AskToJoin,mk_ClientLost,mk_ReassignHost,mk_Disconnect,mk_Ping,mk_PingInfo,mk_PlayersList,
-     mk_ReadyToPlay,mk_Play,mk_TextChat,mk_Kicked,mk_TextTranslated],
+     mk_ReadyToPlay,mk_Play,mk_TextChat,mk_Kicked,mk_TextTranslated,mk_Vote],
     //lgs_Game
     [mk_AskToJoin,mk_ClientLost,mk_ReassignHost,mk_Disconnect,mk_Ping,mk_PingInfo,mk_FPS,mk_PlayersList,mk_ReturnToLobby,
-     mk_Commands,mk_TextChat,mk_ResyncFromTick,mk_AskToReconnect,mk_Kicked,mk_ClientReconnected,mk_TextTranslated],
+     mk_Commands,mk_TextChat,mk_ResyncFromTick,mk_AskToReconnect,mk_Kicked,mk_ClientReconnected,mk_TextTranslated,mk_Vote],
     //lgs_Reconnecting
     [mk_HostingRights,mk_IndexOnServer,mk_GameVersion,mk_WelcomeMessage,mk_Ping,mk_FPS,mk_ConnectedToRoom,
      mk_PingInfo,mk_PlayersList,mk_ReconnectionAccepted,mk_RefuseReconnect,mk_Kicked]
@@ -43,6 +43,7 @@ const
 
   JOIN_TIMEOUT = 8000; //8 sec. Timeout for join queries
   RECONNECT_PAUSE = 3000; //Time in ms which we wait before attempting to reconnect (stops the socket from becoming overloaded)
+  VOTE_TIMEOUT = 60000; //60 sec. Timeout for votes
 
 
 type
@@ -69,7 +70,7 @@ type
     fMyIndex: integer; // In NetPlayers list
     fHostIndex: Integer; //In NetPlayers list
     fIgnorePings: integer; // During loading ping measurements will be high, so discard them. (when networking is threaded this might be unnecessary)
-    fJoinTimeout: cardinal;
+    fJoinTimeout, fLastVoteTime: Cardinal;
     fNetPlayers: TKMNetPlayersList;
 
     fMapInfo: TKMapInfo; // Everything related to selected map
@@ -177,6 +178,7 @@ type
     procedure UpdateGameOptions(aPeacetime: Word; aSpeedPT, aSpeedAfterPT: Single);
     procedure SendGameOptions;
     procedure RequestFileTransfer;
+    procedure VoteReturnToLobby;
 
     //Common
     procedure ConsoleCommand(aText: UnicodeString);
@@ -923,6 +925,13 @@ begin
                   PacketSendW(NET_ADDRESS_HOST, mk_FileRequest, fMissingFileName);
                 end;
     end;
+end;
+
+
+procedure TKMNetworking.VoteReturnToLobby;
+begin
+  //Even if we are the host we still send our vote through the network, that's simpler
+  PacketSend(NET_ADDRESS_HOST, mk_Vote);
 end;
 
 
@@ -1733,9 +1742,8 @@ begin
               end;
 
       mk_ReturnToLobby:
-              if not IsHost then
-                if Assigned(fOnReturnToLobby) then
-                  fOnReturnToLobby(Self);
+              if Assigned(fOnReturnToLobby) then
+                fOnReturnToLobby(Self);
 
       mk_ReadyToStart:
               if IsHost then
@@ -1799,6 +1807,30 @@ begin
                 if tmpInteger = fMyIndexOnServer then exit;
                 if WRITE_RECONNECT_LOG then gLog.AddTime('Requesting resync for reconnected client');
                 PacketSend(tmpInteger, mk_ResyncFromTick, Integer(fLastProcessedTick));
+              end;
+
+      mk_Vote:
+              begin
+                PlayerIndex := fNetPlayers.ServerToLocal(aSenderIndex);
+                //No need to vote more than once, and spectators don't get to vote
+                if not fNetPlayers[PlayerIndex].VotedYes and not fNetPlayers[PlayerIndex].IsSpectator then
+                begin
+                  fLastVoteTime := TimeGet;
+                  fNetPlayers[PlayerIndex].VotedYes := True;
+                  fNetPlayers.VoteActive := True;
+                  if fNetPlayers.FurtherVotesNeededForMajority <= 0 then
+                  begin
+                    PostMessage(TX_NET_VOTE_PASSED, csSystem, UnicodeString(fNetPlayers[PlayerIndex].NiknameColored));
+                    fNetPlayers.ResetVote;
+                    //This packet is also sent to ourself (host), we will return to lobby when it arrives
+                    PacketSend(NET_ADDRESS_ALL, mk_ReturnToLobby);
+                  end
+                  else
+                  begin
+                    PostMessage(TX_NET_VOTED, csSystem, UnicodeString(fNetPlayers[PlayerIndex].NiknameColored), IntToStr(fNetPlayers.FurtherVotesNeededForMajority));
+                    SendPlayerListAndRefreshPlayersSetup;
+                  end;
+                end;
               end;
 
       mk_TextTranslated:
@@ -2075,6 +2107,14 @@ begin
     if (GetTimeSince(fJoinTimeout) > JOIN_TIMEOUT) and not fEnteringPassword
     and (fReconnectRequested = 0) then
       if Assigned(fOnJoinFail) then fOnJoinFail(gResTexts[TX_NET_QUERY_TIMED_OUT]);
+  //Vote expiring
+  if (fNetGameState in [lgs_Loading, lgs_Game]) and IsHost
+  and fNetPlayers.VoteActive and (GetTimeSince(fLastVoteTime) > VOTE_TIMEOUT) then
+  begin
+    PostMessage(TX_NET_VOTE_FAILED, csSystem);
+    fNetPlayers.ResetVote;
+    SendPlayerListAndRefreshPlayersSetup;
+  end;
 end;
 
 
@@ -2106,7 +2146,6 @@ begin
   fNetGameState := lgs_Lobby;
   if IsHost then
   begin
-    PacketSend(NET_ADDRESS_OTHERS, mk_ReturnToLobby);
     NetPlayers.RemAllAIs; //AIs are included automatically when you start the save
     NetPlayers.RemDisconnectedPlayers; //Disconnected players must not be shown in lobby
     //Don't refresh player setup here since events aren't attached to lobby yet

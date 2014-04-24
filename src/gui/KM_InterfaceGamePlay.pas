@@ -1139,11 +1139,10 @@ begin
   Button_Menu_Load.Hint := gResTexts[TX_MENU_LOAD_GAME];
   Button_Menu_Load.Visible := not (fUIMode in [umMP, umSpectate]);
 
-  Button_Menu_ReturnLobby := TKMButton.Create(Panel_Menu, 0, 20, TB_WIDTH, 30, 'Return to lobby', bsGame);
+  Button_Menu_ReturnLobby := TKMButton.Create(Panel_Menu, 0, 20, TB_WIDTH, 30, gResTexts[TX_MENU_VOTE_RETURN_LOBBY], bsGame);
   Button_Menu_ReturnLobby.OnClick := ReturnToLobbyClick;
-  Button_Menu_ReturnLobby.Hint := 'Returns this room to the lobby. The game can then be resumed or changed';
+  Button_Menu_ReturnLobby.Hint := gResTexts[TX_MENU_VOTE_RETURN_LOBBY_HINT];
   Button_Menu_ReturnLobby.Visible := fUIMode in [umMP, umSpectate];
-  Button_Menu_ReturnLobby.Disable; //Will be enabled later when we are sure who is host
 
   Button_Menu_Save := TKMButton.Create(Panel_Menu, 0, 60, TB_WIDTH, 30, gResTexts[TX_MENU_SAVE_GAME], bsGame);
   Button_Menu_Save.OnClick := SwitchPage;
@@ -1857,7 +1856,7 @@ end;
 
 procedure TKMGamePlayInterface.ReturnToLobbyClick(Sender: TObject);
 begin
-  fGameApp.StopGameReturnToLobby(Self);
+  gGame.Networking.VoteReturnToLobby;
 end;
 
 
@@ -2473,7 +2472,10 @@ var
   I, NetI, LocaleID: Integer;
 begin
   Image_AlliesHostStar.Hide;
-  Button_Menu_ReturnLobby.Enabled := gGame.Networking.IsHost;
+  //Can't vote if we already have, and spectators don't get to vote
+  Button_Menu_ReturnLobby.Enabled := not gGame.Networking.NetPlayers[gGame.Networking.MyIndex].VotedYes
+                                 and not gGame.Networking.NetPlayers[gGame.Networking.MyIndex].IsSpectator;
+
   AlliesUpdateMapping;
   for I := 0 to MAX_LOBBY_SLOTS-1 do
   begin
