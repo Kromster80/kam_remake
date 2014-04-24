@@ -624,7 +624,8 @@ var
   end;
 
 begin
-  if aWoodStep = 0 then Exit;
+  //We cannot skip when WoodStep = 0 because building supply is rendered as a child.
+  //Instead RenderSpriteAlphaTest will skip rendering when WoodStep = 0
 
   R := fRXData[rxHouses];
 
@@ -1072,6 +1073,9 @@ procedure TRenderPool.RenderSpriteAlphaTest(
   aRX: TRXType; aId: Word; aWoodProgress: Single; pX, pY: Single;
   aId2: Word = 0; aStoneProgress: Single = 0; X2: Single = 0; Y2: Single = 0);
 begin
+  //Skip rendering if alphas are zero (occurs so non-started houses can still have child sprites)
+  if (aWoodProgress = 0) and (aStoneProgress = 0) then Exit;
+  
   glClear(GL_STENCIL_BUFFER_BIT);
 
   //Setup stencil mask
