@@ -710,24 +710,26 @@ begin
 
     SenderRoom := fClientList.GetByHandle(aHandle).Room;
 
-    case PacketRecipient of
-      NET_ADDRESS_OTHERS: //Transmit to all except sender
-          //Iterate backwards because sometimes calling Send results in ClientDisconnect (LNet only?)
-          for i:=fClientList.Count-1 downto 0 do
-              if (aHandle <> fClientList[i].Handle) and (SenderRoom = fClientList[i].Room) then
-                fServer.SendData(fClientList[i].Handle, @SenderClient.fBuffer[0], PacketLength+12);
-      NET_ADDRESS_ALL: //Transmit to all including sender (used mainly by TextMessages)
-              //Iterate backwards because sometimes calling Send results in ClientDisconnect (LNet only?)
-              for i:=fClientList.Count-1 downto 0 do
-                if SenderRoom = fClientList[i].Room then
+    //If sender from packet contents doesn't match the socket handle, don't process this packet (client trying to fake sender)
+    if PacketSender = aHandle then
+      case PacketRecipient of
+        NET_ADDRESS_OTHERS: //Transmit to all except sender
+            //Iterate backwards because sometimes calling Send results in ClientDisconnect (LNet only?)
+            for i:=fClientList.Count-1 downto 0 do
+                if (aHandle <> fClientList[i].Handle) and (SenderRoom = fClientList[i].Room) then
                   fServer.SendData(fClientList[i].Handle, @SenderClient.fBuffer[0], PacketLength+12);
-      NET_ADDRESS_HOST:
-              if SenderRoom <> -1 then
-                fServer.SendData(fRoomInfo[SenderRoom].HostHandle, @SenderClient.fBuffer[0], PacketLength+12);
-      NET_ADDRESS_SERVER:
-              RecieveMessage(PacketSender, @SenderClient.fBuffer[12], PacketLength);
-      else    fServer.SendData(PacketRecipient, @SenderClient.fBuffer[0], PacketLength+12);
-    end;
+        NET_ADDRESS_ALL: //Transmit to all including sender (used mainly by TextMessages)
+                //Iterate backwards because sometimes calling Send results in ClientDisconnect (LNet only?)
+                for i:=fClientList.Count-1 downto 0 do
+                  if SenderRoom = fClientList[i].Room then
+                    fServer.SendData(fClientList[i].Handle, @SenderClient.fBuffer[0], PacketLength+12);
+        NET_ADDRESS_HOST:
+                if SenderRoom <> -1 then
+                  fServer.SendData(fRoomInfo[SenderRoom].HostHandle, @SenderClient.fBuffer[0], PacketLength+12);
+        NET_ADDRESS_SERVER:
+                RecieveMessage(PacketSender, @SenderClient.fBuffer[12], PacketLength);
+        else    fServer.SendData(PacketRecipient, @SenderClient.fBuffer[0], PacketLength+12);
+      end;
 
     if 12+PacketLength < SenderClient.fBufferSize then //Check range
       Move(SenderClient.fBuffer[12+PacketLength], SenderClient.fBuffer[0], SenderClient.fBufferSize-PacketLength-12);
