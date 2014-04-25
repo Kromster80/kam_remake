@@ -698,10 +698,11 @@ begin
     //Do some simple range checking to try to detect when there is a serious error or flaw in the code (i.e. Random data in the buffer)
     if not (IsValidHandle(PacketRecipient) and IsValidHandle(PacketSender) and (PacketLength <= MAX_PACKET_SIZE)) then
     begin
-      //When we have a corrupt buffer from a client clear it so the next packet can be processed
-      Status('Warning: Corrupt data received from client '+IntToStr(aHandle));
+      //When we receive corrupt data kick the client since we have no way to recover (if in-game client will auto reconnect)
+      Status('Warning: Corrupt data received, kicking client '+IntToStr(aHandle));
       SenderClient.fBufferSize := 0;
       SetLength(SenderClient.fBuffer, 0);
+      fServer.Kick(aHandle);
       exit;
     end;
 
